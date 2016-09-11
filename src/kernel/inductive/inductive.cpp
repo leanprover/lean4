@@ -16,9 +16,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract_type_context.h"
 #include "kernel/inductive/inductive.h"
 
-
-/*
-   The implementation is based on the paper: "Inductive Families", Peter Dybjer, 1997
+/* The implementation is based on the paper: "Inductive Families", Peter Dybjer, 1997
    The main differences are:
       - Support for Prop (when environment is marked as impredicative)
       - Universe levels
@@ -26,72 +24,68 @@ Author: Leonardo de Moura
    The support for Prop is based on the paper: "Inductive Definitions in the System Coq: Rules and Properties",
    Christine Paulin-Mohring.
 
-   Given a sequence of universe levels parameters (m_level_names), each datatype decls have the form
-         I_k : (A :: \sigma) (a :: \alpha[A]), Type.{l_k}
-               I_k is the name of the k-th inductive datatype
-               A   is the sequence of global parameters (it must have size m_num_params)
-               a   is the sequence of indices
+   The kernel does not support mutually inductive types anymore. We simulate them using indexed families outside of the kernel.
 
-         remark: all mutually recursive inductive datatype decls must use the same sequence of global parameters.
+   Given a sequence of universe levels parameters (m_level_names), a datatype decl is of the form
+         I : (A :: \sigma) (a :: \alpha[A]), Type.{l_k}
+             I is the name of the k-th inductive datatype
+             A is the sequence of global parameters (it must have size m_num_params)
+             a is the sequence of indices
 
    Each inductive declaration has a sequence of introduction rules of the form
-         intro_k_i : (A :: \sigma) (b :: \beta[A]) (u :: \gama[A, b]), I_k A p[A, b]
+         intro_i : (A :: \sigma) (b :: \beta[A]) (u :: \gama[A, b]), I A p[A, b]
                A is the sequence of global parameters (it must have size m_num_params)
-               b is the sequence of non-recursive arguments (i.e., they do not include any I_k)
-               u is the sequence of recursive arguments (they contain positive occurrences of I_j, j is not necessarily equal to k)
+               b is the sequence of non-recursive arguments (i.e., they do not include any I)
+               u is the sequence of recursive arguments (they contain positive occurrences of I
          each u_i, in the sequence u, is of the form
-               x :: \Epsilon[A, b], I_j A p_i[A, b, x]
+               x :: \Epsilon[A, b], I A p_i[A, b, x]
 
          Again, all introduction rules must have the same sequence of global parameters
 
-   The universe levels of arguments b and u must be smaller than or equal to l_k in I_k.
+   The universe levels of arguments b and u must be smaller than or equal to l_k in I.
 
    When the environment is marked as impredicative, then l_k must be 0 (Prop) or must be different from zero for
    any instantiation of the universe level parameters (and global level parameters).
 
-   This module produces an eliminator/recursor for each inductive datatype I_k, it has the form.
+   This module produces an eliminator/recursor for the inductive datatype I.
    The eliminator has an extra univese level parameter when
           1- Type.{0} is not impredicative in the given environment
           2- l_k is never zero (for any universe level assignment)
           3- There is only one introduction rule
    Let l' be this extra universe level, in the following rules, and 0 if none of the conditions above hold.
 
-        elim_k : (A :: \sigma)
-                 (C :: (a :: \alpha[A]) (c : I_k A a), Type.{l'})
-                 (e :: \epsilon[A])
-                 (a :: \alpha[A])
-                 (n :: I_k A a),
-               C_k a n
+        elim : (A :: \sigma)
+               (C :: (a :: \alpha[A]) (c : I A a), Type.{l'})
+               (e :: \epsilon[A])
+               (a :: \alpha[A])
+               (n :: I A a),
+             C_k a n
 
           A is the sequence of global parameters
-          C is the sequence of type formers. The size of the sequence is equal to the number of inductive datatype beging declared.
-             We say C_k is the type former for I_k
+          C is a type former (aka the motive).
           e is the sequence of minor premises. The size of the sequence is equal to the sum of the length of all introduction rules.
-          a is the sequence of indices, it is equal to sequence occurring in I_k
+          a is the sequence of indices, it is equal to sequence occurring in I
           n is the major premise
 
-    The minor premise e_i_j : \epsilon_i_j[A] in (e:: \epsilon[A]) corresponds to the j-th introduction rule in the inductive
-    datatype I_i.
+    The minor premise e_j : \epsilon_j[A] in (e:: \epsilon[A]) corresponds to the j-th introduction rule in the inductive
+    datatype I.
 
-       \epsilon_i_j[A] : (b :: \beta[A]) (u :: \gama[A, b]) (v :: \delta[A, b]), C_i p[A, b] intro_i_j A b u
+       \epsilon_j[A] : (b :: \beta[A]) (u :: \gama[A, b]) (v :: \delta[A, b]), C p[A, b] intro_j A b u
 
-           b and u are the corresponding arguments in intro_i_j. \delta[A, b] has the same length of \gama[A, b],
-           and \delta_i[A, b] is
-                       (x :: \Epsilon_i[A, b]), C_j p_i[A, b, x] (u_i x)
-           C_j corresponds to the I_j used in u_i
+           b and u are the corresponding arguments in intro_j. \delta[A, b] has the same length of \gama[A, b],
+           and \delta[A, b] is (x :: \Epsilon[A, b]), C p[A, b, x] (u x)
+
 
      When the environment is impredicative and l_k is zero, then we use nondependent elimination, and we omit
      the argument c in C, and v in the minor premises. That is, C becomes
             (C :: (a :: \alpha[A]), Type.{l'})
      and \epsilon_i_j[A]
-            \epsilon_i_j[A] : (b :: \beta[A]) (u :: \gama[A, b]), C_i p[A, b]
-
+            \epsilon_i_j[A] : (b :: \beta[A]) (u :: \gama[A, b]), C p[A, b]
 
      Finally, this module also generate computational rules for the extended normalizer. Actually, we only generate
      the right hand side for the rules. They have the form
 
-        Fun (A, C, e, b, u), elim_k A C e p[A,b] (intro_k_i A b u) ==>
-               Fun (A, C, e, b, u), (e_k_i b u v)
+        Fun (A, C, e, b, u), elim A C e p[A,b] (intro_i A b u) ==> Fun (A, C, e, b, u), (e_i b u v)
 */
 namespace lean {
 namespace inductive {
@@ -104,7 +98,7 @@ struct inductive_env_ext : public environment_extension {
         name              m_inductive_name; // name of the inductive datatype associated with eliminator
         level_param_names m_level_names; // level parameter names used in computational rule
         unsigned          m_num_params;  // number of global parameters A
-        unsigned          m_num_ACe;     // sum of number of global parameters A, type formers C, and minor preimises e.
+        unsigned          m_num_ACe;     // sum of number of global parameters A, type former C, and minor preimises e.
         unsigned          m_num_indices; // number of inductive datatype indices
         /** \brief We support K-like reduction when the inductive datatype is in Type.{0} (aka Prop), proof irrelevance
             is enabled, it has only one introduction rule, the introduction rule has "0 arguments".
@@ -114,8 +108,7 @@ struct inductive_env_ext : public environment_extension {
             refl : eq a a
 
             satisfies these requirements when proof irrelevance is enabled.
-            Another example is heterogeneous equality.
-        */
+            Another example is heterogeneous equality. */
         bool              m_K_target;
         /** \brief m_dep_elim == true, if dependent elimination is used for this eliminator */
         bool              m_dep_elim;
@@ -144,7 +137,7 @@ struct inductive_env_ext : public environment_extension {
     name_map<comp_rule>             m_comp_rules;
     // mapping from intro rule to datatype
     name_map<name>                  m_intro_info;
-    name_map<inductive_decls>       m_inductive_info;
+    name_map<inductive_decl>        m_inductive_info;
 
     inductive_env_ext() {}
 
@@ -162,10 +155,8 @@ struct inductive_env_ext : public environment_extension {
         m_intro_info.insert(ir_name, id_name);
     }
 
-    void add_inductive_info(level_param_names const & ps, unsigned num_params, list<inductive_decl> const & ds) {
-        inductive_decls decls(ps, num_params, ds);
-        for (auto const & d : ds)
-            m_inductive_info.insert(inductive_decl_name(d), decls);
+    void add_inductive_info(inductive_decl const & d) {
+        m_inductive_info.insert(d.m_name, d);
     }
 };
 
@@ -200,56 +191,36 @@ environment certified_inductive_decl::add_constant(environment const & env, name
 }
 
 environment certified_inductive_decl::add_core(environment const & env, bool update_ext_only) const {
-    lean_assert(m_decl_data);
-    lean_assert(length(m_decl_data) == length(m_elim_types));
     environment new_env = env;
     inductive_env_ext ext(get_extension(new_env));
-    level_param_names levels = m_levels;
-    if (!m_elim_prop)
-        levels = tail(levels);
     // declare inductive types
-    for (data const & dt : m_decl_data) {
-        inductive_decl const & d = dt.m_decl;
-        if (!update_ext_only)
-            new_env = add_constant(new_env, inductive_decl_name(d), levels, inductive_decl_type(d));
-        ext.add_inductive_info(levels, m_num_params, map2<inductive_decl>(m_decl_data, [](data const & d) -> inductive_decl { return d.m_decl; }));
-    }
+    if (!update_ext_only)
+        new_env = add_constant(new_env, m_decl.m_name, m_decl.m_level_params, m_decl.m_type);
+    ext.add_inductive_info(m_decl);
     // declare introduction rules
-    for (data const & dt : m_decl_data) {
-        inductive_decl const & d = dt.m_decl;
-        for (auto ir : inductive_decl_intros(d)) {
-            if (!update_ext_only)
-                new_env = add_constant(new_env, intro_rule_name(ir), levels, intro_rule_type(ir));
-            ext.add_intro_info(intro_rule_name(ir), inductive_decl_name(d));
-        }
+    for (auto ir : m_decl.m_intro_rules) {
+        if (!update_ext_only)
+            new_env = add_constant(new_env, intro_rule_name(ir), m_decl.m_level_params, intro_rule_type(ir));
+        ext.add_intro_info(intro_rule_name(ir), m_decl.m_name);
     }
     // declare elimination rules
-    list<expr> types = m_elim_types;
-    for (data const & dt : m_decl_data) {
-        inductive_decl const & d = dt.m_decl;
-        name elim_name = get_elim_name(inductive_decl_name(d));
-        if (!update_ext_only)
-            new_env = add_constant(new_env, elim_name, m_levels, head(types));
-        ext.add_elim(elim_name, inductive_decl_name(d), m_levels, m_num_params,
-                     m_num_ACe, dt.m_num_indices, dt.m_K_target, m_dep_elim);
-        lean_assert(length(inductive_decl_intros(d)) == length(dt.m_comp_rules));
-        list<comp_rule> rules = dt.m_comp_rules;
-        for (auto ir : inductive_decl_intros(d)) {
-            comp_rule const & rule = head(rules);
-            ext.add_comp_rhs(intro_rule_name(ir), elim_name, rule.m_num_bu, rule.m_comp_rhs);
-            rules = tail(rules);
-        }
-        types = tail(types);
+    name elim_name = get_elim_name(m_decl.m_name);
+    if (!update_ext_only)
+        new_env = add_constant(new_env, elim_name, m_elim_levels, m_elim_type);
+    ext.add_elim(elim_name, m_decl.m_name, m_elim_levels, m_decl.m_num_params,
+                 m_num_ACe, m_num_indices, m_K_target, m_dep_elim);
+    list<comp_rule> rules = m_comp_rules;
+    for (auto ir : m_decl.m_intro_rules) {
+        comp_rule const & rule = head(rules);
+        ext.add_comp_rhs(intro_rule_name(ir), elim_name, rule.m_num_bu, rule.m_comp_rhs);
+        rules = tail(rules);
     }
     return update(new_env, ext);
 }
 
 environment certified_inductive_decl::add(environment const & env) const {
     if (env.trust_lvl() == 0) {
-        level_param_names levels = m_levels;
-        if (!m_elim_prop)
-            levels = tail(levels);
-        return add_inductive(env, levels, m_num_params, map2<inductive_decl>(m_decl_data, [](data const & d) -> inductive_decl { return d.m_decl; })).first;
+        return add_inductive(env, m_decl).first;
     } else {
         return add_core(env, false);
     }
@@ -259,24 +230,21 @@ environment certified_inductive_decl::add(environment const & env) const {
 struct add_inductive_fn {
     typedef std::unique_ptr<type_checker> type_checker_ptr;
     environment          m_env;
-    level_param_names    m_level_names;  // universe level parameters
-    unsigned             m_num_params;
-    list<inductive_decl> m_decls;
+    inductive_decl       m_decl;
     // when kernel sets Type.{0} as impredicative, then
     // we track whether the resultant universe cannot be zero for any
     // universe level instantiation
     bool                 m_is_not_zero;
-    unsigned             m_decls_sz;     // length(m_decls)
-    list<level>          m_levels;       // m_level_names ==> m_levels
+    list<level>          m_levels;       // m_decl.m_level_params ==> m_levels
     type_checker_ptr     m_tc;
 
     level                m_elim_level;   // extra universe level for eliminator.
     bool                 m_dep_elim;     // true if using dependent elimination
 
     buffer<expr>         m_param_consts; // local constants used to represent global parameters
-    buffer<level>        m_it_levels;    // the levels for each inductive datatype in m_decls
-    buffer<expr>         m_it_consts;    // the constants for each inductive datatype in m_decls
-    buffer<unsigned>     m_it_num_args;  // total number of arguments (params + indices) for each inductive datatype in m_decls
+    level                m_it_level;     // resultant level
+    expr                 m_it_const;     // the constants for inductive datatype
+    unsigned             m_it_num_args;  // number of arguments (params + indices) for inductive datatype
 
     struct elim_info {
         expr             m_C;              // type former constant
@@ -286,21 +254,15 @@ struct add_inductive_fn {
         bool             m_K_target;
         elim_info():m_K_target(false) {}
     };
-    buffer<elim_info>    m_elim_info; // for each datatype being declared
+    elim_info            m_elim_info; // for datatype being declared
 
-    add_inductive_fn(environment                  env,
-                     level_param_names const &    level_params,
-                     unsigned                     num_params,
-                     list<inductive_decl> const & decls):
-        m_env(env), m_level_names(level_params), m_num_params(num_params), m_decls(decls),
+    add_inductive_fn(environment            env,
+                     inductive_decl const & decl):
+        m_env(env), m_decl(decl),
         m_tc(new type_checker(m_env, true, false)) {
         m_is_not_zero = false;
-        m_decls_sz    = length(m_decls);
-        m_levels      = param_names_to_levels(level_params);
+        m_levels      = param_names_to_levels(decl.m_level_params);
     }
-
-    /** \brief Return the number of inductive datatypes being defined. */
-    unsigned get_num_its() const { return m_decls_sz; }
 
     /** \brief Make sure the latest environment is being used by m_tc. */
     void updt_type_checker() {
@@ -318,100 +280,65 @@ struct add_inductive_fn {
     /** \brief Return type of the i-th global parameter. */
     expr get_param_type(unsigned i) { return mlocal_type(m_param_consts[i]); }
 
-     /**
-       \brief Check if the type of datatypes is well typed, all inductive datatypes have the same parameters,
-       and the number of parameters match the argument num_params.
+    /** \brief Check if the type of datatype is well typed,
+        and the number of parameters match the argument num_params.
 
-       This method also populates the fields m_param_consts, m_it_levels, m_it_consts.
-    */
-    void check_inductive_types() {
-        bool first   = true;
-        for (auto d : m_decls) {
-            expr t = inductive_decl_type(d);
-            tc().check(t, m_level_names);
-            unsigned i  = 0;
-            m_it_num_args.push_back(0);
-            while (is_pi(t)) {
-                if (i < m_num_params) {
-                    if (first) {
-                        expr l = mk_local_for(t);
-                        m_param_consts.push_back(l);
-                        t = instantiate(binding_body(t), l);
-                    } else {
-                        if (!is_def_eq(binding_domain(t), get_param_type(i)))
-                            throw kernel_exception(m_env, "parameters of all inductive datatypes must match");
-                        t = instantiate(binding_body(t), m_param_consts[i]);
-                    }
-                    i++;
-                } else {
-                    t = binding_body(t);
-                }
-                m_it_num_args.back()++;
+        This method also populates the fields m_param_consts, m_it_level, m_it_const. */
+    void check_inductive_type() {
+        expr t       = m_decl.m_type;
+        tc().check(t, m_decl.m_level_params);
+        unsigned i    = 0;
+        m_it_num_args = 0;
+        while (is_pi(t)) {
+            if (i < m_decl.m_num_params) {
+                expr l = mk_local_for(t);
+                m_param_consts.push_back(l);
+                t = instantiate(binding_body(t), l);
+                i++;
+            } else {
+                t = binding_body(t);
             }
-            if (i != m_num_params)
-                throw kernel_exception(m_env, "number of parameters mismatch in inductive datatype declaration");
-            t = tc().ensure_sort(t);
-            if (m_env.impredicative()) {
-                // If the environment is impredicative, we track whether the resultant universe
-                // is never zero (under any parameter assignment).
-                // TODO(Leo): when the resultant universe may be 0 and not zero depending on parameter assignment,
-                // we may generate two recursors: one when it is 0, and another one when it is not.
-                if (first) {
-                    m_is_not_zero = is_not_zero(sort_level(t));
-                } else {
-                    if (is_not_zero(sort_level(t)) != m_is_not_zero)
-                        throw kernel_exception(m_env,
-                                               "for impredicative environments, if one datatype is in Prop, "
-                                               "then all of them must be in Prop");
-                }
-            }
-            m_it_levels.push_back(sort_level(t));
-            m_it_consts.push_back(mk_constant(inductive_decl_name(d), m_levels));
-            first = false;
+            m_it_num_args++;
         }
+        if (i != m_decl.m_num_params)
+            throw kernel_exception(m_env, "number of parameters mismatch in inductive datatype declaration");
+        t = tc().ensure_sort(t);
+        if (m_env.impredicative()) {
+            // If the environment is impredicative, we track whether the resultant universe
+            // is never zero (under any parameter assignment).
+            // TODO(Leo): when the resultant universe may be 0 and not zero depending on parameter assignment,
+            // we may generate two recursors: one when it is 0, and another one when it is not.
+            m_is_not_zero = is_not_zero(sort_level(t));
+        }
+        m_it_level = sort_level(t);
+        m_it_const = mk_constant(m_decl.m_name, m_levels);
     }
 
     /** \brief Add all datatype declarations to environment. */
-    void declare_inductive_types() {
-        for (auto d : m_decls) {
-            m_env = m_env.add(check(m_env, mk_constant_assumption_inferring_trusted(m_env, inductive_decl_name(d),
-                                                                                    m_level_names, inductive_decl_type(d))));
-        }
+    void declare_inductive_type() {
+        m_env = m_env.add(check(m_env, mk_constant_assumption_inferring_trusted(m_env, m_decl.m_name,
+                                                                                m_decl.m_level_params, m_decl.m_type)));
         updt_type_checker();
     }
 
-    /**
-        \brief Return true iff \c t is a term of ther form
-             (I As t)
-        where I is the d_idx inductive datatype being declared and
-        As are the global parameters of this declaration.
-    */
-    bool is_valid_it_app(expr const & t, unsigned d_idx) {
+    /** \brief Return true iff \c t is a term of the form (I As t)
+        where I is the inductive datatype being defined, and As are the
+        global parameters of this declaration. */
+    bool is_valid_it_app(expr const & t) {
         buffer<expr> args;
         expr I = get_app_args(t, args);
-        if (!is_def_eq(I, m_it_consts[d_idx]) || args.size() != m_it_num_args[d_idx])
+        if (!is_def_eq(I, m_it_const) || args.size() != m_it_num_args)
             return false;
-        for (unsigned i = 0; i < m_num_params; i++) {
+        for (unsigned i = 0; i < m_decl.m_num_params; i++) {
             if (m_param_consts[i] != args[i])
                 return false;
         }
         return true;
     }
 
-    /** \brief Return some(i) iff \c t is a valid occurrence of the i-th datatype being defined. */
-    optional<unsigned> is_valid_it_app(expr const & t) {
-        for (unsigned i = 0; i < get_num_its(); i++) {
-            if (is_valid_it_app(t, i))
-                return optional<unsigned>(i);
-        }
-        return optional<unsigned>();
-    }
-
-    /** \brief Return true iff \c e is one of the inductive datatype being declared. */
+    /** \brief Return true iff \c e is the inductive datatype being declared. */
     bool is_it_occ(expr const & e) {
-        return
-            is_constant(e) &&
-            std::any_of(m_it_consts.begin(), m_it_consts.end(), [&](expr const & c) { return const_name(e) == const_name(c); });
+        return is_constant(e) && const_name(e) == const_name(m_it_const);
     }
 
     /** \brief Return true if \c t does not contain any occurrence of a datatype being declared. */
@@ -419,11 +346,9 @@ struct add_inductive_fn {
         return (bool)find(t, [&](expr const & e, unsigned) { return is_it_occ(e); }); // NOLINT
     }
 
-    /**
-        \brief Return some(d_idx) iff \c t is a recursive argument, \c d_idx is the index of the recursive inductive datatype.
-        Return none otherwise.
-    */
-    optional<unsigned> is_rec_argument(expr t) {
+    /** \brief Return some(d_idx) iff \c t is a recursive argument, \c d_idx is the index of the recursive inductive datatype.
+        Return none otherwise. */
+    bool is_rec_argument(expr t) {
         t = whnf(t);
         while (is_pi(t))
             t = whnf(instantiate(binding_body(t), mk_local_for(t)));
@@ -448,19 +373,16 @@ struct add_inductive_fn {
         }
     }
 
-    /**
-       \brief Check the intro_rule \c ir of the given inductive decl. \c d_idx is the position of \c d in m_decls.
-
-       \see check_intro_rules
-    */
-    void check_intro_rule(unsigned d_idx, intro_rule const & ir) {
+    /** \brief Check the intro_rule \c ir.
+        \see check_intro_rules */
+    void check_intro_rule(intro_rule const & ir) {
         expr t = intro_rule_type(ir);
         name n = intro_rule_name(ir);
-        tc().check(t, m_level_names);
+        tc().check(t, m_decl.m_level_params);
         unsigned i     = 0;
         bool found_rec = false;
         while (is_pi(t)) {
-            if (i < m_num_params) {
+            if (i < m_decl.m_num_params) {
                 if (!is_def_eq(binding_domain(t), get_param_type(i)))
                     throw kernel_exception(m_env, sstream() << "arg #" << (i + 1) << " of '" << n << "' "
                                            << "does not match inductive datatypes parameters'");
@@ -470,7 +392,7 @@ struct add_inductive_fn {
                 // the sort is ok IF
                 //   1- its level is <= inductive datatype level, OR
                 //   2- m_env is impredicative and inductive datatype is at level 0
-                if (!(is_geq(m_it_levels[d_idx], sort_level(s)) || (is_zero(m_it_levels[d_idx]) && m_env.impredicative())))
+                if (!(is_geq(m_it_level, sort_level(s)) || (is_zero(m_it_level) && m_env.impredicative())))
                     throw kernel_exception(m_env, sstream() << "universe level of type_of(arg #" << (i + 1) << ") "
                                            << "of '" << n << "' is too big for the corresponding inductive datatype");
                 check_positivity(binding_domain(t), n, i);
@@ -491,51 +413,41 @@ struct add_inductive_fn {
             }
             i++;
         }
-        if (!is_valid_it_app(t, d_idx))
+        if (!is_valid_it_app(t))
             throw kernel_exception(m_env, sstream() << "invalid return type for '" << n << "'");
     }
 
-    /**
-        \brief Check if
-           - all introduction rules start with the same parameters
-           - the type of all arguments (which are not datatype global params) live in universes <= level of the corresponding datatype
-           - all inductive datatype occurrences are positive
-           - all introduction rules are well typed
+    /** \brief Check if
+        - all introduction rules start with the same parameters
+        - the type of all arguments (which are not datatype global params) live in universes <= level of the corresponding datatype
+        - inductive datatype occurrences are positive
+        - all introduction rules are well typed
 
-        \remark this method must be executed after declare_inductive_types
-    */
+        \remark this method must be executed after declare_inductive_types */
     void check_intro_rules() {
-        unsigned i = 0;
-        for (auto d : m_decls) {
-            for (auto ir : inductive_decl_intros(d))
-                check_intro_rule(i, ir);
-            i++;
-        }
+        for (auto ir : m_decl.m_intro_rules)
+            check_intro_rule(ir);
     }
 
     /** \brief Add all introduction rules (aka constructors) to environment. */
     void declare_intro_rules() {
-        for (auto d : m_decls) {
-            for (auto ir : inductive_decl_intros(d)) {
-                m_env = m_env.add(check(m_env, mk_constant_assumption_inferring_trusted(m_env, intro_rule_name(ir),
-                                                                                        m_level_names, intro_rule_type(ir))));
-            }
+        for (auto ir : m_decl.m_intro_rules) {
+            m_env = m_env.add(check(m_env, mk_constant_assumption_inferring_trusted(m_env, intro_rule_name(ir),
+                                                                                    m_decl.m_level_params, intro_rule_type(ir))));
         }
         updt_type_checker();
     }
 
-    /** \brief Return true if type formers C in the recursors can only map to Type.{0} */
+    /** \brief Return true if type former C in the recursor can only map to Type.{0} */
     bool elim_only_at_universe_zero() {
         if (!m_env.impredicative() || m_is_not_zero) {
             // If Type.{0} is not impredicative or the resultant inductive datatype is not in Type.{0},
             // then the recursor may return Type.{l} where l is a universe level parameter.
             return false;
         }
-        if (get_num_its() > 1)
-            return true; // we don't consider mutually recursive datatypes for propositions
-        unsigned num_intros = length(inductive_decl_intros(head(m_decls)));
+        unsigned num_intros = length(m_decl.m_intro_rules);
         if (num_intros > 1) {
-            // If we have more than one introduction rule, then yes, the type formers can only
+            // If we have more than one introduction rule, then yes, the type former can only
             // map to Type.{0}
             return true;
         }
@@ -549,13 +461,13 @@ struct add_inductive_fn {
         //  2- It must occur in the return type. (this is essentially what is called a non-uniform parameter in Coq).
         //     We can justify 2 by observing that this information is not a *secret* it is part of the type.
         //     By eliminating to a non-proposition, we would not be revealing anything that is not already known.
-        auto ir    = head(inductive_decl_intros(head(m_decls)));
+        auto ir    = head(m_decl.m_intro_rules);
         expr t     = intro_rule_type(ir);
         unsigned i = 0;
         buffer<expr> to_check; // arguments that we must check if occur in the result type
         while (is_pi(t)) {
             expr local = mk_local_for(t);
-            if (i >= m_num_params) {
+            if (i >= m_decl.m_num_params) {
                 expr s = ensure_type(binding_domain(t));
                 if (!is_zero(sort_level(s))) {
                     // Current argument is not in Type.{0} (i.e., condition 1 failed).
@@ -584,7 +496,7 @@ struct add_inductive_fn {
         } else {
             name l("l");
             int i = 1;
-            while (std::find(m_level_names.begin(), m_level_names.end(), l) != m_level_names.end()) {
+            while (std::find(m_decl.m_level_params.begin(), m_decl.m_level_params.end(), l) != m_decl.m_level_params.end()) {
                 l = name("l").append_after(i);
                 i++;
             }
@@ -594,140 +506,123 @@ struct add_inductive_fn {
 
     /** \brief Initialize m_dep_elim flag. */
     void set_dep_elim() {
-        if (m_env.impredicative() && m_env.prop_proof_irrel() && is_zero(m_it_levels[0]))
+        if (m_env.impredicative() && m_env.prop_proof_irrel() && is_zero(m_it_level))
             m_dep_elim = false;
         else
             m_dep_elim = true;
     }
 
-    /**
-        \brief Given t of the form (I As is) where I is one of the inductive datatypes being defined,
+    /** \brief Given t of the form (I As is) where I is the inductive datatypes being defined,
         As are the global parameters, and is the actual indices provided to it.
-        Return the index of I, and store is in the argument \c indices.
-    */
-    unsigned get_I_indices(expr const & t, buffer<expr> & indices) {
-        optional<unsigned> r = is_valid_it_app(t);
-        lean_assert(r);
+        Store `is` in the argument \c indices. */
+    void get_I_indices(expr const & t, buffer<expr> & indices) {
+        lean_assert(is_valid_it_app(t));
         buffer<expr> all_args;
         get_app_args(t, all_args);
-        for (unsigned i = m_num_params; i < all_args.size(); i++)
+        for (unsigned i = m_decl.m_num_params; i < all_args.size(); i++)
             indices.push_back(all_args[i]);
-        return *r;
     }
 
     /** \brief Populate m_elim_info. */
     void mk_elim_info() {
-        unsigned d_idx = 0;
         // First, populate the fields, m_C, m_indices, m_major_premise
-        for (auto d : m_decls) {
-            elim_info info;
-            expr t     = inductive_decl_type(d);
+        expr t     = m_decl.m_type;
+        unsigned i = 0;
+        while (is_pi(t)) {
+            if (i < m_decl.m_num_params) {
+                t = instantiate(binding_body(t), m_param_consts[i]);
+            } else {
+                expr c = mk_local_for(t);
+                m_elim_info.m_indices.push_back(c);
+                t = instantiate(binding_body(t), c);
+            }
+            i++;
+        }
+        m_elim_info.m_major_premise = mk_local(mk_fresh_name(), "n",
+                                               mk_app(mk_app(m_it_const, m_param_consts), m_elim_info.m_indices), binder_info());
+        expr C_ty = mk_sort(m_elim_level);
+        if (m_dep_elim)
+            C_ty = Pi(m_elim_info.m_major_premise, C_ty);
+        C_ty = Pi(m_elim_info.m_indices, C_ty);
+        name C_name("C");
+        m_elim_info.m_C = mk_local(mk_fresh_name(), C_name, C_ty, binder_info());
+
+        // Populate the field m_minor_premises
+        unsigned minor_idx = 1;
+        // A declaration is target for K-like reduction when
+        // it has one intro, the intro has 0 arguments, proof irrelevance is enabled,
+        // and it is a proposition.
+        // In the following for-loop we check if the intro rule
+        // has 0 arguments.
+        bool is_K_target =
+            m_env.prop_proof_irrel() &&        // Proof irrelevance is enabled
+            is_zero(m_it_level) &&             // It is a Prop
+            length(m_decl.m_intro_rules) == 1; // datatype has only one intro rule
+        for (auto ir : m_decl.m_intro_rules) {
+            buffer<expr> b; // nonrec args
+            buffer<expr> u; // rec args
+            buffer<expr> v; // inductive args
+            expr t     = intro_rule_type(ir);
             unsigned i = 0;
             while (is_pi(t)) {
-                if (i < m_num_params) {
+                if (i < m_decl.m_num_params) {
                     t = instantiate(binding_body(t), m_param_consts[i]);
                 } else {
-                    expr c = mk_local_for(t);
-                    info.m_indices.push_back(c);
-                    t = instantiate(binding_body(t), c);
+                    is_K_target = false; // See comment before for-loop.
+                    expr l = mk_local_for(t);
+                    if (!is_rec_argument(binding_domain(t)))
+                        b.push_back(l);
+                    else
+                        u.push_back(l);
+                    t = instantiate(binding_body(t), l);
                 }
                 i++;
             }
-            info.m_major_premise = mk_local(mk_fresh_name(), "n",
-                                            mk_app(mk_app(m_it_consts[d_idx], m_param_consts), info.m_indices), binder_info());
-            expr C_ty = mk_sort(m_elim_level);
-            if (m_dep_elim)
-                C_ty = Pi(info.m_major_premise, C_ty);
-            C_ty = Pi(info.m_indices, C_ty);
-            name C_name("C");
-            if (get_num_its() > 1)
-                C_name = name(C_name).append_after(d_idx+1);
-            info.m_C = mk_local(mk_fresh_name(), C_name, C_ty, binder_info());
-            m_elim_info.push_back(info);
-            d_idx++;
-        }
-        // First, populate the field m_minor_premises
-        unsigned minor_idx = 1;
-        d_idx = 0;
-        for (auto d : m_decls) {
-            // A declaration is target for K-like reduction when
-            // it has one intro, the intro has 0 arguments, proof irrelevance is enabled,
-            // and it is a proposition.
-            // In the following for-loop we check if the intro rule
-            // has 0 arguments.
-            bool is_K_target =
-                m_env.prop_proof_irrel() &&  // Proof irrelevance is enabled
-                is_zero(m_it_levels[d_idx]) &&   // It a Prop
-                length(inductive_decl_intros(d)) == 1; // datatype has only one intro rule
-            for (auto ir : inductive_decl_intros(d)) {
-                buffer<expr> b; // nonrec args
-                buffer<expr> u; // rec args
-                buffer<expr> v; // inductive args
-                expr t     = intro_rule_type(ir);
-                unsigned i = 0;
-                while (is_pi(t)) {
-                    if (i < m_num_params) {
-                        t = instantiate(binding_body(t), m_param_consts[i]);
-                    } else {
-                        is_K_target = false; // See comment before for-loop.
-                        expr l = mk_local_for(t);
-                        if (!is_rec_argument(binding_domain(t)))
-                            b.push_back(l);
-                        else
-                            u.push_back(l);
-                        t = instantiate(binding_body(t), l);
-                    }
-                    i++;
+            buffer<expr> it_indices;
+            get_I_indices(t, it_indices);
+            expr C_app      = mk_app(m_elim_info.m_C, it_indices);
+            if (m_dep_elim) {
+                expr intro_app  = mk_app(mk_app(mk_app(mk_constant(intro_rule_name(ir), m_levels), m_param_consts), b), u);
+                C_app = mk_app(C_app, intro_app);
+            }
+            // populate v using u
+            for (unsigned i = 0; i < u.size(); i++) {
+                expr u_i    = u[i];
+                expr u_i_ty = whnf(mlocal_type(u_i));
+                buffer<expr> xs;
+                while (is_pi(u_i_ty)) {
+                    expr x = mk_local_for(u_i_ty);
+                    xs.push_back(x);
+                    u_i_ty = whnf(instantiate(binding_body(u_i_ty), x));
                 }
                 buffer<expr> it_indices;
-                unsigned it_idx = get_I_indices(t, it_indices);
-                expr C_app      = mk_app(m_elim_info[it_idx].m_C, it_indices);
+                get_I_indices(u_i_ty, it_indices);
+                expr C_app  = mk_app(m_elim_info.m_C, it_indices);
                 if (m_dep_elim) {
-                    expr intro_app  = mk_app(mk_app(mk_app(mk_constant(intro_rule_name(ir), m_levels), m_param_consts), b), u);
-                    C_app = mk_app(C_app, intro_app);
+                    expr u_app  = mk_app(u_i, xs);
+                    C_app = mk_app(C_app, u_app);
                 }
-                // populate v using u
-                for (unsigned i = 0; i < u.size(); i++) {
-                    expr u_i    = u[i];
-                    expr u_i_ty = whnf(mlocal_type(u_i));
-                    buffer<expr> xs;
-                    while (is_pi(u_i_ty)) {
-                        expr x = mk_local_for(u_i_ty);
-                        xs.push_back(x);
-                        u_i_ty = whnf(instantiate(binding_body(u_i_ty), x));
-                    }
-                    buffer<expr> it_indices;
-                    unsigned it_idx = get_I_indices(u_i_ty, it_indices);
-                    expr C_app  = mk_app(m_elim_info[it_idx].m_C, it_indices);
-                    if (m_dep_elim) {
-                        expr u_app  = mk_app(u_i, xs);
-                        C_app = mk_app(C_app, u_app);
-                    }
-                    expr v_i_ty = Pi(xs, C_app);
-                    expr v_i    = mk_local(mk_fresh_name(), name("v").append_after(i), v_i_ty, binder_info());
-                    v.push_back(v_i);
-                }
-                expr minor_ty = Pi(b, Pi(u, Pi(v, C_app)));
-                expr minor = mk_local(mk_fresh_name(), name("e").append_after(minor_idx), minor_ty, binder_info());
-                m_elim_info[d_idx].m_minor_premises.push_back(minor);
-                minor_idx++;
+                expr v_i_ty = Pi(xs, C_app);
+                expr v_i    = mk_local(mk_fresh_name(), name("v").append_after(i), v_i_ty, binder_info());
+                v.push_back(v_i);
             }
-            m_elim_info[d_idx].m_K_target = is_K_target;
-            d_idx++;
+            expr minor_ty = Pi(b, Pi(u, Pi(v, C_app)));
+            expr minor = mk_local(mk_fresh_name(), name("e").append_after(minor_idx), minor_ty, binder_info());
+            m_elim_info.m_minor_premises.push_back(minor);
+            minor_idx++;
         }
+        m_elim_info.m_K_target = is_K_target;
     }
 
-    /** \brief Return the name of the eliminator/recursor for \c d. */
-    name get_elim_name(inductive_decl const & d) { return ::lean::inductive::get_elim_name(inductive_decl_name(d)); }
-
-    name get_elim_name(unsigned d_idx) { return get_elim_name(get_ith(m_decls, d_idx)); }
+    /** \brief Return the name of the eliminator/recursor for the type being defined . */
+    name get_elim_name() { return ::lean::inductive::get_elim_name(m_decl.m_name); }
 
     /** \brief Return the level parameter names for the eliminator. */
     level_param_names get_elim_level_param_names() {
         if (is_param(m_elim_level))
-            return level_param_names(param_id(m_elim_level), m_level_names);
+            return level_param_names(param_id(m_elim_level), m_decl.m_level_params);
         else
-            return m_level_names;
+            return m_decl.m_level_params;
     }
 
     /** \brief Return the levels for the eliminator application. */
@@ -739,148 +634,108 @@ struct add_inductive_fn {
     }
 
     /** \brief Declare elimination rule. */
-    expr declare_elim_rule(inductive_decl const & d, unsigned d_idx) {
-        elim_info const & info = m_elim_info[d_idx];
+    expr declare_elim_rule_core() {
+        elim_info const & info = m_elim_info;
         expr C_app   = mk_app(info.m_C, info.m_indices);
         if (m_dep_elim)
             C_app = mk_app(C_app, info.m_major_premise);
         expr elim_ty = Pi(info.m_major_premise, C_app);
-        elim_ty   = Pi(info.m_indices, elim_ty);
+        elim_ty      = Pi(info.m_indices, elim_ty);
         // abstract all introduction rules
-        unsigned i = get_num_its();
-        while (i > 0) {
-            --i;
-            unsigned j = m_elim_info[i].m_minor_premises.size();
-            while (j > 0) {
-                --j;
-                elim_ty = Pi(m_elim_info[i].m_minor_premises[j], elim_ty);
-            }
+        unsigned j = m_elim_info.m_minor_premises.size();
+        while (j > 0) {
+            --j;
+            elim_ty = Pi(m_elim_info.m_minor_premises[j], elim_ty);
         }
-        // abstract all type formers
-        i = get_num_its();
-        while (i > 0) {
-            --i;
-            elim_ty = Pi(m_elim_info[i].m_C, elim_ty);
-        }
+        // abstract motive
+        elim_ty   = Pi(m_elim_info.m_C, elim_ty);
+        // parameters
         elim_ty   = Pi(m_param_consts, elim_ty);
         elim_ty   = infer_implicit(elim_ty, true /* strict */);
-        m_env = m_env.add(check(m_env, mk_constant_assumption_inferring_trusted(m_env, get_elim_name(d),
+        m_env = m_env.add(check(m_env, mk_constant_assumption_inferring_trusted(m_env, get_elim_name(),
                                                                                 get_elim_level_param_names(), elim_ty)));
         return elim_ty;
     }
 
-    /** \brief Declare the eliminator/recursor for each datatype. */
-    list<expr> declare_elim_rules() {
+    /** \brief Declare the eliminator/recursor. */
+    expr declare_elim_rule() {
         set_dep_elim();
         mk_elim_level();
         mk_elim_info();
-        unsigned i = 0;
-        buffer<expr> elim_types;
-        for (auto d : m_decls) {
-            elim_types.push_back(declare_elim_rule(d, i));
-            i++;
-        }
+        expr r = declare_elim_rule_core();
         updt_type_checker();
-        return to_list(elim_types);
+        return r;
     }
-
-    /** \brief Store all type formers in \c Cs */
-    void collect_Cs(buffer<expr> & Cs) {
-        for (unsigned i = 0; i < get_num_its(); i++)
-            Cs.push_back(m_elim_info[i].m_C);
-    }
-
-    /** \brief Store all minor premises in \c es. */
-    void collect_minor_premises(buffer<expr> & es) {
-        for (unsigned i = 0; i < get_num_its(); i++)
-            es.append(m_elim_info[i].m_minor_premises);
-    }
-
-    /** \brief Return the number of indices of the i-th datatype. */
-    unsigned get_num_indices(unsigned i) { return m_elim_info[i].m_indices.size(); }
-
-    /** \brief Return true iff it is a target of a K-like reduction */
-    bool is_K_target(unsigned i) { return m_elim_info[i].m_K_target; }
 
     /** \brief Create computional rules RHS, and return certified_inductive_decl object. */
-    certified_inductive_decl mk_certified_decl(list<expr> const & elim_types) {
-        unsigned d_idx  = 0;
+    certified_inductive_decl mk_certified_decl(expr const & elim_type) {
         unsigned minor_idx = 0;
-        buffer<expr> C; collect_Cs(C);
-        buffer<expr> e; collect_minor_premises(e);
+        expr C = m_elim_info.m_C;
+        buffer<expr> e; e.append(m_elim_info.m_minor_premises);
         levels ls = get_elim_level_params();
-        buffer<certified_inductive_decl::data> data_decls;
-        for (auto d : m_decls) {
-            buffer<certified_inductive_decl::comp_rule> comp_rules;
-            for (auto ir : inductive_decl_intros(d)) {
-                buffer<expr> b;
-                buffer<expr> u;
-                expr t = intro_rule_type(ir);
-                unsigned i = 0;
-                while (is_pi(t)) {
-                    if (i < m_num_params) {
-                        t = instantiate(binding_body(t), m_param_consts[i]);
-                    } else {
-                        expr l = mk_local_for(t);
-                        if (!is_rec_argument(binding_domain(t)))
-                            b.push_back(l);
-                        else
-                            u.push_back(l);
-                        t = instantiate(binding_body(t), l);
-                    }
-                    i++;
+        buffer<certified_inductive_decl::comp_rule> comp_rules;
+        for (auto ir : m_decl.m_intro_rules) {
+            buffer<expr> b;
+            buffer<expr> u;
+            expr t = intro_rule_type(ir);
+            unsigned i = 0;
+            while (is_pi(t)) {
+                if (i < m_decl.m_num_params) {
+                    t = instantiate(binding_body(t), m_param_consts[i]);
+                } else {
+                    expr l = mk_local_for(t);
+                    if (!is_rec_argument(binding_domain(t)))
+                        b.push_back(l);
+                    else
+                        u.push_back(l);
+                    t = instantiate(binding_body(t), l);
                 }
-                buffer<expr> v;
-                for (unsigned i = 0; i < u.size(); i++) {
-                    expr u_i    = u[i];
-                    expr u_i_ty = whnf(mlocal_type(u_i));
-                    buffer<expr> xs;
-                    while (is_pi(u_i_ty)) {
-                        expr x = mk_local_for(u_i_ty);
-                        xs.push_back(x);
-                        u_i_ty = whnf(instantiate(binding_body(u_i_ty), x));
-                    }
-                    buffer<expr> it_indices;
-                    unsigned it_idx = get_I_indices(u_i_ty, it_indices);
-                    expr elim_app = mk_constant(get_elim_name(it_idx), ls);
-                    elim_app = mk_app(mk_app(mk_app(mk_app(mk_app(elim_app, m_param_consts), C), e), it_indices), mk_app(u_i, xs));
-                    v.push_back(Fun(xs, elim_app));
-                }
-                expr e_app = mk_app(mk_app(mk_app(e[minor_idx], b), u), v);
-                expr comp_rhs   = Fun(m_param_consts, Fun(C, Fun(e, Fun(b, Fun(u, e_app)))));
-                tc().check(comp_rhs, get_elim_level_param_names());
-                comp_rules.emplace_back(b.size() + u.size(), comp_rhs);
-                minor_idx++;
+                i++;
             }
-            data_decls.emplace_back(d, is_K_target(d_idx), get_num_indices(d_idx), to_list(comp_rules));
-            d_idx++;
+            buffer<expr> v;
+            for (unsigned i = 0; i < u.size(); i++) {
+                expr u_i    = u[i];
+                expr u_i_ty = whnf(mlocal_type(u_i));
+                buffer<expr> xs;
+                while (is_pi(u_i_ty)) {
+                    expr x = mk_local_for(u_i_ty);
+                    xs.push_back(x);
+                    u_i_ty = whnf(instantiate(binding_body(u_i_ty), x));
+                }
+                buffer<expr> it_indices;
+                get_I_indices(u_i_ty, it_indices);
+                expr elim_app = mk_constant(get_elim_name(), ls);
+                elim_app = mk_app(mk_app(mk_app(mk_app(mk_app(elim_app, m_param_consts), C), e), it_indices), mk_app(u_i, xs));
+                v.push_back(Fun(xs, elim_app));
+            }
+            expr e_app = mk_app(mk_app(mk_app(e[minor_idx], b), u), v);
+            expr comp_rhs   = Fun(m_param_consts, Fun(C, Fun(e, Fun(b, Fun(u, e_app)))));
+            tc().check(comp_rhs, get_elim_level_param_names());
+            comp_rules.emplace_back(b.size() + u.size(), comp_rhs);
+            minor_idx++;
         }
         bool elim_Prop = !is_param(m_elim_level);
-        return certified_inductive_decl(get_elim_level_param_names(), m_num_params, m_num_params + C.size() + e.size(),
-                                        elim_Prop, m_dep_elim, elim_types, to_list(data_decls));
+        return certified_inductive_decl(m_decl.m_num_params + 1 + e.size(), elim_Prop, m_dep_elim,
+                                        get_elim_level_param_names(), elim_type, m_decl,
+                                        m_elim_info.m_K_target, m_elim_info.m_indices.size(), to_list(comp_rules));
     }
 
     pair<environment, certified_inductive_decl> operator()() {
-        if (get_num_its() == 0)
-            throw kernel_exception(m_env, "at least one inductive datatype declaration expected");
-        check_inductive_types();
-        declare_inductive_types();
+        check_inductive_type();
+        declare_inductive_type();
         check_intro_rules();
         declare_intro_rules();
-        certified_inductive_decl c = mk_certified_decl(declare_elim_rules());
+        certified_inductive_decl c = mk_certified_decl(declare_elim_rule());
         m_env = c.add_core(m_env, true);
         return mk_pair(m_env, c);
     }
 };
 
 pair<environment, certified_inductive_decl>
-add_inductive(environment                  env,
-              level_param_names const &    level_params,
-              unsigned                     num_params,
-              list<inductive_decl> const & decls) {
+add_inductive(environment env, inductive_decl const & decl) {
     if (!env.norm_ext().supports(*g_inductive_extension))
         throw kernel_exception(env, "environment does not support inductive datatypes");
-    return add_inductive_fn(env, level_params, num_params, decls)();
+    return add_inductive_fn(env, decl)();
 }
 
 bool inductive_normalizer_extension::supports(name const & feature) const {
@@ -903,15 +758,10 @@ static inductive_env_ext::comp_rule const * is_intro_for(inductive_env_ext const
     name of the first introduction rule. Return none otherwise. */
 static optional<name> get_first_intro(environment const & env, name const & d_name) {
     inductive_env_ext const & ext = get_extension(env);
-    if (inductive_decls const * it = ext.m_inductive_info.find(d_name)) {
-        list<inductive_decl> const & decls = std::get<2>(*it);
-        for (auto const & decl : decls) {
-            if (inductive_decl_name(decl) != d_name)
-                continue;
-            auto intros = inductive_decl_intros(decl);
-            if (intros)
-                return optional<name>(intro_rule_name(head(intros)));
-        }
+    if (inductive_decl const * decl = ext.m_inductive_info.find(d_name)) {
+        auto intros = decl->m_intro_rules;
+        if (intros)
+            return optional<name>(intro_rule_name(head(intros)));
     }
     return optional<name>();
 }
@@ -1050,12 +900,12 @@ optional<expr> inductive_normalizer_extension::is_stuck(expr const & e, abstract
     return is_elim_meta_app_core(ctx, e);
 }
 
-optional<inductive_decls> is_inductive_decl(environment const & env, name const & n) {
+optional<inductive_decl> is_inductive_decl(environment const & env, name const & n) {
     inductive_env_ext const & ext = get_extension(env);
     if (auto it = ext.m_inductive_info.find(n))
-        return optional<inductive_decls>(*it);
+        return optional<inductive_decl>(*it);
     else
-        return optional<inductive_decls>();
+        return optional<inductive_decl>();
 }
 
 optional<unsigned> get_num_indices(environment const & env, name const & n) {
@@ -1067,18 +917,10 @@ optional<unsigned> get_num_indices(environment const & env, name const & n) {
     }
 }
 
-optional<unsigned> get_num_type_formers(environment const & env, name const & n) {
-    if (auto decls = is_inductive_decl(env, n)) {
-        return some(length(std::get<2>(*decls)));
-    } else {
-        return optional<unsigned>();
-    }
-}
-
 optional<unsigned> get_num_minor_premises(environment const & env, name const & n) {
     inductive_env_ext const & ext = get_extension(env);
     if (auto it = ext.m_elim_info.find(get_elim_name(n))) {
-        unsigned num_Cs = *get_num_type_formers(env, n);
+        unsigned num_Cs = 1;
         return some(it->m_num_ACe - it->m_num_params - num_Cs);
     } else {
         return optional<unsigned>();
@@ -1086,12 +928,8 @@ optional<unsigned> get_num_minor_premises(environment const & env, name const & 
 }
 
 optional<unsigned> get_num_intro_rules(environment const & env, name const & n) {
-    if (auto decls = is_inductive_decl(env, n)) {
-        for (auto const & decl : std::get<2>(*decls)) {
-            if (inductive_decl_name(decl) == n)
-                return some(length(inductive_decl_intros(decl)));
-        }
-        lean_unreachable();
+    if (auto decl = is_inductive_decl(env, n)) {
+        return some(length(decl->m_intro_rules));
     } else {
         return optional<unsigned>();
     }

@@ -98,16 +98,13 @@ class mk_has_sizeof_fn {
         if (is_inductive_predicate(m_env, m_ind_name) || !can_elim_to_type(m_env, m_ind_name))
             return;
 
-        inductive::inductive_decls decls = *odecls;
-        lean_assert(length(std::get<2>(decls)) == 1);
+        inductive::inductive_decl decl = *odecls;
+        level_param_names lp_names = decl.m_level_params;
+        unsigned num_params        = decl.m_num_params;
 
-        level_param_names lp_names = std::get<0>(decls);
-        unsigned num_params        = std::get<1>(decls);
-
-        inductive::inductive_decl decl = head(std::get<2>(decls));
-        expr const & ind_type = inductive::inductive_decl_type(decl);
+        expr const & ind_type = decl.m_type;
         buffer<inductive::intro_rule> intro_rules;
-        to_buffer(inductive::inductive_decl_intros(decl), intro_rules);
+        to_buffer(decl.m_intro_rules, intro_rules);
 
         levels lvls = param_names_to_levels(lp_names);
 

@@ -49,7 +49,7 @@ void get_rec_args(environment const & env, name const & n, buffer<buffer<bool>> 
     declaration rec_decl   = env.get(inductive::get_elim_name(n));
     unsigned nparams       = *inductive::get_num_params(env, n);
     unsigned nminors       = *inductive::get_num_minor_premises(env, n);
-    unsigned ntypeformers  = *inductive::get_num_type_formers(env, n);
+    unsigned ntypeformers  = 1;
     buffer<expr> rec_args;
     to_telescope(rec_decl.get_type(), rec_args);
     buffer<name> typeformer_names;
@@ -83,7 +83,7 @@ bool is_recursive_rec_app(environment const & env, expr const & e) {
         return false;
     unsigned nparams       = *inductive::get_num_params(env, *I_name);
     unsigned nminors       = *inductive::get_num_minor_premises(env, *I_name);
-    unsigned ntypeformers  = *inductive::get_num_type_formers(env, *I_name);
+    unsigned ntypeformers  = 1;
     buffer<buffer<bool>> is_rec_arg;
     get_rec_args(env, *I_name, is_rec_arg);
     for (unsigned i = nparams + ntypeformers, j = 0; i < nparams + ntypeformers + nminors; i++, j++) {

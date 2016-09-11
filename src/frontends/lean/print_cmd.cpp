@@ -278,9 +278,8 @@ static void print_inductive(parser const & p, name const & n, pos_info const & p
     environment const & env = p.env();
     type_checker tc(env);
     io_state_stream out = regular(env, p.ios(), tc);
-    if (auto idecls = inductive::is_inductive_decl(env, n)) {
-        level_param_names ls; unsigned nparams; list<inductive::inductive_decl> dlist;
-        std::tie(ls, nparams, dlist) = *idecls;
+    if (auto idecl = inductive::is_inductive_decl(env, n)) {
+        level_param_names ls = idecl->m_level_params;
         print_attributes(p, n);
         if (is_structure(env, n))
             out << "structure";

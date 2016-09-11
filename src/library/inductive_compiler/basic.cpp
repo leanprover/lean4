@@ -136,8 +136,8 @@ class add_basic_inductive_decl_fn {
             new_intro_rules.push_back(mk_intro_rule(mlocal_name(ir), new_ir_type));
             lean_trace(name({"inductive_compiler", "basic", "irs"}), tout() << mlocal_name(ir) << " : " << new_ir_type << "\n";);
         }
-        inductive_decl kdecl(mlocal_name(ind), new_ind_type, to_list(new_intro_rules));
-        m_env = module::add_inductive(m_env, to_list(lp_names), params.size(), list<inductive_decl>(kdecl));
+        inductive_decl kdecl(mlocal_name(ind), to_list(lp_names), params.size(), new_ind_type, to_list(new_intro_rules));
+        m_env = module::add_inductive(m_env, kdecl);
     }
 
 public:

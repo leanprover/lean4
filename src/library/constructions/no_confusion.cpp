@@ -26,13 +26,13 @@ static void throw_corrupted(name const & n) {
 }
 
 optional<environment> mk_no_confusion_type(environment const & env, name const & n) {
-    optional<inductive::inductive_decls> decls = inductive::is_inductive_decl(env, n);
-    if (!decls)
+    optional<inductive::inductive_decl> decl = inductive::is_inductive_decl(env, n);
+    if (!decl)
         throw exception(sstream() << "error in 'no_confusion' generation, '" << n << "' is not an inductive datatype");
     if (is_inductive_predicate(env, n) || !can_elim_to_type(env, n))
         return optional<environment>();
     bool impredicative     = env.impredicative();
-    unsigned nparams       = std::get<1>(*decls);
+    unsigned nparams       = decl->m_num_params;
     declaration ind_decl   = env.get(n);
     declaration cases_decl = env.get(name(n, "cases_on"));
     level_param_names lps  = cases_decl.get_univ_params();
@@ -149,8 +149,8 @@ environment mk_no_confusion(environment const & env, name const & n) {
     environment new_env = *env1;
     type_checker tc(new_env);
     bool impredicative                 = env.impredicative();
-    inductive::inductive_decls decls   = *inductive::is_inductive_decl(new_env, n);
-    unsigned nparams                   = std::get<1>(decls);
+    inductive::inductive_decl decl     = *inductive::is_inductive_decl(new_env, n);
+    unsigned nparams                   = decl.m_num_params;
     declaration ind_decl               = env.get(n);
     declaration no_confusion_type_decl = new_env.get(name{n, "no_confusion_type"});
     declaration cases_decl             = new_env.get(name(n, "cases_on"));

@@ -83,8 +83,6 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
     unsigned given_major_pos = 0;
     if (_given_major_pos) given_major_pos = *_given_major_pos;
     if (auto I = inductive::is_elim_rule(env, r)) {
-        if (*inductive::get_num_type_formers(env, *I) > 1)
-            throw exception(sstream() << "unsupported recursor '" << r << "', it has multiple motives");
         unsigned num_univ_params = env.get(*I).get_num_univ_params();
         list<unsigned> universe_pos = mk_list_range(0, num_univ_params);
         if (env.get(name(*I, "rec")).get_num_univ_params() != num_univ_params)

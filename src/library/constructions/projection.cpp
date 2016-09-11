@@ -27,24 +27,19 @@ namespace lean {
 }
 
 static pair<unsigned, inductive::intro_rule> get_nparam_intro_rule(environment const & env, name const & n) {
-    optional<inductive::inductive_decls> decls = inductive::is_inductive_decl(env, n);
-    if (!decls)
+    optional<inductive::inductive_decl> decl = inductive::is_inductive_decl(env, n);
+    if (!decl)
         throw exception(sstream() << "projection generation, '" << n << "' is not an inductive datatype");
     optional<unsigned> num_indices = inductive::get_num_indices(env, n);
     if (num_indices && *num_indices > 0)
         throw exception(sstream() << "projection generation, '"
                         << n << "' is an indexed inductive datatype family");
-    unsigned num_params = std::get<1>(*decls);
-    for (auto const & decl : std::get<2>(*decls)) {
-        if (inductive::inductive_decl_name(decl) == n) {
-            auto intros = inductive::inductive_decl_intros(decl);
-            if (length(intros) != 1)
-                throw exception(sstream() << "projection generation, '"
-                                << n << "' does not have a single constructor");
-            return mk_pair(num_params, head(intros));
-        }
-    }
-    throw_ill_formed(n);
+    unsigned num_params = decl->m_num_params;
+    auto intros = decl->m_intro_rules;
+    if (length(intros) != 1)
+        throw exception(sstream() << "projection generation, '"
+                        << n << "' does not have a single constructor");
+    return mk_pair(num_params, head(intros));
 }
 
 static bool is_prop(expr type) {

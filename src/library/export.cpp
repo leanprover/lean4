@@ -238,37 +238,31 @@ class exporter {
         if (already_exported(n))
             return;
         mark(n);
-        std::tuple<level_param_names, unsigned, list<inductive::inductive_decl>> decls =
-            *inductive::is_inductive_decl(m_env, n);
+        inductive::inductive_decl decl = *inductive::is_inductive_decl(m_env, n);
         if (m_all) {
-            for (inductive::inductive_decl const & d : std::get<2>(decls)) {
-                export_dependencies(inductive::inductive_decl_type(d));
-                for (inductive::intro_rule const & c : inductive::inductive_decl_intros(d)) {
-                    export_dependencies(inductive::intro_rule_type(c));
-                }
+            export_dependencies(decl.m_type);
+            for (inductive::intro_rule const & c : decl.m_intro_rules) {
+                export_dependencies(inductive::intro_rule_type(c));
             }
         }
-        for (name const & p : std::get<0>(decls))
+        for (name const & p : decl.m_level_params)
             export_name(p);
-        for (inductive::inductive_decl const & d : std::get<2>(decls)) {
-            export_name(inductive::inductive_decl_name(d));
-            export_root_expr(inductive::inductive_decl_type(d));
-            for (inductive::intro_rule const & c : inductive::inductive_decl_intros(d)) {
-                export_name(inductive::intro_rule_name(c));
-                export_root_expr(inductive::intro_rule_type(c));
-            }
+        export_name(decl.m_name);
+        export_root_expr(decl.m_type);
+        for (inductive::intro_rule const & c : decl.m_intro_rules) {
+            export_name(inductive::intro_rule_name(c));
+            export_root_expr(inductive::intro_rule_type(c));
         }
-        m_out << "#BIND " << std::get<1>(decls) << " " << length(std::get<2>(decls));
-        for (name const & p : std::get<0>(decls))
+        // TODO(Leo): the 1 is redundant since we don't support mutually inductive datatypes anymore in the kernel.
+        m_out << "#BIND " << decl.m_num_params << " " << 1;
+        for (name const & p : decl.m_level_params)
             m_out << " " << export_name(p);
         m_out << "\n";
-        for (inductive::inductive_decl const & d : std::get<2>(decls)) {
-            m_out << "#IND " << export_name(inductive::inductive_decl_name(d)) << " "
-                  << export_root_expr(inductive::inductive_decl_type(d)) << "\n";
-            for (inductive::intro_rule const & c : inductive::inductive_decl_intros(d)) {
-                m_out << "#INTRO " << export_name(inductive::intro_rule_name(c)) << " "
-                      << export_root_expr(inductive::intro_rule_type(c)) << "\n";
-            }
+        m_out << "#IND " << export_name(decl.m_name) << " "
+              << export_root_expr(decl.m_type) << "\n";
+        for (inductive::intro_rule const & c : decl.m_intro_rules) {
+            m_out << "#INTRO " << export_name(inductive::intro_rule_name(c)) << " "
+                  << export_root_expr(inductive::intro_rule_type(c)) << "\n";
         }
         m_out << "#EIND\n";
     }

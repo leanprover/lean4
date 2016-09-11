@@ -43,14 +43,14 @@ static environment mk_below(environment const & env, name const & n, bool ibelow
         return env;
     if (is_inductive_predicate(env, n) || !can_elim_to_type(env, n))
         return env;
-    inductive::inductive_decls decls = *inductive::is_inductive_decl(env, n);
+    inductive::inductive_decl decl = *inductive::is_inductive_decl(env, n);
     type_checker tc(env);
-    unsigned nparams       = std::get<1>(decls);
+    unsigned nparams       = decl.m_num_params;
     declaration ind_decl   = env.get(n);
     declaration rec_decl   = env.get(inductive::get_elim_name(n));
     unsigned nindices      = *inductive::get_num_indices(env, n);
     unsigned nminors       = *inductive::get_num_minor_premises(env, n);
-    unsigned ntypeformers  = length(std::get<2>(decls));
+    unsigned ntypeformers  = 1;
     level_param_names lps  = rec_decl.get_univ_params();
     bool is_reflexive      = is_reflexive_datatype(tc, n);
     level  lvl             = mk_param_univ(head(lps));
@@ -163,15 +163,17 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
         return env;
     if (is_inductive_predicate(env, n) || !can_elim_to_type(env, n))
         return env;
-    inductive::inductive_decls decls = *inductive::is_inductive_decl(env, n);
+    inductive::inductive_decl decl = *inductive::is_inductive_decl(env, n);
     type_checker tc(env);
-    unsigned nparams       = std::get<1>(decls);
+    unsigned nparams       = decl.m_num_params;
     declaration ind_decl   = env.get(n);
     declaration rec_decl   = env.get(inductive::get_elim_name(n));
     // declaration below_decl = env.get(name(n, ind ? "ibelow" : "below"));
     unsigned nindices      = *inductive::get_num_indices(env, n);
     unsigned nminors       = *inductive::get_num_minor_premises(env, n);
-    unsigned ntypeformers  = length(std::get<2>(decls));
+    /* TODO(Leo): code can be simplified, it contains leftovers from the time the kernel had support
+       for mutually inductive types */
+    unsigned ntypeformers  = 1;
     level_param_names lps  = rec_decl.get_univ_params();
     bool is_reflexive      = is_reflexive_datatype(tc, n);
     level  lvl             = mk_param_univ(head(lps));
@@ -230,22 +232,17 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
     buffer<expr> belows;
     expr result_type;
     unsigned k = 0;
-    for (auto const & decl : std::get<2>(decls)) {
-        name const & n1 = inductive::inductive_decl_name(decl);
-        if (n1 == n) {
-            result_type = ref_args[nparams + k];
-            for (unsigned i = nparams + ntypeformers + nminors; i < ref_args.size(); i++)
-                result_type = mk_app(result_type, ref_args[i]);
-        }
-        k++;
-        name bname = name(n1, ind ? "ibelow" : "below");
-        expr below = mk_constant(bname, blvls);
-        for (unsigned i = 0; i < nparams; i++)
-            below = mk_app(below, ref_args[i]);
-        for (unsigned i = nparams; i < nparams + ntypeformers; i++)
-            below = mk_app(below, ref_args[i]);
-        belows.push_back(below);
-    }
+    result_type = ref_args[nparams + k];
+    for (unsigned i = nparams + ntypeformers + nminors; i < ref_args.size(); i++)
+        result_type = mk_app(result_type, ref_args[i]);
+    k++;
+    name bname = name(decl.m_name, ind ? "ibelow" : "below");
+    expr below = mk_constant(bname, blvls);
+    for (unsigned i = 0; i < nparams; i++)
+        below = mk_app(below, ref_args[i]);
+    for (unsigned i = nparams; i < nparams + ntypeformers; i++)
+        below = mk_app(below, ref_args[i]);
+    belows.push_back(below);
     // create functionals (one for each type former)
     //     Pi idxs t, below idxs t -> C idxs t
     buffer<expr> Fs;
@@ -262,7 +259,6 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
         Fs.push_back(F);
         args.push_back(F);
     }
-
     // We define brec_on/binduction_on using the recursor for this type
     levels rec_lvls       = cons(rlvl, lvls);
     expr rec              = mk_constant(rec_decl.get_name(), rec_lvls);

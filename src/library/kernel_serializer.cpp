@@ -352,9 +352,6 @@ declaration read_declaration(deserializer & d) {
 using inductive::certified_inductive_decl;
 using inductive::inductive_decl;
 using inductive::intro_rule;
-using inductive::inductive_decl_name;
-using inductive::inductive_decl_type;
-using inductive::inductive_decl_intros;
 using inductive::intro_rule_name;
 using inductive::intro_rule_type;
 
@@ -370,58 +367,49 @@ certified_inductive_decl::comp_rule read_comp_rule(deserializer & d) {
 }
 
 serializer & operator<<(serializer & s, inductive_decl const & d) {
-    s << inductive_decl_name(d) << inductive_decl_type(d) << length(inductive_decl_intros(d));
-    for (intro_rule const & r : inductive_decl_intros(d))
+    s << d.m_name << d.m_level_params << d.m_num_params << d.m_type << length(d.m_intro_rules);
+    for (intro_rule const & r : d.m_intro_rules)
         s << intro_rule_name(r) << intro_rule_type(r);
     return s;
 }
 
 inductive_decl read_inductive_decl(deserializer & d) {
-    name d_name = read_name(d);
-    expr d_type = read_expr(d);
-    unsigned num_intros = d.read_unsigned();
+    name d_name                 = read_name(d);
+    level_param_names d_lparams = read_level_params(d);
+    unsigned d_nparams          = d.read_unsigned();
+    expr d_type                 = read_expr(d);
+    unsigned num_intros         = d.read_unsigned();
     buffer<intro_rule> rules;
     for (unsigned j = 0; j < num_intros; j++) {
         name r_name = read_name(d);
         expr r_type = read_expr(d);
         rules.push_back(inductive::mk_intro_rule(r_name, r_type));
     }
-    return inductive_decl(d_name, d_type, to_list(rules.begin(), rules.end()));
-}
-
-serializer & operator<<(serializer & s, certified_inductive_decl::data const & d) {
-    s << d.m_decl << d.m_K_target << d.m_num_indices;
-    write_list<certified_inductive_decl::comp_rule>(s, d.m_comp_rules);
-    return s;
-}
-
-certified_inductive_decl::data read_certified_inductive_decl_data(deserializer & d) {
-    inductive_decl decl = read_inductive_decl(d);
-    bool       K        = d.read_bool();
-    unsigned   nind     = d.read_unsigned();
-    auto rs             = read_list<certified_inductive_decl::comp_rule>(d, read_comp_rule);
-    return certified_inductive_decl::data(decl, K, nind, rs);
+    return inductive_decl(d_name, d_lparams, d_nparams, d_type, to_list(rules.begin(), rules.end()));
 }
 
 serializer & operator<<(serializer & s, certified_inductive_decl const & d) {
-    s << d.get_univ_params() << d.get_num_params() << d.get_num_ACe()
-      << d.elim_prop_only() << d.has_dep_elim();
-    write_list<expr>(s, d.get_elim_types());
-    write_list<certified_inductive_decl::data>(s, d.get_decl_data());
+    s << d.get_num_ACe() << d.elim_prop_only() << d.has_dep_elim()
+      << d.get_elim_levels() << d.get_elim_type() << d.get_decl()
+      << d.is_K_target() << d.get_num_indices();
+    write_list<certified_inductive_decl::comp_rule>(s, d.get_comp_rules());
     return s;
 }
 
 class read_certified_inductive_decl_fn {
 public:
     certified_inductive_decl operator()(deserializer & d) {
+        unsigned nACe        = d.read_unsigned();
+        bool elim_prop       = d.read_bool();
+        bool dep_elim        = d.read_bool();
         level_param_names ls = read_list<name>(d, read_name);
-        unsigned nparams = d.read_unsigned();
-        unsigned nACe    = d.read_unsigned();
-        bool elim_prop   = d.read_bool();
-        bool dep_elim    = d.read_bool();
-        list<expr> ets   = read_list<expr>(d, read_expr);
-        auto ds          = read_list<certified_inductive_decl::data>(d, read_certified_inductive_decl_data);
-        return certified_inductive_decl(ls, nparams, nACe, elim_prop, dep_elim, ets, ds);
+        expr elim_type       = read_expr(d);
+        inductive_decl decl  = read_inductive_decl(d);
+        bool       K         = d.read_bool();
+        unsigned   nind      = d.read_unsigned();
+        auto rs              = read_list<certified_inductive_decl::comp_rule>(d, read_comp_rule);
+        return certified_inductive_decl(nACe, elim_prop, dep_elim, ls, elim_type, decl,
+                                        K, nind, rs);
     }
 };
 

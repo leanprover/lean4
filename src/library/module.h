@@ -104,10 +104,8 @@ environment add(environment const & env, certified_declaration const & d);
 bool is_definition(environment const & env, name const & n);
 
 /** \brief Add the given inductive declaration to the environment, and mark it to be exported. */
-environment add_inductive(environment                  env,
-                          level_param_names const &    level_params,
-                          unsigned                     num_params,
-                          list<inductive::inductive_decl> const & decls);
+environment add_inductive(environment                       env,
+                          inductive::inductive_decl const & decl);
 
 /** \brief The following function must be invoked to register the quotient type computation rules in the kernel. */
 environment declare_quotient(environment const & env);

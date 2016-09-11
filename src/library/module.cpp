@@ -260,15 +260,13 @@ static void hits_reader(deserializer &, shared_environment & senv,
 
 using inductive::certified_inductive_decl;
 
-environment add_inductive(environment                  env,
-                          level_param_names const &    level_params,
-                          unsigned                     num_params,
-                          list<inductive::inductive_decl> const & decls) {
-    pair<environment, certified_inductive_decl> r = inductive::add_inductive(env, level_params, num_params, decls);
+environment add_inductive(environment                       env,
+                          inductive::inductive_decl const & decl) {
+    pair<environment, certified_inductive_decl> r = inductive::add_inductive(env, decl);
     environment new_env            = r.first;
     certified_inductive_decl cdecl = r.second;
     module_ext ext = get_extension(env);
-    ext.m_module_decls = cons(inductive::inductive_decl_name(head(decls)), ext.m_module_decls);
+    ext.m_module_decls = cons(decl.m_name, ext.m_module_decls);
     new_env = update(new_env, ext);
     return add(new_env, *g_inductive, [=](environment const &, serializer & s) {
             s << cdecl;
@@ -286,7 +284,8 @@ static void inductive_reader(deserializer & d, shared_environment & senv,
 
 environment add_inductive(environment const & env, name const & ind_name, level_param_names const & level_params,
                           unsigned num_params, expr const & type, list<inductive::intro_rule> const & intro_rules) {
-    return add_inductive(env, level_params, num_params, to_list(inductive::inductive_decl(ind_name, type, intro_rules)));
+    inductive::inductive_decl decl(ind_name, level_params, num_params, type, intro_rules);
+    return module::add_inductive(env, decl);
 }
 } // end of namespace module
 

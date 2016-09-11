@@ -64,9 +64,9 @@ namespace lean {
 static auto get_structure_info(environment const & env, name const & S)
 -> std::tuple<level_param_names, unsigned, inductive::intro_rule> {
     lean_assert(is_structure_like(env, S));
-    inductive::inductive_decls idecls = *inductive::is_inductive_decl(env, S);
-    inductive::intro_rule intro = head(inductive::inductive_decl_intros(head(std::get<2>(idecls))));
-    return std::make_tuple(std::get<0>(idecls), std::get<1>(idecls), intro);
+    inductive::inductive_decl idecl = *inductive::is_inductive_decl(env, S);
+    inductive::intro_rule intro = head(idecl.m_intro_rules);
+    return std::make_tuple(idecl.m_level_params, idecl.m_num_params, intro);
 }
 
 struct structure_cmd_fn {
@@ -707,8 +707,8 @@ struct structure_cmd_fn {
 
         level_param_names lnames = to_list(m_level_names.begin(), m_level_names.end());
         inductive::intro_rule intro = inductive::mk_intro_rule(m_mk, intro_type);
-        inductive::inductive_decl  decl(m_name, structure_type, to_list(intro));
-        m_env = module::add_inductive(m_env, lnames, m_params.size(), to_list(decl));
+        inductive::inductive_decl  decl(m_name, lnames, m_params.size(), structure_type, to_list(intro));
+        m_env = module::add_inductive(m_env, decl);
         save_info(m_name, "structure", m_name_pos);
         name rec_name = inductive::get_elim_name(m_name);
         save_info(rec_name, "recursor", m_name_pos);

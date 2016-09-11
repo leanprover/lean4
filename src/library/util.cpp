@@ -139,27 +139,21 @@ bool has_lift_decls(environment const & env) {
       of an inductive datatype takes another inductive datatype from the
       same declaration as an argument. */
 bool is_recursive_datatype(environment const & env, name const & n) {
-    optional<inductive::inductive_decls> decls = inductive::is_inductive_decl(env, n);
-    if (!decls)
-        return false;
-    for (inductive::inductive_decl const & decl : std::get<2>(*decls)) {
-        for (inductive::intro_rule const & intro : inductive::inductive_decl_intros(decl)) {
-            expr type = inductive::intro_rule_type(intro);
-            while (is_pi(type)) {
-                if (find(binding_domain(type), [&](expr const & e, unsigned) {
-                            if (is_constant(e)) {
-                                name const & c = const_name(e);
-                                for (auto const & d : std::get<2>(*decls)) {
-                                    if (inductive::inductive_decl_name(d) == c)
-                                        return true;
-                                }
-                            }
-                            return false;
-                        })) {
-                    return true;
-                }
-                type = binding_body(type);
+    optional<inductive::inductive_decl> decl = inductive::is_inductive_decl(env, n);
+    if (!decl) return false;
+    for (inductive::intro_rule const & intro : decl->m_intro_rules) {
+        expr type = inductive::intro_rule_type(intro);
+        while (is_pi(type)) {
+            if (find(binding_domain(type), [&](expr const & e, unsigned) {
+                        if (is_constant(e)) {
+                            name const & c = const_name(e);
+                            if (decl->m_name == c) return true;
+                        }
+                        return false;
+                    })) {
+                return true;
             }
+            type = binding_body(type);
         }
     }
     return false;
@@ -167,20 +161,17 @@ bool is_recursive_datatype(environment const & env, name const & n) {
 
 bool is_reflexive_datatype(abstract_type_context & tc, name const & n) {
     environment const & env = tc.env();
-    optional<inductive::inductive_decls> decls = inductive::is_inductive_decl(env, n);
-    if (!decls)
-        return false;
-    for (inductive::inductive_decl const & decl : std::get<2>(*decls)) {
-        for (inductive::intro_rule const & intro : inductive::inductive_decl_intros(decl)) {
-            expr type = inductive::intro_rule_type(intro);
-            while (is_pi(type)) {
-                expr arg   = tc.whnf(binding_domain(type));
-                if (is_pi(arg) && find(arg, [&](expr const & e, unsigned) { return is_constant(e) && const_name(e) == n; })) {
-                    return true;
-                }
-                expr local = mk_local(mk_fresh_name(), binding_domain(type));
-                type = instantiate(binding_body(type), local);
+    optional<inductive::inductive_decl> decl = inductive::is_inductive_decl(env, n);
+    if (!decl) return false;
+    for (inductive::intro_rule const & intro : decl->m_intro_rules) {
+        expr type = inductive::intro_rule_type(intro);
+        while (is_pi(type)) {
+            expr arg   = tc.whnf(binding_domain(type));
+            if (is_pi(arg) && find(arg, [&](expr const & e, unsigned) { return is_constant(e) && const_name(e) == n; })) {
+                return true;
             }
+            expr local = mk_local(mk_fresh_name(), binding_domain(type));
+            type = instantiate(binding_body(type), local);
         }
     }
     return false;
@@ -211,13 +202,9 @@ bool can_elim_to_type(environment const & env, name const & n) {
 }
 
 void get_intro_rule_names(environment const & env, name const & n, buffer<name> & result) {
-    if (auto decls = inductive::is_inductive_decl(env, n)) {
-        for (inductive::inductive_decl const & decl : std::get<2>(*decls)) {
-            if (inductive::inductive_decl_name(decl) == n) {
-                for (inductive::intro_rule const & ir : inductive::inductive_decl_intros(decl))
-                    result.push_back(inductive::intro_rule_name(ir));
-                return;
-            }
+    if (auto decl = inductive::is_inductive_decl(env, n)) {
+        for (inductive::intro_rule const & ir : decl->m_intro_rules) {
+            result.push_back(inductive::intro_rule_name(ir));
         }
     }
 }
@@ -277,17 +264,15 @@ unsigned get_constructor_idx(environment const & env, name const & n) {
 unsigned get_num_inductive_hypotheses_for(environment const & env, name const & n) {
     lean_assert(inductive::is_intro_rule(env, n));
     name I_name = *inductive::is_intro_rule(env, n);
-    inductive::inductive_decls decls = *inductive::is_inductive_decl(env, I_name);
+    inductive::inductive_decl decl = *inductive::is_inductive_decl(env, I_name);
     expr type   = env.get(n).get_type();
     unsigned r  = 0;
     while (is_pi(type)) {
         if (find(binding_domain(type), [&](expr const & e, unsigned) {
                     if (is_constant(e)) {
                         name const & c = const_name(e);
-                        for (auto const & d : std::get<2>(decls)) {
-                            if (inductive::inductive_decl_name(d) == c)
-                                return true;
-                        }
+                        if (decl.m_name == c)
+                            return true;
                     }
                     return false;
                 })) {

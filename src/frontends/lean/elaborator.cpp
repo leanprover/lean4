@@ -1555,21 +1555,25 @@ expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_typ
 /* If the instance fingerprint has been set, then make sure `type` is not a local instance.
    Then, add a new local declaration to locals. */
 expr elaborator::push_local(type_context::tmp_locals & locals,
-                            name const & n, expr const & type, binder_info const & binfo, expr const & ref) {
+                            name const & n, expr const & type, binder_info const & binfo, expr const & /* ref */) {
+#if 0 // TODO(Leo): the following check is too restrictive
     if (m_ctx.lctx().get_instance_fingerprint() &&
         m_ctx.is_class(type)) {
         throw elaborator_exception(ref, "invalid occurrence of local instance, it must be a declaration parameter");
     }
+#endif
     return locals.push_local(n, type, binfo);
 }
 
 /* See method above */
 expr elaborator::push_let(type_context::tmp_locals & locals,
-                          name const & n, expr const & type, expr const & value, expr const & ref) {
+                          name const & n, expr const & type, expr const & value, expr const & /* ref */) {
+#if 0 // TODO(Leo): the following check is too restrictive
     if (m_ctx.lctx().get_instance_fingerprint() &&
         m_ctx.is_class(type)) {
         throw elaborator_exception(ref, "invalid occurrence of local instance, it must be a declaration parameter");
     }
+#endif
     return locals.push_let(n, type, value);
 }
 

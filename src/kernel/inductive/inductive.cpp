@@ -321,21 +321,6 @@ struct add_inductive_fn {
         updt_type_checker();
     }
 
-    /** \brief Return true iff \c t is a term of the form (I As t)
-        where I is the inductive datatype being defined, and As are the
-        global parameters of this declaration. */
-    bool is_valid_it_app(expr const & t) {
-        buffer<expr> args;
-        expr I = get_app_args(t, args);
-        if (!is_def_eq(I, m_it_const) || args.size() != m_it_num_args)
-            return false;
-        for (unsigned i = 0; i < m_decl.m_num_params; i++) {
-            if (m_param_consts[i] != args[i])
-                return false;
-        }
-        return true;
-    }
-
     /** \brief Return true iff \c e is the inductive datatype being declared. */
     bool is_it_occ(expr const & e) {
         return is_constant(e) && const_name(e) == const_name(m_it_const);
@@ -344,6 +329,26 @@ struct add_inductive_fn {
     /** \brief Return true if \c t does not contain any occurrence of a datatype being declared. */
     bool has_it_occ(expr const & t) {
         return (bool)find(t, [&](expr const & e, unsigned) { return is_it_occ(e); }); // NOLINT
+    }
+
+    /** \brief Return true iff \c t is a term of the form (I As t)
+        where I is the inductive datatype being defined, and As are the
+        global parameters of this declaration. Moreover I does not occur in t */
+    bool is_valid_it_app(expr const & t) {
+        buffer<expr> args;
+        expr I = get_app_args(t, args);
+        if (!is_def_eq(I, m_it_const) || args.size() != m_it_num_args)
+            return false;
+        unsigned i = 0;
+        for (; i < m_decl.m_num_params; i++) {
+            if (m_param_consts[i] != args[i])
+                return false;
+        }
+        for (; i < args.size(); i++) {
+            if (has_it_occ(args[i]))
+                return false;
+        }
+        return true;
     }
 
     /** \brief Return some(d_idx) iff \c t is a recursive argument, \c d_idx is the index of the recursive inductive datatype.

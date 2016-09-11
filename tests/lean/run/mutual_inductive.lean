@@ -174,28 +174,3 @@ check @bar.rec
 check @rig.rec
 
 end X9
-
-namespace X10
-
-mutual_inductive foo, bar, rig
-with foo : Type -> Type
-| mk : bar (foo poly_unit) -> foo (bar poly_unit)
-with bar : Type -> Type
-| mk : foo (bar poly_unit) -> bar (foo poly_unit)
-with rig : Type -> Type
-| mk : foo (bar (rig poly_unit)) -> rig (bar (foo poly_unit)) -> rig (bar (foo poly_unit))
-
-check @foo
-check @bar
-check @rig
-check @foo.rec
-check @bar.rec
-check @rig.rec
-check @foo.has_sizeof_inst
-check @bar.has_sizeof_inst
-check @rig.has_sizeof_inst
-check @foo.mk.sizeof_spec
-check @bar.mk.sizeof_spec
-check @rig.mk.sizeof_spec
-
-end X10

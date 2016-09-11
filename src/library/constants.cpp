@@ -21,6 +21,7 @@ name const * g_bool = nullptr;
 name const * g_bool_ff = nullptr;
 name const * g_bool_tt = nullptr;
 name const * g_bv = nullptr;
+name const * g_caching_user_attribute = nullptr;
 name const * g_cast = nullptr;
 name const * g_cast_eq = nullptr;
 name const * g_cast_heq = nullptr;
@@ -373,6 +374,7 @@ void initialize_constants() {
     g_bool_ff = new name{"bool", "ff"};
     g_bool_tt = new name{"bool", "tt"};
     g_bv = new name{"bv"};
+    g_caching_user_attribute = new name{"caching_user_attribute"};
     g_cast = new name{"cast"};
     g_cast_eq = new name{"cast_eq"};
     g_cast_heq = new name{"cast_heq"};
@@ -726,6 +728,7 @@ void finalize_constants() {
     delete g_bool_ff;
     delete g_bool_tt;
     delete g_bv;
+    delete g_caching_user_attribute;
     delete g_cast;
     delete g_cast_eq;
     delete g_cast_heq;
@@ -1078,6 +1081,7 @@ name const & get_bool_name() { return *g_bool; }
 name const & get_bool_ff_name() { return *g_bool_ff; }
 name const & get_bool_tt_name() { return *g_bool_tt; }
 name const & get_bv_name() { return *g_bv; }
+name const & get_caching_user_attribute_name() { return *g_caching_user_attribute; }
 name const & get_cast_name() { return *g_cast; }
 name const & get_cast_eq_name() { return *g_cast_eq; }
 name const & get_cast_heq_name() { return *g_cast_heq; }

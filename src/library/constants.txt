@@ -16,6 +16,7 @@ bool
 bool.ff
 bool.tt
 bv
+caching_user_attribute
 cast
 cast_eq
 cast_heq

@@ -23,6 +23,7 @@ name const & get_bool_name();
 name const & get_bool_ff_name();
 name const & get_bool_tt_name();
 name const & get_bv_name();
+name const & get_caching_user_attribute_name();
 name const & get_cast_name();
 name const & get_cast_eq_name();
 name const & get_cast_heq_name();

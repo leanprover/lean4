@@ -677,7 +677,6 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
     list<unsigned> main_idxs = info.m_explicit_idxs;
     buffer<optional<expr>> postponed_args; // mark arguments that must be elaborated in the second pass.
     {
-        checkpoint C1(*this);
         while (is_pi(type)) {
             expr const & d = binding_domain(type);
             binder_info const & bi = binding_info(type);
@@ -685,9 +684,9 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
             optional<expr> postponed;
             if (std::find(main_idxs.begin(), main_idxs.end(), i) != main_idxs.end()) {
                 {
-                    checkpoint C2(*this);
+                    checkpoint C(*this);
                     new_arg = visit(args[j], some_expr(d));
-                    process_checkpoint(C2);
+                    process_checkpoint(C);
                     new_arg = instantiate_mvars(new_arg);
                 }
                 j++;
@@ -723,11 +722,14 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
 
         lean_assert(new_args.size() == info.m_arity);
 
-        /* Process extra arguments */
-        for (; j < args.size(); j++) {
-            new_args.push_back(visit(args[j], none_expr()));
+        {
+            /* Process extra arguments */
+            checkpoint C(*this);
+            for (; j < args.size(); j++) {
+                new_args.push_back(visit(args[j], none_expr()));
+            }
+            process_checkpoint(C);
         }
-        process_checkpoint(C1);
     }
 
     /* Compute expected_type for the recursor application without extra arguments */
@@ -1258,8 +1260,6 @@ expr elaborator::visit_convoy(expr const & e, optional<expr> const & expected_ty
     lean_assert(is_app(e));
     lean_assert(is_equations(get_app_fn(e)));
     expr const & ref = e;
-    if (!expected_type)
-        throw elaborator_exception(ref, "invalid match/convoy expression, expected type is not known");
     buffer<expr> args, new_args;
     expr const & eqns = get_app_args(e, args);
     lean_assert(equations_num_fns(eqns) == 1);
@@ -1269,6 +1269,8 @@ expr elaborator::visit_convoy(expr const & e, optional<expr> const & expected_ty
     if (is_placeholder(fn_type)) {
         /* User did not provide the type for the match,
            we try to infer one using expected_type and the type of the arguments */
+        if (!expected_type)
+            throw elaborator_exception(ref, "invalid match/convoy expression, expected type is not known");
         checkpoint C(*this);
         for (unsigned i = 0; i < args.size(); i++)
             new_args.push_back(visit(args[i], none_expr()));
@@ -1299,24 +1301,23 @@ expr elaborator::visit_convoy(expr const & e, optional<expr> const & expected_ty
             it            = binding_body(it);
             new_args.push_back(new_arg);
         }
-        expr b      = instantiate_rev(it, locals);
-        expr new_b  = visit(b, none_expr());
-        expr inst_b = replace_locals(new_b, locals.as_buffer(), new_args);
-        if (!is_def_eq(inst_b, *expected_type)) {
-            auto pp_fn = mk_pp_ctx();
-            throw elaborator_exception(ref, format("type mismatch at match expected type") +
-                                       pp_indent(pp_fn, inst_b) +
-                                       line() + format("but is expected") +
-                                       pp_indent(pp_fn, *expected_type));
-        }
-        process_checkpoint(C);
-        new_fn_type = instantiate_mvars(inst_b);
-        unsigned i = args.size();
-        while (i > 0) {
-            --i;
-            expr new_arg      = instantiate_mvars(new_args[i]);
-            expr new_arg_type = instantiate_mvars(infer_type(new_arg));
-            new_fn_type       = m_ctx.mk_pi(locals.as_buffer()[i], kabstract(m_ctx, new_fn_type, new_arg));
+        if (is_placeholder(it)) {
+            process_checkpoint(C);
+            if (!expected_type)
+                throw elaborator_exception(ref, "invalid match/convoy expression, expected type is not known");
+            new_fn_type = *expected_type;
+            unsigned i = args.size();
+            while (i > 0) {
+                --i;
+                new_args[i]  = instantiate_mvars(new_args[i]);
+                new_fn_type  = instantiate(kabstract(m_ctx, new_fn_type, new_args[i]), locals.as_buffer()[i]);
+            }
+            new_fn_type = instantiate_mvars(locals.mk_pi(new_fn_type));
+        } else {
+            expr b      = instantiate_rev(it, locals);
+            expr new_b  = visit(b, none_expr());
+            process_checkpoint(C);
+            new_fn_type = instantiate_mvars(locals.mk_pi(instantiate_mvars(new_b)));
         }
     }
     if (has_expr_metavar(new_fn_type)) {

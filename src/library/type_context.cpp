@@ -1580,6 +1580,9 @@ optional<expr> type_context::check_assignment(buffer<expr> const & locals, expr 
                     if (mvar == e) {
                         /* mvar occurs in v */
                         ok = false;
+                        lean_trace(name({"type_context", "is_def_eq_detail"}),
+                                   tout() << "failed to assign " << mvar << " :=\n" << v << "\n" <<
+                                   "value contains the metavariable " << mvar << "\n";);
                         return false;
                     }
                     if (!in_tmp_mode()) {
@@ -1587,11 +1590,13 @@ optional<expr> type_context::check_assignment(buffer<expr> const & locals, expr 
                            So, we don't need to check anything.
                            In regular mode, we need to check condition 4
 
-                           For every metavariable `?M'@C'` occurring in `t`, `C'` is a subset of `C`
-                        */
+                           For every metavariable `?M'@C'` occurring in `t`, `C'` is a subset of `C` */
                         optional<metavar_decl> e_decl = m_mctx.get_metavar_decl(e);
                         if (!e_decl) {
                             ok = false;
+                            lean_trace(name({"type_context", "is_def_eq_detail"}),
+                                       tout() << "failed to assign " << mvar << " :=\n" << v << "\n" <<
+                                       "value contains \"foreign\" metavariable " << e << "\n";);
                             return false;
                         }
                         local_context mvar_lctx = mvar_decl->get_context();
@@ -1611,6 +1616,13 @@ optional<expr> type_context::check_assignment(buffer<expr> const & locals, expr 
                                     }
                                 } else {
                                     /* e_type uses local_decl's that are not in mvar_lctx */
+                                    lean_trace(name({"type_context", "is_def_eq_detail"}),
+                                               tout() << "failed to assign " << mvar << " :=\n" << v << "\n"
+                                               << "value contains metavariable " << e << ", and its local context "
+                                               << "is not a subset of the one in the metavariable being assigned. "
+                                               << "The local context for " << e << " cannot be restricted because "
+                                               << "its type depends on local constants that are not in the local "
+                                               << "context for " << mvar << "\n";);
                                     ok = false;
                                     return false;
                                 }
@@ -1618,6 +1630,18 @@ optional<expr> type_context::check_assignment(buffer<expr> const & locals, expr 
                                 /* The two local contexts are incomparable OR
                                    approximate mode is not enabled. */
                                 ok = false;
+                                lean_trace(name({"type_context", "is_def_eq_detail"}),
+                                           tout() << "failed to assign " << mvar << " :=\n" << v << "\n"
+                                           << "value contains metavariable " << e;
+                                           if (!approximate()) {
+                                               tout() << " that was declared in a local context that is not a "
+                                                      << "subset of the one in the metavariable being assigned, "
+                                                      << "and local context restriction is disabled\n";
+                                           } else {
+                                               tout() << ", but the two local contexts used to declare these metavariables "
+                                                      << " are incomparable\n";
+                                           }
+                                    );
                                 return false;
                             }
                         }

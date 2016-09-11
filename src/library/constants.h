@@ -50,6 +50,7 @@ name const & get_distinct_name();
 name const & get_distrib_name();
 name const & get_dite_name();
 name const & get_div_name();
+name const & get_id_name();
 name const & get_empty_name();
 name const & get_empty_rec_name();
 name const & get_Exists_name();

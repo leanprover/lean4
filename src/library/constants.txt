@@ -43,6 +43,7 @@ distinct
 distrib
 dite
 div
+id
 empty
 empty.rec
 Exists

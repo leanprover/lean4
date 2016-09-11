@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "kernel/inductive/inductive.h"
 #include "library/trace.h"
 #include "library/num.h"
+#include "library/constants.h"
 #include "library/string.h"
 #include "library/pp_options.h"
 #include "library/exception.h"
@@ -1051,7 +1052,12 @@ struct elim_match_fn {
         expr eqrec;
         try {
             expr eqrec_motive  = ctx1.mk_lambda(x1, C_x1);
-            expr eqrec_minor   = mk_app(M_2, g_x1);
+            /* When proving equation lemmas, we need to be able to identify the value M2 was assigned to.
+               If we use just (M2 (g x1)) as eqrec_minor, there is a risk beta-reduction is performed
+               when instatiating the metavariable M2. We avoid the beta-reduction by wrapping
+               M2 with the identity function. */
+            expr id_M2         = mk_app(ctx1, get_id_name(), M_2);
+            expr eqrec_minor   = mk_app(id_M2, g_x1);
             expr eqrec_major   = mk_app(ctx1, f_g_eq_name, x1);
             eqrec              = mk_eq_rec(ctx1, eqrec_motive, eqrec_minor, eqrec_major);
         } catch (app_builder_exception &) {
@@ -1060,7 +1066,7 @@ struct elim_match_fn {
                         "for additional details)");
         }
         expr M_1_val       = ctx1.mk_lambda(x1, eqrec);
-        /* M_1_val is (fun x1 : A, @@eq.rec (fun x1, C x1) (M_2 (g x1)) (f_g_eq x1)) */
+        /* M_1_val is (fun x1 : A, @@eq.rec (fun x1, C x1) ((id M_2) (g x1)) (f_g_eq x1)) */
         m_mctx             = ctx1.mctx();
         m_mctx.assign(M_1, M_1_val);
 

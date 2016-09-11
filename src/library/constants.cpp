@@ -48,6 +48,7 @@ name const * g_distinct = nullptr;
 name const * g_distrib = nullptr;
 name const * g_dite = nullptr;
 name const * g_div = nullptr;
+name const * g_id = nullptr;
 name const * g_empty = nullptr;
 name const * g_empty_rec = nullptr;
 name const * g_Exists = nullptr;
@@ -399,6 +400,7 @@ void initialize_constants() {
     g_distrib = new name{"distrib"};
     g_dite = new name{"dite"};
     g_div = new name{"div"};
+    g_id = new name{"id"};
     g_empty = new name{"empty"};
     g_empty_rec = new name{"empty", "rec"};
     g_Exists = new name{"Exists"};
@@ -751,6 +753,7 @@ void finalize_constants() {
     delete g_distrib;
     delete g_dite;
     delete g_div;
+    delete g_id;
     delete g_empty;
     delete g_empty_rec;
     delete g_Exists;
@@ -1102,6 +1105,7 @@ name const & get_distinct_name() { return *g_distinct; }
 name const & get_distrib_name() { return *g_distrib; }
 name const & get_dite_name() { return *g_dite; }
 name const & get_div_name() { return *g_div; }
+name const & get_id_name() { return *g_id; }
 name const & get_empty_name() { return *g_empty; }
 name const & get_empty_rec_name() { return *g_empty_rec; }
 name const & get_Exists_name() { return *g_Exists; }

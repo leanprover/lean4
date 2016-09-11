@@ -1251,16 +1251,6 @@ static expr update_equations_fn_type(expr const & eqns, expr const & new_fn_type
     return update_equations(eqns, eqs);
 }
 
-static expr unpack_equations_result(expr const & e, expr const & ref) {
-    if (is_equations_result(e)) {
-        return get_equations_result(e, 0);
-    } else if (is_let(e)) {
-        return update_let(e, let_type(e), let_value(e), unpack_equations_result(let_body(e), ref));
-    } else {
-        throw elaborator_exception(ref, "unexpected equation compiler result");
-    }
-}
-
 expr elaborator::visit_convoy(expr const & e, optional<expr> const & expected_type) {
     lean_assert(is_app(e));
     lean_assert(is_equations(get_app_fn(e)));
@@ -1324,7 +1314,7 @@ expr elaborator::visit_convoy(expr const & e, optional<expr> const & expected_ty
     }
     trace_elab(tout() << "match/convoy function type: " << new_fn_type << "\n";);
     expr new_eqns = visit_equations(update_equations_fn_type(eqns, new_fn_type));
-    expr fn       = unpack_equations_result(new_eqns, ref);
+    expr fn       = get_equations_result(new_eqns, 0);
     return mk_app(fn, new_args);
 }
 

@@ -88,7 +88,7 @@ Author: Leonardo de Moura
 #endif
 
 #ifndef LEAN_DEFAULT_PP_DELAYED_ABSTRACTION
-#define LEAN_DEFAULT_PP_DELAYED_ABSTRACTION false
+#define LEAN_DEFAULT_PP_DELAYED_ABSTRACTION true
 #endif
 
 #ifndef LEAN_DEFAULT_PP_ALL

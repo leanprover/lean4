@@ -651,13 +651,13 @@ decidable.ff not_false
 
 -- We use "dependent" if-then-else to be able to communicate the if-then-else condition
 -- to the branches
-attribute [inline]
+attribute [inline, elab_with_expected_type]
 definition dite (c : Prop) [H : decidable c] {A : Type} : (c → A) → (¬ c → A) → A :=
 λ t e, decidable.rec_on H e t
 
 /- if-then-else -/
 
-attribute [inline]
+attribute [inline, elab_with_expected_type]
 definition ite (c : Prop) [H : decidable c] {A : Type} (t e : A) : A :=
 decidable.rec_on H (λ Hnc, e) (λ Hc, t)
 

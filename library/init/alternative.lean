@@ -5,6 +5,7 @@ Author: Leonardo de Moura
 -/
 prelude
 import init.logic init.applicative
+set_option new_elaborator true
 
 structure [class] alternative (f : Type → Type) extends applicative f :=
 (failure : Π {A : Type}, f A)

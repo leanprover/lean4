@@ -824,8 +824,8 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
     return r;
 }
 
-optional<expr> elaborator::visit_app_propagate_expected(expr const & fn, buffer<expr> const & args,
-                                                        expr const & expected_type, expr const & ref) {
+optional<expr> elaborator::visit_app_with_expected(expr const & fn, buffer<expr> const & args,
+                                                   expr const & expected_type, expr const & ref) {
     snapshot C(*this);
     buffer<expr> new_args;
     buffer<expr> args_mvars;
@@ -836,6 +836,7 @@ optional<expr> elaborator::visit_app_propagate_expected(expr const & fn, buffer<
     expr fn_type          = infer_type(fn);
     expr type_before_whnf = fn_type;
     expr type             = whnf(fn_type);
+    buffer<expr> new_instances;
     unsigned i   = 0;
     /* First pass: compute type for an fn-application, and unify it with expected_type.
        We don't visit expelicit arguments at this point. */
@@ -847,10 +848,9 @@ optional<expr> elaborator::visit_app_propagate_expected(expr const & fn, buffer<
         expr new_arg;
         if (!is_explicit(bi)) {
             // implicit argument
+            new_arg = mk_metavar(d);
             if (bi.is_inst_implicit())
-                new_arg = mk_instance(d, ref);
-            else
-                new_arg = mk_metavar(d);
+                new_instances.push_back(new_arg);
             // implicit arguments are tagged as inaccessible in patterns
             if (m_in_pattern)
                 new_arg = copy_tag(ref, mk_inaccessible(new_arg));
@@ -904,10 +904,13 @@ optional<expr> elaborator::visit_app_propagate_expected(expr const & fn, buffer<
             new_args[size_at_args[i]] = new_arg;
         }
     }
+    /* Put new instances on the stack */
+    for (expr const & new_inst : new_instances)
+        m_instance_stack = cons(new_inst, m_instance_stack);
     return some_expr(mk_app(fn, new_args.size(), new_args.data()));
 }
 
-bool elaborator::is_propagate_expected_candidate(expr const & fn) {
+bool elaborator::is_with_expected_candidate(expr const & fn) {
     /* We only propagate type to arguments for constructors. */
     if (!is_constant(fn)) return false;
     return
@@ -926,8 +929,8 @@ expr elaborator::visit_default_app_core(expr const & _fn, arg_mask amask, buffer
     if (!args_already_visited && /* if the arguments have already been visited, then there is no point. */
         expected_type &&         /* the expected type must be known */
         amask == arg_mask::Default && /* we do not propagate information when @ and @@ are used */
-        is_propagate_expected_candidate(fn)) {
-        if (auto r = visit_app_propagate_expected(fn, args, *expected_type, ref)) {
+        is_with_expected_candidate(fn)) {
+        if (auto r = visit_app_with_expected(fn, args, *expected_type, ref)) {
             return *r;
         }
     }
@@ -1823,6 +1826,7 @@ void elaborator::synthesize_type_class_instances_core(list<expr> const & old_sta
                 throw elaborator_exception(mvar, "failed to assign type class instance to placeholder");
         } else {
             if (force) {
+                lean_unreachable();
                 auto pp_fn = mk_pp_ctx();
                 throw elaborator_exception(mvar,
                                            format("type class instance cannot be synthesized, type has metavariables") +

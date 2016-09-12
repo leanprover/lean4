@@ -1211,6 +1211,10 @@ expr mk_nonrec(environment & env, options const & opts, metavar_context & mctx,
                local_context const & lctx, expr const & eqns) {
     equations_header header = get_equations_header(eqns);
     auto R = elim_match(env, opts, mctx, lctx, eqns);
+    if (header.m_is_meta || header.m_is_lemma) {
+        /* Do not generate auxiliary equation or equational lemmas */
+        return R.m_fn;
+    }
     type_context ctx1(env, opts, mctx, lctx, transparency_mode::Semireducible);
     expr fn_type = ctx1.infer(R.m_fn);
     expr fn;

@@ -19,15 +19,6 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 
 namespace lean {
-/** \brief Given a C := As -> Type, return (fun (xs : As), unit) */
-static expr mk_fun_unit(expr const & C, expr const & unit) {
-    if (is_pi(C)) {
-        return mk_lambda(binding_name(C), binding_domain(C), mk_fun_unit(binding_body(C), unit));
-    } else {
-        return unit;
-    }
-}
-
 static bool is_type_former_arg(name const & C_name, expr const & arg) {
     expr const & fn = get_app_fn(arg);
     return is_local(fn) && mlocal_name(fn) == C_name;

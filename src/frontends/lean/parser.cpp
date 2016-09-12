@@ -47,6 +47,7 @@ Author: Leonardo de Moura
 #include "library/legacy_type_context.h"
 #include "library/equations_compiler/equations.h"
 #include "frontends/lean/tokens.h"
+#include "frontends/lean/builtin_exprs.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/notation_cmd.h"
@@ -1746,6 +1747,11 @@ struct to_pattern_fn {
             } else {
                 collect_new_local(e);
             }
+        } else if (is_anonymous_constructor(e)) {
+            buffer<expr> args;
+            get_app_args(get_annotation_arg(e), args);
+            for (expr const & arg : args)
+                collect_new_locals(arg, skip_main_fn);
         } else if (is_annotation(e)) {
             collect_new_locals(get_annotation_arg(e), skip_main_fn);
         } else if (is_constant(e) && is_pattern_constant(const_name(e))) {
@@ -1793,6 +1799,15 @@ struct to_pattern_fn {
                 return *r;
             else
                 return e;
+        } else if (is_anonymous_constructor(e)) {
+            buffer<expr> args;
+            expr a  = get_annotation_arg(e);
+            expr fn = get_app_args(a, args);
+            lean_assert(is_placeholder(fn));
+            for (expr & arg : args)
+                arg = visit(arg);
+            expr r = copy_tag(a, mk_app(fn, args));
+            return copy_tag(e, mk_anonymous_constructor(r));
         } else if (is_annotation(e)) {
             return copy_tag(e, mk_annotation(get_annotation_kind(e), visit(get_annotation_arg(e))));
         } else if (is_constant(e) && is_pattern_constant(const_name(e))) {

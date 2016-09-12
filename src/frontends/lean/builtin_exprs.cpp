@@ -57,6 +57,8 @@ static expr parse_Type(parser & p, unsigned, expr const *, pos_info const & pos)
     }
 }
 
+static name * g_let_match_name = nullptr;
+
 static expr parse_let(parser & p, pos_info const & pos);
 static expr parse_let_body(parser & p, pos_info const & pos) {
     if (p.curr_is_token(get_comma_tk())) {
@@ -91,7 +93,7 @@ static expr parse_let(parser & p, pos_info const & pos) {
     parser::local_scope scope1(p);
     if (p.parse_local_notation_decl()) {
         return parse_let_body(p, pos);
-    } else {
+    } else if (p.curr_is_identifier()) {
         auto id_pos     = p.pos();
         name id         = p.check_atomic_id_next("invalid let declaration, atomic identifier expected");
         expr type;
@@ -125,6 +127,20 @@ static expr parse_let(parser & p, pos_info const & pos) {
         p.add_local_expr(id, x);
         expr b = parse_let_body(p, pos);
         return p.save_pos(mk_let(id, type, value, abstract_local(b, x)), pos);
+    } else {
+        buffer<expr> new_locals;
+        expr lhs = p.parse_pattern(new_locals);
+        p.check_token_next(get_assign_tk(), "invalid let declaration, ':=' expected");
+        expr value = p.parse_expr();
+        for (expr const & l : new_locals)
+            p.add_local(l);
+        expr body  = parse_let_body(p, pos);
+        match_definition_scope match_scope;
+        expr fn = p.save_pos(mk_local(mk_fresh_name(), *g_let_match_name, mk_expr_placeholder(), binder_info()), pos);
+        expr eqn = p.rec_save_pos(Fun(fn, Fun(new_locals, p.save_pos(mk_equation(p.rec_save_pos(mk_app(fn, lhs), pos), body), pos), p)), pos);
+        equations_header h = mk_equations_header(match_scope.get_name());
+        expr eqns  = p.save_pos(mk_equations(h, 1, &eqn), pos);
+        return p.save_pos(mk_app(eqns, value), pos);
     }
 }
 
@@ -725,6 +741,7 @@ void initialize_builtin_exprs() {
     g_led_table      = new parse_table();
     *g_led_table     = init_led_table();
     g_do_match_name  = new name("_do_match");
+    g_let_match_name = new name("_let_match");
 
     g_parser_checkpoint_have = new name{"parser", "checkpoint_have"};
     register_bool_option(*g_parser_checkpoint_have, LEAN_DEFAULT_PARSER_CHECKPOINT_HAVE,
@@ -739,6 +756,7 @@ void finalize_builtin_exprs() {
     delete g_nud_table;
     delete g_not;
     delete g_do_match_name;
+    delete g_let_match_name;
     delete g_parser_checkpoint_have;
     delete g_anonymous_constructor;
 }

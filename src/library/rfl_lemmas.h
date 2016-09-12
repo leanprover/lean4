@@ -9,8 +9,7 @@ Author: Daniel Selsam
 #include "library/head_map.h"
 
 namespace lean {
-
-class defeq_simp_lemma {
+class rfl_lemma {
     name                m_id;
     levels              m_umetas;
     list<expr>          m_emetas;
@@ -20,9 +19,9 @@ class defeq_simp_lemma {
     expr                m_rhs;
     unsigned            m_priority;
 public:
-    defeq_simp_lemma() {}
-    defeq_simp_lemma(name const & id, levels const & umetas, list<expr> const & emetas,
-                     list<bool> const & instances, expr const & lhs, expr const & rhs, unsigned priority);
+    rfl_lemma() {}
+    rfl_lemma(name const & id, levels const & umetas, list<expr> const & emetas,
+              list<bool> const & instances, expr const & lhs, expr const & rhs, unsigned priority);
 
     name const & get_id() const { return m_id; }
     unsigned get_num_umeta() const { return length(m_umetas); }
@@ -42,24 +41,24 @@ public:
     format pp(formatter const & fmt) const;
 };
 
-bool operator==(defeq_simp_lemma const & sl1, defeq_simp_lemma const & sl2);
-inline bool operator!=(defeq_simp_lemma const & sl1, defeq_simp_lemma const & sl2) { return !operator==(sl1, sl2); }
+bool operator==(rfl_lemma const & sl1, rfl_lemma const & sl2);
+inline bool operator!=(rfl_lemma const & sl1, rfl_lemma const & sl2) { return !operator==(sl1, sl2); }
 
-struct defeq_simp_lemma_prio_fn { unsigned operator()(defeq_simp_lemma const & sl) const { return sl.get_priority(); } };
-typedef head_map_prio<defeq_simp_lemma, defeq_simp_lemma_prio_fn> defeq_simp_lemmas;
+struct rfl_lemma_prio_fn { unsigned operator()(rfl_lemma const & sl) const { return sl.get_priority(); } };
+typedef head_map_prio<rfl_lemma, rfl_lemma_prio_fn> rfl_lemmas;
 
-typedef unsigned defeq_lemmas_token;
+typedef unsigned rfl_lemmas_token;
 
 /* Register a system level defeq attribute. This method must only be invoked during initialization.
    It returns an internal "token" for retrieving the lemmas */
-defeq_lemmas_token register_defeq_simp_attribute(name const & attr_name);
+rfl_lemmas_token register_defeq_simp_attribute(name const & attr_name);
 
-typedef std::shared_ptr<defeq_simp_lemmas> defeq_simp_lemmas_ptr;
-defeq_simp_lemmas_ptr get_defeq_simp_lemmas(environment const & env);
-defeq_simp_lemmas_ptr get_defeq_simp_lemmas(environment const & env, defeq_lemmas_token token);
+typedef std::shared_ptr<rfl_lemmas> rfl_lemmas_ptr;
+rfl_lemmas_ptr get_rfl_lemmas(environment const & env);
+rfl_lemmas_ptr get_rfl_lemmas(environment const & env, rfl_lemmas_token token);
 
-format pp_defeq_simp_lemmas(defeq_simp_lemmas const & lemmas, formatter const & fmt);
+format pp_rfl_lemmas(rfl_lemmas const & lemmas, formatter const & fmt);
 
-void initialize_defeq_simp_lemmas();
-void finalize_defeq_simp_lemmas();
+void initialize_rfl_lemmas();
+void finalize_rfl_lemmas();
 }

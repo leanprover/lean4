@@ -25,8 +25,8 @@ Author: Leonardo de Moura
 #include "library/legacy_type_context.h"
 #include "library/unification_hint.h"
 #include "library/reducible.h"
+#include "library/rfl_lemmas.h"
 #include "library/tactic/kabstract.h"
-#include "library/tactic/defeq_simplifier/defeq_simp_lemmas.h"
 #include "library/tactic/simplifier/simp_lemmas.h"
 #include "library/tactic/simplifier/simp_extensions.h"
 #include "frontends/lean/parser.h"
@@ -475,10 +475,10 @@ static void print_unification_hints(parser & p) {
     out << pp_unification_hints(get_unification_hints(p.env()), out.get_formatter());
 }
 
-static void print_defeq_lemmas(parser & p) {
+static void print_rfl_lemmas(parser & p) {
     type_checker tc(p.env());
     auto out = regular(p.env(), p.ios(), tc);
-    out << pp_defeq_simp_lemmas(*get_defeq_simp_lemmas(p.env()), out.get_formatter());
+    out << pp_rfl_lemmas(*get_rfl_lemmas(p.env()), out.get_formatter());
 }
 
 static void print_simp_rules(parser & p) {
@@ -663,7 +663,7 @@ environment print_cmd(parser & p) {
         else if (name == "unify")
             print_unification_hints(p);
         else if (name == "defeq")
-            print_defeq_lemmas(p);
+            print_rfl_lemmas(p);
         else if (name == "simp")
             print_simp_rules(p);
         else if (name == "simp_ext")

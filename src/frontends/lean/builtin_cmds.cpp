@@ -35,8 +35,6 @@ Author: Leonardo de Moura
 #include "library/compiler/vm_compiler.h"
 #include "library/tactic/kabstract.h"
 #include "library/tactic/elaborate.h"
-#include "library/tactic/defeq_simplifier/defeq_simp_lemmas.h"
-#include "library/tactic/defeq_simplifier/defeq_simplifier.h"
 #include "library/tactic/simplifier/simp_extensions.h"
 #include "library/tactic/tactic_state.h"
 #include "frontends/lean/util.h"

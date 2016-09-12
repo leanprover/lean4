@@ -27,7 +27,7 @@ Author: Leonardo de Moura
 #include "library/tactic/unfold_tactic.h"
 #include "library/tactic/elaborate.h"
 #include "library/tactic/user_attribute.h"
-#include "library/tactic/defeq_simplifier/init_module.h"
+#include "library/tactic/defeq_simplifier.h"
 #include "library/tactic/simplifier/init_module.h"
 #include "library/tactic/backward/init_module.h"
 
@@ -54,7 +54,7 @@ void initialize_tactic_module() {
     initialize_generalize_tactic();
     initialize_rewrite_tactic();
     initialize_unfold_tactic();
-    initialize_defeq_simplifier_module();
+    initialize_defeq_simplifier();
     initialize_simplifier_module();
     initialize_backward_module();
     initialize_elaborate();
@@ -65,7 +65,7 @@ void finalize_tactic_module() {
     finalize_elaborate();
     finalize_backward_module();
     finalize_simplifier_module();
-    finalize_defeq_simplifier_module();
+    finalize_defeq_simplifier();
     finalize_unfold_tactic();
     finalize_rewrite_tactic();
     finalize_generalize_tactic();

@@ -48,6 +48,7 @@ Author: Leonardo de Moura
 #include "library/mpq_macro.h"
 #include "library/arith_instance_manager.h"
 #include "library/inverse.h"
+#include "library/rfl_lemmas.h"
 
 // #include "library/congr_lemma_manager.h"
 // #include "library/light_lt_manager.h"
@@ -122,6 +123,7 @@ void initialize_library_module() {
     // initialize_congr_lemma_manager();
     initialize_fun_info();
     initialize_unification_hint();
+    initialize_rfl_lemmas();
     initialize_type_context();
     initialize_delayed_abstraction();
     initialize_mpq_macro();
@@ -135,6 +137,7 @@ void finalize_library_module() {
     finalize_mpq_macro();
     finalize_delayed_abstraction();
     finalize_type_context();
+    finalize_rfl_lemmas();
     finalize_unification_hint();
     finalize_fun_info();
     // finalize_congr_lemma_manager();

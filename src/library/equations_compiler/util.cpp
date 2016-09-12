@@ -20,7 +20,7 @@ Author: Leonardo de Moura
 #include "library/aux_definition.h"
 #include "library/scope_pos_info_provider.h"
 #include "library/compiler/vm_compiler.h"
-#include "library/tactic/defeq_simplifier/defeq_simplifier.h"
+#include "library/tactic/defeq_simplifier.h"
 #include "library/equations_compiler/equations.h"
 #include "library/equations_compiler/util.h"
 
@@ -301,7 +301,7 @@ static environment add_equation_lemma(environment const & env, options const & o
     if (use_dsimp) {
         try {
             type_context ctx(env, opts, mctx, lctx, transparency_mode::None);
-            defeq_simp_lemmas_ptr lemmas = get_defeq_simp_lemmas(env, g_eqn_sanitizer_token);
+            rfl_lemmas_ptr lemmas = get_rfl_lemmas(env, g_eqn_sanitizer_token);
             new_type = defeq_simplify(ctx, *lemmas, type);
         } catch (defeq_simplifier_exception & ex) {
             throw nested_exception("equation compiler failed to simplify type of automatically generated lemma using "

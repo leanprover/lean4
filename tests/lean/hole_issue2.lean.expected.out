@@ -1,0 +1,29 @@
+hole_issue2.lean:23:78: error: don't know how to synthesize placeholder
+state:
+A : Type,
+b₁ b₂ : bag A,
+l₁ l₂ : list A,
+_match : Π b, subcount l₁ l₂ = b → decidable (⟦l₁⟧ ⊆ ⟦l₂⟧),
+H : subcount l₁ l₂ = ff,
+h : ⟦l₁⟧ ⊆ ⟦l₂⟧,
+w : A,
+hw : ¬list.count w l₁ ≤ list.count w l₂
+⊢ false
+hole_issue2.lean:30:69: error: don't know how to synthesize placeholder
+state:
+A : Type,
+b₁ b₂ : bag A,
+l₁ l₂ : list A,
+_match : Π b, subcount l₁ l₂ = b → decidable (⟦l₁⟧ ⊆ ⟦l₂⟧),
+H : subcount l₁ l₂ = ff,
+h : ⟦l₁⟧ ⊆ ⟦l₂⟧
+⊢ ∀ a, ¬list.count a l₁ ≤ list.count a l₂ → false
+hole_issue2.lean:37:32: error: don't know how to synthesize placeholder
+state:
+A : Type,
+b₁ b₂ : bag A,
+l₁ l₂ : list A,
+_match : Π b, subcount l₁ l₂ = b → decidable (⟦l₁⟧ ⊆ ⟦l₂⟧),
+H : subcount l₁ l₂ = ff,
+h : ⟦l₁⟧ ⊆ ⟦l₂⟧
+⊢ false

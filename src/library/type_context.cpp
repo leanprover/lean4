@@ -1924,6 +1924,9 @@ lbool type_context::quick_is_def_eq(expr const & e1, expr const & e2) {
             return to_lbool(is_def_eq_core(e1, instantiate_mvars(e2)));
         } else if (in_tmp_mode()) {
             return to_lbool(process_assignment(e1, e2));
+        } else if (is_delayed_abstraction(e2) && get_delayed_abstraction_expr(e2) == e1) {
+            // TODO(Leo): improve and check
+            return l_true;
         } else {
             optional<metavar_decl> m1_decl = m_mctx.get_metavar_decl(f1);
             optional<metavar_decl> m2_decl = m_mctx.get_metavar_decl(f2);
@@ -1942,6 +1945,9 @@ lbool type_context::quick_is_def_eq(expr const & e1, expr const & e2) {
     if (is_mvar(f2)) {
         if (is_assigned(f2)) {
             return to_lbool(is_def_eq_core(e1, instantiate_mvars(e2)));
+        } else if (is_delayed_abstraction(e1) && get_delayed_abstraction_expr(e1) == e2) {
+            // TODO(Leo): improve and check
+            return l_true;
         } else {
             return to_lbool(process_assignment(e2, e1));
         }

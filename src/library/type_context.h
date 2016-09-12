@@ -474,6 +474,7 @@ private:
     bool approximate();
     expr try_zeta(expr const & e);
     expr expand_let_decls(expr const & e);
+    friend struct check_assignment_fn;
     optional<expr> check_assignment(buffer<expr> const & locals, expr const & mvar, expr v);
     bool process_assignment(expr const & m, expr const & v);
 

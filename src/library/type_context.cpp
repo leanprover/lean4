@@ -1557,135 +1557,174 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
     return true;
 }
 
+struct check_assignment_failed {};
+
+struct check_assignment_fn : public replace_visitor {
+    type_context &         m_ctx;
+    buffer<expr> const &   m_locals;
+    expr const &           m_mvar;
+    optional<metavar_decl> m_mvar_decl;
+    expr                   m_value;
+
+    check_assignment_fn(type_context & ctx, buffer<expr> const & locals, expr const & mvar):
+        m_ctx(ctx), m_locals(locals), m_mvar(mvar) {
+        if (!m_ctx.in_tmp_mode()) {
+            m_mvar_decl = m_ctx.m_mctx.get_metavar_decl(mvar);
+            lean_assert(m_mvar_decl);
+        }
+    }
+
+    expr visit_local(expr const & e) override {
+        if (!is_local_decl_ref(e)) return e;
+
+        bool in_ctx;
+        if (m_ctx.in_tmp_mode()) {
+            in_ctx = static_cast<bool>(m_ctx.m_tmp_mvar_lctx.get_local_decl(e));
+        } else {
+            in_ctx = static_cast<bool>(m_mvar_decl->get_context().get_local_decl(e));
+        }
+
+        if (!in_ctx) {
+            if (auto decl = m_ctx.m_lctx.get_local_decl(e)) {
+                if (auto v = decl->get_value()) {
+                    /* expand let-decl value */
+                    return visit(*v);
+                }
+            }
+            if (std::all_of(m_locals.begin(), m_locals.end(), [&](expr const & a) {
+                        return mlocal_name(a) != mlocal_name(e); })) {
+                lean_trace(name({"type_context", "is_def_eq_detail"}),
+                           tout() << "failed to assign " << m_mvar << " to\n" << m_value << "\n" <<
+                           "value contains local declaration " << e <<
+                           " which is not in the scope of the metavariable\n";);
+                throw check_assignment_failed();
+            }
+        }
+        return e;
+    }
+
+    /** Return true iff ctx1 - delayed_locals is a subset of ctx2 */
+    bool is_subset_of(local_context const & ctx1, local_context const & ctx2, buffer<name> const & delayed_locals) {
+        return !ctx1.find_if([&](local_decl const & d1) { // NOLINT
+                name const & n1 = d1.get_name();
+                if (ctx2.get_local_decl(n1)) return false;
+                bool is_delayed = std::find(delayed_locals.begin(), delayed_locals.end(), n1) != delayed_locals.end();
+                return !is_delayed;
+            });
+    }
+
+    expr visit_meta_core(expr const & e, buffer<name> const & delayed_locals) {
+        if (!m_ctx.is_mvar(e)) return replace_visitor::visit_meta(e);
+        if (auto v = m_ctx.get_assignment(e)) return visit(*v);
+
+        if (m_mvar == e) {
+            /* mvar occurs in m_value */
+            lean_trace(name({"type_context", "is_def_eq_detail"}),
+                       tout() << "failed to assign " << m_mvar << " :=\n" << m_value << "\n" <<
+                       "value contains the metavariable " << m_mvar << "\n";);
+            throw check_assignment_failed();
+        }
+
+        if (m_ctx.in_tmp_mode()) {
+            /* Recall that in tmp_mode all metavariables have the same local context.
+               So, we don't need to check anything.
+               In regular mode, we need to check condition 4
+
+               For every metavariable `?M'@C'` occurring in `t`, `C'` is a subset of `C` */
+            return e;
+        }
+
+        /* unassigned metavariable in regular mode */
+
+        optional<metavar_decl> e_decl = m_ctx.m_mctx.get_metavar_decl(e);
+        if (!e_decl) {
+            lean_trace(name({"type_context", "is_def_eq_detail"}),
+                       tout() << "failed to assign " << m_mvar << " :=\n" << m_value << "\n" <<
+                       "value contains \"foreign\" metavariable " << e << "\n";);
+            throw check_assignment_failed();
+        }
+
+        local_context mvar_lctx = m_mvar_decl->get_context();
+        local_context e_lctx    = e_decl->get_context();
+        if (is_subset_of(e_lctx, mvar_lctx, delayed_locals))
+            return e;
+
+        if (m_ctx.approximate() && mvar_lctx.is_subset_of(e_lctx)) {
+            expr e_type = e_decl->get_type();
+            if (mvar_lctx.well_formed(e_type)) {
+                /* Restrict context of the ?M' */
+                expr aux_mvar = m_ctx.mk_metavar_decl(mvar_lctx, e_type);
+                if (m_ctx.process_assignment(e, aux_mvar)) {
+                    return aux_mvar;
+                } else {
+                    /* Local context restriction failed */
+                    throw check_assignment_failed();
+                }
+            } else {
+                /* e_type uses local_decl's that are not in mvar_lctx */
+                lean_trace(name({"type_context", "is_def_eq_detail"}),
+                           tout() << "failed to assign " << m_mvar << " :=\n" << m_value << "\n"
+                           << "value contains metavariable " << e << ", and its local context "
+                           << "is not a subset of the one in the metavariable being assigned. "
+                           << "The local context for " << e << " cannot be restricted because "
+                           << "its type depends on local constants that are not in the local "
+                           << "context for " << m_mvar << "\n";);
+                throw check_assignment_failed();
+            }
+        } else {
+            /* The two local contexts are incomparable OR
+               approximate mode is not enabled. */
+            lean_trace(name({"type_context", "is_def_eq_detail"}),
+                       tout() << "failed to assign " << m_mvar << " :=\n" << m_value << "\n"
+                       << "value contains metavariable " << e;
+                       if (!m_ctx.approximate()) {
+                           tout() << " that was declared in a local context that is not a "
+                                  << "subset of the one in the metavariable being assigned, "
+                                  << "and local context restriction is disabled\n";
+                       } else {
+                           tout() << ", but the two local contexts used to declare these metavariables "
+                                  << " are incomparable\n";
+                       });
+            throw check_assignment_failed();
+        }
+    }
+
+    expr visit_meta(expr const & e) override {
+        buffer<name> tmp;
+        return visit_meta_core(e, tmp);
+    }
+
+    expr visit_macro(expr const & e) override {
+        if (is_delayed_abstraction(e)) {
+            expr const & a = get_delayed_abstraction_expr(e);
+            if (is_metavar(a)) {
+                buffer<name> ns;
+                buffer<expr> vs;
+                get_delayed_abstraction_info(e, ns, vs);
+                expr new_mvar = visit_meta_core(a, ns);
+                for (expr & v : vs)
+                    v = visit(v);
+                return mk_delayed_abstraction(new_mvar, ns, vs);
+            } else {
+                return visit(push_delayed_abstraction(e));
+            }
+        } else {
+            return replace_visitor::visit_macro(e);
+        }
+    }
+
+    expr operator()(expr const & v) {
+        m_value = v;
+        return visit(v);
+    }
+};
+
 /* Auxiliary method for process_assignment */
 optional<expr> type_context::check_assignment(buffer<expr> const & locals, expr const & mvar, expr v) {
-    optional<metavar_decl> mvar_decl;
-    if (!in_tmp_mode()) {
-        mvar_decl = m_mctx.get_metavar_decl(mvar);
-        lean_assert(mvar_decl);
-    }
-    while (true) {
-        /* We use a loop here to implement workaround A1.
-           If new_v has a "bad" let local decl, we expand it and try again. */
-        bool ok = true;
-        bool bad_let_refs = false;
-        bool inst_mvars = false;
-        for_each(v, [&](expr const & e, unsigned) {
-                if (!ok) return false; // stop search
-                if (is_mvar(e)) {
-                    if (is_assigned(e)) {
-                        inst_mvars = true;
-                        return false;
-                    }
-                    if (mvar == e) {
-                        /* mvar occurs in v */
-                        ok = false;
-                        lean_trace(name({"type_context", "is_def_eq_detail"}),
-                                   tout() << "failed to assign " << mvar << " :=\n" << v << "\n" <<
-                                   "value contains the metavariable " << mvar << "\n";);
-                        return false;
-                    }
-                    if (!in_tmp_mode()) {
-                        /* Recall that in tmp_mode all metavariables have the same local context.
-                           So, we don't need to check anything.
-                           In regular mode, we need to check condition 4
-
-                           For every metavariable `?M'@C'` occurring in `t`, `C'` is a subset of `C` */
-                        optional<metavar_decl> e_decl = m_mctx.get_metavar_decl(e);
-                        if (!e_decl) {
-                            ok = false;
-                            lean_trace(name({"type_context", "is_def_eq_detail"}),
-                                       tout() << "failed to assign " << mvar << " :=\n" << v << "\n" <<
-                                       "value contains \"foreign\" metavariable " << e << "\n";);
-                            return false;
-                        }
-                        local_context mvar_lctx = mvar_decl->get_context();
-                        local_context e_lctx    = e_decl->get_context();
-                        if (!e_lctx.is_subset_of(mvar_lctx)) {
-                            if (approximate() && mvar_lctx.is_subset_of(e_lctx)) {
-                                expr e_type = e_decl->get_type();
-                                if (mvar_lctx.well_formed(e_type)) {
-                                    /* Restrict context of the ?M' */
-                                    expr aux_mvar = m_mctx.mk_metavar_decl(mvar_lctx, e_type);
-                                    if (process_assignment(e, aux_mvar)) {
-                                        inst_mvars = true;
-                                    } else {
-                                        /* Local context restriction failed */
-                                        ok = false;
-                                        return false;
-                                    }
-                                } else {
-                                    /* e_type uses local_decl's that are not in mvar_lctx */
-                                    lean_trace(name({"type_context", "is_def_eq_detail"}),
-                                               tout() << "failed to assign " << mvar << " :=\n" << v << "\n"
-                                               << "value contains metavariable " << e << ", and its local context "
-                                               << "is not a subset of the one in the metavariable being assigned. "
-                                               << "The local context for " << e << " cannot be restricted because "
-                                               << "its type depends on local constants that are not in the local "
-                                               << "context for " << mvar << "\n";);
-                                    ok = false;
-                                    return false;
-                                }
-                            } else {
-                                /* The two local contexts are incomparable OR
-                                   approximate mode is not enabled. */
-                                ok = false;
-                                lean_trace(name({"type_context", "is_def_eq_detail"}),
-                                           tout() << "failed to assign " << mvar << " :=\n" << v << "\n"
-                                           << "value contains metavariable " << e;
-                                           if (!approximate()) {
-                                               tout() << " that was declared in a local context that is not a "
-                                                      << "subset of the one in the metavariable being assigned, "
-                                                      << "and local context restriction is disabled\n";
-                                           } else {
-                                               tout() << ", but the two local contexts used to declare these metavariables "
-                                                      << " are incomparable\n";
-                                           });
-                                return false;
-                            }
-                        }
-                    }
-                    return false;
-                } else if (is_local_decl_ref(e)) {
-                    bool in_ctx;
-                    if (in_tmp_mode()) {
-                        in_ctx = static_cast<bool>(m_tmp_mvar_lctx.get_local_decl(e));
-                    } else {
-                        in_ctx = static_cast<bool>(mvar_decl->get_context().get_local_decl(e));
-                    }
-                    if (!in_ctx) {
-                        if (auto decl = m_lctx.get_local_decl(e)) {
-                            if (decl->get_value()) {
-                                /* let-decl that is not in the metavar context
-                                   workaround A1 */
-                                ok           = false;
-                                bad_let_refs = true;
-                                return false;
-                            }
-                        }
-                        if (std::all_of(locals.begin(), locals.end(), [&](expr const & a) {
-                                    return mlocal_name(a) != mlocal_name(e); })) {
-                            ok = false;
-                            lean_trace(name({"type_context", "is_def_eq_detail"}),
-                                       tout() << "failed to assign " << mvar << " to\n" << v << "\n" <<
-                                       "value contains local declaration " << e <<
-                                       " which is not in the scope of the metavariable\n";);
-                            return false;
-                        }
-                    }
-                    return false;
-                }
-                return true;
-            });
-        if (inst_mvars) {
-            v = instantiate_mvars(v);
-        } else if (ok) {
-            return some_expr(v);
-        } else if (bad_let_refs) {
-            v = instantiate_mvars(expand_let_decls(v));
-        } else {
-            return none_expr();
-        }
+    try {
+        return some_expr(check_assignment_fn(*this, locals, mvar)(v));
+    } catch (check_assignment_failed &) {
+        return none_expr();
     }
 }
 

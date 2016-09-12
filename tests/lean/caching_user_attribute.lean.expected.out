@@ -1,3 +1,4 @@
+[user_attributes_cache] no cached result for [foo]
 [user_attributes_cache] recomputing cache for [foo]
 eq.refl
 eq.mp
@@ -5,6 +6,7 @@ eq.mp
 eq.refl
 eq.mp
 
+[user_attributes_cache] cached result for [foo] has been found, but cache fingerprint does not match
 [user_attributes_cache] recomputing cache for [foo]
 eq.refl
 eq.mpr

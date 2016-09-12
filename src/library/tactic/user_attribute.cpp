@@ -49,6 +49,7 @@ private:
     struct entry {
         unsigned m_fingerprint;
         vm_obj   m_val;
+        entry(unsigned f, vm_obj const & val):m_fingerprint(f), m_val(val) {}
     };
     name_hash_map<entry> m_cache;
 
@@ -58,6 +59,10 @@ public:
         if (it != m_cache.end()) {
             if (it->second.m_fingerprint == attr.get_fingerprint(env))
                 return it->second.m_val;
+            lean_trace("user_attributes_cache", tout() << "cached result for [" << attr.get_name() << "] "
+                       << "has been found, but cache fingerprint does not match\n";);
+        } else {
+            lean_trace("user_attributes_cache", tout() << "no cached result for [" << attr.get_name() << "]\n";);
         }
 
         lean_trace("user_attributes_cache", tout() << "recomputing cache for [" << attr.get_name() << "]\n";);
@@ -66,7 +71,8 @@ public:
         auto cached = invoke(cache_handler, to_vm_list(to_list(instances), [&](const name & inst) {
             return to_obj(env.get(inst));
         }));
-        return m_cache[attr.get_name()] = entry {attr.get_fingerprint(env), cached};
+        m_cache.erase(attr.get_name());
+        m_cache.insert(mk_pair(attr.get_name(), entry(attr.get_fingerprint(env), cached)));
         return cached;
     }
 };

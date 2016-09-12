@@ -217,9 +217,42 @@ bool elaborator::is_elim_elab_candidate(name const & fn) {
 }
 
 /** See comment at elim_info */
+auto elaborator::get_elim_info_for_builtin(name const & fn) -> elim_info {
+    lean_assert(is_aux_recursor(m_env, fn) || inductive::is_elim_rule(m_env, fn));
+    /* Remark: this is not just an optimization. The code at use_elim_elab_core
+       only works for dependent elimination. */
+    lean_assert(!fn.is_atomic());
+    name const & I_name    = fn.get_prefix();
+    optional<inductive::inductive_decl> decl = inductive::is_inductive_decl(m_env, I_name);
+    lean_assert(decl);
+    unsigned nparams  = decl->m_num_params;
+    unsigned nindices = *inductive::get_num_indices(m_env, I_name);
+    unsigned nminors  = length(decl->m_intro_rules);
+    elim_info r;
+    if (strcmp(fn.get_string(), "brec_on") == 0 || strcmp(fn.get_string(), "binduction_on") == 0) {
+        r.m_arity      = nparams + 1 /* motive */ + nindices + 1 /* major */ + 1;
+    } else {
+        r.m_arity      = nparams + 1 /* motive */ + nindices + 1 /* major */ + nminors;
+    }
+    r.m_nexplicit  = 1 /* major premise */ + nminors;
+    r.m_motive_idx = nparams;
+    unsigned major_idx;
+    if (inductive::is_elim_rule(m_env, fn)) {
+        major_idx = nparams + 1 + nindices + nminors;
+    } else {
+        major_idx = nparams + 1 + nindices;
+    }
+    r.m_idxs = to_list(major_idx);
+    return r;
+}
+
+/** See comment at elim_info */
 auto elaborator::use_elim_elab_core(name const & fn) -> optional<elim_info> {
     if (!is_elim_elab_candidate(fn))
         return optional<elim_info>();
+    if (is_aux_recursor(m_env, fn) || inductive::is_elim_rule(m_env, fn)) {
+        return optional<elim_info>(get_elim_info_for_builtin(fn));
+    }
     type_context::tmp_locals locals(m_ctx);
     declaration d     = m_env.get(fn);
     expr type         = d.get_type();
@@ -662,19 +695,19 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
         << "  arity:     " << info.m_arity << "\n"
         << "  nexplicit: " << info.m_nexplicit << "\n"
         << "  motive:    #" << (info.m_motive_idx+1) << "\n"
-        << "  major:    ";
-        for (unsigned idx : info.m_explicit_idxs)
+        << "  \"major\":  ";
+        for (unsigned idx : info.m_idxs)
             tout() << " #" << (idx+1);
         tout() << "\n";);
 
     expr fn_type = try_to_pi(infer_type(fn));
     buffer<expr> new_args;
 
-    /* In the first pass we only process the arguments at info.m_explicit_idxs */
+    /* In the first pass we only process the arguments at info.m_idxs */
     expr type = fn_type;
     unsigned i = 0;
     unsigned j = 0;
-    list<unsigned> main_idxs = info.m_explicit_idxs;
+    list<unsigned> main_idxs  = info.m_idxs;
     buffer<optional<expr>> postponed_args; // mark arguments that must be elaborated in the second pass.
     {
         while (is_pi(type)) {
@@ -749,9 +782,9 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
     trace_elab_debug(tout() << "compute motive by using keyed-abstraction:\n  " <<
                      instantiate_mvars(type) << "\nwith\n  " <<
                      expected_type << "\n";);
+    expr motive = expected_type;
     buffer<expr> keys;
     get_app_args(type, keys);
-    expr motive = expected_type;
     i = keys.size();
     while (i > 0) {
         --i;

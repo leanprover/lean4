@@ -6,6 +6,8 @@ Authors: Leonardo de Moura
 Basic datatypes
 -/
 prelude
+set_option new_elaborator true
+
 notation `Prop`  := Type.{0}
 notation `Type₁` := Type.{1}
 notation `Type₂` := Type.{2}
@@ -36,13 +38,13 @@ structure prod (A B : Type) :=
 inductive and (a b : Prop) : Prop
 | intro : a → b → and
 
-definition and.elim_left {a b : Prop} (H : and a b) : a  :=
-and.rec (λa b, a) H
+definition and.elim_left {a b : Prop} (H : and a b) : a :=
+and.rec (λ Ha Hb, Ha) H
 
 definition and.left := @and.elim_left
 
 definition and.elim_right {a b : Prop} (H : and a b) : b :=
-and.rec (λa b, b) H
+and.rec (λ Ha Hb, Hb) H
 
 definition and.right := @and.elim_right
 
@@ -362,7 +364,7 @@ namespace eq
   subst H₂ H₁
 
   theorem symm : a = b → b = a :=
-  eq.rec (refl a)
+  λ h, eq.rec (refl a) h
 end eq
 
 notation H1 ▸ H2 := eq.subst H1 H2

@@ -1,3 +1,5 @@
+set_attr1.lean:8:11:failed to generate bytecode for 'ex1'
+set_attr1.lean:8:0: warning: proof generation for the prop_simplifier macro has not been implemented yet
 set_attr1.lean:15:0: error: tactic failed, result contains meta-variables
 state:
 n : ℕ

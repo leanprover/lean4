@@ -59,13 +59,14 @@ private:
         of the form (C a_1 ... a_n) where C and a_i's are parameters. Moreover, the parameters a_i's
         can be inferred using explicit parameters. */
     struct elim_info {
-        unsigned       m_arity; /* "arity" of the "eliminator" */
-        unsigned       m_nexplicit; /* Number of explicit arguments */
+        unsigned       m_arity;      /* "arity" of the "eliminator" */
+        unsigned       m_nexplicit;  /* Number of explicit arguments */
         unsigned       m_motive_idx; /* Position of the motive (i.e., C) */
-        list<unsigned> m_explicit_idxs; /* Position of the explicit parameters that we use to synthesize the a_i's */
+        list<unsigned> m_idxs;       // Position of the explicit parameters that we use to synthesize the a_i's
+                                     // or need to be processed in the first pass.
         elim_info() {}
-        elim_info(unsigned arity, unsigned nexplicit, unsigned midx, list<unsigned> const & eidxs):
-            m_arity(arity), m_nexplicit(nexplicit), m_motive_idx(midx), m_explicit_idxs(eidxs) {}
+        elim_info(unsigned arity, unsigned nexplicit, unsigned midx, list<unsigned> const & idxs):
+            m_arity(arity), m_nexplicit(nexplicit), m_motive_idx(midx), m_idxs(idxs) {}
     };
 
     /** \brief Cache for constants that are handled using "eliminator" elaboration. */
@@ -134,6 +135,7 @@ private:
     expr enforce_type(expr const & e, expr const & expected_type, char const * header, expr const & ref);
 
     bool is_elim_elab_candidate(name const & fn);
+    elim_info get_elim_info_for_builtin(name const & fn);
     optional<elim_info> use_elim_elab_core(name const & fn);
     optional<elim_info> use_elim_elab(name const & fn);
 

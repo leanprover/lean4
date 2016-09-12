@@ -1,2 +1,2 @@
 ?m_1
-nat.succ (nat.rec 1 (λ b₁, nat.succ) 0)
+nat.succ (nat.rec 1 (λ b₁ r, nat.succ r) 0)

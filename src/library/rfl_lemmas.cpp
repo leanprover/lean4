@@ -191,8 +191,67 @@ format pp_rfl_lemmas(rfl_lemmas const & lemmas, formatter const & fmt) {
     return r;
 }
 
+
+static bool instantiate_emetas(type_context & ctx, list<expr> const & _emetas, list<bool> const & _instances) {
+    buffer<expr> emetas;
+    buffer<bool> instances;
+    to_buffer(_emetas, emetas);
+    to_buffer(_instances, instances);
+
+    lean_assert(emetas.size() == instances.size());
+    for (unsigned i = 0; i < emetas.size(); ++i) {
+        expr m = emetas[i];
+        unsigned mvar_idx = emetas.size() - 1 - i;
+        expr m_type = ctx.instantiate_mvars(ctx.infer(m));
+        lean_assert(!has_metavar(m_type));
+        if (ctx.get_tmp_mvar_assignment(mvar_idx)) continue;
+        if (instances[i]) {
+            if (auto v = ctx.mk_class_instance(m_type)) {
+                if (!ctx.is_def_eq(m, *v)) {
+                    lean_trace(name({"rfl_lemma", "failure"}),
+                               tout() << "unable to assign instance for: " << m_type << "\n";);
+                    return false;
+                } else {
+                    lean_assert(ctx.get_tmp_mvar_assignment(mvar_idx));
+                    continue;
+                }
+            } else {
+                lean_trace(name({"rfl_lemma", "failure"}),
+                           tout() << "unable to synthesize instance for: " << m_type << "\n";);
+                return false;
+            }
+        } else {
+            lean_trace(name({"rfl_lemma", "failure"}),
+                       tout() << "failed to assign: " << m << " : " << m_type << "\n";);
+            return false;
+        }
+    }
+    return true;
+}
+
+expr rfl_lemma_rewrite(type_context & ctx, expr const & e, rfl_lemma const & sl) {
+    type_context::tmp_mode_scope scope(ctx, sl.get_num_umeta(), sl.get_num_emeta());
+    if (!ctx.is_def_eq(e, sl.get_lhs())) return e;
+
+    lean_trace("rfl_lemma",
+               expr new_lhs = ctx.instantiate_mvars(sl.get_lhs());
+               expr new_rhs = ctx.instantiate_mvars(sl.get_rhs());
+               tout() << "(" << sl.get_id() << ") "
+               << "[" << new_lhs << " --> " << new_rhs << "]\n";);
+
+    if (!instantiate_emetas(ctx, sl.get_emetas(), sl.get_instances())) return e;
+
+    for (unsigned i = 0; i < sl.get_num_umeta(); i++) {
+        if (!ctx.get_tmp_uvar_assignment(i)) return e;
+    }
+
+    return ctx.instantiate_mvars(sl.get_rhs());
+}
+
 void initialize_rfl_lemmas() {
     register_trace_class("rfl_lemmas_cache");
+    register_trace_class("rfl_lemma");
+    register_trace_class(name{"rfl_lemma", "failure"});
     g_rfl_lemmas_attributes = new std::vector<name>();
     g_default_token         = register_defeq_simp_attribute("defeq");
 }

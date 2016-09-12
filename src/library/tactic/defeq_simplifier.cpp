@@ -259,60 +259,7 @@ class defeq_simplify_fn {
     }
 
     expr rewrite(expr const & e, rfl_lemma const & sl) {
-        type_context::tmp_mode_scope scope(m_ctx, sl.get_num_umeta(), sl.get_num_emeta());
-        if (!m_ctx.is_def_eq(e, sl.get_lhs())) return e;
-
-        lean_trace(name({"defeq_simplifier", "rewrite"}),
-                   expr new_lhs = m_ctx.instantiate_mvars(sl.get_lhs());
-                   expr new_rhs = m_ctx.instantiate_mvars(sl.get_rhs());
-                   tout() << "(" << sl.get_id() << ") "
-                   << "[" << new_lhs << " --> " << new_rhs << "]\n";);
-
-        if (!instantiate_emetas(sl.get_emetas(), sl.get_instances())) return e;
-
-        for (unsigned i = 0; i < sl.get_num_umeta(); i++) {
-            if (!m_ctx.get_tmp_uvar_assignment(i)) return e;
-        }
-
-        return m_ctx.instantiate_mvars(sl.get_rhs());
-    }
-
-
-    bool instantiate_emetas(list<expr> const & _emetas, list<bool> const & _instances) {
-        buffer<expr> emetas;
-        buffer<bool> instances;
-        to_buffer(_emetas, emetas);
-        to_buffer(_instances, instances);
-
-        lean_assert(emetas.size() == instances.size());
-        for (unsigned i = 0; i < emetas.size(); ++i) {
-            expr m = emetas[i];
-            unsigned mvar_idx = emetas.size() - 1 - i;
-            expr m_type = m_ctx.instantiate_mvars(m_ctx.infer(m));
-            lean_assert(!has_metavar(m_type));
-            if (m_ctx.get_tmp_mvar_assignment(mvar_idx)) continue;
-            if (instances[i]) {
-                if (auto v = m_ctx.mk_class_instance(m_type)) {
-                    if (!m_ctx.is_def_eq(m, *v)) {
-                        lean_trace(name({"defeq_simplifier", "failure"}),
-                                   tout() << "unable to assign instance for: " << m_type << "\n";);
-                        return false;
-                    } else {
-                        lean_assert(m_ctx.get_tmp_mvar_assignment(mvar_idx));
-                        continue;
-                    }
-                } else {
-                    lean_trace(name({"defeq_simplifier", "failure"}),
-                               tout() << "unable to synthesize instance for: " << m_type << "\n";);
-                    return false;
-                }
-            } else {
-                lean_trace(name({"defeq_simplifier", "failure"}),
-                           tout() << "failed to assign: " << m << " : " << m_type << "\n";);
-                return false;
-            }
-        }
-        return true;
+        return rfl_lemma_rewrite(m_ctx, e, sl);
     }
 
     expr whnf_eta(expr const & e) {
@@ -370,8 +317,6 @@ void initialize_defeq_simplifier() {
     DECLARE_VM_BUILTIN(name({"tactic", "defeq_simp_core"}), tactic_defeq_simp);
 
     register_trace_class("defeq_simplifier");
-    register_trace_class(name({"defeq_simplifier", "rewrite"}));
-    register_trace_class(name({"defeq_simplifier", "failure"}));
     register_trace_class(name({"defeq_simplifier", "canonize"}));
 
     g_simplify_max_simp_rounds    = new name{"defeq_simplify", "max_simp_rounds"};

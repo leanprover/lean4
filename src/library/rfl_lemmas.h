@@ -59,6 +59,11 @@ rfl_lemmas_ptr get_rfl_lemmas(environment const & env, rfl_lemmas_token token);
 
 format pp_rfl_lemmas(rfl_lemmas const & lemmas, formatter const & fmt);
 
+class type_context;
+
+/** \brief (Try to) apply the given rfl_lemma to `e` */
+expr rfl_lemma_rewrite(type_context & ctx, expr const & e, rfl_lemma const & sl);
+
 void initialize_rfl_lemmas();
 void finalize_rfl_lemmas();
 }

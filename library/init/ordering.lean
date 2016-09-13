@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.to_string init.prod init.sum
+set_option new_elaborator true
 
 inductive ordering
 | lt | eq | gt
@@ -19,9 +20,9 @@ structure [class] has_ordering (A : Type) :=
 (cmp : A → A → ordering)
 
 definition nat.cmp (a b : nat) : ordering :=
-if a < b      then lt
-else if a = b then eq
-else               gt
+if a < b      then ordering.lt
+else if a = b then ordering.eq
+else               ordering.gt
 
 attribute [instance]
 definition nat_has_ordering : has_ordering nat :=

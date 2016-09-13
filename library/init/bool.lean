@@ -3,23 +3,30 @@
 -- Author: Leonardo de Moura
 prelude
 import init.datatypes
+set_option new_elaborator true
 
 namespace bool
   attribute [inline]
-  definition cond {A : Type} (b : bool) (t e : A) :=
-  bool.rec_on b e t
+  definition cond {A : Type} : bool → A → A → A
+  | tt a b := a
+  | ff a b := b
 
   attribute [inline]
-  definition bor (a b : bool) :=
-  bool.rec_on a (bool.rec_on b ff tt) tt
+  definition bor : bool → bool → bool
+  | tt _  := tt
+  | ff tt := tt
+  | ff ff := ff
 
   attribute [inline]
-  definition band (a b : bool) :=
-  bool.rec_on a ff (bool.rec_on b ff tt)
+  definition band : bool → bool → bool
+  | ff _  := ff
+  | tt ff := ff
+  | tt tt := tt
 
   attribute [inline]
-  definition bnot (a : bool) :=
-  bool.rec_on a tt ff
+  definition bnot : bool → bool
+  | tt := ff
+  | ff := tt
 end bool
 
 notation a || b := bool.bor a b

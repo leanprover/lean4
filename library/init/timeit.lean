@@ -3,6 +3,7 @@
 -- Author: Leonardo de Moura
 prelude
 import init.string
+set_option new_elaborator true
 
 /- This function has a native implementation that tracks time. -/
 definition timeit {A : Type} (s : string) (f : unit → A) : A :=

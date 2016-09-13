@@ -3,6 +3,7 @@
 -- Author: Leonardo de Moura
 prelude
 import init.string init.bool init.subtype init.unsigned init.prod init.sum
+set_option new_elaborator true
 open bool list sum prod sigma subtype nat
 
 structure [class] has_to_string (A : Type) :=
@@ -17,7 +18,8 @@ has_to_string.mk (λ b, cond b "tt" "ff")
 
 attribute [instance]
 definition decidable.has_to_string {p : Prop} : has_to_string (decidable p) :=
-has_to_string.mk (λ b, if p then "tt" else "ff")
+-- Remark: type class inference will not consider local instance `b` in the new elaborator
+has_to_string.mk (λ b : decidable p, @ite p b _ "tt" "ff")
 
 definition list.to_string_aux {A : Type} [has_to_string A] : bool → list A → string
 | b  []      := ""

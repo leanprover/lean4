@@ -13,6 +13,12 @@ Author: Leonardo de Moura
 #include "frontends/lean/elaborator_exception.h"
 
 namespace lean {
+enum class elaborator_strategy {
+    Default,
+    WithExpectedType,
+    AsEliminator
+};
+
 class elaborator {
 public:
     class checkpoint;

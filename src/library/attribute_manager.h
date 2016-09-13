@@ -6,10 +6,11 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <string>
+#include "util/sstream.h"
+#include "util/priority_queue.h"
 #include "kernel/environment.h"
 #include "library/abstract_parser.h"
 #include "library/io_state.h"
-#include "util/priority_queue.h"
 
 #ifndef LEAN_DEFAULT_PRIORITY
 #define LEAN_DEFAULT_PRIORITY 1000u
@@ -141,6 +142,46 @@ public:
             return {};
         lean_assert(std::dynamic_pointer_cast<Data>(data));
         return std::static_pointer_cast<Data>(data);
+    }
+};
+
+template<typename Data>
+class proxy_attribute : public basic_attribute {
+private:
+    Data m_status;
+public:
+    proxy_attribute(char const * id, char const * descr, Data const & status):
+        basic_attribute(id, descr), m_status(status) {}
+
+    virtual typed_attribute<Data> const & get_attribute() const = 0;
+
+    virtual attr_data_ptr get_untyped(environment const & env, name const & n) const override {
+        if (auto data = get_attribute().get(env, n)) {
+            if (data->m_status == m_status)
+                return get_default_attr_data();
+        }
+        return attr_data_ptr();
+    }
+
+    virtual environment set(environment const & env, io_state const & ios, name const & n,
+                            unsigned prio, bool persistent) const override {
+        return get_attribute().set(env, ios, n, prio, m_status, persistent);
+    }
+
+    virtual environment unset(environment, io_state const &, name const &, bool) const override {
+        throw exception(sstream() << "cannot remove attribute [" << get_name() << "]");
+    }
+
+    virtual void get_instances(environment const & env, buffer<name> & r) const override {
+        buffer<name> tmp;
+        get_attribute().get_instances(env, tmp);
+        for (name const & n : tmp)
+            if (is_instance(env, n))
+                r.push_back(n);
+    }
+
+    virtual unsigned get_fingerprint(environment const & env) const override {
+        return get_attribute().get_fingerprint(env);
     }
 };
 

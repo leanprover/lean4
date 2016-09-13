@@ -46,20 +46,62 @@ namespace lean {
 MK_THREAD_LOCAL_GET(type_context_cache_manager, get_tcm, true /* use binder information at infer_cache */);
 
 static name * g_level_prefix = nullptr;
-static name * g_elab_with_expected_type = nullptr;
-static name * g_elab_as_eliminator = nullptr;
+static name * g_elab_strategy = nullptr;
+
+struct elaborator_strategy_attribute_data : public attr_data {
+    elaborator_strategy m_status;
+    elaborator_strategy_attribute_data() {}
+    elaborator_strategy_attribute_data(elaborator_strategy status) : m_status(status) {}
+    virtual unsigned hash() const override { return static_cast<unsigned>(m_status); }
+    void write(serializer & s) const { s << static_cast<char>(m_status); }
+    void read(deserializer & d) {
+        char c; d >> c;
+        m_status = static_cast<elaborator_strategy>(c);
+    }
+};
+
+bool operator==(elaborator_strategy_attribute_data const & d1, elaborator_strategy_attribute_data const & d2) {
+    return d1.m_status == d2.m_status;
+}
+
+template class typed_attribute<elaborator_strategy_attribute_data>;
+typedef typed_attribute<elaborator_strategy_attribute_data> elaborator_strategy_attribute;
+
+static elaborator_strategy_attribute const & get_elaborator_strategy_attribute() {
+    return static_cast<elaborator_strategy_attribute const &>(get_system_attribute(*g_elab_strategy));
+}
+
+class elaborator_strategy_proxy_attribute : public proxy_attribute<elaborator_strategy_attribute_data> {
+    typedef proxy_attribute<elaborator_strategy_attribute_data> parent;
+public:
+    elaborator_strategy_proxy_attribute(char const * id, char const * descr, elaborator_strategy status):
+        parent(id, descr, status) {}
+
+    virtual typed_attribute<elaborator_strategy_attribute_data> const & get_attribute() const {
+        return get_elaborator_strategy_attribute();
+    }
+};
+
+elaborator_strategy get_elaborator_strategy(environment const & env, name const & n) {
+    if (auto data = get_elaborator_strategy_attribute().get(env, n))
+        return data->m_status;
+
+    if (inductive::is_elim_rule(env, n) ||
+        is_aux_recursor(env, n) ||
+        is_user_defined_recursor(env, n)) {
+        return elaborator_strategy::AsEliminator;
+    }
+
+    if (inductive::is_intro_rule(env, n)) {
+        return elaborator_strategy::WithExpectedType;
+    }
+
+    return elaborator_strategy::Default;
+}
 
 #define trace_elab(CODE) lean_trace("elaborator", scope_trace_env _scope(m_env, m_ctx); CODE)
 #define trace_elab_detail(CODE) lean_trace("elaborator_detail", scope_trace_env _scope(m_env, m_ctx); CODE)
 #define trace_elab_debug(CODE) lean_trace("elaborator_debug", scope_trace_env _scope(m_env, m_ctx); CODE)
-
-bool elab_with_expected_type(environment const & env, name const & d) {
-    return has_attribute(env, *g_elab_with_expected_type, d);
-}
-
-bool elab_as_eliminator(environment const & env, name const & d) {
-    return has_attribute(env, *g_elab_as_eliminator, d);
-}
 
 elaborator::elaborator(environment const & env, options const & opts, metavar_context const & mctx,
                        local_context const & lctx):
@@ -205,15 +247,7 @@ static bool is_first_order(expr const & e) {
 }
 
 bool elaborator::is_elim_elab_candidate(name const & fn) {
-    if (inductive::is_elim_rule(m_env, fn))
-        return true;
-    if (is_aux_recursor(m_env, fn))
-        return true;
-    if (is_user_defined_recursor(m_env, fn))
-        return true;
-    if (elab_as_eliminator(m_env, fn))
-        return true;
-    return false;
+    return get_elaborator_strategy(m_env, fn) == elaborator_strategy::AsEliminator;
 }
 
 /** See comment at elim_info */
@@ -911,11 +945,8 @@ optional<expr> elaborator::visit_app_with_expected(expr const & fn, buffer<expr>
 }
 
 bool elaborator::is_with_expected_candidate(expr const & fn) {
-    /* We only propagate type to arguments for constructors. */
     if (!is_constant(fn)) return false;
-    return
-        static_cast<bool>(inductive::is_intro_rule(m_env, const_name(fn))) ||
-        elab_with_expected_type(m_env, const_name(fn));
+    return get_elaborator_strategy(m_env, const_name(fn)) == elaborator_strategy::WithExpectedType;
 }
 
 expr elaborator::visit_default_app_core(expr const & _fn, arg_mask amask, buffer<expr> const & args,
@@ -2279,23 +2310,46 @@ expr nested_elaborate(environment & env, options const & opts, metavar_context &
 }
 
 void initialize_elaborator() {
-    g_elab_with_expected_type = new name("elab_with_expected_type");
-    g_elab_as_eliminator      = new name("elab_as_eliminator");
+    g_elab_strategy = new name("elab_strategy");
     g_level_prefix = new name("_elab_u");
     register_trace_class("elaborator");
     register_trace_class("elaborator_detail");
     register_trace_class("elaborator_debug");
-    register_system_attribute(basic_attribute(*g_elab_with_expected_type,
-                                              "instructs elaborator that the arguments of the function application (f ...) "
-                                              "should be elaborated using information about the expected type"));
-    register_system_attribute(basic_attribute(*g_elab_as_eliminator,
-                                              "instructs elaborator that the arguments of the function application (f ...) "
-                                              "should be elaborated as f were an eliminator"));
+
+    register_system_attribute(
+        elaborator_strategy_attribute(
+            *g_elab_strategy,
+            "internal attribute for the elaborator strategy for a given constant"));
+
+    register_system_attribute(
+        elaborator_strategy_proxy_attribute(
+            "elab_with_expected_type",
+            "instructs elaborator that the arguments of the function application (f ...) "
+            "should be elaborated using information about the expected type",
+            elaborator_strategy::WithExpectedType));
+
+    register_system_attribute(
+        elaborator_strategy_proxy_attribute(
+            "elab_as_eliminator",
+            "instructs elaborator that the arguments of the function application (f ...) "
+            "should be elaborated as f were an eliminator",
+            elaborator_strategy::AsEliminator));
+
+    register_system_attribute(
+        elaborator_strategy_proxy_attribute(
+            "elab_default",
+            "instructs elaborator that the arguments of the function application (f ...) "
+            "should be elaborated from left to right, and without propagating information from the expected type "
+            "to its arguments",
+            elaborator_strategy::Default));
+
+    register_incompatible("elab_default", "elab_with_expected_type");
+    register_incompatible("elab_default", "elab_as_eliminator");
+    register_incompatible("elab_with_expected_type", "elab_as_eliminator");
 }
 
 void finalize_elaborator() {
     delete g_level_prefix;
-    delete g_elab_with_expected_type;
-    delete g_elab_as_eliminator;
+    delete g_elab_strategy;
 }
 }

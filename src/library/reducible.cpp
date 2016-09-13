@@ -32,6 +32,10 @@ struct reducibility_attribute_data : public attr_data {
     }
 };
 
+bool operator==(reducibility_attribute_data const & d1, reducibility_attribute_data const & d2) {
+    return d1.m_status == d2.m_status;
+}
+
 template class typed_attribute<reducibility_attribute_data>;
 typedef typed_attribute<reducibility_attribute_data> reducibility_attribute;
 
@@ -39,41 +43,22 @@ static reducibility_attribute const & get_reducibility_attribute() {
     return static_cast<reducibility_attribute const &>(get_system_attribute("reducibility"));
 }
 
-class reducibility_proxy_attribute : public basic_attribute {
-private:
-    reducible_status m_status;
+class reducibility_proxy_attribute : public proxy_attribute<reducibility_attribute_data> {
+    typedef proxy_attribute<reducibility_attribute_data> parent;
 public:
     reducibility_proxy_attribute(char const * id, char const * descr, reducible_status m_status):
-        basic_attribute(id, descr), m_status(m_status) {}
+        parent(id, descr, m_status) {}
 
-    virtual attr_data_ptr get_untyped(environment const & env, name const & n) const override {
-        if (auto data = get_reducibility_attribute().get(env, n)) {
-            if (data->m_status == m_status)
-                return get_default_attr_data();
-        }
-        return {};
+    virtual typed_attribute<reducibility_attribute_data> const & get_attribute() const {
+        return get_reducibility_attribute();
     }
+
     virtual environment set(environment const & env, io_state const & ios, name const & n,
                             unsigned prio, bool persistent) const override {
         declaration const & d = env.get(n);
         if (!d.is_definition())
             throw exception(sstream() << "invalid reducible command, '" << n << "' is not a definition");
-        return get_reducibility_attribute().set(env, ios, n, prio, {m_status}, persistent);
-    }
-    virtual environment unset(environment, io_state const &, name const &, bool) const override {
-        throw exception(sstream() << "cannot remove attribute [" << get_name() << "]");
-    }
-
-    virtual void get_instances(environment const & env, buffer<name> & r) const override {
-        buffer<name> tmp;
-        get_reducibility_attribute().get_instances(env, tmp);
-        for (name const & n : tmp)
-            if (is_instance(env, n))
-                r.push_back(n);
-    }
-
-    virtual unsigned get_fingerprint(environment const & env) const override {
-        return get_reducibility_attribute().get_fingerprint(env);
+        return parent::set(env, ios, n, prio, persistent);
     }
 };
 

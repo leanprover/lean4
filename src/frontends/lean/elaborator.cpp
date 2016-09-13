@@ -1348,16 +1348,19 @@ expr elaborator::visit_convoy(expr const & e, optional<expr> const & expected_ty
                 new_args[i]  = instantiate_mvars(new_args[i]);
                 new_fn_type  = instantiate(kabstract(m_ctx, new_fn_type, new_args[i]), locals.as_buffer()[i]);
             }
-            new_fn_type = instantiate_mvars(locals.mk_pi(new_fn_type));
+            new_fn_type = locals.mk_pi(new_fn_type);
         } else {
             expr b      = instantiate_rev(it, locals);
             expr new_b  = visit(b, none_expr());
             process_checkpoint(C);
-            new_fn_type = instantiate_mvars(locals.mk_pi(instantiate_mvars(new_b)));
+            new_fn_type = locals.mk_pi(instantiate_mvars(new_b));
         }
     }
+    new_fn_type = instantiate_mvars(new_fn_type);
     if (has_expr_metavar(new_fn_type)) {
-        throw elaborator_exception(ref, "invalid match/convoy expression, type contains meta-variables");
+        auto pp_fn = mk_pp_ctx();
+        throw elaborator_exception(ref, format("invalid match/convoy expression, type contains meta-variables") +
+                                   pp_indent(pp_fn, new_fn_type));
     }
     trace_elab(tout() << "match/convoy function type: " << new_fn_type << "\n";);
     expr new_eqns = visit_equations(update_equations_fn_type(eqns, new_fn_type));

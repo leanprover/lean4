@@ -39,12 +39,12 @@ static reducibility_attribute const & get_reducibility_attribute() {
     return static_cast<reducibility_attribute const &>(get_system_attribute("reducibility"));
 }
 
-class proxy_attribute : public basic_attribute {
+class reducibility_proxy_attribute : public basic_attribute {
 private:
     reducible_status m_status;
 public:
-    proxy_attribute(char const * id, char const * descr, reducible_status m_status) : basic_attribute(id, descr),
-                                                                                      m_status(m_status) {}
+    reducibility_proxy_attribute(char const * id, char const * descr, reducible_status m_status):
+        basic_attribute(id, descr), m_status(m_status) {}
 
     virtual attr_data_ptr get_untyped(environment const & env, name const & n) const override {
         if (auto data = get_reducibility_attribute().get(env, n)) {
@@ -80,9 +80,9 @@ public:
 void initialize_reducible() {
     register_system_attribute(reducibility_attribute("reducibility", "internal attribute for storing reducibility"));
 
-    register_system_attribute(proxy_attribute("reducible", "reducible", reducible_status::Reducible));
-    register_system_attribute(proxy_attribute("semireducible", "semireducible", reducible_status::Semireducible));
-    register_system_attribute(proxy_attribute("irreducible", "irreducible", reducible_status::Irreducible));
+    register_system_attribute(reducibility_proxy_attribute("reducible", "reducible", reducible_status::Reducible));
+    register_system_attribute(reducibility_proxy_attribute("semireducible", "semireducible", reducible_status::Semireducible));
+    register_system_attribute(reducibility_proxy_attribute("irreducible", "irreducible", reducible_status::Irreducible));
 
     register_incompatible("reducible", "semireducible");
     register_incompatible("reducible", "irreducible");

@@ -269,6 +269,11 @@ auto elaborator::get_elim_info_for_builtin(name const & fn) -> elim_info {
         r.m_arity      = nparams + 1 /* motive */ + nindices + 1 /* major */ + nminors;
     }
     r.m_nexplicit  = 1 /* major premise */ + nminors;
+    if (nminors == 0) {
+        /* The motive is marked as explicit in builtin recursors that do not have
+           minor premises */
+        r.m_nexplicit++;
+    }
     r.m_motive_idx = nparams;
     unsigned major_idx;
     if (inductive::is_elim_rule(m_env, fn)) {

@@ -791,17 +791,21 @@ static optional<expr> to_intro_when_K(inductive_env_ext::elim_info const * it,
     lean_assert(it->m_K_target);
     environment const & env = ctx.env();
     expr app_type    = ctx.whnf(ctx.infer(e));
-    if (has_expr_metavar(app_type))
-        return none_expr();
     expr const & app_type_I = get_app_fn(app_type);
     if (!is_constant(app_type_I) || const_name(app_type_I) != it->m_inductive_name)
         return none_expr(); // type incorrect
+    if (has_expr_metavar(app_type)) {
+        buffer<expr> app_type_args;
+        get_app_args(app_type, app_type_args);
+        for (unsigned i = it->m_num_params; i < app_type_args.size(); i++) {
+            if (has_expr_metavar(app_type_args[i]))
+                return none_expr();
+        }
+    }
     auto new_intro_app = mk_nullary_intro(env, app_type, it->m_num_params);
     if (!new_intro_app)
         return none_expr();
     expr new_type    = ctx.infer(*new_intro_app);
-    if (has_expr_metavar(new_type))
-        return none_expr();
     if (!ctx.is_def_eq(app_type, new_type))
         return none_expr();
     return new_intro_app;

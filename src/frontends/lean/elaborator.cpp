@@ -148,22 +148,22 @@ level elaborator::mk_univ_metavar() {
     return r;
 }
 
-expr elaborator::mk_metavar(expr const & A) {
-    expr r = copy_tag(A, m_ctx.mk_metavar_decl(m_ctx.lctx(), A));
+expr elaborator::mk_metavar(expr const & A, expr const & ref) {
+    expr r = copy_tag(ref, m_ctx.mk_metavar_decl(m_ctx.lctx(), A));
     m_mvar_stack = cons(r, m_mvar_stack);
     return r;
 }
 
-expr elaborator::mk_metavar(optional<expr> const & A) {
+expr elaborator::mk_metavar(optional<expr> const & A, expr const & ref) {
     if (A)
-        return mk_metavar(*A);
+        return mk_metavar(*A, ref);
     else
-        return mk_metavar(mk_type_metavar());
+        return mk_metavar(mk_type_metavar(ref), ref);
 }
 
-expr elaborator::mk_type_metavar() {
+expr elaborator::mk_type_metavar(expr const & ref) {
     level l = mk_univ_metavar();
-    return mk_metavar(mk_sort(l));
+    return mk_metavar(mk_sort(l), ref);
 }
 
 expr elaborator::mk_instance_core(local_context const & lctx, expr const & C, expr const & ref) {
@@ -183,7 +183,7 @@ expr elaborator::mk_instance_core(expr const & C, expr const & ref) {
 
 expr elaborator::mk_instance(expr const & C, expr const & ref) {
     if (has_expr_metavar(C)) {
-        expr inst = copy_tag(ref, mk_metavar(C));
+        expr inst = mk_metavar(C, ref);
         m_instance_stack = cons(inst, m_instance_stack);
         return inst;
     } else {
@@ -575,7 +575,7 @@ expr elaborator::visit_prenum(expr const & e, optional<expr> const & expected_ty
         if (is_metavar(*expected_type))
             m_numeral_type_stack = cons(A, m_numeral_type_stack);
     } else {
-        A = mk_type_metavar();
+        A = mk_type_metavar(ref);
         m_numeral_type_stack = cons(A, m_numeral_type_stack);
     }
     level A_lvl = get_level(A, ref);
@@ -778,13 +778,14 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
                                                                                new_arg, new_arg_type, d));
                 }
             } else if (is_explicit(bi)) {
-                new_arg   = mk_metavar(d);
-                postponed = args[j];
+                expr arg_ref = args[j];
+                new_arg      = mk_metavar(d, arg_ref);
+                postponed    = args[j];
                 j++;
             } else if (bi.is_inst_implicit()) {
                 new_arg = mk_instance(d, ref);
             } else {
-                new_arg = mk_metavar(d);
+                new_arg = mk_metavar(d, ref);
             }
             new_args.push_back(new_arg);
             postponed_args.push_back(postponed);
@@ -887,7 +888,7 @@ optional<expr> elaborator::visit_app_with_expected(expr const & fn, buffer<expr>
         expr new_arg;
         if (!is_explicit(bi)) {
             // implicit argument
-            new_arg = mk_metavar(d);
+            new_arg = mk_metavar(d, ref);
             if (bi.is_inst_implicit())
                 new_instances.push_back(new_arg);
             // implicit arguments are tagged as inaccessible in patterns
@@ -895,9 +896,10 @@ optional<expr> elaborator::visit_app_with_expected(expr const & fn, buffer<expr>
                 new_arg = copy_tag(ref, mk_inaccessible(new_arg));
         } else if (i < args.size()) {
             // explicit argument
+            expr const & arg_ref = args[i];
             i++;
             args_expected_types.push_back(d);
-            new_arg      = mk_metavar(d);
+            new_arg      = mk_metavar(d, arg_ref);
             args_mvars.push_back(new_arg);
             size_at_args.push_back(new_args.size());
         } else {
@@ -995,7 +997,7 @@ expr elaborator::visit_default_app_core(expr const & _fn, arg_mask amask, buffer
                 if (bi.is_inst_implicit())
                     new_arg = mk_instance(d, ref);
                 else
-                    new_arg = mk_metavar(d);
+                    new_arg = mk_metavar(d, ref);
                 // implicit arguments are tagged as inaccessible in patterns
                 if (m_in_pattern)
                     new_arg = copy_tag(ref, mk_inaccessible(new_arg));
@@ -1258,7 +1260,8 @@ expr elaborator::visit_by(expr const & e, optional<expr> const & expected_type) 
         process_checkpoint(C);
         tac = instantiate_mvars(tac);
     }
-    expr mvar      = copy_tag(e, mk_metavar(expected_type));
+    expr const & ref = e;
+    expr mvar        = mk_metavar(expected_type, ref);
     lean_assert(mvar == head(m_mvar_stack));
     // Remove mvar from m_mvar_stack, we keep mvars associated with tactics in a separate stack
     m_mvar_stack = tail(m_mvar_stack);
@@ -1565,7 +1568,8 @@ expr elaborator::visit_inaccessible(expr const & e, optional<expr> const & expec
     if (!m_in_pattern)
         throw elaborator_exception(e, "invalid occurrence of 'inaccessible' annotation, "
                                    "it must only occur in patterns");
-    expr m = copy_tag(e, mk_metavar(expected_type));
+    expr const & ref = e;
+    expr m = mk_metavar(expected_type, ref);
     expr a = get_annotation_arg(e);
     expr new_a;
     {
@@ -1739,7 +1743,8 @@ expr elaborator::visit_let(expr const & e, optional<expr> const & expected_type)
 }
 
 expr elaborator::visit_placeholder(expr const & e, optional<expr> const & expected_type) {
-    return copy_tag(e, mk_metavar(expected_type));
+    expr const & ref = e;
+    return mk_metavar(expected_type, ref);
 }
 
 static bool is_have_expr(expr const & e) {

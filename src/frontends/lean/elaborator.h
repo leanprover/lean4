@@ -111,9 +111,9 @@ private:
                   name const & n, expr const & type, expr const & value, expr const & ref);
 
     level mk_univ_metavar();
-    expr mk_metavar(expr const & A);
-    expr mk_type_metavar();
-    expr mk_metavar(optional<expr> const & A);
+    expr mk_metavar(expr const & A, expr const & ref);
+    expr mk_type_metavar(expr const & ref);
+    expr mk_metavar(optional<expr> const & A, expr const & ref);
     expr mk_instance_core(local_context const & lctx, expr const & C, expr const & ref);
     expr mk_instance_core(expr const & C, expr const & ref);
     expr mk_instance(expr const & C, expr const & ref);

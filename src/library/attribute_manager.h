@@ -16,7 +16,6 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
-
 struct attr_data {
     virtual unsigned hash() const {
         return 0;
@@ -28,6 +27,9 @@ struct attr_data {
 
 typedef std::shared_ptr<attr_data> attr_data_ptr;
 struct attr_config;
+
+/* Return an instance of the basic attr_data */
+attr_data_ptr get_default_attr_data();
 
 typedef std::function<environment(environment const &, io_state const &, name const &, unsigned, bool)> after_set_proc;
 typedef std::function<void(environment const &, name const &, bool)> after_set_check_proc;
@@ -74,7 +76,7 @@ typedef std::shared_ptr<attribute const> attribute_ptr;
 class basic_attribute : public attribute {
 protected:
     virtual void write_entry(serializer &, attr_data const &) const override final {}
-    virtual attr_data_ptr read_entry(deserializer &) const override final { return attr_data_ptr(new attr_data); }
+    virtual attr_data_ptr read_entry(deserializer &) const override final { return get_default_attr_data(); }
     virtual environment set_untyped(environment const & env, io_state const & ios, name const & n, unsigned prio, attr_data_ptr,
                                     bool persistent) const override final {
         return set(env, ios, n, prio, persistent);
@@ -95,8 +97,9 @@ public:
                 });
     }
 
-    virtual environment set(environment const & env, io_state const & ios, name const & n, unsigned prio, bool persistent) const {
-        return set_core(env, ios, n, prio, attr_data_ptr(new attr_data), persistent);
+    virtual environment set(environment const & env, io_state const & ios,
+                            name const & n, unsigned prio, bool persistent) const {
+        return set_core(env, ios, n, prio, get_default_attr_data(), persistent);
     }
 };
 
@@ -175,7 +178,7 @@ public:
     virtual name_map<attribute_ptr> get_attributes(environment const & env);
     virtual void write_entry(serializer &, attr_data const &) {}
     virtual attr_data_ptr read_entry(deserializer &) {
-        return attr_data_ptr(new attr_data);
+        return get_default_attr_data();
     }
 };
 

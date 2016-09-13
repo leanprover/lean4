@@ -49,7 +49,7 @@ public:
     virtual attr_data_ptr get_untyped(environment const & env, name const & n) const override {
         if (auto data = get_reducibility_attribute().get(env, n)) {
             if (data->m_status == m_status)
-                return attr_data_ptr(new attr_data);
+                return get_default_attr_data();
         }
         return {};
     }

@@ -14,9 +14,14 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 
 namespace lean {
-
 static name_map<attribute_ptr> * g_system_attributes;
 static std::unique_ptr<user_attribute_ext> g_user_attribute_ext;
+
+static attr_data_ptr * g_default_attr_data_ptr = nullptr;
+
+attr_data_ptr get_default_attr_data() {
+    return *g_default_attr_data_ptr;
+}
 
 name_map<attribute_ptr> user_attribute_ext::get_attributes(environment const &) {
     return {};
@@ -217,7 +222,7 @@ priority_queue<name, name_quick_cmp> attribute::get_instances_by_prio(environmen
 }
 
 attr_data_ptr attribute::parse_data(abstract_parser &) const {
-    return lean::attr_data_ptr(new attr_data);
+    return get_default_attr_data();
 }
 
 void indices_attribute_data::parse(abstract_parser & p) {
@@ -268,6 +273,7 @@ unsigned get_attribute_fingerprint(environment const & env, name const & attr) {
 }
 
 void initialize_attribute_manager() {
+    g_default_attr_data_ptr = new attr_data_ptr(new attr_data);
     g_system_attributes  = new name_map<attribute_ptr>();
     g_user_attribute_ext.reset(new user_attribute_ext());
     g_incomp             = new std::vector<pair<name, name>>();
@@ -281,5 +287,6 @@ void finalize_attribute_manager() {
     delete g_incomp;
     g_user_attribute_ext.reset();
     delete g_system_attributes;
+    delete g_default_attr_data_ptr;
 }
 }

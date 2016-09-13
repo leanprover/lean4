@@ -199,6 +199,6 @@ definition quot.has_decidable_eq {A : Type} {s : setoid A} [decR : ∀ a b : A, 
   quot.rec_on_subsingleton₂ q₁ q₂
     (λ a₁ a₂,
       match (decR a₁ a₂) with
-      | (tt h₁) := tt (quot.sound h₁)
-      | (ff h₂) := ff (λ h, absurd (quot.exact h) h₂)
+      | (is_true h₁)  := is_true (quot.sound h₁)
+      | (is_false h₂) := is_false (λ h, absurd (quot.exact h) h₂)
       end)

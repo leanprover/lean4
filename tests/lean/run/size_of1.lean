@@ -1,5 +1,7 @@
 open tactic
 
+notation `dec_trivial` := of_as_true (by triv)
+
 example : sizeof [tt, tt] < sizeof [tt, ff, tt] :=
 dec_trivial
 

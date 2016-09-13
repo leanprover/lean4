@@ -72,7 +72,7 @@ do
     -- discharge first (positive) case by recursion
     intro1 >>= subst >> dec_eq_same_constructor I_name F_name (if rec = tt then num_rec + 1 else num_rec),
     -- discharge second (negative) case by contradiction
-    intro1, left, -- decidable.ff
+    intro1, left, -- decidable.is_false
     intro1 >>= injection,
     intros, contradiction,
     return () }

@@ -162,12 +162,11 @@ eq.subst (@iff_eq_eq a true) this
 end aux
 
 /- All propositions are decidable -/
-open decidable
 noncomputable definition decidable_inhabited (a : Prop) : inhabited (decidable a) :=
 inhabited_of_nonempty
   (or.elim (em a)
-    (assume Ha, nonempty.intro (tt Ha))
-    (assume Hna, nonempty.intro (ff Hna)))
+    (assume Ha, nonempty.intro (is_true Ha))
+    (assume Hna, nonempty.intro (is_false Hna)))
 local attribute decidable_inhabited [instance]
 
 noncomputable definition prop_decidable (a : Prop) : decidable a :=
@@ -178,8 +177,8 @@ noncomputable definition type_decidable_eq (A : Type) : decidable_eq A := _
 
 noncomputable definition type_decidable (A : Type) : sum A (A → false) :=
 match (prop_decidable (nonempty A)) with
-| (tt Hp) := sum.inl (inhabited.value (inhabited_of_nonempty Hp))
-| (ff Hn) := sum.inr (λ a, absurd (nonempty.intro a) Hn)
+| (is_true Hp) := sum.inl (inhabited.value (inhabited_of_nonempty Hp))
+| (is_false Hn) := sum.inr (λ a, absurd (nonempty.intro a) Hn)
 end
 
 end classical

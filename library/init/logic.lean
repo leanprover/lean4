@@ -638,16 +638,18 @@ end
 /- decidable -/
 
 inductive [class] decidable (p : Prop) : Type
-| ff : ¬p → decidable
-| tt :  p → decidable
+| is_false : ¬p → decidable
+| is_true :  p → decidable
+
+export decidable (is_true is_false)
 
 attribute [instance]
 definition decidable_true : decidable true :=
-decidable.tt trivial
+is_true trivial
 
 attribute [instance]
 definition decidable_false : decidable false :=
-decidable.ff not_false
+is_false not_false
 
 -- We use "dependent" if-then-else to be able to communicate the if-then-else condition
 -- to the branches
@@ -685,10 +687,9 @@ end decidable
 
 section
   variables {p q : Prop}
-  open decidable
   definition  decidable_of_decidable_of_iff (Hp : decidable p) (H : p ↔ q) : decidable q :=
-  if Hp : p then tt (iff.mp H Hp)
-  else ff (iff.mp (not_iff_not_of_iff H) Hp)
+  if Hp : p then is_true (iff.mp H Hp)
+  else is_false (iff.mp (not_iff_not_of_iff H) Hp)
 
   definition  decidable_of_decidable_of_eq (Hp : decidable p) (H : p = q) : decidable q :=
   decidable_of_decidable_of_iff Hp (iff.of_eq H)
@@ -702,31 +703,30 @@ end
 
 section
   variables {p q : Prop}
-  open decidable (rec_on tt ff)
 
   attribute [instance]
   definition decidable_and [decidable p] [decidable q] : decidable (p ∧ q) :=
   if hp : p then
-    if hq : q then tt (and.intro hp hq)
-    else ff (assume H : p ∧ q, hq (and.right H))
-  else ff (assume H : p ∧ q, hp (and.left H))
+    if hq : q then is_true (and.intro hp hq)
+    else is_false (assume H : p ∧ q, hq (and.right H))
+  else is_false (assume H : p ∧ q, hp (and.left H))
 
   attribute [instance]
   definition decidable_or [decidable p] [decidable q] : decidable (p ∨ q) :=
-  if hp : p then tt (or.inl hp) else
-    if hq : q then tt (or.inr hq) else
-      ff (or.rec hp hq)
+  if hp : p then is_true (or.inl hp) else
+    if hq : q then is_true (or.inr hq) else
+      is_false (or.rec hp hq)
 
   attribute [instance]
   definition decidable_not [decidable p] : decidable (¬p) :=
-  if hp : p then ff (absurd hp) else tt hp
+  if hp : p then is_false (absurd hp) else is_true hp
 
   attribute [instance]
   definition decidable_implies [decidable p] [decidable q] : decidable (p → q) :=
   if hp : p then
-    if hq : q then tt (assume H, hq)
-    else ff (assume H : p → q, absurd (H hp) hq)
-  else tt (assume Hp, absurd Hp hp)
+    if hq : q then is_true (assume H, hq)
+    else is_false (assume H : p → q, absurd (H hp) hq)
+  else is_true (assume Hp, absurd Hp hp)
 
   attribute [instance]
   definition decidable_iff [decidable p] [decidable q] : decidable (p ↔ q) :=
@@ -755,26 +755,26 @@ definition is_dec_refl {A : Type} (p : A → A → bool) : Prop := ∀x, p x x =
 open decidable
 attribute [instance]
 protected definition bool.has_decidable_eq : ∀a b : bool, decidable (a = b)
-| ff ff := tt rfl
-| ff tt := ff bool.ff_ne_tt
-| tt ff := ff (ne.symm bool.ff_ne_tt)
-| tt tt := tt rfl
+| ff ff := is_true rfl
+| ff tt := is_false bool.ff_ne_tt
+| tt ff := is_false (ne.symm bool.ff_ne_tt)
+| tt tt := is_true rfl
 
 definition decidable_eq_of_bool_pred {A : Type} {p : A → A → bool} (H₁ : is_dec_eq p) (H₂ : is_dec_refl p) : decidable_eq A :=
-take x y : A, if Hp : p x y = tt then tt (H₁ Hp)
- else ff (assume Hxy : x = y, (eq.subst Hxy Hp) (H₂ y))
+take x y : A, if Hp : p x y = tt then is_true (H₁ Hp)
+ else is_false (assume Hxy : x = y, (eq.subst Hxy Hp) (H₂ y))
 
-theorem decidable_eq_inl_refl {A : Type} [H : decidable_eq A] (a : A) : H a a = tt (eq.refl a) :=
+theorem decidable_eq_inl_refl {A : Type} [H : decidable_eq A] (a : A) : H a a = is_true (eq.refl a) :=
 match (H a a) with
-| (tt e) := rfl
-| (ff n) := absurd rfl n
+| (is_true e)  := rfl
+| (is_false n) := absurd rfl n
 end
 
-theorem decidable_eq_inr_neg {A : Type} [H : decidable_eq A] {a b : A} : Π n : a ≠ b, H a b = ff n :=
+theorem decidable_eq_inr_neg {A : Type} [H : decidable_eq A] {a b : A} : Π n : a ≠ b, H a b = is_false n :=
 assume n,
 match (H a b) with
-| (tt e)  := absurd e n
-| (ff n₁) := proof_irrel n n₁ ▸ rfl
+| (is_true e)   := absurd e n
+| (is_false n₁) := proof_irrel n n₁ ▸ eq.refl (is_false n)
 end
 
 /- inhabited -/
@@ -855,15 +855,15 @@ attribute [instance]
 definition subsingleton_decidable (p : Prop) : subsingleton (decidable p) :=
 subsingleton.intro (λ d₁,
   match d₁ with
-  | (tt t₁) := (λ d₂,
+  | (is_true t₁) := (λ d₂,
     match d₂ with
-    | (tt t₂) := eq.rec_on (proof_irrel t₁ t₂) rfl
-    | (ff f₂) := absurd t₁ f₂
+    | (is_true t₂) := eq.rec_on (proof_irrel t₁ t₂) rfl
+    | (is_false f₂) := absurd t₁ f₂
     end)
-  | (ff f₁) := (λ d₂,
+  | (is_false f₁) := (λ d₂,
     match d₂ with
-    | (tt t₂) := absurd t₂ f₁
-    | (ff f₂) := eq.rec_on (proof_irrel f₁ f₂) rfl
+    | (is_true t₂) := absurd t₂ f₁
+    | (is_false f₂) := eq.rec_on (proof_irrel f₁ f₂) rfl
     end)
   end)
 
@@ -876,20 +876,20 @@ decidable.rec_on H (λh, H4 h) (λh, H3 h) --this can be proven using dependent 
 theorem if_pos {c : Prop} [H : decidable c] (Hc : c) {A : Type} {t e : A} : (ite c t e) = t :=
 decidable.rec
   (λ Hnc : ¬c,  absurd Hc Hnc)
-  (λ Hc : c,    eq.refl (@ite c (decidable.tt Hc) A t e))
+  (λ Hc : c,    eq.refl (@ite c (is_true Hc) A t e))
   H
 
 theorem if_neg {c : Prop} [H : decidable c] (Hnc : ¬c) {A : Type} {t e : A} : (ite c t e) = e :=
 decidable.rec
-  (λ Hnc : ¬c,  eq.refl (@ite c (decidable.ff Hnc) A t e))
+  (λ Hnc : ¬c,  eq.refl (@ite c (is_false Hnc) A t e))
   (λ Hc : c,    absurd Hc Hnc)
   H
 
 attribute [simp]
 theorem if_t_t (c : Prop) [H : decidable c] {A : Type} (t : A) : (ite c t t) = t :=
 decidable.rec
-  (λ Hnc : ¬c, eq.refl (@ite c (decidable.ff Hnc) A t t))
-  (λ Hc  : c,  eq.refl (@ite c (decidable.tt Hc)  A t t))
+  (λ Hnc : ¬c, eq.refl (@ite c (is_false Hnc) A t t))
+  (λ Hc  : c,  eq.refl (@ite c (is_true Hc)  A t t))
   H
 
 theorem implies_of_if_pos {c t e : Prop} [decidable c] (h : ite c t e) : c → t :=
@@ -971,12 +971,12 @@ theorem if_simp_congr_prop {b c x y u v : Prop} [dec_b : decidable b]
 theorem dif_pos {c : Prop} [H : decidable c] (Hc : c) {A : Type} {t : c → A} {e : ¬ c → A} : dite c t e = t Hc :=
 decidable.rec
   (λ Hnc : ¬c,  absurd Hc Hnc)
-  (λ Hc : c,    eq.refl (@dite c (decidable.tt Hc) A t e))
+  (λ Hc : c,    eq.refl (@dite c (is_true Hc) A t e))
   H
 
 theorem dif_neg {c : Prop} [H : decidable c] (Hnc : ¬c) {A : Type} {t : c → A} {e : ¬ c → A} : dite c t e = e Hnc :=
 decidable.rec
-  (λ Hnc : ¬c,  eq.refl (@dite c (decidable.ff Hnc) A t e))
+  (λ Hnc : ¬c,  eq.refl (@dite c (is_false Hnc) A t e))
   (λ Hc : c,    absurd Hc Hnc)
   H
 
@@ -1011,29 +1011,18 @@ theorem dif_ctx_simp_congr {A : Type} {b c : Prop} [dec_b : decidable b]
 theorem dite_ite_eq (c : Prop) [decidable c] {A : Type} (t : A) (e : A) : dite c (λh, t) (λh, e) = ite c t e :=
 rfl
 
-definition is_true (c : Prop) [decidable c] : Prop :=
-if c then true else false
-
-definition is_false (c : Prop) [decidable c] : Prop :=
-if c then false else true
-
-definition of_is_true {c : Prop} [H₁ : decidable c] (H₂ : is_true c) : c :=
-decidable.rec_on H₁ (λ Hnc, false.rec _ (if_neg Hnc ▸ H₂)) (λ Hc, Hc)
-
-notation `dec_trivial` := of_is_true trivial
-
-theorem not_of_not_is_true {c : Prop} [decidable c] (H : ¬ is_true c) : ¬ c :=
-if Hc : c then absurd trivial (if_pos Hc ▸ H) else Hc
-
-theorem not_of_is_false {c : Prop} [decidable c] (H : is_false c) : ¬ c :=
-if Hc : c then false.rec _ (if_pos Hc ▸ H) else Hc
-
-theorem of_not_is_false {c : Prop} [decidable c] (H : ¬ is_false c) : c :=
-if Hc : c then Hc else absurd trivial (if_neg Hc ▸ H)
-
 -- The following symbols should not be considered in the pattern inference procedure used by
 -- heuristic instantiation.
 attribute and or not iff ite dite eq ne heq [no_pattern]
+
+definition as_true (c : Prop) [decidable c] : Prop :=
+if c then true else false
+
+definition as_false (c : Prop) [decidable c] : Prop :=
+if c then false else true
+
+definition of_as_true {c : Prop} [H₁ : decidable c] (H₂ : as_true c) : c :=
+decidable.rec_on H₁ (λ Hnc, false.rec _ (if_neg Hnc ▸ H₂)) (λ Hc, Hc)
 
 -- namespace used to collect congruence rules for "contextual simplification"
 namespace contextual

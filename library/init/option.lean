@@ -14,13 +14,13 @@ inhabited.mk none
 
 attribute [instance]
 definition option_has_decidable_eq {A : Type} [H : decidable_eq A] : ∀ o₁ o₂ : option A, decidable (o₁ = o₂)
-| none      none      := tt rfl
-| none      (some v₂) := ff (λ H, option.no_confusion H)
-| (some v₁) none      := ff (λ H, option.no_confusion H)
+| none      none      := is_true rfl
+| none      (some v₂) := is_false (λ H, option.no_confusion H)
+| (some v₁) none      := is_false (λ H, option.no_confusion H)
 | (some v₁) (some v₂) :=
   match (H v₁ v₂) with
-  | (tt e) := tt (congr_arg (@some A) e)
-  | (ff n) := ff (λ H, option.no_confusion H (λ e, absurd e n))
+  | (is_true e)  := is_true (congr_arg (@some A) e)
+  | (is_false n) := is_false (λ H, option.no_confusion H (λ e, absurd e n))
   end
 
 attribute [inline]

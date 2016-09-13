@@ -44,8 +44,8 @@ attribute [instance]
 noncomputable definition decidable_subbag {A} (b₁ b₂ : bag A) : decidable (b₁ ⊆ b₂) :=
 quot.rec_on_subsingleton₂ b₁ b₂ (λ l₁ l₂,
   match subcount l₁ l₂, rfl : ∀ (b : _), subcount l₁ l₂ = b → _ with
-  | tt, H := decidable.tt (all_of_subcount_eq_tt H)
-  | ff, H := decidable.ff (λ h,
+  | tt, H := is_true (all_of_subcount_eq_tt H)
+  | ff, H := is_false (λ h,
             exists.elim (ex_of_subcount_eq_ff H)
             (λ w hw, absurd (h w) hw))
   end)
@@ -54,8 +54,8 @@ attribute [instance]
 noncomputable definition decidable_subbag2 {A} (b₁ b₂ : bag A) : decidable (b₁ ⊆ b₂) :=
 quot.rec_on_subsingleton₂ b₁ b₂ (λ l₁ l₂,
   match sigma.mk (subcount l₁ l₂) rfl : (Σ (b : _), subcount l₁ l₂ = b) → _ with
-  | sigma.mk tt H := decidable.tt (all_of_subcount_eq_tt H)
-  | sigma.mk ff H := decidable.ff (λ h,
+  | sigma.mk tt H := is_true (all_of_subcount_eq_tt H)
+  | sigma.mk ff H := is_false (λ h,
             exists.elim (ex_of_subcount_eq_ff H)
             (λ w hw, absurd (h w) hw))
   end)
@@ -66,8 +66,8 @@ attribute [instance]
 noncomputable definition decidable_subbag3 {A} (b₁ b₂ : bag A) : decidable (b₁ ⊆ b₂) :=
 quot.rec_on_subsingleton₂ b₁ b₂ (λ l₁ l₂,
   match ⟦subcount l₁ l₂, rfl⟧ : (Σ (b : _), subcount l₁ l₂ = b) → _ with
-  | ⟦tt, H⟧ := decidable.tt (all_of_subcount_eq_tt H)
-  | ⟦ff, H⟧ := decidable.ff (λ h,
+  | ⟦tt, H⟧ := is_true (all_of_subcount_eq_tt H)
+  | ⟦ff, H⟧ := is_false (λ h,
             exists.elim (ex_of_subcount_eq_ff H)
             (λ w hw, absurd (h w) hw))
   end)

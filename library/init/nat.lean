@@ -122,13 +122,13 @@ namespace nat
 
   attribute [instance, priority nat.prio]
   protected definition has_decidable_eq : ∀ x y : ℕ, decidable (x = y)
-  | zero     zero     := decidable.tt rfl
-  | (succ x) zero     := decidable.ff (λ h, nat.no_confusion h)
-  | zero     (succ y) := decidable.ff (λ h, nat.no_confusion h)
+  | zero     zero     := is_true rfl
+  | (succ x) zero     := is_false (λ h, nat.no_confusion h)
+  | zero     (succ y) := is_false (λ h, nat.no_confusion h)
   | (succ x) (succ y) :=
       match has_decidable_eq x y with
-      | decidable.tt xeqy := decidable.tt (xeqy ▸ eq.refl (succ x))
-      | decidable.ff xney := decidable.ff (λ h, nat.no_confusion h (λ xeqy, absurd xeqy xney))
+      | is_true xeqy := is_true (xeqy ▸ eq.refl (succ x))
+      | is_false xney := is_false (λ h, nat.no_confusion h (λ xeqy, absurd xeqy xney))
       end
 
   /- properties of inequality -/
@@ -273,12 +273,12 @@ namespace nat
 
   attribute [instance, priority nat.prio]
   protected definition decidable_le : ∀ a b : nat, decidable (a ≤ b)
-  | 0     b     := decidable.tt (zero_le b)
-  | (a+1) 0     := decidable.ff (not_succ_le_zero a)
+  | 0     b     := is_true (zero_le b)
+  | (a+1) 0     := is_false (not_succ_le_zero a)
   | (a+1) (b+1) :=
     match decidable_le a b with
-    | decidable.tt H := decidable.tt (succ_le_succ H)
-    | decidable.ff H := decidable.ff (λa, H (le_of_succ_le_succ a))
+    | is_true H  := is_true (succ_le_succ H)
+    | is_false H := is_false (λa, H (le_of_succ_le_succ a))
     end
 
   attribute [instance, priority nat.prio]

@@ -22,16 +22,14 @@ attribute [instance]
 protected definition prod.is_inhabited {A B : Type} [inhabited A] [inhabited B] : inhabited (prod A B) :=
 inhabited.mk (default A, default B)
 
-open decidable
-
 attribute [instance]
 protected definition prod.has_decidable_eq {A B : Type} [h₁ : decidable_eq A] [h₂ : decidable_eq B] : ∀ p₁ p₂ : A × B, decidable (p₁ = p₂)
 | (a, b) (a', b') :=
   match (h₁ a a') with
-  | (tt e₁) :=
+  | (is_true e₁) :=
     match (h₂ b b') with
-    | (tt e₂) := tt (eq.rec_on e₁ (eq.rec_on e₂ rfl))
-    | (ff n₂) := ff (assume h, prod.no_confusion h (λ e₁' e₂', absurd e₂' n₂))
+    | (is_true e₂)  := is_true (eq.rec_on e₁ (eq.rec_on e₂ rfl))
+    | (is_false n₂) := is_false (assume h, prod.no_confusion h (λ e₁' e₂', absurd e₂' n₂))
     end
-  | (ff n₁) := ff (assume h, prod.no_confusion h (λ e₁' e₂', absurd e₁' n₁))
+  | (is_false n₁) := is_false (assume h, prod.no_confusion h (λ e₁' e₂', absurd e₁' n₁))
   end

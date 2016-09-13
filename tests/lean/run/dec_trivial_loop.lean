@@ -1,1 +1,0 @@
-print dec_trivial

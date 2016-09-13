@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.bool
+set_option new_elaborator true
 
 namespace pos_num
   protected definition mul (a b : pos_num) : pos_num :=
@@ -44,7 +45,7 @@ namespace num
   num.rec_on a zero (λp, bool.cond (is_one p) zero (pos (pred p)))
 
   definition size (a : num) : num :=
-  num.rec_on a (pos one) (λp, pos (size p))
+  num.rec_on a (pos pos_num.one) (λp, pos (size p))
 
   protected definition mul (a b : num) : num :=
   num.rec_on a zero (λpa, num.rec_on b zero (λpb, pos (pos_num.mul pa pb)))

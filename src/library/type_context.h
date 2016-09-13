@@ -310,6 +310,7 @@ public:
     expr push_let(name const & ppn, expr const & type, expr const & value);
 
     bool is_prop(expr const & e);
+    bool is_proof(expr const & e);
 
     optional<name> is_class(expr const & type);
     optional<expr> mk_class_instance(expr const & type);

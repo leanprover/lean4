@@ -966,6 +966,10 @@ bool type_context::is_prop(expr const & e) {
     }
 }
 
+bool type_context::is_proof(expr const & e) {
+    return is_prop(infer(e));
+}
+
 /* -------------------------------
    Temporary assignment mode support
    ------------------------------- */

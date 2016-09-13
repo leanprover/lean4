@@ -324,7 +324,11 @@ struct cases_tactic_fn {
             lean_cases_trace(mvar, tout() << "converted heq => eq\n";);
             return unify_eqs(mvar2, num_eqs, updating, new_intros, subst);
         } else if (is_eq(H_type, A, lhs, rhs)) {
-            if (is_local(rhs) || is_local(lhs)) {
+            if (ctx.is_def_eq(lhs, rhs)) {
+                lean_cases_trace(mvar, tout() << "skip\n";);
+                expr mvar2 = clear(m_mctx, *mvar1, H);
+                return unify_eqs(mvar2, num_eqs - 1, updating, new_intros, subst);
+            } else if (is_local(rhs) || is_local(lhs)) {
                 lean_cases_trace(mvar, tout() << "substitute\n";);
                 hsubstitution extra_subst;
                 bool symm  = !is_local(lhs) && is_local(rhs);

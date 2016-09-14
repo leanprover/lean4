@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
+#include "util/flet.h"
 #include "kernel/find_fn.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/replace_fn.h"
@@ -143,15 +144,11 @@ static std::string pos_string_for(expr const & e) {
 }
 
 level elaborator::mk_univ_metavar() {
-    level r = m_ctx.mk_univ_metavar_decl();
-    m_uvar_stack = cons(r, m_uvar_stack);
-    return r;
+    return m_ctx.mk_univ_metavar_decl();
 }
 
 expr elaborator::mk_metavar(expr const & A, expr const & ref) {
-    expr r = copy_tag(ref, m_ctx.mk_metavar_decl(m_ctx.lctx(), A));
-    m_mvar_stack = cons(r, m_mvar_stack);
-    return r;
+    return copy_tag(ref, m_ctx.mk_metavar_decl(m_ctx.lctx(), A));
 }
 
 expr elaborator::mk_metavar(optional<expr> const & A, expr const & ref) {
@@ -184,7 +181,7 @@ expr elaborator::mk_instance_core(expr const & C, expr const & ref) {
 expr elaborator::mk_instance(expr const & C, expr const & ref) {
     if (has_expr_metavar(C)) {
         expr inst = mk_metavar(C, ref);
-        m_instance_stack = cons(inst, m_instance_stack);
+        m_instances = cons(inst, m_instances);
         return inst;
     } else {
         return mk_instance_core(C, ref);
@@ -205,10 +202,8 @@ level elaborator::get_level(expr const & A, expr const & ref) {
     }
 
     if (is_meta(A_type)) {
-        checkpoint C(*this);
         level l = mk_univ_metavar();
-        if (is_def_eq(A_type, mk_sort(l))) {
-            C.commit();
+        if (try_is_def_eq(A_type, mk_sort(l))) {
             return l;
         }
     }
@@ -448,6 +443,18 @@ bool elaborator::is_def_eq(expr const & e1, expr const & e2) {
     return m_ctx.is_def_eq(e1, e2);
 }
 
+bool elaborator::try_is_def_eq(expr const & e1, expr const & e2) {
+    snapshot S(*this);
+    try {
+        return is_def_eq(e1, e2);
+    } catch (exception &) {
+        S.restore(*this);
+        throw;
+    }
+    S.restore(*this);
+    return false;
+}
+
 optional<expr> elaborator::ensure_has_type(expr const & e, expr const & e_type, expr const & type, expr const & ref) {
     if (is_def_eq(e_type, type))
         return some_expr(e);
@@ -529,12 +536,8 @@ expr elaborator::ensure_type(expr const & e, expr const & ref) {
         return e;
     }
 
-    if (is_meta(e_type)) {
-        checkpoint C(*this);
-        if (is_def_eq(e_type, mk_sort(mk_univ_metavar()))) {
-            C.commit();
-            return e;
-        }
+    if (is_meta(e_type) && is_def_eq(e_type, mk_sort(mk_univ_metavar()))) {
+        return e;
     }
 
     if (auto r = mk_coercion_to_sort(e, e_type, ref)) {
@@ -550,11 +553,8 @@ expr elaborator::visit_typed_expr(expr const & e) {
     expr val          = get_typed_expr_expr(e);
     expr type         = get_typed_expr_type(e);
     expr new_type;
-    {
-        checkpoint C(*this);
-        new_type = ensure_type(visit(type, none_expr()), type);
-        process_checkpoint(C);
-    }
+    new_type = ensure_type(visit(type, none_expr()), type);
+    synthesize_type_class_instances();
     expr new_val      = visit(val, some_expr(new_type));
     expr new_val_type = infer_type(new_val);
     if (auto r = ensure_has_type(new_val, new_val_type, new_type, ref))
@@ -575,10 +575,10 @@ expr elaborator::visit_prenum(expr const & e, optional<expr> const & expected_ty
     if (expected_type) {
         A = *expected_type;
         if (is_metavar(*expected_type))
-            m_numeral_type_stack = cons(A, m_numeral_type_stack);
+            m_numeral_types = cons(A, m_numeral_types);
     } else {
         A = mk_type_metavar(ref);
-        m_numeral_type_stack = cons(A, m_numeral_type_stack);
+        m_numeral_types = cons(A, m_numeral_types);
     }
     level A_lvl = get_level(A, ref);
     levels ls(A_lvl);
@@ -758,9 +758,8 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
             optional<expr> postponed;
             if (std::find(main_idxs.begin(), main_idxs.end(), i) != main_idxs.end()) {
                 {
-                    checkpoint C(*this);
                     new_arg = visit(args[j], some_expr(d));
-                    process_checkpoint(C);
+                    synthesize();
                     new_arg = instantiate_mvars(new_arg);
                 }
                 j++;
@@ -797,14 +796,11 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
 
         lean_assert(new_args.size() == info.m_arity);
 
-        {
-            /* Process extra arguments */
-            checkpoint C(*this);
-            for (; j < args.size(); j++) {
-                new_args.push_back(visit(args[j], none_expr()));
-            }
-            process_checkpoint(C);
+        /* Process extra arguments */
+        for (; j < args.size(); j++) {
+            new_args.push_back(visit(args[j], none_expr()));
         }
+        synthesize();
     }
 
     /* Compute expected_type for the recursor application without extra arguments */
@@ -949,7 +945,7 @@ optional<expr> elaborator::visit_app_with_expected(expr const & fn, buffer<expr>
     }
     /* Put new instances on the stack */
     for (expr const & new_inst : new_instances)
-        m_instance_stack = cons(new_inst, m_instance_stack);
+        m_instances = cons(new_inst, m_instances);
     return some_expr(mk_app(fn, new_args.size(), new_args.data()));
 }
 
@@ -1084,7 +1080,6 @@ expr elaborator::visit_overloaded_app(buffer<expr> const & fns, buffer<expr> con
     trace_elab_detail(tout() << "overloaded application at " << pos_string_for(ref);
                       auto pp_fn = mk_pp_ctx();
                       tout() << pp_overloads(pp_fn, fns) << "\n";);
-    list<expr> saved_instance_stack = m_instance_stack;
     buffer<expr> new_args;
     for (expr const & arg : args) {
         new_args.push_back(copy_tag(arg, visit(arg, none_expr())));
@@ -1101,7 +1096,7 @@ expr elaborator::visit_overloaded_app(buffer<expr> const & fns, buffer<expr> con
             bool has_args = !args.empty();
             expr new_fn   = visit_function(fn, has_args, ref);
             expr c        = visit_overload_candidate(new_fn, new_args, expected_type, ref);
-            try_to_synthesize_type_class_instances(saved_instance_stack);
+            synthesize_type_class_instances();
 
             if (expected_type) {
                 expr c_type = infer_type(c);
@@ -1175,7 +1170,7 @@ expr elaborator::visit_no_confusion(expr const & fn, buffer<expr> const & args, 
 
        Then, we elaborate this new fake pre-term.
     */
-    expr Heq      = checkpoint_visit(args[0], none_expr());
+    expr Heq      = strict_visit(args[0], none_expr());
     name I_name   = fn_name.get_prefix();
     unsigned nparams  = *inductive::get_num_params(m_env, I_name);
     unsigned nindices = *inductive::get_num_indices(m_env, I_name);
@@ -1255,19 +1250,10 @@ expr elaborator::visit_app(expr const & e, optional<expr> const & expected_type)
 
 expr elaborator::visit_by(expr const & e, optional<expr> const & expected_type) {
     lean_assert(is_by(e));
-    expr tac;
-    {
-        checkpoint C(*this);
-        tac = visit(get_by_arg(e), some_expr(mk_tactic_unit()));
-        process_checkpoint(C);
-        tac = instantiate_mvars(tac);
-    }
+    expr tac = strict_visit(get_by_arg(e), some_expr(mk_tactic_unit()));
     expr const & ref = e;
     expr mvar        = mk_metavar(expected_type, ref);
-    lean_assert(mvar == head(m_mvar_stack));
-    // Remove mvar from m_mvar_stack, we keep mvars associated with tactics in a separate stack
-    m_mvar_stack = tail(m_mvar_stack);
-    m_tactic_stack = cons(mk_pair(mvar, tac), m_tactic_stack);
+    m_tactics = cons(mk_pair(mvar, tac), m_tactics);
     trace_elab(tout() << "tactic for ?m_" << get_metavar_decl_ref_suffix(mvar) << " at " <<
                pos_string_for(mvar) << "\n" << tac << "\n";);
     return mvar;
@@ -1348,10 +1334,9 @@ expr elaborator::visit_convoy(expr const & e, optional<expr> const & expected_ty
            we try to infer one using expected_type and the type of the arguments */
         if (!expected_type)
             throw elaborator_exception(ref, "invalid match/convoy expression, expected type is not known");
-        checkpoint C(*this);
         for (unsigned i = 0; i < args.size(); i++)
             new_args.push_back(visit(args[i], none_expr()));
-        process_checkpoint(C);
+        synthesize();
         new_fn_type = *expected_type;
         unsigned i = args.size();
         while (i > 0) {
@@ -1363,7 +1348,6 @@ expr elaborator::visit_convoy(expr const & e, optional<expr> const & expected_ty
     } else {
         // User provided some typing information for the match
         type_context::tmp_locals locals(m_ctx);
-        checkpoint C(*this);
         expr it = fn_type;
         for (unsigned i = 0; i < args.size(); i++) {
             if (!is_pi(it))
@@ -1379,7 +1363,7 @@ expr elaborator::visit_convoy(expr const & e, optional<expr> const & expected_ty
             new_args.push_back(new_arg);
         }
         if (is_placeholder(it)) {
-            process_checkpoint(C);
+            synthesize();
             if (!expected_type)
                 throw elaborator_exception(ref, "invalid match/convoy expression, expected type is not known");
             new_fn_type = *expected_type;
@@ -1393,7 +1377,7 @@ expr elaborator::visit_convoy(expr const & e, optional<expr> const & expected_ty
         } else {
             expr b      = instantiate_rev(it, locals);
             expr new_b  = visit(b, none_expr());
-            process_checkpoint(C);
+            synthesize();
             new_fn_type = locals.mk_pi(instantiate_mvars(new_b));
         }
     }
@@ -1463,7 +1447,8 @@ expr elaborator::visit_equations(expr const & e) {
     buffer<expr> new_eqs;
     optional<expr> new_R;
     optional<expr> new_Rwf;
-    checkpoint C(*this);
+    flet<list<expr_pair>> save_stack(m_inaccessible_stack, m_inaccessible_stack);
+    list<expr_pair> saved_inaccessible_stack = m_inaccessible_stack;
     equations_header const & header = get_equations_header(e);
     unsigned num_fns = header.m_num_fns;
     to_equations(e, eqs);
@@ -1494,7 +1479,8 @@ expr elaborator::visit_equations(expr const & e) {
         new_eqs.push_back(new_eq);
     }
     check_equations_arity(new_eqs);
-    process_checkpoint(C);
+    synthesize();
+    check_inaccessible(saved_inaccessible_stack);
     expr new_e;
     if (new_R) {
         new_e = copy_tag(e, mk_equations(header, new_eqs.size(), new_eqs.data(), *new_R, *new_Rwf));
@@ -1554,11 +1540,10 @@ expr elaborator::visit_equation(expr const & eq) {
         throw exception("ill-formed equation");
     expr new_lhs;
     {
-        list<expr> saved_instance_stack = m_instance_stack;
         flet<bool> set(m_in_pattern, true);
         new_lhs = visit(lhs, none_expr());
         check_inaccessible_annotations(new_lhs);
-        try_to_synthesize_type_class_instances(saved_instance_stack);
+        synthesize_no_tactics();
     }
     expr new_lhs_type = instantiate_mvars(infer_type(new_lhs));
     expr new_rhs      = visit(rhs, some_expr(new_lhs_type));
@@ -1661,7 +1646,6 @@ expr elaborator::push_let(type_context::tmp_locals & locals,
 
 expr elaborator::visit_lambda(expr const & e, optional<expr> const & expected_type) {
     type_context::tmp_locals locals(m_ctx);
-    checkpoint C(*this);
     expr it  = e;
     expr ex;
     bool has_expected;
@@ -1681,10 +1665,7 @@ expr elaborator::visit_lambda(expr const & e, optional<expr> const & expected_ty
         expr new_d = visit(d, none_expr());
         if (has_expected) {
             expr ex_d = binding_domain(ex);
-            checkpoint C2(*this);
-            if (is_def_eq(new_d, ex_d)) {
-                C2.commit();
-            }
+            try_is_def_eq(new_d, ex_d);
         }
         new_d  = ensure_type(new_d, binding_domain(it));
         expr ref = binding_domain(it);
@@ -1702,14 +1683,13 @@ expr elaborator::visit_lambda(expr const & e, optional<expr> const & expected_ty
     } else {
         new_b = visit(b, none_expr());
     }
-    process_checkpoint(C);
+    synthesize();
     expr r = locals.mk_lambda(new_b);
     return r;
 }
 
 expr elaborator::visit_pi(expr const & e) {
     type_context::tmp_locals locals(m_ctx);
-    checkpoint C(*this);
     expr it  = e;
     while (is_pi(it)) {
         expr d     = instantiate_rev(binding_domain(it), locals);
@@ -1722,20 +1702,21 @@ expr elaborator::visit_pi(expr const & e) {
     expr b     = instantiate_rev(it, locals);
     expr new_b = visit(b, none_expr());
     new_b      = ensure_type(new_b, it);
-    process_checkpoint(C);
+    synthesize();
     expr r = locals.mk_pi(new_b);
     return r;
 }
 
 expr elaborator::visit_let(expr const & e, optional<expr> const & expected_type) {
     expr ref = e;
-    checkpoint C(*this);
     expr new_type  = visit(let_type(e), none_expr());
+    synthesize_no_tactics();
     expr new_value = visit(let_value(e), some_expr(new_type));
     new_value      = enforce_type(new_value, new_type, "invalid let-expression", let_value(e));
-    process_checkpoint(C);
+    synthesize();
     new_type       = instantiate_mvars(new_type);
     new_value      = instantiate_mvars(new_value);
+    ensure_no_unassigned_metavars(new_value);
     type_context::tmp_locals locals(m_ctx);
     push_let(locals, let_name(e), new_type, new_value, ref);
     expr body      = instantiate_rev(let_body(e), locals);
@@ -1753,10 +1734,11 @@ static bool is_have_expr(expr const & e) {
     return is_app(e) && is_have_annotation(app_fn(e)) && is_lambda(get_annotation_arg(app_fn(e)));
 }
 
-expr elaborator::checkpoint_visit(expr const & e, optional<expr> const & expected_type) {
-    checkpoint C(*this);
+expr elaborator::strict_visit(expr const & e, optional<expr> const & expected_type) {
     expr r = visit(e, expected_type);
-    process_checkpoint(C);
+    synthesize();
+    r = instantiate_mvars(r);
+    ensure_no_unassigned_metavars(r);
     return r;
 }
 
@@ -1765,10 +1747,13 @@ expr elaborator::visit_have_expr(expr const & e, optional<expr> const & expected
     expr lambda     = get_annotation_arg(app_fn(e));
     expr type       = binding_domain(lambda);
     expr proof      = app_arg(e);
-    expr new_type   = checkpoint_visit(type, none_expr());
+    expr new_type   = visit(type, none_expr());
+    synthesize_no_tactics();
     new_type        = ensure_type(new_type, type);
-    expr new_proof  = checkpoint_visit(proof, some_expr(new_type));
+    expr new_proof  = visit(proof, some_expr(new_type));
     new_proof       = enforce_type(new_proof, new_type, "invalid have-expression", proof);
+    synthesize();
+    ensure_no_unassigned_metavars(new_proof);
     type_context::tmp_locals locals(m_ctx);
     expr ref        = binding_domain(lambda);
     push_local(locals, binding_name(lambda), new_type, binding_info(lambda), ref);
@@ -1787,13 +1772,15 @@ expr elaborator::visit_suffices_expr(expr const & e, optional<expr> const & expe
     if (!is_lambda(fn)) throw elaborator_exception(e, "ill-formed suffices expression");
     expr new_fn;
     expr type     = binding_domain(fn);
-    expr new_type = checkpoint_visit(type, none_expr());
+    expr new_type = visit(type, none_expr());
+    synthesize_no_tactics();
     {
         type_context::tmp_locals locals(m_ctx);
         expr ref        = binding_domain(fn);
         push_local(locals, binding_name(fn), new_type, binding_info(fn), ref);
         expr body       = instantiate_rev(binding_body(fn), locals);
-        expr new_body   = checkpoint_visit(body, expected_type);
+        expr new_body   = visit(body, expected_type);
+        synthesize();
         new_fn          = locals.mk_lambda(new_body);
     }
     expr new_rest = visit(rest, some_expr(new_type));
@@ -1832,83 +1819,53 @@ expr elaborator::get_default_numeral_type() {
     return mk_constant(get_nat_name());
 }
 
-void elaborator::ensure_numeral_types_assigned(checkpoint const & C) {
-    list<expr> old_stack = C.m_saved_numeral_type_stack;
-    while (!is_eqp(m_numeral_type_stack, old_stack)) {
-        lean_assert(m_numeral_type_stack);
-        expr A = instantiate_mvars(head(m_numeral_type_stack));
-        if (is_metavar(A)) {
+void elaborator::synthesize_numeral_types() {
+    for (expr const & A : m_numeral_types) {
+        if (is_metavar(instantiate_mvars(A))) {
             if (!assign_mvar(A, get_default_numeral_type()))
                 throw elaborator_exception(A, "invalid numeral, failed to force numeral to be a nat");
         }
-        m_numeral_type_stack = tail(m_numeral_type_stack);
     }
+    m_numeral_types = list<expr>();
 }
 
-void elaborator::synthesize_type_class_instances_core(list<expr> const & old_stack, bool force) {
+void elaborator::synthesize_type_class_instances_step() {
     buffer<expr> to_keep;
-    buffer<expr> to_process;
-    while (!is_eqp(m_instance_stack, old_stack)) {
-        lean_assert(m_instance_stack);
-        lean_assert(is_metavar(head(m_instance_stack)));
-        to_process.push_back(head(m_instance_stack));
-        m_instance_stack   = tail(m_instance_stack);
-    }
-    unsigned i = to_process.size();
-    while (i > 0) {
-        --i;
-        expr mvar          = to_process[i];
-        expr ref           = mvar;
-        metavar_decl mdecl = *m_ctx.mctx().get_metavar_decl(mvar);
+    buffer<std::tuple<expr, expr, expr>> to_process;
+    for (expr const & mvar : m_instances) {
         expr inst          = instantiate_mvars(mvar);
-        if (!has_metavar(inst)) {
+        if (!has_expr_metavar(inst)) {
             trace_elab(tout() << "skipping type class resolution at " << pos_string_for(mvar)
                        << ", placeholder instantiated using type inference\n";);
             continue;
         }
         expr inst_type = instantiate_mvars(infer_type(inst));
-        if (!has_expr_metavar(inst_type)) {
-            // We must try to synthesize instance using the local context where it was declared
-            if (!is_def_eq(inst, mk_instance_core(mdecl.get_context(), inst_type, ref)))
-                throw elaborator_exception(mvar, "failed to assign type class instance to placeholder");
+        if (has_expr_metavar(inst_type)) {
+            to_keep.push_back(mvar);
         } else {
-            if (force) {
-                auto pp_fn = mk_pp_ctx();
-                throw elaborator_exception(mvar,
-                                           format("type class instance cannot be synthesized, type has metavariables") +
-                                           pp_indent(pp_fn, inst_type));
-            } else {
-                to_keep.push_back(mvar);
-            }
+            to_process.emplace_back(mvar, inst, inst_type);
         }
     }
-    m_instance_stack = to_list(to_keep.begin(), to_keep.end(), m_instance_stack);
+    if (to_process.empty())
+        return;
+    expr mvar, inst, inst_type;
+    for (std::tuple<expr, expr, expr> const & curr : to_process) {
+        std::tie(mvar, inst, inst_type) = curr;
+        metavar_decl mdecl = *m_ctx.mctx().get_metavar_decl(mvar);
+        expr ref = mvar;
+        if (!is_def_eq(inst, mk_instance_core(mdecl.get_context(), inst_type, ref)))
+            throw elaborator_exception(mvar, "failed to assign type class instance to placeholder");
+    }
+    m_instances = to_list(to_keep);
 }
 
-void elaborator::unassigned_uvars_to_params(level const & l) {
-    if (!has_meta(l)) return;
-    for_each(l, [&](level const & l) {
-            if (!has_meta(l)) return false;
-            if (is_meta(l) && !m_ctx.is_assigned(l)) {
-                name r = mk_tagged_fresh_name(*g_level_prefix);
-                m_ctx.assign(l, mk_param_univ(r));
-            }
-            return true;
-        });
-}
-
-void elaborator::unassigned_uvars_to_params(expr const & e) {
-    if (!has_univ_metavar(e)) return;
-    for_each(e, [&](expr const & e, unsigned) {
-            if (!has_univ_metavar(e)) return false;
-            if (is_constant(e)) {
-                for (level const & l : const_levels(e))
-                    unassigned_uvars_to_params(l);
-            } else if (is_sort(e)) {
-                unassigned_uvars_to_params(sort_level(e));
-            }
-            return true;
-        });
+void elaborator::synthesize_type_class_instances() {
+    while (true) {
+        auto old_instances = m_instances;
+        synthesize_type_class_instances_step();
+        if (is_eqp(old_instances, m_instances))
+            return;
+    }
 }
 
 static void throw_unsolved_tactic_state(tactic_state const & ts, format const & fmt, expr const & ref) {
@@ -1969,79 +1926,31 @@ void elaborator::invoke_tactic(expr const & mvar, expr const & tactic) {
     }
 }
 
-// Auxiliary procedure for #translate
-static expr translate_local_name(environment const & env, local_context const & lctx, name const & local_name,
-                                 expr const & src) {
-    if (auto decl = lctx.get_local_decl_from_user_name(local_name)) {
-        return decl->mk_ref();
-    }
-    if (env.find(local_name)) {
-        if (is_local(src))
-            return mk_constant(local_name);
-        else
-            return src;
-    }
-    throw elaborator_exception(src, format("unknown identifier '") + format(local_name) + format("'"));
-}
-
-/** \brief Translated local constants (and undefined constants) occurring in \c e into
-    local constants provided by \c ctx.
-    Throw exception is \c ctx does not contain the local constant.
-*/
-static expr translate(environment const & env, local_context const & lctx, expr const & e) {
-    auto fn = [&](expr const & e) {
-        if (is_placeholder(e) || is_by(e) || is_as_is(e)) {
-            return some_expr(e); // ignore placeholders, nested tactics and as_is terms
-        } else if (is_constant(e)) {
-            expr new_e = copy_tag(e, translate_local_name(env, lctx, const_name(e), e));
-            return some_expr(new_e);
-        } else if (is_local(e)) {
-            expr new_e = copy_tag(e, translate_local_name(env, lctx, local_pp_name(e), e));
-            return some_expr(new_e);
-        } else {
-            return none_expr();
-        }
-    };
-    return replace(e, fn);
-}
-
-void elaborator::invoke_tactics(checkpoint const & C) {
+void elaborator::synthesize_using_tactics() {
     buffer<expr_pair> to_process;
-    list<expr_pair> old_stack = C.m_saved_tactic_stack;
-    while (!is_eqp(m_tactic_stack, old_stack)) {
-        to_process.push_back(head(m_tactic_stack));
-        m_tactic_stack = tail(m_tactic_stack);
-    }
-    if (to_process.empty()) return;
-
+    to_buffer(m_tactics, to_process);
+    m_tactics = list<expr_pair>();
     elaborate_fn fn(nested_elaborate);
     scope_elaborate_fn scope(fn);
-
-    unsigned i = to_process.size();
-    while (i > 0) {
-        --i;
-        expr_pair const & p = to_process[i];
+    for (expr_pair const & p : to_process) {
         lean_assert(is_metavar(p.first));
         invoke_tactic(p.first, p.second);
     }
 }
 
-void elaborator::ensure_no_unassigned_metavars(expr const & e) {
-    if (!has_expr_metavar(e)) return;
-    metavar_context mctx = m_ctx.mctx();
-    for_each(e, [&](expr const & e, unsigned) {
-            if (!has_expr_metavar(e)) return false;
-            if (is_metavar_decl_ref(e) && !mctx.is_assigned(e)) {
-                tactic_state s = mk_tactic_state_for(e);
-                throw_unsolved_tactic_state(s, "don't know how to synthesize placeholder", e);
-            }
-            return true;
-        });
+void elaborator::synthesize_no_tactics() {
+    synthesize_numeral_types();
+    synthesize_type_class_instances();
 }
 
-void elaborator::check_inaccessible(checkpoint const & C) {
+void elaborator::synthesize() {
+    synthesize_numeral_types();
+    synthesize_type_class_instances();
+    synthesize_using_tactics();
+}
+
+void elaborator::check_inaccessible(list<expr_pair> const & old_stack) {
     buffer<expr_pair> to_process;
-    list<expr_pair> old_stack = C.m_saved_inaccessible_stack;
     while (!is_eqp(m_inaccessible_stack, old_stack)) {
         to_process.push_back(head(m_inaccessible_stack));
         m_inaccessible_stack = tail(m_inaccessible_stack);
@@ -2059,7 +1968,8 @@ void elaborator::check_inaccessible(checkpoint const & C) {
         }
         expr v = instantiate_mvars(m);
         if (has_expr_metavar(v)) {
-            throw elaborator_exception(m, format("invalid use of inaccessible term, it is not completely fixed by other arguments") +
+            throw elaborator_exception(m, format("invalid use of inaccessible term, "
+                                                 "it is not completely fixed by other arguments") +
                                        pp_indent(v));
         }
         if (!is_def_eq(v, p.second)) {
@@ -2072,55 +1982,59 @@ void elaborator::check_inaccessible(checkpoint const & C) {
     }
 }
 
-void elaborator::process_checkpoint(checkpoint & C) {
-    ensure_numeral_types_assigned(C);
-    synthesize_type_class_instances(C);
-    invoke_tactics(C);
-    check_inaccessible(C);
-    C.commit();
+void elaborator::unassigned_uvars_to_params(level const & l) {
+    if (!has_meta(l)) return;
+    for_each(l, [&](level const & l) {
+            if (!has_meta(l)) return false;
+            if (is_meta(l) && !m_ctx.is_assigned(l)) {
+                name r = mk_tagged_fresh_name(*g_level_prefix);
+                m_ctx.assign(l, mk_param_univ(r));
+            }
+            return true;
+        });
 }
 
-elaborator::base_snapshot::base_snapshot(elaborator const & e) {
+void elaborator::unassigned_uvars_to_params(expr const & e) {
+    if (!has_univ_metavar(e)) return;
+    for_each(e, [&](expr const & e, unsigned) {
+            if (!has_univ_metavar(e)) return false;
+            if (is_constant(e)) {
+                for (level const & l : const_levels(e))
+                    unassigned_uvars_to_params(l);
+            } else if (is_sort(e)) {
+                unassigned_uvars_to_params(sort_level(e));
+            }
+            return true;
+        });
+}
+
+void elaborator::ensure_no_unassigned_metavars(expr const & e) {
+    if (!has_expr_metavar(e)) return;
+    metavar_context mctx = m_ctx.mctx();
+    for_each(e, [&](expr const & e, unsigned) {
+            if (!has_expr_metavar(e)) return false;
+            if (is_metavar_decl_ref(e) && !mctx.is_assigned(e)) {
+                tactic_state s = mk_tactic_state_for(e);
+                throw_unsolved_tactic_state(s, "don't know how to synthesize placeholder", e);
+            }
+            return true;
+        });
+}
+
+elaborator::snapshot::snapshot(elaborator const & e) {
     m_saved_mctx               = e.m_ctx.mctx();
-    m_saved_instance_stack     = e.m_instance_stack;
-    m_saved_numeral_type_stack = e.m_numeral_type_stack;
-    m_saved_tactic_stack       = e.m_tactic_stack;
+    m_saved_instances          = e.m_instances;
+    m_saved_numeral_types      = e.m_numeral_types;
+    m_saved_tactics            = e.m_tactics;
     m_saved_inaccessible_stack = e.m_inaccessible_stack;
 }
 
-void elaborator::base_snapshot::restore(elaborator & e) {
-    e.m_ctx.set_mctx(m_saved_mctx);
-    e.m_instance_stack     = m_saved_instance_stack;
-    e.m_numeral_type_stack = m_saved_numeral_type_stack;
-    e.m_tactic_stack       = m_saved_tactic_stack;
-    e.m_inaccessible_stack = m_saved_inaccessible_stack;
-}
-
-elaborator::snapshot::snapshot(elaborator const & e):
-    base_snapshot(e) {
-    m_saved_mvar_stack = e.m_mvar_stack;
-    m_saved_uvar_stack = e.m_uvar_stack;
-}
-
 void elaborator::snapshot::restore(elaborator & e) {
-    base_snapshot::restore(e);
-    e.m_mvar_stack = m_saved_mvar_stack;
-    e.m_uvar_stack = m_saved_uvar_stack;
-}
-
-elaborator::checkpoint::checkpoint(elaborator & e):
-    base_snapshot(e),
-    m_elaborator(e),
-    m_commit(false) {}
-
-elaborator::checkpoint::~checkpoint() {
-    if (!m_commit) {
-        restore(m_elaborator);
-    }
-}
-
-void elaborator::checkpoint::commit() {
-    m_commit = true;
+    e.m_ctx.set_mctx(m_saved_mctx);
+    e.m_instances          = m_saved_instances;
+    e.m_numeral_types      = m_saved_numeral_types;
+    e.m_tactics            = m_saved_tactics;
+    e.m_inaccessible_stack = m_saved_inaccessible_stack;
 }
 
 /**
@@ -2235,10 +2149,9 @@ static expr replace_with_simple_metavars(metavar_context mctx, name_map<expr> & 
 }
 
 expr elaborator::elaborate(expr const & e) {
-    checkpoint C(*this);
     expr r = visit(e,  none_expr());
     trace_elab_detail(tout() << "result before final checkpoint\n" << r << "\n";);
-    process_checkpoint(C);
+    synthesize();
     return r;
 }
 
@@ -2252,11 +2165,10 @@ expr_pair elaborator::elaborate_with_type(expr const & e, expr const & e_type) {
     expr const & ref = e;
     expr new_e, new_e_type;
     {
-        checkpoint C(*this);
         expr Type  = visit(copy_tag(e_type, mk_sort(mk_level_placeholder())), none_expr());
         new_e_type = visit(e_type, some_expr(Type));
         new_e      = visit(e,      some_expr(new_e_type));
-        process_checkpoint(C);
+        synthesize();
     }
     expr inferred_type = infer_type(new_e);
     if (auto r = ensure_has_type(new_e, inferred_type, new_e_type, ref)) {
@@ -2308,6 +2220,42 @@ elaborate(environment & env, options const & opts,
     mctx = elab.mctx();
     env  = elab.env();
     return p;
+}
+
+// Auxiliary procedure for #translate
+static expr translate_local_name(environment const & env, local_context const & lctx, name const & local_name,
+                                 expr const & src) {
+    if (auto decl = lctx.get_local_decl_from_user_name(local_name)) {
+        return decl->mk_ref();
+    }
+    if (env.find(local_name)) {
+        if (is_local(src))
+            return mk_constant(local_name);
+        else
+            return src;
+    }
+    throw elaborator_exception(src, format("unknown identifier '") + format(local_name) + format("'"));
+}
+
+/** \brief Translated local constants (and undefined constants) occurring in \c e into
+    local constants provided by \c ctx.
+    Throw exception is \c ctx does not contain the local constant.
+*/
+static expr translate(environment const & env, local_context const & lctx, expr const & e) {
+    auto fn = [&](expr const & e) {
+        if (is_placeholder(e) || is_by(e) || is_as_is(e)) {
+            return some_expr(e); // ignore placeholders, nested tactics and as_is terms
+        } else if (is_constant(e)) {
+            expr new_e = copy_tag(e, translate_local_name(env, lctx, const_name(e), e));
+            return some_expr(new_e);
+        } else if (is_local(e)) {
+            expr new_e = copy_tag(e, translate_local_name(env, lctx, local_pp_name(e), e));
+            return some_expr(new_e);
+        } else {
+            return none_expr();
+        }
+    };
+    return replace(e, fn);
 }
 
 expr nested_elaborate(environment & env, options const & opts, metavar_context & mctx, local_context const & lctx,

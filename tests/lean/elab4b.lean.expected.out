@@ -1,7 +1,7 @@
 elab4b.lean:9:6: error: none of the overloads are applicable
 error for bla.f
 failed to synthesize type class instance for
-⊢ has_zero bool
+⊢ has_add bool
 
 error for foo.f
 function expected at

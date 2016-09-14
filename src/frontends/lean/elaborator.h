@@ -33,29 +33,20 @@ private:
     options           m_opts;
     type_context      m_ctx;
 
-    list<level>       m_uvar_stack;
-    list<expr>        m_mvar_stack;
-    list<expr>        m_instance_stack;
-    list<expr>        m_numeral_type_stack;
-    list<expr_pair>   m_tactic_stack;
+    list<expr>        m_instances;
+    list<expr>        m_numeral_types;
+    list<expr_pair>   m_tactics;
     list<expr_pair>   m_inaccessible_stack;
 
     /* m_depth is only used for tracing */
     unsigned          m_depth{0};
 
-    struct base_snapshot {
+    struct snapshot {
         metavar_context m_saved_mctx;
-        list<expr>      m_saved_instance_stack;
-        list<expr>      m_saved_numeral_type_stack;
-        list<expr_pair> m_saved_tactic_stack;
+        list<expr>      m_saved_instances;
+        list<expr>      m_saved_numeral_types;
+        list<expr_pair> m_saved_tactics;
         list<expr_pair> m_saved_inaccessible_stack;
-        base_snapshot(elaborator const & elab);
-        void restore(elaborator & elab);
-    };
-
-    struct snapshot : public base_snapshot {
-        list<level>     m_saved_uvar_stack;
-        list<expr>      m_saved_mvar_stack;
         snapshot(elaborator const & elab);
         void restore(elaborator & elab);
     };
@@ -100,6 +91,7 @@ private:
     expr whnf(expr const & e) { return m_ctx.whnf(e); }
     expr try_to_pi(expr const & e) { return m_ctx.try_to_pi(e); }
     bool is_def_eq(expr const & e1, expr const & e2);
+    bool try_is_def_eq(expr const & e1, expr const & e2);
     bool assign_mvar(expr const & e1, expr const & e2) { lean_assert(is_metavar(e1)); return is_def_eq(e1, e2); }
     expr instantiate_mvars(expr const & e);
     bool is_uvar_assigned(level const & l) const { return m_ctx.is_assigned(l); }
@@ -145,7 +137,7 @@ private:
     optional<elim_info> use_elim_elab_core(name const & fn);
     optional<elim_info> use_elim_elab(name const & fn);
 
-    expr checkpoint_visit(expr const & e, optional<expr> const & expected_type);
+    expr strict_visit(expr const & e, optional<expr> const & expected_type);
 
     expr visit_typed_expr(expr const & e);
     expr visit_prenum_core(expr const & e, optional<expr> const & expected_type);
@@ -199,19 +191,16 @@ private:
     expr visit_inaccessible(expr const & e, optional<expr> const & expected_type);
     expr visit(expr const & e, optional<expr> const & expected_type);
 
-    void ensure_numeral_types_assigned(checkpoint const & C);
-    void synthesize_type_class_instances_core(list<expr> const & old_stack, bool force);
-    void try_to_synthesize_type_class_instances(list<expr> const & old_stack) {
-        synthesize_type_class_instances_core(old_stack, false);
-    }
-    void synthesize_type_class_instances(checkpoint const & C) {
-        synthesize_type_class_instances_core(C.m_saved_instance_stack, true);
-    }
     tactic_state mk_tactic_state_for(expr const & mvar);
     void invoke_tactic(expr const & mvar, expr const & tac);
-    void invoke_tactics(checkpoint const & C);
-    void check_inaccessible(checkpoint const & C);
-    void process_checkpoint(checkpoint & C);
+
+    void synthesize_numeral_types();
+    void synthesize_type_class_instances_step();
+    void synthesize_type_class_instances();
+    void synthesize_using_tactics();
+    void synthesize_no_tactics();
+    void synthesize();
+    void check_inaccessible(list<expr_pair> const & old_stack);
 
     void unassigned_uvars_to_params(level const & l);
     void unassigned_uvars_to_params(expr const & e);
@@ -247,16 +236,6 @@ public:
     /** Simpler version of \c finalize, where \c es contains only one expression. */
     pair<expr, level_param_names> finalize(expr const & e, bool check_unassigned, bool to_simple_metavar);
     environment const & env() const { return m_env; }
-
-    class checkpoint : public base_snapshot {
-        elaborator & m_elaborator;
-        bool         m_commit;
-    public:
-        checkpoint(elaborator & e);
-        ~checkpoint();
-        void commit();
-        void process() { m_elaborator.process_checkpoint(*this); }
-    };
 };
 
 pair<expr, level_param_names> elaborate(environment & env, options const & opts,

@@ -1870,7 +1870,6 @@ void elaborator::synthesize_type_class_instances_core(list<expr> const & old_sta
                 throw elaborator_exception(mvar, "failed to assign type class instance to placeholder");
         } else {
             if (force) {
-                lean_unreachable();
                 auto pp_fn = mk_pp_ctx();
                 throw elaborator_exception(mvar,
                                            format("type class instance cannot be synthesized, type has metavariables") +

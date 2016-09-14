@@ -9,7 +9,7 @@ prelude
 import init.sigma init.setoid init.logic
 open sigma.ops setoid
 
-constant quot.{u}   : Π {A : Type u}, setoid A → Type u
+constant {u} quot : Π {A : Type u}, setoid A → Type u
 -- Remark: if we do not use propext here, then we would need a quot.lift for propositions.
 constant propext {a b : Prop} : (a ↔ b) → a = b
 

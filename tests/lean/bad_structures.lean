@@ -1,12 +1,12 @@
-prelude namespace foo structure prod.{l} (A : Type.{l}) (B : Type.{l}) :=
+prelude namespace foo structure {l} prod (A : Type l) (B : Type l) :=
 (pr1 : A) (pr2 : B)
 
-structure prod.{l} (A : Type.{l}) (B : Type.{l}) : Type :=
+structure {l} prod (A : Type l) (B : Type l) : Type :=
 (pr1 : A) (pr2 : B)
 
-structure prod.{l} (A : Type.{l}) (B : Type.{l}) : Type.{l} :=
+structure {l} prod (A : Type l) (B : Type l) : Type l :=
 (pr1 : A) (pr2 : B)
 
-structure prod2.{l} (A : Type.{l}) (B : Type.{l}) : Type.{max 1 l} :=
+structure {l} prod2 (A : Type l) (B : Type l) : Type (max 1 l) :=
 (pr1 : A) (pr2 : B)
 end foo

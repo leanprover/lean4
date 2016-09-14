@@ -2,7 +2,7 @@
 --    quot, pquot.mk, pquot.eqv and pquot.rec
 -- and a computational rule, which we call pquot.comp here.
 -- Note that, these constants do not assume the environment contains =
-constant pquot.{l} {A : Type.{l}} (R : A → A → Prop) : Type.{l}
+constant {l} pquot {A : Type l} (R : A → A → Prop) : Type l
 
 constant pquot.abs  {A : Type} (R : A → A → Prop) : A → pquot R
 -- pquot.eqv is a way to say R a b → (pquot.abs R a) = (pquot.abs R b) without mentioning equality

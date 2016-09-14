@@ -1,8 +1,8 @@
 namespace S1
 axiom I : Type
 definition F (X : Type) : Type := (X → Prop) → Prop
-axiom unfoldd.{l} : I.{l} → F I.{l}
-axiom foldd.{l}   : F I.{l} → I.{l}
+axiom {u} unfoldd : I.{u} → F I.{u}
+axiom {l} foldd   : F I.{l} → I.{l}
 axiom iso1 : ∀x, foldd (unfoldd x) = x
 end S1
 

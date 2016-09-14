@@ -1,10 +1,12 @@
 prelude
-constant A.{l1 l2} : Type.{l1} → Type.{l2}
+set_option new_elaborator true
+
+constant {l1 l2} A : Type l1 → Type l2
 check A
-definition tst.{l} (A : Type) (B : Type) (C : Type.{l}) : Type := A → B → C
+definition {l} tst (A : Type) (B : Type) (C : Type l) : Type := A → B → C
 check tst
-constant group.{l} : Type.{l+1}
-constant carrier.{l} : group.{l} → Type.{l}
+constant {l} group : Type (l+1)
+constant {l} carrier : group.{l} → Type l
 noncomputable definition to_carrier (g : group) := carrier g
 
 check to_carrier.{1}
@@ -14,7 +16,7 @@ section
   check A
   definition B := A → A
 end
-constant N : Type.{1}
+constant N : Type 1
 check B N
 constant f : B N
 check f
@@ -31,7 +33,7 @@ end
 check double
 check double.{1 2}
 
-definition Prop := Type.{0}
+definition Prop := Type 0
 constant eq : Π {A : Type}, A → A → Prop
 infix `=`:50 := eq
 
@@ -40,9 +42,9 @@ check eq.{1}
 section
   universe variable l
   universe variable u
-  variable {T1 : Type.{l}}
-  variable {T2 : Type.{l}}
-  variable {T3 : Type.{u}}
+  variable {T1 : Type l}
+  variable {T2 : Type l}
+  variable {T3 : Type u}
   variable f  : T1 → T2 → T2
   noncomputable definition is_proj2 := ∀ x y, f x y = y
   noncomputable definition is_proj3 (f : T1 → T2 → T3 → T3) := ∀ x y z, f x y z = z

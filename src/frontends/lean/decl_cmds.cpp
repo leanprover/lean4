@@ -201,7 +201,9 @@ static bool curr_is_binder_annotation(parser & p) {
 static environment variable_cmd_core(parser & p, variable_kind k, bool is_protected = false) {
     check_variable_kind(p, k);
     auto pos = p.pos();
-    optional<binder_info> bi = parse_binder_info(p, k);
+    optional<binder_info> bi;
+    if (k == variable_kind::Parameter || k == variable_kind::Variable)
+        bi = parse_binder_info(p, k);
     optional<parser::local_scope> scope1;
     name n;
     expr type;
@@ -238,12 +240,12 @@ static environment variable_cmd_core(parser & p, variable_kind k, bool is_protec
         }
     } else {
         /* non instance implicit cases */
-        n = p.check_decl_id_next("invalid declaration, identifier expected");
-        if (p.curr_is_token(get_llevel_curly_tk()) && (k == variable_kind::Parameter || k == variable_kind::Variable))
+        if (p.curr_is_token(get_lcurly_tk()) && (k == variable_kind::Parameter || k == variable_kind::Variable))
             throw parser_error("invalid declaration, only constants/axioms can be universe polymorphic", p.pos());
         if (k == variable_kind::Constant || k == variable_kind::Axiom)
             scope1.emplace(p);
         parse_univ_params(p, ls_buffer);
+        n = p.check_decl_id_next("invalid declaration, identifier expected");
         if (!p.curr_is_token(get_colon_tk())) {
             if (!curr_is_binder_annotation(p) && (k == variable_kind::Parameter || k == variable_kind::Variable)) {
                 p.parse_close_binder_info(bi);
@@ -647,7 +649,7 @@ class definition_cmd_fn {
     void parse_type_value() {
         // Parse universe parameters
         parser::local_scope scope1(m_p);
-        parse_univ_params(m_p, m_ls_buffer);
+        parse_old_univ_params(m_p, m_ls_buffer);
 
         if (m_p.curr_is_token(get_assign_tk())) {
             auto pos = m_p.pos();

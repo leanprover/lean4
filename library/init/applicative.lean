@@ -7,7 +7,7 @@ prelude
 import init.functor
 set_option new_elaborator true
 
-structure [class] applicative.{u₁ u₂} (f : Type u₁ → Type u₂) extends functor f : Type (max u₁+1 u₂) :=
+structure [class] {u₁ u₂} applicative (f : Type u₁ → Type u₂) extends functor f : Type (max u₁+1 u₂) :=
 (pure : Π {A : Type u₁}, A → f A)
 (seq  : Π {A B : Type u₁}, f (A → B) → f A → f B)
 

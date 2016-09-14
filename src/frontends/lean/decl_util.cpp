@@ -22,7 +22,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/elaborator.h"
 
 namespace lean {
-bool parse_univ_params(parser & p, buffer<name> & lp_names) {
+bool parse_old_univ_params(parser & p, buffer<name> & lp_names) {
     if (p.curr_is_token(get_llevel_curly_tk())) {
         p.next();
         while (!p.curr_is_token(get_rcurly_tk())) {
@@ -32,7 +32,22 @@ bool parse_univ_params(parser & p, buffer<name> & lp_names) {
         }
         p.next();
         return true;
-    } else{
+    } else {
+        return false;
+    }
+}
+
+bool parse_univ_params(parser & p, buffer<name> & lp_names) {
+    if (p.curr_is_token(get_lcurly_tk())) {
+        p.next();
+        while (!p.curr_is_token(get_rcurly_tk())) {
+            name l = p.check_atomic_id_next("invalid declaration, identifier expected");
+            lp_names.push_back(l);
+            p.add_local_level(l, mk_param_univ(l));
+        }
+        p.next();
+        return true;
+    } else {
         return false;
     }
 }
@@ -43,15 +58,7 @@ expr parse_single_header(parser & p, buffer<name> & lp_names, buffer<expr> & par
     if (is_example) {
         c_name = name("this");
     } else {
-        if (p.curr_is_token(get_lcurly_tk())) {
-            p.next();
-            while (!p.curr_is_token(get_rcurly_tk())) {
-                name l = p.check_atomic_id_next("invalid declaration, identifier expected");
-                lp_names.push_back(l);
-                p.add_local_level(l, mk_param_univ(l));
-            }
-            p.next();
-        }
+        parse_univ_params(p, lp_names);
         c_name = p.check_decl_id_next("invalid declaration, identifier expected");
     }
     declaration_name_scope scope(c_name);
@@ -70,15 +77,7 @@ expr parse_single_header(parser & p, buffer<name> & lp_names, buffer<expr> & par
 }
 
 void parse_mutual_header(parser & p, buffer<name> & lp_names, buffer<expr> & cs, buffer<expr> & params) {
-    if (p.curr_is_token(get_lcurly_tk())) {
-        p.next();
-        while (!p.curr_is_token(get_rcurly_tk())) {
-            name l = p.check_atomic_id_next("invalid mutual declaration, identifier expected");
-            lp_names.push_back(l);
-            p.add_local_level(l, mk_param_univ(l));
-        }
-        p.next();
-    }
+    parse_univ_params(p, lp_names);
     while (true) {
         auto c_pos  = p.pos();
         name c_name = p.check_decl_id_next("invalid mutual declaration, identifier expected");

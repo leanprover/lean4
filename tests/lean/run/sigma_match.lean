@@ -1,6 +1,6 @@
 open sigma
 
-constant hom.{l₁ l₂} {A : Type.{l₁}} {B : Type.{l₂}} (a : A) (b : B) : Type.{max l₁ l₂}
+constant {l₁ l₂} hom {A : Type l₁} {B : Type l₂} (a : A) (b : B) : Type (max l₁ l₂)
 
 attribute [reducible]
 noncomputable definition arrow_ob (A B : Type) : Type :=

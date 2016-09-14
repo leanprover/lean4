@@ -4,7 +4,7 @@ inductive point (A B : Type)
 inductive [class] color
 | red | green | blue
 
-constant foo.{l} (A : Type.{l}) [H : decidable_eq A] : Type.{l}
+constant {u} foo (A : Type u) [H : decidable_eq A] : Type u
 
 constants a : num
 

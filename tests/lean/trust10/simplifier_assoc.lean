@@ -1,11 +1,11 @@
 open tactic
-constants (A : Type.{1}) (a b c d e f g h : A) (op : A → A → A) (op_assoc : is_associative op)
+constants (A : Type 1) (a b c d e f g h : A) (op : A → A → A) (op_assoc : is_associative op)
 attribute op_assoc [instance]
 
 infixr `%%` := op
 
 namespace pat2
-constant (H : a %% b = f)
+constant H : a %% b = f
 local attribute H [simp]
 
 example : a %% b = f := by simp
@@ -17,7 +17,7 @@ example : c %% d %% a %% b %% c %% d = c %% d %% f %% c %% d := by simp
 end pat2
 
 namespace pat3
-constant (H : (a %% b) %% g = f)
+constant H : (a %% b) %% g = f
 attribute H [simp]
 
 example : a %% b %% g = f := by simp

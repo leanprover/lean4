@@ -15,13 +15,17 @@ class elaborator;
 enum def_cmd_kind { Theorem, Definition, MetaDefinition, Example, Abbreviation, LocalAbbreviation };
 
 /** \brief Parse explict universe parameters of the form:
-           .{u_1 ... u_k}
+           {u_1 ... u_k}
 
     The universe parameters are automatically added to the parser scope. */
 bool parse_univ_params(parser & p, buffer<name> & lp_names);
+
+// TODO(Leo): delete
+bool parse_old_univ_params(parser & p, buffer<name> & lp_names);
+
 /** \brief Parse a declaration header of the form
 
-         c.{u_1 ... u_k} (params) : type
+         {u_1 ... u_k} id (params) : type
 
     The result is the local constant (c : type). The explicit universe level parameters are stored
     at lp_names, and the optional parameters at params.

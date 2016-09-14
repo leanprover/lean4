@@ -124,15 +124,6 @@ struct structure_cmd_fn {
         m_name_pos = m_p.pos();
         m_attrs.parse(m_p);
         check_attrs(m_attrs, m_name_pos);
-        m_given_name = m_p.check_decl_id_next("invalid 'structure', identifier expected");
-        if (m_is_private) {
-            unsigned h   = hash(m_name_pos.first, m_name_pos.second);
-            auto env_n   = add_private_name(m_env, m_given_name, optional<unsigned>(h));
-            m_env        = env_n.first;
-            m_name  = env_n.second;
-        } else {
-            m_name = m_namespace + m_given_name;
-        }
         buffer<name> ls_buffer;
         if (parse_univ_params(m_p, ls_buffer)) {
             m_explicit_universe_params = true;
@@ -141,6 +132,15 @@ struct structure_cmd_fn {
         } else {
             m_explicit_universe_params = false;
             m_infer_result_universe    = true;
+        }
+        m_given_name = m_p.check_decl_id_next("invalid 'structure', identifier expected");
+        if (m_is_private) {
+            unsigned h   = hash(m_name_pos.first, m_name_pos.second);
+            auto env_n   = add_private_name(m_env, m_given_name, optional<unsigned>(h));
+            m_env        = env_n.first;
+            m_name  = env_n.second;
+        } else {
+            m_name = m_namespace + m_given_name;
         }
     }
 

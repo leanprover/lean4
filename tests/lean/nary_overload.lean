@@ -1,7 +1,7 @@
 prelude
 
-constant vec.{l} : Type.{l} → Type.{l}
-constant lst.{l} : Type.{l} → Type.{l}
+constant {l} vec : Type l → Type l
+constant {l} lst : Type l → Type l
 constant vec.nil {A : Type} : vec A
 constant lst.nil {A : Type} : lst A
 constant vec.cons {A : Type} : A → vec A → vec A

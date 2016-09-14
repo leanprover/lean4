@@ -1210,14 +1210,18 @@ bool type_context::is_def_eq_core(level const & l1, level const & l2) {
 
     if (is_mvar(l1)) {
         lean_assert(!is_assigned(l1));
-        assign(l1, l2);
-        return true;
+        if (!occurs(l1, l2)) {
+            assign(l1, l2);
+            return true;
+        }
     }
 
     if (is_mvar(l2)) {
         lean_assert(!is_assigned(l2));
-        assign(l2, l1);
-        return true;
+        if (!occurs(l2, l1)) {
+            assign(l2, l1);
+            return true;
+        }
     }
 
     level new_l1 = normalize(instantiate_mvars(l1));

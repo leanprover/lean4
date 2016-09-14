@@ -8,12 +8,12 @@ Basic datatypes
 prelude
 set_option new_elaborator true
 
-notation `Prop`  := Type.{0}
-notation `Type₁` := Type.{1}
-notation `Type₂` := Type.{2}
-notation `Type₃` := Type.{3}
+notation `Prop`  := Type 0
+notation `Type₁` := Type 1
+notation `Type₂` := Type 2
+notation `Type₃` := Type 3
 
-inductive poly_unit.{l} : Type.{l}
+inductive poly_unit.{u} : Type u
 | star : poly_unit
 
 inductive unit : Type₁

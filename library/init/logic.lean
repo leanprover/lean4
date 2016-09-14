@@ -68,7 +68,7 @@ definition id.def {A : Type} (a : A) : id a = a := rfl
 
 -- Remark: we provide the universe levels explicitly to make sure `eq.drec` has the same type of `eq.rec` in the HoTT library
 attribute [elab_as_eliminator]
-protected theorem eq.drec.{l₁ l₂} {A : Type.{l₂}} {a : A} {C : Π (x : A), a = x → Type.{l₁}} (h₁ : C a (eq.refl a)) {b : A} (h₂ : a = b) : C b h₂ :=
+protected theorem eq.drec.{u₁ u₂} {A : Type u₂} {a : A} {C : Π (x : A), a = x → Type u₁} (h₁ : C a (eq.refl a)) {b : A} (h₂ : a = b) : C b h₂ :=
 eq.rec (λh₂ : a = a, show C a h₂, from h₁) h₂ h₂
 
 namespace eq
@@ -171,7 +171,7 @@ infixl ` == `:50 := heq
 
 section
 universe variable u
-variables {A B C : Type.{u}} {a a' : A} {b b' : B} {c : C}
+variables {A B C : Type u} {a a' : A} {b b' : B} {c : C}
 
 theorem eq_of_heq (h : a == a') : a = a' :=
 have ∀ (A' : Type) (a' : A') (h₁ : @heq A a A' a') (h₂ : A = A'), (eq.rec_on h₂ a : A') = a', from

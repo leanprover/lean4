@@ -236,9 +236,9 @@ meta_constant local_context : tactic (list expr)
 
     Example, given
         rel.{l_1 l_2} : Pi (A : Type.{l_1}) (B : A -> Type.{l_2}), (Pi x : A, B x) -> (Pi x : A, B x) -> , Prop
-        nat     : Type.{1}
-        real    : Type.{1}
-        vec.{l} : Pi (A : Type.{l}) (n : nat), Type.{l1}
+        nat     : Type 1
+        real    : Type 1
+        vec.{l} : Pi (A : Type l) (n : nat), Type.{l1}
         f g     : Pi (n : nat), vec real n
     then
         mk_app_core semireducible "rel" [f, g]

@@ -6,7 +6,7 @@ Authors: Leonardo de Moura, Jeremy Avigad
 prelude
 import init.ordering init.meta.name init.meta.format
 
-meta_constant rb_map.{l₁ l₂} : Type.{l₁} → Type.{l₂} → Type.{max l₁ l₂ 1}
+meta_constant rb_map.{u₁ u₂} : Type u₁ → Type u₂ → Type (max u₁ u₂ 1)
 
 namespace rb_map
 meta_constant mk_core {key : Type} (data : Type)        : (key → key → ordering) → rb_map key data

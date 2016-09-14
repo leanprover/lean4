@@ -2107,9 +2107,15 @@ bool parser::curr_starts_expr() {
 }
 
 expr parser::parse_led(expr left) {
-    switch (curr()) {
-    case scanner::token_kind::Keyword: return parse_led_notation(left);
-    default:                           return mk_app(left, parse_expr(get_max_prec()), pos_of(left));
+    if (is_sort(left) && is_placeholder(sort_level(left)) &&
+        (curr_is_numeral() || curr_is_identifier() || curr_is_token(get_lparen_tk()))) {
+        level l = parse_level(get_max_prec());
+        return copy_tag(left, update_sort(left, l));
+    } else {
+        switch (curr()) {
+        case scanner::token_kind::Keyword: return parse_led_notation(left);
+        default: return mk_app(left, parse_expr(get_max_prec()), pos_of(left));
+        }
     }
 }
 

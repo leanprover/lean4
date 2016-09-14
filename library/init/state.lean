@@ -40,13 +40,13 @@ end state
 
 definition stateT (S : Type) (m : Type → Type) [monad m] (A : Type) := S → m (A × S)
 
-definition stateT_fmap.{l} {S : Type} {m : Type → Type} [monad m] {A B : Type.{l}} (f : A → B) (a : stateT S m A) : stateT S m B :=
+definition stateT_fmap.{u} {S : Type} {m : Type → Type} [monad m] {A B : Type u} (f : A → B) (a : stateT S m A) : stateT S m B :=
 λ s, @monad.bind m _ _ _ (a s) (λ p : A × S, match p with (a', s') := return (f a', s') end)
 
 definition stateT_return {S : Type} {m : Type → Type} [monad m] {A : Type} (a : A) : stateT S m A :=
 λ s, @monad.ret m _ _ (a, s)
 
-definition stateT_bind.{l} {S : Type} {m : Type → Type} [monad m] {A B : Type.{l}} (a : stateT S m A) (b : A → stateT S m B) : stateT S m B :=
+definition stateT_bind.{u} {S : Type} {m : Type → Type} [monad m] {A B : Type u} (a : stateT S m A) (b : A → stateT S m B) : stateT S m B :=
 λ s, @monad.bind m _ _ _ (a s) (λ p : A × S, match p with (a', s') := b a' s' end)
 
 attribute [instance]

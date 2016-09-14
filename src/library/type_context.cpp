@@ -1971,8 +1971,10 @@ expr type_context::elim_delayed_abstraction(expr const & e) {
     if (!to_revert.empty()) {
         std::reverse(to_revert.begin(), to_revert.end());
         std::reverse(replacements.begin(), replacements.end());
+        buffer<expr> saved_to_revert; saved_to_revert.append(to_revert);
         expr new_meta = revert(to_revert, mvar);
-        new_fn        = replace_locals(new_meta, to_revert, replacements);
+        lean_assert(saved_to_revert.size() == replacements.size());
+        new_fn        = replace_locals(new_meta, saved_to_revert, replacements);
     } else {
         new_fn = mvar;
     }

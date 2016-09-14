@@ -2276,7 +2276,7 @@ bool type_context::is_def_eq(expr const & t, expr const & s) {
     bool success = is_def_eq_core(t, s);
     lean_trace(name({"type_context", "is_def_eq"}),
                tout() << t << " =?= " << s << " ... "
-               << (success ? "success" : "failed") << "\n";);
+               << (success ? "success" : "failed") << " " << (approximate() ? " (approximate mode)" : "") << "\n";);
     if (success) {
         S.commit();
         return true;

@@ -443,12 +443,14 @@ optional<expr> elaborator::mk_coercion(expr const & e, expr const & _e_type, exp
     }
 }
 
-optional<expr> elaborator::ensure_has_type(expr const & e, expr const & e_type, expr const & type, expr const & ref) {
+bool elaborator::is_def_eq(expr const & e1, expr const & e2) {
     type_context::approximate_scope scope(m_ctx);
+    return m_ctx.is_def_eq(e1, e2);
+}
 
+optional<expr> elaborator::ensure_has_type(expr const & e, expr const & e_type, expr const & type, expr const & ref) {
     if (is_def_eq(e_type, type))
         return some_expr(e);
-
     return mk_coercion(e, e_type, type, ref);
 }
 
@@ -1800,7 +1802,8 @@ expr elaborator::visit_suffices_expr(expr const & e, optional<expr> const & expe
 
 expr elaborator::visit(expr const & e, optional<expr> const & expected_type) {
     flet<unsigned> inc_depth(m_depth, m_depth+1);
-    trace_elab_detail(tout() << "[" << m_depth << "] visiting\n" << e << "\n";);
+    trace_elab_detail(tout() << "[" << m_depth << "] visiting\n" << e << "\n";
+                      if (expected_type) tout() << "expected type:\n" << instantiate_mvars(*expected_type) << "\n";);
     if (is_placeholder(e)) {
         return visit_placeholder(e, expected_type);
     } else if (is_have_expr(e)) {

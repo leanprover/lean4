@@ -22,6 +22,7 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/metavar_util.h"
 #include "library/type_context.h"
+#include "library/locals.h"
 #include "library/aux_recursors.h"
 #include "library/attribute_manager.h"
 #include "library/unification_hint.h"
@@ -1911,6 +1912,77 @@ bool type_context::is_def_eq_proof_irrel(expr const & e1, expr const & e2) {
     return false;
 }
 
+/*
+   Given `e` of the form `[delayed t {x_1 := v_1, ..., x_n := v_n}] a_1 ... a_k`
+
+   If `t` is not a metavariable, then we just "push" the delayed
+   abstraction.
+
+   If `t` is a metavariable ?m, then we first substitute the `x_i`s
+   that are not in the local context of ?m, and we obtain
+
+         `delayed ?m {y_1 := w_1, ..., y_m := w_m}`
+
+   where each `y_i` is in the local context of ?m.
+
+   Then, we "revert" the y_i's. The revert method returns
+   a metavariable application (?m1 z_1 .... z_s) where
+   `z`s include `y`s and their dependencies. Recall that the
+   revert operation has assigned
+          ?m := ?m1 z_1 ... z_s
+
+   Then, we replace the `y`s with `w`s in (?m1 z_1 .... z_s)
+   and return
+
+        ?m1 z_1' .... z_s' a_1 ... a_k
+*/
+expr type_context::elim_delayed_abstraction(expr const & e) {
+    buffer<expr> args;
+    expr f = get_app_args(e, args);
+    lean_assert(is_delayed_abstraction(f));
+    expr new_f = push_delayed_abstraction(f);
+    if (new_f != f)
+        return mk_app(new_f, args);
+    buffer<name> hns;
+    buffer<expr> vs;
+    get_delayed_abstraction_info(f, hns, vs);
+    lean_assert(hns.size() == vs.size());
+    expr mvar = get_delayed_abstraction_expr(f);
+    lean_assert(is_metavar(mvar));
+    local_context lctx = m_mctx.get_metavar_decl(mvar)->get_context();
+    buffer<expr> to_revert;
+    buffer<expr> replacements;
+    unsigned i = hns.size();
+    while (i > 0) {
+        --i;
+        name const & hn = hns[i];
+        expr const & v  = vs[i];
+        if (optional<local_decl> h = lctx.get_local_decl(hn)) {
+            to_revert.push_back(h->mk_ref());
+            replacements.push_back(v);
+        } else {
+            // replace hn with v at vs[0] ... vs[i-1]
+            for (unsigned j = 0; j < i; j++) {
+                vs[j] = instantiate(abstract_local(vs[j], hn), v);
+            }
+        }
+    }
+    expr new_fn;
+    if (!to_revert.empty()) {
+        std::reverse(to_revert.begin(), to_revert.end());
+        std::reverse(replacements.begin(), replacements.end());
+        expr new_meta = revert(to_revert, mvar);
+        new_fn        = replace_locals(new_meta, to_revert, replacements);
+    } else {
+        new_fn = mvar;
+    }
+    expr r = mk_app(new_fn, args);
+    lean_trace(name({"type_context", "is_def_eq_detail"}),
+               tout() << "eliminated delayed abstraction:\n"
+               << e << "\n====>\n" << r << "\n";);
+    return r;
+}
+
 lbool type_context::quick_is_def_eq(expr const & e1, expr const & e2) {
     if (e1 == e2)
         return l_true;
@@ -1923,18 +1995,18 @@ lbool type_context::quick_is_def_eq(expr const & e1, expr const & e2) {
 
     expr const & f1 = get_app_fn(e1);
     expr const & f2 = get_app_fn(e2);
+
     if (is_mvar(f1)) {
         if (is_assigned(f1)) {
             return to_lbool(is_def_eq_core(instantiate_mvars(e1), e2));
+        } else if (!in_tmp_mode() && is_delayed_abstraction(f2)) {
+            return to_lbool(is_def_eq_core(e1, elim_delayed_abstraction(e2)));
         } else if (!is_mvar(f2)) {
             return to_lbool(process_assignment(e1, e2));
         } else if (is_assigned(f2)) {
             return to_lbool(is_def_eq_core(e1, instantiate_mvars(e2)));
         } else if (in_tmp_mode()) {
             return to_lbool(process_assignment(e1, e2));
-        } else if (is_delayed_abstraction(e2) && get_delayed_abstraction_expr(e2) == e1) {
-            // TODO(Leo): improve and check
-            return l_true;
         } else {
             optional<metavar_decl> m1_decl = m_mctx.get_metavar_decl(f1);
             optional<metavar_decl> m2_decl = m_mctx.get_metavar_decl(f2);
@@ -1953,12 +2025,18 @@ lbool type_context::quick_is_def_eq(expr const & e1, expr const & e2) {
     if (is_mvar(f2)) {
         if (is_assigned(f2)) {
             return to_lbool(is_def_eq_core(e1, instantiate_mvars(e2)));
-        } else if (is_delayed_abstraction(e1) && get_delayed_abstraction_expr(e1) == e2) {
-            // TODO(Leo): improve and check
-            return l_true;
+        } else if (!in_tmp_mode() && is_delayed_abstraction(f1)) {
+            return to_lbool(is_def_eq_core(elim_delayed_abstraction(e1), e2));
         } else {
             return to_lbool(process_assignment(e2, e1));
         }
+    }
+
+    if (!in_tmp_mode()) {
+        if (is_delayed_abstraction(f1))
+            return to_lbool(is_def_eq_core(elim_delayed_abstraction(e1), e2));
+        if (is_delayed_abstraction(f2))
+            return to_lbool(is_def_eq_core(e1, elim_delayed_abstraction(e2)));
     }
 
     if (e1.kind() == e2.kind()) {

@@ -491,6 +491,7 @@ private:
     bool is_def_eq_args(expr const & e1, expr const & e2);
     bool is_def_eq_eta(expr const & e1, expr const & e2);
     bool is_def_eq_proof_irrel(expr const & e1, expr const & e2);
+    expr elim_delayed_abstraction(expr const & e);
     lbool quick_is_def_eq(expr const & e1, expr const & e2);
     bool try_unification_hint(unification_hint const & h, expr const & e1, expr const & e2);
     bool try_unification_hints(expr const & e1, expr const & e2);

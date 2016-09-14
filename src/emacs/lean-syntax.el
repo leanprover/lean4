@@ -132,10 +132,29 @@
      (,(rx word-start
            (group (or "inductive" "structure" "record" "theorem" "axiom" "axioms" "lemma" "proposition" "corollary"
                       "hypothesis" "definition" "meta_definition" "constant" "meta_constant"))
-           word-end (zero-or-more whitespace) (group (one-or-more "[" (zero-or-more (not (any "]"))) "]" (zero-or-more whitespace)))
+           word-end (zero-or-more whitespace)
+           (group (one-or-more "[" (zero-or-more (not (any "]"))) "]" (zero-or-more whitespace)))
+           (zero-or-more whitespace)
+           (group (zero-or-more "{" (zero-or-more (not (any "}"))) "}" (zero-or-more whitespace)))
+           (zero-or-more whitespace)
+           (group (zero-or-more (not (any " \t\n\r{([")))))
+      (2 'font-lock-doc-face) (4 'font-lock-function-name-face))
+     (,(rx word-start
+           (group (or "inductive" "structure" "record" "theorem" "axiom" "axioms" "lemma" "proposition" "corollary"
+                      "hypothesis" "definition" "meta_definition" "constant" "meta_constant"))
+           word-end (zero-or-more whitespace)
+           (group (one-or-more "[" (zero-or-more (not (any "]"))) "]" (zero-or-more whitespace)))
            (zero-or-more whitespace)
            (group (zero-or-more (not (any " \t\n\r{([")))))
       (2 'font-lock-doc-face) (3 'font-lock-function-name-face))
+     (,(rx word-start
+           (group (or "inductive" "structure" "record" "theorem" "axiom" "axioms" "lemma" "proposition" "corollary"
+                      "hypothesis" "definition" "meta_definition" "constant" "meta_constant"))
+           word-end (zero-or-more whitespace)
+           (group (zero-or-more "{" (zero-or-more (not (any "}"))) "}" (zero-or-more whitespace)))
+           (zero-or-more whitespace)
+           (group (zero-or-more (not (any " \t\n\r{([")))))
+      (3 'font-lock-function-name-face))
      ;; attribute after mutual_definitions
      (,(rx word-start
            (group (or "mutual_definition" "mutual_meta_definition" "mutual_inductive"))

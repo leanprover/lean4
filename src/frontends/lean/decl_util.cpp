@@ -40,12 +40,21 @@ bool parse_univ_params(parser & p, buffer<name> & lp_names) {
 expr parse_single_header(parser & p, buffer<name> & lp_names, buffer<expr> & params, bool is_example) {
     auto c_pos  = p.pos();
     name c_name;
-    if (is_example)
+    if (is_example) {
         c_name = name("this");
-    else
+    } else {
+        if (p.curr_is_token(get_lcurly_tk())) {
+            p.next();
+            while (!p.curr_is_token(get_rcurly_tk())) {
+                name l = p.check_atomic_id_next("invalid declaration, identifier expected");
+                lp_names.push_back(l);
+                p.add_local_level(l, mk_param_univ(l));
+            }
+            p.next();
+        }
         c_name = p.check_decl_id_next("invalid declaration, identifier expected");
+    }
     declaration_name_scope scope(c_name);
-    parse_univ_params(p, lp_names);
     p.parse_optional_binders(params);
     for (expr const & param : params)
         p.add_local(param);

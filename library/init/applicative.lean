@@ -16,7 +16,7 @@ definition pure {f : Type → Type} [applicative f] {A : Type} (a : A) : f A :=
 applicative.pure f a
 
 attribute [inline]
-definition seq_app.{u} {A B : Type u} {f : Type → Type} [applicative f] (g : f (A → B)) (a : f A) : f B :=
+definition {u} seq_app {A B : Type u} {f : Type → Type} [applicative f] (g : f (A → B)) (a : f A) : f B :=
 applicative.seq g a
 
 infixr ` <*> `:2 := seq_app

@@ -2,7 +2,7 @@ inductive List (T : Type) : Type | nil {} : List | cons   : T → List → List
 
 namespace explicit
 
-inductive ftree.{l₁ l₂} (A : Type.{l₁}) (B : Type.{l₂}) : Type.{max 1 l₁ l₂}
+inductive {u₁ u₂} ftree (A : Type u₁) (B : Type u₂) : Type (max 1 u₁ u₂)
 | leafa : A → ftree
 | leafb : B → ftree
 | node  : (A → ftree) → (B → ftree) → ftree

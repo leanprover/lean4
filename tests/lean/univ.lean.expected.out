@@ -3,4 +3,6 @@ id2 Type₁ num : Type₁
 id2 Type₁ num : Type₁
 id2 Type₁ num : Type₁
 id2 Type₁ num : Type₁
+id2 Type₁ num : Type₁
+id2 Type₂ Type₁ : Type₂
 id2 Type₂ Type₁ : Type₂

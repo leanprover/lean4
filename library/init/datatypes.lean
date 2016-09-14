@@ -13,7 +13,7 @@ notation `Type₁` := Type 1
 notation `Type₂` := Type 2
 notation `Type₃` := Type 3
 
-inductive poly_unit.{u} : Type u
+inductive {u} poly_unit : Type u
 | star : poly_unit
 
 inductive unit : Type₁

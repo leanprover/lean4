@@ -7,7 +7,7 @@ remark: set 'formatter.hide_full_terms' to false to see the complete term
   ?M_1
 Unsafe version, should simplify and the proof should be incorrect
 simplifier_unsafe_nary.lean:17:0: error: type mismatch at application
-  (λ a a_1 e_1 a_2 a_3, congr (congr_arg eq e_1)) (op a (op b x y) z) (op a x (op a y z))
+  (λ (a a_1 : A) (e_1 : a = a_1) (a_2 a_3 : A), congr (congr_arg eq e_1)) (op a (op b x y) z) (op a x (op a y z))
     [flat (is_associative.op_assoc (op a)) (op a (op a x y) z = op a x (op a y z))]
 term
   [flat (is_associative.op_assoc (op a)) (op a (op a x y) z = op a x (op a y z))]

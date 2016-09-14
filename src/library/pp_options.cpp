@@ -84,7 +84,7 @@ Author: Leonardo de Moura
 #endif
 
 #ifndef LEAN_DEFAULT_PP_BINDER_TYPES
-#define LEAN_DEFAULT_PP_BINDER_TYPES false
+#define LEAN_DEFAULT_PP_BINDER_TYPES true
 #endif
 
 #ifndef LEAN_DEFAULT_PP_DELAYED_ABSTRACTION

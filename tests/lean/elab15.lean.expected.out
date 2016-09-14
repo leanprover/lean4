@@ -1,4 +1,4 @@
-λ A a b c d H₁ H₂ H₃,
+λ (A : Type) (a b c d : A) (H₁ : eq a b) (H₂ : eq c b) (H₃ : eq d c),
   have this : eq a c, from eq.trans H₁ (eq.symm H₂),
   show eq a d, from eq.trans this (eq.symm H₃) :
-  ∀ A a b c d, eq a b → eq c b → eq d c → eq a d
+  ∀ (A : Type) (a b c d : A), eq a b → eq c b → eq d c → eq a d

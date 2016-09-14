@@ -1,4 +1,4 @@
-pr : Π {A}, A → A → A
+pr : Π {A : Type}, A → A → A
 pr a b : N
 choice_expl.lean:14:6: error: ambiguous overload, possible interpretations
   N2.pr a b

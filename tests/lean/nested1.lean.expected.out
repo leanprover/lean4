@@ -1,10 +1,10 @@
 attribute [irreducible]
 definition test.foo.prf : ∀ (x : ℕ), 0 < succ (succ x) :=
-λ x, lt.step (zero_lt_succ x)
+λ (x : ℕ), lt.step (zero_lt_succ x)
 noncomputable definition test.bla : ℕ → ℕ :=
-λ a, foo (succ (succ a)) (foo.prf a)
+λ (a : ℕ), foo (succ (succ a)) (foo.prf a)
 noncomputable definition test.bla : ℕ → ℕ :=
-λ a, test.foo (succ (succ a)) (test.foo.prf a)
+λ (a : ℕ), test.foo (succ (succ a)) (test.foo.prf a)
 attribute [irreducible]
 definition test.foo.prf : ∀ (x : ℕ), 0 < succ (succ x) :=
-λ x, lt.step (zero_lt_succ x)
+λ (x : ℕ), lt.step (zero_lt_succ x)

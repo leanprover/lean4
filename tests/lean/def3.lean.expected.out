@@ -1,1 +1,1 @@
-f : Π A, A → A
+f : Π (A : Type), A → A

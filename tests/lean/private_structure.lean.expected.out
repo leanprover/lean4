@@ -1,10 +1,10 @@
 bla : Type₁
 point : Type₁
 point.mk : ℕ → ℕ → point
-point.rec : (Π x y, ?M_1 (point.mk x y)) → Π n, ?M_1 n
-point.rec_on : Π n, (Π x y, ?M_1 (point.mk x y)) → ?M_1 n
-point.cases_on : Π n, (Π x y, ?M_1 (point.mk x y)) → ?M_1 n
-point.induction_on : ∀ n, (∀ x y, ?M_1 (point.mk x y)) → ?M_1 n
+point.rec : (Π (x y : ℕ), ?M_1 (point.mk x y)) → Π (n : point), ?M_1 n
+point.rec_on : Π (n : point), (Π (x y : ℕ), ?M_1 (point.mk x y)) → ?M_1 n
+point.cases_on : Π (n : point), (Π (x y : ℕ), ?M_1 (point.mk x y)) → ?M_1 n
+point.induction_on : ∀ (n : point), (∀ (x y : ℕ), ?M_1 (point.mk x y)) → ?M_1 n
 point.x : point → ℕ
 point.y : point → ℕ
 bla : Type₁

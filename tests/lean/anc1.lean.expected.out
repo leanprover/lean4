@@ -1,19 +1,25 @@
 (1, 2) : ℕ × ℕ
 and.intro trivial trivial : true ∧ true
-sigma.mk 1 sorry : Σ x, x > 0
+sigma.mk 1 sorry : Σ (x : ℕ), x > 0
 show true, from true.intro : true
-Exists.intro 1 (λ a, nat.no_confusion a) : ∃ x, 1 ≠ 0
-λ A B C Ha Hb Hc, show B ∧ A, from and.intro Hb Ha : ∀ A B C, A → B → C → B ∧ A
-λ A B C Ha Hb Hc, show B ∧ A ∧ C ∧ A, from and.intro Hb (and.intro Ha (and.intro Hc Ha)) :
-  ∀ A B C, A → B → C → B ∧ A ∧ C ∧ A
-λ A B C Ha Hb Hc, show B ∧ A ∧ C ∧ A, from and.intro Hb (and.intro Ha (and.intro Hc Ha)) :
-  ∀ A B C, A → B → C → B ∧ A ∧ C ∧ A
-λ A B C Ha Hb Hc,
+Exists.intro 1 (λ (a : 1 = 0), nat.no_confusion a) : ∃ (x : ℕ), 1 ≠ 0
+λ (A B C : Prop) (Ha : A) (Hb : B) (Hc : C), show B ∧ A, from and.intro Hb Ha :
+  ∀ (A B C : Prop), A → B → C → B ∧ A
+λ (A B C : Prop) (Ha : A) (Hb : B) (Hc : C),
+  show B ∧ A ∧ C ∧ A, from and.intro Hb (and.intro Ha (and.intro Hc Ha)) :
+  ∀ (A B C : Prop), A → B → C → B ∧ A ∧ C ∧ A
+λ (A B C : Prop) (Ha : A) (Hb : B) (Hc : C),
+  show B ∧ A ∧ C ∧ A, from and.intro Hb (and.intro Ha (and.intro Hc Ha)) :
+  ∀ (A B C : Prop), A → B → C → B ∧ A ∧ C ∧ A
+λ (A B C : Prop) (Ha : A) (Hb : B) (Hc : C),
   show ((B ∧ true) ∧ A) ∧ C ∧ A, from and.intro (and.intro (and.intro Hb true.intro) Ha) (and.intro Hc Ha) :
-  ∀ A B C, A → B → C → ((B ∧ true) ∧ A) ∧ C ∧ A
-λ A P Q a H1 H2, show ∃ x, P x ∧ Q x, from Exists.intro a (and.intro H1 H2) :
-  ∀ A P Q a, P a → Q a → (∃ x, P x ∧ Q x)
-λ A P Q a b H1 H2, show ∃ x y, P x ∧ Q y, from Exists.intro a (Exists.intro b (and.intro H1 H2)) :
-  ∀ A P Q a b, P a → Q b → (∃ x y, P x ∧ Q y)
-λ A P Q a b H1 H2, show ∃ x y, P x ∧ Q y, from Exists.intro a (Exists.intro b (and.intro H1 H2)) :
-  ∀ A P Q a b, P a → Q b → (∃ x y, P x ∧ Q y)
+  ∀ (A B C : Prop), A → B → C → ((B ∧ true) ∧ A) ∧ C ∧ A
+λ (A : Type) (P Q : A → Prop) (a : A) (H1 : P a) (H2 : Q a),
+  show ∃ (x : A), P x ∧ Q x, from Exists.intro a (and.intro H1 H2) :
+  ∀ (A : Type) (P Q : A → Prop) (a : A), P a → Q a → (∃ (x : A), P x ∧ Q x)
+λ (A : Type) (P Q : A → Prop) (a b : A) (H1 : P a) (H2 : Q b),
+  show ∃ (x y : A), P x ∧ Q y, from Exists.intro a (Exists.intro b (and.intro H1 H2)) :
+  ∀ (A : Type) (P Q : A → Prop) (a b : A), P a → Q b → (∃ (x y : A), P x ∧ Q y)
+λ (A : Type) (P Q : A → Prop) (a b : A) (H1 : P a) (H2 : Q b),
+  show ∃ (x y : A), P x ∧ Q y, from Exists.intro a (Exists.intro b (and.intro H1 H2)) :
+  ∀ (A : Type) (P Q : A → Prop) (a b : A), P a → Q b → (∃ (x y : A), P x ∧ Q y)

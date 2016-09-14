@@ -1,1 +1,2 @@
-list.rec_on : Π n, ?M_2 list.nil → (Π a a_1, ?M_2 a_1 → ?M_2 (a :: a_1)) → ?M_2 n
+list.rec_on :
+  Π (n : list ?M_1), ?M_2 list.nil → (Π (a : ?M_1) (a_1 : list ?M_1), ?M_2 a_1 → ?M_2 (a :: a_1)) → ?M_2 n

@@ -756,7 +756,7 @@ definition decidable_ne {A : Type} [decidable_eq A] (a b : A) : decidable (a ≠
 decidable_implies
 
 theorem bool.ff_ne_tt : ff = tt → false
-[none]
+.
 
 definition is_dec_eq {A : Type} (p : A → A → bool) : Prop   := ∀ ⦃x y : A⦄, p x y = tt → x = y
 definition is_dec_refl {A : Type} (p : A → A → bool) : Prop := ∀x, p x x = tt

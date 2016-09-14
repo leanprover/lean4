@@ -176,7 +176,7 @@ namespace nat
   nat.cases_on n le.step (λa, succ_le_succ)
 
   theorem not_succ_le_zero : ∀ (n : ℕ), succ n ≤ 0 → false
-  [none]
+  .
 
   theorem succ_le_zero_iff_false (n : ℕ) : succ n ≤ 0 ↔ false :=
   iff_false_intro (not_succ_le_zero n)

@@ -624,27 +624,22 @@ exists_unique.elim H
     show y₁ = y₂, from eq.trans (unique _ py₁) (eq.symm (unique _ py₂)))
 
 /- exists, forall, exists unique congruences -/
-section
-variables {A : Type} {p₁ p₂ : A → Prop}
-
-attribute [elab_with_expected_type]
+attribute [congr, elab_with_expected_type]
 theorem forall_congr {A : Type} {P Q : A → Prop} (H : ∀a, (P a ↔ Q a)) : (∀a, P a) ↔ ∀a, Q a :=
 iff.intro (λp a, iff.mp (H a) (p a)) (λq a, iff.mpr (H a) (q a))
 
 theorem exists_imp_exists {A : Type} {P Q : A → Prop} (H : ∀a, (P a → Q a)) (p : ∃a, P a) : ∃a, Q a :=
 exists.elim p (λa Hp, exists.intro a (H a Hp))
 
-attribute [elab_with_expected_type]
-theorem exists_congr {A : Type} {P Q : A → Prop} (H : ∀a, (P a ↔ Q a)) : (∃a, P a) ↔ ∃a, Q a :=
+attribute [congr, elab_with_expected_type]
+theorem exists_congr {A : Type} {P Q : A → Prop} (H : ∀a, (P a ↔ Q a)) : (Exists P) ↔ ∃a, Q a :=
 iff.intro
   (exists_imp_exists (λa, iff.mp (H a)))
   (exists_imp_exists (λa, iff.mpr (H a)))
 
-set_option pp.all true
 attribute [congr]
-theorem exists_unique_congr (H : ∀ x, p₁ x ↔ p₂ x) : (exists_unique p₁) ↔ (∃! x, p₂ x) := --
+theorem exists_unique_congr {A : Type} {p₁ p₂ : A → Prop} (H : ∀ x, p₁ x ↔ p₂ x) : (exists_unique p₁) ↔ (∃! x, p₂ x) := --
 exists_congr (λ x, and_congr (H x) (forall_congr (λy, imp_congr (H y) iff.rfl)))
-end
 
 /- decidable -/
 

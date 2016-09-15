@@ -1053,9 +1053,6 @@ expr elaborator::visit_default_app_core(expr const & _fn, arg_mask amask, buffer
 
     expr r = mk_app(fn, new_args.size(), new_args.data());
     if (expected_type) {
-        trace_elab_debug(tout() << "application\n  " << r << "\nhas type\n  " <<
-                         type << "\nexpected\n  " << *expected_type << "\nfunction type:\n  " <<
-                         fn_type << "\n";);
         if (auto new_r = ensure_has_type(r, instantiate_mvars(type), *expected_type, ref)) {
             return *new_r;
         } else {

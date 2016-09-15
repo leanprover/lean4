@@ -178,7 +178,7 @@ has_to_tactic_format.mk list_to_tactic_format
 
 attribute [instance]
 meta_definition has_to_format_to_has_to_tactic_format (A : Type) [has_to_format A] : has_to_tactic_format A :=
-has_to_tactic_format.mk (return ∘ to_fmt)
+has_to_tactic_format.mk ((λ x, return x) ∘ to_fmt)
 
 namespace tactic
 open tactic_state

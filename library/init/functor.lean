@@ -4,12 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Luke Nelson and Jared Roesch
 -/
 prelude
+set_option new_elaborator true
 
-structure [class] functor (f : Type → Type) : Type :=
-(map : Π {a b: Type}, (a → b) → f a → f b)
+structure [class] functor (F : Type → Type) : Type :=
+(map : Π {A B: Type}, (A → B) → F A → F B)
 
 attribute [inline]
-definition fmap {F : Type → Type} [functor F] {A B : Type} (f : A → B) (a : F A) : F B :=
-functor.map f a
+definition fmap {F : Type → Type} [functor F] ⦃A B : Type⦄ : (A → B) → F A → F B :=
+functor.map
 
 infixr ` <$> `:100 := fmap

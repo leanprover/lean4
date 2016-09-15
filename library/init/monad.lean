@@ -5,23 +5,24 @@ Authors: Luke Nelson and Jared Roesch
 -/
 prelude
 import init.applicative init.string init.trace
+set_option new_elaborator true
 
-structure [class] monad (m : Type → Type) extends functor m : Type :=
-(ret  : Π {a:Type}, a → m a)
-(bind : Π {a b: Type}, m a → (a → m b) → m b)
+structure [class] monad (M : Type → Type) extends functor M : Type :=
+(ret  : Π {A : Type}, A → M A)
+(bind : Π {A B : Type}, M A → (A → M B) → M B)
 
 attribute [inline]
-definition return {m : Type → Type} [monad m] {A : Type} (a : A) : m A :=
-monad.ret m a
+definition return {M : Type → Type} [monad M] ⦃A : Type⦄ : A → M A :=
+monad.ret M
 
-definition fapp {m : Type → Type} [monad m] {A B : Type} (f : m (A → B)) (a : m A) : m B :=
+definition {u} fapp {m : Type → Type} [monad m] ⦃A B : Type u⦄ (f : m (A → B)) (a : m A) : m B :=
 do g ← f,
    b ← a,
    return (g b)
 
 attribute [inline, instance]
 definition monad_is_applicative (m : Type → Type) [monad m] : applicative m :=
-applicative.mk (@monad.map _ _) (@monad.ret _ _) (@fapp _ _)
+applicative.mk fmap return fapp
 
 attribute [inline]
 definition monad.and_then {A B : Type} {m : Type → Type} [monad m] (a : m A) (b : m B) : m B :=

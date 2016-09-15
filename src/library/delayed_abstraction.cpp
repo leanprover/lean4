@@ -140,8 +140,9 @@ struct push_delayed_abstraction_fn : public replace_visitor {
 
     expr visit_local(expr const & e) override {
         for (unsigned i = 0; i < m_ns.size(); i++) {
-            if (m_ns[i] == mlocal_name(e))
-                return visit(lift_free_vars(m_vs[i], m_deltas[i]));
+            if (m_ns[i] == mlocal_name(e)) {
+                return lift_free_vars(m_vs[i], m_deltas[i]);
+            }
         }
         return e;
     }
@@ -153,6 +154,8 @@ struct push_delayed_abstraction_fn : public replace_visitor {
             buffer<expr> new_vs;
             get_delayed_abstraction_info(e, new_ns, new_vs);
             lean_assert(new_ns.size() == new_vs.size());
+            for (expr & v : new_vs)
+                v = visit(v);
             m_ns.append(new_ns);
             m_vs.append(new_vs);
             m_deltas.resize(m_vs.size(), 0);

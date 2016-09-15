@@ -865,16 +865,19 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
 optional<expr> elaborator::visit_app_with_expected(expr const & fn, buffer<expr> const & args,
                                                    expr const & expected_type, expr const & ref) {
     snapshot C(*this);
-    buffer<expr> new_args;
     buffer<expr> args_mvars;
     buffer<expr> args_expected_types;
-    /* size_at_args[i] contains size of new_args after args_mvars[i] was pushed.
+    buffer<expr> new_args;
+    /* new_args_size[i] contains size of new_args after args_mvars[i] was pushed.
        We need this information for producing error messages. */
-    buffer<unsigned> size_at_args;
+    buffer<unsigned> new_args_size;
     expr fn_type          = infer_type(fn);
     expr type_before_whnf = fn_type;
     expr type             = whnf(fn_type);
-    buffer<expr> new_instances;
+    buffer<expr>     new_instances;
+    /* new_instances_size[i] contains the size of new_instances before (and after) args_mvars[i]
+       was pushed. */
+    buffer<unsigned> new_instances_size;
     unsigned i   = 0;
     /* First pass: compute type for an fn-application, and unify it with expected_type.
        We don't visit expelicit arguments at this point. */
@@ -899,7 +902,8 @@ optional<expr> elaborator::visit_app_with_expected(expr const & fn, buffer<expr>
             args_expected_types.push_back(d);
             new_arg      = mk_metavar(d, arg_ref);
             args_mvars.push_back(new_arg);
-            size_at_args.push_back(new_args.size());
+            new_args_size.push_back(new_args.size());
+            new_instances_size.push_back(new_instances.size());
         } else {
             break;
         }
@@ -921,17 +925,25 @@ optional<expr> elaborator::visit_app_with_expected(expr const & fn, buffer<expr>
     }
     lean_assert(args_expected_types.size() == args.size());
     lean_assert(args_expected_types.size() == args_mvars.size());
-    lean_assert(args_expected_types.size() == size_at_args.size());
+    lean_assert(args_expected_types.size() == new_args_size.size());
+    lean_assert(args_expected_types.size() == new_instances_size.size());
+    unsigned j = 0; /* for traversing new_instances */
     /* Second pass: visit explicit arguments using the information
        we gained about their expected types */
     for (unsigned i = 0; i < args.size(); i++) {
+        /* Process type class instances upto args[i] */
+        for (; j < new_instances_size[i]; j++) {
+            expr const & mvar = new_instances[j];
+            if (!try_synthesize_type_class_instance(mvar))
+                m_instances = cons(mvar, m_instances);
+        }
         expr ref_arg      = args[i];
         expr new_arg      = visit(args[i], some_expr(args_expected_types[i]));
         expr new_arg_type = infer_type(new_arg);
         if (optional<expr> new_new_arg = ensure_has_type(new_arg, new_arg_type, args_expected_types[i], ref_arg)) {
             new_arg = *new_new_arg;
         } else {
-            new_args.shrink(size_at_args[i]);
+            new_args.shrink(new_args_size[i]);
             new_args.push_back(new_arg);
             format msg = mk_app_type_mismatch_error(mk_app(fn, new_args.size(), new_args.data()),
                                                     new_arg, new_arg_type, args_expected_types[i]);
@@ -940,12 +952,14 @@ optional<expr> elaborator::visit_app_with_expected(expr const & fn, buffer<expr>
         if (!is_def_eq(args_mvars[i], new_arg)) {
             throw elaborator_exception(ref_arg, "invalid application, type mismatch when assigning auxiliary metavar");
         } else {
-            new_args[size_at_args[i]] = new_arg;
+            new_args[new_args_size[i]] = new_arg;
         }
     }
-    /* Put new instances on the stack */
-    for (expr const & new_inst : new_instances)
-        m_instances = cons(new_inst, m_instances);
+    for (; j < new_instances.size(); j++) {
+        expr const & mvar = new_instances[j];
+        if (!try_synthesize_type_class_instance(mvar))
+            m_instances = cons(mvar, m_instances);
+    }
     return some_expr(mk_app(fn, new_args.size(), new_args.data()));
 }
 
@@ -1827,6 +1841,23 @@ void elaborator::synthesize_numeral_types() {
         }
     }
     m_numeral_types = list<expr>();
+}
+
+bool elaborator::try_synthesize_type_class_instance(expr const & mvar) {
+    expr inst = instantiate_mvars(mvar);
+    if (!has_expr_metavar(inst)) {
+        trace_elab(tout() << "skipping type class resolution at " << pos_string_for(mvar)
+                   << ", placeholder instantiated using type inference\n";);
+        return true;
+    }
+    expr inst_type = instantiate_mvars(infer_type(inst));
+    if (has_expr_metavar(inst_type))
+        return false;
+    metavar_decl mdecl = *m_ctx.mctx().get_metavar_decl(mvar);
+    expr ref = mvar;
+    if (!is_def_eq(inst, mk_instance_core(mdecl.get_context(), inst_type, ref)))
+        throw elaborator_exception(mvar, "failed to assign type class instance to placeholder");
+    return true;
 }
 
 void elaborator::synthesize_type_class_instances_step() {

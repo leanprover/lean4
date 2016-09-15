@@ -14,7 +14,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 enum class elaborator_strategy {
-    Default,
+    Simple,
     WithExpectedType,
     AsEliminator
 };

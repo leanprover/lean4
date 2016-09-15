@@ -93,11 +93,7 @@ elaborator_strategy get_elaborator_strategy(environment const & env, name const 
         return elaborator_strategy::AsEliminator;
     }
 
-    if (inductive::is_intro_rule(env, n)) {
-        return elaborator_strategy::WithExpectedType;
-    }
-
-    return elaborator_strategy::Default;
+    return elaborator_strategy::WithExpectedType;
 }
 
 #define trace_elab(CODE) lean_trace("elaborator", scope_trace_env _scope(m_env, m_ctx); CODE)
@@ -2328,7 +2324,7 @@ void initialize_elaborator() {
             "instructs elaborator that the arguments of the function application (f ...) "
             "should be elaborated from left to right, and without propagating information from the expected type "
             "to its arguments",
-            elaborator_strategy::Default));
+            elaborator_strategy::Simple));
 
     register_incompatible("elab_simple", "elab_with_expected_type");
     register_incompatible("elab_simple", "elab_as_eliminator");

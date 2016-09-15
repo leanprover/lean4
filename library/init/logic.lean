@@ -13,7 +13,6 @@ a
 /- TODO(Leo): for new elaborator
 - Support for partially applied recursors (use eta-expansion)
 - checkpoints when processing calc.
-- heuristic for assigning [elab_with_expected_type] automatically
 -/
 
 /- implication -/
@@ -285,7 +284,6 @@ definition iff (a b : Prop) := (a → b) ∧ (b → a)
 notation a <-> b := iff a b
 notation a ↔ b := iff a b
 
-attribute [elab_with_expected_type]
 theorem iff.intro : (a → b) → (b → a) → (a ↔ b) := and.intro
 
 attribute iff.intro [intro!]
@@ -335,13 +333,11 @@ iff.mp (iff.symm H) trivial
 
 theorem not_of_iff_false : (a ↔ false) → ¬a := iff.mp
 
-attribute [elab_with_expected_type]
 theorem iff_true_intro (H : a) : a ↔ true :=
 iff.intro
   (λ Hl, trivial)
   (λ Hr, H)
 
-attribute [elab_with_expected_type]
 theorem iff_false_intro (H : ¬a) : a ↔ false :=
 iff.intro H (false.rec a)
 
@@ -350,7 +346,6 @@ iff.intro
   (λ (Hl : ¬¬¬a) (Ha : a), Hl (non_contradictory_intro Ha))
   absurd
 
-attribute [congr, elab_with_expected_type]
 theorem imp_congr (H1 : a ↔ c) (H2 : b ↔ d) : (a → b) ↔ (c → d) :=
 iff.intro
   (λHab Hc, iff.mp H2 (Hab (iff.mpr H1 Hc)))
@@ -427,11 +422,10 @@ assume H, iff.mp H trivial
 theorem and.imp (H₂ : a → c) (H₃ : b → d) : a ∧ b → c ∧ d :=
 and.rec (λHa Hb, and.intro (H₂ Ha) (H₃ Hb))
 
-attribute [congr, elab_with_expected_type]
+attribute [congr]
 theorem and_congr (H1 : a ↔ c) (H2 : b ↔ d) : (a ∧ b) ↔ (c ∧ d) :=
 iff.intro (and.imp (iff.mp H1) (iff.mp H2)) (and.imp (iff.mpr H1) (iff.mpr H2))
 
-attribute [elab_with_expected_type]
 theorem and_congr_right (H : a → (b ↔ c)) : (a ∧ b) ↔ (a ∧ c) :=
 iff.intro
   (take Hab, and.intro (and.left Hab) (iff.elim_left (H (and.left Hab)) (and.right Hab)))
@@ -580,7 +574,6 @@ inductive Exists {A : Type} (P : A → Prop) : Prop
 
 attribute Exists.intro [intro]
 
-attribute [elab_with_expected_type]
 definition exists.intro := @Exists.intro
 
 notation `exists` binders `, ` r:(scoped P, Exists P) := r
@@ -624,14 +617,14 @@ exists_unique.elim H
     show y₁ = y₂, from eq.trans (unique _ py₁) (eq.symm (unique _ py₂)))
 
 /- exists, forall, exists unique congruences -/
-attribute [congr, elab_with_expected_type]
+attribute [congr]
 theorem forall_congr {A : Type} {P Q : A → Prop} (H : ∀a, (P a ↔ Q a)) : (∀a, P a) ↔ ∀a, Q a :=
 iff.intro (λp a, iff.mp (H a) (p a)) (λq a, iff.mpr (H a) (q a))
 
 theorem exists_imp_exists {A : Type} {P Q : A → Prop} (H : ∀a, (P a → Q a)) (p : ∃a, P a) : ∃a, Q a :=
 exists.elim p (λa Hp, exists.intro a (H a Hp))
 
-attribute [congr, elab_with_expected_type]
+attribute [congr]
 theorem exists_congr {A : Type} {P Q : A → Prop} (H : ∀a, (P a ↔ Q a)) : (Exists P) ↔ ∃a, Q a :=
 iff.intro
   (exists_imp_exists (λa, iff.mp (H a)))
@@ -659,13 +652,13 @@ is_false not_false
 
 -- We use "dependent" if-then-else to be able to communicate the if-then-else condition
 -- to the branches
-attribute [inline, elab_with_expected_type]
+attribute [inline]
 definition dite (c : Prop) [H : decidable c] {A : Type} : (c → A) → (¬ c → A) → A :=
 λ t e, decidable.rec_on H e t
 
 /- if-then-else -/
 
-attribute [inline, elab_with_expected_type]
+attribute [inline]
 definition ite (c : Prop) [H : decidable c] {A : Type} (t e : A) : A :=
 decidable.rec_on H (λ Hnc, e) (λ Hc, t)
 

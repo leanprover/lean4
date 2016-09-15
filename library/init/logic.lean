@@ -876,26 +876,29 @@ protected theorem rec_subsingleton {p : Prop} [H : decidable p]
     {H1 : p → Type} {H2 : ¬p → Type}
     [H3 : Π(h : p), subsingleton (H1 h)] [H4 : Π(h : ¬p), subsingleton (H2 h)]
   : subsingleton (decidable.rec_on H H2 H1) :=
-decidable.rec_on H (λh, H4 h) (λh, H3 h) --this can be proven using dependent version of "by_cases"
+match H with
+| (is_true h)  := H3 h
+| (is_false h) := H4 h
+end
 
 theorem if_pos {c : Prop} [H : decidable c] (Hc : c) {A : Type} {t e : A} : (ite c t e) = t :=
-decidable.rec
-  (λ Hnc : ¬c,  absurd Hc Hnc)
-  (λ Hc : c,    eq.refl (@ite c (is_true Hc) A t e))
-  H
+match H with
+| (is_true  Hc)  := rfl
+| (is_false Hnc) := absurd Hc Hnc
+end
 
 theorem if_neg {c : Prop} [H : decidable c] (Hnc : ¬c) {A : Type} {t e : A} : (ite c t e) = e :=
-decidable.rec
-  (λ Hnc : ¬c,  eq.refl (@ite c (is_false Hnc) A t e))
-  (λ Hc : c,    absurd Hc Hnc)
-  H
+match H with
+| (is_true Hc)   := absurd Hc Hnc
+| (is_false Hnc) := rfl
+end
 
 attribute [simp]
 theorem if_t_t (c : Prop) [H : decidable c] {A : Type} (t : A) : (ite c t t) = t :=
-decidable.rec
-  (λ Hnc : ¬c, eq.refl (@ite c (is_false Hnc) A t t))
-  (λ Hc  : c,  eq.refl (@ite c (is_true Hc)  A t t))
-  H
+match H with
+| (is_true Hc)   := rfl
+| (is_false Hnc) := rfl
+end
 
 theorem implies_of_if_pos {c t e : Prop} [decidable c] (h : ite c t e) : c → t :=
 assume Hc, eq.rec_on (if_pos Hc : ite c t e = t) h
@@ -968,16 +971,16 @@ theorem if_simp_congr_prop {b c x y u v : Prop} [dec_b : decidable b]
 @if_ctx_simp_congr_prop b c x y u v dec_b h_c (λ h, h_t) (λ h, h_e)
 
 theorem dif_pos {c : Prop} [H : decidable c] (Hc : c) {A : Type} {t : c → A} {e : ¬ c → A} : dite c t e = t Hc :=
-decidable.rec
-  (λ Hnc : ¬c,  absurd Hc Hnc)
-  (λ Hc : c,    eq.refl (@dite c (is_true Hc) A t e))
-  H
+match H with
+| (is_true Hc)   := rfl
+| (is_false Hnc) := absurd Hc Hnc
+end
 
 theorem dif_neg {c : Prop} [H : decidable c] (Hnc : ¬c) {A : Type} {t : c → A} {e : ¬ c → A} : dite c t e = e Hnc :=
-decidable.rec
-  (λ Hnc : ¬c,  eq.refl (@dite c (is_false Hnc) A t e))
-  (λ Hc : c,    absurd Hc Hnc)
-  H
+match H with
+| (is_true Hc)   := absurd Hc Hnc
+| (is_false Hnc) := rfl
+end
 
 theorem dif_ctx_congr {A : Type} {b c : Prop} [dec_b : decidable b] [dec_c : decidable c]
                       {x : b → A} {u : c → A} {y : ¬b → A} {v : ¬c → A}
@@ -1001,8 +1004,11 @@ theorem dif_ctx_simp_congr {A : Type} {b c : Prop} [dec_b : decidable b]
 @dif_ctx_congr A b c dec_b (decidable_of_decidable_of_iff dec_b h_c) x u y v h_c h_t h_e
 
 -- Remark: dite and ite are "definitionally equal" when we ignore the proofs.
-theorem dite_ite_eq (c : Prop) [s : decidable c] {A : Type} (t : A) (e : A) : dite c (λh, t) (λh, e) = ite c t e :=
-decidable.rec_on s (λ h, rfl) (λ h, rfl)
+theorem dite_ite_eq (c : Prop) [H : decidable c] {A : Type} (t : A) (e : A) : dite c (λh, t) (λh, e) = ite c t e :=
+match H with
+| (is_true Hc)   := rfl
+| (is_false Hnc) := rfl
+end
 
 -- The following symbols should not be considered in the pattern inference procedure used by
 -- heuristic instantiation.
@@ -1015,12 +1021,10 @@ definition as_false (c : Prop) [decidable c] : Prop :=
 if c then false else true
 
 definition of_as_true {c : Prop} [H₁ : decidable c] (H₂ : as_true c) : c :=
-decidable.rec_on H₁
-  (λ Hnc,
-    have (if c then true else false) = false, from if_neg Hnc,
-    have as_true c = false, from this,
-    false.rec _ (this ▸ H₂))
-  (λ Hc, Hc)
+match H₁, H₂ with
+| (is_true h_c),  H₂ := h_c
+| (is_false h_c), H₂ := false.elim H₂
+end
 
 -- namespace used to collect congruence rules for "contextual simplification"
 namespace contextual

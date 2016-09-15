@@ -194,6 +194,7 @@ private:
     tactic_state mk_tactic_state_for(expr const & mvar);
     void invoke_tactic(expr const & mvar, expr const & tac);
 
+    bool synthesize_type_class_instance_core(expr const & mvar, expr const & inferred_inst, expr const & inst_type);
     bool try_synthesize_type_class_instance(expr const & mvar);
     void synthesize_numeral_types();
     void synthesize_type_class_instances_step();

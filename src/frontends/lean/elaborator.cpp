@@ -1840,33 +1840,35 @@ void elaborator::synthesize_numeral_types() {
     m_numeral_types = list<expr>();
 }
 
-bool elaborator::try_synthesize_type_class_instance(expr const & mvar) {
-    expr inst = instantiate_mvars(mvar);
-    if (!has_expr_metavar(inst)) {
-        trace_elab(tout() << "skipping type class resolution at " << pos_string_for(mvar)
-                   << ", placeholder instantiated using type inference\n";);
-        return true;
-    }
-    expr inst_type = instantiate_mvars(infer_type(inst));
+bool elaborator::synthesize_type_class_instance_core(expr const & mvar, expr const & inferred_inst, expr const & inst_type) {
     if (has_expr_metavar(inst_type))
         return false;
     metavar_decl mdecl = *m_ctx.mctx().get_metavar_decl(mvar);
     expr ref = mvar;
-    if (!is_def_eq(inst, mk_instance_core(mdecl.get_context(), inst_type, ref)))
-        throw elaborator_exception(mvar, "failed to assign type class instance to placeholder");
+    expr synthesized_inst = mk_instance_core(mdecl.get_context(), inst_type, ref);
+    if (!is_def_eq(inferred_inst, synthesized_inst)) {
+        auto pp_fn = mk_pp_ctx();
+        throw elaborator_exception(mvar,
+                                   format("synthesized type class instance is not definitionally equal to expression "
+                                          "inferred by typing rules, synthesized")
+                                   + pp_indent(pp_fn, synthesized_inst)
+                                   + line() + format("inferred")
+                                   + pp_indent(pp_fn, inferred_inst));
+    }
     return true;
+}
+
+bool elaborator::try_synthesize_type_class_instance(expr const & mvar) {
+    expr inst = instantiate_mvars(mvar);
+    expr inst_type = instantiate_mvars(infer_type(inst));
+    return synthesize_type_class_instance_core(mvar, inst, inst_type);
 }
 
 void elaborator::synthesize_type_class_instances_step() {
     buffer<expr> to_keep;
     buffer<std::tuple<expr, expr, expr>> to_process;
     for (expr const & mvar : m_instances) {
-        expr inst          = instantiate_mvars(mvar);
-        if (!has_expr_metavar(inst)) {
-            trace_elab(tout() << "skipping type class resolution at " << pos_string_for(mvar)
-                       << ", placeholder instantiated using type inference\n";);
-            continue;
-        }
+        expr inst      = instantiate_mvars(mvar);
         expr inst_type = instantiate_mvars(infer_type(inst));
         if (has_expr_metavar(inst_type)) {
             to_keep.push_back(mvar);
@@ -1879,10 +1881,7 @@ void elaborator::synthesize_type_class_instances_step() {
     expr mvar, inst, inst_type;
     for (std::tuple<expr, expr, expr> const & curr : to_process) {
         std::tie(mvar, inst, inst_type) = curr;
-        metavar_decl mdecl = *m_ctx.mctx().get_metavar_decl(mvar);
-        expr ref = mvar;
-        if (!is_def_eq(inst, mk_instance_core(mdecl.get_context(), inst_type, ref)))
-            throw elaborator_exception(mvar, "failed to assign type class instance to placeholder");
+        synthesize_type_class_instance_core(mvar, inst, inst_type);
     }
     m_instances = to_list(to_keep);
 }

@@ -1348,7 +1348,7 @@ expr elaborator::visit_convoy(expr const & e, optional<expr> const & expected_ty
         for (unsigned i = 0; i < args.size(); i++)
             new_args.push_back(visit(args[i], none_expr()));
         synthesize();
-        new_fn_type = *expected_type;
+        new_fn_type = instantiate_mvars(*expected_type);
         unsigned i = args.size();
         while (i > 0) {
             --i;
@@ -1377,7 +1377,7 @@ expr elaborator::visit_convoy(expr const & e, optional<expr> const & expected_ty
             synthesize();
             if (!expected_type)
                 throw elaborator_exception(ref, "invalid match/convoy expression, expected type is not known");
-            new_fn_type = *expected_type;
+            new_fn_type = instantiate_mvars(*expected_type);
             unsigned i = args.size();
             while (i > 0) {
                 --i;

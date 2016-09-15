@@ -907,19 +907,12 @@ theorem if_ctx_congr {A : Type} {b c : Prop} [dec_b : decidable b] [dec_c : deci
                      {x y u v : A}
                      (h_c : b ↔ c) (h_t : c → x = u) (h_e : ¬c → y = v) :
         ite b x y = ite c u v :=
-decidable.rec_on dec_b
-  (λ hn : ¬b,
-    have ite c u v = v, from if_neg (iff.mp (not_iff_not_of_iff h_c) hn),
-    calc
-    ite b x y = y         : if_neg hn
-         ...  = v         : h_e (iff.mp (not_iff_not_of_iff h_c) hn)
-         ...  = ite c u v : eq.symm this)
-  (λ hp : b,
-    have ite c u v = u, from if_pos (iff.mp h_c hp),
-    calc
-    ite b x y = x           : if_pos hp
-         ...  = u           : h_t (iff.mp h_c hp)
-         ...  = ite c u v   : eq.symm this)
+match dec_b, dec_c with
+| (is_false h₁), (is_false h₂) := h_e h₂
+| (is_true h₁),  (is_true h₂)  := h_t h₂
+| (is_false h₁), (is_true h₂)  := absurd h₂ (iff.mp (not_iff_not_of_iff h_c) h₁)
+| (is_true h₁),  (is_false h₂) := absurd h₁ (iff.mpr (not_iff_not_of_iff h_c) h₂)
+end
 
 attribute [congr]
 theorem if_congr {A : Type} {b c : Prop} [dec_b : decidable b] [dec_c : decidable c]
@@ -950,19 +943,12 @@ if_neg not_false
 theorem if_ctx_congr_prop {b c x y u v : Prop} [dec_b : decidable b] [dec_c : decidable c]
                       (h_c : b ↔ c) (h_t : c → (x ↔ u)) (h_e : ¬c → (y ↔ v)) :
         ite b x y ↔ ite c u v :=
-decidable.rec_on dec_b
-  (λ hn : ¬b,
-    have ite c u v = v, from if_neg (iff.mp (not_iff_not_of_iff h_c) hn),
-    calc
-    ite b x y ↔ y         : iff.of_eq (if_neg hn)
-         ...  ↔ v         : h_e (iff.mp (not_iff_not_of_iff h_c) hn)
-         ...  = ite c u v : eq.symm this)
-  (λ hp : b,
-    have ite c u v = u, from if_pos (iff.mp h_c hp),
-    calc
-    ite b x y ↔ x         : iff.of_eq (if_pos hp)
-         ...  ↔ u         : h_t (iff.mp h_c hp)
-         ...  = ite c u v : eq.symm this)
+match dec_b, dec_c with
+| (is_false h₁), (is_false h₂) := h_e h₂
+| (is_true h₁),  (is_true h₂)  := h_t h₂
+| (is_false h₁), (is_true h₂)  := absurd h₂ (iff.mp (not_iff_not_of_iff h_c) h₁)
+| (is_true h₁),  (is_false h₂) := absurd h₁ (iff.mpr (not_iff_not_of_iff h_c) h₂)
+end
 
 attribute [congr]
 theorem if_congr_prop {b c x y u v : Prop} [dec_b : decidable b] [dec_c : decidable c]
@@ -999,22 +985,12 @@ theorem dif_ctx_congr {A : Type} {b c : Prop} [dec_b : decidable b] [dec_c : dec
                       (h_t : ∀ (h : c),    x (iff.mpr h_c h)                      = u h)
                       (h_e : ∀ (h : ¬c),   y (iff.mpr (not_iff_not_of_iff h_c) h) = v h) :
         (@dite b dec_b A x y) = (@dite c dec_c A u v) :=
-decidable.rec_on dec_b
-  (λ hn : ¬b,
-    have h_nc : ¬b ↔ ¬c, from not_iff_not_of_iff h_c,
-    have dite c u v = v (iff.mp h_nc hn), from dif_neg (iff.mp h_nc hn),
-    calc
-    dite b x y = y hn                              : dif_neg hn
-          ...  = y (iff.mpr h_nc (iff.mp h_nc hn)) : rfl
-          ...  = v (iff.mp h_nc hn)                : h_e (iff.mp h_nc hn)
-          ...  = dite c u v                        : eq.symm this)
-  (λ hp : b,
-    have dite c u v = u (iff.mp h_c hp), from dif_pos (iff.mp h_c hp),
-    calc
-    dite b x y = x hp                            : dif_pos hp
-          ...  = x (iff.mpr h_c (iff.mp h_c hp)) : rfl
-          ...  = u (iff.mp h_c hp)               : h_t (iff.mp h_c hp)
-          ...  = dite c u v                      : eq.symm this)
+match dec_b, dec_c with
+| (is_false h₁), (is_false h₂) := h_e h₂
+| (is_true h₁),  (is_true h₂)  := h_t h₂
+| (is_false h₁), (is_true h₂)  := absurd h₂ (iff.mp (not_iff_not_of_iff h_c) h₁)
+| (is_true h₁),  (is_false h₂) := absurd h₁ (iff.mpr (not_iff_not_of_iff h_c) h₂)
+end
 
 theorem dif_ctx_simp_congr {A : Type} {b c : Prop} [dec_b : decidable b]
                          {x : b → A} {u : c → A} {y : ¬b → A} {v : ¬c → A}

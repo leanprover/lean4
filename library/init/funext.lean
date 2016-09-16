@@ -7,21 +7,22 @@ Extensional equality for functions, and a proof of function extensionality from 
 -/
 prelude
 import init.quot init.logic
+set_option new_elaborator true
 
 namespace function
   variables {A : Type} {B : A → Type}
 
-  protected definition equiv (f₁ f₂ : Πx : A, B x) : Prop := ∀x, f₁ x = f₂ x
+  protected definition equiv (f₁ f₂ : Π x : A, B x) : Prop := ∀ x, f₁ x = f₂ x
 
   local infix `~` := function.equiv
 
-  protected theorem equiv.refl (f : Πx : A, B x) : f ~ f := take x, rfl
+  protected theorem equiv.refl (f : Π x : A, B x) : f ~ f := take x, rfl
 
-  protected theorem equiv.symm {f₁ f₂ : Πx: A, B x} : f₁ ~ f₂ → f₂ ~ f₁ :=
-  λH x, eq.symm (H x)
+  protected theorem equiv.symm {f₁ f₂ : Π x: A, B x} : f₁ ~ f₂ → f₂ ~ f₁ :=
+  λ H x, eq.symm (H x)
 
-  protected theorem equiv.trans {f₁ f₂ f₃ : Πx: A, B x} : f₁ ~ f₂ → f₂ ~ f₃ → f₁ ~ f₃ :=
-  λH₁ H₂ x, eq.trans (H₁ x) (H₂ x)
+  protected theorem equiv.trans {f₁ f₂ f₃ : Π x: A, B x} : f₁ ~ f₂ → f₂ ~ f₃ → f₁ ~ f₃ :=
+  λ H₁ H₂ x, eq.trans (H₁ x) (H₂ x)
 
   protected theorem equiv.is_equivalence (A : Type) (B : A → Type) : equivalence (@function.equiv A B) :=
   mk_equivalence (@function.equiv A B) (@equiv.refl A B) (@equiv.symm A B) (@equiv.trans A B)
@@ -38,19 +39,18 @@ section
   private definition extfun (A : Type) (B : A → Type) : Type :=
   quot (fun_setoid A B)
 
-  private definition fun_to_extfun (f : Πx : A, B x) : extfun A B :=
+  private definition fun_to_extfun (f : Π x : A, B x) : extfun A B :=
   ⟦f⟧
-
-  private definition extfun_app (f : extfun A B) : Πx : A, B x :=
+  private definition extfun_app (f : extfun A B) : Π x : A, B x :=
   take x,
   quot.lift_on f
-    (λf : Πx : A, B x, f x)
-    (λf₁ f₂ H, H x)
+    (λ f : Π x : A, B x, f x)
+    (λ f₁ f₂ H, H x)
 
-  theorem funext {f₁ f₂ : Πx : A, B x} : (∀x, f₁ x = f₂ x) → f₁ = f₂ :=
+  theorem funext {f₁ f₂ : Π x : A, B x} : (∀ x, f₁ x = f₂ x) → f₁ = f₂ :=
   assume H, calc
      f₁ = extfun_app ⟦f₁⟧ : rfl
-    ... = extfun_app ⟦f₂⟧ : eq.subst (@sound _ _ f₁ f₂ H) rfl
+    ... = extfun_app ⟦f₂⟧ : @sound _ _ f₁ f₂ H ▸ rfl
     ... = f₂              : rfl
 end
 

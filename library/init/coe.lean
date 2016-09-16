@@ -25,6 +25,7 @@ a type to a sort.
 -/
 prelude
 import init.list init.subtype init.prod
+set_option new_elaborator true
 
 structure [class] has_lift (A B : Type) :=
 (lift : A → B)
@@ -58,7 +59,8 @@ definition coe_b {A B : Type} [has_coe A B] : A → B :=
 definition coe_t {A B : Type} [has_coe_t A B] : A → B :=
 @has_coe_t.coe A B _
 
-definition coe_fn_b {A : Type} [has_coe_to_fun A] : A → has_coe_to_fun.F A :=
+set_option pp.all true
+definition {u₁ u₂} coe_fn_b {A : Type u₁} [has_coe_to_fun.{u₁ u₂} A] : A → has_coe_to_fun.F.{u₁ u₂} A :=
 has_coe_to_fun.coe
 
 /- User level coercion operators -/
@@ -66,10 +68,10 @@ has_coe_to_fun.coe
 definition coe {A B : Type} [has_lift_t A B] : A → B :=
 lift_t
 
-definition coe_fn {A : Type} [has_coe_to_fun A] : A → has_coe_to_fun.F A :=
+definition {u₁ u₂} coe_fn {A : Type u₁} [has_coe_to_fun.{u₁ u₂} A] : A → has_coe_to_fun.F.{u₁ u₂} A :=
 has_coe_to_fun.coe
 
-definition coe_sort {A : Type} [has_coe_to_sort A] : A → has_coe_to_sort.S A :=
+definition {u₁ u₂} coe_sort {A : Type u₁} [has_coe_to_sort.{u₁ u₂} A] : A → has_coe_to_sort.S.{u₁ u₂} A :=
 has_coe_to_sort.coe
 
 /- Notation -/
@@ -99,11 +101,11 @@ definition coe_base {A B : Type} [has_coe A B] : has_coe_t A B :=
 has_coe_t.mk coe_b
 
 attribute [instance]
-definition coe_fn_trans {A B : Type} [has_lift_t A B] [has_coe_to_fun B] : has_coe_to_fun A :=
+definition {u₁ u₂ u₃} coe_fn_trans {A : Type u₁} {B : Type u₂} [has_lift_t A B] [has_coe_to_fun.{u₂ u₃} B] : has_coe_to_fun.{u₁ u₃} A :=
 has_coe_to_fun.mk (has_coe_to_fun.F B) (λ a, coe_fn (coe a))
 
 attribute [instance]
-definition coe_sort_trans {A B : Type} [has_lift_t A B] [has_coe_to_sort B] : has_coe_to_sort A :=
+definition {u₁ u₂ u₃} coe_sort_trans {A : Type u₁} {B : Type u₂} [has_lift_t A B] [has_coe_to_sort.{u₂ u₃} B] : has_coe_to_sort.{u₁ u₃} A :=
 has_coe_to_sort.mk (has_coe_to_sort.S B) (λ a, coe_sort (coe a))
 
 /- Every coercion is also a lift -/
@@ -120,7 +122,7 @@ has_coe.mk (λ b, b = tt)
 
 attribute [instance]
 definition coe_decidable_eq (b : bool) : decidable (coe b) :=
-show decidable (b = tt), from _
+show decidable (b = tt), from bool.has_decidable_eq b tt
 
 attribute [instance]
 definition coe_subtype {A : Type} {P : A → Prop} : has_coe {a \ P a} A :=

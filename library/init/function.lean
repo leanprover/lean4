@@ -7,7 +7,7 @@ General operations on functions.
 -/
 prelude
 import init.prod init.funext init.logic
-
+set_option new_elaborator true
 notation f ` $ `:1 a:1 := f a
 
 variables {A : Type} {B : Type} {C : Type} {D : Type} {E : Type}
@@ -97,7 +97,7 @@ definition surjective (f : A → B) : Prop := ∀ b, ∃ a, f a = b
 theorem surjective_comp {g : B → C} {f : A → B} (Hg : surjective g) (Hf : surjective f) :
   surjective (g ∘ f) :=
 take (c : C), exists.elim (Hg c) (λ b Hb, exists.elim (Hf b) (λ a Ha,
-  exists.intro a (eq.trans (congr_arg g Ha) Hb)))
+  exists.intro a (show g (f a) = c, from (eq.trans (congr_arg g Ha) Hb))))
 
 definition bijective (f : A → B) := injective f ∧ surjective f
 
@@ -144,7 +144,7 @@ assume h, take b,
 exists.elim h (λ finv inv,
 have h : f (finv b) = b, from calc
   f (finv b)  = f (finv b)   : rfl
-          ... = b            : eq.subst (inv b) rfl,
+          ... = b            : inv b,
 exists.intro (finv b) h)
 
 theorem left_inverse_of_surjective_of_right_inverse {f : A → B} {g : B → A}
@@ -152,8 +152,8 @@ theorem left_inverse_of_surjective_of_right_inverse {f : A → B} {g : B → A}
   left_inverse f g :=
 take y, exists.elim (surjf y) (λ x Hx,
 calc
-  f (g y) = f (g (f x)) : eq.subst Hx rfl
-      ... = f x         : eq.subst (rfg x) rfl
+  f (g y) = f (g (f x)) : Hx ▸ rfl
+      ... = f x         : eq.symm (rfg x) ▸ rfl
       ... = y           : Hx)
 
 theorem injective_id : injective (@id A) := take a₁ a₂ H, H

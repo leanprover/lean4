@@ -1000,7 +1000,7 @@ expr elaborator::visit_default_app_core(expr const & _fn, arg_mask amask, buffer
             if (amask == arg_mask::Default && bi.is_strict_implicit() && i == args.size())
                 break;
             if ((amask == arg_mask::Default && !is_explicit(bi)) ||
-                (amask == arg_mask::Simple && !bi.is_inst_implicit() && !is_first_order(d))) {
+                (amask == arg_mask::InstHoExplicit && !is_explicit(bi) && !bi.is_inst_implicit() && !is_pi(d))) {
                 // implicit argument
                 if (bi.is_inst_implicit())
                     new_arg = mk_instance(d, ref);
@@ -1191,7 +1191,7 @@ expr elaborator::visit_no_confusion(expr const & fn, buffer<expr> const & args, 
     new_args.push_back(copy_tag(args[0], mk_as_is(Heq)));
     for (unsigned i = 1; i < args.size(); i++)
         new_args.push_back(args[i]);
-    return visit_default_app_core(fn, arg_mask::All, new_args, false, expected_type, ref);
+    return visit_default_app_core(fn, arg_mask::AllExplicit, new_args, false, expected_type, ref);
 }
 
 expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<expr> const & expected_type,
@@ -1199,10 +1199,10 @@ expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<exp
     arg_mask amask = arg_mask::Default;
     if (is_explicit(fn)) {
         fn   = get_explicit_arg(fn);
-        amask = arg_mask::All;
+        amask = arg_mask::AllExplicit;
     } else if (is_partial_explicit(fn)) {
         fn   = get_partial_explicit_arg(fn);
-        amask = arg_mask::Simple;
+        amask = arg_mask::InstHoExplicit;
     }
 
     bool has_args = !args.empty();

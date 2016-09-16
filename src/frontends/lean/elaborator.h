@@ -25,8 +25,8 @@ public:
 private:
     typedef std::vector<pair<expr, expr>> to_check_sorts;
     enum class arg_mask {
-        All /* @ annotation */,
-        Simple /* @@ annotation */,
+        AllExplicit /* @ annotation */,
+        InstHoExplicit, /* @@ annotation (i.e., instance implicit and higher-order arguments are explicit  */
         Default /* default behavior */
     };
     environment       m_env;

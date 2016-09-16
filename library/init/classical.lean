@@ -5,7 +5,7 @@ Authors: Leonardo de Moura, Jeremy Avigad
 -/
 prelude
 import init.subtype init.funext
-
+set_option new_elaborator true
 namespace classical
 open subtype
 
@@ -120,6 +120,7 @@ or.elim (em a)
 definition eq_true_or_eq_false := prop_complete
 
 section aux
+attribute [elab_as_eliminator]
 theorem cases_true_false (P : Prop → Prop) (H1 : P true) (H2 : P false) (a : Prop) : P a :=
 or.elim (prop_complete a)
   (assume Ht : a = true,  eq.symm Ht ▸ H1)
@@ -173,7 +174,8 @@ noncomputable definition prop_decidable (a : Prop) : decidable a :=
 arbitrary (decidable a)
 local attribute prop_decidable [instance]
 
-noncomputable definition type_decidable_eq (A : Type) : decidable_eq A := _
+noncomputable definition type_decidable_eq (A : Type) : decidable_eq A :=
+λ a b, prop_decidable (a = b)
 
 noncomputable definition type_decidable (A : Type) : sum A (A → false) :=
 match (prop_decidable (nonempty A)) with

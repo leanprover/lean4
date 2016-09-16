@@ -161,20 +161,22 @@ private:
     bool is_with_expected_candidate(expr const & fn);
     optional<expr> visit_app_with_expected(expr const & fn, buffer<expr> const & args,
                                            expr const & expected_type, expr const & ref);
-    expr visit_default_app_core(expr const & fn, arg_mask amask, buffer<expr> const & args,
-                                bool args_already_visited, optional<expr> const & expected_type, expr const & ref);
-    expr visit_default_app(expr const & fn, arg_mask amask, buffer<expr> const & args,
-                           optional<expr> const & expected_type, expr const & ref);
+    expr visit_base_app_core(expr const & fn, arg_mask amask, buffer<expr> const & args,
+                             bool args_already_visited, optional<expr> const & expected_type, expr const & ref);
+    expr visit_base_app(expr const & fn, arg_mask amask, buffer<expr> const & args,
+                        optional<expr> const & expected_type, expr const & ref);
     void validate_overloads(buffer<expr> const & fns, expr const & ref);
     [[ noreturn ]]
-    void throw_no_overload_applicable(buffer<expr> const & fns, buffer<elaborator_exception> const & error_msgs, expr const & ref);
+    void throw_no_overload_applicable(buffer<expr> const & fns, buffer<elaborator_exception> const & error_msgs,
+                                      expr const & ref);
     expr visit_overload_candidate(expr const & fn, buffer<expr> const & args,
                                   optional<expr> const & expected_type, expr const & ref);
     expr visit_overloaded_app(buffer<expr> const & fns, buffer<expr> const & args,
                               optional<expr> const & expected_type, expr const & ref);
     expr visit_elim_app(expr const & fn, elim_info const & info, buffer<expr> const & args,
                         optional<expr> const & expected_type, expr const & ref);
-    expr visit_no_confusion(expr const & fn, buffer<expr> const & args, optional<expr> const & expected_type, expr const & ref);
+    expr visit_no_confusion_app(expr const & fn, buffer<expr> const & args, optional<expr> const & expected_type,
+                                expr const & ref);
     expr visit_app_core(expr fn, buffer<expr> const & args, optional<expr> const & expected_type, expr const & ref);
     expr visit_local(expr const & e, optional<expr> const & expected_type);
     expr visit_constant(expr const & e, optional<expr> const & expected_type);

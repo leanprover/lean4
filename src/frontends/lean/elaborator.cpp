@@ -904,18 +904,18 @@ optional<expr> elaborator::visit_app_with_expected(expr const & fn, buffer<expr>
             break;
         }
         new_args.push_back(new_arg);
-        /* See comment above at visit_default_app_core */
+        /* See comment above at visit_base_app_core */
         type_before_whnf = instantiate(binding_body(type), new_arg);
         type             = whnf(type_before_whnf);
     }
     type = type_before_whnf;
     if (i != args.size()) {
-        /* failed to consume all explicit arguments, use default elaboration for applications */
+        /* failed to consume all explicit arguments, use base elaboration for applications */
         C.restore(*this);
         return none_expr();
     }
     if (!is_def_eq(expected_type, type)) {
-        /* failed to unify expected_type and computed type, use default elaboration for applications */
+        /* failed to unify expected_type and computed type, use base elaboration for applications */
         C.restore(*this);
         return none_expr();
     }
@@ -964,8 +964,8 @@ bool elaborator::is_with_expected_candidate(expr const & fn) {
     return get_elaborator_strategy(m_env, const_name(fn)) == elaborator_strategy::WithExpectedType;
 }
 
-expr elaborator::visit_default_app_core(expr const & _fn, arg_mask amask, buffer<expr> const & args,
-                                        bool args_already_visited, optional<expr> const & expected_type, expr const & ref) {
+expr elaborator::visit_base_app_core(expr const & _fn, arg_mask amask, buffer<expr> const & args,
+                                     bool args_already_visited, optional<expr> const & expected_type, expr const & ref) {
     expr fn      = _fn;
     expr fn_type = infer_type(fn);
     unsigned i = 0;
@@ -1059,14 +1059,14 @@ expr elaborator::visit_default_app_core(expr const & _fn, arg_mask amask, buffer
     return r;
 }
 
-expr elaborator::visit_default_app(expr const & fn, arg_mask amask, buffer<expr> const & args,
-                                   optional<expr> const & expected_type, expr const & ref) {
-    return visit_default_app_core(fn, amask, args, false, expected_type, ref);
+expr elaborator::visit_base_app(expr const & fn, arg_mask amask, buffer<expr> const & args,
+                                 optional<expr> const & expected_type, expr const & ref) {
+    return visit_base_app_core(fn, amask, args, false, expected_type, ref);
 }
 
 expr elaborator::visit_overload_candidate(expr const & fn, buffer<expr> const & args,
                                           optional<expr> const & expected_type, expr const & ref) {
-    return visit_default_app_core(fn, arg_mask::Default, args, true, expected_type, ref);
+    return visit_base_app_core(fn, arg_mask::Default, args, true, expected_type, ref);
 }
 
 void elaborator::throw_no_overload_applicable(buffer<expr> const & fns, buffer<elaborator_exception> const & error_msgs, expr const & ref) {
@@ -1149,7 +1149,8 @@ expr elaborator::visit_overloaded_app(buffer<expr> const & fns, buffer<expr> con
     }
 }
 
-expr elaborator::visit_no_confusion(expr const & fn, buffer<expr> const & args, optional<expr> const & expected_type, expr const & ref) {
+expr elaborator::visit_no_confusion_app(expr const & fn, buffer<expr> const & args, optional<expr> const & expected_type,
+                                        expr const & ref) {
     name fn_name = const_name(fn);
     if (!expected_type) {
         throw elaborator_exception(ref, format("invalid '") + format(fn_name) + format ("' application, ") +
@@ -1163,7 +1164,8 @@ expr elaborator::visit_no_confusion(expr const & fn, buffer<expr> const & args, 
     }
     /* I.no_confusion functions have a type of the form
 
-       Pi (params) (indices) (C : Type) (lhs rhs : I params indices) (H : lhs = rhs), I.no_confusion_type params indices C lhs rhs
+       Pi (params) (indices) (C : Type) (lhs rhs : I params indices) (H : lhs = rhs),
+          I.no_confusion_type params indices C lhs rhs
 
        The type (I.no_confusion_type params indices C lhs rhs) is C if lhs and rhs are distinct constructors,
        and (Pi Hs, C) if they are the same constructor where Hs is a sequence of equalities.
@@ -1191,7 +1193,7 @@ expr elaborator::visit_no_confusion(expr const & fn, buffer<expr> const & args, 
     new_args.push_back(copy_tag(args[0], mk_as_is(Heq)));
     for (unsigned i = 1; i < args.size(); i++)
         new_args.push_back(args[i]);
-    return visit_default_app_core(fn, arg_mask::AllExplicit, new_args, false, expected_type, ref);
+    return visit_base_app_core(fn, arg_mask::AllExplicit, new_args, false, expected_type, ref);
 }
 
 expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<expr> const & expected_type,
@@ -1231,10 +1233,10 @@ expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<exp
                                " explicit arguments expected\n";);
                 }
             } else if (is_no_confusion(m_env, const_name(new_fn))) {
-                return visit_no_confusion(new_fn, args, expected_type, ref);
+                return visit_no_confusion_app(new_fn, args, expected_type, ref);
             }
         }
-        return visit_default_app(new_fn, amask, args, expected_type, ref);
+        return visit_base_app(new_fn, amask, args, expected_type, ref);
     }
 }
 
@@ -1614,7 +1616,7 @@ expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_typ
             return new_e;
         /* If the as_atomic macro is not the the function in a function application, then we need to consume
            implicit arguments. */
-        return visit_default_app_core(new_e, arg_mask::Default, buffer<expr>(), true, expected_type, e);
+        return visit_base_app_core(new_e, arg_mask::Default, buffer<expr>(), true, expected_type, e);
     } else if (is_annotation(e)) {
         expr r = visit(get_annotation_arg(e), expected_type);
         return update_macro(e, 1, &r);

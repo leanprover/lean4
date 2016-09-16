@@ -36,10 +36,10 @@ bool is_as_atomic(expr const & e) { return is_annotation(e, *g_as_atomic_name); 
 expr const & get_as_atomic_arg(expr const & e) { lean_assert(is_as_atomic(e)); return get_annotation_arg(e); }
 
 void initialize_explicit() {
-    g_explicit_name     = new name("@@");
-    g_partial_explicit_name     = new name("@");
-    g_as_atomic_name    = new name("as_atomic");
-    g_as_is_name        = new name("as_is");
+    g_explicit_name         = new name("@");
+    g_partial_explicit_name = new name("@@");
+    g_as_atomic_name        = new name("as_atomic");
+    g_as_is_name            = new name("as_is");
 
     register_annotation(*g_explicit_name);
     register_annotation(*g_partial_explicit_name);

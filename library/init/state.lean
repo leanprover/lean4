@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.logic init.monad init.alternative init.prod
-
+set_option new_elaborator true
 definition state (S : Type) (A : Type) := S → A × S
 
 section
@@ -40,23 +40,37 @@ end state
 
 definition stateT (S : Type) (m : Type → Type) [monad m] (A : Type) := S → m (A × S)
 
-definition stateT_fmap.{u} {S : Type} {m : Type → Type} [monad m] {A B : Type u} (f : A → B) (a : stateT S m A) : stateT S m B :=
-λ s, @monad.bind m _ _ _ (a s) (λ p : A × S, match p with (a', s') := return (f a', s') end)
+section
+  universe variables u₁ u₂
+  variable  {S : Type u₂}
+  variable  {m : Type (max 1 u₁ u₂) → Type}
+  variable  [monad m]
+  variables {A B : Type u₁}
 
-definition stateT_return {S : Type} {m : Type → Type} [monad m] {A : Type} (a : A) : stateT S m A :=
-λ s, @monad.ret m _ _ (a, s)
+  definition stateT_fmap (f : A → B) (act : stateT.{u₂ u₁} S m A) : stateT.{u₂ u₁} S m B :=
+  λ s, show m (B × S), from
+    do (a, new_s) ← act s,
+       return (f a, new_s)
 
-definition stateT_bind.{u} {S : Type} {m : Type → Type} [monad m] {A B : Type u} (a : stateT S m A) (b : A → stateT S m B) : stateT S m B :=
-λ s, @monad.bind m _ _ _ (a s) (λ p : A × S, match p with (a', s') := b a' s' end)
+  definition stateT_return (a : A) : stateT.{u₂ u₁} S m A :=
+  λ s, show m (A × S), from
+    return (a, s)
+
+  definition stateT_bind (act₁ : stateT.{u₂ u₁} S m A) (act₂ : A → stateT.{u₂ u₁} S m B) : stateT.{u₂ u₁} S m B :=
+  λ s, show m (B × S), from
+     do (a, new_s) ← act₁ s,
+        act₂ a new_s
+end
 
 attribute [instance]
-definition stateT_is_monad (S : Type) (m : Type → Type) [monad m] : monad (stateT S m) :=
-monad.mk (@stateT_fmap S m _) (@stateT_return S m _) (@stateT_bind S m _)
+definition {u} stateT_is_monad (S : Type u) (m : Type → Type) [monad m] : monad (stateT S m) :=
+monad.mk (@stateT_fmap.{_ u} S m _) (@stateT_return.{_ u} S m _) (@stateT_bind.{_ u} S m _)
 
+set_option pp.all true
 namespace stateT
-definition read {S : Type} {m : Type → Type} [monad m] : stateT S m S :=
+definition {u} read {S : Type u} {m : Type (max 1 u) → Type} [monad m] : stateT.{u u} S m S :=
 λ s, return (s, s)
 
-definition write {S : Type} {m : Type → Type} [monad m] : S → stateT S m unit :=
+definition {u} write {S : Type u} {m : Type (max 1 u) → Type} [monad m] : S → stateT.{u 1} S m unit :=
 λ s' s, return ((), s')
 end stateT

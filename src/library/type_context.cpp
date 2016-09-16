@@ -1248,8 +1248,10 @@ bool type_context::is_def_eq_core(level const & l1, level const & l2) {
     case level_kind::Param:
     case level_kind::Global:
         return false;
-    case level_kind::Zero:
     case level_kind::Meta:
+        /* This can happen, for example, when we are in tmp_mode, but l1 and l2 are not tmp universe metavariables. */
+        return false;
+    case level_kind::Zero:
         lean_unreachable();
     }
     lean_unreachable();

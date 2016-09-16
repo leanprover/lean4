@@ -9,9 +9,12 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/for_each_fn.h"
 #include "library/locals.h"
+#include "library/trace.h"
 #include "library/placeholder.h"
 #include "library/protected.h"
 #include "library/aliases.h"
+#include "library/explicit.h"
+#include "library/reducible.h"
 #include "library/scoped_ext.h"
 #include "library/tactic/elaborate.h"
 #include "frontends/lean/util.h"
@@ -210,7 +213,8 @@ void collect_implicit_locals(parser & p, buffer<name> & lp_names, buffer<expr> &
     collected_locals locals;
     buffer<expr> include_vars;
     name_set lp_found;
-    /** Process variables included using the 'include' command */
+    name_set explicit_params;
+    /* Process variables included using the 'include' command */
     p.get_include_variables(include_vars);
     for (expr const & param : include_vars) {
         if (is_local(param)) {
@@ -219,13 +223,14 @@ void collect_implicit_locals(parser & p, buffer<name> & lp_names, buffer<expr> &
             locals.insert(param);
         }
     }
-    /** Process explicit parameters */
+    /* Process explicit parameters */
     for (expr const & param : params) {
         collect_locals_ignoring_tactics(mlocal_type(param), locals);
         lp_found = collect_univ_params_ignoring_tactics(mlocal_type(param), lp_found);
         locals.insert(param);
+        explicit_params.insert(mlocal_name(param));
     }
-    /** Process expressions used to define declaration. */
+    /* Process expressions used to define declaration. */
     for (expr const & e : all_exprs) {
         collect_locals_ignoring_tactics(e, locals);
         lp_found = collect_univ_params_ignoring_tactics(e, lp_found);
@@ -233,6 +238,13 @@ void collect_implicit_locals(parser & p, buffer<name> & lp_names, buffer<expr> &
     collect_annonymous_inst_implicit(p, locals);
     sort_locals(locals.get_collected(), p, params);
     update_univ_parameters(p, lp_names, lp_found);
+    /* Add as_is annotation to section variables and parameters */
+    for (expr & p : params) {
+        if (!explicit_params.contains(mlocal_name(p))) {
+            expr type = mlocal_type(p);
+            p = update_mlocal(p, copy_tag(type, mk_as_is(type)));
+        }
+    }
 }
 
 void collect_implicit_locals(parser & p, buffer<name> & lp_names, buffer<expr> & params, std::initializer_list<expr> const & all_exprs) {

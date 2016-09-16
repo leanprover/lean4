@@ -946,7 +946,15 @@ optional<expr> elaborator::visit_app_with_expected(expr const & fn, buffer<expr>
             throw elaborator_exception(ref, msg);
         }
         if (!is_def_eq(args_mvars[i], new_arg)) {
-            throw elaborator_exception(ref_arg, "invalid application, type mismatch when assigning auxiliary metavar");
+            auto pp_fn = mk_pp_ctx();
+            throw elaborator_exception(ref_arg, format("invalid application, type mismatch") +
+                                       pp_indent(pp_fn, new_arg) +
+                                       line() + format("has type") +
+                                       pp_indent(pp_fn, infer_type(new_arg)) +
+                                       line() + format("failed to be unified with") +
+                                       pp_indent(pp_fn, args_mvars[i]) +
+                                       line() + format("has type") +
+                                       pp_indent(pp_fn, infer_type(args_mvars[i])));
         } else {
             new_args[new_args_size[i]] = new_arg;
         }

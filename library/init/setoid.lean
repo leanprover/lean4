@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.relation
-
+set_option new_elaborator true
 structure [class] setoid (A : Type) :=
 (r : A → A → Prop) (iseqv : equivalence r)
 
@@ -19,13 +19,19 @@ namespace setoid
 
   attribute [refl]
   theorem refl (a : A) : a ≈ a :=
-  and.elim_left (@setoid.iseqv A s) a
+  match setoid.iseqv A with
+  | ⟨H_refl, H_symm, H_trans⟩ := H_refl a
+  end
 
   attribute [symm]
-  theorem symm {a b : A} : a ≈ b → b ≈ a :=
-  λ H, and.elim_left (and.elim_right (@setoid.iseqv A s)) a b H
+  theorem symm {a b : A} (Hab : a ≈ b) : b ≈ a :=
+  match setoid.iseqv A with
+  | ⟨H_refl, H_symm, H_trans⟩ := H_symm Hab
+  end
 
   attribute [trans]
-  theorem trans {a b c : A} : a ≈ b → b ≈ c → a ≈ c :=
-  λ H₁ H₂, and.elim_right (and.elim_right (@setoid.iseqv A s)) a b c H₁ H₂
+  theorem trans {a b c : A} (Hab : a ≈ b) (Hbc : b ≈ c) : a ≈ c :=
+  match setoid.iseqv A with
+  | ⟨H_refl, H_symm, H_trans⟩ := H_trans Hab Hbc
+  end
 end setoid

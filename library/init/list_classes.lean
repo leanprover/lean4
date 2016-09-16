@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 prelude
 import init.monad init.alternative
 open list
-
+set_option new_elaborator true
 attribute [inline]
 definition list_fmap {A B : Type} (f : A → B) (l : list A) : list B :=
 map f l

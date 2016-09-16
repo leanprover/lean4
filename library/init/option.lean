@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.logic init.monad init.alternative
-
+set_option new_elaborator true
 open decidable
 
 attribute [instance]
@@ -24,16 +24,14 @@ definition option_has_decidable_eq {A : Type} [H : decidable_eq A] : ∀ o₁ o�
   end
 
 attribute [inline]
-definition option_fmap {A B : Type} (f : A → B) (e : option A) : option B :=
-option.cases_on e
-  none
-  (λ a, some (f a))
+definition option_fmap {A B : Type} (f : A → B) : option A → option B
+| none     := none
+| (some a) := some (f a)
 
 attribute [inline]
-definition option_bind {A B : Type} (a : option A) (b : A → option B) : option B :=
-option.cases_on a
-  none
-  (λ a, b a)
+definition option_bind {A B : Type} : option A → (A → option B) → option B
+| none     b := none
+| (some a) b := b a
 
 attribute [instance]
 definition option_is_monad : monad option :=
@@ -53,26 +51,43 @@ m (option A)
 
 attribute [inline]
 definition optionT_fmap {m : Type → Type} [monad m] {A B : Type} (f : A → B) (e : optionT m A) : optionT m B :=
-@monad.bind m _ _ _ e (λ a : option A, option.cases_on a (return none) (λ a, return (some (f a))))
+show m (option B), from
+do o ← e,
+   match o with
+   | none     := return none
+   | (some a) := return (some (f a))
+   end
 
 attribute [inline]
 definition optionT_bind {m : Type → Type} [monad m] {A B : Type} (a : optionT m A) (b : A → optionT m B)
                                : optionT m B :=
-@monad.bind m _ _ _ a (λ a : option A, option.cases_on a (return none) (λ a, b a))
+show m (option B), from
+do o ← a,
+   match o with
+   | none     := return none
+   | (some a) := b a
+   end
 
 attribute [inline]
 definition optionT_return {m : Type → Type} [monad m] {A : Type} (a : A) : optionT m A :=
-@monad.ret m _ _ (some a)
+show m (option A), from
+return (some a)
 
 attribute [instance]
 definition optionT_is_monad {m : Type → Type} [monad m] {A : Type} : monad (optionT m) :=
 monad.mk (@optionT_fmap m _) (@optionT_return m _) (@optionT_bind m _)
 
 definition optionT_orelse {m : Type → Type} [monad m] {A : Type} (a : optionT m A) (b : optionT m A) : optionT m A :=
-@monad.bind m _ _ _ a (λ a : option A, option.cases_on a b (λ a, return (some a)))
+show m (option A), from
+do o ← a,
+   match o with
+   | none     := b
+   | (some v) := return (some v)
+   end
 
 definition optionT_fail {m : Type → Type} [monad m] {A : Type} : optionT m A :=
-@monad.ret m _ _ none
+show m (option A), from
+return none
 
 attribute [instance]
 definition optionT_is_alternative {m : Type → Type} [monad m] {A : Type} : alternative (optionT m) :=

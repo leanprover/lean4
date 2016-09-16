@@ -7,28 +7,28 @@ Monad combinators, as in Haskell's Control.Monad.
 -/
 prelude
 import init.monad init.list
-
+set_option new_elaborator true
 namespace monad
 
-definition mapM {m : Type → Type} [monad m] {A B : Type} (f : A → m B) : list A → m (list B)
+definition {u} mapM {m : Type → Type} [monad m] {A B : Type (u+1)} (f : A → m B) : list A → m (list B)
 | []       := return []
 | (h :: t) := do h' ← f h, t' ← mapM t, return (h' :: t')
 
-definition mapM' {m : Type₁ → Type₁} [monad m] {A B : Type₁} (f : A → m B) : list A → m unit
+definition mapM' {m : Type 1 → Type 1} [monad m] {A B : Type 1} (f : A → m B) : list A → m unit
 | []       := return ()
 | (h :: t) := f h >> mapM' t
 
-definition forM {m : Type → Type} [monad m] {A B : Type} (l : list A) (f : A → m B) : m (list B) :=
+definition {u} forM {m : Type → Type} [monad m] {A B : Type (u+1)} (l : list A) (f : A → m B) : m (list B) :=
 mapM f l
 
-definition forM' {m : Type₁ → Type₁} [monad m] {A B : Type₁} (l : list A) (f : A → m B) : m unit :=
+definition forM' {m : Type 1 → Type 1} [monad m] {A B : Type 1} (l : list A) (f : A → m B) : m unit :=
 mapM' f l
 
-definition sequence {m : Type → Type} [monad m] {A : Type} : list (m A) → m (list A)
+definition {u} sequence {m : Type → Type} [monad m] {A : Type (u+1)} : list (m A) → m (list A)
 | []       := return []
 | (h :: t) := do h' ← h, t' ← sequence t, return (h' :: t')
 
-definition sequence' {m : Type₁ → Type₁} [monad m] {A : Type₁} : list (m A) → m unit
+definition sequence' {m : Type 1 → Type 1} [monad m] {A : Type 1} : list (m A) → m unit
 | []       := return ()
 | (h :: t) := h >> sequence' t
 

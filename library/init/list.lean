@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 prelude
 import init.logic init.nat
 open decidable list
-
+set_option new_elaborator true
 attribute [instance]
 protected definition list.is_inhabited (A : Type) : inhabited (list A) :=
 inhabited.mk list.nil

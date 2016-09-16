@@ -33,7 +33,7 @@ namespace quot
   protected theorem lift_beta {A B : Type} [setoid A] (f : A → B) (c : ∀ a b, a ≈ b → f a = f b) (a : A) : lift f c ⟦a⟧ = f a :=
   rfl
 
-  protected theorem ind_beta {A : Type} [s : setoid A] {B : quot s → Prop} (p : ∀ a, B ⟦a⟧) (a : A) : ind p ⟦a⟧ = p a :=
+  protected theorem ind_beta {A : Type} [s : setoid A] {B : quot s → Prop} (p : ∀ a, B ⟦a⟧) (a : A) : (ind p ⟦a⟧ : B ⟦a⟧) = p a :=
   rfl
 
   attribute [reducible, elab_as_eliminator]

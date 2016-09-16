@@ -203,7 +203,7 @@ struct structural_rec_fn {
         expr arg_type = ctx.relaxed_whnf(binding_domain(fn_type));
         buffer<expr> I_args;
         expr I        = get_app_args(arg_type, I_args);
-        if (is_constant(I) && !inductive::is_inductive_decl(m_env, const_name(I))) {
+        if (!is_constant(I) || !inductive::is_inductive_decl(m_env, const_name(I))) {
             trace_struct(tout() << "structural recursion on argument #" << (arg_idx+1) << " was not used "
                          << "for '" << fn << "' because type is not inductive\n  "
                          << arg_type << "\n";);

@@ -12,7 +12,7 @@ structure [class] {u₁ u₂} applicative (F : Type u₁ → Type u₂) extends 
 (seq  : Π {A B : Type u₁}, F (A → B) → F A → F B)
 
 attribute [inline]
-definition pure {F : Type → Type} [applicative F] ⦃A : Type⦄ : A → F A :=
+definition pure {F : Type → Type} [applicative F] {A : Type} : A → F A :=
 applicative.pure F
 
 attribute [inline]

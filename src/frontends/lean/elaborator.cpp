@@ -1012,10 +1012,16 @@ expr elaborator::visit_base_app_core(expr const & _fn, arg_mask amask, buffer<ex
             } else if (i < args.size()) {
                 // explicit argument
                 expr ref_arg = args[i];
-                if (args_already_visited)
+                if (args_already_visited) {
                     new_arg = args[i];
-                else
+                } else if (bi.is_inst_implicit() && is_placeholder(args[i])) {
+                    lean_assert(amask != arg_mask::Default);
+                    /* If '@' or '@@' have been used, and the argument is '_', then
+                       we use type class resolution. */
+                    new_arg = mk_instance(d, ref);
+                } else {
                     new_arg = visit(args[i], some_expr(d));
+                }
                 expr new_arg_type = infer_type(new_arg);
                 if (optional<expr> new_new_arg = ensure_has_type(new_arg, new_arg_type, d, ref_arg)) {
                     new_arg = *new_new_arg;

@@ -10,7 +10,7 @@ structure [class] functor (F : Type → Type) : Type :=
 (map : Π {A B: Type}, (A → B) → F A → F B)
 
 attribute [inline]
-definition fmap {F : Type → Type} [functor F] ⦃A B : Type⦄ : (A → B) → F A → F B :=
+definition fmap {F : Type → Type} [functor F] {A B : Type} : (A → B) → F A → F B :=
 functor.map
 
 infixr ` <$> `:100 := fmap

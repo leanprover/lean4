@@ -584,7 +584,7 @@ expr type_context::whnf_core(expr const & e) {
         if (is_metavar_decl_ref(e)) {
             if (m_mctx.is_assigned(e)) {
                 m_used_assignment = true;
-                return m_mctx.instantiate_mvars(e);
+                return whnf_core(m_mctx.instantiate_mvars(e));
             }
         } else if (is_idx_metavar(e)) {
             lean_assert(in_tmp_mode());
@@ -592,7 +592,7 @@ expr type_context::whnf_core(expr const & e) {
             if (idx < m_tmp_eassignment->size()) {
                 if (auto v = (*m_tmp_eassignment)[idx]) {
                     m_used_assignment = true;
-                    return *v;
+                    return whnf_core(*v);
                 }
             }
         }

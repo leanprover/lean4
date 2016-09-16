@@ -140,6 +140,9 @@ void mk_telescopic_eq(type_checker & tc, buffer<expr> const & t, buffer<expr> & 
     \pre \c ind_type is of the form <tt>Pi (a_1 : A_1) (a_2 : A_2[a_1]) ..., Type.{lvl}</tt> */
 level get_datatype_level(expr ind_type);
 
+/** \brief Update the result sort of the given type */
+expr update_result_sort(expr t, level const & l);
+
 expr instantiate_univ_param (expr const & e, name const & p, level const & l);
 
 /** \brief Create a format object for a type mismatch where typeof(v) (i.e., v_type) does not match
@@ -174,6 +177,7 @@ expr mk_pair(abstract_type_context & ctx, expr const & a, expr const & b, bool p
 expr mk_pr1(abstract_type_context & ctx, expr const & p, bool prop);
 expr mk_pr2(abstract_type_context & ctx, expr const & p, bool prop);
 
+expr mk_nat_zero();
 expr mk_nat_one();
 expr mk_nat_add(expr const & e1, expr const & e2);
 

@@ -7,7 +7,7 @@ Author: Daniel Selsam
 #pragma once
 #include "kernel/environment.h"
 #include "frontends/lean/type_util.h"
-#include "library/inductive_compiler/ginductive.h"
+#include "library/inductive_compiler/ginductive_decl.h"
 
 namespace lean {
 

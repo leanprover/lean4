@@ -51,8 +51,8 @@ public:
 
     virtual optional<expr> expand(expr const & m, abstract_type_context & /* tctx */) const override {
         check_macro(m);
-        throw exception(sstream() << "proof generation for the prop_simplifier macro has not been implemented yet");
-        lean_unreachable();
+        // TODO(dhs): proof generation for the prop_simplifier macro has not been implemented yet
+        return none_expr();
     }
 
     virtual void write(serializer & s) const override {

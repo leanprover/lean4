@@ -8,7 +8,7 @@ Author: Daniel Selsam
 #include "kernel/environment.h"
 #include "frontends/lean/type_util.h"
 #include "library/util.h"
-#include "library/inductive_compiler/ginductive.h"
+#include "library/inductive_compiler/ginductive_decl.h"
 
 namespace lean {
 

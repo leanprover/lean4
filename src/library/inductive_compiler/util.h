@@ -15,4 +15,8 @@ implicit_infer_kind get_implicit_infer_kind(name_map<implicit_infer_kind> const 
 expr get_ind_result_type(type_context & tctx, expr const & ind);
 void assert_def_eq(environment const & env, expr const & e1, expr const & e2);
 void assert_type_correct(environment const & env, expr const & e);
+void assert_no_locals(name const & n, expr const & e);
+expr get_app_params_indices(expr const & e, unsigned num_params, buffer<expr> & params, buffer<expr> & indices);
+expr get_app_indices(expr const & e, unsigned num_params, buffer<expr> & indices);
+void split_params_indices(buffer<expr> const & args, unsigned num_params, buffer<expr> & params, buffer<expr> & indices);
 }

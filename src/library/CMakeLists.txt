@@ -15,6 +15,7 @@ add_library(library OBJECT deep_copy.cpp expr_lt.cpp io_state.cpp
   fun_info.cpp congr_lemma.cpp defeq_canonizer.cpp scope_pos_info_provider.cpp
   mpq_macro.cpp arith_instance_manager.cpp replace_visitor_with_tc.cpp
   aux_definition.cpp inverse.cpp library_system.cpp rfl_lemmas.cpp
+  pattern_attribute.cpp
 
   # Legacy -- The following files will be eventually deleted
   normalize.cpp justification.cpp constraint.cpp metavar.cpp choice.cpp locals.cpp

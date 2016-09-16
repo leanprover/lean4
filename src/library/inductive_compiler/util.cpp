@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2016 Microsoft Corporation. All rights reserved.
-Released under Apache 2.0 license as described in the file LICENSE.
+  Copyright (c) 2016 Microsoft Corporation. All rights reserved.
+  Released under Apache 2.0 license as described in the file LICENSE.
 
-Author: Daniel Selsam
+  Author: Daniel Selsam
 */
 #include "kernel/inductive/inductive.h"
 #include "kernel/abstract.h"
@@ -11,6 +11,7 @@ Author: Daniel Selsam
 #include "util/sexpr/option_declarations.h"
 #include "library/locals.h"
 #include "library/module.h"
+#include "library/trace.h"
 #include "library/attribute_manager.h"
 #include "library/inductive_compiler/util.h"
 
@@ -24,7 +25,7 @@ implicit_infer_kind get_implicit_infer_kind(name_map<implicit_infer_kind> const 
 }
 
 expr get_ind_result_type(type_context & tctx, expr const & ind) {
-    expr ind_type = tctx.relaxed_whnf(mlocal_type(ind));
+    expr ind_type = tctx.relaxed_whnf(tctx.infer(ind));
     type_context::tmp_locals locals(tctx);
     while (is_pi(ind_type)) {
         ind_type = instantiate(binding_body(ind_type), locals.push_local_from_binding(ind_type));
@@ -32,6 +33,20 @@ expr get_ind_result_type(type_context & tctx, expr const & ind) {
     }
     lean_assert(is_sort(ind_type));
     return ind_type;
+}
+
+void assert_no_locals(name const & n, expr const & e) {
+     if (!has_local(e))
+        return;
+    collected_locals ls;
+    collect_locals(e, ls);
+
+    lean_trace(name({"debug", "inductive_compiler"}),
+               tout() << "\n\nerror: found locals in '" << n << "'\n" << e << "\n";
+               for (expr const & l : ls.get_collected()) {
+                   tout() << mlocal_name(l) << "." << local_pp_name(l) << " : " << mlocal_type(l) << "\n";
+               });
+    lean_assert(false);
 }
 
 void assert_def_eq(environment const & env, expr const & e1, expr const & e2) {
@@ -56,5 +71,33 @@ void assert_type_correct(environment const & env, expr const & e) {
         lean_assert(false);
         throw ex;
     }
+}
+
+expr get_app_params_indices(expr const & e, unsigned num_params, buffer<expr> & params, buffer<expr> & indices) {
+    expr fn = get_app_args(e, params);
+    lean_assert(params.size() >= num_params);
+    for (unsigned i = num_params; i < params.size(); ++i) {
+        indices.push_back(params[i]);
+    }
+    params.shrink(num_params);
+    return fn;
+}
+
+expr get_app_indices(expr const & e, unsigned num_params, buffer<expr> & indices) {
+    buffer<expr> args;
+    expr fn = get_app_args(e, args);
+    lean_assert(args.size() >= num_params);
+    for (unsigned i = num_params; i < args.size(); ++i) {
+        indices.push_back(args[i]);
+    }
+    return fn;
+}
+
+void split_params_indices(buffer<expr> const & args, unsigned num_params, buffer<expr> & params, buffer<expr> & indices) {
+    for (unsigned i = 0; i < num_params; ++i)
+        params.push_back(args[i]);
+
+    for (unsigned i = num_params; i < args.size(); ++i)
+        indices.push_back(args[i]);
 }
 }

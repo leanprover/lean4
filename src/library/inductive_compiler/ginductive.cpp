@@ -15,16 +15,36 @@ Author: Daniel Selsam
 namespace lean {
 
 struct ginductive_entry {
+    ginductive_kind m_kind;
     unsigned   m_num_params;
     list<name> m_inds;
     list<list<name> > m_intro_rules;
 };
+
+inline serializer & operator<<(serializer & s, ginductive_kind k) {
+    switch (k) {
+    case ginductive_kind::BASIC: s.write_unsigned(0); break;
+    case ginductive_kind::MUTUAL: s.write_unsigned(1); break;
+    case ginductive_kind::NESTED: s.write_unsigned(2); break;
+    }
+    return s;
+}
+
+inline deserializer & operator>>(deserializer & d, ginductive_kind & k) {
+    unsigned i = d.read_unsigned();
+    lean_assert(i <= 2);
+    if (i == 0) k = ginductive_kind::BASIC;
+    else if (i == 1) k = ginductive_kind::MUTUAL;
+    else k = ginductive_kind::NESTED;
+    return d;
+}
 
 serializer & operator<<(serializer & s, ginductive_entry const & entry);
 ginductive_decl read_ginductive_decl(deserializer & d);
 inline deserializer & operator>>(deserializer & d, ginductive_entry & entry);
 
 serializer & operator<<(serializer & s, ginductive_entry const & entry) {
+    s << entry.m_kind;
     s << entry.m_num_params;
     write_list<name>(s, entry.m_inds);
     for (list<name> const & irs : reverse(entry.m_intro_rules))
@@ -34,6 +54,7 @@ serializer & operator<<(serializer & s, ginductive_entry const & entry) {
 
 ginductive_entry read_ginductive_entry(deserializer & d) {
     ginductive_entry entry;
+    d >> entry.m_kind;
     d >> entry.m_num_params;
     entry.m_inds    = read_list<name>(d, read_name);
 
@@ -53,10 +74,13 @@ static name * g_ginductive_extension = nullptr;
 static std::string * g_ginductive_key = nullptr;
 
 struct ginductive_env_ext : public environment_extension {
-    name_map<list<name> > m_ind_to_irs;
-    name_map<list<name> > m_ind_to_mut_inds;
-    name_map<name>        m_ir_to_ind;
-    name_map<unsigned>    m_num_params;
+    list<name>                m_all_nested_inds;
+    list<name>                m_all_mutual_inds;
+    name_map<list<name> >     m_ind_to_irs;
+    name_map<list<name> >     m_ind_to_mut_inds;
+    name_map<ginductive_kind> m_ind_to_kind;
+    name_map<unsigned>        m_num_params;
+    name_map<name>            m_ir_to_ind;
 
     ginductive_env_ext() {}
 
@@ -66,25 +90,33 @@ struct ginductive_env_ext : public environment_extension {
 
         unsigned ind_idx = 0;
         for (name const & ind : entry.m_inds) {
-            m_num_params.insert(ind, entry.m_num_params);
+            switch (entry.m_kind) {
+            case ginductive_kind::BASIC: break;
+            case ginductive_kind::MUTUAL: m_all_mutual_inds = list<name>(ind, m_all_mutual_inds); break;
+            case ginductive_kind::NESTED: m_all_nested_inds = list<name>(ind, m_all_nested_inds); break;
+            }
             m_ind_to_irs.insert(ind, intro_rules[ind_idx]);
             m_ind_to_mut_inds.insert(ind, entry.m_inds);
+            m_ind_to_kind.insert(ind, entry.m_kind);
+            m_num_params.insert(ind, entry.m_num_params);
             for (name const & ir : intro_rules[ind_idx]) {
                 m_ir_to_ind.insert(ir, ind);
             }
         }
     }
 
-    bool is_ginductive(name const & ind_name) const {
-        return m_ind_to_irs.contains(ind_name);
+    optional<ginductive_kind> is_ginductive(name const & ind_name) const {
+        ginductive_kind const * k = m_ind_to_kind.find(ind_name);
+        if (k)
+            return optional<ginductive_kind>(*k);
+        else
+            return optional<ginductive_kind>();
     }
 
-    optional<list<name> > get_intro_rules(name const & ind_name) const {
+    list<name> get_intro_rules(name const & ind_name) const {
         list<name> const * ir_names = m_ind_to_irs.find(ind_name);
-        if (ir_names)
-            return optional<list<name> >(*ir_names);
-        else
-            return optional<list<name> >();
+        lean_assert(ir_names);
+        return *ir_names;
     }
 
     optional<name> is_intro_rule(name const & ir_name) const {
@@ -106,6 +138,14 @@ struct ginductive_env_ext : public environment_extension {
         lean_assert(mut_ind_names);
         return *mut_ind_names;
     }
+
+    list<name> get_all_nested_inds() const {
+        return m_all_nested_inds;
+    }
+
+    list<name> get_all_mutual_inds() const {
+        return m_all_mutual_inds;
+    }
 };
 
 struct ginductive_env_ext_reg {
@@ -123,10 +163,11 @@ static environment update(environment const & env, ginductive_env_ext const & ex
     return env.update(g_ext->m_ext_id, std::make_shared<ginductive_env_ext>(ext));
 }
 
-environment register_ginductive_decl(environment const & env, ginductive_decl const & decl) {
+environment register_ginductive_decl(environment const & env, ginductive_decl const & decl, ginductive_kind k) {
     ginductive_env_ext ext(get_extension(env));
 
     ginductive_entry entry;
+    entry.m_kind = k;
     entry.m_num_params = decl.get_num_params();
 
     buffer<name> inds;
@@ -149,11 +190,11 @@ environment register_ginductive_decl(environment const & env, ginductive_decl co
     return module::add(new_env, *g_ginductive_key, [=](environment const &, serializer & s) { s << entry; });
 }
 
-bool is_ginductive(environment const & env, name const & ind_name) {
+optional<ginductive_kind> is_ginductive(environment const & env, name const & ind_name) {
     return get_extension(env).is_ginductive(ind_name);
 }
 
-optional<list<name> > get_ginductive_intro_rules(environment const & env, name const & ind_name) {
+list<name> get_ginductive_intro_rules(environment const & env, name const & ind_name) {
     return get_extension(env).get_intro_rules(ind_name);
 }
 
@@ -165,8 +206,16 @@ unsigned get_ginductive_num_params(environment const & env, name const & ind_nam
     return get_extension(env).get_num_params(ind_name);
 }
 
-list<name> get_mut_ind_names(environment const & env, name const & ind_name) {
+list<name> get_ginductive_mut_ind_names(environment const & env, name const & ind_name) {
     return get_extension(env).get_mut_ind_names(ind_name);
+}
+
+list<name> get_ginductive_all_mutual_inds(environment const & env) {
+    return get_extension(env).get_all_mutual_inds();
+}
+
+list<name> get_ginductive_all_nested_inds(environment const & env) {
+    return get_extension(env).get_all_nested_inds();
 }
 
 static void ginductive_reader(deserializer & d, shared_environment & senv,

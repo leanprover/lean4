@@ -392,7 +392,7 @@ attribute [instance]
 definition default_has_sizeof (A : Type) : has_sizeof A :=
 has_sizeof.mk (λ a, nat.zero)
 
-attribute [simp, defeq]
+attribute [simp, defeq, simp.sizeof]
 definition default_has_sizeof_eq (A : Type) (a : A) : @sizeof A (default_has_sizeof A) a = 0 :=
 rfl
 
@@ -406,30 +406,30 @@ rfl
 
 attribute [instance]
 definition prod_has_sizeof (A B : Type) [has_sizeof A] [has_sizeof B] : has_sizeof (prod A B) :=
-has_sizeof.mk (λ p, prod.cases_on p (λ a b, sizeof a + sizeof b + 1))
+has_sizeof.mk (λ p, prod.cases_on p (λ a b, 1 + sizeof a + sizeof b))
 
 attribute [simp, defeq, simp.sizeof]
-definition sizeof_prod_eq {A B : Type} [has_sizeof A] [has_sizeof B] (a : A) (b : B) : sizeof (prod.mk a b) = sizeof a + sizeof b + 1 :=
+definition sizeof_prod_eq {A B : Type} [has_sizeof A] [has_sizeof B] (a : A) (b : B) : sizeof (prod.mk a b) = 1 + sizeof a + sizeof b :=
 rfl
 
 attribute [instance]
 definition sum_has_sizeof (A B : Type) [has_sizeof A] [has_sizeof B] : has_sizeof (sum A B) :=
-has_sizeof.mk (λ s, sum.cases_on s (λ a, sizeof a + 1) (λ b, sizeof b + 1))
+has_sizeof.mk (λ s, sum.cases_on s (λ a, 1 + sizeof a) (λ b, 1 + sizeof b))
 
 attribute [simp, defeq, simp.sizeof]
-definition sizeof_sum_eq_left {A B : Type} [has_sizeof A] [has_sizeof B] (a : A) : sizeof (@sum.inl A B a) = sizeof a + 1 :=
+definition sizeof_sum_eq_left {A B : Type} [has_sizeof A] [has_sizeof B] (a : A) : sizeof (@sum.inl A B a) = 1 + sizeof a :=
 rfl
 
 attribute [simp, defeq, simp.sizeof]
-definition sizeof_sum_eq_right {A B : Type} [has_sizeof A] [has_sizeof B] (b : B) : sizeof (@sum.inr A B b) = sizeof b + 1 :=
+definition sizeof_sum_eq_right {A B : Type} [has_sizeof A] [has_sizeof B] (b : B) : sizeof (@sum.inr A B b) = 1 + sizeof b :=
 rfl
 
 attribute [instance]
 definition sigma_has_sizeof (A : Type) (B : A → Type) [has_sizeof A] [∀ a, has_sizeof (B a)] : has_sizeof (sigma B) :=
-has_sizeof.mk (λ p, sigma.cases_on p (λ a b, sizeof a + sizeof b + 1))
+has_sizeof.mk (λ p, sigma.cases_on p (λ a b, 1 + sizeof a + sizeof b))
 
 attribute [simp, defeq, simp.sizeof]
-definition sizeof_sigma_eq {A : Type} {B : A → Type} [has_sizeof A] [∀ a, has_sizeof (B a)] (a : A) (b : B a) : sizeof (@sigma.mk A B a b) = sizeof a + sizeof b + 1 :=
+definition sizeof_sigma_eq {A : Type} {B : A → Type} [has_sizeof A] [∀ a, has_sizeof (B a)] (a : A) (b : B a) : sizeof (@sigma.mk A B a b) = 1 + sizeof a + sizeof b :=
 rfl
 
 attribute [instance]
@@ -474,24 +474,27 @@ rfl
 
 attribute [instance]
 definition option_has_sizeof (A : Type) [has_sizeof A] : has_sizeof (option A) :=
-has_sizeof.mk (λ o, option.cases_on o 1 (λ a, sizeof a + 1))
+has_sizeof.mk (λ o, option.cases_on o 1 (λ a, 1 + sizeof a))
 
 attribute [simp, defeq, simp.sizeof]
 definition sizeof_option_none_eq (A : Type) [has_sizeof A] : sizeof (@none A) = 1 :=
 rfl
 
 attribute [simp, defeq, simp.sizeof]
-definition sizeof_option_some_eq {A : Type} [has_sizeof A] (a : A) : sizeof (some a) = sizeof a + 1 :=
+definition sizeof_option_some_eq {A : Type} [has_sizeof A] (a : A) : sizeof (some a) = 1 + sizeof a :=
 rfl
 
 attribute [instance]
 definition list_has_sizeof (A : Type) [has_sizeof A] : has_sizeof (list A) :=
-has_sizeof.mk (λ l, list.rec_on l 1 (λ a t ih, sizeof a + ih + 1))
+has_sizeof.mk (λ l, list.rec_on l 1 (λ a t ih, 1 + sizeof a + ih))
 
 attribute [simp, defeq, simp.sizeof]
 definition sizeof_list_nil_eq (A : Type) [has_sizeof A] : sizeof (@list.nil A) = 1 :=
 rfl
 
 attribute [simp, defeq, simp.sizeof]
-definition sizeof_list_cons_eq {A : Type} [has_sizeof A] (a : A) (l : list A) : sizeof (list.cons a l) = sizeof a + sizeof l + 1 :=
+definition sizeof_list_cons_eq {A : Type} [has_sizeof A] (a : A) (l : list A) : sizeof (list.cons a l) = 1 + sizeof a + sizeof l :=
 rfl
+
+attribute [simp.sizeof]
+lemma nat_add_zero (n : nat) : n + 0 = n := rfl

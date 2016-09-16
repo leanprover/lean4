@@ -46,6 +46,7 @@ Author: Leonardo de Moura
 #include "library/scope_pos_info_provider.h"
 #include "library/legacy_type_context.h"
 #include "library/equations_compiler/equations.h"
+#include "library/pattern_attribute.h"
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/builtin_exprs.h"
 #include "frontends/lean/parser.h"
@@ -59,7 +60,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/builtin_cmds.h"
 #include "frontends/lean/prenum.h"
 #include "frontends/lean/elaborator.h"
-#include "frontends/lean/pattern_attribute.h"
 #include "frontends/lean/local_context_adapter.h"
 // LEGACY
 #include "frontends/lean/old_elaborator.h"

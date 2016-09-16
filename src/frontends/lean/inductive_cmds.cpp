@@ -24,7 +24,6 @@ Authors: Daniel Selsam, Leonardo de Moura
 #include "library/explicit.h"
 #include "library/reducible.h"
 #include "library/class.h"
-#include "library/util.h"
 #include "library/trace.h"
 #include "library/app_builder.h"
 #include "library/type_context.h"
@@ -72,6 +71,7 @@ class inductive_cmd_fn {
     level                           m_u; // temporary auxiliary global universe used for inferring the result
                                          // universe of an inductive datatype declaration.
     bool                            m_infer_result_universe{false};
+    bool                            m_found_nested_universe{false};
 
     [[ noreturn ]] void throw_error(char const * error_msg) const { throw parser_error(error_msg, m_pos); }
     [[ noreturn ]] void throw_error(sstream const & strm) const { throw parser_error(strm, m_pos); }
@@ -159,16 +159,25 @@ class inductive_cmd_fn {
         return mk_local(mk_fresh_name(), binding_name(b), binding_domain(b), binding_info(b), b.get_tag());
     }
 
-    /* \brief Add \c lvl to \c r_lvls (if it is not already there.
+    /* \brief Add \c lvl to \c r_lvls (if it is not already there).
 
-       \pre lvl does not contain m_u.
+       If the level contains the result level, it must be a `max`, in which case we accumulate the
+       other max arguments. Otherwise, we throw an exception.
     */
     void accumulate_level(level const & lvl, buffer<level> & r_lvls) {
-        if (occurs(m_u, lvl)) {
-            throw exception("failed to infer inductive datatype resultant universe, "
-                            "provide the universe levels explicitly");
-        } else if (std::find(r_lvls.begin(), r_lvls.end(), lvl) == r_lvls.end()) {
-            r_lvls.push_back(lvl);
+        if (lvl == m_u) {
+            return;
+        } else if (occurs(m_u, lvl)) {
+            if (is_max(lvl)) {
+                accumulate_level(max_lhs(lvl), r_lvls);
+                accumulate_level(max_rhs(lvl), r_lvls);
+            } else {
+                throw exception("failed to infer inductive datatype resultant universe, "
+                                "provide the universe levels explicitly");
+            }
+        } else {
+            if (std::find(r_lvls.begin(), r_lvls.end(), lvl) == r_lvls.end())
+                r_lvls.push_back(lvl);
         }
     }
 

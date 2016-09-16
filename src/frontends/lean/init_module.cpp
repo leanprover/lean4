@@ -5,7 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "frontends/lean/tokens.h"
-#include "frontends/lean/pattern_attribute.h"
 #include "frontends/lean/elaborator_context.h"
 #include "frontends/lean/old_elaborator.h"
 #include "frontends/lean/parser.h"
@@ -33,7 +32,6 @@ Author: Leonardo de Moura
 
 namespace lean {
 void initialize_frontend_lean_module() {
-    initialize_pattern_attribute();
     initialize_old_attributes();
     initialize_prenum();
     initialize_info_annotation();
@@ -86,6 +84,5 @@ void finalize_frontend_lean_module() {
     finalize_tokens();
     finalize_info_annotation();
     finalize_prenum();
-    finalize_pattern_attribute();
 }
 }

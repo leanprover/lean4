@@ -79,6 +79,11 @@ public:
     */
     friend options add_prefix(name const & prefix, options const & opts);
 
+    /**
+        \brief Remove all options that have the given prefix.
+    */
+    friend options remove_all_with_prefix(name const & prefix, options const & opts);
+
     friend format pp(options const & o);
     friend std::ostream & operator<<(std::ostream & out, options const & o);
 

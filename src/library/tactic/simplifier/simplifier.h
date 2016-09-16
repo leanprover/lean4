@@ -15,6 +15,21 @@ namespace lean {
 simp_result simplify(type_context & ctx, name const & rel, simp_lemmas const & simp_lemmas, vm_obj const & prove_fn, expr const & e);
 simp_result simplify(type_context & ctx, name const & rel, simp_lemmas const & simp_lemmas, expr const & e);
 
+name get_simplify_prefix_name();
+name get_simplify_max_steps_name();
+name get_simplify_nary_assoc_name();
+name get_simplify_memoize_name();
+name get_simplify_contextual_name();
+name get_simplify_user_extensions_name();
+name get_simplify_rewrite_name();
+name get_simplify_unsafe_nary_name();
+name get_simplify_theory_name();
+name get_simplify_topdown_name();
+name get_simplify_lift_eq_name();
+name get_simplify_canonize_instances_fixed_point_name();
+name get_simplify_canonize_proofs_fixed_point_name();
+name get_simplify_canonize_subsingletons_name();
+
 void initialize_simplifier();
 void finalize_simplifier();
 

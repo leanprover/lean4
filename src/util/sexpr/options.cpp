@@ -183,6 +183,15 @@ options add_prefix(name const & prefix, options const & opts) {
         });
 }
 
+options remove_all_with_prefix(name const & prefix, options const & opts) {
+    sexpr r;
+    for_each(opts.m_value, [&](sexpr const & p) {
+            if (!is_prefix_of(prefix, to_name(car(p))))
+                r = cons(p, r);
+        });
+    return options(r);
+}
+
 format pp(options const & o) {
     bool unicode = get_pp_unicode(o);
     format r;

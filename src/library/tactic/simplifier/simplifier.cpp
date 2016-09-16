@@ -44,7 +44,7 @@ Author: Daniel Selsam
 #include "library/tactic/simplifier/util.h"
 
 #ifndef LEAN_DEFAULT_SIMPLIFY_MAX_STEPS
-#define LEAN_DEFAULT_SIMPLIFY_MAX_STEPS 1000
+#define LEAN_DEFAULT_SIMPLIFY_MAX_STEPS 10000
 #endif
 #ifndef LEAN_DEFAULT_SIMPLIFY_NARY_ASSOC
 #define LEAN_DEFAULT_SIMPLIFY_NARY_ASSOC true
@@ -85,6 +85,9 @@ Author: Daniel Selsam
 
 namespace lean {
 
+static name * g_simplify_prefix = nullptr;
+name get_simplify_prefix_name() { return *g_simplify_prefix; }
+
 /* Options */
 
 static name * g_simplify_max_steps                      = nullptr;
@@ -101,12 +104,26 @@ static name * g_simplify_canonize_instances_fixed_point = nullptr;
 static name * g_simplify_canonize_proofs_fixed_point    = nullptr;
 static name * g_simplify_canonize_subsingletons         = nullptr;
 
+name get_simplify_max_steps_name() { return *g_simplify_max_steps; }
+name get_simplify_nary_assoc_name() { return *g_simplify_nary_assoc; }
+name get_simplify_memoize_name() { return *g_simplify_memoize; }
+name get_simplify_contextual_name() { return *g_simplify_contextual; }
+name get_simplify_user_extensions_name() { return *g_simplify_user_extensions; }
+name get_simplify_rewrite_name() { return *g_simplify_rewrite; }
+name get_simplify_unsafe_nary_name() { return *g_simplify_unsafe_nary; }
+name get_simplify_theory_name() { return *g_simplify_theory; }
+name get_simplify_topdown_name() { return *g_simplify_topdown; }
+name get_simplify_lift_eq_name() { return *g_simplify_lift_eq; }
+name get_simplify_canonize_instances_fixed_point_name() { return *g_simplify_canonize_instances_fixed_point; }
+name get_simplify_canonize_proofs_fixed_point_name() { return *g_simplify_canonize_proofs_fixed_point; }
+name get_simplify_canonize_subsingletons_name() { return *g_simplify_canonize_subsingletons; }
+
 static unsigned get_simplify_max_steps(options const & o) {
     return o.get_unsigned(*g_simplify_max_steps, LEAN_DEFAULT_SIMPLIFY_MAX_STEPS);
 }
 
 static unsigned get_simplify_nary_assoc(options const & o) {
-    return o.get_unsigned(*g_simplify_nary_assoc, LEAN_DEFAULT_SIMPLIFY_NARY_ASSOC);
+    return o.get_bool(*g_simplify_nary_assoc, LEAN_DEFAULT_SIMPLIFY_NARY_ASSOC);
 }
 
 static bool get_simplify_memoize(options const & o) {
@@ -1134,7 +1151,10 @@ bool simplifier::instantiate_emetas(tmp_type_context & tmp_tctx, unsigned num_em
             i--;
             if (failed) return;
             expr m_type = tmp_tctx.instantiate_mvars(tmp_tctx.infer(m));
-            lean_assert(!has_metavar(m_type));
+            if (has_metavar(m_type)) {
+                failed = true;
+                return;
+            }
 
             if (tmp_tctx.is_eassigned(i)) return;
 
@@ -1425,19 +1445,21 @@ void initialize_simplifier() {
     register_trace_class(name({"debug", "simplifier", "try_congruence"}));
     register_trace_class(name({"debug", "simplifier", "remove_casts"}));
 
-    g_simplify_max_steps                      = new name{"simplify", "max_steps"};
-    g_simplify_nary_assoc                     = new name{"simplify", "nary_assoc"};
-    g_simplify_memoize                        = new name{"simplify", "memoize"};
-    g_simplify_contextual                     = new name{"simplify", "contextual"};
-    g_simplify_user_extensions                = new name{"simplify", "user_extensions"};
-    g_simplify_rewrite                        = new name{"simplify", "rewrite"};
-    g_simplify_unsafe_nary                    = new name{"simplify", "unsafe_nary"};
-    g_simplify_theory                         = new name{"simplify", "theory"};
-    g_simplify_topdown                        = new name{"simplify", "topdown"};
-    g_simplify_lift_eq                        = new name{"simplify", "lift_eq"};
-    g_simplify_canonize_instances_fixed_point = new name{"simplify", "canonize_instances_fixed_point"};
-    g_simplify_canonize_proofs_fixed_point    = new name{"simplify", "canonize_proofs_fixed_point"};
-    g_simplify_canonize_subsingletons         = new name{"simplify", "canonize_subsingletons"};
+    g_simplify_prefix                         = new name{"simplify"};
+
+    g_simplify_max_steps                      = new name{*g_simplify_prefix, "max_steps"};
+    g_simplify_nary_assoc                     = new name{*g_simplify_prefix, "nary_assoc"};
+    g_simplify_memoize                        = new name{*g_simplify_prefix, "memoize"};
+    g_simplify_contextual                     = new name{*g_simplify_prefix, "contextual"};
+    g_simplify_user_extensions                = new name{*g_simplify_prefix, "user_extensions"};
+    g_simplify_rewrite                        = new name{*g_simplify_prefix, "rewrite"};
+    g_simplify_unsafe_nary                    = new name{*g_simplify_prefix, "unsafe_nary"};
+    g_simplify_theory                         = new name{*g_simplify_prefix, "theory"};
+    g_simplify_topdown                        = new name{*g_simplify_prefix, "topdown"};
+    g_simplify_lift_eq                        = new name{*g_simplify_prefix, "lift_eq"};
+    g_simplify_canonize_instances_fixed_point = new name{*g_simplify_prefix, "canonize_instances_fixed_point"};
+    g_simplify_canonize_proofs_fixed_point    = new name{*g_simplify_prefix, "canonize_proofs_fixed_point"};
+    g_simplify_canonize_subsingletons         = new name{*g_simplify_prefix, "canonize_subsingletons"};
 
     register_unsigned_option(*g_simplify_max_steps, LEAN_DEFAULT_SIMPLIFY_MAX_STEPS,
                              "(simplify) max number of (large) steps in simplification");

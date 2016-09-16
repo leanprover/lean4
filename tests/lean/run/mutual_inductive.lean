@@ -77,43 +77,6 @@ check @rig.mk.sizeof_spec
 end X4
 
 namespace X5
-
-mutual_inductive foo, bar, rig
-with foo : bool -> bool -> Prop
-| mk : bar tt -> foo tt tt
-with bar : bool -> Prop
-| mk : foo tt tt -> bar tt
-with rig : Prop
-| mk : foo tt tt -> bar tt -> rig
-
-check @foo
-check @bar
-check @rig
-check @foo.rec
-check @bar.rec
-check @rig.rec
-end X5
-
-namespace X6
-
-mutual_inductive foo, bar, rig (A : Type)
-with foo : bool -> bool -> Prop
-| mk : A -> bar tt -> foo tt tt
-with bar : bool -> Prop
-| mk : A -> foo tt tt -> bar tt
-with rig : Prop
-| mk : A -> foo tt tt -> bar tt -> rig
-
-check @foo
-check @bar
-check @rig
-check @foo.rec
-check @bar.rec
-check @rig.rec
-end X6
-
-namespace X7
-
 mutual_inductive foo, bar, rig (A : Type)
 with foo : Pi (b : bool), b = b -> Type
 | mk : A -> bar tt ff tt -> foo tt rfl
@@ -136,9 +99,9 @@ check @foo.mk.sizeof_spec
 check @bar.mk.sizeof_spec
 check @rig.mk.sizeof_spec
 check @rig.put.sizeof_spec
-end X7
+end X5
 
-namespace X8
+namespace X6
 
 mutual_inductive {l₁ l₂} foo, bar, rig (A : Type.{l₁}) (B : Type.{l₂})
 with foo : Pi (b : bool), b = b -> Type.{max l₁ l₂}
@@ -154,9 +117,9 @@ check @rig
 check @foo.rec
 check @bar.rec
 check @rig.rec
-end X8
+end X6
 
-namespace X9
+namespace X7
 
 mutual_inductive {l₁ l₂ l₃} foo, bar, rig (A : Type.{l₁}) (B : Type.{l₂}) (a : A)
 with foo : Pi (b : bool), b = b -> Type.{max l₁ l₂ l₃}
@@ -173,4 +136,4 @@ check @foo.rec
 check @bar.rec
 check @rig.rec
 
-end X9
+end X7

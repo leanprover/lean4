@@ -53,6 +53,8 @@ attribute [pattern]
 definition tree.leaf {A : Type} : A → tree A :=
 tree_core.leaf'
 
+set_option trace.eqn_compiler true
+
 definition sz {A : Type} : tree A → nat
 | (tree.leaf a) := 1
 | (tree.node l) := list.length l + 1

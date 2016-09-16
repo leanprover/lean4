@@ -77,6 +77,17 @@ static void throw_invalid_major_premise_type(unsigned arg_idx, expr const & H_ty
     throw_invalid_major_premise_type(arg_idx, H_type, strm.str().c_str());
 }
 
+static expr whnf_until(type_context & ctx, name const & n, expr const & e) {
+    type_context::transparency_scope scope(ctx, transparency_mode::All);
+    return ctx.whnf_pred(e, [&](expr const & t) {
+            expr fn = get_app_fn(t);
+            if (is_constant(fn) && const_name(fn) == n)
+                return false;
+            else
+                return true;
+        });
+}
+
 list<expr> induction(environment const & env, options const & opts, transparency_mode const & m, metavar_context & mctx,
                      expr const & mvar, expr const & H, name const & rec_name, list<name> & ns,
                      intros_list * ilist, hsubstitution_list * slist) {
@@ -85,9 +96,12 @@ list<expr> induction(environment const & env, options const & opts, transparency
     lean_assert((ilist == nullptr) == (slist == nullptr));
     optional<metavar_decl> g = mctx.get_metavar_decl(mvar);
     lean_assert(g);
-    type_context ctx1 = mk_type_context_for(env, opts, mctx, g->get_context(), m);
-    expr H_type = ctx1.relaxed_whnf(ctx1.infer(H));
+
     recursor_info rec_info = get_recursor_info(env, rec_name);
+
+    type_context ctx1 = mk_type_context_for(env, opts, mctx, g->get_context(), m);
+    expr H_type = whnf_until(ctx1, rec_info.get_type_name(), ctx1.infer(H));
+
     buffer<expr> H_type_args;
     get_app_args(H_type, H_type_args);
     for (optional<unsigned> const & pos : rec_info.get_params_pos()) {

@@ -49,6 +49,7 @@ Author: Leonardo de Moura
 #include "library/arith_instance_manager.h"
 #include "library/inverse.h"
 #include "library/rfl_lemmas.h"
+#include "library/pattern_attribute.h"
 
 // #include "library/congr_lemma_manager.h"
 // #include "library/light_lt_manager.h"
@@ -129,9 +130,11 @@ void initialize_library_module() {
     initialize_mpq_macro();
     initialize_arith_instance_manager();
     initialize_inverse();
+    initialize_pattern_attribute();
 }
 
 void finalize_library_module() {
+    finalize_pattern_attribute();
     finalize_inverse();
     finalize_arith_instance_manager();
     finalize_mpq_macro();

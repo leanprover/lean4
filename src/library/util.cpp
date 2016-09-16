@@ -180,7 +180,18 @@ bool is_reflexive_datatype(abstract_type_context & tc, name const & n) {
 level get_datatype_level(expr ind_type) {
     while (is_pi(ind_type))
         ind_type = binding_body(ind_type);
+    lean_assert(is_sort(ind_type));
     return sort_level(ind_type);
+}
+
+expr update_result_sort(expr t, level const & l) {
+    if (is_pi(t)) {
+        return update_binding(t, binding_domain(t), update_result_sort(binding_body(t), l));
+    } else if (is_sort(t)) {
+        return update_sort(t, l);
+    } else {
+        lean_unreachable();
+    }
 }
 
 bool is_inductive_predicate(environment const & env, name const & n) {
@@ -497,6 +508,10 @@ expr mk_pr2(abstract_type_context & ctx, expr const & p) {
     expr const & A = app_arg(app_fn(AxB));
     expr const & B = app_arg(AxB);
     return mk_app(mk_constant(get_prod_pr2_name(), const_levels(get_app_fn(AxB))), A, B, p);
+}
+
+expr mk_nat_zero() {
+    return mk_app(mk_constant(get_zero_name(), {mk_level_one()}), {mk_constant(get_nat_name()), mk_constant(get_nat_has_zero_name())});
 }
 
 expr mk_nat_one() {

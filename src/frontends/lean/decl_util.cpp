@@ -265,9 +265,16 @@ environment add_local_ref(parser & p, environment const & env, name const & c_na
         lps.push_back(u);
     }
     for (expr const & e : var_params) {
-        if (p.is_local_variable(e))
+        if (!p.is_local_decl(e)) {
+            /* Stop, it is a definition parameter */
             break;
-        params.push_back(e);
+        } else if (p.is_local_variable(e)) {
+            /* Stop, it is a parser variable (i.e., it has been declared using the `variable` command */
+            break;
+        } else {
+            /* It is a parser parameter (i.e., it has been declared with the `parameter` command */
+            params.push_back(e);
+        }
     }
     if (lps.empty() && params.empty()) return env;
     expr ref = mk_local_ref(c_real_name, param_names_to_levels(to_list(lps)), params);

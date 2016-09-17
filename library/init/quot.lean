@@ -8,7 +8,7 @@ Quotient types.
 prelude
 import init.sigma init.setoid init.logic
 open sigma.ops setoid
-
+set_option new_elaborator true
 constant {u} quot : Π {A : Type u}, setoid A → Type u
 -- Remark: if we do not use propext here, then we would need a quot.lift for propositions.
 constant propext {a b : Prop} : (a ↔ b) → a = b
@@ -58,24 +58,24 @@ namespace quot
   sigma.mk ⟦a⟧ (f a)
 
   protected lemma indep_coherent (f : Π a, B ⟦a⟧)
-                       (H : ∀ (a b : A) (p : a ≈ b), eq.rec (f a) (sound p) = f b)
+                       (H : ∀ (a b : A) (p : a ≈ b), (eq.rec (f a) (sound p) : B ⟦b⟧) = f b)
                        : ∀ a b, a ≈ b → quot.indep f a = quot.indep f b  :=
   λa b e, sigma.eq (sound e) (H a b e)
 
   protected lemma lift_indep_pr1
-    (f : Π a, B ⟦a⟧) (H : ∀ (a b : A) (p : a ≈ b), eq.rec (f a) (sound p) = f b)
+    (f : Π a, B ⟦a⟧) (H : ∀ (a b : A) (p : a ≈ b), (eq.rec (f a) (sound p) : B ⟦b⟧) = f b)
     (q : quot s) : (lift (quot.indep f) (quot.indep_coherent f H) q).1 = q  :=
   quot.ind (λ (a : A), eq.refl (quot.indep f a).1) q
 
   attribute [reducible, elab_as_eliminator]
   protected definition rec
-     (f : Π a, B ⟦a⟧) (H : ∀ (a b : A) (p : a ≈ b), eq.rec (f a) (sound p) = f b)
+     (f : Π a, B ⟦a⟧) (H : ∀ (a b : A) (p : a ≈ b), (eq.rec (f a) (sound p) : B ⟦b⟧) = f b)
      (q : quot s) : B q :=
   eq.rec_on (quot.lift_indep_pr1 f H q) ((lift (quot.indep f) (quot.indep_coherent f H) q).2)
 
   attribute [reducible, elab_as_eliminator]
   protected definition rec_on
-     (q : quot s) (f : Π a, B ⟦a⟧) (H : ∀ (a b : A) (p : a ≈ b), eq.rec (f a) (sound p) = f b) : B q :=
+     (q : quot s) (f : Π a, B ⟦a⟧) (H : ∀ (a b : A) (p : a ≈ b), (eq.rec (f a) (sound p) : B ⟦b⟧) = f b) : B q :=
   quot.rec f H q
 
   attribute [reducible, elab_as_eliminator]
@@ -88,8 +88,8 @@ namespace quot
      (q : quot s) (f : Π a, B ⟦a⟧) (c : ∀ (a b : A) (p : a ≈ b), f a == f b) : B q :=
   quot.rec_on q f
     (λ a b p, eq_of_heq (calc
-      eq.rec (f a) (sound p) == f a : eq_rec_heq (sound p) (f a)
-                         ... == f b : c a b p))
+      (eq.rec (f a) (sound p) : B ⟦b⟧) == f a : eq_rec_heq (sound p) (f a)
+                                   ... == f b : c a b p))
   end
 
   section
@@ -170,23 +170,9 @@ namespace quot
   protected definition rec_on_subsingleton₂
      {C : quot s₁ → quot s₂ → Type} [H : ∀ a b, subsingleton (C ⟦a⟧ ⟦b⟧)]
      (q₁ : quot s₁) (q₂ : quot s₂) (f : Π a b, C ⟦a⟧ ⟦b⟧) : C q₁ q₂:=
-  @quot.rec_on_subsingleton _ _ _
-    (λ a, quot.ind _ _)
-    q₁ (λ a, quot.rec_on_subsingleton q₂ (λ b, f a b))
+  @quot.rec_on_subsingleton _ s₁ (λ q, C q q₂) (λ a, quot.ind (λ b, H a b) q₂) q₁
+    (λ a, quot.rec_on_subsingleton q₂ (λ b, f a b))
 
-  attribute [reducible, elab_as_eliminator]
-  protected definition hrec_on₂
-     {C : quot s₁ → quot s₂ → Type} (q₁ : quot s₁) (q₂ : quot s₂)
-     (f : Π a b, C ⟦a⟧ ⟦b⟧) (c : ∀ a₁ a₂ b₁ b₂, a₁ ≈ b₁ → a₂ ≈ b₂ → f a₁ a₂ == f b₁ b₂) : C q₁ q₂:=
-  quot.hrec_on q₁
-    (λ a, quot.hrec_on q₂ (λ b, f a b) (λ b₁ b₂ p, c _ _ _ _ (setoid.refl _) p))
-    (λ a₁ a₂ p, quot.induction_on q₂
-      (λ b,
-        have aux : f a₁ b == f a₂ b, from c _ _ _ _ p (setoid.refl _),
-        calc quot.hrec_on ⟦b⟧ (λ (b : B), f a₁ b) _
-                 == f a₁ b                                 : (eq_rec_heq _ _)
-             ... == f a₂ b                                 : aux
-             ... == quot.hrec_on ⟦b⟧ (λ (b : B), f a₂ b) _ : heq.symm (eq_rec_heq _ _)))
   end
 end quot
 

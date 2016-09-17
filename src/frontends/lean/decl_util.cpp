@@ -213,7 +213,7 @@ void collect_implicit_locals(parser & p, buffer<name> & lp_names, buffer<expr> &
     collected_locals locals;
     buffer<expr> include_vars;
     name_set lp_found;
-    name_set explicit_params;
+    name_set given_params;
     /* Process variables included using the 'include' command */
     p.get_include_variables(include_vars);
     for (expr const & param : include_vars) {
@@ -228,22 +228,29 @@ void collect_implicit_locals(parser & p, buffer<name> & lp_names, buffer<expr> &
         collect_locals_ignoring_tactics(mlocal_type(param), locals);
         lp_found = collect_univ_params_ignoring_tactics(mlocal_type(param), lp_found);
         locals.insert(param);
-        explicit_params.insert(mlocal_name(param));
+        given_params.insert(mlocal_name(param));
     }
     /* Process expressions used to define declaration. */
     for (expr const & e : all_exprs) {
         collect_locals_ignoring_tactics(e, locals);
         lp_found = collect_univ_params_ignoring_tactics(e, lp_found);
+        if (is_local(e))
+            given_params.insert(mlocal_name(e));
     }
     collect_annonymous_inst_implicit(p, locals);
     sort_locals(locals.get_collected(), p, params);
     update_univ_parameters(p, lp_names, lp_found);
     /* Add as_is annotation to section variables and parameters */
-    for (expr & p : params) {
-        if (!explicit_params.contains(mlocal_name(p))) {
-            expr type = mlocal_type(p);
-            p = update_mlocal(p, copy_tag(type, mk_as_is(type)));
+    buffer<expr> old_params;
+    for (unsigned i = 0; i < params.size(); i++) {
+        expr & param = params[i];
+        old_params.push_back(param);
+        expr type          = mlocal_type(param);
+        expr new_type      = copy_tag(type, replace_locals(type, i, old_params.data(), params.data()));
+        if (!given_params.contains(mlocal_name(param))) {
+            new_type = copy_tag(type, mk_as_is(new_type));
         }
+        param = copy_tag(param, update_mlocal(param, new_type));
     }
 }
 

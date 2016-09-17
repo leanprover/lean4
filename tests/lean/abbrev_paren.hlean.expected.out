@@ -1,6 +1,0 @@
-abbrev_paren.hlean:5:54: error: don't know how to synthesize placeholder
-C : Precategory
-⊢ C = Precategory.mk (carrier C) C
-abbrev_paren.hlean:5:54: error: failed to add declaration 'example' to environment, value has metavariables
-remark: set 'formatter.hide_full_terms' to false to see the complete term
-  ?M_1

@@ -1,3 +1,3 @@
 set_option pp.all true
-
-check λ (A B : Type) (a : A) (b : B), a
+universe variables u
+check λ (A B : Type u) (a : A) (b : B), a

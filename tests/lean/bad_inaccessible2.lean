@@ -1,12 +1,12 @@
 set_option new_elaborator true
-
-inductive vec (A : Type) : nat → Type
+universe variables u
+inductive vec (A : Type u) : nat → Type (max 1 u)
 | nil {} : vec 0
 | cons   : Π {n}, A → vec n → vec (n+1)
 
 open vec
 
-variables {A : Type}
+variables {A : Type u}
 variables f : A → A → A
 
 /- The following definition fails because the pattern variables are

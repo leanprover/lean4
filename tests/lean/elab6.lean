@@ -2,7 +2,7 @@ constant R : nat → nat → Prop
 constant H : transitive R
 set_option pp.all true
 
-constant F : ∀ {A : Type} ⦃a : A⦄ {b : A} (c : A) ⦃e : A⦄, A → A → A
+constant F : ∀ {A : Type*} ⦃a : A⦄ {b : A} (c : A) ⦃e : A⦄, A → A → A
 
 check H
 check F

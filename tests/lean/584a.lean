@@ -1,4 +1,6 @@
-variables (A : Type) [H : inhabited A] (x : A)
+set_option new_elaborator true
+universe variables u
+variables (A : Type u) [H : inhabited A] (x : A)
 include H
 
 definition foo := x

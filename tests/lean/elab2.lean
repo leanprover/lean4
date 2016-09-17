@@ -1,4 +1,4 @@
-definition foo {A B : Type} [has_add A] (a : A) (b : B) : A :=
+definition foo {A B : Type*} [has_add A] (a : A) (b : B) : A :=
 a
 
 -- set_option trace.elaborator true
@@ -7,7 +7,7 @@ a
 set_option pp.all true
 check foo 0 1
 
-definition bla {A B : Type} (a₁ a₂ : A) (b : B) : A :=
+definition bla {A B : Type*} (a₁ a₂ : A) (b : B) : A :=
 a₁
 
 check bla nat.zero tt 1

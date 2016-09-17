@@ -1,6 +1,6 @@
 set_option new_elaborator true
-
-inductive vec (A : Type) : nat → Type
+universe variables u
+inductive vec (A : Type u) : nat → Type
 | nil  : vec 0
 | cons : Π {n}, A → vec n → vec (n+1)
 

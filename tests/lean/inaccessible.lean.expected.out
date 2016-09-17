@@ -1,10 +1,10 @@
-inaccessible.lean:13:10: error: invalid argument, it is not a constructor, variable, nor it is marked as an inaccessible pattern
+inaccessible.lean:14:10: error: invalid argument, it is not a constructor, variable, nor it is marked as an inaccessible pattern
   mk a
 in the following equation left-hand-side
   inv_3 .(f a) (mk a)
-inaccessible.lean:16:11: error: invalid inaccessible annotation, it cannot be used around functions in applications
-inaccessible.lean:24:12: error: invalid pattern, 'a' already appeared in this pattern
-inaccessible.lean:27:9: error: type mismatch at application
+inaccessible.lean:17:11: error: invalid inaccessible annotation, it cannot be used around functions in applications
+inaccessible.lean:25:12: error: invalid pattern, 'a' already appeared in this pattern
+inaccessible.lean:28:9: error: type mismatch at application
   inv_7 (f_1 a) (mk b)
 term
   mk b
@@ -14,4 +14,4 @@ but is expected to have type
   imf f (f_1 a)
 The following identifier(s) are introduced as free variables by the left-hand-side of the equation:
   f a b 
-inaccessible.lean:30:4: error: invalid pattern, 'a' already appeared in this pattern
+inaccessible.lean:31:4: error: invalid pattern, 'a' already appeared in this pattern

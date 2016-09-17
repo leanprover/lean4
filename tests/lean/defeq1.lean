@@ -1,5 +1,5 @@
 open nat tactic
-variables {A : Type}
+universe variables u variables {A : Type u}
 
 attribute [defeq]
 definition succ_eq_add (n : nat) : succ n = n + 1 :=

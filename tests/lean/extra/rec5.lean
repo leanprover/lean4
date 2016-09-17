@@ -4,7 +4,7 @@ open nat list
 set_option pp.implicit true
 set_option pp.notation false
 
-definition filter {A : Type} (p : A → Prop) [H : decidable_pred p] : list A → list A,
+definition filter {A : Type*} (p : A → Prop) [H : decidable_pred p] : list A → list A,
 filter nil      := nil,
 filter (h :: t) := if p h then h :: filter t else filter t
 

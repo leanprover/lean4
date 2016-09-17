@@ -1,7 +1,7 @@
 set_option new_elaborator true
-
+universe variable u
 section
-  parameter (A : Type)
+  parameter (A : Type u)
 
   definition f : A → A :=
   λ x, x

@@ -1,9 +1,11 @@
+set_option new_elaborator true
+universe variables u
 namespace N1
-  definition pr {A : Type} (a b : A) := a
+  definition pr {A : Type u} (a b : A) := a
 end N1
 
 namespace N2
-  definition pr {A : Type} (a b : A) := b
+  definition pr {A : Type u} (a b : A) := b
 end N2
 
 open N1 N2

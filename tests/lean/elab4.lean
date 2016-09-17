@@ -1,4 +1,4 @@
-definition foo.f {A : Type} {B : Type} (a : A) (b : B) : A := a
+definition foo.f {A : Type*} {B : Type*} (a : A) (b : B) : A := a
 
 definition boo.f (a : nat) (b : nat) (c : nat) := a + b + c
 

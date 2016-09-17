@@ -1,24 +1,24 @@
-inductive vec (A : Type) : nat → Type
+inductive vec (A : Type*) : nat → Type*
 | nil  : vec 0
 | cons : ∀ {n}, A → vec n → vec (n+1)
 
 open tactic nat vec
 
-definition head {A : Type} : ∀ {n : nat}, vec A (n+1) → A
+definition head {A : Type*} : ∀ {n : nat}, vec A (n+1) → A
 | n (cons h t) := h
 
-definition tail {A : Type} : ∀ {n : nat}, vec A (n+1) → vec A n
+definition tail {A : Type*} : ∀ {n : nat}, vec A (n+1) → vec A n
 | n (cons h t) := t
 
 attribute [defeq]
-definition head_cons {A : Type} {n : nat} (a : A) (v : vec A n) : head (cons a v) = a :=
+definition head_cons {A : Type*} {n : nat} (a : A) (v : vec A n) : head (cons a v) = a :=
 rfl
 
 attribute [defeq]
-definition tail_cons {A : Type} {n : nat} (a : A) (v : vec A n) : tail (cons a v) = v :=
+definition tail_cons {A : Type*} {n : nat} (a : A) (v : vec A n) : tail (cons a v) = v :=
 rfl
 
-example {A : Type} {n : nat} (v w : vec A (n+1)) : head v = head w → tail v = tail w → v = w :=
+example {A : Type*} {n : nat} (v w : vec A (n+1)) : head v = head w → tail v = tail w → v = w :=
 by do
   v ← get_local `v,
   cases_using v [`n', `hv, `tv],

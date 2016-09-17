@@ -1,5 +1,5 @@
 section
-  parameter (A : Type)
+  universe variables u parameter (A : Type u)
 
   section
     parameters (a b : A)

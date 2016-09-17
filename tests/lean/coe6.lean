@@ -1,9 +1,9 @@
 structure Group :=
-(carrier : Type) (mul : carrier → carrier → carrier) (one : carrier)
+(carrier : Type*) (mul : carrier → carrier → carrier) (one : carrier)
 
 attribute [instance]
 definition Group_to_Type : has_coe_to_sort Group :=
-has_coe_to_sort.mk (Type) Group.carrier
+has_coe_to_sort.mk Type Group.carrier
 
 constant g : Group.{1}
 set_option pp.binder_types true

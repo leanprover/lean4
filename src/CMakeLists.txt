@@ -486,14 +486,6 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}/" DESTINATION "${LEAN_EXT_INCLUDE_DIR}"
         FILES_MATCHING
         PATTERN "*.h")
 
-# install(DIRECTORY "${CMAKE_SOURCE_DIR}/../hott" DESTINATION "${LIBRARY_DIR}"
-#         FILES_MATCHING
-#         PATTERN "*.hlean"
-#         PATTERN "*.olean"
-#         PATTERN ".project"
-#         PATTERN "*.md"
-#         PATTERN "TAGS")
-
 install(FILES "${CMAKE_SOURCE_DIR}/../src/emacs/lean.pgm"
         DESTINATION "${EMACS_LISP_DIR}")
 

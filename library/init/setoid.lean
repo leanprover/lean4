@@ -7,13 +7,14 @@ Authors: Leonardo de Moura
 prelude
 import init.relation
 set_option new_elaborator true
-structure [class] setoid (A : Type) :=
+universe variables u
+structure [class] setoid (A : Type u) :=
 (r : A → A → Prop) (iseqv : equivalence r)
 
 namespace setoid
   infix ` ≈ ` := setoid.r
 
-  variable {A : Type}
+  variable {A : Type u}
   variable [s : setoid A]
   include s
 

@@ -9,15 +9,15 @@ prelude
 import init.prod init.funext init.logic
 set_option new_elaborator true
 notation f ` $ `:1 a:1 := f a
-
-variables {A : Type} {B : Type} {C : Type} {D : Type} {E : Type}
+universe variables u_a u_b u_c u_d u_e
+variables {A : Type u_a} {B : Type u_b} {C : Type u_c} {D : Type u_d} {E : Type u_a}
 
 attribute [inline, reducible]
 definition function.comp (f : B → C) (g : A → B) : A → C :=
 λx, f (g x)
 
 attribute [inline, reducible]
-definition function.dcomp {B : A → Type} {C : Π {x : A}, B x → Type}
+definition function.dcomp {B : A → Type u_b} {C : Π {x : A}, B x → Type u_c}
   (f : Π {x : A} (y : B x), C y) (g : Πx, B x) : Πx, C (g x) :=
 λx, f (g x)
 
@@ -44,15 +44,15 @@ definition combine (f : A → B → C) (op : C → D → E) (g : A → B → D)
 λx y, op (f x y) (g x y)
 
 attribute [reducible]
-definition const (B : Type) (a : A) : B → A :=
+definition const (B : Type u_b) (a : A) : B → A :=
 λx, a
 
 attribute [reducible]
-definition swap {C : A → B → Type} (f : Πx y, C x y) : Πy x, C x y :=
+definition swap {C : A → B → Type u_c} (f : Πx y, C x y) : Πy x, C x y :=
 λy x, f x y
 
 attribute [reducible]
-definition app {B : A → Type} (f : Πx, B x) (x : A) : B x :=
+definition app {B : A → Type u_b} (f : Πx, B x) (x : A) : B x :=
 f x
 
 attribute [reducible]

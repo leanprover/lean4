@@ -7,15 +7,18 @@ prelude
 import init.logic init.nat
 open decidable list
 set_option new_elaborator true
+
+universe variables u v
+
 attribute [instance]
-protected definition list.is_inhabited (A : Type) : inhabited (list A) :=
+protected definition list.is_inhabited (A : Type u) : inhabited (list A) :=
 inhabited.mk list.nil
 
 notation h :: t  := cons h t
 notation `[` l:(foldr `, ` (h t, cons h t) nil `]`) := l
 
 namespace list
-variable {A : Type}
+variable {A : Type u}
 
 definition append : list A → list A → list A
 | []       l := l
@@ -32,7 +35,7 @@ definition nth : list A → nat → option A
 | (a :: l) 0     := some a
 | (a :: l) (n+1) := nth l n
 
-definition head {A : Type} [inhabited A] : list A → A
+definition head [inhabited A] : list A → A
 | []       := default A
 | (a :: l) := a
 
@@ -48,7 +51,7 @@ definition reverse : list A → list A
 | []       := []
 | (a :: l) := concat a (reverse l)
 
-definition map {B : Type} (f : A → B) : list A → list B
+definition map {B : Type v} (f : A → B) : list A → list B
 | []       := []
 | (a :: l) := f a :: map l
 
@@ -67,5 +70,5 @@ definition dropn : ℕ → list A → list A
 end list
 
 attribute [instance]
-definition list_has_append {A : Type} : has_append (list A) :=
+definition list_has_append {A : Type u} : has_append (list A) :=
 has_append.mk list.append

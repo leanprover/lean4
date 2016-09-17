@@ -11,8 +11,8 @@ set_option new_elaborator true
 
 -- TODO(Leo): remove duplication between this file and algebra/relation.lean
 -- We need some of the following definitions asap when "initializing" Lean.
-
-variables {A B : Type} (R : B → B → Prop)
+universe variables u v
+variables {A : Type u} {B : Type v} (R : B → B → Prop)
 local infix `≺`:50 := R
 
 definition reflexive := ∀x, x ≺ x
@@ -45,6 +45,6 @@ theorem inv_image.trans (f : A → B) (H : transitive R) : transitive (inv_image
 theorem inv_image.irreflexive (f : A → B) (H : irreflexive R) : irreflexive (inv_image R f) :=
 λ (a : A) (H₁ : inv_image R f a a), H (f a) H₁
 
-inductive tc {A : Type} (R : A → A → Prop) : A → A → Prop
+inductive tc {A : Type u} (R : A → A → Prop) : A → A → Prop
 | base  : ∀a b, R a b → tc a b
 | trans : ∀a b c, tc a b → tc b c → tc a c

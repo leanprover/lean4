@@ -6,11 +6,13 @@ Author: Leonardo de Moura
 prelude
 import init.relation init.nat init.prod
 
-inductive acc {A : Type} (R : A → A → Prop) : A → Prop
+universe variables u v
+
+inductive acc {A : Type u} (R : A → A → Prop) : A → Prop
 | intro : ∀x, (∀ y, R y x → acc y) → acc x
 
 namespace acc
-  variables {A : Type} {R : A → A → Prop}
+  variables {A : Type u} {R : A → A → Prop}
 
   definition inv {x y : A} (H₁ : acc R x) (H₂ : R y x) : acc R y :=
   acc.rec_on H₁ (λ x₁ ac₁ iH H₂, ac₁ y H₂) H₂
@@ -18,7 +20,7 @@ namespace acc
   -- dependent elimination for acc
   attribute [recursor]
   protected definition drec
-      {C : Π (a : A), acc R a → Type}
+      {C : Π (a : A), acc R a → Type v}
       (h₁ : Π (x : A) (acx : Π (y : A), R y x → acc R y),
               (Π (y : A) (ryx : R y x), C y (acx y ryx)) → C x (acc.intro x acx))
       {a : A} (h₂ : acc R a) : C a h₂ :=
@@ -29,26 +31,26 @@ namespace acc
     h₂
 end acc
 
-inductive well_founded {A : Type} (R : A → A → Prop) : Prop
+inductive well_founded {A : Type u} (R : A → A → Prop) : Prop
 | intro : (∀ a, acc R a) → well_founded
 
 namespace well_founded
-  definition apply {A : Type} {R : A → A → Prop} (wf : well_founded R) : ∀a, acc R a :=
+  definition apply {A : Type u} {R : A → A → Prop} (wf : well_founded R) : ∀a, acc R a :=
   take a, well_founded.rec_on wf (λp, p) a
 
   section
-  parameters {A : Type} {R : A → A → Prop}
+  parameters {A : Type u} {R : A → A → Prop}
   local infix `≺`:50    := R
 
   hypothesis Hwf : well_founded R
 
-  theorem recursion {C : A → Type} (a : A) (H : Πx, (Πy, y ≺ x → C y) → C x) : C a :=
+  theorem recursion {C : A → Type v} (a : A) (H : Πx, (Πy, y ≺ x → C y) → C x) : C a :=
   acc.rec_on (apply Hwf a) (λ x₁ ac₁ iH, H x₁ iH)
 
   theorem induction {C : A → Prop} (a : A) (H : ∀x, (∀y, y ≺ x → C y) → C x) : C a :=
   recursion a H
 
-  variable {C : A → Type}
+  variable {C : A → Type v}
   variable F : Πx, (Πy, y ≺ x → C y) → C x
 
   definition fix_F (x : A) (a : acc R x) : C x :=
@@ -60,7 +62,7 @@ namespace well_founded
 
   end
 
-  variables {A : Type} {C : A → Type} {R : A → A → Prop}
+  variables {A : Type u} {C : A → Type v} {R : A → A → Prop}
 
   -- Well-founded fixpoint
   definition fix (Hwf : well_founded R) (F : Πx, (Πy, R y x → C y) → C x) (x : A) : C x :=
@@ -75,14 +77,14 @@ end well_founded
 open well_founded
 
 -- Empty relation is well-founded
-definition empty_wf {A : Type} : well_founded empty_relation :=
+definition empty_wf {A : Type u} : well_founded empty_relation :=
 well_founded.intro (λ (a : A),
   acc.intro a (λ (b : A) (lt : false), false.rec _ lt))
 
 -- Subrelation of a well-founded relation is well-founded
 namespace subrelation
 section
-  parameters {A : Type} {R Q : A → A → Prop}
+  parameters {A : Type u} {R Q : A → A → Prop}
   parameters (H₁ : subrelation Q R)
   parameters (H₂ : well_founded R)
 
@@ -98,7 +100,7 @@ end subrelation
 -- The inverse image of a well-founded relation is well-founded
 namespace inv_image
 section
-  parameters {A B : Type} {R : B → B → Prop}
+  parameters {A : Type u} {B : Type v} {R : B → B → Prop}
   parameters (f : A → B)
   parameters (H : well_founded R)
 
@@ -133,7 +135,7 @@ end inv_image
 -- The transitive closure of a well-founded relation is well-founded
 namespace tc
 section
-  parameters {A : Type} {R : A → A → Prop}
+  parameters {A : Type u} {R : A → A → Prop}
   local notation `R⁺` := tc R
 
   definition accessible : ∀ {z : A}, acc R z → acc (tc R) z :=
@@ -172,17 +174,17 @@ well_founded.intro (nat.rec
      or.elim (nat.eq_or_lt_of_le (nat.le_of_succ_le_succ H))
         (λe, eq.substr e IH) (acc.inv IH))))
 
-definition measure {A : Type} : (A → ℕ) → A → A → Prop :=
+definition measure {A : Type u} : (A → ℕ) → A → A → Prop :=
 inv_image lt
 
-definition measure_wf {A : Type} (f : A → ℕ) : well_founded (measure f) :=
+definition measure_wf {A : Type u} (f : A → ℕ) : well_founded (measure f) :=
 inv_image.wf f nat.lt_wf
 
 namespace prod
   open well_founded
 
   section
-  variables {A B : Type}
+  variables {A : Type u} {B : Type v}
   variable  (Ra  : A → A → Prop)
   variable  (Rb  : B → B → Prop)
 
@@ -197,7 +199,7 @@ namespace prod
   end
 
   section
-  parameters {A B : Type}
+  parameters {A : Type u} {B : Type v}
   parameters {Ra  : A → A → Prop} {Rb  : B → B → Prop}
   local infix `≺`:50 := lex Ra Rb
 

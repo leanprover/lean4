@@ -10,7 +10,8 @@ import init.quot init.logic
 set_option new_elaborator true
 
 namespace function
-  variables {A : Type} {B : A → Type}
+  universe variables u v
+  variables {A : Type u} {B : A → Type v}
 
   protected definition equiv (f₁ f₂ : Π x : A, B x) : Prop := ∀ x, f₁ x = f₂ x
 
@@ -24,19 +25,20 @@ namespace function
   protected theorem equiv.trans {f₁ f₂ f₃ : Π x: A, B x} : f₁ ~ f₂ → f₂ ~ f₃ → f₁ ~ f₃ :=
   λ H₁ H₂ x, eq.trans (H₁ x) (H₂ x)
 
-  protected theorem equiv.is_equivalence (A : Type) (B : A → Type) : equivalence (@function.equiv A B) :=
+  protected theorem equiv.is_equivalence (A : Type u) (B : A → Type v) : equivalence (@function.equiv A B) :=
   mk_equivalence (@function.equiv A B) (@equiv.refl A B) (@equiv.symm A B) (@equiv.trans A B)
 end function
 
 section
   open quot
-  variables {A : Type} {B : A → Type}
+  universe variables u v
+  variables {A : Type u} {B : A → Type v}
 
   attribute [instance]
-  private definition fun_setoid (A : Type) (B : A → Type) : setoid (Πx : A, B x) :=
+  private definition fun_setoid (A : Type u) (B : A → Type v) : setoid (Πx : A, B x) :=
   setoid.mk (@function.equiv A B) (function.equiv.is_equivalence A B)
 
-  private definition extfun (A : Type) (B : A → Type) : Type :=
+  private definition extfun (A : Type u) (B : A → Type v) : Type :=
   quot (fun_setoid A B)
 
   private definition fun_to_extfun (f : Π x : A, B x) : extfun A B :=
@@ -59,7 +61,7 @@ attribute funext [intro!]
 local infix `~` := function.equiv
 
 attribute [instance]
-definition subsingleton_pi {A : Type} {B : A → Type} (H : ∀ a, subsingleton (B a)) :
+definition {u v} subsingleton_pi {A : Type u} {B : A → Type v} (H : ∀ a, subsingleton (B a)) :
   subsingleton (Π a, B a) :=
 subsingleton.intro (take f₁ f₂,
   have eqv : f₁ ~ f₂, from

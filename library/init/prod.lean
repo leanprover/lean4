@@ -18,12 +18,14 @@ namespace prod
 
 end prod
 
+universe variables u v
+
 attribute [instance]
-protected definition prod.is_inhabited {A B : Type} [inhabited A] [inhabited B] : inhabited (prod A B) :=
+protected definition prod.is_inhabited {A : Type u} {B : Type v} [inhabited A] [inhabited B] : inhabited (prod A B) :=
 inhabited.mk (default A, default B)
 
 attribute [instance]
-protected definition prod.has_decidable_eq {A B : Type} [h₁ : decidable_eq A] [h₂ : decidable_eq B] : ∀ p₁ p₂ : A × B, decidable (p₁ = p₂)
+protected definition prod.has_decidable_eq {A : Type u} {B : Type v} [h₁ : decidable_eq A] [h₂ : decidable_eq B] : ∀ p₁ p₂ : A × B, decidable (p₁ = p₂)
 | (a, b) (a', b') :=
   match (h₁ a a') with
   | (is_true e₁) :=

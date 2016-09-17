@@ -13,10 +13,12 @@ notation `Type₁` := Type 1
 notation `Type₂` := Type 2
 notation `Type₃` := Type 3
 
-inductive {u} poly_unit : Type u
+universe variables u v
+
+inductive poly_unit : Type u
 | star : poly_unit
 
-inductive unit : Type₁
+inductive unit : Type 1
 | star : unit
 
 inductive true : Prop
@@ -24,15 +26,15 @@ inductive true : Prop
 
 inductive false : Prop
 
-inductive empty : Type₁
+inductive empty : Type 1
 
-inductive eq {A : Type} (a : A) : A → Prop
+inductive eq {A : Type u} (a : A) : A → Prop
 | refl : eq a
 
-inductive heq {A : Type} (a : A) : Π {B : Type}, B → Prop
+inductive heq {A : Type u} (a : A) : Π {B : Type u}, B → Prop
 | refl : heq a
 
-structure prod (A B : Type) :=
+structure prod (A : Type u) (B : Type v) :=
 (pr1 : A) (pr2 : B)
 
 inductive and (a b : Prop) : Prop
@@ -48,16 +50,16 @@ and.rec (λ Ha Hb, Hb) H
 
 definition and.right := @and.elim_right
 
-inductive sum (A B : Type) : Type
+inductive sum (A : Type u) (B : Type v)
 | inl {} : A → sum
 | inr {} : B → sum
 
 attribute [reducible]
-definition sum.intro_left {A : Type} (B : Type) (a : A) : sum A B :=
+definition sum.intro_left {A : Type u} (B : Type v) (a : A) : sum A B :=
 sum.inl a
 
 attribute [reducible]
-definition sum.intro_right (A : Type) {B : Type} (b : B) : sum A B :=
+definition sum.intro_right (A : Type u) {B : Type v} (b : B) : sum A B :=
 sum.inr b
 
 inductive or (a b : Prop) : Prop
@@ -70,13 +72,13 @@ or.inl Ha
 definition or.intro_right (a : Prop) {b : Prop} (Hb : b) : or a b :=
 or.inr Hb
 
-structure sigma {A : Type} (B : A → Type) :=
+structure sigma {A : Type u} (B : A → Type v) :=
 mk :: (pr1 : A) (pr2 : B pr1)
 
 -- pos_num and num are two auxiliary datatypes used when parsing numerals such as 13, 0, 26.
 -- The parser will generate the terms (pos (bit1 (bit1 (bit0 one)))), zero, and (pos (bit0 (bit1 (bit1 one)))).
 -- This representation can be coerced in whatever we want (e.g., naturals, integers, reals, etc).
-inductive pos_num : Type
+inductive pos_num : Type 1
 | one  : pos_num
 | bit1 : pos_num → pos_num
 | bit0 : pos_num → pos_num
@@ -86,7 +88,7 @@ namespace pos_num
   pos_num.rec_on a (bit0 one) (λn r, bit0 r) (λn r, bit1 n)
 end pos_num
 
-inductive num : Type
+inductive num : Type 1
 | zero  : num
 | pos   : pos_num → num
 
@@ -96,18 +98,18 @@ namespace num
   num.rec_on a (pos one) (λp, pos (succ p))
 end num
 
-inductive bool : Type
+inductive bool : Type 1
 | ff : bool
 | tt : bool
 
-inductive option (A : Type) : Type
+inductive option (A : Type u)
 | none {} : option
 | some    : A → option
 
 export option (none some)
 export bool (ff tt)
 
-inductive list (T : Type) : Type
+inductive list (T : Type u)
 | nil {} : list
 | cons   : T → list → list
 
@@ -120,42 +122,42 @@ inductive nat
 notation `assume` binders `,` r:(scoped f, f) := r
 notation `take`   binders `,` r:(scoped f, f) := r
 
-structure [class] has_zero   (A : Type) := (zero : A)
-structure [class] has_one    (A : Type) := (one : A)
-structure [class] has_add    (A : Type) := (add : A → A → A)
-structure [class] has_mul    (A : Type) := (mul : A → A → A)
-structure [class] has_inv    (A : Type) := (inv : A → A)
-structure [class] has_neg    (A : Type) := (neg : A → A)
-structure [class] has_sub    (A : Type) := (sub : A → A → A)
-structure [class] has_div    (A : Type) := (div : A → A → A)
-structure [class] has_dvd    (A : Type) := (dvd : A → A → Prop)
-structure [class] has_mod    (A : Type) := (mod : A → A → A)
-structure [class] has_le     (A : Type) := (le : A → A → Prop)
-structure [class] has_lt     (A : Type) := (lt : A → A → Prop)
-structure [class] has_append (A : Type) := (append : A → A → A)
-structure [class] has_andthen(A : Type) := (andthen : A → A → A)
+structure [class] has_zero   (A : Type u) := (zero : A)
+structure [class] has_one    (A : Type u) := (one : A)
+structure [class] has_add    (A : Type u) := (add : A → A → A)
+structure [class] has_mul    (A : Type u) := (mul : A → A → A)
+structure [class] has_inv    (A : Type u) := (inv : A → A)
+structure [class] has_neg    (A : Type u) := (neg : A → A)
+structure [class] has_sub    (A : Type u) := (sub : A → A → A)
+structure [class] has_div    (A : Type u) := (div : A → A → A)
+structure [class] has_dvd    (A : Type u) := (dvd : A → A → Prop)
+structure [class] has_mod    (A : Type u) := (mod : A → A → A)
+structure [class] has_le     (A : Type u) := (le : A → A → Prop)
+structure [class] has_lt     (A : Type u) := (lt : A → A → Prop)
+structure [class] has_append (A : Type u) := (append : A → A → A)
+structure [class] has_andthen(A : Type u) := (andthen : A → A → A)
 
-definition zero    {A : Type} [has_zero A]    : A            := has_zero.zero A
-definition one     {A : Type} [has_one A]     : A            := has_one.one A
-definition add     {A : Type} [has_add A]     : A → A → A    := has_add.add
-definition mul     {A : Type} [has_mul A]     : A → A → A    := has_mul.mul
-definition sub     {A : Type} [has_sub A]     : A → A → A    := has_sub.sub
-definition div     {A : Type} [has_div A]     : A → A → A    := has_div.div
-definition dvd     {A : Type} [has_dvd A]     : A → A → Prop := has_dvd.dvd
-definition mod     {A : Type} [has_mod A]     : A → A → A    := has_mod.mod
-definition neg     {A : Type} [has_neg A]     : A → A        := has_neg.neg
-definition inv     {A : Type} [has_inv A]     : A → A        := has_inv.inv
-definition le      {A : Type} [has_le A]      : A → A → Prop := has_le.le
-definition lt      {A : Type} [has_lt A]      : A → A → Prop := has_lt.lt
-definition append  {A : Type} [has_append A]  : A → A → A    := has_append.append
-definition andthen {A : Type} [has_andthen A] : A → A → A    := has_andthen.andthen
+definition zero    {A : Type u} [has_zero A]    : A            := has_zero.zero A
+definition one     {A : Type u} [has_one A]     : A            := has_one.one A
+definition add     {A : Type u} [has_add A]     : A → A → A    := has_add.add
+definition mul     {A : Type u} [has_mul A]     : A → A → A    := has_mul.mul
+definition sub     {A : Type u} [has_sub A]     : A → A → A    := has_sub.sub
+definition div     {A : Type u} [has_div A]     : A → A → A    := has_div.div
+definition dvd     {A : Type u} [has_dvd A]     : A → A → Prop := has_dvd.dvd
+definition mod     {A : Type u} [has_mod A]     : A → A → A    := has_mod.mod
+definition neg     {A : Type u} [has_neg A]     : A → A        := has_neg.neg
+definition inv     {A : Type u} [has_inv A]     : A → A        := has_inv.inv
+definition le      {A : Type u} [has_le A]      : A → A → Prop := has_le.le
+definition lt      {A : Type u} [has_lt A]      : A → A → Prop := has_lt.lt
+definition append  {A : Type u} [has_append A]  : A → A → A    := has_append.append
+definition andthen {A : Type u} [has_andthen A] : A → A → A    := has_andthen.andthen
 
 attribute [reducible]
-definition ge {A : Type} [s : has_le A] (a b : A) : Prop := le b a
+definition ge {A : Type u} [s : has_le A] (a b : A) : Prop := le b a
 attribute [reducible]
-definition gt {A : Type} [s : has_lt A] (a b : A) : Prop := lt b a
-definition bit0 {A : Type} [s  : has_add A] (a  : A)                 : A := add a a
-definition bit1 {A : Type} [s₁ : has_one A] [s₂ : has_add A] (a : A) : A := add (bit0 a) one
+definition gt {A : Type u} [s : has_lt A] (a b : A) : Prop := lt b a
+definition bit0 {A : Type u} [s  : has_add A] (a  : A)                 : A := add a a
+definition bit1 {A : Type u} [s₁ : has_one A] [s₂ : has_add A] (a : A) : A := add (bit0 a) one
 
 attribute [pattern] zero one bit0 bit1 add
 
@@ -350,10 +352,10 @@ infix ;    := andthen
 notation a = b := eq a b
 
 attribute [pattern]
-definition rfl {A : Type} {a : A} : a = a := eq.refl a
+definition rfl {A : Type u} {a : A} : a = a := eq.refl a
 
 namespace eq
-  variables {A : Type}
+  variables {A : Type u}
   variables {a b c a': A}
 
   attribute [elab_as_eliminator]
@@ -376,10 +378,10 @@ attribute eq.symm [symm]
 
 /- sizeof -/
 
-structure [class] has_sizeof (A : Type) :=
+structure [class] has_sizeof (A : Type u) :=
 (sizeof : A → nat)
 
-definition sizeof {A : Type} [s : has_sizeof A] : A → nat :=
+definition sizeof {A : Type u} [s : has_sizeof A] : A → nat :=
 has_sizeof.sizeof
 
 /-
@@ -389,11 +391,11 @@ From now on, the inductive compiler will automatically generate sizeof instances
 
 /- Every type `A` has a default has_sizeof instance that just returns 0 for every element of `A` -/
 attribute [instance]
-definition default_has_sizeof (A : Type) : has_sizeof A :=
+definition default_has_sizeof (A : Type u) : has_sizeof A :=
 has_sizeof.mk (λ a, nat.zero)
 
 attribute [simp, defeq, simp.sizeof]
-definition default_has_sizeof_eq (A : Type) (a : A) : @sizeof A (default_has_sizeof A) a = 0 :=
+definition default_has_sizeof_eq (A : Type u) (a : A) : @sizeof A (default_has_sizeof A) a = 0 :=
 rfl
 
 attribute [instance]
@@ -405,31 +407,31 @@ definition sizeof_nat_eq (a : nat) : sizeof a = a :=
 rfl
 
 attribute [instance]
-definition prod_has_sizeof (A B : Type) [has_sizeof A] [has_sizeof B] : has_sizeof (prod A B) :=
+definition prod_has_sizeof (A : Type u) (B : Type v) [has_sizeof A] [has_sizeof B] : has_sizeof (prod A B) :=
 has_sizeof.mk (λ p, prod.cases_on p (λ a b, 1 + sizeof a + sizeof b))
 
 attribute [simp, defeq, simp.sizeof]
-definition sizeof_prod_eq {A B : Type} [has_sizeof A] [has_sizeof B] (a : A) (b : B) : sizeof (prod.mk a b) = 1 + sizeof a + sizeof b :=
+definition sizeof_prod_eq {A : Type u} {B : Type v} [has_sizeof A] [has_sizeof B] (a : A) (b : B) : sizeof (prod.mk a b) = 1 + sizeof a + sizeof b :=
 rfl
 
 attribute [instance]
-definition sum_has_sizeof (A B : Type) [has_sizeof A] [has_sizeof B] : has_sizeof (sum A B) :=
+definition sum_has_sizeof (A : Type u) (B : Type v) [has_sizeof A] [has_sizeof B] : has_sizeof (sum A B) :=
 has_sizeof.mk (λ s, sum.cases_on s (λ a, 1 + sizeof a) (λ b, 1 + sizeof b))
 
 attribute [simp, defeq, simp.sizeof]
-definition sizeof_sum_eq_left {A B : Type} [has_sizeof A] [has_sizeof B] (a : A) : sizeof (@sum.inl A B a) = 1 + sizeof a :=
+definition sizeof_sum_eq_left {A : Type u} {B : Type v} [has_sizeof A] [has_sizeof B] (a : A) : sizeof (@sum.inl A B a) = 1 + sizeof a :=
 rfl
 
 attribute [simp, defeq, simp.sizeof]
-definition sizeof_sum_eq_right {A B : Type} [has_sizeof A] [has_sizeof B] (b : B) : sizeof (@sum.inr A B b) = 1 + sizeof b :=
+definition sizeof_sum_eq_right {A : Type u} {B : Type v} [has_sizeof A] [has_sizeof B] (b : B) : sizeof (@sum.inr A B b) = 1 + sizeof b :=
 rfl
 
 attribute [instance]
-definition sigma_has_sizeof (A : Type) (B : A → Type) [has_sizeof A] [∀ a, has_sizeof (B a)] : has_sizeof (sigma B) :=
+definition sigma_has_sizeof (A : Type u) (B : A → Type v) [has_sizeof A] [∀ a, has_sizeof (B a)] : has_sizeof (sigma B) :=
 has_sizeof.mk (λ p, sigma.cases_on p (λ a b, 1 + sizeof a + sizeof b))
 
 attribute [simp, defeq, simp.sizeof]
-definition sizeof_sigma_eq {A : Type} {B : A → Type} [has_sizeof A] [∀ a, has_sizeof (B a)] (a : A) (b : B a) : sizeof (@sigma.mk A B a b) = 1 + sizeof a + sizeof b :=
+definition sizeof_sigma_eq {A : Type u} {B : A → Type v} [has_sizeof A] [∀ a, has_sizeof (B a)] (a : A) (b : B a) : sizeof (@sigma.mk A B a b) = 1 + sizeof a + sizeof b :=
 rfl
 
 attribute [instance]
@@ -473,27 +475,27 @@ definition sizeof_num_eq (n : num) : sizeof n = nat.of_num n :=
 rfl
 
 attribute [instance]
-definition option_has_sizeof (A : Type) [has_sizeof A] : has_sizeof (option A) :=
+definition option_has_sizeof (A : Type u) [has_sizeof A] : has_sizeof (option A) :=
 has_sizeof.mk (λ o, option.cases_on o 1 (λ a, 1 + sizeof a))
 
 attribute [simp, defeq, simp.sizeof]
-definition sizeof_option_none_eq (A : Type) [has_sizeof A] : sizeof (@none A) = 1 :=
+definition sizeof_option_none_eq (A : Type u) [has_sizeof A] : sizeof (@none A) = 1 :=
 rfl
 
 attribute [simp, defeq, simp.sizeof]
-definition sizeof_option_some_eq {A : Type} [has_sizeof A] (a : A) : sizeof (some a) = 1 + sizeof a :=
+definition sizeof_option_some_eq {A : Type u} [has_sizeof A] (a : A) : sizeof (some a) = 1 + sizeof a :=
 rfl
 
 attribute [instance]
-definition list_has_sizeof (A : Type) [has_sizeof A] : has_sizeof (list A) :=
+definition list_has_sizeof (A : Type u) [has_sizeof A] : has_sizeof (list A) :=
 has_sizeof.mk (λ l, list.rec_on l 1 (λ a t ih, 1 + sizeof a + ih))
 
 attribute [simp, defeq, simp.sizeof]
-definition sizeof_list_nil_eq (A : Type) [has_sizeof A] : sizeof (@list.nil A) = 1 :=
+definition sizeof_list_nil_eq (A : Type u) [has_sizeof A] : sizeof (@list.nil A) = 1 :=
 rfl
 
 attribute [simp, defeq, simp.sizeof]
-definition sizeof_list_cons_eq {A : Type} [has_sizeof A] (a : A) (l : list A) : sizeof (list.cons a l) = 1 + sizeof a + sizeof l :=
+definition sizeof_list_cons_eq {A : Type u} [has_sizeof A] (a : A) (l : list A) : sizeof (list.cons a l) = 1 + sizeof a + sizeof l :=
 rfl
 
 attribute [simp.sizeof]

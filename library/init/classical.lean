@@ -8,54 +8,54 @@ import init.subtype init.funext
 set_option new_elaborator true
 namespace classical
 open subtype
-
+universe variables u v
 /- the axiom -/
 
 -- In the presence of classical logic, we could prove this from a weaker statement:
--- axiom indefinite_description {A : Type} {P : A->Prop} (H : ∃x, P x) : {x : A, P x}
-axiom strong_indefinite_description {A : Type} (P : A → Prop) (H : nonempty A) :
+-- axiom indefinite_description {A : Type u} {P : A->Prop} (H : ∃x, P x) : {x : A, P x}
+axiom strong_indefinite_description {A : Type u} (P : A → Prop) (H : nonempty A) :
   { x \ (∃ y : A, P y) → P x}
 
-theorem exists_true_of_nonempty {A : Type} (H : nonempty A) : ∃ x : A, true :=
+theorem exists_true_of_nonempty {A : Type u} (H : nonempty A) : ∃ x : A, true :=
 nonempty.elim H (take x, exists.intro x trivial)
 
-noncomputable definition inhabited_of_nonempty {A : Type} (H : nonempty A) : inhabited A :=
+noncomputable definition inhabited_of_nonempty {A : Type u} (H : nonempty A) : inhabited A :=
 inhabited.mk (elt_of (strong_indefinite_description (λa, true) H))
 
-noncomputable definition inhabited_of_exists {A : Type} {P : A → Prop} (H : ∃ x, P x) : inhabited A :=
+noncomputable definition inhabited_of_exists {A : Type u} {P : A → Prop} (H : ∃ x, P x) : inhabited A :=
 inhabited_of_nonempty (exists.elim H (λ w Hw, nonempty.intro w))
 
 /- the Hilbert epsilon function -/
 
-noncomputable definition epsilon {A : Type} [H : nonempty A] (P : A → Prop) : A :=
+noncomputable definition epsilon {A : Type u} [H : nonempty A] (P : A → Prop) : A :=
 elt_of (strong_indefinite_description P H)
 
-theorem epsilon_spec_aux {A : Type} (H : nonempty A) (P : A → Prop) (Hex : ∃ y, P y) :
+theorem epsilon_spec_aux {A : Type u} (H : nonempty A) (P : A → Prop) (Hex : ∃ y, P y) :
     P (@epsilon A H P) :=
 have aux : (∃ y, P y) → P (elt_of (strong_indefinite_description P H)), from has_property (strong_indefinite_description P H),
 aux Hex
 
-theorem epsilon_spec {A : Type} {P : A → Prop} (Hex : ∃ y, P y) :
+theorem epsilon_spec {A : Type u} {P : A → Prop} (Hex : ∃ y, P y) :
     P (@epsilon A (nonempty_of_exists Hex) P) :=
 epsilon_spec_aux (nonempty_of_exists Hex) P Hex
 
-theorem epsilon_singleton {A : Type} (a : A) : @epsilon A (nonempty.intro a) (λ x, x = a) = a :=
+theorem epsilon_singleton {A : Type u} (a : A) : @epsilon A (nonempty.intro a) (λ x, x = a) = a :=
 @epsilon_spec A (λ x, x = a) (exists.intro a rfl)
 
-noncomputable definition some {A : Type} {P : A → Prop} (H : ∃ x, P x) : A :=
+noncomputable definition some {A : Type u} {P : A → Prop} (H : ∃ x, P x) : A :=
 @epsilon A (nonempty_of_exists H) P
 
-theorem some_spec {A : Type} {P : A → Prop} (H : ∃ x, P x) : P (some H) :=
+theorem some_spec {A : Type u} {P : A → Prop} (H : ∃ x, P x) : P (some H) :=
 epsilon_spec H
 
 /- the axiom of choice -/
 
-theorem axiom_of_choice {A : Type} {B : A → Type} {R : Π x, B x → Prop} (H : ∀ x, ∃ y, R x y) :
+theorem axiom_of_choice {A : Type u} {B : A → Type v} {R : Π x, B x → Prop} (H : ∀ x, ∃ y, R x y) :
   ∃ (f : Π x, B x), ∀ x, R x (f x) :=
 have H : ∀ x, R x (some (H x)), from take x, some_spec (H x),
 exists.intro _ H
 
-theorem skolem {A : Type} {B : A → Type} {P : Π x, B x → Prop} :
+theorem skolem {A : Type u} {B : A → Type v} {P : Π x, B x → Prop} :
   (∀ x, ∃ y, P x y) ↔ ∃ (f : Π x, B x) , (∀ x, P x (f x)) :=
 iff.intro
   (assume H : (∀ x, ∃ y, P x y), axiom_of_choice H)
@@ -174,10 +174,10 @@ noncomputable definition prop_decidable (a : Prop) : decidable a :=
 arbitrary (decidable a)
 local attribute prop_decidable [instance]
 
-noncomputable definition type_decidable_eq (A : Type) : decidable_eq A :=
+noncomputable definition type_decidable_eq (A : Type u) : decidable_eq A :=
 λ a b, prop_decidable (a = b)
 
-noncomputable definition type_decidable (A : Type) : sum A (A → false) :=
+noncomputable definition type_decidable (A : Type u) : sum A (A → false) :=
 match (prop_decidable (nonempty A)) with
 | (is_true Hp) := sum.inl (inhabited.value (inhabited_of_nonempty Hp))
 | (is_false Hn) := sum.inr (λ a, absurd (nonempty.intro a) Hn)

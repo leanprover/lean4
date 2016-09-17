@@ -8,12 +8,14 @@ import init.logic init.monad init.alternative
 set_option new_elaborator true
 open decidable
 
+universe variables u v
+
 attribute [instance]
-definition option_is_inhabited (A : Type) : inhabited (option A) :=
+definition option_is_inhabited (A : Type u) : inhabited (option A) :=
 inhabited.mk none
 
 attribute [instance]
-definition option_has_decidable_eq {A : Type} [H : decidable_eq A] : ∀ o₁ o₂ : option A, decidable (o₁ = o₂)
+definition option_has_decidable_eq {A : Type u} [H : decidable_eq A] : ∀ o₁ o₂ : option A, decidable (o₁ = o₂)
 | none      none      := is_true rfl
 | none      (some v₂) := is_false (λ H, option.no_confusion H)
 | (some v₁) none      := is_false (λ H, option.no_confusion H)
@@ -24,12 +26,12 @@ definition option_has_decidable_eq {A : Type} [H : decidable_eq A] : ∀ o₁ o�
   end
 
 attribute [inline]
-definition option_fmap {A B : Type} (f : A → B) : option A → option B
+definition option_fmap {A : Type} {B : Type} (f : A → B) : option A → option B
 | none     := none
 | (some a) := some (f a)
 
 attribute [inline]
-definition option_bind {A B : Type} : option A → (A → option B) → option B
+definition option_bind {A : Type} {B : Type} : option A → (A → option B) → option B
 | none     b := none
 | (some a) b := b a
 

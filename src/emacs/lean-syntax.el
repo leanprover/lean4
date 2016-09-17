@@ -170,8 +170,8 @@
      (,(rx word-start (group "example") ".") (1 'font-lock-keyword-face))
      (,(rx (or "∎")) . 'font-lock-keyword-face)
      ;; Types
-     (,(rx word-start (or "Prop" "Type" "Type'" "Type₊" "Type₀" "Type₁" "Type₂" "Type₃" "Type*" "pType" "Set" "pSet" "Set*") symbol-end) . 'font-lock-type-face)
-     (,(rx word-start (group (or "Prop" "Type" "Set" "pType" "pSet")) ".") (1 'font-lock-type-face))
+     (,(rx word-start (or "Prop" "Type" "Type*" "Type₀" "Type₁" "Type₂" "Type₃") symbol-end) . 'font-lock-type-face)
+     (,(rx word-start (group (or "Prop" "Type")) ".") (1 'font-lock-type-face))
      ;; String
      ("\"[^\"]*\"" . 'font-lock-string-face)
      ;; ;; Constants

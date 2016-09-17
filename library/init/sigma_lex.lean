@@ -5,10 +5,10 @@ Author: Leonardo de Moura
 -/
 prelude
 import init.sigma init.meta init.combinator
-
+universe variables u v
 namespace sigma
 section
-  variables {A : Type} {B : A → Type}
+  variables {A : Type u} {B : A → Type v}
   variable  (Ra  : A → A → Prop)
   variable  (Rb  : ∀ a, B a → B a → Prop)
 
@@ -21,7 +21,7 @@ end
 
 section
   open ops well_founded tactic
-  parameters {A : Type} {B : A → Type}
+  parameters {A : Type u} {B : A → Type v}
   parameters {Ra  : A → A → Prop} {Rb : Π a : A, B a → B a → Prop}
   local infix `≺`:50 := lex Ra Rb
 
@@ -54,7 +54,7 @@ section
 end
 
 section
-  parameters {A : Type} {B : Type}
+  parameters {A : Type u} {B : Type v}
 
   definition lex_ndep (Ra : A → A → Prop) (Rb : B → B → Prop) :=
   lex Ra (λ a : A, Rb)
@@ -65,7 +65,7 @@ section
 end
 
 section
-  variables {A B : Type}
+  variables {A : Type u} {B : Type v}
   variable  (Ra  : A → A → Prop)
   variable  (Rb  : B → B → Prop)
 
@@ -77,7 +77,7 @@ end
 
 section
   open ops well_founded tactic
-  parameters {A B : Type}
+  parameters {A : Type u} {B : Type v}
   parameters {Ra  : A → A → Prop} {Rb : B → B → Prop}
   local infix `≺`:50 := rev_lex Ra Rb
 
@@ -106,13 +106,13 @@ section
 end
 
 section
-  definition skip_left (A : Type) {B : Type} (Rb : B → B → Prop) : @sigma A (λ a, B) → @sigma A (λ a, B) → Prop :=
+  definition skip_left (A : Type u) {B : Type v} (Rb : B → B → Prop) : @sigma A (λ a, B) → @sigma A (λ a, B) → Prop :=
   rev_lex empty_relation Rb
 
-  definition skip_left_wf (A : Type) {B : Type} {Rb : B → B → Prop} (Hb : well_founded Rb) : well_founded (skip_left A Rb) :=
+  definition skip_left_wf (A : Type u) {B : Type v} {Rb : B → B → Prop} (Hb : well_founded Rb) : well_founded (skip_left A Rb) :=
   rev_lex_wf empty_wf Hb
 
-  definition mk_skip_left {A : Type} {B : Type} {b₁ b₂ : B} {Rb : B → B → Prop}
+  definition mk_skip_left {A : Type u} {B : Type v} {b₁ b₂ : B} {Rb : B → B → Prop}
                           (a₁ a₂ : A) (H : Rb b₁ b₂) : skip_left A Rb (sigma.mk a₁ b₁) (sigma.mk a₂ b₂) :=
   rev_lex.right _ _ _ H
 end

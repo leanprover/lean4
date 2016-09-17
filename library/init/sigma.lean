@@ -9,7 +9,9 @@ import init.datatypes init.num init.wf init.logic
 definition dpair := @sigma.mk
 notation `Σ` binders `, ` r:(scoped P, sigma P) := r
 
-lemma ex_of_sig {A : Type} {P : A → Prop} : (Σ x, P x) → ∃ x, P x
+universe variables u v
+
+lemma ex_of_sig {A : Type u} {P : A → Prop} : (Σ x, P x) → ∃ x, P x
 | (sigma.mk x hx) := exists.intro x hx
 
 namespace sigma
@@ -24,7 +26,7 @@ namespace sigma
   open ops well_founded
 
   section
-  variables {A : Type} {B : A → Type}
+  variables {A : Type u} {B : A → Type v}
   variable  (Ra  : A → A → Prop)
   variable  (Rb  : ∀ a, B a → B a → Prop)
 

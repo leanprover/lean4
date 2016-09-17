@@ -7,16 +7,17 @@ prelude
 import init.monad init.alternative
 open list
 set_option new_elaborator true
+universe variables u v
 attribute [inline]
-definition list_fmap {A B : Type} (f : A → B) (l : list A) : list B :=
+definition list_fmap {A : Type u} {B : Type v} (f : A → B) (l : list A) : list B :=
 map f l
 
 attribute [inline]
-definition list_bind {A B : Type} (a : list A) (b : A → list B) : list B :=
+definition list_bind {A : Type u} {B : Type v} (a : list A) (b : A → list B) : list B :=
 join (map b a)
 
 attribute [inline]
-definition list_return {A : Type} (a : A) : list A :=
+definition list_return {A : Type u} (a : A) : list A :=
 [a]
 
 attribute [instance]

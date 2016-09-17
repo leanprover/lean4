@@ -7,7 +7,7 @@ set_option new_elaborator true
 
 namespace bool
   attribute [inline]
-  definition cond {A : Type} : bool → A → A → A
+  definition {u} cond {A : Type u} : bool → A → A → A
   | tt a b := a
   | ff a b := b
 

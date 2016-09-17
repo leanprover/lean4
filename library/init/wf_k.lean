@@ -3,12 +3,12 @@
 -- Author: Leonardo de Moura
 prelude
 import init.wf
-
+universe variables u
 namespace well_founded
   -- This is an auxiliary definition that useful for generating a new "proof" for (well_founded R)
   -- that allows us to use well_founded.fix and execute the definitions up to k nested recursive
   -- calls without "computing" with the proofs in Hwf.
-  definition intro_k {A : Type} {R : A → A → Prop} (Hwf : well_founded R) (k : nat) : well_founded R :=
+  definition intro_k {A : Type u} {R : A → A → Prop} (Hwf : well_founded R) (k : nat) : well_founded R :=
   well_founded.intro
   (nat.rec_on k
      (λ n : A, well_founded.apply Hwf n)

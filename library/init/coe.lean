@@ -26,52 +26,53 @@ a type to a sort.
 prelude
 import init.list init.subtype init.prod
 set_option new_elaborator true
+universe variables u v
 
-structure [class] has_lift (A B : Type) :=
+structure [class] has_lift (A : Type u) (B : Type v) :=
 (lift : A → B)
 
 /- Auxiliary class that contains the transitive closure of has_lift. -/
-structure [class] has_lift_t (A B : Type) :=
+structure [class] has_lift_t (A : Type u) (B : Type v) :=
 (lift : A → B)
 
-structure [class] has_coe (A B : Type) :=
+structure [class] has_coe (A : Type u) (B : Type v) :=
 (coe : A → B)
 
 /- Auxiliary class that contains the transitive closure of has_coe. -/
-structure [class] has_coe_t (A B : Type) :=
+structure [class] has_coe_t (A : Type u) (B : Type v) :=
 (coe : A → B)
 
-structure [class] has_coe_to_fun (A : Type) :=
-(F : Type) (coe : A → F)
+structure [class] has_coe_to_fun (A : Type u) :=
+(F : Type v) (coe : A → F)
 
-structure [class] has_coe_to_sort (A : Type) :=
-(S : Type) (coe : A → S)
+structure [class] has_coe_to_sort (A : Type u) :=
+(S : Type v) (coe : A → S)
 
-definition lift {A B : Type} [has_lift A B] : A → B :=
+definition lift {A : Type u} {B : Type v} [has_lift A B] : A → B :=
 @has_lift.lift A B _
 
-definition lift_t {A B : Type} [has_lift_t A B] : A → B :=
+definition lift_t {A : Type u} {B : Type v} [has_lift_t A B] : A → B :=
 @has_lift_t.lift A B _
 
-definition coe_b {A B : Type} [has_coe A B] : A → B :=
+definition coe_b {A : Type u} {B : Type v} [has_coe A B] : A → B :=
 @has_coe.coe A B _
 
-definition coe_t {A B : Type} [has_coe_t A B] : A → B :=
+definition coe_t {A : Type u} {B : Type v} [has_coe_t A B] : A → B :=
 @has_coe_t.coe A B _
 
 set_option pp.all true
-definition {u₁ u₂} coe_fn_b {A : Type u₁} [has_coe_to_fun.{u₁ u₂} A] : A → has_coe_to_fun.F.{u₁ u₂} A :=
+definition coe_fn_b {A : Type u} [has_coe_to_fun.{u v} A] : A → has_coe_to_fun.F.{u v} A :=
 has_coe_to_fun.coe
 
 /- User level coercion operators -/
 
-definition coe {A B : Type} [has_lift_t A B] : A → B :=
+definition coe {A : Type u} {B : Type v} [has_lift_t A B] : A → B :=
 lift_t
 
-definition {u₁ u₂} coe_fn {A : Type u₁} [has_coe_to_fun.{u₁ u₂} A] : A → has_coe_to_fun.F.{u₁ u₂} A :=
+definition coe_fn {A : Type u} [has_coe_to_fun.{u v} A] : A → has_coe_to_fun.F.{u v} A :=
 has_coe_to_fun.coe
 
-definition {u₁ u₂} coe_sort {A : Type u₁} [has_coe_to_sort.{u₁ u₂} A] : A → has_coe_to_sort.S.{u₁ u₂} A :=
+definition coe_sort {A : Type u} [has_coe_to_sort.{u v} A] : A → has_coe_to_sort.S.{u v} A :=
 has_coe_to_sort.coe
 
 /- Notation -/
@@ -85,19 +86,19 @@ notation `↥`:max a:max := coe_sort a
 /- Transitive closure for has_lift, has_coe, has_coe_to_fun -/
 
 attribute [instance]
-definition lift_trans {A B C : Type} [has_lift A B] [has_lift_t B C] : has_lift_t A C :=
+definition {u₁ u₂ u₃} lift_trans {A : Type u₁} {B : Type u₂} {C : Type u₃} [has_lift A B] [has_lift_t B C] : has_lift_t A C :=
 has_lift_t.mk (λ a, lift_t (lift a : B))
 
 attribute [instance]
-definition lift_base {A B : Type} [has_lift A B] : has_lift_t A B :=
+definition lift_base {A : Type u} {B : Type v} [has_lift A B] : has_lift_t A B :=
 has_lift_t.mk lift
 
 attribute [instance]
-definition coe_trans {A B C : Type} [has_coe A B] [has_coe_t B C] : has_coe_t A C :=
+definition {u₁ u₂ u₃} coe_trans {A : Type u₁} {B : Type u₂} {C : Type u₃} [has_coe A B] [has_coe_t B C] : has_coe_t A C :=
 has_coe_t.mk (λ a, coe_t (coe_b a : B))
 
 attribute [instance]
-definition coe_base {A B : Type} [has_coe A B] : has_coe_t A B :=
+definition coe_base {A : Type u} {B : Type v} [has_coe A B] : has_coe_t A B :=
 has_coe_t.mk coe_b
 
 attribute [instance]
@@ -111,7 +112,7 @@ has_coe_to_sort.mk (has_coe_to_sort.S B) (λ a, coe_sort (coe a))
 /- Every coercion is also a lift -/
 
 attribute [instance]
-definition coe_to_lift {A B : Type} [has_coe_t A B] : has_lift_t A B :=
+definition coe_to_lift {A : Type u} {B : Type v} [has_coe_t A B] : has_lift_t A B :=
 has_lift_t.mk coe_t
 
 /- Basic coercions -/
@@ -125,7 +126,7 @@ definition coe_decidable_eq (b : bool) : decidable (coe b) :=
 show decidable (b = tt), from bool.has_decidable_eq b tt
 
 attribute [instance]
-definition coe_subtype {A : Type} {P : A → Prop} : has_coe {a \ P a} A :=
+definition coe_subtype {A : Type u} {P : A → Prop} : has_coe {a \ P a} A :=
 has_coe.mk (λ s, subtype.elt_of s)
 
 /- Basic lifts -/
@@ -133,29 +134,29 @@ has_coe.mk (λ s, subtype.elt_of s)
 /- Remark: we can't use [has_lift_t A₂ A₁] since it will produce non-termination whenever a type class resolution
    problem does not have a solution. -/
 attribute [instance]
-definition lift_fn {A₁ A₂ B₁ B₂ : Type} [has_lift A₂ A₁] [has_lift_t B₁ B₂] : has_lift (A₁ → B₁) (A₂ → B₂) :=
+definition lift_fn {A₁ A₂ B₁ B₂ : Type*} [has_lift A₂ A₁] [has_lift_t B₁ B₂] : has_lift (A₁ → B₁) (A₂ → B₂) :=
 has_lift.mk (λ f a, ↑(f ↑a))
 
 attribute [instance]
-definition lift_fn_range {A B₁ B₂ : Type} [has_lift_t B₁ B₂] : has_lift (A → B₁) (A → B₂) :=
+definition lift_fn_range {A B₁ B₂ : Type*} [has_lift_t B₁ B₂] : has_lift (A → B₁) (A → B₂) :=
 has_lift.mk (λ f a, ↑(f a))
 
 attribute [instance]
-definition lift_fn_dom {A₁ A₂ B : Type} [has_lift A₂ A₁] : has_lift (A₁ → B) (A₂ → B) :=
+definition lift_fn_dom {A₁ A₂ B : Type*} [has_lift A₂ A₁] : has_lift (A₁ → B) (A₂ → B) :=
 has_lift.mk (λ f a, f ↑a)
 
 attribute [instance]
-definition lift_pair {A₁ A₂ B₁ B₂ : Type} [has_lift_t A₁ A₂] [has_lift_t B₁ B₂] : has_lift (A₁ × B₁) (A₂ × B₂) :=
+definition lift_pair {A₁ A₂ B₁ B₂ : Type*} [has_lift_t A₁ A₂] [has_lift_t B₁ B₂] : has_lift (A₁ × B₁) (A₂ × B₂) :=
 has_lift.mk (λ p, prod.cases_on p (λ a b, (↑a, ↑b)))
 
 attribute [instance]
-definition lift_pair₁ {A₁ A₂ B : Type} [has_lift_t A₁ A₂] : has_lift (A₁ × B) (A₂ × B) :=
+definition lift_pair₁ {A₁ A₂ B : Type*} [has_lift_t A₁ A₂] : has_lift (A₁ × B) (A₂ × B) :=
 has_lift.mk (λ p, prod.cases_on p (λ a b, (↑a, b)))
 
 attribute [instance]
-definition lift_pair₂ {A B₁ B₂ : Type} [has_lift_t B₁ B₂] : has_lift (A × B₁) (A × B₂) :=
+definition lift_pair₂ {A B₁ B₂ : Type*} [has_lift_t B₁ B₂] : has_lift (A × B₁) (A × B₂) :=
 has_lift.mk (λ p, prod.cases_on p (λ a b, (a, ↑b)))
 
 attribute [instance]
-definition lift_list {A B : Type} [has_lift_t A B] : has_lift (list A) (list B) :=
+definition lift_list {A B : Type*} [has_lift_t A B] : has_lift (list A) (list B) :=
 has_lift.mk (λ l, list.map (@coe A B _) l)

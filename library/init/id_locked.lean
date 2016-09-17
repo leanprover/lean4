@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import init.meta.tactic init.meta.constructor_tactic
 open tactic
-
+set_option new_elaborator true
 /-
   Define id_locked using meta-programming because we don't have
   syntax for setting reducibility_hints.
@@ -20,5 +20,5 @@ run_command do
  val  ← to_expr `(λ {A : %%Ty} (a : A), a),
  add_decl (declaration.defn `id_locked [`l] type val reducibility_hints.opaque tt)
 
-lemma id_locked_eq {A : Type} (a : A) : id_locked a = a :=
+lemma {u} id_locked_eq {A : Type u} (a : A) : id_locked a = a :=
 rfl

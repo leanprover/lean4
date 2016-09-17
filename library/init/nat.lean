@@ -297,10 +297,10 @@ namespace nat
       end
     end
 
-  protected definition lt_ge_by_cases {a b : ℕ} {P : Type} (H1 : a < b → P) (H2 : a ≥ b → P) : P :=
+  protected definition {u} lt_ge_by_cases {a b : ℕ} {P : Type u} (H1 : a < b → P) (H2 : a ≥ b → P) : P :=
   decidable.by_cases H1 (λh, H2 (or.elim (nat.lt_or_ge a b) (λa, absurd a h) (λa, a)))
 
-  protected definition lt_by_cases {a b : ℕ} {P : Type} (H1 : a < b → P) (H2 : a = b → P)
+  protected definition {u} lt_by_cases {a b : ℕ} {P : Type u} (H1 : a < b → P) (H2 : a = b → P)
     (H3 : b < a → P) : P :=
   nat.lt_ge_by_cases H1 (λh₁,
     nat.lt_ge_by_cases H3 (λh₂, H2 (nat.le_antisymm h₂ h₁)))
@@ -366,7 +366,7 @@ namespace nat
   theorem le_add_left (n m : ℕ): n ≤ m + n :=
   nat.add_comm n m ▸ le_add_right n m
 
-  definition repeat {A : Type} (f : nat → A → A) : nat → A → A
+  definition {u} repeat {A : Type u} (f : nat → A → A) : nat → A → A
   | 0         a := a
   | (succ n)  a := f n (repeat n a)
 

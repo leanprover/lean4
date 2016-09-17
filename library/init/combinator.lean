@@ -7,7 +7,8 @@ prelude
 set_option new_elaborator true
 /- Combinator calculus -/
 namespace combinator
-definition I {A : Type} (a : A) := a
-definition K {A B : Type} (a : A) (b : B) := a
-definition S {A B C : Type} (x : A → B → C) (y : A → B) (z : A) := x z (y z)
+universe variables u₁ u₂ u₃
+definition I {A : Type u₁} (a : A) := a
+definition K {A : Type u₁} {B : Type u₂} (a : A) (b : B) := a
+definition S {A : Type u₁} {B : Type u₂} {C : Type u₃} (x : A → B → C) (y : A → B) (z : A) := x z (y z)
 end combinator

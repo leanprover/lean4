@@ -7,17 +7,20 @@ prelude
 import init.datatypes init.logic
 open decidable
 set_option new_elaborator true
-structure subtype {A : Type} (P : A → Prop) :=
+
+universe variables u
+
+structure subtype {A : Type u} (P : A → Prop) :=
 tag :: (elt_of : A) (has_property : P elt_of)
 
 notation `{` binder ` \ `:0 r:(scoped:1 P, subtype P) `}` := r
 
 namespace subtype
 
-  definition exists_of_subtype {A : Type} {P : A → Prop} : { x \ P x } → ∃ x, P x
+  definition exists_of_subtype {A : Type u} {P : A → Prop} : { x \ P x } → ∃ x, P x
   | (subtype.tag a h) := exists.intro a h
 
-  variables {A : Type} {P : A → Prop}
+  variables {A : Type u} {P : A → Prop}
 
   theorem tag_irrelevant {a : A} (H1 H2 : P a) : tag a H1 = tag a H2 :=
   rfl
@@ -31,7 +34,8 @@ end subtype
 
 open subtype
 
-variables {A : Type} {P : A → Prop}
+variables {A : Type u} {P : A → Prop}
+
 attribute [instance]
 protected definition subtype.is_inhabited {a : A} (H : P a) : inhabited {x \ P x} :=
 inhabited.mk (tag a H)

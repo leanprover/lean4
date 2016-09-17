@@ -9,7 +9,10 @@ prelude
 import init.sigma init.setoid init.logic
 open sigma.ops setoid
 set_option new_elaborator true
-constant {u} quot : Π {A : Type u}, setoid A → Type u
+
+universe variables u v
+
+constant quot : Π {A : Type u}, setoid A → Type u
 -- Remark: if we do not use propext here, then we would need a quot.lift for propositions.
 constant propext {a b : Prop} : (a ↔ b) → a = b
 
@@ -19,38 +22,38 @@ theorem iff_subst {a b : Prop} {P : Prop → Prop} (H₁ : a ↔ b) (H₂ : P a)
 eq.subst (propext H₁) H₂
 
 namespace quot
-  protected constant mk        : Π {A : Type}   [s : setoid A], A → quot s
+  protected constant mk        : Π {A : Type u}   [s : setoid A], A → quot s
   notation `⟦`:max a `⟧`:0 := quot.mk a
 
-  constant sound     : Π {A : Type}   [s : setoid A] {a b : A}, a ≈ b → ⟦a⟧ = ⟦b⟧
-  constant lift      : Π {A B : Type} [s : setoid A] (f : A → B), (∀ a b, a ≈ b → f a = f b) → quot s → B
-  constant ind       : ∀ {A : Type}   [s : setoid A] {B : quot s → Prop}, (∀ a, B ⟦a⟧) → ∀ q, B q
+  constant sound     : Π {A : Type u} [s : setoid A] {a b : A}, a ≈ b → ⟦a⟧ = ⟦b⟧
+  constant lift      : Π {A : Type u} {B : Type v} [s : setoid A] (f : A → B), (∀ a b, a ≈ b → f a = f b) → quot s → B
+  constant ind       : ∀ {A : Type u} [s : setoid A] {B : quot s → Prop}, (∀ a, B ⟦a⟧) → ∀ q, B q
 
   attribute [elab_as_eliminator] lift ind
 
   init_quotient
 
-  protected theorem lift_beta {A B : Type} [setoid A] (f : A → B) (c : ∀ a b, a ≈ b → f a = f b) (a : A) : lift f c ⟦a⟧ = f a :=
+  protected theorem lift_beta {A : Type u} {B : Type v} [setoid A] (f : A → B) (c : ∀ a b, a ≈ b → f a = f b) (a : A) : lift f c ⟦a⟧ = f a :=
   rfl
 
-  protected theorem ind_beta {A : Type} [s : setoid A] {B : quot s → Prop} (p : ∀ a, B ⟦a⟧) (a : A) : (ind p ⟦a⟧ : B ⟦a⟧) = p a :=
+  protected theorem ind_beta {A : Type u} [s : setoid A] {B : quot s → Prop} (p : ∀ a, B ⟦a⟧) (a : A) : (ind p ⟦a⟧ : B ⟦a⟧) = p a :=
   rfl
 
   attribute [reducible, elab_as_eliminator]
-  protected definition lift_on {A B : Type} [s : setoid A] (q : quot s) (f : A → B) (c : ∀ a b, a ≈ b → f a = f b) : B :=
+  protected definition lift_on {A : Type u} {B : Type v} [s : setoid A] (q : quot s) (f : A → B) (c : ∀ a b, a ≈ b → f a = f b) : B :=
   lift f c q
 
   attribute [elab_as_eliminator]
-  protected theorem induction_on {A : Type} [s : setoid A] {B : quot s → Prop} (q : quot s) (H : ∀ a, B ⟦a⟧) : B q :=
+  protected theorem induction_on {A : Type u} [s : setoid A] {B : quot s → Prop} (q : quot s) (H : ∀ a, B ⟦a⟧) : B q :=
   ind H q
 
-  theorem exists_rep {A : Type} [s : setoid A] (q : quot s) : ∃ a : A, ⟦a⟧ = q :=
+  theorem exists_rep {A : Type u} [s : setoid A] (q : quot s) : ∃ a : A, ⟦a⟧ = q :=
   quot.induction_on q (λ a, exists.intro a rfl)
 
   section
-  variable {A : Type}
+  variable {A : Type u}
   variable [s : setoid A]
-  variable {B : quot s → Type}
+  variable {B : quot s → Type v}
   include s
 
   attribute [reducible]
@@ -93,7 +96,8 @@ namespace quot
   end
 
   section
-  variables {A B C : Type}
+  universe variables u_a u_b u_c
+  variables {A : Type u_a} {B : Type u_b} {C : Type u_c}
   variables [s₁ : setoid A] [s₂ : setoid B]
   include s₁ s₂
 
@@ -136,7 +140,7 @@ namespace quot
   end
 
   section exact
-  variable {A : Type}
+  variable {A : Type u}
   variable [s : setoid A]
   include s
 
@@ -161,14 +165,14 @@ namespace quot
   end exact
 
   section
-  variables {A B : Type}
+  universe variables u_a u_b u_c
+  variables {A : Type u_a} {B : Type u_b}
   variables [s₁ : setoid A] [s₂ : setoid B]
   include s₁ s₂
-  variable {C : quot s₁ → quot s₂ → Type}
 
   attribute [reducible, elab_as_eliminator]
   protected definition rec_on_subsingleton₂
-     {C : quot s₁ → quot s₂ → Type} [H : ∀ a b, subsingleton (C ⟦a⟧ ⟦b⟧)]
+     {C : quot s₁ → quot s₂ → Type u_c} [H : ∀ a b, subsingleton (C ⟦a⟧ ⟦b⟧)]
      (q₁ : quot s₁) (q₂ : quot s₂) (f : Π a b, C ⟦a⟧ ⟦b⟧) : C q₁ q₂:=
   @quot.rec_on_subsingleton _ s₁ (λ q, C q q₂) (λ a, quot.ind (λ b, H a b) q₂) q₁
     (λ a, quot.rec_on_subsingleton q₂ (λ b, f a b))
@@ -180,7 +184,7 @@ attribute quot.mk
 
 open decidable
 attribute [instance]
-definition quot.has_decidable_eq {A : Type} {s : setoid A} [decR : ∀ a b : A, decidable (a ≈ b)] : decidable_eq (quot s) :=
+definition quot.has_decidable_eq {A : Type u} {s : setoid A} [decR : ∀ a b : A, decidable (a ≈ b)] : decidable_eq (quot s) :=
 λ q₁ q₂ : quot s,
   quot.rec_on_subsingleton₂ q₁ q₂
     (λ a₁ a₂,

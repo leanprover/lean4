@@ -10,7 +10,10 @@ import init.logic
 set_option new_elaborator true
 
 notation A ⊕ B := sum A B
-variables {A B : Type}
+
+universe variables u v
+
+variables {A : Type u} {B : Type v}
 
 attribute [instance]
 protected definition is_inhabited_left [h : inhabited A] : inhabited (A ⊕ B) :=

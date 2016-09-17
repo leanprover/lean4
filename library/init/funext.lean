@@ -38,7 +38,7 @@ section
   private definition fun_setoid (A : Type u) (B : A → Type v) : setoid (Πx : A, B x) :=
   setoid.mk (@function.equiv A B) (function.equiv.is_equivalence A B)
 
-  private definition extfun (A : Type u) (B : A → Type v) : Type :=
+  private definition extfun (A : Type u) (B : A → Type v) : Type (imax u v) :=
   quot (fun_setoid A B)
 
   private definition fun_to_extfun (f : Π x : A, B x) : extfun A B :=

@@ -10,7 +10,7 @@ inductive tree (A : Type*)
 
 set_option trace.eqn_compiler true
 
-constant P {A : Type*} : tree A → Type₁
+constant P {A : Type*} : tree A → Type
 constant mk1 {A : Type*} (a : A) : P (tree.leaf a)
 constant mk2 {A : Type*} (n : nat) (xs : vec (list (list (tree A))) n) : P (tree.node n xs)
 

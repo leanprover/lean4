@@ -53,7 +53,7 @@ static expr parse_Type(parser & p, unsigned, expr const *, pos_info const & pos)
         p.check_token_next(get_rcurly_tk(), "invalid Type expression, '}' expected");
         return p.save_pos(mk_sort(l), pos);
     } else {
-        return p.save_pos(mk_sort(mk_level_placeholder()), pos);
+        return p.save_pos(mk_sort(mk_level_one_placeholder()), pos);
     }
 }
 

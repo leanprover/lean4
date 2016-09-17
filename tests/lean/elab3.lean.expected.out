@@ -1,1 +1,1 @@
-@monad.and_then.{1 1} unit unit tactic.{1} tactic_is_monad.{1} tactic.trace_state tactic.trace_state : tactic.{1} unit
+@monad.and_then unit unit tactic tactic_is_monad tactic.trace_state tactic.trace_state : tactic unit

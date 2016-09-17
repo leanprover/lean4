@@ -1,5 +1,5 @@
 section
-  parameters {A : Type} {B : Type}
+  parameters {A : Type*} {B : Type*}
 
   definition foo1 (a : A) (b : B) := a
 

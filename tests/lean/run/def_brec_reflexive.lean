@@ -1,6 +1,6 @@
 set_option new_elaborator true
 
-inductive inftree (A : Type)
+inductive inftree (A : Type*)
 | leaf : A → inftree
 | node : (nat → inftree) → inftree
 

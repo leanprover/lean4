@@ -1,7 +1,6 @@
 tactic_failure.lean:4:0: error: assumption tactic failed
 state:
-A : Type,
-B : Type,
+A B : Type,
 Hb : B
 ⊢ A
 tactic_failure.lean:4:0: error: failed to add declaration 'example' to environment, value has metavariables

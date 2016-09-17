@@ -7,7 +7,7 @@ prelude
 import init.meta.tactic init.meta.set_get_option_tactics
 
 namespace tactic
-meta_constant back_lemmas : Type₁
+meta_constant back_lemmas : Type
 
 /- Create a datastructure containing all lemmas tagged as [intro].
    Lemmas are indexed using their head-symbol.

@@ -9,7 +9,6 @@ prelude
 set_option new_elaborator true
 
 notation `Prop`  := Type 0
-notation `Type₁` := Type 1
 notation `Type₂` := Type 2
 notation `Type₃` := Type 3
 
@@ -18,7 +17,7 @@ universe variables u v
 inductive poly_unit : Type u
 | star : poly_unit
 
-inductive unit : Type 1
+inductive unit : Type
 | star : unit
 
 inductive true : Prop
@@ -26,7 +25,7 @@ inductive true : Prop
 
 inductive false : Prop
 
-inductive empty : Type 1
+inductive empty : Type
 
 inductive eq {A : Type u} (a : A) : A → Prop
 | refl : eq a
@@ -78,7 +77,7 @@ mk :: (pr1 : A) (pr2 : B pr1)
 -- pos_num and num are two auxiliary datatypes used when parsing numerals such as 13, 0, 26.
 -- The parser will generate the terms (pos (bit1 (bit1 (bit0 one)))), zero, and (pos (bit0 (bit1 (bit1 one)))).
 -- This representation can be coerced in whatever we want (e.g., naturals, integers, reals, etc).
-inductive pos_num : Type 1
+inductive pos_num : Type
 | one  : pos_num
 | bit1 : pos_num → pos_num
 | bit0 : pos_num → pos_num
@@ -88,7 +87,7 @@ namespace pos_num
   pos_num.rec_on a (bit0 one) (λn r, bit0 r) (λn r, bit1 n)
 end pos_num
 
-inductive num : Type 1
+inductive num : Type
 | zero  : num
 | pos   : pos_num → num
 
@@ -98,7 +97,7 @@ namespace num
   num.rec_on a (pos one) (λp, pos (succ p))
 end num
 
-inductive bool : Type 1
+inductive bool : Type
 | ff : bool
 | tt : bool
 

@@ -45,7 +45,7 @@ namespace lambda
 
 universe variable l
 constants (ss : Π {A : Type.{l}}, A → Type.{l})
-          [ss_ss : ∀ (T : Type) (t : T), subsingleton (ss t)]
+          [ss_ss : ∀ (T : Type*) (t : T), subsingleton (ss t)]
           (A : Type.{l}) (a : A)
           (ss₁ ss₂ : ss a)
 
@@ -62,7 +62,7 @@ namespace dont_crash_when_locals_incompatible
 
 universe variable l
 constants (ss : Π {A : Type.{l}}, A → Type.{l})
-          [ss_ss : ∀ (T : Type) (t : T), subsingleton (ss t)]
+          [ss_ss : ∀ (T : Type*) (t : T), subsingleton (ss t)]
           (A : Type.{l}) (a : A)
           (ss₁ ss₂ : ss a)
 

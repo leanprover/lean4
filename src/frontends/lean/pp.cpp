@@ -359,12 +359,16 @@ format pretty_fn::pp_max(level l) {
 }
 
 format pretty_fn::pp_meta(level const & l) {
-    if (is_idx_metauniv(l)) {
-        return format((sstream() << "?u_" << to_meta_idx(l)).str());
-    } else if (is_metavar_decl_ref(l)) {
-        return format((sstream() << "?l_" << get_metavar_decl_ref_suffix(l)).str());
+    if (m_universes) {
+        if (is_idx_metauniv(l)) {
+            return format((sstream() << "?u_" << to_meta_idx(l)).str());
+        } else if (is_metavar_decl_ref(l)) {
+            return format((sstream() << "?l_" << get_metavar_decl_ref_suffix(l)).str());
+        } else {
+            return compose(format("?"), format(meta_id(l)));
+        }
     } else {
-        return compose(format("?"), format(meta_id(l)));
+        return format("?");
     }
 }
 
@@ -604,12 +608,13 @@ auto pretty_fn::pp_var(expr const & e) -> result {
 }
 
 auto pretty_fn::pp_sort(expr const & e) -> result {
-    if (m_env.impredicative() && e == mk_Prop()) {
-        return result(format("Prop"));
-    } else if (m_universes) {
-        return result(group(format("Type.{") + nest(6, pp_level(sort_level(e))) + format("}")));
-    } else {
+    level u = sort_level(e);
+    if (u == mk_level_zero()) {
+        return m_env.impredicative() ? result(format("Prop")) : result(format("Type"));
+    } else if (m_env.impredicative() && u == mk_level_one()) {
         return result(format("Type"));
+    } else {
+        return result(group(format("Type") + space() + nest(5, pp_child(u))));
     }
 }
 

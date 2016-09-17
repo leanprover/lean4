@@ -1,4 +1,4 @@
-constants A B₁ B₂ C D : Type₁
+constants A B₁ B₂ C D : Type
 
 constant A_to_B₁ : has_coe A B₁
 constant A_to_B₂ : has_coe A B₂

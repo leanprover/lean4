@@ -1,4 +1,4 @@
-inductive point (A B : Type)
+inductive point (A B : Type*)
 | mk : Π (x : A) (y : B), point
 
 inductive [class] color
@@ -17,7 +17,7 @@ section
   include E
    -- include Ha
 
-  structure point3d_color (B C : Type) (D : B → Type) extends point (foo A) B, sigma D renaming pr1→y pr2→w :=
+  structure point3d_color (B C : Type*) (D : B → Type*) extends point (foo A) B, sigma D renaming pr1→y pr2→w :=
   mk :: (c : color) (H : x == y)
 
   check point3d_color.c

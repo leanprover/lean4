@@ -9,6 +9,7 @@ set_option new_elaborator true
 definition state (S : Type) (A : Type) := S → A × S
 
 section
+set_option pp.all true
 variables {S A B : Type}
 
 attribute [inline]
@@ -41,36 +42,35 @@ end state
 definition stateT (S : Type) (m : Type → Type) [monad m] (A : Type) := S → m (A × S)
 
 section
-  universe variables u₁ u₂
-  variable  {S : Type u₂}
-  variable  {m : Type (max 1 u₁ u₂) → Type}
+  variable  {S : Type}
+  variable  {m : Type → Type}
   variable  [monad m]
-  variables {A B : Type u₁}
+  variables {A B : Type}
 
-  definition stateT_fmap (f : A → B) (act : stateT.{u₂ u₁} S m A) : stateT.{u₂ u₁} S m B :=
+  definition stateT_fmap (f : A → B) (act : stateT S m A) : stateT S m B :=
   λ s, show m (B × S), from
     do (a, new_s) ← act s,
        return (f a, new_s)
 
-  definition stateT_return (a : A) : stateT.{u₂ u₁} S m A :=
+  definition stateT_return (a : A) : stateT S m A :=
   λ s, show m (A × S), from
     return (a, s)
 
-  definition stateT_bind (act₁ : stateT.{u₂ u₁} S m A) (act₂ : A → stateT.{u₂ u₁} S m B) : stateT.{u₂ u₁} S m B :=
+  definition stateT_bind (act₁ : stateT S m A) (act₂ : A → stateT S m B) : stateT S m B :=
   λ s, show m (B × S), from
      do (a, new_s) ← act₁ s,
         act₂ a new_s
 end
 
 attribute [instance]
-definition {u} stateT_is_monad (S : Type u) (m : Type → Type) [monad m] : monad (stateT S m) :=
-monad.mk (@stateT_fmap.{_ u} S m _) (@stateT_return.{_ u} S m _) (@stateT_bind.{_ u} S m _)
+definition stateT_is_monad (S : Type) (m : Type → Type) [monad m] : monad (stateT S m) :=
+monad.mk (@stateT_fmap S m _) (@stateT_return S m _) (@stateT_bind S m _)
 
 set_option pp.all true
 namespace stateT
-definition {u} read {S : Type u} {m : Type (max 1 u) → Type} [monad m] : stateT.{u u} S m S :=
+definition read {S : Type} {m : Type → Type} [monad m] : stateT S m S :=
 λ s, return (s, s)
 
-definition {u} write {S : Type u} {m : Type (max 1 u) → Type} [monad m] : S → stateT.{u 1} S m unit :=
+definition write {S : Type} {m : Type → Type} [monad m] : S → stateT S m unit :=
 λ s' s, return ((), s')
 end stateT

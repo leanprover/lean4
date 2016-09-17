@@ -1,4 +1,4 @@
-constant A : Type₁
+constant A : Type
 constant a : A
 constant A_has_add : has_add A
 

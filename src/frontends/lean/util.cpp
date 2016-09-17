@@ -416,6 +416,6 @@ pair<name, option_kind> parse_option_name(parser & p, char const * error_msg) {
 }
 
 expr mk_tactic_unit() {
-    return mk_app(mk_constant(get_tactic_name(), {mk_level_one()}), mk_constant(get_unit_name()));
+    return mk_app(mk_constant(get_tactic_name()), mk_constant(get_unit_name()));
 }
 }

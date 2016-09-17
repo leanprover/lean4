@@ -1,5 +1,5 @@
 section
- parameters {A : Type} (a : A)
+ parameters {A : Type*} (a : A)
  variable f : A → A → A
 
  definition id2 : A := a
@@ -14,7 +14,7 @@ section
 
  check pr f id2
 
- definition pr2 (B : Type) (b : B) : A := a
+ definition pr2 (B : Type*) (b : B) : A := a
 
  check pr2 num 10
 end

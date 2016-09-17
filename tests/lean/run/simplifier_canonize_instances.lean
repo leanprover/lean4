@@ -11,12 +11,12 @@ do (new_target, Heq) ← target >>= simplify failed [],
    try reflexivity
 
 universe l
-constants (group : Type → Type.{1})
+constants (group : Type* → Type)
 attribute group [class]
 
-constants (f₁ : Π (X : Type) (X_grp : group X), X)
-constants (f₂ : Π (X : Type) [X_grp : group X], X)
-constants (A : Type.{l}) (A_grp₁ : group A)
+constants (f₁ : Π (X : Type*) (X_grp : group X), X)
+constants (f₂ : Π (X : Type*) [X_grp : group X], X)
+constants (A : Type l) (A_grp₁ : group A)
 
 attribute [irreducible] noncomputable definition A_grp₂ : group A := A_grp₁
 attribute [irreducible] noncomputable definition A_grp₃ (t : true) : group A := A_grp₁

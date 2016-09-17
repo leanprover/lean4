@@ -8,7 +8,7 @@ import init.meta.expr
 universe variables u
 
 /- Quoted expressions. They can be converted into expressions by using a tactic. -/
-meta_constant pexpr : Type₁
+meta_constant pexpr : Type
 protected meta_constant pexpr.of_expr : expr → pexpr
 protected meta_constant pexpr.subst   : pexpr → pexpr → pexpr
 

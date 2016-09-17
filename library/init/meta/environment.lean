@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import init.meta.declaration init.meta.exceptional
 
-meta_constant environment : Type₁
+meta_constant environment : Type
 
 namespace environment
 /- Create a standard environment using the given trust level -/

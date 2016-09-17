@@ -9,12 +9,14 @@ Author: Leonardo de Moura
 #include "library/placeholder.h"
 
 namespace lean {
+static name * g_placeholder_one_name      = nullptr;
 static name * g_implicit_placeholder_name = nullptr;
 static name * g_placeholder_name          = nullptr;
 static name * g_strict_placeholder_name   = nullptr;
 static name * g_explicit_placeholder_name = nullptr;
 
 void initialize_placeholder() {
+    g_placeholder_one_name      = new name(name::mk_internal_unique_name(), "_");
     g_implicit_placeholder_name = new name(name::mk_internal_unique_name(), "_");
     g_placeholder_name          = g_implicit_placeholder_name;
     g_strict_placeholder_name   = new name(name::mk_internal_unique_name(), "_");
@@ -25,6 +27,7 @@ void finalize_placeholder() {
     delete g_implicit_placeholder_name;
     delete g_strict_placeholder_name;
     delete g_explicit_placeholder_name;
+    delete g_placeholder_one_name;
 }
 
 LEAN_THREAD_VALUE(unsigned, g_placeholder_id, 0);
@@ -34,6 +37,7 @@ static unsigned next_placeholder_id() {
     return r;
 }
 level mk_level_placeholder() { return mk_global_univ(name(*g_placeholder_name, next_placeholder_id())); }
+level mk_level_one_placeholder() { return mk_global_univ(*g_placeholder_one_name); }
 static name const & to_prefix(expr_placeholder_kind k) {
     switch (k) {
     case expr_placeholder_kind::Implicit:       return *g_implicit_placeholder_name;
@@ -62,6 +66,8 @@ static bool is_explicit_placeholder(name const & n) {
     return !n.is_atomic() && n.get_prefix() == *g_explicit_placeholder_name;
 }
 bool is_placeholder(level const & e) { return is_global(e) && is_placeholder(global_id(e)); }
+bool is_one_placeholder(level const & e) { return is_global(e) && global_id(e) == *g_placeholder_one_name; }
+
 bool is_placeholder(expr const & e) {
     return (is_constant(e) && is_placeholder(const_name(e))) || (is_local(e) && is_placeholder(mlocal_name(e)));
 }
@@ -81,7 +87,7 @@ optional<expr> placeholder_type(expr const & e) {
 bool has_placeholder(level const & l) {
     bool r = false;
     for_each(l, [&](level const & e) {
-            if (is_placeholder(e))
+            if (is_placeholder(e) || is_one_placeholder(e))
                 r = true;
             return !r;
         });

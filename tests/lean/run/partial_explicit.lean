@@ -8,8 +8,8 @@ example : b + b + a + b = 0 :=
 end
 
 section
-variables (f : Π {T : Type₁} {a : T} {P : T → Prop}, P a → Π {b : T} {Q : T → Prop}, Q b → Prop)
-variables (T : Type₁) (a : T) (P : T → Prop) (pa : P a)
+variables (f : Π {T : Type} {a : T} {P : T → Prop}, P a → Π {b : T} {Q : T → Prop}, Q b → Prop)
+variables (T : Type) (a : T) (P : T → Prop) (pa : P a)
 variables (b : T) (Q : T → Prop) (qb : Q b)
 
 check @f T a P pa b Q qb -- Prop

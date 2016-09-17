@@ -10,25 +10,25 @@ import init.monad init.list
 set_option new_elaborator true
 namespace monad
 
-definition {u} mapM {m : Type → Type} [monad m] {A B : Type (u+1)} (f : A → m B) : list A → m (list B)
+definition mapM {m : Type → Type} [monad m] {A B : Type} (f : A → m B) : list A → m (list B)
 | []       := return []
 | (h :: t) := do h' ← f h, t' ← mapM t, return (h' :: t')
 
-definition mapM' {m : Type 1 → Type 1} [monad m] {A B : Type 1} (f : A → m B) : list A → m unit
+definition mapM' {m : Type → Type} [monad m] {A B : Type} (f : A → m B) : list A → m unit
 | []       := return ()
 | (h :: t) := f h >> mapM' t
 
-definition {u} forM {m : Type → Type} [monad m] {A B : Type (u+1)} (l : list A) (f : A → m B) : m (list B) :=
+definition forM {m : Type → Type} [monad m] {A B : Type} (l : list A) (f : A → m B) : m (list B) :=
 mapM f l
 
-definition forM' {m : Type 1 → Type 1} [monad m] {A B : Type 1} (l : list A) (f : A → m B) : m unit :=
+definition forM' {m : Type → Type} [monad m] {A B : Type} (l : list A) (f : A → m B) : m unit :=
 mapM' f l
 
-definition {u} sequence {m : Type → Type} [monad m] {A : Type (u+1)} : list (m A) → m (list A)
+definition sequence {m : Type → Type} [monad m] {A : Type} : list (m A) → m (list A)
 | []       := return []
 | (h :: t) := do h' ← h, t' ← sequence t, return (h' :: t')
 
-definition sequence' {m : Type 1 → Type 1} [monad m] {A : Type 1} : list (m A) → m unit
+definition sequence' {m : Type → Type} [monad m] {A : Type} : list (m A) → m unit
 | []       := return ()
 | (h :: t) := h >> sequence' t
 
@@ -41,17 +41,17 @@ infix ` <=< `:2 := λ t s a, s a >>= t
 definition join {m : Type → Type} [monad m] {A : Type} (a : m (m A)) : m A :=
 bind a id
 
-definition filterM {m : Type₁ → Type₁} [monad m] {A : Type₁} (f : A → m bool) : list A → m (list A)
+definition filterM {m : Type → Type} [monad m] {A : Type} (f : A → m bool) : list A → m (list A)
 | []       := return []
 | (h :: t) := do b ← f h, t' ← filterM t, bool.cond b (return (h :: t')) (return t')
 
-definition whenb {m : Type₁ → Type₁} [monad m] (b : bool) (t : m unit) : m unit :=
+definition whenb {m : Type → Type} [monad m] (b : bool) (t : m unit) : m unit :=
 bool.cond b t (return ())
 
-definition unlessb {m : Type₁ → Type₁} [monad m] (b : bool) (t : m unit) : m unit :=
+definition unlessb {m : Type → Type} [monad m] (b : bool) (t : m unit) : m unit :=
 bool.cond b (return ()) t
 
-definition condM {m : Type₁ → Type₁} [monad m] {A : Type₁} (mbool : m bool)
+definition condM {m : Type → Type} [monad m] {A : Type} (mbool : m bool)
   (tm fm : m A) : m A :=
 do b ← mbool, bool.cond b tm fm
 

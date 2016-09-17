@@ -6,7 +6,7 @@ Authors: Luke Nelson and Jared Roesch
 prelude
 set_option new_elaborator true
 
-structure [class] functor (F : Type → Type) : Type :=
+structure [class] functor (F : Type → Type) :=
 (map : Π {A B: Type}, (A → B) → F A → F B)
 
 attribute [inline]

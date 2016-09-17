@@ -1,12 +1,13 @@
+set_option new_elaborator true
 namespace foo
-  definition f.{l} (A : Type.{l}) : Type.{l} := A
+  definition {u} f (A : Type u) : Type u := A
   check f.{1}
 end foo
 
-constant N : Type.{1}
+constant N : Type
 section
-  variable A : Type
-  definition g (a : A) (B : Type) : A := a
+  variable A : Type*
+  definition g (a : A) (B : Type*) : A := a
   check g.{_ 2}
 end
 check g.{2 3}

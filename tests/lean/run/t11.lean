@@ -1,10 +1,10 @@
-constant A : Type.{1}
+constant A : Type
 constants a b c : A
 constant f : A → A → A
 check f a b
 section
-  parameters A B : Type
-  parameters {C D : Type}
+  parameters A B : Type*
+  parameters {C D : Type*}
   parameters [e : A] [d : A]
   check A
   check B

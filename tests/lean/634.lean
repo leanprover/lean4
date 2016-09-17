@@ -1,8 +1,8 @@
 open nat
 namespace foo
 section
-  parameter (X : Type₁)
-  definition A {n : ℕ} : Type₁ := X
+  parameter (X : Type)
+  definition A {n : ℕ} : Type := X
   variable {n : ℕ}
   set_option pp.implicit true
   check @A n

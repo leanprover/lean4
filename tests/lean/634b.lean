@@ -1,9 +1,9 @@
 open nat
 namespace foo
 section
-  parameter (X : Type₁)
-  definition A {n : ℕ} : Type₁ := X
-  definition B : Type₁ := X
+  parameter (X : Type)
+  definition A {n : ℕ} : Type := X
+  definition B : Type := X
   variable {n : ℕ}
   check @A n
   check foo.A nat

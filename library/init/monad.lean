@@ -7,7 +7,7 @@ prelude
 import init.applicative init.string init.trace
 set_option new_elaborator true
 
-structure [class] monad (M : Type → Type) extends functor M : Type :=
+structure [class] monad (M : Type → Type) extends functor M :=
 (ret  : Π {A : Type}, A → M A)
 (bind : Π {A B : Type}, M A → (A → M B) → M B)
 
@@ -15,7 +15,7 @@ attribute [inline]
 definition return {M : Type → Type} [monad M] {A : Type} : A → M A :=
 monad.ret M
 
-definition {u} fapp {m : Type → Type} [monad m] {A B : Type u} (f : m (A → B)) (a : m A) : m B :=
+definition fapp {m : Type → Type} [monad m] {A B : Type} (f : m (A → B)) (a : m A) : m B :=
 do g ← f,
    b ← a,
    return (g b)

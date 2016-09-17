@@ -10,7 +10,7 @@ check (1:num) = (2 + 3)*2
 check (2:num) + 3 * 2 = 3 * 2 + 2
 check (true ∨ false) = (true ∨ false) ∧ true
 check true ∧ (false ∨ true)
-constant A : Type₁
+constant A : Type
 constant a : A
 notation 1 := a
 check a

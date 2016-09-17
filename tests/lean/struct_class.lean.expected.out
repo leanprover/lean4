@@ -1,74 +1,74 @@
-alternative : (Type → Type) → Type
-applicative : (Type → Type) → Type
-decidable : Prop → Type₁
-functor : (Type → Type) → Type
-has_add : Type → Type
-has_andthen : Type → Type
-has_append : Type → Type
-has_coe : Type → Type → Type
-has_coe_t : Type → Type → Type
-has_coe_to_fun : Type → Type
-has_coe_to_sort : Type → Type
-has_div : Type → Type
-has_dvd : Type → Type
-has_inv : Type → Type
-has_le : Type → Type
-has_lift : Type → Type → Type
-has_lift_t : Type → Type → Type
-has_lt : Type → Type
-has_mod : Type → Type
-has_mul : Type → Type
-has_neg : Type → Type
-has_one : Type → Type
+alternative : (Type → Type) → Type₂
+applicative : (Type → Type) → Type₂
+decidable : Prop → Type
+functor : (Type → Type) → Type₂
+has_add : Type u → Type (max 1 u)
+has_andthen : Type u → Type (max 1 u)
+has_append : Type u → Type (max 1 u)
+has_coe : Type u → Type v → Type (max 1 (imax u v))
+has_coe_t : Type u → Type v → Type (max 1 (imax u v))
+has_coe_to_fun : Type u → Type (max (imax u v) (v+1))
+has_coe_to_sort : Type u → Type (max (imax u v) (v+1))
+has_div : Type u → Type (max 1 u)
+has_dvd : Type u → Type (max 1 u)
+has_inv : Type u → Type (max 1 u)
+has_le : Type u → Type (max 1 u)
+has_lift : Type u → Type v → Type (max 1 (imax u v))
+has_lift_t : Type u → Type v → Type (max 1 (imax u v))
+has_lt : Type u → Type (max 1 u)
+has_mod : Type u → Type (max 1 u)
+has_mul : Type u → Type (max 1 u)
+has_neg : Type u → Type (max 1 u)
+has_one : Type u → Type (max 1 u)
 has_ordering : Type → Type
-has_sizeof : Type → Type
-has_sub : Type → Type
-has_to_format : Type → Type
-has_to_pexpr : Type → Type
-has_to_string : Type → Type
+has_sizeof : Type u → Type (max 1 u)
+has_sub : Type u → Type (max 1 u)
+has_to_format : Type u → Type (max 1 u)
+has_to_pexpr : Type u → Type (max 1 u)
+has_to_string : Type u → Type (max 1 u)
 has_to_tactic_format : Type → Type
-has_zero : Type → Type
-inhabited : Type → Type
-is_associative : Π {A : Type}, (A → A → A) → Type₁
-monad : (Type → Type) → Type
-nonempty : Type → Prop
-point : Type → Type → Type
-setoid : Type → Type
-subsingleton : Type → Prop
-alternative : (Type → Type) → Type
-applicative : (Type → Type) → Type
-decidable : Prop → Type₁
-functor : (Type → Type) → Type
-has_add : Type → Type
-has_andthen : Type → Type
-has_append : Type → Type
-has_coe : Type → Type → Type
-has_coe_t : Type → Type → Type
-has_coe_to_fun : Type → Type
-has_coe_to_sort : Type → Type
-has_div : Type → Type
-has_dvd : Type → Type
-has_inv : Type → Type
-has_le : Type → Type
-has_lift : Type → Type → Type
-has_lift_t : Type → Type → Type
-has_lt : Type → Type
-has_mod : Type → Type
-has_mul : Type → Type
-has_neg : Type → Type
-has_one : Type → Type
+has_zero : Type u → Type (max 1 u)
+inhabited : Type u → Type (max 1 u)
+is_associative : Π {A : Type u}, (A → A → A) → Type
+monad : (Type → Type) → Type₂
+nonempty : Type u → Prop
+point : Type u_1 → Type u_2 → Type (max 1 u_1 u_2)
+setoid : Type u → Type (max 1 u)
+subsingleton : Type u → Prop
+alternative : (Type → Type) → Type₂
+applicative : (Type → Type) → Type₂
+decidable : Prop → Type
+functor : (Type → Type) → Type₂
+has_add : Type u → Type (max 1 u)
+has_andthen : Type u → Type (max 1 u)
+has_append : Type u → Type (max 1 u)
+has_coe : Type u → Type v → Type (max 1 (imax u v))
+has_coe_t : Type u → Type v → Type (max 1 (imax u v))
+has_coe_to_fun : Type u → Type (max (imax u v) (v+1))
+has_coe_to_sort : Type u → Type (max (imax u v) (v+1))
+has_div : Type u → Type (max 1 u)
+has_dvd : Type u → Type (max 1 u)
+has_inv : Type u → Type (max 1 u)
+has_le : Type u → Type (max 1 u)
+has_lift : Type u → Type v → Type (max 1 (imax u v))
+has_lift_t : Type u → Type v → Type (max 1 (imax u v))
+has_lt : Type u → Type (max 1 u)
+has_mod : Type u → Type (max 1 u)
+has_mul : Type u → Type (max 1 u)
+has_neg : Type u → Type (max 1 u)
+has_one : Type u → Type (max 1 u)
 has_ordering : Type → Type
-has_sizeof : Type → Type
-has_sub : Type → Type
-has_to_format : Type → Type
-has_to_pexpr : Type → Type
-has_to_string : Type → Type
+has_sizeof : Type u → Type (max 1 u)
+has_sub : Type u → Type (max 1 u)
+has_to_format : Type u → Type (max 1 u)
+has_to_pexpr : Type u → Type (max 1 u)
+has_to_string : Type u → Type (max 1 u)
 has_to_tactic_format : Type → Type
-has_zero : Type → Type
-inhabited : Type → Type
-is_associative : Π {A : Type}, (A → A → A) → Type₁
-monad : (Type → Type) → Type
-nonempty : Type → Prop
-point : Type → Type → Type
-setoid : Type → Type
-subsingleton : Type → Prop
+has_zero : Type u → Type (max 1 u)
+inhabited : Type u → Type (max 1 u)
+is_associative : Π {A : Type u}, (A → A → A) → Type
+monad : (Type → Type) → Type₂
+nonempty : Type u → Prop
+point : Type u_1 → Type u_2 → Type (max 1 u_1 u_2)
+setoid : Type u → Type (max 1 u)
+subsingleton : Type u → Prop

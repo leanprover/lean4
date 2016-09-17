@@ -4,8 +4,8 @@ check if tt then "a" else "b"
 
 /- Remark: in the standard library nat_to_int and int_to_real are has_lift instances
    instead of has_coe. -/
-constant int  : Type₁
-constant real : Type₁
+constant int  : Type
+constant real : Type
 constant nat_to_int  : has_coe nat int
 constant int_to_real : has_coe int real
 attribute [instance] nat_to_int int_to_real

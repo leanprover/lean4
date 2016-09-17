@@ -1,11 +1,11 @@
 --
 open list nat
 
-structure unification_constraint := {A : Type} (lhs : A) (rhs : A)
+structure unification_constraint := {A : Type*} (lhs : A) (rhs : A)
 structure unification_hint := (pattern : unification_constraint) (constraints : list unification_constraint)
 
 namespace toy
-constants (A : Type.{1}) (f h : A → A) (x y z : A)
+constants (A : Type) (f h : A → A) (x y z : A)
 attribute [irreducible]
 noncomputable definition g (x y : A) : A := f z
 
@@ -37,13 +37,13 @@ end add
 
 namespace canonical
 inductive Canonical
-| mk : Π (carrier : Type) (op : carrier → carrier), Canonical
+| mk : Π (carrier : Type*) (op : carrier → carrier), Canonical
 
 attribute [irreducible]
-definition Canonical.carrier (s : Canonical) : Type :=
+definition Canonical.carrier (s : Canonical) : Type* :=
 Canonical.rec_on s (λ c op, c)
 
-constants (A : Type.{1}) (f : A → A) (x : A)
+constants (A : Type) (f : A → A) (x : A)
 noncomputable definition A_canonical : Canonical := Canonical.mk A f
 
 #unify (Canonical.carrier A_canonical), A

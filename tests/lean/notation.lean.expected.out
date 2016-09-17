@@ -8,4 +8,4 @@ true ∧ false ∧ true : Prop
 (true ∨ false) = (true ∨ false) ∧ true : Prop
 true ∧ (false ∨ true) : Prop
 1 : A
-ℕ → ℕ : Type₁
+ℕ → ℕ : Type

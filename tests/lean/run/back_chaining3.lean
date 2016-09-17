@@ -1,7 +1,7 @@
 namespace ex
 open tactic
 
-constant typ : Type₁
+constant typ : Type
 
 constant subtype : typ → typ → Prop
 

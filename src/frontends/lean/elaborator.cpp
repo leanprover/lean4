@@ -210,7 +210,9 @@ level elaborator::get_level(expr const & A, expr const & ref) {
 
 level elaborator::replace_univ_placeholder(level const & l) {
     auto fn = [&](level const & l) {
-        if (is_placeholder(l))
+        if (is_one_placeholder(l))
+            return some_level(mk_level_one());
+        else if (is_placeholder(l))
             return some_level(mk_univ_metavar());
         else
             return none_level();
@@ -222,7 +224,7 @@ static bool contains_placeholder(level const & l) {
     bool contains = false;
     auto fn = [&](level const & l) {
         if (contains) return false;
-        if (is_placeholder(l))
+        if (is_placeholder(l) || is_one_placeholder(l))
             contains = true;
         return true;
     };
@@ -2084,7 +2086,7 @@ void elaborator::snapshot::restore(elaborator & e) {
     into parameters */
 struct sanitize_param_names_fn : public replace_visitor {
     type_context &  m_ctx;
-    name            m_p{"l"};
+    name            m_p{"u"};
     name_set        m_L; /* All parameter names in the input expression. */
     name_map<level> m_R; /* map from tagged g_level_prefix to "clean" name not in L. */
     name_map<level> m_U; /* map from universe metavariable name to "clean" name not in L. */
@@ -2107,7 +2109,7 @@ struct sanitize_param_names_fn : public replace_visitor {
     }
 
     level sanitize(level const & l) {
-        name p("l");
+        name p("u");
         return replace(l, [&](level const & l) -> optional<level> {
                 if (is_param(l)) {
                     name const & n = param_id(l);

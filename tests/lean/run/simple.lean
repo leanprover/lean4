@@ -1,7 +1,7 @@
 prelude
 definition Prop : Type.{1} := Type.{0}
 section
-  parameter A : Type
+  parameter A : Type*
 
   definition eq (a b : A) : Prop
   := ∀P : A → Prop, P a → P b

@@ -1,5 +1,5 @@
 section
-  variable {A  : Type}
+  variable {A  : Type*}
   variable f   : A → A → A
   variable one : A
   variable inv : A → A
@@ -10,22 +10,22 @@ section
   definition is_inv   := ∀ a, a*a^-1 = one
 end
 
-inductive [class] group_struct (A : Type) : Type
+inductive [class] group_struct (A : Type*) : Type*
 | mk_group_struct : Π (mul : A → A → A) (one : A) (inv : A → A), is_assoc mul → is_id mul one → is_inv mul one inv → group_struct
 
-inductive group : Type
-| mk_group : Π (A : Type), group_struct A → group
+inductive group : Type*
+| mk_group : Π (A : Type*), group_struct A → group
 
-definition carrier (g : group) : Type
+definition carrier (g : group) : Type*
 := group.rec (λ c s, c) g
 
 attribute [instance]
 definition group_to_struct (g : group) : group_struct (carrier g)
-:= group.rec (λ (A : Type) (s : group_struct A), s) g
+:= group.rec (λ (A : Type*) (s : group_struct A), s) g
 
 check group_struct
 
-definition mul1 {A : Type} {s : group_struct A} (a b : A) : A
+definition mul1 {A : Type*} {s : group_struct A} (a b : A) : A
 := group_struct.rec (λ mul one inv h1 h2 h3, mul) s a b
 
 infixl `*` := mul1

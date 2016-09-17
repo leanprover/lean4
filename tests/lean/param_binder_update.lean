@@ -1,5 +1,5 @@
 section
-  parameter {A : Type}
+  parameter {A : Type*}
 
   parameter A
 
@@ -14,7 +14,7 @@ check @id
 check @id₂
 
 section
-  parameters {A : Type} {B : Type}
+  parameters {A : Type*} {B : Type*}
 
   definition foo1 (a : A) (b : B) := a
 
@@ -42,7 +42,7 @@ check @foo3
 check @foo4
 
 section
-  variables {A : Type} {B : Type}
+  variables {A : Type*} {B : Type*}
 
   definition boo1 (a : A) (b : B) := a
 
@@ -65,7 +65,7 @@ section
 end
 
 section
-  variables {A : Type} {B : Type}
+  variables {A : Type*} {B : Type*}
 
   parameter (A) -- ERROR
   variable (C)  -- ERROR

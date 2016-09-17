@@ -585,7 +585,9 @@ expr old_elaborator::visit_placeholder(expr const & e, constraint_seq & cs) {
 
 level old_elaborator::replace_univ_placeholder(level const & l) {
     auto fn = [&](level const & l) {
-        if (is_placeholder(l))
+        if (is_one_placeholder(l))
+            return some_level(mk_level_one());
+        else if (is_placeholder(l))
             return some_level(mk_meta_univ(mk_fresh_name()));
         else
             return none_level();
@@ -597,7 +599,7 @@ static bool contains_placeholder(level const & l) {
     bool contains = false;
     auto fn = [&](level const & l) {
         if (contains) return false;
-        if (is_placeholder(l))
+        if (is_placeholder(l) || is_one_placeholder(l))
             contains = true;
         return true;
     };
@@ -1511,7 +1513,7 @@ optional<tactic_state> old_elaborator::execute_tactic(expr const & tactic, tacti
     scope_elaborate_fn scope(fn);
 
     name tactic_name("_tactic");
-    expr tactic_type = ::lean::mk_app(mk_constant("tactic", {mk_level_one()}), mk_constant("unit"));
+    expr tactic_type = ::lean::mk_app(mk_constant("tactic"), mk_constant("unit"));
     /* compile tactic */
     environment new_env  = env();
     options const & opts = m_ctx.m_options;

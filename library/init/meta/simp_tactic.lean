@@ -9,7 +9,7 @@ import init.meta.tactic
 namespace tactic
 open list nat
 
-meta_constant simp_lemmas : Type₁
+meta_constant simp_lemmas : Type
 
 /- Create a data-structure containing a simp lemma for every constant in the first list of
    attributes, and a congr lemma for every constant in the second list of attributes.

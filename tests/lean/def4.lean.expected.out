@@ -16,6 +16,6 @@ has type
   ℕ
 but is expected to have type
   A
-f : Π (A : Type), A → A
+f : Π (A : Type u_1), A → A
 f ℕ 0 : ℕ
 g 0 : ℕ

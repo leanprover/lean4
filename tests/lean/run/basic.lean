@@ -3,7 +3,7 @@ set_option new_elaborator true
 
 constant {l1 l2} A : Type l1 → Type l2
 check A
-definition {l} tst (A : Type) (B : Type) (C : Type l) : Type := A → B → C
+definition {l} tst (A : Type*) (B : Type*) (C : Type l) : Type* := A → B → C
 check tst
 constant {l} group : Type (l+1)
 constant {l} carrier : group.{l} → Type l
@@ -12,7 +12,7 @@ noncomputable definition to_carrier (g : group) := carrier g
 check to_carrier.{1}
 
 section
-  variable A : Type
+  variable A : Type*
   check A
   definition B := A → A
 end
@@ -24,8 +24,8 @@ constant a : N
 check f a
 
 section
-  variable T1 : Type
-  variable T2 : Type
+  variable T1 : Type*
+  variable T2 : Type*
   variable f : T1 → T2 → T2
   definition double (a : T1) (b : T2) := f a (f a b)
 end
@@ -34,7 +34,7 @@ check double
 check double.{1 2}
 
 definition Prop := Type 0
-constant eq : Π {A : Type}, A → A → Prop
+constant eq : Π {A : Type*}, A → A → Prop
 infix `=`:50 := eq
 
 check eq.{1}
@@ -55,8 +55,8 @@ check @is_proj3.{1 2}
 
 namespace foo
 section
-  variables {T1 T2 : Type}
-  variable  {T3 : Type}
+  variables {T1 T2 : Type*}
+  variable  {T3 : Type*}
   variable  f : T1 → T2 → T2
   noncomputable definition is_proj2 := ∀ x y, f x y = y
   noncomputable definition is_proj3 (f : T1 → T2 → T3 → T3) := ∀ x y z, f x y z = z
@@ -67,9 +67,9 @@ end foo
 
 namespace bla
 section
-  variable  {T1 : Type}
-  variable  {T2 : Type}
-  variable  {T3 : Type}
+  variable  {T1 : Type*}
+  variable  {T2 : Type*}
+  variable  {T3 : Type*}
   variable  f : T1 → T2 → T2
   noncomputable definition is_proj2 := ∀ x y, f x y = y
   noncomputable definition is_proj3 (f : T1 → T2 → T3 → T3) := ∀ x y z, f x y z = z

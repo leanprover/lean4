@@ -14,12 +14,12 @@ Exists.intro 1 (λ (a : 1 = 0), nat.no_confusion a) : ∃ (x : ℕ), 1 ≠ 0
 λ (A B C : Prop) (Ha : A) (Hb : B) (Hc : C),
   show ((B ∧ true) ∧ A) ∧ C ∧ A, from and.intro (and.intro (and.intro Hb true.intro) Ha) (and.intro Hc Ha) :
   ∀ (A B C : Prop), A → B → C → ((B ∧ true) ∧ A) ∧ C ∧ A
-λ (A : Type) (P Q : A → Prop) (a : A) (H1 : P a) (H2 : Q a),
+λ (A : Type u) (P Q : A → Prop) (a : A) (H1 : P a) (H2 : Q a),
   show ∃ (x : A), P x ∧ Q x, from Exists.intro a (and.intro H1 H2) :
-  ∀ (A : Type) (P Q : A → Prop) (a : A), P a → Q a → (∃ (x : A), P x ∧ Q x)
-λ (A : Type) (P Q : A → Prop) (a b : A) (H1 : P a) (H2 : Q b),
+  ∀ (A : Type u) (P Q : A → Prop) (a : A), P a → Q a → (∃ (x : A), P x ∧ Q x)
+λ (A : Type u) (P Q : A → Prop) (a b : A) (H1 : P a) (H2 : Q b),
   show ∃ (x y : A), P x ∧ Q y, from Exists.intro a (Exists.intro b (and.intro H1 H2)) :
-  ∀ (A : Type) (P Q : A → Prop) (a b : A), P a → Q b → (∃ (x y : A), P x ∧ Q y)
-λ (A : Type) (P Q : A → Prop) (a b : A) (H1 : P a) (H2 : Q b),
+  ∀ (A : Type u) (P Q : A → Prop) (a b : A), P a → Q b → (∃ (x y : A), P x ∧ Q y)
+λ (A : Type u) (P Q : A → Prop) (a b : A) (H1 : P a) (H2 : Q b),
   show ∃ (x y : A), P x ∧ Q y, from Exists.intro a (Exists.intro b (and.intro H1 H2)) :
-  ∀ (A : Type) (P Q : A → Prop) (a b : A), P a → Q b → (∃ (x y : A), P x ∧ Q y)
+  ∀ (A : Type u) (P Q : A → Prop) (a b : A), P a → Q b → (∃ (x y : A), P x ∧ Q y)

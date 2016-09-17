@@ -9,7 +9,7 @@ import init.meta.level
 inductive binder_info
 | default | implicit | strict_implicit | inst_implicit | other
 
-meta_constant macro_def : Type₁
+meta_constant macro_def : Type
 
 /- Reflect a C++ expr object. The VM replaces it with the C++ implementation. -/
 inductive expr

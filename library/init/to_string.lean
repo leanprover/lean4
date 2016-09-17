@@ -6,10 +6,12 @@ import init.string init.bool init.subtype init.unsigned init.prod init.sum
 set_option new_elaborator true
 open bool list sum prod sigma subtype nat
 
-structure [class] has_to_string (A : Type) :=
+universe variables u v
+
+structure [class] has_to_string (A : Type u) :=
 (to_string : A → string)
 
-definition to_string {A : Type} [has_to_string A] : A → string :=
+definition to_string {A : Type u} [has_to_string A] : A → string :=
 has_to_string.to_string
 
 attribute [instance]
@@ -21,17 +23,17 @@ definition decidable.has_to_string {p : Prop} : has_to_string (decidable p) :=
 -- Remark: type class inference will not consider local instance `b` in the new elaborator
 has_to_string.mk (λ b : decidable p, @ite p b _ "tt" "ff")
 
-definition list.to_string_aux {A : Type} [has_to_string A] : bool → list A → string
+definition list.to_string_aux {A : Type u} [has_to_string A] : bool → list A → string
 | b  []      := ""
 | tt (x::xs) := to_string x ++ list.to_string_aux ff xs
 | ff (x::xs) := ", " ++ to_string x ++ list.to_string_aux ff xs
 
-definition list.to_string {A : Type} [has_to_string A] : list A → string
+definition list.to_string {A : Type u} [has_to_string A] : list A → string
 | []      := "[]"
 | (x::xs) := "[" ++ list.to_string_aux tt (x::xs) ++ "]"
 
 attribute [instance]
-definition list.has_to_string {A : Type} [has_to_string A] : has_to_string (list A) :=
+definition list.has_to_string {A : Type u} [has_to_string A] : has_to_string (list A) :=
 has_to_string.mk list.to_string
 
 attribute [instance]
@@ -39,24 +41,24 @@ definition unit.has_to_string : has_to_string unit :=
 has_to_string.mk (λ u, "star")
 
 attribute [instance]
-definition option.has_to_string {A : Type} [has_to_string A] : has_to_string (option A) :=
+definition option.has_to_string {A : Type u} [has_to_string A] : has_to_string (option A) :=
 has_to_string.mk (λ o, match o with | none := "none" | (some a) := "(some " ++ to_string a ++ ")" end)
 
 attribute [instance]
-definition sum.has_to_string {A B : Type} [has_to_string A] [has_to_string B] : has_to_string (A ⊕ B) :=
+definition sum.has_to_string {A : Type u} {B : Type v} [has_to_string A] [has_to_string B] : has_to_string (A ⊕ B) :=
 has_to_string.mk (λ s, match s with | (inl a) := "(inl " ++ to_string a ++ ")" | (inr b) := "(inr " ++ to_string b ++ ")" end)
 
 attribute [instance]
-definition prod.has_to_string {A B : Type} [has_to_string A] [has_to_string B] : has_to_string (A × B) :=
+definition prod.has_to_string {A : Type u} {B : Type v} [has_to_string A] [has_to_string B] : has_to_string (A × B) :=
 has_to_string.mk (λ p, "(" ++ to_string (pr1 p) ++ ", " ++ to_string (pr2 p) ++ ")")
 
 attribute [instance]
-definition sigma.has_to_string {A : Type} {B : A → Type} [has_to_string A] [s : ∀ x, has_to_string (B x)]
+definition sigma.has_to_string {A : Type u} {B : A → Type v} [has_to_string A] [s : ∀ x, has_to_string (B x)]
                                           : has_to_string (sigma B) :=
 has_to_string.mk (λ p, "⟨"  ++ to_string (pr1 p) ++ ", " ++ to_string (pr2 p) ++ "⟩")
 
 attribute [instance]
-definition subtype.has_to_string {A : Type} {P : A → Prop} [has_to_string A] : has_to_string (subtype P) :=
+definition subtype.has_to_string {A : Type u} {P : A → Prop} [has_to_string A] : has_to_string (subtype P) :=
 has_to_string.mk (λ s, to_string (elt_of s))
 
 definition char.quote_core (c : char) : string :=

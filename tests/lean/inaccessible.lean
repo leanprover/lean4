@@ -1,5 +1,5 @@
 universe variables u v
-inductive imf {A : Type u} {B : Type v} (f : A → B) : B → Type
+inductive imf {A : Type u} {B : Type v} (f : A → B) : B → Type (max 1 u v)
 | mk : ∀ (a : A), imf (f a)
 
 definition inv_1 {A : Type u} {B : Type v} (f : A → B) : ∀ (b : B), imf f b → A

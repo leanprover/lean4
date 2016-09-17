@@ -8,5 +8,5 @@ inductive vector (A : Type) : nat → Type
 check vector.no_confusion_type
 constants a1 a2 : num
 constants v1 v2 : vector num 2
-constant  P     : Type₁
+constant  P     : Type
 eval vector.no_confusion_type P (vector.vcons a1 v1) (vector.vcons a2 v2)

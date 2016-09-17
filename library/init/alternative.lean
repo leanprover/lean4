@@ -22,5 +22,5 @@ alternative.orelse
 infixr ` <|> `:2 := orelse
 
 attribute [inline]
-definition guard {f : Type₁ → Type} [alternative f] (p : Prop) [decidable p] : f unit :=
+definition guard {f : Type → Type} [alternative f] (p : Prop) [decidable p] : f unit :=
 if p then pure () else failure

@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import init.trace init.function init.option init.monad init.alternative init.nat_div
 import init.meta.exceptional init.meta.format init.meta.environment init.meta.pexpr
-meta_constant tactic_state : Type₁
+meta_constant tactic_state : Type
 
 namespace tactic_state
 meta_constant env         : tactic_state → environment

@@ -83,15 +83,6 @@ ENDFOREACH(T)
 #            COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
 # ENDFOREACH(T)
 
-# # LEAN HoTT TESTS
-# file(GLOB LEANHTESTS "${LEAN_SOURCE_DIR}/../tests/lean/*.hlean")
-# FOREACH(T ${LEANHTESTS})
-#   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-#   add_test(NAME "leanhtest_${T_NAME}"
-#            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean"
-#            COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
-# ENDFOREACH(T)
-
 # LEAN RUN TESTS
 file(GLOB LEANRUNTESTS "${LEAN_SOURCE_DIR}/../tests/lean/run/*.lean")
 FOREACH(T ${LEANRUNTESTS})
@@ -128,15 +119,6 @@ FOREACH(T ${LEANT0TESTS})
            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/trust10"
            COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME} "-t 10")
 ENDFOREACH(T)
-
-# # LEAN RUN HoTT TESTS
-# file(GLOB LEANRUNHTESTS "${LEAN_SOURCE_DIR}/../tests/lean/hott/*.hlean")
-# FOREACH(T ${LEANRUNHTESTS})
-#   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-#   add_test(NAME "leanhotttest_${T_NAME}"
-#            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/hott"
-#            COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
-# ENDFOREACH(T)
 
 # The new elaborator needs to populate the info_manager for the following tests
 # if("${MULTI_THREAD}" MATCHES "ON")

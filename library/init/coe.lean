@@ -134,29 +134,29 @@ has_coe.mk (λ s, subtype.elt_of s)
 /- Remark: we can't use [has_lift_t A₂ A₁] since it will produce non-termination whenever a type class resolution
    problem does not have a solution. -/
 attribute [instance]
-definition lift_fn {A₁ A₂ B₁ B₂ : Type*} [has_lift A₂ A₁] [has_lift_t B₁ B₂] : has_lift (A₁ → B₁) (A₂ → B₂) :=
+definition {ua₁ ua₂ ub₁ ub₂} lift_fn {A₁ : Type ua₁} {A₂ : Type ua₂} {B₁ : Type ub₁} {B₂ : Type ub₂} [has_lift A₂ A₁] [has_lift_t B₁ B₂] : has_lift (A₁ → B₁) (A₂ → B₂) :=
 has_lift.mk (λ f a, ↑(f ↑a))
 
 attribute [instance]
-definition lift_fn_range {A B₁ B₂ : Type*} [has_lift_t B₁ B₂] : has_lift (A → B₁) (A → B₂) :=
+definition {ua ub₁ ub₂} lift_fn_range {A : Type ua} {B₁ : Type ub₁} {B₂ : Type ub₂} [has_lift_t B₁ B₂] : has_lift (A → B₁) (A → B₂) :=
 has_lift.mk (λ f a, ↑(f a))
 
 attribute [instance]
-definition lift_fn_dom {A₁ A₂ B : Type*} [has_lift A₂ A₁] : has_lift (A₁ → B) (A₂ → B) :=
+definition {ua₁ ua₂ ub} lift_fn_dom {A₁ : Type ua₁} {A₂ : Type ua₂} {B : Type ub} [has_lift A₂ A₁] : has_lift (A₁ → B) (A₂ → B) :=
 has_lift.mk (λ f a, f ↑a)
 
 attribute [instance]
-definition lift_pair {A₁ A₂ B₁ B₂ : Type*} [has_lift_t A₁ A₂] [has_lift_t B₁ B₂] : has_lift (A₁ × B₁) (A₂ × B₂) :=
+definition {ua₁ ua₂ ub₁ ub₂} lift_pair {A₁ : Type ua₁} {A₂ : Type ub₂} {B₁ : Type ub₁} {B₂ : Type ub₂} [has_lift_t A₁ A₂] [has_lift_t B₁ B₂] : has_lift (A₁ × B₁) (A₂ × B₂) :=
 has_lift.mk (λ p, prod.cases_on p (λ a b, (↑a, ↑b)))
 
 attribute [instance]
-definition lift_pair₁ {A₁ A₂ B : Type*} [has_lift_t A₁ A₂] : has_lift (A₁ × B) (A₂ × B) :=
+definition {ua₁ ua₂ ub} lift_pair₁ {A₁ : Type ua₁} {A₂ : Type ua₂} {B : Type ub} [has_lift_t A₁ A₂] : has_lift (A₁ × B) (A₂ × B) :=
 has_lift.mk (λ p, prod.cases_on p (λ a b, (↑a, b)))
 
 attribute [instance]
-definition lift_pair₂ {A B₁ B₂ : Type*} [has_lift_t B₁ B₂] : has_lift (A × B₁) (A × B₂) :=
+definition {ua ub₁ ub₂} lift_pair₂ {A : Type ua} {B₁ : Type ub₁} {B₂ : Type ub₂} [has_lift_t B₁ B₂] : has_lift (A × B₁) (A × B₂) :=
 has_lift.mk (λ p, prod.cases_on p (λ a b, (a, ↑b)))
 
 attribute [instance]
-definition lift_list {A B : Type*} [has_lift_t A B] : has_lift (list A) (list B) :=
+definition lift_list {A : Type u} {B : Type v} [has_lift_t A B] : has_lift (list A) (list B) :=
 has_lift.mk (λ l, list.map (@coe A B _) l)

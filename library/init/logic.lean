@@ -787,7 +787,7 @@ protected definition inhabited.value {A : Type u} : inhabited A → A :=
 λ h, inhabited.rec (λ a, a) h
 
 attribute [inline]
-protected definition inhabited.destruct {A : Type u} {B : Type u} (H1 : inhabited A) (H2 : A → B) : B :=
+protected definition inhabited.destruct {A : Type u} {B : Type v} (H1 : inhabited A) (H2 : A → B) : B :=
 inhabited.rec H2 H1
 
 attribute [inline]

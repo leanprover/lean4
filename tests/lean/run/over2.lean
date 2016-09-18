@@ -10,4 +10,5 @@ end N2
 
 open N1 N2
 
-definition boo := foo
+definition boo1 := N1.foo
+definition boo2 := N2.foo

@@ -17,7 +17,7 @@ local notation `δ` := delta.
 
 theorem delta_aux : ¬ (δ (i delta))
          := assume H : δ (i delta),
-            H (subst (symm retract) H).
+            H (subst (symm (@retract delta (i delta))) H)
 
 check delta_aux.
 

@@ -3,7 +3,7 @@ inductive day
 
 namespace day
 
-  definition next_weekday d :=
+  definition next_weekday (d : day) : day :=
   day.rec_on d tuesday wednesday thursday friday monday monday monday
 
   example : next_weekday (next_weekday saturday) = tuesday :=

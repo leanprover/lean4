@@ -345,6 +345,7 @@ struct structural_rec_fn {
         I_params.shrink(I_params.size() - nindices);
         expr  motive = ctx.mk_pi(other_args, fn_type);
         level u      = get_level(ctx, motive);
+        m_use_ibelow = m_reflexive && is_zero(u);
         if (m_reflexive) {
             if (!is_zero(u) && !is_not_zero(u))
                 throw_error(sstream() << "invalid equations, "
@@ -376,7 +377,6 @@ struct structural_rec_fn {
                 }
             }
         }
-        m_use_ibelow    = m_reflexive && is_zero(u);
         motive          = ctx.mk_lambda(idx_args, ctx.mk_lambda(rec_arg, motive));
         lean_assert(is_constant(I));
         buffer<level> below_lvls;
@@ -410,6 +410,7 @@ struct structural_rec_fn {
             and m_C (the abstract local). */
         optional<expr> to_below(expr const & d, expr const & a, expr const & F) {
             expr const & fn = get_app_fn(d);
+            trace_struct_aux(tout() << "d: " << d << ", a: " << a << ", F: " << F << "\n";);
             if (is_constant(fn, get_prod_name())) {
                 expr d_arg1 = m_ctx.whnf(app_arg(app_fn(d)));
                 expr d_arg2 = m_ctx.whnf(app_arg(d));
@@ -439,7 +440,7 @@ struct structural_rec_fn {
             return std::find(m_indices_pos.begin(), m_indices_pos.end(), idx) != m_indices_pos.end();
         }
 
-        expr elim(buffer<expr> const & args, tag g) {
+        expr elim(expr const & e, buffer<expr> const & args, tag g) {
             /* Replace motives with abstract one m_C.
                We use the abstract motive m_C as "marker". */
             buffer<expr> below_args;
@@ -457,6 +458,8 @@ struct structural_rec_fn {
                 }
                 return r;
             } else {
+                trace_struct_aux(tout() << "failed to eliminate recursive application using 'below'\n" <<
+                                 e << "\n";);
                 throw elim_rec_apps_failed();
             }
         }
@@ -464,6 +467,7 @@ struct structural_rec_fn {
         virtual expr visit_local(expr const & e) {
             if (mlocal_name(e) == mlocal_name(m_fn)) {
                 /* unexpected occurrence of recursive function */
+                trace_struct_aux(tout() << "unexpected occurrence of recursive function: " << e << "\n";);
                 throw elim_rec_apps_failed();
             }
             return e;
@@ -478,7 +482,7 @@ struct structural_rec_fn {
                 buffer<expr> new_args;
                 for (expr const & arg : args)
                     new_args.push_back(visit(arg));
-                return elim(new_args, e.get_tag());
+                return elim(e, new_args, e.get_tag());
             } else {
                 return replace_visitor_with_tc::visit_app(e);
             }

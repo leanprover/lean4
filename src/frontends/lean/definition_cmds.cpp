@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "util/timeit.h"
 #include "kernel/type_checker.h"
 #include "kernel/declaration.h"
+#include "kernel/replace_fn.h"
 #include "library/trace.h"
 #include "library/explicit.h"
 #include "library/typed_expr.h"
@@ -18,8 +19,10 @@ Author: Leonardo de Moura
 #include "library/flycheck.h"
 #include "library/error_handling.h"
 #include "library/scope_pos_info_provider.h"
+#include "library/replace_visitor.h"
 #include "library/equations_compiler/equations.h"
 #include "library/compiler/vm_compiler.h"
+#include "library/compiler/rec_fn_macro.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/elaborator.h"
@@ -297,15 +300,26 @@ static environment compile_decl(parser & p, environment const & env, def_cmd_kin
     }
 }
 
+static expr fix_rec_fn_name(expr const & e, name const & c_name, name const & c_real_name) {
+    return replace(e, [&](expr const & m, unsigned) {
+            if (is_rec_fn_macro(m) && get_rec_fn_name(m) == c_name) {
+                return some_expr(mk_rec_fn_macro(c_real_name, get_rec_fn_type(m)));
+            }
+            return none_expr();
+        });
+}
+
 static pair<environment, name>
 declare_definition(parser & p, environment const & env, def_cmd_kind kind, buffer<name> const & lp_names,
-                   name const & c_name, expr const & type, expr const & val,
-                   bool is_private, bool is_protected, bool is_noncomputable,
+                   name const & c_name, expr const & type, expr const & _val,
+                   bool is_meta, bool is_private, bool is_protected, bool is_noncomputable,
                    decl_attributes attrs, pos_info const & pos) {
     auto env_n = mk_real_name(env, c_name, is_private, pos);
     environment new_env = env_n.first;
     name c_real_name    = env_n.second;
-
+    expr val            = _val;
+    if (is_meta)
+        val = fix_rec_fn_name(val, c_name, c_real_name);
     bool use_conv_opt = true;
     bool is_trusted   = kind != MetaDefinition;
     auto def          = mk_definition(new_env, c_real_name, to_list(lp_names), type, val, use_conv_opt, is_trusted);
@@ -329,6 +343,37 @@ declare_definition(parser & p, environment const & env, def_cmd_kind kind, buffe
     return mk_pair(new_env, c_real_name);
 }
 
+struct fix_rec_fn_macro_args_fn : public replace_visitor {
+    buffer<expr> const &             m_params;
+    buffer<pair<name, expr>> const & m_fns;
+
+    fix_rec_fn_macro_args_fn(buffer<expr> const & params, buffer<pair<name, expr>> const & fns):
+        m_params(params), m_fns(fns) {
+    }
+
+    expr fix_rec_fn_macro(name const & fn, expr const & type) {
+        return mk_app(mk_rec_fn_macro(fn, type), m_params);
+    }
+
+    virtual expr visit_macro(expr const & e) override {
+        if (is_rec_fn_macro(e)) {
+            name n = get_rec_fn_name(e);
+            for (unsigned i = 0; i < m_fns.size(); i++) {
+                if (n == m_fns[i].first)
+                    return fix_rec_fn_macro(m_fns[i].first, m_fns[i].second);
+            }
+        }
+        return replace_visitor::visit_macro(e);
+    }
+};
+
+static expr fix_rec_fn_macro_args(elaborator & elab, name const & fn, buffer<expr> const & params, expr const & type, expr const & val) {
+    expr fn_new_type = elab.mk_pi(params, type);
+    buffer<pair<name, expr>> fns;
+    fns.emplace_back(fn, fn_new_type);
+    return fix_rec_fn_macro_args_fn(params, fns)(val);
+}
+
 environment xdefinition_cmd_core(parser & p, def_cmd_kind kind, bool is_private, bool is_protected, bool is_noncomputable,
                                  decl_attributes attrs) {
     buffer<name> lp_names;
@@ -343,8 +388,12 @@ environment xdefinition_cmd_core(parser & p, def_cmd_kind kind, bool is_private,
     elaborate_params(elab, params, new_params);
     elab.set_instance_fingerprint();
     replace_params(params, new_params, fn, val);
+    bool is_meta = (kind == def_cmd_kind::MetaDefinition);
     expr type;
     std::tie(val, type) = elaborate_definition(p, elab, kind, fn, val, header_pos);
+    if (is_meta) {
+        val = fix_rec_fn_macro_args(elab, mlocal_name(fn), new_params, type, val);
+    }
     if (is_equations_result(val)) {
         // TODO(Leo): generate equation lemmas and induction principle
         lean_assert(is_equations_result(val));
@@ -355,7 +404,7 @@ environment xdefinition_cmd_core(parser & p, def_cmd_kind kind, bool is_private,
     if (kind == Example) return p.env();
     name c_name = mlocal_name(fn);
     auto env_n  = declare_definition(p, elab.env(), kind, lp_names, c_name, type, val,
-                                     is_private, is_protected, is_noncomputable, attrs, header_pos);
+                                     is_meta, is_private, is_protected, is_noncomputable, attrs, header_pos);
     environment new_env = env_n.first;
     name c_real_name    = env_n.second;
     return add_local_ref(p, new_env, c_name, c_real_name, lp_names, params);

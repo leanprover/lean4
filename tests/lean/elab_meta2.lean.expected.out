@@ -1,0 +1,8 @@
+parametric meta_definition
+"OK"
+parametric meta_definition inside namespace
+"OK"
+meta_definition inside parametric scope
+"OK"
+private meta_definition
+"OK"

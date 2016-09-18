@@ -1,3 +1,4 @@
+set_option new_elaborator true
 set_option pp.universes true
 set_option pp.implicit true
 
@@ -14,14 +15,23 @@ section
     inductive mypair
     | mk : A → B → mypair
 
-    definition pr1' (p : mypair) : A := mypair.rec (λ a b, a) p
-    definition pr2' (p : mypair) : B := mypair.rec (λ a b, b) p
-    check mypair.rec
+    print mypair.rec
+    check mypair.mk
+
+    definition pr1' : mypair → A
+    | (mypair.mk a b) := a
+
+    definition pr2' : mypair → B
+    | (mypair.mk a b) := b
 
   end
   check mypair.rec
   variable a : A
   check foo num a 0
-  definition pr1 (p : mypair num) : A   := mypair.rec (λ a b, a) p
-  definition pr2 (p : mypair num) : num := mypair.rec (λ a b, b) p
+
+  definition pr1 : mypair num → A
+  | (mypair.mk a b) := a
+
+  definition pr2 : mypair num → num
+  | (mypair.mk a b) := b
 end

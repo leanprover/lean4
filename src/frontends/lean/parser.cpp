@@ -1690,6 +1690,12 @@ struct to_pattern_fn {
         name const & n = local_pp_name(e);
         bool resolve_only = true;
         expr new_e = m_parser.id_to_expr(n, m_parser.pos_of(e), resolve_only);
+        if (is_as_atomic(new_e)) {
+            new_e = get_app_fn(get_as_atomic_arg(new_e));
+            if (is_explicit(new_e))
+                new_e = get_explicit_arg(new_e);
+        }
+
         if (is_constant(new_e) && is_pattern_constant(const_name(new_e))) {
             m_locals_map.insert(n, new_e);
             return;
@@ -1716,7 +1722,7 @@ struct to_pattern_fn {
             }
         }
         if (!n.is_atomic()) {
-            throw parser_error("invalid pattern, variable, constructor or constant tagged as pattern expected",
+            throw parser_error("invalid pattern: variable, constructor or constant tagged as pattern expected",
                                m_parser.pos_of(e));
         }
         if (m_locals_map.contains(n)) {

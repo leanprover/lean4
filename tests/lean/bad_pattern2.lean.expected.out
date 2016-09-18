@@ -1,1 +1,1 @@
-bad_pattern2.lean:2:2: error: invalid pattern, variable, constructor or constant tagged as pattern expected
+bad_pattern2.lean:2:2: error: invalid pattern: variable, constructor or constant tagged as pattern expected

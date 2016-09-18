@@ -5,10 +5,11 @@ Authors: Luke Nelson and Jared Roesch
 -/
 prelude
 set_option new_elaborator true
-structure [class] {u v} functor (F : Type u → Type v) : Type (max u+1 v) :=
+universe variables u v
+
+structure [class] functor (F : Type u → Type v) : Type (max u+1 v) :=
 (map : Π {A B : Type u}, (A → B) → F A → F B)
 
-universe variables u v
 attribute [inline]
 definition fmap {F : Type u → Type v} [functor F] {A B : Type u} : (A → B) → F A → F B :=
 functor.map

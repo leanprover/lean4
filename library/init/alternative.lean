@@ -6,12 +6,11 @@ Author: Leonardo de Moura
 prelude
 import init.logic init.applicative
 set_option new_elaborator true
+universe variables u v
 
-structure [class] {u v} alternative (F : Type u → Type v) extends applicative F : Type (max u+1 v) :=
+structure [class] alternative (F : Type u → Type v) extends applicative F : Type (max u+1 v) :=
 (failure : Π {A : Type u}, F A)
 (orelse  : Π {A : Type u}, F A → F A → F A)
-
-universe variables u v
 
 attribute [inline]
 definition failure {F : Type u → Type v} [alternative F] {A : Type u} : F A :=

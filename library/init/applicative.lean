@@ -6,12 +6,11 @@ Author: Leonardo de Moura
 prelude
 import init.functor
 set_option new_elaborator true
+universe variables u v
 
-structure [class] {u v} applicative (F : Type u → Type v) extends functor F : Type (max u+1 v):=
+structure [class] applicative (F : Type u → Type v) extends functor F : Type (max u+1 v):=
 (pure : Π {A : Type u}, A → F A)
 (seq  : Π {A B : Type u}, F (A → B) → F A → F B)
-
-universe variables u v
 
 attribute [inline]
 definition pure {F : Type u → Type v} [applicative F] {A : Type u} : A → F A :=

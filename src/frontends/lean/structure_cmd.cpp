@@ -127,11 +127,9 @@ struct structure_cmd_fn {
         buffer<name> ls_buffer;
         if (parse_univ_params(m_p, ls_buffer)) {
             m_explicit_universe_params = true;
-            m_infer_result_universe    = false;
             m_level_names.append(ls_buffer);
         } else {
             m_explicit_universe_params = false;
-            m_infer_result_universe    = true;
         }
         m_given_name = m_p.check_decl_id_next("invalid 'structure', identifier expected");
         if (m_is_private) {
@@ -238,10 +236,6 @@ struct structure_cmd_fn {
         }
     }
 
-    void throw_explicit_universe(pos_info const & pos) {
-        throw parser_error("invalid 'structure', the resultant universe must be provided when explicit universe levels are being used", pos);
-    }
-
     /** \brief Parse resultant universe */
     void parse_result_type() {
         auto pos = m_p.pos();
@@ -253,27 +247,20 @@ struct structure_cmd_fn {
             if (!is_sort(m_type))
                 throw parser_error("invalid 'structure', 'Type' expected", pos);
             m_inductive_predicate = m_env.impredicative() && is_zero(sort_level(m_type));
-            if (m_inductive_predicate)
+            if (m_inductive_predicate) {
                 m_infer_result_universe = false;
-
-            if (m_infer_result_universe) {
-                if (!is_placeholder(sort_level(m_type)))
-                    throw parser_error("invalid 'structure', resultant universe level is computed "
-                                       "automatically when universe level parameters are not provided", pos);
             } else {
-                if (has_placeholder(m_type))
-                    throw_explicit_universe(pos);
-                // Note that if we do infer the result universe, `mk_result_level` will ensure that the
-                // result type cannot be zero when the structure might otherwise eliminate only to zero.
-                if (m_env.impredicative() && !is_zero(sort_level(m_type)) && !is_not_zero(sort_level(m_type)))
-                    throw parser_error("invalid universe polymorphic structure declaration, "
-                                       "the resultant universe is not Prop (i.e., 0), "
-                                       "but it may be Prop for some parameter values "
-                                       "(solution: use 'l+1' or 'max 1 l')", m_p.pos());
+                m_infer_result_universe = is_placeholder(sort_level(m_type));
+                if (!m_infer_result_universe) {
+                    if (m_env.impredicative() && !is_zero(sort_level(m_type)) && !is_not_zero(sort_level(m_type)))
+                        throw parser_error("invalid universe polymorphic structure declaration, "
+                                           "the resultant universe is not Prop (i.e., 0), "
+                                           "but it may be Prop for some parameter values "
+                                           "(solution: use 'l+1' or 'max 1 l')", m_p.pos());
+                }
             }
         } else {
-            if (!m_infer_result_universe)
-                throw_explicit_universe(pos);
+            m_infer_result_universe = true;
             m_type = m_p.save_pos(mk_sort(mk_level_placeholder()), pos);
         }
     }

@@ -42,10 +42,10 @@ structure [class] has_coe (A : Type u) (B : Type v) :=
 structure [class] has_coe_t (A : Type u) (B : Type v) :=
 (coe : A → B)
 
-structure [class] has_coe_to_fun (A : Type u) :=
+structure [class] has_coe_to_fun (A : Type u) : Type (max u (v+1)) :=
 (F : Type v) (coe : A → F)
 
-structure [class] has_coe_to_sort (A : Type u) :=
+structure [class] has_coe_to_sort (A : Type u) : Type (max u (v+1)) :=
 (S : Type v) (coe : A → S)
 
 definition lift {A : Type u} {B : Type v} [has_lift A B] : A → B :=

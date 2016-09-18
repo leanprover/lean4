@@ -135,7 +135,7 @@ vm_obj intro(name const & n, tactic_state const & s) {
     local_context lctx   = g->get_context();
     metavar_context mctx = ctx.mctx();
     if (is_pi(type)) {
-        name n1              = n == "_" ? binding_name(type) : n;
+        name n1              = n == "_" ? lctx.get_unused_name(binding_name(type)) : n;
         expr H               = lctx.mk_local_decl(n1, head_beta_reduce(binding_domain(type)), binding_info(type));
         expr new_type        = instantiate(binding_body(type), H);
         expr new_M           = mctx.mk_metavar_decl(lctx, new_type);
@@ -145,7 +145,7 @@ vm_obj intro(name const & n, tactic_state const & s) {
         return mk_tactic_success(to_obj(H), set_mctx_goals(s, mctx, new_gs));
     } else {
         lean_assert(is_let(type));
-        name n1              = n == "_" ? let_name(type) : n;
+        name n1              = n == "_" ? lctx.get_unused_name(let_name(type)) : n;
         expr H               = lctx.mk_local_decl(n1, head_beta_reduce(let_type(type)), let_value(type));
         expr new_type        = instantiate(let_body(type), H);
         expr new_M           = mctx.mk_metavar_decl(lctx, new_type);

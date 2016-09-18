@@ -1,10 +1,10 @@
 a b : ℕ,
-a : a ≠ b,
+a_1 : a ≠ b,
 H : a = b
 ⊢ false
 -------
 a b : ℕ,
-a : ¬¬a = b,
+a_1 : ¬¬a = b,
 H : ¬a = b
 ⊢ false
 -------

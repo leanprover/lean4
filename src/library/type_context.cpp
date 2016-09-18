@@ -1225,8 +1225,8 @@ bool type_context::is_def_eq_core(level const & l1, level const & l2) {
         }
     }
 
-    level new_l1 = normalize(instantiate_mvars(l1));
-    level new_l2 = normalize(instantiate_mvars(l2));
+    level new_l1 = instantiate_mvars(l1);
+    level new_l2 = instantiate_mvars(l2);
 
     if (l1 != new_l1 || l2 != new_l2)
         return is_def_eq_core(new_l1, new_l2);

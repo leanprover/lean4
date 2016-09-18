@@ -231,6 +231,7 @@ meta_constant infer_type    : expr → tactic expr
 meta_constant get_local     : name → tactic expr
 /- Return the hypothesis in the main goal. Fail if tactic_state does not have any goal left. -/
 meta_constant local_context : tactic (list expr)
+meta_constant get_unused_name : name → option nat → tactic name
 /-  Helper tactic for creating simple applications where some arguments are inferred using
     type inference.
 

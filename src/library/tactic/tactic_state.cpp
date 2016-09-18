@@ -24,6 +24,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_declaration.h"
 #include "library/vm/vm_expr.h"
 #include "library/vm/vm_list.h"
+#include "library/vm/vm_option.h"
 #include "library/tactic/tactic_state.h"
 
 #ifndef LEAN_DEFAULT_PP_INSTANTIATE_GOAL_MVARS
@@ -432,6 +433,20 @@ vm_obj tactic_local_context(vm_obj const & s0) {
     return mk_tactic_success(to_obj(to_list(r)), s);
 }
 
+vm_obj tactic_get_unused_name(vm_obj const & n, vm_obj const & vm_i, vm_obj const & s0) {
+    tactic_state const & s   = to_tactic_state(s0);
+    optional<metavar_decl> g = s.get_main_goal_decl();
+    if (!g) return mk_no_goals_exception(s);
+    name unused_name;
+    if (is_none(vm_i)) {
+        unused_name = g->get_context().get_unused_name(to_name(n));
+    } else {
+        unsigned i  = force_to_unsigned(get_some_value(vm_i), 0);
+        unused_name = g->get_context().get_unused_name(to_name(n), i);
+    }
+    return mk_tactic_success(to_obj(unused_name), s);
+}
+
 vm_obj rotate_left(unsigned n, tactic_state const & s) {
     buffer<expr> gs;
     to_buffer(s.goals(), gs);
@@ -562,6 +577,7 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic", "unify_core"}),           tactic_unify_core);
     DECLARE_VM_BUILTIN(name({"tactic", "get_local"}),            tactic_get_local);
     DECLARE_VM_BUILTIN(name({"tactic", "local_context"}),        tactic_local_context);
+    DECLARE_VM_BUILTIN(name({"tactic", "get_unused_name"}),      tactic_get_unused_name);
     DECLARE_VM_BUILTIN(name({"tactic", "rotate_left"}),          tactic_rotate_left);
     DECLARE_VM_BUILTIN(name({"tactic", "get_goals"}),            tactic_get_goals);
     DECLARE_VM_BUILTIN(name({"tactic", "set_goals"}),            tactic_set_goals);

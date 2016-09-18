@@ -34,7 +34,11 @@ static expr compile_equations_core(environment & env, options const & opts,
     trace_compiler(tout() << "recursive: " << is_recursive_eqns(ctx, eqns) << "\n";);
     trace_compiler(tout() << "nested recursion: " << has_nested_rec(eqns) << "\n";);
     lean_assert(!has_nested_rec(eqns));
-    if (equations_num_fns(eqns) == 1) {
+    equations_header const & header = get_equations_header(eqns);
+    if (header.m_is_meta)
+        return unbounded_rec(env, opts, mctx, lctx, eqns);
+
+    if (header.m_num_fns == 1) {
         if (!is_recursive_eqns(ctx, eqns)) {
             return mk_equations_result(mk_nonrec(env, opts, mctx, lctx, eqns));
         } else if (optional<expr> r = try_structural_rec(env, opts, mctx, lctx, eqns)) {

@@ -11,5 +11,7 @@ namespace lean {
 
     This compilation step can only be used to compile meta definitions.
     If we use it on regular definitions, the kernel will reject it. */
-expr unbounded_rec(type_context & ctx, expr const & e);
+expr unbounded_rec(environment & env, options const & opts,
+                   metavar_context & mctx, local_context const & lctx,
+                   expr const & eqns);
 }

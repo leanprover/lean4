@@ -8,9 +8,10 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 #include "library/compiler/rec_fn_macro.h"
 #include "library/equations_compiler/util.h"
+#include "library/equations_compiler/elim_match.h"
 #include "library/equations_compiler/unbounded_rec.h"
 namespace lean {
-expr unbounded_rec(type_context & ctx, expr const & e) {
+static expr replace_rec_apps(type_context & ctx, expr const & e) {
     unpack_eqns ues(ctx, e);
     buffer<expr> fns;
     buffer<expr> macro_fns;
@@ -31,5 +32,13 @@ expr unbounded_rec(type_context & ctx, expr const & e) {
     expr r = ues.repack();
     lean_trace("eqn_compiler", tout() << "using unbounded recursion (meta-definition):\n" << r << "\n";);
     return r;
+}
+
+expr unbounded_rec(environment & env, options const & opts,
+                   metavar_context & mctx, local_context const & lctx,
+                   expr const & e) {
+    type_context ctx(env, opts, mctx, lctx, transparency_mode::Semireducible);
+    expr e1 = replace_rec_apps(ctx, e);
+    return elim_match(env, opts, mctx, lctx, e1).m_fn;
 }
 }

@@ -26,12 +26,12 @@ definition option_has_decidable_eq {A : Type u} [H : decidable_eq A] : ∀ o₁ 
   end
 
 attribute [inline]
-definition option_fmap {A : Type} {B : Type} (f : A → B) : option A → option B
+definition option_fmap {A : Type u} {B : Type v} (f : A → B) : option A → option B
 | none     := none
 | (some a) := some (f a)
 
 attribute [inline]
-definition option_bind {A : Type} {B : Type} : option A → (A → option B) → option B
+definition option_bind {A : Type u} {B : Type v} : option A → (A → option B) → option B
 | none     b := none
 | (some a) b := b a
 
@@ -39,21 +39,21 @@ attribute [instance]
 definition option_is_monad : monad option :=
 monad.mk @option_fmap @some @option_bind
 
-definition option_orelse {A : Type} : option A → option A → option A
+definition option_orelse {A : Type u} : option A → option A → option A
 | (some a) o         := some a
 | none     (some a)  := some a
 | none     none      := none
 
 attribute [instance]
-definition option_is_alternative {A : Type} : alternative option :=
+definition option_is_alternative {A : Type u} : alternative option :=
 alternative.mk @option_fmap @some (@fapp _ _) @none @option_orelse
 
-definition optionT (m : Type → Type) [monad m] (A : Type) :=
-m (option A)
+definition optionT (M : Type (max 1 u) → Type v) [monad M] (A : Type u) : Type v :=
+M (option A)
 
 attribute [inline]
-definition optionT_fmap {m : Type → Type} [monad m] {A B : Type} (f : A → B) (e : optionT m A) : optionT m B :=
-show m (option B), from
+definition optionT_fmap {M : Type (max 1 u) → Type v} [monad M] {A B : Type u} (f : A → B) (e : optionT M A) : optionT M B :=
+show M (option B), from
 do o ← e,
    match o with
    | none     := return none
@@ -61,9 +61,9 @@ do o ← e,
    end
 
 attribute [inline]
-definition optionT_bind {m : Type → Type} [monad m] {A B : Type} (a : optionT m A) (b : A → optionT m B)
-                               : optionT m B :=
-show m (option B), from
+definition optionT_bind {M : Type (max 1 u) → Type v} [monad M] {A B : Type u} (a : optionT M A) (b : A → optionT M B)
+                               : optionT M B :=
+show M (option B), from
 do o ← a,
    match o with
    | none     := return none
@@ -71,31 +71,31 @@ do o ← a,
    end
 
 attribute [inline]
-definition optionT_return {m : Type → Type} [monad m] {A : Type} (a : A) : optionT m A :=
-show m (option A), from
+definition optionT_return {M : Type (max 1 u) → Type v} [monad M] {A : Type u} (a : A) : optionT M A :=
+show M (option A), from
 return (some a)
 
 attribute [instance]
-definition optionT_is_monad {m : Type → Type} [monad m] {A : Type} : monad (optionT m) :=
-monad.mk (@optionT_fmap m _) (@optionT_return m _) (@optionT_bind m _)
+definition optionT_is_monad {M : Type (max 1 u) → Type v} [monad M] {A : Type u} : monad (optionT M) :=
+monad.mk (@optionT_fmap M _) (@optionT_return M _) (@optionT_bind M _)
 
-definition optionT_orelse {m : Type → Type} [monad m] {A : Type} (a : optionT m A) (b : optionT m A) : optionT m A :=
-show m (option A), from
+definition optionT_orelse {M : Type (max 1 u) → Type v} [monad M] {A : Type u} (a : optionT M A) (b : optionT M A) : optionT M A :=
+show M (option A), from
 do o ← a,
    match o with
    | none     := b
    | (some v) := return (some v)
    end
 
-definition optionT_fail {m : Type → Type} [monad m] {A : Type} : optionT m A :=
-show m (option A), from
+definition optionT_fail {M : Type (max 1 u) → Type v} [monad M] {A : Type u} : optionT M A :=
+show M (option A), from
 return none
 
 attribute [instance]
-definition optionT_is_alternative {m : Type → Type} [monad m] {A : Type} : alternative (optionT m) :=
+definition optionT_is_alternative {M : Type (max 1 u) → Type v} [monad M] {A : Type u} : alternative (optionT M) :=
 alternative.mk
-  (@optionT_fmap m _)
-  (@optionT_return m _)
-  (@fapp (optionT m) (@optionT_is_monad m _ A))
-  (@optionT_fail m _)
-  (@optionT_orelse m _)
+  (@optionT_fmap M _)
+  (@optionT_return M _)
+  (@fapp (optionT M) (@optionT_is_monad M _ A))
+  (@optionT_fail M _)
+  (@optionT_orelse M _)

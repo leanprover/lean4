@@ -7,16 +7,18 @@ prelude
 import init.functor
 set_option new_elaborator true
 
-structure [class] applicative (F : Type → Type) extends functor F :=
-(pure : Π {A : Type}, A → F A)
-(seq  : Π {A B : Type}, F (A → B) → F A → F B)
+structure [class] {u v} applicative (F : Type u → Type v) extends functor F : Type (max u+1 v):=
+(pure : Π {A : Type u}, A → F A)
+(seq  : Π {A B : Type u}, F (A → B) → F A → F B)
+
+universe variables u v
 
 attribute [inline]
-definition pure {F : Type → Type} [applicative F] {A : Type} : A → F A :=
+definition pure {F : Type u → Type v} [applicative F] {A : Type u} : A → F A :=
 applicative.pure F
 
 attribute [inline]
-definition seq_app {A B : Type} {F : Type → Type} [applicative F] : F (A → B) → F A →  F B :=
+definition seq_app {A B : Type u} {F : Type u → Type v} [applicative F] : F (A → B) → F A → F B :=
 applicative.seq
 
 infixr ` <*> `:2 := seq_app

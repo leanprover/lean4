@@ -7,13 +7,14 @@ prelude
 import init.meta.mk_dec_eq_instance init.subtype init.meta.occurrences init.sum
 set_option new_elaborator true
 open tactic subtype
+universe variables u v
 
 attribute [instance]
-definition subtype_decidable_eq {A : Type} {P : A → Prop} [decidable_eq A] : decidable_eq {x \ P x} :=
+definition subtype_decidable_eq {A : Type u} {P : A → Prop} [decidable_eq A] : decidable_eq {x \ P x} :=
 by mk_dec_eq_instance
 
 attribute [instance]
-definition list_decidable_eq {A : Type} [decidable_eq A] : decidable_eq (list A) :=
+definition list_decidable_eq {A : Type u} [decidable_eq A] : decidable_eq (list A) :=
 by mk_dec_eq_instance
 
 attribute [instance]
@@ -25,5 +26,5 @@ definition unit_decidable_eq : decidable_eq unit :=
 by mk_dec_eq_instance
 
 attribute [instance]
-definition sum_decidable {A : Type} {B : Type} [decidable_eq A] [decidable_eq B] : decidable_eq (A ⊕ B) :=
+definition sum_decidable {A : Type u} {B : Type v} [decidable_eq A] [decidable_eq B] : decidable_eq (A ⊕ B) :=
 by mk_dec_eq_instance

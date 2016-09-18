@@ -7,20 +7,22 @@ prelude
 import init.logic init.applicative
 set_option new_elaborator true
 
-structure [class] alternative (f : Type → Type) extends applicative f :=
-(failure : Π {A : Type}, f A)
-(orelse  : Π {A : Type}, f A → f A → f A)
+structure [class] {u v} alternative (F : Type u → Type v) extends applicative F : Type (max u+1 v) :=
+(failure : Π {A : Type u}, F A)
+(orelse  : Π {A : Type u}, F A → F A → F A)
+
+universe variables u v
 
 attribute [inline]
-definition failure {f : Type → Type} [alternative f] {A : Type} : f A :=
-alternative.failure f
+definition failure {F : Type u → Type v} [alternative F] {A : Type u} : F A :=
+alternative.failure F
 
 attribute [inline]
-definition orelse {f : Type → Type} [alternative f] {A : Type} : f A → f A → f A :=
+definition orelse {F : Type u → Type v} [alternative F] {A : Type u} : F A → F A → F A :=
 alternative.orelse
 
 infixr ` <|> `:2 := orelse
 
 attribute [inline]
-definition guard {f : Type → Type} [alternative f] (p : Prop) [decidable p] : f unit :=
-if p then pure () else failure
+definition guard {F : Type → Type v} [alternative F] (P : Prop) [decidable P] : F unit :=
+if P then pure () else failure

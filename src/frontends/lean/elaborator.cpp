@@ -327,7 +327,6 @@ auto elaborator::use_elim_elab_core(name const & fn) -> optional<elim_info> {
                 found[*pos] = true;
                 idxs.push_back(i);
             }
-            continue;
         }
 
         expr param_type = m_ctx.infer(param);

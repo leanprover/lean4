@@ -58,10 +58,7 @@ namespace well_founded
 
   theorem fix_F_eq (x : A) (r : acc R x) :
     fix_F F x r = F x (λ (y : A) (p : y ≺ x), fix_F F y (acc.inv r p)) :=
-  @acc.drec A R
-    (λ x r, fix_F F x r = F x (λ (y : A) (p : y ≺ x), fix_F F y (acc.inv r p)))
-    (λ x r ih, rfl)
-    x r
+  acc.drec (λ x r ih, rfl) r
   end
 
   variables {A : Type u} {C : A → Type v} {R : A → A → Prop}

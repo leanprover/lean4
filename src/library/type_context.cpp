@@ -359,7 +359,7 @@ pair<local_context, expr> type_context::revert_core(buffer<expr> & to_revert, lo
             }
         });
     local_context new_ctx = ctx.remove(to_revert);
-    return mk_pair(new_ctx, mk_pi(to_revert, type));
+    return mk_pair(new_ctx, mk_pi(ctx, to_revert, type));
 }
 
 expr type_context::revert_core(buffer<expr> & to_revert, expr const & mvar) {
@@ -373,10 +373,11 @@ expr type_context::revert(buffer<expr> & to_revert, expr const & mvar) {
     lean_assert(is_metavar_decl_ref(mvar));
     lean_assert(std::all_of(to_revert.begin(), to_revert.end(), [&](expr const & l) {
                 return static_cast<bool>(m_mctx.get_metavar_decl(mvar)->get_context().get_local_decl(l)); }));
+    local_context lctx = m_mctx.get_metavar_decl(mvar)->get_context();
     expr new_mvar = revert_core(to_revert, mvar);
     expr r = new_mvar;
     for (expr const & a : to_revert) {
-        if (!m_lctx.get_local_decl(a)->get_value()) {
+        if (!lctx.get_local_decl(a)->get_value()) {
             // 'a' is not a let-decl
             r = mk_app(r, a);
         }
@@ -400,12 +401,12 @@ expr type_context::abstract_locals(expr const & e, unsigned num_locals, expr con
     return delayed_abstract_locals(new_e, num_locals, locals);
 }
 
-expr type_context::mk_binding(bool is_pi, unsigned num_locals, expr const * locals, expr const & e) {
+expr type_context::mk_binding(bool is_pi, local_context const & lctx, unsigned num_locals, expr const * locals, expr const & e) {
     buffer<local_decl>     decls;
     buffer<expr>           types;
     buffer<optional<expr>> values;
     for (unsigned i = 0; i < num_locals; i++) {
-        local_decl const & decl = *m_lctx.get_local_decl(locals[i]);
+        local_decl const & decl = *lctx.get_local_decl(locals[i]);
         decls.push_back(decl);
         types.push_back(abstract_locals(instantiate_mvars(decl.get_type()), i, locals));
         if (auto v = decl.get_value())
@@ -429,28 +430,52 @@ expr type_context::mk_binding(bool is_pi, unsigned num_locals, expr const * loca
     return new_e;
 }
 
+expr type_context::mk_lambda(local_context const & lctx, buffer<expr> const & locals, expr const & e) {
+    return mk_binding(false, lctx, locals.size(), locals.data(), e);
+}
+
+expr type_context::mk_pi(local_context const & lctx, buffer<expr> const & locals, expr const & e) {
+    return mk_binding(true, lctx, locals.size(), locals.data(), e);
+}
+
+expr type_context::mk_lambda(local_context const & lctx, expr const & local, expr const & e) {
+    return mk_binding(false, lctx, 1, &local, e);
+}
+
+expr type_context::mk_pi(local_context const & lctx, expr const & local, expr const & e) {
+    return mk_binding(true, lctx, 1, &local, e);
+}
+
+expr type_context::mk_lambda(local_context const & lctx, std::initializer_list<expr> const & locals, expr const & e) {
+    return mk_binding(false, lctx, locals.size(), locals.begin(), e);
+}
+
+expr type_context::mk_pi(local_context const & lctx, std::initializer_list<expr> const & locals, expr const & e) {
+    return mk_binding(true, lctx, locals.size(), locals.begin(), e);
+}
+
 expr type_context::mk_lambda(buffer<expr> const & locals, expr const & e) {
-    return mk_binding(false, locals.size(), locals.data(), e);
+    return mk_lambda(m_lctx, locals, e);
 }
 
 expr type_context::mk_pi(buffer<expr> const & locals, expr const & e) {
-    return mk_binding(true, locals.size(), locals.data(), e);
+    return mk_pi(m_lctx, locals, e);
 }
 
 expr type_context::mk_lambda(expr const & local, expr const & e) {
-    return mk_binding(false, 1, &local, e);
+    return mk_lambda(m_lctx, local, e);
 }
 
 expr type_context::mk_pi(expr const & local, expr const & e) {
-    return mk_binding(true, 1, &local, e);
+    return mk_pi(m_lctx, local, e);
 }
 
 expr type_context::mk_lambda(std::initializer_list<expr> const & locals, expr const & e) {
-    return mk_binding(false, locals.size(), locals.begin(), e);
+    return mk_lambda(m_lctx, locals, e);
 }
 
 expr type_context::mk_pi(std::initializer_list<expr> const & locals, expr const & e) {
-    return mk_binding(true, locals.size(), locals.begin(), e);
+    return mk_pi(m_lctx, locals, e);
 }
 
 /* ---------------------

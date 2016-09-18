@@ -299,6 +299,13 @@ public:
         \remark locals is updated with dependencies. */
     expr revert(buffer<expr> & locals, expr const & mvar);
 
+    expr mk_lambda(local_context const & lctx, buffer<expr> const & locals, expr const & e);
+    expr mk_pi(local_context const & lctx, buffer<expr> const & locals, expr const & e);
+    expr mk_lambda(local_context const & lctx, expr const & local, expr const & e);
+    expr mk_pi(local_context const & lctx, expr const & local, expr const & e);
+    expr mk_lambda(local_context const & lctx, std::initializer_list<expr> const & locals, expr const & e);
+    expr mk_pi(local_context const & lctx, std::initializer_list<expr> const & locals, expr const & e);
+
     expr mk_lambda(buffer<expr> const & locals, expr const & e);
     expr mk_pi(buffer<expr> const & locals, expr const & e);
     expr mk_lambda(expr const & local, expr const & e);
@@ -411,7 +418,7 @@ private:
     pair<local_context, expr> revert_core(buffer<expr> & to_revert, local_context const & ctx,
                                           expr const & type);
     expr revert_core(buffer<expr> & to_revert, expr const & mvar);
-    expr mk_binding(bool is_pi, unsigned num_locals, expr const * locals, expr const & e);
+    expr mk_binding(bool is_pi, local_context const & lctx, unsigned num_locals, expr const * locals, expr const & e);
 
     /* ------------
        Temporary metavariable assignment.
@@ -574,7 +581,6 @@ public:
     virtual expr infer(expr const & e) override;
     virtual expr whnf(expr const & e) override;
     virtual bool is_def_eq(expr const & e1, expr const & e2) override;
-
 
     expr mk_lambda(buffer<expr> const & locals, expr const & e);
     expr mk_pi(buffer<expr> const & locals, expr const & e);

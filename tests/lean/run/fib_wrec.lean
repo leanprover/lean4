@@ -23,11 +23,18 @@ well_founded.fix_eq lt_wf fib.F 1
 theorem fib.succ_succ_eq (n : nat) : fib (succ (succ n)) = fib (succ n) + fib n :=
 well_founded.fix_eq lt_wf fib.F (succ (succ n))
 
+/-
+The new elaborator never unfolds theorems.
+Thus, the following examples are rejected by it.
+The kernel would accept them.
+TODO(Leo): add some mechanism for bypassing the elaborator.
+
 example : fib 5 = 8 :=
 rfl
 
 example : fib 6 = 13 :=
 rfl
+-/
 
 print "------------"
 eval fib 10

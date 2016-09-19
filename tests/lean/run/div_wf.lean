@@ -17,11 +17,14 @@ fix lt_wf wdiv.F x y
 theorem wdiv_def (x y : nat) : wdiv x y = if H : 0 < y ∧ y ≤ x then wdiv (x - y) y + 1 else 0 :=
 congr_fun (well_founded.fix_eq lt_wf wdiv.F x) y
 
+/-
+See comment at fib_wrec.
 example : wdiv 5 2 = 2 :=
 rfl
 
 example : wdiv 9 3 = 3 :=
 rfl
+-/
 
 -- There is a little bit of cheating in the definition above.
 -- I avoid the packing/unpacking into tuples.
@@ -47,5 +50,8 @@ fix pair_nat.lt.wf pdiv.F (x, y)
 theorem pdiv_def (x y : nat) : pdiv x y = if H : 0 < y ∧ y ≤ x then pdiv (x - y) y + 1 else 0 :=
 well_founded.fix_eq pair_nat.lt.wf pdiv.F (x, y)
 
+/-
+See comment at fib_wrec.
 example : pdiv 17 2 = 8 :=
 rfl
+-/

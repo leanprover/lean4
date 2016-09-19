@@ -1,8 +1,9 @@
+set_option new_elaborator true
 open list
 
 definition appd {A : Type} : list A → list A → list A
-| appd nil      l := l
-| appd (h :: t) l := h :: (appd t l)
+| nil      l := l
+| (h :: t) l := h :: (appd t l)
 
 theorem appd_nil {A : Type} (l : list A) : appd nil l = l :=
 rfl

@@ -1,3 +1,4 @@
+set_option new_elaborator true
 namespace experiment
 namespace nat
 constant nat : Type.{1}
@@ -22,10 +23,4 @@ axiom add_le_left {a b : int} (H : a ≤ b) (c : int) : c + a ≤ c + b
 noncomputable definition lt (a b : int) := a + one1 ≤ b
 infix `<`  := lt
 end int
-
-open int
-open nat
-open eq
-theorem add_lt_left {a b : int} (H : a < b) (c : int) : c + a < c + b :=
-subst (symm (add_assoc c a one1)) (add_le_left H c)
 end experiment

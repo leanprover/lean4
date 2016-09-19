@@ -1,9 +1,10 @@
+set_option new_elaborator true
 open nat
 
 definition fib : nat → nat
-| fib 0     := 1
-| fib 1     := 1
-| fib (x+2) := fib x + fib (x+1)
+| 0     := 1
+| 1     := 1
+| (x+2) := fib x + fib (x+1)
 
 theorem fib0 : fib 0 = 1 :=
 rfl

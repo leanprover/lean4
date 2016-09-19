@@ -1,10 +1,11 @@
+set_option new_elaborator true
 open nat bool inhabited
 
 definition diag : bool → bool → bool → nat
-| diag b  tt ff := 1
-| diag ff b  tt := 2
-| diag tt ff b  := 3
-| diag b1 b2 b3 := arbitrary nat
+| b  tt ff := 1
+| ff b  tt := 2
+| tt ff b  := 3
+| b1 b2 b3 := arbitrary nat
 
 theorem diag1 (a : bool) : diag a tt ff = 1 :=
 bool.cases_on a rfl rfl

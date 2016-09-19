@@ -1,11 +1,12 @@
+set_option new_elaborator true
 open list
 
 variable {A : Type}
 set_option pp.implicit true
 
 definition app : list A → list A → list A
-| app nil      l := l
-| app (h :: t) l := h :: (app t l)
+| nil      l := l
+| (h :: t) l := h :: (app t l)
 
 theorem app_nil (l : list A) : app nil l = l :=
 rfl

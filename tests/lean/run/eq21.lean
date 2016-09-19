@@ -1,11 +1,13 @@
+set_option new_elaborator true
+
 inductive formula
 | eqf  : nat → nat → formula
 | impf : formula → formula → formula
 
 namespace formula
   definition denote : formula → Prop
-  | denote (eqf n1 n2)  := n1 = n2
-  | denote (impf f1 f2) := denote f1 → denote f2
+  | (eqf n1 n2)  := n1 = n2
+  | (impf f1 f2) := denote f1 → denote f2
 
   theorem denote_eqf (n1 n2 : nat) : denote (eqf n1 n2) = (n1 = n2) :=
   rfl

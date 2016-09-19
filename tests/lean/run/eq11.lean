@@ -1,14 +1,15 @@
+set_option new_elaborator true
 inductive day
 | monday | tuesday | wednesday | thursday | friday | saturday | sunday
 
 open day
 
 definition next_weekday : day → day
-| next_weekday monday    := tuesday
-| next_weekday tuesday   := wednesday
-| next_weekday wednesday := thursday
-| next_weekday thursday  := friday
-| next_weekday _         := monday
+| monday    := tuesday
+| tuesday   := wednesday
+| wednesday := thursday
+| thursday  := friday
+| _         := monday
 
 theorem next_weekday_monday    : next_weekday monday    = tuesday   := rfl
 theorem next_weekday_tuesday   : next_weekday tuesday   = wednesday := rfl

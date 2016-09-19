@@ -1,3 +1,4 @@
+set_option new_elaborator true
 open nat list
 
 section
@@ -7,8 +8,8 @@ section
   include H
 
   definition filter : list A → list A
-  | filter nil      := nil
-  | filter (a :: l) := if p a then a :: filter l else filter l
+  | nil      := nil
+  | (a :: l) := if p a then a :: filter l else filter l
 
   theorem filter_nil : filter nil = nil :=
   rfl
@@ -17,10 +18,10 @@ section
   rfl
 
   theorem filter_cons_of_pos {a : A} (l : list A) (h : p a) : filter (a :: l) = a :: filter l :=
-  if_pos h ▸ filter_cons a l
+  (if_pos h : (if p a then a :: filter l else filter l) = a :: filter l) ▸ filter_cons a l
 
   theorem filter_cons_of_neg {a : A} (l : list A) (h : ¬ p a) : filter (a :: l) = filter l :=
-  if_neg h ▸ filter_cons a l
+  (if_neg h : (if p a then a :: filter l else filter l) = filter l) ▸ filter_cons a l
 end
 
 check @_root_.filter

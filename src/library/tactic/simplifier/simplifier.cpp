@@ -1084,7 +1084,13 @@ simp_result simplifier::try_congr(expr const & e, user_congr_lemma const & cl) {
             flet<simp_lemmas> set_ctx_slss(m_ctx_slss, m_contextual ? add_to_slss(m_ctx_slss, local_factory.as_buffer()) : m_ctx_slss);
 
             h_lhs = tmp_tctx.instantiate_mvars(h_lhs);
-            lean_assert(!has_metavar(h_lhs));
+            /* TODO(Leo, Daniel): the original assertion was !has_metavar(h_lhs).
+               It is incorrect. I got an assertion violation when processing
+               a term containing universe meta-variables. So, I relaxed it to !has_expr_metavar(h_lhs).
+               We should investigate this. Example: what happens if the input expression has
+               regular meta-variables? Perhaps, the right assertion is: h_lhs does *not* have temporary
+               universe and regular meta-variables. */
+            lean_assert(!has_expr_metavar(h_lhs));
 
             if (m_contextual) {
                 freset<simplify_cache> reset_cache(m_cache);

@@ -322,7 +322,9 @@ declare_definition(parser & p, environment const & env, def_cmd_kind kind, buffe
         val = fix_rec_fn_name(val, c_name, c_real_name);
     bool use_conv_opt = true;
     bool is_trusted   = kind != MetaDefinition;
-    auto def          = mk_definition(new_env, c_real_name, to_list(lp_names), type, val, use_conv_opt, is_trusted);
+    auto def          = kind == Theorem ?
+        mk_theorem(c_real_name, to_list(lp_names), type, val) :
+        mk_definition(new_env, c_real_name, to_list(lp_names), type, val, use_conv_opt, is_trusted);
     auto cdef         = check(p, new_env, c_name, def, pos);
     new_env           = module::add(new_env, cdef);
 

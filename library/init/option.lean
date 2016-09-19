@@ -12,7 +12,7 @@ universe variables u v
 
 attribute [instance]
 definition option_is_inhabited (A : Type u) : inhabited (option A) :=
-inhabited.mk none
+⟨none⟩
 
 attribute [instance]
 definition option_has_decidable_eq {A : Type u} [H : decidable_eq A] : ∀ o₁ o₂ : option A, decidable (o₁ = o₂)

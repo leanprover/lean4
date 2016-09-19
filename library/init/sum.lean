@@ -17,8 +17,8 @@ variables {A : Type u} {B : Type v}
 
 attribute [instance]
 protected definition is_inhabited_left [h : inhabited A] : inhabited (A ⊕ B) :=
-inhabited.mk (sum.inl (default A))
+⟨sum.inl (default A)⟩
 
 attribute [instance]
 protected definition is_inhabited_right [h : inhabited B] : inhabited (A ⊕ B) :=
-inhabited.mk (sum.inr (default B))
+⟨sum.inr (default B)⟩

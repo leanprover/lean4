@@ -162,15 +162,15 @@ attribute [pattern] zero one bit0 bit1 add
 
 attribute [instance]
 definition num_has_zero : has_zero num :=
-has_zero.mk num.zero
+⟨num.zero⟩
 
 attribute [instance]
 definition num_has_one : has_one num :=
-has_one.mk (num.pos pos_num.one)
+⟨num.pos pos_num.one⟩
 
 attribute [instance]
 definition pos_num_has_one : has_one pos_num :=
-has_one.mk (pos_num.one)
+⟨pos_num.one⟩
 
 namespace pos_num
   definition is_one (a : pos_num) : bool :=
@@ -198,7 +198,7 @@ end pos_num
 
 attribute [instance]
 definition pos_num_has_add : has_add pos_num :=
-has_add.mk pos_num.add
+⟨pos_num.add⟩
 
 namespace num
   open pos_num
@@ -209,7 +209,7 @@ end num
 
 attribute [instance]
 definition num_has_add : has_add num :=
-has_add.mk num.add
+⟨num.add⟩
 
 definition std.priority.default : num := 1000
 definition std.priority.max     : num := 4294967295
@@ -232,15 +232,15 @@ attribute pos_num_has_add pos_num_has_one num_has_zero num_has_one num_has_add
 
 attribute [instance, priority nat.prio]
 definition nat_has_zero : has_zero nat :=
-has_zero.mk nat.zero
+⟨nat.zero⟩
 
 attribute [instance, priority nat.prio]
 definition nat_has_one : has_one nat :=
-has_one.mk (nat.succ (nat.zero))
+⟨nat.succ (nat.zero)⟩
 
 attribute [instance, priority nat.prio]
 definition nat_has_add : has_add nat :=
-has_add.mk nat.add
+⟨nat.add⟩
 
 /-
   Global declarations of right binding strength
@@ -391,7 +391,7 @@ From now on, the inductive compiler will automatically generate sizeof instances
 /- Every type `A` has a default has_sizeof instance that just returns 0 for every element of `A` -/
 attribute [instance]
 definition default_has_sizeof (A : Type u) : has_sizeof A :=
-has_sizeof.mk (λ a, nat.zero)
+⟨λ a, nat.zero⟩
 
 attribute [simp, defeq, simp.sizeof]
 definition default_has_sizeof_eq (A : Type u) (a : A) : @sizeof A (default_has_sizeof A) a = 0 :=
@@ -399,7 +399,7 @@ rfl
 
 attribute [instance]
 definition nat_has_sizeof : has_sizeof nat :=
-has_sizeof.mk (λ a, a)
+⟨λ a, a⟩
 
 attribute [simp, defeq, simp.sizeof]
 definition sizeof_nat_eq (a : nat) : sizeof a = a :=
@@ -407,7 +407,7 @@ rfl
 
 attribute [instance]
 definition prod_has_sizeof (A : Type u) (B : Type v) [has_sizeof A] [has_sizeof B] : has_sizeof (prod A B) :=
-has_sizeof.mk (λ p, prod.cases_on p (λ a b, 1 + sizeof a + sizeof b))
+⟨λ p, prod.cases_on p (λ a b, 1 + sizeof a + sizeof b)⟩
 
 attribute [simp, defeq, simp.sizeof]
 definition sizeof_prod_eq {A : Type u} {B : Type v} [has_sizeof A] [has_sizeof B] (a : A) (b : B) : sizeof (prod.mk a b) = 1 + sizeof a + sizeof b :=
@@ -415,7 +415,7 @@ rfl
 
 attribute [instance]
 definition sum_has_sizeof (A : Type u) (B : Type v) [has_sizeof A] [has_sizeof B] : has_sizeof (sum A B) :=
-has_sizeof.mk (λ s, sum.cases_on s (λ a, 1 + sizeof a) (λ b, 1 + sizeof b))
+⟨λ s, sum.cases_on s (λ a, 1 + sizeof a) (λ b, 1 + sizeof b)⟩
 
 attribute [simp, defeq, simp.sizeof]
 definition sizeof_sum_eq_left {A : Type u} {B : Type v} [has_sizeof A] [has_sizeof B] (a : A) : sizeof (@sum.inl A B a) = 1 + sizeof a :=
@@ -427,7 +427,7 @@ rfl
 
 attribute [instance]
 definition sigma_has_sizeof (A : Type u) (B : A → Type v) [has_sizeof A] [∀ a, has_sizeof (B a)] : has_sizeof (sigma B) :=
-has_sizeof.mk (λ p, sigma.cases_on p (λ a b, 1 + sizeof a + sizeof b))
+⟨λ p, sigma.cases_on p (λ a b, 1 + sizeof a + sizeof b)⟩
 
 attribute [simp, defeq, simp.sizeof]
 definition sizeof_sigma_eq {A : Type u} {B : A → Type v} [has_sizeof A] [∀ a, has_sizeof (B a)] (a : A) (b : B a) : sizeof (@sigma.mk A B a b) = 1 + sizeof a + sizeof b :=
@@ -435,7 +435,7 @@ rfl
 
 attribute [instance]
 definition unit_has_sizeof : has_sizeof unit :=
-has_sizeof.mk (λ u, 1)
+⟨λ u, 1⟩
 
 attribute [simp, defeq, simp.sizeof]
 definition sizeof_unit_eq (u : unit) : sizeof u = 1 :=
@@ -443,7 +443,7 @@ rfl
 
 attribute [instance]
 definition poly_unit_has_sizeof : has_sizeof poly_unit :=
-has_sizeof.mk (λ u, 1)
+⟨λ u, 1⟩
 
 attribute [simp, defeq, simp.sizeof]
 definition sizeof_poly_unit_eq (u : poly_unit) : sizeof u = 1 :=
@@ -451,7 +451,7 @@ rfl
 
 attribute [instance]
 definition bool_has_sizeof : has_sizeof bool :=
-has_sizeof.mk (λ u, 1)
+⟨λ u, 1⟩
 
 attribute [simp, defeq, simp.sizeof]
 definition sizeof_bool_eq (b : bool) : sizeof b = 1 :=
@@ -459,7 +459,7 @@ rfl
 
 attribute [instance]
 definition pos_num_has_sizeof : has_sizeof pos_num :=
-has_sizeof.mk (λ p, nat.of_pos_num p)
+⟨λ p, nat.of_pos_num p⟩
 
 attribute [simp, defeq, simp.sizeof]
 definition sizeof_pos_num_eq (p : pos_num) : sizeof p = nat.of_pos_num p :=
@@ -467,7 +467,7 @@ rfl
 
 attribute [instance]
 definition num_has_sizeof : has_sizeof num :=
-has_sizeof.mk (λ p, nat.of_num p)
+⟨λ p, nat.of_num p⟩
 
 attribute [simp, defeq, simp.sizeof]
 definition sizeof_num_eq (n : num) : sizeof n = nat.of_num n :=
@@ -475,7 +475,7 @@ rfl
 
 attribute [instance]
 definition option_has_sizeof (A : Type u) [has_sizeof A] : has_sizeof (option A) :=
-has_sizeof.mk (λ o, option.cases_on o 1 (λ a, 1 + sizeof a))
+⟨λ o, option.cases_on o 1 (λ a, 1 + sizeof a)⟩
 
 attribute [simp, defeq, simp.sizeof]
 definition sizeof_option_none_eq (A : Type u) [has_sizeof A] : sizeof (@none A) = 1 :=
@@ -487,7 +487,7 @@ rfl
 
 attribute [instance]
 definition list_has_sizeof (A : Type u) [has_sizeof A] : has_sizeof (list A) :=
-has_sizeof.mk (λ l, list.rec_on l 1 (λ a t ih, 1 + sizeof a + ih))
+⟨λ l, list.rec_on l 1 (λ a t ih, 1 + sizeof a + ih)⟩
 
 attribute [simp, defeq, simp.sizeof]
 definition sizeof_list_nil_eq (A : Type u) [has_sizeof A] : sizeof (@list.nil A) = 1 :=

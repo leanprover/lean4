@@ -12,7 +12,7 @@ universe variables u v
 
 attribute [instance]
 protected definition list.is_inhabited (A : Type u) : inhabited (list A) :=
-inhabited.mk list.nil
+⟨list.nil⟩
 
 notation h :: t  := cons h t
 notation `[` l:(foldr `, ` (h t, cons h t) nil `]`) := l
@@ -71,4 +71,4 @@ end list
 
 attribute [instance]
 definition list_has_append {A : Type u} : has_append (list A) :=
-has_append.mk list.append
+⟨list.append⟩

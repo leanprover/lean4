@@ -14,10 +14,10 @@ namespace fin
 variable {n : nat}
 
 lemma eq_of_veq : ∀ {i j : fin n}, (val i) = (val j) → i = j
-| (mk iv ilt₁) (mk .iv ilt₂) rfl := rfl
+| ⟨iv, ilt₁⟩ ⟨.iv, ilt₂⟩ rfl := rfl
 
 lemma veq_of_eq : ∀ {i j : fin n}, i = j → (val i) = (val j)
-| (mk iv ilt) .(mk iv ilt) rfl := rfl
+| ⟨iv, ilt⟩ .⟨iv, ilt⟩ rfl := rfl
 
 end fin
 
@@ -25,7 +25,7 @@ open fin
 
 attribute [instance]
 protected definition fin.has_decidable_eq (n : nat) : ∀ (i j : fin n), decidable (i = j)
-| (mk ival ilt) (mk jval jlt) :=
+| ⟨ival, ilt⟩ ⟨jval, jlt⟩ :=
   match nat.has_decidable_eq ival jval with
   | is_true  h₁ := is_true (eq_of_veq h₁)
   | is_false h₁ := is_false (λ h₂, absurd (veq_of_eq h₂) h₁)

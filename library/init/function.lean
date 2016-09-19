@@ -104,7 +104,7 @@ definition bijective (f : A → B) := injective f ∧ surjective f
 theorem bijective_comp {g : B → C} {f : A → B} (Hg : bijective g) (Hf : bijective f) :
   bijective (g ∘ f) :=
 and.elim Hg (λ Hginj Hgsurj, and.elim Hf (λ Hfinj Hfsurj,
-  and.intro (injective_comp Hginj Hfinj) (surjective_comp Hgsurj Hfsurj)))
+  ⟨injective_comp Hginj Hfinj, surjective_comp Hgsurj Hfsurj⟩))
 
 -- g is a left inverse to f
 definition left_inverse (g : B → A) (f : A → B) : Prop := ∀x, g (f x) = x
@@ -145,7 +145,7 @@ exists.elim h (λ finv inv,
 have h : f (finv b) = b, from calc
   f (finv b)  = f (finv b)   : rfl
           ... = b            : inv b,
-exists.intro (finv b) h)
+⟨finv b, h⟩)
 
 theorem left_inverse_of_surjective_of_right_inverse {f : A → B} {g : B → A}
     (surjf : surjective f) (rfg : right_inverse f g) :
@@ -158,8 +158,8 @@ calc
 
 theorem injective_id : injective (@id A) := take a₁ a₂ H, H
 
-theorem surjective_id : surjective (@id A) := take a, exists.intro a rfl
+theorem surjective_id : surjective (@id A) := take a, ⟨a, rfl⟩
 
-theorem bijective_id : bijective (@id A) := and.intro injective_id surjective_id
+theorem bijective_id : bijective (@id A) := ⟨injective_id, surjective_id⟩
 
 end function

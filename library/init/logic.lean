@@ -26,7 +26,7 @@ attribute [trans]
 lemma implies.trans {p q r : Prop} (h₁ : implies p q) (h₂ : implies q r) : implies p r :=
 assume hp, h₂ (h₁ hp)
 
-definition trivial := true.intro
+definition trivial : true := ⟨⟩
 
 definition not (a : Prop) := a → false
 prefix `¬` := not
@@ -422,7 +422,7 @@ assume H, iff.mp H trivial
 
 /- and simp rules -/
 theorem and.imp (H₂ : a → c) (H₃ : b → d) : a ∧ b → c ∧ d :=
-and.rec (λHa Hb, and.intro (H₂ Ha) (H₃ Hb))
+λ h, and.rec (λ Ha Hb, ⟨H₂ Ha, H₃ Hb⟩) h
 
 attribute [congr]
 theorem and_congr (H1 : a ↔ c) (H2 : b ↔ d) : (a ∧ b) ↔ (c ∧ d) :=
@@ -430,8 +430,8 @@ iff.intro (and.imp (iff.mp H1) (iff.mp H2)) (and.imp (iff.mpr H1) (iff.mpr H2))
 
 theorem and_congr_right (H : a → (b ↔ c)) : (a ∧ b) ↔ (a ∧ c) :=
 iff.intro
-  (take Hab, and.intro (and.left Hab) (iff.elim_left (H (and.left Hab)) (and.right Hab)))
-  (take Hac, and.intro (and.left Hac) (iff.elim_right (H (and.left Hac)) (and.right Hac)))
+  (take Hab, ⟨and.left Hab, iff.elim_left (H (and.left Hab)) (and.right Hab)⟩)
+  (take Hac, ⟨and.left Hac, iff.elim_right (H (and.left Hac)) (and.right Hac)⟩)
 
 attribute [simp]
 theorem and.comm : a ∧ b ↔ b ∧ a :=
@@ -440,15 +440,15 @@ iff.intro and.swap and.swap
 attribute [simp]
 theorem and.assoc : (a ∧ b) ∧ c ↔ a ∧ (b ∧ c) :=
 iff.intro
-  (λ h, and.rec (λ H' Hc, and.rec (λ Ha Hb, and.intro Ha (and.intro Hb Hc)) H') h)
-  (λ h, and.rec (λ Ha Hbc, and.rec (λ Hb Hc, and.intro (and.intro Ha Hb) Hc) Hbc) h)
+  (λ h, and.rec (λ H' Hc, and.rec (λ Ha Hb, ⟨Ha, Hb, Hc⟩) H') h)
+  (λ h, and.rec (λ Ha Hbc, and.rec (λ Hb Hc, ⟨⟨Ha, Hb⟩, Hc⟩) Hbc) h)
 
 attribute [simp]
 theorem and.left_comm : a ∧ (b ∧ c) ↔ b ∧ (a ∧ c) :=
 iff.trans (iff.symm and.assoc) (iff.trans (and_congr and.comm (iff.refl c)) and.assoc)
 
 theorem and_iff_left {a b : Prop} (Hb : b) : (a ∧ b) ↔ a :=
-iff.intro and.left (λHa, and.intro Ha Hb)
+iff.intro and.left (λ Ha, ⟨Ha, Hb⟩)
 
 theorem and_iff_right {a b : Prop} (Ha : a) : (a ∧ b) ↔ b :=
 iff.intro and.right (and.intro Ha)
@@ -479,7 +479,7 @@ iff_false_intro (λ H, and.elim H (λ H₁ H₂, absurd H₁ H₂))
 
 attribute [simp]
 theorem and_self (a : Prop) : a ∧ a ↔ a :=
-iff.intro and.left (assume H, and.intro H H)
+iff.intro and.left (assume H, ⟨H, H⟩)
 
 /- or simp rules -/
 
@@ -597,7 +597,7 @@ notation `∃!` binders `, ` r:(scoped P, exists_unique P) := r
 attribute [intro]
 theorem exists_unique.intro {A : Type u} {p : A → Prop} (w : A) (H1 : p w) (H2 : ∀y, p y → y = w) :
   ∃!x, p x :=
-exists.intro w (and.intro H1 H2)
+exists.intro w ⟨H1, H2⟩
 
 attribute [recursor 4, elim]
 theorem exists_unique.elim {A : Type u} {p : A → Prop} {b : Prop}
@@ -609,7 +609,7 @@ theorem exists_unique_of_exists_of_unique {A : Type u} {p : A → Prop}
 exists.elim Hex (λ x px, exists_unique.intro x px (take y, suppose p y, Hunique y x this px))
 
 theorem exists_of_exists_unique {A : Type u} {p : A → Prop} (H : ∃! x, p x) : ∃ x, p x :=
-exists.elim H (λ x Hx, exists.intro x (and.left Hx))
+exists.elim H (λ x Hx, ⟨x, and.left Hx⟩)
 
 theorem unique_of_exists_unique {A : Type u} {p : A → Prop}
     (H : ∃! x, p x) {y₁ y₂ : A} (py₁ : p y₁) (py₂ : p y₂) : y₁ = y₂ :=
@@ -621,10 +621,10 @@ exists_unique.elim H
 /- exists, forall, exists unique congruences -/
 attribute [congr]
 theorem forall_congr {A : Type u} {P Q : A → Prop} (H : ∀a, (P a ↔ Q a)) : (∀a, P a) ↔ ∀a, Q a :=
-iff.intro (λp a, iff.mp (H a) (p a)) (λq a, iff.mpr (H a) (q a))
+iff.intro (λ p a, iff.mp (H a) (p a)) (λ q a, iff.mpr (H a) (q a))
 
 theorem exists_imp_exists {A : Type u} {P Q : A → Prop} (H : ∀a, (P a → Q a)) (p : ∃a, P a) : ∃a, Q a :=
-exists.elim p (λa Hp, exists.intro a (H a Hp))
+exists.elim p (λ a Hp, ⟨a, H a Hp⟩)
 
 attribute [congr]
 theorem exists_congr {A : Type u} {P Q : A → Prop} (H : ∀a, (P a ↔ Q a)) : (Exists P) ↔ ∃a, Q a :=
@@ -708,7 +708,7 @@ section
   attribute [instance]
   definition decidable_and [decidable p] [decidable q] : decidable (p ∧ q) :=
   if hp : p then
-    if hq : q then is_true (and.intro hp hq)
+    if hq : q then is_true ⟨hp, hq⟩
     else is_false (assume H : p ∧ q, hq (and.right H))
   else is_false (assume H : p ∧ q, hp (and.left H))
 
@@ -800,28 +800,28 @@ inhabited.value H
 
 attribute [instance]
 definition Prop.is_inhabited : inhabited Prop :=
-inhabited.mk true
+⟨true⟩
 
 attribute [instance]
 definition inhabited_fun (A : Type u) {B : Type v} [H : inhabited B] : inhabited (A → B) :=
-inhabited.rec_on H (λb, inhabited.mk (λa, b))
+inhabited.rec_on H (λ b, ⟨λ a, b⟩)
 
 attribute [instance]
 definition inhabited_Pi (A : Type u) {B : A → Type v} [Πx, inhabited (B x)] :
   inhabited (Πx, B x) :=
-inhabited.mk (λa, default (B a))
+⟨λ a, default (B a)⟩
 
 attribute [inline, instance]
 protected definition bool.is_inhabited : inhabited bool :=
-inhabited.mk ff
+⟨ff⟩
 
 attribute [inline, instance]
 protected definition pos_num.is_inhabited : inhabited pos_num :=
-inhabited.mk pos_num.one
+⟨pos_num.one⟩
 
 attribute [inline, instance]
 protected definition num.is_inhabited : inhabited num :=
-inhabited.mk num.zero
+⟨num.zero⟩
 
 inductive [class] nonempty (A : Type u) : Prop
 | intro : A → nonempty
@@ -831,10 +831,10 @@ nonempty.rec H2 H1
 
 attribute [instance]
 theorem nonempty_of_inhabited {A : Type u} [inhabited A] : nonempty A :=
-nonempty.intro (default A)
+⟨default A⟩
 
-theorem nonempty_of_exists {A : Type u} {P : A → Prop} : (∃x, P x) → nonempty A :=
-λ h, Exists.rec (λw H, nonempty.intro w) h
+theorem nonempty_of_exists {A : Type u} {P : A → Prop} : (∃x, P x) → nonempty A
+| ⟨w, h⟩ := ⟨w⟩
 
 /- subsingleton -/
 
@@ -849,7 +849,7 @@ eq.rec_on h (λ a b : A, heq_of_eq (subsingleton.elim a b))
 
 attribute [instance]
 definition subsingleton_prop (p : Prop) : subsingleton p :=
-subsingleton.intro (λa b, proof_irrel a b)
+⟨λ a b, proof_irrel a b⟩
 
 attribute [instance]
 definition subsingleton_decidable (p : Prop) : subsingleton (decidable p) :=

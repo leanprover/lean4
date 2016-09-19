@@ -19,4 +19,4 @@ subsingleton.intro unit_eq
 
 attribute [instance]
 definition unit_is_inhabited : inhabited unit :=
-inhabited.mk ()
+⟨()⟩

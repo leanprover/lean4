@@ -48,7 +48,7 @@ namespace quot
   ind H q
 
   theorem exists_rep {A : Type u} [s : setoid A] (q : quot s) : ∃ a : A, ⟦a⟧ = q :=
-  quot.induction_on q (λ a, exists.intro a rfl)
+  quot.induction_on q (λ a, ⟨a, rfl⟩)
 
   section
   variable {A : Type u}
@@ -58,12 +58,12 @@ namespace quot
 
   attribute [reducible]
   protected definition indep (f : Π a, B ⟦a⟧) (a : A) : Σ q, B q :=
-  sigma.mk ⟦a⟧ (f a)
+  ⟨⟦a⟧, f a⟩
 
   protected lemma indep_coherent (f : Π a, B ⟦a⟧)
                        (H : ∀ (a b : A) (p : a ≈ b), (eq.rec (f a) (sound p) : B ⟦b⟧) = f b)
                        : ∀ a b, a ≈ b → quot.indep f a = quot.indep f b  :=
-  λa b e, sigma.eq (sound e) (H a b e)
+  λ a b e, sigma.eq (sound e) (H a b e)
 
   protected lemma lift_indep_pr1
     (f : Π a, B ⟦a⟧) (H : ∀ (a b : A) (p : a ≈ b), (eq.rec (f a) (sound p) : B ⟦b⟧) = f b)

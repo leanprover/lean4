@@ -26,7 +26,7 @@ else               ordering.gt
 
 attribute [instance]
 definition nat_has_ordering : has_ordering nat :=
-has_ordering.mk nat.cmp
+⟨nat.cmp⟩
 
 section
 open prod
@@ -43,7 +43,7 @@ definition prod.cmp : A × B → A × B → ordering
 
 attribute [instance]
 definition prod_has_ordering {A B : Type} [has_ordering A] [has_ordering B] : has_ordering (A × B) :=
-has_ordering.mk prod.cmp
+⟨prod.cmp⟩
 end
 
 section
@@ -59,7 +59,7 @@ definition sum.cmp : A ⊕ B → A ⊕ B → ordering
 
 attribute [instance]
 definition sum_has_ordering {A B : Type} [has_ordering A] [has_ordering B] : has_ordering (A ⊕ B) :=
-has_ordering.mk sum.cmp
+⟨sum.cmp⟩
 end
 
 section
@@ -75,5 +75,5 @@ definition option.cmp : option A → option A → ordering
 
 attribute [instance]
 definition option_has_ordering {A : Type} [has_ordering A] : has_ordering (option A) :=
-has_ordering.mk option.cmp
+⟨option.cmp⟩
 end

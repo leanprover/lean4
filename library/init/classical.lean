@@ -17,13 +17,13 @@ axiom strong_indefinite_description {A : Type u} (P : A → Prop) (H : nonempty 
   { x \ (∃ y : A, P y) → P x}
 
 theorem exists_true_of_nonempty {A : Type u} (H : nonempty A) : ∃ x : A, true :=
-nonempty.elim H (take x, exists.intro x trivial)
+nonempty.elim H (take x, ⟨x, trivial⟩)
 
 noncomputable definition inhabited_of_nonempty {A : Type u} (H : nonempty A) : inhabited A :=
-inhabited.mk (elt_of (strong_indefinite_description (λa, true) H))
+⟨elt_of (strong_indefinite_description (λa, true) H)⟩
 
 noncomputable definition inhabited_of_exists {A : Type u} {P : A → Prop} (H : ∃ x, P x) : inhabited A :=
-inhabited_of_nonempty (exists.elim H (λ w Hw, nonempty.intro w))
+inhabited_of_nonempty (exists.elim H (λ w Hw, ⟨w⟩))
 
 /- the Hilbert epsilon function -/
 
@@ -39,8 +39,8 @@ theorem epsilon_spec {A : Type u} {P : A → Prop} (Hex : ∃ y, P y) :
     P (@epsilon A (nonempty_of_exists Hex) P) :=
 epsilon_spec_aux (nonempty_of_exists Hex) P Hex
 
-theorem epsilon_singleton {A : Type u} (a : A) : @epsilon A (nonempty.intro a) (λ x, x = a) = a :=
-@epsilon_spec A (λ x, x = a) (exists.intro a rfl)
+theorem epsilon_singleton {A : Type u} (a : A) : @epsilon A ⟨a⟩ (λ x, x = a) = a :=
+@epsilon_spec A (λ x, x = a) ⟨a, rfl⟩
 
 noncomputable definition some {A : Type u} {P : A → Prop} (H : ∃ x, P x) : A :=
 @epsilon A (nonempty_of_exists H) P
@@ -53,7 +53,7 @@ epsilon_spec H
 theorem axiom_of_choice {A : Type u} {B : A → Type v} {R : Π x, B x → Prop} (H : ∀ x, ∃ y, R x y) :
   ∃ (f : Π x, B x), ∀ x, R x (f x) :=
 have H : ∀ x, R x (some (H x)), from take x, some_spec (H x),
-exists.intro _ H
+⟨_, H⟩
 
 theorem skolem {A : Type u} {B : A → Type v} {P : Π x, B x → Prop} :
   (∀ x, ∃ y, P x y) ↔ ∃ (f : Π x, B x) , (∀ x, P x (f x)) :=
@@ -61,8 +61,7 @@ iff.intro
   (assume H : (∀ x, ∃ y, P x y), axiom_of_choice H)
   (assume H : (∃ (f : Π x, B x), (∀ x, P x (f x))),
     take x, exists.elim H (λ (fw : ∀x, B x) (Hw : ∀x, P x (fw x)),
-      exists.intro (fw x) (Hw x)))
-
+      ⟨fw x, Hw x⟩))
 /-
 Prove excluded middle using Hilbert's choice
 The proof follows Diaconescu proof that shows that the axiom of choice implies the excluded middle.
@@ -77,10 +76,10 @@ private noncomputable definition u := epsilon U
 private noncomputable definition v := epsilon V
 
 private lemma u_def : U u :=
-epsilon_spec (exists.intro true (or.inl rfl))
+epsilon_spec ⟨true, or.inl rfl⟩
 
 private lemma v_def : V v :=
-epsilon_spec (exists.intro false (or.inl rfl))
+epsilon_spec ⟨false, or.inl rfl⟩
 
 private lemma not_uv_or_p : ¬(u = v) ∨ p :=
 or.elim u_def
@@ -166,8 +165,8 @@ end aux
 noncomputable definition decidable_inhabited (a : Prop) : inhabited (decidable a) :=
 inhabited_of_nonempty
   (or.elim (em a)
-    (assume Ha, nonempty.intro (is_true Ha))
-    (assume Hna, nonempty.intro (is_false Hna)))
+    (assume Ha, ⟨is_true Ha⟩)
+    (assume Hna, ⟨is_false Hna⟩))
 local attribute decidable_inhabited [instance]
 
 noncomputable definition prop_decidable (a : Prop) : decidable a :=

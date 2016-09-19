@@ -87,39 +87,39 @@ notation `↥`:max a:max := coe_sort a
 
 attribute [instance]
 definition {u₁ u₂ u₃} lift_trans {A : Type u₁} {B : Type u₂} {C : Type u₃} [has_lift A B] [has_lift_t B C] : has_lift_t A C :=
-has_lift_t.mk (λ a, lift_t (lift a : B))
+⟨λ a, lift_t (lift a : B)⟩
 
 attribute [instance]
 definition lift_base {A : Type u} {B : Type v} [has_lift A B] : has_lift_t A B :=
-has_lift_t.mk lift
+⟨lift⟩
 
 attribute [instance]
 definition {u₁ u₂ u₃} coe_trans {A : Type u₁} {B : Type u₂} {C : Type u₃} [has_coe A B] [has_coe_t B C] : has_coe_t A C :=
-has_coe_t.mk (λ a, coe_t (coe_b a : B))
+⟨λ a, coe_t (coe_b a : B)⟩
 
 attribute [instance]
 definition coe_base {A : Type u} {B : Type v} [has_coe A B] : has_coe_t A B :=
-has_coe_t.mk coe_b
+⟨coe_b⟩
 
 attribute [instance]
 definition {u₁ u₂ u₃} coe_fn_trans {A : Type u₁} {B : Type u₂} [has_lift_t A B] [has_coe_to_fun.{u₂ u₃} B] : has_coe_to_fun.{u₁ u₃} A :=
-has_coe_to_fun.mk (has_coe_to_fun.F B) (λ a, coe_fn (coe a))
+⟨has_coe_to_fun.F B, λ a, coe_fn (coe a)⟩
 
 attribute [instance]
 definition {u₁ u₂ u₃} coe_sort_trans {A : Type u₁} {B : Type u₂} [has_lift_t A B] [has_coe_to_sort.{u₂ u₃} B] : has_coe_to_sort.{u₁ u₃} A :=
-has_coe_to_sort.mk (has_coe_to_sort.S B) (λ a, coe_sort (coe a))
+⟨has_coe_to_sort.S B, λ a, coe_sort (coe a)⟩
 
 /- Every coercion is also a lift -/
 
 attribute [instance]
 definition coe_to_lift {A : Type u} {B : Type v} [has_coe_t A B] : has_lift_t A B :=
-has_lift_t.mk coe_t
+⟨coe_t⟩
 
 /- Basic coercions -/
 
 attribute [instance]
 definition coe_bool_to_Prop : has_coe bool Prop :=
-has_coe.mk (λ b, b = tt)
+⟨λ b, b = tt⟩
 
 attribute [instance]
 definition coe_decidable_eq (b : bool) : decidable (coe b) :=
@@ -127,7 +127,7 @@ show decidable (b = tt), from bool.has_decidable_eq b tt
 
 attribute [instance]
 definition coe_subtype {A : Type u} {P : A → Prop} : has_coe {a \ P a} A :=
-has_coe.mk (λ s, subtype.elt_of s)
+⟨λ s, subtype.elt_of s⟩
 
 /- Basic lifts -/
 
@@ -135,28 +135,28 @@ has_coe.mk (λ s, subtype.elt_of s)
    problem does not have a solution. -/
 attribute [instance]
 definition {ua₁ ua₂ ub₁ ub₂} lift_fn {A₁ : Type ua₁} {A₂ : Type ua₂} {B₁ : Type ub₁} {B₂ : Type ub₂} [has_lift A₂ A₁] [has_lift_t B₁ B₂] : has_lift (A₁ → B₁) (A₂ → B₂) :=
-has_lift.mk (λ f a, ↑(f ↑a))
+⟨λ f a, ↑(f ↑a)⟩
 
 attribute [instance]
 definition {ua ub₁ ub₂} lift_fn_range {A : Type ua} {B₁ : Type ub₁} {B₂ : Type ub₂} [has_lift_t B₁ B₂] : has_lift (A → B₁) (A → B₂) :=
-has_lift.mk (λ f a, ↑(f a))
+⟨λ f a, ↑(f a)⟩
 
 attribute [instance]
 definition {ua₁ ua₂ ub} lift_fn_dom {A₁ : Type ua₁} {A₂ : Type ua₂} {B : Type ub} [has_lift A₂ A₁] : has_lift (A₁ → B) (A₂ → B) :=
-has_lift.mk (λ f a, f ↑a)
+⟨λ f a, f ↑a⟩
 
 attribute [instance]
 definition {ua₁ ua₂ ub₁ ub₂} lift_pair {A₁ : Type ua₁} {A₂ : Type ub₂} {B₁ : Type ub₁} {B₂ : Type ub₂} [has_lift_t A₁ A₂] [has_lift_t B₁ B₂] : has_lift (A₁ × B₁) (A₂ × B₂) :=
-has_lift.mk (λ p, prod.cases_on p (λ a b, (↑a, ↑b)))
+⟨λ p, prod.cases_on p (λ a b, (↑a, ↑b))⟩
 
 attribute [instance]
 definition {ua₁ ua₂ ub} lift_pair₁ {A₁ : Type ua₁} {A₂ : Type ua₂} {B : Type ub} [has_lift_t A₁ A₂] : has_lift (A₁ × B) (A₂ × B) :=
-has_lift.mk (λ p, prod.cases_on p (λ a b, (↑a, b)))
+⟨λ p, prod.cases_on p (λ a b, (↑a, b))⟩
 
 attribute [instance]
 definition {ua ub₁ ub₂} lift_pair₂ {A : Type ua} {B₁ : Type ub₁} {B₂ : Type ub₂} [has_lift_t B₁ B₂] : has_lift (A × B₁) (A × B₂) :=
-has_lift.mk (λ p, prod.cases_on p (λ a b, (a, ↑b)))
+⟨λ p, prod.cases_on p (λ a b, (a, ↑b))⟩
 
 attribute [instance]
 definition lift_list {A : Type u} {B : Type v} [has_lift_t A B] : has_lift (list A) (list B) :=
-has_lift.mk (λ l, list.map (@coe A B _) l)
+⟨λ l, list.map (@coe A B _) l⟩

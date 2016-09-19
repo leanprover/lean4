@@ -18,7 +18,7 @@ protected definition div := well_founded.fix lt_wf div.F
 
 attribute[instance]
 definition nat_has_divide : has_div nat :=
-has_div.mk nat.div
+⟨nat.div⟩
 
 theorem div_def (x y : nat) : div x y = if H : 0 < y ∧ y ≤ x then div (x - y) y + 1 else 0 :=
 congr_fun (well_founded.fix_eq lt_wf div.F x) y
@@ -30,7 +30,7 @@ protected definition mod := well_founded.fix lt_wf mod.F
 
 attribute [instance]
 definition nat_has_mod : has_mod nat :=
-has_mod.mk nat.mod
+⟨nat.mod⟩
 
 theorem mod_def (x y : nat) : mod x y = if H : 0 < y ∧ y ≤ x then mod (x - y) y else x :=
 congr_fun (well_founded.fix_eq lt_wf mod.F x) y

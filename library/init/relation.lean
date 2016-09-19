@@ -15,29 +15,29 @@ universe variables u v
 variables {A : Type u} {B : Type v} (R : B → B → Prop)
 local infix `≺`:50 := R
 
-definition reflexive := ∀x, x ≺ x
+definition reflexive := ∀ x, x ≺ x
 
-definition symmetric := ∀⦃x y⦄, x ≺ y → y ≺ x
+definition symmetric := ∀ ⦃x y⦄, x ≺ y → y ≺ x
 
-definition transitive := ∀⦃x y z⦄, x ≺ y → y ≺ z → x ≺ z
+definition transitive := ∀ ⦃x y z⦄, x ≺ y → y ≺ z → x ≺ z
 
 definition equivalence := reflexive R ∧ symmetric R ∧ transitive R
 
 definition total := ∀ x y, x ≺ y ∨ y ≺ x
 
 definition mk_equivalence (r : reflexive R) (s : symmetric R) (t : transitive R) : equivalence R :=
-and.intro r (and.intro s t)
+⟨r, s, t⟩
 
-definition irreflexive := ∀x, ¬ x ≺ x
+definition irreflexive := ∀ x, ¬ x ≺ x
 
-definition anti_symmetric := ∀⦃x y⦄, x ≺ y → y ≺ x → x = y
+definition anti_symmetric := ∀ ⦃x y⦄, x ≺ y → y ≺ x → x = y
 
-definition empty_relation := λa₁ a₂ : A, false
+definition empty_relation := λ a₁ a₂ : A, false
 
-definition subrelation (Q R : B → B → Prop) := ∀⦃x y⦄, Q x y → R x y
+definition subrelation (Q R : B → B → Prop) := ∀ ⦃x y⦄, Q x y → R x y
 
 definition inv_image (f : A → B) : A → A → Prop :=
-λa₁ a₂, f a₁ ≺ f a₂
+λ a₁ a₂, f a₁ ≺ f a₂
 
 theorem inv_image.trans (f : A → B) (H : transitive R) : transitive (inv_image R f) :=
 λ (a₁ a₂ a₃ : A) (H₁ : inv_image R f a₁ a₂) (H₂ : inv_image R f a₂ a₃), H H₁ H₂

@@ -36,7 +36,7 @@ end pos_num
 
 attribute [instance]
 definition pos_num_has_mul : has_mul pos_num :=
-has_mul.mk pos_num.mul
+⟨pos_num.mul⟩
 
 namespace num
   open pos_num
@@ -53,7 +53,7 @@ end num
 
 attribute [instance]
 definition num_has_mul : has_mul num :=
-has_mul.mk num.mul
+⟨num.mul⟩
 
 namespace num
   protected definition le (a b : num) : bool :=
@@ -84,4 +84,4 @@ end num
 
 attribute [instance]
 definition num_has_sub : has_sub num :=
-has_sub.mk num.sub
+⟨num.sub⟩

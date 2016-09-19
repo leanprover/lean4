@@ -63,7 +63,4 @@ local infix `~` := function.equiv
 attribute [instance]
 definition {u v} subsingleton_pi {A : Type u} {B : A → Type v} (H : ∀ a, subsingleton (B a)) :
   subsingleton (Π a, B a) :=
-subsingleton.intro (take f₁ f₂,
-  have eqv : f₁ ~ f₂, from
-    take a, subsingleton.elim (f₁ a) (f₂ a),
-  funext eqv)
+⟨λ f₁ f₂, funext (λ a, subsingleton.elim (f₁ a) (f₂ a))⟩

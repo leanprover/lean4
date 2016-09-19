@@ -32,4 +32,4 @@ this
 
 attribute [instance]
 definition char_is_inhabited : inhabited char :=
-inhabited.mk 'A'
+⟨'A'⟩

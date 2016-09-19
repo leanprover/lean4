@@ -88,7 +88,7 @@ namespace nat
 
   attribute [instance, priority nat.prio]
   definition nat_has_le : has_le ℕ :=
-  has_le.mk nat.le
+  ⟨nat.le⟩
 
   attribute [refl]
   protected lemma le_refl : ∀ a : ℕ, a ≤ a :=
@@ -99,7 +99,7 @@ namespace nat
 
   attribute [instance, priority nat.prio]
   definition nat_has_lt : has_lt ℕ :=
-  has_lt.mk nat.lt
+  ⟨nat.lt⟩
 
   definition pred : ℕ → ℕ
   | 0     := 0
@@ -114,11 +114,11 @@ namespace nat
 
   attribute [instance, priority nat.prio]
   definition nat_has_sub : has_sub ℕ :=
-  has_sub.mk nat.sub
+  ⟨nat.sub⟩
 
   attribute [instance, priority nat.prio]
   definition nat_has_mul : has_mul ℕ :=
-  has_mul.mk nat.mul
+  ⟨nat.mul⟩
 
   attribute [instance, priority nat.prio]
   protected definition has_decidable_eq : ∀ x y : ℕ, decidable (x = y)
@@ -372,5 +372,5 @@ namespace nat
 
   attribute [instance]
   protected definition is_inhabited : inhabited nat :=
-  inhabited.mk nat.zero
+  ⟨nat.zero⟩
 end nat

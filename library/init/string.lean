@@ -23,7 +23,7 @@ end string
 
 attribute [instance]
 definition string.has_append : has_append string :=
-has_append.mk string.concat
+⟨string.concat⟩
 
 open list
 

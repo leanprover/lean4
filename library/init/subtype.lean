@@ -18,18 +18,16 @@ notation `{` binder ` \ `:0 r:(scoped:1 P, subtype P) `}` := r
 namespace subtype
 
   definition exists_of_subtype {A : Type u} {P : A → Prop} : { x \ P x } → ∃ x, P x
-  | (subtype.tag a h) := exists.intro a h
+  | ⟨a, h⟩ := ⟨a, h⟩
 
   variables {A : Type u} {P : A → Prop}
 
-  theorem tag_irrelevant {a : A} (H1 H2 : P a) : tag a H1 = tag a H2 :=
+  theorem tag_irrelevant {a : A} (h1 h2 : P a) : tag a h1 = tag a h2 :=
   rfl
 
-  theorem tag_eq {a1 a2 : A} {H1 : P a1} {H2 : P a2} (H3 : a1 = a2) : tag a1 H1 = tag a2 H2 :=
-  eq.subst H3 (tag_irrelevant H1) H2
+  protected theorem eq : ∀ {a1 a2 : {x \ P x}}, elt_of a1 = elt_of a2 → a1 = a2
+  | ⟨x, h1⟩ ⟨.x, h2⟩ rfl := rfl
 
-  protected theorem eq : ∀ {a1 a2 : {x \ P x}} (H : elt_of a1 = elt_of a2), a1 = a2
-  | (tag x1 H1) (tag x2 H2) := tag_eq
 end subtype
 
 open subtype
@@ -37,5 +35,5 @@ open subtype
 variables {A : Type u} {P : A → Prop}
 
 attribute [instance]
-protected definition subtype.is_inhabited {a : A} (H : P a) : inhabited {x \ P x} :=
-inhabited.mk (tag a H)
+protected definition subtype.is_inhabited {a : A} (h : P a) : inhabited {x \ P x} :=
+⟨⟨a, h⟩⟩

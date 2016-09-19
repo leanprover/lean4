@@ -16,12 +16,12 @@ has_to_string.to_string
 
 attribute [instance]
 definition bool.has_to_string : has_to_string bool :=
-has_to_string.mk (λ b, cond b "tt" "ff")
+⟨λ b, cond b "tt" "ff"⟩
 
 attribute [instance]
 definition decidable.has_to_string {p : Prop} : has_to_string (decidable p) :=
 -- Remark: type class inference will not consider local instance `b` in the new elaborator
-has_to_string.mk (λ b : decidable p, @ite p b _ "tt" "ff")
+⟨λ b : decidable p, @ite p b _ "tt" "ff"⟩
 
 definition list.to_string_aux {A : Type u} [has_to_string A] : bool → list A → string
 | b  []      := ""
@@ -34,32 +34,32 @@ definition list.to_string {A : Type u} [has_to_string A] : list A → string
 
 attribute [instance]
 definition list.has_to_string {A : Type u} [has_to_string A] : has_to_string (list A) :=
-has_to_string.mk list.to_string
+⟨list.to_string⟩
 
 attribute [instance]
 definition unit.has_to_string : has_to_string unit :=
-has_to_string.mk (λ u, "star")
+⟨λ u, "star"⟩
 
 attribute [instance]
 definition option.has_to_string {A : Type u} [has_to_string A] : has_to_string (option A) :=
-has_to_string.mk (λ o, match o with | none := "none" | (some a) := "(some " ++ to_string a ++ ")" end)
+⟨λ o, match o with | none := "none" | (some a) := "(some " ++ to_string a ++ ")" end⟩
 
 attribute [instance]
 definition sum.has_to_string {A : Type u} {B : Type v} [has_to_string A] [has_to_string B] : has_to_string (A ⊕ B) :=
-has_to_string.mk (λ s, match s with | (inl a) := "(inl " ++ to_string a ++ ")" | (inr b) := "(inr " ++ to_string b ++ ")" end)
+⟨λ s, match s with | (inl a) := "(inl " ++ to_string a ++ ")" | (inr b) := "(inr " ++ to_string b ++ ")" end⟩
 
 attribute [instance]
 definition prod.has_to_string {A : Type u} {B : Type v} [has_to_string A] [has_to_string B] : has_to_string (A × B) :=
-has_to_string.mk (λ p, "(" ++ to_string (pr1 p) ++ ", " ++ to_string (pr2 p) ++ ")")
+⟨λ p, "(" ++ to_string (pr1 p) ++ ", " ++ to_string (pr2 p) ++ ")"⟩
 
 attribute [instance]
 definition sigma.has_to_string {A : Type u} {B : A → Type v} [has_to_string A] [s : ∀ x, has_to_string (B x)]
                                           : has_to_string (sigma B) :=
-has_to_string.mk (λ p, "⟨"  ++ to_string (pr1 p) ++ ", " ++ to_string (pr2 p) ++ "⟩")
+⟨λ p, "⟨"  ++ to_string (pr1 p) ++ ", " ++ to_string (pr2 p) ++ "⟩"⟩
 
 attribute [instance]
 definition subtype.has_to_string {A : Type u} {P : A → Prop} [has_to_string A] : has_to_string (subtype P) :=
-has_to_string.mk (λ s, to_string (elt_of s))
+⟨λ s, to_string (elt_of s)⟩
 
 definition char.quote_core (c : char) : string :=
 if       c = '\n' then "\\n"
@@ -70,7 +70,7 @@ else c::nil
 
 attribute [instance]
 definition char.has_to_sting : has_to_string char :=
-has_to_string.mk (λ c, "'" ++ char.quote_core c ++ "'")
+⟨λ c, "'" ++ char.quote_core c ++ "'"⟩
 
 definition string.quote_aux : string → string
 | []      := ""
@@ -82,7 +82,7 @@ definition string.quote : string → string
 
 attribute [instance]
 definition string.has_to_string : has_to_string string :=
-has_to_string.mk string.quote
+⟨string.quote⟩
 
 /- Remark: the code generator replaces this definition with one that display natural numbers in decimal notation -/
 definition nat.to_string : nat → string
@@ -91,12 +91,12 @@ definition nat.to_string : nat → string
 
 attribute [instance]
 definition nat.has_to_string : has_to_string nat :=
-has_to_string.mk nat.to_string
+⟨nat.to_string⟩
 
 attribute [instance]
 definition fin.has_to_string (n : nat) : has_to_string (fin n) :=
-has_to_string.mk (λ f, to_string (fin.val f))
+⟨λ f, to_string (fin.val f)⟩
 
 attribute [instance]
 definition unsigned.has_to_string : has_to_string unsigned :=
-has_to_string.mk (λ n, to_string (fin.val n))
+⟨λ n, to_string (fin.val n)⟩

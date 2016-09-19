@@ -1,5 +1,0 @@
-626c.lean:2:40: error: failed to synthesize placeholder, type is a unknown (i.e., it is a metavariable) (solution: provide type explicitly)
-626c.lean:5:40: error: failed to synthesize placeholder, type is a unknown (i.e., it is a metavariable) (solution: provide type explicitly)
-626c.lean:8:40: error: failed to synthesize placeholder, type is a unknown (i.e., it is a metavariable) (solution: provide type explicitly)
-626c.lean:11:41: error: failed to synthesize placeholder, type is a unknown (i.e., it is a metavariable) (solution: provide type explicitly)
-626c.lean:14:42: error: failed to synthesize placeholder, type is a unknown (i.e., it is a metavariable) (solution: provide type explicitly)

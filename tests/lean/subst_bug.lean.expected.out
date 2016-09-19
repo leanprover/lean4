@@ -2,4 +2,3 @@ subst_bug.lean:4:0: error: tactic failed, result contains meta-variables
 state:
 b2 : bool
 ⊢ ff && b2 = ff
-subst_bug.lean:3:0: error: tactic failed, result contains meta-variables

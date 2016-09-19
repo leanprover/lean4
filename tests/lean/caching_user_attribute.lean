@@ -1,9 +1,7 @@
-definition foo_attr := ⦃caching_user_attribute,
-  name := `foo,
-  descr := "bar",
-  Cache := string,
-  cache := list.join ∘ list.map (list.append "\n" ∘ to_string ∘ declaration.to_name)
-⦄
+set_option new_elaborator true
+definition foo_attr : caching_user_attribute :=
+⟨`foo, "bar", string, list.join ∘ list.map (list.append "\n" ∘ to_string ∘ declaration.to_name) ⟩
+
 run_command attribute.register `foo_attr
 
 attribute [foo] eq.refl eq.mp

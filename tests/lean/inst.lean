@@ -1,4 +1,4 @@
---
+set_option new_elaborator true --
 set_option pp.notation false
 
 inductive [class] C (A : Type*)
@@ -21,6 +21,7 @@ definition C_prod {A B : Type*} (Ha : C A) (Hb : C B) : C (prod A B) :=
 C.mk (prod.mk (val Ha) (val Hb))
 
 -- C_magic will be used because it has max priority
-noncomputable definition test : C (prod Prop Prop) := _
+noncomputable definition test : C (prod Prop Prop) :=
+by tactic.apply_instance
 
 eval test

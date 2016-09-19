@@ -1,20 +1,18 @@
-red.lean:9:19: error: type mismatch at definition 'example', has type
-  f = f
+red.lean:10:19: error: type mismatch, expression
+  rfl
+has type
+  ?m_2 = ?m_2
 but is expected to have type
   f = g
-red.lean:12:0: error: type mismatch at application
-  H ▸ rfl
-term
+red.lean:13:0: error: "eliminator" elaborator type mismatch, term
   rfl
 has type
-  f (?M_1 a H a) = f (?M_1 a H a)
+  ?m_2 = ?m_2
 but is expected to have type
-  f (?M_1 a H a) = a
-red.lean:17:0: error: type mismatch at application
-  H ▸ rfl
-term
+  f a = a
+red.lean:18:0: error: "eliminator" elaborator type mismatch, term
   rfl
 has type
-  f (?M_1 a H a) = f (?M_1 a H a)
+  ?m_2 = ?m_2
 but is expected to have type
-  f (?M_1 a H a) = a
+  f a = a

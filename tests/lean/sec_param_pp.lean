@@ -1,3 +1,4 @@
+set_option new_elaborator true
 section
  parameters {A : Type*} (a : A)
  variable f : A → A → A

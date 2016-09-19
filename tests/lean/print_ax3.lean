@@ -1,4 +1,4 @@
-open subtype
+open subtype set_option new_elaborator true
 theorem foo1 : 0 = (0:num) :=
 rfl
 

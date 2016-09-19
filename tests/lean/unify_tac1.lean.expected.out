@@ -5,6 +5,3 @@ a : A,
 p : A → Prop,
 H : p a
 ⊢ p ?m_1
-unify_tac1.lean:12:0: error: failed to add declaration 'example' to environment, value has metavariables
-remark: set 'formatter.hide_full_terms' to false to see the complete term
-  ?M_1

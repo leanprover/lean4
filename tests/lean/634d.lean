@@ -1,7 +1,7 @@
-open nat
+set_option new_elaborator true open nat
 section
   universe l
-  definition A {n : ℕ} (t : Type.{l}) := t
+  definition A {n : ℕ} (t : Type l) := t
   check A
   check _root_.A.{1}
   set_option pp.universes true

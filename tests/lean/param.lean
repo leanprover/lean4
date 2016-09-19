@@ -13,7 +13,7 @@ definition foo5 (a b c) : num := a + b + c
 
 definition foo6 {a b c} : num := a + b + c
 
-definition foo7 a b c : num := a + b + c  -- Error
+-- definition foo7 a b c : num := a + b + c  -- Error
 
 definition foo8 (a b c : num) : num := a + b + c
 

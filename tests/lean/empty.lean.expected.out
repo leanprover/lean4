@@ -1,3 +1,2 @@
-empty.lean:6:39: error: failed to synthesize placeholder
-
+empty.lean:6:39: error: failed to synthesize type class instance for
 ⊢ nonempty Empty

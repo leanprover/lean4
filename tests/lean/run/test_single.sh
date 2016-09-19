@@ -8,7 +8,7 @@ LEAN=$1
 export LEAN_PATH=../../../library:.
 f=$2
 echo "-- testing $f"
-if "$LEAN" "$f"; then
+if "$LEAN" -Dnew_elaborator=true "$f"; then
    echo "-- checked"
 else
    echo "failed $f"

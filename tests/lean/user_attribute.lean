@@ -1,4 +1,5 @@
-definition foo_attr := ⦃user_attribute, name := `foo, descr := "bar"⦄
+set_option new_elaborator true
+definition foo_attr : user_attribute := ⟨`foo, "bar"⟩
 run_command attribute.register `foo_attr
 
 attribute [foo] eq.refl
@@ -9,7 +10,7 @@ run_command attribute.get_instances `foo >>= tactic.pp >>= tactic.trace
 print "---"
 
 -- compound names
-definition foo_baz_attr := ⦃user_attribute, name := `foo.baz, descr := "bar"⦄
+definition foo_baz_attr : user_attribute := ⟨`foo.baz, "bar"⟩
 
 run_command attribute.register `foo_baz_attr
 
@@ -20,7 +21,7 @@ print eq.refl
 run_command attribute.get_instances `foo.baz >>= tactic.pp >>= tactic.trace
 
 -- can't redeclare attributes
-definition duplicate := ⦃user_attribute, name := `reducible, descr := "bar"⦄
+definition duplicate : user_attribute := ⟨`reducible, "bar"⟩
 run_command attribute.register `duplicate
 
 
@@ -31,6 +32,6 @@ run_command attribute.register `bar
 section
   variable x : string
 
-  definition baz_attr := ⦃user_attribute, name := `baz, descr := x⦄
+  definition baz_attr : user_attribute := ⟨`baz, x⟩
   run_command attribute.register `baz_attr
 end

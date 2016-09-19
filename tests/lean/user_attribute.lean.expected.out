@@ -7,12 +7,12 @@ eq.refl
 attribute [foo, foo.baz, refl]
 constructor eq.refl : ∀ {A : Type u} (a : A), a = a
 [eq.refl]
-user_attribute.lean:24:0: error: an attribute named [reducible] has already been registered
+user_attribute.lean:25:0: error: an attribute named [reducible] has already been registered
 state:
 ⊢ true
-user_attribute.lean:29:0: error: invalid attribute.register argument, must be name of a definition of type user_attribute
+user_attribute.lean:30:0: error: invalid attribute.register argument, must be name of a definition of type user_attribute
 state:
 ⊢ true
-user_attribute.lean:35:2: error: invalid attribute.register argument, must be name of a definition of type user_attribute
+user_attribute.lean:36:2: error: invalid attribute.register argument, must be name of a definition of type user_attribute
 state:
 ⊢ true

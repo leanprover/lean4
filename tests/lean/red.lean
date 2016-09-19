@@ -1,3 +1,4 @@
+set_option new_elaborator true
 constant g : nat → nat
 
 noncomputable definition f := g
@@ -23,4 +24,4 @@ attribute f [reducible]
 example : f = g := rfl
 
 example (a : nat) (H : a = g a) : f a = a :=
-eq.subst H rfl
+@@eq.subst (λ x, f a = x) (eq.symm H) (eq.refl (f a))

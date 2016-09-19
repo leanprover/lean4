@@ -1,1 +1,1 @@
-tuple.{u_1} : Type (max 1 u_1) → ℕ → Type (max 1 u_1)
+tuple.{u_1} : Type (u_1+1) → ℕ → Type (u_1+1)

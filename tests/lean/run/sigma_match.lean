@@ -1,3 +1,4 @@
+set_option new_elaborator true
 open sigma
 
 constant {l₁ l₂} hom {A : Type l₁} {B : Type l₂} (a : A) (b : B) : Type (max l₁ l₂)
@@ -12,7 +13,7 @@ match x with
 end
 
 noncomputable definition src2 {A B : Type} : arrow_ob A B → A
-| src2 (sigma.mk a (sigma.mk b c)) := a
+| (sigma.mk a (sigma.mk b c)) := a
 
 noncomputable definition src3 {A B : Type} (x : arrow_ob A B) : A :=
 match x with

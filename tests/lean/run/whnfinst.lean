@@ -1,3 +1,4 @@
+set_option new_elaborator true
 open decidable
 
 attribute [reducible]
@@ -7,8 +8,9 @@ section
   variable {A : Type}
   variable (R : A → A → Prop)
 
-  theorem tst1 (H : Πx y, decidable (R x y)) (a b c : A) : decidable (R a b ∧ R b a)
+  theorem tst1 (H : Πx y, decidable (R x y)) (a b c : A) : decidable (R a b ∧ R b a) :=
+  by tactic.apply_instance
 
   theorem tst2 (H : decidable_bin_rel R) (a b c : A) : decidable (R a b ∧ R b a ∨ R b b) :=
-  _
+  by tactic.apply_instance
 end

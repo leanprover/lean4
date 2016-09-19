@@ -1,11 +1,10 @@
+set_option new_elaborator true
 open nat
 
-definition pred (a : nat) : nat :=
+definition mypred (a : nat) : nat :=
 nat.cases_on a
-  zero
+  0
   (fun a₁, a₁)
 
-example : pred 1 = 0 :=
+example : mypred 1 = 0 :=
 rfl
-
-print definition pred

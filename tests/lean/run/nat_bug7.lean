@@ -1,3 +1,4 @@
+set_option new_elaborator true
 namespace experiment
 inductive nat : Type
 | zero : nat
@@ -11,6 +12,6 @@ axiom add_right_comm (n m k : nat) : n + m + k = n + k + m
 open eq
 print "==========================="
 theorem bug (a b c d : nat) : a + b + c + d = a + c + b + d
-:= subst (add_right_comm _ _ _) (eq.refl (a + b + c + d))
+:= subst (add_right_comm a b c) (eq.refl (a + b + c + d))
 end nat
 end experiment

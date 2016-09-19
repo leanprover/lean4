@@ -227,7 +227,8 @@ struct structural_rec_fn {
         unsigned nindices = *inductive::get_num_indices(m_env, I_name);
         if (nindices > 0) {
             lean_assert(I_args.size() >= nindices);
-            for (unsigned i = I_args.size() - nindices; i < I_args.size(); i++) {
+            unsigned first_index_pos = I_args.size() - nindices;
+            for (unsigned i = first_index_pos; i < I_args.size(); i++) {
                 expr const & idx = I_args[i];
                 if (!is_local(idx)) {
                     trace_struct(tout() << "structural recursion on argument #" << (arg_idx+1) << " was not used "
@@ -268,7 +269,7 @@ struct structural_rec_fn {
                 }
                 m_indices_pos.push_back(idx_pos);
                 /* Each index can only occur once */
-                for (unsigned j = 0; j < i; j++) {
+                for (unsigned j = first_index_pos; j < i; j++) {
                     expr const & prev_idx = I_args[j];
                     if (mlocal_name(prev_idx) == mlocal_name(idx)) {
                         trace_struct(tout() << "structural recursion on argument #" << (arg_idx+1) << " was not used "

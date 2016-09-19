@@ -1,3 +1,4 @@
+set_option new_elaborator true
 open nat
 
 inductive Fin : nat → Type
@@ -6,8 +7,8 @@ inductive Fin : nat → Type
 
 open Fin
 
-definition case0 {C : Fin zero → Type} : Π (f : Fin zero), C f
-| [none]
+definition case0 {C : Fin 0 → Type} : Π (f : Fin 0), C f
+.
 
 
 print definition case0

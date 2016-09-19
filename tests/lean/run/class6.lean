@@ -1,4 +1,5 @@
-open prod
+set_option new_elaborator true
+open tactic
 
 inductive t1 : Type
 | mk1 : t1
@@ -12,8 +13,8 @@ theorem inhabited_t1 : inhabited t1
 theorem inhabited_t2 : inhabited t2
 := inhabited.mk t2.mk2
 
-attribute inhabited_t1 [instance]
-attribute inhabited_t2 [instance]
+attribute [instance] inhabited_t1
+attribute [instance] inhabited_t2
 
 theorem T : inhabited (t1 × t2)
-:= _
+:= by apply_instance

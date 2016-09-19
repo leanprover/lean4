@@ -1,20 +1,20 @@
+set_option new_elaborator true
 open bool nat
 
 definition foo (b : bool) : nat → nat :=
 match b with
-| tt := λ x : nat, zero
-| ff := λ y : nat, (succ zero)
+| tt := λ x : nat, 0
+| ff := λ y : nat, (succ 0)
 end
 
-example : foo tt 1 = zero := rfl
+example : foo tt 1 = 0 := rfl
 example : foo ff 1 = 1 := rfl
 
-
-definition zero_fn := λ x : nat, zero
+definition zero_fn := λ x : nat, 0
 
 definition foo2 : bool → nat → nat
-| foo2 tt := succ
-| foo2 ff := zero_fn
+| tt := succ
+| ff := zero_fn
 
 example : foo2 tt 1 = 2 := rfl
 example : foo2 tt 2 = 3 := rfl

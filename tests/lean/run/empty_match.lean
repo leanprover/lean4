@@ -1,7 +1,8 @@
+set_option new_elaborator true
 open nat
 
-definition not_lt_zero (a : nat) : ¬ a < zero :=
-assume H : a < zero,
+definition not_lt_zero (a : nat) : ¬ a < 0 :=
+assume H : a < 0,
 match H with
 end
 

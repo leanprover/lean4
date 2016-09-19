@@ -1,4 +1,5 @@
 prelude
+set_option new_elaborator true
 definition Prop := Type.{0}
 
 definition false : Prop := ∀x : Prop, x
@@ -23,6 +24,7 @@ definition true : Prop
 theorem trivial : true
 := refl false
 
+attribute [elab_as_eliminator]
 theorem subst {A : Type} {P : A -> Prop} {a b : A} (H1 : a = b) (H2 : P a) : P b
 := H1 _ H2
 

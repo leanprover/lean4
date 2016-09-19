@@ -1,3 +1,4 @@
+set_option new_elaborator true
 open nat prod
 open decidable
 
@@ -14,4 +15,4 @@ sorry
 constant succ_ne_zero (a : nat) : succ a ≠ 0
 
 theorem gcd_succ (m n : ℕ) : gcd m (succ n) = gcd (succ n) (m mod succ n) :=
-eq.trans (gcd_def _ _) (if_neg (succ_ne_zero _))
+eq.trans (gcd_def _ _) (if_neg (nat.succ_ne_zero _))

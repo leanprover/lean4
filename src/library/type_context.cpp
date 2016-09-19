@@ -366,7 +366,9 @@ expr type_context::revert_core(buffer<expr> & to_revert, expr const & mvar) {
     lean_assert(is_metavar_decl_ref(mvar));
     metavar_decl const & d = *m_mctx.get_metavar_decl(mvar);
     auto p = revert_core(to_revert, d.get_context(), d.get_type());
-    return m_mctx.mk_metavar_decl(p.first, p.second);
+    /* Remark: we use copy_tag to make sure any position information
+       associated wtih mvar is inherited by the new meta-variable. */
+    return copy_tag(mvar, m_mctx.mk_metavar_decl(p.first, p.second));
 }
 
 expr type_context::revert(buffer<expr> & to_revert, expr const & mvar) {
@@ -1681,7 +1683,9 @@ struct check_assignment_fn : public replace_visitor {
             expr e_type = e_decl->get_type();
             if (mvar_lctx.well_formed(e_type)) {
                 /* Restrict context of the ?M' */
-                expr aux_mvar = m_ctx.mk_metavar_decl(mvar_lctx, e_type);
+                /* Remark: we use copy_tag to make sure any position information
+                   associated wtih mvar is inherited by the new meta-variable. */
+                expr aux_mvar = copy_tag(e, m_ctx.mk_metavar_decl(mvar_lctx, e_type));
                 if (m_ctx.process_assignment(e, aux_mvar)) {
                     return aux_mvar;
                 } else {

@@ -1,3 +1,5 @@
+set_option new_elaborator true
+
 meta_definition mytactic (A : Type) := stateT (list nat) tactic A
 
 attribute [instance]

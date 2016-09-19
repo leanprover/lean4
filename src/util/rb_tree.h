@@ -280,6 +280,27 @@ class rb_tree : private CMP {
         }
     }
 
+    T const * find_next_greater_or_equal(T const & v, node_cell const * n) const {
+        if (n) {
+            int c = cmp(v, n->m_value);
+            if (c == 0) {
+                return &n->m_value;
+            } else if (c > 0) {
+                // v > n->m_value
+                return find_next_greater_or_equal(v, n->m_right.m_ptr);
+            } else {
+                // v < n->m_value
+                if (auto on_left = find_next_greater_or_equal(v, n->m_left.m_ptr)) {
+                    return on_left;
+                } else {
+                    return &n->m_value;
+                }
+            }
+        } else {
+            return nullptr;
+        }
+    }
+
     static void display(std::ostream & out, node_cell const * n) {
         if (n) {
             out << "(";
@@ -410,6 +431,10 @@ public:
     template<typename F>
     void for_each_greater(T const & v, F && f) const {
         for_each_greater(v, f, m_root.m_ptr);
+    }
+
+    T const * find_next_greater_or_equal(T const & v) const {
+        return find_next_greater_or_equal(v, m_root.m_ptr);
     }
 
     // For debugging purposes

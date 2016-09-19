@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <limits>
 #include "util/fresh_name.h"
+#include "util/list_fn.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/find_fn.h"
 #include "kernel/replace_fn.h"
@@ -111,6 +112,27 @@ bool depends_on(local_decl const & d, metavar_context const & mctx, buffer<expr>
     return depends_on(d, mctx, locals.size(), locals.data());
 }
 
+void local_context::insert_user_name(local_decl const &d) {
+    list<local_decl> ds;
+    if (auto existing_decls = m_user_name2local_decls.find(d.get_pp_name())) {
+        ds = *existing_decls;
+    } else {
+        m_user_names.insert(d.get_pp_name());
+    }
+    m_user_name2local_decls.insert(d.get_pp_name(), cons(d, ds));
+}
+
+void local_context::erase_user_name(local_decl const &d) {
+    list<local_decl> ds = *m_user_name2local_decls.find(d.get_pp_name());
+    ds = filter(ds, [&](local_decl const & old_d) { return d.get_idx() != old_d.get_idx(); });
+    if (is_nil(ds)) {
+        m_user_name2local_decls.erase(d.get_pp_name());
+        m_user_names.erase(d.get_pp_name());
+    } else {
+        m_user_name2local_decls.insert(d.get_pp_name(), ds);
+    }
+}
+
 expr local_context::mk_local_decl(name const & n, name const & ppn, expr const & type, optional<expr> const & value, binder_info const & bi) {
     lean_assert(is_local_decl_name(n));
     lean_assert(!m_name2local_decl.contains(n));
@@ -119,6 +141,7 @@ expr local_context::mk_local_decl(name const & n, name const & ppn, expr const &
     local_decl l(idx, n, ppn, type, value, bi);
     m_name2local_decl.insert(n, l);
     m_idx2local_decl.insert(idx, l);
+    insert_user_name(l);
     return mk_local_ref(n, ppn, bi);
 }
 
@@ -178,7 +201,11 @@ optional<local_decl> local_context::back_find_if(std::function<bool(local_decl c
 }
 
 optional<local_decl> local_context::get_local_decl_from_user_name(name const & n) const {
-    return back_find_if([&](local_decl const & d) { return d.get_pp_name() == n; });
+    if (auto ds = m_user_name2local_decls.find(n)) {
+        return optional<local_decl>(head(*ds));
+    } else {
+        return optional<local_decl>();
+    }
 }
 
 optional<local_decl> local_context::get_last_local_decl() const {
@@ -195,13 +222,16 @@ void local_context::pop_local_decl() {
     local_decl d = m_idx2local_decl.max();
     m_name2local_decl.erase(d.get_name());
     m_idx2local_decl.erase(d.get_idx());
+    erase_user_name(d);
 }
 
 bool local_context::rename_user_name(name const & from, name const & to) {
     if (auto d = get_local_decl_from_user_name(from)) {
+        erase_user_name(*d);
         local_decl new_d(d->get_idx(), d->get_name(), to, d->get_type(), d->get_value(), d->get_info());
         m_idx2local_decl.insert(d->get_idx(), new_d);
         m_name2local_decl.insert(d->get_name(), new_d);
+        insert_user_name(new_d);
         return true;
     } else {
         return false;
@@ -224,6 +254,7 @@ void local_context::clear(local_decl const & d) {
     lean_assert(get_local_decl(d.get_name()));
     m_idx2local_decl.erase(d.get_idx());
     m_name2local_decl.erase(d.get_name());
+    erase_user_name(d);
 }
 
 bool local_context::is_subset_of(name_set const & ls) const {
@@ -249,7 +280,9 @@ local_context local_context::remove(buffer<expr> const & locals) const {
     local_context r = *this;
     for (expr const & l : locals) {
         r.m_name2local_decl.erase(mlocal_name(l));
-        r.m_idx2local_decl.erase(get_local_decl(l)->get_idx());
+        local_decl d = *get_local_decl(l);
+        r.m_idx2local_decl.erase(d.get_idx());
+        r.erase_user_name(d);
     }
     lean_assert(r.well_formed());
     return r;
@@ -282,6 +315,10 @@ bool local_context::well_formed() const {
                     ok = false;
                     lean_unreachable();
                 }
+            }
+            if (!m_user_names.contains(d.get_pp_name())) {
+                ok = false;
+                lean_unreachable();
             }
             found_locals.insert(d.get_name());
         });
@@ -350,23 +387,15 @@ format local_context::pp(formatter const & fmt) const {
 }
 
 bool local_context::uses_user_name(name const & n) const {
-    return static_cast<bool>(m_idx2local_decl.find_if([&](unsigned, local_decl const & d) { return d.get_pp_name() == n; }));
+    return m_user_names.contains(n);
 }
 
 name local_context::get_unused_name(name const & prefix, unsigned & idx) const {
-    while (true) {
-        name curr = prefix.append_after(idx);
-        idx++;
-        if (!uses_user_name(curr))
-            return curr;
-    }
+    return m_user_names.get_unused_name(prefix, idx);
 }
 
 name local_context::get_unused_name(name const & suggestion) const {
-    if (!uses_user_name(suggestion))
-        return suggestion;
-    unsigned idx = 1;
-    return get_unused_name(suggestion, idx);
+    return m_user_names.get_unused_name(suggestion);
 }
 
 local_context local_context::instantiate_mvars(metavar_context & mctx) const {
@@ -380,6 +409,7 @@ local_context local_context::instantiate_mvars(metavar_context & mctx) const {
             local_decl new_d(d, new_type, new_value);
             r.m_name2local_decl.insert(d.get_name(), new_d);
             r.m_idx2local_decl.insert(d.get_idx(), new_d);
+            r.insert_user_name(d);
         });
     return r;
 }

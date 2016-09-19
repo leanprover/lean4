@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "util/name_map.h"
 #include "util/name_set.h"
+#include "util/subscripted_name_set.h"
 #include "kernel/expr.h"
 
 namespace lean {
@@ -73,13 +74,18 @@ class metavar_context;
 
 class local_context {
     typedef rb_map<unsigned, local_decl, unsigned_cmp> idx2local_decl;
-    unsigned              m_next_idx;
-    name_map<local_decl>  m_name2local_decl;
-    idx2local_decl        m_idx2local_decl;
-    optional<unsigned>    m_instance_fingerprint;
+    unsigned                   m_next_idx;
+    name_map<local_decl>       m_name2local_decl;
+    subscripted_name_set  m_user_names;
+    name_map<list<local_decl>> m_user_name2local_decls;
+    idx2local_decl             m_idx2local_decl;
+    optional<unsigned>         m_instance_fingerprint;
     friend class type_context;
     /* Return the instance fingerprint for empty local_contexts */
     static unsigned get_empty_instance_fingerprint() { return 31; }
+
+    void insert_user_name(local_decl const &d);
+    void erase_user_name(local_decl const &d);
 
     local_context remove(buffer<expr> const & locals) const;
     expr mk_local_decl(name const & n, name const & ppn, expr const & type,

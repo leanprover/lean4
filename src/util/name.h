@@ -146,12 +146,25 @@ public:
            If a_k is a numeral, return a_1.a_2. ... .a_k.s
     */
     name append_after(char const * s) const;
+
     /**
         \brief Given a name of the form a_1.a_2. ... .a_k,
            If a_k is a string,  return a_1.a_2. ... .a_k', where a_k' is the string a_k concatenated with _i.
-           If a_k is a numeral, return a_1.a_2. ... .a_k.i
+           Otherwise add _i as the last component.
     */
     name append_after(unsigned i) const;
+
+    /**
+        \brief Given a name of the form a_1.a_2. ... .a_k,
+           If a_k is a string, return the name itself.
+           Otherwise add the empty string as the last component.
+    */
+    name get_subscript_base() const;
+
+    /**
+        \brief Given a name of the form a_1.a_2. ... .a_k, determine whether it was produced by append_after(unsigned).
+    */
+    optional<pair<name, unsigned>> is_subscripted() const;
 
     /**
         \brief If prefix is a prefix of this name, then return a new name where the prefix is replaced with new_prefix.

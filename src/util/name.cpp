@@ -338,10 +338,38 @@ name name::append_after(char const * s) const {
     }
 }
 
+name name::get_subscript_base() const {
+    if (is_string()) {
+        return *this;
+    } else {
+        return name(*this, "");
+    }
+}
+
 name name::append_after(unsigned i) const {
+    name b = get_subscript_base();
     std::ostringstream s;
-    s << "_" << i;
-    return append_after(s.str().c_str());
+    s << b.get_string() << "_" << i;
+    return name(b.get_prefix(), s.str().c_str());
+}
+
+optional<pair<name, unsigned>> name::is_subscripted() const {
+    optional<pair<name, unsigned>> none;
+    if (!is_string()) return none;
+
+    std::string s = get_string();
+    auto underscore_pos = s.find_last_of('_');
+    if (underscore_pos == std::string::npos) return none;
+
+    std::string::iterator it = s.begin() + underscore_pos + 1;
+    if (it == s.end() || *it == '0') return none;
+    unsigned idx = 0;
+    for (; it != s.end() && '0' <= *it && *it <= '9'; it++)
+        idx = 10*idx + (*it - '0');
+    if (it != s.end()) return none;
+
+    name prefix(get_prefix(), s.substr(0, underscore_pos).c_str());
+    return optional<pair<name, unsigned>>(prefix, idx);
 }
 
 name name::replace_prefix(name const & prefix, name const & new_prefix) const {

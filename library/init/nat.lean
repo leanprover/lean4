@@ -91,7 +91,7 @@ namespace nat
   ⟨nat.le⟩
 
   attribute [refl]
-  protected lemma le_refl : ∀ a : ℕ, a ≤ a :=
+  protected definition le_refl : ∀ a : ℕ, a ≤ a :=
   le.nat_refl
 
   attribute [reducible]
@@ -207,7 +207,7 @@ namespace nat
       eq.symm (nat.bit0_succ_eq n) ▸ this,
     succ_le_succ (zero_le (succ (bit0 n)))
 
-  theorem lt.step {n m : ℕ} : n < m → n < succ m := le.step
+  definition lt.step {n m : ℕ} : n < m → n < succ m := le.step
 
   theorem zero_lt_succ (n : ℕ) : 0 < succ n :=
   succ_le_succ (zero_le n)
@@ -236,7 +236,7 @@ namespace nat
   theorem self_lt_succ_iff_true (n : ℕ) : n < succ n ↔ true :=
   iff_true_intro (self_lt_succ n)
 
-  theorem lt.base (n : ℕ) : n < succ n := nat.le_refl (succ n)
+  definition lt.base (n : ℕ) : n < succ n := nat.le_refl (succ n)
 
   theorem le_lt_antisymm {n m : ℕ} (H1 : n ≤ m) (H2 : m < n) : false :=
   nat.lt_irrefl n (nat.lt_of_le_of_lt H1 H2)

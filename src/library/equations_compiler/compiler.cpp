@@ -47,13 +47,10 @@ static expr compile_equations_core(environment & env, options const & opts,
         }
     }
 
+    throw exception("support for well-founded recursion has not been implemented yet, "
+                    "use 'set_option trace.eqn_compiler true' for additional information");
     // test pack_domain
-    pack_domain(ctx, eqns);
-
-    // test unbounded_rec
-    // unbounded_rec(ctx.get(), eqns);
-
-    lean_unreachable();
+    // pack_domain(ctx, eqns);
 }
 
 /** Auxiliary class for pulling nested recursive calls.

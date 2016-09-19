@@ -717,7 +717,7 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
                                    format("(it is handled as an \"eliminator\"), ") +
                                    format("but the expected type must be known"));
     }
-
+    synthesize_type_class_instances();
     expr expected_type = instantiate_mvars(*_expected_type);
     if (has_expr_metavar(expected_type)) {
         auto pp_fn = mk_pp_ctx();

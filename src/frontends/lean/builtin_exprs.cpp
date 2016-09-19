@@ -569,10 +569,11 @@ static expr parse_do(parser & p, unsigned, expr const *, pos_info const &) {
                 if (optional<expr> else_case = else_cases[i]) {
                     // add case
                     //    _ := else_case
-                    eqs.push_back(p.rec_save_pos(Fun(fn, p.save_pos(mk_equation(p.rec_save_pos(mk_app(fn, mk_expr_placeholder()), pos),
-                                                                                *else_case),
-                                                                    pos)),
-                                             pos));
+                    expr x = mk_local(mk_fresh_name(), "_x", mk_expr_placeholder(), binder_info());
+                    eqs.push_back(p.rec_save_pos(Fun(fn, Fun(x, p.save_pos(mk_equation(p.rec_save_pos(mk_app(fn, x), pos),
+                                                                                       *else_case),
+                                                                           pos))),
+                                                 pos));
                 }
                 equations_header h = mk_equations_header(match_scope.get_name());
                 expr eqns  = p.save_pos(mk_equations(h, eqs.size(), eqs.data()), pos);

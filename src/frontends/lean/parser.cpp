@@ -88,7 +88,7 @@ bool get_parser_parallel_import(options const & opts) {
 }
 
 bool get_new_elaborator(options const & opts) {
-    return opts.get_bool(*g_new_elaborator, false);
+    return opts.get_bool(*g_new_elaborator, true);
 }
 // ==========================================
 

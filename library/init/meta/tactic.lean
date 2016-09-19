@@ -347,13 +347,19 @@ do t ← target,
 meta_definition intro1 : tactic expr :=
 intro `_
 
-meta_definition intros : tactic (list expr) :=
-do t ← target,
+/- Remark: the unit argument is a trick to allow us to write a recursive definition.
+   Lean3 only allows recursive functions when "equations" are used. -/
+meta_definition intros_core : unit → tactic (list expr)
+| u  :=
+   do t ← target,
    match t with
-   | (expr.pi   n bi d b) := do H ← intro1, Hs ← intros, return (H :: Hs)
-   | (expr.elet n t v b) := do H ← intro1, Hs ← intros, return (H :: Hs)
+   | (expr.pi   n bi d b) := do H ← intro1, Hs ← intros_core u, return (H :: Hs)
+   | (expr.elet n t v b) := do H ← intro1, Hs ← intros_core u, return (H :: Hs)
    | e                   := return []
    end
+
+meta_definition intros : tactic (list expr) :=
+intros_core ()
 
 meta_definition intro_lst : list name → tactic (list expr)
 | []      := return []
@@ -619,13 +625,14 @@ meta_definition refine (e : pexpr) : tactic unit :=
 do tgt : expr ← target,
    to_expr_core tt `((%%e : %%tgt)) >>= exact
 
-meta_definition expr_of_nat (n : ℕ) : tactic expr :=
-if n = 0 then to_expr `(0)
-else if n = 1 then to_expr `(1)
-else do
-r : expr ← expr_of_nat (n / 2),
-if n % 2 = 0 then to_expr `(bit0 %%r)
-else to_expr `(bit1 %%r)
+meta_definition expr_of_nat : nat → tactic expr
+| n :=
+  if n = 0 then to_expr `(0)
+  else if n = 1 then to_expr `(1)
+  else do
+    r : expr ← expr_of_nat (n / 2),
+    if n % 2 = 0 then to_expr `(bit0 %%r)
+    else to_expr `(bit1 %%r)
 
 notation `command`:max := tactic unit
 end tactic

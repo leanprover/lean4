@@ -1,7 +1,7 @@
 open nat
 
 definition f (a : nat) : nat := a
-definition g (a : nat) : nat := zero
+definition g (a : nat) : nat := 0
 
 example (a b : nat) :
 @eq nat

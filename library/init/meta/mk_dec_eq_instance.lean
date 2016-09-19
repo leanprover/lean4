@@ -47,7 +47,8 @@ do lhs_type ← infer_type lhs,
      fail $ to_fmt "mk_dec_eq_instance failed, failed to generate instance for" ++ format.nest 2 (format.line ++ f) }
 
 /- Target is of the form (decidable (C ... = C ...)) where C is a constructor -/
-private meta_definition dec_eq_same_constructor (I_name : name) (F_name : name) (num_rec : nat) : tactic unit :=
+private meta_definition dec_eq_same_constructor : name → name → nat → tactic unit
+| I_name F_name num_rec :=
 do
   (lhs, rhs) ← get_lhs_rhs,
   -- Try easy case first, where the proof is just reflexivity

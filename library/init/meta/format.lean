@@ -74,7 +74,7 @@ has_to_format.mk (λ b, if b = tt then of_string "tt" else of_string "ff")
 
 attribute [instance]
 meta_definition decidable.has_to_format {p : Prop} : has_to_format (decidable p) :=
-has_to_format.mk (λ b, if p then of_string "tt" else of_string "ff")
+has_to_format.mk (λ b : decidable p, @ite p b _ (of_string "tt") (of_string "ff"))
 
 attribute [instance]
 meta_definition string.has_to_format : has_to_format string :=

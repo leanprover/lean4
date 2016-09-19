@@ -278,9 +278,15 @@ environment add_local_ref(parser & p, environment const & env, name const & c_na
     buffer<expr> params;
     buffer<name> lps;
     for (name const & u : lp_names) {
-        if (p.is_local_level_variable(u))
+        if (!p.is_local_level(u)) {
+            /* Stop, it is a definition parameter */
             break;
-        lps.push_back(u);
+        } else if (p.is_local_level_variable(u)) {
+            /* Stop, it is a parser universe variable (i.e., it has been declared using the `universe variable` command */
+            break;
+        } else {
+            lps.push_back(u);
+        }
     }
     for (expr const & e : var_params) {
         if (!p.is_local_decl(e)) {

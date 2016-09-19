@@ -1224,6 +1224,9 @@ expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<exp
 
     bool has_args = !args.empty();
 
+    while (is_annotation(fn))
+        fn = get_annotation_arg(fn);
+
     if (is_choice(fn)) {
         buffer<expr> fns;
         if (amask != arg_mask::Default)

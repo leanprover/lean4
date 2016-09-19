@@ -376,8 +376,8 @@ static expr fix_rec_fn_macro_args(elaborator & elab, name const & fn, buffer<exp
     return fix_rec_fn_macro_args_fn(params, fns)(val);
 }
 
-environment xdefinition_cmd_core(parser & p, def_cmd_kind kind, bool is_private, bool is_protected, bool is_noncomputable,
-                                 decl_attributes attrs) {
+environment definition_cmd_core(parser & p, def_cmd_kind kind, bool is_private, bool is_protected, bool is_noncomputable,
+                                decl_attributes attrs) {
     buffer<name> lp_names;
     buffer<expr> params;
     expr fn, val;

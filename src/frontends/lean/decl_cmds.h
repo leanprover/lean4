@@ -16,8 +16,6 @@ class parser;
     Return true when levels were provided. */
 bool parse_univ_params(parser & p, buffer<name> & ps);
 
-expr parse_local_equations(parser & p, expr const & fn);
-
 /** \brief Add universe levels from \c found_ls to \c ls_buffer
     (only the levels that do not already occur in \c ls_buffer are added).
 

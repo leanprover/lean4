@@ -218,21 +218,16 @@ static expr parse_have_core(parser & p, pos_info const & pos, optional<expr> con
         prop          = p.parse_expr();
     }
     expr proof;
-    if (p.curr_is_token(get_bar_tk()) && !prev_local) {
-        expr fn = p.save_pos(mk_local(id, prop, mk_rec_info(true)), id_pos);
-        proof = parse_local_equations(p, fn);
+    p.check_token_next(get_comma_tk(), "invalid 'have' declaration, ',' expected");
+    if (prev_local) {
+        parser::local_scope scope(p);
+        p.add_local(*prev_local);
+        auto proof_pos = p.pos();
+        proof = parse_proof(p);
+        proof = p.save_pos(Fun(*prev_local, proof), proof_pos);
+        proof = p.save_pos(mk_app(proof, *prev_local), proof_pos);
     } else {
-        p.check_token_next(get_comma_tk(), "invalid 'have' declaration, ',' expected");
-        if (prev_local) {
-            parser::local_scope scope(p);
-            p.add_local(*prev_local);
-            auto proof_pos = p.pos();
-            proof = parse_proof(p);
-            proof = p.save_pos(Fun(*prev_local, proof), proof_pos);
-            proof = p.save_pos(mk_app(proof, *prev_local), proof_pos);
-        } else {
-            proof = parse_proof(p);
-        }
+        proof = parse_proof(p);
     }
     p.check_token_next(get_comma_tk(), "invalid 'have' declaration, ',' expected");
     parser::local_scope scope(p);
@@ -291,16 +286,11 @@ static expr parse_suppose(parser & p, unsigned, expr const *, pos_info const & p
 
 static expr parse_show(parser & p, unsigned, expr const *, pos_info const & pos) {
     expr prop  = p.parse_expr();
-    if (p.curr_is_token(get_bar_tk())) {
-        expr fn = p.save_pos(mk_local(get_this_tk(), prop, mk_rec_info(true)), pos);
-        return parse_local_equations(p, fn);
-    } else {
-        p.check_token_next(get_comma_tk(), "invalid 'show' declaration, ',' expected");
-        expr proof = parse_proof(p);
-        expr b = p.save_pos(mk_lambda(get_this_tk(), prop, Var(0)), pos);
-        expr r = p.mk_app(b, proof, pos);
-        return p.save_pos(mk_show_annotation(r), pos);
-    }
+    p.check_token_next(get_comma_tk(), "invalid 'show' declaration, ',' expected");
+    expr proof = parse_proof(p);
+    expr b = p.save_pos(mk_lambda(get_this_tk(), prop, Var(0)), pos);
+    expr r = p.mk_app(b, proof, pos);
+    return p.save_pos(mk_show_annotation(r), pos);
 }
 
 static expr parse_suffices(parser & p, unsigned, expr const *, pos_info const & pos) {

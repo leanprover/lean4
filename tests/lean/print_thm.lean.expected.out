@@ -1,4 +1,0 @@
-theorem simple : ∀ (a : ℕ), a ≥ 0
-'simple' is still in the theorem queue, use command 'reveal simple' to access its definition.
-theorem simple : ∀ (a : ℕ), a ≥ 0 :=
-zero_le

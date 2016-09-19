@@ -203,7 +203,8 @@ static bool instantiate_emetas(type_context & ctx, list<expr> const & _emetas, l
         expr m = emetas[i];
         unsigned mvar_idx = emetas.size() - 1 - i;
         expr m_type = ctx.instantiate_mvars(ctx.infer(m));
-        lean_assert(!has_metavar(m_type));
+        // TODO(Leo, Daniel): do we need the following assertion?
+        // lean_assert(!has_expr_metavar(m_type));
         if (ctx.get_tmp_mvar_assignment(mvar_idx)) continue;
         if (instances[i]) {
             if (auto v = ctx.mk_class_instance(m_type)) {

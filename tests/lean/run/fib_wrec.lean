@@ -1,10 +1,11 @@
+set_option new_elaborator true
 open nat
 
 definition fib.F (n : nat) : (Π (m : nat), m < n → nat) → nat :=
 nat.cases_on n
-  (λ (f : Π (m : nat), m < zero → nat), succ zero)
+  (λ (f : Π (m : nat), m < 0 → nat), succ 0)
   (λ (n₁ : nat), nat.cases_on n₁
-    (λ (f : Π (m : nat), m < (succ zero) → nat), succ zero)
+    (λ (f : Π (m : nat), m < (succ 0) → nat), succ 0)
     (λ (n₂ : nat) (f : Π (m : nat), m < (succ (succ n₂)) → nat),
        have l₁ : succ n₂ < succ (succ n₂), from lt.base (succ n₂),
        have l₂ : n₂ < succ (succ n₂), from nat.lt_trans (lt.base n₂) l₁,

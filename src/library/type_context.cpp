@@ -1211,28 +1211,26 @@ bool type_context::is_def_eq_core(level const & l1, level const & l2) {
     flet<unsigned> inc_depth(m_is_def_eq_depth, m_is_def_eq_depth+1);
 
     if (in_tmp_mode()) {
-        /* Check if tmp metavars are already assigned when in tmp mode */
-        if (is_idx_metauniv(l1)) {
-            if (auto v1 = get_tmp_assignment(l1))
+        /* TODO(Leo): we should instantiate any assigned regular metavariable
+           when we are in tmp_mode. */
+        if (is_metavar_decl_ref(l1)) {
+            /* Check if l1 is regular metavar that is already assigned */
+            if (auto v1 = m_mctx.get_assignment(l1))
                 return is_def_eq_core(*v1, l2);
         }
-        if (is_idx_metauniv(l2)) {
-            if (auto v2 = get_tmp_assignment(l2))
+
+        if (is_metavar_decl_ref(l2)) {
+            /* Check if l2 is regular metavar that is already assigned */
+            if (auto v2 = m_mctx.get_assignment(l2))
                 return is_def_eq_core(l1, *v2);
         }
     }
 
-    if (is_metavar_decl_ref(l1)) {
-        /* Check if l1 is regular metavar that is already assigned */
-        if (auto v1 = m_mctx.get_assignment(l1))
-            return is_def_eq_core(*v1, l2);
-    }
+    level new_l1 = instantiate_mvars(l1);
+    level new_l2 = instantiate_mvars(l2);
 
-    if (is_metavar_decl_ref(l2)) {
-        /* Check if l2 is regular metavar that is already assigned */
-        if (auto v2 = m_mctx.get_assignment(l2))
-            return is_def_eq_core(l1, *v2);
-    }
+    if (l1 != new_l1 || l2 != new_l2)
+        return is_def_eq_core(new_l1, new_l2);
 
     if (is_mvar(l1)) {
         lean_assert(!is_assigned(l1));
@@ -1249,12 +1247,6 @@ bool type_context::is_def_eq_core(level const & l1, level const & l2) {
             return true;
         }
     }
-
-    level new_l1 = instantiate_mvars(l1);
-    level new_l2 = instantiate_mvars(l2);
-
-    if (l1 != new_l1 || l2 != new_l2)
-        return is_def_eq_core(new_l1, new_l2);
 
     if (l1.kind() != l2.kind())
         return false;

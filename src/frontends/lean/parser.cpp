@@ -1741,7 +1741,7 @@ struct to_pattern_fn {
         } else if (is_inaccessible(e)) {
             // do nothing
         } else if (is_placeholder(e)) {
-            expr r = mk_local(mk_fresh_name(), "_x", mk_expr_placeholder(), binder_info());
+            expr r = copy_tag(e, mk_local(mk_fresh_name(), "_x", copy_tag(e, mk_expr_placeholder()), binder_info()));
             m_new_locals.push_back(r);
             m_anonymous_vars.insert(mk_pair(e, r));
         } else if (is_app(e)) {
@@ -1871,7 +1871,7 @@ expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only) 
     }
 
     if (!explicit_levels && m_id_behavior == id_behavior::AllLocal) {
-        return save_pos(mk_local(id, mk_expr_placeholder()), p);
+        return save_pos(mk_local(id, save_pos(mk_expr_placeholder(), p)), p);
     }
 
     // locals
@@ -1936,7 +1936,7 @@ expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only) 
         if (m_id_behavior == id_behavior::AssumeConstantIfUndef) {
             r = save_pos(mk_constant(get_namespace(m_env) + id, ls), p);
         } else if (m_id_behavior == id_behavior::AssumeLocalIfUndef) {
-            expr local = mk_local(id, mk_expr_placeholder());
+            expr local = mk_local(id, save_pos(mk_expr_placeholder(), p));
             if (!resolve_only)
                 m_undef_ids.push_back(local);
             r = save_pos(local, p);

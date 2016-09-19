@@ -275,7 +275,6 @@ void elaborate_params(elaborator & elab, buffer<expr> const & params, buffer<exp
 }
 
 environment add_local_ref(parser & p, environment const & env, name const & c_name, name const & c_real_name, buffer<name> const & lp_names, buffer<expr> const & var_params) {
-    if (!p.has_params()) return env;
     buffer<expr> params;
     buffer<name> lps;
     for (name const & u : lp_names) {

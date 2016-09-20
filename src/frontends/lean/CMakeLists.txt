@@ -9,10 +9,4 @@ type_util.cpp local_ref_info.cpp decl_attributes.cpp nested_declaration.cpp
 opt_cmd.cpp prenum.cpp print_cmd.cpp elaborator.cpp
 match_expr.cpp local_context_adapter.cpp decl_util.cpp definition_cmds.cpp
 # LEGACY
-old_attributes.cpp
-# begin_end_annotation.cpp tactic_hint.cpp
-# info_tactic.cpp
-# parse_tactic_location.cpp parse_rewrite_tactic.cpp builtin_tactics.cpp
-# parse_with_options_tactic.cpp
-#parse_with_attributes_tactic.cpp
-)
+old_attributes.cpp)

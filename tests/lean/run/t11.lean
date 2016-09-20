@@ -3,8 +3,9 @@ constants a b c : A
 constant f : A → A → A
 check f a b
 section
-  parameters A B : Type*
-  parameters {C D : Type*}
+  universe variables u v
+  parameters A B : Type u
+  parameters {C D : Type v}
   parameters [e : A] [d : A]
   check A
   check B

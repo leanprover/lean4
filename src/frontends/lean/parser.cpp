@@ -61,8 +61,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/prenum.h"
 #include "frontends/lean/elaborator.h"
 #include "frontends/lean/local_context_adapter.h"
-// LEGACY
-#include "frontends/lean/old_elaborator.h"
 
 #ifndef LEAN_DEFAULT_PARSER_SHOW_ERRORS
 #define LEAN_DEFAULT_PARSER_SHOW_ERRORS true
@@ -184,7 +182,6 @@ parser::parser(environment const & env, io_state const & ios,
     m_verbose(true), m_use_exceptions(use_exceptions),
     m_scanner(strm, strm_name, s ? s->m_line : 1),
     m_base_dir(base_dir),
-    m_theorem_queue(*this, num_threads > 1 ? num_threads - 1 : 0),
     m_snapshot_vector(sv), m_info_manager(im), m_cache(nullptr), m_index(nullptr) {
     m_ignore_noncomputable = false;
     m_profile     = ios.get_options().get_bool("profile", false);
@@ -216,12 +213,6 @@ parser::parser(environment const & env, io_state const & ios,
 }
 
 parser::~parser() {
-    try {
-        if (!m_theorem_queue.done()) {
-            m_theorem_queue.interrupt();
-            m_theorem_queue.join();
-        }
-    } catch (...) {}
 }
 
 void parser::scan() {
@@ -960,73 +951,6 @@ pair<expr, level_param_names> parser::elaborate_type(metavar_context & mctx, exp
     expr new_e = copy_tag(e, mk_typed_expr(Type, e));
     return elaborate(mctx, new_e, true);
 }
-
-/* =========== BEGIN OF OLD ELABORATOR LEGACY CODE =========== */
-elaborator_context parser::mk_elaborator_context(bool check_unassigned) {
-    return elaborator_context(m_env, get_options(), m_local_level_decls, check_unassigned);
-}
-
-elaborator_context parser::mk_elaborator_context(environment const & env) {
-    return elaborator_context(env, get_options(), m_local_level_decls, true);
-}
-
-elaborator_context parser::mk_elaborator_context(environment const & env, local_level_decls const & lls) {
-    return elaborator_context(env, get_options(), lls, true);
-}
-
-std::tuple<expr, level_param_names> parser::old_elaborate_relaxed(expr const & e, list<expr> const & ctx) {
-    bool check_unassigned = false;
-    bool ensure_type      = false;
-    bool nice_mvar_names  = true;
-    elaborator_context env = mk_elaborator_context(check_unassigned);
-    auto r = ::lean::elaborate(env, ctx, e, ensure_type, nice_mvar_names);
-    m_pre_info_manager.clear();
-    return r;
-}
-
-std::tuple<expr, level_param_names> parser::old_elaborate(expr const & e, list<expr> const & ctx) {
-    bool check_unassigned = true;
-    bool ensure_type      = false;
-    elaborator_context env = mk_elaborator_context(check_unassigned);
-    auto r = ::lean::elaborate(env, ctx, e, ensure_type);
-    m_pre_info_manager.clear();
-    return r;
-}
-
-std::tuple<expr, level_param_names> parser::old_elaborate_type(expr const & e, list<expr> const & ctx, bool clear_pre_info) {
-    bool check_unassigned = true;
-    bool ensure_type      = true;
-    elaborator_context env = mk_elaborator_context(check_unassigned);
-    auto r = ::lean::elaborate(env, ctx, e, ensure_type);
-    if (clear_pre_info)
-        m_pre_info_manager.clear();
-    return r;
-}
-
-std::tuple<expr, level_param_names> parser::old_elaborate_at(environment const & env, expr const & e) {
-    elaborator_context eenv = mk_elaborator_context(env);
-    auto r = ::lean::elaborate(eenv, list<expr>(), e);
-    m_pre_info_manager.clear();
-    return r;
-}
-
-auto parser::old_elaborate_definition(name const & n, expr const & t, expr const & v)
-    -> std::tuple<expr, expr, level_param_names> {
-    elaborator_context eenv = mk_elaborator_context();
-    auto r = ::lean::elaborate(eenv, n, t, v);
-    m_pre_info_manager.clear();
-    return r;
-}
-
-auto parser::old_elaborate_definition_at(environment const & env, local_level_decls const & lls,
-                                     name const & n, expr const & t, expr const & v)
--> std::tuple<expr, expr, level_param_names> {
-    elaborator_context eenv = mk_elaborator_context(env, lls);
-    auto r = ::lean::elaborate(eenv, n, t, v);
-    m_pre_info_manager.clear();
-    return r;
-}
-/* =========== END OF OLD ELABORATOR LEGACY CODE =========== */
 
 [[ noreturn ]] void throw_invalid_open_binder(pos_info const & pos) {
     throw parser_error("invalid binder, '(', '{', '[', '{{', '⦃' or identifier expected", pos);
@@ -2394,18 +2318,6 @@ bool parser::parse_commands() {
             m_env = pop_scope_core(m_env, m_ios);
     }
     commit_info(m_scanner.get_line()+1, 0);
-
-    protected_call(
-        [&]() {
-            m_theorem_queue.for_each([&](certified_declaration const & thm) {
-                    if (keep_new_thms()) {
-                        name const & thm_name = thm.get_declaration().get_name();
-                        if (m_env.get(thm_name).is_axiom())
-                            replace_theorem(thm);
-                    }
-                });
-        },
-        []() {});
     return !m_found_errors;
 }
 
@@ -2422,17 +2334,6 @@ bool parser::curr_is_command_like() const {
     }
 }
 
-void parser::add_delayed_theorem(environment const & env, name const & n, level_param_names const & ls,
-                                 expr const & t, expr const & v) {
-    m_theorem_queue_set.insert(n);
-    m_theorem_queue.add(env, n, ls, get_local_level_decls(), t, v);
-}
-
-void parser::add_delayed_theorem(certified_declaration const & cd) {
-    m_theorem_queue_set.insert(cd.get_declaration().get_name());
-    m_theorem_queue.add(cd);
-}
-
 void parser::replace_theorem(certified_declaration const & thm) {
     m_env = m_env.replace(thm);
     name const & thm_name = thm.get_declaration().get_name();
@@ -2442,17 +2343,7 @@ void parser::replace_theorem(certified_declaration const & thm) {
     }
 }
 
-environment parser::reveal_theorems_core(buffer<name> const & ds, bool all) {
-    m_theorem_queue.for_each([&](certified_declaration const & thm) {
-            if (keep_new_thms()) {
-                name const & thm_name = thm.get_declaration().get_name();
-                if (m_env.get(thm_name).is_axiom() &&
-                    (all || std::any_of(ds.begin(), ds.end(), [&](name const & n) { return n == thm_name; }))) {
-                    replace_theorem(thm);
-                    m_theorem_queue_set.erase(thm_name);
-                }
-            }
-        });
+environment parser::reveal_theorems_core(buffer<name> const & /* ds */, bool /* all */) {
     return m_env;
 }
 

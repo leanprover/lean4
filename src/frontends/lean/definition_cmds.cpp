@@ -269,12 +269,7 @@ static void check_noncomputable(parser & p, environment const & env, name const 
     if (!is_noncomputable && is_marked_noncomputable(env, c_real_name)) {
         auto reason = get_noncomputable_reason(env, c_real_name);
         lean_assert(reason);
-        if (p.in_theorem_queue(*reason)) {
-            throw exception(sstream() << "definition '" << c_name << "' was marked as noncomputable because '" << *reason
-                            << "' is still in theorem queue (solution: use command 'reveal " << *reason << "'");
-        } else {
-            throw exception(sstream() << "definition '" << c_name << "' is noncomputable, it depends on '" << *reason << "'");
-        }
+        throw exception(sstream() << "definition '" << c_name << "' is noncomputable, it depends on '" << *reason << "'");
     }
     if (is_noncomputable && !is_marked_noncomputable(env, c_real_name)) {
         throw exception(sstream() << "definition '" << c_name << "' was incorrectly marked as noncomputable");

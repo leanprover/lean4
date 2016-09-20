@@ -380,7 +380,7 @@ static environment variables_cmd_core(parser & p, variable_kind k, bool is_prote
         level_param_names new_ls;
         expr new_type;
         check_command_period_open_binder_or_eof(p);
-        std::tie(new_type, new_ls) = p.old_elaborate_type(type, ctx);
+        std::tie(new_type, new_ls) = p.elaborate_type(ctx, type);
         if (k == variable_kind::Variable || k == variable_kind::Parameter)
             update_local_levels(p, new_ls, k == variable_kind::Variable);
         new_ls = append(ls, new_ls);

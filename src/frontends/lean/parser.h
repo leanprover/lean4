@@ -23,7 +23,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/local_decls.h"
 #include "frontends/lean/local_level_decls.h"
 #include "frontends/lean/parser_config.h"
-#include "frontends/lean/theorem_queue.h"
 #include "frontends/lean/info_manager.h"
 #include "frontends/lean/local_context_adapter.h"
 
@@ -113,9 +112,6 @@ class parser : public abstract_parser {
     // When the following flag is true, it creates a constant.
     // This flag is when we are trying to parse mutually recursive declarations.
     id_behavior             m_id_behavior;
-    // We process theorems in parallel
-    theorem_queue           m_theorem_queue;
-    name_set                m_theorem_queue_set; // set of theorem names in m_theorem_queue
 
     // info support
     snapshot_vector *       m_snapshot_vector;
@@ -307,7 +303,6 @@ public:
     void add_delayed_theorem(certified_declaration const & cd);
     environment reveal_theorems(buffer<name> const & ds);
     environment reveal_all_theorems();
-    bool in_theorem_queue(name const & n) const { return m_theorem_queue_set.contains(n); }
 
     /** \brief Read the next token. */
     void scan();
@@ -499,22 +494,6 @@ public:
     unsigned get_num_undef_ids() const { return m_undef_ids.size(); }
     /** \brief Return the i-th undefined local constants */
     expr const & get_undef_id(unsigned i) const { return m_undef_ids[i]; }
-
-    /** \brief Elaborate \c e, and tolerate metavariables in the result. */
-    std::tuple<expr, level_param_names> old_elaborate_relaxed(expr const & e, list<expr> const & ctx = list<expr>());
-    std::tuple<expr, level_param_names> old_elaborate(expr const & e, list<expr> const & ctx = list<expr>());
-    /** \brief Elaborate \c e, and ensure it is a type. */
-    std::tuple<expr, level_param_names> old_elaborate_type(expr const & e, list<expr> const & ctx = list<expr>(),
-                                                           bool clear_pre_info = true);
-    /** \brief Elaborate \c e in the given environment. */
-    std::tuple<expr, level_param_names> old_elaborate_at(environment const & env, expr const & e);
-    /** \brief Elaborate \c e (making sure the result does not have metavariables). */
-    std::tuple<expr, level_param_names> old_elaborate(expr const & e) { return old_elaborate_at(m_env, e); }
-    /** \brief Elaborate the definition n : t := v */
-    std::tuple<expr, expr, level_param_names> old_elaborate_definition(name const & n, expr const & t, expr const & v);
-    /** \brief Elaborate the definition n : t := v in the given environment*/
-    std::tuple<expr, expr, level_param_names> old_elaborate_definition_at(environment const & env, local_level_decls const & lls,
-                                                                          name const & n, expr const & t, expr const & v);
 
 private:
     pair<expr, level_param_names> elaborate(metavar_context & mctx, local_context_adapter const & adapter,

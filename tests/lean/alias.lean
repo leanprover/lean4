@@ -12,7 +12,7 @@ end N2
 
 open N2
 open N1
-constants a b : num
+constants a b : N1.num
 print raw foo a b
 open N2
 print raw foo a b

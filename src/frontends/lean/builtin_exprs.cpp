@@ -91,9 +91,6 @@ static expr mk_typed_expr_distrib_choice(parser & p, expr const & type, expr con
 }
 
 static expr parse_let(parser & p, pos_info const & pos) {
-    if (!p.use_new_elaborator()) {
-        throw parser_error("let-expressions are not supported in the old elaborator anymore", pos);
-    }
     parser::local_scope scope1(p);
     if (p.parse_local_notation_decl()) {
         return parse_let_body(p, pos);

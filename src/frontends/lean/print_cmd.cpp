@@ -87,7 +87,7 @@ static environment print_axioms(parser & p) {
         auto out = regular(env, p.ios(), tc);
         env.for_each_declaration([&](declaration const & d) {
                 name const & n = d.get_name();
-                if (!d.is_definition() && !env.is_builtin(n) && !p.in_theorem_queue(n) && d.is_trusted()) {
+                if (!d.is_definition() && !env.is_builtin(n) && d.is_trusted()) {
                     out << n << " : " << d.get_type() << endl;
                     has_axioms = true;
                 }
@@ -386,15 +386,7 @@ bool print_id_info(parser & p, name const & id, bool show_value, pos_info const 
                     } else if (is_hits_decl(env, c)) {
                         print_constant(p, "builtin-HIT-constant", d);
                     } else if (d.is_axiom()) {
-                        if (p.in_theorem_queue(d.get_name())) {
-                            print_constant(p, "theorem", d);
-                            if (show_value) {
-                                out << "'" << to_user_name(env, d.get_name()) << "' is still in the theorem queue, use command 'reveal "
-                                    << to_user_name(env, d.get_name()) << "' to access its definition.\n";
-                            }
-                        } else {
-                            print_constant(p, "axiom", d);
-                        }
+                        print_constant(p, "axiom", d);
                     } else {
                         print_constant(p, "constant", d);
                     }

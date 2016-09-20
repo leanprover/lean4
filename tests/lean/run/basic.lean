@@ -55,8 +55,9 @@ check @is_proj3.{1 2}
 
 namespace foo
 section
-  variables {T1 T2 : Type*}
-  variable  {T3 : Type*}
+  universe variables u v
+  variables {T1 T2 : Type u}
+  variable  {T3 : Type v}
   variable  f : T1 → T2 → T2
   noncomputable definition is_proj2 := ∀ x y, f x y = y
   noncomputable definition is_proj3 (f : T1 → T2 → T3 → T3) := ∀ x y z, f x y z = z

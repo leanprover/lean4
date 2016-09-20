@@ -49,14 +49,10 @@ Author: Leonardo de Moura
 #include "library/rfl_lemmas.h"
 #include "library/pattern_attribute.h"
 
-// #include "library/congr_lemma_manager.h"
-// #include "library/light_lt_manager.h"
-
 
 #include "library/old_converter.h"
 #include "library/old_default_converter.h"
 #include "library/old_type_checker.h"
-#include "library/old_type_context.h"
 
 
 namespace lean {
@@ -112,10 +108,7 @@ void initialize_library_module() {
     initialize_user_recursors();
     initialize_noncomputable();
     initialize_aux_recursors();
-    initialize_old_type_context();
     initialize_app_builder();
-    // initialize_light_rule_set();
-    // initialize_congr_lemma_manager();
     initialize_fun_info();
     initialize_unification_hint();
     initialize_rfl_lemmas();
@@ -137,10 +130,7 @@ void finalize_library_module() {
     finalize_rfl_lemmas();
     finalize_unification_hint();
     finalize_fun_info();
-    // finalize_congr_lemma_manager();
-    // finalize_light_rule_set();
     finalize_app_builder();
-    finalize_old_type_context();
     finalize_aux_recursors();
     finalize_noncomputable();
     finalize_user_recursors();

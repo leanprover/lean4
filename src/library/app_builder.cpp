@@ -372,7 +372,6 @@ public:
             if (mask[i]) {
                 --j;
                 expr const & m = head(it);
-                // TODO(Leo): old_type_context used relaxed_assign
                 if (!m_ctx.is_def_eq(m, args[j])) {
                     trace_unify_failure(c, j, m, args[j]);
                     throw app_builder_exception();

@@ -19,6 +19,6 @@ add_library(library OBJECT deep_copy.cpp expr_lt.cpp io_state.cpp
 
   # Legacy -- The following files will be eventually deleted
   normalize.cpp justification.cpp constraint.cpp metavar.cpp
-  old_type_context.cpp old_type_checker.cpp old_converter.cpp old_default_converter.cpp
+  old_type_checker.cpp old_converter.cpp old_default_converter.cpp
   old_util.cpp
   )

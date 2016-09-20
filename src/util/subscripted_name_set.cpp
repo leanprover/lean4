@@ -13,7 +13,7 @@ void subscripted_name_set::check_invariants() const {
        if (auto is_subscripted = n.is_subscripted()) {
            auto subscripts = m_prefixes.find(is_subscripted->first);
            lean_assert(subscripts);
-           auto free_region = subscripts->find_next_greater_or_equal(closed_ival(is_subscripted->second));
+           DEBUG_CODE(auto free_region =) subscripts->find_next_greater_or_equal(closed_ival(is_subscripted->second));
            lean_assert(free_region);
            lean_assert(!free_region->contains(is_subscripted->second));
        }

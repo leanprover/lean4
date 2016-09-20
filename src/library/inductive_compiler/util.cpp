@@ -49,8 +49,8 @@ void assert_no_locals(name const & n, expr const & e) {
     lean_assert(false);
 }
 
-void assert_def_eq(environment const & env, expr const & e1, expr const & e2) {
-    type_checker checker(env);
+void assert_def_eq(environment const & DEBUG_CODE(env), expr const & DEBUG_CODE(e1), expr const & DEBUG_CODE(e2)) {
+    DEBUG_CODE(type_checker checker(env););
     try {
         lean_assert(checker.is_def_eq(e1, e2));
     } catch (exception ex) {

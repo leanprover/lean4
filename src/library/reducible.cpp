@@ -49,7 +49,7 @@ public:
     reducibility_proxy_attribute(char const * id, char const * descr, reducible_status m_status):
         parent(id, descr, m_status) {}
 
-    virtual typed_attribute<reducibility_attribute_data> const & get_attribute() const {
+    virtual typed_attribute<reducibility_attribute_data> const & get_attribute() const override {
         return get_reducibility_attribute();
     }
 

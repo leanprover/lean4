@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include <string>
 #include "library/module.h"
 #include "library/standard_kernel.h"
-#include "library/legacy_type_context.h"
+#include "library/type_context.h"
 #include "library/error_handling.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/parser.h"
@@ -37,7 +37,7 @@ public:
             env = import_modules(env, base, 1, &mod, num_threads, keep_proofs, ios);
         } catch (lean::exception & ex) {
             simple_pos_info_provider pp("import_module");
-            legacy_type_context tc(env, ios.get_options());
+            type_context tc(env, ios.get_options());
             auto out = diagnostic(env, ios, tc);
             lean::display_error(out, &pp, ex);
             return 1;
@@ -56,7 +56,7 @@ public:
         } catch (lean::exception & ex) {
             simple_pos_info_provider pp(input_filename.c_str());
             ok = false;
-            legacy_type_context tc(env, ios.get_options());
+            type_context tc(env, ios.get_options());
             auto out = diagnostic(env, ios, tc);
             lean::display_error(out, &pp, ex);
         }

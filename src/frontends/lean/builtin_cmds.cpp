@@ -27,7 +27,6 @@ Author: Leonardo de Moura
 #include "library/aux_recursors.h"
 #include "library/private.h"
 #include "library/type_context.h"
-#include "library/legacy_type_context.h"
 #include "library/reducible.h"
 #include "library/typed_expr.h"
 #include "library/vm/vm.h"
@@ -205,7 +204,7 @@ environment eval_cmd(parser & p) {
         p.display_information_pos(p.cmd_pos());
         p.ios().get_regular_stream() << "eval result:\n";
     }
-    legacy_type_context tc(p.env(), p.get_options());
+    type_context tc(p.env(), p.get_options());
     auto out = regular(p.env(), p.ios(), tc);
     out << r << endl;
     return p.env();

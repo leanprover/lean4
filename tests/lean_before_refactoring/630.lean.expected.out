@@ -1,5 +1,0 @@
-definition pnat.pnat : Type₁ :=
-{n : ℕ | n > 0}
-inductive prod : Type → Type → Type
-constructors:
-prod.mk : Π {A : Type} {B : Type}, A → B → A × B

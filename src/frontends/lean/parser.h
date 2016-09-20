@@ -22,7 +22,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/local_decls.h"
 #include "frontends/lean/local_level_decls.h"
 #include "frontends/lean/parser_config.h"
-#include "frontends/lean/info_manager.h"
 #include "frontends/lean/local_context_adapter.h"
 
 namespace lean {
@@ -114,8 +113,6 @@ class parser : public abstract_parser {
 
     // info support
     snapshot_vector *       m_snapshot_vector;
-    info_manager *          m_info_manager;
-    info_manager            m_pre_info_manager; // type information before elaboration
 
     // cache support
     definition_cache *     m_cache;
@@ -212,14 +209,6 @@ class parser : public abstract_parser {
     void pop_local_scope();
 
     void save_snapshot();
-    void save_overload(expr const & e);
-    void save_overload_notation(list<expr> const & as, pos_info const & p);
-    void save_overload_notation(list<notation::accepting> const & as, pos_info const & p);
-    void save_type_info(expr const & e);
-    void save_pre_info_data();
-    void save_identifier_info(pos_info const & p, name const & full_id);
-    void commit_info(unsigned line, unsigned col);
-    void commit_info() { commit_info(m_scanner.get_line(), m_scanner.get_pos()); }
 
     void init_stop_at(options const & opts);
 
@@ -230,7 +219,7 @@ public:
            std::istream & strm, char const * str_name, optional<std::string> const & base_dir,
            bool use_exceptions = false, unsigned num_threads = 1,
            snapshot const * s = nullptr, snapshot_vector * sv = nullptr,
-           info_manager * im = nullptr, keep_theorem_mode tmode = keep_theorem_mode::All);
+           keep_theorem_mode tmode = keep_theorem_mode::All);
     ~parser();
 
     void display_error(throwable const & ex);
@@ -257,8 +246,6 @@ public:
     void erase_cached_definition(name const & n) { if (m_cache) m_cache->erase(n); }
 
     bool are_info_lines_valid(unsigned start_line, unsigned end_line) const;
-    bool collecting_info() const { return m_info_manager; }
-    void remove_proof_state_info(pos_info const & start, pos_info const & end);
 
     void set_index(declaration_index * i) { m_index = i; }
     void add_decl_index(name const & n, pos_info const & pos, name const & k, expr const & t);

@@ -415,10 +415,7 @@ static expr parse_sorry(parser & p, unsigned, expr const *, pos_info const & pos
 }
 
 static expr parse_rparen(parser & p, unsigned, expr const * args, pos_info const & pos) {
-    if (p.collecting_info())
-        return p.save_pos(mk_extra_info(args[0], nulltag), pos);
-    else
-        return args[0];
+    return args[0];
 }
 
 static expr parse_typed_expr(parser & p, unsigned, expr const * args, pos_info const & pos) {

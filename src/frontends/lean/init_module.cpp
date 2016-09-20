@@ -13,12 +13,10 @@ Author: Leonardo de Moura
 #include "frontends/lean/builtin_exprs.h"
 #include "frontends/lean/inductive_cmds.h"
 #include "frontends/lean/structure_instance.h"
-#include "frontends/lean/info_manager.h"
 #include "frontends/lean/parse_table.h"
 #include "frontends/lean/token_table.h"
 #include "frontends/lean/scanner.h"
 #include "frontends/lean/pp.h"
-#include "frontends/lean/server.h"
 #include "frontends/lean/local_ref_info.h"
 #include "frontends/lean/decl_cmds.h"
 #include "frontends/lean/nested_declaration.h"
@@ -44,9 +42,7 @@ void initialize_frontend_lean_module() {
     initialize_calc();
     initialize_inductive_cmds();
     initialize_structure_instance();
-    initialize_info_manager();
     initialize_pp();
-    initialize_server();
     initialize_local_ref_info();
     initialize_decl_cmds();
     initialize_nested_declaration();
@@ -62,9 +58,7 @@ void finalize_frontend_lean_module() {
     finalize_nested_declaration();
     finalize_decl_cmds();
     finalize_local_ref_info();
-    finalize_server();
     finalize_pp();
-    finalize_info_manager();
     finalize_structure_instance();
     finalize_inductive_cmds();
     finalize_calc();

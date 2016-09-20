@@ -176,13 +176,13 @@ void parser::init_stop_at(options const & opts) {
 parser::parser(environment const & env, io_state const & ios,
                std::istream & strm, char const * strm_name, optional<std::string> const & base_dir,
                bool use_exceptions, unsigned num_threads,
-               snapshot const * s, snapshot_vector * sv, info_manager * im,
+               snapshot const * s, snapshot_vector * sv,
                keep_theorem_mode tmode):
     m_env(env), m_ios(ios),
     m_verbose(true), m_use_exceptions(use_exceptions),
     m_scanner(strm, strm_name, s ? s->m_line : 1),
     m_base_dir(base_dir),
-    m_snapshot_vector(sv), m_info_manager(im), m_cache(nullptr), m_index(nullptr) {
+    m_snapshot_vector(sv), m_cache(nullptr), m_index(nullptr) {
     m_ignore_noncomputable = false;
     m_profile     = ios.get_options().get_bool("profile", false);
     init_stop_at(ios.get_options());
@@ -295,18 +295,7 @@ bool parser::are_info_lines_valid(unsigned start_line, unsigned end_line) const 
         if (start_line <= m_stop_at_line && m_stop_at_line <= end_line)
             return false;
     }
-    if (m_info_manager) {
-        // we are tracking info
-        for (unsigned i = start_line; i <= end_line; i++)
-            if (m_info_manager->is_invalidated(i))
-                return false;
-    }
     return true;
-}
-
-void parser::remove_proof_state_info(pos_info const & /*start*/, pos_info const & /*end*/) {
-    // if (m_info_manager)
-    // m_info_manager->remove_proof_state_info(start.first, start.second, end.first, end.second);
 }
 
 expr parser::mk_sorry(pos_info const & p) {
@@ -388,7 +377,6 @@ void parser::throw_nested_exception(throwable const & ex, pos_info p) {
 }
 
 #define CATCH(ShowError, ThrowError)                    \
-save_pre_info_data();                                   \
 m_found_errors = true;                                  \
 if (!m_use_exceptions && m_show_errors) { ShowError ; } \
 sync();                                                 \
@@ -409,12 +397,11 @@ void parser::protected_call(std::function<void()> && f, std::function<void()> &&
         CATCH(display_error(ex.what(), ex.m_pos),
               throw_parser_exception(ex.what(), ex.m_pos));
     } catch (interrupted & ex) {
-        save_pre_info_data();
         reset_interrupt();
         if (m_verbose)
             ios().get_regular_stream() << "!!!Interrupted!!!" << std::endl;
         sync();
-        if (m_use_exceptions || m_info_manager)
+        if (m_use_exceptions)
             throw;
     } catch (throwable & ex) {
         reset_interrupt();
@@ -426,8 +413,6 @@ void parser::sync_command() {
     // Keep consuming tokens until we find a Command or End-of-file
     while (curr() != scanner::token_kind::CommandKeyword && curr() != scanner::token_kind::Eof)
         next();
-    if (m_info_manager)
-        m_info_manager->commit_upto(m_scanner.get_line()+1, false);
 }
 
 tag parser::get_tag(expr e) {
@@ -1044,7 +1029,6 @@ expr parser::parse_binder_core(binder_info const & bi, unsigned rbp) {
     } else {
         type = save_pos(mk_expr_placeholder(), p);
     }
-    save_identifier_info(p, id);
     return save_pos(mk_local(id, type, bi), p);
 }
 
@@ -1090,7 +1074,6 @@ bool parser::parse_binder_collection(buffer<pair<pos_info, name>> const & names,
     /* Add (ID_1 ... ID_n : _) to r */
     for (auto p : names) {
         expr arg_type = save_pos(mk_expr_placeholder(), p.first);
-        save_identifier_info(p.first, p.second);
         expr local = save_pos(mk_local(p.second, arg_type, bi), p.first);
         add_local(local);
         r.push_back(local);
@@ -1130,7 +1113,6 @@ void parser::parse_binder_block(buffer<expr> & r, binder_info const & bi, unsign
     }
     for (auto p : names) {
         expr arg_type = type ? *type : save_pos(mk_expr_placeholder(), p.first);
-        save_identifier_info(p.first, p.second);
         expr local = save_pos(mk_local(p.second, arg_type, bi), p.first);
         add_local(local);
         r.push_back(local);
@@ -1161,7 +1143,6 @@ expr parser::parse_inst_implicit_decl() {
         id   = mk_anonymous_inst_name();
         type = parse_expr();
     }
-    save_identifier_info(id_pos, id);
     expr local = save_pos(mk_local(id, type, bi), id_pos);
     add_local(local);
     return local;
@@ -1370,8 +1351,6 @@ static pair<notation::transition, parse_table> const * get_non_skip(list<pair<no
 expr parser::parse_notation(parse_table t, expr * left) {
     lean_assert(curr() == scanner::token_kind::Keyword);
     auto p = pos();
-    if (m_info_manager)
-        m_info_manager->add_symbol_info(p.first, p.second, get_token_info().token());
     buffer<expr>                     args;
     buffer<notation::action_kind>    kinds;
     buffer<list<expr>>               nargs; // nary args
@@ -1469,7 +1448,6 @@ expr parser::parse_notation(parse_table t, expr * left) {
         t = curr_pair->second;
     }
     list<notation::accepting> const & as = t.is_accepting();
-    save_overload_notation(as, p);
     if (is_nil(as)) {
         if (p == pos())
             throw parser_error(sstream() << "invalid expression", pos());
@@ -1520,7 +1498,6 @@ expr parser::parse_notation(parse_table t, expr * left) {
     if (create_lambdas) {
         r = rec_save_pos(::lean::mk_app(r, actual_args), p);
     }
-    save_type_info(r);
     return r;
 }
 
@@ -1803,12 +1780,7 @@ expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only) 
         if (ls && m_id_behavior != id_behavior::AssumeConstantIfUndef)
             throw parser_error("invalid use of explicit universe parameter, identifier is a variable, "
                                "parameter or a constant bound to parameters in a section", p);
-        auto r = copy_with_new_pos(*it1, p);
-        if (!resolve_only) {
-            save_type_info(r);
-            save_identifier_info(p, id);
-        }
-        return r;
+        return copy_with_new_pos(*it1, p);
     }
 
     for (name const & ns : get_namespaces(m_env)) {
@@ -1817,9 +1789,7 @@ expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only) 
             (!id.is_atomic() || !is_protected(m_env, new_id))) {
             auto r = save_pos(mk_constant(new_id, ls), p);
             if (!resolve_only) {
-                save_type_info(r);
                 add_ref_index(new_id, p);
-                save_identifier_info(p, new_id);
             }
             return r;
         }
@@ -1831,9 +1801,7 @@ expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only) 
         if (m_env.find(new_id)) {
             auto r = save_pos(mk_constant(new_id, ls), p);
             if (!resolve_only) {
-                save_type_info(r);
                 add_ref_index(new_id, p);
-                save_identifier_info(p, new_id);
             }
             return r;
         }
@@ -1853,8 +1821,6 @@ expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only) 
             new_as.push_back(copy_with_new_pos(mk_constant(e, ls), p));
         }
         r = save_pos(mk_choice(new_as.size(), new_as.data()), p);
-        if (!resolve_only)
-            save_overload(*r);
     }
     if (!r) {
         if (m_id_behavior == id_behavior::AssumeConstantIfUndef) {
@@ -1869,12 +1835,8 @@ expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only) 
     if (!r)
         throw parser_error(sstream() << "unknown identifier '" << id << "'", p);
     if (!resolve_only) {
-        save_type_info(*r);
         if (is_constant(*r)) {
             add_ref_index(const_name(*r), p);
-            save_identifier_info(p, const_name(*r));
-        } else if (is_local(*r)) {
-            save_identifier_info(p, local_pp_name(*r));
         }
     }
     return *r;
@@ -2245,15 +2207,7 @@ void parser::parse_imports() {
     m_env = activate_export_decls(m_env, {}); // explicitly activate exports in root namespace
     m_env = replay_export_decls_core(m_env, m_ios);
     if (imported)
-        commit_info(1, 0);
-}
-
-void parser::commit_info(unsigned line, unsigned col) {
-    save_snapshot();
-    if (m_info_manager) {
-        m_info_manager->save_environment_options(line, col, m_env, m_ios.get_options());
-        m_info_manager->commit_upto(line, true);
-    }
+        save_snapshot();
 }
 
 bool parser::parse_commands() {
@@ -2261,7 +2215,6 @@ bool parser::parse_commands() {
     scoped_expr_caching disable(false);
     scoped_set_distinguishing_pp_options set(get_distinguishing_pp_options());
     scope_pos_info_provider scope1(*this);
-    scope_info_manager      scope2(m_info_manager);
     try {
         bool done = false;
         protected_call([&]() {
@@ -2287,9 +2240,9 @@ bool parser::parse_commands() {
                     switch (curr()) {
                     case scanner::token_kind::CommandKeyword:
                         if (curr_is_token(get_end_tk()))
-                            commit_info();
+                            save_snapshot();
                         parse_command();
-                        commit_info();
+                        save_snapshot();
                         break;
                     case scanner::token_kind::Eof:
                         done = true;
@@ -2313,11 +2266,11 @@ bool parser::parse_commands() {
                 throw_parser_exception("invalid end of module, expecting 'end'", pos());
         }
     } catch (interrupt_parser) {
-        commit_info();
+        save_snapshot();
         while (has_open_scopes(m_env))
             m_env = pop_scope_core(m_env, m_ios);
     }
-    commit_info(m_scanner.get_line()+1, 0);
+    save_snapshot();
     return !m_found_errors;
 }
 
@@ -2356,75 +2309,12 @@ environment parser::reveal_all_theorems() {
 }
 
 void parser::save_snapshot() {
-    m_pre_info_manager.clear();
     if (!m_snapshot_vector)
         return;
     if (m_snapshot_vector->empty() || static_cast<int>(m_snapshot_vector->back().m_line) != m_scanner.get_line())
         m_snapshot_vector->push_back(snapshot(m_env, m_local_level_decls, m_local_decls,
                                               m_level_variables, m_variables, m_include_vars,
                                               m_ios.get_options(), m_parser_scope_stack, m_scanner.get_line()));
-}
-
-void parser::save_pre_info_data() {
-    // if elaborator failed, then m_pre_info_data contains type information before elaboration.
-    if (m_info_manager) {
-        bool overwrite = false;
-        m_info_manager->merge(m_pre_info_manager, overwrite);
-        m_pre_info_manager.clear();
-    }
-}
-
-void parser::save_overload(expr const & e) {
-    if (!m_info_manager || !is_choice(e))
-        return;
-    auto p = pos_of(e);
-    m_info_manager->add_overload_info(p.first, p.second, e);
-}
-
-void parser::save_overload_notation(list<expr> const & as, pos_info const & p) {
-    if (!m_info_manager || length(as) <= 1)
-        return;
-    m_info_manager->add_overload_notation_info(p.first, p.second, as);
-}
-void parser::save_overload_notation(list<notation::accepting> const & as, pos_info const & p) {
-    if (!m_info_manager || length(as) <= 1)
-        return;
-    list<expr> new_as =
-        map2<expr, notation::accepting, std::function<expr(notation::accepting const &)>>
-        (as, [](notation::accepting const & p) { return p.get_expr(); });
-    save_overload_notation(new_as, p);
-}
-void parser::save_identifier_info(pos_info const & p, name const & full_id) {
-    if (!m_info_manager)
-        return;
-    m_info_manager->add_identifier_info(p.first, p.second, full_id);
-}
-
-void parser::save_type_info(expr const & e) {
-    if (!m_info_manager)
-        return;
-    if (is_explicit(e)) {
-        save_type_info(get_explicit_arg(e));
-    } else if (is_as_atomic(e)) {
-        save_type_info(get_as_atomic_arg(e));
-    } else if (is_choice(e)) {
-        for (unsigned i = 0; i < get_num_choices(e); i++)
-            save_type_info(get_choice(e, i));
-    } else if (is_app(e)) {
-        save_type_info(get_app_fn(e));
-    } else if (is_constant(e)) {
-        auto d = m_env.find(const_name(e));
-        if (!d)
-            return;
-        auto p = pos_of(e);
-        m_pre_info_manager.add_type_info(p.first, p.second, d->get_type());
-    } else if (is_local(e)) {
-        auto p = pos_of(e);
-        expr t = mlocal_type(e);
-        if (is_meta(t))
-            return;
-        m_pre_info_manager.add_type_info(p.first, p.second, t);
-    }
 }
 
 optional<pos_info> parser::get_pos_info(expr const & e) const {
@@ -2449,7 +2339,7 @@ bool parse_commands(environment & env, io_state & ios, std::istream & in, char c
                     optional<std::string> const & base_dir, bool use_exceptions,
                     unsigned num_threads, definition_cache * cache, declaration_index * index,
                     keep_theorem_mode tmode) {
-    parser p(env, ios, in, strm_name, base_dir, use_exceptions, num_threads, nullptr, nullptr, nullptr, tmode);
+    parser p(env, ios, in, strm_name, base_dir, use_exceptions, num_threads, nullptr, nullptr, tmode);
     p.set_cache(cache);
     p.set_index(index);
     bool r = p();

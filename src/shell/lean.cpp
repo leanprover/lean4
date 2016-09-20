@@ -37,7 +37,6 @@ Author: Leonardo de Moura
 #include "library/error_handling.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/pp.h"
-#include "frontends/lean/server.h"
 #include "frontends/lean/dependencies.h"
 #include "frontends/lean/opt_cmd.h"
 #include "frontends/smt2/parser.h"
@@ -71,10 +70,6 @@ using lean::type_checker;
 
 enum class input_kind { Unspecified, Lean, HLean, Trace };
 
-static void on_ctrl_c(int ) {
-    lean::request_interrupt();
-}
-
 static void display_header(std::ostream & out) {
     out << "Lean (version " << LEAN_VERSION_MAJOR << "."
         << LEAN_VERSION_MINOR << "." << LEAN_VERSION_PATCH;
@@ -95,7 +90,6 @@ static void display_help(std::ostream & out) {
     std::cout << "                    with unknown extension (default)\n";
     std::cout << "  --hlean           use parser for Lean default input format \n";
     std::cout << "                    and use HoTT compatible kernel for files, with unknown extension\n";
-    std::cout << "  --server-trace    use lean server trace parser for files with unknown extension\n";
     std::cout << "  --smt2            use lean as an smt-solver, interpreting all files as smt2 files\n";
     std::cout << "Miscellaneous:\n";
     std::cout << "  --help -h         display this message\n";
@@ -114,7 +108,6 @@ static void display_help(std::ostream & out) {
     std::cout << "                    (in megabytes)\n";
 #endif
 #if defined(LEAN_MULTI_THREAD)
-    std::cout << "  --server          start Lean in 'server' mode\n";
     std::cout << "  --threads=num -j  number of threads used to process lean files\n";
 #endif
     std::cout << "  --deps            just print dependencies of a Lean input\n";
@@ -160,7 +153,6 @@ static struct option g_long_options[] = {
     {"help",         no_argument,       0, 'h'},
     {"lean",         no_argument,       0, 'l'},
     {"hlean",        no_argument,       0, 'H'},
-    {"server-trace", no_argument,       0, 'R'},
     {"smt2",         no_argument,       0, 'Y'},
     {"path",         no_argument,       0, 'p'},
     {"githash",      no_argument,       0, 'g'},
@@ -173,7 +165,6 @@ static struct option g_long_options[] = {
     {"to_axiom",     no_argument,       0, 'X'},
     {"profile",      no_argument,       0, 'P'},
 #if defined(LEAN_MULTI_THREAD)
-    {"server",       no_argument,       0, 'S'},
     {"threads",      required_argument, 0, 'j'},
 #endif
     {"quiet",        no_argument,       0, 'q'},
@@ -197,7 +188,7 @@ static struct option g_long_options[] = {
     {0, 0, 0, 0}
 };
 
-#define OPT_STR "PHRXFdD:qrlupgvhk:012t:012o:E:c:i:L:012O:012GZAIT:B:"
+#define OPT_STR "PHXFdD:qrlupgvhk:012t:012o:E:c:i:L:012O:012GZAIT:B:"
 
 #if defined(LEAN_TRACK_MEMORY)
 #define OPT_STR2 OPT_STR "M:012"
@@ -206,9 +197,9 @@ static struct option g_long_options[] = {
 #endif
 
 #if defined(LEAN_USE_BOOST) && defined(LEAN_MULTI_THREAD)
-static char const * g_opt_str = OPT_STR2 "Sj:012s:012";
+static char const * g_opt_str = OPT_STR2 "j:012s:012";
 #elif !defined(LEAN_USE_BOOST) && defined(LEAN_MULTI_THREAD)
-static char const * g_opt_str = OPT_STR2 "Sj:012";
+static char const * g_opt_str = OPT_STR2 "j:012";
 #else
 static char const * g_opt_str = OPT_STR2;
 #endif
@@ -260,7 +251,6 @@ int main(int argc, char ** argv) {
     lean::initializer init;
     bool export_objects     = false;
     unsigned trust_lvl      = LEAN_BELIEVER_TRUST_LEVEL+1;
-    bool server             = false;
     bool smt2               = false;
     bool only_deps          = false;
     unsigned num_threads    = 1;
@@ -288,9 +278,6 @@ int main(int argc, char ** argv) {
         switch (c) {
         case 'j':
             num_threads = atoi(optarg);
-            break;
-        case 'S':
-            server = true;
             break;
         case 'v':
             display_header(std::cout);
@@ -418,7 +405,6 @@ int main(int argc, char ** argv) {
     }
 
     #if !defined(LEAN_MULTI_THREAD)
-    lean_assert(!server);
     lean_assert(num_threads == 1);
     #endif
 
@@ -523,9 +509,6 @@ int main(int argc, char ** argv) {
                         ok = false;
                     }
                     break;
-                case input_kind::Trace:
-                    ok = lean::parse_server_trace(env, ios, argv[i], base_dir);
-                    break;
                 default:
                     lean_unreachable();
                     break;
@@ -537,13 +520,6 @@ int main(int argc, char ** argv) {
                 auto out = diagnostic(env, ios, tc);
                 lean::display_error(out, &pp, ex);
             }
-        }
-        if (ok && server && (default_k == input_kind::Lean || default_k == input_kind::HLean)) {
-            signal(SIGINT, on_ctrl_c);
-            ios.set_option(lean::name("pp", "beta"), true);
-            lean::server Sv(env, ios, base_dir, num_threads);
-            if (!Sv(std::cin))
-                ok = false;
         }
         if (save_cache) {
             exclusive_file_lock cache_lock(cache_name);

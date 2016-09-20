@@ -29,9 +29,6 @@ add_test(lean_path2    "${CMAKE_CURRENT_BINARY_DIR}/lean" --path)
 add_test(export_all    "${LEAN_SOURCE_DIR}/../bin/lean" --export-all=all.out "${LEAN_SOURCE_DIR}/../library/standard.lean")
 add_test(lean_unknown_option bash "${LEAN_SOURCE_DIR}/cmake/check_failure.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" "-z")
 add_test(lean_unknown_file1 bash "${LEAN_SOURCE_DIR}/cmake/check_failure.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" "boofoo.lean")
-add_test(lean_server_trace "${CMAKE_CURRENT_BINARY_DIR}/lean" --server-trace "${LEAN_SOURCE_DIR}/../tests/lean/interactive/consume_args.input")
-add_test(lean_server_trace "${CMAKE_CURRENT_BINARY_DIR}/lean" --server-trace "${LEAN_SOURCE_DIR}/../tests/lean/interactive/options_cmd.trace")
-add_test(lean_server_trace "${CMAKE_CURRENT_BINARY_DIR}/lean" --server-trace "${LEAN_SOURCE_DIR}/../tests/lean/interactive/commands.trace")
 # The following test needs new elaborator to support match
 # add_test(NAME "lean_eqn_macro"
 #         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"

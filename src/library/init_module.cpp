@@ -35,7 +35,6 @@ Author: Leonardo de Moura
 #include "library/user_recursors.h"
 #include "library/noncomputable.h"
 #include "library/aux_recursors.h"
-#include "library/class_instance_resolution.h"
 #include "library/type_context.h"
 #include "library/local_context.h"
 #include "library/metavar_context.h"
@@ -114,7 +113,6 @@ void initialize_library_module() {
     initialize_user_recursors();
     initialize_noncomputable();
     initialize_aux_recursors();
-    initialize_class_instance_resolution();
     initialize_old_type_context();
     initialize_legacy_type_context();
     initialize_app_builder();
@@ -146,7 +144,6 @@ void finalize_library_module() {
     finalize_app_builder();
     finalize_legacy_type_context();
     finalize_old_type_context();
-    finalize_class_instance_resolution();
     finalize_aux_recursors();
     finalize_noncomputable();
     finalize_user_recursors();

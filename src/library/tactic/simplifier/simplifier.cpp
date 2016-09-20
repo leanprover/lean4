@@ -25,7 +25,6 @@ Author: Daniel Selsam
 #include "library/norm_num.h"
 #include "library/attribute_manager.h"
 #include "library/defeq_canonizer.h"
-#include "library/class_instance_resolution.h"
 #include "library/relation_manager.h"
 #include "library/app_builder.h"
 #include "library/congr_lemma.h"

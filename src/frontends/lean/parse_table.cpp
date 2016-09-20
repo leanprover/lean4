@@ -11,9 +11,9 @@ Author: Leonardo de Moura
 #include "kernel/free_vars.h"
 #include "kernel/replace_fn.h"
 #include "library/io_state_stream.h"
+#include "library/annotation.h"
 #include "frontends/lean/parse_table.h"
 #include "frontends/lean/parser.h"
-#include "frontends/lean/info_annotation.h"
 
 namespace lean {
 namespace notation {
@@ -24,7 +24,7 @@ namespace notation {
     3- Every other subterm is annotated with no_info.
 */
 static expr annotate_macro_subterms(expr const & e, bool root = true) {
-    if (is_var(e) || is_no_info(e)) // || is_by(e))
+    if (is_var(e))
         return e;
     if (is_binding(e))
         return update_binding(e,
@@ -34,7 +34,7 @@ static expr annotate_macro_subterms(expr const & e, bool root = true) {
     bool modified  = false;
     expr const & f = get_app_args(e, args);
     expr new_f;
-    if ((is_constant(f) && root) || is_no_info(f)) {
+    if (is_constant(f) && root) {
         new_f = f;
     } else if (is_annotation(f)) {
         name const & k   = get_annotation_kind(f);
@@ -47,7 +47,7 @@ static expr annotate_macro_subterms(expr const & e, bool root = true) {
             modified = true;
         }
     } else {
-        new_f    = mk_no_info(f);
+        new_f    = f;
         modified = true;
     }
     for (expr & arg : args) {

@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/parser.h"
-#include "frontends/lean/info_annotation.h"
 #include "frontends/lean/parser_config.h"
 #include "frontends/lean/calc.h"
 #include "frontends/lean/builtin_cmds.h"
@@ -30,7 +29,6 @@ namespace lean {
 void initialize_frontend_lean_module() {
     initialize_old_attributes();
     initialize_prenum();
-    initialize_info_annotation();
     initialize_tokens();
     initialize_token_table();
     initialize_parse_table();
@@ -70,7 +68,6 @@ void finalize_frontend_lean_module() {
     finalize_parse_table();
     finalize_token_table();
     finalize_tokens();
-    finalize_info_annotation();
     finalize_prenum();
 }
 }

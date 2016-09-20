@@ -25,6 +25,7 @@ Author: Leonardo de Moura
 #include "library/exception.h"
 #include "library/aliases.h"
 #include "library/constants.h"
+#include "library/annotation.h"
 #include "library/private.h"
 #include "library/locals.h"
 #include "library/local_context.h"
@@ -52,7 +53,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/notation_cmd.h"
-#include "frontends/lean/info_annotation.h"
 #include "frontends/lean/parser_pos_provider.h"
 #include "frontends/lean/update_environment_exception.h"
 #include "frontends/lean/local_ref_info.h"
@@ -1481,12 +1481,7 @@ expr parser::parse_notation(parse_table t, expr * left) {
             r = instantiate_rev(r, new_args.size(), new_args.data());
         } else {
             lean_assert(nargs.empty() && scoped_info.empty());
-            if (args.empty()) {
-                // Notation does not have arguments. Thus, the info-manager should treat is as a single thing.
-                r = mk_notation_info(r, r.get_tag());
-            } else {
-                r = instantiate_rev(r, args.size(), args.data());
-            }
+            r = instantiate_rev(r, args.size(), args.data());
         }
         if (create_lambdas) {
             bool no_cache = false;

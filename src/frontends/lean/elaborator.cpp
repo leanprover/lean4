@@ -41,7 +41,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/util.h"
 #include "frontends/lean/prenum.h"
 #include "frontends/lean/elaborator.h"
-#include "frontends/lean/info_annotation.h"
 
 namespace lean {
 MK_THREAD_LOCAL_GET(type_context_cache_manager, get_tcm, true /* use binder information at infer_cache */);
@@ -1619,14 +1618,6 @@ expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_typ
         if (is_app_fn)
             throw elaborator_exception(e, "invalid inaccessible term, function expected");
         return visit_inaccessible(e, expected_type);
-    } else if (is_no_info(e)) {
-        // TODO(Leo): flet<bool> let(m_no_info, true);
-        return visit(get_annotation_arg(e), expected_type);
-    } else if (is_notation_info(e)) {
-        // flet<bool> let(m_no_info, true);
-        expr r = visit(get_annotation_arg(e), expected_type);
-        // save_type_data(e, r);
-        return r;
     } else if (is_as_atomic(e)) {
         /* ignore annotation */
         expr new_e = visit(get_as_atomic_arg(e), none_expr());

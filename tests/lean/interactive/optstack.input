@@ -1,5 +1,0 @@
-LOAD whnfinst.lean
-WAIT
-REPLACE 14
-end
-WAIT

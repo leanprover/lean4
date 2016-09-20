@@ -49,12 +49,6 @@ Author: Leonardo de Moura
 #include "library/rfl_lemmas.h"
 #include "library/pattern_attribute.h"
 
-
-#include "library/old_converter.h"
-#include "library/old_default_converter.h"
-#include "library/old_type_checker.h"
-
-
 namespace lean {
 void initialize_library_core_module() {
     initialize_constants();
@@ -73,12 +67,6 @@ void finalize_library_core_module() {
 }
 
 void initialize_library_module() {
-// TODO(Leo): delete legacy....
-    initialize_old_converter();
-    initialize_old_default_converter();
-    initialize_old_type_checker();
-// ----------------------------
-
     initialize_local_context();
     initialize_metavar_context();
     initialize_fingerprint();
@@ -160,11 +148,5 @@ void finalize_library_module() {
     finalize_fingerprint();
     finalize_metavar_context();
     finalize_local_context();
-
-// TODO(Leo): delete legacy....
-    finalize_old_converter();
-    finalize_old_default_converter();
-    finalize_old_type_checker();
-// -------------------
 }
 }

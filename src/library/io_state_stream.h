@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "kernel/abstract_type_context.h"
 #include "library/exception.h"
 #include "library/io_state.h"
-#include "library/constraint.h"
 
 namespace lean {
 /** \brief Base class for \c regular and \c diagnostic wrapper classes. */
@@ -51,7 +50,6 @@ io_state_stream const & operator<<(io_state_stream const & out, endl_class);
 io_state_stream const & operator<<(io_state_stream const & out, option_kind k);
 io_state_stream const & operator<<(io_state_stream const & out, expr const & e);
 io_state_stream const & operator<<(io_state_stream const & out, level const & l);
-io_state_stream const & operator<<(io_state_stream const & out, constraint const & c);
 io_state_stream const & operator<<(io_state_stream const & out, ext_exception const & ex);
 io_state_stream const & operator<<(io_state_stream const & out, formatted_exception const & ex);
 io_state_stream const & operator<<(io_state_stream const & out, format const & f);

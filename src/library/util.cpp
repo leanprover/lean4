@@ -5,13 +5,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <algorithm>
+#include "util/fresh_name.h"
 #include "kernel/find_fn.h"
 #include "kernel/free_vars.h"
 #include "kernel/instantiate.h"
 #include "kernel/error_msgs.h"
+#include "kernel/type_checker.h"
 #include "kernel/abstract.h"
+#include "kernel/abstract_type_context.h"
 #include "kernel/inductive/inductive.h"
-#include "library/metavar.h"
 #include "library/locals.h"
 #include "library/util.h"
 #include "library/constants.h"
@@ -19,7 +21,6 @@ Author: Leonardo de Moura
 #include "library/pp_options.h"
 #include "library/projection.h"
 #include "library/replace_visitor.h"
-#include "library/old_type_checker.h"
 
 namespace lean {
 /** \brief Return the "arity" of the given type. The arity is the number of nested pi-expressions. */

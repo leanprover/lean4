@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "kernel/environment.h"
-#include "library/old_default_converter.h"
 
 namespace lean {
 /** \brief Auxiliary information attached to projections. This information

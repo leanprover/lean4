@@ -8,9 +8,12 @@ Author: Leonardo de Moura
 #include <vector>
 #include <unordered_map>
 #include "util/flet.h"
+#include "util/lbool.h"
 #include "kernel/environment.h"
 #include "kernel/abstract_type_context.h"
 #include "kernel/expr_maps.h"
+#include "kernel/equiv_manager.h"
+#include "kernel/pos_info_provider.h"
 #include "library/projection.h"
 #include "library/metavar_context.h"
 #include "library/expr_pair_maps.h"

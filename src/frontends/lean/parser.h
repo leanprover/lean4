@@ -19,7 +19,6 @@ Author: Leonardo de Moura
 #include "library/definition_cache.h"
 #include "library/declaration_index.h"
 #include "frontends/lean/scanner.h"
-#include "frontends/lean/elaborator_context.h"
 #include "frontends/lean/local_decls.h"
 #include "frontends/lean/local_level_decls.h"
 #include "frontends/lean/parser_config.h"
@@ -221,10 +220,6 @@ class parser : public abstract_parser {
     void save_identifier_info(pos_info const & p, name const & full_id);
     void commit_info(unsigned line, unsigned col);
     void commit_info() { commit_info(m_scanner.get_line(), m_scanner.get_pos()); }
-
-    elaborator_context mk_elaborator_context(bool check_unassigned = true);
-    elaborator_context mk_elaborator_context(environment const & env);
-    elaborator_context mk_elaborator_context(environment const & env, local_level_decls const & lls);
 
     void init_stop_at(options const & opts);
 

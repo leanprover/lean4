@@ -39,16 +39,6 @@
   :group 'lean
   :type 'string)
 
-(defcustom lean-company-use t
-  "Use company mode for lean."
-  :group 'lean
-  :type 'boolean)
-
-(defcustom lean-company-type-foreground (face-foreground 'font-lock-keyword-face)
-  "Color of type parameter in auto-complete candidates"
-  :group 'lean
-  :type 'color)
-
 (defcustom lean-eldoc-use t
   "Use eldoc mode for lean."
   :group 'lean
@@ -58,23 +48,6 @@
   "When eldoc-function had nay, try again after this amount of time."
   :group 'lean
   :type 'number)
-
-(defcustom lean-show-only-type-in-parens t
-  "Show only types of expression in parens if non-nil. Otherwise,
-show both of expressions and types."
-  :group 'lean
-  :type 'boolean)
-
-(defcustom lean-server-retry-time 0.1
-  "Retry interval for event-handler"
-  :group 'lean
-  :type 'number)
-
-(defcustom lean-server-options nil
-  "Additional command line options for the Lean background
-   process used to perform tasks such as type information and
-   perform auto-completion"
-  :group 'lean)
 
 (defcustom lean-flycheck-use t
   "Use flycheck for lean."
@@ -163,26 +136,6 @@ false (nil)."
                  (const :tag "Show only the first" show-first)
                  (const :tag "Show the first goal, and the conclusions of all other goals" show-first-and-other-conclusions)))
 
-(defcustom lean-follow-changes t
-  "If it's nil, we don't set up after-change-functions and
-  before-change-functions to update the changes to lean-server.
-  A usage is to batch-process .org files to .html files"
-  :group 'lean
-  :type 'boolean)
-
-(defcustom lean-time-to-restart-server 1
-  "After lean-time-to-kill-server passed, we restart lean-server if
-  the all jobs in the queue are not process."
-  :group 'lean
-  :type 'number)
-
-(defcustom lean-company-import-timeout 1
-  "After lean-company-import-timeout (seconds) passed,
-   company-lean--import stops collecting files.
-   See the body of company-lean--import-candidates-main"
-  :group 'lean
-  :type 'number)
-
 (defcustom lean-exec-at-pos-wait-time 0.1
   "When flycheck process is running, wait for
   lean-exec-at-pos-wait-time (seconds) and try to run
@@ -205,21 +158,6 @@ false (nil)."
   :group 'lean-keybinding  :type 'key-sequence)
 (defcustom lean-keybinding-eval-cmd (kbd "C-c C-e")
   "Lean Keybinding for eval-cmd"
-  :group 'lean-keybinding  :type 'key-sequence)
-(defcustom lean-keybinding-show-type (kbd "C-c C-t")
-  "Lean Keybinding for show-type"
-  :group 'lean-keybinding  :type 'key-sequence)
-(defcustom lean-keybinding-fill-placeholder (kbd "C-c C-f")
-  "Lean Keybinding for fill-placeholder"
-  :group 'lean-keybinding  :type 'key-sequence)
-(defcustom lean-keybinding-server-restart-process (kbd "C-c C-r")
-  "Lean Keybinding for server-restart-process"
-  :group 'lean-keybinding  :type 'key-sequence)
-(defcustom lean-keybinding-find-tag (kbd "M-.")
-  "Lean Keybinding for find-tag"
-  :group 'lean-keybinding  :type 'key-sequence)
-(defcustom lean-keybinding-tab-indent-or-complete (kbd "TAB")
-  "Lean Keybinding for tab-indent-or-complete"
   :group 'lean-keybinding  :type 'key-sequence)
 (defcustom lean-keybinding-lean-show-goal-at-pos (kbd "C-c C-g")
   "Lean Keybinding for show-goal-at-pos"

@@ -21,14 +21,21 @@
 (require 'lean-settings)
 (require 'lean-flycheck)
 (require 'lean-input)
-(require 'lean-type)
-(require 'lean-tags)
 (require 'lean-option)
 (require 'lean-syntax)
-(require 'lean-company)
-(require 'lean-changes)
-(require 'lean-server)
 (require 'lean-project)
+
+(defun lean-server-split-buffer (buf-str beg-regex end-regex)
+  ""
+  (let ((beg (string-match beg-regex buf-str))
+        (end (string-match end-regex buf-str))
+        pre body post)
+    (when (and beg end)
+      (setq end (match-end 1))
+      (setq pre  (substring-no-properties buf-str 0 beg))
+      (setq body (substring-no-properties buf-str beg end))
+      (setq post (substring-no-properties buf-str end))
+      `(,pre ,body ,post))))
 
 (defun lean-compile-string (exe-name args file-name)
   "Concatenate exe-name, args, and file-name"
@@ -229,11 +236,6 @@ placeholder, call lean-server with --hole option, otherwise call
   (local-set-key lean-keybinding-show-key                  'quail-show-key)
   (local-set-key lean-keybinding-set-option                'lean-set-option)
   (local-set-key lean-keybinding-eval-cmd                  'lean-eval-cmd)
-  (local-set-key lean-keybinding-show-type                 'lean-show-type)
-  (local-set-key lean-keybinding-fill-placeholder          'lean-fill-placeholder)
-  (local-set-key lean-keybinding-server-restart-process    'lean-server-restart-process)
-  (local-set-key lean-keybinding-find-tag                  'lean-find-tag)
-  (local-set-key lean-keybinding-tab-indent-or-complete    'lean-tab-indent-or-complete)
   (local-set-key lean-keybinding-lean-show-goal-at-pos     'lean-show-goal-at-pos)
   (local-set-key lean-keybinding-lean-show-id-keyword-info 'lean-show-id-keyword-info)
   )
@@ -253,25 +255,18 @@ placeholder, call lean-server with --hole option, otherwise call
     ["Execute lean"         lean-execute                      t]
     ["Create a new project" (call-interactively 'lean-project-create) (not (lean-project-inside-p))]
     "-----------------"
-    ["Show type info"       lean-show-type                    (and lean-eldoc-use eldoc-mode)]
     ["Show goal"            lean-show-goal-at-pos             t]
     ["Show id/keyword info" lean-show-id-keyword-info         t]
-    ["Fill a placeholder"   lean-fill-placeholder             (looking-at  (rx symbol-start "_"))]
-    ["Find tag at point"    lean-find-tag                     t]
     ["Global tag search"    lean-global-search                t]
     "-----------------"
     ["Run flycheck"         flycheck-compile                  (and lean-flycheck-use flycheck-mode)]
     ["List of errors"       flycheck-list-errors              (and lean-flycheck-use flycheck-mode)]
     "-----------------"
     ["Clear all cache"      lean-clear-cache                  t]
-    ["Kill lean process"    lean-server-kill-process          t]
-    ["Restart lean process" lean-server-restart-process       t]
     "-----------------"
     ("Configuration"
      ["Use flycheck (on-the-fly syntax check)"
-      lean-toggle-flycheck-mode :active t :style toggle :selected flycheck-mode]
-     ["Show type at point"
-      lean-toggle-eldoc-mode :active t :style toggle :selected eldoc-mode])
+      lean-toggle-flycheck-mode :active t :style toggle :selected flycheck-mode])
     "-----------------"
     ["Customize lean-mode" (customize-group 'lean)            t]))
 
@@ -279,7 +274,6 @@ placeholder, call lean-server with --hole option, otherwise call
   '(
     ;; Handle events that may start automatic syntax checks
     (before-save-hook                    . lean-whitespace-cleanup)
-    (after-save-hook                     . lean-server-after-save)
     ;; ;; Handle events that may triggered pending deferred checks
     ;; (window-configuration-change-hook . lean-perform-deferred-syntax-check)
     ;; (post-command-hook                . lean-perform-deferred-syntax-check)
@@ -287,8 +281,8 @@ placeholder, call lean-server with --hole option, otherwise call
     ;; ;; clean up temporary files and directories.
     ;; (kill-buffer-hook                 . lean-teardown)
     ;; (change-major-mode-hook           . lean-teardown)
-    (before-revert-hook                  . lean-before-revert)
-    (after-revert-hook                   . lean-after-revert)
+    ;; (before-revert-hook                  . lean-before-revert)
+    ;; (after-revert-hook                   . lean-after-revert)
     ;; ;; Update the error list if necessary
     ;; (post-command-hook                . lean-error-list-update-source)
     ;; (post-command-hook                . lean-error-list-highlight-errors)
@@ -301,10 +295,6 @@ placeholder, call lean-server with --hole option, otherwise call
 The `car' of each pair is a hook variable, the `cdr' a function
 to be added or removed from the hook variable if Flycheck mode is
 enabled and disabled respectively.")
-
-(when lean-follow-changes
-  (add-to-list 'lean-hooks-alist '(after-change-functions  . lean-after-change-function))
-  (add-to-list 'lean-hooks-alist '(before-change-functions . lean-before-change-function)))
 
 (defun lean-mode-setup ()
   "Default lean-mode setup"
@@ -321,14 +311,6 @@ enabled and disabled respectively.")
               (setq fci-rule-column lean-rule-column)
               (setq fci-rule-color lean-rule-color)
               (fci-mode t))))
-  ;; eldoc
-  (when lean-eldoc-use
-    (set (make-local-variable 'eldoc-documentation-function)
-         'lean-eldoc-documentation-function)
-    (eldoc-mode t))
-  ;; company-mode
-  (when lean-company-use
-    (company-lean-hook))
   ;; choose minor mode -- Standard / HoTT
   (let ((minor-mode (lean-choose-minor-mode-based-on-extension)))
     (cond

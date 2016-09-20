@@ -49,8 +49,6 @@ typedef enum {
     LEAN_OUT_OF_MEMORY,     // out of memory exception
     LEAN_INTERRUPTED,       // execution was interrupted by user request
     LEAN_KERNEL_EXCEPTION,  // type checking error
-    LEAN_UNIFIER_EXCEPTION, // unification exception
-    LEAN_TACTIC_EXCEPTION,  // tactic exception
     LEAN_PARSER_EXCEPTION,  // parser exception
     LEAN_OTHER_EXCEPTION    // other (TODO) lean exceptions
 } lean_exception_kind;

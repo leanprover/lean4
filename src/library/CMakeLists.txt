@@ -19,7 +19,7 @@ add_library(library OBJECT deep_copy.cpp expr_lt.cpp io_state.cpp
 
   # Legacy -- The following files will be eventually deleted
   normalize.cpp justification.cpp constraint.cpp metavar.cpp choice.cpp locals.cpp
-  unifier.cpp class_instance_resolution.cpp old_type_context.cpp
+  class_instance_resolution.cpp old_type_context.cpp
   legacy_type_context.cpp old_type_checker.cpp old_converter.cpp old_default_converter.cpp
   old_util.cpp old_local_context.cpp choice_iterator.cpp
   old_tmp_type_context.cpp

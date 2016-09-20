@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "kernel/ext_exception.h"
 #include "kernel/for_each_fn.h"
 #include "library/io_state_stream.h"
-#include "library/unifier.h"
 #include "library/exception.h"
 #include "library/flycheck.h"
 #include "library/pp_options.h"
@@ -129,14 +128,6 @@ static void display_error_warning(bool is_error, io_state_stream const & ios, po
     ios << " " << ex << endl;
 }
 
-static void display_error_warning(bool is_error, io_state_stream const & ios, pos_info_provider const * p, unifier_exception const & ex) {
-    formatter fmt = ios.get_formatter();
-    options opts  = ios.get_options();
-    auto j = ex.get_justification();
-    display_error_warning_pos(is_error, ios, p, j.get_main_expr());
-    ios << " " << mk_pair(j.pp(fmt, p, ex.get_substitution()), opts) << endl;
-}
-
 static void display_error_warning(bool is_error, io_state_stream const & ios, pos_info_provider const * p, formatted_exception const & ex) {
     display_error_warning_pos(is_error, ios, p, ex.get_main_expr());
     ios << " " << ex << endl;
@@ -148,8 +139,6 @@ static void display_error_warning(bool is_error, io_state_stream const & ios, po
         display_error_warning(is_error, ios, p, *k_ex);
     } else if (auto f_ex = dynamic_cast<formatted_exception const *>(&ex)) {
         display_error_warning(is_error, ios, p, *f_ex);
-    } else if (auto e_ex = dynamic_cast<unifier_exception const *>(&ex)) {
-        display_error_warning(is_error, ios, p, *e_ex);
     } else if (p) {
         display_error_warning_pos(is_error, ios, p->get_file_name(), p->get_some_pos().first, p->get_some_pos().second);
         ios << " " << ex.what() << endl;

@@ -15,7 +15,6 @@ Author: Leonardo de Moura
 #include "util/bitap_fuzzy_search.h"
 #include "kernel/instantiate.h"
 #include "library/aliases.h"
-#include "library/unifier.h"
 #include "library/protected.h"
 #include "library/reducible.h"
 #include "library/projection.h"

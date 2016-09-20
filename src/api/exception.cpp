@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #include "kernel/kernel_exception.h"
 #include "kernel/type_checker.h"
-#include "library/unifier.h"
 #include "library/print.h"
 #include "library/error_handling.h"
 #include "api/exception.h"
@@ -73,10 +72,6 @@ lean_exception_kind lean_exception_get_kind(lean_exception e) {
         return LEAN_KERNEL_EXCEPTION;
     if (dynamic_cast<lean::interrupted*>(ex))
         return LEAN_INTERRUPTED;
-    if (dynamic_cast<lean::unifier_exception*>(ex))
-        return LEAN_UNIFIER_EXCEPTION;
-    // if (dynamic_cast<lean::tactic_exception*>(ex))
-    //    return LEAN_TACTIC_EXCEPTION;
     if (dynamic_cast<lean::parser_exception*>(ex))
         return LEAN_PARSER_EXCEPTION;
     return LEAN_OTHER_EXCEPTION;

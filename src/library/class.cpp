@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/reducible.h"
 #include "library/aliases.h"
 #include "library/protected.h"
+#include "library/type_context.h"
 #include "library/class.h"
 #include "library/attribute_manager.h"
 
@@ -170,14 +171,6 @@ bool is_class(environment const & env, name const & c) {
     return s.m_instances.contains(c);
 }
 
-old_type_checker_ptr mk_class_type_checker(environment const & env, bool conservative) {
-    auto pred = conservative ? mk_not_reducible_pred(env) : mk_irreducible_pred(env);
-    class_state s = class_ext::get_state(env);
-    return mk_type_checker(env, [=](name const & n) {
-            return s.m_instances.contains(n) || pred(n);
-        });
-}
-
 static environment set_reducible_if_def(environment const & env, name const & n, bool persistent) {
     declaration const & d = env.get(n);
     if (d.is_definition() && !d.is_theorem())
@@ -189,12 +182,15 @@ static environment set_reducible_if_def(environment const & env, name const & n,
 environment add_instance(environment const & env, name const & n, unsigned priority, bool persistent) {
     declaration d = env.get(n);
     expr type = d.get_type();
-    auto tc = mk_class_type_checker(env, false);
+    type_context ctx(env, transparency_mode::All);
+    class_state S = class_ext::get_state(env);
+    type_context::tmp_locals locals(ctx);
     while (true) {
-        type = tc->whnf(type).first;
+        type = ctx.whnf_pred(type, [&](expr const & e) { return !is_constant(e) || !S.m_instances.contains(const_name(e)); });
         if (!is_pi(type))
             break;
-        type = instantiate(binding_body(type), mk_local(mk_fresh_name(), binding_domain(type)));
+        expr x = locals.push_local_from_binding(type);
+        type = instantiate(binding_body(type), x);
     }
     name c = get_class_name(env, get_app_fn(type));
     check_is_class(env, c);
@@ -231,88 +227,6 @@ name_predicate mk_instance_pred(environment const & env) {
 list<name> get_class_instances(environment const & env, name const & c) {
     class_state const & s = class_ext::get_state(env);
     return ptr_to_list(s.m_instances.find(c));
-}
-
-/** \brief If the constant \c e is a class, return its name */
-static optional<name> constant_is_ext_class(environment const & env, expr const & e) {
-    name const & cls_name = const_name(e);
-    if (is_class(env, cls_name)) {
-        return optional<name>(cls_name);
-    } else {
-        return optional<name>();
-    }
-}
-
-/** \brief Partial/Quick test for is_ext_class. Result
-    l_true:   \c type is a class, and the name of the class is stored in \c result.
-    l_false:  \c type is not a class.
-    l_undef:  procedure did not establish whether \c type is a class or not.
-*/
-static lbool is_quick_ext_class(old_type_checker const & tc, expr const & type, name & result) {
-    environment const & env = tc.env();
-    expr const * it         = &type;
-    while (true) {
-        switch (it->kind()) {
-        case expr_kind::Var:  case expr_kind::Sort:   case expr_kind::Local:
-        case expr_kind::Meta: case expr_kind::Lambda: case expr_kind::Let:
-            return l_false;
-        case expr_kind::Macro:
-            return l_undef;
-        case expr_kind::Constant:
-            if (auto r = constant_is_ext_class(env, *it)) {
-                result = *r;
-                return l_true;
-            } else if (tc.is_opaque(*it)) {
-                return l_false;
-            } else {
-                return l_undef;
-            }
-        case expr_kind::App: {
-            expr const & f = get_app_fn(*it);
-            if (is_constant(f)) {
-                if (auto r = constant_is_ext_class(env, f)) {
-                    result = *r;
-                    return l_true;
-                } else if (tc.is_opaque(f)) {
-                    return l_false;
-                } else {
-                    return l_undef;
-                }
-            } else if (is_lambda(f) || is_macro(f)) {
-                return l_undef;
-            } else {
-                return l_false;
-            }
-        }
-        case expr_kind::Pi:
-            it = &binding_body(*it);
-            break;
-        }
-    }
-}
-
-/** \brief Full/Expensive test for \c is_ext_class */
-static optional<name> is_full_ext_class(old_type_checker & tc, expr type) {
-    type = tc.whnf(type).first;
-    if (is_pi(type)) {
-        return is_full_ext_class(tc, instantiate(binding_body(type), mk_local(mk_fresh_name(), binding_domain(type))));
-    } else {
-        expr f = get_app_fn(type);
-        if (!is_constant(f))
-            return optional<name>();
-        return constant_is_ext_class(tc.env(), f);
-    }
-}
-
-/** \brief Return true iff \c type is a class or Pi that produces a class. */
-optional<name> is_ext_class(old_type_checker & tc, expr const & type) {
-    name result;
-    switch (is_quick_ext_class(tc, type, result)) {
-    case l_true:  return optional<name>(result);
-    case l_false: return optional<name>();
-    case l_undef: break;
-    }
-    return is_full_ext_class(tc, type);
 }
 
 void initialize_class() {

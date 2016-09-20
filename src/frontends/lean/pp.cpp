@@ -1460,7 +1460,7 @@ auto pretty_fn::pp(expr const & e, bool ignore_hide) -> result {
     check_system("pretty printer");
     if ((m_depth >= m_max_depth ||
          m_num_steps > m_max_steps ||
-         (m_hide_full_terms && !ignore_hide && !has_expr_metavar_relaxed(e))) &&
+         (m_hide_full_terms && !ignore_hide && !has_expr_metavar(e))) &&
         !is_pp_atomic(e)) {
         return result(m_unicode ? *g_ellipsis_n_fmt : *g_ellipsis_fmt);
     }

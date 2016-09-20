@@ -22,6 +22,19 @@ Author: Leonardo de Moura
 #include "library/old_type_checker.h"
 
 namespace lean {
+/** \brief Return the "arity" of the given type. The arity is the number of nested pi-expressions. */
+unsigned get_arity(expr type) {
+    unsigned r = 0;
+    while (is_pi(type)) {
+        type = binding_body(type);
+        r++;
+    }
+    return r;
+}
+
+bool is_internal_name(name const & n) {
+    return !n.is_anonymous() && n.is_string() && n.get_string() && n.get_string()[0] == '_';
+}
 
 level get_level(abstract_type_context & ctx, expr const & A) {
     expr S = ctx.whnf(ctx.infer(A));

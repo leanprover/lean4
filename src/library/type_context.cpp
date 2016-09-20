@@ -1855,7 +1855,7 @@ expr type_context::complete_instance(expr const & e) {
                    then try to synthesize it */
                 expr const & m = new_arg;
                 expr m_type    = instantiate_mvars(infer(m));
-                if (!has_expr_metavar_relaxed(m_type) && is_class(m_type)) {
+                if (!has_expr_metavar(m_type) && is_class(m_type)) {
                     if (mk_nested_instance(m, m_type)) {
                         new_arg = instantiate_mvars(new_arg);
                     }

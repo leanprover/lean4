@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/replace_fn.h"
 #include "library/metavar.h"
+#include "library/util.h"
 #include "library/old_default_converter.h"
 #include "library/old_type_checker.h"
 
@@ -29,16 +30,6 @@ expr replace_range(expr const & type, expr const & new_range) {
         return update_binding(type, binding_domain(type), replace_range(binding_body(type), new_range));
     else
         return new_range;
-}
-
-/** \brief Return the "arity" of the given type. The arity is the number of nested pi-expressions. */
-unsigned get_arity(expr type) {
-    unsigned r = 0;
-    while (is_pi(type)) {
-        type = binding_body(type);
-        r++;
-    }
-    return r;
 }
 
 expr mk_aux_type_metavar_for(expr const & t) {

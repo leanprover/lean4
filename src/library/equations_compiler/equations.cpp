@@ -22,7 +22,6 @@ Author: Leonardo de Moura
 #include "library/io_state_stream.h"
 #include "library/annotation.h"
 #include "library/util.h"
-#include "library/old_util.h"
 #include "library/locals.h"
 #include "library/constants.h"
 #include "library/normalize.h"

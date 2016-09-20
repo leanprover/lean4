@@ -8,6 +8,11 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 
 namespace lean {
+/** \brief Return the "arity" of the given type. The arity is the number of nested pi-expressions. */
+unsigned get_arity(expr type);
+
+/** \brief Return true if it is a lean internal name, i.e., the name starts with a `_` */
+bool is_internal_name(name const & n);
 
 /** \brief Return the universe level of the type of \c A.
     Throws an exception if the (relaxed) whnf of the type

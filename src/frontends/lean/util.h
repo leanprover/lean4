@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include "kernel/expr_sets.h"
 #include "kernel/type_checker.h"
 #include "library/util.h"
-#include "library/old_util.h"
 #include "library/locals.h"
 #include "frontends/lean/local_decls.h"
 #include "frontends/lean/local_level_decls.h"
@@ -80,13 +79,6 @@ expr Fun_as_is(buffer<expr> const & locals, expr const & e, parser & p);
 expr Pi_as_is(buffer<expr> const & locals, expr const & e, parser & p);
 /** \brief Create the resultant universe level using the levels computed during introduction rule elaboration */
 level mk_result_level(environment const & env, buffer<level> const & r_lvls);
-
-/** \brief Convert the universe metavariables in \c e in new universe parameters.
-    The substitution \c s is updated with the mapping metavar -> new param.
-    The set of parameter names \c ps and the buffer \c new_ps are also updated.
-*/
-expr univ_metavars_to_params(environment const & env, local_level_decls const & lls, substitution & s,
-                             name_set & ps, buffer<name> & new_ps, expr const & e);
 
 /** \brief Auxiliary function for check/eval/find_decl */
 std::tuple<expr, level_param_names> parse_local_expr(parser & p, bool relaxed = true);

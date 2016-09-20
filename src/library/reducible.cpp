@@ -99,18 +99,4 @@ name_predicate mk_irreducible_pred(environment const & env) {
         return get_reducible_status(env, n) == reducible_status::Irreducible;
     };
 }
-
-old_type_checker_ptr mk_type_checker(environment const & env, reducible_behavior rb) {
-    switch (rb) {
-    case UnfoldReducible:
-        return mk_type_checker(env, mk_not_reducible_pred(env));
-    case UnfoldSemireducible:
-        return mk_type_checker(env, mk_irreducible_pred(env));
-    }
-    lean_unreachable();
-}
-
-old_type_checker_ptr mk_opaque_type_checker(environment const & env) {
-    return mk_type_checker(env, [](name const &) { return true; });
-}
 }

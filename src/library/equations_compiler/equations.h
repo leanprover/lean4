@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 
 namespace lean {
-class old_type_checker;
 class io_state;
 
 bool is_equation(expr const & e);

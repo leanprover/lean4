@@ -8,11 +8,10 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/sstream.h"
 #include "kernel/find_fn.h"
+#include "kernel/type_checker.h"
 #include "kernel/inductive/inductive.h"
 #include "library/util.h"
-#include "library/old_util.h"
 #include "library/scoped_ext.h"
-#include "library/old_type_checker.h"
 #include "library/kernel_serializer.h"
 #include "library/user_recursors.h"
 #include "library/aux_recursors.h"
@@ -112,7 +111,7 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
         given_major_pos       = num_params + 1 /* motive */ + num_indices;
     }
     declaration d = env.get(r);
-    old_type_checker tc(env);
+    type_checker tc(env);
     buffer<expr> tele;
     expr rtype    = to_telescope(tc, d.get_type(), tele);
     buffer<expr> C_args;
@@ -141,7 +140,7 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
                             "recursor has only " << tele.size() << "arguments");
         major_pos = given_major_pos;
         major     = tele[major_pos];
-        if (!C_args.empty() && tc.is_def_eq(C_args.back(), major).first)
+        if (!C_args.empty() && tc.is_def_eq(C_args.back(), major))
             dep_elim = true;
         else
             dep_elim = false;
@@ -153,7 +152,7 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
         major    = C_args.back();
         dep_elim = true;
         for (expr const & x : tele) {
-            if (tc.is_def_eq(x, major).first)
+            if (tc.is_def_eq(x, major))
                 break;
             major_pos++;
         }
@@ -180,7 +179,7 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
         expr const & A = tele[i];
         unsigned j = 0;
         for (; j < I_args.size(); j++) {
-            if (tc.is_def_eq(I_args[j], A).first)
+            if (tc.is_def_eq(I_args[j], A))
                 break;
         }
         if (j == I_args.size()) {
@@ -201,7 +200,7 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
         expr const & idx = tele[i];
         unsigned j = 0;
         for (; j < I_args.size(); j++) {
-            if (tc.is_def_eq(I_args[j], idx).first)
+            if (tc.is_def_eq(I_args[j], idx))
                 break;
         }
         if (j == I_args.size()) {

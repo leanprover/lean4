@@ -164,9 +164,9 @@ environment end_scoped_cmd(parser & p) {
 environment check_cmd(parser & p) {
     expr e; level_param_names ls;
     std::tie(e, ls) = parse_local_expr(p);
-    auto tc = mk_type_checker(p.env());
-    expr type = tc->check(e, ls).first;
-    auto out              = regular(p.env(), p.ios(), tc->get_type_context());
+    type_checker tc(p.env(), true, false);
+    expr type = tc.check(e, ls);
+    auto out              = regular(p.env(), p.ios(), tc);
     formatter fmt         = out.get_formatter();
     unsigned indent       = get_pp_indent(p.get_options());
     format e_fmt    = fmt(e);
@@ -191,13 +191,12 @@ environment eval_cmd(parser & p) {
     std::tie(e, ls) = parse_local_expr(p);
     expr r;
     if (whnf) {
-        auto tc = mk_type_checker(p.env());
-        r = tc->whnf(e).first;
+        type_checker tc(p.env(), true, false);
+        r = tc.whnf(e);
     } else {
-        old_type_checker tc(p.env());
+        type_checker tc(p.env(), true, false);
         bool eta = false;
-        bool eval_nested_prop = false;
-        r = normalize(tc, ls, e, eta, eval_nested_prop);
+        r = normalize(tc, e, eta);
     }
     flycheck_information info(p.ios());
     if (info.enabled()) {

@@ -435,13 +435,13 @@ if("${CROSS_COMPILE}" MATCHES "ON" OR "${CMAKE_C_COMPILER}" MATCHES "emcc")
 else()
   add_custom_target(
     standard_lib ALL
-    COMMAND "${PYTHON_EXECUTABLE}" "${LEAN_SOURCE_DIR}/../bin/linja" all tags
+    COMMAND "${PYTHON_EXECUTABLE}" "${LEAN_SOURCE_DIR}/../bin/linja" all
     DEPENDS "${CMAKE_BINARY_DIR}/shell/lean"
     WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
     )
   # add_custom_target(
   #   hott_lib ALL
-  #   COMMAND "${PYTHON_EXECUTABLE}" "${LEAN_SOURCE_DIR}/../bin/linja" all tags
+  #   COMMAND "${PYTHON_EXECUTABLE}" "${LEAN_SOURCE_DIR}/../bin/linja" all
   #   DEPENDS "${CMAKE_BINARY_DIR}/shell/lean"
   #   WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../hott"
   #   )
@@ -460,7 +460,7 @@ add_custom_target(clean-hott-lib
 add_custom_target(clean-olean
   DEPENDS clean-std-lib clean-hott-lib)
 
-install(FILES "${CMAKE_SOURCE_DIR}/../bin/linja" "${CMAKE_SOURCE_DIR}/../bin/leantags"
+install(FILES "${CMAKE_SOURCE_DIR}/../bin/linja"
   DESTINATION bin
   PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
@@ -479,8 +479,7 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}/../library" DESTINATION "${LIBRARY_DIR}"
         PATTERN "*.lean"
         PATTERN "*.olean"
         PATTERN ".project"
-        PATTERN "*.md"
-        PATTERN "TAGS")
+        PATTERN "*.md")
 
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/" DESTINATION "${LEAN_EXT_INCLUDE_DIR}"
         FILES_MATCHING

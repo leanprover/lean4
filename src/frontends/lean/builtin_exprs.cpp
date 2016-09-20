@@ -414,7 +414,7 @@ static expr parse_sorry(parser & p, unsigned, expr const *, pos_info const & pos
     return p.mk_sorry(pos);
 }
 
-static expr parse_rparen(parser & p, unsigned, expr const * args, pos_info const & pos) {
+static expr parse_rparen(parser & /* p */, unsigned, expr const * args, pos_info const & /* pos */) {
     return args[0];
 }
 

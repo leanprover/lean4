@@ -1,14 +1,14 @@
-instance_cache1.lean:5:2: error: failed to synthesize type class instance for
+instance_cache1.lean:4:2: error: failed to synthesize type class instance for
 A : Type ?,
 a : A,
 this : has_add A
 ⊢ has_add A
-instance_cache1.lean:8:7: error: failed to synthesize type class instance for
+instance_cache1.lean:7:7: error: failed to synthesize type class instance for
 A : Type ?,
 a : A,
 s : has_add A
 ⊢ has_add A
-instance_cache1.lean:11:19: error: failed to synthesize type class instance for
+instance_cache1.lean:10:19: error: failed to synthesize type class instance for
 A : Type ?,
 a : A,
 s : has_add A

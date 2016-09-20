@@ -1,4 +1,3 @@
-set_option new_elaborator true
 open list
 
 definition appd {A : Type} : list A → list A → list A

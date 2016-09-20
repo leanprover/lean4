@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Luke Nelson and Jared Roesch
 -/
 prelude
-set_option new_elaborator true
 universe variables u v
 
 structure [class] functor (F : Type u → Type v) : Type (max u+1 v) :=

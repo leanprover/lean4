@@ -1,4 +1,3 @@
-set_option new_elaborator true
 definition foo_attr : caching_user_attribute :=
 ⟨`foo, "bar", string, list.join ∘ list.map (list.append "\n" ∘ to_string ∘ declaration.to_name) ⟩
 

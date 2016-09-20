@@ -1,5 +1,4 @@
 --
-set_option new_elaborator true
 
 constant f : num → num → num → num
 

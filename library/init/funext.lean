@@ -7,7 +7,6 @@ Extensional equality for functions, and a proof of function extensionality from 
 -/
 prelude
 import init.quot init.logic
-set_option new_elaborator true
 
 namespace function
   universe variables u v

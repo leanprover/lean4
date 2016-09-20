@@ -1,4 +1,3 @@
-set_option new_elaborator true
 open list
 
 variable {A : Type}

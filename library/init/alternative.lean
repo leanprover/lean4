@@ -5,7 +5,6 @@ Author: Leonardo de Moura
 -/
 prelude
 import init.logic init.applicative
-set_option new_elaborator true
 universe variables u v
 
 structure [class] alternative (F : Type u → Type v) extends applicative F : Type (max u+1 v) :=

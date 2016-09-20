@@ -1,4 +1,3 @@
-set_option new_elaborator true
 
 constant f   (c : Prop) [decidable c] : Prop
 constant fax (c : Prop) [decidable c] : f c

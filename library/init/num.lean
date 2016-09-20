@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.bool
-set_option new_elaborator true
 
 namespace pos_num
   protected definition mul (a b : pos_num) : pos_num :=

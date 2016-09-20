@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 Basic datatypes
 -/
 prelude
-set_option new_elaborator true
 
 notation `Prop`  := Type 0
 notation `Type₂` := Type 2

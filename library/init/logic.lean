@@ -5,7 +5,6 @@ Authors: Leonardo de Moura, Jeremy Avigad, Floris van Doorn
 -/
 prelude
 import init.datatypes
-set_option new_elaborator true
 
 universe variables u v
 

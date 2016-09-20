@@ -5,7 +5,6 @@ Author: Leonardo de Moura
 -/
 prelude
 import init.meta.mk_dec_eq_instance init.subtype init.meta.occurrences init.sum
-set_option new_elaborator true
 open tactic subtype
 universe variables u v
 

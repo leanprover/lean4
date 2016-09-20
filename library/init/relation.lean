@@ -7,7 +7,6 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.logic
-set_option new_elaborator true
 
 -- TODO(Leo): remove duplication between this file and algebra/relation.lean
 -- We need some of the following definitions asap when "initializing" Lean.

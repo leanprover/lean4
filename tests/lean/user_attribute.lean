@@ -1,4 +1,3 @@
-set_option new_elaborator true
 definition foo_attr : user_attribute := ⟨`foo, "bar"⟩
 run_command attribute.register `foo_attr
 

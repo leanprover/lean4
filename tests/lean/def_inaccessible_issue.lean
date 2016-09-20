@@ -1,4 +1,3 @@
-set_option new_elaborator true
 set_option eqn_compiler.dsimp true
 open nat
 

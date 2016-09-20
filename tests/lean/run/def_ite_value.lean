@@ -1,4 +1,3 @@
-set_option new_elaborator true
 
 inductive bv : nat → Type
 | nil  : bv 0

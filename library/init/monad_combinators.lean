@@ -7,7 +7,6 @@ Monad combinators, as in Haskell's Control.Monad.
 -/
 prelude
 import init.monad init.list
-set_option new_elaborator true
 namespace monad
 
 definition mapM {m : Type → Type} [monad m] {A B : Type} (f : A → m B) : list A → m (list B)

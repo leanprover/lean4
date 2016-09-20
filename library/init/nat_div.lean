@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.wf init.nat
-set_option new_elaborator true
 namespace nat
 
 private definition div_rec_lemma {x y : nat} : 0 < y ∧ y ≤ x → x - y < x :=

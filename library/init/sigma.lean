@@ -5,7 +5,6 @@ Author: Leonardo de Moura, Jeremy Avigad, Floris van Doorn
 -/
 prelude
 import init.datatypes init.num init.wf init.logic
-set_option new_elaborator true
 
 definition dpair := @sigma.mk
 notation `Σ` binders `, ` r:(scoped P, sigma P) := r

@@ -1,4 +1,3 @@
-set_option new_elaborator true
 
 example (a b : nat) (p : nat → nat → Prop) (h₁ : p a b) (h₂ : a = b) : p b b :=
 @@eq.subst (λ x, p x b) h₂ h₁

@@ -1,4 +1,3 @@
-set_option new_elaborator true
 
 meta_definition f : nat → nat
 | n := if n / 2 = 0 then n + 1 else f (n / 2) + 1

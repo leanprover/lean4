@@ -1,4 +1,3 @@
-set_option new_elaborator true
 open decidable open eq
 namespace experiment
 inductive nat : Type

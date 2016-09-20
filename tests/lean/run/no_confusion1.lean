@@ -1,4 +1,3 @@
-set_option new_elaborator true
 open nat
 
 theorem ex1 (n : nat) : bit0 n ≠ 1 :=

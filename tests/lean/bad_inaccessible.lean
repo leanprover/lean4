@@ -1,4 +1,3 @@
-set_option new_elaborator true
 universe variables u
 definition f : nat → nat → nat
 | a .a := a

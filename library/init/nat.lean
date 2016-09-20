@@ -5,7 +5,6 @@ Authors: Floris van Doorn, Leonardo de Moura
 -/
 prelude
 import init.relation init.num
-set_option new_elaborator true
 
 notation `ℕ` := nat
 

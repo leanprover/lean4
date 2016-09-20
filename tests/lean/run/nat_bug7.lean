@@ -1,4 +1,3 @@
-set_option new_elaborator true
 namespace experiment
 inductive nat : Type
 | zero : nat

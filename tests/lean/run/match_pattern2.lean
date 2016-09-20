@@ -1,4 +1,3 @@
-set_option new_elaborator true
 open tactic list expr
 
 private meta_definition pattern_telescope : expr → list expr → tactic (list expr × expr × expr)

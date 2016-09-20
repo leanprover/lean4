@@ -1,4 +1,3 @@
-set_option new_elaborator true
 
 definition g : list nat → list nat → nat
 | []          (y::ys)  := y

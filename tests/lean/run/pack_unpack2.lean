@@ -1,4 +1,3 @@
-set_option new_elaborator true
 --set_option trace.inductive_compiler.nested.define true
 inductive tree (A : Type*)
 | leaf : A -> tree

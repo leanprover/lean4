@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.logic init.monad init.alternative
-set_option new_elaborator true
 open decidable
 
 universe variables u v

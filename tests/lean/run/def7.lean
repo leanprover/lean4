@@ -1,4 +1,3 @@
-set_option new_elaborator true
 
 definition f : bool → bool → nat
 | _ _ := 10

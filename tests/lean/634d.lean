@@ -1,4 +1,3 @@
-set_option new_elaborator true open nat
 section
   universe l
   definition A {n : ℕ} (t : Type l) := t

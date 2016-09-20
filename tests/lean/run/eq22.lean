@@ -1,4 +1,3 @@
-set_option new_elaborator true
 open list
 
 definition head {A : Type} : Π (l : list A), l ≠ nil → A

@@ -1,5 +1,4 @@
 prelude
-set_option new_elaborator true
 definition Prop := Type.{0}
 
 definition false : Prop := ∀x : Prop, x

@@ -1,4 +1,3 @@
-set_option new_elaborator true
 
 inductive formula
 | eqf  : nat → nat → formula

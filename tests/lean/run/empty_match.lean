@@ -1,4 +1,3 @@
-set_option new_elaborator true
 open nat
 
 definition not_lt_zero (a : nat) : ¬ a < 0 :=

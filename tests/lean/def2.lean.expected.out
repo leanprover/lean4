@@ -1,2 +1,2 @@
-def2.lean:5:0: error: definition 'foo' is noncomputable, it depends on 'val'
-def2.lean:11:0: error: definition 'bla' was incorrectly marked as noncomputable
+def2.lean:4:0: error: definition 'foo' is noncomputable, it depends on 'val'
+def2.lean:10:0: error: definition 'bla' was incorrectly marked as noncomputable

@@ -7,7 +7,6 @@ The sum type, aka disjoint union.
 -/
 prelude
 import init.logic
-set_option new_elaborator true
 
 notation A ⊕ B := sum A B
 

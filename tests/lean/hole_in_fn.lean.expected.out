@@ -1,4 +1,4 @@
-hole_in_fn.lean:7:13: error: don't know how to synthesize placeholder
+hole_in_fn.lean:6:13: error: don't know how to synthesize placeholder
 state:
 n : ℕ
 ⊢ ℕ

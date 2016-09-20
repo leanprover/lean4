@@ -5,7 +5,6 @@ inductive bv : nat → Type
 | cons : ∀ (n) (hd : bool) (tl : bv n), bv (succ n)
 
 open bv bool
-set_option new_elaborator true
 
 definition h : ∀ {n}, bv (succ (succ n)) → bool
 | .(succ m) (cons (succ (succ m)) b v) := b

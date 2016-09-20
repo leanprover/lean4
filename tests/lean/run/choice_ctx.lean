@@ -1,7 +1,6 @@
 open nat
 open eq
 set_option pp.coercions true
-set_option new_elaborator true
 namespace foo
 theorem trans {a b c : nat} (H1 : a = b) (H2 : b = c) : a = c :=
 trans H1 H2

@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.to_string init.prod init.sum
-set_option new_elaborator true
 
 inductive ordering
 | lt | eq | gt

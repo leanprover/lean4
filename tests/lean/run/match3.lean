@@ -1,4 +1,3 @@
-set_option new_elaborator true
 open nat
 
 definition foo (a : nat) : nat :=

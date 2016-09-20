@@ -3,7 +3,6 @@
 -- Author: Leonardo de Moura
 prelude
 import init.datatypes
-set_option new_elaborator true
 
 namespace bool
   attribute [inline]

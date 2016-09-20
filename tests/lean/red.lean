@@ -1,4 +1,3 @@
-set_option new_elaborator true
 constant g : nat → nat
 
 noncomputable definition f := g

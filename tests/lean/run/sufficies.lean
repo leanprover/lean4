@@ -1,4 +1,3 @@
-set_option new_elaborator true
 open nat
 
 protected theorem one_le_bit0 (n : ℕ) : n ≠ 0 → 1 ≤ bit0 n :=

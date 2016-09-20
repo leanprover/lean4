@@ -1,4 +1,3 @@
-set_option new_elaborator true
 
 constant bag_setoid : ∀ A, setoid (list A)
 attribute [instance] bag_setoid

@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.logic init.monad init.alternative init.prod
-set_option new_elaborator true
 
 definition state (S : Type) (A : Type) : Type :=
 S → A × S

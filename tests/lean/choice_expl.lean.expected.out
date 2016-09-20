@@ -1,5 +1,5 @@
 pr : Π {A : Type u_1}, A → A → A
 pr a b : N
-choice_expl.lean:16:6: error: ambiguous overload, possible interpretations
+choice_expl.lean:15:6: error: ambiguous overload, possible interpretations
   N2.pr a b
   N1.pr a b

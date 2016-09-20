@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 prelude
 import init.nat
 open nat
-set_option new_elaborator true
 structure fin (n : nat) := (val : nat) (is_lt : val < n)
 
 namespace fin

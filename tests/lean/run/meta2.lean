@@ -1,5 +1,4 @@
 import system.IO
-set_option new_elaborator true
 
 meta_definition foo : nat → nat
 | a := nat.cases_on a 1 (λ n, foo n + 2)

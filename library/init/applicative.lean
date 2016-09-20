@@ -5,7 +5,6 @@ Author: Leonardo de Moura
 -/
 prelude
 import init.functor
-set_option new_elaborator true
 universe variables u v
 
 structure [class] applicative (F : Type u → Type v) extends functor F : Type (max u+1 v):=

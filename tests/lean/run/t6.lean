@@ -1,5 +1,4 @@
 prelude
-set_option new_elaborator true
 precedence `+`  : 65
 precedence `++` : 100
 constant N : Type.{1}

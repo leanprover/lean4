@@ -1,4 +1,3 @@
-set_option new_elaborator true
 universe variable u
 variable {A : Type u}
 

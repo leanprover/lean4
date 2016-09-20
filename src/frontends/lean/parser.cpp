@@ -75,7 +75,6 @@ namespace lean {
 // Parser configuration options
 static name * g_parser_show_errors;
 static name * g_parser_parallel_import;
-static name * g_new_elaborator;
 
 bool get_parser_show_errors(options const & opts) {
     return opts.get_bool(*g_parser_show_errors, LEAN_DEFAULT_PARSER_SHOW_ERRORS);
@@ -83,10 +82,6 @@ bool get_parser_show_errors(options const & opts) {
 
 bool get_parser_parallel_import(options const & opts) {
     return opts.get_bool(*g_parser_parallel_import, LEAN_DEFAULT_PARSER_PARALLEL_IMPORT);
-}
-
-bool get_new_elaborator(options const & opts) {
-    return opts.get_bool(*g_new_elaborator, true);
 }
 // ==========================================
 
@@ -321,7 +316,6 @@ void parser::declare_sorry() {
 void parser::updt_options() {
     m_verbose        = get_verbose(m_ios.get_options());
     m_show_errors    = get_parser_show_errors(m_ios.get_options());
-    m_new_elaborator = get_new_elaborator(m_ios.get_options());
     try {
         set_max_memory_megabyte(get_max_memory(m_ios.get_options()));
     } catch (exception&) {
@@ -2355,12 +2349,10 @@ bool parse_commands(environment & env, io_state & ios, char const * fname, optio
 void initialize_parser() {
     g_parser_show_errors     = new name{"parser", "show_errors"};
     g_parser_parallel_import = new name{"parser", "parallel_import"};
-    g_new_elaborator         = new name{"new_elaborator"};
     register_bool_option(*g_parser_show_errors, LEAN_DEFAULT_PARSER_SHOW_ERRORS,
                          "(lean parser) display error messages in the regular output channel");
     register_bool_option(*g_parser_parallel_import, LEAN_DEFAULT_PARSER_PARALLEL_IMPORT,
                          "(lean parser) import modules in parallel");
-    register_bool_option(*g_new_elaborator, false, "(lean parser) use new elaborator");
     g_tmp_prefix = new name(name::mk_internal_unique_name());
     g_anonymous_inst_name_prefix = new name("_inst");
 }
@@ -2370,6 +2362,5 @@ void finalize_parser() {
     delete g_tmp_prefix;
     delete g_parser_show_errors;
     delete g_parser_parallel_import;
-    delete g_new_elaborator;
 }
 }

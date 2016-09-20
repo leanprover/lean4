@@ -1,4 +1,3 @@
-set_option new_elaborator true
 open tactic
 
 set_option simplify.theory false

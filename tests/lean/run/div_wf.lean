@@ -1,4 +1,3 @@
-set_option new_elaborator true
 open nat well_founded decidable prod
 
 set_option pp.all true

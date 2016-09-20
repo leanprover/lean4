@@ -1,4 +1,3 @@
-set_option new_elaborator true
 universe variables u
 namespace N1
   definition pr {A : Type u} (a b : A) := a

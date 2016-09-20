@@ -1,4 +1,3 @@
-set_option new_elaborator true
 
 definition f : nat → (nat × nat) → nat
 | 0      m := m.1

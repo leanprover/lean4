@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 prelude
 import init.monad init.alternative
 open list
-set_option new_elaborator true
 universe variables u v
 attribute [inline]
 definition list_fmap {A : Type u} {B : Type v} (f : A → B) (l : list A) : list B :=

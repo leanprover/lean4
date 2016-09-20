@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 prelude
 import init.logic init.nat
 open decidable list
-set_option new_elaborator true
 
 universe variables u v
 

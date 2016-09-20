@@ -5,7 +5,6 @@ Author: Leonardo de Moura
 -/
 prelude
 import init.logic
-set_option new_elaborator true
 
 theorem unit_eq (a b : unit) : a = b :=
 unit.rec_on a (unit.rec_on b rfl)

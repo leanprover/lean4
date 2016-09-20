@@ -1,4 +1,4 @@
-bad_inaccessible2.lean:32:2: error: type mismatch at application
+bad_inaccessible2.lean:31:2: error: type mismatch at application
   map_head (cons a va) (cons b vb)
 term
   cons b vb

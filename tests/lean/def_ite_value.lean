@@ -1,4 +1,3 @@
-set_option new_elaborator true
 set_option eqn_compiler.lemmas false -- TODO(Leo): remove
 definition f : string → nat → nat
 | "hello world" 1 := 0

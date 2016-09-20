@@ -25,7 +25,6 @@ a type to a sort.
 -/
 prelude
 import init.list init.subtype init.prod
-set_option new_elaborator true
 universe variables u v
 
 structure [class] has_lift (A : Type u) (B : Type v) :=

@@ -1,4 +1,3 @@
-set_option new_elaborator true
 
 inductive vec (A : Type*) : nat -> Type*
 | vnil : vec 0

@@ -8,7 +8,6 @@ Quotient types.
 prelude
 import init.sigma init.setoid init.logic
 open sigma.ops setoid
-set_option new_elaborator true
 
 universe variables u v
 

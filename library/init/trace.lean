@@ -3,7 +3,6 @@
 -- Author: Leonardo de Moura
 prelude
 import init.string
-set_option new_elaborator true
 
 /- This function has a native implementation that displays the given string in the regular output stream. -/
 definition trace {A : Type} (s : string) (f : unit → A) : A :=

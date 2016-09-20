@@ -1,5 +1,4 @@
 prelude -- Correct version
-set_option new_elaborator true
 check let bool                      := Type.{0},
           and  (p q : bool)         := ∀ c : bool, (p → q → c) → c,
           infixl `∧`:25             := and,

@@ -5,7 +5,6 @@ Author: Leonardo de Moura, Jeremy Avigad
 -/
 prelude
 import init.num init.relation
-set_option new_elaborator true
 notation A × B := prod A B
 -- notation for n-ary tuples
 notation `(` h `, ` t:(foldr `, ` (e r, prod.mk e r)) `)` := prod.mk h t

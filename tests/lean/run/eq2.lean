@@ -1,4 +1,3 @@
-set_option new_elaborator true
 
 definition symm {A : Type} : Π {a b : A}, a = b → b = a
 | a .a rfl := rfl

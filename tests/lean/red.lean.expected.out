@@ -1,16 +1,16 @@
-red.lean:10:19: error: type mismatch, expression
+red.lean:9:19: error: type mismatch, expression
   rfl
 has type
   ?m_2 = ?m_2
 but is expected to have type
   f = g
-red.lean:13:0: error: "eliminator" elaborator type mismatch, term
+red.lean:12:0: error: "eliminator" elaborator type mismatch, term
   rfl
 has type
   ?m_2 = ?m_2
 but is expected to have type
   f a = a
-red.lean:18:0: error: "eliminator" elaborator type mismatch, term
+red.lean:17:0: error: "eliminator" elaborator type mismatch, term
   rfl
 has type
   ?m_2 = ?m_2

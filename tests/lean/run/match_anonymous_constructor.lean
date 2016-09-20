@@ -1,4 +1,3 @@
-set_option new_elaborator true
 
 definition p1 := (10, 20, 30)
 

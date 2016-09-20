@@ -1,5 +1,4 @@
 open tactic
-set_option new_elaborator true
 set_option pp.notation false
 universe variables u
 check

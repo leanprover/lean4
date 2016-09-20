@@ -1,4 +1,3 @@
-set_option new_elaborator true
 namespace foo
   definition {u} f (A : Type u) : Type u := A
   check f.{1}

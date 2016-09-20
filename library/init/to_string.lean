@@ -3,7 +3,6 @@
 -- Author: Leonardo de Moura
 prelude
 import init.string init.bool init.subtype init.unsigned init.prod init.sum
-set_option new_elaborator true
 open bool list sum prod sigma subtype nat
 
 universe variables u v

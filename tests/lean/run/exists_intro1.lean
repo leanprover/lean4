@@ -1,4 +1,3 @@
-set_option new_elaborator true
 
 example : ∃ x : nat, x = x :=
 Exists.intro 0 rfl

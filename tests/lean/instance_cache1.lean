@@ -1,4 +1,3 @@
-set_option new_elaborator true
 
 definition f (A : Type*) (a : A) :=
 have has_add A, from has_add.mk (λ (a b : A), a),

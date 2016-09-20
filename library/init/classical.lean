@@ -5,7 +5,6 @@ Authors: Leonardo de Moura, Jeremy Avigad
 -/
 prelude
 import init.subtype init.funext
-set_option new_elaborator true
 namespace classical
 open subtype
 universe variables u v

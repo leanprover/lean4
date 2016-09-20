@@ -1,4 +1,3 @@
-set_option new_elaborator true
 open nat
 
 theorem bit0_succ_eq (n : ℕ) : bit0 (succ n) = succ (succ (bit0 n)) :=

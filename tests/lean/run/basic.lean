@@ -1,5 +1,4 @@
 prelude
-set_option new_elaborator true
 
 constant {l1 l2} A : Type l1 → Type l2
 check A

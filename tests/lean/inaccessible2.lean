@@ -1,4 +1,3 @@
-set_option new_elaborator true
 
 inductive imf {A B : Type*} (f : A → B) : B → Type*
 | mk : ∀ (a : A), imf (f a)

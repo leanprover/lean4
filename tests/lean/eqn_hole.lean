@@ -1,4 +1,3 @@
-set_option new_elaborator true
 
 definition f : nat → nat
 | 0 := _

@@ -1,4 +1,3 @@
-set_option new_elaborator true --
 set_option pp.notation false
 
 inductive [class] C (A : Type*)

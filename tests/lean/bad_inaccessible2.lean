@@ -1,4 +1,3 @@
-set_option new_elaborator true
 universe variables u
 inductive vec (A : Type u) : nat → Type (max 1 u)
 | nil {} : vec 0

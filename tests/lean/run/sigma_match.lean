@@ -1,4 +1,3 @@
-set_option new_elaborator true
 open sigma
 
 constant {l₁ l₂} hom {A : Type l₁} {B : Type l₂} (a : A) (b : B) : Type (max l₁ l₂)

@@ -1,4 +1,3 @@
-set_option new_elaborator true
 check
   let f x y := x ∧ y,
       g x   := f x x,

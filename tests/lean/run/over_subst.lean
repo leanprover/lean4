@@ -1,4 +1,3 @@
-set_option new_elaborator true
 namespace experiment
 namespace nat
 constant nat : Type.{1}

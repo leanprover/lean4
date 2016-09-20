@@ -1,4 +1,3 @@
-set_option new_elaborator true
 open nat bool inhabited
 
 definition diag : bool → bool → bool → nat

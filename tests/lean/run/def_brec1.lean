@@ -1,4 +1,3 @@
-set_option new_elaborator true
 
 inductive foo : bool → Type
 | Z  : foo ff

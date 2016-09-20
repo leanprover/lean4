@@ -1,4 +1,3 @@
-set_option new_elaborator true
 
 print "parametric meta_definition"
 meta_definition f {A : Type} : nat → A → A → A

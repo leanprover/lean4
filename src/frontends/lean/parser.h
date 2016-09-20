@@ -234,9 +234,6 @@ public:
 
     cmd_table const & cmds() const { return get_cmd_table(env()); }
 
-    /* TODO(Leo): delete after we finish the transition to new elaborator */
-    bool use_new_elaborator() const { return m_new_elaborator; }
-
     void set_cache(definition_cache * c) { m_cache = c; }
     void cache_definition(name const & n, expr const & pre_type, expr const & pre_value,
                           level_param_names const & ls, expr const & type, expr const & value, bool is_trusted);

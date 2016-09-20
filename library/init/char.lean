@@ -5,7 +5,6 @@ Author: Leonardo de Moura
 -/
 prelude
 import init.fin
-set_option new_elaborator true
 
 open nat
 definition char_sz : nat := succ 255

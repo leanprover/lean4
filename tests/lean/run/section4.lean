@@ -1,4 +1,3 @@
-set_option new_elaborator true
 set_option pp.universes true
 set_option pp.implicit true
 

@@ -1,4 +1,3 @@
-set_option new_elaborator true
 
 inductive tree_core (A : Type*) : bool → Type*
 | leaf'    : A → tree_core ff

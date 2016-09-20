@@ -1,4 +1,3 @@
-set_option new_elaborator true
 open tactic expr
 
 constant nat.add_assoc (a b c : nat) : (a + b) + c = a + (b + c)

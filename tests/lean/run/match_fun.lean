@@ -1,4 +1,3 @@
-set_option new_elaborator true
 open bool nat
 
 definition foo (b : bool) : nat → nat :=

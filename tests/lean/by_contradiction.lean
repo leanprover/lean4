@@ -1,4 +1,3 @@
-set_option new_elaborator true --
 open tactic nat
 
 example (a b : nat) : a ≠ b → ¬ a = b :=

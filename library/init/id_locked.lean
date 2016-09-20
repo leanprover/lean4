@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 prelude
 import init.meta.tactic init.meta.constructor_tactic
 open tactic
-set_option new_elaborator true
 /-
   Define id_locked using meta-programming because we don't have
   syntax for setting reducibility_hints.

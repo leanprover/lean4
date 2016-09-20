@@ -1,4 +1,3 @@
-set_option new_elaborator true
 
 definition f (a b : nat) : nat :=
 nat.cases_on a

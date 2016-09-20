@@ -665,11 +665,6 @@ struct structure_cmd_fn {
         return infer_implicit_params(r, m_params.size(), m_mk_infer);
     }
 
-    void save_info(name const & n, name const & k, pos_info const & pos) {
-        expr type = m_env.get(n).get_type();
-        m_p.add_decl_index(n, pos, k, type);
-    }
-
     void add_alias(name const & given, name const & n) {
         m_env = ::lean::add_alias(m_p, m_env, given, n, m_ctx_levels, m_ctx_locals);
     }
@@ -696,10 +691,7 @@ struct structure_cmd_fn {
         inductive::intro_rule intro = inductive::mk_intro_rule(m_mk, intro_type);
         inductive::inductive_decl  decl(m_name, lnames, m_params.size(), structure_type, to_list(intro));
         m_env = module::add_inductive(m_env, decl);
-        save_info(m_name, "structure", m_name_pos);
         name rec_name = inductive::get_elim_name(m_name);
-        save_info(rec_name, "recursor", m_name_pos);
-        save_info(m_mk, "intro", m_mk_pos);
         m_env = add_namespace(m_env, m_name);
         m_env = add_protected(m_env, rec_name);
         add_alias(m_given_name, m_name);
@@ -709,23 +701,10 @@ struct structure_cmd_fn {
         m_env = add_structure_declaration_aux(m_env, m_p.get_options(), m_level_names, m_params, mk_local(m_name, mk_structure_type()), mk_local(m_mk, mk_intro_type()));
     }
 
-    void save_def_info(name const & n) {
-        save_info(n, "definition", m_name_pos);
-    }
-
-    void save_proj_info(name const & n) {
-        save_info(n, "projection", m_name_pos);
-    }
-
-    void save_thm_info(name const & n) {
-        save_info(n, "theorem", m_name_pos);
-    }
-
     void declare_projections() {
         m_env = mk_projections(m_env, m_name, m_mk_infer, m_attrs.has_class());
         for (expr const & field : m_fields) {
             name field_name = m_name + mlocal_name(field);
-            save_proj_info(field_name);
             add_alias(field_name);
         }
     }
@@ -738,7 +717,6 @@ struct structure_cmd_fn {
                                                                reducibility_hints::mk_abbreviation());
         m_env = module::add(m_env, check(m_env, new_decl));
         m_env = set_reducible(m_env, n, reducible_status::Reducible, true);
-        save_def_info(n);
         add_alias(n);
     }
 
@@ -747,12 +725,10 @@ struct structure_cmd_fn {
         name rec_on_name(m_name, "rec_on");
         add_rec_alias(rec_on_name);
         m_env = add_aux_recursor(m_env, rec_on_name);
-        save_def_info(rec_on_name);
         if (m_env.impredicative()) {
             m_env = mk_induction_on(m_env, m_name);
             name induction_on_name(m_name, "induction_on");
             add_alias(induction_on_name);
-            save_def_info(induction_on_name);
         }
         add_rec_on_alias(name(m_name, "destruct"));
         name cases_on_name(m_name, "cases_on");
@@ -831,7 +807,6 @@ struct structure_cmd_fn {
                                                                              coercion_type, coercion_value, use_conv_opt);
             m_env = module::add(m_env, check(m_env, coercion_decl));
             m_env = set_reducible(m_env, coercion_name, reducible_status::Reducible, true);
-            save_def_info(coercion_name);
             add_alias(coercion_name);
             m_env = vm_compile(m_env, m_env.get(coercion_name));
             if (!m_private_parents[i]) {
@@ -852,7 +827,6 @@ struct structure_cmd_fn {
             return;
         m_env = mk_no_confusion(m_env, m_name);
         name no_confusion_name(m_name, "no_confusion");
-        save_def_info(no_confusion_name);
         add_alias(no_confusion_name);
     }
 

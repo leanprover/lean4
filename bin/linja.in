@@ -534,7 +534,7 @@ def get_lean_names(lean_file, args, using_hlean):
     basename, ext = os.path.splitext(lean_file)
     basename = normalize_drive_name(basename)
     item = {"base" : basename}
-    lean_name_exts = ["lean", "olean", "clean", "ilean", "d"]
+    lean_name_exts = ["lean", "olean", "clean", "d"]
     for ext in lean_name_exts:
         if ext == "lean" and using_hlean:
             item[ext] = basename + ".hlean"
@@ -625,19 +625,18 @@ def clear_cache(args):
     if num_of_files > 0:
         sys.stderr.write("\n")
 
-def build_olean(lean, olean, clean, dlean, ilean, base):
-    (lean, olean, clean, dlean, ilean, base) = list(map(escape_ninja_char, (lean, olean, clean, dlean, ilean, base)))
+def build_olean(lean, olean, clean, dlean, base):
+    (lean, olean, clean, dlean, base) = list(map(escape_ninja_char, (lean, olean, clean, dlean, base)))
     if clean.startswith(base):
-        str = """build %s %s %s: LEAN %s | %s""" % (olean, ilean, clean, lean, dlean)
+        str = """build %s %s: LEAN %s | %s""" % (olean, clean, lean, dlean)
     else:
-        str = """build %s %s: LEAN %s | %s""" % (olean, ilean, lean, dlean)
+        str = """build %s: LEAN %s | %s""" % (olean, lean, dlean)
     if g_lean_bin_dep_flag:
         str += " %s" % escape_ninja_char(normalize_drive_name(g_lean_path))
     str += "\n"
     str += "  DLEAN_FILE=%s\n" % dlean
     str += "  OLEAN_FILE=%s\n" % olean
     str += "  CLEAN_FILE=%s\n" % clean
-    str += "  ILEAN_FILE=%s\n" % ilean
     return str
 
 def make_build_ninja(args):
@@ -651,7 +650,7 @@ def make_build_ninja(args):
 
         print("""rule LEAN""", file=f)
         print("""  depfile = ${DLEAN_FILE}""", file=f)
-        print("""  command = "%s" %s $in -o "${OLEAN_FILE}" -c "${CLEAN_FILE}" -i "${ILEAN_FILE}" """ \
+        print("""  command = "%s" %s $in -o "${OLEAN_FILE}" -c "${CLEAN_FILE}" """ \
             % (g_lean_path, " ".join(args.lean_options)), file=f)
 
         print("build all: phony", end=' ', file=f)
@@ -662,7 +661,7 @@ def make_build_ninja(args):
         print("""build clean: CLEAN""", file=f)
 
         for item in lean_files:
-            print(build_olean(item['lean'], item['olean'], item['clean'], item['d'], item['ilean'], item['base']), file=f)
+            print(build_olean(item['lean'], item['olean'], item['clean'], item['d'], item['base']), file=f)
 
         print("""default all""", file=f)
 

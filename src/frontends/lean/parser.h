@@ -17,7 +17,6 @@ Author: Leonardo de Moura
 #include "library/io_state.h"
 #include "library/io_state_stream.h"
 #include "library/definition_cache.h"
-#include "library/declaration_index.h"
 #include "frontends/lean/scanner.h"
 #include "frontends/lean/local_decls.h"
 #include "frontends/lean/local_level_decls.h"
@@ -116,8 +115,6 @@ class parser : public abstract_parser {
 
     // cache support
     definition_cache *     m_cache;
-    // index support
-    declaration_index *    m_index;
 
     keep_theorem_mode      m_keep_theorem_mode;
 
@@ -243,11 +240,6 @@ public:
     void erase_cached_definition(name const & n) { if (m_cache) m_cache->erase(n); }
 
     bool are_info_lines_valid(unsigned start_line, unsigned end_line) const;
-
-    void set_index(declaration_index * i) { m_index = i; }
-    void add_decl_index(name const & n, pos_info const & pos, name const & k, expr const & t);
-    void add_ref_index(name const & n, pos_info const & pos);
-    void add_abbrev_index(name const & a, name const & d);
 
     environment const & env() const { return m_env; }
     io_state const & ios() const { return m_ios; }
@@ -517,10 +509,10 @@ public:
 bool parse_commands(environment & env, io_state & ios, std::istream & in,
                     char const * strm_name, optional<std::string> const & base_dir,
                     bool use_exceptions, unsigned num_threads, definition_cache * cache = nullptr,
-                    declaration_index * index = nullptr, keep_theorem_mode tmode = keep_theorem_mode::All);
+                    keep_theorem_mode tmode = keep_theorem_mode::All);
 bool parse_commands(environment & env, io_state & ios, char const * fname, optional<std::string> const & base,
                     bool use_exceptions, unsigned num_threads,
-                    definition_cache * cache = nullptr, declaration_index * index = nullptr,
+                    definition_cache * cache = nullptr,
                     keep_theorem_mode tmode = keep_theorem_mode::All);
 
 void initialize_parser();

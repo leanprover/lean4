@@ -331,7 +331,6 @@ declare_definition(parser & p, environment const & env, def_cmd_kind kind, buffe
     new_env = add_alias(new_env, is_protected, c_name, c_real_name);
 
     if (!is_private) {
-        p.add_decl_index(c_real_name, pos, p.get_cmd_token(), type);
         new_env = ensure_decl_namespaces(new_env, c_real_name);
     }
 

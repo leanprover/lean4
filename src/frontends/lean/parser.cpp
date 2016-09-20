@@ -177,7 +177,7 @@ parser::parser(environment const & env, io_state const & ios,
     m_verbose(true), m_use_exceptions(use_exceptions),
     m_scanner(strm, strm_name, s ? s->m_line : 1),
     m_base_dir(base_dir),
-    m_snapshot_vector(sv), m_cache(nullptr), m_index(nullptr) {
+    m_snapshot_vector(sv), m_cache(nullptr) {
     m_ignore_noncomputable = false;
     m_profile     = ios.get_options().get_bool("profile", false);
     init_stop_at(ios.get_options());
@@ -268,21 +268,6 @@ auto parser::find_cached_definition(name const & n, expr const & pre_type, expr 
         return m_cache->find(m_env, n, pre_type, pre_value, is_trusted);
     else
         return optional<std::tuple<level_param_names, expr, expr>>();
-}
-
-void parser::add_decl_index(name const & n, pos_info const & pos, name const & k, expr const & t) {
-    if (m_index)
-        m_index->add_decl(get_stream_name(), pos, n, k, t);
-}
-
-void parser::add_ref_index(name const & n, pos_info const & pos) {
-    if (m_index)
-        m_index->add_ref(get_stream_name(), pos, n);
-}
-
-void parser::add_abbrev_index(name const & a, name const & d) {
-    if (m_index)
-        m_index->add_abbrev(a, d);
 }
 
 bool parser::are_info_lines_valid(unsigned start_line, unsigned end_line) const {
@@ -1776,11 +1761,7 @@ expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only) 
         auto new_id = ns + id;
         if (!ns.is_anonymous() && m_env.find(new_id) &&
             (!id.is_atomic() || !is_protected(m_env, new_id))) {
-            auto r = save_pos(mk_constant(new_id, ls), p);
-            if (!resolve_only) {
-                add_ref_index(new_id, p);
-            }
-            return r;
+            return save_pos(mk_constant(new_id, ls), p);
         }
     }
 
@@ -1788,11 +1769,7 @@ expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only) 
         name new_id = id;
         new_id = remove_root_prefix(new_id);
         if (m_env.find(new_id)) {
-            auto r = save_pos(mk_constant(new_id, ls), p);
-            if (!resolve_only) {
-                add_ref_index(new_id, p);
-            }
-            return r;
+            return save_pos(mk_constant(new_id, ls), p);
         }
     }
 
@@ -1823,11 +1800,6 @@ expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only) 
     }
     if (!r)
         throw parser_error(sstream() << "unknown identifier '" << id << "'", p);
-    if (!resolve_only) {
-        if (is_constant(*r)) {
-            add_ref_index(const_name(*r), p);
-        }
-    }
     return *r;
 }
 
@@ -2326,11 +2298,10 @@ char const * parser::get_file_name() const {
 
 bool parse_commands(environment & env, io_state & ios, std::istream & in, char const * strm_name,
                     optional<std::string> const & base_dir, bool use_exceptions,
-                    unsigned num_threads, definition_cache * cache, declaration_index * index,
+                    unsigned num_threads, definition_cache * cache,
                     keep_theorem_mode tmode) {
     parser p(env, ios, in, strm_name, base_dir, use_exceptions, num_threads, nullptr, nullptr, tmode);
     p.set_cache(cache);
-    p.set_index(index);
     bool r = p();
     ios = p.ios();
     env = p.env();
@@ -2339,11 +2310,11 @@ bool parse_commands(environment & env, io_state & ios, std::istream & in, char c
 
 bool parse_commands(environment & env, io_state & ios, char const * fname, optional<std::string> const & base_dir,
                     bool use_exceptions, unsigned num_threads,
-                    definition_cache * cache, declaration_index * index, keep_theorem_mode tmode) {
+                    definition_cache * cache, keep_theorem_mode tmode) {
     std::ifstream in(fname);
     if (in.bad() || in.fail())
         throw exception(sstream() << "failed to open file '" << fname << "'");
-    return parse_commands(env, ios, in, fname, base_dir, use_exceptions, num_threads, cache, index, tmode);
+    return parse_commands(env, ios, in, fname, base_dir, use_exceptions, num_threads, cache, tmode);
 }
 
 void initialize_parser() {

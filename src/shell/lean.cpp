@@ -32,7 +32,6 @@ Author: Leonardo de Moura
 #include "library/type_context.h"
 #include "library/io_state_stream.h"
 #include "library/definition_cache.h"
-#include "library/declaration_index.h"
 #include "library/export.h"
 #include "library/error_handling.h"
 #include "frontends/lean/parser.h"
@@ -59,7 +58,6 @@ using lean::pos_info_provider;
 using lean::optional;
 using lean::expr;
 using lean::options;
-using lean::declaration_index;
 using lean::keep_theorem_mode;
 using lean::module_name;
 using lean::simple_pos_info_provider;
@@ -113,7 +111,6 @@ static void display_help(std::ostream & out) {
     std::cout << "  --deps            just print dependencies of a Lean input\n";
     std::cout << "  --flycheck        print structured error message for flycheck\n";
     std::cout << "  --cache=file -c   load/save cached definitions from/to the given file\n";
-    std::cout << "  --index=file -i   store index for declared symbols in the given file\n";
     std::cout << "  --profile         display elaboration/type checking time for each definition/theorem\n";
 #if defined(LEAN_USE_BOOST)
     std::cout << "  --tstack=num -s   thread stack size in Kb\n";
@@ -171,7 +168,6 @@ static struct option g_long_options[] = {
     {"cache",        required_argument, 0, 'c'},
     {"deps",         no_argument,       0, 'd'},
     {"flycheck",     no_argument,       0, 'F'},
-    {"index",        no_argument,       0, 'i'},
 #if defined(LEAN_USE_BOOST)
     {"tstack",       required_argument, 0, 's'},
 #endif
@@ -188,7 +184,7 @@ static struct option g_long_options[] = {
     {0, 0, 0, 0}
 };
 
-#define OPT_STR "PHXFdD:qrlupgvhk:012t:012o:E:c:i:L:012O:012GZAIT:B:"
+#define OPT_STR "PHXFdD:qrlupgvhk:012t:012o:E:c:L:012O:012GZAIT:B:"
 
 #if defined(LEAN_TRACK_MEMORY)
 #define OPT_STR2 OPT_STR "M:012"
@@ -256,12 +252,10 @@ int main(int argc, char ** argv) {
     unsigned num_threads    = 1;
     bool read_cache         = false;
     bool save_cache         = false;
-    bool gen_index          = false;
     keep_theorem_mode tmode = keep_theorem_mode::All;
     options opts;
     std::string output;
     std::string cache_name;
-    std::string index_name;
     optional<unsigned> line;
     optional<unsigned> column;
     optional<std::string> export_txt;
@@ -316,10 +310,6 @@ int main(int argc, char ** argv) {
             cache_name = optarg;
             read_cache = true;
             save_cache = true;
-            break;
-        case 'i':
-            index_name = optarg;
-            gen_index  = true;
             break;
         case 'M':
             lean::set_max_memory_megabyte(atoi(optarg));
@@ -480,11 +470,6 @@ int main(int argc, char ** argv) {
                 << ex.what() << ". cache is going to be ignored\n";
         }
     }
-    declaration_index index;
-    declaration_index * index_ptr = nullptr;
-    if (gen_index)
-        index_ptr = &index;
-
     try {
         bool ok = true;
         for (int i = optind; i < argc; i++) {
@@ -505,7 +490,7 @@ int main(int argc, char ** argv) {
                         if (!display_deps(env, std::cout, std::cerr, argv[i]))
                             ok = false;
                     } else if (!parse_commands(env, ios, argv[i], base_dir, false, num_threads,
-                                               cache_ptr, index_ptr, tmode)) {
+                                               cache_ptr, tmode)) {
                         ok = false;
                     }
                     break;
@@ -525,14 +510,6 @@ int main(int argc, char ** argv) {
             exclusive_file_lock cache_lock(cache_name);
             std::ofstream out(cache_name, std::ofstream::binary);
             cache.save(out);
-        }
-        if (gen_index) {
-            exclusive_file_lock index_lock(index_name);
-            std::shared_ptr<lean::file_output_channel> out(new lean::file_output_channel(index_name.c_str()));
-            ios.set_regular_channel(out);
-            type_checker tc(env);
-            auto strm = regular(env, ios, tc);
-            index.save(strm);
         }
         if (export_objects && ok) {
             exclusive_file_lock output_lock(output);

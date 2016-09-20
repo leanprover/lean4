@@ -132,11 +132,9 @@ static environment declare_var(parser & p, environment env,
         expr new_type = postprocess(env, type);
         if (k == variable_kind::Axiom) {
             env = module::add(env, check(env, mk_axiom(full_n, ls, new_type)));
-            p.add_decl_index(full_n, pos, get_axiom_tk(), new_type);
         } else {
             bool is_trusted = k == variable_kind::Constant;
             env = module::add(env, check(env, mk_constant_assumption(full_n, ls, new_type, is_trusted)));
-            p.add_decl_index(full_n, pos, get_variable_tk(), new_type);
         }
         if (!ns.is_anonymous()) {
             if (is_protected)

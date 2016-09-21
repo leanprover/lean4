@@ -246,9 +246,6 @@ notation a ∧ b  := and a b
 
 variables {a b c d : Prop}
 
-attribute and.rec [elim]
-attribute and.intro [intro!]
-
 theorem and.elim (h₁ : a ∧ b) (h₂ : a → b → c) : c :=
 and.rec h₂ h₁
 
@@ -259,8 +256,6 @@ assume ⟨ha, hb⟩, ⟨hb, ha⟩
 
 notation a \/ b := or a b
 notation a ∨ b := or a b
-
-attribute or.rec [elim]
 
 namespace or
   theorem elim (h₁ : a ∨ b) (h₂ : a → c) (h₃ : b → c) : c :=
@@ -291,7 +286,7 @@ attribute iff.intro [intro!]
 
 theorem iff.elim : ((a → b) → (b → a) → c) → (a ↔ b) → c := and.rec
 
-attribute iff.elim [recursor 5, elim]
+attribute iff.elim [recursor 5]
 
 theorem iff.elim_left : (a ↔ b) → a → b := and.left
 
@@ -580,8 +575,6 @@ definition exists.intro := @Exists.intro
 notation `exists` binders `, ` r:(scoped P, Exists P) := r
 notation `∃` binders `, ` r:(scoped P, Exists P) := r
 
-attribute Exists.rec [elim]
-
 theorem exists.elim {A : Type u} {p : A → Prop} {b : Prop}
   (h₁ : ∃ x, p x) (h₂ : ∀ (a : A), p a → b) : b :=
 Exists.rec h₂ h₁
@@ -598,7 +591,7 @@ theorem exists_unique.intro {A : Type u} {p : A → Prop} (w : A) (h₁ : p w) (
   ∃! x, p x :=
 exists.intro w ⟨h₁, h₂⟩
 
-attribute [recursor 4, elim]
+attribute [recursor 4]
 theorem exists_unique.elim {A : Type u} {p : A → Prop} {b : Prop}
     (h₂ : ∃! x, p x) (h₁ : ∀ x, p x → (∀ y, p y → y = x) → b) : b :=
 exists.elim h₂ (λ w hw, h₁ w (and.left hw) (and.right hw))
@@ -1003,10 +996,6 @@ match h with
 | (is_true hc)   := rfl
 | (is_false hnc) := rfl
 end
-
--- The following symbols should not be considered in the pattern inference procedure used by
--- heuristic instantiation.
-attribute and or not iff ite dite eq ne heq [no_pattern]
 
 definition as_true (c : Prop) [decidable c] : Prop :=
 if c then true else false

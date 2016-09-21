@@ -150,29 +150,29 @@ namespace nat
   theorem pred_le_iff_true (n : ℕ) : pred n ≤ n ↔ true :=
   iff_true_intro (pred_le n)
 
-  protected theorem le_trans {n m k : ℕ} (H1 : n ≤ m) : m ≤ k → n ≤ k :=
-  le.rec H1 (λp H2, le.step)
+  protected theorem le_trans {n m k : ℕ} (h1 : n ≤ m) : m ≤ k → n ≤ k :=
+  le.rec h1 (λ p h2, le.step)
 
-  theorem le_succ_of_le {n m : ℕ} (H : n ≤ m) : n ≤ succ m :=
-  nat.le_trans H (le_succ m)
+  theorem le_succ_of_le {n m : ℕ} (h : n ≤ m) : n ≤ succ m :=
+  nat.le_trans h (le_succ m)
 
-  theorem le_of_succ_le {n m : ℕ} (H : succ n ≤ m) : n ≤ m :=
-  nat.le_trans (le_succ n) H
+  theorem le_of_succ_le {n m : ℕ} (h : succ n ≤ m) : n ≤ m :=
+  nat.le_trans (le_succ n) h
 
-  protected theorem le_of_lt {n m : ℕ} (H : n < m) : n ≤ m :=
-  le_of_succ_le H
+  protected theorem le_of_lt {n m : ℕ} (h : n < m) : n ≤ m :=
+  le_of_succ_le h
 
   theorem succ_le_succ {n m : ℕ} : n ≤ m → succ n ≤ succ m :=
-  λ H, le.rec (nat.le_refl (succ n)) (λ a b, le.step) H
+  λ h, le.rec (nat.le_refl (succ n)) (λ a b, le.step) h
 
   theorem pred_le_pred {n m : ℕ} : n ≤ m → pred n ≤ pred m :=
-  λ H, le.rec (nat.le_refl (pred n)) (λ n, nat.rec (λ a b, b) (λ a b c, le.step) n) H
+  λ h, le.rec (nat.le_refl (pred n)) (λ n, nat.rec (λ a b, b) (λ a b c, le.step) n) h
 
   theorem le_of_succ_le_succ {n m : ℕ} : succ n ≤ succ m → n ≤ m :=
   pred_le_pred
 
   theorem le_succ_of_pred_le {n m : ℕ} : pred n ≤ m → n ≤ succ m :=
-  nat.cases_on n le.step (λa, succ_le_succ)
+  nat.cases_on n le.step (λ a, succ_le_succ)
 
   theorem not_succ_le_zero : ∀ (n : ℕ), succ n ≤ 0 → false
   .
@@ -181,7 +181,7 @@ namespace nat
   iff_false_intro (not_succ_le_zero n)
 
   theorem not_succ_le_self : ∀ n : ℕ, ¬succ n ≤ n :=
-  λ n, nat.rec (not_succ_le_zero 0) (λa b c, b (le_of_succ_le_succ c)) n
+  λ n, nat.rec (not_succ_le_zero 0) (λ a b c, b (le_of_succ_le_succ c)) n
 
   attribute [simp]
   theorem succ_le_self_iff_false (n : ℕ) : succ n ≤ n ↔ false :=
@@ -215,11 +215,11 @@ namespace nat
   theorem zero_lt_succ_iff_true (n : ℕ) : 0 < succ n ↔ true :=
   iff_true_intro (zero_lt_succ n)
 
-  protected theorem lt_trans {n m k : ℕ} (H1 : n < m) : m < k → n < k :=
-  nat.le_trans (le.step H1)
+  protected theorem lt_trans {n m k : ℕ} (h₁ : n < m) : m < k → n < k :=
+  nat.le_trans (le.step h₁)
 
-  protected theorem lt_of_le_of_lt {n m k : ℕ} (H1 : n ≤ m) : m < k → n < k :=
-  nat.le_trans (succ_le_succ H1)
+  protected theorem lt_of_le_of_lt {n m k : ℕ} (h₁ : n ≤ m) : m < k → n < k :=
+  nat.le_trans (succ_le_succ h₁)
 
   protected theorem lt_of_lt_of_le {n m k : ℕ} : n < m → m ≤ k → n < k := nat.le_trans
 
@@ -227,7 +227,7 @@ namespace nat
   not_succ_le_self n
 
   theorem lt_self_iff_false (n : ℕ) : n < n ↔ false :=
-  iff_false_intro (λ H, absurd H (nat.lt_irrefl n))
+  iff_false_intro (λ h, absurd h (nat.lt_irrefl n))
 
   theorem self_lt_succ (n : ℕ) : n < succ n := nat.le_refl (succ n)
 
@@ -237,17 +237,17 @@ namespace nat
 
   definition lt.base (n : ℕ) : n < succ n := nat.le_refl (succ n)
 
-  theorem le_lt_antisymm {n m : ℕ} (H1 : n ≤ m) (H2 : m < n) : false :=
-  nat.lt_irrefl n (nat.lt_of_le_of_lt H1 H2)
+  theorem le_lt_antisymm {n m : ℕ} (h₁ : n ≤ m) (h₂ : m < n) : false :=
+  nat.lt_irrefl n (nat.lt_of_le_of_lt h₁ h₂)
 
-  protected theorem le_antisymm {n m : ℕ} (H1 : n ≤ m) : m ≤ n → n = m :=
-  le.cases_on H1 (λa, rfl) (λa b c, absurd (nat.lt_of_le_of_lt b c) (nat.lt_irrefl n))
+  protected theorem le_antisymm {n m : ℕ} (h₁ : n ≤ m) : m ≤ n → n = m :=
+  le.cases_on h₁ (λ a, rfl) (λ a b c, absurd (nat.lt_of_le_of_lt b c) (nat.lt_irrefl n))
 
-  theorem lt_le_antisymm {n m : ℕ} (H1 : n < m) (H2 : m ≤ n) : false :=
-  le_lt_antisymm H2 H1
+  theorem lt_le_antisymm {n m : ℕ} (h₁ : n < m) (h₂ : m ≤ n) : false :=
+  le_lt_antisymm h₂ h₁
 
-  protected theorem nat.lt_asymm {n m : ℕ} (H1 : n < m) : ¬ m < n :=
-  le_lt_antisymm (nat.le_of_lt H1)
+  protected theorem nat.lt_asymm {n m : ℕ} (h₁ : n < m) : ¬ m < n :=
+  le_lt_antisymm (nat.le_of_lt h₁)
 
   theorem not_lt_zero (a : ℕ) : ¬ a < 0 := not_succ_le_zero a
 
@@ -255,11 +255,11 @@ namespace nat
   theorem lt_zero_iff_false (a : ℕ) : a < 0 ↔ false :=
   iff_false_intro (not_lt_zero a)
 
-  protected theorem eq_or_lt_of_le {a b : ℕ} (H : a ≤ b) : a = b ∨ a < b :=
-  le.cases_on H (or.inl rfl) (λn h, or.inr (succ_le_succ h))
+  protected theorem eq_or_lt_of_le {a b : ℕ} (h : a ≤ b) : a = b ∨ a < b :=
+  le.cases_on h (or.inl rfl) (λ n h, or.inr (succ_le_succ h))
 
-  protected theorem le_of_eq_or_lt {a b : ℕ} (H : a = b ∨ a < b) : a ≤ b :=
-  or.elim H nat.le_of_eq nat.le_of_lt
+  protected theorem le_of_eq_or_lt {a b : ℕ} (h : a = b ∨ a < b) : a ≤ b :=
+  or.elim h nat.le_of_eq nat.le_of_lt
 
   theorem succ_lt_succ {a b : ℕ} : a < b → succ a < succ b :=
   succ_le_succ
@@ -271,17 +271,17 @@ namespace nat
   le_of_succ_le_succ
 
   attribute [instance, priority nat.prio]
-  protected definition decidable_le : ∀ a b : nat, decidable (a ≤ b)
+  protected definition decidable_le : ∀ a b : ℕ, decidable (a ≤ b)
   | 0     b     := is_true (zero_le b)
   | (a+1) 0     := is_false (not_succ_le_zero a)
   | (a+1) (b+1) :=
     match decidable_le a b with
-    | is_true H  := is_true (succ_le_succ H)
-    | is_false H := is_false (λa, H (le_of_succ_le_succ a))
+    | is_true h  := is_true (succ_le_succ h)
+    | is_false h := is_false (λ a, h (le_of_succ_le_succ a))
     end
 
   attribute [instance, priority nat.prio]
-  protected definition decidable_lt : ∀ a b : nat, decidable (a < b) :=
+  protected definition decidable_lt : ∀ a b : ℕ, decidable (a < b) :=
   λ a b, nat.decidable_le (succ a) b
 
   protected theorem lt_or_ge : ∀ (a b : ℕ), a < b ∨ a ≥ b
@@ -296,16 +296,16 @@ namespace nat
       end
     end
 
-  protected definition {u} lt_ge_by_cases {a b : ℕ} {P : Type u} (H1 : a < b → P) (H2 : a ≥ b → P) : P :=
-  decidable.by_cases H1 (λh, H2 (or.elim (nat.lt_or_ge a b) (λa, absurd a h) (λa, a)))
+  protected definition {u} lt_ge_by_cases {a b : ℕ} {C : Type u} (h₁ : a < b → C) (h₂ : a ≥ b → C) : C :=
+  decidable.by_cases h₁ (λ h, h₂ (or.elim (nat.lt_or_ge a b) (λ a, absurd a h) (λ a, a)))
 
-  protected definition {u} lt_by_cases {a b : ℕ} {P : Type u} (H1 : a < b → P) (H2 : a = b → P)
-    (H3 : b < a → P) : P :=
-  nat.lt_ge_by_cases H1 (λh₁,
-    nat.lt_ge_by_cases H3 (λh₂, H2 (nat.le_antisymm h₂ h₁)))
+  protected definition {u} lt_by_cases {a b : ℕ} {C : Type u} (h₁ : a < b → C) (h₂ : a = b → C)
+    (h₃ : b < a → C) : C :=
+  nat.lt_ge_by_cases h₁ (λ h₁,
+    nat.lt_ge_by_cases h₃ (λ h, h₂ (nat.le_antisymm h h₁)))
 
   protected theorem lt_trichotomy (a b : ℕ) : a < b ∨ a = b ∨ b < a :=
-  nat.lt_by_cases (λH, or.inl H) (λH, or.inr (or.inl H)) (λH, or.inr (or.inr H))
+  nat.lt_by_cases (λ h, or.inl h) (λ h, or.inr (or.inl h)) (λ h, or.inr (or.inr h))
 
   protected theorem eq_or_lt_of_not_lt {a b : ℕ} (hnlt : ¬ a < b) : a = b ∨ b < a :=
   or.elim (nat.lt_trichotomy a b)
@@ -365,11 +365,11 @@ namespace nat
   theorem le_add_left (n m : ℕ): n ≤ m + n :=
   nat.add_comm n m ▸ le_add_right n m
 
-  definition {u} repeat {A : Type u} (f : nat → A → A) : nat → A → A
+  definition {u} repeat {A : Type u} (f : ℕ → A → A) : ℕ → A → A
   | 0         a := a
   | (succ n)  a := f n (repeat n a)
 
   attribute [instance]
-  protected definition is_inhabited : inhabited nat :=
+  protected definition is_inhabited : inhabited ℕ :=
   ⟨nat.zero⟩
 end nat

@@ -13,12 +13,12 @@ variables {A : Type u_a} {B : Type u_b} {C : Type u_c} {D : Type u_d} {E : Type 
 
 attribute [inline, reducible]
 definition function.comp (f : B → C) (g : A → B) : A → C :=
-λx, f (g x)
+λ x, f (g x)
 
 attribute [inline, reducible]
 definition function.dcomp {B : A → Type u_b} {C : Π {x : A}, B x → Type u_c}
-  (f : Π {x : A} (y : B x), C y) (g : Πx, B x) : Πx, C (g x) :=
-λx, f (g x)
+  (f : Π {x : A} (y : B x), C y) (g : Π x, B x) : Π x, C (g x) :=
+λ x, f (g x)
 
 infixr  ` ∘ `      := function.comp
 infixr  ` ∘' `:80  := function.dcomp
@@ -35,23 +35,23 @@ definition comp_left (f : B → B → B) (g : A → B) : A → B → B :=
 
 attribute [reducible]
 definition on_fun (f : B → B → C) (g : A → B) : A → A → C :=
-λx y, f (g x) (g y)
+λ x y, f (g x) (g y)
 
 attribute [reducible]
 definition combine (f : A → B → C) (op : C → D → E) (g : A → B → D)
   : A → B → E :=
-λx y, op (f x y) (g x y)
+λ x y, op (f x y) (g x y)
 
 attribute [reducible]
 definition const (B : Type u_b) (a : A) : B → A :=
-λx, a
+λ x, a
 
 attribute [reducible]
-definition swap {C : A → B → Type u_c} (f : Πx y, C x y) : Πy x, C x y :=
-λy x, f x y
+definition swap {C : A → B → Type u_c} (f : Π x y, C x y) : Π y x, C x y :=
+λ y x, f x y
 
 attribute [reducible]
-definition app {B : A → Type u_b} (f : Πx, B x) (x : A) : B x :=
+definition app {B : A → Type u_b} (f : Π x, B x) (x : A) : B x :=
 f x
 
 attribute [reducible]
@@ -106,7 +106,7 @@ and.elim Hg (λ Hginj Hgsurj, and.elim Hf (λ Hfinj Hfsurj,
   ⟨injective_comp Hginj Hfinj, surjective_comp Hgsurj Hfsurj⟩))
 
 -- g is a left inverse to f
-definition left_inverse (g : B → A) (f : A → B) : Prop := ∀x, g (f x) = x
+definition left_inverse (g : B → A) (f : A → B) : Prop := ∀ x, g (f x) = x
 
 definition id_of_left_inverse {g : B → A} {f : A → B} : left_inverse g f → g ∘ f = id :=
 assume h, funext h

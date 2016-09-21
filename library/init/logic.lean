@@ -349,16 +349,16 @@ iff.intro
 
 theorem imp_congr (h₁ : a ↔ c) (h₂ : b ↔ d) : (a → b) ↔ (c → d) :=
 iff.intro
-  (λhab hc, iff.mp h₂ (hab (iff.mpr h₁ hc)))
-  (λhcd ha, iff.mpr h₂ (hcd (iff.mp h₁ ha)))
+  (λ hab hc, iff.mp h₂ (hab (iff.mpr h₁ hc)))
+  (λ hcd ha, iff.mpr h₂ (hcd (iff.mp h₁ ha)))
 
 theorem imp_congr_ctx (h₁ : a ↔ c) (h₂ : c → (b ↔ d)) : (a → b) ↔ (c → d) :=
 iff.intro
-  (λhab hc, have ha : a, from iff.mpr h₁ hc,
-            have hb : b, from hab ha,
-            iff.mp (h₂ hc) hb)
-  (λhcd ha, have hc : c, from iff.mp h₁ ha,
-            have hd : d, from hcd hc,
+  (λ hab hc, have ha : a, from iff.mpr h₁ hc,
+             have hb : b, from hab ha,
+             iff.mp (h₂ hc) hb)
+  (λ hcd ha, have hc : c, from iff.mp h₁ ha,
+             have hd : d, from hcd hc,
 iff.mpr (h₂ hc) hd)
 
 theorem imp_congr_right (h : a → (b ↔ c)) : (a → b) ↔ (a → c) :=
@@ -583,24 +583,24 @@ notation `∃` binders `, ` r:(scoped P, Exists P) := r
 attribute Exists.rec [elim]
 
 theorem exists.elim {A : Type u} {p : A → Prop} {b : Prop}
-  (h₁ : ∃x, p x) (h₂ : ∀ (a : A), p a → b) : b :=
+  (h₁ : ∃ x, p x) (h₂ : ∀ (a : A), p a → b) : b :=
 Exists.rec h₂ h₁
 
 /- exists unique -/
 
 definition exists_unique {A : Type u} (p : A → Prop) :=
-∃x, p x ∧ ∀y, p y → y = x
+∃ x, p x ∧ ∀ y, p y → y = x
 
 notation `∃!` binders `, ` r:(scoped P, exists_unique P) := r
 
 attribute [intro]
-theorem exists_unique.intro {A : Type u} {p : A → Prop} (w : A) (h₁ : p w) (h₂ : ∀y, p y → y = w) :
-  ∃!x, p x :=
+theorem exists_unique.intro {A : Type u} {p : A → Prop} (w : A) (h₁ : p w) (h₂ : ∀ y, p y → y = w) :
+  ∃! x, p x :=
 exists.intro w ⟨h₁, h₂⟩
 
 attribute [recursor 4, elim]
 theorem exists_unique.elim {A : Type u} {p : A → Prop} {b : Prop}
-    (h₂ : ∃!x, p x) (h₁ : ∀x, p x → (∀y, p y → y = x) → b) : b :=
+    (h₂ : ∃! x, p x) (h₁ : ∀ x, p x → (∀ y, p y → y = x) → b) : b :=
 exists.elim h₂ (λ w hw, h₁ w (and.left hw) (and.right hw))
 
 theorem exists_unique_of_exists_of_unique {A : Type u} {p : A → Prop}
@@ -628,12 +628,12 @@ exists.elim p (λ a hp, ⟨a, h a hp⟩)
 attribute [congr]
 theorem exists_congr {A : Type u} {p q : A → Prop} (h : ∀ a, (p a ↔ q a)) : (Exists p) ↔ ∃ a, q a :=
 iff.intro
-  (exists_imp_exists (λa, iff.mp (h a)))
-  (exists_imp_exists (λa, iff.mpr (h a)))
+  (exists_imp_exists (λ a, iff.mp (h a)))
+  (exists_imp_exists (λ a, iff.mpr (h a)))
 
 attribute [congr]
 theorem exists_unique_congr {A : Type u} {p₁ p₂ : A → Prop} (h : ∀ x, p₁ x ↔ p₂ x) : (exists_unique p₁) ↔ (∃! x, p₂ x) := --
-exists_congr (λ x, and_congr (h x) (forall_congr (λy, imp_congr (h y) iff.rfl)))
+exists_congr (λ x, and_congr (h x) (forall_congr (λ y, imp_congr (h y) iff.rfl)))
 
 /- decidable -/
 
@@ -668,11 +668,11 @@ namespace decidable
 
   definition rec_on_true [h : decidable p] {h₁ : p → Type u} {h₂ : ¬p → Type u} (h₃ : p) (h₄ : h₁ h₃)
       : decidable.rec_on h h₂ h₁ :=
-  decidable.rec_on h (λh, false.rec _ (h h₃)) (λh, h₄)
+  decidable.rec_on h (λ h, false.rec _ (h h₃)) (λ h, h₄)
 
   definition rec_on_false [h : decidable p] {h₁ : p → Type u} {h₂ : ¬p → Type u} (h₃ : ¬p) (h₄ : h₂ h₃)
       : decidable.rec_on h h₂ h₁ :=
-  decidable.rec_on h (λh, h₄) (λh, false.rec _ (h₃ h))
+  decidable.rec_on h (λ h, h₄) (λ h, false.rec _ (h₃ h))
 
   definition by_cases {q : Type u} [C : decidable p] : (p → q) → (¬p → q) → q := dite _
 
@@ -752,7 +752,7 @@ definition is_dec_refl {A : Type u} (p : A → A → bool) : Prop := ∀ x, p x 
 
 open decidable
 attribute [instance]
-protected definition bool.has_decidable_eq : ∀a b : bool, decidable (a = b)
+protected definition bool.has_decidable_eq : ∀ a b : bool, decidable (a = b)
 | ff ff := is_true rfl
 | ff tt := is_false bool.ff_ne_tt
 | tt ff := is_false (ne.symm bool.ff_ne_tt)
@@ -806,8 +806,8 @@ definition inhabited_fun (A : Type u) {B : Type v} [h : inhabited B] : inhabited
 inhabited.rec_on h (λ b, ⟨λ a, b⟩)
 
 attribute [instance]
-definition inhabited_Pi (A : Type u) {B : A → Type v} [Πx, inhabited (B x)] :
-  inhabited (Πx, B x) :=
+definition inhabited_Pi (A : Type u) {B : A → Type v} [Π x, inhabited (B x)] :
+  inhabited (Π x, B x) :=
 ⟨λ a, default (B a)⟩
 
 attribute [inline, instance]
@@ -868,7 +868,7 @@ subsingleton.intro (λ d₁,
 
 protected theorem rec_subsingleton {p : Prop} [h : decidable p]
     {h₁ : p → Type u} {h₂ : ¬p → Type u}
-    [h₃ : Π(h : p), subsingleton (h₁ h)] [h₄ : Π(h : ¬p), subsingleton (h₂ h)]
+    [h₃ : Π (h : p), subsingleton (h₁ h)] [h₄ : Π (h : ¬p), subsingleton (h₂ h)]
   : subsingleton (decidable.rec_on h h₂ h₁) :=
 match h with
 | (is_true h)  := h₃ h
@@ -998,7 +998,7 @@ theorem dif_ctx_simp_congr {A : Type u} {b c : Prop} [dec_b : decidable b]
 @dif_ctx_congr A b c dec_b (decidable_of_decidable_of_iff dec_b h_c) x u y v h_c h_t h_e
 
 -- Remark: dite and ite are "definitionally equal" when we ignore the proofs.
-theorem dite_ite_eq (c : Prop) [h : decidable c] {A : Type u} (t : A) (e : A) : dite c (λh, t) (λh, e) = ite c t e :=
+theorem dite_ite_eq (c : Prop) [h : decidable c] {A : Type u} (t : A) (e : A) : dite c (λ h, t) (λ h, e) = ite c t e :=
 match h with
 | (is_true hc)   := rfl
 | (is_false hnc) := rfl

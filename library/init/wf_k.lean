@@ -12,6 +12,6 @@ namespace well_founded
   well_founded.intro
   (nat.rec_on k
      (λ n : A, well_founded.apply Hwf n)
-     (λ (k' : nat) (f : Πa, acc R a), (λ n : A, acc.intro n (λ y H, f y))))
+     (λ (k' : nat) (f : Π a, acc R a), (λ n : A, acc.intro n (λ y H, f y))))
 
 end well_founded

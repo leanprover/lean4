@@ -25,16 +25,16 @@ section
   parameters {Ra  : A → A → Prop} {Rb : Π a : A, B a → B a → Prop}
   local infix `≺`:50 := lex Ra Rb
 
-  definition lex_accessible {a} (aca : acc Ra a) (acb : ∀a, well_founded (Rb a))
+  definition lex_accessible {a} (aca : acc Ra a) (acb : ∀ a, well_founded (Rb a))
              : ∀ (b : B a), acc (lex Ra Rb) (sigma.mk a b) :=
   acc.rec_on aca
-    (λxa aca (iHa : ∀y, Ra y xa → ∀b : B y, acc (lex Ra Rb) (sigma.mk y b)),
-      λb : B xa, acc.rec_on (well_founded.apply (acb xa) b)
-        (λxb acb
+    (λ xa aca (iHa : ∀ y, Ra y xa → ∀ b : B y, acc (lex Ra Rb) (sigma.mk y b)),
+      λ b : B xa, acc.rec_on (well_founded.apply (acb xa) b)
+        (λ xb acb
           (iHb : ∀ (y : B xa), Rb xa y xb → acc (lex Ra Rb) (sigma.mk xa y)),
-          acc.intro (sigma.mk xa xb) (λp (lt : p ≺ (sigma.mk xa xb)),
+          acc.intro (sigma.mk xa xb) (λ p (lt : p ≺ (sigma.mk xa xb)),
             have aux : xa = xa → xb == xb → acc (lex Ra Rb) p, from
-              @sigma.lex.rec_on A B Ra Rb (λp₁ p₂, p₂.1 = xa → p₂.2 == xb → acc (lex Ra Rb) p₁)
+              @sigma.lex.rec_on A B Ra Rb (λ p₁ p₂, p₂.1 = xa → p₂.2 == xb → acc (lex Ra Rb) p₁)
                                 p (sigma.mk xa xb) lt
                 (λ (a₁ : A) (b₁ : B a₁) (a₂ : A) (b₂ : B a₂) (H : Ra a₁ a₂) (eq₂ : a₂ = xa) (eq₃ : b₂ == xb),
                   by do
@@ -50,7 +50,7 @@ section
 
   -- The lexicographical order of well founded relations is well-founded
   definition lex_wf (Ha : well_founded Ra) (Hb : ∀ x, well_founded (Rb x)) : well_founded (lex Ra Rb) :=
-  well_founded.intro (λp, destruct p (λa b, lex_accessible (well_founded.apply Ha a) Hb b))
+  well_founded.intro (λ p, destruct p (λ a b, lex_accessible (well_founded.apply Ha a) Hb b))
 end
 
 section
@@ -61,7 +61,7 @@ section
 
   definition lex_ndep_wf {Ra  : A → A → Prop} {Rb : B → B → Prop} (Ha : well_founded Ra) (Hb : well_founded Rb)
                          : well_founded (lex_ndep Ra Rb) :=
-  well_founded.intro (λp, destruct p (λa b, lex_accessible (well_founded.apply Ha a) (λ x, Hb) b))
+  well_founded.intro (λ p, destruct p (λ a b, lex_accessible (well_founded.apply Ha a) (λ x, Hb) b))
 end
 
 section
@@ -81,14 +81,14 @@ section
   parameters {Ra  : A → A → Prop} {Rb : B → B → Prop}
   local infix `≺`:50 := rev_lex Ra Rb
 
-  definition rev_lex_accessible {b} (acb : acc Rb b) (aca : ∀a, acc Ra a): ∀a, acc (rev_lex Ra Rb) (sigma.mk a b) :=
+  definition rev_lex_accessible {b} (acb : acc Rb b) (aca : ∀ a, acc Ra a): ∀ a, acc (rev_lex Ra Rb) (sigma.mk a b) :=
   acc.rec_on acb
-    (λxb acb (iHb : ∀y, Rb y xb → ∀a, acc (rev_lex Ra Rb) (sigma.mk a y)),
-      λa, acc.rec_on (aca a)
-        (λxa aca (iHa : ∀ y, Ra y xa → acc (rev_lex Ra Rb) (mk y xb)),
-          acc.intro (sigma.mk xa xb) (λp (lt : p ≺ (sigma.mk xa xb)),
+    (λ xb acb (iHb : ∀ y, Rb y xb → ∀ a, acc (rev_lex Ra Rb) (sigma.mk a y)),
+      λ a, acc.rec_on (aca a)
+        (λ xa aca (iHa : ∀ y, Ra y xa → acc (rev_lex Ra Rb) (mk y xb)),
+          acc.intro (sigma.mk xa xb) (λ p (lt : p ≺ (sigma.mk xa xb)),
             have aux : xa = xa → xb = xb → acc (rev_lex Ra Rb) p, from
-              @rev_lex.rec_on A B Ra Rb (λp₁ p₂, pr₁ p₂ = xa → pr₂ p₂ = xb → acc (rev_lex Ra Rb) p₁)
+              @rev_lex.rec_on A B Ra Rb (λ p₁ p₂, pr₁ p₂ = xa → pr₂ p₂ = xb → acc (rev_lex Ra Rb) p₁)
                               p (sigma.mk xa xb) lt
                (λ a₁ a₂ b (H : Ra a₁ a₂) (eq₂ : a₂ = xa) (eq₃ : b = xb),
                  show acc (rev_lex Ra Rb) (sigma.mk a₁ b), from
@@ -102,7 +102,7 @@ section
             aux rfl rfl)))
 
   definition rev_lex_wf (Ha : well_founded Ra) (Hb : well_founded Rb) : well_founded (rev_lex Ra Rb) :=
-  well_founded.intro (λp, destruct p (λa b, rev_lex_accessible (apply Hb b) (well_founded.apply Ha) a))
+  well_founded.intro (λ p, destruct p (λ a b, rev_lex_accessible (apply Hb b) (well_founded.apply Ha) a))
 end
 
 section

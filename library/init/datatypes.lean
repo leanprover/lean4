@@ -83,7 +83,7 @@ inductive pos_num : Type
 
 namespace pos_num
   definition succ (a : pos_num) : pos_num :=
-  pos_num.rec_on a (bit0 one) (λn r, bit0 r) (λn r, bit1 n)
+  pos_num.rec_on a (bit0 one) (λ n r, bit0 r) (λ n r, bit1 n)
 end pos_num
 
 inductive num : Type
@@ -93,7 +93,7 @@ inductive num : Type
 namespace num
   open pos_num
   definition succ (a : num) : num :=
-  num.rec_on a (pos one) (λp, pos (succ p))
+  num.rec_on a (pos one) (λ p, pos (succ p))
 end num
 
 inductive bool : Type
@@ -170,25 +170,25 @@ definition pos_num_has_one : has_one pos_num :=
 
 namespace pos_num
   definition is_one (a : pos_num) : bool :=
-  pos_num.rec_on a tt (λn r, ff) (λn r, ff)
+  pos_num.rec_on a tt (λ n r, ff) (λ n r, ff)
 
   definition pred (a : pos_num) : pos_num :=
-  pos_num.rec_on a one (λn r, bit0 n) (λn r, bool.rec_on (is_one n) (bit1 r) one)
+  pos_num.rec_on a one (λ n r, bit0 n) (λ n r, bool.rec_on (is_one n) (bit1 r) one)
 
   definition size (a : pos_num) : pos_num :=
-  pos_num.rec_on a one (λn r, succ r) (λn r, succ r)
+  pos_num.rec_on a one (λ n r, succ r) (λ n r, succ r)
 
   definition add (a b : pos_num) : pos_num :=
   pos_num.rec_on a
     succ
-    (λn f b, pos_num.rec_on b
+    (λ n f b, pos_num.rec_on b
       (succ (bit1 n))
-      (λm r, succ (bit1 (f m)))
-      (λm r, bit1 (f m)))
-    (λn f b, pos_num.rec_on b
+      (λ m r, succ (bit1 (f m)))
+      (λ m r, bit1 (f m)))
+    (λ n f b, pos_num.rec_on b
       (bit1 n)
-      (λm r, bit1 (f m))
-      (λm r, bit0 (f m)))
+      (λ m r, bit1 (f m))
+      (λ m r, bit0 (f m)))
     b
 end pos_num
 
@@ -200,7 +200,7 @@ namespace num
   open pos_num
 
   definition add (a b : num) : num :=
-  num.rec_on a b (λpa, num.rec_on b (pos pa) (λpb, pos (pos_num.add pa pb)))
+  num.rec_on a b (λ pa, num.rec_on b (pos pa) (λ pb, pos (pos_num.add pa pb)))
 end num
 
 attribute [instance]

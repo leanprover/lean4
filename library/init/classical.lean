@@ -11,7 +11,7 @@ universe variables u v
 /- the axiom -/
 
 -- In the presence of classical logic, we could prove this from a weaker statement:
--- axiom indefinite_description {A : Type u} {P : A->Prop} (H : ∃x, P x) : {x : A, P x}
+-- axiom indefinite_description {A : Type u} {P : A->Prop} (H : ∃ x, P x) : {x : A, P x}
 axiom strong_indefinite_description {A : Type u} (P : A → Prop) (H : nonempty A) :
   { x \ (∃ y : A, P y) → P x}
 
@@ -19,7 +19,7 @@ theorem exists_true_of_nonempty {A : Type u} (H : nonempty A) : ∃ x : A, true 
 nonempty.elim H (take x, ⟨x, trivial⟩)
 
 noncomputable definition inhabited_of_nonempty {A : Type u} (H : nonempty A) : inhabited A :=
-⟨elt_of (strong_indefinite_description (λa, true) H)⟩
+⟨elt_of (strong_indefinite_description (λ a, true) H)⟩
 
 noncomputable definition inhabited_of_exists {A : Type u} {P : A → Prop} (H : ∃ x, P x) : inhabited A :=
 inhabited_of_nonempty (exists.elim H (λ w Hw, ⟨w⟩))
@@ -59,7 +59,7 @@ theorem skolem {A : Type u} {B : A → Type v} {P : Π x, B x → Prop} :
 iff.intro
   (assume H : (∀ x, ∃ y, P x y), axiom_of_choice H)
   (assume H : (∃ (f : Π x, B x), (∀ x, P x (f x))),
-    take x, exists.elim H (λ (fw : ∀x, B x) (Hw : ∀x, P x (fw x)),
+    take x, exists.elim H (λ (fw : ∀ x, B x) (Hw : ∀ x, P x (fw x)),
       ⟨fw x, Hw x⟩))
 /-
 Prove excluded middle using Hilbert's choice

@@ -45,5 +45,5 @@ theorem inv_image.irreflexive (f : A → B) (H : irreflexive R) : irreflexive (i
 λ (a : A) (H₁ : inv_image R f a a), H (f a) H₁
 
 inductive tc {A : Type u} (R : A → A → Prop) : A → A → Prop
-| base  : ∀a b, R a b → tc a b
-| trans : ∀a b c, tc a b → tc b c → tc a c
+| base  : ∀ a b, R a b → tc a b
+| trans : ∀ a b c, tc a b → tc b c → tc a c

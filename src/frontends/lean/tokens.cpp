@@ -40,7 +40,6 @@ static name const * g_explicit_tk = nullptr;
 static name const * g_partial_explicit_tk = nullptr;
 static name const * g_max_tk = nullptr;
 static name const * g_imax_tk = nullptr;
-static name const * g_cup_tk = nullptr;
 static name const * g_import_tk = nullptr;
 static name const * g_prelude_tk = nullptr;
 static name const * g_show_tk = nullptr;
@@ -159,7 +158,6 @@ void initialize_tokens() {
     g_partial_explicit_tk = new name{"@@"};
     g_max_tk = new name{"max"};
     g_imax_tk = new name{"imax"};
-    g_cup_tk = new name{"\u2294"};
     g_import_tk = new name{"import"};
     g_prelude_tk = new name{"prelude"};
     g_show_tk = new name{"show"};
@@ -279,7 +277,6 @@ void finalize_tokens() {
     delete g_partial_explicit_tk;
     delete g_max_tk;
     delete g_imax_tk;
-    delete g_cup_tk;
     delete g_import_tk;
     delete g_prelude_tk;
     delete g_show_tk;
@@ -398,7 +395,6 @@ name const & get_explicit_tk() { return *g_explicit_tk; }
 name const & get_partial_explicit_tk() { return *g_partial_explicit_tk; }
 name const & get_max_tk() { return *g_max_tk; }
 name const & get_imax_tk() { return *g_imax_tk; }
-name const & get_cup_tk() { return *g_cup_tk; }
 name const & get_import_tk() { return *g_import_tk; }
 name const & get_prelude_tk() { return *g_prelude_tk; }
 name const & get_show_tk() { return *g_show_tk; }

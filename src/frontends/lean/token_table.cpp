@@ -15,7 +15,6 @@ static unsigned g_arrow_prec      = 25;
 static unsigned g_max_prec        = 1024;
 static unsigned g_Max_prec        = 1024*1024;
 static unsigned g_plus_prec       = 65;
-static unsigned g_cup_prec        = 60;
 unsigned get_max_prec() { return g_max_prec; }
 unsigned get_Max_prec() { return g_Max_prec; }
 unsigned get_arrow_prec() { return g_arrow_prec; }
@@ -77,18 +76,13 @@ void for_each(token_table const & s, std::function<void(char const *, token_info
         });
 }
 
-static char const * g_lambda_unicode     = "\u03BB";
-static char const * g_pi_unicode         = "\u03A0";
-static char const * g_forall_unicode     = "\u2200";
-static char const * g_arrow_unicode      = "\u2192";
-static char const * g_cup                = "\u2294";
-static char const * g_qed_unicode        = "∎";
-
 void init_token_table(token_table & t) {
     pair<char const *, unsigned> builtin[] =
-        {{"fun", 0}, {"Pi", 0}, {"let", 0}, {"in", 0}, {"at", 0}, {"have", 0}, {"suppose", 0}, {"show", 0}, {"suffices", 0}, {"obtain", 0},
+        {{"fun", 0}, {"Pi", 0}, {"let", 0}, {"in", 0}, {"at", 0},
+         {"have", 0}, {"suppose", 0}, {"show", 0}, {"suffices", 0}, {"obtain", 0},
          {"do", 0}, {"if", 0}, {"then", 0}, {"else", 0}, {"by", 0}, {"hiding", 0}, {"replacing", 0}, {"renaming", 0},
-         {"from", 0}, {"(", g_max_prec}, {"`(", g_max_prec}, {"`", g_max_prec}, {"%%", g_max_prec}, {"()", g_max_prec}, {")", 0},
+         {"from", 0}, {"(", g_max_prec}, {"`(", g_max_prec}, {"`", g_max_prec},
+         {"%%", g_max_prec}, {"()", g_max_prec}, {")", 0},
          {"{", g_max_prec}, {"}", 0}, {"_", g_max_prec},
          {"[", g_max_prec}, {"]", 0}, {"⦃", g_max_prec}, {"⦄", 0}, {".{", 0}, {"Type", g_max_prec}, {"Type*", g_max_prec},
          {"{|", g_max_prec}, {"|}", 0}, {"(:", g_max_prec}, {":)", 0},
@@ -97,7 +91,7 @@ void init_token_table(token_table & t) {
          {".", 0}, {":", 0}, {"::", 0}, {"calc", 0}, {"as", 0}, {":=", 0}, {"--", 0}, {"#", 0},
          {"(*", 0}, {"/-", 0}, {"begin", g_max_prec}, {"abstract", g_max_prec},
          {"@@", g_max_prec}, {"@", g_max_prec},
-         {"sorry", g_max_prec}, {"+", g_plus_prec}, {g_cup, g_cup_prec}, {"->", g_arrow_prec}, {"<-", 0},
+         {"sorry", g_max_prec}, {"+", g_plus_prec}, {"->", g_arrow_prec}, {"~>", g_max_prec+1}, {"<-", 0},
          {"?(", g_max_prec}, {"⌞", g_max_prec}, {"⌟", 0}, {"match", 0},
          {"renaming", 0}, {"extends", 0}, {nullptr, 0}};
 
@@ -121,8 +115,8 @@ void init_token_table(token_table & t) {
          "#compile", "#unify", nullptr};
 
     pair<char const *, char const *> aliases[] =
-        {{g_lambda_unicode, "fun"}, {"assume", "fun"}, {"take", "fun"}, {"forall", "Pi"},
-         {g_forall_unicode, "Pi"}, {g_pi_unicode, "Pi"}, {g_qed_unicode, "qed"}, {nullptr, nullptr}};
+        {{"λ", "fun"}, {"assume", "fun"}, {"take", "fun"}, {"forall", "Pi"},
+         {"∀", "Pi"}, {"Π", "Pi"}, {nullptr, nullptr}};
 
     pair<char const *, char const *> cmd_aliases[] =
         {{"lemma", "theorem"}, {"proposition", "theorem"}, {"premise", "variable"}, {"premises", "variables"},
@@ -146,7 +140,8 @@ void init_token_table(token_table & t) {
         t = add_token(t, it3->first, it3->second, 0);
         it3++;
     }
-    t = add_token(t, g_arrow_unicode, "->", get_arrow_prec());
+    t = add_token(t, "→", "->", get_arrow_prec());
+    t = add_token(t, "↣", "~>", get_max_prec()+1);
     t = add_token(t, "←", "<-", 0);
 
     auto it4 = cmd_aliases;

@@ -35,7 +35,6 @@ explicit     @
 partial_explicit @@
 max          max
 imax         imax
-cup          \u2294
 import       import
 prelude      prelude
 show         show

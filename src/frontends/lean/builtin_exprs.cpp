@@ -769,9 +769,15 @@ parse_table init_nud_table() {
     return r;
 }
 
+static expr parse_proj(parser & p, unsigned, expr const * args, pos_info const & pos) {
+    // TODO(Leo)
+    lean_unreachable();
+}
+
 parse_table init_led_table() {
     parse_table r(false);
     r = r.add({transition("->", mk_expr_action(get_arrow_prec()-1))},    mk_arrow(Var(1), Var(1)));
+    r = r.add({transition("~>", mk_ext_action(parse_proj))}, Var(0));
     return r;
 }
 

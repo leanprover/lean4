@@ -738,7 +738,6 @@ list<expr> parser::locals_to_context() const {
 }
 
 static unsigned g_level_add_prec = 10;
-static unsigned g_level_cup_prec = 5;
 
 unsigned parser::get_small_nat() {
     mpz val = get_num_val().get_numerator();
@@ -773,9 +772,7 @@ static level lift(level l, unsigned k) {
 }
 
 unsigned parser::curr_level_lbp() const {
-    if (curr_is_token(get_cup_tk()))
-        return g_level_cup_prec;
-    else if (curr_is_token(get_add_tk()))
+    if (curr_is_token(get_add_tk()))
         return g_level_add_prec;
     else
         return 0;
@@ -847,11 +844,7 @@ level parser::parse_level_nud() {
 
 level parser::parse_level_led(level left) {
     auto p = pos();
-    if (curr_is_token(get_cup_tk())) {
-        next();
-        level right = parse_level(g_level_cup_prec);
-        return mk_max(left, right);
-    } else if (curr_is_token(get_add_tk())) {
+    if (curr_is_token(get_add_tk())) {
         next();
         if (curr_is_numeral()) {
             unsigned k = parse_small_nat();

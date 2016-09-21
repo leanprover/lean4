@@ -295,8 +295,8 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
                     pairs.push_back(minor_arg);
                 } else {
                     expr r = mk_app(minor_arg, minor_arg_args);
-                    expr r_1 = Fun(minor_arg_args, mk_pr1(tc, r, ind));
-                    expr r_2 = Fun(minor_arg_args, mk_pr2(tc, r, ind));
+                    expr r_1 = Fun(minor_arg_args, mk_fst(tc, r, ind));
+                    expr r_2 = Fun(minor_arg_args, mk_snd(tc, r, ind));
                     pairs.push_back(mk_pair(tc, r_1, r_2, ind));
                 }
             }
@@ -319,7 +319,7 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
 
     name brec_on_name  = name(n, ind ? "binduction_on" : "brec_on");
     expr brec_on_type  = Pi(args, result_type);
-    expr brec_on_value = Fun(args, mk_pr1(tc, rec, ind));
+    expr brec_on_value = Fun(args, mk_fst(tc, rec, ind));
 
     declaration new_d = mk_definition_inferring_trusted(env, brec_on_name, blps, brec_on_type, brec_on_value,
                                                         reducibility_hints::mk_abbreviation());

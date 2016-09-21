@@ -127,14 +127,14 @@ open prod
 
 attribute [instance]
 meta_definition prod.has_to_format {A : Type u} {B : Type v} [has_to_format A] [has_to_format B] : has_to_format (prod A B) :=
-has_to_format.mk (λ p, group (nest 1 (to_fmt "(" ++ to_fmt (pr1 p) ++ to_fmt "," ++ line ++ to_fmt (pr2 p) ++ to_fmt ")")))
+has_to_format.mk (λ p, group (nest 1 (to_fmt "(" ++ to_fmt (fst p) ++ to_fmt "," ++ line ++ to_fmt (snd p) ++ to_fmt ")")))
 
 open sigma
 
 attribute [instance]
 meta_definition sigma.has_to_format {A : Type u} {B : A → Type v} [has_to_format A] [s : ∀ x, has_to_format (B x)]
                                           : has_to_format (sigma B) :=
-has_to_format.mk (λ p, group (nest 1 (to_fmt "⟨"  ++ to_fmt (pr1 p) ++ to_fmt "," ++ line ++ to_fmt (pr2 p) ++ to_fmt "⟩")))
+has_to_format.mk (λ p, group (nest 1 (to_fmt "⟨"  ++ to_fmt (fst p) ++ to_fmt "," ++ line ++ to_fmt (snd p) ++ to_fmt "⟩")))
 
 open subtype
 

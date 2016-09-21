@@ -266,8 +266,8 @@ name const * g_pos_num_bit1 = nullptr;
 name const * g_pos_num_one = nullptr;
 name const * g_prod = nullptr;
 name const * g_prod_mk = nullptr;
-name const * g_prod_pr1 = nullptr;
-name const * g_prod_pr2 = nullptr;
+name const * g_prod_fst = nullptr;
+name const * g_prod_snd = nullptr;
 name const * g_propext = nullptr;
 name const * g_pexpr = nullptr;
 name const * g_pexpr_subst = nullptr;
@@ -301,8 +301,8 @@ name const * g_semiring = nullptr;
 name const * g_sigma = nullptr;
 name const * g_sigma_cases_on = nullptr;
 name const * g_sigma_mk = nullptr;
-name const * g_sigma_pr1 = nullptr;
-name const * g_sigma_pr2 = nullptr;
+name const * g_sigma_fst = nullptr;
+name const * g_sigma_snd = nullptr;
 name const * g_simp = nullptr;
 name const * g_simplifier_assoc_subst = nullptr;
 name const * g_simplifier_congr_bin_op = nullptr;
@@ -619,8 +619,8 @@ void initialize_constants() {
     g_pos_num_one = new name{"pos_num", "one"};
     g_prod = new name{"prod"};
     g_prod_mk = new name{"prod", "mk"};
-    g_prod_pr1 = new name{"prod", "pr1"};
-    g_prod_pr2 = new name{"prod", "pr2"};
+    g_prod_fst = new name{"prod", "fst"};
+    g_prod_snd = new name{"prod", "snd"};
     g_propext = new name{"propext"};
     g_pexpr = new name{"pexpr"};
     g_pexpr_subst = new name{"pexpr", "subst"};
@@ -654,8 +654,8 @@ void initialize_constants() {
     g_sigma = new name{"sigma"};
     g_sigma_cases_on = new name{"sigma", "cases_on"};
     g_sigma_mk = new name{"sigma", "mk"};
-    g_sigma_pr1 = new name{"sigma", "pr1"};
-    g_sigma_pr2 = new name{"sigma", "pr2"};
+    g_sigma_fst = new name{"sigma", "fst"};
+    g_sigma_snd = new name{"sigma", "snd"};
     g_simp = new name{"simp"};
     g_simplifier_assoc_subst = new name{"simplifier", "assoc_subst"};
     g_simplifier_congr_bin_op = new name{"simplifier", "congr_bin_op"};
@@ -973,8 +973,8 @@ void finalize_constants() {
     delete g_pos_num_one;
     delete g_prod;
     delete g_prod_mk;
-    delete g_prod_pr1;
-    delete g_prod_pr2;
+    delete g_prod_fst;
+    delete g_prod_snd;
     delete g_propext;
     delete g_pexpr;
     delete g_pexpr_subst;
@@ -1008,8 +1008,8 @@ void finalize_constants() {
     delete g_sigma;
     delete g_sigma_cases_on;
     delete g_sigma_mk;
-    delete g_sigma_pr1;
-    delete g_sigma_pr2;
+    delete g_sigma_fst;
+    delete g_sigma_snd;
     delete g_simp;
     delete g_simplifier_assoc_subst;
     delete g_simplifier_congr_bin_op;
@@ -1326,8 +1326,8 @@ name const & get_pos_num_bit1_name() { return *g_pos_num_bit1; }
 name const & get_pos_num_one_name() { return *g_pos_num_one; }
 name const & get_prod_name() { return *g_prod; }
 name const & get_prod_mk_name() { return *g_prod_mk; }
-name const & get_prod_pr1_name() { return *g_prod_pr1; }
-name const & get_prod_pr2_name() { return *g_prod_pr2; }
+name const & get_prod_fst_name() { return *g_prod_fst; }
+name const & get_prod_snd_name() { return *g_prod_snd; }
 name const & get_propext_name() { return *g_propext; }
 name const & get_pexpr_name() { return *g_pexpr; }
 name const & get_pexpr_subst_name() { return *g_pexpr_subst; }
@@ -1361,8 +1361,8 @@ name const & get_semiring_name() { return *g_semiring; }
 name const & get_sigma_name() { return *g_sigma; }
 name const & get_sigma_cases_on_name() { return *g_sigma_cases_on; }
 name const & get_sigma_mk_name() { return *g_sigma_mk; }
-name const & get_sigma_pr1_name() { return *g_sigma_pr1; }
-name const & get_sigma_pr2_name() { return *g_sigma_pr2; }
+name const & get_sigma_fst_name() { return *g_sigma_fst; }
+name const & get_sigma_snd_name() { return *g_sigma_snd; }
 name const & get_simp_name() { return *g_simp; }
 name const & get_simplifier_assoc_subst_name() { return *g_simplifier_assoc_subst; }
 name const & get_simplifier_congr_bin_op_name() { return *g_simplifier_congr_bin_op; }

@@ -416,9 +416,9 @@ struct structural_rec_fn {
             if (is_constant(fn, get_prod_name())) {
                 expr d_arg1 = m_ctx.whnf(app_arg(app_fn(d)));
                 expr d_arg2 = m_ctx.whnf(app_arg(d));
-                if (auto r = to_below(d_arg1, a, mk_pr1(m_ctx, F)))
+                if (auto r = to_below(d_arg1, a, mk_fst(m_ctx, F)))
                     return r;
-                else if (auto r = to_below(d_arg2, a, mk_pr2(m_ctx, F)))
+                else if (auto r = to_below(d_arg2, a, mk_snd(m_ctx, F)))
                     return r;
                 else
                     return none_expr();
@@ -657,11 +657,11 @@ struct structural_rec_fn {
             buffer<expr> args;
             expr const & fn = get_app_args(e, args);
             if (args.size() == 3) {
-                if (is_constant(fn, get_prod_pr1_name())) {
+                if (is_constant(fn, get_prod_fst_name())) {
                     bool r = is_F_instance(args[2], path);
                     path.push_back(1);
                     return r;
-                } else if (is_constant(fn, get_prod_pr2_name())) {
+                } else if (is_constant(fn, get_prod_snd_name())) {
                     bool r = is_F_instance(args[2], path);
                     path.push_back(2);
                     return r;
@@ -764,11 +764,11 @@ struct structural_rec_fn {
         virtual expr visit_app(expr const & e) {
             buffer<expr> args;
             expr const & fn = get_app_args(e, args);
-            if (is_constant(fn, get_prod_pr1_name()) && args.size() >= 3) {
+            if (is_constant(fn, get_prod_fst_name()) && args.size() >= 3) {
                 buffer<unsigned> path;
                 if (is_F_instance(args[2], path)) {
                     path.push_back(1);
-                    unsigned b_next_idx   = 3; /* pr1 A B F b_1 ... */
+                    unsigned b_next_idx   = 3; /* fst A B F b_1 ... */
                     expr rec_arg; unsigned rec_arg_arity;
                     std::tie(rec_arg, rec_arg_arity) = decode_rec_arg(path);
                     for (unsigned i = 0; i < rec_arg_arity; i++, b_next_idx++) {

@@ -88,7 +88,7 @@ section
         (λ xa aca (iHa : ∀ y, Ra y xa → acc (rev_lex Ra Rb) (mk y xb)),
           acc.intro (sigma.mk xa xb) (λ p (lt : p ≺ (sigma.mk xa xb)),
             have aux : xa = xa → xb = xb → acc (rev_lex Ra Rb) p, from
-              @rev_lex.rec_on A B Ra Rb (λ p₁ p₂, pr₁ p₂ = xa → pr₂ p₂ = xb → acc (rev_lex Ra Rb) p₁)
+              @rev_lex.rec_on A B Ra Rb (λ p₁ p₂, fst p₂ = xa → snd p₂ = xb → acc (rev_lex Ra Rb) p₁)
                               p (sigma.mk xa xb) lt
                (λ a₁ a₂ b (H : Ra a₁ a₂) (eq₂ : a₂ = xa) (eq₃ : b = xb),
                  show acc (rev_lex Ra Rb) (sigma.mk a₁ b), from

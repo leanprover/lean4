@@ -291,7 +291,7 @@ class erase_irrelevant_fn : public compiler_step_visitor {
               and the (monad.bind v b) is
 
                 fun S, let p := v S
-                       in b (pr1 p) (pr2 p)
+                       in b (fst p) (snd p)
 
               However, the State is a fiction. It is a unit at runtime.
               The IO a is a really just a thunk.

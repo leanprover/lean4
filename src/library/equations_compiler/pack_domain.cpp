@@ -38,8 +38,8 @@ struct sigma_packer_fn {
     expr mk_codomain(expr const & codomain, expr p, buffer<expr> const & locals, unsigned n) {
         buffer<expr> terms;
         for (unsigned i = 0; i < n - 1; i++) {
-            terms.push_back(mk_app(m_ctx, get_sigma_pr1_name(), p));
-            p = mk_app(m_ctx, get_sigma_pr2_name(), p);
+            terms.push_back(mk_app(m_ctx, get_sigma_fst_name(), p));
+            p = mk_app(m_ctx, get_sigma_snd_name(), p);
         }
         terms.push_back(p);
         return replace_locals(codomain, locals, terms);

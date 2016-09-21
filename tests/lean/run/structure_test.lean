@@ -17,7 +17,7 @@ section
   include E
    -- include Ha
 
-  structure point3d_color (B C : Type*) (D : B → Type*) extends point (foo A) B, sigma D renaming pr1→y pr2→w :=
+  structure point3d_color (B C : Type*) (D : B → Type*) extends point (foo A) B, sigma D renaming fst→y snd→w :=
   mk :: (c : color) (H : x == y)
 
   check point3d_color.c

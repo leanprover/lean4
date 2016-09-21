@@ -60,7 +60,7 @@ by do
   match (is_eq tgt) with
   | (some (lhs, rhs)) := do
     r ← flat op assoc lhs,
-    trace (prod.pr2 r),
-    exact (prod.pr2 r)
+    trace (prod.snd r),
+    exact (prod.snd r)
   | none            := failed
   end

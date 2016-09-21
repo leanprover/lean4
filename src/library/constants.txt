@@ -261,8 +261,8 @@ pos_num.bit1
 pos_num.one
 prod
 prod.mk
-prod.pr1
-prod.pr2
+prod.fst
+prod.snd
 propext
 pexpr
 pexpr.subst
@@ -296,8 +296,8 @@ semiring
 sigma
 sigma.cases_on
 sigma.mk
-sigma.pr1
-sigma.pr2
+sigma.fst
+sigma.snd
 simp
 simplifier.assoc_subst
 simplifier.congr_bin_op

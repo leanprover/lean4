@@ -63,7 +63,7 @@ class unfold_rec_fn : public replace_visitor_aux {
     virtual type_context & ctx() override { return m_ctx; }
 
     bool is_rec_building_part(name const & n) {
-        if (n == get_prod_pr1_name() || n == get_prod_pr2_name())
+        if (n == get_prod_fst_name() || n == get_prod_snd_name())
             return true;
         if (is_user_defined_recursor(m_env, n))
             return true;
@@ -151,7 +151,7 @@ class unfold_rec_fn : public replace_visitor_aux {
             return REC;
         buffer<expr> args;
         expr fn = get_app_args(e, args);
-        if (is_constant(fn) && const_name(fn) == get_prod_pr1_name() &&
+        if (is_constant(fn) && const_name(fn) == get_prod_fst_name() &&
             args.size() >= 3) {
             // try do detect brec_on pattern
             if (is_rec_app(args[2], locals, rec_name, indices_pos, main_arg_pos, rec_arg_pos) &&
@@ -252,7 +252,7 @@ class unfold_rec_fn : public replace_visitor_aux {
             return folded_app;
         }
 
-        expr fold_brec_pr1(expr const & e, buffer<expr> const & args) {
+        expr fold_brec_fst(expr const & e, buffer<expr> const & args) {
             return fold_brec_core(e, args, 3, 1);
         }
 
@@ -270,10 +270,10 @@ class unfold_rec_fn : public replace_visitor_aux {
                 else
                     return fold_rec(e, args);
             }
-            if (m_kind == BREC && is_constant(fn) && const_name(fn) == get_prod_pr1_name() && args.size() >= 3) {
+            if (m_kind == BREC && is_constant(fn) && const_name(fn) == get_prod_fst_name() && args.size() >= 3) {
                 expr rec_fn = get_app_fn(args[1]);
                 if (is_constant(rec_fn) && const_name(rec_fn) == m_rec_name)
-                    return fold_brec_pr1(e, args);
+                    return fold_brec_fst(e, args);
             }
             if (m_kind == BREC && is_constant(fn) && const_name(fn) == m_prod_rec_name && args.size() >= 5) {
                 expr rec_fn = get_app_fn(args[4]);

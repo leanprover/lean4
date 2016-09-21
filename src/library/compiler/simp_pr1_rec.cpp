@@ -47,7 +47,7 @@ class simp_pr1_rec_fn : public compiler_step_visitor {
 
         virtual expr visit_app(expr const & e) {
             expr const & f = get_app_fn(e);
-            if (is_constant(f) && const_name(f) == get_prod_pr1_name()) {
+            if (is_constant(f) && const_name(f) == get_prod_fst_name()) {
                 buffer<expr> args;
                 get_app_args(e, args);
                 if (args.size() >= 3 && is_rec_arg(args[2])) {
@@ -69,7 +69,7 @@ class simp_pr1_rec_fn : public compiler_step_visitor {
 
     optional<expr> simplify(expr const & e) {
         expr const & f = get_app_fn(e);
-        if (!is_constant(f) || const_name(f) != get_prod_pr1_name())
+        if (!is_constant(f) || const_name(f) != get_prod_fst_name())
             return none_expr();
         buffer<expr> args;
         get_app_args(e, args);
@@ -129,7 +129,7 @@ class simp_pr1_rec_fn : public compiler_step_visitor {
             //   1- For each local r in the context minor_ctx s.t. r is marked as recursive in minor_is_rec_arg,
             //      its type is of the form (prod A B). The new type will be just A.
             //   2- minor body is of the form (prod.mk A B c1 c2)
-            //   3- In c1, all occurrences of recursive arguments r are of the form (prod.pr1 A B r)
+            //   3- In c1, all occurrences of recursive arguments r are of the form (prod.fst A B r)
 
             // Step 1.
             for (unsigned k = 0; k < minor_ctx.size(); k++) {

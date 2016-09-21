@@ -60,7 +60,7 @@ private meta_definition format_key_data (k : key) (d : data) (first : bool) : fo
 attribute [instance]
 meta_definition rb_map_has_to_format : has_to_format (rb_map key data) :=
 has_to_format.mk (λ m,
-  group (to_fmt "⟨" ++ nest 1 (pr₁ (fold m (to_fmt "", tt) (λ k d p, (pr₁ p ++ format_key_data k d (pr₂ p), ff)))) ++
+  group (to_fmt "⟨" ++ nest 1 (fst (fold m (to_fmt "", tt) (λ k d p, (fst p ++ format_key_data k d (snd p), ff)))) ++
          to_fmt "⟩"))
 end
 
@@ -72,7 +72,7 @@ private meta_definition key_data_to_string (k : key) (d : data) (first : bool) :
 attribute [instance]
 meta_definition rb_map_has_to_string : has_to_string (rb_map key data) :=
 has_to_string.mk (λ m,
-  "⟨" ++ (pr₁ (fold m ("", tt) (λ k d p, (pr₁ p ++ key_data_to_string k d (pr₂ p), ff)))) ++ "⟩")
+  "⟨" ++ (fst (fold m ("", tt) (λ k d p, (fst p ++ key_data_to_string k d (snd p), ff)))) ++ "⟩")
 end
 
 /- a variant of rb_maps that stores a list of elements for each key.

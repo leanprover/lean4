@@ -33,7 +33,7 @@ inductive heq {A : Type u} (a : A) : Π {B : Type u}, B → Prop
 | refl : heq a
 
 structure prod (A : Type u) (B : Type v) :=
-(pr1 : A) (pr2 : B)
+(fst : A) (snd : B)
 
 inductive and (a b : Prop) : Prop
 | intro : a → b → and
@@ -71,7 +71,7 @@ definition or.intro_right (a : Prop) {b : Prop} (Hb : b) : or a b :=
 or.inr Hb
 
 structure sigma {A : Type u} (B : A → Type v) :=
-mk :: (pr1 : A) (pr2 : B pr1)
+mk :: (fst : A) (snd : B fst)
 
 -- pos_num and num are two auxiliary datatypes used when parsing numerals such as 13, 0, 26.
 -- The parser will generate the terms (pos (bit1 (bit1 (bit0 one)))), zero, and (pos (bit0 (bit1 (bit1 one)))).

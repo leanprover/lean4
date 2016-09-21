@@ -510,18 +510,18 @@ expr mk_pair(abstract_type_context & ctx, expr const & a, expr const & b) {
     return mk_app(mk_constant(get_prod_mk_name(), {l1, l2}), A, B, a, b);
 }
 
-expr mk_pr1(abstract_type_context & ctx, expr const & p) {
+expr mk_fst(abstract_type_context & ctx, expr const & p) {
     expr AxB = ctx.whnf(ctx.infer(p));
     expr const & A = app_arg(app_fn(AxB));
     expr const & B = app_arg(AxB);
-    return mk_app(mk_constant(get_prod_pr1_name(), const_levels(get_app_fn(AxB))), A, B, p);
+    return mk_app(mk_constant(get_prod_fst_name(), const_levels(get_app_fn(AxB))), A, B, p);
 }
 
-expr mk_pr2(abstract_type_context & ctx, expr const & p) {
+expr mk_snd(abstract_type_context & ctx, expr const & p) {
     expr AxB = ctx.whnf(ctx.infer(p));
     expr const & A = app_arg(app_fn(AxB));
     expr const & B = app_arg(AxB);
-    return mk_app(mk_constant(get_prod_pr2_name(), const_levels(get_app_fn(AxB))), A, B, p);
+    return mk_app(mk_constant(get_prod_snd_name(), const_levels(get_app_fn(AxB))), A, B, p);
 }
 
 expr mk_nat_zero() {
@@ -545,11 +545,11 @@ expr mk_prod(abstract_type_context & ctx, expr const & a, expr const & b, bool p
 expr mk_pair(abstract_type_context & ctx, expr const & a, expr const & b, bool prop) {
     return prop ? mk_and_intro(ctx, a, b) : mk_pair(ctx, a, b);
 }
-expr mk_pr1(abstract_type_context & ctx, expr const & p, bool prop) {
-    return prop ? mk_and_elim_left(ctx, p) : mk_pr1(ctx, p);
+expr mk_fst(abstract_type_context & ctx, expr const & p, bool prop) {
+    return prop ? mk_and_elim_left(ctx, p) : mk_fst(ctx, p);
 }
-expr mk_pr2(abstract_type_context & ctx, expr const & p, bool prop) {
-    return prop ? mk_and_elim_right(ctx, p) : mk_pr2(ctx, p);
+expr mk_snd(abstract_type_context & ctx, expr const & p, bool prop) {
+    return prop ? mk_and_elim_right(ctx, p) : mk_snd(ctx, p);
 }
 
 bool is_ite(expr const & e, expr & c, expr & H, expr & A, expr & t, expr & f) {

@@ -171,16 +171,16 @@ expr mk_unit_mk(level const & l);
 
 expr mk_prod(abstract_type_context & ctx, expr const & A, expr const & B);
 expr mk_pair(abstract_type_context & ctx, expr const & a, expr const & b);
-expr mk_pr1(abstract_type_context & ctx, expr const & p);
-expr mk_pr2(abstract_type_context & ctx, expr const & p);
+expr mk_fst(abstract_type_context & ctx, expr const & p);
+expr mk_snd(abstract_type_context & ctx, expr const & p);
 
 expr mk_unit(level const & l, bool prop);
 expr mk_unit_mk(level const & l, bool prop);
 
 expr mk_prod(abstract_type_context & ctx, expr const & a, expr const & b, bool prop);
 expr mk_pair(abstract_type_context & ctx, expr const & a, expr const & b, bool prop);
-expr mk_pr1(abstract_type_context & ctx, expr const & p, bool prop);
-expr mk_pr2(abstract_type_context & ctx, expr const & p, bool prop);
+expr mk_fst(abstract_type_context & ctx, expr const & p, bool prop);
+expr mk_snd(abstract_type_context & ctx, expr const & p, bool prop);
 
 expr mk_nat_zero();
 expr mk_nat_one();

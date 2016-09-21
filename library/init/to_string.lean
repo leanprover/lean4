@@ -49,12 +49,12 @@ definition sum.has_to_string {A : Type u} {B : Type v} [has_to_string A] [has_to
 
 attribute [instance]
 definition prod.has_to_string {A : Type u} {B : Type v} [has_to_string A] [has_to_string B] : has_to_string (A × B) :=
-⟨λ p, "(" ++ to_string (pr1 p) ++ ", " ++ to_string (pr2 p) ++ ")"⟩
+⟨λ p, "(" ++ to_string (fst p) ++ ", " ++ to_string (snd p) ++ ")"⟩
 
 attribute [instance]
 definition sigma.has_to_string {A : Type u} {B : A → Type v} [has_to_string A] [s : ∀ x, has_to_string (B x)]
                                           : has_to_string (sigma B) :=
-⟨λ p, "⟨"  ++ to_string (pr1 p) ++ ", " ++ to_string (pr2 p) ++ "⟩"⟩
+⟨λ p, "⟨"  ++ to_string (fst p) ++ ", " ++ to_string (snd p) ++ "⟩"⟩
 
 attribute [instance]
 definition subtype.has_to_string {A : Type u} {P : A → Prop} [has_to_string A] : has_to_string (subtype P) :=

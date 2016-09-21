@@ -12,6 +12,7 @@ attribute [instance]
 definition subtype_decidable_eq {A : Type u} {P : A → Prop} [decidable_eq A] : decidable_eq {x \ P x} :=
 by mk_dec_eq_instance
 
+set_option trace.app_builder true
 attribute [instance]
 definition list_decidable_eq {A : Type u} [decidable_eq A] : decidable_eq (list A) :=
 by mk_dec_eq_instance

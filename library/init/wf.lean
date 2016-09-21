@@ -210,7 +210,7 @@ namespace prod
           (iHb : ∀ y, Rb y xb → acc (lex Ra Rb) (xa, y)),
           acc.intro (xa, xb) (λ p (lt : p ≺ (xa, xb)),
             have aux : xa = xa → xb = xb → acc (lex Ra Rb) p, from
-              @prod.lex.rec_on A B Ra Rb (λ p₁ p₂, pr₁ p₂ = xa → pr₂ p₂ = xb → acc (lex Ra Rb) p₁)
+              @prod.lex.rec_on A B Ra Rb (λ p₁ p₂, fst p₂ = xa → snd p₂ = xb → acc (lex Ra Rb) p₁)
                                p (xa, xb) lt
                 (λ a₁ b₁ a₂ b₂ (H : Ra a₁ a₂) (eq₂ : a₂ = xa) (eq₃ : b₂ = xb),
                   show acc (lex Ra Rb) (a₁, b₁), from

@@ -15,12 +15,9 @@ lemma ex_of_sig {A : Type u} {P : A → Prop} : (Σ x, P x) → ∃ x, P x
 | ⟨x, hx⟩ := ⟨x, hx⟩
 
 namespace sigma
-  notation `pr₁`  := pr1
-  notation `pr₂`  := pr2
-
   namespace ops
-  postfix `.1`:(max+1) := pr1
-  postfix `.2`:(max+1) := pr2
+  postfix `.1`:(max+1) := fst
+  postfix `.2`:(max+1) := snd
   end ops
 
   open ops

@@ -89,23 +89,23 @@ static unsigned get_arity_of(parser & p, name const & op) {
 static calc_step join(parser & p, calc_step const & s1, calc_step const & s2, pos_info const & pos) {
     environment const & env = p.env();
     calc_pred const & pred1 = step_pred(s1);
-    expr const & pr1        = step_proof(s1);
+    expr const & fst        = step_proof(s1);
     calc_pred const & pred2 = step_pred(s2);
-    expr const & pr2        = step_proof(s2);
+    expr const & snd        = step_proof(s2);
     auto trans_it = get_trans_extra_info(env, pred_op(pred1), pred_op(pred2));
     if (trans_it) {
         expr trans    = mk_op_fn(p, trans_it->m_name, trans_it->m_num_args-5, pos);
-        expr trans_pr = p.mk_app({trans, pred_lhs(pred1), pred_rhs(pred1), pred_rhs(pred2), pr1, pr2}, pos);
+        expr trans_pr = p.mk_app({trans, pred_lhs(pred1), pred_rhs(pred1), pred_rhs(pred2), fst, snd}, pos);
         return calc_step(calc_pred(trans_it->m_res_relation, pred_lhs(pred1), pred_rhs(pred2)), trans_pr);
     } else if (pred_op(pred1) == get_eq_name()) {
         expr trans_right = mk_op_fn(p, get_trans_rel_right_name(), 1, pos);
         expr R           = mk_op_fn(p, pred_op(pred2), get_arity_of(p, pred_op(pred2))-2, pos);
-        expr trans_pr    = p.mk_app({trans_right, pred_lhs(pred1), pred_rhs(pred1), pred_rhs(pred2), R, pr1, pr2}, pos);
+        expr trans_pr    = p.mk_app({trans_right, pred_lhs(pred1), pred_rhs(pred1), pred_rhs(pred2), R, fst, snd}, pos);
         return calc_step(calc_pred(pred_op(pred2), pred_lhs(pred1), pred_rhs(pred2)), trans_pr);
     } else if (pred_op(pred2) == get_eq_name()) {
         expr trans_left = mk_op_fn(p, get_trans_rel_left_name(), 1, pos);
         expr R          = mk_op_fn(p, pred_op(pred1), get_arity_of(p, pred_op(pred1))-2, pos);
-        expr trans_pr   = p.mk_app({trans_left, pred_lhs(pred1), pred_rhs(pred1), pred_rhs(pred2), R, pr1, pr2}, pos);
+        expr trans_pr   = p.mk_app({trans_left, pred_lhs(pred1), pred_rhs(pred1), pred_rhs(pred2), R, fst, snd}, pos);
         return calc_step(calc_pred(pred_op(pred1), pred_lhs(pred1), pred_rhs(pred2)), trans_pr);
     } else {
         throw parser_error("invalid 'calc' expression, transitivity rule is not defined for current step", pos);

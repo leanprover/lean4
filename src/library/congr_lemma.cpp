@@ -306,7 +306,7 @@ struct congr_lemma_manager {
                 fn_type1  = whnf(instantiate(binding_body(fn_type1), lhs));
                 fn_type2  = whnf(instantiate(binding_body(fn_type2), rhs));
             }
-            expr pr1   = mk_app(simp_lemma->get_proof(), simp_lemma_args);
+            expr fst   = mk_app(simp_lemma->get_proof(), simp_lemma_args);
             expr type1 = simp_lemma->get_type();
             while (is_pi(type1))
                 type1 = binding_body(type1);
@@ -325,25 +325,25 @@ struct congr_lemma_manager {
             }
             if (i == kinds.size()) {
                 // rhs1 and rhs2 are definitionally equal
-                expr congr_proof = m_ctx.mk_lambda(hyps, pr1);
+                expr congr_proof = m_ctx.mk_lambda(hyps, fst);
                 return optional<result>(congr_type, congr_proof, to_list(kinds));
             }
             buffer<expr> rhss1;
             get_app_args_at_most(rhs1, rhss.size(), rhss1);
             lean_assert(rhss.size() == rhss1.size());
             expr a   = mk_app(fn, i, rhss1.data());
-            expr pr2 = mk_eq_refl(m_ctx, a);
+            expr snd = mk_eq_refl(m_ctx, a);
             for (; i < kinds.size(); i++) {
                 if (kinds[i] == congr_arg_kind::Cast && !pinfos[i].is_prop()) {
                     expr r1   = rhss1[i];
                     expr r2   = rhss[i];
                     expr r1_eq_r2 = mk_app(m_ctx, get_subsingleton_elim_name(), r1, r2);
-                    pr2 = ::lean::mk_congr(m_ctx, pr2, r1_eq_r2);
+                    snd = ::lean::mk_congr(m_ctx, snd, r1_eq_r2);
                 } else {
-                    pr2 = mk_congr_fun(m_ctx, pr2, rhss[i]);
+                    snd = mk_congr_fun(m_ctx, snd, rhss[i]);
                 }
             }
-            expr congr_proof = m_ctx.mk_lambda(hyps, mk_eq_trans(m_ctx, pr1, pr2));
+            expr congr_proof = m_ctx.mk_lambda(hyps, mk_eq_trans(m_ctx, fst, snd));
             return optional<result>(congr_type, congr_proof, to_list(kinds));
         } catch (app_builder_exception &) {
             trace_app_builder_failure(fn);

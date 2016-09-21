@@ -10,10 +10,8 @@ notation A × B := prod A B
 notation `(` h `, ` t:(foldr `, ` (e r, prod.mk e r)) `)` := prod.mk h t
 
 namespace prod
-  notation `pr₁` := pr1
-  notation `pr₂` := pr2
-  postfix `.1`:(max+1) := pr1
-  postfix `.2`:(max+1) := pr2
+  postfix `.1`:(max+1) := fst
+  postfix `.2`:(max+1) := snd
 
 end prod
 

@@ -2086,7 +2086,7 @@ bool type_context::is_productive(expr const & e) {
     /* TODO(Leo): make this more general.
        Right now we consider the following cases to be non-productive
        1)  (C.rec ...)   where rec is rec/rec_on/cases_on/brec_on
-       2)  (prod.pr1 A B (C.rec ...) ...)  where rec is rec/rec_on/cases_on/brec_on
+       2)  (prod.fst A B (C.rec ...) ...)  where rec is rec/rec_on/cases_on/brec_on
 
        Second case is a byproduct of the recursive equation compiler.
     */
@@ -2094,8 +2094,8 @@ bool type_context::is_productive(expr const & e) {
     if (!is_constant(f))
         return true;
     name const & n = const_name(f);
-    if (n == get_prod_pr1_name()) {
-        /* We use prod.pr1 when compiling recursive equations and brec_on.
+    if (n == get_prod_fst_name()) {
+        /* We use prod.fst when compiling recursive equations and brec_on.
            So, we should check whether the main argument of the projection
            is productive */
         buffer<expr> args;

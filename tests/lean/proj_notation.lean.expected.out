@@ -22,3 +22,6 @@ proj_notation.lean:40:18: error: invalid projection, expression is not a structu
   n
 has type
   ℕ
+myprod.fst p : ℕ
+myprod.snd p : ℕ
+λ (c : car), position.y (car.pos c) : car → ℕ

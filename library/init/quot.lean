@@ -7,7 +7,7 @@ Quotient types.
 -/
 prelude
 import init.sigma init.setoid init.logic
-open sigma.ops setoid
+open setoid
 
 universe variables u v
 

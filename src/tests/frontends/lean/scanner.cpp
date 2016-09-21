@@ -114,7 +114,6 @@ static void tst1() {
     scan_success("0.a a");
     scan_success("0.");
     scan_success("0..");
-    scan_success("0..1");
     scan_success("fun");
     scan_success("..");
     scan_success("....");
@@ -158,8 +157,6 @@ static void tst2() {
     check("{x}", {tk::Keyword, tk::Identifier, tk::Keyword});
     check("\u03BB \u2200 \u2192", {tk::Keyword, tk::Keyword, tk::Keyword});
     check_keyword("\u03BB", "fun");
-    scan("0..1");
-    check("0..1", {tk::Numeral, tk::Keyword, tk::Keyword, tk::Numeral});
     scan("theorem a : Prop axiom b : Int");
     check("theorem a : Prop axiom b : Int", {tk::CommandKeyword, tk::Identifier, tk::Keyword, tk::Identifier,
                 tk::CommandKeyword, tk::Identifier, tk::Keyword, tk::Identifier});

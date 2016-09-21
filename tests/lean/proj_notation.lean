@@ -38,3 +38,7 @@ check λ c : car, c↣0
 check λ c : car, c↣3
 
 check λ n : nat, n↣1
+
+check p.1
+check p.2
+check λ c : car, c.1.2

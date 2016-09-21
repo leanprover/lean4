@@ -9,12 +9,6 @@ notation A × B := prod A B
 -- notation for n-ary tuples
 notation `(` h `, ` t:(foldr `, ` (e r, prod.mk e r)) `)` := prod.mk h t
 
-namespace prod
-  postfix `.1`:(max+1) := fst
-  postfix `.2`:(max+1) := snd
-
-end prod
-
 universe variables u v
 
 attribute [instance]

@@ -20,7 +20,7 @@ end
 
 
 section
-  open ops well_founded tactic
+  open well_founded tactic
   parameters {A : Type u} {B : A → Type v}
   parameters {Ra  : A → A → Prop} {Rb : Π a : A, B a → B a → Prop}
   local infix `≺`:50 := lex Ra Rb
@@ -76,7 +76,7 @@ section
 end
 
 section
-  open ops well_founded tactic
+  open well_founded tactic
   parameters {A : Type u} {B : Type v}
   parameters {Ra  : A → A → Prop} {Rb : B → B → Prop}
   local infix `≺`:50 := rev_lex Ra Rb

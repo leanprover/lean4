@@ -15,13 +15,6 @@ lemma ex_of_sig {A : Type u} {P : A → Prop} : (Σ x, P x) → ∃ x, P x
 | ⟨x, hx⟩ := ⟨x, hx⟩
 
 namespace sigma
-  namespace ops
-  postfix `.1`:(max+1) := fst
-  postfix `.2`:(max+1) := snd
-  end ops
-
-  open ops
-
   variables {A : Type u} {B : A → Type v}
 
   protected theorem eq : ∀ {p₁ p₂ : Σ a : A, B a} (H₁ : p₁.1 = p₂.1), (eq.rec_on H₁ p₁.2 : B p₂.1) = p₂.2 → p₁ = p₂

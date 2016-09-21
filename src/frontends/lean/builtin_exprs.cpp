@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <string>
 #include "util/sexpr/option_declarations.h"
 #include "util/sstream.h"
 #include "kernel/abstract.h"
@@ -832,10 +833,47 @@ static expr parse_proj(parser & p, unsigned, expr const * args, pos_info const &
     }
 }
 
+static expr parse_proj1(parser & p, unsigned, expr const * args, pos_info const & pos) {
+    return p.save_pos(mk_proj_notation(args[0], 1), pos);
+}
+static expr parse_proj2(parser & p, unsigned, expr const * args, pos_info const & pos) {
+    return p.save_pos(mk_proj_notation(args[0], 2), pos);
+}
+static expr parse_proj3(parser & p, unsigned, expr const * args, pos_info const & pos) {
+    return p.save_pos(mk_proj_notation(args[0], 3), pos);
+}
+static expr parse_proj4(parser & p, unsigned, expr const * args, pos_info const & pos) {
+    return p.save_pos(mk_proj_notation(args[0], 4), pos);
+}
+static expr parse_proj5(parser & p, unsigned, expr const * args, pos_info const & pos) {
+    return p.save_pos(mk_proj_notation(args[0], 5), pos);
+}
+static expr parse_proj6(parser & p, unsigned, expr const * args, pos_info const & pos) {
+    return p.save_pos(mk_proj_notation(args[0], 6), pos);
+}
+static expr parse_proj7(parser & p, unsigned, expr const * args, pos_info const & pos) {
+    return p.save_pos(mk_proj_notation(args[0], 7), pos);
+}
+static expr parse_proj8(parser & p, unsigned, expr const * args, pos_info const & pos) {
+    return p.save_pos(mk_proj_notation(args[0], 8), pos);
+}
+static expr parse_proj9(parser & p, unsigned, expr const * args, pos_info const & pos) {
+    return p.save_pos(mk_proj_notation(args[0], 9), pos);
+}
+
 parse_table init_led_table() {
     parse_table r(false);
     r = r.add({transition("->", mk_expr_action(get_arrow_prec()-1))},    mk_arrow(Var(1), Var(1)));
     r = r.add({transition("~>", mk_ext_action(parse_proj))}, Var(0));
+    r = r.add({transition(".1", mk_ext_action(parse_proj1))}, Var(0));
+    r = r.add({transition(".2", mk_ext_action(parse_proj2))}, Var(0));
+    r = r.add({transition(".3", mk_ext_action(parse_proj3))}, Var(0));
+    r = r.add({transition(".4", mk_ext_action(parse_proj4))}, Var(0));
+    r = r.add({transition(".5", mk_ext_action(parse_proj5))}, Var(0));
+    r = r.add({transition(".6", mk_ext_action(parse_proj6))}, Var(0));
+    r = r.add({transition(".7", mk_ext_action(parse_proj7))}, Var(0));
+    r = r.add({transition(".8", mk_ext_action(parse_proj8))}, Var(0));
+    r = r.add({transition(".9", mk_ext_action(parse_proj9))}, Var(0));
     return r;
 }
 

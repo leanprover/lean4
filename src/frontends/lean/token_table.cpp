@@ -91,8 +91,11 @@ void init_token_table(token_table & t) {
          {".", 0}, {":", 0}, {"::", 0}, {"calc", 0}, {"as", 0}, {":=", 0}, {"--", 0}, {"#", 0},
          {"(*", 0}, {"/-", 0}, {"begin", g_max_prec}, {"abstract", g_max_prec},
          {"@@", g_max_prec}, {"@", g_max_prec},
-         {"sorry", g_max_prec}, {"+", g_plus_prec}, {"->", g_arrow_prec}, {"~>", g_max_prec+1}, {"<-", 0},
+         {"sorry", g_max_prec}, {"+", g_plus_prec}, {"->", g_arrow_prec}, {"<-", 0},
          {"?(", g_max_prec}, {"⌞", g_max_prec}, {"⌟", 0}, {"match", 0},
+         {"~>", g_max_prec+1},
+         {".1", g_max_prec+1}, {".2", g_max_prec+1}, {".3", g_max_prec+1}, {".4", g_max_prec+1}, {".5", g_max_prec+1}, {".6", g_max_prec+1},
+         {".7", g_max_prec+1}, {".8", g_max_prec+1}, {".9", g_max_prec+1},
          {"renaming", 0}, {"extends", 0}, {nullptr, 0}};
 
     char const * commands[] =

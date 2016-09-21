@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "library/quote.h"
 #include "library/string.h"
 #include "library/trace.h"
+#include "library/kernel_serializer.h"
 #include "library/tactic/elaborate.h"
 #include "library/equations_compiler/equations.h"
 #include "frontends/lean/builtin_exprs.h"
@@ -769,9 +770,66 @@ parse_table init_nud_table() {
     return r;
 }
 
+static name * g_projection_notation_name          = nullptr;
+static std::string * g_projection_notation_opcode = nullptr;
+
+[[ noreturn ]] static void throw_pn_ex() { throw exception("unexpected occurrence of 'projection notation' expression"); }
+
+class projection_notation_macro_cell : public macro_definition_cell {
+    name     m_field;
+    unsigned m_field_idx;
+public:
+    projection_notation_macro_cell(name const & f):m_field(f), m_field_idx(0) {}
+    projection_notation_macro_cell(unsigned fidx):m_field_idx(fidx) {}
+    virtual name get_name() const { return *g_projection_notation_name; }
+    virtual expr check_type(expr const &, abstract_type_context &, bool) const { throw_pn_ex(); }
+    virtual optional<expr> expand(expr const &, abstract_type_context &) const { throw_pn_ex(); }
+    virtual void write(serializer & s) const { s << *g_projection_notation_opcode << m_field << m_field_idx; }
+    bool is_anonymous() const { return m_field.is_anonymous(); }
+    name const & get_field_name() const { lean_assert(!is_anonymous()); return m_field; }
+    unsigned get_field_idx() const { lean_assert(is_anonymous()); return m_field_idx; }
+};
+
+static expr mk_proj_notation(expr const & e, name const & field) {
+    macro_definition def(new projection_notation_macro_cell(field));
+    return mk_macro(def, 1, &e);
+}
+
+static expr mk_proj_notation(expr const & e, unsigned fidx) {
+    macro_definition def(new projection_notation_macro_cell(fidx));
+    return mk_macro(def, 1, &e);
+}
+
+bool is_projection_notation(expr const & e) {
+    return is_macro(e) && macro_def(e).get_name() == *g_projection_notation_name;
+}
+
+bool is_anonymous_projection_notation(expr const & e) {
+    lean_assert(is_projection_notation(e));
+    return static_cast<projection_notation_macro_cell const*>(macro_def(e).raw())->is_anonymous();
+}
+
+name const & get_projection_notation_field_name(expr const & e) {
+    lean_assert(is_projection_notation(e));
+    return static_cast<projection_notation_macro_cell const*>(macro_def(e).raw())->get_field_name();
+}
+
+unsigned get_projection_notation_field_idx(expr const & e) {
+    lean_assert(is_projection_notation(e));
+    return static_cast<projection_notation_macro_cell const*>(macro_def(e).raw())->get_field_idx();
+}
+
 static expr parse_proj(parser & p, unsigned, expr const * args, pos_info const & pos) {
-    // TODO(Leo)
-    lean_unreachable();
+    if (p.curr_is_numeral()) {
+        pos_info num_pos = p.pos();
+        unsigned fidx = p.parse_small_nat();
+        if (fidx == 0)
+            throw parser_error("invalid projection, field index must be greater than 0", num_pos);
+        return p.save_pos(mk_proj_notation(args[0], fidx), pos);
+    } else {
+        name field = p.check_id_next("invalid projection, identifier or numeral expected");
+        return p.save_pos(mk_proj_notation(args[0], field), pos);
+    }
 }
 
 parse_table init_led_table() {
@@ -808,6 +866,20 @@ void initialize_builtin_exprs() {
 
     g_anonymous_constructor = new name("anonymous_constructor");
     register_annotation(*g_anonymous_constructor);
+
+    g_projection_notation_name   = new name("proj_notation");
+    g_projection_notation_opcode = new std::string("PrjN");
+    register_macro_deserializer(*g_projection_notation_opcode,
+                                [](deserializer & d, unsigned num, expr const * args) {
+                                    if (num != 1)
+                                        throw corrupted_stream_exception();
+                                    name fname; unsigned fidx;
+                                    d >> fname >> fidx;
+                                    if (fname.is_anonymous())
+                                        return mk_proj_notation(args[0], fidx);
+                                    else
+                                        return mk_proj_notation(args[0], fname);
+                                });
 }
 
 void finalize_builtin_exprs() {

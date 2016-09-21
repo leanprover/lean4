@@ -191,6 +191,7 @@ private:
     void check_inaccessible_annotations(expr const & lhs);
     expr visit_equation(expr const & eq);
     expr visit_inaccessible(expr const & e, optional<expr> const & expected_type);
+    expr visit_projection(expr const & e, optional<expr> const & expected_type);
     expr visit(expr const & e, optional<expr> const & expected_type);
 
     tactic_state mk_tactic_state_for(expr const & mvar);

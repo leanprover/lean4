@@ -41,6 +41,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/util.h"
 #include "frontends/lean/prenum.h"
 #include "frontends/lean/elaborator.h"
+#include "frontends/lean/structure_cmd.h"
 
 namespace lean {
 MK_THREAD_LOCAL_GET(type_context_cache_manager, get_tcm, true /* use binder information at infer_cache */);
@@ -1593,6 +1594,49 @@ expr elaborator::visit_inaccessible(expr const & e, optional<expr> const & expec
     return copy_tag(e, mk_inaccessible(m));
 }
 
+expr elaborator::visit_projection(expr const & e, optional<expr> const & expected_type) {
+    lean_assert(is_projection_notation(e));
+    expr s      = visit(macro_arg(e, 0), none_expr());
+    expr s_type = whnf(infer_type(s));
+    expr I      = get_app_fn(s_type);
+    if (!is_constant(I) || !is_structure(m_env, const_name(I))) {
+        auto pp_fn = mk_pp_ctx();
+        throw elaborator_exception(e, format("invalid projection, expression is not a structure") +
+                                   pp_indent(pp_fn, s) +
+                                   line() + format("has type") +
+                                   pp_indent(pp_fn, s_type));
+    }
+    buffer<name> fnames;
+    get_structure_fields(m_env, const_name(I), fnames);
+    name full_fname;
+    if (is_anonymous_projection_notation(e)) {
+        unsigned fidx = get_projection_notation_field_idx(e);
+        lean_assert(fidx > 0);
+        if (fidx > fnames.size()) {
+            auto pp_fn = mk_pp_ctx();
+            throw elaborator_exception(e, format("invalid projection, structure has only ") +
+                                       format(fnames.size()) + format(" field(s)") +
+                                       pp_indent(pp_fn, s) +
+                                       line() + format("which has type") +
+                                       pp_indent(pp_fn, s_type));
+        }
+        full_fname = fnames[fidx-1];
+    } else {
+        name fname  = get_projection_notation_field_name(e);
+        full_fname = const_name(I) + fname;
+        if (std::find(fnames.begin(), fnames.end(), full_fname) == fnames.end()) {
+            auto pp_fn = mk_pp_ctx();
+            throw elaborator_exception(e, format("invalid projection, '") + format(fname) + format("' is not a field of") +
+                                       pp_indent(pp_fn, s) +
+                                       line() + format("which has type") +
+                                       pp_indent(pp_fn, s_type));
+        }
+    }
+    expr proj  = copy_tag(e, mk_constant(full_fname));
+    expr new_e = copy_tag(e, mk_app(proj, copy_tag(e, mk_as_is(s))));
+    return visit(new_e, expected_type);
+}
+
 expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_type, bool is_app_fn) {
     if (is_as_is(e)) {
         return get_as_is_arg(e);
@@ -1614,6 +1658,8 @@ expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_typ
     } else if (is_equation(e)) {
         lean_assert(!is_app_fn);
         return visit_equation(e);
+    } else if (is_projection_notation(e)) {
+        return visit_projection(e, expected_type);
     } else if (is_inaccessible(e)) {
         if (is_app_fn)
             throw elaborator_exception(e, "invalid inaccessible term, function expected");

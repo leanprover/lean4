@@ -47,6 +47,7 @@ div
 id
 empty
 empty.rec
+empty_col
 Exists
 eq
 eq.drec
@@ -114,6 +115,7 @@ implies
 implies_of_if_neg
 implies_of_if_pos
 implies.resolve
+insert
 int
 int.of_nat
 int_has_zero
@@ -304,6 +306,7 @@ simplifier.congr_bin_op
 simplifier.congr_bin_arg1
 simplifier.congr_bin_arg2
 simplifier.congr_bin_args
+singleton
 sizeof
 smt.array
 smt.select
@@ -318,6 +321,7 @@ sub
 subsingleton
 subsingleton.elim
 subsingleton.helim
+subtype
 subtype.tag
 subtype.elt_of
 subtype.rec

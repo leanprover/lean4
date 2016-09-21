@@ -33,6 +33,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/nested_declaration.h"
 #include "frontends/lean/match_expr.h"
 #include "frontends/lean/decl_util.h"
+#include "frontends/lean/brackets.h"
 
 #ifndef LEAN_DEFAULT_PARSER_CHECKPOINT_HAVE
 #define LEAN_DEFAULT_PARSER_CHECKPOINT_HAVE true
@@ -750,6 +751,7 @@ parse_table init_nud_table() {
     r = r.add({transition("(", Expr), transition(")", mk_ext_action(parse_rparen))}, x0);
     r = r.add({transition("(", Expr), transition(":", Expr), transition(")", mk_ext_action(parse_typed_expr))}, x0);
     r = r.add({transition("⟨", mk_ext_action(parse_constructor))}, x0);
+    r = r.add({transition("{", mk_ext_action(parse_curly_bracket))}, x0);
     r = r.add({transition("`(", mk_ext_action(parse_quoted_expr))}, x0);
     r = r.add({transition("`", mk_ext_action(parse_quoted_name))}, x0);
     r = r.add({transition("%%", mk_ext_action(parse_antiquote_expr))}, x0);

@@ -1,6 +1,8 @@
 aliases      aliases
 period       .
 backtick     `
+backslash    \\
+fieldarrow   ~>
 placeholder  _
 colon        :
 semicolon    ;
@@ -31,6 +33,7 @@ slash        /
 plus         +
 star         *
 turnstile    ⊢
+membership   ∈
 explicit     @
 partial_explicit @@
 max          max

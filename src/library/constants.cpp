@@ -52,6 +52,7 @@ name const * g_div = nullptr;
 name const * g_id = nullptr;
 name const * g_empty = nullptr;
 name const * g_empty_rec = nullptr;
+name const * g_empty_col = nullptr;
 name const * g_Exists = nullptr;
 name const * g_eq = nullptr;
 name const * g_eq_drec = nullptr;
@@ -119,6 +120,7 @@ name const * g_implies = nullptr;
 name const * g_implies_of_if_neg = nullptr;
 name const * g_implies_of_if_pos = nullptr;
 name const * g_implies_resolve = nullptr;
+name const * g_insert = nullptr;
 name const * g_int = nullptr;
 name const * g_int_of_nat = nullptr;
 name const * g_int_has_zero = nullptr;
@@ -309,6 +311,7 @@ name const * g_simplifier_congr_bin_op = nullptr;
 name const * g_simplifier_congr_bin_arg1 = nullptr;
 name const * g_simplifier_congr_bin_arg2 = nullptr;
 name const * g_simplifier_congr_bin_args = nullptr;
+name const * g_singleton = nullptr;
 name const * g_sizeof = nullptr;
 name const * g_smt_array = nullptr;
 name const * g_smt_select = nullptr;
@@ -323,6 +326,7 @@ name const * g_sub = nullptr;
 name const * g_subsingleton = nullptr;
 name const * g_subsingleton_elim = nullptr;
 name const * g_subsingleton_helim = nullptr;
+name const * g_subtype = nullptr;
 name const * g_subtype_tag = nullptr;
 name const * g_subtype_elt_of = nullptr;
 name const * g_subtype_rec = nullptr;
@@ -405,6 +409,7 @@ void initialize_constants() {
     g_id = new name{"id"};
     g_empty = new name{"empty"};
     g_empty_rec = new name{"empty", "rec"};
+    g_empty_col = new name{"empty_col"};
     g_Exists = new name{"Exists"};
     g_eq = new name{"eq"};
     g_eq_drec = new name{"eq", "drec"};
@@ -472,6 +477,7 @@ void initialize_constants() {
     g_implies_of_if_neg = new name{"implies_of_if_neg"};
     g_implies_of_if_pos = new name{"implies_of_if_pos"};
     g_implies_resolve = new name{"implies", "resolve"};
+    g_insert = new name{"insert"};
     g_int = new name{"int"};
     g_int_of_nat = new name{"int", "of_nat"};
     g_int_has_zero = new name{"int_has_zero"};
@@ -662,6 +668,7 @@ void initialize_constants() {
     g_simplifier_congr_bin_arg1 = new name{"simplifier", "congr_bin_arg1"};
     g_simplifier_congr_bin_arg2 = new name{"simplifier", "congr_bin_arg2"};
     g_simplifier_congr_bin_args = new name{"simplifier", "congr_bin_args"};
+    g_singleton = new name{"singleton"};
     g_sizeof = new name{"sizeof"};
     g_smt_array = new name{"smt", "array"};
     g_smt_select = new name{"smt", "select"};
@@ -676,6 +683,7 @@ void initialize_constants() {
     g_subsingleton = new name{"subsingleton"};
     g_subsingleton_elim = new name{"subsingleton", "elim"};
     g_subsingleton_helim = new name{"subsingleton", "helim"};
+    g_subtype = new name{"subtype"};
     g_subtype_tag = new name{"subtype", "tag"};
     g_subtype_elt_of = new name{"subtype", "elt_of"};
     g_subtype_rec = new name{"subtype", "rec"};
@@ -759,6 +767,7 @@ void finalize_constants() {
     delete g_id;
     delete g_empty;
     delete g_empty_rec;
+    delete g_empty_col;
     delete g_Exists;
     delete g_eq;
     delete g_eq_drec;
@@ -826,6 +835,7 @@ void finalize_constants() {
     delete g_implies_of_if_neg;
     delete g_implies_of_if_pos;
     delete g_implies_resolve;
+    delete g_insert;
     delete g_int;
     delete g_int_of_nat;
     delete g_int_has_zero;
@@ -1016,6 +1026,7 @@ void finalize_constants() {
     delete g_simplifier_congr_bin_arg1;
     delete g_simplifier_congr_bin_arg2;
     delete g_simplifier_congr_bin_args;
+    delete g_singleton;
     delete g_sizeof;
     delete g_smt_array;
     delete g_smt_select;
@@ -1030,6 +1041,7 @@ void finalize_constants() {
     delete g_subsingleton;
     delete g_subsingleton_elim;
     delete g_subsingleton_helim;
+    delete g_subtype;
     delete g_subtype_tag;
     delete g_subtype_elt_of;
     delete g_subtype_rec;
@@ -1112,6 +1124,7 @@ name const & get_div_name() { return *g_div; }
 name const & get_id_name() { return *g_id; }
 name const & get_empty_name() { return *g_empty; }
 name const & get_empty_rec_name() { return *g_empty_rec; }
+name const & get_empty_col_name() { return *g_empty_col; }
 name const & get_Exists_name() { return *g_Exists; }
 name const & get_eq_name() { return *g_eq; }
 name const & get_eq_drec_name() { return *g_eq_drec; }
@@ -1179,6 +1192,7 @@ name const & get_implies_name() { return *g_implies; }
 name const & get_implies_of_if_neg_name() { return *g_implies_of_if_neg; }
 name const & get_implies_of_if_pos_name() { return *g_implies_of_if_pos; }
 name const & get_implies_resolve_name() { return *g_implies_resolve; }
+name const & get_insert_name() { return *g_insert; }
 name const & get_int_name() { return *g_int; }
 name const & get_int_of_nat_name() { return *g_int_of_nat; }
 name const & get_int_has_zero_name() { return *g_int_has_zero; }
@@ -1369,6 +1383,7 @@ name const & get_simplifier_congr_bin_op_name() { return *g_simplifier_congr_bin
 name const & get_simplifier_congr_bin_arg1_name() { return *g_simplifier_congr_bin_arg1; }
 name const & get_simplifier_congr_bin_arg2_name() { return *g_simplifier_congr_bin_arg2; }
 name const & get_simplifier_congr_bin_args_name() { return *g_simplifier_congr_bin_args; }
+name const & get_singleton_name() { return *g_singleton; }
 name const & get_sizeof_name() { return *g_sizeof; }
 name const & get_smt_array_name() { return *g_smt_array; }
 name const & get_smt_select_name() { return *g_smt_select; }
@@ -1383,6 +1398,7 @@ name const & get_sub_name() { return *g_sub; }
 name const & get_subsingleton_name() { return *g_subsingleton; }
 name const & get_subsingleton_elim_name() { return *g_subsingleton_elim; }
 name const & get_subsingleton_helim_name() { return *g_subsingleton_helim; }
+name const & get_subtype_name() { return *g_subtype; }
 name const & get_subtype_tag_name() { return *g_subtype_tag; }
 name const & get_subtype_elt_of_name() { return *g_subtype_elt_of; }
 name const & get_subtype_rec_name() { return *g_subtype_rec; }

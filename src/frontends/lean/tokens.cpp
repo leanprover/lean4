@@ -6,6 +6,8 @@ namespace lean{
 static name const * g_aliases_tk = nullptr;
 static name const * g_period_tk = nullptr;
 static name const * g_backtick_tk = nullptr;
+static name const * g_backslash_tk = nullptr;
+static name const * g_fieldarrow_tk = nullptr;
 static name const * g_placeholder_tk = nullptr;
 static name const * g_colon_tk = nullptr;
 static name const * g_semicolon_tk = nullptr;
@@ -36,6 +38,7 @@ static name const * g_slash_tk = nullptr;
 static name const * g_plus_tk = nullptr;
 static name const * g_star_tk = nullptr;
 static name const * g_turnstile_tk = nullptr;
+static name const * g_membership_tk = nullptr;
 static name const * g_explicit_tk = nullptr;
 static name const * g_partial_explicit_tk = nullptr;
 static name const * g_max_tk = nullptr;
@@ -124,6 +127,8 @@ void initialize_tokens() {
     g_aliases_tk = new name{"aliases"};
     g_period_tk = new name{"."};
     g_backtick_tk = new name{"`"};
+    g_backslash_tk = new name{"\\"};
+    g_fieldarrow_tk = new name{"~>"};
     g_placeholder_tk = new name{"_"};
     g_colon_tk = new name{":"};
     g_semicolon_tk = new name{";"};
@@ -154,6 +159,7 @@ void initialize_tokens() {
     g_plus_tk = new name{"+"};
     g_star_tk = new name{"*"};
     g_turnstile_tk = new name{"⊢"};
+    g_membership_tk = new name{"∈"};
     g_explicit_tk = new name{"@"};
     g_partial_explicit_tk = new name{"@@"};
     g_max_tk = new name{"max"};
@@ -243,6 +249,8 @@ void finalize_tokens() {
     delete g_aliases_tk;
     delete g_period_tk;
     delete g_backtick_tk;
+    delete g_backslash_tk;
+    delete g_fieldarrow_tk;
     delete g_placeholder_tk;
     delete g_colon_tk;
     delete g_semicolon_tk;
@@ -273,6 +281,7 @@ void finalize_tokens() {
     delete g_plus_tk;
     delete g_star_tk;
     delete g_turnstile_tk;
+    delete g_membership_tk;
     delete g_explicit_tk;
     delete g_partial_explicit_tk;
     delete g_max_tk;
@@ -361,6 +370,8 @@ void finalize_tokens() {
 name const & get_aliases_tk() { return *g_aliases_tk; }
 name const & get_period_tk() { return *g_period_tk; }
 name const & get_backtick_tk() { return *g_backtick_tk; }
+name const & get_backslash_tk() { return *g_backslash_tk; }
+name const & get_fieldarrow_tk() { return *g_fieldarrow_tk; }
 name const & get_placeholder_tk() { return *g_placeholder_tk; }
 name const & get_colon_tk() { return *g_colon_tk; }
 name const & get_semicolon_tk() { return *g_semicolon_tk; }
@@ -391,6 +402,7 @@ name const & get_slash_tk() { return *g_slash_tk; }
 name const & get_plus_tk() { return *g_plus_tk; }
 name const & get_star_tk() { return *g_star_tk; }
 name const & get_turnstile_tk() { return *g_turnstile_tk; }
+name const & get_membership_tk() { return *g_membership_tk; }
 name const & get_explicit_tk() { return *g_explicit_tk; }
 name const & get_partial_explicit_tk() { return *g_partial_explicit_tk; }
 name const & get_max_tk() { return *g_max_tk; }

@@ -1456,6 +1456,60 @@ auto pretty_fn::pp_proof_type(expr const & t) -> result {
     return result(group(nest(1, li + pp(t).fmt() + ri)));
 }
 
+static bool is_subtype(expr const & e) {
+    return
+        is_constant(get_app_fn(e), get_subtype_name()) &&
+        get_app_num_args(e) == 2 &&
+        is_lambda(app_arg(e));
+}
+
+auto pretty_fn::pp_subtype(expr const & e) -> result {
+    lean_assert(is_subtype(e));
+    expr pred = app_arg(e);
+    lean_assert(is_lambda(pred));
+    auto p     = binding_body_fresh(pred, true);
+    expr body  = p.first;
+    expr local = p.second;
+    format r   = bracket("{", format(local_pp_name(local)) + space() + format("\\") + space() + pp_child(body, 0).fmt(), "}");
+    return result(r);
+}
+
+static bool is_singleton(expr const & e) {
+    return
+        is_constant(get_app_fn(e), get_singleton_name()) &&
+        get_app_num_args(e) == 4;
+}
+
+static bool is_insert(expr const & e) {
+    return
+        is_constant(get_app_fn(e), get_insert_name()) &&
+        get_app_num_args(e) == 5;
+}
+
+/* Return true iff 'e' encodes a nonempty finite collection,
+   and stores its elements at elems. */
+static bool is_explicit_collection(expr const & e, buffer<expr> & elems) {
+    if (is_singleton(e)) {
+        elems.push_back(app_arg(e));
+        return true;
+    } else if (is_insert(e) && is_explicit_collection(app_arg(e), elems)) {
+        elems.push_back(app_arg(app_fn(e)));
+        return true;
+    } else {
+        return false;
+    }
+}
+
+auto pretty_fn::pp_explicit_collection(buffer<expr> const & elems) -> result {
+    lean_assert(!elems.empty());
+    format r = pp_child(elems[0], 0).fmt();
+    for (unsigned i = 1; i < elems.size(); i++) {
+        r += nest(m_indent, comma() + line() + pp_child(elems[i], 0).fmt());
+    }
+    r = group(bracket("{", r, "}"));
+    return result(r);
+}
+
 auto pretty_fn::pp(expr const & e, bool ignore_hide) -> result {
     check_system("pretty printer");
     if ((m_depth >= m_max_depth ||
@@ -1480,6 +1534,14 @@ auto pretty_fn::pp(expr const & e, bool ignore_hide) -> result {
 
     if (auto r = pp_notation(e))
         return *r;
+
+    if (m_notation) {
+        if (is_subtype(e))
+            return pp_subtype(e);
+        buffer<expr> elems;
+        if (is_explicit_collection(e, elems))
+            return pp_explicit_collection(elems);
+    }
 
     if (is_placeholder(e))  return result(*g_placeholder_fmt);
     if (is_show(e))         return pp_show(e);

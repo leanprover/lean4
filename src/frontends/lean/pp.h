@@ -114,6 +114,8 @@ private:
     result pp_hide_coercion_fn(expr const & e, unsigned bp, bool ignore_hide = false);
     result pp_child_core(expr const & e, unsigned bp, bool ignore_hide = false);
     result pp_child(expr const & e, unsigned bp, bool ignore_hide = false);
+    result pp_subtype(expr const & e);
+    result pp_explicit_collection(buffer<expr> const & elems);
     result pp_var(expr const & e);
     result pp_sort(expr const & e);
     result pp_const(expr const & e, optional<unsigned> const & num_ref_univs = optional<unsigned>());

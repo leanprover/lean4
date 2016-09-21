@@ -1,1 +1,0 @@
-print [no_pattern]

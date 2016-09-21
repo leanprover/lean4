@@ -1,3 +1,0 @@
-attribute [forward]
-definition Sum_weird : ∀ (f g h : ℕ → ℕ) (n : ℕ), Sum n (λ (x : ℕ), f (g (h x))) = 1 :=
-λ (f g h : ℕ → ℕ) (n : ℕ), sorry

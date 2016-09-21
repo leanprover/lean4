@@ -63,7 +63,7 @@ definition set_has_neg : has_neg (set A) :=
 ⟨compl⟩
 
 definition diff (s t : set A) : set A :=
-λ a, a ∈ s ∧ a ∉ t
+{a ∈ s | a ∉ t}
 infix `\`:70 := diff
 
 definition powerset (s : set A) : set (set A) :=

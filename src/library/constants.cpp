@@ -298,6 +298,7 @@ name const * g_real_to_int = nullptr;
 name const * g_rfl = nullptr;
 name const * g_right_distrib = nullptr;
 name const * g_ring = nullptr;
+name const * g_sep = nullptr;
 name const * g_select = nullptr;
 name const * g_semiring = nullptr;
 name const * g_sigma = nullptr;
@@ -655,6 +656,7 @@ void initialize_constants() {
     g_rfl = new name{"rfl"};
     g_right_distrib = new name{"right_distrib"};
     g_ring = new name{"ring"};
+    g_sep = new name{"sep"};
     g_select = new name{"select"};
     g_semiring = new name{"semiring"};
     g_sigma = new name{"sigma"};
@@ -1013,6 +1015,7 @@ void finalize_constants() {
     delete g_rfl;
     delete g_right_distrib;
     delete g_ring;
+    delete g_sep;
     delete g_select;
     delete g_semiring;
     delete g_sigma;
@@ -1370,6 +1373,7 @@ name const & get_real_to_int_name() { return *g_real_to_int; }
 name const & get_rfl_name() { return *g_rfl; }
 name const & get_right_distrib_name() { return *g_right_distrib; }
 name const & get_ring_name() { return *g_ring; }
+name const & get_sep_name() { return *g_sep; }
 name const & get_select_name() { return *g_select; }
 name const & get_semiring_name() { return *g_semiring; }
 name const & get_sigma_name() { return *g_sigma; }

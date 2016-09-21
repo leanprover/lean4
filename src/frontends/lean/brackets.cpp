@@ -48,6 +48,24 @@ static expr parse_insertable(parser & p, pos_info const & pos, expr const & e) {
     return r;
 }
 
+/* Parse rest of the sep expression '{' id '∈' ... */
+static expr parse_sep(parser & p, pos_info const & pos, name const & id) {
+    expr s = p.parse_expr();
+    p.check_token_next(get_bar_tk(), "invalid sep expression, '|' expected");
+    parser::local_scope scope(p);
+    expr local = p.save_pos(mk_local(id, p.save_pos(mk_expr_placeholder(), pos)), pos);
+    p.add_local(local);
+    expr pred  = p.parse_expr();
+    p.check_token_next(get_rcurly_tk(), "invalid sep expression, '}' expected");
+    pred   = Fun(local, pred);
+    return p.rec_save_pos(mk_app(mk_constant(get_sep_name()), pred, s), pos);
+}
+
+/* Parse rest of the monadic comprehension expression '{' expr '|' ... */
+static expr parse_monadic_comprehension(parser & p, pos_info const & pos, expr const & e) {
+    throw parser_error("monadic comprehension was not implemented yet", pos);
+}
+
 /* Parse rest of the qualified structure instance prefix '{' S '.' ... */
 static expr parse_qualified_structure_instance(parser & p, pos_info const & pos, name const & S) {
     throw parser_error("qualified strucuture instance was not implemented yet", pos);
@@ -61,16 +79,6 @@ static expr parse_structure_instance(parser & p, pos_info const & pos, name cons
 /* Parse rest of the structure instance update '{' expr 'with' ... */
 static expr parse_structure_instance_update(parser & p, pos_info const & pos, expr const & e) {
     throw parser_error("strucuture instance update was not implemented yet", pos);
-}
-
-/* Parse rest of the monadic comprehension expression '{' expr '|' ... */
-static expr parse_monadic_comprehension(parser & p, pos_info const & pos, expr const & e) {
-    throw parser_error("monadic comprehension was not implemented yet", pos);
-}
-
-/* Parse rest of the sep expression '{' id '∈' ... */
-static expr parse_sep(parser & p, pos_info const & pos, name const & id) {
-    throw parser_error("sep was not implemented yet", pos);
 }
 
 expr parse_curly_bracket(parser & p, unsigned, expr const *, pos_info const & pos) {
@@ -98,7 +106,7 @@ expr parse_curly_bracket(parser & p, unsigned, expr const *, pos_info const & po
             return parse_qualified_structure_instance(p, pos, id);
         } else if (p.curr_is_token(get_assign_tk()) || p.curr_is_token(get_fieldarrow_tk())) {
             return parse_structure_instance(p, pos, id);
-        } else if (p.curr_is_token(get_membership_tk())) {
+        } else if (p.curr_is_token(get_membership_tk()) || p.curr_is_token(get_in_tk())) {
             p.next();
             return parse_sep(p, pos, id);
         } else {

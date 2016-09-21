@@ -10,3 +10,8 @@ print s2
 
 definition s3 : set string := {"hello", "world"}
 print s3
+
+check { a ∈ s1 | a > 1 }
+check { a in s1 | a > 1 }
+set_option pp.unicode false
+check { a ∈ s1 | a > 2 }

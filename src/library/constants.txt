@@ -293,6 +293,7 @@ real.to_int
 rfl
 right_distrib
 ring
+sep
 select
 semiring
 sigma

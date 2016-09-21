@@ -1510,6 +1510,29 @@ auto pretty_fn::pp_explicit_collection(buffer<expr> const & elems) -> result {
     return result(r);
 }
 
+static bool is_sep(expr const & e) {
+    return
+        is_constant(get_app_fn(e), get_sep_name()) &&
+        get_app_num_args(e) == 5 &&
+        is_lambda(app_arg(app_fn(e)));
+}
+
+auto pretty_fn::pp_sep(expr const & e) -> result {
+    lean_assert(is_sep(e));
+    expr s    = app_arg(e);
+    expr pred = app_arg(app_fn(e));
+    lean_assert(is_lambda(pred));
+    auto p     = binding_body_fresh(pred, true);
+    expr body  = p.first;
+    expr local = p.second;
+    format in  = format(m_unicode ? "∈" : "in");
+    format r   = bracket("{",
+                         format(local_pp_name(local)) + space() + in + space() +
+                         pp_child(s, 0).fmt() + space() + format("|") + space() +
+                         pp_child(body, 0).fmt(), "}");
+    return result(r);
+}
+
 auto pretty_fn::pp(expr const & e, bool ignore_hide) -> result {
     check_system("pretty printer");
     if ((m_depth >= m_max_depth ||
@@ -1538,6 +1561,8 @@ auto pretty_fn::pp(expr const & e, bool ignore_hide) -> result {
     if (m_notation) {
         if (is_subtype(e))
             return pp_subtype(e);
+        if (is_sep(e))
+            return pp_sep(e);
         buffer<expr> elems;
         if (is_explicit_collection(e, elems))
             return pp_explicit_collection(elems);

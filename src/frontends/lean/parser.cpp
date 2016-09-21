@@ -1718,6 +1718,13 @@ expr parser::parse_pattern_or_expr(unsigned rbp) {
     return parse_expr(rbp);
 }
 
+expr parser::parse_pattern(std::function<expr(parser &)> const & fn, buffer<expr> & new_locals) {
+    all_id_local_scope scope(*this);
+    flet<bool> set_in_pattern(m_in_pattern, true);
+    expr r = fn(*this);
+    return patexpr_to_pattern(r, false, new_locals);
+}
+
 expr parser::patexpr_to_expr(expr const & pat_or_expr) {
     error_if_undef_scope scope(*this);
     return replace(pat_or_expr, [&](expr const & e, unsigned) {

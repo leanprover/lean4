@@ -117,9 +117,6 @@ inductive nat
 
 /- Declare builtin and reserved notation -/
 
-notation `assume` binders `,` r:(scoped f, f) := r
-notation `take`   binders `,` r:(scoped f, f) := r
-
 structure [class] has_zero   (A : Type u) := (zero : A)
 structure [class] has_one    (A : Type u) := (one : A)
 structure [class] has_add    (A : Type u) := (add : A → A → A)

@@ -46,7 +46,7 @@ definition implies.resolve {a b : Prop} (H : a → b) (nb : ¬ b) : ¬ a := assu
 /- not -/
 
 theorem not_false : ¬false :=
-assume H : false, H
+assume h : false, h
 
 definition non_contradictory (a : Prop) : Prop := ¬¬a
 
@@ -253,7 +253,7 @@ theorem and.elim (H₁ : a ∧ b) (H₂ : a → b → c) : c :=
 and.rec H₂ H₁
 
 theorem and.swap : a ∧ b → b ∧ a :=
-λ h, and.rec (λHa Hb, and.intro Hb Ha) h
+assume ⟨ha, hb⟩, ⟨hb, ha⟩
 
 /- or -/
 
@@ -420,17 +420,17 @@ theorem false_of_true_iff_false : (true ↔ false) → false :=
 assume H, iff.mp H trivial
 
 /- and simp rules -/
-theorem and.imp (H₂ : a → c) (H₃ : b → d) : a ∧ b → c ∧ d :=
-λ h, and.rec (λ Ha Hb, ⟨H₂ Ha, H₃ Hb⟩) h
+theorem and.imp (hac : a → c) (hbd : b → d) : a ∧ b → c ∧ d :=
+assume ⟨ha, hb⟩, ⟨hac ha, hbd hb⟩
 
 attribute [congr]
 theorem and_congr (H1 : a ↔ c) (H2 : b ↔ d) : (a ∧ b) ↔ (c ∧ d) :=
 iff.intro (and.imp (iff.mp H1) (iff.mp H2)) (and.imp (iff.mpr H1) (iff.mpr H2))
 
-theorem and_congr_right (H : a → (b ↔ c)) : (a ∧ b) ↔ (a ∧ c) :=
+theorem and_congr_right (h : a → (b ↔ c)) : (a ∧ b) ↔ (a ∧ c) :=
 iff.intro
-  (take Hab, ⟨and.left Hab, iff.elim_left (H (and.left Hab)) (and.right Hab)⟩)
-  (take Hac, ⟨and.left Hac, iff.elim_right (H (and.left Hac)) (and.right Hac)⟩)
+  (assume ⟨ha, hb⟩, ⟨ha, iff.elim_left (h ha) hb⟩)
+  (assume ⟨ha, hc⟩, ⟨ha, iff.elim_right (h ha) hc⟩)
 
 attribute [simp]
 theorem and.comm : a ∧ b ↔ b ∧ a :=
@@ -439,8 +439,8 @@ iff.intro and.swap and.swap
 attribute [simp]
 theorem and.assoc : (a ∧ b) ∧ c ↔ a ∧ (b ∧ c) :=
 iff.intro
-  (λ h, and.rec (λ H' Hc, and.rec (λ Ha Hb, ⟨Ha, Hb, Hc⟩) H') h)
-  (λ h, and.rec (λ Ha Hbc, and.rec (λ Hb Hc, ⟨⟨Ha, Hb⟩, Hc⟩) Hbc) h)
+  (assume ⟨⟨ha, hb⟩, hc⟩, ⟨ha, ⟨hb, hc⟩⟩)
+  (assume ⟨ha, ⟨hb, hc⟩⟩, ⟨⟨ha, hb⟩, hc⟩)
 
 attribute [simp]
 theorem and.left_comm : a ∧ (b ∧ c) ↔ b ∧ (a ∧ c) :=
@@ -474,11 +474,11 @@ iff_false_intro (λ H, and.elim H (λ H₁ H₂, absurd H₂ H₁))
 
 attribute [simp]
 theorem and_not_self (a : Prop) : (a ∧ ¬a) ↔ false :=
-iff_false_intro (λ H, and.elim H (λ H₁ H₂, absurd H₁ H₂))
+iff_false_intro (assume ⟨h₁, h₂⟩, absurd h₁ h₂)
 
 attribute [simp]
 theorem and_self (a : Prop) : a ∧ a ↔ a :=
-iff.intro and.left (assume H, ⟨H, H⟩)
+iff.intro and.left (assume h, ⟨h, h⟩)
 
 /- or simp rules -/
 

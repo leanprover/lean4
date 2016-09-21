@@ -384,6 +384,8 @@ public:
     expr parse_pattern(buffer<expr> & new_locals, unsigned rbp = 0) {
         return patexpr_to_pattern(parse_pattern_or_expr(rbp), false, new_locals);
     }
+    /* \brief Set pattern mode, and invoke fn. The new locals are stored in new_locals */
+    expr parse_pattern(std::function<expr(parser &)> const & fn, buffer<expr> & new_locals);
 
     expr parse_id();
 

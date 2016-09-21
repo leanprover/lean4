@@ -654,7 +654,7 @@ expr const & get_anonymous_constructor_arg(expr const & e) {
     return get_annotation_arg(e);
 }
 
-static expr parse_constructor(parser & p, unsigned, expr const *, pos_info const & pos) {
+static expr parse_constructor_core(parser & p, pos_info const & pos) {
     buffer<expr> args;
     while (!p.curr_is_token(get_rangle_tk())) {
         args.push_back(p.parse_expr());
@@ -667,6 +667,69 @@ static expr parse_constructor(parser & p, unsigned, expr const *, pos_info const
     p.check_token_next(get_rangle_tk(), "invalid constructor, `⟩` expected");
     expr fn = p.save_pos(mk_expr_placeholder(), pos);
     return p.save_pos(mk_anonymous_constructor(p.save_pos(mk_app(fn, args), pos)), pos);
+}
+
+static expr parse_constructor(parser & p, unsigned, expr const *, pos_info const & pos) {
+    return parse_constructor_core(p, pos);
+}
+
+static expr parse_lambda_core(parser & p, pos_info const & pos);
+
+static expr parse_lambda_binder(parser & p, pos_info const & pos) {
+    parser::local_scope scope1(p);
+    buffer<expr> locals;
+    auto new_env = p.parse_binders(locals, 0);
+    for (expr const & local : locals)
+        p.add_local(local);
+    parser::local_scope scope2(p, new_env);
+    expr body;
+    if (p.curr_is_token(get_comma_tk())) {
+        p.next();
+        body = p.parse_expr();
+    } else if (p.curr_is_token(get_langle_tk())) {
+        body = parse_lambda_core(p, pos);
+    } else {
+        throw parser_error("invalid lambda expression, ',' or '⟨' expected", p.pos());
+    }
+    return p.rec_save_pos(Fun(locals, body), pos);
+}
+
+static name * g_lambda_match_name = nullptr;
+
+static expr parse_lambda_constructor(parser & p, pos_info const & ini_pos) {
+    lean_assert(p.curr_is_token(get_langle_tk()));
+    parser::local_scope scope(p);
+    auto pos = p.pos();
+    p.next();
+    buffer<expr> locals;
+    expr pattern = p.parse_pattern([&](parser & p) { return parse_constructor_core(p, pos); }, locals);
+    for (expr const & local : locals)
+        p.add_local(local);
+    expr body;
+    if (p.curr_is_token(get_comma_tk())) {
+        p.next();
+        body = p.parse_expr();
+    } else {
+        body = parse_lambda_core(p, ini_pos);
+    }
+    match_definition_scope match_scope;
+    expr fn  = p.save_pos(mk_local(mk_fresh_name(), *g_lambda_match_name, mk_expr_placeholder(), binder_info()), pos);
+    expr eqn = p.rec_save_pos(Fun(fn, Fun(locals, p.save_pos(mk_equation(p.rec_save_pos(mk_app(fn, pattern), pos), body), pos), p)), pos);
+    equations_header h = mk_equations_header(match_scope.get_name());
+    expr x = p.rec_save_pos(mk_local(mk_fresh_name(), "_x", mk_expr_placeholder(), binder_info()), pos);
+    return p.rec_save_pos(Fun(x, mk_app(mk_equations(h, 1, &eqn), x)), pos);
+}
+
+static expr parse_lambda_core(parser & p, pos_info const & pos) {
+    if (p.curr_is_token(get_langle_tk())) {
+        return parse_lambda_constructor(p, pos);
+    } else {
+        return parse_lambda_binder(p, pos);
+    }
+}
+
+static expr parse_lambda(parser & p, unsigned, expr const *, pos_info const & pos) {
+    return parse_lambda_core(p, pos);
 }
 
 parse_table init_nud_table() {
@@ -690,7 +753,7 @@ parse_table init_nud_table() {
     r = r.add({transition("%%", mk_ext_action(parse_antiquote_expr))}, x0);
     r = r.add({transition("(:", Expr), transition(":)", mk_ext_action(parse_pattern))}, x0);
     r = r.add({transition("()", mk_ext_action(parse_unit))}, x0);
-    r = r.add({transition("fun", Binders), transition(",", mk_scoped_expr_action(x0))}, x0);
+    r = r.add({transition("fun", mk_ext_action(parse_lambda))}, x0);
     r = r.add({transition("Pi", Binders), transition(",", mk_scoped_expr_action(x0, 0, false))}, x0);
     r = r.add({transition("Type", mk_ext_action(parse_Type))}, x0);
     r = r.add({transition("Type*", mk_ext_action(parse_Type_star))}, x0);
@@ -724,13 +787,14 @@ parse_table get_builtin_led_table() {
 }
 
 void initialize_builtin_exprs() {
-    g_not            = new expr(mk_constant(get_not_name()));
-    g_nud_table      = new parse_table();
-    *g_nud_table     = init_nud_table();
-    g_led_table      = new parse_table();
-    *g_led_table     = init_led_table();
-    g_do_match_name  = new name("_do_match");
-    g_let_match_name = new name("_let_match");
+    g_not               = new expr(mk_constant(get_not_name()));
+    g_nud_table         = new parse_table();
+    *g_nud_table        = init_nud_table();
+    g_led_table         = new parse_table();
+    *g_led_table        = init_led_table();
+    g_do_match_name     = new name("_do_match");
+    g_let_match_name    = new name("_let_match");
+    g_lambda_match_name = new name("_fun_match");
 
     g_parser_checkpoint_have = new name{"parser", "checkpoint_have"};
     register_bool_option(*g_parser_checkpoint_have, LEAN_DEFAULT_PARSER_CHECKPOINT_HAVE,
@@ -746,6 +810,7 @@ void finalize_builtin_exprs() {
     delete g_not;
     delete g_do_match_name;
     delete g_let_match_name;
+    delete g_lambda_match_name;
     delete g_parser_checkpoint_have;
     delete g_anonymous_constructor;
 }

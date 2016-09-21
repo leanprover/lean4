@@ -121,8 +121,8 @@ void init_token_table(token_table & t) {
          "#compile", "#unify", nullptr};
 
     pair<char const *, char const *> aliases[] =
-        {{g_lambda_unicode, "fun"}, {"forall", "Pi"}, {g_forall_unicode, "Pi"}, {g_pi_unicode, "Pi"},
-         {g_qed_unicode, "qed"}, {nullptr, nullptr}};
+        {{g_lambda_unicode, "fun"}, {"assume", "fun"}, {"take", "fun"}, {"forall", "Pi"},
+         {g_forall_unicode, "Pi"}, {g_pi_unicode, "Pi"}, {g_qed_unicode, "qed"}, {nullptr, nullptr}};
 
     pair<char const *, char const *> cmd_aliases[] =
         {{"lemma", "theorem"}, {"proposition", "theorem"}, {"premise", "variable"}, {"premises", "variables"},

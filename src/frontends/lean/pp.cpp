@@ -1470,7 +1470,7 @@ auto pretty_fn::pp_subtype(expr const & e) -> result {
     auto p     = binding_body_fresh(pred, true);
     expr body  = p.first;
     expr local = p.second;
-    format r   = bracket("{", format(local_pp_name(local)) + space() + format("\\") + space() + pp_child(body, 0).fmt(), "}");
+    format r   = bracket("{", format(local_pp_name(local)) + space() + format("//") + space() + pp_child(body, 0).fmt(), "}");
     return result(r);
 }
 

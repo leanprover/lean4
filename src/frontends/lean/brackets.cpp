@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/tokens.h"
 
 namespace lean {
-/* Parse rest of the subtype expression prefix '{' id ':' expr '\' ... */
+/* Parse rest of the subtype expression prefix '{' id ':' expr '\\' ... */
 static expr parse_subtype(parser & p, pos_info const & pos, expr const & local) {
     parser::local_scope scope(p);
     p.add_local(local);
@@ -90,7 +90,7 @@ expr parse_curly_bracket(parser & p, unsigned, expr const *, pos_info const & po
         auto id_pos = p.pos();
         name id     = p.get_name_val();
         p.next();
-        if (p.curr_is_token(get_backslash_tk())) {
+        if (p.curr_is_token(get_dslash_tk())) {
             expr type  = p.save_pos(mk_expr_placeholder(), id_pos);
             expr local = p.save_pos(mk_local(id, type), id_pos);
             p.next();
@@ -99,7 +99,7 @@ expr parse_curly_bracket(parser & p, unsigned, expr const *, pos_info const & po
             p.next();
             expr type  = p.parse_expr();
             expr local = p.save_pos(mk_local(id, type), id_pos);
-            p.check_token_next(get_backslash_tk(), "invalid subtype, '\' expected");
+            p.check_token_next(get_dslash_tk(), "invalid subtype, '//' expected");
             return parse_subtype(p, pos, local);
         } else if (p.curr_is_token(get_period_tk())) {
             p.next();
@@ -132,7 +132,7 @@ expr parse_curly_bracket(parser & p, unsigned, expr const *, pos_info const & po
         p.next();
         return parse_monadic_comprehension(p, pos, e);
     } else {
-        throw parser_error("invalid '{' expression, ',', '}', 'with', `\\` or `|` expected", p.pos());
+        throw parser_error("invalid '{' expression, ',', '}', 'with', `//` or `|` expected", p.pos());
     }
 }
 }

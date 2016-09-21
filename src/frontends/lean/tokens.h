@@ -8,7 +8,7 @@ void finalize_tokens();
 name const & get_aliases_tk();
 name const & get_period_tk();
 name const & get_backtick_tk();
-name const & get_backslash_tk();
+name const & get_dslash_tk();
 name const & get_fieldarrow_tk();
 name const & get_placeholder_tk();
 name const & get_colon_tk();

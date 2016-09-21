@@ -1,9 +1,5 @@
-definition set (A : Type) := A → Prop
-definition mem {A : Type} (a : A) (s : set A) : Prop :=
-s a
 definition range (lower : nat) (upper : nat) : set nat :=
 λ a, lower ≤ a ∧ a ≤ upper
-infix ` ∈ ` := mem
 
 local notation `[` L `, ` U `]` := range L U
 

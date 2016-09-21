@@ -1,7 +1,7 @@
 aliases      aliases
 period       .
 backtick     `
-backslash    \\
+dslash       //
 fieldarrow   ~>
 placeholder  _
 colon        :

@@ -6,7 +6,7 @@ namespace lean{
 static name const * g_aliases_tk = nullptr;
 static name const * g_period_tk = nullptr;
 static name const * g_backtick_tk = nullptr;
-static name const * g_backslash_tk = nullptr;
+static name const * g_dslash_tk = nullptr;
 static name const * g_fieldarrow_tk = nullptr;
 static name const * g_placeholder_tk = nullptr;
 static name const * g_colon_tk = nullptr;
@@ -127,7 +127,7 @@ void initialize_tokens() {
     g_aliases_tk = new name{"aliases"};
     g_period_tk = new name{"."};
     g_backtick_tk = new name{"`"};
-    g_backslash_tk = new name{"\\"};
+    g_dslash_tk = new name{"//"};
     g_fieldarrow_tk = new name{"~>"};
     g_placeholder_tk = new name{"_"};
     g_colon_tk = new name{":"};
@@ -249,7 +249,7 @@ void finalize_tokens() {
     delete g_aliases_tk;
     delete g_period_tk;
     delete g_backtick_tk;
-    delete g_backslash_tk;
+    delete g_dslash_tk;
     delete g_fieldarrow_tk;
     delete g_placeholder_tk;
     delete g_colon_tk;
@@ -370,7 +370,7 @@ void finalize_tokens() {
 name const & get_aliases_tk() { return *g_aliases_tk; }
 name const & get_period_tk() { return *g_period_tk; }
 name const & get_backtick_tk() { return *g_backtick_tk; }
-name const & get_backslash_tk() { return *g_backslash_tk; }
+name const & get_dslash_tk() { return *g_dslash_tk; }
 name const & get_fieldarrow_tk() { return *g_fieldarrow_tk; }
 name const & get_placeholder_tk() { return *g_placeholder_tk; }
 name const & get_colon_tk() { return *g_colon_tk; }

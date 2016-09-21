@@ -10,3 +10,7 @@ definition s3 : set string :=
 {a ∈ s1 | a > 1} : set ℕ
 {a ∈ s1 | a > 1} : set ℕ
 {a in s1 | a > 2} : set nat
+{a, a} : set nat
+{a, 1, a} : set nat
+{a} : set nat
+{a // a > 0} : Type

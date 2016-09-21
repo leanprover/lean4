@@ -9,7 +9,7 @@ open tactic subtype
 universe variables u v
 
 attribute [instance]
-definition subtype_decidable_eq {A : Type u} {P : A → Prop} [decidable_eq A] : decidable_eq {x \ P x} :=
+definition subtype_decidable_eq {A : Type u} {p : A → Prop} [decidable_eq A] : decidable_eq {x : A // p x} :=
 by mk_dec_eq_instance
 
 set_option trace.app_builder true

@@ -14,7 +14,7 @@ tag :: (elt_of : A) (has_property : p elt_of)
 
 namespace subtype
 
-  definition exists_of_subtype {A : Type u} {p : A → Prop} : { x \ p x } → ∃ x, p x
+  definition exists_of_subtype {A : Type u} {p : A → Prop} : { x // p x } → ∃ x, p x
   | ⟨a, h⟩ := ⟨a, h⟩
 
   variables {A : Type u} {p : A → Prop}
@@ -22,7 +22,7 @@ namespace subtype
   theorem tag_irrelevant {a : A} (h1 h2 : p a) : tag a h1 = tag a h2 :=
   rfl
 
-  protected theorem eq : ∀ {a1 a2 : {x \ p x}}, elt_of a1 = elt_of a2 → a1 = a2
+  protected theorem eq : ∀ {a1 a2 : {x // p x}}, elt_of a1 = elt_of a2 → a1 = a2
   | ⟨x, h1⟩ ⟨.x, h2⟩ rfl := rfl
 
 end subtype
@@ -32,5 +32,5 @@ open subtype
 variables {A : Type u} {p : A → Prop}
 
 attribute [instance]
-protected definition subtype.is_inhabited {a : A} (h : p a) : inhabited {x \ p x} :=
+protected definition subtype.is_inhabited {a : A} (h : p a) : inhabited {x // p x} :=
 ⟨⟨a, h⟩⟩

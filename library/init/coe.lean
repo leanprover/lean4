@@ -125,7 +125,7 @@ definition coe_decidable_eq (b : bool) : decidable (coe b) :=
 show decidable (b = tt), from bool.has_decidable_eq b tt
 
 attribute [instance]
-definition coe_subtype {A : Type u} {P : A → Prop} : has_coe {a \ P a} A :=
+definition coe_subtype {A : Type u} {p : A → Prop} : has_coe {a // p a} A :=
 ⟨λ s, subtype.elt_of s⟩
 
 /- Basic lifts -/

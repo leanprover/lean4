@@ -11,58 +11,58 @@ universe variables u v
 /- the axiom -/
 
 -- In the presence of classical logic, we could prove this from a weaker statement:
--- axiom indefinite_description {A : Type u} {P : A->Prop} (H : ∃ x, P x) : {x : A, P x}
-axiom strong_indefinite_description {A : Type u} (P : A → Prop) (H : nonempty A) :
-  { x \ (∃ y : A, P y) → P x}
+-- axiom indefinite_description {A : Type u} {p : A->Prop} (H : ∃ x, p x) : {x : A, p x}
+axiom strong_indefinite_description {A : Type u} (p : A → Prop) (H : nonempty A) :
+  { x : A // (∃ y : A, p y) → p x}
 
-theorem exists_true_of_nonempty {A : Type u} (H : nonempty A) : ∃ x : A, true :=
-nonempty.elim H (take x, ⟨x, trivial⟩)
+theorem exists_true_of_nonempty {A : Type u} (h : nonempty A) : ∃ x : A, true :=
+nonempty.elim h (take x, ⟨x, trivial⟩)
 
-noncomputable definition inhabited_of_nonempty {A : Type u} (H : nonempty A) : inhabited A :=
-⟨elt_of (strong_indefinite_description (λ a, true) H)⟩
+noncomputable definition inhabited_of_nonempty {A : Type u} (h : nonempty A) : inhabited A :=
+⟨elt_of (strong_indefinite_description (λ a, true) h)⟩
 
-noncomputable definition inhabited_of_exists {A : Type u} {P : A → Prop} (H : ∃ x, P x) : inhabited A :=
+noncomputable definition inhabited_of_exists {A : Type u} {p : A → Prop} (H : ∃ x, p x) : inhabited A :=
 inhabited_of_nonempty (exists.elim H (λ w Hw, ⟨w⟩))
 
 /- the Hilbert epsilon function -/
 
-noncomputable definition epsilon {A : Type u} [H : nonempty A] (P : A → Prop) : A :=
-elt_of (strong_indefinite_description P H)
+noncomputable definition epsilon {A : Type u} [h : nonempty A] (p : A → Prop) : A :=
+elt_of (strong_indefinite_description p h)
 
-theorem epsilon_spec_aux {A : Type u} (H : nonempty A) (P : A → Prop) (Hex : ∃ y, P y) :
-    P (@epsilon A H P) :=
-have aux : (∃ y, P y) → P (elt_of (strong_indefinite_description P H)), from has_property (strong_indefinite_description P H),
-aux Hex
+theorem epsilon_spec_aux {A : Type u} (h : nonempty A) (p : A → Prop) (hex : ∃ y, p y) :
+    p (@epsilon A h p) :=
+have aux : (∃ y, p y) → p (elt_of (strong_indefinite_description p h)), from has_property (strong_indefinite_description p h),
+aux hex
 
-theorem epsilon_spec {A : Type u} {P : A → Prop} (Hex : ∃ y, P y) :
-    P (@epsilon A (nonempty_of_exists Hex) P) :=
-epsilon_spec_aux (nonempty_of_exists Hex) P Hex
+theorem epsilon_spec {A : Type u} {p : A → Prop} (hex : ∃ y, p y) :
+    p (@epsilon A (nonempty_of_exists hex) p) :=
+epsilon_spec_aux (nonempty_of_exists hex) p hex
 
 theorem epsilon_singleton {A : Type u} (a : A) : @epsilon A ⟨a⟩ (λ x, x = a) = a :=
 @epsilon_spec A (λ x, x = a) ⟨a, rfl⟩
 
-noncomputable definition some {A : Type u} {P : A → Prop} (H : ∃ x, P x) : A :=
-@epsilon A (nonempty_of_exists H) P
+noncomputable definition some {A : Type u} {p : A → Prop} (h : ∃ x, p x) : A :=
+@epsilon A (nonempty_of_exists h) p
 
-theorem some_spec {A : Type u} {P : A → Prop} (H : ∃ x, P x) : P (some H) :=
-epsilon_spec H
+theorem some_spec {A : Type u} {p : A → Prop} (h : ∃ x, p x) : p (some h) :=
+epsilon_spec h
 
 /- the axiom of choice -/
 
-theorem axiom_of_choice {A : Type u} {B : A → Type v} {R : Π x, B x → Prop} (H : ∀ x, ∃ y, R x y) :
+theorem axiom_of_choice {A : Type u} {B : A → Type v} {R : Π x, B x → Prop} (h : ∀ x, ∃ y, R x y) :
   ∃ (f : Π x, B x), ∀ x, R x (f x) :=
-have H : ∀ x, R x (some (H x)), from take x, some_spec (H x),
-⟨_, H⟩
+have h : ∀ x, R x (some (h x)), from take x, some_spec (h x),
+⟨_, h⟩
 
-theorem skolem {A : Type u} {B : A → Type v} {P : Π x, B x → Prop} :
-  (∀ x, ∃ y, P x y) ↔ ∃ (f : Π x, B x) , (∀ x, P x (f x)) :=
+theorem skolem {A : Type u} {B : A → Type v} {p : Π x, B x → Prop} :
+  (∀ x, ∃ y, p x y) ↔ ∃ (f : Π x, B x) , (∀ x, p x (f x)) :=
 iff.intro
-  (assume H : (∀ x, ∃ y, P x y), axiom_of_choice H)
-  (assume H : (∃ (f : Π x, B x), (∀ x, P x (f x))),
-    take x, exists.elim H (λ (fw : ∀ x, B x) (Hw : ∀ x, P x (fw x)),
-      ⟨fw x, Hw x⟩))
+  (assume h : (∀ x, ∃ y, p x y), axiom_of_choice h)
+  (assume h : (∃ (f : Π x, B x), (∀ x, p x (f x))),
+    take x, exists.elim h (λ (fw : ∀ x, B x) (hw : ∀ x, p x (fw x)),
+      ⟨fw x, hw x⟩))
 /-
-Prove excluded middle using Hilbert's choice
+Prove excluded middle using hilbert's choice
 The proof follows Diaconescu proof that shows that the axiom of choice implies the excluded middle.
 -/
 section diaconescu
@@ -82,32 +82,32 @@ epsilon_spec ⟨false, or.inl rfl⟩
 
 private lemma not_uv_or_p : ¬(u = v) ∨ p :=
 or.elim u_def
-  (assume Hut : u = true,
+  (assume hut : u = true,
     or.elim v_def
-      (assume Hvf : v = false,
-        have Hne : ¬(u = v), from eq.symm Hvf ▸ eq.symm Hut ▸ true_ne_false,
-        or.inl Hne)
-      (assume Hp : p, or.inr Hp))
-  (assume Hp : p, or.inr Hp)
+      (assume hvf : v = false,
+        have hne : ¬(u = v), from eq.symm hvf ▸ eq.symm hut ▸ true_ne_false,
+        or.inl hne)
+      (assume hp : p, or.inr hp))
+  (assume hp : p, or.inr hp)
 
 private lemma p_implies_uv : p → u = v :=
-assume Hp : p,
-have Hpred : U = V, from
+assume hp : p,
+have hpred : U = V, from
   funext (take x : Prop,
-    have Hl : (x = true ∨ p) → (x = false ∨ p), from
-      assume A, or.inr Hp,
-    have Hr : (x = false ∨ p) → (x = true ∨ p), from
-      assume A, or.inr Hp,
+    have hl : (x = true ∨ p) → (x = false ∨ p), from
+      assume A, or.inr hp,
+    have hr : (x = false ∨ p) → (x = true ∨ p), from
+      assume A, or.inr hp,
     show (x = true ∨ p) = (x = false ∨ p), from
-      propext (iff.intro Hl Hr)),
-have H' : epsilon U = epsilon V, from Hpred ▸ rfl,
-show u = v, from H'
+      propext (iff.intro hl hr)),
+have h' : epsilon U = epsilon V, from hpred ▸ rfl,
+show u = v, from h'
 
 theorem em : p ∨ ¬p :=
-have H : ¬(u = v) → ¬p, from mt p_implies_uv,
+have h : ¬(u = v) → ¬p, from mt p_implies_uv,
   or.elim not_uv_or_p
-    (assume Hne : ¬(u = v), or.inr (H Hne))
-    (assume Hp : p, or.inl Hp)
+    (assume hne : ¬(u = v), or.inr (h hne))
+    (assume hp : p, or.inl hp)
 end diaconescu
 
 theorem prop_complete (a : Prop) : a = true ∨ a = false :=
@@ -119,23 +119,23 @@ definition eq_true_or_eq_false := prop_complete
 
 section aux
 attribute [elab_as_eliminator]
-theorem cases_true_false (P : Prop → Prop) (H1 : P true) (H2 : P false) (a : Prop) : P a :=
+theorem cases_true_false (p : Prop → Prop) (h1 : p true) (h2 : p false) (a : Prop) : p a :=
 or.elim (prop_complete a)
-  (assume Ht : a = true,  eq.symm Ht ▸ H1)
-  (assume Hf : a = false, eq.symm Hf ▸ H2)
+  (assume ht : a = true,  eq.symm ht ▸ h1)
+  (assume hf : a = false, eq.symm hf ▸ h2)
 
-theorem cases_on (a : Prop) {P : Prop → Prop} (H1 : P true) (H2 : P false) : P a :=
-cases_true_false P H1 H2 a
+theorem cases_on (a : Prop) {p : Prop → Prop} (h1 : p true) (h2 : p false) : p a :=
+cases_true_false p h1 h2 a
 
 -- this supercedes by_cases in decidable
-definition by_cases {p q : Prop} (Hpq : p → q) (Hnpq : ¬p → q) : q :=
-or.elim (em p) (assume Hp, Hpq Hp) (assume Hnp, Hnpq Hnp)
+definition by_cases {p q : Prop} (hpq : p → q) (hnpq : ¬p → q) : q :=
+or.elim (em p) (assume hp, hpq hp) (assume hnp, hnpq hnp)
 
 -- this supercedes by_contradiction in decidable
-theorem by_contradiction {p : Prop} (H : ¬p → false) : p :=
+theorem by_contradiction {p : Prop} (h : ¬p → false) : p :=
 by_cases
-  (assume H1 : p, H1)
-  (assume H1 : ¬p, false.rec _ (H H1))
+  (assume h1 : p, h1)
+  (assume h1 : ¬p, false.rec _ (h h1))
 
 theorem eq_false_or_eq_true (a : Prop) : a = false ∨ a = true :=
 cases_true_false (λ x, x = false ∨ x = true)
@@ -143,13 +143,13 @@ cases_true_false (λ x, x = false ∨ x = true)
   (or.inl rfl)
   a
 
-theorem eq.of_iff {a b : Prop} (H : a ↔ b) : a = b :=
-iff.elim (assume H1 H2, propext (iff.intro H1 H2)) H
+theorem eq.of_iff {a b : Prop} (h : a ↔ b) : a = b :=
+iff.elim (assume h1 h2, propext (iff.intro h1 h2)) h
 
 theorem iff_eq_eq {a b : Prop} : (a ↔ b) = (a = b) :=
 propext (iff.intro
-  (assume H, eq.of_iff H)
-  (assume H, iff.of_eq H))
+  (assume h, eq.of_iff h)
+  (assume h, iff.of_eq h))
 
 lemma eq_false {a : Prop} : (a = false) = (¬ a) :=
 have (a ↔ false) = (¬ a), from propext (iff_false a),
@@ -164,8 +164,8 @@ end aux
 noncomputable definition decidable_inhabited (a : Prop) : inhabited (decidable a) :=
 inhabited_of_nonempty
   (or.elim (em a)
-    (assume Ha, ⟨is_true Ha⟩)
-    (assume Hna, ⟨is_false Hna⟩))
+    (assume ha, ⟨is_true ha⟩)
+    (assume hna, ⟨is_false hna⟩))
 local attribute decidable_inhabited [instance]
 
 noncomputable definition prop_decidable (a : Prop) : decidable a :=
@@ -177,8 +177,8 @@ noncomputable definition type_decidable_eq (A : Type u) : decidable_eq A :=
 
 noncomputable definition type_decidable (A : Type u) : sum A (A → false) :=
 match (prop_decidable (nonempty A)) with
-| (is_true Hp) := sum.inl (inhabited.value (inhabited_of_nonempty Hp))
-| (is_false Hn) := sum.inr (λ a, absurd (nonempty.intro a) Hn)
+| (is_true hp) := sum.inl (inhabited.value (inhabited_of_nonempty hp))
+| (is_false hn) := sum.inr (λ a, absurd (nonempty.intro a) hn)
 end
 
 end classical

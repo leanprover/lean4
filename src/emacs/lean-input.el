@@ -233,7 +233,7 @@ order for the change to take effect."
   ("pequiv" . ("≃*"))
   ("phomotopy" . ("~*"))
 
-  ("p" . ("↣"))
+  ("pr" . ("↣"))
 
   ("1" . ("₁"))
   ("2" . ("₂"))

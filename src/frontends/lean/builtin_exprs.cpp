@@ -29,7 +29,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/tokens.h"
-#include "frontends/lean/structure_instance.h"
 #include "frontends/lean/nested_declaration.h"
 #include "frontends/lean/match_expr.h"
 #include "frontends/lean/decl_util.h"
@@ -769,7 +768,6 @@ parse_table init_nud_table() {
     r = r.add({transition("sorry", mk_ext_action(parse_sorry))}, x0);
     r = r.add({transition("match", mk_ext_action(parse_match))}, x0);
     r = r.add({transition("do", mk_ext_action(parse_do))}, x0);
-    init_structure_instance_parsing_rules(r);
     return r;
 }
 

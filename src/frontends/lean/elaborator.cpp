@@ -42,6 +42,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/prenum.h"
 #include "frontends/lean/elaborator.h"
 #include "frontends/lean/structure_cmd.h"
+#include "frontends/lean/structure_instance.h"
 
 namespace lean {
 MK_THREAD_LOCAL_GET(type_context_cache_manager, get_tcm, true /* use binder information at infer_cache */);
@@ -1637,6 +1638,104 @@ expr elaborator::visit_projection(expr const & e, optional<expr> const & expecte
     return visit(new_e, expected_type);
 }
 
+expr elaborator::visit_structure_instance(expr const & e, optional<expr> const & _expected_type) {
+    name S_name;
+    optional<expr> src;
+    buffer<name> fnames;
+    buffer<expr> fvalues;
+    optional<expr> expected_type;
+    if (_expected_type) {
+        synthesize_type_class_instances();
+        expected_type = instantiate_mvars(*_expected_type);
+        if (is_metavar(*expected_type))
+            expected_type = none_expr();
+    }
+    get_structure_instance_info(e, S_name, src, fnames, fvalues);
+    lean_assert(fnames.size() == fvalues.size());
+    name src_S_name;
+    if (src) {
+        src = visit(*src, none_expr());
+        synthesize_type_class_instances();
+        expr type  = instantiate_mvars(whnf(infer_type(*src)));
+        expr src_S = get_app_fn(type);
+        if (!is_constant(src_S) || !is_structure(m_env, const_name(src_S))) {
+            auto pp_fn = mk_pp_ctx();
+            throw elaborator_exception(e,
+                                       format("invalid structure update { src with ...}, source is not a structure") +
+                                       pp_indent(pp_fn, *src) +
+                                       line() + format("which has type") +
+                                       pp_indent(pp_fn, type));
+        }
+        src_S_name = const_name(src_S);
+    }
+    if (S_name.is_anonymous()) {
+        if (expected_type) {
+            expr type = whnf(*expected_type);
+            expr S    = get_app_fn(type);
+            if (!is_constant(S) || !is_structure(m_env, const_name(S))) {
+                auto pp_fn = mk_pp_ctx();
+                throw elaborator_exception(e,
+                                           format("invalid structure value {...}, expected type is known, "
+                                                  "but it is not a structure") + pp_indent(pp_fn, *expected_type));
+            }
+            S_name = const_name(S);
+        } else if (src) {
+            S_name = src_S_name;
+        } else {
+            throw elaborator_exception(e, "invalid structure value {...}, expected type is not known"
+                                       "(solution: use qualified structure instance { struct_id . ... }");
+        }
+    }
+    buffer<name> S_fnames;
+    get_structure_fields(m_env, S_name, S_fnames);
+    buffer<name> c_names;
+    get_intro_rule_names(m_env, S_name, c_names);
+    lean_assert(c_names.size() == 1);
+    expr c = copy_tag(e, mk_constant(c_names[0]));
+    buffer<bool> used;
+    used.resize(fnames.size(), false);
+    if (src)
+        src = copy_tag(*src, mk_as_is(*src));
+    for (unsigned j = 0; j < fnames.size(); j++) {
+        fnames[j] = S_name + fnames[j];
+    }
+    for (unsigned i = 0; i < S_fnames.size(); i++) {
+        unsigned j = 0;
+        for (; j < fnames.size(); j++) {
+            if (S_fnames[i] == fnames[j]) {
+                used[j] = true;
+                c = copy_tag(e, mk_app(c, fvalues[j]));
+                break;
+            }
+        }
+        if (j == fnames.size()) {
+            if (src) {
+                name new_fname = S_fnames[i].replace_prefix(S_name, src_S_name);
+                expr f = copy_tag(e, mk_constant(new_fname));
+                f = copy_tag(e, mk_app(f, *src));
+                try {
+                    f = visit(f, none_expr());
+                } catch (exception & ex) {
+                    throw nested_exception(some_expr(e), sstream() << "invalid structure update { src with ... }, field '" << S_fnames[i] << "'" <<
+                                           " was not provided, nor it was found in the source", ex);
+                }
+                f = copy_tag(e, mk_as_is(f));
+                c = copy_tag(e, mk_app(c, f));
+            } else {
+                throw elaborator_exception(e, sstream() << "invalid structure value { ... }, field '" << S_fnames[i] << "'" <<
+                                           " was not provided");
+            }
+        }
+    }
+    for (unsigned i = 0; i < fnames.size(); i++) {
+        if (!used[i]) {
+            throw elaborator_exception(e, sstream() << "invalid structure value { ... }, '" << S_fnames[i] << "'" <<
+                                       " is not a field of structure '" << S_name << "'");
+        }
+    }
+    return visit(c, expected_type);
+}
+
 expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_type, bool is_app_fn) {
     if (is_as_is(e)) {
         return get_as_is_arg(e);
@@ -1672,6 +1771,8 @@ expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_typ
         /* If the as_atomic macro is not the the function in a function application, then we need to consume
            implicit arguments. */
         return visit_base_app_core(new_e, arg_mask::Default, buffer<expr>(), true, expected_type, e);
+    } else if (is_structure_instance(e)) {
+        return visit_structure_instance(e, expected_type);
     } else if (is_annotation(e)) {
         expr r = visit(get_annotation_arg(e), expected_type);
         return update_macro(e, 1, &r);

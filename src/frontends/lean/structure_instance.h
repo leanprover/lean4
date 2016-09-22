@@ -7,10 +7,11 @@ Author: Leonardo de Moura
 #pragma once
 #include "frontends/lean/parse_table.h"
 namespace lean {
-void init_structure_instance_parsing_rules(parse_table & r);
+expr mk_structure_instance(name const & s, buffer<name> const & fns, buffer<expr> const & fvs);
+expr mk_structure_instance(expr const & src, buffer<name> const & fns, buffer<expr> const & fvs);
 bool is_structure_instance(expr const & e);
-void destruct_structure_instance(expr const & e, expr & t, buffer<name> & field_names,
-                                 buffer<expr> & field_values, buffer<expr> & using_exprs);
+void get_structure_instance_info(expr const & e, name & struct_name, optional<expr> & source,
+                                 buffer<name> & field_names, buffer<expr> & field_values);
 void initialize_structure_instance();
 void finalize_structure_instance();
 }

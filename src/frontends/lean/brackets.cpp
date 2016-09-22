@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/tokens.h"
+#include "frontends/lean/structure_instance.h"
 
 namespace lean {
 /* Parse rest of the subtype expression prefix '{' id ':' expr '\\' ... */
@@ -66,19 +67,40 @@ static expr parse_monadic_comprehension(parser & p, pos_info const & pos, expr c
     throw parser_error("monadic comprehension was not implemented yet", pos);
 }
 
+static expr parse_structure_instance_core(parser & p, pos_info const & pos, optional<expr> const & src, name const & S, name const & fname) {
+    buffer<name> fns;
+    buffer<expr> fvs;
+    fns.push_back(fname);
+    p.check_token_next(get_assign_tk(), "invalid structure instance, ':=' expected");
+    fvs.push_back(p.parse_expr());
+    while (p.curr_is_token(get_comma_tk())) {
+        p.next();
+        fns.push_back(p.check_id_next("invalid structure instance, identifier expected"));
+        p.check_token_next(get_assign_tk(), "invalid structure instance, ':=' expected");
+        fvs.push_back(p.parse_expr());
+    }
+    p.check_token_next(get_rcurly_tk(), "invalid structure instance, '}' expected");
+    if (src)
+        return mk_structure_instance(*src, fns, fvs);
+    else
+        return mk_structure_instance(S, fns, fvs);
+}
+
 /* Parse rest of the qualified structure instance prefix '{' S '.' ... */
 static expr parse_qualified_structure_instance(parser & p, pos_info const & pos, name const & S) {
-    throw parser_error("qualified strucuture instance was not implemented yet", pos);
+    name fname = p.check_id_next("invalid structure instance, identifier expected");
+    return parse_structure_instance_core(p, pos, none_expr(), S, fname);
 }
 
 /* Parse rest of the structure instance prefix '{' fname ... */
 static expr parse_structure_instance(parser & p, pos_info const & pos, name const & fname) {
-    throw parser_error("strucuture instance was not implemented yet", pos);
+    return parse_structure_instance_core(p, pos, none_expr(), name(), fname);
 }
 
 /* Parse rest of the structure instance update '{' expr 'with' ... */
 static expr parse_structure_instance_update(parser & p, pos_info const & pos, expr const & e) {
-    throw parser_error("strucuture instance update was not implemented yet", pos);
+    name fname = p.check_id_next("invalid structure update, identifier expected");
+    return parse_structure_instance_core(p, pos, some_expr(e), name(), fname);
 }
 
 expr parse_curly_bracket(parser & p, unsigned, expr const *, pos_info const & pos) {

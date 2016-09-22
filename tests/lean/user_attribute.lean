@@ -1,4 +1,4 @@
-definition foo_attr : user_attribute := ⟨`foo, "bar"⟩
+definition foo_attr : user_attribute := { name := `foo, descr := "bar" }
 run_command attribute.register `foo_attr
 
 attribute [foo] eq.refl

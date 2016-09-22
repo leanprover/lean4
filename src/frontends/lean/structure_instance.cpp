@@ -23,87 +23,64 @@ static std::string * g_structure_instance_opcode = nullptr;
   Example: Given
      structure point (A B : Type) := (x : A) (y : B)
   the structure instance
-     {| point, x := 10, y := 20 |}
+     { point, x := 10, y := 20 }
   is compiled into
      point.mk 10 20
 */
 class structure_instance_macro_cell : public macro_definition_cell {
+    name       m_struct;
     list<name> m_fields;
 public:
-    structure_instance_macro_cell(list<name> const & fs):m_fields(fs) {}
+    structure_instance_macro_cell(name const & s, list<name> const & fs):
+        m_struct(s), m_fields(fs) {}
     virtual name get_name() const { return *g_structure_instance_name; }
     virtual expr check_type(expr const &, abstract_type_context &, bool) const { throw_se_ex(); }
     virtual optional<expr> expand(expr const &, abstract_type_context &) const { throw_se_ex(); }
     virtual void write(serializer & s) const {
-        s << *g_structure_instance_opcode;
+        s << *g_structure_instance_opcode << m_struct;
         write_list(s, m_fields);
     }
+    name const & get_struct() const { return m_struct; }
     list<name> const & get_field_names() const { return m_fields; }
 };
 
-static expr mk_structure_instance(list<name> const & fs, unsigned num, expr const * args) {
-    lean_assert(num >= length(fs) + 1);
-    macro_definition def(new structure_instance_macro_cell(fs));
+static expr mk_structure_instance_core(name const & s, list<name> const & fs, unsigned num, expr const * args) {
+    lean_assert(num == length(fs) && num == length(fs) + 1);
+    macro_definition def(new structure_instance_macro_cell(s, fs));
     return mk_macro(def, num, args);
+}
+
+expr mk_structure_instance(name const & s, buffer<name> const & fns, buffer<expr> const & fvs) {
+    lean_assert(fns.size() == fvs.size());
+    return mk_structure_instance_core(s, to_list(fns), fvs.size(), fvs.data());
+}
+
+expr mk_structure_instance(expr const & src, buffer<name> const & fns, buffer<expr> const & fvs) {
+    buffer<expr> aux;
+    aux.append(fvs);
+    aux.push_back(src);
+    return mk_structure_instance_core(name(), to_list(fns), aux.size(), aux.data());
 }
 
 bool is_structure_instance(expr const & e) {
     return is_macro(e) && macro_def(e).get_name() == *g_structure_instance_name;
 }
 
-void destruct_structure_instance(expr const & e, expr & t, buffer<name> & field_names,
-                                 buffer<expr> & field_values, buffer<expr> & using_exprs) {
+void get_structure_instance_info(expr const & e,
+                                 name & struct_name,
+                                 optional<expr> & source,
+                                 buffer<name> & field_names,
+                                 buffer<expr> & field_values) {
     lean_assert(is_structure_instance(e));
-    t = macro_arg(e, 0);
+    struct_name = static_cast<structure_instance_macro_cell const*>(macro_def(e).raw())->get_struct();
     list<name> const & fns = static_cast<structure_instance_macro_cell const*>(macro_def(e).raw())->get_field_names();
-    unsigned num_fileds = length(fns);
     to_buffer(fns, field_names);
-    for (unsigned i = 1; i < num_fileds+1; i++)
+    unsigned num_fields = field_names.size();
+    lean_assert(macro_num_args(e) == num_fields || macro_num_args(e) == num_fields+1);
+    if (num_fields < macro_num_args(e))
+        source = macro_arg(e, num_fields);
+    for (unsigned i = 0; i < num_fields; i++)
         field_values.push_back(macro_arg(e, i));
-    for (unsigned i = num_fileds+1; i < macro_num_args(e); i++)
-        using_exprs.push_back(macro_arg(e, i));
-}
-
-static expr parse_struct_expr_core(parser & p, pos_info const & pos, bool curly_bar) {
-    expr t = p.parse_expr();
-    buffer<name> field_names;
-    buffer<expr> field_values;
-    buffer<expr> using_exprs;
-    while (p.curr_is_token(get_comma_tk())) {
-        p.next();
-        pair<optional<name>, expr> id_e = p.parse_optional_assignment();
-        if (id_e.first) {
-            field_names.push_back(*id_e.first);
-            field_values.push_back(id_e.second);
-        } else {
-            using_exprs.push_back(id_e.second);
-        }
-    }
-    if (curly_bar)
-        p.check_token_next(get_rcurlybar_tk(), "invalid structure expression, '|}' expected");
-    else
-        p.check_token_next(get_rdcurly_tk(), "invalid structure expression, '⦄' expected");
-    buffer<expr> args;
-    args.push_back(t);
-    args.append(field_values);
-    args.append(using_exprs);
-    return p.save_pos(mk_structure_instance(to_list(field_names), args.size(), args.data()), pos);
-}
-
-static expr parse_struct_curly_bar(parser & p, unsigned, expr const *, pos_info const & pos) {
-    bool curly_bar = true;
-    return parse_struct_expr_core(p, pos, curly_bar);
-}
-
-static expr parse_struct_dcurly(parser & p, unsigned, expr const *, pos_info const & pos) {
-    bool curly_bar = false;
-    return parse_struct_expr_core(p, pos, curly_bar);
-}
-
-void init_structure_instance_parsing_rules(parse_table & r) {
-    expr x0 = mk_var(0);
-    r = r.add({notation::transition("{|", notation::mk_ext_action(parse_struct_curly_bar))}, x0);
-    r = r.add({notation::transition("⦃",  notation::mk_ext_action(parse_struct_dcurly))}, x0);
 }
 
 void initialize_structure_instance() {
@@ -111,11 +88,14 @@ void initialize_structure_instance() {
     g_structure_instance_opcode = new std::string("STI");
     register_macro_deserializer(*g_structure_instance_opcode,
                                 [](deserializer & d, unsigned num, expr const * args) {
-                                    list<name> fs;
-                                    fs = read_list<name>(d);
-                                    if (num < length(fs) + 1)
+                                    list<name> fns;
+                                    name s;
+                                    d >> s;
+                                    fns = read_list<name>(d);
+                                    unsigned len = length(fns);
+                                    if (num != len + 1 && num != len)
                                         throw corrupted_stream_exception();
-                                    return mk_structure_instance(fs, num, args);
+                                    return mk_structure_instance_core(s, fns, num, args);
                                 });
 }
 

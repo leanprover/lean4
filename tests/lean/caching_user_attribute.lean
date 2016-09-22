@@ -1,5 +1,5 @@
 definition foo_attr : caching_user_attribute :=
-⟨`foo, "bar", string, list.join ∘ list.map (list.append "\n" ∘ to_string ∘ declaration.to_name) ⟩
+{ name := `foo, descr := "bar", Cache := string, cache := list.join ∘ list.map (list.append "\n" ∘ to_string ∘ declaration.to_name) }
 
 run_command attribute.register `foo_attr
 

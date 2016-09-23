@@ -11,8 +11,7 @@ inductive ordering
 
 open ordering
 
-attribute [instance]
-definition ordering.has_to_string : has_to_string ordering :=
+instance : has_to_string ordering :=
 has_to_string.mk (λ s, match s with | ordering.lt := "lt" | ordering.eq := "eq" | ordering.gt := "gt" end)
 
 structure [class] has_ordering (A : Type) :=
@@ -23,8 +22,7 @@ if a < b      then ordering.lt
 else if a = b then ordering.eq
 else               ordering.gt
 
-attribute [instance]
-definition nat_has_ordering : has_ordering nat :=
+instance : has_ordering nat :=
 ⟨nat.cmp⟩
 
 section
@@ -40,8 +38,7 @@ definition prod.cmp : A × B → A × B → ordering
    | ordering.gt := gt
    end
 
-attribute [instance]
-definition prod_has_ordering {A B : Type} [has_ordering A] [has_ordering B] : has_ordering (A × B) :=
+instance {A B : Type} [has_ordering A] [has_ordering B] : has_ordering (A × B) :=
 ⟨prod.cmp⟩
 end
 
@@ -56,8 +53,7 @@ definition sum.cmp : A ⊕ B → A ⊕ B → ordering
 | (inl a₁) (inr b₂) := lt
 | (inr b₁) (inl a₂) := gt
 
-attribute [instance]
-definition sum_has_ordering {A B : Type} [has_ordering A] [has_ordering B] : has_ordering (A ⊕ B) :=
+instance {A B : Type} [has_ordering A] [has_ordering B] : has_ordering (A ⊕ B) :=
 ⟨sum.cmp⟩
 end
 
@@ -72,7 +68,6 @@ definition option.cmp : option A → option A → ordering
 | none      (some a₂) := lt
 | none      none      := eq
 
-attribute [instance]
-definition option_has_ordering {A : Type} [has_ordering A] : has_ordering (option A) :=
+instance {A : Type} [has_ordering A] : has_ordering (option A) :=
 ⟨option.cmp⟩
 end

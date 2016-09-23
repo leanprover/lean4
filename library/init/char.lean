@@ -24,11 +24,9 @@ def to_nat (c : char) : nat :=
 fin.val c
 end char
 
-attribute [instance]
-def char_has_decidable_eq : decidable_eq char :=
-have decidable_eq (fin char_sz), from fin.has_decidable_eq _,
+instance : decidable_eq char :=
+have decidable_eq (fin char_sz), from fin.decidable_eq _,
 this
 
-attribute [instance]
-def char_is_inhabited : inhabited char :=
+instance : inhabited char :=
 ⟨'A'⟩

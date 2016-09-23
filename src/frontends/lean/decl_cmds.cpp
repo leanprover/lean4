@@ -571,8 +571,8 @@ static environment reveal_cmd(parser & p) {
 
 static environment instance_cmd(parser & p) {
     bool persistent = true;
-    decl_attributes attributes(true);
-    attributes.add_attribute(p.env(), "instance");
+    decl_attributes attributes(persistent);
+    attributes.set_instance_cmd(p.env());
     bool is_private = false; bool is_protected = true; bool is_noncomputable = false;
     return definition_cmd_core(p, def_cmd_kind::Definition, is_private, is_protected, is_noncomputable, attributes);
 }

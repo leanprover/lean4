@@ -1,9 +1,8 @@
-
 meta_definition mytactic (A : Type) := stateT (list nat) tactic A
 
 attribute [instance]
 meta_definition mytactic_is_monad : monad mytactic :=
-@stateT_is_monad _ _ _
+@stateT.monad _ _ _
 
 meta_definition read_lst : mytactic (list nat) :=
 stateT.read

@@ -7,12 +7,10 @@ universe variables u
 structure [class] is_associative {A : Type u} (op : A → A → A) :=
 (op_assoc : ∀ x y z : A, op (op x y) z = op x (op y z))
 
-attribute [instance]
-definition and_is_associative : is_associative and :=
+instance : is_associative and :=
 is_associative.mk (λ x y z, propext (@and.assoc x y z))
 
-attribute [instance]
-definition or_is_associative : is_associative or :=
+instance : is_associative or :=
 is_associative.mk (λ x y z, propext (@or.assoc x y z))
 
 -- Basic congruence theorems over equality (using propext)

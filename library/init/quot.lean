@@ -182,8 +182,7 @@ end quot
 attribute quot.mk
 
 open decidable
-attribute [instance]
-definition quot.has_decidable_eq {A : Type u} {s : setoid A} [decR : ∀ a b : A, decidable (a ≈ b)] : decidable_eq (quot s) :=
+instance {A : Type u} {s : setoid A} [decR : ∀ a b : A, decidable (a ≈ b)] : decidable_eq (quot s) :=
 λ q₁ q₂ : quot s,
   quot.rec_on_subsingleton₂ q₁ q₂
     (λ a₁ a₂,

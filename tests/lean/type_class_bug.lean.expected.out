@@ -1,14 +1,14 @@
-@monad.bind.{1 1} list.{1} list_is_monad.{1} nat nat (@list.cons.{1} nat (@one.{1} nat nat_has_one) (@list.nil.{1} nat))
-  (λ (a : nat), @return.{1 1} list.{1} list_is_monad.{1} nat a) :
+@monad.bind.{1 1} list.{1} list.monad.{1} nat nat (@list.cons.{1} nat (@one.{1} nat nat.has_one) (@list.nil.{1} nat))
+  (λ (a : nat), @return.{1 1} list.{1} list.monad.{1} nat a) :
   list.{1} nat
-@monad.bind.{1 1} list.{1} list_is_monad.{1} nat (prod.{1 1} nat nat)
-  (@list.cons.{1} nat (@one.{1} nat nat_has_one)
-     (@list.cons.{1} nat (@bit0.{1} nat nat_has_add (@one.{1} nat nat_has_one))
-        (@list.cons.{1} nat (@bit1.{1} nat nat_has_one nat_has_add (@one.{1} nat nat_has_one)) (@list.nil.{1} nat))))
+@monad.bind.{1 1} list.{1} list.monad.{1} nat (prod.{1 1} nat nat)
+  (@list.cons.{1} nat (@one.{1} nat nat.has_one)
+     (@list.cons.{1} nat (@bit0.{1} nat nat.has_add (@one.{1} nat nat.has_one))
+        (@list.cons.{1} nat (@bit1.{1} nat nat.has_one nat.has_add (@one.{1} nat nat.has_one)) (@list.nil.{1} nat))))
   (λ (a : nat),
-     @monad.bind.{1 1} list.{1} list_is_monad.{1} nat (prod.{1 1} nat nat)
-       (@list.cons.{1} nat (@bit1.{1} nat nat_has_one nat_has_add (@one.{1} nat nat_has_one))
-          (@list.cons.{1} nat (@bit0.{1} nat nat_has_add (@bit0.{1} nat nat_has_add (@one.{1} nat nat_has_one)))
+     @monad.bind.{1 1} list.{1} list.monad.{1} nat (prod.{1 1} nat nat)
+       (@list.cons.{1} nat (@bit1.{1} nat nat.has_one nat.has_add (@one.{1} nat nat.has_one))
+          (@list.cons.{1} nat (@bit0.{1} nat nat.has_add (@bit0.{1} nat nat.has_add (@one.{1} nat nat.has_one)))
              (@list.nil.{1} nat)))
-       (λ (b : nat), @return.{1 1} list.{1} list_is_monad.{1} (prod.{1 1} nat nat) (@prod.mk.{1 1} nat nat a b))) :
+       (λ (b : nat), @return.{1 1} list.{1} list.monad.{1} (prod.{1 1} nat nat) (@prod.mk.{1 1} nat nat a b))) :
   list.{1} (prod.{1 1} nat nat)

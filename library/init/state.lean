@@ -25,9 +25,8 @@ attribute [inline]
 definition state_bind (a : state S A) (b : A → state S B) : state S B :=
 λ s, match (a s) with (a', s') := b a' s' end
 
-attribute [instance]
-definition state_is_monad (S : Type) : monad (state S) :=
-monad.mk (@state_fmap S) (@state_return S) (@state_bind S)
+instance (S : Type) : monad (state S) :=
+⟨@state_fmap S, @state_return S, @state_bind S⟩
 end
 
 namespace state
@@ -64,9 +63,8 @@ section
         act₂ a new_s
 end
 
-attribute [instance]
-definition stateT_is_monad (S : Type) (M : Type → Type) [monad M] : monad (stateT S M) :=
-monad.mk (@stateT_fmap S M _) (@stateT_return S M _) (@stateT_bind S M _)
+instance (S : Type) (M : Type → Type) [monad M] : monad (stateT S M) :=
+⟨@stateT_fmap S M _, @stateT_return S M _, @stateT_bind S M _⟩
 
 namespace stateT
 definition read {S : Type} {M : Type → Type} [monad M] : stateT S M S :=

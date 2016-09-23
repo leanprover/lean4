@@ -85,8 +85,7 @@ namespace nat
   | nat_refl : le a    -- use nat_refl to avoid overloading le.refl
   | step : Π {b}, le b → le (succ b)
 
-  attribute [instance, priority nat.prio]
-  definition nat_has_le : has_le ℕ :=
+  instance : has_le ℕ :=
   ⟨nat.le⟩
 
   attribute [refl]
@@ -96,8 +95,7 @@ namespace nat
   attribute [reducible]
   protected definition lt (n m : ℕ) := succ n ≤ m
 
-  attribute [instance, priority nat.prio]
-  definition nat_has_lt : has_lt ℕ :=
+  instance : has_lt ℕ :=
   ⟨nat.lt⟩
 
   definition pred : ℕ → ℕ
@@ -111,12 +109,10 @@ namespace nat
   protected definition mul (a b : ℕ) : ℕ :=
   nat.rec_on b zero (λ b₁ r, r + a)
 
-  attribute [instance, priority nat.prio]
-  definition nat_has_sub : has_sub ℕ :=
+  instance : has_sub ℕ :=
   ⟨nat.sub⟩
 
-  attribute [instance, priority nat.prio]
-  definition nat_has_mul : has_mul ℕ :=
+  instance : has_mul ℕ :=
   ⟨nat.mul⟩
 
   attribute [instance, priority nat.prio]
@@ -369,7 +365,6 @@ namespace nat
   | 0         a := a
   | (succ n)  a := f n (repeat n a)
 
-  attribute [instance]
-  protected definition is_inhabited : inhabited ℕ :=
+  instance : inhabited ℕ :=
   ⟨nat.zero⟩
 end nat

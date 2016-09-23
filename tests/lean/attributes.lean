@@ -6,4 +6,4 @@ local attribute [-reducible] foo -- use [semireducible] instead
 
 --
 
-local attribute [-instance] nat_has_one
+local attribute [-instance] nat.has_one

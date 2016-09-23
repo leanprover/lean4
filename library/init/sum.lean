@@ -14,10 +14,8 @@ universe variables u v
 
 variables {A : Type u} {B : Type v}
 
-attribute [instance]
-protected definition is_inhabited_left [h : inhabited A] : inhabited (A ⊕ B) :=
+instance sum.inhabited_left [h : inhabited A] : inhabited (A ⊕ B) :=
 ⟨sum.inl (default A)⟩
 
-attribute [instance]
-protected definition is_inhabited_right [h : inhabited B] : inhabited (A ⊕ B) :=
+instance sum.inhabited_right [h : inhabited B] : inhabited (A ⊕ B) :=
 ⟨sum.inr (default B)⟩

@@ -1,4 +1,4 @@
 λ {A : Type ?} [_inst_1 : has_add A] (a a_1 : A), @add A _inst_1 a a_1
 λ (a : nat), nat.succ a
-λ (a_1 : nat), @add nat nat_has_add a a_1
-λ (x a : nat), @add nat nat_has_add x a
+λ (a_1 : nat), @add nat nat.has_add a a_1
+λ (x a : nat), @add nat nat.has_add x a

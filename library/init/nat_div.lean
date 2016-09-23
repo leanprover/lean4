@@ -15,8 +15,7 @@ if H : 0 < y ∧ y ≤ x then f (x - y) (div_rec_lemma H) y + 1 else zero
 
 protected definition div := well_founded.fix lt_wf div.F
 
-attribute[instance]
-definition nat_has_divide : has_div nat :=
+instance : has_div nat :=
 ⟨nat.div⟩
 
 theorem div_def (x y : nat) : div x y = if H : 0 < y ∧ y ≤ x then div (x - y) y + 1 else 0 :=
@@ -27,8 +26,7 @@ if H : 0 < y ∧ y ≤ x then f (x - y) (div_rec_lemma H) y else x
 
 protected definition mod := well_founded.fix lt_wf mod.F
 
-attribute [instance]
-definition nat_has_mod : has_mod nat :=
+instance : has_mod nat :=
 ⟨nat.mod⟩
 
 theorem mod_def (x y : nat) : mod x y = if H : 0 < y ∧ y ≤ x then mod (x - y) y else x :=

@@ -9,12 +9,10 @@ open decidable
 
 universe variables u v
 
-attribute [instance]
-definition option_is_inhabited (A : Type u) : inhabited (option A) :=
+instance (A : Type u) : inhabited (option A) :=
 ⟨none⟩
 
-attribute [instance]
-definition option_has_decidable_eq {A : Type u} [H : decidable_eq A] : ∀ o₁ o₂ : option A, decidable (o₁ = o₂)
+instance {A : Type u} [H : decidable_eq A] : decidable_eq (option A)
 | none      none      := is_true rfl
 | none      (some v₂) := is_false (λ H, option.no_confusion H)
 | (some v₁) none      := is_false (λ H, option.no_confusion H)
@@ -34,8 +32,7 @@ definition option_bind {A : Type u} {B : Type v} : option A → (A → option B)
 | none     b := none
 | (some a) b := b a
 
-attribute [instance]
-definition option_is_monad : monad option :=
+instance : monad option :=
 monad.mk @option_fmap @some @option_bind
 
 definition option_orelse {A : Type u} : option A → option A → option A
@@ -43,8 +40,7 @@ definition option_orelse {A : Type u} : option A → option A → option A
 | none     (some a)  := some a
 | none     none      := none
 
-attribute [instance]
-definition option_is_alternative {A : Type u} : alternative option :=
+instance {A : Type u} : alternative option :=
 alternative.mk @option_fmap @some (@fapp _ _) @none @option_orelse
 
 definition optionT (M : Type (max 1 u) → Type v) [monad M] (A : Type u) : Type v :=
@@ -74,8 +70,7 @@ definition optionT_return {M : Type (max 1 u) → Type v} [monad M] {A : Type u}
 show M (option A), from
 return (some a)
 
-attribute [instance]
-definition optionT_is_monad {M : Type (max 1 u) → Type v} [monad M] {A : Type u} : monad (optionT M) :=
+instance {M : Type (max 1 u) → Type v} [monad M] {A : Type u} : monad (optionT M) :=
 monad.mk (@optionT_fmap M _) (@optionT_return M _) (@optionT_bind M _)
 
 definition optionT_orelse {M : Type (max 1 u) → Type v} [monad M] {A : Type u} (a : optionT M A) (b : optionT M A) : optionT M A :=
@@ -90,11 +85,10 @@ definition optionT_fail {M : Type (max 1 u) → Type v} [monad M] {A : Type u} :
 show M (option A), from
 return none
 
-attribute [instance]
-definition optionT_is_alternative {M : Type (max 1 u) → Type v} [monad M] {A : Type u} : alternative (optionT M) :=
+instance {M : Type (max 1 u) → Type v} [monad M] {A : Type u} : alternative (optionT M) :=
 alternative.mk
   (@optionT_fmap M _)
   (@optionT_return M _)
-  (@fapp (optionT M) (@optionT_is_monad M _ A))
+  (@fapp (optionT M) (@optionT.monad M _ A))
   (@optionT_fail M _)
   (@optionT_orelse M _)

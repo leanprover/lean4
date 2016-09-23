@@ -29,8 +29,5 @@ end subtype
 
 open subtype
 
-variables {A : Type u} {p : A → Prop}
-
-attribute [instance]
-protected definition subtype.is_inhabited {a : A} (h : p a) : inhabited {x // p x} :=
+instance {A : Type u} {p : A → Prop} {a : A} (h : p a) : inhabited {x // p x} :=
 ⟨⟨a, h⟩⟩

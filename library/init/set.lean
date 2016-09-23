@@ -33,8 +33,7 @@ p
 private definition sep (p : A → Prop) (s : set A) : set A :=
 λ a, a ∈ s ∧ p a
 
-attribute [instance]
-definition set_is_separable : separable A set :=
+instance : separable A set :=
 ⟨sep⟩
 
 private definition empty : set A :=
@@ -43,8 +42,7 @@ private definition empty : set A :=
 private definition insert (a : A) (s : set A) : set A :=
 λ b, b = a ∨ b ∈ s
 
-attribute [instance]
-definition set_is_insertable : insertable A set :=
+instance : insertable A set :=
 ⟨empty, insert⟩
 
 definition union (s₁ s₂ : set A) : set A :=
@@ -58,8 +56,7 @@ notation s₁ ∩ s₂ := inter s₁ s₂
 definition compl (s : set A) : set A :=
 λ a, a ∉ s
 
-attribute [instance]
-definition set_has_neg : has_neg (set A) :=
+instance : has_neg (set A) :=
 ⟨compl⟩
 
 definition diff (s t : set A) : set A :=

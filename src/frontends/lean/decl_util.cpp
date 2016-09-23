@@ -55,14 +55,18 @@ bool parse_univ_params(parser & p, buffer<name> & lp_names) {
     }
 }
 
-expr parse_single_header(parser & p, buffer<name> & lp_names, buffer<expr> & params, bool is_example) {
+expr parse_single_header(parser & p, buffer<name> & lp_names, buffer<expr> & params,
+                         bool is_example, bool is_instance) {
+    lean_assert(!is_example || !is_instance);
     auto c_pos  = p.pos();
     name c_name;
     if (is_example) {
         c_name = name("this");
     } else {
-        parse_univ_params(p, lp_names);
-        c_name = p.check_decl_id_next("invalid declaration, identifier expected");
+        if (!is_instance)
+            parse_univ_params(p, lp_names);
+        if (!is_instance || p.curr_is_identifier())
+            c_name = p.check_decl_id_next("invalid declaration, identifier expected");
     }
     declaration_name_scope scope(c_name);
     p.parse_optional_binders(params);
@@ -75,8 +79,23 @@ expr parse_single_header(parser & p, buffer<name> & lp_names, buffer<expr> & par
     } else {
         type = p.save_pos(mk_expr_placeholder(), c_pos);
     }
-    expr c   = p.save_pos(mk_local(c_name, type), c_pos);
-    return c;
+
+    if (is_instance && c_name.is_anonymous()) {
+        /* Try to synthesize name */
+        expr it = type;
+        while (is_pi(it)) it = binding_body(it);
+        expr const & C = get_app_fn(it);
+        name ns = get_namespace(p.env());
+        if (is_constant(C) && !ns.is_anonymous()) {
+            c_name = const_name(C);
+        } else if (is_constant(C) && is_app(it) && is_constant(get_app_fn(app_arg(it)))) {
+            c_name = const_name(get_app_fn(app_arg(it))) + const_name(C);
+        } else {
+            throw parser_error("failed to synthesize instance name, name should be provided explicitly", c_pos);
+        }
+    }
+    lean_assert(!c_name.is_anonymous());
+    return p.save_pos(mk_local(c_name, type), c_pos);
 }
 
 void parse_mutual_header(parser & p, buffer<name> & lp_names, buffer<expr> & cs, buffer<expr> & params) {

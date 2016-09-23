@@ -152,10 +152,11 @@ environment mutual_definition_cmd_core(parser & p, def_cmd_kind kind, bool is_pr
     return p.env();
 }
 
-static expr_pair parse_definition(parser & p, buffer<name> & lp_names, buffer<expr> & params, bool is_example) {
+static expr_pair parse_definition(parser & p, buffer<name> & lp_names, buffer<expr> & params,
+                                  bool is_example, bool is_instance) {
     parser::local_scope scope1(p);
     auto header_pos = p.pos();
-    expr fn = parse_single_header(p, lp_names, params, is_example);
+    expr fn = parse_single_header(p, lp_names, params, is_example, is_instance);
     declaration_name_scope scope2(local_pp_name(fn));
     expr val;
     if (p.curr_is_token(get_assign_tk())) {
@@ -379,7 +380,9 @@ environment definition_cmd_core(parser & p, def_cmd_kind kind, bool is_private, 
     expr fn, val;
     auto header_pos = p.pos();
     declaration_info_scope scope(p, is_private, is_noncomputable, kind);
-    std::tie(fn, val) = parse_definition(p, lp_names, params, kind == def_cmd_kind::Example);
+    bool is_example  = (kind == def_cmd_kind::Example);
+    bool is_instance = attrs.is_instance_cmd();
+    std::tie(fn, val) = parse_definition(p, lp_names, params, is_example, is_instance);
     elaborator elab(p.env(), p.get_options(), metavar_context(), local_context());
     buffer<expr> new_params;
     elaborate_params(elab, params, new_params);

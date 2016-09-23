@@ -698,34 +698,28 @@ end
 section
   variables {p q : Prop}
 
-  attribute [instance]
-  definition decidable_and [decidable p] [decidable q] : decidable (p ∧ q) :=
+  instance [decidable p] [decidable q] : decidable (p ∧ q) :=
   if hp : p then
     if hq : q then is_true ⟨hp, hq⟩
     else is_false (assume h : p ∧ q, hq (and.right h))
   else is_false (assume h : p ∧ q, hp (and.left h))
 
-  attribute [instance]
-  definition decidable_or [decidable p] [decidable q] : decidable (p ∨ q) :=
+  instance [decidable p] [decidable q] : decidable (p ∨ q) :=
   if hp : p then is_true (or.inl hp) else
     if hq : q then is_true (or.inr hq) else
       is_false (or.rec hp hq)
 
-  attribute [instance]
-  definition decidable_not [decidable p] : decidable (¬p) :=
+  instance [decidable p] : decidable (¬p) :=
   if hp : p then is_false (absurd hp) else is_true hp
 
-  attribute [instance]
-  definition decidable_implies [decidable p] [decidable q] : decidable (p → q) :=
+  instance implies.decidable [decidable p] [decidable q] : decidable (p → q) :=
   if hp : p then
     if hq : q then is_true (assume h, hq)
     else is_false (assume h : p → q, absurd (h hp) hq)
   else is_true (assume h, absurd h hp)
 
-  attribute [instance]
-  definition decidable_iff [decidable p] [decidable q] : decidable (p ↔ q) :=
-  decidable_and
-
+  instance [decidable p] [decidable q] : decidable (p ↔ q) :=
+  and.decidable
 end
 
 attribute [reducible]
@@ -734,9 +728,9 @@ attribute [reducible]
 definition decidable_rel  {A : Type u} (r : A → A → Prop) := Π (a b : A), decidable (r a b)
 attribute [reducible]
 definition decidable_eq   (A : Type u) := decidable_rel (@eq A)
-attribute [instance]
-definition decidable_ne {A : Type u} [decidable_eq A] (a b : A) : decidable (a ≠ b) :=
-decidable_implies
+
+instance {A : Type u} [decidable_eq A] (a b : A) : decidable (a ≠ b) :=
+implies.decidable
 
 theorem bool.ff_ne_tt : ff = tt → false
 .
@@ -745,8 +739,7 @@ definition is_dec_eq {A : Type u} (p : A → A → bool) : Prop   := ∀ ⦃x y 
 definition is_dec_refl {A : Type u} (p : A → A → bool) : Prop := ∀ x, p x x = tt
 
 open decidable
-attribute [instance]
-protected definition bool.has_decidable_eq : ∀ a b : bool, decidable (a = b)
+instance : decidable_eq bool
 | ff ff := is_true rfl
 | ff tt := is_false bool.ff_ne_tt
 | tt ff := is_false (ne.symm bool.ff_ne_tt)
@@ -791,29 +784,22 @@ attribute [inline, irreducible]
 definition arbitrary (A : Type u) [h : inhabited A] : A :=
 inhabited.value h
 
-attribute [instance]
-definition Prop.is_inhabited : inhabited Prop :=
+instance prop.inhabited : inhabited Prop :=
 ⟨true⟩
 
-attribute [instance]
-definition inhabited_fun (A : Type u) {B : Type v} [h : inhabited B] : inhabited (A → B) :=
+instance fun.inhabited (A : Type u) {B : Type v} [h : inhabited B] : inhabited (A → B) :=
 inhabited.rec_on h (λ b, ⟨λ a, b⟩)
 
-attribute [instance]
-definition inhabited_Pi (A : Type u) {B : A → Type v} [Π x, inhabited (B x)] :
-  inhabited (Π x, B x) :=
+instance pi.inhabite (A : Type u) {B : A → Type v} [Π x, inhabited (B x)] : inhabited (Π x, B x) :=
 ⟨λ a, default (B a)⟩
 
-attribute [inline, instance]
-protected definition bool.is_inhabited : inhabited bool :=
+instance : inhabited bool :=
 ⟨ff⟩
 
-attribute [inline, instance]
-protected definition pos_num.is_inhabited : inhabited pos_num :=
+instance : inhabited pos_num :=
 ⟨pos_num.one⟩
 
-attribute [inline, instance]
-protected definition num.is_inhabited : inhabited num :=
+instance : inhabited num :=
 ⟨num.zero⟩
 
 inductive [class] nonempty (A : Type u) : Prop
@@ -822,8 +808,7 @@ inductive [class] nonempty (A : Type u) : Prop
 protected definition nonempty.elim {A : Type u} {p : Prop} (h₁ : nonempty A) (h₂ : A → p) : p :=
 nonempty.rec h₂ h₁
 
-attribute [instance]
-theorem nonempty_of_inhabited {A : Type u} [inhabited A] : nonempty A :=
+instance nonempty_of_inhabited {A : Type u} [inhabited A] : nonempty A :=
 ⟨default A⟩
 
 theorem nonempty_of_exists {A : Type u} {p : A → Prop} : (∃ x, p x) → nonempty A
@@ -840,12 +825,10 @@ subsingleton.rec (λ p, p) h
 protected definition subsingleton.helim {A B : Type u} [h : subsingleton A] (h : A = B) : ∀ (a : A) (b : B), a == b :=
 eq.rec_on h (λ a b : A, heq_of_eq (subsingleton.elim a b))
 
-attribute [instance]
-definition subsingleton_prop (p : Prop) : subsingleton p :=
+instance subsingleton_prop (p : Prop) : subsingleton p :=
 ⟨λ a b, proof_irrel a b⟩
 
-attribute [instance]
-definition subsingleton_decidable (p : Prop) : subsingleton (decidable p) :=
+instance subsingleton_decidable (p : Prop) : subsingleton (decidable p) :=
 subsingleton.intro (λ d₁,
   match d₁ with
   | (is_true t₁) := (λ d₂,

@@ -20,8 +20,7 @@ definition concat (a b : string) : string :=
 list.append b a
 end string
 
-attribute [instance]
-definition string.has_append : has_append string :=
+instance : has_append string :=
 ⟨string.concat⟩
 
 open list

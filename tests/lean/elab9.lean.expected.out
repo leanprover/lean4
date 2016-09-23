@@ -4,5 +4,5 @@
   Π (A : Type u_1) [_inst_1 : has_add A] [_inst_2 : has_zero A] (a : A),
     @eq A (@add A _inst_1 a (@zero A _inst_2)) a →
     Π [_inst_3 : has_add A], @eq A a (@add A _inst_3 (@zero A _inst_2) (@zero A _inst_2)) → A
-λ (a b : nat) (H : @gt nat nat.nat_has_lt a b) [_inst_1 : has_lt nat], @lt nat _inst_1 a b :
-  Π (a b : nat), @gt nat nat.nat_has_lt a b → Π [_inst_1 : has_lt nat], Prop
+λ (a b : nat) (H : @gt nat nat.has_lt a b) [_inst_1 : has_lt nat], @lt nat _inst_1 a b :
+  Π (a b : nat), @gt nat nat.has_lt a b → Π [_inst_1 : has_lt nat], Prop

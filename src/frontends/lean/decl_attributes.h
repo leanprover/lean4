@@ -21,11 +21,13 @@ public:
 private:
     bool               m_persistent;
     bool               m_parsing_only;
+    bool               m_instance_cmd;
     list<entry>        m_entries;
     optional<unsigned> m_prio;
 public:
-    decl_attributes(bool persistent = true): m_persistent(persistent), m_parsing_only(false) {}
-    void add_attribute(environment const & env, name const & attr_name);
+    decl_attributes(bool persistent = true): m_persistent(persistent), m_parsing_only(false), m_instance_cmd(false) {}
+    void set_instance_cmd(environment const & env);
+    bool is_instance_cmd() const { return m_instance_cmd; }
     void parse(parser & p);
     environment apply(environment env, io_state const & ios, name const & d) const;
     list<entry> const & get_entries() const { return m_entries; }

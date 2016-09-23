@@ -19,10 +19,8 @@ attribute [inline]
 def list_return {A : Type u} (a : A) : list A :=
 [a]
 
-attribute [instance]
-def list_is_monad : monad list :=
+instance : monad list :=
 monad.mk @list_fmap @list_return @list_bind
 
-attribute [instance]
-def list_is_alternative : alternative list :=
+instance : alternative list :=
 alternative.mk @list_fmap @list_return (@fapp _ _) @nil @list.append

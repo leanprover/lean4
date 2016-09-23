@@ -131,7 +131,7 @@
      ;; attributes after definitions
      (,(rx word-start
            (group (or "inductive" "structure" "record" "theorem" "axiom" "axioms" "lemma" "proposition" "corollary"
-                      "hypothesis" "definition" "meta_definition" "instance" "constant" "meta_constant"))
+                      "hypothesis" "definition" "meta_definition" "constant" "meta_constant"))
            word-end (zero-or-more whitespace)
            (group (one-or-more "[" (zero-or-more (not (any "]"))) "]" (zero-or-more whitespace)))
            (zero-or-more whitespace)
@@ -141,7 +141,7 @@
       (2 'font-lock-doc-face) (4 'font-lock-function-name-face))
      (,(rx word-start
            (group (or "inductive" "structure" "record" "theorem" "axiom" "axioms" "lemma" "proposition" "corollary"
-                      "hypothesis" "definition" "meta_definition" "instance" "constant" "meta_constant"))
+                      "hypothesis" "definition" "meta_definition" "constant" "meta_constant"))
            word-end (zero-or-more whitespace)
            (group (one-or-more "[" (zero-or-more (not (any "]"))) "]" (zero-or-more whitespace)))
            (zero-or-more whitespace)
@@ -149,7 +149,7 @@
       (2 'font-lock-doc-face) (3 'font-lock-function-name-face))
      (,(rx word-start
            (group (or "inductive" "structure" "record" "theorem" "axiom" "axioms" "lemma" "proposition" "corollary"
-                      "hypothesis" "definition" "meta_definition" "instance" "constant" "meta_constant"))
+                      "hypothesis" "definition" "meta_definition" "constant" "meta_constant"))
            word-end (zero-or-more whitespace)
            (group (zero-or-more "{" (zero-or-more (not (any "}"))) "}" (zero-or-more whitespace)))
            (zero-or-more whitespace)
@@ -180,7 +180,7 @@
      ;; universe/inductive/theorem... "names" (without attributes)
      (,(rx word-start
            (group (or "inductive" "structure" "record" "theorem" "axiom" "axioms" "lemma" "proposition" "corollary"
-                      "hypothesis" "definition" "meta_definition" "instance" "constant" "meta_constant"))
+                      "hypothesis" "definition" "meta_definition" "constant" "meta_constant"))
            word-end
            (zero-or-more whitespace)
            (group (zero-or-more (not (any " \t\n\r{([")))))

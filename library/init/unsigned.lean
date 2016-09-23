@@ -24,7 +24,6 @@ definition to_nat (c : unsigned) : nat :=
 fin.val c
 end unsigned
 
-attribute [instance]
-definition unsigned.has_decidable_eq : decidable_eq unsigned :=
-have decidable_eq (fin unsigned_sz), from fin.has_decidable_eq _,
+instance : decidable_eq unsigned :=
+have decidable_eq (fin unsigned_sz), from fin.decidable_eq _,
 this

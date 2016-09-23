@@ -7,14 +7,14 @@ set_option pp.all true
 
 open tactic
 
-example (a b : nat) (H : @add nat (id (id nat_has_add)) a b = @add nat nat_has_add2 a b) : true :=
+example (a b : nat) (H : @add nat (id (id nat.has_add)) a b = @add nat nat_has_add2 a b) : true :=
 by do
   get_local `H >>= infer_type >>= defeq_simp >>= trace,
   constructor
 
 constant x1 : nat -- update the environment to force defeq_canonize cache to be reset
 
-example (a b : nat) (H : (λ x : nat, @add nat (id (id nat_has_add)) a b) = (λ x : nat, @add nat nat_has_add2 a x)) : true :=
+example (a b : nat) (H : (λ x : nat, @add nat (id (id nat.has_add)) a b) = (λ x : nat, @add nat nat_has_add2 a x)) : true :=
 by do
   get_local `H >>= infer_type >>= defeq_simp >>= trace,
   constructor

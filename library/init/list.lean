@@ -9,8 +9,7 @@ open decidable list
 
 universe variables u v
 
-attribute [instance]
-protected def list.is_inhabited (A : Type u) : inhabited (list A) :=
+instance (A : Type u) : inhabited (list A) :=
 ⟨list.nil⟩
 
 notation h :: t  := cons h t
@@ -71,6 +70,5 @@ def dropn : ℕ → list A → list A
 | (succ n) (x::r) := dropn n r
 end list
 
-attribute [instance]
-def list_has_append {A : Type u} : has_append (list A) :=
+instance {A : Type u} : has_append (list A) :=
 ⟨list.append⟩

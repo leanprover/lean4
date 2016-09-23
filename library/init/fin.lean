@@ -22,8 +22,7 @@ end fin
 
 open fin
 
-attribute [instance]
-protected definition fin.has_decidable_eq (n : nat) : ∀ (i j : fin n), decidable (i = j)
+instance (n : nat) : decidable_eq (fin n)
 | ⟨ival, ilt⟩ ⟨jval, jlt⟩ :=
   match nat.has_decidable_eq ival jval with
   | is_true  h₁ := is_true (eq_of_veq h₁)

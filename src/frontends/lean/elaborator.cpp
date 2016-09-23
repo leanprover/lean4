@@ -1595,27 +1595,34 @@ expr elaborator::visit_inaccessible(expr const & e, optional<expr> const & expec
     return copy_tag(e, mk_inaccessible(m));
 }
 
-expr elaborator::visit_projection(expr const & e, optional<expr> const & expected_type) {
-    lean_assert(is_projection_notation(e));
+expr elaborator::visit_field(expr const & e, optional<expr> const & expected_type) {
+    lean_assert(is_field_notation(e));
     expr s      = visit(macro_arg(e, 0), none_expr());
     expr s_type = whnf(infer_type(s));
     expr I      = get_app_fn(s_type);
-    if (!is_constant(I) || !is_structure(m_env, const_name(I))) {
+    if (!is_constant(I)) {
         auto pp_fn = mk_pp_ctx();
-        throw elaborator_exception(e, format("invalid projection, expression is not a structure") +
+        throw elaborator_exception(e, format("invalid '~>' notation, type is not of the form (C ...) where C is a constant") +
                                    pp_indent(pp_fn, s) +
                                    line() + format("has type") +
                                    pp_indent(pp_fn, s_type));
     }
-    buffer<name> fnames;
-    get_structure_fields(m_env, const_name(I), fnames);
     name full_fname;
-    if (is_anonymous_projection_notation(e)) {
-        unsigned fidx = get_projection_notation_field_idx(e);
+    if (is_anonymous_field_notation(e)) {
+        if (!is_structure(m_env, const_name(I))) {
+            auto pp_fn = mk_pp_ctx();
+            throw elaborator_exception(e, format("invalid projection, structure expected") +
+                                       pp_indent(pp_fn, s) +
+                                       line() + format("has type") +
+                                       pp_indent(pp_fn, s_type));
+        }
+        buffer<name> fnames;
+        get_structure_fields(m_env, const_name(I), fnames);
+        unsigned fidx = get_field_notation_field_idx(e);
         lean_assert(fidx > 0);
         if (fidx > fnames.size()) {
             auto pp_fn = mk_pp_ctx();
-            throw elaborator_exception(e, format("invalid projection, structure has only ") +
+            throw elaborator_exception(e, format("invalid field, structure has only ") +
                                        format(fnames.size()) + format(" field(s)") +
                                        pp_indent(pp_fn, s) +
                                        line() + format("which has type") +
@@ -1623,11 +1630,13 @@ expr elaborator::visit_projection(expr const & e, optional<expr> const & expecte
         }
         full_fname = fnames[fidx-1];
     } else {
-        name fname  = get_projection_notation_field_name(e);
+        name fname  = get_field_notation_field_name(e);
         full_fname = const_name(I) + fname;
-        if (std::find(fnames.begin(), fnames.end(), full_fname) == fnames.end()) {
+        if (!m_env.find(full_fname)) {
             auto pp_fn = mk_pp_ctx();
-            throw elaborator_exception(e, format("invalid projection, '") + format(fname) + format("' is not a field of") +
+            throw elaborator_exception(e, format("invalid '~>' notation, '") + format(fname) + format("'") +
+                                       format(" is not a valid \"field\" because environment does not contain ") +
+                                       format("'") + format(full_fname) + format("'") +
                                        pp_indent(pp_fn, s) +
                                        line() + format("which has type") +
                                        pp_indent(pp_fn, s_type));
@@ -1757,8 +1766,8 @@ expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_typ
     } else if (is_equation(e)) {
         lean_assert(!is_app_fn);
         return visit_equation(e);
-    } else if (is_projection_notation(e)) {
-        return visit_projection(e, expected_type);
+    } else if (is_field_notation(e)) {
+        return visit_field(e, expected_type);
     } else if (is_inaccessible(e)) {
         if (is_app_fn)
             throw elaborator_exception(e, "invalid inaccessible term, function expected");

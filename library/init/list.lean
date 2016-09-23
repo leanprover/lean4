@@ -17,7 +17,7 @@ notation h :: t  := cons h t
 notation `[` l:(foldr `, ` (h t, cons h t) nil `]`) := l
 
 namespace list
-variable {A : Type u}
+variables {A : Type u} {B : Type v}
 
 definition append : list A → list A → list A
 | []       l := l
@@ -50,9 +50,12 @@ definition reverse : list A → list A
 | []       := []
 | (a :: l) := concat a (reverse l)
 
-definition map {B : Type v} (f : A → B) : list A → list B
+definition map (f : A → B) : list A → list B
 | []       := []
 | (a :: l) := f a :: map l
+
+definition for : list A → (A → B) → list B :=
+flip map
 
 definition join : list (list A) → list A
 | []        := []

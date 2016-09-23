@@ -1,0 +1,17 @@
+list.map : (?M_1 → ?M_2) → list ?M_1 → list ?M_2
+field_access.lean:5:7: error: invalid projection, structure expected
+  l
+has type
+  list ℕ
+field_access.lean:7:12: error: invalid field, structure has only 2 field(s)
+  (1, 2)
+which has type
+  ?m_1 × ?m_2
+field_access.lean:10:1: error: invalid '~>' notation, 'forr' is not a valid "field" because environment does not contain 'list.forr'
+  l
+which has type
+  list ℕ
+field_access.lean:13:1: error: invalid '~>' notation, type is not of the form (C ...) where C is a constant
+  a
+has type
+  A

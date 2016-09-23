@@ -6,11 +6,14 @@ Authors: Leonardo de Moura, Jeremy Avigad, Floris van Doorn
 prelude
 import init.datatypes
 
-universe variables u v
+universe variables u v w
 
 attribute [reducible]
 definition id {A : Type u} (a : A) : A :=
 a
+
+definition flip {A : Type u} {B : Type v} {C : Type w} (f : A → B → C) : B → A → C :=
+λ b a, f a b
 
 /- TODO(Leo): for new elaborator
 - Support for partially applied recursors (use eta-expansion)

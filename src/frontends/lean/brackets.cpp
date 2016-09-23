@@ -36,7 +36,7 @@ static expr mk_singleton(parser & p, pos_info const & pos, expr const & e) {
 
 /* Parse rest of the insertable '{' expr ... */
 static expr parse_insertable(parser & p, pos_info const & pos, expr const & e) {
-    lean_assert(p.curr_is_token(get_comma_tk()));
+    lean_assert(p.curr_is_token(get_comma_tk()) || p.curr_is_token(get_rcurly_tk()));
     expr r = mk_singleton(p, pos, e);
     while (p.curr_is_token(get_comma_tk())) {
         auto ins_pos = p.pos();

@@ -45,7 +45,7 @@ public:
 };
 
 static expr mk_structure_instance_core(name const & s, list<name> const & fs, unsigned num, expr const * args) {
-    lean_assert(num == length(fs) && num == length(fs) + 1);
+    lean_assert(num == length(fs) || num == length(fs) + 1);
     macro_definition def(new structure_instance_macro_cell(s, fs));
     return mk_macro(def, num, args);
 }

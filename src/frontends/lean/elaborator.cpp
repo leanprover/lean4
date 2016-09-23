@@ -2429,6 +2429,8 @@ static expr translate_local_name(environment const & env, local_context const & 
         else
             return src;
     }
+    if (local_name == "sorry")
+        return mk_constant(local_name);
     throw elaborator_exception(src, format("unknown identifier '") + format(local_name) + format("'"));
 }
 

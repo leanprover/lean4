@@ -9,16 +9,16 @@ myprod.snd p : ℕ
 f (myprod.fst p) : ℕ
 myprod.fst p + myprod.snd p : ℕ
 λ (c : car), position.x (car.pos c) : car → ℕ
-proj_notation.lean:34:18: error: invalid projection, 'fst' is not a field of
+proj_notation.lean:34:18: error: invalid '~>' notation, 'fst' is not a valid "field" because environment does not contain 'car.fst'
   c
 which has type
   car
-proj_notation.lean:36:19: error: invalid projection, field index must be greater than 0
+proj_notation.lean:36:19: error: invalid projection, index must be greater than 0
 proj_notation.lean:38:18: error: invalid projection, structure has only 2 field(s)
   c
 which has type
   car
-proj_notation.lean:40:18: error: invalid projection, expression is not a structure
+proj_notation.lean:40:18: error: invalid projection, structure expected
   n
 has type
   ℕ

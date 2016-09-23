@@ -3,7 +3,7 @@ field_access.lean:5:7: error: invalid projection, structure expected
   l
 has type
   list ℕ
-field_access.lean:7:12: error: invalid field, structure has only 2 field(s)
+field_access.lean:7:12: error: invalid projection, structure has only 2 field(s)
   (1, 2)
 which has type
   ?m_1 × ?m_2

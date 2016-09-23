@@ -385,38 +385,46 @@ environment definition_cmd_core(parser & p, def_cmd_kind kind, bool is_private, 
     elaborate_params(elab, params, new_params);
     elab.set_instance_fingerprint();
     replace_params(params, new_params, fn, val);
-    bool is_meta = (kind == def_cmd_kind::MetaDefinition);
-    expr type;
-    std::shared_ptr<throwable> saved_exception;
-    try {
+
+    auto process = [&](expr val) -> environment {
+        bool is_meta = (kind == def_cmd_kind::MetaDefinition);
+        expr type;
         std::tie(val, type) = elaborate_definition(p, elab, kind, fn, val, header_pos);
-    } catch (exception & ex) {
+        if (is_meta) {
+            val = fix_rec_fn_macro_args(elab, mlocal_name(fn), new_params, type, val);
+        }
+        if (is_equations_result(val)) {
+            // TODO(Leo): generate equation lemmas and induction principle
+            lean_assert(is_equations_result(val));
+            lean_assert(get_equations_result_size(val) == 1);
+            val = get_equations_result(val, 0);
+        }
+        finalize_definition(elab, new_params, type, val, lp_names);
+        if (kind == Example) return p.env();
+        name c_name = mlocal_name(fn);
+        auto env_n  = declare_definition(p, elab.env(), kind, lp_names, c_name, type, val,
+                                         is_meta, is_private, is_protected, is_noncomputable, attrs, header_pos);
+        environment new_env = env_n.first;
+        name c_real_name    = env_n.second;
+        return add_local_ref(p, new_env, c_name, c_real_name, lp_names, params);
+    };
+
+    try {
+        return process(val);
+    } catch (throwable & ex1) {
         if (kind == Example) throw;
         /* Try again using 'sorry' */
-        saved_exception.reset(ex.clone());
-        val = p.mk_sorry(header_pos);
+        expr sorry = p.mk_sorry(header_pos);
         is_noncomputable = true;
-        std::tie(val, type) = elaborate_definition(p, elab, kind, fn, val, header_pos);
+        environment new_env;
+        try {
+            new_env = process(sorry);
+        } catch (throwable & ex2) {
+            /* Throw original error */
+            ex1.rethrow();
+        }
+        std::shared_ptr<throwable> ex_ptr(ex1.clone());
+        throw update_environment_exception(new_env, ex_ptr);
     }
-    if (is_meta) {
-        val = fix_rec_fn_macro_args(elab, mlocal_name(fn), new_params, type, val);
-    }
-    if (is_equations_result(val)) {
-        // TODO(Leo): generate equation lemmas and induction principle
-        lean_assert(is_equations_result(val));
-        lean_assert(get_equations_result_size(val) == 1);
-        val = get_equations_result(val, 0);
-    }
-    finalize_definition(elab, new_params, type, val, lp_names);
-    if (kind == Example) return p.env();
-    name c_name = mlocal_name(fn);
-    auto env_n  = declare_definition(p, elab.env(), kind, lp_names, c_name, type, val,
-                                     is_meta, is_private, is_protected, is_noncomputable, attrs, header_pos);
-    environment new_env = env_n.first;
-    name c_real_name    = env_n.second;
-    new_env             = add_local_ref(p, new_env, c_name, c_real_name, lp_names, params);
-    if (saved_exception)
-        throw update_environment_exception(new_env, saved_exception);
-    return new_env;
 }
 }

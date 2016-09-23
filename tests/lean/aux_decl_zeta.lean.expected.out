@@ -8,3 +8,4 @@ has type
   vec ℕ n
 but is expected to have type
   vec ℕ 10
+aux_decl_zeta.lean:16:0: error: invalid object declaration, environment already has an object named 'f'

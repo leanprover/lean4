@@ -1627,7 +1627,7 @@ expr elaborator::visit_field(expr const & e, optional<expr> const & expected_typ
         lean_assert(fidx > 0);
         if (fidx > fnames.size()) {
             auto pp_fn = mk_pp_ctx();
-            throw elaborator_exception(e, format("invalid field, structure has only ") +
+            throw elaborator_exception(e, format("invalid projection, structure has only ") +
                                        format(fnames.size()) + format(" field(s)") +
                                        pp_indent(pp_fn, s) +
                                        line() + format("which has type") +

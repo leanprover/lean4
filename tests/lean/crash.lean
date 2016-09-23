@@ -8,5 +8,4 @@ definition crash
             have H' : ¬ P,
             from H,
             _.
-
 end

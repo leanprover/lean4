@@ -1,10 +1,9 @@
-
 axiom val : nat
 
 definition foo : nat :=
 val
 
-noncomputable definition foo : nat :=
+noncomputable definition foo2 : nat :=
 val
 
 noncomputable definition bla : nat :=

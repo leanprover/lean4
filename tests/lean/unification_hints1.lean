@@ -13,7 +13,9 @@ noncomputable definition g (x y : A) : A := f z
 
 attribute [unify]
 noncomputable definition toy_hint (x y : A) : unification_hint :=
-  unification_hint.mk (unification_constraint.mk (g x y) (f z)) []
+{ pattern := {lhs := g x y, rhs := f z}, constraints := [] }
+
+infix `=?=`:50 := unification_constraint.mk
 
 #unify (g x y), (f z)
 print [unify]
@@ -28,7 +30,7 @@ attribute add [irreducible]
 
 attribute [unify]
 definition add_zero_hint (m n : ℕ) [has_add ℕ] [has_one ℕ] [has_zero ℕ] : unification_hint :=
-  unification_hint.mk (unification_constraint.mk (m + 1) (succ n)) [unification_constraint.mk m n]
+{ pattern := m + 1 =?= succ n, constraints := [m =?= n] }
 
 #unify (n + 1), (succ n)
 print [unify]
@@ -50,7 +52,7 @@ noncomputable definition A_canonical : Canonical := Canonical.mk A f
 
 attribute [unify]
 noncomputable definition Canonical_hint (C : Canonical) : unification_hint :=
-  unification_hint.mk (unification_constraint.mk (Canonical.carrier C) A) [unification_constraint.mk C A_canonical]
+{ pattern := C~>carrier =?= A, constraints := [C =?= A_canonical] }
 
 -- TODO(dhs): we mark carrier as irreducible and prove A_canonical explicitly to work around the fact that
 -- the default_type_context does not recognize the elaborator metavariables as metavariables,

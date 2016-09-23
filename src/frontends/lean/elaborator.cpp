@@ -1700,50 +1700,69 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
                                        "(solution: use qualified structure instance { struct_id . ... }");
         }
     }
-    buffer<name> S_fnames;
-    get_structure_fields(m_env, S_name, S_fnames);
+    unsigned nparams = *inductive::get_num_params(m_env, S_name);
+    buffer<bool> used;
+    used.resize(fnames.size(), false);
+    if (src) src = copy_tag(*src, mk_as_is(*src));
+
     buffer<name> c_names;
     get_intro_rule_names(m_env, S_name, c_names);
     lean_assert(c_names.size() == 1);
     expr c = copy_tag(e, mk_constant(c_names[0]));
-    buffer<bool> used;
-    used.resize(fnames.size(), false);
-    if (src)
-        src = copy_tag(*src, mk_as_is(*src));
-    for (unsigned j = 0; j < fnames.size(); j++) {
-        fnames[j] = S_name + fnames[j];
-    }
-    for (unsigned i = 0; i < S_fnames.size(); i++) {
-        unsigned j = 0;
-        for (; j < fnames.size(); j++) {
-            if (S_fnames[i] == fnames[j]) {
-                used[j] = true;
-                c = copy_tag(e, mk_app(c, fvalues[j]));
-                break;
+    expr c_type = m_env.get(c_names[0]).get_type();
+    unsigned i = 0;
+    while (is_pi(c_type)) {
+        if (i < nparams) {
+            if (is_explicit(binding_info(c_type))) {
+                throw elaborator_exception(e, sstream() << "invalid structure value {...}, structure parameter '" <<
+                                           binding_name(c_type) << "' is explicit in the structure constructor '" <<
+                                           c_names[0] << "'");
             }
-        }
-        if (j == fnames.size()) {
-            if (src) {
-                name new_fname = S_fnames[i].replace_prefix(S_name, src_S_name);
-                expr f = copy_tag(e, mk_constant(new_fname));
-                f = copy_tag(e, mk_app(f, *src));
-                try {
-                    f = visit(f, none_expr());
-                } catch (exception & ex) {
-                    throw nested_exception(some_expr(e), sstream() << "invalid structure update { src with ... }, field '" << S_fnames[i] << "'" <<
-                                           " was not provided, nor it was found in the source", ex);
+        } else {
+            name S_fname = binding_name(c_type);
+            if (is_explicit(binding_info(c_type))) {
+                unsigned j = 0;
+                for (; j < fnames.size(); j++) {
+                    if (S_fname == fnames[j]) {
+                        used[j] = true;
+                        c = copy_tag(e, mk_app(c, fvalues[j]));
+                        break;
+                    }
                 }
-                f = copy_tag(e, mk_as_is(f));
-                c = copy_tag(e, mk_app(c, f));
+                if (j == fnames.size()) {
+                    if (src) {
+                        name new_fname = src_S_name + S_fname;
+                        expr f = copy_tag(e, mk_constant(new_fname));
+                        f = copy_tag(e, mk_app(f, *src));
+                        try {
+                            f = visit(f, none_expr());
+                        } catch (exception & ex) {
+                            throw nested_exception(some_expr(e),
+                                                   sstream() << "invalid structure update { src with ... }, field '"
+                                                   << S_fname << "'"
+                                                   << " was not provided, nor it was found in the source", ex);
+                        }
+                        f = copy_tag(e, mk_as_is(f));
+                        c = copy_tag(e, mk_app(c, f));
+                    } else {
+                        throw elaborator_exception(e, sstream() << "invalid structure value { ... }, field '" <<
+                                                   S_fname << "' was not provided");
+                    }
+                }
             } else {
-                throw elaborator_exception(e, sstream() << "invalid structure value { ... }, field '" << S_fnames[i] << "'" <<
-                                           " was not provided");
+                /* Implicit field */
+                if (std::find(fnames.begin(), fnames.end(), S_fname) != fnames.end()) {
+                    throw elaborator_exception(e, sstream() << "invalid structure value {...}, field '"
+                                               << S_fname << "' is implicit and must not be provided");
+                }
             }
         }
+        c_type = binding_body(c_type);
+        i++;
     }
     for (unsigned i = 0; i < fnames.size(); i++) {
         if (!used[i]) {
-            throw elaborator_exception(e, sstream() << "invalid structure value { ... }, '" << S_fnames[i] << "'" <<
+            throw elaborator_exception(e, sstream() << "invalid structure value { ... }, '" << fnames[i] << "'" <<
                                        " is not a field of structure '" << S_name << "'");
         }
     }

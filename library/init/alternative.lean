@@ -12,15 +12,15 @@ structure [class] alternative (F : Type u → Type v) extends applicative F : Ty
 (orelse  : Π {A : Type u}, F A → F A → F A)
 
 attribute [inline]
-definition failure {F : Type u → Type v} [alternative F] {A : Type u} : F A :=
+def failure {F : Type u → Type v} [alternative F] {A : Type u} : F A :=
 alternative.failure F
 
 attribute [inline]
-definition orelse {F : Type u → Type v} [alternative F] {A : Type u} : F A → F A → F A :=
+def orelse {F : Type u → Type v} [alternative F] {A : Type u} : F A → F A → F A :=
 alternative.orelse
 
 infixr ` <|> `:2 := orelse
 
 attribute [inline]
-definition guard {F : Type → Type v} [alternative F] (P : Prop) [decidable P] : F unit :=
+def guard {F : Type → Type v} [alternative F] (P : Prop) [decidable P] : F unit :=
 if P then pure () else failure

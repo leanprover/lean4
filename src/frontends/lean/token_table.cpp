@@ -122,7 +122,7 @@ void init_token_table(token_table & t) {
          {"∀", "Pi"}, {"Π", "Pi"}, {nullptr, nullptr}};
 
     pair<char const *, char const *> cmd_aliases[] =
-        {{"lemma", "theorem"}, {"proposition", "theorem"}, {"premise", "variable"}, {"premises", "variables"},
+        {{"lemma", "theorem"}, {"def", "definition"}, {"proposition", "theorem"}, {"premise", "variable"}, {"premises", "variables"},
          {"corollary", "theorem"}, {"hypothesis", "parameter"}, {"conjecture", "parameter"},
          {"record", "structure"}, {nullptr, nullptr}};
 

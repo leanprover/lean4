@@ -12,11 +12,11 @@ structure [class] applicative (F : Type u → Type v) extends functor F : Type (
 (seq  : Π {A B : Type u}, F (A → B) → F A → F B)
 
 attribute [inline]
-definition pure {F : Type u → Type v} [applicative F] {A : Type u} : A → F A :=
+def pure {F : Type u → Type v} [applicative F] {A : Type u} : A → F A :=
 applicative.pure F
 
 attribute [inline]
-definition seq_app {A B : Type u} {F : Type u → Type v} [applicative F] : F (A → B) → F A → F B :=
+def seq_app {A B : Type u} {F : Type u → Type v} [applicative F] : F (A → B) → F A → F B :=
 applicative.seq
 
 infixr ` <*> `:2 := seq_app

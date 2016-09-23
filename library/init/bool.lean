@@ -6,24 +6,24 @@ import init.datatypes
 
 namespace bool
   attribute [inline]
-  definition {u} cond {A : Type u} : bool → A → A → A
+  def {u} cond {A : Type u} : bool → A → A → A
   | tt a b := a
   | ff a b := b
 
   attribute [inline]
-  definition bor : bool → bool → bool
+  def bor : bool → bool → bool
   | tt _  := tt
   | ff tt := tt
   | ff ff := ff
 
   attribute [inline]
-  definition band : bool → bool → bool
+  def band : bool → bool → bool
   | ff _  := ff
   | tt ff := ff
   | tt tt := tt
 
   attribute [inline]
-  definition bnot : bool → bool
+  def bnot : bool → bool
   | tt := ff
   | ff := tt
 end bool

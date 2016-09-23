@@ -16,16 +16,16 @@ section
 variables {A : Type u} {C : Type u → Type v}
 variable [insertable A C]
 
-definition insert : A → C A → C A :=
+def insert : A → C A → C A :=
 insertable.insert
 
 /- The empty collection -/
-definition empty_col : C A :=
+def empty_col : C A :=
 insertable.empty A C
 
 notation `∅` := empty_col
 
-definition singleton (a : A) : C A :=
+def singleton (a : A) : C A :=
 insert a ∅
 end
 
@@ -37,7 +37,7 @@ section
 variables {A : Type u} {C : Type u → Type v}
 variable [decidable_separable A C]
 
-definition dec_sep (p : A → Prop) [decidable_pred p] : C A → C A :=
+def dec_sep (p : A → Prop) [decidable_pred p] : C A → C A :=
 decidable_separable.sep p
 end
 
@@ -49,6 +49,6 @@ section
 variables {A : Type u} {C : Type u → Type v}
 variable [separable A C]
 
-definition sep : (A → Prop) → C A → C A :=
+def sep : (A → Prop) → C A → C A :=
 separable.sep
 end

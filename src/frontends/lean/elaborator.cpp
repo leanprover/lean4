@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "library/explicit.h"
 #include "library/scope_pos_info_provider.h"
 #include "library/choice.h"
+#include "library/sorry.h"
 #include "library/util.h"
 #include "library/typed_expr.h"
 #include "library/annotation.h"
@@ -1264,6 +1265,10 @@ expr elaborator::visit_local(expr const & e, optional<expr> const & expected_typ
 }
 
 expr elaborator::visit_constant(expr const & e, optional<expr> const & expected_type) {
+    if (is_sorry(e)) {
+        m_env = declare_sorry(m_env);
+        m_ctx.set_env(m_env);
+    }
     return visit_app_core(e, buffer<expr>(), expected_type, e);
 }
 

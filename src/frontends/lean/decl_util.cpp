@@ -318,6 +318,7 @@ environment add_alias(environment const & env, bool is_protected, name const & c
 
 struct definition_info {
     name     m_prefix;
+    bool     m_prev_errors{false};
     bool     m_is_private{false};
     bool     m_is_meta{false};
     bool     m_is_noncomputable{false};
@@ -328,11 +329,12 @@ struct definition_info {
 
 MK_THREAD_LOCAL_GET_DEF(definition_info, get_definition_info);
 
-declaration_info_scope::declaration_info_scope(environment const & env, bool is_private, bool is_meta,
+declaration_info_scope::declaration_info_scope(name const & ns, bool prev_errors, bool is_private, bool is_meta,
                                                bool is_noncomputable, bool is_lemma, bool aux_lemmas) {
     definition_info & info = get_definition_info();
     lean_assert(info.m_prefix.is_anonymous());
-    info.m_prefix           = is_private ? name() : get_namespace(env);
+    info.m_prefix           = is_private ? name() : ns;
+    info.m_prev_errors      = prev_errors;
     info.m_is_private       = is_private;
     info.m_is_meta          = is_meta;
     info.m_is_noncomputable = is_noncomputable;
@@ -341,8 +343,8 @@ declaration_info_scope::declaration_info_scope(environment const & env, bool is_
     info.m_next_match_idx = 1;
 }
 
-declaration_info_scope::declaration_info_scope(environment const & env, bool is_private, bool is_noncomputable, def_cmd_kind k):
-    declaration_info_scope(env, is_private, k == MetaDefinition, is_noncomputable, k == Theorem, k == Definition) {}
+declaration_info_scope::declaration_info_scope(parser const & p, bool is_private, bool is_noncomputable, def_cmd_kind k):
+    declaration_info_scope(get_namespace(p.env()), p.found_errors(), is_private, k == MetaDefinition, is_noncomputable, k == Theorem, k == Definition) {}
 
 declaration_info_scope::~declaration_info_scope() {
     definition_info & info = get_definition_info();
@@ -358,6 +360,7 @@ equations_header mk_equations_header(list<name> const & ns) {
     h.m_is_noncomputable = get_definition_info().m_is_noncomputable;
     h.m_is_lemma         = get_definition_info().m_is_lemma;
     h.m_aux_lemmas       = get_definition_info().m_aux_lemmas;
+    h.m_prev_errors      = get_definition_info().m_prev_errors;
     return h;
 }
 

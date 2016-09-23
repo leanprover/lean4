@@ -30,6 +30,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/decl_util.h"
 #include "frontends/lean/decl_attributes.h"
 #include "frontends/lean/definition_cmds.h"
+#include "frontends/lean/update_environment_exception.h"
 
 // We don't display profiling information for declarations that take less than 0.01 secs
 #ifndef LEAN_PROFILE_THRESHOLD
@@ -137,9 +138,8 @@ environment mutual_definition_cmd_core(parser & p, def_cmd_kind kind, bool is_pr
                                        decl_attributes /* attrs */) {
     buffer<name> lp_names;
     buffer<expr> fns, params;
-    declaration_info_scope scope(p.env(), is_private, is_noncomputable, kind);
+    declaration_info_scope scope(p, is_private, is_noncomputable, kind);
     expr val = parse_mutual_definition(p, lp_names, fns, params);
-    if (p.used_sorry()) p.declare_sorry();
     elaborator elab(p.env(), p.get_options(), metavar_context(), local_context());
     buffer<expr> new_params;
     elaborate_params(elab, params, new_params);
@@ -284,6 +284,8 @@ static environment compile_decl(parser & p, environment const & env, def_cmd_kin
         declaration d = env.get(c_real_name);
         return vm_compile(env, d);
     } catch (exception & ex) {
+        if (p.found_errors())
+            return env;
         flycheck_warning wrn(p.ios());
         auto & out = p.ios().get_regular_stream();
         display_pos(out, p, pos);
@@ -376,9 +378,8 @@ environment definition_cmd_core(parser & p, def_cmd_kind kind, bool is_private, 
     buffer<expr> params;
     expr fn, val;
     auto header_pos = p.pos();
-    declaration_info_scope scope(p.env(), is_private, is_noncomputable, kind);
+    declaration_info_scope scope(p, is_private, is_noncomputable, kind);
     std::tie(fn, val) = parse_definition(p, lp_names, params, kind == def_cmd_kind::Example);
-    if (p.used_sorry()) p.declare_sorry();
     elaborator elab(p.env(), p.get_options(), metavar_context(), local_context());
     buffer<expr> new_params;
     elaborate_params(elab, params, new_params);
@@ -386,7 +387,17 @@ environment definition_cmd_core(parser & p, def_cmd_kind kind, bool is_private, 
     replace_params(params, new_params, fn, val);
     bool is_meta = (kind == def_cmd_kind::MetaDefinition);
     expr type;
-    std::tie(val, type) = elaborate_definition(p, elab, kind, fn, val, header_pos);
+    std::shared_ptr<throwable> saved_exception;
+    try {
+        std::tie(val, type) = elaborate_definition(p, elab, kind, fn, val, header_pos);
+    } catch (exception & ex) {
+        if (kind == Example) throw;
+        /* Try again using 'sorry' */
+        saved_exception.reset(ex.clone());
+        val = p.mk_sorry(header_pos);
+        is_noncomputable = true;
+        std::tie(val, type) = elaborate_definition(p, elab, kind, fn, val, header_pos);
+    }
     if (is_meta) {
         val = fix_rec_fn_macro_args(elab, mlocal_name(fn), new_params, type, val);
     }
@@ -403,6 +414,9 @@ environment definition_cmd_core(parser & p, def_cmd_kind kind, bool is_private, 
                                      is_meta, is_private, is_protected, is_noncomputable, attrs, header_pos);
     environment new_env = env_n.first;
     name c_real_name    = env_n.second;
-    return add_local_ref(p, new_env, c_name, c_real_name, lp_names, params);
+    new_env             = add_local_ref(p, new_env, c_name, c_real_name, lp_names, params);
+    if (saved_exception)
+        throw update_environment_exception(new_env, saved_exception);
+    return new_env;
 }
 }

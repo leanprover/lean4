@@ -1218,8 +1218,7 @@ expr mk_nonrec(environment & env, options const & opts, metavar_context & mctx,
     type_context ctx1(env, opts, mctx, lctx, transparency_mode::Semireducible);
     expr fn_type = ctx1.infer(R.m_fn);
     expr fn;
-    std::tie(env, fn) = mk_aux_definition(env, opts, mctx, lctx, header.m_is_private, header.m_is_lemma, header.m_is_noncomputable,
-                                          head(header.m_fn_names), fn_type, R.m_fn);
+    std::tie(env, fn) = mk_aux_definition(env, opts, mctx, lctx, header, head(header.m_fn_names), fn_type, R.m_fn);
     name fn_name = const_name(get_app_fn(fn));
     unsigned eqn_idx     = 1;
     type_context ctx2(env, opts, mctx, lctx, transparency_mode::Semireducible);

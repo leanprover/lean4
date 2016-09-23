@@ -1,0 +1,12 @@
+minimize_errors.lean:1:0: error: type mismatch, expression
+  λ (a : ℕ), a
+has type
+  ℕ → ℕ
+but is expected to have type
+  ℕ → ℕ → ℕ
+f : ℕ → ℕ → ℕ
+g : ℕ → ℕ → ℕ
+noncomputable definition g : ℕ → ℕ → ℕ :=
+f
+noncomputable definition h : ℕ → ℕ → ℕ :=
+h._main

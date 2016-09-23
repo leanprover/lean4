@@ -255,8 +255,7 @@ static void throw_mk_aux_definition_error(local_context const & lctx, name const
 }
 
 pair<environment, expr> mk_aux_definition(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx,
-                                          bool is_private, bool is_lemma, bool is_noncomputable,
-                                          name const & c, expr const & type, expr const & value) {
+                                          equations_header const & header, name const & c, expr const & type, expr const & value) {
     lean_trace("eqn_compiler", tout() << "declaring auxiliary definition\n" << c << " : " << type << "\n";);
     environment new_env = env;
     expr new_type       = type;
@@ -267,22 +266,24 @@ pair<environment, expr> mk_aux_definition(environment const & env, options const
         new_value = zeta_expand(lctx, new_value);
     }
     name new_c;
-    std::tie(new_env, new_c) = mk_def_name(env, is_private, c);
+    std::tie(new_env, new_c) = mk_def_name(env, header.m_is_private, c);
     expr r;
     try {
-        std::tie(new_env, r) = is_lemma ?
+        std::tie(new_env, r) = header.m_is_lemma ?
             mk_aux_lemma(new_env, mctx, lctx, new_c, new_type, new_value) :
             mk_aux_definition(new_env, mctx, lctx, new_c, new_type, new_value);
     } catch (exception & ex) {
         throw_mk_aux_definition_error(lctx, c, new_type, new_value, ex);
     }
-    if (!is_lemma && !is_noncomputable) {
+    if (!header.m_is_lemma && !header.m_is_noncomputable) {
         try {
             declaration d = new_env.get(new_c);
             new_env = vm_compile(new_env, d);
         } catch (exception & ex) {
-            throw nested_exception(sstream() << "equation compiler failed to generate bytecode for "
-                                   << "auxiliary declaration '" << c << "'", ex);
+            if (!header.m_prev_errors) {
+                throw nested_exception(sstream() << "equation compiler failed to generate bytecode for "
+                                       << "auxiliary declaration '" << c << "'", ex);
+            }
         }
     }
     return mk_pair(new_env, r);

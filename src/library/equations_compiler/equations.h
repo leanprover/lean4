@@ -34,6 +34,8 @@ struct equations_header {
     bool       m_is_meta{false};          /* the auxiliary declarations should be tagged as meta */
     bool       m_is_noncomputable{false}; /* if true, equation is not computable and code should not be generated */
     bool       m_aux_lemmas{false};       /* if true, we must create equation lemmas and induction principle */
+    bool       m_prev_errors{false};      /* if true, then errors have already being found processing the file,
+                                             and we should minimize error reporting */
     equations_header() {}
     equations_header(unsigned num_fns):m_num_fns(num_fns) {}
 };

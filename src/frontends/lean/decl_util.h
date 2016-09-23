@@ -82,9 +82,10 @@ environment add_alias(environment const & env, bool is_protected, name const & c
     This object is used to propagate relevant flags to
     nested definitions. */
 class declaration_info_scope {
+    declaration_info_scope(name const & ns, bool found_errors, bool is_private,
+                           bool is_meta, bool is_noncomputable, bool is_lemma, bool aux_lemmas);
 public:
-    declaration_info_scope(environment const & env, bool is_private, bool is_meta, bool is_noncomputable, bool is_lemma, bool aux_lemmas);
-    declaration_info_scope(environment const & env, bool is_private, bool is_noncomputable, def_cmd_kind k);
+    declaration_info_scope(parser const & p, bool is_private, bool is_noncomputable, def_cmd_kind k);
     ~declaration_info_scope();
 };
 

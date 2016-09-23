@@ -224,6 +224,8 @@ public:
     bool ignore_noncomputable() const { return m_ignore_noncomputable; }
     void set_ignore_noncomputable() { m_ignore_noncomputable = true; }
 
+    bool found_errors() const { return m_found_errors; }
+
     name mk_anonymous_inst_name();
     bool is_anonymous_inst_name(name const & n) const;
 
@@ -484,7 +486,6 @@ public:
 
     expr mk_sorry(pos_info const & p);
     bool used_sorry() const { return m_used_sorry; }
-    void declare_sorry();
 
     void display_information_pos(pos_info p);
     void display_warning_pos(pos_info p);

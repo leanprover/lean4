@@ -280,6 +280,7 @@ bool parser::are_info_lines_valid(unsigned start_line, unsigned end_line) const 
 
 expr parser::mk_sorry(pos_info const & p) {
     m_used_sorry = true;
+    m_ignore_noncomputable = true;
     {
 #ifndef LEAN_IGNORE_SORRY
         // TODO(Leo): remove the #ifdef.
@@ -291,11 +292,6 @@ expr parser::mk_sorry(pos_info const & p) {
 #endif
     }
     return save_pos(::lean::mk_sorry(), p);
-}
-
-void parser::declare_sorry() {
-    m_used_sorry = true;
-    m_env = ::lean::declare_sorry(m_env);
 }
 
 void parser::updt_options() {

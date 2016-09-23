@@ -116,7 +116,7 @@ namespace nat
   ⟨nat.mul⟩
 
   attribute [instance, priority nat.prio]
-  protected definition has_decidable_eq : ∀ x y : ℕ, decidable (x = y)
+  protected definition has_decidable_eq : decidable_eq ℕ
   | zero     zero     := is_true rfl
   | (succ x) zero     := is_false (λ h, nat.no_confusion h)
   | zero     (succ y) := is_false (λ h, nat.no_confusion h)

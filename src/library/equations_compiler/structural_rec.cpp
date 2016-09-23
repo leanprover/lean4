@@ -200,6 +200,7 @@ struct structural_rec_fn {
             if (!is_pi(fn_type)) throw_ill_formed_eqns();
             fn_type = instantiate(binding_body(fn_type), locals.push_local_from_binding(fn_type));
         }
+        fn_type = ctx.try_to_pi(fn_type);
         if (!is_pi(fn_type)) throw_ill_formed_eqns();
         expr arg_type = ctx.relaxed_whnf(binding_domain(fn_type));
         buffer<expr> I_args;

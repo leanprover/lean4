@@ -115,13 +115,12 @@ namespace nat
   instance : has_mul ℕ :=
   ⟨nat.mul⟩
 
-  attribute [instance, priority nat.prio]
-  protected definition has_decidable_eq : decidable_eq ℕ
+  instance : decidable_eq ℕ
   | zero     zero     := is_true rfl
   | (succ x) zero     := is_false (λ h, nat.no_confusion h)
   | zero     (succ y) := is_false (λ h, nat.no_confusion h)
   | (succ x) (succ y) :=
-      match has_decidable_eq x y with
+      match decidable_eq x y with
       | is_true xeqy := is_true (xeqy ▸ eq.refl (succ x))
       | is_false xney := is_false (λ h, nat.no_confusion h (λ xeqy, absurd xeqy xney))
       end
@@ -266,8 +265,7 @@ namespace nat
   theorem lt_of_succ_lt_succ {a b : ℕ} : succ a < succ b → a < b :=
   le_of_succ_le_succ
 
-  attribute [instance, priority nat.prio]
-  protected definition decidable_le : ∀ a b : ℕ, decidable (a ≤ b)
+  instance decidable_le : ∀ a b : ℕ, decidable (a ≤ b)
   | 0     b     := is_true (zero_le b)
   | (a+1) 0     := is_false (not_succ_le_zero a)
   | (a+1) (b+1) :=
@@ -276,8 +274,7 @@ namespace nat
     | is_false h := is_false (λ a, h (le_of_succ_le_succ a))
     end
 
-  attribute [instance, priority nat.prio]
-  protected definition decidable_lt : ∀ a b : ℕ, decidable (a < b) :=
+  instance decidable_lt : ∀ a b : ℕ, decidable (a < b) :=
   λ a b, nat.decidable_le (succ a) b
 
   protected theorem lt_or_ge : ∀ (a b : ℕ), a < b ∨ a ≥ b

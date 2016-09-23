@@ -24,7 +24,7 @@ open fin
 
 instance (n : nat) : decidable_eq (fin n)
 | ⟨ival, ilt⟩ ⟨jval, jlt⟩ :=
-  match nat.has_decidable_eq ival jval with
+  match nat.decidable_eq ival jval with
   | is_true  h₁ := is_true (eq_of_veq h₁)
   | is_false h₁ := is_false (λ h₂, absurd (veq_of_eq h₂) h₁)
   end

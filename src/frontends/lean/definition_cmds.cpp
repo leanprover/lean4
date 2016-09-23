@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/private.h"
 #include "library/protected.h"
 #include "library/scoped_ext.h"
+#include "library/unfold_macros.h"
 #include "library/noncomputable.h"
 #include "library/module.h"
 #include "library/flycheck.h"
@@ -232,8 +233,8 @@ static void finalize_definition(elaborator & elab, buffer<expr> const & params, 
     type_val.push_back(type);
     type_val.push_back(val);
     elab.finalize(type_val, implicit_lp_names, true, false);
-    type = type_val[0];
-    val  = type_val[1];
+    type = unfold_untrusted_macros(elab.env(), type_val[0]);
+    val  = unfold_untrusted_macros(elab.env(), type_val[1]);
     lp_names.append(implicit_lp_names);
 }
 

@@ -58,7 +58,6 @@ using lean::pos_info_provider;
 using lean::optional;
 using lean::expr;
 using lean::options;
-using lean::keep_theorem_mode;
 using lean::module_name;
 using lean::simple_pos_info_provider;
 using lean::shared_file_lock;
@@ -97,9 +96,6 @@ static void display_help(std::ostream & out) {
     std::cout << "  --output=file -o  save the final environment in binary format in the given file\n";
     std::cout << "  --trust=num -t    trust level (default: max) 0 means do not trust any macro,\n"
               << "                    and type check all imported modules\n";
-    std::cout << "  --discard -r      discard the proof of imported theorems after checking\n";
-    std::cout << "  --to_axiom -X     discard proofs of all theorems after checking them, i.e.,\n";
-    std::cout << "                    theorems become axioms after checking\n";
     std::cout << "  --quiet -q        do not print verbose messages\n";
 #if defined(LEAN_TRACK_MEMORY)
     std::cout << "  --memory=num -M   maximum amount of memory that should be used by Lean\n";
@@ -158,8 +154,6 @@ static struct option g_long_options[] = {
     {"export-all",   required_argument, 0, 'A'},
     {"memory",       required_argument, 0, 'M'},
     {"trust",        required_argument, 0, 't'},
-    {"discard",      no_argument,       0, 'r'},
-    {"to_axiom",     no_argument,       0, 'X'},
     {"profile",      no_argument,       0, 'P'},
 #if defined(LEAN_MULTI_THREAD)
     {"threads",      required_argument, 0, 'j'},
@@ -184,7 +178,7 @@ static struct option g_long_options[] = {
     {0, 0, 0, 0}
 };
 
-#define OPT_STR "PHXFdD:qrlupgvhk:012t:012o:E:c:L:012O:012GZAIT:B:"
+#define OPT_STR "PHFdD:qlupgvhk:012t:012o:E:c:L:012O:012GZAIT:B:"
 
 #if defined(LEAN_TRACK_MEMORY)
 #define OPT_STR2 OPT_STR "M:012"
@@ -252,7 +246,6 @@ int main(int argc, char ** argv) {
     unsigned num_threads    = 1;
     bool read_cache         = false;
     bool save_cache         = false;
-    keep_theorem_mode tmode = keep_theorem_mode::All;
     options opts;
     std::string output;
     std::string cache_name;
@@ -317,12 +310,6 @@ int main(int argc, char ** argv) {
             break;
         case 't':
             trust_lvl = atoi(optarg);
-            break;
-        case 'r':
-            tmode = keep_theorem_mode::DiscardImported;
-            break;
-        case 'X':
-            tmode = keep_theorem_mode::DiscardAll;
             break;
         case 'q':
             opts = opts.update(lean::get_verbose_opt_name(), false);
@@ -490,7 +477,7 @@ int main(int argc, char ** argv) {
                         if (!display_deps(env, std::cout, std::cerr, argv[i]))
                             ok = false;
                     } else if (!parse_commands(env, ios, argv[i], base_dir, false, num_threads,
-                                               cache_ptr, tmode)) {
+                                               cache_ptr)) {
                         ok = false;
                     }
                     break;

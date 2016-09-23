@@ -301,32 +301,6 @@ char const * close_binder_string(binder_info const & bi, bool unicode) {
     else return ")";
 }
 
-expr postprocess(environment const & env, expr const & e) {
-    return eta_reduce(unfold_untrusted_macros(env, e));
-}
-
-// Auxiliary object for eliminating choice-expressions associated with numerals.
-// That is, it replaces every (choice a_0 ... a_n), where a_0 is a numeral, with
-// a_0.
-class elim_choice_num_fn : public replace_visitor {
-    virtual expr visit_macro(expr const & m) override {
-        if (is_choice(m)) {
-            expr const & e = macro_arg(m, 0);
-            if (to_num(e)) {
-                return e;
-            } else {
-                throw exception("invalid priority expression, it contains overloaded symbols");
-            }
-        } else {
-            return replace_visitor::visit_macro(m);
-        }
-    }
-};
-
-expr elim_choice_num(expr const & e) {
-    return elim_choice_num_fn()(e);
-}
-
 pair<name, option_kind> parse_option_name(parser & p, char const * error_msg) {
     auto id_pos  = p.pos();
     name id = p.check_id_next(error_msg);

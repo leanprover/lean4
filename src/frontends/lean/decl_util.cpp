@@ -25,21 +25,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/elaborator.h"
 
 namespace lean {
-bool parse_old_univ_params(parser & p, buffer<name> & lp_names) {
-    if (p.curr_is_token(get_llevel_curly_tk())) {
-        p.next();
-        while (!p.curr_is_token(get_rcurly_tk())) {
-            name l = p.check_id_next("invalid universe parameter, identifier expected");
-            p.add_local_level(l, mk_param_univ(l));
-            lp_names.push_back(l);
-        }
-        p.next();
-        return true;
-    } else {
-        return false;
-    }
-}
-
 bool parse_univ_params(parser & p, buffer<name> & lp_names) {
     if (p.curr_is_token(get_lcurly_tk())) {
         p.next();

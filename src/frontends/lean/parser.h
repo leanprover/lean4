@@ -116,8 +116,6 @@ class parser : public abstract_parser {
     // cache support
     definition_cache *     m_cache;
 
-    keep_theorem_mode      m_keep_theorem_mode;
-
     // curr command token
     name                   m_cmd_token;
 
@@ -136,9 +134,6 @@ class parser : public abstract_parser {
     // If the following flag is true we do not raise error messages
     // noncomputable definitions not tagged as noncomputable.
     bool                   m_ignore_noncomputable;
-
-    // Temporary field for switching to new elaborator
-    bool                   m_new_elaborator{false};
 
     void display_warning_pos(unsigned line, unsigned pos);
     void display_error_pos(unsigned line, unsigned pos);
@@ -215,8 +210,7 @@ public:
     parser(environment const & env, io_state const & ios,
            std::istream & strm, char const * str_name, optional<std::string> const & base_dir,
            bool use_exceptions = false, unsigned num_threads = 1,
-           snapshot const * s = nullptr, snapshot_vector * sv = nullptr,
-           keep_theorem_mode tmode = keep_theorem_mode::All);
+           snapshot const * s = nullptr, snapshot_vector * sv = nullptr);
     ~parser();
 
     void display_error(throwable const & ex);
@@ -248,8 +242,6 @@ public:
 
     local_level_decls const & get_local_level_decls() const { return m_local_level_decls; }
     local_expr_decls const & get_local_expr_decls() const { return m_local_decls; }
-
-    bool keep_new_thms() const { return m_keep_theorem_mode != keep_theorem_mode::DiscardAll; }
 
     void updt_options();
     options get_options() const { return m_ios.get_options(); }
@@ -511,12 +503,10 @@ public:
 
 bool parse_commands(environment & env, io_state & ios, std::istream & in,
                     char const * strm_name, optional<std::string> const & base_dir,
-                    bool use_exceptions, unsigned num_threads, definition_cache * cache = nullptr,
-                    keep_theorem_mode tmode = keep_theorem_mode::All);
+                    bool use_exceptions, unsigned num_threads, definition_cache * cache = nullptr);
 bool parse_commands(environment & env, io_state & ios, char const * fname, optional<std::string> const & base,
                     bool use_exceptions, unsigned num_threads,
-                    definition_cache * cache = nullptr,
-                    keep_theorem_mode tmode = keep_theorem_mode::All);
+                    definition_cache * cache = nullptr);
 
 void initialize_parser();
 void finalize_parser();

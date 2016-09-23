@@ -20,9 +20,6 @@ enum def_cmd_kind { Theorem, Definition, MetaDefinition, Example, Abbreviation, 
     The universe parameters are automatically added to the parser scope. */
 bool parse_univ_params(parser & p, buffer<name> & lp_names);
 
-// TODO(Leo): delete
-bool parse_old_univ_params(parser & p, buffer<name> & lp_names);
-
 /** \brief Parse a declaration header of the form
 
          {u_1 ... u_k} id (params) : type

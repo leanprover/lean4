@@ -97,12 +97,6 @@ name get_priority_namespace();
 char const * open_binder_string(binder_info const & bi, bool unicode);
 char const * close_binder_string(binder_info const & bi, bool unicode);
 
-/** \brief Cleanup expression after elaboration. */
-expr postprocess(environment const & env, expr const & e);
-
-/** Replaces every (choice a_0 ... a_n), where a_0 is a numeral, with a_0. */
-expr elim_choice_num(expr const & e);
-
 /** \brief Parse option name */
 pair<name, option_kind> parse_option_name(parser & p, char const * error_msg);
 

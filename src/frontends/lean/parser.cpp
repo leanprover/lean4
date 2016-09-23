@@ -171,8 +171,7 @@ void parser::init_stop_at(options const & opts) {
 parser::parser(environment const & env, io_state const & ios,
                std::istream & strm, char const * strm_name, optional<std::string> const & base_dir,
                bool use_exceptions, unsigned num_threads,
-               snapshot const * s, snapshot_vector * sv,
-               keep_theorem_mode tmode):
+               snapshot const * s, snapshot_vector * sv):
     m_env(env), m_ios(ios),
     m_verbose(true), m_use_exceptions(use_exceptions),
     m_scanner(strm, strm_name, s ? s->m_line : 1),
@@ -186,7 +185,6 @@ parser::parser(environment const & env, io_state const & ios,
     m_in_quote = false;
     m_in_pattern = false;
     m_has_params = false;
-    m_keep_theorem_mode = tmode;
     if (s) {
         m_local_level_decls  = s->m_lds;
         m_local_decls        = s->m_eds;
@@ -2157,7 +2155,7 @@ void parser::parse_imports() {
     unsigned num_threads = 0;
     if (get_parser_parallel_import(m_ios.get_options()))
         num_threads = m_num_threads;
-    bool keep_imported_thms = (m_keep_theorem_mode == keep_theorem_mode::All);
+    bool keep_imported_thms = true;
     m_env = import_modules(m_env, base, olean_files.size(), olean_files.data(), num_threads,
                            keep_imported_thms, m_ios);
     m_env = update_fingerprint(m_env, fingerprint);
@@ -2294,9 +2292,8 @@ char const * parser::get_file_name() const {
 
 bool parse_commands(environment & env, io_state & ios, std::istream & in, char const * strm_name,
                     optional<std::string> const & base_dir, bool use_exceptions,
-                    unsigned num_threads, definition_cache * cache,
-                    keep_theorem_mode tmode) {
-    parser p(env, ios, in, strm_name, base_dir, use_exceptions, num_threads, nullptr, nullptr, tmode);
+                    unsigned num_threads, definition_cache * cache) {
+    parser p(env, ios, in, strm_name, base_dir, use_exceptions, num_threads, nullptr, nullptr);
     p.set_cache(cache);
     bool r = p();
     ios = p.ios();
@@ -2306,11 +2303,11 @@ bool parse_commands(environment & env, io_state & ios, std::istream & in, char c
 
 bool parse_commands(environment & env, io_state & ios, char const * fname, optional<std::string> const & base_dir,
                     bool use_exceptions, unsigned num_threads,
-                    definition_cache * cache, keep_theorem_mode tmode) {
+                    definition_cache * cache) {
     std::ifstream in(fname);
     if (in.bad() || in.fail())
         throw exception(sstream() << "failed to open file '" << fname << "'");
-    return parse_commands(env, ios, in, fname, base_dir, use_exceptions, num_threads, cache, tmode);
+    return parse_commands(env, ios, in, fname, base_dir, use_exceptions, num_threads, cache);
 }
 
 void initialize_parser() {

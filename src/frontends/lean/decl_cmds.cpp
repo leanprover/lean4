@@ -21,12 +21,9 @@ Author: Leonardo de Moura
 #include "library/placeholder.h"
 #include "library/locals.h"
 #include "library/explicit.h"
+#include "library/unfold_macros.h"
 #include "library/flycheck.h"
 #include "library/error_handling.h"
-#include "library/equations_compiler/equations.h"
-#include "library/compiler/rec_fn_macro.h"
-#include "library/compiler/vm_compiler.h"
-#include "library/vm/vm.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/decl_util.h"
 #include "frontends/lean/util.h"
@@ -37,11 +34,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/structure_cmd.h"
 #include "frontends/lean/definition_cmds.h"
 #include "frontends/lean/inductive_cmds.h"
-
-// We don't display profiling information for declarations that take less than 0.01 secs
-#ifndef LEAN_PROFILE_THRESHOLD
-#define LEAN_PROFILE_THRESHOLD 0.01
-#endif
 
 namespace lean {
 // TODO(Leo): delete
@@ -129,7 +121,7 @@ static environment declare_var(parser & p, environment env,
         lean_assert(k == variable_kind::Constant || k == variable_kind::Axiom || k == variable_kind::MetaConstant);
         name const & ns = get_namespace(env);
         name full_n  = ns + n;
-        expr new_type = postprocess(env, type);
+        expr new_type = unfold_untrusted_macros(env, type);
         if (k == variable_kind::Axiom) {
             env = module::add(env, check(env, mk_axiom(full_n, ls, new_type)));
         } else {

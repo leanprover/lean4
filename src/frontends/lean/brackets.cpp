@@ -63,11 +63,11 @@ static expr parse_sep(parser & p, pos_info const & pos, name const & id) {
 }
 
 /* Parse rest of the monadic comprehension expression '{' expr '|' ... */
-static expr parse_monadic_comprehension(parser & p, pos_info const & pos, expr const & e) {
+static expr parse_monadic_comprehension(parser & /* p */, pos_info const & pos, expr const & /* e */) {
     throw parser_error("monadic comprehension was not implemented yet", pos);
 }
 
-static expr parse_structure_instance_core(parser & p, pos_info const & pos, optional<expr> const & src, name const & S, name const & fname) {
+static expr parse_structure_instance_core(parser & p, optional<expr> const & src, name const & S, name const & fname) {
     buffer<name> fns;
     buffer<expr> fvs;
     fns.push_back(fname);
@@ -87,20 +87,20 @@ static expr parse_structure_instance_core(parser & p, pos_info const & pos, opti
 }
 
 /* Parse rest of the qualified structure instance prefix '{' S '.' ... */
-static expr parse_qualified_structure_instance(parser & p, pos_info const & pos, name const & S) {
+static expr parse_qualified_structure_instance(parser & p, name const & S) {
     name fname = p.check_id_next("invalid structure instance, identifier expected");
-    return parse_structure_instance_core(p, pos, none_expr(), S, fname);
+    return parse_structure_instance_core(p, none_expr(), S, fname);
 }
 
 /* Parse rest of the structure instance prefix '{' fname ... */
-static expr parse_structure_instance(parser & p, pos_info const & pos, name const & fname) {
-    return parse_structure_instance_core(p, pos, none_expr(), name(), fname);
+static expr parse_structure_instance(parser & p, name const & fname) {
+    return parse_structure_instance_core(p, none_expr(), name(), fname);
 }
 
 /* Parse rest of the structure instance update '{' expr 'with' ... */
-static expr parse_structure_instance_update(parser & p, pos_info const & pos, expr const & e) {
+static expr parse_structure_instance_update(parser & p, expr const & e) {
     name fname = p.check_id_next("invalid structure update, identifier expected");
-    return parse_structure_instance_core(p, pos, some_expr(e), name(), fname);
+    return parse_structure_instance_core(p, some_expr(e), name(), fname);
 }
 
 expr parse_curly_bracket(parser & p, unsigned, expr const *, pos_info const & pos) {
@@ -125,9 +125,9 @@ expr parse_curly_bracket(parser & p, unsigned, expr const *, pos_info const & po
             return parse_subtype(p, pos, local);
         } else if (p.curr_is_token(get_period_tk())) {
             p.next();
-            return parse_qualified_structure_instance(p, pos, id);
+            return parse_qualified_structure_instance(p, id);
         } else if (p.curr_is_token(get_assign_tk()) || p.curr_is_token(get_fieldarrow_tk())) {
-            return parse_structure_instance(p, pos, id);
+            return parse_structure_instance(p, id);
         } else if (p.curr_is_token(get_membership_tk()) || p.curr_is_token(get_in_tk())) {
             p.next();
             return parse_sep(p, pos, id);
@@ -149,7 +149,7 @@ expr parse_curly_bracket(parser & p, unsigned, expr const *, pos_info const & po
         return parse_insertable(p, pos, e);
     } else if (p.curr_is_token(get_with_tk())) {
         p.next();
-        return parse_structure_instance_update(p, pos, e);
+        return parse_structure_instance_update(p, e);
     } else if (p.curr_is_token(get_bar_tk())) {
         p.next();
         return parse_monadic_comprehension(p, pos, e);

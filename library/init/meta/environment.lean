@@ -72,8 +72,8 @@ end environment
 
 attribute [instance]
 meta_definition environment.has_to_string : has_to_string environment :=
-has_to_string.mk (λ e, "[environment]")
+⟨λ e, "[environment]"⟩
 
 attribute [instance]
 meta_definition environment.is_inhabited : inhabited environment :=
-inhabited.mk (environment.mk_std 0)
+⟨environment.mk_std 0⟩

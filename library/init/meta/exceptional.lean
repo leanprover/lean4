@@ -53,4 +53,4 @@ end exceptional
 
 attribute [instance]
 meta_definition exceptional.is_monad : monad exceptional :=
-monad.mk @exceptional.fmap @exceptional.return @exceptional.bind
+⟨@exceptional.fmap, @exceptional.return, @exceptional.bind⟩

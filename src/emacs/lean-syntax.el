@@ -8,17 +8,17 @@
 (require 'rx)
 
 (defconst lean-keywords1
-  '("import" "prelude" "tactic_hint" "protected" "private" "inline" "noncomputable" "definition" "meta_definition" "renaming"
-    "hiding" "exposing" "parameter" "parameters" "begin" "proof" "qed" "conjecture" "constant" "constants" "meta_constant"
+  '("import" "prelude" "protected" "private" "noncomputable" "definition" "meta_definition" "renaming"
+    "hiding" "exposing" "parameter" "parameters" "begin" "conjecture" "constant" "constants" "meta_constant"
     "hypothesis" "lemma" "corollary" "variable" "variables" "premise" "premises" "theory"
     "print" "theorem" "proposition" "example" "abstract"
     "open" "as" "export" "override" "axiom" "axioms" "inductive" "with" "structure" "record" "universe" "universes"
     "alias" "help" "precedence" "reserve" "declare_trace" "add_key_equivalence"
     "match" "infix" "infixl" "infixr" "notation" "postfix" "prefix" "instance"
     "eval" "vm_eval" "check" "end" "reveal" "this" "suppose"
-    "using_well_founded" "namespace" "section" "fields" "find_decl"
+    "using_well_founded" "namespace" "section" "fields"
     "attribute" "local" "set_option" "extends" "include" "omit" "classes"
-    "instances" "coercions" "attributes" "raw" "migrate" "replacing"
+    "instances" "coercions" "attributes" "raw" "replacing"
     "calc" "have" "show" "suffices" "by" "in" "at" "do" "let" "forall" "Pi" "fun"
     "exists" "if" "dif" "then" "else" "assume" "take" "obtain" "from" "aliases" "register_simp_ext"
     "mutual_definition" "mutual_meta_definition" "mutual_inductive" "def" "mutual_def" "run_command")

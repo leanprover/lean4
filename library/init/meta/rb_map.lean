@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Jeremy Avigad
 -/
 prelude
-import init.ordering init.meta.name init.meta.format
+import init.ordering init.function init.meta.name init.meta.format
 
 meta_constant {u₁ u₂} rb_map : Type u₁ → Type u₂ → Type (max u₁ u₂ 1)
 
@@ -55,24 +55,22 @@ section
 open format
 variables {key : Type} {data : Type} [has_to_format key] [has_to_format data]
 private meta_definition format_key_data (k : key) (d : data) (first : bool) : format :=
-(if first = tt then to_fmt "" else to_fmt "," ++ line) ++ to_fmt k ++ space ++ to_fmt "←" ++ space ++ to_fmt d
+(if first then to_fmt "" else to_fmt "," ++ line) ++ to_fmt k ++ space ++ to_fmt "←" ++ space ++ to_fmt d
 
 attribute [instance]
 meta_definition rb_map_has_to_format : has_to_format (rb_map key data) :=
-has_to_format.mk (λ m,
-  group (to_fmt "⟨" ++ nest 1 (fst (fold m (to_fmt "", tt) (λ k d p, (fst p ++ format_key_data k d (snd p), ff)))) ++
-         to_fmt "⟩"))
+⟨λ m, group $ to_fmt "⟨" ++ nest 1 (fst (fold m (to_fmt "", tt) (λ k d p, (fst p ++ format_key_data k d (snd p), ff)))) ++
+              to_fmt "⟩"⟩
 end
 
 section
 variables {key : Type} {data : Type} [has_to_string key] [has_to_string data]
 private meta_definition key_data_to_string (k : key) (d : data) (first : bool) : string :=
-(if first = tt then "" else ", ") ++ to_string k ++ " ← " ++ to_string d
+(if first then "" else ", ") ++ to_string k ++ " ← " ++ to_string d
 
 attribute [instance]
 meta_definition rb_map_has_to_string : has_to_string (rb_map key data) :=
-has_to_string.mk (λ m,
-  "⟨" ++ (fst (fold m ("", tt) (λ k d p, (fst p ++ key_data_to_string k d (snd p), ff)))) ++ "⟩")
+⟨λ m, "⟨" ++ (fst (fold m ("", tt) (λ k d p, (fst p ++ key_data_to_string k d (snd p), ff)))) ++ "⟩"⟩
 end
 
 /- a variant of rb_maps that stores a list of elements for each key.

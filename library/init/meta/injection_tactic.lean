@@ -43,8 +43,8 @@ do
   Ht ← infer_type H,
   (lhs, rhs) ← match_eq Ht,
   env ← get_env,
-  if is_constructor_app env lhs = tt ∧
-     is_constructor_app env rhs = tt ∧
+  if is_constructor_app env lhs ∧
+     is_constructor_app env rhs ∧
      const_name (get_app_fn lhs) = const_name (get_app_fn rhs)
   then do
     tgt    ← target,

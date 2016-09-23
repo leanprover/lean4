@@ -30,7 +30,7 @@ do t    ← infer_type a,
      inst ← mk_instance m,
      mk_app `sizeof [t, inst, a] }
    <|>
-   if use_default = tt
+   if use_default
    then return (const `nat.zero [])
    else do
      f ← pp t,
@@ -41,8 +41,8 @@ private meta_definition mk_sizeof : bool → name → name → list name → nat
 | use_default I_name F_name (fname::fnames) num_rec := do
   field ← get_local fname,
   rec   ← is_type_app_of field I_name,
-  sz    ← if rec = tt then mk_brec_on_rec_value F_name num_rec else mk_has_sizeof_instance_for field use_default,
-  szs   ← mk_sizeof use_default I_name F_name fnames (if rec = tt then num_rec + 1 else num_rec),
+  sz    ← if rec then mk_brec_on_rec_value F_name num_rec else mk_has_sizeof_instance_for field use_default,
+  szs   ← mk_sizeof use_default I_name F_name fnames (if rec then num_rec + 1 else num_rec),
   return (sz :: szs)
 
 private meta_definition mk_sum : list expr → expr
@@ -67,7 +67,7 @@ do I_name ← get_has_sizeof_type_name,
    F_name : name ← return `_F,
    -- Use brec_on if type is recursive.
    -- We store the functional in the variable F.
-   if (is_recursive env I_name = tt)
+   if is_recursive env I_name
    then intro `_v >>= (λ x, induction_core semireducible x (I_name <.> "brec_on") [v_name, F_name])
    else intro v_name >> return (),
    arg_names : list (list name) ← mk_constructors_arg_names I_name `_p,

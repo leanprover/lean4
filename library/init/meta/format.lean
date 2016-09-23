@@ -70,7 +70,7 @@ has_to_format.mk (λ o, format.of_options o)
 
 attribute [instance]
 meta_definition bool.has_to_format : has_to_format bool :=
-has_to_format.mk (λ b, if b = tt then of_string "tt" else of_string "ff")
+has_to_format.mk (λ b, if b then of_string "tt" else of_string "ff")
 
 attribute [instance]
 meta_definition decidable.has_to_format {p : Prop} : has_to_format (decidable p) :=

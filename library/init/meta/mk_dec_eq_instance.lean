@@ -60,8 +60,7 @@ do
     when (length lhs_list ≠ length rhs_list) (fail "mk_dec_eq_instance failed, constructor applications have different number of arguments"),
     (lhs_arg,  rhs_arg) ← find_next_target lhs_list rhs_list,
     rec ← is_type_app_of lhs_arg I_name,
-    inst ← if rec = tt
-    then do {
+    inst ← if rec then do {
       inst_fn : expr ← mk_brec_on_rec_value F_name num_rec,
       return $ app inst_fn rhs_arg }
     else do {
@@ -71,7 +70,7 @@ do
     by_cases ← mk_mapp_core transparency.all `decidable.by_cases [none, some tgt, some inst],
     apply by_cases,
     -- discharge first (positive) case by recursion
-    intro1 >>= subst >> dec_eq_same_constructor I_name F_name (if rec = tt then num_rec + 1 else num_rec),
+    intro1 >>= subst >> dec_eq_same_constructor I_name F_name (if rec then num_rec + 1 else num_rec),
     -- discharge second (negative) case by contradiction
     intro1, left, -- decidable.is_false
     intro1 >>= injection,
@@ -103,7 +102,7 @@ do I_name ← get_dec_eq_type_name,
    F_name ← return `_F,
    -- Use brec_on if type is recursive.
    -- We store the functional in the variable F.
-   if (is_recursive env I_name = tt)
+   if is_recursive env I_name
    then intro1 >>= (λ x, induction_core semireducible x (I_name <.> "brec_on") [v_name, F_name])
    else intro v_name >> return (),
    -- Apply cases to first element of type (I ...)

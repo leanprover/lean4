@@ -164,7 +164,7 @@ meta_definition list_to_tactic_format_aux {A : Type} [has_to_tactic_format A] : 
 | b (x::xs) := do
   f₁ ← pp x,
   f₂ ← list_to_tactic_format_aux ff xs,
-  return $ (if b = ff then to_fmt "," ++ line else nil) ++ f₁ ++ f₂
+  return $ (if ¬ b then to_fmt "," ++ line else nil) ++ f₁ ++ f₂
 
 meta_definition list_to_tactic_format {A : Type} [has_to_tactic_format A] : list A → tactic format
 | []      := return $ to_fmt "[]"
@@ -342,7 +342,7 @@ target >>= whnf >>= change
 
 meta_definition intro (n : name) : tactic expr :=
 do t ← target,
-   if expr.is_pi t = tt ∨ expr.is_let t = tt then intro_core n
+   if expr.is_pi t ∨ expr.is_let t then intro_core n
    else whnf_target >> intro_core n
 
 meta_definition intro1 : tactic expr :=
@@ -553,7 +553,7 @@ apply_core semireducible tt tt
 meta_definition apply_instance : tactic unit :=
 do tgt ← target,
    b   ← is_class tgt,
-   if b = tt then mk_instance tgt >>= exact
+   if b then mk_instance tgt >>= exact
    else fail "apply_instance tactic fail, target is not a type class"
 
 /- Create a list of universe meta-variables of the given size. -/

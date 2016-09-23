@@ -19,8 +19,8 @@ private meta_definition ppfield {A : Type} [has_to_format A] (fname : string) (v
 group $ to_fmt fname ++ space ++ to_fmt ":=" ++ space ++ nest (length fname + 4) (to_fmt v)
 
 private meta_definition concat_fields (f₁ f₂ : format) : format :=
-if       is_nil f₁ = tt then f₂
-else if  is_nil f₂ = tt then f₁
+if       is_nil f₁ then f₂
+else if  is_nil f₂ then f₁
 else f₁ ++ to_fmt "," ++ line ++ f₂
 
 local infix `+++`:65 := concat_fields

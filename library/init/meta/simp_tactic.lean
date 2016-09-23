@@ -67,7 +67,7 @@ private meta_definition collect_eqs : list expr → tactic (list expr)
 | (H :: Hs) := do
   Eqs   ← collect_eqs Hs,
   Htype ← infer_type H >>= whnf,
-  return $ if is_equation Htype = tt then H :: Eqs else Eqs
+  return $ if is_equation Htype then H :: Eqs else Eqs
 
 /- Simplify target using all hypotheses in the local context. -/
 meta_definition simp_using_hs : tactic unit :=

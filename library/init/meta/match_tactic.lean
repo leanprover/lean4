@@ -68,7 +68,7 @@ private meta_definition match_subexpr_core : pattern → list expr → tactic (l
   <|>
   match_subexpr_core p es
   <|>
-  if (is_app e = tt) then match_subexpr_core p (get_app_args e)
+  if is_app e then match_subexpr_core p (get_app_args e)
   else failed
 
 /- Similar to match_expr, but it tries to match a subexpression of e.

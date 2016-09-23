@@ -26,7 +26,7 @@ private meta_definition contra_false : list expr → tactic unit
 | []        := failed
 | (H :: Hs) :=
   do t ← infer_type H,
-     if is_false t = tt
+     if is_false t
      then do tgt ← target,
              pr  ← mk_app `false.rec [tgt, H],
              exact pr
@@ -60,8 +60,8 @@ private meta_definition contra_constructor_eq : list expr → tactic unit
        do env ← get_env,
           lhs ← whnf lhs_0,
           rhs ← whnf rhs_0,
-          if is_constructor_app env lhs = tt ∧
-             is_constructor_app env rhs = tt ∧
+          if is_constructor_app env lhs ∧
+             is_constructor_app env rhs ∧
              const_name (get_app_fn lhs) ≠ const_name (get_app_fn rhs)
           then do tgt    ← target,
                   I_name ← return $ name.get_prefix (const_name (get_app_fn lhs)),

@@ -16,10 +16,7 @@ public:
     struct entry {
         attribute const * m_attr;
         attr_data_ptr     m_params;
-
-        bool deleted() const {
-            return !static_cast<bool>(m_params);
-        }
+        bool deleted() const { return !static_cast<bool>(m_params); }
     };
 private:
     bool               m_persistent;
@@ -28,6 +25,7 @@ private:
     optional<unsigned> m_prio;
 public:
     decl_attributes(bool persistent = true): m_persistent(persistent), m_parsing_only(false) {}
+    void add_attribute(environment const & env, name const & attr_name);
     void parse(parser & p);
     environment apply(environment env, io_state const & ios, name const & d) const;
     list<entry> const & get_entries() const { return m_entries; }

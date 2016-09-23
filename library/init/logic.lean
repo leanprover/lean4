@@ -639,12 +639,10 @@ inductive [class] decidable (p : Prop)
 
 export decidable (is_true is_false)
 
-attribute [instance]
-definition decidable_true : decidable true :=
+instance decidable.true : decidable true :=
 is_true trivial
 
-attribute [instance]
-definition decidable_false : decidable false :=
+instance decidable.false : decidable false :=
 is_false not_false
 
 -- We use "dependent" if-then-else to be able to communicate the if-then-else condition

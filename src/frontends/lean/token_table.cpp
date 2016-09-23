@@ -111,7 +111,7 @@ void init_token_table(token_table & t) {
          "tactic_infixl", "tactic_infixr", "tactic_infix", "tactic_postfix", "tactic_prefix", "tactic_notation",
          "exit", "set_option", "open", "export", "override", "tactic_hint",
          "add_begin_end_tactic", "set_begin_end_tactic",
-         "multiple_instances", "find_decl", "attribute", "persistent",
+         "multiple_instances", "find_decl", "attribute", "persistent", "instance",
          "mutual_inductive", "include", "omit", "migrate",
          "init_quotient", "init_hits", "declare_trace", "register_simp_ext",
          "run_command", "add_key_equivalence", "#erase_cache",

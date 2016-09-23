@@ -569,6 +569,14 @@ static environment reveal_cmd(parser & p) {
     return p.reveal_theorems(ds);
 }
 
+static environment instance_cmd(parser & p) {
+    bool persistent = true;
+    decl_attributes attributes(true);
+    attributes.add_attribute(p.env(), "instance");
+    bool is_private = false; bool is_protected = true; bool is_noncomputable = false;
+    return definition_cmd_core(p, def_cmd_kind::Definition, is_private, is_protected, is_noncomputable, attributes);
+}
+
 void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("universe",        "declare a universe level", universe_cmd));
     add_cmd(r, cmd_info("universes",       "declare universe levels", universes_cmd));
@@ -591,6 +599,7 @@ void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("reveal",          "reveal given theorems", reveal_cmd));
     add_cmd(r, cmd_info("include",         "force section parameter/variable to be included", include_cmd));
     add_cmd(r, cmd_info("attribute",       "set declaration attributes", attribute_cmd));
+    add_cmd(r, cmd_info("instance",        "declare a new instance", instance_cmd));
     add_cmd(r, cmd_info("omit",            "undo 'include' command", omit_cmd));
     add_cmd(r, cmd_info("mutual_definition",      "declare a mutually recursive definition", definition_cmd, false));
     add_cmd(r, cmd_info("mutual_meta_definition", "declare a mutually recursive meta_definition", definition_cmd, false));

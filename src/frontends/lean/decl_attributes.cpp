@@ -27,8 +27,14 @@ void decl_attributes::parse(parser & p) {
                 throw parser_error("cannot remove attribute globally (solution: use 'local attribute')", pos);
             p.next();
         }
-        auto name = p.check_id_next("invalid attribute declaration, identifier expected");
-        if (name == "priority") {
+        name id;
+        if (p.curr_is_command()) {
+            id = p.get_token_info().value();
+            p.next();
+        } else {
+            id = p.check_id_next("invalid attribute declaration, identifier expected");
+        }
+        if (id == "priority") {
             if (deleted)
                 throw parser_error("cannot remove priority attribute", pos);
             auto pos = p.pos();
@@ -44,14 +50,14 @@ void decl_attributes::parse(parser & p) {
                 throw parser_error("invalid 'priority', argument does not evaluate to a numeral", pos);
             }
         } else {
-            if (!is_attribute(p.env(), name))
-                throw parser_error(sstream() << "unknown attribute [" << name << "]", pos);
+            if (!is_attribute(p.env(), id))
+                throw parser_error(sstream() << "unknown attribute [" << id << "]", pos);
 
-            auto const & attr = get_attribute(p.env(), name);
+            auto const & attr = get_attribute(p.env(), id);
             if (!deleted) {
                 for (auto const & entry : m_entries) {
                     if (!entry.deleted() && are_incompatible(*entry.m_attr, attr)) {
-                        throw parser_error(sstream() << "invalid attribute [" << name
+                        throw parser_error(sstream() << "invalid attribute [" << id
                                                      << "], declaration was already marked with ["
                                                      << entry.m_attr->get_name()
                                                      << "]", pos);
@@ -60,7 +66,7 @@ void decl_attributes::parse(parser & p) {
             }
             auto data = deleted ? attr_data_ptr() : attr.parse_data(p);
             m_entries = cons({&attr, data}, m_entries);
-            if (name == "parsing_only")
+            if (id == "parsing_only")
                 m_parsing_only = true;
         }
         if (p.curr_is_token(get_comma_tk())) {
@@ -73,6 +79,13 @@ void decl_attributes::parse(parser & p) {
                 break;
         }
     }
+}
+
+void decl_attributes::add_attribute(environment const & env, name const & attr_name) {
+    if (!is_attribute(env, attr_name))
+        throw exception(sstream() << "unknown attribute [" << attr_name << "]");
+    auto const & attr = get_attribute(env, attr_name);
+    m_entries = cons({&attr, get_default_attr_data()}, m_entries);
 }
 
 environment decl_attributes::apply(environment env, io_state const & ios, name const & d) const {

@@ -16,7 +16,7 @@ meta constant pexpr.to_string : pexpr → string
 meta instance : has_to_string pexpr :=
 ⟨pexpr.to_string⟩
 
-structure [class] has_to_pexpr (A : Type u) :=
+class has_to_pexpr (A : Type u) :=
 (to_pexpr : A → pexpr)
 
 meta definition to_pexpr {A : Type u} [has_to_pexpr A] : A → pexpr :=

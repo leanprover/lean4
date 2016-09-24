@@ -143,7 +143,7 @@ end tactic
 meta definition tactic_format_expr (e : expr) : tactic format :=
 do s ← tactic.read, return (tactic_state.format_expr s e)
 
-structure [class] has_to_tactic_format (A : Type) :=
+class has_to_tactic_format (A : Type) :=
 (to_tactic_format : A → tactic format)
 
 meta instance : has_to_tactic_format expr :=

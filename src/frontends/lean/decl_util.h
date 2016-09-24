@@ -21,6 +21,7 @@ struct decl_modifiers {
     bool m_is_mutual{false};
     bool m_is_noncomputable{false};
     bool m_is_instance{false};
+    bool m_is_class{false};
 };
 
 /** \brief Parse explict universe parameters of the form:

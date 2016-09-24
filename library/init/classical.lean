@@ -177,7 +177,7 @@ noncomputable definition type_decidable_eq (A : Type u) : decidable_eq A :=
 
 noncomputable definition type_decidable (A : Type u) : sum A (A → false) :=
 match (prop_decidable (nonempty A)) with
-| (is_true hp) := sum.inl (inhabited.value (inhabited_of_nonempty hp))
+| (is_true hp) := sum.inl (@inhabited.default _ (inhabited_of_nonempty hp))
 | (is_false hn) := sum.inr (λ a, absurd (nonempty.intro a) hn)
 end
 

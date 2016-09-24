@@ -9,7 +9,7 @@ universe variables u v
 
 /- Type class used to implement polymorphic notation for collections.
    Example: {a, b, c}. -/
-structure [class] insertable (A : Type u) (C : Type u → Type v) :=
+class insertable (A : Type u) (C : Type u → Type v) :=
 (empty : C A) (insert : A → C A → C A)
 
 section
@@ -30,7 +30,7 @@ insert a ∅
 end
 
 /- Type class used to implement the notation [ a ∈ c | p a ] -/
-structure [class] decidable_separable (A : Type u) (C : Type u → Type v) :=
+class decidable_separable (A : Type u) (C : Type u → Type v) :=
 (sep : ∀ (p : A → Prop) [decidable_pred p], C A → C A)
 
 section
@@ -42,7 +42,7 @@ decidable_separable.sep p
 end
 
 /- Type class used to implement the notation { a ∈ c | p a } -/
-structure [class] separable (A : Type u) (C : Type u → Type v) :=
+class separable (A : Type u) (C : Type u → Type v) :=
 (sep : (A → Prop) → C A → C A)
 
 section

@@ -27,7 +27,7 @@ private meta definition mk_inhabited_arg : tactic unit :=
 do tgt  ← target,
    inh  ← mk_app `inhabited [tgt],
    inst ← mk_instance inh,
-   mk_app `inhabited.value [inst] >>= exact
+   mk_app `inhabited.default [inst] >>= exact
 
 private meta definition try_constructors : nat → nat → tactic unit
 | 0     n := failed

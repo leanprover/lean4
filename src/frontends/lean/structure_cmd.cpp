@@ -52,6 +52,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/type_util.h"
 #include "frontends/lean/decl_attributes.h"
+#include "frontends/lean/inductive_cmds.h"
 
 #ifndef LEAN_DEFAULT_STRUCTURE_INTRO
 #define LEAN_DEFAULT_STRUCTURE_INTRO "mk"
@@ -870,13 +871,23 @@ struct structure_cmd_fn {
 };
 
 environment structure_cmd_ex(parser & p, decl_attributes const & attrs, bool is_private) {
-    lean_assert(p.curr_is_token_or_id(get_structure_tk()));
     p.next();
     return structure_cmd_fn(p, attrs, is_private)();
 }
 
 environment structure_cmd(parser & p) {
     return structure_cmd_ex(p, {}, false);
+}
+
+environment class_cmd(parser & p) {
+    decl_attributes attrs;
+    attrs.set_attribute(p.env(), "class");
+    p.next();
+    if (p.curr_is_token(get_inductive_tk())) {
+        return inductive_cmd_ex(p, attrs);
+    } else {
+        return structure_cmd_fn(p, attrs, false)();
+    }
 }
 
 void get_structure_fields(environment const & env, name const & S, buffer<name> & fields) {
@@ -912,5 +923,6 @@ bool is_structure(environment const & env, name const & S) {
 
 void register_structure_cmd(cmd_table & r) {
     add_cmd(r, cmd_info("structure",   "declare a new structure/record type", structure_cmd, false));
+    add_cmd(r, cmd_info("class",       "declare a new class", class_cmd, false));
 }
 }

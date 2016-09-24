@@ -7,7 +7,7 @@ prelude
 import init.applicative init.string init.trace
 universe variables u v
 
-structure [class] monad (M : Type u → Type v) extends functor M : Type (max u+1 v) :=
+class monad (M : Type u → Type v) extends functor M : Type (max u+1 v) :=
 (ret  : Π {A : Type u}, A → M A)
 (bind : Π {A B : Type u}, M A → (A → M B) → M B)
 

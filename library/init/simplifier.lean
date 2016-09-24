@@ -4,7 +4,7 @@ import init.logic init.classical
 universe variables u
 
 -- For n-ary support
-structure [class] is_associative {A : Type u} (op : A → A → A) :=
+class is_associative {A : Type u} (op : A → A → A) :=
 (op_assoc : ∀ x y z : A, op (op x y) z = op x (op y z))
 
 instance : is_associative and :=

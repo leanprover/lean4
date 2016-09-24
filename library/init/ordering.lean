@@ -14,7 +14,7 @@ open ordering
 instance : has_to_string ordering :=
 has_to_string.mk (λ s, match s with | ordering.lt := "lt" | ordering.eq := "eq" | ordering.gt := "gt" end)
 
-structure [class] has_ordering (A : Type) :=
+class has_ordering (A : Type) :=
 (cmp : A → A → ordering)
 
 definition nat.cmp (a b : nat) : ordering :=

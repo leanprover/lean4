@@ -36,7 +36,7 @@ meta instance : has_append format :=
 meta instance : has_to_string format :=
 ⟨λ f, format.to_string f options.mk⟩
 
-structure [class] has_to_format (A : Type u) :=
+class has_to_format (A : Type u) :=
 (to_format : A → format)
 
 meta instance : has_to_format format :=

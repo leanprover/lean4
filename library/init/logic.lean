@@ -633,7 +633,7 @@ exists_congr (λ x, and_congr (h x) (forall_congr (λ y, imp_congr (h y) iff.rfl
 
 /- decidable -/
 
-inductive [class] decidable (p : Prop)
+class inductive decidable (p : Prop)
 | is_false : ¬p → decidable
 | is_true :  p → decidable
 
@@ -765,24 +765,15 @@ end
 
 /- inhabited -/
 
-inductive [class] inhabited (A : Type u)
-| mk : A → inhabited
+class inhabited (A : Type u) :=
+(default : A)
 
-attribute [inline]
-protected definition inhabited.value {A : Type u} : inhabited A → A :=
-λ h, inhabited.rec (λ a, a) h
-
-attribute [inline]
-protected definition inhabited.destruct {A : Type u} {B : Type v} (h₁ : inhabited A) (h₂ : A → B) : B :=
-inhabited.rec h₂ h₁
-
-attribute [inline]
-definition default (A : Type u) [h : inhabited A] : A :=
-inhabited.value h
+definition default (A : Type u) [inhabited A] : A :=
+inhabited.default A
 
 attribute [inline, irreducible]
-definition arbitrary (A : Type u) [h : inhabited A] : A :=
-inhabited.value h
+definition arbitrary (A : Type u) [inhabited A] : A :=
+default A
 
 instance prop.inhabited : inhabited Prop :=
 ⟨true⟩
@@ -802,7 +793,7 @@ instance : inhabited pos_num :=
 instance : inhabited num :=
 ⟨num.zero⟩
 
-inductive [class] nonempty (A : Type u) : Prop
+class inductive nonempty (A : Type u) : Prop
 | intro : A → nonempty
 
 protected definition nonempty.elim {A : Type u} {p : Prop} (h₁ : nonempty A) (h₂ : A → p) : p :=
@@ -816,7 +807,7 @@ theorem nonempty_of_exists {A : Type u} {p : A → Prop} : (∃ x, p x) → none
 
 /- subsingleton -/
 
-inductive [class] subsingleton (A : Type u) : Prop
+class inductive subsingleton (A : Type u) : Prop
 | intro : (∀ a b : A, a = b) → subsingleton
 
 protected definition subsingleton.elim {A : Type u} [h : subsingleton A] : ∀ (a b : A), a = b :=

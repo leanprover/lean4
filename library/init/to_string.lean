@@ -7,7 +7,7 @@ open bool list sum prod sigma subtype nat
 
 universe variables u v
 
-structure [class] has_to_string (A : Type u) :=
+class has_to_string (A : Type u) :=
 (to_string : A → string)
 
 definition to_string {A : Type u} [has_to_string A] : A → string :=

@@ -6,7 +6,7 @@ Authors: Luke Nelson and Jared Roesch
 prelude
 universe variables u v
 
-structure [class] functor (F : Type u → Type v) : Type (max u+1 v) :=
+class functor (F : Type u → Type v) : Type (max u+1 v) :=
 (map : Π {A B : Type u}, (A → B) → F A → F B)
 
 attribute [inline]

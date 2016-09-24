@@ -17,7 +17,7 @@
     "match" "infix" "infixl" "infixr" "notation" "postfix" "prefix" "instance"
     "eval" "vm_eval" "check" "end" "reveal" "this" "suppose"
     "using_well_founded" "namespace" "section" "fields"
-    "attribute" "local" "set_option" "extends" "include" "omit" "classes"
+    "attribute" "local" "set_option" "extends" "include" "omit" "classes" "class"
     "instances" "coercions" "attributes" "raw" "replacing"
     "calc" "have" "show" "suffices" "by" "in" "at" "do" "let" "forall" "Pi" "fun"
     "exists" "if" "dif" "then" "else" "assume" "take" "obtain" "from" "aliases" "register_simp_ext"
@@ -130,7 +130,7 @@
       (1 'font-lock-doc-face))
      ;; attributes after definitions
      (,(rx word-start
-           (group (or "inductive" "structure" "record" "theorem" "axiom" "axioms" "lemma" "proposition" "corollary"
+           (group (or "inductive" "structure" "class" "record" "theorem" "axiom" "axioms" "lemma" "proposition" "corollary"
                       "hypothesis" "definition" "constant"))
            word-end (zero-or-more whitespace)
            (group (one-or-more "[" (zero-or-more (not (any "]"))) "]" (zero-or-more whitespace)))
@@ -140,7 +140,7 @@
            (group (zero-or-more (not (any " \t\n\r{([")))))
       (2 'font-lock-doc-face) (4 'font-lock-function-name-face))
      (,(rx word-start
-           (group (or "inductive" "structure" "record" "theorem" "axiom" "axioms" "lemma" "proposition" "corollary"
+           (group (or "inductive" "structure" "class" "record" "theorem" "axiom" "axioms" "lemma" "proposition" "corollary"
                       "hypothesis" "definition" "constant"))
            word-end (zero-or-more whitespace)
            (group (one-or-more "[" (zero-or-more (not (any "]"))) "]" (zero-or-more whitespace)))
@@ -148,7 +148,7 @@
            (group (zero-or-more (not (any " \t\n\r{([")))))
       (2 'font-lock-doc-face) (3 'font-lock-function-name-face))
      (,(rx word-start
-           (group (or "inductive" "structure" "record" "theorem" "axiom" "axioms" "lemma" "proposition" "corollary"
+           (group (or "inductive" "structure" "class" "record" "theorem" "axiom" "axioms" "lemma" "proposition" "corollary"
                       "hypothesis" "definition" "constant"))
            word-end (zero-or-more whitespace)
            (group (zero-or-more "{" (zero-or-more (not (any "}"))) "}" (zero-or-more whitespace)))

@@ -117,20 +117,20 @@ inductive nat
 
 /- Declare builtin and reserved notation -/
 
-structure [class] has_zero   (A : Type u) := (zero : A)
-structure [class] has_one    (A : Type u) := (one : A)
-structure [class] has_add    (A : Type u) := (add : A → A → A)
-structure [class] has_mul    (A : Type u) := (mul : A → A → A)
-structure [class] has_inv    (A : Type u) := (inv : A → A)
-structure [class] has_neg    (A : Type u) := (neg : A → A)
-structure [class] has_sub    (A : Type u) := (sub : A → A → A)
-structure [class] has_div    (A : Type u) := (div : A → A → A)
-structure [class] has_dvd    (A : Type u) := (dvd : A → A → Prop)
-structure [class] has_mod    (A : Type u) := (mod : A → A → A)
-structure [class] has_le     (A : Type u) := (le : A → A → Prop)
-structure [class] has_lt     (A : Type u) := (lt : A → A → Prop)
-structure [class] has_append (A : Type u) := (append : A → A → A)
-structure [class] has_andthen(A : Type u) := (andthen : A → A → A)
+class has_zero   (A : Type u) := (zero : A)
+class has_one    (A : Type u) := (one : A)
+class has_add    (A : Type u) := (add : A → A → A)
+class has_mul    (A : Type u) := (mul : A → A → A)
+class has_inv    (A : Type u) := (inv : A → A)
+class has_neg    (A : Type u) := (neg : A → A)
+class has_sub    (A : Type u) := (sub : A → A → A)
+class has_div    (A : Type u) := (div : A → A → A)
+class has_dvd    (A : Type u) := (dvd : A → A → Prop)
+class has_mod    (A : Type u) := (mod : A → A → A)
+class has_le     (A : Type u) := (le : A → A → Prop)
+class has_lt     (A : Type u) := (lt : A → A → Prop)
+class has_append (A : Type u) := (append : A → A → A)
+class has_andthen(A : Type u) := (andthen : A → A → A)
 
 def zero    {A : Type u} [has_zero A]    : A            := has_zero.zero A
 def one     {A : Type u} [has_one A]     : A            := has_one.one A
@@ -359,7 +359,7 @@ attribute eq.symm [symm]
 
 /- sizeof -/
 
-structure [class] has_sizeof (A : Type u) :=
+class has_sizeof (A : Type u) :=
 (sizeof : A → nat)
 
 def sizeof {A : Type u} [s : has_sizeof A] : A → nat :=

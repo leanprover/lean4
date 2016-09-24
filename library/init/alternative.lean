@@ -7,7 +7,7 @@ prelude
 import init.logic init.applicative
 universe variables u v
 
-structure [class] alternative (F : Type u → Type v) extends applicative F : Type (max u+1 v) :=
+class alternative (F : Type u → Type v) extends applicative F : Type (max u+1 v) :=
 (failure : Π {A : Type u}, F A)
 (orelse  : Π {A : Type u}, F A → F A → F A)
 

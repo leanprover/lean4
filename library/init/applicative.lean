@@ -7,7 +7,7 @@ prelude
 import init.functor
 universe variables u v
 
-structure [class] applicative (F : Type u → Type v) extends functor F : Type (max u+1 v):=
+class applicative (F : Type u → Type v) extends functor F : Type (max u+1 v):=
 (pure : Π {A : Type u}, A → F A)
 (seq  : Π {A B : Type u}, F (A → B) → F A → F B)
 

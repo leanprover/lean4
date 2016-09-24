@@ -992,10 +992,3 @@ match h₁, h₂ with
 | (is_true h_c),  h₂ := h_c
 | (is_false h_c), h₂ := false.elim h₂
 end
-
--- namespace used to collect congruence rules for "contextual simplification"
-namespace contextual
-  attribute if_ctx_simp_congr      [congr]
-  attribute if_ctx_simp_congr_prop [congr]
-  attribute dif_ctx_simp_congr     [congr]
-end contextual

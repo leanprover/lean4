@@ -5,7 +5,7 @@ namespace playground
 -- Setup
 definition pair_nat.lt    := lex nat.lt nat.lt
 definition pair_nat.lt.wf : well_founded pair_nat.lt :=
-intro_k (prod.lex_wf lt_wf lt_wf) 20 -- the '20' is for being able to execute the examples... it means 20 recursive call without proof computation
+prod.lex_wf lt_wf lt_wf
 infixl `≺`:50 := pair_nat.lt
 
 -- Lemma for justifying recursive call
@@ -37,14 +37,5 @@ well_founded.fix_eq pair_nat.lt.wf gcd.F (x+1, 0)
 
 theorem gcd_def_sx_sy (x y : nat) : gcd (x+1) (y+1) = if y ≤ x then gcd (x-y) (y+1) else gcd (x+1) (y-x) :=
 well_founded.fix_eq pair_nat.lt.wf gcd.F (x+1, y+1)
-
-example : gcd 4 6 = 2 :=
-rfl
-
-example : gcd 15 6 = 3 :=
-rfl
-
-example : gcd 0 2 = 2 :=
-rfl
 
 end playground

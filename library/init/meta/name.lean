@@ -12,9 +12,8 @@ inductive name
 | mk_string  : string → name → name
 | mk_numeral : unsigned → name → name
 
-attribute [instance]
-definition name.is_inhabited : inhabited name :=
-inhabited.mk name.anonymous
+instance : inhabited name :=
+⟨name.anonymous⟩
 
 definition mk_str_name (n : name) (s : string) : name :=
 name.mk_string s n
@@ -25,9 +24,8 @@ name.mk_numeral (unsigned.of_nat v) n
 definition mk_simple_name (s : string) : name :=
 mk_str_name name.anonymous s
 
-attribute [instance]
-definition coe_string_to_name : has_coe string name :=
-has_coe.mk mk_simple_name
+instance string_to_name : has_coe string name :=
+⟨mk_simple_name⟩
 
 infix ` <.> `:65 := mk_str_name
 
@@ -45,9 +43,8 @@ definition name.to_string : name → string
 | (mk_string s n)          := name.to_string n ++ "." ++ s
 | (mk_numeral v n)         := name.to_string n ++ "." ++ to_string v
 
-attribute [instance]
-definition name.has_to_string : has_to_string name :=
-has_to_string.mk name.to_string
+instance : has_to_string name :=
+⟨name.to_string⟩
 
 /- TODO(Leo): provide a definition in Lean. -/
 meta constant name.has_decidable_eq : decidable_eq name
@@ -57,9 +54,8 @@ meta constant name.lex_cmp : name → name → ordering
 
 attribute [instance] name.has_decidable_eq
 
-attribute [instance]
-meta definition name_has_ordering : has_ordering name :=
-has_ordering.mk name.cmp
+meta instance : has_ordering name :=
+⟨name.cmp⟩
 
 /- (name.append_after n i) return a name of the form n_i -/
 meta constant name.append_after : name → nat → name

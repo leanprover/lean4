@@ -520,13 +520,11 @@ public:
 };
 
 environment inductive_cmd_ex(parser & p, decl_attributes const & attrs) {
-    lean_assert(p.curr_is_token_or_id(get_inductive_tk()));
     p.next();
     return inductive_cmd_fn(p, attrs).inductive_cmd();
 }
 
 environment mutual_inductive_cmd_ex(parser & p, decl_attributes const & attrs) {
-    lean_assert(p.curr_is_token_or_id(get_mutual_inductive_tk()));
     p.next();
     return inductive_cmd_fn(p, attrs).mutual_inductive_cmd();
 }

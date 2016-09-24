@@ -81,9 +81,10 @@ void decl_attributes::parse(parser & p) {
     }
 }
 
-void decl_attributes::set_instance_cmd(environment const & env) {
-    auto const & attr = get_attribute(env, "instance");
-    m_instance_cmd = true;
+void decl_attributes::set_attribute(environment const & env, name const & attr_name) {
+    if (!is_attribute(env, attr_name))
+        throw exception(sstream() << "unknown attribute [" << attr_name << "]");
+    auto const & attr = get_attribute(env, attr_name);
     m_entries = cons({&attr, get_default_attr_data()}, m_entries);
 }
 

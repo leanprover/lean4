@@ -70,10 +70,8 @@ match (refl_for env (const_name (get_app_fn e))) with
 end
 end environment
 
-attribute [instance]
-meta definition environment.has_to_string : has_to_string environment :=
+meta instance : has_to_string environment :=
 ⟨λ e, "[environment]"⟩
 
-attribute [instance]
-meta definition environment.is_inhabited : inhabited environment :=
+meta instance : inhabited environment :=
 ⟨environment.mk_std 0⟩

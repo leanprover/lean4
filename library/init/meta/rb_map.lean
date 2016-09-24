@@ -57,8 +57,7 @@ variables {key : Type} {data : Type} [has_to_format key] [has_to_format data]
 private meta definition format_key_data (k : key) (d : data) (first : bool) : format :=
 (if first then to_fmt "" else to_fmt "," ++ line) ++ to_fmt k ++ space ++ to_fmt "←" ++ space ++ to_fmt d
 
-attribute [instance]
-meta definition rb_map_has_to_format : has_to_format (rb_map key data) :=
+meta instance : has_to_format (rb_map key data) :=
 ⟨λ m, group $ to_fmt "⟨" ++ nest 1 (fst (fold m (to_fmt "", tt) (λ k d p, (fst p ++ format_key_data k d (snd p), ff)))) ++
               to_fmt "⟩"⟩
 end
@@ -68,8 +67,7 @@ variables {key : Type} {data : Type} [has_to_string key] [has_to_string data]
 private meta definition key_data_to_string (k : key) (d : data) (first : bool) : string :=
 (if first then "" else ", ") ++ to_string k ++ " ← " ++ to_string d
 
-attribute [instance]
-meta definition rb_map_has_to_string : has_to_string (rb_map key data) :=
+meta instance : has_to_string (rb_map key data) :=
 ⟨λ m, "⟨" ++ (fst (fold m ("", tt) (λ k d p, (fst p ++ key_data_to_string k d (snd p), ff)))) ++ "⟩"⟩
 end
 

@@ -39,8 +39,7 @@ notation a ` =ₐ `:50 b:50 := expr.alpha_eqv a b = bool.tt
 
 meta constant expr.to_string : expr → string
 
-attribute [instance]
-meta definition expr.has_to_string : has_to_string expr :=
+meta instance : has_to_string expr :=
 has_to_string.mk expr.to_string
 
 meta constant expr.hash : expr → nat

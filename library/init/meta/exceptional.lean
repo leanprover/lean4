@@ -22,8 +22,7 @@ protected meta definition exceptional.to_string : exceptional A → string
 | (success a)       := to_string a
 | (exception .A e) := "Exception: " ++ to_string (e options.mk)
 
-attribute [instance]
-protected meta definition exceptional.has_to_string : has_to_string (exceptional A) :=
+meta instance : has_to_string (exceptional A) :=
 has_to_string.mk exceptional.to_string
 end
 
@@ -51,6 +50,5 @@ meta definition fail (f : format) : exceptional A :=
 exception A (λ u, f)
 end exceptional
 
-attribute [instance]
-meta definition exceptional.is_monad : monad exceptional :=
+meta instance : monad exceptional :=
 ⟨@exceptional.fmap, @exceptional.return, @exceptional.bind⟩

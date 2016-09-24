@@ -379,7 +379,9 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
     auto header_pos = p.pos();
     declaration_info_scope scope(p, kind, modifiers);
     bool is_example  = (kind == def_cmd_kind::Example);
-    bool is_instance = attrs.is_instance_cmd();
+    bool is_instance = modifiers.m_is_instance;
+    if (is_instance)
+        attrs.set_attribute(p.env(), "instance");
     std::tie(fn, val) = parse_definition(p, lp_names, params, is_example, is_instance);
     elaborator elab(p.env(), p.get_options(), metavar_context(), local_context());
     buffer<expr> new_params;

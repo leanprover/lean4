@@ -22,10 +22,8 @@ meta constant options.has_decidable_eq  : decidable_eq options
 
 attribute [instance] options.has_decidable_eq
 
-attribute [instance]
-meta definition options.has_add : has_add options :=
-has_add.mk options.join
+meta instance : has_add options :=
+⟨options.join⟩
 
-attribute [instance]
-meta definition options.is_inhabited : inhabited options :=
-inhabited.mk options.mk
+meta instance : inhabited options :=
+⟨options.mk⟩

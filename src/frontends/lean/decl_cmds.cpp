@@ -466,6 +466,10 @@ static environment definition_cmd_ex(parser & p, decl_attributes const & attribu
     } else if (p.curr_is_token_or_id(get_theorem_tk())) {
         p.next();
         kind = Theorem;
+    } else if (!modifiers.m_is_private && !modifiers.m_is_protected && p.curr_is_token_or_id(get_instance_tk())) {
+        p.next();
+        modifiers.m_is_protected = true;
+        modifiers.m_is_instance  = true;
     } else {
         throw parser_error("invalid definition/theorem, 'definition' or 'theorem' expected", p.pos());
     }
@@ -482,20 +486,6 @@ static environment example_cmd(parser & p) {
     return p.env();
 }
 
-static environment instance_cmd_ex(parser & p, decl_attributes attributes) {
-    attributes.set_instance_cmd(p.env());
-    decl_modifiers modifiers;
-    modifiers.m_is_protected = true;
-    return definition_cmd_core(p, Definition, modifiers, attributes);
-}
-
-
-static environment instance_cmd(parser & p) {
-    bool persistent = true;
-    decl_attributes attributes(persistent);
-    return instance_cmd_ex(p, attributes);
-}
-
 static environment attribute_cmd_core(parser & p, bool persistent) {
     buffer<name> ds;
     decl_attributes attributes(persistent);
@@ -509,8 +499,6 @@ static environment attribute_cmd_core(parser & p, bool persistent) {
                 return inductive_cmd_ex(p, attributes);
             } else  if (p.curr_is_token_or_id(get_structure_tk())) {
                 return structure_cmd_ex(p, attributes, false);
-            } else if (p.curr_is_token_or_id(get_instance_tk())) {
-                return instance_cmd_ex(p, attributes);
             } else {
                 return definition_cmd_ex(p, attributes);
             }
@@ -598,7 +586,7 @@ void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("private",         "add new private definition/theorem", definition_cmd, false));
     add_cmd(r, cmd_info("protected",       "add new protected definition/theorem/variable", definition_cmd, false));
     add_cmd(r, cmd_info("theorem",         "add new theorem", definition_cmd, false));
-    add_cmd(r, cmd_info("instance",        "add new instance", instance_cmd));
+    add_cmd(r, cmd_info("instance",        "add new instance", definition_cmd, false));
     add_cmd(r, cmd_info("example",         "add new example", example_cmd));
     add_cmd(r, cmd_info("reveal",          "reveal given theorems", reveal_cmd));
     add_cmd(r, cmd_info("include",         "force section parameter/variable to be included", include_cmd));

@@ -1,7 +1,7 @@
 exit -- TODO(Leo): enable test again after we add rfl lemma support to type_context
 open tactic
 
-meta_definition rewriteH (Hname : name) : tactic unit :=
+meta definition rewriteH (Hname : name) : tactic unit :=
 do get_local Hname >>= rewrite_core reducible tt occurrences.all ff,
    try reflexivity
 

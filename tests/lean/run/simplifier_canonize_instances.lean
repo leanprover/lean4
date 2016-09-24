@@ -3,7 +3,7 @@ open tactic
 set_option simplify.theory false
 set_option pp.implicit true
 
-meta_definition simplify_goal_force : tactic unit :=
+meta definition simplify_goal_force : tactic unit :=
 do (new_target, Heq) ← target >>= simplify failed [],
    assert `Htarget new_target, swap,
    Ht ← get_local `Htarget,

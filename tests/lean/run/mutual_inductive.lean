@@ -1,6 +1,6 @@
 namespace X1
 
-mutual_inductive foo, bar
+mutual inductive foo, bar
 with foo : Type
 | mk : foo
 with bar : Type
@@ -18,7 +18,7 @@ end X1
 
 namespace X2
 
-mutual_inductive foo, bar
+mutual inductive foo, bar
 with foo : Type
 | mk : bar -> foo
 with bar : Type
@@ -36,7 +36,7 @@ end X2
 
 namespace X3
 
-mutual_inductive foo, bar
+mutual inductive foo, bar
 with foo : bool -> Type
 | mk : bar -> foo tt
 with bar : Type
@@ -54,7 +54,7 @@ end X3
 
 namespace X4
 
-mutual_inductive foo, bar, rig
+mutual inductive foo, bar, rig
 with foo : bool -> bool -> Type
 | mk : bar tt -> foo tt tt
 with bar : bool -> Type
@@ -77,7 +77,7 @@ check @rig.mk.sizeof_spec
 end X4
 
 namespace X5
-mutual_inductive foo, bar, rig (A : Type)
+mutual inductive foo, bar, rig (A : Type)
 with foo : Pi (b : bool), b = b -> Type
 | mk : A -> bar tt ff tt -> foo tt rfl
 with bar : bool -> bool -> bool -> Type
@@ -103,7 +103,7 @@ end X5
 
 namespace X6
 
-mutual_inductive {l₁ l₂} foo, bar, rig (A : Type.{l₁}) (B : Type.{l₂})
+mutual inductive {l₁ l₂} foo, bar, rig (A : Type.{l₁}) (B : Type.{l₂})
 with foo : Pi (b : bool), b = b -> Type.{max l₁ l₂}
 | mk : A -> B -> bar tt ff tt -> foo tt rfl
 with bar : bool -> bool -> bool -> Type.{max l₁ l₂}
@@ -121,7 +121,7 @@ end X6
 
 namespace X7
 
-mutual_inductive {l₁ l₂ l₃} foo, bar, rig (A : Type.{l₁}) (B : Type.{l₂}) (a : A)
+mutual inductive {l₁ l₂ l₃} foo, bar, rig (A : Type.{l₁}) (B : Type.{l₂}) (a : A)
 with foo : Pi (b : bool), b = b -> Type.{max l₁ l₂ l₃}
 | mk : A -> B -> Pi x : A, x = a -> bar tt ff tt -> foo tt rfl
 with bar : bool -> bool -> bool -> Type.{max l₁ l₂ l₃}

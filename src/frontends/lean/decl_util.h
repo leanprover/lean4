@@ -12,7 +12,15 @@ namespace lean {
 class parser;
 class elaborator;
 
-enum def_cmd_kind { Theorem, Definition, MetaDefinition, Example, Abbreviation, LocalAbbreviation };
+enum def_cmd_kind { Theorem, Definition, Example };
+
+struct decl_modifiers {
+    bool m_is_private{false};
+    bool m_is_protected{false};
+    bool m_is_meta{false};
+    bool m_is_mutual{false};
+    bool m_is_noncomputable{false};
+};
 
 /** \brief Parse explict universe parameters of the form:
            {u_1 ... u_k}
@@ -80,10 +88,9 @@ environment add_alias(environment const & env, bool is_protected, name const & c
     This object is used to propagate relevant flags to
     nested definitions. */
 class declaration_info_scope {
-    declaration_info_scope(name const & ns, bool found_errors, bool is_private,
-                           bool is_meta, bool is_noncomputable, bool is_lemma, bool aux_lemmas);
+    declaration_info_scope(name const & ns, bool found_errors, def_cmd_kind kind, decl_modifiers const & modifiers);
 public:
-    declaration_info_scope(parser const & p, bool is_private, bool is_noncomputable, def_cmd_kind k);
+    declaration_info_scope(parser const & p, def_cmd_kind kind, decl_modifiers const & modifiers);
     ~declaration_info_scope();
 };
 

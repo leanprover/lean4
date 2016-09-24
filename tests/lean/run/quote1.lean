@@ -1,6 +1,6 @@
 open tactic list
 
-meta_definition foo (a : pexpr) : pexpr :=
+meta definition foo (a : pexpr) : pexpr :=
 `(%%a + %%a + %%a + b)
 
 example (a b : nat) : a = a :=

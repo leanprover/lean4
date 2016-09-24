@@ -135,11 +135,10 @@ expr parse_mutual_definition(parser & p, buffer<name> & lp_names, buffer<expr> &
     return r;
 }
 
-environment mutual_definition_cmd_core(parser & p, def_cmd_kind kind, bool is_private, bool /* is_protected */, bool is_noncomputable,
-                                       decl_attributes /* attrs */) {
+environment mutual_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modifiers const & modifiers, decl_attributes /* attrs */) {
     buffer<name> lp_names;
     buffer<expr> fns, params;
-    declaration_info_scope scope(p, is_private, is_noncomputable, kind);
+    declaration_info_scope scope(p, kind, modifiers);
     expr val = parse_mutual_definition(p, lp_names, fns, params);
     elaborator elab(p.env(), p.get_options(), metavar_context(), local_context());
     buffer<expr> new_params;
@@ -311,35 +310,34 @@ static expr fix_rec_fn_name(expr const & e, name const & c_name, name const & c_
 static pair<environment, name>
 declare_definition(parser & p, environment const & env, def_cmd_kind kind, buffer<name> const & lp_names,
                    name const & c_name, expr const & type, expr const & _val,
-                   bool is_meta, bool is_private, bool is_protected, bool is_noncomputable,
-                   decl_attributes attrs, pos_info const & pos) {
-    auto env_n = mk_real_name(env, c_name, is_private, pos);
+                   decl_modifiers const & modifiers, decl_attributes attrs, pos_info const & pos) {
+    auto env_n = mk_real_name(env, c_name, modifiers.m_is_private, pos);
     environment new_env = env_n.first;
     name c_real_name    = env_n.second;
     expr val            = _val;
-    if (is_meta)
+    if (modifiers.m_is_meta)
         val = fix_rec_fn_name(val, c_name, c_real_name);
     bool use_conv_opt = true;
-    bool is_trusted   = kind != MetaDefinition;
+    bool is_trusted   = !modifiers.m_is_meta;
     auto def          = kind == Theorem ?
         mk_theorem(c_real_name, to_list(lp_names), type, val) :
         mk_definition(new_env, c_real_name, to_list(lp_names), type, val, use_conv_opt, is_trusted);
     auto cdef         = check(p, new_env, c_name, def, pos);
     new_env           = module::add(new_env, cdef);
 
-    check_noncomputable(p, new_env, c_name, c_real_name, is_noncomputable);
+    check_noncomputable(p, new_env, c_name, c_real_name, modifiers.m_is_noncomputable);
 
-    if (is_protected)
+    if (modifiers.m_is_protected)
         new_env = add_protected(new_env, c_real_name);
 
-    new_env = add_alias(new_env, is_protected, c_name, c_real_name);
+    new_env = add_alias(new_env, modifiers.m_is_protected, c_name, c_real_name);
 
-    if (!is_private) {
+    if (!modifiers.m_is_private) {
         new_env = ensure_decl_namespaces(new_env, c_real_name);
     }
 
     new_env = attrs.apply(new_env, p.ios(), c_real_name);
-    new_env = compile_decl(p, new_env, kind, is_noncomputable, c_name, c_real_name, pos);
+    new_env = compile_decl(p, new_env, kind, modifiers.m_is_noncomputable, c_name, c_real_name, pos);
     return mk_pair(new_env, c_real_name);
 }
 
@@ -374,13 +372,12 @@ static expr fix_rec_fn_macro_args(elaborator & elab, name const & fn, buffer<exp
     return fix_rec_fn_macro_args_fn(params, fns)(val);
 }
 
-environment definition_cmd_core(parser & p, def_cmd_kind kind, bool is_private, bool is_protected, bool is_noncomputable,
-                                decl_attributes attrs) {
+environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modifiers modifiers, decl_attributes attrs) {
     buffer<name> lp_names;
     buffer<expr> params;
     expr fn, val;
     auto header_pos = p.pos();
-    declaration_info_scope scope(p, is_private, is_noncomputable, kind);
+    declaration_info_scope scope(p, kind, modifiers);
     bool is_example  = (kind == def_cmd_kind::Example);
     bool is_instance = attrs.is_instance_cmd();
     std::tie(fn, val) = parse_definition(p, lp_names, params, is_example, is_instance);
@@ -391,10 +388,9 @@ environment definition_cmd_core(parser & p, def_cmd_kind kind, bool is_private, 
     replace_params(params, new_params, fn, val);
 
     auto process = [&](expr val) -> environment {
-        bool is_meta = (kind == def_cmd_kind::MetaDefinition);
         expr type;
         std::tie(val, type) = elaborate_definition(p, elab, kind, fn, val, header_pos);
-        if (is_meta) {
+        if (modifiers.m_is_meta) {
             val = fix_rec_fn_macro_args(elab, mlocal_name(fn), new_params, type, val);
         }
         if (is_equations_result(val)) {
@@ -406,8 +402,7 @@ environment definition_cmd_core(parser & p, def_cmd_kind kind, bool is_private, 
         finalize_definition(elab, new_params, type, val, lp_names);
         if (kind == Example) return p.env();
         name c_name = mlocal_name(fn);
-        auto env_n  = declare_definition(p, elab.env(), kind, lp_names, c_name, type, val,
-                                         is_meta, is_private, is_protected, is_noncomputable, attrs, header_pos);
+        auto env_n  = declare_definition(p, elab.env(), kind, lp_names, c_name, type, val, modifiers, attrs, header_pos);
         environment new_env = env_n.first;
         name c_real_name    = env_n.second;
         return add_local_ref(p, new_env, c_name, c_real_name, lp_names, params);
@@ -419,7 +414,7 @@ environment definition_cmd_core(parser & p, def_cmd_kind kind, bool is_private, 
         if (kind == Example) throw;
         /* Try again using 'sorry' */
         expr sorry = p.mk_sorry(header_pos);
-        is_noncomputable = true;
+        modifiers.m_is_noncomputable = true;
         environment new_env;
         try {
             new_env = process(sorry);
@@ -430,5 +425,12 @@ environment definition_cmd_core(parser & p, def_cmd_kind kind, bool is_private, 
         std::shared_ptr<throwable> ex_ptr(ex1.clone());
         throw update_environment_exception(new_env, ex_ptr);
     }
+}
+
+environment definition_cmd_core(parser & p, def_cmd_kind kind, decl_modifiers const & modifiers, decl_attributes attrs) {
+    if (modifiers.m_is_mutual)
+        return mutual_definition_cmd_core(p, kind, modifiers, attrs);
+    else
+        return single_definition_cmd_core(p, kind, modifiers, attrs);
 }
 }

@@ -84,13 +84,13 @@ static name const * g_private_tk = nullptr;
 static name const * g_protected_tk = nullptr;
 static name const * g_inline_tk = nullptr;
 static name const * g_definition_tk = nullptr;
-static name const * g_meta_definition_tk = nullptr;
+static name const * g_meta_tk = nullptr;
+static name const * g_mutual_tk = nullptr;
 static name const * g_theorem_tk = nullptr;
 static name const * g_axiom_tk = nullptr;
 static name const * g_axioms_tk = nullptr;
 static name const * g_constant_tk = nullptr;
 static name const * g_constants_tk = nullptr;
-static name const * g_meta_constant_tk = nullptr;
 static name const * g_variable_tk = nullptr;
 static name const * g_variables_tk = nullptr;
 static name const * g_structure_tk = nullptr;
@@ -115,14 +115,12 @@ static name const * g_root_tk = nullptr;
 static name const * g_fields_tk = nullptr;
 static name const * g_trust_tk = nullptr;
 static name const * g_inductive_tk = nullptr;
+static name const * g_instance_tk = nullptr;
 static name const * g_this_tk = nullptr;
 static name const * g_noncomputable_tk = nullptr;
 static name const * g_theory_tk = nullptr;
 static name const * g_key_equivalences_tk = nullptr;
 static name const * g_using_well_founded_tk = nullptr;
-static name const * g_mutual_definition_tk = nullptr;
-static name const * g_mutual_meta_definition_tk = nullptr;
-static name const * g_mutual_inductive_tk = nullptr;
 void initialize_tokens() {
     g_aliases_tk = new name{"aliases"};
     g_period_tk = new name{"."};
@@ -205,13 +203,13 @@ void initialize_tokens() {
     g_protected_tk = new name{"protected"};
     g_inline_tk = new name{"inline"};
     g_definition_tk = new name{"definition"};
-    g_meta_definition_tk = new name{"meta_definition"};
+    g_meta_tk = new name{"meta"};
+    g_mutual_tk = new name{"mutual"};
     g_theorem_tk = new name{"theorem"};
     g_axiom_tk = new name{"axiom"};
     g_axioms_tk = new name{"axioms"};
     g_constant_tk = new name{"constant"};
     g_constants_tk = new name{"constants"};
-    g_meta_constant_tk = new name{"meta_constant"};
     g_variable_tk = new name{"variable"};
     g_variables_tk = new name{"variables"};
     g_structure_tk = new name{"structure"};
@@ -236,14 +234,12 @@ void initialize_tokens() {
     g_fields_tk = new name{"fields"};
     g_trust_tk = new name{"trust"};
     g_inductive_tk = new name{"inductive"};
+    g_instance_tk = new name{"instance"};
     g_this_tk = new name{"this"};
     g_noncomputable_tk = new name{"noncomputable"};
     g_theory_tk = new name{"theory"};
     g_key_equivalences_tk = new name{"key_equivalences"};
     g_using_well_founded_tk = new name{"using_well_founded"};
-    g_mutual_definition_tk = new name{"mutual_definition"};
-    g_mutual_meta_definition_tk = new name{"mutual_meta_definition"};
-    g_mutual_inductive_tk = new name{"mutual_inductive"};
 }
 void finalize_tokens() {
     delete g_aliases_tk;
@@ -327,13 +323,13 @@ void finalize_tokens() {
     delete g_protected_tk;
     delete g_inline_tk;
     delete g_definition_tk;
-    delete g_meta_definition_tk;
+    delete g_meta_tk;
+    delete g_mutual_tk;
     delete g_theorem_tk;
     delete g_axiom_tk;
     delete g_axioms_tk;
     delete g_constant_tk;
     delete g_constants_tk;
-    delete g_meta_constant_tk;
     delete g_variable_tk;
     delete g_variables_tk;
     delete g_structure_tk;
@@ -358,14 +354,12 @@ void finalize_tokens() {
     delete g_fields_tk;
     delete g_trust_tk;
     delete g_inductive_tk;
+    delete g_instance_tk;
     delete g_this_tk;
     delete g_noncomputable_tk;
     delete g_theory_tk;
     delete g_key_equivalences_tk;
     delete g_using_well_founded_tk;
-    delete g_mutual_definition_tk;
-    delete g_mutual_meta_definition_tk;
-    delete g_mutual_inductive_tk;
 }
 name const & get_aliases_tk() { return *g_aliases_tk; }
 name const & get_period_tk() { return *g_period_tk; }
@@ -448,13 +442,13 @@ name const & get_private_tk() { return *g_private_tk; }
 name const & get_protected_tk() { return *g_protected_tk; }
 name const & get_inline_tk() { return *g_inline_tk; }
 name const & get_definition_tk() { return *g_definition_tk; }
-name const & get_meta_definition_tk() { return *g_meta_definition_tk; }
+name const & get_meta_tk() { return *g_meta_tk; }
+name const & get_mutual_tk() { return *g_mutual_tk; }
 name const & get_theorem_tk() { return *g_theorem_tk; }
 name const & get_axiom_tk() { return *g_axiom_tk; }
 name const & get_axioms_tk() { return *g_axioms_tk; }
 name const & get_constant_tk() { return *g_constant_tk; }
 name const & get_constants_tk() { return *g_constants_tk; }
-name const & get_meta_constant_tk() { return *g_meta_constant_tk; }
 name const & get_variable_tk() { return *g_variable_tk; }
 name const & get_variables_tk() { return *g_variables_tk; }
 name const & get_structure_tk() { return *g_structure_tk; }
@@ -479,12 +473,10 @@ name const & get_root_tk() { return *g_root_tk; }
 name const & get_fields_tk() { return *g_fields_tk; }
 name const & get_trust_tk() { return *g_trust_tk; }
 name const & get_inductive_tk() { return *g_inductive_tk; }
+name const & get_instance_tk() { return *g_instance_tk; }
 name const & get_this_tk() { return *g_this_tk; }
 name const & get_noncomputable_tk() { return *g_noncomputable_tk; }
 name const & get_theory_tk() { return *g_theory_tk; }
 name const & get_key_equivalences_tk() { return *g_key_equivalences_tk; }
 name const & get_using_well_founded_tk() { return *g_using_well_founded_tk; }
-name const & get_mutual_definition_tk() { return *g_mutual_definition_tk; }
-name const & get_mutual_meta_definition_tk() { return *g_mutual_meta_definition_tk; }
-name const & get_mutual_inductive_tk() { return *g_mutual_inductive_tk; }
 }

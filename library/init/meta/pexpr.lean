@@ -8,25 +8,25 @@ import init.meta.expr
 universe variables u
 
 /- Quoted expressions. They can be converted into expressions by using a tactic. -/
-meta_constant pexpr : Type
-protected meta_constant pexpr.of_expr : expr → pexpr
-protected meta_constant pexpr.subst   : pexpr → pexpr → pexpr
+meta constant pexpr : Type
+protected meta constant pexpr.of_expr : expr → pexpr
+protected meta constant pexpr.subst   : pexpr → pexpr → pexpr
 
-meta_constant pexpr.to_string : pexpr → string
+meta constant pexpr.to_string : pexpr → string
 attribute [instance]
-meta_definition pexpr.has_to_string : has_to_string pexpr :=
+meta definition pexpr.has_to_string : has_to_string pexpr :=
 has_to_string.mk pexpr.to_string
 
 structure [class] has_to_pexpr (A : Type u) :=
 (to_pexpr : A → pexpr)
 
-meta_definition to_pexpr {A : Type u} [has_to_pexpr A] : A → pexpr :=
+meta definition to_pexpr {A : Type u} [has_to_pexpr A] : A → pexpr :=
 has_to_pexpr.to_pexpr
 
 attribute [instance]
-meta_definition pexpr.has_to_pexpr : has_to_pexpr pexpr :=
+meta definition pexpr.has_to_pexpr : has_to_pexpr pexpr :=
 has_to_pexpr.mk id
 
 attribute [instance]
-meta_definition expr.has_to_pexpr : has_to_pexpr expr :=
+meta definition expr.has_to_pexpr : has_to_pexpr expr :=
 has_to_pexpr.mk pexpr.of_expr

@@ -11,7 +11,7 @@ vm_eval val10
 
 example : val10 = 10 := rfl
 
-meta_definition mk_defs : nat → command
+meta definition mk_defs : nat → command
 | 0     := skip
 | (n+1) := do
    N ← to_expr `(nat),

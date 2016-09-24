@@ -55,7 +55,7 @@ vm_obj level_global(vm_obj const & n) {
     return to_obj(mk_global_univ(to_name(n)));
 }
 
-vm_obj level_meta(vm_obj const & n) {
+vm_obj level_mvar(vm_obj const & n) {
     return to_obj(mk_meta_univ(to_name(n)));
 }
 
@@ -153,7 +153,7 @@ void initialize_vm_level() {
     DECLARE_VM_BUILTIN(name({"level", "imax"}),             level_imax);
     DECLARE_VM_BUILTIN(name({"level", "param"}),            level_param);
     DECLARE_VM_BUILTIN(name({"level", "global"}),           level_global);
-    DECLARE_VM_BUILTIN(name({"level", "meta"}),             level_meta);
+    DECLARE_VM_BUILTIN(name({"level", "mvar"}),             level_mvar);
     DECLARE_VM_BUILTIN(name({"level", "has_decidable_eq"}), level_has_decidable_eq);
     DECLARE_VM_BUILTIN(name({"level", "lt"}),               level_lt);
     DECLARE_VM_BUILTIN(name({"level", "lex_lt"}),           level_lex_lt);

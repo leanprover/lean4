@@ -64,7 +64,7 @@ end X8
 
 namespace X9b
 print "mutual + nesting"
-mutual_inductive foo, bar
+mutual inductive foo, bar
 with foo : Type*
 | mk : list (list foo) -> foo
 with bar : Type*

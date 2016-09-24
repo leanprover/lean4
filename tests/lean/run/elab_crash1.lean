@@ -1,6 +1,6 @@
 open expr tactic
 
-meta_definition to_expr_target (a : pexpr) : tactic expr :=
+meta definition to_expr_target (a : pexpr) : tactic expr :=
 do tgt ← target,
    to_expr `((%%a : %%tgt))
 

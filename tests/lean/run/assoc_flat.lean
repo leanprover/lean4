@@ -2,13 +2,13 @@ open tactic expr
 
 constant nat.add_assoc (a b c : nat) : (a + b) + c = a + (b + c)
 
-meta_definition is_op_app (op : expr) (e : expr) : option (expr × expr) :=
+meta definition is_op_app (op : expr) (e : expr) : option (expr × expr) :=
 match e with
 | (app (app fn a1) a2) := if op = fn then some (a1, a2) else none
 | e                    := none
 end
 
-meta_definition flat_with : expr → expr → expr → expr → tactic (expr × expr)
+meta definition flat_with : expr → expr → expr → expr → tactic (expr × expr)
 | op assoc e rhs :=
   match (is_op_app op e) with
   | (some (a1, a2)) :=  do
@@ -30,7 +30,7 @@ meta_definition flat_with : expr → expr → expr → expr → tactic (expr × 
     return (new_app, H)
   end
 
-meta_definition flat : expr → expr → expr → tactic (expr × expr)
+meta definition flat : expr → expr → expr → tactic (expr × expr)
 | op assoc e :=
   match (is_op_app op e) with
   | (some (a1, a2)) := do

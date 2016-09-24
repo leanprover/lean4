@@ -4,7 +4,7 @@ vm_eval do pp (level.max (level.succ level.zero) (level.param `foo)), put_str "\
 
 vm_eval level.normalize (level.succ (level.max (level.max level.zero (level.succ level.zero)) (level.param `l₁)))
 
-vm_eval level.imax (level.meta `m) (level.of_nat 10)
+vm_eval level.imax (level.mvar `m) (level.of_nat 10)
 
 vm_eval if level.zero = level.zero then "eq" else "neq"
 

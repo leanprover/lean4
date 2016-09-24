@@ -2,7 +2,7 @@
 definition n : nat := 3
 
 open tactic
-meta_definition dec_triv : tactic unit :=
+meta definition dec_triv : tactic unit :=
 do tgt  ← target,
    inst ← to_expr `(decidable %%tgt) >>= mk_instance,
    to_expr `(@of_as_true %%tgt %%inst trivial) >>= exact

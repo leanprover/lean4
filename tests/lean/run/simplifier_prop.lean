@@ -1,6 +1,6 @@
 open tactic
 
-meta_definition psimp : tactic unit :=
+meta definition psimp : tactic unit :=
 do simp_lemmas  ← mk_simp_lemmas_core reducible [] [`congr],
    (new_target, Heq) ← target >>= simplify_core failed `eq simp_lemmas,
    assert `Htarget new_target, swap,

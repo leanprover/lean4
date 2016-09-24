@@ -6,26 +6,26 @@ Authors: Leonardo de Moura
 prelude
 import init.meta.name
 universe variables u
-meta_constant options                   : Type 1
-meta_constant options.size              : options → nat
-meta_constant options.mk                : options
-meta_constant options.contains          : options → name → bool
-meta_constant options.set_bool          : options → name → bool → options
-meta_constant options.set_nat           : options → name → nat → options
-meta_constant options.set_string        : options → name → string → options
-meta_constant options.get_bool          : options → name → bool → bool
-meta_constant options.get_nat           : options → name → nat → nat
-meta_constant options.get_string        : options → name → string → string
-meta_constant options.join              : options → options → options
-meta_constant options.fold {A : Type u} : options → A → (name → A → A) → A
-meta_constant options.has_decidable_eq  : decidable_eq options
+meta constant options                   : Type 1
+meta constant options.size              : options → nat
+meta constant options.mk                : options
+meta constant options.contains          : options → name → bool
+meta constant options.set_bool          : options → name → bool → options
+meta constant options.set_nat           : options → name → nat → options
+meta constant options.set_string        : options → name → string → options
+meta constant options.get_bool          : options → name → bool → bool
+meta constant options.get_nat           : options → name → nat → nat
+meta constant options.get_string        : options → name → string → string
+meta constant options.join              : options → options → options
+meta constant options.fold {A : Type u} : options → A → (name → A → A) → A
+meta constant options.has_decidable_eq  : decidable_eq options
 
 attribute [instance] options.has_decidable_eq
 
 attribute [instance]
-meta_definition options.has_add : has_add options :=
+meta definition options.has_add : has_add options :=
 has_add.mk options.join
 
 attribute [instance]
-meta_definition options.is_inhabited : inhabited options :=
+meta definition options.is_inhabited : inhabited options :=
 inhabited.mk options.mk

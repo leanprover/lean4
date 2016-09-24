@@ -13,7 +13,7 @@ namespace tactic
 open expr environment list
 
 /- Retrieve the name of the type we are building an inhabitant instance for. -/
-private meta_definition get_inhabited_type_name : tactic name :=
+private meta definition get_inhabited_type_name : tactic name :=
 do {
   (app (const n ls) t) ← target >>= whnf | failed,
   when (n ≠ `inhabited) failed,
@@ -23,20 +23,20 @@ do {
 fail "mk_inhabited_instance tactic failed, target type is expected to be of the form (inhabited ...)"
 
 /- Try to synthesize constructor argument using type class resolution -/
-private meta_definition mk_inhabited_arg : tactic unit :=
+private meta definition mk_inhabited_arg : tactic unit :=
 do tgt  ← target,
    inh  ← mk_app `inhabited [tgt],
    inst ← mk_instance inh,
    mk_app `inhabited.value [inst] >>= exact
 
-private meta_definition try_constructors : nat → nat → tactic unit
+private meta definition try_constructors : nat → nat → tactic unit
 | 0     n := failed
 | (i+1) n :=
   do {constructor_idx (n - i), all_goals mk_inhabited_arg, now}
   <|>
   try_constructors i n
 
-meta_definition mk_inhabited_instance : tactic unit :=
+meta definition mk_inhabited_instance : tactic unit :=
 do
   I ← get_inhabited_type_name,
   env ← get_env,

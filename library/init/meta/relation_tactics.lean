@@ -9,7 +9,7 @@ import init.meta.tactic init.function
 namespace tactic
 open expr
 
-private meta_definition relation_tactic (op_for : environment → name → option name) (tac_name : string) : tactic unit :=
+private meta definition relation_tactic (op_for : environment → name → option name) (tac_name : string) : tactic unit :=
 do tgt ← target,
    env ← get_env,
    r   ← return $ get_app_fn tgt,
@@ -18,13 +18,13 @@ do tgt ← target,
    | none        := fail $ tac_name ++ " tactic failed, target is not a relation application with the expected property."
    end
 
-meta_definition reflexivity : tactic unit :=
+meta definition reflexivity : tactic unit :=
 relation_tactic environment.refl_for "reflexivity"
 
-meta_definition symmetry : tactic unit :=
+meta definition symmetry : tactic unit :=
 relation_tactic environment.symm_for "symmetry"
 
-meta_definition transitivity : tactic unit :=
+meta definition transitivity : tactic unit :=
 relation_tactic environment.trans_for "transitivity"
 
 end tactic

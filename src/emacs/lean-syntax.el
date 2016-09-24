@@ -8,8 +8,8 @@
 (require 'rx)
 
 (defconst lean-keywords1
-  '("import" "prelude" "protected" "private" "noncomputable" "definition" "meta_definition" "renaming"
-    "hiding" "exposing" "parameter" "parameters" "begin" "conjecture" "constant" "constants" "meta_constant"
+  '("import" "prelude" "protected" "private" "noncomputable" "definition" "meta" "renaming"
+    "hiding" "exposing" "parameter" "parameters" "begin" "conjecture" "constant" "constants"
     "hypothesis" "lemma" "corollary" "variable" "variables" "premise" "premises" "theory"
     "print" "theorem" "proposition" "example" "abstract"
     "open" "as" "export" "override" "axiom" "axioms" "inductive" "with" "structure" "record" "universe" "universes"
@@ -21,7 +21,7 @@
     "instances" "coercions" "attributes" "raw" "replacing"
     "calc" "have" "show" "suffices" "by" "in" "at" "do" "let" "forall" "Pi" "fun"
     "exists" "if" "dif" "then" "else" "assume" "take" "obtain" "from" "aliases" "register_simp_ext"
-    "mutual_definition" "mutual_meta_definition" "mutual_inductive" "def" "mutual_def" "run_command")
+    "mutual" "def" "run_command")
   "lean keywords ending with 'word' (not symbol)")
 (defconst lean-keywords1-regexp
   (eval `(rx word-start (or ,@lean-keywords1) word-end)))
@@ -131,7 +131,7 @@
      ;; attributes after definitions
      (,(rx word-start
            (group (or "inductive" "structure" "record" "theorem" "axiom" "axioms" "lemma" "proposition" "corollary"
-                      "hypothesis" "definition" "meta_definition" "constant" "meta_constant"))
+                      "hypothesis" "definition" "constant"))
            word-end (zero-or-more whitespace)
            (group (one-or-more "[" (zero-or-more (not (any "]"))) "]" (zero-or-more whitespace)))
            (zero-or-more whitespace)
@@ -141,7 +141,7 @@
       (2 'font-lock-doc-face) (4 'font-lock-function-name-face))
      (,(rx word-start
            (group (or "inductive" "structure" "record" "theorem" "axiom" "axioms" "lemma" "proposition" "corollary"
-                      "hypothesis" "definition" "meta_definition" "constant" "meta_constant"))
+                      "hypothesis" "definition" "constant"))
            word-end (zero-or-more whitespace)
            (group (one-or-more "[" (zero-or-more (not (any "]"))) "]" (zero-or-more whitespace)))
            (zero-or-more whitespace)
@@ -149,15 +149,15 @@
       (2 'font-lock-doc-face) (3 'font-lock-function-name-face))
      (,(rx word-start
            (group (or "inductive" "structure" "record" "theorem" "axiom" "axioms" "lemma" "proposition" "corollary"
-                      "hypothesis" "definition" "meta_definition" "constant" "meta_constant"))
+                      "hypothesis" "definition" "constant"))
            word-end (zero-or-more whitespace)
            (group (zero-or-more "{" (zero-or-more (not (any "}"))) "}" (zero-or-more whitespace)))
            (zero-or-more whitespace)
            (group (zero-or-more (not (any " \t\n\r{([")))))
       (3 'font-lock-function-name-face))
-     ;; attribute after mutual_definitions
+     ;; attribute after mutual definitions TODO(Leo): improve
      (,(rx word-start
-           (group (or "mutual_definition" "mutual_meta_definition" "mutual_inductive"))
+           (group (or "mutual definition" "mutual inductive"))
            word-end (zero-or-more whitespace) (group (one-or-more "[" (zero-or-more (not (any "]"))) "]" (zero-or-more whitespace)))
            (zero-or-more whitespace)
            (group (zero-or-more (not (any " \t\n\r{([,"))) (zero-or-more (zero-or-more whitespace) "," (zero-or-more whitespace) (not (any " \t\n\r{([,")))))
@@ -180,14 +180,14 @@
      ;; universe/inductive/theorem... "names" (without attributes)
      (,(rx word-start
            (group (or "inductive" "structure" "record" "theorem" "axiom" "axioms" "lemma" "proposition" "corollary"
-                      "hypothesis" "definition" "meta_definition" "constant" "meta_constant"))
+                      "hypothesis" "definition" "constant"))
            word-end
            (zero-or-more whitespace)
            (group (zero-or-more (not (any " \t\n\r{([")))))
       (2 'font-lock-function-name-face))
-     ;; meta_definitions "names" (without attributes)
+     ;; meutal definitions "names" (without attributes)
      (,(rx word-start
-           (group (or "mutual_definition" "mutual_meta_definition" "mutual_inductive"))
+           (group (or "mutual definition" "mutual inductive"))
            word-end
            (zero-or-more whitespace)
            (group (zero-or-more (not (any " \t\n\r{([,"))) (zero-or-more (zero-or-more whitespace) "," (zero-or-more whitespace) (not (any " \t\n\r{([,")))))

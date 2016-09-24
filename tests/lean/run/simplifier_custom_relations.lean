@@ -23,7 +23,7 @@ attribute Hf Hg Hh [congr]
 print [simp] simp
 print [congr] congr
 
-meta_definition relsimp_core (e : expr) : tactic (expr × expr) :=
+meta definition relsimp_core (e : expr) : tactic (expr × expr) :=
 do simp_lemmas  ← mk_simp_lemmas,
    e_type       ← infer_type e >>= whnf,
    simplify_core failed `rel simp_lemmas e

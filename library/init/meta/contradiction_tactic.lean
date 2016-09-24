@@ -10,7 +10,7 @@ namespace tactic
 
 open expr tactic decidable environment
 
-private meta_definition contra_A_not_A : list expr → list expr → tactic unit
+private meta definition contra_A_not_A : list expr → list expr → tactic unit
 | []         Hs := failed
 | (H1 :: Rs) Hs :=
   do t_0 ← infer_type H1,
@@ -22,7 +22,7 @@ private meta_definition contra_A_not_A : list expr → list expr → tactic unit
          exact pr)
      <|> contra_A_not_A Rs Hs
 
-private meta_definition contra_false : list expr → tactic unit
+private meta definition contra_false : list expr → tactic unit
 | []        := failed
 | (H :: Hs) :=
   do t ← infer_type H,
@@ -32,7 +32,7 @@ private meta_definition contra_false : list expr → tactic unit
              exact pr
      else contra_false Hs
 
-private meta_definition contra_not_a_refl_rel_a : list expr → tactic unit
+private meta definition contra_not_a_refl_rel_a : list expr → tactic unit
 | []        := failed
 | (H :: Hs) :=
   do t ← infer_type H,
@@ -51,7 +51,7 @@ private meta_definition contra_not_a_refl_rel_a : list expr → tactic unit
      <|>
      contra_not_a_refl_rel_a Hs
 
-private meta_definition contra_constructor_eq : list expr → tactic unit
+private meta definition contra_constructor_eq : list expr → tactic unit
 | []        := failed
 | (H :: Hs) :=
   do t ← infer_type H,
@@ -71,7 +71,7 @@ private meta_definition contra_constructor_eq : list expr → tactic unit
      | none := contra_constructor_eq Hs
      end
 
-meta_definition contradiction : tactic unit :=
+meta definition contradiction : tactic unit :=
 do ctx ← local_context,
    (contra_false ctx <|>
     contra_not_a_refl_rel_a ctx <|>
@@ -79,7 +79,7 @@ do ctx ← local_context,
     contra_constructor_eq ctx <|>
     fail "contradiction tactic failed")
 
-meta_definition exfalso : tactic unit :=
+meta definition exfalso : tactic unit :=
 do fail_if_no_goals,
    assert `Hfalse (expr.const `false []),
    swap, contradiction

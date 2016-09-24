@@ -9,13 +9,13 @@ import init.meta.tactic init.function
 namespace tactic
 open nat tactic environment expr list
 
-private meta_definition mk_intro_name : name → list name → name
+private meta definition mk_intro_name : name → list name → name
 | n₁ (n₂ :: ns) := n₂
 | n  []         := if n = `a then `H else n
 
 -- Auxiliary function for introducing the new equalities produced by the
 -- injection tactic
-private meta_definition injection_intro : expr → list name → tactic unit
+private meta definition injection_intro : expr → list name → tactic unit
 | (pi n bi b d) ns := do
   Hname ← return $ mk_intro_name n ns,
   H ← intro Hname,
@@ -38,7 +38,7 @@ private meta_definition injection_intro : expr → list name → tactic unit
   injection_intro d (tail ns)
 | e  ns           := skip
 
-meta_definition injection_with (H : expr) (ns : list name) : tactic unit :=
+meta definition injection_with (H : expr) (ns : list name) : tactic unit :=
 do
   Ht ← infer_type H,
   (lhs, rhs) ← match_eq Ht,
@@ -56,7 +56,7 @@ do
     injection_intro (binding_domain pr_type) ns
   else fail "injection tactic failed, argument must be an equality proof where lhs and rhs are of the form (c ...), where c is a constructor"
 
-meta_definition injection (H : expr) : tactic unit :=
+meta definition injection (H : expr) : tactic unit :=
 injection_with H []
 
 end tactic

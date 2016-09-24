@@ -333,22 +333,21 @@ struct definition_info {
 
 MK_THREAD_LOCAL_GET_DEF(definition_info, get_definition_info);
 
-declaration_info_scope::declaration_info_scope(name const & ns, bool prev_errors, bool is_private, bool is_meta,
-                                               bool is_noncomputable, bool is_lemma, bool aux_lemmas) {
+declaration_info_scope::declaration_info_scope(name const & ns, bool prev_errors, def_cmd_kind kind, decl_modifiers const & modifiers) {
     definition_info & info = get_definition_info();
     lean_assert(info.m_prefix.is_anonymous());
-    info.m_prefix           = is_private ? name() : ns;
+    info.m_prefix           = modifiers.m_is_private ? name() : ns;
     info.m_prev_errors      = prev_errors;
-    info.m_is_private       = is_private;
-    info.m_is_meta          = is_meta;
-    info.m_is_noncomputable = is_noncomputable;
-    info.m_is_lemma         = is_lemma;
-    info.m_aux_lemmas       = aux_lemmas;
+    info.m_is_private       = modifiers.m_is_private;
+    info.m_is_meta          = modifiers.m_is_meta;
+    info.m_is_noncomputable = modifiers.m_is_noncomputable;
+    info.m_is_lemma         = kind == Theorem;
+    info.m_aux_lemmas       = kind != Theorem && !modifiers.m_is_meta;
     info.m_next_match_idx = 1;
 }
 
-declaration_info_scope::declaration_info_scope(parser const & p, bool is_private, bool is_noncomputable, def_cmd_kind k):
-    declaration_info_scope(get_namespace(p.env()), p.found_errors(), is_private, k == MetaDefinition, is_noncomputable, k == Theorem, k == Definition) {}
+declaration_info_scope::declaration_info_scope(parser const & p, def_cmd_kind kind, decl_modifiers const & modifiers):
+    declaration_info_scope(get_namespace(p.env()), p.found_errors(), kind, modifiers) {}
 
 declaration_info_scope::~declaration_info_scope() {
     definition_info & info = get_definition_info();

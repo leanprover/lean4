@@ -8,7 +8,7 @@ import init.meta.tactic
 
 namespace tactic
 /- (flat_assoc op assoc e) -/
-meta_constant flat_assoc : expr → expr → expr → tactic (expr × expr)
+meta constant flat_assoc : expr → expr → expr → tactic (expr × expr)
 /- (perm_ac op assoc comm e1 e2) Try to construct a proof that e1 = e2 modulo AC -/
-meta_constant perm_ac : expr → expr → expr → expr → expr → tactic expr
+meta constant perm_ac : expr → expr → expr → expr → expr → tactic expr
 end tactic

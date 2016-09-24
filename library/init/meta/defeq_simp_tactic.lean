@@ -9,15 +9,15 @@ import init.meta.tactic
 namespace tactic
 /- Simplify the given expression using [defeq] lemmas.
    The resulting expression is definitionally equal to the input. -/
-meta_constant defeq_simp_core : transparency → expr → tactic expr
+meta constant defeq_simp_core : transparency → expr → tactic expr
 
-meta_definition defeq_simp : expr → tactic expr :=
+meta definition defeq_simp : expr → tactic expr :=
 defeq_simp_core reducible
 
-meta_definition dsimp : tactic unit :=
+meta definition dsimp : tactic unit :=
 target >>= defeq_simp >>= change
 
-meta_definition dsimp_at (H : expr) : tactic unit :=
+meta definition dsimp_at (H : expr) : tactic unit :=
 do num_reverted : ℕ ← revert H,
    (expr.pi n bi d b : expr) ← target | failed,
    H_simp : expr ← defeq_simp d,

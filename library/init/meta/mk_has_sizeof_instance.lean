@@ -13,7 +13,7 @@ namespace tactic
 open expr environment list
 
 /- Retrieve the name of the type we are building a has_sizeof instance for. -/
-private meta_definition get_has_sizeof_type_name : tactic name :=
+private meta definition get_has_sizeof_type_name : tactic name :=
 do {
   (app (const n ls) t) ← target >>= whnf | failed,
   when (n ≠ `has_sizeof) failed,
@@ -23,7 +23,7 @@ do {
 fail "mk_has_sizeof_instance tactic failed, target type is expected to be of the form (has_sizeof ...)"
 
 /- Try to synthesize constructor argument using type class resolution -/
-private meta_definition mk_has_sizeof_instance_for (a : expr) (use_default : bool) : tactic expr :=
+private meta definition mk_has_sizeof_instance_for (a : expr) (use_default : bool) : tactic expr :=
 do t    ← infer_type a,
    do {
      m    ← mk_app `has_sizeof [t],
@@ -36,7 +36,7 @@ do t    ← infer_type a,
      f ← pp t,
      fail (to_fmt "mk_has_sizeof_instance failed, failed to generate instance for" ++ format.nest 2 (format.line ++ f))
 
-private meta_definition mk_sizeof : bool → name → name → list name → nat → tactic (list expr)
+private meta definition mk_sizeof : bool → name → name → list name → nat → tactic (list expr)
 | use_default I_name F_name []              num_rec := return []
 | use_default I_name F_name (fname::fnames) num_rec := do
   field ← get_local fname,
@@ -45,21 +45,21 @@ private meta_definition mk_sizeof : bool → name → name → list name → nat
   szs   ← mk_sizeof use_default I_name F_name fnames (if rec then num_rec + 1 else num_rec),
   return (sz :: szs)
 
-private meta_definition mk_sum : list expr → expr
+private meta definition mk_sum : list expr → expr
 | []      := app (const `nat.succ []) (const `nat.zero [])
 | (e::es) := app (app (const `nat.add []) e) (mk_sum es)
 
-private meta_definition has_sizeof_case (use_default : bool) (I_name F_name : name) (field_names : list name) : tactic unit :=
+private meta definition has_sizeof_case (use_default : bool) (I_name F_name : name) (field_names : list name) : tactic unit :=
 do szs ← mk_sizeof use_default I_name F_name field_names 0,
    exact (mk_sum szs)
 
-private meta_definition for_each_has_sizeof_goal : bool → name → name → list (list name) → tactic unit
+private meta definition for_each_has_sizeof_goal : bool → name → name → list (list name) → tactic unit
 | d I_name F_name [] := now <|> fail "mk_has_sizeof_instance failed, unexpected number of cases"
 | d I_name F_name (ns::nss) := do
   solve1 (has_sizeof_case d I_name F_name ns),
   for_each_has_sizeof_goal d I_name F_name nss
 
-meta_definition mk_has_sizeof_instance_core (use_default : bool) : tactic unit :=
+meta definition mk_has_sizeof_instance_core (use_default : bool) : tactic unit :=
 do I_name ← get_has_sizeof_type_name,
    constructor,
    env ← get_env,
@@ -75,7 +75,7 @@ do I_name ← get_has_sizeof_type_name,
    for_each_has_sizeof_goal use_default I_name F_name arg_names
 
 
-meta_definition mk_has_sizeof_instance : tactic unit :=
+meta definition mk_has_sizeof_instance : tactic unit :=
 mk_has_sizeof_instance_core ff
 
 end tactic

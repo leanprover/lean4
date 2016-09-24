@@ -1,8 +1,8 @@
-parametric meta_definition
+parametric meta definition
 "OK"
-parametric meta_definition inside namespace
+parametric meta definition inside namespace
 "OK"
-meta_definition inside parametric scope
+meta definition inside parametric scope
 "OK"
-private meta_definition
+private meta definition
 "OK"

@@ -535,13 +535,8 @@ environment inductive_cmd(parser & p) {
     return inductive_cmd_ex(p, {});
 }
 
-environment mutual_inductive_cmd(parser & p) {
-    return mutual_inductive_cmd_ex(p, {});
-}
-
 void register_inductive_cmds(cmd_table & r) {
-    add_cmd(r, cmd_info("inductive",        "declare an inductive datatype",        inductive_cmd,        false));
-    add_cmd(r, cmd_info("mutual_inductive", "declare mutually inductive datatypes", mutual_inductive_cmd, false));
+    add_cmd(r, cmd_info("inductive", "declare an inductive datatype",        inductive_cmd,        false));
 }
 
 void initialize_inductive_cmds() {

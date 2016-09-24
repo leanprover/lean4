@@ -85,7 +85,7 @@ static environment universes_cmd(parser & p) {
     return universes_cmd_core(p, false);
 }
 
-enum class variable_kind { Constant, Parameter, Variable, Axiom, MetaConstant };
+enum class variable_kind { Constant, Parameter, Variable, Axiom };
 
 static void check_parameter_type(parser & p, name const & n, expr const & type, pos_info const & pos) {
     for_each(type, [&](expr const & e, unsigned) {
@@ -99,7 +99,7 @@ static void check_parameter_type(parser & p, name const & n, expr const & type, 
 static environment declare_var(parser & p, environment env,
                                name const & n, level_param_names const & ls, expr const & type,
                                variable_kind k, optional<binder_info> const & _bi, pos_info const & pos,
-                               bool is_protected) {
+                               decl_modifiers const & modifiers) {
     binder_info bi;
     if (_bi) bi = *_bi;
     if (k == variable_kind::Parameter || k == variable_kind::Variable) {
@@ -118,23 +118,23 @@ static environment declare_var(parser & p, environment env,
             p.add_variable(n, l);
         return env;
     } else {
-        lean_assert(k == variable_kind::Constant || k == variable_kind::Axiom || k == variable_kind::MetaConstant);
+        lean_assert(k == variable_kind::Constant || k == variable_kind::Axiom);
         name const & ns = get_namespace(env);
         name full_n  = ns + n;
         expr new_type = unfold_untrusted_macros(env, type);
         if (k == variable_kind::Axiom) {
             env = module::add(env, check(env, mk_axiom(full_n, ls, new_type)));
         } else {
-            bool is_trusted = k == variable_kind::Constant;
+            bool is_trusted = !modifiers.m_is_meta;
             env = module::add(env, check(env, mk_constant_assumption(full_n, ls, new_type, is_trusted)));
         }
         if (!ns.is_anonymous()) {
-            if (is_protected)
+            if (modifiers.m_is_protected)
                 env = add_expr_alias(env, get_protected_shortest_name(full_n), full_n);
             else
                 env = add_expr_alias(env, n, full_n);
         }
-        if (is_protected)
+        if (modifiers.m_is_protected)
             env = add_protected(env, full_n);
         env = ensure_decl_namespaces(env, full_n);
         return env;
@@ -188,7 +188,7 @@ static bool curr_is_binder_annotation(parser & p) {
            p.curr_is_token(get_ldcurly_tk()) || p.curr_is_token(get_lbracket_tk());
 }
 
-static environment variable_cmd_core(parser & p, variable_kind k, bool is_protected = false) {
+static environment variable_cmd_core(parser & p, variable_kind k, decl_modifiers const & modifiers = decl_modifiers()) {
     check_variable_kind(p, k);
     auto pos = p.pos();
     optional<binder_info> bi;
@@ -268,7 +268,7 @@ static environment variable_cmd_core(parser & p, variable_kind k, bool is_protec
     std::tie(type, new_ls) = p.elaborate_type(ctx, type);
     if (k == variable_kind::Variable || k == variable_kind::Parameter)
         update_local_levels(p, new_ls, k == variable_kind::Variable);
-    return declare_var(p, p.env(), n, append(ls, new_ls), type, k, bi, pos, is_protected);
+    return declare_var(p, p.env(), n, append(ls, new_ls), type, k, bi, pos, modifiers);
 }
 static environment variable_cmd(parser & p) {
     return variable_cmd_core(p, variable_kind::Variable);
@@ -279,14 +279,11 @@ static environment axiom_cmd(parser & p)    {
 static environment constant_cmd(parser & p)    {
     return variable_cmd_core(p, variable_kind::Constant);
 }
-static environment meta_constant_cmd(parser & p)    {
-    return variable_cmd_core(p, variable_kind::MetaConstant);
-}
 static environment parameter_cmd(parser & p)    {
     return variable_cmd_core(p, variable_kind::Parameter);
 }
 
-static environment variables_cmd_core(parser & p, variable_kind k, bool is_protected = false) {
+static environment variables_cmd_core(parser & p, variable_kind k, decl_modifiers const & modifiers = decl_modifiers()) {
     check_variable_kind(p, k);
     auto pos = p.pos();
     environment env = p.env();
@@ -374,7 +371,7 @@ static environment variables_cmd_core(parser & p, variable_kind k, bool is_prote
         if (k == variable_kind::Variable || k == variable_kind::Parameter)
             update_local_levels(p, new_ls, k == variable_kind::Variable);
         new_ls = append(ls, new_ls);
-        env = declare_var(p, env, id, new_ls, new_type, k, bi, pos, is_protected);
+        env = declare_var(p, env, id, new_ls, new_type, k, bi, pos, modifiers);
     }
     if (curr_is_binder_annotation(p)) {
         if (k == variable_kind::Constant || k == variable_kind::Axiom) {
@@ -402,80 +399,144 @@ static environment axioms_cmd(parser & p) {
     return variables_cmd_core(p, variable_kind::Axiom);
 }
 
-static environment example_cmd(parser & p) {
-    definition_cmd_core(p, Example, false, false, false, {});
-    return p.env();
-}
-
 static environment definition_cmd_ex(parser & p, decl_attributes const & attributes) {
-    bool is_private   = false;
-    bool is_protected = false;
+    decl_modifiers modifiers;
     if (p.curr_is_token(get_private_tk())) {
-        is_private = true;
+        modifiers.m_is_private = true;
         p.next();
 
         if (!attributes && p.curr_is_token(get_structure_tk())) {
             return structure_cmd_ex(p, attributes, true);
         }
     } else if (p.curr_is_token(get_protected_tk())) {
-        is_protected = true;
+        modifiers.m_is_protected = true;
         p.next();
-
         if (!attributes) {
             if (p.curr_is_token_or_id(get_axiom_tk())) {
                 p.next();
-                return variable_cmd_core(p, variable_kind::Axiom, true);
+                return variable_cmd_core(p, variable_kind::Axiom, modifiers);
             } else if (p.curr_is_token_or_id(get_constant_tk())) {
                 p.next();
-                return variable_cmd_core(p, variable_kind::Constant, true);
-            } else if (p.curr_is_token_or_id(get_meta_constant_tk())) {
-                p.next();
-                return variable_cmd_core(p, variable_kind::MetaConstant, true);
+                return variable_cmd_core(p, variable_kind::Constant, modifiers);
             } else if (p.curr_is_token_or_id(get_axioms_tk())) {
                 p.next();
-                return variables_cmd_core(p, variable_kind::Axiom, true);
+                return variables_cmd_core(p, variable_kind::Axiom, modifiers);
             } else if (p.curr_is_token_or_id(get_constants_tk())) {
                 p.next();
-                return variables_cmd_core(p, variable_kind::Constant, true);
+                return variables_cmd_core(p, variable_kind::Constant, modifiers);
             }
         }
     }
 
-    bool is_noncomputable = false;
     if (p.curr_is_token(get_noncomputable_tk())) {
-        is_noncomputable = true;
+        modifiers.m_is_noncomputable = true;
         p.next();
 
-        if (!attributes && !is_private && !is_protected && p.curr_is_token_or_id(get_theory_tk())) {
+        if (!attributes && !modifiers.m_is_private && !modifiers.m_is_protected && p.curr_is_token_or_id(get_theory_tk())) {
             p.next();
             p.set_ignore_noncomputable();
             return p.env();
+        }
+    } else if (p.curr_is_token(get_meta_tk())) {
+        modifiers.m_is_meta = true;
+        p.next();
+        if (!attributes) {
+            if (p.curr_is_token_or_id(get_constant_tk())) {
+                p.next();
+                return variable_cmd_core(p, variable_kind::Constant, modifiers);
+            } else if (p.curr_is_token_or_id(get_constants_tk())) {
+                p.next();
+                return variables_cmd_core(p, variable_kind::Constant, modifiers);
+            }
+        }
+    }
+
+    if (p.curr_is_token(get_mutual_tk())) {
+        modifiers.m_is_mutual = true;
+        p.next();
+        if (!modifiers.m_is_private && !modifiers.m_is_protected && !modifiers.m_is_noncomputable &&
+            p.curr_is_token(get_inductive_tk())) {
+            return mutual_inductive_cmd_ex(p, attributes);
         }
     }
 
     def_cmd_kind kind = Definition;
     if (p.curr_is_token_or_id(get_definition_tk())) {
         p.next();
-    } else if (p.curr_is_token_or_id(get_meta_definition_tk())) {
-        kind = MetaDefinition;
-        p.next();
     } else if (p.curr_is_token_or_id(get_theorem_tk())) {
         p.next();
         kind = Theorem;
-    } else if (p.curr_is_token_or_id(get_mutual_definition_tk())) {
-        p.next();
-        return mutual_definition_cmd_core(p, Definition, is_private, is_protected, is_noncomputable, attributes);
-    } else if (p.curr_is_token_or_id(get_mutual_meta_definition_tk())) {
-        p.next();
-        return mutual_definition_cmd_core(p, MetaDefinition, is_private, is_protected, is_noncomputable, attributes);
     } else {
         throw parser_error("invalid definition/theorem, 'definition' or 'theorem' expected", p.pos());
     }
-    return definition_cmd_core(p, kind, is_private, is_protected, is_noncomputable, attributes);
+
+    return definition_cmd_core(p, kind, modifiers, attributes);
 }
 
 static environment definition_cmd(parser & p) {
     return definition_cmd_ex(p, {});
+}
+
+static environment example_cmd(parser & p) {
+    definition_cmd_core(p, Example, {}, {});
+    return p.env();
+}
+
+static environment instance_cmd_ex(parser & p, decl_attributes attributes) {
+    attributes.set_instance_cmd(p.env());
+    decl_modifiers modifiers;
+    modifiers.m_is_protected = true;
+    return definition_cmd_core(p, Definition, modifiers, attributes);
+}
+
+
+static environment instance_cmd(parser & p) {
+    bool persistent = true;
+    decl_attributes attributes(persistent);
+    return instance_cmd_ex(p, attributes);
+}
+
+static environment attribute_cmd_core(parser & p, bool persistent) {
+    buffer<name> ds;
+    decl_attributes attributes(persistent);
+    bool parsed_attrs = false;
+    if (!p.curr_is_identifier()) {
+        attributes.parse(p);
+        parsed_attrs  = true;
+        // 'attribute [attr] definition ...'
+        if (p.curr_is_command()) {
+            if (p.curr_is_token_or_id(get_inductive_tk())) {
+                return inductive_cmd_ex(p, attributes);
+            } else  if (p.curr_is_token_or_id(get_structure_tk())) {
+                return structure_cmd_ex(p, attributes, false);
+            } else if (p.curr_is_token_or_id(get_instance_tk())) {
+                return instance_cmd_ex(p, attributes);
+            } else {
+                return definition_cmd_ex(p, attributes);
+            }
+        }
+    }
+    name d          = p.check_constant_next("invalid 'attribute' command, constant expected");
+    ds.push_back(d);
+    while (p.curr_is_identifier()) {
+        ds.push_back(p.check_constant_next("invalid 'attribute' command, constant expected"));
+    }
+    if (!parsed_attrs)
+        attributes.parse(p);
+    if (attributes.is_parsing_only())
+        throw exception(sstream() << "invalid [parsing_only] attribute, can only be applied at declaration time");
+    environment env = p.env();
+    for (name const & d : ds)
+        env = attributes.apply(env, p.ios(), d);
+    return env;
+}
+
+static environment attribute_cmd(parser & p) {
+    return attribute_cmd_core(p, true);
+}
+
+environment local_attribute_cmd(parser & p) {
+    return attribute_cmd_core(p, false);
 }
 
 static environment include_cmd_core(parser & p, bool include) {
@@ -508,48 +569,6 @@ static environment omit_cmd(parser & p) {
     return include_cmd_core(p, false);
 }
 
-static environment attribute_cmd_core(parser & p, bool persistent) {
-    buffer<name> ds;
-    decl_attributes attributes(persistent);
-    bool parsed_attrs = false;
-    if (!p.curr_is_identifier()) {
-        attributes.parse(p);
-        parsed_attrs  = true;
-        // 'attribute [attr] definition ...'
-        if (p.curr_is_command()) {
-            if (p.curr_is_token_or_id(get_inductive_tk())) {
-                return inductive_cmd_ex(p, attributes);
-            } else if (p.curr_is_token_or_id(get_mutual_inductive_tk())) {
-                return mutual_inductive_cmd_ex(p, attributes);
-            } else  if (p.curr_is_token_or_id(get_structure_tk())) {
-                return structure_cmd_ex(p, attributes, false);
-            } else {
-                return definition_cmd_ex(p, attributes);
-            }
-        }
-    }
-    name d          = p.check_constant_next("invalid 'attribute' command, constant expected");
-    ds.push_back(d);
-    while (p.curr_is_identifier()) {
-        ds.push_back(p.check_constant_next("invalid 'attribute' command, constant expected"));
-    }
-    if (!parsed_attrs)
-        attributes.parse(p);
-    if (attributes.is_parsing_only())
-        throw exception(sstream() << "invalid [parsing_only] attribute, can only be applied at declaration time");
-    environment env = p.env();
-    for (name const & d : ds)
-        env = attributes.apply(env, p.ios(), d);
-    return env;
-}
-
-static environment attribute_cmd(parser & p) {
-    return attribute_cmd_core(p, true);
-}
-
-environment local_attribute_cmd(parser & p) {
-    return attribute_cmd_core(p, false);
-}
 
 static environment reveal_cmd(parser & p) {
     buffer<name> ds;
@@ -561,40 +580,30 @@ static environment reveal_cmd(parser & p) {
     return p.reveal_theorems(ds);
 }
 
-static environment instance_cmd(parser & p) {
-    bool persistent = true;
-    decl_attributes attributes(persistent);
-    attributes.set_instance_cmd(p.env());
-    bool is_private = false; bool is_protected = true; bool is_noncomputable = false;
-    return definition_cmd_core(p, def_cmd_kind::Definition, is_private, is_protected, is_noncomputable, attributes);
-}
-
 void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("universe",        "declare a universe level", universe_cmd));
     add_cmd(r, cmd_info("universes",       "declare universe levels", universes_cmd));
     add_cmd(r, cmd_info("variable",        "declare a new variable", variable_cmd));
     add_cmd(r, cmd_info("parameter",       "declare a new parameter", parameter_cmd));
     add_cmd(r, cmd_info("constant",        "declare a new constant (aka top-level variable)", constant_cmd));
-    add_cmd(r, cmd_info("meta_constant",   "declare a new meta constant", meta_constant_cmd));
     add_cmd(r, cmd_info("axiom",           "declare a new axiom", axiom_cmd));
     add_cmd(r, cmd_info("variables",       "declare new variables", variables_cmd));
     add_cmd(r, cmd_info("parameters",      "declare new parameters", parameters_cmd));
     add_cmd(r, cmd_info("constants",       "declare new constants (aka top-level variables)", constants_cmd));
     add_cmd(r, cmd_info("axioms",          "declare new axioms", axioms_cmd));
     add_cmd(r, cmd_info("definition",      "add new definition", definition_cmd, false));
-    add_cmd(r, cmd_info("meta_definition", "add new meta definition", definition_cmd, false));
+    add_cmd(r, cmd_info("meta",            "add new meta definition/constant", definition_cmd, false));
+    add_cmd(r, cmd_info("mutual",          "add new mutal definition/constant/inductive", definition_cmd, false));
     add_cmd(r, cmd_info("noncomputable",   "add new noncomputable definition", definition_cmd, false));
-    add_cmd(r, cmd_info("example",         "add new example", example_cmd));
     add_cmd(r, cmd_info("private",         "add new private definition/theorem", definition_cmd, false));
     add_cmd(r, cmd_info("protected",       "add new protected definition/theorem/variable", definition_cmd, false));
     add_cmd(r, cmd_info("theorem",         "add new theorem", definition_cmd, false));
+    add_cmd(r, cmd_info("instance",        "add new instance", instance_cmd));
+    add_cmd(r, cmd_info("example",         "add new example", example_cmd));
     add_cmd(r, cmd_info("reveal",          "reveal given theorems", reveal_cmd));
     add_cmd(r, cmd_info("include",         "force section parameter/variable to be included", include_cmd));
     add_cmd(r, cmd_info("attribute",       "set declaration attributes", attribute_cmd));
-    add_cmd(r, cmd_info("instance",        "declare a new instance", instance_cmd));
     add_cmd(r, cmd_info("omit",            "undo 'include' command", omit_cmd));
-    add_cmd(r, cmd_info("mutual_definition",      "declare a mutually recursive definition", definition_cmd, false));
-    add_cmd(r, cmd_info("mutual_meta_definition", "declare a mutually recursive meta_definition", definition_cmd, false));
 }
 
 void initialize_decl_cmds() {

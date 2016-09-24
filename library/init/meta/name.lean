@@ -50,16 +50,16 @@ definition name.has_to_string : has_to_string name :=
 has_to_string.mk name.to_string
 
 /- TODO(Leo): provide a definition in Lean. -/
-meta_constant name.has_decidable_eq : decidable_eq name
+meta constant name.has_decidable_eq : decidable_eq name
 /- Both cmp and lex_cmp are total orders, but lex_cmp implements a lexicographical order. -/
-meta_constant name.cmp : name → name → ordering
-meta_constant name.lex_cmp : name → name → ordering
+meta constant name.cmp : name → name → ordering
+meta constant name.lex_cmp : name → name → ordering
 
 attribute [instance] name.has_decidable_eq
 
 attribute [instance]
-meta_definition name_has_ordering : has_ordering name :=
+meta definition name_has_ordering : has_ordering name :=
 has_ordering.mk name.cmp
 
 /- (name.append_after n i) return a name of the form n_i -/
-meta_constant name.append_after : name → nat → name
+meta constant name.append_after : name → nat → name

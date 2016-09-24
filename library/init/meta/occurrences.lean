@@ -38,13 +38,13 @@ attribute [instance]
 definition occurrences_has_to_string : has_to_string occurrences :=
 has_to_string.mk occurrences_to_string
 
-meta_definition occurrences_to_format : occurrences → format
+meta definition occurrences_to_format : occurrences → format
 | occurrences.all     := to_fmt "*"
 | (occurrences.pos l) := to_fmt l
 | (occurrences.neg l) := to_fmt "-" ++ to_fmt l
 
 attribute [instance]
-meta_definition occurrences_has_to_format : has_to_format occurrences :=
+meta definition occurrences_has_to_format : has_to_format occurrences :=
 has_to_format.mk occurrences_to_format
 
 open decidable tactic

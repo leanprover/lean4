@@ -2,12 +2,12 @@ open list tactic option
 constants (A : Type.{1}) (x y z : A) (Hy : x = y) (Hz : y = z)
 constants (f₁ : A → A) (f₂ : A → A → A)
 
-meta_definition simp_x_to_y : tactic unit := mk_eq_simp_ext $
+meta definition simp_x_to_y : tactic unit := mk_eq_simp_ext $
   λ e, do res ← mk_const `y,
           pf ← mk_const `Hy,
           return (res, pf)
 
-meta_definition simp_y_to_z : tactic unit := mk_eq_simp_ext $
+meta definition simp_y_to_z : tactic unit := mk_eq_simp_ext $
   λ e, do res ← mk_const `z,
           pf ← mk_const `Hz,
           return (res, pf)

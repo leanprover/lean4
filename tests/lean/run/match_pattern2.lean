@@ -1,6 +1,6 @@
 open tactic list expr
 
-private meta_definition pattern_telescope : expr → list expr → tactic (list expr × expr × expr)
+private meta definition pattern_telescope : expr → list expr → tactic (list expr × expr × expr)
 | e ps :=
 if expr.is_pi e = tt then do
    n      ← mk_fresh_name,
@@ -11,7 +11,7 @@ else do
   (lhs, rhs) ← match_eq e,
   return (reverse ps, lhs, rhs)
 
-meta_definition mk_pattern_for_constant : name → tactic pattern
+meta definition mk_pattern_for_constant : name → tactic pattern
 | n :=
 do env ← get_env,
    d   : declaration  ← returnex $ environment.get env n,

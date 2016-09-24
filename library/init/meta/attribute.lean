@@ -6,8 +6,8 @@ Authors: Sebastian Ullrich
 prelude
 import init.meta.tactic
 
-meta_constant attribute.get_instances : name → tactic (list name)
-meta_constant attribute.fingerprint : name → tactic nat
+meta constant attribute.get_instances : name → tactic (list name)
+meta constant attribute.fingerprint : name → tactic nat
 
 structure user_attribute :=
 (name : name)
@@ -15,11 +15,11 @@ structure user_attribute :=
 
 /- Registers a new user-defined attribute. The argument must be the name of a definition of type
    `user_attribute` or a sub-structure. -/
-meta_constant attribute.register : name → command
+meta constant attribute.register : name → command
 
 structure caching_user_attribute extends user_attribute :=
 (Cache : Type)
 (cache : list declaration → Cache)
 
-meta_constant caching_user_attribute.get_cache :
+meta constant caching_user_attribute.get_cache :
   Π(attr : caching_user_attribute), tactic (caching_user_attribute.Cache attr)

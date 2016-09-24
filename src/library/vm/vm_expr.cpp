@@ -96,7 +96,7 @@ vm_obj expr_const(vm_obj const & n, vm_obj const & ls) {
     return to_obj(mk_constant(to_name(n), to_list_level(ls)));
 }
 
-vm_obj expr_meta(vm_obj const & n, vm_obj const & t) {
+vm_obj expr_mvar(vm_obj const & n, vm_obj const & t) {
     return to_obj(mk_metavar(to_name(n), to_expr(t)));
 }
 
@@ -298,7 +298,7 @@ void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name({"expr", "var"}),              expr_var);
     DECLARE_VM_BUILTIN(name({"expr", "sort"}),             expr_sort);
     DECLARE_VM_BUILTIN(name({"expr", "const"}),            expr_const);
-    DECLARE_VM_BUILTIN(name({"expr", "meta"}),             expr_meta);
+    DECLARE_VM_BUILTIN(name({"expr", "mvar"}),             expr_mvar);
     DECLARE_VM_BUILTIN(name({"expr", "local_const"}),      expr_local_const);
     DECLARE_VM_BUILTIN(name({"expr", "app"}),              expr_app);
     DECLARE_VM_BUILTIN(name({"expr", "lam"}),              expr_lam);

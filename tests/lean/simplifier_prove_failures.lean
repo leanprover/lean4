@@ -3,10 +3,10 @@ open tactic
 constants (P Q R : Prop) (HP : P) (HPQ : P → Q) (HQR : Q → R = true)
 attribute HQR [simp]
 
-meta_definition prove_skip           : tactic unit := skip
-meta_definition prove_fail           : tactic unit := failed
-meta_definition prove_partial_assign : tactic unit := mk_const `HPQ >>= apply
-meta_definition prove_full_assign    : tactic unit := (mk_const `HPQ >>= apply) >> (mk_const `HP) >>= exact
+meta definition prove_skip           : tactic unit := skip
+meta definition prove_fail           : tactic unit := failed
+meta definition prove_partial_assign : tactic unit := mk_const `HPQ >>= apply
+meta definition prove_full_assign    : tactic unit := (mk_const `HPQ >>= apply) >> (mk_const `HP) >>= exact
 
 set_option trace.simplifier.prove true
 

@@ -2,17 +2,17 @@ exit
 
 open expr decidable tactic nat
 
-meta_definition is_poly_bin_app : expr → option name
+meta definition is_poly_bin_app : expr → option name
 | (app (app (app (app (const op ls) A) s) lhs) rhs) := some op
 | _  := none
 
-meta_definition is_add (e : expr) : bool  :=
+meta definition is_add (e : expr) : bool  :=
 match (is_poly_bin_app e) with
 | (some op) := to_bool (op = `add)
 | none      := ff
 end
 
-meta_definition perm_add (e1 e2 : expr) : tactic expr :=
+meta definition perm_add (e1 e2 : expr) : tactic expr :=
 do when (is_add e1 = ff) (fail "given expression is not an addition"),
    add_fn : expr ← return $ app_fn (app_fn e1),
    A      : expr ← return $ app_arg (app_fn add_fn),
@@ -22,7 +22,7 @@ do when (is_add e1 = ff) (fail "given expression is not an addition"),
    comm   : expr ← mk_mapp `add.comm [some A, some s2],
    perm_ac add_fn assoc comm e1 e2
 
-meta_definition tst_perm : tactic unit :=
+meta definition tst_perm : tactic unit :=
 do trace "--------",
    (lhs, rhs) ← target >>= match_eq,
    H ← perm_add lhs rhs,

@@ -1510,6 +1510,26 @@ auto pretty_fn::pp_explicit_collection(buffer<expr> const & elems) -> result {
     return result(r);
 }
 
+bool is_set_of(expr const & e) {
+    return
+        is_constant(get_app_fn(e), get_set_of_name()) &&
+        get_app_num_args(e) == 2 &&
+        is_lambda(app_arg(e));
+}
+
+auto pretty_fn::pp_set_of(expr const & e) -> result {
+    lean_assert(is_set_of(e));
+    expr pred = app_arg(e);
+    lean_assert(is_lambda(pred));
+    auto p     = binding_body_fresh(pred, true);
+    expr body  = p.first;
+    expr local = p.second;
+    format r   = bracket("{",
+                         pp_binder(local) + space() + format("|") + space() +
+                         pp_child(body, 0).fmt(), "}");
+    return result(r);
+}
+
 static bool is_sep(expr const & e) {
     return
         is_constant(get_app_fn(e), get_sep_name()) &&
@@ -1563,6 +1583,8 @@ auto pretty_fn::pp(expr const & e, bool ignore_hide) -> result {
             return pp_subtype(e);
         if (is_sep(e))
             return pp_sep(e);
+        if (is_set_of(e))
+            return pp_set_of(e);
         buffer<expr> elems;
         if (is_explicit_collection(e, elems))
             return pp_explicit_collection(elems);

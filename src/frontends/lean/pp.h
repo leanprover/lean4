@@ -116,6 +116,7 @@ private:
     result pp_child(expr const & e, unsigned bp, bool ignore_hide = false);
     result pp_subtype(expr const & e);
     result pp_sep(expr const & e);
+    result pp_set_of(expr const & e);
     result pp_explicit_collection(buffer<expr> const & elems);
     result pp_var(expr const & e);
     result pp_sort(expr const & e);

@@ -128,40 +128,25 @@
   `((;; attributes
      (,(rx word-start "attribute" word-end (zero-or-more whitespace) (group (one-or-more "[" (zero-or-more (not (any "]"))) "]" (zero-or-more whitespace))))
       (1 'font-lock-doc-face))
-     ;; attributes after definitions
+     ;; mutal definitions "names"
      (,(rx word-start
-           (group (or "inductive" "structure" "class" "record" "theorem" "axiom" "axioms" "lemma" "proposition" "corollary"
-                      "hypothesis" "definition" "constant"))
-           word-end (zero-or-more whitespace)
-           (group (one-or-more "[" (zero-or-more (not (any "]"))) "]" (zero-or-more whitespace)))
+           "mutual"
+           word-end
            (zero-or-more whitespace)
-           (group (zero-or-more "{" (zero-or-more (not (any "}"))) "}" (zero-or-more whitespace)))
-           (zero-or-more whitespace)
-           (group (zero-or-more (not (any " \t\n\r{([")))))
-      (2 'font-lock-doc-face) (4 'font-lock-function-name-face))
-     (,(rx word-start
-           (group (or "inductive" "structure" "class" "record" "theorem" "axiom" "axioms" "lemma" "proposition" "corollary"
-                      "hypothesis" "definition" "constant"))
-           word-end (zero-or-more whitespace)
-           (group (one-or-more "[" (zero-or-more (not (any "]"))) "]" (zero-or-more whitespace)))
-           (zero-or-more whitespace)
-           (group (zero-or-more (not (any " \t\n\r{([")))))
-      (2 'font-lock-doc-face) (3 'font-lock-function-name-face))
-     (,(rx word-start
-           (group (or "inductive" "structure" "class" "record" "theorem" "axiom" "axioms" "lemma" "proposition" "corollary"
-                      "hypothesis" "definition" "constant"))
-           word-end (zero-or-more whitespace)
-           (group (zero-or-more "{" (zero-or-more (not (any "}"))) "}" (zero-or-more whitespace)))
-           (zero-or-more whitespace)
-           (group (zero-or-more (not (any " \t\n\r{([")))))
-      (3 'font-lock-function-name-face))
-     ;; attribute after mutual definitions TODO(Leo): improve
-     (,(rx word-start
-           (group (or "mutual definition" "mutual inductive"))
-           word-end (zero-or-more whitespace) (group (one-or-more "[" (zero-or-more (not (any "]"))) "]" (zero-or-more whitespace)))
-           (zero-or-more whitespace)
+           word-start
+           (or "inductive" "definition" "def")
+           word-end
            (group (zero-or-more (not (any " \t\n\r{([,"))) (zero-or-more (zero-or-more whitespace) "," (zero-or-more whitespace) (not (any " \t\n\r{([,")))))
-      (2 'font-lock-doc-face) (3 'font-lock-function-name-face))
+      (1 'font-lock-function-name-face))
+     ;; declarations
+     (,(rx word-start
+           (group (or "inductive" (group "class" (zero-or-more whitespace) "inductive") "instance" "structure" "class" "record" "theorem" "axiom" "axioms" "lemma" "proposition" "corollary"
+                      "hypothesis" "definition" "def" "constant"))
+           word-end (zero-or-more whitespace)
+           (group (zero-or-more "{" (zero-or-more (not (any "}"))) "}" (zero-or-more whitespace)))
+           (zero-or-more whitespace)
+           (group (zero-or-more (not (any " \t\n\r{([")))))
+      (4 'font-lock-function-name-face))
      ;; Constants which have a keyword as subterm
      (,(rx (or "∘if")) . 'font-lock-constant-face)
      ;; Keywords
@@ -177,22 +162,6 @@
      ;; ;; Constants
      (,lean-constants-regexp . 'font-lock-constant-face)
      (,lean-numerals-regexp . 'font-lock-constant-face)
-     ;; universe/inductive/theorem... "names" (without attributes)
-     (,(rx word-start
-           (group (or "inductive" "structure" "record" "theorem" "axiom" "axioms" "lemma" "proposition" "corollary"
-                      "hypothesis" "definition" "constant"))
-           word-end
-           (zero-or-more whitespace)
-           (group (zero-or-more (not (any " \t\n\r{([")))))
-      (2 'font-lock-function-name-face))
-     ;; meutal definitions "names" (without attributes)
-     (,(rx word-start
-           (group (or "mutual definition" "mutual inductive"))
-           word-end
-           (zero-or-more whitespace)
-           (group (zero-or-more (not (any " \t\n\r{([,"))) (zero-or-more (zero-or-more whitespace) "," (zero-or-more whitespace) (not (any " \t\n\r{([,")))))
-      (2 'font-lock-function-name-face))
-
      ;; place holder
      (,(rx symbol-start "_" symbol-end) . 'font-lock-preprocessor-face)
      ;; warnings

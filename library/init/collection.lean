@@ -29,7 +29,7 @@ def singleton (a : A) : C A :=
 insert a ∅
 end
 
-/- Type class use to implement the notation [ a ∈ c | p a ] -/
+/- Type class used to implement the notation [ a ∈ c | p a ] -/
 structure [class] decidable_separable (A : Type u) (C : Type u → Type v) :=
 (sep : ∀ (p : A → Prop) [decidable_pred p], C A → C A)
 
@@ -41,7 +41,7 @@ def dec_sep (p : A → Prop) [decidable_pred p] : C A → C A :=
 decidable_separable.sep p
 end
 
-/- Type class use to implement the notation { a ∈ c | p a } -/
+/- Type class used to implement the notation { a ∈ c | p a } -/
 structure [class] separable (A : Type u) (C : Type u → Type v) :=
 (sep : (A → Prop) → C A → C A)
 

@@ -18,15 +18,14 @@ section
   | right : ∀ (a : A)  {b₁ b₂ : B a}, Rb a b₁ b₂ → lex (sigma.mk a b₁)  (sigma.mk a b₂)
 end
 
-
 section
   open well_founded tactic
   parameters {A : Type u} {B : A → Type v}
   parameters {Ra  : A → A → Prop} {Rb : Π a : A, B a → B a → Prop}
   local infix `≺`:50 := lex Ra Rb
 
-  definition lex_accessible {a} (aca : acc Ra a) (acb : ∀ a, well_founded (Rb a))
-             : ∀ (b : B a), acc (lex Ra Rb) (sigma.mk a b) :=
+  def lex_accessible {a} (aca : acc Ra a) (acb : ∀ a, well_founded (Rb a))
+                     : ∀ (b : B a), acc (lex Ra Rb) (sigma.mk a b) :=
   acc.rec_on aca
     (λ xa aca (iHa : ∀ y, Ra y xa → ∀ b : B y, acc (lex Ra Rb) (sigma.mk y b)),
       λ b : B xa, acc.rec_on (well_founded.apply (acb xa) b)
@@ -49,18 +48,18 @@ section
             aux rfl (heq.refl xb))))
 
   -- The lexicographical order of well founded relations is well-founded
-  definition lex_wf (Ha : well_founded Ra) (Hb : ∀ x, well_founded (Rb x)) : well_founded (lex Ra Rb) :=
+  def lex_wf (Ha : well_founded Ra) (Hb : ∀ x, well_founded (Rb x)) : well_founded (lex Ra Rb) :=
   well_founded.intro (λ p, destruct p (λ a b, lex_accessible (well_founded.apply Ha a) Hb b))
 end
 
 section
   parameters {A : Type u} {B : Type v}
 
-  definition lex_ndep (Ra : A → A → Prop) (Rb : B → B → Prop) :=
+  def lex_ndep (Ra : A → A → Prop) (Rb : B → B → Prop) :=
   lex Ra (λ a : A, Rb)
 
-  definition lex_ndep_wf {Ra  : A → A → Prop} {Rb : B → B → Prop} (Ha : well_founded Ra) (Hb : well_founded Rb)
-                         : well_founded (lex_ndep Ra Rb) :=
+  def lex_ndep_wf {Ra  : A → A → Prop} {Rb : B → B → Prop} (Ha : well_founded Ra) (Hb : well_founded Rb)
+                  : well_founded (lex_ndep Ra Rb) :=
   well_founded.intro (λ p, destruct p (λ a b, lex_accessible (well_founded.apply Ha a) (λ x, Hb) b))
 end
 
@@ -81,7 +80,7 @@ section
   parameters {Ra  : A → A → Prop} {Rb : B → B → Prop}
   local infix `≺`:50 := rev_lex Ra Rb
 
-  definition rev_lex_accessible {b} (acb : acc Rb b) (aca : ∀ a, acc Ra a): ∀ a, acc (rev_lex Ra Rb) (sigma.mk a b) :=
+  def rev_lex_accessible {b} (acb : acc Rb b) (aca : ∀ a, acc Ra a): ∀ a, acc (rev_lex Ra Rb) (sigma.mk a b) :=
   acc.rec_on acb
     (λ xb acb (iHb : ∀ y, Rb y xb → ∀ a, acc (rev_lex Ra Rb) (sigma.mk a y)),
       λ a, acc.rec_on (aca a)
@@ -101,19 +100,19 @@ section
                  iHb b₁ Rb₁ a₁),
             aux rfl rfl)))
 
-  definition rev_lex_wf (Ha : well_founded Ra) (Hb : well_founded Rb) : well_founded (rev_lex Ra Rb) :=
+  def rev_lex_wf (Ha : well_founded Ra) (Hb : well_founded Rb) : well_founded (rev_lex Ra Rb) :=
   well_founded.intro (λ p, destruct p (λ a b, rev_lex_accessible (apply Hb b) (well_founded.apply Ha) a))
 end
 
 section
-  definition skip_left (A : Type u) {B : Type v} (Rb : B → B → Prop) : @sigma A (λ a, B) → @sigma A (λ a, B) → Prop :=
+  def skip_left (A : Type u) {B : Type v} (Rb : B → B → Prop) : @sigma A (λ a, B) → @sigma A (λ a, B) → Prop :=
   rev_lex empty_relation Rb
 
-  definition skip_left_wf (A : Type u) {B : Type v} {Rb : B → B → Prop} (Hb : well_founded Rb) : well_founded (skip_left A Rb) :=
+  def skip_left_wf (A : Type u) {B : Type v} {Rb : B → B → Prop} (Hb : well_founded Rb) : well_founded (skip_left A Rb) :=
   rev_lex_wf empty_wf Hb
 
-  definition mk_skip_left {A : Type u} {B : Type v} {b₁ b₂ : B} {Rb : B → B → Prop}
-                          (a₁ a₂ : A) (H : Rb b₁ b₂) : skip_left A Rb (sigma.mk a₁ b₁) (sigma.mk a₂ b₂) :=
+  def mk_skip_left {A : Type u} {B : Type v} {b₁ b₂ : B} {Rb : B → B → Prop}
+                   (a₁ a₂ : A) (H : Rb b₁ b₂) : skip_left A Rb (sigma.mk a₁ b₁) (sigma.mk a₂ b₂) :=
   rev_lex.right _ _ _ H
 end
 end sigma

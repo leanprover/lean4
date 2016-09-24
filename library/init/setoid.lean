@@ -18,19 +18,19 @@ namespace setoid
   include s
 
   attribute [refl]
-  theorem refl (a : A) : a ≈ a :=
+  lemma refl (a : A) : a ≈ a :=
   match setoid.iseqv A with
   | ⟨H_refl, H_symm, H_trans⟩ := H_refl a
   end
 
   attribute [symm]
-  theorem symm {a b : A} (Hab : a ≈ b) : b ≈ a :=
+  lemma symm {a b : A} (Hab : a ≈ b) : b ≈ a :=
   match setoid.iseqv A with
   | ⟨H_refl, H_symm, H_trans⟩ := H_symm Hab
   end
 
   attribute [trans]
-  theorem trans {a b c : A} (Hab : a ≈ b) (Hbc : b ≈ c) : a ≈ c :=
+  lemma trans {a b c : A} (Hab : a ≈ b) (Hbc : b ≈ c) : a ≈ c :=
   match setoid.iseqv A with
   | ⟨H_refl, H_symm, H_trans⟩ := H_trans Hab Hbc
   end

@@ -6,21 +6,20 @@ Author: Leonardo de Moura
 prelude
 import init.monad init.alternative
 open list
+
 universe variables u v
-attribute [inline]
-def list_fmap {A : Type u} {B : Type v} (f : A → B) (l : list A) : list B :=
+
+@[inline] def list_fmap {A : Type u} {B : Type v} (f : A → B) (l : list A) : list B :=
 map f l
 
-attribute [inline]
-def list_bind {A : Type u} {B : Type v} (a : list A) (b : A → list B) : list B :=
+@[inline] def list_bind {A : Type u} {B : Type v} (a : list A) (b : A → list B) : list B :=
 join (map b a)
 
-attribute [inline]
-def list_return {A : Type u} (a : A) : list A :=
+@[inline] def list_return {A : Type u} (a : A) : list A :=
 [a]
 
 instance : monad list :=
-monad.mk @list_fmap @list_return @list_bind
+⟨@list_fmap, @list_return, @list_bind⟩
 
 instance : alternative list :=
-alternative.mk @list_fmap @list_return (@fapp _ _) @nil @list.append
+⟨@list_fmap, @list_return, @fapp _ _, @nil, @list.append⟩

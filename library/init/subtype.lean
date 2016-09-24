@@ -14,15 +14,15 @@ tag :: (elt_of : A) (has_property : p elt_of)
 
 namespace subtype
 
-  definition exists_of_subtype {A : Type u} {p : A → Prop} : { x // p x } → ∃ x, p x
+  def exists_of_subtype {A : Type u} {p : A → Prop} : { x // p x } → ∃ x, p x
   | ⟨a, h⟩ := ⟨a, h⟩
 
   variables {A : Type u} {p : A → Prop}
 
-  theorem tag_irrelevant {a : A} (h1 h2 : p a) : tag a h1 = tag a h2 :=
+  lemma tag_irrelevant {a : A} (h1 h2 : p a) : tag a h1 = tag a h2 :=
   rfl
 
-  protected theorem eq : ∀ {a1 a2 : {x // p x}}, elt_of a1 = elt_of a2 → a1 = a2
+  protected lemma eq : ∀ {a1 a2 : {x // p x}}, elt_of a1 = elt_of a2 → a1 = a2
   | ⟨x, h1⟩ ⟨.x, h2⟩ rfl := rfl
 
 end subtype

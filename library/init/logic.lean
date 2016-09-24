@@ -760,7 +760,7 @@ instance prop.inhabited : inhabited Prop :=
 instance fun.inhabited (A : Type u) {B : Type v} [h : inhabited B] : inhabited (A → B) :=
 inhabited.rec_on h (λ b, ⟨λ a, b⟩)
 
-instance pi.inhabite (A : Type u) {B : A → Type v} [Π x, inhabited (B x)] : inhabited (Π x, B x) :=
+instance pi.inhabited (A : Type u) {B : A → Type v} [Π x, inhabited (B x)] : inhabited (Π x, B x) :=
 ⟨λ a, default (B a)⟩
 
 instance : inhabited bool :=
@@ -798,7 +798,7 @@ eq.rec_on h (λ a b : A, heq_of_eq (subsingleton.elim a b))
 instance subsingleton_prop (p : Prop) : subsingleton p :=
 ⟨λ a b, proof_irrel a b⟩
 
-instance subsingleton_decidable (p : Prop) : subsingleton (decidable p) :=
+instance (p : Prop) : subsingleton (decidable p) :=
 subsingleton.intro (λ d₁,
   match d₁ with
   | (is_true t₁) := (λ d₂,

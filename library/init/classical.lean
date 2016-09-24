@@ -5,15 +5,15 @@ Authors: Leonardo de Moura, Jeremy Avigad
 -/
 prelude
 import init.subtype init.funext
-namespace classical
 open subtype
+
+namespace classical
 universe variables u v
 /- the axiom -/
 
 -- In the presence of classical logic, we could prove this from a weaker statement:
 -- axiom indefinite_description {A : Type u} {p : A->Prop} (H : ∃ x, p x) : {x : A, p x}
-axiom strong_indefinite_description {A : Type u} (p : A → Prop) (H : nonempty A) :
-  { x : A // (∃ y : A, p y) → p x}
+axiom strong_indefinite_description {A : Type u} (p : A → Prop) (H : nonempty A) : { x : A // (∃ y : A, p y) → p x}
 
 theorem exists_true_of_nonempty {A : Type u} (h : nonempty A) : ∃ x : A, true :=
 nonempty.elim h (take x, ⟨x, trivial⟩)
@@ -68,11 +68,11 @@ The proof follows Diaconescu proof that shows that the axiom of choice implies t
 section diaconescu
 parameter  p : Prop
 
-private definition U (x : Prop) : Prop := x = true ∨ p
-private definition V (x : Prop) : Prop := x = false ∨ p
+private def U (x : Prop) : Prop := x = true ∨ p
+private def V (x : Prop) : Prop := x = false ∨ p
 
-private noncomputable definition u := epsilon U
-private noncomputable definition v := epsilon V
+private noncomputable def u := epsilon U
+private noncomputable def v := epsilon V
 
 private lemma u_def : U u :=
 epsilon_spec ⟨true, or.inl rfl⟩
@@ -128,7 +128,7 @@ theorem cases_on (a : Prop) {p : Prop → Prop} (h1 : p true) (h2 : p false) : p
 cases_true_false p h1 h2 a
 
 -- this supercedes by_cases in decidable
-definition by_cases {p q : Prop} (hpq : p → q) (hnpq : ¬p → q) : q :=
+def by_cases {p q : Prop} (hpq : p → q) (hnpq : ¬p → q) : q :=
 or.elim (em p) (assume hp, hpq hp) (assume hnp, hnpq hnp)
 
 -- this supercedes by_contradiction in decidable

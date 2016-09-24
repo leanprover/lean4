@@ -6,10 +6,10 @@ Author: Leonardo de Moura
 prelude
 import init.logic
 
-theorem unit_eq (a b : unit) : a = b :=
+lemma unit_eq (a b : unit) : a = b :=
 unit.rec_on a (unit.rec_on b rfl)
 
-theorem unit_eq_unit (a : unit) : a = () :=
+lemma unit_eq_unit (a : unit) : a = () :=
 unit_eq a ()
 
 instance : subsingleton unit :=

@@ -14,12 +14,12 @@ inductive acc {A : Type u} (r : A → A → Prop) : A → Prop
 namespace acc
   variables {A : Type u} {r : A → A → Prop}
 
-  definition inv {x y : A} (h₁ : acc r x) (h₂ : r y x) : acc r y :=
+  def inv {x y : A} (h₁ : acc r x) (h₂ : r y x) : acc r y :=
   acc.rec_on h₁ (λ x₁ ac₁ ih h₂, ac₁ y h₂) h₂
 
   -- dependent elimination for acc
   attribute [recursor]
-  protected definition drec
+  protected def drec
       {C : Π (a : A), acc r a → Type v}
       (h₁ : Π (x : A) (acx : Π (y : A), r y x → acc r y), (Π (y : A) (ryx : r y x), C y (acx y ryx)) → C x (acc.intro x acx))
       {a : A} (h₂ : acc r a) : C a h₂ :=
@@ -30,7 +30,7 @@ inductive well_founded {A : Type u} (r : A → A → Prop) : Prop
 | intro : (∀ a, acc r a) → well_founded
 
 namespace well_founded
-  definition apply {A : Type u} {r : A → A → Prop} (wf : well_founded r) : ∀ a, acc r a :=
+  def apply {A : Type u} {r : A → A → Prop} (wf : well_founded r) : ∀ a, acc r a :=
   take a, well_founded.rec_on wf (λ p, p) a
 
   section
@@ -39,19 +39,19 @@ namespace well_founded
 
   hypothesis hwf : well_founded r
 
-  theorem recursion {C : A → Type v} (a : A) (h : Π x, (Π y, y ≺ x → C y) → C x) : C a :=
+  lemma recursion {C : A → Type v} (a : A) (h : Π x, (Π y, y ≺ x → C y) → C x) : C a :=
   acc.rec_on (apply hwf a) (λ x₁ ac₁ ih, h x₁ ih)
 
-  theorem induction {C : A → Prop} (a : A) (h : ∀ x, (∀ y, y ≺ x → C y) → C x) : C a :=
+  lemma induction {C : A → Prop} (a : A) (h : ∀ x, (∀ y, y ≺ x → C y) → C x) : C a :=
   recursion a h
 
   variable {C : A → Type v}
   variable F : Π x, (Π y, y ≺ x → C y) → C x
 
-  definition fix_F (x : A) (a : acc r x) : C x :=
+  def fix_F (x : A) (a : acc r x) : C x :=
   acc.rec_on a (λ x₁ ac₁ ih, F x₁ ih)
 
-  theorem fix_F_eq (x : A) (r : acc r x) :
+  lemma fix_F_eq (x : A) (r : acc r x) :
     fix_F F x r = F x (λ (y : A) (p : y ≺ x), fix_F F y (acc.inv r p)) :=
   acc.drec (λ x r ih, rfl) r
   end
@@ -59,11 +59,11 @@ namespace well_founded
   variables {A : Type u} {C : A → Type v} {r : A → A → Prop}
 
   -- Well-founded fixpoint
-  definition fix (hwf : well_founded r) (F : Π x, (Π y, r y x → C y) → C x) (x : A) : C x :=
+  def fix (hwf : well_founded r) (F : Π x, (Π y, r y x → C y) → C x) (x : A) : C x :=
   fix_F F x (apply hwf x)
 
   -- Well-founded fixpoint satisfies fixpoint equation
-  theorem fix_eq (hwf : well_founded r) (F : Π x, (Π y, r y x → C y) → C x) (x : A) :
+  lemma fix_eq (hwf : well_founded r) (F : Π x, (Π y, r y x → C y) → C x) (x : A) :
     fix hwf F x = F x (λ y h, fix hwf F y) :=
   fix_F_eq F x (apply hwf x)
 end well_founded
@@ -71,7 +71,7 @@ end well_founded
 open well_founded
 
 -- Empty relation is well-founded
-definition empty_wf {A : Type u} : well_founded empty_relation :=
+def empty_wf {A : Type u} : well_founded empty_relation :=
 well_founded.intro (λ (a : A),
   acc.intro a (λ (b : A) (lt : false), false.rec _ lt))
 
@@ -82,11 +82,11 @@ section
   parameters (h₁ : subrelation Q r)
   parameters (h₂ : well_founded r)
 
-  definition accessible {a : A} (ac : acc r a) : acc Q a :=
+  def accessible {a : A} (ac : acc r a) : acc Q a :=
   acc.rec_on ac (λ x ax ih,
     acc.intro x (λ (y : A) (lt : Q y x), ih y (h₁ lt)))
 
-  definition wf : well_founded Q :=
+  def wf : well_founded Q :=
   ⟨λ a, accessible (apply h₂ a)⟩
 end
 end subrelation
@@ -98,14 +98,14 @@ section
   parameters (f : A → B)
   parameters (h : well_founded r)
 
-  private definition acc_aux {b : B} (ac : acc r b) : ∀ (x : A), f x = b → acc (inv_image r f) x :=
+  private def acc_aux {b : B} (ac : acc r b) : ∀ (x : A), f x = b → acc (inv_image r f) x :=
   acc.rec_on ac (λ x acx ih z e,
     acc.intro z (λ y lt, eq.rec_on e (λ acx ih, ih (f y) lt y rfl) acx ih))
 
-  definition accessible {a : A} (ac : acc r (f a)) : acc (inv_image r f) a :=
+  def accessible {a : A} (ac : acc r (f a)) : acc (inv_image r f) a :=
   acc_aux ac a rfl
 
-  definition wf : well_founded (inv_image r f) :=
+  def wf : well_founded (inv_image r f) :=
   ⟨λ a, accessible (apply h (f a))⟩
 end
 end inv_image
@@ -116,7 +116,7 @@ section
   parameters {A : Type u} {r : A → A → Prop}
   local notation `r⁺` := tc r
 
-  definition accessible {z : A} (ac : acc r z) : acc (tc r) z :=
+  def accessible {z : A} (ac : acc r z) : acc (tc r) z :=
   acc.rec_on ac (λ x acx ih,
     acc.intro x (λ y rel,
       tc.rec_on rel
@@ -124,23 +124,23 @@ section
         (λ a b c rab rbc ih₁ ih₂ acx ih, acc.inv (ih₂ acx ih) rab)
         acx ih))
 
-  definition wf (h : well_founded r) : well_founded r⁺ :=
+  def wf (h : well_founded r) : well_founded r⁺ :=
   ⟨λ a, accessible (apply h a)⟩
 end
 end tc
 
 -- less-than is well-founded
-definition nat.lt_wf : well_founded nat.lt :=
+def nat.lt_wf : well_founded nat.lt :=
 ⟨nat.rec
   (acc.intro 0 (λ n h, absurd h (nat.not_lt_zero n)))
   (λ n ih, acc.intro (nat.succ n) (λ m h,
      or.elim (nat.eq_or_lt_of_le (nat.le_of_succ_le_succ h))
         (λ e, eq.substr e ih) (acc.inv ih)))⟩
 
-definition measure {A : Type u} : (A → ℕ) → A → A → Prop :=
+def measure {A : Type u} : (A → ℕ) → A → A → Prop :=
 inv_image lt
 
-definition measure_wf {A : Type u} (f : A → ℕ) : well_founded (measure f) :=
+def measure_wf {A : Type u} (f : A → ℕ) : well_founded (measure f) :=
 inv_image.wf f nat.lt_wf
 
 namespace prod
@@ -166,7 +166,7 @@ namespace prod
   parameters {ra  : A → A → Prop} {rb  : B → B → Prop}
   local infix `≺`:50 := lex ra rb
 
-  definition lex_accessible {a} (aca : acc ra a) (acb : ∀ b, acc rb b): ∀ b, acc (lex ra rb) (a, b) :=
+  def lex_accessible {a} (aca : acc ra a) (acb : ∀ b, acc rb b): ∀ b, acc (lex ra rb) (a, b) :=
   acc.rec_on aca (λ xa aca iha b,
     acc.rec_on (acb b) (λ xb acb ihb,
       acc.intro (xa, xb) (λ p lt,
@@ -178,15 +178,15 @@ namespace prod
         aux rfl rfl)))
 
   -- The lexicographical order of well founded relations is well-founded
-  definition lex_wf (ha : well_founded ra) (hb : well_founded rb) : well_founded (lex ra rb) :=
+  def lex_wf (ha : well_founded ra) (hb : well_founded rb) : well_founded (lex ra rb) :=
   ⟨λ p, destruct p (λ a b, lex_accessible (apply ha a) (well_founded.apply hb) b)⟩
 
   -- relational product is a subrelation of the lex
-  definition rprod_sub_lex : ∀ a b, rprod ra rb a b → lex ra rb a b :=
+  def rprod_sub_lex : ∀ a b, rprod ra rb a b → lex ra rb a b :=
   λ a b h, prod.rprod.rec_on h (λ a₁ b₁ a₂ b₂ h₁ h₂, lex.left rb a₂ b₂ h₁)
 
   -- The relational product of well founded relations is well-founded
-  definition rprod_wf (ha : well_founded ra) (hb : well_founded rb) : well_founded (rprod ra rb) :=
+  def rprod_wf (ha : well_founded ra) (hb : well_founded rb) : well_founded (rprod ra rb) :=
   subrelation.wf (rprod_sub_lex) (lex_wf ha hb)
 
   end

@@ -16,8 +16,7 @@ namespace char
 private lemma zero_lt_char_sz : 0 < char_sz :=
 zero_lt_succ _
 
-attribute [pattern]
-def of_nat (n : nat) : char :=
+@[pattern] def of_nat (n : nat) : char :=
 if H : n < char_sz then fin.mk n H else fin.mk 0 zero_lt_char_sz
 
 def to_nat (c : char) : nat :=

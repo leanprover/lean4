@@ -17,7 +17,7 @@ has_to_string.mk (λ s, match s with | ordering.lt := "lt" | ordering.eq := "eq"
 class has_ordering (A : Type) :=
 (cmp : A → A → ordering)
 
-definition nat.cmp (a b : nat) : ordering :=
+def nat.cmp (a b : nat) : ordering :=
 if a < b      then ordering.lt
 else if a = b then ordering.eq
 else               ordering.gt
@@ -30,7 +30,7 @@ open prod
 
 variables {A B : Type} [has_ordering A] [has_ordering B]
 
-definition prod.cmp : A × B → A × B → ordering
+def prod.cmp : A × B → A × B → ordering
 | (a₁, b₁) (a₂, b₂) :=
    match (has_ordering.cmp a₁ a₂) with
    | ordering.lt := lt
@@ -47,7 +47,7 @@ open sum
 
 variables {A B : Type} [has_ordering A] [has_ordering B]
 
-definition sum.cmp : A ⊕ B → A ⊕ B → ordering
+def sum.cmp : A ⊕ B → A ⊕ B → ordering
 | (inl a₁) (inl a₂) := has_ordering.cmp a₁ a₂
 | (inr b₁) (inr b₂) := has_ordering.cmp b₁ b₂
 | (inl a₁) (inr b₂) := lt
@@ -62,7 +62,7 @@ open option
 
 variables {A : Type} [has_ordering A]
 
-definition option.cmp : option A → option A → ordering
+def option.cmp : option A → option A → ordering
 | (some a₁) (some a₂) := has_ordering.cmp a₁ a₂
 | (some a₁) none      := gt
 | none      (some a₂) := lt

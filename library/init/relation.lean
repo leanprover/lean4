@@ -14,34 +14,34 @@ universe variables u v
 variables {A : Type u} {B : Type v} (R : B → B → Prop)
 local infix `≺`:50 := R
 
-definition reflexive := ∀ x, x ≺ x
+def reflexive := ∀ x, x ≺ x
 
-definition symmetric := ∀ ⦃x y⦄, x ≺ y → y ≺ x
+def symmetric := ∀ ⦃x y⦄, x ≺ y → y ≺ x
 
-definition transitive := ∀ ⦃x y z⦄, x ≺ y → y ≺ z → x ≺ z
+def transitive := ∀ ⦃x y z⦄, x ≺ y → y ≺ z → x ≺ z
 
-definition equivalence := reflexive R ∧ symmetric R ∧ transitive R
+def equivalence := reflexive R ∧ symmetric R ∧ transitive R
 
-definition total := ∀ x y, x ≺ y ∨ y ≺ x
+def total := ∀ x y, x ≺ y ∨ y ≺ x
 
-definition mk_equivalence (r : reflexive R) (s : symmetric R) (t : transitive R) : equivalence R :=
+def mk_equivalence (r : reflexive R) (s : symmetric R) (t : transitive R) : equivalence R :=
 ⟨r, s, t⟩
 
-definition irreflexive := ∀ x, ¬ x ≺ x
+def irreflexive := ∀ x, ¬ x ≺ x
 
-definition anti_symmetric := ∀ ⦃x y⦄, x ≺ y → y ≺ x → x = y
+def anti_symmetric := ∀ ⦃x y⦄, x ≺ y → y ≺ x → x = y
 
-definition empty_relation := λ a₁ a₂ : A, false
+def empty_relation := λ a₁ a₂ : A, false
 
-definition subrelation (Q R : B → B → Prop) := ∀ ⦃x y⦄, Q x y → R x y
+def subrelation (Q R : B → B → Prop) := ∀ ⦃x y⦄, Q x y → R x y
 
-definition inv_image (f : A → B) : A → A → Prop :=
+def inv_image (f : A → B) : A → A → Prop :=
 λ a₁ a₂, f a₁ ≺ f a₂
 
-theorem inv_image.trans (f : A → B) (H : transitive R) : transitive (inv_image R f) :=
+lemma inv_image.trans (f : A → B) (H : transitive R) : transitive (inv_image R f) :=
 λ (a₁ a₂ a₃ : A) (H₁ : inv_image R f a₁ a₂) (H₂ : inv_image R f a₂ a₃), H H₁ H₂
 
-theorem inv_image.irreflexive (f : A → B) (H : irreflexive R) : irreflexive (inv_image R f) :=
+lemma inv_image.irreflexive (f : A → B) (H : irreflexive R) : irreflexive (inv_image R f) :=
 λ (a : A) (H₁ : inv_image R f a a), H (f a) H₁
 
 inductive tc {A : Type u} (R : A → A → Prop) : A → A → Prop

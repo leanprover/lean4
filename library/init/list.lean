@@ -7,20 +7,23 @@ prelude
 import init.logic init.nat
 open decidable list
 
+notation h :: t  := cons h t
+notation `[` l:(foldr `, ` (h t, cons h t) nil `]`) := l
+
 universe variables u v
 
 instance (A : Type u) : inhabited (list A) :=
 ⟨list.nil⟩
 
-notation h :: t  := cons h t
-notation `[` l:(foldr `, ` (h t, cons h t) nil `]`) := l
-
-namespace list
 variables {A : Type u} {B : Type v}
 
+namespace list
 def append : list A → list A → list A
 | []       l := l
 | (h :: s) t := h :: (append s t)
+
+instance : has_append (list A) :=
+⟨append⟩
 
 def length : list A → nat
 | []       := 0
@@ -68,7 +71,5 @@ def dropn : ℕ → list A → list A
 | 0 a := a
 | (succ n) [] := []
 | (succ n) (x::r) := dropn n r
-end list
 
-instance {A : Type u} : has_append (list A) :=
-⟨list.append⟩
+end list

@@ -8,8 +8,9 @@ Extensional equality for functions, and a proof of function extensionality from 
 prelude
 import init.quot init.logic
 
+universe variables u v
+
 namespace function
-  universe variables u v
   variables {A : Type u} {B : A → Type v}
 
   protected definition equiv (f₁ f₂ : Π x : A, B x) : Prop := ∀ x, f₁ x = f₂ x
@@ -30,7 +31,6 @@ end function
 
 section
   open quot
-  universe variables u v
   variables {A : Type u} {B : A → Type v}
 
   attribute [instance]
@@ -59,7 +59,6 @@ attribute funext [intro!]
 
 local infix `~` := function.equiv
 
-attribute [instance]
-definition {u v} subsingleton_pi {A : Type u} {B : A → Type v} (H : ∀ a, subsingleton (B a)) :
+instance pi.subsingleton {A : Type u} {B : A → Type v} (H : ∀ a, subsingleton (B a)) :
   subsingleton (Π a, B a) :=
 ⟨λ f₁ f₂, funext (λ a, subsingleton.elim (f₁ a) (f₂ a))⟩

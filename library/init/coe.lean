@@ -59,7 +59,6 @@ def coe_b {A : Type u} {B : Type v} [has_coe A B] : A → B :=
 def coe_t {A : Type u} {B : Type v} [has_coe_t A B] : A → B :=
 @has_coe_t.coe A B _
 
-set_option pp.all true
 def coe_fn_b {A : Type u} [has_coe_to_fun.{u v} A] : A → has_coe_to_fun.F.{u v} A :=
 has_coe_to_fun.coe
 

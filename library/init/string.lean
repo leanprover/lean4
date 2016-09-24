@@ -5,27 +5,24 @@ Author: Leonardo de Moura
 -/
 prelude
 import init.char init.list
-attribute [reducible]
-definition string := list char
+
+@[reducible] def string := list char
 
 namespace string
+@[pattern] def empty : string := list.nil
 
-attribute [pattern]
-definition empty : string := list.nil
+@[pattern] def str : char → string → string := list.cons
 
-attribute [pattern]
-definition str : char → string → string := list.cons
-
-definition concat (a b : string) : string :=
+def concat (a b : string) : string :=
 list.append b a
-end string
 
 instance : has_append string :=
 ⟨string.concat⟩
+end string
 
 open list
 
-private definition utf8_length_aux : nat → nat → string → nat
+private def utf8_length_aux : nat → nat → string → nat
 | 0 r (c::s) :=
   let n := char.to_nat c in
   if                 n < 0x80 then utf8_length_aux 0 (r+1) s
@@ -38,5 +35,5 @@ private definition utf8_length_aux : nat → nat → string → nat
 | (n+1) r (c::s) := utf8_length_aux n r s
 | n     r []     := r
 
-definition utf8_length : string → nat
+def utf8_length : string → nat
 | s := utf8_length_aux 0 0 (reverse s)

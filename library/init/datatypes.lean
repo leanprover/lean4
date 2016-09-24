@@ -3,7 +3,7 @@ Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 
-Basic datatypes
+Basic datatypes and notation
 -/
 prelude
 
@@ -139,10 +139,8 @@ def lt      {A : Type u} [has_lt A]      : A → A → Prop := has_lt.lt
 def append  {A : Type u} [has_append A]  : A → A → A    := has_append.append
 def andthen {A : Type u} [has_andthen A] : A → A → A    := has_andthen.andthen
 
-attribute [reducible]
-def ge {A : Type u} [s : has_le A] (a b : A) : Prop := le b a
-attribute [reducible]
-def gt {A : Type u} [s : has_lt A] (a b : A) : Prop := lt b a
+@[reducible] def ge {A : Type u} [s : has_le A] (a b : A) : Prop := le b a
+@[reducible] def gt {A : Type u} [s : has_lt A] (a b : A) : Prop := lt b a
 def bit0 {A : Type u} [s  : has_add A] (a  : A)                 : A := add a a
 def bit1 {A : Type u} [s₁ : has_one A] [s₂ : has_add A] (a : A) : A := add (bit0 a) one
 
@@ -251,7 +249,6 @@ reserve infix ` ≠ `:50
 reserve infix ` ≈ `:50
 reserve infix ` ~ `:50
 reserve infix ` ≡ `:50
-
 reserve infixl ` ⬝ `:75
 reserve infixr ` ▸ `:75
 reserve infixr ` ▹ `:75
@@ -324,8 +321,7 @@ infix ;    := andthen
 /- eq basic support -/
 notation a = b := eq a b
 
-attribute [pattern]
-def rfl {A : Type u} {a : A} : a = a := eq.refl a
+@[pattern] def rfl {A : Type u} {a : A} : a = a := eq.refl a
 
 namespace eq
   variables {A : Type u}

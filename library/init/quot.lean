@@ -17,7 +17,7 @@ constant propext {a b : Prop} : (a ↔ b) → a = b
 
 -- iff can now be used to do substitutions in a calculation
 attribute [subst]
-theorem iff_subst {a b : Prop} {P : Prop → Prop} (H₁ : a ↔ b) (H₂ : P a) : P b :=
+lemma iff_subst {a b : Prop} {P : Prop → Prop} (H₁ : a ↔ b) (H₂ : P a) : P b :=
 eq.subst (propext H₁) H₂
 
 namespace quot
@@ -32,21 +32,21 @@ namespace quot
 
   init_quotient
 
-  protected theorem lift_beta {A : Type u} {B : Type v} [setoid A] (f : A → B) (c : ∀ a b, a ≈ b → f a = f b) (a : A) : lift f c ⟦a⟧ = f a :=
+  protected lemma lift_beta {A : Type u} {B : Type v} [setoid A] (f : A → B) (c : ∀ a b, a ≈ b → f a = f b) (a : A) : lift f c ⟦a⟧ = f a :=
   rfl
 
-  protected theorem ind_beta {A : Type u} [s : setoid A] {B : quot s → Prop} (p : ∀ a, B ⟦a⟧) (a : A) : (ind p ⟦a⟧ : B ⟦a⟧) = p a :=
+  protected lemma ind_beta {A : Type u} [s : setoid A] {B : quot s → Prop} (p : ∀ a, B ⟦a⟧) (a : A) : (ind p ⟦a⟧ : B ⟦a⟧) = p a :=
   rfl
 
   attribute [reducible, elab_as_eliminator]
-  protected definition lift_on {A : Type u} {B : Type v} [s : setoid A] (q : quot s) (f : A → B) (c : ∀ a b, a ≈ b → f a = f b) : B :=
+  protected def lift_on {A : Type u} {B : Type v} [s : setoid A] (q : quot s) (f : A → B) (c : ∀ a b, a ≈ b → f a = f b) : B :=
   lift f c q
 
   attribute [elab_as_eliminator]
-  protected theorem induction_on {A : Type u} [s : setoid A] {B : quot s → Prop} (q : quot s) (H : ∀ a, B ⟦a⟧) : B q :=
+  protected lemma induction_on {A : Type u} [s : setoid A] {B : quot s → Prop} (q : quot s) (H : ∀ a, B ⟦a⟧) : B q :=
   ind H q
 
-  theorem exists_rep {A : Type u} [s : setoid A] (q : quot s) : ∃ a : A, ⟦a⟧ = q :=
+  lemma exists_rep {A : Type u} [s : setoid A] (q : quot s) : ∃ a : A, ⟦a⟧ = q :=
   quot.induction_on q (λ a, ⟨a, rfl⟩)
 
   section
@@ -56,7 +56,7 @@ namespace quot
   include s
 
   attribute [reducible]
-  protected definition indep (f : Π a, B ⟦a⟧) (a : A) : Σ q, B q :=
+  protected def indep (f : Π a, B ⟦a⟧) (a : A) : Σ q, B q :=
   ⟨⟦a⟧, f a⟩
 
   protected lemma indep_coherent (f : Π a, B ⟦a⟧)
@@ -70,23 +70,23 @@ namespace quot
   quot.ind (λ (a : A), eq.refl (quot.indep f a).1) q
 
   attribute [reducible, elab_as_eliminator]
-  protected definition rec
+  protected def rec
      (f : Π a, B ⟦a⟧) (H : ∀ (a b : A) (p : a ≈ b), (eq.rec (f a) (sound p) : B ⟦b⟧) = f b)
      (q : quot s) : B q :=
   eq.rec_on (quot.lift_indep_pr1 f H q) ((lift (quot.indep f) (quot.indep_coherent f H) q).2)
 
   attribute [reducible, elab_as_eliminator]
-  protected definition rec_on
+  protected def rec_on
      (q : quot s) (f : Π a, B ⟦a⟧) (H : ∀ (a b : A) (p : a ≈ b), (eq.rec (f a) (sound p) : B ⟦b⟧) = f b) : B q :=
   quot.rec f H q
 
   attribute [reducible, elab_as_eliminator]
-  protected definition rec_on_subsingleton
+  protected def rec_on_subsingleton
      [H : ∀ a, subsingleton (B ⟦a⟧)] (q : quot s) (f : Π a, B ⟦a⟧) : B q :=
   quot.rec f (λ a b h, subsingleton.elim _ (f b)) q
 
   attribute [reducible, elab_as_eliminator]
-  protected definition hrec_on
+  protected def hrec_on
      (q : quot s) (f : Π a, B ⟦a⟧) (c : ∀ (a b : A) (p : a ≈ b), f a == f b) : B q :=
   quot.rec_on q f
     (λ a b p, eq_of_heq (calc
@@ -101,7 +101,7 @@ namespace quot
   include s₁ s₂
 
   attribute [reducible, elab_as_eliminator]
-  protected definition lift₂
+  protected def lift₂
      (f : A → B → C)(c : ∀ a₁ a₂ b₁ b₂, a₁ ≈ b₁ → a₂ ≈ b₂ → f a₁ a₂ = f b₁ b₂)
      (q₁ : quot s₁) (q₂ : quot s₂) : C :=
   quot.lift
@@ -117,21 +117,21 @@ namespace quot
     q₁
 
   attribute [reducible, elab_as_eliminator]
-  protected definition lift_on₂
+  protected def lift_on₂
     (q₁ : quot s₁) (q₂ : quot s₂) (f : A → B → C) (c : ∀ a₁ a₂ b₁ b₂, a₁ ≈ b₁ → a₂ ≈ b₂ → f a₁ a₂ = f b₁ b₂) : C :=
   quot.lift₂ f c q₁ q₂
 
   attribute [elab_as_eliminator]
-  protected theorem ind₂ {C : quot s₁ → quot s₂ → Prop} (H : ∀ a b, C ⟦a⟧ ⟦b⟧) (q₁ : quot s₁) (q₂ : quot s₂) : C q₁ q₂ :=
+  protected lemma ind₂ {C : quot s₁ → quot s₂ → Prop} (H : ∀ a b, C ⟦a⟧ ⟦b⟧) (q₁ : quot s₁) (q₂ : quot s₂) : C q₁ q₂ :=
   quot.ind (λ a₁, quot.ind (λ a₂, H a₁ a₂) q₂) q₁
 
   attribute [elab_as_eliminator]
-  protected theorem induction_on₂
+  protected lemma induction_on₂
      {C : quot s₁ → quot s₂ → Prop} (q₁ : quot s₁) (q₂ : quot s₂) (H : ∀ a b, C ⟦a⟧ ⟦b⟧) : C q₁ q₂ :=
   quot.ind (λ a₁, quot.ind (λ a₂, H a₁ a₂) q₂) q₁
 
   attribute [elab_as_eliminator]
-  protected theorem induction_on₃
+  protected lemma induction_on₃
      [s₃ : setoid C]
      {D : quot s₁ → quot s₂ → quot s₃ → Prop} (q₁ : quot s₁) (q₂ : quot s₂) (q₃ : quot s₃) (H : ∀ a b c, D ⟦a⟧ ⟦b⟧ ⟦c⟧)
      : D q₁ q₂ q₃ :=
@@ -143,7 +143,7 @@ namespace quot
   variable [s : setoid A]
   include s
 
-  private definition rel (q₁ q₂ : quot s) : Prop :=
+  private def rel (q₁ q₂ : quot s) : Prop :=
   quot.lift_on₂ q₁ q₂
     (λ a₁ a₂, a₁ ≈ a₂)
     (λ a₁ a₂ b₁ b₂ a₁b₁ a₂b₂,
@@ -159,7 +159,7 @@ namespace quot
   private lemma eq_imp_rel {q₁ q₂ : quot s} : q₁ = q₂ → q₁ ~ q₂ :=
   assume h, eq.rec_on h (rel.refl q₁)
 
-  theorem exact {a b : A} : ⟦a⟧ = ⟦b⟧ → a ≈ b :=
+  lemma exact {a b : A} : ⟦a⟧ = ⟦b⟧ → a ≈ b :=
   assume h, eq_imp_rel h
   end exact
 
@@ -170,7 +170,7 @@ namespace quot
   include s₁ s₂
 
   attribute [reducible, elab_as_eliminator]
-  protected definition rec_on_subsingleton₂
+  protected def rec_on_subsingleton₂
      {C : quot s₁ → quot s₂ → Type u_c} [H : ∀ a b, subsingleton (C ⟦a⟧ ⟦b⟧)]
      (q₁ : quot s₁) (q₂ : quot s₂) (f : Π a b, C ⟦a⟧ ⟦b⟧) : C q₁ q₂:=
   @quot.rec_on_subsingleton _ s₁ (λ q, C q q₂) (λ a, quot.ind (λ b, H a b) q₂) q₁

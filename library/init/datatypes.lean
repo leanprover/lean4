@@ -52,14 +52,6 @@ inductive sum (A : Type u) (B : Type v)
 | inl {} : A → sum
 | inr {} : B → sum
 
-attribute [reducible]
-def sum.intro_left {A : Type u} (B : Type v) (a : A) : sum A B :=
-sum.inl a
-
-attribute [reducible]
-def sum.intro_right (A : Type u) {B : Type v} (b : B) : sum A B :=
-sum.inr b
-
 inductive or (a b : Prop) : Prop
 | inl {} : a → or
 | inr {} : b → or

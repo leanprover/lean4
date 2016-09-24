@@ -14,8 +14,6 @@ lcurly       {
 rcurly       }
 ldcurly      ⦃
 rdcurly      ⦄
-lcurlybar    {|
-rcurlybar    |}
 lbracket     [
 rbracket     ]
 langle       ⟨
@@ -64,7 +62,6 @@ renaming     renaming
 replacing    replacing
 extends      extends
 as           as
-none         [none]
 whnf         [whnf]
 in           in
 assign       :=

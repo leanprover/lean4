@@ -100,20 +100,15 @@ void init_token_table(token_table & t) {
 
     char const * commands[] =
         {"theorem", "axiom", "axioms", "variable", "protected", "private", "reveal",
-         "definition", "meta", "mutual",
-         "example", "coercion", "noncomputable",
+         "definition", "meta", "mutual", "example", "coercion", "noncomputable",
          "variables", "parameter", "parameters", "constant", "constants",
-         "[visible]", "[none]",
-         "evaluate", "check", "eval", "vm_eval", "using_well_founded", "[whnf]", "[unfold_hints]",
+         "evaluate", "check", "eval", "vm_eval", "using_well_founded", "[whnf]",
          "print", "end", "namespace", "section", "prelude", "help",
          "import", "inductive", "record", "structure", "class", "universe", "universes", "local",
          "precedence", "reserve", "infixl", "infixr", "infix", "postfix", "prefix", "notation",
-         "tactic_infixl", "tactic_infixr", "tactic_infix", "tactic_postfix", "tactic_prefix", "tactic_notation",
-         "exit", "set_option", "open", "export", "override", "tactic_hint",
-         "add_begin_end_tactic", "set_begin_end_tactic",
-         "multiple_instances", "find_decl", "attribute", "persistent", "instance",
-         "include", "omit", "migrate",
-         "init_quotient", "init_hits", "declare_trace", "register_simp_ext",
+         "exit", "set_option", "open", "export", "override", "@[",
+         "attribute", "persistent", "instance", "include", "omit", "init_quotient",
+         "init_hits", "declare_trace", "register_simp_ext",
          "run_command", "add_key_equivalence", "#erase_cache",
          "#compile", "#unify", nullptr};
 

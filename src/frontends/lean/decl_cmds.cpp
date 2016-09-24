@@ -527,6 +527,19 @@ environment local_attribute_cmd(parser & p) {
     return attribute_cmd_core(p, false);
 }
 
+static environment compact_attribute_cmd(parser & p) {
+    bool persistent = true;
+    decl_attributes attributes(persistent);
+    attributes.parse_compact(p);
+    if (p.curr_is_token_or_id(get_inductive_tk())) {
+        return inductive_cmd_ex(p, attributes);
+    } else  if (p.curr_is_token_or_id(get_structure_tk())) {
+        return structure_cmd_ex(p, attributes, false);
+    } else {
+        return definition_cmd_ex(p, attributes);
+    }
+}
+
 static environment include_cmd_core(parser & p, bool include) {
     if (!p.curr_is_identifier())
         throw parser_error(sstream() << "invalid include/omit command, identifier expected", p.pos());
@@ -591,6 +604,7 @@ void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("reveal",          "reveal given theorems", reveal_cmd));
     add_cmd(r, cmd_info("include",         "force section parameter/variable to be included", include_cmd));
     add_cmd(r, cmd_info("attribute",       "set declaration attributes", attribute_cmd));
+    add_cmd(r, cmd_info("@[",              "declaration attributes", compact_attribute_cmd));
     add_cmd(r, cmd_info("omit",            "undo 'include' command", omit_cmd));
 }
 

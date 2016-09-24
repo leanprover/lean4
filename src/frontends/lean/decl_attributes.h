@@ -23,10 +23,14 @@ private:
     bool               m_parsing_only;
     list<entry>        m_entries;
     optional<unsigned> m_prio;
+    void parse_core(parser & p, bool compact);
 public:
     decl_attributes(bool persistent = true): m_persistent(persistent), m_parsing_only(false) {}
     void set_attribute(environment const & env, name const & attr_name);
+    /* attributes: zero-or-more [ ... ] */
     void parse(parser & p);
+    /* Parse attributes after `@[` ... ] */
+    void parse_compact(parser & p);
     environment apply(environment env, io_state const & ios, name const & d) const;
     list<entry> const & get_entries() const { return m_entries; }
     bool is_parsing_only() const { return m_parsing_only; }

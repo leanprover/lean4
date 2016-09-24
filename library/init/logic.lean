@@ -8,8 +8,7 @@ import init.datatypes
 
 universe variables u v w
 
-attribute [reducible]
-def id {A : Type u} (a : A) : A := a
+@[reducible] def id {A : Type u} (a : A) : A := a
 
 def flip {A : Type u} {B : Type v} {C : Type w} (f : A → B → C) : B → A → C :=
 λ b a, f a b
@@ -18,8 +17,7 @@ def flip {A : Type u} {B : Type v} {C : Type w} (f : A → B → C) : B → A �
 
 def implies (a b : Prop) := a → b
 
-attribute [trans]
-lemma implies.trans {p q r : Prop} (h₁ : implies p q) (h₂ : implies q r) : implies p r :=
+@[trans] lemma implies.trans {p q r : Prop} (h₁ : implies p q) (h₂ : implies q r) : implies p r :=
 assume hp, h₂ (h₁ hp)
 
 def trivial : true := ⟨⟩
@@ -27,8 +25,7 @@ def trivial : true := ⟨⟩
 def not (a : Prop) := a → false
 prefix `¬` := not
 
-attribute [inline]
-def absurd {a : Prop} {b : Type v} (h₁ : a) (h₂ : ¬a) : b :=
+@[inline] def absurd {a : Prop} {b : Type v} (h₁ : a) (h₂ : ¬a) : b :=
 false.rec b (h₂ h₁)
 
 lemma not.intro {a : Prop} (h : a → false) : ¬ a :=
@@ -60,8 +57,7 @@ false.rec c h
 lemma proof_irrel {a : Prop} (h₁ h₂ : a) : h₁ = h₂ :=
 rfl
 
-attribute [defeq]
-def id.def {A : Type u} (a : A) : id a = a := rfl
+@[defeq] def id.def {A : Type u} (a : A) : id a = a := rfl
 
 -- Remark: we provide the universe levels explicitly to make sure `eq.drec` has the same type of `eq.rec` in the hoTT library
 attribute [elab_as_eliminator]
@@ -117,8 +113,7 @@ section
   assume hp, h ▸ hp
 end
 
-attribute [inline]
-def cast {A B : Type u} (h : A = B) (a : A) : B :=
+@[inline] def cast {A B : Type u} (h : A = B) (a : A) : B :=
 eq.rec a h
 
 lemma cast_proof_irrel {A B : Type u} (h₁ h₂ : A = B) (a : A) : cast h₁ a = cast h₂ a :=
@@ -129,10 +124,9 @@ rfl
 
 /- ne -/
 
-attribute [reducible]
-def ne {A : Type u} (a b : A) := ¬(a = b)
-attribute [defeq]
-def ne.def {A : Type u} (a b : A) : ne a b = ¬ (a = b) := rfl
+@[reducible] def ne {A : Type u} (a b : A) := ¬(a = b)
+
+@[defeq] def ne.def {A : Type u} (a b : A) : ne a b = ¬ (a = b) := rfl
 notation a ≠ b := ne a b
 
 namespace ne
@@ -638,14 +632,12 @@ is_false not_false
 
 -- We use "dependent" if-then-else to be able to communicate the if-then-else condition
 -- to the branches
-attribute [inline]
-def dite (c : Prop) [h : decidable c] {A : Type u} : (c → A) → (¬ c → A) → A :=
+@[inline] def dite (c : Prop) [h : decidable c] {A : Type u} : (c → A) → (¬ c → A) → A :=
 λ t e, decidable.rec_on h e t
 
 /- if-then-else -/
 
-attribute [inline]
-def ite (c : Prop) [h : decidable c] {A : Type u} (t e : A) : A :=
+@[inline] def ite (c : Prop) [h : decidable c] {A : Type u} (t e : A) : A :=
 decidable.rec_on h (λ hnc, e) (λ hc, t)
 
 namespace decidable
@@ -713,12 +705,9 @@ section
   and.decidable
 end
 
-attribute [reducible]
-def decidable_pred {A : Type u} (r : A → Prop) := Π (a   : A), decidable (r a)
-attribute [reducible]
-def decidable_rel  {A : Type u} (r : A → A → Prop) := Π (a b : A), decidable (r a b)
-attribute [reducible]
-def decidable_eq   (A : Type u) := decidable_rel (@eq A)
+@[reducible] def decidable_pred {A : Type u} (r : A → Prop) := Π (a : A), decidable (r a)
+@[reducible] def decidable_rel  {A : Type u} (r : A → A → Prop) := Π (a b : A), decidable (r a b)
+@[reducible] def decidable_eq   (A : Type u) := decidable_rel (@eq A)
 
 instance {A : Type u} [decidable_eq A] (a b : A) : decidable (a ≠ b) :=
 implies.decidable
@@ -762,8 +751,7 @@ class inhabited (A : Type u) :=
 def default (A : Type u) [inhabited A] : A :=
 inhabited.default A
 
-attribute [inline, irreducible]
-def arbitrary (A : Type u) [inhabited A] : A :=
+@[inline, irreducible] def arbitrary (A : Type u) [inhabited A] : A :=
 default A
 
 instance prop.inhabited : inhabited Prop :=

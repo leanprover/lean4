@@ -15,10 +15,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/util.h"
 
 namespace lean {
-void decl_attributes::parse(parser & p) {
-    if (!p.curr_is_token(get_lbracket_tk()))
-        return;
-    p.next();
+void decl_attributes::parse_core(parser & p, bool compact) {
     while (true) {
         auto pos = p.pos();
         bool deleted = p.curr_is_token_or_id(get_sub_tk());
@@ -73,12 +70,25 @@ void decl_attributes::parse(parser & p) {
             p.next();
         } else {
             p.check_token_next(get_rbracket_tk(), "invalid attribute declaration, ']' expected");
+            if (compact)
+                break;
             if (p.curr_is_token(get_lbracket_tk()))
                 p.next();
             else
                 break;
         }
     }
+}
+
+void decl_attributes::parse(parser & p) {
+    if (!p.curr_is_token(get_lbracket_tk()))
+        return;
+    p.next();
+    parse_core(p, false);
+}
+
+void decl_attributes::parse_compact(parser & p) {
+    parse_core(p, true);
 }
 
 void decl_attributes::set_attribute(environment const & env, name const & attr_name) {

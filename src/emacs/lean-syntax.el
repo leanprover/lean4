@@ -128,6 +128,8 @@
   `((;; attributes
      (,(rx word-start "attribute" word-end (zero-or-more whitespace) (group (one-or-more "[" (zero-or-more (not (any "]"))) "]" (zero-or-more whitespace))))
       (1 'font-lock-doc-face))
+     (,(rx (group "@[" (zero-or-more (not (any "]"))) "]"))
+      (1 'font-lock-doc-face))
      ;; mutal definitions "names"
      (,(rx word-start
            "mutual"

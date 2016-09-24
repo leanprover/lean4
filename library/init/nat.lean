@@ -92,8 +92,7 @@ namespace nat
   protected definition le_refl : ∀ a : ℕ, a ≤ a :=
   le.nat_refl
 
-  attribute [reducible]
-  protected definition lt (n m : ℕ) := succ n ≤ m
+  @[reducible] protected definition lt (n m : ℕ) := succ n ≤ m
 
   instance : has_lt ℕ :=
   ⟨nat.lt⟩

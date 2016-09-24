@@ -24,6 +24,17 @@ static expr parse_subtype(parser & p, pos_info const & pos, expr const & local) 
     return p.mk_app(subtype, pred, pos);
 }
 
+/* Parse rest of the set_of expression prefix '{' id ':' expr '|' ... */
+static expr parse_set_of(parser & p, pos_info const & pos, expr const & local) {
+    parser::local_scope scope(p);
+    p.add_local(local);
+    expr pred    = p.parse_expr();
+    p.check_token_next(get_rcurly_tk(), "invalid set_of, '}' expected");
+    pred        = p.save_pos(Fun(local, pred), pos);
+    expr set_of = p.save_pos(mk_constant(get_set_of_name()), pos);
+    return p.mk_app(set_of, pred, pos);
+}
+
 /* Create empty collection for '{' '}' */
 static expr mk_empty_collection(parser & p, pos_info const & pos) {
     return p.save_pos(mk_constant(get_empty_col_name()), pos);
@@ -60,11 +71,6 @@ static expr parse_sep(parser & p, pos_info const & pos, name const & id) {
     p.check_token_next(get_rcurly_tk(), "invalid sep expression, '}' expected");
     pred   = Fun(local, pred);
     return p.rec_save_pos(mk_app(mk_constant(get_sep_name()), pred, s), pos);
-}
-
-/* Parse rest of the monadic comprehension expression '{' expr '|' ... */
-static expr parse_monadic_comprehension(parser & /* p */, pos_info const & pos, expr const & /* e */) {
-    throw parser_error("monadic comprehension was not implemented yet", pos);
 }
 
 static expr parse_structure_instance_core(parser & p, optional<expr> const & src, name const & S, name const & fname) {
@@ -117,12 +123,22 @@ expr parse_curly_bracket(parser & p, unsigned, expr const *, pos_info const & po
             expr local = p.save_pos(mk_local(id, type), id_pos);
             p.next();
             return parse_subtype(p, pos, local);
+        } else if (p.curr_is_token(get_bar_tk())) {
+            expr type  = p.save_pos(mk_expr_placeholder(), id_pos);
+            expr local = p.save_pos(mk_local(id, type), id_pos);
+            p.next();
+            return parse_set_of(p, pos, local);
         } else if (p.curr_is_token(get_colon_tk())) {
             p.next();
             expr type  = p.parse_expr();
             expr local = p.save_pos(mk_local(id, type), id_pos);
-            p.check_token_next(get_dslash_tk(), "invalid subtype, '//' expected");
-            return parse_subtype(p, pos, local);
+            if (p.curr_is_token(get_bar_tk())) {
+                p.next();
+                return parse_set_of(p, pos, local);
+            } else {
+                p.check_token_next(get_dslash_tk(), "invalid expression, '//' or '|' expected");
+                return parse_subtype(p, pos, local);
+            }
         } else if (p.curr_is_token(get_period_tk())) {
             p.next();
             return parse_qualified_structure_instance(p, id);
@@ -150,9 +166,6 @@ expr parse_curly_bracket(parser & p, unsigned, expr const *, pos_info const & po
     } else if (p.curr_is_token(get_with_tk())) {
         p.next();
         return parse_structure_instance_update(p, e);
-    } else if (p.curr_is_token(get_bar_tk())) {
-        p.next();
-        return parse_monadic_comprehension(p, pos, e);
     } else {
         throw parser_error("invalid '{' expression, ',', '}', 'with', `//` or `|` expected", p.pos());
     }

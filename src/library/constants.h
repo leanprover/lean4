@@ -300,6 +300,7 @@ name const & get_real_to_int_name();
 name const & get_rfl_name();
 name const & get_right_distrib_name();
 name const & get_ring_name();
+name const & get_set_of_name();
 name const & get_sep_name();
 name const & get_select_name();
 name const & get_semiring_name();

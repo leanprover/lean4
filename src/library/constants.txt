@@ -293,6 +293,7 @@ real.to_int
 rfl
 right_distrib
 ring
+set_of
 sep
 select
 semiring

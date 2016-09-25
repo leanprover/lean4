@@ -85,7 +85,7 @@ void init_token_table(token_table & t) {
          {"%%", g_max_prec}, {"()", g_max_prec}, {")", 0}, {"'", 0},
          {"{", g_max_prec}, {"}", 0}, {"_", g_max_prec},
          {"[", g_max_prec}, {"]", 0}, {"⦃", g_max_prec}, {"⦄", 0}, {".{", 0}, {"Type", g_max_prec}, {"Type*", g_max_prec},
-         {"{|", g_max_prec}, {"|}", 0}, {"(:", g_max_prec}, {":)", 0},
+         {"(:", g_max_prec}, {":)", 0},
          {"⊢", 0}, {"⟨", g_max_prec}, {"⟩", 0}, {"^", 0}, {"↑", 0}, {"▸", 0},
          {"//", 0}, {"|", 0}, {"!", g_max_prec}, {"?", 0},  {"with", 0}, {"...", 0}, {",", 0},
          {".", 0}, {":", 0}, {"::", 0}, {"calc", 0}, {"as", 0}, {":=", 0}, {"--", 0}, {"#", 0},
@@ -114,7 +114,7 @@ void init_token_table(token_table & t) {
 
     pair<char const *, char const *> aliases[] =
         {{"λ", "fun"}, {"assume", "fun"}, {"take", "fun"}, {"forall", "Pi"},
-         {"∀", "Pi"}, {"Π", "Pi"}, {nullptr, nullptr}};
+         {"∀", "Pi"}, {"Π", "Pi"}, {"(|", "⟨"}, {"|)", "⟩"}, {nullptr, nullptr}};
 
     pair<char const *, char const *> cmd_aliases[] =
         {{"lemma", "theorem"}, {"def", "definition"}, {"proposition", "theorem"}, {"premise", "variable"}, {"premises", "variables"},

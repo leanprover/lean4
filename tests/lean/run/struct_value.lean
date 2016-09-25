@@ -33,6 +33,8 @@ check { point3d . x := 1, y := 2, z := 3 }
 
 check (⟨10, rfl⟩ : Σ x : nat, x = x)
 
+check ((| 10, rfl |) : Σ x : nat, x = x)
+
 check ({ fst := 10, snd := rfl } : Σ x : nat, x = x)
 
 definition f (a : nat) : Σ x : nat, x = x :=

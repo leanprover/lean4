@@ -2690,7 +2690,9 @@ struct instance_synthesizer {
                 r    = mk_app(r, new_arg);
                 type = instantiate(binding_body(type), new_arg);
             }
-            lean_trace_plain("class_instances", trace(e.m_depth, mk_app(mvar, locals.as_buffer()), mvar_type, r););
+            lean_trace_plain("class_instances",
+                             scope_trace_env scope(m_ctx.env(), m_ctx);
+                             trace(e.m_depth, mk_app(mvar, locals.as_buffer()), mvar_type, r););
             if (!m_ctx.is_def_eq(mvar_type, type)) {
                 return false;
             }

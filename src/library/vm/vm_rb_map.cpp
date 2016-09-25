@@ -26,6 +26,7 @@ typedef rb_map<vm_obj, vm_obj, vm_obj_cmp> vm_obj_map;
 struct vm_rb_map : public vm_external {
     vm_obj_map m_map;
     vm_rb_map(vm_obj_map const & m):m_map(m) {}
+    virtual ~vm_rb_map() {}
     virtual void dealloc() override { this->~vm_rb_map(); get_vm_allocator().deallocate(sizeof(vm_rb_map), this); }
 };
 

@@ -15,6 +15,7 @@ template<typename A>
 struct vm_list : public vm_external {
     list<A> m_val;
     vm_list(list<A> const & v):m_val(v) {}
+    virtual ~vm_list() {}
     virtual void dealloc() override {
         this->~vm_list(); get_vm_allocator().deallocate(sizeof(vm_list<A>), this);
     }

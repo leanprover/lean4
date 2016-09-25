@@ -25,6 +25,7 @@ namespace lean {
 struct vm_macro_definition : public vm_external {
     macro_definition m_val;
     vm_macro_definition(macro_definition const & v):m_val(v) {}
+    virtual ~vm_macro_definition() {}
     virtual void dealloc() override {
         this->~vm_macro_definition(); get_vm_allocator().deallocate(sizeof(vm_macro_definition), this);
     }
@@ -43,6 +44,7 @@ vm_obj to_obj(macro_definition const & d) {
 struct vm_expr : public vm_external {
     expr m_val;
     vm_expr(expr const & v):m_val(v) {}
+    virtual ~vm_expr() {}
     virtual void dealloc() override { this->~vm_expr(); get_vm_allocator().deallocate(sizeof(vm_expr), this); }
 };
 

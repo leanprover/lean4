@@ -40,6 +40,7 @@ reducibility_hints to_reducibility_hints(vm_obj const & o) {
 struct vm_declaration : public vm_external {
     declaration m_val;
     vm_declaration(declaration const & v):m_val(v) {}
+    virtual ~vm_declaration() {}
     virtual void dealloc() override { this->~vm_declaration(); get_vm_allocator().deallocate(sizeof(vm_declaration), this); }
 };
 

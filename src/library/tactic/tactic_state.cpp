@@ -169,6 +169,7 @@ format tactic_state::pp_goal(expr const & g) const {
 struct vm_tactic_state : public vm_external {
     tactic_state m_val;
     vm_tactic_state(tactic_state const & v):m_val(v) {}
+    virtual ~vm_tactic_state() {}
     virtual void dealloc() override {
         this->~vm_tactic_state(); get_vm_allocator().deallocate(sizeof(vm_tactic_state), this);
     }

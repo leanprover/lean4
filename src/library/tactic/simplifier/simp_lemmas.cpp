@@ -630,6 +630,7 @@ simp_lemmas get_simp_lemmas(type_context & tctx, buffer<name> const & simp_attrs
 struct vm_simp_lemmas : public vm_external {
     simp_lemmas m_val;
     vm_simp_lemmas(simp_lemmas const & v): m_val(v) {}
+    virtual ~vm_simp_lemmas() {}
     virtual void dealloc() override { this->~vm_simp_lemmas(); get_vm_allocator().deallocate(sizeof(vm_simp_lemmas), this); }
 };
 

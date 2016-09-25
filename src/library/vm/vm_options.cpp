@@ -15,6 +15,7 @@ namespace lean {
 struct vm_options : public vm_external {
     options m_val;
     vm_options(options const & v):m_val(v) {}
+    virtual ~vm_options() {}
     virtual void dealloc() override { this->~vm_options(); get_vm_allocator().deallocate(sizeof(vm_options), this); }
 };
 

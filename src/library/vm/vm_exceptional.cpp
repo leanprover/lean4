@@ -14,7 +14,7 @@ namespace lean {
 struct vm_throwable : public vm_external {
     throwable * m_val;
     vm_throwable(throwable const & ex):m_val(ex.clone()) {}
-    ~vm_throwable() { delete m_val; }
+    virtual ~vm_throwable() { delete m_val; }
     virtual void dealloc() override { this->~vm_throwable(); get_vm_allocator().deallocate(sizeof(vm_throwable), this); }
 };
 

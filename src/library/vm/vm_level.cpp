@@ -18,6 +18,7 @@ namespace lean {
 struct vm_level : public vm_external {
     level m_val;
     vm_level(level const & v):m_val(v) {}
+    virtual ~vm_level() {}
     virtual void dealloc() override { this->~vm_level(); get_vm_allocator().deallocate(sizeof(vm_level), this); }
 };
 

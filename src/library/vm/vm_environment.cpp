@@ -24,6 +24,7 @@ namespace lean {
 struct vm_environment : public vm_external {
     environment m_val;
     vm_environment(environment const & v):m_val(v) {}
+    virtual ~vm_environment() {}
     virtual void dealloc() override { this->~vm_environment(); get_vm_allocator().deallocate(sizeof(vm_environment), this); }
 };
 

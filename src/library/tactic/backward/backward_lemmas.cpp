@@ -134,6 +134,7 @@ list<backward_lemma> backward_lemma_index::find(head_index const & h) const {
 struct vm_backward_lemmas : public vm_external {
     backward_lemma_index m_val;
     vm_backward_lemmas(backward_lemma_index const & v):m_val(v) {}
+    virtual ~vm_backward_lemmas() {}
     virtual void dealloc() override { this->~vm_backward_lemmas(); get_vm_allocator().deallocate(sizeof(vm_backward_lemmas), this); }
 };
 

@@ -15,12 +15,12 @@ constants (ss₁ : Type.{l} → Type.{l})
           (ss_a₂' : ss₂ a₂')
           (f :  Π (X : Type.{l}) (ss_X : ss₁ X) (x₁ x₂ : X) (ss_x₁ : ss₂ x₁) (ss_x₂ : ss₂ x₂), Type.{l})
 
-attribute sss₁ [instance]
-attribute sss₂ [instance]
+attribute [instance] sss₁
+attribute [instance] sss₂
 
-attribute HAB [simp]
-attribute H₁ [simp]
-attribute H₂ [simp]
+attribute [simp] HAB
+attribute [simp] H₁
+attribute [simp] H₂
 
 example : f A ss_A a₁ a₂ ss_a₁ ss_a₂ = f A ss_A a₁' a₂' ss_a₁' ss_a₂' := by simp
 

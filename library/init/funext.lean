@@ -55,7 +55,7 @@ section
     ... = f₂              : rfl
 end
 
-attribute funext [intro!]
+attribute [intro!] funext
 
 local infix `~` := function.equiv
 

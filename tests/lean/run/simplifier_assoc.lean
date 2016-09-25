@@ -1,12 +1,12 @@
 open tactic
 constants (A : Type 1) (a b c d e f g h : A) (op : A → A → A) (op_assoc : is_associative op)
-attribute op_assoc [instance]
+attribute [instance] op_assoc
 
 infixr `%%` := op
 
 namespace pat2
 constant H : a %% b = f
-local attribute H [simp]
+local attribute [simp] H
 
 example : a %% b = f := by simp
 example : c %% a %% b = c %% f := by simp
@@ -18,7 +18,7 @@ end pat2
 
 namespace pat3
 constant H : (a %% b) %% g = f
-attribute H [simp]
+attribute [simp] H
 
 example : a %% b %% g = f := by simp
 example : c %% a %% b %% g = c %% f := by simp

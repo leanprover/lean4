@@ -1,5 +1,5 @@
 open bool nat
-attribute nat.rec_on [reducible]
+attribute [reducible] nat.rec_on
 
 definition is_eq (a b : nat) : bool :=
 nat.rec_on a

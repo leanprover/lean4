@@ -1,10 +1,7 @@
 -- Backward chaining with hypotheses
 constants {P Q R S T U : Prop}
 constants (Huq : U → Q) (Hur : U → R) (Hus : U → S) (Hut : U → T)
-attribute Huq [intro]
-attribute Hur [intro]
-attribute Hus [intro]
-attribute Hut [intro]
+attribute [intro] Huq Hur Hus Hut
 
 open tactic
 

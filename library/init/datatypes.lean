@@ -340,10 +340,10 @@ end eq
 
 notation H1 ▸ H2 := eq.subst H1 H2
 
-attribute eq.subst [subst]
-attribute eq.refl [refl]
-attribute eq.trans [trans]
-attribute eq.symm [symm]
+attribute [subst] eq.subst
+attribute [refl] eq.refl
+attribute [trans] eq.trans
+attribute [symm] eq.symm
 
 /- sizeof -/
 

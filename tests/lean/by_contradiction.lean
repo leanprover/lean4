@@ -26,7 +26,7 @@ by do
 
 print "-------"
 
-local attribute classical.prop_decidable [instance] -- Now all propositions are decidable
+local attribute [instance] classical.prop_decidable -- Now all propositions are decidable
 
 example (p q : Prop) : ¬¬p → p :=
 by do

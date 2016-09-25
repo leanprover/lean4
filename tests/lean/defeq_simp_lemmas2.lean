@@ -29,18 +29,18 @@ definition d.def (x y z w : A) : d x y z w = f (f x y z) (f y z w) (f x w z) := 
 -- Confirm that more recent annotations get priority
 print [defeq]
 
-attribute h.rfl [defeq, priority 1001]
-attribute g.rfl [defeq, priority 1001]
-attribute f.rfl [defeq, priority 1001]
-attribute d.rfl [defeq, priority 1001]
+attribute [defeq, priority 1001] h.rfl
+attribute [defeq, priority 1001] g.rfl
+attribute [defeq, priority 1001] f.rfl
+attribute [defeq, priority 1001] d.rfl
 
 -- Confirm that priority annotations override
 print [defeq]
 
-attribute h.def [defeq, priority 1001]
-attribute g.def [defeq, priority 1001]
-attribute f.def [defeq, priority 1001]
-attribute d.def [defeq, priority 1001]
+attribute [defeq, priority 1001] h.def
+attribute [defeq, priority 1001] g.def
+attribute [defeq, priority 1001] f.def
+attribute [defeq, priority 1001] d.def
 
 -- Confirm that most recent annotations get priority to break explicit priority ties
 print [defeq]

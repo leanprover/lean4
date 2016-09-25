@@ -9,5 +9,5 @@ section
   definition concat (s t : List T) : List T
   := List.rec t (fun x l u, List.cons x u) s
 
-  attribute concat [reducible]
+  attribute [reducible] concat
 end

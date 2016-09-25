@@ -166,11 +166,11 @@ inhabited_of_nonempty
   (or.elim (em a)
     (assume ha, ⟨is_true ha⟩)
     (assume hna, ⟨is_false hna⟩))
-local attribute decidable_inhabited [instance]
+local attribute [instance] decidable_inhabited
 
 noncomputable definition prop_decidable (a : Prop) : decidable a :=
 arbitrary (decidable a)
-local attribute prop_decidable [instance]
+local attribute [instance] prop_decidable
 
 noncomputable definition type_decidable_eq (A : Type u) : decidable_eq A :=
 λ a b, prop_decidable (a = b)

@@ -489,19 +489,15 @@ static environment example_cmd(parser & p) {
 static environment attribute_cmd_core(parser & p, bool persistent) {
     buffer<name> ds;
     decl_attributes attributes(persistent);
-    bool parsed_attrs = false;
-    if (!p.curr_is_identifier()) {
-        attributes.parse(p);
-        parsed_attrs  = true;
-        // 'attribute [attr] definition ...'
-        if (p.curr_is_command()) {
-            if (p.curr_is_token_or_id(get_inductive_tk())) {
-                return inductive_cmd_ex(p, attributes);
-            } else  if (p.curr_is_token_or_id(get_structure_tk())) {
-                return structure_cmd_ex(p, attributes, false);
-            } else {
-                return definition_cmd_ex(p, attributes);
-            }
+    attributes.parse(p);
+    // 'attribute [attr] definition ...'
+    if (p.curr_is_command()) {
+        if (p.curr_is_token_or_id(get_inductive_tk())) {
+            return inductive_cmd_ex(p, attributes);
+        } else  if (p.curr_is_token_or_id(get_structure_tk())) {
+            return structure_cmd_ex(p, attributes, false);
+        } else {
+            return definition_cmd_ex(p, attributes);
         }
     }
     name d          = p.check_constant_next("invalid 'attribute' command, constant expected");
@@ -509,8 +505,6 @@ static environment attribute_cmd_core(parser & p, bool persistent) {
     while (p.curr_is_identifier()) {
         ds.push_back(p.check_constant_next("invalid 'attribute' command, constant expected"));
     }
-    if (!parsed_attrs)
-        attributes.parse(p);
     if (attributes.is_parsing_only())
         throw exception(sstream() << "invalid [parsing_only] attribute, can only be applied at declaration time");
     environment env = p.env();

@@ -1,7 +1,7 @@
 open tactic
 
 constants (P Q R : Prop) (HP : P) (HPQ : P → Q) (HQR : Q → R = true)
-attribute HQR [simp]
+attribute [simp] HQR
 
 meta definition prove_skip           : tactic unit := skip
 meta definition prove_fail           : tactic unit := failed

@@ -4,8 +4,9 @@ open tactic
 namespace simp_lemmas
 
 constants (A : Type.{1}) (x y z : A) (Hxy : x = y) (Hxz : x = z)
-attribute Hxy [simp]
-attribute Hxz [simp]
+attribute [simp] Hxy
+attribute [simp] Hxz
+
 
 example : x = z := by simp
 
@@ -15,7 +16,7 @@ end simp_lemmas
 namespace simp_lemmas_args
 
 constants (A : Type.{1}) (x y z : A) (Hxy : x = y) (Hxz : x = z)
-attribute Hxy [simp]
+attribute [simp] Hxy
 
 example : x = z :=
 by do H ← mk_const `simp_lemmas_args.Hxz,

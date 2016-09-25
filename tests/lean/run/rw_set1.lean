@@ -2,7 +2,7 @@ constant nat.add_assoc (a b c : nat) : (a + b) + c = a + (b + c)
 
 
 namespace foo
-  attribute nat.add_assoc [simp]
+  attribute [simp] nat.add_assoc
   print nat.add_assoc
 end foo
 
@@ -10,7 +10,7 @@ print nat.add_assoc
 
 namespace foo
   print nat.add_assoc
-  attribute nat.add_comm [simp]
+  attribute [simp] nat.add_comm
   open nat
   print "---------"
   print [simp] simp

@@ -12,7 +12,7 @@ do (new_target, Heq) ← target >>= simplify failed [],
 
 universe l
 constants (group : Type* → Type)
-attribute group [class]
+attribute [class] group
 
 constants (f₁ : Π (X : Type*) (X_grp : group X), X)
 constants (f₂ : Π (X : Type*) [X_grp : group X], X)

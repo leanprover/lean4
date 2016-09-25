@@ -11,8 +11,8 @@ constants (ss : Π {A : Type.{l}}, A → Type.{l})
           (ss₁' : ss a₁')
           (f :  Π (X : Type.{l}) (x₁ : X) (ss_x₁ : ss x₁), Type.{l})
 
-attribute ss_ss [instance]
-attribute H₁ [simp]
+attribute [instance] ss_ss
+attribute [simp] H₁
 
 set_option trace.simplifier.subsingleton true
 example : f A a₁ ss₁ = f A a₁' ss₁' := by simp
@@ -31,9 +31,9 @@ constants (ss : Π {A : Type.{l}}, A → Type.{l})
           (f :  Π (X : Type.{l}) (x₁ : X) (ss_x₁ : ss x₁), Type.{l})
           (f_congr : Π (X : Type.{l}) (x₁ x₂ : X) (Hx : x₁ = x₂) (ss₁ : ss x₁), f X x₁ ss₁ = f X x₂ (eq.rec ss₁ Hx))
 
-attribute ss_ss [instance]
-attribute H₁ [simp]
-attribute f_congr [congr]
+attribute [instance] ss_ss
+attribute [simp] H₁
+attribute [congr] f_congr
 
 
 set_option trace.simplifier.subsingleton true
@@ -49,7 +49,7 @@ constants (ss : Π {A : Type.{l}}, A → Type.{l})
           (A : Type.{l}) (a : A)
           (ss₁ ss₂ : ss a)
 
-attribute ss_ss [instance]
+attribute [instance] ss_ss
 
 set_option trace.simplifier.subsingleton true
 example : ss₁ = ss₂ := by simp
@@ -66,7 +66,7 @@ constants (ss : Π {A : Type.{l}}, A → Type.{l})
           (A : Type.{l}) (a : A)
           (ss₁ ss₂ : ss a)
 
-attribute ss_ss [instance]
+attribute [instance] ss_ss
 
 -- This example works by accident. The first (_ : ss a) it encounters
 -- has no locals, and is compatible with the second it finds so it

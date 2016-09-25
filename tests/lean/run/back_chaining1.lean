@@ -1,15 +1,8 @@
 -- Backward chaining with tagged rules
 constants {P Q R S T U : Prop} (Hpq : P → Q) (Hqr : Q → R) (Hrs : R → S) (Hst : S → T)
 constants (Huq : U → Q) (Hur : U → R) (Hus : U → S) (Hut : U → T)
-attribute Hpq [intro]
-attribute Hqr [intro]
-attribute Hrs [intro]
-attribute Hst [intro]
-
-attribute Huq [intro]
-attribute Hur [intro]
-attribute Hus [intro]
-attribute Hut [intro]
+attribute [intro] Hpq Hqr Hrs Hst
+attribute [intro] Huq Hur Hus Hut
 
 open tactic
 

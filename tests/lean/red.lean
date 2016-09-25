@@ -4,21 +4,21 @@ noncomputable definition f := g
 
 example : f = g := rfl
 
-attribute f [irreducible]
+attribute [irreducible] f
 
 example : f = g := rfl  -- Error
 
 example (a : nat) (H : a = g a) : f a = a :=
 eq.subst H rfl -- Error
 
-attribute f [semireducible]
+attribute [semireducible] f
 
 example (a : nat) (H : a = g a) : f a = a :=
 eq.subst H rfl -- Error
 
 example : f = g := rfl
 
-attribute f [reducible]
+attribute [reducible] f
 
 example : f = g := rfl
 

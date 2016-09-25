@@ -179,8 +179,6 @@ namespace quot
   end
 end quot
 
-attribute quot.mk
-
 open decidable
 instance {A : Type u} {s : setoid A} [decR : ∀ a b : A, decidable (a ≈ b)] : decidable_eq (quot s) :=
 λ q₁ q₂ : quot s,

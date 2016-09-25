@@ -6,9 +6,9 @@ constants (A : Type.{l}) (rel : A → A → Prop)
           (rel.symm : ∀ a b, rel a b → rel b a)
           (rel.trans : ∀ a b c, rel a b → rel b c → rel a c)
 
-attribute rel.refl  [refl]
-attribute rel.symm  [symm]
-attribute rel.trans [trans]
+attribute [refl] rel.refl
+attribute [symm] rel.symm
+attribute [trans] rel.trans
 
 constants (x y z : A) (f g h : A → A)
           (H₁ : rel (f x) (g y))
@@ -17,8 +17,8 @@ constants (x y z : A) (f g h : A → A)
           (Hg : ∀ (a b : A), rel a b → rel (g a) (g b))
           (Hh : ∀ (a b : A), rel a b → rel (h a) (h b))
 
-attribute H₁ H₂ [simp]
-attribute Hf Hg Hh [congr]
+attribute [simp] H₁ H₂
+attribute [congr] Hf Hg Hh
 
 print [simp] simp
 print [congr] congr

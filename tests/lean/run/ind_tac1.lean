@@ -1,5 +1,5 @@
 check @heq.rec_on
 
-attribute heq.rec_on [recursor 6]
+attribute [recursor 6] heq.rec_on
 
 print [recursor] heq.rec_on

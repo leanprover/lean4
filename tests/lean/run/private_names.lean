@@ -3,7 +3,7 @@ section
   private definition foo : inhabited Prop :=
   inhabited.mk false
 
-  attribute foo [instance, priority 1000]
+  attribute [instance, priority 1000] foo
 
   example : default Prop = false :=
   rfl

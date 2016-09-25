@@ -24,7 +24,7 @@ end toy
 
 namespace add
 constants (n : ℕ)
-attribute add [irreducible]
+attribute [irreducible] add
 
 #unify (n + 1), succ n
 

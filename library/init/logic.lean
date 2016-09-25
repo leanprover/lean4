@@ -220,11 +220,9 @@ lemma eq_rec_of_heq_left : ∀ {A₁ A₂ : Type u} {a₁ : A₁} {a₂ : A₂} 
 lemma eq_rec_of_heq_right {A₁ A₂ : Type u} {a₁ : A₁} {a₂ : A₂} (h : a₁ == a₂) : a₁ = eq.rec_on (eq.symm (type_eq_of_heq h)) a₂ :=
 eq_rec_eq_eq_rec (eq_rec_of_heq_left h)
 
-attribute heq.refl [refl]
-attribute heq.trans [trans]
-attribute heq_of_heq_of_eq [trans]
-attribute heq_of_eq_of_heq [trans]
-attribute heq.symm [symm]
+attribute [refl] heq.refl
+attribute [symm] heq.symm
+attribute [trans] heq.trans heq_of_heq_of_eq heq_of_eq_of_heq
 
 lemma cast_heq : ∀ {A B : Type u} (h : A = B) (a : A), cast h a == a
 | A .A (eq.refl .A) a := heq.refl a
@@ -274,7 +272,7 @@ lemma iff.intro : (a → b) → (b → a) → (a ↔ b) := and.intro
 
 lemma iff.elim : ((a → b) → (b → a) → c) → (a ↔ b) → c := and.rec
 
-attribute iff.elim [recursor 5]
+attribute [recursor 5] iff.elim
 
 lemma iff.elim_left : (a ↔ b) → a → b := and.left
 
@@ -556,7 +554,7 @@ and_congr (imp_congr h₁ h₂) (imp_congr h₂ h₁)
 inductive Exists {A : Type u} (p : A → Prop) : Prop
 | intro : ∀ (a : A), p a → Exists
 
-attribute Exists.intro [intro]
+attribute [intro] Exists.intro
 
 def exists.intro := @Exists.intro
 

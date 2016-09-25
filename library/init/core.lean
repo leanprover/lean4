@@ -3,13 +3,80 @@ Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 
-Basic datatypes and notation
+notation, basic datatypes and type classes
 -/
 prelude
 
 notation `Prop`  := Type 0
 notation `Type₂` := Type 2
 notation `Type₃` := Type 3
+
+/- Logical operations and relations -/
+
+reserve prefix `¬`:40
+reserve prefix `~`:40
+reserve infixr ` ∧ `:35
+reserve infixr ` /\ `:35
+reserve infixr ` \/ `:30
+reserve infixr ` ∨ `:30
+reserve infix ` <-> `:20
+reserve infix ` ↔ `:20
+reserve infix ` = `:50
+reserve infix ` ≠ `:50
+reserve infix ` ≈ `:50
+reserve infix ` ~ `:50
+reserve infix ` ≡ `:50
+reserve infixl ` ⬝ `:75
+reserve infixr ` ▸ `:75
+reserve infixr ` ▹ `:75
+
+/- types and type constructors -/
+
+reserve infixr ` ⊕ `:30
+reserve infixr ` × `:35
+
+/- arithmetic operations -/
+
+reserve infixl ` + `:65
+reserve infixl ` - `:65
+reserve infixl ` * `:70
+reserve infixl ` / `:70
+reserve infixl ` % `:70
+reserve prefix `-`:100
+reserve infix ` ^ `:80
+
+reserve infixr ` ∘ `:90                 -- input with \comp
+
+reserve infix ` <= `:50
+reserve infix ` ≤ `:50
+reserve infix ` < `:50
+reserve infix ` >= `:50
+reserve infix ` ≥ `:50
+reserve infix ` > `:50
+
+/- boolean operations -/
+
+reserve infixl ` && `:70
+reserve infixl ` || `:65
+
+/- set operations -/
+
+reserve infix ` ∈ `:50
+reserve infix ` ∉ `:50
+reserve infixl ` ∩ `:70
+reserve infixl ` ∪ `:65
+reserve infix ` ⊆ `:50
+reserve infix ` ⊇ `:50
+reserve infix ` ⊂ `:50
+reserve infix ` ⊃ `:50
+reserve infix `\`:70
+
+/- other symbols -/
+
+reserve infix ` ∣ `:50
+reserve infixl ` ++ `:65
+reserve infixr ` :: `:67
+reserve infixl `; `:1
 
 universe variables u v
 
@@ -25,6 +92,9 @@ inductive true : Prop
 inductive false : Prop
 
 inductive empty : Type
+
+def not (a : Prop) := a → false
+prefix `¬` := not
 
 inductive eq {A : Type u} (a : A) : A → Prop
 | refl : eq a
@@ -92,6 +162,22 @@ inductive bool : Type
 | ff : bool
 | tt : bool
 
+class inductive decidable (p : Prop)
+| is_false : ¬p → decidable
+| is_true :  p → decidable
+
+@[reducible]
+def decidable_pred {A : Type u} (r : A → Prop) :=
+Π (a : A), decidable (r a)
+
+@[reducible]
+def decidable_rel {A : Type u} (r : A → A → Prop) :=
+Π (a b : A), decidable (r a b)
+
+@[reducible]
+def decidable_eq (A : Type u) :=
+decidable_rel (@eq A)
+
 inductive option (A : Type u)
 | none {} : option
 | some    : A → option
@@ -109,42 +195,84 @@ inductive nat
 
 /- Declare builtin and reserved notation -/
 
-class has_zero   (A : Type u) := (zero : A)
-class has_one    (A : Type u) := (one : A)
-class has_add    (A : Type u) := (add : A → A → A)
-class has_mul    (A : Type u) := (mul : A → A → A)
-class has_inv    (A : Type u) := (inv : A → A)
-class has_neg    (A : Type u) := (neg : A → A)
-class has_sub    (A : Type u) := (sub : A → A → A)
-class has_div    (A : Type u) := (div : A → A → A)
-class has_dvd    (A : Type u) := (dvd : A → A → Prop)
-class has_mod    (A : Type u) := (mod : A → A → A)
-class has_le     (A : Type u) := (le : A → A → Prop)
-class has_lt     (A : Type u) := (lt : A → A → Prop)
-class has_append (A : Type u) := (append : A → A → A)
-class has_andthen(A : Type u) := (andthen : A → A → A)
+class has_zero     (A : Type u) := (zero : A)
+class has_one      (A : Type u) := (one : A)
+class has_add      (A : Type u) := (add : A → A → A)
+class has_mul      (A : Type u) := (mul : A → A → A)
+class has_inv      (A : Type u) := (inv : A → A)
+class has_neg      (A : Type u) := (neg : A → A)
+class has_sub      (A : Type u) := (sub : A → A → A)
+class has_div      (A : Type u) := (div : A → A → A)
+class has_dvd      (A : Type u) := (dvd : A → A → Prop)
+class has_mod      (A : Type u) := (mod : A → A → A)
+class has_le       (A : Type u) := (le : A → A → Prop)
+class has_lt       (A : Type u) := (lt : A → A → Prop)
+class has_append   (A : Type u) := (append : A → A → A)
+class has_andthen  (A : Type u) := (andthen : A → A → A)
+class has_union    (A : Type u) := (union : A → A → A)
+class has_inter    (A : Type u) := (inter : A → A → A)
+class has_sdiff    (A : Type u) := (sdiff : A → A → A)
+class has_subset   (A : Type u) := (subset : A → A → Prop)
+class has_ssubset  (A : Type u) := (ssubset : A → A → Prop)
+/- Type class used to implement polymorphic notation for collections.
+   Example: {a, b, c}. -/
+class insertable (A : Type u) (C : Type u → Type v) :=
+(empty : C A) (insert : A → C A → C A)
+/- Type class used to implement the notation { a ∈ c | p a } -/
+class separable (A : Type u) (C : Type u → Type v) :=
+(sep : (A → Prop) → C A → C A)
+/- Type class for set-like membership -/
+class has_mem (A : Type u) (C : Type u → Type v) := (mem : A → C A → Prop)
 
-def zero    {A : Type u} [has_zero A]    : A            := has_zero.zero A
-def one     {A : Type u} [has_one A]     : A            := has_one.one A
-def add     {A : Type u} [has_add A]     : A → A → A    := has_add.add
-def mul     {A : Type u} [has_mul A]     : A → A → A    := has_mul.mul
-def sub     {A : Type u} [has_sub A]     : A → A → A    := has_sub.sub
-def div     {A : Type u} [has_div A]     : A → A → A    := has_div.div
-def dvd     {A : Type u} [has_dvd A]     : A → A → Prop := has_dvd.dvd
-def mod     {A : Type u} [has_mod A]     : A → A → A    := has_mod.mod
-def neg     {A : Type u} [has_neg A]     : A → A        := has_neg.neg
-def inv     {A : Type u} [has_inv A]     : A → A        := has_inv.inv
-def le      {A : Type u} [has_le A]      : A → A → Prop := has_le.le
-def lt      {A : Type u} [has_lt A]      : A → A → Prop := has_lt.lt
-def append  {A : Type u} [has_append A]  : A → A → A    := has_append.append
-def andthen {A : Type u} [has_andthen A] : A → A → A    := has_andthen.andthen
-
-@[reducible] def ge {A : Type u} [s : has_le A] (a b : A) : Prop := le b a
-@[reducible] def gt {A : Type u} [s : has_lt A] (a b : A) : Prop := lt b a
+def zero     {A : Type u} [has_zero A]     : A            := has_zero.zero A
+def one      {A : Type u} [has_one A]      : A            := has_one.one A
+def add      {A : Type u} [has_add A]      : A → A → A    := has_add.add
+def mul      {A : Type u} [has_mul A]      : A → A → A    := has_mul.mul
+def sub      {A : Type u} [has_sub A]      : A → A → A    := has_sub.sub
+def div      {A : Type u} [has_div A]      : A → A → A    := has_div.div
+def dvd      {A : Type u} [has_dvd A]      : A → A → Prop := has_dvd.dvd
+def mod      {A : Type u} [has_mod A]      : A → A → A    := has_mod.mod
+def neg      {A : Type u} [has_neg A]      : A → A        := has_neg.neg
+def inv      {A : Type u} [has_inv A]      : A → A        := has_inv.inv
+def le       {A : Type u} [has_le A]       : A → A → Prop := has_le.le
+def lt       {A : Type u} [has_lt A]       : A → A → Prop := has_lt.lt
+def append   {A : Type u} [has_append A]   : A → A → A    := has_append.append
+def andthen  {A : Type u} [has_andthen A]  : A → A → A    := has_andthen.andthen
+def union    {A : Type u} [has_union A]    : A → A → A    := has_union.union
+def inter    {A : Type u} [has_inter A]    : A → A → A    := has_inter.inter
+def sdiff    {A : Type u} [has_sdiff A]    : A → A → A    := has_sdiff.sdiff
+def subset   {A : Type u} [has_subset A]   : A → A → Prop := has_subset.subset
+def ssubset  {A : Type u} [has_ssubset A]  : A → A → Prop := has_ssubset.ssubset
+@[reducible]
+def ge {A : Type u} [has_le A] (a b : A) : Prop := le b a
+@[reducible]
+def gt {A : Type u} [has_lt A] (a b : A) : Prop := lt b a
+@[reducible]
+def superset {A : Type u} [has_subset A] (a b : A) : Prop := subset b a
+@[reducible]
+def ssuperset {A : Type u} [has_ssubset A] (a b : A) : Prop := ssubset b a
 def bit0 {A : Type u} [s  : has_add A] (a  : A)                 : A := add a a
 def bit1 {A : Type u} [s₁ : has_one A] [s₂ : has_add A] (a : A) : A := add (bit0 a) one
 
 attribute [pattern] zero one bit0 bit1 add
+
+def insert {A : Type u} {C : Type u → Type v} [insertable A C] : A → C A → C A :=
+insertable.insert
+
+/- The empty collection -/
+def empty_col {A : Type u} {C : Type u → Type v} [insertable A C] : C A :=
+insertable.empty A C
+
+def singleton {A : Type u} {C : Type u → Type v} [insertable A C] (a : A) : C A :=
+insert a empty_col
+
+def sep {A : Type u} {C : Type u → Type v} [separable A C] : (A → Prop) → C A → C A :=
+separable.sep
+
+def mem {A : Type u} {C : Type u → Type v} [has_mem A C] : A → C A → Prop :=
+has_mem.mem
+
+/- num, pos_num instances -/
 
 instance : has_zero num :=
 ⟨num.zero⟩
@@ -195,6 +323,8 @@ instance : has_add num :=
 def std.priority.default : num := 1000
 def std.priority.max     : num := 4294967295
 
+/- nat basic instances -/
+
 namespace nat
   protected def prio := num.add std.priority.default 100
 
@@ -234,92 +364,37 @@ def std.prec.max_plus :=
 num.succ (num.succ (num.succ (num.succ (num.succ (num.succ (num.succ (num.succ (num.succ
   (num.succ std.prec.max)))))))))
 
-/- Logical operations and relations -/
-
-reserve prefix `¬`:40
-reserve prefix `~`:40
-reserve infixr ` ∧ `:35
-reserve infixr ` /\ `:35
-reserve infixr ` \/ `:30
-reserve infixr ` ∨ `:30
-reserve infix ` <-> `:20
-reserve infix ` ↔ `:20
-reserve infix ` = `:50
-reserve infix ` ≠ `:50
-reserve infix ` ≈ `:50
-reserve infix ` ~ `:50
-reserve infix ` ≡ `:50
-reserve infixl ` ⬝ `:75
-reserve infixr ` ▸ `:75
-reserve infixr ` ▹ `:75
-
-/- types and type constructors -/
-
-reserve infixr ` ⊕ `:30
-reserve infixr ` × `:35
-
-/- arithmetic operations -/
-
-reserve infixl ` + `:65
-reserve infixl ` - `:65
-reserve infixl ` * `:70
-reserve infixl ` / `:70
-reserve infixl ` % `:70
-reserve prefix `-`:100
-reserve infix ` ^ `:80
-
-reserve infixr ` ∘ `:90                 -- input with \comp
 reserve postfix `⁻¹`:std.prec.max_plus  -- input with \sy or \-1 or \inv
 
-reserve infix ` <= `:50
-reserve infix ` ≤ `:50
-reserve infix ` < `:50
-reserve infix ` >= `:50
-reserve infix ` ≥ `:50
-reserve infix ` > `:50
-
-/- boolean operations -/
-
-reserve infixl ` && `:70
-reserve infixl ` || `:65
-
-/- set operations -/
-
-reserve infix ` ∈ `:50
-reserve infix ` ∉ `:50
-reserve infixl ` ∩ `:70
-reserve infixl ` ∪ `:65
-reserve infix ` ⊆ `:50
-reserve infix ` ⊇ `:50
-reserve infix ` ' `:75   -- for the image of a set under a function
-reserve infix ` '- `:75  -- for the preimage of a set under a function
-
-/- other symbols -/
-
-reserve infix ` ∣ `:50
-reserve infixl ` ++ `:65
-reserve infixr ` :: `:67
-reserve infixl `; `:1
-
-infix +    := add
-infix *    := mul
-infix -    := sub
-infix /    := div
-infix ∣    := dvd
-infix %    := mod
-prefix -   := neg
-postfix ⁻¹ := inv
-infix <=   := le
-infix >=   := ge
-infix ≤    := le
-infix ≥    := ge
-infix <    := lt
-infix >    := gt
-infix ++   := append
-infix ;    := andthen
+infix =        := eq
+infix ∈        := mem
+notation a ∉ s := ¬ mem a s
+infix +        := add
+infix *        := mul
+infix -        := sub
+infix /        := div
+infix ∣        := dvd
+infix %        := mod
+prefix -       := neg
+postfix ⁻¹     := inv
+infix <=       := le
+infix >=       := ge
+infix ≤        := le
+infix ≥        := ge
+infix <        := lt
+infix >        := gt
+infix ++       := append
+infix ;        := andthen
+notation `∅`   := empty_col
+infix ∪        := union
+infix ∩        := inter
+infix ⊆        := subset
+infix ⊇        := superset
+infix ⊂        := ssubset
+infix ⊃        := ssuperset
+infix \        := sdiff
 
 /- eq basic support -/
-notation a = b := eq a b
 
 @[pattern] def rfl {A : Type u} {a : A} : a = a := eq.refl a
 

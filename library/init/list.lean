@@ -18,12 +18,52 @@ instance (A : Type u) : inhabited (list A) :=
 variables {A : Type u} {B : Type v}
 
 namespace list
-def append : list A → list A → list A
+protected def append : list A → list A → list A
 | []       l := l
 | (h :: s) t := h :: (append s t)
 
 instance : has_append (list A) :=
-⟨append⟩
+⟨list.append⟩
+
+protected def mem : A → list A → Prop
+| a []       := false
+| a (b :: l) := a = b ∨ mem a l
+
+instance : has_mem A list :=
+⟨list.mem⟩
+
+instance decidable_mem [decidable_eq A] (a : A) : ∀ (l : list A), decidable (a ∈ l)
+| []     := is_false not_false
+| (b::l) :=
+  if h₁ : a = b then is_true (or.inl h₁)
+  else match decidable_mem l with
+  | is_true  h₂ := is_true (or.inr h₂)
+  | is_false h₂ := is_false (not_or h₁ h₂)
+  end
+
+def concat : list A → A → list A
+| []     a := [a]
+| (b::l) a := b :: concat l a
+
+protected def insert [decidable_eq A] (a : A) (l : list A) : list A :=
+if a ∈ l then l else concat l a
+
+instance [decidable_eq A] : insertable A list :=
+⟨list.nil, list.insert⟩
+
+protected def union [decidable_eq A] : list A → list A → list A
+| l₁ []      := l₁
+| l₁ (a::l₂) := union (insert a l₁) l₂
+
+instance [decidable_eq A] : has_union (list A) :=
+⟨list.union⟩
+
+protected def inter [decidable_eq A] : list A → list A → list A
+| []      l₂ := []
+| (a::l₁) l₂ := if a ∈ l₂ then a :: inter l₁ l₂ else inter l₁ l₂
+
+instance [decidable_eq A] : has_inter (list A) :=
+⟨list.inter⟩
 
 def length : list A → nat
 | []       := 0
@@ -44,13 +84,9 @@ def tail : list A → list A
 | []       := []
 | (a :: l) := l
 
-def concat : Π (x : A), list A → list A
-| a []       := [a]
-| a (b :: l) := b :: concat a l
-
 def reverse : list A → list A
 | []       := []
-| (a :: l) := concat a (reverse l)
+| (a :: l) := concat (reverse l) a
 
 def map (f : A → B) : list A → list B
 | []       := []

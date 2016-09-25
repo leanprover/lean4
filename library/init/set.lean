@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.logic init.collection
+import init.logic init.functor
 
 universe variables u v
 
@@ -16,19 +16,17 @@ p
 namespace set
 variables {A : Type u} {B : Type v}
 
-def mem (a : A) (s : set A) :=
+protected def mem (a : A) (s : set A) :=
 s a
 
-infix ∈ := mem
-notation a ∉ s := ¬ mem a s
+instance : has_mem A set :=
+⟨set.mem⟩
 
-def subset (s₁ s₂ : set A) : Prop :=
-∀ ⦃a⦄, a ∈ s₁ → a ∈ s₂
-infix ⊆ := subset
+protected def subset (s₁ s₂ : set A) :=
+∀ a, a ∈ s₁ → a ∈ s₂
 
-def superset (s₁ s₂ : set A) : Prop :=
-s₂ ⊆ s₁
-infix ⊇ := superset
+instance : has_subset (set A) :=
+⟨set.subset⟩
 
 private def sep (p : A → Prop) (s : set A) : set A :=
 {a | a ∈ s ∧ p a}
@@ -45,13 +43,17 @@ private def insert (a : A) (s : set A) : set A :=
 instance : insertable A set :=
 ⟨empty, insert⟩
 
-def union (s₁ s₂ : set A) : set A :=
+protected def union (s₁ s₂ : set A) : set A :=
 {a | a ∈ s₁ ∨ a ∈ s₂}
-notation s₁ ∪ s₂ := union s₁ s₂
 
-def inter (s₁ s₂ : set A) : set A :=
+instance : has_union (set A) :=
+⟨set.union⟩
+
+protected def inter (s₁ s₂ : set A) : set A :=
 {a | a ∈ s₁ ∧ a ∈ s₂}
-notation s₁ ∩ s₂ := inter s₁ s₂
+
+instance : has_inter (set A) :=
+⟨set.inter⟩
 
 def compl (s : set A) : set A :=
 {a | a ∉ s}
@@ -59,9 +61,11 @@ def compl (s : set A) : set A :=
 instance : has_neg (set A) :=
 ⟨compl⟩
 
-def diff (s t : set A) : set A :=
+protected def diff (s t : set A) : set A :=
 {a ∈ s | a ∉ t}
-infix `\`:70 := diff
+
+instance : has_sdiff (set A) :=
+⟨set.diff⟩
 
 def powerset (s : set A) : set (set A) :=
 {t | t ⊆ s}
@@ -69,5 +73,8 @@ prefix `𝒫`:100 := powerset
 
 def image (f : A → B) (s : set A) : set B :=
 {b | ∃ a, a ∈ s ∧ f a = b}
-infix ` ' ` := image
+
+instance : functor set :=
+⟨@set.image⟩
+
 end set

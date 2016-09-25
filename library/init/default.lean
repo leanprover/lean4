@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.datatypes init.logic
+import init.core init.logic
 import init.relation init.nat init.prod init.sum init.combinator
 import init.bool init.unit init.num init.sigma init.setoid init.quot
 import init.funext init.function init.subtype init.classical

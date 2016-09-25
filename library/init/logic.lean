@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Jeremy Avigad, Floris van Doorn
 -/
 prelude
-import init.datatypes
+import init.core
 
 universe variables u v w
 
@@ -21,9 +21,6 @@ def implies (a b : Prop) := a → b
 assume hp, h₂ (h₁ hp)
 
 def trivial : true := ⟨⟩
-
-def not (a : Prop) := a → false
-prefix `¬` := not
 
 @[inline] def absurd {a : Prop} {b : Type v} (h₁ : a) (h₂ : ¬a) : b :=
 false.rec b (h₂ h₁)
@@ -509,6 +506,10 @@ attribute [simp]
 lemma or_self (a : Prop) : a ∨ a ↔ a :=
 iff.intro (or.rec id id) or.inl
 
+lemma not_or {a b : Prop} : ¬ a → ¬ b → ¬ (a ∨ b)
+| hna hnb (or.inl ha) := absurd ha hna
+| hna hnb (or.inr hb) := absurd hb hnb
+
 /- or resolution rulse -/
 
 def or.resolve_left {a b : Prop} (h : a ∨ b) (na : ¬ a) : b :=
@@ -616,11 +617,10 @@ exists_congr (λ x, and_congr (h x) (forall_congr (λ y, imp_congr (h y) iff.rfl
 
 /- decidable -/
 
-class inductive decidable (p : Prop)
-| is_false : ¬p → decidable
-| is_true :  p → decidable
+def decidable.to_bool (p : Prop) [h : decidable p] : bool :=
+decidable.cases_on h (λ h₁, bool.ff) (λ h₂, bool.tt)
 
-export decidable (is_true is_false)
+export decidable (is_true is_false to_bool)
 
 instance decidable.true : decidable true :=
 is_true trivial
@@ -655,9 +655,6 @@ namespace decidable
 
   lemma by_contradiction [decidable p] (h : ¬p → false) : p :=
   if h₁ : p then h₁ else false.rec _ (h h₁)
-
-  def to_bool (p : Prop) [h : decidable p] : bool :=
-  decidable.cases_on h (λ h₁, bool.ff) (λ h₂, bool.tt)
 end decidable
 
 section
@@ -702,10 +699,6 @@ section
   instance [decidable p] [decidable q] : decidable (p ↔ q) :=
   and.decidable
 end
-
-@[reducible] def decidable_pred {A : Type u} (r : A → Prop) := Π (a : A), decidable (r a)
-@[reducible] def decidable_rel  {A : Type u} (r : A → A → Prop) := Π (a b : A), decidable (r a b)
-@[reducible] def decidable_eq   (A : Type u) := decidable_rel (@eq A)
 
 instance {A : Type u} [decidable_eq A] (a b : A) : decidable (a ≠ b) :=
 implies.decidable

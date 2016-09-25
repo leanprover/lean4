@@ -2,7 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
 prelude
-import init.datatypes
+import init.core
 
 @[inline] def {u} cond {A : Type u} : bool → A → A → A
 | tt a b := a

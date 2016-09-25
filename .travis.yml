@@ -8,10 +8,6 @@ env:
    - secure: "CyASf1F7hGwB85jUQOfDoNBQSouSayP4BVvjqAJdRxirui/oyw2sJ02HC6ZTM+LO+ZyWy3eJOGwe81z6PEQFzovv9C8VLRbhV8Tk7aN+nQTCyyKLoxsON/T5PO/C74ZSu5hTNMwnHrbdphc88Y4ZrQqL2M3cTWT5nVFCshEq6IM="
    # REPO=BLESSED                  (to perform extra stuff only for pushes to the blessed repo)
    - secure: "iZEcYPaxqGRQs7loHwO88DlewbRngBwoNGfo438jabh0adF3y9zCPw0tcAtp6IJuCw8E6QVoM9JMwoQRvPbnqBelFjpXH+U3eYdaeeZRkBkyOthTWzzdwEexlnK7dXVEc+gTDjh2NBD9juXKDSJ5xOF1HfhEJaMXSLairnhpL6k="
-   # COVERALLS_REPO_TOKEN=[secure] (from https://coveralls.io/r/leanprover/lean)
-   - secure: "j14U5pV2qkArCTt4MdI+rYe9MzcIcoMYrPX3Kp4bFNAyxfTALHG25bZUaEyqBJKPevch02+i8hs3I/+b9Iue0j8be8hjy7GSKDEkhbd8HIWJMvMBM1Y+h88ZPTvTiEB9OCbHa6PrETN+3WO8cSe3PufWO7cwoOqzWuY440ZZqSM="
-   # BB_TOKEN=[secure]             (to push to https://bitbucket.org/leanprover/lean for backup & email diff)
-   - secure: "NvPi430kKhteshcxiYP4oHbMFaSiz6bmoENA55sxD7bI0EmsKvuRJFPfFr3g8gl9hNnuNABOTK4xNcWjNDRtHBjnGYHytyaYLEYjpNGTlmTzc21q/FheWL32K2rkvvaRa0ZrDt8p1k1lr07Z69oFFIGCigAdcTCEhMO9Clxlxts="
   matrix:
    # =======================================================
    # TESTCOV Build
@@ -22,7 +18,6 @@ env:
      TESTCOV=OFF
      PUSH_TO_CDASH=TRUE
      TCMALLOC=OFF
-     LUA=52
      CONSERVE_MEMORY=ON
    # =======================================================
    # DEBUG Build
@@ -32,29 +27,26 @@ env:
      CMAKE_BUILD_TYPE=Debug
      TCMALLOC=ON
      PUSH_TO_CDASH=TRUE
-     LUA=52
+   # Leo: TRIGGERS are broken
    # D2. g++-4.9     | DEBUG    | TCMALLOC       | CDASH + TRIGGERS
-   - CMAKE_CXX_COMPILER=g++-4.9
-     CMAKE_BUILD_TYPE=Debug
-     TRIGGER_BB=TRUE
-     TRIGGER_OSX=TRUE
-     TRIGGER_WINDOWS=TRUE
-     TCMALLOC=ON
-     PUSH_TO_CDASH=TRUE
-     LUA=52
-     CONSERVE_MEMORY=ON
+   # - CMAKE_CXX_COMPILER=g++-4.9
+   #  CMAKE_BUILD_TYPE=Debug
+   #  TRIGGER_BB=TRUE
+   #  TRIGGER_OSX=TRUE
+   #  TRIGGER_WINDOWS=TRUE
+   #  TCMALLOC=ON
+   #  PUSH_TO_CDASH=TRUE
+   #  CONSERVE_MEMORY=ON
    # D3. clang++-3.4 | DEBUG
    - CMAKE_CXX_COMPILER=clang++-3.4
      CMAKE_BUILD_TYPE=Debug
      TCMALLOC=OFF
      PUSH_TO_CDASH=TRUE
-     LUA=52
    # D4. g++-4.9     | DEBUG
    - CMAKE_CXX_COMPILER=g++-4.9
      CMAKE_BUILD_TYPE=Debug
      TCMALLOC=OFF
      PUSH_TO_CDASH=TRUE
-     LUA=52
      CONSERVE_MEMORY=ON
    # =======================================================
    # RELEASE Build
@@ -64,14 +56,12 @@ env:
      CMAKE_BUILD_TYPE=Release
      TCMALLOC=ON
      PUSH_TO_CDASH=TRUE
-     LUA=52
    # R2. g++-4.9     | RELEASE | TCMALLOC        | CDASH + UPLOAD=>DROPBOX
    - CMAKE_CXX_COMPILER=g++-4.9
      CMAKE_BUILD_TYPE=Release
      TCMALLOC=ON
      UPLOAD=linux_tcmalloc
      PUSH_TO_CDASH=TRUE
-     LUA=52
      PACKAGE=TRUE
      CONSERVE_MEMORY=ON
    # R3. clang++-3.4 | RELEASE
@@ -79,43 +69,12 @@ env:
      CMAKE_BUILD_TYPE=Release
      TCMALLOC=OFF
      PUSH_TO_CDASH=TRUE
-     LUA=52
    # R4. g++-4.9    | RELEASE                    | UPLOAD=>DROPBOX
    - CMAKE_CXX_COMPILER=g++-4.9
      CMAKE_BUILD_TYPE=Release
      TCMALLOC=OFF
      UPLOAD=linux
      PUSH_TO_CDASH=TRUE
-     LUA=52
-     CONSERVE_MEMORY=ON
-   # =======================================================
-   # DOXYGEN Build
-   # =======================================================
-   # DOC. g++-4.9      | DEBUG   | TCMALLOC      | DOXYGEN=>DROPBOX
-   - CMAKE_CXX_COMPILER=g++-4.9
-     CMAKE_BUILD_TYPE=DOXYGEN
-     BUILD_DOXYGEN=TRUE
-     TCMALLOC=OFF
-     LUA=52
-     CONSERVE_MEMORY=ON
-   # =======================================================
-   # Different Lua Versions
-   # =======================================================
-   # L51. g++-4.9     | RELEASE |                | CDASH
-   - CMAKE_CXX_COMPILER=g++-4.9
-     CMAKE_BUILD_TYPE=Release
-     TCMALLOC=OFF
-     UPLOAD=linux
-     PUSH_TO_CDASH=TRUE
-     LUA=51
-     CONSERVE_MEMORY=ON
-   # LJIT. g++-4.9     | RELEASE |                | CDASH
-   - CMAKE_CXX_COMPILER=g++-4.9
-     CMAKE_BUILD_TYPE=Release
-     TCMALLOC=OFF
-     UPLOAD=linux
-     PUSH_TO_CDASH=TRUE
-     LUA=JIT
      CONSERVE_MEMORY=ON
 
 install:
@@ -126,17 +85,6 @@ install:
   - if [[ $TCMALLOC == ON ]]; then until sudo add-apt-repository --yes ppa:agent-8131/ppa && sudo apt-get -qq update && sudo apt-get -qq install libgoogle-perftools-dev; do echo retry; done; fi
   - until sudo apt-get -qq install libgmp-dev libmpfr-dev; do echo retry; done
   - until sudo apt-get -qq install cmake python; do echo retry; done
-  - if [[ $LUA == 52 ]]; then
-       until sudo apt-get -qq install liblua5.2.0 lua5.2-0 lua5.2-dev; do echo retry; done;
-    fi
-  - if [[ $LUA == 51 ]]; then
-       until sudo apt-get -qq install liblua5.1-0 liblua5.1-0-dev lua5.1; do echo retry; done;
-    fi
-  - if [[ $LUA == JIT ]]; then
-       until sudo add-apt-repository --yes ppa:miurahr/openresty-devel; do echo retry; done;
-       until sudo apt-get -qq update; do echo retry; done;
-       until sudo apt-get -qq install libluajit-5.1-dev luajit; do echo retry; done;
-    fi
   - wget http://dl.dropboxusercontent.com/u/203889738/gcc/ninja.tar.gz &&
     tar xfz ninja.tar.gz &&
     cd ninja &&
@@ -149,7 +97,7 @@ install:
     fi
   - if [[ $CMAKE_CXX_COMPILER == g++-4.9 ]]; then until sudo apt-get -qq install g++-4.9; do echo retry; done fi
   - if [[ $CMAKE_CXX_COMPILER == clang++-3.4 ]]; then until sudo apt-get -qq install clang-3.4; do echo retry; done fi
-  - if [[ $REPO == BLESSED && ($UPLOAD || $BUILD_DOXYGEN == TRUE) ]]; then
+  - if [[ $REPO == BLESSED && $UPLOAD ]]; then
        sudo apt-get -qq install python python-pip &&
        sudo pip install dropbox;
     fi
@@ -162,10 +110,6 @@ install:
     fi
 
 before_script:
-- if [[ $REPO == BLESSED && $TRIGGER_BB == TRUE ]]; then
-      git fetch --unshallow;
-      git push -q https://soonhok:${BB_TOKEN}@bitbucket.org/leanprover/lean.git +HEAD:master;
-  fi
 - if [[ $REPO == BLESSED && $TRIGGER_OSX == TRUE ]]; then
       MSG=`git log --pretty=oneline --abbrev-commit -n 1 | cut -d ' ' -f 2-` &&
       cp .travis.yml /tmp/.travis.temp.yml &&
@@ -210,8 +154,7 @@ script:
        else
            BUILD_TYPE=Debug;
        fi &&
-       LUA_VERSION=LUA_${LUA} &&
-       BUILD_NAME=${TRAVIS_BRANCH}_${CMAKE_CXX_COMPILER}_${BUILD_TYPE}_${LUA_VERSION} &&
+       BUILD_NAME=${TRAVIS_BRANCH}_${CMAKE_CXX_COMPILER}_${BUILD_TYPE} &&
        if [[ $TCMALLOC == ON ]]; then
            BUILD_NAME=${BUILD_NAME}_TC;
        fi &&
@@ -259,22 +202,13 @@ after_script:
      make package;
   fi
 - cd ..
-- if [[ $REPO == BLESSED && $BUILD_DOXYGEN == TRUE ]]; then
-      sudo apt-get -qq install graphviz doxygen parallel &&
-      script/doxygen.sh > /dev/null &&
-      DOXYGEN_DIR=doc/html &&
-      find $DOXYGEN_DIR -type f -name "*.md5" -exec rm {} ";" &&
-      find $DOXYGEN_DIR -type f | split -l 100 - doxygen_files.txt. &&
-      ls -1 doxygen_files.txt.* | travis_wait parallel -u -j 10 ./script/dropbox_upload.py --destpath /Public --dropbox-token ${DROPBOX_KEY} --copylist {};
-  fi
 - if [[ $REPO == BLESSED && $UPLOAD ]]; then
       UPLOAD_DIR=bin &&
       BINARY=lean_${UPLOAD} &&
       NOW=`TZ='America/Los_Angeles' date +"%Y%m%d_%H%M"` &&
       GIT_COMMIT=`git log --oneline -n 1 | cut -d ' ' -f 1` &&
       OS=linux &&
-      LUA_VERSION=LUA_${LUA} &&
-      ARCHIVE_BINARY=${NOW}_${TRAVIS_BRANCH}_${GIT_COMMIT}_${OS}_${CMAKE_CXX_COMPILER}_${BUILD_TYPE}_${LUA_VERSION} &&
+      ARCHIVE_BINARY=${NOW}_${TRAVIS_BRANCH}_${GIT_COMMIT}_${OS}_${CMAKE_CXX_COMPILER}_${BUILD_TYPE} &&
       if [[ $TCMALLOC == ON ]]; then
           ARCHIVE_BINARY=${ARCHIVE_BINARY}_tcmalloc
       fi &&

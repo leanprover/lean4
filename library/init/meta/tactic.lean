@@ -94,6 +94,9 @@ meta definition try (t : tactic A) : tactic unit :=
 meta definition skip : tactic unit :=
 success ()
 
+meta definition consume (t : tactic A) : tactic unit :=
+t >> skip
+
 open list
 meta definition foreach : list A → (A → tactic unit) → tactic unit
 | []      fn := skip

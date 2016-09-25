@@ -33,6 +33,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/match_expr.h"
 #include "frontends/lean/decl_util.h"
 #include "frontends/lean/brackets.h"
+#include "frontends/lean/begin_end_block.h"
 
 #ifndef LEAN_DEFAULT_PARSER_CHECKPOINT_HAVE
 #define LEAN_DEFAULT_PARSER_CHECKPOINT_HAVE true
@@ -163,15 +164,6 @@ static expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {
     p.update_pos(tac, pos);
     expr r    = p.save_pos(mk_typed_expr(type, tac), pos);
     return p.save_pos(mk_by(r), pos);
-}
-
-static expr parse_begin_end_core(parser & /*p*/, pos_info const & start_pos,
-                                 name const & /*end_token*/, bool /*nested*/ = false) {
-    throw parser_error("begin-end-exprs have been disabled", start_pos);
-}
-
-static expr parse_begin_end(parser & p, unsigned, expr const *, pos_info const & pos) {
-    return parse_begin_end_core(p, pos, get_end_tk());
 }
 
 static expr parse_proof(parser & p);

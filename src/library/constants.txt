@@ -332,8 +332,11 @@ sum.cases_on
 sum.inl
 sum.inr
 tactic
-tactic.try
 tactic.constructor
+tactic.interactive
+tactic.consume
+tactic.skip
+tactic.try
 to_string
 to_int
 to_real

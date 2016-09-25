@@ -337,8 +337,11 @@ name const * g_sum_cases_on = nullptr;
 name const * g_sum_inl = nullptr;
 name const * g_sum_inr = nullptr;
 name const * g_tactic = nullptr;
-name const * g_tactic_try = nullptr;
 name const * g_tactic_constructor = nullptr;
+name const * g_tactic_interactive = nullptr;
+name const * g_tactic_consume = nullptr;
+name const * g_tactic_skip = nullptr;
+name const * g_tactic_try = nullptr;
 name const * g_to_string = nullptr;
 name const * g_to_int = nullptr;
 name const * g_to_real = nullptr;
@@ -696,8 +699,11 @@ void initialize_constants() {
     g_sum_inl = new name{"sum", "inl"};
     g_sum_inr = new name{"sum", "inr"};
     g_tactic = new name{"tactic"};
-    g_tactic_try = new name{"tactic", "try"};
     g_tactic_constructor = new name{"tactic", "constructor"};
+    g_tactic_interactive = new name{"tactic", "interactive"};
+    g_tactic_consume = new name{"tactic", "consume"};
+    g_tactic_skip = new name{"tactic", "skip"};
+    g_tactic_try = new name{"tactic", "try"};
     g_to_string = new name{"to_string"};
     g_to_int = new name{"to_int"};
     g_to_real = new name{"to_real"};
@@ -1056,8 +1062,11 @@ void finalize_constants() {
     delete g_sum_inl;
     delete g_sum_inr;
     delete g_tactic;
-    delete g_tactic_try;
     delete g_tactic_constructor;
+    delete g_tactic_interactive;
+    delete g_tactic_consume;
+    delete g_tactic_skip;
+    delete g_tactic_try;
     delete g_to_string;
     delete g_to_int;
     delete g_to_real;
@@ -1415,8 +1424,11 @@ name const & get_sum_cases_on_name() { return *g_sum_cases_on; }
 name const & get_sum_inl_name() { return *g_sum_inl; }
 name const & get_sum_inr_name() { return *g_sum_inr; }
 name const & get_tactic_name() { return *g_tactic; }
-name const & get_tactic_try_name() { return *g_tactic_try; }
 name const & get_tactic_constructor_name() { return *g_tactic_constructor; }
+name const & get_tactic_interactive_name() { return *g_tactic_interactive; }
+name const & get_tactic_consume_name() { return *g_tactic_consume; }
+name const & get_tactic_skip_name() { return *g_tactic_skip; }
+name const & get_tactic_try_name() { return *g_tactic_try; }
 name const & get_to_string_name() { return *g_to_string; }
 name const & get_to_int_name() { return *g_to_int; }
 name const & get_to_real_name() { return *g_to_real; }

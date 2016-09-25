@@ -3,7 +3,7 @@ open tactic decidable
 definition foo (A B : Type) := A → B
 
 definition boo (c : bool) :=
-bool.cond c nat bool
+cond c nat bool
 
 definition bla (a : nat) : boo (to_bool (a > 0)) → foo nat nat :=
 λ v x, a + x

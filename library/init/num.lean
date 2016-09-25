@@ -40,7 +40,7 @@ namespace num
   open pos_num
 
   def pred (a : num) : num :=
-  num.rec_on a zero (λ p, bool.cond (is_one p) zero (pos (pred p)))
+  num.rec_on a zero (λ p, cond (is_one p) zero (pos (pred p)))
 
   def size (a : num) : num :=
   num.rec_on a (pos pos_num.one) (λ p, pos (size p))
@@ -60,14 +60,14 @@ namespace num
   pos_num.rec_on a
     (λ b, zero)
     (λ n f b,
-      bool.cond (pos_num.le (bit1 n) b)
+      cond (pos_num.le (bit1 n) b)
         zero
         (pos_num.cases_on b
            (pos (bit0 n))
            (λ m, 2 * f m)
            (λ m, 2 * f m + 1)))
     (λ n f b,
-      bool.cond (pos_num.le (bit0 n) b)
+      cond (pos_num.le (bit0 n) b)
         zero
         (pos_num.cases_on b
            (pos (pos_num.pred (bit0 n)))

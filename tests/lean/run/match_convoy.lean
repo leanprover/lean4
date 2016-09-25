@@ -20,7 +20,7 @@ open vec
 definition boo (n : nat) (v : vec bool n) : vec bool n :=
 match n, v : ∀ (n : _), vec bool n → _ with
 | 0,   nil      := nil
-| n+1, cons a v := cons (bool.bnot a) v
+| n+1, cons a v := cons (bnot a) v
 end
 
 

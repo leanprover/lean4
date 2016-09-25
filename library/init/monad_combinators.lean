@@ -42,17 +42,17 @@ bind a id
 
 def filterM {m : Type → Type} [monad m] {A : Type} (f : A → m bool) : list A → m (list A)
 | []       := return []
-| (h :: t) := do b ← f h, t' ← filterM t, bool.cond b (return (h :: t')) (return t')
+| (h :: t) := do b ← f h, t' ← filterM t, cond b (return (h :: t')) (return t')
 
 def whenb {m : Type → Type} [monad m] (b : bool) (t : m unit) : m unit :=
-bool.cond b t (return ())
+cond b t (return ())
 
 def unlessb {m : Type → Type} [monad m] (b : bool) (t : m unit) : m unit :=
-bool.cond b (return ()) t
+cond b (return ()) t
 
 def condM {m : Type → Type} [monad m] {A : Type} (mbool : m bool)
   (tm fm : m A) : m A :=
-do b ← mbool, bool.cond b tm fm
+do b ← mbool, cond b tm fm
 
 def liftM {m : Type → Type} [monad m] {A R : Type} (f : A → R) (ma : m A) : m R :=
 do a ← ma, return (f a)

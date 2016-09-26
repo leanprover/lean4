@@ -1404,6 +1404,7 @@ Now, we consider some workarounds/approximations.
 */
 bool type_context::process_assignment(expr const & m, expr const & v) {
     lean_trace(name({"type_context", "is_def_eq_detail"}),
+               scope_trace_env scope(env(), *this);
                tout() << "process_assignment " << m << " := " << v << "\n";);
     buffer<expr> args;
     expr const & mvar = get_app_args(m, args);
@@ -1574,6 +1575,7 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
         expr t2 = infer(new_v);
         if (!is_def_eq_core(t1, t2)) {
             lean_trace(name({"type_context", "is_def_eq_detail"}),
+                       scope_trace_env scope(env(), *this);
                        tout() << "Type mismatch when assigning " << mvar << " := " << new_v << "\n";
                        tout() << ">> " << t1 << " =?= " << t2 << "\n";);
             return false;
@@ -1583,7 +1585,9 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
     }
 
     assign(mvar, new_v);
-    lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "assign: " << mvar << " := " << new_v << "\n";);
+    lean_trace(name({"type_context", "is_def_eq_detail"}),
+               scope_trace_env scope(env(), *this);
+               tout() << "assign: " << mvar << " := " << new_v << "\n";);
     return true;
 }
 
@@ -1624,6 +1628,7 @@ struct check_assignment_fn : public replace_visitor {
             if (std::all_of(m_locals.begin(), m_locals.end(), [&](expr const & a) {
                         return mlocal_name(a) != mlocal_name(e); })) {
                 lean_trace(name({"type_context", "is_def_eq_detail"}),
+                           scope_trace_env scope(m_ctx.env(), m_ctx);
                            tout() << "failed to assign " << m_mvar << " to\n" << m_value << "\n" <<
                            "value contains local declaration " << e <<
                            " which is not in the scope of the metavariable\n";);
@@ -1650,6 +1655,7 @@ struct check_assignment_fn : public replace_visitor {
         if (m_mvar == e) {
             /* mvar occurs in m_value */
             lean_trace(name({"type_context", "is_def_eq_detail"}),
+                       scope_trace_env scope(m_ctx.env(), m_ctx);
                        tout() << "failed to assign " << m_mvar << " :=\n" << m_value << "\n" <<
                        "value contains the metavariable " << m_mvar << "\n";);
             throw check_assignment_failed();
@@ -1669,6 +1675,7 @@ struct check_assignment_fn : public replace_visitor {
         optional<metavar_decl> e_decl = m_ctx.m_mctx.get_metavar_decl(e);
         if (!e_decl) {
             lean_trace(name({"type_context", "is_def_eq_detail"}),
+                       scope_trace_env scope(m_ctx.env(), m_ctx);
                        tout() << "failed to assign " << m_mvar << " :=\n" << m_value << "\n" <<
                        "value contains \"foreign\" metavariable " << e << "\n";);
             throw check_assignment_failed();
@@ -1695,6 +1702,7 @@ struct check_assignment_fn : public replace_visitor {
             } else {
                 /* e_type uses local_decl's that are not in mvar_lctx */
                 lean_trace(name({"type_context", "is_def_eq_detail"}),
+                           scope_trace_env scope(m_ctx.env(), m_ctx);
                            tout() << "failed to assign " << m_mvar << " :=\n" << m_value << "\n"
                            << "value contains metavariable " << e << ", and its local context "
                            << "is not a subset of the one in the metavariable being assigned. "
@@ -1707,6 +1715,7 @@ struct check_assignment_fn : public replace_visitor {
             /* The two local contexts are incomparable OR
                approximate mode is not enabled. */
             lean_trace(name({"type_context", "is_def_eq_detail"}),
+                       scope_trace_env scope(m_ctx.env(), m_ctx);
                        tout() << "failed to assign " << m_mvar << " :=\n" << m_value << "\n"
                        << "value contains metavariable " << e;
                        if (!m_ctx.approximate()) {
@@ -2003,6 +2012,7 @@ expr type_context::elim_delayed_abstraction(expr const & e) {
     }
     expr r = mk_app(new_fn, args);
     lean_trace(name({"type_context", "is_def_eq_detail"}),
+               scope_trace_env scope(env(), *this);
                tout() << "eliminated delayed abstraction:\n"
                << e << "\n====>\n" << r << "\n";);
     return r;
@@ -2231,7 +2241,9 @@ lbool type_context::is_def_eq_lazy_delta(expr & t, expr & s) {
         }
         auto r = quick_is_def_eq(t, s);
         if (r != l_undef) return r;
-        lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "after delta: " << t << " =?= " << s << "\n";);
+        lean_trace(name({"type_context", "is_def_eq_detail"}),
+                   scope_trace_env scope(env(), *this);
+                   tout() << "after delta: " << t << " =?= " << s << "\n";);
     }
 }
 
@@ -2293,6 +2305,7 @@ expr type_context::try_to_unstuck_using_complete_instance(expr const & e) {
 
 bool type_context::on_is_def_eq_failure(expr const & e1, expr const & e2) {
     lean_trace(name({"type_context", "is_def_eq_detail"}),
+               scope_trace_env scope(env(), *this);
                tout() << "on failure: " << e1 << " =?= " << e2 << "\n";);
 
     if (is_stuck(e1)) {
@@ -2320,6 +2333,7 @@ bool type_context::is_def_eq_core_core(expr const & t, expr const & s) {
 
     flet<unsigned> inc_depth(m_is_def_eq_depth, m_is_def_eq_depth+1);
     lean_trace(name({"type_context", "is_def_eq_detail"}),
+               scope_trace_env scope(env(), *this);
                tout() << "[" << m_is_def_eq_depth << "]: " << t << " =?= " << s << "\n";);
 
     expr t_n = whnf_core(t);
@@ -2327,6 +2341,7 @@ bool type_context::is_def_eq_core_core(expr const & t, expr const & s) {
 
     if (!is_eqp(t_n, t) || !is_eqp(s_n, s)) {
         lean_trace(name({"type_context", "is_def_eq_detail"}),
+                   scope_trace_env scope(env(), *this);
                    tout() << "after whnf_core: " << t_n << " =?= " << s_n << "\n";);
         r = quick_is_def_eq(t_n, s_n);
         if (r != l_undef) return r == l_true;
@@ -2378,6 +2393,7 @@ bool type_context::is_def_eq(expr const & t, expr const & s) {
     flet<bool> in_is_def_eq(m_in_is_def_eq, true);
     bool success = is_def_eq_core(t, s);
     lean_trace(name({"type_context", "is_def_eq"}),
+               scope_trace_env scope(env(), *this);
                tout() << t << " =?= " << s << " ... "
                << (success ? "success" : "failed") << " " << (approximate() ? " (approximate mode)" : "") << "\n";);
     if (success) {
@@ -2462,6 +2478,7 @@ public:
                 expr new_rhs = replace(p.second, instantiate_assignment_fn);
                 bool success = m_owner.is_def_eq(new_lhs, new_rhs);
                 lean_trace(name({"type_context", "unification_hint"}),
+                           scope_trace_env scope(m_owner.env(), m_owner);
                            tout() << new_lhs << " =?= " << new_rhs << "..."
                            << (success ? "success" : "failed") << "\n";);
                 if (!success) return false;
@@ -2491,6 +2508,7 @@ bool type_context::try_unification_hints(expr const & e1, expr const & e2) {
         get_unification_hints(env(), const_name(e1_fn), const_name(e2_fn), hints);
         for (unification_hint const & hint : hints) {
             lean_trace(name({"type_context", "unification_hint"}),
+                       scope_trace_env scope(env(), *this);
                        tout() << e1 << " =?= " << e2
                        << ", pattern: " << hint.get_lhs() << " =?= " << hint.get_rhs() << "\n";);
             if (try_unification_hint(hint, e1, e2) ||

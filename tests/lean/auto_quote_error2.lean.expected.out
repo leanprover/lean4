@@ -1,0 +1,34 @@
+auto_quote_error2.lean:5:2: error: invalid apply tactic, failed to unify
+  a = c
+with
+  ?m_2 = ?m_2
+state:
+a b c : ℕ,
+a_1 : a = b,
+a_2 : b = c
+⊢ a = c
+
+a b c : ℕ,
+a_1 : a = b,
+a_2 : b = c
+⊢ Type ?
+hello world
+auto_quote_error2.lean:16:2: error: tactic failed, there are unsolved goals
+state:
+a b c : ℕ,
+a_1 : a = b,
+a_2 : b = c
+⊢ a = c
+hello world
+auto_quote_error2.lean:28:2: error: tactic failed, there are unsolved goals
+state:
+a b c : ℕ,
+a_1 : a = b,
+a_2 : b = c
+⊢ a = ?m_1
+auto_quote_error2.lean:37:22: error: don't know how to synthesize placeholder
+state:
+a b c : ℕ,
+h1 : a = b,
+h2 : b = c
+⊢ b = c

@@ -42,6 +42,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/util.h"
 #include "frontends/lean/prenum.h"
 #include "frontends/lean/elaborator.h"
+#include "frontends/lean/begin_end_block.h"
 #include "frontends/lean/structure_cmd.h"
 #include "frontends/lean/structure_instance.h"
 
@@ -2082,12 +2083,12 @@ void elaborator::synthesize_type_class_instances() {
     }
 }
 
-static void throw_unsolved_tactic_state(tactic_state const & ts, format const & fmt, expr const & ref) {
+[[noreturn]] static void throw_unsolved_tactic_state(tactic_state const & ts, format const & fmt, expr const & ref) {
     format msg = fmt + line() + format("state:") + line() + ts.pp();
     throw elaborator_exception(ref, msg);
 }
 
-static void throw_unsolved_tactic_state(tactic_state const & ts, char const * msg, expr const & ref) {
+[[noreturn]] static void throw_unsolved_tactic_state(tactic_state const & ts, char const * msg, expr const & ref) {
     throw_unsolved_tactic_state(ts, format(msg), ref);
 }
 
@@ -2100,14 +2101,9 @@ tactic_state elaborator::mk_tactic_state_for(expr const & mvar) {
     return ::lean::mk_tactic_state_for(m_env, m_opts, mctx, lctx, type);
 }
 
-void elaborator::invoke_tactic(expr const & mvar, expr const & tactic) {
-    expr const & ref = mvar;
-    /* Build initial state */
-    trace_elab(tout() << "executing tactic at " << pos_string_for(ref) << "\n";);
-    tactic_state s       = mk_tactic_state_for(mvar);
-    metavar_context mctx = m_ctx.mctx();
-    trace_elab(tout() << "initial tactic state\n" << s.pp() << "\n";);
-
+/* Apply the given tactic to the state 's'.
+   Report any errors detected during the process using position information associated with 'ref'. */
+tactic_state elaborator::execute_tactic(expr const & tactic, tactic_state const & s, expr const & ref) {
     /* Compile tactic into bytecode */
     name tactic_name("_tactic");
     expr tactic_type = mk_tactic_unit();
@@ -2124,15 +2120,7 @@ void elaborator::invoke_tactic(expr const & mvar, expr const & tactic) {
 
     if (optional<tactic_state> new_s = is_tactic_success(r)) {
         trace_elab(tout() << "tactic at " << pos_string_for(ref) << " succeeded\n";);
-        mctx     = new_s->mctx();
-        expr val = mctx.instantiate_mvars(new_s->main());
-        if (has_expr_metavar(val)) {
-            throw_unsolved_tactic_state(*new_s, "tactic failed, result contains meta-variables", ref);
-        }
-        mctx.assign(mvar, val);
-        m_env = new_s->env();
-        m_ctx.set_env(m_env);
-        m_ctx.set_mctx(mctx);
+        return *new_s;
     } else if (optional<tactic_exception_info> ex = is_tactic_exception(S, r)) {
         format fmt          = std::get<0>(*ex);
         optional<expr> ref1 = std::get<1>(*ex);
@@ -2144,6 +2132,76 @@ void elaborator::invoke_tactic(expr const & mvar, expr const & tactic) {
             throw_unsolved_tactic_state(s1, fmt, ref);
     } else {
         lean_unreachable();
+    }
+}
+
+tactic_state elaborator::execute_begin_end_tactics(buffer<expr> const & tactics, tactic_state const & s, expr const & ref) {
+    list<expr> gs = s.goals();
+    if (!gs) throw elaborator_exception(ref, "tactic failed, there are no goals to be solved");
+    tactic_state new_s = set_goals(s, to_list(head(gs)));
+    for (expr const & tactic : tactics) {
+        expr const & curr_ref = tactic;
+        trace_elab_debug(tout() << "executing tactic:\n" << tactic << "\n";);
+        if (is_begin_end_element(tactic)) {
+            new_s = execute_tactic(get_annotation_arg(tactic), new_s, curr_ref);
+        } else if (is_begin_end_block(tactic)) {
+            buffer<expr> nested_tactics;
+            get_begin_end_block_elements(tactic, nested_tactics);
+            new_s = execute_begin_end_tactics(nested_tactics, new_s, curr_ref);
+        } else {
+            throw elaborator_exception(curr_ref, "ill-formed 'begin ... end' tactic block");
+        }
+    }
+    if (new_s.goals()) throw_unsolved_tactic_state(new_s, "tactic failed, there are unsolved goals", ref);
+    return set_goals(new_s, tail(gs));
+}
+
+/* Try to synthesize 'mvar' by executing a sequence of tactics.
+   This method is used to process `begin ... end` blocks. */
+void elaborator::invoke_begin_end_tactics(expr const & mvar, buffer<expr> const & tactics) {
+    expr const & ref   = mvar;
+    tactic_state s     = mk_tactic_state_for(mvar);
+    trace_elab(tout() << "initial tactic state\n" << s.pp() << "\n";);
+    tactic_state new_s = execute_begin_end_tactics(tactics, s, ref);
+    metavar_context mctx = new_s.mctx();
+    expr val             = mctx.instantiate_mvars(new_s.main());
+    if (has_expr_metavar(val)) {
+        throw_unsolved_tactic_state(new_s, "tactic failed, result contains meta-variables", ref);
+    }
+    mctx.assign(mvar, val);
+    m_env = new_s.env();
+    m_ctx.set_env(m_env);
+    m_ctx.set_mctx(mctx);
+}
+
+/* Try to synthesize 'mvar' by executing the given tactic.
+   This method is used to process `by tactic` expressions */
+void elaborator::invoke_atomic_tactic(expr const & mvar, expr const & tactic) {
+    expr const & ref = mvar;
+    tactic_state s       = mk_tactic_state_for(mvar);
+    trace_elab(tout() << "initial tactic state\n" << s.pp() << "\n";);
+    tactic_state new_s   = execute_tactic(tactic, s, ref);
+    metavar_context mctx = new_s.mctx();
+    expr val             = mctx.instantiate_mvars(new_s.main());
+    if (has_expr_metavar(val)) {
+        throw_unsolved_tactic_state(new_s, "tactic failed, result contains meta-variables", ref);
+    }
+    mctx.assign(mvar, val);
+    m_env = new_s.env();
+    m_ctx.set_env(m_env);
+    m_ctx.set_mctx(mctx);
+}
+
+void elaborator::invoke_tactic(expr const & mvar, expr const & tactic) {
+    expr const & ref = mvar;
+    /* Build initial state */
+    trace_elab(tout() << "executing tactic at " << pos_string_for(ref) << "\n";);
+    if (is_begin_end_block(tactic)) {
+        buffer<expr> tactics;
+        get_begin_end_block_elements(tactic, tactics);
+        invoke_begin_end_tactics(mvar, tactics);
+    } else {
+        invoke_atomic_tactic(mvar, tactic);
     }
 }
 

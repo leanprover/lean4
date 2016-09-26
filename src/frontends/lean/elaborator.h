@@ -196,6 +196,10 @@ private:
     expr visit(expr const & e, optional<expr> const & expected_type);
 
     tactic_state mk_tactic_state_for(expr const & mvar);
+    tactic_state execute_tactic(expr const & tactic, tactic_state const & s, expr const & ref);
+    tactic_state execute_begin_end_tactics(buffer<expr> const & tactics, tactic_state const & s, expr const & ref);
+    void invoke_begin_end_tactics(expr const & mvar, buffer<expr> const & tactics);
+    void invoke_atomic_tactic(expr const & mvar, expr const & tactic);
     void invoke_tactic(expr const & mvar, expr const & tac);
 
     bool synthesize_type_class_instance_core(expr const & mvar, expr const & inferred_inst, expr const & inst_type);

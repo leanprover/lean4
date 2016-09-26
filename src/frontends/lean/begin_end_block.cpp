@@ -22,13 +22,17 @@ static expr mk_begin_end_block(expr const & e) { return mk_annotation(*g_begin_e
 bool is_begin_end_block(expr const & e) { return is_annotation(e, *g_begin_end); }
 
 static expr mk_begin_end_element(expr const & e) { return mk_annotation(*g_begin_end_element, e, nulltag); }
-static bool is_begin_end_element(expr const & e) { return is_annotation(e, *g_begin_end_element); }
+bool is_begin_end_element(expr const & e) { return is_annotation(e, *g_begin_end_element); }
 
 static expr mk_begin_end_element(parser & p, expr tac, pos_info const & pos) {
-    if (tac.get_tag() == nulltag)
-        tac = p.save_pos(tac, pos);
-    tac = p.save_pos(mk_app(mk_constant(get_tactic_step_name()), tac), pos);
-    return p.save_pos(mk_begin_end_element(tac), pos);
+    if (is_begin_end_block(tac)) {
+        return tac;
+    } else {
+        if (tac.get_tag() == nulltag)
+            tac = p.save_pos(tac, pos);
+        tac = p.save_pos(mk_app(mk_constant(get_tactic_step_name()), tac), pos);
+        return p.save_pos(mk_begin_end_element(tac), pos);
+    }
 }
 
 static expr concat(parser & p, expr const & r, expr tac, pos_info const & start_pos, pos_info const & pos) {
@@ -36,16 +40,23 @@ static expr concat(parser & p, expr const & r, expr tac, pos_info const & start_
     return p.save_pos(mk_app(mk_constant(get_monad_and_then_name()), r, tac), start_pos);
 }
 
-void get_begin_end_block_elements(expr const & e, buffer<expr> & elems) {
-    lean_assert(is_begin_end_block(e));
+static void get_begin_end_block_elements_core(expr const & e, buffer<expr> & elems) {
     if (is_app(e)) {
-        get_begin_end_block_elements(app_fn(e), elems);
-        get_begin_end_block_elements(app_arg(e), elems);
+        get_begin_end_block_elements_core(app_fn(e), elems);
+        get_begin_end_block_elements_core(app_arg(e), elems);
     } else if (is_begin_end_element(e)) {
-        elems.push_back(get_annotation_arg(e));
+        elems.push_back(e);
+    } else if (is_begin_end_block(e)) {
+        /* Nested block */
+        elems.push_back(e);
     } else {
         /* do nothing */
     }
+}
+
+void get_begin_end_block_elements(expr const & e, buffer<expr> & elems) {
+    lean_assert(is_begin_end_block(e));
+    return get_begin_end_block_elements_core(get_annotation_arg(e), elems);
 }
 
 static optional<name> is_tactic_interactive(parser & p) {
@@ -99,12 +110,12 @@ expr parse_begin_end_core(parser & p, pos_info const & start_pos,
     expr r = mk_begin_end_element(p, mk_constant(get_tactic_skip_name()), start_pos);
     try {
         while (!p.curr_is_token(end_token)) {
-            auto pos = p.pos();
             if (first) {
                 first = false;
             } else {
                 p.check_token_next(get_comma_tk(), "invalid 'begin-end' expression, ',' expected");
             }
+            auto pos = p.pos();
             /* parse next element */
             expr next_tac;
             if (p.curr_is_token(get_begin_tk())) {

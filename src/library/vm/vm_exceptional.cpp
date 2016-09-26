@@ -48,11 +48,11 @@ vm_obj throwable_to_format(vm_obj const & _ex, vm_obj const & _opts) {
             formatter fmt = ios.get_formatter();
             return to_obj(kex->pp(fmt));
         }
+    } else if (auto fex = dynamic_cast<formatted_exception*>(ex)) {
+        return to_obj(fex->pp());
+    } else {
+        return to_obj(format(ex->what()));
     }
-
-    /* TODO(Leo): add support for other exception types that may generate interesting format */
-
-    return to_obj(format(ex->what()));
 }
 
 static unsigned g_throwable_to_format_fun_idx = -1;

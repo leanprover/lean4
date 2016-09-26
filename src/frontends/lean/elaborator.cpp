@@ -39,6 +39,7 @@ Author: Leonardo de Moura
 #include "library/tactic/elaborate.h"
 #include "library/equations_compiler/compiler.h"
 #include "frontends/lean/builtin_exprs.h"
+#include "frontends/lean/opt_cmd.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/prenum.h"
 #include "frontends/lean/elaborator.h"
@@ -107,6 +108,10 @@ elaborator::elaborator(environment const & env, options const & opts, metavar_co
                        local_context const & lctx):
     m_env(env), m_opts(opts),
     m_ctx(env, opts, mctx, lctx, get_tcm(), transparency_mode::Semireducible) {
+    unsigned line, col;
+    if (has_show_goal(m_opts, line, col)) {
+        m_show_goal_pos = pos_info(line, col);
+    }
 }
 
 auto elaborator::mk_pp_ctx() -> pp_fn {
@@ -2101,6 +2106,31 @@ tactic_state elaborator::mk_tactic_state_for(expr const & mvar) {
     return ::lean::mk_tactic_state_for(m_env, m_opts, mctx, lctx, type);
 }
 
+void elaborator::show_goal(tactic_state const & s, expr const & start_ref, expr const & end_ref, expr const & curr_ref) {
+    if (!m_show_goal_pos) return;
+    pos_info_provider * provider = get_pos_info_provider();
+    if (!provider) return;
+    unsigned line  = m_show_goal_pos->first;
+    unsigned col   = m_show_goal_pos->second;
+    auto start_pos = provider->get_pos_info(start_ref);
+    auto end_pos   = provider->get_pos_info(end_ref);
+    auto curr_pos  = provider->get_pos_info(curr_ref);
+    if (!start_pos || !end_pos || !curr_pos)
+        return;
+    if (start_pos->first > line || (start_pos->first == line && start_pos->second > col))
+        return;
+    if (end_pos->first < line || (end_pos->first == line && end_pos->second < col))
+        return;
+    if (curr_pos->first < line || (curr_pos->first == line && curr_pos->second < col))
+        return;
+    m_show_goal_pos = optional<pos_info>();
+    auto out = regular(m_env, get_global_ios(), m_ctx);
+    print_lean_info_header(out.get_stream());
+    out << "position " << curr_pos->first << ":" << curr_pos->second << "\n";
+    out << s.pp(get_global_ios().get_formatter_factory()) << "\n";
+    print_lean_info_footer(out.get_stream());
+}
+
 /* Apply the given tactic to the state 's'.
    Report any errors detected during the process using position information associated with 'ref'. */
 tactic_state elaborator::execute_tactic(expr const & tactic, tactic_state const & s, expr const & ref) {
@@ -2136,6 +2166,9 @@ tactic_state elaborator::execute_tactic(expr const & tactic, tactic_state const 
 }
 
 tactic_state elaborator::execute_begin_end_tactics(buffer<expr> const & tactics, tactic_state const & s, expr const & ref) {
+    lean_assert(!tactics.empty());
+    expr start_ref = tactics[0];
+    expr end_ref   = ref;
     list<expr> gs = s.goals();
     if (!gs) throw elaborator_exception(ref, "tactic failed, there are no goals to be solved");
     tactic_state new_s = set_goals(s, to_list(head(gs)));
@@ -2143,6 +2176,7 @@ tactic_state elaborator::execute_begin_end_tactics(buffer<expr> const & tactics,
         expr const & curr_ref = tactic;
         trace_elab_debug(tout() << "executing tactic:\n" << tactic << "\n";);
         if (is_begin_end_element(tactic)) {
+            show_goal(new_s, start_ref, end_ref, curr_ref);
             new_s = execute_tactic(get_annotation_arg(tactic), new_s, curr_ref);
         } else if (is_begin_end_block(tactic)) {
             buffer<expr> nested_tactics;

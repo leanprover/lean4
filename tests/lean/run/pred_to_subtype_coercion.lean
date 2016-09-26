@@ -16,3 +16,6 @@ lemma zlt10 : 0 < 10 :=
 sorry
 
 check f ⟨0, zlt10⟩
+
+definition g (a : below 10) : nat :=
+subtype.elt_of a

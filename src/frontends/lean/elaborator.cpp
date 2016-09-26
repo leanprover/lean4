@@ -2455,9 +2455,10 @@ expr elaborator::elaborate(expr const & e) {
 }
 
 expr elaborator::elaborate_type(expr const & e) {
-    expr Type  = copy_tag(e, mk_sort(mk_level_placeholder()));
-    expr new_e = copy_tag(e, mk_typed_expr(Type, e));
-    return elaborate(e);
+    expr const & ref = e;
+    expr new_e = ensure_type(visit(e, none_expr()), ref);
+    synthesize();
+    return new_e;
 }
 
 expr_pair elaborator::elaborate_with_type(expr const & e, expr const & e_type) {

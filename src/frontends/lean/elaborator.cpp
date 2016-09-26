@@ -417,24 +417,10 @@ optional<expr> elaborator::mk_coercion(expr const & e, expr const & _e_type, exp
                                    "('set_option trace.class_instances true' for more information)");
             return none_expr();
         }
-        expr coe_to_lift;
-        try {
-            coe_to_lift = mk_app(m_ctx, get_coe_to_lift_name(), *inst);
-        } catch (app_builder_exception & ex) {
-            trace_coercion_failure(e_type, type, ref,
-                                   "failed convert 'has_coe_t' instance into 'has_lift_t' instance "
-                                   "('set_option trace.app_builder true' for more information)");
-            return none_expr();
-        }
-        expr coe;
-        try {
-            coe = mk_app(m_ctx, get_coe_name(), coe_to_lift, e);
-        } catch (app_builder_exception & ex) {
-            trace_coercion_failure(e_type, type, ref,
-                                   "failed create 'coe' application using generated type class instance "
-                                   "('set_option trace.app_builder true' for more information)");
-            return none_expr();
-        }
+        level u_1 = get_level(e_type, ref);
+        level u_2 = get_level(type, ref);
+        expr coe_to_lift = mk_app(mk_constant(get_coe_to_lift_name(), {u_1, u_2}), e_type, type, *inst);
+        expr coe         = mk_app(mk_constant(get_coe_name(), {u_1, u_2}), e_type, type, coe_to_lift, e);
         return some_expr(coe);
     } else {
         trace_coercion_failure(e_type, type, ref,

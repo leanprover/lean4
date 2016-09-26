@@ -2133,8 +2133,15 @@ void elaborator::invoke_tactic(expr const & mvar, expr const & tactic) {
         m_env = new_s->env();
         m_ctx.set_env(m_env);
         m_ctx.set_mctx(mctx);
-    } else if (optional<pair<format, tactic_state>> ex = is_tactic_exception(S, m_opts, r)) {
-        throw_unsolved_tactic_state(ex->second, ex->first, ref);
+    } else if (optional<tactic_exception_info> ex = is_tactic_exception(S, r)) {
+        format fmt          = std::get<0>(*ex);
+        optional<expr> ref1 = std::get<1>(*ex);
+        tactic_state s1     = std::get<2>(*ex);
+        pos_info_provider * provider = get_pos_info_provider();
+        if (ref1 && provider && provider->get_pos_info(*ref1))
+            throw elaborator_exception(*ref1, fmt);
+        else
+            throw_unsolved_tactic_state(s1, fmt, ref);
     } else {
         lean_unreachable();
     }

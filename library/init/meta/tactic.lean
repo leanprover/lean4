@@ -24,7 +24,7 @@ meta instance : has_to_format tactic_state :=
 
 inductive tactic_result (A : Type)
 | success   : A → tactic_state → tactic_result
-| exception : (unit → format) → tactic_state → tactic_result
+| exception : (unit → format) → option expr → tactic_state → tactic_result
 
 open tactic_result
 
@@ -33,8 +33,8 @@ variables {A : Type}
 variables [has_to_string A]
 
 meta definition tactic_result_to_string : tactic_result A → string
-| (success a s)   := to_string a
-| (exception .A e s) := "Exception: " ++ to_string (e ())
+| (success a s)          := to_string a
+| (exception .A t ref s) := "Exception: " ++ to_string (t ())
 
 meta instance : has_to_string (tactic_result A) :=
 ⟨tactic_result_to_string⟩
@@ -66,7 +66,7 @@ meta definition tactic_return (a : A) : tactic A :=
 meta definition tactic_orelse {A : Type} (t₁ t₂ : tactic A) : tactic A :=
 λ s, tactic_result.cases_on (t₁ s)
   success
-  (λ e₁ s', tactic_result.cases_on (t₂ s)
+  (λ e₁ ref₁ s', tactic_result.cases_on (t₂ s)
      success
      (exception A))
 end
@@ -75,7 +75,7 @@ meta instance : monad tactic :=
 ⟨@tactic_fmap, @tactic_return, @tactic_bind⟩
 
 meta definition tactic.fail {A B : Type} [has_to_format B] (msg : B) : tactic A :=
-λ s, exception A (λ u, to_fmt msg) s
+λ s, exception A (λ u, to_fmt msg) none s
 
 meta definition tactic.failed {A : Type} : tactic A :=
 tactic.fail "failed"
@@ -89,7 +89,7 @@ variables {A : Type}
 meta definition try (t : tactic A) : tactic unit :=
 λ s, tactic_result.cases_on (t s)
  (λ a, success ())
- (λ e s', success () s)
+ (λ e ref s', success () s)
 
 meta definition skip : tactic unit :=
 success ()
@@ -116,13 +116,13 @@ repeat_at_most 100000
 meta definition returnex (e : exceptional A) : tactic A :=
 λ s, match e with
 | (exceptional.success a)       := tactic_result.success a s
-| (exceptional.exception .A f) := tactic_result.exception A (λ u, f options.mk) s -- TODO(Leo): extract options from environment
+| (exceptional.exception .A f) := tactic_result.exception A (λ u, f options.mk) none s -- TODO(Leo): extract options from environment
 end
 
 meta definition returnopt (e : option A) : tactic A :=
 λ s, match e with
 | (some a) := tactic_result.success a s
-| none     := tactic_result.exception A (λ u, to_fmt "failed") s
+| none     := tactic_result.exception A (λ u, to_fmt "failed") none s
 end
 
 /- Decorate t's exceptions with msg -/

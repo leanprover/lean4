@@ -108,9 +108,11 @@ format pp_indented_expr(tactic_state const & s, expr const & e);
 /* If r is (base_tactic_result.success a s), then return s */
 optional<tactic_state> is_tactic_success(vm_obj const & r);
 
-/* If ex is (base_tactic_result.exception fn), then return (fn opts).
-   The vm_state S is used to execute (fn opts). */
-optional<pair<format, tactic_state>> is_tactic_exception(vm_state & S, options const & opts, vm_obj const & ex);
+typedef std::tuple<format, optional<expr>, tactic_state> tactic_exception_info;
+
+/* If ex is (base_tactic_result.exception fn), then return (fn ()).
+   The vm_state S is used to execute (fn ()). */
+optional<tactic_exception_info> is_tactic_exception(vm_state & S, vm_obj const & ex);
 
 type_context mk_type_context_for(tactic_state const & s, transparency_mode m = transparency_mode::Semireducible);
 type_context mk_type_context_for(tactic_state const & s, local_context const & lctx, transparency_mode m = transparency_mode::Semireducible);

@@ -9,6 +9,9 @@ import init.meta.tactic
 namespace tactic
 namespace interactive
 
+meta def intro (h : name) : tactic unit :=
+tactic.intro h >> skip
+
 meta def apply (q : pexpr) : tactic unit :=
 to_expr q >>= tactic.apply
 
@@ -17,6 +20,10 @@ tactic.refine
 
 meta def assumption : tactic unit :=
 tactic.assumption
+
+meta def exact (e : pexpr) : tactic unit :=
+do tgt : expr ← target,
+   to_expr_strict `((%%e : %%tgt)) >>= exact
 
 end interactive
 end tactic

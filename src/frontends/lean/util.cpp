@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 #include "library/placeholder.h"
 #include "library/unfold_macros.h"
 #include "library/choice.h"
+#include "library/string.h"
 #include "library/num.h"
 #include "library/util.h"
 #include "library/normalize.h"
@@ -322,5 +323,17 @@ pair<name, option_kind> parse_option_name(parser & p, char const * error_msg) {
 
 expr mk_tactic_unit() {
     return mk_app(mk_constant(get_tactic_name()), mk_constant(get_unit_name()));
+}
+
+expr quote_name(name const & n) {
+    if (n.is_anonymous()) {
+        return mk_constant(get_name_anonymous_name());
+    } else if (n.is_string()) {
+        expr prefix = quote_name(n.get_prefix());
+        expr str    = from_string(n.get_string());
+        return mk_app(mk_constant(get_name_mk_string_name()), str, prefix);
+    } else {
+        lean_unreachable();
+    }
 }
 }

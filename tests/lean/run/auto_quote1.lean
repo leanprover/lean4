@@ -9,8 +9,8 @@ end
 
 example (a b c : nat) : a = b → b = c → c = a :=
 begin
-  tactic.intro `h1,
-  tactic.intros,
+  intro h1,
+  intro h2,
   refine eq.symm (eq.trans h1 _),
-  assumption
+  exact h2
 end

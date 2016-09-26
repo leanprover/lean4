@@ -588,18 +588,6 @@ static expr parse_antiquote_expr(parser & p, unsigned, expr const *, pos_info co
     return p.save_pos(mk_antiquote(e), pos);
 }
 
-static expr quote_name(name const & n) {
-    if (n.is_anonymous()) {
-        return mk_constant(get_name_anonymous_name());
-    } else if (n.is_string()) {
-        expr prefix = quote_name(n.get_prefix());
-        expr str    = from_string(n.get_string());
-        return mk_app(mk_constant(get_name_mk_string_name()), str, prefix);
-    } else {
-        lean_unreachable();
-    }
-}
-
 static expr parse_quoted_name(parser & p, unsigned, expr const *, pos_info const & pos) {
     bool resolve = false;
     name id;

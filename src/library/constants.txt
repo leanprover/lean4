@@ -167,6 +167,7 @@ mul
 mul_one
 mul_zero
 mul_zero_class
+name
 name.anonymous
 name.mk_string
 nat

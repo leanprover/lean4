@@ -74,8 +74,15 @@ static expr parse_tactic_interactive(parser & p, name const & decl_name) {
         if (is_explicit(binding_info(type))) {
             expr arg_type = binding_domain(type);
             if (is_constant(arg_type, get_pexpr_name())) {
+                /* auto quote expressions */
                 expr arg = parse_auto_quoted_expr(p, arity == 1 ? 0 : get_max_prec());
                 args.push_back(arg);
+            } else if (is_constant(arg_type, get_name_name())) {
+                if (!p.curr_is_identifier())
+                    throw parser_error(sstream() << "invalid tactic '" << decl_name  << "', identifier expected", p.pos());
+                name id = p.get_name_val();
+                p.next();
+                args.push_back(quote_name(id));
             } else {
                 args.push_back(p.parse_expr(get_max_prec()));
             }

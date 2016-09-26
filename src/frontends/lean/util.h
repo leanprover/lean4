@@ -102,4 +102,6 @@ pair<name, option_kind> parse_option_name(parser & p, char const * error_msg);
 
 /** Create (tactic unit) type */
 expr mk_tactic_unit();
+
+expr quote_name(name const & n);
 }

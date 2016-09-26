@@ -627,7 +627,7 @@ meta definition generalizes : list expr → tactic unit
 
 meta definition refine (e : pexpr) : tactic unit :=
 do tgt : expr ← target,
-   to_expr_core tt `((%%e : %%tgt)) >>= exact
+   to_expr `((%%e : %%tgt)) >>= exact
 
 meta definition expr_of_nat : nat → tactic expr
 | n :=

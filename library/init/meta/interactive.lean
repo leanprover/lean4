@@ -9,11 +9,14 @@ import init.meta.tactic
 namespace tactic
 namespace interactive
 
-meta definition apply (q : pexpr) : tactic unit :=
+meta def apply (q : pexpr) : tactic unit :=
 to_expr q >>= tactic.apply
 
-meta definition refine : pexpr → tactic unit :=
+meta def refine : pexpr → tactic unit :=
 tactic.refine
+
+meta def assumption : tactic unit :=
+tactic.assumption
 
 end interactive
 end tactic

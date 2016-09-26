@@ -339,7 +339,8 @@ name const * g_sum_inr = nullptr;
 name const * g_tactic = nullptr;
 name const * g_tactic_constructor = nullptr;
 name const * g_tactic_interactive = nullptr;
-name const * g_tactic_consume = nullptr;
+name const * g_tactic_step = nullptr;
+name const * g_tactic_to_expr = nullptr;
 name const * g_tactic_skip = nullptr;
 name const * g_tactic_try = nullptr;
 name const * g_to_string = nullptr;
@@ -701,7 +702,8 @@ void initialize_constants() {
     g_tactic = new name{"tactic"};
     g_tactic_constructor = new name{"tactic", "constructor"};
     g_tactic_interactive = new name{"tactic", "interactive"};
-    g_tactic_consume = new name{"tactic", "consume"};
+    g_tactic_step = new name{"tactic", "step"};
+    g_tactic_to_expr = new name{"tactic", "to_expr"};
     g_tactic_skip = new name{"tactic", "skip"};
     g_tactic_try = new name{"tactic", "try"};
     g_to_string = new name{"to_string"};
@@ -1064,7 +1066,8 @@ void finalize_constants() {
     delete g_tactic;
     delete g_tactic_constructor;
     delete g_tactic_interactive;
-    delete g_tactic_consume;
+    delete g_tactic_step;
+    delete g_tactic_to_expr;
     delete g_tactic_skip;
     delete g_tactic_try;
     delete g_to_string;
@@ -1426,7 +1429,8 @@ name const & get_sum_inr_name() { return *g_sum_inr; }
 name const & get_tactic_name() { return *g_tactic; }
 name const & get_tactic_constructor_name() { return *g_tactic_constructor; }
 name const & get_tactic_interactive_name() { return *g_tactic_interactive; }
-name const & get_tactic_consume_name() { return *g_tactic_consume; }
+name const & get_tactic_step_name() { return *g_tactic_step; }
+name const & get_tactic_to_expr_name() { return *g_tactic_to_expr; }
 name const & get_tactic_skip_name() { return *g_tactic_skip; }
 name const & get_tactic_try_name() { return *g_tactic_try; }
 name const & get_to_string_name() { return *g_to_string; }

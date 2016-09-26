@@ -334,7 +334,8 @@ sum.inr
 tactic
 tactic.constructor
 tactic.interactive
-tactic.consume
+tactic.step
+tactic.to_expr
 tactic.skip
 tactic.try
 to_string

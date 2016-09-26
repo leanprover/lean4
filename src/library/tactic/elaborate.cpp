@@ -40,7 +40,7 @@ vm_obj tactic_to_expr_core(vm_obj const & relaxed, vm_obj const & qe, vm_obj con
         environment env = s.env();
         expr r = (*g_elaborate)(env, s.get_options(), mctx, g->get_context(), to_expr(qe), to_bool(relaxed));
         r = mctx.instantiate_mvars(r);
-        if (relaxed && has_expr_metavar(r)) {
+        if (to_bool(relaxed) && has_expr_metavar(r)) {
             buffer<expr> new_goals;
             name_set found;
             for_each(r, [&](expr const & e, unsigned) {

@@ -94,9 +94,6 @@ meta definition try (t : tactic A) : tactic unit :=
 meta definition skip : tactic unit :=
 success ()
 
-meta definition consume (t : tactic A) : tactic unit :=
-t >> skip
-
 open list
 meta definition foreach : list A → (A → tactic unit) → tactic unit
 | []      fn := skip
@@ -325,6 +322,14 @@ meta definition set_basic_attribute : name → name → tactic unit :=
 
 open list nat
 
+/- Remark: set_goals will erase any solved goal -/
+meta definition cleanup : tactic unit :=
+get_goals >>= set_goals
+
+/- Auxiliary definition used to implement begin ... end blocks -/
+meta definition step {A : Type} (t : tactic A) : tactic unit :=
+t >> cleanup
+
 /- Add (H : T := pr) to the current goal -/
 meta definition note (n : name) (pr : expr) : tactic unit :=
 do t ← infer_type pr,
@@ -369,6 +374,9 @@ meta definition mk_mapp : name → list (option expr) → tactic expr :=
 mk_mapp_core semireducible
 
 meta definition to_expr : pexpr → tactic expr :=
+to_expr_core tt
+
+meta definition to_expr_strict : pexpr → tactic expr :=
 to_expr_core ff
 
 meta definition revert (l : expr) : tactic nat :=

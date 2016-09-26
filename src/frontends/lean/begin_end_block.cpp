@@ -4,8 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "kernel/abstract.h"
 #include "library/annotation.h"
 #include "library/constants.h"
+#include "library/quote.h"
+#include "library/placeholder.h"
 #include "library/tactic/elaborate.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/tokens.h"
@@ -24,7 +27,7 @@ static bool is_begin_end_element(expr const & e) { return is_annotation(e, *g_be
 static expr mk_begin_end_element(parser & p, expr tac, pos_info const & pos) {
     if (tac.get_tag() == nulltag)
         tac = p.save_pos(tac, pos);
-    tac = p.save_pos(mk_app(mk_constant(get_tactic_consume_name()), tac), pos);
+    tac = p.save_pos(mk_app(mk_constant(get_tactic_step_name()), tac), pos);
     return p.save_pos(mk_begin_end_element(tac), pos);
 }
 
@@ -45,6 +48,43 @@ void get_begin_end_block_elements(expr const & e, buffer<expr> & elems) {
     }
 }
 
+static optional<name> is_tactic_interactive(parser & p) {
+    if (!p.curr_is_identifier()) return optional<name>();
+    name id = get_tactic_interactive_name() + p.get_name_val();
+    if (p.env().find(id))
+        return optional<name>(id);
+    else
+        return optional<name>();
+}
+
+static expr parse_auto_quoted_expr(parser & p, unsigned rbp) {
+    auto pos = p.pos();
+    parser::quote_scope scope(p, true);
+    expr e = p.parse_expr(rbp);
+    return p.save_pos(mk_quote(e), pos);
+}
+
+static expr parse_tactic_interactive(parser & p, name const & decl_name) {
+    auto pos = p.pos();
+    p.next();
+    expr type = p.env().get(decl_name).get_type();
+    unsigned arity = get_arity(type);
+    buffer<expr> args;
+    while (is_pi(type)) {
+        if (is_explicit(binding_info(type))) {
+            expr arg_type = binding_domain(type);
+            if (is_constant(arg_type, get_pexpr_name())) {
+                expr arg = parse_auto_quoted_expr(p, arity == 1 ? 0 : get_max_prec());
+                args.push_back(arg);
+            } else {
+                args.push_back(p.parse_expr(get_max_prec()));
+            }
+        }
+        type = binding_body(type);
+    }
+    return p.rec_save_pos(mk_app(mk_constant(decl_name), args), pos);
+}
+
 expr parse_begin_end_core(parser & p, pos_info const & start_pos,
                           name const & end_token, bool nested = false) {
     p.next();
@@ -59,16 +99,19 @@ expr parse_begin_end_core(parser & p, pos_info const & start_pos,
                 p.check_token_next(get_comma_tk(), "invalid 'begin-end' expression, ',' expected");
             }
             /* parse next element */
+            expr next_tac;
             if (p.curr_is_token(get_begin_tk())) {
-                r = concat(p, r, parse_begin_end_core(p, pos, get_end_tk(), true), start_pos, pos);
+                next_tac = parse_begin_end_core(p, pos, get_end_tk(), true);
             } else if (p.curr_is_token(get_lcurly_tk())) {
-                r = concat(p, r, parse_begin_end_core(p, pos, get_rcurly_tk(), true), start_pos, pos);
+                next_tac = parse_begin_end_core(p, pos, get_rcurly_tk(), true);
             } else if (p.curr_is_token(end_token)) {
                 break;
+            } else if (auto dname = is_tactic_interactive(p)) {
+                next_tac = parse_tactic_interactive(p, *dname);
             } else {
-                expr tac = p.parse_expr();
-                r = concat(p, r, tac, start_pos, pos);
+                next_tac = p.parse_expr();
             }
+            r = concat(p, r, next_tac, start_pos, pos);
         }
     } catch (exception & ex) {
         if (end_token == get_end_tk())

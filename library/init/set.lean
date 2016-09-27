@@ -23,25 +23,25 @@ instance : has_mem A set :=
 ⟨set.mem⟩
 
 protected def subset (s₁ s₂ : set A) :=
-∀ a, a ∈ s₁ → a ∈ s₂
+∀ {a}, a ∈ s₁ → a ∈ s₂
 
 instance : has_subset (set A) :=
 ⟨set.subset⟩
 
-private def sep (p : A → Prop) (s : set A) : set A :=
+protected def sep (p : A → Prop) (s : set A) : set A :=
 {a | a ∈ s ∧ p a}
 
-instance : separable A set :=
-⟨sep⟩
+instance : has_sep A set :=
+⟨set.sep⟩
 
-private def empty : set A :=
-λ a, false
+instance : has_emptyc A set :=
+⟨λ a, false⟩
 
-private def insert (a : A) (s : set A) : set A :=
+protected def insert (a : A) (s : set A) : set A :=
 {b | b = a ∨ b ∈ s}
 
-instance : insertable A set :=
-⟨empty, insert⟩
+instance : has_insert A set :=
+⟨set.insert⟩
 
 protected def union (s₁ s₂ : set A) : set A :=
 {a | a ∈ s₁ ∨ a ∈ s₂}

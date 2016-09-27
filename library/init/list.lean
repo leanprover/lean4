@@ -45,11 +45,14 @@ def concat : list A → A → list A
 | []     a := [a]
 | (b::l) a := b :: concat l a
 
+instance : has_emptyc A list :=
+⟨list.nil⟩
+
 protected def insert [decidable_eq A] (a : A) (l : list A) : list A :=
 if a ∈ l then l else concat l a
 
-instance [decidable_eq A] : insertable A list :=
-⟨list.nil, list.insert⟩
+instance [decidable_eq A] : has_insert A list :=
+⟨list.insert⟩
 
 protected def union [decidable_eq A] : list A → list A → list A
 | l₁ []      := l₁

@@ -47,7 +47,7 @@ div
 id
 empty
 empty.rec
-empty_col
+emptyc
 Exists
 eq
 eq.drec

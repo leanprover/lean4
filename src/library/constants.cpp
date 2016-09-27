@@ -52,7 +52,7 @@ name const * g_div = nullptr;
 name const * g_id = nullptr;
 name const * g_empty = nullptr;
 name const * g_empty_rec = nullptr;
-name const * g_empty_col = nullptr;
+name const * g_emptyc = nullptr;
 name const * g_Exists = nullptr;
 name const * g_eq = nullptr;
 name const * g_eq_drec = nullptr;
@@ -416,7 +416,7 @@ void initialize_constants() {
     g_id = new name{"id"};
     g_empty = new name{"empty"};
     g_empty_rec = new name{"empty", "rec"};
-    g_empty_col = new name{"empty_col"};
+    g_emptyc = new name{"emptyc"};
     g_Exists = new name{"Exists"};
     g_eq = new name{"eq"};
     g_eq_drec = new name{"eq", "drec"};
@@ -781,7 +781,7 @@ void finalize_constants() {
     delete g_id;
     delete g_empty;
     delete g_empty_rec;
-    delete g_empty_col;
+    delete g_emptyc;
     delete g_Exists;
     delete g_eq;
     delete g_eq_drec;
@@ -1145,7 +1145,7 @@ name const & get_div_name() { return *g_div; }
 name const & get_id_name() { return *g_id; }
 name const & get_empty_name() { return *g_empty; }
 name const & get_empty_rec_name() { return *g_empty_rec; }
-name const & get_empty_col_name() { return *g_empty_col; }
+name const & get_emptyc_name() { return *g_emptyc; }
 name const & get_Exists_name() { return *g_Exists; }
 name const & get_eq_name() { return *g_eq; }
 name const & get_eq_drec_name() { return *g_eq_drec; }

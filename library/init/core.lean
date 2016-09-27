@@ -69,7 +69,7 @@ reserve infix ` ⊆ `:50
 reserve infix ` ⊇ `:50
 reserve infix ` ⊂ `:50
 reserve infix ` ⊃ `:50
-reserve infix `\`:70
+reserve infix ` \ `:70
 
 /- other symbols -/
 
@@ -214,12 +214,13 @@ class has_inter    (A : Type u) := (inter : A → A → A)
 class has_sdiff    (A : Type u) := (sdiff : A → A → A)
 class has_subset   (A : Type u) := (subset : A → A → Prop)
 class has_ssubset  (A : Type u) := (ssubset : A → A → Prop)
-/- Type class used to implement polymorphic notation for collections.
+/- Type classes has_emptyc and has_insert are
+   used to implement polymorphic notation for collections.
    Example: {a, b, c}. -/
-class insertable (A : Type u) (C : Type u → Type v) :=
-(empty : C A) (insert : A → C A → C A)
+class has_emptyc   (A : Type u) (C : Type u → Type v) := (emptyc : C A)
+class has_insert   (A : Type u) (C : Type u → Type v) := (insert : A → C A → C A)
 /- Type class used to implement the notation { a ∈ c | p a } -/
-class separable (A : Type u) (C : Type u → Type v) :=
+class has_sep (A : Type u) (C : Type u → Type v) :=
 (sep : (A → Prop) → C A → C A)
 /- Type class for set-like membership -/
 class has_mem (A : Type u) (C : Type u → Type v) := (mem : A → C A → Prop)
@@ -256,18 +257,18 @@ def bit1 {A : Type u} [s₁ : has_one A] [s₂ : has_add A] (a : A) : A := add (
 
 attribute [pattern] zero one bit0 bit1 add
 
-def insert {A : Type u} {C : Type u → Type v} [insertable A C] : A → C A → C A :=
-insertable.insert
+def insert {A : Type u} {C : Type u → Type v} [has_insert A C] : A → C A → C A :=
+has_insert.insert
 
 /- The empty collection -/
-def empty_col {A : Type u} {C : Type u → Type v} [insertable A C] : C A :=
-insertable.empty A C
+def emptyc {A : Type u} {C : Type u → Type v} [has_emptyc A C] : C A :=
+has_emptyc.emptyc A C
 
-def singleton {A : Type u} {C : Type u → Type v} [insertable A C] (a : A) : C A :=
-insert a empty_col
+def singleton {A : Type u} {C : Type u → Type v} [has_emptyc A C] [has_insert A C] (a : A) : C A :=
+insert a emptyc
 
-def sep {A : Type u} {C : Type u → Type v} [separable A C] : (A → Prop) → C A → C A :=
-separable.sep
+def sep {A : Type u} {C : Type u → Type v} [has_sep A C] : (A → Prop) → C A → C A :=
+has_sep.sep
 
 def mem {A : Type u} {C : Type u → Type v} [has_mem A C] : A → C A → Prop :=
 has_mem.mem
@@ -385,7 +386,7 @@ infix <        := lt
 infix >        := gt
 infix ++       := append
 infix ;        := andthen
-notation `∅`   := empty_col
+notation `∅`   := emptyc
 infix ∪        := union
 infix ∩        := inter
 infix ⊆        := subset

@@ -1477,7 +1477,7 @@ auto pretty_fn::pp_subtype(expr const & e) -> result {
 static bool is_singleton(expr const & e) {
     return
         is_constant(get_app_fn(e), get_singleton_name()) &&
-        get_app_num_args(e) == 4;
+        get_app_num_args(e) == 5;
 }
 
 static bool is_insert(expr const & e) {

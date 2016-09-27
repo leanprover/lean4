@@ -261,16 +261,13 @@ order for the change to take effect."
   ("<~n"  . ("⋦"))  (">~n"  . ("⋧"))
   ("<~nn" . ("≴"))  (">~nn" . ("≵"))
 
-  ("sub"   . ("⊂"))  ("sup"   . ("⊃"))
-  ("subn"  . ("⊄"))  ("supn"  . ("⊅"))
-  ("sub="  . ("⊆"))  ("sup="  . ("⊇"))
-  ("sub=n" . ("⊈"))  ("sup=n" . ("⊉"))
-  ("subeq"  . ("⊆")) ("supeq"  . ("⊇"))
-  ("subeqn" . ("⊈")) ("supeqn" . ("⊉"))
-
-  ("squb"   . ("⊏"))  ("squp"   . ("⊐"))
-  ("squb="  . ("⊑"))  ("squp="  . ("⊒"))
-  ("squb=n" . ("⋢"))  ("squp=n" . ("⋣"))
+  ("ssub"   . ("⊂"))  ("ssup"   . ("⊃"))
+  ("ssubn"  . ("⊄"))  ("ssupn"  . ("⊅"))
+  ("sub"  . ("⊆")) ("sup"  . ("⊇"))
+  ("subn" . ("⊈")) ("supn" . ("⊉"))
+  ("ssqub"   . ("⊏"))  ("ssqup"   . ("⊐"))
+  ("squb"  . ("⊑"))  ("squp"  . ("⊒"))
+  ("squbn" . ("⋢"))  ("squpn" . ("⋣"))
 
   ;; Set membership etc.
 

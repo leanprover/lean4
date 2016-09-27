@@ -54,7 +54,7 @@ name const & get_div_name();
 name const & get_id_name();
 name const & get_empty_name();
 name const & get_empty_rec_name();
-name const & get_empty_col_name();
+name const & get_emptyc_name();
 name const & get_Exists_name();
 name const & get_eq_name();
 name const & get_eq_drec_name();

@@ -37,7 +37,7 @@ static expr parse_set_of(parser & p, pos_info const & pos, expr const & local) {
 
 /* Create empty collection for '{' '}' */
 static expr mk_empty_collection(parser & p, pos_info const & pos) {
-    return p.save_pos(mk_constant(get_empty_col_name()), pos);
+    return p.save_pos(mk_constant(get_emptyc_name()), pos);
 }
 
 /* Create singletoncollection for '{' expr '}' */
@@ -46,7 +46,7 @@ static expr mk_singleton(parser & p, pos_info const & pos, expr const & e) {
 }
 
 /* Parse rest of the insertable '{' expr ... */
-static expr parse_insertable(parser & p, pos_info const & pos, expr const & e) {
+static expr parse_fin_set(parser & p, pos_info const & pos, expr const & e) {
     lean_assert(p.curr_is_token(get_comma_tk()) || p.curr_is_token(get_rcurly_tk()));
     expr r = mk_singleton(p, pos, e);
     while (p.curr_is_token(get_comma_tk())) {
@@ -160,9 +160,9 @@ expr parse_curly_bracket(parser & p, unsigned, expr const *, pos_info const & po
     }
 
     if (p.curr_is_token(get_comma_tk())) {
-        return parse_insertable(p, pos, e);
+        return parse_fin_set(p, pos, e);
     } else if (p.curr_is_token(get_rcurly_tk())) {
-        return parse_insertable(p, pos, e);
+        return parse_fin_set(p, pos, e);
     } else if (p.curr_is_token(get_with_tk())) {
         p.next();
         return parse_structure_instance_update(p, e);

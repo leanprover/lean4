@@ -34,7 +34,7 @@ protected def sep (p : A → Prop) (s : set A) : set A :=
 instance : has_sep A set :=
 ⟨set.sep⟩
 
-instance : has_emptyc A set :=
+instance : has_emptyc (set A) :=
 ⟨λ a, false⟩
 
 protected def insert (a : A) (s : set A) : set A :=

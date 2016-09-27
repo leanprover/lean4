@@ -217,7 +217,7 @@ class has_ssubset  (A : Type u) := (ssubset : A → A → Prop)
 /- Type classes has_emptyc and has_insert are
    used to implement polymorphic notation for collections.
    Example: {a, b, c}. -/
-class has_emptyc   (A : Type u) (C : Type u → Type v) := (emptyc : C A)
+class has_emptyc   (A : Type u) := (emptyc : A)
 class has_insert   (A : Type u) (C : Type u → Type v) := (insert : A → C A → C A)
 /- Type class used to implement the notation { a ∈ c | p a } -/
 class has_sep (A : Type u) (C : Type u → Type v) :=
@@ -261,10 +261,10 @@ def insert {A : Type u} {C : Type u → Type v} [has_insert A C] : A → C A →
 has_insert.insert
 
 /- The empty collection -/
-def emptyc {A : Type u} {C : Type u → Type v} [has_emptyc A C] : C A :=
-has_emptyc.emptyc A C
+def emptyc {A : Type u} [has_emptyc A] : A :=
+has_emptyc.emptyc A
 
-def singleton {A : Type u} {C : Type u → Type v} [has_emptyc A C] [has_insert A C] (a : A) : C A :=
+def singleton {A : Type u} {C : Type u → Type v} [has_emptyc (C A)] [has_insert A C] (a : A) : C A :=
 insert a emptyc
 
 def sep {A : Type u} {C : Type u → Type v} [has_sep A C] : (A → Prop) → C A → C A :=

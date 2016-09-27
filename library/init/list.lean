@@ -45,7 +45,7 @@ def concat : list A → A → list A
 | []     a := [a]
 | (b::l) a := b :: concat l a
 
-instance : has_emptyc A list :=
+instance : has_emptyc (list A) :=
 ⟨list.nil⟩
 
 protected def insert [decidable_eq A] (a : A) (l : list A) : list A :=

@@ -1474,6 +1474,12 @@ auto pretty_fn::pp_subtype(expr const & e) -> result {
     return result(r);
 }
 
+static bool is_emptyc(expr const & e) {
+    return
+        is_constant(get_app_fn(e), get_emptyc_name()) &&
+        get_app_num_args(e) == 2;
+}
+
 static bool is_singleton(expr const & e) {
     return
         is_constant(get_app_fn(e), get_singleton_name()) &&
@@ -1489,7 +1495,9 @@ static bool is_insert(expr const & e) {
 /* Return true iff 'e' encodes a nonempty finite collection,
    and stores its elements at elems. */
 static bool is_explicit_collection(expr const & e, buffer<expr> & elems) {
-    if (is_singleton(e)) {
+    if (is_emptyc(e)) {
+        return true;
+    } else if (is_singleton(e)) {
         elems.push_back(app_arg(e));
         return true;
     } else if (is_insert(e) && is_explicit_collection(app_arg(e), elems)) {
@@ -1501,13 +1509,16 @@ static bool is_explicit_collection(expr const & e, buffer<expr> & elems) {
 }
 
 auto pretty_fn::pp_explicit_collection(buffer<expr> const & elems) -> result {
-    lean_assert(!elems.empty());
-    format r = pp_child(elems[0], 0).fmt();
-    for (unsigned i = 1; i < elems.size(); i++) {
-        r += nest(m_indent, comma() + line() + pp_child(elems[i], 0).fmt());
+    if (elems.empty()) {
+        return result(format(m_unicode ? "∅" : "{}"));
+    } else {
+        format r = pp_child(elems[0], 0).fmt();
+        for (unsigned i = 1; i < elems.size(); i++) {
+            r += nest(m_indent, comma() + line() + pp_child(elems[i], 0).fmt());
+        }
+        r = group(bracket("{", r, "}"));
+        return result(r);
     }
-    r = group(bracket("{", r, "}"));
-    return result(r);
 }
 
 bool is_set_of(expr const & e) {

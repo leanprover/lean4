@@ -327,6 +327,9 @@ declare_definition(parser & p, environment const & env, def_cmd_kind kind, buffe
 
     check_noncomputable(p, new_env, c_name, c_real_name, modifiers.m_is_noncomputable);
 
+    if (kind == Example)
+        return mk_pair(env, c_real_name);
+
     if (modifiers.m_is_protected)
         new_env = add_protected(new_env, c_real_name);
 
@@ -402,9 +405,9 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
             val = get_equations_result(val, 0);
         }
         finalize_definition(elab, new_params, type, val, lp_names);
-        if (kind == Example) return p.env();
         name c_name = mlocal_name(fn);
         auto env_n  = declare_definition(p, elab.env(), kind, lp_names, c_name, type, val, modifiers, attrs, header_pos);
+        if (kind == Example) return p.env();
         environment new_env = env_n.first;
         name c_real_name    = env_n.second;
         return add_local_ref(p, new_env, c_name, c_real_name, lp_names, params);

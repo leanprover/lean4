@@ -87,6 +87,7 @@ name const & get_definition_tk();
 name const & get_meta_tk();
 name const & get_mutual_tk();
 name const & get_theorem_tk();
+name const & get_example_tk();
 name const & get_axiom_tk();
 name const & get_axioms_tk();
 name const & get_constant_tk();

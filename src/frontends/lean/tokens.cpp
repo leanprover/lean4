@@ -85,6 +85,7 @@ static name const * g_definition_tk = nullptr;
 static name const * g_meta_tk = nullptr;
 static name const * g_mutual_tk = nullptr;
 static name const * g_theorem_tk = nullptr;
+static name const * g_example_tk = nullptr;
 static name const * g_axiom_tk = nullptr;
 static name const * g_axioms_tk = nullptr;
 static name const * g_constant_tk = nullptr;
@@ -203,6 +204,7 @@ void initialize_tokens() {
     g_meta_tk = new name{"meta"};
     g_mutual_tk = new name{"mutual"};
     g_theorem_tk = new name{"theorem"};
+    g_example_tk = new name{"example"};
     g_axiom_tk = new name{"axiom"};
     g_axioms_tk = new name{"axioms"};
     g_constant_tk = new name{"constant"};
@@ -322,6 +324,7 @@ void finalize_tokens() {
     delete g_meta_tk;
     delete g_mutual_tk;
     delete g_theorem_tk;
+    delete g_example_tk;
     delete g_axiom_tk;
     delete g_axioms_tk;
     delete g_constant_tk;
@@ -440,6 +443,7 @@ name const & get_definition_tk() { return *g_definition_tk; }
 name const & get_meta_tk() { return *g_meta_tk; }
 name const & get_mutual_tk() { return *g_mutual_tk; }
 name const & get_theorem_tk() { return *g_theorem_tk; }
+name const & get_example_tk() { return *g_example_tk; }
 name const & get_axiom_tk() { return *g_axiom_tk; }
 name const & get_axioms_tk() { return *g_axioms_tk; }
 name const & get_constant_tk() { return *g_constant_tk; }

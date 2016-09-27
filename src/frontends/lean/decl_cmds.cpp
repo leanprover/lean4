@@ -466,6 +466,9 @@ static environment definition_cmd_ex(parser & p, decl_attributes const & attribu
     } else if (p.curr_is_token_or_id(get_theorem_tk())) {
         p.next();
         kind = Theorem;
+    } else if (p.curr_is_token_or_id(get_example_tk())) {
+        p.next();
+        kind = Example;
     } else if (!modifiers.m_is_private && !modifiers.m_is_protected && p.curr_is_token_or_id(get_instance_tk())) {
         p.next();
         modifiers.m_is_protected = true;
@@ -479,11 +482,6 @@ static environment definition_cmd_ex(parser & p, decl_attributes const & attribu
 
 static environment definition_cmd(parser & p) {
     return definition_cmd_ex(p, {});
-}
-
-static environment example_cmd(parser & p) {
-    definition_cmd_core(p, Example, {}, {});
-    return p.env();
 }
 
 static environment attribute_cmd_core(parser & p, bool persistent) {
@@ -594,7 +592,7 @@ void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("protected",       "add new protected definition/theorem/variable", definition_cmd, false));
     add_cmd(r, cmd_info("theorem",         "add new theorem", definition_cmd, false));
     add_cmd(r, cmd_info("instance",        "add new instance", definition_cmd, false));
-    add_cmd(r, cmd_info("example",         "add new example", example_cmd));
+    add_cmd(r, cmd_info("example",         "add new example", definition_cmd, false));
     add_cmd(r, cmd_info("reveal",          "reveal given theorems", reveal_cmd));
     add_cmd(r, cmd_info("include",         "force section parameter/variable to be included", include_cmd));
     add_cmd(r, cmd_info("attribute",       "set declaration attributes", attribute_cmd));

@@ -1166,7 +1166,7 @@ bool pretty_fn::match(expr const & p, expr const & e, buffer<optional<expr>> & a
                         return false;
                     expr const & body        = binding_body(fn_type);
                     binder_info const & info = binding_info(fn_type);
-                    if ((closed(body)) && is_explicit(info)) {
+                    if (is_explicit(info)) {
                         if (j >= p_args.size())
                             return false;
                         if (!match(p_args[j], e_args[i], args))

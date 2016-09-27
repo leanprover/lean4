@@ -42,7 +42,7 @@ class has_coe_t (A : Type u) (B : Type v) :=
 (coe : A → B)
 
 class has_coe_to_fun (A : Type u) : Type (max u (v+1)) :=
-(F : Type v) (coe : A → F)
+(F : A → Type v) (coe : Π a, F a)
 
 class has_coe_to_sort (A : Type u) : Type (max u (v+1)) :=
 (S : Type v) (coe : A → S)
@@ -59,7 +59,7 @@ def coe_b {A : Type u} {B : Type v} [has_coe A B] : A → B :=
 def coe_t {A : Type u} {B : Type v} [has_coe_t A B] : A → B :=
 @has_coe_t.coe A B _
 
-def coe_fn_b {A : Type u} [has_coe_to_fun.{u v} A] : A → has_coe_to_fun.F.{u v} A :=
+def coe_fn_b {A : Type u} [has_coe_to_fun.{u v} A] : Π a : A, has_coe_to_fun.F.{u v} a :=
 has_coe_to_fun.coe
 
 /- User level coercion operators -/
@@ -67,7 +67,7 @@ has_coe_to_fun.coe
 def coe {A : Type u} {B : Type v} [has_lift_t A B] : A → B :=
 lift_t
 
-def coe_fn {A : Type u} [has_coe_to_fun.{u v} A] : A → has_coe_to_fun.F.{u v} A :=
+def coe_fn {A : Type u} [has_coe_to_fun.{u v} A] : Π a : A, has_coe_to_fun.F.{u v} a :=
 has_coe_to_fun.coe
 
 def coe_sort {A : Type u} [has_coe_to_sort.{u v} A] : A → has_coe_to_sort.S.{u v} A :=
@@ -98,10 +98,12 @@ instance coe_base {A : Type u} {B : Type v} [has_coe A B] : has_coe_t A B :=
 ⟨coe_b⟩
 
 instance coe_fn_trans {A : Type u₁} {B : Type u₂} [has_lift_t A B] [has_coe_to_fun.{u₂ u₃} B] : has_coe_to_fun.{u₁ u₃} A :=
-⟨has_coe_to_fun.F B, λ a, coe_fn (coe a)⟩
+{ F   := λ a, @has_coe_to_fun.F.{u₂ u₃} B _ (coe a),
+  coe := λ a, coe_fn (coe a) }
 
 instance coe_sort_trans {A : Type u₁} {B : Type u₂} [has_lift_t A B] [has_coe_to_sort.{u₂ u₃} B] : has_coe_to_sort.{u₁ u₃} A :=
-⟨has_coe_to_sort.S B, λ a, coe_sort (coe a)⟩
+{ S   := has_coe_to_sort.S.{u₂ u₃} B,
+  coe := λ a, coe_sort (coe a) }
 
 /- Every coercion is also a lift -/
 

@@ -1,9 +1,12 @@
-structure Functor (A : Type*) :=
+universe variables u
+
+structure Functor (A : Type u) :=
 (fn : A → A → A) (inj : ∀ x y, fn x = fn y → x = y)
 
 attribute [instance]
-definition coe_functor_to_fn (A : Type*) : has_coe_to_fun (Functor A) :=
-has_coe_to_fun.mk (A → A → A) Functor.fn
+definition coe_functor_to_fn (A : Type u) : has_coe_to_fun (Functor A) :=
+{ F   := λ f, A → A → A,
+  coe := Functor.fn }
 
 constant f : Functor nat
 

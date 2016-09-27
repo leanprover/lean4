@@ -163,7 +163,7 @@ do e ← to_expr p,
    tactic.generalize e x
 
 meta def trivial : tactic unit :=
-tactic.triv <|> tactic.reflexivity <|> tactic.contradiction
+tactic.triv <|> tactic.reflexivity <|> tactic.contradiction <|> fail "trivial tactic failed"
 
 meta def contradiction : tactic unit :=
 tactic.contradiction

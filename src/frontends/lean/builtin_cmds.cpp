@@ -377,12 +377,6 @@ static environment init_quotient_cmd(parser & p) {
     return module::declare_quotient(p.env());
 }
 
-static environment init_hits_cmd(parser & p) {
-    if (p.env().prop_proof_irrel() || p.env().impredicative())
-        throw parser_error("invalid init_hits command, this command is only available for proof relevant and predicative kernels", p.cmd_pos());
-    return module::declare_hits(p.env());
-}
-
 // register_simp_ext <head> <simp_ext_name> ([priority <prio>])
 static environment register_simp_ext_cmd(parser & p) {
     environment env = p.env();
@@ -584,7 +578,6 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("local",             "define local attributes or notation", local_cmd));
     add_cmd(r, cmd_info("help",              "brief description of available commands and options", help_cmd));
     add_cmd(r, cmd_info("init_quotient",     "initialize quotient type computational rules", init_quotient_cmd));
-    add_cmd(r, cmd_info("init_hits",         "initialize builtin HITs", init_hits_cmd));
     add_cmd(r, cmd_info("declare_trace",     "declare a new trace class (for debugging Lean tactics)", declare_trace_cmd));
     add_cmd(r, cmd_info("register_simp_ext", "register simplifier extension", register_simp_ext_cmd));
     add_cmd(r, cmd_info("add_key_equivalence", "register that to symbols are equivalence for key-matching", add_key_equivalence_cmd));

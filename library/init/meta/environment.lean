@@ -11,8 +11,6 @@ meta constant environment : Type
 namespace environment
 /- Create a standard environment using the given trust level -/
 meta constant mk_std          : nat → environment
-/- Create a HoTT environment -/
-meta constant mk_hott         : nat → environment
 /- Return the trust level of the given environment -/
 meta constant trust_lvl       : environment → nat
 /- Return tt iff it is a standard environment -/

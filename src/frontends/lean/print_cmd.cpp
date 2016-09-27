@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "kernel/inductive/inductive.h"
 #include "kernel/quotient/quotient.h"
-#include "kernel/hits/hits.h"
 #include "library/util.h"
 #include "library/class.h"
 #include "library/aliases.h"
@@ -383,8 +382,6 @@ bool print_id_info(parser & p, name const & id, bool show_value, pos_info const 
                         print_constant(p, "eliminator", d);
                     } else if (is_quotient_decl(env, c)) {
                         print_constant(p, "builtin-quotient-type-constant", d);
-                    } else if (is_hits_decl(env, c)) {
-                        print_constant(p, "builtin-HIT-constant", d);
                     } else if (d.is_axiom()) {
                         print_constant(p, "axiom", d);
                     } else {

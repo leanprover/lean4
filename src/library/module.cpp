@@ -22,7 +22,6 @@ Author: Leonardo de Moura
 #include "util/file_lock.h"
 #include "kernel/type_checker.h"
 #include "kernel/quotient/quotient.h"
-#include "kernel/hits/hits.h"
 #include "library/module.h"
 #include "library/noncomputable.h"
 #include "library/sorry.h"
@@ -182,7 +181,6 @@ static std::string * g_glvl_key  = nullptr;
 static std::string * g_decl_key  = nullptr;
 static std::string * g_inductive = nullptr;
 static std::string * g_quotient  = nullptr;
-static std::string * g_hits      = nullptr;
 
 namespace module {
 environment add(environment const & env, std::string const & k, std::function<void(environment const &, serializer &)> const & wr) {
@@ -242,19 +240,6 @@ static void quotient_reader(deserializer &, shared_environment & senv,
                             std::function<void(delayed_update_fn const &)> &) {
     senv.update([&](environment const & env) {
             return ::lean::declare_quotient(env);
-        });
-}
-
-environment declare_hits(environment const & env) {
-    environment new_env = ::lean::declare_hits(env);
-    return add(new_env, *g_hits, [=](environment const &, serializer &) {});
-}
-
-static void hits_reader(deserializer &, shared_environment & senv,
-                        std::function<void(asynch_update_fn const &)>  &,
-                        std::function<void(delayed_update_fn const &)> &) {
-    senv.update([&](environment const & env) {
-            return ::lean::declare_hits(env);
         });
 }
 
@@ -627,16 +612,13 @@ void initialize_module() {
     g_decl_key       = new std::string("decl");
     g_inductive      = new std::string("ind");
     g_quotient       = new std::string("quot");
-    g_hits           = new std::string("hits");
     register_module_object_reader(*g_inductive, module::inductive_reader);
     register_module_object_reader(*g_quotient, module::quotient_reader);
-    register_module_object_reader(*g_hits, module::hits_reader);
 }
 
 void finalize_module() {
     delete g_inductive;
     delete g_quotient;
-    delete g_hits;
     delete g_decl_key;
     delete g_glvl_key;
     delete g_object_readers;

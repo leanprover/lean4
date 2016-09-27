@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #include "kernel/environment.h"
 #include "library/standard_kernel.h"
-#include "library/hott_kernel.h"
 #include "library/module.h"
 #include "api/decl.h"
 #include "api/string.h"
@@ -17,12 +16,6 @@ using namespace lean; // NOLINT
 lean_bool lean_env_mk_std(unsigned t, lean_env * r, lean_exception * ex) {
     LEAN_TRY;
     *r = of_env(new environment(mk_environment(t)));
-    LEAN_CATCH;
-}
-
-lean_bool lean_env_mk_hott(unsigned t, lean_env * r, lean_exception * ex) {
-    LEAN_TRY;
-    *r = of_env(new environment(mk_hott_environment(t)));
     LEAN_CATCH;
 }
 

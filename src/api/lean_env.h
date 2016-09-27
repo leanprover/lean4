@@ -24,8 +24,6 @@ extern "C" {
 /** \brief Create a standard environment (i.e., proof irrelevant, and containing an impredicative Prop) with trust level \c t.
     If the trust level is 0, then all imported modules are retype-checked, and declarations containing macros are rejected. */
 lean_bool lean_env_mk_std(unsigned t, lean_env * r, lean_exception * ex);
-/** \brief Create a HoTT environment (i.e., proof relevant, no Prop) with trust level \c t. */
-lean_bool lean_env_mk_hott(unsigned t, lean_env * r, lean_exception * ex);
 
 /** Trust all macros implemented in Lean, and do no retype-check imported modules */
 #define LEAN_TRUST_HIGH 100000

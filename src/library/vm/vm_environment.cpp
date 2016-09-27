@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/inductive/inductive.h"
 #include "library/standard_kernel.h"
-#include "library/hott_kernel.h"
 #include "library/module.h"
 #include "library/util.h"
 #include "library/relation_manager.h"
@@ -40,10 +39,6 @@ vm_obj to_obj(environment const & n) {
 
 vm_obj environment_mk_std(vm_obj const & l) {
     return to_obj(mk_environment(force_to_unsigned(l, 0)));
-}
-
-vm_obj environment_mk_hott(vm_obj const & l) {
-    return to_obj(mk_hott_environment(force_to_unsigned(l, 0)));
 }
 
 vm_obj environment_trust_lvl(vm_obj const & env) {
@@ -191,7 +186,6 @@ vm_obj environment_symm_for(vm_obj const & env, vm_obj const & n) {
 
 void initialize_vm_environment() {
     DECLARE_VM_BUILTIN(name({"environment", "mk_std"}),                environment_mk_std);
-    DECLARE_VM_BUILTIN(name({"environment", "mk_hott"}),               environment_mk_hott);
     DECLARE_VM_BUILTIN(name({"environment", "trust_lvl"}),             environment_trust_lvl);
     DECLARE_VM_BUILTIN(name({"environment", "is_std"}),                environment_is_std);
     DECLARE_VM_BUILTIN(name({"environment", "add"}),                   environment_add);

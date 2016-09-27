@@ -1,4 +1,4 @@
-set(kernel_tst_objs $<TARGET_OBJECTS:util> $<TARGET_OBJECTS:library> $<TARGET_OBJECTS:kernel> $<TARGET_OBJECTS:quotient> $<TARGET_OBJECTS:hits> $<TARGET_OBJECTS:inductive> $<TARGET_OBJECTS:sexpr> $<TARGET_OBJECTS:numerics>)
+set(kernel_tst_objs $<TARGET_OBJECTS:util> $<TARGET_OBJECTS:library> $<TARGET_OBJECTS:kernel> $<TARGET_OBJECTS:quotient> $<TARGET_OBJECTS:inductive> $<TARGET_OBJECTS:sexpr> $<TARGET_OBJECTS:numerics>)
 add_executable(level level.cpp ${kernel_tst_objs})
 target_link_libraries(level ${EXTRA_LIBS})
 add_test(level "${CMAKE_CURRENT_BINARY_DIR}/level")

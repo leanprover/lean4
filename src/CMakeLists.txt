@@ -32,7 +32,7 @@ option(CROSS_COMPILE      "CROSS_COMPILE"     OFF)
 option(CONSERVE_MEMORY    "CONSERVE_MEMORY"   OFF)
 # Include MSYS2 required DLLs and binaries in the binary distribution package
 option(INCLUDE_MSYS2_DLLS "INCLUDE_MSYS2_DLLS" OFF)
-# When ON we add lean binary dependency to standard and HOTT libraries
+# When ON we add lean binary dependency to standard
 option(LEAN_BIN_DEP       "LEAN_BIN_DEP"      ON)
 # When ON we include githash in the version string
 option(USE_GITHASH        "GIT_HASH"          ON)
@@ -325,8 +325,6 @@ add_subdirectory(kernel/inductive)
 set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:inductive>)
 add_subdirectory(kernel/quotient)
 set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:quotient>)
-add_subdirectory(kernel/hits)
-set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:hits>)
 add_subdirectory(library)
 set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:library>)
 add_subdirectory(library/tactic)
@@ -439,12 +437,6 @@ else()
     DEPENDS "${CMAKE_BINARY_DIR}/shell/lean"
     WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
     )
-  # add_custom_target(
-  #   hott_lib ALL
-  #   COMMAND "${PYTHON_EXECUTABLE}" "${LEAN_SOURCE_DIR}/../bin/linja" all
-  #   DEPENDS "${CMAKE_BINARY_DIR}/shell/lean"
-  #   WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../hott"
-  #   )
 endif()
 
 add_custom_target(clean-std-lib
@@ -452,13 +444,8 @@ add_custom_target(clean-std-lib
   COMMAND "${CMAKE_COMMAND}" -P "${CMAKE_MODULE_PATH}/CleanOlean.cmake"
   )
 
-add_custom_target(clean-hott-lib
-  WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../hott"
-  COMMAND "${CMAKE_COMMAND}" -P "${CMAKE_MODULE_PATH}/CleanOlean.cmake"
-  )
-
 add_custom_target(clean-olean
-  DEPENDS clean-std-lib clean-hott-lib)
+  DEPENDS clean-std-lib)
 
 install(FILES "${CMAKE_SOURCE_DIR}/../bin/linja"
   DESTINATION bin

@@ -26,7 +26,6 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/formatter.h"
 #include "library/standard_kernel.h"
-#include "library/hott_kernel.h"
 #include "library/module.h"
 #include "library/flycheck.h"
 #include "library/type_context.h"
@@ -51,7 +50,6 @@ using lean::io_state;
 using lean::io_state_stream;
 using lean::regular;
 using lean::mk_environment;
-using lean::mk_hott_environment;
 using lean::definition_cache;
 using lean::pos_info;
 using lean::pos_info_provider;
@@ -64,8 +62,6 @@ using lean::shared_file_lock;
 using lean::exclusive_file_lock;
 using lean::type_context;
 using lean::type_checker;
-
-enum class input_kind { Unspecified, Lean, HLean, Trace };
 
 static void display_header(std::ostream & out) {
     out << "Lean (version " << LEAN_VERSION_MAJOR << "."
@@ -83,11 +79,7 @@ static void display_header(std::ostream & out) {
 static void display_help(std::ostream & out) {
     display_header(out);
     std::cout << "Input format:\n";
-    std::cout << "  --lean            use parser for Lean default input format for files,\n";
-    std::cout << "                    with unknown extension (default)\n";
-    std::cout << "  --hlean           use parser for Lean default input format \n";
-    std::cout << "                    and use HoTT compatible kernel for files, with unknown extension\n";
-    std::cout << "  --smt2            use lean as an smt-solver, interpreting all files as smt2 files\n";
+    std::cout << "  --smt2            interpret files as SMT-Lib2 files\n";
     std::cout << "Miscellaneous:\n";
     std::cout << "  --help -h         display this message\n";
     std::cout << "  --version -v      display version number\n";
@@ -127,25 +119,9 @@ static void display_help(std::ostream & out) {
     std::cout << "  --export-all=file -A  export final environment (and all dependencies) as textual low-level file\n";
 }
 
-static char const * get_file_extension(char const * fname) {
-    if (fname == 0)
-        return 0;
-    char const * last_dot = 0;
-    while (true) {
-        char const * tmp = strchr(fname, '.');
-        if (tmp == 0) {
-            return last_dot;
-        }
-        last_dot  = tmp + 1;
-        fname = last_dot;
-    }
-}
-
 static struct option g_long_options[] = {
     {"version",      no_argument,       0, 'v'},
     {"help",         no_argument,       0, 'h'},
-    {"lean",         no_argument,       0, 'l'},
-    {"hlean",        no_argument,       0, 'H'},
     {"smt2",         no_argument,       0, 'Y'},
     {"path",         no_argument,       0, 'p'},
     {"githash",      no_argument,       0, 'g'},
@@ -178,7 +154,7 @@ static struct option g_long_options[] = {
     {0, 0, 0, 0}
 };
 
-#define OPT_STR "PHFdD:qlupgvhk:012t:012o:E:c:L:012O:012GZAIT:B:"
+#define OPT_STR "PFdD:qupgvhk:012t:012o:E:c:L:012O:012GZAIT:B:"
 
 #if defined(LEAN_TRACK_MEMORY)
 #define OPT_STR2 OPT_STR "M:012"
@@ -257,7 +233,6 @@ int main(int argc, char ** argv) {
     bool show_goal = false;
     bool show_hole = false;
     bool show_info = false;
-    input_kind default_k = input_kind::Unspecified;
     while (true) {
         int c = getopt_long(argc, argv, g_opt_str, g_long_options, NULL);
         if (c == -1)
@@ -275,21 +250,10 @@ int main(int argc, char ** argv) {
         case 'h':
             display_help(std::cout);
             return 0;
-        case 'l':
-            default_k = input_kind::Lean;
-            break;
-        case 'H':
-            default_k = input_kind::HLean;
-            break;
-        case 'R':
-            default_k = input_kind::Trace;
-            break;
         case 'Y':
             smt2 = true;
             break;
         case 'p':
-            if (default_k == input_kind::HLean)
-                lean::initialize_lean_path(true);
             std::cout << lean::get_lean_path() << "\n";
             return 0;
         case 's':
@@ -404,35 +368,7 @@ int main(int argc, char ** argv) {
         return ok ? 0 : 1;
     }
 
-    bool has_lean  = (default_k == input_kind::Lean);
-    bool has_hlean = (default_k == input_kind::HLean);
-    for (int i = optind; i < argc; i++) {
-        char const * ext = get_file_extension(argv[i]);
-        if (ext && strcmp(ext, "lean") == 0) {
-            has_lean = true;
-            if (has_hlean) {
-                std::cerr << ".hlean file cannot be mixed with .lean files\n";
-                return 1;
-            }
-            if (default_k == input_kind::Unspecified)
-                default_k = input_kind::Lean;
-        } else if (ext && strcmp(ext, "hlean") == 0) {
-            has_hlean = true;
-            if (has_lean) {
-                std::cerr << ".lean file cannot be mixed with .hlean files\n";
-                return 1;
-            }
-            if (default_k == input_kind::Unspecified)
-                default_k = input_kind::HLean;
-        }
-    }
-    if (default_k == input_kind::Unspecified)
-        default_k = input_kind::Lean;
-
-    if (has_hlean)
-        lean::initialize_lean_path(true);
-
-    environment env = has_hlean ? mk_hott_environment(trust_lvl) : mk_environment(trust_lvl);
+    environment env = mk_environment(trust_lvl);
     io_state ios(opts, lean::mk_pretty_formatter_factory());
     definition_cache   cache;
     definition_cache * cache_ptr = nullptr;
@@ -461,29 +397,12 @@ int main(int argc, char ** argv) {
         bool ok = true;
         for (int i = optind; i < argc; i++) {
             try {
-                char const * ext = get_file_extension(argv[i]);
-                input_kind k     = default_k;
-                if (ext) {
-                    if (strcmp(ext, "lean") == 0) {
-                        k = input_kind::Lean;
-                    } else if (strcmp(ext, "hlean") == 0) {
-                        k = input_kind::HLean;
-                    }
-                }
-                switch (k) {
-                case input_kind::Lean:
-                case input_kind::HLean:
-                    if (only_deps) {
-                        if (!display_deps(env, std::cout, std::cerr, argv[i]))
-                            ok = false;
-                    } else if (!parse_commands(env, ios, argv[i], base_dir, false, num_threads,
-                                               cache_ptr)) {
+                if (only_deps) {
+                    if (!display_deps(env, std::cout, std::cerr, argv[i]))
                         ok = false;
-                    }
-                    break;
-                default:
-                    lean_unreachable();
-                    break;
+                } else if (!parse_commands(env, ios, argv[i], base_dir, false, num_threads,
+                                           cache_ptr)) {
+                    ok = false;
                 }
             } catch (lean::exception & ex) {
                 simple_pos_info_provider pp(argv[i]);

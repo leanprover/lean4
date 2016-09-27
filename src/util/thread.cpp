@@ -109,7 +109,7 @@ public:
     }
 };
 
-thread_finalizers_manager * g_aux = nullptr;
+static thread_finalizers_manager * g_aux = nullptr;
 
 thread_finalizers_manager & get_manager() {
     if (!g_aux)

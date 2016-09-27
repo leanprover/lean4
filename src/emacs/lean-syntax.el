@@ -16,7 +16,7 @@
     "alias" "help" "precedence" "reserve" "declare_trace" "add_key_equivalence"
     "match" "infix" "infixl" "infixr" "notation" "postfix" "prefix" "instance"
     "eval" "vm_eval" "check" "end" "reveal" "this" "suppose"
-    "using_well_founded" "namespace" "section" "fields"
+    "using" "using_well_founded" "namespace" "section" "fields"
     "attribute" "local" "set_option" "extends" "include" "omit" "classes" "class"
     "instances" "coercions" "attributes" "raw" "replacing"
     "calc" "have" "show" "suffices" "by" "in" "at" "do" "let" "forall" "Pi" "fun"

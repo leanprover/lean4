@@ -41,6 +41,7 @@ name const & get_turnstile_tk();
 name const & get_membership_tk();
 name const & get_explicit_tk();
 name const & get_partial_explicit_tk();
+name const & get_at_tk();
 name const & get_max_tk();
 name const & get_imax_tk();
 name const & get_import_tk();
@@ -119,5 +120,6 @@ name const & get_this_tk();
 name const & get_noncomputable_tk();
 name const & get_theory_tk();
 name const & get_key_equivalences_tk();
+name const & get_using_tk();
 name const & get_using_well_founded_tk();
 }

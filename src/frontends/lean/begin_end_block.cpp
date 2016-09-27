@@ -68,32 +68,141 @@ static optional<name> is_tactic_interactive(parser & p) {
         return optional<name>();
 }
 
-static expr parse_auto_quoted_expr(parser & p, unsigned rbp) {
+static expr mk_lean_list(buffer<expr> const & es) {
+    expr r = mk_constant(get_list_nil_name());
+    unsigned i = es.size();
+    while (i > 0) {
+        --i;
+        r = mk_app(mk_constant(get_list_cons_name()), es[i], r);
+    }
+    return r;
+}
+
+static expr mk_lean_none() {
+    return mk_constant(get_option_none_name());
+}
+
+static expr mk_lean_some(expr const & e) {
+    return mk_app(mk_constant(get_option_some_name()), e);
+}
+
+static expr parse_quoted_ident(parser & p, name const & decl_name) {
+    if (!p.curr_is_identifier())
+        throw parser_error(sstream() << "invalid tactic '" << decl_name  << "', identifier expected", p.pos());
+    auto pos = p.pos();
+    name id  = p.get_name_val();
+    p.next();
+    return p.save_pos(quote_name(id), pos);
+}
+
+static expr parse_optional_quoted_ident(parser & p, name const & decl_name) {
+    auto pos = p.pos();
+    if (p.curr_is_identifier())
+        return p.save_pos(mk_lean_some(parse_quoted_ident(p, decl_name)), pos);
+    else
+        return p.save_pos(mk_lean_none(), pos);
+}
+
+
+static expr parse_using_id(parser & p, name const & decl_name) {
+    auto pos = p.pos();
+    if (p.curr_is_token(get_using_tk())) {
+        p.next();
+        return p.save_pos(mk_lean_some(parse_quoted_ident(p, decl_name)), pos);
+    } else {
+        return p.save_pos(mk_lean_none(), pos);
+    }
+}
+
+static expr parse_qexpr(parser & p, unsigned rbp) {
     auto pos = p.pos();
     parser::quote_scope scope(p, true);
     expr e = p.parse_expr(rbp);
     return p.save_pos(mk_quote(e), pos);
 }
 
+static expr parse_qexpr_list(parser & p) {
+    buffer<expr> result;
+    auto pos = p.pos();
+    p.check_token_next(get_lbracket_tk(), "invalid tactic argument, '[' expected");
+    while (!p.curr_is_token(get_rbracket_tk())) {
+        result.push_back(parse_qexpr(p, 0));
+        if (!p.curr_is_token(get_comma_tk())) break;
+        p.next();
+    }
+    p.check_token_next(get_rbracket_tk(), "invalid tactic argument, ']' expected");
+    return p.rec_save_pos(mk_lean_list(result), pos);
+}
+
+static expr parse_qexpr_list_or_qexpr0(parser & p) {
+    if (p.curr_is_token(get_lbracket_tk())) {
+        return parse_qexpr_list(p);
+    } else {
+        auto pos = p.pos();
+        buffer<expr> args;
+        args.push_back(parse_qexpr(p, 0));
+        return p.rec_save_pos(mk_lean_list(args), pos);
+    }
+}
+
+static expr parse_raw_id_list(parser & p) {
+    auto pos = p.pos();
+    buffer<expr> result;
+    while (p.curr_is_identifier()) {
+        auto id_pos = p.pos();
+        name id = p.get_name_val();
+        p.next();
+        result.push_back(p.save_pos(quote_name(id), id_pos));
+    }
+    return p.rec_save_pos(mk_lean_list(result), pos);
+}
+
+static expr parse_with_id_list(parser & p) {
+    if (p.curr_is_token(get_with_tk())) {
+        p.next();
+        return parse_raw_id_list(p);
+    } else {
+        return p.save_pos(mk_constant(get_list_nil_name()), p.pos());
+    }
+}
+
+static expr parse_location(parser & p) {
+    if (p.curr_is_token(get_at_tk())) {
+        p.next();
+        return parse_raw_id_list(p);
+    } else {
+        return p.save_pos(mk_constant(get_list_nil_name()), p.pos());
+    }
+}
+
 static expr parse_tactic_interactive(parser & p, name const & decl_name) {
     auto pos = p.pos();
     p.next();
     expr type = p.env().get(decl_name).get_type();
-    unsigned arity = get_arity(type);
     buffer<expr> args;
     while (is_pi(type)) {
         if (is_explicit(binding_info(type))) {
             expr arg_type = binding_domain(type);
-            if (is_constant(arg_type, get_pexpr_name())) {
-                /* auto quote expressions */
-                expr arg = parse_auto_quoted_expr(p, arity == 1 ? 0 : get_max_prec());
-                args.push_back(arg);
-            } else if (is_constant(arg_type, get_name_name())) {
-                if (!p.curr_is_identifier())
-                    throw parser_error(sstream() << "invalid tactic '" << decl_name  << "', identifier expected", p.pos());
-                name id = p.get_name_val();
-                p.next();
-                args.push_back(quote_name(id));
+            if (is_constant(arg_type, get_tactic_interactive_types_qexpr_name())) {
+                args.push_back(parse_qexpr(p, get_max_prec()));
+            } else if (is_constant(arg_type, get_tactic_interactive_types_qexpr0_name())) {
+                args.push_back(parse_qexpr(p, 0));
+            } else if (is_constant(arg_type, get_tactic_interactive_types_qexpr_list_name())) {
+                args.push_back(parse_qexpr_list(p));
+            } else if (is_constant(arg_type, get_tactic_interactive_types_qexpr_list_or_qexpr0_name())) {
+                args.push_back(parse_qexpr_list_or_qexpr0(p));
+            } else if (is_constant(arg_type, get_tactic_interactive_types_ident_name())) {
+                args.push_back(parse_quoted_ident(p, decl_name));
+            } else if (is_constant(arg_type, get_tactic_interactive_types_opt_ident_name())) {
+                args.push_back(parse_optional_quoted_ident(p, decl_name));
+            } else if (is_constant(arg_type, get_tactic_interactive_types_raw_ident_list_name())) {
+                args.push_back(parse_raw_id_list(p));
+            } else if (is_constant(arg_type, get_tactic_interactive_types_with_ident_list_name())) {
+                args.push_back(parse_with_id_list(p));
+            } else if (is_constant(arg_type, get_tactic_interactive_types_using_ident_name())) {
+                args.push_back(parse_using_id(p, decl_name));
+            } else if (is_constant(arg_type, get_tactic_interactive_types_location_name())) {
+                args.push_back(parse_location(p));
             } else {
                 args.push_back(p.parse_expr(get_max_prec()));
             }

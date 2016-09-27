@@ -34,6 +34,7 @@ turnstile    ⊢
 membership   ∈
 explicit     @
 partial_explicit @@
+at           at
 max          max
 imax         imax
 import       import
@@ -112,4 +113,5 @@ this         this
 noncomputable noncomputable
 theory       theory
 key_equivalences key_equivalences
+using        using
 using_well_founded using_well_founded

@@ -30,10 +30,20 @@ vm_obj pexpr_to_string(vm_obj const & e) {
     return expr_to_string(e);
 }
 
+vm_obj pexpr_to_raw_expr(vm_obj const & e) {
+    return e;
+}
+
+vm_obj pexpr_of_raw_expr(vm_obj const & e) {
+    return e;
+}
+
 void initialize_vm_pexpr() {
     DECLARE_VM_BUILTIN(name({"pexpr", "subst"}),        pexpr_subst);
     DECLARE_VM_BUILTIN(name({"pexpr", "of_expr"}),      pexpr_of_expr);
     DECLARE_VM_BUILTIN(name({"pexpr", "to_string"}),    pexpr_to_string);
+    DECLARE_VM_BUILTIN(name({"pexpr", "of_raw_expr"}),  pexpr_of_raw_expr);
+    DECLARE_VM_BUILTIN(name({"pexpr", "to_raw_expr"}),  pexpr_to_raw_expr);
 }
 
 void finalize_vm_pexpr() {

@@ -39,6 +39,7 @@ static name const * g_turnstile_tk = nullptr;
 static name const * g_membership_tk = nullptr;
 static name const * g_explicit_tk = nullptr;
 static name const * g_partial_explicit_tk = nullptr;
+static name const * g_at_tk = nullptr;
 static name const * g_max_tk = nullptr;
 static name const * g_imax_tk = nullptr;
 static name const * g_import_tk = nullptr;
@@ -117,6 +118,7 @@ static name const * g_this_tk = nullptr;
 static name const * g_noncomputable_tk = nullptr;
 static name const * g_theory_tk = nullptr;
 static name const * g_key_equivalences_tk = nullptr;
+static name const * g_using_tk = nullptr;
 static name const * g_using_well_founded_tk = nullptr;
 void initialize_tokens() {
     g_aliases_tk = new name{"aliases"};
@@ -155,6 +157,7 @@ void initialize_tokens() {
     g_membership_tk = new name{"∈"};
     g_explicit_tk = new name{"@"};
     g_partial_explicit_tk = new name{"@@"};
+    g_at_tk = new name{"at"};
     g_max_tk = new name{"max"};
     g_imax_tk = new name{"imax"};
     g_import_tk = new name{"import"};
@@ -233,6 +236,7 @@ void initialize_tokens() {
     g_noncomputable_tk = new name{"noncomputable"};
     g_theory_tk = new name{"theory"};
     g_key_equivalences_tk = new name{"key_equivalences"};
+    g_using_tk = new name{"using"};
     g_using_well_founded_tk = new name{"using_well_founded"};
 }
 void finalize_tokens() {
@@ -272,6 +276,7 @@ void finalize_tokens() {
     delete g_membership_tk;
     delete g_explicit_tk;
     delete g_partial_explicit_tk;
+    delete g_at_tk;
     delete g_max_tk;
     delete g_imax_tk;
     delete g_import_tk;
@@ -350,6 +355,7 @@ void finalize_tokens() {
     delete g_noncomputable_tk;
     delete g_theory_tk;
     delete g_key_equivalences_tk;
+    delete g_using_tk;
     delete g_using_well_founded_tk;
 }
 name const & get_aliases_tk() { return *g_aliases_tk; }
@@ -388,6 +394,7 @@ name const & get_turnstile_tk() { return *g_turnstile_tk; }
 name const & get_membership_tk() { return *g_membership_tk; }
 name const & get_explicit_tk() { return *g_explicit_tk; }
 name const & get_partial_explicit_tk() { return *g_partial_explicit_tk; }
+name const & get_at_tk() { return *g_at_tk; }
 name const & get_max_tk() { return *g_max_tk; }
 name const & get_imax_tk() { return *g_imax_tk; }
 name const & get_import_tk() { return *g_import_tk; }
@@ -466,5 +473,6 @@ name const & get_this_tk() { return *g_this_tk; }
 name const & get_noncomputable_tk() { return *g_noncomputable_tk; }
 name const & get_theory_tk() { return *g_theory_tk; }
 name const & get_key_equivalences_tk() { return *g_key_equivalences_tk; }
+name const & get_using_tk() { return *g_using_tk; }
 name const & get_using_well_founded_tk() { return *g_using_well_founded_tk; }
 }

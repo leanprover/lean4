@@ -952,3 +952,16 @@ match h₁, h₂ with
 | (is_true h_c),  h₂ := h_c
 | (is_false h_c), h₂ := false.elim h₂
 end
+
+/- Universe lifting operation -/
+structure {r s} ulift (A : Type s) : Type (max 1 s r) :=
+up :: (down : A)
+
+namespace ulift
+/- Bijection between A and ulift.{v} A -/
+lemma up_down {A : Type u} : ∀ (b : ulift.{v} A), up (down b) = b
+| (up a) := rfl
+
+lemma down_up {A : Type u} (a : A) : down (up.{v} a) = a :=
+rfl
+end ulift

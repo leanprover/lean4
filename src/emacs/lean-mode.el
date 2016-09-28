@@ -152,10 +152,7 @@ will be flushed everytime it's executed."
           (if (s-equals? (buffer-file-name) target-file-name)
               `("--cache" ,cache-file-name)
             '()))
-         (lean-mode-option
-          (pcase (lean-choose-minor-mode-based-on-extension)
-            (`standard "--lean")
-            (`hott     "--hlean")))
+         (lean-mode-option "--lean")
          (process-args (append `(,process-name
                                  ,process-buffer-name
                                  ,(lean-get-executable lean-executable-name)
@@ -311,26 +308,14 @@ enabled and disabled respectively.")
               (setq fci-rule-column lean-rule-column)
               (setq fci-rule-color lean-rule-color)
               (fci-mode t))))
-  ;; choose minor mode -- Standard / HoTT
-  (let ((minor-mode (lean-choose-minor-mode-based-on-extension)))
-    (cond
-     ((eq minor-mode 'hott) (lean-hott-mode) )
-     ((eq minor-mode 'standard) (lean-standard-mode)))))
+  (lean-standard-mode))
 
 ;; Define Minor mode
 ;;  - Standard
-;;  - HoTT
 (define-minor-mode lean-standard-mode
   "Minor mode for standard Lean."
   :init-value nil
   :lighter " [Standard]"
-  :group 'lean
-  :require 'lean)
-
-(define-minor-mode lean-hott-mode
-  "Minor mode for HoTT Lean."
-  :init-value nil
-  :lighter " [HoTT]"
   :group 'lean
   :require 'lean)
 

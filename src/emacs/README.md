@@ -25,8 +25,6 @@ to use full features of ``lean-mode``.
  - [company][company]
  - [flycheck][flycheck]
  - [fill-column-indicator][fci]
- - [lua-mode][lua-mode]
- - [mmm-mode][mmm-mode]
 
 Both the optional and required packages will be installed for you
 automatically the first time you use ``lean-mode``, if you follow the
@@ -35,9 +33,6 @@ installation instructions below.
 [company]: http://company-mode.github.io/
 [flycheck]: http://www.flycheck.org/manual/latest/index.html
 [fci]: https://github.com/alpaker/Fill-Column-Indicator
-[lua-mode]: http://immerrr.github.io/lua-mode/
-[mmm-mode]: https://github.com/purcell/mmm-mode
-
 
 Installation
 ============
@@ -50,7 +45,7 @@ found in different places on different systems:
 - With GNU Emacs, it is common to use ``.emacs.d/init.el`` instead.
 - With Aquamacs, it is common to use ``~/Library/Preferences/Aquamacs Emacs/Preferences.el``.
 
-On Windows, there are two additional complications: 
+On Windows, there are two additional complications:
 
 - It may be hard to figure out what Emacs considers to be your "home
   directory".
@@ -61,7 +56,7 @@ One solution is to run Emacs itself and create the file using C-c C-f
 (control-C, control-F) and then entering ``~/.emacs``. (The tilde
 indicates your home directory.) On Windows, you can also name the file
 ``_emacs``.
- 
+
 Put the following code in your Emacs init file:
 
 ```elisp
@@ -75,7 +70,7 @@ Put the following code in your Emacs init file:
 ;; Install required/optional packages for lean-mode
 (defvar lean-mode-required-packages
   '(company dash dash-functional flycheck f
-            fill-column-indicator s lua-mode mmm-mode))
+            fill-column-indicator s))
 (let ((need-to-refresh t))
   (dolist (p lean-mode-required-packages)
     (when (not (package-installed-p p))
@@ -145,15 +140,14 @@ Trying It Out
 =============
 
 If things are working correctly, you should see the word ``Lean`` in the
-Emacs mode line when you open a file with extension `.lean` (for the
-standard Lean mode) or `.hlean` (for hott mode). If you type
+Emacs mode line when you open a file with extension `.lean`. If you type
 ```lean
 check id
 ```
 the word ``check`` will be underlined, and hovering over it will show
 you the type of ``id``. The mode line will show ``FlyC:0/1``, indicating
 that there are no errors and one piece of information displayed. Whenever
-you type, an asterisk should briefly appear after ``FlyC``, indicating that 
+you type, an asterisk should briefly appear after ``FlyC``, indicating that
 your file is being checked.
 
 
@@ -207,7 +201,7 @@ You may also need to install [emacs-unicode-fonts](https://github.com/rolandwalk
 ---------------------------------------------------------
 
 See [Issue 906](https://github.com/leanprover/lean/issues/906) for details.
-[Moritz Kiefer](https://github.com/cocreature) reported that `proofgeneral` 
+[Moritz Kiefer](https://github.com/cocreature) reported that `proofgeneral`
 comes with an old version of `mmm-mode` (0.4.8, released in 2004) on ArchLinux
 and it caused this problem. Either removing `proofgeneral` or upgrading
 `mmm-mode` to the latest version (0.5.1 as of 2015 Dec) resolves this issue.

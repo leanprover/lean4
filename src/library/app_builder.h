@@ -101,9 +101,7 @@ expr mk_heq_trans(type_context & ctx, expr const & H1, expr const & H2);
     H1 : C a
     H2 : a = b
     The resultant application is
-    @eq.rec A a C H1 b H2
-    In the HoTT library, we actually create an eq.nrec application
-    since eq.rec is a dependent eliminator in HoTT. */
+    @eq.rec A a C H1 b H2 */
 expr mk_eq_rec(type_context & ctx, expr const & C, expr const & H1, expr const & H2);
 
 /** \brief Create a (dependent) eq.drec application.
@@ -112,9 +110,7 @@ expr mk_eq_rec(type_context & ctx, expr const & C, expr const & H1, expr const &
     H1 : C a (eq.refl a)
     H2 : a = b
     The resultant application is
-    @eq.drec A a C H1 b H2
-    In the HoTT library, we actually create an eq.rec application
-    because eq.rec is a dependent eliminator in HoTT. */
+    @eq.drec A a C H1 b H2 */
 expr mk_eq_drec(type_context & ctx, expr const & C, expr const & H1, expr const & H2);
 
 expr mk_eq_of_heq(type_context & ctx, expr const & H);

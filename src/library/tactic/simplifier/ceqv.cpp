@@ -80,7 +80,6 @@ class to_ceqvs_fn {
                 return lift(local, r);
             }
         } else if (is_ite(e, c, Hdec, A, arg1, arg2) && is_prop(e)) {
-            // TODO(Leo): support HoTT mode if users request
             expr not_c = mk_app(mk_constant(get_not_name()), c);
             type_context::tmp_locals local_factory(m_tmp_tctx.tctx());
             expr Hc = local_factory.push_local(name(), c);

@@ -197,7 +197,7 @@ expr mk_eq_subst(abstract_type_context & ctx, expr const & motive, expr const & 
 
 expr mk_congr_arg(abstract_type_context & ctx, expr const & f, expr const & H);
 
-/** \brief Create an proof for x = y using subsingleton.elim (in standard mode) and is_trunc.is_prop.elim (in HoTT mode) */
+/** \brief Create an proof for x = y using subsingleton.elim (in standard mode) */
 expr mk_subsingleton_elim(abstract_type_context & ctx, expr const & h, expr const & x, expr const & y);
 
 /** \brief Return true iff \c e is a term of the form (eq.rec ....) */

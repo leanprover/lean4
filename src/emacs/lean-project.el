@@ -18,13 +18,10 @@
 
 (defun lean-project-create (directory type)
   (interactive
-   (list (read-directory-name "Specify the project root directory: ")
-         (intern (completing-read "Project type:: " '(standard hott)))))
+   (list (read-directory-name "Specify the project root directory: ")))
   (let ((project-file (concat (file-name-as-directory directory)
                               lean-project-file-name))
-        (ext (pcase type
-               (`standard "lean")
-               (`hott     "hlean")))
+        (ext "lean")
         (default-contents
           (s-join "\n"
                   ;;  EXT is a placeholder.

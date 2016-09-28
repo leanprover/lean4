@@ -21,12 +21,6 @@ where TYPE := INFO | SET | EVAL | OPTIONS | SHOW | FINDP | FINDG | ERROR,
 (defvar lean-global-server-standard-buffer nil
   "Global buffer used to store messages sent by lean server (standard)")
 
-(defvar lean-global-server-hott-process nil
-  "lean server process (process)")
-
-(defvar lean-global-server-hott-buffer nil
-  "Global buffer used to store messages sent by lean server (hott)")
-
 (defvar lean-global-server-current-file-name nil
   "Current filename that lean server is processing")
 

@@ -281,9 +281,6 @@ void test_path() {
     check(lean_get_std_path(&p, &ex));
     printf("LEAN_PATH: %s\n", p);
     lean_string_del(p);
-    check(lean_get_hott_path(&p, &ex));
-    printf("HLEAN_PATH: %s\n", p);
-    lean_string_del(p);
 }
 
 void print_decl_name_and_del(lean_decl d) {

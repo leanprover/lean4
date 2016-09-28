@@ -229,10 +229,6 @@ order for the change to take effect."
   ("m="   . ("≞"))
   ("?="   . ("≟"))
 
-  ;; Pointed types in HoTT
-  ("pequiv" . ("≃*"))
-  ("phomotopy" . ("~*"))
-
   ("pr" . ("↣"))
 
   ("1" . ("₁"))

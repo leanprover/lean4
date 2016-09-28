@@ -46,10 +46,7 @@
   (interactive)
   (let* ((lean-path-env-list
           (parse-colon-path (getenv "LEAN_PATH")))
-         (lean-mode-option
-          (pcase (lean-choose-minor-mode-based-on-extension)
-            (`standard "--lean")
-            (`hott     "--hlean")))
+         (lean-mode-option "--lean")
          (lean--path-list
           (parse-colon-path
            (ignore-errors
@@ -183,16 +180,6 @@
 (defun lean-whitespace-cleanup ()
     (when lean-delete-trailing-whitespace
       (delete-trailing-whitespace)))
-
-(defun lean-choose-minor-mode-based-on-extension ()
-  ;; Based on the extension of buffer, return either 'hott or 'standard
-  (interactive)
-  (let ((file-name (buffer-file-name)))
-    (cond ((s-ends-with? ".lean" file-name)
-           'standard)
-          ((s-ends-with? ".hlean" file-name)
-           'hott)
-          (t 'standard))))
 
 (defun lean-in-comment-p ()
   "t if a current point is inside of comment block

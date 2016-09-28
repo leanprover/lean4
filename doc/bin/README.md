@@ -5,7 +5,6 @@ The binary distribution package contains:
 
 - Lean executable (located in the sub-directory bin)
 - Standard library (located in the sub-directory lib/lean/library)
-- HoTT library (located in the sub-directory lib/lean/hott)
 - Emacs modes (located in the sub-directory share/emacs/site-list/lean)
 
 Assuming you are in the same directory this file is located,

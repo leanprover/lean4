@@ -193,6 +193,16 @@ inductive nat
 | zero : nat
 | succ : nat → nat
 
+structure unification_constraint :=
+{A : Type u} (lhs : A) (rhs : A)
+
+infix ` ≟ `:50   := unification_constraint.mk
+infix ` =?= `:50 := unification_constraint.mk
+
+structure unification_hint :=
+(pattern : unification_constraint)
+(constraints : list unification_constraint)
+
 /- Declare builtin and reserved notation -/
 
 class has_zero     (A : Type u) := (zero : A)

@@ -215,6 +215,48 @@ class type_context : public abstract_type_context {
        even if we are not in tmp_mode */
     bool               m_approximate;
 
+    /* Postponed universe constraints.
+       We postpone universe constraints containing max/imax. Examples:
+
+               max 1 ?u =?= max 1 a
+               2        =?= max ?u ?v
+
+       The universe constraint postponement is effective because universe
+       metavariables get assigned later. For example consider the following unification
+       problem
+
+          M.{1 3 3} L.{3} =?= M.{1 ?u ?v} L.{(max 1 ?u ?v)}
+
+       is solved by first solving
+
+              L.{3} =?= L.{(max 1 ?u ?v)}
+
+       which postpones the universe constraint
+
+                3 =?= max 1 ?u ?v
+
+       and then solves
+
+             M.{1 3 3} =?= M.{1 ?u ?v}
+
+       which generates the easy constraints
+
+                ?u =?= 3 and ?v =?= 3
+
+       Now, the postponed contraint (3 =?= max ?u ?v) can be easily solved.
+
+       Note that providing universe levels explicitly is not always a viable workaround.
+       The problem is that unification problems like the one above are often created by
+       automation (e.g., type class resolution, tactics, etc). In these situations, users
+       have no way of providing the universe parameters. The alternative would be to write
+       the whole definition by hand without using any form of automation.
+
+       We also make sure any choice-point only succeeds if all postponed universe
+       constraints created by it are resolved.
+
+       We also only cache results that do not have pending postponed constraints. */
+    buffer<pair<level, level>> m_postponed;
+
     std::function<bool(expr const & e)> const * m_unfold_pred; // NOLINT
 
     static bool is_equiv_cache_target(expr const & e1, expr const & e2) {
@@ -266,7 +308,6 @@ public:
        using the method push_local. */
     void set_instance_fingerprint();
 
-    bool is_def_eq_core(level const & l1, level const & l2);
     bool is_def_eq(level const & l1, level const & l2);
     virtual expr whnf(expr const & e) override;
     virtual expr infer(expr const & e) override;
@@ -475,13 +516,16 @@ private:
     void pop_scope();
     void commit_scope();
     class scope {
+        friend class type_context;
         type_context & m_owner;
         bool           m_keep;
+        unsigned       m_postponed_sz;
     public:
-        scope(type_context & o):m_owner(o), m_keep(false) { m_owner.push_scope(); }
-        ~scope() { if (!m_keep) m_owner.pop_scope(); }
-        void commit() { m_owner.commit_scope(); m_keep = true; }
+        scope(type_context & o):m_owner(o), m_keep(false), m_postponed_sz(o.m_postponed.size()) { m_owner.push_scope(); }
+        ~scope() { m_owner.m_postponed.resize(m_postponed_sz); if (!m_keep) m_owner.pop_scope(); }
+        void commit() { m_postponed_sz = m_owner.m_postponed.size(); m_owner.commit_scope(); m_keep = true; }
     };
+    bool process_postponed(scope const & s);
     bool approximate();
     expr try_zeta(expr const & e);
     expr expand_let_decls(expr const & e);
@@ -492,6 +536,9 @@ private:
     optional<declaration> is_delta(expr const & e);
     enum class reduction_status { Continue, DefUnknown, DefEqual, DefDiff };
 
+    lbool is_def_eq_core(level const & l1, level const & l2, bool partial);
+    lbool partial_is_def_eq(level const & l1, level const & l2);
+    bool full_is_def_eq(level const & l1, level const & l2);
     bool is_def_eq(levels const & ls1, levels const & ls2);
     bool is_def_eq_core_core(expr const & t, expr const & s);
     bool is_def_eq_core(expr const & t, expr const & s);

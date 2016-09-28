@@ -681,13 +681,14 @@ expr type_context::whnf(expr const & e) {
     if (it != cache.end())
         return it->second;
     reset_used_assignment reset(*this);
+    unsigned postponed_sz = m_postponed.size();
     expr t = e;
     while (true) {
         expr t1 = whnf_core(t);
         if (auto next_t = unfold_definition(t1)) {
             t = *next_t;
         } else {
-            if (!m_used_assignment && !is_stuck(t1))
+            if (!m_used_assignment && !is_stuck(t1) && postponed_sz == m_postponed.size())
                 cache.insert(mk_pair(e, t1));
             return t1;
         }
@@ -764,6 +765,7 @@ expr type_context::infer_core(expr const & e) {
     lean_assert(closed(e));
 
     auto & cache = m_cache->m_infer_cache;
+    unsigned postponed_sz = m_postponed.size();
     auto it = cache.find(e);
     if (it != cache.end())
         return it->second;
@@ -803,7 +805,7 @@ expr type_context::infer_core(expr const & e) {
         break;
     }
 
-    if (!m_used_assignment)
+    if (!m_used_assignment && postponed_sz == m_postponed.size())
         cache.insert(mk_pair(e, r));
     return r;
 }
@@ -1198,9 +1200,13 @@ void type_context::commit_scope() {
    Unification / definitional equality
    ----------------------------------- */
 
-bool type_context::is_def_eq_core(level const & l1, level const & l2) {
+static bool is_max_like(level const & l) {
+    return is_max(l) || is_imax(l);
+}
+
+lbool type_context::is_def_eq_core(level const & l1, level const & l2, bool partial) {
     if (is_equivalent(l1, l2))
-        return true;
+        return l_true;
 
     lean_trace(name({"type_context", "univ_is_def_eq_detail"}),
                tout() << "[" << m_is_def_eq_depth << "]: " << l1 << " =?= " << l2 << "\n";);
@@ -1213,13 +1219,13 @@ bool type_context::is_def_eq_core(level const & l1, level const & l2) {
         if (is_metavar_decl_ref(l1)) {
             /* Check if l1 is regular metavar that is already assigned */
             if (auto v1 = m_mctx.get_assignment(l1))
-                return is_def_eq_core(*v1, l2);
+                return is_def_eq_core(*v1, l2, partial);
         }
 
         if (is_metavar_decl_ref(l2)) {
             /* Check if l2 is regular metavar that is already assigned */
             if (auto v2 = m_mctx.get_assignment(l2))
-                return is_def_eq_core(l1, *v2);
+                return is_def_eq_core(l1, *v2, partial);
         }
     }
 
@@ -1227,13 +1233,13 @@ bool type_context::is_def_eq_core(level const & l1, level const & l2) {
     level new_l2 = instantiate_mvars(l2);
 
     if (l1 != new_l1 || l2 != new_l2)
-        return is_def_eq_core(new_l1, new_l2);
+        return is_def_eq_core(new_l1, new_l2, partial);
 
     if (is_mvar(l1)) {
         lean_assert(!is_assigned(l1));
         if (!occurs(l1, l2)) {
             assign(l1, l2);
-            return true;
+            return l_true;
         }
     }
 
@@ -1241,42 +1247,63 @@ bool type_context::is_def_eq_core(level const & l1, level const & l2) {
         lean_assert(!is_assigned(l2));
         if (!occurs(l2, l1)) {
             assign(l2, l1);
-            return true;
+            return l_true;
         }
     }
 
+    if (partial && (is_max_like(l1) || is_max_like(l2)))
+        return l_undef;
+
     if (l1.kind() != l2.kind())
-        return false;
+        return l_false;
 
     switch (l1.kind()) {
     case level_kind::Max:
+        lean_assert(!partial);
         return
-            is_def_eq_core(max_lhs(l1), max_lhs(l2)) &&
-            is_def_eq_core(max_rhs(l1), max_rhs(l2));
+            to_lbool(is_def_eq_core(max_lhs(l1), max_lhs(l2), partial) == l_true &&
+                     is_def_eq_core(max_rhs(l1), max_rhs(l2), partial) == l_true);
     case level_kind::IMax:
+        lean_assert(!partial);
         return
-            is_def_eq_core(imax_lhs(l1), imax_lhs(l2)) &&
-            is_def_eq_core(imax_rhs(l1), imax_rhs(l2));
+            to_lbool(is_def_eq_core(imax_lhs(l1), imax_lhs(l2), partial) == l_true &&
+                     is_def_eq_core(imax_rhs(l1), imax_rhs(l2), partial) == l_true);
     case level_kind::Succ:
-        return is_def_eq_core(succ_of(l1), succ_of(l2));
+        return is_def_eq_core(succ_of(l1), succ_of(l2), partial);
     case level_kind::Param:
     case level_kind::Global:
-        return false;
+        return l_false;
     case level_kind::Meta:
         /* This can happen, for example, when we are in tmp_mode, but l1 and l2 are not tmp universe metavariables. */
-        return false;
+        return l_false;
     case level_kind::Zero:
         lean_unreachable();
     }
     lean_unreachable();
 }
 
+lbool type_context::partial_is_def_eq(level const & l1, level const & l2) {
+    return is_def_eq_core(l1, l2, true);
+}
+
+bool type_context::full_is_def_eq(level const & l1, level const & l2) {
+    lbool r = is_def_eq_core(l1, l2, false);
+    lean_assert(r != l_undef);
+    return r == l_true;
+}
+
 bool type_context::is_def_eq(level const & l1, level const & l2) {
-    bool success = is_def_eq_core(l1, l2);
-    lean_trace(name({"type_context", "univ_is_def_eq"}),
-               tout() << l1 << " =?= " << l2 << " ... "
-               << (success ? "success" : "failed") << "\n";);
-    return success;
+    lbool success = partial_is_def_eq(l1, l2);
+    if (success == l_undef) {
+        m_postponed.emplace_back(l1, l2);
+        lean_trace(name({"type_context", "univ_is_def_eq"}),
+                   tout() << l1 << " =?= " << l2 << " ... postponed\n";);
+        return true;
+    } else {
+        lean_trace(name({"type_context", "univ_is_def_eq"}),
+                   tout() << l1 << " =?= " << l2 << " ... " << (success == l_true ? "success" : "failed") << "\n";);
+        return success == l_true;
+    }
 }
 
 bool type_context::is_def_eq(levels const & ls1, levels const & ls2) {
@@ -1291,6 +1318,56 @@ bool type_context::is_def_eq(levels const & ls1, levels const & ls2) {
     }
 }
 
+bool type_context::process_postponed(scope const & s) {
+    unsigned sz = s.m_postponed_sz;
+    lean_assert(m_postponed.size() >= sz);
+    if (m_postponed.size() == sz)
+        return true;
+    buffer<pair<level, level>> b1, b2;
+    b1.append(m_postponed.size() - sz, m_postponed.data() + sz);
+    buffer<pair<level, level>> * curr, * next;
+    curr = &b1;
+    next = &b2;
+    while (true) {
+        for (auto p : *curr) {
+            auto r = partial_is_def_eq(p.first, p.second);
+            if (r == l_undef) {
+                next->push_back(p);
+            } else if (r == l_false) {
+                lean_trace(name({"type_context", "univ_is_def_eq_detail"}),
+                           tout() << "failed postponed: " << p.first << " =?= " << p.second << "\n";);
+                return false;
+            } else {
+                lean_trace(name({"type_context", "univ_is_def_eq_detail"}),
+                           tout() << "solved postponed: " << p.first << " =?= " << p.second << "\n";);
+            }
+        }
+        if (next->empty()) {
+            return true; // all constraints have been processed
+        } else if (next->size() < curr->size()) {
+            // easy constraints have been processed in this iteration
+            curr->clear();
+            std::swap(next, curr);
+            lean_assert(next->empty());
+        } else {
+            // use full (and approximate) is_def_eq to process the first constraint
+            // in next.
+            auto p = (*next)[0];
+            if (!full_is_def_eq(p.first, p.second)) {
+                lean_trace(name({"type_context", "univ_is_def_eq_detail"}),
+                           tout() << "failed (full) postponed: " << p.first << " =?= " << p.second << "\n";);
+                return false;
+            }
+            lean_trace(name({"type_context", "univ_is_def_eq_detail"}),
+                       tout() << "solved postponed: " << p.first << " =?= " << p.second << "\n";);
+            if (next->size() == 1)
+                return true; // the last constraint has been solved.
+            curr->clear();
+            curr->append(next->size() - 1, next->data() + 1);
+            next->clear();
+        }
+    }
+}
 
 /** \brief Return some definition \c d iff \c e is a target for delta-reduction,
     and the given definition is the one to be expanded. */
@@ -1915,7 +1992,7 @@ bool type_context::is_def_eq_eta(expr const & e1, expr const & e2) {
             expr new_e2 = ::lean::mk_lambda(binding_name(e2_type), binding_domain(e2_type),
                                             mk_app(e2, Var(0)), binding_info(e2_type));
             scope s(*this);
-            if (is_def_eq_core(e1, new_e2)) {
+            if (is_def_eq_core(e1, new_e2) && process_postponed(s)) {
                 s.commit();
                 return true;
             }
@@ -1929,7 +2006,7 @@ bool type_context::is_def_eq_proof_irrel(expr const & e1, expr const & e2) {
     if (is_prop(e1_type)) {
         expr e2_type = infer(e2);
         scope s(*this);
-        if (is_def_eq_core(e1_type, e2_type)) {
+        if (is_def_eq_core(e1_type, e2_type) && process_postponed(s)) {
             s.commit();
             return true;
         }
@@ -2154,7 +2231,8 @@ lbool type_context::is_def_eq_lazy_delta(expr & t, expr & s) {
                     /* Heuristic: try so solve (f a =?= f b), by solving (a =?= b) */
                     scope S(*this);
                     if (is_def_eq_args(t, s) &&
-                        is_def_eq(const_levels(get_app_fn(t)), const_levels(get_app_fn(s)))) {
+                        is_def_eq(const_levels(get_app_fn(t)), const_levels(get_app_fn(s))) &&
+                        process_postponed(S)) {
                         S.commit();
                         return l_true;
                     }
@@ -2355,7 +2433,8 @@ bool type_context::is_def_eq_core_core(expr const & t, expr const & s) {
     if (is_app(t_n) && is_app(s_n)) {
         scope s(*this);
         if (is_def_eq_args(t_n, s_n) &&
-            is_def_eq_core(get_app_fn(t_n), get_app_fn(s_n))) {
+            is_def_eq_core(get_app_fn(t_n), get_app_fn(s_n)) &&
+            process_postponed(s)) {
             s.commit();
             return true;
         }
@@ -2371,9 +2450,11 @@ bool type_context::is_def_eq_core_core(expr const & t, expr const & s) {
 }
 
 bool type_context::is_def_eq_core(expr const & t, expr const & s) {
+    unsigned postponed_sz = m_postponed.size();
     bool r = is_def_eq_core_core(t, s);
-    if (r)
+    if (r && postponed_sz == m_postponed.size()) {
         cache_equiv(t, s);
+    }
     return r;
 }
 
@@ -2385,7 +2466,7 @@ bool type_context::is_def_eq(expr const & t, expr const & s) {
                scope_trace_env scope(env(), *this);
                tout() << t << " =?= " << s << " ... "
                << (success ? "success" : "failed") << " " << (approximate() ? " (approximate mode)" : "") << "\n";);
-    if (success) {
+    if (success && process_postponed(S)) {
         S.commit();
         return true;
     } else {
@@ -2481,7 +2562,7 @@ public:
 
 bool type_context::try_unification_hint(unification_hint const & hint, expr const & e1, expr const & e2) {
     scope s(*this);
-    if (unification_hint_fn(*this, hint)(e1, e2)) {
+    if (unification_hint_fn(*this, hint)(e1, e2) && process_postponed(s)) {
         s.commit();
         return true;
     } else {

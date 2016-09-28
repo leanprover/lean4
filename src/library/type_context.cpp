@@ -2346,11 +2346,7 @@ bool type_context::is_def_eq_core_core(expr const & t, expr const & s) {
     if (r != l_undef) return r == l_true;
 
     if (is_constant(t_n) && is_constant(s_n) && const_name(t_n) == const_name(s_n)) {
-        scope s(*this);
-        if (is_def_eq(const_levels(t_n), const_levels(s_n))) {
-            s.commit();
-            return true;
-        }
+        return is_def_eq(const_levels(t_n), const_levels(s_n));
     }
 
     if (is_local(t_n) && is_local(s_n) && mlocal_name(t_n) == mlocal_name(s_n))

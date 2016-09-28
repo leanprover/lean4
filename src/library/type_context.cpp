@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "util/sexpr/option_declarations.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
+#include "kernel/error_msgs.h"
 #include "kernel/replace_fn.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/inductive/inductive.h"
@@ -21,6 +22,7 @@ Author: Leonardo de Moura
 #include "library/reducible.h"
 #include "library/constants.h"
 #include "library/metavar_util.h"
+#include "library/exception.h"
 #include "library/type_context.h"
 #include "library/locals.h"
 #include "library/aux_recursors.h"
@@ -814,8 +816,11 @@ expr type_context::infer_local(expr const & e) {
     lean_assert(is_local(e));
     if (is_local_decl_ref(e)) {
         auto d = m_lctx.get_local_decl(e);
-        if (!d)
-            throw exception("infer type failed, unknown variable");
+        if (!d) {
+            throw generic_exception(e, [=](formatter const & fmt) {
+                    return format("infer type failed, unknown variable") + pp_indent_expr(fmt, e);
+                });
+        }
         lean_assert(d);
         return d->get_type();
     } else {
@@ -825,11 +830,16 @@ expr type_context::infer_local(expr const & e) {
     }
 }
 
+static void throw_unknown_metavar(expr const & e) {
+    throw generic_exception(e, [=](formatter const & fmt) {
+            return format("infer type failed, unknown metavariable") + pp_indent_expr(fmt, e);
+        });
+}
+
 expr type_context::infer_metavar(expr const & e) {
     if (is_metavar_decl_ref(e)) {
         auto d = m_mctx.get_metavar_decl(e);
-        if (!d)
-            throw exception("infer type failed, unknown metavariable");
+        if (!d) throw_unknown_metavar(e);
         return d->get_type();
     } else {
         /* tmp metavariables should only occur in tmp_mode */
@@ -842,22 +852,30 @@ expr type_context::infer_constant(expr const & e) {
     declaration d   = env().get(const_name(e));
     auto const & ps = d.get_univ_params();
     auto const & ls = const_levels(e);
-    if (length(ps) != length(ls))
-        throw exception("infer type failed, incorrect number of universe levels");
+    if (length(ps) != length(ls)) {
+        throw generic_exception(e, [=](formatter const & fmt) {
+                auto new_fmt = fmt.update_option_if_undef(get_pp_universes_name(), true);
+                return format("infer type failed, incorrect number of universe levels") + pp_indent_expr(new_fmt, e);
+            });
+    }
     return instantiate_type_univ_params(d, ls);
 }
 
 expr type_context::infer_macro(expr const & e) {
     if (is_delayed_abstraction(e)) {
         expr const & mvar = get_delayed_abstraction_expr(e);
-        if (!is_metavar_decl_ref(mvar))
-            throw exception("unexpected occurrence of delayed abstraction macro");
+        if (!is_metavar_decl_ref(mvar)) {
+            throw generic_exception(e, [=](formatter const & fmt) {
+                    return format("unexpected occurrence of delayed abstraction macro") + pp_indent_expr(fmt, e)
+                        + line() + format("term") + pp_indent_expr(fmt, mvar)
+                        + line() + format("is not a metavariable in this context");
+                });
+        }
         buffer<name> ns;
         buffer<expr> es;
         get_delayed_abstraction_info(e, ns, es);
         auto d = m_mctx.get_metavar_decl(mvar);
-        if (!d)
-            throw exception("infer type failed, unknown metavariable");
+        if (!d) throw_unknown_metavar(mvar);
         return push_delayed_abstraction(d->get_type(), ns, es);
     }
     auto def = macro_def(e);
@@ -917,7 +935,9 @@ level type_context::get_level(expr const & A) {
     if (auto r = get_level_core(A)) {
         return *r;
     } else {
-        throw exception("infer type failed, sort expected");
+        throw generic_exception(A, [=](formatter const & fmt) {
+                return format("infer type failed, sort expected") + pp_indent_expr(fmt, A);
+            });
     }
 }
 
@@ -953,8 +973,13 @@ expr type_context::infer_app(expr const & e) {
         } else {
             lean_assert(m_transparency_mode == transparency_mode::All);
             f_type = whnf(instantiate_rev(f_type, i-j, args.data()+j));
-            if (!is_pi(f_type))
-                throw exception("infer type failed, Pi expected");
+            if (!is_pi(f_type)) {
+                throw generic_exception(e, [=](formatter const & fmt) {
+                        return format("infer type failed, function expected at") + pp_indent_expr(fmt, e)
+                            + line() + format("term") + pp_indent_expr(fmt, f)
+                            + line() + format("has type") + pp_indent_expr(fmt, f_type);
+                    });
+            }
             f_type = binding_body(f_type);
             j = i;
         }

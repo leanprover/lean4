@@ -15,8 +15,6 @@ Author: Leonardo de Moura
 
 namespace lean {
 environment mk_induction_on(environment const & env, name const & n) {
-    if (!env.impredicative())
-        throw exception("induction_on generation failed, Prop/Type.{0} is not impredicative in the given environment");
     if (!inductive::is_inductive_decl(env, n))
         throw exception(sstream() << "error in 'induction_on' generation, '" << n << "' is not an inductive datatype");
     name rec_on_name(n, "rec_on");

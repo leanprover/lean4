@@ -599,7 +599,7 @@ public:
             throw app_builder_exception();
         }
         level l_1    = sort_level(binding_body(mtype));
-        name const & eqrec = is_standard(m_ctx.env()) ? get_eq_rec_name() : get_eq_nrec_name();
+        name const & eqrec = get_eq_rec_name();
         return ::lean::mk_app({mk_constant(eqrec, {l_1, A_lvl}), A, lhs, motive, H1, rhs, H2});
     }
 
@@ -619,7 +619,7 @@ public:
             throw app_builder_exception();
         }
         level l_1    = sort_level(binding_body(binding_body(mtype)));
-        name const & eqrec = is_standard(m_ctx.env()) ? get_eq_drec_name() : get_eq_rec_name();
+        name const & eqrec = get_eq_drec_name();
         return ::lean::mk_app({mk_constant(eqrec, {l_1, A_lvl}), A, lhs, motive, H1, rhs, H2});
     }
 
@@ -734,12 +734,7 @@ public:
 
     expr mk_false_rec(expr const & c, expr const & H) {
         level c_lvl = get_level(c);
-        if (is_standard(m_ctx.env())) {
-            return ::lean::mk_app(mk_constant(get_false_rec_name(), {c_lvl}), c, H);
-        } else {
-            expr H_type = m_ctx.infer(H);
-            return ::lean::mk_app(mk_constant(get_empty_rec_name(), {c_lvl}), mk_lambda("e", H_type, c), H);
-        }
+        return ::lean::mk_app(mk_constant(get_false_rec_name(), {c_lvl}), c, H);
     }
 
     expr mk_congr_arg(expr const & f, expr const & H) {

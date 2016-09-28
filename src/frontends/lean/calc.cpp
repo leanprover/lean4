@@ -119,7 +119,7 @@ static expr mk_implies(parser & p, expr const & lhs, expr const & rhs, pos_info 
 static expr parse_pred(parser & p) {
     auto pos       = p.pos();
     expr pred      = p.parse_expr();
-    if (is_standard(p.env()) && is_arrow(pred))
+    if (is_arrow(pred))
         return mk_implies(p, binding_domain(pred), binding_body(pred), pos);
     else
         return pred;
@@ -127,7 +127,7 @@ static expr parse_pred(parser & p) {
 
 static expr parse_next_pred(parser & p, expr const & dummy) {
     auto pos       = p.pos();
-    if (is_standard(p.env()) && p.curr_is_token(get_arrow_tk())) {
+    if (p.curr_is_token(get_arrow_tk())) {
         p.next();
         expr rhs  = p.parse_expr();
         return mk_implies(p, dummy, rhs, pos);

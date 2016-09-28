@@ -142,14 +142,10 @@ public:
     normalize_fn(abstract_type_context & ctx, bool eta, bool nested_prop = true):
         m_ctx(ctx), m_pred([](expr const &) { return true; }),
         m_use_eta(eta), m_eval_nested_prop(nested_prop) {
-        if (!is_standard(env()))
-            m_eval_nested_prop = true;
     }
 
     normalize_fn(abstract_type_context & ctx, std::function<bool(expr const &)> const & fn, bool eta, bool nested_prop = true): // NOLINT
         m_ctx(ctx), m_pred(fn), m_use_eta(eta), m_eval_nested_prop(nested_prop) {
-        if (!is_standard(env()))
-            m_eval_nested_prop = true;
     }
 
     expr operator()(expr const & e) {

@@ -87,7 +87,7 @@ class add_basic_inductive_decl_fn {
         if (gen_rec_on)
             m_env = mk_rec_on(m_env, ind_name);
 
-        if (gen_rec_on && m_env.impredicative())
+        if (gen_rec_on)
             m_env = mk_induction_on(m_env, ind_name);
 
         if (has_unit) {
@@ -101,17 +101,13 @@ class add_basic_inductive_decl_fn {
 
             if (gen_brec_on && has_prod) {
                 m_env = mk_below(m_env, ind_name);
-                if (m_env.impredicative()) {
-                    m_env = mk_ibelow(m_env, ind_name);
-                }
+                m_env = mk_ibelow(m_env, ind_name);
             }
         }
 
         if (gen_brec_on && has_unit && has_prod) {
             m_env = mk_brec_on(m_env, ind_name);
-            if (m_env.impredicative()) {
-                m_env = mk_binduction_on(m_env, ind_name);
-            }
+            m_env = mk_binduction_on(m_env, ind_name);
         }
 
         m_env = mk_has_sizeof(m_env, ind_name);

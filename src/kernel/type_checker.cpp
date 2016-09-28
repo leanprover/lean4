@@ -145,7 +145,7 @@ expr type_checker::infer_pi(expr const & _e, bool infer_only) {
     unsigned i = ls.size();
     while (i > 0) {
         --i;
-        r = m_env.impredicative() ? mk_imax(us[i], r) : mk_max(us[i], r);
+        r = mk_imax(us[i], r);
     }
     return mk_sort(r);
 }
@@ -264,7 +264,7 @@ bool type_checker::is_def_eq_types(expr const & t, expr const & s) {
 
 /** \brief Return true iff \c e is a proposition */
 bool type_checker::is_prop(expr const & e) {
-    return m_env.impredicative() && whnf(infer_type(e)) == mk_Prop();
+    return whnf(infer_type(e)) == mk_Prop();
 }
 
 /** \brief Apply normalizer extensions to \c e. */

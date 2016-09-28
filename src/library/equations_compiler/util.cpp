@@ -344,7 +344,7 @@ static optional<expr> find_if_neg_hypothesis(type_context & ctx, expr const & c,
     for (expr const & H : Hs) {
         expr H_type = ctx.infer(H);
         expr arg;
-        if (is_not(ctx.env(), H_type, arg) && ctx.is_def_eq(c, arg)) {
+        if (is_not(H_type, arg) && ctx.is_def_eq(c, arg)) {
             return some_expr(H);
         }
     }

@@ -31,26 +31,20 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
         throw exception(sstream() << "error in 'no_confusion' generation, '" << n << "' is not an inductive datatype");
     if (is_inductive_predicate(env, n) || !can_elim_to_type(env, n))
         return optional<environment>();
-    bool impredicative     = env.impredicative();
     unsigned nparams       = decl->m_num_params;
     declaration ind_decl   = env.get(n);
     declaration cases_decl = env.get(name(n, "cases_on"));
     level_param_names lps  = cases_decl.get_univ_params();
     level  plvl            = mk_param_univ(head(lps));
     levels ilvls           = param_names_to_levels(tail(lps));
-    level rlvl;
+    level rlvl             = plvl;
     expr ind_type          = instantiate_type_univ_params(ind_decl, ilvls);
     level ind_lvl          = get_datatype_level(ind_type);
-    if (impredicative)
-        rlvl = plvl;
-    else
-        rlvl = mk_max(plvl, ind_lvl);
     // All inductive datatype parameters and indices are arguments
     buffer<expr> args;
     ind_type = to_telescope(ind_type, args, some(mk_implicit_binder_info()));
     if (!is_sort(ind_type) || args.size() < nparams)
         throw_corrupted(n);
-    lean_assert(!(env.impredicative() && is_zero(sort_level(ind_type))));
     unsigned nindices      = args.size() - nparams;
     // Create inductive datatype
     expr I = mk_app(mk_constant(n, ilvls), args);
@@ -63,11 +57,7 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
     args.push_back(v1);
     args.push_back(v2);
     expr R = mk_sort(rlvl);
-    expr Pres;
-    if (impredicative)
-        Pres = P;
-    else
-        Pres = mk_app(mk_constant(get_lift_name(), {plvl, ind_lvl}), P);
+    expr Pres = P;
     name no_confusion_type_name{n, "no_confusion_type"};
     expr no_confusion_type_type = Pi(args, R);
     // Create type former
@@ -148,7 +138,6 @@ environment mk_no_confusion(environment const & env, name const & n) {
         return env;
     environment new_env = *env1;
     type_checker tc(new_env);
-    bool impredicative                 = env.impredicative();
     inductive::inductive_decl decl     = *inductive::is_inductive_decl(new_env, n);
     unsigned nparams                   = decl.m_num_params;
     declaration ind_decl               = env.get(n);
@@ -169,14 +158,9 @@ environment mk_no_confusion(environment const & env, name const & n) {
     expr v1           = args[args.size()-2];
     expr v2           = args[args.size()-1];
     expr v_type       = mlocal_type(v1);
-    expr lift_up;
-    if (!impredicative) {
-        lift_up = mk_app(mk_constant(get_lift_up_name(), {head(ls), ind_lvl}), P);
-    }
     level v_lvl       = sort_level(tc.ensure_type(v_type));
     expr eq_v         = mk_app(mk_constant(get_eq_name(), to_list(v_lvl)), v_type);
     expr H12          = mk_local(mk_fresh_name(), "H12", mk_app(eq_v, v1, v2), binder_info());
-    lean_assert(impredicative != inductive::has_dep_elim(env, get_eq_name()));
     args.push_back(H12);
     name no_confusion_name{n, "no_confusion"};
     expr no_confusion_ty = Pi(args, range);
@@ -203,11 +187,7 @@ environment mk_no_confusion(environment const & env, name const & n) {
     expr no_confusion_type_app = mk_app(mk_constant(no_confusion_type_decl.get_name(), ls), no_confusion_type_args);
     expr type_former = Fun(type_former_args, no_confusion_type_app);
     // create cases_on
-    levels clvls;
-    if (impredicative)
-        clvls = ls;
-    else
-        clvls = cons(mk_max(head(ls), ind_lvl), tail(ls));
+    levels clvls   = ls;
     expr cases_on  = mk_app(mk_app(mk_constant(cases_decl.get_name(), clvls), nparams, args.data()), type_former);
     cases_on       = mk_app(mk_app(cases_on, nindices, args.data() + nparams), v1);
     expr cot       = tc.infer(cases_on);
@@ -230,23 +210,16 @@ environment mk_no_confusion(environment const & env, name const & n) {
             Ht = binding_body(Ht);
         }
         expr pr  = mk_app(H, refl_args);
-        if (!impredicative)
-            pr   = mk_app(lift_up, pr);
         cases_on = mk_app(cases_on, Fun(minor_args, pr));
         cot = binding_body(cot);
     }
     expr gen = cases_on;
-    if (impredicative)
-        gen = Fun(H11, gen);
+    gen = Fun(H11, gen);
     // Now, we use gen to build the final proof using eq.rec
     //
     //  eq.rec InductiveType v1 (fun (a : InductiveType), v1 = a -> no_confusion_type Params Indices v1 a) gen v2 H12 H12
     //
-    level eq_rec_l1;
-    if (impredicative)
-        eq_rec_l1 = head(ls);
-    else
-        eq_rec_l1 = mk_max(head(ls), ind_lvl);
+    level eq_rec_l1 = head(ls);
     expr eq_rec = mk_app(mk_constant(get_eq_rec_name(), {eq_rec_l1, v_lvl}), v_type, v1);
     // create eq_rec type_former
     //    (fun (a : InductiveType), v1 = a -> no_confusion_type Params Indices v1 a)
@@ -256,15 +229,9 @@ environment mk_no_confusion(environment const & env, name const & n) {
     no_confusion_type_args.pop_back();
     no_confusion_type_args.push_back(a);
     expr no_confusion_type_app_1a = mk_app(mk_constant(no_confusion_type_decl.get_name(), ls), no_confusion_type_args);
-    if (impredicative) {
-        expr rec_type_former = Fun(a, Pi(H1a, no_confusion_type_app_1a));
-        // finalize eq_rec
-        eq_rec = mk_app(mk_app(eq_rec, rec_type_former, gen, v2, H12), H12);
-    } else {
-        expr rec_type_former = Fun(a, Fun(H1a, no_confusion_type_app_1a));
-        // finalize eq_rec
-        eq_rec = mk_app(eq_rec, rec_type_former, gen, v2, H12);
-    }
+    expr rec_type_former = Fun(a, Pi(H1a, no_confusion_type_app_1a));
+    // finalize eq_rec
+    eq_rec = mk_app(mk_app(eq_rec, rec_type_former, gen, v2, H12), H12);
     //
     expr no_confusion_val = Fun(args, eq_rec);
     declaration new_d = mk_definition_inferring_trusted(new_env, no_confusion_name, lps, no_confusion_ty, no_confusion_val,

@@ -14,8 +14,6 @@ using inductive::inductive_normalizer_extension;
 environment mk_environment(unsigned trust_lvl) {
     return environment(trust_lvl,
                        true /* Type.{0} is proof irrelevant */,
-                       true /* Eta */,
-                       true /* Type.{0} is impredicative */,
                        /* builtin support for inductive */
                        compose(std::unique_ptr<normalizer_extension>(new inductive_normalizer_extension()),
                                std::unique_ptr<normalizer_extension>(new quotient_normalizer_extension())));

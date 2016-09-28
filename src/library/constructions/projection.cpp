@@ -182,7 +182,7 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
     name rec_name                = inductive::get_elim_name(n);
     declaration ind_decl         = env.get(n);
     declaration rec_decl         = env.get(rec_name);
-    bool is_predicate            = env.impredicative() && is_prop(ind_decl.get_type());
+    bool is_predicate            = is_prop(ind_decl.get_type());
     bool elim_to_prop            = rec_decl.get_num_univ_params() == ind_decl.get_num_univ_params();
     bool dep_elim                = inductive::has_dep_elim(env, n);
     level_param_names lvl_params = ind_decl.get_univ_params();

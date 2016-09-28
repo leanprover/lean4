@@ -220,14 +220,10 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
     level motive_lvl = sort_level(C_rtype);
     // Remark: if we are in the standard environment, then the motive may be a proposition, and be fixed at 0.
     // The following pragma is for avoiding gcc bogus warning
-    if (!is_standard(env) || !is_zero(motive_lvl)) {
+    if (!is_zero(motive_lvl)) {
         if (!is_param(motive_lvl)) {
-            if (is_standard(env))
-                throw exception("invalid user defined recursor, "
-                                "motive result sort must be Prop or Type.{l} where l is a universe parameter");
-            else
-                throw exception("invalid user defined recursor, "
-                                "motive result sort must be Type.{l} where l is a universe parameter");
+            throw exception("invalid user defined recursor, "
+                            "motive result sort must be Prop or Type.{l} where l is a universe parameter");
         }
     }
 

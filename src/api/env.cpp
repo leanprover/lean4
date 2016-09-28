@@ -55,10 +55,6 @@ lean_bool lean_env_proof_irrel(lean_env e) {
     return e && to_env_ref(e).prop_proof_irrel();
 }
 
-lean_bool lean_env_impredicative(lean_env e) {
-    return e && to_env_ref(e).impredicative();
-}
-
 lean_bool lean_env_contains_univ(lean_env e, lean_name n) {
     return e && n && to_env_ref(e).is_universe(to_name_ref(n));
 }

@@ -230,10 +230,9 @@ expr Pi_as_is(buffer<expr> const & locals, expr const & e, parser & p) {
     return p.rec_save_pos(mk_binding_as_is<false>(locals.size(), locals.data(), e), p.pos_of(e));
 }
 
-level mk_result_level(environment const & env, buffer<level> const & r_lvls) {
-    bool impredicative = env.impredicative();
+level mk_result_level(buffer<level> const & r_lvls) {
     if (r_lvls.empty()) {
-        return impredicative ? mk_level_one() : mk_level_zero();
+        return mk_level_one();
     } else {
         level r = r_lvls[0];
         for (unsigned i = 1; i < r_lvls.size(); i++)
@@ -242,7 +241,7 @@ level mk_result_level(environment const & env, buffer<level> const & r_lvls) {
         if (is_not_zero(r))
             return normalize(r);
         else
-            return impredicative ? normalize(mk_max(r, mk_level_one())) : normalize(r);
+            return normalize(mk_max(r, mk_level_one()));
     }
 }
 

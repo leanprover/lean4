@@ -247,13 +247,13 @@ struct structure_cmd_fn {
                 m_type = get_annotation_arg(m_type);
             if (!is_sort(m_type))
                 throw parser_error("invalid 'structure', 'Type' expected", pos);
-            m_inductive_predicate = m_env.impredicative() && is_zero(sort_level(m_type));
+            m_inductive_predicate = is_zero(sort_level(m_type));
             if (m_inductive_predicate) {
                 m_infer_result_universe = false;
             } else {
                 m_infer_result_universe = is_placeholder(sort_level(m_type));
                 if (!m_infer_result_universe) {
-                    if (m_env.impredicative() && !is_zero(sort_level(m_type)) && !is_not_zero(sort_level(m_type)))
+                    if (!is_zero(sort_level(m_type)) && !is_not_zero(sort_level(m_type)))
                         throw parser_error("invalid universe polymorphic structure declaration, "
                                            "the resultant universe is not Prop (i.e., 0), "
                                            "but it may be Prop for some parameter values "
@@ -588,7 +588,7 @@ struct structure_cmd_fn {
         if (m_infer_result_universe) {
             buffer<level> r_lvls;
             accumulate_levels(r_lvls);
-            level r_lvl = mk_result_level(m_env, r_lvls);
+            level r_lvl = mk_result_level(r_lvls);
             m_type      = mk_sort(r_lvl);
         }
     }
@@ -726,11 +726,9 @@ struct structure_cmd_fn {
         name rec_on_name(m_name, "rec_on");
         add_rec_alias(rec_on_name);
         m_env = add_aux_recursor(m_env, rec_on_name);
-        if (m_env.impredicative()) {
-            m_env = mk_induction_on(m_env, m_name);
-            name induction_on_name(m_name, "induction_on");
-            add_alias(induction_on_name);
-        }
+        m_env = mk_induction_on(m_env, m_name);
+        name induction_on_name(m_name, "induction_on");
+        add_alias(induction_on_name);
         add_rec_on_alias(name(m_name, "destruct"));
         name cases_on_name(m_name, "cases_on");
         add_rec_on_alias(cases_on_name);
@@ -822,9 +820,7 @@ struct structure_cmd_fn {
     void declare_no_confustion() {
         if (!has_eq_decls(m_env))
             return;
-        if (m_env.impredicative() && !has_heq_decls(m_env))
-            return;
-        if (!m_env.impredicative() && !has_lift_decls(m_env))
+        if (!has_heq_decls(m_env))
             return;
         m_env = mk_no_confusion(m_env, m_name);
         name no_confusion_name(m_name, "no_confusion");

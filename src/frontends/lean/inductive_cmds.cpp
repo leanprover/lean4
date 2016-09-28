@@ -221,7 +221,7 @@ class inductive_cmd_fn {
         for (unsigned i = 0; i < num_intro_rules; i++) {
             accumulate_levels(mlocal_type(intro_rules[i]), r_lvls);
         }
-        return mk_result_level(m_env, r_lvls);
+        return mk_result_level(r_lvls);
     }
 
     /** \brief Return the universe level of the given type, if it is not a sort, then raise an exception. */

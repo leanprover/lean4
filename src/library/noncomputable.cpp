@@ -85,8 +85,6 @@ environment mark_noncomputable(environment const & env, name const & n) {
 }
 
 optional<name> get_noncomputable_reason(environment const & env, name const & n) {
-    if (!is_standard(env))
-        return optional<name>(); // do nothing if it is not a standard kernel
     declaration const & d = env.get(n);
     if (!d.is_definition())
         return optional<name>();

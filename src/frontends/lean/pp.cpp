@@ -423,8 +423,6 @@ bool pretty_fn::is_implicit(expr const & f) {
 
 bool pretty_fn::is_prop(expr const & e) {
     try {
-        if (!m_env.impredicative())
-            return false;
         expr t = m_ctx.relaxed_whnf(m_ctx.infer(e));
         return t == mk_Prop();
     } catch (exception &) {
@@ -610,8 +608,8 @@ auto pretty_fn::pp_var(expr const & e) -> result {
 auto pretty_fn::pp_sort(expr const & e) -> result {
     level u = sort_level(e);
     if (u == mk_level_zero()) {
-        return m_env.impredicative() ? result(format("Prop")) : result(format("Type"));
-    } else if (m_env.impredicative() && u == mk_level_one()) {
+        return result(format("Prop"));
+    } else if (u == mk_level_one()) {
         return result(format("Type"));
     } else {
         return result(group(format("Type") + space() + nest(5, pp_child(u))));

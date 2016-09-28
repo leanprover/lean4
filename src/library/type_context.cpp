@@ -931,10 +931,9 @@ expr type_context::infer_pi(expr e) {
     e = instantiate_rev(e, ls.size(), ls.data());
     level r = get_level(e);
     unsigned i = ls.size();
-    bool imp = env().impredicative();
     while (i > 0) {
         --i;
-        r = imp ? mk_imax(us[i], r) : mk_max(us[i], r);
+        r = mk_imax(us[i], r);
     }
     return mk_sort(r);
 }
@@ -986,12 +985,8 @@ expr type_context::check(expr const & e) {
 }
 
 bool type_context::is_prop(expr const & e) {
-    if (env().impredicative()) {
-        expr t = whnf(infer(e));
-        return t == mk_Prop();
-    } else {
-        return false;
-    }
+    expr t = whnf(infer(e));
+    return t == mk_Prop();
 }
 
 bool type_context::is_proof(expr const & e) {
@@ -2953,11 +2948,7 @@ optional<expr> type_context::mk_subsingleton_instance(expr const & type) {
         return none_expr();
     }
     level lvl    = sort_level(Type);
-    expr subsingleton;
-    if (is_standard(env()))
-        subsingleton = mk_app(mk_constant(get_subsingleton_name(), {lvl}), type);
-    else
-        subsingleton = whnf(mk_app(mk_constant(get_is_trunc_is_prop_name(), {lvl}), type));
+    expr subsingleton =mk_app(mk_constant(get_subsingleton_name(), {lvl}), type);
     auto r = mk_class_instance(subsingleton);
     m_cache->m_subsingleton_cache.insert(mk_pair(type, r));
     return r;

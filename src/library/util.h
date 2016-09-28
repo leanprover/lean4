@@ -211,12 +211,10 @@ expr mk_subsingleton_elim(abstract_type_context & ctx, expr const & h, expr cons
 
 /** \brief Return true iff \c e is a term of the form (eq.rec ....) */
 bool is_eq_rec_core(expr const & e);
-/** \brief Return true iff \c e is a term of the form (eq.rec ....) in the standard library,
-    and (eq.nrec ...) in the HoTT library. */
-bool is_eq_rec(environment const & env, expr const & e);
-/** \brief Return true iff \c e is a term of the form (eq.drec ....) in the standard library,
-    and (eq.rec ...) in the HoTT library. */
-bool is_eq_drec(environment const & env, expr const & e);
+/** \brief Return true iff \c e is a term of the form (eq.rec ....) */
+bool is_eq_rec(expr const & e);
+/** \brief Return true iff \c e is a term of the form (eq.drec ....) */
+bool is_eq_drec(expr const & e);
 
 bool is_eq(expr const & e);
 bool is_eq(expr const & e, expr & lhs, expr & rhs);
@@ -230,21 +228,12 @@ expr mk_heq(abstract_type_context & ctx, expr const & lhs, expr const & rhs);
 bool is_heq(expr const & e);
 bool is_heq(expr const & e, expr & A, expr & lhs, expr & B, expr & rhs);
 
-/** \brief If in HoTT mode, apply lift.down.
-    The no_confusion constructions uses lifts in the proof relevant version (aka HoTT mode).
-    We must apply lift.down to eliminate the auxiliary lift. */
-optional<expr> lift_down_if_hott(abstract_type_context & ctx, expr const & v);
-
 expr mk_false();
 expr mk_empty();
-/** \brief Return false (in standard mode) and empty (in HoTT) mode */
-expr mk_false(environment const & env);
 
 bool is_false(expr const & e);
 bool is_empty(expr const & e);
-/** \brief Return true iff \c e is false (in standard mode) or empty (in HoTT) mode */
-bool is_false(environment const & env, expr const & e);
-/** \brief Return an element of type t given an element \c f : false (in standard mode) and empty (in HoTT) mode */
+/** \brief Return an element of type t given an element \c f : false */
 expr mk_false_rec(abstract_type_context & ctx, expr const & f, expr const & t);
 
 bool is_or(expr const & e);
@@ -252,10 +241,8 @@ bool is_or(expr const & e, expr & A, expr & B);
 
 /** \brief Return true if \c e is of the form <tt>(not arg)</tt>, and store \c arg in \c a.
      Return false otherwise */
-bool is_not(environment const & env, expr const & e, expr & a);
 bool is_not(expr const & e, expr & a);
-bool is_not(environment const & env, expr const & e);
-expr mk_not(abstract_type_context & ctx, expr const & e);
+expr mk_not(expr const & e);
 
 /** \brief Create the term <tt>absurd e not_e : t</tt>. */
 expr mk_absurd(abstract_type_context & ctx, expr const & t, expr const & e, expr const & not_e);

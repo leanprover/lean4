@@ -54,11 +54,11 @@ class to_ceqvs_fn {
         expr c, Hdec, A, arg1, arg2;
         if (is_relation(e)) {
             return mk_singleton(e, H);
-        } else if (is_standard(m_env) && is_not(m_env, e, arg1)) {
+        } else if (is_not(e, arg1)) {
             expr new_e = mk_iff(arg1, mk_false());
             expr new_H = mk_app(mk_constant(get_iff_false_intro_name()), arg1, H);
             return mk_singleton(new_e, new_H);
-        } else if (is_standard(m_env) && is_and(e, arg1, arg2)) {
+        } else if (is_and(e, arg1, arg2)) {
             // TODO(Leo): we can extend this trick to any type that has only one constructor
             expr H1 = mk_app(mk_constant(get_and_elim_left_name()), arg1, arg2, H);
             expr H2 = mk_app(mk_constant(get_and_elim_right_name()), arg1, arg2, H);
@@ -79,7 +79,7 @@ class to_ceqvs_fn {
             } else {
                 return lift(local, r);
             }
-        } else if (is_standard(m_env) && is_ite(e, c, Hdec, A, arg1, arg2) && is_prop(e)) {
+        } else if (is_ite(e, c, Hdec, A, arg1, arg2) && is_prop(e)) {
             // TODO(Leo): support HoTT mode if users request
             expr not_c = mk_app(mk_constant(get_not_name()), c);
             type_context::tmp_locals local_factory(m_tmp_tctx.tctx());
@@ -98,7 +98,7 @@ class to_ceqvs_fn {
                 if (auto r = apply(new_e, H, true))
                     return r;
             }
-            if (is_standard(m_env) && is_prop(e)) {
+            if (is_prop(e)) {
                 expr new_e = mk_iff(e, mk_true());
                 expr new_H = mk_app(mk_constant(get_iff_true_intro_name()), e, H);
                 return mk_singleton(new_e, new_H);
@@ -157,7 +157,6 @@ bool is_ceqv(tmp_type_context & tmp_tctx, expr e) {
         }
     };
     environment const & env = tmp_tctx.env();
-    bool is_std = is_standard(env);
     buffer<expr> hypotheses; // arguments that are propositions
     type_context::tmp_locals local_factory(tmp_tctx.tctx());
     while (is_pi(e)) {
@@ -171,7 +170,7 @@ bool is_ceqv(tmp_type_context & tmp_tctx, expr e) {
         if (binding_info(e).is_inst_implicit()) {
             // If the argument can be instantiated by type class resolution, then
             // we don't need to find it in the lhs
-        } else if (is_std && tmp_tctx.is_prop(binding_domain(e))) {
+        } else if (tmp_tctx.is_prop(binding_domain(e))) {
             // If the argument is a proposition, we store it in hypotheses.
             // We check whether the lhs occurs in hypotheses or not.
             hypotheses.push_back(binding_domain(e));

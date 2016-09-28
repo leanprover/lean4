@@ -1925,8 +1925,6 @@ bool type_context::is_def_eq_eta(expr const & e1, expr const & e2) {
 }
 
 bool type_context::is_def_eq_proof_irrel(expr const & e1, expr const & e2) {
-    if (!env().prop_proof_irrel())
-        return false;
     expr e1_type = infer(e1);
     if (is_prop(e1_type)) {
         expr e2_type = infer(e2);

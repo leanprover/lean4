@@ -95,7 +95,7 @@ struct cases_tactic_fn {
             return false;
         if (!m_env.find(name{const_name(fn), "cases_on"}) || !m_env.find(get_eq_name()))
             return false;
-        if (is_standard(m_env) && !m_env.find(get_heq_name()))
+        if (!m_env.find(get_heq_name()))
             return false;
         init_inductive_info(const_name(fn));
         if (args.size() != m_nindices + m_nparams)
@@ -178,7 +178,6 @@ struct cases_tactic_fn {
 
         The original goal is solved if we can solve the produced goal. */
     expr generalize_indices(expr const & mvar, expr const & h, buffer<name> & new_indices_H, unsigned & num_eqs) {
-        lean_assert(is_standard(m_env));
         metavar_decl g     = *m_mctx.get_metavar_decl(mvar);
         type_context ctx   = mk_type_context_for(g);
         expr h_type        = ctx.relaxed_whnf(ctx.infer(h));

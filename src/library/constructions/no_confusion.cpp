@@ -94,25 +94,20 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
                     throw_corrupted(n);
                 buffer<expr> rtype_hyp;
                 // add equalities
-                if (env.prop_proof_irrel()) {
-                    // proof irrelevance version using heterogeneous equality
-                    for (unsigned i = 0; i < minor1_args.size(); i++) {
-                        expr lhs      = minor1_args[i];
-                        expr rhs      = minor2_args[i];
-                        expr lhs_type = mlocal_type(lhs);
-                        expr rhs_type = mlocal_type(rhs);
-                        level l       = sort_level(tc.ensure_type(lhs_type));
-                        expr h_type;
-                        if (tc.is_def_eq(lhs_type, rhs_type)) {
-                            h_type = mk_app(mk_constant(get_eq_name(), to_list(l)), lhs_type, lhs, rhs);
-                        } else {
-                            h_type = mk_app(mk_constant(get_heq_name(), to_list(l)), lhs_type, lhs, rhs_type, rhs);
-                        }
-                        rtype_hyp.push_back(mk_local(mk_fresh_name(), local_pp_name(lhs).append_after("_eq"), h_type, binder_info()));
+                // proof irrelevance version using heterogeneous equality
+                for (unsigned i = 0; i < minor1_args.size(); i++) {
+                    expr lhs      = minor1_args[i];
+                    expr rhs      = minor2_args[i];
+                    expr lhs_type = mlocal_type(lhs);
+                    expr rhs_type = mlocal_type(rhs);
+                    level l       = sort_level(tc.ensure_type(lhs_type));
+                    expr h_type;
+                    if (tc.is_def_eq(lhs_type, rhs_type)) {
+                        h_type = mk_app(mk_constant(get_eq_name(), to_list(l)), lhs_type, lhs, rhs);
+                    } else {
+                        h_type = mk_app(mk_constant(get_heq_name(), to_list(l)), lhs_type, lhs, rhs_type, rhs);
                     }
-                } else {
-                    // we use telescope equality (with casts) when proof irrelevance is not available
-                    mk_telescopic_eq(tc, minor1_args, minor2_args, rtype_hyp);
+                    rtype_hyp.push_back(mk_local(mk_fresh_name(), local_pp_name(lhs).append_after("_eq"), h_type, binder_info()));
                 }
                 inner_cases_on_args.push_back(Fun(minor2_args, mk_arrow(Pi(rtype_hyp, P), Pres)));
             }

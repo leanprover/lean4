@@ -43,13 +43,11 @@ class environment_header {
        allow us to add declarations without type checking them (e.g., m_trust_lvl > LEAN_BELIEVER_TRUST_LEVEL)
     */
     unsigned m_trust_lvl;
-    bool m_prop_proof_irrel;  //!< true if the kernel assumes proof irrelevance for Prop (aka Type.{0})
     std::unique_ptr<normalizer_extension const> m_norm_ext;
     void dealloc();
 public:
-    environment_header(unsigned trust_lvl, bool prop_proof_irrel, std::unique_ptr<normalizer_extension const> ext);
+    environment_header(unsigned trust_lvl, std::unique_ptr<normalizer_extension const> ext);
     unsigned trust_lvl() const { return m_trust_lvl; }
-    bool prop_proof_irrel() const { return m_prop_proof_irrel; }
     normalizer_extension const & norm_ext() const { return *(m_norm_ext.get()); }
     bool is_recursor(environment const & env, name const & n) const { return m_norm_ext->is_recursor(env, n); }
     bool is_builtin(environment const & env, name const & n) const { return m_norm_ext->is_builtin(env, n); }
@@ -93,7 +91,6 @@ public:
    \brief Lean core environment. An environment object can be extended/customized in different ways:
 
    1- By providing a normalizer_extension when creating an empty environment.
-   2- By setting the proof_irrel when creating an empty environment.
    3- By attaching additional data as environment::extensions. The additional data can be added
       at any time. They contain information used by the automation (e.g., rewriting sets, unification hints, etc).
 */
@@ -120,8 +117,8 @@ class environment {
     */
     environment add(declaration const & d) const;
 public:
-    environment(unsigned trust_lvl = 0, bool prop_proof_irrel = true);
-    environment(unsigned trust_lvl, bool prop_proof_irrel, std::unique_ptr<normalizer_extension> ext);
+    environment(unsigned trust_lvl = 0);
+    environment(unsigned trust_lvl, std::unique_ptr<normalizer_extension> ext);
     ~environment();
 
     /** \brief Return the environment unique identifier. */
@@ -132,9 +129,6 @@ public:
 
     /** \brief Return the trust level of this environment. */
     unsigned trust_lvl() const { return m_header->trust_lvl(); }
-
-    /** \brief Return true iff the environment assumes proof irrelevance for Type.{0} (i.e., Prop) */
-    bool prop_proof_irrel() const { return m_header->prop_proof_irrel(); }
 
     bool is_recursor(name const & n) const { return m_header->is_recursor(*this, n); }
 

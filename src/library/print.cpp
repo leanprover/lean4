@@ -102,7 +102,6 @@ name fix_internal_name(name const & a) {
 */
 struct print_expr_fn {
     std::ostream & m_out;
-    bool m_type0_as_bool;
 
     std::ostream & out() { return m_out; }
 
@@ -127,11 +126,8 @@ struct print_expr_fn {
 
     void print_sort(expr const & a) {
         if (is_zero(sort_level(a))) {
-            if (m_type0_as_bool)
-                out() << "Prop";
-            else
-                out() << "Type";
-        } else if (m_type0_as_bool && is_one(sort_level(a))) {
+            out() << "Prop";
+        } else if (is_one(sort_level(a))) {
             out() << "Type";
         } else {
             out() << "Type.{" << sort_level(a) << "}";
@@ -253,7 +249,7 @@ struct print_expr_fn {
         }
     }
 
-    print_expr_fn(std::ostream & out, bool type0_as_bool = true):m_out(out), m_type0_as_bool(type0_as_bool) {}
+    print_expr_fn(std::ostream & out):m_out(out) {}
 
     void operator()(expr const & e) {
         scoped_expr_caching set(false);
@@ -265,7 +261,7 @@ formatter_factory mk_print_formatter_factory() {
     return [](environment const & env, options const & o, abstract_type_context &) { // NOLINT
         return formatter(o, [=](expr const & e, options const &) {
                 std::ostringstream s;
-                print_expr_fn pr(s, env.prop_proof_irrel());
+                print_expr_fn pr(s);
                 pr(e);
                 return format(s.str());
             });

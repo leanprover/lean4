@@ -94,8 +94,7 @@ class add_basic_inductive_decl_fn {
             if (gen_cases_on)
                 m_env = mk_cases_on(m_env, ind_name);
 
-            if (gen_cases_on && gen_no_confusion && has_eq
-                && ((m_env.prop_proof_irrel() && has_heq) || (!m_env.prop_proof_irrel() && has_lift))) {
+            if (gen_cases_on && gen_no_confusion && has_eq && has_heq) {
                 m_env = mk_no_confusion(m_env, ind_name);
             }
 

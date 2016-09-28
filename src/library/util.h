@@ -41,9 +41,6 @@ optional<expr> unfold_app(environment const & env, expr const & e);
     \pre is_not_zero(l) */
 optional<level> dec_level(level const & l);
 
-/** \brief Return true iff \c env has been configured with an impredicative and proof irrelevant Prop. */
-bool is_standard(environment const & env);
-
 bool has_poly_unit_decls(environment const & env);
 bool has_eq_decls(environment const & env);
 bool has_heq_decls(environment const & env);
@@ -134,12 +131,6 @@ expr fun_to_telescope(expr const & e, buffer<expr> & telescope, optional<binder_
 /** \brief Similar to previous procedure, but puts \c type in whnf */
 expr to_telescope(type_checker & ctx, expr type, buffer<expr> & telescope,
                   optional<binder_info> const & binfo = optional<binder_info>());
-
-/** \brief Create a telescope equality for HoTT library.
-    This procedure assumes eq supports dependent elimination.
-    For HoTT, we can't use heterogeneous equality. */
-void mk_telescopic_eq(type_checker & tc, buffer<expr> const & t, buffer<expr> const & s, buffer<expr> & eqs);
-void mk_telescopic_eq(type_checker & tc, buffer<expr> const & t, buffer<expr> & eqs);
 
 /** \brief Return the universe where inductive datatype resides
     \pre \c ind_type is of the form <tt>Pi (a_1 : A_1) (a_2 : A_2[a_1]) ..., Type.{lvl}</tt> */

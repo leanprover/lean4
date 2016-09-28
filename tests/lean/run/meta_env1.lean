@@ -5,7 +5,6 @@ meta definition e := environment.mk_std 0
 definition hints := reducibility_hints.regular 10 tt
 
 vm_eval environment.trust_lvl e
-vm_eval environment.is_std e
 
 vm_eval (environment.add e (declaration.defn `foo []
                                              (expr.sort (level.succ (level.zero)))

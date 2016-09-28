@@ -62,10 +62,6 @@ bool is_app_of(expr const & t, name const & f_name, unsigned nargs) {
     return is_constant(fn) && const_name(fn) == f_name && get_app_num_args(t) == nargs;
 }
 
-bool is_standard(environment const & env) {
-    return env.prop_proof_irrel();
-}
-
 optional<expr> unfold_term(environment const & env, expr const & e) {
     expr const & f = get_app_fn(e);
     if (!is_constant(f))
@@ -360,62 +356,6 @@ expr to_telescope(type_checker & ctx, expr type, buffer<expr> & telescope, optio
     }
     return type;
 }
-
-void mk_telescopic_eq(type_checker & tc, buffer<expr> const & t, buffer<expr> const & s, buffer<expr> & eqs) {
-    lean_assert(t.size() == s.size());
-    lean_assert(std::all_of(s.begin(), s.end(), is_local));
-    lean_assert(inductive::has_dep_elim(tc.env(), get_eq_name()));
-    buffer<buffer<expr>> t_aux;
-    name e_name("e");
-    for (unsigned i = 0; i < t.size(); i++) {
-        expr s_i = s[i];
-        expr s_i_ty   = mlocal_type(s_i);
-        expr s_i_ty_a = abstract_locals(s_i_ty, i, s.data());
-        expr t_i = t[i];
-        t_aux.push_back(buffer<expr>());
-        t_aux.back().push_back(t_i);
-        for (unsigned j = 0; j < i; j++) {
-            if (depends_on(s_i_ty, s[j])) {
-                // we need to "cast"
-                buffer<expr> ty_inst_args;
-                for (unsigned k = 0; k <= j; k++)
-                    ty_inst_args.push_back(s[k]);
-                for (unsigned k = j + 1; k < i; k++)
-                    ty_inst_args.push_back(t_aux[k][j+1]);
-                lean_assert(ty_inst_args.size() == i);
-                expr s_i_ty = instantiate_rev(s_i_ty_a, i, ty_inst_args.data());
-                buffer<expr> rec_args;
-                rec_args.push_back(mlocal_type(s[j]));
-                rec_args.push_back(t_aux[j][j]);
-                rec_args.push_back(Fun(s[j], Fun(eqs[j], s_i_ty))); // type former ("promise")
-                rec_args.push_back(t_i); // minor premise
-                rec_args.push_back(s[j]);
-                rec_args.push_back(eqs[j]);
-                level rec_l1 = get_level(tc, s_i_ty);
-                level rec_l2 = get_level(tc, mlocal_type(s[j]));
-                t_i = mk_app(mk_constant(get_eq_rec_name(), {rec_l1, rec_l2}), rec_args.size(), rec_args.data());
-            }
-            t_aux.back().push_back(t_i);
-        }
-        expr eq = mk_local(mk_fresh_name(), e_name.append_after(i+1), mk_eq(tc, t_i, s_i), binder_info());
-        eqs.push_back(eq);
-    }
-}
-
-void mk_telescopic_eq(type_checker & tc, buffer<expr> const & t, buffer<expr> & eqs) {
-    lean_assert(std::all_of(t.begin(), t.end(), is_local));
-    lean_assert(inductive::has_dep_elim(tc.env(), get_eq_name()));
-    buffer<expr> s;
-    for (unsigned i = 0; i < t.size(); i++) {
-        expr ty = mlocal_type(t[i]);
-        ty = abstract_locals(ty, i, t.data());
-        ty = instantiate_rev(ty, i, s.data());
-        expr local = mk_local(mk_fresh_name(), local_pp_name(t[i]).append_after("'"), ty, local_info(t[i]));
-        s.push_back(local);
-    }
-    return mk_telescopic_eq(tc, t, s, eqs);
-}
-
 
 /* ----------------------------------------------
 

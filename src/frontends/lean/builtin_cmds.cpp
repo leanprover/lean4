@@ -372,8 +372,6 @@ static environment help_cmd(parser & p) {
 }
 
 static environment init_quotient_cmd(parser & p) {
-    if (!(p.env().prop_proof_irrel()))
-        throw parser_error("invalid init_quotient command, this command is only available for kernels containing an impredicative and proof irrelevant Prop", p.cmd_pos());
     return module::declare_quotient(p.env());
 }
 

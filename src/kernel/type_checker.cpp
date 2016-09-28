@@ -561,8 +561,6 @@ bool type_checker::is_def_eq_app(expr const & t, expr const & s) {
 /** \brief Return true if \c t and \c s are definitionally equal due to proof irrelevant.
     Return false otherwise. */
 bool type_checker::is_def_eq_proof_irrel(expr const & t, expr const & s) {
-    if (!m_env.prop_proof_irrel())
-        return false;
     // Proof irrelevance support for Prop (aka Type.{0})
     expr t_type = infer_type(t);
     expr s_type = infer_type(s);

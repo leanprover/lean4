@@ -13,8 +13,6 @@ namespace environment
 meta constant mk_std          : nat → environment
 /- Return the trust level of the given environment -/
 meta constant trust_lvl       : environment → nat
-/- Return tt iff it is a standard environment -/
-meta constant is_std          : environment → bool
 /- Add a new declaration to the environment -/
 meta constant add             : environment → declaration → exceptional environment
 /- Retrieve a declaration from the environment -/

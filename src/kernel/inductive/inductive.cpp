@@ -509,7 +509,7 @@ struct add_inductive_fn {
 
     /** \brief Initialize m_dep_elim flag. */
     void set_dep_elim() {
-        if (m_env.prop_proof_irrel() && is_zero(m_it_level))
+        if (is_zero(m_it_level))
             m_dep_elim = false;
         else
             m_dep_elim = true;
@@ -558,7 +558,6 @@ struct add_inductive_fn {
         // In the following for-loop we check if the intro rule
         // has 0 arguments.
         bool is_K_target =
-            m_env.prop_proof_irrel() &&        // Proof irrelevance is enabled
             is_zero(m_it_level) &&             // It is a Prop
             length(m_decl.m_intro_rules) == 1; // datatype has only one intro rule
         for (auto ir : m_decl.m_intro_rules) {

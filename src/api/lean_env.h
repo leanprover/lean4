@@ -46,8 +46,6 @@ void lean_env_del(lean_env e);
 
 /** \brief Return the trust level of the given environment */
 unsigned lean_env_trust_level(lean_env e);
-/** \brief Return true iff the given environment has a proof irrelevant Prop (i.e., Type.{0}). */
-lean_bool lean_env_proof_irrel(lean_env e);
 
 /** \brief Return true iff \c e contains a global universe with name \c n. */
 lean_bool lean_env_contains_univ(lean_env e, lean_name n);

@@ -25,3 +25,6 @@ attribute [reducible] f1
 
 example : f1 10 30 = 50 :=
 rfl
+
+example (n m : nat) : f1 n m = n + (n + m) :=
+rfl

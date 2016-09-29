@@ -166,7 +166,8 @@ private:
 
     bool is_with_expected_candidate(expr const & fn);
     struct first_pass_info;
-    void first_pass(expr const & fn, buffer<expr> const & args, expr const & expected_type, expr const & ref, first_pass_info & info);
+    void first_pass(expr const & fn, buffer<expr> const & args, expr const & expected_type, expr const & ref,
+                    first_pass_info & info);
     expr second_pass(expr const & fn, buffer<expr> const & args, expr const & ref, first_pass_info & info);
     expr visit_base_app_simple(expr const & _fn, arg_mask amask, buffer<expr> const & args,
                                bool args_already_visited, optional<expr> const & expected_type, expr const & ref);
@@ -175,13 +176,14 @@ private:
     expr visit_base_app(expr const & fn, arg_mask amask, buffer<expr> const & args,
                         optional<expr> const & expected_type, expr const & ref);
     void validate_overloads(buffer<expr> const & fns, expr const & ref);
+    format mk_no_overload_applicable_msg(buffer<expr> const & fns, buffer<elaborator_exception> const & error_msgs);
     [[ noreturn ]]
     void throw_no_overload_applicable(buffer<expr> const & fns, buffer<elaborator_exception> const & error_msgs,
                                       expr const & ref);
     expr visit_overload_candidate(expr const & fn, buffer<expr> const & args,
                                   optional<expr> const & expected_type, expr const & ref);
-    optional<expr> visit_overloaded_app_with_expected(buffer<expr> const & fns, buffer<expr> const & args,
-                                                      expr const & expected_type, expr const & ref);
+    expr visit_overloaded_app_with_expected(buffer<expr> const & fns, buffer<expr> const & args,
+                                            expr const & expected_type, expr const & ref);
     expr visit_overloaded_app_core(buffer<expr> const & fns, buffer<expr> const & args,
                                    optional<expr> const & expected_type, expr const & ref);
     expr visit_overloaded_app(buffer<expr> const & fns, buffer<expr> const & args,

@@ -1125,7 +1125,7 @@ expr elaborator::visit_overload_candidate(expr const & fn, buffer<expr> const & 
     return visit_base_app_core(fn, arg_mask::Default, args, true, expected_type, ref);
 }
 
-void elaborator::throw_no_overload_applicable(buffer<expr> const & fns, buffer<elaborator_exception> const & error_msgs, expr const & ref) {
+format elaborator::mk_no_overload_applicable_msg(buffer<expr> const & fns, buffer<elaborator_exception> const & error_msgs) {
     format r("none of the overloads are applicable");
     lean_assert(error_msgs.size() == fns.size());
     for (unsigned i = 0; i < fns.size(); i++) {
@@ -1135,48 +1135,12 @@ void elaborator::throw_no_overload_applicable(buffer<expr> const & fns, buffer<e
         r += line() + format("error for") + space() + f_fmt;
         r += line() + error_msgs[i].pp();
     }
-    throw elaborator_exception(ref, r);
+    return r;
 }
 
-optional<expr> elaborator::visit_overloaded_app_with_expected(buffer<expr> const & fns, buffer<expr> const & args,
-                                                              expr const & expected_type, expr const & ref) {
-    snapshot S(*this);
-    buffer<std::tuple<expr, snapshot, first_pass_info>> candidates;
-    // TODO(Leo): use error messages to decorate nested exceptions
-    buffer<elaborator_exception> error_msgs;
-    for (expr const & fn : fns) {
-        try {
-            // Restore state
-            S.restore(*this);
-            bool has_args = !args.empty();
-            expr new_fn   = visit_function(fn, has_args, ref);
-            first_pass_info info;
-            first_pass(new_fn, args, expected_type, ref, info);
-            candidates.emplace_back(new_fn, snapshot(*this), info);
-        } catch (elaborator_exception & ex) {
-            error_msgs.push_back(ex);
-        } catch (exception & ex) {
-            error_msgs.push_back(elaborator_exception(ref, format(ex.what())));
-        }
-    }
-
-    if (candidates.empty()) {
-        S.restore(*this);
-        return none_expr();
-    }
-
-    if (candidates.size() == 1) {
-        // Restore successful state
-        auto & c = candidates[0];
-        expr fn = std::get<0>(c);
-        std::get<1>(c).restore(*this);
-        first_pass_info & info = std::get<2>(c);
-        return some_expr(second_pass(fn, args, ref, info));
-    }
-
-    /* Failed to disambiguate using expected type, switch to basic */
-    S.restore(*this);
-    return none_expr();
+void elaborator::throw_no_overload_applicable(buffer<expr> const & fns, buffer<elaborator_exception> const & error_msgs,
+                                              expr const & ref) {
+    throw elaborator_exception(ref, mk_no_overload_applicable_msg(fns, error_msgs));
 }
 
 expr elaborator::visit_overloaded_app_core(buffer<expr> const & fns, buffer<expr> const & args,
@@ -1243,16 +1207,94 @@ expr elaborator::visit_overloaded_app_core(buffer<expr> const & fns, buffer<expr
     }
 }
 
+expr elaborator::visit_overloaded_app_with_expected(buffer<expr> const & fns, buffer<expr> const & args,
+                                                    expr const & expected_type, expr const & ref) {
+    snapshot S(*this);
+    buffer<std::tuple<expr, snapshot, first_pass_info>> candidates;
+    buffer<elaborator_exception> error_msgs;
+    for (expr const & fn : fns) {
+        try {
+            // Restore state
+            S.restore(*this);
+            bool has_args = !args.empty();
+            expr new_fn   = visit_function(fn, has_args, ref);
+            first_pass_info info;
+            first_pass(new_fn, args, expected_type, ref, info);
+            candidates.emplace_back(new_fn, snapshot(*this), info);
+        } catch (elaborator_exception & ex) {
+            error_msgs.push_back(ex);
+        } catch (exception & ex) {
+            error_msgs.push_back(elaborator_exception(ref, format(ex.what())));
+        }
+    }
+
+    if (candidates.empty()) {
+        try {
+            /* Failed to disambiguate using expected type, switch to basic */
+            S.restore(*this);
+            return visit_overloaded_app_core(fns, args, some_expr(expected_type), ref);
+        } catch (elaborator_exception & ex) {
+            auto pp_fn = mk_pp_ctx();
+            format msg = format("switched to basic overload resolution where arguments are elaborated without "
+                                "any information about the expected type, because failed to elaborate all candidates "
+                                "using the expected type");
+            msg += pp_indent(pp_fn, expected_type);
+            msg += line() + format("this can happen because, for example, coercions were not considered in the process");
+            msg += line() + mk_no_overload_applicable_msg(fns, error_msgs);
+            throw nested_elaborator_exception(ref, ex, msg);
+        }
+    }
+
+    if (candidates.size() == 1) {
+        // Restore successful state
+        auto & c = candidates[0];
+        expr fn = std::get<0>(c);
+        std::get<1>(c).restore(*this);
+        first_pass_info & info = std::get<2>(c);
+        try {
+            return second_pass(fn, args, ref, info);
+        } catch (elaborator_exception & ex) {
+            auto pp_fn = mk_pp_ctx();
+            format msg = format("overload was disambiguated using expected type");
+            msg += line() + pp_overloads(pp_fn, fns);
+            msg += line() + format("the only applicable one seemed to be: ") + pp(fn);
+            throw nested_elaborator_exception(ref, ex, msg);
+        }
+    }
+
+    try {
+        /* Failed to disambiguate using expected type, switch to basic */
+        S.restore(*this);
+        return visit_overloaded_app_core(fns, args, some_expr(expected_type), ref);
+    } catch (elaborator_exception & ex) {
+        auto pp_fn = mk_pp_ctx();
+        format msg = format("switched to basic overload resolution where arguments are elaborated without "
+                            "any information about the expected type because it failed to disambiguate "
+                            "overload using the expected type");
+        msg += pp_indent(pp_fn, expected_type);
+        msg += line() + format("the following overloaded terms were applicable");
+        for (auto const & c : candidates)
+            msg += pp_indent(pp_fn, std::get<0>(c));
+        throw nested_elaborator_exception(ref, ex, msg);
+    }
+}
+
 expr elaborator::visit_overloaded_app(buffer<expr> const & fns, buffer<expr> const & args,
                                       optional<expr> const & expected_type, expr const & ref) {
     trace_elab_detail(tout() << "overloaded application at " << pos_string_for(ref);
                       auto pp_fn = mk_pp_ctx();
                       tout() << pp_overloads(pp_fn, fns) << "\n";);
     if (expected_type) {
-        if (auto r = visit_overloaded_app_with_expected(fns, args, *expected_type, ref))
-            return *r;
+        return visit_overloaded_app_with_expected(fns, args, *expected_type, ref);
+    } else {
+        try {
+            return visit_overloaded_app_core(fns, args, expected_type, ref);
+        } catch (elaborator_exception & ex) {
+            format msg = format("switched to basic overload resolution where arguments are elaborated without "
+                                "any information about the expected type because expected type was not available");
+            throw nested_elaborator_exception(ref, ex, msg);
+        }
     }
-    return visit_overloaded_app_core(fns, args, expected_type, ref);
 }
 
 expr elaborator::visit_no_confusion_app(expr const & fn, buffer<expr> const & args, optional<expr> const & expected_type,

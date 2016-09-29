@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "library/annotation.h"
 #include "library/constants.h"
 #include "library/quote.h"
+#include "library/typed_expr.h"
 #include "library/placeholder.h"
 #include "library/tactic/elaborate.h"
 #include "frontends/lean/parser.h"
@@ -212,6 +213,14 @@ static expr parse_tactic_interactive(parser & p, name const & decl_name) {
     return p.rec_save_pos(mk_app(mk_constant(decl_name), args), pos);
 }
 
+static expr parse_tactic(parser & p) {
+    if (auto dname = is_tactic_interactive(p)) {
+        return parse_tactic_interactive(p, *dname);
+    } else {
+        return p.parse_expr();
+    }
+}
+
 expr parse_begin_end_core(parser & p, pos_info const & start_pos,
                           name const & end_token, bool nested = false) {
     p.next();
@@ -233,10 +242,8 @@ expr parse_begin_end_core(parser & p, pos_info const & start_pos,
                 next_tac = parse_begin_end_core(p, pos, get_rcurly_tk(), true);
             } else if (p.curr_is_token(end_token)) {
                 break;
-            } else if (auto dname = is_tactic_interactive(p)) {
-                next_tac = parse_tactic_interactive(p, *dname);
             } else {
-                next_tac = p.parse_expr();
+                next_tac = parse_tactic(p);
             }
             r = concat(p, r, next_tac, start_pos, pos);
         }
@@ -258,7 +265,19 @@ expr parse_begin_end(parser & p, unsigned, expr const *, pos_info const & pos) {
     return parse_begin_end_core(p, pos, get_end_tk());
 }
 
-void initialize_begin_end_block() {
+expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {
+    p.next();
+    parser::local_scope scope(p);
+    p.clear_locals();
+    expr tac  = parse_tactic(p);
+    expr type = mk_tactic_unit();
+    p.update_pos(tac, pos);
+    expr r    = p.save_pos(mk_typed_expr(type, tac), pos);
+    return p.save_pos(mk_by(r), pos);
+}
+
+
+void initialize_tactic_notation() {
     g_begin_end  = new name("begin_end");
     register_annotation(*g_begin_end);
 
@@ -266,7 +285,7 @@ void initialize_begin_end_block() {
     register_annotation(*g_begin_end_element);
 }
 
-void finalize_begin_end_block() {
+void finalize_tactic_notation() {
     delete g_begin_end;
     delete g_begin_end_element;
 }

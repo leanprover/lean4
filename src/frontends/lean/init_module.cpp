@@ -23,7 +23,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/elaborator.h"
 #include "frontends/lean/match_expr.h"
 #include "frontends/lean/notation_cmd.h"
-#include "frontends/lean/begin_end_block.h"
+#include "frontends/lean/tactic_notation.h"
 
 namespace lean {
 void initialize_frontend_lean_module() {
@@ -46,10 +46,10 @@ void initialize_frontend_lean_module() {
     initialize_match_expr();
     initialize_elaborator();
     initialize_notation_cmd();
-    initialize_begin_end_block();
+    initialize_tactic_notation();
 }
 void finalize_frontend_lean_module() {
-    finalize_begin_end_block();
+    finalize_tactic_notation();
     finalize_notation_cmd();
     finalize_elaborator();
     finalize_match_expr();

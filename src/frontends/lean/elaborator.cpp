@@ -43,7 +43,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/util.h"
 #include "frontends/lean/prenum.h"
 #include "frontends/lean/elaborator.h"
-#include "frontends/lean/begin_end_block.h"
+#include "frontends/lean/tactic_notation.h"
 #include "frontends/lean/structure_cmd.h"
 #include "frontends/lean/structure_instance.h"
 

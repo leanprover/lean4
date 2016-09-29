@@ -1,22 +1,22 @@
-ctx_error_msgs.lean:6:0: error: infer type failed, function expected at
-  <f.1.16.0> <a.1.16.1>
+ctx_error_msgs.lean:4:0: error: infer type failed, function expected at
+  f a
 term
-  <f.1.16.0>
+  f
 has type
   ℕ
 state:
 f a : ℕ
 ⊢ true
-ctx_error_msgs.lean:13:0: error: infer type failed, unknown variable
-  <a.1.16.324>
+ctx_error_msgs.lean:11:0: error: infer type failed, unknown variable
+  a
 state:
 ⊢ true
-ctx_error_msgs.lean:20:0: error: infer type failed, incorrect number of universe levels
+ctx_error_msgs.lean:18:0: error: infer type failed, incorrect number of universe levels
   eq
 state:
 a : ℕ
 ⊢ true
-ctx_error_msgs.lean:25:0: error: infer type failed, incorrect number of universe levels
+ctx_error_msgs.lean:23:0: error: infer type failed, incorrect number of universe levels
   eq.{0 0}
 state:
 a : ℕ

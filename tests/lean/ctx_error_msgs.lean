@@ -1,7 +1,5 @@
 open tactic
 
-set_option pp.locals_full_names true
-
 example (f : nat) (a : nat) : true :=
 by do
    f ← get_local `f,

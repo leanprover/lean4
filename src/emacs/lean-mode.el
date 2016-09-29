@@ -126,7 +126,7 @@
 
 (defun lean-exec-at-pos (process-name process-buffer-name &rest options)
   "Execute Lean by providing current position with optional
-agruments. The output goes to 'process-buffer-name' buffer, which
+arguments. The output goes to 'process-buffer-name' buffer, which
 will be flushed everytime it's executed."
   (setq g-lean-exec-at-pos-buf "")
   ;; Kill process-name if exists
@@ -152,12 +152,10 @@ will be flushed everytime it's executed."
           (if (s-equals? (buffer-file-name) target-file-name)
               `("--cache" ,cache-file-name)
             '()))
-         (lean-mode-option "--lean")
          (default-directory (or (lean-project-find-root) default-directory))
          (process-args (append `(,process-name
                                  ,process-buffer-name
                                  ,(lean-get-executable lean-executable-name)
-                                 ,lean-mode-option
                                  "--dir"
                                  ,(f-dirname (buffer-file-name))
                                  "--line"

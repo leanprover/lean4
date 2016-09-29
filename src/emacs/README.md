@@ -156,18 +156,18 @@ Key Bindings and Commands
 
 |Key                | Function                                                                      |
 |-------------------|-------------------------------------------------------------------------------|
-|<kbd>M-.</kbd>     | jump to definition in source file (lean-find-tag)                             |
-|<kbd>TAB</kbd>     | tab complete identifier, option, filename, etc. (lean-tab-indent-or-complete) |
+# |<kbd>M-.</kbd>     | jump to definition in source file (lean-find-tag)                             |
+# |<kbd>TAB</kbd>     | tab complete identifier, option, filename, etc. (lean-tab-indent-or-complete) |
 |<kbd>C-c C-k</kbd> | shows the keystroke needed to input the symbol under the cursor               |
 |<kbd>C-c C-g</kbd> | show goal in tactic proof (lean-show-goal-at-pos)                             |
 |<kbd>C-c C-p</kbd> | print information about identifier (lean-show-id-keyword-info)                |
-|<kbd>C-c C-t</kbd> | show type (lean-show-type)                                                    |
-|<kbd>C-c C-f</kbd> | replace underscore by inferred value (lean-fill-placeholder)                  |
+# |<kbd>C-c C-t</kbd> | show type (lean-show-type)                                                    |
+# |<kbd>C-c C-f</kbd> | replace underscore by inferred value (lean-fill-placeholder)                  |
 |<kbd>C-c C-x</kbd> | execute lean in stand-alone mode (lean-std-exe)                               |
 |<kbd>C-c C-l</kbd> | execute lean in stand-alone mode (lean-std-exe)                               |
 |<kbd>C-c C-o</kbd> | set option (lean-set-option)                                                  |
-|<kbd>C-c C-r</kbd> | restart lean process (lean-server-reset-process)                              |
-|<kbd>C-c C-e</kbd> | evaluate a lean comman (lean-eval-cmd)                                        |
+|<kbd>C-c C-e</kbd> | evaluate a lean command (lean-eval-cmd)                                       |
+|<kbd>C-c C-n</kbd> | toggle next-error-mode: shows next error in dedicated lean-info buffer        |
 |<kbd>C-c ! n</kbd> | flycheck: go to next error                                                    |
 |<kbd>C-c ! p</kbd> | flycheck: go to previous error                                                |
 |<kbd>C-c ! l</kbd> | flycheck: show list of errors                                                 |

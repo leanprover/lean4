@@ -2355,6 +2355,8 @@ void elaborator::invoke_atomic_tactic(expr const & mvar, expr const & tactic) {
     tactic_state s       = mk_tactic_state_for(mvar);
     trace_elab(tout() << "initial tactic state\n" << s.pp() << "\n";);
     tactic_state new_s   = execute_tactic(tactic, s, ref);
+    if (new_s.goals())
+        throw_unsolved_tactic_state(new_s, "tactic failed, there are unsolved goals", ref);
     metavar_context mctx = new_s.mctx();
     expr val             = mctx.instantiate_mvars(new_s.main());
     if (has_expr_metavar(val)) {

@@ -60,9 +60,16 @@ vm_obj rewrite(transparency_mode const & m, bool use_instances, occurrences cons
         e = ctx.infer(*target);
     else
         e = g->get_type();
-    expr e_abst = kabstract(ctx, e, target ? lhs : rhs, occs);
-    if (closed(e_abst))
-        return mk_tactic_exception("rewrite tactic failed, did not find instance of lhs in the target expression", s);
+    expr pattern = target ? lhs : rhs;
+    expr e_abst  = kabstract(ctx, e, pattern, occs);
+    if (closed(e_abst)) {
+        auto thunk = [=]() {
+            format msg = format("rewrite tactic failed, did not find instance of the pattern in the target expression");
+            msg += pp_indented_expr(s, pattern);
+            return msg;
+        };
+        return mk_tactic_exception(thunk, s);
+    }
     /* Synthesize type class instances */
     if (use_instances) {
         unsigned i = is_instance.size();

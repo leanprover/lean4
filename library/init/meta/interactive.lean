@@ -109,12 +109,30 @@ match pexpr.to_raw_expr p with
 | _                      := none
 end
 
+private meta def resolve_name (n : name) : tactic expr :=
+get_local n
+<|>
+mk_const n
+<|>
+fail ("failed to resolve name '" ++ to_string n ++ "'")
+
+/- Version of to_expr that tries to bypass the elaborator if `p` is just a constant or local constant.
+   This is not an optimization, by skipping the elaborator we make sure that unwanted resolution is used.
+   Example: the elaborator will force any unassigned ?A that must have be an instance of (has_one ?A) to nat.
+   Remark: another benefit is that auxiliary temporary metavariables do not appear in error messages. -/
+private meta def to_expr' (p : pexpr) : tactic expr :=
+match pexpr.to_raw_expr p with
+| (const c [])          := resolve_name c
+| (local_const c _ _ _) := resolve_name c
+| _                     := to_expr p
+end
+
 private meta def to_symm_expr_list : list pexpr → tactic (list (bool × expr))
 | []      := return []
 | (p::ps) :=
   match is_neg p with
-  | some a :=  do r ← to_expr a, rs ← to_symm_expr_list ps, return ((tt, r) :: rs)
-  | none   :=  do r ← to_expr p, rs ← to_symm_expr_list ps, return ((ff, r) :: rs)
+  | some a :=  do r ← to_expr' a, rs ← to_symm_expr_list ps, return ((tt, r) :: rs)
+  | none   :=  do r ← to_expr' p, rs ← to_symm_expr_list ps, return ((ff, r) :: rs)
   end
 
 private meta def rw_goal : list (bool × expr) → tactic unit

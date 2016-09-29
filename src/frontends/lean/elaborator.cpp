@@ -872,7 +872,7 @@ struct elaborator::first_pass_info {
 
    Remark: the arguments \c args are *not* visited in this first pass.
    They are only used in this method to provide location information. */
-bool elaborator::first_pass(expr const & fn, buffer<expr> const & args,
+void elaborator::first_pass(expr const & fn, buffer<expr> const & args,
                             expr const & expected_type, expr const & ref,
                             first_pass_info & info) {
     expr fn_type          = infer_type(fn);
@@ -915,13 +915,20 @@ bool elaborator::first_pass(expr const & fn, buffer<expr> const & args,
     type = type_before_whnf;
     if (i != args.size()) {
         /* failed to consume all explicit arguments, use base elaboration for applications */
-        return false;
+        throw elaborator_exception(ref, "too many arguments");
     }
-    lean_assert(args.size() == args_expected_types.size());
-    lean_assert(args.size() == args_mvars.size());
-    lean_assert(args.size() == new_args_size.size());
-    lean_assert(args.size() == new_instances_size.size());
-    return is_def_eq(expected_type, type);
+    lean_assert(args.size() == info.args_expected_types.size());
+    lean_assert(args.size() == info.args_mvars.size());
+    lean_assert(args.size() == info.new_args_size.size());
+    lean_assert(args.size() == info.new_instances_size.size());
+    if (!is_def_eq(expected_type, type)) {
+        auto pp_fn = mk_pp_ctx();
+        expr e = mk_app(fn, info.new_args);
+        throw elaborator_exception(ref, format("type mismatch") + pp_indent(pp_fn, e) +
+                                   line() + format("has type") + pp_indent(pp_fn, type) +
+                                   line() + format("but is expected to have type") +
+                                   pp_indent(pp_fn, expected_type));
+    }
 }
 
 /* Using the information colllected in the first-pass, visit the arguments args.
@@ -976,7 +983,9 @@ optional<expr> elaborator::visit_app_with_expected(expr const & fn, buffer<expr>
                                                    expr const & expected_type, expr const & ref) {
     snapshot C(*this);
     first_pass_info info;
-    if (!first_pass(fn, args, expected_type, ref, info)) {
+    try {
+        first_pass(fn, args, expected_type, ref, info);
+    } catch (elaborator_exception &) {
         C.restore(*this);
         return none_expr();
     }
@@ -1112,11 +1121,49 @@ void elaborator::throw_no_overload_applicable(buffer<expr> const & fns, buffer<e
     throw elaborator_exception(ref, r);
 }
 
-expr elaborator::visit_overloaded_app(buffer<expr> const & fns, buffer<expr> const & args,
-                                      optional<expr> const & expected_type, expr const & ref) {
-    trace_elab_detail(tout() << "overloaded application at " << pos_string_for(ref);
-                      auto pp_fn = mk_pp_ctx();
-                      tout() << pp_overloads(pp_fn, fns) << "\n";);
+optional<expr> elaborator::visit_overloaded_app_with_expected(buffer<expr> const & fns, buffer<expr> const & args,
+                                                              expr const & expected_type, expr const & ref) {
+    snapshot S(*this);
+    buffer<std::tuple<expr, snapshot, first_pass_info>> candidates;
+    // TODO(Leo): use error messages to decorate nested exceptions
+    buffer<elaborator_exception> error_msgs;
+    for (expr const & fn : fns) {
+        try {
+            // Restore state
+            S.restore(*this);
+            bool has_args = !args.empty();
+            expr new_fn   = visit_function(fn, has_args, ref);
+            first_pass_info info;
+            first_pass(new_fn, args, expected_type, ref, info);
+            candidates.emplace_back(new_fn, snapshot(*this), info);
+        } catch (elaborator_exception & ex) {
+            error_msgs.push_back(ex);
+        } catch (exception & ex) {
+            error_msgs.push_back(elaborator_exception(ref, format(ex.what())));
+        }
+    }
+
+    if (candidates.empty()) {
+        S.restore(*this);
+        return none_expr();
+    }
+
+    if (candidates.size() == 1) {
+        // Restore successful state
+        auto & c = candidates[0];
+        expr fn = std::get<0>(c);
+        std::get<1>(c).restore(*this);
+        first_pass_info & info = std::get<2>(c);
+        return some_expr(second_pass(fn, args, ref, info));
+    }
+
+    /* Failed to disambiguate using expected type, switch to basic */
+    S.restore(*this);
+    return none_expr();
+}
+
+expr elaborator::visit_overloaded_app_core(buffer<expr> const & fns, buffer<expr> const & args,
+                                           optional<expr> const & expected_type, expr const & ref) {
     buffer<expr> new_args;
     for (expr const & arg : args) {
         new_args.push_back(copy_tag(arg, visit(arg, none_expr())));
@@ -1177,6 +1224,18 @@ expr elaborator::visit_overloaded_app(buffer<expr> const & fns, buffer<expr> con
         candidates[0].second.restore(*this);
         return candidates[0].first;
     }
+}
+
+expr elaborator::visit_overloaded_app(buffer<expr> const & fns, buffer<expr> const & args,
+                                      optional<expr> const & expected_type, expr const & ref) {
+    trace_elab_detail(tout() << "overloaded application at " << pos_string_for(ref);
+                      auto pp_fn = mk_pp_ctx();
+                      tout() << pp_overloads(pp_fn, fns) << "\n";);
+    if (expected_type) {
+        if (auto r = visit_overloaded_app_with_expected(fns, args, *expected_type, ref))
+            return *r;
+    }
+    return visit_overloaded_app_core(fns, args, expected_type, ref);
 }
 
 expr elaborator::visit_no_confusion_app(expr const & fn, buffer<expr> const & args, optional<expr> const & expected_type,

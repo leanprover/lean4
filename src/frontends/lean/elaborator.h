@@ -163,7 +163,7 @@ private:
 
     bool is_with_expected_candidate(expr const & fn);
     struct first_pass_info;
-    bool first_pass(expr const & fn, buffer<expr> const & args, expr const & expected_type, expr const & ref, first_pass_info & info);
+    void first_pass(expr const & fn, buffer<expr> const & args, expr const & expected_type, expr const & ref, first_pass_info & info);
     expr second_pass(expr const & fn, buffer<expr> const & args, expr const & ref, first_pass_info & info);
     optional<expr> visit_app_with_expected(expr const & fn, buffer<expr> const & args,
                                            expr const & expected_type, expr const & ref);
@@ -177,6 +177,10 @@ private:
                                       expr const & ref);
     expr visit_overload_candidate(expr const & fn, buffer<expr> const & args,
                                   optional<expr> const & expected_type, expr const & ref);
+    optional<expr> visit_overloaded_app_with_expected(buffer<expr> const & fns, buffer<expr> const & args,
+                                                      expr const & expected_type, expr const & ref);
+    expr visit_overloaded_app_core(buffer<expr> const & fns, buffer<expr> const & args,
+                                   optional<expr> const & expected_type, expr const & ref);
     expr visit_overloaded_app(buffer<expr> const & fns, buffer<expr> const & args,
                               optional<expr> const & expected_type, expr const & ref);
     expr visit_elim_app(expr const & fn, elim_info const & info, buffer<expr> const & args,

@@ -991,40 +991,17 @@ expr elaborator::second_pass(expr const & fn, buffer<expr> const & args,
     return mk_app(fn, info.new_args.size(), info.new_args.data());
 }
 
-optional<expr> elaborator::visit_app_with_expected(expr const & fn, buffer<expr> const & args,
-                                                   expr const & expected_type, expr const & ref) {
-    snapshot C(*this);
-    first_pass_info info;
-    try {
-        first_pass(fn, args, expected_type, ref, info);
-    } catch (elaborator_exception &) {
-        C.restore(*this);
-        return none_expr();
-    }
-    return some_expr(second_pass(fn, args, ref, info));
-}
-
 bool elaborator::is_with_expected_candidate(expr const & fn) {
     if (!is_constant(fn)) return false;
     return get_elaborator_strategy(m_env, const_name(fn)) == elaborator_strategy::WithExpectedType;
 }
 
-expr elaborator::visit_base_app_core(expr const & _fn, arg_mask amask, buffer<expr> const & args,
-                                     bool args_already_visited, optional<expr> const & expected_type, expr const & ref) {
+expr elaborator::visit_base_app_simple(expr const & _fn, arg_mask amask, buffer<expr> const & args,
+                                       bool args_already_visited, optional<expr> const & expected_type, expr const & ref) {
     expr fn      = _fn;
     expr fn_type = infer_type(fn);
     unsigned i = 0;
     buffer<expr> new_args;
-
-    /** Check if this application is a candidate for propagating the expected type to arguments */
-    if (!args_already_visited && /* if the arguments have already been visited, then there is no point. */
-        expected_type &&         /* the expected type must be known */
-        amask == arg_mask::Default && /* we do not propagate information when @ and @@ are used */
-        is_with_expected_candidate(fn)) {
-        if (auto r = visit_app_with_expected(fn, args, *expected_type, ref)) {
-            return *r;
-        }
-    }
 
     /* We manually track the type before whnf. We do that because after the loop
        we check whether the application type is definitionally equal to expected_type.
@@ -1108,6 +1085,34 @@ expr elaborator::visit_base_app_core(expr const & _fn, arg_mask amask, buffer<ex
         }
     }
     return r;
+}
+
+expr elaborator::visit_base_app_core(expr const & fn, arg_mask amask, buffer<expr> const & args,
+                                     bool args_already_visited, optional<expr> const & expected_type, expr const & ref) {
+    /** Check if this application is a candidate for propagating the expected type to arguments */
+    if (args_already_visited || /* if the arguments have already been visited, then there is no point. */
+        amask != arg_mask::Default || /* we do not propagate expected type info when @ and @@ are used */
+        !is_with_expected_candidate(fn) ||
+        !expected_type) {
+        return visit_base_app_simple(fn, amask, args, args_already_visited, expected_type, ref);
+    }
+
+    snapshot C(*this);
+    first_pass_info info;
+    try {
+        first_pass(fn, args, *expected_type, ref, info);
+    } catch (elaborator_exception & ex1) {
+        C.restore(*this);
+        try {
+            return visit_base_app_simple(fn, amask, args, args_already_visited, expected_type, ref);
+        } catch (elaborator_exception & ex2) {
+            throw nested_elaborator_exception(ref, ex2,
+                                              format("switched to simple application elaboration procedure because "
+                                                     "failed to use expected type to elaborate it, "
+                                                     "error message") + nest(get_pp_indent(m_opts), line() + ex1.pp()));
+        }
+    }
+    return second_pass(fn, args, ref, info);
 }
 
 expr elaborator::visit_base_app(expr const & fn, arg_mask amask, buffer<expr> const & args,

@@ -2,6 +2,9 @@ elab12.lean:1:30: error: type expected at
   0
 elab12.lean:4:42: error: function expected at
   rfl
+Additional information:
+elab12.lean:4:42: context: switched to simple application elaboration procedure because failed to use expected type to elaborate it, error message
+  too many arguments
 elab12.lean:7:44: error: failed to synthesize type class instance for
 a : ℕ
 ⊢ has_add (a = a)

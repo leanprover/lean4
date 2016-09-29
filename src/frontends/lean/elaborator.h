@@ -168,8 +168,8 @@ private:
     struct first_pass_info;
     void first_pass(expr const & fn, buffer<expr> const & args, expr const & expected_type, expr const & ref, first_pass_info & info);
     expr second_pass(expr const & fn, buffer<expr> const & args, expr const & ref, first_pass_info & info);
-    optional<expr> visit_app_with_expected(expr const & fn, buffer<expr> const & args,
-                                           expr const & expected_type, expr const & ref);
+    expr visit_base_app_simple(expr const & _fn, arg_mask amask, buffer<expr> const & args,
+                               bool args_already_visited, optional<expr> const & expected_type, expr const & ref);
     expr visit_base_app_core(expr const & fn, arg_mask amask, buffer<expr> const & args,
                              bool args_already_visited, optional<expr> const & expected_type, expr const & ref);
     expr visit_base_app(expr const & fn, arg_mask amask, buffer<expr> const & args,

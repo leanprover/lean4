@@ -10,9 +10,15 @@ has type
   ?m_2 = ?m_2
 but is expected to have type
   f a = a
+Additional information:
+red.lean:12:0: context: the inferred motive for the eliminator-like application is
+  λ (_x : ℕ), f a = a
 red.lean:17:0: error: "eliminator" elaborator type mismatch, term
   rfl
 has type
   ?m_2 = ?m_2
 but is expected to have type
   f a = a
+Additional information:
+red.lean:17:0: context: the inferred motive for the eliminator-like application is
+  λ (_x : ℕ), f a = a

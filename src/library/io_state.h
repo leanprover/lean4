@@ -67,8 +67,8 @@ public:
     virtual char const * what() const noexcept;
     virtual throwable * clone() const { return new formatted_exception(m_expr, m_fmt); }
     virtual void rethrow() const { throw *this; }
-    optional<expr> get_main_expr() const { return m_expr; }
-    format pp() const { return m_fmt; }
+    virtual optional<expr> get_main_expr() const { return m_expr; }
+    virtual format pp() const { return m_fmt; }
 };
 
 struct scope_global_ios {

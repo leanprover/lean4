@@ -68,7 +68,9 @@ private:
 
     /** \brief Cache for constants that are handled using "eliminator" elaboration. */
     typedef name_map<optional<elim_info>> elim_cache;
+    typedef name_map<format>              elim_failure_info;
     elim_cache        m_elim_cache;
+    elim_failure_info m_elim_failure_info;
 
     /* The following vector contains sorts that we should check
        whether the computed universe is too specific or not. */
@@ -89,6 +91,7 @@ private:
     pp_fn mk_pp_ctx();
     format pp_indent(pp_fn const & pp_fn, expr const & e);
     format pp_indent(expr const & e);
+    format pp(expr const & e);
     format pp_overloads(pp_fn const & pp_fn, buffer<expr> const & fns);
 
     expr whnf(expr const & e) { return m_ctx.whnf(e); }

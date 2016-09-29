@@ -127,6 +127,11 @@ format elaborator::pp_indent(expr const & e) {
     return pp_indent(mk_pp_ctx(), e);
 }
 
+format elaborator::pp(expr const & e) {
+    auto fn = mk_pp_ctx();
+    return fn(e);
+}
+
 format elaborator::pp_overloads(pp_fn const & pp_fn, buffer<expr> const & fns) {
     format r("overloads:");
     r += space();
@@ -303,8 +308,9 @@ auto elaborator::use_elim_elab_core(name const & fn) -> optional<elim_info> {
     buffer<expr> C_args;
     expr const & C = get_app_args(type, C_args);
     if (!is_local(C) || C_args.empty() || !std::all_of(C_args.begin(), C_args.end(), is_local)) {
-        trace_elab_detail(tout() << "'eliminator' elaboration is not used for '" << fn <<
-                          "' because resulting type is not of the expected form\n";);
+        format msg = format("'eliminator' elaboration is not used for '") + format(fn) +
+            format("' because resulting type is not of the expected form\n");
+        m_elim_failure_info.insert(fn, msg);
         return optional<elim_info>();
     }
 
@@ -359,9 +365,10 @@ auto elaborator::use_elim_elab_core(name const & fn) -> optional<elim_info> {
 
     for (unsigned i = 0; i < found.size(); i++) {
         if (!found[i]) {
-            trace_elab_detail(tout() << "'eliminator' elaboration is not used for '" << fn <<
-                              "' because did not find a (reliable) way to synthesize '" << C_args[i] << "' " <<
-                              "which occurs in the resulting type\n";);
+            format msg = format("'eliminator' elaboration is not used for '") + format(fn) +
+                format("' because a (reliable) way to synthesize '") + pp(C_args[i]) +
+                format("', which occurs in the resulting type, was not found\n");
+            m_elim_failure_info.insert(fn, msg);
             return optional<elim_info>();
         }
     }
@@ -828,29 +835,34 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
         throw elaborator_exception(ref, "\"eliminator\" elaborator failed to compute the motive");
     }
 
-    /* Elaborate postponed arguments */
-    for (unsigned i = 0; i < new_args.size(); i++) {
-        if (optional<expr> arg = postponed_args[i]) {
-            lean_assert(is_metavar(new_args[i]));
-            expr new_arg_type = instantiate_mvars(infer_type(new_args[i]));
-            expr new_arg      = visit(*arg, some_expr(new_arg_type));
-            if (!is_def_eq(new_args[i], new_arg)) {
-                auto pp_fn = mk_pp_ctx();
-                throw elaborator_exception(ref, format("\"eliminator\" elaborator type mismatch, term") +
-                                           pp_indent(pp_fn, new_arg) +
-                                           line() + format("has type") +
-                                           pp_indent(pp_fn, infer_type(new_arg)) +
-                                           line() + format("but is expected to have type") +
-                                           pp_indent(pp_fn, new_arg_type));
-            } else {
-                new_args[i] = new_arg;
+    try {
+        /* Elaborate postponed arguments */
+        for (unsigned i = 0; i < new_args.size(); i++) {
+            if (optional<expr> arg = postponed_args[i]) {
+                lean_assert(is_metavar(new_args[i]));
+                expr new_arg_type = instantiate_mvars(infer_type(new_args[i]));
+                expr new_arg      = visit(*arg, some_expr(new_arg_type));
+                if (!is_def_eq(new_args[i], new_arg)) {
+                    auto pp_fn = mk_pp_ctx();
+                    throw elaborator_exception(ref, format("\"eliminator\" elaborator type mismatch, term") +
+                                               pp_indent(pp_fn, new_arg) +
+                                               line() + format("has type") +
+                                               pp_indent(pp_fn, infer_type(new_arg)) +
+                                               line() + format("but is expected to have type") +
+                                               pp_indent(pp_fn, new_arg_type));
+                } else {
+                    new_args[i] = new_arg;
+                }
             }
         }
-    }
 
-    expr r = instantiate_mvars(mk_app(mk_app(fn, new_args), extra_args));
-    trace_elab_debug(tout() << "elaborated recursor:\n  " << r << "\n";);
-    return r;
+        expr r = instantiate_mvars(mk_app(mk_app(fn, new_args), extra_args));
+        trace_elab_debug(tout() << "elaborated recursor:\n  " << r << "\n";);
+        return r;
+    } catch (elaborator_exception & ex) {
+        throw nested_elaborator_exception(ref, ex, format("the inferred motive for the eliminator-like application is") +
+                                          pp_indent(motive));
+    }
 }
 
 struct elaborator::first_pass_info {
@@ -1320,12 +1332,27 @@ expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<exp
                 if (args.size() >= info->m_nexplicit) {
                     return visit_elim_app(new_fn, *info, args, expected_type, ref);
                 } else {
-                    trace_elab(tout() << pos_string_for(ref) << " 'eliminator' elaboration is not used for '" << fn <<
-                               "' because it is not fully applied, #" << info->m_nexplicit <<
-                               " explicit arguments expected\n";);
+                    try {
+                        return visit_base_app(new_fn, amask, args, expected_type, ref);
+                    } catch (elaborator_exception & ex) {
+                        throw nested_elaborator_exception(ref, ex,
+                                                          format("'eliminator' elaboration was not used for '") +
+                                                          pp(fn) + format("' because it is not fully applied, #") +
+                                                          format(info->m_nexplicit) + format(" explicit arguments expected"));
+                    }
                 }
             } else if (is_no_confusion(m_env, const_name(new_fn))) {
                 return visit_no_confusion_app(new_fn, args, expected_type, ref);
+            } else {
+                try {
+                    return visit_base_app(new_fn, amask, args, expected_type, ref);
+                } catch (elaborator_exception & ex) {
+                    if (auto error_msg = m_elim_failure_info.find(const_name(new_fn))) {
+                        throw nested_elaborator_exception(ref, ex, *error_msg);
+                    } else {
+                        throw;
+                    }
+                }
             }
         }
         return visit_base_app(new_fn, amask, args, expected_type, ref);

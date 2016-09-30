@@ -20,6 +20,7 @@ langle       ⟨
 rangle       ⟩
 triangle     ▸
 caret        ^
+do           do
 up           ↑
 bar          |
 comma        ,

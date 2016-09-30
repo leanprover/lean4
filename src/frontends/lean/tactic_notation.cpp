@@ -264,6 +264,10 @@ expr parse_begin_end_core(parser & p, pos_info const & start_pos,
                 next_tac = parse_begin_end_core(p, pos, get_end_tk(), true);
             } else if (p.curr_is_token(get_lcurly_tk())) {
                 next_tac = parse_begin_end_core(p, pos, get_rcurly_tk(), true);
+            } else if (p.curr_is_token(get_do_tk())) {
+                expr tac  = p.parse_expr();
+                expr type = mk_tactic_unit();
+                next_tac  = p.rec_save_pos(mk_typed_expr(type, tac), pos);
             } else if (p.curr_is_token(end_token)) {
                 break;
             } else {

@@ -25,6 +25,7 @@ static name const * g_langle_tk = nullptr;
 static name const * g_rangle_tk = nullptr;
 static name const * g_triangle_tk = nullptr;
 static name const * g_caret_tk = nullptr;
+static name const * g_do_tk = nullptr;
 static name const * g_up_tk = nullptr;
 static name const * g_bar_tk = nullptr;
 static name const * g_comma_tk = nullptr;
@@ -145,6 +146,7 @@ void initialize_tokens() {
     g_rangle_tk = new name{"⟩"};
     g_triangle_tk = new name{"▸"};
     g_caret_tk = new name{"^"};
+    g_do_tk = new name{"do"};
     g_up_tk = new name{"↑"};
     g_bar_tk = new name{"|"};
     g_comma_tk = new name{","};
@@ -266,6 +268,7 @@ void finalize_tokens() {
     delete g_rangle_tk;
     delete g_triangle_tk;
     delete g_caret_tk;
+    delete g_do_tk;
     delete g_up_tk;
     delete g_bar_tk;
     delete g_comma_tk;
@@ -386,6 +389,7 @@ name const & get_langle_tk() { return *g_langle_tk; }
 name const & get_rangle_tk() { return *g_rangle_tk; }
 name const & get_triangle_tk() { return *g_triangle_tk; }
 name const & get_caret_tk() { return *g_caret_tk; }
+name const & get_do_tk() { return *g_do_tk; }
 name const & get_up_tk() { return *g_up_tk; }
 name const & get_bar_tk() { return *g_bar_tk; }
 name const & get_comma_tk() { return *g_comma_tk; }

@@ -40,3 +40,11 @@ by do
   apply foo,
   trace_state,
   assumption
+
+
+example (a b : nat) : a = 0 → a = b :=
+by do
+  `[intro],
+  apply_core semireducible tt ff (expr.const `foo [level.of_nat 1]),
+  `[exact inhabited.mk a],
+  reflexivity

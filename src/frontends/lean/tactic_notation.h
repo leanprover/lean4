@@ -10,6 +10,7 @@ namespace lean {
 expr parse_begin_end_core(parser & p, pos_info const & start_pos, name const & end_token, bool nested = false);
 expr parse_begin_end(parser & p, unsigned, expr const *, pos_info const & pos);
 expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos);
+expr parse_auto_quote_tactic_block(parser & p, unsigned, expr const *, pos_info const & pos);
 bool is_begin_end_block(expr const & e);
 bool is_begin_end_element(expr const & e);
 void get_begin_end_block_elements(expr const & e, buffer<expr> & elems);

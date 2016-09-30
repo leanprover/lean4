@@ -8,7 +8,7 @@ Helper tactic for showing that a type has decidable equality.
 prelude
 import init.meta.contradiction_tactic init.meta.constructor_tactic
 import init.meta.injection_tactic init.meta.relation_tactics
-import init.meta.rec_util
+import init.meta.rec_util init.meta.interactive
 
 namespace tactic
 open expr environment list
@@ -66,9 +66,7 @@ do
     else do {
       mk_dec_eq_for lhs_arg rhs_arg
     },
-    tgt      ← target,
-    by_cases ← mk_mapp_core transparency.all `decidable.by_cases [none, some tgt, some inst],
-    apply by_cases,
+    `[apply @decidable.by_cases _ _ %%inst],
     -- discharge first (positive) case by recursion
     intro1 >>= subst >> dec_eq_same_constructor I_name F_name (if rec then num_rec + 1 else num_rec),
     -- discharge second (negative) case by contradiction

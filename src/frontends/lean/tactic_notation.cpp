@@ -61,7 +61,7 @@ void get_begin_end_block_elements(expr const & e, buffer<expr> & elems) {
     return get_begin_end_block_elements_core(get_annotation_arg(e), elems);
 }
 
-static optional<name> is_tactic_interactive(parser & p) {
+static optional<name> is_auto_quote_tactic(parser & p) {
     if (!p.curr_is_identifier()) return optional<name>();
     name id = get_tactic_interactive_name() + p.get_name_val();
     if (p.env().find(id))
@@ -90,7 +90,7 @@ static expr mk_lean_some(expr const & e) {
 
 static expr parse_quoted_ident(parser & p, name const & decl_name) {
     if (!p.curr_is_identifier())
-        throw parser_error(sstream() << "invalid tactic '" << decl_name  << "', identifier expected", p.pos());
+        throw parser_error(sstream() << "invalid auto-quote tactic '" << decl_name  << "', identifier expected", p.pos());
     auto pos = p.pos();
     name id  = p.get_name_val();
     p.next();
@@ -126,13 +126,13 @@ static expr parse_qexpr(parser & p, unsigned rbp) {
 static expr parse_qexpr_list(parser & p) {
     buffer<expr> result;
     auto pos = p.pos();
-    p.check_token_next(get_lbracket_tk(), "invalid tactic argument, '[' expected");
+    p.check_token_next(get_lbracket_tk(), "invalid auto-quote tactic argument, '[' expected");
     while (!p.curr_is_token(get_rbracket_tk())) {
         result.push_back(parse_qexpr(p, 0));
         if (!p.curr_is_token(get_comma_tk())) break;
         p.next();
     }
-    p.check_token_next(get_rbracket_tk(), "invalid tactic argument, ']' expected");
+    p.check_token_next(get_rbracket_tk(), "invalid auto-quote tactic argument, ']' expected");
     return p.rec_save_pos(mk_lean_list(result), pos);
 }
 
@@ -177,7 +177,7 @@ static expr parse_location(parser & p) {
     }
 }
 
-static expr parse_nested_interactive_tactic(parser & p) {
+static expr parse_nested_auto_quote_tactic(parser & p) {
     auto pos = p.pos();
     bool nested = true;
     if (p.curr_is_token(get_lcurly_tk())) {
@@ -185,11 +185,11 @@ static expr parse_nested_interactive_tactic(parser & p) {
     } else if (p.curr_is_token(get_begin_tk())) {
         return parse_begin_end_core(p, pos, get_end_tk(), nested);
     } else {
-        throw parser_error("invalid nested tactic, '{' or 'begin' expected", pos);
+        throw parser_error("invalid nested auto-quote tactic, '{' or 'begin' expected", pos);
     }
 }
 
-static expr parse_tactic_interactive(parser & p, name const & decl_name) {
+static expr parse_auto_quote_tactic(parser & p, name const & decl_name) {
     auto pos = p.pos();
     p.next();
     expr type = p.env().get(decl_name).get_type();
@@ -218,15 +218,15 @@ static expr parse_tactic_interactive(parser & p, name const & decl_name) {
             } else if (is_constant(arg_type, get_tactic_interactive_types_location_name())) {
                 args.push_back(parse_location(p));
             } else if (is_constant(arg_type, get_tactic_interactive_types_itactic_name())) {
-                args.push_back(parse_nested_interactive_tactic(p));
+                args.push_back(parse_nested_auto_quote_tactic(p));
             } else if (is_constant(arg_type, get_tactic_interactive_types_colon_tk_name())) {
-                p.check_token_next(get_colon_tk(), "invalid tactic, ':' expected");
+                p.check_token_next(get_colon_tk(), "invalid auto-quote tactic, ':' expected");
                 args.push_back(mk_constant(get_unit_star_name()));
             } else if (is_constant(arg_type, get_tactic_interactive_types_assign_tk_name())) {
-                p.check_token_next(get_assign_tk(), "invalid tactic, ':=' expected");
+                p.check_token_next(get_assign_tk(), "invalid auto-quote tactic, ':=' expected");
                 args.push_back(mk_constant(get_unit_star_name()));
             } else if (is_constant(arg_type, get_tactic_interactive_types_comma_tk_name())) {
-                p.check_token_next(get_comma_tk(), "invalid tactic, ',' expected");
+                p.check_token_next(get_comma_tk(), "invalid auto-quote tactic, ',' expected");
                 args.push_back(mk_constant(get_unit_star_name()));
             } else {
                 args.push_back(p.parse_expr(get_max_prec()));
@@ -238,8 +238,8 @@ static expr parse_tactic_interactive(parser & p, name const & decl_name) {
 }
 
 static expr parse_tactic(parser & p) {
-    if (auto dname = is_tactic_interactive(p)) {
-        return parse_tactic_interactive(p, *dname);
+    if (auto dname = is_auto_quote_tactic(p)) {
+        return parse_auto_quote_tactic(p, *dname);
     } else {
         return p.parse_expr();
     }
@@ -300,6 +300,11 @@ expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {
     return p.save_pos(mk_by(r), pos);
 }
 
+expr parse_auto_quote_tactic_block(parser & p, unsigned, expr const *, pos_info const &) {
+    expr r = parse_tactic(p);
+    p.check_token_next(get_rbracket_tk(), "invalid auto-quote tactic block, ']' expected");
+    return r;
+}
 
 void initialize_tactic_notation() {
     g_begin_end  = new name("begin_end");

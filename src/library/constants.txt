@@ -346,12 +346,14 @@ tactic.interactive.types.ident_list
 tactic.interactive.types.raw_ident_list
 tactic.interactive.types.with_ident_list
 tactic.interactive.types.location
-tactic.interactive.types.comma_tk
 tactic.interactive.types.qexpr
 tactic.interactive.types.qexpr0
 tactic.interactive.types.qexpr_list
 tactic.interactive.types.qexpr_list_or_qexpr0
 tactic.interactive.types.itactic
+tactic.interactive.types.colon_tk
+tactic.interactive.types.assign_tk
+tactic.interactive.types.comma_tk
 to_string
 to_int
 to_real

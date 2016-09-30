@@ -23,3 +23,25 @@ by do
    trace "-- second goal was indirectly solved by the previous tactic",
    trace_state,
    return ()
+
+definition tst4 (a : nat) : a = a :=
+begin
+  assert x : nat,
+  rotate 1,
+  exact eq.refl a,
+  exact a
+end
+
+definition tst5 (a : nat) : a = a :=
+begin
+  definev x : nat := a,
+  trace_state,
+  exact eq.refl x
+end
+
+definition tst6 (a : nat) : a = a :=
+begin
+  note x := a,
+  trace_state,
+  exact eq.refl x
+end

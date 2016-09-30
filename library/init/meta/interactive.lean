@@ -30,6 +30,9 @@ namespace types
    - with_ident_list : parse
                  (`with` identifier+)?
                  and produce a list of quoted identifiers
+
+   - assign_tk : parse the token `:=` and produce the unit ()
+   - colon_tk : parse the token `:` and produce the unit ()
    - comma_tk : parse the token `,` and produce the unit ()
 
    - location : parse
@@ -65,6 +68,8 @@ def location : Type := list ident
 meta def qexpr_list : Type := list qexpr
 meta def qexpr_list_or_qexpr0 : Type := list qexpr
 meta def itactic : Type := tactic unit
+meta def assign_tk : Type := unit
+meta def colon_tk : Type := unit
 end types
 
 open types expr
@@ -188,6 +193,28 @@ tactic.contradiction
 
 meta def repeat : itactic → tactic unit :=
 tactic.repeat
+
+meta def assert (h : ident) (c : colon_tk) (q : qexpr0) : tactic unit :=
+do e ← to_expr_strict q,
+   tactic.assert h e
+
+meta def define (h : ident) (c : colon_tk) (q : qexpr0) : tactic unit :=
+do e ← to_expr_strict q,
+   tactic.define h e
+
+meta def assertv (h : ident) (c : colon_tk) (q₁ : qexpr0) (a : assign_tk) (q₂ : qexpr0) : tactic unit :=
+do t ← to_expr_strict q₁,
+   v ← to_expr_strict `((%%q₂ : %%t)),
+   tactic.assertv h t v
+
+meta def definev (h : ident) (c : colon_tk) (q₁ : qexpr0) (a : assign_tk) (q₂ : qexpr0) : tactic unit :=
+do t ← to_expr_strict q₁,
+   v ← to_expr_strict `((%%q₂ : %%t)),
+   tactic.definev h t v
+
+meta def note (h : ident) (a : assign_tk) (q : qexpr0) : tactic unit :=
+do p ← to_expr_strict q,
+   tactic.note h p
 
 end interactive
 end tactic

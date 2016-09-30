@@ -204,6 +204,15 @@ static expr parse_tactic_interactive(parser & p, name const & decl_name) {
                 args.push_back(parse_using_id(p, decl_name));
             } else if (is_constant(arg_type, get_tactic_interactive_types_location_name())) {
                 args.push_back(parse_location(p));
+            } else if (is_constant(arg_type, get_tactic_interactive_types_colon_tk_name())) {
+                p.check_token_next(get_colon_tk(), "invalid tactic, ':' expected");
+                args.push_back(mk_constant(get_unit_star_name()));
+            } else if (is_constant(arg_type, get_tactic_interactive_types_assign_tk_name())) {
+                p.check_token_next(get_assign_tk(), "invalid tactic, ':=' expected");
+                args.push_back(mk_constant(get_unit_star_name()));
+            } else if (is_constant(arg_type, get_tactic_interactive_types_comma_tk_name())) {
+                p.check_token_next(get_comma_tk(), "invalid tactic, ',' expected");
+                args.push_back(mk_constant(get_unit_star_name()));
             } else {
                 args.push_back(p.parse_expr(get_max_prec()));
             }

@@ -25,3 +25,12 @@ by do
    mk_app `eq.refl [y] >>= exact
 
 print tst2
+
+definition tst3 (a : nat) : a = a :=
+begin
+  define x : nat,
+  exact a,
+  revert x,
+  intro y,
+  apply eq.refl y
+end

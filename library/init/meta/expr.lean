@@ -12,7 +12,7 @@ inductive binder_info
 meta constant macro_def : Type
 
 /- Reflect a C++ expr object. The VM replaces it with the C++ implementation. -/
-inductive expr
+meta inductive expr
 | var         : unsigned → expr
 | sort        : level → expr
 | const       : name → list level → expr
@@ -24,7 +24,7 @@ inductive expr
 | elet        : name → expr → expr → expr → expr
 | macro       : macro_def → ∀ n : unsigned, (fin (unsigned.to_nat n) → expr) → expr
 
-instance : inhabited expr :=
+meta instance : inhabited expr :=
 ⟨expr.sort level.zero⟩
 
 meta constant expr.mk_macro (d : macro_def) : list expr → expr

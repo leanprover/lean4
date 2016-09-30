@@ -65,11 +65,11 @@ using inductive::intro_rule;
 using inductive::mk_intro_rule;
 
 class add_basic_inductive_decl_fn {
-    environment m_env;
-    options const & m_opts;
+    environment                           m_env;
+    options const &                       m_opts;
     name_map<implicit_infer_kind> const & m_implicit_infer_map;
-    ginductive_decl const & m_decl;
-
+    ginductive_decl const &               m_decl;
+    bool                                  m_is_trusted;
     void mk_basic_aux_decls() {
         name ind_name = mlocal_name(m_decl.get_inds()[0]);
 
@@ -131,13 +131,13 @@ class add_basic_inductive_decl_fn {
             lean_trace(name({"inductive_compiler", "basic", "irs"}), tout() << mlocal_name(ir) << " : " << new_ir_type << "\n";);
         }
         inductive_decl kdecl(mlocal_name(ind), to_list(lp_names), params.size(), new_ind_type, to_list(new_intro_rules));
-        m_env = module::add_inductive(m_env, kdecl);
+        m_env = module::add_inductive(m_env, kdecl, m_is_trusted);
     }
 
 public:
     add_basic_inductive_decl_fn(environment const & env, options const & opts, name_map<implicit_infer_kind> implicit_infer_map,
-                                ginductive_decl const & decl):
-        m_env(env), m_opts(opts), m_implicit_infer_map(implicit_infer_map), m_decl(decl) {}
+                                ginductive_decl const & decl, bool is_trusted):
+        m_env(env), m_opts(opts), m_implicit_infer_map(implicit_infer_map), m_decl(decl), m_is_trusted(is_trusted) {}
 
     environment operator()() {
         send_to_kernel();
@@ -147,8 +147,8 @@ public:
 };
 
 environment add_basic_inductive_decl(environment const & env, options const & opts, name_map<implicit_infer_kind> implicit_infer_map,
-                                     ginductive_decl const & decl) {
-    return add_basic_inductive_decl_fn(env, opts, implicit_infer_map, decl)();
+                                     ginductive_decl const & decl, bool is_trusted) {
+    return add_basic_inductive_decl_fn(env, opts, implicit_infer_map, decl, is_trusted)();
 }
 
 void initialize_inductive_compiler_basic() {

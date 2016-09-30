@@ -18,8 +18,9 @@ meta constant add             : environment → declaration → exceptional envi
 /- Retrieve a declaration from the environment -/
 meta constant get             : environment → name → exceptional declaration
 /- Add a new inductive datatype to the environment
-   name, universe parameters, number of parameters, type, constructors (name and type) -/
-meta constant add_inductive   : environment → name → list name → nat → expr → list (name × expr) → exceptional environment
+   name, universe parameters, number of parameters, type, constructors (name and type), is_meta -/
+meta constant add_inductive   : environment → name → list name → nat → expr → list (name × expr) → bool →
+                                exceptional environment
 /- Return tt iff the given name is an inductive datatype -/
 meta constant is_inductive    : environment → name → bool
 /- Return tt iff the given name is a constructor -/

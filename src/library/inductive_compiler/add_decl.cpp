@@ -14,9 +14,10 @@ namespace lean {
 environment add_inductive_declaration(environment const & old_env, options const & opts,
                                       name_map<implicit_infer_kind> implicit_infer_map,
                                       buffer<name> const & lp_names, buffer<expr> const & params,
-                                      buffer<expr> const & inds, buffer<buffer<expr> > const & intro_rules) {
+                                      buffer<expr> const & inds, buffer<buffer<expr> > const & intro_rules,
+                                      bool is_trusted) {
     ginductive_decl decl(0, lp_names, params, inds, intro_rules);
-    environment env = add_inner_inductive_declaration(old_env, opts, implicit_infer_map, decl);
+    environment env = add_inner_inductive_declaration(old_env, opts, implicit_infer_map, decl, is_trusted);
     return env;
 }
 

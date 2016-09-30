@@ -76,7 +76,8 @@ lean_bool lean_env_add_inductive(lean_env env, lean_inductive_decl d, lean_env *
     LEAN_TRY;
     check_nonnull(env);
     check_nonnull(d);
-    *r = of_env(new environment(module::add_inductive(to_env_ref(env), to_inductive_decl_ref(d))));
+    bool is_trusted = true;
+    *r = of_env(new environment(module::add_inductive(to_env_ref(env), to_inductive_decl_ref(d), is_trusted)));
     LEAN_CATCH;
 }
 

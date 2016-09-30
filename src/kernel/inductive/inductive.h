@@ -63,6 +63,7 @@ private:
     bool               m_K_target;
     unsigned           m_num_indices;
     list<comp_rule>    m_comp_rules;
+    bool               m_is_trusted;
 
     friend struct add_inductive_fn;
     friend class ::lean::read_certified_inductive_decl_fn;
@@ -72,10 +73,11 @@ private:
 
     certified_inductive_decl(unsigned num_ACe, bool elim_prop, bool dep_delim, level_param_names const & elim_levels,
                              expr const & elim_type, inductive_decl const & decl, bool K_target, unsigned nindices,
-                             list<comp_rule> const & crules):
+                             list<comp_rule> const & crules, bool is_trusted):
         m_num_ACe(num_ACe), m_elim_prop(elim_prop), m_dep_elim(dep_delim),
         m_elim_levels(elim_levels), m_elim_type(elim_type), m_decl(decl),
-        m_K_target(K_target), m_num_indices(nindices), m_comp_rules(crules) {}
+        m_K_target(K_target), m_num_indices(nindices), m_comp_rules(crules),
+        m_is_trusted(is_trusted) {}
 public:
     unsigned get_num_ACe() const { return m_num_ACe; }
     bool elim_prop_only() const { return m_elim_prop; }
@@ -86,6 +88,7 @@ public:
     bool is_K_target() const { return m_K_target; }
     unsigned get_num_indices() const { return m_num_indices; }
     list<comp_rule> get_comp_rules() const { return m_comp_rules; }
+    bool is_trusted() const { return m_is_trusted; }
 
     /** \brief Update the environment with this "certified declaration"
         \remark If trust_level is 0, then declaration is rechecked. */
@@ -95,7 +98,8 @@ public:
 /** \brief Declare a finite set of mutually dependent inductive datatypes. */
 pair<environment, certified_inductive_decl>
 add_inductive(environment                  env,
-              inductive_decl const &       decl);
+              inductive_decl const &       decl,
+              bool                         is_trusted);
 
 /** \brief If \c n is the name of an inductive declaration in the environment \c env, then return the
     list of all inductive decls that were simultaneously defined with \c n.

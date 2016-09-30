@@ -48,11 +48,13 @@ Author: Leonardo de Moura
 #include "frontends/lean/elaborator_exception.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
+#include "frontends/lean/decl_util.h"
 #include "frontends/lean/decl_cmds.h"
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/type_util.h"
 #include "frontends/lean/decl_attributes.h"
 #include "frontends/lean/inductive_cmds.h"
+
 
 #ifndef LEAN_DEFAULT_STRUCTURE_INTRO
 #define LEAN_DEFAULT_STRUCTURE_INTRO "mk"
@@ -76,7 +78,7 @@ struct structure_cmd_fn {
     typedef std::vector<unsigned>         field_map;
 
     parser &                    m_p;
-    bool                        m_is_private;
+    decl_modifiers              m_modifiers;
     environment                 m_env;
     type_context                m_ctx;
     name                        m_namespace;
@@ -103,9 +105,9 @@ struct structure_cmd_fn {
     levels                      m_ctx_levels; // context levels for creating aliases
     buffer<expr>                m_ctx_locals; // context local constants for creating aliases
 
-    structure_cmd_fn(parser & p, decl_attributes const & attrs, bool is_private):
+    structure_cmd_fn(parser & p, decl_attributes const & attrs, decl_modifiers const & modifiers):
         m_p(p),
-        m_is_private(is_private),
+        m_modifiers(modifiers),
         m_env(p.env()),
         m_ctx(p.env()),
         m_namespace(get_namespace(m_env)),
@@ -133,7 +135,7 @@ struct structure_cmd_fn {
             m_explicit_universe_params = false;
         }
         m_given_name = m_p.check_decl_id_next("invalid 'structure', identifier expected");
-        if (m_is_private) {
+        if (m_modifiers.m_is_private) {
             unsigned h   = hash(m_name_pos.first, m_name_pos.second);
             auto env_n   = add_private_name(m_env, m_given_name, optional<unsigned>(h));
             m_env        = env_n.first;
@@ -675,9 +677,10 @@ struct structure_cmd_fn {
     }
 
     void add_rec_alias(name const & n) {
-        if (m_is_private) {
+        if (m_modifiers.m_is_private) {
             name given_rec_name = name(m_given_name, n.get_string());
-            m_env = ::lean::add_alias(m_p, m_env, given_rec_name, n, levels(mk_level_placeholder(), m_ctx_levels), m_ctx_locals);
+            m_env = ::lean::add_alias(m_p, m_env, given_rec_name, n, levels(mk_level_placeholder(), m_ctx_levels),
+                                      m_ctx_locals);
         } else {
             bool composite = true;
             m_env = ::lean::add_alias(m_p, m_env, composite, n, levels(mk_level_placeholder(), m_ctx_levels), m_ctx_locals);
@@ -691,7 +694,8 @@ struct structure_cmd_fn {
         level_param_names lnames = to_list(m_level_names.begin(), m_level_names.end());
         inductive::intro_rule intro = inductive::mk_intro_rule(m_mk, intro_type);
         inductive::inductive_decl  decl(m_name, lnames, m_params.size(), structure_type, to_list(intro));
-        m_env = module::add_inductive(m_env, decl);
+        bool is_trusted = !m_modifiers.m_is_meta;
+        m_env = module::add_inductive(m_env, decl, is_trusted);
         name rec_name = inductive::get_elim_name(m_name);
         m_env = add_namespace(m_env, m_name);
         m_env = add_protected(m_env, rec_name);
@@ -699,7 +703,9 @@ struct structure_cmd_fn {
         add_alias(m_mk);
         add_rec_alias(rec_name);
         m_env = m_attrs.apply(m_env, m_p.ios(), m_name);
-        m_env = add_structure_declaration_aux(m_env, m_p.get_options(), m_level_names, m_params, mk_local(m_name, mk_structure_type()), mk_local(m_mk, mk_intro_type()));
+        m_env = add_structure_declaration_aux(m_env, m_p.get_options(), m_level_names, m_params,
+                                              mk_local(m_name, mk_structure_type()),
+                                              mk_local(m_mk, mk_intro_type()));
     }
 
     void declare_projections() {
@@ -866,24 +872,28 @@ struct structure_cmd_fn {
     }
 };
 
-environment structure_cmd_ex(parser & p, decl_attributes const & attrs, bool is_private) {
+environment structure_cmd_ex(parser & p, decl_attributes const & attrs, decl_modifiers const & modifiers) {
     p.next();
-    return structure_cmd_fn(p, attrs, is_private)();
+    return structure_cmd_fn(p, attrs, modifiers)();
 }
 
 environment structure_cmd(parser & p) {
-    return structure_cmd_ex(p, {}, false);
+    return structure_cmd_ex(p, {}, {});
 }
 
-environment class_cmd(parser & p) {
+environment class_cmd_ex(parser & p, decl_modifiers const & modifiers) {
     decl_attributes attrs;
     attrs.set_attribute(p.env(), "class");
     p.next();
     if (p.curr_is_token(get_inductive_tk())) {
-        return inductive_cmd_ex(p, attrs);
+        return inductive_cmd_ex(p, attrs, modifiers.m_is_meta);
     } else {
-        return structure_cmd_fn(p, attrs, false)();
+        return structure_cmd_fn(p, attrs, modifiers)();
     }
+}
+
+environment class_cmd(parser & p) {
+    return class_cmd_ex(p, {});
 }
 
 void get_structure_fields(environment const & env, name const & S, buffer<name> & fields) {

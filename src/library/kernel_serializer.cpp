@@ -391,7 +391,7 @@ inductive_decl read_inductive_decl(deserializer & d) {
 serializer & operator<<(serializer & s, certified_inductive_decl const & d) {
     s << d.get_num_ACe() << d.elim_prop_only() << d.has_dep_elim()
       << d.get_elim_levels() << d.get_elim_type() << d.get_decl()
-      << d.is_K_target() << d.get_num_indices();
+      << d.is_K_target() << d.get_num_indices() << d.is_trusted();
     write_list<certified_inductive_decl::comp_rule>(s, d.get_comp_rules());
     return s;
 }
@@ -407,9 +407,10 @@ public:
         inductive_decl decl  = read_inductive_decl(d);
         bool       K         = d.read_bool();
         unsigned   nind      = d.read_unsigned();
+        bool is_trusted      = d.read_bool();
         auto rs              = read_list<certified_inductive_decl::comp_rule>(d, read_comp_rule);
         return certified_inductive_decl(nACe, elim_prop, dep_elim, ls, elim_type, decl,
-                                        K, nind, rs);
+                                        K, nind, rs, is_trusted);
     }
 };
 

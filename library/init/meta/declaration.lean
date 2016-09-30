@@ -44,7 +44,7 @@ inductive reducibility_hints
 | regular : nat → bool → reducibility_hints
 
 /- Reflect a C++ declaration object. The VM replaces it with the C++ implementation. -/
-inductive declaration
+meta inductive declaration
 /- definition: name, list universe parameters, type, value, is_trusted -/
 | defn : name → list name → expr → expr → reducibility_hints → bool → declaration
 /- theorem: name, list universe parameters, type, value (remark: theorems are always trusted) -/
@@ -54,19 +54,19 @@ inductive declaration
 /- axiom : name → list universe parameters, type (remark: axioms are always trusted) -/
 | ax   : name → list name → expr → declaration
 
-definition declaration.to_name : declaration → name
+meta def declaration.to_name : declaration → name
 | (declaration.defn n ls t v h tr) := n
 | (declaration.thm n ls t v) := n
 | (declaration.cnst n ls t tr) := n
 | (declaration.ax n ls t) := n
 
-definition declaration.univ_params : declaration → list name
+meta def declaration.univ_params : declaration → list name
 | (declaration.defn n ls t v h tr) := ls
 | (declaration.thm n ls t v) := ls
 | (declaration.cnst n ls t tr) := ls
 | (declaration.ax n ls t) := ls
 
-definition declaration.type : declaration → expr
+meta def declaration.type : declaration → expr
 | (declaration.defn n ls t v h tr) := t
 | (declaration.thm n ls t v) := t
 | (declaration.cnst n ls t tr) := t

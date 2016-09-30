@@ -17,7 +17,7 @@ structure user_attribute :=
    `user_attribute` or a sub-structure. -/
 meta constant attribute.register : name → command
 
-structure caching_user_attribute extends user_attribute :=
+meta structure caching_user_attribute extends user_attribute :=
 (Cache : Type)
 (cache : list declaration → Cache)
 

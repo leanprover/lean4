@@ -26,7 +26,7 @@ vm_eval do
                                             hints tt),
    e₂ ← environment.add_inductive e₁ `Two [] 0 (expr.sort (level.succ level.zero))
                                   [(`Zero, expr.const `Two []),
-                                   (`One,  expr.const `Two [])],
+                                   (`One,  expr.const `Two [])] tt,
    d₁ ← environment.get e₂ `Zero,
    d₂ ← environment.get e₂ `foo,
    /- TODO(leo): use

@@ -58,11 +58,13 @@ static name const * g_false_tk = nullptr;
 static name const * g_options_tk = nullptr;
 static name const * g_commands_tk = nullptr;
 static name const * g_instances_tk = nullptr;
+static name const * g_class_tk = nullptr;
 static name const * g_classes_tk = nullptr;
 static name const * g_attributes_tk = nullptr;
 static name const * g_arrow_tk = nullptr;
 static name const * g_larrow_tk = nullptr;
 static name const * g_hiding_tk = nullptr;
+static name const * g_example_tk = nullptr;
 static name const * g_exposing_tk = nullptr;
 static name const * g_renaming_tk = nullptr;
 static name const * g_replacing_tk = nullptr;
@@ -85,7 +87,6 @@ static name const * g_definition_tk = nullptr;
 static name const * g_meta_tk = nullptr;
 static name const * g_mutual_tk = nullptr;
 static name const * g_theorem_tk = nullptr;
-static name const * g_example_tk = nullptr;
 static name const * g_axiom_tk = nullptr;
 static name const * g_axioms_tk = nullptr;
 static name const * g_constant_tk = nullptr;
@@ -177,11 +178,13 @@ void initialize_tokens() {
     g_options_tk = new name{"options"};
     g_commands_tk = new name{"commands"};
     g_instances_tk = new name{"instances"};
+    g_class_tk = new name{"class"};
     g_classes_tk = new name{"classes"};
     g_attributes_tk = new name{"attributes"};
     g_arrow_tk = new name{"->"};
     g_larrow_tk = new name{"<-"};
     g_hiding_tk = new name{"hiding"};
+    g_example_tk = new name{"example"};
     g_exposing_tk = new name{"exposing"};
     g_renaming_tk = new name{"renaming"};
     g_replacing_tk = new name{"replacing"};
@@ -204,7 +207,6 @@ void initialize_tokens() {
     g_meta_tk = new name{"meta"};
     g_mutual_tk = new name{"mutual"};
     g_theorem_tk = new name{"theorem"};
-    g_example_tk = new name{"example"};
     g_axiom_tk = new name{"axiom"};
     g_axioms_tk = new name{"axioms"};
     g_constant_tk = new name{"constant"};
@@ -297,11 +299,13 @@ void finalize_tokens() {
     delete g_options_tk;
     delete g_commands_tk;
     delete g_instances_tk;
+    delete g_class_tk;
     delete g_classes_tk;
     delete g_attributes_tk;
     delete g_arrow_tk;
     delete g_larrow_tk;
     delete g_hiding_tk;
+    delete g_example_tk;
     delete g_exposing_tk;
     delete g_renaming_tk;
     delete g_replacing_tk;
@@ -324,7 +328,6 @@ void finalize_tokens() {
     delete g_meta_tk;
     delete g_mutual_tk;
     delete g_theorem_tk;
-    delete g_example_tk;
     delete g_axiom_tk;
     delete g_axioms_tk;
     delete g_constant_tk;
@@ -416,11 +419,13 @@ name const & get_false_tk() { return *g_false_tk; }
 name const & get_options_tk() { return *g_options_tk; }
 name const & get_commands_tk() { return *g_commands_tk; }
 name const & get_instances_tk() { return *g_instances_tk; }
+name const & get_class_tk() { return *g_class_tk; }
 name const & get_classes_tk() { return *g_classes_tk; }
 name const & get_attributes_tk() { return *g_attributes_tk; }
 name const & get_arrow_tk() { return *g_arrow_tk; }
 name const & get_larrow_tk() { return *g_larrow_tk; }
 name const & get_hiding_tk() { return *g_hiding_tk; }
+name const & get_example_tk() { return *g_example_tk; }
 name const & get_exposing_tk() { return *g_exposing_tk; }
 name const & get_renaming_tk() { return *g_renaming_tk; }
 name const & get_replacing_tk() { return *g_replacing_tk; }
@@ -443,7 +448,6 @@ name const & get_definition_tk() { return *g_definition_tk; }
 name const & get_meta_tk() { return *g_meta_tk; }
 name const & get_mutual_tk() { return *g_mutual_tk; }
 name const & get_theorem_tk() { return *g_theorem_tk; }
-name const & get_example_tk() { return *g_example_tk; }
 name const & get_axiom_tk() { return *g_axiom_tk; }
 name const & get_axioms_tk() { return *g_axioms_tk; }
 name const & get_constant_tk() { return *g_constant_tk; }

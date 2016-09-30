@@ -10,12 +10,10 @@ Author: Daniel Selsam
 #include "library/inductive_compiler/ginductive_decl.h"
 
 namespace lean {
-
 environment add_mutual_inductive_decl(environment const & env, options const & opts,
                                       name_map<implicit_infer_kind> const & implicit_infer_map,
-                                      ginductive_decl const & mut_decl);
+                                      ginductive_decl const & mut_decl, bool is_trusted);
 
 void initialize_inductive_compiler_mutual();
 void finalize_inductive_compiler_mutual();
-
 }

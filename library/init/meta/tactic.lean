@@ -22,7 +22,7 @@ end tactic_state
 meta instance : has_to_format tactic_state :=
 ⟨tactic_state.to_format⟩
 
-inductive tactic_result (A : Type)
+meta inductive tactic_result (A : Type)
 | success   : A → tactic_state → tactic_result
 | exception : (unit → format) → option expr → tactic_state → tactic_result
 
@@ -143,7 +143,7 @@ end tactic
 meta definition tactic_format_expr (e : expr) : tactic format :=
 do s ← tactic.read, return (tactic_state.format_expr s e)
 
-class has_to_tactic_format (A : Type) :=
+meta class has_to_tactic_format (A : Type) :=
 (to_tactic_format : A → tactic format)
 
 meta instance : has_to_tactic_format expr :=

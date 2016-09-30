@@ -53,11 +53,13 @@ false        false
 options      options
 commands     commands
 instances    instances
+class        class
 classes      classes
 attributes   attributes
 arrow        ->
 larrow       <-
 hiding       hiding
+example      example
 exposing     exposing
 renaming     renaming
 replacing    replacing

@@ -2,7 +2,7 @@ open tactic
 
 set_option pp.all true
 
-definition app2 (f a b : expr) :=
+meta def app2 (f a b : expr) :=
 expr.app (expr.app f a) b
 
 example (a b c x y : nat) (H : nat.add (nat.add x y) y = 0) : true :=

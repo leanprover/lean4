@@ -406,7 +406,10 @@ static environment definition_cmd_ex(parser & p, decl_attributes const & attribu
         p.next();
 
         if (!attributes && p.curr_is_token(get_structure_tk())) {
-            return structure_cmd_ex(p, attributes, true);
+            return structure_cmd_ex(p, attributes, modifiers);
+        }
+        if (!attributes && p.curr_is_token(get_class_tk())) {
+            return class_cmd_ex(p, modifiers);
         }
     } else if (p.curr_is_token(get_protected_tk())) {
         modifiers.m_is_protected = true;
@@ -449,6 +452,15 @@ static environment definition_cmd_ex(parser & p, decl_attributes const & attribu
                 return variables_cmd_core(p, variable_kind::Constant, modifiers);
             }
         }
+        if (!modifiers.m_is_private && !modifiers.m_is_protected && p.curr_is_token(get_inductive_tk())) {
+            return inductive_cmd_ex(p, attributes, modifiers.m_is_meta);
+        }
+        if (!attributes && !modifiers.m_is_protected && p.curr_is_token(get_structure_tk())) {
+            return structure_cmd_ex(p, attributes, modifiers);
+        }
+        if (!attributes && !modifiers.m_is_protected && p.curr_is_token(get_class_tk())) {
+            return class_cmd_ex(p, modifiers);
+        }
     }
 
     if (p.curr_is_token(get_mutual_tk())) {
@@ -456,7 +468,7 @@ static environment definition_cmd_ex(parser & p, decl_attributes const & attribu
         p.next();
         if (!modifiers.m_is_private && !modifiers.m_is_protected && !modifiers.m_is_noncomputable &&
             p.curr_is_token(get_inductive_tk())) {
-            return mutual_inductive_cmd_ex(p, attributes);
+            return mutual_inductive_cmd_ex(p, attributes, modifiers.m_is_meta);
         }
     }
 
@@ -491,9 +503,9 @@ static environment attribute_cmd_core(parser & p, bool persistent) {
     // 'attribute [attr] definition ...'
     if (p.curr_is_command()) {
         if (p.curr_is_token_or_id(get_inductive_tk())) {
-            return inductive_cmd_ex(p, attributes);
+            return inductive_cmd_ex(p, attributes, false);
         } else  if (p.curr_is_token_or_id(get_structure_tk())) {
-            return structure_cmd_ex(p, attributes, false);
+            return structure_cmd_ex(p, attributes, {});
         } else {
             return definition_cmd_ex(p, attributes);
         }
@@ -524,9 +536,9 @@ static environment compact_attribute_cmd(parser & p) {
     decl_attributes attributes(persistent);
     attributes.parse_compact(p);
     if (p.curr_is_token_or_id(get_inductive_tk())) {
-        return inductive_cmd_ex(p, attributes);
+        return inductive_cmd_ex(p, attributes, false);
     } else  if (p.curr_is_token_or_id(get_structure_tk())) {
-        return structure_cmd_ex(p, attributes, false);
+        return structure_cmd_ex(p, attributes, {});
     } else {
         return definition_cmd_ex(p, attributes);
     }

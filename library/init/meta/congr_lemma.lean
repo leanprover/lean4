@@ -22,7 +22,7 @@ inductive congr_arg_kind
    a_i and b_i represent the left and right hand sides, and eq_i is a proof for their heterogeneous equality. -/
 | heq
 
-structure congr_lemma :=
+meta structure congr_lemma :=
 (type : expr) (proof : expr) (arg_kids : list congr_arg_kind)
 
 namespace tactic

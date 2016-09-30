@@ -9,7 +9,7 @@ import init.monad init.meta.format
 Remark: we use a function that produces a format object as the exception information.
 Motivation: the formatting object may be big, and we may create it on demand.
 -/
-inductive exceptional (A : Type)
+meta inductive exceptional (A : Type)
 | success   : A → exceptional
 | exception : (options → format) → exceptional
 

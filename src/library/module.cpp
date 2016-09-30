@@ -246,8 +246,9 @@ static void quotient_reader(deserializer &, shared_environment & senv,
 using inductive::certified_inductive_decl;
 
 environment add_inductive(environment                       env,
-                          inductive::inductive_decl const & decl) {
-    pair<environment, certified_inductive_decl> r = inductive::add_inductive(env, decl);
+                          inductive::inductive_decl const & decl,
+                          bool                              is_trusted) {
+    pair<environment, certified_inductive_decl> r = inductive::add_inductive(env, decl, is_trusted);
     environment new_env            = r.first;
     certified_inductive_decl cdecl = r.second;
     module_ext ext = get_extension(env);
@@ -268,9 +269,10 @@ static void inductive_reader(deserializer & d, shared_environment & senv,
 }
 
 environment add_inductive(environment const & env, name const & ind_name, level_param_names const & level_params,
-                          unsigned num_params, expr const & type, list<inductive::intro_rule> const & intro_rules) {
+                          unsigned num_params, expr const & type, list<inductive::intro_rule> const & intro_rules,
+                          bool is_trusted) {
     inductive::inductive_decl decl(ind_name, level_params, num_params, type, intro_rules);
-    return module::add_inductive(env, decl);
+    return module::add_inductive(env, decl, is_trusted);
 }
 } // end of namespace module
 

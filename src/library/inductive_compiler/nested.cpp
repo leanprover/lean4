@@ -80,6 +80,7 @@ class add_nested_inductive_decl_fn {
     options                       m_opts;
     name_map<implicit_infer_kind> m_implicit_infer_map;
     ginductive_decl const &       m_nested_decl;
+    bool                          m_is_trusted;
     ginductive_decl               m_inner_decl;
 
     type_context                  m_tctx;
@@ -227,7 +228,7 @@ class add_nested_inductive_decl_fn {
 
     void add_inner_decl() {
         try {
-            m_env = add_inner_inductive_declaration(m_env, m_opts, m_implicit_infer_map, m_inner_decl);
+            m_env = add_inner_inductive_declaration(m_env, m_opts, m_implicit_infer_map, m_inner_decl, m_is_trusted);
         } catch (exception & ex) {
             throw nested_exception(sstream() << "nested inductive type compiled to invalid inductive type", ex);
         }
@@ -1670,9 +1671,11 @@ class add_nested_inductive_decl_fn {
 
 public:
     add_nested_inductive_decl_fn(environment const & env, options const & opts,
-                                 name_map<implicit_infer_kind> const & implicit_infer_map, ginductive_decl const & nested_decl):
+                                 name_map<implicit_infer_kind> const & implicit_infer_map,
+                                 ginductive_decl const & nested_decl, bool is_trusted):
         m_env(env), m_opts(opts), m_implicit_infer_map(implicit_infer_map),
-        m_nested_decl(nested_decl), m_inner_decl(m_nested_decl.get_nest_depth() + 1, m_nested_decl.get_lp_names(), m_nested_decl.get_params()),
+        m_nested_decl(nested_decl), m_is_trusted(is_trusted),
+        m_inner_decl(m_nested_decl.get_nest_depth() + 1, m_nested_decl.get_lp_names(), m_nested_decl.get_params()),
         m_tctx(env, opts) { }
 
     optional<environment> operator()() {
@@ -1701,8 +1704,9 @@ public:
 };
 
 optional<environment> add_nested_inductive_decl(environment const & env, options const & opts,
-                                                name_map<implicit_infer_kind> const & implicit_infer_map, ginductive_decl const & decl) {
-    return add_nested_inductive_decl_fn(env, opts, implicit_infer_map, decl)();
+                                                name_map<implicit_infer_kind> const & implicit_infer_map,
+                                                ginductive_decl const & decl, bool is_trusted) {
+    return add_nested_inductive_decl_fn(env, opts, implicit_infer_map, decl, is_trusted)();
 }
 
 void initialize_inductive_compiler_nested() {

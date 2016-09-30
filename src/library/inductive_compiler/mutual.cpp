@@ -35,6 +35,7 @@ class add_mutual_inductive_decl_fn {
     options const &               m_opts;
     name_map<implicit_infer_kind> m_implicit_infer_map;
     ginductive_decl const &       m_mut_decl;
+    bool                          m_is_trusted;
     ginductive_decl               m_basic_decl;
 
     name                          m_basic_ind_name;
@@ -735,9 +736,11 @@ class add_mutual_inductive_decl_fn {
     }
 public:
     add_mutual_inductive_decl_fn(environment const & env, options const & opts,
-                                 name_map<implicit_infer_kind> const & implicit_infer_map, ginductive_decl const & mut_decl):
+                                 name_map<implicit_infer_kind> const & implicit_infer_map, ginductive_decl const & mut_decl,
+                                 bool is_trusted):
         m_env(env), m_opts(opts), m_implicit_infer_map(implicit_infer_map),
-        m_mut_decl(mut_decl), m_basic_decl(m_mut_decl.get_nest_depth() + 1, m_mut_decl.get_lp_names(), m_mut_decl.get_params()),
+        m_mut_decl(mut_decl), m_is_trusted(is_trusted),
+        m_basic_decl(m_mut_decl.get_nest_depth() + 1, m_mut_decl.get_lp_names(), m_mut_decl.get_params()),
         m_tctx(env, opts) {}
 
     environment operator()() {
@@ -751,7 +754,7 @@ public:
         compute_new_intro_rules();
 
         try {
-            m_env = add_inner_inductive_declaration(m_env, m_opts, m_implicit_infer_map, m_basic_decl);
+            m_env = add_inner_inductive_declaration(m_env, m_opts, m_implicit_infer_map, m_basic_decl, m_is_trusted);
         } catch (exception & ex) {
             throw nested_exception(sstream() << "mutually inductive types compiled to invalid basic inductive type", ex);
         }
@@ -770,8 +773,9 @@ public:
 };
 
 environment add_mutual_inductive_decl(environment const & env, options const & opts,
-                                      name_map<implicit_infer_kind> const & implicit_infer_map, ginductive_decl const & mut_decl) {
-    return add_mutual_inductive_decl_fn(env, opts, implicit_infer_map, mut_decl)();
+                                      name_map<implicit_infer_kind> const & implicit_infer_map,
+                                      ginductive_decl const & mut_decl, bool is_trusted) {
+    return add_mutual_inductive_decl_fn(env, opts, implicit_infer_map, mut_decl, is_trusted)();
 }
 
 void initialize_inductive_compiler_mutual() {

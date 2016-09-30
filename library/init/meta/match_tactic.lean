@@ -7,7 +7,7 @@ prelude
 import init.meta.tactic init.function
 
 namespace tactic
-structure pattern :=
+meta structure pattern :=
 /- Term to match. -/
 (target : expr)
 /- Set of terms that is instantiated for each successful match. -/

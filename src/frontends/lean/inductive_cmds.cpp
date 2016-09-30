@@ -62,6 +62,7 @@ class inductive_cmd_fn {
     parser &                        m_p;
     environment                     m_env;
     decl_attributes                 m_attrs;
+    bool                            m_is_trusted;
     buffer<decl_attributes>         m_mut_attrs;
     type_context                    m_ctx;
     buffer<name>                    m_lp_names;
@@ -473,7 +474,9 @@ class inductive_cmd_fn {
             throw_error("only attribute [class] accepted for inductive types");
     }
 public:
-    inductive_cmd_fn(parser & p, decl_attributes const & attrs): m_p(p), m_env(p.env()), m_attrs(attrs), m_ctx(p.env()) {
+    inductive_cmd_fn(parser & p, decl_attributes const & attrs, bool is_trusted):
+        m_p(p), m_env(p.env()), m_attrs(attrs),
+        m_is_trusted(is_trusted), m_ctx(p.env()) {
         m_env = m_env.add_universe(tmp_global_univ_name());
         m_u = mk_global_univ(tmp_global_univ_name());
         check_attrs(m_attrs);
@@ -496,7 +499,8 @@ public:
         buffer<expr> new_inds;
         buffer<buffer<expr> > new_intro_rules;
         elaborate_inductive_decls(params, inds, intro_rules, new_params, new_inds, new_intro_rules);
-        m_env = add_inductive_declaration(m_p.env(), m_p.get_options(), m_implicit_infer_map, m_lp_names, new_params, new_inds, new_intro_rules);
+        m_env = add_inductive_declaration(m_p.env(), m_p.get_options(), m_implicit_infer_map, m_lp_names, new_params,
+                                          new_inds, new_intro_rules, m_is_trusted);
         post_process(new_params, new_inds, new_intro_rules);
         return m_env;
     }
@@ -519,22 +523,22 @@ public:
     }
 };
 
-environment inductive_cmd_ex(parser & p, decl_attributes const & attrs) {
+environment inductive_cmd_ex(parser & p, decl_attributes const & attrs, bool is_meta) {
     p.next();
-    return inductive_cmd_fn(p, attrs).inductive_cmd();
+    return inductive_cmd_fn(p, attrs, !is_meta).inductive_cmd();
 }
 
-environment mutual_inductive_cmd_ex(parser & p, decl_attributes const & attrs) {
+environment mutual_inductive_cmd_ex(parser & p, decl_attributes const & attrs, bool is_meta) {
     p.next();
-    return inductive_cmd_fn(p, attrs).mutual_inductive_cmd();
+    return inductive_cmd_fn(p, attrs, !is_meta).mutual_inductive_cmd();
 }
 
 environment inductive_cmd(parser & p) {
-    return inductive_cmd_ex(p, {});
+    return inductive_cmd_ex(p, {}, false);
 }
 
 void register_inductive_cmds(cmd_table & r) {
-    add_cmd(r, cmd_info("inductive", "declare an inductive datatype",        inductive_cmd,        false));
+    add_cmd(r, cmd_info("inductive", "declare an inductive datatype", inductive_cmd, false));
 }
 
 void initialize_inductive_cmds() {

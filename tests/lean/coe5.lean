@@ -1,11 +1,11 @@
 open tactic
 
 attribute [instance]
-definition expr_to_app : has_coe_to_fun expr :=
+meta def expr_to_app : has_coe_to_fun expr :=
 { F   := λ e, expr → expr,
   coe := expr.app }
 
-constants f a b : expr
+meta constants f a b : expr
 
 check f a
 

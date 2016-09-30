@@ -56,7 +56,9 @@ namespace types
 
             and produce a list of quoted expressions
 
-  - itactic: parse a nested "interactive" tactic -/
+  - itactic: parse a nested "interactive" tactic. That is, parse
+           `(` tactic `)`
+-/
 def ident : Type := name
 def opt_ident : Type := option ident
 def using_ident : Type := option ident
@@ -215,6 +217,12 @@ do t ← to_expr_strict q₁,
 meta def note (h : ident) (a : assign_tk) (q : qexpr0) : tactic unit :=
 do p ← to_expr_strict q,
    tactic.note h p
+
+meta def trace_state : tactic unit :=
+tactic.trace_state
+
+meta definition trace {A : Type} [has_to_tactic_format A] (a : A) : tactic unit :=
+tactic.trace a
 
 end interactive
 end tactic

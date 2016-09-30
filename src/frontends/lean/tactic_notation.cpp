@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser.h"
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/util.h"
+#include "frontends/lean/tactic_notation.h"
 
 namespace lean {
 static name * g_begin_end = nullptr;
@@ -176,6 +177,18 @@ static expr parse_location(parser & p) {
     }
 }
 
+static expr parse_nested_interactive_tactic(parser & p) {
+    auto pos = p.pos();
+    bool nested = true;
+    if (p.curr_is_token(get_lcurly_tk())) {
+        return parse_begin_end_core(p, pos, get_rcurly_tk(), nested);
+    } else if (p.curr_is_token(get_begin_tk())) {
+        return parse_begin_end_core(p, pos, get_end_tk(), nested);
+    } else {
+        throw parser_error("invalid nested tactic, '{' or 'begin' expected", pos);
+    }
+}
+
 static expr parse_tactic_interactive(parser & p, name const & decl_name) {
     auto pos = p.pos();
     p.next();
@@ -204,6 +217,8 @@ static expr parse_tactic_interactive(parser & p, name const & decl_name) {
                 args.push_back(parse_using_id(p, decl_name));
             } else if (is_constant(arg_type, get_tactic_interactive_types_location_name())) {
                 args.push_back(parse_location(p));
+            } else if (is_constant(arg_type, get_tactic_interactive_types_itactic_name())) {
+                args.push_back(parse_nested_interactive_tactic(p));
             } else if (is_constant(arg_type, get_tactic_interactive_types_colon_tk_name())) {
                 p.check_token_next(get_colon_tk(), "invalid tactic, ':' expected");
                 args.push_back(mk_constant(get_unit_star_name()));
@@ -231,7 +246,7 @@ static expr parse_tactic(parser & p) {
 }
 
 expr parse_begin_end_core(parser & p, pos_info const & start_pos,
-                          name const & end_token, bool nested = false) {
+                          name const & end_token, bool nested) {
     p.next();
     bool first = true;
     expr r = mk_begin_end_element(p, mk_constant(get_tactic_skip_name()), start_pos);

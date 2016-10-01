@@ -154,7 +154,7 @@ name get_class_name(environment const & env, expr const & e) {
     return c_name;
 }
 
-environment add_class(environment const &env, name const &n, bool persistent) {
+environment add_class_core(environment const &env, name const &n, bool persistent) {
     check_class(env, n);
     return class_ext::add_entry(env, get_dummy_ios(), class_entry(n), persistent);
 }
@@ -179,7 +179,7 @@ static environment set_reducible_if_def(environment const & env, name const & n,
         return env;
 }
 
-environment add_instance(environment const & env, name const & n, unsigned priority, bool persistent) {
+environment add_instance_core(environment const & env, name const & n, unsigned priority, bool persistent) {
     declaration d = env.get(n);
     expr type = d.get_type();
     type_context ctx(env, transparency_mode::All);
@@ -229,21 +229,34 @@ list<name> get_class_instances(environment const & env, name const & c) {
     return ptr_to_list(s.m_instances.find(c));
 }
 
+static name * g_class_attr_name    = nullptr;
+static name * g_instance_attr_name = nullptr;
+
+environment add_class(environment const &env, name const &n, bool persistent) {
+    return static_cast<basic_attribute const &>(get_system_attribute(*g_class_attr_name)).set(env, get_global_ios(), n, LEAN_DEFAULT_PRIORITY, persistent);
+}
+
+environment add_instance(environment const & env, name const & n, unsigned priority, bool persistent) {
+    return static_cast<basic_attribute const &>(get_system_attribute(*g_instance_attr_name)).set(env, get_global_ios(), n, priority, persistent);
+}
+
 void initialize_class() {
+    g_class_attr_name = new name("class");
+    g_instance_attr_name = new name("instance");
     g_class_name = new name("class");
     g_key = new std::string("class");
     class_ext::initialize();
 
-    register_system_attribute(basic_attribute("class", "type class",
+    register_system_attribute(basic_attribute(*g_class_attr_name, "type class",
                                               [](environment const & env, io_state const &, name const & d, unsigned,
                                                  bool persistent) {
-                                                  return add_class(env, d, persistent);
+                                                  return add_class_core(env, d, persistent);
                                               }));
 
-    register_system_attribute(basic_attribute("instance", "type class instance",
+    register_system_attribute(basic_attribute(*g_instance_attr_name, "type class instance",
                                               [](environment const & env, io_state const &, name const & d,
                                                  unsigned prio, bool persistent) {
-                                                  return add_instance(env, d, prio, persistent);
+                                                  return add_instance_core(env, d, prio, persistent);
                                               }));
 }
 
@@ -251,5 +264,7 @@ void finalize_class() {
     class_ext::finalize();
     delete g_key;
     delete g_class_name;
+    delete g_class_attr_name;
+    delete g_instance_attr_name;
 }
 }

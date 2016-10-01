@@ -24,9 +24,11 @@ Author: Leonardo de Moura
 #include "frontends/lean/match_expr.h"
 #include "frontends/lean/notation_cmd.h"
 #include "frontends/lean/tactic_notation.h"
+#include "frontends/lean/decl_attributes.h"
 
 namespace lean {
 void initialize_frontend_lean_module() {
+    initialize_decl_attributes();
     initialize_prenum();
     initialize_tokens();
     initialize_token_table();
@@ -69,5 +71,6 @@ void finalize_frontend_lean_module() {
     finalize_token_table();
     finalize_tokens();
     finalize_prenum();
+    finalize_decl_attributes();
 }
 }

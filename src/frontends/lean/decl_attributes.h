@@ -39,4 +39,7 @@ public:
     bool has_class() const;
     operator bool() const { return static_cast<bool>(m_entries); }
 };
+
+void initialize_decl_attributes();
+void finalize_decl_attributes();
 }

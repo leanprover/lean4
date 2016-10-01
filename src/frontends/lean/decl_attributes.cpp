@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/sexpr/option_declarations.h"
 #include "library/attribute_manager.h"
 #include "library/constants.h"
 #include "library/normalize.h"
@@ -15,6 +16,15 @@ Author: Leonardo de Moura
 #include "frontends/lean/util.h"
 
 namespace lean {
+// ==========================================
+// configuration options
+static name * g_default_priority = nullptr;
+
+unsigned get_default_priority(options const & opts) {
+    return opts.get_unsigned(*g_default_priority, LEAN_DEFAULT_PRIORITY);
+}
+// ==========================================
+
 void decl_attributes::parse_core(parser & p, bool compact) {
     while (true) {
         auto pos = p.pos();
@@ -111,7 +121,7 @@ environment decl_attributes::apply(environment env, io_state const & ios, name c
                                           << "]: no prior declaration on " << d);
             env = entry.m_attr->unset(env, ios, d, m_persistent);
         } else {
-            unsigned prio = m_prio ? *m_prio : LEAN_DEFAULT_PRIORITY;
+            unsigned prio = m_prio ? *m_prio : get_default_priority(ios.get_options());
             env = entry.m_attr->set_untyped(env, ios, d, prio, entry.m_params, m_persistent);
         }
     }
@@ -132,4 +142,12 @@ bool decl_attributes::has_class() const {
     return false;
 }
 
+void initialize_decl_attributes() {
+    g_default_priority = new name{"default_priority"};
+    register_unsigned_option(*g_default_priority, LEAN_DEFAULT_PRIORITY, "default priority for attributes");
+}
+
+void finalize_decl_attributes() {
+    delete g_default_priority;
+}
 }

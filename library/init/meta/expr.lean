@@ -42,12 +42,16 @@ meta constant expr.to_string : expr → string
 meta instance : has_to_string expr :=
 has_to_string.mk expr.to_string
 
+/- Coercion for letting users write (f a) instead of (expr.app f a) -/
+meta instance : has_coe_to_fun expr :=
+{ F := λ e, expr → expr, coe := λ e, expr.app e }
+
 meta constant expr.hash : expr → nat
 
 meta constant expr.lt : expr → expr → bool
 meta constant expr.lex_lt : expr → expr → bool
 meta definition expr.cmp (a b : expr) : ordering :=
-if expr.lt a b = bool.tt then ordering.lt
+if expr.lt a b then ordering.lt
 else if a = b then ordering.eq
 else ordering.gt
 
@@ -71,7 +75,7 @@ open decidable
 
 meta definition app_of_list : expr → list expr → expr
 | f []      := f
-| f (p::ps) := app_of_list (expr.app f p) ps
+| f (p::ps) := app_of_list (f p) ps
 
 meta definition is_app : expr → bool
 | (app f a) := tt

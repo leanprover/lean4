@@ -16,7 +16,7 @@ inductive level
 | global : name → level
 | mvar   : name → level
 
-meta instance : inhabited level :=
+instance : inhabited level :=
 ⟨level.zero⟩
 
 /- TODO(Leo): provide a definition in Lean. -/
@@ -38,7 +38,7 @@ meta constant level.to_format : level → options → format
 meta constant level.to_string : level → string
 
 meta definition level.cmp (a b : level) : ordering :=
-if level.lt a b = bool.tt then ordering.lt
+if level.lt a b then ordering.lt
 else if a = b then ordering.eq
 else ordering.gt
 

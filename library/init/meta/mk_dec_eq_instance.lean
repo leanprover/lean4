@@ -39,8 +39,8 @@ private meta definition mk_dec_eq_for (lhs : expr) (rhs : expr) : tactic expr :=
 do lhs_type ← infer_type lhs,
    dec_type ← mk_app `decidable_eq [lhs_type] >>= whnf,
    do {
-     inst : expr ← mk_instance dec_type,
-     return $ app_of_list inst [lhs, rhs] }
+     inst ← mk_instance dec_type,
+     return $ inst lhs rhs }
    <|>
    do {
      f ← pp dec_type,

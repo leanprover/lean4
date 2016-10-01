@@ -72,6 +72,23 @@ meta def declaration.type : declaration → expr
 | (declaration.cnst n ls t tr) := t
 | (declaration.ax n ls t) := t
 
+meta def declaration.update_type : declaration → expr → declaration
+| (declaration.defn n ls t v h tr) new_t := declaration.defn n ls new_t v h tr
+| (declaration.thm n ls t v)       new_t := declaration.thm n ls new_t v
+| (declaration.cnst n ls t tr)     new_t := declaration.cnst n ls new_t tr
+| (declaration.ax n ls t)          new_t := declaration.ax n ls new_t
+
+meta def declaration.update_name : declaration → name → declaration
+| (declaration.defn n ls t v h tr) new_n := declaration.defn new_n ls t v h tr
+| (declaration.thm n ls t v)       new_n := declaration.thm new_n ls t v
+| (declaration.cnst n ls t tr)     new_n := declaration.cnst new_n ls t tr
+| (declaration.ax n ls t)          new_n := declaration.ax new_n ls t
+
+meta def declaration.update_value : declaration → expr → declaration
+| (declaration.defn n ls t v h tr) new_v := declaration.defn n ls t new_v h tr
+| (declaration.thm n ls t v)       new_v := declaration.thm n ls t new_v
+| d                                new_v := d
+
 /- Instantiate a universe polymorphic declaration type with the given universes. -/
 meta constant declaration.instantiate_type_univ_params : declaration → list level → option expr
 

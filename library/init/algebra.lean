@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.logic init.binary init.combinator init.meta.interactive
+import init.logic init.binary init.combinator init.meta.interactive init.meta.decl_cmds
 
 universe variable u
 
@@ -55,3 +55,83 @@ class group (A : Type u) extends monoid A, has_inv A :=
 group.mul_left_inv
 
 class comm_group (A : Type u) extends group A, comm_monoid A
+
+/- Additive "sister" structures.
+   Example, add_semigroup mirrors semigroup.
+   These structures exist just to help automation.
+   In an alternative design, we could have the binary operation as an
+   extra argument for semigroup, monoid, group, etc. However, the lemmas
+   would be hard to index since they would not contain any constant.
+   For example, mul_assoc would be
+
+   lemma mul_assoc {A : Type u} {op : A → A → A} [semigroup A op] :
+                   ∀ a b c : A, op (op a b) c = op a (op b c) :=
+    semigroup.mul_assoc
+
+   The simplifier cannot effectively use this lemma since the pattern for
+   the left-hand-side would be
+
+        ?op (?op ?a ?b) ?c
+
+   Remark: we use a tactic for transporting theorems from the multiplicative fragment
+   to the additive one.
+-/
+
+@[class] def add_semigroup      := semigroup
+@[class] def add_monoid         := monoid
+@[class] def add_group          := group
+@[class] def add_comm_semigroup := comm_semigroup
+@[class] def add_comm_monoid    := comm_monoid
+@[class] def add_comm_group     := comm_group
+
+instance add_semigroup.to_has_add {A : Type u} [s : add_semigroup A] : has_add A :=
+⟨@mul A (@semigroup.to_has_mul A s)⟩
+instance add_monoid.to_has_zero {A : Type u} [s : add_monoid A] : has_zero A :=
+⟨@one A (@monoid.to_has_one A s)⟩
+instance add_group.to_has_neg {A : Type u} [s : add_group A] : has_neg A :=
+⟨@inv A (@group.to_has_inv A s)⟩
+
+meta def multiplicative_to_additive : name_map name :=
+rb_map.of_list $
+  [/- map operations -/
+   (`mul, `add), (`one, `zero), (`inv, `neg),
+   /- map structures -/
+   (`semigroup, `add_semigroup),
+   (`monoid, `add_monoid),
+   (`group, `add_group),
+   (`comm_semigroup, `add_comm_semigroup),
+   (`comm_monoid, `add_comm_monoid),
+   (`comm_group, `add_comm_group),
+   /- map instances -/
+   (`semigroup.to_has_mul, `add_semigroup.to_has_add),
+   (`monoid.to_has_one, `add_monoid.to_has_zero),
+   (`group.to_has_inv, `add_group.to_has_neg),
+   (`comm_semigroup.to_semigroup, `add_comm_semigroup.to_add_semigroup),
+   (`monoid.to_semigroup, `add_monoid.to_add_semigroup),
+   (`comm_monoid.to_monoid, `add_comm_monoid.to_add_monoid),
+   (`comm_monoid.to_comm_semigroup, `add_comm_monoid.to_add_comm_semigroup),
+   (`group.to_monoid, `add_group.to_add_monoid),
+   (`comm_group.to_group, `add_comm_group.to_add_group),
+   (`comm_group.to_comm_monoid, `add_comm_group.to_add_comm_monoid)
+ ]
+
+meta def transport_to_additive : name → name → command :=
+copy_decl_updating_type multiplicative_to_additive
+
+open tactic
+
+/- Make sure all constants at multiplicative_to_additive are declared -/
+meta def init_multiplicative_to_additive : command :=
+multiplicative_to_additive^.fold skip (λ s t tac, do
+  env ← get_env,
+  if (env^.get t)^.to_bool = ff
+  then tac >> transport_to_additive s t
+  else tac)
+
+run_command init_multiplicative_to_additive
+run_command transport_to_additive `mul_assoc `add_assoc
+run_command transport_to_additive `mul_comm  `add_comm
+run_command transport_to_additive `mul_left_comm `add_left_comm
+run_command transport_to_additive `one_mul `zero_add
+run_command transport_to_additive `mul_one `add_zero
+run_command transport_to_additive `mul_left_inv `add_left_neg

@@ -17,6 +17,11 @@ meta constant trust_lvl       : environment → nat
 meta constant add             : environment → declaration → exceptional environment
 /- Retrieve a declaration from the environment -/
 meta constant get             : environment → name → exceptional declaration
+meta def      contains (env : environment) (d : name) : bool :=
+match env^.get d with
+| exceptional.success _      := tt
+| exceptional.exception ._ _ := ff
+end
 /- Add a new inductive datatype to the environment
    name, universe parameters, number of parameters, type, constructors (name and type), is_meta -/
 meta constant add_inductive   : environment → name → list name → nat → expr → list (name × expr) → bool →

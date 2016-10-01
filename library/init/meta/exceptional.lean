@@ -29,6 +29,14 @@ end
 namespace exceptional
 variables {A B : Type}
 
+protected meta definition to_bool : exceptional A → bool
+| (success _)      := tt
+| (exception .A _) := ff
+
+protected meta definition to_option : exceptional A → option A
+| (success a)      := some a
+| (exception .A _) := none
+
 attribute [inline]
 protected meta definition fmap (f : A → B) (e : exceptional A) : exceptional B :=
 exceptional.cases_on e

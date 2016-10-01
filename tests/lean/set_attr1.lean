@@ -2,12 +2,12 @@ open tactic
 
 constant f : nat → nat
 constant foo : ∀ n, f n = n + 1
-constant add_zero : ∀ n, n + 0 = n
+constant addz : ∀ n, n + 0 = n
 
 definition ex1 (n : nat) : f n + 0 = n + 1 :=
 by do
   set_basic_attribute `simp `foo,
-  set_basic_attribute `simp `add_zero,
+  set_basic_attribute `simp `addz,
   simp
 
 definition ex2 (n : nat) : f n + 0 = n + 1 :=

@@ -37,7 +37,7 @@ meta constant level.instantiate : level → list (name × level) → list level
 meta constant level.to_format : level → options → format
 meta constant level.to_string : level → string
 
-meta definition level.cmp (a b : level) : ordering :=
+meta def level.cmp (a b : level) : ordering :=
 if level.lt a b then ordering.lt
 else if a = b then ordering.eq
 else ordering.gt
@@ -51,12 +51,11 @@ meta instance : has_to_format level :=
 meta instance : has_ordering level :=
 ⟨level.cmp⟩
 
-meta definition level.of_nat : nat → level
+meta def level.of_nat : nat → level
 | 0            := level.zero
 | (nat.succ n) := level.succ (level.of_nat n)
 
-open decidable
-meta definition level.has_param : level → name → bool
+meta def level.has_param : level → name → bool
 | (level.succ l)     n  := level.has_param l n
 | (level.max l₁ l₂)  n  := level.has_param l₁ n || level.has_param l₂ n
 | (level.imax l₁ l₂) n  := level.has_param l₁ n || level.has_param l₂ n

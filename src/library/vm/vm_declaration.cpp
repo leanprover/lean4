@@ -76,20 +76,20 @@ unsigned declaration_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
     data.push_back(to_obj(d.get_name()));
     data.push_back(to_obj(d.get_univ_params()));
     data.push_back(to_obj(d.get_type()));
-    if (d.is_definition()) {
+    if (d.is_theorem()) {
+        data.push_back(to_obj(d.get_value()));
+        return 1;
+    } else if (d.is_axiom()) {
+        return 3;
+    } else if (d.is_definition()) {
         data.push_back(to_obj(d.get_value()));
         data.push_back(to_obj(d.get_hints()));
         data.push_back(mk_vm_bool(d.is_trusted()));
         return 0;
-    } else if (d.is_theorem()) {
-        data.push_back(to_obj(d.get_value()));
-        return 1;
-    } else if (d.is_constant_assumption()) {
+    } else {
+        lean_assert(d.is_constant_assumption());
         data.push_back(mk_vm_bool(d.is_trusted()));
         return 2;
-    } else {
-        lean_assert(d.is_axiom());
-        return 3;
     }
 }
 

@@ -8,6 +8,10 @@ import init.logic init.binary init.combinator init.meta.interactive init.meta.de
 
 universe variable u
 
+/- Make sure instances defined in this file have lower priority than the ones
+   defined for concrete structures -/
+set_option default_priority 100
+
 class semigroup (A : Type u) extends has_mul A :=
 (mul_assoc : ∀ a b c : A, a * b * c = a * (b * c))
 

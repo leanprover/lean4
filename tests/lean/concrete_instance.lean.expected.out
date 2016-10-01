@@ -1,0 +1,8 @@
+@mul.{1} nat nat.has_mul a b : nat
+@add.{1} nat nat.has_add a b : nat
+concrete_instance.lean:8:9:failed to generate bytecode for 'nat.semigroup'
+concrete_instance.lean:8:0: warning: code generation failed, VM does not have code for 'sorry'
+concrete_instance.lean:9:9:failed to generate bytecode for 'nat.add_semigroup'
+concrete_instance.lean:9:0: warning: code generation failed, VM does not have code for 'sorry'
+@mul.{1} nat nat.has_mul a b : nat
+@add.{1} nat nat.has_add a b : nat

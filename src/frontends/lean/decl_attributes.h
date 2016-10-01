@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "library/attribute_manager.h"
 #include "library/io_state.h"
 namespace lean {
+unsigned get_default_priority(options const & opts);
 class parser;
 class decl_attributes {
 public:

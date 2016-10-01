@@ -104,6 +104,7 @@ struct structure_cmd_fn {
     bool                        m_inductive_predicate;
     levels                      m_ctx_levels; // context levels for creating aliases
     buffer<expr>                m_ctx_locals; // context local constants for creating aliases
+    unsigned                    m_prio;
 
     structure_cmd_fn(parser & p, decl_attributes const & attrs, decl_modifiers const & modifiers):
         m_p(p),
@@ -115,6 +116,7 @@ struct structure_cmd_fn {
         m_explicit_universe_params = false;
         m_infer_result_universe    = false;
         m_inductive_predicate      = false;
+        m_prio                     = get_default_priority(p.get_options());
     }
 
     void check_attrs(decl_attributes const & attrs, pos_info const & pos) const {
@@ -817,7 +819,7 @@ struct structure_cmd_fn {
             if (!m_private_parents[i]) {
                 if (m_attrs.has_class() && is_class(m_env, parent_name)) {
                     // if both are classes, then we also mark coercion_name as an instance
-                    m_env = add_instance(m_env, coercion_name, LEAN_DEFAULT_PRIORITY, true);
+                    m_env = add_instance(m_env, coercion_name, m_prio, true);
                 }
             }
         }

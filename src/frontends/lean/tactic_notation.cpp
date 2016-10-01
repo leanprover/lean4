@@ -175,6 +175,15 @@ static expr parse_with_id_list(parser & p) {
     }
 }
 
+static expr parse_without_id_list(parser & p) {
+    if (p.curr_is_token(get_without_tk())) {
+        p.next();
+        return parse_raw_id_list(p);
+    } else {
+        return p.save_pos(mk_constant(get_list_nil_name()), p.pos());
+    }
+}
+
 static expr parse_location(parser & p) {
     if (p.curr_is_token(get_at_tk())) {
         p.next();
@@ -222,6 +231,8 @@ static expr parse_auto_quote_tactic(parser & p, name const & decl_name) {
                 args.push_back(parse_raw_id_list(p));
             } else if (is_constant(arg_type, get_tactic_interactive_types_with_ident_list_name())) {
                 args.push_back(parse_with_id_list(p));
+            } else if (is_constant(arg_type, get_tactic_interactive_types_without_ident_list_name())) {
+                args.push_back(parse_without_id_list(p));
             } else if (is_constant(arg_type, get_tactic_interactive_types_using_ident_name())) {
                 args.push_back(parse_using_id(p, decl_name));
             } else if (is_constant(arg_type, get_tactic_interactive_types_location_name())) {

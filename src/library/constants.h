@@ -352,6 +352,7 @@ name const & get_tactic_interactive_types_using_ident_name();
 name const & get_tactic_interactive_types_ident_list_name();
 name const & get_tactic_interactive_types_raw_ident_list_name();
 name const & get_tactic_interactive_types_with_ident_list_name();
+name const & get_tactic_interactive_types_without_ident_list_name();
 name const & get_tactic_interactive_types_location_name();
 name const & get_tactic_interactive_types_qexpr_name();
 name const & get_tactic_interactive_types_qexpr0_name();

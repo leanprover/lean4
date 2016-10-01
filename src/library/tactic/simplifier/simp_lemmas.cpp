@@ -672,10 +672,20 @@ vm_obj tactic_simp_lemmas_insert(vm_obj const & m, vm_obj const & lemmas, vm_obj
     return mk_tactic_success(to_obj(new_lemmas), to_tactic_state(s));
 }
 
+vm_obj tactic_simp_lemmas_erase(vm_obj const & lemmas, vm_obj const & lemma_list) {
+    name_set S;
+    for (name const & l : to_list_name(lemma_list))
+        S.insert(l);
+    simp_lemmas new_lemmas = to_simp_lemmas(lemmas);
+    new_lemmas.erase_simp(S);
+    return to_obj(new_lemmas);
+}
+
 void initialize_simp_lemmas() {
     DECLARE_VM_BUILTIN(name({"tactic", "mk_simp_lemmas_core"}),      tactic_mk_simp_lemmas);
     DECLARE_VM_BUILTIN(name({"tactic", "mk_empty_simp_lemmas"}),     tactic_mk_empty_simp_lemmas);
     DECLARE_VM_BUILTIN(name({"tactic", "simp_lemmas_insert_core"}),  tactic_simp_lemmas_insert);
+    DECLARE_VM_BUILTIN(name({"tactic", "simp_lemmas_erase"}),        tactic_simp_lemmas_erase);
 
     register_system_attribute(basic_attribute::with_check("simp", "simplification lemma", on_add_simp_lemma));
     register_system_attribute(basic_attribute::with_check("congr", "congruence lemma", on_add_congr_lemma));

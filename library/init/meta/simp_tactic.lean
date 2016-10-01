@@ -20,6 +20,8 @@ meta constant mk_simp_lemmas_core     : transparency → list name → list name
 meta constant mk_empty_simp_lemmas     : tactic simp_lemmas
 /- (simp_lemmas_insert_core m lemmas id lemma priority) adds the given lemma to the set simp_lemmas. -/
 meta constant simp_lemmas_insert_core : transparency → simp_lemmas → expr → tactic simp_lemmas
+/- Erase the given lemmas from the simp set. -/
+meta constant simp_lemmas_erase       : simp_lemmas → list name → simp_lemmas
 
 meta definition mk_simp_lemmas        : tactic simp_lemmas :=
 mk_simp_lemmas_core reducible [`simp] [`congr]

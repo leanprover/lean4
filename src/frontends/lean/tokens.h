@@ -99,6 +99,7 @@ name const & get_variables_tk();
 name const & get_structure_tk();
 name const & get_attribute_tk();
 name const & get_with_tk();
+name const & get_without_tk();
 name const & get_prev_tk();
 name const & get_scoped_tk();
 name const & get_foldr_tk();

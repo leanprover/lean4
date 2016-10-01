@@ -345,6 +345,7 @@ tactic.interactive.types.using_ident
 tactic.interactive.types.ident_list
 tactic.interactive.types.raw_ident_list
 tactic.interactive.types.with_ident_list
+tactic.interactive.types.without_ident_list
 tactic.interactive.types.location
 tactic.interactive.types.qexpr
 tactic.interactive.types.qexpr0

@@ -350,6 +350,7 @@ name const * g_tactic_interactive_types_using_ident = nullptr;
 name const * g_tactic_interactive_types_ident_list = nullptr;
 name const * g_tactic_interactive_types_raw_ident_list = nullptr;
 name const * g_tactic_interactive_types_with_ident_list = nullptr;
+name const * g_tactic_interactive_types_without_ident_list = nullptr;
 name const * g_tactic_interactive_types_location = nullptr;
 name const * g_tactic_interactive_types_qexpr = nullptr;
 name const * g_tactic_interactive_types_qexpr0 = nullptr;
@@ -730,6 +731,7 @@ void initialize_constants() {
     g_tactic_interactive_types_ident_list = new name{"tactic", "interactive", "types", "ident_list"};
     g_tactic_interactive_types_raw_ident_list = new name{"tactic", "interactive", "types", "raw_ident_list"};
     g_tactic_interactive_types_with_ident_list = new name{"tactic", "interactive", "types", "with_ident_list"};
+    g_tactic_interactive_types_without_ident_list = new name{"tactic", "interactive", "types", "without_ident_list"};
     g_tactic_interactive_types_location = new name{"tactic", "interactive", "types", "location"};
     g_tactic_interactive_types_qexpr = new name{"tactic", "interactive", "types", "qexpr"};
     g_tactic_interactive_types_qexpr0 = new name{"tactic", "interactive", "types", "qexpr0"};
@@ -1111,6 +1113,7 @@ void finalize_constants() {
     delete g_tactic_interactive_types_ident_list;
     delete g_tactic_interactive_types_raw_ident_list;
     delete g_tactic_interactive_types_with_ident_list;
+    delete g_tactic_interactive_types_without_ident_list;
     delete g_tactic_interactive_types_location;
     delete g_tactic_interactive_types_qexpr;
     delete g_tactic_interactive_types_qexpr0;
@@ -1491,6 +1494,7 @@ name const & get_tactic_interactive_types_using_ident_name() { return *g_tactic_
 name const & get_tactic_interactive_types_ident_list_name() { return *g_tactic_interactive_types_ident_list; }
 name const & get_tactic_interactive_types_raw_ident_list_name() { return *g_tactic_interactive_types_raw_ident_list; }
 name const & get_tactic_interactive_types_with_ident_list_name() { return *g_tactic_interactive_types_with_ident_list; }
+name const & get_tactic_interactive_types_without_ident_list_name() { return *g_tactic_interactive_types_without_ident_list; }
 name const & get_tactic_interactive_types_location_name() { return *g_tactic_interactive_types_location; }
 name const & get_tactic_interactive_types_qexpr_name() { return *g_tactic_interactive_types_qexpr; }
 name const & get_tactic_interactive_types_qexpr0_name() { return *g_tactic_interactive_types_qexpr0; }

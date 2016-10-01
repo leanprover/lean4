@@ -70,6 +70,7 @@ def opt_ident : Type := option ident
 def using_ident : Type := option ident
 def raw_ident_list : Type := list ident
 def with_ident_list : Type := list ident
+def without_ident_list : Type := list ident
 def location : Type := list ident
 @[reducible] meta def qexpr : Type := pexpr
 @[reducible] meta def qexpr0 : Type := pexpr
@@ -253,17 +254,38 @@ private meta def to_expr_list : list pexpr → tactic (list expr)
 | []      := return []
 | (p::ps) := do e ← to_expr' p, es ← to_expr_list ps, return (e :: es)
 
-meta definition simp_hyps : list expr → location → tactic unit
-| es []      := skip
-| es (h::hs) := do H ← get_local h, tactic.simp_at_using es H, simp_hyps es hs
-
-meta definition simp (hs : opt_qexpr_list) (loc : location) : tactic unit :=
+private meta def mk_simp_set (hs : list qexpr) (ex : list name) : tactic simp_lemmas :=
 do es ← to_expr_list hs,
+   s₀ ← mk_simp_lemmas,
+   s₁ ← simp_lemmas_add_extra reducible s₀ es,
+   return $ simp_lemmas_erase s₁ ex
+
+private meta def simp_goal : simp_lemmas → tactic unit
+| s := do
+   (new_target, Heq) ← target >>= simplify_core (simp_goal s) `eq s,
+   tactic.assert `Htarget new_target, swap,
+   Ht ← get_local `Htarget,
+   mk_app `eq.mpr [Heq, Ht] >>= tactic.exact
+
+private meta def simp_hyp (s : simp_lemmas) (h_name : name) : tactic unit :=
+do h     ← get_local h_name,
+   htype ← infer_type h,
+   (new_htype, eqpr) ← simplify_core (simp_goal s) `eq s htype,
+   tactic.assert (expr.local_pp_name h) new_htype,
+   mk_app `eq.mp [eqpr, h] >>= tactic.exact,
+   try $ tactic.clear h
+
+private meta definition simp_hyps : simp_lemmas → location → tactic unit
+| s []      := skip
+| s (h::hs) := simp_hyp s h >> simp_hyps s hs
+
+meta definition simp (hs : opt_qexpr_list) (ids : without_ident_list) (loc : location) : tactic unit :=
+do s ← mk_simp_set hs ids,
    match loc : _ → tactic unit with
-   | [] := tactic.simp_using es
-   | _  := simp_hyps es loc
+   | [] := simp_goal s
+   | _  := simp_hyps s loc
    end,
-   try reflexivity
+   try tactic.triv, try tactic.reflexivity
 
 private meta def dsimp_hyps : location → tactic unit
 | []      := skip

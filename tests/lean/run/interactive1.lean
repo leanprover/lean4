@@ -30,3 +30,19 @@ begin
   trace_state,
   subst h'
 end
+
+constant h : nat → nat → nat
+
+axiom bla : ∀ a b : nat, h a b = h b a
+axiom boo : ∀ a : nat, h 0 a = a
+
+attribute [simp] boo bla
+
+example (a b : nat) : a = b → h 0 a = b :=
+begin
+  intro h,
+  simp [h] without bla -- should fail if bla is used
+end
+
+example (a b : nat) : a = b → h 0 a = b :=
+by simp without bla -- should fail if bla is used

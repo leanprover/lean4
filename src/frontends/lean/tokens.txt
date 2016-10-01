@@ -92,6 +92,7 @@ variables    variables
 structure    structure
 attribute    attribute
 with         with
+without      without
 prev         prev
 scoped       scoped
 foldr        foldr

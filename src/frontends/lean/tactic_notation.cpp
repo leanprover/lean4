@@ -136,6 +136,13 @@ static expr parse_qexpr_list(parser & p) {
     return p.rec_save_pos(mk_lean_list(result), pos);
 }
 
+static expr parse_opt_qexpr_list(parser & p) {
+    if (p.curr_is_token(get_lbracket_tk()))
+        return parse_qexpr_list(p);
+    else
+        return mk_constant(get_list_nil_name());
+}
+
 static expr parse_qexpr_list_or_qexpr0(parser & p) {
     if (p.curr_is_token(get_lbracket_tk())) {
         return parse_qexpr_list(p);
@@ -203,6 +210,8 @@ static expr parse_auto_quote_tactic(parser & p, name const & decl_name) {
                 args.push_back(parse_qexpr(p, 0));
             } else if (is_constant(arg_type, get_tactic_interactive_types_qexpr_list_name())) {
                 args.push_back(parse_qexpr_list(p));
+            } else if (is_constant(arg_type, get_tactic_interactive_types_opt_qexpr_list_name())) {
+                args.push_back(parse_opt_qexpr_list(p));
             } else if (is_constant(arg_type, get_tactic_interactive_types_qexpr_list_or_qexpr0_name())) {
                 args.push_back(parse_qexpr_list_or_qexpr0(p));
             } else if (is_constant(arg_type, get_tactic_interactive_types_ident_name())) {

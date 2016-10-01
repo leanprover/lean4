@@ -4,7 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.meta.tactic init.meta.rewrite_tactic
+import init.meta.tactic init.meta.rewrite_tactic init.meta.simp_tactic
+import init.meta.defeq_simp_tactic
 
 namespace tactic
 namespace interactive
@@ -46,6 +47,11 @@ namespace types
 
             and produce a list of quoted expressions.
 
+   - opt_qexpr_list : parse
+           (`[` (expr (`,` expr)*)? `]`)?
+
+           and produce a list of quoted expressions.
+
    - qexpr0 : parse an expression e using 0 as the right-binding-power,
               and produce the quoted expression `e
 
@@ -68,6 +74,7 @@ def location : Type := list ident
 @[reducible] meta def qexpr : Type := pexpr
 @[reducible] meta def qexpr0 : Type := pexpr
 meta def qexpr_list : Type := list qexpr
+meta def opt_qexpr_list : Type := list qexpr
 meta def qexpr_list_or_qexpr0 : Type := list qexpr
 meta def itactic : Type := tactic unit
 meta def assign_tk : Type := unit
@@ -223,6 +230,63 @@ tactic.trace_state
 
 meta definition trace {A : Type} [has_to_tactic_format A] (a : A) : tactic unit :=
 tactic.trace a
+
+meta definition existsi (e : qexpr0) : tactic unit :=
+to_expr e >>= tactic.existsi
+
+meta definition constructor : tactic unit :=
+tactic.constructor
+
+meta definition left : tactic unit :=
+tactic.left
+
+meta definition right : tactic unit :=
+tactic.right
+
+meta definition split : tactic unit :=
+tactic.split
+
+meta definition injection (q : qexpr0) (hs : with_ident_list) : tactic unit :=
+do e ← to_expr q, tactic.injection_with e hs
+
+private meta def to_expr_list : list pexpr → tactic (list expr)
+| []      := return []
+| (p::ps) := do e ← to_expr' p, es ← to_expr_list ps, return (e :: es)
+
+meta definition simp_hyps : list expr → location → tactic unit
+| es []      := skip
+| es (h::hs) := do H ← get_local h, tactic.simp_at_using es H, simp_hyps es hs
+
+meta definition simp (hs : opt_qexpr_list) (loc : location) : tactic unit :=
+do es ← to_expr_list hs,
+   match loc : _ → tactic unit with
+   | [] := tactic.simp_using es
+   | _  := simp_hyps es loc
+   end,
+   try reflexivity
+
+private meta def dsimp_hyps : location → tactic unit
+| []      := skip
+| (h::hs) := get_local h >>= dsimp_at
+
+meta def dsimp : location → tactic unit
+| [] := tactic.dsimp
+| hs := dsimp_hyps hs
+
+meta def reflexivity : tactic unit :=
+tactic.reflexivity
+
+meta def symmetry : tactic unit :=
+tactic.symmetry
+
+meta def transitivity : tactic unit :=
+tactic.transitivity
+
+meta def subst (q : qexpr0) : tactic unit :=
+to_expr q >>= tactic.subst >> try reflexivity
+
+meta def clear : raw_ident_list → tactic unit :=
+tactic.clear_lst
 
 end interactive
 end tactic

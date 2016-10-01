@@ -356,6 +356,7 @@ name const & get_tactic_interactive_types_location_name();
 name const & get_tactic_interactive_types_qexpr_name();
 name const & get_tactic_interactive_types_qexpr0_name();
 name const & get_tactic_interactive_types_qexpr_list_name();
+name const & get_tactic_interactive_types_opt_qexpr_list_name();
 name const & get_tactic_interactive_types_qexpr_list_or_qexpr0_name();
 name const & get_tactic_interactive_types_itactic_name();
 name const & get_tactic_interactive_types_colon_tk_name();

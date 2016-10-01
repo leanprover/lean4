@@ -115,10 +115,13 @@ rb_map.of_list $
    (`comm_group.to_comm_monoid, `add_comm_group.to_add_comm_monoid)
  ]
 
-meta def transport_to_additive : name → name → command :=
-copy_decl_updating_type multiplicative_to_additive
-
 open tactic
+
+meta def transport_to_additive (src : name) (tgt : name) : command :=
+copy_decl_updating_type multiplicative_to_additive src tgt
+>> copy_attribute `reducible src tgt
+>> copy_attribute `simp src tgt
+>> copy_attribute `instance src tgt
 
 /- Make sure all constants at multiplicative_to_additive are declared -/
 meta def init_multiplicative_to_additive : command :=

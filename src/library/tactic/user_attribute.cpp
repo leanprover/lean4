@@ -209,6 +209,20 @@ vm_obj unset_attribute(vm_obj const & vm_attr_n, vm_obj const & vm_n, vm_obj con
     LEAN_TACTIC_CATCH(s);
 }
 
+vm_obj has_attribute(vm_obj const & vm_attr_n, vm_obj const & vm_n, vm_obj const & vm_s) {
+    name const & attr_n    = to_name(vm_attr_n);
+    name const & n         = to_name(vm_n);
+    tactic_state const & s = to_tactic_state(vm_s);
+    LEAN_TACTIC_TRY;
+    attribute const & attr = get_attribute(s.env(), attr_n);
+    if (attr.is_instance(s.env(), n)) {
+        unsigned prio          = attr.get_prio(s.env(), n);
+        return mk_tactic_success(mk_vm_nat(prio), s);
+    } else {
+        return mk_tactic_exception(sstream() << "'" << n << "' is not tagged with attribute '" << attr_n << "'", s);
+    }
+    LEAN_TACTIC_CATCH(s);
+}
 
 void initialize_user_attribute() {
     DECLARE_VM_BUILTIN(name({"attribute", "get_instances"}),            attribute_get_instances);
@@ -217,6 +231,7 @@ void initialize_user_attribute() {
     DECLARE_VM_BUILTIN(name({"caching_user_attribute", "get_cache"}),   caching_user_attribute_get_cache);
     DECLARE_VM_BUILTIN(name({"tactic",    "set_basic_attribute_core"}), set_basic_attribute_core);
     DECLARE_VM_BUILTIN(name({"tactic",    "unset_attribute"}),          unset_attribute);
+    DECLARE_VM_BUILTIN(name({"tactic",    "has_attribute"}),            has_attribute);
 
     register_trace_class("user_attributes_cache");
     g_ext = new user_attr_ext_reg();

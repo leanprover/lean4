@@ -316,9 +316,19 @@ meta constant add_decl : declaration → tactic unit
 meta constant set_basic_attribute_core : name → name → option nat → tactic unit
 /- (unset_attribute attr_name c_name) -/
 meta constant unset_attribute : name → name → tactic unit
+/- (has_attribute attr_name c_name) succeeds if the declaration `decl_name`
+   has the attribute `attr_name`. The result is the priority. -/
+meta constant has_attribute : name → name → tactic nat
 
 meta definition set_basic_attribute : name → name → tactic unit :=
 λ a n, set_basic_attribute_core a n none
+
+/- (copy_attribute attr_name c_name d_name) copy attribute `attr_name` from
+   `src` to `tgt` if it is defined for `src` -/
+meta definition copy_attribute (attr_name : name) (src : name) (tgt : name) : tactic unit :=
+try $ do
+  prio ← has_attribute attr_name src,
+  set_basic_attribute_core attr_name tgt (some prio)
 
 open list nat
 

@@ -588,7 +588,14 @@ static expr parse_quoted_name(parser & p, unsigned, expr const *, pos_info const
             p.next();
             resolve = true;
         }
-        id = p.check_id_next("invalid quoted name, identifier expected");
+        if (p.curr_is_keyword() || p.curr_is_command()) {
+            if (resolve)
+                throw parser_error("invalid resolved quote symbol, identifier is a keyword/command", pos);
+            id = p.get_name_val();
+            p.next();
+        } else {
+            id = p.check_id_next("invalid quoted name, identifier expected");
+        }
     }
     if (resolve) {
         bool resolve_only = true;

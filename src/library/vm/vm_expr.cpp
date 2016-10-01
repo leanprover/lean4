@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/for_each_fn.h"
+#include "kernel/replace_fn.h"
 #include "library/expr_lt.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_nat.h"
@@ -18,6 +19,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_format.h"
 #include "library/vm/vm_options.h"
+#include "library/vm/vm_option.h"
 #include "library/vm/vm_level.h"
 #include "library/vm/vm_list.h"
 
@@ -223,6 +225,17 @@ vm_obj expr_fold(vm_obj const &, vm_obj const & e, vm_obj const & a, vm_obj cons
     return r;
 }
 
+vm_obj expr_replace(vm_obj const & e, vm_obj const & fn) {
+    expr r = replace(to_expr(e), [&](expr const & o, unsigned d) {
+            vm_obj new_o = invoke(fn, to_obj(o), mk_vm_nat(d));
+            if (is_none(new_o))
+                return none_expr();
+            else
+                return some_expr(to_expr(get_some_value(new_o)));
+        });
+    return to_obj(r);
+}
+
 vm_obj expr_instantiate_var(vm_obj const & e, vm_obj const & v) {
     return to_obj(instantiate(to_expr(e), to_expr(v)));
 }
@@ -315,6 +328,7 @@ void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name({"expr", "lt"}),               expr_lt);
     DECLARE_VM_BUILTIN(name({"expr", "lex_lt"}),           expr_lex_lt);
     DECLARE_VM_BUILTIN(name({"expr", "fold"}),             expr_fold);
+    DECLARE_VM_BUILTIN(name({"expr", "replace"}),          expr_replace);
     DECLARE_VM_BUILTIN(name({"expr", "instantiate_var"}),  expr_instantiate_var);
     DECLARE_VM_BUILTIN(name({"expr", "instantiate_vars"}), expr_instantiate_vars);
     DECLARE_VM_BUILTIN(name({"expr", "abstract_local"}),   expr_abstract_local);

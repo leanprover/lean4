@@ -1,6 +1,3 @@
-structure [class] semigroup (A : Type) extends has_mul A :=
-(assoc : ∀ a b c, mul (mul a b) c = mul a (mul b c))
-
 print prefix semigroup
 
 print "======================="

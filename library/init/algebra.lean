@@ -6,16 +6,44 @@ Authors: Leonardo de Moura
 prelude
 import init.logic init.binary init.combinator init.meta.interactive init.meta.decl_cmds
 
-universe variable u
-
 /- Make sure instances defined in this file have lower priority than the ones
    defined for concrete structures -/
 set_option default_priority 100
 
+universe variable u
+variables {A : Type u}
+
+class weak_order (A : Type u) extends has_le A :=
+(le_refl : ∀ a : A, a ≤ a)
+(le_trans : ∀ a b c : A, a ≤ b → b ≤ c → a ≤ c)
+(le_antisymm : ∀ a b : A, a ≤ b → b ≤ a → a = b)
+
+lemma le_refl [weak_order A] : ∀ a : A, a ≤ a :=
+weak_order.le_refl
+
+lemma le_trans [weak_order A] : ∀ {a b c : A}, a ≤ b → b ≤ c → a ≤ c :=
+weak_order.le_trans
+
+lemma le_antisymm [weak_order A] : ∀ {a b : A}, a ≤ b → b ≤ a → a = b :=
+weak_order.le_antisymm
+
+lemma le_of_eq [weak_order A] {a b : A} : a = b → a ≤ b :=
+λ h, h ▸ le_refl a
+
+lemma ge_trans [weak_order A] : ∀ {a b c : A}, a ≥ b → b ≥ c → a ≥ c :=
+λ a b c h₁ h₂, le_trans h₂ h₁
+
+class linear_weak_order (A : Type u) extends weak_order A :=
+(le_total : ∀ a b : A, a ≤ b ∨ b ≤ a)
+
+lemma le_total [linear_weak_order A] : ∀ a b : A, a ≤ b ∨ b ≤ a :=
+linear_weak_order.le_total
+
+lemma le_of_not_ge [linear_weak_order A] {a b : A} : ¬ a ≥ b → a ≤ b :=
+or.resolve_left (le_total b a)
+
 class semigroup (A : Type u) extends has_mul A :=
 (mul_assoc : ∀ a b c : A, a * b * c = a * (b * c))
-
-variables {A : Type u}
 
 @[simp] lemma mul_assoc [semigroup A] : ∀ a b c : A, a * b * c = a * (b * c) :=
 semigroup.mul_assoc

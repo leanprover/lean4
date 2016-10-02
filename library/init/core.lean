@@ -22,6 +22,7 @@ reserve infixr ` ∨ `:30
 reserve infix ` <-> `:20
 reserve infix ` ↔ `:20
 reserve infix ` = `:50
+reserve infix ` == `:50
 reserve infix ` ≠ `:50
 reserve infix ` ≈ `:50
 reserve infix ` ~ `:50
@@ -378,6 +379,7 @@ num.succ (num.succ (num.succ (num.succ (num.succ (num.succ (num.succ (num.succ (
 reserve postfix `⁻¹`:std.prec.max_plus  -- input with \sy or \-1 or \inv
 
 infix =        := eq
+infix ==       := heq
 infix ∈        := mem
 notation a ∉ s := ¬ mem a s
 infix +        := add
@@ -407,29 +409,21 @@ infix \        := sdiff
 
 /- eq basic support -/
 
+attribute [refl] eq.refl
+
 @[pattern] def rfl {A : Type u} {a : A} : a = a := eq.refl a
 
-namespace eq
-  variables {A : Type u}
-  variables {a b c a': A}
-
-  attribute [elab_as_eliminator]
-  theorem subst {P : A → Prop} (H₁ : a = b) (H₂ : P a) : P b :=
-  eq.rec H₂ H₁
-
-  theorem trans (H₁ : a = b) (H₂ : b = c) : a = c :=
-  subst H₂ H₁
-
-  theorem symm : a = b → b = a :=
-  λ h, eq.rec (refl a) h
-end eq
+@[elab_as_eliminator, subst]
+lemma eq.subst {A : Type u} {P : A → Prop} {a b : A} (H₁ : a = b) (H₂ : P a) : P b :=
+eq.rec H₂ H₁
 
 notation H1 ▸ H2 := eq.subst H1 H2
 
-attribute [subst] eq.subst
-attribute [refl] eq.refl
-attribute [trans] eq.trans
-attribute [symm] eq.symm
+@[trans] lemma eq.trans {A : Type u} {a b c : A} (h₁ : a = b) (h₂ : b = c) : a = c :=
+h₂ ▸ h₁
+
+@[symm] lemma eq.symm {A : Type u} {a b : A} (h : a = b) : b = a :=
+h ▸ rfl
 
 /- sizeof -/
 

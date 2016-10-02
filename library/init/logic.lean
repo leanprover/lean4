@@ -61,25 +61,18 @@ attribute [elab_as_eliminator]
 protected lemma {u₁ u₂} eq.drec {A : Type u₂} {a : A} {C : Π (x : A), a = x → Type u₁} (h₁ : C a (eq.refl a)) {b : A} (h₂ : a = b) : C b h₂ :=
 eq.rec (λ h₂ : a = a, show C a h₂, from h₁) h₂ h₂
 
-namespace eq
-  variables {A : Type u}
-  variables {a b c a': A}
+attribute [elab_as_eliminator]
+protected lemma drec_on {A : Type u} {a : A} {C : Π (x : A), a = x → Type v} {b : A} (h₂ : a = b) (h₁ : C a (eq.refl a)) : C b h₂ :=
+eq.drec h₁ h₂
 
-  attribute [elab_as_eliminator]
-  protected lemma drec_on {a : A} {C : Π (x : A), a = x → Type v} {b : A} (h₂ : a = b) (h₁ : C a (refl a)) : C b h₂ :=
-  eq.drec h₁ h₂
+lemma eq.mp {A B : Type u} : (A = B) → A → B :=
+eq.rec_on
 
-  lemma substr {p : A → Prop} (h₁ : b = a) : p a → p b :=
-  subst (symm h₁)
+lemma eq.mpr {A B : Type u} : (A = B) → B → A :=
+λ h₁ h₂, eq.rec_on (eq.symm h₁) h₂
 
-  lemma mp {A B : Type u} : (A = B) → A → B :=
-  eq.rec_on
-
-  lemma mpr {A B : Type u} : (A = B) → B → A :=
-  assume h₁ h₂, eq.rec_on (eq.symm h₁) h₂
-end eq
-
-open eq
+lemma eq.substr {A : Type u} {p : A → Prop} {a b : A} (h₁ : b = a) : p a → p b :=
+eq.subst (eq.symm h₁)
 
 lemma congr {A : Type u} {B : Type v} {f₁ f₂ : A → B} {a₁ a₂ : A} (h₁ : f₁ = f₂) (h₂ : a₁ = a₂) : f₁ a₁ = f₂ a₂ :=
 eq.subst h₁ (eq.subst h₂ rfl)
@@ -90,25 +83,17 @@ eq.subst h (eq.refl (f a))
 lemma congr_arg {A : Type u} {B : Type v} {a₁ a₂ : A} (f : A → B) : a₁ = a₂ → f a₁ = f a₂ :=
 congr rfl
 
-section
-  variables {A : Type u} {a b c: A}
+lemma trans_rel_left {A : Type u} {a b c : A} (r : A → A → Prop) (h₁ : r a b) (h₂ : b = c) : r a c :=
+h₂ ▸ h₁
 
-  lemma trans_rel_left (r : A → A → Prop) (h₁ : r a b) (h₂ : b = c) : r a c :=
-  h₂ ▸ h₁
+lemma trans_rel_right {A : Type u} {a b c : A} (r : A → A → Prop) (h₁ : a = b) (h₂ : r b c) : r a c :=
+h₁^.symm ▸ h₂
 
-  lemma trans_rel_right (r : A → A → Prop) (h₁ : a = b) (h₂ : r b c) : r a c :=
-  symm h₁ ▸ h₂
-end
+lemma of_eq_true {p : Prop} (h : p = true) : p :=
+h^.symm ▸ trivial
 
-section
-  variable {p : Prop}
-
-  lemma of_eq_true (h : p = true) : p :=
-  symm h ▸ trivial
-
-  lemma not_of_eq_false (h : p = false) : ¬p :=
-  assume hp, h ▸ hp
-end
+lemma not_of_eq_false {p : Prop} (h : p = false) : ¬p :=
+assume hp, h ▸ hp
 
 @[inline] def cast {A B : Type u} (h : A = B) (a : A) : B :=
 eq.rec a h
@@ -122,9 +107,10 @@ rfl
 /- ne -/
 
 @[reducible] def ne {A : Type u} (a b : A) := ¬(a = b)
-
-@[defeq] def ne.def {A : Type u} (a b : A) : ne a b = ¬ (a = b) := rfl
 notation a ≠ b := ne a b
+
+@[defeq] def ne.def {A : Type u} (a b : A) : a ≠ b = ¬ (a = b) :=
+rfl
 
 namespace ne
   variable {A : Type u}
@@ -137,7 +123,7 @@ namespace ne
   lemma irrefl (h : a ≠ a) : false := h rfl
 
   lemma symm (h : a ≠ b) : b ≠ a :=
-  assume (h₁ : b = a), h (symm h₁)
+  assume (h₁ : b = a), h (h₁^.symm)
 end ne
 
 lemma false_of_ne {A : Type u} {a : A} : a ≠ a → false := ne.irrefl
@@ -155,7 +141,7 @@ section
   ne_false_of_self trivial
 end
 
-infixl ` == `:50 := heq
+attribute [refl] heq.refl
 
 section
 variables {A B C : Type u} {a a' : A} {b b' : B} {c : C}
@@ -172,19 +158,19 @@ lemma heq.elim {A : Type u} {a : A} {p : A → Type v} {b : A} (h₁ : a == b)
 lemma heq.subst {p : ∀ T : Type u, T → Prop} : a == b → p A a → p B b :=
 heq.rec_on
 
-lemma heq.symm (h : a == b) : b == a :=
+@[symm] lemma heq.symm (h : a == b) : b == a :=
 heq.rec_on h (heq.refl a)
 
 lemma heq_of_eq (h : a = a') : a == a' :=
 eq.subst h (heq.refl a)
 
-lemma heq.trans (h₁ : a == b) (h₂ : b == c) : a == c :=
+@[trans] lemma heq.trans (h₁ : a == b) (h₂ : b == c) : a == c :=
 heq.subst h₂ h₁
 
-lemma heq_of_heq_of_eq (h₁ : a == b) (h₂ : b = b') : a == b' :=
+@[trans] lemma heq_of_heq_of_eq (h₁ : a == b) (h₂ : b = b') : a == b' :=
 heq.trans h₁ (heq_of_eq h₂)
 
-lemma heq_of_eq_of_heq (h₁ : a = a') (h₂ : a' == b) : a == b :=
+@[trans] lemma heq_of_eq_of_heq (h₁ : a = a') (h₂ : a' == b) : a == b :=
 heq.trans (heq_of_eq h₁) h₂
 
 def type_eq_of_heq (h : a == b) : A = B :=
@@ -216,10 +202,6 @@ lemma eq_rec_of_heq_left : ∀ {A₁ A₂ : Type u} {a₁ : A₁} {a₂ : A₂} 
 
 lemma eq_rec_of_heq_right {A₁ A₂ : Type u} {a₁ : A₁} {a₂ : A₂} (h : a₁ == a₂) : a₁ = eq.rec_on (eq.symm (type_eq_of_heq h)) a₂ :=
 eq_rec_eq_eq_rec (eq_rec_of_heq_left h)
-
-attribute [refl] heq.refl
-attribute [symm] heq.symm
-attribute [trans] heq.trans heq_of_heq_of_eq heq_of_eq_of_heq
 
 lemma cast_heq : ∀ {A B : Type u} (h : A = B) (a : A), cast h a == a
 | A .A (eq.refl .A) a := heq.refl a

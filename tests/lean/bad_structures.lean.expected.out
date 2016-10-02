@@ -1,2 +1,2 @@
-bad_structures.lean:4:52: error: invalid universe polymorphic structure declaration, the resultant universe is not Prop (i.e., 0), but it may be Prop for some parameter values (solution: use 'l+1' or 'max 1 l')
-bad_structures.lean:7:54: error: invalid universe polymorphic structure declaration, the resultant universe is not Prop (i.e., 0), but it may be Prop for some parameter values (solution: use 'l+1' or 'max 1 l')
+bad_structures.lean:4:0: error: universe level of type_of(arg #3) of 'foo.prod1.mk' is too big for the corresponding inductive datatype
+bad_structures.lean:7:55: error: invalid universe polymorphic structure declaration, the resultant universe is not Prop (i.e., 0), but it may be Prop for some parameter values (solution: use 'l+1' or 'max 1 l')

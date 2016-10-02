@@ -7,7 +7,7 @@ General operations on functions.
 -/
 prelude
 import init.prod init.funext init.logic
-notation f ` $ `:1 a:1 := f a
+notation f ` $ `:1 a:0 := f a
 universe variables u_a u_b u_c u_d u_e
 variables {A : Type u_a} {B : Type u_b} {C : Type u_c} {D : Type u_d} {E : Type u_a}
 

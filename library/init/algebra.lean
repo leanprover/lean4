@@ -13,43 +13,30 @@ set_option default_priority 100
 universe variable u
 variables {A : Type u}
 
-class weak_order (A : Type u) extends has_le A :=
-(le_refl : ∀ a : A, a ≤ a)
-(le_trans : ∀ a b c : A, a ≤ b → b ≤ c → a ≤ c)
-(le_antisymm : ∀ a b : A, a ≤ b → b ≤ a → a = b)
-
-lemma le_refl [weak_order A] : ∀ a : A, a ≤ a :=
-weak_order.le_refl
-
-lemma le_trans [weak_order A] : ∀ {a b c : A}, a ≤ b → b ≤ c → a ≤ c :=
-weak_order.le_trans
-
-lemma le_antisymm [weak_order A] : ∀ {a b : A}, a ≤ b → b ≤ a → a = b :=
-weak_order.le_antisymm
-
-lemma le_of_eq [weak_order A] {a b : A} : a = b → a ≤ b :=
-λ h, h ▸ le_refl a
-
-lemma ge_trans [weak_order A] : ∀ {a b c : A}, a ≥ b → b ≥ c → a ≥ c :=
-λ a b c h₁ h₂, le_trans h₂ h₁
-
-class linear_weak_order (A : Type u) extends weak_order A :=
-(le_total : ∀ a b : A, a ≤ b ∨ b ≤ a)
-
-lemma le_total [linear_weak_order A] : ∀ a b : A, a ≤ b ∨ b ≤ a :=
-linear_weak_order.le_total
-
-lemma le_of_not_ge [linear_weak_order A] {a b : A} : ¬ a ≥ b → a ≤ b :=
-or.resolve_left (le_total b a)
-
 class semigroup (A : Type u) extends has_mul A :=
 (mul_assoc : ∀ a b c : A, a * b * c = a * (b * c))
 
-@[simp] lemma mul_assoc [semigroup A] : ∀ a b c : A, a * b * c = a * (b * c) :=
-semigroup.mul_assoc
-
 class comm_semigroup (A : Type u) extends semigroup A :=
 (mul_comm : ∀ a b : A, a * b = b * a)
+
+class left_cancel_semigroup (A : Type u) extends semigroup A :=
+(mul_left_cancel : ∀ a b c : A, a * b = a * c → b = c)
+
+class right_cancel_semigroup (A : Type u) extends semigroup A :=
+(mul_right_cancel : ∀ a b c : A, a * b = c * b → a = c)
+
+class monoid (A : Type u) extends semigroup A, has_one A :=
+(one_mul : ∀ a : A, 1 * a = a) (mul_one : ∀ a : A, a * 1 = a)
+
+class comm_monoid (A : Type u) extends monoid A, comm_semigroup A
+
+class group (A : Type u) extends monoid A, has_inv A :=
+(mul_left_inv : ∀ a : A, a⁻¹ * a = 1)
+
+class comm_group (A : Type u) extends group A, comm_monoid A
+
+@[simp] lemma mul_assoc [semigroup A] : ∀ a b c : A, a * b * c = a * (b * c) :=
+semigroup.mul_assoc
 
 @[simp] lemma mul_comm [comm_semigroup A] : ∀ a b : A, a * b = b * a :=
 comm_semigroup.mul_comm
@@ -57,20 +44,11 @@ comm_semigroup.mul_comm
 @[simp] lemma mul_left_comm [comm_semigroup A] : ∀ a b c : A, a * (b * c) = b * (a * c) :=
 left_comm mul mul_comm mul_assoc
 
-class left_cancel_semigroup (A : Type u) extends semigroup A :=
-(mul_left_cancel : ∀ a b c : A, a * b = a * c → b = c)
-
 lemma mul_left_cancel [left_cancel_semigroup A] {a b c : A} : a * b = a * c → b = c :=
 left_cancel_semigroup.mul_left_cancel a b c
 
-class right_cancel_semigroup (A : Type u) extends semigroup A :=
-(mul_right_cancel : ∀ a b c : A, a * b = c * b → a = c)
-
 lemma mul_right_cancel [right_cancel_semigroup A] {a b c : A} : a * b = c * b → a = c :=
 right_cancel_semigroup.mul_right_cancel a b c
-
-class monoid (A : Type u) extends semigroup A, has_one A :=
-(one_mul : ∀ a : A, 1 * a = a) (mul_one : ∀ a : A, a * 1 = a)
 
 @[simp] lemma one_mul [monoid A] : ∀ a : A, 1 * a = a :=
 monoid.one_mul
@@ -78,15 +56,8 @@ monoid.one_mul
 @[simp] lemma mul_one [monoid A] : ∀ a : A, a * 1 = a :=
 monoid.mul_one
 
-class comm_monoid (A : Type u) extends monoid A, comm_semigroup A
-
-class group (A : Type u) extends monoid A, has_inv A :=
-(mul_left_inv : ∀ a : A, a⁻¹ * a = 1)
-
 @[simp] lemma mul_left_inv [group A] : ∀ a : A, a⁻¹ * a = 1 :=
 group.mul_left_inv
-
-class comm_group (A : Type u) extends group A, comm_monoid A
 
 /- Additive "sister" structures.
    Example, add_semigroup mirrors semigroup.

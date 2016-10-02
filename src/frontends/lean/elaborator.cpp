@@ -1813,6 +1813,7 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
     get_structure_instance_info(e, S_name, src, fnames, fvalues);
     lean_assert(fnames.size() == fvalues.size());
     name src_S_name;
+    unsigned src_S_nparams = 0;
     if (src) {
         src = visit(*src, none_expr());
         synthesize_type_class_instances();
@@ -1826,7 +1827,8 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
                                        line() + format("which has type") +
                                        pp_indent(pp_fn, type));
         }
-        src_S_name = const_name(src_S);
+        src_S_name    = const_name(src_S);
+        src_S_nparams = *inductive::get_num_params(m_env, src_S_name);
     }
     if (S_name.is_anonymous()) {
         if (expected_type) {
@@ -1879,6 +1881,9 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
                     if (src) {
                         name new_fname = src_S_name + S_fname;
                         expr f = copy_tag(e, mk_constant(new_fname));
+                        f = copy_tag(e, mk_explicit(f));
+                        for (unsigned i = 0; i < src_S_nparams; i++)
+                            f = copy_tag(e, mk_app(f, copy_tag(e, mk_expr_placeholder())));
                         f = copy_tag(e, mk_app(f, *src));
                         try {
                             f = visit(f, none_expr());

@@ -29,14 +29,14 @@ inline uint64 hash(uint64 h1, uint64 h2) {
 }
 
 inline unsigned hash_ptr(void const * ptr) {
-    if (sizeof(unsigned) == sizeof(void*)) { // NOLINT
-        /* 32-bit version */
-        return reinterpret_cast<size_t>(ptr);
-    } else {
-        /* 64-bit version */
-        size_t r = reinterpret_cast<size_t>(ptr);
-        return hash(static_cast<unsigned>(r >> 32), static_cast<unsigned>(r));
-    }
+#if UINTPTR_MAX == 0xffffffff
+    /* 32-bit version */
+    return reinterpret_cast<size_t>(ptr);
+#else
+    /* 64-bit version */
+    size_t r = reinterpret_cast<size_t>(ptr);
+    return hash(static_cast<unsigned>(r >> 32), static_cast<unsigned>(r));
+#endif
 }
 
 template<typename H>

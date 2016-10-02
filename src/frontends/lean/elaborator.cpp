@@ -943,6 +943,15 @@ void elaborator::first_pass(expr const & fn, buffer<expr> const & args,
     }
 }
 
+static expr get_ref_for_arg(expr const & arg, expr const & ref) {
+    if (get_pos_info_provider() && get_pos_info_provider()->get_pos_info(arg)) {
+        return arg;
+    } else {
+        /* using ref because position info for argument is not available */
+        return ref;
+    }
+}
+
 /* Using the information colllected in the first-pass, visit the arguments args.
    And then, create resulting application */
 expr elaborator::second_pass(expr const & fn, buffer<expr> const & args,
@@ -957,31 +966,18 @@ expr elaborator::second_pass(expr const & fn, buffer<expr> const & args,
             if (!try_synthesize_type_class_instance(mvar))
                 m_instances = cons(mvar, m_instances);
         }
-        expr ref_arg      = args[i];
+        expr ref_arg      = get_ref_for_arg(args[i], ref);
         expr new_arg      = visit(args[i], some_expr(info.args_expected_types[i]));
         expr new_arg_type = infer_type(new_arg);
-        if (optional<expr> new_new_arg = ensure_has_type(new_arg, new_arg_type, info.args_expected_types[i], ref_arg)) {
-            new_arg = *new_new_arg;
-        } else {
+        optional<expr> new_new_arg = ensure_has_type(new_arg, new_arg_type, info.args_expected_types[i], ref_arg);
+        if (!new_new_arg || !is_def_eq(info.args_mvars[i], *new_new_arg)) {
             info.new_args.shrink(info.new_args_size[i]);
             info.new_args.push_back(new_arg);
             format msg = mk_app_type_mismatch_error(mk_app(fn, info.new_args.size(), info.new_args.data()),
                                                     new_arg, new_arg_type, info.args_expected_types[i]);
             throw elaborator_exception(ref, msg);
         }
-        if (!is_def_eq(info.args_mvars[i], new_arg)) {
-            auto pp_fn = mk_pp_ctx();
-            throw elaborator_exception(ref_arg, format("invalid application, type mismatch") +
-                                       pp_indent(pp_fn, new_arg) +
-                                       line() + format("has type") +
-                                       pp_indent(pp_fn, infer_type(new_arg)) +
-                                       line() + format("failed to be unified with") +
-                                       pp_indent(pp_fn, info.args_mvars[i]) +
-                                       line() + format("has type") +
-                                       pp_indent(pp_fn, infer_type(info.args_mvars[i])));
-        } else {
-            info.new_args[info.new_args_size[i]] = new_arg;
-        }
+        info.new_args[info.new_args_size[i]] = *new_new_arg;
     }
     for (; j < info.new_instances.size(); j++) {
         expr const & mvar = info.new_instances[j];
@@ -1033,7 +1029,7 @@ expr elaborator::visit_base_app_simple(expr const & _fn, arg_mask amask, buffer<
                     new_arg = copy_tag(ref, mk_inaccessible(new_arg));
             } else if (i < args.size()) {
                 // explicit argument
-                expr ref_arg = args[i];
+                expr ref_arg = get_ref_for_arg(args[i], ref);
                 if (args_already_visited) {
                     new_arg = args[i];
                 } else if (bi.is_inst_implicit() && is_placeholder(args[i])) {

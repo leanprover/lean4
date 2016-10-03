@@ -308,7 +308,7 @@ void initialize_simp_util() {
     g_flat_opcode     = new std::string("FLAT");
     register_macro_deserializer(*g_flat_opcode,
                                 [](deserializer & /* d */, unsigned num, expr const * args) {
-                                    if (num != 3)
+                                    if (num != 2)
                                         throw corrupted_stream_exception();
                                     return mk_flat_macro(num, args);
                                 });

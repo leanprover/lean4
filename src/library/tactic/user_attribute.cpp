@@ -8,6 +8,7 @@ Author: Sebastian Ullrich
 #include <limits>
 #include "library/attribute_manager.h"
 #include "library/constants.h"
+#include "library/util.h"
 #include "library/scoped_ext.h"
 #include "library/vm/vm_declaration.h"
 #include "library/vm/vm_environment.h"
@@ -41,44 +42,6 @@ class user_attribute : public typed_attribute<user_attr_data> {
 public:
     user_attribute(name const & id, char const * descr) : typed_attribute(id, descr) {}
 };
-
-
-/* Caching */
-class user_attr_cache {
-private:
-    struct entry {
-        unsigned m_fingerprint;
-        vm_obj   m_val;
-        entry(unsigned f, vm_obj const & val):m_fingerprint(f), m_val(val) {}
-    };
-    name_hash_map<entry> m_cache;
-
-public:
-    vm_obj get(environment const & env, attribute const & attr, vm_obj const & cache_handler) {
-        auto it = m_cache.find(attr.get_name());
-        if (it != m_cache.end()) {
-            if (it->second.m_fingerprint == attr.get_fingerprint(env))
-                return it->second.m_val;
-            lean_trace("user_attributes_cache", tout() << "cached result for [" << attr.get_name() << "] "
-                       << "has been found, but cache fingerprint does not match\n";);
-        } else {
-            lean_trace("user_attributes_cache", tout() << "no cached result for [" << attr.get_name() << "]\n";);
-        }
-
-        lean_trace("user_attributes_cache", tout() << "recomputing cache for [" << attr.get_name() << "]\n";);
-        buffer<name> instances;
-        attr.get_instances(env, instances);
-        auto cached = invoke(cache_handler, to_vm_list(to_list(instances), [&](const name & inst) {
-            return to_obj(env.get(inst));
-        }));
-        m_cache.erase(attr.get_name());
-        m_cache.insert(mk_pair(attr.get_name(), entry(attr.get_fingerprint(env), cached)));
-        return cached;
-    }
-};
-
-MK_THREAD_LOCAL_GET_DEF(user_attr_cache, get_user_attribute_cache);
-
 
 /* Persisting */
 struct user_attr_ext : public environment_extension {
@@ -166,13 +129,68 @@ vm_obj attribute_fingerprint(vm_obj const & vm_n, vm_obj const & vm_s) {
     return mk_tactic_success(mk_vm_nat(h), s);
 }
 
+/* Caching */
+struct user_attr_cache {
+    struct entry {
+        unsigned       m_fingerprint;
+        list<unsigned> m_dep_fingerprints;
+        vm_obj         m_val;
+    };
+    name_hash_map<entry> m_cache;
+};
+
+MK_THREAD_LOCAL_GET_DEF(user_attr_cache, get_user_attribute_cache);
+
+static bool check_dep_fingerprints(environment const & env, list<name> const & dep_names, list<unsigned> const & dep_fingerprints) {
+    if (!dep_names && !dep_fingerprints) {
+        return true;
+    } else if (dep_names && dep_fingerprints) {
+        return
+            get_attribute(env, head(dep_names)).get_fingerprint(env) == head(dep_fingerprints) &&
+            check_dep_fingerprints(env, tail(dep_names), tail(dep_fingerprints));
+    } else {
+        return false;
+    }
+}
+
 vm_obj caching_user_attribute_get_cache(vm_obj const & vm_attr, vm_obj const & vm_s) {
-    auto const & s = to_tactic_state(vm_s);
-    auto const & n = to_name(cfield(vm_attr, 0));
-    auto const & cache_handler = cfield(vm_attr, 2);
+    tactic_state const & s       = to_tactic_state(vm_s);
+    name const & n               = to_name(cfield(vm_attr, 0));
+    vm_obj const & cache_handler = cfield(vm_attr, 2);
+    list<name> const & deps      = to_list_name(cfield(vm_attr, 3));
     LEAN_TACTIC_TRY;
-    auto cached = get_user_attribute_cache().get(s.env(), get_attribute(s.env(), n), cache_handler);
-    return mk_tactic_success(cached, s);
+    environment const & env = s.env();
+    attribute const & attr  = get_attribute(env, n);
+    user_attr_cache & cache = get_user_attribute_cache();
+    auto it = cache.m_cache.find(attr.get_name());
+    if (it != cache.m_cache.end()) {
+        if (it->second.m_fingerprint == attr.get_fingerprint(env) &&
+            check_dep_fingerprints(env, deps, it->second.m_dep_fingerprints)) {
+            return mk_tactic_success(it->second.m_val, s);
+        }
+        lean_trace("user_attributes_cache", tout() << "cached result for [" << attr.get_name() << "] "
+                   << "has been found, but cache fingerprint does not match\n";);
+    } else {
+        lean_trace("user_attributes_cache", tout() << "no cached result for [" << attr.get_name() << "]\n";);
+    }
+    lean_trace("user_attributes_cache", tout() << "recomputing cache for [" << attr.get_name() << "]\n";);
+    buffer<name> instances;
+    attr.get_instances(env, instances);
+    tactic_state s0 = mk_tactic_state_for(env, options(), local_context(), mk_true());
+    vm_obj result = invoke(cache_handler, to_obj(to_list(instances)), to_obj(s0));
+    if (is_tactic_success(result)) {
+        user_attr_cache::entry entry;
+        entry.m_fingerprint = attr.get_fingerprint(env);
+        entry.m_dep_fingerprints = map2<unsigned>(deps, [&](name const & n) {
+                return get_attribute(env, n).get_fingerprint(env);
+            });
+        entry.m_val = cfield(result, 0);
+        cache.m_cache.erase(attr.get_name());
+        cache.m_cache.insert(mk_pair(attr.get_name(), entry));
+        return mk_tactic_success(entry.m_val, s);
+    } else {
+        return result;
+    }
     LEAN_TACTIC_CATCH(s);
 }
 

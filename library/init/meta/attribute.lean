@@ -10,7 +10,7 @@ meta constant attribute.get_instances : name → tactic (list name)
 meta constant attribute.fingerprint : name → tactic nat
 
 structure user_attribute :=
-(name : name)
+(name  : name)
 (descr : string)
 
 /- Registers a new user-defined attribute. The argument must be the name of a definition of type
@@ -18,8 +18,9 @@ structure user_attribute :=
 meta constant attribute.register : name → command
 
 meta structure caching_user_attribute extends user_attribute :=
-(Cache : Type)
-(cache : list declaration → Cache)
+(cache        : Type)
+(mk_cache     : list _root_.name → tactic cache)
+(dependencies : list _root_.name)
 
 meta constant caching_user_attribute.get_cache :
-  Π(attr : caching_user_attribute), tactic (caching_user_attribute.Cache attr)
+  Π (attr : caching_user_attribute), tactic (attr^.cache)

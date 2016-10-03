@@ -1,5 +1,8 @@
 meta def foo_attr : caching_user_attribute :=
-{ name := `foo, descr := "bar", Cache := string, cache := list.join ∘ list.map (list.append "\n" ∘ to_string ∘ declaration.to_name) }
+{ name     := `foo, descr := "bar",
+  cache    := string,
+  mk_cache := λ ns, return $ list.join ∘ list.map (list.append "\n" ∘ to_string) $ ns,
+  dependencies := [] }
 
 run_command attribute.register `foo_attr
 

@@ -18,10 +18,15 @@ meta constant simp_lemmas : Type
 meta constant mk_simp_lemmas_core     : transparency → list name → list name → tactic simp_lemmas
 /- Create an empty simp_lemmas. That is, it ignores the lemmas marked with the [simp] attribute.  -/
 meta constant mk_empty_simp_lemmas     : tactic simp_lemmas
-/- (simp_lemmas_insert_core m lemmas id lemma priority) adds the given lemma to the set simp_lemmas. -/
+/- (simp_lemmas_insert_core m lemmas lemma priority) adds the given lemma to the set simp_lemmas. -/
 meta constant simp_lemmas_insert_core : transparency → simp_lemmas → expr → tactic simp_lemmas
+/- (simp_lemmas_insert_constant_core m lemmas cname) -/
+meta constant simp_lemmas_insert_constant_core : transparency → simp_lemmas → name → tactic simp_lemmas
 /- Erase the given lemmas from the simp set. -/
 meta constant simp_lemmas_erase       : simp_lemmas → list name → simp_lemmas
+
+meta def simp_lemmas_insert_constant : simp_lemmas → name → tactic simp_lemmas :=
+simp_lemmas_insert_constant_core reducible
 
 meta definition mk_simp_lemmas        : tactic simp_lemmas :=
 mk_simp_lemmas_core reducible [`simp] [`congr]

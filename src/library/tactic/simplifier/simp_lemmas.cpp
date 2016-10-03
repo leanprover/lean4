@@ -23,6 +23,7 @@ Author: Leonardo de Moura
 #include "library/type_context.h"
 #include "library/vm/vm_expr.h"
 #include "library/vm/vm_list.h"
+#include "library/vm/vm_name.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/simplifier/ceqv.h"
 #include "library/tactic/simplifier/simp_lemmas.h"
@@ -645,11 +646,13 @@ vm_obj to_obj(simp_lemmas const & idx) {
 }
 
 vm_obj tactic_mk_simp_lemmas(vm_obj const & m, vm_obj const & sattrs, vm_obj const & cattrs, vm_obj const & s) {
+    LEAN_TACTIC_TRY;
     type_context ctx = mk_type_context_for(s, m);
     buffer<name> simp_attrs, congr_attrs;
     to_buffer(to_list_name(sattrs), simp_attrs);
     to_buffer(to_list_name(cattrs), congr_attrs);
     return mk_tactic_success(to_obj(get_simp_lemmas(ctx, simp_attrs, congr_attrs)), to_tactic_state(s));
+    LEAN_TACTIC_CATCH(to_tactic_state(s));
 }
 
 vm_obj tactic_mk_empty_simp_lemmas(vm_obj const & s) {
@@ -657,6 +660,7 @@ vm_obj tactic_mk_empty_simp_lemmas(vm_obj const & s) {
 }
 
 vm_obj tactic_simp_lemmas_insert(vm_obj const & m, vm_obj const & lemmas, vm_obj const & lemma, vm_obj const & s) {
+    LEAN_TACTIC_TRY;
     type_context tctx = mk_type_context_for(s, m);
     expr e = to_expr(lemma);
     name id;
@@ -670,6 +674,15 @@ vm_obj tactic_simp_lemmas_insert(vm_obj const & m, vm_obj const & lemmas, vm_obj
     // Reason for postponing: better plumbing of numerals through the vm
     simp_lemmas new_lemmas = add(tctx, to_simp_lemmas(lemmas), id, tctx.infer(e), e, LEAN_DEFAULT_PRIORITY);
     return mk_tactic_success(to_obj(new_lemmas), to_tactic_state(s));
+    LEAN_TACTIC_CATCH(to_tactic_state(s));
+}
+
+vm_obj tactic_simp_lemmas_insert_constant(vm_obj const & m, vm_obj const & lemmas, vm_obj const & lemma_name, vm_obj const & s) {
+    LEAN_TACTIC_TRY;
+    type_context ctx = mk_type_context_for(s, m);
+    simp_lemmas new_lemmas = add_poly(ctx, to_simp_lemmas(lemmas), to_name(lemma_name), LEAN_DEFAULT_PRIORITY);
+    return mk_tactic_success(to_obj(new_lemmas), to_tactic_state(s));
+    LEAN_TACTIC_CATCH(to_tactic_state(s));
 }
 
 vm_obj tactic_simp_lemmas_erase(vm_obj const & lemmas, vm_obj const & lemma_list) {
@@ -682,10 +695,11 @@ vm_obj tactic_simp_lemmas_erase(vm_obj const & lemmas, vm_obj const & lemma_list
 }
 
 void initialize_simp_lemmas() {
-    DECLARE_VM_BUILTIN(name({"tactic", "mk_simp_lemmas_core"}),      tactic_mk_simp_lemmas);
-    DECLARE_VM_BUILTIN(name({"tactic", "mk_empty_simp_lemmas"}),     tactic_mk_empty_simp_lemmas);
-    DECLARE_VM_BUILTIN(name({"tactic", "simp_lemmas_insert_core"}),  tactic_simp_lemmas_insert);
-    DECLARE_VM_BUILTIN(name({"tactic", "simp_lemmas_erase"}),        tactic_simp_lemmas_erase);
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_simp_lemmas_core"}),              tactic_mk_simp_lemmas);
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_empty_simp_lemmas"}),             tactic_mk_empty_simp_lemmas);
+    DECLARE_VM_BUILTIN(name({"tactic", "simp_lemmas_insert_core"}),          tactic_simp_lemmas_insert);
+    DECLARE_VM_BUILTIN(name({"tactic", "simp_lemmas_insert_constant_core"}), tactic_simp_lemmas_insert);
+    DECLARE_VM_BUILTIN(name({"tactic", "simp_lemmas_erase"}),                tactic_simp_lemmas_erase);
 
     register_system_attribute(basic_attribute::with_check("simp", "simplification lemma", on_add_simp_lemma));
     register_system_attribute(basic_attribute::with_check("congr", "congruence lemma", on_add_congr_lemma));

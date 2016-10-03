@@ -14,6 +14,12 @@ Author: Leonardo de Moura
 #include "library/attribute_manager.h"
 
 namespace lean {
+static name * g_reducibility = nullptr;
+
+unsigned get_reducibility_fingerprint(environment const & env) {
+    return get_attribute_fingerprint(env, *g_reducibility);
+}
+
 struct reducibility_attribute_data : public attr_data {
     reducible_status m_status;
     reducibility_attribute_data() {}
@@ -40,7 +46,7 @@ template class typed_attribute<reducibility_attribute_data>;
 typedef typed_attribute<reducibility_attribute_data> reducibility_attribute;
 
 static reducibility_attribute const & get_reducibility_attribute() {
-    return static_cast<reducibility_attribute const &>(get_system_attribute("reducibility"));
+    return static_cast<reducibility_attribute const &>(get_system_attribute(*g_reducibility));
 }
 
 class reducibility_proxy_attribute : public proxy_attribute<reducibility_attribute_data> {
@@ -63,7 +69,8 @@ public:
 };
 
 void initialize_reducible() {
-    register_system_attribute(reducibility_attribute("reducibility", "internal attribute for storing reducibility"));
+    g_reducibility = new name("reducibility");
+    register_system_attribute(reducibility_attribute(*g_reducibility, "internal attribute for storing reducibility"));
 
     register_system_attribute(reducibility_proxy_attribute("reducible", "reducible", reducible_status::Reducible));
     register_system_attribute(reducibility_proxy_attribute("semireducible", "semireducible", reducible_status::Semireducible));
@@ -75,6 +82,7 @@ void initialize_reducible() {
 }
 
 void finalize_reducible() {
+    delete g_reducibility;
 }
 
 environment set_reducible(environment const & env, name const & n, reducible_status s, bool persistent) {

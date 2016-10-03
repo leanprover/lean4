@@ -34,6 +34,8 @@ name_predicate mk_not_reducible_pred(environment const & env);
 /** \brief Create a predicate that returns true for irreducible constants  in \c env */
 name_predicate mk_irreducible_pred(environment const & env);
 
+unsigned get_reducibility_fingerprint(environment const & env);
+
 void initialize_reducible();
 void finalize_reducible();
 }

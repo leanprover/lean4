@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "util/flet.h"
 #include "util/interrupt.h"
 #include "util/sstream.h"
-#include "util/parray.h"
 #include "util/small_object_allocator.h"
 #include "library/constants.h"
 #include "library/kernel_serializer.h"
@@ -740,52 +739,54 @@ void declare_vm_cases_builtin(name const & n, char const * i, vm_cases_function 
 /** \brief VM function/constant declarations are stored in an environment extension. */
 struct vm_decls : public environment_extension {
     name_map<unsigned>        m_name2idx;
-    parray<vm_decl>           m_decls;
+    unsigned_map<vm_decl>     m_decls;
+    unsigned                  m_next_decl_idx{0};
 
-    name_map<unsigned>        m_cases2idx;
-    parray<vm_cases_function> m_cases;
-    parray<name>              m_cases_names;
+    name_map<unsigned>              m_cases2idx;
+    unsigned_map<vm_cases_function> m_cases;
+    unsigned_map<name>              m_cases_names;
+    unsigned                        m_next_cases_idx;
 
     vm_decls() {
         g_vm_builtins->for_each([&](name const & n, std::tuple<unsigned, char const *, vm_function> const & p) {
-                add(vm_decl(n, m_decls.size(), std::get<0>(p), std::get<2>(p)));
+                add(vm_decl(n, m_next_decl_idx, std::get<0>(p), std::get<2>(p)));
+                m_next_decl_idx++;
             });
         g_vm_cbuiltins->for_each([&](name const & n, std::tuple<unsigned, char const *, vm_cfunction> const & p) {
-                add(vm_decl(n, m_decls.size(), std::get<0>(p), std::get<2>(p)));
+                add(vm_decl(n, m_next_decl_idx, std::get<0>(p), std::get<2>(p)));
+                m_next_decl_idx++;
             });
         g_vm_cases_builtins->for_each([&](name const & n, std::tuple<char const *, vm_cases_function> const & p) {
-                unsigned idx = m_cases.size();
+                unsigned idx = m_next_cases_idx;
                 m_cases2idx.insert(n, idx);
-                m_cases.push_back(std::get<1>(p));
-                m_cases_names.push_back(n);
+                m_cases.insert(idx, std::get<1>(p));
+                m_cases_names.insert(idx, n);
+                m_next_cases_idx++;
             });
-        lean_assert(m_cases_names.size() == m_cases.size());
-        m_decls.compress();
-        m_cases.compress();
-        m_cases_names.compress();
     }
 
     void add(vm_decl const & d) {
         if (m_name2idx.contains(d.get_name()))
             throw exception(sstream() << "VM already contains code for '" << d.get_name() << "'");
         m_name2idx.insert(d.get_name(), d.get_idx());
-        m_decls.push_back(d);
+        m_decls.insert(d.get_idx(), d);
     }
 
     unsigned reserve(name const & n, expr const & e) {
         if (m_name2idx.contains(n))
             throw exception(sstream() << "VM already contains code for '" << n << "'");
-        unsigned idx = m_decls.size();
+        unsigned idx = m_next_decl_idx;
+        m_next_decl_idx++;
         m_name2idx.insert(n, idx);
-        m_decls.push_back(vm_decl(n, idx, e, 0, nullptr));
+        m_decls.insert(idx, vm_decl(n, idx, e, 0, nullptr));
         return idx;
     }
 
     void update(name const & n, unsigned code_sz, vm_instr const * code) {
         lean_assert(m_name2idx.contains(n));
-        unsigned idx = *m_name2idx.find(n);
-        vm_decl d    = m_decls[idx];
-        m_decls.set(idx, vm_decl(n, idx, d.get_expr(), code_sz, code));
+        unsigned idx      = *m_name2idx.find(n);
+        vm_decl const * d = m_decls.find(idx);
+        m_decls.insert(idx, vm_decl(n, idx, d->get_expr(), code_sz, code));
     }
 };
 
@@ -809,9 +810,8 @@ static environment update(environment const & env, vm_decls const & ext) {
 static environment add_native(environment const & env, name const & n, unsigned arity, vm_cfunction fn) {
     auto ext = get_extension(env);
     if (auto idx = ext.m_name2idx.find(n)) {
-        vm_decl d = ext.m_decls[*idx];
-        lean_assert(d.get_arity() == arity);
-        ext.m_decls.set(*idx, vm_decl(n, *idx, arity, fn));
+        lean_assert(ext.m_decls.find(*idx)->get_arity() == arity);
+        ext.m_decls.insert(*idx, vm_decl(n, *idx, arity, fn));
     } else {
         ext.add(vm_decl(n, ext.m_decls.size(), arity, fn));
     }
@@ -903,12 +903,12 @@ static void reserve_reader(deserializer & d, shared_environment & senv,
         });
 }
 
-void serialize_code(serializer & s, unsigned fidx, parray<vm_decl> const & decls) {
-    vm_decl const & d = decls[fidx];
-    s << d.get_name() << d.get_code_size();
-    vm_instr const * code = d.get_code();
-    auto fn = [&](unsigned idx) { return decls[idx].get_name(); };
-    for (unsigned i = 0; i < d.get_code_size(); i++) {
+void serialize_code(serializer & s, unsigned fidx, unsigned_map<vm_decl> const & decls) {
+    vm_decl const * d = decls.find(fidx);
+    s << d->get_name() << d->get_code_size();
+    vm_instr const * code = d->get_code();
+    auto fn = [&](unsigned idx) { return decls.find(idx)->get_name(); };
+    for (unsigned i = 0; i < d->get_code_size(); i++) {
         code[i].serialize(s, fn);
     }
 }
@@ -945,20 +945,10 @@ environment add_vm_code(environment const & env, name const & fn, expr const & e
     return update_vm_code(new_env, fn, code_sz, code);
 }
 
-environment optimize_vm_decls(environment const & env) {
-    vm_decls ext = get_extension(env);
-    if (ext.m_decls.is_compressed()) {
-        return env;
-    } else {
-        ext.m_decls.compress();
-        return update(env, ext);
-    }
-}
-
 optional<vm_decl> get_vm_decl(environment const & env, name const & n) {
     vm_decls const & ext = get_extension(env);
     if (auto idx = ext.m_name2idx.find(n))
-        return optional<vm_decl>(ext.m_decls[*idx]);
+        return optional<vm_decl>(*ext.m_decls.find(*idx));
     else
         return optional<vm_decl>();
 }
@@ -972,10 +962,12 @@ optional<unsigned> get_vm_builtin_cases_idx(environment const & env, name const 
 }
 
 vm_state::vm_state(environment const & env):
-    m_env(optimize_vm_decls(env)),
-    m_decls(get_extension(m_env).m_decls.as_vector_if_compressed()),
-    m_builtin_cases(get_extension(m_env).m_cases.as_vector_if_compressed()),
-    m_builtin_cases_names(get_extension(m_env).m_cases_names.as_vector_if_compressed()),
+    m_env(env),
+    m_decl_map(get_extension(m_env).m_decls),
+    m_decl_vector(get_extension(m_env).m_next_decl_idx),
+    m_builtin_cases_map(get_extension(m_env).m_cases),
+    m_builtin_cases_vector(get_extension(m_env).m_next_cases_idx),
+    m_builtin_cases_names(get_extension(m_env).m_cases_names),
     m_fn_name2idx(get_extension(m_env).m_name2idx),
     m_code(nullptr),
     m_fn_idx(0),
@@ -1100,7 +1092,7 @@ inline vm_cfunction_N to_fnN(vm_decl const & d) { return reinterpret_cast<vm_cfu
 vm_obj vm_state::invoke_closure(vm_obj const & fn, unsigned DEBUG_CODE(nargs)) {
     unsigned saved_pc = m_pc;
     unsigned fn_idx   = cfn_idx(fn);
-    vm_decl const & d = m_decls[fn_idx];
+    vm_decl const & d = get_decl(fn_idx);
     unsigned csz      = csize(fn);
     std::copy(cfields(fn), cfields(fn) + csz, std::back_inserter(m_stack));
     lean_assert(nargs + csz == d.get_arity());
@@ -1133,8 +1125,7 @@ static void to_cbuffer(vm_obj const & fn, buffer<vm_obj> & args) {
 }
 
 vm_obj vm_state::invoke(unsigned fn_idx, unsigned nargs, vm_obj const * as) {
-    lean_assert(fn_idx < m_decls.size());
-    vm_decl const & d = m_decls[fn_idx];
+    vm_decl const & d = get_decl(fn_idx);
     lean_assert(d.get_arity() <= nargs);
     std::copy(as, as + nargs, std::back_inserter(m_stack));
     invoke_fn(fn_idx);
@@ -1155,7 +1146,7 @@ vm_obj vm_state::invoke(name const & fn, unsigned nargs, vm_obj const * as) {
 
 vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1) {
     unsigned fn_idx   = cfn_idx(fn);
-    vm_decl const & d = m_decls[fn_idx];
+    vm_decl const & d = get_decl(fn_idx);
     unsigned nargs    = csize(fn) + 1;
     if (nargs < d.get_arity()) {
         buffer<vm_obj> args;
@@ -1191,7 +1182,7 @@ vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1) {
 
 vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2) {
     unsigned fn_idx   = cfn_idx(fn);
-    vm_decl const & d = m_decls[fn_idx];
+    vm_decl const & d = get_decl(fn_idx);
     unsigned nargs    = csize(fn) + 2;
     if (nargs < d.get_arity()) {
         buffer<vm_obj> args;
@@ -1230,7 +1221,7 @@ vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2)
 
 vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj const & a3) {
     unsigned fn_idx   = cfn_idx(fn);
-    vm_decl const & d = m_decls[fn_idx];
+    vm_decl const & d = get_decl(fn_idx);
     unsigned nargs    = csize(fn) + 3;
     if (nargs < d.get_arity()) {
         buffer<vm_obj> args;
@@ -1272,7 +1263,7 @@ vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2,
 
 vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj const & a3, vm_obj const & a4) {
     unsigned fn_idx   = cfn_idx(fn);
-    vm_decl const & d = m_decls[fn_idx];
+    vm_decl const & d = get_decl(fn_idx);
     unsigned nargs    = csize(fn) + 4;
     if (nargs < d.get_arity()) {
         buffer<vm_obj> args;
@@ -1319,7 +1310,7 @@ vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2,
 vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj const & a3, vm_obj const & a4,
                         vm_obj const & a5) {
     unsigned fn_idx   = cfn_idx(fn);
-    vm_decl const & d = m_decls[fn_idx];
+    vm_decl const & d = get_decl(fn_idx);
     unsigned nargs    = csize(fn) + 5;
     if (nargs < d.get_arity()) {
         buffer<vm_obj> args;
@@ -1370,7 +1361,7 @@ vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2,
 vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj const & a3, vm_obj const & a4,
                         vm_obj const & a5, vm_obj const & a6) {
     unsigned fn_idx   = cfn_idx(fn);
-    vm_decl const & d = m_decls[fn_idx];
+    vm_decl const & d = get_decl(fn_idx);
     unsigned nargs    = csize(fn) + 6;
     if (nargs < d.get_arity()) {
         buffer<vm_obj> args;
@@ -1425,7 +1416,7 @@ vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2,
 vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj const & a3, vm_obj const & a4,
                         vm_obj const & a5, vm_obj const & a6, vm_obj const & a7) {
     unsigned fn_idx   = cfn_idx(fn);
-    vm_decl const & d = m_decls[fn_idx];
+    vm_decl const & d = get_decl(fn_idx);
     unsigned nargs    = csize(fn) + 7;
     if (nargs < d.get_arity()) {
         buffer<vm_obj> args;
@@ -1484,7 +1475,7 @@ vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2,
 vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj const & a3, vm_obj const & a4,
                         vm_obj const & a5, vm_obj const & a6, vm_obj const & a7, vm_obj const & a8) {
     unsigned fn_idx   = cfn_idx(fn);
-    vm_decl const & d = m_decls[fn_idx];
+    vm_decl const & d = get_decl(fn_idx);
     unsigned nargs    = csize(fn) + 8;
     if (nargs < d.get_arity()) {
         buffer<vm_obj> args;
@@ -1559,7 +1550,7 @@ vm_obj vm_state::invoke(vm_obj const & fn, unsigned nargs, vm_obj const * args) 
         }
     }
     unsigned fn_idx    = cfn_idx(fn);
-    vm_decl const & d  = m_decls[fn_idx];
+    vm_decl const & d  = get_decl(fn_idx);
     unsigned new_nargs = csize(fn) + nargs;
     if (new_nargs < d.get_arity()) {
         buffer<vm_obj> new_args;
@@ -1706,10 +1697,10 @@ void vm_state::run() {
                            tout() << m_pc << ": ";
                            instr.display(tout().get_stream(),
                                          [&](unsigned idx) {
-                                             return optional<name>(m_decls[idx].get_name());
+                                             return optional<name>(m_decl_vector[idx].get_name());
                                          },
                                          [&](unsigned idx) {
-                                             return optional<name>(m_builtin_cases_names[idx]);
+                                             return optional<name>(*m_builtin_cases_names.find(idx));
                                          });
                            tout() << "\n";
                            display_stack(tout().get_stream());
@@ -1923,7 +1914,7 @@ void vm_state::run() {
             */
             vm_obj top = m_stack.back();
             m_stack.pop_back();
-            vm_cases_function fn = m_builtin_cases[instr.get_cases_idx()];
+            vm_cases_function fn = get_builtin_cases(instr.get_cases_idx());
             buffer<vm_obj> data;
             unsigned cidx = fn(top, data);
             std::copy(data.begin(), data.end(), std::back_inserter(m_stack));
@@ -2018,7 +2009,7 @@ void vm_state::run() {
             vm_obj closure    = m_stack.back();
             m_stack.pop_back();
             unsigned fn_idx   = cfn_idx(closure);
-            vm_decl const & d = m_decls[fn_idx];
+            vm_decl const & d = get_decl(fn_idx);
             unsigned csz      = csize(closure);
             unsigned arity    = d.get_arity();
             lean_assert(csz < arity);
@@ -2068,7 +2059,7 @@ void vm_state::run() {
 
                where n is fn.arity
             */
-            invoke_global(m_decls[instr.get_fn_idx()]);
+            invoke_global(get_decl(instr.get_fn_idx()));
             goto main_loop;
         case opcode::InvokeBuiltin:
             check_interrupted();
@@ -2087,7 +2078,7 @@ void vm_state::run() {
 
                Remark: note that the arguments are in reverse order.
             */
-            invoke_builtin(m_decls[instr.get_fn_idx()]);
+            invoke_builtin(get_decl(instr.get_fn_idx()));
             goto main_loop;
         case opcode::InvokeCFun:
             check_interrupted();
@@ -2097,7 +2088,7 @@ void vm_state::run() {
 
                Similar to InvokeBuiltin
             */
-            invoke_cfun(m_decls[instr.get_fn_idx()]);
+            invoke_cfun(get_decl(instr.get_fn_idx()));
             goto main_loop;
         }
     }
@@ -2112,8 +2103,7 @@ void vm_state::invoke_fn(name const & fn) {
 }
 
 void vm_state::invoke_fn(unsigned fn_idx) {
-    lean_assert(fn_idx < m_decls.size());
-    vm_decl const & d = m_decls[fn_idx];
+    vm_decl const & d = get_decl(fn_idx);
     unsigned arity    = d.get_arity();
     if (arity > m_stack.size())
         throw exception("invalid VM function call, data stack does not have enough values");
@@ -2123,7 +2113,7 @@ void vm_state::invoke_fn(unsigned fn_idx) {
 
 vm_obj vm_state::get_constant(name const & cname) {
     if (auto fn_idx = m_fn_name2idx.find(cname)) {
-        vm_decl const & d = m_decls[*fn_idx];
+        vm_decl const & d = get_decl(*fn_idx);
         if (d.get_arity() == 0) {
             invoke_fn(*fn_idx);
             vm_obj r = m_stack.back();
@@ -2156,12 +2146,12 @@ void vm_state::apply(unsigned n) {
 
 void vm_state::display(std::ostream & out, vm_obj const & o) const {
     ::lean::display(out, o,
-                    [&](unsigned idx) { return optional<name>(m_decls[idx].get_name()); });
+                    [&](unsigned idx) { return optional<name>(get_decl(idx).get_name()); });
 }
 
 optional<vm_decl> vm_state::get_decl(name const & n) const {
     if (auto idx = m_fn_name2idx.find(n))
-        return optional<vm_decl>(m_decls[*idx]);
+        return optional<vm_decl>(get_decl(*idx));
     else
         return optional<vm_decl>();
 }
@@ -2170,14 +2160,14 @@ void display_vm_code(std::ostream & out, environment const & env, unsigned code_
     vm_decls const & ext = get_extension(env);
     auto idx2name = [&](unsigned idx) {
         if (idx < ext.m_decls.size()) {
-            return optional<name>(ext.m_decls[idx].get_name());
+            return optional<name>(ext.m_decls.find(idx)->get_name());
         } else {
             return optional<name>();
         }
     };
     auto cases2name = [&](unsigned idx) {
         if (idx < ext.m_cases_names.size()) {
-            return optional<name>(ext.m_cases_names[idx]);
+            return optional<name>(*ext.m_cases_names.find(idx));
         } else {
             return optional<name>();
         }

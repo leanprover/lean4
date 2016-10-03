@@ -73,7 +73,7 @@ name mk_local_decl_name();
 class metavar_context;
 
 class local_context {
-    typedef rb_map<unsigned, local_decl, unsigned_cmp> idx2local_decl;
+    typedef unsigned_map<local_decl> idx2local_decl;
     unsigned                   m_next_idx;
     name_map<local_decl>       m_name2local_decl;
     subscripted_name_set  m_user_names;

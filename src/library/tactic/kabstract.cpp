@@ -20,9 +20,9 @@ struct key_equivalence_ext : public environment_extension {
         unsigned m_rank;
     };
 
-    unsigned                             m_next_idx;
-    rb_map<unsigned, node, unsigned_cmp> m_nodes;
-    name_map<node_ref>                   m_to_node;
+    unsigned           m_next_idx;
+    unsigned_map<node> m_nodes;
+    name_map<node_ref> m_to_node;
 
     node_ref mk_node() {
         node_ref r = m_next_idx;

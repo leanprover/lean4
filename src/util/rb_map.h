@@ -127,4 +127,6 @@ template<typename K, typename T, typename CMP, typename F>
 void for_each(rb_map<K, T, CMP> const & m, F && f) {
     return m.for_each(f);
 }
+
+template<typename T> using unsigned_map = rb_map<unsigned, T, unsigned_cmp>;
 }

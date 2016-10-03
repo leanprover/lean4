@@ -36,6 +36,8 @@ template void lean::print_matrix<double, double>(lean::sparse_matrix<double, dou
 template void lean::print_matrix<double, double>(lean::static_matrix<double, double>&, std::ostream & out);
 template bool lean::lu<double, double>::is_correct();
 template lean::dense_matrix<double, double> lean::get_B<double, double>(lean::lu<double, double>&);
+template lean::dense_matrix<double, double> lean::lu<double, double>::get_left_side();
+template lean::dense_matrix<double, double> lean::lu<double, double>::get_right_side();
 #endif
 template void lean::lu<lean::mpq, lean::mpq>::solve_yB(std::vector<lean::mpq, std::allocator<lean::mpq> >&);
 template void lean::lu<double, double>::solve_yB(std::vector<double, std::allocator<double> >&);

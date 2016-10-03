@@ -4,8 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.trace init.function init.option init.monad init.alternative init.nat_div
-import init.meta.exceptional init.meta.format init.meta.environment init.meta.pexpr
+import init.trace init.function init.option init.combinator init.monad init.alternative
+import init.nat_div init.meta.exceptional init.meta.format init.meta.environment
+import init.meta.pexpr
 meta constant tactic_state : Type
 
 namespace tactic_state

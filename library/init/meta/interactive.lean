@@ -150,30 +150,39 @@ private meta def to_symm_expr_list : list pexpr → tactic (list (bool × expr))
   | none   :=  do r ← to_expr' p, rs ← to_symm_expr_list ps, return ((ff, r) :: rs)
   end
 
-private meta def rw_goal : list (bool × expr) → tactic unit
-| []              := return ()
-| ((symm, e)::es) := rewrite_core reducible tt occurrences.all symm e >> rw_goal es
+private meta def rw_goal : transparency → list (bool × expr) → tactic unit
+| m []              := return ()
+| m ((symm, e)::es) := rewrite_core m tt occurrences.all symm e >> rw_goal m es
 
-private meta def rw_hyp : list (bool × expr) → name → tactic unit
-| []              hname := return ()
-| ((symm, e)::es) hname :=
+private meta def rw_hyp : transparency → list (bool × expr) → name → tactic unit
+| m []              hname := return ()
+| m ((symm, e)::es) hname :=
   do h ← get_local hname,
-     rewrite_at_core reducible tt occurrences.all symm e h,
-     rw_hyp es hname
+     rewrite_at_core m tt occurrences.all symm e h,
+     rw_hyp m es hname
 
-private meta def rw_hyps : list (bool × expr) → list name → tactic unit
-| es  []      := return ()
-| es  (h::hs) := rw_hyp es h >> rw_hyps es hs
+private meta def rw_hyps : transparency → list (bool × expr) → list name → tactic unit
+| m es  []      := return ()
+| m es  (h::hs) := rw_hyp m es h >> rw_hyps m es hs
 
-meta def rewrite (hs : qexpr_list_or_qexpr0) (loc : location) : tactic unit :=
+private meta def rw_core (m : transparency) (hs : qexpr_list_or_qexpr0) (loc : location) : tactic unit :=
 do hlist ← to_symm_expr_list hs,
    match loc with
-   | [] := rw_goal hlist >> try reflexivity
-   | hs := rw_hyps hlist hs >> try reflexivity
+   | [] := rw_goal m hlist >> try reflexivity
+   | hs := rw_hyps m hlist hs >> try reflexivity
    end
+
+meta def rewrite : qexpr_list_or_qexpr0 → location → tactic unit :=
+rw_core reducible
 
 meta def rw : qexpr_list_or_qexpr0 → location → tactic unit :=
 rewrite
+
+meta def erewrite : qexpr_list_or_qexpr0 → location → tactic unit :=
+rw_core semireducible
+
+meta def erw : qexpr_list_or_qexpr0 → location → tactic unit :=
+erewrite
 
 private meta def get_type_name (e : expr) : tactic name :=
 do e_type ← infer_type e >>= whnf,

@@ -198,6 +198,12 @@ inductive transparency
 
 export transparency (reducible semireducible)
 
+/- (eval_expr A A_as_expr e) evaluates 'e' IF 'e' has type 'A'.
+   'A' must be a closed term.
+   'A_as_expr' is synthesized by the code generator.
+   'e' must be a closed expression at runtime. -/
+meta constant eval_expr (A : Type) {A_expr : pexpr} : expr → tactic A
+
 /- Return the partial term/proof constructed so far. Note that the resultant expression
    may contain variables that are not declarate in the current main goal. -/
 meta constant result        : tactic expr

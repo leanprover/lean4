@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 #include "library/scope_pos_info_provider.h"
 #include "library/choice.h"
 #include "library/sorry.h"
+#include "library/quote.h"
 #include "library/util.h"
 #include "library/typed_expr.h"
 #include "library/annotation.h"
@@ -1417,10 +1418,18 @@ expr elaborator::visit_constant(expr const & e, optional<expr> const & expected_
 expr elaborator::visit_app(expr const & e, optional<expr> const & expected_type) {
     buffer<expr> args;
     expr const & fn = get_app_args(e, args);
-    if (is_equations(fn))
+    if (is_equations(fn)) {
         return visit_convoy(e, expected_type);
-    else
+    } else if (is_constant(fn, get_tactic_eval_expr_name()) && args.size() == 2) {
+        buffer<expr> new_args;
+        new_args.push_back(args[0]);
+        /* Remark: the code generator will replace the following argument */
+        new_args.push_back(copy_tag(e, mk_quote(mk_Prop())));
+        new_args.push_back(args[1]);
+        return visit(copy_tag(e, mk_app(mk_explicit(fn), new_args)), expected_type);
+    } else {
         return visit_app_core(fn, args, expected_type, e);
+    }
 }
 
 expr elaborator::visit_by(expr const & e, optional<expr> const & expected_type) {

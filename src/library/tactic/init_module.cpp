@@ -28,6 +28,7 @@ Author: Leonardo de Moura
 #include "library/tactic/elaborate.h"
 #include "library/tactic/user_attribute.h"
 #include "library/tactic/defeq_simplifier.h"
+#include "library/tactic/eval.h"
 #include "library/tactic/simplifier/init_module.h"
 #include "library/tactic/backward/init_module.h"
 
@@ -59,8 +60,10 @@ void initialize_tactic_module() {
     initialize_backward_module();
     initialize_elaborate();
     initialize_user_attribute();
+    initialize_eval();
 }
 void finalize_tactic_module() {
+    finalize_eval();
     finalize_user_attribute();
     finalize_elaborate();
     finalize_backward_module();

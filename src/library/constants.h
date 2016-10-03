@@ -340,6 +340,7 @@ name const & get_sum_cases_on_name();
 name const & get_sum_inl_name();
 name const & get_sum_inr_name();
 name const & get_tactic_name();
+name const & get_tactic_eval_expr_name();
 name const & get_tactic_constructor_name();
 name const & get_tactic_step_name();
 name const & get_tactic_to_expr_name();

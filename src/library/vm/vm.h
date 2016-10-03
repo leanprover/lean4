@@ -581,6 +581,7 @@ public:
     vm_obj invoke(name const & fn, vm_obj const & a) {
         return invoke(fn, 1, &a);
     }
+    vm_obj get_constant(name const & cname);
 };
 
 /** \brief Helper class for setting thread local vm_state object */
@@ -592,7 +593,7 @@ public:
 };
 
 /** \brief Return reference to thread local VM state object. */
-vm_state const & get_vm_state();
+vm_state & get_vm_state();
 
 /** \brief Add builtin implementation for the function named \c n.
     All environment objects will contain this builtin.

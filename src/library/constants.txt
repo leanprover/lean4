@@ -333,6 +333,7 @@ sum.cases_on
 sum.inl
 sum.inr
 tactic
+tactic.eval_expr
 tactic.constructor
 tactic.step
 tactic.to_expr

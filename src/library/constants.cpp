@@ -338,6 +338,7 @@ name const * g_sum_cases_on = nullptr;
 name const * g_sum_inl = nullptr;
 name const * g_sum_inr = nullptr;
 name const * g_tactic = nullptr;
+name const * g_tactic_eval_expr = nullptr;
 name const * g_tactic_constructor = nullptr;
 name const * g_tactic_step = nullptr;
 name const * g_tactic_to_expr = nullptr;
@@ -719,6 +720,7 @@ void initialize_constants() {
     g_sum_inl = new name{"sum", "inl"};
     g_sum_inr = new name{"sum", "inr"};
     g_tactic = new name{"tactic"};
+    g_tactic_eval_expr = new name{"tactic", "eval_expr"};
     g_tactic_constructor = new name{"tactic", "constructor"};
     g_tactic_step = new name{"tactic", "step"};
     g_tactic_to_expr = new name{"tactic", "to_expr"};
@@ -1101,6 +1103,7 @@ void finalize_constants() {
     delete g_sum_inl;
     delete g_sum_inr;
     delete g_tactic;
+    delete g_tactic_eval_expr;
     delete g_tactic_constructor;
     delete g_tactic_step;
     delete g_tactic_to_expr;
@@ -1482,6 +1485,7 @@ name const & get_sum_cases_on_name() { return *g_sum_cases_on; }
 name const & get_sum_inl_name() { return *g_sum_inl; }
 name const & get_sum_inr_name() { return *g_sum_inr; }
 name const & get_tactic_name() { return *g_tactic; }
+name const & get_tactic_eval_expr_name() { return *g_tactic_eval_expr; }
 name const & get_tactic_constructor_name() { return *g_tactic_constructor; }
 name const & get_tactic_step_name() { return *g_tactic_step; }
 name const & get_tactic_to_expr_name() { return *g_tactic_to_expr; }

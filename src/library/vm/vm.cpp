@@ -1656,7 +1656,7 @@ vm_obj invoke(unsigned fn_idx, vm_obj const & arg) {
     return invoke(fn_idx, 1, &arg);
 }
 
-vm_state const & get_vm_state() {
+vm_state & get_vm_state() {
     lean_assert(g_vm_state);
     return *g_vm_state;
 }
@@ -2119,6 +2119,22 @@ void vm_state::invoke_fn(unsigned fn_idx) {
         throw exception("invalid VM function call, data stack does not have enough values");
     invoke(d);
     run();
+}
+
+vm_obj vm_state::get_constant(name const & cname) {
+    if (auto fn_idx = m_fn_name2idx.find(cname)) {
+        vm_decl const & d = m_decls[*fn_idx];
+        if (d.get_arity() == 0) {
+            invoke_fn(*fn_idx);
+            vm_obj r = m_stack.back();
+            m_stack.pop_back();
+            return r;
+        } else {
+            return mk_vm_closure(*fn_idx, 0, nullptr);
+        }
+    } else {
+        throw exception(sstream() << "VM does not have code for '" << cname << "'");
+    }
 }
 
 void vm_state::execute(vm_instr const * code) {

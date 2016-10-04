@@ -1422,7 +1422,10 @@ expr elaborator::visit_app(expr const & e, optional<expr> const & expected_type)
         return visit_convoy(e, expected_type);
     } else if (is_constant(fn, get_tactic_eval_expr_name()) && args.size() == 2) {
         buffer<expr> new_args;
-        new_args.push_back(args[0]);
+        expr A = ensure_type(visit(args[0], none_expr()), args[0]);
+        if (has_local(A))
+            throw elaborator_exception(e, "invalid eval_expr, type must be a closed expression");
+        new_args.push_back(mk_as_is(A));
         /* Remark: the code generator will replace the following argument */
         new_args.push_back(copy_tag(e, mk_quote(mk_Prop())));
         new_args.push_back(args[1]);

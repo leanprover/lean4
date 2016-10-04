@@ -1754,10 +1754,7 @@ expr elaborator::visit_inaccessible(expr const & e, optional<expr> const & expec
     return copy_tag(e, mk_inaccessible(m));
 }
 
-expr elaborator::visit_field(expr const & e, optional<expr> const & expected_type) {
-    lean_assert(is_field_notation(e));
-    expr s      = visit(macro_arg(e, 0), none_expr());
-    expr s_type = whnf(infer_type(s));
+name elaborator::field_to_decl(expr const & e, expr const & s, expr const & s_type) {
     expr I      = get_app_fn(s_type);
     if (!is_constant(I)) {
         auto pp_fn = mk_pp_ctx();
@@ -1766,7 +1763,6 @@ expr elaborator::visit_field(expr const & e, optional<expr> const & expected_typ
                                    line() + format("has type") +
                                    pp_indent(pp_fn, s_type));
     }
-    name full_fname;
     if (is_anonymous_field_notation(e)) {
         if (!is_structure(m_env, const_name(I))) {
             auto pp_fn = mk_pp_ctx();
@@ -1787,10 +1783,10 @@ expr elaborator::visit_field(expr const & e, optional<expr> const & expected_typ
                                        line() + format("which has type") +
                                        pp_indent(pp_fn, s_type));
         }
-        full_fname = fnames[fidx-1];
+        return fnames[fidx-1];
     } else {
         name fname  = get_field_notation_field_name(e);
-        full_fname = const_name(I) + fname;
+        name full_fname = const_name(I) + fname;
         if (!m_env.find(full_fname)) {
             auto pp_fn = mk_pp_ctx();
             throw elaborator_exception(e, format("invalid '~>' notation, '") + format(fname) + format("'") +
@@ -1800,6 +1796,20 @@ expr elaborator::visit_field(expr const & e, optional<expr> const & expected_typ
                                        line() + format("which has type") +
                                        pp_indent(pp_fn, s_type));
         }
+        return full_fname;
+    }
+}
+
+expr elaborator::visit_field(expr const & e, optional<expr> const & expected_type) {
+    lean_assert(is_field_notation(e));
+    expr s      = visit(macro_arg(e, 0), none_expr());
+    expr s_type = head_beta_reduce(instantiate_mvars(infer_type(s)));
+    name full_fname;
+    try {
+        full_fname = field_to_decl(e, s, s_type);
+    } catch (elaborator_exception &) {
+        /* Try again using whnf */
+        full_fname = field_to_decl(e, s, whnf(s_type));
     }
     expr proj  = copy_tag(e, mk_constant(full_fname));
     expr new_e = copy_tag(e, mk_app(proj, copy_tag(e, mk_as_is(s))));

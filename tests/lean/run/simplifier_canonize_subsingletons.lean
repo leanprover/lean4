@@ -60,9 +60,9 @@ end lambda
 
 namespace dont_crash_when_locals_incompatible
 
-universe variable l
+universe variables l
 constants (ss : Π {A : Type.{l}}, A → Type.{l})
-          [ss_ss : ∀ (T : Type*) (t : T), subsingleton (ss t)]
+          [ss_ss : ∀ (T : Type l) (t : T), subsingleton (ss t)]
           (A : Type.{l}) (a : A)
           (ss₁ ss₂ : ss a)
 
@@ -77,7 +77,7 @@ example : (λ (s : ss a), ss₁) = (λ (s : ss a), s) := by simp
 -- first. We do however avoid the error of replacing ss₁ with the local s.
 -- TODO(dhs): the more robust solution is to maintain a set of canonical (_ : ss a)
 -- for each subsingleton type, analogous to the defeq_canonizer.
-example : (λ (s : ss a), s) = (λ (s : ss a), ss₁) :=
+lemma ex : (λ (s : ss a.{1}), s) = (λ (s : ss a.{1}), ss₁) :=
 by do try simp,
       f ← mk_const `funext,
       apply f,

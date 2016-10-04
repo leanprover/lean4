@@ -2456,8 +2456,8 @@ bool type_context::is_def_eq_core_core(expr const & t, expr const & s) {
 
     if (is_app(t_n) && is_app(s_n)) {
         scope s(*this);
-        if (is_def_eq_args(t_n, s_n) &&
-            is_def_eq_core(get_app_fn(t_n), get_app_fn(s_n)) &&
+        if (is_def_eq_core(get_app_fn(t_n), get_app_fn(s_n)) &&
+            is_def_eq_args(t_n, s_n) &&
             process_postponed(s)) {
             s.commit();
             return true;

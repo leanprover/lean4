@@ -1,0 +1,8 @@
+slow_error.lean:4:8: error: type mismatch at application
+  a = b
+term
+  b
+has type
+  string
+but is expected to have type
+  caching_user_attribute string

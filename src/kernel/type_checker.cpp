@@ -110,6 +110,8 @@ expr type_checker::infer_lambda(expr const & _e, bool infer_only) {
         es.push_back(e);
         ds.push_back(binding_domain(e));
         expr d = instantiate_rev(binding_domain(e), ls.size(), ls.data());
+        if (binding_name(e).is_anonymous())
+            throw_kernel_exception(m_env, "invalid anonymous binder name", e);
         expr l = mk_local(mk_fresh_name(), binding_name(e), d, binding_info(e));
         ls.push_back(l);
         if (!infer_only) {
@@ -132,6 +134,8 @@ expr type_checker::infer_pi(expr const & _e, bool infer_only) {
     buffer<level> us;
     expr e = _e;
     while (is_pi(e)) {
+        if (binding_name(e).is_anonymous())
+            throw_kernel_exception(m_env, "invalid anonymous binder name", e);
         expr d  = instantiate_rev(binding_domain(e), ls.size(), ls.data());
         expr t1 = ensure_sort_core(infer_type_core(d, infer_only), d);
         us.push_back(sort_level(t1));
@@ -184,6 +188,8 @@ expr type_checker::infer_app(expr const & e, bool infer_only) {
 
 expr type_checker::infer_let(expr const & e, bool infer_only) {
     if (!infer_only) {
+        if (let_name(e).is_anonymous())
+            throw_kernel_exception(m_env, "invalid anonymous let var name", e);
         ensure_sort_core(infer_type_core(let_type(e), infer_only), e);
         expr v_type = infer_type_core(let_value(e), infer_only);
         // TODO(Leo): we will remove justifications in the future.

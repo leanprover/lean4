@@ -63,7 +63,7 @@ static environment update(environment const & env, user_attr_ext const & ext) {
 
 static environment add_user_attr(environment const & env, name const & d) {
     auto const & ty = env.get(d).get_type();
-    if (!is_constant(ty, get_user_attribute_name()) && !is_constant(ty, get_caching_user_attribute_name()))
+    if (!is_constant(ty, get_user_attribute_name()) && !is_constant(get_app_fn(ty), get_caching_user_attribute_name()))
         throw exception("invalid attribute.register argument, must be name of a definition of type user_attribute");
 
     vm_state vm(env);
@@ -155,7 +155,7 @@ static bool check_dep_fingerprints(environment const & env, list<name> const & d
     }
 }
 
-vm_obj caching_user_attribute_get_cache(vm_obj const & vm_attr, vm_obj const & vm_s) {
+vm_obj caching_user_attribute_get_cache(vm_obj const &, vm_obj const & vm_attr, vm_obj const & vm_s) {
     tactic_state const & s       = to_tactic_state(vm_s);
     name const & n               = to_name(cfield(vm_attr, 0));
     vm_obj const & cache_handler = cfield(vm_attr, 2);

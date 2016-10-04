@@ -110,14 +110,12 @@ meta def to_simp_lemmas : simp_lemmas → list name → tactic simp_lemmas
 | S (n::ns) := do S' ← simp_lemmas_insert_constant S n, to_simp_lemmas S' ns
 
 meta def mk_simp_attr (attr_name : name) : command :=
-do t ← to_expr `(caching_user_attribute),
+do t ← to_expr `(caching_user_attribute simp_lemmas),
    a ← attr_name^.to_expr,
-   v ← to_expr `({ caching_user_attribute .
-                   name     := %%a,
-                   descr    := "simplifier attribute",
-                   cache    := simp_lemmas,
-                   mk_cache := λ ns, do {tactic.to_simp_lemmas simp_lemmas.mk ns},
-                   dependencies := [`reducible] }),
+   v ← to_expr `(({ name     := %%a,
+                    descr    := "simplifier attribute",
+                    mk_cache := λ ns, do {tactic.to_simp_lemmas simp_lemmas.mk ns},
+                    dependencies := [`reducible] } : caching_user_attribute simp_lemmas)),
    add_decl (declaration.defn attr_name [] t v reducibility_hints.abbrev ff),
    attribute.register attr_name
 
@@ -125,9 +123,8 @@ meta def get_user_simp_lemmas (attr_name : name) : tactic simp_lemmas :=
 if attr_name = `default then mk_simp_lemmas
 else do
   cnst   ← return (expr.const attr_name []),
-  getter ← to_expr `(caching_user_attribute.get_cache %%cnst),
-  tac    ← eval_expr (tactic simp_lemmas) getter,
-  tac
+  attr   ← eval_expr (caching_user_attribute simp_lemmas) cnst,
+  caching_user_attribute.get_cache attr
 
 meta def join_user_simp_lemmas_core : simp_lemmas → list name → tactic simp_lemmas
 | S []             := return S

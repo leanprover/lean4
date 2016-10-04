@@ -7,5 +7,5 @@ sorry
 
 print [congr] congr
 
-example (A : Type) (a b c : A) : (a = b) → (a = c) → a = b := by simp
-example (A : Type) (a b c : A) : (a = c) → (a = b) → a = b := by simp
+example (A : Type) (a b c : A) : (a = b) → (a = c) → a = b := by (simp >> intros >> reflexivity)
+example (A : Type) (a b c : A) : (a = c) → (a = b) → a = b := by (simp >> intros >> reflexivity)

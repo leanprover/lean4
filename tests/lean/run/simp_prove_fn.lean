@@ -7,10 +7,10 @@ meta definition my_prove_fn : tactic unit :=
 do h₁ ← mk_const `H₁,
       h₂ ← mk_const `H₂,
       h₃ ← mk_const `H₃,
-      simp_using [h₁, h₂, h₃]
+      simp_using [h₁, h₂, h₃], reflexivity
 
 set_option trace.simplifier.prove true
 example : f (g x w) = w  :=
 by do h ← mk_const `H,
       simplify_goal my_prove_fn [h],
-      triv
+      reflexivity

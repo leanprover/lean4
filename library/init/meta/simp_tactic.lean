@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.meta.tactic init.meta.attribute init.meta.constructor_tactic
+import init.meta.relation_tactics
 
 meta constant simp_lemmas : Type
 meta constant simp_lemmas.mk    : simp_lemmas
@@ -58,7 +59,7 @@ do (new_target, Heq) ← target >>= simplify prove_fn extra_lemmas,
    mk_app `eq.mpr [Heq, Ht] >>= exact
 
 meta def simp : tactic unit :=
-simplify_goal failed [] >> try triv
+simplify_goal failed [] >> try triv >> try reflexivity
 
 meta def simp_using (Hs : list expr) : tactic unit :=
 simplify_goal failed Hs >> try triv

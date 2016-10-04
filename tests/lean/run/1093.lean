@@ -5,7 +5,7 @@ constant le.refl (a : nat) : a ≤ a
 attribute [simp] zadd
 
 example (a : nat) : 0 + a ≤ a :=
-by do simp, trace_state, mk_const `le.refl >>= apply
+by do simp
 
 example (a : nat) : 0 + a ≥ a :=
-by do simp, trace_state, mk_const `le.refl >>= apply
+by do simp

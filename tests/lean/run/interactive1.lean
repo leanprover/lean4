@@ -43,6 +43,6 @@ begin
   intro h,
   simp [h] without bla -- should fail if bla is used
 end
-
+open tactic
 example (a b : nat) : a = b → h 0 a = b :=
-by simp without bla -- should fail if bla is used
+begin simp without bla, intros, try reflexivity end -- should fail if bla is used

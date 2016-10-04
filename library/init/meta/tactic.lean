@@ -645,15 +645,32 @@ meta definition generalizes : list expr → tactic unit
 meta definition refine (e : pexpr) : tactic unit :=
 do tgt : expr ← target,
    to_expr `((%%e : %%tgt)) >>= exact
+end tactic
 
-meta definition expr_of_nat : nat → tactic expr
+open tactic
+
+meta definition nat.to_expr : nat → tactic expr
 | n :=
   if n = 0 then to_expr `(0)
   else if n = 1 then to_expr `(1)
   else do
-    r : expr ← expr_of_nat (n / 2),
+    r : expr ← nat.to_expr (n / 2),
     if n % 2 = 0 then to_expr `(bit0 %%r)
     else to_expr `(bit1 %%r)
 
+meta definition char.to_expr : char → tactic expr
+| ⟨n, pr⟩ := do e ← n^.to_expr, to_expr `(char.of_nat %%e)
+
+meta definition string.to_expr : string → tactic expr
+| []      := to_expr `(string.empty)
+| (c::cs) := do e ← c^.to_expr, es ← string.to_expr cs, to_expr `(string.str %%e %%es)
+
+meta definition unsigned.to_expr : unsigned → tactic expr
+| ⟨n, pr⟩ := do e ← n^.to_expr, to_expr `(unsigned.of_nat %%e)
+
+meta definition name.to_expr : name → tactic expr
+| name.anonymous        := to_expr `(name.anonymous)
+| (name.mk_string s n)  := do es ← s^.to_expr, en ← name.to_expr n, to_expr `(name.mk_string %%es %%en)
+| (name.mk_numeral i n) := do is ← i^.to_expr, en ← name.to_expr n, to_expr `(name.mk_string %%is %%en)
+
 notation `command`:max := tactic unit
-end tactic

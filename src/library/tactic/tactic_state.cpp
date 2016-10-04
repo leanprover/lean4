@@ -25,6 +25,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_expr.h"
 #include "library/vm/vm_list.h"
 #include "library/vm/vm_option.h"
+#include "library/compiler/vm_compiler.h"
 #include "library/tactic/tactic_state.h"
 
 #ifndef LEAN_DEFAULT_PP_INSTANTIATE_GOAL_MVARS
@@ -563,10 +564,12 @@ vm_obj tactic_instantiate_mvars(vm_obj const & e, vm_obj const & _s) {
     return mk_tactic_success(to_obj(r), set_mctx(s, mctx));
 }
 
-vm_obj tactic_add_decl(vm_obj const & d, vm_obj const & _s) {
+vm_obj tactic_add_decl(vm_obj const & _d, vm_obj const & _s) {
     tactic_state const & s  = to_tactic_state(_s);
     try {
-        environment new_env = module::add(s.env(), check(s.env(), to_declaration(d)));
+        declaration d       = to_declaration(_d);
+        environment new_env = module::add(s.env(), check(s.env(), d));
+        new_env = vm_compile(new_env, d);
         return mk_tactic_success(set_env(s, new_env));
     } catch (throwable & ex) {
         return mk_tactic_exception(ex, s);

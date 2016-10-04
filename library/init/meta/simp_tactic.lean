@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.meta.tactic
+import init.meta.tactic init.meta.attribute init.meta.constructor_tactic
 
 namespace tactic
 open list nat
@@ -28,10 +28,10 @@ meta constant simp_lemmas_erase       : simp_lemmas → list name → simp_lemma
 meta def simp_lemmas_insert_constant : simp_lemmas → name → tactic simp_lemmas :=
 simp_lemmas_insert_constant_core reducible
 
-meta definition mk_simp_lemmas        : tactic simp_lemmas :=
+meta def mk_simp_lemmas        : tactic simp_lemmas :=
 mk_simp_lemmas_core reducible [`simp] [`congr]
 
-meta definition simp_lemmas_add_extra : transparency → simp_lemmas → list expr → tactic simp_lemmas
+meta def simp_lemmas_add_extra : transparency → simp_lemmas → list expr → tactic simp_lemmas
 | m sls []      := return sls
 | m sls (l::ls) := do
   new_sls ← simp_lemmas_insert_core m sls l,
@@ -47,29 +47,29 @@ meta definition simp_lemmas_add_extra : transparency → simp_lemmas → list ex
    Fails if no simplifications can be performed. -/
 meta constant simplify_core : tactic unit → name → simp_lemmas → expr → tactic (expr × expr)
 
-meta definition simplify (prove_fn : tactic unit) (extra_lemmas : list expr) (e : expr) : tactic (expr × expr) :=
+meta def simplify (prove_fn : tactic unit) (extra_lemmas : list expr) (e : expr) : tactic (expr × expr) :=
 do simp_lemmas  ← mk_simp_lemmas,
    new_lemmas   ← simp_lemmas_add_extra reducible simp_lemmas extra_lemmas,
    e_type       ← infer_type e >>= whnf,
    simplify_core prove_fn `eq new_lemmas e
 
-meta definition simplify_goal (prove_fn : tactic unit) (extra_lemmas : list expr) : tactic unit :=
+meta def simplify_goal (prove_fn : tactic unit) (extra_lemmas : list expr) : tactic unit :=
 do (new_target, Heq) ← target >>= simplify prove_fn extra_lemmas,
    assert `Htarget new_target, swap,
    Ht ← get_local `Htarget,
    mk_app `eq.mpr [Heq, Ht] >>= exact
 
-meta definition simp : tactic unit :=
+meta def simp : tactic unit :=
 simplify_goal failed [] >> try triv
 
-meta definition simp_using (Hs : list expr) : tactic unit :=
+meta def simp_using (Hs : list expr) : tactic unit :=
 simplify_goal failed Hs >> try triv
 
-private meta definition is_equation : expr → bool
+private meta def is_equation : expr → bool
 | (expr.pi n bi d b) := is_equation b
 | e                  := match (expr.is_eq e) with (some a) := tt | none := ff end
 
-private meta definition collect_eqs : list expr → tactic (list expr)
+private meta def collect_eqs : list expr → tactic (list expr)
 | []        := return []
 | (H :: Hs) := do
   Eqs   ← collect_eqs Hs,
@@ -77,10 +77,10 @@ private meta definition collect_eqs : list expr → tactic (list expr)
   return $ if is_equation Htype then H :: Eqs else Eqs
 
 /- Simplify target using all hypotheses in the local context. -/
-meta definition simp_using_hs : tactic unit :=
+meta def simp_using_hs : tactic unit :=
 local_context >>= collect_eqs >>= simp_using
 
-meta definition simp_core_at (prove_fn : tactic unit) (extra_lemmas : list expr) (H : expr) : tactic unit :=
+meta def simp_core_at (prove_fn : tactic unit) (extra_lemmas : list expr) (H : expr) : tactic unit :=
 do when (expr.is_local_constant H = ff) (fail "tactic simp_at failed, the given expression is not a hypothesis"),
    Htype ← infer_type H,
    (new_Htype, Heq) ← simplify prove_fn extra_lemmas Htype,
@@ -88,20 +88,40 @@ do when (expr.is_local_constant H = ff) (fail "tactic simp_at failed, the given 
    mk_app `eq.mp [Heq, H] >>= exact,
    try $ clear H
 
-meta definition simp_at : expr → tactic unit :=
+meta def simp_at : expr → tactic unit :=
 simp_core_at failed []
 
-meta definition simp_at_using (Hs : list expr) : expr → tactic unit :=
+meta def simp_at_using (Hs : list expr) : expr → tactic unit :=
 simp_core_at failed Hs
 
-meta definition simp_at_using_hs (H : expr) : tactic unit :=
+meta def simp_at_using_hs (H : expr) : tactic unit :=
 do Hs ← local_context >>= collect_eqs,
    simp_core_at failed (filter (ne H) Hs) H
 
-meta definition mk_eq_simp_ext (simp_ext : expr → tactic (expr × expr)) : tactic unit :=
+meta def mk_eq_simp_ext (simp_ext : expr → tactic (expr × expr)) : tactic unit :=
 do (lhs, rhs)     ← target >>= match_eq,
    (new_rhs, Heq) ← simp_ext lhs,
    unify rhs new_rhs,
    exact Heq
 
+/- Simp attribute support -/
+
+meta def to_simp_lemmas : simp_lemmas → list name → tactic simp_lemmas
+| S []      := return S
+| S (n::ns) := do S' ← simp_lemmas_insert_constant S n, to_simp_lemmas S' ns
+
 end tactic
+
+open tactic
+
+meta def mk_simp_attr (attr_name : name) : command :=
+do t ← to_expr `(caching_user_attribute),
+   a ← attr_name^.to_expr,
+   v ← to_expr `({ caching_user_attribute .
+                   name     := %%a,
+                   descr    := "simplifier attribute",
+                   cache    := simp_lemmas,
+                   mk_cache := λ ns, do {S₀ ← tactic.mk_empty_simp_lemmas, tactic.to_simp_lemmas S₀ ns},
+                   dependencies := [`reducible] }),
+   add_decl (declaration.defn attr_name [] t v reducibility_hints.abbrev ff),
+   attribute.register attr_name

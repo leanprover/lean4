@@ -974,6 +974,17 @@ vm_state::vm_state(environment const & env):
     m_bp(0) {
 }
 
+void vm_state::update_env(environment const & env) {
+    lean_assert(env.is_descendant(env));
+    m_env         = env;
+    auto ext      = get_extension(env);
+    m_decl_map    = ext.m_decls;
+    lean_assert(ext.m_next_decl_idx >= m_decl_vector.size());
+    m_decl_vector.resize(ext.m_next_decl_idx);
+    m_fn_name2idx = ext.m_name2idx;
+    lean_assert(is_eqp(m_builtin_cases_map, ext.m_cases));
+}
+
 void vm_state::push_fields(vm_obj const & obj) {
     if (is_constructor(obj)) {
         unsigned nflds = csize(obj);

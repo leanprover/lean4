@@ -540,6 +540,8 @@ public:
 
     environment const & env() const { return m_env; }
 
+    void update_env(environment const & env);
+
     /** \brief Push object into the data stack */
     void push(vm_obj const & o) { m_stack.push_back(o); }
 

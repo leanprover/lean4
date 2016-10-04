@@ -1136,7 +1136,7 @@ static void to_cbuffer(vm_obj const & fn, buffer<vm_obj> & args) {
 }
 
 vm_obj vm_state::invoke(unsigned fn_idx, unsigned nargs, vm_obj const * as) {
-    vm_decl const & d = get_decl(fn_idx);
+    vm_decl d = get_decl(fn_idx);
     lean_assert(d.get_arity() <= nargs);
     std::copy(as, as + nargs, std::back_inserter(m_stack));
     invoke_fn(fn_idx);
@@ -1156,9 +1156,9 @@ vm_obj vm_state::invoke(name const & fn, unsigned nargs, vm_obj const * as) {
 }
 
 vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1) {
-    unsigned fn_idx   = cfn_idx(fn);
-    vm_decl const & d = get_decl(fn_idx);
-    unsigned nargs    = csize(fn) + 1;
+    unsigned fn_idx = cfn_idx(fn);
+    vm_decl d       = get_decl(fn_idx);
+    unsigned nargs  = csize(fn) + 1;
     if (nargs < d.get_arity()) {
         buffer<vm_obj> args;
         args.push_back(a1);
@@ -1192,9 +1192,9 @@ vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1) {
 }
 
 vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2) {
-    unsigned fn_idx   = cfn_idx(fn);
-    vm_decl const & d = get_decl(fn_idx);
-    unsigned nargs    = csize(fn) + 2;
+    unsigned fn_idx = cfn_idx(fn);
+    vm_decl d       = get_decl(fn_idx);
+    unsigned nargs  = csize(fn) + 2;
     if (nargs < d.get_arity()) {
         buffer<vm_obj> args;
         args.push_back(a2);
@@ -1231,9 +1231,9 @@ vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2)
 }
 
 vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj const & a3) {
-    unsigned fn_idx   = cfn_idx(fn);
-    vm_decl const & d = get_decl(fn_idx);
-    unsigned nargs    = csize(fn) + 3;
+    unsigned fn_idx = cfn_idx(fn);
+    vm_decl d       = get_decl(fn_idx);
+    unsigned nargs  = csize(fn) + 3;
     if (nargs < d.get_arity()) {
         buffer<vm_obj> args;
         args.push_back(a3);
@@ -1273,9 +1273,9 @@ vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2,
 }
 
 vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj const & a3, vm_obj const & a4) {
-    unsigned fn_idx   = cfn_idx(fn);
-    vm_decl const & d = get_decl(fn_idx);
-    unsigned nargs    = csize(fn) + 4;
+    unsigned fn_idx = cfn_idx(fn);
+    vm_decl  d      = get_decl(fn_idx);
+    unsigned nargs  = csize(fn) + 4;
     if (nargs < d.get_arity()) {
         buffer<vm_obj> args;
         args.push_back(a4);
@@ -1320,9 +1320,9 @@ vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2,
 
 vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj const & a3, vm_obj const & a4,
                         vm_obj const & a5) {
-    unsigned fn_idx   = cfn_idx(fn);
-    vm_decl const & d = get_decl(fn_idx);
-    unsigned nargs    = csize(fn) + 5;
+    unsigned fn_idx = cfn_idx(fn);
+    vm_decl d       = get_decl(fn_idx);
+    unsigned nargs  = csize(fn) + 5;
     if (nargs < d.get_arity()) {
         buffer<vm_obj> args;
         args.push_back(a5);
@@ -1371,9 +1371,9 @@ vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2,
 
 vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj const & a3, vm_obj const & a4,
                         vm_obj const & a5, vm_obj const & a6) {
-    unsigned fn_idx   = cfn_idx(fn);
-    vm_decl const & d = get_decl(fn_idx);
-    unsigned nargs    = csize(fn) + 6;
+    unsigned fn_idx = cfn_idx(fn);
+    vm_decl d       = get_decl(fn_idx);
+    unsigned nargs  = csize(fn) + 6;
     if (nargs < d.get_arity()) {
         buffer<vm_obj> args;
         args.push_back(a6);
@@ -1426,9 +1426,9 @@ vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2,
 
 vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj const & a3, vm_obj const & a4,
                         vm_obj const & a5, vm_obj const & a6, vm_obj const & a7) {
-    unsigned fn_idx   = cfn_idx(fn);
-    vm_decl const & d = get_decl(fn_idx);
-    unsigned nargs    = csize(fn) + 7;
+    unsigned fn_idx = cfn_idx(fn);
+    vm_decl d       = get_decl(fn_idx);
+    unsigned nargs  = csize(fn) + 7;
     if (nargs < d.get_arity()) {
         buffer<vm_obj> args;
         args.push_back(a7);
@@ -1485,9 +1485,9 @@ vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2,
 
 vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj const & a3, vm_obj const & a4,
                         vm_obj const & a5, vm_obj const & a6, vm_obj const & a7, vm_obj const & a8) {
-    unsigned fn_idx   = cfn_idx(fn);
-    vm_decl const & d = get_decl(fn_idx);
-    unsigned nargs    = csize(fn) + 8;
+    unsigned fn_idx = cfn_idx(fn);
+    vm_decl d       = get_decl(fn_idx);
+    unsigned nargs  = csize(fn) + 8;
     if (nargs < d.get_arity()) {
         buffer<vm_obj> args;
         args.push_back(a8);
@@ -1561,7 +1561,7 @@ vm_obj vm_state::invoke(vm_obj const & fn, unsigned nargs, vm_obj const * args) 
         }
     }
     unsigned fn_idx    = cfn_idx(fn);
-    vm_decl const & d  = get_decl(fn_idx);
+    vm_decl d          = get_decl(fn_idx);
     unsigned new_nargs = csize(fn) + nargs;
     if (new_nargs < d.get_arity()) {
         buffer<vm_obj> new_args;
@@ -2020,7 +2020,7 @@ void vm_state::run() {
             vm_obj closure    = m_stack.back();
             m_stack.pop_back();
             unsigned fn_idx   = cfn_idx(closure);
-            vm_decl const & d = get_decl(fn_idx);
+            vm_decl d         = get_decl(fn_idx);
             unsigned csz      = csize(closure);
             unsigned arity    = d.get_arity();
             lean_assert(csz < arity);
@@ -2114,8 +2114,8 @@ void vm_state::invoke_fn(name const & fn) {
 }
 
 void vm_state::invoke_fn(unsigned fn_idx) {
-    vm_decl const & d = get_decl(fn_idx);
-    unsigned arity    = d.get_arity();
+    vm_decl d      = get_decl(fn_idx);
+    unsigned arity = d.get_arity();
     if (arity > m_stack.size())
         throw exception("invalid VM function call, data stack does not have enough values");
     invoke(d);
@@ -2124,7 +2124,7 @@ void vm_state::invoke_fn(unsigned fn_idx) {
 
 vm_obj vm_state::get_constant(name const & cname) {
     if (auto fn_idx = m_fn_name2idx.find(cname)) {
-        vm_decl const & d = get_decl(*fn_idx);
+        vm_decl d = get_decl(*fn_idx);
         if (d.get_arity() == 0) {
             invoke_fn(*fn_idx);
             vm_obj r = m_stack.back();

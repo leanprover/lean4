@@ -745,7 +745,7 @@ struct vm_decls : public environment_extension {
     name_map<unsigned>              m_cases2idx;
     unsigned_map<vm_cases_function> m_cases;
     unsigned_map<name>              m_cases_names;
-    unsigned                        m_next_cases_idx;
+    unsigned                        m_next_cases_idx{0};
 
     vm_decls() {
         g_vm_builtins->for_each([&](name const & n, std::tuple<unsigned, char const *, vm_function> const & p) {

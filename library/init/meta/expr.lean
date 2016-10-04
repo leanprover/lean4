@@ -31,9 +31,11 @@ meta constant expr.mk_macro (d : macro_def) : list expr → expr
 meta definition expr.mk_var (n : nat) : expr :=
 expr.var (unsigned.of_nat n)
 
+-- Compares expressions, including binder names.
 meta constant expr.has_decidable_eq : decidable_eq expr
 attribute [instance] expr.has_decidable_eq
 
+-- Compares expressions while ignoring binder names.
 meta constant expr.alpha_eqv : expr → expr → bool
 notation a ` =ₐ `:50 b:50 := expr.alpha_eqv a b = bool.tt
 
@@ -48,11 +50,14 @@ meta instance : has_coe_to_fun expr :=
 
 meta constant expr.hash : expr → nat
 
+-- Compares expressions, ignoring binder names, and sorting by hash.
 meta constant expr.lt : expr → expr → bool
+-- Compares expressions, ignoring binder names.
 meta constant expr.lex_lt : expr → expr → bool
+-- Compares expressions, ignoring binder names, and sorting by hash.
 meta definition expr.cmp (a b : expr) : ordering :=
 if expr.lt a b then ordering.lt
-else if a = b then ordering.eq
+else if a =ₐ b then ordering.eq
 else ordering.gt
 
 meta constant expr.fold {A : Type} : expr → A → (expr → nat → A → A) → A
@@ -77,6 +82,10 @@ meta constant expr.lower_vars   : expr → nat → nat → expr
 
 namespace expr
 open decidable
+
+-- Compares expressions, ignoring binder names, and sorting by hash.
+meta instance : has_ordering expr :=
+⟨ expr.cmp ⟩
 
 meta definition app_of_list : expr → list expr → expr
 | f []      := f

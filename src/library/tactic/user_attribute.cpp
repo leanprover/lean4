@@ -69,6 +69,8 @@ static environment add_user_attr(environment const & env, name const & d) {
     vm_state vm(env);
     vm_obj const & o = vm.invoke(d, {});
     name const & n = to_name(cfield(o, 0));
+    if (n.is_anonymous())
+        throw exception(sstream() << "invalid attribute.register, anonymous attribute names are not allowed");
     if (is_attribute(env, n))
         throw exception(sstream() << "an attribute named [" << n << "] has already been registered");
     std::string descr = to_string(cfield(o, 1));

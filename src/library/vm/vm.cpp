@@ -1103,7 +1103,7 @@ inline vm_cfunction_N to_fnN(vm_decl const & d) { return reinterpret_cast<vm_cfu
 vm_obj vm_state::invoke_closure(vm_obj const & fn, unsigned DEBUG_CODE(nargs)) {
     unsigned saved_pc = m_pc;
     unsigned fn_idx   = cfn_idx(fn);
-    vm_decl const & d = get_decl(fn_idx);
+    vm_decl d         = get_decl(fn_idx);
     unsigned csz      = csize(fn);
     std::copy(cfields(fn), cfields(fn) + csz, std::back_inserter(m_stack));
     lean_assert(nargs + csz == d.get_arity());
@@ -1274,7 +1274,7 @@ vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2,
 
 vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj const & a3, vm_obj const & a4) {
     unsigned fn_idx = cfn_idx(fn);
-    vm_decl  d      = get_decl(fn_idx);
+    vm_decl d       = get_decl(fn_idx);
     unsigned nargs  = csize(fn) + 4;
     if (nargs < d.get_arity()) {
         buffer<vm_obj> args;
@@ -1708,7 +1708,7 @@ void vm_state::run() {
                            tout() << m_pc << ": ";
                            instr.display(tout().get_stream(),
                                          [&](unsigned idx) {
-                                             return optional<name>(m_decl_vector[idx].get_name());
+                                             return optional<name>(get_decl(idx).get_name());
                                          },
                                          [&](unsigned idx) {
                                              return optional<name>(*m_builtin_cases_names.find(idx));
@@ -2048,7 +2048,7 @@ void vm_state::run() {
                 goto main_loop;
             }
         }
-        case opcode::InvokeGlobal:
+        case opcode::InvokeGlobal: {
             check_interrupted();
             check_memory("vm");
             /**
@@ -2070,9 +2070,11 @@ void vm_state::run() {
 
                where n is fn.arity
             */
-            invoke_global(get_decl(instr.get_fn_idx()));
+            vm_decl decl = get_decl(instr.get_fn_idx());
+            invoke_global(decl);
             goto main_loop;
-        case opcode::InvokeBuiltin:
+        }
+        case opcode::InvokeBuiltin: {
             check_interrupted();
             check_memory("vm");
             /**
@@ -2089,9 +2091,11 @@ void vm_state::run() {
 
                Remark: note that the arguments are in reverse order.
             */
-            invoke_builtin(get_decl(instr.get_fn_idx()));
+            vm_decl decl = get_decl(instr.get_fn_idx());
+            invoke_builtin(decl);
             goto main_loop;
-        case opcode::InvokeCFun:
+        }
+        case opcode::InvokeCFun: {
             check_interrupted();
             check_memory("vm");
             /**
@@ -2099,9 +2103,10 @@ void vm_state::run() {
 
                Similar to InvokeBuiltin
             */
-            invoke_cfun(get_decl(instr.get_fn_idx()));
+            vm_decl decl = get_decl(instr.get_fn_idx());
+            invoke_cfun(decl);
             goto main_loop;
-        }
+        }}
     }
 }
 

@@ -698,7 +698,7 @@ void initialize_simp_lemmas() {
     DECLARE_VM_BUILTIN(name({"tactic", "mk_simp_lemmas_core"}),              tactic_mk_simp_lemmas);
     DECLARE_VM_BUILTIN(name({"tactic", "mk_empty_simp_lemmas"}),             tactic_mk_empty_simp_lemmas);
     DECLARE_VM_BUILTIN(name({"tactic", "simp_lemmas_insert_core"}),          tactic_simp_lemmas_insert);
-    DECLARE_VM_BUILTIN(name({"tactic", "simp_lemmas_insert_constant_core"}), tactic_simp_lemmas_insert);
+    DECLARE_VM_BUILTIN(name({"tactic", "simp_lemmas_insert_constant_core"}), tactic_simp_lemmas_insert_constant);
     DECLARE_VM_BUILTIN(name({"tactic", "simp_lemmas_erase"}),                tactic_simp_lemmas_erase);
 
     register_system_attribute(basic_attribute::with_check("simp", "simplification lemma", on_add_simp_lemma));

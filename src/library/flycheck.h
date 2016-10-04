@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <iostream>
+#include "kernel/pos_info_provider.h"
 #include "util/sexpr/options.h"
 #include "library/io_state.h"
 
@@ -20,6 +21,21 @@ public:
         flycheck_scope(ios.get_regular_stream(), ios.get_options(), kind) {}
     ~flycheck_scope();
     bool enabled() const { return m_flycheck; }
+};
+
+/** Redirects regular and diagnostic output streams of the global ios as flycheck informations. */
+class flycheck_output_scope {
+    char const *                           m_stream_name;
+    pos_info                               m_pos;
+    std::ostream &                         m_out;
+    io_state                               m_redirected_ios;
+    std::unique_ptr<scope_global_ios>      m_scoped_ios;
+    std::shared_ptr<string_output_channel> m_buffer;
+public:
+    flycheck_output_scope(io_state const & ios, char const * stream_name, pos_info const & pos);
+    flycheck_output_scope(pos_info_provider const * provider, expr const & ref);
+    ~flycheck_output_scope();
+    bool enabled() const { return static_cast<bool>(m_scoped_ios); }
 };
 
 struct flycheck_error : public flycheck_scope {

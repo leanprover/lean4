@@ -2297,6 +2297,9 @@ void elaborator::show_goal(tactic_state const & s, expr const & start_ref, expr 
 /* Apply the given tactic to the state 's'.
    Report any errors detected during the process using position information associated with 'ref'. */
 tactic_state elaborator::execute_tactic(expr const & tactic, tactic_state const & s, expr const & ref) {
+    pos_info_provider * provider = get_pos_info_provider();
+    flycheck_output_scope flycheck(provider, ref);
+
     /* Compile tactic into bytecode */
     name tactic_name("_tactic");
     expr tactic_type = mk_tactic_unit();
@@ -2318,7 +2321,6 @@ tactic_state elaborator::execute_tactic(expr const & tactic, tactic_state const 
         format fmt          = std::get<0>(*ex);
         optional<expr> ref1 = std::get<1>(*ex);
         tactic_state s1     = std::get<2>(*ex);
-        pos_info_provider * provider = get_pos_info_provider();
         if (ref1 && provider && provider->get_pos_info(*ref1))
             throw elaborator_exception(*ref1, fmt);
         else

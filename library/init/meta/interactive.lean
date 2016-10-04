@@ -263,11 +263,11 @@ private meta def to_expr_list : list pexpr → tactic (list expr)
 | []      := return []
 | (p::ps) := do e ← to_expr' p, es ← to_expr_list ps, return (e :: es)
 
-private meta def mk_simp_set (hs : list qexpr) (ex : list name) : tactic simp_lemmas :=
+private meta def mk_simp_set (attr_names : list name) (hs : list qexpr) (ex : list name) : tactic simp_lemmas :=
 do es ← to_expr_list hs,
-   s₀ ← mk_simp_lemmas,
+   s₀ ← join_user_simp_lemmas attr_names,
    s₁ ← simp_lemmas_add_extra reducible s₀ es,
-   return $ simp_lemmas_erase s₁ ex
+   return $ simp_lemmas.erase s₁ ex
 
 private meta def simp_goal : simp_lemmas → tactic unit
 | s := do
@@ -288,8 +288,8 @@ private meta definition simp_hyps : simp_lemmas → location → tactic unit
 | s []      := skip
 | s (h::hs) := simp_hyp s h >> simp_hyps s hs
 
-meta definition simp (hs : opt_qexpr_list) (ids : without_ident_list) (loc : location) : tactic unit :=
-do s ← mk_simp_set hs ids,
+meta definition simp (hs : opt_qexpr_list) (attr_names : with_ident_list) (ids : without_ident_list) (loc : location) : tactic unit :=
+do s ← mk_simp_set attr_names hs ids,
    match loc : _ → tactic unit with
    | [] := simp_goal s
    | _  := simp_hyps s loc

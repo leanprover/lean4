@@ -121,6 +121,7 @@ class simp_lemmas {
     template<typename R> void insert_core(name const & eqv, R const & r);
     template<typename R> void erase_core(name const & eqv, R const & r);
 public:
+    bool empty() const { return m_sets.empty(); }
     void insert(name const & eqv, simp_lemma const & r);
     void erase(name const & eqv, simp_lemma const & r);
     void insert(name const & eqv, user_congr_lemma const & r);

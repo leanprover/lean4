@@ -292,6 +292,8 @@ simp_lemmas add(type_context & tctx, simp_lemmas const & s, name const & id, exp
 }
 
 simp_lemmas join(simp_lemmas const & s1, simp_lemmas const & s2) {
+    if (s1.empty()) return s2;
+    if (s2.empty()) return s1;
     simp_lemmas new_s1 = s1;
 
     buffer<pair<name const &, simp_lemma const &>> slemmas;
@@ -655,10 +657,6 @@ vm_obj tactic_mk_simp_lemmas(vm_obj const & m, vm_obj const & sattrs, vm_obj con
     LEAN_TACTIC_CATCH(to_tactic_state(s));
 }
 
-vm_obj tactic_mk_empty_simp_lemmas(vm_obj const & s) {
-    return mk_tactic_success(to_obj(simp_lemmas()), to_tactic_state(s));
-}
-
 vm_obj tactic_simp_lemmas_insert(vm_obj const & m, vm_obj const & lemmas, vm_obj const & lemma, vm_obj const & s) {
     LEAN_TACTIC_TRY;
     type_context tctx = mk_type_context_for(s, m);
@@ -685,7 +683,15 @@ vm_obj tactic_simp_lemmas_insert_constant(vm_obj const & m, vm_obj const & lemma
     LEAN_TACTIC_CATCH(to_tactic_state(s));
 }
 
-vm_obj tactic_simp_lemmas_erase(vm_obj const & lemmas, vm_obj const & lemma_list) {
+vm_obj simp_lemmas_mk() {
+    return to_obj(simp_lemmas());
+}
+
+vm_obj simp_lemmas_join(vm_obj const & lemmas1, vm_obj const & lemmas2) {
+    return to_obj(join(to_simp_lemmas(lemmas1), to_simp_lemmas(lemmas2)));
+}
+
+vm_obj simp_lemmas_erase(vm_obj const & lemmas, vm_obj const & lemma_list) {
     name_set S;
     for (name const & l : to_list_name(lemma_list))
         S.insert(l);
@@ -695,12 +701,12 @@ vm_obj tactic_simp_lemmas_erase(vm_obj const & lemmas, vm_obj const & lemma_list
 }
 
 void initialize_simp_lemmas() {
+    DECLARE_VM_BUILTIN(name({"simp_lemmas", "mk"}), simp_lemmas_mk);
+    DECLARE_VM_BUILTIN(name({"simp_lemmas", "join"}), simp_lemmas_join);
+    DECLARE_VM_BUILTIN(name({"simp_lemmas", "erase"}), simp_lemmas_erase);
     DECLARE_VM_BUILTIN(name({"tactic", "mk_simp_lemmas_core"}),              tactic_mk_simp_lemmas);
-    DECLARE_VM_BUILTIN(name({"tactic", "mk_empty_simp_lemmas"}),             tactic_mk_empty_simp_lemmas);
     DECLARE_VM_BUILTIN(name({"tactic", "simp_lemmas_insert_core"}),          tactic_simp_lemmas_insert);
     DECLARE_VM_BUILTIN(name({"tactic", "simp_lemmas_insert_constant_core"}), tactic_simp_lemmas_insert_constant);
-    DECLARE_VM_BUILTIN(name({"tactic", "simp_lemmas_erase"}),                tactic_simp_lemmas_erase);
-
     register_system_attribute(basic_attribute::with_check("simp", "simplification lemma", on_add_simp_lemma));
     register_system_attribute(basic_attribute::with_check("congr", "congruence lemma", on_add_congr_lemma));
 }

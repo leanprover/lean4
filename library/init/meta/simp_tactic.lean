@@ -6,24 +6,22 @@ Authors: Leonardo de Moura
 prelude
 import init.meta.tactic init.meta.attribute init.meta.constructor_tactic
 
+meta constant simp_lemmas : Type
+meta constant simp_lemmas.mk    : simp_lemmas
+meta constant simp_lemmas.join  : simp_lemmas → simp_lemmas → simp_lemmas
+meta constant simp_lemmas.erase : simp_lemmas → list name → simp_lemmas
+
 namespace tactic
 open list nat
-
-meta constant simp_lemmas : Type
-
 /- Create a data-structure containing a simp lemma for every constant in the first list of
    attributes, and a congr lemma for every constant in the second list of attributes.
    Lemmas with type `<lhs> <eqv_rel> <rhs>` are indexed using the head-symbol of `<lhs>`,
    computed with respect to the given transparency setting. -/
 meta constant mk_simp_lemmas_core     : transparency → list name → list name → tactic simp_lemmas
-/- Create an empty simp_lemmas. That is, it ignores the lemmas marked with the [simp] attribute.  -/
-meta constant mk_empty_simp_lemmas     : tactic simp_lemmas
 /- (simp_lemmas_insert_core m lemmas lemma priority) adds the given lemma to the set simp_lemmas. -/
 meta constant simp_lemmas_insert_core : transparency → simp_lemmas → expr → tactic simp_lemmas
 /- (simp_lemmas_insert_constant_core m lemmas cname) -/
 meta constant simp_lemmas_insert_constant_core : transparency → simp_lemmas → name → tactic simp_lemmas
-/- Erase the given lemmas from the simp set. -/
-meta constant simp_lemmas_erase       : simp_lemmas → list name → simp_lemmas
 
 meta def simp_lemmas_insert_constant : simp_lemmas → name → tactic simp_lemmas :=
 simp_lemmas_insert_constant_core reducible
@@ -110,10 +108,6 @@ meta def to_simp_lemmas : simp_lemmas → list name → tactic simp_lemmas
 | S []      := return S
 | S (n::ns) := do S' ← simp_lemmas_insert_constant S n, to_simp_lemmas S' ns
 
-end tactic
-
-open tactic
-
 meta def mk_simp_attr (attr_name : name) : command :=
 do t ← to_expr `(caching_user_attribute),
    a ← attr_name^.to_expr,
@@ -121,7 +115,27 @@ do t ← to_expr `(caching_user_attribute),
                    name     := %%a,
                    descr    := "simplifier attribute",
                    cache    := simp_lemmas,
-                   mk_cache := λ ns, do {S₀ ← tactic.mk_empty_simp_lemmas, tactic.to_simp_lemmas S₀ ns},
+                   mk_cache := λ ns, do {tactic.to_simp_lemmas simp_lemmas.mk ns},
                    dependencies := [`reducible] }),
    add_decl (declaration.defn attr_name [] t v reducibility_hints.abbrev ff),
    attribute.register attr_name
+
+meta def get_user_simp_lemmas (attr_name : name) : tactic simp_lemmas :=
+if attr_name = `default then mk_simp_lemmas
+else do
+  cnst   ← return (expr.const attr_name []),
+  getter ← to_expr `(caching_user_attribute.get_cache %%cnst),
+  tac    ← eval_expr (tactic simp_lemmas) getter,
+  tac
+
+meta def join_user_simp_lemmas_core : simp_lemmas → list name → tactic simp_lemmas
+| S []             := return S
+| S (attr_name::R) := do S' ← get_user_simp_lemmas attr_name, join_user_simp_lemmas_core (S^.join S') R
+
+meta def join_user_simp_lemmas : list name → tactic simp_lemmas
+| []         := mk_simp_lemmas
+| attr_names := join_user_simp_lemmas_core simp_lemmas.mk attr_names
+
+end tactic
+
+export tactic (mk_simp_attr)

@@ -1695,6 +1695,16 @@ void vm_state::display_stack(std::ostream & out) const {
         out << "[bp]\n";
 }
 
+void vm_state::display_call_stack(std::ostream & out) const {
+    for (frame const & fr : m_call_stack) {
+        out << ">> (fn_idx := " << fr.m_fn_idx << ", num := " << fr.m_num << ", pc := " << fr.m_pc << ", bp: " << fr.m_bp << ")\n";
+    }
+}
+
+void vm_state::display_registers(std::ostream & out) const {
+    out << "pc: " << m_pc << ", bp: " << m_bp << "\n";
+}
+
 void vm_state::run() {
     lean_assert(m_code);
     unsigned init_call_stack_sz = m_call_stack.size();
@@ -1971,8 +1981,11 @@ void vm_state::run() {
                a_1, ... a_n were the arguments for the function call.
                r is the result.
             */
+            lean_assert(!m_call_stack.empty());
             frame const & fr = m_call_stack.back();
             unsigned sz      = m_stack.size();
+            lean_assert(sz - fr.m_num - 1 < m_stack.size());
+            lean_assert(sz - 1 < m_stack.size());
             swap(m_stack[sz - fr.m_num - 1], m_stack[sz - 1]);
             m_stack.resize(sz - fr.m_num);
             m_code   = fr.m_code;
@@ -2131,9 +2144,14 @@ vm_obj vm_state::get_constant(name const & cname) {
     if (auto fn_idx = m_fn_name2idx.find(cname)) {
         vm_decl d = get_decl(*fn_idx);
         if (d.get_arity() == 0) {
-            invoke_fn(*fn_idx);
+            DEBUG_CODE(unsigned stack_sz = m_stack.size(););
+            unsigned saved_pc = m_pc;
+            invoke(d);
+            run();
             vm_obj r = m_stack.back();
             m_stack.pop_back();
+            m_pc = saved_pc;
+            lean_assert(m_stack.size() == stack_sz);
             return r;
         } else {
             return mk_vm_closure(*fn_idx, 0, nullptr);

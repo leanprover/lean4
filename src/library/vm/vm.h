@@ -571,6 +571,8 @@ public:
 
     void display_stack(std::ostream & out) const;
     void display(std::ostream & out, vm_obj const & o) const;
+    void display_call_stack(std::ostream & out) const;
+    void display_registers(std::ostream & out) const;
 
     /** \brief Invoke closure \c fn with the given arguments. These procedures are meant to be use by
         C++ generated/extracted code. */

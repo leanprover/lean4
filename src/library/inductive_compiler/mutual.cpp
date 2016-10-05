@@ -218,11 +218,6 @@ class add_mutual_inductive_decl_fn {
     }
 
     expr translate_all_ind_apps(expr const & e) {
-        // We might have a nested occurrence of foo in the return type of an introduction rule!
-        // Example:
-        // inductive foo : Type -> Type
-        // | mk : foo (foo poly_unit)
-        // We cannot use replace since we need to translate bottom-up
         buffer<expr> args;
         expr fn = get_app_args(e, args);
         for (expr & arg : args)

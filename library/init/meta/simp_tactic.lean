@@ -115,7 +115,7 @@ do t ← to_expr `(caching_user_attribute simp_lemmas),
    v ← to_expr `(({ name     := %%a,
                     descr    := "simplifier attribute",
                     mk_cache := λ ns, do {tactic.to_simp_lemmas simp_lemmas.mk ns},
-                    dependencies := [`reducible] } : caching_user_attribute simp_lemmas)),
+                    dependencies := [`reducibility] } : caching_user_attribute simp_lemmas)),
    add_decl (declaration.defn attr_name [] t v reducibility_hints.abbrev ff),
    attribute.register attr_name
 

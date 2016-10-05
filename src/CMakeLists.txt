@@ -384,7 +384,10 @@ add_subdirectory(tests/shell)
 # Compatibility Checks using https://github.com/foonathan/compatibility
 set(COMP_CMAKE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules" CACHE INTERNAL "")
 include(CompBase)
-comp_target_features(lean PUBLIC cpp14_lang/sized_deallocation)
+if(NOT EMSCRIPTEN)
+  # This test does not work when compiling with emscripten
+  comp_target_features(lean PUBLIC cpp14_lang/sized_deallocation)
+endif()
 configure_file("${LEAN_SOURCE_DIR}/compatibility.h.in" "${LEAN_BINARY_DIR}/compatibility.h")
 
 # The DLL (shared library) is not being generated correctly when we use cross-compilation (i.e., generate the Windows DLL using Linux).

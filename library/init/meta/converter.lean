@@ -149,7 +149,7 @@ do (r, lhs, rhs) ← (target_lhs_rhs <|> fail "conversion failed, target is not 
    (unify new_lhs rhs <|>
      do new_lhs_fmt ← pp new_lhs,
         rhs_fmt     ← pp rhs,
-        fail (to_fmt "conversion failed, expected" ++ format.line ++
+        fail (to_fmt "conversion failed, expected" ++
                      rhs_fmt^.indent 4 ++ format.line ++ "provided" ++
                      new_lhs_fmt^.indent 4)),
    exact pr

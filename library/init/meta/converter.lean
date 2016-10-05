@@ -125,7 +125,30 @@ meta def lift_tactic {A : Type} (t : tactic A) : conv A :=
 meta def apply_simp_set (attr_name : name) : conv unit :=
 lift_tactic (get_user_simp_lemmas attr_name) >>= apply_lemmas
 
-meta def funext (c : conv unit) : conv unit :=
+meta def skip : conv unit :=
+return ()
+
+meta def repeat : conv unit → conv unit
+| c r lhs :=
+  (do
+     ⟨_, rhs₁, pr₁⟩ ← c r lhs,
+     guard (¬ lhs =ₐ rhs₁),
+     ⟨_, rhs₂, pr₂⟩ ← repeat c r rhs₁,
+     pr ← join_proofs r pr₁ pr₂,
+     return ⟨(), rhs₂, pr⟩)
+  <|> return ⟨(), lhs, none⟩
+
+meta def first {A : Type} : list (conv A) → conv A
+| []      := conv.fail
+| (c::cs) := c <|> first cs
+
+meta def attr : user_attribute :=
+{ name  := `convsub,
+  descr := "for marking conversionals (conv unit -> conv unit) used by `conv.sub`" }
+
+run_command attribute.register `conv.attr
+
+@[convsub] meta def funext (c : conv unit) : conv unit :=
 λ r lhs, do
   guard (r = `eq),
   (expr.lam n bi d b) ← return lhs | failed,
@@ -142,6 +165,48 @@ meta def funext (c : conv unit) : conv unit :=
     | none    := return ⟨(), rhs, none⟩
     end },
   return result
+
+meta def congr_core (c_f c_a : conv unit) : conv unit :=
+λ r lhs, do
+  guard (r = `eq),
+  (expr.app f a) ← return lhs | failed,
+  f_type ← infer_type f >>= tactic.whnf,
+  guard (f_type^.is_arrow),
+  ⟨(), new_f, of⟩ ← try c_f r f,
+  ⟨(), new_a, oa⟩ ← try c_a r a,
+  rhs ← return $ new_f new_a,
+  match of, oa with
+  | none, none      :=
+      return ⟨(), rhs, none⟩
+  | none, some pr_a := do
+      pr ← mk_app `congr_arg [a, new_a, f, pr_a],
+      return ⟨(), new_f new_a, some pr⟩
+  | some pr_f, none := do
+      pr ← mk_app `congr_fun [f, new_f, pr_f, a],
+      return ⟨(), rhs, some pr⟩
+  | some pr_f, some pr_a := do
+      pr ← mk_app `congr [f, new_f, a, new_a, pr_f, pr_a],
+      return ⟨(), rhs, some pr⟩
+  end
+
+@[convsub] meta def congr (c : conv unit) : conv unit :=
+congr_core c c
+
+meta def subc_core : list name → conv unit → conv unit
+| []      c r e := return ⟨(), e, none⟩
+| (n::ns) c r e := do
+  F ← eval_expr (conv unit → conv unit) (expr.const n []),
+  (F c r e <|> subc_core ns c r e)
+
+/- Try all conversionals F tagged with attribute @[convsub] -/
+meta def subc (c : conv unit) : conv unit :=
+λ r e, do
+  is ← attribute.get_instances `convsub,
+  subc_core is c r e
+
+meta def depthfirst : conv unit → conv unit
+| c r e :=
+  (subc (depthfirst c) >> repeat c) r e
 
 meta def conversion (c : conv unit) : tactic unit :=
 do (r, lhs, rhs) ← (target_lhs_rhs <|> fail "conversion failed, target is not of the form 'lhs R rhs'"),

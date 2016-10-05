@@ -34,3 +34,18 @@ by conversion $
     apply_simp_set `bla,
     dsimp,
     apply_simp_set `foo
+
+constant h : nat → nat → nat
+
+meta def conv.depth : conv unit → conv unit
+| c r e :=
+  (subc (conv.depth c) >> repeat c) r e
+
+lemma ex (a : nat) : (λ a, h (f a (sizeof a)) (g a)) = (λ a, h 0 a) :=
+by conversion $
+   depthfirst $
+     (apply_simp_set `foo <|> apply_simp_set `bla <|> dsimp)
+
+lemma ex2 {A : Type} [comm_group A] (a b : A) : b * 1 * a = a * b :=
+by conversion $
+   depthfirst (apply_simp_set `default)

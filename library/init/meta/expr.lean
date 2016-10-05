@@ -166,6 +166,10 @@ meta definition is_pi : expr → bool
 | (pi n bi d b) := tt
 | e             := ff
 
+meta definition is_arrow : expr → bool
+| (pi n bi d b) := bnot (has_var b)
+| e             := ff
+
 meta definition is_let : expr → bool
 | (elet n t v b) := tt
 | e              := ff

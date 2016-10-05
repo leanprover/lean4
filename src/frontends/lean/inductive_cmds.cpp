@@ -38,9 +38,9 @@ Authors: Daniel Selsam, Leonardo de Moura
 #include "frontends/lean/inductive_cmds.h"
 
 namespace lean {
-static name * g_tmp_prefix  = nullptr;
+static name * g_tmp_global_univ_name = nullptr;
 
-static name tmp_global_univ_name() { return name(*g_tmp_prefix, "u"); }
+static name tmp_global_univ_name() { return *g_tmp_global_univ_name; }
 
 static void convert_params_to_kernel(elaborator & elab, buffer<expr> const & lctx_params, buffer<expr> & kernel_params) {
     for (unsigned i = 0; i < lctx_params.size(); ++i) {
@@ -550,10 +550,10 @@ void initialize_inductive_cmds() {
     register_trace_class(name({"inductive", "finalize"}));
     register_trace_class(name({"inductive", "lp_names"}));
 
-    g_tmp_prefix = new name(name::mk_internal_unique_name());
+    g_tmp_global_univ_name = new name(mk_tagged_fresh_name("_inductive_result_level"));
 }
 
 void finalize_inductive_cmds() {
-    delete g_tmp_prefix;
+    delete g_tmp_global_univ_name;
 }
 }

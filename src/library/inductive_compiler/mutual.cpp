@@ -206,6 +206,9 @@ class add_mutual_inductive_decl_fn {
         expr ty = m_tctx.whnf(arg_type);
         buffer<expr> locals;
         while (is_pi(ty)) {
+            if (translate_ind_app(binding_domain(ty))) {
+                throw exception(sstream() << "invalid mutually inductive type, non-positive occurrence in introduction rule: " << arg_type);
+            }
             expr l = mk_local_for(ty);
             locals.push_back(l);
             ty = instantiate(binding_body(ty), l);

@@ -42,7 +42,7 @@ meta class has_to_format (A : Type u) :=
 meta instance : has_to_format format :=
 ⟨id⟩
 
-meta definition to_fmt {A : Type u} [has_to_format A] : A → format :=
+meta def to_fmt {A : Type u} [has_to_format A] : A → format :=
 has_to_format.to_format
 
 meta instance nat_to_format : has_coe nat format :=
@@ -53,7 +53,10 @@ meta instance string_to_format : has_coe string format :=
 
 open format list
 
-meta definition format.when {A : Type u} [has_to_format A] : bool → A → format
+meta def format.indent (f : format) (n : nat) : format :=
+nest n (line ++ f)
+
+meta def format.when {A : Type u} [has_to_format A] : bool → A → format
 | tt a := to_fmt a
 | ff a := nil
 
@@ -75,12 +78,12 @@ meta instance : has_to_format nat :=
 meta instance : has_to_format char :=
 ⟨λ c : char, format.of_string [c]⟩
 
-meta definition list.to_format_aux {A : Type u} [has_to_format A] : bool → list A → format
+meta def list.to_format_aux {A : Type u} [has_to_format A] : bool → list A → format
 | b  []      := to_fmt ""
 | tt (x::xs) := to_fmt x ++ list.to_format_aux ff xs
 | ff (x::xs) := to_fmt "," ++ line ++ to_fmt x ++ list.to_format_aux ff xs
 
-meta definition list.to_format {A : Type u} [has_to_format A] : list A → format
+meta def list.to_format {A : Type u} [has_to_format A] : list A → format
 | []      := to_fmt "[]"
 | (x::xs) := to_fmt "[" ++ group (nest 1 (list.to_format_aux tt (x::xs))) ++ to_fmt "]"
 
@@ -121,17 +124,17 @@ open subtype
 meta instance {A : Type u} {P : A → Prop} [has_to_format A] : has_to_format (subtype P) :=
 ⟨λ s, to_fmt (elt_of s)⟩
 
-meta definition format.bracket : string → string → format → format
+meta def format.bracket : string → string → format → format
 | o c f := to_fmt o ++ nest (utf8_length o) f ++ to_fmt c
 
-meta definition format.paren (f : format) : format :=
+meta def format.paren (f : format) : format :=
 format.bracket "(" ")" f
 
-meta definition format.cbrace (f : format) : format :=
+meta def format.cbrace (f : format) : format :=
 format.bracket "{" "}" f
 
-meta definition format.sbracket (f : format) : format :=
+meta def format.sbracket (f : format) : format :=
 format.bracket "[" "]" f
 
-meta definition format.dcbrace (f : format) : format :=
+meta def format.dcbrace (f : format) : format :=
 to_fmt "⦃" ++ nest 1 f ++ to_fmt "⦄"

@@ -150,7 +150,7 @@ vm_obj environment_fold(vm_obj const &, vm_obj const & env, vm_obj const & a, vm
 
 vm_obj environment_relation_info(vm_obj const & env, vm_obj const & n) {
     if (relation_info const * info = get_relation_info(to_env(env), to_name(n))) {
-        vm_obj r = mk_vm_pair(mk_vm_pair(mk_vm_nat(info->get_arity()), mk_vm_nat(info->get_lhs_pos())), mk_vm_nat(info->get_rhs_pos()));
+        vm_obj r = mk_vm_pair(mk_vm_nat(info->get_arity()), mk_vm_pair(mk_vm_nat(info->get_lhs_pos()), mk_vm_nat(info->get_rhs_pos())));
         return mk_vm_some(r);
     } else {
         return mk_vm_none();

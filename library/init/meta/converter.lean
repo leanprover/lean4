@@ -125,6 +125,35 @@ meta def lift_tactic {A : Type} (t : tactic A) : conv A :=
 meta def apply_simp_set (attr_name : name) : conv unit :=
 lift_tactic (get_user_simp_lemmas attr_name) >>= apply_lemmas
 
-/- TODO(Leo): add more primitives and combinators. Example: congruence, funext, etc -/
+meta def funext (c : conv unit) : conv unit :=
+λ r lhs, do
+  guard (r = `eq),
+  (expr.lam n bi d b) ← return lhs | failed,
+  aux_type ← return $ (expr.pi n bi d (expr.const `true [])),
+  (result, _) ← solve_aux aux_type $ do {
+    x ← intro1,
+    c_result ← c r (b^.instantiate_var x),
+    rhs ← return $ expr.lam n bi d (c_result^.rhs^.abstract x),
+    match c_result^.proof : _ → tactic (conv_result unit) with
+    | some pr := do
+      aux_pr ← return $ expr.lam n bi d (pr^.abstract x),
+      new_pr ← mk_app `funext [lhs, rhs, aux_pr],
+      return ⟨(), rhs, some new_pr⟩
+    | none    := return ⟨(), rhs, none⟩
+    end },
+  return result
+
+meta def conversion (c : conv unit) : tactic unit :=
+do (r, lhs, rhs) ← (target_lhs_rhs <|> fail "conversion failed, target is not of the form 'lhs R rhs'"),
+   (new_lhs, pr) ← to_tactic c r lhs,
+   (unify new_lhs rhs <|>
+     do new_lhs_fmt ← pp new_lhs,
+        rhs_fmt     ← pp rhs,
+        fail (to_fmt "conversion failed, expected" ++ format.line ++
+                     rhs_fmt^.indent 4 ++ format.line ++ "provided" ++
+                     new_lhs_fmt^.indent 4)),
+   exact pr
+
+/- TODO(Leo): add more primitives and combinators. Example: congruence, etc -/
 
 end conv

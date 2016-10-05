@@ -193,6 +193,9 @@ meta def trace_state : tactic unit :=
 do s ← read,
    trace $ to_fmt s
 
+meta def get_options : tactic options :=
+do s ← read, return s^.get_options
+
 inductive transparency
 | all | semireducible | reducible | none
 

@@ -1,4 +1,5 @@
 open tactic conv
+open tactic
 
 run_command mk_simp_attr `foo
 run_command mk_simp_attr `bla
@@ -25,8 +26,25 @@ meta def ex : conv unit :=
 >> trace_lhs
 
 example (a b c : nat) : (λ x, g (f (a + 0) (sizeof x))) a = 0 :=
-by do
+by conversion $
+  whnf
+
+
+
+
+
+
+
+set_option trace.app_builder true
+
+example (a b c : nat) : (λ x, g (f x (sizeof x))) = (λ x, 0) :=
+by
+let c : conv unit :=
+  trace_lhs >>
+  conv.funext (trace_lhs >> apply_simp_set `bla >> dsimp >> apply_simp_set `foo >> trace_lhs)
+in do
   t ← target,
   (lhs, rhs) ← match_eq t,
-  ⟨u, e, some pr⟩ ← ex `eq lhs | failed,
+  ⟨u, e, some pr⟩ ← c `eq lhs | failed,
+  trace pr,
   exact pr

@@ -61,6 +61,10 @@ meta constant expr.replace : expr → (expr → nat → option expr) → expr
 meta constant expr.abstract_local  : expr → name → expr
 meta constant expr.abstract_locals : expr → list name → expr
 
+meta def expr.abstract : expr → expr → expr
+| e (expr.local_const n m bi t) := e^.abstract_local n
+| e _                           := e
+
 meta constant expr.instantiate_var  : expr → expr → expr
 meta constant expr.instantiate_vars : expr → list expr → expr
 

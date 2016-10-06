@@ -116,7 +116,7 @@ vm_obj declaration_instantiate_value_univ_params(vm_obj const & _d, vm_obj const
     if (!d.is_definition() || d.get_num_univ_params() != length(ls))
         return mk_vm_none();
     else
-        return mk_vm_some(to_obj(instantiate_type_univ_params(d, ls)));
+        return mk_vm_some(to_obj(instantiate_value_univ_params(d, ls)));
 }
 
 void initialize_vm_declaration() {

@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "library/locals.h"
 #include "library/type_context.h"
-#include "library/cache_helper.h"
 
 namespace lean {
 struct defeq_canonize_cache {
@@ -20,30 +19,41 @@ struct defeq_canonize_cache {
        for each e in es, head_symbol(e) = N. */
     name_map<list<expr>>  m_M;
     defeq_canonize_cache(environment const & env):m_env(env) {}
-    environment const & env() const { return m_env; }
 };
 
-/* The defeq_canonize_cache does not depend on the transparency mode */
-typedef transparencyless_cache_compatibility_helper<defeq_canonize_cache>
-defeq_canonize_cache_helper;
+typedef std::shared_ptr<defeq_canonize_cache> defeq_canonize_cache_ptr;
 
-MK_THREAD_LOCAL_GET_DEF(defeq_canonize_cache_helper, get_dcch);
+MK_THREAD_LOCAL_GET_DEF(defeq_canonize_cache_ptr, get_cache_ptr);
 
-defeq_canonize_cache & get_defeq_canonize_cache_for(type_context const & ctx) {
-    return get_dcch().get_cache_for(ctx);
+static defeq_canonize_cache_ptr get_cache(environment const & env) {
+    auto & cache_ptr = get_cache_ptr();
+    if (!cache_ptr || !env.is_descendant(cache_ptr->m_env))
+        return std::make_shared<defeq_canonize_cache>(env);
+    defeq_canonize_cache_ptr r = cache_ptr;
+    r->m_env = env;
+    cache_ptr.reset();
+    return r;
+}
+
+static void recycle_cache(defeq_canonize_cache_ptr const & cache) {
+    get_cache_ptr() = cache;
 }
 
 struct defeq_canonize_fn {
     type_context &                   m_ctx;
-    defeq_canonize_cache &           m_cache;
+    defeq_canonize_cache_ptr         m_cache;
     type_context::transparency_scope m_scope;
     bool &                           m_updated;
 
     defeq_canonize_fn(type_context & ctx, bool & updated):
         m_ctx(ctx),
-        m_cache(get_defeq_canonize_cache_for(ctx)),
+        m_cache(get_cache(ctx.env())),
         m_scope(m_ctx, transparency_mode::All),
         m_updated(updated) {}
+
+    ~defeq_canonize_fn() {
+        recycle_cache(m_cache);
+    }
 
     optional<name> get_head_symbol(expr type) {
         type    = m_ctx.whnf(type);
@@ -60,7 +70,7 @@ struct defeq_canonize_fn {
     }
 
     optional<expr> find_defeq(name const & h, expr const & e) {
-        list<expr> const * lst = m_cache.m_M.find(h);
+        list<expr> const * lst = m_cache->m_M.find(h);
         if (!lst) return none_expr();
         for (expr const & e1 : *lst) {
             if (locals_subset(e1, e) && m_ctx.is_def_eq(e1, e))
@@ -70,33 +80,33 @@ struct defeq_canonize_fn {
     }
 
     void replace_C(expr const & e1, expr const & e2) {
-        m_cache.m_C.erase(e1);
-        m_cache.m_C.insert(mk_pair(e1, e2));
+        m_cache->m_C.erase(e1);
+        m_cache->m_C.insert(mk_pair(e1, e2));
         m_updated = true;
     }
 
     void insert_C(expr const & e1, expr const & e2) {
-        m_cache.m_C.insert(mk_pair(e1, e2));
+        m_cache->m_C.insert(mk_pair(e1, e2));
     }
 
     void insert_M(name const & h, expr const & e) {
-        list<expr> const * lst = m_cache.m_M.find(h);
+        list<expr> const * lst = m_cache->m_M.find(h);
         if (lst) {
-            m_cache.m_M.insert(h, cons(e, *lst));
+            m_cache->m_M.insert(h, cons(e, *lst));
         } else {
-            m_cache.m_M.insert(h, to_list(e));
+            m_cache->m_M.insert(h, to_list(e));
         }
     }
 
     void replace_M(name const & h, expr const & e, expr const & new_e) {
-        list<expr> const * lst = m_cache.m_M.find(h);
+        list<expr> const * lst = m_cache->m_M.find(h);
         lean_assert(lst);
-        m_cache.m_M.insert(h, cons(new_e, remove(*lst, e)));
+        m_cache->m_M.insert(h, cons(new_e, remove(*lst, e)));
     }
 
     expr canonize(expr const & e) {
-        auto it = m_cache.m_C.find(e);
-        if (it != m_cache.m_C.end()) {
+        auto it = m_cache->m_C.find(e);
+        if (it != m_cache->m_C.end()) {
             expr e1 = it->second;
             if (e1 == e)
                 return e;

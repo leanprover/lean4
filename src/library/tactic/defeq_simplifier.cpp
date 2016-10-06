@@ -301,15 +301,15 @@ vm_obj tactic_defeq_simp(vm_obj const & m, vm_obj const & e, vm_obj const & s0) 
     type_context ctx = mk_type_context_for(s0, m);
     tactic_state const & s    = to_tactic_state(s0);
     LEAN_TACTIC_TRY;
-    rfl_lemmas_ptr lemmas = get_rfl_lemmas(s.env());
-    expr new_e                   = defeq_simplify(ctx, *lemmas, to_expr(e));
+    rfl_lemmas lemmas = get_rfl_lemmas(s.env());
+    expr new_e        = defeq_simplify(ctx, lemmas, to_expr(e));
     return mk_tactic_success(to_obj(new_e), s);
     LEAN_TACTIC_CATCH(s);
 }
 
 expr defeq_simplify(type_context & ctx, expr const & e) {
-    rfl_lemmas_ptr lemmas  = get_rfl_lemmas(ctx.env());
-    return defeq_simplify(ctx, *lemmas, e);
+    rfl_lemmas lemmas  = get_rfl_lemmas(ctx.env());
+    return defeq_simplify(ctx, lemmas, e);
 }
 
 /* Setup and teardown */

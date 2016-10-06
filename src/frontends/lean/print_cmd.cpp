@@ -467,7 +467,7 @@ static void print_unification_hints(parser & p) {
 static void print_rfl_lemmas(parser & p) {
     type_checker tc(p.env());
     auto out = regular(p.env(), p.ios(), tc);
-    out << pp_rfl_lemmas(*get_rfl_lemmas(p.env()), out.get_formatter());
+    out << pp_rfl_lemmas(get_rfl_lemmas(p.env()), out.get_formatter());
 }
 
 static void print_simp_rules(parser & p) {

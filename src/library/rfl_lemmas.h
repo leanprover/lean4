@@ -53,9 +53,8 @@ typedef unsigned rfl_lemmas_token;
    It returns an internal "token" for retrieving the lemmas */
 rfl_lemmas_token register_defeq_simp_attribute(name const & attr_name);
 
-typedef std::shared_ptr<rfl_lemmas> rfl_lemmas_ptr;
-rfl_lemmas_ptr get_rfl_lemmas(environment const & env);
-rfl_lemmas_ptr get_rfl_lemmas(environment const & env, rfl_lemmas_token token);
+rfl_lemmas get_rfl_lemmas(environment const & env);
+rfl_lemmas get_rfl_lemmas(environment const & env, rfl_lemmas_token token);
 
 format pp_rfl_lemmas(rfl_lemmas const & lemmas, formatter const & fmt);
 

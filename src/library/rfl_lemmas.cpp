@@ -54,7 +54,7 @@ static void on_add_rfl_lemma(environment const & env, name const & decl_name, bo
 }
 
 static void add_lemma_core(tmp_type_context & ctx, name const & decl_name, unsigned priority,
-                           rfl_lemmas_ptr & result) {
+                           rfl_lemmas & result) {
     environment const & env = ctx.env();
     declaration const & d   = env.get(decl_name);
     lean_assert(d.is_definition());
@@ -76,15 +76,15 @@ static void add_lemma_core(tmp_type_context & ctx, name const & decl_name, unsig
     expr lhs, rhs;
     lean_verify(is_eq(type, lhs, rhs));
     rfl_lemma lemma(decl_name, to_list(umetas), to_list(emetas), to_list(instances), lhs, rhs, priority);
-    result->insert(lhs, lemma);
+    result.insert(lhs, lemma);
 }
 
-static rfl_lemmas_ptr get_rfl_lemmas_from_attribute(type_context & ctx, name const & attr_name) {
+static rfl_lemmas get_rfl_lemmas_from_attribute(type_context & ctx, name const & attr_name) {
     environment const & env = ctx.env();
     auto const & attr       = get_attribute(env, attr_name);
     buffer<name> lemmas;
     attr.get_instances(env, lemmas);
-    rfl_lemmas_ptr result = std::make_shared<rfl_lemmas>();
+    rfl_lemmas result;
     unsigned i = lemmas.size();
     while (i > 0) {
         i--;
@@ -96,7 +96,7 @@ static rfl_lemmas_ptr get_rfl_lemmas_from_attribute(type_context & ctx, name con
     return result;
 }
 
-static rfl_lemmas_ptr get_rfl_lemmas_from_attribute(environment const & env, name const & attr_name) {
+static rfl_lemmas get_rfl_lemmas_from_attribute(environment const & env, name const & attr_name) {
     type_context ctx(env);
     return get_rfl_lemmas_from_attribute(ctx, attr_name);
 }
@@ -114,10 +114,10 @@ rfl_lemmas_token register_defeq_simp_attribute(name const & attr_name) {
 
 class rfl_lemmas_cache {
     struct entry {
-        environment    m_env;
-        name           m_attr_name;
-        unsigned       m_attr_fingerprint;
-        rfl_lemmas_ptr m_lemmas;
+        environment          m_env;
+        name                 m_attr_name;
+        unsigned             m_attr_fingerprint;
+        optional<rfl_lemmas> m_lemmas;
         entry(environment const & env, name const & attr_name):
             m_env(env), m_attr_name(attr_name), m_attr_fingerprint(0) {}
     };
@@ -129,20 +129,20 @@ public:
         }
     }
 
-    rfl_lemmas_ptr mk_lemmas(environment const & env, entry & C) {
+    rfl_lemmas mk_lemmas(environment const & env, entry & C) {
         lean_trace("rfl_lemmas_cache", tout() << "make reflexivity lemmas [" << C.m_attr_name << "]\n";);
         C.m_env              = env;
         C.m_lemmas           = get_rfl_lemmas_from_attribute(env, C.m_attr_name);
         C.m_attr_fingerprint = get_attribute_fingerprint(env, C.m_attr_name);
-        return C.m_lemmas;
+        return *C.m_lemmas;
     }
 
-    rfl_lemmas_ptr lemmas_of(entry const & C) {
+    rfl_lemmas lemmas_of(entry const & C) {
         lean_trace("rfl_lemmas_cache", tout() << "reusing cached reflexivity lemmas [" << C.m_attr_name << "]\n";);
-        return C.m_lemmas;
+        return *C.m_lemmas;
     }
 
-    rfl_lemmas_ptr get(environment const & env, rfl_lemmas_token token) {
+    rfl_lemmas get(environment const & env, rfl_lemmas_token token) {
         lean_assert(token < g_rfl_lemmas_attributes->size());
         if (token >= m_entries.size()) expand(env, token+1);
         lean_assert(token < m_entries.size());
@@ -163,11 +163,11 @@ public:
 
 MK_THREAD_LOCAL_GET_DEF(rfl_lemmas_cache, get_cache);
 
-rfl_lemmas_ptr get_rfl_lemmas(environment const & env) {
+rfl_lemmas get_rfl_lemmas(environment const & env) {
     return get_cache().get(env, g_default_token);
 }
 
-rfl_lemmas_ptr get_rfl_lemmas(environment const & env, rfl_lemmas_token token) {
+rfl_lemmas get_rfl_lemmas(environment const & env, rfl_lemmas_token token) {
     return get_cache().get(env, token);
 }
 

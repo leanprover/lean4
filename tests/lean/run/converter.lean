@@ -49,3 +49,7 @@ by conversion $
 lemma ex2 {A : Type} [comm_group A] (a b : A) : b * 1 * a = a * b :=
 by conversion $
    depthfirst (apply_simp_set `default)
+
+lemma ex3 (p q r : Prop) : (p ∧ true ∧ p) = p :=
+by conversion $
+   depthfirst (apply_propext_simp_set `default)

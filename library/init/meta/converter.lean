@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 Converter monad for building simplifiers.
 -/
 prelude
-import init.meta.tactic init.meta.simp_tactic init.meta.defeq_simp_tactic
+import init.meta.tactic init.meta.simp_tactic init.meta.defeq_simp_tactic init.meta.congr_lemma
 open tactic
 
 meta structure conv_result (A : Type) :=
@@ -104,6 +104,17 @@ meta def apply_lemmas_core (s : simp_lemmas) (prove : tactic unit) : conv unit :
 meta def apply_lemmas (s : simp_lemmas) : conv unit :=
 apply_lemmas_core s failed
 
+/- Adapter for using iff-lemmas as eq-lemmas -/
+meta def apply_propext_lemmas_core (s : simp_lemmas) (prove : tactic unit) : conv unit :=
+λ r e, do
+  guard (r = `eq),
+  (new_e, pr) ← simp_lemmas_apply s prove `iff e,
+  new_pr ← mk_app `propext [pr],
+  return ⟨(), new_e, some new_pr⟩
+
+meta def apply_propext_lemmas (s : simp_lemmas) : conv unit :=
+apply_propext_lemmas_core s failed
+
 private meta def mk_refl_proof (r : name) (e : expr) : tactic expr :=
 do env ← get_env,
    match (environment.refl_for env r) with
@@ -124,6 +135,9 @@ meta def lift_tactic {A : Type} (t : tactic A) : conv A :=
 
 meta def apply_simp_set (attr_name : name) : conv unit :=
 lift_tactic (get_user_simp_lemmas attr_name) >>= apply_lemmas
+
+meta def apply_propext_simp_set (attr_name : name) : conv unit :=
+lift_tactic (get_user_simp_lemmas attr_name) >>= apply_propext_lemmas
 
 meta def skip : conv unit :=
 return ()

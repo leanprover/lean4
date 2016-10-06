@@ -43,19 +43,28 @@ meta def conv.depth : conv unit → conv unit
 
 lemma ex (a : nat) : (λ a, h (f a (sizeof a)) (g a)) = (λ a, h 0 a) :=
 by conversion $
-   depthfirst $
+   depth_first $
      (apply_simp_set `foo <|> apply_simp_set `bla <|> dsimp)
 
 lemma ex2 {A : Type} [comm_group A] (a b : A) : b * 1 * a = a * b :=
 by conversion $
-   depthfirst (apply_simp_set `default)
+   depth_first (apply_simp_set `default)
 
 lemma ex3 (p q r : Prop) : (p ∧ true ∧ p) = p :=
 by conversion $
-   depthfirst (apply_propext_simp_set `default)
+   depth_first (apply_propext_simp_set `default)
 
-lemma ex4 (a b c : nat) : g (g (g (f (f (g a) (g a)) a))) = g (g (g (f (f a a) a))) :=
-by do
-   trace "---------",
-   conversion $
-   depthfirst (match_expr `(λ x, f (g x) (g x)) >> depthfirst (apply_simp_set `bla))
+print "---------"
+
+lemma ex4 (a b c : nat) : g (g (g (f (f (g (g a)) (g (g a))) a))) = g (g (g (f (f a a) a))) :=
+by conversion $
+   findp `(λ x, f (g x) (g x)) $
+     trace "found pattern" >> trace_lhs >>
+     depth_first (apply_simp_set `bla)
+
+lemma ex5 (a b c : nat) : g (g (g (f (f (g (g a)) (g (g a))) a))) = g (g (g (f (f a a) a))) :=
+by conversion $
+   find $
+     match_expr `(λ x, f (g x) (g x)) >>
+     trace "found pattern" >> trace_lhs >>
+     depth_first (apply_simp_set `bla)

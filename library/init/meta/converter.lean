@@ -91,6 +91,9 @@ meta def dsimp : conv unit :=
 meta def try (c : conv unit) : conv unit :=
 c <|> return ()
 
+meta def tryb (c : conv unit) : conv bool :=
+(c >> return tt) <|> return ff
+
 meta def trace {A : Type} [has_to_tactic_format A] (a : A) : conv unit :=
 λ r e, tactic.trace a >> return ⟨(), e, none⟩
 
@@ -231,9 +234,21 @@ meta def subc (c : conv unit) : conv unit :=
   is ← attribute.get_instances `convsub,
   subc_core is c r e
 
-meta def depthfirst : conv unit → conv unit
-| c r e :=
-  (subc (depthfirst c) >> repeat c) r e
+meta def depth_first : conv unit → conv unit
+| c := (subc (depth_first c) >> repeat c)
+
+meta def find : conv unit → conv unit
+| c := c <|> subc (find c)
+
+meta def find_pattern : pattern → conv unit → conv unit
+| p c := do
+  matched ← tryb $ match_pattern p,
+  if matched then c else (subc (find_pattern p c))
+
+meta def findp : pexpr → conv unit → conv unit :=
+λ p c r e, do
+  pat ← pexpr_to_pattern p,
+  find_pattern pat c r e
 
 meta def conversion (c : conv unit) : tactic unit :=
 do (r, lhs, rhs) ← (target_lhs_rhs <|> fail "conversion failed, target is not of the form 'lhs R rhs'"),

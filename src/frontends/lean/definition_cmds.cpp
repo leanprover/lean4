@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/replace_fn.h"
 #include "library/trace.h"
+#include "library/constants.h"
 #include "library/explicit.h"
 #include "library/typed_expr.h"
 #include "library/private.h"
@@ -445,6 +446,14 @@ static void get_args_for_instantiating_lemma(unsigned arity,
     }
 }
 
+/* Return true iff e is of the form (fun (a_1 : A_1) ... (a_n : A_n), eq.refl ...) */
+static bool is_refl_lemma(expr e) {
+    while (is_lambda(e))
+        e = binding_body(e);
+    expr const & fn = get_app_fn(e);
+    return is_constant(fn, get_eq_refl_name()) || is_constant(fn, get_rfl_name());
+}
+
 /**
    Given a declaration d defined as
      (fun (a_1 : A_1) ... (a_n : A_n), d._main a_1' ... a_n')
@@ -510,7 +519,22 @@ static environment copy_equation_lemmas(environment const & env, name const & d_
             });
         new_eqn_type = locals.mk_pi(new_eqn_type);
         name new_eqn_name    = d_name + eqn_suffix;
-        expr new_eqn_value   = locals.mk_lambda(mk_app(mk_constant(eqn_name, eqn_levels), args));
+        expr new_eqn_value;
+        if (is_refl_lemma(eqn_decl->get_value())) {
+            /* Create a refl-lemma to make sure it can be used by the defeq simplifier. */
+            type_context::tmp_locals extra_locals(ctx);
+            while (is_pi(eqn_type)) {
+                expr local = locals.push_local_from_binding(eqn_type);
+                eqn_type = instantiate(binding_body(eqn_type), local);
+            }
+            expr lhs, rhs;
+            lean_verify(is_eq(eqn_type, lhs, rhs));
+            new_eqn_value = mk_eq_refl(ctx, lhs);
+            new_eqn_value = extra_locals.mk_lambda(new_eqn_value);
+        } else {
+            new_eqn_value = mk_app(mk_constant(eqn_name, eqn_levels), args);
+        }
+        new_eqn_value = locals.mk_lambda(new_eqn_value);
         declaration new_decl = mk_theorem(new_eqn_name, d.get_univ_params(), new_eqn_type, new_eqn_value);
         new_env = module::add(new_env, check(new_env, new_decl));
         // TODO(Leo): tag lemmas

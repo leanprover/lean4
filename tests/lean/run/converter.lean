@@ -53,3 +53,9 @@ by conversion $
 lemma ex3 (p q r : Prop) : (p ∧ true ∧ p) = p :=
 by conversion $
    depthfirst (apply_propext_simp_set `default)
+
+lemma ex4 (a b c : nat) : g (g (g (f (f (g a) (g a)) a))) = g (g (g (f (f a a) a))) :=
+by do
+   trace "---------",
+   conversion $
+   depthfirst (match_expr `(λ x, f (g x) (g x)) >> depthfirst (apply_simp_set `bla))

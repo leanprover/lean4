@@ -6,7 +6,8 @@ Authors: Leonardo de Moura
 Converter monad for building simplifiers.
 -/
 prelude
-import init.meta.tactic init.meta.simp_tactic init.meta.defeq_simp_tactic init.meta.congr_lemma
+import init.meta.tactic init.meta.simp_tactic init.meta.defeq_simp_tactic
+import init.meta.congr_lemma init.meta.match_tactic
 open tactic
 
 meta structure conv_result (A : Type) :=
@@ -155,6 +156,18 @@ meta def repeat : conv unit → conv unit
 meta def first {A : Type} : list (conv A) → conv A
 | []      := conv.fail
 | (c::cs) := c <|> first cs
+
+meta def match_pattern (p : pattern) : conv unit :=
+λ r e, tactic.match_pattern p e >> return ⟨(), e, none⟩
+
+meta def mk_match_expr (p : pexpr) : tactic (conv unit) :=
+do new_p ← pexpr_to_pattern p,
+   return (λ r e, tactic.match_pattern new_p e >> return ⟨(), e, none⟩)
+
+meta def match_expr (p : pexpr) : conv unit :=
+λ r e, do
+  new_p ← pexpr_to_pattern p,
+  tactic.match_pattern new_p e >> return ⟨(), e, none⟩
 
 meta def attr : user_attribute :=
 { name  := `convsub,

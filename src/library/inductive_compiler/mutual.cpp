@@ -281,15 +281,7 @@ class add_mutual_inductive_decl_fn {
             lean_assert(!has_local(new_ind_type));
             lean_assert(!has_local(new_ind_val));
             m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, mlocal_name(ind), to_list(m_mut_decl.get_lp_names()), new_ind_type, new_ind_val, true)));
-            m_env = set_reducible(m_env, mlocal_name(ind), reducible_status::Irreducible, true);
             m_tctx.set_env(m_env);
-        }
-    }
-
-    void make_ind_types_reducible() {
-        for (unsigned ind_idx = 0; ind_idx < m_mut_decl.get_inds().size(); ++ind_idx) {
-            expr const & ind = m_mut_decl.get_ind(ind_idx);
-            m_env = set_reducible(m_env, mlocal_name(ind), reducible_status::Reducible, true);
         }
     }
 
@@ -765,7 +757,6 @@ public:
         define_sizeofs();
 
         define_recursors();
-        make_ind_types_reducible();
         return m_env;
     }
 };

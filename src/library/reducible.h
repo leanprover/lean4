@@ -25,6 +25,7 @@ environment set_reducible(environment const & env, name const & n, reducible_sta
 reducible_status get_reducible_status(environment const & env, name const & n);
 
 inline bool is_reducible(environment const & env, name const & n) { return get_reducible_status(env, n) == reducible_status::Reducible; }
+inline bool is_semireducible(environment const & env, name const & n) { return get_reducible_status(env, n) == reducible_status::Semireducible; }
 
 /* \brief Execute the given function for each declaration explicitly marked with a reducibility annotation */
 void for_each_reducible(environment const & env, std::function<void(name const &, reducible_status)> const & fn);

@@ -163,7 +163,7 @@ static bool get_simplify_canonize_subsingletons(options const & o) {
 /* Main simplifier class */
 
 class simplifier {
-    type_context              m_tctx;
+    type_context              m_tctx, m_tctx_whnf;
     theory_simplifier         m_theory_simplifier;
 
     name                      m_rel;
@@ -708,8 +708,8 @@ class simplifier {
     expr whnf_eta(expr const & e);
 
 public:
-    simplifier(type_context & tctx, name const & rel, simp_lemmas const & slss, optional<vm_obj> const & prove_fn):
-        m_tctx(tctx), m_theory_simplifier(tctx), m_rel(rel), m_slss(slss), m_prove_fn(prove_fn),
+    simplifier(type_context & tctx, type_context & tctx_whnf, name const & rel, simp_lemmas const & slss, optional<vm_obj> const & prove_fn):
+        m_tctx(tctx), m_tctx_whnf(tctx_whnf), m_theory_simplifier(tctx), m_rel(rel), m_slss(slss), m_prove_fn(prove_fn),
         /* Options */
         m_max_steps(get_simplify_max_steps(tctx.get_options())),
         m_nary_assoc(get_simplify_nary_assoc(tctx.get_options())),
@@ -771,7 +771,7 @@ simp_result simplifier::lift_from_eq(expr const & old_e, simp_result const & r_e
 
 /* Whnf + Eta */
 expr simplifier::whnf_eta(expr const & e) {
-    return try_eta(m_tctx.whnf(e));
+    return try_eta(m_tctx_whnf.whnf(e));
 }
 
 simp_result simplifier::simplify_subterms_lambda(expr const & old_e) {
@@ -1429,12 +1429,19 @@ void finalize_simplifier() {
 }
 
 /* Entry point */
-simp_result simplify(type_context & ctx, name const & rel, simp_lemmas const & simp_lemmas, vm_obj const & prove_fn, expr const & e) {
-    return simplifier(ctx, rel, simp_lemmas, optional<vm_obj>(prove_fn))(e);
+simp_result simplify(type_context & tctx, name const & rel, simp_lemmas const & simp_lemmas, vm_obj const & prove_fn, expr const & e) {
+    return simplifier(tctx, tctx, rel, simp_lemmas, optional<vm_obj>(prove_fn))(e);
 }
 
-simp_result simplify(type_context & ctx, name const & rel, simp_lemmas const & simp_lemmas, expr const & e) {
-    return simplifier(ctx, rel, simp_lemmas, optional<vm_obj>())(e);
+simp_result simplify(type_context & tctx, name const & rel, simp_lemmas const & simp_lemmas, expr const & e) {
+    return simplifier(tctx, tctx, rel, simp_lemmas, optional<vm_obj>())(e);
 }
 
+simp_result simplify(type_context & tctx, type_context & tctx_whnf, name const & rel, simp_lemmas const & simp_lemmas, vm_obj const & prove_fn, expr const & e) {
+    return simplifier(tctx, tctx_whnf, rel, simp_lemmas, optional<vm_obj>(prove_fn))(e);
+}
+
+simp_result simplify(type_context & tctx, type_context & tctx_whnf, name const & rel, simp_lemmas const & simp_lemmas, expr const & e) {
+    return simplifier(tctx, tctx_whnf, rel, simp_lemmas, optional<vm_obj>())(e);
+}
 }

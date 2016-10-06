@@ -85,9 +85,9 @@ class add_nested_inductive_decl_fn {
 
     type_context                  m_tctx;
 
-    expr                          m_nested_occ; // (fn1.{ind-ls} ind_params) without the indices
+    expr                          m_nested_occ;
 
-    expr                          m_replacement; // (fn2.{nested-ls} nested_params)
+    expr                          m_replacement;
     name get_replacement_name() { return const_name(get_app_fn(m_replacement)); }
 
     expr                          m_primitive_pack;
@@ -215,10 +215,9 @@ class add_nested_inductive_decl_fn {
                 if (!m_inner_decl.get_inds().empty() && n == mlocal_name(m_inner_decl.get_inds().back()))
                     return false;
 
-                // TODO(dhs): this is a rough edge, which we will revisit once we rethink our global delta-reduction strategy.
                 auto gind_kind = is_ginductive(m_env, n);
-                if (gind_kind && *gind_kind != ginductive_kind::BASIC && !is_reducible(m_env, n)) {
-                    throw exception(sstream() << "simulated (i.e. mutual or nested) inductive type '" << n << "' has been set to not be reducible, "
+                if (gind_kind && *gind_kind != ginductive_kind::BASIC && !is_semireducible(m_env, n)) {
+                    throw exception(sstream() << "simulated (i.e. mutual or nested) inductive type '" << n << "' has been set to not be semireducible, "
                                     << "and as a result it currently cannot be used inside a nested occurrence of another inductive type");
                 }
                 return true;
@@ -625,8 +624,6 @@ class add_nested_inductive_decl_fn {
                        tout() << mlocal_name(ind) << " : " << new_ind_type << " :=\n  " << new_ind_val << "\n";);
 
             define(mlocal_name(ind), new_ind_type, new_ind_val);
-            m_env = set_reducible(m_env, mlocal_name(ind), reducible_status::Reducible, true);
-            m_tctx.set_env(m_env);
         }
     }
 
@@ -745,6 +742,11 @@ class add_nested_inductive_decl_fn {
 
         define(mk_pi_name(fn_type::PACK), Pi(m_nested_decl.get_params(), Pi(ldeps, mk_arrow(arg_ty, pack_type(arg_ty)))), Fun(m_nested_decl.get_params(), Fun(ldeps, pre_pi_pack)));
         define(mk_pi_name(fn_type::UNPACK), Pi(m_nested_decl.get_params(), Pi(ldeps, mk_arrow(pack_type(arg_ty), arg_ty))), Fun(m_nested_decl.get_params(), Fun(ldeps, pre_pi_unpack)));
+
+        m_env = set_reducible(m_env, mk_pi_name(fn_type::PACK), reducible_status::Irreducible, true);
+        m_env = set_reducible(m_env, mk_pi_name(fn_type::UNPACK), reducible_status::Irreducible, true);
+
+        m_tctx.set_env(m_env);
 
         expr pi_pack = mk_app(m_nested_decl.mk_const_params(mk_pi_name(fn_type::PACK)), ldeps);
         expr pi_unpack = mk_app(m_nested_decl.mk_const_params(mk_pi_name(fn_type::UNPACK)), ldeps);
@@ -963,6 +965,10 @@ class add_nested_inductive_decl_fn {
         define(mk_nested_name(fn_type::PACK, nest_idx), nested_pack_ty, nested_pack_val);
         define(mk_nested_name(fn_type::UNPACK, nest_idx), nested_unpack_ty, nested_unpack_val);
 
+        m_env = set_reducible(m_env, mk_nested_name(fn_type::PACK, nest_idx), reducible_status::Irreducible, true);
+        m_env = set_reducible(m_env, mk_nested_name(fn_type::UNPACK, nest_idx), reducible_status::Irreducible, true);
+        m_tctx.set_env(m_env);
+
         for (auto const & slemma : spec_lemmas) {
             name n  = mk_spec_name(mk_nested_name(slemma.m_fn_type, nest_idx), slemma.m_ir_name);
             expr ty = Pi(m_nested_decl.get_params(), Pi(slemma.m_to_abstract, mk_eq(m_tctx, slemma.m_lhs, slemma.m_rhs)));
@@ -1140,6 +1146,10 @@ class add_nested_inductive_decl_fn {
         define(mk_primitive_name(fn_type::PACK), primitive_pack_ty, primitive_pack_val);
         define(mk_primitive_name(fn_type::UNPACK), primitive_unpack_ty, primitive_unpack_val);
 
+        m_env = set_reducible(m_env, mk_primitive_name(fn_type::PACK), reducible_status::Irreducible, true);
+        m_env = set_reducible(m_env, mk_primitive_name(fn_type::UNPACK), reducible_status::Irreducible, true);
+        m_tctx.set_env(m_env);
+
         for (auto const & slemma : spec_lemmas) {
             name n  = mk_spec_name(mk_primitive_name(slemma.m_fn_type), slemma.m_ir_name);
             expr ty = Pi(m_nested_decl.get_params(), Pi(slemma.m_to_abstract, mk_eq(m_tctx, slemma.m_lhs, slemma.m_rhs)));
@@ -1255,14 +1265,17 @@ class add_nested_inductive_decl_fn {
     }
 
     expr prove_by_simp(local_context const & lctx, expr const & thm, list<expr> Hs, bool use_sizeof) {
-        type_context tctx(m_env, get_simp_options(m_tctx.get_options()), lctx);
+        type_context tctx(m_env, get_simp_options(m_tctx.get_options()), lctx, transparency_mode::Semireducible);
+        type_context tctx_whnf(m_env, get_simp_options(m_tctx.get_options()), lctx, transparency_mode::None);
+
         simp_lemmas all_lemmas = use_sizeof ? join(m_sizeof_lemmas, m_lemmas) : m_lemmas;
         for (expr const & H : Hs) {
-            expr H_type = tctx.infer(H);
-            all_lemmas = add(tctx, all_lemmas, mlocal_name(H), H_type, H, LEAN_DEFAULT_PRIORITY);
+            expr H_type = tctx_whnf.infer(H);
+            all_lemmas = add(tctx_whnf, all_lemmas, mlocal_name(H), H_type, H, LEAN_DEFAULT_PRIORITY);
         }
+
         lean_trace(name({"inductive_compiler", "nested", "simp", "start"}), tout() << thm << "\n";);
-        simp_result r = simplify(tctx, get_eq_name(), all_lemmas, thm);
+        simp_result r = simplify(tctx, tctx_whnf, get_eq_name(), all_lemmas, thm);
         if (r.get_new() != mk_true()) {
             formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
             lean_trace(name({"inductive_compiler", "nested", "simp", "failure"}),
@@ -1332,7 +1345,7 @@ class add_nested_inductive_decl_fn {
 
     void prove_primitive_pack_sizeof(buffer<expr> const & index_locals) {
         name n = mk_primitive_name(fn_type::SIZEOF_PACK);
-        type_context tctx_synth(m_env, m_tctx.get_options(), m_synth_lctx);
+        type_context tctx_synth(m_env, m_tctx.get_options(), m_synth_lctx, transparency_mode::Semireducible);
 
         expr x_unpacked = mk_local_pp("x_unpacked", mk_app(m_nested_occ, index_locals));
         expr lhs = mk_app(tctx_synth, get_sizeof_name(), mk_app(mk_app(m_primitive_pack, index_locals), x_unpacked));
@@ -1392,7 +1405,7 @@ class add_nested_inductive_decl_fn {
         lean_assert(is_constant(fn) && const_name(fn) == get_eq_name());
         buffer<expr> pi_args;
 
-        type_context tctx(m_env, m_tctx.get_options());
+        type_context tctx(m_env, m_tctx.get_options(), transparency_mode::Semireducible);
 
         expr ty = safe_whnf(tctx, args[0]);
         while (is_pi(ty)) {
@@ -1442,7 +1455,7 @@ class add_nested_inductive_decl_fn {
 
     void prove_pi_sizeof_pack(expr const & pi_pack, buffer<expr> const & ldeps, expr const & nested_pack_fn, expr const & arg_ty) {
         name n = mk_pi_name(fn_type::SIZEOF_PACK);
-        type_context tctx_synth(m_env, m_tctx.get_options(), m_synth_lctx);
+        type_context tctx_synth(m_env, m_tctx.get_options(), m_synth_lctx, transparency_mode::Semireducible);
 
         expr x_unpacked = mk_local_pp("x_unpacked", arg_ty);
         expr lhs = mk_app(tctx_synth, get_sizeof_name(), mk_app(pi_pack, x_unpacked));
@@ -1675,7 +1688,7 @@ public:
         m_env(env), m_opts(opts), m_implicit_infer_map(implicit_infer_map),
         m_nested_decl(nested_decl), m_is_trusted(is_trusted),
         m_inner_decl(m_nested_decl.get_nest_depth() + 1, m_nested_decl.get_lp_names(), m_nested_decl.get_params()),
-        m_tctx(env, opts) { }
+        m_tctx(env, opts, transparency_mode::Semireducible) { }
 
     optional<environment> operator()() {
         if (!find_nested_occ())

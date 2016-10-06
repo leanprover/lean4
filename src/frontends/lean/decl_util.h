@@ -94,6 +94,7 @@ class declaration_info_scope {
 public:
     declaration_info_scope(parser const & p, def_cmd_kind kind, decl_modifiers const & modifiers);
     ~declaration_info_scope();
+    bool gen_aux_lemmas() const;
 };
 
 /** \brief Similar to declaration_info_scope, but it is used to update

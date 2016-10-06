@@ -354,6 +354,10 @@ declaration_info_scope::~declaration_info_scope() {
     info.m_prefix = name();
 }
 
+bool declaration_info_scope::gen_aux_lemmas() const {
+    return get_definition_info().m_aux_lemmas;
+}
+
 equations_header mk_equations_header(list<name> const & ns) {
     equations_header h;
     h.m_num_fns          = length(ns);

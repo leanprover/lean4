@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "util/timeit.h"
 #include "kernel/type_checker.h"
 #include "kernel/declaration.h"
+#include "kernel/instantiate.h"
 #include "kernel/replace_fn.h"
 #include "library/trace.h"
 #include "library/explicit.h"
@@ -375,6 +376,149 @@ static expr fix_rec_fn_macro_args(elaborator & elab, name const & fn, buffer<exp
     return fix_rec_fn_macro_args_fn(params, fns)(val);
 }
 
+static void throw_unexpected_error_at_copy_lemmas() {
+    throw exception("unexpected error, failed to generate equational lemmas in the front-end");
+}
+
+/* Given e of the form Pi (a_1 : A_1) ... (a_n : A_n), lhs = rhs,
+   return the pair (lhs, n) */
+static pair<expr, unsigned> get_lemma_lhs(expr e) {
+    unsigned nparams = 0;
+    while (is_pi(e)) {
+        nparams++;
+        e = binding_body(e);
+    }
+    expr lhs, rhs;
+    if (!is_eq(e, lhs, rhs))
+        throw_unexpected_error_at_copy_lemmas();
+    return mk_pair(lhs, nparams);
+}
+
+/*
+   Given a lemma with parameters lp_names:
+      [lp_1 ... lp_n]
+   and the levels in the function application on the lemma left-hand-side lhs_fn_levels:
+      [u_1 ... u_n] s.t. there is a permutation p s.t. p([u_1 ... u_n] = [(mk_univ_param lp_1) ... (mk_univ_param lp_n)],
+   and levels fn_levels
+      [v_1 ... v_n]
+   Then, store
+      p([v_1 ... v_n])
+   in result.
+*/
+static void get_levels_for_instantiating_lemma(level_param_names const & lp_names,
+                                               levels const & lhs_fn_levels,
+                                               levels const & fn_levels,
+                                               buffer<level> & result) {
+    buffer<level> fn_levels_buffer;
+    buffer<level> lhs_fn_levels_buffer;
+    to_buffer(fn_levels, fn_levels_buffer);
+    to_buffer(lhs_fn_levels, lhs_fn_levels_buffer);
+    lean_assert(fn_levels_buffer.size() == lhs_fn_levels_buffer.size());
+    for (name const & lp_name : lp_names) {
+        unsigned j = 0;
+        for (; j < lhs_fn_levels_buffer.size(); j++) {
+            if (!is_param(lhs_fn_levels_buffer[j])) throw_unexpected_error_at_copy_lemmas();
+            if (param_id(lhs_fn_levels_buffer[j]) == lp_name) {
+                result.push_back(fn_levels_buffer[j]);
+                break;
+            }
+        }
+        lean_assert(j < lhs_fn_levels_buffer.size());
+    }
+}
+
+/**
+   Given a lemma with the given arity (i.e., number of nested Pi-terms),
+   n = args.size() <= lhs_args.size(), and the first n
+   arguments in lhs_args.size() are a permutation p of
+     (var #0) ... (var #n-1)
+   Then, store in result p(args)
+*/
+static void get_args_for_instantiating_lemma(unsigned arity,
+                                             buffer<expr> const & lhs_args,
+                                             buffer<expr> const & args,
+                                             buffer<expr> & result) {
+    for (unsigned i = 0; i < args.size(); i++) {
+        if (!is_var(lhs_args[i]) || var_idx(lhs_args[i]) >= arity)
+            throw_unexpected_error_at_copy_lemmas();
+        result.push_back(args[arity - var_idx(lhs_args[i]) - 1]);
+    }
+}
+
+/**
+   Given a declaration d defined as
+     (fun (a_1 : A_1) ... (a_n : A_n), d._main a_1' ... a_n')
+   where a_1' ... a_n' is a permutation of a_1 ... a_n.
+   Then, copy the equation lemmas from d._main to d.
+*/
+static environment copy_equation_lemmas(environment const & env, name const & d_name) {
+    declaration const & d = env.get(d_name);
+    levels lps = param_names_to_levels(d.get_univ_params());
+    expr val   = instantiate_value_univ_params(d, lps);
+    type_context ctx(env, transparency_mode::All);
+    type_context::tmp_locals locals(ctx);
+    while (is_lambda(val)) {
+        expr local = locals.push_local_from_binding(val);
+        val = instantiate(binding_body(val), local);
+    }
+    buffer<expr> args;
+    expr const & fn = get_app_args(val, args);
+    if (!is_constant(fn) ||
+        !std::all_of(args.begin(), args.end(), is_local) ||
+        length(const_levels(fn)) != length(lps)) {
+        throw_unexpected_error_at_copy_lemmas();
+    }
+    /* We want to create new equations where we replace val with new_val in the equations
+       associated with fn. */
+    expr new_val = mk_app(mk_constant(d_name, lps), locals.as_buffer());
+    /* Copy equations */
+    environment new_env = env;
+    unsigned i = 1;
+    while (true) {
+        name eqn_suffix = name({"equations", "eqn"}).append_after(i);
+        name eqn_name = const_name(fn) + eqn_suffix;
+        optional<declaration> eqn_decl = env.find(eqn_name);
+        if (!eqn_decl) break;
+        unsigned num_eqn_levels = eqn_decl->get_num_univ_params();
+        if (num_eqn_levels != length(lps))
+            throw_unexpected_error_at_copy_lemmas();
+        expr lhs; unsigned num_eqn_params;
+        std::tie(lhs, num_eqn_params) = get_lemma_lhs(eqn_decl->get_type());
+        buffer<expr> lhs_args;
+        expr const & lhs_fn = get_app_args(lhs, lhs_args);
+        if (!is_constant(lhs_fn) || const_name(lhs_fn) != const_name(fn) || lhs_args.size() < args.size())
+            throw_unexpected_error_at_copy_lemmas();
+        /* Get levels for instantiating the lemma */
+        buffer<level> eqn_level_buffer;
+        get_levels_for_instantiating_lemma(eqn_decl->get_univ_params(),
+                                           const_levels(lhs_fn),
+                                           const_levels(fn),
+                                           eqn_level_buffer);
+        levels eqn_levels = to_list(eqn_level_buffer);
+        /* Get arguments for instantiating the lemma */
+        buffer<expr> eqn_args;
+        get_args_for_instantiating_lemma(num_eqn_params, lhs_args, args, eqn_args);
+        /* Convert type */
+        expr eqn_type = instantiate_type_univ_params(*eqn_decl, eqn_levels);
+        for (unsigned j = 0; j < eqn_args.size(); j++) eqn_type = binding_body(eqn_type);
+        eqn_type = instantiate_rev(eqn_type, eqn_args);
+        expr new_eqn_type = replace(eqn_type, [&](expr const & e, unsigned) {
+                if (e == val)
+                    return some_expr(new_val);
+                else
+                    return none_expr();
+            });
+        new_eqn_type = locals.mk_pi(new_eqn_type);
+        name new_eqn_name    = d_name + eqn_suffix;
+        expr new_eqn_value   = locals.mk_lambda(mk_app(mk_constant(eqn_name, eqn_levels), args));
+        declaration new_decl = mk_theorem(new_eqn_name, d.get_univ_params(), new_eqn_type, new_eqn_value);
+        new_env = module::add(new_env, check(new_env, new_decl));
+        // TODO(Leo): tag lemmas
+        i++;
+    }
+    return new_env;
+}
+
 environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modifiers modifiers, decl_attributes attrs) {
     buffer<name> lp_names;
     buffer<expr> params;
@@ -383,6 +527,7 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
     declaration_info_scope scope(p, kind, modifiers);
     bool is_example  = (kind == def_cmd_kind::Example);
     bool is_instance = modifiers.m_is_instance;
+    bool aux_lemmas  = scope.gen_aux_lemmas();
     if (is_instance)
         attrs.set_attribute(p.env(), "instance");
     std::tie(fn, val) = parse_definition(p, lp_names, params, is_example, is_instance);
@@ -398,8 +543,8 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
         if (modifiers.m_is_meta) {
             val = fix_rec_fn_macro_args(elab, mlocal_name(fn), new_params, type, val);
         }
-        if (is_equations_result(val)) {
-            // TODO(Leo): generate equation lemmas and induction principle
+        bool eqns = is_equations_result(val);
+        if (eqns) {
             lean_assert(is_equations_result(val));
             lean_assert(get_equations_result_size(val) == 1);
             val = get_equations_result(val, 0);
@@ -410,7 +555,11 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
         if (kind == Example) return p.env();
         environment new_env = env_n.first;
         name c_real_name    = env_n.second;
-        return add_local_ref(p, new_env, c_name, c_real_name, lp_names, params);
+        new_env = add_local_ref(p, new_env, c_name, c_real_name, lp_names, params);
+        if (eqns && aux_lemmas) {
+            new_env = copy_equation_lemmas(new_env, c_real_name);
+        }
+        return new_env;
     };
 
     try {

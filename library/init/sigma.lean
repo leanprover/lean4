@@ -6,7 +6,6 @@ Author: Leonardo de Moura, Jeremy Avigad, Floris van Doorn
 prelude
 import init.logic init.num init.wf
 
-definition dpair := @sigma.mk
 notation `Σ` binders `, ` r:(scoped P, sigma P) := r
 
 universe variables u v

@@ -15,17 +15,17 @@ structure param_info :=
 
 open format list decidable
 
-private meta definition ppfield {A : Type} [has_to_format A] (fname : string) (v : A) : format :=
+private meta def ppfield {A : Type} [has_to_format A] (fname : string) (v : A) : format :=
 group $ to_fmt fname ++ space ++ to_fmt ":=" ++ space ++ nest (length fname + 4) (to_fmt v)
 
-private meta definition concat_fields (f₁ f₂ : format) : format :=
+private meta def concat_fields (f₁ f₂ : format) : format :=
 if       is_nil f₁ then f₂
 else if  is_nil f₂ then f₁
 else f₁ ++ to_fmt "," ++ line ++ f₂
 
 local infix `+++`:65 := concat_fields
 
-meta definition param_info.to_format : param_info → format
+meta def param_info.to_format : param_info → format
 | (param_info.mk i ii p d ds) :=
 group ∘ cbrace $
   when i  "implicit" +++
@@ -41,7 +41,7 @@ structure fun_info :=
 (params      : list param_info)
 (result_deps : list nat) -- parameters the result type depends on
 
-meta definition fun_info_to_format : fun_info → format
+meta def fun_info_to_format : fun_info → format
 | (fun_info.mk ps ds) :=
 group ∘ dcbrace $
   ppfield "params" ps +++
@@ -76,7 +76,7 @@ structure subsingleton_info :=
 (specialized     : bool)
 (is_subsingleton : bool)
 
-meta definition subsingleton_info_to_format : subsingleton_info → format
+meta def subsingleton_info_to_format : subsingleton_info → format
 | (subsingleton_info.mk s ss) :=
 group ∘ cbrace $
   when s  "specialized" +++
@@ -112,21 +112,21 @@ meta constant get_subsingleton_info_n_core : transparency → expr → nat → t
 meta constant get_spec_subsingleton_info_core : transparency → expr → tactic (list subsingleton_info)
 meta constant get_spec_prefix_size_core : transparency → expr → nat → tactic nat
 
-meta definition get_fun_info : expr → tactic fun_info :=
+meta def get_fun_info : expr → tactic fun_info :=
 get_fun_info_core semireducible
 
-meta definition get_fun_info_n : expr → nat → tactic fun_info :=
+meta def get_fun_info_n : expr → nat → tactic fun_info :=
 get_fun_info_n_core semireducible
 
-meta definition get_subsingleton_info : expr → tactic (list subsingleton_info) :=
+meta def get_subsingleton_info : expr → tactic (list subsingleton_info) :=
 get_subsingleton_info_core semireducible
 
-meta definition get_subsingleton_info_n : expr → nat → tactic (list subsingleton_info) :=
+meta def get_subsingleton_info_n : expr → nat → tactic (list subsingleton_info) :=
 get_subsingleton_info_n_core semireducible
 
-meta definition get_spec_subsingleton_info : expr → tactic (list subsingleton_info) :=
+meta def get_spec_subsingleton_info : expr → tactic (list subsingleton_info) :=
 get_spec_subsingleton_info_core semireducible
 
-meta definition get_spec_prefix_size : expr → nat → tactic nat :=
+meta def get_spec_prefix_size : expr → nat → tactic nat :=
 get_spec_prefix_size_core semireducible
 end tactic

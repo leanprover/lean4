@@ -20,10 +20,10 @@ meta constant back_lemmas_insert_core : transparency → back_lemmas → expr �
 /- Return the lemmas that have the same head symbol of the given expression -/
 meta constant back_lemmas_find        : back_lemmas → expr → tactic (list expr)
 
-meta definition mk_back_lemmas : tactic back_lemmas :=
+meta def mk_back_lemmas : tactic back_lemmas :=
 mk_back_lemmas_core reducible
 
-meta definition back_lemmas_insert : back_lemmas → expr → tactic back_lemmas :=
+meta def back_lemmas_insert : back_lemmas → expr → tactic back_lemmas :=
 back_lemmas_insert_core reducible
 
 
@@ -43,25 +43,25 @@ back_lemmas_insert_core reducible
    Remark pre_tactic may also be used to trace the execution of backward_chaining_core -/
 meta constant backward_chaining_core : transparency → bool → nat → tactic unit → tactic unit → back_lemmas → tactic unit
 
-meta definition back_lemmas_add_extra : transparency → back_lemmas → list expr → tactic back_lemmas
+meta def back_lemmas_add_extra : transparency → back_lemmas → list expr → tactic back_lemmas
 | m bls []      := return bls
 | m bls (l::ls) := do
   new_bls ← back_lemmas_insert_core m bls l,
   back_lemmas_add_extra m new_bls ls
 
-meta definition back_chaining_core (pre_tactic : tactic unit) (leaf_tactic : tactic unit) (extra_lemmas : list expr) : tactic unit :=
+meta def back_chaining_core (pre_tactic : tactic unit) (leaf_tactic : tactic unit) (extra_lemmas : list expr) : tactic unit :=
 do intro_lemmas ← mk_back_lemmas_core reducible,
    new_lemmas   ← back_lemmas_add_extra reducible intro_lemmas extra_lemmas,
    max ← get_nat_option `back_chaining.max_depth 8,
    backward_chaining_core reducible tt max pre_tactic leaf_tactic new_lemmas
 
-meta definition back_chaining : tactic unit :=
+meta def back_chaining : tactic unit :=
 back_chaining_core skip assumption []
 
-meta definition back_chaining_using : list expr → tactic unit :=
+meta def back_chaining_using : list expr → tactic unit :=
 back_chaining_core skip assumption
 
-meta definition back_chaining_using_hs : tactic unit :=
+meta def back_chaining_using_hs : tactic unit :=
 local_context >>= back_chaining_core skip failed
 
 end tactic

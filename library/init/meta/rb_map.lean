@@ -20,33 +20,33 @@ meta constant max {key : Type} {data : Type}            : rb_map key data → op
 meta constant fold {key : Type} {data : Type} {A :Type} : rb_map key data → A → (key → data → A → A) → A
 
 attribute [inline]
-meta definition mk (key : Type) [has_ordering key] (data : Type) : rb_map key data :=
+meta def mk (key : Type) [has_ordering key] (data : Type) : rb_map key data :=
 mk_core data has_ordering.cmp
 
 open list
-meta definition of_list {key : Type} {data : Type} [has_ordering key] : list (key × data) → rb_map key data
+meta def of_list {key : Type} {data : Type} [has_ordering key] : list (key × data) → rb_map key data
 | []           := mk key data
 | ((k, v)::ls) := insert (of_list ls) k v
 
 end rb_map
 
 attribute [reducible]
-meta definition nat_map (data : Type) := rb_map nat data
+meta def nat_map (data : Type) := rb_map nat data
 namespace nat_map
   export rb_map (hiding mk)
 
   attribute [inline]
-  meta definition mk (data : Type) : nat_map data :=
+  meta def mk (data : Type) : nat_map data :=
   rb_map.mk nat data
 end nat_map
 
 attribute [reducible]
-meta definition name_map (data : Type) := rb_map name data
+meta def name_map (data : Type) := rb_map name data
 namespace name_map
   export rb_map (hiding mk)
 
   attribute [inline]
-  meta definition mk (data : Type) : name_map data :=
+  meta def mk (data : Type) : name_map data :=
   rb_map.mk name data
 end name_map
 
@@ -54,7 +54,7 @@ open rb_map prod
 section
 open format
 variables {key : Type} {data : Type} [has_to_format key] [has_to_format data]
-private meta definition format_key_data (k : key) (d : data) (first : bool) : format :=
+private meta def format_key_data (k : key) (d : data) (first : bool) : format :=
 (if first then to_fmt "" else to_fmt "," ++ line) ++ to_fmt k ++ space ++ to_fmt "←" ++ space ++ to_fmt d
 
 meta instance : has_to_format (rb_map key data) :=
@@ -64,7 +64,7 @@ end
 
 section
 variables {key : Type} {data : Type} [has_to_string key] [has_to_string data]
-private meta definition key_data_to_string (k : key) (d : data) (first : bool) : string :=
+private meta def key_data_to_string (k : key) (d : data) (first : bool) : string :=
 (if first then "" else ", ") ++ to_string k ++ " ← " ++ to_string d
 
 meta instance : has_to_string (rb_map key data) :=
@@ -74,28 +74,28 @@ end
 /- a variant of rb_maps that stores a list of elements for each key.
    "find" returns the list of elements in the opposite order that they were inserted. -/
 
-meta definition rb_lmap (key : Type) (data : Type) : Type := rb_map key (list data)
+meta def rb_lmap (key : Type) (data : Type) : Type := rb_map key (list data)
 
 namespace rb_lmap
 
-protected meta definition mk (key : Type) [has_ordering key] (data : Type) : rb_lmap key data :=
+protected meta def mk (key : Type) [has_ordering key] (data : Type) : rb_lmap key data :=
 rb_map.mk key (list data)
 
-meta definition insert {key : Type} {data : Type} (rbl : rb_lmap key data) (k : key) (d : data) :
+meta def insert {key : Type} {data : Type} (rbl : rb_lmap key data) (k : key) (d : data) :
   rb_lmap key data :=
 match (rb_map.find rbl k) with
 | none     := rb_map.insert rbl k [d]
 | (some l) := rb_map.insert (rb_map.erase rbl k) k (d :: l)
 end
 
-meta definition erase {key : Type} {data : Type} (rbl : rb_lmap key data) (k : key) :
+meta def erase {key : Type} {data : Type} (rbl : rb_lmap key data) (k : key) :
   rb_lmap key data :=
 rb_map.erase rbl k
 
-meta definition contains {key : Type} {data : Type} (rbl : rb_lmap key data) (k : key) : bool :=
+meta def contains {key : Type} {data : Type} (rbl : rb_lmap key data) (k : key) : bool :=
 rb_map.contains rbl k
 
-meta definition find {key : Type} {data : Type} (rbl : rb_lmap key data) (k : key) : list data :=
+meta def find {key : Type} {data : Type} (rbl : rb_lmap key data) (k : key) : list data :=
 match (rb_map.find rbl k) with
 | none     := []
 | (some l) := l

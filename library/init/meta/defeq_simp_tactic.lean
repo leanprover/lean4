@@ -11,13 +11,13 @@ namespace tactic
    The resulting expression is definitionally equal to the input. -/
 meta constant defeq_simp_core : transparency → expr → tactic expr
 
-meta definition defeq_simp : expr → tactic expr :=
+meta def defeq_simp : expr → tactic expr :=
 defeq_simp_core reducible
 
-meta definition dsimp : tactic unit :=
+meta def dsimp : tactic unit :=
 target >>= defeq_simp >>= change
 
-meta definition dsimp_at (H : expr) : tactic unit :=
+meta def dsimp_at (H : expr) : tactic unit :=
 do num_reverted : ℕ ← revert H,
    (expr.pi n bi d b : expr) ← target | failed,
    H_simp : expr ← defeq_simp d,

@@ -18,7 +18,7 @@ open exceptional
 variables {A : Type}
 variables [has_to_string A]
 
-protected meta definition exceptional.to_string : exceptional A → string
+protected meta def exceptional.to_string : exceptional A → string
 | (success a)       := to_string a
 | (exception .A e) := "Exception: " ++ to_string (e options.mk)
 
@@ -29,32 +29,28 @@ end
 namespace exceptional
 variables {A B : Type}
 
-protected meta definition to_bool : exceptional A → bool
+protected meta def to_bool : exceptional A → bool
 | (success _)      := tt
 | (exception .A _) := ff
 
-protected meta definition to_option : exceptional A → option A
+protected meta def to_option : exceptional A → option A
 | (success a)      := some a
 | (exception .A _) := none
 
-attribute [inline]
-protected meta definition fmap (f : A → B) (e : exceptional A) : exceptional B :=
+@[inline] protected meta def fmap (f : A → B) (e : exceptional A) : exceptional B :=
 exceptional.cases_on e
   (λ a, success (f a))
   (λ f, exception B f)
 
-attribute [inline]
-protected meta definition bind (e₁ : exceptional A) (e₂ : A → exceptional B) : exceptional B :=
+@[inline] protected meta def bind (e₁ : exceptional A) (e₂ : A → exceptional B) : exceptional B :=
 exceptional.cases_on e₁
   (λ a, e₂ a)
   (λ f, exception B f)
 
-attribute [inline]
-protected meta definition return (a : A) : exceptional A :=
+@[inline] protected meta def return (a : A) : exceptional A :=
 success a
 
-attribute [inline]
-meta definition fail (f : format) : exceptional A :=
+@[inline] meta def fail (f : format) : exceptional A :=
 exception A (λ u, f)
 end exceptional
 

@@ -11,12 +11,12 @@ namespace tactic
 meta constant rewrite_core : transparency → bool → occurrences → bool → expr → tactic unit
 meta constant rewrite_at_core : transparency → bool → occurrences → bool → expr → expr → tactic unit
 
-meta definition rewrite (th_name : name) : tactic unit :=
+meta def rewrite (th_name : name) : tactic unit :=
 do th ← mk_const th_name,
    rewrite_core reducible tt occurrences.all ff th,
    try reflexivity
 
-meta definition rewrite_at (th_name : name) (H_name : name) : tactic unit :=
+meta def rewrite_at (th_name : name) (H_name : name) : tactic unit :=
 do th ← mk_const th_name,
    H  ← get_local H_name,
    rewrite_at_core reducible tt occurrences.all ff th H

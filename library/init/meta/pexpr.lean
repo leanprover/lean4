@@ -23,7 +23,7 @@ meta instance : has_to_string pexpr :=
 meta class has_to_pexpr (A : Type u) :=
 (to_pexpr : A → pexpr)
 
-meta definition to_pexpr {A : Type u} [has_to_pexpr A] : A → pexpr :=
+meta def to_pexpr {A : Type u} [has_to_pexpr A] : A → pexpr :=
 has_to_pexpr.to_pexpr
 
 meta instance : has_to_pexpr pexpr :=

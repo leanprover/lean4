@@ -13,7 +13,7 @@ universe variables u v
 namespace function
   variables {A : Type u} {B : A → Type v}
 
-  protected definition equiv (f₁ f₂ : Π x : A, B x) : Prop := ∀ x, f₁ x = f₂ x
+  protected def equiv (f₁ f₂ : Π x : A, B x) : Prop := ∀ x, f₁ x = f₂ x
 
   local infix `~` := function.equiv
 
@@ -33,16 +33,16 @@ section
   open quot
   variables {A : Type u} {B : A → Type v}
 
-  attribute [instance]
-  private definition fun_setoid (A : Type u) (B : A → Type v) : setoid (Π x : A, B x) :=
+  @[instance]
+  private def fun_setoid (A : Type u) (B : A → Type v) : setoid (Π x : A, B x) :=
   setoid.mk (@function.equiv A B) (function.equiv.is_equivalence A B)
 
-  private definition extfun (A : Type u) (B : A → Type v) : Type (imax u v) :=
+  private def extfun (A : Type u) (B : A → Type v) : Type (imax u v) :=
   quot (fun_setoid A B)
 
-  private definition fun_to_extfun (f : Π x : A, B x) : extfun A B :=
+  private def fun_to_extfun (f : Π x : A, B x) : extfun A B :=
   ⟦f⟧
-  private definition extfun_app (f : extfun A B) : Π x : A, B x :=
+  private def extfun_app (f : extfun A B) : Π x : A, B x :=
   take x,
   quot.lift_on f
     (λ f : Π x : A, B x, f x)

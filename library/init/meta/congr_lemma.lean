@@ -49,34 +49,34 @@ meta constant mk_rel_iff_congr_core : transparency → expr → tactic congr_lem
    R a1 a2 -> R b1 b2 -> (R a1 b1) = (R a2 b2) -/
 meta constant mk_rel_eq_congr_core : transparency → expr → tactic congr_lemma
 
-meta definition mk_congr_simp : expr → tactic congr_lemma :=
+meta def mk_congr_simp : expr → tactic congr_lemma :=
 mk_congr_simp_core semireducible
 
-meta definition mk_congr_simp_n : expr → nat → tactic congr_lemma :=
+meta def mk_congr_simp_n : expr → nat → tactic congr_lemma :=
 mk_congr_simp_n_core semireducible
 
-meta definition mk_specialized_congr_simp : expr → tactic congr_lemma :=
+meta def mk_specialized_congr_simp : expr → tactic congr_lemma :=
 mk_specialized_congr_simp_core semireducible
 
-meta definition mk_congr : expr → tactic congr_lemma :=
+meta def mk_congr : expr → tactic congr_lemma :=
 mk_congr_core semireducible
 
-meta definition mk_congr_n : expr → nat → tactic congr_lemma :=
+meta def mk_congr_n : expr → nat → tactic congr_lemma :=
 mk_congr_n_core semireducible
 
-meta definition mk_specialized_congr : expr → tactic congr_lemma :=
+meta def mk_specialized_congr : expr → tactic congr_lemma :=
 mk_specialized_congr_core semireducible
 
-meta definition mk_hcongr : expr → tactic congr_lemma :=
+meta def mk_hcongr : expr → tactic congr_lemma :=
 mk_hcongr_core semireducible
 
-meta definition mk_hcongr_n : expr → nat → tactic congr_lemma :=
+meta def mk_hcongr_n : expr → nat → tactic congr_lemma :=
 mk_hcongr_n_core semireducible
 
-meta definition mk_rel_iff_congr : expr → tactic congr_lemma :=
+meta def mk_rel_iff_congr : expr → tactic congr_lemma :=
 mk_rel_iff_congr_core semireducible
 
-meta definition mk_rel_eq_congr : expr → tactic congr_lemma :=
+meta def mk_rel_eq_congr : expr → tactic congr_lemma :=
 mk_rel_eq_congr_core semireducible
 
 end tactic

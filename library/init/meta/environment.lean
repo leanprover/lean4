@@ -59,10 +59,10 @@ meta constant symm_for : environment → name → option name
 meta constant trans_for : environment → name → option name
 open expr
 
-meta definition is_constructor_app (env : environment) (e : expr) : bool :=
+meta def is_constructor_app (env : environment) (e : expr) : bool :=
 is_constant (get_app_fn e) && is_constructor env (const_name (get_app_fn e))
 
-meta definition is_refl_app (env : environment) (e : expr) : option (name × expr × expr) :=
+meta def is_refl_app (env : environment) (e : expr) : option (name × expr × expr) :=
 match (refl_for env (const_name (get_app_fn e))) with
 | (some n) :=
     if get_app_num_args e ≥ 2

@@ -18,15 +18,15 @@ axiom strong_indefinite_description {A : Type u} (p : A → Prop) (H : nonempty 
 theorem exists_true_of_nonempty {A : Type u} (h : nonempty A) : ∃ x : A, true :=
 nonempty.elim h (take x, ⟨x, trivial⟩)
 
-noncomputable definition inhabited_of_nonempty {A : Type u} (h : nonempty A) : inhabited A :=
+noncomputable def inhabited_of_nonempty {A : Type u} (h : nonempty A) : inhabited A :=
 ⟨elt_of (strong_indefinite_description (λ a, true) h)⟩
 
-noncomputable definition inhabited_of_exists {A : Type u} {p : A → Prop} (H : ∃ x, p x) : inhabited A :=
+noncomputable def inhabited_of_exists {A : Type u} {p : A → Prop} (H : ∃ x, p x) : inhabited A :=
 inhabited_of_nonempty (exists.elim H (λ w Hw, ⟨w⟩))
 
 /- the Hilbert epsilon function -/
 
-noncomputable definition epsilon {A : Type u} [h : nonempty A] (p : A → Prop) : A :=
+noncomputable def epsilon {A : Type u} [h : nonempty A] (p : A → Prop) : A :=
 elt_of (strong_indefinite_description p h)
 
 theorem epsilon_spec_aux {A : Type u} (h : nonempty A) (p : A → Prop) (hex : ∃ y, p y) :
@@ -41,7 +41,7 @@ epsilon_spec_aux (nonempty_of_exists hex) p hex
 theorem epsilon_singleton {A : Type u} (a : A) : @epsilon A ⟨a⟩ (λ x, x = a) = a :=
 @epsilon_spec A (λ x, x = a) ⟨a, rfl⟩
 
-noncomputable definition some {A : Type u} {p : A → Prop} (h : ∃ x, p x) : A :=
+noncomputable def some {A : Type u} {p : A → Prop} (h : ∃ x, p x) : A :=
 @epsilon A (nonempty_of_exists h) p
 
 theorem some_spec {A : Type u} {p : A → Prop} (h : ∃ x, p x) : p (some h) :=
@@ -115,7 +115,7 @@ or.elim (em a)
   (λ t, or.inl (propext (iff.intro (λ h, trivial) (λ h, t))))
   (λ f, or.inr (propext (iff.intro (λ h, absurd h f) (λ h, false.elim h))))
 
-definition eq_true_or_eq_false := prop_complete
+def eq_true_or_eq_false := prop_complete
 
 section aux
 attribute [elab_as_eliminator]
@@ -161,21 +161,21 @@ eq.subst (@iff_eq_eq a true) this
 end aux
 
 /- All propositions are decidable -/
-noncomputable definition decidable_inhabited (a : Prop) : inhabited (decidable a) :=
+noncomputable def decidable_inhabited (a : Prop) : inhabited (decidable a) :=
 inhabited_of_nonempty
   (or.elim (em a)
     (assume ha, ⟨is_true ha⟩)
     (assume hna, ⟨is_false hna⟩))
 local attribute [instance] decidable_inhabited
 
-noncomputable definition prop_decidable (a : Prop) : decidable a :=
+noncomputable def prop_decidable (a : Prop) : decidable a :=
 arbitrary (decidable a)
 local attribute [instance] prop_decidable
 
-noncomputable definition type_decidable_eq (A : Type u) : decidable_eq A :=
+noncomputable def type_decidable_eq (A : Type u) : decidable_eq A :=
 λ a b, prop_decidable (a = b)
 
-noncomputable definition type_decidable (A : Type u) : sum A (A → false) :=
+noncomputable def type_decidable (A : Type u) : sum A (A → false) :=
 match (prop_decidable (nonempty A)) with
 | (is_true hp) := sum.inl (@inhabited.default _ (inhabited_of_nonempty hp))
 | (is_false hn) := sum.inr (λ a, absurd (nonempty.intro a) hn)

@@ -14,7 +14,7 @@ namespace tactic
 open expr environment list
 
 /- Retrieve the name of the type we are building a decidable equality proof for. -/
-private meta definition get_dec_eq_type_name : tactic name :=
+private meta def get_dec_eq_type_name : tactic name :=
 do {
   (pi x1 i1 d1 (pi x2 i2 d2 b)) ← target >>= whnf | failed,
   (const n ls) ← return (get_app_fn b) | failed,
@@ -25,17 +25,17 @@ do {
 fail "mk_dec_eq_instance tactic failed, target type is expected to be of the form (decidable_eq ...)"
 
 /- Extract (lhs, rhs) from a goal (decidable (lhs = rhs)) -/
-private meta definition get_lhs_rhs : tactic (expr × expr) :=
+private meta def get_lhs_rhs : tactic (expr × expr) :=
 do
   (app dec lhs_eq_rhs) ← target | fail "mk_dec_eq_instance failed, unexpected case",
   match_eq lhs_eq_rhs
 
-private meta definition find_next_target : list expr → list expr → tactic (expr × expr)
+private meta def find_next_target : list expr → list expr → tactic (expr × expr)
 | (t::ts) (r::rs) := if t = r then find_next_target ts rs else return (t, r)
 | l1       l2     := failed
 
 /- Create an inhabitant of (decidable (lhs = rhs)) -/
-private meta definition mk_dec_eq_for (lhs : expr) (rhs : expr) : tactic expr :=
+private meta def mk_dec_eq_for (lhs : expr) (rhs : expr) : tactic expr :=
 do lhs_type ← infer_type lhs,
    dec_type ← mk_app `decidable_eq [lhs_type] >>= whnf,
    do {
@@ -47,7 +47,7 @@ do lhs_type ← infer_type lhs,
      fail $ to_fmt "mk_dec_eq_instance failed, failed to generate instance for" ++ format.nest 2 (format.line ++ f) }
 
 /- Target is of the form (decidable (C ... = C ...)) where C is a constructor -/
-private meta definition dec_eq_same_constructor : name → name → nat → tactic unit
+private meta def dec_eq_same_constructor : name → name → nat → tactic unit
 | I_name F_name num_rec :=
 do
   (lhs, rhs) ← get_lhs_rhs,
@@ -76,12 +76,12 @@ do
     return () }
 
 /- Easy case: target is of the form (decidable (C_1 ... = C_2 ...)) where C_1 and C_2 are distinct constructors -/
-private meta definition dec_eq_diff_constructor : tactic unit :=
+private meta def dec_eq_diff_constructor : tactic unit :=
 left >> intron 1 >> contradiction
 
 /- This tactic is invoked for each case of decidable_eq. There n^2 cases, where n is the number
    of constructors. -/
-private meta definition dec_eq_case_2 (I_name : name) (F_name : name) : tactic unit :=
+private meta def dec_eq_case_2 (I_name : name) (F_name : name) : tactic unit :=
 do
   (lhs, rhs)       ← get_lhs_rhs,
   lhs_fn : expr    ← return $ get_app_fn lhs,
@@ -90,10 +90,10 @@ do
   then dec_eq_same_constructor I_name F_name 0
   else dec_eq_diff_constructor
 
-private meta definition dec_eq_case_1 (I_name : name) (F_name : name) : tactic unit :=
+private meta def dec_eq_case_1 (I_name : name) (F_name : name) : tactic unit :=
 intro `w >>= cases >> all_goals (dec_eq_case_2 I_name F_name)
 
-meta definition mk_dec_eq_instance : tactic unit :=
+meta def mk_dec_eq_instance : tactic unit :=
 do I_name ← get_dec_eq_type_name,
    env ← get_env,
    v_name ← return `_v,

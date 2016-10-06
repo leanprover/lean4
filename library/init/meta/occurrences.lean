@@ -28,7 +28,7 @@ open occurrences
 instance : inhabited occurrences :=
 ⟨all⟩
 
-definition occurrences_to_string : occurrences → string
+def occurrences_to_string : occurrences → string
 | occurrences.all     := "*"
 | (occurrences.pos l) := to_string l
 | (occurrences.neg l) := "-" ++ to_string l
@@ -36,7 +36,7 @@ definition occurrences_to_string : occurrences → string
 instance : has_to_string occurrences :=
 ⟨occurrences_to_string⟩
 
-meta definition occurrences_to_format : occurrences → format
+meta def occurrences_to_format : occurrences → format
 | occurrences.all     := to_fmt "*"
 | (occurrences.pos l) := to_fmt l
 | (occurrences.neg l) := to_fmt "-" ++ to_fmt l

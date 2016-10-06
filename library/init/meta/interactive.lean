@@ -238,25 +238,25 @@ do p ← to_expr_strict q,
 meta def trace_state : tactic unit :=
 tactic.trace_state
 
-meta definition trace {A : Type} [has_to_tactic_format A] (a : A) : tactic unit :=
+meta def trace {A : Type} [has_to_tactic_format A] (a : A) : tactic unit :=
 tactic.trace a
 
-meta definition existsi (e : qexpr0) : tactic unit :=
+meta def existsi (e : qexpr0) : tactic unit :=
 to_expr e >>= tactic.existsi
 
-meta definition constructor : tactic unit :=
+meta def constructor : tactic unit :=
 tactic.constructor
 
-meta definition left : tactic unit :=
+meta def left : tactic unit :=
 tactic.left
 
-meta definition right : tactic unit :=
+meta def right : tactic unit :=
 tactic.right
 
-meta definition split : tactic unit :=
+meta def split : tactic unit :=
 tactic.split
 
-meta definition injection (q : qexpr0) (hs : with_ident_list) : tactic unit :=
+meta def injection (q : qexpr0) (hs : with_ident_list) : tactic unit :=
 do e ← to_expr q, tactic.injection_with e hs
 
 private meta def to_expr_list : list pexpr → tactic (list expr)
@@ -284,11 +284,11 @@ do h     ← get_local h_name,
    mk_app `eq.mp [eqpr, h] >>= tactic.exact,
    try $ tactic.clear h
 
-private meta definition simp_hyps : simp_lemmas → location → tactic unit
+private meta def simp_hyps : simp_lemmas → location → tactic unit
 | s []      := skip
 | s (h::hs) := simp_hyp s h >> simp_hyps s hs
 
-meta definition simp (hs : opt_qexpr_list) (attr_names : with_ident_list) (ids : without_ident_list) (loc : location) : tactic unit :=
+meta def simp (hs : opt_qexpr_list) (attr_names : with_ident_list) (ids : without_ident_list) (loc : location) : tactic unit :=
 do s ← mk_simp_set attr_names hs ids,
    match loc : _ → tactic unit with
    | [] := simp_goal s

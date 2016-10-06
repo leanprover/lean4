@@ -15,13 +15,13 @@ inductive name
 instance : inhabited name :=
 ⟨name.anonymous⟩
 
-definition mk_str_name (n : name) (s : string) : name :=
+def mk_str_name (n : name) (s : string) : name :=
 name.mk_string s n
 
-definition mk_num_name (n : name) (v : nat) : name :=
+def mk_num_name (n : name) (v : nat) : name :=
 name.mk_numeral (unsigned.of_nat v) n
 
-definition mk_simple_name (s : string) : name :=
+def mk_simple_name (s : string) : name :=
 mk_str_name name.anonymous s
 
 instance string_to_name : has_coe string name :=
@@ -31,12 +31,12 @@ infix ` <.> `:65 := mk_str_name
 
 open name
 
-definition name.get_prefix : name → name
+def name.get_prefix : name → name
 | anonymous        := anonymous
 | (mk_string s p)  := p
 | (mk_numeral s p) := p
 
-definition name.to_string : name → string
+def name.to_string : name → string
 | anonymous                := "[anonymous]"
 | (mk_string s anonymous)  := s
 | (mk_numeral v anonymous) := to_string v

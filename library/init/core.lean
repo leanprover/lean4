@@ -454,90 +454,113 @@ From now on, the inductive compiler will automatically generate sizeof instances
 instance default_has_sizeof (A : Type u) : has_sizeof A :=
 ⟨λ a, nat.zero⟩
 
-attribute [simp, defeq, simp.sizeof]
+/- TODO(Leo): the [simp.sizeof] annotations are not really necessary.
+   What we need is a robust way of unfolding sizeof definitions. -/
+attribute [simp.sizeof]
 def default_has_sizeof_eq (A : Type u) (a : A) : @sizeof A (default_has_sizeof A) a = 0 :=
 rfl
 
-instance : has_sizeof nat := ⟨λ a, a⟩
+instance : has_sizeof nat :=
+⟨λ a, a⟩
 
-attribute [simp, defeq, simp.sizeof]
+attribute [simp.sizeof]
 def sizeof_nat_eq (a : nat) : sizeof a = a :=
 rfl
 
-instance (A : Type u) (B : Type v) [has_sizeof A] [has_sizeof B] : has_sizeof (prod A B) :=
-⟨λ p, prod.cases_on p (λ a b, 1 + sizeof a + sizeof b)⟩
+protected def prod.sizeof {A : Type u} {B : Type v} [has_sizeof A] [has_sizeof B] : (prod A B) → nat
+| ⟨a, b⟩ := 1 + sizeof a + sizeof b
 
-attribute [simp, defeq, simp.sizeof]
+instance (A : Type u) (B : Type v) [has_sizeof A] [has_sizeof B] : has_sizeof (prod A B) :=
+⟨prod.sizeof⟩
+
+attribute [simp.sizeof]
 def sizeof_prod_eq {A : Type u} {B : Type v} [has_sizeof A] [has_sizeof B] (a : A) (b : B) : sizeof (prod.mk a b) = 1 + sizeof a + sizeof b :=
 rfl
 
-instance (A : Type u) (B : Type v) [has_sizeof A] [has_sizeof B] : has_sizeof (sum A B) :=
-⟨λ s, sum.cases_on s (λ a, 1 + sizeof a) (λ b, 1 + sizeof b)⟩
+protected def sum.sizeof {A : Type u} {B : Type v} [has_sizeof A] [has_sizeof B] : (sum A B) → nat
+| (sum.inl a) := 1 + sizeof a
+| (sum.inr b) := 1 + sizeof b
 
-attribute [simp, defeq, simp.sizeof]
+instance (A : Type u) (B : Type v) [has_sizeof A] [has_sizeof B] : has_sizeof (sum A B) :=
+⟨sum.sizeof⟩
+
+attribute [simp.sizeof]
 def sizeof_sum_eq_left {A : Type u} {B : Type v} [has_sizeof A] [has_sizeof B] (a : A) : sizeof (@sum.inl A B a) = 1 + sizeof a :=
 rfl
 
-attribute [simp, defeq, simp.sizeof]
+attribute [simp.sizeof]
 def sizeof_sum_eq_right {A : Type u} {B : Type v} [has_sizeof A] [has_sizeof B] (b : B) : sizeof (@sum.inr A B b) = 1 + sizeof b :=
 rfl
 
-instance (A : Type u) (B : A → Type v) [has_sizeof A] [∀ a, has_sizeof (B a)] : has_sizeof (sigma B) :=
-⟨λ p, sigma.cases_on p (λ a b, 1 + sizeof a + sizeof b)⟩
+protected def sigma.sizeof {A : Type u} {B : A → Type v} [has_sizeof A] [∀ a, has_sizeof (B a)] : sigma B → nat
+| ⟨a, b⟩ := 1 + sizeof a + sizeof b
 
-attribute [simp, defeq, simp.sizeof]
+instance (A : Type u) (B : A → Type v) [has_sizeof A] [∀ a, has_sizeof (B a)] : has_sizeof (sigma B) :=
+⟨sigma.sizeof⟩
+
+attribute [simp.sizeof]
 def sizeof_sigma_eq {A : Type u} {B : A → Type v} [has_sizeof A] [∀ a, has_sizeof (B a)] (a : A) (b : B a) : sizeof (@sigma.mk A B a b) = 1 + sizeof a + sizeof b :=
 rfl
 
 instance : has_sizeof unit := ⟨λ u, 1⟩
 
-attribute [simp, defeq, simp.sizeof]
+attribute [simp.sizeof]
 def sizeof_unit_eq (u : unit) : sizeof u = 1 :=
 rfl
 
 instance : has_sizeof poly_unit := ⟨λ u, 1⟩
 
-attribute [simp, defeq, simp.sizeof]
+attribute [simp.sizeof]
 def sizeof_poly_unit_eq (u : poly_unit) : sizeof u = 1 :=
 rfl
 
 instance : has_sizeof bool := ⟨λ u, 1⟩
 
-attribute [simp, defeq, simp.sizeof]
+attribute [simp.sizeof]
 def sizeof_bool_eq (b : bool) : sizeof b = 1 :=
 rfl
 
-instance : has_sizeof pos_num := ⟨λ p, nat.of_pos_num p⟩
+instance : has_sizeof pos_num :=
+⟨nat.of_pos_num⟩
 
-attribute [simp, defeq, simp.sizeof]
+attribute [simp.sizeof]
 def sizeof_pos_num_eq (p : pos_num) : sizeof p = nat.of_pos_num p :=
 rfl
 
-instance : has_sizeof num := ⟨λ p, nat.of_num p⟩
+instance : has_sizeof num :=
+⟨nat.of_num⟩
 
-attribute [simp, defeq, simp.sizeof]
+attribute [simp.sizeof]
 def sizeof_num_eq (n : num) : sizeof n = nat.of_num n :=
 rfl
 
-instance (A : Type u) [has_sizeof A] : has_sizeof (option A) :=
-⟨λ o, option.cases_on o 1 (λ a, 1 + sizeof a)⟩
+protected def option.sizeof {A : Type u} [has_sizeof A] : option A → nat
+| none     := 1
+| (some a) := 1 + sizeof a
 
-attribute [simp, defeq, simp.sizeof]
+instance (A : Type u) [has_sizeof A] : has_sizeof (option A) :=
+⟨option.sizeof⟩
+
+attribute [simp.sizeof]
 def sizeof_option_none_eq (A : Type u) [has_sizeof A] : sizeof (@none A) = 1 :=
 rfl
 
-attribute [simp, defeq, simp.sizeof]
+attribute [simp.sizeof]
 def sizeof_option_some_eq {A : Type u} [has_sizeof A] (a : A) : sizeof (some a) = 1 + sizeof a :=
 rfl
 
-instance (A : Type u) [has_sizeof A] : has_sizeof (list A) :=
-⟨λ l, list.rec_on l 1 (λ a t ih, 1 + sizeof a + ih)⟩
+protected def list.sizeof {A : Type u} [has_sizeof A] : list A → nat
+| list.nil        := 1
+| (list.cons a l) := 1 + sizeof a + list.sizeof l
 
-attribute [simp, defeq, simp.sizeof]
+instance (A : Type u) [has_sizeof A] : has_sizeof (list A) :=
+⟨list.sizeof⟩
+
+attribute [simp.sizeof]
 def sizeof_list_nil_eq (A : Type u) [has_sizeof A] : sizeof (@list.nil A) = 1 :=
 rfl
 
-attribute [simp, defeq, simp.sizeof]
+attribute [simp.sizeof]
 def sizeof_list_cons_eq {A : Type u} [has_sizeof A] (a : A) (l : list A) : sizeof (list.cons a l) = 1 + sizeof a + sizeof l :=
 rfl
 

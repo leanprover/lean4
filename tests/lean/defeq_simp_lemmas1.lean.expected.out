@@ -1,21 +1,6 @@
 reflexivity lemmas:
 foo.d.def #4, d ?x_0 ?x_1 ?x_2 ?x_3 ↦ f (f ?x_0 ?x_1 ?x_2) (f ?x_1 ?x_2 ?x_3) (f ?x_0 ?x_3 ?x_2)
 foo.f.def #3, f ?x_0 ?x_1 ?x_2 ↦ g (g ?x_0 ?x_1) ?x_2
-sizeof_list_cons_eq #4, sizeof (?x_2 :: ?x_3) ↦ 1 + sizeof ?x_2 + sizeof ?x_3
-sizeof_list_nil_eq #2, sizeof list.nil ↦ 1
-sizeof_option_some_eq #3, sizeof (some ?x_2) ↦ 1 + sizeof ?x_2
-sizeof_option_none_eq #2, sizeof none ↦ 1
-sizeof_num_eq #1, sizeof ?x_0 ↦ nat.of_num ?x_0
-sizeof_pos_num_eq #1, sizeof ?x_0 ↦ nat.of_pos_num ?x_0
-sizeof_bool_eq #1, sizeof ?x_0 ↦ 1
-sizeof_poly_unit_eq #1, sizeof ?x_0 ↦ 1
-sizeof_unit_eq #1, sizeof ?x_0 ↦ 1
-sizeof_sigma_eq #6, sizeof (sigma.mk ?x_4 ?x_5) ↦ 1 + sizeof ?x_4 + sizeof ?x_5
-sizeof_sum_eq_right #5, sizeof (sum.inr ?x_4) ↦ 1 + sizeof ?x_4
-sizeof_sum_eq_left #5, sizeof (sum.inl ?x_4) ↦ 1 + sizeof ?x_4
-sizeof_prod_eq #6, sizeof (?x_4, ?x_5) ↦ 1 + sizeof ?x_4 + sizeof ?x_5
-sizeof_nat_eq #1, sizeof ?x_0 ↦ ?x_0
-default_has_sizeof_eq #2, sizeof ?x_1 ↦ 0
 id.def #2, id ?x_1 ↦ ?x_1
 foo.g.def #2, g ?x_0 ?x_1 ↦ h ?x_1
 ne.def #3, ?x_1 ≠ ?x_2 ↦ ¬?x_1 = ?x_2

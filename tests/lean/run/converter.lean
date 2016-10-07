@@ -27,6 +27,8 @@ by conversion $
 
 set_option trace.app_builder true
 
+attribute [simp, defeq] sizeof_nat_eq
+
 example (a b c : nat) : (λ x, g (f x (sizeof x))) = (λ x, 0) :=
 by conversion $
   funext $ do

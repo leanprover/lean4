@@ -122,6 +122,9 @@ expr parse_mutual_definition(parser & p, buffer<name> & lp_names, buffer<expr> &
             while (p.curr_is_token(get_bar_tk())) {
                 eqns.push_back(parse_equation(p, pre_fn));
             }
+            if (!p.curr_is_command() && !p.curr_is_eof()) {
+                throw parser_error("invalid equations, must be followed by a command or EOF", p.pos());
+            }
         }
         expr fn      = mk_local(mlocal_name(pre_fn), local_pp_name(pre_fn), fn_type, mk_rec_info(true));
         fns.push_back(fn);
@@ -176,6 +179,9 @@ static expr_pair parse_definition(parser & p, buffer<name> & lp_names, buffer<ex
         } else {
             while (p.curr_is_token(get_bar_tk())) {
                 eqns.push_back(parse_equation(p, fn));
+            }
+            if (!p.curr_is_command() && !p.curr_is_eof()) {
+                throw parser_error("invalid equations, must be followed by a command or EOF", p.pos());
             }
         }
         optional<expr_pair> R_Rwf = parse_using_well_founded(p);

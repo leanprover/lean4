@@ -312,15 +312,6 @@ enabled and disabled respectively.")
               (fci-mode t))))
   (lean-standard-mode))
 
-;; Define Minor mode
-;;  - Standard
-(define-minor-mode lean-standard-mode
-  "Minor mode for standard Lean."
-  :init-value nil
-  :lighter " [Standard]"
-  :group 'lean
-  :require 'lean)
-
 ;; Automode List
 ;;;###autoload
 (define-derived-mode lean-mode prog-mode "Lean"

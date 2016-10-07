@@ -20,7 +20,7 @@ Author: Daniel Selsam
 namespace lean {
 
 // Theory simplifier
-theory_simplifier::theory_simplifier(type_context & tctx): m_tctx(tctx), m_prop_simplifier(tctx), m_arith_simplifier(tctx) {}
+theory_simplifier::theory_simplifier(type_context & tctx): m_tctx(tctx), m_prop_simplifier(tctx) {}
 
 bool theory_simplifier::owns(expr const & e) {
     return static_cast<bool>(to_num(e));
@@ -37,9 +37,6 @@ simp_result theory_simplifier::simplify_binary(expr const & e) {
 optional<simp_result> theory_simplifier::simplify_nary(expr const & assoc, expr const & old_e, expr const & op, buffer<expr> & args) {
     if (auto r_prop = m_prop_simplifier.simplify_nary(assoc, old_e, op, args))
         return r_prop;
-
-    if (auto r_arith = m_arith_simplifier.simplify_nary(assoc, old_e, op, args))
-        return r_arith;
 
     return optional<simp_result>();
 }

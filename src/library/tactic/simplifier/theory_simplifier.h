@@ -8,7 +8,6 @@ Author: Daniel Selsam
 #include "library/arith_instance_manager.h"
 #include "library/tactic/simplifier/simplifier.h"
 #include "library/tactic/simplifier/prop_simplifier.h"
-#include "library/tactic/simplifier/arith_simplifier.h"
 
 namespace lean {
 
@@ -18,7 +17,6 @@ private:
     type_context                 & m_tctx;
 
     prop_simplifier                m_prop_simplifier;
-    arith_simplifier               m_arith_simplifier;
 
     optional<simp_result> simplify_eq(expr const & prefix, buffer<expr> const & args);
 
@@ -27,12 +25,6 @@ public:
         EQ,
         // Prop
             AND, OR, NOT, XOR, IMPLIES, ITE,
-        // Arith
-            LT, GT, LE, GE,
-            ADD, MUL,
-            NEG, SUB, INV, DIV,
-            NUMERAL,
-            INT_OF_NAT, RAT_OF_INT, REAL_OF_RAT,
             };
 
     enum class dispatch_kind { DEFAULT, NARY_ASSOC, OWNS_SUBTERMS };

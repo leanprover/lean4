@@ -34,7 +34,6 @@ Author: Leonardo de Moura
 #include "library/compiler/vm_compiler.h"
 #include "library/tactic/kabstract.h"
 #include "library/tactic/elaborate.h"
-#include "library/tactic/simplifier/simp_extensions.h"
 #include "library/tactic/tactic_state.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/parser.h"
@@ -375,26 +374,6 @@ static environment init_quotient_cmd(parser & p) {
     return module::declare_quotient(p.env());
 }
 
-// register_simp_ext <head> <simp_ext_name> ([priority <prio>])
-static environment register_simp_ext_cmd(parser & p) {
-    environment env = p.env();
-    name head = p.check_constant_next("invalid #register_simp_ext_cmd command, constant expected");
-    name simp_ext_name = p.check_constant_next("invalid #register_simp_ext_cmd command, constant expected");
-
-    unsigned prio = LEAN_DEFAULT_PRIORITY;
-    auto pos = p.pos();
-    decl_attributes attrs;
-    attrs.parse(p);
-    if (auto const & entry = head_opt(attrs.get_entries()))
-        throw parser_error(sstream() << "invalid #register_simp_ext_cmd command, unexpected attribute ["
-                                     << entry->m_attr->get_name() << "]", pos);
-    if (attrs.get_priority())
-        prio = *attrs.get_priority();
-    bool persistent = true;
-    env = add_simp_extension(env, p.ios(), head, simp_ext_name, prio, persistent);
-    return env;
-}
-
 /*
    Temporary procedure that converts metavariables in \c e to metavar_context metavariables.
    After we convert the frontend to type_context, we will not need to use this procedure.
@@ -577,7 +556,6 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("help",              "brief description of available commands and options", help_cmd));
     add_cmd(r, cmd_info("init_quotient",     "initialize quotient type computational rules", init_quotient_cmd));
     add_cmd(r, cmd_info("declare_trace",     "declare a new trace class (for debugging Lean tactics)", declare_trace_cmd));
-    add_cmd(r, cmd_info("register_simp_ext", "register simplifier extension", register_simp_ext_cmd));
     add_cmd(r, cmd_info("add_key_equivalence", "register that to symbols are equivalence for key-matching", add_key_equivalence_cmd));
     add_cmd(r, cmd_info("run_command",       "execute an user defined command at top-level", run_command_cmd));
     add_cmd(r, cmd_info("#erase_cache",      "erase cached definition (for debugging purposes)", erase_cache_cmd));

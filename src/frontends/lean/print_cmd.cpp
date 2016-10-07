@@ -27,7 +27,6 @@ Author: Leonardo de Moura
 #include "library/rfl_lemmas.h"
 #include "library/tactic/kabstract.h"
 #include "library/tactic/simplifier/simp_lemmas.h"
-#include "library/tactic/simplifier/simp_extensions.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/tokens.h"

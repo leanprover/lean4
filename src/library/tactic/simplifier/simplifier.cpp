@@ -37,7 +37,6 @@ Author: Daniel Selsam
 #include "library/tactic/app_builder_tactics.h"
 #include "library/tactic/simplifier/simplifier.h"
 #include "library/tactic/simplifier/simp_lemmas.h"
-#include "library/tactic/simplifier/simp_extensions.h"
 #include "library/tactic/simplifier/theory_simplifier.h"
 #include "library/tactic/simplifier/ceqv.h"
 #include "library/tactic/simplifier/util.h"
@@ -53,9 +52,6 @@ Author: Daniel Selsam
 #endif
 #ifndef LEAN_DEFAULT_SIMPLIFY_CONTEXTUAL
 #define LEAN_DEFAULT_SIMPLIFY_CONTEXTUAL true
-#endif
-#ifndef LEAN_DEFAULT_SIMPLIFY_USER_EXTENSIONS
-#define LEAN_DEFAULT_SIMPLIFY_USER_EXTENSIONS true
 #endif
 #ifndef LEAN_DEFAULT_SIMPLIFY_REWRITE
 #define LEAN_DEFAULT_SIMPLIFY_REWRITE true
@@ -93,7 +89,6 @@ static name * g_simplify_max_steps                      = nullptr;
 static name * g_simplify_nary_assoc                     = nullptr;
 static name * g_simplify_memoize                        = nullptr;
 static name * g_simplify_contextual                     = nullptr;
-static name * g_simplify_user_extensions                = nullptr;
 static name * g_simplify_rewrite                        = nullptr;
 static name * g_simplify_unsafe_nary                    = nullptr;
 static name * g_simplify_theory                         = nullptr;
@@ -107,7 +102,6 @@ name get_simplify_max_steps_name() { return *g_simplify_max_steps; }
 name get_simplify_nary_assoc_name() { return *g_simplify_nary_assoc; }
 name get_simplify_memoize_name() { return *g_simplify_memoize; }
 name get_simplify_contextual_name() { return *g_simplify_contextual; }
-name get_simplify_user_extensions_name() { return *g_simplify_user_extensions; }
 name get_simplify_rewrite_name() { return *g_simplify_rewrite; }
 name get_simplify_unsafe_nary_name() { return *g_simplify_unsafe_nary; }
 name get_simplify_theory_name() { return *g_simplify_theory; }
@@ -131,10 +125,6 @@ static bool get_simplify_memoize(options const & o) {
 
 static bool get_simplify_contextual(options const & o) {
     return o.get_bool(*g_simplify_contextual, LEAN_DEFAULT_SIMPLIFY_CONTEXTUAL);
-}
-
-static bool get_simplify_user_extensions(options const & o) {
-    return o.get_bool(*g_simplify_user_extensions, LEAN_DEFAULT_SIMPLIFY_USER_EXTENSIONS);
 }
 
 static bool get_simplify_rewrite(options const & o) {
@@ -196,7 +186,6 @@ class simplifier {
     unsigned                  m_nary_assoc;
     bool                      m_memoize;
     bool                      m_contextual;
-    bool                      m_user_extensions;
     bool                      m_rewrite;
     bool                      m_unsafe_nary;
     bool                      m_theory;
@@ -334,41 +323,6 @@ class simplifier {
         return r;
     }
 
-    // Binary simplify methods
-    simp_result simplify_user_extensions_binary(expr const & old_e) {
-        expr op = get_app_fn(old_e);
-        if (!is_constant(op)) return simp_result(old_e);
-        name head = const_name(op);
-        buffer<unsigned> ext_ids;
-        get_simp_extensions_for(m_tctx.env(), head, ext_ids);
-        for (unsigned ext_id : ext_ids) {
-            expr old_e_type = m_tctx.infer(old_e);
-            metavar_context mctx = m_tctx.mctx();
-            expr result_mvar = mctx.mk_metavar_decl(m_tctx.lctx(), old_e_type);
-            m_tctx.set_mctx(mctx); // the app-builder needs to know about these metavars
-            expr goal_type = mk_app(m_tctx, m_rel, old_e, result_mvar);
-            expr goal_mvar = mctx.mk_metavar_decl(m_tctx.lctx(), goal_type);
-            vm_obj s = to_obj(tactic_state(m_tctx.env(), m_tctx.get_options(), mctx, list<expr>(goal_mvar), goal_mvar));
-            vm_obj simp_ext_result = invoke(ext_id, s);
-            optional<tactic_state> s_new = is_tactic_success(simp_ext_result);
-            // TODO(dhs): create a bool metavar for the `done` flag
-            if (s_new) {
-                m_tctx.set_mctx(s_new->mctx());
-                expr result = m_tctx.instantiate_mvars(result_mvar);
-                expr proof = m_tctx.instantiate_mvars(goal_mvar);
-                if (is_app_of(proof, get_eq_refl_name(), 2) || is_app_of(proof, get_rfl_name(), 2)) {
-                    return simp_result(result);
-                } else {
-                    return simp_result(result, proof);
-                }
-            } else {
-                lean_trace(name({"simplifier", "extensions"}),
-                           tout() << "extension failed on goal " << goal_type << "\n";);
-            }
-        }
-        return simp_result(old_e);
-    }
-
     simp_result simplify_rewrite_binary(expr const & e) {
         simp_lemmas slss = ::lean::join(m_slss, m_ctx_slss);
         simp_lemmas_for const * sr = slss.find(m_rel);
@@ -466,14 +420,6 @@ class simplifier {
                     return r_rewrite;
                 }
             }
-
-            if (m_user_extensions) {
-                simp_result r_user = simplify_user_extensions_binary(e);
-                if (r_user.get_new() != e) {
-                    lean_trace_d(name({"simplifier", "user_extensions"}), tout() << e << " ==> " << r_user.get_new() << "\n";);
-                    return r_user;
-                }
-            }
         }
 
         // [1] Simplify subterms using congruence
@@ -519,17 +465,6 @@ class simplifier {
                 if (r_rewrite.get_new() != r.get_new()) {
                     lean_trace_d(name({"simplifier", "rewrite"}), tout() << r.get_new() << " ==> " << r_rewrite.get_new() << "\n";);
                     return join(r, r_rewrite);
-                }
-            }
-
-            if (m_user_extensions) {
-                simp_result r_user = simplify_user_extensions_binary(r.get_new());
-                if (r_user.get_new() != r.get_new()) {
-                    lean_trace_d(name({"simplifier", "user_extensions"}), tout() << r.get_new() << " ==> " << r_user.get_new() << "\n";);
-                    simp_result r_join_user = join(r, r_user);
-                    if (r_user.is_done())
-                        r_join_user.set_done();
-                    return r_join_user;
                 }
             }
         }
@@ -640,17 +575,6 @@ class simplifier {
         return optional<simp_result>(simp_result(new_rhs, pf));
     }
 
-    optional<simp_result> simplify_user_extensions_nary(expr const & /* assoc */, expr const & old_e, expr const & /* op */, buffer<expr> const & /* nary_args */) {
-        // For now, user extensions are not aware of the binary/nary distinction, except that they are guaranteed that
-        // if an operator is an instance of [is_associative] for the relation in question, the user extension will only be
-        // called on the outermost applications.
-        simp_result r = simplify_user_extensions_binary(old_e);
-        if (r.get_new() != old_e)
-            return optional<simp_result>(r);
-        else
-            return optional<simp_result>();
-    }
-
     simp_result simplify_subterms_app_nary_core(expr const & old_op, expr const & new_op, optional<expr> const & pf_op, expr const & e) {
         expr arg1, arg2;
         optional<expr> op = get_binary_op(e, arg1, arg2);
@@ -700,12 +624,6 @@ class simplifier {
                     return join(r_flat, *r_rewrite);
                 }
             }
-            if (m_user_extensions) {
-                if (optional<simp_result> r_user = simplify_user_extensions_nary(assoc, r_flat.get_new(), op, nary_args)) {
-                    lean_trace_d(name({"simplifier", "user_extensions"}), tout() << old_e << " ==> " << r_user->get_new() << "\n";);
-                    return join(r_flat, *r_user);
-                }
-            }
         }
 
         simp_result r_congr = simplify_subterms_app_nary(op, old_e);
@@ -724,12 +642,6 @@ class simplifier {
                 if (optional<simp_result> r_rewrite = simplify_rewrite_nary(assoc, r_congr_flat.get_new(), new_op, new_nary_args)) {
                     lean_trace_d(name({"simplifier", "rewrite"}), tout() << old_e << " ==> " << r_rewrite->get_new() << "\n";);
                     return join(r_congr_flat, *r_rewrite);
-                }
-            }
-            if (m_user_extensions) {
-                if (optional<simp_result> r_user = simplify_user_extensions_nary(assoc, r_congr_flat.get_new(), new_op, new_nary_args)) {
-                    lean_trace_d(name({"simplifier", "user_extensions"}), tout() << old_e << " ==> " << r_user->get_new() << "\n";);
-                    return join(r_congr_flat, *r_user);
                 }
             }
         }
@@ -796,7 +708,6 @@ public:
         m_nary_assoc(get_simplify_nary_assoc(tctx.get_options())),
         m_memoize(get_simplify_memoize(tctx.get_options())),
         m_contextual(get_simplify_contextual(tctx.get_options())),
-        m_user_extensions(get_simplify_user_extensions(tctx.get_options())),
         m_rewrite(get_simplify_rewrite(tctx.get_options())),
         m_unsafe_nary(get_simplify_unsafe_nary(tctx.get_options())),
         m_theory(get_simplify_theory(tctx.get_options())),
@@ -1434,7 +1345,6 @@ vm_obj tactic_simplify_core(vm_obj const & prove_fn, vm_obj const & rel_name, vm
 /* Setup and teardown */
 void initialize_simplifier() {
     register_trace_class(name({"simplifier", "congruence"}));
-    register_trace_class(name({"simplifier", "user_extensions"}));
     register_trace_class(name({"simplifier", "failure"}));
     register_trace_class(name({"simplifier", "failed"}));
     register_trace_class(name({"simplifier", "perm"}));
@@ -1456,7 +1366,6 @@ void initialize_simplifier() {
     g_simplify_nary_assoc                     = new name{*g_simplify_prefix, "nary_assoc"};
     g_simplify_memoize                        = new name{*g_simplify_prefix, "memoize"};
     g_simplify_contextual                     = new name{*g_simplify_prefix, "contextual"};
-    g_simplify_user_extensions                = new name{*g_simplify_prefix, "user_extensions"};
     g_simplify_rewrite                        = new name{*g_simplify_prefix, "rewrite"};
     g_simplify_unsafe_nary                    = new name{*g_simplify_prefix, "unsafe_nary"};
     g_simplify_theory                         = new name{*g_simplify_prefix, "theory"};
@@ -1474,8 +1383,6 @@ void initialize_simplifier() {
                          "(simplify) memoize simplifications");
     register_bool_option(*g_simplify_contextual, LEAN_DEFAULT_SIMPLIFY_CONTEXTUAL,
                          "(simplify) use contextual simplification");
-    register_bool_option(*g_simplify_user_extensions, LEAN_DEFAULT_SIMPLIFY_USER_EXTENSIONS,
-                         "(simplify) simplify with user_extensions");
     register_bool_option(*g_simplify_rewrite, LEAN_DEFAULT_SIMPLIFY_REWRITE,
                          "(simplify) rewrite with simp_lemmas");
     register_bool_option(*g_simplify_unsafe_nary, LEAN_DEFAULT_SIMPLIFY_UNSAFE_NARY,
@@ -1508,7 +1415,6 @@ void finalize_simplifier() {
     delete g_simplify_theory;
     delete g_simplify_unsafe_nary;
     delete g_simplify_rewrite;
-    delete g_simplify_user_extensions;
     delete g_simplify_contextual;
     delete g_simplify_memoize;
     delete g_simplify_nary_assoc;

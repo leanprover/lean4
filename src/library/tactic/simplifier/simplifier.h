@@ -20,7 +20,6 @@ name get_simplify_max_steps_name();
 name get_simplify_nary_assoc_name();
 name get_simplify_memoize_name();
 name get_simplify_contextual_name();
-name get_simplify_user_extensions_name();
 name get_simplify_rewrite_name();
 name get_simplify_unsafe_nary_name();
 name get_simplify_theory_name();

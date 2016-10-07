@@ -1243,7 +1243,6 @@ class add_nested_inductive_decl_fn {
         opts = opts.update(get_simplify_nary_assoc_name(), false);
         opts = opts.update(get_simplify_memoize_name(), true);
         opts = opts.update(get_simplify_contextual_name(), false);
-        opts = opts.update(get_simplify_user_extensions_name(), false);
         opts = opts.update(get_simplify_rewrite_name(), true);
         opts = opts.update(get_simplify_unsafe_nary_name(), false);
         opts = opts.update(get_simplify_theory_name(), true);

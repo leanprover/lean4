@@ -6,7 +6,6 @@ Author: Daniel Selsam
 #include "library/trace.h"
 #include "library/tactic/simplifier/util.h"
 #include "library/tactic/simplifier/simp_lemmas.h"
-#include "library/tactic/simplifier/simp_extensions.h"
 #include "library/tactic/simplifier/prop_simplifier.h"
 #include "library/tactic/simplifier/arith_simplifier.h"
 #include "library/tactic/simplifier/theory_simplifier.h"
@@ -19,7 +18,6 @@ void initialize_simplifier_module() {
 
     initialize_simp_util();
     initialize_simp_lemmas();
-    initialize_simp_extensions();
     initialize_prop_simplifier();
     initialize_arith_simplifier();
     initialize_theory_simplifier();
@@ -31,7 +29,6 @@ void finalize_simplifier_module() {
     finalize_theory_simplifier();
     finalize_arith_simplifier();
     finalize_prop_simplifier();
-    finalize_simp_extensions();
     finalize_simp_lemmas();
     finalize_simp_util();
 }

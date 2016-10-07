@@ -108,8 +108,7 @@ void init_token_table(token_table & t) {
          "precedence", "reserve", "infixl", "infixr", "infix", "postfix", "prefix", "notation",
          "exit", "set_option", "open", "export", "override", "@[",
          "attribute", "persistent", "instance", "include", "omit", "init_quotient",
-         "init_hits", "declare_trace", "register_simp_ext",
-         "run_command", "add_key_equivalence", "#erase_cache",
+         "init_hits", "declare_trace", "run_command", "add_key_equivalence", "#erase_cache",
          "#compile", "#unify", nullptr};
 
     pair<char const *, char const *> aliases[] =

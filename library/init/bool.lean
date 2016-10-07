@@ -22,5 +22,10 @@ import init.core
 | tt := ff
 | ff := tt
 
+@[inline] def bxor : bool → bool → bool
+| tt ff  := tt
+| ff tt  := tt
+| _  _   := ff
+
 notation a || b := bor a b
 notation a && b := band a b

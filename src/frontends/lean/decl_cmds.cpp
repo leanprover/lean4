@@ -440,7 +440,8 @@ static environment definition_cmd_ex(parser & p, decl_attributes const & attribu
             p.set_ignore_noncomputable();
             return p.env();
         }
-    } else if (p.curr_is_token(get_meta_tk())) {
+    }
+    if (p.curr_is_token(get_meta_tk())) {
         modifiers.m_is_meta = true;
         p.next();
         if (!attributes) {

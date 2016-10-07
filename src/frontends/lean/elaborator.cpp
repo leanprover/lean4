@@ -174,6 +174,8 @@ expr elaborator::mk_type_metavar(expr const & ref) {
 }
 
 expr elaborator::mk_instance_core(local_context const & lctx, expr const & C, expr const & ref) {
+    flycheck_output_scope flycheck(get_pos_info_provider(), ref);
+
     optional<expr> inst = m_ctx.mk_class_instance_at(lctx, C);
     if (!inst) {
         metavar_context mctx   = m_ctx.mctx();

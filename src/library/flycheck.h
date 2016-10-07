@@ -23,7 +23,7 @@ public:
     bool enabled() const { return m_flycheck; }
 };
 
-/** Redirects regular and diagnostic output streams of the global ios as flycheck informations. */
+/** Redirects the diagnostic output stream of the global ios as a flycheck information. */
 class flycheck_output_scope {
     char const *                           m_stream_name;
     pos_info                               m_pos;
@@ -33,6 +33,8 @@ class flycheck_output_scope {
     std::shared_ptr<string_output_channel> m_buffer;
 public:
     flycheck_output_scope(io_state const & ios, char const * stream_name, pos_info const & pos);
+    flycheck_output_scope(char const * stream_name, pos_info const & pos) :
+        flycheck_output_scope(get_global_ios(), stream_name, pos) {}
     flycheck_output_scope(pos_info_provider const * provider, expr const & ref);
     ~flycheck_output_scope();
     bool enabled() const { return static_cast<bool>(m_scoped_ios); }

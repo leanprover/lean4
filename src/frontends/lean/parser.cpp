@@ -2067,6 +2067,7 @@ void parser::parse_command() {
         lazy_type_context tc(m_env, get_options());
         scope_global_ios scope1(m_ios);
         scope_trace_env  scope2(m_env, m_ios.get_options(), tc);
+        flycheck_output_scope flycheck(get_file_name(), pos());
         if (is_notation_cmd(cmd_name)) {
             in_notation_ctx ctx(*this);
             if (it->get_skip_token())

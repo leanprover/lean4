@@ -26,7 +26,7 @@ namespace nat
 
   protected lemma bit0_succ_eq (n : ℕ) : bit0 (succ n) = succ (succ (bit0 n)) :=
   show succ (succ n + n) = succ (succ (n + n)), from
-  succ_add n n ▸ rfl
+  congr_arg succ (succ_add n n)
 
   protected lemma bit1_eq_succ_bit0 (n : ℕ) : bit1 n = succ (bit0 n) :=
   rfl
@@ -105,8 +105,9 @@ namespace nat
   | a 0     := a
   | a (b+1) := pred (sub a b)
 
-  protected def mul (a b : ℕ) : ℕ :=
-  nat.rec_on b zero (λ b₁ r, r + a)
+  protected def mul : nat → nat → nat
+  | a 0     := 0
+  | a (b+1) := (mul a b) + a
 
   instance : has_sub ℕ :=
   ⟨nat.sub⟩

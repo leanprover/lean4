@@ -142,8 +142,10 @@ inductive pos_num : Type
 | bit0 : pos_num → pos_num
 
 namespace pos_num
-  def succ (a : pos_num) : pos_num :=
-  pos_num.rec_on a (bit0 one) (λ n r, bit0 r) (λ n r, bit1 n)
+  def succ : pos_num → pos_num
+  | one      := bit0 one
+  | (bit1 n) := bit0 (succ n)
+  | (bit0 n) := bit1 n
 end pos_num
 
 inductive num : Type
@@ -152,8 +154,9 @@ inductive num : Type
 
 namespace num
   open pos_num
-  def succ (a : num) : num :=
-  num.rec_on a (pos one) (λ p, pos (succ p))
+  def succ : num → num
+  | zero    := pos one
+  | (pos p) := pos (pos_num.succ p)
 end num
 
 inductive bool : Type
@@ -293,27 +296,28 @@ instance : has_one pos_num :=
 ⟨pos_num.one⟩
 
 namespace pos_num
-  def is_one (a : pos_num) : bool :=
-  pos_num.rec_on a tt (λ n r, ff) (λ n r, ff)
+  def is_one : pos_num → bool
+  | one := tt
+  | _   := ff
 
-  def pred (a : pos_num) : pos_num :=
-  pos_num.rec_on a one (λ n r, bit0 n) (λ n r, bool.rec_on (is_one n) (bit1 r) one)
+  def pred : pos_num → pos_num
+  | one        := one
+  | (bit1 n)   := bit0 n
+  | (bit0 one) := one
+  | (bit0 n)   := bit1 (pred n)
 
-  def size (a : pos_num) : pos_num :=
-  pos_num.rec_on a one (λ n r, succ r) (λ n r, succ r)
+  def size : pos_num → pos_num
+  | one      := one
+  | (bit0 n) := succ (size n)
+  | (bit1 n) := succ (size n)
 
-  def add (a b : pos_num) : pos_num :=
-  pos_num.rec_on a
-    succ
-    (λ n f b, pos_num.rec_on b
-      (succ (bit1 n))
-      (λ m r, succ (bit1 (f m)))
-      (λ m r, bit1 (f m)))
-    (λ n f b, pos_num.rec_on b
-      (bit1 n)
-      (λ m r, bit1 (f m))
-      (λ m r, bit0 (f m)))
-    b
+  def add : pos_num → pos_num → pos_num
+  | one  b            := succ b
+  | a    one          := succ a
+  | (bit0 a) (bit0 b) := bit0 (add a b)
+  | (bit1 a) (bit1 b) := bit0 (succ (add a b))
+  | (bit0 a) (bit1 b) := bit1 (add a b)
+  | (bit1 a) (bit0 b) := bit1 (add a b)
 end pos_num
 
 instance : has_add pos_num :=
@@ -322,8 +326,10 @@ instance : has_add pos_num :=
 namespace num
   open pos_num
 
-  def add (a b : num) : num :=
-  num.rec_on a b (λ pa, num.rec_on b (pos pa) (λ pb, pos (pos_num.add pa pb)))
+  def add : num → num → num
+  | zero    a       := a
+  | b       zero    := b
+  | (pos a) (pos b) := pos (pos_num.add a b)
 end num
 
 instance : has_add num :=
@@ -340,11 +346,20 @@ namespace nat
   protected def add (a b : nat) : nat :=
   nat.rec a (λ b₁ r, nat.succ r) b
 
-  def of_pos_num (p : pos_num) : nat :=
-  pos_num.rec (succ zero) (λ n r, nat.add (nat.add r r) (succ zero)) (λ n r, nat.add r r) p
+/- TODO(Leo): use the following definition as soon as we use rfl lemmas for unification
+  protected def add : nat → nat → nat
+  | a  zero     := a
+  | a  (succ b) := succ (add a b)
+-/
 
-  def of_num (n : num) : nat :=
-  num.rec zero (λ p, of_pos_num p) n
+  def of_pos_num : pos_num → nat
+  | pos_num.one      := succ zero
+  | (pos_num.bit0 a) := let r := of_pos_num a in nat.add r r
+  | (pos_num.bit1 a) := let r := of_pos_num a in succ (nat.add r r)
+
+  def of_num : num → nat
+  | num.zero    := zero
+  | (num.pos p) := of_pos_num p
 end nat
 
 instance : has_zero nat := ⟨nat.zero⟩

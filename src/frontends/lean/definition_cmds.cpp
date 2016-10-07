@@ -197,6 +197,7 @@ static void replace_params(buffer<expr> const & params, buffer<expr> const & new
 
 static expr_pair elaborate_theorem(elaborator & elab, expr const & fn, expr val) {
     expr fn_type = elab.elaborate_type(mlocal_type(fn));
+    elab.ensure_no_unassigned_metavars(fn_type);
     expr new_fn  = update_mlocal(fn, fn_type);
     val = replace_local(val, fn, new_fn);
     return elab.elaborate_with_type(val, mk_as_is(fn_type));

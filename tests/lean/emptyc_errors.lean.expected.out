@@ -1,0 +1,5 @@
+emptyc_errors.lean:4:52: error: don't know how to synthesize placeholder
+state:
+A : Type u,
+x : A
+⊢ Type u → Type ?

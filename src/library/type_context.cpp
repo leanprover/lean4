@@ -1497,6 +1497,13 @@ Now, we consider some workarounds/approximations.
        a_{i+1}        =?= b_1
        ...
        a_{i+k}        =?= b_k
+
+
+ A6) If (m =?= v) is of the form
+
+        ?M a_1 ... a_n =?= ?M b_1 ... b_k
+
+     then we use first-order unification (if approximate() is true)
 */
 bool type_context::process_assignment(expr const & m, expr const & v) {
     lean_trace(name({"type_context", "is_def_eq_detail"}),
@@ -1562,6 +1569,11 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
     }
 
     expr new_v = instantiate_mvars(v); /* enforce A4 */
+
+    if (approximate() && !locals.empty() && get_app_fn(new_v) == mvar) {
+        /* A6 */
+        use_fo = true;
+    }
 
     if (use_fo) {
         /* Use first-order unification.

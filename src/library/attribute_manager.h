@@ -233,6 +233,7 @@ void register_system_attribute(Attribute attr) {
 }
 void register_incompatible(char const * attr1, char const * attr2);
 
+bool is_system_attribute(name const & attr_name);
 bool is_attribute(environment const & env, name const & attr);
 attribute const & get_attribute(environment const & env, name const & attr);
 attribute const & get_system_attribute(name const & attr);

@@ -471,43 +471,20 @@ static void print_rfl_lemmas(parser & p) {
 }
 
 static void print_simp_rules(parser & p) {
-    type_context aux_tctx(p.env(), p.get_options());
     name attr = p.check_id_next("invalid 'print [simp]' command, identifier expected");
-    buffer<name> attrs;
-    attrs.push_back(attr);
-    buffer<name> no_congr;
-    simp_lemmas slss = get_simp_lemmas(aux_tctx, attrs, no_congr);
+    simp_lemmas slss = get_simp_lemmas(p.env(), transparency_mode::Reducible, attr);
     type_checker tc(p.env());
     auto out = regular(p.env(), p.ios(), tc);
     out << slss.pp_simp(out.get_formatter());
 }
 
 static void print_congr_rules(parser & p) {
-    type_context aux_tctx(p.env(), p.get_options());
     name attr = p.check_id_next("invalid 'print [congr]' command, identifier expected");
-    buffer<name> no_simp;
-    buffer<name> attrs;
-    attrs.push_back(attr);
-    simp_lemmas slss = get_simp_lemmas(aux_tctx, no_simp, attrs);
+    simp_lemmas slss = get_simp_lemmas(p.env(), transparency_mode::Reducible, attr);
     type_checker tc(p.env());
     auto out = regular(p.env(), p.ios(), tc);
     out << slss.pp_congr(out.get_formatter());
 }
-
-static void print_simp_extensions(parser & p) {
-    type_checker tc(p.env());
-    auto out = regular(p.env(), p.ios(), tc);
-    out << pp_simp_extensions(p.env());
-}
-
-#if 0
-static void print_light_rules(parser & p) {
-    type_checker tc(p.env());
-    auto out = regular(p.env(), p.ios(), tc);
-    light_rule_set lrs = get_light_rule_set(p.env());
-    out << lrs;
-}
-#endif
 
 static void print_aliases(parser const & p) {
     std::ostream & out = p.ios().get_regular_stream();
@@ -647,20 +624,16 @@ environment print_cmd(parser & p) {
         auto name = p.check_id_next("invalid attribute declaration, identifier expected");
         p.check_token_next(get_rbracket_tk(), "invalid 'print [<attr>]', ']' expected");
 
-        if (name == "recursor")
+        if (name == "recursor") {
             print_recursor_info(p);
-        else if (name == "unify")
+        } else if (name == "unify") {
             print_unification_hints(p);
-        else if (name == "defeq")
+        } else if (name == "defeq") {
             print_rfl_lemmas(p);
-        else if (name == "simp")
+        } else if (name == "simp") {
             print_simp_rules(p);
-        else if (name == "simp_ext")
-            print_simp_extensions(p);
-        else if (name == "congr")
+        } else if (name == "congr") {
             print_congr_rules(p);
-        else if (name == "light") {
-            // print_light_rules(p);
         } else {
             if (!is_attribute(p.env(), name))
                 throw parser_error(sstream() << "unknown attribute [" << name << "]", pos);

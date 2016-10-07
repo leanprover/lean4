@@ -27,8 +27,8 @@ Author: Daniel Selsam
 #include "library/constructions/has_sizeof.h"
 
 namespace lean {
-
 static name * g_simp_sizeof = nullptr;
+static simp_lemmas_token g_simp_sizeof_tk;
 
 static basic_attribute const & get_simp_sizeof_attribute() {
     return static_cast<basic_attribute const &>(get_system_attribute(*g_simp_sizeof));
@@ -293,16 +293,13 @@ name simp_sizeof_attribute_name() {
     return *g_simp_sizeof;
 }
 
-simp_lemmas get_sizeof_simp_lemmas(type_context & tctx) {
-    buffer<name> simp_attrs, congr_attrs;
-    simp_attrs.push_back(simp_sizeof_attribute_name());
-    return get_simp_lemmas(tctx, simp_attrs, congr_attrs);
+simp_lemmas get_sizeof_simp_lemmas(environment const & env, transparency_mode m) {
+    return get_simp_lemmas(env, m, g_simp_sizeof_tk);
 }
 
 void initialize_has_sizeof() {
-    g_simp_sizeof = new name{"simp", "sizeof"};
-    register_system_attribute(basic_attribute::with_check(*g_simp_sizeof, "simplification lemma", on_add_simp_lemma));
-
+    g_simp_sizeof    = new name{"simp", "sizeof"};
+    g_simp_sizeof_tk = register_simp_attribute("ssizeof", {*g_simp_sizeof}, {});
     register_trace_class(name({"constructions", "has_sizeof"}));
 }
 

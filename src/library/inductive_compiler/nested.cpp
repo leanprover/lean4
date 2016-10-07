@@ -1689,7 +1689,7 @@ public:
         construct_inner_decl();
         add_inner_decl();
         check_elim_to_type();
-        m_sizeof_lemmas = get_sizeof_simp_lemmas(m_tctx);
+        m_sizeof_lemmas = get_sizeof_simp_lemmas(m_tctx.env(), m_tctx.mode());
 
         define_nested_inds();
 

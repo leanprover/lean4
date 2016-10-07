@@ -34,14 +34,13 @@ static std::vector<pair<name, name>> * g_incomp = nullptr;
 
 static std::string * g_key = nullptr;
 
-static bool is_system_attribute(name const & attr) {
-    return g_system_attributes->find(attr) != nullptr;
+bool is_system_attribute(name const & attr) {
+    return g_system_attributes->contains(attr);
 }
 void register_system_attribute(attribute_ptr attr) {
     lean_assert(!is_system_attribute(attr->get_name()));
     (*g_system_attributes)[attr->get_name()] = attr;
 }
-
 bool is_attribute(environment const & env, name const & attr) {
     return is_system_attribute(attr) || g_user_attribute_ext->get_attributes(env).find(attr) != nullptr;
 }

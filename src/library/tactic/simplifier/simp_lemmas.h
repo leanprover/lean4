@@ -141,7 +141,17 @@ public:
     format pp(formatter const & fmt) const;
 };
 
-simp_lemmas get_simp_lemmas(type_context & tctx, buffer<name> const & simp_attrs, buffer<name> const & congr_attrs);
+typedef unsigned simp_lemmas_token;
+
+/* Create a token for accessing a simp_lemmas that contains the given simp and attributes.
+   The attributes are automatically registered in the system IF they have not already been registered. */
+simp_lemmas_token register_simp_attribute(name const & user_name,
+                                          std::initializer_list<name> const & simp_attrs,
+                                          std::initializer_list<name> const & congr_attrs);
+
+simp_lemmas get_simp_lemmas(environment const & env, transparency_mode m, simp_lemmas_token tk);
+simp_lemmas get_default_simp_lemmas(environment const & env, transparency_mode m);
+simp_lemmas get_simp_lemmas(environment const & env, transparency_mode m, name const & tk_name);
 
 simp_lemmas add_poly(type_context & tctx, simp_lemmas const & s, name const & id, unsigned priority);
 simp_lemmas add(type_context & tctx, simp_lemmas const & s, name const & id, expr const & e, expr const & h, unsigned priority);

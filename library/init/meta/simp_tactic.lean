@@ -14,11 +14,7 @@ meta constant simp_lemmas.erase : simp_lemmas → list name → simp_lemmas
 
 namespace tactic
 open list nat
-/- Create a data-structure containing a simp lemma for every constant in the first list of
-   attributes, and a congr lemma for every constant in the second list of attributes.
-   Lemmas with type `<lhs> <eqv_rel> <rhs>` are indexed using the head-symbol of `<lhs>`,
-   computed with respect to the given transparency setting. -/
-meta constant mk_simp_lemmas_core     : transparency → list name → list name → tactic simp_lemmas
+meta constant mk_default_simp_lemmas_core : transparency → tactic simp_lemmas
 /- (simp_lemmas_insert_core m lemmas lemma priority) adds the given lemma to the set simp_lemmas. -/
 meta constant simp_lemmas_insert_core : transparency → simp_lemmas → expr → tactic simp_lemmas
 /- (simp_lemmas_insert_constant_core m lemmas cname) -/
@@ -28,7 +24,7 @@ meta def simp_lemmas_insert_constant : simp_lemmas → name → tactic simp_lemm
 simp_lemmas_insert_constant_core reducible
 
 meta def mk_simp_lemmas        : tactic simp_lemmas :=
-mk_simp_lemmas_core reducible [`simp] [`congr]
+mk_default_simp_lemmas_core reducible
 
 meta def simp_lemmas_add_extra : transparency → simp_lemmas → list expr → tactic simp_lemmas
 | m sls []      := return sls

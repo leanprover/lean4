@@ -46,11 +46,11 @@ struct inverse_config {
         return *g_key;
     }
     static void  write_entry(serializer & s, entry const & e) {
-        s << e.m_fn << e.m_info.m_arity << e.m_info.m_inv << e.m_info.m_lemma;
+        s << e.m_fn << e.m_info.m_arity << e.m_info.m_inv << e.m_info.m_inv_arity << e.m_info.m_lemma;
     }
     static entry read_entry(deserializer & d) {
         entry e;
-        d >> e.m_fn >> e.m_info.m_arity >> e.m_info.m_inv >> e.m_info.m_lemma;
+        d >> e.m_fn >> e.m_info.m_arity >> e.m_info.m_inv >> e.m_info.m_inv_arity >> e.m_info.m_lemma;
         return e;
     }
     static optional<unsigned> get_fingerprint(entry const & e) {

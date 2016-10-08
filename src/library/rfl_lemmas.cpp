@@ -53,8 +53,9 @@ static void on_add_rfl_lemma(environment const & env, name const & decl_name, bo
         throw exception("invalid reflexivity lemma: the two sides of the equality cannot be structurally equal");
 }
 
-static void add_lemma_core(tmp_type_context & ctx, name const & decl_name, unsigned priority,
+static void add_lemma_core(type_context & ctx, name const & decl_name, unsigned priority,
                            rfl_lemmas & result) {
+    type_context::tmp_mode_scope scope(ctx);
     environment const & env = ctx.env();
     declaration const & d   = env.get(decl_name);
     lean_assert(d.is_definition());
@@ -90,8 +91,7 @@ static rfl_lemmas get_rfl_lemmas_from_attribute(type_context & ctx, name const &
         i--;
         name const & id = lemmas[i];
         unsigned prio = attr.get_prio(env, id);
-        tmp_type_context tmp_ctx(ctx);
-        add_lemma_core(tmp_ctx, id, prio, result);
+        add_lemma_core(ctx, id, prio, result);
     }
     return result;
 }

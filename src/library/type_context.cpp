@@ -1105,6 +1105,11 @@ expr type_context::mk_tmp_mvar(expr const & type) {
     return mk_idx_metavar(idx, type);
 }
 
+void type_context::clear_tmp_eassignment() {
+    lean_assert(in_tmp_mode());
+    m_tmp_eassignment->clear();
+}
+
 /* -----------------------------------
    Uniform interface to temporary & regular metavariables
    ----------------------------------- */

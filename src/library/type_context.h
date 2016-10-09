@@ -491,6 +491,9 @@ public:
     void instantiate_mvars_at_type_of(expr const & m) {
         m_mctx.instantiate_mvars_at_type_of(m);
     }
+    /** Clear assigned temporary metavars
+        \pre in_tmp_mode() */
+    void clear_tmp_eassignment();
 
 private:
     /* ------------

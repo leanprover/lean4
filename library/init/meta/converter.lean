@@ -102,7 +102,7 @@ lhs >>= trace
 
 meta def apply_lemmas_core (s : simp_lemmas) (prove : tactic unit) : conv unit :=
 λ r e, do
-  (new_e, pr) ← simp_lemmas_rewrite s prove r e,
+  (new_e, pr) ← s^.rewrite prove r e,
   return ⟨(), new_e, some pr⟩
 
 meta def apply_lemmas (s : simp_lemmas) : conv unit :=
@@ -112,7 +112,7 @@ apply_lemmas_core s failed
 meta def apply_propext_lemmas_core (s : simp_lemmas) (prove : tactic unit) : conv unit :=
 λ r e, do
   guard (r = `eq),
-  (new_e, pr) ← simp_lemmas_rewrite s prove `iff e,
+  (new_e, pr) ← s^.rewrite prove `iff e,
   new_pr ← mk_app `propext [pr],
   return ⟨(), new_e, some new_pr⟩
 

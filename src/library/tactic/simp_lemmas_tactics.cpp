@@ -32,7 +32,7 @@ vm_obj to_obj(simp_lemmas const & idx) {
     return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_simp_lemmas))) vm_simp_lemmas(idx));
 }
 
-vm_obj tactic_mk_default_simp_lemmas(vm_obj const & m, vm_obj const & s) {
+vm_obj simp_lemmas_mk_default_core(vm_obj const & m, vm_obj const & s) {
     LEAN_TACTIC_TRY;
     environment const & env = to_tactic_state(s).env();
     simp_lemmas r = get_default_simp_lemmas(env, to_transparency_mode(m));
@@ -40,7 +40,7 @@ vm_obj tactic_mk_default_simp_lemmas(vm_obj const & m, vm_obj const & s) {
     LEAN_TACTIC_CATCH(to_tactic_state(s));
 }
 
-vm_obj tactic_simp_lemmas_insert(vm_obj const & m, vm_obj const & lemmas, vm_obj const & lemma, vm_obj const & s) {
+vm_obj simp_lemmas_add_core(vm_obj const & m, vm_obj const & lemmas, vm_obj const & lemma, vm_obj const & s) {
     LEAN_TACTIC_TRY;
     type_context tctx = mk_type_context_for(s, m);
     expr e = to_expr(lemma);
@@ -58,10 +58,18 @@ vm_obj tactic_simp_lemmas_insert(vm_obj const & m, vm_obj const & lemmas, vm_obj
     LEAN_TACTIC_CATCH(to_tactic_state(s));
 }
 
-vm_obj tactic_simp_lemmas_insert_constant(vm_obj const & m, vm_obj const & lemmas, vm_obj const & lemma_name, vm_obj const & s) {
+vm_obj simp_lemmas_add_simp(vm_obj const & m, vm_obj const & lemmas, vm_obj const & lemma_name, vm_obj const & s) {
     LEAN_TACTIC_TRY;
     type_context ctx = mk_type_context_for(s, m);
     simp_lemmas new_lemmas = add(ctx, to_simp_lemmas(lemmas), to_name(lemma_name), LEAN_DEFAULT_PRIORITY);
+    return mk_tactic_success(to_obj(new_lemmas), to_tactic_state(s));
+    LEAN_TACTIC_CATCH(to_tactic_state(s));
+}
+
+vm_obj simp_lemmas_add_congr(vm_obj const & m, vm_obj const & lemmas, vm_obj const & lemma_name, vm_obj const & s) {
+    LEAN_TACTIC_TRY;
+    type_context ctx = mk_type_context_for(s, m);
+    simp_lemmas new_lemmas = add_congr(ctx, to_simp_lemmas(lemmas), to_name(lemma_name), LEAN_DEFAULT_PRIORITY);
     return mk_tactic_success(to_obj(new_lemmas), to_tactic_state(s));
     LEAN_TACTIC_CATCH(to_tactic_state(s));
 }
@@ -180,8 +188,8 @@ static simp_result simp_lemma_rewrite(type_context & ctx, simp_lemma const & sl,
     }
 }
 
-vm_obj simp_lemmas_rewrite(transparency_mode const & m, simp_lemmas const & sls, vm_obj const & prove_fn,
-                           name const & R, expr const & e, tactic_state const & s) {
+vm_obj simp_lemmas_rewrite_core(transparency_mode const & m, simp_lemmas const & sls, vm_obj const & prove_fn,
+                                name const & R, expr const & e, tactic_state const & s) {
     LEAN_TACTIC_TRY;
     simp_lemmas_for const * sr = sls.find(R);
     if (!sr) return mk_tactic_exception("failed to apply simp_lemmas, no lemmas for the given relation", s);
@@ -205,20 +213,21 @@ vm_obj simp_lemmas_rewrite(transparency_mode const & m, simp_lemmas const & sls,
     LEAN_TACTIC_CATCH(s);
 }
 
-static vm_obj tactic_simp_lemmas_rewrite(vm_obj const & m, vm_obj const & sls, vm_obj const & prove_fn,
-                                         vm_obj const & R, vm_obj const & e, vm_obj const & s) {
-    return simp_lemmas_rewrite(to_transparency_mode(m), to_simp_lemmas(sls), prove_fn,
-                               to_name(R), to_expr(e), to_tactic_state(s));
+vm_obj simp_lemmas_rewrite(vm_obj const & m, vm_obj const & sls, vm_obj const & prove_fn,
+                           vm_obj const & R, vm_obj const & e, vm_obj const & s) {
+    return simp_lemmas_rewrite_core(to_transparency_mode(m), to_simp_lemmas(sls), prove_fn,
+                                    to_name(R), to_expr(e), to_tactic_state(s));
 }
 
 void initialize_simp_lemmas_tactics() {
     DECLARE_VM_BUILTIN(name({"simp_lemmas", "mk"}), simp_lemmas_mk);
     DECLARE_VM_BUILTIN(name({"simp_lemmas", "join"}), simp_lemmas_join);
     DECLARE_VM_BUILTIN(name({"simp_lemmas", "erase"}), simp_lemmas_erase);
-    DECLARE_VM_BUILTIN(name({"tactic", "mk_default_simp_lemmas_core"}),      tactic_mk_default_simp_lemmas);
-    DECLARE_VM_BUILTIN(name({"tactic", "simp_lemmas_insert_core"}),          tactic_simp_lemmas_insert);
-    DECLARE_VM_BUILTIN(name({"tactic", "simp_lemmas_insert_constant_core"}), tactic_simp_lemmas_insert_constant);
-    DECLARE_VM_BUILTIN(name({"tactic", "simp_lemmas_rewrite_core"}),         tactic_simp_lemmas_rewrite);
+    DECLARE_VM_BUILTIN(name({"simp_lemmas", "mk_default_core"}), simp_lemmas_mk_default_core);
+    DECLARE_VM_BUILTIN(name({"simp_lemmas", "add_core"}),        simp_lemmas_add_core);
+    DECLARE_VM_BUILTIN(name({"simp_lemmas", "add_simp_core"}),   simp_lemmas_add_simp);
+    DECLARE_VM_BUILTIN(name({"simp_lemmas", "add_congr_core"}),  simp_lemmas_add_congr);
+    DECLARE_VM_BUILTIN(name({"simp_lemmas", "rewrite_core"}),    simp_lemmas_rewrite);
 }
 
 void finalize_simp_lemmas_tactics() {

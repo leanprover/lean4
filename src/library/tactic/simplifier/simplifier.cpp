@@ -1331,7 +1331,7 @@ expr simplifier::remove_unnecessary_casts(expr const & e) {
     return mk_app(f, args);
 }
 
-vm_obj tactic_simplify_core(vm_obj const & prove_fn, vm_obj const & rel_name, vm_obj const & lemmas, vm_obj const & e, vm_obj const & s0) {
+vm_obj simp_lemmas_simplify_core(vm_obj const & lemmas, vm_obj const & prove_fn, vm_obj const & rel_name, vm_obj const & e, vm_obj const & s0) {
     tactic_state const & s   = to_tactic_state(s0);
     try {
         type_context tctx    = mk_type_context_for(s, transparency_mode::Reducible);
@@ -1411,7 +1411,7 @@ void initialize_simplifier() {
     register_bool_option(*g_simplify_canonize_subsingletons, LEAN_DEFAULT_SIMPLIFY_CANONIZE_SUBSINGLETONS,
                          "(simplify) canonize_subsingletons");
 
-    DECLARE_VM_BUILTIN(name({"tactic", "simplify_core"}), tactic_simplify_core);
+    DECLARE_VM_BUILTIN(name({"simp_lemmas", "simplify_core"}), simp_lemmas_simplify_core);
 }
 
 void finalize_simplifier() {

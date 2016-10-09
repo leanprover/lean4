@@ -7,32 +7,36 @@ prelude
 import init.meta.tactic init.meta.attribute init.meta.constructor_tactic
 import init.meta.relation_tactics
 
+open tactic
+
 meta constant simp_lemmas : Type
-meta constant simp_lemmas.mk    : simp_lemmas
-meta constant simp_lemmas.join  : simp_lemmas → simp_lemmas → simp_lemmas
+meta constant simp_lemmas.mk : simp_lemmas
+meta constant simp_lemmas.join : simp_lemmas → simp_lemmas → simp_lemmas
 meta constant simp_lemmas.erase : simp_lemmas → list name → simp_lemmas
+meta constant simp_lemmas.mk_default_core : transparency → tactic simp_lemmas
+meta constant simp_lemmas.add_core : transparency → simp_lemmas → expr → tactic simp_lemmas
+meta constant simp_lemmas.add_simp_core : transparency → simp_lemmas → name → tactic simp_lemmas
+meta constant simp_lemmas.add_congr_core : transparency → simp_lemmas → name → tactic simp_lemmas
 
-namespace tactic
-open list nat
-meta constant mk_default_simp_lemmas_core : transparency → tactic simp_lemmas
-/- (simp_lemmas_insert_core m lemmas lemma priority) adds the given lemma to the set simp_lemmas. -/
-meta constant simp_lemmas_insert_core : transparency → simp_lemmas → expr → tactic simp_lemmas
-/- (simp_lemmas_insert_constant_core m lemmas cname) -/
-meta constant simp_lemmas_insert_constant_core : transparency → simp_lemmas → name → tactic simp_lemmas
+meta def simp_lemmas.mk_default : tactic simp_lemmas :=
+simp_lemmas.mk_default_core reducible
 
-meta def simp_lemmas_insert_constant : simp_lemmas → name → tactic simp_lemmas :=
-simp_lemmas_insert_constant_core reducible
+meta def simp_lemmas.add : simp_lemmas → expr → tactic simp_lemmas :=
+simp_lemmas.add_core reducible
 
-meta def mk_simp_lemmas        : tactic simp_lemmas :=
-mk_default_simp_lemmas_core reducible
+meta def simp_lemmas.add_simp : simp_lemmas → name → tactic simp_lemmas :=
+simp_lemmas.add_simp_core reducible
 
-meta def simp_lemmas_add_extra : transparency → simp_lemmas → list expr → tactic simp_lemmas
-| m sls []      := return sls
-| m sls (l::ls) := do
-  new_sls ← simp_lemmas_insert_core m sls l,
-  simp_lemmas_add_extra m new_sls ls
+meta def simp_lemmas.add_congr : simp_lemmas → name → tactic simp_lemmas :=
+simp_lemmas.add_congr_core reducible
 
-/- (simp_lemmas_rewrite_core m s prove R e) apply a simplification lemma from 's'
+meta def simp_lemmas.append : simp_lemmas → list expr → tactic simp_lemmas
+| sls []      := return sls
+| sls (l::ls) := do
+  new_sls ← simp_lemmas.add sls l,
+  simp_lemmas.append new_sls ls
+
+/- (simp_lemmas.rewrite_core m s prove R e) apply a simplification lemma from 's'
 
    - 'prove' is used to discharge proof obligations.
    - 'R'     is the equivalence relation being used (e.g., 'eq', 'iff')
@@ -40,10 +44,10 @@ meta def simp_lemmas_add_extra : transparency → simp_lemmas → list expr → 
 
    Result (new_e, pr) is the new expression 'new_e' and a proof (pr : e R new_e)
 -/
-meta constant simp_lemmas_rewrite_core : transparency → simp_lemmas → tactic unit → name → expr → tactic (expr × expr)
+meta constant simp_lemmas.rewrite_core : transparency → simp_lemmas → tactic unit → name → expr → tactic (expr × expr)
 
-meta def simp_lemmas_rewrite : simp_lemmas → tactic unit → name → expr → tactic (expr × expr) :=
-simp_lemmas_rewrite_core reducible
+meta def simp_lemmas.rewrite : simp_lemmas → tactic unit → name → expr → tactic (expr × expr) :=
+simp_lemmas.rewrite_core reducible
 
 /- Simplify the given expression using [simp] and [congr] lemmas.
    The first argument is a tactic to be used to discharge proof obligations.
@@ -53,13 +57,15 @@ simp_lemmas_rewrite_core reducible
    The result is the simplified expression along with a proof that the new
    expression is equivalent to the old one.
    Fails if no simplifications can be performed. -/
-meta constant simplify_core : tactic unit → name → simp_lemmas → expr → tactic (expr × expr)
+meta constant simp_lemmas.simplify_core : simp_lemmas → tactic unit → name → expr → tactic (expr × expr)
+
+namespace tactic
 
 meta def simplify (prove_fn : tactic unit) (extra_lemmas : list expr) (e : expr) : tactic (expr × expr) :=
-do simp_lemmas  ← mk_simp_lemmas,
-   new_lemmas   ← simp_lemmas_add_extra reducible simp_lemmas extra_lemmas,
+do lemmas       ← simp_lemmas.mk_default,
+   new_lemmas   ← lemmas^.append extra_lemmas,
    e_type       ← infer_type e >>= whnf,
-   simplify_core prove_fn `eq new_lemmas e
+   new_lemmas^.simplify_core prove_fn `eq e
 
 meta def simplify_goal (prove_fn : tactic unit) (extra_lemmas : list expr) : tactic unit :=
 do (new_target, Heq) ← target >>= simplify prove_fn extra_lemmas,
@@ -104,7 +110,7 @@ simp_core_at failed Hs
 
 meta def simp_at_using_hs (H : expr) : tactic unit :=
 do Hs ← local_context >>= collect_eqs,
-   simp_core_at failed (filter (ne H) Hs) H
+   simp_core_at failed (list.filter (ne H) Hs) H
 
 meta def mk_eq_simp_ext (simp_ext : expr → tactic (expr × expr)) : tactic unit :=
 do (lhs, rhs)     ← target >>= match_eq,
@@ -116,7 +122,7 @@ do (lhs, rhs)     ← target >>= match_eq,
 
 meta def to_simp_lemmas : simp_lemmas → list name → tactic simp_lemmas
 | S []      := return S
-| S (n::ns) := do S' ← simp_lemmas_insert_constant S n, to_simp_lemmas S' ns
+| S (n::ns) := do S' ← S^.add_simp n, to_simp_lemmas S' ns
 
 meta def mk_simp_attr (attr_name : name) : command :=
 do t ← to_expr `(caching_user_attribute simp_lemmas),
@@ -129,7 +135,7 @@ do t ← to_expr `(caching_user_attribute simp_lemmas),
    attribute.register attr_name
 
 meta def get_user_simp_lemmas (attr_name : name) : tactic simp_lemmas :=
-if attr_name = `default then mk_simp_lemmas
+if attr_name = `default then simp_lemmas.mk_default
 else do
   cnst   ← return (expr.const attr_name []),
   attr   ← eval_expr (caching_user_attribute simp_lemmas) cnst,
@@ -140,7 +146,7 @@ meta def join_user_simp_lemmas_core : simp_lemmas → list name → tactic simp_
 | S (attr_name::R) := do S' ← get_user_simp_lemmas attr_name, join_user_simp_lemmas_core (S^.join S') R
 
 meta def join_user_simp_lemmas : list name → tactic simp_lemmas
-| []         := mk_simp_lemmas
+| []         := simp_lemmas.mk_default
 | attr_names := join_user_simp_lemmas_core simp_lemmas.mk attr_names
 
 end tactic

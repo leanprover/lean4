@@ -24,9 +24,9 @@ print [simp] default
 print [congr] default
 
 meta definition relsimp_core (e : expr) : tactic (expr × expr) :=
-do simp_lemmas  ← mk_simp_lemmas,
-   e_type       ← infer_type e >>= whnf,
-   simplify_core failed `rel simp_lemmas e
+do S         ← simp_lemmas.mk_default,
+   e_type    ← infer_type e >>= whnf,
+   S^.simplify_core failed `rel e
 
 example : rel (h (f x)) z :=
 by do e₁ ← to_expr `(h (f x)),

@@ -266,12 +266,12 @@ private meta def to_expr_list : list pexpr → tactic (list expr)
 private meta def mk_simp_set (attr_names : list name) (hs : list qexpr) (ex : list name) : tactic simp_lemmas :=
 do es ← to_expr_list hs,
    s₀ ← join_user_simp_lemmas attr_names,
-   s₁ ← simp_lemmas_add_extra reducible s₀ es,
+   s₁ ← s₀^.append es,
    return $ simp_lemmas.erase s₁ ex
 
 private meta def simp_goal : simp_lemmas → tactic unit
 | s := do
-   (new_target, Heq) ← target >>= simplify_core (simp_goal s) `eq s,
+   (new_target, Heq) ← target >>= s^.simplify_core (simp_goal s) `eq,
    tactic.assert `Htarget new_target, swap,
    Ht ← get_local `Htarget,
    mk_app `eq.mpr [Heq, Ht] >>= tactic.exact
@@ -279,7 +279,7 @@ private meta def simp_goal : simp_lemmas → tactic unit
 private meta def simp_hyp (s : simp_lemmas) (h_name : name) : tactic unit :=
 do h     ← get_local h_name,
    htype ← infer_type h,
-   (new_htype, eqpr) ← simplify_core (simp_goal s) `eq s htype,
+   (new_htype, eqpr) ← s^.simplify_core (simp_goal s) `eq htype,
    tactic.assert (expr.local_pp_name h) new_htype,
    mk_app `eq.mp [eqpr, h] >>= tactic.exact,
    try $ tactic.clear h

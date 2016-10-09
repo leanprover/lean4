@@ -531,7 +531,7 @@ static environment copy_equation_lemmas(environment const & env, name const & d_
             /* Create a refl-lemma to make sure it can be used by the defeq simplifier. */
             type_context::tmp_locals extra_locals(ctx);
             while (is_pi(eqn_type)) {
-                expr local = locals.push_local_from_binding(eqn_type);
+                expr local = extra_locals.push_local_from_binding(eqn_type);
                 eqn_type = instantiate(binding_body(eqn_type), local);
             }
             expr lhs, rhs;

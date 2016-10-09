@@ -147,7 +147,7 @@ static bool instantiate_emetas(type_context & ctx, vm_obj const & prove_fn, unsi
 }
 
 
-static simp_result simp_lemma_apply(type_context & ctx, simp_lemma const & sl, vm_obj const & prove_fn, expr const & e) {
+static simp_result simp_lemma_rewrite(type_context & ctx, simp_lemma const & sl, vm_obj const & prove_fn, expr const & e) {
     type_context::tmp_mode_scope scope(ctx, sl.get_num_umeta(), sl.get_num_emeta());
     if (!ctx.is_def_eq(e, sl.get_lhs())) {
         lean_trace("simp_lemmas", tout() << "fail to unify: " << sl.get_id() << "\n";);
@@ -180,8 +180,8 @@ static simp_result simp_lemma_apply(type_context & ctx, simp_lemma const & sl, v
     }
 }
 
-vm_obj simp_lemmas_apply(transparency_mode const & m, simp_lemmas const & sls, vm_obj const & prove_fn,
-                         name const & R, expr const & e, tactic_state const & s) {
+vm_obj simp_lemmas_rewrite(transparency_mode const & m, simp_lemmas const & sls, vm_obj const & prove_fn,
+                           name const & R, expr const & e, tactic_state const & s) {
     LEAN_TACTIC_TRY;
     simp_lemmas_for const * sr = sls.find(R);
     if (!sr) return mk_tactic_exception("failed to apply simp_lemmas, no lemmas for the given relation", s);
@@ -192,7 +192,7 @@ vm_obj simp_lemmas_apply(transparency_mode const & m, simp_lemmas const & sls, v
     type_context ctx = mk_type_context_for(s, m);
 
     for (simp_lemma const & lemma : *srs) {
-        simp_result r = simp_lemma_apply(ctx, lemma, prove_fn, e);
+        simp_result r = simp_lemma_rewrite(ctx, lemma, prove_fn, e);
         if (!is_eqp(r.get_new(), e)) {
             lean_trace("simp_lemmas", scope_trace_env scope(ctx.env(), ctx);
                        tout() << "[" << lemma.get_id() << "]: " << e << " ==> " << r.get_new() << "\n";);
@@ -205,10 +205,10 @@ vm_obj simp_lemmas_apply(transparency_mode const & m, simp_lemmas const & sls, v
     LEAN_TACTIC_CATCH(s);
 }
 
-static vm_obj tactic_simp_lemmas_apply(vm_obj const & m, vm_obj const & sls, vm_obj const & prove_fn,
-                                       vm_obj const & R, vm_obj const & e, vm_obj const & s) {
-    return simp_lemmas_apply(to_transparency_mode(m), to_simp_lemmas(sls), prove_fn,
-                             to_name(R), to_expr(e), to_tactic_state(s));
+static vm_obj tactic_simp_lemmas_rewrite(vm_obj const & m, vm_obj const & sls, vm_obj const & prove_fn,
+                                         vm_obj const & R, vm_obj const & e, vm_obj const & s) {
+    return simp_lemmas_rewrite(to_transparency_mode(m), to_simp_lemmas(sls), prove_fn,
+                               to_name(R), to_expr(e), to_tactic_state(s));
 }
 
 void initialize_simp_lemmas_tactics() {
@@ -218,7 +218,7 @@ void initialize_simp_lemmas_tactics() {
     DECLARE_VM_BUILTIN(name({"tactic", "mk_default_simp_lemmas_core"}),      tactic_mk_default_simp_lemmas);
     DECLARE_VM_BUILTIN(name({"tactic", "simp_lemmas_insert_core"}),          tactic_simp_lemmas_insert);
     DECLARE_VM_BUILTIN(name({"tactic", "simp_lemmas_insert_constant_core"}), tactic_simp_lemmas_insert_constant);
-    DECLARE_VM_BUILTIN(name({"tactic", "simp_lemmas_apply_core"}),           tactic_simp_lemmas_apply);
+    DECLARE_VM_BUILTIN(name({"tactic", "simp_lemmas_rewrite_core"}),         tactic_simp_lemmas_rewrite);
 }
 
 void finalize_simp_lemmas_tactics() {

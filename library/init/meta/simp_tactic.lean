@@ -32,7 +32,7 @@ meta def simp_lemmas_add_extra : transparency → simp_lemmas → list expr → 
   new_sls ← simp_lemmas_insert_core m sls l,
   simp_lemmas_add_extra m new_sls ls
 
-/- (simp_lemmas_apply_core m s prove R e) apply a simplification lemma from 's'
+/- (simp_lemmas_rewrite_core m s prove R e) apply a simplification lemma from 's'
 
    - 'prove' is used to discharge proof obligations.
    - 'R'     is the equivalence relation being used (e.g., 'eq', 'iff')
@@ -40,10 +40,10 @@ meta def simp_lemmas_add_extra : transparency → simp_lemmas → list expr → 
 
    Result (new_e, pr) is the new expression 'new_e' and a proof (pr : e R new_e)
 -/
-meta constant simp_lemmas_apply_core : transparency → simp_lemmas → tactic unit → name → expr → tactic (expr × expr)
+meta constant simp_lemmas_rewrite_core : transparency → simp_lemmas → tactic unit → name → expr → tactic (expr × expr)
 
-meta def simp_lemmas_apply : simp_lemmas → tactic unit → name → expr → tactic (expr × expr) :=
-simp_lemmas_apply_core reducible
+meta def simp_lemmas_rewrite : simp_lemmas → tactic unit → name → expr → tactic (expr × expr) :=
+simp_lemmas_rewrite_core reducible
 
 /- Simplify the given expression using [simp] and [congr] lemmas.
    The first argument is a tactic to be used to discharge proof obligations.

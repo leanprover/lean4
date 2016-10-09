@@ -1,4 +1,3 @@
-set_option eqn_compiler.dsimp true
 open nat
 
 set_option pp.binder_types true
@@ -16,8 +15,6 @@ definition map2 : ∀ {n}, bv n → bv n → bv n
 | (n+1) (cons .n b1 v1) (cons .n b2 v2) := cons n (f b1 b2) (map2 v1 v2)
 
 check map2._main.equations.eqn_2
-
-set_option eqn_compiler.dsimp false
 
 /- defining function again without simplifying the type of automatically generated lemmas -/
 

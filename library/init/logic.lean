@@ -54,7 +54,7 @@ false.rec c h
 lemma proof_irrel {a : Prop} (h₁ h₂ : a) : h₁ = h₂ :=
 rfl
 
-@[defeq] def id.def {A : Type u} (a : A) : id a = a := rfl
+@[simp] lemma id.def {A : Type u} (a : A) : id a = a := rfl
 
 -- Remark: we provide the universe levels explicitly to make sure `eq.drec` has the same type of `eq.rec` in the hoTT library
 attribute [elab_as_eliminator]
@@ -109,7 +109,7 @@ rfl
 @[reducible] def ne {A : Type u} (a b : A) := ¬(a = b)
 notation a ≠ b := ne a b
 
-@[defeq] def ne.def {A : Type u} (a b : A) : a ≠ b = ¬ (a = b) :=
+@[simp] lemma ne.def {A : Type u} (a b : A) : a ≠ b = ¬ (a = b) :=
 rfl
 
 namespace ne

@@ -25,7 +25,6 @@ Author: Leonardo de Moura
 #include "library/unification_hint.h"
 #include "library/reducible.h"
 #include "library/simp_lemmas.h"
-#include "library/rfl_lemmas.h"
 #include "library/tactic/kabstract.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
@@ -463,12 +462,6 @@ static void print_unification_hints(parser & p) {
     out << pp_unification_hints(get_unification_hints(p.env()), out.get_formatter());
 }
 
-static void print_rfl_lemmas(parser & p) {
-    type_checker tc(p.env());
-    auto out = regular(p.env(), p.ios(), tc);
-    out << pp_rfl_lemmas(get_rfl_lemmas(p.env()), out.get_formatter());
-}
-
 static void print_simp_rules(parser & p) {
     name attr = p.check_id_next("invalid 'print [simp]' command, identifier expected");
     simp_lemmas slss = get_simp_lemmas(p.env(), transparency_mode::Reducible, attr);
@@ -627,8 +620,6 @@ environment print_cmd(parser & p) {
             print_recursor_info(p);
         } else if (name == "unify") {
             print_unification_hints(p);
-        } else if (name == "defeq") {
-            print_rfl_lemmas(p);
         } else if (name == "simp") {
             print_simp_rules(p);
         } else if (name == "congr") {

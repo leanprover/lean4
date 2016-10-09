@@ -1,4 +1,3 @@
-
 inductive vec (A : Type*) : nat → Type*
 | nil  : vec 0
 | cons : ∀ {n}, A → vec n → vec (n+1)
@@ -11,11 +10,10 @@ definition head {A : Type*} : ∀ {n : nat}, vec A (n+1) → A
 definition tail {A : Type*} : ∀ {n : nat}, vec A (n+1) → vec A n
 | n (cons h t) := t
 
-attribute [defeq]
-definition head_cons {A : Type*} {n : nat} (a : A) (v : vec A n) : head (cons a v) = a :=
+@[simp] definition head_cons {A : Type*} {n : nat} (a : A) (v : vec A n) : head (cons a v) = a :=
 rfl
 
-attribute [defeq]
+@[simp]
 definition tail_cons {A : Type*} {n : nat} (a : A) (v : vec A n) : tail (cons a v) = v :=
 rfl
 

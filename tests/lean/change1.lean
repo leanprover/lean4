@@ -1,6 +1,6 @@
 open tactic nat expr option
 
-attribute [defeq]
+attribute [simp]
 definition succ_eq_add (n : nat) : succ n = n + 1 :=
 rfl
 

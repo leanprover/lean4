@@ -1,6 +1,8 @@
 map2._main.equations.eqn_2 :
-  ∀ (f : bool → bool → bool) (n : ℕ) (b1 : bool) (v1 : bv n) (b2 : bool) (v2 : bv n),
-    map2._main f (cons n b1 v1) (cons n b2 v2) = cons n (f b1 b2) (map2._main f v1 v2)
+  ∀ (f : bool → bool → bool) (n : ℕ) (b1 : bool) (v1 : bv (nat.rec n (λ (b₁ r : ℕ), succ r) 0)) (b2 : bool)
+  (v2 : bv (nat.rec n (λ (b₁ r : ℕ), succ r) 0)),
+    map2._main f (cons (nat.rec n (λ (b₁ r : ℕ), succ r) 0) b1 v1)
+      (cons (nat.rec n (λ (b₁ r : ℕ), succ r) 0) b2 v2) = cons n (f b1 b2) (map2._main f v1 v2)
 map2'._main.equations.eqn_2 :
   ∀ (f : bool → bool → bool) (n : ℕ) (b1 : bool) (v1 : bv (nat.rec n (λ (b₁ r : ℕ), succ r) 0)) (b2 : bool)
   (v2 : bv (nat.rec n (λ (b₁ r : ℕ), succ r) 0)),

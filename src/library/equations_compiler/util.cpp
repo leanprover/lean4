@@ -20,13 +20,8 @@ Author: Leonardo de Moura
 #include "library/aux_definition.h"
 #include "library/scope_pos_info_provider.h"
 #include "library/compiler/vm_compiler.h"
-#include "library/tactic/defeq_simplifier.h"
 #include "library/equations_compiler/equations.h"
 #include "library/equations_compiler/util.h"
-
-#ifndef LEAN_DEFAULT_EQN_COMPILER_DSIMP
-#define LEAN_DEFAULT_EQN_COMPILER_DSIMP false
-#endif
 
 #ifndef LEAN_DEFAULT_EQN_COMPILER_LEMMAS
 #define LEAN_DEFAULT_EQN_COMPILER_LEMMAS true
@@ -37,13 +32,8 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
-static name * g_eqn_compiler_dsimp  = nullptr;
 static name * g_eqn_compiler_lemmas = nullptr;
 static name * g_eqn_compiler_zeta   = nullptr;
-
-static bool get_eqn_compiler_dsimp(options const & o) {
-    return o.get_bool(*g_eqn_compiler_dsimp, LEAN_DEFAULT_EQN_COMPILER_DSIMP);
-}
 
 static bool get_eqn_compiler_lemmas(options const & o) {
     return o.get_bool(*g_eqn_compiler_lemmas, LEAN_DEFAULT_EQN_COMPILER_LEMMAS);
@@ -298,19 +288,6 @@ static environment add_equation_lemma(environment const & env, options const & o
     std::tie(new_env, new_c) = mk_def_name(env, is_private, c);
     expr r;
     expr new_type  = type;
-    bool use_dsimp = get_eqn_compiler_dsimp(opts);
-    if (use_dsimp) {
-        try {
-            type_context ctx(env, opts, mctx, lctx, transparency_mode::None);
-            rfl_lemmas lemmas = get_rfl_lemmas(env, g_eqn_sanitizer_token);
-            new_type = defeq_simplify(ctx, lemmas, type);
-        } catch (defeq_simplifier_exception & ex) {
-            throw nested_exception("equation compiler failed to simplify type of automatically generated lemma using "
-                                   "defeq simplifier "
-                                   "(possible solution: disable simplification step using `set_option eqn_compiler.dsimp false`), "
-                                   "defeq simplifier error message:\n", ex);
-        }
-    }
     expr new_value = value;
     bool zeta      = get_eqn_compiler_zeta(opts);
     if (zeta) {
@@ -501,21 +478,15 @@ environment mk_equation_lemma(environment const & env, options const & opts, met
 void initialize_eqn_compiler_util() {
     register_trace_class("eqn_compiler");
     register_trace_class(name{"debug", "eqn_compiler"});
-    g_eqn_compiler_dsimp  = new name{"eqn_compiler", "dsimp"};
     g_eqn_compiler_lemmas = new name{"eqn_compiler", "lemmas"};
     g_eqn_compiler_zeta   = new name{"eqn_compiler", "zeta"};
-    register_bool_option(*g_eqn_compiler_dsimp, LEAN_DEFAULT_EQN_COMPILER_DSIMP,
-                         "(equation compiler) use defeq simplifier to cleanup types of "
-                         "automatically synthesized equational lemmas");
     register_bool_option(*g_eqn_compiler_lemmas, LEAN_DEFAULT_EQN_COMPILER_LEMMAS,
                          "(equation compiler) generate equation lemmas and induction principle");
     register_bool_option(*g_eqn_compiler_zeta, LEAN_DEFAULT_EQN_COMPILER_ZETA,
                          "(equation compiler) apply zeta-expansion (expand references to let-declarations) before creating auxiliary definitions.");
-    g_eqn_sanitizer_token = register_defeq_simp_attribute("eqn_sanitizer");
 }
 
 void finalize_eqn_compiler_util() {
-    delete g_eqn_compiler_dsimp;
     delete g_eqn_compiler_lemmas;
 }
 }

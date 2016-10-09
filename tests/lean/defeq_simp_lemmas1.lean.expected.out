@@ -1,7 +1,0 @@
-reflexivity lemmas:
-foo.d.def #4, d ?x_0 ?x_1 ?x_2 ?x_3 ↦ f (f ?x_0 ?x_1 ?x_2) (f ?x_1 ?x_2 ?x_3) (f ?x_0 ?x_3 ?x_2)
-foo.f.def #3, f ?x_0 ?x_1 ?x_2 ↦ g (g ?x_0 ?x_1) ?x_2
-id.def #2, id ?x_1 ↦ ?x_1
-foo.g.def #2, g ?x_0 ?x_1 ↦ h ?x_1
-ne.def #3, ?x_1 ≠ ?x_2 ↦ ¬?x_1 = ?x_2
-foo.h.def #1, h ?x_0 ↦ q ?x_0

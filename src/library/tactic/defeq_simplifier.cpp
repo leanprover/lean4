@@ -10,6 +10,7 @@ Author: Daniel Selsam
 #include "kernel/abstract.h"
 #include "kernel/inductive/inductive.h"
 #include "library/trace.h"
+#include "library/constants.h"
 #include "library/util.h"
 #include "library/fun_info.h"
 #include "library/defeq_canonizer.h"
@@ -75,7 +76,7 @@ static bool get_simplify_canonize_proofs(options const & o) {
 class defeq_simplify_fn {
     type_context           & m_ctx;
 
-    rfl_lemmas               m_simp_lemmas;
+    simp_lemmas_for          m_simp_lemmas;
 
     unsigned                 m_num_simp_rounds{0};
     unsigned                 m_num_rewrite_rounds{0};
@@ -246,20 +247,23 @@ class defeq_simplify_fn {
                                                  "the current limit is " << m_max_rewrite_rounds << ") "
                                                  "(use `set_option trace.defeq_simplifier true` to obtain more information");
             }
-            list<rfl_lemma> const * simp_lemmas_ptr = m_simp_lemmas.find(e);
+            list<simp_lemma> const * simp_lemmas_ptr = m_simp_lemmas.find(e);
             if (!simp_lemmas_ptr) return e;
-            buffer<rfl_lemma> simp_lemmas;
+            buffer<simp_lemma> simp_lemmas;
             to_buffer(*simp_lemmas_ptr, simp_lemmas);
 
             expr e_start = e;
-            for (rfl_lemma const & sl : simp_lemmas) e = rewrite(e, sl);
+            for (simp_lemma const & sl : simp_lemmas) {
+                if (sl.is_refl())
+                    e = rewrite(e, sl);
+            }
             if (e == e_start) break;
         }
         return e;
     }
 
-    expr rewrite(expr const & e, rfl_lemma const & sl) {
-        return rfl_lemma_rewrite(m_ctx, e, sl);
+    expr rewrite(expr const & e, simp_lemma const & sl) {
+        return refl_lemma_rewrite(m_ctx, e, sl);
     }
 
     expr whnf_eta(expr const & e) {
@@ -267,15 +271,16 @@ class defeq_simplify_fn {
     }
 
 public:
-    defeq_simplify_fn(type_context & ctx, rfl_lemmas const & simp_lemmas):
+    defeq_simplify_fn(type_context & ctx, simp_lemmas const & simp_lemmas):
         m_ctx(ctx),
-        m_simp_lemmas(simp_lemmas),
         m_max_simp_rounds(get_simplify_max_simp_rounds(ctx.get_options())),
         m_max_rewrite_rounds(get_simplify_max_rewrite_rounds(ctx.get_options())),
         m_top_down(get_simplify_top_down(ctx.get_options())),
         m_exhaustive(get_simplify_exhaustive(ctx.get_options())),
         m_memoize(get_simplify_memoize(ctx.get_options())),
         m_canonize_proofs(get_simplify_canonize_proofs(ctx.get_options())) {
+        if (auto * s = simp_lemmas.find(get_eq_name()))
+            m_simp_lemmas = *s;
     }
 
     ~defeq_simplify_fn() {}
@@ -293,7 +298,7 @@ public:
 };
 
 /* Entry point */
-expr defeq_simplify(type_context & ctx, rfl_lemmas const & simp_lemmas, expr const & e) {
+expr defeq_simplify(type_context & ctx, simp_lemmas const & simp_lemmas, expr const & e) {
     return defeq_simplify_fn(ctx, simp_lemmas)(e);
 }
 
@@ -301,14 +306,14 @@ vm_obj tactic_defeq_simp(vm_obj const & m, vm_obj const & e, vm_obj const & s0) 
     type_context ctx = mk_type_context_for(s0, m);
     tactic_state const & s    = to_tactic_state(s0);
     LEAN_TACTIC_TRY;
-    rfl_lemmas lemmas = get_rfl_lemmas(s.env());
-    expr new_e        = defeq_simplify(ctx, lemmas, to_expr(e));
+    simp_lemmas lemmas = get_default_simp_lemmas(s.env(), transparency_mode::Reducible);
+    expr new_e         = defeq_simplify(ctx, lemmas, to_expr(e));
     return mk_tactic_success(to_obj(new_e), s);
     LEAN_TACTIC_CATCH(s);
 }
 
 expr defeq_simplify(type_context & ctx, expr const & e) {
-    rfl_lemmas lemmas  = get_rfl_lemmas(ctx.env());
+    simp_lemmas lemmas  = get_default_simp_lemmas(ctx.env(), transparency_mode::Reducible);
     return defeq_simplify(ctx, lemmas, e);
 }
 

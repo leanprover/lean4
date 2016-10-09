@@ -178,6 +178,8 @@ format simp_lemma::pp(formatter const & fmt) const {
     r += format("#") + format(get_num_emeta());
     if (get_priority() != LEAN_DEFAULT_PRIORITY)
         r += space() + paren(format(get_priority()));
+    if (is_refl())
+        r += space() + format("defeq");
     if (is_permutation())
         r += space() + format("perm");
     if (kind() == simp_lemma_kind::Congr) {

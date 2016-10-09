@@ -1,7 +1,7 @@
 open nat tactic
 universe variables u variables {A : Type u}
 
-attribute [defeq]
+attribute [simp]
 definition succ_eq_add (n : nat) : succ n = n + 1 :=
 rfl
 

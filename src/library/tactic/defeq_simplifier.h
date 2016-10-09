@@ -6,7 +6,7 @@ Author: Daniel Selsam
 #pragma once
 #include "kernel/expr.h"
 #include "library/type_context.h"
-#include "library/rfl_lemmas.h"
+#include "library/simp_lemmas.h"
 
 namespace lean {
 class defeq_simplifier_exception : public exception {
@@ -17,7 +17,7 @@ public:
     virtual void rethrow() const override { throw *this; }
 };
 
-expr defeq_simplify(type_context & ctx, rfl_lemmas const & simp_lemmas, expr const & e);
+expr defeq_simplify(type_context & ctx, simp_lemmas const & simp_lemmas, expr const & e);
 expr defeq_simplify(type_context & ctx, expr const & e);
 void initialize_defeq_simplifier();
 void finalize_defeq_simplifier();

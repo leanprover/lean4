@@ -23,6 +23,7 @@ Author: Leonardo de Moura
 #include "library/error_handling.h"
 #include "library/scope_pos_info_provider.h"
 #include "library/replace_visitor.h"
+#include "library/eqn_lemmas.h"
 #include "library/equations_compiler/equations.h"
 #include "library/compiler/vm_compiler.h"
 #include "library/compiler/rec_fn_macro.h"
@@ -544,7 +545,7 @@ static environment copy_equation_lemmas(environment const & env, name const & d_
         new_eqn_value = locals.mk_lambda(new_eqn_value);
         declaration new_decl = mk_theorem(new_eqn_name, d.get_univ_params(), new_eqn_type, new_eqn_value);
         new_env = module::add(new_env, check(new_env, new_decl));
-        // TODO(Leo): tag lemmas
+        new_env = add_eqn_lemma(new_env, new_eqn_name);
         i++;
     }
     return new_env;

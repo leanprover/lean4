@@ -431,10 +431,6 @@ class to_ceqvs_fn {
         return list<expr_pair>(mk_pair(e, H));
     }
 
-    bool is_type(expr const & e) {
-        return is_sort(m_ctx.whnf(m_ctx.infer(e)));
-    }
-
     bool is_relation(expr const & e) {
         if (!is_app(e)) return false;
         expr const & fn = get_app_fn(e);

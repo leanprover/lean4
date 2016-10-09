@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "library/inverse.h"
 #include "library/replace_visitor.h"
 #include "library/aux_definition.h"
+#include "library/eqn_lemmas.h"
 #include "library/scope_pos_info_provider.h"
 #include "library/compiler/vm_compiler.h"
 #include "library/equations_compiler/equations.h"
@@ -279,8 +280,6 @@ pair<environment, expr> mk_aux_definition(environment const & env, options const
     return mk_pair(new_env, r);
 }
 
-static unsigned g_eqn_sanitizer_token;
-
 static environment add_equation_lemma(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx,
                                       bool is_private, name const & c, expr const & type, expr const & value) {
     environment new_env = env;
@@ -296,6 +295,7 @@ static environment add_equation_lemma(environment const & env, options const & o
     }
     try {
         std::tie(new_env, r) = mk_aux_definition(new_env, mctx, lctx, new_c, new_type, new_value);
+        new_env = add_eqn_lemma(new_env, new_c);
     } catch (exception & ex) {
         throw_mk_aux_definition_error(lctx, c, new_type, new_value, ex);
     }

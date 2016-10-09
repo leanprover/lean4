@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.meta.tactic init.meta.rewrite_tactic init.meta.simp_tactic
-import init.meta.defeq_simp_tactic
 
 namespace tactic
 namespace interactive
@@ -296,13 +295,13 @@ do s ← mk_simp_set attr_names hs ids,
    end,
    try tactic.triv, try tactic.reflexivity
 
-private meta def dsimp_hyps : location → tactic unit
+private meta def rsimp_hyps : location → tactic unit
 | []      := skip
-| (h::hs) := get_local h >>= dsimp_at
+| (h::hs) := get_local h >>= rsimp_at
 
-meta def dsimp : location → tactic unit
-| [] := tactic.dsimp
-| hs := dsimp_hyps hs
+meta def rsimp : location → tactic unit
+| [] := tactic.rsimp
+| hs := rsimp_hyps hs
 
 meta def reflexivity : tactic unit :=
 tactic.reflexivity

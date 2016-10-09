@@ -25,7 +25,7 @@ by do
   w ← get_local `w,
   cases_using w [`n', `hw, `tw],
   trace_state,
-  dsimp,
+  rsimp,
   Heq1 ← intro1,
   Heq2 ← intro1,
   subst Heq1, subst Heq2,

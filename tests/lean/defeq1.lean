@@ -8,6 +8,7 @@ rfl
 example (n m : nat) (H : succ (succ n) = succ m) : true :=
 by do H  ← get_local `H,
       t  ← infer_type H,
-      t' ← defeq_simp t,
+      s  ← simp_lemmas.mk_default,
+      t' ← s^.rsimplify t,
       trace t',
       exact (expr.const `trivial [])

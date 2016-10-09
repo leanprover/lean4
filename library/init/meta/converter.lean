@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 Converter monad for building simplifiers.
 -/
 prelude
-import init.meta.tactic init.meta.simp_tactic init.meta.defeq_simp_tactic
+import init.meta.tactic init.meta.simp_tactic
 import init.meta.congr_lemma init.meta.match_tactic
 open tactic
 
@@ -85,8 +85,8 @@ meta def whnf_core (m : transparency) : conv unit :=
 meta def whnf : conv unit :=
 conv.whnf_core reducible
 
-meta def dsimp : conv unit :=
-λ r e, do n ← defeq_simp e, return ⟨(), n, none⟩
+meta def rsimp : conv unit :=
+λ r e, do s ← simp_lemmas.mk_default, n ← s^.rsimplify e, return ⟨(), n, none⟩
 
 meta def try (c : conv unit) : conv unit :=
 c <|> return ()

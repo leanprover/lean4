@@ -15,8 +15,9 @@ set_option pp.all true
 -- behavior.
 example (a b : nat) (H : (λ x : nat, @add nat (nat_has_add3 x) a b) = (λ x : nat, @add nat nat_has_add2 a x)) : true :=
 by do
-  get_local `H >>= infer_type >>= defeq_simp >>= trace,
+  s ← simp_lemmas.mk_default,
+  get_local `H >>= infer_type >>= s^.rsimplify >>= trace,
   trace "---------",
   -- The following should work
-  get_local `H >>= infer_type >>= defeq_simp >>= defeq_simp >>= trace,
+  get_local `H >>= infer_type >>= s^.rsimplify >>= s^.rsimplify >>= trace,
   constructor

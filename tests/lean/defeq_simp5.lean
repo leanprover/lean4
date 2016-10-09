@@ -16,5 +16,6 @@ example (a b : nat)
         (H : (λ x y : nat, @add nat (nat_has_add3 x) a b) =
              (λ x y : nat, @add nat (nat_has_add3 y) a x)) : true :=
 by do
-  get_local `H >>= infer_type >>= defeq_simp >>= trace,
+  s ← simp_lemmas.mk_default,
+  get_local `H >>= infer_type >>= s^.rsimplify >>= trace,
   constructor

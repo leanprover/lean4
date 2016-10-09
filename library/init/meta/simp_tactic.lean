@@ -59,6 +59,13 @@ simp_lemmas.rewrite_core reducible
    Fails if no simplifications can be performed. -/
 meta constant simp_lemmas.simplify_core : simp_lemmas → tactic unit → name → expr → tactic (expr × expr)
 
+/- Simplify the given expression using *only* reflexivity equality lemmas from the given set of lemmas.
+   The resulting expression is definitionally equal to the input. -/
+meta constant simp_lemmas.rsimplify_core : transparency → simp_lemmas → expr → tactic expr
+
+meta def simp_lemmas.rsimplify : simp_lemmas → expr → tactic expr :=
+simp_lemmas.rsimplify_core reducible
+
 namespace tactic
 
 meta def simplify (prove_fn : tactic unit) (extra_lemmas : list expr) (e : expr) : tactic (expr × expr) :=
@@ -78,6 +85,18 @@ simplify_goal failed [] >> try triv >> try reflexivity
 
 meta def simp_using (Hs : list expr) : tactic unit :=
 simplify_goal failed Hs >> try triv
+
+meta def rsimp : tactic unit :=
+do S ← simp_lemmas.mk_default,
+   target >>= S^.rsimplify >>= change
+
+meta def rsimp_at (H : expr) : tactic unit :=
+do num_reverted : ℕ ← revert H,
+   (expr.pi n bi d b : expr) ← target | failed,
+   S      ← simp_lemmas.mk_default,
+   H_simp ← S^.rsimplify d,
+   change $ expr.pi n bi H_simp b,
+   intron num_reverted
 
 private meta def is_equation : expr → bool
 | (expr.pi n bi d b) := is_equation b

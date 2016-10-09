@@ -8,13 +8,15 @@ open tactic
 
 example (a b : nat) (H : @add nat (id (id nat.has_add)) a b = @add nat nat_has_add2 a b) : true :=
 by do
-  get_local `H >>= infer_type >>= defeq_simp >>= trace,
+  s ← simp_lemmas.mk_default,
+  get_local `H >>= infer_type >>= s^.rsimplify >>= trace,
   constructor
 
 
 example (a b : nat) (H : (λ x : nat, @add nat (id (id nat.has_add)) a b) = (λ x : nat, @add nat nat_has_add2 a x)) : true :=
 by do
-  get_local `H >>= infer_type >>= defeq_simp >>= trace,
+  s ← simp_lemmas.mk_default,
+  get_local `H >>= infer_type >>= s^.rsimplify >>= trace,
   constructor
 
 attribute [reducible]

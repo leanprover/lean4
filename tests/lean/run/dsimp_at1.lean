@@ -8,6 +8,6 @@ noncomputable definition f (z : A) : A := z
 definition foo (z₁ z₂ : A) : f z₁ = f z₂ → z₁ = z₂ :=
 by do H ← intro `H,
       trace_state,
-      dsimp_at H,
+      rsimp_at H,
       trace_state,
       assumption

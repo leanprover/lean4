@@ -16,6 +16,7 @@ Author: Daniel Selsam
 #include "library/defeq_canonizer.h"
 #include "library/vm/vm_expr.h"
 #include "library/tactic/tactic_state.h"
+#include "library/tactic/simp_lemmas_tactics.h"
 #include "library/tactic/defeq_simplifier.h"
 
 #ifndef LEAN_DEFAULT_DEFEQ_SIMPLIFY_MAX_SIMP_ROUNDS
@@ -302,11 +303,11 @@ expr defeq_simplify(type_context & ctx, simp_lemmas const & simp_lemmas, expr co
     return defeq_simplify_fn(ctx, simp_lemmas)(e);
 }
 
-vm_obj tactic_defeq_simp(vm_obj const & m, vm_obj const & e, vm_obj const & s0) {
+vm_obj simp_lemmas_rsimplify_core(vm_obj const & m, vm_obj const & _lemmas, vm_obj const & e, vm_obj const & s0) {
     type_context ctx = mk_type_context_for(s0, m);
     tactic_state const & s    = to_tactic_state(s0);
     LEAN_TACTIC_TRY;
-    simp_lemmas lemmas = get_default_simp_lemmas(s.env(), transparency_mode::Reducible);
+    simp_lemmas lemmas = to_simp_lemmas(_lemmas);
     expr new_e         = defeq_simplify(ctx, lemmas, to_expr(e));
     return mk_tactic_success(to_obj(new_e), s);
     LEAN_TACTIC_CATCH(s);
@@ -319,7 +320,7 @@ expr defeq_simplify(type_context & ctx, expr const & e) {
 
 /* Setup and teardown */
 void initialize_defeq_simplifier() {
-    DECLARE_VM_BUILTIN(name({"tactic", "defeq_simp_core"}), tactic_defeq_simp);
+    DECLARE_VM_BUILTIN(name({"simp_lemmas", "rsimplify_core"}), simp_lemmas_rsimplify_core);
 
     register_trace_class("defeq_simplifier");
     register_trace_class(name({"defeq_simplifier", "canonize"}));

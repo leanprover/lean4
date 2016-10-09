@@ -19,7 +19,6 @@ Author: Leonardo de Moura
 #include "library/relation_manager.h"
 
 namespace lean {
-namespace refactor {
 LEAN_THREAD_VALUE(bool, g_throw_ex, false);
 
 struct simp_lemma_cell {
@@ -65,7 +64,7 @@ struct regular_simp_lemma_cell : public simp_lemma_with_proof_cell {
 };
 
 struct congr_lemma_cell : public simp_lemma_with_proof_cell {
-    list<expr> const & m_congr_hyps;
+    list<expr> m_congr_hyps;
     congr_lemma_cell(name const & id, levels const & umetas, list<expr> const & emetas,
                      list<bool> const & instances, expr const & lhs, expr const & rhs,
                      expr const & proof, list<expr> const & congr_hyps, unsigned priority):
@@ -886,6 +885,7 @@ simp_lemmas add(type_context & ctx, simp_lemmas const & s, name const & id, unsi
 }
 
 simp_lemmas add(type_context & ctx, simp_lemmas const & s, name const & id, expr const & e, expr const & h, unsigned priority) {
+    type_context::tmp_mode_scope scope(ctx);
     return add_core(ctx, s, id, list<level>(), e, h, priority);
 }
 
@@ -1165,4 +1165,4 @@ void finalize_simp_lemmas() {
     delete g_name2simp_token;
     delete g_dummy;
 }
-}}
+}

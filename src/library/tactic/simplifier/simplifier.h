@@ -6,9 +6,9 @@ Author: Daniel Selsam
 #pragma once
 #include "kernel/expr_pair.h"
 #include "library/type_context.h"
+#include "library/simp_lemmas.h"
 #include "library/vm/vm.h"
 #include "library/tactic/simp_result.h"
-#include "library/tactic/simplifier/simp_lemmas.h"
 
 namespace lean {
 

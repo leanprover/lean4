@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include "library/head_map.h"
 
 namespace lean {
-namespace refactor {
 enum class simp_lemma_kind { Refl, Simp, Congr };
 struct simp_lemma_cell;
 class simp_lemma {
@@ -32,8 +31,6 @@ public:
     simp_lemma(simp_lemma const & s);
     simp_lemma(simp_lemma && s);
     ~simp_lemma();
-
-    friend void swap(simp_lemma & a, simp_lemma & b) { std::swap(a.m_ptr, b.m_ptr); }
 
     simp_lemma & operator=(simp_lemma const & s);
     simp_lemma & operator=(simp_lemma && s);
@@ -146,5 +143,7 @@ bool is_simp_relation(environment const & env, expr const & e, expr & rel, expr 
 /** \brief Rewrite 'e' using the given refl lemma.
     \pre sl.is_refl() */
 expr refl_lemma_rewrite(type_context & ctx, expr const & e, simp_lemma const & sl);
-}
+
+void initialize_simp_lemmas();
+void finalize_simp_lemmas();
 }

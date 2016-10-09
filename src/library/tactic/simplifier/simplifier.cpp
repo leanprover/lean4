@@ -28,6 +28,7 @@ Author: Daniel Selsam
 #include "library/relation_manager.h"
 #include "library/app_builder.h"
 #include "library/congr_lemma.h"
+#include "library/simp_lemmas.h"
 #include "library/fun_info.h"
 #include "library/vm/vm_expr.h"
 #include "library/vm/vm_list.h"
@@ -35,10 +36,9 @@ Author: Daniel Selsam
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/ac_tactics.h"
 #include "library/tactic/app_builder_tactics.h"
+#include "library/tactic/simp_lemmas_tactics.h"
 #include "library/tactic/simplifier/simplifier.h"
-#include "library/tactic/simplifier/simp_lemmas.h"
 #include "library/tactic/simplifier/theory_simplifier.h"
-#include "library/tactic/simplifier/ceqv.h"
 #include "library/tactic/simplifier/util.h"
 
 #ifndef LEAN_DEFAULT_SIMPLIFY_MAX_STEPS
@@ -328,7 +328,7 @@ class simplifier {
         simp_lemmas_for const * sr = slss.find(m_rel);
         if (!sr) return simp_result(e);
 
-        list<simp_lemma> const * srs = sr->find_simp(e);
+        list<simp_lemma> const * srs = sr->find(e);
         if (!srs) {
             lean_trace_d(name({"debug", "simplifier", "try_rewrite"}), tout() << "no simp lemmas for: " << e << "\n";);
             return simp_result(e);
@@ -336,7 +336,7 @@ class simplifier {
 
         for (simp_lemma const & lemma : *srs) {
             simp_result r = rewrite_binary(e, lemma);
-            if (r.has_proof()) {
+            if (!is_eqp(r.get_new(), e)) {
                 lean_trace_d(name({"simplifier", "rewrite"}), tout() << "[" << lemma.get_id() << "]: " << e << " ==> " << r.get_new() << "\n";);
                 return r;
             }
@@ -362,15 +362,20 @@ class simplifier {
 
         expr new_lhs = tmp_tctx.instantiate_mvars(sl.get_lhs());
         expr new_rhs = tmp_tctx.instantiate_mvars(sl.get_rhs());
-        if (sl.is_perm()) {
+        if (sl.is_permutation()) {
             if (!is_lt(new_rhs, new_lhs, false)) {
                 lean_simp_trace(tmp_tctx, name({"simplifier", "perm"}),
                                 tout() << "perm rejected: " << new_rhs << " !< " << new_lhs << "\n";);
                 return simp_result(e);
             }
         }
-        expr pf = tmp_tctx.instantiate_mvars(sl.get_proof());
-        return simp_result(new_rhs, pf);
+
+        if (sl.is_refl()) {
+            return simp_result(new_rhs);
+        } else {
+            expr pf = tmp_tctx.instantiate_mvars(sl.get_proof());
+            return simp_result(new_rhs, pf);
+        }
     }
 
     simp_result simplify_subterms_app_binary(expr const & _e) {
@@ -491,7 +496,7 @@ class simplifier {
         if (!sr)
             return optional<simp_result>();
 
-        list<simp_lemma> const * srs = sr->find_simp(op);
+        list<simp_lemma> const * srs = sr->find(op);
         if (!srs) {
             return optional<simp_result>();
         }
@@ -525,7 +530,7 @@ class simplifier {
         // Reason for postponing: easy to support and may not be a bottleneck
         for (unsigned i = 0; i <= nary_args.size() - num_patterns; ++i) {
             if (optional<simp_result> r = rewrite_nary_step(nary_args, nary_pattern_args, i, sl)) {
-                lean_assert(r->has_proof());
+                // lean_assert(r->has_proof());
                 unsigned j = nary_args.size() - 1;
                 expr new_e = (j >= i + num_patterns) ? nary_args[j] : r->get_new();
                 j = (j >= i + num_patterns) ? (j - 1) : (j - num_patterns);
@@ -563,16 +568,19 @@ class simplifier {
         expr new_lhs = tmp_tctx.instantiate_mvars(sl.get_lhs());
         expr new_rhs = tmp_tctx.instantiate_mvars(sl.get_rhs());
 
-        if (sl.is_perm()) {
+        if (sl.is_permutation()) {
             if (!is_lt(new_rhs, new_lhs, false)) {
                 lean_simp_trace(tmp_tctx, name({"simplifier", "perm"}),
                                 tout() << "perm rejected: " << new_rhs << " !< " << new_lhs << "\n";);
                 return optional<simp_result>();
             }
         }
-
-        expr pf = tmp_tctx.instantiate_mvars(sl.get_proof());
-        return optional<simp_result>(simp_result(new_rhs, pf));
+        if (sl.is_refl()) {
+            return optional<simp_result>(simp_result(new_rhs));
+        } else {
+            expr pf = tmp_tctx.instantiate_mvars(sl.get_proof());
+            return optional<simp_result>(simp_result(new_rhs, pf));
+        }
     }
 
     simp_result simplify_subterms_app_nary_core(expr const & old_op, expr const & new_op, optional<expr> const & pf_op, expr const & e) {
@@ -688,7 +696,7 @@ class simplifier {
     simp_result funext(simp_result const & r, expr const & l);
 
     simp_result try_congrs(expr const & e);
-    simp_result try_congr(expr const & e, user_congr_lemma const & cr);
+    simp_result try_congr(expr const & e, simp_lemma const & cr);
 
     optional<simp_result> synth_congr(expr const & e);
 
@@ -946,10 +954,10 @@ simp_result simplifier::try_congrs(expr const & e) {
     simp_lemmas_for const * sls = m_slss.find(m_rel);
     if (!sls) return simp_result(e);
 
-    list<user_congr_lemma> const * cls = sls->find_congr(e);
+    list<simp_lemma> const * cls = sls->find_congr(e);
     if (!cls) return simp_result(e);
 
-    for (user_congr_lemma const & cl : *cls) {
+    for (simp_lemma const & cl : *cls) {
         simp_result r = try_congr(e, cl);
         if (r.get_new() != e)
             return r;
@@ -957,7 +965,7 @@ simp_result simplifier::try_congrs(expr const & e) {
     return simp_result(e);
 }
 
-simp_result simplifier::try_congr(expr const & e, user_congr_lemma const & cl) {
+simp_result simplifier::try_congr(expr const & e, simp_lemma const & cl) {
     tmp_type_context tmp_tctx(m_tctx, cl.get_num_umeta(), cl.get_num_emeta());
     if (!tmp_tctx.is_def_eq(e, cl.get_lhs()))
         return simp_result(e);

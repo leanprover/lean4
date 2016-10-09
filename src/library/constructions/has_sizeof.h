@@ -6,7 +6,7 @@ Author: Daniel Selsam
 */
 #pragma once
 #include "kernel/environment.h"
-#include "library/tactic/simplifier/simp_lemmas.h"
+#include "library/simp_lemmas.h"
 
 namespace lean {
 /** \brief Given an inductive datatype \c n in \c env, add

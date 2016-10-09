@@ -47,6 +47,7 @@ Author: Leonardo de Moura
 #include "library/arith_instance_manager.h"
 #include "library/inverse.h"
 #include "library/rfl_lemmas.h"
+#include "library/simp_lemmas.h"
 #include "library/pattern_attribute.h"
 
 namespace lean {
@@ -100,6 +101,7 @@ void initialize_library_module() {
     initialize_fun_info();
     initialize_unification_hint();
     initialize_rfl_lemmas();
+    initialize_simp_lemmas();
     initialize_type_context();
     initialize_delayed_abstraction();
     initialize_mpq_macro();
@@ -115,6 +117,7 @@ void finalize_library_module() {
     finalize_mpq_macro();
     finalize_delayed_abstraction();
     finalize_type_context();
+    finalize_simp_lemmas();
     finalize_rfl_lemmas();
     finalize_unification_hint();
     finalize_fun_info();

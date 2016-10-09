@@ -23,7 +23,7 @@ Author: Daniel Selsam
 #include "library/trace.h"
 #include "library/module.h"
 #include "library/constants.h"
-#include "library/tactic/simplifier/simp_lemmas.h"
+#include "library/simp_lemmas.h"
 #include "library/constructions/has_sizeof.h"
 
 namespace lean {

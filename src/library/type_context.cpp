@@ -2285,13 +2285,15 @@ lbool type_context::is_def_eq_lazy_delta(expr & t, expr & s) {
             if (is_eqp(*d_t, *d_s)) {
                 /* Same constant */
                 if (is_app(t) && is_app(s)) {
-                    /* Heuristic: try so solve (f a =?= f b), by solving (a =?= b) */
-                    scope S(*this);
-                    if (is_def_eq_args(t, s) &&
-                        is_def_eq(const_levels(get_app_fn(t)), const_levels(get_app_fn(s))) &&
-                        process_postponed(S)) {
-                        S.commit();
-                        return l_true;
+                    {
+                        /* Heuristic: try so solve (f a =?= f b), by solving (a =?= b) */
+                        scope S(*this);
+                        if (is_def_eq_args(t, s) &&
+                            is_def_eq(const_levels(get_app_fn(t)), const_levels(get_app_fn(s))) &&
+                            process_postponed(S)) {
+                            S.commit();
+                            return l_true;
+                        }
                     }
                     /* Heuristic failed, then unfold both of them */
                     lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "unfold left&right: " << d_t->get_name() << "\n";);

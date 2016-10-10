@@ -289,7 +289,7 @@ static void check_noncomputable(parser & p, environment const & env, name const 
 
 static environment compile_decl(parser & p, environment const & env, def_cmd_kind kind, bool is_noncomputable,
                                 name const & c_name, name const & c_real_name, pos_info const & pos) {
-    if (is_noncomputable || kind == Theorem || is_vm_builtin_function(c_real_name))
+    if (is_noncomputable || kind == Theorem || kind == Example || is_vm_builtin_function(c_real_name))
         return env;
     try {
         declaration d = env.get(c_real_name);

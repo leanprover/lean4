@@ -343,14 +343,9 @@ def std.priority.max     : num := 4294967295
 namespace nat
   protected def prio := num.add std.priority.default 100
 
-  protected def add (a b : nat) : nat :=
-  nat.rec a (λ b₁ r, nat.succ r) b
-
-/- TODO(Leo): use the following definition as soon as we use rfl lemmas for unification
   protected def add : nat → nat → nat
   | a  zero     := a
   | a  (succ b) := succ (add a b)
--/
 
   def of_pos_num : pos_num → nat
   | pos_num.one      := succ zero

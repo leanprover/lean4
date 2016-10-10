@@ -63,7 +63,7 @@ environment add_eqn_lemma_core(environment const & env, name const & eqn_lemma) 
 
 environment add_eqn_lemma(environment const & env, name const & eqn_lemma) {
     environment new_env = add_eqn_lemma_core(env, eqn_lemma);
-    return module::add(env, *g_eqn_lemmas_key, [=](environment const &, serializer & s) { s << eqn_lemma; });
+    return module::add(new_env, *g_eqn_lemmas_key, [=](environment const &, serializer & s) { s << eqn_lemma; });
 }
 
 void get_eqn_lemmas_for(environment const & env, name const & cname, bool refl_only, buffer<simp_lemma> & result) {
@@ -74,6 +74,11 @@ void get_eqn_lemmas_for(environment const & env, name const & cname, bool refl_o
                 result.push_back(sl);
         }
     }
+}
+
+bool has_eqn_lemmas(environment const & env, name const & cname) {
+    eqn_lemmas_ext const & ext = get_extension(env);
+    return ext.m_lemmas.contains(cname);
 }
 
 static void eqn_lemmas_reader(deserializer & d, shared_environment & senv,

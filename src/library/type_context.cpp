@@ -2015,6 +2015,10 @@ bool type_context::is_def_eq_args(expr const & e1, expr const & e2) {
             return false;
         i++;
     }
+    for (; i < args1.size(); i++) {
+        if (!is_def_eq_core(args1[i], args2[i]))
+            return false;
+    }
     return true;
 }
 

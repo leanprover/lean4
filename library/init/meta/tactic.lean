@@ -463,6 +463,8 @@ do { ctx ← local_context,
      exact H }
 <|> fail "assumption tactic failed"
 
+notation `‹` p `›` := show p, by assumption
+
 /- Swap first two goals, do nothing if tactic state does not have at least two goals. -/
 meta def swap : tactic unit :=
 do gs ← get_goals,

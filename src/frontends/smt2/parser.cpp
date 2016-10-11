@@ -8,6 +8,7 @@ Author: Daniel Selsam
 #include <stack>
 #include <utility>
 #include <vector>
+#include <library/message_builder.h>
 #include "util/flet.h"
 #include "util/name_map.h"
 #include "util/exception.h"
@@ -27,7 +28,6 @@ Author: Daniel Selsam
 #include "library/io_state.h"
 #include "library/io_state_stream.h"
 #include "library/local_context.h"
-#include "library/error_handling.h"
 #include "library/pp_options.h"
 #include "library/module.h"
 #include "library/trace.h"
@@ -713,9 +713,9 @@ public:
             return ok;
         } catch (throwable const & ex) {
             ok = false;
-            type_context aux_tctx(m_env, m_ios.get_options(), m_lctx);
-            auto out = regular(m_env, m_ios, aux_tctx);
-            ::lean::display_error(out, this, ex);
+            ::lean::message_builder(this, std::make_shared<type_context>(m_env, m_ios.get_options(), m_lctx),
+                                    m_env, m_ios, get_file_name(), get_some_pos(), ERROR)
+                    .set_exception(ex).report();
         }
         return ok;
     }

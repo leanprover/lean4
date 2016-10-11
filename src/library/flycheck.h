@@ -27,7 +27,7 @@ public:
 class flycheck_output_scope {
     char const *                           m_stream_name;
     pos_info                               m_pos;
-    std::ostream &                         m_out;
+    io_state const &                       m_ios;
     io_state                               m_redirected_ios;
     std::unique_ptr<scope_global_ios>      m_scoped_ios;
     std::shared_ptr<string_output_channel> m_buffer;
@@ -38,20 +38,5 @@ public:
     flycheck_output_scope(pos_info_provider const * provider, expr const & ref);
     ~flycheck_output_scope();
     bool enabled() const { return static_cast<bool>(m_scoped_ios); }
-};
-
-struct flycheck_error : public flycheck_scope {
-    flycheck_error(std::ostream & out, options const & o):flycheck_scope(out, o, "ERROR") {}
-    flycheck_error(io_state const & ios):flycheck_scope(ios, "ERROR") {}
-};
-
-struct flycheck_warning : public flycheck_scope {
-    flycheck_warning(std::ostream & out, options const & o):flycheck_scope(out, o, "WARNING") {}
-    flycheck_warning(io_state const & ios):flycheck_scope(ios, "WARNING") {}
-};
-
-struct flycheck_information : public flycheck_scope {
-    flycheck_information(std::ostream & out, options const & o):flycheck_scope(out, o, "INFORMATION") {}
-    flycheck_information(io_state const & ios):flycheck_scope(ios, "INFORMATION") {}
 };
 }

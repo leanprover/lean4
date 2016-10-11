@@ -28,7 +28,6 @@ Author: Leonardo de Moura
 #include "library/pp_options.h"
 #include "library/flycheck.h"
 #include "library/replace_visitor.h"
-#include "library/error_handling.h"
 #include "library/locals.h"
 #include "library/private.h"
 #include "library/attribute_manager.h"
@@ -2289,11 +2288,8 @@ void elaborator::show_goal(tactic_state const & s, expr const & start_ref, expr 
     if (curr_pos->first < line || (curr_pos->first == line && curr_pos->second < col))
         return;
     m_show_goal_pos = optional<pos_info>();
-    auto out = regular(m_env, get_global_ios(), m_ctx);
-    print_lean_info_header(out.get_stream());
-    out << "position " << curr_pos->first << ":" << curr_pos->second << "\n";
-    out << s.pp(get_global_ios().get_formatter_factory()) << "\n";
-    print_lean_info_footer(out.get_stream());
+    get_global_ios().report(message(provider->get_file_name(), *curr_pos, INFORMATION,
+        (sstream() << mk_pair(s.pp(get_global_ios().get_formatter_factory()), get_global_ios().get_options())).str()));
 }
 
 /* Apply the given tactic to the state 's'.

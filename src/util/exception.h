@@ -54,6 +54,7 @@ public:
     unsigned get_line() const { return m_line; }
     unsigned get_pos() const { return m_pos; }
     std::string const & get_file_name() const { return m_fname; }
+    std::string const & get_msg() const { return m_msg; }
     virtual throwable * clone() const { return new parser_exception(m_msg, m_fname.c_str(), m_line, m_pos); }
     virtual void rethrow() const { throw *this; }
     parser_exception update_line(unsigned line_delta) const { return parser_exception(m_msg, m_fname.c_str(), m_line + line_delta, m_pos); }

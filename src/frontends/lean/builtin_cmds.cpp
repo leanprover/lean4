@@ -165,18 +165,14 @@ environment check_cmd(parser & p) {
     std::tie(e, ls) = parse_local_expr(p);
     type_checker tc(p.env(), true, false);
     expr type = tc.check(e, ls);
-    auto out              = regular(p.env(), p.ios(), tc);
+    auto out              = p.mk_message(p.cmd_pos(), INFORMATION);
     formatter fmt         = out.get_formatter();
     unsigned indent       = get_pp_indent(p.get_options());
     format e_fmt    = fmt(e);
     format type_fmt = fmt(type);
     format r = group(e_fmt + space() + colon() + nest(indent, line() + type_fmt));
-    flycheck_information info(p.ios());
-    if (info.enabled()) {
-        p.display_information_pos(p.cmd_pos());
-        out << "check result:\n";
-    }
-    out << mk_pair(r, p.get_options()) << endl;
+    out.set_caption("check result") << r;
+    out.report();
     return p.env();
 }
 
@@ -197,21 +193,14 @@ environment eval_cmd(parser & p) {
         bool eta = false;
         r = normalize(tc, e, eta);
     }
-    flycheck_information info(p.ios());
-    if (info.enabled()) {
-        p.display_information_pos(p.cmd_pos());
-        p.ios().get_regular_stream() << "eval result:\n";
-    }
-    type_context tc(p.env(), p.get_options());
-    auto out = regular(p.env(), p.ios(), tc);
-    out << r << endl;
+    auto out = p.mk_message(p.cmd_pos(), INFORMATION);
+    out.set_caption("eval result") << r;
+    out.report();
     return p.env();
 }
 
 environment exit_cmd(parser & p) {
-    flycheck_warning wrn(p.ios());
-    p.display_warning_pos(p.cmd_pos());
-    p.ios().get_regular_stream() << " using 'exit' to interrupt Lean" << std::endl;
+    (p.mk_message(p.cmd_pos(), WARNING) << "using 'exit' to interrupt Lean").report();
     throw interrupt_parser();
 }
 
@@ -337,18 +326,13 @@ static environment local_cmd(parser & p) {
 }
 
 static environment help_cmd(parser & p) {
-    flycheck_information info(p.ios());
-    if (info.enabled()) {
-        p.display_information_pos(p.cmd_pos());
-        p.ios().get_regular_stream() << "help result:\n";
-    }
+    auto rep = p.mk_message(p.cmd_pos(), INFORMATION);
     if (p.curr_is_token_or_id(get_options_tk())) {
         p.next();
         auto decls = get_option_declarations();
         decls.for_each([&](name const &, option_declaration const & opt) {
-                p.ios().get_regular_stream()
-                    << "  " << opt.get_name() << " (" << opt.kind() << ") "
-                    << opt.get_description() << " (default: " << opt.get_default_value() << ")" << std::endl;
+                rep << "  " << opt.get_name() << " (" << opt.kind() << ") "
+                    << opt.get_description() << " (default: " << opt.get_default_value() << ")\n";
             });
     } else if (p.curr_is_token_or_id(get_commands_tk())) {
         p.next();
@@ -359,14 +343,13 @@ static environment help_cmd(parser & p) {
             });
         std::sort(ns.begin(), ns.end());
         for (name const & n : ns) {
-            p.ios().get_regular_stream()
-                << "  " << n << ": " << cmds.find(n)->get_descr() << std::endl;
+            rep << "  " << n << ": " << cmds.find(n)->get_descr() << "\n";
         };
     } else {
-        p.ios().get_regular_stream()
-            << "help options  : describe available options\n"
+        rep << "help options  : describe available options\n"
             << "help commands : describe available commands\n";
     }
+    rep.report();
     return p.env();
 }
 
@@ -409,16 +392,14 @@ static environment unify_cmd(parser & p) {
     local_context   lctx;
     e1 = convert_metavars(mctx, e1);
     e2 = convert_metavars(mctx, e2);
-    tout() << e1 << " =?= " << e2 << "\n";
+    auto rep = p.mk_message(p.cmd_pos(), INFORMATION);
+    rep << e1 << " =?= " << e2 << "\n";
     type_context ctx(env, p.get_options(), mctx, lctx, transparency_mode::Semireducible);
     bool success = ctx.is_def_eq(e1, e2);
     if (success)
-        tout() << ctx.instantiate_mvars(e1) << " =?= " << ctx.instantiate_mvars(e2) << "\n";
-    flycheck_information info(p.ios());
-    if (info.enabled()) {
-        p.display_information_pos(p.cmd_pos());
-    }
-    p.ios().get_regular_stream() << (success ? "success" : "fail") << std::endl;
+        rep << ctx.instantiate_mvars(e1) << " =?= " << ctx.instantiate_mvars(e2) << "\n";
+    rep << (success ? "unification successful" : "unification failed");
+    rep.report();
     return env;
 }
 
@@ -483,8 +464,11 @@ static environment vm_eval_cmd(parser & p) {
     vm_state s(new_env);
     optional<vm_obj> initial_state;
     if (is_IO) initial_state = mk_vm_simple(0);
+    auto out = p.mk_message(INFORMATION);
+    out.set_caption("vm_eval result");
+    // TODO(gabriel): capture output
     if (p.profiling()) {
-        timeit timer(p.ios().get_diagnostic_stream(), "vm_eval time");
+        timeit timer(out.get_text_stream().get_stream(), "vm_eval time");
         vm_eval_core(s, main, initial_state);
     } else {
         vm_eval_core(s, main, initial_state);
@@ -493,13 +477,13 @@ static environment vm_eval_cmd(parser & p) {
         // do not print anything
     } else if (is_string) {
         vm_obj r = s.get(0);
-        p.ios().get_regular_stream() << to_string(r) << "\n";
+        out << to_string(r);
     } else {
         /* if it is not IO nor a string, then display object on top of the stack using vm_obj display method */
         vm_obj r = s.get(0);
-        display(p.ios().get_regular_stream(), r);
-        p.ios().get_regular_stream() << "\n";
+        display(out.get_text_stream().get_stream(), r);
     }
+    out.report();
     return p.env();
 }
 

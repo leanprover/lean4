@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "library/error_handling.h"
+#include "library/io_state_stream.h"
 #include "frontends/lean/pp.h"
 #include "api/string.h"
 #include "api/exception.h"
@@ -116,7 +116,7 @@ lean_bool lean_exception_to_pp_string(lean_env env, lean_ios ios, lean_exception
     type_checker tc(to_env_ref(env));
     io_state_stream ioss(to_env_ref(env), new_ios, tc);
     throwable * _e = to_exception(e);
-    display_error(ioss, nullptr, *_e);
+    ioss << _e->what();
     *r = mk_string(static_cast<string_output_channel const *>(aux.get())->str());
     LEAN_CATCH;
 }

@@ -5,7 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "library/flycheck.h"
-#include "library/error_handling.h"
 
 namespace lean {
 flycheck_scope::flycheck_scope(std::ostream & out, options const & o, char const * kind):
@@ -18,7 +17,7 @@ flycheck_scope::~flycheck_scope() {
 }
 flycheck_output_scope::flycheck_output_scope(io_state const & ios, char const * stream_name, pos_info const & pos) :
         m_stream_name(stream_name), m_pos(pos),
-        m_out(ios.get_regular_stream()),
+        m_ios(ios),
         m_redirected_ios(ios),
         m_scoped_ios(), m_buffer() {
     if (ios.get_options().get_bool("flycheck", false)) {
@@ -34,12 +33,8 @@ flycheck_output_scope::flycheck_output_scope(pos_info_provider const * provider,
 flycheck_output_scope::~flycheck_output_scope() {
     if (enabled()) {
         auto redirected_output = m_buffer->str();
-        if (!redirected_output.empty()) {
-            m_out << "FLYCHECK_BEGIN INFORMATION" << std::endl;
-            display_pos(m_out, m_stream_name, m_pos.first, m_pos.second);
-            m_out << " information:" << std::endl << redirected_output;
-            m_out << "FLYCHECK_END" << std::endl;
-        }
+        if (!redirected_output.empty())
+            m_ios.report(message(m_stream_name, m_pos, INFORMATION, "trace output", redirected_output));
     }
 }
 }

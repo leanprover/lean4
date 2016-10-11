@@ -19,13 +19,16 @@ protected:
     environment                     m_env;
     formatter                       m_formatter;
     std::shared_ptr<output_channel> m_stream;
+public:
     io_state_stream(environment const & env, formatter const & fmt, std::shared_ptr<output_channel> const & s):
         m_env(env), m_formatter(fmt), m_stream(s) {}
-public:
-    io_state_stream(environment const & env, io_state const & ios, abstract_type_context & ctx, bool regular = true):
+    io_state_stream(environment const & env, io_state const & ios, abstract_type_context & ctx, std::shared_ptr<output_channel> const & stream):
         m_env(env), m_formatter(ios.get_formatter_factory()(env, ios.get_options(), ctx)),
-        m_stream(regular ? ios.get_regular_channel_ptr() : ios.get_diagnostic_channel_ptr()) {}
+        m_stream(stream) {}
+    io_state_stream(environment const & env, io_state const & ios, abstract_type_context & ctx, bool regular = true):
+        io_state_stream(env, ios, ctx, regular ? ios.get_regular_channel_ptr() : ios.get_diagnostic_channel_ptr()) {}
     std::ostream & get_stream() const { return m_stream->get_stream(); }
+    std::shared_ptr<output_channel> get_channel() const { return m_stream; }
     void flush() { get_stream().flush(); }
     formatter const & get_formatter() const { return m_formatter; }
     options get_options() const { return m_formatter.get_options(); }

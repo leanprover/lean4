@@ -1,23 +1,23 @@
 g x y =?= f z
-fail
+unification failed
 g x y =?= f z
 g x y =?= f z
-success
+unification successful
 unification hints:
 (toy.g, toy.f) g #1 #0 =?= f z {}
 n + 1 =?= succ n
-fail
+unification failed
 n + 1 =?= succ n
 n + 1 =?= succ n
-success
+unification successful
 unification hints:
 (add, nat.succ) #4 + 1 =?= succ #3 {#4 =?= #3}
 (toy.g, toy.f) toy.g #1 #0 =?= toy.f toy.z {}
 Canonical.carrier A_canonical =?= A
-fail
+unification failed
 Canonical.carrier A_canonical =?= A
 Canonical.carrier A_canonical =?= A
-success
+unification successful
 unification hints:
 (add, nat.succ) #4 + 1 =?= succ #3 {#4 =?= #3}
 (toy.g, toy.f) toy.g #1 #0 =?= toy.f toy.z {}

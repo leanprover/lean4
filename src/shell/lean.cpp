@@ -32,7 +32,7 @@ Author: Leonardo de Moura
 #include "library/io_state_stream.h"
 #include "library/definition_cache.h"
 #include "library/export.h"
-#include "library/error_handling.h"
+#include "library/message_builder.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/dependencies.h"
@@ -360,9 +360,10 @@ int main(int argc, char ** argv) {
             } catch (lean::exception & ex) {
                 ok = false;
                 type_context tc(env, ios.get_options());
-                auto out = diagnostic(env, ios, tc);
                 simple_pos_info_provider pp(argv[i]);
-                lean::display_error(out, &pp, ex);
+                lean::message_builder(&pp, std::make_shared<type_context>(env, ios.get_options()),
+                                      env, ios, argv[i], pos_info(1, 1), lean::ERROR)
+                        .set_exception(ex).report();
             }
         }
         return ok ? 0 : 1;
@@ -381,16 +382,11 @@ int main(int argc, char ** argv) {
                 cache.load(in);
         } catch (lean::throwable & ex) {
             cache_ptr = nullptr;
-            // I'm using flycheck_error instead off flycheck_warning because
-            // the :error-patterns at lean-flycheck.el do not work after
-            // I add a rule for FLYCHECK_WARNING.
-            // Same for display_error_pos vs display_warning_pos.
-            lean::flycheck_error warn(ios);
-            if (optind < argc)
-                display_error_pos(ios.get_regular_stream(), ios.get_options(), argv[optind], 1, 0);
-            ios.get_regular_stream()
-                << "failed to load cache file '" << cache_name << "', "
-                << ex.what() << ". cache is going to be ignored\n";
+            auto out = lean::message_builder(env, ios, argv[optind], lean::pos_info(1, 1), lean::WARNING);
+            out << "failed to load cache file '" << cache_name << "'\n";
+            out.set_exception(ex);
+            out << "cache is going to be ignored";
+            out.report();
         }
     }
     try {
@@ -405,11 +401,8 @@ int main(int argc, char ** argv) {
                     ok = false;
                 }
             } catch (lean::exception & ex) {
-                simple_pos_info_provider pp(argv[i]);
                 ok = false;
-                type_context tc(env, ios.get_options());
-                auto out = diagnostic(env, ios, tc);
-                lean::display_error(out, &pp, ex);
+                lean::message_builder(env, ios, argv[i], lean::pos_info(1, 1), lean::ERROR).set_exception(ex).report();
             }
         }
         if (save_cache) {
@@ -434,9 +427,7 @@ int main(int argc, char ** argv) {
         }
         return ok ? 0 : 1;
     } catch (lean::throwable & ex) {
-        type_context tc(env, ios.get_options());
-        auto out = diagnostic(env, ios, tc);
-        lean::display_error(out, nullptr, ex);
+        lean::message_builder(env, ios, "<unknown>", lean::pos_info(1, 1), lean::ERROR).set_exception(ex).report();
     } catch (std::bad_alloc & ex) {
         std::cerr << "out of memory" << std::endl;
         return 1;

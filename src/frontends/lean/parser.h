@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "library/abstract_parser.h"
 #include "library/io_state.h"
 #include "library/io_state_stream.h"
+#include "library/message_builder.h"
 #include "library/definition_cache.h"
 #include "frontends/lean/scanner.h"
 #include "frontends/lean/local_decls.h"
@@ -135,11 +136,6 @@ class parser : public abstract_parser {
     // noncomputable definitions not tagged as noncomputable.
     bool                   m_ignore_noncomputable;
 
-    void display_warning_pos(unsigned line, unsigned pos);
-    void display_error_pos(unsigned line, unsigned pos);
-    void display_error_pos(pos_info p);
-    void display_error(char const * msg, unsigned line, unsigned pos);
-    void display_error(char const * msg, pos_info p);
     void throw_parser_exception(char const * msg, pos_info p);
     void throw_nested_exception(throwable const & ex, pos_info p);
 
@@ -213,8 +209,6 @@ public:
            snapshot const * s = nullptr, snapshot_vector * sv = nullptr);
     ~parser();
 
-    void display_error(throwable const & ex);
-
     bool ignore_noncomputable() const { return m_ignore_noncomputable; }
     void set_ignore_noncomputable() { m_ignore_noncomputable = true; }
 
@@ -239,6 +233,9 @@ public:
 
     environment const & env() const { return m_env; }
     io_state const & ios() const { return m_ios; }
+
+    message_builder mk_message(pos_info const & p, message_severity severity);
+    message_builder mk_message(message_severity severity);
 
     local_level_decls const & get_local_level_decls() const { return m_local_level_decls; }
     local_expr_decls const & get_local_expr_decls() const { return m_local_decls; }
@@ -478,9 +475,6 @@ public:
 
     expr mk_sorry(pos_info const & p);
     bool used_sorry() const { return m_used_sorry; }
-
-    void display_information_pos(pos_info p);
-    void display_warning_pos(pos_info p);
 
     /** return true iff profiling is enabled */
     bool profiling() const { return m_profile; }

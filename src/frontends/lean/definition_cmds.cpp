@@ -20,7 +20,6 @@ Author: Leonardo de Moura
 #include "library/noncomputable.h"
 #include "library/module.h"
 #include "library/flycheck.h"
-#include "library/error_handling.h"
 #include "library/scope_pos_info_provider.h"
 #include "library/replace_visitor.h"
 #include "library/equations_compiler/equations.h"
@@ -218,17 +217,15 @@ static expr_pair elaborate_definition_core(elaborator & elab, def_cmd_kind kind,
     }
 }
 
-static void display_pos(std::ostream & out, parser const & p, pos_info const & pos) {
-    display_pos(out, p.get_stream_name().c_str(), pos.first, pos.second);
-}
-
 static expr_pair elaborate_definition(parser & p, elaborator & elab, def_cmd_kind kind, expr const & fn, expr const & val, pos_info const & pos) {
     if (p.profiling()) {
-        std::ostringstream msg;
-        display_pos(msg, p, pos);
-        msg << " elaboration time for " << local_pp_name(fn);
-        timeit timer(p.ios().get_diagnostic_stream(), msg.str().c_str(), LEAN_PROFILE_THRESHOLD);
-        return elaborate_definition_core(elab, kind, fn, val);
+        auto msg = p.mk_message(pos, INFORMATION);
+        msg << "elaboration time for " << fn;
+        {
+            timeit timer(msg.get_text_stream().get_stream(), "", LEAN_PROFILE_THRESHOLD);
+            return elaborate_definition_core(elab, kind, fn, val);
+        }
+        msg.report();
     } else {
         return elaborate_definition_core(elab, kind, fn, val);
     }
@@ -264,11 +261,13 @@ static pair<environment, name> mk_real_name(environment const & env, name const 
 
 static certified_declaration check(parser & p, environment const & env, name const & c_name, declaration const & d, pos_info const & pos) {
     if (p.profiling()) {
-        std::ostringstream msg;
-        display_pos(msg, p, pos);
-        msg << " type checking time for " << c_name;
-        timeit timer(p.ios().get_diagnostic_stream(), msg.str().c_str(), LEAN_PROFILE_THRESHOLD);
-        return ::lean::check(env, d);
+        auto msg = p.mk_message(pos, INFORMATION);
+        msg << "type checking time for " << c_name;
+        {
+            timeit timer(msg.get_text_stream().get_stream(), "", LEAN_PROFILE_THRESHOLD);
+            return ::lean::check(env, d);
+        }
+        msg.report();
     } else {
         return ::lean::check(env, d);
     }
@@ -297,13 +296,11 @@ static environment compile_decl(parser & p, environment const & env, def_cmd_kin
     } catch (exception & ex) {
         if (p.found_errors())
             return env;
-        flycheck_warning wrn(p.ios());
-        auto & out = p.ios().get_regular_stream();
-        display_pos(out, p, pos);
-        out << "failed to generate bytecode for '" << c_name << "'" << std::endl;
-        type_context ctx(p.env());
-        auto out2  = regular(p.env(), p.ios(), ctx);
-        display_warning(out2, get_pos_info_provider(), ex);
+        // FIXME(gabriel): use position from exception
+        auto out = p.mk_message(pos, WARNING);
+        out << "failed to generate bytecode for '" << c_name << "'\n";
+        out.set_exception(ex);
+        out.report();
         return env;
     }
 }

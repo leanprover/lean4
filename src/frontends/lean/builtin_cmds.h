@@ -6,9 +6,10 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "frontends/lean/cmd_table.h"
+#include "library/message_builder.h"
 namespace lean {
-bool print_id_info(parser & p, name const & id, bool show_value, pos_info const & pos);
-bool print_token_info(parser const & p, name const & tk);
+bool print_id_info(parser & p, message_builder & out, name const & id, bool show_value, pos_info const & pos);
+bool print_token_info(parser const & p, message_builder & out, name const & tk);
 
 cmd_table get_builtin_cmds();
 /* \brief Replay export declarations in the top-level of imported files */

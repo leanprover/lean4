@@ -43,7 +43,6 @@ Author: Leonardo de Moura
 #include "library/flycheck.h"
 #include "library/pp_options.h"
 #include "library/noncomputable.h"
-#include "library/error_handling.h"
 #include "library/scope_pos_info_provider.h"
 #include "library/type_context.h"
 #include "library/equations_compiler/equations.h"
@@ -216,35 +215,33 @@ void parser::scan() {
             if (curr_is_identifier()) {
                 name const & id = get_name_val();
                 if (p.second <= m_info_at_col && m_info_at_col < p.second + id.utf8_size()) {
-                    print_lean_info_header(m_ios.get_regular_stream());
+                    auto out = mk_message(INFORMATION);
                     bool ok = true;
                     try {
                         bool show_value = false;
-                        ok = print_id_info(*this, id, show_value, p);
+                        ok = print_id_info(*this, out, id, show_value, p);
                     } catch (exception &) {
                         ok = false;
                     }
                     if (!ok)
-                        m_ios.get_regular_stream() << "unknown identifier '" << id << "'\n";
-                    print_lean_info_footer(m_ios.get_regular_stream());
+                        out << "unknown identifier '" << id << "'\n";
+                    out.report();
                     m_info_at = false;
                 }
             } else if (curr_is_keyword()) {
                 name const & tk = get_token_info().token();
                 if (p.second <= m_info_at_col && m_info_at_col < p.second + tk.utf8_size()) {
-                    print_lean_info_header(m_ios.get_regular_stream());
+                    auto out = mk_message(INFORMATION);
                     try {
-                        print_token_info(*this, tk);
+                        print_token_info(*this, out, tk);
                     } catch (exception &) {}
-                    print_lean_info_footer(m_ios.get_regular_stream());
+                    out.report();
                     m_info_at = false;
                 }
             } else if (curr_is_command()) {
                 name const & tk = get_token_info().token();
                 if (p.second <= m_info_at_col && m_info_at_col < p.second + tk.utf8_size()) {
-                    print_lean_info_header(m_ios.get_regular_stream());
-                    m_ios.get_regular_stream() << "'" << tk << "' is a command\n";
-                    print_lean_info_footer(m_ios.get_regular_stream());
+                    (mk_message(INFORMATION) << "'" << tk << "' is a command").report();
                     m_info_at = false;
                 }
             }
@@ -284,9 +281,7 @@ expr parser::mk_sorry(pos_info const & p) {
         // TODO(Leo): remove the #ifdef.
         // The compilation option LEAN_IGNORE_SORRY is a temporary hack for the nightly builds
         // We use it to avoid a buch of warnings on cdash.
-        flycheck_warning wrn(m_ios);
-        display_warning_pos(p.first, p.second);
-        m_ios.get_regular_stream() << " using 'sorry'" << std::endl;
+        (mk_message(p, WARNING) << "using 'sorry'").report();
 #endif
     }
     return save_pos(::lean::mk_sorry(), p);
@@ -306,38 +301,6 @@ void parser::updt_options() {
             }
         }
     }
-}
-
-void parser::display_warning_pos(unsigned line, unsigned pos) {
-    type_context tc(env(), get_options());
-    auto out = regular(env(), ios(), tc);
-    ::lean::display_warning_pos(out, get_stream_name().c_str(), line, pos);
-}
-void parser::display_warning_pos(pos_info p) { display_warning_pos(p.first, p.second); }
-
-void parser::display_information_pos(pos_info pos) {
-    ::lean::display_information_pos(ios().get_regular_stream(), get_options(),
-                                    get_stream_name().c_str(), pos.first, pos.second);
-}
-
-void parser::display_error_pos(unsigned line, unsigned pos) {
-    ::lean::display_error_pos(ios().get_regular_stream(), get_options(),
-                              get_stream_name().c_str(), line, pos);
-}
-void parser::display_error_pos(pos_info p) { display_error_pos(p.first, p.second); }
-
-void parser::display_error(char const * msg, unsigned line, unsigned pos) {
-    flycheck_error err(ios());
-    display_error_pos(line, pos);
-    ios().get_regular_stream() << " " << msg << std::endl;
-}
-
-void parser::display_error(char const * msg, pos_info p) { display_error(msg, p.first, p.second); }
-
-void parser::display_error(throwable const & ex) {
-    type_context tc(env(), get_options());
-    auto out = regular(env(), ios(), tc);
-    ::lean::display_error(out, this, ex);
 }
 
 void parser::throw_parser_exception(char const * msg, pos_info p) {
@@ -364,21 +327,21 @@ void parser::protected_call(std::function<void()> && f, std::function<void()> &&
             ex.get_exception().rethrow();
         }
     } catch (parser_exception & ex) {
-        CATCH(flycheck_error err(ios()); ios().get_regular_stream() << ex.what() << std::endl,
-              throw);
+        CATCH(ios().report(ex), throw);
     } catch (parser_error & ex) {
-        CATCH(display_error(ex.what(), ex.m_pos),
+        CATCH((mk_message(ex.m_pos, ERROR) << ex.get_msg()).report(),
               throw_parser_exception(ex.what(), ex.m_pos));
     } catch (interrupted & ex) {
         reset_interrupt();
         if (m_verbose)
-            ios().get_regular_stream() << "!!!Interrupted!!!" << std::endl;
+            (mk_message(m_last_cmd_pos, ERROR) << "!!!Interrupted!!!").report();
         sync();
         if (m_use_exceptions)
             throw;
     } catch (throwable & ex) {
         reset_interrupt();
-        CATCH(display_error(ex), throw_nested_exception(ex, m_last_cmd_pos));
+        CATCH(mk_message(m_last_cmd_pos, ERROR).set_exception(ex).report(),
+              throw_nested_exception(ex, m_last_cmd_pos));
     }
 }
 
@@ -2108,13 +2071,11 @@ void parser::parse_imports() {
             olean_files.push_back(module_name(k, f));
         } else {
             m_found_errors = true;
-            if (!m_use_exceptions && m_show_errors) {
-                flycheck_error err(ios());
-                display_error_pos(pos());
-                ios().get_regular_stream() << " invalid import, unknown module '" << f << "'" << std::endl;
-            }
+            parser_error error(sstream() << "invalid import, unknown module '" << f << "'", pos());
+            if (!m_use_exceptions && m_show_errors)
+                ios().report(message(get_file_name(), error.m_pos, ERROR, error.get_msg()));
             if (m_use_exceptions)
-                throw parser_error(sstream() << "invalid import, unknown module '" << f << "'", pos());
+                throw error;
         }
     };
     if (!prelude) {
@@ -2182,9 +2143,7 @@ bool parser::parse_commands() {
             // TODO(Leo): remove the #ifdef.
             // The compilation option LEAN_IGNORE_SORRY is a temporary hack for the nightly builds
             // We use it to avoid a buch of warnings on cdash.
-            flycheck_warning wrn(ios());
-            display_warning_pos(pos());
-            ios().get_regular_stream() << " imported file uses 'sorry'" << std::endl;
+            (mk_message(WARNING) << "imported file uses 'sorry'").report();
 #endif
         }
         while (!done) {
@@ -2217,7 +2176,7 @@ bool parser::parse_commands() {
         if (has_open_scopes(m_env)) {
             m_found_errors = true;
             if (!m_use_exceptions && m_show_errors)
-                display_error("invalid end of module, expecting 'end'", pos());
+                (mk_message(ERROR) << "invalid end of module, expecting 'end'").report();
             else if (m_use_exceptions)
                 throw_parser_exception("invalid end of module, expecting 'end'", pos());
         }
@@ -2289,6 +2248,14 @@ pos_info parser::get_some_pos() const {
 
 char const * parser::get_file_name() const {
     return get_stream_name().c_str();
+}
+
+message_builder parser::mk_message(pos_info const &p, message_severity severity) {
+    std::shared_ptr<abstract_type_context> tc = std::make_shared<type_context>(env(), get_options());
+    return message_builder(this, tc, env(), ios(), get_file_name(), p, severity);
+}
+message_builder parser::mk_message(message_severity severity) {
+    return mk_message(pos(), severity);
 }
 
 bool parse_commands(environment & env, io_state & ios, std::istream & in, char const * strm_name,

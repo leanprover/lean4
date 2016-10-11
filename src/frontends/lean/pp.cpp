@@ -1731,40 +1731,4 @@ formatter_factory mk_pretty_formatter_factory() {
     };
 }
 
-static options mk_options(bool detail) {
-    options opts;
-    if (detail) {
-        opts = opts.update(name{"pp", "implicit"}, true);
-        opts = opts.update(name{"pp", "notation"}, false);
-    }
-    return opts;
 }
-
-static void pp_core(environment const & env, expr const & e, bool detail) {
-    type_checker tc(env);
-    io_state ios(mk_pretty_formatter_factory(), mk_options(detail));
-    regular(env, ios, tc) << e << "\n";
-}
-
-/* static void pp_core(environment const & env, goal const & g, bool detail) {
-    type_checker tc(env);
-    io_state ios(mk_pretty_formatter_factory(), mk_options(detail));
-    regular(env, ios, tc) << g << "\n";
-}
-
-static void pp_core(environment const & env, proof_state const & s, bool detail) {
-    type_checker tc(env);
-    io_state ios(mk_pretty_formatter_factory(), mk_options(detail));
-    auto out = regular(env, ios, tc);
-    out << s.pp(out.get_formatter()) << "\n";
-}
-*/
-
-}
-// for debugging purposes
-void pp(lean::environment const & env, lean::expr const & e) { lean::pp_core(env, e, false); }
-// void pp(lean::environment const & env, lean::goal const & g) { lean::pp_core(env, g, false); }
-// void pp(lean::environment const & env, lean::proof_state const & s) { lean::pp_core(env, s, false); }
-void pp_detail(lean::environment const & env, lean::expr const & e) { lean::pp_core(env, e, true); }
-// void pp_detail(lean::environment const & env, lean::goal const & g) { lean::pp_core(env, g, true); }
-// void pp_detail(lean::environment const & env, lean::proof_state const & s) { lean::pp_core(env, s, true); }

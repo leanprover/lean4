@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/standard_kernel.h"
 #include "library/type_context.h"
-#include "library/error_handling.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/parser.h"
 #include "init/init.h"
@@ -36,10 +35,7 @@ public:
             bool keep_proofs = false;
             env = import_modules(env, base, 1, &mod, num_threads, keep_proofs, ios);
         } catch (lean::exception & ex) {
-            simple_pos_info_provider pp("import_module");
-            type_context tc(env, ios.get_options());
-            auto out = diagnostic(env, ios, tc);
-            lean::display_error(out, &pp, ex);
+            lean::message_builder(env, ios, "import_module", lean::pos_info(1, 1), lean::ERROR).set_exception(ex).report();
             return 1;
         }
         return 0;
@@ -54,11 +50,8 @@ public:
                 ok = false;
             }
         } catch (lean::exception & ex) {
-            simple_pos_info_provider pp(input_filename.c_str());
+            lean::message_builder(env, ios, input_filename, lean::pos_info(1, 1), lean::ERROR).set_exception(ex).report();
             ok = false;
-            type_context tc(env, ios.get_options());
-            auto out = diagnostic(env, ios, tc);
-            lean::display_error(out, &pp, ex);
         }
         return ok ? 0 : 1;
     }

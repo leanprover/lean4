@@ -22,8 +22,6 @@ Author: Leonardo de Moura
 #include "library/locals.h"
 #include "library/explicit.h"
 #include "library/unfold_macros.h"
-#include "library/flycheck.h"
-#include "library/error_handling.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/decl_util.h"
 #include "frontends/lean/util.h"

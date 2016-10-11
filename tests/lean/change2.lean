@@ -8,7 +8,7 @@ example (a b : nat) : a = b → succ (succ a) = succ (b + 1) :=
 by do intro `Heq,
       get_local `a >>= subst,
       trace_state,
-      rsimp,
+      dsimp,
       trace "---- after dsimp ----",
       trace_state,
       t ← target,

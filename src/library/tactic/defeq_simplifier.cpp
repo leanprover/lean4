@@ -303,7 +303,7 @@ expr defeq_simplify(type_context & ctx, simp_lemmas const & simp_lemmas, expr co
     return defeq_simplify_fn(ctx, simp_lemmas)(e);
 }
 
-vm_obj simp_lemmas_rsimplify_core(vm_obj const & m, vm_obj const & _lemmas, vm_obj const & e, vm_obj const & s0) {
+vm_obj simp_lemmas_dsimplify_core(vm_obj const & m, vm_obj const & _lemmas, vm_obj const & e, vm_obj const & s0) {
     type_context ctx = mk_type_context_for(s0, m);
     tactic_state const & s    = to_tactic_state(s0);
     LEAN_TACTIC_TRY;
@@ -320,7 +320,7 @@ expr defeq_simplify(type_context & ctx, expr const & e) {
 
 /* Setup and teardown */
 void initialize_defeq_simplifier() {
-    DECLARE_VM_BUILTIN(name({"simp_lemmas", "rsimplify_core"}), simp_lemmas_rsimplify_core);
+    DECLARE_VM_BUILTIN(name({"simp_lemmas", "dsimplify_core"}), simp_lemmas_dsimplify_core);
 
     register_trace_class("defeq_simplifier");
     register_trace_class(name({"defeq_simplifier", "canonize"}));

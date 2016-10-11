@@ -17,5 +17,5 @@ example (a b : nat)
              (λ x y : nat, @add nat (nat_has_add3 y) a x)) : true :=
 by do
   s ← simp_lemmas.mk_default,
-  get_local `H >>= infer_type >>= s^.rsimplify >>= trace,
+  get_local `H >>= infer_type >>= s^.dsimplify >>= trace,
   constructor

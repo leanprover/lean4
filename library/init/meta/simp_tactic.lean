@@ -59,14 +59,35 @@ simp_lemmas.rewrite_core reducible
    Fails if no simplifications can be performed. -/
 meta constant simp_lemmas.simplify_core : simp_lemmas → tactic unit → name → expr → tactic (expr × expr)
 
-/- Simplify the given expression using *only* reflexivity equality lemmas from the given set of lemmas.
+/- (Definitional) Simplify the given expression using *only* reflexivity equality lemmas from the given set of lemmas.
    The resulting expression is definitionally equal to the input. -/
-meta constant simp_lemmas.rsimplify_core : transparency → simp_lemmas → expr → tactic expr
+meta constant simp_lemmas.dsimplify_core : transparency → simp_lemmas → expr → tactic expr
 
-meta def simp_lemmas.rsimplify : simp_lemmas → expr → tactic expr :=
-simp_lemmas.rsimplify_core reducible
+meta def simp_lemmas.dsimplify : simp_lemmas → expr → tactic expr :=
+simp_lemmas.dsimplify_core reducible
 
 namespace tactic
+meta constant dsimplify_core
+  (max_steps       : nat)
+  /- If visit_instances = ff, then instance implicit arguments are not visited, but
+     tactic will canonize them. -/
+  (visit_instances : bool)
+  /- (pre e) is invoked before visiting the children of subterm 'e',
+     if it succeeds the result is a new expression that must be definitionally equal to 'e',
+     and a flag indicating whether the new children should be visited or not. -/
+  (pre             : expr → tactic (expr × bool))
+  /- (post e) is invoked after visiting the children of subterm 'e',
+     if it succeeds the result is a new expression that must be definitionally equal to 'e',
+     and a flag indicating whether the new children should be revisited.
+     Remark: if (pre e) returns (some (new_e, ff)), then post is not invoked for new_e. -/
+  (post            : expr → tactic (expr × bool))
+  : expr → tactic expr
+
+meta def dsimplify
+  (pre             : expr → tactic (expr × bool))
+  (post            : expr → tactic (expr × bool))
+  : expr → tactic expr :=
+dsimplify_core 1000000 ff pre post
 
 meta def simplify (prove_fn : tactic unit) (extra_lemmas : list expr) (e : expr) : tactic (expr × expr) :=
 do lemmas       ← simp_lemmas.mk_default,
@@ -86,15 +107,15 @@ simplify_goal failed [] >> try triv >> try reflexivity
 meta def simp_using (Hs : list expr) : tactic unit :=
 simplify_goal failed Hs >> try triv
 
-meta def rsimp : tactic unit :=
+meta def dsimp : tactic unit :=
 do S ← simp_lemmas.mk_default,
-   target >>= S^.rsimplify >>= change
+   target >>= S^.dsimplify >>= change
 
-meta def rsimp_at (H : expr) : tactic unit :=
+meta def dsimp_at (H : expr) : tactic unit :=
 do num_reverted : ℕ ← revert H,
    (expr.pi n bi d b : expr) ← target | failed,
    S      ← simp_lemmas.mk_default,
-   H_simp ← S^.rsimplify d,
+   H_simp ← S^.dsimplify d,
    change $ expr.pi n bi H_simp b,
    intron num_reverted
 

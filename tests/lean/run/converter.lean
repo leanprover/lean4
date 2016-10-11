@@ -17,7 +17,7 @@ by conversion $
   whnf >>
   trace_lhs >>
   apply_simp_set `bla >>
-  rsimp >>
+  dsimp >>
   trace "after defeq simplifier" >>
   trace_lhs >>
   change `(f a a) >>
@@ -34,7 +34,7 @@ by conversion $
   funext $ do
     trace_lhs,
     apply_simp_set `bla,
-    rsimp,
+    dsimp,
     apply_simp_set `foo
 
 constant h : nat → nat → nat
@@ -46,7 +46,7 @@ meta def conv.depth : conv unit → conv unit
 lemma ex (a : nat) : (λ a, h (f a (sizeof a)) (g a)) = (λ a, h 0 a) :=
 by conversion $
    depth_first $
-     (apply_simp_set `foo <|> apply_simp_set `bla <|> rsimp)
+     (apply_simp_set `foo <|> apply_simp_set `bla <|> dsimp)
 
 lemma ex2 {A : Type} [comm_group A] (a b : A) : b * 1 * a = a * b :=
 by conversion $

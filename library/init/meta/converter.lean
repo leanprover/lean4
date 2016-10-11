@@ -85,8 +85,8 @@ meta def whnf_core (m : transparency) : conv unit :=
 meta def whnf : conv unit :=
 conv.whnf_core reducible
 
-meta def rsimp : conv unit :=
-λ r e, do s ← simp_lemmas.mk_default, n ← s^.rsimplify e, return ⟨(), n, none⟩
+meta def dsimp : conv unit :=
+λ r e, do s ← simp_lemmas.mk_default, n ← s^.dsimplify e, return ⟨(), n, none⟩
 
 meta def try (c : conv unit) : conv unit :=
 c <|> return ()

@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 namespace lean {
 static name_set *            g_trace_classes = nullptr;
 static name_map<name_set>  * g_trace_aliases = nullptr;
+static name *                g_trace_as_messages = nullptr;
 MK_THREAD_LOCAL_GET_DEF(std::vector<name>, get_enabled_trace_classes);
 MK_THREAD_LOCAL_GET_DEF(std::vector<name>, get_disabled_trace_classes);
 MK_THREAD_LOCAL_GET_DEF(environment, get_dummy_env);
@@ -206,6 +207,7 @@ io_state_stream const & operator<<(io_state_stream const & ios, tclass const & c
 void initialize_trace() {
     g_trace_classes = new name_set();
     g_trace_aliases = new name_map<name_set>();
+    g_trace_as_messages = new name {"trace", "as_messages"};
 
     register_trace_class(name{"debug"});
 }
@@ -213,5 +215,34 @@ void initialize_trace() {
 void finalize_trace() {
     delete g_trace_classes;
     delete g_trace_aliases;
+    delete g_trace_as_messages;
 }
+
+scope_traces_as_messages::scope_traces_as_messages(char const * stream_name, pos_info const & pos) :
+        m_stream_name(stream_name), m_pos(pos) {
+    if (get_global_ios().get_options().get_bool(*g_trace_as_messages, false)) {
+        m_redirected_ios = std::unique_ptr<io_state>(new io_state(get_global_ios()));
+        m_buffer = std::make_shared<string_output_channel>();
+        m_redirected_ios->set_regular_channel(m_buffer);
+        m_redirected_ios->set_diagnostic_channel(m_buffer);
+        m_scoped_ios = std::unique_ptr<scope_global_ios>(new scope_global_ios(*m_redirected_ios));
+    }
+}
+
+scope_traces_as_messages::scope_traces_as_messages(pos_info_provider const *provider, expr const &ref) :
+    scope_traces_as_messages(provider ? provider->get_file_name() : "<unknown>",
+                             provider ? provider->get_pos_info_or_some(ref) : pos_info(0, 0)) {}
+
+scope_traces_as_messages::~scope_traces_as_messages() {
+    if (enabled()) {
+        auto msg = m_buffer->str();
+        if (!msg.empty()) {
+            auto redirected_output = m_buffer->str();
+            if (!redirected_output.empty())
+                m_redirected_ios->report(
+                        message(m_stream_name, m_pos, INFORMATION, "trace output", redirected_output));
+        }
+    }
+}
+
 }

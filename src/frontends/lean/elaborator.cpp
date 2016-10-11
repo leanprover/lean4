@@ -173,7 +173,7 @@ expr elaborator::mk_type_metavar(expr const & ref) {
 }
 
 expr elaborator::mk_instance_core(local_context const & lctx, expr const & C, expr const & ref) {
-    flycheck_output_scope flycheck(get_pos_info_provider(), ref);
+    scope_traces_as_messages traces_as_messages(get_pos_info_provider(), ref);
 
     optional<expr> inst = m_ctx.mk_class_instance_at(lctx, C);
     if (!inst) {
@@ -2296,7 +2296,7 @@ void elaborator::show_goal(tactic_state const & s, expr const & start_ref, expr 
    Report any errors detected during the process using position information associated with 'ref'. */
 tactic_state elaborator::execute_tactic(expr const & tactic, tactic_state const & s, expr const & ref) {
     pos_info_provider * provider = get_pos_info_provider();
-    flycheck_output_scope flycheck(provider, ref);
+    scope_traces_as_messages traces_as_messages(provider, ref);
 
     /* Compile tactic into bytecode */
     name tactic_name("_tactic");

@@ -291,6 +291,7 @@ int main(int argc, char ** argv) {
             break;
         case 'F':
             opts = opts.update("flycheck", true);
+            opts = opts.update(lean::name{"trace", "as_messages"}, true);
             break;
         case 'P':
             opts = opts.update("profile", true);

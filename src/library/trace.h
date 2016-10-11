@@ -30,6 +30,20 @@ public:
     ~scope_trace_env();
 };
 
+class scope_traces_as_messages {
+    char const *                           m_stream_name;
+    pos_info                               m_pos;
+    std::unique_ptr<io_state>              m_redirected_ios;
+    std::unique_ptr<scope_global_ios>      m_scoped_ios;
+    std::shared_ptr<string_output_channel> m_buffer;
+
+public:
+    scope_traces_as_messages(char const * stream_name, pos_info const & pos);
+    scope_traces_as_messages(pos_info_provider const * provider, expr const & ref);
+    ~scope_traces_as_messages();
+    bool enabled() const { return static_cast<bool>(m_scoped_ios); }
+};
+
 class scope_trace_inc_depth {
     bool m_active{false};
 public:

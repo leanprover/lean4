@@ -93,18 +93,38 @@ do
 private meta def dec_eq_case_1 (I_name : name) (F_name : name) : tactic unit :=
 intro `w >>= cases >> all_goals (dec_eq_case_2 I_name F_name)
 
-meta def mk_dec_eq_instance : tactic unit :=
+meta def mk_dec_eq_instance_core : tactic unit :=
 do I_name ← get_dec_eq_type_name,
    env ← get_env,
    v_name ← return `_v,
    F_name ← return `_F,
+   num_indices ← return $ inductive_num_indices env I_name,
+   idx_names ← return $ list.map (λ (p : name × nat), mk_num_name p~>fst p~>snd) (list.zip (list.repeat `idx num_indices) (list.iota num_indices)),
+
    -- Use brec_on if type is recursive.
    -- We store the functional in the variable F.
    if is_recursive env I_name
-   then intro1 >>= (λ x, induction_core semireducible x (I_name <.> "brec_on") [v_name, F_name])
+   then intro1 >>= (λ x, induction_core semireducible x (I_name <.> "brec_on") (idx_names ++ [v_name, F_name]))
    else intro v_name >> return (),
+
    -- Apply cases to first element of type (I ...)
    get_local v_name >>= cases,
    all_goals (dec_eq_case_1 I_name F_name)
+
+meta def mk_dec_eq_instance : tactic unit :=
+do env ← get_env,
+   (pi x1 i1 d1 (pi x2 i2 d2 b)) ← target >>= whnf | failed,
+   (const I_name ls) ← return (get_app_fn d1) | failed,
+   when (is_ginductive env I_name ∧ ¬ is_inductive env I_name) $
+      do { d1' ← whnf d1,
+           (app I_basic_const I_idx) ← return d1' | failed,
+           I_idx_type ← infer_type I_idx,
+           new_goal ← to_expr `(∀ (_idx : %%I_idx_type), decidable_eq (%%I_basic_const _idx)),
+           assert `_basic_dec_eq new_goal,
+           swap,
+           to_expr `(_basic_dec_eq %%I_idx) >>= exact,
+           intro1,
+           return () },
+   mk_dec_eq_instance_core
 
 end tactic

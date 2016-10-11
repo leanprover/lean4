@@ -125,3 +125,11 @@ inductive foo (A : Type*)
 | mk : A -> wrap' (list' foo) -> foo
 
 end X13
+
+namespace X14
+print "with indices in original"
+
+inductive Foo : bool -> Type
+| mk : list (Foo ff) -> Foo tt
+
+end X14

@@ -125,4 +125,17 @@ foldr (λ a r, p a || r) ff l
 definition all (l : list A) (p : A → bool) : bool :=
 foldr (λ a r, p a && r) tt l
 
+def zip : list A → list B → list (prod A B)
+| []      _       := []
+| _       []      := []
+| (x::xs) (y::ys) := (prod.mk x y) :: zip xs ys
+
+def repeat (a : A) : ℕ → list A
+| 0 := []
+| (succ n) := a :: repeat n
+
+def iota : ℕ → list ℕ
+| 0 := []
+| (succ n) := iota n ++ [succ n]
+
 end list

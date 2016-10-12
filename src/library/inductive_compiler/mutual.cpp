@@ -231,7 +231,7 @@ class add_mutual_inductive_decl_fn {
     }
 
     expr translate_ir(unsigned ind_idx, expr const & ir) {
-        name ir_name = mlocal_name(m_mut_decl.get_ind(ind_idx)) + mlocal_name(ir).replace_prefix(m_basic_prefix, name());
+        name ir_name = m_basic_ind_name + name(mlocal_name(ir).get_string()).append_after(ind_idx);
         buffer<expr> locals;
         expr ty = m_tctx.whnf(mlocal_type(ir));
         while (is_pi(ty)) {

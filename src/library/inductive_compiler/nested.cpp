@@ -197,6 +197,10 @@ class add_nested_inductive_decl_fn {
     name mk_inner_name(name const & n) {
         if (m_nested_decl.is_ind_name(n) || m_nested_decl.is_ir_name(n)) {
             return nest(n);
+        } else if (!n.is_atomic()) {
+            // We want the atomic introduction rule name to stay at the end, but we don't want to introduce
+            // a new "nest_" in the beginning.
+            return nest(n.get_prefix() + mlocal_name(m_nested_decl.get_ind(0)) + name(n.get_string()));
         } else {
             // We append the ind name at the end so that we don't put the "nest_" in the beginning
             return nest(n + mlocal_name(m_nested_decl.get_ind(0)));

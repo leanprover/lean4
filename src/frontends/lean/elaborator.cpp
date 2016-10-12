@@ -26,7 +26,6 @@ Author: Leonardo de Moura
 #include "library/typed_expr.h"
 #include "library/annotation.h"
 #include "library/pp_options.h"
-#include "library/flycheck.h"
 #include "library/replace_visitor.h"
 #include "library/locals.h"
 #include "library/private.h"

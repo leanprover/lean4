@@ -20,7 +20,6 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/normalize.h"
 #include "library/class.h"
-#include "library/flycheck.h"
 #include "library/user_recursors.h"
 #include "library/pp_options.h"
 #include "library/attribute_manager.h"

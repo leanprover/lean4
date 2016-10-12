@@ -222,6 +222,7 @@ int main(int argc, char ** argv) {
     unsigned num_threads    = 1;
     bool read_cache         = false;
     bool save_cache         = false;
+    bool flycheck           = false;
     options opts;
     std::string output;
     std::string cache_name;
@@ -290,8 +291,8 @@ int main(int argc, char ** argv) {
             }
             break;
         case 'F':
-            opts = opts.update("flycheck", true);
             opts = opts.update(lean::name{"trace", "as_messages"}, true);
+            flycheck = true;
             break;
         case 'P':
             opts = opts.update("profile", true);
@@ -350,10 +351,16 @@ int main(int argc, char ** argv) {
     lean_assert(num_threads == 1);
     #endif
 
+    environment env = mk_environment(trust_lvl);
+    io_state ios(opts, lean::mk_pretty_formatter_factory());
+    if (flycheck) {
+        ios.set_message_channel(std::make_shared<lean::flycheck_message_stream>(std::cout));
+        // Redirect uncaptured non-flycheck messages to stdout
+        ios.set_regular_channel(ios.get_diagnostic_channel_ptr());
+    }
+
     if (smt2) {
         // Note: the smt2 flag may override other flags
-        environment env = mk_environment(trust_lvl);
-        io_state ios(opts, lean::mk_pretty_formatter_factory());
         bool ok = true;
         for (int i = optind; i < argc; i++) {
             try {
@@ -370,8 +377,6 @@ int main(int argc, char ** argv) {
         return ok ? 0 : 1;
     }
 
-    environment env = mk_environment(trust_lvl);
-    io_state ios(opts, lean::mk_pretty_formatter_factory());
     definition_cache   cache;
     definition_cache * cache_ptr = nullptr;
     if (read_cache) {

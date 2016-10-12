@@ -40,7 +40,6 @@ Author: Leonardo de Moura
 #include "library/num.h"
 #include "library/string.h"
 #include "library/sorry.h"
-#include "library/flycheck.h"
 #include "library/pp_options.h"
 #include "library/noncomputable.h"
 #include "library/scope_pos_info_provider.h"

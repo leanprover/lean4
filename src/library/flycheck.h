@@ -9,17 +9,15 @@ Author: Leonardo de Moura
 #include "kernel/pos_info_provider.h"
 #include "util/sexpr/options.h"
 #include "library/io_state.h"
+#include "library/messages.h"
 
 namespace lean {
 /** \brief Auxiliary object for "inserting" delimiters for flycheck */
-class flycheck_scope {
-    std::ostream &  m_out;
-    bool            m_flycheck;
+class flycheck_message_stream : public message_stream {
+    std::ostream & m_out;
 public:
-    flycheck_scope(std::ostream & out, options const & o, char const * kind);
-    flycheck_scope(io_state const & ios, char const * kind):
-        flycheck_scope(ios.get_regular_stream(), ios.get_options(), kind) {}
-    ~flycheck_scope();
-    bool enabled() const { return m_flycheck; }
+    flycheck_message_stream(std::ostream & out) : m_out(out) {}
+    ~flycheck_message_stream() {}
+    void report(message const & msg) override;
 };
 }

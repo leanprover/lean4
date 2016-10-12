@@ -19,7 +19,6 @@ Author: Leonardo de Moura
 #include "library/unfold_macros.h"
 #include "library/noncomputable.h"
 #include "library/module.h"
-#include "library/flycheck.h"
 #include "library/scope_pos_info_provider.h"
 #include "library/replace_visitor.h"
 #include "library/equations_compiler/equations.h"

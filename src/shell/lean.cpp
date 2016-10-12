@@ -42,6 +42,7 @@ Author: Leonardo de Moura
 #include "shell/emscripten.h"
 #include "shell/simple_pos_info_provider.h"
 #include "shell/json.h"
+#include "shell/server.h"
 #include "version.h"
 #include "githash.h" // NOLINT
 
@@ -100,6 +101,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  --deps            just print dependencies of a Lean input\n";
     std::cout << "  --flycheck        print structured error message for flycheck\n";
     std::cout << "  --json            print JSON-formatted structured error messages\n";
+    std::cout << "  --server          start lean in server mode\n";
     std::cout << "  --cache=file -c   load/save cached definitions from/to the given file\n";
     std::cout << "  --profile         display elaboration/type checking time for each definition/theorem\n";
 #if defined(LEAN_USE_BOOST)
@@ -141,6 +143,7 @@ static struct option g_long_options[] = {
     {"deps",         no_argument,       0, 'd'},
     {"flycheck",     no_argument,       0, 'F'},
     {"json",         no_argument,       0, 'J'},
+    {"server",       no_argument,       0, 'S'},
 #if defined(LEAN_USE_BOOST)
     {"tstack",       required_argument, 0, 's'},
 #endif
@@ -227,6 +230,7 @@ int main(int argc, char ** argv) {
     bool save_cache         = false;
     bool flycheck           = false;
     bool json_output        = false;
+    bool server             = false;
     options opts;
     std::string output;
     std::string cache_name;
@@ -301,6 +305,10 @@ int main(int argc, char ** argv) {
         case 'J':
             opts = opts.update(lean::name{"trace", "as_messages"}, true);
             json_output = true;
+            break;
+        case 'S':
+            opts = opts.update(lean::name{"trace", "as_messages"}, true);
+            server = true;
             break;
         case 'P':
             opts = opts.update("profile", true);
@@ -388,6 +396,11 @@ int main(int argc, char ** argv) {
             }
         }
         return ok ? 0 : 1;
+    }
+
+    if (server) {
+        lean::server(base_dir, num_threads, env, ios).run();
+        return 0;
     }
 
     definition_cache   cache;

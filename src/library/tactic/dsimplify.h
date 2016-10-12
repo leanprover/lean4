@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "library/type_context.h"
-#include "library/simp_lemmas.h"
+#include "library/tactic/simp_lemmas.h"
 
 namespace lean {
 class dsimplify_core_fn {

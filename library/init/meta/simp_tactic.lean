@@ -49,7 +49,10 @@ meta def simp_lemmas.rewrite : simp_lemmas → tactic unit → name → expr →
 simp_lemmas.rewrite_core reducible
 
 /- (simp_lemmas.drewrite s e) tries to rewrite 'e' using only refl lemmas in 's' -/
-meta constant simp_lemmas.drewrite : simp_lemmas → expr → tactic expr
+meta constant simp_lemmas.drewrite_core : transparency → simp_lemmas → expr → tactic expr
+
+meta def simp_lemmas.drewrite : simp_lemmas → expr → tactic expr :=
+simp_lemmas.drewrite_core reducible
 
 /- Simplify the given expression using [simp] and [congr] lemmas.
    The first argument is a tactic to be used to discharge proof obligations.

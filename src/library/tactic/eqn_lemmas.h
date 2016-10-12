@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "library/simp_lemmas.h"
+#include "library/tactic/simp_lemmas.h"
 
 namespace lean {
 environment add_eqn_lemma(environment const & env, name const & eqn_lemma);

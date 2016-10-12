@@ -8,9 +8,9 @@ Author: Leonardo de Moura
 #include "library/attribute_manager.h"
 #include "library/kernel_serializer.h"
 #include "library/trace.h"
-#include "library/eqn_lemmas.h"
 #include "library/constants.h"
 #include "library/module.h"
+#include "library/tactic/eqn_lemmas.h"
 
 namespace lean {
 struct eqn_lemmas_ext : public environment_extension {

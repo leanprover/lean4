@@ -29,7 +29,7 @@ Author: Daniel Selsam
 #include "library/protected.h"
 #include "library/attribute_manager.h"
 #include "library/pattern_attribute.h"
-#include "library/simp_lemmas.h"
+#include "library/tactic/simp_lemmas.h"
 #include "library/constructions/has_sizeof.h"
 #include "library/inductive_compiler/ginductive.h"
 #include "library/inductive_compiler/compiler.h"

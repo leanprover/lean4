@@ -10,13 +10,13 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/find_fn.h"
-#include "library/simp_lemmas.h"
 #include "library/constants.h"
 #include "library/trace.h"
 #include "library/util.h"
 #include "library/reducible.h"
 #include "library/attribute_manager.h"
 #include "library/relation_manager.h"
+#include "library/tactic/simp_lemmas.h"
 
 namespace lean {
 LEAN_THREAD_VALUE(bool, g_throw_ex, false);

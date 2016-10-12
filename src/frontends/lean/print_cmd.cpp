@@ -24,7 +24,7 @@ Author: Leonardo de Moura
 #include "library/type_context.h"
 #include "library/unification_hint.h"
 #include "library/reducible.h"
-#include "library/simp_lemmas.h"
+#include "library/tactic/simp_lemmas.h"
 #include "library/tactic/kabstract.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"

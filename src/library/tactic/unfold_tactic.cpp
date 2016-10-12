@@ -14,9 +14,9 @@ Author: Leonardo de Moura
 #include "library/replace_visitor.h"
 #include "library/constants.h"
 #include "library/user_recursors.h"
-#include "library/eqn_lemmas.h"
 #include "library/vm/vm_list.h"
 #include "library/vm/vm_expr.h"
+#include "library/tactic/eqn_lemmas.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/occurrences.h"
 

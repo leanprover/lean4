@@ -111,4 +111,18 @@ def dropn : ℕ → list A → list A
 | (succ n) [] := []
 | (succ n) (x::r) := dropn n r
 
+definition foldl (f : A → B → A) : A → list B → A
+| a []       := a
+| a (b :: l) := foldl (f a b) l
+
+definition foldr (f : A → B → B) : B → list A → B
+| b []       := b
+| b (a :: l) := f a (foldr b l)
+
+definition any (l : list A) (p : A → bool) : bool :=
+foldr (λ a r, p a || r) ff l
+
+definition all (l : list A) (p : A → bool) : bool :=
+foldr (λ a r, p a && r) tt l
+
 end list

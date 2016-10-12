@@ -412,6 +412,22 @@ vm_obj tactic_unfold_expr(vm_obj const & force, vm_obj const & occs, vm_obj cons
     }
 }
 
+vm_obj tactic_unfold_projection_core(vm_obj const & m, vm_obj const & _e, vm_obj const & _s) {
+    expr const & e = to_expr(_e);
+    tactic_state const & s = to_tactic_state(_s);
+    try {
+        expr const & fn = get_app_fn(e);
+        type_context ctx = mk_type_context_for(s, to_transparency_mode(m));
+        if (!is_constant(fn) || !is_projection(s.env(), const_name(fn)))
+            return mk_tactic_exception("unfold projection failed, expression is not a projection application", s);
+        if (auto new_e = ctx.reduce_projection(e))
+            return mk_tactic_success(to_obj(*new_e), s);
+        return mk_tactic_exception("unfold projection failed, failed to unfold", s);
+    } catch (exception & ex) {
+        return mk_tactic_exception(ex, s);
+    }
+}
+
 vm_obj tactic_dunfold_expr(vm_obj const & _e, vm_obj const & _s) {
     expr const & e = to_expr(_e);
     tactic_state const & s = to_tactic_state(_s);
@@ -441,12 +457,6 @@ vm_obj tactic_dunfold_expr(vm_obj const & _e, vm_obj const & _s) {
             buffer<expr> args;
             get_app_args(e, args);
             expr new_e = head_beta_reduce(mk_app(instantiate_value_univ_params(d, const_levels(fn)), args.size(), args.data()));
-            type_context ctx = mk_type_context_for(s);
-            expr const & new_fn = get_app_fn(new_e);
-            if (is_constant(new_fn) && is_projection(env, const_name(new_fn))) {
-                if (auto new_new_e = ctx.reduce_projection(new_e))
-                    new_e = *new_new_e;
-            }
             return mk_tactic_success(to_obj(new_e), s);
         }
     } catch (exception & ex) {
@@ -456,7 +466,8 @@ vm_obj tactic_dunfold_expr(vm_obj const & _e, vm_obj const & _s) {
 
 void initialize_unfold_tactic() {
     DECLARE_VM_BUILTIN(name({"tactic", "unfold_expr_core"}), tactic_unfold_expr);
-    DECLARE_VM_BUILTIN(name({"tactic", "dunfold_expr"}), tactic_dunfold_expr);
+    DECLARE_VM_BUILTIN(name({"tactic", "unfold_projection_core"}), tactic_unfold_projection_core);
+    DECLARE_VM_BUILTIN(name({"tactic", "dunfold_expr"}),           tactic_dunfold_expr);
 }
 
 void finalize_unfold_tactic() {

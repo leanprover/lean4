@@ -93,6 +93,11 @@ dsimplify_core 1000000 ff pre post
 
 meta constant dunfold_expr : expr → tactic expr
 
+meta constant unfold_projection_core : transparency → expr → tactic expr
+
+meta def unfold_projection : expr → tactic expr :=
+unfold_projection_core reducible
+
 meta def simplify (prove_fn : tactic unit) (extra_lemmas : list expr) (e : expr) : tactic (expr × expr) :=
 do lemmas       ← simp_lemmas.mk_default,
    new_lemmas   ← lemmas^.append extra_lemmas,

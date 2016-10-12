@@ -428,7 +428,7 @@ vm_obj tactic_unfold_projection_core(vm_obj const & m, vm_obj const & _e, vm_obj
     }
 }
 
-vm_obj tactic_dunfold_expr(vm_obj const & _e, vm_obj const & _s) {
+vm_obj tactic_dunfold_expr_core(vm_obj const & m, vm_obj const & _e, vm_obj const & _s) {
     expr const & e = to_expr(_e);
     tactic_state const & s = to_tactic_state(_s);
     try {
@@ -438,7 +438,7 @@ vm_obj tactic_dunfold_expr(vm_obj const & _e, vm_obj const & _s) {
             return mk_tactic_exception("dunfold_expr failed, expression is not a constant nor a constant application", s);
         expr new_e;
         if (has_eqn_lemmas(env, const_name(fn))) {
-            type_context ctx = mk_type_context_for(s);
+            type_context ctx = mk_type_context_for(s, to_transparency_mode(m));
             buffer<simp_lemma> lemmas;
             bool refl_only = true;
             get_eqn_lemmas_for(env, const_name(fn), refl_only, lemmas);
@@ -467,7 +467,7 @@ vm_obj tactic_dunfold_expr(vm_obj const & _e, vm_obj const & _s) {
 void initialize_unfold_tactic() {
     DECLARE_VM_BUILTIN(name({"tactic", "unfold_expr_core"}), tactic_unfold_expr);
     DECLARE_VM_BUILTIN(name({"tactic", "unfold_projection_core"}), tactic_unfold_projection_core);
-    DECLARE_VM_BUILTIN(name({"tactic", "dunfold_expr"}),           tactic_dunfold_expr);
+    DECLARE_VM_BUILTIN(name({"tactic", "dunfold_expr_core"}),      tactic_dunfold_expr_core);
 }
 
 void finalize_unfold_tactic() {

@@ -91,7 +91,10 @@ meta def dsimplify
   : expr → tactic expr :=
 dsimplify_core 1000000 ff pre post
 
-meta constant dunfold_expr : expr → tactic expr
+meta constant dunfold_expr_core : transparency → expr → tactic expr
+
+meta def dunfold_expr : expr → tactic expr :=
+dunfold_expr_core reducible
 
 meta constant unfold_projection_core : transparency → expr → tactic expr
 

@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/replace_visitor.h"
 #include "library/constants.h"
 #include "library/user_recursors.h"
+#include "library/eqn_lemmas.h"
 #include "library/vm/vm_list.h"
 #include "library/vm/vm_expr.h"
 #include "library/tactic/tactic_state.h"
@@ -411,8 +412,51 @@ vm_obj tactic_unfold_expr(vm_obj const & force, vm_obj const & occs, vm_obj cons
     }
 }
 
+vm_obj tactic_dunfold_expr(vm_obj const & _e, vm_obj const & _s) {
+    expr const & e = to_expr(_e);
+    tactic_state const & s = to_tactic_state(_s);
+    try {
+        environment const & env = s.env();
+        expr const & fn = get_app_fn(e);
+        if (!is_constant(fn))
+            return mk_tactic_exception("dunfold_expr failed, expression is not a constant nor a constant application", s);
+        expr new_e;
+        if (has_eqn_lemmas(env, const_name(fn))) {
+            type_context ctx = mk_type_context_for(s);
+            buffer<simp_lemma> lemmas;
+            bool refl_only = true;
+            get_eqn_lemmas_for(env, const_name(fn), refl_only, lemmas);
+            for (simp_lemma const & sl : lemmas) {
+                expr new_e = refl_lemma_rewrite(ctx, e, sl);
+                if (new_e != e)
+                    return mk_tactic_success(to_obj(new_e), s);
+            }
+            return mk_tactic_exception("dunfold_expr failed, none of the rfl lemmas is application", s);
+        } else {
+            declaration d = env.get(const_name(fn));
+            if (!d.is_definition())
+                return mk_tactic_exception(sstream() << "dunfold_expr failed, '" << d.get_name() << "' is not a definition", s);
+            if (d.get_num_univ_params() != length(const_levels(fn)))
+                return mk_tactic_exception("dunfold_expr failed, incorrect number of universe levels", s);
+            buffer<expr> args;
+            get_app_args(e, args);
+            expr new_e = head_beta_reduce(mk_app(instantiate_value_univ_params(d, const_levels(fn)), args.size(), args.data()));
+            type_context ctx = mk_type_context_for(s);
+            expr const & new_fn = get_app_fn(new_e);
+            if (is_constant(new_fn) && is_projection(env, const_name(new_fn))) {
+                if (auto new_new_e = ctx.reduce_projection(new_e))
+                    new_e = *new_new_e;
+            }
+            return mk_tactic_success(to_obj(new_e), s);
+        }
+    } catch (exception & ex) {
+        return mk_tactic_exception(ex, s);
+    }
+}
+
 void initialize_unfold_tactic() {
     DECLARE_VM_BUILTIN(name({"tactic", "unfold_expr_core"}), tactic_unfold_expr);
+    DECLARE_VM_BUILTIN(name({"tactic", "dunfold_expr"}), tactic_dunfold_expr);
 }
 
 void finalize_unfold_tactic() {

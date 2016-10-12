@@ -30,6 +30,7 @@ Author: Leonardo de Moura
 #include "library/tactic/defeq_simplifier.h"
 #include "library/tactic/eval.h"
 #include "library/tactic/simp_lemmas_tactics.h"
+#include "library/tactic/dsimplify_tactic.h"
 #include "library/tactic/simplifier/init_module.h"
 #include "library/tactic/backward/init_module.h"
 
@@ -63,8 +64,10 @@ void initialize_tactic_module() {
     initialize_user_attribute();
     initialize_eval();
     initialize_simp_lemmas_tactics();
+    initialize_dsimplify_tactic();
 }
 void finalize_tactic_module() {
+    finalize_dsimplify_tactic();
     finalize_simp_lemmas_tactics();
     finalize_eval();
     finalize_user_attribute();

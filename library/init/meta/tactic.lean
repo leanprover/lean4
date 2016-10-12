@@ -358,6 +358,9 @@ do t ← infer_type pr,
 meta def whnf : expr → tactic expr :=
 whnf_core semireducible
 
+meta def whnf_no_delta : expr → tactic expr :=
+whnf_core transparency.none
+
 meta def whnf_target : tactic unit :=
 target >>= whnf >>= change
 

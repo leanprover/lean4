@@ -183,6 +183,10 @@ public:
         and for instantiating metavariables created by the elaborator before
         invoking the tactic framework. */
     local_context instantiate_mvars(metavar_context & ctx) const;
+
+    friend bool is_decl_eqp(local_context const & ctx1, local_context const & ctx2) {
+        return is_eqp(ctx1.m_idx2local_decl, ctx2.m_idx2local_decl);
+    }
 };
 
 /** \brief Return true iff `e` contains a local_decl_ref that contains a value */

@@ -109,6 +109,17 @@ tactic_state set_env_mctx_goals(tactic_state const & s, environment const & env,
     return tactic_state(env, s.get_options(), mctx, consume_solved_prefix(mctx, gs), s.main());
 }
 
+tactic_state set_mctx_lctx(tactic_state const & s, metavar_context const & mctx, local_context const & lctx) {
+    if (is_eqp(s.mctx(), mctx)) {
+        optional<metavar_decl> mdecl = s.get_main_goal_decl();
+        if (mdecl && is_decl_eqp(mdecl->get_context(), lctx))
+            return s;
+    }
+    metavar_context new_mctx = mctx;
+    expr mvar = new_mctx.mk_metavar_decl(lctx, mk_true());
+    return tactic_state(s.env(), s.get_options(), new_mctx, to_list(mvar), mvar);
+}
+
 format tactic_state::pp_expr(formatter_factory const & fmtf, expr const & e) const {
     type_context ctx = mk_type_context_for(*this, transparency_mode::All);
     formatter fmt = fmtf(env(), get_options(), ctx);

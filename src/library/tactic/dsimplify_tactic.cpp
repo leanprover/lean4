@@ -6,11 +6,15 @@ Author: Leonardo de Moura
 */
 #include "util/interrupt.h"
 #include "kernel/instantiate.h"
-#include "library/trace.h"
 #include "library/simp_lemmas.h"
 #include "library/type_context.h"
 #include "library/defeq_canonizer.h"
 #include "library/fun_info.h"
+#include "library/util.h"
+#include "library/vm/vm.h"
+#include "library/vm/vm_nat.h"
+#include "library/vm/vm_expr.h"
+#include "library/tactic/tactic_state.h"
 
 namespace lean {
 class dsimplify_core_fn {
@@ -122,8 +126,6 @@ protected:
 
     expr visit(expr const & e) {
         check_system("dsimplify");
-        lean_trace_inc_depth("dsimplify");
-        lean_trace_d("dsimplify", scope_trace_env scope(m_ctx.env(), m_ctx); tout() << e << "\n";);
         inc_num_steps();
 
         auto it = m_cache.find(e);
@@ -165,9 +167,11 @@ protected:
             }
 
             if (auto p2 = post(new_e)) {
-                curr_e = p2->first;
-                if (!p2->second)
+                if (!p2->second || p2->first == curr_e) {
+                    curr_e = p2->first;
                     break;
+                }
+                curr_e = p2->first;
             } else {
                 break;
             }
@@ -189,6 +193,8 @@ public:
             m_cache.clear();
         }
     }
+
+    metavar_context const & mctx() const { return m_ctx.mctx(); }
 };
 
 class dsimplify_fn : public dsimplify_core_fn {
@@ -220,9 +226,68 @@ class dsimplify_fn : public dsimplify_core_fn {
             return optional<pair<expr, bool>>(curr_e, true);
     }
 public:
-    dsimplify_fn(type_context & ctx, simp_lemmas_for const & lemmas, unsigned max_steps, bool visit_instances):
+    dsimplify_fn(type_context & ctx, unsigned max_steps, bool visit_instances, simp_lemmas_for const & lemmas):
         dsimplify_core_fn(ctx, max_steps, visit_instances),
         m_simp_lemmas(lemmas) {
     }
 };
+
+class tactic_dsimplify_fn : public dsimplify_core_fn {
+    vm_obj       m_pre;
+    vm_obj       m_post;
+    tactic_state m_s;
+
+    optional<pair<expr, bool>> invoke_fn(vm_obj const & fn, expr const & e) {
+        m_s = set_mctx_lctx(m_s, m_ctx.mctx(), m_ctx.lctx());
+        vm_obj r = invoke(fn, to_obj(e), to_obj(m_s));
+        if (optional<tactic_state> new_s = is_tactic_success(r)) {
+            m_s = *new_s;
+            m_ctx.set_mctx(m_s.mctx());
+            vm_obj p   = cfield(r, 0);
+            expr new_e = to_expr(cfield(p, 0));
+            bool flag  = to_bool(cfield(p, 1));
+            return optional<pair<expr, bool>>(new_e, flag);
+        } else {
+            return optional<pair<expr, bool>>();
+        }
+    }
+
+    virtual optional<pair<expr, bool>> pre(expr const & e) override {
+        return invoke_fn(m_pre, e);
+    }
+
+    virtual optional<pair<expr, bool>> post(expr const & e) override {
+        return invoke_fn(m_post, e);
+    }
+
+public:
+    tactic_dsimplify_fn(type_context & ctx, unsigned max_steps, bool visit_instances,
+                        vm_obj const & pre, vm_obj const & post):
+        dsimplify_core_fn(ctx, max_steps, visit_instances),
+        m_pre(pre),
+        m_post(post),
+        m_s(mk_tactic_state_for(ctx.env(), ctx.get_options(), ctx.mctx(), ctx.lctx(), mk_true())) {
+    }
+};
+
+vm_obj tactic_dsimplify_core(vm_obj const & max_steps, vm_obj const & visit_instances,
+                             vm_obj const & pre, vm_obj const & post, vm_obj const & e, vm_obj const & s) {
+    try {
+        type_context ctx = mk_type_context_for(to_tactic_state(s));
+        tactic_dsimplify_fn F(ctx, force_to_unsigned(max_steps, std::numeric_limits<unsigned>::max()),
+                              to_bool(visit_instances), pre, post);
+        expr new_e = F(to_expr(e));
+        tactic_state new_s = set_mctx(to_tactic_state(s), F.mctx());
+        return mk_tactic_success(to_obj(new_e), new_s);
+    } catch (exception & ex) {
+        return mk_tactic_exception(ex, to_tactic_state(s));
+    }
+}
+
+void initialize_dsimplify_tactic() {
+    DECLARE_VM_BUILTIN(name({"tactic", "dsimplify_core"}), tactic_dsimplify_core);
+}
+
+void finalize_dsimplify_tactic() {
+}
 }

@@ -85,6 +85,17 @@ tactic_state set_env_mctx(tactic_state const & s, environment const & env, metav
 tactic_state set_goals(tactic_state const & s, list<expr> const & gs);
 tactic_state set_mctx_goals(tactic_state const & s, metavar_context const & mctx, list<expr> const & gs);
 tactic_state set_env_mctx_goals(tactic_state const & s, environment const & env, metavar_context const & mctx, list<expr> const & gs);
+/* Auxiliary function that returns an updated tactic_state such s' s.t. the metavariable context is mctx and
+   the main goal is of the form
+
+      lctx |- T
+
+   for some type T.
+   This function is particularly useful for implementing "converters" (aka "rewriters"). These
+   kind of procedure doesn't care about goals, but env, options, mctx and lctx.
+
+   \remark It returns s is is_eqp(s.mctx(), mctx) and is_decl_eqp(s.get_main_goal_decl()->get_context(), lctx) */
+tactic_state set_mctx_lctx(tactic_state const & s, metavar_context const & mctx, local_context const & lctx);
 
 tactic_state const & to_tactic_state(vm_obj const & o);
 vm_obj to_obj(tactic_state const & s);

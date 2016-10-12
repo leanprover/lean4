@@ -172,7 +172,7 @@ parser::parser(environment const & env, io_state const & ios,
                snapshot const * s, snapshot_vector * sv):
     m_env(env), m_ios(ios),
     m_verbose(true), m_use_exceptions(use_exceptions),
-    m_scanner(strm, strm_name, s ? s->m_line : 1),
+    m_scanner(strm, strm_name, s ? s->m_pos : pos_info(1, 0)),
     m_base_dir(base_dir),
     m_snapshot_vector(sv), m_cache(nullptr) {
     m_ignore_noncomputable = false;
@@ -2225,10 +2225,10 @@ environment parser::reveal_all_theorems() {
 void parser::save_snapshot() {
     if (!m_snapshot_vector)
         return;
-    if (m_snapshot_vector->empty() || static_cast<int>(m_snapshot_vector->back().m_line) != m_scanner.get_line())
+    if (m_snapshot_vector->empty() || m_snapshot_vector->back().m_pos != m_scanner.get_pos_info())
         m_snapshot_vector->push_back(snapshot(m_env, m_local_level_decls, m_local_decls,
                                               m_level_variables, m_variables, m_include_vars,
-                                              m_ios.get_options(), m_parser_scope_stack, m_scanner.get_line()));
+                                              m_ios.get_options(), m_parser_scope_stack, m_scanner.get_pos_info()));
 }
 
 optional<pos_info> parser::get_pos_info(expr const & e) const {

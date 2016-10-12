@@ -60,14 +60,13 @@ struct snapshot {
     name_set           m_include_vars; // subset of m_eds that must be included
     options            m_options;
     parser_scope_stack m_parser_scope_stack;
-    unsigned           m_line;
-    snapshot():m_line(0) {}
-    snapshot(environment const & env, options const & o):m_env(env), m_options(o), m_line(1) {}
+    pos_info           m_pos;
+    snapshot(environment const & env, options const & o):m_env(env), m_options(o), m_pos(1, 0) {}
     snapshot(environment const & env, local_level_decls const & lds,
              local_expr_decls const & eds, name_set const & lvars, name_set const & vars,
-             name_set const & includes, options const & opts, parser_scope_stack const & pss, unsigned line):
+             name_set const & includes, options const & opts, parser_scope_stack const & pss, pos_info const & pos):
         m_env(env), m_lds(lds), m_eds(eds), m_lvars(lvars), m_vars(vars), m_include_vars(includes),
-        m_options(opts), m_parser_scope_stack(pss), m_line(line) {}
+        m_options(opts), m_parser_scope_stack(pss), m_pos(pos) {}
 };
 
 typedef std::vector<snapshot> snapshot_vector;
@@ -253,7 +252,6 @@ public:
     pos_info pos_of(expr const & e) const { return pos_of(e, pos()); }
     pos_info cmd_pos() const { return m_last_cmd_pos; }
     name const & get_cmd_token() const { return m_cmd_token; }
-    void set_line(unsigned p) { return m_scanner.set_line(p); }
 
     expr mk_app(expr fn, expr arg, pos_info const & p);
     expr mk_app(expr fn, buffer<expr> const & args, pos_info const & p);

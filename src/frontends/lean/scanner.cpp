@@ -65,6 +65,22 @@ bool is_sub_script_alnum_unicode(unsigned u) {
         (0x2090 <= u && u <= 0x209c);   // letter-like subscripts
 }
 
+void scanner::fetch_line() {
+    m_curr_line.clear();
+    if (std::getline(m_stream, m_curr_line)) {
+        m_curr_line.push_back('\n');
+        m_sline++;
+        m_spos  = 0;
+        m_upos  = 0;
+        m_curr  = m_curr_line[m_spos];
+        m_uskip = get_utf8_size(m_curr);
+        m_uskip--;
+    } else {
+        m_last_line = true;
+        m_curr      = EOF;
+    }
+}
+
 void scanner::next() {
     lean_assert(m_curr != EOF);
     m_spos++;
@@ -73,21 +89,7 @@ void scanner::next() {
             m_curr = EOF;
             return;
         } else {
-            m_curr_line.clear();
-            if (std::getline(m_stream, m_curr_line)) {
-                m_curr_line.push_back('\n');
-                m_sline++;
-                m_spos  = 0;
-                m_upos  = 0;
-                m_curr  = m_curr_line[m_spos];
-                m_uskip = get_utf8_size(m_curr);
-                m_uskip--;
-                return;
-            } else {
-                m_last_line = true;
-                m_curr      = EOF;
-                return;
-            }
+            return fetch_line();
         }
     }
     m_curr = m_curr_line[m_spos];
@@ -545,25 +547,26 @@ auto scanner::scan(environment const & env) -> token_kind {
     }
 }
 
-scanner::scanner(std::istream & strm, char const * strm_name, unsigned line):
+scanner::scanner(std::istream & strm, char const * strm_name):
     m_tokens(nullptr), m_stream(strm) {
     m_stream_name = strm_name ? strm_name : "[unknown]";
-    m_sline = line;
-    m_line  = line;
+    m_sline = 0;
     m_spos  = 0;
     m_upos  = 0;
+    m_uskip = 0;
     m_in_notation = false;
-    if (std::getline(m_stream, m_curr_line)) {
-        m_last_line = false;
-        m_curr_line.push_back('\n');
-        m_curr  = m_curr_line[m_spos];
-        m_uskip = get_utf8_size(m_curr);
-        m_uskip--;
-    } else {
-        m_last_line = true;
-        m_curr      = EOF;
-        m_uskip     = 0;
-    }
+    m_last_line = false;
+    fetch_line();
+    m_line = m_sline;
+}
+
+scanner::scanner(std::istream & strm, char const * strm_name, pos_info const & skip_to_pos) :
+        scanner(strm, strm_name) {
+    for (unsigned line_no = 1; line_no < skip_to_pos.first; line_no++)
+        fetch_line();
+    m_line = m_sline;
+    for (unsigned col_idx = 0; col_idx < skip_to_pos.second; col_idx++)
+        next();
 }
 
 std::ostream & operator<<(std::ostream & out, scanner::token_kind k) {

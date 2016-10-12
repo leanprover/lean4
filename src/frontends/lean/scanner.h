@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <string>
 #include <iostream>
+#include "kernel/pos_info_provider.h"
 #include "util/name.h"
 #include "util/flet.h"
 #include "util/numerics/mpq.h"
@@ -51,6 +52,7 @@ protected:
 
     [[ noreturn ]] void throw_exception(char const * msg);
     void next();
+    void fetch_line();
     char curr() const { return m_curr; }
     char curr_next() { char c = curr(); next(); return c; }
     void check_not_eof(char const * error_msg);
@@ -75,12 +77,13 @@ protected:
     token_kind read_quoted_symbol();
 
 public:
-    scanner(std::istream & strm, char const * strm_name = nullptr, unsigned line = 1);
+    scanner(std::istream & strm, char const * strm_name = nullptr);
+    scanner(std::istream & strm, char const * strm_name, pos_info const & skip_to_pos);
 
     int get_line() const { return m_line; }
     int get_pos() const { return m_pos; }
+    pos_info get_pos_info() const { return pos_info(m_line, m_pos); }
     token_kind scan(environment const & env);
-    void set_line(unsigned p);
 
     mpq const & get_num_val() const { return m_num_val; }
     name const & get_name_val() const { return m_name_val; }

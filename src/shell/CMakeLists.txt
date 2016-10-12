@@ -2,7 +2,7 @@ if(${EMSCRIPTEN})
   add_executable(lean.js lean.cpp emscripten.cpp ${LEAN_OBJS})
   target_link_libraries(lean.js ${EXTRA_LIBS} "--embed-file library --memory-init-file 0")
 else()
-  add_executable(lean lean.cpp emscripten.cpp)
+  add_executable(lean lean.cpp emscripten.cpp json.cpp)
   target_link_libraries(lean leanstatic ${EXTRA_LIBS})
   ADD_CUSTOM_COMMAND(TARGET lean
     POST_BUILD

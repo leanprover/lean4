@@ -41,6 +41,7 @@ Author: Leonardo de Moura
 #include "init/init.h"
 #include "shell/emscripten.h"
 #include "shell/simple_pos_info_provider.h"
+#include "shell/json.h"
 #include "version.h"
 #include "githash.h" // NOLINT
 
@@ -98,6 +99,7 @@ static void display_help(std::ostream & out) {
 #endif
     std::cout << "  --deps            just print dependencies of a Lean input\n";
     std::cout << "  --flycheck        print structured error message for flycheck\n";
+    std::cout << "  --json            print JSON-formatted structured error messages\n";
     std::cout << "  --cache=file -c   load/save cached definitions from/to the given file\n";
     std::cout << "  --profile         display elaboration/type checking time for each definition/theorem\n";
 #if defined(LEAN_USE_BOOST)
@@ -138,6 +140,7 @@ static struct option g_long_options[] = {
     {"cache",        required_argument, 0, 'c'},
     {"deps",         no_argument,       0, 'd'},
     {"flycheck",     no_argument,       0, 'F'},
+    {"json",         no_argument,       0, 'J'},
 #if defined(LEAN_USE_BOOST)
     {"tstack",       required_argument, 0, 's'},
 #endif
@@ -223,6 +226,7 @@ int main(int argc, char ** argv) {
     bool read_cache         = false;
     bool save_cache         = false;
     bool flycheck           = false;
+    bool json_output        = false;
     options opts;
     std::string output;
     std::string cache_name;
@@ -294,6 +298,10 @@ int main(int argc, char ** argv) {
             opts = opts.update(lean::name{"trace", "as_messages"}, true);
             flycheck = true;
             break;
+        case 'J':
+            opts = opts.update(lean::name{"trace", "as_messages"}, true);
+            json_output = true;
+            break;
         case 'P':
             opts = opts.update("profile", true);
             break;
@@ -355,6 +363,11 @@ int main(int argc, char ** argv) {
     io_state ios(opts, lean::mk_pretty_formatter_factory());
     if (flycheck) {
         ios.set_message_channel(std::make_shared<lean::flycheck_message_stream>(std::cout));
+        // Redirect uncaptured non-flycheck messages to stdout
+        ios.set_regular_channel(ios.get_diagnostic_channel_ptr());
+    }
+    if (json_output) {
+        ios.set_message_channel(std::make_shared<lean::json_message_stream>(std::cout));
         // Redirect uncaptured non-flycheck messages to stdout
         ios.set_regular_channel(ios.get_diagnostic_channel_ptr());
     }

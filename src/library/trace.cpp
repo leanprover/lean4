@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <vector>
+#include <string>
 #include "util/sexpr/option_declarations.h"
 #include "kernel/environment.h"
 #include "kernel/type_checker.h"
@@ -218,7 +219,7 @@ void finalize_trace() {
     delete g_trace_as_messages;
 }
 
-scope_traces_as_messages::scope_traces_as_messages(char const * stream_name, pos_info const & pos) :
+scope_traces_as_messages::scope_traces_as_messages(std::string const & stream_name, pos_info const & pos) :
         m_stream_name(stream_name), m_pos(pos) {
     if (get_global_ios().get_options().get_bool(*g_trace_as_messages, false)) {
         m_redirected_ios = std::unique_ptr<io_state>(new io_state(get_global_ios()));
@@ -231,7 +232,7 @@ scope_traces_as_messages::scope_traces_as_messages(char const * stream_name, pos
 
 scope_traces_as_messages::scope_traces_as_messages(pos_info_provider const *provider, expr const &ref) :
     scope_traces_as_messages(provider ? provider->get_file_name() : "<unknown>",
-                             provider ? provider->get_pos_info_or_some(ref) : pos_info(0, 0)) {}
+                             provider ? provider->get_pos_info_or_some(ref) : pos_info(1, 0)) {}
 
 scope_traces_as_messages::~scope_traces_as_messages() {
     if (enabled()) {

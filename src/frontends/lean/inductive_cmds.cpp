@@ -256,7 +256,7 @@ class inductive_cmd_fn {
             m_p.next();
             while (true) {
                 m_pos = m_p.pos();
-                name ir_name = mlocal_name(ind) + m_p.check_decl_id_next("invalid introduction rule, identifier expected");
+                name ir_name = mlocal_name(ind) + m_p.check_atomic_id_next("invalid introduction rule, atomic identifier expected");
                 if (prepend_ns)
                     ir_name = get_namespace(m_env) + ir_name;
                 m_implicit_infer_map.insert(ir_name, parse_implicit_infer_modifier(m_p));

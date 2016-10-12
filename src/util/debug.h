@@ -19,7 +19,7 @@ Author: Leonardo de Moura
 #define DEBUG_CODE(CODE)
 #endif
 
-#define lean_unreachable() DEBUG_CODE({lean::notify_assertion_violation(__FILE__, __LINE__, "UNREACHABLE CODE WAS REACHED."); lean::invoke_debugger();}) throw lean::unreachable_reached();
+#define lean_unreachable() { DEBUG_CODE({lean::notify_assertion_violation(__FILE__, __LINE__, "UNREACHABLE CODE WAS REACHED."); lean::invoke_debugger();}) throw lean::unreachable_reached(); }
 
 #ifdef LEAN_DEBUG
 #define lean_verify(COND) if (!(COND)) { lean::notify_assertion_violation(__FILE__, __LINE__, #COND); lean::invoke_debugger(); }

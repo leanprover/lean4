@@ -42,12 +42,14 @@ meta def simp_lemmas.append : simp_lemmas → list expr → tactic simp_lemmas
    - 'R'     is the equivalence relation being used (e.g., 'eq', 'iff')
    - 'e'     is the expression to be "simplified"
 
-   Result (new_e, pr) is the new expression 'new_e' and a proof (pr : e R new_e)
--/
+   Result (new_e, pr) is the new expression 'new_e' and a proof (pr : e R new_e) -/
 meta constant simp_lemmas.rewrite_core : transparency → simp_lemmas → tactic unit → name → expr → tactic (expr × expr)
 
 meta def simp_lemmas.rewrite : simp_lemmas → tactic unit → name → expr → tactic (expr × expr) :=
 simp_lemmas.rewrite_core reducible
+
+/- (simp_lemmas.drewrite s e) tries to rewrite 'e' using only refl lemmas in 's' -/
+meta constant simp_lemmas.drewrite : simp_lemmas → expr → tactic expr
 
 /- Simplify the given expression using [simp] and [congr] lemmas.
    The first argument is a tactic to be used to discharge proof obligations.

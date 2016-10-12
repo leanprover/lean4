@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "library/attribute_manager.h"
 #include "library/trace.h"
 #include "library/simp_lemmas.h"
+#include "library/constants.h"
 #include "library/vm/vm_expr.h"
 #include "library/vm/vm_list.h"
 #include "library/vm/vm_option.h"
@@ -219,6 +220,31 @@ vm_obj simp_lemmas_rewrite(vm_obj const & m, vm_obj const & sls, vm_obj const & 
                                     to_name(R), to_expr(e), to_tactic_state(s));
 }
 
+vm_obj simp_lemmas_drewrite_core(simp_lemmas const & sls, expr const & e, tactic_state const & s) {
+    LEAN_TACTIC_TRY;
+    simp_lemmas_for const * sr = sls.find(get_eq_name());
+    if (!sr) return mk_tactic_exception("failed to apply simp_lemmas, no lemmas for 'eq' relation", s);
+
+    list<simp_lemma> const * srs = sr->find(e);
+    if (!srs) return mk_tactic_exception("failed to apply simp_lemmas, no simp lemma", s);
+
+    type_context ctx = mk_type_context_for(s);
+
+    for (simp_lemma const & lemma : *srs) {
+        if (lemma.is_refl()) {
+            expr new_e = refl_lemma_rewrite(ctx, e, lemma);
+            if (new_e != e)
+                return mk_tactic_success(to_obj(new_e), s);
+        }
+    }
+    return mk_tactic_exception("failed to apply simp_lemmas, no simp lemma", s);
+    LEAN_TACTIC_CATCH(s);
+}
+
+vm_obj simp_lemmas_drewrite(vm_obj const & sls, vm_obj const & e, vm_obj const & s) {
+    return simp_lemmas_drewrite_core(to_simp_lemmas(sls), to_expr(e), to_tactic_state(s));
+}
+
 void initialize_simp_lemmas_tactics() {
     DECLARE_VM_BUILTIN(name({"simp_lemmas", "mk"}), simp_lemmas_mk);
     DECLARE_VM_BUILTIN(name({"simp_lemmas", "join"}), simp_lemmas_join);
@@ -228,6 +254,7 @@ void initialize_simp_lemmas_tactics() {
     DECLARE_VM_BUILTIN(name({"simp_lemmas", "add_simp_core"}),   simp_lemmas_add_simp);
     DECLARE_VM_BUILTIN(name({"simp_lemmas", "add_congr_core"}),  simp_lemmas_add_congr);
     DECLARE_VM_BUILTIN(name({"simp_lemmas", "rewrite_core"}),    simp_lemmas_rewrite);
+    DECLARE_VM_BUILTIN(name({"simp_lemmas", "drewrite"}),        simp_lemmas_drewrite);
 }
 
 void finalize_simp_lemmas_tactics() {

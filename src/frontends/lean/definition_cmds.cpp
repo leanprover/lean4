@@ -220,11 +220,13 @@ static expr_pair elaborate_definition(parser & p, elaborator & elab, def_cmd_kin
     if (p.profiling()) {
         auto msg = p.mk_message(pos, INFORMATION);
         msg << "elaboration time for " << fn;
+        expr_pair result;
         {
             timeit timer(msg.get_text_stream().get_stream(), "", LEAN_PROFILE_THRESHOLD);
-            return elaborate_definition_core(elab, kind, fn, val);
+            result = elaborate_definition_core(elab, kind, fn, val);
         }
         msg.report();
+        return result;
     } else {
         return elaborate_definition_core(elab, kind, fn, val);
     }
@@ -262,11 +264,12 @@ static certified_declaration check(parser & p, environment const & env, name con
     if (p.profiling()) {
         auto msg = p.mk_message(pos, INFORMATION);
         msg << "type checking time for " << c_name;
-        {
-            timeit timer(msg.get_text_stream().get_stream(), "", LEAN_PROFILE_THRESHOLD);
-            return ::lean::check(env, d);
-        }
+        std::shared_ptr<timeit> timer = std::make_shared<timeit>(
+                msg.get_text_stream().get_stream(), "", LEAN_PROFILE_THRESHOLD);
+        auto result = ::lean::check(env, d);
+        timer.reset();
         msg.report();
+        return result;
     } else {
         return ::lean::check(env, d);
     }

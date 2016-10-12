@@ -26,6 +26,7 @@ by do
   cases_using w [`n', `hw, `tw],
   trace_state,
   dsimp,
+  trace_state,
   Heq1 ← intro1,
   Heq2 ← intro1,
   subst Heq1, subst Heq2,

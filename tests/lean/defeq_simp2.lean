@@ -13,8 +13,6 @@ by do
   get_local `H >>= infer_type >>= s^.dsimplify >>= trace,
   constructor
 
-set_option defeq_simplify.canonize_proofs true
-
 constant x1 : nat -- update the environment to force defeq_canonize cache to be reset
 
 example (a b : nat) (H : f a (foo1 a) = f a (foo2 a)) : true :=

@@ -8,12 +8,15 @@ Author: Leonardo de Moura
 #include "util/interrupt.h"
 #include "kernel/instantiate.h"
 #include "library/defeq_canonizer.h"
+#include "library/constants.h"
 #include "library/fun_info.h"
 #include "library/util.h"
+#include "library/trace.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_expr.h"
 #include "library/tactic/dsimplify.h"
+#include "library/tactic/simp_lemmas_tactics.h"
 #include "library/tactic/tactic_state.h"
 
 namespace lean {
@@ -123,14 +126,15 @@ expr dsimplify_core_fn::visit(expr const & e) {
     if (it != m_cache.end())
         return it->second;
 
-    if (auto p1 = pre(e)) {
+    expr curr_e = e;
+    if (auto p1 = pre(curr_e)) {
         if (!p1->second) {
             m_cache.insert(mk_pair(e, p1->first));
             return p1->first;
         }
+        curr_e = p1->first;
     }
 
-    expr curr_e = e;
     while (true) {
         expr new_e;
         switch (curr_e.kind()) {
@@ -164,6 +168,7 @@ expr dsimplify_core_fn::visit(expr const & e) {
             }
             curr_e = p2->first;
         } else {
+            curr_e = new_e;
             break;
         }
     }
@@ -189,6 +194,16 @@ metavar_context const & dsimplify_core_fn::mctx() const {
     return m_ctx.mctx();
 }
 
+optional<pair<expr, bool>> dsimplify_fn::pre(expr const & e) {
+    type_context::transparency_scope s(m_ctx, transparency_mode::Reducible);
+    expr new_e = m_ctx.whnf(e);
+    if (new_e != e) {
+        return optional<pair<expr, bool>>(new_e, true);
+    } else {
+        return optional<pair<expr, bool>>();
+    }
+}
+
 optional<pair<expr, bool>> dsimplify_fn::post(expr const & e) {
     expr curr_e = e;
     while (true) {
@@ -202,8 +217,9 @@ optional<pair<expr, bool>> dsimplify_fn::post(expr const & e) {
         expr new_e = curr_e;
         for (simp_lemma const & sl : simp_lemmas) {
             if (sl.is_refl()) {
-                new_e = refl_lemma_rewrite(m_ctx, new_e, sl);
-                break;
+                new_e = refl_lemma_rewrite(m_ctx, curr_e, sl);
+                if (new_e != curr_e)
+                    break;
             }
         }
         if (new_e == curr_e) break;
@@ -272,8 +288,26 @@ vm_obj tactic_dsimplify_core(vm_obj const & max_steps, vm_obj const & visit_inst
     }
 }
 
+vm_obj simp_lemmas_dsimplify_core(vm_obj const & max_steps, vm_obj const & visit_instances, vm_obj const & lemmas,
+                                  vm_obj const & e, vm_obj const & s) {
+    try {
+        type_context ctx = mk_type_context_for(to_tactic_state(s));
+        simp_lemmas_for dlemmas;
+        if (auto * dls = to_simp_lemmas(lemmas).find(get_eq_name()))
+            dlemmas = *dls;
+        dsimplify_fn F(ctx, force_to_unsigned(max_steps, std::numeric_limits<unsigned>::max()),
+                       to_bool(visit_instances), dlemmas);
+        expr new_e = F(to_expr(e));
+        tactic_state new_s = set_mctx(to_tactic_state(s), F.mctx());
+        return mk_tactic_success(to_obj(new_e), new_s);
+    } catch (exception & ex) {
+        return mk_tactic_exception(ex, to_tactic_state(s));
+    }
+}
+
 void initialize_dsimplify() {
     DECLARE_VM_BUILTIN(name({"tactic", "dsimplify_core"}), tactic_dsimplify_core);
+    DECLARE_VM_BUILTIN(name({"simp_lemmas", "dsimplify_core"}), simp_lemmas_dsimplify_core);
 }
 
 void finalize_dsimplify() {

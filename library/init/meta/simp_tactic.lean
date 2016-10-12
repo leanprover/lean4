@@ -61,10 +61,10 @@ meta constant simp_lemmas.simplify_core : simp_lemmas → tactic unit → name �
 
 /- (Definitional) Simplify the given expression using *only* reflexivity equality lemmas from the given set of lemmas.
    The resulting expression is definitionally equal to the input. -/
-meta constant simp_lemmas.dsimplify_core : transparency → simp_lemmas → expr → tactic expr
+meta constant simp_lemmas.dsimplify_core (max_steps : nat) (visit_instances : bool) : simp_lemmas → expr → tactic expr
 
 meta def simp_lemmas.dsimplify : simp_lemmas → expr → tactic expr :=
-simp_lemmas.dsimplify_core reducible
+simp_lemmas.dsimplify_core 1000000 ff
 
 namespace tactic
 meta constant dsimplify_core

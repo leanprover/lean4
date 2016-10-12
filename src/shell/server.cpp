@@ -93,6 +93,7 @@ json server::handle_sync(json const & req) {
     } else {
         if (auto diff_pos = diff(m_content, new_content)) {
             m_content = new_content;
+            // TODO(gabriel): implement min on pos_info
             if (m_only_checked_until && m_only_checked_until->first < diff_pos->first) {
                 // we have not yet checked up to the differing position
             } else {
@@ -107,19 +108,36 @@ json server::handle_sync(json const & req) {
 }
 
 json server::handle_check(json const &) {
-    // TODO(gabriel): reuse snapshots
-    std::istringstream in(m_content);
-    bool use_exceptions = false;
-    parser p(m_initial_env, m_ios, in, m_file_name.c_str(), m_base_dir, use_exceptions, m_num_threads, nullptr, nullptr);
-    // TODO(gabriel): definition caches?
-    bool r = p();
-    // TODO(gabriel): save environment / io_stat
+    if (m_only_checked_until) {
+        snapshot_vector new_snapshots;
+        for (snapshot const & snap : m_snapshots) {
+            if (snap.m_pos.first < m_only_checked_until->first) {
+                new_snapshots.push_back(snap);
+            } else {
+                break;
+            }
+        }
+
+        std::istringstream in(m_content);
+        bool use_exceptions = false;
+        parser p(m_initial_env, m_ios, in, m_file_name.c_str(),
+                 m_base_dir, use_exceptions, m_num_threads,
+                 new_snapshots.empty() ? nullptr : &new_snapshots.back(),
+                 &new_snapshots);
+        // TODO(gabriel): definition caches?
+
+        m_parsed_ok = p();
+        m_only_checked_until = optional<pos_info>();
+        m_checked_env = p.env();
+        m_messages = p.get_messages();
+        m_snapshots = new_snapshots;
+    }
 
     json res;
     res["response"] = "ok";
-    res["is_ok"] = r;
+    res["is_ok"] = m_parsed_ok;
     std::list<json> json_messages;
-    for_each(p.get_messages(), [&](message const & msg) { json_messages.push_front(json_of_message(msg)); });
+    for_each(m_messages, [&](message const & msg) { json_messages.push_front(json_of_message(msg)); });
     res["messages"] = json_messages;
     return res;
 }

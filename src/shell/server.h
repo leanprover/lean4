@@ -24,6 +24,11 @@ class server {
     std::string m_content;
     optional<pos_info> m_only_checked_until;
 
+    bool m_parsed_ok;
+    environment m_checked_env;
+    list<message> m_messages;
+    snapshot_vector m_snapshots;
+
     json handle_request(json const & req);
 
     json handle_sync(json const & req);

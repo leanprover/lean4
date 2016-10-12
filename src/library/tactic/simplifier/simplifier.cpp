@@ -36,7 +36,6 @@ Author: Daniel Selsam
 #include "library/tactic/ac_tactics.h"
 #include "library/tactic/app_builder_tactics.h"
 #include "library/tactic/simp_lemmas.h"
-#include "library/tactic/simp_lemmas_tactics.h"
 #include "library/tactic/simplifier/simplifier.h"
 #include "library/tactic/simplifier/theory_simplifier.h"
 #include "library/tactic/simplifier/util.h"

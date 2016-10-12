@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "library/type_context.h"
 #include "library/head_map.h"
+#include "library/vm/vm.h"
 
 namespace lean {
 enum class simp_lemma_kind { Refl, Simp, Congr };
@@ -143,6 +144,9 @@ bool is_simp_relation(environment const & env, expr const & e, expr & rel, expr 
 /** \brief Rewrite 'e' using the given refl lemma.
     \pre sl.is_refl() */
 expr refl_lemma_rewrite(type_context & ctx, expr const & e, simp_lemma const & sl);
+
+simp_lemmas const & to_simp_lemmas(vm_obj const & o);
+vm_obj to_obj(simp_lemmas const & s);
 
 void initialize_simp_lemmas();
 void finalize_simp_lemmas();

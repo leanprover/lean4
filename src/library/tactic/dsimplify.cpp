@@ -16,7 +16,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_expr.h"
 #include "library/tactic/dsimplify.h"
-#include "library/tactic/simp_lemmas_tactics.h"
+#include "library/tactic/simp_lemmas.h"
 #include "library/tactic/tactic_state.h"
 
 namespace lean {

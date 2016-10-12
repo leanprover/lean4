@@ -166,6 +166,18 @@ void parser::init_stop_at(options const & opts) {
     }
 }
 
+class parser_message_stream : public message_stream {
+    parser * m_p;
+    std::shared_ptr<message_stream> m_orig_message_stream;
+public:
+    parser_message_stream(parser * p, std::shared_ptr<message_stream> const & orig_message_stream) :
+            m_p(p), m_orig_message_stream(orig_message_stream) {}
+    void report(message const & msg) override {
+        m_p->add_message(msg);
+        m_orig_message_stream->report(msg);
+    }
+};
+
 parser::parser(environment const & env, io_state const & ios,
                std::istream & strm, char const * strm_name, optional<std::string> const & base_dir,
                bool use_exceptions, unsigned num_threads,
@@ -176,6 +188,7 @@ parser::parser(environment const & env, io_state const & ios,
     m_base_dir(base_dir),
     m_snapshot_vector(sv), m_cache(nullptr) {
     m_ignore_noncomputable = false;
+    m_ios.set_message_channel(std::make_shared<parser_message_stream>(this, m_ios.get_message_channel_ptr()));
     m_profile     = ios.get_options().get_bool("profile", false);
     init_stop_at(ios.get_options());
     if (num_threads > 1 && m_profile)
@@ -184,6 +197,7 @@ parser::parser(environment const & env, io_state const & ios,
     m_in_pattern = false;
     m_has_params = false;
     if (s) {
+        m_messages           = s->m_messages;
         m_local_level_decls  = s->m_lds;
         m_local_decls        = s->m_eds;
         m_level_variables    = s->m_lvars;
@@ -2226,7 +2240,7 @@ void parser::save_snapshot() {
     if (!m_snapshot_vector)
         return;
     if (m_snapshot_vector->empty() || m_snapshot_vector->back().m_pos != m_scanner.get_pos_info())
-        m_snapshot_vector->push_back(snapshot(m_env, m_local_level_decls, m_local_decls,
+        m_snapshot_vector->push_back(snapshot(m_env, m_messages, m_local_level_decls, m_local_decls,
                                               m_level_variables, m_variables, m_include_vars,
                                               m_ios.get_options(), m_parser_scope_stack, m_scanner.get_pos_info()));
 }

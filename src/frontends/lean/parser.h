@@ -53,6 +53,7 @@ typedef list<parser_scope> parser_scope_stack;
 /** \brief Snapshot of the state of the Lean parser */
 struct snapshot {
     environment        m_env;
+    list<message>      m_messages;
     local_level_decls  m_lds;
     local_expr_decls   m_eds;
     name_set           m_lvars; // subset of m_lds that is tagged as level variable
@@ -61,11 +62,10 @@ struct snapshot {
     options            m_options;
     parser_scope_stack m_parser_scope_stack;
     pos_info           m_pos;
-    snapshot(environment const & env, options const & o):m_env(env), m_options(o), m_pos(1, 0) {}
-    snapshot(environment const & env, local_level_decls const & lds,
+    snapshot(environment const & env, list<message> const & messages, local_level_decls const & lds,
              local_expr_decls const & eds, name_set const & lvars, name_set const & vars,
              name_set const & includes, options const & opts, parser_scope_stack const & pss, pos_info const & pos):
-        m_env(env), m_lds(lds), m_eds(eds), m_lvars(lvars), m_vars(vars), m_include_vars(includes),
+        m_env(env), m_messages(messages), m_lds(lds), m_eds(eds), m_lvars(lvars), m_vars(vars), m_include_vars(includes),
         m_options(opts), m_parser_scope_stack(pss), m_pos(pos) {}
 };
 
@@ -82,6 +82,7 @@ enum class id_behavior {
 class parser : public abstract_parser {
     environment             m_env;
     io_state                m_ios;
+    list<message>           m_messages;
     bool                    m_verbose;
     bool                    m_use_exceptions;
     bool                    m_show_errors;
@@ -197,6 +198,9 @@ class parser : public abstract_parser {
 
     void save_snapshot();
 
+    friend class parser_message_stream;
+    void add_message(message const & msg) { m_messages = cons(msg, m_messages); }
+
     void init_stop_at(options const & opts);
 
     void replace_theorem(certified_declaration const & thm);
@@ -232,6 +236,8 @@ public:
 
     environment const & env() const { return m_env; }
     io_state const & ios() const { return m_ios; }
+
+    list<message> const & get_messages() const { return m_messages; }
 
     message_builder mk_message(pos_info const & p, message_severity severity);
     message_builder mk_message(message_severity severity);

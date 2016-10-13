@@ -71,4 +71,15 @@
          :file_name (buffer-file-name)
          :content (buffer-string))))
 
+(defun lean-run-linja ()
+  "Runs linja for the current lean project."
+  (interactive)
+  (if (not (lean-project-inside-p))
+      (message "not inside a lean project")
+    (let* ((default-directory (lean-project-find-root))
+           (proc (start-file-process
+                  "linja" (format "*linja (%s)*" default-directory)
+                  "linja")))
+      (set-process-sentinel proc (lambda (p e) (lean-server-restart))))))
+
 (provide 'lean-server)

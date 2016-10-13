@@ -1,4 +1,3 @@
-exit -- TODO(Leo): enable test again after we add rfl lemma support to type_context
 open tactic
 
 meta definition rewriteH (Hname : name) : tactic unit :=
@@ -9,10 +8,10 @@ example (l : list nat) : list.append l [] = l :=
 by do
   get_local `l >>= λ H, induction_core semireducible H `list.rec_on [`h, `t, `iH],
   --
-  unfold [`list.append],
+  dunfold [`list.append],
   trace_state,
   trace "------",
   reflexivity,
-  unfold [`list.append],
+  dunfold [`list.append],
   trace_state,
   rewriteH `iH

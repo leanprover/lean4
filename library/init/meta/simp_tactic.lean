@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.meta.tactic init.meta.attribute init.meta.constructor_tactic
-import init.meta.relation_tactics
+import init.meta.relation_tactics init.meta.occurrences
 
 open tactic
 
@@ -68,11 +68,15 @@ meta constant simp_lemmas.simplify_core : simp_lemmas → tactic unit → name �
    The resulting expression is definitionally equal to the input. -/
 meta constant simp_lemmas.dsimplify_core (max_steps : nat) (visit_instances : bool) : simp_lemmas → expr → tactic expr
 
+meta def default_max_steps := 10000000
+
 meta def simp_lemmas.dsimplify : simp_lemmas → expr → tactic expr :=
-simp_lemmas.dsimplify_core 1000000 ff
+simp_lemmas.dsimplify_core default_max_steps ff
 
 namespace tactic
 meta constant dsimplify_core
+  {A : Type}
+  (a : A)
   (max_steps       : nat)
   /- If visit_instances = ff, then instance implicit arguments are not visited, but
      tactic will canonize them. -/
@@ -80,19 +84,22 @@ meta constant dsimplify_core
   /- (pre e) is invoked before visiting the children of subterm 'e',
      if it succeeds the result is a new expression that must be definitionally equal to 'e',
      and a flag indicating whether the new children should be visited or not. -/
-  (pre             : expr → tactic (expr × bool))
+  (pre             : A → expr → tactic (A × expr × bool))
   /- (post e) is invoked after visiting the children of subterm 'e',
      if it succeeds the result is a new expression that must be definitionally equal to 'e',
      and a flag indicating whether the new children should be revisited.
      Remark: if (pre e) returns (some (new_e, ff)), then post is not invoked for new_e. -/
-  (post            : expr → tactic (expr × bool))
-  : expr → tactic expr
+  (post            : A → expr → tactic (A × expr × bool))
+  : expr → tactic (A × expr)
 
 meta def dsimplify
   (pre             : expr → tactic (expr × bool))
   (post            : expr → tactic (expr × bool))
   : expr → tactic expr :=
-dsimplify_core 1000000 ff pre post
+λ e, do (a, new_e) ← dsimplify_core () default_max_steps ff
+                       (λ u e, do r ← pre e, return (u, r))
+                       (λ u e, do r ← post e, return (u, r)) e,
+        return new_e
 
 meta constant dunfold_expr_core : transparency → expr → tactic expr
 
@@ -103,6 +110,44 @@ meta constant unfold_projection_core : transparency → expr → tactic expr
 
 meta def unfold_projection : expr → tactic expr :=
 unfold_projection_core reducible
+
+meta def dunfold_occs_core (m : transparency) (max_steps : nat) (occs : occurrences) (cs : list name) (e : expr) : tactic expr :=
+let unfold (c : nat) (e : expr) : tactic (nat × expr × bool) := do
+  guard (cs^.any e^.is_app_of),
+  new_e ← dunfold_expr_core m e,
+  if occs^.contains c
+  then return (c+1, new_e, tt)
+  else return (c+1, e, tt)
+in do (c, new_e) ← dsimplify_core 1 max_steps tt unfold (λ c e, failed) e,
+      return new_e
+
+meta def dunfold_core (m : transparency) (max_steps : nat) (cs : list name) (e : expr) : tactic expr :=
+let unfold (u : unit) (e : expr) : tactic (unit × expr × bool) := do
+  guard (cs^.any e^.is_app_of),
+  new_e ← dunfold_expr_core m e,
+  return (u, new_e, tt)
+in do (c, new_e) ← dsimplify_core () max_steps tt (λ c e, failed) unfold e,
+      return new_e
+
+meta def dunfold : list name → tactic unit :=
+λ cs, target >>= dunfold_core reducible default_max_steps cs >>= change
+
+meta def dunfold_occs_of (occs : list nat) (c : name) : tactic unit :=
+target >>= dunfold_occs_core reducible default_max_steps (occurrences.pos occs) [c] >>= change
+
+meta def dunfold_core_at (occs : occurrences) (cs : list name) (h : expr) : tactic unit :=
+do num_reverted : ℕ ← revert h,
+   (expr.pi n bi d b : expr) ← target | failed,
+   new_d : expr ← dunfold_occs_core reducible default_max_steps occs cs d,
+   change $ expr.pi n bi new_d b,
+   intron num_reverted
+
+meta def dunfold_at (cs : list name) (h : expr) : tactic unit :=
+do num_reverted : ℕ ← revert h,
+   (expr.pi n bi d b : expr) ← target | failed,
+   new_d : expr ← dunfold_core reducible default_max_steps cs d,
+   change $ expr.pi n bi new_d b,
+   intron num_reverted
 
 meta def simplify (prove_fn : tactic unit) (extra_lemmas : list expr) (e : expr) : tactic (expr × expr) :=
 do lemmas       ← simp_lemmas.mk_default,

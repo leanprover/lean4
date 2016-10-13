@@ -318,5 +318,29 @@ to_expr q >>= tactic.subst >> try reflexivity
 meta def clear : raw_ident_list → tactic unit :=
 tactic.clear_lst
 
+private meta def dunfold_hyps : list name → location → tactic unit
+| cs []      := skip
+| cs (h::hs) := get_local h >>= dunfold_at cs >> dunfold_hyps cs hs
+
+meta def dunfold : raw_ident_list → location → tactic unit
+| cs [] := tactic.dunfold cs
+| cs hs := dunfold_hyps cs hs
+
+/- TODO(Leo): add support for non-refl lemmas -/
+meta def unfold : raw_ident_list → location → tactic unit :=
+dunfold
+
+private meta def dunfold_hyps_occs : name → occurrences → location → tactic unit
+| c occs []  := skip
+| c occs (h::hs) := get_local h >>= dunfold_core_at occs [c] >> dunfold_hyps_occs c occs hs
+
+meta def dunfold_occs : ident → list nat → location → tactic unit
+| c ps [] := tactic.dunfold_occs_of ps c
+| c ps hs := dunfold_hyps_occs c (occurrences.pos ps) hs
+
+/- TODO(Leo): add support for non-refl lemmas -/
+meta def unfold_occs : ident → list nat → location → tactic unit :=
+dunfold_occs
+
 end interactive
 end tactic

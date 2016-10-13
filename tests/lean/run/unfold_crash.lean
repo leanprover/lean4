@@ -31,10 +31,10 @@ by do
      cases_using v2 [`m, `h2, `t2],
      trace_state, trace "------",
      -- unfold only the first occurrence (i.e., the one of the form (vappend nil nil)
-     unfold_occs_of [1] `vappend,
+     dunfold_occs_of [1] `vappend,
      trace_state, trace "------",
      mk_const `Sorry >>= apply,
      -- unfold only the first occurrence (i.e., the one of the form (vappend nil (cons ...))
-     unfold_occs_of [1] `vappend,
+     dunfold_occs_of [1] `vappend,
      trace_state, trace "------",
      repeat $ mk_const `Sorry >>= apply

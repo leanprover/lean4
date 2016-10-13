@@ -237,19 +237,22 @@ dsimplify_fn::dsimplify_fn(type_context & ctx, unsigned max_steps, bool visit_in
 }
 
 class tactic_dsimplify_fn : public dsimplify_core_fn {
+    vm_obj       m_a;
     vm_obj       m_pre;
     vm_obj       m_post;
     tactic_state m_s;
 
     optional<pair<expr, bool>> invoke_fn(vm_obj const & fn, expr const & e) {
         m_s = set_mctx_lctx(m_s, m_ctx.mctx(), m_ctx.lctx());
-        vm_obj r = invoke(fn, to_obj(e), to_obj(m_s));
+        vm_obj r = invoke(fn, m_a, to_obj(e), to_obj(m_s));
         if (optional<tactic_state> new_s = is_tactic_success(r)) {
             m_s = *new_s;
             m_ctx.set_mctx(m_s.mctx());
             vm_obj p   = cfield(r, 0);
-            expr new_e = to_expr(cfield(p, 0));
-            bool flag  = to_bool(cfield(p, 1));
+            m_a        = cfield(p, 0);
+            vm_obj p1  = cfield(p, 1);
+            expr new_e = to_expr(cfield(p1, 0));
+            bool flag  = to_bool(cfield(p1, 1));
             return optional<pair<expr, bool>>(new_e, flag);
         } else {
             return optional<pair<expr, bool>>();
@@ -266,23 +269,27 @@ class tactic_dsimplify_fn : public dsimplify_core_fn {
 
 public:
     tactic_dsimplify_fn(type_context & ctx, unsigned max_steps, bool visit_instances,
-                        vm_obj const & pre, vm_obj const & post):
+                        vm_obj const & a, vm_obj const & pre, vm_obj const & post):
         dsimplify_core_fn(ctx, max_steps, visit_instances),
+        m_a(a),
         m_pre(pre),
         m_post(post),
         m_s(mk_tactic_state_for(ctx.env(), ctx.get_options(), ctx.mctx(), ctx.lctx(), mk_true())) {
     }
+
+    vm_obj const & get_a() const { return m_a; }
 };
 
-vm_obj tactic_dsimplify_core(vm_obj const & max_steps, vm_obj const & visit_instances,
+vm_obj tactic_dsimplify_core(vm_obj const &, vm_obj const & a,
+                             vm_obj const & max_steps, vm_obj const & visit_instances,
                              vm_obj const & pre, vm_obj const & post, vm_obj const & e, vm_obj const & s) {
     try {
         type_context ctx = mk_type_context_for(to_tactic_state(s));
         tactic_dsimplify_fn F(ctx, force_to_unsigned(max_steps, std::numeric_limits<unsigned>::max()),
-                              to_bool(visit_instances), pre, post);
+                              to_bool(visit_instances), a, pre, post);
         expr new_e = F(to_expr(e));
         tactic_state new_s = set_mctx(to_tactic_state(s), F.mctx());
-        return mk_tactic_success(to_obj(new_e), new_s);
+        return mk_tactic_success(mk_vm_pair(F.get_a(), to_obj(new_e)), new_s);
     } catch (exception & ex) {
         return mk_tactic_exception(ex, to_tactic_state(s));
     }

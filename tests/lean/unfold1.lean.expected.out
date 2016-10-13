@@ -1,1 +1,11 @@
-unfold1.lean:1:0: warning: using 'exit' to interrupt Lean
+⊢ list.nil = list.nil
+
+h : ℕ,
+t : list ℕ,
+iH : list.append t list.nil = t
+⊢ list.append (h :: t) list.nil = h :: t
+------
+h : ℕ,
+t : list ℕ,
+iH : list.append t list.nil = t
+⊢ h :: list.append t list.nil = h :: t

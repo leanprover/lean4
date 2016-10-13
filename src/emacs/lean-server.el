@@ -37,7 +37,9 @@
                  (process-connection-type nil))
             (start-file-process "lean-server"
                                 (format "*lean-server (%s)*" (buffer-name))
-                                "lean" "--server" (format "*%s*" (buffer-name)))))
+                                (lean-get-executable lean-executable-name)
+                                "--server"
+                                (format "*%s*" (buffer-name)))))
     (set-process-query-on-exit-flag lean-server-process nil)
     (setq lean-server-handler-tq (tq-create lean-server-process))))
 

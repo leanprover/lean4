@@ -45,8 +45,10 @@
 
 (defun lean-server-restart ()
   "Restarts the lean server for the current buffer"
+  (interactive)
   (lean-server-stop)
-  (lean-server-start))
+  (lean-server-start)
+  (when lean-flycheck-use (flycheck-buffer)))
 
 (defun lean-server-send-command-handler (closure answer)
   "Callback for lean-server-send-command"
@@ -89,7 +91,9 @@
       (lexical-let ((buffer (current-buffer)))
         (set-process-sentinel proc
                               (lambda (p e)
-                                (with-current-buffer (process-buffer p) (compilation-mode)))))
+                                (with-current-buffer (process-buffer p) (compilation-mode))
+                                (with-current-buffer buffer
+                                  (when lean-flycheck-use (flycheck-buffer))))))
       (temp-buffer-window-show (process-buffer proc))
       (with-current-buffer (process-buffer proc)
         (let ((buffer-read-only nil)) (erase-buffer))))))

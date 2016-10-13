@@ -60,13 +60,14 @@ struct snapshot {
     name_set           m_vars; // subset of m_eds that is tagged as variable
     name_set           m_include_vars; // subset of m_eds that must be included
     options            m_options;
+    bool               m_imports_parsed;
     parser_scope_stack m_parser_scope_stack;
     pos_info           m_pos;
     snapshot(environment const & env, list<message> const & messages, local_level_decls const & lds,
              local_expr_decls const & eds, name_set const & lvars, name_set const & vars,
-             name_set const & includes, options const & opts, parser_scope_stack const & pss, pos_info const & pos):
+             name_set const & includes, options const & opts, bool imports_parsed, parser_scope_stack const & pss, pos_info const & pos):
         m_env(env), m_messages(messages), m_lds(lds), m_eds(eds), m_lvars(lvars), m_vars(vars), m_include_vars(includes),
-        m_options(opts), m_parser_scope_stack(pss), m_pos(pos) {}
+        m_options(opts), m_imports_parsed(imports_parsed), m_parser_scope_stack(pss), m_pos(pos) {}
 };
 
 typedef std::vector<snapshot> snapshot_vector;
@@ -96,6 +97,7 @@ class parser : public abstract_parser {
     name_set                m_level_variables;
     name_set                m_variables; // subset of m_local_decls that is marked as variables
     name_set                m_include_vars; // subset of m_local_decls that is marked as include
+    bool                    m_imports_parsed;
     parser_scope_stack      m_parser_scope_stack;
     parser_scope_stack      m_quote_stack;
     bool                    m_in_quote;

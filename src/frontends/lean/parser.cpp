@@ -185,7 +185,7 @@ parser::parser(environment const & env, io_state const & ios,
     m_env(env), m_ios(ios),
     m_verbose(true), m_use_exceptions(use_exceptions),
     m_scanner(strm, strm_name, s ? s->m_pos : pos_info(1, 0)),
-    m_base_dir(base_dir),
+    m_base_dir(base_dir), m_imports_parsed(false),
     m_snapshot_vector(sv), m_cache(nullptr) {
     if (s) {
         m_env                = s->m_env;
@@ -196,6 +196,7 @@ parser::parser(environment const & env, io_state const & ios,
         m_level_variables    = s->m_lvars;
         m_variables          = s->m_vars;
         m_include_vars       = s->m_include_vars;
+        m_imports_parsed     = s->m_imports_parsed;
         m_parser_scope_stack = s->m_parser_scope_stack;
     }
     m_ignore_noncomputable = false;
@@ -2072,6 +2073,7 @@ static optional<std::string> try_file(std::string const & base, optional<unsigne
 }
 
 void parser::parse_imports() {
+    m_last_cmd_pos = pos();
     buffer<module_name> olean_files;
     bool prelude     = false;
     std::string base = m_base_dir ? *m_base_dir : dirname(get_stream_name().c_str());
@@ -2139,6 +2141,7 @@ void parser::parse_imports() {
     m_env = activate_export_decls(m_env, {}); // explicitly activate exports in root namespace
     m_env = replay_export_decls_core(m_env, m_ios);
     check_modules_up_to_date();
+    m_imports_parsed = true;
     if (imported)
         save_snapshot();
 }
@@ -2163,10 +2166,9 @@ bool parser::parse_commands() {
     scope_pos_info_provider scope1(*this);
     try {
         bool done = false;
-        protected_call([&]() {
-                parse_imports();
-            },
-            [&]() { sync_command(); });
+        // Only parse imports when we are at the beginning, i.e. not when starting from a snapshot.
+        if (!m_imports_parsed)
+            protected_call([&]() { parse_imports(); }, [&]() { sync_command(); });
         if (has_sorry(m_env)) {
 #ifndef LEAN_IGNORE_SORRY
             // TODO(Leo): remove the #ifdef.
@@ -2258,7 +2260,7 @@ void parser::save_snapshot() {
     if (m_snapshot_vector->empty() || m_snapshot_vector->back().m_pos != m_scanner.get_pos_info())
         m_snapshot_vector->push_back(snapshot(m_env, m_messages, m_local_level_decls, m_local_decls,
                                               m_level_variables, m_variables, m_include_vars,
-                                              m_ios.get_options(), m_parser_scope_stack, m_scanner.get_pos_info()));
+                                              m_ios.get_options(), m_imports_parsed, m_parser_scope_stack, m_scanner.get_pos_info()));
 }
 
 optional<pos_info> parser::get_pos_info(expr const & e) const {

@@ -88,7 +88,7 @@ json server::handle_sync(json const & req) {
     if (m_file_name != new_file_name) {
         m_file_name = new_file_name;
         m_content = new_content;
-        m_only_checked_until = optional<pos_info>(1, 0);
+        m_only_checked_until = optional<pos_info>(-1, 0);
         res["message"] = "new file name, reloading";
     } else {
         if (auto diff_pos = diff(m_content, new_content)) {
@@ -109,7 +109,7 @@ json server::handle_sync(json const & req) {
 
 json server::handle_check(json const &) {
     if (imports_have_changed(m_checked_env))
-        m_only_checked_until = optional<pos_info>(1, 0);
+        m_only_checked_until = optional<pos_info>(-1, 0);
 
     if (m_only_checked_until) {
         snapshot_vector new_snapshots;

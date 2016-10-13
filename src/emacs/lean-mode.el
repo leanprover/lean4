@@ -24,6 +24,7 @@
 (require 'lean-option)
 (require 'lean-syntax)
 (require 'lean-project)
+(require 'lean-server)
 
 (defun lean-server-split-buffer (buf-str beg-regex end-regex)
   ""
@@ -297,6 +298,7 @@ enabled and disabled respectively.")
 
 (defun lean-mode-setup ()
   "Default lean-mode setup"
+  (add-hook 'kill-buffer-hook 'lean-server-stop)
   ;; Flycheck
   (when lean-flycheck-use
     (lean-flycheck-turn-on)
@@ -309,8 +311,7 @@ enabled and disabled respectively.")
       ('vline (require 'fill-column-indicator)
               (setq fci-rule-column lean-rule-column)
               (setq fci-rule-color lean-rule-color)
-              (fci-mode t))))
-  (lean-standard-mode))
+              (fci-mode t)))))
 
 ;; Automode List
 ;;;###autoload

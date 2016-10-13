@@ -89,9 +89,7 @@
       (lexical-let ((buffer (current-buffer)))
         (set-process-sentinel proc
                               (lambda (p e)
-                                (with-current-buffer (process-buffer p) (compilation-mode))
-                                (message "restarting lean")
-                                (with-current-buffer buffer (lean-server-restart)))))
+                                (with-current-buffer (process-buffer p) (compilation-mode)))))
       (temp-buffer-window-show (process-buffer proc))
       (with-current-buffer (process-buffer proc)
         (let ((buffer-read-only nil)) (erase-buffer))))))

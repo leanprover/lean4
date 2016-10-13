@@ -197,6 +197,7 @@ parser::parser(environment const & env, io_state const & ios,
     m_in_pattern = false;
     m_has_params = false;
     if (s) {
+        m_env                = s->m_env;
         m_messages           = s->m_messages;
         m_local_level_decls  = s->m_lds;
         m_local_decls        = s->m_eds;

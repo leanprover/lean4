@@ -27,7 +27,6 @@ Author: Leonardo de Moura
 #include "kernel/formatter.h"
 #include "library/standard_kernel.h"
 #include "library/module.h"
-#include "library/flycheck.h"
 #include "library/type_context.h"
 #include "library/io_state_stream.h"
 #include "library/definition_cache.h"
@@ -99,7 +98,6 @@ static void display_help(std::ostream & out) {
     std::cout << "  --threads=num -j  number of threads used to process lean files\n";
 #endif
     std::cout << "  --deps            just print dependencies of a Lean input\n";
-    std::cout << "  --flycheck        print structured error message for flycheck\n";
     std::cout << "  --json            print JSON-formatted structured error messages\n";
     std::cout << "  --server          start lean in server mode\n";
     std::cout << "  --cache=file -c   load/save cached definitions from/to the given file\n";
@@ -141,7 +139,6 @@ static struct option g_long_options[] = {
     {"quiet",        no_argument,       0, 'q'},
     {"cache",        required_argument, 0, 'c'},
     {"deps",         no_argument,       0, 'd'},
-    {"flycheck",     no_argument,       0, 'F'},
     {"json",         no_argument,       0, 'J'},
     {"server",       no_argument,       0, 'S'},
 #if defined(LEAN_USE_BOOST)
@@ -228,7 +225,6 @@ int main(int argc, char ** argv) {
     unsigned num_threads    = 1;
     bool read_cache         = false;
     bool save_cache         = false;
-    bool flycheck           = false;
     bool json_output        = false;
     bool server             = false;
     options opts;
@@ -298,10 +294,6 @@ int main(int argc, char ** argv) {
                 return 1;
             }
             break;
-        case 'F':
-            opts = opts.update(lean::name{"trace", "as_messages"}, true);
-            flycheck = true;
-            break;
         case 'J':
             opts = opts.update(lean::name{"trace", "as_messages"}, true);
             json_output = true;
@@ -369,14 +361,9 @@ int main(int argc, char ** argv) {
 
     environment env = mk_environment(trust_lvl);
     io_state ios(opts, lean::mk_pretty_formatter_factory());
-    if (flycheck) {
-        ios.set_message_channel(std::make_shared<lean::flycheck_message_stream>(std::cout));
-        // Redirect uncaptured non-flycheck messages to stdout
-        ios.set_regular_channel(ios.get_diagnostic_channel_ptr());
-    }
     if (json_output) {
         ios.set_message_channel(std::make_shared<lean::json_message_stream>(std::cout));
-        // Redirect uncaptured non-flycheck messages to stdout
+        // Redirect uncaptured non-json messages to stdout
         ios.set_regular_channel(ios.get_diagnostic_channel_ptr());
     }
 

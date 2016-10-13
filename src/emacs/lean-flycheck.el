@@ -17,20 +17,6 @@
    (flycheck-mode (flycheck-mode -1))
    (t             (flycheck-mode  1))))
 
-;; (defun lean-flycheck-command ()
-;;   "Concat lean-flychecker-checker-name with options"
-;;   (let ((command
-;;          (-concat `(,(lean-get-executable lean-flycheck-checker-name))
-;;                   lean-flycheck-checker-options
-;;                   '("--cache")
-;;                   '(source-original)
-;;                   '((eval (lean-option-string t)))
-;;                   '("--")
-;;                   '(source-inplace))))
-;;     (when (string= system-type "windows-nt")
-;;       (setq command (cons "python" command)))
-;;     command))
-
 (defun lean-flycheck-parse-error (alist checker buffer)
   (flycheck-error-new-at (cdr (assq 'pos_line alist)) (1+ (cdr (assq 'pos_col alist)))
                          (pcase (cdr (assq 'severity alist))

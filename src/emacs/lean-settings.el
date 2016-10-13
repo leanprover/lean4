@@ -54,11 +54,6 @@
   :group 'lean
   :type 'boolean)
 
-(defcustom lean-flycheck-checker-name "linja"
-  "lean-flychecker checker name"
-  :group 'lean
-  :type 'string)
-
 (defcustom lean-flycheck-max-messages-to-display 100
   "Maximum number of flycheck messages to displaylean-flychecker checker name
    (Restart required to be effective)"
@@ -75,13 +70,6 @@
   :group 'lean
   :type '(choice (const   :tag "Let lean-mode automatically detect this" nil)
                  (integer :tag "Specify the value and force lean-mode to use")))
-
-(defcustom lean-flycheck-checker-options
-  `("--keep-going" ,(format "%d" 999)
-    "--flycheck"
-    "--flycheck-max-messages" ,(format "%d" lean-flycheck-max-messages-to-display))
-  "lean-flychecker checker option"
-  :group 'lean)
 
 (defcustom lean-delete-trailing-whitespace nil
   "Set this variable to true to automatically delete trailing

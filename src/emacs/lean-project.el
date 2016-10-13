@@ -33,9 +33,6 @@
                     "# Include all .EXT files under this directory"
                     "+ *.EXT"
                     ""
-                    "# Exclude flycheck generated temp files"
-                    "- flycheck*.EXT"
-                    ""
                     "# Exclude emacs temp files"
                     "- .#*.EXT"))))
     (if (file-exists-p project-file)

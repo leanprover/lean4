@@ -107,96 +107,10 @@ g_phony_targets    = ["all", "clean", "clear-cache"]
 g_project_filename = ".project"
 g_lean_path        = "USE DEFAULT" # System will search automatically
 g_ninja_path       = "USE DEFAULT" # System will search automatically
-g_flycheck_header  = "FLYCHECK_BEGIN"
-g_flycheck_footer  = "FLYCHECK_END"
 g_lean_bin_dep_flag= "@LEAN_BIN_DEP@" == "ON"
 
 g_logger = logging.getLogger('linja_logger')
 g_debug_mode = False
-
-@python_2_unicode_compatible
-class FlycheckItem:
-    def __init__(self, filename, lineno, colno, ty, msg):
-        self.filename = filename
-        self.lineno   = lineno
-        self.colno    = colno
-        self.ty       = ty
-        self.msg      = msg
-        pass
-    def __str__(self):
-        ret = g_flycheck_header + " " + self.ty.upper() + "\n"
-        ret += "%s:%d:%d: %s: %s" % (self.filename, self.lineno, self.colno, self.ty, self.msg) + "\n"
-        ret += g_flycheck_footer
-        return ret
-    def __lt__(self, other):
-        return (self.filename, self.ty, self.lineno, self.colno) < (other.filename, other.ty, other.lineno, other.colno)
-    def loc(self):
-        return (self.filename, self.ty, self.lineno, self.colno)
-    @classmethod
-    def fromString(cls, target, text):
-        lines     = text.strip().splitlines()
-        # Throw the first and last lines (header/footer)
-        lines     = lines[1:-1]
-        try:
-          firstLine = lines[0]
-          items     = [item.strip() for item in firstLine.split(":")]
-          filename  = items[0]
-          lineno    = int(items[1])
-          colno     = int(items[2])
-          ty        = items[3]
-          msg       = ":".join(items[4:]) + "\n" + "\n".join(lines[1:])
-          msg       = msg.strip()
-          return cls(filename, lineno, colno, ty, msg)
-        except:
-          return cls(target, 1, 0, "error", " ".join(lines))
-
-@python_2_unicode_compatible
-class FlycheckItemList:
-    def __init__(self, items):
-        self.items = items
-    def __str__(self):
-        return "\n".join([text_type(item) for item in self.items])
-    def __getitem__(self, i):
-        return self.items[i]
-    def __len__(self):
-        return len(self.items)
-    def sort(self):
-        self.items = sorted(self.items)
-    def filter(self, pred):
-        self.items = list(filter(pred, self.items))
-    def append(self, item):
-        self.items.append(item)
-    def truncate(self, n):
-        del self.items[n:]
-    def removeExtraItemsStartswith(self, text):
-        self.sort()
-        newItems = self.items[:1]
-        i = 1
-        while i < len(self.items):
-            prev_item = self.items[i-1]
-            cur_item = self.items[i]
-            if not cur_item.msg.startswith(text) or prev_item.loc() != cur_item.loc():
-                newItems.append(cur_item)
-            i += 1
-        self.items = newItems
-
-    @classmethod
-    def fromString(cls, target, text):
-        items = []
-        tmpBuffer = ""
-        ignore = True
-        for line in text.splitlines():
-            if line.startswith(g_flycheck_header):
-                tmpBuffer = tmpBuffer + line + "\n"
-                ignore = False
-            elif line.startswith(g_flycheck_footer):
-                tmpBuffer = tmpBuffer + line + "\n"
-                items.append(FlycheckItem.fromString(target, tmpBuffer.strip()))
-                tmpBuffer = ""
-                ignore = True
-            elif not ignore:
-                tmpBuffer = tmpBuffer + line + "\n"
-        return cls(items)
 
 def init_logger():
     formatter = logging.Formatter('[%(levelname)s] %(asctime)s %(message)s')
@@ -372,8 +286,6 @@ def check_requirements():
         g_ninja_path = download_ninja_and_save_at(g_ninja_path)
 
 def process_args(args):
-    if (args.flycheck == False and args.flycheck_max_messages != None):
-        error("Please use --flycheck option with --flycheck-max-messages option.")
     args.targets = list(map(process_target, args.targets))
     if args.directory:
         os.chdir(args.directory)
@@ -397,8 +309,6 @@ def process_args(args):
 
 def get_lean_options(args):
     args.lean_options = []
-    if args.flycheck:
-        args.lean_options.append("--flycheck")
     if args.discard:
         args.lean_options.append("--discard")
     if args.memory:
@@ -416,8 +326,6 @@ def get_lean_options(args):
 
 def parse_arg(argv):
     parser = argparse.ArgumentParser(description='linja: ninja build wrapper for Lean theorem prover.')
-    parser.add_argument('--flycheck', '-F', action='store_true', default=False, help="Use --flycheck option for Lean.")
-    parser.add_argument('--flycheck-max-messages', action='store', type=int, default=None, const=999999, nargs='?', help="Number of maximum flycheck messages to display.")
     parser.add_argument('--cache', action='store', help="Use specified cache (clean) file.")
     parser.add_argument('--directory', '-C', action='store', help="change to DIR before doing anything else.")
     parser.add_argument('--lean-config-option', '-D', action='append', help="set a Lean configuration option (name=value)")
@@ -446,51 +354,6 @@ def debug_status(args):
     print("lean path     =", g_lean_path)
     print("ninja path    =", g_ninja_path)
 
-def handle_flycheck_failure(out, err, args):
-    if len(args.targets) == 0:
-        error("handle_flycheck_failure is called without targets")
-    target = args.targets[0]
-    failed = set()
-    for line in out.splitlines():
-        if line.startswith("FAILED:"):
-            for lean_file in find_lean_files(args):
-                lean = lean_file['lean']
-                if lean in line and lean != target:
-                    failed.add(lean)
-    for failed_file in failed:
-        print(g_flycheck_header, "ERROR")
-        print("%s:1:0: error: failed to compile %s" % (target, failed_file))
-        print(g_flycheck_footer)
-    if err:
-        print(g_flycheck_header, "ERROR")
-        print("%s:1:0: error: %s" % (target, err.strip()))
-        print(g_flycheck_footer)
-    if failed:
-        call_lean(target, args)
-
-def process_lean_output(target, out, args, using_hlean):
-    n = args.flycheck_max_messages
-    if target.endswith(".olean"):
-        if using_hlean:
-            target = target[:-5] + "hlean"
-        else:
-            target = target[:-5] + "lean"
-    if (not target.endswith(".lean") and not using_hlean) or (not target.endswith(".hlean") and using_hlean):
-        print(out)
-        return
-    # Parse, filter, and remove extra items
-    flycheckItemList = FlycheckItemList.fromString(target, out)
-    flycheckItemList.filter(lambda item: item.filename == target)
-    flycheckItemList.removeExtraItemsStartswith("failed to add declaration")
-    # Only keep n items in the list.
-    # Add tooManyItemsError at the end if we truncated the list
-    if n and len(flycheckItemList) > n:
-        count = len(flycheckItemList)
-        flycheckItemList.truncate(n)
-        tooManyItemsError = FlycheckItem(target, 1, 0, "error", "For performance, we only display %d errors/warnings out of %d. (lean-flycheck-max-messages-to-display)" % (n, count))
-        flycheckItemList.append(tooManyItemsError)
-    print(flycheckItemList)
-
 def call_ninja(args):
     targets = []
     for item in args.targets:
@@ -501,9 +364,6 @@ def call_ninja(args):
         else:
             targets.append(item)
     proc_out = proc_err = None
-    if args.flycheck:
-        proc_out = subprocess.PIPE
-        proc_err = subprocess.PIPE
     ninja_option = []
     if args.keep_going:
         ninja_option += ["-k", args.keep_going]
@@ -513,12 +373,6 @@ def call_ninja(args):
       out = out.decode('utf-8').replace('\r\n', '\n')
     if err is not None:
       err = err.decode('utf-8').replace('\r\n', '\n')
-    if args.flycheck:
-        if len(args.targets) == 1 and (args.targets[0].endswith(".lean") or args.targets[0].endswith(".hlean")):
-            process_lean_output(targets[0], out, args, args.targets[0].endswith(".hlean"))
-            handle_flycheck_failure(out, err, args)
-        else:
-            print(out + err)
 
     return proc.returncode
 
@@ -693,10 +547,7 @@ def make_deps_all_files(args):
         if not os.path.isfile(dlean_file) or os.path.getmtime(dlean_file) < os.path.getmtime(lean_file):
             thread = threading.Thread(target=make_deps, args = [lean_file, dlean_file, olean_file])
             sys.stderr.write("[%i/%i] generating dep... % -80s" % (i, num_of_files, dlean_file))
-            if args.flycheck == True:
-                sys.stderr.write("\n")
-            else:
-                sys.stderr.write("\r")
+            sys.stderr.write("\r")
             sys.stderr.flush()
             thread.start()
             threads.append(thread)

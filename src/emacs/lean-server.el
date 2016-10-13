@@ -87,7 +87,7 @@
     (let* ((default-directory (lean-project-find-root))
            (proc (start-file-process
                   "linja" (format "*linja (%s)*" default-directory)
-                  "linja")))
+                  (lean-get-executable "linja"))))
       (lexical-let ((buffer (current-buffer)))
         (set-process-sentinel proc
                               (lambda (p e)

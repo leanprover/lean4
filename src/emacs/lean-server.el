@@ -84,6 +84,14 @@
            (proc (start-file-process
                   "linja" (format "*linja (%s)*" default-directory)
                   "linja")))
-      (set-process-sentinel proc (lambda (p e) (lean-server-restart))))))
+      (lexical-let ((buffer (current-buffer)))
+        (set-process-sentinel proc
+                              (lambda (p e)
+                                (with-current-buffer (process-buffer p) (compilation-mode))
+                                (message "restarting lean")
+                                (with-current-buffer buffer (lean-server-restart)))))
+      (temp-buffer-window-show (process-buffer proc))
+      (with-current-buffer (process-buffer proc)
+        (let ((buffer-read-only nil)) (erase-buffer))))))
 
 (provide 'lean-server)

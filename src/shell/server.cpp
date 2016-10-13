@@ -16,9 +16,8 @@ public:
     void report(message const &) override {}
 };
 
-server::server(optional<std::string> const & base_dir, int num_threads, environment const & initial_env, io_state const & ios) :
-        m_base_dir(base_dir), m_num_threads(num_threads),
-        m_initial_env(initial_env), m_ios(ios) {
+server::server(unsigned num_threads, environment const & initial_env, io_state const & ios) :
+        m_num_threads(num_threads), m_initial_env(initial_env), m_ios(ios) {
     m_ios.set_regular_channel(std::make_shared<stderr_channel>());
     m_ios.set_diagnostic_channel(std::make_shared<stderr_channel>());
     m_ios.set_message_channel(std::make_shared<null_message_stream>());
@@ -120,8 +119,9 @@ json server::handle_check(json const &) {
 
         std::istringstream in(m_content);
         bool use_exceptions = false;
+        optional<std::string> base_dir;
         parser p(m_initial_env, m_ios, in, m_file_name.c_str(),
-                 m_base_dir, use_exceptions, m_num_threads,
+                 base_dir, use_exceptions, m_num_threads,
                  new_snapshots.empty() ? nullptr : &new_snapshots.back(),
                  &new_snapshots);
         // TODO(gabriel): definition caches?

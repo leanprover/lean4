@@ -399,7 +399,7 @@ int main(int argc, char ** argv) {
     }
 
     if (server) {
-        lean::server(base_dir, num_threads, env, ios).run();
+        lean::server(num_threads, env, ios).run();
         return 0;
     }
 

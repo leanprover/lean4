@@ -7,6 +7,7 @@
 (require 'json)
 (require 'tq)
 (require 'lean-debug)
+(require 'lean-project)
 
 (defvar-local lean-server-process nil
   "Lean server process for the current buffer")
@@ -25,9 +26,10 @@
   (when (or (not lean-server-process)
             (not (equal (process-status lean-server-process) 'run)))
     (setq lean-server-process
-          (start-file-process "lean-server"
-                              (format "*lean-server (%s)*" (buffer-name))
-                              "lean" "--server"))
+          (let* ((default-directory (or (lean-project-find-root) default-directory)))
+            (start-file-process "lean-server"
+                                (format "*lean-server (%s)*" (buffer-name))
+                                "lean" "--server")))
     (set-process-query-on-exit-flag lean-server-process nil)
     (setq lean-server-handler-tq (tq-create lean-server-process))))
 

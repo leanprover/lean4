@@ -14,7 +14,6 @@ Author: Gabriel Ebner
 namespace lean {
 
 class server {
-    optional<std::string> m_base_dir;
     unsigned m_num_threads;
     options m_opts;
     environment m_initial_env;
@@ -35,7 +34,7 @@ class server {
     json handle_check(json const & req);
 
 public:
-    server(optional<std::string> const & base_dir, int num_threads, environment const & intial_env, io_state const & ios);
+    server(unsigned num_threads, environment const & intial_env, io_state const & ios);
     ~server();
 
     void run();

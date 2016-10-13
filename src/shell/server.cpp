@@ -6,6 +6,7 @@ Author: Gabriel Ebner
 */
 
 #include "frontends/lean/parser.h"
+#include "library/module.h"
 #include "shell/server.h"
 #include <list>
 
@@ -107,6 +108,9 @@ json server::handle_sync(json const & req) {
 }
 
 json server::handle_check(json const &) {
+    if (imports_have_changed(m_checked_env))
+        m_only_checked_until = optional<pos_info>(1, 0);
+
     if (m_only_checked_until) {
         snapshot_vector new_snapshots;
         for (snapshot const & snap : m_snapshots) {

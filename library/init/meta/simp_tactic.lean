@@ -75,20 +75,23 @@ simp_lemmas.dsimplify_core default_max_steps ff
 
 namespace tactic
 meta constant dsimplify_core
+  /- The user state type. -/
   {A : Type}
+  /- Initial user data -/
   (a : A)
   (max_steps       : nat)
   /- If visit_instances = ff, then instance implicit arguments are not visited, but
      tactic will canonize them. -/
   (visit_instances : bool)
-  /- (pre e) is invoked before visiting the children of subterm 'e',
-     if it succeeds the result is a new expression that must be definitionally equal to 'e',
-     and a flag indicating whether the new children should be visited or not. -/
+  /- (pre a e) is invoked before visiting the children of subterm 'e',
+     if it succeeds the result (new_a, new_e, flag) where
+       - 'new_a' is the new value for the user data
+       - 'new_e' is a new expression that must be definitionally equal to 'e',
+       - 'flag'  if tt 'new_e' children should be visited, and 'post' invoked. -/
   (pre             : A → expr → tactic (A × expr × bool))
-  /- (post e) is invoked after visiting the children of subterm 'e',
-     if it succeeds the result is a new expression that must be definitionally equal to 'e',
-     and a flag indicating whether the new children should be revisited.
-     Remark: if (pre e) returns (some (new_e, ff)), then post is not invoked for new_e. -/
+  /- (post a e) is invoked after visiting the children of subterm 'e',
+     The output is similar to (pre a e), but the 'flag' indicates whether
+     the new expression should be revisited or not. -/
   (post            : A → expr → tactic (A × expr × bool))
   : expr → tactic (A × expr)
 

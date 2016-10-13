@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
+#include "library/flycheck.h"
 #include "library/module.h"
 #include "library/standard_kernel.h"
 #include "library/type_context.h"
@@ -23,8 +24,9 @@ private:
     io_state ios;
 
 public:
-    emscripten_shell() : trust_lvl(LEAN_BELIEVER_TRUST_LEVEL+1), num_threads(1), opts("flycheck", true),
+    emscripten_shell() : trust_lvl(LEAN_BELIEVER_TRUST_LEVEL+1), num_threads(1),
         env(mk_environment(trust_lvl)), ios(opts, lean::mk_pretty_formatter_factory()) {
+        ios.set_message_channel(std::make_shared<flycheck_message_stream>(std::cout));
     }
 
     int import_module(std::string mname) {

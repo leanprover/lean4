@@ -30,7 +30,11 @@
             (not (equal (process-status lean-server-process) 'run)))
     (lean-server-stop)
     (setq lean-server-process
-          (let* ((default-directory (or (lean-project-find-root) default-directory)))
+          (let* ((default-directory (or (lean-project-find-root) default-directory))
+                 ; Setting process-connection-type is necessary, otherwise
+                 ; emacs truncates lines with >4096 bytes:
+                 ; https://debbugs.gnu.org/cgi/bugreport.cgi?bug=24531
+                 (process-connection-type nil))
             (start-file-process "lean-server"
                                 (format "*lean-server (%s)*" (buffer-name))
                                 "lean" "--server" (format "*%s*" (buffer-name)))))

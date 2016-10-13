@@ -187,6 +187,17 @@ parser::parser(environment const & env, io_state const & ios,
     m_scanner(strm, strm_name, s ? s->m_pos : pos_info(1, 0)),
     m_base_dir(base_dir),
     m_snapshot_vector(sv), m_cache(nullptr) {
+    if (s) {
+        m_env                = s->m_env;
+        m_ios.set_options(s->m_options);
+        m_messages           = s->m_messages;
+        m_local_level_decls  = s->m_lds;
+        m_local_decls        = s->m_eds;
+        m_level_variables    = s->m_lvars;
+        m_variables          = s->m_vars;
+        m_include_vars       = s->m_include_vars;
+        m_parser_scope_stack = s->m_parser_scope_stack;
+    }
     m_ignore_noncomputable = false;
     m_ios.set_message_channel(std::make_shared<parser_message_stream>(this, m_ios.get_message_channel_ptr()));
     m_profile     = ios.get_options().get_bool("profile", false);
@@ -196,16 +207,6 @@ parser::parser(environment const & env, io_state const & ios,
     m_in_quote = false;
     m_in_pattern = false;
     m_has_params = false;
-    if (s) {
-        m_env                = s->m_env;
-        m_messages           = s->m_messages;
-        m_local_level_decls  = s->m_lds;
-        m_local_decls        = s->m_eds;
-        m_level_variables    = s->m_lvars;
-        m_variables          = s->m_vars;
-        m_include_vars       = s->m_include_vars;
-        m_parser_scope_stack = s->m_parser_scope_stack;
-    }
     m_num_threads  = num_threads;
     m_id_behavior  = id_behavior::ErrorIfUndef;
     m_found_errors = false;

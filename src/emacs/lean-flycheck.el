@@ -17,29 +17,28 @@
    (flycheck-mode (flycheck-mode -1))
    (t             (flycheck-mode  1))))
 
-(defun lean-flycheck-parse-error (alist checker buffer)
-  (flycheck-error-new-at (cdr (assq 'pos_line alist)) (1+ (cdr (assq 'pos_col alist)))
-                         (pcase (cdr (assq 'severity alist))
+(cl-defun lean-flycheck-parse-error (checker buffer &key pos_line pos_col severity text file_name &allow-other-keys)
+  (flycheck-error-new-at pos_line (1+ pos_col)
+                         (pcase severity
                            ("error" 'error)
                            ("warning" 'warning)
                            ("information" 'info)
                            (_ 'info))
-                         (cdr (assq 'text alist))
-                         :filename (cdr (assq 'file_name alist))
+                         text
+                         :filename file_name
                          :checker checker :buffer buffer))
 
 (defun lean-flycheck-start (checker callback)
   (lean-server-sync)
-    (lean-server-send-command
-     '(:command check)
-     (lambda (response)
-       (let* ((json-messages (cdr (assq 'messages response)))
-              (buffer (current-buffer))
-              (errors (mapcar (lambda (j) (lean-flycheck-parse-error j checker buffer))
-                              json-messages)))
-         (funcall callback 'finished errors)))
-     (lambda (err)
-       (funcall callback 'errored (cdr (assq 'message err))))))
+  (lean-server-send-command
+   '(:command check)
+   (cl-function (lambda (&key messages)
+     (let* ((buffer (current-buffer))
+            (errors (mapcar (lambda (j) (apply 'lean-flycheck-parse-error checker buffer j))
+                            messages)))
+       (funcall callback 'finished errors))))
+   (cl-function (lambda (&key message)
+     (funcall callback 'errored message)))))
 
 (defun lean-flycheck-init ()
   "Initialize lean-flychek checker"

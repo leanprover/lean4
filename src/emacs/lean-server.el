@@ -52,17 +52,20 @@
 
 (defun lean-server-send-command-handler (closure answer)
   "Callback for lean-server-send-command"
-  (let ((buffer (elt closure 0))
-        (cb (elt closure 1))
-        (error-cb (elt closure 2))
-        (json-array-type 'list))
-    (with-current-buffer buffer
-      (lean-debug "server=> %s" answer)
-      (let ((response (json-read-from-string answer)))
-        (if (equal (cdr (assq 'response response)) "error")
-            (progn (message "error: %s" (cdr (assq 'message response)))
-                   (if error-cb (funcall error-cb response)))
-          (if cb (funcall cb response)))))))
+  ;; tq eats errors for breakfast
+  (with-demoted-errors "error in lean-server command handler: %s"
+    (let ((buffer (elt closure 0))
+          (cb (elt closure 1))
+          (error-cb (elt closure 2))
+          (json-array-type 'list))
+      (with-current-buffer buffer
+        (lean-debug "server=> %s" answer)
+        (let* ((json-object-type 'plist)
+               (response (json-read-from-string answer)))
+          (if (equal (plist-get 'response response) "error")
+              (progn (message "error: %s" (plist-get 'message response))
+                     (if error-cb (apply error-cb :allow-other-keys t response)))
+            (if cb (apply cb :allow-other-keys t response))))))))
 
 (defun lean-server-send-command (cmd &optional cb error-cb)
   "Sends a command to the lean server, with a callback to be called upon completion"

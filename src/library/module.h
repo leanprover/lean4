@@ -53,9 +53,11 @@ environment import_module(environment const & env, std::string const & base, mod
 /** \brief Return the direct imports of the main module in the given environment. */
 list<module_name> get_direct_imports(environment const & env);
 
-/** \brief Return true iff the direct imports of the main module in the given environment have
-    been modified in the file system. */
-bool direct_imports_have_changed(environment const & env);
+/** \brief Return true iff any import in the given environment has been modified in the file system. */
+bool imports_have_changed(environment const & env);
+
+/** \brieg Returns the list of all imports in the given environment where the olean file is older than the lean file. */
+list<module_name> get_out_of_date_imports(environment const & env);
 
 /** \brief Store/Export module using \c env to the output stream \c out. */
 void export_module(std::ostream & out, environment const & env);

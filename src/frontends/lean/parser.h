@@ -155,6 +155,7 @@ class parser : public abstract_parser {
     level parse_level_led(level left);
 
     void parse_imports();
+    void check_modules_up_to_date();
     void parse_command();
     bool parse_commands();
     unsigned curr_lbp_core() const;

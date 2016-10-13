@@ -2138,8 +2138,22 @@ void parser::parse_imports() {
     m_env = update_fingerprint(m_env, fingerprint);
     m_env = activate_export_decls(m_env, {}); // explicitly activate exports in root namespace
     m_env = replay_export_decls_core(m_env, m_ios);
+    check_modules_up_to_date();
     if (imported)
         save_snapshot();
+}
+
+void parser::check_modules_up_to_date() {
+    list<module_name> out_of_date = get_out_of_date_imports(m_env);
+    if (empty(out_of_date)) return;
+    auto msg = mk_message(m_last_cmd_pos, WARNING);
+    msg << "imported modules are out of date: ";
+    bool first = true;
+    for_each(out_of_date, [&] (module_name const & mname) {
+        if (first) { first = false; } else { msg << ", "; }
+        msg << mname.get_name();
+    });
+    msg.report();
 }
 
 bool parser::parse_commands() {

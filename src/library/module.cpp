@@ -41,17 +41,22 @@ corrupted_file_exception::corrupted_file_exception(std::string const & fname):
 
 typedef pair<std::string, std::function<void(environment const &, serializer &)>> writer;
 
+struct module_metadata {
+    module_metadata() : m_mname(name()), m_lean_mod_time(-1), m_olean_mod_time(-2) {}
+    module_name m_mname;
+    time_t m_lean_mod_time;
+    time_t m_olean_mod_time;
+};
+
 struct module_ext : public environment_extension {
     list<module_name> m_direct_imports;
     list<writer>      m_writers;
     list<name>        m_module_univs;
     list<name>        m_module_decls;
     name_set          m_module_defs;
-    // auxiliary information for detecting whether
-    // directly imported files have changed
-    list<time_t>      m_direct_imports_mod_time;
     std::string       m_base;
-    name_set          m_imported;
+    // Map from filenames to module names and modification times.
+    name_map<module_metadata> m_imported;
 };
 
 struct module_ext_reg {
@@ -84,29 +89,46 @@ list<module_name> const & get_curr_module_imports(environment const & env) {
     return get_extension(env).m_direct_imports;
 }
 
-bool direct_imports_have_changed(environment const & env) {
+static std::string find_lean_file(std::string const & base, module_name const & mname) {
+    return find_file(base, mname.get_k(), mname.get_name(), {".lean"});
+}
+
+static std::string find_olean_file(std::string const & base, module_name const & mname) {
+    return find_file(base, mname.get_k(), mname.get_name(), {".olean"});
+}
+
+static time_t get_mtime(std::string const & fname) {
+    struct stat st;
+    if (stat(fname.c_str(), &st) != 0)
+        throw exception(sstream() << "failed to access stats of file '" << fname << "'");
+    return st.st_mtime;
+}
+
+bool imports_have_changed(environment const & env) {
     module_ext const & ext   = get_extension(env);
     std::string const & base = ext.m_base;
-    list<module_name> mods   = ext.m_direct_imports;
-    list<time_t>      mtimes = ext.m_direct_imports_mod_time;
-    lean_assert(length(mods) == length(mtimes));
-    while (mods && mtimes) {
-        module_name const & mname = head(mods);
-        std::string fname;
-        try {
-            fname = find_file(base, mname.get_k(), mname.get_name(), {".olean"});
-        } catch (exception &) {
-            return true; // direct import doesn't even exist anymore
+    bool any_changed = false;
+    ext.m_imported.for_each([&] (name const &, module_metadata const & metadata) {
+        if (!any_changed) {
+            time_t lean_mtime = get_mtime(find_lean_file(base, metadata.m_mname));
+            time_t olean_mtime = get_mtime(find_olean_file(base, metadata.m_mname));
+            if (lean_mtime != metadata.m_lean_mod_time || olean_mtime != metadata.m_olean_mod_time) {
+                any_changed = true;
+            }
         }
-        struct stat st;
-        if (stat(fname.c_str(), &st) != 0)
-            return true; // failed to read stats
-        if (st.st_mtime != head(mtimes))
-            return true; // mod time has changed
-        mods   = tail(mods);
-        mtimes = tail(mtimes);
-    }
-    return false;
+    });
+    return any_changed;
+}
+
+list<module_name> get_out_of_date_imports(environment const & env) {
+    list<module_name> out_of_date;
+    module_ext const & ext   = get_extension(env);
+    ext.m_imported.for_each([&] (name const &, module_metadata const & metadata) {
+        if (metadata.m_lean_mod_time > metadata.m_olean_mod_time) {
+            out_of_date = cons(metadata.m_mname, out_of_date);
+        }
+    });
+    return out_of_date;
 }
 
 static char const * g_olean_end_file = "EndFile";
@@ -302,7 +324,7 @@ struct import_modules_fn {
     typedef std::shared_ptr<module_info> module_info_ptr;
     name_map<module_info_ptr> m_module_info;
     name_set                  m_visited; // contains visited files in the current call
-    name_set                  m_imported; // contains all imported files, even ones from previous calls
+    name_map<module_metadata> m_imported; // contains all imported files, even ones from previous calls
 
     import_modules_fn(environment const & env, unsigned num_threads, bool keep_proofs, io_state const & ios):
         m_senv(env), m_num_threads(num_threads), m_keep_proofs(keep_proofs), m_ios(ios),
@@ -322,7 +344,8 @@ struct import_modules_fn {
     }
 
     module_info_ptr load_module_file(std::string const & base, module_name const & mname) {
-        std::string fname = find_file(base, mname.get_k(), mname.get_name(), {".olean"});
+        std::string fname_lean = find_lean_file(base, mname);
+        std::string fname = find_olean_file(base, mname);
         auto it    = m_module_info.find(fname);
         if (it)
             return *it;
@@ -331,8 +354,13 @@ struct import_modules_fn {
         if (m_visited.contains(fname))
             throw exception(sstream() << "circular dependency detected at '" << fname << "'");
         m_visited.insert(fname);
-        m_imported.insert(fname);
         try {
+            module_metadata metadata;
+            metadata.m_mname = mname;
+            metadata.m_lean_mod_time = get_mtime(fname_lean);
+            metadata.m_olean_mod_time = get_mtime(fname);
+            m_imported.insert(fname, metadata);
+
             unsigned major, minor, patch, claimed_hash;
             unsigned code_size;
             buffer<module_name> imports;
@@ -566,33 +594,16 @@ struct import_modules_fn {
         return env;
     }
 
-    void store_direct_imports(std::string const & base, unsigned num_modules, module_name const * modules) {
-        m_senv.update([&](environment const & env) -> environment {
-                module_ext ext = get_extension(env);
-                ext.m_base     = base;
-                for (unsigned i = 0; i < num_modules; i++) {
-                    module_name const & mname = modules[i];
-                    std::string fname = find_file(base, mname.get_k(), mname.get_name(), {".olean"});
-                    if (!m_imported.contains(fname)) {
-                        ext.m_direct_imports = cons(mname, ext.m_direct_imports);
-                        struct stat st;
-                        if (stat(fname.c_str(), &st) != 0)
-                            throw exception(sstream() << "failed to access stats of file '" << fname << "'");
-                        ext.m_direct_imports_mod_time = cons(st.st_mtime, ext.m_direct_imports_mod_time);
-                    }
-                }
-                return update(env, ext);
-            });
-    }
-
     environment operator()(std::string const & base, unsigned num_modules, module_name const * modules) {
-        store_direct_imports(base, num_modules, modules);
         for (unsigned i = 0; i < num_modules; i++)
             load_module_file(base, modules[i]);
         process_asynch_tasks();
         environment env = process_delayed_tasks();
         module_ext ext = get_extension(env);
+        ext.m_base     = base;
         ext.m_imported = m_imported;
+        for (unsigned i = 0; i < num_modules; i++)
+            ext.m_direct_imports = cons(modules[i], ext.m_direct_imports);
         return update(env, ext);
     }
 };

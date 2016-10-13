@@ -1868,8 +1868,12 @@ struct check_assignment_fn : public replace_visitor {
     }
 
     expr operator()(expr const & v) {
-        m_value = v;
-        return visit(v);
+        if (!has_expr_metavar(v) && !has_local(v)) {
+            return v;
+        } else {
+            m_value = v;
+            return visit(v);
+        }
     }
 };
 

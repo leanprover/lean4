@@ -64,8 +64,16 @@ bool is_debug_enabled(const char * tag) {
     return g_enabled_debug_tags && g_enabled_debug_tags->find(tag) != g_enabled_debug_tags->end();
 }
 
+static bool g_debug_dialog = true;
+
+void enable_debug_dialog(bool flag) {
+    g_debug_dialog = flag;
+}
+
 void invoke_debugger() {
     g_has_violations = true;
+    if (!g_debug_dialog)
+        exit(1);
     int * x = 0;
     for (;;) {
         if (std::cin.eof())

@@ -386,6 +386,9 @@ int main(int argc, char ** argv) {
     }
 
     if (server) {
+        /* Disable assertion violation dialog:
+           (C)ontinue, (A)bort, (S)top, Invoke (G)DB */
+        lean::enable_debug_dialog(false);
         lean::server(num_threads, env, ios).run();
         return 0;
     }

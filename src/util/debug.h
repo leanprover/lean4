@@ -101,6 +101,7 @@ void disable_debug(char const * tag);
 bool is_debug_enabled(char const * tag);
 void invoke_debugger();
 bool has_violations();
+void enable_debug_dialog(bool flag);
 // LCOV_EXCL_START
 /** \brief Exception used to sign that unreachable code was reached */
 class unreachable_reached : public exception {

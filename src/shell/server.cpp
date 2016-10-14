@@ -7,6 +7,8 @@ Authors: Gabriel Ebner, Leonardo de Moura, Sebastian Ullrich
 #if defined(LEAN_SERVER)
 #include <list>
 #include <string>
+#include <algorithm>
+#include <vector>
 #include "frontends/lean/parser.h"
 #include "library/module.h"
 #include "shell/server.h"

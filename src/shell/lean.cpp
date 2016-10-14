@@ -40,7 +40,9 @@ Author: Leonardo de Moura
 #include "shell/emscripten.h"
 #include "shell/simple_pos_info_provider.h"
 #include "shell/json.h"
+#if defined(LEAN_SERVER)
 #include "shell/server.h"
+#endif
 #include "version.h"
 #include "githash.h" // NOLINT
 
@@ -96,8 +98,10 @@ static void display_help(std::ostream & out) {
     std::cout << "  --threads=num -j  number of threads used to process lean files\n";
 #endif
     std::cout << "  --deps            just print dependencies of a Lean input\n";
+#if defined(LEAN_SERVER)
     std::cout << "  --json            print JSON-formatted structured error messages\n";
     std::cout << "  --server          start lean in server mode\n";
+#endif
     std::cout << "  --cache=file -c   load/save cached definitions from/to the given file\n";
     std::cout << "  --profile         display elaboration/type checking time for each definition/theorem\n";
 #if defined(LEAN_USE_BOOST)
@@ -136,8 +140,10 @@ static struct option g_long_options[] = {
 #endif
     {"quiet",        no_argument,       0, 'q'},
     {"deps",         no_argument,       0, 'd'},
+#if defined(LEAN_SERVER)
     {"json",         no_argument,       0, 'J'},
     {"server",       no_argument,       0, 'S'},
+#endif
 #if defined(LEAN_USE_BOOST)
     {"tstack",       required_argument, 0, 's'},
 #endif
@@ -220,8 +226,10 @@ int main(int argc, char ** argv) {
     bool smt2               = false;
     bool only_deps          = false;
     unsigned num_threads    = 1;
+#if defined(LEAN_SERVER)
     bool json_output        = false;
     bool server             = false;
+#endif
     options opts;
     std::string output;
     std::string cache_name;
@@ -284,6 +292,7 @@ int main(int argc, char ** argv) {
                 return 1;
             }
             break;
+#if defined(LEAN_SERVER)
         case 'J':
             opts = opts.update(lean::name{"trace", "as_messages"}, true);
             json_output = true;
@@ -292,6 +301,7 @@ int main(int argc, char ** argv) {
             opts = opts.update(lean::name{"trace", "as_messages"}, true);
             server = true;
             break;
+#endif
         case 'P':
             opts = opts.update("profile", true);
             break;
@@ -313,7 +323,7 @@ int main(int argc, char ** argv) {
         case 'E':
             export_txt = std::string(optarg);
             break;
-#ifdef LEAN_DEBUG
+#if defined(LEAN_DEBUG)
         case 'B':
             lean::enable_debug(optarg);
             break;
@@ -348,11 +358,13 @@ int main(int argc, char ** argv) {
 
     environment env = mk_environment(trust_lvl);
     io_state ios(opts, lean::mk_pretty_formatter_factory());
+#if defined(LEAN_SERVER)
     if (json_output) {
         ios.set_message_channel(std::make_shared<lean::json_message_stream>(std::cout));
         // Redirect uncaptured non-json messages to stdout
         ios.set_regular_channel(ios.get_diagnostic_channel_ptr());
     }
+#endif
 
     if (smt2) {
         // Note: the smt2 flag may override other flags
@@ -372,6 +384,7 @@ int main(int argc, char ** argv) {
         return ok ? 0 : 1;
     }
 
+#if defined(LEAN_SERVER)
     if (server) {
         /* Disable assertion violation dialog:
            (C)ontinue, (A)bort, (S)top, Invoke (G)DB */
@@ -379,6 +392,7 @@ int main(int argc, char ** argv) {
         lean::server(num_threads, env, ios).run();
         return 0;
     }
+#endif
 
     try {
         bool ok = true;

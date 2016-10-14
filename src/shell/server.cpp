@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Gabriel Ebner
 */
+#if defined(LEAN_SERVER)
 #include <string>
 #include "frontends/lean/parser.h"
 #include "library/module.h"
@@ -147,3 +148,4 @@ json server::handle_check(json const &) {
 }
 
 }
+#endif

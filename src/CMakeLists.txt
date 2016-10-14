@@ -20,6 +20,9 @@ option(SPLIT_STACK        "SPLIT_STACK"        OFF)
 option(READLINE           "READLINE"           OFF)
 option(TCMALLOC           "TCMALLOC"           ON)
 option(JEMALLOC           "JEMALLOC"           OFF)
+# When ON we enable the lean-server support used for IDEs
+option(SERVER             "SERVER"             ON)
+
 # IGNORE_SORRY is a tempory option (hack). It allows us to build
 # a version of Lean that does not report when 'sorry' is used.
 # This is useful for suppressing warning messages in the nightly builds.
@@ -73,6 +76,11 @@ endif()
 
 if("${CYGWIN}" EQUAL "1")
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_CYGWIN")
+endif()
+
+if("${SERVER}" MATCHES "ON")
+  message(STATUS "Compile server enabled")
+  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_SERVER")
 endif()
 
 if(MINGW AND CMAKE_COMPILER_IS_GNUCXX)

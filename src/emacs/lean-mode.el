@@ -305,6 +305,9 @@ enabled and disabled respectively.")
   (when lean-flycheck-use
     (lean-flycheck-turn-on)
     (setq-local flycheck-disabled-checkers '()))
+  ;; company-mode
+  (when lean-company-use
+    (company-lean-hook))
   ;; Draw a vertical line for rule-column
   (when (and lean-rule-column
              lean-show-rule-column-method)

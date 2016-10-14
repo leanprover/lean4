@@ -224,10 +224,14 @@ private:
     lean::initializer m_init;
 public:
     initializer() {
+#if defined(LEAN_SERVER)
         lean::initialize_server();
+#endif
     }
     ~initializer() {
+#if defined(LEAN_SERVER)
         lean::finalize_server();
+#endif
     }
 };
 

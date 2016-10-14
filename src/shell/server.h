@@ -2,7 +2,7 @@
 Copyright (c) 2016 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Author: Gabriel Ebner
+Authors: Gabriel Ebner, Sebastian Ullrich
 */
 #pragma once
 #include "kernel/pos_info_provider.h"
@@ -28,16 +28,23 @@ class server {
     list<message> m_messages;
     snapshot_vector m_snapshots;
 
+    snapshot const * get_closest_snapshot(unsigned linenum);
     json handle_request(json const & req);
 
     json handle_sync(json const & req);
     json handle_check(json const & req);
+    json handle_complete(json const & req);
 
+    json serialize_decl(name const & short_name, name const & long_name, environment const & env, options const & o);
+    json serialize_decl(name const & d, environment const & env, options const & o);
 public:
     server(unsigned num_threads, environment const & intial_env, io_state const & ios);
     ~server();
 
     void run();
 };
+
+void initialize_server();
+void finalize_server();
 
 }

@@ -219,8 +219,20 @@ EMSCRIPTEN_BINDINGS(LEAN_JS) {
 }
 int main() { return 0; }
 #else
+class initializer {
+private:
+    lean::initializer m_init;
+public:
+    initializer() {
+        lean::initialize_server();
+    }
+    ~initializer() {
+        lean::finalize_server();
+    }
+};
+
 int main(int argc, char ** argv) {
-    lean::initializer init;
+    initializer init;
     bool export_objects     = false;
     unsigned trust_lvl      = LEAN_BELIEVER_TRUST_LEVEL+1;
     bool smt2               = false;

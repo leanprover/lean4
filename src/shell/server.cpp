@@ -2,16 +2,36 @@
 Copyright (c) 2016 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Author: Gabriel Ebner
+Authors: Gabriel Ebner, Leonardo de Moura, Sebastian Ullrich
 */
 #if defined(LEAN_SERVER)
+#include <list>
 #include <string>
 #include "frontends/lean/parser.h"
 #include "library/module.h"
 #include "shell/server.h"
-#include <list>
+#include "util/sexpr/option_declarations.h"
+#include "frontends/lean/util.h"
+#include "library/protected.h"
+#include "library/scoped_ext.h"
+#include "util/bitap_fuzzy_search.h"
+#include "library/type_context.h"
+#include "kernel/instantiate.h"
+
+#ifndef LEAN_DEFAULT_AUTO_COMPLETION_MAX_RESULTS
+#define LEAN_DEFAULT_AUTO_COMPLETION_MAX_RESULTS 100
+#endif
+
+#define LEAN_FUZZY_MAX_ERRORS          3
+#define LEAN_FUZZY_MAX_ERRORS_FACTOR   3
+#define LEAN_COMPLETE_CONSUME_IMPLICIT true // lean will add metavariables for implicit arguments in serialize_decl()
 
 namespace lean {
+static name * g_auto_completion_max_results = nullptr;
+
+unsigned get_auto_completion_max_results(options const & o) {
+    return o.get_unsigned(*g_auto_completion_max_results, LEAN_DEFAULT_AUTO_COMPLETION_MAX_RESULTS);
+}
 
 class null_message_stream : public message_stream {
 public:
@@ -57,6 +77,8 @@ json server::handle_request(json const & req) {
         return handle_sync(req);
     } else if (command == "check") {
         return handle_check(req);
+    } else if (command == "complete") {
+        return handle_complete(req);
     }
 
     json res;
@@ -147,5 +169,173 @@ json server::handle_check(json const &) {
     return res;
 }
 
+snapshot const * server::get_closest_snapshot(unsigned line) {
+    snapshot const * ret = nullptr;
+    for (snapshot const & snap : m_snapshots) {
+        if (snap.m_pos.first <= line)
+            ret = &snap;
+    }
+    return ret;
+}
+
+/** \brief Return an (atomic) name if \c n can be referenced by this atomic
+    name in the given environment. */
+optional<name> is_essentially_atomic(environment const & env, name const & n) {
+    if (n.is_atomic())
+        return optional<name>(n);
+    list<name> const & ns_list = get_namespaces(env);
+    for (name const & ns : ns_list) {
+        if (is_prefix_of(ns, n)) {
+            auto n_prime = n.replace_prefix(ns, name());
+            if (n_prime.is_atomic() && !is_protected(env, n))
+                return optional<name>(n_prime);
+            break;
+        }
+    }
+    if (auto it = is_uniquely_aliased(env, n))
+        if (it->is_atomic())
+            return it;
+    return optional<name>();
+}
+
+unsigned get_fuzzy_match_max_errors(unsigned prefix_sz) {
+    unsigned r = (prefix_sz / LEAN_FUZZY_MAX_ERRORS_FACTOR);
+    if (r > LEAN_FUZZY_MAX_ERRORS)
+        return LEAN_FUZZY_MAX_ERRORS;
+    return r;
+}
+
+optional<name> exact_prefix_match(environment const & env, std::string const & pattern, declaration const & d) {
+    if (auto it = is_essentially_atomic(env, d.get_name())) {
+        std::string it_str = it->to_string();
+        // if pattern "perfectly" matches beginning of declaration name, we just display d on the top of the list
+        if (it_str.compare(0, pattern.size(), pattern) == 0)
+            return it;
+    } else {
+        std::string d_str = d.get_name().to_string();
+        if (d_str.compare(0, pattern.size(), pattern) == 0)
+            return optional<name>(d.get_name());
+    }
+    return optional<name>();
+}
+
+json server::serialize_decl(name const & short_name, name const & long_name, environment const & env, options const & o) {
+    declaration const & d = env.get(long_name);
+    type_context tc(env);
+    io_state_stream out   = regular(env, m_ios, tc).update_options(o);
+    expr type = d.get_type();
+    if (LEAN_COMPLETE_CONSUME_IMPLICIT) {
+        while (true) {
+            if (!is_pi(type))
+                break;
+            if (!binding_info(type).is_implicit() && !binding_info(type).is_inst_implicit())
+                break;
+            std::string q("?");
+            q += binding_name(type).to_string();
+            expr m = mk_constant(name(q.c_str()));
+            type   = instantiate(binding_body(type), m);
+        }
+    }
+    json completion;
+    completion["text"] = short_name.to_string();
+    std::ostringstream ss;
+    ss << mk_pair(flatten(out.get_formatter()(type)), o);
+    completion["type"] = ss.str();
+    return completion;
+}
+
+json server::serialize_decl(name const & d, environment const & env, options const & o) {
+    // using namespace override resolution rule
+    list<name> const & ns_list = get_namespaces(env);
+    for (name const & ns : ns_list) {
+        name new_d = d.replace_prefix(ns, name());
+        if (new_d != d &&
+            !new_d.is_anonymous() &&
+            (!new_d.is_atomic() || !is_protected(env, d))) {
+            return serialize_decl(new_d, d, env, o);
+        }
+    }
+    // if the alias is unique use it
+    if (auto it = is_uniquely_aliased(env, d)) {
+        return serialize_decl(*it, d, env, o);
+    } else {
+        return serialize_decl(d, d, env, o);
+    }
+}
+
+json server::handle_complete(json const & req) {
+    std::string pattern = req["pattern"];
+    unsigned line = req["line"];
+    std::vector<json> completions;
+
+    if (snapshot const * snap = get_closest_snapshot(line)) {
+        environment const & env = snap->m_env;
+        options const & opts = snap->m_options;
+        unsigned max_results = get_auto_completion_max_results(opts);
+        unsigned max_errors = get_fuzzy_match_max_errors(pattern.size());
+        std::vector<pair<name, name>> exact_matches;
+        std::vector<pair<std::string, name>> selected;
+        bitap_fuzzy_search matcher(pattern, max_errors);
+        env.for_each_declaration([&](declaration const & d) {
+            /*if (is_projection(env, d.get_name()))
+                return;*/
+            if (auto it = exact_prefix_match(env, pattern, d)) {
+                exact_matches.emplace_back(*it, d.get_name());
+            } else {
+                std::string text = d.get_name().to_string();
+                if (matcher.match(text))
+                    selected.emplace_back(text, d.get_name());
+            }
+        });
+        unsigned num_results = 0;
+        if (!exact_matches.empty()) {
+            std::sort(exact_matches.begin(), exact_matches.end(),
+                      [](pair<name, name> const & p1, pair<name, name> const & p2) {
+                          return p1.first.size() < p2.first.size();
+                      });
+            for (pair<name, name> const & p : exact_matches) {
+                completions.push_back(serialize_decl(p.first, p.second, env, opts));
+                num_results++;
+                if (num_results >= max_results)
+                    break;
+            }
+        }
+        unsigned sz = selected.size();
+        if (sz == 1) {
+            completions.push_back(serialize_decl(selected[0].second, env, opts));
+        } else if (sz > 1) {
+            std::vector<pair<std::string, name>> next_selected;
+            for (unsigned k = 0; k <= max_errors && num_results < max_results; k++) {
+                bitap_fuzzy_search matcher(pattern, k);
+                for (auto const & s : selected) {
+                    if (matcher.match(s.first)) {
+                        completions.push_back(serialize_decl(s.second, env, opts));
+                        num_results++;
+                        if (num_results >= max_results)
+                            break;
+                    } else {
+                        next_selected.push_back(s);
+                    }
+                }
+                std::swap(selected, next_selected);
+                next_selected.clear();
+            }
+        }
+    }
+    json res;
+    res["response"] = "ok";
+    res["completions"] = completions;
+    return res;
+}
+
+void initialize_server() {
+    g_auto_completion_max_results = new name{"auto_completion", "max_results"};
+    register_unsigned_option(*g_auto_completion_max_results, LEAN_DEFAULT_AUTO_COMPLETION_MAX_RESULTS,
+                             "(auto-completion) maximum number of results returned");
+}
+
+void finalize_server() {
+    delete g_auto_completion_max_results;
+}
 }
 #endif

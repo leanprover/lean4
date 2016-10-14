@@ -24,6 +24,7 @@
 (require 'lean-option)
 (require 'lean-syntax)
 (require 'lean-project)
+(require 'lean-company)
 (require 'lean-server)
 
 (defun lean-server-split-buffer (buf-str beg-regex end-regex)
@@ -233,6 +234,7 @@ placeholder, call lean-server with --hole option, otherwise call
   (local-set-key lean-keybinding-show-key                  'quail-show-key)
   (local-set-key lean-keybinding-set-option                'lean-set-option)
   (local-set-key lean-keybinding-eval-cmd                  'lean-eval-cmd)
+  (local-set-key lean-keybinding-tab-indent-or-complete    'lean-tab-indent-or-complete)
   (local-set-key lean-keybinding-lean-show-goal-at-pos     'lean-show-goal-at-pos)
   (local-set-key lean-keybinding-lean-show-id-keyword-info 'lean-show-id-keyword-info)
   (local-set-key lean-keybinding-lean-next-error-mode      'lean-next-error-mode)

@@ -39,6 +39,16 @@
   :group 'lean
   :type 'string)
 
+(defcustom lean-company-use t
+  "Use company mode for lean."
+  :group 'lean
+  :type 'boolean)
+
+(defcustom lean-company-type-foreground (face-foreground 'font-lock-keyword-face)
+  "Color of type parameter in auto-complete candidates"
+  :group 'lean
+  :type 'color)
+
 (defcustom lean-eldoc-use t
   "Use eldoc mode for lean."
   :group 'lean
@@ -146,6 +156,9 @@ false (nil)."
   :group 'lean-keybinding  :type 'key-sequence)
 (defcustom lean-keybinding-eval-cmd (kbd "C-c C-e")
   "Lean Keybinding for eval-cmd"
+  :group 'lean-keybinding  :type 'key-sequence)
+(defcustom lean-keybinding-tab-indent-or-complete (kbd "TAB")
+  "Lean Keybinding for tab-indent-or-complete"
   :group 'lean-keybinding  :type 'key-sequence)
 (defcustom lean-keybinding-lean-show-goal-at-pos (kbd "C-c C-g")
   "Lean Keybinding for show-goal-at-pos"

@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "util/fresh_name.h"
 #include "util/sexpr/option_declarations.h"
 #include "kernel/type_checker.h"
+#include "kernel/instantiate.h"
 #include "library/constants.h"
 #include "library/type_context.h"
 #include "library/pp_options.h"
@@ -381,6 +382,27 @@ vm_obj tactic_eta_expand(vm_obj const & e, vm_obj const & s0) {
     }
 }
 
+vm_obj tactic_beta(vm_obj const & e, vm_obj const & s0) {
+    tactic_state const & s = to_tactic_state(s0);
+    try {
+        return mk_tactic_success(to_obj(head_beta_reduce(to_expr(e))), s);
+    } catch (exception & ex) {
+        return mk_tactic_exception(ex, s);
+    }
+}
+
+vm_obj tactic_zeta(vm_obj const & e0, vm_obj const & s0) {
+    expr const & e = to_expr(e0);
+    tactic_state const & s = to_tactic_state(s0);
+    if (!is_local(e)) return mk_tactic_success(e0, s);
+    optional<metavar_decl> mdecl = s.get_main_goal_decl();
+    if (!mdecl) return mk_tactic_success(e0, s);
+    local_context lctx = mdecl->get_context();
+    optional<local_decl> ldecl = lctx.get_local_decl(e);
+    if (!ldecl || !ldecl->get_value()) return mk_tactic_success(e0, s);
+    return mk_tactic_success(to_obj(*ldecl->get_value()), s);
+}
+
 vm_obj tactic_is_class(vm_obj const & e, vm_obj const & s0) {
     tactic_state const & s = to_tactic_state(s0);
     type_context ctx       = mk_type_context_for(s);
@@ -600,6 +622,8 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic", "whnf_core"}),            tactic_whnf_core);
     DECLARE_VM_BUILTIN(name({"tactic", "is_def_eq_core"}),       tactic_is_def_eq_core);
     DECLARE_VM_BUILTIN(name({"tactic", "eta_expand"}),           tactic_eta_expand);
+    DECLARE_VM_BUILTIN(name({"tactic", "beta"}),                 tactic_beta);
+    DECLARE_VM_BUILTIN(name({"tactic", "zeta"}),                 tactic_zeta);
     DECLARE_VM_BUILTIN(name({"tactic", "is_class"}),             tactic_is_class);
     DECLARE_VM_BUILTIN(name({"tactic", "mk_instance"}),          tactic_mk_instance);
     DECLARE_VM_BUILTIN(name({"tactic", "unify_core"}),           tactic_unify_core);

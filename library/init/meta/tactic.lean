@@ -223,7 +223,12 @@ meta constant rename        : name → name → tactic unit
 meta constant clear         : expr → tactic unit
 meta constant revert_lst    : list expr → tactic nat
 meta constant whnf_core     : transparency → expr → tactic expr
+/- eta expand the given expression -/
 meta constant eta_expand    : expr → tactic expr
+/- beta reduction -/
+meta constant beta          : expr → tactic expr
+/- zeta reduction -/
+meta constant zeta          : expr → tactic expr
 meta constant unify_core    : transparency → expr → expr → tactic unit
 /- is_def_eq_core is similar to unify_core, but it treats metavariables as constants. -/
 meta constant is_def_eq_core : transparency → expr → expr → tactic unit

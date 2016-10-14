@@ -277,8 +277,8 @@ json server::handle_complete(json const & req) {
         std::vector<pair<std::string, name>> selected;
         bitap_fuzzy_search matcher(pattern, max_errors);
         env.for_each_declaration([&](declaration const & d) {
-            /*if (is_projection(env, d.get_name()))
-                return;*/
+            if (is_projection(env, d.get_name()))
+                return;
             if (auto it = exact_prefix_match(env, pattern, d)) {
                 exact_matches.emplace_back(*it, d.get_name());
             } else {

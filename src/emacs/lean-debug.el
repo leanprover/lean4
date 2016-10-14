@@ -48,16 +48,7 @@
 
 (defun lean-debug-mode-line-status-text ()
   "Get a text describing STATUS for use in the mode line."
-  (let ((text
-               ;; No Process : "X"
-         (cond ((not (lean-server-process-exist-p))
-                "X")
-               ;; Number of Async Queue: *-n
-               ((> (lean-server-async-task-queue-len) 0)
-                (format "*-%d" (lean-server-async-task-queue-len)))
-               ;; Async Queue = 0
-               (t ""))))
-    (concat " LeanDebug" text)))
+  "LeanDebug")
 
 (define-minor-mode lean-debug-mode
   "Minor mode for lean debugging."

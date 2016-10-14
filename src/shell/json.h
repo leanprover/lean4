@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Gabriel Ebner
 */
 #pragma once
-#if defined(SERVER)
+#if defined(LEAN_SERVER)
 #include "library/messages.h"
 #include "util/json.hpp"
 

@@ -103,7 +103,7 @@ if platform.system().startswith("MSYS"):
 else:
     g_linja_path   = os.path.abspath(os.path.realpath(__file__))
 g_lean_bin_dir     = os.path.dirname(g_linja_path)
-g_phony_targets    = ["all", "clean", "clear-cache"]
+g_phony_targets    = ["all"]
 g_project_filename = ".project"
 g_lean_path        = "USE DEFAULT" # System will search automatically
 g_ninja_path       = "USE DEFAULT" # System will search automatically
@@ -292,16 +292,6 @@ def process_args(args):
     args.project_dir = find_file_upward(g_project_filename)
     if args.project_dir:
         os.chdir(args.project_dir)
-    if args.cache:
-        args.cache = process_target(args.cache)
-        if len(args.targets) != 1:
-            error("--cache option can only be used with one target")
-        if not args.cache.endswith(".lean") and not args.cache.endswith(".hlean"):
-            error("cache argument has to end with .lean or .hlean")
-        if args.cache.endswith(".lean"):
-            args.cache = args.cache[:-4] + "clean"
-        else:
-            args.cache = args.cache[:-5] + "clean"
     args.phony_targets = list(set(g_phony_targets) & set(args.targets))
     if args.verbose:
         g_logger.setLevel(logging.INFO)
@@ -317,8 +307,6 @@ def get_lean_options(args):
         args.lean_options += ["-t", args.trust]
     if args.to_axiom:
         args.lean_options.append("--to_axiom")
-    if args.cache:
-        args.lean_options += ["-c", '%s' % args.cache]
     if args.lean_config_option:
         for item in args.lean_config_option:
             args.lean_options.append("-D" + item)
@@ -326,7 +314,6 @@ def get_lean_options(args):
 
 def parse_arg(argv):
     parser = argparse.ArgumentParser(description='linja: ninja build wrapper for Lean theorem prover.')
-    parser.add_argument('--cache', action='store', help="Use specified cache (clean) file.")
     parser.add_argument('--directory', '-C', action='store', help="change to DIR before doing anything else.")
     parser.add_argument('--lean-config-option', '-D', action='append', help="set a Lean configuration option (name=value)")
     parser.add_argument('--verbose', '-v', action='store_true', help="turn on verbose option")
@@ -388,14 +375,12 @@ def get_lean_names(lean_file, args, using_hlean):
     basename, ext = os.path.splitext(lean_file)
     basename = normalize_drive_name(basename)
     item = {"base" : basename}
-    lean_name_exts = ["lean", "olean", "clean", "d"]
+    lean_name_exts = ["lean", "olean", "d"]
     for ext in lean_name_exts:
         if ext == "lean" and using_hlean:
             item[ext] = basename + ".hlean"
         else:
             item[ext] = basename + "." + ext
-    if args.cache and len(args.targets) == 1 and item['lean'] == args.targets[0]:
-        item['clean'] = args.cache
     return item
 
 def recursive_glob(directory):
@@ -462,49 +447,23 @@ def find_lean_files(args):
 # Initialize static variable
 find_lean_files.cached_list = []
 
-def clear_cache(args):
-    files = find_lean_files(args)
-    files = find_lean_files(args)
-    files = find_lean_files(args)
-    files = find_lean_files(args)
-    num_of_files = len(files)
-    i = 0
-    for item in files:
-        i += 1
-        clean_file = item['clean']
-        if os.path.isfile(clean_file):
-            sys.stderr.write("[%i/%i] clear cache... % -80s\r" % (i, num_of_files, clean_file))
-            sys.stderr.flush()
-            os.remove(clean_file)
-    if num_of_files > 0:
-        sys.stderr.write("\n")
-
-def build_olean(lean, olean, clean, dlean, base):
-    (lean, olean, clean, dlean, base) = list(map(escape_ninja_char, (lean, olean, clean, dlean, base)))
-    if clean.startswith(base):
-        str = """build %s %s: LEAN %s | %s""" % (olean, clean, lean, dlean)
-    else:
-        str = """build %s: LEAN %s | %s""" % (olean, lean, dlean)
+def build_olean(lean, olean, dlean, base):
+    (lean, olean, dlean, base) = list(map(escape_ninja_char, (lean, olean, dlean, base)))
+    str = """build %s: LEAN %s | %s""" % (olean, lean, dlean)
     if g_lean_bin_dep_flag:
         str += " %s" % escape_ninja_char(normalize_drive_name(g_lean_path))
     str += "\n"
     str += "  DLEAN_FILE=%s\n" % dlean
     str += "  OLEAN_FILE=%s\n" % olean
-    str += "  CLEAN_FILE=%s\n" % clean
     return str
 
 def make_build_ninja(args):
     with open(os.path.join(args.project_dir, "build.ninja"), "w") as f:
         lean_files = find_lean_files(args)
 
-        print("""rule CLEAN""", file=f)
-        print("""  command = """, end=' ', file=f)
-        print(""""%s" -t clean""" % g_ninja_path, file=f)
-        print("""  description = Cleaning all built files...""", file=f)
-
         print("""rule LEAN""", file=f)
         print("""  depfile = ${DLEAN_FILE}""", file=f)
-        print("""  command = "%s" %s $in -o "${OLEAN_FILE}" -c "${CLEAN_FILE}" """ \
+        print("""  command = "%s" %s $in -o "${OLEAN_FILE}" """ \
             % (g_lean_path, " ".join(args.lean_options)), file=f)
 
         print("build all: phony", end=' ', file=f)
@@ -512,10 +471,8 @@ def make_build_ninja(args):
             print(" " + escape_ninja_char(item['olean']), end=' ', file=f)
         print("", file=f)
 
-        print("""build clean: CLEAN""", file=f)
-
         for item in lean_files:
-            print(build_olean(item['lean'], item['olean'], item['clean'], item['d'], item['base']), file=f)
+            print(build_olean(item['lean'], item['olean'], item['d'], item['base']), file=f)
 
         print("""default all""", file=f)
 
@@ -563,12 +520,7 @@ def main(argv=None):
         argv = sys.argv[1:]
     args = parse_arg(argv)
     if args.project_dir:
-        if args.targets == ["clear-cache"]:
-            args.targets = []
-            clear_cache(args)
-            return 0
-        if not "clean" in args.targets:
-            make_deps_all_files(args)
+        make_deps_all_files(args)
         make_build_ninja(args)
         return call_ninja(args)
 

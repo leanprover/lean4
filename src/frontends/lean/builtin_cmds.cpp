@@ -309,12 +309,6 @@ environment open_export_cmd(parser & p, bool open) {
 static environment open_cmd(parser & p) { return open_export_cmd(p, true); }
 static environment export_cmd(parser & p) { return open_export_cmd(p, false); }
 
-static environment erase_cache_cmd(parser & p) {
-    name n = p.check_id_next("invalid #erase_cache command, identifier expected");
-    p.erase_cached_definition(n);
-    return p.env();
-}
-
 static environment local_cmd(parser & p) {
     if (p.curr_is_token_or_id(get_attribute_tk())) {
         p.next();
@@ -541,7 +535,6 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("declare_trace",     "declare a new trace class (for debugging Lean tactics)", declare_trace_cmd));
     add_cmd(r, cmd_info("add_key_equivalence", "register that to symbols are equivalence for key-matching", add_key_equivalence_cmd));
     add_cmd(r, cmd_info("run_command",       "execute an user defined command at top-level", run_command_cmd));
-    add_cmd(r, cmd_info("#erase_cache",      "erase cached definition (for debugging purposes)", erase_cache_cmd));
     add_cmd(r, cmd_info("#unify",            "(for debugging purposes)", unify_cmd));
     add_cmd(r, cmd_info("#compile",          "(for debugging purposes)", compile_cmd));
 

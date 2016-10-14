@@ -186,7 +186,7 @@ parser::parser(environment const & env, io_state const & ios,
     m_verbose(true), m_use_exceptions(use_exceptions),
     m_scanner(strm, strm_name, s ? s->m_pos : pos_info(1, 0)),
     m_base_dir(base_dir), m_imports_parsed(false),
-    m_snapshot_vector(sv), m_cache(nullptr) {
+    m_snapshot_vector(sv) {
     if (s) {
         m_env                = s->m_env;
         m_ios.set_options(s->m_options);
@@ -265,20 +265,6 @@ void parser::scan() {
     } else {
         m_curr = m_scanner.scan(m_env);
     }
-}
-
-void parser::cache_definition(name const & n, expr const & pre_type, expr const & pre_value,
-                              level_param_names const & ls, expr const & type, expr const & value, bool is_trusted) {
-    if (m_cache)
-        m_cache->add(m_env, n, pre_type, pre_value, ls, type, value, is_trusted);
-}
-
-auto parser::find_cached_definition(name const & n, expr const & pre_type, expr const & pre_value, bool is_trusted)
--> optional<std::tuple<level_param_names, expr, expr>> {
-    if (m_cache)
-        return m_cache->find(m_env, n, pre_type, pre_value, is_trusted);
-    else
-        return optional<std::tuple<level_param_names, expr, expr>>();
 }
 
 bool parser::are_info_lines_valid(unsigned start_line, unsigned end_line) const {
@@ -2291,9 +2277,8 @@ message_builder parser::mk_message(message_severity severity) {
 
 bool parse_commands(environment & env, io_state & ios, std::istream & in, char const * strm_name,
                     optional<std::string> const & base_dir, bool use_exceptions,
-                    unsigned num_threads, definition_cache * cache) {
+                    unsigned num_threads) {
     parser p(env, ios, in, strm_name, base_dir, use_exceptions, num_threads, nullptr, nullptr);
-    p.set_cache(cache);
     bool r = p();
     ios = p.ios();
     env = p.env();
@@ -2301,12 +2286,11 @@ bool parse_commands(environment & env, io_state & ios, std::istream & in, char c
 }
 
 bool parse_commands(environment & env, io_state & ios, char const * fname, optional<std::string> const & base_dir,
-                    bool use_exceptions, unsigned num_threads,
-                    definition_cache * cache) {
+                    bool use_exceptions, unsigned num_threads) {
     std::ifstream in(fname);
     if (in.bad() || in.fail())
         throw exception(sstream() << "failed to open file '" << fname << "'");
-    return parse_commands(env, ios, in, fname, base_dir, use_exceptions, num_threads, cache);
+    return parse_commands(env, ios, in, fname, base_dir, use_exceptions, num_threads);
 }
 
 void initialize_parser() {

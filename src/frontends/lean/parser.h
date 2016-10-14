@@ -17,7 +17,6 @@ Author: Leonardo de Moura
 #include "library/io_state.h"
 #include "library/io_state_stream.h"
 #include "library/message_builder.h"
-#include "library/definition_cache.h"
 #include "frontends/lean/scanner.h"
 #include "frontends/lean/local_decls.h"
 #include "frontends/lean/local_level_decls.h"
@@ -115,9 +114,6 @@ class parser : public abstract_parser {
 
     // info support
     snapshot_vector *       m_snapshot_vector;
-
-    // cache support
-    definition_cache *     m_cache;
 
     // curr command token
     name                   m_cmd_token;
@@ -226,14 +222,6 @@ public:
     unsigned curr_lbp() const;
 
     cmd_table const & cmds() const { return get_cmd_table(env()); }
-
-    void set_cache(definition_cache * c) { m_cache = c; }
-    void cache_definition(name const & n, expr const & pre_type, expr const & pre_value,
-                          level_param_names const & ls, expr const & type, expr const & value, bool is_trusted);
-    /** \brief Try to find an elaborated definition for (n, pre_type, pre_value) in the cache */
-    optional<std::tuple<level_param_names, expr, expr>>
-    find_cached_definition(name const & n, expr const & pre_type, expr const & pre_value, bool is_trusted);
-    void erase_cached_definition(name const & n) { if (m_cache) m_cache->erase(n); }
 
     bool are_info_lines_valid(unsigned start_line, unsigned end_line) const;
 
@@ -504,10 +492,9 @@ public:
 
 bool parse_commands(environment & env, io_state & ios, std::istream & in,
                     char const * strm_name, optional<std::string> const & base_dir,
-                    bool use_exceptions, unsigned num_threads, definition_cache * cache = nullptr);
+                    bool use_exceptions, unsigned num_threads);
 bool parse_commands(environment & env, io_state & ios, char const * fname, optional<std::string> const & base,
-                    bool use_exceptions, unsigned num_threads,
-                    definition_cache * cache = nullptr);
+                    bool use_exceptions, unsigned num_threads);
 
 void initialize_parser();
 void finalize_parser();

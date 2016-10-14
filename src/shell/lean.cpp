@@ -29,7 +29,6 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/type_context.h"
 #include "library/io_state_stream.h"
-#include "library/definition_cache.h"
 #include "library/export.h"
 #include "library/message_builder.h"
 #include "frontends/lean/parser.h"
@@ -51,7 +50,6 @@ using lean::io_state;
 using lean::io_state_stream;
 using lean::regular;
 using lean::mk_environment;
-using lean::definition_cache;
 using lean::pos_info;
 using lean::pos_info_provider;
 using lean::optional;
@@ -137,7 +135,6 @@ static struct option g_long_options[] = {
     {"threads",      required_argument, 0, 'j'},
 #endif
     {"quiet",        no_argument,       0, 'q'},
-    {"cache",        required_argument, 0, 'c'},
     {"deps",         no_argument,       0, 'd'},
     {"json",         no_argument,       0, 'J'},
     {"server",       no_argument,       0, 'S'},
@@ -157,7 +154,7 @@ static struct option g_long_options[] = {
     {0, 0, 0, 0}
 };
 
-#define OPT_STR "PFdD:qupgvhk:012t:012o:E:c:L:012O:012GZAIT:B:"
+#define OPT_STR "PFdD:qupgvhk:012t:012o:E:L:012O:012GZAIT:B:"
 
 #if defined(LEAN_TRACK_MEMORY)
 #define OPT_STR2 OPT_STR "M:012"
@@ -223,8 +220,6 @@ int main(int argc, char ** argv) {
     bool smt2               = false;
     bool only_deps          = false;
     unsigned num_threads    = 1;
-    bool read_cache         = false;
-    bool save_cache         = false;
     bool json_output        = false;
     bool server             = false;
     options opts;
@@ -267,11 +262,6 @@ int main(int argc, char ** argv) {
         case 'o':
             output         = optarg;
             export_objects = true;
-            break;
-        case 'c':
-            cache_name = optarg;
-            read_cache = true;
-            save_cache = true;
             break;
         case 'M':
             lean::set_max_memory_megabyte(atoi(optarg));
@@ -346,13 +336,10 @@ int main(int argc, char ** argv) {
     #endif
     if (show_hole && line && column) {
         opts       = set_show_hole(opts, *line, *column);
-        save_cache = false;
     } else if (show_goal && line && column) {
         opts       = set_show_goal(opts, *line, *column);
-        save_cache = false;
     } else if (show_info && line && column) {
         opts       = set_show_info(opts, *line, *column);
-        save_cache = false;
     }
 
     #if !defined(LEAN_MULTI_THREAD)
@@ -393,24 +380,6 @@ int main(int argc, char ** argv) {
         return 0;
     }
 
-    definition_cache   cache;
-    definition_cache * cache_ptr = nullptr;
-    if (read_cache) {
-        try {
-            cache_ptr = &cache;
-            shared_file_lock cache_lock(cache_name);
-            std::ifstream in(cache_name, std::ifstream::binary);
-            if (!in.bad() && !in.fail())
-                cache.load(in);
-        } catch (lean::throwable & ex) {
-            cache_ptr = nullptr;
-            auto out = lean::message_builder(env, ios, argv[optind], lean::pos_info(1, 1), lean::WARNING);
-            out << "failed to load cache file '" << cache_name << "'\n";
-            out.set_exception(ex);
-            out << "cache is going to be ignored";
-            out.report();
-        }
-    }
     try {
         bool ok = true;
         for (int i = optind; i < argc; i++) {
@@ -418,19 +387,13 @@ int main(int argc, char ** argv) {
                 if (only_deps) {
                     if (!display_deps(env, std::cout, std::cerr, argv[i]))
                         ok = false;
-                } else if (!parse_commands(env, ios, argv[i], base_dir, false, num_threads,
-                                           cache_ptr)) {
+                } else if (!parse_commands(env, ios, argv[i], base_dir, false, num_threads)) {
                     ok = false;
                 }
             } catch (lean::exception & ex) {
                 ok = false;
                 lean::message_builder(env, ios, argv[i], lean::pos_info(1, 1), lean::ERROR).set_exception(ex).report();
             }
-        }
-        if (save_cache) {
-            exclusive_file_lock cache_lock(cache_name);
-            std::ofstream out(cache_name, std::ofstream::binary);
-            cache.save(out);
         }
         if (export_objects && ok) {
             exclusive_file_lock output_lock(output);

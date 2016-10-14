@@ -841,8 +841,9 @@ expr type_context::infer_metavar(expr const & e) {
         if (!d) throw_unknown_metavar(e);
         return d->get_type();
     } else {
-        /* tmp metavariables should only occur in tmp_mode */
-        lean_assert(!is_idx_metavar(e) || in_tmp_mode());
+        /* tmp metavariables should only occur in tmp_mode.
+           The following assertion was commented because the pretty printer may violate it. */
+        // lean_assert(!is_idx_metavar(e) || in_tmp_mode());
         return mlocal_type(e);
     }
 }

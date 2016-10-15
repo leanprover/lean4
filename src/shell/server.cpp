@@ -140,29 +140,27 @@ json server::handle_check(json const &) {
         m_only_checked_until = optional<pos_info>(0, 0);
 
     if (m_only_checked_until) {
-        snapshot_vector new_snapshots;
-        for (snapshot const & snap : m_snapshots) {
-            if (snap.m_pos.first < m_only_checked_until->first) {
-                new_snapshots.push_back(snap);
-            } else {
-                break;
-            }
-        }
+        // keep all snapshots before the change but the last one (which may belong to the command that's being changed)
+        auto it = m_snapshots.begin();
+        while (it != m_snapshots.end() && it->m_pos < *m_only_checked_until)
+            it++;
+        if (it != m_snapshots.begin())
+            it--;
+        m_snapshots.erase(it, m_snapshots.end());
 
         std::istringstream in(m_content);
         bool use_exceptions = false;
         optional<std::string> base_dir;
         parser p(m_initial_env, m_ios, in, m_file_name.c_str(),
                  base_dir, use_exceptions, m_num_threads,
-                 new_snapshots.empty() ? nullptr : &new_snapshots.back(),
-                 &new_snapshots);
+                 m_snapshots.empty() ? nullptr : &m_snapshots.back(),
+                 &m_snapshots);
         // TODO(gabriel): definition caches?
 
         m_parsed_ok = p();
         m_only_checked_until = optional<pos_info>();
         m_checked_env = p.env();
         m_messages = p.get_messages();
-        m_snapshots = new_snapshots;
     }
 
     json res;

@@ -784,7 +784,8 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
                 }
                 expr new_arg_type = infer_type(new_arg);
                 if (!is_def_eq(new_arg_type, d)) {
-                    throw elaborator_exception(ref, mk_app_type_mismatch_error(mk_app(fn, i+1, new_args.data()),
+                    new_args.push_back(new_arg);
+                    throw elaborator_exception(ref, mk_app_type_mismatch_error(mk_app(fn, new_args),
                                                                                new_arg, new_arg_type, d));
                 }
             } else if (is_explicit(bi)) {

@@ -52,7 +52,10 @@ server::~server() {
 
 void server::run() {
     scope_global_ios scoped_ios(m_ios);
-
+    /* Leo: we use std::setlocale to make sure decimal period is displayed as ".".
+       We added this hack because the json library code used for ensuring this property
+       was crashing when compiling Lean on Windows with mingw. */
+    std::setlocale(LC_NUMERIC, "C");
     while (true) {
         try {
             std::string req_string;

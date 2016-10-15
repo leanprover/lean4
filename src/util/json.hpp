@@ -2196,9 +2196,10 @@ class basic_json
     string_t dump(const int indent = -1) const
     {
         std::stringstream ss;
+        // Leo: The following crashes when compiling with g++ 4.9 mingw Windows
         // fix locale problems
-        const static std::locale loc(std::locale(), new DecimalSeparator);
-        ss.imbue(loc);
+        // const static std::locale loc(std::locale(), new DecimalSeparator);
+        // ss.imbue(loc);
 
         // 6, 15 or 16 digits of precision allows round-trip IEEE 754
         // string->float->string, string->double->string or string->long
@@ -5824,8 +5825,9 @@ class basic_json
         // reset width to 0 for subsequent calls to this stream
         o.width(0);
 
+        // Leo: The following crashes when compiling with g++ 4.9 mingw Windows
         // fix locale problems
-        const auto old_locale = o.imbue(std::locale(std::locale(), new DecimalSeparator));
+        // const auto old_locale = o.imbue(std::locale(std::locale(), new DecimalSeparator));
         // set precision
 
         // 6, 15 or 16 digits of precision allows round-trip IEEE 754
@@ -5838,7 +5840,7 @@ class basic_json
         j.dump(o, pretty_print, static_cast<unsigned int>(indentation));
 
         // reset locale and precision
-        o.imbue(old_locale);
+        // o.imbue(old_locale);
         o.precision(old_precision);
         return o;
     }

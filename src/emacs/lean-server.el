@@ -40,6 +40,7 @@
                                 (lean-get-executable lean-executable-name)
                                 "--server"
                                 (format "*%s*" (buffer-name)))))
+    (set-process-coding-system lean-server-process 'utf-8 'utf-8)
     (set-process-query-on-exit-flag lean-server-process nil)
     (setq lean-server-handler-tq (tq-create lean-server-process))))
 

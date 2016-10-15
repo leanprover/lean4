@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "kernel/expr.h"
+#include "library/deep_copy.h"
 #include "library/equations_compiler/equations.h"
 #include "frontends/lean/decl_attributes.h"
 namespace lean {
@@ -122,4 +123,7 @@ public:
     It uses the information set using declaration_info_scope */
 equations_header mk_equations_header(list<name> const & fn_names);
 equations_header mk_equations_header(name const & fn_name);
+
+expr replace_locals_preserving_pos_info(expr const & e, buffer<expr> const & from, buffer<expr> const & to);
+expr replace_local_preserving_pos_info(expr const & e, expr const & from, expr const & to);
 }

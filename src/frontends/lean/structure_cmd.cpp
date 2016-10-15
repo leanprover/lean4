@@ -663,13 +663,13 @@ struct structure_cmd_fn {
     }
 
     expr mk_structure_type() {
-        return Pi(m_params, m_type);
+        return Pi(m_params, m_type, m_p);
     }
 
     expr mk_intro_type() {
         levels ls = param_names_to_levels(to_list(m_level_names.begin(), m_level_names.end()));
         expr r    = mk_app(mk_constant(m_name, ls), m_params);
-        r         = Pi(m_params, Pi(m_fields, r));
+        r         = Pi(m_params, Pi(m_fields, r, m_p), m_p);
         return infer_implicit_params(r, m_params.size(), m_mk_infer);
     }
 
@@ -802,7 +802,7 @@ struct structure_cmd_fn {
             if (m_attrs.has_class())
                 bi = mk_inst_implicit_binder_info();
             expr st                        = mk_local(mk_fresh_name(), "s", st_type, bi);
-            expr coercion_type             = infer_implicit(Pi(m_params, Pi(st, parent)), m_params.size(), true);;
+            expr coercion_type             = infer_implicit(Pi(m_params, Pi(st, parent, m_p), m_p), m_params.size(), true);;
             expr coercion_value            = parent_intro;
             for (unsigned idx : fmap) {
                 expr const & field = m_fields[idx];
@@ -810,7 +810,7 @@ struct structure_cmd_fn {
                 expr proj      = mk_app(mk_app(mk_constant(proj_name, st_ls), m_params), st);
                 coercion_value     = mk_app(coercion_value, proj);
             }
-            coercion_value                 = Fun(m_params, Fun(st, coercion_value));
+            coercion_value                 = Fun(m_params, Fun(st, coercion_value, m_p), m_p);
             name coercion_name             = coercion_names[i];
             bool use_conv_opt              = false;
             declaration coercion_decl      = mk_definition_inferring_trusted(m_env, coercion_name, lnames,

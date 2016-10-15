@@ -132,7 +132,7 @@ expr parse_mutual_definition(parser & p, buffer<name> & lp_names, buffer<expr> &
         throw parser_error("unexpected 'with' clause", p.pos());
     optional<expr_pair> R_Rwf = parse_using_well_founded(p);
     for (expr & eq : eqns) {
-        eq = replace_locals(eq, pre_fns, fns);
+        eq = replace_locals_preserving_pos_info(eq, pre_fns, fns);
     }
     expr r = mk_equations(p, fns, full_names, eqns, R_Rwf, header_pos);
     collect_implicit_locals(p, lp_names, params, r);
@@ -147,7 +147,7 @@ environment mutual_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
     elaborator elab(p.env(), p.get_options(), metavar_context(), local_context());
     buffer<expr> new_params;
     elaborate_params(elab, params, new_params);
-    val = replace_locals(val, params, new_params);
+    val = replace_locals_preserving_pos_info(val, params, new_params);
 
     // TODO(Leo)
     for (auto p : new_params) { tout() << ">> " << p << " : " << mlocal_type(p) << "\n"; }
@@ -193,10 +193,10 @@ static expr_pair parse_definition(parser & p, buffer<name> & lp_names, buffer<ex
 }
 
 static void replace_params(buffer<expr> const & params, buffer<expr> const & new_params, expr & fn, expr & val) {
-    expr fn_type = replace_locals(mlocal_type(fn), params, new_params);
+    expr fn_type = replace_locals_preserving_pos_info(mlocal_type(fn), params, new_params);
     expr new_fn  = update_mlocal(fn, fn_type);
-    val          = replace_locals(val, params, new_params);
-    val          = replace_local(val, fn, new_fn);
+    val          = replace_locals_preserving_pos_info(val, params, new_params);
+    val          = replace_local_preserving_pos_info(val, fn, new_fn);
     fn           = new_fn;
 }
 
@@ -204,7 +204,7 @@ static expr_pair elaborate_theorem(elaborator & elab, expr const & fn, expr val)
     expr fn_type = elab.elaborate_type(mlocal_type(fn));
     elab.ensure_no_unassigned_metavars(fn_type);
     expr new_fn  = update_mlocal(fn, fn_type);
-    val = replace_local(val, fn, new_fn);
+    val = replace_local_preserving_pos_info(val, fn, new_fn);
     return elab.elaborate_with_type(val, mk_as_is(fn_type));
 }
 

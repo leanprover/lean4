@@ -201,9 +201,19 @@ expr Fun(buffer<expr> const & locals, expr const & e, parser & p) {
     return p.rec_save_pos(Fun(locals, e, use_cache), p.pos_of(e));
 }
 
+expr Fun(expr const & local, expr const & e, parser & p) {
+    bool use_cache = false;
+    return p.rec_save_pos(Fun(local, e, use_cache), p.pos_of(e));
+}
+
 expr Pi(buffer<expr> const & locals, expr const & e, parser & p) {
     bool use_cache = false;
     return p.rec_save_pos(Pi(locals, e, use_cache), p.pos_of(e));
+}
+
+expr Pi(expr const & local, expr const & e, parser & p) {
+    bool use_cache = false;
+    return p.rec_save_pos(Pi(local, e, use_cache), p.pos_of(e));
 }
 
 template<bool is_lambda>

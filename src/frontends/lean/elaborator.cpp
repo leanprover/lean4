@@ -2088,7 +2088,8 @@ expr elaborator::visit_let(expr const & e, optional<expr> const & expected_type)
     expr new_type  = visit(let_type(e), none_expr());
     synthesize_no_tactics();
     expr new_value = visit(let_value(e), some_expr(new_type));
-    new_value      = enforce_type(new_value, new_type, "invalid let-expression", let_value(e));
+    expr ref_value = get_ref_for_child(let_value(e), ref);
+    new_value      = enforce_type(new_value, new_type, "invalid let-expression", ref_value);
     synthesize();
     new_type       = instantiate_mvars(new_type);
     new_value      = instantiate_mvars(new_value);

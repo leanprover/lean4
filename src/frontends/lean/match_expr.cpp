@@ -71,7 +71,7 @@ expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos) {
                 for (expr const & local : locals)
                     p.add_local(local);
                 expr rhs = p.parse_expr();
-                eqns.push_back(Fun(fn, Fun(locals, p.save_pos(mk_equation(lhs, rhs), assign_pos), p)));
+                eqns.push_back(Fun(fn, Fun(locals, p.save_pos(mk_equation(lhs, rhs), assign_pos), p), p));
             }
             if (!is_eqn_prefix(p))
                 break;

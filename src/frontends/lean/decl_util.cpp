@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/for_each_fn.h"
+#include "kernel/replace_fn.h"
 #include "library/locals.h"
 #include "library/trace.h"
 #include "library/placeholder.h"
@@ -213,6 +214,31 @@ void update_univ_parameters(parser & p, buffer<name> & lp_names, name_set const 
         });
 }
 
+expr replace_locals_preserving_pos_info(expr const & e, unsigned sz, expr const * from, expr const * to) {
+    bool use_cache = false;
+    return replace(e, [&](expr const & e, unsigned) {
+            if (is_local(e)) {
+                unsigned i = sz;
+                while (i > 0) {
+                    --i;
+                    if (mlocal_name(from[i]) == mlocal_name(e)) {
+                        return some_expr(copy_tag(e, copy(to[i])));
+                    }
+                }
+            }
+            return none_expr();
+        }, use_cache);
+}
+
+expr replace_locals_preserving_pos_info(expr const & e, buffer<expr> const & from, buffer<expr> const & to) {
+    lean_assert(from.size() == to.size());
+    return replace_locals_preserving_pos_info(e, from.size(), from.data(), to.data());
+}
+
+expr replace_local_preserving_pos_info(expr const & e, expr const & from, expr const & to) {
+    return replace_locals_preserving_pos_info(e, 1, &from, &to);
+}
+
 void collect_implicit_locals(parser & p, buffer<name> & lp_names, buffer<expr> & params, buffer<expr> const & all_exprs) {
     collected_locals locals;
     buffer<expr> include_vars;
@@ -250,7 +276,7 @@ void collect_implicit_locals(parser & p, buffer<name> & lp_names, buffer<expr> &
         expr & param = params[i];
         old_params.push_back(param);
         expr type          = mlocal_type(param);
-        expr new_type      = copy_tag(type, replace_locals(type, i, old_params.data(), params.data()));
+        expr new_type      = replace_locals_preserving_pos_info(type, i, old_params.data(), params.data());
         if (!given_params.contains(mlocal_name(param))) {
             new_type = copy_tag(type, mk_as_is(new_type));
         }
@@ -271,7 +297,7 @@ void collect_implicit_locals(parser & p, buffer<name> & lp_names, buffer<expr> &
 void elaborate_params(elaborator & elab, buffer<expr> const & params, buffer<expr> & new_params) {
     for (unsigned i = 0; i < params.size(); i++) {
         expr const & param = params[i];
-        expr type          = copy_tag(mlocal_type(param), replace_locals(mlocal_type(param), i, params.data(), new_params.data()));
+        expr type          = replace_locals_preserving_pos_info(mlocal_type(param), i, params.data(), new_params.data());
         expr new_type      = elab.elaborate_type(type);
         expr new_param     = elab.push_local(local_pp_name(param), new_type, local_info(param));
         new_params.push_back(new_param);

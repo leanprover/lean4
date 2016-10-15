@@ -140,7 +140,7 @@ static expr parse_let(parser & p, pos_info const & pos) {
         expr body  = parse_let_body(p, pos);
         match_definition_scope match_scope;
         expr fn = p.save_pos(mk_local(mk_fresh_name(), *g_let_match_name, mk_expr_placeholder(), binder_info()), pos);
-        expr eqn = p.rec_save_pos(Fun(fn, Fun(new_locals, p.save_pos(mk_equation(p.rec_save_pos(mk_app(fn, lhs), pos), body), pos), p)), pos);
+        expr eqn = Fun(fn, Fun(new_locals, p.save_pos(mk_equation(p.rec_save_pos(mk_app(fn, lhs), pos), body), pos), p), p);
         equations_header h = mk_equations_header(match_scope.get_name());
         expr eqns  = p.save_pos(mk_equations(h, 1, &eqn), pos);
         return p.save_pos(mk_app(eqns, value), pos);
@@ -203,7 +203,7 @@ static expr parse_have_core(parser & p, pos_info const & pos, optional<expr> con
         p.add_local(*prev_local);
         auto proof_pos = p.pos();
         proof = parse_proof(p);
-        proof = p.save_pos(Fun(*prev_local, proof), proof_pos);
+        proof = Fun(*prev_local, proof, p);
         proof = p.save_pos(mk_app(proof, *prev_local), proof_pos);
     } else {
         proof = parse_proof(p);
@@ -260,7 +260,7 @@ static expr parse_suppose(parser & p, unsigned, expr const *, pos_info const & p
     expr l = p.save_pos(mk_local(id, prop), id_pos);
     p.add_local(l);
     expr body = p.parse_expr();
-    return p.save_pos(Fun(l, body), pos);
+    return p.save_pos(Fun(l, body, p), pos);
 }
 
 static expr parse_show(parser & p, unsigned, expr const *, pos_info const & pos) {
@@ -303,7 +303,7 @@ static expr parse_suffices(parser & p, unsigned, expr const *, pos_info const & 
         p.add_local(local);
         body = parse_proof(p);
     }
-    expr proof = p.save_pos(Fun(local, body), pos);
+    expr proof = p.save_pos(Fun(local, body, p), pos);
     p.check_token_next(get_comma_tk(), "invalid 'suffices' declaration, ',' expected");
     expr rest  = p.parse_expr();
     expr r = p.mk_app(proof, rest, pos);
@@ -331,7 +331,7 @@ static expr parse_dite(parser & p, name const & H_name, expr const & c, pos_info
         expr H = mk_local(H_name, c);
         p.add_local(H);
         auto pos = p.pos();
-        t = p.save_pos(Fun(H, p.parse_expr(g_then_else_prec)), pos);
+        t = p.save_pos(Fun(H, p.parse_expr(g_then_else_prec), p), pos);
     }
     p.check_token_next(get_else_tk(), "invalid 'if-then-else' expression, 'else' expected");
     {
@@ -339,7 +339,7 @@ static expr parse_dite(parser & p, name const & H_name, expr const & c, pos_info
         expr H = mk_local(H_name, mk_app(*g_not, c));
         p.add_local(H);
         auto pos = p.pos();
-        e = p.save_pos(Fun(H, p.parse_expr(g_then_else_prec)), pos);
+        e = p.save_pos(Fun(H, p.parse_expr(g_then_else_prec), p), pos);
     }
     return p.save_pos(mk_app(p.save_pos(mk_constant(get_dite_name()), pos), c, t, e), pos);
 }
@@ -522,7 +522,7 @@ static expr parse_do(parser & p, unsigned, expr const *, pos_info const &) {
         --i;
         if (auto lhs = lhss[i]) {
             if (is_local(*lhs)) {
-                r = p.rec_save_pos(mk_app(p.save_pos(mk_constant(get_monad_bind_name()), ps[i]), es[i], Fun(*lhs, r)), ps[i]);
+                r = p.rec_save_pos(mk_app(p.save_pos(mk_constant(get_monad_bind_name()), ps[i]), es[i], Fun(*lhs, r, p)), ps[i]);
             } else {
                 // must introduce a "fake" match
                 auto pos   = ps[i];
@@ -531,15 +531,14 @@ static expr parse_do(parser & p, unsigned, expr const *, pos_info const &) {
                 buffer<expr> locals;
                 to_buffer(lhss_locals[i], locals);
                 buffer<expr> eqs;
-                eqs.push_back(p.rec_save_pos(Fun(fn, Fun(locals, p.save_pos(mk_equation(p.rec_save_pos(mk_app(fn, *lhs), pos), r), pos), p)), pos));
+                eqs.push_back(Fun(fn, Fun(locals, p.save_pos(mk_equation(p.rec_save_pos(mk_app(fn, *lhs), pos), r), pos), p), p));
                 if (optional<expr> else_case = else_cases[i]) {
                     // add case
                     //    _ := else_case
                     expr x = mk_local(mk_fresh_name(), "_x", mk_expr_placeholder(), binder_info());
-                    eqs.push_back(p.rec_save_pos(Fun(fn, Fun(x, p.save_pos(mk_equation(p.rec_save_pos(mk_app(fn, x), pos),
-                                                                                       *else_case),
-                                                                           pos))),
-                                                 pos));
+                    eqs.push_back(Fun(fn, Fun(x, p.save_pos(mk_equation(p.rec_save_pos(mk_app(fn, x), pos),
+                                                                        *else_case),
+                                                            pos), p), p));
                 }
                 equations_header h = mk_equations_header(match_scope.get_name());
                 expr eqns  = p.save_pos(mk_equations(h, eqs.size(), eqs.data()), pos);
@@ -547,7 +546,7 @@ static expr parse_do(parser & p, unsigned, expr const *, pos_info const &) {
                 expr match = p.mk_app(eqns, local, pos);
                 r = p.rec_save_pos(mk_app(p.save_pos(mk_constant(get_monad_bind_name()), ps[i]),
                                           es[i],
-                                          p.save_pos(Fun(local, match), pos)),
+                                          p.save_pos(Fun(local, match, p), pos)),
                                    pos);
             }
         } else {
@@ -669,7 +668,8 @@ static expr parse_lambda_binder(parser & p, pos_info const & pos) {
     } else {
         throw parser_error("invalid lambda expression, ',' or '⟨' expected", p.pos());
     }
-    return p.rec_save_pos(Fun(locals, body), pos);
+    bool use_cache = false;
+    return p.rec_save_pos(Fun(locals, body, use_cache), pos);
 }
 
 static name * g_lambda_match_name = nullptr;
@@ -692,10 +692,11 @@ static expr parse_lambda_constructor(parser & p, pos_info const & ini_pos) {
     }
     match_definition_scope match_scope;
     expr fn  = p.save_pos(mk_local(mk_fresh_name(), *g_lambda_match_name, mk_expr_placeholder(), binder_info()), pos);
-    expr eqn = p.rec_save_pos(Fun(fn, Fun(locals, p.save_pos(mk_equation(p.rec_save_pos(mk_app(fn, pattern), pos), body), pos), p)), pos);
+    expr eqn = Fun(fn, Fun(locals, p.save_pos(mk_equation(p.rec_save_pos(mk_app(fn, pattern), pos), body), pos), p), p);
     equations_header h = mk_equations_header(match_scope.get_name());
     expr x = p.rec_save_pos(mk_local(mk_fresh_name(), "_x", mk_expr_placeholder(), binder_info()), pos);
-    return p.rec_save_pos(Fun(x, mk_app(mk_equations(h, 1, &eqn), x)), pos);
+    bool use_cache = false;
+    return p.rec_save_pos(Fun(x, mk_app(mk_equations(h, 1, &eqn), x), use_cache), pos);
 }
 
 static expr parse_lambda_core(parser & p, pos_info const & pos) {

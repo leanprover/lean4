@@ -42,7 +42,7 @@ static optional<head_index> get_backward_target(type_context & ctx, name const &
 }
 
 struct intro_attr_data : public attr_data {
-    bool m_eager;
+    bool m_eager{false};
 
     void write(serializer & s) const {
         s.write_bool(m_eager);
@@ -50,7 +50,6 @@ struct intro_attr_data : public attr_data {
     void read(deserializer & d) {
         m_eager = d.read_bool();
     }
-
 
     void parse(abstract_parser & p) override {
         if (p.curr_is_token("!")) {

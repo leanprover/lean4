@@ -547,12 +547,22 @@ expr elaborator::ensure_type(expr const & e, expr const & ref) {
     throw elaborator_exception(ref, format("type expected at") + pp_indent(pp_fn, e));
 }
 
+static expr get_ref_for_child(expr const & arg, expr const & ref) {
+    if (get_pos_info_provider() && get_pos_info_provider()->get_pos_info(arg)) {
+        return arg;
+    } else {
+        /* using ref because position info for argument is not available */
+        return ref;
+    }
+}
+
 expr elaborator::visit_typed_expr(expr const & e) {
     expr ref          = e;
     expr val          = get_typed_expr_expr(e);
     expr type         = get_typed_expr_type(e);
     expr new_type;
-    new_type = ensure_type(visit(type, none_expr()), type);
+    expr ref_type     = get_ref_for_child(type, e);
+    new_type = ensure_type(visit(type, none_expr()), ref_type);
     synthesize_type_class_instances();
     expr new_val      = visit(val, some_expr(new_type));
     expr new_val_type = infer_type(new_val);
@@ -944,15 +954,6 @@ void elaborator::first_pass(expr const & fn, buffer<expr> const & args,
     }
 }
 
-static expr get_ref_for_arg(expr const & arg, expr const & ref) {
-    if (get_pos_info_provider() && get_pos_info_provider()->get_pos_info(arg)) {
-        return arg;
-    } else {
-        /* using ref because position info for argument is not available */
-        return ref;
-    }
-}
-
 /* Using the information colllected in the first-pass, visit the arguments args.
    And then, create resulting application */
 expr elaborator::second_pass(expr const & fn, buffer<expr> const & args,
@@ -967,7 +968,7 @@ expr elaborator::second_pass(expr const & fn, buffer<expr> const & args,
             if (!try_synthesize_type_class_instance(mvar))
                 m_instances = cons(mvar, m_instances);
         }
-        expr ref_arg      = get_ref_for_arg(args[i], ref);
+        expr ref_arg      = get_ref_for_child(args[i], ref);
         expr new_arg      = visit(args[i], some_expr(info.args_expected_types[i]));
         expr new_arg_type = infer_type(new_arg);
         optional<expr> new_new_arg = ensure_has_type(new_arg, new_arg_type, info.args_expected_types[i], ref_arg);
@@ -1030,7 +1031,7 @@ expr elaborator::visit_base_app_simple(expr const & _fn, arg_mask amask, buffer<
                     new_arg = copy_tag(ref, mk_inaccessible(new_arg));
             } else if (i < args.size()) {
                 // explicit argument
-                expr ref_arg = get_ref_for_arg(args[i], ref);
+                expr ref_arg = get_ref_for_child(args[i], ref);
                 if (args_already_visited) {
                     new_arg = args[i];
                 } else if (bi.is_inst_implicit() && is_placeholder(args[i])) {
@@ -1416,13 +1417,15 @@ expr elaborator::visit_constant(expr const & e, optional<expr> const & expected_
 }
 
 expr elaborator::visit_app(expr const & e, optional<expr> const & expected_type) {
+    expr const & ref = e;
     buffer<expr> args;
     expr const & fn = get_app_args(e, args);
     if (is_equations(fn)) {
         return visit_convoy(e, expected_type);
     } else if (is_constant(fn, get_tactic_eval_expr_name()) && args.size() == 2) {
         buffer<expr> new_args;
-        expr A = ensure_type(visit(args[0], none_expr()), args[0]);
+        expr ref_arg = get_ref_for_child(args[0], ref);
+        expr A = ensure_type(visit(args[0], none_expr()), ref_arg);
         if (has_local(A))
             throw elaborator_exception(e, "invalid eval_expr, type must be a closed expression");
         new_args.push_back(mk_as_is(A));
@@ -1541,7 +1544,8 @@ expr elaborator::visit_convoy(expr const & e, optional<expr> const & expected_ty
                 throw elaborator_exception(it, "type expected in match-expression");
             expr d        = instantiate_rev(binding_domain(it), locals);
             expr new_d    = visit(d, none_expr());
-            new_d         = ensure_type(new_d, binding_domain(it));
+            expr ref_d    = get_ref_for_child(binding_domain(it), it);
+            new_d         = ensure_type(new_d, ref_d);
             expr expected = replace_locals(new_d, locals.as_buffer(), new_args);
             expr new_arg  = visit(args[i], some_expr(expected));
             new_arg       = enforce_type(new_arg, expected, "type mismatch in match expression", args[i]);
@@ -2034,9 +2038,9 @@ expr elaborator::visit_lambda(expr const & e, optional<expr> const & expected_ty
             expr ex_d = binding_domain(ex);
             try_is_def_eq(new_d, ex_d);
         }
-        new_d  = ensure_type(new_d, binding_domain(it));
-        expr ref = binding_domain(it);
-        expr l   = push_local(locals, binding_name(it), new_d, binding_info(it), ref);
+        expr ref_d = get_ref_for_child(binding_domain(it), it);
+        new_d      = ensure_type(new_d, ref_d);
+        expr l     = push_local(locals, binding_name(it), new_d, binding_info(it), ref_d);
         it = binding_body(it);
         if (has_expected) {
             lean_assert(is_pi(ex));
@@ -2058,17 +2062,21 @@ expr elaborator::visit_lambda(expr const & e, optional<expr> const & expected_ty
 expr elaborator::visit_pi(expr const & e) {
     type_context::tmp_locals locals(m_ctx);
     expr it  = e;
+    expr parent_it = e;
     while (is_pi(it)) {
         expr d     = instantiate_rev(binding_domain(it), locals);
         expr new_d = visit(d, none_expr());
-        new_d      = ensure_type(new_d, binding_domain(it));
+        expr ref_d = get_ref_for_child(binding_domain(it), it);
+        new_d      = ensure_type(new_d, ref_d);
         expr ref   = binding_domain(it);
         push_local(locals, binding_name(it), new_d, binding_info(it), ref);
-        it = binding_body(it);
+        parent_it  = it;
+        it         = binding_body(it);
     }
     expr b     = instantiate_rev(it, locals);
     expr new_b = visit(b, none_expr());
-    new_b      = ensure_type(new_b, it);
+    expr ref_b = get_ref_for_child(it, parent_it);
+    new_b      = ensure_type(new_b, ref_b);
     synthesize();
     expr r = locals.mk_pi(new_b);
     return r;

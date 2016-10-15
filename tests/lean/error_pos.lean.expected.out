@@ -1,0 +1,10 @@
+error_pos.lean:1:39: error: type expected at
+  B
+error_pos.lean:4:43: error: type expected at
+  B
+error_pos.lean:4:43: error: type expected at
+  B
+error_pos.lean:11:37: error: type expected at
+  B
+error_pos.lean:13:37: error: type expected at
+  B

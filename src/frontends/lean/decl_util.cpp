@@ -271,7 +271,7 @@ void collect_implicit_locals(parser & p, buffer<name> & lp_names, buffer<expr> &
 void elaborate_params(elaborator & elab, buffer<expr> const & params, buffer<expr> & new_params) {
     for (unsigned i = 0; i < params.size(); i++) {
         expr const & param = params[i];
-        expr type          = replace_locals(mlocal_type(param), i, params.data(), new_params.data());
+        expr type          = copy_tag(mlocal_type(param), replace_locals(mlocal_type(param), i, params.data(), new_params.data()));
         expr new_type      = elab.elaborate_type(type);
         expr new_param     = elab.push_local(local_pp_name(param), new_type, local_info(param));
         new_params.push_back(new_param);

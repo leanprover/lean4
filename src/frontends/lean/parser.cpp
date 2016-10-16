@@ -2063,7 +2063,6 @@ void parser::parse_imports() {
     buffer<module_name> olean_files;
     bool prelude     = false;
     std::string base = m_base_dir ? *m_base_dir : dirname(get_stream_name().c_str());
-    bool imported    = false;
     unsigned fingerprint = 0;
     if (curr_is_token(get_prelude_tk())) {
         next();
@@ -2085,7 +2084,6 @@ void parser::parse_imports() {
         import_olean(optional<unsigned>(), "init");
     }
     while (curr_is_token(get_import_tk())) {
-        imported       = true;
         m_last_cmd_pos = pos();
         next();
         while (true) {
@@ -2128,7 +2126,7 @@ void parser::parse_imports() {
     m_env = replay_export_decls_core(m_env, m_ios);
     check_modules_up_to_date();
     m_imports_parsed = true;
-    if (imported)
+    if (olean_files.size())
         save_snapshot();
 }
 

@@ -246,8 +246,7 @@ int main(int argc, char ** argv) {
             FS.chdir(process.cwd());
         } catch (e) {
             console.log(e);
-        }
-    );
+        });
 #endif
     initializer init;
     bool export_objects     = false;

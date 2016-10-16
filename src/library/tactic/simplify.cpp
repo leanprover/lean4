@@ -138,27 +138,7 @@ class simplifier {
     bool                      m_canonize_proofs_fixed_point;
     bool                      m_canonize_subsingletons;
 
-    /* Cache */
-    struct key {
-        name              m_rel;
-        expr              m_e;
-        unsigned          m_hash;
-
-        key(name const & rel, expr const & e):
-            m_rel(rel), m_e(e), m_hash(hash(rel.hash(), e.hash())) { }
-    };
-
-    struct key_hash_fn {
-        unsigned operator()(key const & k) const { return k.m_hash; }
-    };
-
-    struct key_eq_fn {
-        bool operator()(key const & k1, key const & k2) const {
-            return k1.m_rel == k2.m_rel && k1.m_e == k2.m_e;
-        }
-    };
-
-    typedef std::unordered_map<key, simp_result, key_hash_fn, key_eq_fn> simplify_cache;
+    typedef expr_struct_map<simp_result> simplify_cache;
     simplify_cache m_cache;
     optional<simp_result> cache_lookup(expr const & e);
     void cache_save(expr const & e, simp_result const & r);
@@ -445,13 +425,13 @@ public:
 /* Cache */
 
 optional<simp_result> simplifier::cache_lookup(expr const & e) {
-    auto it = m_cache.find(key(m_rel, e));
+    auto it = m_cache.find(e);
     if (it == m_cache.end()) return optional<simp_result>();
     return optional<simp_result>(it->second);
 }
 
 void simplifier::cache_save(expr const & e, simp_result const & r) {
-    m_cache.insert(mk_pair(key(m_rel, e), r));
+    m_cache.insert(mk_pair(e, r));
 }
 
 /* Simp_Results */
@@ -699,8 +679,7 @@ simp_result simplifier::try_congr(expr const & e, simp_lemma const & cl) {
         expr h_rel, h_lhs, h_rhs;
         lean_verify(is_simp_relation(tmp_tctx.env(), m_type, h_rel, h_lhs, h_rhs) && is_constant(h_rel));
         {
-            flet<name> set_name(m_rel, const_name(h_rel));
-            relations.push_back(m_rel);
+            relations.push_back(const_name(h_rel));
             flet<simp_lemmas> set_slss(m_slss, m_contextual ? add_to_slss(m_slss, local_factory.as_buffer()) : m_slss);
 
             h_lhs = tmp_tctx.instantiate_mvars(h_lhs);
@@ -712,7 +691,8 @@ simp_result simplifier::try_congr(expr const & e, simp_lemma const & cl) {
                universe and regular meta-variables. */
             lean_assert(!has_expr_metavar(h_lhs));
 
-            if (m_contextual) {
+            if (m_contextual || m_rel != const_name(h_rel)) {
+                flet<name> set_name(m_rel, const_name(h_rel));
                 freset<simplify_cache> reset_cache(m_cache);
                 congr_hyp_results.emplace_back(simplify(h_lhs));
             } else {

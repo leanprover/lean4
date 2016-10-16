@@ -121,7 +121,6 @@ class simplifier {
     name                      m_rel;
 
     simp_lemmas               m_slss;
-    simp_lemmas               m_ctx_slss;
 
     optional<vm_obj>          m_prove_fn;
 
@@ -240,8 +239,7 @@ class simplifier {
     }
 
     simp_result simplify_rewrite_binary(expr const & e) {
-        simp_lemmas slss = ::lean::join(m_slss, m_ctx_slss);
-        simp_lemmas_for const * sr = slss.find(m_rel);
+        simp_lemmas_for const * sr = m_slss.find(m_rel);
         if (!sr) return simp_result(e);
 
         list<simp_lemma> const * srs = sr->find(e);
@@ -703,7 +701,7 @@ simp_result simplifier::try_congr(expr const & e, simp_lemma const & cl) {
         {
             flet<name> set_name(m_rel, const_name(h_rel));
             relations.push_back(m_rel);
-            flet<simp_lemmas> set_ctx_slss(m_ctx_slss, m_contextual ? add_to_slss(m_ctx_slss, local_factory.as_buffer()) : m_ctx_slss);
+            flet<simp_lemmas> set_slss(m_slss, m_contextual ? add_to_slss(m_slss, local_factory.as_buffer()) : m_slss);
 
             h_lhs = tmp_tctx.instantiate_mvars(h_lhs);
             /* TODO(Leo, Daniel): the original assertion was !has_metavar(h_lhs).

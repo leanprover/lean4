@@ -31,7 +31,7 @@ Author: Leonardo de Moura
 #include "library/tactic/simp_lemmas.h"
 #include "library/tactic/eqn_lemmas.h"
 #include "library/tactic/dsimplify.h"
-#include "library/tactic/simplifier/init_module.h"
+#include "library/tactic/simplify.h"
 #include "library/tactic/backward/init_module.h"
 
 namespace lean {
@@ -57,7 +57,7 @@ void initialize_tactic_module() {
     initialize_generalize_tactic();
     initialize_rewrite_tactic();
     initialize_unfold_tactic();
-    initialize_simplifier_module();
+    initialize_simplify();
     initialize_backward_module();
     initialize_elaborate();
     initialize_user_attribute();
@@ -74,7 +74,7 @@ void finalize_tactic_module() {
     finalize_user_attribute();
     finalize_elaborate();
     finalize_backward_module();
-    finalize_simplifier_module();
+    finalize_simplify();
     finalize_unfold_tactic();
     finalize_rewrite_tactic();
     finalize_generalize_tactic();

@@ -7,4 +7,4 @@ add_library(tactic OBJECT occurrences.cpp kabstract.cpp tactic_state.cpp
   generalize_tactic.cpp rewrite_tactic.cpp unfold_tactic.cpp
   hsubstitution.cpp gexpr.cpp elaborate.cpp init_module.cpp
   simp_result.cpp user_attribute.cpp eval.cpp
-  simp_lemmas.cpp eqn_lemmas.cpp dsimplify.cpp)
+  simp_lemmas.cpp eqn_lemmas.cpp dsimplify.cpp simplify.cpp)

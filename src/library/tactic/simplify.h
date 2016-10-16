@@ -29,7 +29,6 @@ name get_simplify_canonize_instances_fixed_point_name();
 name get_simplify_canonize_proofs_fixed_point_name();
 name get_simplify_canonize_subsingletons_name();
 
-void initialize_simplifier();
-void finalize_simplifier();
-
+void initialize_simplify();
+void finalize_simplify();
 }

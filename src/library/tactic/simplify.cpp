@@ -36,7 +36,7 @@ Author: Daniel Selsam
 #include "library/tactic/ac_tactics.h"
 #include "library/tactic/app_builder_tactics.h"
 #include "library/tactic/simp_lemmas.h"
-#include "library/tactic/simplifier/simplifier.h"
+#include "library/tactic/simplify.h"
 
 #ifndef LEAN_DEFAULT_SIMPLIFY_MAX_STEPS
 #define LEAN_DEFAULT_SIMPLIFY_MAX_STEPS 10000
@@ -1055,7 +1055,8 @@ vm_obj simp_lemmas_simplify_core(vm_obj const & lemmas, vm_obj const & prove_fn,
 }
 
 /* Setup and teardown */
-void initialize_simplifier() {
+void initialize_simplify() {
+    register_trace_class("simplifier");
     register_trace_class(name({"simplifier", "congruence"}));
     register_trace_class(name({"simplifier", "failure"}));
     register_trace_class(name({"simplifier", "failed"}));
@@ -1097,7 +1098,7 @@ void initialize_simplifier() {
     DECLARE_VM_BUILTIN(name({"simp_lemmas", "simplify_core"}), simp_lemmas_simplify_core);
 }
 
-void finalize_simplifier() {
+void finalize_simplify() {
     delete g_simplify_canonize_subsingletons;
     delete g_simplify_canonize_instances_fixed_point;
     delete g_simplify_canonize_proofs_fixed_point;

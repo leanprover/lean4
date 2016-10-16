@@ -1,6 +1,5 @@
 open tactic
 
-set_option simplify.theory false
 set_option pp.implicit true
 
 meta definition simplify_goal_force : tactic unit :=

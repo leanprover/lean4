@@ -37,7 +37,6 @@ Author: Daniel Selsam
 #include "library/tactic/app_builder_tactics.h"
 #include "library/tactic/simp_lemmas.h"
 #include "library/tactic/simplifier/simplifier.h"
-#include "library/tactic/simplifier/theory_simplifier.h"
 #include "library/tactic/simplifier/util.h"
 
 #ifndef LEAN_DEFAULT_SIMPLIFY_MAX_STEPS
@@ -48,12 +47,6 @@ Author: Daniel Selsam
 #endif
 #ifndef LEAN_DEFAULT_SIMPLIFY_REWRITE
 #define LEAN_DEFAULT_SIMPLIFY_REWRITE true
-#endif
-#ifndef LEAN_DEFAULT_SIMPLIFY_THEORY
-#define LEAN_DEFAULT_SIMPLIFY_THEORY false
-#endif
-#ifndef LEAN_DEFAULT_SIMPLIFY_TOPDOWN
-#define LEAN_DEFAULT_SIMPLIFY_TOPDOWN false
 #endif
 #ifndef LEAN_DEFAULT_SIMPLIFY_LIFT_EQ
 #define LEAN_DEFAULT_SIMPLIFY_LIFT_EQ true
@@ -78,8 +71,6 @@ name get_simplify_prefix_name() { return *g_simplify_prefix; }
 static name * g_simplify_max_steps                      = nullptr;
 static name * g_simplify_contextual                     = nullptr;
 static name * g_simplify_rewrite                        = nullptr;
-static name * g_simplify_theory                         = nullptr;
-static name * g_simplify_topdown                        = nullptr;
 static name * g_simplify_lift_eq                        = nullptr;
 static name * g_simplify_canonize_instances_fixed_point = nullptr;
 static name * g_simplify_canonize_proofs_fixed_point    = nullptr;
@@ -88,8 +79,6 @@ static name * g_simplify_canonize_subsingletons         = nullptr;
 name get_simplify_max_steps_name() { return *g_simplify_max_steps; }
 name get_simplify_contextual_name() { return *g_simplify_contextual; }
 name get_simplify_rewrite_name() { return *g_simplify_rewrite; }
-name get_simplify_theory_name() { return *g_simplify_theory; }
-name get_simplify_topdown_name() { return *g_simplify_topdown; }
 name get_simplify_lift_eq_name() { return *g_simplify_lift_eq; }
 name get_simplify_canonize_instances_fixed_point_name() { return *g_simplify_canonize_instances_fixed_point; }
 name get_simplify_canonize_proofs_fixed_point_name() { return *g_simplify_canonize_proofs_fixed_point; }
@@ -105,14 +94,6 @@ static bool get_simplify_contextual(options const & o) {
 
 static bool get_simplify_rewrite(options const & o) {
     return o.get_bool(*g_simplify_rewrite, LEAN_DEFAULT_SIMPLIFY_REWRITE);
-}
-
-static bool get_simplify_theory(options const & o) {
-    return o.get_bool(*g_simplify_theory, LEAN_DEFAULT_SIMPLIFY_THEORY);
-}
-
-static bool get_simplify_topdown(options const & o) {
-    return o.get_bool(*g_simplify_topdown, LEAN_DEFAULT_SIMPLIFY_TOPDOWN);
 }
 
 static bool get_simplify_lift_eq(options const & o) {
@@ -137,7 +118,6 @@ static bool get_simplify_canonize_subsingletons(options const & o) {
 
 class simplifier {
     type_context              m_tctx, m_tctx_whnf;
-    theory_simplifier         m_theory_simplifier;
 
     name                      m_rel;
 
@@ -155,8 +135,6 @@ class simplifier {
     unsigned                  m_max_steps;
     bool                      m_contextual;
     bool                      m_rewrite;
-    bool                      m_theory;
-    bool                      m_topdown;
     bool                      m_lift_eq;
     bool                      m_canonize_instances_fixed_point;
     bool                      m_canonize_proofs_fixed_point;
@@ -357,70 +335,44 @@ class simplifier {
 
     // Main binary simplify method
     simp_result simplify_binary(expr const & e) {
-        if (m_topdown) {
-            if (m_rewrite) {
-                simp_result r_rewrite = simplify_rewrite_binary(e);
-                if (r_rewrite.get_new() != e) {
-                    return r_rewrite;
-                }
-            }
-        }
-
         // [1] Simplify subterms using congruence
         simp_result r(e);
 
-        if (!using_eq() || !m_theory_simplifier.owns(e)) {
-            switch (r.get_new().kind()) {
-            case expr_kind::Local:
-            case expr_kind::Meta:
-            case expr_kind::Sort:
-            case expr_kind::Constant:
-            case expr_kind::Macro:
-                // no-op
-                break;
-            case expr_kind::Lambda:
-                if (using_eq())
-                    r = simplify_subterms_lambda(r.get_new());
-                break;
-            case expr_kind::Pi:
-                r = simplify_subterms_pi(r.get_new());
-                break;
-            case expr_kind::App:
-                r = simplify_subterms_app_binary(r.get_new());
-                break;
-            case expr_kind::Let:
-                // whnf unfolds let-expressions
-                // TODO(dhs, leo): add flag for type_context not to unfold let-expressions
-                lean_unreachable();
-            case expr_kind::Var:
-                lean_unreachable();
-            }
-
-            if (r.get_new() != e) {
-                lean_trace_d(name({"simplifier", "congruence"}), tout() << e << " ==> " << r.get_new() << "\n";);
-                if (m_topdown)
-                    return r;
-            }
+        switch (r.get_new().kind()) {
+        case expr_kind::Local:
+        case expr_kind::Meta:
+        case expr_kind::Sort:
+        case expr_kind::Constant:
+        case expr_kind::Macro:
+            // no-op
+            break;
+        case expr_kind::Lambda:
+            if (using_eq())
+                r = simplify_subterms_lambda(r.get_new());
+            break;
+        case expr_kind::Pi:
+            r = simplify_subterms_pi(r.get_new());
+            break;
+        case expr_kind::App:
+            r = simplify_subterms_app_binary(r.get_new());
+            break;
+        case expr_kind::Let:
+            // whnf unfolds let-expressions
+            // TODO(dhs, leo): add flag for type_context not to unfold let-expressions
+            lean_unreachable();
+        case expr_kind::Var:
+            lean_unreachable();
         }
 
-        if (!m_topdown) {
-            if (m_rewrite) {
-                simp_result r_rewrite = simplify_rewrite_binary(r.get_new());
-                if (r_rewrite.get_new() != r.get_new()) {
-                    lean_trace_d(name({"simplifier", "rewrite"}), tout() << r.get_new() << " ==> " << r_rewrite.get_new() << "\n";);
-                    return join(r, r_rewrite);
-                }
-            }
+        if (r.get_new() != e) {
+            lean_trace_d(name({"simplifier", "congruence"}), tout() << e << " ==> " << r.get_new() << "\n";);
         }
 
-        // [5] Simplify with the theory simplifier
-        // Note: the theory simplifier guarantees that no new subterms are introduced that need to be simplified.
-        // Thus we never need to repeat unless something is simplified downstream of here.
-        if (using_eq() && m_theory) {
-            simp_result r_theory = m_theory_simplifier.simplify_binary(r.get_new());
-            if (r_theory.get_new() != r.get_new()) {
-                lean_trace_d(name({"simplifier", "theory"}), tout() << r.get_new() << " ==> " << r_theory.get_new() << "\n";);
-                r = join(r, r_theory);
+        if (m_rewrite) {
+            simp_result r_rewrite = simplify_rewrite_binary(r.get_new());
+            if (r_rewrite.get_new() != r.get_new()) {
+                lean_trace_d(name({"simplifier", "rewrite"}), tout() << r.get_new() << " ==> " << r_rewrite.get_new() << "\n";);
+                return join(r, r_rewrite);
             }
         }
 
@@ -468,13 +420,11 @@ class simplifier {
 
 public:
     simplifier(type_context & tctx, type_context & tctx_whnf, name const & rel, simp_lemmas const & slss, optional<vm_obj> const & prove_fn):
-        m_tctx(tctx), m_tctx_whnf(tctx_whnf), m_theory_simplifier(tctx), m_rel(rel), m_slss(slss), m_prove_fn(prove_fn),
+        m_tctx(tctx), m_tctx_whnf(tctx_whnf), m_rel(rel), m_slss(slss), m_prove_fn(prove_fn),
         /* Options */
         m_max_steps(get_simplify_max_steps(tctx.get_options())),
         m_contextual(get_simplify_contextual(tctx.get_options())),
         m_rewrite(get_simplify_rewrite(tctx.get_options())),
-        m_theory(get_simplify_theory(tctx.get_options())),
-        m_topdown(get_simplify_topdown(tctx.get_options())),
         m_lift_eq(get_simplify_lift_eq(tctx.get_options())),
         m_canonize_instances_fixed_point(get_simplify_canonize_instances_fixed_point(tctx.get_options())),
         m_canonize_proofs_fixed_point(get_simplify_canonize_proofs_fixed_point(tctx.get_options())),
@@ -1115,7 +1065,6 @@ void initialize_simplifier() {
     register_trace_class(name({"simplifier", "context"}));
     register_trace_class(name({"simplifier", "prove"}));
     register_trace_class(name({"simplifier", "rewrite"}));
-    register_trace_class(name({"simplifier", "theory"}));
     register_trace_class(name({"simplifier", "subsingleton"}));
     register_trace_class(name({"debug", "simplifier", "try_rewrite"}));
     register_trace_class(name({"debug", "simplifier", "try_congruence"}));
@@ -1126,8 +1075,6 @@ void initialize_simplifier() {
     g_simplify_max_steps                      = new name{*g_simplify_prefix, "max_steps"};
     g_simplify_contextual                     = new name{*g_simplify_prefix, "contextual"};
     g_simplify_rewrite                        = new name{*g_simplify_prefix, "rewrite"};
-    g_simplify_theory                         = new name{*g_simplify_prefix, "theory"};
-    g_simplify_topdown                        = new name{*g_simplify_prefix, "topdown"};
     g_simplify_lift_eq                        = new name{*g_simplify_prefix, "lift_eq"};
     g_simplify_canonize_instances_fixed_point = new name{*g_simplify_prefix, "canonize_instances_fixed_point"};
     g_simplify_canonize_proofs_fixed_point    = new name{*g_simplify_prefix, "canonize_proofs_fixed_point"};
@@ -1139,10 +1086,6 @@ void initialize_simplifier() {
                          "(simplify) use contextual simplification");
     register_bool_option(*g_simplify_rewrite, LEAN_DEFAULT_SIMPLIFY_REWRITE,
                          "(simplify) rewrite with simp_lemmas");
-    register_bool_option(*g_simplify_theory, LEAN_DEFAULT_SIMPLIFY_THEORY,
-                         "(simplify) use built-in theory simplification");
-    register_bool_option(*g_simplify_topdown, LEAN_DEFAULT_SIMPLIFY_TOPDOWN,
-                         "(simplify) use topdown simplification");
     register_bool_option(*g_simplify_lift_eq, LEAN_DEFAULT_SIMPLIFY_LIFT_EQ,
                          "(simplify) try simplifying with equality when no progress over other relation");
     register_bool_option(*g_simplify_canonize_instances_fixed_point, LEAN_DEFAULT_SIMPLIFY_CANONIZE_INSTANCES_FIXED_POINT,
@@ -1160,8 +1103,6 @@ void finalize_simplifier() {
     delete g_simplify_canonize_instances_fixed_point;
     delete g_simplify_canonize_proofs_fixed_point;
     delete g_simplify_lift_eq;
-    delete g_simplify_topdown;
-    delete g_simplify_theory;
     delete g_simplify_rewrite;
     delete g_simplify_contextual;
     delete g_simplify_max_steps;
@@ -1181,6 +1122,29 @@ simp_result simplify(type_context & tctx, type_context & tctx_whnf, name const &
 }
 
 simp_result simplify(type_context & tctx, type_context & tctx_whnf, name const & rel, simp_lemmas const & simp_lemmas, expr const & e) {
+    scope_trace_env scope(tctx.env(), tctx);
+    tout() << e << "\n";
     return simplifier(tctx, tctx_whnf, rel, simp_lemmas, optional<vm_obj>())(e);
+}
+
+optional<expr> prove_eq_by_simp(type_context & tctx, type_context & tctx_whnf, simp_lemmas const & simp_lemmas, expr const & e) {
+    scope_trace_env scope(tctx.env(), tctx);
+    simp_result r = simplify(tctx, tctx_whnf, get_eq_name(), simp_lemmas, e);
+    expr lhs, rhs;
+    tout() << r.get_new() << "\n-------------\n";
+    if (is_eq(r.get_new(), lhs, rhs) && tctx.is_def_eq(lhs, rhs)) {
+        if (r.has_proof()) {
+            return some_expr(mk_app(tctx, get_eq_mpr_name(), r.get_proof(), mk_eq_refl(tctx, lhs)));
+        } else {
+            return some_expr(mk_eq_refl(tctx, lhs));
+        }
+    } else if (is_true(r.get_new())) {
+        if (r.has_proof()) {
+            return some_expr(mk_app(tctx, get_eq_mpr_name(), r.get_proof(), mk_true_intro()));
+        } else {
+            return some_expr(mk_true_intro());
+        }
+    }
+    return none_expr();
 }
 }

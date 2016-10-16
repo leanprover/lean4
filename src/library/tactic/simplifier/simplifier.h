@@ -18,12 +18,12 @@ simp_result simplify(type_context & tctx, name const & rel, simp_lemmas const & 
 simp_result simplify(type_context & tctx, type_context & tctx_whnf, name const & rel, simp_lemmas const & simp_lemmas, vm_obj const & prove_fn, expr const & e);
 simp_result simplify(type_context & tctx, type_context & tctx_whnf, name const & rel, simp_lemmas const & simp_lemmas, expr const & e);
 
+optional<expr> prove_eq_by_simp(type_context & tctx, type_context & tctx_whnf, simp_lemmas const & simp_lemmas, expr const & e);
+
 name get_simplify_prefix_name();
 name get_simplify_max_steps_name();
 name get_simplify_contextual_name();
 name get_simplify_rewrite_name();
-name get_simplify_theory_name();
-name get_simplify_topdown_name();
 name get_simplify_lift_eq_name();
 name get_simplify_canonize_instances_fixed_point_name();
 name get_simplify_canonize_proofs_fixed_point_name();

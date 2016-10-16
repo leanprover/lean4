@@ -1256,8 +1256,6 @@ class add_nested_inductive_decl_fn {
         opts = opts.update(get_simplify_max_steps_name(), 100000);
         opts = opts.update(get_simplify_contextual_name(), false);
         opts = opts.update(get_simplify_rewrite_name(), true);
-        opts = opts.update(get_simplify_theory_name(), true);
-        opts = opts.update(get_simplify_topdown_name(), false);
         opts = opts.update(get_simplify_lift_eq_name(), false);
         opts = opts.update(get_simplify_canonize_instances_fixed_point_name(), false);
         opts = opts.update(get_simplify_canonize_proofs_fixed_point_name(), false);
@@ -1276,17 +1274,15 @@ class add_nested_inductive_decl_fn {
         }
 
         lean_trace(name({"inductive_compiler", "nested", "simp", "start"}), tout() << thm << "\n";);
-        simp_result r = simplify(tctx, tctx_whnf, get_eq_name(), all_lemmas, thm);
-        if (r.get_new() != mk_true()) {
+        auto thm_pr = prove_eq_by_simp(tctx, tctx_whnf, all_lemmas, thm);
+        if (!thm_pr) {
             formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
             lean_trace(name({"inductive_compiler", "nested", "simp", "failure"}),
                        tout() << "\n-------------------\n"
-                       << lctx.pp(fmtf(m_env, m_tctx.get_options(), m_tctx))
-                       << "\n---------------\n"
-                       << r.get_new() << "\n";);
+                       << lctx.pp(fmtf(m_env, m_tctx.get_options(), m_tctx)) << "\n";);
             throw exception("simplifier failed to prove goal; trace 'inductive_compiler.nested.simp.failure' for more information");
         }
-        return mk_app(tctx, get_eq_mpr_name(), r.get_proof(), mk_true_intro());
+        return *thm_pr;
     }
 
     expr prove_by_induction_simp(name const & rec_name, expr const & thm, bool use_sizeof) {

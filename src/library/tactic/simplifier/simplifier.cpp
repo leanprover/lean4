@@ -43,20 +43,11 @@ Author: Daniel Selsam
 #ifndef LEAN_DEFAULT_SIMPLIFY_MAX_STEPS
 #define LEAN_DEFAULT_SIMPLIFY_MAX_STEPS 10000
 #endif
-#ifndef LEAN_DEFAULT_SIMPLIFY_NARY_ASSOC
-#define LEAN_DEFAULT_SIMPLIFY_NARY_ASSOC true
-#endif
-#ifndef LEAN_DEFAULT_SIMPLIFY_MEMOIZE
-#define LEAN_DEFAULT_SIMPLIFY_MEMOIZE true
-#endif
 #ifndef LEAN_DEFAULT_SIMPLIFY_CONTEXTUAL
 #define LEAN_DEFAULT_SIMPLIFY_CONTEXTUAL true
 #endif
 #ifndef LEAN_DEFAULT_SIMPLIFY_REWRITE
 #define LEAN_DEFAULT_SIMPLIFY_REWRITE true
-#endif
-#ifndef LEAN_DEFAULT_SIMPLIFY_UNSAFE_NARY
-#define LEAN_DEFAULT_SIMPLIFY_UNSAFE_NARY false
 #endif
 #ifndef LEAN_DEFAULT_SIMPLIFY_THEORY
 #define LEAN_DEFAULT_SIMPLIFY_THEORY false
@@ -85,11 +76,8 @@ name get_simplify_prefix_name() { return *g_simplify_prefix; }
 /* Options */
 
 static name * g_simplify_max_steps                      = nullptr;
-static name * g_simplify_nary_assoc                     = nullptr;
-static name * g_simplify_memoize                        = nullptr;
 static name * g_simplify_contextual                     = nullptr;
 static name * g_simplify_rewrite                        = nullptr;
-static name * g_simplify_unsafe_nary                    = nullptr;
 static name * g_simplify_theory                         = nullptr;
 static name * g_simplify_topdown                        = nullptr;
 static name * g_simplify_lift_eq                        = nullptr;
@@ -98,11 +86,8 @@ static name * g_simplify_canonize_proofs_fixed_point    = nullptr;
 static name * g_simplify_canonize_subsingletons         = nullptr;
 
 name get_simplify_max_steps_name() { return *g_simplify_max_steps; }
-name get_simplify_nary_assoc_name() { return *g_simplify_nary_assoc; }
-name get_simplify_memoize_name() { return *g_simplify_memoize; }
 name get_simplify_contextual_name() { return *g_simplify_contextual; }
 name get_simplify_rewrite_name() { return *g_simplify_rewrite; }
-name get_simplify_unsafe_nary_name() { return *g_simplify_unsafe_nary; }
 name get_simplify_theory_name() { return *g_simplify_theory; }
 name get_simplify_topdown_name() { return *g_simplify_topdown; }
 name get_simplify_lift_eq_name() { return *g_simplify_lift_eq; }
@@ -114,24 +99,12 @@ static unsigned get_simplify_max_steps(options const & o) {
     return o.get_unsigned(*g_simplify_max_steps, LEAN_DEFAULT_SIMPLIFY_MAX_STEPS);
 }
 
-static unsigned get_simplify_nary_assoc(options const & o) {
-    return o.get_bool(*g_simplify_nary_assoc, LEAN_DEFAULT_SIMPLIFY_NARY_ASSOC);
-}
-
-static bool get_simplify_memoize(options const & o) {
-    return o.get_bool(*g_simplify_memoize, LEAN_DEFAULT_SIMPLIFY_MEMOIZE);
-}
-
 static bool get_simplify_contextual(options const & o) {
     return o.get_bool(*g_simplify_contextual, LEAN_DEFAULT_SIMPLIFY_CONTEXTUAL);
 }
 
 static bool get_simplify_rewrite(options const & o) {
     return o.get_bool(*g_simplify_rewrite, LEAN_DEFAULT_SIMPLIFY_REWRITE);
-}
-
-static bool get_simplify_unsafe_nary(options const & o) {
-    return o.get_bool(*g_simplify_unsafe_nary, LEAN_DEFAULT_SIMPLIFY_UNSAFE_NARY);
 }
 
 static bool get_simplify_theory(options const & o) {
@@ -171,8 +144,6 @@ class simplifier {
     simp_lemmas               m_slss;
     simp_lemmas               m_ctx_slss;
 
-    optional<expr>            m_curr_nary_op;
-
     optional<vm_obj>          m_prove_fn;
 
     /* Logging */
@@ -182,11 +153,8 @@ class simplifier {
 
     /* Options */
     unsigned                  m_max_steps;
-    unsigned                  m_nary_assoc;
-    bool                      m_memoize;
     bool                      m_contextual;
     bool                      m_rewrite;
-    bool                      m_unsafe_nary;
     bool                      m_theory;
     bool                      m_topdown;
     bool                      m_lift_eq;
@@ -250,20 +218,6 @@ class simplifier {
         return m_canonize_instances_fixed_point || m_canonize_proofs_fixed_point;
     }
 
-    void get_app_nary_args(expr const & op, expr const & e, buffer<expr> & nary_args) {
-        if (m_unsafe_nary)
-            ::lean::unsafe_get_app_nary_args(op, e, nary_args);
-        else
-            ::lean::get_app_nary_args(m_tctx, op, e, nary_args);
-    }
-
-    bool ops_are_the_same(expr const & op1, expr const & op2) {
-        if (m_unsafe_nary)
-            return get_app_fn(op1) == get_app_fn(op2);
-        else
-            return m_tctx.is_def_eq(op1, op2);
-    }
-
     bool instantiate_emetas(tmp_type_context & tmp_tctx, unsigned num_emeta, list<expr> const & emetas, list<bool> const & instances);
 
     /* Simp_Results */
@@ -280,26 +234,13 @@ class simplifier {
             throw exception("simplifier failed, maximum number of steps exceeded");
         }
 
-        if (m_memoize) {
-            if (auto it = cache_lookup(old_e))
-                return *it;
-        }
+        if (auto it = cache_lookup(old_e))
+            return *it;
 
         expr e = whnf_eta(old_e);
         simp_result r;
 
-        optional<pair<expr, expr> > assoc;
-        if (m_nary_assoc && using_eq())
-            assoc = is_assoc(m_tctx, e);
-
-        if (assoc) {
-            bool use_congr_only = assoc && m_curr_nary_op && *m_curr_nary_op == assoc->second;
-            flet<optional<expr> > in_nary_subtree(m_curr_nary_op, some_expr(assoc->second));
-            r = simplify_nary(assoc->first, assoc->second, e, use_congr_only);
-        } else {
-            flet<optional<expr> > not_in_nary_subtree(m_curr_nary_op, none_expr());
-            r = simplify_binary(e);
-        }
+        r = simplify_binary(e);
 
         if (!r.is_done())
             r = join(r, simplify(r.get_new()));
@@ -316,8 +257,7 @@ class simplifier {
             }
         }
 
-        if (m_memoize)
-            cache_save(old_e, r);
+        cache_save(old_e, r);
 
         return r;
     }
@@ -488,187 +428,6 @@ class simplifier {
         return r;
     }
 
-    // n-ary methods
-    optional<simp_result> simplify_rewrite_nary(expr const & assoc, expr const & old_e, expr const & op, buffer<expr> const & nary_args) {
-        simp_lemmas slss = ::lean::join(m_slss, m_ctx_slss);
-        simp_lemmas_for const * sr = slss.find(m_rel);
-        if (!sr)
-            return optional<simp_result>();
-
-        list<simp_lemma> const * srs = sr->find(op);
-        if (!srs) {
-            return optional<simp_result>();
-        }
-
-        for (simp_lemma const & lemma : *srs) {
-            if (optional<simp_result> r = rewrite_nary(assoc, old_e, op, nary_args, lemma))
-                return r;
-        }
-        return optional<simp_result>();
-    }
-
-    optional<simp_result> rewrite_nary(expr const & assoc, expr const & old_e, expr const & op, buffer<expr> const & nary_args, simp_lemma const & sl) {
-        optional<expr> pattern_op = get_binary_op(sl.get_lhs());
-        if (!pattern_op)
-            return optional<simp_result>();
-
-        tmp_type_context tmp_tctx(m_tctx, sl.get_num_umeta(), sl.get_num_emeta());
-        if (!tmp_tctx.is_def_eq(op, *pattern_op))
-            return optional<simp_result>();
-
-        buffer<expr> nary_pattern_args;
-        get_app_nary_args(*pattern_op, sl.get_lhs(), nary_pattern_args);
-
-        unsigned num_patterns = nary_pattern_args.size();
-
-        if (nary_args.size() < num_patterns)
-            return optional<simp_result>();
-
-        // TODO(dhs): return an n-ary macro, and have simplify(e) unfold these at the end
-        // Reason: multiple rewrites and theory steps could avoid reconstructing the term
-        // Reason for postponing: easy to support and may not be a bottleneck
-        for (unsigned i = 0; i <= nary_args.size() - num_patterns; ++i) {
-            if (optional<simp_result> r = rewrite_nary_step(nary_args, nary_pattern_args, i, sl)) {
-                // lean_assert(r->has_proof());
-                unsigned j = nary_args.size() - 1;
-                expr new_e = (j >= i + num_patterns) ? nary_args[j] : r->get_new();
-                j = (j >= i + num_patterns) ? (j - 1) : (j - num_patterns);
-                while (j + 1 > 0) {
-                    if (j >= i + num_patterns || j < i) {
-                        new_e = mk_app(op, nary_args[j], new_e);
-                        j -= 1;
-                    } else {
-                        new_e = mk_app(op, r->get_new(), new_e);
-                        j -= num_patterns;
-                    }
-                }
-                return optional<simp_result>(simp_result(new_e, mk_rewrite_assoc_proof(assoc, mk_eq(m_tctx, old_e, new_e),
-                                                                                       i, num_patterns, nary_args.size(), r->get_new(), r->get_proof())));
-            }
-        }
-        return optional<simp_result>();
-    }
-
-    optional<simp_result> rewrite_nary_step(buffer<expr> const & nary_args, buffer<expr> const & nary_pattern_args, unsigned offset, simp_lemma const & sl) {
-        tmp_type_context tmp_tctx(m_tctx, sl.get_num_umeta(), sl.get_num_emeta());
-        for (unsigned i = 0; i < nary_pattern_args.size(); ++i) {
-            if (!tmp_tctx.is_def_eq(nary_args[offset+i], nary_pattern_args[i]))
-                return optional<simp_result>();
-        }
-
-        if (!instantiate_emetas(tmp_tctx, sl.get_num_emeta(), sl.get_emetas(), sl.get_instances()))
-            return optional<simp_result>();
-
-        for (unsigned i = 0; i < sl.get_num_umeta(); i++) {
-            if (!tmp_tctx.is_uassigned(i))
-                return optional<simp_result>();
-        }
-
-        expr new_lhs = tmp_tctx.instantiate_mvars(sl.get_lhs());
-        expr new_rhs = tmp_tctx.instantiate_mvars(sl.get_rhs());
-
-        if (sl.is_permutation()) {
-            if (!is_lt(new_rhs, new_lhs, false)) {
-                lean_simp_trace(tmp_tctx, name({"simplifier", "perm"}),
-                                tout() << "perm rejected: " << new_rhs << " !< " << new_lhs << "\n";);
-                return optional<simp_result>();
-            }
-        }
-        if (sl.is_refl()) {
-            return optional<simp_result>(simp_result(new_rhs));
-        } else {
-            expr pf = tmp_tctx.instantiate_mvars(sl.get_proof());
-            return optional<simp_result>(simp_result(new_rhs, pf));
-        }
-    }
-
-    simp_result simplify_subterms_app_nary_core(expr const & old_op, expr const & new_op, optional<expr> const & pf_op, expr const & e) {
-        expr arg1, arg2;
-        optional<expr> op = get_binary_op(e, arg1, arg2);
-        if (op && ops_are_the_same(*op, old_op)) {
-            simp_result r(e);
-            if (pf_op)
-                r = join(r, simp_result(mk_app(new_op, arg1, arg2), mk_congr_bin_op(m_tctx, *pf_op, arg1, arg2)));
-
-            simp_result r1 = simplify_subterms_app_nary_core(old_op, new_op, pf_op, arg1);
-            simp_result r2 = simplify_subterms_app_nary_core(old_op, new_op, pf_op, arg2);
-
-            expr new_e = mk_app(new_op, r1.get_new(), r2.get_new());
-            if (r1.has_proof() && r2.has_proof()) {
-                return join(r, simp_result(new_e, mk_congr_bin_args(m_tctx, new_op, r1.get_proof(), r2.get_proof())));
-            } else if (r1.has_proof()) {
-                return join(r, simp_result(new_e, mk_congr_bin_arg1(m_tctx, new_op, r1.get_proof(), r2.get_new())));
-            } else if (r2.has_proof()) {
-                return join(r, simp_result(new_e, mk_congr_bin_arg2(m_tctx, new_op, r1.get_new(), r2.get_proof())));
-            } else {
-                r.update(new_e);
-                return r;
-            }
-        } else {
-            return simplify(e);
-        }
-    }
-
-    simp_result simplify_subterms_app_nary(expr const & old_op, expr const & e) {
-        simp_result pf_op = simplify(old_op);
-        return simplify_subterms_app_nary_core(old_op, old_op, pf_op.get_optional_proof(), e);
-    }
-
-    // Main n-ary simplify method
-    simp_result simplify_nary(expr const & assoc, expr const & op, expr const & old_e, bool use_congr_only) {
-        lean_assert(using_eq());
-
-        if (m_topdown && !use_congr_only) {
-            buffer<expr> nary_args;
-            get_app_nary_args(op, old_e, nary_args);
-
-            expr flat_e = mk_nary_app(op, nary_args);
-            simp_result r_flat(flat_e, mk_flat_proof(assoc, mk_eq(m_tctx, old_e, flat_e)));
-
-            if (m_rewrite) {
-                if (optional<simp_result> r_rewrite = simplify_rewrite_nary(assoc, r_flat.get_new(), op, nary_args)) {
-                    lean_trace_d(name({"simplifier", "rewrite"}), tout() << old_e << " ==> " << r_rewrite->get_new() << "\n";);
-                    return join(r_flat, *r_rewrite);
-                }
-            }
-        }
-
-        simp_result r_congr = simplify_subterms_app_nary(op, old_e);
-        expr new_op = *get_binary_op(r_congr.get_new());
-
-        buffer<expr> new_nary_args;
-        get_app_nary_args(new_op, r_congr.get_new(), new_nary_args);
-        expr congr_flat_e = mk_nary_app(new_op, new_nary_args);
-        simp_result r_congr_flat = join(r_congr, simp_result(congr_flat_e, mk_flat_proof(assoc, mk_eq(m_tctx, r_congr.get_new(), congr_flat_e))));
-
-        if (m_topdown && r_congr_flat.get_new() != old_e)
-            return r_congr_flat;
-
-        if (!m_topdown && !use_congr_only) {
-            if (m_rewrite) {
-                if (optional<simp_result> r_rewrite = simplify_rewrite_nary(assoc, r_congr_flat.get_new(), new_op, new_nary_args)) {
-                    lean_trace_d(name({"simplifier", "rewrite"}), tout() << old_e << " ==> " << r_rewrite->get_new() << "\n";);
-                    return join(r_congr_flat, *r_rewrite);
-                }
-            }
-        }
-
-        // [5] Simplify with the theory simplifier
-        // Note: the theory simplifier guarantees that no new subterms are introduced that need to be simplified.
-        // Thus we never need to repeat unless something is simplified downstream of here.
-        if (m_theory && !use_congr_only) {
-            if (optional<simp_result> r_theory = m_theory_simplifier.simplify_nary(assoc, r_congr_flat.get_new(), new_op, new_nary_args)) {
-                lean_trace_d(name({"simplifier", "theory"}), tout() << old_e << " ==> " << r_theory->get_new() << "\n";);
-                simp_result r = join(r_congr_flat, *r_theory);
-                r.set_done();
-                return r;
-            }
-        }
-
-        r_congr_flat.set_done();
-        return r_congr_flat;
-    }
-
     /* Simplifying the necessary subterms */
     simp_result simplify_subterms_lambda(expr const & e);
     simp_result simplify_subterms_pi(expr const & e);
@@ -712,11 +471,8 @@ public:
         m_tctx(tctx), m_tctx_whnf(tctx_whnf), m_theory_simplifier(tctx), m_rel(rel), m_slss(slss), m_prove_fn(prove_fn),
         /* Options */
         m_max_steps(get_simplify_max_steps(tctx.get_options())),
-        m_nary_assoc(get_simplify_nary_assoc(tctx.get_options())),
-        m_memoize(get_simplify_memoize(tctx.get_options())),
         m_contextual(get_simplify_contextual(tctx.get_options())),
         m_rewrite(get_simplify_rewrite(tctx.get_options())),
-        m_unsafe_nary(get_simplify_unsafe_nary(tctx.get_options())),
         m_theory(get_simplify_theory(tctx.get_options())),
         m_topdown(get_simplify_topdown(tctx.get_options())),
         m_lift_eq(get_simplify_lift_eq(tctx.get_options())),
@@ -1359,22 +1115,17 @@ void initialize_simplifier() {
     register_trace_class(name({"simplifier", "context"}));
     register_trace_class(name({"simplifier", "prove"}));
     register_trace_class(name({"simplifier", "rewrite"}));
-    register_trace_class(name({"simplifier", "rewrite", "assoc"}));
     register_trace_class(name({"simplifier", "theory"}));
     register_trace_class(name({"simplifier", "subsingleton"}));
     register_trace_class(name({"debug", "simplifier", "try_rewrite"}));
-    register_trace_class(name({"debug", "simplifier", "try_rewrite", "assoc"}));
     register_trace_class(name({"debug", "simplifier", "try_congruence"}));
     register_trace_class(name({"debug", "simplifier", "remove_casts"}));
 
     g_simplify_prefix                         = new name{"simplify"};
 
     g_simplify_max_steps                      = new name{*g_simplify_prefix, "max_steps"};
-    g_simplify_nary_assoc                     = new name{*g_simplify_prefix, "nary_assoc"};
-    g_simplify_memoize                        = new name{*g_simplify_prefix, "memoize"};
     g_simplify_contextual                     = new name{*g_simplify_prefix, "contextual"};
     g_simplify_rewrite                        = new name{*g_simplify_prefix, "rewrite"};
-    g_simplify_unsafe_nary                    = new name{*g_simplify_prefix, "unsafe_nary"};
     g_simplify_theory                         = new name{*g_simplify_prefix, "theory"};
     g_simplify_topdown                        = new name{*g_simplify_prefix, "topdown"};
     g_simplify_lift_eq                        = new name{*g_simplify_prefix, "lift_eq"};
@@ -1384,19 +1135,10 @@ void initialize_simplifier() {
 
     register_unsigned_option(*g_simplify_max_steps, LEAN_DEFAULT_SIMPLIFY_MAX_STEPS,
                              "(simplify) max number of (large) steps in simplification");
-    register_bool_option(*g_simplify_nary_assoc, LEAN_DEFAULT_SIMPLIFY_NARY_ASSOC,
-                         "(simplify) use special treatment for operators that are instances of the is_associative typeclass");
-    register_bool_option(*g_simplify_memoize, LEAN_DEFAULT_SIMPLIFY_MEMOIZE,
-                         "(simplify) memoize simplifications");
     register_bool_option(*g_simplify_contextual, LEAN_DEFAULT_SIMPLIFY_CONTEXTUAL,
                          "(simplify) use contextual simplification");
     register_bool_option(*g_simplify_rewrite, LEAN_DEFAULT_SIMPLIFY_REWRITE,
                          "(simplify) rewrite with simp_lemmas");
-    register_bool_option(*g_simplify_unsafe_nary, LEAN_DEFAULT_SIMPLIFY_UNSAFE_NARY,
-                         "(simplify) assume all nested applications of associative operators "
-                         "with the same head symbol are definitionally equal. "
-                         "Will yield to invalid proofs if this assumption is not valid. "
-                         "The kernel will detect these errors but only at a high-enough trust level.");
     register_bool_option(*g_simplify_theory, LEAN_DEFAULT_SIMPLIFY_THEORY,
                          "(simplify) use built-in theory simplification");
     register_bool_option(*g_simplify_topdown, LEAN_DEFAULT_SIMPLIFY_TOPDOWN,
@@ -1420,11 +1162,8 @@ void finalize_simplifier() {
     delete g_simplify_lift_eq;
     delete g_simplify_topdown;
     delete g_simplify_theory;
-    delete g_simplify_unsafe_nary;
     delete g_simplify_rewrite;
     delete g_simplify_contextual;
-    delete g_simplify_memoize;
-    delete g_simplify_nary_assoc;
     delete g_simplify_max_steps;
 }
 

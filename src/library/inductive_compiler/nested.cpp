@@ -1254,11 +1254,8 @@ class add_nested_inductive_decl_fn {
     options get_simp_options(options opts) {
         opts = remove_all_with_prefix(get_simplify_prefix_name(), m_tctx.get_options());
         opts = opts.update(get_simplify_max_steps_name(), 100000);
-        opts = opts.update(get_simplify_nary_assoc_name(), false);
-        opts = opts.update(get_simplify_memoize_name(), true);
         opts = opts.update(get_simplify_contextual_name(), false);
         opts = opts.update(get_simplify_rewrite_name(), true);
-        opts = opts.update(get_simplify_unsafe_nary_name(), false);
         opts = opts.update(get_simplify_theory_name(), true);
         opts = opts.update(get_simplify_topdown_name(), false);
         opts = opts.update(get_simplify_lift_eq_name(), false);

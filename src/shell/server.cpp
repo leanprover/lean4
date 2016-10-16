@@ -176,7 +176,7 @@ json server::handle_check(json const &) {
 }
 
 snapshot const * server::get_closest_snapshot(unsigned line) {
-    snapshot const * ret = nullptr;
+    snapshot const * ret = m_snapshots.size() ? &m_snapshots.front() : nullptr;
     for (snapshot const & snap : m_snapshots) {
         if (snap.m_pos.first <= line)
             ret = &snap;
@@ -273,6 +273,10 @@ json server::handle_complete(json const & req) {
     std::string pattern = req["pattern"];
     unsigned line = req["line"];
     std::vector<json> completions;
+
+    if (!m_snapshots.size()) { // should only happen when imports have been touched
+        handle_check({});
+    }
 
     if (snapshot const * snap = get_closest_snapshot(line)) {
         environment const & env = snap->m_env;

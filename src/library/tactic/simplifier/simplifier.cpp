@@ -37,7 +37,6 @@ Author: Daniel Selsam
 #include "library/tactic/app_builder_tactics.h"
 #include "library/tactic/simp_lemmas.h"
 #include "library/tactic/simplifier/simplifier.h"
-#include "library/tactic/simplifier/util.h"
 
 #ifndef LEAN_DEFAULT_SIMPLIFY_MAX_STEPS
 #define LEAN_DEFAULT_SIMPLIFY_MAX_STEPS 10000

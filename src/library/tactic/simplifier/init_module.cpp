@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Daniel Selsam
 */
 #include "library/trace.h"
-#include "library/tactic/simplifier/util.h"
 #include "library/tactic/simplifier/simplifier.h"
 
 namespace lean {
@@ -12,12 +11,10 @@ namespace lean {
 void initialize_simplifier_module() {
     register_trace_class("simplifier");
 
-    initialize_simp_util();
     initialize_simplifier();
 }
 
 void finalize_simplifier_module() {
     finalize_simplifier();
-    finalize_simp_util();
 }
 }

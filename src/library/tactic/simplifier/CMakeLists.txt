@@ -1,1 +1,1 @@
-add_library(simplifier OBJECT init_module.cpp simplifier.cpp util.cpp)
+add_library(simplifier OBJECT init_module.cpp simplifier.cpp)

@@ -1,5 +1,5 @@
-add_executable(shell_test shell.cpp ${LEAN_OBJS})
-target_link_libraries(shell_test ${EXTRA_LIBS})
+add_executable(shell_test shell.cpp $<TARGET_OBJECTS:shell_js>)
+target_link_libraries(shell_test leanstatic)
 
 # TODO(Leo): add after stdlib is activated again
 # add_test(NAME "emscripten_test"

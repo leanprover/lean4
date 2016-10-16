@@ -75,6 +75,7 @@ int flock(int fd, int op) {
 namespace lean {
 file_lock::file_lock(char const * fname, bool exclusive):
     m_fname(fname), m_fd(-1) {
+#if !defined(LEAN_EMSCRIPTEN)
     m_fname += ".lock";
     m_fd = open(m_fname.c_str(), O_CREAT, 0xFFFF);
     if (m_fd == -1) {
@@ -90,12 +91,15 @@ file_lock::file_lock(char const * fname, bool exclusive):
         if (status == -1)
             throw exception(sstream() << "failed to lock file '" << fname << "'");
     }
+#endif
 }
 file_lock::~file_lock() {
+#if !defined(LEAN_EMSCRIPTEN)
     if (m_fd != -1) {
         std::remove(m_fname.c_str());
         flock(m_fd, LOCK_UN);
         close(m_fd);
     }
+#endif
 }
 }

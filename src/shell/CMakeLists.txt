@@ -10,13 +10,17 @@ add_library(shell_js OBJECT lean_js.cpp)
 if(${EMSCRIPTEN})
     target_link_libraries(lean "--memory-init-file 0")
 
-    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/run_lean_js
+    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/lean_with_path
             "#!/bin/sh\nLEAN_PATH=${CMAKE_CURRENT_SOURCE_DIR}/../../library node ${CMAKE_CURRENT_BINARY_DIR}/lean.js \"$@\"\n")
-    execute_process(COMMAND chmod +x ${CMAKE_CURRENT_BINARY_DIR}/run_lean_js)
+    execute_process(COMMAND chmod +x ${CMAKE_CURRENT_BINARY_DIR}/lean_with_path)
+
+    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/lean
+            "#!/bin/sh\nnode ${CMAKE_CURRENT_BINARY_DIR}/lean.js \"$@\"\n")
+    execute_process(COMMAND chmod +x ${CMAKE_CURRENT_BINARY_DIR}/lean)
 
     # FIXME(gabriel): we rebuild the library using lean.js because the serialization is different
     file(READ ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/linja.in linja_code)
-    string(REGEX REPLACE "\ng_lean_path[^\n]* = [^\n]*" "\ng_lean_path = '${CMAKE_CURRENT_BINARY_DIR}/run_lean_js'" linja_js_code ${linja_code})
+    string(REGEX REPLACE "\ng_lean_path[^\n]* = [^\n]*" "\ng_lean_path = '${CMAKE_CURRENT_BINARY_DIR}/lean_with_path'" linja_js_code ${linja_code})
     string(REGEX REPLACE "ninja_option = \\[\\]" "ninja_option = ['-j1']" linja_js_code ${linja_js_code})
     string(REGEX REPLACE "  make_deps_all_files\\(args\\)" "  #" linja_js_code ${linja_js_code})
     file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/linja_js ${linja_js_code})
@@ -51,12 +55,14 @@ endif()
 add_test(lean_help1    "${CMAKE_CURRENT_BINARY_DIR}/lean" --help)
 add_test(lean_help2    "${CMAKE_CURRENT_BINARY_DIR}/lean" -h)
 add_test(lean_version1 "${CMAKE_CURRENT_BINARY_DIR}/lean" --version)
+if (NOT ${EMSCRIPTEN})
 add_test(lean_version2 "${CMAKE_CURRENT_BINARY_DIR}/lean" --v)
+endif()
 add_test(lean_ghash1   "${CMAKE_CURRENT_BINARY_DIR}/lean" -g)
 add_test(lean_ghash2   "${CMAKE_CURRENT_BINARY_DIR}/lean" --githash)
 add_test(lean_path1    "${CMAKE_CURRENT_BINARY_DIR}/lean" -p)
 add_test(lean_path2    "${CMAKE_CURRENT_BINARY_DIR}/lean" --path)
-add_test(export_all    "${LEAN_SOURCE_DIR}/../bin/lean" --export-all=all.out "${LEAN_SOURCE_DIR}/../library/standard.lean")
+add_test(export_all    env "LEAN_PATH=${LEAN_SOURCE_DIR}/../library" "${CMAKE_CURRENT_BINARY_DIR}/lean" --export-all=all.out "${LEAN_SOURCE_DIR}/../library/standard.lean")
 add_test(lean_unknown_option bash "${LEAN_SOURCE_DIR}/cmake/check_failure.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" "-z")
 add_test(lean_unknown_file1 bash "${LEAN_SOURCE_DIR}/cmake/check_failure.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" "boofoo.lean")
 # The following test needs new elaborator to support match

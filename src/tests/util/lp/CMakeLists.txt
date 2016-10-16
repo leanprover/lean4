@@ -1,6 +1,6 @@
 add_executable(lp_tst lp.cpp $<TARGET_OBJECTS:util> $<TARGET_OBJECTS:numerics> $<TARGET_OBJECTS:lp>)
 target_link_libraries(lp_tst ${EXTRA_LIBS})
-add_test(lp_tst ${CMAKE_CURRENT_BINARY_DIR}/lp_tst)
+add_exec_test(lp_tst lp_tst)
 add_executable(double_compare double_compare.cpp $<TARGET_OBJECTS:util> $<TARGET_OBJECTS:numerics>)
 target_link_libraries(double_compare ${EXTRA_LIBS})
-# add_test(double_compare ${CMAKE_CURRENT_BINARY_DIR}/double_compare)
+# add_exec_test(double_compare double_compare)

@@ -9,7 +9,7 @@ export LEAN_PATH=../../../library:.
 f=$2
 shift 2
 echo "-- testing $f"
-if "$LEAN" "$f" $@; then
+if "$LEAN" $@ "$f"; then
    echo "-- checked"
 else
    echo "failed $f"

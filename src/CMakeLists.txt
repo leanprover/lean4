@@ -239,7 +239,7 @@ if (${EMSCRIPTEN})
     )
 
     add_library(lean_external_deps INTERFACE)
-    target_link_libraries(lean_external_deps INTERFACE ${gmp_install_prefix}/lib/libgmp.a ${mpfr_install_prefix}/lib/libmpfr.a)
+    target_link_libraries(lean_external_deps INTERFACE ${gmp_install_prefix}/lib/libgmp.so ${mpfr_install_prefix}/lib/libmpfr.so)
     include_directories(lean_external_deps INTERFACE ${gmp_install_prefix}/include ${mpfr_install_prefix}/include)
     add_dependencies(lean_external_deps gmp mpfr)
     set(EXTRA_LIBS lean_external_deps)
@@ -421,6 +421,15 @@ endif()
 add_subdirectory(shell)
 add_subdirectory(emacs)
 
+function(add_exec_test name tgt)
+    if(${EMSCRIPTEN})
+        target_link_libraries(${tgt} "--memory-init-file 0")
+        add_test(NAME ${name} COMMAND node ${CMAKE_CURRENT_BINARY_DIR}/${tgt}.js)
+    else()
+        add_test(NAME ${name} COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${tgt})
+    endif()
+endfunction()
+
 add_subdirectory(tests/util)
 add_subdirectory(tests/util/numerics)
 add_subdirectory(tests/util/interval)
@@ -453,7 +462,7 @@ file(GLOB_RECURSE LEAN_SOURCES
   "${LEAN_SOURCE_DIR}/[A-Za-z]*.cpp"
   "${LEAN_SOURCE_DIR}/[A-Za-z]*.h")
 add_style_check_target(style "${LEAN_SOURCES}")
-add_test(NAME style_check COMMAND "${PYTHON_EXECUTABLE}" "${LEAN_SOURCE_DIR}/cmake/Modules/cpplint.py" ${LEAN_SOURCES})
+#add_test(NAME style_check COMMAND "${PYTHON_EXECUTABLE}" "${LEAN_SOURCE_DIR}/cmake/Modules/cpplint.py" ${LEAN_SOURCES})
 endif()
 
 if("${CROSS_COMPILE}" MATCHES "ON" OR "${CMAKE_C_COMPILER}" MATCHES "emcc")

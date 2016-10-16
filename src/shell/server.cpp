@@ -9,6 +9,7 @@ Authors: Gabriel Ebner, Leonardo de Moura, Sebastian Ullrich
 #include <string>
 #include <algorithm>
 #include <vector>
+#include <clocale>
 #include "frontends/lean/parser.h"
 #include "library/module.h"
 #include "shell/server.h"

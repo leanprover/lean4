@@ -1,2 +1,2 @@
-[nat.succ, add, nat.add]
+[nat.succ, nat.add, add]
 [nat.mul, mul]

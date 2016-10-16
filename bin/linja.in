@@ -463,7 +463,7 @@ def make_build_ninja(args):
 
         print("""rule LEAN""", file=f)
         print("""  depfile = ${DLEAN_FILE}""", file=f)
-        print("""  command = "%s" %s $in -o "${OLEAN_FILE}" """ \
+        print("""  command = "%s" %s -o ${OLEAN_FILE} $in""" \
             % (g_lean_path, " ".join(args.lean_options)), file=f)
 
         print("build all: phony", end=' ', file=f)

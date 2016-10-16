@@ -85,10 +85,8 @@ name::name(name const & prefix, char const * name) {
     m_ptr      = new (mem) imp(true, prefix.m_ptr);
     std::memcpy(mem + sizeof(imp), name, sz + 1);
     m_ptr->m_str       = mem + sizeof(imp);
-    if (m_ptr->m_prefix)
-        m_ptr->m_hash = hash_str(sz, name, m_ptr->m_prefix->m_hash);
-    else
-        m_ptr->m_hash = hash_str(sz, name, 0);
+    // Emscripten easily breaks with small changes here.  The main fix seems to be to use m_ptr->m_str instead of name.
+    m_ptr->m_hash = hash_str(static_cast<unsigned>(sz), m_ptr->m_str, prefix.hash());
 }
 
 name::name(name const & prefix, unsigned k, bool) {

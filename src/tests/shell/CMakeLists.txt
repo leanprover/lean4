@@ -1,4 +1,4 @@
-add_executable(shell_test shell.cpp ${LEAN_OBJS} $<TARGET_OBJECTS:shell>)
+add_executable(shell_test shell.cpp ${LEAN_OBJS})
 target_link_libraries(shell_test ${EXTRA_LIBS})
 
 # TODO(Leo): add after stdlib is activated again

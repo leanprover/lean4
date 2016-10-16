@@ -4,6 +4,19 @@ set(LEAN_VERSION_MAJOR 0)
 set(LEAN_VERSION_MINOR 3)
 set(LEAN_VERSION_PATCH 0)
 
+set(LEAN_EXTRA_LINKER_FLAGS "")
+set(LEAN_EXTRA_CXX_FLAGS "")
+
+if("${CMAKE_C_COMPILER}" MATCHES "emcc")
+    set(EMSCRIPTEN ON)
+    set(CROSS_COMPILE ON)
+    set(IGNORE_SORRY ON)
+    set(MULTI_THREAD OFF)
+    set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_EMSCRIPTEN")
+    set(LEAN_JS_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/../library" CACHE STRING
+            "location of olean files for lean.js")
+endif()
+
 if (NOT CMAKE_BUILD_TYPE)
   message(STATUS "No build type selected, default to Release")
   set(CMAKE_BUILD_TYPE "Release")
@@ -63,9 +76,6 @@ include(CTest)
 configure_file("${LEAN_SOURCE_DIR}/CTestCustom.cmake.in"
   "${LEAN_BINARY_DIR}/CTestCustom.cmake" @ONLY)
 
-set(LEAN_EXTRA_LINKER_FLAGS "")
-set(LEAN_EXTRA_CXX_FLAGS "")
-
 # Windows does not support ulimit -s unlimited. So, we reserve a lot of stack space: 100Mb
 if((${CYGWIN} EQUAL "1") OR (${CMAKE_SYSTEM_NAME} MATCHES "Windows"))
   message(STATUS "Windows detected")
@@ -112,12 +122,6 @@ if(STATIC)
   set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} -static")
 endif()
 
-if("${CMAKE_C_COMPILER}" MATCHES "emcc")
-  set(EMSCRIPTEN ON)
-  set(CROSS_COMPILE ON)
-  set(IGNORE_SORRY ON)
-endif()
-
 # Set Module Path
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
 
@@ -128,7 +132,7 @@ set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE        "-O3 -DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 set(CMAKE_CXX_FLAGS_GPROF          "-O2 -g -pg")
-set(CMAKE_CXX_FLAGS_EMSCRIPTEN     "-Oz -O3 -s ALLOW_MEMORY_GROWTH=1 --llvm-lto 1 -s DISABLE_EXCEPTION_CATCHING=0 -D LEAN_EMSCRIPTEN -Wno-warn-absolute-paths --bind")
+set(CMAKE_CXX_FLAGS_EMSCRIPTEN     "-Oz -O3 -s ALLOW_MEMORY_GROWTH=1 --llvm-lto 1 -s DISABLE_EXCEPTION_CATCHING=0 -Wno-warn-absolute-paths")
 
 # OSX .dmg generation (this is working in progress)
 set(CPACK_DMG_BACKGROUND_IMAGE "${LEAN_SOURCE_DIR}/../images/lean.png")
@@ -209,15 +213,47 @@ if (BOOST AND MULTI_THREAD)
   endif()
 endif()
 
-# MPFR
-find_package(MPFR 3.1.0 REQUIRED)
-include_directories(${MPFR_INCLUDES})
-set(EXTRA_LIBS ${EXTRA_LIBS} ${MPFR_LIBRARIES})
+if (${EMSCRIPTEN})
+    include(ExternalProject)
+    set(gmp_install_prefix ${CMAKE_CURRENT_BINARY_DIR}/gmp-root)
+    # The plethory of configure arguments only makes sure that gmp thinks sizeof(mp_limb_t) == sizeof(long) == 4
+    ExternalProject_Add(
+            gmp
+            URL https://leanprover.github.io/lean.js/gmp-5.1.1.tar.bz2
+            URL_HASH SHA256=9a30128284cb710cdc0d71866ed582bc0c97cff3a077ff70739f1d979c76279e
+            BUILD_IN_SOURCE 1
+            CONFIGURE_COMMAND emconfigure ./configure CFLAGS=-m32\ -DPIC --build=i686-pc-linux-gnu --disable-assembly --prefix=${gmp_install_prefix}
+            BUILD_COMMAND emmake make -j4
+            INSTALL_COMMAND make install
+    )
+    set(mpfr_install_prefix ${CMAKE_CURRENT_BINARY_DIR}/mpfr-root)
+    ExternalProject_Add(
+            mpfr
+            DEPENDS gmp
+            URL https://leanprover.github.io/lean.js/mpfr-3.1.1.tar.bz2
+            URL_HASH SHA256=7b66c3f13dc8385f08264c805853f3e1a8eedab8071d582f3e661971c9acd5fd
+            BUILD_IN_SOURCE 1
+            CONFIGURE_COMMAND emconfigure ./configure --prefix=${mpfr_install_prefix} --with-gmp-include=${gmp_install_prefix}/include --with-gmp-lib=${gmp_install_prefix}/lib
+            BUILD_COMMAND emmake make -j4
+            INSTALL_COMMAND make install
+    )
 
-# GMP
-find_package(GMP 5.0.5 REQUIRED)
-include_directories(${GMP_INCLUDE_DIR})
-set(EXTRA_LIBS ${EXTRA_LIBS} ${GMP_LIBRARIES})
+    add_library(lean_external_deps INTERFACE)
+    target_link_libraries(lean_external_deps INTERFACE ${gmp_install_prefix}/lib/libgmp.a ${mpfr_install_prefix}/lib/libmpfr.a)
+    include_directories(lean_external_deps INTERFACE ${gmp_install_prefix}/include ${mpfr_install_prefix}/include)
+    add_dependencies(lean_external_deps gmp mpfr)
+    set(EXTRA_LIBS lean_external_deps)
+else()
+    # MPFR
+    find_package(MPFR 3.1.0 REQUIRED)
+    include_directories(${MPFR_INCLUDES})
+    set(EXTRA_LIBS ${EXTRA_LIBS} ${MPFR_LIBRARIES})
+
+    # GMP
+    find_package(GMP 5.0.5 REQUIRED)
+    include_directories(${GMP_INCLUDE_DIR})
+    set(EXTRA_LIBS ${EXTRA_LIBS} ${GMP_LIBRARIES})
+endif()
 
 # TRACK_MEMORY_USAGE
 if(TRACK_MEMORY_USAGE)
@@ -362,9 +398,13 @@ if(MULTI_THREAD AND (NOT ("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")) AND (NOT BOO
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread")
 endif()
 set(CMAKE_EXE_LINKER_FLAGS_TESTCOV "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
-if(NOT EMSCRIPTEN)
-  add_library(leanstatic ${LEAN_OBJS})
+if(EMSCRIPTEN)
+    set(LEAN_LIBRARY_TYPE SHARED)
+else()
+    set(LEAN_LIBRARY_TYPE STATIC)
 endif()
+add_library(leanstatic ${LEAN_LIBRARY_TYPE} ${LEAN_OBJS})
+target_link_libraries(leanstatic ${EXTRA_LIBS})
 if ((${CYGWIN} EQUAL "1") OR (${CMAKE_SYSTEM_NAME} MATCHES "Windows"))
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--export-all")
 endif()
@@ -414,30 +454,6 @@ file(GLOB_RECURSE LEAN_SOURCES
   "${LEAN_SOURCE_DIR}/[A-Za-z]*.h")
 add_style_check_target(style "${LEAN_SOURCES}")
 add_test(NAME style_check COMMAND "${PYTHON_EXECUTABLE}" "${LEAN_SOURCE_DIR}/cmake/Modules/cpplint.py" ${LEAN_SOURCES})
-endif()
-
-# Set PROCESSOR_COUNT
-if(NOT DEFINED PROCESSOR_COUNT)
-  # Unknown:
-  set(PROCESSOR_COUNT 1)
-
-  # Linux:
-  set(cpuinfo_file "/proc/cpuinfo")
-  if(EXISTS "${cpuinfo_file}")
-    file(STRINGS "${cpuinfo_file}" procs REGEX "^processor.: [0-9]+$")
-    list(LENGTH procs PROCESSOR_COUNT)
-  endif()
-
-  # Mac:
-  if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-     execute_process(COMMAND "sysctl" "hw.ncpu" OUTPUT_VARIABLE info)
-     string(REGEX REPLACE "^hw.ncpu: ([0-9]+).*$" "\\1" PROCESSOR_COUNT "${info}")
-  endif()
-
-  # Windows:
-  if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    set(PROCESSOR_COUNT "$ENV{NUMBER_OF_PROCESSORS}")
-  endif()
 endif()
 
 if("${CROSS_COMPILE}" MATCHES "ON" OR "${CMAKE_C_COMPILER}" MATCHES "emcc")

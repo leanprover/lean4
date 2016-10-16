@@ -37,11 +37,13 @@ Author: Leonardo de Moura
 #include "frontends/lean/opt_cmd.h"
 #include "frontends/smt2/parser.h"
 #include "init/init.h"
-#include "shell/emscripten.h"
 #include "shell/simple_pos_info_provider.h"
 #include "shell/json.h"
 #if defined(LEAN_SERVER)
 #include "shell/server.h"
+#endif
+#if defined(LEAN_EMSCRIPTEN)
+#include <emscripten.h>
 #endif
 #include "version.h"
 #include "githash.h" // NOLINT
@@ -210,15 +212,6 @@ options set_config_option(options const & opts, char const * in) {
     }
 }
 
-#if defined(LEAN_EMSCRIPTEN)
-#include <emscripten/bind.h>
-EMSCRIPTEN_BINDINGS(LEAN_JS) {
-    emscripten::function("lean_init", &initialize_emscripten);
-    emscripten::function("lean_import_module", &emscripten_import_module);
-    emscripten::function("lean_process_file", &emscripten_process_file);
-}
-int main() { return 0; }
-#else
 class initializer {
 private:
     lean::initializer m_init;
@@ -236,6 +229,26 @@ public:
 };
 
 int main(int argc, char ** argv) {
+#if defined(LEAN_EMSCRIPTEN)
+    EM_ASM(
+        var lean_path = process.env['LEAN_PATH'];
+        if (lean_path) {
+            ENV['LEAN_PATH'] = lean_path;
+        }
+
+        try {
+            // emscripten cannot mount all of / in the vfs,
+            // we can only mount subdirectories...
+            FS.mount(NODEFS, { root: '/home' }, '/home');
+            FS.mkdir('/root');
+            FS.mount(NODEFS, { root: '/root' }, '/root');
+
+            FS.chdir(process.cwd());
+        } catch (e) {
+            console.log(e);
+        }
+    );
+#endif
     initializer init;
     bool export_objects     = false;
     unsigned trust_lvl      = LEAN_BELIEVER_TRUST_LEVEL+1;
@@ -449,4 +462,3 @@ int main(int argc, char ** argv) {
     }
     return 1;
 }
-#endif

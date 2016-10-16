@@ -344,7 +344,6 @@ struct import_modules_fn {
     }
 
     module_info_ptr load_module_file(std::string const & base, module_name const & mname) {
-        std::string fname_lean = find_lean_file(base, mname);
         std::string fname = find_olean_file(base, mname);
         auto it    = m_module_info.find(fname);
         if (it)
@@ -357,8 +356,11 @@ struct import_modules_fn {
         try {
             module_metadata metadata;
             metadata.m_mname = mname;
-            metadata.m_lean_mod_time = get_mtime(fname_lean);
-            metadata.m_olean_mod_time = get_mtime(fname);
+            try {
+                std::string fname_lean = find_lean_file(base, mname);
+                metadata.m_lean_mod_time = get_mtime(fname_lean);
+            } catch (...) {}
+            try { metadata.m_olean_mod_time = get_mtime(fname); } catch (...) {}
             m_imported.insert(fname, metadata);
 
             unsigned major, minor, patch, claimed_hash;
@@ -500,7 +502,7 @@ struct import_modules_fn {
                 object_readers & readers = get_object_readers();
                 auto it = readers.find(k);
                 if (it == readers.end())
-                    throw exception(sstream() << "file '" << r->m_fname << "' has been corrupted, unknown object");
+                    throw exception(sstream() << "file '" << r->m_fname << "' has been corrupted, unknown object: " << k);
                 it->second(d, m_senv, add_asynch_update, add_delayed_update);
             }
             obj_counter++;

@@ -1,18 +1,48 @@
+add_executable(lean lean.cpp json.cpp server.cpp)
+target_link_libraries(lean leanstatic)
+install(TARGETS lean DESTINATION bin)
+
+add_executable(lean_js lean_js.cpp)
+target_link_libraries(lean_js leanstatic)
+
 if(${EMSCRIPTEN})
-  add_executable(lean.js lean.cpp emscripten.cpp ${LEAN_OBJS})
-  target_link_libraries(lean.js ${EXTRA_LIBS} "--embed-file library --memory-init-file 0")
+    target_link_libraries(lean "--memory-init-file 0")
+
+    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/run_lean_js
+            "#!/bin/sh\nLEAN_PATH=${CMAKE_CURRENT_SOURCE_DIR}/../../library node ${CMAKE_CURRENT_BINARY_DIR}/lean.js \"$@\"\n")
+    execute_process(COMMAND chmod +x ${CMAKE_CURRENT_BINARY_DIR}/run_lean_js)
+
+    # FIXME(gabriel): we rebuild the library using lean.js because the serialization is different
+    file(READ ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/linja.in linja_code)
+    string(REGEX REPLACE "\ng_lean_path[^\n]* = [^\n]*" "\ng_lean_path = '${CMAKE_CURRENT_BINARY_DIR}/run_lean_js'" linja_js_code ${linja_code})
+    string(REGEX REPLACE "ninja_option = \\[\\]" "ninja_option = ['-j1']" linja_js_code ${linja_js_code})
+    string(REGEX REPLACE "  make_deps_all_files\\(args\\)" "  #" linja_js_code ${linja_js_code})
+    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/linja_js ${linja_js_code})
+    execute_process(COMMAND chmod +x ${CMAKE_CURRENT_BINARY_DIR}/linja_js)
+    add_custom_target(build_lean_js_library
+            COMMAND find -name \\*.olean -exec rm '{}' \\\;
+            COMMAND ${CMAKE_CURRENT_BINARY_DIR}/linja_js
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../library)
+
+    # copy olean files from the library into build/emscripten/shell/library/...
+    add_custom_target(lean_js_library
+        COMMAND rm -rf ${CMAKE_CURRENT_BINARY_DIR}/library
+        COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/library
+        COMMAND bash -c "(cd ${LEAN_JS_LIBRARY}; tar c `find -name '*.olean'`) | (cd ${CMAKE_CURRENT_BINARY_DIR}/library; tar x)"
+        VERBATIM)
+
+    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/lean_js.html DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
+    target_link_libraries(lean_js "--embed-file library --memory-init-file 0 --bind")
+    add_dependencies(lean_js lean_js_library)
+    set_target_properties(lean_js PROPERTIES COMPILE_FLAGS --bind -s NO_EXIT_RUNTIME=1)
 else()
-  add_executable(lean lean.cpp emscripten.cpp json.cpp server.cpp)
-  target_link_libraries(lean leanstatic ${EXTRA_LIBS})
   ADD_CUSTOM_COMMAND(TARGET lean
     POST_BUILD
     COMMAND "${CMAKE_COMMAND}" -E make_directory "${LEAN_SOURCE_DIR}/../bin"
     COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_CURRENT_BINARY_DIR}/lean${CMAKE_EXECUTABLE_SUFFIX}" "${LEAN_SOURCE_DIR}/../bin/"
     )
-  install(TARGETS lean DESTINATION bin)
 endif()
-
-add_library(shell OBJECT emscripten.cpp)
 
 # add_test(example1_stdin1 ${LEAN_SOURCE_DIR}/cmake/redirect.sh ${CMAKE_CURRENT_BINARY_DIR}/lean "${LEAN_SOURCE_DIR}/../tests/lean/single.lean")
 # add_test(lean_export ${CMAKE_CURRENT_BINARY_DIR}/lean "-o simple.olean" "${LEAN_SOURCE_DIR}/../tests/lean/run/simple.lean")

@@ -40,7 +40,13 @@ bool is_directory(char const * pathname) {
     return info.st_mode & S_IFDIR;
 }
 
-#if defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
+#if defined(LEAN_EMSCRIPTEN)
+// emscripten version
+static char g_path_sep     = ':';
+static char g_sep          = '/';
+static char g_bad_sep      = '\\';
+bool is_path_sep(char c) { return c == g_path_sep; }
+#elif defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
 // Windows version
 static char g_path_sep     = ';';
 static char g_path_alt_sep = ':';
@@ -118,19 +124,19 @@ std::string get_path(std::string f) {
 }
 
 void init_lean_path() {
-#if defined(LEAN_EMSCRIPTEN)
-    *g_lean_path = "/library";
-    g_lean_path_vector->push_back(*g_lean_path);
-#else
     char * r = nullptr;
     r = getenv("LEAN_PATH");
     if (r == nullptr) {
+#ifdef LEAN_EMSCRIPTEN
+        *g_lean_path = "/library";
+#else
         std::string exe_path = get_path(get_exe_location());
         *g_lean_path  = exe_path + g_sep + ".." + g_sep + "library";
         *g_lean_path += g_path_sep;
         *g_lean_path += exe_path + g_sep + ".." + g_sep + "lib" + g_sep + "lean" + g_sep + "library";
         *g_lean_path += g_path_sep;
         *g_lean_path += ".";
+#endif
     } else {
         *g_lean_path = r;
     }
@@ -148,7 +154,6 @@ void init_lean_path() {
     }
     if (j > i)
         g_lean_path_vector->push_back(g_lean_path->substr(i, j - i));
-#endif
 }
 
 static char g_sep_str[2];

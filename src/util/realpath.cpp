@@ -21,7 +21,9 @@ Author: Leonardo de Moura
 
 namespace lean {
 std::string lrealpath(char const * fname) {
-#if defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
+#if defined(LEAN_EMSCRIPTEN)
+    return fname;
+#elif defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
     constexpr unsigned BufferSize = 8192;
     char buffer[BufferSize];
     DWORD retval = GetFullPathName(fname, BufferSize, buffer, nullptr);

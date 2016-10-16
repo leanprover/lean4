@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <vector>
 #include "util/test.h"
-#include "shell/emscripten.h"
+#include "shell/lean_js.h"
 using namespace lean;
 
 int main() {

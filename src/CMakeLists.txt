@@ -219,8 +219,8 @@ if (${EMSCRIPTEN})
     # The plethory of configure arguments only makes sure that gmp thinks sizeof(mp_limb_t) == sizeof(long) == 4
     ExternalProject_Add(
             gmp
-            URL https://leanprover.github.io/lean.js/gmp-5.1.1.tar.bz2
-            URL_HASH SHA256=9a30128284cb710cdc0d71866ed582bc0c97cff3a077ff70739f1d979c76279e
+            URL https://gmplib.org/download/gmp/gmp-6.1.1.tar.bz2
+            URL_HASH SHA256=a8109865f2893f1373b0a8ed5ff7429de8db696fc451b1036bd7bdf95bbeffd6
             BUILD_IN_SOURCE 1
             CONFIGURE_COMMAND emconfigure ./configure CFLAGS=-m32\ -DPIC --build=i686-pc-linux-gnu --disable-assembly --prefix=${gmp_install_prefix}
             BUILD_COMMAND emmake make -j4
@@ -230,8 +230,8 @@ if (${EMSCRIPTEN})
     ExternalProject_Add(
             mpfr
             DEPENDS gmp
-            URL https://leanprover.github.io/lean.js/mpfr-3.1.1.tar.bz2
-            URL_HASH SHA256=7b66c3f13dc8385f08264c805853f3e1a8eedab8071d582f3e661971c9acd5fd
+            URL http://www.mpfr.org/mpfr-current/mpfr-3.1.5.tar.bz2
+            URL_HASH SHA256=ca498c1c7a74dd37a576f353312d1e68d490978de4395fa28f1cbd46a364e658
             BUILD_IN_SOURCE 1
             CONFIGURE_COMMAND emconfigure ./configure --prefix=${mpfr_install_prefix} --with-gmp-include=${gmp_install_prefix}/include --with-gmp-lib=${gmp_install_prefix}/lib
             BUILD_COMMAND emmake make -j4

@@ -10,6 +10,9 @@ Author: Leonardo de Moura
 #include <string>
 #include <memory>
 #include <cstdlib>
+#if defined(LEAN_EMSCRIPTEN)
+#include <emscripten.h>
+#endif
 #ifndef _WINDOWS
 // Support for pid
 #include<unistd.h>
@@ -71,6 +74,10 @@ void enable_debug_dialog(bool flag) {
 }
 
 void invoke_debugger() {
+#if defined(LEAN_EMSCRIPTEN)
+    EM_ASM(debugger;);
+    exit(1);
+#else
     g_has_violations = true;
     if (!g_debug_dialog)
         exit(1);
@@ -118,6 +125,7 @@ void invoke_debugger() {
             std::cerr << "INVALID COMMAND\n";
         }
     }
+#endif
 }
 // LCOV_EXCL_STOP
 }

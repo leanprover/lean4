@@ -947,3 +947,20 @@ lemma up_down {A : Type u} : ∀ (b : ulift.{v} A), up (down b) = b
 lemma down_up {A : Type u} (a : A) : down (up.{v} a) = a :=
 rfl
 end ulift
+
+/- Equalities for rewriting let-expressions -/
+lemma let_value_eq {A : Type u} {B : Type v} {a₁ a₂ : A} (b : A → B) :
+                   a₁ = a₂ → (let x : A := a₁ in b x) = (let x : A := a₂ in b x) :=
+λ h, eq.rec_on h rfl
+
+lemma let_value_heq {A : Type v} {B : A → Type u} {a₁ a₂ : A} (b : Π x : A, B x) :
+                    a₁ = a₂ → (let x : A := a₁ in b x) == (let x : A := a₂ in b x) :=
+λ h, eq.rec_on h (heq.refl (b a₁))
+
+lemma let_body_eq {A : Type v} {B : A → Type u} (a : A) {b₁ b₂ : Π x : A, B x} :
+                  (∀ x, b₁ x = b₂ x) → (let x : A := a in b₁ x) = (let x : A := a in b₂ x) :=
+λ h, h a
+
+lemma let_eq {A : Type v} {B : Type u} {a₁ a₂ : A} {b₁ b₂ : A → B} :
+             a₁ = a₂ → (∀ x, b₁ x = b₂ x) → (let x : A := a₁ in b₁ x) = (let x : A := a₂ in b₂ x) :=
+λ h₁ h₂, eq.rec_on h₁ (h₂ a₁)

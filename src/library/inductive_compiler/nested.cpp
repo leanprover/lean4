@@ -1259,7 +1259,6 @@ class add_nested_inductive_decl_fn {
         opts = opts.update(get_simplify_lift_eq_name(), false);
         opts = opts.update(get_simplify_canonize_instances_fixed_point_name(), false);
         opts = opts.update(get_simplify_canonize_proofs_fixed_point_name(), false);
-        opts = opts.update(get_simplify_canonize_subsingletons_name(), false);
         return opts;
     }
 

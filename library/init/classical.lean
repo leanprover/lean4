@@ -143,13 +143,13 @@ cases_true_false (λ x, x = false ∨ x = true)
   (or.inl rfl)
   a
 
-theorem eq.of_iff {a b : Prop} (h : a ↔ b) : a = b :=
+theorem iff.to_eq {a b : Prop} (h : a ↔ b) : a = b :=
 iff.elim (assume h1 h2, propext (iff.intro h1 h2)) h
 
 theorem iff_eq_eq {a b : Prop} : (a ↔ b) = (a = b) :=
 propext (iff.intro
-  (assume h, eq.of_iff h)
-  (assume h, iff.of_eq h))
+  (assume h, iff.to_eq h)
+  (assume h, h^.to_iff))
 
 lemma eq_false {a : Prop} : (a = false) = (¬ a) :=
 have (a ↔ false) = (¬ a), from propext (iff_false a),

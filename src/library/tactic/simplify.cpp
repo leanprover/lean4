@@ -30,6 +30,7 @@ Author: Daniel Selsam, Leonardo de Moura
 #include "library/congr_lemma.h"
 #include "library/fun_info.h"
 #include "library/vm/vm_expr.h"
+#include "library/vm/vm_option.h"
 #include "library/vm/vm_list.h"
 #include "library/vm/vm_name.h"
 #include "library/tactic/tactic_state.h"
@@ -39,7 +40,7 @@ Author: Daniel Selsam, Leonardo de Moura
 #include "library/tactic/simplify.h"
 
 #ifndef LEAN_DEFAULT_SIMPLIFY_MAX_STEPS
-#define LEAN_DEFAULT_SIMPLIFY_MAX_STEPS 10000
+#define LEAN_DEFAULT_SIMPLIFY_MAX_STEPS 1000000
 #endif
 #ifndef LEAN_DEFAULT_SIMPLIFY_CONTEXTUAL
 #define LEAN_DEFAULT_SIMPLIFY_CONTEXTUAL true
@@ -59,6 +60,10 @@ Author: Daniel Selsam, Leonardo de Moura
 
 namespace lean {
 #define lean_simp_trace(CTX, N, CODE) lean_trace(N, scope_trace_env _scope1(CTX.env(), CTX); CODE)
+
+/* -----------------------------------
+   Core simplification procedure.
+   ------------------------------------ */
 
 simp_result simplify_core_fn::join(simp_result const & r1, simp_result const & r2) {
     return ::lean::join(m_ctx, m_rel, r1, r2);
@@ -239,7 +244,8 @@ simp_result simplify_core_fn::try_user_congr(expr const & e, simp_lemma const & 
         expr m_type = tmp_ctx.instantiate_mvars(tmp_ctx.infer(m));
 
         while (is_pi(m_type)) {
-            expr d = instantiate_rev(binding_domain(m_type), local_factory.as_buffer().size(), local_factory.as_buffer().data());
+            expr d = instantiate_rev(binding_domain(m_type), local_factory.as_buffer().size(),
+                                     local_factory.as_buffer().data());
             expr l = local_factory.push_local(binding_name(m_type), d, binding_info(m_type));
             lean_assert(!has_metavar(l));
             m_type = binding_body(m_type);
@@ -463,6 +469,64 @@ simp_result simplify_core_fn::congr_funs(simp_result const & r_f, buffer<expr> c
     return simp_result(e, pf);
 }
 
+simp_result simplify_core_fn::rewrite(expr const & e) {
+    simp_lemmas_for const * sr = m_slss.find(m_rel);
+    if (!sr) return simp_result(e);
+
+    list<simp_lemma> const * srs = sr->find(e);
+    if (!srs) {
+        lean_trace_d(name({"debug", "simplify", "try_rewrite"}), tout() << "no simp lemmas for: " << e << "\n";);
+        return simp_result(e);
+    }
+
+    for (simp_lemma const & lemma : *srs) {
+        simp_result r = rewrite(e, lemma);
+        if (!is_eqp(r.get_new(), e)) {
+            lean_trace_d(name({"simplify", "rewrite"}), tout() << "[" << lemma.get_id() << "]: " << e
+                         << " ==> " << r.get_new() << "\n";);
+            return r;
+        }
+    }
+
+    return simp_result(e);
+}
+
+simp_result simplify_core_fn::rewrite(expr const & e, simp_lemma const & sl) {
+    tmp_type_context tmp_ctx(m_ctx, sl.get_num_umeta(), sl.get_num_emeta());
+    if (!tmp_ctx.is_def_eq(e, sl.get_lhs())) {
+        lean_trace_d(name({"debug", "simplify", "rewrite"}), tout() << "fail to unify: " << sl.get_id() << "\n";);
+        return simp_result(e);
+    }
+
+    if (!instantiate_emetas(tmp_ctx, sl.get_num_emeta(), sl.get_emetas(), sl.get_instances())) {
+        lean_trace_d(name({"debug", "simplify", "rewrite"}), tout() << "fail to instantiate emetas: " <<
+                     sl.get_id() << "\n";);
+        return simp_result(e);
+    }
+
+    for (unsigned i = 0; i < sl.get_num_umeta(); i++) {
+        if (!tmp_ctx.is_uassigned(i))
+            return simp_result(e);
+    }
+
+    expr new_lhs = tmp_ctx.instantiate_mvars(sl.get_lhs());
+    expr new_rhs = tmp_ctx.instantiate_mvars(sl.get_rhs());
+    if (sl.is_permutation()) {
+        if (!is_lt(new_rhs, new_lhs, false)) {
+            lean_simp_trace(tmp_ctx, name({"simplify", "perm"}),
+                            tout() << "perm rejected: " << new_rhs << " !< " << new_lhs << "\n";);
+            return simp_result(e);
+        }
+    }
+
+    if (sl.is_refl()) {
+        return simp_result(new_rhs);
+    } else {
+        expr pf = tmp_ctx.instantiate_mvars(sl.get_proof());
+        return simp_result(new_rhs, pf);
+    }
+}
+
 simp_result simplify_core_fn::visit(expr const & e, optional<expr> const & parent) {
     check_system("simplify");
     inc_num_steps();
@@ -635,6 +699,238 @@ simp_result simplify_core_fn::operator()(name const & rel, expr const & e) {
     }
 }
 
+optional<expr> simplify_core_fn::prove_by_simp(name const & rel, expr const & e) {
+    lean_assert(rel == get_eq_name() || rel == get_iff_name());
+    simp_result r = operator()(rel, e);
+    name const & mpr = rel == get_eq_name() ? get_eq_mpr_name() : get_iff_mpr_name();
+
+    name rrel;
+    expr lhs, rhs;
+    if (is_relation(m_ctx.env(), r.get_new(), rrel, lhs, rhs) &&
+        is_refl_relation(m_ctx.env(), rrel) &&
+        m_ctx.is_def_eq(lhs, rhs)) {
+        if (r.has_proof()) {
+            return some_expr(mk_app(m_ctx, mpr, r.get_proof(), mk_refl(m_ctx, rrel, lhs)));
+        } else {
+            return some_expr(mk_refl(m_ctx, rrel, lhs));
+        }
+    } else if (is_true(r.get_new())) {
+        if (r.has_proof()) {
+            return some_expr(mk_app(m_ctx, mpr, r.get_proof(), mk_true_intro()));
+        } else {
+            return some_expr(mk_true_intro());
+        }
+    }
+    return none_expr();
+}
+
+/* -----------------------------------
+   simplify_ext_core_fn
+   ------------------------------------ */
+
+simplify_ext_core_fn::simplify_ext_core_fn(type_context & ctx, simp_lemmas const & slss,
+                                           unsigned max_steps, bool contextual, bool lift_eq,
+                                           bool canonize_instances, bool canonize_proofs,
+                                           bool use_axioms):
+    simplify_core_fn(ctx, slss, max_steps, contextual, lift_eq, canonize_instances, canonize_proofs),
+    m_use_axioms (use_axioms) {
+}
+
+simp_result simplify_ext_core_fn::visit_lambda(expr const & e) {
+    if (m_rel != get_eq_name() || !m_use_axioms) return simp_result(e);
+    type_context::tmp_locals locals(m_ctx);
+    expr it = e;
+    while (is_lambda(it)) {
+        expr d = instantiate_rev(binding_domain(it), locals.size(), locals.as_buffer().data());
+        expr l = locals.push_local(binding_name(it), d, binding_info(it));
+        it = binding_body(it);
+    }
+    it = instantiate_rev(it, locals.size(), locals.as_buffer().data());
+
+    simp_result r = visit(it, some_expr(e));
+    expr new_body = r.get_new();
+
+    if (new_body == it)
+        return simp_result(e);
+
+    if (!r.has_proof())
+        return simp_result(locals.mk_lambda(new_body));
+
+    // TODO(Leo): create funext proof
+    return simp_result(e);
+}
+
+simp_result simplify_ext_core_fn::forall_congr(expr const & e) {
+    lean_assert(m_rel == get_eq_name() || m_rel == get_iff_name());
+    buffer<expr> pis;
+    type_context::tmp_locals locals(m_ctx);
+    expr it = e;
+    while (is_pi(it)) {
+        expr d = instantiate_rev(binding_domain(it), locals.as_buffer().size(), locals.as_buffer().data());
+        if (m_ctx.is_prop(d))
+            break;
+        pis.push_back(it);
+        locals.push_local(binding_name(it), d, binding_info(it));
+        it = binding_body(it);
+    }
+    buffer<expr> const & ls = locals.as_buffer();
+    lean_assert(pis.size() == ls.size());
+    expr body          = instantiate_rev(it, ls.size(), ls.data());
+    simp_result body_r = visit(body, some_expr(e));
+    expr new_body      = body_r.get_new();
+    expr abst_new_body = abstract_locals(new_body, ls.size(), ls.data());
+    name lemma_name    = m_rel == get_eq_name() ? get_forall_congr_eq_name() : get_forall_congr_name();
+    if (body_r.has_proof()) {
+        expr pr      = body_r.get_proof();
+        expr Pr      = abstract_locals(pr, ls.size(), ls.data());
+        unsigned i   = pis.size();
+        expr Q       = abst_new_body;
+        expr R       = abst_new_body;
+        while (i > 0) {
+            --i;
+            expr pi      = pis[i];
+            expr A       = binding_domain(pi);
+            level A_lvl  = get_level(m_ctx, m_ctx.infer(ls[i]));
+            expr P       = mk_lambda(binding_name(pi), A, binding_body(pi));
+            expr Q       = mk_lambda(binding_name(pi), A, R);
+            expr H       = mk_lambda(binding_name(pi), A, Pr);
+            Pr           = mk_app(mk_constant(lemma_name, {A_lvl}), A, P, Q, H);
+            R            = update_binding(pi, A, R);
+        }
+        lean_assert(closed(Pr));
+        return simp_result(R, Pr);
+    } else if (new_body == body) {
+        return simp_result(e);
+    } else {
+        expr R = abst_new_body;
+        unsigned i = pis.size();
+        while (i > 0) {
+            --i;
+            R = update_binding(pis[i], binding_domain(pis[i]), R);
+        }
+        return simp_result(R);
+    }
+    return simp_result(e);
+}
+
+simp_result simplify_ext_core_fn::imp_congr(expr const & e) {
+    // TODO(Leo)
+    return simp_result(e);
+}
+
+simp_result simplify_ext_core_fn::visit_pi(expr const & e) {
+    if ((m_rel == get_eq_name() && m_use_axioms) || m_rel == get_iff_name()) {
+        if (m_ctx.is_prop(e)) {
+            if (!m_ctx.is_prop(binding_domain(e)))
+                return forall_congr(e);
+            else if (is_arrow(e))
+                return imp_congr(e);
+        }
+    }
+    return simplify_core_fn::visit_pi(e);
+}
+
+simp_result simplify_ext_core_fn::visit_let(expr const & e) {
+    /* TODO(Leo): we need to implement efficient code for checking whether the abstraction of
+       a let-body is type correct or not */
+    return simp_result(e);
+}
+
+static optional<pair<simp_result, bool>> to_ext_result(simp_result const & r) {
+    return optional<pair<simp_result, bool>>(r, true);
+}
+
+static optional<pair<simp_result, bool>> no_ext_result() {
+    return optional<pair<simp_result, bool>>();
+}
+
+optional<pair<simp_result, bool>> simplify_fn::pre(expr const & e, optional<expr> const &) {
+    if (auto r = m_ctx.reduce_projection(e))
+        return to_ext_result(simp_result(*r));
+    else
+        return no_ext_result();
+}
+
+optional<pair<simp_result, bool>> simplify_fn::post(expr const & e, optional<expr> const &) {
+    simp_result r = rewrite(e);
+    if (r.get_new() != e)
+        return to_ext_result(r);
+    else
+        return no_ext_result();
+}
+
+class vm_simplify_fn : public simplify_ext_core_fn {
+    vm_obj       m_a;
+    vm_obj       m_prove;
+    vm_obj       m_pre;
+    vm_obj       m_post;
+    tactic_state m_s;
+
+    optional<pair<simp_result, bool>> invoke_fn(vm_obj const & fn, expr const & e, optional<expr> const & parent) {
+        m_s = set_mctx_lctx(m_s, m_ctx.mctx(), m_ctx.lctx());
+        vm_obj r = invoke(fn, m_a, to_obj(m_rel), to_obj(m_slss), to_obj(parent), to_obj(e), to_obj(m_s));
+        /* r : tactic_state (A × expr × option expr × bool) */
+        if (optional<tactic_state> new_s = is_tactic_success(r)) {
+            m_s = *new_s;
+            m_ctx.set_mctx(m_s.mctx());
+            vm_obj t = cfield(r, 0);
+            /* t : A × expr × option expr × bool */
+            m_a        = cfield(t, 0);
+            vm_obj t1  = cfield(t, 1);
+            expr new_e = to_expr(cfield(t1, 0));
+            vm_obj t2  = cfield(t1, 1);
+            optional<expr> new_pr;
+            vm_obj vpr = cfield(t2, 0);
+            if (!is_none(vpr))
+                new_pr = to_expr(get_some_value(vpr));
+            bool flag  = to_bool(cfield(t2, 1));
+            return optional<pair<simp_result, bool>>(simp_result(new_e, new_pr), flag);
+        } else {
+            return no_ext_result();
+        }
+    }
+
+    virtual optional<pair<simp_result, bool>> pre(expr const & e, optional<expr> const & parent) override {
+        return invoke_fn(m_pre, e, parent);
+    }
+
+    virtual optional<pair<simp_result, bool>> post(expr const & e, optional<expr> const & parent) override {
+        return invoke_fn(m_post, e, parent);
+    }
+
+    virtual optional<expr> prove(expr const & e) override {
+        tactic_state s         = mk_tactic_state_for(m_ctx.env(), m_ctx.get_options(), m_ctx.lctx(), e);
+        vm_obj r_obj           = invoke(m_prove, m_a, to_obj(s));
+        optional<tactic_state> s_new = is_tactic_success(r_obj);
+        if (!s_new || s_new->goals()) return none_expr();
+        metavar_context mctx   = s_new->mctx();
+        expr result            = mctx.instantiate_mvars(s_new->main());
+        if (has_expr_metavar(result)) return none_expr();
+        m_a = cfield(r_obj, 0);
+        m_ctx.set_mctx(mctx);
+        return some_expr(result);
+    }
+
+public:
+    vm_simplify_fn(type_context & ctx, simp_lemmas const & slss,
+                   unsigned max_steps, bool contextual, bool lift_eq,
+                   bool canonize_instances, bool canonize_proofs, bool use_axioms,
+                   vm_obj const & prove, vm_obj const & pre, vm_obj const & post):
+        simplify_ext_core_fn(ctx, slss, max_steps, contextual, lift_eq,
+                             canonize_instances, canonize_proofs, use_axioms),
+        m_prove(prove), m_pre(pre), m_post(post),
+        m_s(mk_tactic_state_for(ctx.env(), ctx.get_options(), ctx.mctx(), ctx.lctx(), mk_true())) {}
+};
+
+void initialize_new_simplify() {
+}
+
+void finalize_new_simplify() {
+}
+
+/* LEGACY */
+
+
 
 static name * g_simplify_prefix = nullptr;
 name get_simplify_prefix_name() { return *g_simplify_prefix; }
@@ -672,7 +968,8 @@ static bool get_simplify_lift_eq(options const & o) {
 }
 
 static bool get_simplify_canonize_instances_fixed_point(options const & o) {
-    return o.get_bool(*g_simplify_canonize_instances_fixed_point, LEAN_DEFAULT_SIMPLIFY_DEFEQ_CANONIZE_INSTANCES_FIXED_POINT);
+    return o.get_bool(*g_simplify_canonize_instances_fixed_point,
+                      LEAN_DEFAULT_SIMPLIFY_DEFEQ_CANONIZE_INSTANCES_FIXED_POINT);
 }
 
 static bool get_simplify_canonize_proofs_fixed_point(options const & o) {
@@ -739,7 +1036,8 @@ class simplifier {
         return m_canonize_instances_fixed_point || m_canonize_proofs_fixed_point;
     }
 
-    bool instantiate_emetas(tmp_type_context & tmp_tctx, unsigned num_emeta, list<expr> const & emetas, list<bool> const & instances);
+    bool instantiate_emetas(tmp_type_context & tmp_tctx, unsigned num_emeta,
+                            list<expr> const & emetas, list<bool> const & instances);
 
     /* Simp_Results */
     simp_result lift_from_eq(expr const & old_e, simp_result const & r_eq);
@@ -796,7 +1094,8 @@ class simplifier {
         for (simp_lemma const & lemma : *srs) {
             simp_result r = rewrite_binary(e, lemma);
             if (!is_eqp(r.get_new(), e)) {
-                lean_trace_d(name({"simplifier", "rewrite"}), tout() << "[" << lemma.get_id() << "]: " << e << " ==> " << r.get_new() << "\n";);
+                lean_trace_d(name({"simplifier", "rewrite"}), tout() << "[" << lemma.get_id() << "]: " << e <<
+                             " ==> " << r.get_new() << "\n";);
                 return r;
             }
         }
@@ -810,7 +1109,8 @@ class simplifier {
             return simp_result(e);
         }
         if (!instantiate_emetas(tmp_tctx, sl.get_num_emeta(), sl.get_emetas(), sl.get_instances())) {
-            lean_trace_d(name({"debug", "simplifier", "try_rewrite"}), tout() << "fail to instantiate emetas: " << sl.get_id() << "\n";);
+            lean_trace_d(name({"debug", "simplifier", "try_rewrite"}), tout() << "fail to instantiate emetas: " <<
+                         sl.get_id() << "\n";);
             return simp_result(e);
         }
 
@@ -913,7 +1213,8 @@ class simplifier {
         if (m_rewrite) {
             simp_result r_rewrite = simplify_rewrite_binary(r.get_new());
             if (r_rewrite.get_new() != r.get_new()) {
-                lean_trace_d(name({"simplifier", "rewrite"}), tout() << r.get_new() << " ==> " << r_rewrite.get_new() << "\n";);
+                lean_trace_d(name({"simplifier", "rewrite"}), tout() << r.get_new() << " ==> " <<
+                             r_rewrite.get_new() << "\n";);
                 return join(r, r_rewrite);
             }
         }
@@ -1485,6 +1786,9 @@ expr simplifier::remove_unnecessary_casts(expr const & e) {
 
     return mk_app(f, args);
 }
+
+simp_result simplify(type_context & tctx, name const & rel, simp_lemmas const & simp_lemmas,
+                     vm_obj const & prove_fn, expr const & e);
 
 vm_obj simp_lemmas_simplify_core(vm_obj const & lemmas, vm_obj const & prove_fn, vm_obj const & rel_name, vm_obj const & e, vm_obj const & s0) {
     tactic_state const & s   = to_tactic_state(s0);

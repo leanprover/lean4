@@ -60,6 +60,10 @@ vm_obj to_obj(expr const & e) {
     return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_expr))) vm_expr(e));
 }
 
+vm_obj to_obj(optional<expr> const & e) {
+    return e ? mk_vm_some(to_obj(*e)) : mk_vm_none();
+}
+
 binder_info to_binder_info(vm_obj const & o) {
     lean_assert(is_simple(o));
     /*

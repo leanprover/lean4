@@ -15,6 +15,7 @@ macro_definition const & to_macro_definition(vm_obj const & o);
 vm_obj to_obj(macro_definition const & d);
 expr const & to_expr(vm_obj const & o);
 vm_obj to_obj(expr const & e);
+vm_obj to_obj(optional<expr> const & e);
 void initialize_vm_expr();
 void finalize_vm_expr();
 void initialize_vm_expr_builtin_idxs();

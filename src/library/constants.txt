@@ -73,6 +73,8 @@ false.rec
 field
 fin
 fin.mk
+forall_congr
+forall_congr_eq
 funext
 ge
 get_line
@@ -111,6 +113,8 @@ iff.refl
 iff.symm
 iff.trans
 iff_true_intro
+imp_congr
+imp_congr_eq
 implies
 implies_of_if_neg
 implies_of_if_pos

@@ -281,7 +281,7 @@ iff.intro (iff.elim_right h) (iff.elim_left h)
 lemma iff.comm : (a ↔ b) ↔ (b ↔ a) :=
 iff.intro iff.symm iff.symm
 
-lemma iff.of_eq {a b : Prop} (h : a = b) : a ↔ b :=
+lemma eq.to_iff {a b : Prop} (h : a = b) : a ↔ b :=
 eq.rec_on h iff.rfl
 
 lemma not_iff_not_of_iff (h₁ : a ↔ b) : ¬a ↔ ¬b :=
@@ -646,7 +646,7 @@ section
   else is_false (iff.mp (not_iff_not_of_iff h) hp)
 
   def  decidable_of_decidable_of_eq (hp : decidable p) (h : p = q) : decidable q :=
-  decidable_of_decidable_of_iff hp (iff.of_eq h)
+  decidable_of_decidable_of_iff hp h^.to_iff
 
   protected def or.by_cases [decidable p] [decidable q] {A : Type u}
                                    (h : p ∨ q) (h₁ : p → A) (h₂ : q → A) : A :=

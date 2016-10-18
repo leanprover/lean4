@@ -16,11 +16,7 @@ is_associative.mk (λ x y z, propext (@or.assoc x y z))
 -- Basic congruence theorems over equality (using propext)
 attribute [congr]
 theorem imp_congr_ctx_eq {P₁ P₂ Q₁ Q₂ : Prop} (H₁ : P₁ = P₂) (H₂ : P₂ → (Q₁ = Q₂)) : (P₁ → Q₁) = (P₂ → Q₂) :=
-propext (imp_congr_ctx (iff.of_eq H₁) (assume p₂, iff.of_eq (H₂ p₂)))
-
-attribute [congr]
-theorem forall_congr_eq {A : Type u} (P Q : A → Prop) (H : ∀ a, P a = Q a) : ((∀ a, P a) = (∀ a, Q a)) :=
-propext (forall_congr (assume a, iff.of_eq (H a)))
+propext (imp_congr_ctx H₁^.to_iff (assume p₂, (H₂ p₂)^.to_iff))
 
 -- Congruence theorems for flattening
 namespace simplifier

@@ -1251,35 +1251,31 @@ class add_nested_inductive_decl_fn {
         return simp_result(h_a, pr);
     }
 
-    options get_simp_options(options opts) {
-        opts = remove_all_with_prefix(get_simplify_prefix_name(), m_tctx.get_options());
-        opts = opts.update(get_simplify_max_steps_name(), 100000);
-        opts = opts.update(get_simplify_contextual_name(), false);
-        opts = opts.update(get_simplify_rewrite_name(), true);
-        opts = opts.update(get_simplify_lift_eq_name(), false);
-        opts = opts.update(get_simplify_canonize_instances_fixed_point_name(), false);
-        opts = opts.update(get_simplify_canonize_proofs_fixed_point_name(), false);
-        return opts;
-    }
-
     expr prove_by_simp(local_context const & lctx, expr const & thm, list<expr> Hs, bool use_sizeof) {
-        type_context tctx(m_env, get_simp_options(m_tctx.get_options()), lctx, transparency_mode::Semireducible);
-        type_context tctx_whnf(m_env, get_simp_options(m_tctx.get_options()), lctx, transparency_mode::None);
-
+        type_context tctx(m_env, m_tctx.get_options(), lctx, transparency_mode::Semireducible);
+        type_context tctx_whnf(m_env, m_tctx.get_options(), lctx, transparency_mode::None);
         simp_lemmas all_lemmas = use_sizeof ? join(m_sizeof_lemmas, m_lemmas) : m_lemmas;
         for (expr const & H : Hs) {
             expr H_type = tctx_whnf.infer(H);
             all_lemmas = add(tctx_whnf, all_lemmas, mlocal_name(H), H_type, H, LEAN_DEFAULT_PRIORITY);
         }
-
         lean_trace(name({"inductive_compiler", "nested", "simp", "start"}), tout() << thm << "\n";);
-        auto thm_pr = prove_eq_by_simp(tctx, tctx_whnf, all_lemmas, thm);
+        unsigned max_steps      = 1000000;
+        bool contextual         = false;
+        bool lift_eq            = false;
+        bool canonize_instances = false;
+        bool canonize_proofs    = false;
+        bool use_axioms         = false;
+        simplify_fn simplifier(tctx, all_lemmas, max_steps, contextual, lift_eq,
+                               canonize_instances, canonize_proofs, use_axioms);
+        auto thm_pr = simplifier.prove_by_simp(get_eq_name(), thm);
         if (!thm_pr) {
             formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
             lean_trace(name({"inductive_compiler", "nested", "simp", "failure"}),
                        tout() << "\n-------------------\n"
                        << lctx.pp(fmtf(m_env, m_tctx.get_options(), m_tctx)) << "\n";);
-            throw exception("simplifier failed to prove goal; trace 'inductive_compiler.nested.simp.failure' for more information");
+            throw exception("simplifier failed to prove goal; trace 'inductive_compiler.nested.simp.failure' "
+                            "for more information");
         }
         return *thm_pr;
     }

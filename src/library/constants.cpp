@@ -78,6 +78,8 @@ name const * g_false_rec = nullptr;
 name const * g_field = nullptr;
 name const * g_fin = nullptr;
 name const * g_fin_mk = nullptr;
+name const * g_forall_congr = nullptr;
+name const * g_forall_congr_eq = nullptr;
 name const * g_funext = nullptr;
 name const * g_ge = nullptr;
 name const * g_get_line = nullptr;
@@ -116,6 +118,8 @@ name const * g_iff_refl = nullptr;
 name const * g_iff_symm = nullptr;
 name const * g_iff_trans = nullptr;
 name const * g_iff_true_intro = nullptr;
+name const * g_imp_congr = nullptr;
+name const * g_imp_congr_eq = nullptr;
 name const * g_implies = nullptr;
 name const * g_implies_of_if_neg = nullptr;
 name const * g_implies_of_if_pos = nullptr;
@@ -460,6 +464,8 @@ void initialize_constants() {
     g_field = new name{"field"};
     g_fin = new name{"fin"};
     g_fin_mk = new name{"fin", "mk"};
+    g_forall_congr = new name{"forall_congr"};
+    g_forall_congr_eq = new name{"forall_congr_eq"};
     g_funext = new name{"funext"};
     g_ge = new name{"ge"};
     g_get_line = new name{"get_line"};
@@ -498,6 +504,8 @@ void initialize_constants() {
     g_iff_symm = new name{"iff", "symm"};
     g_iff_trans = new name{"iff", "trans"};
     g_iff_true_intro = new name{"iff_true_intro"};
+    g_imp_congr = new name{"imp_congr"};
+    g_imp_congr_eq = new name{"imp_congr_eq"};
     g_implies = new name{"implies"};
     g_implies_of_if_neg = new name{"implies_of_if_neg"};
     g_implies_of_if_pos = new name{"implies_of_if_pos"};
@@ -843,6 +851,8 @@ void finalize_constants() {
     delete g_field;
     delete g_fin;
     delete g_fin_mk;
+    delete g_forall_congr;
+    delete g_forall_congr_eq;
     delete g_funext;
     delete g_ge;
     delete g_get_line;
@@ -881,6 +891,8 @@ void finalize_constants() {
     delete g_iff_symm;
     delete g_iff_trans;
     delete g_iff_true_intro;
+    delete g_imp_congr;
+    delete g_imp_congr_eq;
     delete g_implies;
     delete g_implies_of_if_neg;
     delete g_implies_of_if_pos;
@@ -1225,6 +1237,8 @@ name const & get_false_rec_name() { return *g_false_rec; }
 name const & get_field_name() { return *g_field; }
 name const & get_fin_name() { return *g_fin; }
 name const & get_fin_mk_name() { return *g_fin_mk; }
+name const & get_forall_congr_name() { return *g_forall_congr; }
+name const & get_forall_congr_eq_name() { return *g_forall_congr_eq; }
 name const & get_funext_name() { return *g_funext; }
 name const & get_ge_name() { return *g_ge; }
 name const & get_get_line_name() { return *g_get_line; }
@@ -1263,6 +1277,8 @@ name const & get_iff_refl_name() { return *g_iff_refl; }
 name const & get_iff_symm_name() { return *g_iff_symm; }
 name const & get_iff_trans_name() { return *g_iff_trans; }
 name const & get_iff_true_intro_name() { return *g_iff_true_intro; }
+name const & get_imp_congr_name() { return *g_imp_congr; }
+name const & get_imp_congr_eq_name() { return *g_imp_congr_eq; }
 name const & get_implies_name() { return *g_implies; }
 name const & get_implies_of_if_neg_name() { return *g_implies_of_if_neg; }
 name const & get_implies_of_if_pos_name() { return *g_implies_of_if_pos; }

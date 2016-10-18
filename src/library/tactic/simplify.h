@@ -54,7 +54,8 @@ protected:
     void inc_num_steps();
     bool is_dependent_fn(expr const & f);
     bool should_defeq_canonize() const { return m_canonize_instances || m_canonize_proofs; }
-    bool instantiate_emetas(tmp_type_context & tmp_tctx, unsigned num_emeta, list<expr> const & emetas, list<bool> const & instances);
+    bool instantiate_emetas(tmp_type_context & tmp_tctx, unsigned num_emeta,
+                            list<expr> const & emetas, list<bool> const & instances);
     simp_result lift_from_eq(simp_result const & r_eq);
     simp_lemmas add_to_slss(simp_lemmas const & slss, buffer<expr> const & ls);
     expr remove_unnecessary_casts(expr const & e);
@@ -71,6 +72,12 @@ protected:
     simp_result congr_fun(simp_result const & r_f, expr const & arg);
     simp_result congr_arg(expr const & f, simp_result const & r_arg);
     simp_result congr_funs(simp_result const & r_f, buffer<expr> const & args);
+
+    /* Rewriting
+       Remark: the rewriting methods are implemented on this base class once and for all,
+       but used in subclasses.*/
+    simp_result rewrite(expr const & e);
+    simp_result rewrite(expr const & e, simp_lemma const & sl);
 
     /* Visitors */
     virtual optional<pair<simp_result, bool>> pre(expr const & e, optional<expr> const & parent);
@@ -94,24 +101,38 @@ public:
 
     environment const & env() const;
     simp_result operator()(name const & rel, expr const & e);
+
+    optional<expr> prove_by_simp(name const & rel, expr const & e);
 };
 
-simp_result simplify(type_context & tctx, name const & rel, simp_lemmas const & simp_lemmas, vm_obj const & prove_fn, expr const & e);
-simp_result simplify(type_context & tctx, name const & rel, simp_lemmas const & simp_lemmas, expr const & e);
+/* Extend simplify_core_fn functionality by assuming function
+   extensionality and propositional extensionality. */
+class simplify_ext_core_fn : public simplify_core_fn {
+protected:
+    bool m_use_axioms;
+    simp_result forall_congr(expr const & e);
+    simp_result imp_congr(expr const & e);
+    virtual simp_result visit_lambda(expr const & e) override;
+    virtual simp_result visit_pi(expr const & e) override;
+    virtual simp_result visit_let(expr const & e) override;
+public:
+    simplify_ext_core_fn(type_context & ctx, simp_lemmas const & slss,
+                         unsigned max_steps, bool contextual, bool lift_eq,
+                         bool canonize_instances, bool canonize_proofs, bool use_axioms);
+};
 
-simp_result simplify(type_context & tctx, type_context & tctx_whnf, name const & rel, simp_lemmas const & simp_lemmas, vm_obj const & prove_fn, expr const & e);
-simp_result simplify(type_context & tctx, type_context & tctx_whnf, name const & rel, simp_lemmas const & simp_lemmas, expr const & e);
-
-optional<expr> prove_eq_by_simp(type_context & tctx, type_context & tctx_whnf, simp_lemmas const & simp_lemmas, expr const & e);
-
-name get_simplify_prefix_name();
-name get_simplify_max_steps_name();
-name get_simplify_contextual_name();
-name get_simplify_rewrite_name();
-name get_simplify_lift_eq_name();
-name get_simplify_canonize_instances_fixed_point_name();
-name get_simplify_canonize_proofs_fixed_point_name();
-name get_simplify_canonize_subsingletons_name();
+/* Default (bottom-up) simplifier: reduce projections, and apply simplification lemmas */
+class simplify_fn : public simplify_ext_core_fn {
+protected:
+    virtual optional<pair<simp_result, bool>> pre(expr const & e, optional<expr> const & parent) override;
+    virtual optional<pair<simp_result, bool>> post(expr const & e, optional<expr> const & parent) override;
+public:
+    simplify_fn(type_context & ctx, simp_lemmas const & slss,
+                unsigned max_steps, bool contextual, bool lift_eq,
+                bool canonize_instances, bool canonize_proofs, bool use_axioms):
+        simplify_ext_core_fn(ctx, slss, max_steps, contextual, lift_eq,
+                             canonize_instances, canonize_proofs, use_axioms) {}
+};
 
 void initialize_simplify();
 void finalize_simplify();

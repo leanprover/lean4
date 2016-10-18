@@ -68,7 +68,7 @@ meta constant simp_lemmas.simplify_core : simp_lemmas → tactic unit → name �
    The resulting expression is definitionally equal to the input. -/
 meta constant simp_lemmas.dsimplify_core (max_steps : nat) (visit_instances : bool) : simp_lemmas → expr → tactic expr
 
-meta def default_max_steps := 10000000
+def default_max_steps := 10000000
 
 meta def simp_lemmas.dsimplify : simp_lemmas → expr → tactic expr :=
 simp_lemmas.dsimplify_core default_max_steps ff
@@ -151,6 +151,58 @@ do num_reverted : ℕ ← revert h,
    new_d : expr ← dunfold_core reducible default_max_steps cs d,
    change $ expr.pi n bi new_d b,
    intron num_reverted
+
+structure simplify_config :=
+(max_steps : nat)
+(contextual : bool)
+(lift_eq : bool)
+(canonize_instances : bool)
+(canonize_proofs : bool)
+(use_axioms : bool)
+
+def default_simplify_config : simplify_config :=
+{ max_steps  := default_max_steps,
+  contextual := ff,
+  lift_eq    := tt,
+  canonize_instances := tt,
+  canonize_proofs    := ff,
+  use_axioms := tt }
+
+meta constant simplify_core
+  (c : simplify_config)
+  (s : simp_lemmas)
+  (r : name) :
+  expr → tactic (expr × expr)
+
+meta constant ext_simplify_core
+  /- The user state type. -/
+  {A : Type}
+  /- Initial user data -/
+  (a : A)
+  (c : simplify_config)
+  /- Congruence and simplification lemmas.
+     Remark: the simplification lemmas at not applied automatically like in the simplify_core tactic.
+     the caller must use them at pre/post. -/
+  (s : simp_lemmas)
+  /- Tactic for dischaging hypothesis in conditional rewriting rules.
+     The argument 'A' is the current user state. -/
+  (prove : A → tactic A)
+  /- (pre a r s p e) is invoked before visiting the children of subterm 'e',
+     'r' is the simplification relation being used, 's' is the updated set of lemmas if 'contextual' is tt,
+     'p' is the "parent" expression (if there is one).
+     if it succeeds the result is (new_a, new_e, new_pr, flag) where
+       - 'new_a' is the new value for the user data
+       - 'new_e' is a new expression s.t. 'e r new_e'
+       - 'new_pr' is a proof for 'e r new_e', If it is none, the proof is assumed to be by reflexivity
+       - 'flag'  if tt 'new_e' children should be visited, and 'post' invoked. -/
+  (pre : A → name → simp_lemmas → option expr → expr → tactic (A × expr × option expr × bool))
+  /- (post a r s p e) is invoked after visiting the children of subterm 'e',
+     The output is similar to (pre a r s p e), but the 'flag' indicates whether
+     the new expression should be revisited or not. -/
+  (post : A → name → simp_lemmas → option expr → expr → tactic (A × expr × option expr × bool))
+  /- simplification relation -/
+  (r : name) :
+  expr → tactic (A × expr × expr)
 
 meta def simplify (prove_fn : tactic unit) (extra_lemmas : list expr) (e : expr) : tactic (expr × expr) :=
 do lemmas       ← simp_lemmas.mk_default,

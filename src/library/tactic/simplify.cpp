@@ -868,7 +868,7 @@ class vm_simplify_fn : public simplify_ext_core_fn {
 
     optional<pair<simp_result, bool>> invoke_fn(vm_obj const & fn, expr const & e, optional<expr> const & parent) {
         m_s = set_mctx_lctx(m_s, m_ctx.mctx(), m_ctx.lctx());
-        vm_obj r = invoke(fn, m_a, to_obj(m_rel), to_obj(m_slss), to_obj(parent), to_obj(e), to_obj(m_s));
+        vm_obj r = invoke(fn, m_a, to_obj(m_slss), to_obj(m_rel), to_obj(parent), to_obj(e), to_obj(m_s));
         /* r : tactic_state (A × expr × option expr × bool) */
         if (optional<tactic_state> new_s = is_tactic_success(r)) {
             m_s = *new_s;

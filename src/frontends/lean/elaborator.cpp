@@ -1812,9 +1812,16 @@ expr elaborator::visit_field(expr const & e, optional<expr> const & expected_typ
     name full_fname;
     try {
         full_fname = field_to_decl(e, s, s_type);
-    } catch (elaborator_exception &) {
+    } catch (elaborator_exception & ex1) {
         /* Try again using whnf */
-        full_fname = field_to_decl(e, s, whnf(s_type));
+        expr new_s_type = whnf(s_type);
+        if (new_s_type == s_type)
+            throw;
+        try {
+            full_fname = field_to_decl(e, s, new_s_type);
+        } catch (elaborator_exception & ex2) {
+            throw nested_elaborator_exception(ex2.get_main_expr(), ex1, ex2.pp());
+        }
     }
     expr proj  = copy_tag(e, mk_constant(full_fname));
     expr new_e = copy_tag(e, mk_app(proj, copy_tag(e, mk_as_is(s))));

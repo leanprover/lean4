@@ -254,29 +254,75 @@ auto scanner::read_hex_number() -> token_kind {
     return token_kind::Decimal;
 }
 
+optional<unsigned> scanner::try_digit_to_unsigned(int base, char c) {
+    lean_assert(base == 2 || base == 8 || base == 10 || base == 16);
+    if ('0' <= c && c <= '9') {
+        if (base == 2 && c >= '2')
+            throw_exception("invalid binary digit");
+        if (base == 8 && c >= '8')
+            throw_exception("invalid octal digit");
+        return optional<unsigned>(c - '0');
+    } else if (base == 16 && 'a' <= c && c <= 'f') {
+        return optional<unsigned>(10 + c - 'a');
+    } else if (base == 16 && 'A' <= c && c <= 'F') {
+        return optional<unsigned>(10 + c - 'A');
+    }
+    return optional<unsigned>();
+}
+
 auto scanner::read_number() -> token_kind {
     lean_assert('0' <= curr() && curr() <= '9');
     mpq q(1);
     char c = curr();
     next();
-    if (c == '0' && curr() == 'x')
-        return read_hex_number();
-
     m_num_val = c - '0';
-    bool is_decimal = false;
+
+    // Check for alternate base when first digit is zero.
+    int base = 10;
+    if (m_num_val == 0) {
+        switch (curr()) {
+        case 'b':
+        case 'B':
+            base = 2;
+            next();
+            break;
+        case 'o':
+        case 'O':
+            base = 8;
+            next();
+            break;
+        case 'x':
+        case 'X':
+            base = 16;
+            next();
+            break;
+        }
+        // Read digit after prefix.
+        if (base != 10) {
+            if (auto r = try_digit_to_unsigned(base, curr())) {
+                next();
+                m_num_val = *r;
+            } else {
+                throw_exception("invalid numeral, expected digit after base prefix");
+            }
+        }
+    }
+
+    bool is_post_decimal = false; // Encountered a decimal point (requires base = 10)
+
     while (true) {
         c = curr();
-        if ('0' <= c && c <= '9') {
-            m_num_val = 10*m_num_val + (c - '0');
-            if (is_decimal)
+        if (auto r = try_digit_to_unsigned(base, c)) {
+            m_num_val = base*m_num_val + *r;
+            if (is_post_decimal)
                 q *= 10;
             next();
-        } else if (c == '.') {
+        } else if (base == 10 && c == '.') {
             // Num. is not a decimal. It should be at least Num.0
             if (is_next_digit()) {
-                if (is_decimal)
+                if (is_post_decimal)
                     break;
-                is_decimal = true;
+                is_post_decimal = true;
                 next();
             } else {
                 break;
@@ -285,9 +331,9 @@ auto scanner::read_number() -> token_kind {
             break;
         }
     }
-    if (is_decimal)
+    if (is_post_decimal)
         m_num_val /= q;
-    return is_decimal ? token_kind::Decimal : token_kind::Numeral;
+    return is_post_decimal ? token_kind::Decimal : token_kind::Numeral;
 }
 
 void scanner::read_single_line_comment() {

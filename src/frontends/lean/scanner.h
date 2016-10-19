@@ -67,6 +67,7 @@ protected:
     void next_utf(buffer<char> & cs);
 
     optional<unsigned> try_hex_to_unsigned(char c);
+    optional<unsigned> try_digit_to_unsigned(int base, char c);
     unsigned hex_to_unsigned(char c);
     char read_quoted_char(char const * error_msg);
     token_kind read_string();

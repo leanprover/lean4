@@ -24,24 +24,35 @@
     (setq lean-server-process nil
           lean-server-handler-tq nil)))
 
+(defun lean-server-stderr-buffer-name ()
+  (format "*lean-server stderr (%s)*" (buffer-name)))
+
+(defun lean-server-handle-signal (process event)
+  "Handle signals for lean-server-process"
+  (let ((event-string (s-trim event)))
+    (lean-debug "lean-server-handle-signal: %s"
+                (propertize event-string 'face '(:foreground "red")))
+    (if (s-contains? "abnormally" event)
+        (message "Lean server died. See buffer %s for details; use lean-server-restart to restart it"
+                 (lean-server-stderr-buffer-name)))))
+
 (defun lean-server-start ()
   "Starts the lean server for the current buffer"
   (when (or (not lean-server-process)
             (not (equal (process-status lean-server-process) 'run)))
     (lean-server-stop)
     (setq lean-server-process
-          (let* ((default-directory (or (lean-project-find-root) default-directory))
-                 ; Setting process-connection-type is necessary, otherwise
-                 ; emacs truncates lines with >4096 bytes:
-                 ; https://debbugs.gnu.org/cgi/bugreport.cgi?bug=24531
-                 (process-connection-type nil))
-            (start-file-process "lean-server"
-                                (format "*lean-server (%s)*" (buffer-name))
-                                (lean-get-executable lean-executable-name)
-                                "--server"
-                                (format "*%s*" (buffer-name)))))
-    (set-process-coding-system lean-server-process 'utf-8 'utf-8)
-    (set-process-query-on-exit-flag lean-server-process nil)
+          (let ((default-directory (or (lean-project-find-root) default-directory)))
+            (make-process
+             :name "lean-server"
+             :buffer (format "*lean-server (%s)*" (buffer-name))
+             :command `(,(lean-get-executable lean-executable-name)
+                        "--server"
+                        ,(format "*%s*" (buffer-name)))
+             :coding 'utf-8
+             :noquery t
+             :sentinel #'lean-server-handle-signal
+             :stderr (lean-server-stderr-buffer-name))))
     (setq lean-server-handler-tq (tq-create lean-server-process))))
 
 (defun lean-server-restart ()

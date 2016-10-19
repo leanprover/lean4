@@ -225,7 +225,6 @@ scope_traces_as_messages::scope_traces_as_messages(std::string const & stream_na
         m_redirected_ios = std::unique_ptr<io_state>(new io_state(get_global_ios()));
         m_buffer = std::make_shared<string_output_channel>();
         m_redirected_ios->set_regular_channel(m_buffer);
-        m_redirected_ios->set_diagnostic_channel(m_buffer);
         m_scoped_ios = std::unique_ptr<scope_global_ios>(new scope_global_ios(*m_redirected_ios));
     }
 }

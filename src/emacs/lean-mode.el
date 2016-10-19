@@ -234,6 +234,7 @@ placeholder, call lean-server with --hole option, otherwise call
   (local-set-key lean-keybinding-show-key                  'quail-show-key)
   (local-set-key lean-keybinding-set-option                'lean-set-option)
   (local-set-key lean-keybinding-eval-cmd                  'lean-eval-cmd)
+  (local-set-key lean-keybinding-server-restart            'lean-server-restart)
   (local-set-key lean-keybinding-tab-indent-or-complete    'lean-tab-indent-or-complete)
   (local-set-key lean-keybinding-lean-show-goal-at-pos     'lean-show-goal-at-pos)
   (local-set-key lean-keybinding-lean-show-id-keyword-info 'lean-show-id-keyword-info)
@@ -263,6 +264,7 @@ placeholder, call lean-server with --hole option, otherwise call
     ["List of errors"       flycheck-list-errors              (and lean-flycheck-use flycheck-mode)]
     "-----------------"
     ["Clear all cache"      lean-clear-cache                  t]
+    ["Restart lean process" lean-server-restart               t]
     "-----------------"
     ("Configuration"
      ["Use flycheck (on-the-fly syntax check)"

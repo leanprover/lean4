@@ -157,6 +157,9 @@ false (nil)."
 (defcustom lean-keybinding-eval-cmd (kbd "C-c C-e")
   "Lean Keybinding for eval-cmd"
   :group 'lean-keybinding  :type 'key-sequence)
+(defcustom lean-keybinding-server-restart (kbd "C-c C-r")
+  "Lean Keybinding for server-restart"
+  :group 'lean-keybinding  :type 'key-sequence)
 (defcustom lean-keybinding-tab-indent-or-complete (kbd "TAB")
   "Lean Keybinding for tab-indent-or-complete"
   :group 'lean-keybinding  :type 'key-sequence)

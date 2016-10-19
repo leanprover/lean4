@@ -49,7 +49,9 @@
   (interactive)
   (lean-server-stop)
   (lean-server-start)
-  (when lean-flycheck-use (flycheck-buffer)))
+  (when lean-flycheck-use
+    (flycheck-stop)
+    (flycheck-buffer)))
 
 (defun lean-server-send-command-handler (closure answer)
   "Callback for lean-server-send-command"

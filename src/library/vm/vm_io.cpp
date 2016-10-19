@@ -6,20 +6,22 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include <iostream>
+#include "library/io_state.h"
+#include "library/tactic/tactic_state.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_string.h"
 
 namespace lean {
 vm_obj put_str(vm_obj const & str, vm_obj const &) {
-    std::cout << to_string(str);
+    get_global_ios().get_regular_stream() << to_string(str);
     return mk_vm_unit();
 }
 
 vm_obj put_nat(vm_obj const & n, vm_obj const &) {
     if (is_simple(n))
-        std::cout << cidx(n);
+        get_global_ios().get_regular_stream() << cidx(n);
     else
-        std::cout << to_mpz(n);
+        get_global_ios().get_regular_stream() << to_mpz(n);
     return mk_vm_unit();
 }
 

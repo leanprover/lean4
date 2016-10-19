@@ -26,6 +26,8 @@ vm_obj put_nat(vm_obj const & n, vm_obj const &) {
 }
 
 vm_obj get_line(vm_obj const &) {
+    if (get_global_ios().get_options().get_bool("server"))
+        throw exception("get_line: cannot read from stdin in server mode");
     std::string str;
     std::getline(std::cin, str);
     return to_obj(str);

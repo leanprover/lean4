@@ -256,7 +256,6 @@ int main(int argc, char ** argv) {
     unsigned num_threads    = 1;
 #if defined(LEAN_SERVER)
     bool json_output        = false;
-    bool server             = false;
 #endif
     options opts;
     std::string output;
@@ -326,8 +325,8 @@ int main(int argc, char ** argv) {
             json_output = true;
             break;
         case 'S':
+            opts = opts.update("server", true);
             opts = opts.update(lean::name{"trace", "as_messages"}, true);
-            server = true;
             break;
 #endif
         case 'P':
@@ -389,7 +388,7 @@ int main(int argc, char ** argv) {
 #if defined(LEAN_SERVER)
     if (json_output) {
         ios.set_message_channel(std::make_shared<lean::json_message_stream>(std::cout));
-        // Redirect uncaptured non-json messages to stdout
+        // Redirect uncaptured non-json messages to stderr
         ios.set_regular_channel(ios.get_diagnostic_channel_ptr());
     }
 #endif
@@ -413,7 +412,7 @@ int main(int argc, char ** argv) {
     }
 
 #if defined(LEAN_SERVER)
-    if (server) {
+    if (opts.get_bool("server")) {
         /* Disable assertion violation dialog:
            (C)ontinue, (A)bort, (S)top, Invoke (G)DB */
         lean::enable_debug_dialog(false);

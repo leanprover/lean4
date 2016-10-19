@@ -1202,6 +1202,40 @@ struct elim_match_fn {
         return map2<expr>(Ls, [&](lemma const & L) { return finalize_lemma(fn, L); });
     }
 
+    void check_no_unused_eqns(expr const & eqns) {
+        for (unsigned i = 0; i < m_used_eqns.size(); i++) {
+            if (!m_used_eqns[i]) {
+                buffer<expr> eqns_buffer;
+                to_equations(eqns, eqns_buffer);
+                /* Check if there is an equation occurring before #i s.t. the lhs is of the form
+                     (f x)
+                   where x is a variable */
+                unsigned j = 0;
+                for (; j < i; j++) {
+                    expr eqn_j = eqns_buffer[j];
+                    while (is_lambda(eqn_j))
+                        eqn_j = binding_body(eqn_j);
+                    if (is_equation(eqn_j)) {
+                        buffer<expr> lhs_args;
+                        get_app_args(equation_lhs(eqn_j), lhs_args);
+                        if (lhs_args.size() == 1 && is_var(lhs_args[0]))
+                            break; // found it
+                    }
+                }
+                expr ref = eqns_buffer[i];
+                while (is_lambda(ref)) ref = binding_body(ref);
+                if (j != i) {
+                    throw generic_exception(ref, sstream() << "equation compiler error, equation #" << (i+1)
+                                            << " has not been used in the compilation, note that the left-hand-side of equation #" << (j+1)
+                                            << " is a variable");
+                } else {
+                    throw generic_exception(ref, sstream() << "equation compiler error, equation #" << (i+1)
+                                            << " has not been used in the compilation (possible solution: delete equation)");
+                }
+            }
+        }
+    }
+
     elim_match_result operator()(local_context const & lctx, expr const & eqns) {
         lean_assert(equations_num_fns(eqns) == 1);
         DEBUG_CODE({
@@ -1214,6 +1248,7 @@ struct elim_match_fn {
         std::tie(P, fn)          = mk_problem(lctx, eqns);
         lean_assert(check_problem(P));
         list<lemma> pre_Ls       = process(P);
+        check_no_unused_eqns(eqns);
         fn                       = m_mctx.instantiate_mvars(fn);
         trace_match_debug(tout() << "code:\n" << fn << "\n";);
         list<expr> Ls            = finalize_lemmas(fn, pre_Ls);

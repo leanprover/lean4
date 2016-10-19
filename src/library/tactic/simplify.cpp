@@ -757,8 +757,18 @@ simp_result simplify_ext_core_fn::visit_lambda(expr const & e) {
     if (!r.has_proof())
         return simp_result(locals.mk_lambda(new_body));
 
-    // TODO(Leo): create funext proof
-    return simp_result(e);
+    /* TODO(Leo): the following code can be optimized using the same trick used at
+       forall_congr. */
+    buffer<expr> const & ls = locals.as_buffer();
+    unsigned i = ls.size();
+    expr pr    = r.get_proof();
+    while (i > 0) {
+        --i;
+        expr const & l = ls[i];
+        expr lam_pr    = m_ctx.mk_lambda(l, pr);
+        pr             = mk_funext(m_ctx, lam_pr);
+    }
+    return simp_result(locals.mk_lambda(new_body), pr);
 }
 
 simp_result simplify_ext_core_fn::forall_congr(expr const & e) {

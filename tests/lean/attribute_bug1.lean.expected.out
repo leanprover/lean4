@@ -1,9 +1,9 @@
-attribute_bug1.lean:7:0: error: simp tactic failed to simplify
+attribute_bug1.lean:7:0: error: simplify tactic failed to simplify
 state:
 n : ℕ
 ⊢ f n = n + 1
 constant fdef : ∀ (n : ℕ), f n = n + 1
-attribute_bug1.lean:19:0: error: simp tactic failed to simplify
+attribute_bug1.lean:19:0: error: simplify tactic failed to simplify
 state:
 n : ℕ
 ⊢ f n = n + 1

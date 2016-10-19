@@ -122,6 +122,8 @@ name const & get_iff_trans_name();
 name const & get_iff_true_intro_name();
 name const & get_imp_congr_name();
 name const & get_imp_congr_eq_name();
+name const & get_imp_congr_ctx_name();
+name const & get_imp_congr_ctx_eq_name();
 name const & get_implies_name();
 name const & get_implies_of_if_neg_name();
 name const & get_implies_of_if_pos_name();

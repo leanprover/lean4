@@ -14,3 +14,6 @@ propext (forall_congr (λ a, (h a)^.to_iff))
 
 lemma imp_congr_eq {a b c d : Prop} (h₁ : a = c) (h₂ : b = d) : (a → b) = (c → d) :=
 propext (imp_congr h₁^.to_iff h₂^.to_iff)
+
+lemma imp_congr_ctx_eq {a b c d : Prop} (h₁ : a = c) (h₂ : c → (b = d)) : (a → b) = (c → d) :=
+propext (imp_congr_ctx h₁^.to_iff (λ hc, (h₂ hc)^.to_iff))

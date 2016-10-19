@@ -45,4 +45,4 @@ begin
 end
 open tactic
 example (a b : nat) : a = b → h 0 a = b :=
-begin simp without bla, intros, try reflexivity end -- should fail if bla is used
+begin ctx_simp without bla, intros, try reflexivity end -- should fail if bla is used

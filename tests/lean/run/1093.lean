@@ -6,6 +6,3 @@ attribute [simp] zadd
 
 example (a : nat) : 0 + a ≤ a :=
 by do simp
-
-example (a : nat) : 0 + a ≥ a :=
-by do simp

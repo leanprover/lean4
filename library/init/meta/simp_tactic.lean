@@ -54,16 +54,6 @@ meta constant simp_lemmas.drewrite_core : transparency → simp_lemmas → expr 
 meta def simp_lemmas.drewrite : simp_lemmas → expr → tactic expr :=
 simp_lemmas.drewrite_core reducible
 
-/- Simplify the given expression using [simp] and [congr] lemmas.
-   The first argument is a tactic to be used to discharge proof obligations.
-   The second argument is the name of the relation to simplify over.
-   The third argument is a list of additional expressions to be considered as simp rules.
-   The fourth argument is the expression to be simplified.
-   The result is the simplified expression along with a proof that the new
-   expression is equivalent to the old one.
-   Fails if no simplifications can be performed. -/
-meta constant simp_lemmas.simplify_core : simp_lemmas → tactic unit → name → expr → tactic (expr × expr)
-
 /- (Definitional) Simplify the given expression using *only* reflexivity equality lemmas from the given set of lemmas.
    The resulting expression is definitionally equal to the input. -/
 meta constant simp_lemmas.dsimplify_core (max_steps : nat) (visit_instances : bool) : simp_lemmas → expr → tactic expr
@@ -204,23 +194,26 @@ meta constant ext_simplify_core
   (r : name) :
   expr → tactic (A × expr × expr)
 
-meta def simplify (prove_fn : tactic unit) (extra_lemmas : list expr) (e : expr) : tactic (expr × expr) :=
+meta def simplify (cfg : simplify_config) (extra_lemmas : list expr) (e : expr) : tactic (expr × expr) :=
 do lemmas       ← simp_lemmas.mk_default,
    new_lemmas   ← lemmas^.append extra_lemmas,
    e_type       ← infer_type e >>= whnf,
-   new_lemmas^.simplify_core prove_fn `eq e
+   simplify_core cfg new_lemmas `eq e
 
-meta def simplify_goal (prove_fn : tactic unit) (extra_lemmas : list expr) : tactic unit :=
-do (new_target, Heq) ← target >>= simplify prove_fn extra_lemmas,
+meta def simplify_goal (cfg : simplify_config) (extra_lemmas : list expr) : tactic unit :=
+do (new_target, Heq) ← target >>= simplify cfg extra_lemmas,
    assert `Htarget new_target, swap,
    Ht ← get_local `Htarget,
    mk_app `eq.mpr [Heq, Ht] >>= exact
 
 meta def simp : tactic unit :=
-simplify_goal failed [] >> try triv >> try reflexivity
+simplify_goal default_simplify_config [] >> try triv >> try reflexivity
 
 meta def simp_using (Hs : list expr) : tactic unit :=
-simplify_goal failed Hs >> try triv
+simplify_goal default_simplify_config Hs >> try triv
+
+meta def ctx_simp : tactic unit :=
+simplify_goal {default_simplify_config with contextual := tt} [] >> try triv >> try reflexivity
 
 meta def dsimp : tactic unit :=
 do S ← simp_lemmas.mk_default,
@@ -249,23 +242,23 @@ private meta def collect_eqs : list expr → tactic (list expr)
 meta def simp_using_hs : tactic unit :=
 local_context >>= collect_eqs >>= simp_using
 
-meta def simp_core_at (prove_fn : tactic unit) (extra_lemmas : list expr) (H : expr) : tactic unit :=
+meta def simp_core_at (extra_lemmas : list expr) (H : expr) : tactic unit :=
 do when (expr.is_local_constant H = ff) (fail "tactic simp_at failed, the given expression is not a hypothesis"),
    Htype ← infer_type H,
-   (new_Htype, Heq) ← simplify prove_fn extra_lemmas Htype,
+   (new_Htype, Heq) ← simplify default_simplify_config extra_lemmas Htype,
    assert (expr.local_pp_name H) new_Htype,
    mk_app `eq.mp [Heq, H] >>= exact,
    try $ clear H
 
 meta def simp_at : expr → tactic unit :=
-simp_core_at failed []
+simp_core_at []
 
 meta def simp_at_using (Hs : list expr) : expr → tactic unit :=
-simp_core_at failed Hs
+simp_core_at Hs
 
 meta def simp_at_using_hs (H : expr) : tactic unit :=
 do Hs ← local_context >>= collect_eqs,
-   simp_core_at failed (list.filter (ne H) Hs) H
+   simp_core_at (list.filter (ne H) Hs) H
 
 meta def mk_eq_simp_ext (simp_ext : expr → tactic (expr × expr)) : tactic unit :=
 do (lhs, rhs)     ← target >>= match_eq,

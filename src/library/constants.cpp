@@ -120,6 +120,8 @@ name const * g_iff_trans = nullptr;
 name const * g_iff_true_intro = nullptr;
 name const * g_imp_congr = nullptr;
 name const * g_imp_congr_eq = nullptr;
+name const * g_imp_congr_ctx = nullptr;
+name const * g_imp_congr_ctx_eq = nullptr;
 name const * g_implies = nullptr;
 name const * g_implies_of_if_neg = nullptr;
 name const * g_implies_of_if_pos = nullptr;
@@ -506,6 +508,8 @@ void initialize_constants() {
     g_iff_true_intro = new name{"iff_true_intro"};
     g_imp_congr = new name{"imp_congr"};
     g_imp_congr_eq = new name{"imp_congr_eq"};
+    g_imp_congr_ctx = new name{"imp_congr_ctx"};
+    g_imp_congr_ctx_eq = new name{"imp_congr_ctx_eq"};
     g_implies = new name{"implies"};
     g_implies_of_if_neg = new name{"implies_of_if_neg"};
     g_implies_of_if_pos = new name{"implies_of_if_pos"};
@@ -893,6 +897,8 @@ void finalize_constants() {
     delete g_iff_true_intro;
     delete g_imp_congr;
     delete g_imp_congr_eq;
+    delete g_imp_congr_ctx;
+    delete g_imp_congr_ctx_eq;
     delete g_implies;
     delete g_implies_of_if_neg;
     delete g_implies_of_if_pos;
@@ -1279,6 +1285,8 @@ name const & get_iff_trans_name() { return *g_iff_trans; }
 name const & get_iff_true_intro_name() { return *g_iff_true_intro; }
 name const & get_imp_congr_name() { return *g_imp_congr; }
 name const & get_imp_congr_eq_name() { return *g_imp_congr_eq; }
+name const & get_imp_congr_ctx_name() { return *g_imp_congr_ctx; }
+name const & get_imp_congr_ctx_eq_name() { return *g_imp_congr_ctx_eq; }
 name const & get_implies_name() { return *g_implies; }
 name const & get_implies_of_if_neg_name() { return *g_implies_of_if_neg; }
 name const & get_implies_of_if_pos_name() { return *g_implies_of_if_pos; }

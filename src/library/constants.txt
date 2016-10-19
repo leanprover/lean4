@@ -115,6 +115,8 @@ iff.trans
 iff_true_intro
 imp_congr
 imp_congr_eq
+imp_congr_ctx
+imp_congr_ctx_eq
 implies
 implies_of_if_neg
 implies_of_if_pos

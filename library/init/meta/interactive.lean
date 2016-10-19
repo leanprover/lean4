@@ -268,32 +268,38 @@ do es ← to_expr_list hs,
    s₁ ← s₀^.append es,
    return $ simp_lemmas.erase s₁ ex
 
-private meta def simp_goal : simp_lemmas → tactic unit
+private meta def simp_goal (cfg : simplify_config) : simp_lemmas → tactic unit
 | s := do
-   (new_target, Heq) ← target >>= s^.simplify_core (simp_goal s) `eq,
+   (new_target, Heq) ← target >>= simplify_core cfg s `eq,
    tactic.assert `Htarget new_target, swap,
    Ht ← get_local `Htarget,
    mk_app `eq.mpr [Heq, Ht] >>= tactic.exact
 
-private meta def simp_hyp (s : simp_lemmas) (h_name : name) : tactic unit :=
+private meta def simp_hyp (cfg : simplify_config) (s : simp_lemmas) (h_name : name) : tactic unit :=
 do h     ← get_local h_name,
    htype ← infer_type h,
-   (new_htype, eqpr) ← s^.simplify_core (simp_goal s) `eq htype,
+   (new_htype, eqpr) ← simplify_core cfg s `eq htype,
    tactic.assert (expr.local_pp_name h) new_htype,
    mk_app `eq.mp [eqpr, h] >>= tactic.exact,
    try $ tactic.clear h
 
-private meta def simp_hyps : simp_lemmas → location → tactic unit
+private meta def simp_hyps (cfg : simplify_config) : simp_lemmas → location → tactic unit
 | s []      := skip
-| s (h::hs) := simp_hyp s h >> simp_hyps s hs
+| s (h::hs) := simp_hyp cfg s h >> simp_hyps s hs
 
-meta def simp (hs : opt_qexpr_list) (attr_names : with_ident_list) (ids : without_ident_list) (loc : location) : tactic unit :=
+private meta def simp_core (cfg : simplify_config) (hs : opt_qexpr_list) (attr_names : with_ident_list) (ids : without_ident_list) (loc : location) : tactic unit :=
 do s ← mk_simp_set attr_names hs ids,
    match loc : _ → tactic unit with
-   | [] := simp_goal s
-   | _  := simp_hyps s loc
+   | [] := simp_goal cfg s
+   | _  := simp_hyps cfg s loc
    end,
    try tactic.triv, try tactic.reflexivity
+
+meta def simp (hs : opt_qexpr_list) (attr_names : with_ident_list) (ids : without_ident_list) (loc : location) : tactic unit :=
+simp_core default_simplify_config hs attr_names ids loc
+
+meta def ctx_simp (hs : opt_qexpr_list) (attr_names : with_ident_list) (ids : without_ident_list) (loc : location) : tactic unit :=
+simp_core {default_simplify_config with contextual := tt} hs attr_names ids loc
 
 private meta def dsimp_hyps : location → tactic unit
 | []      := skip

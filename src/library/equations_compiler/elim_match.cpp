@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 #include "library/num.h"
 #include "library/constants.h"
+#include "library/idx_metavar.h"
 #include "library/string.h"
 #include "library/pp_options.h"
 #include "library/exception.h"
@@ -449,11 +450,6 @@ struct elim_match_fn {
         return all_next_pattern(P, is_local);
     }
 
-    /* Return true iff the next pattern in all equations is an inaccessible term. */
-    bool is_inaccessible_transition(problem const & P) const {
-        return all_next_pattern(P, is_inaccessible);
-    }
-
     /* Return true iff the next pattern in all equations is a constructor. */
     bool is_constructor_transition(problem const & P) {
         return all_next_pattern(P, [&](expr const & p) {
@@ -515,20 +511,20 @@ struct elim_match_fn {
         return r && has_value && has_variable;
     }
 
-    /** Return true iff the next pattern of some equations is an inaccessible term, and
-        others are not */
+    /** Return true iff the next pattern of some equations is an inaccessible term */
     bool some_inaccessible(problem const & P) const {
-        bool found_inaccessible     = false;
-        bool found_not_inaccessible = false;
         for (equation const & eqn : P.m_equations) {
             lean_assert(eqn.m_patterns);
             expr const & p = head(eqn.m_patterns);
             if (is_inaccessible(p))
-                found_inaccessible = true;
-            else
-                found_not_inaccessible = true;
+                return true;
         }
-        return found_inaccessible && found_not_inaccessible;
+        return false;
+    }
+
+    /* Return true iff the next pattern in some of the equations is an inaccessible term. */
+    bool is_inaccessible_transition(problem const & P) const {
+        return some_inaccessible(P);
     }
 
     /** Replace local `x` in `e` with `renaming.find(x)` */
@@ -845,49 +841,78 @@ struct elim_match_fn {
                 get_constructors_of(I_name, constructor_names);
                 for (name const & c_name : constructor_names) {
                     buffer<expr> c_vars;
+                    buffer<name> c_var_names;
+                    buffer<expr> new_c_vars;
                     expr c  = mk_app(mk_constant(c_name, I_ls), I_params);
                     expr it = whnf_inductive(ctx, ctx.infer(c));
-                    while (is_pi(it)) {
-                        expr new_arg = ctx.push_local(binding_name(it), binding_domain(it));
-                        c_vars.push_back(new_arg);
-                        c  = mk_app(c, new_arg);
-                        it = whnf_inductive(ctx, instantiate(binding_body(it), new_arg));
-                    }
-                    if (ctx.is_def_eq(pattern_type, it)) {
-                        expr var = pattern;
-                        /* We are replacing `var` with `c` */
-                        buffer<expr> from;
-                        buffer<expr> to;
-                        buffer<expr> new_vars;
-                        for (expr const & curr : eqn.m_vars) {
-                            if (curr == var) {
-                                from.push_back(var);
-                                to.push_back(c);
-                                new_vars.append(c_vars);
-                            } else {
-                                expr curr_type     = ctx.infer(curr);
-                                expr new_curr_type = replace_locals(curr_type, from, to);
-                                if (curr_type == new_curr_type) {
-                                    new_vars.push_back(curr);
-                                } else {
-                                    expr new_curr = ctx.push_local(local_pp_name(curr), new_curr_type);
-                                    from.push_back(curr);
-                                    to.push_back(new_curr);
-                                    new_vars.push_back(new_curr);
-                                }
+                    {
+                        type_context::tmp_mode_scope scope(ctx);
+                        while (is_pi(it)) {
+                            expr new_arg = ctx.mk_tmp_mvar(binding_domain(it));
+                            c_vars.push_back(new_arg);
+                            c_var_names.push_back(binding_name(it));
+                            c  = mk_app(c, new_arg);
+                            it = whnf_inductive(ctx, instantiate(binding_body(it), new_arg));
+                        }
+                        if (!ctx.is_def_eq(pattern_type, it)) {
+                            trace_match(
+                                auto pp = mk_pp_ctx(ctx.lctx());
+                                tout() << "constructor '" << c_name << "' not being considered at complete transition because type\n" << pp(it)
+                                << "\ndoes not match\n" << pp(pattern_type) << "\n";);
+                            continue;
+                        }
+                        lean_assert(c_vars.size() == c_var_names.size());
+                        for (unsigned i = 0; i < c_vars.size(); i++) {
+                            expr & c_var = c_vars[i];
+                            c_var = ctx.instantiate_mvars(c_var);
+                            if (is_idx_metavar(c_var)) {
+                                expr new_c_var = ctx.push_local(c_var_names[i], ctx.instantiate_mvars(ctx.infer(c_var)));
+                                new_c_vars.push_back(new_c_var);
+                                ctx.assign(c_var, new_c_var);
+                                c_var = new_c_var;
+                            } else if (has_idx_metavar(c_var)) {
+                                trace_match(
+                                    auto pp = mk_pp_ctx(ctx.lctx());
+                                    tout() << "constructor '" << c_name << "' not being considered because at complete transition because " <<
+                                    "failed to synthesize arguments\n" << pp(ctx.instantiate_mvars(c)) << "\n";);
+                                continue;
                             }
                         }
-                        equation new_eqn   = eqn;
-                        new_eqn.m_lctx     = ctx.lctx();
-                        new_eqn.m_vars     = to_list(new_vars);
-                        new_eqn.m_lhs_args = map(eqn.m_lhs_args, [&](expr const & arg) {
-                                return replace_locals(arg, from, to); });
-                        new_eqn.m_rhs      = replace_locals(eqn.m_rhs, from, to);
-                        new_eqn.m_patterns =
-                            cons(c, map(tail(eqn.m_patterns), [&](expr const & p) {
-                                        return replace_locals(p, from, to); }));
-                        new_eqns.push_back(new_eqn);
+                        c = ctx.instantiate_mvars(c);
                     }
+                    expr var = pattern;
+                    /* We are replacing `var` with `c` */
+                    buffer<expr> from;
+                    buffer<expr> to;
+                    buffer<expr> new_vars;
+                    for (expr const & curr : eqn.m_vars) {
+                        if (curr == var) {
+                            from.push_back(var);
+                            to.push_back(c);
+                            new_vars.append(new_c_vars);
+                        } else {
+                            expr curr_type     = ctx.infer(curr);
+                            expr new_curr_type = replace_locals(curr_type, from, to);
+                            if (curr_type == new_curr_type) {
+                                new_vars.push_back(curr);
+                            } else {
+                                expr new_curr = ctx.push_local(local_pp_name(curr), new_curr_type);
+                                from.push_back(curr);
+                                to.push_back(new_curr);
+                                new_vars.push_back(new_curr);
+                            }
+                        }
+                    }
+                    equation new_eqn   = eqn;
+                    new_eqn.m_lctx     = ctx.lctx();
+                    new_eqn.m_vars     = to_list(new_vars);
+                    new_eqn.m_lhs_args = map(eqn.m_lhs_args, [&](expr const & arg) {
+                            return replace_locals(arg, from, to); });
+                    new_eqn.m_rhs      = replace_locals(eqn.m_rhs, from, to);
+                    new_eqn.m_patterns =
+                        cons(c, map(tail(eqn.m_patterns), [&](expr const & p) {
+                                    return replace_locals(p, from, to); }));
+                    new_eqns.push_back(new_eqn);
                 }
             } else {
                 new_eqns.push_back(eqn);
@@ -1151,9 +1176,6 @@ struct elim_match_fn {
                 return process_transport(P);
             } else if (is_inaccessible_transition(P)) {
                 return process_inaccessible(P);
-            } else if (some_inaccessible(P)) {
-                throw_error("invalid equations, inconsistent use of inaccessible term annotation, "
-                            "in some equations pattern is an inaccessible term and in others it is not");
             } else {
                 trace_match(tout() << "compilation failed at\n" << pp_problem(P) << "\n";);
                 throw_error("equation compiler failed (use 'set_option trace.eqn_compiler.elim_match true' "

@@ -42,17 +42,29 @@
             (not (equal (process-status lean-server-process) 'run)))
     (lean-server-stop)
     (setq lean-server-process
-          (let ((default-directory (or (lean-project-find-root) default-directory)))
-            (make-process
-             :name "lean-server"
-             :buffer (format "*lean-server (%s)*" (buffer-name))
-             :command `(,(lean-get-executable lean-executable-name)
-                        "--server"
-                        ,(format "*%s*" (buffer-name)))
-             :coding 'utf-8
-             :noquery t
-             :sentinel #'lean-server-handle-signal
-             :stderr (lean-server-stderr-buffer-name))))
+          (let* ((default-directory (or (lean-project-find-root) default-directory))
+                 ; Setting process-connection-type is necessary, otherwise
+                 ; emacs truncates lines with >4096 bytes:
+                 ; https://debbugs.gnu.org/cgi/bugreport.cgi?bug=24531
+                 (process-connection-type nil))
+            (if (fboundp 'make-process)
+                (make-process ;; emacs >= 25 lets us redirect stderr
+                 :name "lean-server"
+                 :buffer (format "*lean-server (%s)*" (buffer-name))
+                 :command `(,(lean-get-executable lean-executable-name)
+                            "--server"
+                            ,(format "*%s*" (buffer-name)))
+                 :coding 'utf-8
+                 :noquery t
+                 :sentinel #'lean-server-handle-signal
+                 :stderr (lean-server-stderr-buffer-name))
+              (start-file-process "lean-server"
+                                  (format "*lean-server (%s)*" (buffer-name))
+                                  (lean-get-executable lean-executable-name)
+                                  "--server"
+                                  (format "*%s*" (buffer-name))))))
+    (set-process-coding-system lean-server-process 'utf-8 'utf-8)
+    (set-process-query-on-exit-flag lean-server-process nil)
     (setq lean-server-handler-tq (tq-create lean-server-process))))
 
 (defun lean-server-restart ()

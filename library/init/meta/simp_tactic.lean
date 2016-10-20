@@ -185,11 +185,11 @@ meta constant ext_simplify_core
        - 'new_e' is a new expression s.t. 'e r new_e'
        - 'new_pr' is a proof for 'e r new_e', If it is none, the proof is assumed to be by reflexivity
        - 'flag'  if tt 'new_e' children should be visited, and 'post' invoked. -/
-  (pre : A → name → simp_lemmas → option expr → expr → tactic (A × expr × option expr × bool))
+  (pre : A → simp_lemmas → name → option expr → expr → tactic (A × expr × option expr × bool))
   /- (post a r s p e) is invoked after visiting the children of subterm 'e',
      The output is similar to (pre a r s p e), but the 'flag' indicates whether
      the new expression should be revisited or not. -/
-  (post : A → name → simp_lemmas → option expr → expr → tactic (A × expr × option expr × bool))
+  (post : A → simp_lemmas  → name → option expr → expr → tactic (A × expr × option expr × bool))
   /- simplification relation -/
   (r : name) :
   expr → tactic (A × expr × expr)

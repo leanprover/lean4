@@ -172,13 +172,7 @@ meta def match_expr (p : pexpr) : conv unit :=
   new_p ← pexpr_to_pattern p,
   tactic.match_pattern new_p e >> return ⟨(), e, none⟩
 
-meta def attr : user_attribute :=
-{ name  := `convsub,
-  descr := "for marking conversionals (conv unit -> conv unit) used by `conv.sub`" }
-
-run_command attribute.register `conv.attr
-
-@[convsub] meta def funext (c : conv unit) : conv unit :=
+meta def funext (c : conv unit) : conv unit :=
 λ r lhs, do
   guard (r = `eq),
   (expr.lam n bi d b) ← return lhs | failed,
@@ -219,31 +213,59 @@ meta def congr_core (c_f c_a : conv unit) : conv unit :=
       return ⟨(), rhs, some pr⟩
   end
 
-@[convsub] meta def congr (c : conv unit) : conv unit :=
+meta def congr (c : conv unit) : conv unit :=
 congr_core c c
 
-meta def subc_core : list name → conv unit → conv unit
-| []      c r e := return ⟨(), e, none⟩
-| (n::ns) c r e := do
-  F ← eval_expr (conv unit → conv unit) (expr.const n []),
-  (F c r e <|> subc_core ns c r e)
-
-/- Try all conversionals F tagged with attribute @[convsub] -/
-meta def subc (c : conv unit) : conv unit :=
+meta def bottom_up (c : conv unit) : conv unit :=
 λ r e, do
-  is ← attribute.get_instances `convsub,
-  subc_core is c r e
+  s ← simp_lemmas.mk_default,
+  (a, new_e, pr) ←
+     ext_simplify_core () default_simplify_config s
+       (λ u, return u)
+       (λ a s r p e, failed)
+       (λ a s r p e, do ⟨u, new_e, pr⟩ ← c r e, return ((), new_e, pr, tt))
+       r e,
+  return ⟨(), new_e, some pr⟩
 
-meta def depth_first : conv unit → conv unit
-| c := (subc (depth_first c) >> repeat c)
+meta def top_down (c : conv unit) : conv unit :=
+λ r e, do
+  s ← simp_lemmas.mk_default,
+  (a, new_e, pr) ←
+     ext_simplify_core () default_simplify_config s
+       (λ u, return u)
+       (λ a s r p e, do ⟨u, new_e, pr⟩ ← c r e, return ((), new_e, pr, tt))
+       (λ a s r p e, failed)
+       r e,
+  return ⟨(), new_e, some pr⟩
 
-meta def find : conv unit → conv unit
-| c := c <|> subc (find c)
+meta def find (c : conv unit) : conv unit :=
+λ r e, do
+  s ← simp_lemmas.mk_default,
+  (a, new_e, pr) ←
+     ext_simplify_core () default_simplify_config s
+       (λ u, return u)
+       (λ a s r p e,
+         (do ⟨u, new_e, pr⟩ ← c r e, return ((), new_e, pr, ff))
+         <|>
+         return ((), e, none, tt))
+       (λ a s r p e, failed)
+       r e,
+  return ⟨(), new_e, some pr⟩
 
-meta def find_pattern : pattern → conv unit → conv unit
-| p c := do
-  matched ← tryb $ match_pattern p,
-  if matched then c else (subc (find_pattern p c))
+meta def find_pattern (pat : pattern) (c : conv unit) : conv unit :=
+λ r e, do
+  s ← simp_lemmas.mk_default,
+  (a, new_e, pr) ←
+     ext_simplify_core () default_simplify_config s
+       (λ u, return u)
+       (λ a s r p e, do
+         matched ← (tactic.match_pattern pat e >> return tt) <|> return ff,
+         if matched
+         then do ⟨u, new_e, pr⟩ ← c r e, return ((), new_e, pr, ff)
+         else return ((), e, none, tt))
+       (λ a s r p e, failed)
+       r e,
+  return ⟨(), new_e, some pr⟩
 
 meta def findp : pexpr → conv unit → conv unit :=
 λ p c r e, do
@@ -260,7 +282,5 @@ do (r, lhs, rhs) ← (target_lhs_rhs <|> fail "conversion failed, target is not 
                      rhs_fmt^.indent 4 ++ format.line ++ "provided" ++
                      new_lhs_fmt^.indent 4)),
    exact pr
-
-/- TODO(Leo): add more primitives and combinators. Example: congruence, etc -/
 
 end conv

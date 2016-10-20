@@ -332,48 +332,38 @@ assume hna : ¬a, hna ha
 lemma not_of_not_not_not (h : ¬¬¬a) : ¬a :=
 λ ha, absurd (not_not_intro ha) h
 
-attribute [simp]
-lemma not_true : (¬ true) ↔ false :=
+@[simp] lemma not_true : (¬ true) ↔ false :=
 iff_false_intro (not_not_intro trivial)
 
-attribute [simp]
-lemma not_false_iff : (¬ false) ↔ true :=
+@[simp] lemma not_false_iff : (¬ false) ↔ true :=
 iff_true_intro not_false
 
-attribute [congr]
-lemma not_congr (h : a ↔ b) : ¬a ↔ ¬b :=
+@[congr] lemma not_congr (h : a ↔ b) : ¬a ↔ ¬b :=
 iff.intro (λ h₁ h₂, h₁ (iff.mpr h h₂)) (λ h₁ h₂, h₁ (iff.mp h h₂))
 
-attribute [simp]
-lemma ne_self_iff_false {A : Type u} (a : A) : (not (a = a)) ↔ false :=
+@[simp] lemma ne_self_iff_false {A : Type u} (a : A) : (not (a = a)) ↔ false :=
 iff.intro false_of_ne false.elim
 
-attribute [simp]
-lemma eq_self_iff_true {A : Type u} (a : A) : (a = a) ↔ true :=
+@[simp] lemma eq_self_iff_true {A : Type u} (a : A) : (a = a) ↔ true :=
 iff_true_intro rfl
 
-attribute [simp]
-lemma heq_self_iff_true {A : Type u} (a : A) : (a == a) ↔ true :=
+@[simp] lemma heq_self_iff_true {A : Type u} (a : A) : (a == a) ↔ true :=
 iff_true_intro (heq.refl a)
 
-attribute [simp]
-lemma iff_not_self (a : Prop) : (a ↔ ¬a) ↔ false :=
+@[simp] lemma iff_not_self (a : Prop) : (a ↔ ¬a) ↔ false :=
 iff_false_intro (λ h,
    have h' : ¬a, from (λ ha, (iff.mp h ha) ha),
    h' (iff.mpr h h'))
 
-attribute [simp]
-lemma not_iff_self (a : Prop) : (¬a ↔ a) ↔ false :=
+@[simp] lemma not_iff_self (a : Prop) : (¬a ↔ a) ↔ false :=
 iff_false_intro (λ h,
    have h' : ¬a, from (λ ha, (iff.mpr h ha) ha),
    h' (iff.mp h h'))
 
-attribute [simp]
-lemma true_iff_false : (true ↔ false) ↔ false :=
+@[simp] lemma true_iff_false : (true ↔ false) ↔ false :=
 iff_false_intro (λ h, iff.mp h trivial)
 
-attribute [simp]
-lemma false_iff_true : (false ↔ true) ↔ false :=
+@[simp] lemma false_iff_true : (false ↔ true) ↔ false :=
 iff_false_intro (λ h, iff.mpr h trivial)
 
 lemma false_of_true_iff_false : (true ↔ false) → false :=
@@ -383,8 +373,7 @@ assume h, iff.mp h trivial
 lemma and.imp (hac : a → c) (hbd : b → d) : a ∧ b → c ∧ d :=
 assume ⟨ha, hb⟩, ⟨hac ha, hbd hb⟩
 
-attribute [congr]
-lemma and_congr (h₁ : a ↔ c) (h₂ : b ↔ d) : (a ∧ b) ↔ (c ∧ d) :=
+@[congr] lemma and_congr (h₁ : a ↔ c) (h₂ : b ↔ d) : (a ∧ b) ↔ (c ∧ d) :=
 iff.intro (and.imp (iff.mp h₁) (iff.mp h₂)) (and.imp (iff.mpr h₁) (iff.mpr h₂))
 
 lemma and_congr_right (h : a → (b ↔ c)) : (a ∧ b) ↔ (a ∧ c) :=
@@ -392,18 +381,15 @@ iff.intro
   (assume ⟨ha, hb⟩, ⟨ha, iff.elim_left (h ha) hb⟩)
   (assume ⟨ha, hc⟩, ⟨ha, iff.elim_right (h ha) hc⟩)
 
-attribute [simp]
-lemma and.comm : a ∧ b ↔ b ∧ a :=
+@[simp] lemma and.comm : a ∧ b ↔ b ∧ a :=
 iff.intro and.swap and.swap
 
-attribute [simp]
-lemma and.assoc : (a ∧ b) ∧ c ↔ a ∧ (b ∧ c) :=
+@[simp] lemma and.assoc : (a ∧ b) ∧ c ↔ a ∧ (b ∧ c) :=
 iff.intro
   (assume ⟨⟨ha, hb⟩, hc⟩, ⟨ha, ⟨hb, hc⟩⟩)
   (assume ⟨ha, ⟨hb, hc⟩⟩, ⟨⟨ha, hb⟩, hc⟩)
 
-attribute [simp]
-lemma and.left_comm : a ∧ (b ∧ c) ↔ b ∧ (a ∧ c) :=
+@[simp] lemma and.left_comm : a ∧ (b ∧ c) ↔ b ∧ (a ∧ c) :=
 iff.trans (iff.symm and.assoc) (iff.trans (and_congr and.comm (iff.refl c)) and.assoc)
 
 lemma and_iff_left {a b : Prop} (hb : b) : (a ∧ b) ↔ a :=
@@ -412,32 +398,25 @@ iff.intro and.left (λ ha, ⟨ha, hb⟩)
 lemma and_iff_right {a b : Prop} (ha : a) : (a ∧ b) ↔ b :=
 iff.intro and.right (and.intro ha)
 
-attribute [simp]
-lemma and_true (a : Prop) : a ∧ true ↔ a :=
+@[simp] lemma and_true (a : Prop) : a ∧ true ↔ a :=
 and_iff_left trivial
 
-attribute [simp]
-lemma true_and (a : Prop) : true ∧ a ↔ a :=
+@[simp] lemma true_and (a : Prop) : true ∧ a ↔ a :=
 and_iff_right trivial
 
-attribute [simp]
-lemma and_false (a : Prop) : a ∧ false ↔ false :=
+@[simp] lemma and_false (a : Prop) : a ∧ false ↔ false :=
 iff_false_intro and.right
 
-attribute [simp]
-lemma false_and (a : Prop) : false ∧ a ↔ false :=
+@[simp] lemma false_and (a : Prop) : false ∧ a ↔ false :=
 iff_false_intro and.left
 
-attribute [simp]
-lemma not_and_self (a : Prop) : (¬a ∧ a) ↔ false :=
+@[simp] lemma not_and_self (a : Prop) : (¬a ∧ a) ↔ false :=
 iff_false_intro (λ h, and.elim h (λ h₁ h₂, absurd h₂ h₁))
 
-attribute [simp]
-lemma and_not_self (a : Prop) : (a ∧ ¬a) ↔ false :=
+@[simp] lemma and_not_self (a : Prop) : (a ∧ ¬a) ↔ false :=
 iff_false_intro (assume ⟨h₁, h₂⟩, absurd h₁ h₂)
 
-attribute [simp]
-lemma and_self (a : Prop) : a ∧ a ↔ a :=
+@[simp] lemma and_self (a : Prop) : a ∧ a ↔ a :=
 iff.intro and.left (assume h, ⟨h, h⟩)
 
 /- or simp rules -/
@@ -451,41 +430,32 @@ or.imp h id
 lemma or.imp_right (h : a → b) : c ∨ a → c ∨ b :=
 or.imp id h
 
-attribute [congr]
-lemma or_congr (h₁ : a ↔ c) (h₂ : b ↔ d) : (a ∨ b) ↔ (c ∨ d) :=
+@[congr] lemma or_congr (h₁ : a ↔ c) (h₂ : b ↔ d) : (a ∨ b) ↔ (c ∨ d) :=
 iff.intro (or.imp (iff.mp h₁) (iff.mp h₂)) (or.imp (iff.mpr h₁) (iff.mpr h₂))
 
-attribute [simp]
-lemma or.comm : a ∨ b ↔ b ∨ a := iff.intro or.swap or.swap
+@[simp] lemma or.comm : a ∨ b ↔ b ∨ a := iff.intro or.swap or.swap
 
-attribute [simp]
-lemma or.assoc : (a ∨ b) ∨ c ↔ a ∨ (b ∨ c) :=
+@[simp] lemma or.assoc : (a ∨ b) ∨ c ↔ a ∨ (b ∨ c) :=
 iff.intro
   (or.rec (or.imp_right or.inl) (λ h, or.inr (or.inr h)))
   (or.rec (λ h, or.inl (or.inl h)) (or.imp_left or.inr))
 
-attribute [simp]
-lemma or.left_comm : a ∨ (b ∨ c) ↔ b ∨ (a ∨ c) :=
+@[simp] lemma or.left_comm : a ∨ (b ∨ c) ↔ b ∨ (a ∨ c) :=
 iff.trans (iff.symm or.assoc) (iff.trans (or_congr or.comm (iff.refl c)) or.assoc)
 
-attribute [simp]
-lemma or_true (a : Prop) : a ∨ true ↔ true :=
+@[simp] lemma or_true (a : Prop) : a ∨ true ↔ true :=
 iff_true_intro (or.inr trivial)
 
-attribute [simp]
-lemma true_or (a : Prop) : true ∨ a ↔ true :=
+@[simp] lemma true_or (a : Prop) : true ∨ a ↔ true :=
 iff_true_intro (or.inl trivial)
 
-attribute [simp]
-lemma or_false (a : Prop) : a ∨ false ↔ a :=
+@[simp] lemma or_false (a : Prop) : a ∨ false ↔ a :=
 iff.intro (or.rec id false.elim) or.inl
 
-attribute [simp]
-lemma false_or (a : Prop) : false ∨ a ↔ a :=
+@[simp] lemma false_or (a : Prop) : false ∨ a ↔ a :=
 iff.trans or.comm (or_false a)
 
-attribute [simp]
-lemma or_self (a : Prop) : a ∨ a ↔ a :=
+@[simp] lemma or_self (a : Prop) : a ∨ a ↔ a :=
 iff.intro (or.rec id id) or.inl
 
 lemma not_or {a b : Prop} : ¬ a → ¬ b → ¬ (a ∨ b)
@@ -508,29 +478,30 @@ def or.neg_resolve_right {a b : Prop} (h : a ∨ ¬ b) (hb : b) : a :=
 
 /- iff simp rules -/
 
-attribute [simp]
-lemma iff_true (a : Prop) : (a ↔ true) ↔ a :=
+@[simp] lemma iff_true (a : Prop) : (a ↔ true) ↔ a :=
 iff.intro (assume h, iff.mpr h trivial) iff_true_intro
 
-attribute [simp]
-lemma true_iff (a : Prop) : (true ↔ a) ↔ a :=
+@[simp] lemma true_iff (a : Prop) : (true ↔ a) ↔ a :=
 iff.trans iff.comm (iff_true a)
 
-attribute [simp]
-lemma iff_false (a : Prop) : (a ↔ false) ↔ ¬ a :=
+@[simp] lemma iff_false (a : Prop) : (a ↔ false) ↔ ¬ a :=
 iff.intro and.left iff_false_intro
 
-attribute [simp]
-lemma false_iff (a : Prop) : (false ↔ a) ↔ ¬ a :=
+@[simp] lemma false_iff (a : Prop) : (false ↔ a) ↔ ¬ a :=
 iff.trans iff.comm (iff_false a)
 
-attribute [simp]
-lemma iff_self (a : Prop) : (a ↔ a) ↔ true :=
+@[simp] lemma iff_self (a : Prop) : (a ↔ a) ↔ true :=
 iff_true_intro iff.rfl
 
-attribute [congr]
-lemma iff_congr (h₁ : a ↔ c) (h₂ : b ↔ d) : (a ↔ b) ↔ (c ↔ d) :=
+@[congr] lemma iff_congr (h₁ : a ↔ c) (h₂ : b ↔ d) : (a ↔ b) ↔ (c ↔ d) :=
 and_congr (imp_congr h₁ h₂) (imp_congr h₂ h₁)
+
+/- implies simp rule -/
+@[simp] lemma implies_true_iff (a : Prop) : (a → true) ↔ true :=
+iff.intro (λ h, trivial) (λ ha h, trivial)
+
+@[simp] lemma false_implies_iff (a : Prop) : (false → a) ↔ true :=
+iff.intro (λ h, trivial) (λ ha h, false.elim h)
 
 /- exists -/
 
@@ -580,21 +551,18 @@ exists_unique.elim h
     show y₁ = y₂, from eq.trans (unique _ py₁) (eq.symm (unique _ py₂)))
 
 /- exists, forall, exists unique congruences -/
-attribute [congr]
-lemma forall_congr {A : Type u} {p q : A → Prop} (h : ∀ a, (p a ↔ q a)) : (∀ a, p a) ↔ ∀ a, q a :=
+@[congr] lemma forall_congr {A : Type u} {p q : A → Prop} (h : ∀ a, (p a ↔ q a)) : (∀ a, p a) ↔ ∀ a, q a :=
 iff.intro (λ p a, iff.mp (h a) (p a)) (λ q a, iff.mpr (h a) (q a))
 
 lemma exists_imp_exists {A : Type u} {p q : A → Prop} (h : ∀ a, (p a → q a)) (p : ∃ a, p a) : ∃ a, q a :=
 exists.elim p (λ a hp, ⟨a, h a hp⟩)
 
-attribute [congr]
-lemma exists_congr {A : Type u} {p q : A → Prop} (h : ∀ a, (p a ↔ q a)) : (Exists p) ↔ ∃ a, q a :=
+@[congr] lemma exists_congr {A : Type u} {p q : A → Prop} (h : ∀ a, (p a ↔ q a)) : (Exists p) ↔ ∃ a, q a :=
 iff.intro
   (exists_imp_exists (λ a, iff.mp (h a)))
   (exists_imp_exists (λ a, iff.mpr (h a)))
 
-attribute [congr]
-lemma exists_unique_congr {A : Type u} {p₁ p₂ : A → Prop} (h : ∀ x, p₁ x ↔ p₂ x) : (exists_unique p₁) ↔ (∃! x, p₂ x) := --
+@[congr] lemma exists_unique_congr {A : Type u} {p₁ p₂ : A → Prop} (h : ∀ x, p₁ x ↔ p₂ x) : (exists_unique p₁) ↔ (∃! x, p₂ x) := --
 exists_congr (λ x, and_congr (h x) (forall_congr (λ y, imp_congr (h y) iff.rfl)))
 
 /- decidable -/
@@ -830,7 +798,7 @@ match dec_b, dec_c with
 | (is_true h₁),  (is_false h₂) := absurd h₁ (iff.mpr (not_iff_not_of_iff h_c) h₂)
 end
 
-attribute [congr]
+@[congr]
 lemma if_congr {A : Type u} {b c : Prop} [dec_b : decidable b] [dec_c : decidable c]
                {x y u v : A}
                (h_c : b ↔ c) (h_t : x = u) (h_e : y = v) :
@@ -842,17 +810,17 @@ lemma if_ctx_simp_congr {A : Type u} {b c : Prop} [dec_b : decidable b] {x y u v
         ite b x y = (@ite c (decidable_of_decidable_of_iff dec_b h_c) A u v) :=
 @if_ctx_congr A b c dec_b (decidable_of_decidable_of_iff dec_b h_c) x y u v h_c h_t h_e
 
-attribute [congr]
+@[congr]
 lemma if_simp_congr {A : Type u} {b c : Prop} [dec_b : decidable b] {x y u v : A}
                     (h_c : b ↔ c) (h_t : x = u) (h_e : y = v) :
         ite b x y = (@ite c (decidable_of_decidable_of_iff dec_b h_c) A u v) :=
 @if_ctx_simp_congr A b c dec_b x y u v h_c (λ h, h_t) (λ h, h_e)
 
-attribute [simp]
+@[simp]
 def if_true {A : Type u} (t e : A) : (if true then t else e) = t :=
 if_pos trivial
 
-attribute [simp]
+@[simp]
 def if_false {A : Type u} (t e : A) : (if false then t else e) = e :=
 if_neg not_false
 
@@ -866,7 +834,7 @@ match dec_b, dec_c with
 | (is_true h₁),  (is_false h₂) := absurd h₁ (iff.mpr (not_iff_not_of_iff h_c) h₂)
 end
 
-attribute [congr]
+@[congr]
 lemma if_congr_prop {b c x y u v : Prop} [dec_b : decidable b] [dec_c : decidable c]
                     (h_c : b ↔ c) (h_t : x ↔ u) (h_e : y ↔ v) :
         ite b x y ↔ ite c u v :=
@@ -877,7 +845,7 @@ lemma if_ctx_simp_congr_prop {b c x y u v : Prop} [dec_b : decidable b]
         ite b x y ↔ (@ite c (decidable_of_decidable_of_iff dec_b h_c) Prop u v) :=
 @if_ctx_congr_prop b c x y u v dec_b (decidable_of_decidable_of_iff dec_b h_c) h_c h_t h_e
 
-attribute [congr]
+@[congr]
 lemma if_simp_congr_prop {b c x y u v : Prop} [dec_b : decidable b]
                            (h_c : b ↔ c) (h_t : x ↔ u) (h_e : y ↔ v) :
         ite b x y ↔ (@ite c (decidable_of_decidable_of_iff dec_b h_c) Prop u v) :=

@@ -528,6 +528,15 @@ simp_result simplify_core_fn::rewrite(expr const & e, simp_lemma const & sl) {
     }
 }
 
+simp_result simplify_core_fn::propext_rewrite(expr const & e) {
+    if (m_rel != get_eq_name()) return simp_result(e);
+    flet<name> set_rel(m_rel, get_iff_name());
+    simp_result r = rewrite(e);
+    if (!r.has_proof()) return r;
+    expr new_pr = mk_app(m_ctx, get_propext_name(), r.get_proof());
+    return simp_result(r.get_new(), new_pr);
+}
+
 simp_result simplify_core_fn::visit(expr const & e, optional<expr> const & parent) {
     check_system("simplify");
     inc_num_steps();
@@ -896,10 +905,17 @@ optional<pair<simp_result, bool>> simplify_fn::pre(expr const & e, optional<expr
 
 optional<pair<simp_result, bool>> simplify_fn::post(expr const & e, optional<expr> const &) {
     simp_result r = rewrite(e);
-    if (r.get_new() != e)
+    if (r.get_new() != e) {
         return to_ext_result(r);
-    else
+    } else if (!m_use_axioms) {
         return no_ext_result();
+    } else {
+        r = propext_rewrite(e);
+        if (r.get_new() != e)
+            return to_ext_result(r);
+        else
+            return no_ext_result();
+    }
 }
 
 class vm_simplify_fn : public simplify_ext_core_fn {

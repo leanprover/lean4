@@ -78,6 +78,7 @@ protected:
        but used in subclasses.*/
     simp_result rewrite(expr const & e);
     simp_result rewrite(expr const & e, simp_lemma const & sl);
+    simp_result propext_rewrite(expr const & e);
 
     /* Visitors */
     virtual optional<pair<simp_result, bool>> pre(expr const & e, optional<expr> const & parent);

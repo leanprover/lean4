@@ -21,7 +21,7 @@
                                                  company-lean--findp))
   (setq-local company-tooltip-limit 20)                      ; bigger popup window
   (setq-local company-minimum-prefix-length 5)
-  ;(setq-local company-idle-delay nil)                        ; decrease delay before autocompletion popup shows
+  (setq-local company-idle-delay nil)                        ; decrease delay before autocompletion popup shows
   ;(setq-local company-echo-delay 0)                          ; remove annoying blinking
   (setq-local company-begin-commands '(self-insert-command)) ; start autocompletion only after typing
   (company-mode t))

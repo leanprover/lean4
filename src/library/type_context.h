@@ -476,6 +476,8 @@ private:
        and in regular mode they access m_mctx.
        ------------ */
 public:
+    bool is_mvar_core(level const & l) const;
+    bool is_mvar_core(expr const & e) const;
     bool is_mvar(level const & l) const;
     bool is_mvar(expr const & e) const;
     bool is_assigned(level const & l) const;

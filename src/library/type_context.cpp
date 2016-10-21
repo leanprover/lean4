@@ -1114,6 +1114,13 @@ void type_context::clear_tmp_eassignment() {
 /* -----------------------------------
    Uniform interface to temporary & regular metavariables
    ----------------------------------- */
+bool type_context::is_mvar_core(level const & l) const {
+    return (in_tmp_mode() && is_idx_metauniv(l)) || is_metavar_decl_ref(l);
+}
+
+bool type_context::is_mvar_core(expr const & e) const {
+    return (in_tmp_mode() && is_idx_metavar(e)) || is_metavar_decl_ref(e);
+}
 
 bool type_context::is_mvar(level const & l) const {
     if (in_tmp_mode())
@@ -1131,7 +1138,7 @@ bool type_context::is_mvar(expr const & e) const {
 
 bool type_context::is_assigned(level const & l) const {
     const_cast<type_context*>(this)->m_used_assignment = true;
-    if (in_tmp_mode())
+    if (in_tmp_mode() && is_idx_metauniv(l))
         return static_cast<bool>(get_tmp_assignment(l));
     else
         return m_mctx.is_assigned(l);
@@ -1139,7 +1146,7 @@ bool type_context::is_assigned(level const & l) const {
 
 bool type_context::is_assigned(expr const & e) const {
     const_cast<type_context*>(this)->m_used_assignment = true;
-    if (in_tmp_mode())
+    if (in_tmp_mode() && is_idx_metavar(e))
         return static_cast<bool>(get_tmp_assignment(e));
     else
         return m_mctx.is_assigned(e);
@@ -1147,7 +1154,7 @@ bool type_context::is_assigned(expr const & e) const {
 
 optional<level> type_context::get_assignment(level const & l) const {
     const_cast<type_context*>(this)->m_used_assignment = true;
-    if (in_tmp_mode())
+    if (in_tmp_mode() && is_idx_metauniv(l))
         return get_tmp_assignment(l);
     else
         return m_mctx.get_assignment(l);
@@ -1155,7 +1162,7 @@ optional<level> type_context::get_assignment(level const & l) const {
 
 optional<expr> type_context::get_assignment(expr const & e) const {
     const_cast<type_context*>(this)->m_used_assignment = true;
-    if (in_tmp_mode())
+    if (in_tmp_mode() && is_idx_metavar(e))
         return get_tmp_assignment(e);
     else
         return m_mctx.get_assignment(e);
@@ -1163,7 +1170,7 @@ optional<expr> type_context::get_assignment(expr const & e) const {
 
 void type_context::assign(level const & u, level const & l) {
     m_used_assignment = true;
-    if (in_tmp_mode())
+    if (in_tmp_mode() && is_idx_metauniv(u))
         assign_tmp(u, l);
     else
         m_mctx.assign(u, l);
@@ -1171,7 +1178,7 @@ void type_context::assign(level const & u, level const & l) {
 
 void type_context::assign(expr const & m, expr const & v) {
     m_used_assignment = true;
-    if (in_tmp_mode())
+    if (in_tmp_mode() && is_idx_metavar(m))
         assign_tmp(m, v);
     else
         m_mctx.assign(m, v);
@@ -1242,22 +1249,6 @@ lbool type_context::is_def_eq_core(level const & l1, level const & l2, bool part
                tout() << "[" << m_is_def_eq_depth << "]: " << l1 << " =?= " << l2 << "\n";);
 
     flet<unsigned> inc_depth(m_is_def_eq_depth, m_is_def_eq_depth+1);
-
-    if (in_tmp_mode()) {
-        /* TODO(Leo): we should instantiate any assigned regular metavariable
-           when we are in tmp_mode. */
-        if (is_metavar_decl_ref(l1)) {
-            /* Check if l1 is regular metavar that is already assigned */
-            if (auto v1 = m_mctx.get_assignment(l1))
-                return is_def_eq_core(*v1, l2, partial);
-        }
-
-        if (is_metavar_decl_ref(l2)) {
-            /* Check if l2 is regular metavar that is already assigned */
-            if (auto v2 = m_mctx.get_assignment(l2))
-                return is_def_eq_core(l1, *v2, partial);
-        }
-    }
 
     level new_l1 = instantiate_mvars(l1);
     level new_l2 = instantiate_mvars(l2);

@@ -2390,6 +2390,7 @@ void elaborator::invoke_begin_end_tactics(expr const & mvar, buffer<expr> const 
 void elaborator::invoke_atomic_tactic(expr const & mvar, expr const & tactic) {
     expr const & ref = mvar;
     tactic_state s       = mk_tactic_state_for(mvar);
+    show_goal(s, tactic, mvar, tactic);
     trace_elab(tout() << "initial tactic state\n" << s.pp() << "\n";);
     tactic_state new_s   = execute_tactic(tactic, s, ref);
     if (new_s.goals())

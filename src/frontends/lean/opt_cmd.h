@@ -13,9 +13,6 @@ namespace lean {
 options set_show_goal(options const & opts, unsigned line, unsigned col);
 bool has_show_goal(options const & opts, unsigned & line, unsigned & col);
 
-options set_show_hole(options const & _opts, unsigned line, unsigned col);
-bool has_show_hole(options const & opts, unsigned & line, unsigned & col);
-
 options set_show_info(options const & opts, unsigned line, unsigned col);
 bool has_show_info(options const & opts, unsigned & line, unsigned & col);
 

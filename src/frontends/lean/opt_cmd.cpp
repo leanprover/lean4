@@ -32,14 +32,6 @@ bool has_show_goal(options const & opts, unsigned & line, unsigned & col) {
     return has_show(opts, "show_goal", line, col);
 }
 
-options set_show_hole(options const & opts, unsigned line, unsigned col) {
-    return set_line_col(opts.update(name("show_hole"), true), line, col);
-}
-
-bool has_show_hole(options const & opts, unsigned & line, unsigned & col) {
-    return has_show(opts, "show_hole", line, col);
-}
-
 options set_show_info(options const & opts, unsigned line, unsigned col) {
     return set_line_col(opts.update(name("show_info"), true), line, col);
 }

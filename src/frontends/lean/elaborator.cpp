@@ -2303,9 +2303,7 @@ void elaborator::show_goal(tactic_state const & s, expr const & start_ref, expr 
         return;
     if (curr_pos->first < line || (curr_pos->first == line && curr_pos->second < col))
         return;
-    m_show_goal_pos = optional<pos_info>();
-    get_global_ios().report(message(provider->get_file_name(), *curr_pos, INFORMATION,
-        (sstream() << mk_pair(s.pp(get_global_ios().get_formatter_factory()), get_global_ios().get_options())).str()));
+    throw show_goal_exception(*curr_pos, s);
 }
 
 /* Apply the given tactic to the state 's'.
@@ -2509,6 +2507,12 @@ void elaborator::ensure_no_unassigned_metavars(expr const & e) {
             if (!has_expr_metavar(e)) return false;
             if (is_metavar_decl_ref(e) && !mctx.is_assigned(e)) {
                 tactic_state s = mk_tactic_state_for(e);
+                if (m_show_goal_pos && get_pos_info_provider()) {
+                    if (auto pos = get_pos_info_provider()->get_pos_info(e)) {
+                        if (pos == m_show_goal_pos)
+                            throw show_goal_exception(*pos, s);
+                    }
+                }
                 throw_unsolved_tactic_state(s, "don't know how to synthesize placeholder", e);
             }
             return true;

@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "library/io_state.h"
 #include "library/io_state_stream.h"
 #include "library/message_builder.h"
+#include "library/tactic/tactic_state.h"
 #include "frontends/lean/scanner.h"
 #include "frontends/lean/local_decls.h"
 #include "frontends/lean/local_level_decls.h"
@@ -70,6 +71,14 @@ struct snapshot {
 };
 
 typedef std::vector<snapshot> snapshot_vector;
+
+class show_goal_exception : public std::exception {
+public:
+    pos_info m_pos;
+    tactic_state m_state;
+
+    show_goal_exception(pos_info const & pos, tactic_state const & goal) : m_pos(pos), m_state(goal) {}
+};
 
 enum class keep_theorem_mode { All, DiscardImported, DiscardAll };
 
@@ -200,8 +209,6 @@ class parser : public abstract_parser {
     friend class parser_message_stream;
     void add_message(message const & msg) { m_messages = cons(msg, m_messages); }
 
-    void init_stop_at(options const & opts);
-
     void replace_theorem(certified_declaration const & thm);
     environment reveal_theorems_core(buffer<name> const & ds, bool all);
 public:
@@ -210,6 +217,9 @@ public:
            bool use_exceptions = false, unsigned num_threads = 1,
            snapshot const * s = nullptr, snapshot_vector * sv = nullptr);
     ~parser();
+
+    void enable_show_goal(pos_info const & pos);
+    void enable_show_info(pos_info const & pos);
 
     bool ignore_noncomputable() const { return m_ignore_noncomputable; }
     void set_ignore_noncomputable() { m_ignore_noncomputable = true; }

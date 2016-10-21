@@ -151,19 +151,19 @@ parser::all_id_local_scope::all_id_local_scope(parser & p):
 
 static name * g_tmp_prefix = nullptr;
 
-void parser::init_stop_at(options const & opts) {
-    unsigned col;
-    m_info_at = false;
-    m_stop_at = false;
-    if (has_show_goal(opts, m_stop_at_line, col)) {
-        m_stop_at      = true;
-    } else if (has_show_hole(opts, m_stop_at_line, col)) {
-        m_stop_at      = true;
-    } else if (has_show_info(opts, m_info_at_line, m_info_at_col)) {
-        m_info_at      = true;
-        m_stop_at      = true;
-        m_stop_at_line = m_info_at_line;
-    }
+void parser::enable_show_goal(pos_info const & pos) {
+    m_stop_at = true;
+    m_stop_at_line = pos.first;
+    m_ios.set_options(set_show_goal(m_ios.get_options(), pos.first, pos.second));
+}
+
+void parser::enable_show_info(pos_info const & pos) {
+    m_stop_at = true;
+    m_stop_at_line = pos.first;
+    m_info_at = true;
+    m_info_at_line = pos.first;
+    m_info_at_col = pos.second;
+    m_ios.set_options(set_show_info(m_ios.get_options(), pos.first, pos.second));
 }
 
 class parser_message_stream : public message_stream {
@@ -202,7 +202,6 @@ parser::parser(environment const & env, io_state const & ios,
     m_ignore_noncomputable = false;
     m_ios.set_message_channel(std::make_shared<parser_message_stream>(this, m_ios.get_message_channel_ptr()));
     m_profile     = ios.get_options().get_bool("profile", false);
-    init_stop_at(ios.get_options());
     if (num_threads > 1 && m_profile)
         throw exception("option --profile cannot be used when theorems are compiled in parallel");
     m_in_quote = false;
@@ -212,6 +211,8 @@ parser::parser(environment const & env, io_state const & ios,
     m_id_behavior  = id_behavior::ErrorIfUndef;
     m_found_errors = false;
     m_used_sorry   = false;
+    m_info_at = false;
+    m_stop_at = false;
     updt_options();
     m_next_tag_idx  = 0;
     m_next_inst_idx = 1;
@@ -328,6 +329,8 @@ void parser::protected_call(std::function<void()> && f, std::function<void()> &&
             m_env = ex.get_env();
             ex.get_exception().rethrow();
         }
+    } catch (show_goal_exception) {
+        throw;
     } catch (parser_exception & ex) {
         CATCH(ios().report(ex), throw);
     } catch (parser_error & ex) {

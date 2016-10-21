@@ -117,8 +117,6 @@ static void display_help(std::ostream & out) {
     std::cout << "Frontend query interface:\n";
     std::cout << "  --line=value      line number for query\n";
     std::cout << "  --col=value       column number for query\n";
-    std::cout << "  --goal            display goal at close to given position\n";
-    std::cout << "  --hole            display type of the \"hole\" in the given posivition\n";
     std::cout << "  --info            display information about identifier or token in the given posivition\n";
     std::cout << "Exporting data:\n";
     std::cout << "  --export=file -E  export final environment as textual low-level file\n";
@@ -151,8 +149,6 @@ static struct option g_long_options[] = {
 #endif
     {"line",         required_argument, 0, 'L'},
     {"col",          required_argument, 0, 'O'},
-    {"goal",         no_argument,       0, 'G'},
-    {"hole",         no_argument,       0, 'Z'},
     {"info",         no_argument,       0, 'I'},
     {"dir",          required_argument, 0, 'T'},
 #ifdef LEAN_DEBUG
@@ -265,9 +261,6 @@ int main(int argc, char ** argv) {
     optional<std::string> export_txt;
     optional<std::string> export_all_txt;
     optional<std::string> base_dir;
-    bool show_goal = false;
-    bool show_hole = false;
-    bool show_info = false;
     while (true) {
         int c = getopt_long(argc, argv, g_opt_str, g_long_options, NULL);
         if (c == -1)
@@ -338,15 +331,6 @@ int main(int argc, char ** argv) {
         case 'O':
             column = atoi(optarg);
             break;
-        case 'G':
-            show_goal = true;
-            break;
-        case 'Z':
-            show_hole = true;
-            break;
-        case 'I':
-            show_info = true;
-            break;
         case 'E':
             export_txt = std::string(optarg);
             break;
@@ -371,13 +355,6 @@ int main(int argc, char ** argv) {
     #if defined(__GNUC__) && !defined(__CLANG__)
     #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
     #endif
-    if (show_hole && line && column) {
-        opts       = set_show_hole(opts, *line, *column);
-    } else if (show_goal && line && column) {
-        opts       = set_show_goal(opts, *line, *column);
-    } else if (show_info && line && column) {
-        opts       = set_show_info(opts, *line, *column);
-    }
 
     #if !defined(LEAN_MULTI_THREAD)
     lean_assert(num_threads == 1);

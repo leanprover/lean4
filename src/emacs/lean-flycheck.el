@@ -7,7 +7,6 @@
 ;;
 
 (require 'lean-settings)
-(require 'lean-option)
 (require 'lean-server)
 
 (defun lean-toggle-flycheck-mode ()

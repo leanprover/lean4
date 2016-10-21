@@ -19,28 +19,14 @@
 (require 'pcase)
 (require 'lean-require)
 (require 'eri)
-(require 'lean-variable)
 (require 'lean-util)
 (require 'lean-settings)
 (require 'lean-flycheck)
 (require 'lean-input)
-(require 'lean-option)
 (require 'lean-syntax)
 (require 'lean-project)
 (require 'lean-company)
 (require 'lean-server)
-
-(defun lean-server-split-buffer (buf-str beg-regex end-regex)
-  ""
-  (let ((beg (string-match beg-regex buf-str))
-        (end (string-match end-regex buf-str))
-        pre body post)
-    (when (and beg end)
-      (setq end (match-end 1))
-      (setq pre  (substring-no-properties buf-str 0 beg))
-      (setq body (substring-no-properties buf-str beg end))
-      (setq post (substring-no-properties buf-str end))
-      `(,pre ,body ,post))))
 
 (defun lean-compile-string (exe-name args file-name)
   "Concatenate exe-name, args, and file-name"
@@ -53,7 +39,6 @@
 (defun lean-execute (&optional arg)
   "Execute Lean in the current buffer"
   (interactive)
-  (setq arg (concat (lean-option-string) " " arg))
   (when (called-interactively-p)
     (setq arg (read-string "arg: " arg)))
   (let ((target-file-name
@@ -64,118 +49,6 @@
               (shell-quote-argument (f-full (lean-get-executable lean-executable-name)))
               (or arg "")
               (shell-quote-argument (f-full target-file-name))))))
-
-(defvar g-lean-exec-at-pos-buf ""
-  "Temp buffer to save the output from lean server (for lean-exec-at-pos)")
-
-(defun lean-exec-at-pos-extract-body (str)
-  "Extract the body of LEAN_INFORMATION"
-  (let ((header "LEAN_INFORMATION")
-        (footer "END_LEAN_INFORMATION"))
-    (cond
-     ((and (s-contains? header str)
-           (s-contains? footer str))
-      (let*
-          ((begin-regex (eval `(rx line-start ,header (* not-newline) line-end)))
-           (end-regex   (eval `(rx line-start (group ,footer) line-end)))
-           (pre-body-post
-            (lean-server-split-buffer str begin-regex end-regex))
-           (body (cadr pre-body-post))
-           (lines (s-lines body)))
-        (s-join "\n" (-butlast (-drop 1 lines)))))
-     (t ""))))
-
-(defun lean-exec-at-pos-sentinel (process event)
-  "Sentinel function used for lean-exec-at-pos. It does the two
-  things: A. display the process buffer, B. scroll to the top"
-  (when (eq (process-status process) 'exit)
-    (let ((b (process-buffer process)))
-      (with-current-buffer b
-        (lean-info-mode)
-        (insert-string (lean-exec-at-pos-extract-body
-                        g-lean-exec-at-pos-buf)))
-      (display-buffer b)
-      ;; Temporary Hack to scroll to the top
-      ;; See https://github.com/leanprover/lean/issues/499#issuecomment-125285231
-      (set-window-point (get-buffer-window b) 0))))
-
-(defun lean-exec-at-pos-filter (process string)
-  "Filter function for lean-exec-at-pos. It append the string to
-  g-lean-exec-at-pos-buf variable"
-  (setq g-lean-exec-at-pos-buf (s-append string g-lean-exec-at-pos-buf)))
-
-(defun lean-start-process (args filter-fn sentinel-fn)
-  "Start process with filter and sentinel functions"
-  (let ((p (apply 'start-process args)))
-    (set-process-filter p filter-fn)
-    (set-process-sentinel p sentinel-fn)
-    (set-process-coding-system p 'utf-8 'utf-8)
-    (set-process-query-on-exit-flag p nil)))
-
-(defvar lean-exec-at-pos-timer nil
-  "Timer for `lean-exec-at-pos-with-timer' to reschedule itself, or nil.")
-
-(defun lean-exec-at-pos-with-timer (args filter-fn sentinel-fn)
-  "Run lean-exec-at-pos with a timer. It waits until flycheck is finished."
- (when lean-exec-at-pos-timer
-    (cancel-timer lean-exec-at-pos-timer))
- (cond ((flycheck-running-p)
-        (message "flycheck-lean is running...")
-         (setq lean-exec-at-pos-timer
-               (run-at-time
-                lean-exec-at-pos-wait-time nil
-                `(lambda () (lean-exec-at-pos-with-timer ',args ',filter-fn ',sentinel-fn)))))
-        (t
-         (message "flycheck is over, start lean-process...")
-         (lean-start-process args filter-fn sentinel-fn))))
-
-(defun lean-exec-at-pos (process-name process-buffer-name &rest options)
-  "Execute Lean by providing current position with optional
-arguments. The output goes to 'process-buffer-name' buffer, which
-will be flushed everytime it's executed."
-  (setq g-lean-exec-at-pos-buf "")
-  ;; Kill process-name if exists
-  (let ((current-process (get-process process-name)))
-    (when current-process
-      (kill-process)))
-  ;; Flush process-buffer
-  (let ((process-buffer (get-buffer process-buffer-name)))
-    (when process-buffer
-      (with-current-buffer process-buffer
-        (erase-buffer))))
-  ;; Start process
-  (let* ((target-file-name
-          (or
-           ;; Only use file-name if the current buffer is not modified
-           (and (not (buffer-modified-p)) (buffer-file-name))
-           (flymake-init-create-temp-buffer-copy 'lean-create-temp-in-system-tempdir)))
-         (cache-file-name
-          (s-concat (f-no-ext target-file-name)
-                    ".clean"))
-         (cache-option
-          ;; Cache is only used when we use a non-temporary file
-          (if (s-equals? (buffer-file-name) target-file-name)
-              `("--cache" ,cache-file-name)
-            '()))
-         (default-directory (or (lean-project-find-root) default-directory))
-         (process-args (append `(,process-name
-                                 ,process-buffer-name
-                                 ,(lean-get-executable lean-executable-name)
-                                 "--dir"
-                                 ,(f-dirname (buffer-file-name))
-                                 "--line"
-                                 ,(int-to-string (line-number-at-pos))
-                                 "--col"
-                                 ,(int-to-string (current-column)))
-                               options
-                               cache-option
-                               `(,target-file-name))))
-    (cond ((and cache-option (flycheck-running-p))
-           ;; Cache is used and flycheck is running
-           (lean-exec-at-pos-with-timer process-args 'lean-exec-at-pos-filter 'lean-exec-at-pos-sentinel))
-          (t
-           ;; start lean-process immediately
-           (lean-start-process process-args 'lean-exec-at-pos-filter 'lean-exec-at-pos-sentinel)))))
 
 (defun lean-show-goal-at-pos ()
   "Show goal at the current point."
@@ -189,14 +62,6 @@ will be flushed everytime it's executed."
     (lambda (&key state)
       (let* ((temp-buffer-setup-hook #'lean-info-mode))
         (with-output-to-temp-buffer "*lean-info*" (princ state)))))))
-
-(defun lean-show-id-keyword-info ()
-  "Show ID/Keyword Information at the position"
-  (interactive)
-  (lean-exec-at-pos
-   "lean-print-id-keyword-info"
-   "*Lean Print*"
-   "--info"))
 
 (defun lean-std-exe ()
   (interactive)
@@ -232,7 +97,6 @@ will be flushed everytime it's executed."
   (local-set-key lean-keybinding-std-exe1                  'lean-std-exe)
   (local-set-key lean-keybinding-std-exe2                  'lean-std-exe)
   (local-set-key lean-keybinding-show-key                  'quail-show-key)
-  (local-set-key lean-keybinding-set-option                'lean-set-option)
   (local-set-key lean-keybinding-eval-cmd                  'lean-eval-cmd)
   (local-set-key lean-keybinding-server-restart            'lean-server-restart)
   (local-set-key lean-keybinding-tab-indent-or-complete    'lean-tab-indent-or-complete)

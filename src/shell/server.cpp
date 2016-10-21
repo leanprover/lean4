@@ -87,6 +87,8 @@ json server::handle_request(json const & req) {
         return handle_check(req);
     } else if (command == "complete") {
         return handle_complete(req);
+    } else if (command == "show_goal") {
+        return handle_show_goal(req);
     }
 
     json res;
@@ -335,6 +337,44 @@ json server::handle_complete(json const & req) {
     json res;
     res["response"] = "ok";
     res["completions"] = completions;
+    return res;
+}
+
+json server::handle_show_goal(json const &req) {
+    pos_info pos(req["line"], req["col"]);
+
+    if (!m_snapshots.size()) handle_check({});
+
+    snapshot * snap = nullptr;
+    for (auto & s : m_snapshots) {
+        if (s.m_pos.first < pos.first)
+            snap = &s;
+    }
+
+    std::istringstream in(m_content);
+    bool use_exceptions = false;
+    optional<std::string> base_dir;
+    parser p(m_initial_env, m_ios, in, m_file_name.c_str(),
+             base_dir, use_exceptions, m_num_threads, snap);
+
+    p.enable_show_goal(pos);
+
+    try {
+        p();
+    } catch (show_goal_exception & ex) {
+        json res;
+        res["response"] = "ok";
+        res["line"] = ex.m_pos.first;
+        res["col"] = ex.m_pos.second;
+        std::stringstream buf;
+        buf << ex.m_state.pp();
+        res["state"] = buf.str();
+        return res;
+    }
+
+    json res;
+    res["response"] = "error";
+    res["message"] = "could not find goal";
     return res;
 }
 

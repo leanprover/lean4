@@ -1,3 +1,5 @@
+;; -*- lexical-binding: t -*-
+;;
 ;;; lean-mode.el --- Emacs mode for Lean theorem prover
 ;;
 ;; Copyright (c) 2013, 2014 Microsoft Corporation. All rights reserved.
@@ -13,6 +15,7 @@
 ;;
 ;; Released under Apache 2.0 license as described in the file LICENSE.
 ;;
+(require 'cl-lib)
 (require 'pcase)
 (require 'lean-require)
 (require 'eri)
@@ -175,21 +178,18 @@ will be flushed everytime it's executed."
            (lean-start-process process-args 'lean-exec-at-pos-filter 'lean-exec-at-pos-sentinel)))))
 
 (defun lean-show-goal-at-pos ()
-  "Show goal at the current point. If the current point is a
-placeholder, call lean-server with --hole option, otherwise call
-  lean-server with --goal option"
+  "Show goal at the current point."
   (interactive)
-  (cond ((and (eq (char-after) ?_)               ;; 1. at _
-              (not (lean-in-comment-p))          ;; 2. not in comment
-              (or (bolp)                         ;; 3. either beginning of line
-                  (let ((cb (char-before)))      ;;    or whitespace
-                    (or (char-equal cb ?\s)
-                        (char-equal cb ?\t)
-                        (char-equal cb ?\n)
-                        (char-equal cb ?\r)))))
-              (lean-exec-at-pos "lean-hole" "*Lean Goal*" "--hole"))
-         (t
-          (lean-exec-at-pos "lean-goal" "*Lean Goal*" "--goal"))))
+  (lean-server-sync)
+  (lean-server-send-command
+   (list :command "show_goal"
+         :line (line-number-at-pos)
+         :col (current-column))
+   (cl-function
+    (lambda (&key state)
+      (let* ((temp-buffer-setup-hook #'lean-info-mode))
+        (with-output-to-temp-buffer "*lean-info*" (princ state)))))))
+
 (defun lean-show-id-keyword-info ()
   "Show ID/Keyword Information at the position"
   (interactive)

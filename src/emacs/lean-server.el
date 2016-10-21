@@ -88,8 +88,8 @@
         (lean-debug "server=> %s" answer)
         (let* ((json-object-type 'plist)
                (response (json-read-from-string answer)))
-          (if (equal (plist-get 'response response) "error")
-              (progn (message "error: %s" (plist-get 'message response))
+          (if (equal (plist-get response :response) "error")
+              (progn (message "error: %s" (plist-get response :message))
                      (if error-cb (apply error-cb :allow-other-keys t response)))
             (if cb (apply cb :allow-other-keys t response))))))))
 

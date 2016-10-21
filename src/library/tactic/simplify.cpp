@@ -1066,7 +1066,7 @@ meta constant ext_simplify_core
   (r : name) :
   expr → tactic (A × expr × expr)
 */
-vm_obj tactic_ext_simplify_core(unsigned num, vm_obj const * args) {
+vm_obj tactic_ext_simplify_core(unsigned DEBUG_CODE(num), vm_obj const * args) {
     lean_assert(num == 10);
     return ext_simplify_core(args[1], args[2], to_simp_lemmas(args[3]), args[4], args[5], args[6],
                              to_name(args[7]), to_expr(args[8]), to_tactic_state(args[9]));

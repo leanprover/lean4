@@ -39,7 +39,7 @@
 (defun lean-execute (&optional arg)
   "Execute Lean in the current buffer"
   (interactive)
-  (when (called-interactively-p)
+  (when (called-interactively-p 'any)
     (setq arg (read-string "arg: " arg)))
   (let ((target-file-name
          (or
@@ -78,7 +78,7 @@
           (if (looking-at "->") t nil))))))
 
 (defun lean-tab-indent ()
-  (cond ((looking-back (rx line-start (* white)))
+  (cond ((looking-back (rx line-start (* white)) nil)
          (eri-indent))
         (t (indent-for-tab-command))))
 

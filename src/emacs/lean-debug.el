@@ -10,7 +10,7 @@
 (defun lean-turn-on-debug-mode (&optional print-msg)
   (interactive)
   (when (eq major-mode 'lean-mode)
-    (when (or (called-interactively-p) print-msg)
+    (when (or (called-interactively-p 'any) print-msg)
       (message "lean: turn on debug mode"))
     (get-buffer-create lean-debug-buffer-name)
     (setq-local lean-debug-mode t)))
@@ -18,15 +18,15 @@
 (defun lean-turn-off-debug-mode (&optional print-msg)
   (interactive)
   (when (eq major-mode 'lean-mode)
-    (when (or (called-interactively-p) print-msg)
+    (when (or (called-interactively-p 'any) print-msg)
       (message "lean: turn off debug mode"))
     (setq-local lean-debug-mode nil)))
 
 (defun lean-toggle-debug-mode ()
   (interactive)
   (if lean-debug-mode
-      (lean-turn-off-debug-mode (called-interactively-p))
-    (lean-turn-on-debug-mode (called-interactively-p))))
+      (lean-turn-off-debug-mode (called-interactively-p 'any))
+    (lean-turn-on-debug-mode (called-interactively-p 'any))))
 
 (defun lean-output-to-buffer (buffer-name format-string args)
   (with-current-buffer

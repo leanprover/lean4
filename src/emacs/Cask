@@ -3,6 +3,7 @@
 (package-file "lean-mode.el")
 (development
  (depends-on "cl-lib")
+ (depends-on "company")
  (depends-on "dash" 2.8.0)
  (depends-on "dash-functional" "1.1.0")
  (depends-on "ert-runner")

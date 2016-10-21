@@ -5,7 +5,7 @@
 ;;
 ;; Author: Soonho Kong
 ;;
-
+(require 'flycheck)
 (require 'lean-settings)
 (require 'lean-server)
 
@@ -50,7 +50,7 @@
 (defun lean-flycheck-turn-on ()
   (interactive)
   (unless lean-flycheck-use
-    (when (interactive-p)
+    (when (called-interactively-p 'any)
       (message "use flycheck in lean-mode"))
     (setq lean-flycheck-use t))
   (flycheck-mode t))
@@ -58,7 +58,7 @@
 (defun lean-flycheck-turn-off ()
   (interactive)
   (when lean-flycheck-use
-    (when (interactive-p)
+    (when (called-interactively-p 'any)
       (message "no flycheck in lean-mode")))
   (flycheck-mode 0)
   (setq lean-flycheck-use nil))

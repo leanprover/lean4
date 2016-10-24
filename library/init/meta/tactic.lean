@@ -9,6 +9,8 @@ import init.nat_div init.meta.exceptional init.meta.format init.meta.environment
 import init.meta.pexpr
 meta constant tactic_state : Type
 
+universe variables u v
+
 namespace tactic_state
 meta constant env         : tactic_state → environment
 meta constant to_format   : tactic_state → format
@@ -23,14 +25,14 @@ end tactic_state
 meta instance : has_to_format tactic_state :=
 ⟨tactic_state.to_format⟩
 
-meta inductive tactic_result (A : Type)
+meta inductive tactic_result (A : Type u)
 | success   : A → tactic_state → tactic_result
 | exception : (unit → format) → option expr → tactic_state → tactic_result
 
 open tactic_result
 
 section
-variables {A : Type}
+variables {A : Type u}
 variables [has_to_string A]
 
 meta def tactic_result_to_string : tactic_result A → string
@@ -42,50 +44,65 @@ meta instance : has_to_string (tactic_result A) :=
 end
 
 attribute [reducible]
-meta def tactic (A : Type) :=
+meta def tactic (A : Type u) :=
 tactic_state → tactic_result A
 
 section
-variables {A B : Type}
+variables {A : Type u} {B : Type v}
 
-attribute [inline]
-meta def tactic_fmap (f : A → B) (t : tactic A) : tactic B :=
+@[inline] meta def tactic_fmap (f : A → B) (t : tactic A) : tactic B :=
 λ s, tactic_result.cases_on (t s)
   (λ a s', success (f a) s')
   (λ e s', exception B e s')
 
-attribute [inline]
-meta def tactic_bind (t₁ : tactic A) (t₂ : A → tactic B) : tactic B :=
+@[inline] meta def tactic_bind (t₁ : tactic A) (t₂ : A → tactic B) : tactic B :=
 λ s,  tactic_result.cases_on (t₁ s)
   (λ a s', t₂ a s')
   (λ e s', exception B e s')
 
-attribute [inline]
-meta def tactic_return (a : A) : tactic A :=
+@[inline] meta def tactic_return (a : A) : tactic A :=
 λ s, success a s
 
-meta def tactic_orelse {A : Type} (t₁ t₂ : tactic A) : tactic A :=
+meta def tactic_orelse {A : Type u} (t₁ t₂ : tactic A) : tactic A :=
 λ s, tactic_result.cases_on (t₁ s)
   success
   (λ e₁ ref₁ s', tactic_result.cases_on (t₂ s)
      success
      (exception A))
+
+@[inline] meta def tactic_seq (t₁ : tactic A) (t₂ : tactic B) : tactic B :=
+tactic_bind t₁ (λ a, t₂)
+
+infixl ` >>=[tactic] `:2 := tactic_bind
+infixl ` >>[tactic] `:2  := tactic_seq
 end
 
 meta instance : monad tactic :=
 ⟨@tactic_fmap, @tactic_return, @tactic_bind⟩
 
-meta def tactic.fail {A B : Type} [has_to_format B] (msg : B) : tactic A :=
+meta def tactic.fail {A : Type u} {B : Type v} [has_to_format B] (msg : B) : tactic A :=
 λ s, exception A (λ u, to_fmt msg) none s
 
-meta def tactic.failed {A : Type} : tactic A :=
+meta def tactic.failed {A : Type u} : tactic A :=
 tactic.fail "failed"
 
 meta instance : alternative tactic :=
 ⟨@tactic_fmap, (λ A a s, success a s), (@fapp _ _), @tactic.failed, @tactic_orelse⟩
 
+meta def {u₁ u₂} tactic.up {A : Type u₂} (t : tactic A) : tactic (ulift.{u₁} A) :=
+λ s, match t s with
+| success a s'         := success (ulift.up a) s'
+| exception .A t ref s := exception (ulift A) t ref s
+end
+
+meta def {u₁ u₂} tactic.down {A : Type u₂} (t : tactic (ulift.{u₁} A)) : tactic A :=
+λ s, match t s with
+| success (ulift.up a) s' := success a s'
+| exception .(ulift A) t ref s := exception A t ref s
+end
+
 namespace tactic
-variables {A : Type}
+variables {A : Type u}
 
 meta def try (t : tactic A) : tactic unit :=
 λ s, tactic_result.cases_on (t s)
@@ -114,7 +131,7 @@ meta def repeat_exactly : nat → tactic unit → tactic unit
 meta def repeat : tactic unit → tactic unit :=
 repeat_at_most 100000
 
-meta def returnex (e : exceptional A) : tactic A :=
+meta def returnex {A : Type 1} (e : exceptional A) : tactic A :=
 λ s, match e with
 | (exceptional.success a)       := tactic_result.success a s
 | (exceptional.exception .A f) := tactic_result.exception A (λ u, f options.mk) none s -- TODO(Leo): extract options from environment
@@ -144,31 +161,31 @@ end tactic
 meta def tactic_format_expr (e : expr) : tactic format :=
 do s ← tactic.read, return (tactic_state.format_expr s e)
 
-meta class has_to_tactic_format (A : Type) :=
+meta class has_to_tactic_format (A : Type u) :=
 (to_tactic_format : A → tactic format)
 
 meta instance : has_to_tactic_format expr :=
 ⟨tactic_format_expr⟩
 
-meta def tactic.pp {A : Type} [has_to_tactic_format A] : A → tactic format :=
+meta def tactic.pp {A : Type u} [has_to_tactic_format A] : A → tactic format :=
 has_to_tactic_format.to_tactic_format
 
 open tactic format
 
-meta def list_to_tactic_format_aux {A : Type} [has_to_tactic_format A] : bool → list A → tactic format
+meta def list_to_tactic_format_aux {A : Type u} [has_to_tactic_format A] : bool → list A → tactic format
 | b  []     := return $ to_fmt ""
 | b (x::xs) := do
   f₁ ← pp x,
   f₂ ← list_to_tactic_format_aux ff xs,
   return $ (if ¬ b then to_fmt "," ++ line else nil) ++ f₁ ++ f₂
 
-meta def list_to_tactic_format {A : Type} [has_to_tactic_format A] : list A → tactic format
+meta def list_to_tactic_format {A : Type u} [has_to_tactic_format A] : list A → tactic format
 | []      := return $ to_fmt "[]"
 | (x::xs) := do
   f ← list_to_tactic_format_aux tt (x::xs),
   return $ to_fmt "[" ++ group (nest 1 f) ++ to_fmt "]"
 
-meta instance {A : Type} [has_to_tactic_format A] : has_to_tactic_format (list A) :=
+meta instance {A : Type u} [has_to_tactic_format A] : has_to_tactic_format (list A) :=
 ⟨list_to_tactic_format⟩
 
 meta instance has_to_format_to_has_to_tactic_format (A : Type) [has_to_format A] : has_to_tactic_format A :=
@@ -185,7 +202,7 @@ meta def get_decl (n : name) : tactic declaration :=
 do s ← read,
    returnex $ environment.get (env s) n
 
-meta def trace {A : Type} [has_to_tactic_format A] (a : A) : tactic unit :=
+meta def trace {A : Type u} [has_to_tactic_format A] (a : A) : tactic unit :=
 do fmt ← pp a,
    return $ _root_.trace_fmt fmt (λ u, ())
 
@@ -205,7 +222,7 @@ export transparency (reducible semireducible)
    'A' must be a closed term.
    'A_as_expr' is synthesized by the code generator.
    'e' must be a closed expression at runtime. -/
-meta constant eval_expr (A : Type) {A_expr : pexpr} : expr → tactic A
+meta constant eval_expr (A : Type u) {A_expr : pexpr} : expr → tactic A
 
 /- Return the partial term/proof constructed so far. Note that the resultant expression
    may contain variables that are not declarate in the current main goal. -/
@@ -352,8 +369,8 @@ meta def cleanup : tactic unit :=
 get_goals >>= set_goals
 
 /- Auxiliary definition used to implement begin ... end blocks -/
-meta def step {A : Type} (t : tactic A) : tactic unit :=
-t >> cleanup
+meta def step {A : Type u} (t : tactic A) : tactic unit :=
+t >>[tactic] cleanup
 
 /- Add (H : T := pr) to the current goal -/
 meta def note (n : name) (pr : expr) : tactic unit :=
@@ -498,7 +515,7 @@ rotate_left
 
 /- first [t_1, ..., t_n] applies the first tactic that doesn't fail.
    The tactic fails if all t_i's fail. -/
-meta def first {A : Type} : list (tactic A) → tactic A
+meta def first {A : Type u} : list (tactic A) → tactic A
 | []      := fail "first tactic failed, no more alternatives"
 | (t::ts) := t <|> first ts
 

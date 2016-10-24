@@ -2363,6 +2363,7 @@ tactic_state elaborator::execute_begin_end_tactics(buffer<expr> const & tactics,
             throw elaborator_exception(curr_ref, "ill-formed 'begin ... end' tactic block");
         }
     }
+    show_goal(new_s, start_ref, end_ref, end_ref);
     if (new_s.goals()) throw_unsolved_tactic_state(new_s, "tactic failed, there are unsolved goals", ref);
     return set_goals(new_s, tail(gs));
 }

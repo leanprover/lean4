@@ -50,6 +50,12 @@
               (or arg "")
               (shell-quote-argument (f-full target-file-name))))))
 
+(defconst lean-info-buffer-name "*lean-info*")
+
+(defmacro with-output-to-lean-info (&rest body)
+  `(let* ((temp-buffer-setup-hook #'lean-info-mode))
+     (with-output-to-temp-buffer lean-info-buffer-name . ,body)))
+
 (defun lean-show-goal-at-pos ()
   "Show goal at the current point."
   (interactive)
@@ -59,13 +65,9 @@
          :line (line-number-at-pos)
          :col (current-column))
    (cl-function
-    (lambda (&key state)
-      (let* ((temp-buffer-setup-hook #'lean-info-mode))
-        (with-output-to-temp-buffer "*lean-info*" (princ state)))))
+    (lambda (&key state) (with-output-to-lean-info (princ state))))
    (cl-function
-    (lambda (&key message)
-      (let* ((temp-buffer-setup-hook #'lean-info-mode))
-        (with-output-to-temp-buffer "*lean-info*" (princ message)))))))
+    (lambda (&key message) (with-output-to-lean-info (princ message))))))
 
 (defun lean-std-exe ()
   (interactive)

@@ -105,14 +105,9 @@
 (defconst lean-next-error-buffer-name "*Lean Next Error*")
 
 (defun lean-next-error-copy ()
-  (when (and (equal major-mode 'lean-mode)
-             ;; HACK -- princ-ing to another buffer seems to remove the marker
-             (not mark-active))
-
-    (let* ((errors (sort (flycheck-overlay-errors-in (line-beginning-position) (line-end-position)) #'flycheck-error-<))
-           (buffer (get-buffer lean-next-error-buffer-name))
-           ;; output logic taken from with-temp-buffer-window, but don't reset major mode
-           (standard-output buffer))
+  (when (and (equal major-mode 'lean-mode))
+    (let* ((errors (sort (flycheck-overlay-errors-in (line-beginning-position) (line-end-position))
+                         #'flycheck-error-<)))
 
       ;; prefer error of current position, if any
       (-if-let (e (get-char-property (point) 'flycheck-error))
@@ -124,19 +119,14 @@
                      (e (get-char-property pos 'flycheck-error)))
               (setq errors (list e))))
 
-      (with-current-buffer buffer
-        (setq buffer-read-only nil)
-        (erase-buffer))
-
-      (if errors
-          (dolist (e errors)
-            (princ (format "%d:%d: " (flycheck-error-line e) (flycheck-error-column e)))
-            (princ (flycheck-error-message e))
-            (princ "\n\n"))
-        (if flycheck-current-errors
-            (princ (format "(%d more messages above...)" (length flycheck-current-errors)))))
-
-      (temp-buffer-window-show buffer))))
+      (when errors
+        (with-output-to-lean-info
+         (dolist (e errors)
+           (princ (format "%d:%d: " (flycheck-error-line e) (flycheck-error-column e)))
+           (princ (flycheck-error-message e))
+           (princ "\n\n"))
+         (when flycheck-current-errors
+           (princ (format "(%d more messages above...)" (length flycheck-current-errors)))))))))
 
 (define-minor-mode lean-next-error-mode
   "Toggle lean-next-error-mode on and off.

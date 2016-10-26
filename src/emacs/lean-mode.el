@@ -61,7 +61,11 @@
    (cl-function
     (lambda (&key state)
       (let* ((temp-buffer-setup-hook #'lean-info-mode))
-        (with-output-to-temp-buffer "*lean-info*" (princ state)))))))
+        (with-output-to-temp-buffer "*lean-info*" (princ state)))))
+   (cl-function
+    (lambda (&key message)
+      (let* ((temp-buffer-setup-hook #'lean-info-mode))
+        (with-output-to-temp-buffer "*lean-info*" (princ message)))))))
 
 (defun lean-std-exe ()
   (interactive)

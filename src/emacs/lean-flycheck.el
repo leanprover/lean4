@@ -119,14 +119,13 @@
                      (e (get-char-property pos 'flycheck-error)))
               (setq errors (list e))))
 
-      (when errors
-        (with-output-to-lean-info
-         (dolist (e errors)
-           (princ (format "%d:%d: " (flycheck-error-line e) (flycheck-error-column e)))
-           (princ (flycheck-error-message e))
-           (princ "\n\n"))
-         (when flycheck-current-errors
-           (princ (format "(%d more messages above...)" (length flycheck-current-errors)))))))))
+      (with-output-to-lean-info
+       (dolist (e errors)
+         (princ (format "%d:%d: " (flycheck-error-line e) (flycheck-error-column e)))
+         (princ (flycheck-error-message e))
+         (princ "\n\n"))
+       (when flycheck-current-errors
+         (princ (format "(%d more messages above...)" (length flycheck-current-errors))))))))
 
 (define-minor-mode lean-next-error-mode
   "Toggle lean-next-error-mode on and off.

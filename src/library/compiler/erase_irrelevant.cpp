@@ -46,10 +46,21 @@ class erase_irrelevant_fn : public compiler_step_visitor {
         return *g_neutral_expr;
     }
 
+    bool is_comp_irrelevant(expr const & e) {
+        try {
+            /* TODO(Leo): revise this code, infer/whnf are problematic here since
+               types may already have been erased in 'e'. */
+            expr type = ctx().whnf(ctx().infer(e));
+            return is_sort(type) || ctx().is_prop(type);
+        } catch (exception &) {
+            return false;
+        }
+    }
+
     virtual expr visit_macro(expr const & e) override {
         if (is_marked_as_comp_irrelevant(e)) {
             return *g_neutral_expr;
-        } else if (is_comp_irrelevant(ctx(), e)) {
+        } else if (is_comp_irrelevant(e)) {
             return *g_neutral_expr;
         } else if (is_rec_fn_macro(e)) {
             return mk_constant(get_rec_fn_name(e));
@@ -63,14 +74,14 @@ class erase_irrelevant_fn : public compiler_step_visitor {
     }
 
     virtual expr visit_local(expr const & e) override {
-        if (is_comp_irrelevant(ctx(), e))
+        if (is_comp_irrelevant(e))
             return *g_neutral_expr;
         else
             return e;
     }
 
     virtual expr visit_constant(expr const & e) override {
-        if (is_comp_irrelevant(ctx(), e)) {
+        if (is_comp_irrelevant(e)) {
             return *g_neutral_expr;
         } else {
             /* Erase universe level information */
@@ -335,7 +346,7 @@ class erase_irrelevant_fn : public compiler_step_visitor {
     }
 
     virtual expr visit_app(expr const & e) override {
-        if (is_comp_irrelevant(ctx(), e))
+        if (is_comp_irrelevant(e))
             return *g_neutral_expr;
         if (auto n = to_nat_value(ctx(), e))
             return *n;

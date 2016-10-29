@@ -8,6 +8,7 @@
 (require 'flycheck)
 (require 'lean-settings)
 (require 'lean-server)
+(require 'lean-info)
 
 (defun lean-toggle-flycheck-mode ()
   "Toggle flycheck-mode"

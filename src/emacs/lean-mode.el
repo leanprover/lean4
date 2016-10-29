@@ -21,12 +21,13 @@
 (require 'eri)
 (require 'lean-util)
 (require 'lean-settings)
-(require 'lean-flycheck)
 (require 'lean-input)
 (require 'lean-syntax)
 (require 'lean-project)
 (require 'lean-company)
 (require 'lean-server)
+(require 'lean-flycheck)
+(require 'lean-info)
 
 (defun lean-compile-string (exe-name args file-name)
   "Concatenate exe-name, args, and file-name"
@@ -49,12 +50,6 @@
               (shell-quote-argument (f-full (lean-get-executable lean-executable-name)))
               (or arg "")
               (shell-quote-argument (f-full target-file-name))))))
-
-(defconst lean-info-buffer-name "*lean-info*")
-
-(defmacro with-output-to-lean-info (&rest body)
-  `(let* ((temp-buffer-setup-hook #'lean-info-mode))
-     (with-output-to-temp-buffer lean-info-buffer-name . ,body)))
 
 (defun lean-show-goal-at-pos ()
   "Show goal at the current point."
@@ -237,20 +232,6 @@ Invokes `lean-mode-hook'.
   (require 'flycheck)
   (eval-after-load 'flycheck
     '(lean-flycheck-init)))
-
-;; Lean Info Mode (for "*lean-info*" buffer)
-;; Automode List
-;;;###autoload
-(define-derived-mode lean-info-mode prog-mode "Lean-Info"
-  "Major mode for Lean Info Buffer"
-  :syntax-table lean-syntax-table
-  :group 'lean
-  (set (make-local-variable 'font-lock-defaults) lean-info-font-lock-defaults)
-  (set (make-local-variable 'indent-tabs-mode) nil)
-  (set 'compilation-mode-font-lock-keywords '())
-  (set-input-method "Lean")
-  (set (make-local-variable 'lisp-indent-function)
-       'common-lisp-indent-function))
 
 (provide 'lean-mode)
 ;;; lean-mode.el ends here

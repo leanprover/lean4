@@ -23,13 +23,14 @@ syn case match
 
 " keywords
 syn keyword leanKeyword import prelude tactic_hint protected private noncomputable
-syn keyword leanKeyword definition renaming hiding exposing parameter parameters
+syn keyword leanKeyword def definition renaming hiding exposing parameter parameters
 syn keyword leanKeyword begin proof qed conjecture constant constants hypothesis lemma
 syn keyword leanKeyword corollary variable variables premise premises theory print theorem proposition
 syn keyword leanKeyword example abstract open as export override axiom axioms inductive
 syn keyword leanKeyword with structure record universe universes alias help environment options
 syn keyword leanKeyword precedence reserve match infix infixl infixr notation postfix prefix
 syn keyword leanKeyword tactic_infix tactic_infixl tactic_infixr tactic_notation tactic_postfix
+syn keyword leanKeyword meta run_command do
 syn keyword leanKeyword tactic_prefix eval check end reveal this suppose using namespace section
 syn keyword leanKeyword fields find_decl attribute local set_option extends include omit classes
 syn keyword leanKeyword instances coercions attributes raw migrate replacing calc have show suffices
@@ -39,9 +40,9 @@ syn match leanOp        ":"
 syn match leanOp        "="
 
 " constants
-syn keyword leanConstant "#" "@" "->" "∼" "↔" "/" "==" ":=" "<->" "/\\" "\\/" "∧" "∨"
+syn keyword leanConstant "#" "@" "->" "∼" "↔" "/" "==" ":=" "<->" "/\\" "\\/" "∧" "∨" ">>=" ">>"
 syn keyword leanConstant ≠ < > ≤ ≥ ¬ <= >= ⁻¹ ⬝ ▸ + * - / λ
-syn keyword leanConstant → ∃ ∀
+syn keyword leanConstant → ∃ ∀ Π ←
 
 " modifiers (pragmas)
 syn keyword leanModifier contained containedin=leanBracketEncl persistent notation visible instance trans_instance class parsing_only
@@ -61,7 +62,8 @@ syn region      leanEncl            matchgroup=leanDelim start="(" end=")" conta
 syn region      leanBracketEncl     matchgroup=leanDelim start="\[" end="\]" contains=ALLBUT,leanBrackErr keepend
 syn region      leanEncl            matchgroup=leanDelim start="{"  end="}" contains=ALLBUT,leanBraceErr,leanModifier keepend
 
-syn region      leanNotation        start=+`+    end=+`+
+" FIXME(gabriel): distinguish backquotes in notations from names
+" syn region      leanNotation        start=+`+    end=+`+
 
 syn keyword	leanTodo	containedin=leanComment TODO FIXME BUG FIX
 

@@ -43,6 +43,7 @@ typedef pair<std::string, std::function<void(environment const &, serializer &)>
 
 struct module_metadata {
     module_metadata() : m_mname(name()), m_lean_mod_time(-1), m_olean_mod_time(-2) {}
+    std::string m_base;
     module_name m_mname;
     time_t m_lean_mod_time;
     time_t m_olean_mod_time;
@@ -106,12 +107,11 @@ static time_t get_mtime(std::string const & fname) {
 
 bool imports_have_changed(environment const & env) {
     module_ext const & ext   = get_extension(env);
-    std::string const & base = ext.m_base;
     bool any_changed = false;
     ext.m_imported.for_each([&] (name const &, module_metadata const & metadata) {
         if (!any_changed) {
-            time_t lean_mtime = get_mtime(find_lean_file(base, metadata.m_mname));
-            time_t olean_mtime = get_mtime(find_olean_file(base, metadata.m_mname));
+            time_t lean_mtime = get_mtime(find_lean_file(metadata.m_base, metadata.m_mname));
+            time_t olean_mtime = get_mtime(find_olean_file(metadata.m_base, metadata.m_mname));
             if (lean_mtime != metadata.m_lean_mod_time || olean_mtime != metadata.m_olean_mod_time) {
                 any_changed = true;
             }
@@ -355,6 +355,7 @@ struct import_modules_fn {
         m_visited.insert(fname);
         try {
             module_metadata metadata;
+            metadata.m_base = base;
             metadata.m_mname = mname;
             try {
                 std::string fname_lean = find_lean_file(base, mname);

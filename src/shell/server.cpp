@@ -141,8 +141,12 @@ json server::handle_sync(json const & req) {
 }
 
 json server::handle_check(json const &) {
-    if (imports_have_changed(m_checked_env))
+    try {
+        if (imports_have_changed(m_checked_env))
+            m_only_checked_until = optional<pos_info>(0, 0);
+    } catch (...) {
         m_only_checked_until = optional<pos_info>(0, 0);
+    }
 
     if (m_only_checked_until) {
         // keep all snapshots before the change but the last one (which may belong to the command that's being changed)

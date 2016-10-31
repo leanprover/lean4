@@ -475,8 +475,12 @@ struct elim_match_fn {
 
     /* Return true iff the next pattern of every equation is a constructor or variable,
        and there are at least one equation where it is a variable and another where it is a
-       constructor. */
-    bool is_complete_transition(problem const & P) {
+       constructor.
+
+       If value_is_contructor == true, then a value is assumed to be a constructor.
+       We use is_complete_transition(P, true) if is_value_transition(P) fail because
+       there are dependent variables. */
+    bool is_complete_transition(problem const & P, bool value_is_contructor) {
         bool has_variable    = false;
         bool has_constructor = false;
         bool r = all_next_pattern(P, [&](expr const & p) {
@@ -485,6 +489,7 @@ struct elim_match_fn {
                 } else if (is_constructor_app(p)) {
                     has_constructor = true; return true;
                 } else if (is_value(p)) {
+                    if (value_is_contructor) has_constructor = true;
                     return true;
                 } else {
                     return false;
@@ -508,7 +513,19 @@ struct elim_match_fn {
                     return false;
                 }
             });
-        return r && has_value && has_variable;
+        if (!r || !has_value || !has_variable)
+            return false;
+        /* Check whether other variables on the variable stack depend on the head. */
+        expr const & v   = head(P.m_var_stack);
+        type_context ctx = mk_type_context(P);
+        for (expr const & w : tail(P.m_var_stack)) {
+            expr w_type = ctx.infer(w);
+            if (depends_on(w_type, v)) {
+                trace_match(tout() << "variable transition is not used because type of '" << w << "' depends on '" << v << "'\n";);
+                return false;
+            }
+        }
+        return true;
     }
 
     /** Return true iff the next pattern of some equations is an inaccessible term */
@@ -819,7 +836,7 @@ struct elim_match_fn {
     }
 
     list<lemma> process_complete(problem const & P) {
-        lean_assert(is_complete_transition(P));
+        lean_assert(is_complete_transition(P, false) || is_complete_transition(P, true));
         trace_match(tout() << "step: variables and constructors\n";);
         /* The next pattern of every equation is a constructor or variable.
            We split the equations where the next pattern is a variable into cases.
@@ -1166,10 +1183,12 @@ struct elim_match_fn {
                 return process_non_variable(P);
             } else if (is_variable_transition(P)) {
                 return process_variable(P);
-            } else if (is_complete_transition(P)) {
+            } else if (is_complete_transition(P, false)) {
                 return process_complete(P);
             } else if (is_value_transition(P)) {
                 return process_value(P);
+            } else if (is_complete_transition(P, true)) {
+                return process_complete(P);
             } else if (is_constructor_transition(P)) {
                 return process_constructor(P);
             } else if (is_transport_transition(P)) {

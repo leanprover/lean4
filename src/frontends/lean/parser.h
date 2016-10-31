@@ -23,6 +23,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/local_level_decls.h"
 #include "frontends/lean/parser_config.h"
 #include "frontends/lean/local_context_adapter.h"
+#include "frontends/lean/info_manager.h"
 
 namespace lean {
 struct interrupt_parser {};
@@ -52,22 +53,24 @@ typedef list<parser_scope> parser_scope_stack;
 
 /** \brief Snapshot of the state of the Lean parser */
 struct snapshot {
-    environment        m_env;
-    list<message>      m_messages;
-    local_level_decls  m_lds;
-    local_expr_decls   m_eds;
-    name_set           m_lvars; // subset of m_lds that is tagged as level variable
-    name_set           m_vars; // subset of m_eds that is tagged as variable
-    name_set           m_include_vars; // subset of m_eds that must be included
-    options            m_options;
-    bool               m_imports_parsed;
-    parser_scope_stack m_parser_scope_stack;
-    pos_info           m_pos;
+    environment            m_env;
+    list<message>          m_messages;
+    local_level_decls      m_lds;
+    local_expr_decls       m_eds;
+    name_set               m_lvars; // subset of m_lds that is tagged as level variable
+    name_set               m_vars; // subset of m_eds that is tagged as variable
+    name_set               m_include_vars; // subset of m_eds that must be included
+    options                m_options;
+    bool                   m_imports_parsed;
+    parser_scope_stack     m_parser_scope_stack;
+    pos_info               m_pos;
+    optional<info_manager> m_infom;
     snapshot(environment const & env, list<message> const & messages, local_level_decls const & lds,
              local_expr_decls const & eds, name_set const & lvars, name_set const & vars,
-             name_set const & includes, options const & opts, bool imports_parsed, parser_scope_stack const & pss, pos_info const & pos):
+             name_set const & includes, options const & opts, bool imports_parsed, parser_scope_stack const & pss,
+             pos_info const & pos, optional<info_manager> const & infom):
         m_env(env), m_messages(messages), m_lds(lds), m_eds(eds), m_lvars(lvars), m_vars(vars), m_include_vars(includes),
-        m_options(opts), m_imports_parsed(imports_parsed), m_parser_scope_stack(pss), m_pos(pos) {}
+        m_options(opts), m_imports_parsed(imports_parsed), m_parser_scope_stack(pss), m_pos(pos), m_infom(infom) {}
 };
 
 typedef std::vector<snapshot> snapshot_vector;
@@ -116,6 +119,7 @@ class parser : public abstract_parser {
     bool                    m_found_errors;
     bool                    m_used_sorry;
     pos_info_table          m_pos_table;
+    optional<info_manager>  m_infom;
     // By default, when the parser finds a unknown identifier, it signs an error.
     // When the following flag is true, it creates a constant.
     // This flag is when we are trying to parse mutually recursive declarations.
@@ -215,7 +219,8 @@ public:
     parser(environment const & env, io_state const & ios,
            std::istream & strm, char const * str_name, optional<std::string> const & base_dir,
            bool use_exceptions = false, unsigned num_threads = 1,
-           snapshot const * s = nullptr, snapshot_vector * sv = nullptr);
+           snapshot const * s = nullptr, snapshot_vector * sv = nullptr,
+           optional<info_manager> infom = optional<info_manager>());
     ~parser();
 
     void enable_show_goal(pos_info const & pos);

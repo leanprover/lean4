@@ -653,6 +653,14 @@ expr elaborator::visit_const_core(expr const & e) {
     return update_constant(e, to_list(ls.begin(), ls.end()));
 }
 
+/** \brief Auxiliary function for saving information about which overloaded identifier was used by the elaborator. */
+void elaborator::save_identifier_info(expr const & f) {
+    /*if (!m_no_info && infom() && pip() && is_constant(f)) {
+        if (auto p = pip()->get_pos_info(f))
+            m_pre_info_data.add_identifier_info(p->first, p->second, const_name(f));
+    }*/
+}
+
 expr elaborator::visit_function(expr const & fn, bool has_args, expr const & ref) {
     if (is_placeholder(fn)) {
         throw elaborator_exception(ref, "placeholders '_' cannot be used where a function is expected");
@@ -672,6 +680,7 @@ expr elaborator::visit_function(expr const & fn, bool has_args, expr const & ref
     case expr_kind::Lambda:    r = visit_lambda(fn, none_expr()); break;
     case expr_kind::Let:       r = visit_let(fn, none_expr()); break;
     }
+    save_identifier_info(fn);
     if (has_args)
         r = ensure_function(r, ref);
     return r;

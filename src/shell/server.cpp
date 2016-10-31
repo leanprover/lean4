@@ -13,7 +13,7 @@ Authors: Gabriel Ebner, Leonardo de Moura, Sebastian Ullrich
 #include "frontends/lean/parser.h"
 #include "library/module.h"
 #include "shell/server.h"
-#include "shell/info_manager.h"
+#include "frontends/lean/info_manager.h"
 #include "util/sexpr/option_declarations.h"
 #include "frontends/lean/util.h"
 #include "library/protected.h"

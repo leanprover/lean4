@@ -181,11 +181,11 @@ public:
 parser::parser(environment const & env, io_state const & ios,
                std::istream & strm, char const * strm_name, optional<std::string> const & base_dir,
                bool use_exceptions, unsigned num_threads,
-               snapshot const * s, snapshot_vector * sv):
+               snapshot const * s, snapshot_vector * sv, optional<info_manager> infom):
     m_env(env), m_ios(ios),
     m_verbose(true), m_use_exceptions(use_exceptions),
     m_scanner(strm, strm_name, s ? s->m_pos : pos_info(1, 0)),
-    m_base_dir(base_dir), m_imports_parsed(false),
+    m_base_dir(base_dir), m_imports_parsed(false), m_infom(infom),
     m_snapshot_vector(sv) {
     if (s) {
         m_env                = s->m_env;
@@ -198,6 +198,7 @@ parser::parser(environment const & env, io_state const & ios,
         m_include_vars       = s->m_include_vars;
         m_imports_parsed     = s->m_imports_parsed;
         m_parser_scope_stack = s->m_parser_scope_stack;
+        m_infom              = s->m_infom;
     }
     m_ignore_noncomputable = false;
     m_ios.set_message_channel(std::make_shared<parser_message_stream>(this, m_ios.get_message_channel_ptr()));
@@ -2247,7 +2248,8 @@ void parser::save_snapshot() {
     if (m_snapshot_vector->empty() || m_snapshot_vector->back().m_pos != m_scanner.get_pos_info())
         m_snapshot_vector->push_back(snapshot(m_env, m_messages, m_local_level_decls, m_local_decls,
                                               m_level_variables, m_variables, m_include_vars,
-                                              m_ios.get_options(), m_imports_parsed, m_parser_scope_stack, m_scanner.get_pos_info()));
+                                              m_ios.get_options(), m_imports_parsed, m_parser_scope_stack,
+                                              m_scanner.get_pos_info(), m_infom));
 }
 
 optional<pos_info> parser::get_pos_info(expr const & e) const {

@@ -1,4 +1,4 @@
-add_executable(lean lean.cpp json.cpp server.cpp)
+add_executable(lean lean.cpp info_manager.cpp json.cpp server.cpp)
 target_link_libraries(lean leanstatic)
 install(TARGETS lean DESTINATION bin)
 

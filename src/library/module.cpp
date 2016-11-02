@@ -117,7 +117,14 @@ environment add_decl_olean(environment const & env, name const & decl_name, std:
 
 optional<std::string> get_decl_olean(environment const & env, name const & decl_name) {
     module_ext const & ext = get_extension(env);
-    if (auto r = ext.m_decl2olean.find(decl_name))
+    name d;
+    if (auto r = inductive::is_intro_rule(env, decl_name))
+        d = *r;
+    else if (auto r = inductive::is_elim_rule(env, decl_name))
+        d = *r;
+    else
+        d = decl_name;
+    if (auto r = ext.m_decl2olean.find(d))
         return optional<std::string>(*r);
     else
         return optional<std::string>();
@@ -296,15 +303,6 @@ environment add_inductive(environment                       env,
     new_env = update(new_env, ext);
     return add(new_env, *g_inductive, [=](environment const &, serializer & s) {
             s << cdecl;
-        });
-}
-
-static void inductive_reader(deserializer & d, shared_environment & senv,
-                             std::function<void(asynch_update_fn const &)>  &,
-                             std::function<void(delayed_update_fn const &)> &) {
-    certified_inductive_decl cdecl = read_certified_inductive_decl(d);
-    senv.update([&](environment const & env) {
-            return cdecl.add(env);
         });
 }
 } // end of namespace module
@@ -509,14 +507,20 @@ struct import_modules_fn {
                 break;
             } else if (k == *g_decl_key) {
                 optional<name> decl_name = import_decl(d);
-                std::string fname = r->m_fname;
                 if (decl_name) {
-                    add_delayed_update([=](environment const & env, io_state const &) {
-                            return add_decl_olean(env, *decl_name, fname);
+                    m_senv.update([&](environment const & env) {
+                            return add_decl_olean(env, *decl_name, r->m_fname);
                         });
                 }
             } else if (k == *g_glvl_key) {
                 import_universe(d);
+            } else if (k == *g_inductive) {
+                inductive::certified_inductive_decl cdecl = read_certified_inductive_decl(d);
+                m_senv.update([&](environment const & env) {
+                        environment new_env = cdecl.add(env);
+                        new_env = add_decl_olean(new_env, cdecl.get_decl().m_name, r->m_fname);
+                        return new_env;
+                    });
             } else {
                 object_readers & readers = get_object_readers();
                 auto it = readers.find(k);
@@ -646,7 +650,6 @@ void initialize_module() {
     g_decl_key       = new std::string("decl");
     g_inductive      = new std::string("ind");
     g_quotient       = new std::string("quot");
-    register_module_object_reader(*g_inductive, module::inductive_reader);
     register_module_object_reader(*g_quotient, module::quotient_reader);
 }
 

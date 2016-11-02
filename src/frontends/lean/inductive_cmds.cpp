@@ -525,11 +525,15 @@ public:
 
 environment inductive_cmd_ex(parser & p, decl_attributes const & attrs, bool is_meta) {
     p.next();
+    auto pos = p.pos();
+    module::scope_pos_info scope_pos(pos);
     return inductive_cmd_fn(p, attrs, !is_meta).inductive_cmd();
 }
 
 environment mutual_inductive_cmd_ex(parser & p, decl_attributes const & attrs, bool is_meta) {
     p.next();
+    auto pos = p.pos();
+    module::scope_pos_info scope_pos(pos);
     return inductive_cmd_fn(p, attrs, !is_meta).mutual_inductive_cmd();
 }
 

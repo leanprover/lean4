@@ -555,6 +555,7 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
     buffer<expr> params;
     expr fn, val;
     auto header_pos = p.pos();
+    module::scope_pos_info scope_pos(header_pos);
     declaration_info_scope scope(p, kind, modifiers);
     bool is_example  = (kind == def_cmd_kind::Example);
     bool is_instance = modifiers.m_is_instance;

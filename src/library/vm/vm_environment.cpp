@@ -195,6 +195,14 @@ vm_obj environment_decl_olean(vm_obj const & env, vm_obj const & n) {
     }
 }
 
+vm_obj environment_decl_pos_info(vm_obj const & env, vm_obj const & n) {
+    if (optional<pos_info> pos = get_decl_pos_info(to_env(env), to_name(n))) {
+        return mk_vm_some(mk_vm_pair(mk_vm_nat(pos->first), mk_vm_nat(pos->second)));
+    } else {
+        return mk_vm_none();
+    }
+}
+
 void initialize_vm_environment() {
     DECLARE_VM_BUILTIN(name({"environment", "mk_std"}),                environment_mk_std);
     DECLARE_VM_BUILTIN(name({"environment", "trust_lvl"}),             environment_trust_lvl);
@@ -218,6 +226,7 @@ void initialize_vm_environment() {
     DECLARE_VM_BUILTIN(name({"environment", "symm_for"}),              environment_symm_for);
     DECLARE_VM_BUILTIN(name({"environment", "trans_for"}),             environment_trans_for);
     DECLARE_VM_BUILTIN(name({"environment", "decl_olean"}),            environment_decl_olean);
+    DECLARE_VM_BUILTIN(name({"environment", "decl_pos_info"}),         environment_decl_pos_info);
 }
 
 void finalize_vm_environment() {

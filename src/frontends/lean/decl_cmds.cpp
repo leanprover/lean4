@@ -189,6 +189,7 @@ static bool curr_is_binder_annotation(parser & p) {
 static environment variable_cmd_core(parser & p, variable_kind k, decl_modifiers const & modifiers = decl_modifiers()) {
     check_variable_kind(p, k);
     auto pos = p.pos();
+    module::scope_pos_info scope_pos(pos);
     optional<binder_info> bi;
     if (k == variable_kind::Parameter || k == variable_kind::Variable)
         bi = parse_binder_info(p, k);
@@ -284,6 +285,7 @@ static environment parameter_cmd(parser & p)    {
 static environment variables_cmd_core(parser & p, variable_kind k, decl_modifiers const & modifiers = decl_modifiers()) {
     check_variable_kind(p, k);
     auto pos = p.pos();
+    module::scope_pos_info scope_pos(pos);
     environment env = p.env();
 
     optional<binder_info> bi = parse_binder_info(p, k);

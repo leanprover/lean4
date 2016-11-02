@@ -63,6 +63,9 @@ list<module_name> get_out_of_date_imports(environment const & env);
     was not defined in an imported file. */
 optional<std::string> get_decl_olean(environment const & env, name const & decl_name);
 
+/** \brief Return position (line and column number) where the given declaration was defined. */
+optional<pos_info> get_decl_pos_info(environment const & env, name const & decl_name);
+
 /** \brief Store/Export module using \c env to the output stream \c out. */
 void export_module(std::ostream & out, environment const & env);
 
@@ -119,6 +122,14 @@ environment declare_quotient(environment const & env);
 
 /** \brief The following function must be invoked to register the builtin HITs in the kernel. */
 environment declare_hits(environment const & env);
+
+/* Auxiliary object for setting position information for module declarations.
+   It affects module::add and module::add_inductive methods. */
+class scope_pos_info {
+public:
+    scope_pos_info(pos_info const & pos_info);
+    ~scope_pos_info();
+};
 }
 void initialize_module();
 void finalize_module();

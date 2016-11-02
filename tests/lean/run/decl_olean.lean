@@ -1,31 +1,18 @@
 open tactic
 
-run_command do
- env ← get_env,
- o   ← returnopt (env^.decl_olean `add),
- trace "add was defined in the .olean file:",
- trace o
+def g : nat → nat :=
+λ n, 0
 
-run_command do
- env ← get_env,
- o   ← returnopt (env^.decl_olean `nat.succ),
- trace "nat.succ was defined in the .olean file:",
- trace o
+meta def show_pos (n : name) : command :=
+do env   ← get_env,
+   pos   ← returnopt (env^.decl_pos_info n),
+   olean ← returnopt (env^.decl_olean n) <|> return "current file",
+   trace $ to_string n ++ " was defined at " ++ olean ++ " : " ++ to_string pos
 
-run_command do
- env ← get_env,
- o   ← returnopt (env^.decl_olean `subsingleton.intro),
- trace "subsingleton.intro was defined in the .olean file:",
- trace o
-
-run_command do
- env ← get_env,
- o   ← returnopt (env^.decl_olean `subsingleton.rec),
- trace "subsingleton.rec was defined in the .olean file:",
- trace o
-
-run_command do
- env ← get_env,
- o   ← returnopt (env^.decl_olean `quot),
- trace "quot was defined in the .olean file:",
- trace o
+run_command show_pos `add
+run_command show_pos `nat.succ
+run_command show_pos `subsingleton.intro
+run_command show_pos `subsingleton.rec
+run_command show_pos `nat.add
+run_command show_pos `quot
+run_command show_pos `g

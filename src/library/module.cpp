@@ -60,6 +60,7 @@ struct module_ext : public environment_extension {
     name_map<module_metadata> m_imported;
     // Map from declaration name to olean file where it was defined
     name_map<std::string>     m_decl2olean;
+    name_map<pos_info>        m_decl2pos_info;
 };
 
 struct module_ext_reg {
@@ -107,29 +108,6 @@ static time_t get_mtime(std::string const & fname) {
     return st.st_mtime;
 }
 
-/* Add the entry decl_name -> fname to the environment. fname is the name of the .olean file
-   where decl_name was defined. */
-environment add_decl_olean(environment const & env, name const & decl_name, std::string const & fname) {
-    module_ext ext = get_extension(env);
-    ext.m_decl2olean.insert(decl_name, fname);
-    return update(env, ext);
-}
-
-optional<std::string> get_decl_olean(environment const & env, name const & decl_name) {
-    module_ext const & ext = get_extension(env);
-    name d;
-    if (auto r = inductive::is_intro_rule(env, decl_name))
-        d = *r;
-    else if (auto r = inductive::is_elim_rule(env, decl_name))
-        d = *r;
-    else
-        d = decl_name;
-    if (auto r = ext.m_decl2olean.find(d))
-        return optional<std::string>(*r);
-    else
-        return optional<std::string>();
-}
-
 bool imports_have_changed(environment const & env) {
     module_ext const & ext   = get_extension(env);
     bool any_changed = false;
@@ -154,6 +132,85 @@ list<module_name> get_out_of_date_imports(environment const & env) {
         }
     });
     return out_of_date;
+}
+
+/* Add the entry decl_name -> fname to the environment. fname is the name of the .olean file
+   where decl_name was defined. */
+static environment add_decl_olean(environment const & env, name const & decl_name, std::string const & fname) {
+    module_ext ext = get_extension(env);
+    ext.m_decl2olean.insert(decl_name, fname);
+    return update(env, ext);
+}
+
+optional<std::string> get_decl_olean(environment const & env, name const & decl_name) {
+    module_ext const & ext = get_extension(env);
+    name d;
+    if (auto r = inductive::is_intro_rule(env, decl_name))
+        d = *r;
+    else if (auto r = inductive::is_elim_rule(env, decl_name))
+        d = *r;
+    else
+        d = decl_name;
+    if (auto r = ext.m_decl2olean.find(d))
+        return optional<std::string>(*r);
+    else
+        return optional<std::string>();
+}
+
+static std::string * g_pos_info_key = nullptr;
+LEAN_THREAD_VALUE(bool, g_has_pos, false);
+LEAN_THREAD_VALUE(unsigned, g_curr_line, 0);
+LEAN_THREAD_VALUE(unsigned, g_curr_column, 0);
+
+module::scope_pos_info::scope_pos_info(pos_info const & pos_info) {
+    g_has_pos     = true;
+    g_curr_line   = pos_info.first;
+    g_curr_column = pos_info.second;
+}
+
+module::scope_pos_info::~scope_pos_info() {
+    g_has_pos = false;
+}
+
+static environment add_decl_pos_info(environment const & env, name const & decl_name) {
+    if (!g_has_pos)
+        return env;
+    module_ext ext = get_extension(env);
+    unsigned line   = g_curr_line;
+    unsigned column = g_curr_column;
+    ext.m_decl2pos_info.insert(decl_name, mk_pair(line, column));
+    environment new_env = update(env, ext);
+    return module::add(new_env, *g_pos_info_key, [=](environment const &, serializer & s) {
+            s << decl_name << line << column;
+        });
+}
+
+optional<pos_info> get_decl_pos_info(environment const & env, name const & decl_name) {
+    module_ext const & ext = get_extension(env);
+    name d;
+    if (auto r = inductive::is_intro_rule(env, decl_name))
+        d = *r;
+    else if (auto r = inductive::is_elim_rule(env, decl_name))
+        d = *r;
+    else
+        d = decl_name;
+    if (auto r = ext.m_decl2pos_info.find(d))
+        return optional<pos_info>(*r);
+    else
+        return optional<pos_info>();
+}
+
+static void pos_info_reader(deserializer & d, shared_environment &,
+                            std::function<void(asynch_update_fn const &)> &,
+                            std::function<void(delayed_update_fn const &)> & add_delayed_update) {
+    name decl_name;
+    unsigned line, column;
+    d >> decl_name >> line >> column;
+    add_delayed_update([=](environment const & env, io_state const &) -> environment {
+            module_ext ext = get_extension(env);
+            ext.m_decl2pos_info.insert(decl_name, mk_pair(line, column));
+            return update(env, ext);
+        });
 }
 
 static char const * g_olean_end_file = "EndFile";
@@ -269,7 +326,8 @@ environment add(environment const & env, certified_declaration const & d) {
     declaration _d = d.get_declaration();
     if (!check_computable(new_env, _d.get_name()))
         new_env = mark_noncomputable(new_env, _d.get_name());
-    return export_decl(update_module_defs(new_env, _d), _d);
+    new_env = export_decl(update_module_defs(new_env, _d), _d);
+    return add_decl_pos_info(new_env, _d.get_name());
 }
 
 bool is_definition(environment const & env, name const & n) {
@@ -301,6 +359,7 @@ environment add_inductive(environment                       env,
     module_ext ext = get_extension(env);
     ext.m_module_decls = cons(decl.m_name, ext.m_module_decls);
     new_env = update(new_env, ext);
+    new_env = add_decl_pos_info(new_env, decl.m_name);
     return add(new_env, *g_inductive, [=](environment const &, serializer & s) {
             s << cdecl;
         });
@@ -650,7 +709,9 @@ void initialize_module() {
     g_decl_key       = new std::string("decl");
     g_inductive      = new std::string("ind");
     g_quotient       = new std::string("quot");
+    g_pos_info_key   = new std::string("PInfo");
     register_module_object_reader(*g_quotient, module::quotient_reader);
+    register_module_object_reader(*g_pos_info_key, pos_info_reader);
 }
 
 void finalize_module() {
@@ -660,5 +721,6 @@ void finalize_module() {
     delete g_glvl_key;
     delete g_object_readers;
     delete g_ext;
+    delete g_pos_info_key;
 }
 }

@@ -31,8 +31,7 @@ class lambda_lifting_fn : public compiler_step_visitor {
         expr const & fn = get_app_fn(new_value);
         if (is_constant(fn)) {
             name const & n = const_name(fn);
-            if (is_vm_builtin_function(n) ||
-                (!inductive::is_intro_rule(env(), n) && !is_cases_on_recursor(env(), n) && !is_projection(env(), n)))
+            if (!inductive::is_intro_rule(env(), n) && !is_cases_on_recursor(env(), n) && !is_projection(env(), n))
                 return new_value;
         }
         name aux_name = mk_fresh_name(env(), m_prefix, "_lambda", m_idx);

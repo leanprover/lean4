@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_option.h"
+#include "library/vm/vm_string.h"
 #include "library/vm/vm_level.h"
 #include "library/vm/vm_expr.h"
 #include "library/vm/vm_declaration.h"
@@ -163,7 +164,7 @@ vm_obj environment_relation_info(vm_obj const & env, vm_obj const & n) {
 }
 
 vm_obj environment_refl_for(vm_obj const & env, vm_obj const & n) {
-    if (optional<name> const & r = get_refl_info(to_env(env), to_name(n))) {
+    if (optional<name> r = get_refl_info(to_env(env), to_name(n))) {
         return mk_vm_some(to_obj(*r));
     } else {
         return mk_vm_none();
@@ -171,7 +172,7 @@ vm_obj environment_refl_for(vm_obj const & env, vm_obj const & n) {
 }
 
 vm_obj environment_trans_for(vm_obj const & env, vm_obj const & n) {
-    if (optional<name> const & r = get_trans_info(to_env(env), to_name(n))) {
+    if (optional<name> r = get_trans_info(to_env(env), to_name(n))) {
         return mk_vm_some(to_obj(*r));
     } else {
         return mk_vm_none();
@@ -179,8 +180,16 @@ vm_obj environment_trans_for(vm_obj const & env, vm_obj const & n) {
 }
 
 vm_obj environment_symm_for(vm_obj const & env, vm_obj const & n) {
-    if (optional<name> const & r = get_symm_info(to_env(env), to_name(n))) {
+    if (optional<name> r = get_symm_info(to_env(env), to_name(n))) {
         return mk_vm_some(to_obj(*r));
+    } else {
+        return mk_vm_none();
+    }
+}
+
+vm_obj environment_decl_olean(vm_obj const & env, vm_obj const & n) {
+    if (optional<std::string> olean = get_decl_olean(to_env(env), to_name(n))) {
+        return mk_vm_some(to_obj(*olean));
     } else {
         return mk_vm_none();
     }
@@ -208,6 +217,7 @@ void initialize_vm_environment() {
     DECLARE_VM_BUILTIN(name({"environment", "refl_for"}),              environment_refl_for);
     DECLARE_VM_BUILTIN(name({"environment", "symm_for"}),              environment_symm_for);
     DECLARE_VM_BUILTIN(name({"environment", "trans_for"}),             environment_trans_for);
+    DECLARE_VM_BUILTIN(name({"environment", "decl_olean"}),            environment_decl_olean);
 }
 
 void finalize_vm_environment() {

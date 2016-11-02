@@ -59,6 +59,9 @@ meta constant refl_for : environment → name → option name
 meta constant symm_for : environment → name → option name
 /- (trans_for env R) returns the name of the transitivity theorem for the relation R -/
 meta constant trans_for : environment → name → option name
+/- (decl_oleanr env d) returns the name of the .olean file where d was defined.
+   The result is none if d was not defined in an imported file. -/
+meta constant decl_olean : environment → name → option string
 open expr
 
 meta def is_constructor_app (env : environment) (e : expr) : bool :=

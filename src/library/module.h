@@ -56,8 +56,12 @@ list<module_name> get_direct_imports(environment const & env);
 /** \brief Return true iff any import in the given environment has been modified in the file system. */
 bool imports_have_changed(environment const & env);
 
-/** \brieg Returns the list of all imports in the given environment where the olean file is older than the lean file. */
+/** \brieg Return the list of all imports in the given environment where the olean file is older than the lean file. */
 list<module_name> get_out_of_date_imports(environment const & env);
+
+/** \brief Return the .olean file where decl_name was defined. The result is none if the declaration
+    was not defined in an imported file. */
+optional<std::string> get_decl_olean(environment const & env, name const & decl_name);
 
 /** \brief Store/Export module using \c env to the output stream \c out. */
 void export_module(std::ostream & out, environment const & env);

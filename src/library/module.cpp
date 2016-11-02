@@ -58,6 +58,8 @@ struct module_ext : public environment_extension {
     std::string       m_base;
     // Map from filenames to module names and modification times.
     name_map<module_metadata> m_imported;
+    // Map from declaration name to olean file where it was defined
+    name_map<std::string>     m_decl2olean;
 };
 
 struct module_ext_reg {
@@ -103,6 +105,22 @@ static time_t get_mtime(std::string const & fname) {
     if (stat(fname.c_str(), &st) != 0)
         throw exception(sstream() << "failed to access stats of file '" << fname << "'");
     return st.st_mtime;
+}
+
+/* Add the entry decl_name -> fname to the environment. fname is the name of the .olean file
+   where decl_name was defined. */
+environment add_decl_olean(environment const & env, name const & decl_name, std::string const & fname) {
+    module_ext ext = get_extension(env);
+    ext.m_decl2olean.insert(decl_name, fname);
+    return update(env, ext);
+}
+
+optional<std::string> get_decl_olean(environment const & env, name const & decl_name) {
+    module_ext const & ext = get_extension(env);
+    if (auto r = ext.m_decl2olean.find(decl_name))
+        return optional<std::string>(*r);
+    else
+        return optional<std::string>();
 }
 
 bool imports_have_changed(environment const & env) {
@@ -432,12 +450,12 @@ struct import_modules_fn {
         return mk_axiom(decl.get_name(), decl.get_univ_params(), decl.get_type());
     }
 
-    void import_decl(deserializer & d) {
+    optional<name> import_decl(deserializer & d) {
         declaration decl = read_declaration(d);
         environment env  = m_senv.env();
         decl = unfold_untrusted_macros(env, decl);
         if (decl.get_name() == get_sorry_name() && has_sorry(env))
-            return;
+            return optional<name>();
         if (env.trust_lvl() > 0) {
             if (!m_keep_proofs && decl.is_theorem())
                 m_senv.add(theorem2axiom(decl));
@@ -463,6 +481,7 @@ struct import_modules_fn {
                 m_senv.add(c);
             }
         }
+        return optional<name>(decl.get_name());
     }
 
     void import_universe(deserializer & d) {
@@ -489,7 +508,13 @@ struct import_modules_fn {
             if (k == g_olean_end_file) {
                 break;
             } else if (k == *g_decl_key) {
-                import_decl(d);
+                optional<name> decl_name = import_decl(d);
+                std::string fname = r->m_fname;
+                if (decl_name) {
+                    add_delayed_update([=](environment const & env, io_state const &) {
+                            return add_decl_olean(env, *decl_name, fname);
+                        });
+                }
             } else if (k == *g_glvl_key) {
                 import_universe(d);
             } else {

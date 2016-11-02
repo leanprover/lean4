@@ -495,12 +495,12 @@ simp_result simplify_core_fn::rewrite(expr const & e) {
 simp_result simplify_core_fn::rewrite(expr const & e, simp_lemma const & sl) {
     tmp_type_context tmp_ctx(m_ctx, sl.get_num_umeta(), sl.get_num_emeta());
     if (!tmp_ctx.is_def_eq(e, sl.get_lhs())) {
-        lean_trace_d(name({"debug", "simplify", "rewrite"}), tout() << "fail to unify: " << sl.get_id() << "\n";);
+        lean_trace_d(name({"debug", "simplify", "try_rewrite"}), tout() << "fail to unify: " << sl.get_id() << "\n";);
         return simp_result(e);
     }
 
     if (!instantiate_emetas(tmp_ctx, sl.get_num_emeta(), sl.get_emetas(), sl.get_instances())) {
-        lean_trace_d(name({"debug", "simplify", "rewrite"}), tout() << "fail to instantiate emetas: " <<
+        lean_trace_d(name({"debug", "simplify", "try_rewrite"}), tout() << "fail to instantiate emetas: " <<
                      sl.get_id() << "\n";);
         return simp_result(e);
     }

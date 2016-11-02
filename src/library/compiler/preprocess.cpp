@@ -192,12 +192,7 @@ public:
         lean_trace(name({"compiler", "inline"}), tout() << "\n" << v << "\n";);
         v = mark_comp_irrelevant_subterms(m_env, v);
         lean_cond_assert("compiler", check(d, v));
-        buffer<name> aux_decls;
-        v = elim_recursors(m_env, d.get_name(), v, aux_decls);
-        for (name const & n : aux_decls) {
-            declaration d = m_env.get(n);
-            procs.emplace_back(d.get_name(), d.get_value());
-        }
+        v = elim_recursors(m_env, d.get_name(), v, procs);
         procs.emplace_back(d.get_name(), v);
         lean_cond_assert("compiler", check(d, procs.back().second));
         lean_trace(name({"compiler", "elim_recursors"}), tout() << "\n"; display(procs););

@@ -9,5 +9,5 @@ Author: Leonardo de Moura
 
 namespace lean {
 /** \brief Eliminate recursor applications */
-expr elim_recursors(environment & env, name const & prefix, expr const & e, buffer<name> & new_decls);
+expr elim_recursors(environment & env, name const & prefix, expr const & e, buffer<pair<name, expr>> & new_decls);
 }

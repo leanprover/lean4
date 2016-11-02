@@ -20,20 +20,21 @@ Author: Leonardo de Moura
 
 namespace lean {
 class elim_recursors_fn : public compiler_step_visitor {
-    name           m_prefix;
-    unsigned       m_idx;
-    buffer<name> & m_new_decls;
+    name                       m_prefix;
+    unsigned                   m_idx;
+    buffer<pair<name, expr>> & m_new_decls;
 protected:
     expr declare_aux_def(name const & n, expr const & value) {
-        m_new_decls.push_back(n);
-        level_param_names ps = to_level_param_names(collect_univ_params(value));
+        m_new_decls.emplace_back(n, value);
         /* We should use a new type checker because m_env is updated by this object.
            It is safe to use type_checker because value does not contain local_decl_ref objects. */
+        level_param_names ps = to_level_param_names(collect_univ_params(value));
         type_checker tc(m_env);
         expr type         = tc.infer(value);
-        bool use_conv_opt = false;
         bool trusted      = false;
-        declaration new_decl = mk_definition(m_env, n, ps, type, value, use_conv_opt, trusted);
+        /* We add declaration as a constant to make sure
+           we can infer the type of the resultant expression. */
+        declaration new_decl = mk_constant_assumption(n, ps, type, trusted);
         m_env = m_env.add(check(m_env, new_decl));
         return mk_constant(n, param_names_to_levels(ps));
     }
@@ -252,13 +253,13 @@ protected:
     }
 
 public:
-    elim_recursors_fn(environment const & env, name const & prefix, buffer<name> & new_decls):
+    elim_recursors_fn(environment const & env, name const & prefix, buffer<pair<name, expr>> & new_decls):
         compiler_step_visitor(env), m_prefix(prefix), m_idx(1), m_new_decls(new_decls) {}
 
     environment const & env() const { return m_env; }
 };
 
-expr elim_recursors(environment & env, name const & prefix, expr const & e, buffer<name> & new_decls) {
+expr elim_recursors(environment & env, name const & prefix, expr const & e, buffer<pair<name, expr>> & new_decls) {
     elim_recursors_fn fn(env, prefix, new_decls);
     expr new_e = fn(e);
     env = fn.env();

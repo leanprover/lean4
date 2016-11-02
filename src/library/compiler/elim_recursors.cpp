@@ -226,9 +226,10 @@ protected:
         expr cases_on       = mk_app(mk_app(cases_on_fn, cases_on_args), extra_args);
         expr aux_decl_value = locals.mk_lambda(cases_on);
         expr aux_decl_cnst  = declare_aux_def(aux_decl_name, aux_decl_value);
-        unsigned num_rest_args = args.size() - nparams - 1 - nminors;
-        expr const * rest_args = args.data() + nparams + 1 + nminors;
-        expr r = mk_app(mk_rev_app(aux_decl_cnst, abst_locals), num_rest_args, rest_args);
+        buffer<expr> rest_args;
+        for (unsigned i = nparams + 1 + nminors; i < args.size(); i++)
+            rest_args.push_back(visit(args[i]));
+        expr r = mk_app(mk_rev_app(aux_decl_cnst, abst_locals), rest_args);
         return r;
     }
 

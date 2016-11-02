@@ -289,13 +289,6 @@ static void inductive_reader(deserializer & d, shared_environment & senv,
             return cdecl.add(env);
         });
 }
-
-environment add_inductive(environment const & env, name const & ind_name, level_param_names const & level_params,
-                          unsigned num_params, expr const & type, list<inductive::intro_rule> const & intro_rules,
-                          bool is_trusted) {
-    inductive::inductive_decl decl(ind_name, level_params, num_params, type, intro_rules);
-    return module::add_inductive(env, decl, is_trusted);
-}
 } // end of namespace module
 
 struct import_modules_fn {

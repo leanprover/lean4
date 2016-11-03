@@ -198,7 +198,12 @@ static bool has_nonsubsingleton_fwd_dep(unsigned i, buffer<param_info> const & p
 
 static void trace_if_unsupported(type_context & ctx, expr const & fn,
                                  buffer<expr> const & args, unsigned prefix_sz, ss_param_infos const & result) {
-    lean_assert(args.size() == length(result));
+    // TODO(leo): the following assertion does not hold in cases such as:
+    // (simple_ite : Prop -> Pi (A : Type*), A -> A) (f g : nat -> nat)
+    //   |- simple_ite true (nat -> nat) f g n
+    // `args` will have size 5, but `result` will only have length 4.
+    // The assertion does not seem to be necessary, but you may want to confirm this.
+    // lean_assert(args.size() == length(result));
     if (!is_fun_info_trace_enabled())
         return;
     fun_info info = get_fun_info(ctx, fn, args.size());

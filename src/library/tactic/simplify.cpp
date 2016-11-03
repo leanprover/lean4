@@ -327,7 +327,8 @@ optional<simp_result> simplify_core_fn::try_auto_eq_congr(expr const & e) {
     buffer<expr> args;
     expr f = get_app_args(e, args);
     auto congr_lemma = mk_specialized_congr_simp(m_ctx, e);
-    if (!congr_lemma) return optional<simp_result>();
+    if (!congr_lemma || length(congr_lemma->get_arg_kinds()) < args.size())
+        return optional<simp_result>();
 
     buffer<simp_result> r_args;
     buffer<expr>        new_args;

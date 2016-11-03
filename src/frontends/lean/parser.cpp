@@ -2128,6 +2128,14 @@ void parser::parse_imports() {
     m_env = activate_export_decls(m_env, {}); // explicitly activate exports in root namespace
     m_env = replay_export_decls_core(m_env, m_ios);
     check_modules_up_to_date();
+    if (has_sorry(m_env)) {
+#ifndef LEAN_IGNORE_SORRY
+        // TODO(Leo): remove the #ifdef.
+        // The compilation option LEAN_IGNORE_SORRY is a temporary hack for the nightly builds
+        // We use it to avoid a buch of warnings on cdash.
+        (mk_message(m_last_cmd_pos, WARNING) << "imported file uses 'sorry'").report();
+#endif
+    }
     m_imports_parsed = true;
     if (olean_files.size())
         save_snapshot();
@@ -2156,14 +2164,6 @@ bool parser::parse_commands() {
         // Only parse imports when we are at the beginning, i.e. not when starting from a snapshot.
         if (!m_imports_parsed)
             protected_call([&]() { parse_imports(); }, [&]() { sync_command(); });
-        if (has_sorry(m_env)) {
-#ifndef LEAN_IGNORE_SORRY
-            // TODO(Leo): remove the #ifdef.
-            // The compilation option LEAN_IGNORE_SORRY is a temporary hack for the nightly builds
-            // We use it to avoid a buch of warnings on cdash.
-            (mk_message(WARNING) << "imported file uses 'sorry'").report();
-#endif
-        }
         while (!done) {
             if (m_stop_at && pos().first > m_stop_at_line) {
                 throw interrupt_parser();

@@ -335,6 +335,7 @@ environment vm_compile(environment const & env, buffer<pair<name, expr>> const &
 }
 
 environment vm_compile(environment const & env, declaration const & d) {
+    if (!d.is_definition()) return env;
     buffer<pair<name, expr>> procs;
     preprocess(env, d, procs);
     return vm_compile(env, procs);

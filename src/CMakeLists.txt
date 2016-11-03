@@ -460,7 +460,7 @@ file(GLOB_RECURSE LEAN_SOURCES
   "${LEAN_SOURCE_DIR}/[A-Za-z]*.cpp"
   "${LEAN_SOURCE_DIR}/[A-Za-z]*.h")
 add_style_check_target(style "${LEAN_SOURCES}")
-#add_test(NAME style_check COMMAND "${PYTHON_EXECUTABLE}" "${LEAN_SOURCE_DIR}/cmake/Modules/cpplint.py" ${LEAN_SOURCES})
+add_test(NAME style_check COMMAND "${PYTHON_EXECUTABLE}" "${LEAN_SOURCE_DIR}/cmake/Modules/cpplint.py" ${LEAN_SOURCES})
 endif()
 
 if("${CROSS_COMPILE}" MATCHES "ON" OR "${CMAKE_C_COMPILER}" MATCHES "emcc")

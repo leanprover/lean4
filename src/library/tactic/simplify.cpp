@@ -5,6 +5,7 @@ Author: Daniel Selsam, Leonardo de Moura
 */
 #include <functional>
 #include <iostream>
+#include <limits>
 #include "util/flet.h"
 #include "util/freset.h"
 #include "util/pair.h"

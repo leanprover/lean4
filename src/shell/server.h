@@ -8,7 +8,7 @@ Authors: Gabriel Ebner, Sebastian Ullrich
 #include "kernel/pos_info_provider.h"
 #include "kernel/environment.h"
 #include "library/io_state.h"
-#include "shell/json.h"
+#include "frontends/lean/json.h"
 #include <string>
 
 namespace lean {
@@ -35,6 +35,7 @@ class server {
     json handle_check(json const & req);
     json handle_complete(json const & req);
     json handle_show_goal(json const & req);
+    json handle_info(json const & req);
 
     json serialize_decl(name const & short_name, name const & long_name, environment const & env, options const & o);
     json serialize_decl(name const & d, environment const & env, options const & o);

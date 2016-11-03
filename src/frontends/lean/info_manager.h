@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include "kernel/expr.h"
 #include "library/io_state_stream.h"
+#include "frontends/lean/json.h"
 
 namespace lean {
 class proof_state;
@@ -27,13 +28,13 @@ public:
     info_data_cell(unsigned c):m_column(c), m_rc(0) {}
     virtual ~info_data_cell() {}
     /** \brief Return true iff the information is considered "cheap"
-        If the column number is not provided in the method info_manager::display,
-        then only "cheap" information is displayed.
+        If the column number is not provided in the method info_manager::get_message,
+        then only "cheap" information is get_messageed.
     */
     virtual bool is_cheap() const { return true; }
     virtual info_kind kind() const = 0;
     unsigned get_column() const { return m_column; }
-    virtual void display(io_state_stream const & ios, unsigned line) const = 0;
+    virtual json get_message(io_state_stream const & ios, unsigned line) const = 0;
     virtual int compare(info_data_cell const & d) const;
 };
 
@@ -53,7 +54,7 @@ public:
     int compare(info_data_cell const & d) const { return m_ptr->compare(d); }
     unsigned get_column() const { return m_ptr->get_column(); }
     bool is_cheap() const { return m_ptr->is_cheap(); }
-    void display(io_state_stream const & ios, unsigned line) const { m_ptr->display(ios, line); }
+    json get_message(io_state_stream const & ios, unsigned line) const { return m_ptr->get_message(ios, line); }
     info_data_cell const * raw() const { return m_ptr; }
     info_kind kind() const { return m_ptr->kind(); }
 };
@@ -71,18 +72,17 @@ class info_manager {
     info_data_set get_info_set(unsigned l) const;
 public:
     void add_type_info(unsigned l, unsigned c, expr const & e);
-    void add_extra_type_info(unsigned l, unsigned c, expr const & e, expr const & t);
+    void add_identifier_info(unsigned l, unsigned c, name const & full_id);
+    /*void add_extra_type_info(unsigned l, unsigned c, expr const & e, expr const & t);
     void add_synth_info(unsigned l, unsigned c, expr const & e);
     void add_overload_info(unsigned l, unsigned c, expr const & e);
     void add_overload_notation_info(unsigned l, unsigned c, list<expr> const & a);
     void add_coercion_info(unsigned l, unsigned c, expr const & e, expr const & t);
     void add_symbol_info(unsigned l, unsigned c, name const & n);
-    void add_identifier_info(unsigned l, unsigned c, name const & full_id);
     void add_proof_state_info(unsigned l, unsigned c, tactic_state const & s);
+    */
 
-    optional<expr> get_type_at(unsigned line, unsigned col) const;
-    optional<expr> get_meta_at(unsigned line, unsigned col) const;
-    void display(environment const & env, options const & o, io_state const & ios, unsigned line,
-                 optional<unsigned> const & col = optional<unsigned>()) const;
+    buffer<json> get_messages(environment const & env, options const & o, io_state const & ios, unsigned line,
+                              optional<unsigned> const & col = optional<unsigned>()) const;
 };
 }

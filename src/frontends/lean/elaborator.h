@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "library/type_context.h"
 #include "library/tactic/tactic_state.h"
 #include "frontends/lean/elaborator_exception.h"
+#include "info_manager.h"
 
 namespace lean {
 enum class elaborator_strategy {
@@ -42,11 +43,13 @@ private:
     unsigned          m_depth{0};
 
     struct snapshot {
-        metavar_context m_saved_mctx;
-        list<expr>      m_saved_instances;
-        list<expr>      m_saved_numeral_types;
-        list<expr_pair> m_saved_tactics;
-        list<expr_pair> m_saved_inaccessible_stack;
+        metavar_context        m_saved_mctx;
+        list<expr>             m_saved_instances;
+        list<expr>             m_saved_numeral_types;
+        list<expr_pair>        m_saved_tactics;
+        list<expr_pair>        m_saved_inaccessible_stack;
+        optional<info_manager> m_infom;
+
         snapshot(elaborator const & elab);
         void restore(elaborator & elab);
     };
@@ -78,12 +81,14 @@ private:
 
     /* if m_no_info is true, we do not collect information when true,
        we set is to true whenever we find no_info annotation. */
-    bool              m_no_info{true};
+    bool              m_no_info{false};
 
     bool              m_in_pattern{false};
 
     /* Position information for show goal feature */
     optional<pos_info> m_show_goal_pos;
+
+    optional<info_manager> m_infom;
 
     expr get_default_numeral_type();
 
@@ -233,7 +238,8 @@ private:
     void unassigned_uvars_to_params(level const & l);
     void unassigned_uvars_to_params(expr const & e);
 public:
-    elaborator(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx);
+    elaborator(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx,
+               optional<info_manager> infom = optional<info_manager>());
     metavar_context const & mctx() const { return m_ctx.mctx(); }
     local_context const & lctx() const { return m_ctx.lctx(); }
     expr push_local(name const & n, expr const & type, binder_info const & bi = binder_info()) {
@@ -264,11 +270,13 @@ public:
     /** Simpler version of \c finalize, where \c es contains only one expression. */
     pair<expr, level_param_names> finalize(expr const & e, bool check_unassigned, bool to_simple_metavar);
     environment const & env() const { return m_env; }
+    optional<info_manager> const & infom() const { return m_infom; }
 };
 
 pair<expr, level_param_names> elaborate(environment & env, options const & opts,
                                         metavar_context & mctx, local_context const & lctx,
-                                        expr const & e, bool check_unassigend);
+                                        expr const & e, bool check_unassigend,
+                                        optional<info_manager> & infom);
 
 expr nested_elaborate(environment & env, options const & opts, metavar_context & mctx, local_context const & lctx,
                       expr const & e, bool relaxed);

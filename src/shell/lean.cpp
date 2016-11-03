@@ -38,7 +38,7 @@ Author: Leonardo de Moura
 #include "frontends/smt2/parser.h"
 #include "init/init.h"
 #include "shell/simple_pos_info_provider.h"
-#include "shell/json.h"
+#include "frontends/lean/json.h"
 #if defined(LEAN_SERVER)
 #include "shell/server.h"
 #endif

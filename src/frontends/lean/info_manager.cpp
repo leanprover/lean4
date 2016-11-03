@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include <set>
 #include <library/tactic/tactic_state.h>
+#include <frontends/lean/json.h>
 #include "library/choice.h"
 #include "library/scoped_ext.h"
 #include "library/pp_options.h"
@@ -24,23 +25,6 @@ int info_data_cell::compare(info_data_cell const & d) const {
     return 0;
 }
 
-struct tmp_info_data : public info_data_cell {
-    tmp_info_data(unsigned c):info_data_cell(c) {}
-    virtual info_kind kind() const { lean_unreachable(); }
-    virtual void display(io_state_stream const &, unsigned) const { lean_unreachable(); } // LCOV_EXCL_LINE
-};
-
-/*static info_data * g_dummy = nullptr;
-void initialize_info_manager() {
-    g_dummy = new info_data(new tmp_info_data(0));
-}
-
-void finalize_info_manager() {
-    delete g_dummy;
-}
-
-info_data::info_data():info_data(*g_dummy) {}*/
-
 class type_info_data : public info_data_cell {
 protected:
     expr m_expr;
@@ -52,13 +36,39 @@ public:
 
     virtual info_kind kind() const { return info_kind::Type; }
 
-    virtual void display(io_state_stream const & ios, unsigned line) const {
-        ios << "-- TYPE|" << line << "|" << get_column() << "\n";
-        ios << m_expr << endl;
-        ios << "-- ACK" << endl;
+    virtual json get_message(io_state_stream const & ios, unsigned line) const {
+        json msg;
+        msg["kind"]   = "type";
+        msg["line"]   = line;
+        msg["column"] = get_column();
+
+        std::ostringstream ss;
+        ss << flatten(ios.get_formatter()(m_expr));
+        msg["type"] = ss.str();
+
+        return msg;
     }
 };
 
+class identifier_info_data : public info_data_cell {
+    name m_full_id;
+public:
+    identifier_info_data(unsigned c, name const & full_id):info_data_cell(c), m_full_id(full_id) {}
+
+    virtual info_kind kind() const { return info_kind::Identifier; }
+
+    virtual json get_message(io_state_stream const &, unsigned line) const {
+        json msg;
+        msg["kind"]    = "full_id";
+        msg["line"]    = line;
+        msg["column"]  = get_column();
+        msg["full_id"] = m_full_id.to_string();
+
+        return msg;
+    }
+};
+
+/*
 class extra_type_info_data : public info_data_cell {
 protected:
     expr m_expr;
@@ -70,7 +80,7 @@ public:
     virtual info_kind kind() const { return info_kind::ExtraType; }
     virtual bool is_cheap() const { return false; }
 
-    virtual void display(io_state_stream const & ios, unsigned line) const {
+    virtual void get_message(io_state_stream const & ios, unsigned line) const {
         ios << "-- EXTRA_TYPE|" << line << "|" << get_column() << "\n";
         ios << m_expr << endl;
         ios << "--" << endl;
@@ -85,7 +95,7 @@ public:
 
     virtual info_kind kind() const { return info_kind::Synth; }
 
-    virtual void display(io_state_stream const & ios, unsigned line) const {
+    virtual void get_message(io_state_stream const & ios, unsigned line) const {
         ios << "-- SYNTH|" << line << "|" << get_column() << "\n";
         ios << m_expr << endl;
         ios << "-- ACK" << endl;
@@ -101,7 +111,7 @@ public:
 
     virtual info_kind kind() const { return info_kind::Overload; }
 
-    virtual void display(io_state_stream const & ios, unsigned line) const {
+    virtual void get_message(io_state_stream const & ios, unsigned line) const {
         ios << "-- OVERLOAD|" << line << "|" << get_column() << "\n";
         options os = ios.get_options();
         os = os.update_if_undef(get_pp_full_names_name(), true);
@@ -122,7 +132,7 @@ public:
 
     virtual info_kind kind() const { return info_kind::Overload; }
 
-    virtual void display(io_state_stream const & ios, unsigned line) const {
+    virtual void get_message(io_state_stream const & ios, unsigned line) const {
         ios << "-- OVERLOAD|" << line << "|" << get_column() << "\n";
         options os = ios.get_options();
         os = os.update_if_undef(get_pp_full_names_name(), true);
@@ -146,7 +156,7 @@ public:
 
     virtual info_kind kind() const { return info_kind::Coercion; }
 
-    virtual void display(io_state_stream const & ios, unsigned line) const {
+    virtual void get_message(io_state_stream const & ios, unsigned line) const {
         ios << "-- COERCION|" << line << "|" << get_column() << "\n";
         options os = ios.get_options();
         os = os.update_if_undef(get_pp_coercions_name(), true);
@@ -162,23 +172,9 @@ public:
 
     virtual info_kind kind() const { return info_kind::Symbol; }
 
-    virtual void display(io_state_stream const & ios, unsigned line) const {
+    virtual void get_message(io_state_stream const & ios, unsigned line) const {
         ios << "-- SYMBOL|" << line << "|" << get_column() << "\n";
         ios << m_symbol << "\n";
-        ios << "-- ACK" << endl;
-    }
-};
-
-class identifier_info_data : public info_data_cell {
-    name m_full_id;
-public:
-    identifier_info_data(unsigned c, name const & full_id):info_data_cell(c), m_full_id(full_id) {}
-
-    virtual info_kind kind() const { return info_kind::Identifier; }
-
-    virtual void display(io_state_stream const & ios, unsigned line) const {
-        ios << "-- IDENTIFIER|" << line << "|" << get_column() << "\n";
-        ios << m_full_id << "\n";
         ios << "-- ACK" << endl;
     }
 };
@@ -189,7 +185,7 @@ public:
     proof_state_info_data(unsigned c, tactic_state const & s):info_data_cell(c), m_state(s) {}
     virtual info_kind kind() const { return info_kind::ProofState; }
     virtual bool is_cheap() const { return false; }
-    virtual void display(io_state_stream const & ios, unsigned line) const {
+    virtual void get_message(io_state_stream const & ios, unsigned line) const {
         ios << "-- PROOF_STATE|" << line << "|" << get_column() << "\n";
         bool first = true;
         for (expr const & g : m_state.goals()) {
@@ -202,16 +198,18 @@ public:
         ios << "-- ACK" << endl;
     }
 };
+*/
 
 info_data mk_type_info(unsigned c, expr const & e) { return info_data(new type_info_data(c, e)); }
-info_data mk_extra_type_info(unsigned c, expr const & e, expr const & t) { return info_data(new extra_type_info_data(c, e, t)); }
+info_data mk_identifier_info(unsigned c, name const & full_id) { return info_data(new identifier_info_data(c, full_id)); }
+/*info_data mk_extra_type_info(unsigned c, expr const & e, expr const & t) { return info_data(new extra_type_info_data(c, e, t)); }
 info_data mk_synth_info(unsigned c, expr const & e) { return info_data(new synth_info_data(c, e)); }
 info_data mk_overload_info(unsigned c, expr const & e) { return info_data(new overload_info_data(c, e)); }
 info_data mk_overload_notation_info(unsigned c, list<expr> const & a) { return info_data(new overload_notation_info_data(c, a)); }
 info_data mk_coercion_info(unsigned c, expr const & e, expr const & t) { return info_data(new coercion_info_data(c, e, t)); }
 info_data mk_symbol_info(unsigned c, name const & s) { return info_data(new symbol_info_data(c, s)); }
-info_data mk_identifier_info(unsigned c, name const & full_id) { return info_data(new identifier_info_data(c, full_id)); }
 info_data mk_proof_state_info(unsigned c, tactic_state const & s) { return info_data(new proof_state_info_data(c, s)); }
+*/
 
 /*static bool is_tactic_type(expr const & e) {
     expr const * it = &e;
@@ -239,6 +237,13 @@ void info_manager::add_type_info(unsigned l, unsigned c, expr const & e) {
     add_info(l, mk_type_info(c, e));
 }
 
+void info_manager::add_identifier_info(unsigned l, unsigned c, name const & full_id) {
+    //if (is_tactic_id(full_id))
+    //    return;
+    add_info(l, mk_identifier_info(c, full_id));
+}
+
+/*
 void info_manager::add_extra_type_info(unsigned l, unsigned c, expr const & e, expr const & t) {
     //if (is_tactic_type(t))
     //    return;
@@ -265,49 +270,27 @@ void info_manager::add_symbol_info(unsigned l, unsigned c, name const & s) {
     add_info(l, mk_symbol_info(c, s));
 }
 
-/*static bool is_tactic_id(name const & id) {
+static bool is_tactic_id(name const & id) {
     if (id.is_atomic())
         return id == get_tactic_name();
     else
         return is_tactic_id(id.get_prefix());
-}*/
-
-void info_manager::add_identifier_info(unsigned l, unsigned c, name const & full_id) {
-    //if (is_tactic_id(full_id))
-    //    return;
-    add_info(l, mk_identifier_info(c, full_id));
 }
 
 void info_manager::add_proof_state_info(unsigned l, unsigned c, tactic_state const & s) {
     add_info(l, mk_proof_state_info(c, s));
 }
+*/
 
-void info_manager::display(environment const & env, options const & o, io_state const & ios, unsigned line,
-                  optional<unsigned> const & col) const {
+buffer<json> info_manager::get_messages(environment const & env, options const & o, io_state const & ios, unsigned line,
+                                        optional<unsigned> const & col) const {
+    buffer<json> msgs;
     get_info_set(line).for_each([&](info_data const & d) {
             type_context tc(env, o);
             io_state_stream out = regular(env, ios, tc).update_options(o);
             if ((!col && d.is_cheap()) || (col && d.get_column() == *col))
-                d.display(out, line);
+                msgs.push_back(d.get_message(out, line));
         });
+    return msgs;
 }
-
-optional<expr> info_manager::get_type_at(unsigned line, unsigned col) const {
-    if (line >= m_line_data.size())
-        return none_expr();
-    if (auto it = get_info_set(line).find(mk_type_info(col, expr())))
-        return some_expr(static_cast<type_info_data const *>(it->raw())->get_type());
-    else
-        return none_expr();
-}
-
-optional<expr> info_manager::get_meta_at(unsigned line, unsigned col) const {
-    if (line >= m_line_data.size())
-        return none_expr();
-    if (auto it = get_info_set(line).find(mk_synth_info(col, expr())))
-        return some_expr(static_cast<synth_info_data const *>(it->raw())->get_expr());
-    else
-        return none_expr();
-}
-
 }

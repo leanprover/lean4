@@ -517,7 +517,7 @@ static environment run_command_cmd(parser & p) {
     tactic               = mk_app(mk_constant(get_monad_and_then_name()), tactic, try_constructor);
     expr val             = mk_typed_expr(mk_true(), mk_by(tactic));
     bool check_unassigned = false;
-    elaborate(env, opts, mctx, local_context(), val, check_unassigned);
+    elaborate(env, opts, mctx, local_context(), val, check_unassigned, p.infom());
     return env;
 }
 

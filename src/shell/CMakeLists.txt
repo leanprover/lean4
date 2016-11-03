@@ -1,4 +1,4 @@
-add_executable(lean lean.cpp json.cpp server.cpp)
+add_executable(lean lean.cpp server.cpp)
 target_link_libraries(lean leanstatic)
 install(TARGETS lean DESTINATION bin)
 
@@ -155,17 +155,16 @@ FOREACH(T ${LEANT0TESTS})
            COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME} "-t 10")
 ENDFOREACH(T)
 
-# The new elaborator needs to populate the info_manager for the following tests
-# if("${MULTI_THREAD}" MATCHES "ON")
-# # LEAN INTERACTIVE TESTS
-# file(GLOB LEANITTESTS "${LEAN_SOURCE_DIR}/../tests/lean/interactive/*.input")
-# FOREACH(T ${LEANITTESTS})
-#   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-#   add_test(NAME "leanittest_${T_NAME}"
-#            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/interactive"
-#            COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
-# ENDFOREACH(T)
-# endif()
+if("${MULTI_THREAD}" MATCHES "ON")
+# LEAN INTERACTIVE TESTS
+file(GLOB LEANITTESTS "${LEAN_SOURCE_DIR}/../tests/lean/interactive/*.input")
+FOREACH(T ${LEANITTESTS})
+  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+  add_test(NAME "leanittest_${T_NAME}"
+           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/interactive"
+           COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
+ENDFOREACH(T)
+endif()
 
 # LEAN SLOW TESTS
 file(GLOB LEANSLOWTESTS "${LEAN_SOURCE_DIR}/../tests/lean/slow/*.lean")

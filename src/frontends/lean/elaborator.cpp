@@ -104,9 +104,9 @@ elaborator_strategy get_elaborator_strategy(environment const & env, name const 
 #define trace_elab_debug(CODE) lean_trace("elaborator_debug", scope_trace_env _scope(m_env, m_ctx); CODE)
 
 elaborator::elaborator(environment const & env, options const & opts, metavar_context const & mctx,
-                       local_context const & lctx):
+                       local_context const & lctx, optional<info_manager> infom):
     m_env(env), m_opts(opts),
-    m_ctx(env, opts, mctx, lctx, get_tcm(), transparency_mode::Semireducible) {
+    m_ctx(env, opts, mctx, lctx, get_tcm(), transparency_mode::Semireducible), m_infom(infom) {
     unsigned line, col;
     if (has_show_goal(m_opts, line, col)) {
         m_show_goal_pos = pos_info(line, col);
@@ -655,10 +655,10 @@ expr elaborator::visit_const_core(expr const & e) {
 
 /** \brief Auxiliary function for saving information about which overloaded identifier was used by the elaborator. */
 void elaborator::save_identifier_info(expr const & f) {
-    /*if (!m_no_info && infom() && pip() && is_constant(f)) {
-        if (auto p = pip()->get_pos_info(f))
-            m_pre_info_data.add_identifier_info(p->first, p->second, const_name(f));
-    }*/
+    if (!m_no_info && m_infom && get_pos_info_provider() && is_constant(f)) {
+        if (auto p = get_pos_info_provider()->get_pos_info(f))
+            m_infom->add_identifier_info(p->first, p->second, const_name(f));
+    }
 }
 
 expr elaborator::visit_function(expr const & fn, bool has_args, expr const & ref) {
@@ -2539,6 +2539,7 @@ elaborator::snapshot::snapshot(elaborator const & e) {
     m_saved_numeral_types      = e.m_numeral_types;
     m_saved_tactics            = e.m_tactics;
     m_saved_inaccessible_stack = e.m_inaccessible_stack;
+    m_infom                    = e.m_infom;
 }
 
 void elaborator::snapshot::restore(elaborator & e) {
@@ -2547,6 +2548,7 @@ void elaborator::snapshot::restore(elaborator & e) {
     e.m_numeral_types      = m_saved_numeral_types;
     e.m_tactics            = m_saved_tactics;
     e.m_inaccessible_stack = m_saved_inaccessible_stack;
+    e.m_infom              = m_infom;
 }
 
 /**
@@ -2726,12 +2728,16 @@ pair<expr, level_param_names> elaborator::finalize(expr const & e, bool check_un
 pair<expr, level_param_names>
 elaborate(environment & env, options const & opts,
           metavar_context & mctx, local_context const & lctx, expr const & e,
-          bool check_unassigned) {
-    elaborator elab(env, opts, mctx, lctx);
+          bool check_unassigned, optional<info_manager> & infom) {
+    elaborator elab(env, opts, mctx, lctx, infom);
     expr r = elab.elaborate(e);
     auto p = elab.finalize(r, check_unassigned, true);
     mctx = elab.mctx();
     env  = elab.env();
+    if (infom) {
+        lean_assert(elab.infom());
+        infom = *elab.infom();
+    }
     return p;
 }
 

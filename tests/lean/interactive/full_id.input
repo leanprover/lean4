@@ -1,0 +1,3 @@
+{"command": "sync", "file_name": "f", "content": "eval tt"}
+{"command": "check"}
+{"command": "info", "line": 1}

@@ -242,6 +242,7 @@ public:
 
     environment const & env() const { return m_env; }
     io_state const & ios() const { return m_ios; }
+    optional<info_manager> & infom() { return m_infom; }
 
     list<message> const & get_messages() const { return m_messages; }
 

@@ -1,0 +1,3 @@
+{"message":"new file name, reloading","response":"ok"}
+{"is_ok":true,"messages":[{"caption":"eval result","file_name":"f","pos_col":0,"pos_line":1,"severity":"information","text":"tt"}],"response":"ok"}
+{"messages":[{"column":5,"full_id":"bool.tt","kind":"full_id","line":1}],"response":"ok"}

@@ -833,7 +833,7 @@ pair<expr, level_param_names> parser::elaborate(metavar_context & mctx, local_co
                                                 expr const & e, bool check_unassigned) {
     expr tmp_e  = adapter.translate_to(e);
     pair<expr, level_param_names> r =
-        ::lean::elaborate(m_env, get_options(), mctx, adapter.lctx(), tmp_e, check_unassigned);
+        ::lean::elaborate(m_env, get_options(), mctx, adapter.lctx(), tmp_e, check_unassigned, m_infom);
     expr new_e = r.first;
     new_e      = adapter.translate_from(new_e);
     return mk_pair(new_e, r.second);

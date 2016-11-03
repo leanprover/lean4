@@ -90,6 +90,8 @@ json server::handle_request(json const & req) {
         return handle_complete(req);
     } else if (command == "show_goal") {
         return handle_show_goal(req);
+    } else if (command == "info") {
+        return handle_info(req);
     }
 
     json res;
@@ -164,7 +166,8 @@ json server::handle_check(json const &) {
         parser p(m_initial_env, m_ios, in, m_file_name.c_str(),
                  base_dir, use_exceptions, m_num_threads,
                  m_snapshots.empty() ? nullptr : &m_snapshots.back(),
-                 &m_snapshots);
+                 &m_snapshots,
+                 m_snapshots.empty() ? optional<info_manager>(info_manager()) : m_snapshots.back().m_infom);
         // TODO(gabriel): definition caches?
 
         m_parsed_ok = p();
@@ -380,6 +383,24 @@ json server::handle_show_goal(json const &req) {
     json res;
     res["response"] = "error";
     res["message"] = "could not find goal";
+    return res;
+}
+
+json server::handle_info(json const & req) {
+    unsigned line = req["line"];
+    optional<unsigned> col;
+    if (req.count("col"))
+        col = some<unsigned>(req["col"]);
+
+    json res;
+    res["response"] = "ok";
+    res["messages"] = {};
+
+    if (m_snapshots.size()) {
+        auto const & snap = m_snapshots.back();
+        assert(snap.m_infom);
+        res["messages"] = snap.m_infom->get_messages(snap.m_env, snap.m_options, m_ios, line, col);
+    }
     return res;
 }
 

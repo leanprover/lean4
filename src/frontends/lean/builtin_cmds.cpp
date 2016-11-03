@@ -457,7 +457,7 @@ static environment vm_eval_cmd(parser & p) {
     vm_state s(new_env);
     optional<vm_obj> initial_state;
     if (is_IO) initial_state = mk_vm_simple(0);
-    auto out = p.mk_message(INFORMATION);
+    auto out = p.mk_message(pos, INFORMATION);
     out.set_caption("vm_eval result");
     vm_state::profiler prof(s, p.get_options());
     // TODO(gabriel): capture output

@@ -4,7 +4,6 @@ We assume that you are using [homebrew][homebrew] as a package manager.
 
 [homebrew]: http://brew.sh
 
-
 Compilers
 ---------
 
@@ -34,13 +33,12 @@ following to use `g++`.
     cmake -DCMAKE_CXX_COMPILER=g++ ...
 
 
-Required Packages: CMake, GMP, MPFR, LUA
+Required Packages: CMake, GMP, MPFR
 ---------------------
 
     brew install cmake
     brew install gmp
     brew install mpfr
-    brew install lua
 
 
 Optional Packages: tcmalloc and ninja

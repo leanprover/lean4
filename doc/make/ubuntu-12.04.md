@@ -8,9 +8,6 @@ Instructions for installing gperftools on Ubuntu
     sudo apt-get dist-upgrade
     sudo apt-get install libgoogle-perftools-dev
 
-Instructions for installing Lua 5.2
-    sudo apt-get install liblua5.2.0 lua5.2-0 lua5.2-dev
-
 Instructions for installing gcc-4.8 (C++11 compatible) on Ubuntu
 
     sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y

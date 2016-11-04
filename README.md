@@ -33,7 +33,6 @@ Requirements
 - [CMake](http://www.cmake.org)
 - [GMP (GNU multiprecision library)](http://gmplib.org/)
 - [MPFR (GNU MPFR Library)](http://www.mpfr.org/)
-- [Lua 5.2 or 5.1](http://www.lua.org), or [LuaJIT 2.0](http://luajit.org)
 - (optional) [gperftools](https://code.google.com/p/gperftools/)
 - (optional) [Boost](http://www.boost.org) (version >= 1.54), we can
   build Lean using boost::thread instead of std::thread. When using
@@ -49,9 +48,9 @@ _Windows_
 
 _Linux_
 
+- [Ubuntu 16.04](doc/make/ubuntu-16.04.md)
 - [Ubuntu 12.04](doc/make/ubuntu-12.04.md)
 - [Ubuntu 12.04 (detailed)](doc/make/ubuntu-12.04-detailed.md)
-- [Ubuntu 16.04](doc/make/ubuntu-16.04.md)
 - [Fedora 19](doc/make/fedora-19.md)
 
 _OS X_

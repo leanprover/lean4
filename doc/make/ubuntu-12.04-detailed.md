@@ -8,7 +8,6 @@ Preparing working environment on Ubuntu 12.04
     sudo apt-get install libmpfr-dev
     sudo add-apt-repository ppa:kalakris/cmake -y
     sudo apt-get install cmake
-    sudo apt-get install liblua5.2.0 lua5.2-0 lua5.2-dev
 
     sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
     sudo update-alternatives --remove-all gcc

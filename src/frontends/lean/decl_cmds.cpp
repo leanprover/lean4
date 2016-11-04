@@ -28,7 +28,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/decl_attributes.h"
 #include "frontends/lean/update_environment_exception.h"
-#include "frontends/lean/nested_declaration.h"
 #include "frontends/lean/structure_cmd.h"
 #include "frontends/lean/definition_cmds.h"
 #include "frontends/lean/inductive_cmds.h"

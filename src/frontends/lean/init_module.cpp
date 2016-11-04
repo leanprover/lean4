@@ -18,7 +18,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/pp.h"
 #include "frontends/lean/local_ref_info.h"
 #include "frontends/lean/decl_cmds.h"
-#include "frontends/lean/nested_declaration.h"
 #include "frontends/lean/prenum.h"
 #include "frontends/lean/elaborator.h"
 #include "frontends/lean/match_expr.h"
@@ -44,7 +43,6 @@ void initialize_frontend_lean_module() {
     initialize_pp();
     initialize_local_ref_info();
     initialize_decl_cmds();
-    initialize_nested_declaration();
     initialize_match_expr();
     initialize_elaborator();
     initialize_notation_cmd();
@@ -55,7 +53,6 @@ void finalize_frontend_lean_module() {
     finalize_notation_cmd();
     finalize_elaborator();
     finalize_match_expr();
-    finalize_nested_declaration();
     finalize_decl_cmds();
     finalize_local_ref_info();
     finalize_pp();

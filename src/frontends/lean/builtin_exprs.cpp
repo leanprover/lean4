@@ -29,7 +29,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/tokens.h"
-#include "frontends/lean/nested_declaration.h"
 #include "frontends/lean/match_expr.h"
 #include "frontends/lean/decl_util.h"
 #include "frontends/lean/brackets.h"
@@ -722,7 +721,6 @@ parse_table init_nud_table() {
     r = r.add({transition("suppose", mk_ext_action(parse_suppose))}, x0);
     r = r.add({transition("show", mk_ext_action(parse_show))}, x0);
     r = r.add({transition("suffices", mk_ext_action(parse_suffices))}, x0);
-    r = r.add({transition("abstract", mk_ext_action(parse_nested_declaration))}, x0);
     r = r.add({transition("if", mk_ext_action(parse_if_then_else))}, x0);
     r = r.add({transition("(", Expr), transition(")", mk_ext_action(parse_rparen))}, x0);
     r = r.add({transition("(", Expr), transition(":", Expr), transition(")", mk_ext_action(parse_typed_expr))}, x0);

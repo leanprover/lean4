@@ -35,7 +35,7 @@ void check_interrupted();
 */
 void check_system(char const * component_name);
 
-constexpr unsigned g_small_sleep = 50;
+constexpr unsigned g_small_sleep = 10;
 
 /**
    \brief Put the current thread to sleep for \c ms milliseconds.

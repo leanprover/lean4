@@ -459,6 +459,7 @@ static environment vm_eval_cmd(parser & p) {
     if (is_IO) initial_state = mk_vm_simple(0);
     auto out = p.mk_message(INFORMATION);
     out.set_caption("vm_eval result");
+    vm_state::profiler prof(s, p.get_options());
     // TODO(gabriel): capture output
     if (p.profiling()) {
         timeit timer(out.get_text_stream().get_stream(), "vm_eval time");
@@ -475,6 +476,10 @@ static environment vm_eval_cmd(parser & p) {
         /* if it is not IO nor a string, then display object on top of the stack using vm_obj display method */
         vm_obj r = s.get(0);
         display(out.get_text_stream().get_stream(), r);
+    }
+    if (prof.enabled()) {
+        out << "\n";
+        prof.get_snapshots().display(out.get_text_stream().get_stream());
     }
     out.report();
     return p.env();

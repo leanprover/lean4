@@ -2324,7 +2324,10 @@ tactic_state elaborator::execute_tactic(expr const & tactic, tactic_state const 
 
     /* Invoke tactic */
     vm_state S(new_env);
+    vm_state::profiler prof(S, m_opts);
     vm_obj r = S.invoke(tactic_name, to_obj(s));
+    if (prof.enabled())
+        prof.get_snapshots().display(get_global_ios().get_regular_stream());
 
     if (optional<tactic_state> new_s = is_tactic_success(r)) {
         trace_elab(tout() << "tactic at " << pos_string_for(ref) << " succeeded\n";);

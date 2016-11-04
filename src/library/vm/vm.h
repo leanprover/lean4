@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include "util/debug.h"
 #include "util/rc.h"
+#include "util/interrupt.h"
 #include "util/small_object_allocator.h"
 #include "util/serializer.h"
 #include "util/numerics/mpz.h"
@@ -498,19 +499,31 @@ class vm_state {
     unsigned                    m_fn_idx; /* function idx being executed */
     unsigned                    m_pc;     /* program counter */
     unsigned                    m_bp;     /* base pointer */
+    unsigned                    m_next_frame_idx{0};
+    bool                        m_profiling{false};
     struct frame {
         vm_instr const *        m_code;
         unsigned                m_fn_idx;
         unsigned                m_num;
         unsigned                m_pc;
         unsigned                m_bp;
-        frame(vm_instr const * code, unsigned fn_idx, unsigned num, unsigned pc, unsigned bp):
-            m_code(code), m_fn_idx(fn_idx), m_num(num), m_pc(pc), m_bp(bp) {}
+        /* The following two fields are only used for profiling the code */
+        unsigned                m_curr_fn_idx;
+        unsigned                m_frame_idx;
+        frame(vm_instr const * code, unsigned fn_idx, unsigned num, unsigned pc, unsigned bp,
+              unsigned curr_fn_idx, unsigned frame_idx):
+            m_code(code), m_fn_idx(fn_idx), m_num(num), m_pc(pc), m_bp(bp),
+            m_curr_fn_idx(curr_fn_idx), m_frame_idx(frame_idx) {}
     };
     std::vector<vm_obj>         m_stack;
     std::vector<frame>          m_call_stack;
+    mutex                       m_call_stack_mtx; /* used only when profiling */
 
     void push_fields(vm_obj const & obj);
+    void push_frame_core(unsigned num, unsigned next_pc, unsigned next_fn_idx);
+    void push_frame(unsigned num, unsigned next_pc, unsigned next_fn_idx);
+    unsigned pop_frame_core();
+    unsigned pop_frame();
     void invoke_builtin(vm_decl const & d);
     void invoke_cfun(vm_decl const & d);
     void invoke_global(vm_decl const & d);
@@ -607,6 +620,35 @@ public:
         return invoke(fn, 1, &a);
     }
     vm_obj get_constant(name const & cname);
+
+    class profiler {
+        typedef std::unique_ptr<interruptible_thread> thread_ptr;
+        struct snapshot_core {
+            chrono::milliseconds                  m_duration;
+            std::vector<pair<unsigned, unsigned>> m_stack;
+        };
+        vm_state &                 m_state;
+        atomic<bool>               m_stop;
+        unsigned                   m_freq_ms;
+        thread_ptr                 m_thread_ptr;
+        std::vector<snapshot_core> m_snapshots;
+        void stop();
+    public:
+        profiler(vm_state & s, options const & opts);
+        ~profiler();
+
+        struct snapshot {
+            unsigned                          m_duration;
+            std::vector<pair<name, unsigned>> m_stack;
+        };
+
+        struct snapshots {
+            std::vector<snapshot> m_snapshots;
+            void display(std::ostream & out) const;
+        };
+        bool enabled() const { return m_thread_ptr.get() != nullptr; }
+        snapshots get_snapshots();
+    };
 };
 
 /** \brief Helper class for setting thread local vm_state object */

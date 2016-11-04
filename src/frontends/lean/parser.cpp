@@ -201,7 +201,7 @@ parser::parser(environment const & env, io_state const & ios,
     }
     m_ignore_noncomputable = false;
     m_ios.set_message_channel(std::make_shared<parser_message_stream>(this, m_ios.get_message_channel_ptr()));
-    m_profile     = ios.get_options().get_bool("profile", false);
+    m_profile     = ios.get_options().get_bool("profiler", false);
     if (num_threads > 1 && m_profile)
         throw exception("option --profile cannot be used when theorems are compiled in parallel");
     m_in_quote = false;

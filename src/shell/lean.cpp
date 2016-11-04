@@ -323,7 +323,7 @@ int main(int argc, char ** argv) {
             break;
 #endif
         case 'P':
-            opts = opts.update("profile", true);
+            opts = opts.update("profiler", true);
             break;
         case 'L':
             line = atoi(optarg);

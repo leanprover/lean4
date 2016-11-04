@@ -11,12 +11,22 @@ Author: Leonardo de Moura
 #include "util/interrupt.h"
 #include "util/sstream.h"
 #include "util/small_object_allocator.h"
+#include "util/sexpr/option_declarations.h"
 #include "library/constants.h"
 #include "library/kernel_serializer.h"
 #include "library/trace.h"
 #include "library/module.h"
+#include "library/private.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_expr.h"
+
+#ifndef LEAN_DEFAULT_PROFILER
+#define LEAN_DEFAULT_PROFILER false
+#endif
+
+#ifndef LEAN_DEFAULT_PROFILER_FREQ
+#define LEAN_DEFAULT_PROFILER_FREQ 10
+#endif
 
 namespace lean {
 void vm_obj_cell::dec_ref(vm_obj & o, buffer<vm_obj_cell*> & todelete) {
@@ -961,6 +971,8 @@ optional<unsigned> get_vm_builtin_cases_idx(environment const & env, name const 
         return optional<unsigned>();
 }
 
+constexpr unsigned g_null_fn_idx = -1;
+
 vm_state::vm_state(environment const & env):
     m_env(env),
     m_decl_map(get_extension(m_env).m_decls),
@@ -970,7 +982,7 @@ vm_state::vm_state(environment const & env):
     m_builtin_cases_names(get_extension(m_env).m_cases_names),
     m_fn_name2idx(get_extension(m_env).m_name2idx),
     m_code(nullptr),
-    m_fn_idx(0),
+    m_fn_idx(g_null_fn_idx),
     m_bp(0) {
 }
 
@@ -996,10 +1008,18 @@ void vm_state::push_fields(vm_obj const & obj) {
 }
 
 void vm_state::invoke_builtin(vm_decl const & d) {
+    if (m_profiling) {
+        unique_lock<mutex> lk(m_call_stack_mtx);
+        push_frame_core(0, 0, d.get_idx());
+    }
     unsigned saved_bp = m_bp;
     unsigned sz = m_stack.size();
     m_bp = sz;
     d.get_fn()(*this);
+    if (m_profiling) {
+        unique_lock<mutex> lk(m_call_stack_mtx);
+        m_call_stack.pop_back();
+    }
     lean_assert(m_stack.size() == sz + 1);
     m_bp = saved_bp;
     sz = m_stack.size();
@@ -1663,10 +1683,50 @@ vm_state & get_vm_state() {
     return *g_vm_state;
 }
 
+void vm_state::push_frame_core(unsigned num, unsigned next_pc, unsigned next_fn_idx) {
+    m_call_stack.emplace_back(m_code, m_fn_idx, num, next_pc, m_bp, next_fn_idx, m_next_frame_idx);
+    m_next_frame_idx++;
+    m_fn_idx = next_fn_idx;
+}
+
+void vm_state::push_frame(unsigned num, unsigned next_pc, unsigned next_fn_idx) {
+    if (m_profiling) {
+        unique_lock<mutex> lk(m_call_stack_mtx);
+        push_frame_core(num, next_pc, next_fn_idx);
+    } else {
+        push_frame_core(num, next_pc, next_fn_idx);
+    }
+}
+
+unsigned vm_state::pop_frame_core() {
+    lean_assert(!m_call_stack.empty());
+    frame const & fr = m_call_stack.back();
+    unsigned sz      = m_stack.size();
+    lean_assert(sz - fr.m_num - 1 < m_stack.size());
+    lean_assert(sz - 1 < m_stack.size());
+    swap(m_stack[sz - fr.m_num - 1], m_stack[sz - 1]);
+    m_stack.resize(sz - fr.m_num);
+    m_code   = fr.m_code;
+    m_fn_idx = fr.m_fn_idx;
+    m_pc     = fr.m_pc;
+    m_bp     = fr.m_bp;
+    unsigned stack_sz = m_call_stack.size();
+    m_call_stack.pop_back();
+    return stack_sz;
+}
+
+unsigned vm_state::pop_frame() {
+    if (m_profiling) {
+        unique_lock<mutex> lk(m_call_stack_mtx);
+        return pop_frame_core();
+    } else {
+        return pop_frame_core();
+    }
+}
+
 void vm_state::invoke_global(vm_decl const & d) {
-    m_call_stack.emplace_back(m_code, m_fn_idx, d.get_arity(), m_pc+1, m_bp);
+    push_frame(d.get_arity(), m_pc+1, d.get_idx());
     m_code            = d.get_code();
-    m_fn_idx          = d.get_idx();
     m_pc              = 0;
     m_bp              = m_stack.size() - d.get_arity();
 }
@@ -1958,7 +2018,7 @@ void vm_state::run() {
         }
         case opcode::Unreachable:
             throw exception("VM unreachable instruction has been reached");
-        case opcode::Ret: {
+        case opcode::Ret:
             /**
                Instruction: ret
 
@@ -1981,25 +2041,10 @@ void vm_state::run() {
                a_1, ... a_n were the arguments for the function call.
                r is the result.
             */
-            lean_assert(!m_call_stack.empty());
-            frame const & fr = m_call_stack.back();
-            unsigned sz      = m_stack.size();
-            lean_assert(sz - fr.m_num - 1 < m_stack.size());
-            lean_assert(sz - 1 < m_stack.size());
-            swap(m_stack[sz - fr.m_num - 1], m_stack[sz - 1]);
-            m_stack.resize(sz - fr.m_num);
-            m_code   = fr.m_code;
-            m_fn_idx = fr.m_fn_idx;
-            m_pc     = fr.m_pc;
-            m_bp     = fr.m_bp;
-            if (m_call_stack.size() == init_call_stack_sz) {
-                m_call_stack.pop_back();
+            if (pop_frame() == init_call_stack_sz)
                 return;
-            } else {
-                m_call_stack.pop_back();
+            else
                 goto main_loop;
-            }
-        }
         case opcode::Apply: {
             /**
                Instruction: apply
@@ -2162,9 +2207,8 @@ vm_obj vm_state::get_constant(name const & cname) {
 }
 
 void vm_state::execute(vm_instr const * code) {
-    m_call_stack.emplace_back(m_code, m_fn_idx, 0, m_pc, m_bp);
+    push_frame(0, m_pc, g_null_fn_idx);
     m_code            = code;
-    m_fn_idx          = -1;
     m_pc              = 0;
     m_bp              = m_stack.size();
     run();
@@ -2188,6 +2232,129 @@ optional<vm_decl> vm_state::get_decl(name const & n) const {
         return optional<vm_decl>(get_decl(*idx));
     else
         return optional<vm_decl>();
+}
+
+static name * g_profiler      = nullptr;
+static name * g_profiler_freq = nullptr;
+
+bool get_profiler(options const & opts) {
+    return opts.get_bool(*g_profiler, LEAN_DEFAULT_PROFILER);
+}
+
+unsigned get_profiler_freq(options const & opts) {
+    return opts.get_unsigned(*g_profiler_freq, LEAN_DEFAULT_PROFILER_FREQ);
+}
+
+vm_state::profiler::profiler(vm_state & s, options const & opts):
+    m_state(s),
+    m_stop(false),
+    m_freq_ms(get_profiler_freq(opts)),
+    m_thread_ptr(
+#if defined(LEAN_MULTI_THREAD)
+        get_profiler(opts) ?
+        new interruptible_thread([&]() {
+                lean_assert(!m_state.m_profiling);
+                m_state.m_profiling = true;
+                chrono::milliseconds d(m_freq_ms);
+                bool first = true;
+                auto start = chrono::steady_clock::now();
+                while (!m_stop) {
+                    if (first) {
+                        first = false;
+                    } else {
+                        unique_lock<mutex> lk(m_state.m_call_stack_mtx);
+                        auto curr = chrono::steady_clock::now();
+                        m_snapshots.push_back(snapshot_core());
+                        snapshot_core & s = m_snapshots.back();
+                        s.m_duration = chrono::duration_cast<chrono::milliseconds>(curr - start);
+                        for (frame const & fr : m_state.m_call_stack) {
+                            if (fr.m_curr_fn_idx != g_null_fn_idx &&
+                                (s.m_stack.empty() || s.m_stack.back().first != fr.m_curr_fn_idx)) {
+                                s.m_stack.emplace_back(fr.m_curr_fn_idx, fr.m_frame_idx);
+                            }
+                        }
+                    }
+                    start = chrono::steady_clock::now();
+                    this_thread::sleep_for(d);
+                }
+            }) :
+        nullptr
+#else
+        /* Multi thread support is disabled */
+        nullptr
+#endif
+        ) {
+}
+
+void vm_state::profiler::stop() {
+    if (!m_stop && m_thread_ptr) {
+        m_stop = true;
+        m_thread_ptr->join();
+        m_state.m_profiling = false;
+    }
+}
+
+vm_state::profiler::~profiler() {
+    stop();
+}
+
+auto vm_state::profiler::get_snapshots() -> snapshots {
+    stop();
+    snapshots r;
+    for (snapshot_core const & s : m_snapshots) {
+        snapshot new_s;
+        new_s.m_duration = s.m_duration.count();
+        auto & new_stack = new_s.m_stack;
+        for (auto const & p : s.m_stack) {
+            vm_decl const * decl = m_state.m_decl_map.find(p.first);
+            lean_assert(decl);
+            name decl_name = decl->get_name();
+            /* Remove unnecessary suffixes. */
+            while (true) {
+                if (decl_name.is_atomic()) break;
+                if (!decl_name.is_string()) break;
+                char const * str = decl_name.get_string();
+                if (str[0] != '_') break;
+                if (strncmp(str, "_lambda", 7) == 0) break;
+                decl_name = decl_name.get_prefix();
+            }
+            if (auto prv = hidden_to_user_name(m_state.env(), decl_name))
+                decl_name = *prv;
+            if (new_stack.empty() || decl_name != new_stack.back().first)
+                new_stack.emplace_back(decl_name, p.second);
+        }
+        r.m_snapshots.push_back(new_s);
+    }
+    return r;
+}
+
+static bool equal_fns(vm_state::profiler::snapshot const & s1, vm_state::profiler::snapshot const & s2) {
+    if (s1.m_stack.size() != s2.m_stack.size()) return false;
+    for (unsigned i = 0; i < s1.m_stack.size(); i++) {
+        if (s1.m_stack[i].first != s2.m_stack[i].first)
+            return false;
+    }
+    return true;
+}
+
+void vm_state::profiler::snapshots::display(std::ostream & out) const {
+    unsigned i = 0;
+    while (i < m_snapshots.size()) {
+        snapshot const & s = m_snapshots[i];
+        unsigned j = i+1;
+        unsigned d = s.m_duration;
+        for (; j < m_snapshots.size(); j++) {
+            if (!equal_fns(s, m_snapshots[j]))
+                break;
+            d += m_snapshots[j].m_duration;
+        }
+        i = j;
+        out << d << ":";
+        for (auto const & p : s.m_stack) {
+            out << " " << p.first;
+        }
+        out << "\n";
+    }
 }
 
 void display_vm_code(std::ostream & out, environment const & env, unsigned code_sz, vm_instr const * code) {
@@ -2265,12 +2432,22 @@ void initialize_vm() {
     g_vm_code_key    = new std::string("VMC");
     register_module_object_reader(*g_vm_reserve_key, reserve_reader);
     register_module_object_reader(*g_vm_code_key, code_reader);
+#if defined(LEAN_MULTI_THREAD)
+    g_profiler       = new name{"profiler"};
+    g_profiler_freq  = new name{"profiler", "freq"};
+    register_bool_option(*g_profiler, LEAN_DEFAULT_PROFILER, "(profiler) profile tactics and vm_eval command");
+    register_unsigned_option(*g_profiler_freq, LEAN_DEFAULT_PROFILER_FREQ, "(profiler) sampling frequency in milliseconds");
+#endif
 }
 
 void finalize_vm() {
     delete g_ext;
     delete g_vm_reserve_key;
     delete g_vm_code_key;
+#if defined(LEAN_MULTI_THREAD)
+    delete g_profiler;
+    delete g_profiler_freq;
+#endif
 }
 }
 

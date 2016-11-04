@@ -2339,7 +2339,7 @@ auto vm_state::profiler::get_snapshots() -> snapshots {
 
     for (auto & cum_time_entry : cum_times) r.m_cum_times.push_back(cum_time_entry);
     std::sort(r.m_cum_times.begin(), r.m_cum_times.end(),
-              [] (std::pair<name, chrono::milliseconds> & a, std::pair<name, chrono::milliseconds> & b) {
+              [] (pair<name, chrono::milliseconds> & a, pair<name, chrono::milliseconds> & b) {
                   return b.second < a.second; });
 
     return r;

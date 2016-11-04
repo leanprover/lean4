@@ -624,8 +624,8 @@ public:
     class profiler {
         typedef std::unique_ptr<interruptible_thread> thread_ptr;
         struct snapshot_core {
-            chrono::milliseconds                       m_duration;
-            std::vector<std::pair<unsigned, unsigned>> m_stack;
+            chrono::milliseconds                  m_duration;
+            std::vector<pair<unsigned, unsigned>> m_stack;
         };
         vm_state &                 m_state;
         atomic<bool>               m_stop;
@@ -638,14 +638,14 @@ public:
         ~profiler();
 
         struct snapshot {
-            chrono::milliseconds                   m_duration;
-            std::vector<std::pair<name, unsigned>> m_stack;
+            chrono::milliseconds              m_duration;
+            std::vector<pair<name, unsigned>> m_stack;
         };
 
         struct snapshots {
-            std::vector<snapshot>                              m_snapshots;
-            std::vector<std::pair<name, chrono::milliseconds>> m_cum_times;
-            chrono::milliseconds                               m_total_time;
+            std::vector<snapshot>                         m_snapshots;
+            std::vector<pair<name, chrono::milliseconds>> m_cum_times;
+            chrono::milliseconds                          m_total_time;
             void display(std::ostream & out) const;
         };
         bool enabled() const { return m_thread_ptr.get() != nullptr; }

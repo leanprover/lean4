@@ -7,6 +7,9 @@ Author: Leonardo de Moura
 #include <string>
 #include <algorithm>
 #include <vector>
+#include <unordered_map>
+#include <unordered_set>
+#include <iomanip>
 #include "util/flet.h"
 #include "util/interrupt.h"
 #include "util/sstream.h"
@@ -2300,11 +2303,14 @@ vm_state::profiler::~profiler() {
 
 auto vm_state::profiler::get_snapshots() -> snapshots {
     stop();
-    snapshots r;
+    snapshots r {};
+    std::unordered_map<name, chrono::milliseconds, name_hash> cum_times;
     for (snapshot_core const & s : m_snapshots) {
         snapshot new_s;
-        new_s.m_duration = s.m_duration.count();
+        new_s.m_duration = s.m_duration;
+        r.m_total_time += s.m_duration;
         auto & new_stack = new_s.m_stack;
+        std::unordered_set<name, name_hash> decl_already_seen_in_this_stack;
         for (auto const & p : s.m_stack) {
             vm_decl const * decl = m_state.m_decl_map.find(p.first);
             lean_assert(decl);
@@ -2322,9 +2328,20 @@ auto vm_state::profiler::get_snapshots() -> snapshots {
                 decl_name = *prv;
             if (new_stack.empty() || decl_name != new_stack.back().first)
                 new_stack.emplace_back(decl_name, p.second);
+
+            if (decl_already_seen_in_this_stack.insert(decl_name).second) {
+                // not seen before in this stack
+                cum_times[decl_name] += s.m_duration;
+            }
         }
         r.m_snapshots.push_back(new_s);
     }
+
+    for (auto & cum_time_entry : cum_times) r.m_cum_times.push_back(cum_time_entry);
+    std::sort(r.m_cum_times.begin(), r.m_cum_times.end(),
+              [] (std::pair<name, chrono::milliseconds> & a, std::pair<name, chrono::milliseconds> & b) {
+                  return b.second < a.second; });
+
     return r;
 }
 
@@ -2338,18 +2355,25 @@ static bool equal_fns(vm_state::profiler::snapshot const & s1, vm_state::profile
 }
 
 void vm_state::profiler::snapshots::display(std::ostream & out) const {
+    for (auto & cum_time : m_cum_times) {
+        out << std::setw(5) << cum_time.second.count() << "ms   "
+            << std::setw(5) << std::fixed << std::setprecision(1)
+            << (100.0f * cum_time.second.count()) / m_total_time.count() << "%   "
+            << cum_time.first << "\n";
+    }
+
     unsigned i = 0;
     while (i < m_snapshots.size()) {
         snapshot const & s = m_snapshots[i];
         unsigned j = i+1;
-        unsigned d = s.m_duration;
+        auto d = s.m_duration;
         for (; j < m_snapshots.size(); j++) {
             if (!equal_fns(s, m_snapshots[j]))
                 break;
             d += m_snapshots[j].m_duration;
         }
         i = j;
-        out << d << ":";
+        out << d.count() << ":";
         for (auto const & p : s.m_stack) {
             out << " " << p.first;
         }

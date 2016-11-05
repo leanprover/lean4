@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 
 namespace lean {
-environment vm_compile(environment const & env, buffer<pair<name, expr>> const & procs);
 environment vm_compile(environment const & env, declaration const & d);
 void initialize_vm_compiler();
 void finalize_vm_compiler();

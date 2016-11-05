@@ -315,7 +315,7 @@ public:
     }
 };
 
-environment vm_compile(environment const & env, buffer<pair<name, expr>> const & procs) {
+static environment vm_compile(environment const & env, buffer<pair<name, expr>> const & procs) {
     environment new_env = env;
     for (auto const & p : procs) {
         new_env = reserve_vm_index(new_env, p.first, p.second);

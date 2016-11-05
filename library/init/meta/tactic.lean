@@ -343,24 +343,24 @@ meta constant generalize_core : transparency → expr → name → tactic unit
 meta constant instantiate_mvars : expr → tactic expr
 /- Add the given declaration to the environment -/
 meta constant add_decl : declaration → tactic unit
-/- (set_basic_attribute_core attr_name c_name prio) set attribute attr_name for constant c_name with the given priority.
+/- (set_basic_attribute_core attr_name c_name persistent prio) set attribute attr_name for constant c_name with the given priority.
    If the priority is none, then use default -/
-meta constant set_basic_attribute_core : name → name → option nat → tactic unit
+meta constant set_basic_attribute_core : name → name → bool → option nat → tactic unit
 /- (unset_attribute attr_name c_name) -/
 meta constant unset_attribute : name → name → tactic unit
 /- (has_attribute attr_name c_name) succeeds if the declaration `decl_name`
    has the attribute `attr_name`. The result is the priority. -/
 meta constant has_attribute : name → name → tactic nat
 
-meta def set_basic_attribute : name → name → tactic unit :=
-λ a n, set_basic_attribute_core a n none
+meta def set_basic_attribute : name → name → bool → tactic unit :=
+λ a n p, set_basic_attribute_core a n p none
 
 /- (copy_attribute attr_name c_name d_name) copy attribute `attr_name` from
    `src` to `tgt` if it is defined for `src` -/
-meta def copy_attribute (attr_name : name) (src : name) (tgt : name) : tactic unit :=
+meta def copy_attribute (attr_name : name) (src : name) (p : bool) (tgt : name) : tactic unit :=
 try $ do
   prio ← has_attribute attr_name src,
-  set_basic_attribute_core attr_name tgt (some prio)
+  set_basic_attribute_core attr_name tgt p (some prio)
 
 open list nat
 

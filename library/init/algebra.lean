@@ -122,9 +122,9 @@ open tactic
 
 meta def transport_to_additive (src : name) (tgt : name) : command :=
 copy_decl_updating_type multiplicative_to_additive src tgt
->> copy_attribute `reducible src tgt
->> copy_attribute `simp src tgt
->> copy_attribute `instance src tgt
+>> copy_attribute `reducible src tt tgt
+>> copy_attribute `simp src tt tgt
+>> copy_attribute `instance src tt tgt
 
 /- Make sure all constants at multiplicative_to_additive are declared -/
 meta def init_multiplicative_to_additive : command :=

@@ -196,7 +196,7 @@ vm_obj caching_user_attribute_get_cache(vm_obj const &, vm_obj const & vm_attr, 
     LEAN_TACTIC_CATCH(s);
 }
 
-vm_obj set_basic_attribute_core(vm_obj const & vm_attr_n, vm_obj const & vm_n, vm_obj const & vm_prio, vm_obj const & vm_s) {
+vm_obj set_basic_attribute_core(vm_obj const & vm_attr_n, vm_obj const & vm_n, vm_obj const & p, vm_obj const & vm_prio, vm_obj const & vm_s) {
     name const & attr_n    = to_name(vm_attr_n);
     name const & n         = to_name(vm_n);
     unsigned prio;
@@ -208,7 +208,7 @@ vm_obj set_basic_attribute_core(vm_obj const & vm_attr_n, vm_obj const & vm_n, v
     LEAN_TACTIC_TRY;
     attribute const & attr = get_attribute(s.env(), attr_n);
     if (basic_attribute const * basic_attr = dynamic_cast<basic_attribute const *>(&attr)) {
-        bool persistent     = false;
+        bool persistent     = to_bool(p);
         environment new_env = basic_attr->set(s.env(), get_global_ios(), n, prio, persistent);
         return mk_tactic_success(set_env(s, new_env));
     } else {

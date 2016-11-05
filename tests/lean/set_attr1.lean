@@ -6,8 +6,8 @@ constant addz : ∀ n, n + 0 = n
 
 definition ex1 (n : nat) : f n + 0 = n + 1 :=
 by do
-  set_basic_attribute `simp `foo,
-  set_basic_attribute `simp `addz,
+  set_basic_attribute `simp `foo ff,
+  set_basic_attribute `simp `addz ff,
   simp
 
 definition ex2 (n : nat) : f n + 0 = n + 1 :=

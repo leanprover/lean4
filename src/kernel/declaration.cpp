@@ -37,30 +37,6 @@ int compare(reducibility_hints const & h1, reducibility_hints const & h2) {
     }
 }
 
-struct declaration::cell {
-    MK_LEAN_RC();
-    name               m_name;
-    level_param_names  m_params;
-    expr               m_type;
-    bool               m_theorem;
-    optional<expr>     m_value;        // if none, then declaration is actually a postulate
-    reducibility_hints m_hints;
-    /* Definitions are trusted by default, and nested macros are expanded when kernel is instantiated with
-       trust level 0. When this flag is false, then we do not expand nested macros. We say the
-       associated definitions are "untrusted". We use this feature to define tactical-definitions.
-       The kernel type checker ensures trusted definitions do not use untrusted ones. */
-    bool              m_trusted;
-    void dealloc() { delete this; }
-
-    cell(name const & n, level_param_names const & params, expr const & t, bool is_axiom, bool trusted):
-        m_rc(1), m_name(n), m_params(params), m_type(t), m_theorem(is_axiom),
-        m_hints(reducibility_hints::mk_opaque()), m_trusted(trusted) {}
-    cell(name const & n, level_param_names const & params, expr const & t, bool is_thm, expr const & v,
-         reducibility_hints const & h, bool trusted):
-        m_rc(1), m_name(n), m_params(params), m_type(t), m_theorem(is_thm),
-        m_value(v), m_hints(h), m_trusted(trusted) {}
-};
-
 static declaration * g_dummy = nullptr;
 
 declaration::declaration():declaration(*g_dummy) {}

@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <set>
 #include <library/tactic/tactic_state.h>
 #include <frontends/lean/json.h>
+#include <util/lean_path.h>
 #include "library/choice.h"
 #include "library/scoped_ext.h"
 #include "library/pp_options.h"
@@ -30,13 +31,26 @@ public:
     }
 };
 
+std::string olean_file_to_lean_file(std::string const & olean) {
+    lean_assert(is_olean_file(olean));
+    std::string lean = olean;
+    lean.erase(lean.size() - std::string("olean").size(), 1);
+    return lean;
+}
+
 class identifier_info_data : public info_data_cell {
     name m_full_id;
 public:
     identifier_info_data(name const & full_id): m_full_id(full_id) {}
 
-    virtual void add_info(io_state_stream const &, json & record) const {
+    virtual void add_info(io_state_stream const & ios, json & record) const {
         record["full-id"] = m_full_id.to_string();
+        if (auto olean = get_decl_olean(ios.get_environment(), m_full_id))
+            record["source"]["file"] = olean_file_to_lean_file(*olean);
+        if (auto pos = get_decl_pos_info(ios.get_environment(), m_full_id)) {
+            record["source"]["line"] = pos->first;
+            record["source"]["column"] = pos->second;
+        }
     }
 };
 

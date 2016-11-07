@@ -255,13 +255,11 @@ triggers a completion immediately."
      (lambda (&rest)
        (funcall callback nil)))))
 
-(defun company-lean--findp-location (arg)
-  (lean-generate-tags)
-  (let ((tags-table-list (company-etags-buffer-table)))
-    (when (fboundp 'find-tag-noselect)
-      (save-excursion
-        (let ((buffer (find-tag-noselect arg)))
-          (cons buffer (with-current-buffer buffer (point))))))))
+; (defun company-lean--findp-location (arg cb)
+;   (lean-get-info-record-at-point
+;    (lambda (info-record)
+;      (if-let ((source-record (plist-get info-record :source)))
+;          (funcall cb (plist-get source-record :file) . (plist-get source-record :line))))))
 
 (defun company-lean--findp-annotation (candidate)
   (let ((type (get-text-property 0 'type candidate)))
@@ -294,7 +292,7 @@ triggers a completion immediately."
     (prefix (company-lean--findp-prefix))
     (candidates (cons :async (lambda (cb) (company-lean--findp-candidates arg cb))))
     (annotation (company-lean--findp-annotation arg))
-    (location (company-lean--findp-location arg))
+    ;(location (cons :async (lambda (cb) (company-lean--findp-location arg cb))))
     (match (company-lean--findp-match arg))
     (no-cache t)
     (require-match 'never)

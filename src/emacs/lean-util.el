@@ -147,15 +147,16 @@
         (when id-beg
           (buffer-substring id-beg cur-pos))))))
 
-(defun lean-line-offset ()
-  "Return the byte-offset of current position, counting from the
+(defun lean-line-offset (&optional pos)
+  "Return the byte-offset of `pos` or current position, counting from the
   beginning of the line"
   (interactive)
-  (let ((bol-pos
-         (save-excursion
-           (beginning-of-line)
-           (point)))
-        (pos (point)))
+  (let* ((pos (or pos (point)))
+         (bol-pos
+          (save-excursion
+            (goto-char pos)
+            (beginning-of-line)
+            (point))))
     (- pos bol-pos)))
 
 (defun lean-whitespace-cleanup ()

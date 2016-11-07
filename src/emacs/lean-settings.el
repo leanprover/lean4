@@ -152,6 +152,9 @@ false (nil)."
 (defcustom lean-keybinding-server-restart (kbd "C-c C-r")
   "Lean Keybinding for server-restart"
   :group 'lean-keybinding  :type 'key-sequence)
+(defcustom lean-keybinding-find-definition (kbd "M-.")
+  "Lean Keybinding for find-definition"
+  :group 'lean-keybinding  :type 'key-sequence)
 (defcustom lean-keybinding-tab-indent-or-complete (kbd "TAB")
   "Lean Keybinding for tab-indent-or-complete"
   :group 'lean-keybinding  :type 'key-sequence)

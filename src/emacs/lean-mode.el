@@ -101,6 +101,7 @@
   (local-set-key lean-keybinding-show-key                  'quail-show-key)
   (local-set-key lean-keybinding-eval-cmd                  'lean-eval-cmd)
   (local-set-key lean-keybinding-server-restart            'lean-server-restart)
+  (local-set-key lean-keybinding-find-definition           'lean-find-definition)
   (local-set-key lean-keybinding-tab-indent-or-complete    'lean-tab-indent-or-complete)
   (local-set-key lean-keybinding-lean-show-goal-at-pos     'lean-show-goal-at-pos)
   (local-set-key lean-keybinding-lean-show-id-keyword-info 'lean-show-id-keyword-info)
@@ -125,6 +126,7 @@
     ["Show type info"       lean-show-type                    (and lean-eldoc-use eldoc-mode)]
     ["Show goal"            lean-show-goal-at-pos             t]
     ["Show id/keyword info" lean-show-id-keyword-info         t]
+    ["Find definition at point" lean-find-definition          t]
     ["Global tag search"    lean-global-search                t]
     "-----------------"
     ["Run flycheck"         flycheck-compile                  (and lean-flycheck-use flycheck-mode)]

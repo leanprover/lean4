@@ -46,10 +46,29 @@
 (defun lean-get-info-record-at-point (cont)
   "Get info-record at the current point"
   (lean-server-sync)
-  (lean-server-send-command
-   (list :command "info"
-         :line (line-number-at-pos)
-         :column (lean-line-offset))
-   (cl-function
-    (lambda (&key record)
-      (funcall cont record)))))
+  (let ((pos (lean-find-hname-beg)))
+    (lean-server-send-command
+     (list :command "info"
+           :line (line-number-at-pos pos)
+           :column (lean-line-offset pos))
+     (cl-function
+      (lambda (&key record)
+        (funcall cont record))))))
+
+(cl-defun lean-find-definition-cont (&key file line column)
+  (find-file file)
+  (goto-char (point-min))
+  (forward-line (1- line))
+  (forward-char column))
+
+
+(defun lean-find-definition ()
+  "Jump to definition of thing at point"
+  (interactive)
+  (lean-get-info-record-at-point
+   (lambda (info-record)
+     (if-let ((source-record (plist-get info-record :source)))
+         (apply #'lean-find-definition-cont source-record)
+       (if-let ((id (plist-get info-record :full-id)))
+           (message "no source location available for %s" id)
+         (message "unknown thing at point"))))))

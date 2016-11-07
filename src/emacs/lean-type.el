@@ -40,7 +40,7 @@
 
 (cl-defun lean-info-record-to-string (info-record)
   "Given typeinfo, overload, and sym-name, compose information as a string."
-  (destructuring-bind (&key type overloads synth coercion proofstate full-id symbol extra) info-record
+  (destructuring-bind (&key type overloads synth coercion proofstate full-id symbol extra &allow-other-keys) info-record
     (let (name-str type-str coercion-str extra-str proofstate-str overload-str stale-str str)
       (setq name-str
             (cond
@@ -103,14 +103,10 @@
 (defun lean-eldoc-documentation-function (&optional add-to-kill-ring)
   "Show information of lean expression at point if any"
   (interactive)
-  (cond ((or (and (not (looking-at (rx white)))
-                  (not (eolp)))
-             (and (looking-back (rx (not white)))
-                  (not (bolp))))
-         (lean-get-info-record-at-point
-          (lambda (info-record)
-            (when info-record
-              (lean-eldoc-documentation-function-cont info-record add-to-kill-ring)))))))
+  (lean-get-info-record-at-point
+   (lambda (info-record)
+     (when info-record
+       (lean-eldoc-documentation-function-cont info-record add-to-kill-ring)))))
 
 (defun lean-show-type ()
   "Show information of lean-expression at point if any."

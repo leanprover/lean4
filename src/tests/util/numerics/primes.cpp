@@ -31,8 +31,10 @@ static void tst2() {
     for (unsigned i = 0; i < 100000; i++) {
         uint64 p = it.next();
         lean_assert(is_prime(p));
-        if (i % 1000 == 0)
-            std::cout << p << " "; std::cout.flush();
+        if (i % 1000 == 0) {
+            std::cout << p << " ";
+            std::cout.flush();
+        }
     }
     std::cout << "\n";
 }

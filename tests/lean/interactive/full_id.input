@@ -1,3 +1,3 @@
-{"command": "sync", "file_name": "f", "content": "eval tt"}
+{"command": "sync", "file_name": "f", "content": "definition f := tt"}
 {"command": "check"}
-{"command": "info", "line": 1}
+{"command": "info", "line": 1, "column": 16}

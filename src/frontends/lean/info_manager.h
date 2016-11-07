@@ -15,27 +15,14 @@ class proof_state;
 
 class info_data;
 
-enum class info_kind { Type = 0, ExtraType, Synth, Overload, Coercion, Symbol, Identifier, ProofState };
-
 class info_data_cell {
-    unsigned m_column;
 MK_LEAN_RC();
     void dealloc() { delete this; }
 protected:
     friend info_data;
 public:
-    info_data_cell():m_column(0), m_rc(0) {}
-    info_data_cell(unsigned c):m_column(c), m_rc(0) {}
     virtual ~info_data_cell() {}
-    /** \brief Return true iff the information is considered "cheap"
-        If the column number is not provided in the method info_manager::get_message,
-        then only "cheap" information is get_messageed.
-    */
-    virtual bool is_cheap() const { return true; }
-    virtual info_kind kind() const = 0;
-    unsigned get_column() const { return m_column; }
-    virtual json get_message(io_state_stream const & ios, unsigned line) const = 0;
-    virtual int compare(info_data_cell const & d) const;
+    virtual void add_info(io_state_stream const & ios, json & record) const = 0;
 };
 
 class info_data {
@@ -50,26 +37,19 @@ public:
     friend void swap(info_data & a, info_data & b) { std::swap(a.m_ptr, b.m_ptr); }
     info_data & operator=(info_data const & s) { LEAN_COPY_REF(s); }
     info_data & operator=(info_data && s) { LEAN_MOVE_REF(s); }
-    int compare(info_data const & d) const { return m_ptr->compare(*d.m_ptr); }
-    int compare(info_data_cell const & d) const { return m_ptr->compare(d); }
-    unsigned get_column() const { return m_ptr->get_column(); }
-    bool is_cheap() const { return m_ptr->is_cheap(); }
-    json get_message(io_state_stream const & ios, unsigned line) const { return m_ptr->get_message(ios, line); }
+    void add_info(io_state_stream const & ios, json & record) const {
+        return m_ptr->add_info(ios, record);
+    }
     info_data_cell const * raw() const { return m_ptr; }
-    info_kind kind() const { return m_ptr->kind(); }
 };
 
-struct info_data_cmp {
-    int operator()(info_data const & i1, info_data const & i2) const { return i1.compare(i2); }
-};
-
-typedef rb_tree<info_data, info_data_cmp> info_data_set;
+typedef rb_map<unsigned, list<info_data>, unsigned_cmp> line_info_data_set;
 
 class info_manager {
-    rb_map<unsigned, info_data_set, std::less<unsigned>> m_line_data;
+    rb_map<unsigned, line_info_data_set, unsigned_cmp> m_line_data;
 
-    void add_info(unsigned l, info_data data);
-    info_data_set get_info_set(unsigned l) const;
+    void add_info(unsigned l, unsigned c, info_data data);
+    line_info_data_set get_line_info_set(unsigned l) const;
 public:
     void add_type_info(unsigned l, unsigned c, expr const & e);
     void add_identifier_info(unsigned l, unsigned c, name const & full_id);
@@ -82,7 +62,7 @@ public:
     void add_proof_state_info(unsigned l, unsigned c, tactic_state const & s);
     */
 
-    buffer<json> get_messages(environment const & env, options const & o, io_state const & ios, unsigned line,
-                              optional<unsigned> const & col = optional<unsigned>()) const;
+    json get_info_record(environment const & env, options const & o, io_state const & ios, unsigned line,
+                         unsigned col) const;
 };
 }

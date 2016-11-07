@@ -388,18 +388,15 @@ json server::handle_show_goal(json const &req) {
 
 json server::handle_info(json const & req) {
     unsigned line = req["line"];
-    optional<unsigned> col;
-    if (req.count("col"))
-        col = some<unsigned>(req["col"]);
+    unsigned col = req["column"];
 
     json res;
     res["response"] = "ok";
-    res["messages"] = {};
 
     if (m_snapshots.size()) {
         auto const & snap = m_snapshots.back();
-        assert(snap.m_infom);
-        res["messages"] = snap.m_infom->get_messages(snap.m_env, snap.m_options, m_ios, line, col);
+        lean_assert(snap.m_infom);
+        res["record"] = snap.m_infom->get_info_record(snap.m_env, snap.m_options, m_ios, line, col);
     }
     return res;
 }

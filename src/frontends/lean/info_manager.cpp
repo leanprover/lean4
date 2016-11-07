@@ -15,56 +15,28 @@ Author: Leonardo de Moura
 #include "info_manager.h"
 
 namespace lean {
-bool operator<(info_kind k1, info_kind k2) { return static_cast<unsigned>(k1) < static_cast<unsigned>(k2); }
-
-int info_data_cell::compare(info_data_cell const & d) const {
-    if (m_column != d.m_column)
-        return m_column < d.m_column ? -1 : 1;
-    if (kind() != d.kind())
-        return kind() < d.kind() ? -1 : 1;
-    return 0;
-}
-
 class type_info_data : public info_data_cell {
 protected:
     expr m_expr;
 public:
-    type_info_data() {}
-    type_info_data(unsigned c, expr const & e):info_data_cell(c), m_expr(e) {}
+    type_info_data(expr const & e): m_expr(e) {}
 
     expr const & get_type() const { return m_expr; }
 
-    virtual info_kind kind() const { return info_kind::Type; }
-
-    virtual json get_message(io_state_stream const & ios, unsigned line) const {
-        json msg;
-        msg["kind"]   = "type";
-        msg["line"]   = line;
-        msg["column"] = get_column();
-
+    virtual void add_info(io_state_stream const & ios, json & record) const {
         std::ostringstream ss;
         ss << flatten(ios.get_formatter()(m_expr));
-        msg["type"] = ss.str();
-
-        return msg;
+        record["type"] = ss.str();
     }
 };
 
 class identifier_info_data : public info_data_cell {
     name m_full_id;
 public:
-    identifier_info_data(unsigned c, name const & full_id):info_data_cell(c), m_full_id(full_id) {}
+    identifier_info_data(name const & full_id): m_full_id(full_id) {}
 
-    virtual info_kind kind() const { return info_kind::Identifier; }
-
-    virtual json get_message(io_state_stream const &, unsigned line) const {
-        json msg;
-        msg["kind"]    = "full_id";
-        msg["line"]    = line;
-        msg["column"]  = get_column();
-        msg["full_id"] = m_full_id.to_string();
-
-        return msg;
+    virtual void add_info(io_state_stream const &, json & record) const {
+        record["full-id"] = m_full_id.to_string();
     }
 };
 
@@ -78,7 +50,6 @@ public:
     extra_type_info_data(unsigned c, expr const & e, expr const & t):info_data_cell(c), m_expr(e), m_type(t) {}
 
     virtual info_kind kind() const { return info_kind::ExtraType; }
-    virtual bool is_cheap() const { return false; }
 
     virtual void get_message(io_state_stream const & ios, unsigned line) const {
         ios << "-- EXTRA_TYPE|" << line << "|" << get_column() << "\n";
@@ -184,8 +155,7 @@ class proof_state_info_data : public info_data_cell {
 public:
     proof_state_info_data(unsigned c, tactic_state const & s):info_data_cell(c), m_state(s) {}
     virtual info_kind kind() const { return info_kind::ProofState; }
-    virtual bool is_cheap() const { return false; }
-    virtual void get_message(io_state_stream const & ios, unsigned line) const {
+    virtual void add_info(io_state_stream const & ios, unsigned line) const {
         ios << "-- PROOF_STATE|" << line << "|" << get_column() << "\n";
         bool first = true;
         for (expr const & g : m_state.goals()) {
@@ -200,8 +170,8 @@ public:
 };
 */
 
-info_data mk_type_info(unsigned c, expr const & e) { return info_data(new type_info_data(c, e)); }
-info_data mk_identifier_info(unsigned c, name const & full_id) { return info_data(new identifier_info_data(c, full_id)); }
+info_data mk_type_info(expr const & e) { return info_data(new type_info_data(e)); }
+info_data mk_identifier_info(name const & full_id) { return info_data(new identifier_info_data(full_id)); }
 /*info_data mk_extra_type_info(unsigned c, expr const & e, expr const & t) { return info_data(new extra_type_info_data(c, e, t)); }
 info_data mk_synth_info(unsigned c, expr const & e) { return info_data(new synth_info_data(c, e)); }
 info_data mk_overload_info(unsigned c, expr const & e) { return info_data(new overload_info_data(c, e)); }
@@ -219,13 +189,13 @@ info_data mk_proof_state_info(unsigned c, tactic_state const & s) { return info_
     return *it == get_tactic_type() || *it == get_tactic_expr_type() || *it == get_tactic_expr_list_type();
 }*/
 
-void info_manager::add_info(unsigned l, info_data data) {
-    info_data_set set = m_line_data[l];
-    set.insert(data);
-    m_line_data[l] = set;
+void info_manager::add_info(unsigned l, unsigned c, info_data data) {
+    line_info_data_set line_set = m_line_data[l];
+    line_set.insert(c, cons<info_data>(data, line_set[c]));
+    m_line_data.insert(l, line_set);
 }
 
-info_data_set info_manager::get_info_set(unsigned l) const {
+line_info_data_set info_manager::get_line_info_set(unsigned l) const {
     if (auto it = m_line_data.find(l))
         return *it;
     return {};
@@ -234,13 +204,13 @@ info_data_set info_manager::get_info_set(unsigned l) const {
 void info_manager::add_type_info(unsigned l, unsigned c, expr const & e) {
     //if (is_tactic_type(e))
     //    return;
-    add_info(l, mk_type_info(c, e));
+    add_info(l, c, mk_type_info(e));
 }
 
 void info_manager::add_identifier_info(unsigned l, unsigned c, name const & full_id) {
     //if (is_tactic_id(full_id))
     //    return;
-    add_info(l, mk_identifier_info(c, full_id));
+    add_info(l, c, mk_identifier_info(full_id));
 }
 
 /*
@@ -282,15 +252,18 @@ void info_manager::add_proof_state_info(unsigned l, unsigned c, tactic_state con
 }
 */
 
-buffer<json> info_manager::get_messages(environment const & env, options const & o, io_state const & ios, unsigned line,
-                                        optional<unsigned> const & col) const {
-    buffer<json> msgs;
-    get_info_set(line).for_each([&](info_data const & d) {
-            type_context tc(env, o);
-            io_state_stream out = regular(env, ios, tc).update_options(o);
-            if ((!col && d.is_cheap()) || (col && d.get_column() == *col))
-                msgs.push_back(d.get_message(out, line));
-        });
-    return msgs;
+json info_manager::get_info_record(environment const & env, options const & o, io_state const & ios, unsigned line,
+                                   unsigned col) const {
+    json record;
+    get_line_info_set(line).for_each([&](unsigned c, list<info_data> const & ds) {
+        if (c == col) {
+            for (auto const & d : ds) {
+                type_context tc(env, o);
+                io_state_stream out = regular(env, ios, tc).update_options(o);
+                d.add_info(out, record);
+            }
+        }
+    });
+    return record;
 }
 }

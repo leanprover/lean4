@@ -2304,6 +2304,7 @@ vm_state::profiler::~profiler() {
 auto vm_state::profiler::get_snapshots() -> snapshots {
     stop();
     snapshots r;
+    r.m_total_time = chrono::milliseconds(0);
     std::unordered_map<name, chrono::milliseconds, name_hash> cum_times;
     for (snapshot_core const & s : m_snapshots) {
         snapshot new_s;

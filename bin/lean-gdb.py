@@ -16,9 +16,9 @@ class LeanNamePrinter:
                 return s
 
         if not self.val['m_ptr']:
-            return "lean::name()"
+            return ""
         else:
-            return 'lean::name(%s)' % rec(self.val['m_ptr'].dereference())
+            return rec(self.val['m_ptr'].dereference())
 
 class LeanListPrinter:
     """Print a lean::list object."""

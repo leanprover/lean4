@@ -9,7 +9,7 @@ class LeanNamePrinter:
 
     def to_string(self):
         def rec(imp):
-            s = repr(imp['m_str'].string()) if imp['m_is_string'] else str(imp['m_k'])
+            s = ("'%s'" % imp['m_str'].string()) if imp['m_is_string'] else str(imp['m_k'])
             if imp['m_prefix']:
                 return "%s.%s" % (rec(imp['m_prefix'].dereference()), s)
             else:

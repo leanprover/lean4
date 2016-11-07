@@ -45,7 +45,7 @@
 
 (defun lean-get-info-record-at-point (cont)
   "Get info-record at the current point"
-  (lean-server-sync)
+  ;; TODO(sullrich): finding the start position should go into the server
   (let ((pos (lean-find-hname-beg)))
     (lean-server-send-command
      (list :command "info"

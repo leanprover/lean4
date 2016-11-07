@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
+REALPATH=realpath
+
 if [ $# -ne 3 -a $# -ne 2 ]; then
     echo "Usage: test_single.sh [lean-executable-path] [file] [yes/no]?"
     exit 1
 fi
 ulimit -s unlimited
 LEAN=$1
-export LEAN_PATH=../../../library:.
+ROOT_PATH=$($REALPATH ../../..)
+export LEAN_PATH=$ROOT_PATH/library:.
 if [ $# -ne 3 ]; then
     INTERACTIVE=no
 else
@@ -13,7 +16,12 @@ else
 fi
 f=$2
 echo "-- testing $f"
-"$LEAN" -D pp.unicode=true --server < "$f" > "$f.produced.out"
+
+OUTPUT="$("$LEAN" -D pp.unicode=true --server < "$f")"
+# make paths system-independent
+OUTPUT=${OUTPUT//$ROOT_PATH/}
+echo "$OUTPUT" > "$f.produced.out"
+
 if test -f "$f.expected.out"; then
     if diff --ignore-all-space "$f.produced.out" "$f.expected.out"; then
         echo "-- checked"

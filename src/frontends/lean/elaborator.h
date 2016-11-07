@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "library/type_context.h"
 #include "library/tactic/tactic_state.h"
 #include "frontends/lean/elaborator_exception.h"
-#include "info_manager.h"
+#include "frontends/lean/info_manager.h"
 
 namespace lean {
 enum class elaborator_strategy {

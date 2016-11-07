@@ -4,8 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Gabriel Ebner
 */
-#if defined(LEAN_SERVER)
-#include "json.h"
+#include "frontends/lean/json.h"
 
 namespace lean {
 
@@ -34,4 +33,3 @@ void json_message_stream::report(message const & msg) {
 }
 
 }
-#endif

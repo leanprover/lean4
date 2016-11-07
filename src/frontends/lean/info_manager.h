@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include <algorithm>
 #include <vector>
 #include "kernel/expr.h"
 #include "library/io_state_stream.h"
@@ -22,14 +23,13 @@ protected:
     friend info_data;
 public:
     virtual ~info_data_cell() {}
-    virtual void add_info(io_state_stream const & ios, json & record) const = 0;
+    virtual void report(io_state_stream const & ios, json & record) const = 0;
 };
 
 class info_data {
 private:
     info_data_cell * m_ptr;
 public:
-    //info_data();
     info_data(info_data_cell * c):m_ptr(c) { lean_assert(c); m_ptr->inc_ref(); }
     info_data(info_data const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
     info_data(info_data && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
@@ -37,8 +37,8 @@ public:
     friend void swap(info_data & a, info_data & b) { std::swap(a.m_ptr, b.m_ptr); }
     info_data & operator=(info_data const & s) { LEAN_COPY_REF(s); }
     info_data & operator=(info_data && s) { LEAN_MOVE_REF(s); }
-    void add_info(io_state_stream const & ios, json & record) const {
-        return m_ptr->add_info(ios, record);
+    void report(io_state_stream const & ios, json & record) const {
+        return m_ptr->report(ios, record);
     }
     info_data_cell const * raw() const { return m_ptr; }
 };

@@ -7,13 +7,14 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <vector>
 #include <set>
-#include <library/tactic/tactic_state.h>
-#include <frontends/lean/json.h>
-#include <util/lean_path.h>
+#include <string>
 #include "library/choice.h"
 #include "library/scoped_ext.h"
 #include "library/pp_options.h"
-#include "info_manager.h"
+#include "library/tactic/tactic_state.h"
+#include "frontends/lean/json.h"
+#include "frontends/lean/info_manager.h"
+#include "util/lean_path.h"
 
 namespace lean {
 class type_info_data : public info_data_cell {
@@ -24,7 +25,7 @@ public:
 
     expr const & get_type() const { return m_expr; }
 
-    virtual void add_info(io_state_stream const & ios, json & record) const {
+    virtual void report(io_state_stream const & ios, json & record) const override {
         std::ostringstream ss;
         ss << flatten(ios.get_formatter()(m_expr));
         record["type"] = ss.str();
@@ -43,7 +44,7 @@ class identifier_info_data : public info_data_cell {
 public:
     identifier_info_data(name const & full_id): m_full_id(full_id) {}
 
-    virtual void add_info(io_state_stream const & ios, json & record) const {
+    virtual void report(io_state_stream const & ios, json & record) const override {
         record["full-id"] = m_full_id.to_string();
         if (auto olean = get_decl_olean(ios.get_environment(), m_full_id))
             record["source"]["file"] = olean_file_to_lean_file(*olean);
@@ -169,7 +170,7 @@ class proof_state_info_data : public info_data_cell {
 public:
     proof_state_info_data(unsigned c, tactic_state const & s):info_data_cell(c), m_state(s) {}
     virtual info_kind kind() const { return info_kind::ProofState; }
-    virtual void add_info(io_state_stream const & ios, unsigned line) const {
+    virtual void report(io_state_stream const & ios, unsigned line) const {
         ios << "-- PROOF_STATE|" << line << "|" << get_column() << "\n";
         bool first = true;
         for (expr const & g : m_state.goals()) {
@@ -216,14 +217,14 @@ line_info_data_set info_manager::get_line_info_set(unsigned l) const {
 }
 
 void info_manager::add_type_info(unsigned l, unsigned c, expr const & e) {
-    //if (is_tactic_type(e))
-    //    return;
+    // if (is_tactic_type(e))
+    //     return;
     add_info(l, c, mk_type_info(e));
 }
 
 void info_manager::add_identifier_info(unsigned l, unsigned c, name const & full_id) {
-    //if (is_tactic_id(full_id))
-    //    return;
+    // if (is_tactic_id(full_id))
+    //     return;
     add_info(l, c, mk_identifier_info(full_id));
 }
 
@@ -262,7 +263,7 @@ static bool is_tactic_id(name const & id) {
 }
 
 void info_manager::add_proof_state_info(unsigned l, unsigned c, tactic_state const & s) {
-    add_info(l, mk_proof_state_info(c, s));
+    report(l, mk_proof_state_info(c, s));
 }
 */
 
@@ -274,7 +275,7 @@ json info_manager::get_info_record(environment const & env, options const & o, i
             for (auto const & d : ds) {
                 type_context tc(env, o);
                 io_state_stream out = regular(env, ios, tc).update_options(o);
-                d.add_info(out, record);
+                d.report(out, record);
             }
         }
     });

@@ -104,7 +104,7 @@ elaborator_strategy get_elaborator_strategy(environment const & env, name const 
 #define trace_elab_debug(CODE) lean_trace("elaborator_debug", scope_trace_env _scope(m_env, m_ctx); CODE)
 
 elaborator::elaborator(environment const & env, options const & opts, metavar_context const & mctx,
-                       local_context const & lctx, optional<info_manager> infom):
+                       local_context const & lctx, optional<info_manager> & infom):
     m_env(env), m_opts(opts),
     m_ctx(env, opts, mctx, lctx, get_tcm(), transparency_mode::Semireducible), m_infom(infom) {
     unsigned line, col;
@@ -656,8 +656,10 @@ expr elaborator::visit_const_core(expr const & e) {
 /** \brief Auxiliary function for saving information about which overloaded identifier was used by the elaborator. */
 void elaborator::save_identifier_info(expr const & f) {
     if (!m_no_info && m_infom && get_pos_info_provider() && is_constant(f)) {
-        if (auto p = get_pos_info_provider()->get_pos_info(f))
+        if (auto p = get_pos_info_provider()->get_pos_info(f)) {
             m_infom->add_identifier_info(p->first, p->second, const_name(f));
+            m_infom->add_type_info(p->first, p->second, infer_type(f));
+        }
     }
 }
 
@@ -680,7 +682,7 @@ expr elaborator::visit_function(expr const & fn, bool has_args, expr const & ref
     case expr_kind::Lambda:    r = visit_lambda(fn, none_expr()); break;
     case expr_kind::Let:       r = visit_let(fn, none_expr()); break;
     }
-    save_identifier_info(fn);
+    save_identifier_info(r);
     if (has_args)
         r = ensure_function(r, ref);
     return r;
@@ -2734,10 +2736,6 @@ elaborate(environment & env, options const & opts,
     auto p = elab.finalize(r, check_unassigned, true);
     mctx = elab.mctx();
     env  = elab.env();
-    if (infom) {
-        lean_assert(elab.infom());
-        infom = *elab.infom();
-    }
     return p;
 }
 
@@ -2781,7 +2779,9 @@ static expr translate(environment const & env, local_context const & lctx, expr 
 
 expr nested_elaborate(environment & env, options const & opts, metavar_context & mctx, local_context const & lctx,
                       expr const & e, bool relaxed) {
-    elaborator elab(env, opts, mctx, lctx);
+    // TODO(sullrich): pass through info_manager?
+    optional<info_manager> infom;
+    elaborator elab(env, opts, mctx, lctx, infom);
     expr r = elab.elaborate(translate(env, lctx, e));
     if (!relaxed)
         elab.ensure_no_unassigned_metavars(r);

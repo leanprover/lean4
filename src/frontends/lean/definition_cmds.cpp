@@ -144,7 +144,7 @@ environment mutual_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
     buffer<expr> fns, params;
     declaration_info_scope scope(p, kind, modifiers);
     expr val = parse_mutual_definition(p, lp_names, fns, params);
-    elaborator elab(p.env(), p.get_options(), metavar_context(), local_context());
+    elaborator elab(p.env(), p.get_options(), metavar_context(), local_context(), p.infom());
     buffer<expr> new_params;
     elaborate_params(elab, params, new_params);
     val = replace_locals_preserving_pos_info(val, params, new_params);
@@ -562,7 +562,7 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
     if (is_instance)
         attrs.set_attribute(p.env(), "instance");
     std::tie(fn, val) = parse_definition(p, lp_names, params, is_example, is_instance);
-    elaborator elab(p.env(), p.get_options(), metavar_context(), local_context());
+    elaborator elab(p.env(), p.get_options(), metavar_context(), local_context(), p.infom());
     buffer<expr> new_params;
     elaborate_params(elab, params, new_params);
     elab.set_instance_fingerprint();

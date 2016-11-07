@@ -286,7 +286,7 @@ class inductive_cmd_fn {
     void elaborate_inductive_decls(buffer<expr> const & params, buffer<expr> const & inds, buffer<buffer<expr> > const & intro_rules,
                                    buffer<expr> & new_params, buffer<expr> & new_inds, buffer<buffer<expr> > & new_intro_rules) {
         options opts = m_p.get_options();
-        elaborator elab(m_env, opts, metavar_context(), local_context());
+        elaborator elab(m_env, opts, metavar_context(), local_context(), m_p.infom());
 
         buffer<expr> params_no_inds;
         for (expr const & p : params) {

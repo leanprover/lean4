@@ -88,7 +88,7 @@ private:
     /* Position information for show goal feature */
     optional<pos_info> m_show_goal_pos;
 
-    optional<info_manager> m_infom;
+    optional<info_manager> & m_infom;
 
     expr get_default_numeral_type();
 
@@ -239,7 +239,7 @@ private:
     void unassigned_uvars_to_params(expr const & e);
 public:
     elaborator(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx,
-               optional<info_manager> infom = optional<info_manager>());
+               optional<info_manager> & infom);
     metavar_context const & mctx() const { return m_ctx.mctx(); }
     local_context const & lctx() const { return m_ctx.lctx(); }
     expr push_local(name const & n, expr const & type, binder_info const & bi = binder_info()) {

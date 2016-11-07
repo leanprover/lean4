@@ -42,3 +42,14 @@
          (with-output-to-temp-buffer lean-info-buffer-name . ,body)))))
 
 (provide 'lean-info)
+
+(defun lean-get-info-record-at-point (cont)
+  "Get info-record at the current point"
+  (lean-server-sync)
+  (lean-server-send-command
+   (list :command "info"
+         :line (line-number-at-pos)
+         :column (lean-line-offset))
+   (cl-function
+    (lambda (&key record)
+      (funcall cont record)))))

@@ -28,6 +28,7 @@
 (require 'lean-server)
 (require 'lean-flycheck)
 (require 'lean-info)
+(require 'lean-type)
 
 (defun lean-compile-string (exe-name args file-name)
   "Concatenate exe-name, args, and file-name"
@@ -121,6 +122,7 @@
     ["Execute lean"         lean-execute                      t]
     ["Create a new project" (call-interactively 'lean-project-create) (not (lean-project-inside-p))]
     "-----------------"
+    ["Show type info"       lean-show-type                    (and lean-eldoc-use eldoc-mode)]
     ["Show goal"            lean-show-goal-at-pos             t]
     ["Show id/keyword info" lean-show-id-keyword-info         t]
     ["Global tag search"    lean-global-search                t]
@@ -134,6 +136,8 @@
     ("Configuration"
      ["Use flycheck (on-the-fly syntax check)"
       lean-toggle-flycheck-mode :active t :style toggle :selected flycheck-mode]
+     ["Show type at point"
+      lean-toggle-eldoc-mode :active t :style toggle :selected eldoc-mode]
      ["Show next error in dedicated buffer"
       lean-next-error-mode :active t :style toggle :selected lean-next-error-mode])
     "-----------------"
@@ -175,6 +179,11 @@ enabled and disabled respectively.")
   ;; company-mode
   (when lean-company-use
     (company-lean-hook))
+  ;; eldoc
+  (when lean-eldoc-use
+    (set (make-local-variable 'eldoc-documentation-function)
+         'lean-eldoc-documentation-function)
+    (eldoc-mode t))
   ;; Draw a vertical line for rule-column
   (when (and lean-rule-column
              lean-show-rule-column-method)

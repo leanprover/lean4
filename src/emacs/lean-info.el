@@ -56,7 +56,8 @@
         (funcall cont record))))))
 
 (cl-defun lean-find-definition-cont (&key file line column)
-  (find-file file)
+  (when file
+    (find-file file))
   (goto-char (point-min))
   (forward-line (1- line))
   (forward-char column))

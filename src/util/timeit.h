@@ -37,13 +37,13 @@ public:
 class xtimeit {
     double     m_threshold; // we only display the result if time > m_threshold
     clock_t    m_start;
-    std::function<void(double)> m_fn;
+    std::function<void(double)> m_fn; // NOLINT
 public:
-    xtimeit(double threshold, std::function<void(double)> const & fn):
+    xtimeit(double threshold, std::function<void(double)> const & fn): // NOLINT
         m_threshold(threshold), m_fn(fn) {
         m_start = clock();
     }
-    xtimeit(std::function<void(double)> const & fn):xtimeit(-0.1, fn) {}
+    xtimeit(std::function<void(double)> const & fn):xtimeit(-0.1, fn) {} // NOLINT
     ~xtimeit() {
         clock_t end = clock();
         double result = ((static_cast<double>(end) - static_cast<double>(m_start)) / CLOCKS_PER_SEC);

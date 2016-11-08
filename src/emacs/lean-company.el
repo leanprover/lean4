@@ -258,7 +258,7 @@ triggers a completion immediately."
 ; (defun company-lean--findp-location (arg cb)
 ;   (lean-get-info-record-at-point
 ;    (lambda (info-record)
-;      (if-let ((source-record (plist-get info-record :source)))
+;      (-if-let (source-record (plist-get info-record :source))
 ;          (funcall cb (plist-get source-record :file) . (plist-get source-record :line))))))
 
 (defun company-lean--findp-annotation (candidate)

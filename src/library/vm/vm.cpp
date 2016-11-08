@@ -246,6 +246,8 @@ void vm_instr::display(std::ostream & out,
         break;
     case opcode::Pexpr:
         out << "pexpr " << *m_expr; break;
+    case opcode::LocalInfo:
+        out << "localinfo " << m_local_info->first << " @ " << m_local_idx; break;
     }
 }
 
@@ -346,6 +348,13 @@ vm_instr mk_num_instr(mpz const & v) {
 vm_instr mk_pexpr_instr(expr const & v) {
     vm_instr r(opcode::Pexpr);
     r.m_expr = new expr(v);
+    return r;
+}
+
+vm_instr mk_local_info_instr(unsigned idx, name const & n, optional<expr> const & e) {
+    vm_instr r(opcode::LocalInfo);
+    r.m_local_idx  = idx;
+    r.m_local_info = new vm_local_info(n, e);
     return r;
 }
 
@@ -459,6 +468,10 @@ void vm_instr::copy_args(vm_instr const & i) {
     case opcode::Pexpr:
         m_expr = new expr(*i.m_expr);
         break;
+    case opcode::LocalInfo:
+        m_local_idx  = i.m_local_idx;
+        m_local_info = new vm_local_info(*i.m_local_info);
+        break;
     case opcode::Ret:         case opcode::Destruct:
     case opcode::Unreachable: case opcode::Apply:
         break;
@@ -498,6 +511,9 @@ vm_instr::~vm_instr() {
         break;
     case opcode::Pexpr:
         delete m_expr;
+        break;
+    case opcode::LocalInfo:
+        delete m_local_info;
         break;
     default:
         break;
@@ -571,6 +587,9 @@ void vm_instr::serialize(serializer & s, std::function<name(unsigned)> const & i
     case opcode::Pexpr:
         s << *m_expr;
         break;
+    case opcode::LocalInfo:
+        s << m_local_idx << m_local_info->first << m_local_info->second;
+        break;
     case opcode::Ret:         case opcode::Destruct:
     case opcode::Unreachable: case opcode::Apply:
         break;
@@ -639,6 +658,12 @@ static vm_instr read_vm_instr(deserializer & d, name_map<unsigned> const & name2
         return mk_num_instr(read_mpz(d));
     case opcode::Pexpr:
         return mk_pexpr_instr(read_expr(d));
+    case opcode::LocalInfo: {
+        unsigned idx = d.read_unsigned();
+        name n; optional<expr> t;
+        d >> n >> t;
+        return mk_local_info_instr(idx, n, t);
+    }
     case opcode::Ret:
         return mk_ret_instr();
     case opcode::Destruct:
@@ -1913,6 +1938,10 @@ void vm_state::run() {
                                    e
             */
             m_stack.push_back(to_obj(instr.get_expr()));
+            m_pc++;
+            goto main_loop;
+        case opcode::LocalInfo:
+            /* TODO(Leo): debug mode */
             m_pc++;
             goto main_loop;
         case opcode::Destruct: {

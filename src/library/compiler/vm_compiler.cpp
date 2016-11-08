@@ -235,6 +235,13 @@ class vm_compiler_fn {
         }
     }
 
+    optional<expr> to_type_info(expr const & t) {
+        if (!is_neutral_expr(t) && closed(t))
+            return some_expr(t);
+        else
+            return none_expr();
+    }
+
     void compile_let(expr e, unsigned bpz, name_map<unsigned> const & m) {
         unsigned counter = 0;
         buffer<expr> locals;
@@ -242,6 +249,7 @@ class vm_compiler_fn {
         while (is_let(e)) {
             counter++;
             compile(instantiate_rev(let_value(e), locals.size(), locals.data()), bpz, new_m);
+            emit(mk_local_info_instr(bpz, let_name(e), to_type_info(let_type(e))));
             name n = mk_fresh_name();
             new_m.insert(n, bpz);
             locals.push_back(mk_local(n));
@@ -307,11 +315,7 @@ public:
             m.insert(n, i);
             locals.push_back(mk_local(n));
             bpz++;
-            if (!is_neutral_expr(binding_domain(e)) && closed(binding_domain(e))) {
-                args_info = cons(vm_local_info(binding_name(e), some_expr(binding_domain(e))), args_info);
-            } else {
-                args_info = cons(vm_local_info(binding_name(e), none_expr()), args_info);
-            }
+            args_info = cons(vm_local_info(binding_name(e), to_type_info(binding_domain(e))), args_info);
             e = binding_body(e);
         }
         e = instantiate_rev(e, locals.size(), locals.data());

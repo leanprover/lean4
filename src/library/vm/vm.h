@@ -224,13 +224,15 @@ typedef vm_obj (*vm_cfunction_N)(unsigned n, vm_obj const *);
     the data stored in the object in the buffer \c data. */
 typedef unsigned (*vm_cases_function)(vm_obj const & o, buffer<vm_obj> & data);
 
+typedef pair<name, optional<expr>> vm_local_info;
+
 /** \brief VM instruction opcode */
 enum class opcode {
     Push, Ret, Drop, Goto,
     SConstructor, Constructor, Num,
     Destruct, Cases2, CasesN, NatCases, BuiltinCases, Proj,
     Apply, InvokeGlobal, InvokeBuiltin, InvokeCFun,
-    Closure, Unreachable, Pexpr
+    Closure, Unreachable, Pexpr, LocalInfo
 };
 
 /** \brief VM instructions */
@@ -263,6 +265,11 @@ class vm_instr {
         mpz * m_mpz;
         /* Pexpr */
         expr * m_expr;
+        /* LocalInfo */
+        struct {
+            unsigned        m_local_idx;
+            vm_local_info * m_local_info;
+        };
     };
     /* Apply, Ret, Destruct and Unreachable do not have arguments */
     friend vm_instr mk_push_instr(unsigned idx);
@@ -285,6 +292,7 @@ class vm_instr {
     friend vm_instr mk_invoke_builtin_instr(unsigned fn_idx);
     friend vm_instr mk_closure_instr(unsigned fn_idx, unsigned n);
     friend vm_instr mk_pexpr_instr(expr const & e);
+    friend vm_instr mk_local_info_instr(unsigned idx, name const & n, optional<expr> const & e);
 
     void copy_args(vm_instr const & i);
 public:
@@ -384,6 +392,16 @@ public:
         return *m_expr;
     }
 
+    unsigned get_local_idx() const {
+        lean_assert(m_op == opcode::LocalInfo);
+        return m_local_idx;
+    }
+
+    vm_local_info const & get_local_info() const {
+        lean_assert(m_op == opcode::LocalInfo);
+        return *m_local_info;
+    }
+
     unsigned get_num_pcs() const;
     unsigned get_pc(unsigned i) const;
     void set_pc(unsigned i, unsigned pc);
@@ -416,13 +434,12 @@ vm_instr mk_invoke_cfun_instr(unsigned fn_idx);
 vm_instr mk_invoke_builtin_instr(unsigned fn_idx);
 vm_instr mk_closure_instr(unsigned fn_idx, unsigned n);
 vm_instr mk_pexpr_instr(expr const & e);
+vm_instr mk_local_info_instr(unsigned idx, name const & n, optional<expr> const & e);
 
 class vm_state;
 class vm_instr;
 
 enum class vm_decl_kind { Bytecode, Builtin, CFun };
-
-typedef pair<name, optional<expr>> vm_local_info;
 
 /** \brief VM function/constant declaration cell */
 struct vm_decl_cell {

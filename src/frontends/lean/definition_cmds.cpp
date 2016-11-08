@@ -218,15 +218,14 @@ static expr_pair elaborate_definition_core(elaborator & elab, def_cmd_kind kind,
 
 static expr_pair elaborate_definition(parser & p, elaborator & elab, def_cmd_kind kind, expr const & fn, expr const & val, pos_info const & pos) {
     if (p.profiling()) {
-        auto msg = p.mk_message(pos, INFORMATION);
-        msg << "elaboration time for " << fn;
-        expr_pair result;
-        {
-            timeit timer(msg.get_text_stream().get_stream(), "", LEAN_PROFILE_THRESHOLD);
-            result = elaborate_definition_core(elab, kind, fn, val);
-        }
-        msg.report();
-        return result;
+        xtimeit timer(LEAN_PROFILE_THRESHOLD, [&](double duration) {
+                auto msg = p.mk_message(pos, INFORMATION);
+                msg.get_text_stream().get_stream()
+                    << "elaboration time for " << fn << " "
+                    << std::fixed << std::setprecision(5) << duration << " secs\n";
+                msg.report();
+            });
+        return elaborate_definition_core(elab, kind, fn, val);
     } else {
         return elaborate_definition_core(elab, kind, fn, val);
     }
@@ -262,14 +261,14 @@ static pair<environment, name> mk_real_name(environment const & env, name const 
 
 static certified_declaration check(parser & p, environment const & env, name const & c_name, declaration const & d, pos_info const & pos) {
     if (p.profiling()) {
-        auto msg = p.mk_message(pos, INFORMATION);
-        msg << "type checking time for " << c_name;
-        std::shared_ptr<timeit> timer = std::make_shared<timeit>(
-                msg.get_text_stream().get_stream(), "", LEAN_PROFILE_THRESHOLD);
-        auto result = ::lean::check(env, d);
-        timer.reset();
-        msg.report();
-        return result;
+        xtimeit timer(LEAN_PROFILE_THRESHOLD, [&](double duration) {
+                auto msg = p.mk_message(pos, INFORMATION);
+                msg.get_text_stream().get_stream()
+                    << "type checking time for " << c_name << " "
+                    << std::fixed << std::setprecision(5) << duration << " secs\n";
+                msg.report();
+            });
+        return ::lean::check(env, d);
     } else {
         return ::lean::check(env, d);
     }

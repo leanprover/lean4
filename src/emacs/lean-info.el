@@ -56,6 +56,7 @@
         (funcall cont record))))))
 
 (cl-defun lean-find-definition-cont (&key file line column)
+  (when (fboundp 'xref-push-marker-stack) (xref-push-marker-stack))
   (when file
     (find-file file))
   (goto-char (point-min))

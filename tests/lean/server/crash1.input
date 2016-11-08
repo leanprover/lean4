@@ -1,0 +1,6 @@
+{"command":"sync","file_name":"c:/Users/leonardo/projects/lean/build/debug/tst.lean","content":"def f : nat → nat\n| 0     := 0\n| (n+1) := f n + f n\n\nopen tactic\n\n\n\nmeta def tac : tactic unit :=\ndo x ← target,\n   y ← infer_type x >>= whnf,\n   trace y,\n   return ()\n"}
+{"command":"check"}
+{"command":"sync","file_name":"c:/Users/leonardo/projects/lean/build/debug/tst.lean","content":"def f : nat → nat\n| 0     := 0\n| (n+1) := f n + f n\n\nopen tactic\n\nset_option trace.compiler\n\nmeta def tac : tactic unit :=\ndo x ← target,\n   y ← infer_type x >>= whnf,\n   trace y,\n   return ()\n"}
+{"command":"check"}
+{"command":"sync","file_name":"c:/Users/leonardo/projects/lean/build/debug/tst.lean","content":"def f : nat → nat\n| 0     := 0\n| (n+1) := f n + f n\n\nopen tactic\n\nset_option trace.compiler true\n\nmeta def tac : tactic unit :=\ndo x ← target,\n   y ← infer_type x >>= whnf,\n   trace y,\n   return ()\n"}
+{"command":"check"}

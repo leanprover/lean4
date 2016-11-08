@@ -2007,8 +2007,8 @@ expr parser::parse_tactic(unsigned) {
 
 /** \brief Helper class for creating type context only if needed */
 class lazy_type_context : public abstract_type_context {
-    environment const & m_env;
-    options const & m_opts;
+    environment m_env;
+    options     m_opts;
     std::unique_ptr<type_context> m_ctx;
     type_context & ctx() {
         if (!m_ctx)

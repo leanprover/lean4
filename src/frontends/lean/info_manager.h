@@ -23,7 +23,9 @@ protected:
     friend info_data;
 public:
     virtual ~info_data_cell() {}
+#ifdef LEAN_SERVER
     virtual void report(io_state_stream const & ios, json & record) const = 0;
+#endif
 };
 
 class info_data {
@@ -37,10 +39,12 @@ public:
     friend void swap(info_data & a, info_data & b) { std::swap(a.m_ptr, b.m_ptr); }
     info_data & operator=(info_data const & s) { LEAN_COPY_REF(s); }
     info_data & operator=(info_data && s) { LEAN_MOVE_REF(s); }
+    info_data_cell const * raw() const { return m_ptr; }
+#ifdef LEAN_SERVER
     void report(io_state_stream const & ios, json & record) const {
         return m_ptr->report(ios, record);
     }
-    info_data_cell const * raw() const { return m_ptr; }
+#endif
 };
 
 typedef rb_map<unsigned, list<info_data>, unsigned_cmp> line_info_data_set;
@@ -62,7 +66,9 @@ public:
     void add_proof_state_info(unsigned l, unsigned c, tactic_state const & s);
     */
 
+#ifdef LEAN_SERVER
     json get_info_record(environment const & env, options const & o, io_state const & ios, unsigned line,
                          unsigned col) const;
+#endif
 };
 }

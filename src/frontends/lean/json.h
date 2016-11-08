@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Gabriel Ebner
 */
+#ifdef LEAN_SERVER
 #pragma once
 #include "library/messages.h"
 #include "util/json.hpp"
@@ -25,3 +26,4 @@ public:
 };
 
 }
+#endif

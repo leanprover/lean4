@@ -25,11 +25,13 @@ public:
 
     expr const & get_type() const { return m_expr; }
 
+#ifdef LEAN_SERVER
     virtual void report(io_state_stream const & ios, json & record) const override {
         std::ostringstream ss;
         ss << flatten(ios.get_formatter()(m_expr));
         record["type"] = ss.str();
     }
+#endif
 };
 
 std::string olean_file_to_lean_file(std::string const & olean) {
@@ -44,6 +46,7 @@ class identifier_info_data : public info_data_cell {
 public:
     identifier_info_data(name const & full_id): m_full_id(full_id) {}
 
+#ifdef LEAN_SERVER
     virtual void report(io_state_stream const & ios, json & record) const override {
         record["full-id"] = m_full_id.to_string();
         if (auto olean = get_decl_olean(ios.get_environment(), m_full_id))
@@ -53,6 +56,7 @@ public:
             record["source"]["column"] = pos->second;
         }
     }
+#endif
 };
 
 /*
@@ -267,6 +271,7 @@ void info_manager::add_proof_state_info(unsigned l, unsigned c, tactic_state con
 }
 */
 
+#ifdef LEAN_SERVER
 json info_manager::get_info_record(environment const & env, options const & o, io_state const & ios, unsigned line,
                                    unsigned col) const {
     json record;
@@ -281,4 +286,5 @@ json info_manager::get_info_record(environment const & env, options const & o, i
     });
     return record;
 }
+#endif
 }

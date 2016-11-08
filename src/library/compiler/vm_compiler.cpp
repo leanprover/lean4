@@ -294,24 +294,30 @@ public:
     vm_compiler_fn(environment const & env, buffer<vm_instr> & code):
         m_env(env), m_code(code) {}
 
-    unsigned operator()(expr e) {
+    pair<unsigned, list<vm_local_info>> operator()(expr e) {
         buffer<expr> locals;
         unsigned bpz   = 0;
         unsigned arity = get_arity(e);
         unsigned i     = arity;
         name_map<unsigned> m;
+        list<vm_local_info> args_info;
         while (is_lambda(e)) {
             name n = mk_fresh_name();
             i--;
             m.insert(n, i);
             locals.push_back(mk_local(n));
             bpz++;
+            if (!is_neutral_expr(binding_domain(e)) && closed(binding_domain(e))) {
+                args_info = cons(vm_local_info(binding_name(e), some_expr(binding_domain(e))), args_info);
+            } else {
+                args_info = cons(vm_local_info(binding_name(e), none_expr()), args_info);
+            }
             e = binding_body(e);
         }
         e = instantiate_rev(e, locals.size(), locals.data());
         compile(e, bpz, m);
         emit(mk_ret_instr());
-        return arity;
+        return mk_pair(arity, args_info);
     }
 };
 
@@ -323,13 +329,15 @@ static environment vm_compile(environment const & env, buffer<pair<name, expr>> 
     for (auto const & p : procs) {
         buffer<vm_instr> code;
         vm_compiler_fn gen(new_env, code);
-        unsigned arity = gen(p.second);
+        list<vm_local_info> args_info;
+        unsigned arity;
+        std::tie(arity, args_info) = gen(p.second);
         lean_trace(name({"compiler", "code_gen"}), tout() << " " << p.first << " " << arity << "\n";
                    display_vm_code(tout().get_stream(), new_env, code.size(), code.data()););
         optimize(new_env, code);
         lean_trace(name({"compiler", "optimize_bytecode"}), tout() << " " << p.first << " " << arity << "\n";
                    display_vm_code(tout().get_stream(), new_env, code.size(), code.data()););
-        new_env = update_vm_code(new_env, p.first, code.size(), code.data());
+        new_env = update_vm_code(new_env, p.first, code.size(), code.data(), args_info);
     }
     return new_env;
 }

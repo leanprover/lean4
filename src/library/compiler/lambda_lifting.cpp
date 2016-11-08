@@ -56,7 +56,7 @@ class lambda_lifting_fn : public compiler_step_visitor {
         type_context::tmp_locals locals(m_ctx);
         expr t = e;
         while (is_lambda(t)) {
-            lean_assert(is_neutral_expr(binding_domain(t)));
+            lean_assert(is_neutral_expr(binding_domain(t)) || closed(binding_domain(t)));
             locals.push_local(binding_name(t), binding_domain(t), binding_info(t));
             t = binding_body(t);
         }
@@ -100,7 +100,7 @@ class lambda_lifting_fn : public compiler_step_visitor {
         type_context::tmp_locals locals(m_ctx);
         expr t = e;
         while (is_let(t)) {
-            lean_assert(is_neutral_expr(let_type(t)));
+            lean_assert(is_neutral_expr(let_type(t)) || closed(let_type(t)));
             expr v = visit(instantiate_rev(let_value(t), locals.size(), locals.data()));
             locals.push_let(let_name(t), let_type(t), v);
             t = let_body(t);

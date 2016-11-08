@@ -89,11 +89,18 @@ class erase_irrelevant_fn : public compiler_step_visitor {
         }
     }
 
+    expr erase_type(expr const & e) {
+        if (closed(e))
+            return e; // keep closed types for runtime debugger
+        else
+            return *g_neutral_expr;
+    }
+
     expr erase_lambda_let_types(expr const & e) {
         if (is_lambda(e)) {
-            return mk_lambda(binding_name(e), *g_neutral_expr, erase_lambda_let_types(binding_body(e)));
+            return mk_lambda(binding_name(e), erase_type(binding_domain(e)), erase_lambda_let_types(binding_body(e)));
         } else if (is_let(e)) {
-            return mk_let(let_name(e), *g_neutral_expr, let_value(e), erase_lambda_let_types(let_body(e)));
+            return mk_let(let_name(e), erase_type(let_type(e)), let_value(e), erase_lambda_let_types(let_body(e)));
         } else {
             return e;
         }

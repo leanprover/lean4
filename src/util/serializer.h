@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "util/buffer.h"
 #include "util/int64.h"
 #include "util/optional.h"
+#include "util/pair.h"
 
 namespace lean {
 /**
@@ -45,6 +46,8 @@ inline serializer & operator<<(serializer & s, int i) { s.write_int(i); return s
 inline serializer & operator<<(serializer & s, char c) { s.write_char(c); return s; }
 inline serializer & operator<<(serializer & s, bool b) { s.write_bool(b); return s; }
 inline serializer & operator<<(serializer & s, double b) { s.write_double(b); return s; }
+template<typename T1, typename T2>
+inline serializer & operator<<(serializer & s, pair<T1, T2> const & p) { s << p.first << p.second; return s; }
 
 /**
    \brief Low-tech serializer.
@@ -78,6 +81,9 @@ inline deserializer & operator>>(deserializer & d, int & i) { i = d.read_int(); 
 inline deserializer & operator>>(deserializer & d, char & c) { c = d.read_char(); return d; }
 inline deserializer & operator>>(deserializer & d, bool & b) { b = d.read_bool(); return d; }
 inline deserializer & operator>>(deserializer & d, double & b) { b = d.read_double(); return d; }
+template<typename T1, typename T2>
+inline deserializer & operator>>(deserializer & d, pair<T1, T2> & p) { d >> p.first >> p.second; return d; }
+
 
 class corrupted_stream_exception : public exception {
 public:

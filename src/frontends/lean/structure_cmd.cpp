@@ -840,6 +840,7 @@ struct structure_cmd_fn {
 
     environment operator()() {
         process_header();
+        module::scope_pos_info scope(m_name_pos);
         if (m_p.curr_is_token(get_assign_tk())) {
             m_p.check_token_next(get_assign_tk(), "invalid 'structure', ':=' expected");
             m_mk_pos = m_p.pos();

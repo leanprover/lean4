@@ -15,11 +15,15 @@ bool is_const_app(expr const & e, name const & n, unsigned nargs) {
 }
 
 bool is_zero(expr const & e) {
-    return is_const_app(e, get_zero_name(), 2);
+    return
+        is_const_app(e, get_zero_name(), 2) ||
+        is_constant(e, get_nat_zero_name());
 }
 
 bool is_one(expr const & e) {
-    return is_const_app(e, get_one_name(), 2);
+    return
+        is_const_app(e, get_one_name(), 2) ||
+        (is_const_app(e, get_nat_succ_name(), 1) && is_zero(app_arg(e)));
 }
 
 optional<expr> is_bit0(expr const & e) {

@@ -174,6 +174,9 @@ public:
         expr v = d.get_value();
         lean_trace(name({"compiler", "input"}), tout() << "\n" << v << "\n";);
         v = fix_tactic_eval_expr(v);
+        v = inline_simple_definitions(m_env, v);
+        lean_cond_assert("compiler", check(d, v));
+        lean_trace(name({"compiler", "inline"}), tout() << "\n" << v << "\n";);
         v = expand_aux(m_env, v);
         lean_cond_assert("compiler", check(d, v));
         lean_trace(name({"compiler", "expand_aux"}), tout() << "\n" << v << "\n";);
@@ -187,11 +190,6 @@ public:
         v = simp_pr1_rec(m_env, v);
         lean_cond_assert("compiler", check(d, v));
         lean_trace(name({"compiler", "simplify_pr1"}), tout() << "\n" << v << "\n";);
-        v = inline_simple_definitions(m_env, v);
-        lean_cond_assert("compiler", check(d, v));
-        lean_trace(name({"compiler", "inline"}), tout() << "\n" << v << "\n";);
-        v = mark_comp_irrelevant_subterms(m_env, v);
-        lean_cond_assert("compiler", check(d, v));
         v = elim_recursors(m_env, d.get_name(), v, procs);
         procs.emplace_back(d.get_name(), v);
         lean_cond_assert("compiler", check(d, procs.back().second));

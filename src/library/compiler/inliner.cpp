@@ -90,6 +90,8 @@ class inline_simple_definitions_fn : public compiler_step_visitor {
         } else {
             major_idx       = *inductive::get_elim_major_idx(env(), rec_name);
         }
+        if (major_idx >= args.size())
+            return e;
         expr major = beta_reduce(args[major_idx]);
         if (is_constructor_app(env(), major)) {
             /* Major premise became a constructor. So, we should reduce. */
@@ -138,15 +140,9 @@ class inline_simple_definitions_fn : public compiler_step_visitor {
                 return visit(*r);
         }
 
-        /*
-          TODO(Leo): this is not safe here.
-          Reason: we may put recursors have have been eliminated in previous steps.
-          We need to move this code to a different place, or make sure
-          that we can recursors will be eliminated later
         if (auto r = ctx().reduce_projection(e)) {
             return visit(*r);
         }
-        */
 
         return default_visit_app(e);
     }

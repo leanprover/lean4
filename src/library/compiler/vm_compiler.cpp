@@ -13,12 +13,14 @@ Author: Leonardo de Moura
 #include "library/annotation.h"
 #include "library/util.h"
 #include "library/quote.h"
+#include "library/replace_visitor.h"
 #include "library/vm/vm.h"
 #include "library/vm/optimize.h"
 #include "library/compiler/simp_inductive.h"
 #include "library/compiler/erase_irrelevant.h"
 #include "library/compiler/nat_value.h"
 #include "library/compiler/preprocess.h"
+#include "library/compiler/comp_irrelevant.h"
 
 namespace lean {
 class vm_compiler_fn {
@@ -235,11 +237,21 @@ class vm_compiler_fn {
         }
     }
 
+    class elim_comp_irrelevant_marks_fn : public replace_visitor {
+        virtual expr visit_macro(expr const & e) override {
+            if (is_marked_as_comp_irrelevant(e))
+                return visit(get_annotation_arg(e));
+            else
+                return replace_visitor::visit_macro(e);
+        }
+    };
+
     optional<expr> to_type_info(expr const & t) {
-        if (!is_neutral_expr(t) && closed(t))
-            return some_expr(t);
-        else
+        if (!is_neutral_expr(t) && closed(t) && !has_param_univ(t)) {
+            return some_expr(elim_comp_irrelevant_marks_fn()(t));
+        } else {
             return none_expr();
+        }
     }
 
     void compile_let(expr e, unsigned bpz, name_map<unsigned> const & m) {

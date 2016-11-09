@@ -1758,6 +1758,7 @@ unsigned vm_state::pop_frame() {
 
 void vm_state::invoke_global(vm_decl const & d) {
 #if 0
+    std::cout << d.get_name() << "\n";
     for (auto info : d.get_args_info()) {
         std::cout << info.first << " : ";
         if (info.second)
@@ -1766,6 +1767,7 @@ void vm_state::invoke_global(vm_decl const & d) {
             std::cout << "none";
         std::cout << "\n";
     }
+    std::cout << "----------\n";
 #endif
     push_frame(d.get_arity(), m_pc+1, d.get_idx());
     m_code            = d.get_code();

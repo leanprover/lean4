@@ -35,8 +35,10 @@ public:
     }
     virtual unsigned trust_level() const { return 0; }
     virtual bool operator==(macro_definition_cell const & other) const {
-        quote_macro const * other_ptr = dynamic_cast<quote_macro const *>(&other);
-        return other_ptr && m_value == other_ptr->m_value;
+        /* Hack: we do *not* compare m_value's because quoted expressions may contain
+           relevant position information that is ignored by the equality predicate for expressions.
+        */
+        return this == &other;
     }
     virtual void display(std::ostream & out) const {
         out << "`(" << m_value << ")";

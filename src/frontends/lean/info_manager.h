@@ -23,6 +23,7 @@ protected:
     friend info_data;
 public:
     virtual ~info_data_cell() {}
+    virtual void instantiate_mvars(metavar_context const &) {}
 #ifdef LEAN_SERVER
     virtual void report(io_state_stream const & ios, json & record) const = 0;
 #endif
@@ -45,6 +46,9 @@ public:
         return m_ptr->report(ios, record);
     }
 #endif
+    void instantiate_mvars(metavar_context const & mctx) const {
+        m_ptr->instantiate_mvars(mctx);
+    }
 };
 
 typedef rb_map<unsigned, list<info_data>, unsigned_cmp> line_info_data_set;
@@ -58,6 +62,8 @@ public:
     void add_type_info(unsigned l, unsigned c, expr const & e);
     void add_identifier_info(unsigned l, unsigned c, name const & full_id);
     void add_tactic_state_info(unsigned l, unsigned c, tactic_state const & s);
+    void instantiate_mvars(metavar_context const & mctx);
+    void merge(info_manager const & info);
     /*void add_extra_type_info(unsigned l, unsigned c, expr const & e, expr const & t);
     void add_synth_info(unsigned l, unsigned c, expr const & e);
     void add_overload_info(unsigned l, unsigned c, expr const & e);

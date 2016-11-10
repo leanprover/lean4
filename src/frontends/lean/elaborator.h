@@ -33,6 +33,7 @@ private:
     environment       m_env;
     options           m_opts;
     type_context      m_ctx;
+    info_manager      m_info;
 
     list<expr>        m_instances;
     list<expr>        m_numeral_types;
@@ -47,6 +48,7 @@ private:
 
     struct snapshot {
         metavar_context        m_saved_mctx;
+        info_manager           m_saved_info;
         list<expr>             m_saved_instances;
         list<expr>             m_saved_numeral_types;
         list<expr_pair>        m_saved_tactics;

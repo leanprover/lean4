@@ -25,6 +25,10 @@ public:
 
     expr const & get_type() const { return m_expr; }
 
+    virtual void instantiate_mvars(metavar_context const & mctx) override {
+        m_expr = metavar_context(mctx).instantiate_mvars(m_expr);
+    }
+
 #ifdef LEAN_SERVER
     virtual void report(io_state_stream const & ios, json & record) const override {
         std::ostringstream ss;
@@ -214,6 +218,29 @@ line_info_data_set info_manager::get_line_info_set(unsigned l) const {
     if (auto it = m_line_data.find(l))
         return *it;
     return {};
+}
+
+void info_manager::instantiate_mvars(metavar_context const & mctx) {
+    m_line_data.for_each([&](unsigned, line_info_data_set const & set) {
+            set.for_each([&](unsigned, list<info_data> const & data) {
+                    for (info_data const & info : data)
+                        info.instantiate_mvars(mctx);
+                });
+        });
+}
+
+void info_manager::merge(info_manager const & info) {
+    info.m_line_data.for_each([&](unsigned line, line_info_data_set const & set) {
+            set.for_each([&](unsigned col, list<info_data> const & data) {
+                    buffer<info_data> b;
+                    to_buffer(data, b);
+                    unsigned i = b.size();
+                    while (i > 0) {
+                        --i;
+                        add_info(line, col, b[i]);
+                    }
+                });
+        });
 }
 
 void info_manager::add_type_info(unsigned l, unsigned c, expr const & e) {

@@ -1,0 +1,3 @@
+{"message":"new file name, reloading","response":"ok"}
+{"is_ok":true,"messages":[],"response":"ok"}
+{"record":{"full-id":"foo.f","source":{"column":4,"line":1},"type":"ℕ → ℕ"},"response":"ok"}

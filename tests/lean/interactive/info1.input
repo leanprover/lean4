@@ -1,0 +1,3 @@
+{"command":"sync","file_name":"\/home\/leo\/projects\/lean\/tests\/lean\/interactive\/info1.lean","content":"def foo.f : nat \u2192 nat := \u03bb x, x\ndef bla.f : string \u2192 string := \u03bb x, x\nopen foo bla\nexample : nat :=\nf 0\n"}
+{"command":"check"}
+{"command":"info","line":5,"column":0}

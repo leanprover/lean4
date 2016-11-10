@@ -120,8 +120,13 @@ elaborator::elaborator(environment const & env, options const & opts, metavar_co
 }
 
 elaborator::~elaborator() {
-    if (m_owns_infom)
+    if (g_infom) {
+        m_info.instantiate_mvars(m_ctx.mctx());
+        g_infom->merge(m_info);
+    }
+    if (m_owns_infom) {
         g_infom = nullptr;
+    }
 }
 
 auto elaborator::mk_pp_ctx() -> pp_fn {
@@ -666,10 +671,10 @@ expr elaborator::visit_const_core(expr const & e) {
 
 /** \brief Auxiliary function for saving information about which overloaded identifier was used by the elaborator. */
 void elaborator::save_identifier_info(expr const & f) {
-    if (!m_no_info && g_infom && get_pos_info_provider() && is_constant(f)) {
+    if (!m_no_info && g_infom && get_pos_info_provider() && (is_constant(f) || is_local(f))) {
         if (auto p = get_pos_info_provider()->get_pos_info(f)) {
-            g_infom->add_identifier_info(p->first, p->second, const_name(f));
-            g_infom->add_type_info(p->first, p->second, infer_type(f));
+            m_info.add_identifier_info(p->first, p->second, is_constant(f) ? const_name(f) : local_pp_name(f));
+            m_info.add_type_info(p->first, p->second, infer_type(f));
         }
     }
 }
@@ -1517,8 +1522,35 @@ static expr get_equations_fn_type(expr const & eqns) {
     return binding_domain(eqs[0]);
 }
 
-static expr instantiate_rev(expr const & e, type_context::tmp_locals const & locals) {
-    return instantiate_rev(e, locals.as_buffer().size(), locals.as_buffer().data());
+/** \brief Similar to instantiate_rev, but assumes that subst contains only local constants.
+    When replacing a variable with a local, we copy the local constant and inherit the tag
+    associated with the variable. This is a trick for preserving position information. */
+static expr instantiate_rev_locals(expr const & a, unsigned n, expr const * subst) {
+    if (closed(a))
+        return a;
+    auto fn = [=](expr const & m, unsigned offset) -> optional<expr> {
+        if (offset >= get_free_var_range(m))
+            return some_expr(m); // expression m does not contain free variables with idx >= offset
+        if (is_var(m)) {
+            unsigned vidx = var_idx(m);
+            if (vidx >= offset) {
+                unsigned h = offset + n;
+                if (h < offset /* overflow, h is bigger than any vidx */ || vidx < h) {
+                    expr local = subst[n - (vidx - offset) - 1];
+                    lean_assert(is_local(local));
+                    return some_expr(copy_tag(m, copy(local)));
+                } else {
+                    return some_expr(copy_tag(m, mk_var(vidx - n)));
+                }
+            }
+        }
+        return none_expr();
+    };
+    return replace(a, fn);
+}
+
+static expr instantiate_rev_locals(expr const & e, type_context::tmp_locals const & locals) {
+    return instantiate_rev_locals(e, locals.as_buffer().size(), locals.as_buffer().data());
 }
 
 static expr update_equations_fn_type(expr const & eqns, expr const & new_fn_type) {
@@ -1565,7 +1597,7 @@ expr elaborator::visit_convoy(expr const & e, optional<expr> const & expected_ty
         for (unsigned i = 0; i < args.size(); i++) {
             if (!is_pi(it))
                 throw elaborator_exception(it, "type expected in match-expression");
-            expr d        = instantiate_rev(binding_domain(it), locals);
+            expr d        = instantiate_rev_locals(binding_domain(it), locals);
             expr new_d    = visit(d, none_expr());
             expr ref_d    = get_ref_for_child(binding_domain(it), it);
             new_d         = ensure_type(new_d, ref_d);
@@ -1589,7 +1621,7 @@ expr elaborator::visit_convoy(expr const & e, optional<expr> const & expected_ty
             }
             new_fn_type = locals.mk_pi(new_fn_type);
         } else {
-            expr b      = instantiate_rev(it, locals);
+            expr b      = instantiate_rev_locals(it, locals);
             expr new_b  = visit(b, none_expr());
             synthesize();
             new_fn_type = locals.mk_pi(instantiate_mvars(new_b));
@@ -2062,7 +2094,7 @@ expr elaborator::visit_lambda(expr const & e, optional<expr> const & expected_ty
             if (!is_pi(ex))
                 has_expected = false;
         }
-        expr d     = instantiate_rev(binding_domain(it), locals);
+        expr d     = instantiate_rev_locals(binding_domain(it), locals);
         expr new_d = visit(d, none_expr());
         if (has_expected) {
             expr ex_d = binding_domain(ex);
@@ -2077,7 +2109,7 @@ expr elaborator::visit_lambda(expr const & e, optional<expr> const & expected_ty
             ex = instantiate(binding_body(ex), l);
         }
     }
-    expr b = instantiate_rev(it, locals);
+    expr b = instantiate_rev_locals(it, locals);
     expr new_b;
     if (has_expected) {
         new_b = visit(b, some_expr(ex));
@@ -2094,7 +2126,7 @@ expr elaborator::visit_pi(expr const & e) {
     expr it  = e;
     expr parent_it = e;
     while (is_pi(it)) {
-        expr d     = instantiate_rev(binding_domain(it), locals);
+        expr d     = instantiate_rev_locals(binding_domain(it), locals);
         expr new_d = visit(d, none_expr());
         expr ref_d = get_ref_for_child(binding_domain(it), it);
         new_d      = ensure_type(new_d, ref_d);
@@ -2103,7 +2135,7 @@ expr elaborator::visit_pi(expr const & e) {
         parent_it  = it;
         it         = binding_body(it);
     }
-    expr b     = instantiate_rev(it, locals);
+    expr b     = instantiate_rev_locals(it, locals);
     expr new_b = visit(b, none_expr());
     expr ref_b = get_ref_for_child(it, parent_it);
     new_b      = ensure_type(new_b, ref_b);
@@ -2125,7 +2157,7 @@ expr elaborator::visit_let(expr const & e, optional<expr> const & expected_type)
     ensure_no_unassigned_metavars(new_value);
     type_context::tmp_locals locals(m_ctx);
     push_let(locals, let_name(e), new_type, new_value, ref);
-    expr body      = instantiate_rev(let_body(e), locals);
+    expr body      = instantiate_rev_locals(let_body(e), locals);
     expr new_body  = visit(body, expected_type);
     expr new_e     = locals.mk_lambda(new_body);
     return new_e;
@@ -2163,7 +2195,7 @@ expr elaborator::visit_have_expr(expr const & e, optional<expr> const & expected
     type_context::tmp_locals locals(m_ctx);
     expr ref        = binding_domain(lambda);
     push_local(locals, binding_name(lambda), new_type, binding_info(lambda), ref);
-    expr body       = instantiate_rev(binding_body(lambda), locals);
+    expr body       = instantiate_rev_locals(binding_body(lambda), locals);
     expr new_body   = visit(body, expected_type);
     expr new_lambda = locals.mk_lambda(new_body);
     return mk_app(mk_have_annotation(new_lambda), new_proof);
@@ -2184,7 +2216,7 @@ expr elaborator::visit_suffices_expr(expr const & e, optional<expr> const & expe
         type_context::tmp_locals locals(m_ctx);
         expr ref        = binding_domain(fn);
         push_local(locals, binding_name(fn), new_type, binding_info(fn), ref);
-        expr body       = instantiate_rev(binding_body(fn), locals);
+        expr body       = instantiate_rev_locals(binding_body(fn), locals);
         expr new_body   = visit(body, expected_type);
         synthesize();
         new_fn          = locals.mk_lambda(new_body);
@@ -2304,7 +2336,7 @@ void elaborator::add_tactic_state_info(tactic_state const & s, expr const & ref)
     pos_info_provider * pip = get_pos_info_provider();
     if (!pip) return;
     if (auto p = pip->get_pos_info(ref))
-        g_infom->add_tactic_state_info(p->first, p->second, s);
+        m_info.add_tactic_state_info(p->first, p->second, s);
 }
 
 tactic_state elaborator::mk_tactic_state_for(expr const & mvar) {
@@ -2561,6 +2593,7 @@ void elaborator::ensure_no_unassigned_metavars(expr const & e) {
 
 elaborator::snapshot::snapshot(elaborator const & e) {
     m_saved_mctx               = e.m_ctx.mctx();
+    m_saved_info               = e.m_info;
     m_saved_instances          = e.m_instances;
     m_saved_numeral_types      = e.m_numeral_types;
     m_saved_tactics            = e.m_tactics;
@@ -2569,6 +2602,7 @@ elaborator::snapshot::snapshot(elaborator const & e) {
 
 void elaborator::snapshot::restore(elaborator & e) {
     e.m_ctx.set_mctx(m_saved_mctx);
+    e.m_info               = m_saved_info;
     e.m_instances          = m_saved_instances;
     e.m_numeral_types      = m_saved_numeral_types;
     e.m_tactics            = m_saved_tactics;

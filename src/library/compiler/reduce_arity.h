@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "kernel/environment.h"
+#include "library/compiler/procedure.h"
 namespace lean {
 /** \brief Try to reduce the arity of auxiliary declarations in procs.
     It assumes all but the last entry are auxiliary declarations.
@@ -15,5 +16,5 @@ namespace lean {
 
     \remark This step does not rely on type information. That is,
     the input expressions don't need to be type checkable. */
-void reduce_arity(environment const & env, buffer<pair<name, expr>> & procs);
+void reduce_arity(environment const & env, buffer<procedure> & procs);
 }

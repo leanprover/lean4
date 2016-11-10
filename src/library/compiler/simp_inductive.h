@@ -6,13 +6,13 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "kernel/environment.h"
-
+#include "library/compiler/procedure.h"
 namespace lean {
 /** \brief Replaces cases_on, projections and constructor applications with _cases.idx, _proj.idx and _cnstr.idx
     It also removes irrelevant fields from constructors.
     \remark nat.cases_on, nat.succ and nat.zero are ignored. */
 expr simp_inductive(environment const & env, expr const & e);
-void simp_inductive(environment const & env, buffer<pair<name, expr>> & procs);
+void simp_inductive(environment const & env, buffer<procedure> & procs);
 
 /** \brief Return non-none idx iff \c e is of the form _cnstr.idx */
 optional<unsigned> is_internal_cnstr(expr const & e);

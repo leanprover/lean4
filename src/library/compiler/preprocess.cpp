@@ -8,6 +8,8 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/replace_fn.h"
 #include "kernel/instantiate.h"
+#include "kernel/for_each_fn.h"
+#include "library/scope_pos_info_provider.h"
 #include "library/trace.h"
 #include "library/projection.h"
 #include "library/constants.h"
@@ -15,8 +17,10 @@ Author: Leonardo de Moura
 #include "library/user_recursors.h"
 #include "library/util.h"
 #include "library/quote.h"
+#include "library/module.h"
 #include "library/vm/vm.h"
 #include "library/compiler/util.h"
+#include "library/compiler/preprocess.h"
 #include "library/compiler/compiler_step_visitor.h"
 #include "library/compiler/comp_irrelevant.h"
 #include "library/compiler/nat_value.h"
@@ -96,10 +100,10 @@ class expand_aux_fn : public compiler_step_visitor {
         case recursor_kind::NotRecursor: {
             if (is_not_vm_function(e) && !ctx().is_proof(e)) {
                 if (auto r = unfold_term(env(), e)) {
-                    return visit(*r);
+                    return visit(copy_tag(e, expr(*r)));
                 }
             }
-            expr new_e = ctx().whnf_pred(e, [&](expr const &) { return false; });
+            expr new_e = copy_tag(e, ctx().whnf_pred(e, [&](expr const &) { return false; }));
             if (is_eqp(new_e, e))
                 return compiler_step_visitor::visit_app(new_e);
             else
@@ -108,7 +112,7 @@ class expand_aux_fn : public compiler_step_visitor {
         case recursor_kind::CasesOn:
             return visit_cases_on(e);
         case recursor_kind::Aux:
-            return compiler_step_visitor::visit(ctx().whnf_pred(e, [&](expr const & e) { return is_aux_recursor(e); }));
+            return compiler_step_visitor::visit(copy_tag(e, ctx().whnf_pred(e, [&](expr const & e) { return is_aux_recursor(e); })));
         }
         lean_unreachable();
     }
@@ -135,7 +139,7 @@ expr fix_tactic_eval_expr(expr const & e) {
                 if (!closed(args[0]) || has_local(args[0]))
                     throw exception("invalid tactic.eval_expr application, type must be a closed term");
                 args[1] = mk_quote(args[0]);
-                return some_expr(mk_app(get_app_fn(e), args));
+                return some_expr(copy_tag(e, mk_app(get_app_fn(e), args)));
             }
             return none_expr();
         });
@@ -154,23 +158,42 @@ class preprocess_fn {
         return true;
     }
 
-    void display(buffer<pair<name, expr>> const & procs) {
+    void display(buffer<procedure> const & procs) {
         for (auto const & p : procs) {
-            tout() << ">> " << p.first << "\n" << p.second << "\n";
+            tout() << ">> " << p.m_name << "\n" << p.m_code << "\n";
         }
     }
 
-    void erase_irrelevant(buffer<pair<name, expr>> & procs) {
-        for (pair<name, expr> & p : procs) {
-            p.second = ::lean::erase_irrelevant(m_env, p.second);
+    void erase_irrelevant(buffer<procedure> & procs) {
+        for (procedure & p : procs) {
+            p.m_code = ::lean::erase_irrelevant(m_env, p.m_code);
         }
     }
+
+#if 0
+    void dump_pos_info(expr const & v) {
+        std::cout << v << "\n\n";
+        for_each(v, [&](expr const & e, unsigned) {
+                auto pip = get_pos_info_provider();
+                if (!pip) return false;
+                if (auto p = pip->get_pos_info(e))
+                    std::cout << "pos[" << ((unsigned)e.kind()) << "]: " << p->first << ":" << p->second << "\n"
+                              << e << "\n";
+                return true;
+            });
+        std::cout << "------------\n";
+    }
+
+    void dump_pos_info(buffer<pair<name, expr>> & procs) {
+        for (auto p : procs) dump_pos_info(p.second);
+    }
+#endif
 
 public:
     preprocess_fn(environment const & env):
         m_env(env) {}
 
-    void operator()(declaration const & d, buffer<pair<name, expr>> & procs) {
+    void operator()(declaration const & d, buffer<procedure> & procs) {
         expr v = d.get_value();
         lean_trace(name({"compiler", "input"}), tout() << "\n" << v << "\n";);
         v = fix_tactic_eval_expr(v);
@@ -191,8 +214,8 @@ public:
         lean_cond_assert("compiler", check(d, v));
         lean_trace(name({"compiler", "simplify_pr1"}), tout() << "\n" << v << "\n";);
         v = elim_recursors(m_env, d.get_name(), v, procs);
-        procs.emplace_back(d.get_name(), v);
-        lean_cond_assert("compiler", check(d, procs.back().second));
+        procs.emplace_back(d.get_name(), get_decl_pos_info(m_env, d.get_name()), v);
+        lean_cond_assert("compiler", check(d, procs.back().m_code));
         lean_trace(name({"compiler", "elim_recursors"}), tout() << "\n"; display(procs););
         erase_irrelevant(procs);
         lean_trace(name({"compiler", "erase_irrelevant"}), tout() << "\n"; display(procs););
@@ -206,7 +229,7 @@ public:
     }
 };
 
-void preprocess(environment const & env, declaration const & d, buffer<pair<name, expr>> & result) {
+void preprocess(environment const & env, declaration const & d, buffer<procedure> & result) {
     return preprocess_fn(env)(d, result);
 }
 

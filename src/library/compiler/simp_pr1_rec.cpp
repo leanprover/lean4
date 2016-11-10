@@ -53,7 +53,7 @@ class simp_pr1_rec_fn : public compiler_step_visitor {
                 if (args.size() >= 3 && is_rec_arg(args[2])) {
                     for (unsigned i = 3; i < args.size(); i++)
                         args[i] = visit(args[i]);
-                    return mk_app(args[2], args.size() - 3, args.data() + 3);
+                    return copy_tag(e, mk_app(args[2], args.size() - 3, args.data() + 3));
                 }
             }
             return replace_visitor::visit_app(e);
@@ -176,7 +176,7 @@ class simp_pr1_rec_fn : public compiler_step_visitor {
 
     virtual expr visit_app(expr const & e) {
         if (auto r = simplify(e))
-            return *r;
+            return copy_tag(e, expr(*r));
         else
             return compiler_step_visitor::visit_app(e);
     }

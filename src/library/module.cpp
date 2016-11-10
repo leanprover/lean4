@@ -200,6 +200,12 @@ optional<pos_info> get_decl_pos_info(environment const & env, name const & decl_
         return optional<pos_info>();
 }
 
+environment add_transient_decl_pos_info(environment const & env, name const & decl_name, pos_info const & pos) {
+    module_ext ext = get_extension(env);
+    ext.m_decl2pos_info.insert(decl_name, pos);
+    return update(env, ext);
+}
+
 static void pos_info_reader(deserializer & d, shared_environment &,
                             std::function<void(asynch_update_fn const &)> &,
                             std::function<void(delayed_update_fn const &)> & add_delayed_update) {
@@ -207,9 +213,7 @@ static void pos_info_reader(deserializer & d, shared_environment &,
     unsigned line, column;
     d >> decl_name >> line >> column;
     add_delayed_update([=](environment const & env, io_state const &) -> environment {
-            module_ext ext = get_extension(env);
-            ext.m_decl2pos_info.insert(decl_name, mk_pair(line, column));
-            return update(env, ext);
+            return add_transient_decl_pos_info(env, decl_name, pos_info(line, column));
         });
 }
 

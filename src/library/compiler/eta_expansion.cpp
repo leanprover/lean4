@@ -19,7 +19,7 @@ class eta_expand_fn : public compiler_step_visitor {
         expr t = ctx().whnf(ctx().infer(e));
         if (!is_pi(t))
             return none_expr();
-        expr r = mk_lambda(name("x"), binding_domain(t), mk_app(e, mk_var(0)));
+        expr r = copy_tag(e, mk_lambda(name("x"), binding_domain(t), mk_app(e, mk_var(0))));
         return some_expr(visit(r));
     }
 
@@ -34,7 +34,7 @@ class eta_expand_fn : public compiler_step_visitor {
         if (is_marked_as_comp_irrelevant(e))
             return e;
         else if (auto r = expand_core(e))
-            return *r;
+            return copy_tag(e, expr(*r));
         else
             return compiler_step_visitor::visit_macro(e);
     }
@@ -60,7 +60,7 @@ class eta_expand_fn : public compiler_step_visitor {
             if (!modified)
                 return e;
             else
-                return mk_app(f, args);
+                return copy_tag(e, mk_app(f, args));
         }
     }
 

@@ -10,16 +10,33 @@ Author: Leonardo de Moura
 #include "kernel/inductive/inductive.h"
 #include "library/normalize.h"
 #include "library/util.h"
+#include "library/scope_pos_info_provider.h"
+#include "library/module.h"
 #include "library/vm/vm.h"
 #include "library/compiler/util.h"
 #include "library/compiler/erase_irrelevant.h"
 #include "library/compiler/compiler_step_visitor.h"
+#include "library/compiler/procedure.h"
 
 namespace lean {
 class lambda_lifting_fn : public compiler_step_visitor {
-    buffer<pair<name, expr>> m_new_procs;
-    name                     m_prefix;
-    unsigned                 m_idx;
+    buffer<procedure> m_new_procs;
+    name              m_prefix;
+    unsigned          m_idx;
+
+    optional<pos_info> get_pos_info(expr e) {
+        pos_info_provider * pip = get_pos_info_provider();
+        if (!pip) {
+            /* Try position for main application */
+            return get_decl_pos_info(m_ctx.env(), m_prefix);
+        }
+        while (is_lambda(e)) {
+            if (auto r = pip->get_pos_info(e))
+                return r;
+            e = binding_body(e);
+        }
+        return get_decl_pos_info(m_ctx.env(), m_prefix);
+    }
 
     expr declare_aux_def(expr const & value) {
         /* Try to avoid unnecessary aux decl by
@@ -35,7 +52,7 @@ class lambda_lifting_fn : public compiler_step_visitor {
                 return new_value;
         }
         name aux_name = mk_fresh_name(env(), m_prefix, "_lambda", m_idx);
-        m_new_procs.emplace_back(aux_name, value);
+        m_new_procs.emplace_back(aux_name, get_pos_info(value), value);
         return mk_constant(aux_name);
     }
 
@@ -62,7 +79,7 @@ class lambda_lifting_fn : public compiler_step_visitor {
         }
         t = instantiate_rev(t, locals.size(), locals.data());
         t = visit(t);
-        return locals.mk_lambda(t);
+        return copy_tag(e, locals.mk_lambda(t));
     }
 
     expr abstract_locals(expr e, buffer<expr> & locals) {
@@ -172,18 +189,18 @@ public:
         compiler_step_visitor(env), m_prefix(prefix), m_idx(1) {
     }
 
-    void operator()(buffer<pair<name, expr>> & procs) {
+    void operator()(buffer<procedure> & procs) {
         for (auto p : procs) {
-            expr val     = p.second;
+            expr val     = p.m_code;
             expr new_val = is_lambda(val) ? visit_lambda_core(val) : visit(val);
-            m_new_procs.emplace_back(p.first, new_val);
+            m_new_procs.emplace_back(p.m_name, p.m_pos, new_val);
         }
         procs.clear();
         procs.append(m_new_procs);
     }
 };
 
-void lambda_lifting(environment const & env, name const & prefix, buffer<pair<name, expr>> & procs) {
+void lambda_lifting(environment const & env, name const & prefix, buffer<procedure> & procs) {
     return lambda_lifting_fn(env, prefix)(procs);
 }
 }

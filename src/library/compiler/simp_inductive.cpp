@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "library/compiler/util.h"
 #include "library/compiler/erase_irrelevant.h"
 #include "library/compiler/compiler_step_visitor.h"
+#include "library/compiler/procedure.h"
 
 namespace lean {
 static name * g_cases = nullptr;
@@ -270,10 +271,10 @@ expr simp_inductive(environment const & env, expr const & e) {
     return simp_inductive_fn(env)(e);
 }
 
-void simp_inductive(environment const & env, buffer<pair<name, expr>> & procs) {
+void simp_inductive(environment const & env, buffer<procedure> & procs) {
     simp_inductive_fn fn(env);
     for (auto & proc : procs)
-        proc.second = fn(proc.second);
+        proc.m_code = fn(proc.m_code);
 }
 
 void initialize_simp_inductive() {

@@ -6,8 +6,8 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "kernel/environment.h"
-
+#include "library/compiler/procedure.h"
 namespace lean {
 /** \brief Eliminate recursor applications */
-expr elim_recursors(environment & env, name const & prefix, expr const & e, buffer<pair<name, expr>> & new_decls);
+expr elim_recursors(environment & env, name const & prefix, expr const & e, buffer<procedure> & new_decls);
 }

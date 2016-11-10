@@ -105,7 +105,7 @@ class inline_simple_definitions_fn : public compiler_step_visitor {
             }
             /* reduce */
             if (auto r = ctx().norm_ext(new_e))
-                return compiler_step_visitor::visit(beta_reduce(*r));
+                return copy_tag(e_0, compiler_step_visitor::visit(beta_reduce(*r)));
         }
         return e;
     }
@@ -137,7 +137,7 @@ class inline_simple_definitions_fn : public compiler_step_visitor {
 
         if (is_inline(env(), n) || is_simple_application(v)) {
             if (auto r = unfold_term(env(), e))
-                return visit(*r);
+                return visit(copy_tag(e, expr(*r)));
         }
 
         if (auto r = ctx().reduce_projection(e)) {

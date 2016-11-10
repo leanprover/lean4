@@ -12,7 +12,7 @@ namespace lean {
 static name * g_comp_irrel = nullptr;
 
 expr mark_comp_irrelevant(expr const & e) {
-    return mk_annotation(*g_comp_irrel, e);
+    return copy_tag(e, mk_annotation(*g_comp_irrel, e));
 }
 
 bool is_marked_as_comp_irrelevant(expr const & e) {

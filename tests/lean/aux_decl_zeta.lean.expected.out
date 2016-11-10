@@ -1,4 +1,4 @@
-aux_decl_zeta.lean:6:0: error: equation compiler failed to create auxiliary declaration 'f._match_1', auxiliary declaration has references to let-declarations (possible solution: use 'set_option eqn_compiler.zeta true')
+aux_decl_zeta.lean:11:48: error: equation compiler failed to create auxiliary declaration 'f._match_1', auxiliary declaration has references to let-declarations (possible solution: use 'set_option eqn_compiler.zeta true')
 nested exception message:
 type mismatch at application
   x = w
@@ -8,4 +8,3 @@ has type
   vec ℕ n
 but is expected to have type
   vec ℕ 10
-aux_decl_zeta.lean:16:0: error: invalid object declaration, environment already has an object named 'f'

@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "kernel/environment.h"
-
 namespace lean {
 /** \brief Erase irrelevant terms (e.g., proofs, types, eq.rec, subtypes, etc).
     The parameters, motive and indices are also erased from cases_on applications.

@@ -10,22 +10,24 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "kernel/inductive/inductive.h"
 #include "library/locals.h"
+#include "library/module.h"
 #include "library/util.h"
 #include "library/trace.h"
 #include "library/normalize.h"
 #include "library/compiler/util.h"
+#include "library/compiler/procedure.h"
 #include "library/compiler/comp_irrelevant.h"
 #include "library/compiler/compiler_step_visitor.h"
 #include "library/compiler/rec_fn_macro.h"
 
 namespace lean {
 class elim_recursors_fn : public compiler_step_visitor {
-    name                       m_prefix;
-    unsigned                   m_idx;
-    buffer<pair<name, expr>> & m_new_decls;
+    name                m_prefix;
+    unsigned            m_idx;
+    buffer<procedure> & m_new_decls;
 protected:
     expr declare_aux_def(name const & n, expr const & value) {
-        m_new_decls.emplace_back(n, value);
+        m_new_decls.emplace_back(n, get_decl_pos_info(m_ctx.env(), m_prefix), value);
         /* We should use a new type checker because m_env is updated by this object.
            It is safe to use type_checker because value does not contain local_decl_ref objects. */
         level_param_names ps = to_level_param_names(collect_univ_params(value));
@@ -253,13 +255,13 @@ protected:
     }
 
 public:
-    elim_recursors_fn(environment const & env, name const & prefix, buffer<pair<name, expr>> & new_decls):
+    elim_recursors_fn(environment const & env, name const & prefix, buffer<procedure> & new_decls):
         compiler_step_visitor(env), m_prefix(prefix), m_idx(1), m_new_decls(new_decls) {}
 
     environment const & env() const { return m_env; }
 };
 
-expr elim_recursors(environment & env, name const & prefix, expr const & e, buffer<pair<name, expr>> & new_decls) {
+expr elim_recursors(environment & env, name const & prefix, expr const & e, buffer<procedure> & new_decls) {
     elim_recursors_fn fn(env, prefix, new_decls);
     expr new_e = fn(e);
     env = fn.env();

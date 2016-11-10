@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "library/trace.h"
 #include "library/compiler/rec_fn_macro.h"
+#include "library/compiler/procedure.h"
 #include "library/compiler/compiler_step_visitor.h"
 
 namespace lean {
@@ -19,7 +20,7 @@ static expr reduce_arity_of(expr const & e, unsigned i, std::vector<bool> const 
     lean_assert(is_lambda(e));
     expr new_body = reduce_arity_of(binding_body(e), i+1, keep_bv);
     if (keep_bv[i])
-        return mk_lambda(binding_name(e), binding_domain(e), new_body);
+        return copy_tag(e, mk_lambda(binding_name(e), binding_domain(e), new_body));
     else
         return lower_free_vars(new_body, 1);
 }
@@ -62,12 +63,12 @@ public:
         compiler_step_visitor(env), m_to_reduce(to_reduce) {}
 };
 
-void reduce_arity(environment const & env, buffer<pair<name, expr>> & procs) {
+void reduce_arity(environment const & env, buffer<procedure> & procs) {
     lean_assert(!procs.empty());
     /* Store in to_reduce a bit-vector indicating which arguments are used by each (auxiliary) function. */
     name_map<std::vector<bool>> to_reduce;
     for (unsigned i = 0; i < procs.size() - 1; i++) {
-        expr fn = procs[i].second;
+        expr fn = procs[i].m_code;
         std::vector<bool> keep_bv;
         bool reduced = false;
         while (is_lambda(fn)) {
@@ -81,23 +82,23 @@ void reduce_arity(environment const & env, buffer<pair<name, expr>> & procs) {
             fn = body;
         }
         if (reduced) {
-            to_reduce.insert(procs[i].first, keep_bv);
+            to_reduce.insert(procs[i].m_name, keep_bv);
         }
     }
     if (to_reduce.empty())
         return;
     /* reduce arity of functions at to_reduce */
     for (unsigned i = 0; i < procs.size() - 1; i++) {
-        pair<name, expr> & d = procs[i];
-        if (std::vector<bool> const * bv = to_reduce.find(d.first)) {
-            d.second = reduce_arity_of(d.second, 0, *bv);
+        procedure & d = procs[i];
+        if (std::vector<bool> const * bv = to_reduce.find(d.m_name)) {
+            d.m_code = reduce_arity_of(d.m_code, 0, *bv);
         }
     }
     /* reduce irrelevant application arguments */
     remove_args_fn remove_args(env, to_reduce);
     for (unsigned i = 0; i < procs.size(); i++) {
-        pair<name, expr> & d = procs[i];
-        d.second = remove_args(d.second);
+        procedure & d = procs[i];
+        d.m_code = remove_args(d.m_code);
     }
 }
 }

@@ -66,6 +66,10 @@ optional<std::string> get_decl_olean(environment const & env, name const & decl_
 /** \brief Return position (line and column number) where the given declaration was defined. */
 optional<pos_info> get_decl_pos_info(environment const & env, name const & decl_name);
 
+/** \brief Associate the given position with the given declaration. The information is not saved on
+    .olean files. We use this function for attaching position information to temporary functions. */
+environment add_transient_decl_pos_info(environment const & env, name const & decl_name, pos_info const & pos);
+
 /** \brief Store/Export module using \c env to the output stream \c out. */
 void export_module(std::ostream & out, environment const & env);
 

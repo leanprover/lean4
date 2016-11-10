@@ -30,6 +30,7 @@ Author: Leonardo de Moura
 #include "library/locals.h"
 #include "library/private.h"
 #include "library/attribute_manager.h"
+#include "library/module.h"
 #include "library/vm/vm.h"
 #include "library/compiler/rec_fn_macro.h"
 #include "library/compiler/vm_compiler.h"
@@ -2198,21 +2199,21 @@ expr elaborator::visit(expr const & e, optional<expr> const & expected_type) {
     if (is_placeholder(e)) {
         return visit_placeholder(e, expected_type);
     } else if (is_have_expr(e)) {
-        return visit_have_expr(e, expected_type);
+        return copy_tag(e, visit_have_expr(e, expected_type));
     } else if (is_suffices_annotation(e)) {
-        return visit_suffices_expr(e, expected_type);
+        return copy_tag(e, visit_suffices_expr(e, expected_type));
     } else {
         switch (e.kind()) {
         case expr_kind::Var:        lean_unreachable();  // LCOV_EXCL_LINE
         case expr_kind::Meta:       return e;
-        case expr_kind::Sort:       return visit_sort(e);
-        case expr_kind::Local:      return visit_local(e, expected_type);
-        case expr_kind::Constant:   return visit_constant(e, expected_type);
-        case expr_kind::Macro:      return visit_macro(e, expected_type, false);
-        case expr_kind::Lambda:     return visit_lambda(e, expected_type);
-        case expr_kind::Pi:         return visit_pi(e);
-        case expr_kind::App:        return visit_app(e, expected_type);
-        case expr_kind::Let:        return visit_let(e, expected_type);
+        case expr_kind::Sort:       return copy_tag(e, visit_sort(e));
+        case expr_kind::Local:      return copy_tag(e, visit_local(e, expected_type));
+        case expr_kind::Constant:   return copy_tag(e, visit_constant(e, expected_type));
+        case expr_kind::Macro:      return copy_tag(e, visit_macro(e, expected_type, false));
+        case expr_kind::Lambda:     return copy_tag(e, visit_lambda(e, expected_type));
+        case expr_kind::Pi:         return copy_tag(e, visit_pi(e));
+        case expr_kind::App:        return copy_tag(e, visit_app(e, expected_type));
+        case expr_kind::Let:        return copy_tag(e, visit_let(e, expected_type));
         }
         lean_unreachable(); // LCOV_EXCL_LINE
     }
@@ -2340,6 +2341,8 @@ tactic_state elaborator::execute_tactic(expr const & tactic, tactic_state const 
     bool is_trusted      = false;
     auto cd = check(new_env, mk_definition(new_env, tactic_name, {}, tactic_type, tactic, use_conv_opt, is_trusted));
     new_env = new_env.add(cd);
+    if (auto pos = provider->get_pos_info(tactic))
+        new_env = add_transient_decl_pos_info(new_env, tactic_name, *pos);
     new_env = vm_compile(new_env, new_env.get(tactic_name));
 
     /* Invoke tactic */

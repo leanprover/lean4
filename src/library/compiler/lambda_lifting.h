@@ -6,9 +6,9 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "kernel/environment.h"
-
+#include "library/compiler/procedure.h"
 namespace lean {
 /** \brief Lift lambda expressions in \c procs. New declarations are added to procs.
     \remark This procedure assumes erase_irrelevant was already applied. */
-void lambda_lifting(environment const & env, name const & prefix, buffer<pair<name, expr>> & procs);
+void lambda_lifting(environment const & env, name const & prefix, buffer<procedure> & procs);
 };

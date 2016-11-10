@@ -6,14 +6,13 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "kernel/environment.h"
-
+#include "library/compiler/procedure.h"
 namespace lean {
 /** \brief Expand user-defined and auxiliary recursors, simplify declaration,
     put definition in eta-expanded normal form, and
     eliminate nested (recursive) recursor applications.
-    Each nested recursive application becomes a new definition.
-*/
-void preprocess(environment const & env, declaration const & d, buffer<pair<name, expr>> & result);
+    Nested recurse applications become new procedures. */
+void preprocess(environment const & env, declaration const & d, buffer<procedure> & result);
 
 void initialize_preprocess();
 void finalize_preprocess();

@@ -29,7 +29,7 @@ expr replace_visitor_with_tc::visit_lambda_pi_let(bool is_lam, expr const & e) {
     }
     t = instantiate_rev(t, locals.size(), locals.data());
     t = visit(t);
-    return is_lam ? locals.mk_lambda(t) : locals.mk_pi(t);
+    return is_lam ? copy_tag(e, locals.mk_lambda(t)) : copy_tag(e, locals.mk_pi(t));
 }
 
 expr replace_visitor_with_tc::visit_app(expr const & e) {
@@ -46,6 +46,6 @@ expr replace_visitor_with_tc::visit_app(expr const & e) {
     if (!modified)
         return e;
     else
-        return mk_app(new_fn, args);
+        return copy_tag(e, mk_app(new_fn, args));
 }
 }

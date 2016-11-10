@@ -337,30 +337,30 @@ public:
     }
 };
 
-static environment vm_compile(environment const & env, buffer<pair<name, expr>> const & procs) {
+static environment vm_compile(environment const & env, buffer<procedure> const & procs) {
     environment new_env = env;
     for (auto const & p : procs) {
-        new_env = reserve_vm_index(new_env, p.first, p.second);
+        new_env = reserve_vm_index(new_env, p.m_name, p.m_code);
     }
     for (auto const & p : procs) {
         buffer<vm_instr> code;
         vm_compiler_fn gen(new_env, code);
         list<vm_local_info> args_info;
         unsigned arity;
-        std::tie(arity, args_info) = gen(p.second);
-        lean_trace(name({"compiler", "code_gen"}), tout() << " " << p.first << " " << arity << "\n";
+        std::tie(arity, args_info) = gen(p.m_code);
+        lean_trace(name({"compiler", "code_gen"}), tout() << " " << p.m_name << " " << arity << "\n";
                    display_vm_code(tout().get_stream(), new_env, code.size(), code.data()););
         optimize(new_env, code);
-        lean_trace(name({"compiler", "optimize_bytecode"}), tout() << " " << p.first << " " << arity << "\n";
+        lean_trace(name({"compiler", "optimize_bytecode"}), tout() << " " << p.m_name << " " << arity << "\n";
                    display_vm_code(tout().get_stream(), new_env, code.size(), code.data()););
-        new_env = update_vm_code(new_env, p.first, code.size(), code.data(), args_info);
+        new_env = update_vm_code(new_env, p.m_name, code.size(), code.data(), args_info);
     }
     return new_env;
 }
 
 environment vm_compile(environment const & env, declaration const & d) {
     if (!d.is_definition()) return env;
-    buffer<pair<name, expr>> procs;
+    buffer<procedure> procs;
     preprocess(env, d, procs);
     return vm_compile(env, procs);
 }

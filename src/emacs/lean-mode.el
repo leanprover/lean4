@@ -52,19 +52,6 @@
               (or arg "")
               (shell-quote-argument (f-full target-file-name))))))
 
-(defun lean-show-goal-at-pos ()
-  "Show goal at the current point."
-  (interactive)
-  (lean-server-sync)
-  (lean-server-send-command
-   (list :command "show_goal"
-         :line (line-number-at-pos)
-         :col (current-column))
-   (cl-function
-    (lambda (&key state) (with-output-to-lean-info (princ state))))
-   (cl-function
-    (lambda (&key message) (with-output-to-lean-info (princ message))))))
-
 (defun lean-std-exe ()
   (interactive)
   (lean-execute))

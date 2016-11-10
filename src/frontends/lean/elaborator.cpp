@@ -110,10 +110,6 @@ elaborator::elaborator(environment const & env, options const & opts, metavar_co
                        local_context const & lctx, optional<info_manager> & infom):
     m_env(env), m_opts(opts),
     m_ctx(env, opts, mctx, lctx, get_tcm(), transparency_mode::Semireducible), m_owns_infom(infom) {
-    unsigned line, col;
-    if (has_show_goal(m_opts, line, col)) {
-        m_show_goal_pos = pos_info(line, col);
-    }
     if (infom) {
         g_infom = &*infom;
     }
@@ -2348,26 +2344,6 @@ tactic_state elaborator::mk_tactic_state_for(expr const & mvar) {
     return ::lean::mk_tactic_state_for(m_env, m_opts, mctx, lctx, type);
 }
 
-void elaborator::show_goal(tactic_state const & s, expr const & start_ref, expr const & end_ref, expr const & curr_ref) {
-    if (!m_show_goal_pos) return;
-    pos_info_provider * provider = get_pos_info_provider();
-    if (!provider) return;
-    unsigned line  = m_show_goal_pos->first;
-    unsigned col   = m_show_goal_pos->second;
-    auto start_pos = provider->get_pos_info(start_ref);
-    auto end_pos   = provider->get_pos_info(end_ref);
-    auto curr_pos  = provider->get_pos_info(curr_ref);
-    if (!start_pos || !end_pos || !curr_pos)
-        return;
-    if (start_pos->first > line || (start_pos->first == line && start_pos->second > col))
-        return;
-    if (end_pos->first < line || (end_pos->first == line && end_pos->second < col))
-        return;
-    if (curr_pos->first < line || (curr_pos->first == line && curr_pos->second < col))
-        return;
-    throw show_goal_exception(*curr_pos, s);
-}
-
 /* Apply the given tactic to the state 's'.
    Report any errors detected during the process using position information associated with 'ref'. */
 tactic_state elaborator::execute_tactic(expr const & tactic, tactic_state const & s, expr const & ref) {
@@ -2411,8 +2387,6 @@ tactic_state elaborator::execute_tactic(expr const & tactic, tactic_state const 
 
 tactic_state elaborator::execute_begin_end_tactics(buffer<expr> const & tactics, tactic_state const & s, expr const & ref) {
     lean_assert(!tactics.empty());
-    expr start_ref = tactics[0];
-    expr end_ref   = ref;
     list<expr> gs = s.goals();
     if (!gs) throw elaborator_exception(ref, "tactic failed, there are no goals to be solved");
     tactic_state new_s = set_goals(s, to_list(head(gs)));
@@ -2420,7 +2394,6 @@ tactic_state elaborator::execute_begin_end_tactics(buffer<expr> const & tactics,
         expr const & curr_ref = tactic;
         trace_elab_debug(tout() << "executing tactic:\n" << tactic << "\n";);
         if (is_begin_end_element(tactic)) {
-            show_goal(new_s, start_ref, end_ref, curr_ref);
             add_tactic_state_info(new_s, curr_ref);
             new_s = execute_tactic(get_annotation_arg(tactic), new_s, curr_ref);
         } else if (is_begin_end_block(tactic)) {
@@ -2431,8 +2404,7 @@ tactic_state elaborator::execute_begin_end_tactics(buffer<expr> const & tactics,
             throw elaborator_exception(curr_ref, "ill-formed 'begin ... end' tactic block");
         }
     }
-    add_tactic_state_info(new_s, end_ref);
-    show_goal(new_s, start_ref, end_ref, end_ref);
+    add_tactic_state_info(new_s, ref);
     if (new_s.goals()) throw_unsolved_tactic_state(new_s, "tactic failed, there are unsolved goals", ref);
     return set_goals(new_s, tail(gs));
 }
@@ -2460,7 +2432,6 @@ void elaborator::invoke_begin_end_tactics(expr const & mvar, buffer<expr> const 
 void elaborator::invoke_atomic_tactic(expr const & mvar, expr const & tactic) {
     expr const & ref = mvar;
     tactic_state s       = mk_tactic_state_for(mvar);
-    show_goal(s, tactic, mvar, tactic);
     add_tactic_state_info(s, ref);
     trace_elab(tout() << "initial tactic state\n" << s.pp() << "\n";);
     tactic_state new_s   = execute_tactic(tactic, s, ref);
@@ -2579,12 +2550,6 @@ void elaborator::ensure_no_unassigned_metavars(expr const & e) {
             if (!has_expr_metavar(e)) return false;
             if (is_metavar_decl_ref(e) && !mctx.is_assigned(e)) {
                 tactic_state s = mk_tactic_state_for(e);
-                if (m_show_goal_pos && get_pos_info_provider()) {
-                    if (auto pos = get_pos_info_provider()->get_pos_info(e)) {
-                        if (pos == m_show_goal_pos)
-                            throw show_goal_exception(*pos, s);
-                    }
-                }
                 throw_unsolved_tactic_state(s, "don't know how to synthesize placeholder", e);
             }
             return true;

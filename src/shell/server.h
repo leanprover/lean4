@@ -34,7 +34,6 @@ class server {
     json handle_sync(json const & req);
     json handle_check(json const & req);
     json handle_complete(json const & req);
-    json handle_show_goal(json const & req);
     json handle_info(json const & req);
 
     json serialize_decl(name const & short_name, name const & long_name, environment const & env, options const & o);

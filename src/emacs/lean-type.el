@@ -85,20 +85,12 @@
 
 (defun lean-eldoc-documentation-function-cont (info-record &optional add-to-kill-ring)
   "Continuation for lean-eldoc-documentation-function"
-  (let* ((info-string (lean-info-record-to-string info-record))
-         (proofstate (plist-get info-record :proofstate)))
+  (let ((info-string (lean-info-record-to-string info-record)))
     (when info-string
       (when add-to-kill-ring
         (kill-new
          (substring-no-properties info-string)))
-      ;; Display on Mini-buffer
-      (when (or lean-show-proofstate-in-minibuffer
-                (not proofstate))
-        (message "%s" info-string))
-      ;; Display on Info Buffer
-      ; (with-output-to-lean-info
-                                        ; (princ info-string))
-      )))
+      (message "%s" info-string))))
 
 (defun lean-eldoc-documentation-function (&optional add-to-kill-ring)
   "Show information of lean expression at point if any"
@@ -112,5 +104,14 @@
   "Show information of lean-expression at point if any."
   (interactive)
   (lean-eldoc-documentation-function lean-show-type-add-to-kill-ring))
+
+(defun lean-show-goal-at-pos ()
+  "Show goal at the current point."
+  (interactive)
+  (lean-get-info-record-at-point
+   (lambda (info-record)
+     (-if-let (state (plist-get info-record :state))
+         (with-output-to-lean-info (princ state))
+       (message "No goal found at point")))))
 
 (provide 'lean-type)

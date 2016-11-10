@@ -89,9 +89,6 @@ private:
 
     bool              m_in_pattern{false};
 
-    /* Position information for show goal feature */
-    optional<pos_info> m_show_goal_pos;
-
     expr get_default_numeral_type();
 
     typedef std::function<format(expr const &)> pp_fn;
@@ -220,7 +217,6 @@ private:
     expr visit(expr const & e, optional<expr> const & expected_type);
 
     void add_tactic_state_info(tactic_state const & s, expr const & ref);
-    void show_goal(tactic_state const & s, expr const & start_ref, expr const & end_ref, expr const & curr_ref);
     tactic_state mk_tactic_state_for(expr const & mvar);
     tactic_state execute_tactic(expr const & tactic, tactic_state const & s, expr const & ref);
     tactic_state execute_begin_end_tactics(buffer<expr> const & tactics, tactic_state const & s, expr const & ref);

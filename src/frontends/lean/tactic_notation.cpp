@@ -147,10 +147,16 @@ static expr parse_qexpr_list_or_qexpr0(parser & p) {
     if (p.curr_is_token(get_lbracket_tk())) {
         return parse_qexpr_list(p);
     } else {
-        auto pos = p.pos();
         buffer<expr> args;
         args.push_back(parse_qexpr(p, 0));
-        return p.rec_save_pos(mk_lean_list(args), pos);
+        /* Remark: We do not save position information for list.cons and list.nil.
+           Reason: consider the tactic
+              rw add_zero a
+           Now, assume we use the position immediately before add_zero for list.cons.
+           Then, info_manager::add_type_inf will store the type of list.cons and
+           the type of add_zero for this position, and the lean server may incorrectly report
+           the type of list.cons when we hover over add_zero. */
+        return mk_lean_list(args);
     }
 }
 

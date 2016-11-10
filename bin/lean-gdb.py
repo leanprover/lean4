@@ -114,9 +114,9 @@ class LeanRBTreePrinter:
         def rec(node):
             if node['m_ptr']:
                 cell = node['m_ptr'].dereference()
-                yield from rec(cell['m_left'])
+                for i in rec(cell['m_left']): yield i
                 yield ('', cell['m_value'])
-                yield from rec(cell['m_right'])
+                for i in rec(cell['m_right']): yield i
         return rec(self.val['m_root'])
 
     def to_string(self):

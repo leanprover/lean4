@@ -2098,7 +2098,8 @@ expr elaborator::visit_lambda(expr const & e, optional<expr> const & expected_ty
         }
         expr ref_d = get_ref_for_child(binding_domain(it), it);
         new_d      = ensure_type(new_d, ref_d);
-        expr l     = push_local(locals, binding_name(it), new_d, binding_info(it), ref_d);
+        expr l     = copy_tag(binding_domain(it), push_local(locals, binding_name(it), new_d, binding_info(it), ref_d));
+        save_identifier_info(l);
         it = binding_body(it);
         if (has_expected) {
             lean_assert(is_pi(ex));
@@ -2127,7 +2128,8 @@ expr elaborator::visit_pi(expr const & e) {
         expr ref_d = get_ref_for_child(binding_domain(it), it);
         new_d      = ensure_type(new_d, ref_d);
         expr ref   = binding_domain(it);
-        push_local(locals, binding_name(it), new_d, binding_info(it), ref);
+        expr l     = copy_tag(binding_domain(it), push_local(locals, binding_name(it), new_d, binding_info(it), ref));
+        save_identifier_info(l);
         parent_it  = it;
         it         = binding_body(it);
     }

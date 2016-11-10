@@ -135,9 +135,10 @@ fail ("failed to resolve name '" ++ to_string n ++ "'")
    Example: the elaborator will force any unassigned ?A that must have be an instance of (has_one ?A) to nat.
    Remark: another benefit is that auxiliary temporary metavariables do not appear in error messages. -/
 private meta def to_expr' (p : pexpr) : tactic expr :=
-match pexpr.to_raw_expr p with
-| (const c [])          := resolve_name c
-| (local_const c _ _ _) := resolve_name c
+let e := pexpr.to_raw_expr p in
+match e with
+| (const c [])          := do new_e ← resolve_name c, save_type_info new_e e, return new_e
+| (local_const c _ _ _) := do new_e ← resolve_name c, save_type_info new_e e, return new_e
 | _                     := to_expr p
 end
 

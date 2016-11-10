@@ -362,6 +362,8 @@ try $ do
   prio ← has_attribute attr_name src,
   set_basic_attribute_core attr_name tgt p (some prio)
 
+/- (save_type_info e ref) save (typeof e) at position associated with ref -/
+meta constant save_type_info : expr → expr → tactic unit
 open list nat
 
 /- Remark: set_goals will erase any solved goal -/

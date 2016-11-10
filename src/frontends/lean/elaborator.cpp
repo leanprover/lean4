@@ -32,6 +32,7 @@ Author: Leonardo de Moura
 #include "library/attribute_manager.h"
 #include "library/module.h"
 #include "library/vm/vm.h"
+#include "library/vm/vm_expr.h"
 #include "library/compiler/rec_fn_macro.h"
 #include "library/compiler/vm_compiler.h"
 #include "library/tactic/kabstract.h"
@@ -2764,11 +2765,11 @@ elaborate(environment & env, options const & opts,
 static expr translate_local_name(environment const & env, local_context const & lctx, name const & local_name,
                                  expr const & src) {
     if (auto decl = lctx.get_local_decl_from_user_name(local_name)) {
-        return decl->mk_ref();
+        return copy_tag(src, decl->mk_ref());
     }
     if (env.find(local_name)) {
         if (is_local(src))
-            return mk_constant(local_name);
+            return copy_tag(src, mk_constant(local_name));
         else
             return src;
     }
@@ -2779,8 +2780,7 @@ static expr translate_local_name(environment const & env, local_context const & 
 
 /** \brief Translated local constants (and undefined constants) occurring in \c e into
     local constants provided by \c ctx.
-    Throw exception is \c ctx does not contain the local constant.
-*/
+    Throw exception is \c ctx does not contain the local constant. */
 static expr translate(environment const & env, local_context const & lctx, expr const & e) {
     auto fn = [&](expr const & e) {
         if (is_placeholder(e) || is_by(e) || is_as_is(e)) {
@@ -2808,6 +2808,26 @@ expr nested_elaborate(environment & env, options const & opts, metavar_context &
     mctx = elab.mctx();
     env  = elab.env();
     return r;
+}
+
+static vm_obj tactic_save_type_info(vm_obj const & _e, vm_obj const & ref, vm_obj const & _s) {
+    expr const & e = to_expr(_e);
+    tactic_state const & s = to_tactic_state(_s);
+    if (!g_infom || !get_pos_info_provider()) return mk_tactic_success(s);
+    auto pos = get_pos_info_provider()->get_pos_info(to_expr(ref));
+    if (!pos) return mk_tactic_success(s);
+    type_context ctx = mk_type_context_for(s);
+    try {
+        expr type = ctx.infer(e);
+        g_infom->add_type_info(pos->first, pos->second, type);
+        if (is_constant(e))
+            g_infom->add_identifier_info(pos->first, pos->second, const_name(e));
+        else if (is_local(e))
+            g_infom->add_identifier_info(pos->first, pos->second, local_pp_name(e));
+    } catch (exception & ex) {
+        return mk_tactic_exception(ex, s);
+    }
+    return mk_tactic_success(s);
 }
 
 void initialize_elaborator() {
@@ -2847,6 +2867,8 @@ void initialize_elaborator() {
     register_incompatible("elab_simple", "elab_with_expected_type");
     register_incompatible("elab_simple", "elab_as_eliminator");
     register_incompatible("elab_with_expected_type", "elab_as_eliminator");
+
+    DECLARE_VM_BUILTIN(name({"tactic", "save_type_info"}), tactic_save_type_info);
 }
 
 void finalize_elaborator() {

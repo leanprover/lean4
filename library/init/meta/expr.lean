@@ -73,12 +73,14 @@ meta def expr.abstract : expr → expr → expr
 meta constant expr.instantiate_var  : expr → expr → expr
 meta constant expr.instantiate_vars : expr → list expr → expr
 
-meta constant expr.has_var      : expr → bool
-meta constant expr.has_var_idx  : expr → nat → bool
-meta constant expr.has_local    : expr → bool
-meta constant expr.has_meta_var : expr → bool
-meta constant expr.lift_vars    : expr → nat → nat → expr
-meta constant expr.lower_vars   : expr → nat → nat → expr
+meta constant expr.has_var       : expr → bool
+meta constant expr.has_var_idx   : expr → nat → bool
+meta constant expr.has_local     : expr → bool
+meta constant expr.has_meta_var  : expr → bool
+meta constant expr.lift_vars     : expr → nat → nat → expr
+meta constant expr.lower_vars    : expr → nat → nat → expr
+/- (copy_pos_info src tgt) copy position information from src to tgt. -/
+meta constant expr.copy_pos_info : expr → expr → expr
 
 namespace expr
 open decidable

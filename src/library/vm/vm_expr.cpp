@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "kernel/replace_fn.h"
 #include "library/expr_lt.h"
+#include "library/deep_copy.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_string.h"
@@ -313,6 +314,10 @@ vm_obj expr_hash(vm_obj const & e) {
     return mk_vm_simple(r); // make sure it is a simple value
 }
 
+vm_obj expr_copy_pos_info(vm_obj const & src, vm_obj const & tgt) {
+    return to_obj(copy_tag(to_expr(src), copy(to_expr(tgt))));
+}
+
 void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name({"expr", "var"}),              expr_var);
     DECLARE_VM_BUILTIN(name({"expr", "sort"}),             expr_sort);
@@ -344,6 +349,7 @@ void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name({"expr", "lift_vars"}),        expr_lift_vars);
     DECLARE_VM_BUILTIN(name({"expr", "lower_vars"}),       expr_lower_vars);
     DECLARE_VM_BUILTIN(name({"expr", "hash"}),             expr_hash);
+    DECLARE_VM_BUILTIN(name({"expr", "copy_pos_info"}),    expr_copy_pos_info);
     DECLARE_VM_CASES_BUILTIN(name({"expr", "cases_on"}),   expr_cases_on);
 }
 

@@ -13,6 +13,8 @@
     (when (or (called-interactively-p 'any) print-msg)
       (message "lean: turn on debug mode"))
     (get-buffer-create lean-debug-buffer-name)
+    (display-buffer lean-debug-buffer-name 'display-buffer-reuse-window
+                    '((reusable-frames . t)))
     (setq-local lean-debug-mode t)))
 
 (defun lean-turn-off-debug-mode (&optional print-msg)
@@ -21,12 +23,6 @@
     (when (or (called-interactively-p 'any) print-msg)
       (message "lean: turn off debug mode"))
     (setq-local lean-debug-mode nil)))
-
-(defun lean-toggle-debug-mode ()
-  (interactive)
-  (if lean-debug-mode
-      (lean-turn-off-debug-mode (called-interactively-p 'any))
-    (lean-turn-on-debug-mode (called-interactively-p 'any))))
 
 (defun lean-output-to-buffer (buffer-name format-string args)
   (with-current-buffer
@@ -56,6 +52,9 @@
   :init-value nil
   :lighter lean-debug-mode-line
   :group 'lean
-  :require 'lean)
+  :require 'lean
+  (if lean-debug-mode
+      (lean-turn-on-debug-mode (called-interactively-p 'any))
+    (lean-turn-off-debug-mode (called-interactively-p 'any))))
 
 (provide 'lean-debug)

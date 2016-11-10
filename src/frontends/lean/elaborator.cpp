@@ -2298,6 +2298,14 @@ void elaborator::synthesize_type_class_instances() {
     throw_unsolved_tactic_state(ts, format(msg), ref);
 }
 
+void elaborator::add_tactic_state_info(tactic_state const & s, expr const & ref) {
+    if (!g_infom) return;
+    pos_info_provider * pip = get_pos_info_provider();
+    if (!pip) return;
+    if (auto p = pip->get_pos_info(ref))
+        g_infom->add_tactic_state_info(p->first, p->second, s);
+}
+
 tactic_state elaborator::mk_tactic_state_for(expr const & mvar) {
     metavar_context mctx = m_ctx.mctx();
     metavar_decl mdecl   = *mctx.get_metavar_decl(mvar);
@@ -2380,6 +2388,7 @@ tactic_state elaborator::execute_begin_end_tactics(buffer<expr> const & tactics,
         trace_elab_debug(tout() << "executing tactic:\n" << tactic << "\n";);
         if (is_begin_end_element(tactic)) {
             show_goal(new_s, start_ref, end_ref, curr_ref);
+            add_tactic_state_info(new_s, curr_ref);
             new_s = execute_tactic(get_annotation_arg(tactic), new_s, curr_ref);
         } else if (is_begin_end_block(tactic)) {
             buffer<expr> nested_tactics;
@@ -2389,6 +2398,7 @@ tactic_state elaborator::execute_begin_end_tactics(buffer<expr> const & tactics,
             throw elaborator_exception(curr_ref, "ill-formed 'begin ... end' tactic block");
         }
     }
+    add_tactic_state_info(new_s, end_ref);
     show_goal(new_s, start_ref, end_ref, end_ref);
     if (new_s.goals()) throw_unsolved_tactic_state(new_s, "tactic failed, there are unsolved goals", ref);
     return set_goals(new_s, tail(gs));
@@ -2418,6 +2428,7 @@ void elaborator::invoke_atomic_tactic(expr const & mvar, expr const & tactic) {
     expr const & ref = mvar;
     tactic_state s       = mk_tactic_state_for(mvar);
     show_goal(s, tactic, mvar, tactic);
+    add_tactic_state_info(s, ref);
     trace_elab(tout() << "initial tactic state\n" << s.pp() << "\n";);
     tactic_state new_s   = execute_tactic(tactic, s, ref);
     if (new_s.goals())

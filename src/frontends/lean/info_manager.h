@@ -57,13 +57,13 @@ class info_manager {
 public:
     void add_type_info(unsigned l, unsigned c, expr const & e);
     void add_identifier_info(unsigned l, unsigned c, name const & full_id);
+    void add_tactic_state_info(unsigned l, unsigned c, tactic_state const & s);
     /*void add_extra_type_info(unsigned l, unsigned c, expr const & e, expr const & t);
     void add_synth_info(unsigned l, unsigned c, expr const & e);
     void add_overload_info(unsigned l, unsigned c, expr const & e);
     void add_overload_notation_info(unsigned l, unsigned c, list<expr> const & a);
     void add_coercion_info(unsigned l, unsigned c, expr const & e, expr const & t);
     void add_symbol_info(unsigned l, unsigned c, name const & n);
-    void add_proof_state_info(unsigned l, unsigned c, tactic_state const & s);
     */
 
 #ifdef LEAN_SERVER

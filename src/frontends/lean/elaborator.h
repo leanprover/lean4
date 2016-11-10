@@ -217,6 +217,7 @@ private:
     expr visit_structure_instance(expr const & e, optional<expr> const & expected_type);
     expr visit(expr const & e, optional<expr> const & expected_type);
 
+    void add_tactic_state_info(tactic_state const & s, expr const & ref);
     void show_goal(tactic_state const & s, expr const & start_ref, expr const & end_ref, expr const & curr_ref);
     tactic_state mk_tactic_state_for(expr const & mvar);
     tactic_state execute_tactic(expr const & tactic, tactic_state const & s, expr const & ref);

@@ -8,13 +8,13 @@ Author: Leonardo de Moura
 #include <vector>
 #include <set>
 #include <string>
+#include "util/lean_path.h"
 #include "library/choice.h"
 #include "library/scoped_ext.h"
 #include "library/pp_options.h"
 #include "library/tactic/tactic_state.h"
 #include "frontends/lean/json.h"
 #include "frontends/lean/info_manager.h"
-#include "util/lean_path.h"
 
 namespace lean {
 class type_info_data : public info_data_cell {
@@ -55,6 +55,20 @@ public:
             record["source"]["line"] = pos->first;
             record["source"]["column"] = pos->second;
         }
+    }
+#endif
+};
+
+class tactic_state_info_data : public info_data_cell {
+    tactic_state m_state;
+public:
+    tactic_state_info_data(tactic_state const & s):m_state(s) {}
+
+#ifdef LEAN_SERVER
+    virtual void report(io_state_stream const &, json & record) const override {
+        std::ostringstream ss;
+        ss << m_state.pp();
+        record["state"] = ss.str();
     }
 #endif
 };
@@ -168,36 +182,18 @@ public:
         ios << "-- ACK" << endl;
     }
 };
-
-class proof_state_info_data : public info_data_cell {
-    tactic_state m_state;
-public:
-    proof_state_info_data(unsigned c, tactic_state const & s):info_data_cell(c), m_state(s) {}
-    virtual info_kind kind() const { return info_kind::ProofState; }
-    virtual void report(io_state_stream const & ios, unsigned line) const {
-        ios << "-- PROOF_STATE|" << line << "|" << get_column() << "\n";
-        bool first = true;
-        for (expr const & g : m_state.goals()) {
-            if (first)
-                first = false;
-            else
-                ios << "--" << endl;
-            ios << m_state.pp_goal(g) << endl;
-        }
-        ios << "-- ACK" << endl;
-    }
-};
 */
 
 info_data mk_type_info(expr const & e) { return info_data(new type_info_data(e)); }
 info_data mk_identifier_info(name const & full_id) { return info_data(new identifier_info_data(full_id)); }
+info_data mk_tactic_state_info(tactic_state const & s) { return info_data(new tactic_state_info_data(s)); }
+
 /*info_data mk_extra_type_info(unsigned c, expr const & e, expr const & t) { return info_data(new extra_type_info_data(c, e, t)); }
 info_data mk_synth_info(unsigned c, expr const & e) { return info_data(new synth_info_data(c, e)); }
 info_data mk_overload_info(unsigned c, expr const & e) { return info_data(new overload_info_data(c, e)); }
 info_data mk_overload_notation_info(unsigned c, list<expr> const & a) { return info_data(new overload_notation_info_data(c, a)); }
 info_data mk_coercion_info(unsigned c, expr const & e, expr const & t) { return info_data(new coercion_info_data(c, e, t)); }
 info_data mk_symbol_info(unsigned c, name const & s) { return info_data(new symbol_info_data(c, s)); }
-info_data mk_proof_state_info(unsigned c, tactic_state const & s) { return info_data(new proof_state_info_data(c, s)); }
 */
 
 /*static bool is_tactic_type(expr const & e) {
@@ -221,15 +217,15 @@ line_info_data_set info_manager::get_line_info_set(unsigned l) const {
 }
 
 void info_manager::add_type_info(unsigned l, unsigned c, expr const & e) {
-    // if (is_tactic_type(e))
-    //     return;
     add_info(l, c, mk_type_info(e));
 }
 
 void info_manager::add_identifier_info(unsigned l, unsigned c, name const & full_id) {
-    // if (is_tactic_id(full_id))
-    //     return;
     add_info(l, c, mk_identifier_info(full_id));
+}
+
+void info_manager::add_tactic_state_info(unsigned l, unsigned c, tactic_state const & s) {
+    add_info(l, c, mk_tactic_state_info(s));
 }
 
 /*
@@ -264,10 +260,6 @@ static bool is_tactic_id(name const & id) {
         return id == get_tactic_name();
     else
         return is_tactic_id(id.get_prefix());
-}
-
-void info_manager::add_proof_state_info(unsigned l, unsigned c, tactic_state const & s) {
-    report(l, mk_proof_state_info(c, s));
 }
 */
 

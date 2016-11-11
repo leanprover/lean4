@@ -488,5 +488,6 @@ void initialize_eqn_compiler_util() {
 
 void finalize_eqn_compiler_util() {
     delete g_eqn_compiler_lemmas;
+    delete g_eqn_compiler_zeta;
 }
 }

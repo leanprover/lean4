@@ -905,5 +905,7 @@ void finalize_builtin_exprs() {
     delete g_lambda_match_name;
     delete g_parser_checkpoint_have;
     delete g_anonymous_constructor;
+    delete g_field_notation_opcode;
+    delete g_field_notation_name;
 }
 }

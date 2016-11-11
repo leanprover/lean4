@@ -6,6 +6,7 @@ Author: Gabriel Ebner
 */
 #include "library/message_builder.h"
 #include "library/type_context.h"
+#include "library/message_buffer.h"
 #include <string>
 
 namespace lean {
@@ -15,7 +16,7 @@ message_builder::message_builder(pos_info_provider const * provider,
                                  environment const & env, io_state const & ios,
                                  std::string const & file_name, const pos_info & pos,
                                  message_severity severity) :
-    m_pos_info_provider(provider), m_ios(ios), m_tc(tc),
+    m_pos_info_provider(provider), m_tc(tc),
     m_file_name(file_name), m_pos(pos), m_severity(severity),
     m_caption(), m_text(std::make_shared<string_output_channel>()),
     m_text_stream(env, ios.get_formatter_factory()(env, ios.get_options(), *tc), m_text) {}
@@ -50,6 +51,10 @@ message_builder & message_builder::set_exception(throwable const & ex) {
         *this << ex.what();
     }
     return *this;
+}
+
+void message_builder::report() {
+    report_message(build());
 }
 
 }

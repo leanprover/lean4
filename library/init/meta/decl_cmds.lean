@@ -38,5 +38,5 @@ do env      ← get_env,
               | _ := none
               end),
    new_value ← return $ expr.const src_decl_name (decl^.univ_params^.for level.param),
-   add_decl (((decl^.update_type new_type)^.update_name new_decl_name)^.update_value new_value),
+   add_decl (((decl^.to_definition^.update_type new_type)^.update_name new_decl_name)^.update_value new_value),
    return ()

@@ -5,6 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
+#include "library/module_mgr.h"
+#include "util/st_task_queue.h"
 #include "library/flycheck.h"
 #include "library/module.h"
 #include "library/standard_kernel.h"
@@ -18,45 +20,50 @@ namespace lean {
 class emscripten_shell {
 private:
     unsigned trust_lvl;
-    unsigned num_threads;
     options opts;
     environment env;
     io_state ios;
 
+    st_task_queue tq;
+    scope_global_task_queue scope_tq;
+
+    flycheck_message_stream msg_buf;
+    scoped_message_buffer scope_msg_buf;
+
+    module_mgr mod_mgr;
+    scoped_module_id scope_mod_id;
+
+    scope_message_context msg_ctx;
+
 public:
-    emscripten_shell() : trust_lvl(LEAN_BELIEVER_TRUST_LEVEL+1), num_threads(1),
-        env(mk_environment(trust_lvl)), ios(opts, lean::mk_pretty_formatter_factory()) {
-        ios.set_message_channel(std::make_shared<flycheck_message_stream>(std::cout));
+    emscripten_shell() : trust_lvl(LEAN_BELIEVER_TRUST_LEVEL+1),
+        env(mk_environment(trust_lvl)), ios(opts, mk_pretty_formatter_factory()),
+        tq(), scope_tq(&tq), msg_buf(std::cout), scope_msg_buf(&msg_buf),
+        mod_mgr(nullptr, &msg_buf, env, ios), scope_mod_id(""),
+        msg_ctx(message_bucket_id { "lean.js", 0 }) {
     }
 
     int import_module(std::string mname) {
         try {
-            module_name mod(mname);
-            std::string base = ".";
-            bool num_threads = 1;
             // FIXME(gabriel): discarding proofs fails at the moment with "invalid equation lemma, unexpected form"
-            bool keep_proofs = true;
-            env = import_modules(env, base, 1, &mod, num_threads, keep_proofs, ios);
-        } catch (lean::exception & ex) {
-            lean::message_builder(env, ios, "import_module", lean::pos_info(1, 1), lean::ERROR).set_exception(ex).report();
+            env = lean::import_module(env, "importing", {mname, optional<unsigned>()}, mk_olean_loader());
+            return 0;
+        } catch (exception & ex) {
+            message_builder(env, ios, "importing", {1, 0}, ERROR).set_exception(ex).report();
             return 1;
         }
-        return 0;
     }
 
     int process_file(std::string input_filename) {
-        bool ok = true;
         try {
-            environment temp_env(env);
-            io_state    temp_ios(ios);
-            if (!parse_commands(temp_env, temp_ios, input_filename.c_str(), optional<std::string>(), false, num_threads)) {
-                ok = false;
-            }
-        } catch (lean::exception & ex) {
-            lean::message_builder(env, ios, input_filename, lean::pos_info(1, 1), lean::ERROR).set_exception(ex).report();
-            ok = false;
+            std::ifstream in(input_filename);
+            bool use_exceptions = false;
+            parser p(env, ios, mk_olean_loader(), in, input_filename, use_exceptions);
+            if (p()) return 0;
+        } catch (exception & ex) {
+            message_builder(env, ios, input_filename, {1, 0}, ERROR).set_exception(ex).report();
         }
-        return ok ? 0 : 1;
+        return 1;
     }
 };
 }

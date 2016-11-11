@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "util/output_channel.h"
-#include "library/messages.h"
 #include "util/sexpr/options.h"
 #include "kernel/expr.h"
 
@@ -23,7 +22,6 @@ class io_state {
     formatter_factory               m_formatter_factory;
     std::shared_ptr<output_channel> m_regular_channel;
     std::shared_ptr<output_channel> m_diagnostic_channel;
-    std::shared_ptr<message_stream> m_message_channel;
 public:
     io_state();
     io_state(formatter_factory const & fmtf);
@@ -34,18 +32,13 @@ public:
 
     options const & get_options() const { return m_options; }
     formatter_factory const & get_formatter_factory() const { return m_formatter_factory; }
-    std::shared_ptr<message_stream> const & get_message_channel_ptr() const { return m_message_channel; }
     std::shared_ptr<output_channel> const & get_regular_channel_ptr() const { return m_regular_channel; }
     std::shared_ptr<output_channel> const & get_diagnostic_channel_ptr() const { return m_diagnostic_channel; }
-    message_stream & get_message_channel() const { return *m_message_channel; }
     output_channel & get_regular_channel() const { return *m_regular_channel; }
     output_channel & get_diagnostic_channel() const { return *m_diagnostic_channel; }
     std::ostream & get_regular_stream() const { return m_regular_channel->get_stream(); }
     std::ostream & get_diagnostic_stream() const { return m_diagnostic_channel->get_stream(); }
 
-    void report(message const & msg) const { if (m_message_channel) m_message_channel->report(msg); }
-
-    void set_message_channel(std::shared_ptr<message_stream> const & out) { m_message_channel = out; }
     void set_regular_channel(std::shared_ptr<output_channel> const & out);
     void set_diagnostic_channel(std::shared_ptr<output_channel> const & out);
     void set_options(options const & opts);

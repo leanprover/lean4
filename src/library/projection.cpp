@@ -63,14 +63,10 @@ name_map<projection_info> const & get_projection_info_map(environment const & en
     return get_extension(env).m_info;
 }
 
-static void projection_info_reader(deserializer & d, shared_environment & senv,
-                                   std::function<void(asynch_update_fn const &)> &,
-                                   std::function<void(delayed_update_fn const &)> &) {
+static void projection_info_reader(deserializer & d, environment & env) {
     name p, mk; unsigned nparams, i; bool inst_implicit;
     d >> p >> mk >> nparams >> i >> inst_implicit;
-    senv.update([=](environment const & env) -> environment {
-            return save_projection_info_core(env, p, mk, nparams, i, inst_implicit);
-        });
+    env = save_projection_info_core(env, p, mk, nparams, i, inst_implicit);
 }
 
 /** \brief Return true iff the type named \c S can be viewed as

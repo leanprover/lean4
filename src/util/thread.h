@@ -6,6 +6,12 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <iostream>
+#include <chrono>
+
+namespace lean {
+namespace chrono = std::chrono;
+}
+
 #if defined(LEAN_MULTI_THREAD)
 #if !defined(LEAN_USE_BOOST)
 // MULTI THREADING SUPPORT BASED ON THE STANDARD LIBRARY
@@ -13,7 +19,6 @@ Author: Leonardo de Moura
 #include <mutex>
 #include <atomic>
 #include <condition_variable>
-#include <chrono>
 #define LEAN_THREAD_LOCAL thread_local
 namespace lean {
 inline void set_thread_stack_size(size_t ) {}
@@ -36,8 +41,8 @@ using std::memory_order_release;
 using std::memory_order_acquire;
 using std::memory_order_seq_cst;
 using std::atomic_thread_fence;
-namespace chrono      = std::chrono;
 namespace this_thread = std::this_thread;
+inline unsigned hardware_concurrency() { return std::thread::hardware_concurrency(); }
 }
 #else
 // MULTI THREADING SUPPORT BASED ON THE BOOST LIBRARY
@@ -59,7 +64,6 @@ using boost::condition_variable;
 using boost::unique_lock;
 using boost::lock_guard;
 using boost::atomic_thread_fence;
-namespace chrono      = boost::chrono;
 namespace this_thread = boost::this_thread;
 typedef atomic<bool>           atomic_bool;
 typedef atomic<unsigned short> atomic_ushort;
@@ -68,6 +72,7 @@ typedef atomic<unsigned>       atomic_uint;
 template<typename T> T atomic_load(atomic<T> const * a) { return a->load(); }
 template<typename T> T atomic_fetch_add_explicit(atomic<T> * a, T v, boost::memory_order mo) { return a->fetch_add(v, mo); }
 template<typename T> T atomic_fetch_sub_explicit(atomic<T> * a, T v, boost::memory_order mo) { return a->fetch_sub(v, mo); }
+inline unsigned hardware_concurrency() { return boost::thread::hardware_concurrency(); }
 }
 #endif
 #else
@@ -77,9 +82,6 @@ template<typename T> T atomic_fetch_sub_explicit(atomic<T> * a, T v, boost::memo
 #define LEAN_THREAD_LOCAL
 namespace lean {
 inline void set_thread_stack_size(size_t ) {}
-namespace chrono {
-typedef unsigned milliseconds;
-}
 constexpr int memory_order_relaxed = 0;
 constexpr int memory_order_release = 0;
 constexpr int memory_order_acquire = 0;
@@ -110,6 +112,16 @@ public:
     friend T atomic_load(atomic const * a) { return a->m_value; }
     friend T atomic_fetch_add_explicit(atomic * a, T const & v, int ) { T r(a->m_value); a->m_value += v; return r; }
     friend T atomic_fetch_sub_explicit(atomic * a, T const & v, int ) { T r(a->m_value); a->m_value -= v; return r; }
+    T exchange(T desired) { T old = m_value; m_value = desired; return old; }
+    bool compare_exchange_strong(T & expected, T desired) {
+        if (m_value == expected) {
+            m_value = desired;
+            return true;
+        } else {
+            expected = m_value;
+            return false;
+        }
+    }
 };
 typedef atomic<unsigned short> atomic_ushort;
 typedef atomic<unsigned char>  atomic_uchar;
@@ -158,7 +170,10 @@ template<typename T> class unique_lock {
 public:
     unique_lock(T const &) {}
     ~unique_lock() {}
+    void lock() {}
+    void unlock() {}
 };
+inline unsigned hardware_concurrency() { return 1; }
 }
 #endif
 

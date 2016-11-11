@@ -218,16 +218,12 @@ list<name> get_ginductive_all_nested_inds(environment const & env) {
     return get_extension(env).get_all_nested_inds();
 }
 
-static void ginductive_reader(deserializer & d, shared_environment & senv,
-                              std::function<void(asynch_update_fn const &)> &,
-                              std::function<void(delayed_update_fn const &)> &) {
+static void ginductive_reader(deserializer & d, environment & env) {
     ginductive_entry entry;
     d >> entry;
-    senv.update([=](environment const & env) -> environment {
-            ginductive_env_ext ext = get_extension(env);
-            ext.register_ginductive_entry(entry);
-            return update(env, ext);
-        });
+    ginductive_env_ext ext = get_extension(env);
+    ext.register_ginductive_entry(entry);
+    env = update(env, ext);
 }
 
 void initialize_inductive_compiler_ginductive() {

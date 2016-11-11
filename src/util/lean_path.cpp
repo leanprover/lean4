@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <dirent.h>
 #include "util/exception.h"
 #include "util/sstream.h"
 #include "util/name.h"
@@ -311,4 +312,69 @@ std::string path_append(char const * p1, char const * p2) {
     r += p2;
     return r;
 }
+
+std::string olean_of_lean(std::string const & lean_fn) {
+    if (lean_fn.size() > 5 && lean_fn.substr(lean_fn.size() - 5) == ".lean") {
+        return lean_fn.substr(0, lean_fn.size() - 5) + ".olean";
+    } else {
+        throw exception(sstream() << "not a .lean file: " << lean_fn);
+    }
+}
+
+std::string olean_file_to_lean_file(std::string const &olean) {
+    lean_assert(is_olean_file(olean));
+    std::string lean = olean;
+    lean.erase(lean.size() - std::string("olean").size(), 1);
+    return lean;
+}
+
+std::string read_file(std::string const & fname, std::ios_base::openmode mode) {
+    std::ifstream in(fname, mode);
+    if (!in.good()) throw file_not_found_exception(fname);
+    std::stringstream buf;
+    buf << in.rdbuf();
+    return buf.str();
+}
+
+time_t get_mtime(std::string const &fname) {
+    struct stat st;
+    if (stat(fname.c_str(), &st) != 0)
+        return -1;
+    return st.st_mtime;
+}
+
+optional<bool> is_dir(std::string const & fn) {
+    struct stat st;
+    if (stat(fn.c_str(), &st) == 0)
+        return optional<bool>(S_ISDIR(st.st_mode));
+    return optional<bool>();
+}
+
+std::vector<std::string> read_dir(std::string const &dirname) {
+    auto dir = opendir(dirname.c_str());
+    if (!dir) throw exception(sstream() << "could not open directory: " << dirname);
+
+    std::vector<std::string> files;
+    while (auto ep = readdir(dir)) { // NOLINT
+        // ^^ disabling readdir_r lint because glibc recommends using readdir now.
+
+        std::string fn = ep->d_name;
+        if (fn == "." || fn == "..") continue;
+        files.push_back(path_append(dirname.c_str(), fn.c_str()));
+    }
+    return files;
+}
+
+void recursive_list_files(std::string const & dirname, std::vector<std::string> & files) {
+    for (auto & fn : read_dir(dirname)) {
+        if (auto i_d = is_dir(fn)) {
+            if (*i_d) {
+                recursive_list_files(fn, files);
+            } else {
+                files.push_back(fn);
+            }
+        }
+    }
+}
+
 }

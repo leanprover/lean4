@@ -54,28 +54,20 @@ bool is_no_confusion(environment const & env, name const & r) {
     return get_extension(env).m_no_confusion_set.contains(r);
 }
 
-static void aux_recursor_reader(deserializer & d, shared_environment & senv,
-                                std::function<void(asynch_update_fn const &)> &,
-                                std::function<void(delayed_update_fn const &)> &) {
+static void aux_recursor_reader(deserializer & d, environment & env) {
     name r;
     d >> r;
-    senv.update([=](environment const & env) -> environment {
-            aux_recursor_ext ext = get_extension(env);
-            ext.m_aux_recursor_set.insert(r);
-            return update(env, ext);
-        });
+    aux_recursor_ext ext = get_extension(env);
+    ext.m_aux_recursor_set.insert(r);
+    env = update(env, ext);
 }
 
-static void no_confusion_reader(deserializer & d, shared_environment & senv,
-                                std::function<void(asynch_update_fn const &)> &,
-                                std::function<void(delayed_update_fn const &)> &) {
+static void no_confusion_reader(deserializer & d, environment & env) {
     name r;
     d >> r;
-    senv.update([=](environment const & env) -> environment {
-            aux_recursor_ext ext = get_extension(env);
-            ext.m_no_confusion_set.insert(r);
-            return update(env, ext);
-        });
+    aux_recursor_ext ext = get_extension(env);
+    ext.m_no_confusion_set.insert(r);
+    env = update(env, ext);
 }
 
 void initialize_aux_recursors() {

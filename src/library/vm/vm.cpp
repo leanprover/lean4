@@ -944,16 +944,12 @@ environment reserve_vm_index(environment const & env, name const & fn, expr cons
         });
 }
 
-static void reserve_reader(deserializer & d, shared_environment & senv,
-                           std::function<void(asynch_update_fn const &)> &,
-                           std::function<void(delayed_update_fn const &)> &) {
+static void reserve_reader(deserializer & d, environment & env) {
     name fn; expr e;
     d >> fn >> e;
-    senv.update([&](environment const & env) -> environment {
-            vm_decls ext = get_extension(env);
-            ext.reserve(fn, e);
-            return update(env, ext);
-        });
+    vm_decls ext = get_extension(env);
+    ext.reserve(fn, e);
+    env = update(env, ext);
 }
 
 void serialize_code(serializer & s, unsigned fidx, unsigned_map<vm_decl> const & decls) {
@@ -967,21 +963,17 @@ void serialize_code(serializer & s, unsigned fidx, unsigned_map<vm_decl> const &
     }
 }
 
-static void code_reader(deserializer & d, shared_environment & senv,
-                        std::function<void(asynch_update_fn const &)> &,
-                        std::function<void(delayed_update_fn const &)> &) {
-    senv.update([&](environment const & env) -> environment {
-            name fn; unsigned code_sz; list<vm_local_info> args_info; optional<pos_info> pos;
-            d >> fn >> code_sz >> pos;
-            args_info = read_list<vm_local_info>(d);
-            vm_decls ext = get_extension(env);
-            buffer<vm_instr> code;
-            for (unsigned i = 0; i < code_sz; i++) {
-                code.push_back(read_vm_instr(d, ext.m_name2idx));
-            }
-            ext.update(fn, code_sz, code.data(), args_info, pos, d.get_fname());
-            return update(env, ext);
-        });
+static void code_reader(deserializer & d, environment & env) {
+    name fn; unsigned code_sz; list<vm_local_info> args_info; optional<pos_info> pos;
+    d >> fn >> code_sz >> pos;
+    args_info = read_list<vm_local_info>(d);
+    vm_decls ext = get_extension(env);
+    buffer<vm_instr> code;
+    for (unsigned i = 0; i < code_sz; i++) {
+        code.push_back(read_vm_instr(d, ext.m_name2idx));
+    }
+    ext.update(fn, code_sz, code.data(), args_info, pos, d.get_fname());
+    env = update(env, ext);
 }
 
 environment update_vm_code(environment const & env, name const & fn, unsigned code_sz, vm_instr const * code,
@@ -2613,16 +2605,12 @@ environment vm_monitor_register(environment const & env, name const & d) {
     return module::add(new_env, *g_vm_monitor_key, [=](environment const &, serializer & s) { s << d; });
 }
 
-static void vm_monitor_reader(deserializer & d, shared_environment & senv,
-                              std::function<void(asynch_update_fn const &)> &,
-                              std::function<void(delayed_update_fn const &)> &) {
+static void vm_monitor_reader(deserializer & d, environment & env) {
     name n;
     d >> n;
-    senv.update([&](environment const & env) -> environment {
-            vm_decls ext = get_extension(env);
-            ext.m_monitor = n;
-            return update(env, ext);
-        });
+    vm_decls ext = get_extension(env);
+    ext.m_monitor = n;
+    env = update(env, ext);
 }
 
 void initialize_vm_core() {

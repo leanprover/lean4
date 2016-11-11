@@ -118,16 +118,12 @@ environment push_scope(environment const & env, io_state const & ios, scope_kind
     return r;
 }
 
-static void namespace_reader(deserializer & d, shared_environment &,
-                             std::function<void(asynch_update_fn const &)> &,
-                             std::function<void(delayed_update_fn const &)> & add_delayed_update) {
+static void namespace_reader(deserializer & d, environment & env) {
     name n;
     d >> n;
-    add_delayed_update([=](environment const & env, io_state const &) -> environment {
-            scope_mng_ext ext = get_extension(env);
-            ext.m_namespace_set.insert(n);
-            return update(env, ext);
-        });
+    scope_mng_ext ext = get_extension(env);
+    ext.m_namespace_set.insert(n);
+    env = update(env, ext);
 }
 
 environment pop_scope_core(environment const & env, io_state const & ios) {

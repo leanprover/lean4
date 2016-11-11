@@ -43,8 +43,7 @@ private:
     /* m_depth is only used for tracing */
     unsigned          m_depth{0};
 
-    /* if \c true, reset \c g_infom in destructor */
-    bool              m_owns_infom;
+    bool              m_uses_infom;
 
     struct snapshot {
         metavar_context        m_saved_mctx;
@@ -238,8 +237,7 @@ private:
     void unassigned_uvars_to_params(level const & l);
     void unassigned_uvars_to_params(expr const & e);
 public:
-    elaborator(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx,
-               optional<info_manager> & infom);
+    elaborator(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx);
     ~elaborator();
     metavar_context const & mctx() const { return m_ctx.mctx(); }
     local_context const & lctx() const { return m_ctx.lctx(); }
@@ -275,8 +273,7 @@ public:
 
 pair<expr, level_param_names> elaborate(environment & env, options const & opts,
                                         metavar_context & mctx, local_context const & lctx,
-                                        expr const & e, bool check_unassigend,
-                                        optional<info_manager> & infom);
+                                        expr const & e, bool check_unassigend);
 
 expr nested_elaborate(environment & env, options const & opts, metavar_context & mctx, local_context const & lctx,
                       expr const & e, bool relaxed);

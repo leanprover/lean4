@@ -12,6 +12,8 @@ if("${CMAKE_C_COMPILER}" MATCHES "emcc")
     set(CROSS_COMPILE ON)
     set(IGNORE_SORRY ON)
     set(MULTI_THREAD OFF)
+    set(TRACK_MEMORY_USAGE OFF)
+    set(TCMALLOC OFF)
     set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_EMSCRIPTEN")
     set(LEAN_JS_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/../library" CACHE STRING
             "location of olean files for lean.js")
@@ -463,16 +465,12 @@ add_style_check_target(style "${LEAN_SOURCES}")
 add_test(NAME style_check COMMAND "${PYTHON_EXECUTABLE}" "${LEAN_SOURCE_DIR}/cmake/Modules/cpplint.py" ${LEAN_SOURCES})
 endif()
 
-if("${CROSS_COMPILE}" MATCHES "ON" OR "${CMAKE_C_COMPILER}" MATCHES "emcc")
-  message(STATUS "Lean standard library will not be compiled when using cross-compilation.")
-else()
-  add_custom_target(
+add_custom_target(
     standard_lib ALL
-    COMMAND "${PYTHON_EXECUTABLE}" "${LEAN_SOURCE_DIR}/../bin/linja" all
+    COMMAND "${LEAN_SOURCE_DIR}/../bin/lean" --make
     DEPENDS "${CMAKE_BINARY_DIR}/shell/lean"
     WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
     )
-endif()
 
 add_custom_target(clean-std-lib
   WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"

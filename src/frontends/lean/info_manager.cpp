@@ -8,13 +8,12 @@ Author: Leonardo de Moura
 #include <vector>
 #include <set>
 #include <string>
+#include "frontends/lean/info_manager.h"
 #include "util/lean_path.h"
 #include "library/choice.h"
 #include "library/scoped_ext.h"
 #include "library/pp_options.h"
-#include "library/tactic/tactic_state.h"
 #include "frontends/lean/json.h"
-#include "frontends/lean/info_manager.h"
 
 namespace lean {
 class type_info_data : public info_data_cell {
@@ -38,13 +37,6 @@ public:
 #endif
 };
 
-std::string olean_file_to_lean_file(std::string const & olean) {
-    lean_assert(is_olean_file(olean));
-    std::string lean = olean;
-    lean.erase(lean.size() - std::string("olean").size(), 1);
-    return lean;
-}
-
 class identifier_info_data : public info_data_cell {
     name m_full_id;
 public:
@@ -54,7 +46,7 @@ public:
     virtual void report(io_state_stream const & ios, json & record) const override {
         record["full-id"] = m_full_id.to_string();
         if (auto olean = get_decl_olean(ios.get_environment(), m_full_id))
-            record["source"]["file"] = olean_file_to_lean_file(*olean);
+            record["source"]["file"] = *olean;
         if (auto pos = get_decl_pos_info(ios.get_environment(), m_full_id)) {
             record["source"]["line"] = pos->first;
             record["source"]["column"] = pos->second;
@@ -291,19 +283,30 @@ static bool is_tactic_id(name const & id) {
 */
 
 #ifdef LEAN_SERVER
-json info_manager::get_info_record(environment const & env, options const & o, io_state const & ios, unsigned line,
-                                   unsigned col) const {
-    json record;
+void info_manager::get_info_record(environment const & env, options const & o, io_state const & ios, unsigned line,
+                                   unsigned col, json & record) const {
+    type_context tc(env, o);
+    io_state_stream out = regular(env, ios, tc).update_options(o);
     get_line_info_set(line).for_each([&](unsigned c, list<info_data> const & ds) {
         if (c == col) {
             for (auto const & d : ds) {
-                type_context tc(env, o);
-                io_state_stream out = regular(env, ios, tc).update_options(o);
                 d.report(out, record);
             }
         }
     });
-    return record;
 }
 #endif
+
+LEAN_THREAD_PTR(info_manager, g_info_m);
+scoped_info_manager::scoped_info_manager(info_manager *infom) {
+    m_old = g_info_m;
+    g_info_m = infom;
+}
+scoped_info_manager::~scoped_info_manager() {
+    g_info_m = m_old;
+}
+info_manager * get_global_info_manager() {
+    return g_info_m;
+}
+
 }

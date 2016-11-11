@@ -766,6 +766,19 @@ certified_declaration check(environment const & env, declaration const & d) {
     return certified_declaration(env.get_id(), d);
 }
 
+certified_declaration certify_unchecked::certify(environment const & env, declaration const & d) {
+    if (env.trust_lvl() == 0)
+        throw_kernel_exception(env, "environment trust level does not allow users to add declarations that were not type checked");
+    return certified_declaration(env.get_id(), d);
+}
+
+certified_declaration certify_unchecked::certify_or_check(environment const & env, declaration const & d) {
+    if (env.trust_lvl() == 0)
+        return check(env, d);
+    else
+        return certify(env, d);
+}
+
 void initialize_type_checker() {
     g_dont_care = new expr(Const("dontcare"));
 }

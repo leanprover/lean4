@@ -495,9 +495,7 @@ environment declare_trace_cmd(parser & p) {
     return module::add(p.env(), *g_declare_trace_key, [=](environment const &, serializer & s) { s << cls; });
 }
 
-static void declare_trace_reader(deserializer & d, shared_environment &,
-                                 std::function<void(asynch_update_fn const &)> &,
-                                 std::function<void(delayed_update_fn const &)> &) {
+static void declare_trace_reader(deserializer & d, environment &) {
     name cls;
     d >> cls;
     register_trace_class(cls);
@@ -520,7 +518,7 @@ static environment run_command_cmd(parser & p) {
     tactic               = mk_app(mk_constant(get_monad_and_then_name()), tactic, try_constructor);
     expr val             = mk_typed_expr(mk_true(), mk_by(tactic));
     bool check_unassigned = false;
-    elaborate(env, opts, mctx, local_context(), val, check_unassigned, p.infom());
+    elaborate(env, opts, mctx, local_context(), val, check_unassigned);
     return env;
 }
 

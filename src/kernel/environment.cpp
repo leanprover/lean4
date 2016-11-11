@@ -98,15 +98,6 @@ declaration environment::get(name const & n) const {
     throw_kernel_exception(env, "invalid declaration, it was checked/certified in an incompatible environment");
 }
 
-environment environment::add(declaration const & d) const {
-    if (trust_lvl() == 0)
-        throw_kernel_exception(*this, "environment trust level does not allow users to add declarations that were not type checked");
-    name const & n = d.get_name();
-    if (find(n))
-        throw_already_declared(*this, n);
-    return environment(m_header, m_id, insert(m_declarations, n, d), m_global_levels, m_extensions);
-}
-
 environment environment::add(certified_declaration const & d) const {
     if (!m_id.is_descendant(d.get_id()))
         throw_incompatible_environment(*this);
@@ -146,6 +137,8 @@ environment environment::replace(certified_declaration const & t) const {
         throw_kernel_exception(*this, "invalid replacement of axiom with theorem, the new declaration is not a theorem");
     if (ax->get_type() != t.get_declaration().get_type())
         throw_kernel_exception(*this, "invalid replacement of axiom with theorem, the 'replace' operation can only be used when the axiom and theorem have the same type");
+    if (ax->get_univ_params() != t.get_declaration().get_univ_params())
+        throw_kernel_exception(*this, "invalid replacement of axiom with theorem, the 'replace' operation can only be used when the axiom and theorem have the same universe parameters");
     return environment(m_header, m_id, insert(m_declarations, n, t.get_declaration()), m_global_levels, m_extensions);
 }
 

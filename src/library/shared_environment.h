@@ -12,17 +12,8 @@ Author: Leonardo de Moura
 namespace lean {
 /** \brief Auxiliary object used when multiple threads are trying to populate the same environment. */
 class shared_environment {
-    friend struct import_modules_fn;
     environment          m_env;
     mutable mutex        m_mutex;
-    /**
-        \brief Add declaration that was not type checked.
-        The method throws an exception if trust_level() == 0
-        It blocks this object for a small amount of time.
-
-        Only module
-    */
-    void add(declaration const & d);
 public:
     shared_environment();
     shared_environment(environment const & env);

@@ -17,7 +17,7 @@ fi
 f=$2
 echo "-- testing $f"
 
-OUTPUT="$("$LEAN" -D pp.unicode=true --server < "$f")"
+OUTPUT="$("$LEAN" -j0 -D pp.unicode=true --server < "$f")"
 # make paths system-independent
 OUTPUT=${OUTPUT//$ROOT_PATH/}
 echo "$OUTPUT" > "$f.produced.out"
@@ -31,10 +31,8 @@ if test -f "$f.expected.out"; then
         if [ $INTERACTIVE == "yes" ]; then
             meld "$f.produced.out" "$f.expected.out"
             if diff --ignore-all-space "$f.produced.out" "$f.expected.out"; then
-                echo "-- mismath was fixed"
+                echo "-- mismatch was fixed"
             fi
-        else
-            diff --ignore-all-space "$f.produced.out" "$f.expected.out"
         fi
         exit 1
     fi

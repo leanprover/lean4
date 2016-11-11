@@ -14,21 +14,15 @@ if(${EMSCRIPTEN})
             "#!/bin/sh\nLEAN_PATH=${CMAKE_CURRENT_SOURCE_DIR}/../../library node ${CMAKE_CURRENT_BINARY_DIR}/lean.js \"$@\"\n")
     execute_process(COMMAND chmod +x ${CMAKE_CURRENT_BINARY_DIR}/lean_with_path)
 
+    ADD_CUSTOM_COMMAND(TARGET lean
+        POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E make_directory "${LEAN_SOURCE_DIR}/../bin"
+        COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_CURRENT_BINARY_DIR}/lean_with_path" "${LEAN_SOURCE_DIR}/../bin/lean"
+        )
+
     file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/lean
             "#!/bin/sh\nnode ${CMAKE_CURRENT_BINARY_DIR}/lean.js \"$@\"\n")
     execute_process(COMMAND chmod +x ${CMAKE_CURRENT_BINARY_DIR}/lean)
-
-    # FIXME(gabriel): we rebuild the library using lean.js because the serialization is different
-    file(READ ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/linja.in linja_code)
-    string(REGEX REPLACE "\ng_lean_path[^\n]* = [^\n]*" "\ng_lean_path = '${CMAKE_CURRENT_BINARY_DIR}/lean_with_path'" linja_js_code ${linja_code})
-    string(REGEX REPLACE "ninja_option = \\[\\]" "ninja_option = ['-j1']" linja_js_code ${linja_js_code})
-    string(REGEX REPLACE "  make_deps_all_files\\(args\\)" "  #" linja_js_code ${linja_js_code})
-    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/linja_js ${linja_js_code})
-    execute_process(COMMAND chmod +x ${CMAKE_CURRENT_BINARY_DIR}/linja_js)
-    add_custom_target(build_lean_js_library
-            COMMAND find -name \\*.olean -exec rm '{}' \\\;
-            COMMAND ${CMAKE_CURRENT_BINARY_DIR}/linja_js
-            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../library)
 
     # copy olean files from the library into build/emscripten/shell/library/...
     add_custom_target(lean_js_library

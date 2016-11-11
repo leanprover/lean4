@@ -8,6 +8,7 @@ but is expected to have type
   ?m_1 → ?m_2 → ?m_3
 Additional information:
 elab_error_msgs.lean:2:0: context: 'eliminator' elaboration was not used for 'and.rec' because it is not fully applied, #2 explicit arguments expected
+elab_error_msgs.lean:1:0: error: unknown declaration 'sorry'
 elab_error_msgs.lean:9:0: error: type mismatch at application
   bogus_elim trivial
 term
@@ -18,6 +19,7 @@ but is expected to have type
   ?m_2 ?m_3 ?m_3
 Additional information:
 elab_error_msgs.lean:9:0: context: 'eliminator' elaboration is not used for 'bogus_elim' because a (reliable) way to synthesize 'a', which occurs in the resulting type, was not found
+elab_error_msgs.lean:8:0: error: incorrect number of universe levels parameters for 'sorry', #1 expected, #0 provided
 elab_error_msgs.lean:13:20: error: failed to synthesize type class instance for
 a b : Prop,
 h : a ∧ b ∧ b,
@@ -27,3 +29,4 @@ hb : b ∧ b
 Additional information:
 elab_error_msgs.lean:12:5: context: the inferred motive for the eliminator-like application is
   b ∧ a
+elab_error_msgs.lean:11:0: error: invalid object declaration, environment already has an object named 'ex1'

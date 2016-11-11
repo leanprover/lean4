@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <string>
+#include <vector>
 #include "util/name.h"
 #include "util/exception.h"
 
@@ -52,6 +53,17 @@ void display_path(std::ostream & out, std::string const & fname);
 
 std::string dirname(char const * fname);
 std::string path_append(char const * path1, char const * path2);
+
+std::string olean_of_lean(std::string const & lean_fn);
+std::string olean_file_to_lean_file(std::string const & olean);
+
+std::string read_file(std::string const & fname, std::ios_base::openmode mode = std::ios_base::in);
+
+optional<bool> is_dir(std::string const & fn);
+std::vector<std::string> read_dir(std::string const & dirname);
+void recursive_list_files(std::string const & dirname, std::vector<std::string> & files);
+
+time_t get_mtime(std::string const & fname);
 
 void initialize_lean_path();
 void finalize_lean_path();

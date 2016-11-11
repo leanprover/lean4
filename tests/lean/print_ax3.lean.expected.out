@@ -4,5 +4,5 @@ quot.sound : ∀ {α : Type u} [s : setoid α] {a b : α}, a ≈ b → ⟦a⟧ =
 classical.strong_indefinite_description : Π {a : Type u} (p : a → Prop), nonempty a → {x // (∃ (y : a), p y) → p x}
 propext : ∀ {a b : Prop}, (a ↔ b) → a = b
 ------
-theorem foo3 : 0 = 0 :=
+[delayed] theorem foo3 : 0 = 0 :=
 foo2

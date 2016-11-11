@@ -38,10 +38,10 @@ lean_bool lean_parse_commands(lean_env env, lean_ios ios, char const * str, lean
     environment _env     = to_env_ref(env);
     io_state    _ios     = to_io_state_ref(ios);
     bool use_exceptions  = true;
-    unsigned num_threads = 1;
-    parse_commands(_env, _ios, in, strname, optional<std::string>(), use_exceptions, num_threads);
-    *new_env = of_env(new environment(_env));
-    *new_ios = of_io_state(new io_state(_ios));
+    parser p(_env, _ios, mk_dummy_loader(), in, strname, use_exceptions);
+    p();
+    *new_env = of_env(new environment(p.env()));
+    *new_ios = of_io_state(new io_state(p.ios()));
     LEAN_CATCH;
 }
 
@@ -55,8 +55,7 @@ lean_bool lean_parse_expr(lean_env env, lean_ios ios, char const * str, lean_exp
     environment _env     = to_env_ref(env);
     io_state    _ios     = to_io_state_ref(ios);
     bool use_exceptions  = true;
-    unsigned num_threads = 1;
-    parser p(_env, _ios, in, strname, optional<std::string>(), use_exceptions, num_threads);
+    parser p(_env, _ios, mk_dummy_loader(), in, strname, use_exceptions);
     expr e = p.parse_expr();
     expr _e; level_param_names _ps;
     std::tie(_e, _ps) = p.elaborate(list<expr>(), e);

@@ -694,17 +694,10 @@ public:
         scoped_expr_caching disable(false);
         scoped_set_distinguishing_pp_options set(get_distinguishing_pp_options());
 
-        buffer<module_name> olean_files;
-        std::string base = dirname(get_stream_name().c_str());
+        auto mod_ldr = mk_olean_loader();
         optional<unsigned> k;
-
-        olean_files.push_back(module_name(k, name("init")));
-        olean_files.push_back(module_name(k, name("smt")));
-
-        unsigned num_threads = 0;
-        bool keep_imported_theorems = false;
-
-        m_env = import_modules(m_env, base, olean_files.size(), olean_files.data(), num_threads, keep_imported_theorems, m_ios);
+        m_env = import_module(m_env, get_stream_name(), {"init", k}, mod_ldr);
+        m_env = import_module(m_env, get_stream_name(), {"smt", k}, mod_ldr);
 
         bool ok = true;
         try {

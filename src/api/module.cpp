@@ -20,12 +20,10 @@ lean_bool lean_env_import(lean_env env, lean_ios ios, lean_list_name modules, le
     check_nonnull(env);
     check_nonnull(ios);
     check_nonnull(modules);
-    buffer<module_name> ms;
+    auto new_env = to_env_ref(env);
     for (name const & n : to_list_name_ref(modules)) {
-        ms.push_back(module_name(n));
+        new_env = import_module(new_env, "", {n, optional<unsigned>()}, mk_olean_loader());
     }
-    environment new_env = import_modules(to_env_ref(env), std::string(), ms.size(), ms.data(),
-                                         1, true, to_io_state_ref(ios));
     *r = of_env(new environment(new_env));
     LEAN_CATCH;
 }

@@ -130,16 +130,12 @@ void for_each_key_equivalence(environment const & env, std::function<void(buffer
         });
 }
 
-static void key_equivalence_reader(deserializer & d, shared_environment & senv,
-                                   std::function<void(asynch_update_fn const &)> &,
-                                   std::function<void(delayed_update_fn const &)> &) {
+static void key_equivalence_reader(deserializer & d, environment & env) {
     name n1, n2;
     d >> n1 >> n2;
-    senv.update([=](environment const & env) -> environment {
-            key_equivalence_ext ext = get_extension(env);
-            ext.add_alias(n1, n2);
-            return update(env, ext);
-        });
+    key_equivalence_ext ext = get_extension(env);
+    ext.add_alias(n1, n2);
+    env = update(env, ext);
 }
 
 expr kabstract(type_context & ctx, expr const & e, expr const & t, occurrences const & occs) {

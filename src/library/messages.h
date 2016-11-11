@@ -7,8 +7,6 @@ Author: Gabriel Ebner
 #pragma once
 #include <string>
 #include "kernel/pos_info_provider.h"
-#include "util/output_channel.h"
-#include "util/exception.h"
 
 namespace lean {
 
@@ -37,22 +35,6 @@ public:
     message_severity get_severity() const { return m_severity; }
     std::string get_caption() const { return m_caption; }
     std::string get_text() const { return m_text; }
-};
-
-class message_stream {
-public:
-    virtual ~message_stream() {}
-    virtual void report(message const & msg) = 0;
-};
-
-class output_channel_message_stream : public message_stream {
-    options                         m_options;
-    std::shared_ptr<output_channel> m_out;
-public:
-    output_channel_message_stream(options const & opts, std::shared_ptr<output_channel> const & out) :
-            m_options(opts), m_out(out) {}
-    ~output_channel_message_stream() {}
-    void report(message const & msg) override;
 };
 
 }

@@ -81,14 +81,10 @@ bool has_eqn_lemmas(environment const & env, name const & cname) {
     return ext.m_lemmas.contains(cname);
 }
 
-static void eqn_lemmas_reader(deserializer & d, shared_environment & senv,
-                              std::function<void(asynch_update_fn const &)> &,
-                              std::function<void(delayed_update_fn const &)> &) {
+static void eqn_lemmas_reader(deserializer & d, environment & env) {
     name lemma;
     d >> lemma;
-    senv.update([=](environment const & env) -> environment {
-            return add_eqn_lemma_core(env, lemma);
-        });
+    env = add_eqn_lemma_core(env, lemma);
 }
 
 void initialize_eqn_lemmas() {

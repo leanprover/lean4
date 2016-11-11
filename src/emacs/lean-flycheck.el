@@ -32,10 +32,18 @@
   (lean-server-sync)
   (lean-server-send-command
    '(:command check)
-   (cl-function (lambda (&key messages)
+   (cl-function (lambda (&key messages incomplete incomplete_reason)
      (let* ((buffer (current-buffer))
             (errors (mapcar (lambda (j) (apply 'lean-flycheck-parse-error checker buffer j))
                             messages)))
+       (when (eq incomplete t)
+         (setq errors (cons
+                       (flycheck-error-new-at 1 1 'warning
+                                              (concat "lean error checking still in progress: " incomplete_reason)
+                                              :checker checker :buffer buffer)
+                       errors))
+         (run-at-time "500 milliseconds" nil
+                      (lambda () (flycheck-buffer))))
        (funcall callback 'finished errors))))
    (cl-function (lambda (&key message)
      (funcall callback 'errored message)))))

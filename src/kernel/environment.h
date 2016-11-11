@@ -107,15 +107,6 @@ class environment {
 
     environment(header const & h, environment_id const & id, declarations const & d, name_set const & global_levels, extensions const & ext);
 
-    friend class shared_environment;
-    friend class inductive::certified_inductive_decl;
-    /**
-       \brief Adds a declaration that was not type checked.
-
-       \remark This method throws an excetion if trust_lvl() == 0
-       It is mainly when importing pre-compiled .olean files, and trust_lvl() > 0.
-    */
-    environment add(declaration const & d) const;
 public:
     environment(unsigned trust_lvl = 0);
     environment(unsigned trust_lvl, std::unique_ptr<normalizer_extension> ext);
@@ -225,6 +216,7 @@ class name_generator;
    Only the type_checker class can create certified declarations.
 */
 class certified_declaration {
+    friend class certify_unchecked;
     friend certified_declaration check(environment const & env, declaration const & d);
     environment_id m_id;
     declaration    m_declaration;
@@ -233,5 +225,18 @@ public:
     /** \brief Return the id of the environment that was used to type check this declaration. */
     environment_id const & get_id() const { return m_id; }
     declaration const & get_declaration() const { return m_declaration; }
+};
+
+class certify_unchecked {
+    friend struct import_helper;
+    friend class inductive::certified_inductive_decl;
+    /**
+       \brief Certifies a declaration without type-checking.
+
+       \remark This method throws an excetion if trust_lvl() == 0
+       It is only used when importing pre-compiled .olean files and for inductive definitions, and trust_lvl() > 0.
+    */
+    static certified_declaration certify(environment const & env, declaration const & d);
+    static certified_declaration certify_or_check(environment const & env, declaration const & d);
 };
 }

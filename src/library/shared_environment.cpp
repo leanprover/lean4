@@ -20,11 +20,6 @@ void shared_environment::add(certified_declaration const & d) {
     m_env = m_env.add(d);
 }
 
-void shared_environment::add(declaration const & d) {
-    lock_guard<mutex> l(m_mutex);
-    m_env = m_env.add(d);
-}
-
 void shared_environment::replace(certified_declaration const & t) {
     lock_guard<mutex> l(m_mutex);
     m_env = m_env.replace(t);

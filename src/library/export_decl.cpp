@@ -66,17 +66,13 @@ static environment update(environment const & env, export_decl_env_ext const & e
     return env.update(g_ext->m_ext_id, std::make_shared<export_decl_env_ext>(ext));
 }
 
-static void read_export_decls(deserializer & d, shared_environment &,
-                              std::function<void(asynch_update_fn const &)> &,
-                              std::function<void(delayed_update_fn const &)> & add_delayed_update) {
+static void read_export_decls(deserializer & d, environment & env) {
     name in_ns;
     export_decl e;
     d >> in_ns >> e.m_ns >> e.m_as >> e.m_had_explicit;
     e.m_except_names = read_list<name>(d, read_name);
     e.m_renames = read_list<pair<name, name>>(d, read_pair_name);
-    add_delayed_update([=](environment const & env, io_state const &) -> environment {
-        return add_export_decl(env, in_ns, e);
-    });
+    env = add_export_decl(env, in_ns, e);
 }
 
 environment add_export_decl(environment const & env, name const & in_ns, export_decl const & e) {

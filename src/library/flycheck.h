@@ -6,18 +6,15 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <iostream>
-#include "kernel/pos_info_provider.h"
-#include "util/sexpr/options.h"
-#include "library/io_state.h"
-#include "library/messages.h"
+#include "library/message_buffer.h"
 
 namespace lean {
 /** \brief Auxiliary object for "inserting" delimiters for flycheck */
-class flycheck_message_stream : public message_stream {
+class flycheck_message_stream : public message_buffer {
     std::ostream & m_out;
 public:
     flycheck_message_stream(std::ostream & out) : m_out(out) {}
     ~flycheck_message_stream() {}
-    void report(message const & msg) override;
+    void report(message_bucket_id const &, message const & msg) override;
 };
 }

@@ -17,7 +17,7 @@ static char const * flycheck_kind_of_severity(message_severity severity) {
     }
 }
 
-void flycheck_message_stream::report(message const & msg) {
+void flycheck_message_stream::report(message_bucket_id const &, message const & msg) {
     m_out << "FLYCHECK_BEGIN " << flycheck_kind_of_severity(msg.get_severity()) << std::endl;
     m_out << msg.get_file_name()
           << ":" << msg.get_pos().first << ":" << msg.get_pos().second << ": ";

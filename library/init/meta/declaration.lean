@@ -89,6 +89,11 @@ meta def declaration.update_value : declaration → expr → declaration
 | (declaration.thm n ls t v)       new_v := declaration.thm n ls t new_v
 | d                                new_v := d
 
+meta def declaration.to_definition : declaration → declaration
+| (declaration.cnst n ls t tr) := declaration.defn n ls t (default expr) reducibility_hints.abbrev tr
+| (declaration.ax n ls t)      := declaration.thm n ls t (default expr)
+| d                            := d
+
 /- Instantiate a universe polymorphic declaration type with the given universes. -/
 meta constant declaration.instantiate_type_univ_params : declaration → list level → option expr
 

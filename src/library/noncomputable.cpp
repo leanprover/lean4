@@ -38,16 +38,12 @@ static environment update(environment const & env, noncomputable_ext const & ext
 static name * g_noncomputable = nullptr;
 static std::string * g_key    = nullptr;
 
-static void noncomputable_reader(deserializer & d, shared_environment & senv,
-                                 std::function<void(asynch_update_fn const &)> &,
-                                 std::function<void(delayed_update_fn const &)> &) {
+static void noncomputable_reader(deserializer & d, environment & env) {
     name n;
     d >> n;
-    senv.update([=](environment const & env) -> environment {
-            noncomputable_ext ext = get_extension(env);
-            ext.m_noncomputable.insert(n);
-            return update(env, ext);
-        });
+    noncomputable_ext ext = get_extension(env);
+    ext.m_noncomputable.insert(n);
+    env = update(env, ext);
 }
 
 static bool is_noncomputable(type_checker & tc, noncomputable_ext const & ext, name const & n) {

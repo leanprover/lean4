@@ -21,7 +21,7 @@ for f in *.lean; do
     else
         CONFIG="config.lean"
     fi
-    "$LEAN" -t $CONFIG "$f" &> "$f.produced.out.1"
+    "$LEAN" -j0 -t $CONFIG "$f" &> "$f.produced.out.1"
     sed "/warning: imported file uses 'sorry'/d" "$f.produced.out.1" > "$f.produced.out"
     rm -f -- "$f.produced.out.1"
     if test -f "$f.expected.out"; then

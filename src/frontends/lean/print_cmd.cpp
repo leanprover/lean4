@@ -69,26 +69,24 @@ struct print_axioms_deps {
     }
 };
 
-static environment print_axioms(parser & p, message_builder & out) {
+static void print_axioms(parser & p, message_builder & out) {
     if (p.curr_is_identifier()) {
         name c = p.check_constant_next("invalid 'print axioms', constant expected");
-        environment new_env = p.reveal_all_theorems();
-        type_context tc(new_env, p.get_options());
-        auto new_out = io_state_stream(new_env, p.ios(), tc, out.get_text_stream().get_channel());
-        print_axioms_deps(p.env(), new_out)(c);
-        return new_env;
+        auto env = p.reveal_all_theorems(); // FIXME
+        type_context tc(env, p.get_options());
+        auto new_out = io_state_stream(env, p.ios(), tc, out.get_text_stream().get_channel());
+        print_axioms_deps(env, new_out)(c);
     } else {
         bool has_axioms = false;
         p.env().for_each_declaration([&](declaration const & d) {
                 name const & n = d.get_name();
-                if (!d.is_definition() && !p.env().is_builtin(n) && d.is_trusted()) {
+                if (!d.is_definition() && !p.env().is_builtin(n) && d.is_trusted() && !p.is_delayed_theorem(n)) {
                     out << n << " : " << d.get_type() << endl;
                     has_axioms = true;
                 }
             });
         if (!has_axioms)
             out << "no axioms" << endl;
-        return p.env();
     }
 }
 
@@ -214,8 +212,7 @@ static name to_user_name(environment const & env, name const & n) {
         return n;
 }
 
-static void print_definition(parser const & p, message_builder & out, name const & n, pos_info const & pos) {
-    environment const & env = p.env();
+static void print_definition(environment const & env, message_builder & out, name const & n, pos_info const & pos) {
     declaration d = env.get(n);
     if (d.is_axiom())
         throw parser_error(sstream() << "invalid 'print definition', theorem '" << to_user_name(env, n)
@@ -350,7 +347,7 @@ bool print_id_info(parser & p, message_builder & out, name const & id, bool show
                 if (d.is_theorem()) {
                     print_constant(p, out, "theorem", d, show_value);
                     if (show_value)
-                        print_definition(p, out, c, pos);
+                        print_definition(env, out, c, pos);
                 } else if (d.is_axiom() || d.is_constant_assumption()) {
                     if (inductive::is_inductive_decl(env, c)) {
                         print_inductive(p, out, c, pos);
@@ -360,6 +357,12 @@ bool print_id_info(parser & p, message_builder & out, name const & id, bool show
                         print_constant(p, out, "eliminator", d);
                     } else if (is_quotient_decl(env, c)) {
                         print_constant(p, out, "builtin-quotient-type-constant", d);
+                    } else if (d.is_axiom() && p.is_delayed_theorem(c)) {
+                        buffer<name> ns; ns.push_back(c);
+                        auto revealed_env = p.reveal_theorems(ns);
+                        print_constant(p, out, "[delayed] theorem", revealed_env.get(c), show_value);
+                        if (show_value)
+                            print_definition(revealed_env, out, c, pos);
                     } else if (d.is_axiom()) {
                         print_constant(p, out, "axiom", d);
                     } else {
@@ -368,12 +371,14 @@ bool print_id_info(parser & p, message_builder & out, name const & id, bool show
                 } else if (d.is_definition()) {
                     print_constant(p, out, "definition", d, show_value);
                     if (show_value)
-                        print_definition(p, out, c, pos);
+                        print_definition(env, out, c, pos);
                 }
                 // print_patterns(p, c);
             }
             return true;
-        } catch (exception & ex) {}
+        } catch (exception & ex) {
+            std::cerr << ex.what() << std::endl;
+        }
 
         // variables and parameters
         if (expr const * type = p.get_local(id)) {
@@ -399,7 +404,9 @@ bool print_id_info(parser & p, message_builder & out, name const & id, bool show
                 }
             });
         if (found) return true;
-    } catch (exception &) {}
+    } catch (exception & ex) {
+        std::cerr << ex.what() << std::endl;
+    }
     return false;
 }
 
@@ -523,10 +530,10 @@ environment print_cmd(parser & p) {
             declaration const & d = p.env().get(c);
             if (d.is_theorem()) {
                 print_constant(p, out, "theorem", d);
-                print_definition(p, out, c, pos);
+                print_definition(env, out, c, pos);
             } else if (d.is_definition()) {
                 print_constant(p, out, "definition", d);
-                print_definition(p, out, c, pos);
+                print_definition(env, out, c, pos);
             } else {
                 throw parser_error(sstream() << "invalid 'print definition', '" << to_user_name(p.env(), c) << "' is not a definition", pos);
             }

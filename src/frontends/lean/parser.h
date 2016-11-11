@@ -8,9 +8,11 @@ Author: Leonardo de Moura
 #include <string>
 #include <utility>
 #include <vector>
+#include "library/module.h"
 #include "util/flet.h"
 #include "util/name_map.h"
 #include "util/exception.h"
+#include "util/task_queue.h"
 #include "kernel/environment.h"
 #include "kernel/expr_maps.h"
 #include "library/abstract_parser.h"
@@ -23,13 +25,13 @@ Author: Leonardo de Moura
 #include "frontends/lean/local_level_decls.h"
 #include "frontends/lean/parser_config.h"
 #include "frontends/lean/local_context_adapter.h"
-#include "frontends/lean/info_manager.h"
 
 namespace lean {
 struct interrupt_parser {};
 typedef environment             local_environment;
 class metavar_context;
 class local_context_adapter;
+class scope_message_context;
 
 /** \brief Extra data needed to be saved when we execute parser::push_local_scope */
 struct parser_scope {
@@ -51,26 +53,34 @@ struct parser_scope {
 };
 typedef list<parser_scope> parser_scope_stack;
 
+struct delayed_theorem {
+    bool m_imported;
+    environment m_decl_env;
+    declaration m_ax_decl;
+    task_result<expr> m_proof;
+    task_result<certified_declaration> m_cert_decl;
+};
+
 /** \brief Snapshot of the state of the Lean parser */
 struct snapshot {
-    environment            m_env;
-    list<message>          m_messages;
-    local_level_decls      m_lds;
-    local_expr_decls       m_eds;
-    name_set               m_lvars; // subset of m_lds that is tagged as level variable
-    name_set               m_vars; // subset of m_eds that is tagged as variable
-    name_set               m_include_vars; // subset of m_eds that must be included
-    options                m_options;
-    bool                   m_imports_parsed;
-    parser_scope_stack     m_parser_scope_stack;
-    pos_info               m_pos;
-    optional<info_manager> m_infom;
-    snapshot(environment const & env, list<message> const & messages, local_level_decls const & lds,
+    environment        m_env;
+    name_set           m_sub_buckets;
+    name_map<delayed_theorem> m_delayed_thms;
+    local_level_decls  m_lds;
+    local_expr_decls   m_eds;
+    name_set           m_lvars; // subset of m_lds that is tagged as level variable
+    name_set           m_vars; // subset of m_eds that is tagged as variable
+    name_set           m_include_vars; // subset of m_eds that must be included
+    options            m_options;
+    bool               m_imports_parsed;
+    parser_scope_stack m_parser_scope_stack;
+    pos_info           m_pos;
+    snapshot(environment const & env, name_set const & sub_buckets, name_map<delayed_theorem> delayed_thms, local_level_decls const & lds,
              local_expr_decls const & eds, name_set const & lvars, name_set const & vars,
              name_set const & includes, options const & opts, bool imports_parsed, parser_scope_stack const & pss,
-             pos_info const & pos, optional<info_manager> const & infom):
-        m_env(env), m_messages(messages), m_lds(lds), m_eds(eds), m_lvars(lvars), m_vars(vars), m_include_vars(includes),
-        m_options(opts), m_imports_parsed(imports_parsed), m_parser_scope_stack(pss), m_pos(pos), m_infom(infom) {}
+             pos_info const & pos):
+        m_env(env), m_sub_buckets(sub_buckets), m_delayed_thms(delayed_thms), m_lds(lds), m_eds(eds), m_lvars(lvars), m_vars(vars), m_include_vars(includes),
+        m_options(opts), m_imports_parsed(imports_parsed), m_parser_scope_stack(pss), m_pos(pos) {}
 };
 
 typedef std::vector<snapshot> snapshot_vector;
@@ -83,8 +93,6 @@ public:
     show_goal_exception(pos_info const & pos, tactic_state const & goal) : m_pos(pos), m_state(goal) {}
 };
 
-enum class keep_theorem_mode { All, DiscardImported, DiscardAll };
-
 enum class id_behavior {
     ErrorIfUndef, /* Default: just generate an error when an undefined identifier is found */
     AssumeConstantIfUndef, /* Assume an undefined identifier is a constant, we use it for parsing inductive datatypes. */
@@ -94,14 +102,13 @@ enum class id_behavior {
 class parser : public abstract_parser {
     environment             m_env;
     io_state                m_ios;
-    list<message>           m_messages;
     bool                    m_verbose;
     bool                    m_use_exceptions;
     bool                    m_show_errors;
-    unsigned                m_num_threads;
+    module_loader           m_import_fn;
+    std::string             m_file_name;
     scanner                 m_scanner;
     scanner::token_kind     m_curr;
-    optional<std::string>   m_base_dir;
     local_level_decls       m_local_level_decls;
     local_expr_decls        m_local_decls;
     bool                    m_has_params; // true context context contains parameters
@@ -119,7 +126,6 @@ class parser : public abstract_parser {
     bool                    m_found_errors;
     bool                    m_used_sorry;
     pos_info_table          m_pos_table;
-    optional<info_manager>  m_infom;
     // By default, when the parser finds a unknown identifier, it signs an error.
     // When the following flag is true, it creates a constant.
     // This flag is when we are trying to parse mutually recursive declarations.
@@ -127,6 +133,7 @@ class parser : public abstract_parser {
 
     // info support
     snapshot_vector *       m_snapshot_vector;
+    name_set                m_old_buckets_from_snapshot;
 
     // curr command token
     name                   m_cmd_token;
@@ -150,6 +157,9 @@ class parser : public abstract_parser {
     // Docgen
     optional<std::string>  m_doc_string;
 
+    // delayed theorems
+    name_map<delayed_theorem> m_delayed_thms;
+
     void throw_parser_exception(char const * msg, pos_info p);
     void throw_nested_exception(throwable const & ex, pos_info p);
 
@@ -168,15 +178,15 @@ class parser : public abstract_parser {
     level parse_level_nud();
     level parse_level_led(level left);
 
-    void parse_imports();
-    void check_modules_up_to_date();
     void parse_doc_block();
     void parse_mod_doc_block();
     void check_no_doc_string();
     void reset_doc_string();
+
+    std::vector<module_name> parse_imports(unsigned & fingerprint);
+    void process_imports();
     void parse_command();
     bool parse_commands();
-    unsigned curr_lbp_core() const;
     void process_postponed(buffer<expr> const & args, bool is_left, buffer<notation::action_kind> const & kinds,
                            buffer<list<expr>> const & nargs, buffer<expr> const & ps, buffer<pair<unsigned, pos_info>> const & scoped_info,
                            list<notation::action> const & postponed, pos_info const & p, buffer<expr> & new_args);
@@ -215,19 +225,14 @@ class parser : public abstract_parser {
     void push_local_scope(bool save_options = true);
     void pop_local_scope();
 
-    void save_snapshot();
+    void save_snapshot(scope_message_context &);
 
-    friend class parser_message_stream;
-    void add_message(message const & msg) { m_messages = cons(msg, m_messages); }
-
-    void replace_theorem(certified_declaration const & thm);
-    environment reveal_theorems_core(buffer<name> const & ds, bool all);
 public:
     parser(environment const & env, io_state const & ios,
-           std::istream & strm, char const * str_name, optional<std::string> const & base_dir,
-           bool use_exceptions = false, unsigned num_threads = 1,
-           snapshot const * s = nullptr, snapshot_vector * sv = nullptr,
-           optional<info_manager> infom = optional<info_manager>());
+           module_loader const & import_fn,
+           std::istream & strm, std::string const & file_name,
+           bool use_exceptions = false,
+           snapshot const * s = nullptr, snapshot_vector * sv = nullptr);
     ~parser();
 
     void enable_show_goal(pos_info const & pos);
@@ -245,13 +250,11 @@ public:
 
     cmd_table const & cmds() const { return get_cmd_table(env()); }
 
-    bool are_info_lines_valid(unsigned start_line, unsigned end_line) const;
-
     environment const & env() const { return m_env; }
     io_state const & ios() const { return m_ios; }
-    optional<info_manager> & infom() { return m_infom; }
 
-    list<message> const & get_messages() const { return m_messages; }
+    name_map<delayed_theorem> get_delayed_theorems() const { return m_delayed_thms; }
+    void add_delayed_theorem(delayed_theorem);
 
     message_builder mk_message(pos_info const & p, message_severity severity);
     message_builder mk_message(message_severity severity);
@@ -275,14 +278,15 @@ public:
 
     optional<std::string> get_doc_string() const { return m_doc_string; }
 
+    parser_pos_provider get_parser_pos_provider(pos_info const & some_pos) const {
+        return parser_pos_provider(m_pos_table, m_file_name, some_pos);
+    }
+
     expr mk_app(expr fn, expr arg, pos_info const & p);
     expr mk_app(expr fn, buffer<expr> const & args, pos_info const & p);
     expr mk_app(std::initializer_list<expr> const & args, pos_info const & p);
 
-    unsigned num_threads() const { return m_num_threads; }
-    void add_delayed_theorem(environment const & env, name const & n, level_param_names const & ls,
-                             expr const & t, expr const & v);
-    void add_delayed_theorem(certified_declaration const & cd);
+    bool is_delayed_theorem(name const &);
     environment reveal_theorems(buffer<name> const & ds);
     environment reveal_all_theorems();
 
@@ -502,6 +506,8 @@ public:
     /** parse all commands in the input stream */
     bool operator()() { return parse_commands(); }
 
+    std::vector<module_name> get_imports();
+
     class in_notation_ctx {
         scanner::in_notation_ctx m_ctx;
     public:
@@ -515,9 +521,6 @@ public:
     virtual char const * get_file_name() const override;
 };
 
-bool parse_commands(environment & env, io_state & ios, std::istream & in,
-                    char const * strm_name, optional<std::string> const & base_dir,
-                    bool use_exceptions, unsigned num_threads);
 bool parse_commands(environment & env, io_state & ios, char const * fname, optional<std::string> const & base,
                     bool use_exceptions, unsigned num_threads);
 

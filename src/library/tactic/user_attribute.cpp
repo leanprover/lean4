@@ -80,14 +80,10 @@ static environment add_user_attr(environment const & env, name const & d) {
     return update(env, ext);
 }
 
-static void user_attr_reader(deserializer & d, shared_environment & senv,
-                             std::function<void(asynch_update_fn const &)> &,
-                             std::function<void(delayed_update_fn const &)> &) {
+static void user_attr_reader(deserializer & d, environment & env) {
     name n;
     d >> n;
-    senv.update([=](environment const & env) -> environment {
-        return add_user_attr(env, n);
-    });
+    env = add_user_attr(env, n);
 }
 
 

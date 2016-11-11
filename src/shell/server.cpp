@@ -10,10 +10,13 @@ Authors: Gabriel Ebner, Leonardo de Moura, Sebastian Ullrich
 #include <algorithm>
 #include <vector>
 #include <clocale>
+#include "util/mt_task_queue.h"
+#include "util/st_task_queue.h"
 #include "frontends/lean/parser.h"
 #include "library/module.h"
 #include "shell/server.h"
 #include "frontends/lean/info_manager.h"
+#include "frontends/lean/definition_cmds.h"
 #include "util/sexpr/option_declarations.h"
 #include "frontends/lean/util.h"
 #include "library/protected.h"
@@ -37,29 +40,43 @@ unsigned get_auto_completion_max_results(options const & o) {
     return o.get_unsigned(*g_auto_completion_max_results, LEAN_DEFAULT_AUTO_COMPLETION_MAX_RESULTS);
 }
 
-class null_message_stream : public message_stream {
-public:
-    void report(message const &) override {}
-};
-
 server::server(unsigned num_threads, environment const & initial_env, io_state const & ios) :
-        m_num_threads(num_threads), m_initial_env(initial_env), m_ios(ios) {
+        m_initial_env(initial_env), m_ios(ios) {
     m_ios.set_regular_channel(std::make_shared<stderr_channel>());
     m_ios.set_diagnostic_channel(std::make_shared<stderr_channel>());
-    m_ios.set_message_channel(std::make_shared<null_message_stream>());
+
+#if defined(LEAN_MULTI_THREAD)
+    if (num_threads == 0)
+        m_tq = new st_task_queue;
+    else
+        m_tq = new mt_task_queue(num_threads);
+#else
+    m_tq = new st_task_queue;
+#endif
+
+    scope_global_task_queue scope_tq(m_tq);
+    m_mod_mgr = new module_mgr(this, &m_msg_buf, m_initial_env, m_ios);
+    m_mod_mgr->set_use_snapshots(true);
+    m_mod_mgr->set_save_olean(false);
 }
 
 server::~server() {
+    delete m_tq;
+    delete m_mod_mgr;
 }
 
 void server::run() {
+    scope_global_task_queue scope_tq(m_tq);
     scope_global_ios scoped_ios(m_ios);
+    scoped_message_buffer scope_msg_buf(&m_msg_buf);
+
     /* Leo: we use std::setlocale to make sure decimal period is displayed as ".".
        We added this hack because the json library code used for ensuring this property
        was crashing when compiling Lean on Windows with mingw. */
 #if !defined(LEAN_EMSCRIPTEN)
     std::setlocale(LC_NUMERIC, "C");
 #endif
+
     while (true) {
         try {
             std::string req_string;
@@ -98,20 +115,6 @@ json server::handle_request(json const & req) {
     return res;
 }
 
-static optional<pos_info> diff(std::string a, std::string b) {
-    std::istringstream in_a(a), in_b(b);
-    for (unsigned line = 1;; line++) {
-        if (in_a.eof() && in_b.eof()) return optional<pos_info>();
-        if (in_a.eof() || in_b.eof()) return optional<pos_info>(line, 0);
-
-        std::string line_a, line_b;
-        std::getline(in_a, line_a);
-        std::getline(in_b, line_b);
-        // TODO(gabriel): return column as well
-        if (line_a != line_b) return optional<pos_info>(line, 0);
-    }
-}
-
 json server::handle_sync(json const & req) {
     std::string new_file_name = req["file_name"];
     std::string new_content = req["content"];
@@ -119,73 +122,52 @@ json server::handle_sync(json const & req) {
     json res;
     res["response"] = "ok";
 
+    m_mtime = time(nullptr);
     if (m_file_name != new_file_name) {
+#if defined(LEAN_MULTI_THREAD)
+        if (auto tq = dynamic_cast<mt_task_queue *>(m_tq))
+            tq->reprioritize(mk_interactive_prioritizer(new_file_name));
+#endif
+        m_mod_mgr->invalidate(m_file_name);
         m_file_name = new_file_name;
         m_content = new_content;
-        m_only_checked_until = optional<pos_info>(0, 0);
         res["message"] = "new file name, reloading";
     } else {
-        if (auto diff_pos = diff(m_content, new_content)) {
-            m_content = new_content;
-            // TODO(gabriel): implement min on pos_info
-            if (m_only_checked_until && m_only_checked_until->first < diff_pos->first) {
-                // we have not yet checked up to the differing position
-            } else {
-                m_only_checked_until = diff_pos;
-            }
-            res["message"] = "file partially invalidated";
-        } else {
-            res["message"] = "no file changes";
-        }
+        m_content = new_content;
+        res["message"] = "file partially invalidated";
     }
+    m_mod_mgr->invalidate(m_file_name);
     return res;
 }
 
 json server::handle_check(json const &) {
-    try {
-        if (imports_have_changed(m_checked_env))
-            m_only_checked_until = optional<pos_info>(0, 0);
-    } catch (...) {
-        m_only_checked_until = optional<pos_info>(0, 0);
+    bool incomplete = !get_global_task_queue().empty(); // TODO(gabriel)
+
+    std::list<json> json_messages;
+    for (auto & msg : m_msg_buf.get_messages()) {
+        json_messages.push_back(json_of_message(msg));
     }
 
-    if (m_only_checked_until) {
-        // keep all snapshots before the change but the last one (which may belong to the command that's being changed)
-        auto it = m_snapshots.begin();
-        while (it != m_snapshots.end() && it->m_pos < *m_only_checked_until)
-            it++;
-        if (it != m_snapshots.begin())
-            it--;
-        m_snapshots.erase(it, m_snapshots.end());
-
-        std::istringstream in(m_content);
-        bool use_exceptions = false;
-        optional<std::string> base_dir;
-        parser p(m_initial_env, m_ios, in, m_file_name.c_str(),
-                 base_dir, use_exceptions, m_num_threads,
-                 m_snapshots.empty() ? nullptr : &m_snapshots.back(),
-                 &m_snapshots,
-                 m_snapshots.empty() ? optional<info_manager>(info_manager()) : m_snapshots.back().m_infom);
-        // TODO(gabriel): definition caches?
-
-        m_parsed_ok = p();
-        m_only_checked_until = optional<pos_info>();
-        m_checked_env = p.env();
-        m_messages = p.get_messages();
+    bool is_ok = false;
+    if (auto res = m_mod_mgr->get_module(m_file_name).m_result.peek()) {
+        is_ok = res->m_ok;
     }
 
     json res;
     res["response"] = "ok";
-    res["is_ok"] = m_parsed_ok;
-    std::list<json> json_messages;
-    for_each(m_messages, [&](message const & msg) { json_messages.push_front(json_of_message(msg)); });
+    res["incomplete"] = incomplete;
+    res["incomplete_reason"] = "";
+    if (auto cur_task = get_global_task_queue().get_current_task())
+        res["incomplete_reason"] = cur_task->description();
+    res["is_ok"] = is_ok;
     res["messages"] = json_messages;
     return res;
 }
 
 snapshot const * server::get_closest_snapshot(unsigned line) {
-    snapshot const * ret = m_snapshots.size() ? &m_snapshots.front() : nullptr;
-    for (snapshot const & snap : m_snapshots) {
+    auto snapshots = m_mod_mgr->get_snapshots(m_file_name);
+    snapshot const * ret = snapshots.size() ? &snapshots.front() : nullptr;
+    for (snapshot const & snap : snapshots) {
         if (snap.m_pos.first <= line)
             ret = &snap;
     }
@@ -282,10 +264,6 @@ json server::handle_complete(json const & req) {
     unsigned line = req["line"];
     std::vector<json> completions;
 
-    if (!m_snapshots.size()) { // should only happen when imports have been touched
-        handle_check({});
-    }
-
     if (snapshot const * snap = get_closest_snapshot(line)) {
         environment const & env = snap->m_env;
         options const & opts = snap->m_options;
@@ -350,15 +328,31 @@ json server::handle_info(json const & req) {
     unsigned line = req["line"];
     unsigned col = req["column"];
 
+    auto opts = m_ios.get_options();
+    auto env = m_initial_env;
+    if (auto mod = m_mod_mgr->get_module(m_file_name).m_result.peek()) {
+        if (mod->m_env) env = *mod->m_env;
+        if (!mod->m_snapshots.empty()) opts = mod->m_snapshots.back().m_options;
+    }
+
+    json record;
+    for (auto & infom : m_msg_buf.get_info_managers()) {
+        if (infom.get_file_name() == m_file_name) {
+            infom.get_info_record(env, opts, m_ios, line, col, record);
+        }
+    }
+
     json res;
     res["response"] = "ok";
-
-    if (m_snapshots.size()) {
-        auto const & snap = m_snapshots.back();
-        lean_assert(snap.m_infom);
-        res["record"] = snap.m_infom->get_info_record(snap.m_env, snap.m_options, m_ios, line, col);
-    }
+    res["record"] = record;
     return res;
+}
+
+std::tuple<std::string, module_src, time_t> server::load_module(module_id const & id, bool can_use_olean) {
+    if (id == m_file_name) {
+        return std::make_tuple(m_content, module_src::LEAN, m_mtime);
+    }
+    return m_fs_vfs.load_module(id, can_use_olean);
 }
 
 void initialize_server() {
@@ -370,5 +364,44 @@ void initialize_server() {
 void finalize_server() {
     delete g_auto_completion_max_results;
 }
+
+#if defined(LEAN_MULTI_THREAD)
+mt_tq_prioritizer mk_interactive_prioritizer(module_id const & roi) {
+    const unsigned
+        ROI_PARSING_PRIO = 10,
+        ROI_PRINT_PRIO = 11,
+        ROI_ELAB_PRIO = 13,
+        DEFAULT_PRIO = 20,
+        PARSING_PRIO = 20,
+        PRINT_PRIO = 21,
+        ELAB_PRIO = 23;
+
+    return[=] (generic_task * t) {
+        task_priority p { DEFAULT_PRIO, optional<chrono::steady_clock::time_point>() };
+
+        if (auto mod_task = dynamic_cast<generic_module_task *>(t)) {
+            bool in_roi = mod_task->get_module() == roi;
+
+            if (!in_roi)
+                p.m_not_before = { chrono::steady_clock::now() + chrono::seconds(10) };
+
+            switch (mod_task->get_kind()) {
+                case generic_module_task::task_kind::parse:
+                    p.m_prio = in_roi ? ROI_PARSING_PRIO : PARSING_PRIO;
+                    break;
+                case generic_module_task::task_kind::elab:
+                    p.m_prio = in_roi ? ROI_ELAB_PRIO : ELAB_PRIO;
+                    break;
+                case generic_module_task::task_kind::print:
+                    p.m_prio = in_roi ? ROI_PRINT_PRIO : PRINT_PRIO;
+                    break;
+            }
+        }
+
+        return p;
+    };
+}
+#endif
+
 }
 #endif

@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include <string>
 #include <cstdlib>
 #include "util/realpath.h"
+#include "util/lean_path.h"
 
 #if defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
 #include <windows.h>
@@ -34,9 +35,13 @@ std::string lrealpath(char const * fname) {
     }
 #else
     char * tmp = realpath(fname, nullptr);
-    std::string r(tmp);
-    ::free(tmp);
-    return r;
+    if (tmp) {
+        std::string r(tmp);
+        ::free(tmp);
+        return r;
+    } else {
+        throw file_not_found_exception(fname);
+    }
 #endif
 }
 }

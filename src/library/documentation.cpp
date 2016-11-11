@@ -161,16 +161,12 @@ void get_module_doc_strings(environment const & env, buffer<doc_entry> & result)
     std::reverse(result.begin(), result.end());
 }
 
-static void documentation_reader(deserializer & d, shared_environment & senv,
-                                 std::function<void(asynch_update_fn const &)> &,
-                                 std::function<void(delayed_update_fn const &)> &) {
+static void documentation_reader(deserializer & d, environment & env) {
     name n; std::string doc;
     d >> n >> doc;
-    senv.update([=](environment const & env) -> environment {
-            auto ext = get_extension(env);
-            ext.m_doc_string_map.insert(n, doc);
-            return update(env, ext);
-        });
+    auto ext = get_extension(env);
+    ext.m_doc_string_map.insert(n, doc);
+    env = update(env, ext);
 }
 
 void initialize_documentation() {

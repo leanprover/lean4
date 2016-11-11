@@ -12,11 +12,13 @@ else
     INTERACTIVE=$3
 fi
 f=$2
+ff=$(readlink -f "$f")
 
 echo "-- testing $f"
-"$LEAN" -Dpp.colors=false -Dpp.unicode=true "$f" &> "$f.produced.out.1"
-sed "/warning: imported file uses 'sorry'/d" "$f.produced.out.1" | sed "/warning: using 'sorry'/d" > "$f.produced.out"
-rm -f "$f.produced.out.1"
+"$LEAN" -Dpp.colors=false -Dpp.unicode=true -j0 "$ff" &> "$f.produced.out"
+sed -i "/warning: imported file uses 'sorry'/d" "$f.produced.out"
+sed -i "/warning: using 'sorry'/d" "$f.produced.out"
+sed -i "s|^$ff|$f|" "$f.produced.out"
 if test -f "$f.expected.out"; then
     if diff --ignore-all-space -I "executing external script" "$f.produced.out" "$f.expected.out"; then
         echo "-- checked"
@@ -26,10 +28,8 @@ if test -f "$f.expected.out"; then
         if [ $INTERACTIVE == "yes" ]; then
             meld "$f.produced.out" "$f.expected.out"
             if diff -I "executing external script" "$f.produced.out" "$f.expected.out"; then
-                echo "-- mismath was fixed"
+                echo "-- mismatch was fixed"
             fi
-        else
-            diff --ignore-all-space -I "executing external script" "$f.produced.out" "$f.expected.out"
         fi
         exit 1
     fi

@@ -55,7 +55,6 @@ Author: Leonardo de Moura
 
 namespace lean {
 MK_THREAD_LOCAL_GET(type_context_cache_manager, get_tcm, true /* use binder information at infer_cache */);
-LEAN_THREAD_PTR(info_manager, g_infom);
 
 static name * g_level_prefix = nullptr;
 static name * g_elab_strategy = nullptr;
@@ -112,21 +111,16 @@ elaborator_strategy get_elaborator_strategy(environment const & env, name const 
 #define trace_elab_debug(CODE) lean_trace("elaborator_debug", scope_trace_env _scope(m_env, m_ctx); CODE)
 
 elaborator::elaborator(environment const & env, options const & opts, metavar_context const & mctx,
-                       local_context const & lctx, optional<info_manager> & infom):
+                       local_context const & lctx):
     m_env(env), m_opts(opts),
-    m_ctx(env, opts, mctx, lctx, get_tcm(), transparency_mode::Semireducible), m_owns_infom(infom) {
-    if (infom) {
-        g_infom = &*infom;
-    }
+    m_ctx(env, opts, mctx, lctx, get_tcm(), transparency_mode::Semireducible),
+    m_uses_infom(get_global_info_manager() != nullptr) {
 }
 
 elaborator::~elaborator() {
-    if (g_infom) {
+    if (m_uses_infom && get_global_info_manager()) {
         m_info.instantiate_mvars(m_ctx.mctx());
-        g_infom->merge(m_info);
-    }
-    if (m_owns_infom) {
-        g_infom = nullptr;
+        get_global_info_manager()->merge(m_info);
     }
 }
 
@@ -673,7 +667,7 @@ expr elaborator::visit_const_core(expr const & e) {
 
 /** \brief Auxiliary function for saving information about which overloaded identifier was used by the elaborator. */
 void elaborator::save_identifier_info(expr const & f) {
-    if (!m_no_info && g_infom && get_pos_info_provider() && (is_constant(f) || is_local(f))) {
+    if (!m_no_info && m_uses_infom && get_pos_info_provider() && (is_constant(f) || is_local(f))) {
         if (auto p = get_pos_info_provider()->get_pos_info(f)) {
             m_info.add_identifier_info(p->first, p->second, is_constant(f) ? const_name(f) : local_pp_name(f));
             m_info.add_type_info(p->first, p->second, infer_type(f));
@@ -2355,7 +2349,7 @@ void elaborator::synthesize_type_class_instances() {
 }
 
 void elaborator::add_tactic_state_info(tactic_state const & s, expr const & ref) {
-    if (!g_infom) return;
+    if (!get_global_info_manager()) return;
     pos_info_provider * pip = get_pos_info_provider();
     if (!pip) return;
     if (auto p = pip->get_pos_info(ref))
@@ -2715,6 +2709,7 @@ static expr replace_with_simple_metavars(metavar_context mctx, name_map<expr> & 
 }
 
 expr elaborator::elaborate(expr const & e) {
+    scoped_info_manager scope_infom(&m_info);
     expr r = visit(e,  none_expr());
     trace_elab_detail(tout() << "result before final checkpoint\n" << r << "\n";);
     synthesize();
@@ -2722,6 +2717,7 @@ expr elaborator::elaborate(expr const & e) {
 }
 
 expr elaborator::elaborate_type(expr const & e) {
+    scoped_info_manager scope_infom(&m_info);
     expr const & ref = e;
     expr new_e = ensure_type(visit(e, none_expr()), ref);
     synthesize();
@@ -2729,6 +2725,7 @@ expr elaborator::elaborate_type(expr const & e) {
 }
 
 expr_pair elaborator::elaborate_with_type(expr const & e, expr const & e_type) {
+    scoped_info_manager scope_infom(&m_info);
     expr const & ref = e;
     expr new_e, new_e_type;
     {
@@ -2780,8 +2777,8 @@ pair<expr, level_param_names> elaborator::finalize(expr const & e, bool check_un
 pair<expr, level_param_names>
 elaborate(environment & env, options const & opts,
           metavar_context & mctx, local_context const & lctx, expr const & e,
-          bool check_unassigned, optional<info_manager> & infom) {
-    elaborator elab(env, opts, mctx, lctx, infom);
+          bool check_unassigned) {
+    elaborator elab(env, opts, mctx, lctx);
     expr r = elab.elaborate(e);
     auto p = elab.finalize(r, check_unassigned, true);
     mctx = elab.mctx();
@@ -2880,8 +2877,7 @@ static expr resolve_names(environment const & env, local_context const & lctx, e
 
 expr nested_elaborate(environment & env, options const & opts, metavar_context & mctx, local_context const & lctx,
                       expr const & e, bool relaxed) {
-    optional<info_manager> infom;
-    elaborator elab(env, opts, mctx, lctx, infom);
+    elaborator elab(env, opts, mctx, lctx);
     expr r = elab.elaborate(resolve_names(env, lctx, e));
     if (!relaxed)
         elab.ensure_no_unassigned_metavars(r);
@@ -2893,17 +2889,17 @@ expr nested_elaborate(environment & env, options const & opts, metavar_context &
 static vm_obj tactic_save_type_info(vm_obj const & _e, vm_obj const & ref, vm_obj const & _s) {
     expr const & e = to_expr(_e);
     tactic_state const & s = to_tactic_state(_s);
-    if (!g_infom || !get_pos_info_provider()) return mk_tactic_success(s);
+    if (!get_global_info_manager() || !get_pos_info_provider()) return mk_tactic_success(s);
     auto pos = get_pos_info_provider()->get_pos_info(to_expr(ref));
     if (!pos) return mk_tactic_success(s);
     type_context ctx = mk_type_context_for(s);
     try {
         expr type = ctx.infer(e);
-        g_infom->add_type_info(pos->first, pos->second, type);
+        get_global_info_manager()->add_type_info(pos->first, pos->second, type);
         if (is_constant(e))
-            g_infom->add_identifier_info(pos->first, pos->second, const_name(e));
+            get_global_info_manager()->add_identifier_info(pos->first, pos->second, const_name(e));
         else if (is_local(e))
-            g_infom->add_identifier_info(pos->first, pos->second, local_pp_name(e));
+            get_global_info_manager()->add_identifier_info(pos->first, pos->second, local_pp_name(e));
     } catch (exception & ex) {
         return mk_tactic_exception(ex, s);
     }

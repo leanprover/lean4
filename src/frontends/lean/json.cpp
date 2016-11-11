@@ -29,7 +29,7 @@ json json_of_message(message const & msg) {
     return j;
 }
 
-void json_message_stream::report(message const & msg) {
+void json_message_stream::report(message_bucket_id const &, message const & msg) {
     m_out << json_of_message(msg) << std::endl;
 }
 

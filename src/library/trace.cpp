@@ -11,6 +11,8 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "library/io_state.h"
 #include "library/trace.h"
+#include "library/messages.h"
+#include "library/message_buffer.h"
 
 namespace lean {
 static name_set *            g_trace_classes = nullptr;
@@ -240,8 +242,8 @@ scope_traces_as_messages::~scope_traces_as_messages() {
         if (!msg.empty()) {
             auto redirected_output = m_buffer->str();
             if (!redirected_output.empty())
-                m_redirected_ios->report(
-                        message(m_stream_name, m_pos, INFORMATION, "trace output", redirected_output));
+                report_message(message(
+                        m_stream_name, m_pos, INFORMATION, "trace output", redirected_output));
         }
     }
 }

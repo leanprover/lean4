@@ -47,7 +47,7 @@ expr parse_single_header(parser & p, buffer<name> & lp_names, buffer<expr> & par
     auto c_pos  = p.pos();
     name c_name;
     if (is_example) {
-        c_name = name("this");
+        c_name = get_this_tk();
     } else {
         if (!is_instance)
             parse_univ_params(p, lp_names);

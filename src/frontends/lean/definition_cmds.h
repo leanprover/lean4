@@ -7,7 +7,9 @@ Author: Leonardo de Moura
 #pragma once
 #include "frontends/lean/parser.h"
 #include "frontends/lean/decl_attributes.h"
+#include "frontends/lean/decl_util.h"
 namespace lean {
+
 environment definition_cmd_core(parser & p, def_cmd_kind k, decl_modifiers const & modifies, decl_attributes attributes);
 
 environment ensure_decl_namespaces(environment const & env, name const & full_n);

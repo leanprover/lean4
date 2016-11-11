@@ -10,25 +10,31 @@ Authors: Gabriel Ebner, Sebastian Ullrich
 #include "library/io_state.h"
 #include "frontends/lean/json.h"
 #include <string>
+#include "library/versioned_msg_buf.h"
+#include "library/module_mgr.h"
 
 namespace lean {
 
-class server {
-    unsigned m_num_threads;
+#if defined(LEAN_MULTI_THREAD)
+mt_tq_prioritizer mk_interactive_prioritizer(module_id const & roi);
+#endif
+
+class server : public module_vfs {
+    versioned_msg_buf m_msg_buf;
+    task_queue * m_tq;
+    module_mgr * m_mod_mgr;
+    fs_module_vfs m_fs_vfs;
+
     options m_opts;
     environment m_initial_env;
     io_state m_ios;
 
+    time_t m_mtime;
     std::string m_file_name;
     std::string m_content;
-    optional<pos_info> m_only_checked_until;
-
-    bool m_parsed_ok;
-    environment m_checked_env;
-    list<message> m_messages;
-    snapshot_vector m_snapshots;
 
     snapshot const * get_closest_snapshot(unsigned linenum);
+
     json handle_request(json const & req);
 
     json handle_sync(json const & req);
@@ -41,6 +47,8 @@ class server {
 public:
     server(unsigned num_threads, environment const & intial_env, io_state const & ios);
     ~server();
+
+    std::tuple<std::string, module_src, time_t> load_module(module_id const & id, bool can_use_olean) override;
 
     void run();
 };

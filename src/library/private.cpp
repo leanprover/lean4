@@ -56,18 +56,14 @@ pair<environment, name> add_private_name(environment const & env, name const & n
     return mk_pair(new_env, r);
 }
 
-static void private_reader(deserializer & d, shared_environment & senv,
-                           std::function<void(asynch_update_fn const &)> &,
-                           std::function<void(delayed_update_fn const &)> &) {
+static void private_reader(deserializer & d, environment & env) {
     name n, h;
     d >> n >> h;
-    senv.update([=](environment const & env) -> environment {
-            private_ext ext = get_extension(env);
-            // we restore only the mapping hidden-name -> user-name (for pretty printing purposes)
-            ext.m_inv_map.insert(h, n);
-            ext.m_counter++;
-            return update(env, ext);
-        });
+    private_ext ext = get_extension(env);
+    // we restore only the mapping hidden-name -> user-name (for pretty printing purposes)
+    ext.m_inv_map.insert(h, n);
+    ext.m_counter++;
+    env = update(env, ext);
 }
 
 optional<name> hidden_to_user_name(environment const & env, name const & n) {

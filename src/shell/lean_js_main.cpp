@@ -20,9 +20,11 @@ int main() { return 0; }
 
 #else
 
-int main(int, char **) {
+int main(int argc, char ** argv) {
     initialize_emscripten();
     emscripten_import_module("standard");
+    for (int i = 1; i < argc; i++)
+        emscripten_process_file(argv[i]);
 }
 
 #endif

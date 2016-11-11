@@ -9,6 +9,9 @@ Author: Leonardo de Moura
 #include <limits>
 #include <vector>
 #include "util/utf8.h"
+#include <library/export_decl.h>
+#include "util/st_task_queue.h"
+#include "library/module_mgr.h"
 #include "util/interrupt.h"
 #include "util/sstream.h"
 #include "util/flet.h"
@@ -79,9 +82,6 @@ bool get_parser_show_errors(options const & opts) {
     return opts.get_bool(*g_parser_show_errors, LEAN_DEFAULT_PARSER_SHOW_ERRORS);
 }
 
-bool get_parser_parallel_import(options const & opts) {
-    return opts.get_bool(*g_parser_parallel_import, LEAN_DEFAULT_PARSER_PARALLEL_IMPORT);
-}
 // ==========================================
 
 static name * g_anonymous_inst_name_prefix = nullptr;
@@ -168,31 +168,23 @@ void parser::enable_show_info(pos_info const & pos) {
     m_ios.set_options(set_show_info(m_ios.get_options(), pos.first, pos.second));
 }
 
-class parser_message_stream : public message_stream {
-    parser * m_p;
-    std::shared_ptr<message_stream> m_orig_message_stream;
-public:
-    parser_message_stream(parser * p, std::shared_ptr<message_stream> const & orig_message_stream) :
-            m_p(p), m_orig_message_stream(orig_message_stream) {}
-    void report(message const & msg) override {
-        m_p->add_message(msg);
-        m_orig_message_stream->report(msg);
-    }
-};
-
 parser::parser(environment const & env, io_state const & ios,
-               std::istream & strm, char const * strm_name, optional<std::string> const & base_dir,
-               bool use_exceptions, unsigned num_threads,
-               snapshot const * s, snapshot_vector * sv, optional<info_manager> infom):
-    m_env(env), m_ios(ios),
-    m_verbose(true), m_use_exceptions(use_exceptions),
-    m_scanner(strm, strm_name, s ? s->m_pos : pos_info(1, 0)),
-    m_base_dir(base_dir), m_imports_parsed(false), m_infom(infom),
+               module_loader const & import_fn,
+               std::istream & strm, std::string const & file_name,
+               bool use_exceptions,
+               snapshot const * s, snapshot_vector * sv):
+    m_env(env), m_ios(ios), m_verbose(true),
+    m_use_exceptions(use_exceptions),
+    m_import_fn(import_fn),
+    m_file_name(file_name),
+    m_scanner(strm, m_file_name.c_str(), s ? s->m_pos : pos_info(1, 0)),
+    m_imports_parsed(false),
     m_snapshot_vector(sv) {
     if (s) {
         m_env                = s->m_env;
         m_ios.set_options(s->m_options);
-        m_messages           = s->m_messages;
+        m_delayed_thms       = s->m_delayed_thms;
+        m_old_buckets_from_snapshot = s->m_sub_buckets;
         m_local_level_decls  = s->m_lds;
         m_local_decls        = s->m_eds;
         m_level_variables    = s->m_lvars;
@@ -200,17 +192,12 @@ parser::parser(environment const & env, io_state const & ios,
         m_include_vars       = s->m_include_vars;
         m_imports_parsed     = s->m_imports_parsed;
         m_parser_scope_stack = s->m_parser_scope_stack;
-        m_infom              = s->m_infom;
     }
     m_ignore_noncomputable = false;
-    m_ios.set_message_channel(std::make_shared<parser_message_stream>(this, m_ios.get_message_channel_ptr()));
     m_profile     = ios.get_options().get_bool("profiler", false);
-    if (num_threads > 1 && m_profile)
-        throw exception("option --profile cannot be used when theorems are compiled in parallel");
     m_in_quote = false;
     m_in_pattern = false;
     m_has_params = false;
-    m_num_threads  = num_threads;
     m_id_behavior  = id_behavior::ErrorIfUndef;
     m_found_errors = false;
     m_used_sorry   = false;
@@ -271,14 +258,6 @@ void parser::scan() {
     }
 }
 
-bool parser::are_info_lines_valid(unsigned start_line, unsigned end_line) const {
-    if (m_stop_at) {
-        if (start_line <= m_stop_at_line && m_stop_at_line <= end_line)
-            return false;
-    }
-    return true;
-}
-
 expr parser::mk_sorry(pos_info const & p) {
     m_used_sorry = true;
     m_ignore_noncomputable = true;
@@ -296,17 +275,6 @@ expr parser::mk_sorry(pos_info const & p) {
 void parser::updt_options() {
     m_verbose        = get_verbose(m_ios.get_options());
     m_show_errors    = get_parser_show_errors(m_ios.get_options());
-    try {
-        set_max_memory_megabyte(get_max_memory(m_ios.get_options()));
-    } catch (exception&) {
-        if (m_ios.get_options().contains(get_max_memory_opt_name())) {
-            static bool m_already_reported = false;
-            if (!m_already_reported) {
-                m_already_reported = true;
-                throw;
-            }
-        }
-    }
 }
 
 void parser::throw_parser_exception(char const * msg, pos_info p) {
@@ -335,7 +303,7 @@ void parser::protected_call(std::function<void()> && f, std::function<void()> &&
     } catch (show_goal_exception) {
         throw;
     } catch (parser_exception & ex) {
-        CATCH(ios().report(ex), throw);
+        CATCH(report_message(ex), throw);
     } catch (parser_error & ex) {
         CATCH((mk_message(ex.m_pos, ERROR) << ex.get_msg()).report(),
               throw_parser_exception(ex.what(), ex.m_pos));
@@ -835,7 +803,7 @@ pair<expr, level_param_names> parser::elaborate(metavar_context & mctx, local_co
                                                 expr const & e, bool check_unassigned) {
     expr tmp_e  = adapter.translate_to(e);
     pair<expr, level_param_names> r =
-        ::lean::elaborate(m_env, get_options(), mctx, adapter.lctx(), tmp_e, check_unassigned, m_infom);
+        ::lean::elaborate(m_env, get_options(), mctx, adapter.lctx(), tmp_e, check_unassigned);
     expr new_e = r.first;
     new_e      = adapter.translate_from(new_e);
     return mk_pair(new_e, r.second);
@@ -2093,38 +2061,16 @@ void parser::reset_doc_string() {
     m_doc_string = optional<std::string>();
 }
 
-static optional<std::string> try_file(std::string const & base, optional<unsigned> const & k, name const & f, char const * ext) {
-    try {
-        return optional<std::string>(find_file(base, k, f, ext));
-    } catch (...) {
-        return optional<std::string>();
-    }
-}
-
-void parser::parse_imports() {
+std::vector<module_name> parser::parse_imports(unsigned & fingerprint) {
     m_last_cmd_pos = pos();
-    buffer<module_name> olean_files;
     bool prelude     = false;
-    std::string base = m_base_dir ? *m_base_dir : dirname(get_stream_name().c_str());
-    unsigned fingerprint = 0;
     if (curr_is_token(get_prelude_tk())) {
         next();
         prelude = true;
     }
-    auto import_olean = [&](optional<unsigned> const & k, name const & f) {
-        if (auto it = try_file(base, k, f, ".olean")) {
-            olean_files.push_back(module_name(k, f));
-        } else {
-            m_found_errors = true;
-            parser_error error(sstream() << "invalid import, unknown module '" << f << "'", pos());
-            if (!m_use_exceptions && m_show_errors)
-                ios().report(message(get_file_name(), error.m_pos, ERROR, error.get_msg()));
-            if (m_use_exceptions)
-                throw error;
-        }
-    };
+    std::vector<module_name> imports;
     if (!prelude) {
-        import_olean(optional<unsigned>(), "init");
+        imports.push_back({ "init", optional<unsigned>() });
     }
     while (curr_is_token(get_import_tk())) {
         m_last_cmd_pos = pos();
@@ -2154,20 +2100,43 @@ void parser::parse_imports() {
             fingerprint       = hash(fingerprint, f.hash());
             if (k)
                 fingerprint = hash(fingerprint, *k);
-            import_olean(k, f);
+            imports.push_back({ f, k });
             next();
         }
     }
-    unsigned num_threads = 0;
-    if (get_parser_parallel_import(m_ios.get_options()))
-        num_threads = m_num_threads;
-    bool keep_imported_thms = true;
-    m_env = import_modules(m_env, base, olean_files.size(), olean_files.data(), num_threads,
-                           keep_imported_thms, m_ios);
+    return imports;
+}
+
+void parser::process_imports() {
+    unsigned fingerprint = 0;
+    auto imports = parse_imports(fingerprint);
+
+    name_map<task_result<certified_declaration>> del_thms;
+
+    for (auto & n : imports) {
+        try {
+            m_env = import_module(m_env, m_file_name, n, del_thms, m_import_fn);
+        } catch (exception & ex) {
+            m_found_errors = true;
+            parser_exception error((sstream() << "invalid import '" << n.m_name << "'").str(),
+                                   m_file_name.c_str(), m_last_cmd_pos.first, m_last_cmd_pos.second);
+            if (!m_use_exceptions && m_show_errors)
+                report_message(error);
+            if (m_use_exceptions)
+                throw error;
+        }
+    }
+
+    del_thms.for_each([=] (name const & thm_name, task_result<certified_declaration> const & cdecl) {
+        delayed_theorem del_thm;
+        del_thm.m_imported = true;
+        del_thm.m_cert_decl = cdecl;
+        m_delayed_thms.insert(thm_name, del_thm);
+    });
+
     m_env = update_fingerprint(m_env, fingerprint);
     m_env = activate_export_decls(m_env, {}); // explicitly activate exports in root namespace
     m_env = replay_export_decls_core(m_env, m_ios);
-    check_modules_up_to_date();
     if (has_sorry(m_env)) {
 #ifndef LEAN_IGNORE_SORRY
         // TODO(Leo): remove the #ifdef.
@@ -2177,21 +2146,12 @@ void parser::parse_imports() {
 #endif
     }
     m_imports_parsed = true;
-    if (olean_files.size())
-        save_snapshot();
 }
 
-void parser::check_modules_up_to_date() {
-    list<module_name> out_of_date = get_out_of_date_imports(m_env);
-    if (empty(out_of_date)) return;
-    auto msg = mk_message(m_last_cmd_pos, WARNING);
-    msg << "imported modules are out of date: ";
-    bool first = true;
-    for_each(out_of_date, [&] (module_name const & mname) {
-        if (first) { first = false; } else { msg << ", "; }
-        msg << mname.get_name();
-    });
-    msg.report();
+std::vector<module_name> parser::get_imports() {
+    scope_pos_info_provider scope1(*this);
+    unsigned fingerprint;
+    return parse_imports(fingerprint);
 }
 
 bool parser::parse_commands() {
@@ -2199,25 +2159,34 @@ bool parser::parse_commands() {
     scoped_expr_caching disable(false);
     scoped_set_distinguishing_pp_options set(get_distinguishing_pp_options());
     scope_pos_info_provider scope1(*this);
+    scope_message_context scope_parser_msgs("_parser", m_old_buckets_from_snapshot);
     try {
         bool done = false;
         // Only parse imports when we are at the beginning, i.e. not when starting from a snapshot.
-        if (!m_imports_parsed)
-            protected_call([&]() { parse_imports(); }, [&]() { sync_command(); });
+        if (!m_imports_parsed) {
+            scope_message_context scope_msg_ctx("imports");
+            scoped_info_manager scope_infom( // TODO(gabriel): separate flag for snapshots/infos?
+                    m_snapshot_vector ? scope_msg_ctx.enable_info_manager(m_file_name)
+                                      : nullptr);
+            protected_call([&]() { process_imports(); }, [&]() { sync_command(); });
+        }
         while (!done) {
+            save_snapshot(scope_parser_msgs);
             if (m_stop_at && pos().first > m_stop_at_line) {
                 throw interrupt_parser();
             }
+            scope_message_context scope_msg_ctx;
+            scoped_info_manager scope_infom( // TODO(gabriel): separate flag for snapshots/infos?
+                    m_snapshot_vector ? scope_msg_ctx.enable_info_manager(m_file_name)
+                                      : nullptr);
             protected_call([&]() {
                     check_interrupted();
                     switch (curr()) {
                     case scanner::token_kind::CommandKeyword:
                         if (curr_is_token(get_end_tk())) {
                             check_no_doc_string();
-                            save_snapshot();
                         }
                         parse_command();
-                        save_snapshot();
                         break;
                     case scanner::token_kind::DocBlock:
                         check_no_doc_string();
@@ -2243,6 +2212,7 @@ bool parser::parse_commands() {
                 },
                 [&]() { sync_command(); });
         }
+        scope_message_context scope_msg_ctx("end");
         if (has_open_scopes(m_env)) {
             m_found_errors = true;
             if (!m_use_exceptions && m_show_errors)
@@ -2250,12 +2220,11 @@ bool parser::parse_commands() {
             else if (m_use_exceptions)
                 throw_parser_exception("invalid end of module, expecting 'end'", pos());
         }
+        save_snapshot(scope_parser_msgs);
     } catch (interrupt_parser) {
-        save_snapshot();
         while (has_open_scopes(m_env))
             m_env = pop_scope_core(m_env, m_ios);
     }
-    save_snapshot();
     return !m_found_errors;
 }
 
@@ -2272,35 +2241,46 @@ bool parser::curr_is_command_like() const {
     }
 }
 
-void parser::replace_theorem(certified_declaration const & thm) {
-    m_env = m_env.replace(thm);
+static void replace_theorem(certified_declaration const & thm, environment & env, bool ignore_noncomputable) {
+    // TODO(gabriel): move somewhere else
+    env = env.replace(thm);
     name const & thm_name = thm.get_declaration().get_name();
-    if (!m_ignore_noncomputable && !check_computable(m_env, thm_name)) {
+    if (!ignore_noncomputable && !check_computable(env, thm_name)) {
         throw exception(sstream() << "declaration '" << thm_name
                         << "' was marked as a theorem, but it is a noncomputable definition");
     }
 }
 
-environment parser::reveal_theorems_core(buffer<name> const & /* ds */, bool /* all */) {
-    return m_env;
-}
-
 environment parser::reveal_theorems(buffer<name> const & ds) {
-    return reveal_theorems_core(ds, false);
+    environment env = m_env;
+    for (auto & d : ds) {
+        if (auto * dt = m_delayed_thms.find(d)) {
+            replace_theorem(dt->m_cert_decl.get(), env, m_ignore_noncomputable);
+        } else {
+            throw exception(sstream() << "not a delayed theorem: " << d);
+        }
+    }
+    return env;
 }
 
 environment parser::reveal_all_theorems() {
-    return reveal_theorems_core(buffer<name>(), true);
+    buffer<name> ds;
+    m_delayed_thms.for_each([&] (name const & d, delayed_theorem const &) { ds.push_back(d); });
+    return reveal_theorems(ds);
 }
 
-void parser::save_snapshot() {
+bool parser::is_delayed_theorem(name const & n) {
+    return m_delayed_thms.contains(n);
+}
+
+void parser::save_snapshot(scope_message_context & smc) {
     if (!m_snapshot_vector)
         return;
-    if (m_snapshot_vector->empty() || m_snapshot_vector->back().m_pos != m_scanner.get_pos_info())
-        m_snapshot_vector->push_back(snapshot(m_env, m_messages, m_local_level_decls, m_local_decls,
+    if (m_snapshot_vector->empty() || m_snapshot_vector->back().m_pos != m_scanner.get_pos_info()) {
+        m_snapshot_vector->push_back(snapshot(m_env, smc.get_sub_buckets(), m_delayed_thms, m_local_level_decls, m_local_decls,
                                               m_level_variables, m_variables, m_include_vars,
-                                              m_ios.get_options(), m_imports_parsed, m_parser_scope_stack,
-                                              m_scanner.get_pos_info(), m_infom));
+                                              m_ios.get_options(), m_imports_parsed, m_parser_scope_stack, m_scanner.get_pos_info()));
+    }
 }
 
 optional<pos_info> parser::get_pos_info(expr const & e) const {
@@ -2329,22 +2309,51 @@ message_builder parser::mk_message(message_severity severity) {
     return mk_message(pos(), severity);
 }
 
-bool parse_commands(environment & env, io_state & ios, std::istream & in, char const * strm_name,
-                    optional<std::string> const & base_dir, bool use_exceptions,
-                    unsigned num_threads) {
-    parser p(env, ios, in, strm_name, base_dir, use_exceptions, num_threads, nullptr, nullptr);
-    bool r = p();
-    ios = p.ios();
-    env = p.env();
-    return r;
+class proof_checking_task : public module_task<certified_declaration> {
+    delayed_theorem m_del_thm;
+public:
+    proof_checking_task(delayed_theorem const & del_thm, pos_info const & pos) :
+            module_task(optional<pos_info>(pos), task_kind::elab), m_del_thm(del_thm) {}
+
+    void description(std::ostream & out) const override {
+        out << "checking " << m_del_thm.m_ax_decl.get_name() << " (" << get_module() << ")";
+    }
+
+    std::vector<generic_task_result> get_dependencies() override { return { m_del_thm.m_proof }; }
+
+    certified_declaration execute_core() override {
+        auto & ax_decl = m_del_thm.m_ax_decl;
+        auto thm_decl = mk_theorem(ax_decl.get_name(), ax_decl.get_univ_params(),
+                                   ax_decl.get_type(), m_del_thm.m_proof.get());
+        // TODO(gabriel): noncomputability check
+        return check(m_del_thm.m_decl_env, thm_decl);
+    }
+};
+
+void parser::add_delayed_theorem(delayed_theorem del_thm) {
+    del_thm.m_imported = false;
+    del_thm.m_cert_decl = get_global_task_queue().submit<proof_checking_task>(del_thm, m_last_cmd_pos);
+    if (m_stop_at) {
+        // TODO(gabriel): check whether the theorem covers the line we stop at
+        del_thm.m_proof.get();
+    }
+    m_delayed_thms.insert(del_thm.m_ax_decl.get_name(), del_thm);
 }
 
 bool parse_commands(environment & env, io_state & ios, char const * fname, optional<std::string> const & base_dir,
                     bool use_exceptions, unsigned num_threads) {
-    std::ifstream in(fname);
-    if (in.bad() || in.fail())
-        throw exception(sstream() << "failed to open file '" << fname << "'");
-    return parse_commands(env, ios, in, fname, base_dir, use_exceptions, num_threads);
+    st_task_queue tq;
+    scope_global_task_queue scope(&tq);
+    fs_module_vfs vfs;
+    vfs.m_modules_to_load_from_source.insert(std::string(fname));
+    module_mgr mod_mgr(&vfs, &get_global_message_buffer(), env, ios);
+
+    auto mod = mod_mgr.get_module(fname).m_result.get();
+
+    lean_assert(mod.m_env);
+    env = *mod.m_env;
+
+    return mod.m_ok;
 }
 
 void initialize_parser() {

@@ -302,9 +302,9 @@ class exporter {
             to_buffer(get_curr_module_imports(m_env), imports);
             std::reverse(imports.begin(), imports.end());
             for (module_name const & m : imports) {
-                unsigned n = export_name(m.get_name());
-                if (m.is_relative()) {
-                    m_out << "#RI " << *m.get_k() << " " << n << "\n";
+                unsigned n = export_name(m.m_name);
+                if (m.m_relative) {
+                    m_out << "#RI " << *m.m_relative << " " << n << "\n";
                 } else {
                     m_out << "#DI " << n << "\n";
                 }

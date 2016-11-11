@@ -2154,7 +2154,8 @@ expr elaborator::visit_let(expr const & e, optional<expr> const & expected_type)
     new_value      = instantiate_mvars(new_value);
     ensure_no_unassigned_metavars(new_value);
     type_context::tmp_locals locals(m_ctx);
-    push_let(locals, let_name(e), new_type, new_value, ref);
+    expr l = copy_tag(let_type(e), push_let(locals, let_name(e), new_type, new_value, ref));
+    save_identifier_info(l);
     expr body      = instantiate_rev_locals(let_body(e), locals);
     expr new_body  = visit(body, expected_type);
     expr new_e     = locals.mk_lambda(new_body);

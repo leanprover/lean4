@@ -682,8 +682,10 @@ vm_decl_cell::vm_decl_cell(name const & n, unsigned idx, unsigned arity, vm_func
 vm_decl_cell::vm_decl_cell(name const & n, unsigned idx, unsigned arity, vm_cfunction fn):
     m_rc(0), m_kind(vm_decl_kind::CFun), m_name(n), m_idx(idx), m_arity(arity), m_cfn(fn) {}
 
-vm_decl_cell::vm_decl_cell(name const & n, unsigned idx, expr const & e, unsigned code_sz, vm_instr const * code, list<vm_local_info> const & args_info):
-    m_rc(0), m_kind(vm_decl_kind::Bytecode), m_name(n), m_idx(idx), m_expr(e), m_arity(0), m_args_info(args_info),
+vm_decl_cell::vm_decl_cell(name const & n, unsigned idx, expr const & e, unsigned code_sz, vm_instr const * code,
+                           list<vm_local_info> const & args_info, optional<pos_info> const & pos):
+    m_rc(0), m_kind(vm_decl_kind::Bytecode), m_name(n), m_idx(idx), m_expr(e), m_arity(0),
+    m_args_info(args_info), m_pos(pos),
     m_code_size(code_sz) {
     expr it = e;
     while (is_lambda(it)) {
@@ -816,15 +818,16 @@ struct vm_decls : public environment_extension {
         unsigned idx = m_next_decl_idx;
         m_next_decl_idx++;
         m_name2idx.insert(n, idx);
-        m_decls.insert(idx, vm_decl(n, idx, e, 0, nullptr, list<vm_local_info>()));
+        m_decls.insert(idx, vm_decl(n, idx, e, 0, nullptr, list<vm_local_info>(), optional<pos_info>()));
         return idx;
     }
 
-    void update(name const & n, unsigned code_sz, vm_instr const * code, list<vm_local_info> const & args_info) {
+    void update(name const & n, unsigned code_sz, vm_instr const * code,
+                list<vm_local_info> const & args_info, optional<pos_info> const & pos) {
         lean_assert(m_name2idx.contains(n));
         unsigned idx      = *m_name2idx.find(n);
         vm_decl const * d = m_decls.find(idx);
-        m_decls.insert(idx, vm_decl(n, idx, d->get_expr(), code_sz, code, args_info));
+        m_decls.insert(idx, vm_decl(n, idx, d->get_expr(), code_sz, code, args_info, pos));
     }
 };
 
@@ -941,11 +944,9 @@ static void reserve_reader(deserializer & d, shared_environment & senv,
         });
 }
 
-
-
 void serialize_code(serializer & s, unsigned fidx, unsigned_map<vm_decl> const & decls) {
     vm_decl const * d = decls.find(fidx);
-    s << d->get_name() << d->get_code_size();
+    s << d->get_name() << d->get_code_size() << d->get_pos_info();
     write_list(s, d->get_args_info());
     vm_instr const * code = d->get_code();
     auto fn = [&](unsigned idx) { return decls.find(idx)->get_name(); };
@@ -958,23 +959,23 @@ static void code_reader(deserializer & d, shared_environment & senv,
                         std::function<void(asynch_update_fn const &)> &,
                         std::function<void(delayed_update_fn const &)> &) {
     senv.update([&](environment const & env) -> environment {
-            name fn; unsigned code_sz; list<vm_local_info> args_info;
-            d >> fn;
-            d >> code_sz;
+            name fn; unsigned code_sz; list<vm_local_info> args_info; optional<pos_info> pos;
+            d >> fn >> code_sz >> pos;
             args_info = read_list<vm_local_info>(d);
             vm_decls ext = get_extension(env);
             buffer<vm_instr> code;
             for (unsigned i = 0; i < code_sz; i++) {
                 code.push_back(read_vm_instr(d, ext.m_name2idx));
             }
-            ext.update(fn, code_sz, code.data(), args_info);
+            ext.update(fn, code_sz, code.data(), args_info, pos);
             return update(env, ext);
         });
 }
 
-environment update_vm_code(environment const & env, name const & fn, unsigned code_sz, vm_instr const * code, list<vm_local_info> const & args_info) {
+environment update_vm_code(environment const & env, name const & fn, unsigned code_sz, vm_instr const * code,
+                           list<vm_local_info> const & args_info, optional<pos_info> const & pos) {
     vm_decls ext = get_extension(env);
-    ext.update(fn, code_sz, code, args_info);
+    ext.update(fn, code_sz, code, args_info, pos);
     environment new_env = update(env, ext);
     unsigned fidx       = *ext.m_name2idx.find(fn);
     return module::add(new_env, *g_vm_code_key, [=](environment const & env, serializer & s) {
@@ -982,9 +983,10 @@ environment update_vm_code(environment const & env, name const & fn, unsigned co
         });
 }
 
-environment add_vm_code(environment const & env, name const & fn, expr const & e, unsigned code_sz, vm_instr const * code, list<vm_local_info> const & args_info) {
+environment add_vm_code(environment const & env, name const & fn, expr const & e, unsigned code_sz, vm_instr const * code,
+                        list<vm_local_info> const & args_info, optional<pos_info> const & pos) {
     environment new_env = reserve_vm_index(env, fn, e);
-    return update_vm_code(new_env, fn, code_sz, code, args_info);
+    return update_vm_code(new_env, fn, code_sz, code, args_info, pos);
 }
 
 optional<vm_decl> get_vm_decl(environment const & env, name const & n) {

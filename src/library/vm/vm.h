@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "util/serializer.h"
 #include "util/numerics/mpz.h"
 #include "kernel/environment.h"
+#include "kernel/pos_info_provider.h"
 
 namespace lean {
 class vm_obj;
@@ -450,6 +451,7 @@ struct vm_decl_cell {
     expr                m_expr;
     unsigned            m_arity;
     list<vm_local_info> m_args_info;
+    optional<pos_info>  m_pos;
     union {
         struct {
             unsigned   m_code_size;
@@ -460,7 +462,8 @@ struct vm_decl_cell {
     };
     vm_decl_cell(name const & n, unsigned idx, unsigned arity, vm_function fn);
     vm_decl_cell(name const & n, unsigned idx, unsigned arity, vm_cfunction fn);
-    vm_decl_cell(name const & n, unsigned idx, expr const & e, unsigned code_sz, vm_instr const * code, list<vm_local_info> const & args_info);
+    vm_decl_cell(name const & n, unsigned idx, expr const & e, unsigned code_sz, vm_instr const * code, list<vm_local_info> const & args_info,
+                 optional<pos_info> const & pos);
     ~vm_decl_cell();
     void dealloc();
 };
@@ -475,8 +478,9 @@ public:
         vm_decl(new vm_decl_cell(n, idx, arity, fn)) {}
     vm_decl(name const & n, unsigned idx, unsigned arity, vm_cfunction fn):
         vm_decl(new vm_decl_cell(n, idx, arity, fn)) {}
-    vm_decl(name const & n, unsigned idx, expr const & e, unsigned code_sz, vm_instr const * code, list<vm_local_info> const & args_info):
-        vm_decl(new vm_decl_cell(n, idx, e, code_sz, code, args_info)) {}
+    vm_decl(name const & n, unsigned idx, expr const & e, unsigned code_sz, vm_instr const * code, list<vm_local_info> const & args_info,
+            optional<pos_info> const & pos):
+        vm_decl(new vm_decl_cell(n, idx, e, code_sz, code, args_info, pos)) {}
     vm_decl(vm_decl const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
     vm_decl(vm_decl && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
     ~vm_decl() { if (m_ptr) m_ptr->dec_ref(); }
@@ -501,6 +505,7 @@ public:
     vm_cfunction get_cfn() const { lean_assert(is_cfun()); return m_ptr->m_cfn; }
     expr const & get_expr() const { lean_assert(is_bytecode()); return m_ptr->m_expr; }
     list<vm_local_info> const & get_args_info() const { lean_assert(is_bytecode()); return m_ptr->m_args_info; }
+    optional<pos_info> const & get_pos_info() const { lean_assert(is_bytecode()); return m_ptr->m_pos; }
 };
 
 /** \brief Virtual machine for executing VM bytecode. */
@@ -731,10 +736,12 @@ environment reserve_vm_index(environment const & env, name const & fn, expr cons
 
 /** \brief Add bytcode for the function named \c fn in \c env.
     \remark The index for \c fn must have been reserved using reserve_vm_index. */
-environment update_vm_code(environment const & env, name const & fn, unsigned code_sz, vm_instr const * code, list<vm_local_info> const & args_info);
+environment update_vm_code(environment const & env, name const & fn, unsigned code_sz, vm_instr const * code,
+                           list<vm_local_info> const & args_info, optional<pos_info> const & pos);
 
 /** \brief Combines reserve_vm_index and update_vm_code */
-environment add_vm_code(environment const & env, name const & fn, expr const & e, unsigned code_sz, vm_instr const * code, list<vm_local_info> const & args_info);
+environment add_vm_code(environment const & env, name const & fn, expr const & e, unsigned code_sz, vm_instr const * code,
+                        list<vm_local_info> const & args_info, optional<pos_info> const & pos);
 
 /** \brief Return the internal idx for the given constant. Return none
     if the constant is not builtin nor it has code associated with it. */

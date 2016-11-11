@@ -17,11 +17,12 @@ class proof_state;
 class info_data;
 
 class info_data_cell {
-MK_LEAN_RC();
+    MK_LEAN_RC();
     void dealloc() { delete this; }
 protected:
     friend info_data;
 public:
+    info_data_cell():m_rc(0) {}
     virtual ~info_data_cell() {}
     virtual void instantiate_mvars(metavar_context const &) {}
 #ifdef LEAN_SERVER

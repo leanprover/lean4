@@ -54,10 +54,12 @@ inline serializer & operator<<(serializer & s, pair<T1, T2> const & p) { s << p.
    The actual functionality is implemented using extensions.
 */
 class deserializer_core {
-    std::istream & m_in;
+    std::istream &        m_in;
+    optional<std::string> m_fname;
     unsigned read_unsigned_ext();
 public:
     deserializer_core(std::istream & in):m_in(in) {}
+    deserializer_core(std::istream & in, optional<std::string> const & fname):m_in(in), m_fname(fname) {}
     std::string read_string();
     unsigned read_unsigned() {
         unsigned r = static_cast<unsigned>(m_in.get());
@@ -70,6 +72,7 @@ public:
     double read_double();
     // read data.size() bytes from input stream and store it at data
     void read(std::vector<char> & data);
+    optional<std::string> get_fname() const { return m_fname; }
 };
 
 typedef extensible_object<deserializer_core> deserializer;

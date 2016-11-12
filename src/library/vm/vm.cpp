@@ -683,9 +683,10 @@ vm_decl_cell::vm_decl_cell(name const & n, unsigned idx, unsigned arity, vm_cfun
     m_rc(0), m_kind(vm_decl_kind::CFun), m_name(n), m_idx(idx), m_arity(arity), m_cfn(fn) {}
 
 vm_decl_cell::vm_decl_cell(name const & n, unsigned idx, expr const & e, unsigned code_sz, vm_instr const * code,
-                           list<vm_local_info> const & args_info, optional<pos_info> const & pos):
+                           list<vm_local_info> const & args_info, optional<pos_info> const & pos,
+                           optional<std::string> const & olean):
     m_rc(0), m_kind(vm_decl_kind::Bytecode), m_name(n), m_idx(idx), m_expr(e), m_arity(0),
-    m_args_info(args_info), m_pos(pos),
+    m_args_info(args_info), m_pos(pos), m_olean(olean),
     m_code_size(code_sz) {
     expr it = e;
     while (is_lambda(it)) {
@@ -823,11 +824,12 @@ struct vm_decls : public environment_extension {
     }
 
     void update(name const & n, unsigned code_sz, vm_instr const * code,
-                list<vm_local_info> const & args_info, optional<pos_info> const & pos) {
+                list<vm_local_info> const & args_info, optional<pos_info> const & pos,
+                optional<std::string> const & olean = optional<std::string>()) {
         lean_assert(m_name2idx.contains(n));
         unsigned idx      = *m_name2idx.find(n);
         vm_decl const * d = m_decls.find(idx);
-        m_decls.insert(idx, vm_decl(n, idx, d->get_expr(), code_sz, code, args_info, pos));
+        m_decls.insert(idx, vm_decl(n, idx, d->get_expr(), code_sz, code, args_info, pos, olean));
     }
 };
 
@@ -967,7 +969,7 @@ static void code_reader(deserializer & d, shared_environment & senv,
             for (unsigned i = 0; i < code_sz; i++) {
                 code.push_back(read_vm_instr(d, ext.m_name2idx));
             }
-            ext.update(fn, code_sz, code.data(), args_info, pos);
+            ext.update(fn, code_sz, code.data(), args_info, pos, d.get_fname());
             return update(env, ext);
         });
 }

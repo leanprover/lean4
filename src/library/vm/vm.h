@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <memory>
 #include <algorithm>
 #include <vector>
+#include <string>
 #include "util/debug.h"
 #include "util/rc.h"
 #include "util/interrupt.h"
@@ -445,13 +446,14 @@ enum class vm_decl_kind { Bytecode, Builtin, CFun };
 /** \brief VM function/constant declaration cell */
 struct vm_decl_cell {
     MK_LEAN_RC();
-    vm_decl_kind        m_kind;
-    name                m_name;
-    unsigned            m_idx;
-    expr                m_expr;
-    unsigned            m_arity;
-    list<vm_local_info> m_args_info;
-    optional<pos_info>  m_pos;
+    vm_decl_kind          m_kind;
+    name                  m_name;
+    unsigned              m_idx;
+    expr                  m_expr;
+    unsigned              m_arity;
+    list<vm_local_info>   m_args_info;
+    optional<pos_info>    m_pos;
+    optional<std::string> m_olean;
     union {
         struct {
             unsigned   m_code_size;
@@ -462,8 +464,9 @@ struct vm_decl_cell {
     };
     vm_decl_cell(name const & n, unsigned idx, unsigned arity, vm_function fn);
     vm_decl_cell(name const & n, unsigned idx, unsigned arity, vm_cfunction fn);
-    vm_decl_cell(name const & n, unsigned idx, expr const & e, unsigned code_sz, vm_instr const * code, list<vm_local_info> const & args_info,
-                 optional<pos_info> const & pos);
+    vm_decl_cell(name const & n, unsigned idx, expr const & e, unsigned code_sz, vm_instr const * code,
+                 list<vm_local_info> const & args_info, optional<pos_info> const & pos,
+                 optional<std::string> const & olean);
     ~vm_decl_cell();
     void dealloc();
 };
@@ -478,9 +481,10 @@ public:
         vm_decl(new vm_decl_cell(n, idx, arity, fn)) {}
     vm_decl(name const & n, unsigned idx, unsigned arity, vm_cfunction fn):
         vm_decl(new vm_decl_cell(n, idx, arity, fn)) {}
-    vm_decl(name const & n, unsigned idx, expr const & e, unsigned code_sz, vm_instr const * code, list<vm_local_info> const & args_info,
-            optional<pos_info> const & pos):
-        vm_decl(new vm_decl_cell(n, idx, e, code_sz, code, args_info, pos)) {}
+    vm_decl(name const & n, unsigned idx, expr const & e, unsigned code_sz, vm_instr const * code,
+            list<vm_local_info> const & args_info, optional<pos_info> const & pos,
+            optional<std::string> const & olean = optional<std::string>()):
+        vm_decl(new vm_decl_cell(n, idx, e, code_sz, code, args_info, pos, olean)) {}
     vm_decl(vm_decl const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
     vm_decl(vm_decl && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
     ~vm_decl() { if (m_ptr) m_ptr->dec_ref(); }
@@ -506,6 +510,7 @@ public:
     expr const & get_expr() const { lean_assert(is_bytecode()); return m_ptr->m_expr; }
     list<vm_local_info> const & get_args_info() const { lean_assert(is_bytecode()); return m_ptr->m_args_info; }
     optional<pos_info> const & get_pos_info() const { lean_assert(is_bytecode()); return m_ptr->m_pos; }
+    optional<std::string> const & get_olean() const { lean_assert(is_bytecode()); return m_ptr->m_olean; }
 };
 
 /** \brief Virtual machine for executing VM bytecode. */

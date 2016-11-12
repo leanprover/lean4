@@ -445,11 +445,12 @@ struct import_modules_fn {
                 std::ifstream in(fname, std::ifstream::binary);
                 if (!in.good())
                     throw exception(sstream() << "failed to open file '" << fname << "'");
-                deserializer d1(in);
+                deserializer d1(in, optional<std::string>(fname));
                 std::string header;
                 d1 >> header;
                 if (header != g_olean_header)
-                    throw exception(sstream() << "file '" << fname << "' does not seem to be a valid object Lean file, invalid header");
+                    throw exception(sstream() << "file '" << fname
+                                    << "' does not seem to be a valid object Lean file, invalid header");
                 d1 >> major >> minor >> patch >> claimed_hash;
                 // Enforce version?
 
@@ -553,7 +554,7 @@ struct import_modules_fn {
     void import_module(module_info_ptr const & r) {
         std::string s(r->m_obj_code.data(), r->m_obj_code.size());
         std::istringstream in(s, std::ios_base::binary);
-        deserializer d(in);
+        deserializer d(in, optional<std::string>(r->m_fname));
         unsigned obj_counter = 0;
         std::function<void(asynch_update_fn const &)> add_asynch_update([&](asynch_update_fn const & f) {
                 add_asynch_task(f);

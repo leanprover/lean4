@@ -23,7 +23,7 @@ inductive congr_arg_kind
 | heq
 
 meta structure congr_lemma :=
-(type : expr) (proof : expr) (arg_kids : list congr_arg_kind)
+(type : expr) (proof : expr) (arg_kinds : list congr_arg_kind)
 
 namespace tactic
 meta constant mk_congr_simp_core   : transparency → expr → tactic congr_lemma

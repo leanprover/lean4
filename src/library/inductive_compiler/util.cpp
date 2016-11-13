@@ -50,7 +50,7 @@ void assert_no_locals(name const & n, expr const & e) {
 }
 
 void assert_def_eq(environment const & DEBUG_CODE(env), expr const & DEBUG_CODE(e1), expr const & DEBUG_CODE(e2)) {
-    DEBUG_CODE(type_checker checker(env););
+    DEBUG_CODE(type_checker checker(env, true, false /* allow untrusted/meta */););
     try {
         lean_assert(checker.is_def_eq(e1, e2));
     } catch (exception ex) {
@@ -62,7 +62,7 @@ void assert_def_eq(environment const & DEBUG_CODE(env), expr const & DEBUG_CODE(
 }
 
 void assert_type_correct(environment const & env, expr const & e) {
-    type_checker checker(env);
+    type_checker checker(env, true, false /* allow untrusted/meta */);
     try {
         checker.check(e);
     } catch (exception ex) {

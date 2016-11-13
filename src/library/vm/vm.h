@@ -532,6 +532,7 @@ class vm_state {
     unsigned                    m_bp;     /* base pointer */
     unsigned                    m_next_frame_idx{0};
     bool                        m_profiling{false};
+    bool                        m_debugging{false};
     struct frame {
         vm_instr const *        m_code;
         unsigned                m_fn_idx;
@@ -547,9 +548,13 @@ class vm_state {
             m_curr_fn_idx(curr_fn_idx), m_frame_idx(frame_idx) {}
     };
     std::vector<vm_obj>         m_stack;
+    std::vector<vm_local_info>  m_stack_info;
     std::vector<frame>          m_call_stack;
     mutex                       m_call_stack_mtx; /* used only when profiling */
 
+    void push_local_info(unsigned idx, vm_local_info const & info);
+    void stack_resize(unsigned sz);
+    void stack_pop_back();
     void push_fields(vm_obj const & obj);
     void push_frame_core(unsigned num, unsigned next_pc, unsigned next_fn_idx);
     void push_frame(unsigned num, unsigned next_pc, unsigned next_fn_idx);

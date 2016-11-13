@@ -1043,6 +1043,18 @@ void vm_state::push_fields(vm_obj const & obj) {
     }
 }
 
+void vm_state::stack_resize(unsigned sz) {
+    m_stack.resize(sz);
+    if (m_debugging)
+        m_stack_info.resize(sz);
+}
+
+void vm_state::stack_pop_back() {
+    m_stack.pop_back();
+    if (m_debugging)
+        m_stack_info.resize(m_stack.size());
+}
+
 void vm_state::invoke_builtin(vm_decl const & d) {
     if (m_profiling) {
         unique_lock<mutex> lk(m_call_stack_mtx);
@@ -1060,7 +1072,7 @@ void vm_state::invoke_builtin(vm_decl const & d) {
     m_bp = saved_bp;
     sz = m_stack.size();
     swap(m_stack[sz - d.get_arity() - 1], m_stack[sz - 1]);
-    m_stack.resize(sz - d.get_arity());
+    stack_resize(sz - d.get_arity());
     m_pc++;
 }
 
@@ -1141,7 +1153,7 @@ void vm_state::invoke_cfun(vm_decl const & d) {
         r = reinterpret_cast<vm_cfunction_N>(d.get_cfn())(args.size(), args.data());
         break;
     }}
-    m_stack.resize(sz - arity);
+    stack_resize(sz - arity);
     m_stack.push_back(r);
     m_pc++;
 }
@@ -1177,7 +1189,7 @@ vm_obj vm_state::invoke_closure(vm_obj const & fn, unsigned DEBUG_CODE(nargs)) {
     }
     m_pc     = saved_pc;
     vm_obj r = m_stack.back();
-    m_stack.pop_back();
+    stack_pop_back();
     return r;
 }
 
@@ -1199,7 +1211,7 @@ vm_obj vm_state::invoke(unsigned fn_idx, unsigned nargs, vm_obj const * as) {
     if (d.get_arity() < nargs)
         apply(nargs - d.get_arity());
     vm_obj r = m_stack.back();
-    m_stack.pop_back();
+    stack_pop_back();
     return r;
 }
 
@@ -1719,6 +1731,13 @@ vm_state & get_vm_state() {
     return *g_vm_state;
 }
 
+void vm_state::push_local_info(unsigned idx, vm_local_info const & info) {
+    unsigned min_sz = m_bp + idx + 1;
+    if (m_stack_info.size() < min_sz)
+        m_stack_info.resize(min_sz);
+    m_stack_info[m_bp+idx] = info;
+}
+
 void vm_state::push_frame_core(unsigned num, unsigned next_pc, unsigned next_fn_idx) {
     m_call_stack.emplace_back(m_code, m_fn_idx, num, next_pc, m_bp, next_fn_idx, m_next_frame_idx);
     m_next_frame_idx++;
@@ -1741,7 +1760,7 @@ unsigned vm_state::pop_frame_core() {
     lean_assert(sz - fr.m_num - 1 < m_stack.size());
     lean_assert(sz - 1 < m_stack.size());
     swap(m_stack[sz - fr.m_num - 1], m_stack[sz - 1]);
-    m_stack.resize(sz - fr.m_num);
+    stack_resize(sz - fr.m_num);
     m_code   = fr.m_code;
     m_fn_idx = fr.m_fn_idx;
     m_pc     = fr.m_pc;
@@ -1761,6 +1780,18 @@ unsigned vm_state::pop_frame() {
 }
 
 void vm_state::invoke_global(vm_decl const & d) {
+    push_frame(d.get_arity(), m_pc+1, d.get_idx());
+    m_code            = d.get_code();
+    m_pc              = 0;
+    m_bp              = m_stack.size() - d.get_arity();
+    if (m_debugging) {
+        m_stack_info.resize(m_stack.size());
+        unsigned i = 0;
+        for (auto const & info : d.get_args_info()) {
+            m_stack_info[m_bp + i] = info;
+            i++;
+        }
+    }
 #if 0
     std::cout << d.get_name() << "\n";
     for (auto info : d.get_args_info()) {
@@ -1772,11 +1803,9 @@ void vm_state::invoke_global(vm_decl const & d) {
         std::cout << "\n";
     }
     std::cout << "----------\n";
+    display_stack(std::cout);
+    std::cout << "============\n";
 #endif
-    push_frame(d.get_arity(), m_pc+1, d.get_idx());
-    m_code            = d.get_code();
-    m_pc              = 0;
-    m_bp              = m_stack.size() - d.get_arity();
 }
 
 void vm_state::invoke(vm_decl const & d) {
@@ -1797,6 +1826,11 @@ void vm_state::display_stack(std::ostream & out) const {
         else
             out << "     ";
         display(out, m_stack[i]);
+        if (m_debugging && i < m_stack_info.size() && !m_stack_info[i].first.is_anonymous()) {
+            out << ", " << m_stack_info[i].first;
+            if (m_stack_info[i].second)
+                out << " : " << *m_stack_info[i].second;
+        }
         out << "\n";
     }
     if (m_bp == m_stack.size())
@@ -1866,7 +1900,7 @@ void vm_state::run() {
             unsigned sz  = m_stack.size();
             lean_assert(sz > num);
             swap(m_stack[sz - num - 1], m_stack[sz - 1]);
-            m_stack.resize(sz - num);
+            stack_resize(sz - num);
             m_pc++;
             goto main_loop;
         }
@@ -1901,7 +1935,7 @@ void vm_state::run() {
             unsigned nfields = instr.get_nfields();
             unsigned sz      = m_stack.size();
             vm_obj new_value = mk_vm_constructor(instr.get_cidx(), nfields, m_stack.data() + sz - nfields);
-            m_stack.resize(sz - nfields + 1);
+            stack_resize(sz - nfields + 1);
             swap(m_stack.back(), new_value);
             m_pc++;
             goto main_loop;
@@ -1919,7 +1953,7 @@ void vm_state::run() {
             unsigned nargs     = instr.get_nargs();
             unsigned sz        = m_stack.size();
             vm_obj new_value   = mk_vm_closure(instr.get_fn_idx(), nargs, m_stack.data() + sz - nargs);
-            m_stack.resize(sz - nargs + 1);
+            stack_resize(sz - nargs + 1);
             swap(m_stack.back(), new_value);
             m_pc++;
             goto main_loop;
@@ -1947,7 +1981,8 @@ void vm_state::run() {
             m_pc++;
             goto main_loop;
         case opcode::LocalInfo:
-            /* TODO(Leo): debug mode */
+            if (m_debugging)
+                push_local_info(instr.get_local_idx(), instr.get_local_info());
             m_pc++;
             goto main_loop;
         case opcode::Destruct: {
@@ -1961,7 +1996,7 @@ void vm_state::run() {
                 a_n
             */
             vm_obj top = m_stack.back();
-            m_stack.pop_back();
+            stack_pop_back();
             push_fields(top);
             m_pc++;
             goto main_loop;
@@ -1980,7 +2015,7 @@ void vm_state::run() {
                 := pc2  if  i == 1
             */
             vm_obj top = m_stack.back();
-            m_stack.pop_back();
+            stack_pop_back();
             push_fields(top);
             m_pc = instr.get_cases2_pc(cidx(top));
             goto main_loop;
@@ -2000,7 +2035,7 @@ void vm_state::run() {
             if (is_simple(top)) {
                 unsigned val = cidx(top);
                 if (val == 0) {
-                    m_stack.pop_back();
+                    stack_pop_back();
                     m_pc++;
                     goto main_loop;
                 } else {
@@ -2012,7 +2047,7 @@ void vm_state::run() {
             } else {
                 mpz const & val = to_mpz(top);
                 if (val == 0) {
-                    m_stack.pop_back();
+                    stack_pop_back();
                     m_pc++;
                     goto main_loop;
                 } else {
@@ -2036,7 +2071,7 @@ void vm_state::run() {
                 m_pc := pc_i
             */
             vm_obj top = m_stack.back();
-            m_stack.pop_back();
+            stack_pop_back();
             push_fields(top);
             m_pc = instr.get_casesn_pc(cidx(top));
             goto main_loop;
@@ -2046,7 +2081,7 @@ void vm_state::run() {
                 It is similar to CasesN, but uses the vm_cases_function to extract the data.
             */
             vm_obj top = m_stack.back();
-            m_stack.pop_back();
+            stack_pop_back();
             vm_cases_function fn = get_builtin_cases(instr.get_cases_idx());
             buffer<vm_obj> data;
             unsigned cidx = fn(top, data);
@@ -2128,7 +2163,7 @@ void vm_state::run() {
             */
             unsigned sz       = m_stack.size();
             vm_obj closure    = m_stack.back();
-            m_stack.pop_back();
+            stack_pop_back();
             unsigned fn_idx   = cfn_idx(closure);
             vm_decl d         = get_decl(fn_idx);
             unsigned csz      = csize(closure);
@@ -2147,7 +2182,7 @@ void vm_state::run() {
                 /* Case 1) We don't have sufficient arguments. So, we create a new closure */
                 sz = m_stack.size();
                 vm_obj new_value = mk_vm_closure(fn_idx, nargs, m_stack.data() + sz - nargs);
-                m_stack.resize(sz - nargs + 1);
+                stack_resize(sz - nargs + 1);
                 swap(m_stack.back(), new_value);
                 m_pc++;
                 goto main_loop;
@@ -2246,7 +2281,7 @@ vm_obj vm_state::get_constant(name const & cname) {
             invoke(d);
             run();
             vm_obj r = m_stack.back();
-            m_stack.pop_back();
+            stack_pop_back();
             m_pc = saved_pc;
             lean_assert(m_stack.size() == stack_sz);
             return r;

@@ -88,11 +88,11 @@ group.mul_left_inv
 @[class] def add_comm_group     := comm_group
 
 instance add_semigroup.to_has_add {A : Type u} [s : add_semigroup A] : has_add A :=
-⟨@mul A (@semigroup.to_has_mul A s)⟩
+⟨@semigroup.mul A s⟩
 instance add_monoid.to_has_zero {A : Type u} [s : add_monoid A] : has_zero A :=
-⟨@one A (@monoid.to_has_one A s)⟩
+⟨@monoid.one A s⟩
 instance add_group.to_has_neg {A : Type u} [s : add_group A] : has_neg A :=
-⟨@inv A (@group.to_has_inv A s)⟩
+⟨@group.inv A s⟩
 
 meta def multiplicative_to_additive : name_map name :=
 rb_map.of_list $

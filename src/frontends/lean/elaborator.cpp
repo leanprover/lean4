@@ -2366,7 +2366,7 @@ tactic_state elaborator::execute_tactic(expr const & tactic, tactic_state const 
     new_env = vm_compile(new_env, new_env.get(tactic_name));
 
     /* Invoke tactic */
-    vm_state S(new_env);
+    vm_state S(new_env, m_opts);
     vm_state::profiler prof(S, m_opts);
     vm_obj r = S.invoke(tactic_name, to_obj(s));
     if (prof.enabled())

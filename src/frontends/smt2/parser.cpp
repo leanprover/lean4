@@ -480,7 +480,7 @@ private:
         expr goal_mvar = mctx.mk_metavar_decl(lctx(), mk_constant(get_false_name()));
         vm_obj s = to_obj(tactic_state(env(), ios().get_options(), mctx, list<expr>(goal_mvar), goal_mvar));
 
-        vm_state state(env());
+        vm_state state(env(), ios().get_options());
         scope_vm_state scope(state);
         vm_obj result = state.invoke(get_smt_prove_name(), s);
         if (optional<tactic_state> s_new = is_tactic_success(result)) {

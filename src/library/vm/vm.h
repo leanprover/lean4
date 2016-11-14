@@ -551,7 +551,12 @@ class vm_state {
     std::vector<vm_local_info>  m_stack_info;
     std::vector<frame>          m_call_stack;
     mutex                       m_call_stack_mtx; /* used only when profiling */
+    struct debugger_state;
+    typedef std::unique_ptr<debugger_state> debugger_state_ptr;
+    debugger_state_ptr          m_debugger_state_ptr;
 
+    void debugger_init();
+    void debugger_step();
     void push_local_info(unsigned idx, vm_local_info const & info);
     void stack_resize(unsigned sz);
     void stack_pop_back();
@@ -585,7 +590,8 @@ class vm_state {
     }
 
 public:
-    vm_state(environment const & env);
+    vm_state(environment const & env, options const & opts);
+    ~vm_state();
 
     environment const & env() const { return m_env; }
 
@@ -700,6 +706,9 @@ public:
 /** \brief Return reference to thread local VM state object. */
 vm_state & get_vm_state();
 
+/** \brief Return reference to thread local VM state object being debugged. */
+vm_state & get_vm_state_being_debugged();
+
 /** \brief Add builtin implementation for the function named \c n.
     All environment objects will contain this builtin.
     \pre These procedures can only be invoked at initialization time. */
@@ -802,6 +811,8 @@ vm_obj invoke(unsigned fn_idx, unsigned nargs, vm_obj const * args);
 vm_obj invoke(unsigned fn_idx, vm_obj const & arg);
 
 void display_vm_code(std::ostream & out, environment const & env, unsigned code_sz, vm_instr const * code);
+
+environment vm_monitor_register(environment const & env, name const & d);
 
 void initialize_vm_core();
 void finalize_vm_core();

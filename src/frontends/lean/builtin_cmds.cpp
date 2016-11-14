@@ -454,7 +454,7 @@ static environment vm_eval_cmd(parser & p) {
     }
     name main("_main");
     environment new_env = compile_expr(p.env(), main, ls, type, e);
-    vm_state s(new_env);
+    vm_state s(new_env, p.get_options());
     optional<vm_obj> initial_state;
     if (is_IO) initial_state = mk_vm_simple(0);
     auto out = p.mk_message(pos, INFORMATION);

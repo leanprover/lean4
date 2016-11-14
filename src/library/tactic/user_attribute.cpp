@@ -66,8 +66,8 @@ static environment add_user_attr(environment const & env, name const & d) {
     if (!is_constant(ty, get_user_attribute_name()) && !is_constant(get_app_fn(ty), get_caching_user_attribute_name()))
         throw exception("invalid attribute.register argument, must be name of a definition of type user_attribute");
 
-    vm_state vm(env);
-    vm_obj const & o = vm.invoke(d, {});
+    vm_state vm(env, options());
+    vm_obj o = vm.invoke(d, {});
     name const & n = to_name(cfield(o, 0));
     if (n.is_anonymous())
         throw exception(sstream() << "invalid attribute.register, anonymous attribute names are not allowed");

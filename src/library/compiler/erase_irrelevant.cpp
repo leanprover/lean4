@@ -301,9 +301,15 @@ class erase_irrelevant_fn : public compiler_step_visitor {
         return add_args(r, 3, args);
     }
 
+    static bool is_builtin_state_monad(expr const & e) {
+        return
+            is_constant(e, get_monadIO_name()) ||
+            is_constant(e, get_vm_monad_name());
+    }
+
     expr visit_monad_bind(expr const & e, buffer<expr> const & args) {
-        if (args.size() == 6 && is_constant(args[1], get_monadIO_name())) {
-            /* Remark: morally the IO monad is
+        if (args.size() == 6 && is_builtin_state_monad(args[1])) {
+            /* Remark: morally the IO and vm monads are of the form
 
                 IO a := State -> (a, State)
 
@@ -338,7 +344,7 @@ class erase_irrelevant_fn : public compiler_step_visitor {
     }
 
     expr visit_monad_return(expr const & e, buffer<expr> const & args) {
-        if (args.size() == 4 && is_constant(args[1], get_monadIO_name())) {
+        if (args.size() == 4 && is_builtin_state_monad(args[1])) {
             /* IO monad return
                return v := fun s, v
 

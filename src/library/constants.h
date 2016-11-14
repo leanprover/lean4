@@ -385,6 +385,8 @@ name const & get_unit_name();
 name const & get_unit_cases_on_name();
 name const & get_unit_star_name();
 name const & get_user_attribute_name();
+name const & get_vm_monad_name();
+name const & get_vm_monitor_name();
 name const & get_weak_order_name();
 name const & get_well_founded_name();
 name const & get_xor_name();

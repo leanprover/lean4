@@ -32,6 +32,7 @@ Author: Leonardo de Moura
 #include "library/tactic/eqn_lemmas.h"
 #include "library/tactic/dsimplify.h"
 #include "library/tactic/simplify.h"
+#include "library/tactic/vm_monitor.h"
 #include "library/tactic/backward/init_module.h"
 
 namespace lean {
@@ -65,8 +66,10 @@ void initialize_tactic_module() {
     initialize_simp_lemmas();
     initialize_eqn_lemmas();
     initialize_dsimplify();
+    initialize_vm_monitor();
 }
 void finalize_tactic_module() {
+    finalize_vm_monitor();
     finalize_dsimplify();
     finalize_eqn_lemmas();
     finalize_simp_lemmas();

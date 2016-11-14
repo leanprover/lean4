@@ -20,7 +20,9 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 #include "library/module.h"
 #include "library/private.h"
+#include "library/util.h"
 #include "library/vm/vm.h"
+#include "library/vm/vm_name.h"
 #include "library/vm/vm_expr.h"
 
 #ifndef LEAN_DEFAULT_PROFILER
@@ -788,6 +790,8 @@ struct vm_decls : public environment_extension {
     unsigned_map<name>              m_cases_names;
     unsigned                        m_next_cases_idx{0};
 
+    name                            m_monitor;
+
     vm_decls() {
         g_vm_builtins->for_each([&](name const & n, std::tuple<unsigned, char const *, vm_function> const & p) {
                 add(vm_decl(n, m_next_decl_idx, std::get<0>(p), std::get<2>(p)));
@@ -1009,7 +1013,17 @@ optional<unsigned> get_vm_builtin_cases_idx(environment const & env, name const 
 
 constexpr unsigned g_null_fn_idx = -1;
 
-vm_state::vm_state(environment const & env):
+static name * g_debugger = nullptr;
+
+bool get_debugger(options const & opts) {
+    return opts.get_bool(*g_debugger, false);
+}
+
+static bool has_monitor(environment const & env) {
+    return !get_extension(env).m_monitor.is_anonymous();
+}
+
+vm_state::vm_state(environment const & env, options const & opts):
     m_env(env),
     m_decl_map(get_extension(m_env).m_decls),
     m_decl_vector(get_extension(m_env).m_next_decl_idx),
@@ -1020,6 +1034,46 @@ vm_state::vm_state(environment const & env):
     m_code(nullptr),
     m_fn_idx(g_null_fn_idx),
     m_bp(0) {
+    if (get_debugger(opts) && has_monitor(env)) {
+        debugger_init();
+    }
+}
+
+vm_state::~vm_state() {
+}
+
+struct vm_state::debugger_state {
+    vm_state m_vm;
+    vm_obj   m_state;
+    vm_obj   m_step_fn;
+    debugger_state(environment const & env):
+        m_vm(env, options()) {
+        auto const & ext = get_extension(env);
+        vm_obj o  = m_vm.invoke(ext.m_monitor, {});
+        m_state   = cfield(o, 0);
+        m_step_fn = cfield(o, 1);
+    }
+};
+
+void vm_state::debugger_init() {
+    m_debugging          = true;
+    m_debugger_state_ptr.reset(new debugger_state(m_env));
+}
+
+LEAN_THREAD_VALUE(vm_state *, g_vm_state_debugged, nullptr);
+
+vm_state & get_vm_state_being_debugged() {
+    lean_assert(g_vm_state_debugged);
+    return *g_vm_state_debugged;
+}
+
+void vm_state::debugger_step() {
+    flet<vm_state*> set(g_vm_state_debugged, this);
+    auto & vm_dbg  = m_debugger_state_ptr->m_vm;
+    m_debugger_state_ptr->m_state =
+        vm_dbg.invoke(m_debugger_state_ptr->m_step_fn,
+                      m_debugger_state_ptr->m_state,
+                      mk_vm_unit());
 }
 
 void vm_state::update_env(environment const & env) {
@@ -1853,6 +1907,9 @@ void vm_state::run() {
     m_pc = 0;
     while (true) {
       main_loop:
+        if (m_debugging) {
+            debugger_step();
+        }
         vm_instr const & instr = m_code[m_pc];
         DEBUG_CODE({
                 /* We only trace VM in debug mode */
@@ -2516,6 +2573,34 @@ unsigned get_vm_builtin_arity(name const & fn) {
     lean_unreachable();
 }
 
+static std::string * g_vm_monitor_key = nullptr;
+
+static environment vm_monitor_register_core(environment const & env, name const & d) {
+    expr const & type = env.get(d).get_type();
+    if (!is_app_of(type, get_vm_monitor_name(), 1))
+        throw exception("invalid vm_monitor.register argument, must be name of a definition of type (vm_monitor ?s) ");
+    auto ext = get_extension(env);
+    ext.m_monitor = d;
+    return update(env, ext);
+}
+
+environment vm_monitor_register(environment const & env, name const & d) {
+    auto new_env = vm_monitor_register_core(env, d);
+    return module::add(new_env, *g_vm_monitor_key, [=](environment const &, serializer & s) { s << d; });
+}
+
+static void vm_monitor_reader(deserializer & d, shared_environment & senv,
+                              std::function<void(asynch_update_fn const &)> &,
+                              std::function<void(delayed_update_fn const &)> &) {
+    name n;
+    d >> n;
+    senv.update([&](environment const & env) -> environment {
+            vm_decls ext = get_extension(env);
+            ext.m_monitor = n;
+            return update(env, ext);
+        });
+}
+
 void initialize_vm_core() {
     g_vm_builtins = new name_map<std::tuple<unsigned, char const *, vm_function>>();
     g_vm_cbuiltins = new name_map<std::tuple<unsigned, char const *, vm_cfunction>>();
@@ -2539,24 +2624,30 @@ void initialize_vm() {
     g_may_update_vm_builtins = false;
     g_vm_reserve_key = new std::string("VMR");
     g_vm_code_key    = new std::string("VMC");
+    g_vm_monitor_key = new std::string("VMMonitor");
     register_module_object_reader(*g_vm_reserve_key, reserve_reader);
     register_module_object_reader(*g_vm_code_key, code_reader);
+    register_module_object_reader(*g_vm_monitor_key, vm_monitor_reader);
 #if defined(LEAN_MULTI_THREAD)
     g_profiler       = new name{"profiler"};
     g_profiler_freq  = new name{"profiler", "freq"};
     register_bool_option(*g_profiler, LEAN_DEFAULT_PROFILER, "(profiler) profile tactics and vm_eval command");
     register_unsigned_option(*g_profiler_freq, LEAN_DEFAULT_PROFILER_FREQ, "(profiler) sampling frequency in milliseconds");
 #endif
+    g_debugger       = new name{"debugger"};
+    register_bool_option(*g_debugger, false, "(debugger) debug code using VM monitors");
 }
 
 void finalize_vm() {
     delete g_ext;
     delete g_vm_reserve_key;
     delete g_vm_code_key;
+    delete g_vm_monitor_key;
 #if defined(LEAN_MULTI_THREAD)
     delete g_profiler;
     delete g_profiler_freq;
 #endif
+    delete g_debugger;
 }
 }
 

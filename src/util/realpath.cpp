@@ -35,7 +35,7 @@ std::string lrealpath(char const * fname) {
 #else
     char * tmp = realpath(fname, nullptr);
     std::string r(tmp);
-    free(tmp);
+    ::free(tmp);
     return r;
 #endif
 }

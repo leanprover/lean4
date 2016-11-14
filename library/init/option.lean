@@ -65,7 +65,7 @@ do o ← a,
 show M (option A), from
 return (some a)
 
-instance {M : Type (max 1 u) → Type v} [monad M] {A : Type u} : monad (optionT M) :=
+instance {M : Type (max 1 u) → Type v} [monad M] : monad (optionT M) :=
 monad.mk (@optionT_fmap M _) (@optionT_return M _) (@optionT_bind M _)
 
 def optionT_orelse {M : Type (max 1 u) → Type v} [monad M] {A : Type u} (a : optionT M A) (b : optionT M A) : optionT M A :=
@@ -80,9 +80,9 @@ def optionT_fail {M : Type (max 1 u) → Type v} [monad M] {A : Type u} : option
 show M (option A), from
 return none
 
-instance {M : Type (max 1 u) → Type v} [monad M] {A : Type u} : alternative (optionT M) :=
+instance {M : Type (max 1 u) → Type v} [monad M] : alternative (optionT M) :=
 {map     := @optionT_fmap M _,
  pure    := @optionT_return M _,
- seq     := @fapp (optionT M) (@optionT.monad M _ A),
+ seq     := @fapp (optionT M) (@optionT.monad M _),
  failure := @optionT_fail M _,
  orelse  := @optionT_orelse M _}

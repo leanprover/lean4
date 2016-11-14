@@ -5,6 +5,7 @@ Authors: Floris van Doorn, Leonardo de Moura
 -/
 prelude
 import init.relation init.num
+import init.order
 
 notation `ℕ` := nat
 
@@ -237,6 +238,9 @@ namespace nat
 
   protected lemma le_antisymm {n m : ℕ} (h₁ : n ≤ m) : m ≤ n → n = m :=
   le.cases_on h₁ (λ a, rfl) (λ a b c, absurd (nat.lt_of_le_of_lt b c) (nat.lt_irrefl n))
+
+  instance : weak_order ℕ :=
+    ⟨ @nat.le, @nat.le_refl, @nat.le_trans, @nat.le_antisymm ⟩
 
   lemma lt_le_antisymm {n m : ℕ} (h₁ : n < m) (h₂ : m ≤ n) : false :=
   le_lt_antisymm h₂ h₁

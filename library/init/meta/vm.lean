@@ -11,7 +11,8 @@ meta constant vm_obj : Type
 inductive vm_obj_kind
 | simple | constructor | closure | mpz
 | name | level | expr | declaration
-| environment | tactic_state | format | other
+| environment | tactic_state | format
+| options | other
 
 namespace vm_obj
 meta constant kind            : vm_obj → vm_obj_kind
@@ -57,16 +58,18 @@ meta instance : monad vm_core :=
 @[reducible] meta def vm (A : Type) : Type := optionT.{1 1} vm_core A
 
 namespace vm
-meta constant get_decl        : name → vm vm_decl
-meta constant stack_size      : vm nat
-meta constant stack_obj       : nat → vm vm_obj
-meta constant stack_obj_info  : nat → vm (name × option expr)
-meta constant call_stack_size : vm nat
-meta constant call_stack_fn   : nat → vm name
-meta constant curr_fn         : vm name
-meta constant bp              : vm nat
-meta constant pc              : vm nat
-meta constant obj_to_string   : vm_obj → vm string
+meta constant get_decl         : name → vm vm_decl
+meta constant get_options      : name → vm options
+meta constant stack_size       : vm nat
+meta constant stack_obj        : nat → vm vm_obj
+meta constant stack_obj_info   : nat → vm (name × option expr)
+meta constant format_stack_obj : nat → vm format
+meta constant call_stack_size  : vm nat
+meta constant call_stack_fn    : nat → vm name
+meta constant curr_fn          : vm name
+meta constant bp               : vm nat
+meta constant pc               : vm nat
+meta constant obj_to_string    : vm_obj → vm string
 
 meta def trace {A : Type} [has_to_format A] (a : A) : vm unit :=
 do fmt ← return $ to_fmt a,

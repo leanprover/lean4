@@ -1,4 +1,4 @@
-/*
+ /*
 Copyright (c) 2016 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
@@ -6,17 +6,24 @@ Author: Leonardo de Moura
 */
 #include <limits>
 #include <string>
+#include "util/fresh_name.h"
+#include "kernel/type_checker.h"
+#include "library/io_state.h"
+#include "library/util.h"
+#include "library/constants.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_option.h"
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_string.h"
 #include "library/vm/vm_name.h"
+#include "library/vm/vm_options.h"
 #include "library/vm/vm_level.h"
 #include "library/vm/vm_expr.h"
 #include "library/vm/vm_declaration.h"
 #include "library/vm/vm_environment.h"
 #include "library/vm/vm_format.h"
 #include "library/vm/vm_list.h"
+#include "library/compiler/vm_compiler.h"
 #include "library/tactic/tactic_state.h"
 
 namespace lean {
@@ -45,7 +52,8 @@ vm_obj vm_core_bind(vm_obj const &, vm_obj const &, vm_obj const & a, vm_obj con
 inductive vm_obj_kind
 | simple | constructor | closure | mpz
 | name | level | expr | declaration
-| environment | tactic_state | format | other
+| environment | tactic_state | format
+| options | other
 */
 vm_obj _vm_obj_kind(vm_obj const & o) {
     switch (o.kind()) {
@@ -61,7 +69,8 @@ vm_obj _vm_obj_kind(vm_obj const & o) {
         else if (is_env(o)) return mk_vm_simple(8);
         else if (is_tactic_state(o)) return mk_vm_simple(9);
         else if (is_format(o)) return mk_vm_simple(10);
-        else return mk_vm_simple(11);
+        else if (is_options(o)) return mk_vm_simple(11);
+        else return mk_vm_simple(12);
     }
     lean_unreachable();
 }
@@ -256,6 +265,68 @@ vm_obj vm_stack_obj_info(vm_obj const & i, vm_obj const & /*s*/) {
     return mk_vm_success(mk_vm_pair(to_obj(info.first), to_obj(info.second)));
 }
 
+static format default_format(vm_state const & vm, unsigned idx) {
+    lean_assert(idx < vm.stack_size());
+    vm_obj o = vm.get_core(idx);
+    vm_local_info info = vm.get_info(idx);
+    if (auto type = info.second) {
+        try {
+            std::cout << info.first << " : " << *type << "\n>> ";
+            vm.display(std::cout, o); std::cout << "\n";
+            vm_state & curr_vm = get_vm_state();
+            type_context ctx(curr_vm.env());
+            level u = get_level(ctx, *type);
+            expr has_to_format = mk_app(mk_constant(get_has_to_format_name(), {u}), *type);
+            if (optional<expr> instance = ctx.mk_class_instance(has_to_format)) {
+                environment aux_env = curr_vm.env();
+                /* type -> format */
+                expr aux_type  = mk_arrow(*type, mk_constant(get_format_name()));
+                /* (@to_fmt type *instance) */
+                expr aux_value = mk_app(mk_constant(get_to_fmt_name(), {u}), *type, *instance);
+                name aux_name  = mk_tagged_fresh_name("_to_fmt_obj");
+                auto cd = check(aux_env, mk_definition(aux_env, aux_name, {}, aux_type, aux_value, true, false));
+                aux_env = aux_env.add(cd);
+                aux_env = vm_compile(aux_env, aux_env.get(aux_name));
+                curr_vm.update_env(aux_env);
+                vm_obj fn = curr_vm.get_constant(aux_name);
+                vm_obj r  = invoke(fn, o);
+                lean_assert(is_format(r));
+                return to_format(r);
+            }
+        } catch (exception &) {
+        }
+    }
+    std::ostringstream out;
+    get_vm_state_being_debugged().display(out, o);
+    return format(out.str());
+}
+
+vm_obj vm_format_stack_obj(vm_obj const & i, vm_obj const & /*s*/) {
+    auto const & vm = get_vm_state_being_debugged();
+    unsigned idx = force_to_unsigned(i, std::numeric_limits<unsigned>::max());
+    if (idx >= vm.stack_size()) return mk_vm_failure();
+    vm_obj o = vm.get_core(idx);
+
+    format r;
+    if (is_expr(o)) {
+        formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
+        type_context ctx(vm.env());
+        formatter fmt                  = fmtf(vm.env(), vm.get_options(), ctx);
+        try {
+            r = fmt(to_expr(o));
+        } catch (exception &) {
+            r = default_format(vm, idx);
+        }
+    } else if (is_tactic_state(o)) {
+        r = to_tactic_state(o).pp();
+    } else if (is_env(o)) {
+        r = format("[environment]");
+    } else {
+        r = default_format(vm, idx);
+    }
+    return mk_vm_success(to_obj(r));
+}
+
 vm_obj vm_call_stack_size(vm_obj const & /*s*/) {
     return mk_vm_success(mk_vm_nat(get_vm_state_being_debugged().call_stack_size()));
 }
@@ -273,6 +344,10 @@ vm_obj vm_bp(vm_obj const & /*s*/) {
 
 vm_obj vm_pc(vm_obj const & /*s*/) {
     return mk_vm_success(mk_vm_nat(get_vm_state_being_debugged().pc()));
+}
+
+vm_obj vm_get_options(vm_obj const & /*s*/) {
+    return mk_vm_success(to_obj(get_vm_state_being_debugged().get_options()));
 }
 
 vm_obj vm_curr_fn(vm_obj const & /*s*/) {
@@ -318,7 +393,9 @@ void initialize_vm_monitor() {
     DECLARE_VM_BUILTIN(name({"vm", "bp"}),                  vm_bp);
     DECLARE_VM_BUILTIN(name({"vm", "pc"}),                  vm_pc);
     DECLARE_VM_BUILTIN(name({"vm", "curr_fn"}),             vm_curr_fn);
+    DECLARE_VM_BUILTIN(name({"vm", "get_options"}),         vm_get_options);
     DECLARE_VM_BUILTIN(name({"vm", "obj_to_string"}),       vm_obj_to_string);
+    DECLARE_VM_BUILTIN(name({"vm", "format_stack_obj"}),    vm_format_stack_obj);
 }
 
 void finalize_vm_monitor() {

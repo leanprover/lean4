@@ -1026,6 +1026,7 @@ static bool has_monitor(environment const & env) {
 
 vm_state::vm_state(environment const & env, options const & opts):
     m_env(env),
+    m_options(opts),
     m_decl_map(get_extension(m_env).m_decls),
     m_decl_vector(get_extension(m_env).m_next_decl_idx),
     m_builtin_cases_map(get_extension(m_env).m_cases),
@@ -1114,10 +1115,15 @@ void vm_state::push_fields(vm_obj const & obj) {
     }
 }
 
-void vm_state::stack_resize(unsigned sz) {
-    m_stack.resize(sz);
-    if (m_debugging)
-        m_stack_info.resize(sz);
+void vm_state::shrink_stack_info() {
+    if (m_stack.empty()) {
+        m_stack_info.clear();
+    } else {
+        /* The information on top of the m_stack_info has been invalidated.
+           The information is invalidated by a swap or push_back operation
+           at m_stack. */
+        m_stack_info.resize(m_stack.size() - 1);
+    }
 }
 
 void vm_state::stack_pop_back() {
@@ -1143,7 +1149,8 @@ void vm_state::invoke_builtin(vm_decl const & d) {
     m_bp = saved_bp;
     sz = m_stack.size();
     swap(m_stack[sz - d.get_arity() - 1], m_stack[sz - 1]);
-    stack_resize(sz - d.get_arity());
+    m_stack.resize(sz - d.get_arity());
+    if (m_debugging) shrink_stack_info();
     m_pc++;
 }
 
@@ -1213,8 +1220,9 @@ void vm_state::invoke_cfun(vm_decl const & d) {
         r = reinterpret_cast<vm_cfunction_N>(d.get_cfn())(args.size(), args.data());
         break;
     }}
-    stack_resize(sz - arity);
+    m_stack.resize(sz - arity);
     m_stack.push_back(r);
+    if (m_debugging) shrink_stack_info();
     m_pc++;
 }
 
@@ -1820,7 +1828,8 @@ unsigned vm_state::pop_frame_core() {
     lean_assert(sz - fr.m_num - 1 < m_stack.size());
     lean_assert(sz - 1 < m_stack.size());
     swap(m_stack[sz - fr.m_num - 1], m_stack[sz - 1]);
-    stack_resize(sz - fr.m_num);
+    m_stack.resize(sz - fr.m_num);
+    if (m_debugging) shrink_stack_info();
     m_code   = fr.m_code;
     m_fn_idx = fr.m_fn_idx;
     m_pc     = fr.m_pc;
@@ -1963,7 +1972,8 @@ void vm_state::run() {
             unsigned sz  = m_stack.size();
             lean_assert(sz > num);
             swap(m_stack[sz - num - 1], m_stack[sz - 1]);
-            stack_resize(sz - num);
+            m_stack.resize(sz - num);
+            if (m_debugging) shrink_stack_info();
             m_pc++;
             goto main_loop;
         }
@@ -1998,8 +2008,9 @@ void vm_state::run() {
             unsigned nfields = instr.get_nfields();
             unsigned sz      = m_stack.size();
             vm_obj new_value = mk_vm_constructor(instr.get_cidx(), nfields, m_stack.data() + sz - nfields);
-            stack_resize(sz - nfields + 1);
+            m_stack.resize(sz - nfields + 1);
             swap(m_stack.back(), new_value);
+            if (m_debugging) shrink_stack_info();
             m_pc++;
             goto main_loop;
         }
@@ -2016,8 +2027,9 @@ void vm_state::run() {
             unsigned nargs     = instr.get_nargs();
             unsigned sz        = m_stack.size();
             vm_obj new_value   = mk_vm_closure(instr.get_fn_idx(), nargs, m_stack.data() + sz - nargs);
-            stack_resize(sz - nargs + 1);
+            m_stack.resize(sz - nargs + 1);
             swap(m_stack.back(), new_value);
+            if (m_debugging) shrink_stack_info();
             m_pc++;
             goto main_loop;
         }
@@ -2245,8 +2257,9 @@ void vm_state::run() {
                 /* Case 1) We don't have sufficient arguments. So, we create a new closure */
                 sz = m_stack.size();
                 vm_obj new_value = mk_vm_closure(fn_idx, nargs, m_stack.data() + sz - nargs);
-                stack_resize(sz - nargs + 1);
+                m_stack.resize(sz - nargs + 1);
                 swap(m_stack.back(), new_value);
+                if (m_debugging) shrink_stack_info();
                 m_pc++;
                 goto main_loop;
             } else {

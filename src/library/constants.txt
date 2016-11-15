@@ -65,6 +65,7 @@ eq.trans
 eq_of_heq
 eq_rec_heq
 exists.elim
+format
 functor
 functorIO
 false
@@ -91,6 +92,7 @@ has_sizeof
 has_sizeof.mk
 has_sizeof.sizeof
 has_sub
+has_to_format
 has_to_string
 has_zero
 has_zero.zero
@@ -363,8 +365,9 @@ tactic.interactive.types.itactic
 tactic.interactive.types.colon_tk
 tactic.interactive.types.assign_tk
 tactic.interactive.types.comma_tk
-to_string
+to_fmt
 to_int
+to_string
 to_real
 trans_rel_left
 trans_rel_right

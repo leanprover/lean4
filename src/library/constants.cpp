@@ -70,6 +70,7 @@ name const * g_eq_trans = nullptr;
 name const * g_eq_of_heq = nullptr;
 name const * g_eq_rec_heq = nullptr;
 name const * g_exists_elim = nullptr;
+name const * g_format = nullptr;
 name const * g_functor = nullptr;
 name const * g_functorIO = nullptr;
 name const * g_false = nullptr;
@@ -96,6 +97,7 @@ name const * g_has_sizeof = nullptr;
 name const * g_has_sizeof_mk = nullptr;
 name const * g_has_sizeof_sizeof = nullptr;
 name const * g_has_sub = nullptr;
+name const * g_has_to_format = nullptr;
 name const * g_has_to_string = nullptr;
 name const * g_has_zero = nullptr;
 name const * g_has_zero_zero = nullptr;
@@ -368,8 +370,9 @@ name const * g_tactic_interactive_types_itactic = nullptr;
 name const * g_tactic_interactive_types_colon_tk = nullptr;
 name const * g_tactic_interactive_types_assign_tk = nullptr;
 name const * g_tactic_interactive_types_comma_tk = nullptr;
-name const * g_to_string = nullptr;
+name const * g_to_fmt = nullptr;
 name const * g_to_int = nullptr;
+name const * g_to_string = nullptr;
 name const * g_to_real = nullptr;
 name const * g_trans_rel_left = nullptr;
 name const * g_trans_rel_right = nullptr;
@@ -459,6 +462,7 @@ void initialize_constants() {
     g_eq_of_heq = new name{"eq_of_heq"};
     g_eq_rec_heq = new name{"eq_rec_heq"};
     g_exists_elim = new name{"exists", "elim"};
+    g_format = new name{"format"};
     g_functor = new name{"functor"};
     g_functorIO = new name{"functorIO"};
     g_false = new name{"false"};
@@ -485,6 +489,7 @@ void initialize_constants() {
     g_has_sizeof_mk = new name{"has_sizeof", "mk"};
     g_has_sizeof_sizeof = new name{"has_sizeof", "sizeof"};
     g_has_sub = new name{"has_sub"};
+    g_has_to_format = new name{"has_to_format"};
     g_has_to_string = new name{"has_to_string"};
     g_has_zero = new name{"has_zero"};
     g_has_zero_zero = new name{"has_zero", "zero"};
@@ -757,8 +762,9 @@ void initialize_constants() {
     g_tactic_interactive_types_colon_tk = new name{"tactic", "interactive", "types", "colon_tk"};
     g_tactic_interactive_types_assign_tk = new name{"tactic", "interactive", "types", "assign_tk"};
     g_tactic_interactive_types_comma_tk = new name{"tactic", "interactive", "types", "comma_tk"};
-    g_to_string = new name{"to_string"};
+    g_to_fmt = new name{"to_fmt"};
     g_to_int = new name{"to_int"};
+    g_to_string = new name{"to_string"};
     g_to_real = new name{"to_real"};
     g_trans_rel_left = new name{"trans_rel_left"};
     g_trans_rel_right = new name{"trans_rel_right"};
@@ -849,6 +855,7 @@ void finalize_constants() {
     delete g_eq_of_heq;
     delete g_eq_rec_heq;
     delete g_exists_elim;
+    delete g_format;
     delete g_functor;
     delete g_functorIO;
     delete g_false;
@@ -875,6 +882,7 @@ void finalize_constants() {
     delete g_has_sizeof_mk;
     delete g_has_sizeof_sizeof;
     delete g_has_sub;
+    delete g_has_to_format;
     delete g_has_to_string;
     delete g_has_zero;
     delete g_has_zero_zero;
@@ -1147,8 +1155,9 @@ void finalize_constants() {
     delete g_tactic_interactive_types_colon_tk;
     delete g_tactic_interactive_types_assign_tk;
     delete g_tactic_interactive_types_comma_tk;
-    delete g_to_string;
+    delete g_to_fmt;
     delete g_to_int;
+    delete g_to_string;
     delete g_to_real;
     delete g_trans_rel_left;
     delete g_trans_rel_right;
@@ -1238,6 +1247,7 @@ name const & get_eq_trans_name() { return *g_eq_trans; }
 name const & get_eq_of_heq_name() { return *g_eq_of_heq; }
 name const & get_eq_rec_heq_name() { return *g_eq_rec_heq; }
 name const & get_exists_elim_name() { return *g_exists_elim; }
+name const & get_format_name() { return *g_format; }
 name const & get_functor_name() { return *g_functor; }
 name const & get_functorIO_name() { return *g_functorIO; }
 name const & get_false_name() { return *g_false; }
@@ -1264,6 +1274,7 @@ name const & get_has_sizeof_name() { return *g_has_sizeof; }
 name const & get_has_sizeof_mk_name() { return *g_has_sizeof_mk; }
 name const & get_has_sizeof_sizeof_name() { return *g_has_sizeof_sizeof; }
 name const & get_has_sub_name() { return *g_has_sub; }
+name const & get_has_to_format_name() { return *g_has_to_format; }
 name const & get_has_to_string_name() { return *g_has_to_string; }
 name const & get_has_zero_name() { return *g_has_zero; }
 name const & get_has_zero_zero_name() { return *g_has_zero_zero; }
@@ -1536,8 +1547,9 @@ name const & get_tactic_interactive_types_itactic_name() { return *g_tactic_inte
 name const & get_tactic_interactive_types_colon_tk_name() { return *g_tactic_interactive_types_colon_tk; }
 name const & get_tactic_interactive_types_assign_tk_name() { return *g_tactic_interactive_types_assign_tk; }
 name const & get_tactic_interactive_types_comma_tk_name() { return *g_tactic_interactive_types_comma_tk; }
-name const & get_to_string_name() { return *g_to_string; }
+name const & get_to_fmt_name() { return *g_to_fmt; }
 name const & get_to_int_name() { return *g_to_int; }
+name const & get_to_string_name() { return *g_to_string; }
 name const & get_to_real_name() { return *g_to_real; }
 name const & get_trans_rel_left_name() { return *g_trans_rel_left; }
 name const & get_trans_rel_right_name() { return *g_trans_rel_right; }

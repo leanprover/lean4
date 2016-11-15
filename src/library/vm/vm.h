@@ -520,6 +520,7 @@ class vm_state {
     typedef std::vector<vm_cases_function> builtin_cases_vector;
     typedef unsigned_map<vm_cases_function> builtin_cases_map;
     environment                 m_env;
+    options                     m_options;
     decl_map                    m_decl_map;
     decl_vector                 m_decl_vector;
     builtin_cases_map           m_builtin_cases_map;
@@ -558,7 +559,7 @@ class vm_state {
     void debugger_init();
     void debugger_step();
     void push_local_info(unsigned idx, vm_local_info const & info);
-    void stack_resize(unsigned sz);
+    void shrink_stack_info();
     void stack_pop_back();
     void push_fields(vm_obj const & obj);
     void push_frame_core(unsigned num, unsigned next_pc, unsigned next_fn_idx);
@@ -596,6 +597,8 @@ public:
     environment const & env() const { return m_env; }
 
     void update_env(environment const & env);
+
+    options const & get_options() const { return m_options; }
 
     /** \brief Push object into the data stack */
     void push(vm_obj const & o) { m_stack.push_back(o); }

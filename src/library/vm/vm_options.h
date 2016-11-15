@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm.h"
 
 namespace lean {
+bool is_options(vm_obj const & o);
 options const & to_options(vm_obj const & o);
 vm_obj to_obj(options const & n);
 void initialize_vm_options();

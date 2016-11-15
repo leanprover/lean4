@@ -25,6 +25,10 @@ options const & to_options(vm_obj const & o) {
     return static_cast<vm_options*>(to_external(o))->m_val;
 }
 
+bool is_options(vm_obj const & o) {
+    return is_external(o) && dynamic_cast<vm_options*>(to_external(o));
+}
+
 vm_obj to_obj(options const & n) {
     return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_options))) vm_options(n));
 }

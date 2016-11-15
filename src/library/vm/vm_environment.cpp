@@ -30,6 +30,10 @@ struct vm_environment : public vm_external {
     virtual void dealloc() override { this->~vm_environment(); get_vm_allocator().deallocate(sizeof(vm_environment), this); }
 };
 
+bool is_env(vm_obj const & o) {
+    return is_external(o) && dynamic_cast<vm_environment*>(to_external(o));
+}
+
 environment const & to_env(vm_obj const & o) {
     lean_assert(is_external(o));
     lean_assert(dynamic_cast<vm_environment*>(to_external(o)));

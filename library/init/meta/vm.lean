@@ -9,16 +9,9 @@ import init.meta.tactic init.option
 meta constant vm_obj : Type
 
 inductive vm_obj_kind
-| vm_simple
-| vm_constructor
-| vm_closure
-| vm_mpz
-| vm_name
-| vm_level
-| vm_expr
-| vm_tactic_state
-| vm_format
-| vm_other
+| simple | constructor | closure | mpz
+| name | level | expr | declaration
+| environment | tactic_state | format | other
 
 namespace vm_obj
 meta constant kind            : vm_obj → vm_obj_kind
@@ -29,6 +22,8 @@ meta constant to_nat          : vm_obj → nat
 meta constant to_name         : vm_obj → name
 meta constant to_level        : vm_obj → level
 meta constant to_expr         : vm_obj → expr
+meta constant to_declaration  : vm_obj → declaration
+meta constant to_environment  : vm_obj → environment
 meta constant to_tactic_state : vm_obj → tactic_state
 meta constant to_format       : vm_obj → format
 end vm_obj
@@ -71,6 +66,7 @@ meta constant call_stack_fn   : nat → vm name
 meta constant curr_fn         : vm name
 meta constant bp              : vm nat
 meta constant pc              : vm nat
+meta constant obj_to_string   : vm_obj → vm string
 
 meta def trace {A : Type} [has_to_format A] (a : A) : vm unit :=
 do fmt ← return $ to_fmt a,

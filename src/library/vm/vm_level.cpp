@@ -22,6 +22,10 @@ struct vm_level : public vm_external {
     virtual void dealloc() override { this->~vm_level(); get_vm_allocator().deallocate(sizeof(vm_level), this); }
 };
 
+bool is_level(vm_obj const & o) {
+    return is_external(o) && dynamic_cast<vm_level*>(to_external(o));
+}
+
 level const & to_level(vm_obj const & o) {
     lean_assert(is_external(o));
     lean_assert(dynamic_cast<vm_level*>(to_external(o)));

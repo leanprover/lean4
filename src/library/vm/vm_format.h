@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm.h"
 
 namespace lean {
+bool is_format(vm_obj const & o);
 format const & to_format(vm_obj const & o);
 vm_obj to_obj(format const & fmt);
 

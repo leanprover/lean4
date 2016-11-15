@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/level.h"
 
 namespace lean {
+bool is_level(vm_obj const & o);
 level const & to_level(vm_obj const & o);
 vm_obj to_obj(level const & n);
 void initialize_vm_level();

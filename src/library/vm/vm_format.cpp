@@ -20,6 +20,10 @@ struct vm_format : public vm_external {
     virtual void dealloc() override { this->~vm_format(); get_vm_allocator().deallocate(sizeof(vm_format), this); }
 };
 
+bool is_format(vm_obj const & o) {
+    return is_external(o) && dynamic_cast<vm_format*>(to_external(o));
+}
+
 format const & to_format(vm_obj const & o) {
     lean_assert(is_external(o));
     lean_assert(dynamic_cast<vm_format*>(to_external(o)));

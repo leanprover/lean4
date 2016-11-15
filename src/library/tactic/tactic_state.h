@@ -97,6 +97,7 @@ tactic_state set_env_mctx_goals(tactic_state const & s, environment const & env,
    \remark It returns s is is_eqp(s.mctx(), mctx) and is_decl_eqp(s.get_main_goal_decl()->get_context(), lctx) */
 tactic_state set_mctx_lctx(tactic_state const & s, metavar_context const & mctx, local_context const & lctx);
 
+bool is_tactic_state(vm_obj const & o);
 tactic_state const & to_tactic_state(vm_obj const & o);
 vm_obj to_obj(tactic_state const & s);
 

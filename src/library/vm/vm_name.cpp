@@ -20,6 +20,10 @@ struct vm_name : public vm_external {
     virtual void dealloc() override { this->~vm_name(); get_vm_allocator().deallocate(sizeof(vm_name), this); }
 };
 
+bool is_name(vm_obj const & o) {
+    return is_external(o) && dynamic_cast<vm_name*>(to_external(o));
+}
+
 name const & to_name(vm_obj const & o) {
     lean_assert(is_external(o));
     lean_assert(dynamic_cast<vm_name*>(to_external(o)));

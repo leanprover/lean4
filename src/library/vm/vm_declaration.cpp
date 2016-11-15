@@ -44,6 +44,10 @@ struct vm_declaration : public vm_external {
     virtual void dealloc() override { this->~vm_declaration(); get_vm_allocator().deallocate(sizeof(vm_declaration), this); }
 };
 
+bool is_declaration(vm_obj const & o) {
+    return is_external(o) && dynamic_cast<vm_declaration*>(to_external(o));
+}
+
 declaration const & to_declaration(vm_obj const & o) {
     lean_assert(is_external(o));
     lean_assert(dynamic_cast<vm_declaration*>(to_external(o)));

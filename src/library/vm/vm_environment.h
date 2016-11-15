@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm.h"
 
 namespace lean {
+bool is_env(vm_obj const & o);
 environment const & to_env(vm_obj const & o);
 vm_obj to_obj(environment const & n);
 void initialize_vm_environment();

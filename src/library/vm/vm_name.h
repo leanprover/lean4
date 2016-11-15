@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm.h"
 
 namespace lean {
+bool is_name(vm_obj const & o);
 name const & to_name(vm_obj const & o);
 vm_obj to_obj(name const & n);
 void initialize_vm_name();

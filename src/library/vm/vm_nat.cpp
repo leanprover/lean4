@@ -161,7 +161,7 @@ vm_obj nat_gcd(vm_obj const & a1, vm_obj const & a2) {
     return mk_vm_nat(r);
 }
 
-vm_obj nat_has_decidable_eq(vm_obj const & a1, vm_obj const & a2) {
+vm_obj nat_decidable_eq(vm_obj const & a1, vm_obj const & a2) {
     if (is_simple(a1) && is_simple(a2)) {
         return mk_vm_bool(cidx(a1) == cidx(a2));
     } else {
@@ -233,7 +233,7 @@ void initialize_vm_nat() {
     DECLARE_VM_BUILTIN(name({"nat", "div"}),              nat_div);
     DECLARE_VM_BUILTIN(name({"nat", "mod"}),              nat_mod);
     DECLARE_VM_BUILTIN(name({"nat", "gcd"}),              nat_gcd);
-    DECLARE_VM_BUILTIN(name({"nat", "has_decidable_eq"}), nat_has_decidable_eq);
+    DECLARE_VM_BUILTIN(name({"nat", "decidable_eq"}),     nat_decidable_eq);
     DECLARE_VM_BUILTIN(name({"nat", "decidable_le"}),     nat_decidable_le);
     DECLARE_VM_BUILTIN(name({"nat", "decidable_lt"}),     nat_decidable_lt);
     DECLARE_VM_BUILTIN(name({"nat", "to_string"}),        nat_to_string);

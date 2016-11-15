@@ -2841,6 +2841,7 @@ struct instance_synthesizer {
                              scope_trace_env scope(m_ctx.env(), m_ctx);
                              trace(e.m_depth, mk_app(mvar, locals.as_buffer()), mvar_type, r););
             if (!m_ctx.is_def_eq(mvar_type, type)) {
+                lean_trace_plain("class_instances", tout() << "failed is_def_eq\n";);
                 return false;
             }
             r = locals.mk_lambda(r);
@@ -2852,7 +2853,8 @@ struct instance_synthesizer {
                 m_state.m_stack = cons(stack_entry(new_inst_mvars[i], e.m_depth+1), m_state.m_stack);
             }
             return true;
-        } catch (exception &) {
+        } catch (exception & ex) {
+            lean_trace_plain("class_instances", tout() << "exception: " << ex.what() << "\n";);
             return false;
         }
     }
@@ -3026,6 +3028,8 @@ struct instance_synthesizer {
                     return r;
                 }
             }
+            lean_trace("class_instances",
+                       tout() << "trying next solution, current solution has metavars\n" << *r << "\n";);
             r = next_solution();
         }
     }

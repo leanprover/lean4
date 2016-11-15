@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.meta.tactic
+import init.meta.tactic init.option
 
 meta constant vm_obj : Type
 
@@ -51,11 +51,15 @@ meta constant olean     : vm_decl → option name
 meta constant args_info : vm_decl → list vm_local_info
 end vm_decl
 
-meta constant vm : Type → Type
-meta constant vm.functor : functor vm
-meta constant vm.monad   : monad vm
+meta constant vm_core : Type → Type
+meta constant vm_core.map {A B : Type} : (A → B) → vm_core A → vm_core B
+meta constant vm_core.ret {A : Type} : A → vm_core A
+meta constant vm_core.bind {A B : Type} : vm_core A → (A → vm_core B) → vm_core B
 
-attribute [instance] vm.functor vm.monad
+meta instance : monad vm_core :=
+⟨@vm_core.map, @vm_core.ret, @vm_core.bind⟩
+
+@[reducible] meta def vm (A : Type) : Type := optionT.{1 1} vm_core A
 
 namespace vm
 meta constant get         : name → vm vm_decl

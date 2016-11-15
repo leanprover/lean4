@@ -302,9 +302,7 @@ class erase_irrelevant_fn : public compiler_step_visitor {
     }
 
     static bool is_builtin_state_monad(expr const & e) {
-        return
-            is_constant(e, get_monadIO_name()) ||
-            is_constant(e, get_vm_monad_name());
+        return is_constant(e, get_monadIO_name());
     }
 
     expr visit_monad_bind(expr const & e, buffer<expr> const & args) {

@@ -23,6 +23,7 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_name.h"
+#include "library/vm/vm_option.h"
 #include "library/vm/vm_expr.h"
 
 #ifndef LEAN_DEFAULT_PROFILER
@@ -1060,6 +1061,19 @@ void vm_state::debugger_init() {
     m_debugger_state_ptr.reset(new debugger_state(m_env));
 }
 
+/* Reference to the VM that is currently running. */
+LEAN_THREAD_VALUE(vm_state *, g_vm_state, nullptr);
+
+scope_vm_state::scope_vm_state(vm_state & s):
+    m_prev(g_vm_state) {
+    g_vm_state = &s;
+}
+
+scope_vm_state::~scope_vm_state() {
+    g_vm_state = m_prev;
+}
+
+/* Reference to the VM that is currently being debugged. */
 LEAN_THREAD_VALUE(vm_state *, g_vm_state_debugged, nullptr);
 
 vm_state & get_vm_state_being_debugged() {
@@ -1068,12 +1082,15 @@ vm_state & get_vm_state_being_debugged() {
 }
 
 void vm_state::debugger_step() {
-    flet<vm_state*> set(g_vm_state_debugged, this);
+    flet<vm_state*> set1(g_vm_state_debugged, this);
     auto & vm_dbg  = m_debugger_state_ptr->m_vm;
-    m_debugger_state_ptr->m_state =
+    flet<vm_state*> set2(g_vm_state, &vm_dbg);
+    vm_obj r       =
         vm_dbg.invoke(m_debugger_state_ptr->m_step_fn,
                       m_debugger_state_ptr->m_state,
                       mk_vm_unit());
+    if (!is_none(r))
+        m_debugger_state_ptr->m_state = get_some_value(r);
 }
 
 void vm_state::update_env(environment const & env) {
@@ -1128,17 +1145,6 @@ void vm_state::invoke_builtin(vm_decl const & d) {
     swap(m_stack[sz - d.get_arity() - 1], m_stack[sz - 1]);
     stack_resize(sz - d.get_arity());
     m_pc++;
-}
-
-LEAN_THREAD_VALUE(vm_state *, g_vm_state, nullptr);
-
-scope_vm_state::scope_vm_state(vm_state & s):
-    m_prev(g_vm_state) {
-    g_vm_state = &s;
-}
-
-scope_vm_state::~scope_vm_state() {
-    g_vm_state = m_prev;
 }
 
 void vm_state::invoke_cfun(vm_decl const & d) {

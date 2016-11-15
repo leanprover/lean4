@@ -378,7 +378,6 @@ unit
 unit.cases_on
 unit.star
 user_attribute
-vm.monad
 vm_monitor
 weak_order
 well_founded

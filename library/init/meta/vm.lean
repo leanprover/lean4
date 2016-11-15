@@ -62,15 +62,20 @@ meta instance : monad vm_core :=
 @[reducible] meta def vm (A : Type) : Type := optionT.{1 1} vm_core A
 
 namespace vm
-meta constant get         : name → vm vm_decl
-meta constant stack_size  : vm nat
-meta constant obj_at      : nat → vm vm_obj
-meta constant obj_info    : nat → vm (name × option expr)
-meta constant num_frames  : vm nat
-meta constant fn_at       : nat → vm name
-meta constant curr_fn     : vm name
-meta constant bp          : vm nat
-meta constant pc          : vm nat
+meta constant get_decl        : name → vm vm_decl
+meta constant stack_size      : vm nat
+meta constant stack_obj       : nat → vm vm_obj
+meta constant stack_obj_info  : nat → vm (name × option expr)
+meta constant call_stack_size : vm nat
+meta constant call_stack_fn   : nat → vm name
+meta constant curr_fn         : vm name
+meta constant bp              : vm nat
+meta constant pc              : vm nat
+
+meta def trace {A : Type} [has_to_format A] (a : A) : vm unit :=
+do fmt ← return $ to_fmt a,
+   return $ _root_.trace_fmt fmt (λ u, ())
+
 end vm
 
 meta structure vm_monitor (s : Type) :=

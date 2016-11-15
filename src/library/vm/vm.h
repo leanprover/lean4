@@ -600,6 +600,31 @@ public:
     /** \brief Push object into the data stack */
     void push(vm_obj const & o) { m_stack.push_back(o); }
 
+    unsigned stack_size() const { return m_stack.size(); }
+
+    vm_obj const & get_core(unsigned idx) const {
+        lean_assert(idx < m_stack.size());
+        return m_stack[idx];
+    }
+
+    vm_local_info get_info(unsigned idx) const {
+        if (idx >= m_stack_info.size())
+            return vm_local_info(name(), none_expr());
+        else
+            return m_stack_info[idx];
+    }
+
+    unsigned call_stack_size() const { return m_call_stack.size(); }
+
+    name call_stack_fn(unsigned idx) const {
+        lean_assert(idx < m_call_stack.size());
+        return m_decl_map.find(m_call_stack[idx].m_curr_fn_idx)->get_name();
+    }
+
+    unsigned bp() const { return m_bp; }
+
+    unsigned pc() const { return m_pc; }
+
     /** \brief Retrieve object from the call stack */
     vm_obj const & get(int idx) const {
         lean_assert(idx + static_cast<int>(m_bp) >= 0);
@@ -610,6 +635,8 @@ public:
     vm_obj const & top() const { return m_stack.back(); }
 
     optional<vm_decl> get_decl(name const & n) const;
+
+    name curr_fn() const { return m_decl_map.find(m_fn_idx)->get_name(); }
 
     void invoke_fn(name const & fn);
     void invoke_fn(unsigned fn_idx);

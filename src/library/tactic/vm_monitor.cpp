@@ -5,11 +5,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <limits>
+#include <string>
 #include "library/vm/vm.h"
 #include "library/vm/vm_option.h"
+#include "library/vm/vm_nat.h"
+#include "library/vm/vm_string.h"
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_expr.h"
-#include "library/vm/vm_nat.h"
+#include "library/vm/vm_list.h"
 #include "library/tactic/tactic_state.h"
 
 namespace lean {
@@ -49,6 +52,52 @@ vm_decl const & to_vm_decl(vm_obj const & o) {
 
 vm_obj to_obj(vm_decl const & e) {
     return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_vm_decl))) vm_vm_decl(e));
+}
+
+/*
+inductive vm_decl_kind
+| bytecode | builtin | cfun
+*/
+vm_obj _vm_decl_kind(vm_obj const & d) {
+    switch (to_vm_decl(d).kind()) {
+    case vm_decl_kind::Bytecode: return mk_vm_simple(0);
+    case vm_decl_kind::Builtin:  return mk_vm_simple(1);
+    case vm_decl_kind::CFun:     return mk_vm_simple(2);
+    }
+    lean_unreachable();
+}
+
+vm_obj vm_decl_to_name(vm_obj const & d) {
+    return to_obj(to_vm_decl(d).get_name());
+}
+
+vm_obj vm_decl_idx(vm_obj const & d) {
+    return mk_vm_nat(to_vm_decl(d).get_idx());
+}
+
+vm_obj vm_decl_arity(vm_obj const & d) {
+    return mk_vm_nat(to_vm_decl(d).get_arity());
+}
+
+vm_obj vm_decl_pos(vm_obj const & d) {
+    if (optional<pos_info> pos = to_vm_decl(d).get_pos_info())
+        return mk_vm_some(mk_vm_pair(mk_vm_nat(pos->first), mk_vm_nat(pos->second)));
+    else
+        return mk_vm_none();
+}
+
+vm_obj vm_decl_olean(vm_obj const & d) {
+    if (optional<std::string> olean = to_vm_decl(d).get_olean())
+        return mk_vm_some(to_obj(*olean));
+    else
+        return mk_vm_none();
+}
+
+vm_obj vm_decl_args_info(vm_obj const & d) {
+    return to_vm_list(to_vm_decl(d).get_args_info(),
+                      [](vm_local_info const & info) {
+                          return mk_vm_pair(to_obj(info.first), to_obj(info.second));
+                      });
 }
 
 static vm_obj mk_vm_success(vm_obj const & o) {
@@ -112,6 +161,13 @@ void initialize_vm_monitor() {
     DECLARE_VM_BUILTIN(name({"vm_core", "map"}),        vm_core_map);
     DECLARE_VM_BUILTIN(name({"vm_core", "ret"}),        vm_core_ret);
     DECLARE_VM_BUILTIN(name({"vm_core", "bind"}),       vm_core_bind);
+    DECLARE_VM_BUILTIN(name({"vm_decl", "kind"}),       _vm_decl_kind);
+    DECLARE_VM_BUILTIN(name({"vm_decl", "to_name"}),    vm_decl_to_name);
+    DECLARE_VM_BUILTIN(name({"vm_decl", "idx"}),        vm_decl_idx);
+    DECLARE_VM_BUILTIN(name({"vm_decl", "arity"}),      vm_decl_arity);
+    DECLARE_VM_BUILTIN(name({"vm_decl", "pos"}),        vm_decl_pos);
+    DECLARE_VM_BUILTIN(name({"vm_decl", "olean"}),      vm_decl_olean);
+    DECLARE_VM_BUILTIN(name({"vm_decl", "args_info"}),  vm_decl_args_info);
     DECLARE_VM_BUILTIN(name({"vm", "get_decl"}),        vm_get_decl);
     DECLARE_VM_BUILTIN(name({"vm", "stack_size"}),      vm_stack_size);
     DECLARE_VM_BUILTIN(name({"vm", "stack_obj"}),       vm_stack_obj);

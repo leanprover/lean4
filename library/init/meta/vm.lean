@@ -47,7 +47,7 @@ meta constant to_name   : vm_decl → name
 meta constant idx       : vm_decl → nat
 meta constant arity     : vm_decl → nat
 meta constant pos       : vm_decl → option (nat × nat)
-meta constant olean     : vm_decl → option name
+meta constant olean     : vm_decl → option string
 meta constant args_info : vm_decl → list vm_local_info
 end vm_decl
 

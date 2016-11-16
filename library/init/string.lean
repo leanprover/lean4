@@ -37,3 +37,11 @@ private def utf8_length_aux : nat → nat → string → nat
 
 def utf8_length : string → nat
 | s := utf8_length_aux 0 0 (reverse s)
+
+private def to_nat_core : list char → nat → nat
+| []      r := r
+| (c::cs) r :=
+  to_nat_core cs (char.to_nat c - char.to_nat '0' + r*10)
+
+def string.to_nat (s : string) : nat :=
+to_nat_core s^.reverse 0

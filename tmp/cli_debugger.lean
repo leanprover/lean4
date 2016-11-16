@@ -61,16 +61,16 @@ do {
 <|>
 return "<position not available>"
 
-meta def display_fn (header : string) (fn : name) (frame : nat) : vm unit :=
+meta def show_fn (header : string) (fn : name) (frame : nat) : vm unit :=
 do pos ← pos_info fn,
    vm.put_str ("[" ++ frame^.to_string ++ "] " ++ header ++ " " ++ fn^.to_string ++ " at " ++ pos ++ "\n")
 
-meta def display_curr_fn (header : string) : vm unit :=
+meta def show_curr_fn (header : string) : vm unit :=
 do fn ← vm.curr_fn,
    sz ← vm.call_stack_size,
-   display_fn header fn (sz-1)
+   show_fn header fn (sz-1)
 
-meta def display_help : vm unit :=
+meta def show_help : vm unit :=
 do
  vm.put_str "exit      - stop debugger\n",
  vm.put_str "help      - display this message\n",
@@ -80,6 +80,7 @@ do
  vm.put_str " up        - move up in the stack trace\n",
  vm.put_str " down      - move down in the stack trace\n",
  vm.put_str " vars      - display variables in the current stack frame\n",
+ vm.put_str " stack     - display all functions on the call stack\n",
  vm.put_str "breakpoints\n",
  vm.put_str " break fn  - add breakpoint for fn\n",
  vm.put_str " rbreak fn - remove breakpoint\n",
@@ -128,7 +129,7 @@ meta def show_breakpoints : list name → vm unit
 meta def show_frame (frame : nat) : vm unit :=
 do sz ← vm.call_stack_size,
    fn ← if frame >= sz then vm.curr_fn else vm.call_stack_fn frame,
-   display_fn "frame" fn frame
+   show_fn "frame" fn frame
 
 meta def up (frame : nat) : vm nat :=
 if frame = 0 then return 0
@@ -175,6 +176,17 @@ meta def show_vars (frame : nat) : vm unit :=
 do (s, e) ← vm.call_stack_var_range frame,
    show_vars_core 0 s e
 
+meta def show_stack_core : nat → vm unit
+| 0     := return ()
+| (i+1) := do
+  fn ← vm.call_stack_fn i,
+  show_fn "stack" fn i,
+  show_stack_core i
+
+meta def show_stack : vm unit :=
+do sz ← vm.call_stack_size,
+   show_stack_core sz
+
 meta def cmd_loop_core : state → nat → list string → vm state
 | s frame default_cmd := do
   is_eof ← vm.eof,
@@ -189,7 +201,7 @@ meta def cmd_loop_core : state → nat → list string → vm state
     match tks with
     | []          := cmd_loop_core s frame default_cmd
     | (cmd::args) :=
-      if cmd = "help" then display_help >> cmd_loop_core s frame default_cmd
+      if cmd = "help" then show_help >> cmd_loop_core s frame default_cmd
       else if cmd = "exit" then return {s with md := mode.done }
       else if cmd = "run" ∨ cmd = "r" then return {s with md := mode.run }
       else if cmd = "step" ∨ cmd = "s" then return {s with md := mode.step }
@@ -201,7 +213,8 @@ meta def cmd_loop_core : state → nat → list string → vm state
         cmd_loop_core s frame default_cmd
       else if cmd = "up" ∨ cmd = "u" then do frame ← up frame, cmd_loop_core s frame ["u"]
       else if cmd = "down" ∨ cmd = "d" then do frame ← down frame, cmd_loop_core s frame ["d"]
-      else if cmd = "vars" ∨ cmd = "v" then do show_vars frame, cmd_loop_core s frame ["vars"]
+      else if cmd = "vars" ∨ cmd = "v" then do show_vars frame, cmd_loop_core s frame []
+      else if cmd = "stack" then do show_stack, cmd_loop_core s frame []
       else do vm.put_str "unknown command, type 'help' for help\n", cmd_loop_core s frame default_cmd
     end
 
@@ -231,7 +244,7 @@ do opts ← vm.get_options,
        return {new_s with md := mode.run}
      else do
        vm.put_str "Lean debugger\n",
-       display_curr_fn "debugging",
+       show_curr_fn "debugging",
        vm.put_str "type 'help' for help\n",
        cmd_loop new_s []
 
@@ -240,7 +253,7 @@ do
   sz ← vm.call_stack_size,
   if sz = s^.csz then return s
   else do
-    display_curr_fn "step",
+    show_curr_fn "step",
     cmd_loop s ["s"]
 
 meta def bp_reached (s : state) : vm bool :=
@@ -259,7 +272,7 @@ do b1 ← in_active_bps s,
    b2 ← bp_reached s,
    if b1 ∨ not b2 then return s
    else do
-     display_curr_fn "breakpoint",
+     show_curr_fn "breakpoint",
      fn    ← vm.curr_fn,
      sz    ← vm.call_stack_size,
      new_s ← return $ {s with active_bps := (sz, fn) :: s^.active_bps},

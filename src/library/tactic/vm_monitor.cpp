@@ -272,8 +272,6 @@ static format default_format(vm_state const & vm, unsigned idx) {
     vm_local_info info = vm.get_info(idx);
     if (auto type = info.second) {
         try {
-            std::cout << info.first << " : " << *type << "\n>> ";
-            vm.display(std::cout, o); std::cout << "\n";
             vm_state & curr_vm = get_vm_state();
             type_context ctx(curr_vm.env());
             level u = get_level(ctx, *type);

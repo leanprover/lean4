@@ -81,6 +81,8 @@ do
  vm.put_str " down      - move down in the stack trace\n",
  vm.put_str " vars      - display variables in the current stack frame\n",
  vm.put_str " stack     - display all functions on the call stack\n",
+ vm.put_str " print var - display the value of variable named 'var' in the current stack frame\n",
+ vm.put_str " pidx  idx - display the value of variable at position #idx in the current stack frame\n",
  vm.put_str "breakpoints\n",
  vm.put_str " break fn  - add breakpoint for fn\n",
  vm.put_str " rbreak fn - remove breakpoint\n",
@@ -187,6 +189,46 @@ meta def show_stack : vm unit :=
 do sz ← vm.call_stack_size,
    show_stack_core sz
 
+meta def pidx_cmd : nat → list string → vm unit
+| frame [arg] := do
+  idx     ← return $ arg^.to_nat,
+  sz      ← vm.stack_size,
+  (bp, ep) ← vm.call_stack_var_range frame,
+  if bp + idx >= ep then
+    vm.put_str "invalid 'pidx <idx>' command, index out of bounds\n"
+  else do
+    v       ← vm.pp_stack_obj (bp+idx),
+    (n, t)  ← vm.stack_obj_info (bp+idx),
+    opts    ← vm.get_options,
+    vm.put_str n^.to_string,
+    vm.put_str " := ",
+    vm.put_str (v^.to_string opts),
+    vm.put_str "\n"
+| _ _ :=
+  vm.put_str "invalid 'pidx <idx>' command, incorrect number of arguments\n"
+
+meta def print_var : nat → nat → name → vm unit
+| i ep v := do
+  if i = ep then vm.put_str "invalid 'print <var>', unknown variable\n"
+  else do
+    (n, t) ← vm.stack_obj_info i,
+    if n = v then do
+       v    ← vm.pp_stack_obj i,
+       opts ← vm.get_options,
+       vm.put_str n^.to_string,
+       vm.put_str " := ",
+       vm.put_str (v^.to_string opts),
+       vm.put_str "\n"
+    else
+       print_var (i+1) ep v
+
+meta def print_cmd : nat → list string → vm unit
+| frame [arg] := do
+  (bp, ep) ← vm.call_stack_var_range frame,
+  print_var bp ep (to_qualified_name arg)
+| _ _ :=
+  vm.put_str "invalid 'print <var>' command, incorrect number of arguments\n"
+
 meta def cmd_loop_core : state → nat → list string → vm state
 | s frame default_cmd := do
   is_eof ← vm.eof,
@@ -215,6 +257,8 @@ meta def cmd_loop_core : state → nat → list string → vm state
       else if cmd = "down" ∨ cmd = "d" then do frame ← down frame, cmd_loop_core s frame ["d"]
       else if cmd = "vars" ∨ cmd = "v" then do show_vars frame, cmd_loop_core s frame []
       else if cmd = "stack" then do show_stack, cmd_loop_core s frame []
+      else if cmd = "pidx" then do pidx_cmd frame args, cmd_loop_core s frame []
+      else if cmd = "print" ∨ cmd = "p" then do print_cmd frame args, cmd_loop_core s frame []
       else do vm.put_str "unknown command, type 'help' for help\n", cmd_loop_core s frame default_cmd
     end
 
@@ -303,7 +347,7 @@ set_option debugger.autorun true
 
 def g (c : nat) := c + 1
 
-def h (a : nat) (b : nat) := g b + a
+def h (a : nat) (b : nat) := g (b+2) + a
 
 def s (a : nat) := h 2 a + h 3 a
 

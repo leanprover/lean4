@@ -11,9 +11,9 @@ It is easy to install all dependencies, it produces native
 
 ## Installing dependencies
 
-Lean requires Python2 or Python3. If you do not have a Python installation on your machine, 
+Lean requires Python2 or Python3. If you do not have a Python installation on your machine,
 please download and install one from [Python.org](https://www.python.org/downloads/windows).
-Also please make sure that your `PATH` environment variable includes the installed 
+Also please make sure that your `PATH` environment variable includes the installed
 Python directory (i.e. `C:\Python27`).
 
 [The official webpage of msys2][msys2] provides one-click installers.
@@ -28,7 +28,7 @@ Here are the commands to install all dependencies needed to compile Lean on your
 pacman -S mingw-w64-x86_64-gcc
 
 # Install mpfr, gmp, lua
-pacman -S mingw-w64-x86_64-mpfr mingw-w64-x86_64-gmp mingw-w64-x86_64-lua
+pacman -S mingw-w64-x86_64-mpfr mingw-w64-x86_64-gmp
 
 # Install ninja, cmake
 pacman -S mingw-w64-x86_64-ninja mingw-w64-x86_64-cmake

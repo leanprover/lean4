@@ -58,6 +58,7 @@ meta instance : monad vm_core :=
 @[reducible] meta def vm (A : Type) : Type := optionT.{1 1} vm_core A
 
 namespace vm
+meta constant get_env          : vm environment
 meta constant get_decl         : name → vm vm_decl
 meta constant get_options      : vm options
 meta constant stack_size       : vm nat

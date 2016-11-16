@@ -379,6 +379,10 @@ vm_obj vm_eof(vm_obj const &) {
     return mk_vm_success(mk_vm_bool(std::cin.eof()));
 }
 
+vm_obj vm_get_env(vm_obj const &) {
+    return mk_vm_success(to_obj(get_vm_state_being_debugged().env()));
+}
+
 void initialize_vm_monitor() {
     DECLARE_VM_BUILTIN(name({"vm_monitor", "register"}),    _vm_monitor_register);
     DECLARE_VM_BUILTIN(name({"vm_core", "map"}),            vm_core_map);
@@ -403,6 +407,7 @@ void initialize_vm_monitor() {
     DECLARE_VM_BUILTIN(name({"vm_decl", "pos"}),            vm_decl_pos);
     DECLARE_VM_BUILTIN(name({"vm_decl", "olean"}),          vm_decl_olean);
     DECLARE_VM_BUILTIN(name({"vm_decl", "args_info"}),      vm_decl_args_info);
+    DECLARE_VM_BUILTIN(name({"vm", "get_env"}),             vm_get_env);
     DECLARE_VM_BUILTIN(name({"vm", "get_decl"}),            vm_get_decl);
     DECLARE_VM_BUILTIN(name({"vm", "stack_size"}),          vm_stack_size);
     DECLARE_VM_BUILTIN(name({"vm", "stack_obj"}),           vm_stack_obj);

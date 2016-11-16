@@ -76,11 +76,23 @@ do
  vm.put_str "bs       - show breakpoints\n",
  vm.put_str "step     - execute until another function in on the top of the stack\n"
 
+meta def is_valid_fn_prefix (p : name) : vm bool :=
+do env ← vm.get_env,
+   return $ env^.fold ff (λ d r,
+     r ||
+     let n := d^.to_name in
+     p^.is_prefix_of n)
+
 meta def add_breakpoint (s : state) (args : list string) : vm state :=
 match args with
 | [arg] := do
   fn ← return $ to_qualified_name arg,
-  return {s with fn_bps := fn :: list.filter (λ fn', fn ≠ fn') s^.fn_bps}
+  ok ← is_valid_fn_prefix fn,
+  if ok then
+    return {s with fn_bps := fn :: list.filter (λ fn', fn ≠ fn') s^.fn_bps}
+  else
+    vm.put_str "invalid 'break' command, given name is not the prefix for any function\n" >>
+    return s
 | _     :=
   vm.put_str "invalid 'break <fn>' command, incorrect number of arguments\n" >>
   return s

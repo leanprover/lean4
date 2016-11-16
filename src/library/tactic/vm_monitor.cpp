@@ -360,6 +360,25 @@ vm_obj vm_obj_to_string(vm_obj const & o, vm_obj const & /*s*/) {
     return mk_vm_success(to_obj(out.str()));
 }
 
+vm_obj vm_put_str(vm_obj const & str, vm_obj const &) {
+    get_global_ios().get_regular_stream() << to_string(str);
+    return mk_vm_success(mk_vm_unit());
+}
+
+vm_obj vm_get_line(vm_obj const &) {
+    if (get_global_ios().get_options().get_bool("server"))
+        return mk_vm_failure();
+    std::string str;
+    std::getline(std::cin, str);
+    return mk_vm_success(to_obj(str));
+}
+
+vm_obj vm_eof(vm_obj const &) {
+    if (get_global_ios().get_options().get_bool("server"))
+        return mk_vm_failure();
+    return mk_vm_success(mk_vm_bool(std::cin.eof()));
+}
+
 void initialize_vm_monitor() {
     DECLARE_VM_BUILTIN(name({"vm_monitor", "register"}),    _vm_monitor_register);
     DECLARE_VM_BUILTIN(name({"vm_core", "map"}),            vm_core_map);
@@ -396,6 +415,9 @@ void initialize_vm_monitor() {
     DECLARE_VM_BUILTIN(name({"vm", "get_options"}),         vm_get_options);
     DECLARE_VM_BUILTIN(name({"vm", "obj_to_string"}),       vm_obj_to_string);
     DECLARE_VM_BUILTIN(name({"vm", "format_stack_obj"}),    vm_format_stack_obj);
+    DECLARE_VM_BUILTIN(name({"vm", "put_str"}),             vm_put_str);
+    DECLARE_VM_BUILTIN(name({"vm", "get_line"}),            vm_get_line);
+    DECLARE_VM_BUILTIN(name({"vm", "eof"}),                 vm_eof);
 }
 
 void finalize_vm_monitor() {

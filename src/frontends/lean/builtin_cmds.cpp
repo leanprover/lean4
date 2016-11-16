@@ -405,12 +405,13 @@ static environment compile_cmd(parser & p) {
     return vm_compile(p.env(), d);
 }
 
-static environment compile_expr(environment const & env, name const & n, level_param_names const & ls, expr const & type, expr const & e) {
+static environment compile_expr(environment const & env, name const & n, level_param_names const & ls, expr const & type, expr const & e, pos_info const & pos) {
     environment new_env = env;
     bool use_conv_opt   = true;
     bool is_trusted     = false;
     auto cd = check(new_env, mk_definition(new_env, n, ls, type, e, use_conv_opt, is_trusted));
     new_env = new_env.add(cd);
+    new_env = add_transient_decl_pos_info(new_env, n, pos);
     return vm_compile(new_env, new_env.get(n));
 }
 
@@ -453,7 +454,7 @@ static environment vm_eval_cmd(parser & p) {
         }
     }
     name main("_main");
-    environment new_env = compile_expr(p.env(), main, ls, type, e);
+    environment new_env = compile_expr(p.env(), main, ls, type, e, pos);
     vm_state s(new_env, p.get_options());
     optional<vm_obj> initial_state;
     if (is_IO) initial_state = mk_vm_simple(0);

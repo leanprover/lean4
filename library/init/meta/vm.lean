@@ -59,7 +59,7 @@ meta instance : monad vm_core :=
 
 namespace vm
 meta constant get_decl         : name → vm vm_decl
-meta constant get_options      : name → vm options
+meta constant get_options      : vm options
 meta constant stack_size       : vm nat
 meta constant stack_obj        : nat → vm vm_obj
 meta constant stack_obj_info   : nat → vm (name × option expr)
@@ -70,6 +70,9 @@ meta constant curr_fn          : vm name
 meta constant bp               : vm nat
 meta constant pc               : vm nat
 meta constant obj_to_string    : vm_obj → vm string
+meta constant put_str          : string → vm unit
+meta constant get_line         : vm string
+meta constant eof              : vm bool
 
 meta def trace {A : Type} [has_to_format A] (a : A) : vm unit :=
 do fmt ← return $ to_fmt a,

@@ -74,6 +74,7 @@ meta constant obj_to_string    : vm_obj → vm string
 meta constant put_str          : string → vm unit
 meta constant get_line         : vm string
 meta constant eof              : vm bool
+meta constant get_attribute    : name → vm (list name)
 
 meta def trace {A : Type} [has_to_format A] (a : A) : vm unit :=
 do fmt ← return $ to_fmt a,

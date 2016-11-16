@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "library/io_state.h"
 #include "library/util.h"
+#include "library/attribute_manager.h"
 #include "library/constants.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_option.h"
@@ -383,6 +384,18 @@ vm_obj vm_get_env(vm_obj const &) {
     return mk_vm_success(to_obj(get_vm_state_being_debugged().env()));
 }
 
+vm_obj vm_get_attribute(vm_obj const & vm_n, vm_obj const &) {
+    auto const & n = to_name(vm_n);
+    buffer<name> b;
+    try {
+        environment const & env = get_vm_state_being_debugged().env();
+        get_attribute(env, n).get_instances(env, b);
+        return mk_vm_success(to_obj(b));
+    } catch (exception &) {
+        return mk_vm_failure();
+    }
+}
+
 void initialize_vm_monitor() {
     DECLARE_VM_BUILTIN(name({"vm_monitor", "register"}),    _vm_monitor_register);
     DECLARE_VM_BUILTIN(name({"vm_core", "map"}),            vm_core_map);
@@ -423,6 +436,7 @@ void initialize_vm_monitor() {
     DECLARE_VM_BUILTIN(name({"vm", "put_str"}),             vm_put_str);
     DECLARE_VM_BUILTIN(name({"vm", "get_line"}),            vm_get_line);
     DECLARE_VM_BUILTIN(name({"vm", "eof"}),                 vm_eof);
+    DECLARE_VM_BUILTIN(name({"vm", "get_attribute"}),       vm_get_attribute);
 }
 
 void finalize_vm_monitor() {

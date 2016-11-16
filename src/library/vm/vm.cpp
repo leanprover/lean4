@@ -2655,6 +2655,9 @@ void initialize_vm() {
 #endif
     g_debugger       = new name{"debugger"};
     register_bool_option(*g_debugger, false, "(debugger) debug code using VM monitors");
+    /* TODO(Leo): move to .lean after we add primitives for creating new options on .lean files */
+    register_bool_option(name({"debugger", "autorun"}), false,
+                         "(debugger) skip debugger startup messages and initial prompt");
 }
 
 void finalize_vm() {

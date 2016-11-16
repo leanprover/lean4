@@ -58,23 +58,25 @@ meta instance : monad vm_core :=
 @[reducible] meta def vm (A : Type) : Type := optionT.{1 1} vm_core A
 
 namespace vm
-meta constant get_env          : vm environment
-meta constant get_decl         : name → vm vm_decl
-meta constant get_options      : vm options
-meta constant stack_size       : vm nat
-meta constant stack_obj        : nat → vm vm_obj
-meta constant stack_obj_info   : nat → vm (name × option expr)
-meta constant format_stack_obj : nat → vm format
-meta constant call_stack_size  : vm nat
-meta constant call_stack_fn    : nat → vm name
-meta constant curr_fn          : vm name
-meta constant bp               : vm nat
-meta constant pc               : vm nat
-meta constant obj_to_string    : vm_obj → vm string
-meta constant put_str          : string → vm unit
-meta constant get_line         : vm string
-meta constant eof              : vm bool
-meta constant get_attribute    : name → vm (list name)
+meta constant get_env              : vm environment
+meta constant get_decl             : name → vm vm_decl
+meta constant get_options          : vm options
+meta constant stack_size           : vm nat
+meta constant stack_obj            : nat → vm vm_obj
+meta constant stack_obj_info       : nat → vm (name × option expr)
+meta constant pp_stack_obj         : nat → vm format
+meta constant pp_expr              : expr → vm format
+meta constant call_stack_size      : vm nat
+meta constant call_stack_fn        : nat → vm name
+meta constant call_stack_var_range : nat → vm (nat × nat)
+meta constant curr_fn              : vm name
+meta constant bp                   : vm nat
+meta constant pc                   : vm nat
+meta constant obj_to_string        : vm_obj → vm string
+meta constant put_str              : string → vm unit
+meta constant get_line             : vm string
+meta constant eof                  : vm bool
+meta constant get_attribute        : name → vm (list name)
 
 meta def trace {A : Type} [has_to_format A] (a : A) : vm unit :=
 do fmt ← return $ to_fmt a,

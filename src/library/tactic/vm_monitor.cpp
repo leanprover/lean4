@@ -302,7 +302,7 @@ static format default_format(vm_state const & vm, unsigned idx) {
     return format(out.str());
 }
 
-vm_obj vm_format_stack_obj(vm_obj const & i, vm_obj const & /*s*/) {
+vm_obj vm_pp_stack_obj(vm_obj const & i, vm_obj const & /*s*/) {
     auto const & vm = get_vm_state_being_debugged();
     unsigned idx = force_to_unsigned(i, std::numeric_limits<unsigned>::max());
     if (idx >= vm.stack_size()) return mk_vm_failure();
@@ -337,6 +337,30 @@ vm_obj vm_call_stack_fn(vm_obj const & i, vm_obj const & /*s*/) {
     unsigned idx = force_to_unsigned(i, std::numeric_limits<unsigned>::max());
     if (idx >= vm.call_stack_size()) return mk_vm_failure();
     return mk_vm_success(to_obj(vm.call_stack_fn(idx)));
+}
+
+vm_obj vm_call_stack_var_range(vm_obj const & i, vm_obj const & /*s*/) {
+    auto const & vm = get_vm_state_being_debugged();
+    unsigned idx = force_to_unsigned(i, std::numeric_limits<unsigned>::max());
+    unsigned csz = vm.call_stack_size();
+    if (idx >= csz) {
+        return mk_vm_failure();
+    } else {
+        lean_assert(csz > 0);
+        unsigned start, end;
+        if (idx == csz - 1) {
+            start = vm.bp();
+            end   = vm.stack_size();
+        } else if (idx == csz - 2) {
+            start = vm.call_stack_bp(csz - 1);
+            end   = vm.bp();
+        } else {
+            lean_assert(idx < csz - 2);
+            start = vm.call_stack_bp(idx + 1);
+            end   = vm.call_stack_bp(idx + 2);
+        }
+        return mk_vm_success(mk_vm_pair(mk_vm_nat(start), mk_vm_nat(end)));
+    }
 }
 
 vm_obj vm_bp(vm_obj const & /*s*/) {
@@ -396,47 +420,63 @@ vm_obj vm_get_attribute(vm_obj const & vm_n, vm_obj const &) {
     }
 }
 
+vm_obj vm_pp_expr(vm_obj const & e, vm_obj const &) {
+    auto const & vm = get_vm_state_being_debugged();
+    formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
+    type_context ctx(vm.env());
+    formatter fmt                  = fmtf(vm.env(), vm.get_options(), ctx);
+    try {
+        return mk_vm_success(to_obj(fmt(to_expr(e))));
+    } catch (exception &) {
+        std::ostringstream out;
+        out << to_expr(e);
+        return mk_vm_success(to_obj(format(out.str())));
+    }
+}
+
 void initialize_vm_monitor() {
-    DECLARE_VM_BUILTIN(name({"vm_monitor", "register"}),    _vm_monitor_register);
-    DECLARE_VM_BUILTIN(name({"vm_core", "map"}),            vm_core_map);
-    DECLARE_VM_BUILTIN(name({"vm_core", "ret"}),            vm_core_ret);
-    DECLARE_VM_BUILTIN(name({"vm_core", "bind"}),           vm_core_bind);
-    DECLARE_VM_BUILTIN(name({"vm_obj", "kind"}),            _vm_obj_kind);
-    DECLARE_VM_BUILTIN(name({"vm_obj", "cidx"}),            vm_obj_cidx);
-    DECLARE_VM_BUILTIN(name({"vm_obj", "fn_idx"}),          vm_obj_fn_idx);
-    DECLARE_VM_BUILTIN(name({"vm_obj", "fields"}),          vm_obj_fields);
-    DECLARE_VM_BUILTIN(name({"vm_obj", "to_nat"}),          vm_obj_to_nat);
-    DECLARE_VM_BUILTIN(name({"vm_obj", "to_name"}),         vm_obj_to_name);
-    DECLARE_VM_BUILTIN(name({"vm_obj", "to_level"}),        vm_obj_to_level);
-    DECLARE_VM_BUILTIN(name({"vm_obj", "to_expr"}),         vm_obj_to_expr);
-    DECLARE_VM_BUILTIN(name({"vm_obj", "to_declaration"}),  vm_obj_to_declaration);
-    DECLARE_VM_BUILTIN(name({"vm_obj", "to_environment"}),  vm_obj_to_environment);
-    DECLARE_VM_BUILTIN(name({"vm_obj", "to_tactic_state"}), vm_obj_to_tactic_state);
-    DECLARE_VM_BUILTIN(name({"vm_obj", "to_format"}),       vm_obj_to_format);
-    DECLARE_VM_BUILTIN(name({"vm_decl", "kind"}),           _vm_decl_kind);
-    DECLARE_VM_BUILTIN(name({"vm_decl", "to_name"}),        vm_decl_to_name);
-    DECLARE_VM_BUILTIN(name({"vm_decl", "idx"}),            vm_decl_idx);
-    DECLARE_VM_BUILTIN(name({"vm_decl", "arity"}),          vm_decl_arity);
-    DECLARE_VM_BUILTIN(name({"vm_decl", "pos"}),            vm_decl_pos);
-    DECLARE_VM_BUILTIN(name({"vm_decl", "olean"}),          vm_decl_olean);
-    DECLARE_VM_BUILTIN(name({"vm_decl", "args_info"}),      vm_decl_args_info);
-    DECLARE_VM_BUILTIN(name({"vm", "get_env"}),             vm_get_env);
-    DECLARE_VM_BUILTIN(name({"vm", "get_decl"}),            vm_get_decl);
-    DECLARE_VM_BUILTIN(name({"vm", "stack_size"}),          vm_stack_size);
-    DECLARE_VM_BUILTIN(name({"vm", "stack_obj"}),           vm_stack_obj);
-    DECLARE_VM_BUILTIN(name({"vm", "stack_obj_info"}),      vm_stack_obj_info);
-    DECLARE_VM_BUILTIN(name({"vm", "call_stack_size"}),     vm_call_stack_size);
-    DECLARE_VM_BUILTIN(name({"vm", "call_stack_fn"}),       vm_call_stack_fn);
-    DECLARE_VM_BUILTIN(name({"vm", "bp"}),                  vm_bp);
-    DECLARE_VM_BUILTIN(name({"vm", "pc"}),                  vm_pc);
-    DECLARE_VM_BUILTIN(name({"vm", "curr_fn"}),             vm_curr_fn);
-    DECLARE_VM_BUILTIN(name({"vm", "get_options"}),         vm_get_options);
-    DECLARE_VM_BUILTIN(name({"vm", "obj_to_string"}),       vm_obj_to_string);
-    DECLARE_VM_BUILTIN(name({"vm", "format_stack_obj"}),    vm_format_stack_obj);
-    DECLARE_VM_BUILTIN(name({"vm", "put_str"}),             vm_put_str);
-    DECLARE_VM_BUILTIN(name({"vm", "get_line"}),            vm_get_line);
-    DECLARE_VM_BUILTIN(name({"vm", "eof"}),                 vm_eof);
-    DECLARE_VM_BUILTIN(name({"vm", "get_attribute"}),       vm_get_attribute);
+    DECLARE_VM_BUILTIN(name({"vm_monitor", "register"}),     _vm_monitor_register);
+    DECLARE_VM_BUILTIN(name({"vm_core", "map"}),             vm_core_map);
+    DECLARE_VM_BUILTIN(name({"vm_core", "ret"}),             vm_core_ret);
+    DECLARE_VM_BUILTIN(name({"vm_core", "bind"}),            vm_core_bind);
+    DECLARE_VM_BUILTIN(name({"vm_obj", "kind"}),             _vm_obj_kind);
+    DECLARE_VM_BUILTIN(name({"vm_obj", "cidx"}),             vm_obj_cidx);
+    DECLARE_VM_BUILTIN(name({"vm_obj", "fn_idx"}),           vm_obj_fn_idx);
+    DECLARE_VM_BUILTIN(name({"vm_obj", "fields"}),           vm_obj_fields);
+    DECLARE_VM_BUILTIN(name({"vm_obj", "to_nat"}),           vm_obj_to_nat);
+    DECLARE_VM_BUILTIN(name({"vm_obj", "to_name"}),          vm_obj_to_name);
+    DECLARE_VM_BUILTIN(name({"vm_obj", "to_level"}),         vm_obj_to_level);
+    DECLARE_VM_BUILTIN(name({"vm_obj", "to_expr"}),          vm_obj_to_expr);
+    DECLARE_VM_BUILTIN(name({"vm_obj", "to_declaration"}),   vm_obj_to_declaration);
+    DECLARE_VM_BUILTIN(name({"vm_obj", "to_environment"}),   vm_obj_to_environment);
+    DECLARE_VM_BUILTIN(name({"vm_obj", "to_tactic_state"}),  vm_obj_to_tactic_state);
+    DECLARE_VM_BUILTIN(name({"vm_obj", "to_format"}),        vm_obj_to_format);
+    DECLARE_VM_BUILTIN(name({"vm_decl", "kind"}),            _vm_decl_kind);
+    DECLARE_VM_BUILTIN(name({"vm_decl", "to_name"}),         vm_decl_to_name);
+    DECLARE_VM_BUILTIN(name({"vm_decl", "idx"}),             vm_decl_idx);
+    DECLARE_VM_BUILTIN(name({"vm_decl", "arity"}),           vm_decl_arity);
+    DECLARE_VM_BUILTIN(name({"vm_decl", "pos"}),             vm_decl_pos);
+    DECLARE_VM_BUILTIN(name({"vm_decl", "olean"}),           vm_decl_olean);
+    DECLARE_VM_BUILTIN(name({"vm_decl", "args_info"}),       vm_decl_args_info);
+    DECLARE_VM_BUILTIN(name({"vm", "get_env"}),              vm_get_env);
+    DECLARE_VM_BUILTIN(name({"vm", "get_decl"}),             vm_get_decl);
+    DECLARE_VM_BUILTIN(name({"vm", "stack_size"}),           vm_stack_size);
+    DECLARE_VM_BUILTIN(name({"vm", "stack_obj"}),            vm_stack_obj);
+    DECLARE_VM_BUILTIN(name({"vm", "stack_obj_info"}),       vm_stack_obj_info);
+    DECLARE_VM_BUILTIN(name({"vm", "call_stack_size"}),      vm_call_stack_size);
+    DECLARE_VM_BUILTIN(name({"vm", "call_stack_fn"}),        vm_call_stack_fn);
+    DECLARE_VM_BUILTIN(name({"vm", "call_stack_var_range"}), vm_call_stack_var_range);
+    DECLARE_VM_BUILTIN(name({"vm", "bp"}),                   vm_bp);
+    DECLARE_VM_BUILTIN(name({"vm", "pc"}),                   vm_pc);
+    DECLARE_VM_BUILTIN(name({"vm", "curr_fn"}),              vm_curr_fn);
+    DECLARE_VM_BUILTIN(name({"vm", "get_options"}),          vm_get_options);
+    DECLARE_VM_BUILTIN(name({"vm", "obj_to_string"}),        vm_obj_to_string);
+    DECLARE_VM_BUILTIN(name({"vm", "pp_stack_obj"}),         vm_pp_stack_obj);
+    DECLARE_VM_BUILTIN(name({"vm", "pp_expr"}),              vm_pp_expr);
+    DECLARE_VM_BUILTIN(name({"vm", "put_str"}),              vm_put_str);
+    DECLARE_VM_BUILTIN(name({"vm", "get_line"}),             vm_get_line);
+    DECLARE_VM_BUILTIN(name({"vm", "eof"}),                  vm_eof);
+    DECLARE_VM_BUILTIN(name({"vm", "get_attribute"}),        vm_get_attribute);
 }
 
 void finalize_vm_monitor() {

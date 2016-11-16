@@ -624,6 +624,11 @@ public:
         return m_decl_map.find(m_call_stack[idx].m_curr_fn_idx)->get_name();
     }
 
+    unsigned call_stack_bp(unsigned idx) const {
+        lean_assert(idx < m_call_stack.size());
+        return m_call_stack[idx].m_bp;
+    }
+
     unsigned bp() const { return m_bp; }
 
     unsigned pc() const { return m_pc; }

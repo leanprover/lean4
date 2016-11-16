@@ -59,3 +59,8 @@ meta instance : has_ordering name :=
 
 /- (name.append_after n i) return a name of the form n_i -/
 meta constant name.append_after : name → nat → name
+
+meta def name.is_prefix_of : name → name → bool
+| p name.anonymous := ff
+| p n              :=
+  if p = n then tt else name.is_prefix_of p n^.get_prefix

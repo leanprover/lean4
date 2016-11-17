@@ -72,7 +72,6 @@ name const * g_eq_rec_heq = nullptr;
 name const * g_exists_elim = nullptr;
 name const * g_format = nullptr;
 name const * g_functor = nullptr;
-name const * g_functorIO = nullptr;
 name const * g_false = nullptr;
 name const * g_false_of_true_iff_false = nullptr;
 name const * g_false_rec = nullptr;
@@ -142,7 +141,9 @@ name const * g_int_has_lt = nullptr;
 name const * g_int_has_neg = nullptr;
 name const * g_int_has_mod = nullptr;
 name const * g_int_decidable_linear_ordered_comm_group = nullptr;
-name const * g_IO = nullptr;
+name const * g_io = nullptr;
+name const * g_io_functor = nullptr;
+name const * g_io_monad = nullptr;
 name const * g_is_associative = nullptr;
 name const * g_is_associative_op_assoc = nullptr;
 name const * g_is_int = nullptr;
@@ -174,7 +175,6 @@ name const * g_monad_map = nullptr;
 name const * g_monad_bind = nullptr;
 name const * g_monad_ret = nullptr;
 name const * g_monad_and_then = nullptr;
-name const * g_monadIO = nullptr;
 name const * g_monoid = nullptr;
 name const * g_mul = nullptr;
 name const * g_mul_one = nullptr;
@@ -464,7 +464,6 @@ void initialize_constants() {
     g_exists_elim = new name{"exists", "elim"};
     g_format = new name{"format"};
     g_functor = new name{"functor"};
-    g_functorIO = new name{"functorIO"};
     g_false = new name{"false"};
     g_false_of_true_iff_false = new name{"false_of_true_iff_false"};
     g_false_rec = new name{"false", "rec"};
@@ -534,7 +533,9 @@ void initialize_constants() {
     g_int_has_neg = new name{"int", "has_neg"};
     g_int_has_mod = new name{"int", "has_mod"};
     g_int_decidable_linear_ordered_comm_group = new name{"int_decidable_linear_ordered_comm_group"};
-    g_IO = new name{"IO"};
+    g_io = new name{"io"};
+    g_io_functor = new name{"io", "functor"};
+    g_io_monad = new name{"io", "monad"};
     g_is_associative = new name{"is_associative"};
     g_is_associative_op_assoc = new name{"is_associative", "op_assoc"};
     g_is_int = new name{"is_int"};
@@ -566,7 +567,6 @@ void initialize_constants() {
     g_monad_bind = new name{"monad", "bind"};
     g_monad_ret = new name{"monad", "ret"};
     g_monad_and_then = new name{"monad", "and_then"};
-    g_monadIO = new name{"monadIO"};
     g_monoid = new name{"monoid"};
     g_mul = new name{"mul"};
     g_mul_one = new name{"mul_one"};
@@ -857,7 +857,6 @@ void finalize_constants() {
     delete g_exists_elim;
     delete g_format;
     delete g_functor;
-    delete g_functorIO;
     delete g_false;
     delete g_false_of_true_iff_false;
     delete g_false_rec;
@@ -927,7 +926,9 @@ void finalize_constants() {
     delete g_int_has_neg;
     delete g_int_has_mod;
     delete g_int_decidable_linear_ordered_comm_group;
-    delete g_IO;
+    delete g_io;
+    delete g_io_functor;
+    delete g_io_monad;
     delete g_is_associative;
     delete g_is_associative_op_assoc;
     delete g_is_int;
@@ -959,7 +960,6 @@ void finalize_constants() {
     delete g_monad_bind;
     delete g_monad_ret;
     delete g_monad_and_then;
-    delete g_monadIO;
     delete g_monoid;
     delete g_mul;
     delete g_mul_one;
@@ -1249,7 +1249,6 @@ name const & get_eq_rec_heq_name() { return *g_eq_rec_heq; }
 name const & get_exists_elim_name() { return *g_exists_elim; }
 name const & get_format_name() { return *g_format; }
 name const & get_functor_name() { return *g_functor; }
-name const & get_functorIO_name() { return *g_functorIO; }
 name const & get_false_name() { return *g_false; }
 name const & get_false_of_true_iff_false_name() { return *g_false_of_true_iff_false; }
 name const & get_false_rec_name() { return *g_false_rec; }
@@ -1319,7 +1318,9 @@ name const & get_int_has_lt_name() { return *g_int_has_lt; }
 name const & get_int_has_neg_name() { return *g_int_has_neg; }
 name const & get_int_has_mod_name() { return *g_int_has_mod; }
 name const & get_int_decidable_linear_ordered_comm_group_name() { return *g_int_decidable_linear_ordered_comm_group; }
-name const & get_IO_name() { return *g_IO; }
+name const & get_io_name() { return *g_io; }
+name const & get_io_functor_name() { return *g_io_functor; }
+name const & get_io_monad_name() { return *g_io_monad; }
 name const & get_is_associative_name() { return *g_is_associative; }
 name const & get_is_associative_op_assoc_name() { return *g_is_associative_op_assoc; }
 name const & get_is_int_name() { return *g_is_int; }
@@ -1351,7 +1352,6 @@ name const & get_monad_map_name() { return *g_monad_map; }
 name const & get_monad_bind_name() { return *g_monad_bind; }
 name const & get_monad_ret_name() { return *g_monad_ret; }
 name const & get_monad_and_then_name() { return *g_monad_and_then; }
-name const & get_monadIO_name() { return *g_monadIO; }
 name const & get_monoid_name() { return *g_monoid; }
 name const & get_mul_name() { return *g_mul; }
 name const & get_mul_one_name() { return *g_mul_one; }

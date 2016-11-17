@@ -1,4 +1,4 @@
-import system.IO
+import system.io
 
 section
 open nat_map

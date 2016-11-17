@@ -1,4 +1,4 @@
-import system.IO
+import system.io
 open list
 
 vm_eval pp ([["aaa", "bbb", "ccc", "dddd", "eeeeee", "ffffff"], ["aaa", "bbb", "ccc", "dddd", "eeeeee", "ffffff"],

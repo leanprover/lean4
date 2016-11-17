@@ -439,9 +439,9 @@ static environment vm_eval_cmd(parser & p) {
     type_context tc(p.env(), transparency_mode::All);
     expr type0 = tc.infer(e);
     expr type  = tc.whnf(type0);
-    bool is_IO = is_constant(get_app_fn(type), get_IO_name());
+    bool is_io = is_constant(get_app_fn(type), get_io_name());
     bool is_string = false;
-    if (!is_IO) {
+    if (!is_io) {
         /* Check if resultant type has an instance of has_to_string */
         level lvl  = sort_level(tc.whnf(tc.infer(type)));
         expr has_to_string_type = mk_app(mk_constant(get_has_to_string_name(), {lvl}), type0);
@@ -457,7 +457,7 @@ static environment vm_eval_cmd(parser & p) {
     environment new_env = compile_expr(p.env(), main, ls, type, e, pos);
     vm_state s(new_env, p.get_options());
     optional<vm_obj> initial_state;
-    if (is_IO) initial_state = mk_vm_simple(0);
+    if (is_io) initial_state = mk_vm_simple(0);
     auto out = p.mk_message(pos, INFORMATION);
     out.set_caption("vm_eval result");
     vm_state::profiler prof(s, p.get_options());
@@ -468,7 +468,7 @@ static environment vm_eval_cmd(parser & p) {
     } else {
         vm_eval_core(s, main, initial_state);
     }
-    if (is_IO) {
+    if (is_io) {
         // do not print anything
     } else if (is_string) {
         vm_obj r = s.get(0);

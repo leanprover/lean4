@@ -1,6 +1,6 @@
-import system.IO
+import system.io
 
-definition when (b : bool) (a : IO unit) : IO unit :=
+definition when (b : bool) (a : io unit) : io unit :=
 if b = tt then a else return ()
 
 vm_eval when tt (put_str "hello\n")

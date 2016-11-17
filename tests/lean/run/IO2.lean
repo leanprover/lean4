@@ -1,4 +1,4 @@
-import system.IO
+import system.io
 open list
 
 /- B and unit must be in the same universe
@@ -6,7 +6,7 @@ open list
    since unit is at Type₁
 -/
 
-definition foreach {A : Type} {B : Type} : list A → (A → IO B) → IO poly_unit
+definition foreach {A : Type} {B : Type} : list A → (A → io B) → io poly_unit
 | []      f := return poly_unit.star
 | (x::xs) f := do f x, foreach xs f
 

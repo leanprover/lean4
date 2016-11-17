@@ -10,9 +10,9 @@ Author: Leonardo de Moura
 namespace lean {
 bool is_system_builtin(name const & n) {
     return
-        n == get_IO_name() ||
-        n == get_functorIO_name() ||
-        n == get_monadIO_name() ||
+        n == get_io_name() ||
+        n == get_io_functor_name() ||
+        n == get_io_monad_name() ||
         n == get_put_str_name() ||
         n == get_put_nat_name() ||
         n == get_get_line_name();

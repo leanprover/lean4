@@ -67,7 +67,6 @@ eq_rec_heq
 exists.elim
 format
 functor
-functorIO
 false
 false_of_true_iff_false
 false.rec
@@ -137,7 +136,9 @@ int.has_lt
 int.has_neg
 int.has_mod
 int_decidable_linear_ordered_comm_group
-IO
+io
+io.functor
+io.monad
 is_associative
 is_associative.op_assoc
 is_int
@@ -169,7 +170,6 @@ monad.map
 monad.bind
 monad.ret
 monad.and_then
-monadIO
 monoid
 mul
 mul_one

@@ -1,6 +1,6 @@
-import system.IO
+import system.io
 
-definition main : IO unit :=
+definition main : io unit :=
 do { l ← get_line,
      if l = "hello" then
        put_str "you have typed hello\n"

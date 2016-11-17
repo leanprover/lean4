@@ -96,7 +96,6 @@ static void display_help(std::ostream & out) {
     std::cout << "  --json            print JSON-formatted structured error messages\n";
     std::cout << "  --server          start lean in server mode\n";
 #endif
-    std::cout << "  --cache=file -c   load/save cached definitions from/to the given file\n";
     std::cout << "  --profile         display elaboration/type checking time for each definition/theorem\n";
 #if defined(LEAN_USE_BOOST)
     std::cout << "  --tstack=num -s   thread stack size in Kb\n";
@@ -105,11 +104,6 @@ static void display_help(std::ostream & out) {
     std::cout << "  --debug=tag       enable assertions with the given tag\n";
         )
     std::cout << "  -D name=value     set a configuration option (see set_option command)\n";
-    std::cout << "  --dir=directory   display information about identifier or token in the given posivition\n";
-    std::cout << "Frontend query interface:\n";
-    std::cout << "  --line=value      line number for query\n";
-    std::cout << "  --col=value       column number for query\n";
-    std::cout << "  --info            display information about identifier or token in the given posivition\n";
     std::cout << "Exporting data:\n";
     std::cout << "  --export=file -E  export final environment as textual low-level file\n";
     std::cout << "  --export-all=file -A  export final environment (and all dependencies) as textual low-level file\n";
@@ -121,16 +115,13 @@ static struct option g_long_options[] = {
     {"smt2",         no_argument,       0, 'Y'},
     {"path",         no_argument,       0, 'p'},
     {"githash",      no_argument,       0, 'g'},
-    {"output",       required_argument, 0, 'o'},
     {"make",         no_argument,       0, 'm'},
     {"export",       required_argument, 0, 'E'},
     {"export-all",   required_argument, 0, 'A'},
     {"memory",       required_argument, 0, 'M'},
     {"trust",        required_argument, 0, 't'},
     {"profile",      no_argument,       0, 'P'},
-#if defined(LEAN_MULTI_THREAD)
     {"threads",      required_argument, 0, 'j'},
-#endif
     {"quiet",        no_argument,       0, 'q'},
     {"deps",         no_argument,       0, 'd'},
 #if defined(LEAN_SERVER)
@@ -141,32 +132,21 @@ static struct option g_long_options[] = {
 #if defined(LEAN_USE_BOOST)
     {"tstack",       required_argument, 0, 's'},
 #endif
-    {"line",         required_argument, 0, 'L'},
-    {"col",          required_argument, 0, 'O'},
-    {"info",         no_argument,       0, 'I'},
-    {"dir",          required_argument, 0, 'T'},
 #ifdef LEAN_DEBUG
     {"debug",        required_argument, 0, 'B'},
 #endif
-    {"dir",          required_argument, 0, 'T'},
     {0, 0, 0, 0}
 };
 
-#define OPT_STR "rPFdD:qupgvhk:012t:012o:E:L:012O:012GZAIT:B:"
-
+static char const * g_opt_str =
+    "PdD:qpgvht:012E:AB:j:012r"
 #if defined(LEAN_TRACK_MEMORY)
-#define OPT_STR2 OPT_STR "M:012"
-#else
-#define OPT_STR2 OPT_STR
+    "M:012"
 #endif
-
 #if defined(LEAN_USE_BOOST) && defined(LEAN_MULTI_THREAD)
-static char const * g_opt_str = OPT_STR2 "j:012s:012";
-#elif !defined(LEAN_USE_BOOST) && defined(LEAN_MULTI_THREAD)
-static char const * g_opt_str = OPT_STR2 "j:012";
-#else
-static char const * g_opt_str = OPT_STR2;
+    "s:012"
 #endif
+; // NOLINT
 
 options set_config_option(options const & opts, char const * in) {
     if (!in) return opts;
@@ -274,21 +254,19 @@ int main(int argc, char ** argv) {
 #endif
     ::initializer init;
     bool make_mode          = false;
-    bool verbose            = true;
     unsigned trust_lvl      = LEAN_BELIEVER_TRUST_LEVEL+1;
     bool smt2               = false;
     bool only_deps          = false;
-    unsigned num_threads    = hardware_concurrency();
+    unsigned num_threads    = 0;
+#if defined(LEAN_MULTI_THREAD)
+    num_threads = hardware_concurrency();
+#endif
 #if defined(LEAN_SERVER)
     bool json_output        = false;
 #endif
     options opts;
-    std::string cache_name;
-    optional<unsigned> line;
-    optional<unsigned> column;
     optional<std::string> export_txt;
     optional<std::string> export_all_txt;
-    optional<std::string> base_dir;
     optional<std::string> doc;
     while (true) {
         int c = getopt_long(argc, argv, g_opt_str, g_long_options, NULL);
@@ -330,7 +308,6 @@ int main(int argc, char ** argv) {
             trust_lvl = atoi(optarg);
             break;
         case 'q':
-            verbose = false;
             opts = opts.update(lean::get_verbose_opt_name(), false);
             break;
         case 'd':
@@ -357,12 +334,6 @@ int main(int argc, char ** argv) {
         case 'P':
             opts = opts.update("profiler", true);
             break;
-        case 'L':
-            line = atoi(optarg);
-            break;
-        case 'O':
-            column = atoi(optarg);
-            break;
         case 'E':
             export_txt = std::string(optarg);
             break;
@@ -374,23 +345,12 @@ int main(int argc, char ** argv) {
         case 'A':
             export_all_txt = std::string(optarg);
             break;
-        case 'T':
-            base_dir = std::string(optarg);
-            break;
         default:
             std::cerr << "Unknown command line option\n";
             display_help(std::cerr);
             return 1;
         }
     }
-
-    #if defined(__GNUC__) && !defined(__CLANG__)
-    #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-    #endif
-
-    #if !defined(LEAN_MULTI_THREAD)
-    lean_assert(num_threads == 1);
-    #endif
 
     environment env = mk_environment(trust_lvl);
 

@@ -259,14 +259,28 @@ tactic.split
 meta def injection (q : qexpr0) (hs : with_ident_list) : tactic unit :=
 do e ← to_expr q, tactic.injection_with e hs
 
-private meta def to_expr_list : list pexpr → tactic (list expr)
-| []      := return []
-| (p::ps) := do e ← to_expr' p, es ← to_expr_list ps, return (e :: es)
+private meta def simp_lemmas.resolve_and_add (s : simp_lemmas) (n : name) : tactic simp_lemmas :=
+(do h ← get_local n, s^.add h)
+<|>
+(s^.add_simp n)
+<|>
+fail ("invalid simp lemma '" ++ to_string n ++ "'")
+
+private meta def simp_lemmas.add_pexpr (s : simp_lemmas) (p : pexpr) : tactic simp_lemmas :=
+let e := pexpr.to_raw_expr p in
+match e with
+| (const c [])          := simp_lemmas.resolve_and_add s c
+| (local_const c _ _ _) := simp_lemmas.resolve_and_add s c
+| _                     := do new_e ← to_expr p, s^.add new_e
+end
+
+private meta def simp_lemmas.append_pexprs : simp_lemmas → list pexpr → tactic simp_lemmas
+| s []      := return s
+| s (l::ls) := do new_s ← simp_lemmas.add_pexpr s l, simp_lemmas.append_pexprs new_s ls
 
 private meta def mk_simp_set (attr_names : list name) (hs : list qexpr) (ex : list name) : tactic simp_lemmas :=
-do es ← to_expr_list hs,
-   s₀ ← join_user_simp_lemmas attr_names,
-   s₁ ← s₀^.append es,
+do s₀ ← join_user_simp_lemmas attr_names,
+   s₁ ← simp_lemmas.append_pexprs s₀ hs,
    return $ simp_lemmas.erase s₁ ex
 
 private meta def simp_goal (cfg : simplify_config) : simp_lemmas → tactic unit

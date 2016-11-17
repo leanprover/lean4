@@ -9,80 +9,80 @@ open decidable
 
 universe variables u v
 
-instance (A : Type u) : inhabited (option A) :=
+instance (α : Type u) : inhabited (option α) :=
 ⟨none⟩
 
-instance {A : Type u} [H : decidable_eq A] : decidable_eq (option A)
+instance {α : Type u} [d : decidable_eq α] : decidable_eq (option α)
 | none      none      := is_true rfl
-| none      (some v₂) := is_false (λ H, option.no_confusion H)
-| (some v₁) none      := is_false (λ H, option.no_confusion H)
+| none      (some v₂) := is_false (λ h, option.no_confusion h)
+| (some v₁) none      := is_false (λ h, option.no_confusion h)
 | (some v₁) (some v₂) :=
-  match (H v₁ v₂) with
-  | (is_true e)  := is_true (congr_arg (@some A) e)
-  | (is_false n) := is_false (λ H, option.no_confusion H (λ e, absurd e n))
+  match (d v₁ v₂) with
+  | (is_true e)  := is_true (congr_arg (@some α) e)
+  | (is_false n) := is_false (λ h, option.no_confusion h (λ e, absurd e n))
   end
 
-@[inline] def option_fmap {A : Type u} {B : Type v} (f : A → B) : option A → option B
+@[inline] def option_fmap {α : Type u} {β : Type v} (f : α → β) : option α → option β
 | none     := none
 | (some a) := some (f a)
 
-@[inline] def option_bind {A : Type u} {B : Type v} : option A → (A → option B) → option B
+@[inline] def option_bind {α : Type u} {β : Type v} : option α → (α → option β) → option β
 | none     b := none
 | (some a) b := b a
 
 instance : monad option :=
 monad.mk @option_fmap @some @option_bind
 
-def option_orelse {A : Type u} : option A → option A → option A
+def option_orelse {α : Type u} : option α → option α → option α
 | (some a) o         := some a
 | none     (some a)  := some a
 | none     none      := none
 
-instance {A : Type u} : alternative option :=
+instance {α : Type u} : alternative option :=
 alternative.mk @option_fmap @some (@fapp _ _) @none @option_orelse
 
-def optionT (M : Type (max 1 u) → Type v) [monad M] (A : Type u) : Type v :=
-M (option A)
+def option_t (m : Type (max 1 u) → Type v) [monad m] (α : Type u) : Type v :=
+m (option α)
 
-@[inline] def optionT_fmap {M : Type (max 1 u) → Type v} [monad M] {A B : Type u} (f : A → B) (e : optionT M A) : optionT M B :=
-show M (option B), from
+@[inline] def option_t_fmap {m : Type (max 1 u) → Type v} [monad m] {α β : Type u} (f : α → β) (e : option_t m α) : option_t m β :=
+show m (option β), from
 do o ← e,
    match o with
    | none     := return none
    | (some a) := return (some (f a))
    end
 
-@[inline] def optionT_bind {M : Type (max 1 u) → Type v} [monad M] {A B : Type u} (a : optionT M A) (b : A → optionT M B)
-                               : optionT M B :=
-show M (option B), from
+@[inline] def option_t_bind {m : Type (max 1 u) → Type v} [monad m] {α β : Type u} (a : option_t m α) (b : α → option_t m β)
+                               : option_t m β :=
+show m (option β), from
 do o ← a,
    match o with
    | none     := return none
    | (some a) := b a
    end
 
-@[inline] def optionT_return {M : Type (max 1 u) → Type v} [monad M] {A : Type u} (a : A) : optionT M A :=
-show M (option A), from
+@[inline] def option_t_return {m : Type (max 1 u) → Type v} [monad m] {α : Type u} (a : α) : option_t m α :=
+show m (option α), from
 return (some a)
 
-instance {M : Type (max 1 u) → Type v} [monad M] : monad (optionT M) :=
-monad.mk (@optionT_fmap M _) (@optionT_return M _) (@optionT_bind M _)
+instance {m : Type (max 1 u) → Type v} [monad m] : monad (option_t m) :=
+monad.mk (@option_t_fmap m _) (@option_t_return m _) (@option_t_bind m _)
 
-def optionT_orelse {M : Type (max 1 u) → Type v} [monad M] {A : Type u} (a : optionT M A) (b : optionT M A) : optionT M A :=
-show M (option A), from
+def option_t_orelse {m : Type (max 1 u) → Type v} [monad m] {α : Type u} (a : option_t m α) (b : option_t m α) : option_t m α :=
+show m (option α), from
 do o ← a,
    match o with
    | none     := b
    | (some v) := return (some v)
    end
 
-def optionT_fail {M : Type (max 1 u) → Type v} [monad M] {A : Type u} : optionT M A :=
-show M (option A), from
+def option_t_fail {m : Type (max 1 u) → Type v} [monad m] {α : Type u} : option_t m α :=
+show m (option α), from
 return none
 
-instance {M : Type (max 1 u) → Type v} [monad M] : alternative (optionT M) :=
-{map     := @optionT_fmap M _,
- pure    := @optionT_return M _,
- seq     := @fapp (optionT M) (@optionT.monad M _),
- failure := @optionT_fail M _,
- orelse  := @optionT_orelse M _}
+instance {m : Type (max 1 u) → Type v} [monad m] : alternative (option_t m) :=
+{map     := @option_t_fmap m _,
+ pure    := @option_t_return m _,
+ seq     := @fapp (option_t m) (@option_t.monad m _),
+ failure := @option_t_fail m _,
+ orelse  := @option_t_orelse m _}

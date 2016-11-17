@@ -18,7 +18,7 @@ private lemma zero_lt_unsigned_sz : 0 < unsigned_sz :=
 zero_lt_succ _
 
 def of_nat (n : nat) : unsigned :=
-if H : n < unsigned_sz then fin.mk n H else fin.mk 0 zero_lt_unsigned_sz
+if h : n < unsigned_sz then fin.mk n h else fin.mk 0 zero_lt_unsigned_sz
 
 def to_nat (c : unsigned) : nat :=
 fin.val c

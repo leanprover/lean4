@@ -5,5 +5,5 @@ prelude
 import init.string
 
 /- This function has a native implementation that tracks time. -/
-def timeit {A : Type} (s : string) (f : unit → A) : A :=
+def timeit {α : Type} (s : string) (f : unit → α) : α :=
 f ()

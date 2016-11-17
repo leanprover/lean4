@@ -11,47 +11,47 @@ import init.quot init.logic
 universe variables u v
 
 namespace function
-  variables {A : Type u} {B : A → Type v}
+  variables {α : Type u} {β : α → Type v}
 
-  protected def equiv (f₁ f₂ : Π x : A, B x) : Prop := ∀ x, f₁ x = f₂ x
+  protected def equiv (f₁ f₂ : Π x : α, β x) : Prop := ∀ x, f₁ x = f₂ x
 
   local infix `~` := function.equiv
 
-  protected theorem equiv.refl (f : Π x : A, B x) : f ~ f := take x, rfl
+  protected theorem equiv.refl (f : Π x : α, β x) : f ~ f := take x, rfl
 
-  protected theorem equiv.symm {f₁ f₂ : Π x: A, B x} : f₁ ~ f₂ → f₂ ~ f₁ :=
-  λ H x, eq.symm (H x)
+  protected theorem equiv.symm {f₁ f₂ : Π x: α, β x} : f₁ ~ f₂ → f₂ ~ f₁ :=
+  λ h x, eq.symm (h x)
 
-  protected theorem equiv.trans {f₁ f₂ f₃ : Π x: A, B x} : f₁ ~ f₂ → f₂ ~ f₃ → f₁ ~ f₃ :=
-  λ H₁ H₂ x, eq.trans (H₁ x) (H₂ x)
+  protected theorem equiv.trans {f₁ f₂ f₃ : Π x: α, β x} : f₁ ~ f₂ → f₂ ~ f₃ → f₁ ~ f₃ :=
+  λ h₁ h₂ x, eq.trans (h₁ x) (h₂ x)
 
-  protected theorem equiv.is_equivalence (A : Type u) (B : A → Type v) : equivalence (@function.equiv A B) :=
-  mk_equivalence (@function.equiv A B) (@equiv.refl A B) (@equiv.symm A B) (@equiv.trans A B)
+  protected theorem equiv.is_equivalence (α : Type u) (β : α → Type v) : equivalence (@function.equiv α β) :=
+  mk_equivalence (@function.equiv α β) (@equiv.refl α β) (@equiv.symm α β) (@equiv.trans α β)
 end function
 
 section
   open quot
-  variables {A : Type u} {B : A → Type v}
+  variables {α : Type u} {β : α → Type v}
 
   @[instance]
-  private def fun_setoid (A : Type u) (B : A → Type v) : setoid (Π x : A, B x) :=
-  setoid.mk (@function.equiv A B) (function.equiv.is_equivalence A B)
+  private def fun_setoid (α : Type u) (β : α → Type v) : setoid (Π x : α, β x) :=
+  setoid.mk (@function.equiv α β) (function.equiv.is_equivalence α β)
 
-  private def extfun (A : Type u) (B : A → Type v) : Type (imax u v) :=
-  quot (fun_setoid A B)
+  private def extfun (α : Type u) (β : α → Type v) : Type (imax u v) :=
+  quot (fun_setoid α β)
 
-  private def fun_to_extfun (f : Π x : A, B x) : extfun A B :=
+  private def fun_to_extfun (f : Π x : α, β x) : extfun α β :=
   ⟦f⟧
-  private def extfun_app (f : extfun A B) : Π x : A, B x :=
+  private def extfun_app (f : extfun α β) : Π x : α, β x :=
   take x,
   quot.lift_on f
-    (λ f : Π x : A, B x, f x)
-    (λ f₁ f₂ H, H x)
+    (λ f : Π x : α, β x, f x)
+    (λ f₁ f₂ h, h x)
 
-  theorem funext {f₁ f₂ : Π x : A, B x} : (∀ x, f₁ x = f₂ x) → f₁ = f₂ :=
-  assume H, calc
+  theorem funext {f₁ f₂ : Π x : α, β x} : (∀ x, f₁ x = f₂ x) → f₁ = f₂ :=
+  assume h, calc
      f₁ = extfun_app ⟦f₁⟧ : rfl
-    ... = extfun_app ⟦f₂⟧ : @sound _ _ f₁ f₂ H ▸ rfl
+    ... = extfun_app ⟦f₂⟧ : @sound _ _ f₁ f₂ h ▸ rfl
     ... = f₂              : rfl
 end
 
@@ -59,6 +59,5 @@ attribute [intro!] funext
 
 local infix `~` := function.equiv
 
-instance pi.subsingleton {A : Type u} {B : A → Type v} (H : ∀ a, subsingleton (B a)) :
-  subsingleton (Π a, B a) :=
+instance pi.subsingleton {α : Type u} {β : α → Type v} [∀ a, subsingleton (β a)] : subsingleton (Π a, β a) :=
 ⟨λ f₁ f₂, funext (λ a, subsingleton.elim (f₁ a) (f₂ a))⟩

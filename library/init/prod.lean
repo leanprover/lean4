@@ -5,16 +5,16 @@ Author: Leonardo de Moura, Jeremy Avigad
 -/
 prelude
 import init.num init.relation
-notation A × B := prod A B
+notation α × β := prod α β
 -- notation for n-ary tuples
 notation `(` h `, ` t:(foldr `, ` (e r, prod.mk e r)) `)` := prod.mk h t
 
 universe variables u v
 
-instance {A : Type u} {B : Type v} [inhabited A] [inhabited B] : inhabited (prod A B) :=
-⟨(default A, default B)⟩
+instance {α : Type u} {β : Type v} [inhabited α] [inhabited β] : inhabited (prod α β) :=
+⟨(default α, default β)⟩
 
-instance {A : Type u} {B : Type v} [h₁ : decidable_eq A] [h₂ : decidable_eq B] : decidable_eq (A × B)
+instance {α : Type u} {β : Type v} [h₁ : decidable_eq α] [h₂ : decidable_eq β] : decidable_eq (α × β)
 | (a, b) (a', b') :=
   match (h₁ a a') with
   | (is_true e₁) :=

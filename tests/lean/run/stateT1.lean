@@ -1,14 +1,14 @@
-meta definition mytactic (A : Type) := stateT (list nat) tactic A
+meta definition mytactic (A : Type) := state_t (list nat) tactic A
 
 attribute [instance]
 meta definition mytactic_is_monad : monad mytactic :=
-@stateT.monad _ _ _
+@state_t.monad _ _ _
 
 meta definition read_lst : mytactic (list nat) :=
-stateT.read
+state_t.read
 
 meta definition write_lst : list nat → mytactic unit :=
-stateT.write
+state_t.write
 
 meta definition foo : mytactic unit :=
 write_lst [10, 20]

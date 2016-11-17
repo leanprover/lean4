@@ -7,7 +7,7 @@ prelude
 /- Combinator calculus -/
 namespace combinator
 universe variables u₁ u₂ u₃
-def I {A : Type u₁} (a : A) := a
-def K {A : Type u₁} {B : Type u₂} (a : A) (b : B) := a
-def S {A : Type u₁} {B : Type u₂} {C : Type u₃} (x : A → B → C) (y : A → B) (z : A) := x z (y z)
+def I {α : Type u₁} (a : α) := a
+def K {α : Type u₁} {β : Type u₂} (a : α) (b : β) := a
+def S {α : Type u₁} {β : Type u₂} {γ : Type u₃} (x : α → β → γ) (y : α → β) (z : α) := x z (y z)
 end combinator

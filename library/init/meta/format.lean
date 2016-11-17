@@ -25,7 +25,7 @@ meta constant format.flatten         : format → format
 meta constant format.to_string       : format → options → string
 meta constant format.of_options      : options → format
 meta constant format.is_nil          : format → bool
-meta constant trace_fmt {A : Type u} : format → (unit → A) → A
+meta constant trace_fmt {α : Type u} : format → (unit → α) → α
 
 meta instance : inhabited format :=
 ⟨format.space⟩
@@ -36,13 +36,13 @@ meta instance : has_append format :=
 meta instance : has_to_string format :=
 ⟨λ f, format.to_string f options.mk⟩
 
-meta class has_to_format (A : Type u) :=
-(to_format : A → format)
+meta class has_to_format (α : Type u) :=
+(to_format : α → format)
 
 meta instance : has_to_format format :=
 ⟨id⟩
 
-meta def to_fmt {A : Type u} [has_to_format A] : A → format :=
+meta def to_fmt {α : Type u} [has_to_format α] : α → format :=
 has_to_format.to_format
 
 meta instance nat_to_format : has_coe nat format :=
@@ -56,7 +56,7 @@ open format list
 meta def format.indent (f : format) (n : nat) : format :=
 nest n (line ++ f)
 
-meta def format.when {A : Type u} [has_to_format A] : bool → A → format
+meta def format.when {α : Type u} [has_to_format α] : bool → α → format
 | tt a := to_fmt a
 | ff a := nil
 
@@ -78,16 +78,16 @@ meta instance : has_to_format nat :=
 meta instance : has_to_format char :=
 ⟨λ c : char, format.of_string [c]⟩
 
-meta def list.to_format_aux {A : Type u} [has_to_format A] : bool → list A → format
+meta def list.to_format_aux {α : Type u} [has_to_format α] : bool → list α → format
 | b  []      := to_fmt ""
 | tt (x::xs) := to_fmt x ++ list.to_format_aux ff xs
 | ff (x::xs) := to_fmt "," ++ line ++ to_fmt x ++ list.to_format_aux ff xs
 
-meta def list.to_format {A : Type u} [has_to_format A] : list A → format
+meta def list.to_format {α : Type u} [has_to_format α] : list α → format
 | []      := to_fmt "[]"
 | (x::xs) := to_fmt "[" ++ group (nest 1 (list.to_format_aux tt (x::xs))) ++ to_fmt "]"
 
-meta instance {A : Type u} [has_to_format A] : has_to_format (list A) :=
+meta instance {α : Type u} [has_to_format α] : has_to_format (list α) :=
 ⟨list.to_format⟩
 
 attribute [instance] string.has_to_format
@@ -98,30 +98,30 @@ meta instance : has_to_format name :=
 meta instance : has_to_format unit :=
 ⟨λ u, to_fmt "()"⟩
 
-meta instance {A : Type u} [has_to_format A] : has_to_format (option A) :=
+meta instance {α : Type u} [has_to_format α] : has_to_format (option α) :=
 ⟨λ o, option.cases_on o
   (to_fmt "none")
   (λ a, to_fmt "(some " ++ nest 6 (to_fmt a) ++ to_fmt ")")⟩
 
-meta instance {A : Type u} {B : Type v} [has_to_format A] [has_to_format B] : has_to_format (sum A B) :=
+meta instance {α : Type u} {β : Type v} [has_to_format α] [has_to_format β] : has_to_format (sum α β) :=
 ⟨λ s, sum.cases_on s
   (λ a, to_fmt "(inl " ++ nest 5 (to_fmt a) ++ to_fmt ")")
   (λ b, to_fmt "(inr " ++ nest 5 (to_fmt b) ++ to_fmt ")")⟩
 
 open prod
 
-meta instance {A : Type u} {B : Type v} [has_to_format A] [has_to_format B] : has_to_format (prod A B) :=
-⟨λ p, group (nest 1 (to_fmt "(" ++ to_fmt (fst p) ++ to_fmt "," ++ line ++ to_fmt (snd p) ++ to_fmt ")"))⟩
+meta instance {α : Type u} {β : Type v} [has_to_format α] [has_to_format β] : has_to_format (prod α β) :=
+⟨λ p, group (nest 1 (to_fmt "(" ++ to_fmt p.1 ++ to_fmt "," ++ line ++ to_fmt p.2 ++ to_fmt ")"))⟩
 
 open sigma
 
-meta instance {A : Type u} {B : A → Type v} [has_to_format A] [s : ∀ x, has_to_format (B x)]
-                                          : has_to_format (sigma B) :=
-⟨λ p, group (nest 1 (to_fmt "⟨"  ++ to_fmt (fst p) ++ to_fmt "," ++ line ++ to_fmt (snd p) ++ to_fmt "⟩"))⟩
+meta instance {α : Type u} {β : α → Type v} [has_to_format α] [s : ∀ x, has_to_format (β x)]
+                                          : has_to_format (sigma β) :=
+⟨λ p, group (nest 1 (to_fmt "⟨"  ++ to_fmt p.1 ++ to_fmt "," ++ line ++ to_fmt p.2 ++ to_fmt "⟩"))⟩
 
 open subtype
 
-meta instance {A : Type u} {P : A → Prop} [has_to_format A] : has_to_format (subtype P) :=
+meta instance {α : Type u} {p : α → Prop} [has_to_format α] : has_to_format (subtype p) :=
 ⟨λ s, to_fmt (elt_of s)⟩
 
 meta def format.bracket : string → string → format → format

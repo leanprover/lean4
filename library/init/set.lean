@@ -7,71 +7,70 @@ prelude
 import init.logic init.functor
 
 universe variables u v
+def set (α : Type u) := α → Prop
 
-def set (A : Type u) := A → Prop
-
-def set_of {A : Type u} (p : A → Prop) : set A :=
+def set_of {α : Type u} (p : α → Prop) : set α :=
 p
 
 namespace set
-variables {A : Type u} {B : Type v}
+variables {α : Type u} {β : Type v}
 
-protected def mem (a : A) (s : set A) :=
+protected def mem (a : α) (s : set α) :=
 s a
 
-instance : has_mem A set :=
+instance : has_mem α set :=
 ⟨set.mem⟩
 
-protected def subset (s₁ s₂ : set A) :=
+protected def subset (s₁ s₂ : set α) :=
 ∀ {a}, a ∈ s₁ → a ∈ s₂
 
-instance : has_subset (set A) :=
+instance : has_subset (set α) :=
 ⟨set.subset⟩
 
-protected def sep (p : A → Prop) (s : set A) : set A :=
+protected def sep (p : α → Prop) (s : set α) : set α :=
 {a | a ∈ s ∧ p a}
 
-instance : has_sep A set :=
+instance : has_sep α set :=
 ⟨set.sep⟩
 
-instance : has_emptyc (set A) :=
+instance : has_emptyc (set α) :=
 ⟨λ a, false⟩
 
-protected def insert (a : A) (s : set A) : set A :=
+protected def insert (a : α) (s : set α) : set α :=
 {b | b = a ∨ b ∈ s}
 
-instance : has_insert A set :=
+instance : has_insert α set :=
 ⟨set.insert⟩
 
-protected def union (s₁ s₂ : set A) : set A :=
+protected def union (s₁ s₂ : set α) : set α :=
 {a | a ∈ s₁ ∨ a ∈ s₂}
 
-instance : has_union (set A) :=
+instance : has_union (set α) :=
 ⟨set.union⟩
 
-protected def inter (s₁ s₂ : set A) : set A :=
+protected def inter (s₁ s₂ : set α) : set α :=
 {a | a ∈ s₁ ∧ a ∈ s₂}
 
-instance : has_inter (set A) :=
+instance : has_inter (set α) :=
 ⟨set.inter⟩
 
-def compl (s : set A) : set A :=
+def compl (s : set α) : set α :=
 {a | a ∉ s}
 
-instance : has_neg (set A) :=
+instance : has_neg (set α) :=
 ⟨compl⟩
 
-protected def diff (s t : set A) : set A :=
+protected def diff (s t : set α) : set α :=
 {a ∈ s | a ∉ t}
 
-instance : has_sdiff (set A) :=
+instance : has_sdiff (set α) :=
 ⟨set.diff⟩
 
-def powerset (s : set A) : set (set A) :=
+def powerset (s : set α) : set (set α) :=
 {t | t ⊆ s}
 prefix `𝒫`:100 := powerset
 
-def image (f : A → B) (s : set A) : set B :=
+def image (f : α → β) (s : set α) : set β :=
 {b | ∃ a, a ∈ s ∧ f a = b}
 
 instance : functor set :=

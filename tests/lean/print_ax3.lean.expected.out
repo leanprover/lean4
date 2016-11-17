@@ -1,7 +1,7 @@
 no axioms
 ------
-quot.sound : ∀ {A : Type u} [s : setoid A] {a b : A}, a ≈ b → ⟦a⟧ = ⟦b⟧
-classical.strong_indefinite_description : Π {A : Type u} (p : A → Prop), nonempty A → {x // (∃ (y : A), p y) → p x}
+quot.sound : ∀ {α : Type u} [s : setoid α] {a b : α}, a ≈ b → ⟦a⟧ = ⟦b⟧
+classical.strong_indefinite_description : Π {a : Type u} (p : a → Prop), nonempty a → {x // (∃ (y : a), p y) → p x}
 propext : ∀ {a b : Prop}, (a ↔ b) → a = b
 ------
 theorem foo3 : 0 = 0 :=

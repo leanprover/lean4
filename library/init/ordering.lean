@@ -14,8 +14,8 @@ open ordering
 instance : has_to_string ordering :=
 has_to_string.mk (λ s, match s with | ordering.lt := "lt" | ordering.eq := "eq" | ordering.gt := "gt" end)
 
-class has_ordering (A : Type) :=
-(cmp : A → A → ordering)
+class has_ordering (α : Type) :=
+(cmp : α → α → ordering)
 
 def nat.cmp (a b : nat) : ordering :=
 if a < b      then ordering.lt
@@ -28,9 +28,9 @@ instance : has_ordering nat :=
 section
 open prod
 
-variables {A B : Type} [has_ordering A] [has_ordering B]
+variables {α β : Type} [has_ordering α] [has_ordering β]
 
-def prod.cmp : A × B → A × B → ordering
+def prod.cmp : α × β → α × β → ordering
 | (a₁, b₁) (a₂, b₂) :=
    match (has_ordering.cmp a₁ a₂) with
    | ordering.lt := lt
@@ -38,36 +38,36 @@ def prod.cmp : A × B → A × B → ordering
    | ordering.gt := gt
    end
 
-instance {A B : Type} [has_ordering A] [has_ordering B] : has_ordering (A × B) :=
+instance {α β : Type} [has_ordering α] [has_ordering β] : has_ordering (α × β) :=
 ⟨prod.cmp⟩
 end
 
 section
 open sum
 
-variables {A B : Type} [has_ordering A] [has_ordering B]
+variables {α β : Type} [has_ordering α] [has_ordering β]
 
-def sum.cmp : A ⊕ B → A ⊕ B → ordering
+def sum.cmp : α ⊕ β → α ⊕ β → ordering
 | (inl a₁) (inl a₂) := has_ordering.cmp a₁ a₂
 | (inr b₁) (inr b₂) := has_ordering.cmp b₁ b₂
 | (inl a₁) (inr b₂) := lt
 | (inr b₁) (inl a₂) := gt
 
-instance {A B : Type} [has_ordering A] [has_ordering B] : has_ordering (A ⊕ B) :=
+instance {α β : Type} [has_ordering α] [has_ordering β] : has_ordering (α ⊕ β) :=
 ⟨sum.cmp⟩
 end
 
 section
 open option
 
-variables {A : Type} [has_ordering A]
+variables {α : Type} [has_ordering α]
 
-def option.cmp : option A → option A → ordering
+def option.cmp : option α → option α → ordering
 | (some a₁) (some a₂) := has_ordering.cmp a₁ a₂
 | (some a₁) none      := gt
 | none      (some a₂) := lt
 | none      none      := eq
 
-instance {A : Type} [has_ordering A] : has_ordering (option A) :=
+instance {α : Type} [has_ordering α] : has_ordering (option α) :=
 ⟨option.cmp⟩
 end

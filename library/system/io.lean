@@ -18,8 +18,8 @@ meta constant format.print_using : format → options → io unit
 meta definition format.print (fmt : format) : io unit :=
 format.print_using fmt options.mk
 
-meta definition pp_using {A : Type} [has_to_format A] (a : A) (o : options) : io unit :=
+meta definition pp_using {α : Type} [has_to_format α] (a : α) (o : options) : io unit :=
 format.print_using (to_fmt a) o
 
-meta definition pp {A : Type} [has_to_format A] (a : A) : io unit :=
+meta definition pp {α : Type} [has_to_format α] (a : α) : io unit :=
 format.print (to_fmt a)

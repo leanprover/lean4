@@ -362,7 +362,7 @@ namespace nat
   lemma le_add_left (n m : ℕ): n ≤ m + n :=
   nat.add_comm n m ▸ le_add_right n m
 
-  def {u} repeat {A : Type u} (f : ℕ → A → A) : ℕ → A → A
+  def {u} repeat {α : Type u} (f : ℕ → α → α) : ℕ → α → α
   | 0         a := a
   | (succ n)  a := f n (repeat n a)
 

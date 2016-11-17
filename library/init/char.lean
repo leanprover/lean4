@@ -17,7 +17,7 @@ private lemma zero_lt_char_sz : 0 < char_sz :=
 zero_lt_succ _
 
 @[pattern] def of_nat (n : nat) : char :=
-if H : n < char_sz then fin.mk n H else fin.mk 0 zero_lt_char_sz
+if h : n < char_sz then fin.mk n h else fin.mk 0 zero_lt_char_sz
 
 def to_nat (c : char) : nat :=
 fin.val c

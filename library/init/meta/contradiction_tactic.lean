@@ -10,7 +10,7 @@ namespace tactic
 
 open expr tactic decidable environment
 
-private meta def contra_A_not_A : list expr → list expr → tactic unit
+private meta def contra_p_not_p : list expr → list expr → tactic unit
 | []         Hs := failed
 | (H1 :: Rs) Hs :=
   do t_0 ← infer_type H1,
@@ -20,7 +20,7 @@ private meta def contra_A_not_A : list expr → list expr → tactic unit
          tgt ← target,
          pr ← mk_app `absurd [tgt, H2, H1],
          exact pr)
-     <|> contra_A_not_A Rs Hs
+     <|> contra_p_not_p Rs Hs
 
 private meta def contra_false : list expr → tactic unit
 | []        := failed
@@ -75,7 +75,7 @@ meta def contradiction : tactic unit :=
 do ctx ← local_context,
    (contra_false ctx <|>
     contra_not_a_refl_rel_a ctx <|>
-    contra_A_not_A ctx ctx <|>
+    contra_p_not_p ctx ctx <|>
     contra_constructor_eq ctx <|>
     fail "contradiction tactic failed")
 

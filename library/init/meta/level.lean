@@ -24,7 +24,7 @@ meta constant level.has_decidable_eq : decidable_eq level
 attribute [instance] level.has_decidable_eq
 meta constant level.lt : level → level → bool
 meta constant level.lex_lt : level → level → bool
-meta constant level.fold {A :Type} : level → A → (level → A → A) → A
+meta constant level.fold {α :Type} : level → α → (level → α → α) → α
 /- Return the given level expression normal form -/
 meta constant level.normalize : level → level
 /- Return tt iff lhs and rhs denote the same level.

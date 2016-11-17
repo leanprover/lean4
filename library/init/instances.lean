@@ -8,10 +8,10 @@ import init.meta.mk_dec_eq_instance init.subtype init.meta.occurrences init.sum
 open tactic subtype
 universe variables u v
 
-instance {A : Type u} {p : A → Prop} [decidable_eq A] : decidable_eq {x : A // p x} :=
+instance {α : Type u} {p : α → Prop} [decidable_eq α] : decidable_eq {x : α // p x} :=
 by mk_dec_eq_instance
 
-instance {A : Type u} [decidable_eq A] : decidable_eq (list A) :=
+instance {α : Type u} [decidable_eq α] : decidable_eq (list α) :=
 by mk_dec_eq_instance
 
 instance : decidable_eq occurrences :=
@@ -20,5 +20,5 @@ by mk_dec_eq_instance
 instance : decidable_eq unit :=
 by mk_dec_eq_instance
 
-instance {A : Type u} {B : Type v} [decidable_eq A] [decidable_eq B] : decidable_eq (A ⊕ B) :=
+instance {α : Type u} {β : Type v} [decidable_eq α] [decidable_eq β] : decidable_eq (α ⊕ β) :=
 by mk_dec_eq_instance

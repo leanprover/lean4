@@ -17,7 +17,7 @@ meta constant options.get_bool          : options → name → bool → bool
 meta constant options.get_nat           : options → name → nat → nat
 meta constant options.get_string        : options → name → string → string
 meta constant options.join              : options → options → options
-meta constant options.fold {A : Type u} : options → A → (name → A → A) → A
+meta constant options.fold {α : Type u} : options → α → (name → α → α) → α
 meta constant options.has_decidable_eq  : decidable_eq options
 
 attribute [instance] options.has_decidable_eq

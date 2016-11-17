@@ -9,17 +9,17 @@ open decidable
 
 universe variables u
 
-structure subtype {A : Type u} (p : A → Prop) :=
-tag :: (elt_of : A) (has_property : p elt_of)
+structure subtype {α : Type u} (p : α → Prop) :=
+tag :: (elt_of : α) (has_property : p elt_of)
 
 namespace subtype
 
-  def exists_of_subtype {A : Type u} {p : A → Prop} : { x // p x } → ∃ x, p x
+  def exists_of_subtype {α : Type u} {p : α → Prop} : { x // p x } → ∃ x, p x
   | ⟨a, h⟩ := ⟨a, h⟩
 
-  variables {A : Type u} {p : A → Prop}
+  variables {α : Type u} {p : α → Prop}
 
-  lemma tag_irrelevant {a : A} (h1 h2 : p a) : tag a h1 = tag a h2 :=
+  lemma tag_irrelevant {a : α} (h1 h2 : p a) : tag a h1 = tag a h2 :=
   rfl
 
   protected lemma eq : ∀ {a1 a2 : {x // p x}}, elt_of a1 = elt_of a2 → a1 = a2
@@ -29,5 +29,5 @@ end subtype
 
 open subtype
 
-instance {A : Type u} {p : A → Prop} {a : A} (h : p a) : inhabited {x // p x} :=
+instance {α : Type u} {p : α → Prop} {a : α} (h : p a) : inhabited {x // p x} :=
 ⟨⟨a, h⟩⟩

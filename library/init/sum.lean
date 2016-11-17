@@ -8,14 +8,14 @@ The sum type, aka disjoint union.
 prelude
 import init.logic
 
-notation A ⊕ B := sum A B
+notation α ⊕ β := sum α β
 
 universe variables u v
 
-variables {A : Type u} {B : Type v}
+variables {α : Type u} {β : Type v}
 
-instance sum.inhabited_left [h : inhabited A] : inhabited (A ⊕ B) :=
-⟨sum.inl (default A)⟩
+instance sum.inhabited_left [h : inhabited α] : inhabited (α ⊕ β) :=
+⟨sum.inl (default α)⟩
 
-instance sum.inhabited_right [h : inhabited B] : inhabited (A ⊕ B) :=
-⟨sum.inr (default B)⟩
+instance sum.inhabited_right [h : inhabited β] : inhabited (α ⊕ β) :=
+⟨sum.inr (default β)⟩

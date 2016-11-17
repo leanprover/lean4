@@ -10,11 +10,11 @@ import init.meta.tactic init.meta.simp_tactic
 import init.meta.congr_lemma init.meta.match_tactic
 open tactic
 
-meta structure conv_result (A : Type) :=
-(val : A) (rhs : expr) (proof : option expr)
+meta structure conv_result (α : Type) :=
+(val : α) (rhs : expr) (proof : option expr)
 
-meta def conv (A : Type) : Type :=
-name → expr → tactic (conv_result A)
+meta def conv (α : Type) : Type :=
+name → expr → tactic (conv_result α)
 
 namespace conv
 
@@ -27,7 +27,7 @@ meta def change (new_p : pexpr) : conv unit :=
   unify e new_e,
   return ⟨(), new_e, none⟩
 
-protected meta def pure {A : Type} : A → conv A :=
+protected meta def pure {α : Type} : α → conv α :=
 λ a r e, return ⟨a, e, none⟩
 
 private meta def join_proofs (r : name) (o₁ o₂ : option expr) : tactic (option expr) :=
@@ -42,25 +42,25 @@ match o₁, o₂ with
   end
 end
 
-protected meta def seq {A B : Type} (c₁ : conv (A → B)) (c₂ : conv A) : conv B :=
+protected meta def seq {α β : Type} (c₁ : conv (α → β)) (c₂ : conv α) : conv β :=
 λ r e, do
   ⟨fn, e₁, pr₁⟩ ← c₁ r e,
   ⟨a,  e₂, pr₂⟩ ← c₂ r e₁,
   pr            ← join_proofs r pr₁ pr₂,
   return ⟨fn a, e₂, pr⟩
 
-protected meta def fail {A : Type} : conv A :=
+protected meta def fail {α : Type} : conv α :=
 λ r e, failed
 
-protected meta def orelse {A : Type} (c₁ : conv A) (c₂ : conv A) : conv A :=
+protected meta def orelse {α : Type} (c₁ : conv α) (c₂ : conv α) : conv α :=
 λ r e, c₁ r e <|> c₂ r e
 
-protected meta def map {A B : Type} (f : A → B) (c : conv A) : conv B :=
+protected meta def map {α β : Type} (f : α → β) (c : conv α) : conv β :=
 λ r e, do
   ⟨a, e₁, pr⟩ ← c r e,
   return ⟨f a, e₁, pr⟩
 
-protected meta def bind {A B : Type} (c₁ : conv A) (c₂ : A → conv B) : conv B :=
+protected meta def bind {α β : Type} (c₁ : conv α) (c₂ : α → conv β) : conv β :=
 λ r e, do
   ⟨a, e₁, pr₁⟩ ← c₁ r e,
   ⟨b, e₂, pr₂⟩ ← c₂ a r e₁,
@@ -94,7 +94,7 @@ c <|> return ()
 meta def tryb (c : conv unit) : conv bool :=
 (c >> return tt) <|> return ff
 
-meta def trace {A : Type} [has_to_tactic_format A] (a : A) : conv unit :=
+meta def trace {α : Type} [has_to_tactic_format α] (a : α) : conv unit :=
 λ r e, tactic.trace a >> return ⟨(), e, none⟩
 
 meta def trace_lhs : conv unit :=
@@ -108,7 +108,7 @@ meta def apply_lemmas_core (s : simp_lemmas) (prove : tactic unit) : conv unit :
 meta def apply_lemmas (s : simp_lemmas) : conv unit :=
 apply_lemmas_core s failed
 
-/- Adapter for using iff-lemmas as eq-lemmas -/
+/- αdapter for using iff-lemmas as eq-lemmas -/
 meta def apply_propext_lemmas_core (s : simp_lemmas) (prove : tactic unit) : conv unit :=
 λ r e, do
   guard (r = `eq),
@@ -134,7 +134,7 @@ meta def to_tactic (c : conv unit) : name → expr → tactic (expr × expr) :=
   | some p := return (e₁, p)
   end
 
-meta def lift_tactic {A : Type} (t : tactic A) : conv A :=
+meta def lift_tactic {α : Type} (t : tactic α) : conv α :=
 λ r e, do a ← t, return ⟨a, e, none⟩
 
 meta def apply_simp_set (attr_name : name) : conv unit :=
@@ -156,7 +156,7 @@ meta def repeat : conv unit → conv unit
      return ⟨(), rhs₂, pr⟩)
   <|> return ⟨(), lhs, none⟩
 
-meta def first {A : Type} : list (conv A) → conv A
+meta def first {α : Type} : list (conv α) → conv α
 | []      := conv.fail
 | (c::cs) := c <|> first cs
 

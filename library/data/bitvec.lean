@@ -80,13 +80,13 @@ section arith
   definition neg : bitvec n → bitvec n
   | x :=
     let f := λy c, (y || c, bxor y c) in
-    prod.snd (mapAccumR f x ff)
+    prod.snd (map_accumr f x ff)
 
   -- Add with carry (no overflow)
   definition adc : bitvec n → bitvec n → bool → bitvec (n+1)
   | x y c :=
     let f := λx y c, (bitvec.carry x y c, bitvec.xor3 x y c) in
-    let z := tuple.mapAccumR₂ f x y c in
+    let z := tuple.map_accumr₂ f x y c in
     prod.fst z :: prod.snd z
 
   definition add : bitvec n → bitvec n → bitvec n
@@ -99,7 +99,7 @@ section arith
   definition sbb : bitvec n → bitvec n → bool → bool × bitvec n
   | x y b :=
     let f := λx y c, (bitvec.borrow x y c, bitvec.xor3 x y c) in
-    tuple.mapAccumR₂ f x y b
+    tuple.map_accumr₂ f x y b
 
   definition sub : bitvec n → bitvec n → bitvec n
   | x y := prod.snd (sbb x y ff)
@@ -145,12 +145,12 @@ section comparison
 end comparison
 
 section from_bitvec
-  variable {A : Type}
+  variable {α : Type}
 
   -- Convert a bitvector to another number.
-  definition from_bitvec [p : has_add A] [q0 : has_zero A] [q1 : has_one A] {n:nat} (v:bitvec n) : A :=
-    let f : A → bool → A := λr b, cond b (r + r + 1) (r + r) in
-    list.foldl f (0 : A) (to_list v)
+  definition from_bitvec [p : has_add α] [q0 : has_zero α] [q1 : has_one α] {n:nat} (v:bitvec n) : α :=
+    let f : α → bool → α := λr b, cond b (r + r + 1) (r + r) in
+    list.foldl f (0 : α) (to_list v)
 end from_bitvec
 
 

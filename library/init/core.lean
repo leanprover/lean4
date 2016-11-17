@@ -97,44 +97,44 @@ inductive empty : Type
 def not (a : Prop) := a → false
 prefix `¬` := not
 
-inductive eq {A : Type u} (a : A) : A → Prop
+inductive eq {α : Type u} (a : α) : α → Prop
 | refl : eq a
 
-inductive heq {A : Type u} (a : A) : Π {B : Type u}, B → Prop
+inductive heq {α : Type u} (a : α) : Π {β : Type u}, β → Prop
 | refl : heq a
 
-structure prod (A : Type u) (B : Type v) :=
-(fst : A) (snd : B)
+structure prod (α : Type u) (β : Type v) :=
+(fst : α) (snd : β)
 
 inductive and (a b : Prop) : Prop
 | intro : a → b → and
 
-def and.elim_left {a b : Prop} (H : and a b) : a :=
-and.rec (λ Ha Hb, Ha) H
+def and.elim_left {a b : Prop} (h : and a b) : a :=
+and.rec (λ ha hb, ha) h
 
 def and.left := @and.elim_left
 
-def and.elim_right {a b : Prop} (H : and a b) : b :=
-and.rec (λ Ha Hb, Hb) H
+def and.elim_right {a b : Prop} (h : and a b) : b :=
+and.rec (λ ha hb, hb) h
 
 def and.right := @and.elim_right
 
-inductive sum (A : Type u) (B : Type v)
-| inl {} : A → sum
-| inr {} : B → sum
+inductive sum (α : Type u) (β : Type v)
+| inl {} : α → sum
+| inr {} : β → sum
 
 inductive or (a b : Prop) : Prop
 | inl {} : a → or
 | inr {} : b → or
 
-def or.intro_left {a : Prop} (b : Prop) (Ha : a) : or a b :=
-or.inl Ha
+def or.intro_left {a : Prop} (b : Prop) (ha : a) : or a b :=
+or.inl ha
 
-def or.intro_right (a : Prop) {b : Prop} (Hb : b) : or a b :=
-or.inr Hb
+def or.intro_right (a : Prop) {b : Prop} (hb : b) : or a b :=
+or.inr hb
 
-structure sigma {A : Type u} (B : A → Type v) :=
-mk :: (fst : A) (snd : B fst)
+structure sigma {α : Type u} (β : α → Type v) :=
+mk :: (fst : α) (snd : β fst)
 
 inductive pos_num : Type
 | one  : pos_num
@@ -168,20 +168,20 @@ class inductive decidable (p : Prop)
 | is_true :  p → decidable
 
 @[reducible]
-def decidable_pred {A : Type u} (r : A → Prop) :=
-Π (a : A), decidable (r a)
+def decidable_pred {α : Type u} (r : α → Prop) :=
+Π (a : α), decidable (r a)
 
 @[reducible]
-def decidable_rel {A : Type u} (r : A → A → Prop) :=
-Π (a b : A), decidable (r a b)
+def decidable_rel {α : Type u} (r : α → α → Prop) :=
+Π (a b : α), decidable (r a b)
 
 @[reducible]
-def decidable_eq (A : Type u) :=
-decidable_rel (@eq A)
+def decidable_eq (α : Type u) :=
+decidable_rel (@eq α)
 
-inductive option (A : Type u)
+inductive option (α : Type u)
 | none {} : option
-| some    : A → option
+| some    : α → option
 
 export option (none some)
 export bool (ff tt)
@@ -195,7 +195,7 @@ inductive nat
 | succ : nat → nat
 
 structure unification_constraint :=
-{A : Type u} (lhs : A) (rhs : A)
+{α : Type u} (lhs : α) (rhs : α)
 
 infix ` ≟ `:50   := unification_constraint.mk
 infix ` =?= `:50 := unification_constraint.mk
@@ -206,82 +206,82 @@ structure unification_hint :=
 
 /- Declare builtin and reserved notation -/
 
-class has_zero     (A : Type u) := (zero : A)
-class has_one      (A : Type u) := (one : A)
-class has_add      (A : Type u) := (add : A → A → A)
-class has_mul      (A : Type u) := (mul : A → A → A)
-class has_inv      (A : Type u) := (inv : A → A)
-class has_neg      (A : Type u) := (neg : A → A)
-class has_sub      (A : Type u) := (sub : A → A → A)
-class has_div      (A : Type u) := (div : A → A → A)
-class has_dvd      (A : Type u) := (dvd : A → A → Prop)
-class has_mod      (A : Type u) := (mod : A → A → A)
-class has_le       (A : Type u) := (le : A → A → Prop)
-class has_lt       (A : Type u) := (lt : A → A → Prop)
-class has_append   (A : Type u) := (append : A → A → A)
-class has_andthen  (A : Type u) := (andthen : A → A → A)
-class has_union    (A : Type u) := (union : A → A → A)
-class has_inter    (A : Type u) := (inter : A → A → A)
-class has_sdiff    (A : Type u) := (sdiff : A → A → A)
-class has_subset   (A : Type u) := (subset : A → A → Prop)
-class has_ssubset  (A : Type u) := (ssubset : A → A → Prop)
+class has_zero     (α : Type u) := (zero : α)
+class has_one      (α : Type u) := (one : α)
+class has_add      (α : Type u) := (add : α → α → α)
+class has_mul      (α : Type u) := (mul : α → α → α)
+class has_inv      (α : Type u) := (inv : α → α)
+class has_neg      (α : Type u) := (neg : α → α)
+class has_sub      (α : Type u) := (sub : α → α → α)
+class has_div      (α : Type u) := (div : α → α → α)
+class has_dvd      (α : Type u) := (dvd : α → α → Prop)
+class has_mod      (α : Type u) := (mod : α → α → α)
+class has_le       (α : Type u) := (le : α → α → Prop)
+class has_lt       (α : Type u) := (lt : α → α → Prop)
+class has_append   (α : Type u) := (append : α → α → α)
+class has_andthen  (α : Type u) := (andthen : α → α → α)
+class has_union    (α : Type u) := (union : α → α → α)
+class has_inter    (α : Type u) := (inter : α → α → α)
+class has_sdiff    (α : Type u) := (sdiff : α → α → α)
+class has_subset   (α : Type u) := (subset : α → α → Prop)
+class has_ssubset  (α : Type u) := (ssubset : α → α → Prop)
 /- Type classes has_emptyc and has_insert are
    used to implement polymorphic notation for collections.
    Example: {a, b, c}. -/
-class has_emptyc   (A : Type u) := (emptyc : A)
-class has_insert   (A : Type u) (C : Type u → Type v) := (insert : A → C A → C A)
+class has_emptyc   (α : Type u) := (emptyc : α)
+class has_insert   (α : Type u) (γ : Type u → Type v) := (insert : α → γ α → γ α)
 /- Type class used to implement the notation { a ∈ c | p a } -/
-class has_sep (A : Type u) (C : Type u → Type v) :=
-(sep : (A → Prop) → C A → C A)
+class has_sep (α : Type u) (γ : Type u → Type v) :=
+(sep : (α → Prop) → γ α → γ α)
 /- Type class for set-like membership -/
-class has_mem (A : Type u) (C : Type u → Type v) := (mem : A → C A → Prop)
+class has_mem (α : Type u) (γ : Type u → Type v) := (mem : α → γ α → Prop)
 
-def zero     {A : Type u} [has_zero A]     : A            := has_zero.zero A
-def one      {A : Type u} [has_one A]      : A            := has_one.one A
-def add      {A : Type u} [has_add A]      : A → A → A    := has_add.add
-def mul      {A : Type u} [has_mul A]      : A → A → A    := has_mul.mul
-def sub      {A : Type u} [has_sub A]      : A → A → A    := has_sub.sub
-def div      {A : Type u} [has_div A]      : A → A → A    := has_div.div
-def dvd      {A : Type u} [has_dvd A]      : A → A → Prop := has_dvd.dvd
-def mod      {A : Type u} [has_mod A]      : A → A → A    := has_mod.mod
-def neg      {A : Type u} [has_neg A]      : A → A        := has_neg.neg
-def inv      {A : Type u} [has_inv A]      : A → A        := has_inv.inv
-def le       {A : Type u} [has_le A]       : A → A → Prop := has_le.le
-def lt       {A : Type u} [has_lt A]       : A → A → Prop := has_lt.lt
-def append   {A : Type u} [has_append A]   : A → A → A    := has_append.append
-def andthen  {A : Type u} [has_andthen A]  : A → A → A    := has_andthen.andthen
-def union    {A : Type u} [has_union A]    : A → A → A    := has_union.union
-def inter    {A : Type u} [has_inter A]    : A → A → A    := has_inter.inter
-def sdiff    {A : Type u} [has_sdiff A]    : A → A → A    := has_sdiff.sdiff
-def subset   {A : Type u} [has_subset A]   : A → A → Prop := has_subset.subset
-def ssubset  {A : Type u} [has_ssubset A]  : A → A → Prop := has_ssubset.ssubset
+def zero     {α : Type u} [has_zero α]     : α            := has_zero.zero α
+def one      {α : Type u} [has_one α]      : α            := has_one.one α
+def add      {α : Type u} [has_add α]      : α → α → α    := has_add.add
+def mul      {α : Type u} [has_mul α]      : α → α → α    := has_mul.mul
+def sub      {α : Type u} [has_sub α]      : α → α → α    := has_sub.sub
+def div      {α : Type u} [has_div α]      : α → α → α    := has_div.div
+def dvd      {α : Type u} [has_dvd α]      : α → α → Prop := has_dvd.dvd
+def mod      {α : Type u} [has_mod α]      : α → α → α    := has_mod.mod
+def neg      {α : Type u} [has_neg α]      : α → α        := has_neg.neg
+def inv      {α : Type u} [has_inv α]      : α → α        := has_inv.inv
+def le       {α : Type u} [has_le α]       : α → α → Prop := has_le.le
+def lt       {α : Type u} [has_lt α]       : α → α → Prop := has_lt.lt
+def append   {α : Type u} [has_append α]   : α → α → α    := has_append.append
+def andthen  {α : Type u} [has_andthen α]  : α → α → α    := has_andthen.andthen
+def union    {α : Type u} [has_union α]    : α → α → α    := has_union.union
+def inter    {α : Type u} [has_inter α]    : α → α → α    := has_inter.inter
+def sdiff    {α : Type u} [has_sdiff α]    : α → α → α    := has_sdiff.sdiff
+def subset   {α : Type u} [has_subset α]   : α → α → Prop := has_subset.subset
+def ssubset  {α : Type u} [has_ssubset α]  : α → α → Prop := has_ssubset.ssubset
 @[reducible]
-def ge {A : Type u} [has_le A] (a b : A) : Prop := le b a
+def ge {α : Type u} [has_le α] (a b : α) : Prop := le b a
 @[reducible]
-def gt {A : Type u} [has_lt A] (a b : A) : Prop := lt b a
+def gt {α : Type u} [has_lt α] (a b : α) : Prop := lt b a
 @[reducible]
-def superset {A : Type u} [has_subset A] (a b : A) : Prop := subset b a
+def superset {α : Type u} [has_subset α] (a b : α) : Prop := subset b a
 @[reducible]
-def ssuperset {A : Type u} [has_ssubset A] (a b : A) : Prop := ssubset b a
-def bit0 {A : Type u} [s  : has_add A] (a  : A)                 : A := add a a
-def bit1 {A : Type u} [s₁ : has_one A] [s₂ : has_add A] (a : A) : A := add (bit0 a) one
+def ssuperset {α : Type u} [has_ssubset α] (a b : α) : Prop := ssubset b a
+def bit0 {α : Type u} [s  : has_add α] (a  : α)                 : α := add a a
+def bit1 {α : Type u} [s₁ : has_one α] [s₂ : has_add α] (a : α) : α := add (bit0 a) one
 
 attribute [pattern] zero one bit0 bit1 add
 
-def insert {A : Type u} {C : Type u → Type v} [has_insert A C] : A → C A → C A :=
+def insert {α : Type u} {γ : Type u → Type v} [has_insert α γ] : α → γ α → γ α :=
 has_insert.insert
 
 /- The empty collection -/
-def emptyc {A : Type u} [has_emptyc A] : A :=
-has_emptyc.emptyc A
+def emptyc {α : Type u} [has_emptyc α] : α :=
+has_emptyc.emptyc α
 
-def singleton {A : Type u} {C : Type u → Type v} [has_emptyc (C A)] [has_insert A C] (a : A) : C A :=
+def singleton {α : Type u} {γ : Type u → Type v} [has_emptyc (γ α)] [has_insert α γ] (a : α) : γ α :=
 insert a emptyc
 
-def sep {A : Type u} {C : Type u → Type v} [has_sep A C] : (A → Prop) → C A → C A :=
+def sep {α : Type u} {γ : Type u → Type v} [has_sep α γ] : (α → Prop) → γ α → γ α :=
 has_sep.sep
 
-def mem {A : Type u} {C : Type u → Type v} [has_mem A C] : A → C A → Prop :=
+def mem {α : Type u} {γ : Type u → Type v} [has_mem α γ] : α → γ α → Prop :=
 has_mem.mem
 
 /- num, pos_num instances -/
@@ -418,26 +418,26 @@ infix \        := sdiff
 
 attribute [refl] eq.refl
 
-@[pattern] def rfl {A : Type u} {a : A} : a = a := eq.refl a
+@[pattern] def rfl {α : Type u} {a : α} : a = a := eq.refl a
 
 @[elab_as_eliminator, subst]
-lemma eq.subst {A : Type u} {P : A → Prop} {a b : A} (H₁ : a = b) (H₂ : P a) : P b :=
-eq.rec H₂ H₁
+lemma eq.subst {α : Type u} {P : α → Prop} {a b : α} (h₁ : a = b) (h₂ : P a) : P b :=
+eq.rec h₂ h₁
 
-notation H1 ▸ H2 := eq.subst H1 H2
+notation h1 ▸ h2 := eq.subst h1 h2
 
-@[trans] lemma eq.trans {A : Type u} {a b c : A} (h₁ : a = b) (h₂ : b = c) : a = c :=
+@[trans] lemma eq.trans {α : Type u} {a b c : α} (h₁ : a = b) (h₂ : b = c) : a = c :=
 h₂ ▸ h₁
 
-@[symm] lemma eq.symm {A : Type u} {a b : A} (h : a = b) : b = a :=
+@[symm] lemma eq.symm {α : Type u} {a b : α} (h : a = b) : b = a :=
 h ▸ rfl
 
 /- sizeof -/
 
-class has_sizeof (A : Type u) :=
-(sizeof : A → nat)
+class has_sizeof (α : Type u) :=
+(sizeof : α → nat)
 
-def sizeof {A : Type u} [s : has_sizeof A] : A → nat :=
+def sizeof {α : Type u} [s : has_sizeof α] : α → nat :=
 has_sizeof.sizeof
 
 /-
@@ -445,14 +445,14 @@ Declare sizeof instances and lemmas for types declared before has_sizeof.
 From now on, the inductive compiler will automatically generate sizeof instances and lemmas.
 -/
 
-/- Every type `A` has a default has_sizeof instance that just returns 0 for every element of `A` -/
-instance default_has_sizeof (A : Type u) : has_sizeof A :=
+/- Every type `α` has a default has_sizeof instance that just returns 0 for every element of `α` -/
+instance default_has_sizeof (α : Type u) : has_sizeof α :=
 ⟨λ a, nat.zero⟩
 
 /- TODO(Leo): the [simp.sizeof] annotations are not really necessary.
    What we need is a robust way of unfolding sizeof definitions. -/
 attribute [simp.sizeof]
-def default_has_sizeof_eq (A : Type u) (a : A) : @sizeof A (default_has_sizeof A) a = 0 :=
+def default_has_sizeof_eq (α : Type u) (a : α) : @sizeof α (default_has_sizeof α) a = 0 :=
 rfl
 
 instance : has_sizeof nat :=
@@ -462,39 +462,39 @@ attribute [simp.sizeof]
 def sizeof_nat_eq (a : nat) : sizeof a = a :=
 rfl
 
-protected def prod.sizeof {A : Type u} {B : Type v} [has_sizeof A] [has_sizeof B] : (prod A B) → nat
+protected def prod.sizeof {α : Type u} {β : Type v} [has_sizeof α] [has_sizeof β] : (prod α β) → nat
 | ⟨a, b⟩ := 1 + sizeof a + sizeof b
 
-instance (A : Type u) (B : Type v) [has_sizeof A] [has_sizeof B] : has_sizeof (prod A B) :=
+instance (α : Type u) (β : Type v) [has_sizeof α] [has_sizeof β] : has_sizeof (prod α β) :=
 ⟨prod.sizeof⟩
 
 attribute [simp.sizeof]
-def sizeof_prod_eq {A : Type u} {B : Type v} [has_sizeof A] [has_sizeof B] (a : A) (b : B) : sizeof (prod.mk a b) = 1 + sizeof a + sizeof b :=
+def sizeof_prod_eq {α : Type u} {β : Type v} [has_sizeof α] [has_sizeof β] (a : α) (b : β) : sizeof (prod.mk a b) = 1 + sizeof a + sizeof b :=
 rfl
 
-protected def sum.sizeof {A : Type u} {B : Type v} [has_sizeof A] [has_sizeof B] : (sum A B) → nat
+protected def sum.sizeof {α : Type u} {β : Type v} [has_sizeof α] [has_sizeof β] : (sum α β) → nat
 | (sum.inl a) := 1 + sizeof a
 | (sum.inr b) := 1 + sizeof b
 
-instance (A : Type u) (B : Type v) [has_sizeof A] [has_sizeof B] : has_sizeof (sum A B) :=
+instance (α : Type u) (β : Type v) [has_sizeof α] [has_sizeof β] : has_sizeof (sum α β) :=
 ⟨sum.sizeof⟩
 
 attribute [simp.sizeof]
-def sizeof_sum_eq_left {A : Type u} {B : Type v} [has_sizeof A] [has_sizeof B] (a : A) : sizeof (@sum.inl A B a) = 1 + sizeof a :=
+def sizeof_sum_eq_left {α : Type u} {β : Type v} [has_sizeof α] [has_sizeof β] (a : α) : sizeof (@sum.inl α β a) = 1 + sizeof a :=
 rfl
 
 attribute [simp.sizeof]
-def sizeof_sum_eq_right {A : Type u} {B : Type v} [has_sizeof A] [has_sizeof B] (b : B) : sizeof (@sum.inr A B b) = 1 + sizeof b :=
+def sizeof_sum_eq_right {α : Type u} {β : Type v} [has_sizeof α] [has_sizeof β] (b : β) : sizeof (@sum.inr α β b) = 1 + sizeof b :=
 rfl
 
-protected def sigma.sizeof {A : Type u} {B : A → Type v} [has_sizeof A] [∀ a, has_sizeof (B a)] : sigma B → nat
+protected def sigma.sizeof {α : Type u} {β : α → Type v} [has_sizeof α] [∀ a, has_sizeof (β a)] : sigma β → nat
 | ⟨a, b⟩ := 1 + sizeof a + sizeof b
 
-instance (A : Type u) (B : A → Type v) [has_sizeof A] [∀ a, has_sizeof (B a)] : has_sizeof (sigma B) :=
+instance (α : Type u) (β : α → Type v) [has_sizeof α] [∀ a, has_sizeof (β a)] : has_sizeof (sigma β) :=
 ⟨sigma.sizeof⟩
 
 attribute [simp.sizeof]
-def sizeof_sigma_eq {A : Type u} {B : A → Type v} [has_sizeof A] [∀ a, has_sizeof (B a)] (a : A) (b : B a) : sizeof (@sigma.mk A B a b) = 1 + sizeof a + sizeof b :=
+def sizeof_sigma_eq {α : Type u} {β : α → Type v} [has_sizeof α] [∀ a, has_sizeof (β a)] (a : α) (b : β a) : sizeof (@sigma.mk α β a b) = 1 + sizeof a + sizeof b :=
 rfl
 
 instance : has_sizeof unit := ⟨λ u, 1⟩
@@ -529,34 +529,34 @@ attribute [simp.sizeof]
 def sizeof_num_eq (n : num) : sizeof n = nat.of_num n :=
 rfl
 
-protected def option.sizeof {A : Type u} [has_sizeof A] : option A → nat
+protected def option.sizeof {α : Type u} [has_sizeof α] : option α → nat
 | none     := 1
 | (some a) := 1 + sizeof a
 
-instance (A : Type u) [has_sizeof A] : has_sizeof (option A) :=
+instance (α : Type u) [has_sizeof α] : has_sizeof (option α) :=
 ⟨option.sizeof⟩
 
 attribute [simp.sizeof]
-def sizeof_option_none_eq (A : Type u) [has_sizeof A] : sizeof (@none A) = 1 :=
+def sizeof_option_none_eq (α : Type u) [has_sizeof α] : sizeof (@none α) = 1 :=
 rfl
 
 attribute [simp.sizeof]
-def sizeof_option_some_eq {A : Type u} [has_sizeof A] (a : A) : sizeof (some a) = 1 + sizeof a :=
+def sizeof_option_some_eq {α : Type u} [has_sizeof α] (a : α) : sizeof (some a) = 1 + sizeof a :=
 rfl
 
-protected def list.sizeof {A : Type u} [has_sizeof A] : list A → nat
+protected def list.sizeof {α : Type u} [has_sizeof α] : list α → nat
 | list.nil        := 1
 | (list.cons a l) := 1 + sizeof a + list.sizeof l
 
-instance (A : Type u) [has_sizeof A] : has_sizeof (list A) :=
+instance (α : Type u) [has_sizeof α] : has_sizeof (list α) :=
 ⟨list.sizeof⟩
 
 attribute [simp.sizeof]
-def sizeof_list_nil_eq (A : Type u) [has_sizeof A] : sizeof (@list.nil A) = 1 :=
+def sizeof_list_nil_eq (α : Type u) [has_sizeof α] : sizeof (@list.nil α) = 1 :=
 rfl
 
 attribute [simp.sizeof]
-def sizeof_list_cons_eq {A : Type u} [has_sizeof A] (a : A) (l : list A) : sizeof (list.cons a l) = 1 + sizeof a + sizeof l :=
+def sizeof_list_cons_eq {α : Type u} [has_sizeof α] (a : α) (l : list α) : sizeof (list.cons a l) = 1 + sizeof a + sizeof l :=
 rfl
 
 attribute [simp.sizeof]

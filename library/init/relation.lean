@@ -11,8 +11,8 @@ import init.logic
 -- TODO(Leo): remove duplication between this file and algebra/relation.lean
 -- We need some of the following definitions asap when "initializing" Lean.
 universe variables u v
-variables {A : Type u} {B : Type v} (R : B → B → Prop)
-local infix `≺`:50 := R
+variables {α : Type u} {β : Type v} (r : β → β → Prop)
+local infix `≺`:50 := r
 
 def reflexive := ∀ x, x ≺ x
 
@@ -20,30 +20,30 @@ def symmetric := ∀ ⦃x y⦄, x ≺ y → y ≺ x
 
 def transitive := ∀ ⦃x y z⦄, x ≺ y → y ≺ z → x ≺ z
 
-def equivalence := reflexive R ∧ symmetric R ∧ transitive R
+def equivalence := reflexive r ∧ symmetric r ∧ transitive r
 
 def total := ∀ x y, x ≺ y ∨ y ≺ x
 
-def mk_equivalence (r : reflexive R) (s : symmetric R) (t : transitive R) : equivalence R :=
-⟨r, s, t⟩
+def mk_equivalence (rfl : reflexive r) (symm : symmetric r) (trans : transitive r) : equivalence r :=
+⟨rfl, symm, trans⟩
 
 def irreflexive := ∀ x, ¬ x ≺ x
 
 def anti_symmetric := ∀ ⦃x y⦄, x ≺ y → y ≺ x → x = y
 
-def empty_relation := λ a₁ a₂ : A, false
+def empty_relation := λ a₁ a₂ : α, false
 
-def subrelation (Q R : B → B → Prop) := ∀ ⦃x y⦄, Q x y → R x y
+def subrelation (q r : β → β → Prop) := ∀ ⦃x y⦄, q x y → r x y
 
-def inv_image (f : A → B) : A → A → Prop :=
+def inv_image (f : α → β) : α → α → Prop :=
 λ a₁ a₂, f a₁ ≺ f a₂
 
-lemma inv_image.trans (f : A → B) (H : transitive R) : transitive (inv_image R f) :=
-λ (a₁ a₂ a₃ : A) (H₁ : inv_image R f a₁ a₂) (H₂ : inv_image R f a₂ a₃), H H₁ H₂
+lemma inv_image.trans (f : α → β) (h : transitive r) : transitive (inv_image r f) :=
+λ (a₁ a₂ a₃ : α) (h₁ : inv_image r f a₁ a₂) (h₂ : inv_image r f a₂ a₃), h h₁ h₂
 
-lemma inv_image.irreflexive (f : A → B) (H : irreflexive R) : irreflexive (inv_image R f) :=
-λ (a : A) (H₁ : inv_image R f a a), H (f a) H₁
+lemma inv_image.irreflexive (f : α → β) (h : irreflexive r) : irreflexive (inv_image r f) :=
+λ (a : α) (h₁ : inv_image r f a a), h (f a) h₁
 
-inductive tc {A : Type u} (R : A → A → Prop) : A → A → Prop
-| base  : ∀ a b, R a b → tc a b
+inductive tc {α : Type u} (r : α → α → Prop) : α → α → Prop
+| base  : ∀ a b, r a b → tc a b
 | trans : ∀ a b c, tc a b → tc b c → tc a c

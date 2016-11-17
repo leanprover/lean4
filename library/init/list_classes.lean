@@ -9,10 +9,10 @@ open list
 
 universe variables u v
 
-@[inline] def list.bind {A : Type u} {B : Type v} (a : list A) (b : A → list B) : list B :=
+@[inline] def list.bind {α : Type u} {β : Type v} (a : list α) (b : α → list β) : list β :=
 join (map b a)
 
-@[inline] def list.ret {A : Type u} (a : A) : list A :=
+@[inline] def list.ret {α : Type u} (a : α) : list α :=
 [a]
 
 instance : monad list :=

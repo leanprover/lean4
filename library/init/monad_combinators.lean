@@ -10,27 +10,27 @@ import init.monad init.list
 universe variables u v w
 
 namespace monad
-/- Remark: we use (u+1) to make sure B is not a proposition.
-   That is, we are making sure that B and (list B) inhabit the same universe -/
-def mapm {m : Type (u+1) → Type v} [monad m] {A : Type w} {B : Type (u+1)} (f : A → m B) : list A → m (list B)
+/- Remark: we use (u+1) to make sure β is not a proposition.
+   That is, we are making sure that β and (list β) inhabit the same universe -/
+def mapm {m : Type (u+1) → Type v} [monad m] {α : Type w} {β : Type (u+1)} (f : α → m β) : list α → m (list β)
 | []       := return []
 | (h :: t) := do h' ← f h, t' ← mapm t, return (h' :: t')
 
-def mapm' {m : Type → Type v} [monad m] {A : Type u} {B : Type} (f : A → m B) : list A → m unit
+def mapm' {m : Type → Type v} [monad m] {α : Type u} {β : Type} (f : α → m β) : list α → m unit
 | []       := return ()
 | (h :: t) := f h >> mapm' t
 
-def for {m : Type (u+1) → Type v} [monad m] {A : Type w} {B : Type (u+1)} (l : list A) (f : A → m B) : m (list B) :=
+def for {m : Type (u+1) → Type v} [monad m] {α : Type w} {β : Type (u+1)} (l : list α) (f : α → m β) : m (list β) :=
 mapm f l
 
-def for' {m : Type → Type v} [monad m] {A : Type u} {B : Type} (l : list A) (f : A → m B) : m unit :=
+def for' {m : Type → Type v} [monad m] {α : Type u} {β : Type} (l : list α) (f : α → m β) : m unit :=
 mapm' f l
 
-def sequence {m : Type (u+1) → Type v} [monad m] {A : Type (u+1)} : list (m A) → m (list A)
+def sequence {m : Type (u+1) → Type v} [monad m] {α : Type (u+1)} : list (m α) → m (list α)
 | []       := return []
 | (h :: t) := do h' ← h, t' ← sequence t, return (h' :: t')
 
-def sequence' {m : Type → Type u} [monad m] {A : Type} : list (m A) → m unit
+def sequence' {m : Type → Type u} [monad m] {α : Type} : list (m α) → m unit
 | []       := return ()
 | (h :: t) := h >> sequence' t
 
@@ -40,10 +40,10 @@ infix ` >=> `:2 := λ s t a, s a >>= t
 
 infix ` <=< `:2 := λ t s a, s a >>= t
 
-def join {m : Type u → Type u} [monad m] {A : Type u} (a : m (m A)) : m A :=
+def join {m : Type u → Type u} [monad m] {α : Type u} (a : m (m α)) : m α :=
 bind a id
 
-def filter {m : Type → Type v} [monad m] {A : Type} (f : A → m bool) : list A → m (list A)
+def filter {m : Type → Type v} [monad m] {α : Type} (f : α → m bool) : list α → m (list α)
 | []       := return []
 | (h :: t) := do b ← f h, t' ← filter t, cond b (return (h :: t')) (return t')
 
@@ -53,26 +53,26 @@ cond b t (return ())
 def unlessb {m : Type → Type} [monad m] (b : bool) (t : m unit) : m unit :=
 cond b (return ()) t
 
-def cond {m : Type → Type} [monad m] {A : Type} (mbool : m bool)
-  (tm fm : m A) : m A :=
+def cond {m : Type → Type} [monad m] {α : Type} (mbool : m bool)
+  (tm fm : m α) : m α :=
 do b ← mbool, cond b tm fm
 
-def lift {m : Type u → Type v} [monad m] {A R : Type u} (f : A → R) (ma : m A) : m R :=
+def lift {m : Type u → Type v} [monad m] {α φ : Type u} (f : α → φ) (ma : m α) : m φ :=
 do a ← ma, return (f a)
 
-def lift₂ {m : Type u → Type v} [monad m] {A R : Type u} (f : A → A → R) (ma₁ ma₂: m A) : m R :=
+def lift₂ {m : Type u → Type v} [monad m] {α φ : Type u} (f : α → α → φ) (ma₁ ma₂: m α) : m φ :=
 do a₁ ← ma₁, a₂ ← ma₂, return (f a₁ a₂)
 
-def lift₃ {m : Type u → Type v} [monad m] {A R : Type u} (f : A → A → A → R)
-  (ma₁ ma₂ ma₃ : m A) : m R :=
+def lift₃ {m : Type u → Type v} [monad m] {α φ : Type u} (f : α → α → α → φ)
+  (ma₁ ma₂ ma₃ : m α) : m φ :=
 do a₁ ← ma₁, a₂ ← ma₂, a₃ ← ma₃, return (f a₁ a₂ a₃)
 
-def lift₄ {m : Type u → Type v} [monad m] {A R : Type u} (f : A → A → A → A → R)
-  (ma₁ ma₂ ma₃ ma₄ : m A) : m R :=
+def lift₄ {m : Type u → Type v} [monad m] {α φ : Type u} (f : α → α → α → α → φ)
+  (ma₁ ma₂ ma₃ ma₄ : m α) : m φ :=
 do a₁ ← ma₁, a₂ ← ma₂, a₃ ← ma₃, a₄ ← ma₄, return (f a₁ a₂ a₃ a₄)
 
-def lift₅ {m : Type u → Type v} [monad m] {A R : Type u} (f : A → A → A → A → A → R)
-  (ma₁ ma₂ ma₃ ma₄ ma₅ : m A) : m R :=
+def lift₅ {m : Type u → Type v} [monad m] {α φ : Type u} (f : α → α → α → α → α → φ)
+  (ma₁ ma₂ ma₃ ma₄ ma₅ : m α) : m φ :=
 do a₁ ← ma₁, a₂ ← ma₂, a₃ ← ma₃, a₄ ← ma₄, a₅ ← ma₅, return (f a₁ a₂ a₃ a₄ a₅)
 
 end monad

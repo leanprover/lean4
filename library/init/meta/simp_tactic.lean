@@ -66,9 +66,9 @@ simp_lemmas.dsimplify_core default_max_steps ff
 namespace tactic
 meta constant dsimplify_core
   /- The user state type. -/
-  {A : Type}
+  {α : Type}
   /- Initial user data -/
-  (a : A)
+  (a : α)
   (max_steps       : nat)
   /- If visit_instances = ff, then instance implicit arguments are not visited, but
      tactic will canonize them. -/
@@ -78,12 +78,12 @@ meta constant dsimplify_core
        - 'new_a' is the new value for the user data
        - 'new_e' is a new expression that must be definitionally equal to 'e',
        - 'flag'  if tt 'new_e' children should be visited, and 'post' invoked. -/
-  (pre             : A → expr → tactic (A × expr × bool))
+  (pre             : α → expr → tactic (α × expr × bool))
   /- (post a e) is invoked after visiting the children of subterm 'e',
      The output is similar to (pre a e), but the 'flag' indicates whether
      the new expression should be revisited or not. -/
-  (post            : A → expr → tactic (A × expr × bool))
-  : expr → tactic (A × expr)
+  (post            : α → expr → tactic (α × expr × bool))
+  : expr → tactic (α × expr)
 
 meta def dsimplify
   (pre             : expr → tactic (expr × bool))
@@ -166,17 +166,17 @@ meta constant simplify_core
 
 meta constant ext_simplify_core
   /- The user state type. -/
-  {A : Type}
+  {α : Type}
   /- Initial user data -/
-  (a : A)
+  (a : α)
   (c : simplify_config)
   /- Congruence and simplification lemmas.
      Remark: the simplification lemmas at not applied automatically like in the simplify_core tactic.
      the caller must use them at pre/post. -/
   (s : simp_lemmas)
   /- Tactic for dischaging hypothesis in conditional rewriting rules.
-     The argument 'A' is the current user state. -/
-  (prove : A → tactic A)
+     The argument 'α' is the current user state. -/
+  (prove : α → tactic α)
   /- (pre a r s p e) is invoked before visiting the children of subterm 'e',
      'r' is the simplification relation being used, 's' is the updated set of lemmas if 'contextual' is tt,
      'p' is the "parent" expression (if there is one).
@@ -185,14 +185,14 @@ meta constant ext_simplify_core
        - 'new_e' is a new expression s.t. 'e r new_e'
        - 'new_pr' is a proof for 'e r new_e', If it is none, the proof is assumed to be by reflexivity
        - 'flag'  if tt 'new_e' children should be visited, and 'post' invoked. -/
-  (pre : A → simp_lemmas → name → option expr → expr → tactic (A × expr × option expr × bool))
+  (pre : α → simp_lemmas → name → option expr → expr → tactic (α × expr × option expr × bool))
   /- (post a r s p e) is invoked after visiting the children of subterm 'e',
      The output is similar to (pre a r s p e), but the 'flag' indicates whether
      the new expression should be revisited or not. -/
-  (post : A → simp_lemmas  → name → option expr → expr → tactic (A × expr × option expr × bool))
+  (post : α → simp_lemmas  → name → option expr → expr → tactic (α × expr × option expr × bool))
   /- simplification relation -/
   (r : name) :
-  expr → tactic (A × expr × expr)
+  expr → tactic (α × expr × expr)
 
 meta def simplify (cfg : simplify_config) (extra_lemmas : list expr) (e : expr) : tactic (expr × expr) :=
 do lemmas       ← simp_lemmas.mk_default,
@@ -201,16 +201,16 @@ do lemmas       ← simp_lemmas.mk_default,
    simplify_core cfg new_lemmas `eq e
 
 meta def simplify_goal (cfg : simplify_config) (extra_lemmas : list expr) : tactic unit :=
-do (new_target, Heq) ← target >>= simplify cfg extra_lemmas,
-   assert `Htarget new_target, swap,
-   Ht ← get_local `Htarget,
-   mk_app `eq.mpr [Heq, Ht] >>= exact
+do (new_target, heq) ← target >>= simplify cfg extra_lemmas,
+   assert `htarget new_target, swap,
+   ht ← get_local `htarget,
+   mk_app `eq.mpr [heq, ht] >>= exact
 
 meta def simp : tactic unit :=
 simplify_goal default_simplify_config [] >> try triv >> try reflexivity
 
-meta def simp_using (Hs : list expr) : tactic unit :=
-simplify_goal default_simplify_config Hs >> try triv
+meta def simp_using (hs : list expr) : tactic unit :=
+simplify_goal default_simplify_config hs >> try triv
 
 meta def ctx_simp : tactic unit :=
 simplify_goal {default_simplify_config with contextual := tt} [] >> try triv >> try reflexivity
@@ -219,12 +219,12 @@ meta def dsimp : tactic unit :=
 do S ← simp_lemmas.mk_default,
    target >>= S^.dsimplify >>= change
 
-meta def dsimp_at (H : expr) : tactic unit :=
-do num_reverted : ℕ ← revert H,
+meta def dsimp_at (h : expr) : tactic unit :=
+do num_reverted : ℕ ← revert h,
    (expr.pi n bi d b : expr) ← target | failed,
    S      ← simp_lemmas.mk_default,
-   H_simp ← S^.dsimplify d,
-   change $ expr.pi n bi H_simp b,
+   h_simp ← S^.dsimplify d,
+   change $ expr.pi n bi h_simp b,
    intron num_reverted
 
 private meta def is_equation : expr → bool
@@ -233,38 +233,38 @@ private meta def is_equation : expr → bool
 
 private meta def collect_eqs : list expr → tactic (list expr)
 | []        := return []
-| (H :: Hs) := do
-  Eqs   ← collect_eqs Hs,
-  Htype ← infer_type H >>= whnf,
-  return $ if is_equation Htype then H :: Eqs else Eqs
+| (h :: hs) := do
+  Eqs   ← collect_eqs hs,
+  htype ← infer_type h >>= whnf,
+  return $ if is_equation htype then h :: Eqs else Eqs
 
 /- Simplify target using all hypotheses in the local context. -/
 meta def simp_using_hs : tactic unit :=
 local_context >>= collect_eqs >>= simp_using
 
-meta def simp_core_at (extra_lemmas : list expr) (H : expr) : tactic unit :=
-do when (expr.is_local_constant H = ff) (fail "tactic simp_at failed, the given expression is not a hypothesis"),
-   Htype ← infer_type H,
-   (new_Htype, Heq) ← simplify default_simplify_config extra_lemmas Htype,
-   assert (expr.local_pp_name H) new_Htype,
-   mk_app `eq.mp [Heq, H] >>= exact,
-   try $ clear H
+meta def simp_core_at (extra_lemmas : list expr) (h : expr) : tactic unit :=
+do when (expr.is_local_constant h = ff) (fail "tactic simp_at failed, the given expression is not a hypothesis"),
+   htype ← infer_type h,
+   (new_htype, heq) ← simplify default_simplify_config extra_lemmas htype,
+   assert (expr.local_pp_name h) new_htype,
+   mk_app `eq.mp [heq, h] >>= exact,
+   try $ clear h
 
 meta def simp_at : expr → tactic unit :=
 simp_core_at []
 
-meta def simp_at_using (Hs : list expr) : expr → tactic unit :=
-simp_core_at Hs
+meta def simp_at_using (hs : list expr) : expr → tactic unit :=
+simp_core_at hs
 
-meta def simp_at_using_hs (H : expr) : tactic unit :=
-do Hs ← local_context >>= collect_eqs,
-   simp_core_at (list.filter (ne H) Hs) H
+meta def simp_at_using_hs (h : expr) : tactic unit :=
+do hs ← local_context >>= collect_eqs,
+   simp_core_at (list.filter (ne h) hs) h
 
 meta def mk_eq_simp_ext (simp_ext : expr → tactic (expr × expr)) : tactic unit :=
 do (lhs, rhs)     ← target >>= match_eq,
-   (new_rhs, Heq) ← simp_ext lhs,
+   (new_rhs, heq) ← simp_ext lhs,
    unify rhs new_rhs,
-   exact Heq
+   exact heq
 
 /- Simp attribute support -/
 

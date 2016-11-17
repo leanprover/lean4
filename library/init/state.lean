@@ -6,64 +6,64 @@ Authors: Leonardo de Moura
 prelude
 import init.logic init.monad init.alternative init.prod
 
-def state (S : Type) (A : Type) : Type :=
-S → A × S
+def state (σ : Type) (α : Type) : Type :=
+σ → α × σ
 
 section
-variables {S : Type} {A B : Type}
+variables {σ : Type} {α β : Type}
 
-@[inline] def state_fmap (f : A → B) (a : state S A) : state S B :=
+@[inline] def state_fmap (f : α → β) (a : state σ α) : state σ β :=
 λ s, match (a s) with (a', s') := (f a', s') end
 
-@[inline] def state_return (a : A) : state S A :=
+@[inline] def state_return (a : α) : state σ α :=
 λ s, (a, s)
 
-@[inline] def state_bind (a : state S A) (b : A → state S B) : state S B :=
+@[inline] def state_bind (a : state σ α) (b : α → state σ β) : state σ β :=
 λ s, match (a s) with (a', s') := b a' s' end
 
-instance (S : Type) : monad (state S) :=
-⟨@state_fmap S, @state_return S, @state_bind S⟩
+instance (σ : Type) : monad (state σ) :=
+⟨@state_fmap σ, @state_return σ, @state_bind σ⟩
 end
 
 namespace state
-@[inline] def read {S : Type} : state S S :=
+@[inline] def read {σ : Type} : state σ σ :=
 λ s, (s, s)
 
-@[inline] def write {S : Type} : S → state S unit :=
+@[inline] def write {σ : Type} : σ → state σ unit :=
 λ s' s, ((), s')
 end state
 
-def stateT (S : Type) (M : Type → Type) [monad M] (A : Type) : Type :=
-S → M (A × S)
+def state_t (σ : Type) (m : Type → Type) [monad m] (α : Type) : Type :=
+σ → m (α × σ)
 
 section
-  variable  {S : Type}
-  variable  {M : Type → Type}
-  variable  [monad M]
-  variables {A B : Type}
+  variable  {σ : Type}
+  variable  {m : Type → Type}
+  variable  [monad m]
+  variables {α β : Type}
 
-  def stateT_fmap (f : A → B) (act : stateT S M A) : stateT S M B :=
-  λ s, show M (B × S), from
+  def state_t_fmap (f : α → β) (act : state_t σ m α) : state_t σ m β :=
+  λ s, show m (β × σ), from
     do (a, new_s) ← act s,
        return (f a, new_s)
 
-  def stateT_return (a : A) : stateT S M A :=
-  λ s, show M (A × S), from
+  def state_t_return (a : α) : state_t σ m α :=
+  λ s, show m (α × σ), from
     return (a, s)
 
-  def stateT_bind (act₁ : stateT S M A) (act₂ : A → stateT S M B) : stateT S M B :=
-  λ s, show M (B × S), from
+  def state_t_bind (act₁ : state_t σ m α) (act₂ : α → state_t σ m β) : state_t σ m β :=
+  λ s, show m (β × σ), from
      do (a, new_s) ← act₁ s,
         act₂ a new_s
 end
 
-instance (S : Type) (M : Type → Type) [monad M] : monad (stateT S M) :=
-⟨@stateT_fmap S M _, @stateT_return S M _, @stateT_bind S M _⟩
+instance (σ : Type) (m : Type → Type) [monad m] : monad (state_t σ m) :=
+⟨@state_t_fmap σ m _, @state_t_return σ m _, @state_t_bind σ m _⟩
 
-namespace stateT
-def read {S : Type} {M : Type → Type} [monad M] : stateT S M S :=
+namespace state_t
+def read {σ : Type} {m : Type → Type} [monad m] : state_t σ m σ :=
 λ s, return (s, s)
 
-def write {S : Type} {M : Type → Type} [monad M] : S → stateT S M unit :=
+def write {σ : Type} {m : Type → Type} [monad m] : σ → state_t σ m unit :=
 λ s' s, return ((), s')
-end stateT
+end state_t

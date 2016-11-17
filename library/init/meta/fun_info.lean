@@ -15,7 +15,7 @@ structure param_info :=
 
 open format list decidable
 
-private meta def ppfield {A : Type} [has_to_format A] (fname : string) (v : A) : format :=
+private meta def ppfield {α : Type} [has_to_format α] (fname : string) (v : α) : format :=
 group $ to_fmt fname ++ space ++ to_fmt ":=" ++ space ++ nest (length fname + 4) (to_fmt v)
 
 private meta def concat_fields (f₁ f₂ : format) : format :=
@@ -55,7 +55,7 @@ has_to_format.mk fun_info_to_format
   using this argument.
   For example, consider the function
 
-             f : Pi (A : Type), A -> A
+             f : Pi (α : Type), α -> α
 
   Now, suppse we request get_specialize fun_info for the application
 
@@ -99,7 +99,7 @@ meta constant get_subsingleton_info_n_core : transparency → expr → nat → t
       (f a_1 ... a_n).
    This tactic is more precise than (get_subsingleton_info f) and (get_subsingleton_info_n f n)
 
-    Example: given (f : Pi (A : Type), A -> A), \c get_spec_subsingleton_info for
+    Example: given (f : Pi (α : Type), α -> α), \c get_spec_subsingleton_info for
 
     f unit b
 

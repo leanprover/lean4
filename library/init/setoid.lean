@@ -7,31 +7,28 @@ Authors: Leonardo de Moura
 prelude
 import init.relation
 universe variables u
-class setoid (A : Type u) :=
-(r : A → A → Prop) (iseqv : equivalence r)
+class setoid (α : Type u) :=
+(r : α → α → Prop) (iseqv : equivalence r)
 
 namespace setoid
   infix ` ≈ ` := setoid.r
 
-  variable {A : Type u}
-  variable [s : setoid A]
+  variable {α : Type u}
+  variable [s : setoid α]
   include s
 
-  attribute [refl]
-  lemma refl (a : A) : a ≈ a :=
-  match setoid.iseqv A with
-  | ⟨H_refl, H_symm, H_trans⟩ := H_refl a
+  @[refl] lemma refl (a : α) : a ≈ a :=
+  match setoid.iseqv α with
+  | ⟨h_refl, h_symm, h_trans⟩ := h_refl a
   end
 
-  attribute [symm]
-  lemma symm {a b : A} (Hab : a ≈ b) : b ≈ a :=
-  match setoid.iseqv A with
-  | ⟨H_refl, H_symm, H_trans⟩ := H_symm Hab
+  @[symm] lemma symm {a b : α} (hab : a ≈ b) : b ≈ a :=
+  match setoid.iseqv α with
+  | ⟨h_refl, h_symm, h_trans⟩ := h_symm hab
   end
 
-  attribute [trans]
-  lemma trans {a b c : A} (Hab : a ≈ b) (Hbc : b ≈ c) : a ≈ c :=
-  match setoid.iseqv A with
-  | ⟨H_refl, H_symm, H_trans⟩ := H_trans Hab Hbc
+  @[trans] lemma trans {a b c : α} (hab : a ≈ b) (hbc : b ≈ c) : a ≈ c :=
+  match setoid.iseqv α with
+  | ⟨h_refl, h_symm, h_trans⟩ := h_trans hab hbc
   end
 end setoid

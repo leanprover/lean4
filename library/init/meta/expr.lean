@@ -60,7 +60,7 @@ if expr.lt a b then ordering.lt
 else if a =ₐ b then ordering.eq
 else ordering.gt
 
-meta constant expr.fold {A : Type} : expr → A → (expr → nat → A → A) → A
+meta constant expr.fold {α : Type} : expr → α → (expr → nat → α → α) → α
 meta constant expr.replace : expr → (expr → nat → option expr) → expr
 
 meta constant expr.abstract_local  : expr → name → expr

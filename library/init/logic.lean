@@ -8,9 +8,9 @@ import init.core
 
 universe variables u v w
 
-@[reducible] def id {A : Type u} (a : A) : A := a
+@[reducible] def id {α : Type u} (a : α) : α := a
 
-def flip {A : Type u} {B : Type v} {C : Type w} (f : A → B → C) : B → A → C :=
+def flip {α : Type u} {β : Type v} {φ : Type w} (f : α → β → φ) : β → α → φ :=
 λ b a, f a b
 
 /- implication -/
@@ -54,39 +54,39 @@ false.rec c h
 lemma proof_irrel {a : Prop} (h₁ h₂ : a) : h₁ = h₂ :=
 rfl
 
-@[simp] lemma id.def {A : Type u} (a : A) : id a = a := rfl
+@[simp] lemma id.def {α : Type u} (a : α) : id a = a := rfl
 
 -- Remark: we provide the universe levels explicitly to make sure `eq.drec` has the same type of `eq.rec` in the hoTT library
 attribute [elab_as_eliminator]
-protected lemma {u₁ u₂} eq.drec {A : Type u₂} {a : A} {C : Π (x : A), a = x → Type u₁} (h₁ : C a (eq.refl a)) {b : A} (h₂ : a = b) : C b h₂ :=
-eq.rec (λ h₂ : a = a, show C a h₂, from h₁) h₂ h₂
+protected lemma {u₁ u₂} eq.drec {α : Type u₂} {a : α} {φ : Π (x : α), a = x → Type u₁} (h₁ : φ a (eq.refl a)) {b : α} (h₂ : a = b) : φ b h₂ :=
+eq.rec (λ h₂ : a = a, show φ a h₂, from h₁) h₂ h₂
 
 attribute [elab_as_eliminator]
-protected lemma drec_on {A : Type u} {a : A} {C : Π (x : A), a = x → Type v} {b : A} (h₂ : a = b) (h₁ : C a (eq.refl a)) : C b h₂ :=
+protected lemma drec_on {α : Type u} {a : α} {φ : Π (x : α), a = x → Type v} {b : α} (h₂ : a = b) (h₁ : φ a (eq.refl a)) : φ b h₂ :=
 eq.drec h₁ h₂
 
-lemma eq.mp {A B : Type u} : (A = B) → A → B :=
+lemma eq.mp {α β : Type u} : (α = β) → α → β :=
 eq.rec_on
 
-lemma eq.mpr {A B : Type u} : (A = B) → B → A :=
+lemma eq.mpr {α β : Type u} : (α = β) → β → α :=
 λ h₁ h₂, eq.rec_on (eq.symm h₁) h₂
 
-lemma eq.substr {A : Type u} {p : A → Prop} {a b : A} (h₁ : b = a) : p a → p b :=
+lemma eq.substr {α : Type u} {p : α → Prop} {a b : α} (h₁ : b = a) : p a → p b :=
 eq.subst (eq.symm h₁)
 
-lemma congr {A : Type u} {B : Type v} {f₁ f₂ : A → B} {a₁ a₂ : A} (h₁ : f₁ = f₂) (h₂ : a₁ = a₂) : f₁ a₁ = f₂ a₂ :=
+lemma congr {α : Type u} {β : Type v} {f₁ f₂ : α → β} {a₁ a₂ : α} (h₁ : f₁ = f₂) (h₂ : a₁ = a₂) : f₁ a₁ = f₂ a₂ :=
 eq.subst h₁ (eq.subst h₂ rfl)
 
-lemma congr_fun {A : Type u} {B : A → Type v} {f g : Π x, B x} (h : f = g) (a : A) : f a = g a :=
+lemma congr_fun {α : Type u} {β : α → Type v} {f g : Π x, β x} (h : f = g) (a : α) : f a = g a :=
 eq.subst h (eq.refl (f a))
 
-lemma congr_arg {A : Type u} {B : Type v} {a₁ a₂ : A} (f : A → B) : a₁ = a₂ → f a₁ = f a₂ :=
+lemma congr_arg {α : Type u} {β : Type v} {a₁ a₂ : α} (f : α → β) : a₁ = a₂ → f a₁ = f a₂ :=
 congr rfl
 
-lemma trans_rel_left {A : Type u} {a b c : A} (r : A → A → Prop) (h₁ : r a b) (h₂ : b = c) : r a c :=
+lemma trans_rel_left {α : Type u} {a b c : α} (r : α → α → Prop) (h₁ : r a b) (h₂ : b = c) : r a c :=
 h₂ ▸ h₁
 
-lemma trans_rel_right {A : Type u} {a b c : A} (r : A → A → Prop) (h₁ : a = b) (h₂ : r b c) : r a c :=
+lemma trans_rel_right {α : Type u} {a b c : α} (r : α → α → Prop) (h₁ : a = b) (h₂ : r b c) : r a c :=
 h₁^.symm ▸ h₂
 
 lemma of_eq_true {p : Prop} (h : p = true) : p :=
@@ -95,26 +95,26 @@ h^.symm ▸ trivial
 lemma not_of_eq_false {p : Prop} (h : p = false) : ¬p :=
 assume hp, h ▸ hp
 
-@[inline] def cast {A B : Type u} (h : A = B) (a : A) : B :=
+@[inline] def cast {α β : Type u} (h : α = β) (a : α) : β :=
 eq.rec a h
 
-lemma cast_proof_irrel {A B : Type u} (h₁ h₂ : A = B) (a : A) : cast h₁ a = cast h₂ a :=
+lemma cast_proof_irrel {α β : Type u} (h₁ h₂ : α = β) (a : α) : cast h₁ a = cast h₂ a :=
 rfl
 
-lemma cast_eq {A : Type u} (h : A = A) (a : A) : cast h a = a :=
+lemma cast_eq {α : Type u} (h : α = α) (a : α) : cast h a = a :=
 rfl
 
 /- ne -/
 
-@[reducible] def ne {A : Type u} (a b : A) := ¬(a = b)
+@[reducible] def ne {α : Type u} (a b : α) := ¬(a = b)
 notation a ≠ b := ne a b
 
-@[simp] lemma ne.def {A : Type u} (a b : A) : a ≠ b = ¬ (a = b) :=
+@[simp] lemma ne.def {α : Type u} (a b : α) : a ≠ b = ¬ (a = b) :=
 rfl
 
 namespace ne
-  variable {A : Type u}
-  variables {a b : A}
+  variable {α : Type u}
+  variables {a b : α}
 
   lemma intro (h : a = b → false) : a ≠ b := h
 
@@ -126,7 +126,7 @@ namespace ne
   assume (h₁ : b = a), h (h₁^.symm)
 end ne
 
-lemma false_of_ne {A : Type u} {a : A} : a ≠ a → false := ne.irrefl
+lemma false_of_ne {α : Type u} {a : α} : a ≠ a → false := ne.irrefl
 
 section
   variables {p : Prop}
@@ -144,18 +144,18 @@ end
 attribute [refl] heq.refl
 
 section
-variables {A B C : Type u} {a a' : A} {b b' : B} {c : C}
+variables {α β φ : Type u} {a a' : α} {b b' : β} {c : φ}
 
 lemma eq_of_heq (h : a == a') : a = a' :=
-have ∀ (A' : Type u) (a' : A') (h₁ : @heq A a A' a') (h₂ : A = A'), (eq.rec_on h₂ a : A') = a', from
-  λ (A' : Type u) (a' : A') (h₁ : @heq A a A' a'), heq.rec_on h₁ (λ h₂ : A = A, rfl),
-show (eq.rec_on (eq.refl A) a : A) = a', from
-  this A a' h (eq.refl A)
+have ∀ (α' : Type u) (a' : α') (h₁ : @heq α a α' a') (h₂ : α = α'), (eq.rec_on h₂ a : α') = a', from
+  λ (α' : Type u) (a' : α') (h₁ : @heq α a α' a'), heq.rec_on h₁ (λ h₂ : α = α, rfl),
+show (eq.rec_on (eq.refl α) a : α) = a', from
+  this α a' h (eq.refl α)
 
-lemma heq.elim {A : Type u} {a : A} {p : A → Type v} {b : A} (h₁ : a == b)
+lemma heq.elim {α : Type u} {a : α} {p : α → Type v} {b : α} (h₁ : a == b)
 : p a → p b := eq.rec_on (eq_of_heq h₁)
 
-lemma heq.subst {p : ∀ T : Type u, T → Prop} : a == b → p A a → p B b :=
+lemma heq.subst {p : ∀ T : Type u, T → Prop} : a == b → p α a → p β b :=
 heq.rec_on
 
 @[symm] lemma heq.symm (h : a == b) : b == a :=
@@ -173,17 +173,17 @@ heq.trans h₁ (heq_of_eq h₂)
 @[trans] lemma heq_of_eq_of_heq (h₁ : a = a') (h₂ : a' == b) : a == b :=
 heq.trans (heq_of_eq h₁) h₂
 
-def type_eq_of_heq (h : a == b) : A = B :=
-heq.rec_on h (eq.refl A)
+def type_eq_of_heq (h : a == b) : α = β :=
+heq.rec_on h (eq.refl α)
 end
 
-lemma eq_rec_heq {A : Type u} {C : A → Type v} : ∀ {a a' : A} (h : a = a') (p : C a), (eq.rec_on h p : C a') == p
+lemma eq_rec_heq {α : Type u} {φ : α → Type v} : ∀ {a a' : α} (h : a = a') (p : φ a), (eq.rec_on h p : φ a') == p
 | a .a rfl p := heq.refl p
 
-lemma heq_of_eq_rec_left {A : Type u} {C : A → Type v} : ∀ {a a' : A} {p₁ : C a} {p₂ : C a'} (e : a = a') (h₂ : (eq.rec_on e p₁ : C a') = p₂), p₁ == p₂
+lemma heq_of_eq_rec_left {α : Type u} {φ : α → Type v} : ∀ {a a' : α} {p₁ : φ a} {p₂ : φ a'} (e : a = a') (h₂ : (eq.rec_on e p₁ : φ a') = p₂), p₁ == p₂
 | a .a p₁ p₂ (eq.refl .a) h := eq.rec_on h (heq.refl p₁)
 
-lemma heq_of_eq_rec_right {A : Type u} {C : A → Type v} : ∀ {a a' : A} {p₁ : C a} {p₂ : C a'} (e : a' = a) (h₂ : p₁ = eq.rec_on e p₂), p₁ == p₂
+lemma heq_of_eq_rec_right {α : Type u} {φ : α → Type v} : ∀ {a a' : α} {p₁ : φ a} {p₂ : φ a'} (e : a' = a) (h₂ : p₁ = eq.rec_on e p₂), p₁ == p₂
 | a .a p₁ p₂ (eq.refl .a) h :=
   have p₁ = p₂, from h,
   this ▸ heq.refl p₁
@@ -191,20 +191,20 @@ lemma heq_of_eq_rec_right {A : Type u} {C : A → Type v} : ∀ {a a' : A} {p₁
 lemma of_heq_true {a : Prop} (h : a == true) : a :=
 of_eq_true (eq_of_heq h)
 
-lemma eq_rec_compose : ∀ {A B C : Type u} (p₁ : B = C) (p₂ : A = B) (a : A), (eq.rec_on p₁ (eq.rec_on p₂ a : B) : C) = eq.rec_on (eq.trans p₂ p₁) a
-| A .A .A (eq.refl .A) (eq.refl .A) a := rfl
+lemma eq_rec_compose : ∀ {α β φ : Type u} (p₁ : β = φ) (p₂ : α = β) (a : α), (eq.rec_on p₁ (eq.rec_on p₂ a : β) : φ) = eq.rec_on (eq.trans p₂ p₁) a
+| α .α .α (eq.refl .α) (eq.refl .α) a := rfl
 
-lemma eq_rec_eq_eq_rec : ∀ {A₁ A₂ : Type u} {p : A₁ = A₂} {a₁ : A₁} {a₂ : A₂}, (eq.rec_on p a₁ : A₂) = a₂ → a₁ = eq.rec_on (eq.symm p) a₂
-| A .A rfl a .a rfl := rfl
+lemma eq_rec_eq_eq_rec : ∀ {α₁ α₂ : Type u} {p : α₁ = α₂} {a₁ : α₁} {a₂ : α₂}, (eq.rec_on p a₁ : α₂) = a₂ → a₁ = eq.rec_on (eq.symm p) a₂
+| α .α rfl a .a rfl := rfl
 
-lemma eq_rec_of_heq_left : ∀ {A₁ A₂ : Type u} {a₁ : A₁} {a₂ : A₂} (h : a₁ == a₂), (eq.rec_on (type_eq_of_heq h) a₁ : A₂) = a₂
-| A .A a .a (heq.refl .a) := rfl
+lemma eq_rec_of_heq_left : ∀ {α₁ α₂ : Type u} {a₁ : α₁} {a₂ : α₂} (h : a₁ == a₂), (eq.rec_on (type_eq_of_heq h) a₁ : α₂) = a₂
+| α .α a .a (heq.refl .a) := rfl
 
-lemma eq_rec_of_heq_right {A₁ A₂ : Type u} {a₁ : A₁} {a₂ : A₂} (h : a₁ == a₂) : a₁ = eq.rec_on (eq.symm (type_eq_of_heq h)) a₂ :=
+lemma eq_rec_of_heq_right {α₁ α₂ : Type u} {a₁ : α₁} {a₂ : α₂} (h : a₁ == a₂) : a₁ = eq.rec_on (eq.symm (type_eq_of_heq h)) a₂ :=
 eq_rec_eq_eq_rec (eq_rec_of_heq_left h)
 
-lemma cast_heq : ∀ {A B : Type u} (h : A = B) (a : A), cast h a == a
-| A .A (eq.refl .A) a := heq.refl a
+lemma cast_heq : ∀ {α β : Type u} (h : α = β) (a : α), cast h a == a
+| α .α (eq.refl .α) a := heq.refl a
 
 /- and -/
 
@@ -341,13 +341,13 @@ iff_true_intro not_false
 @[congr] lemma not_congr (h : a ↔ b) : ¬a ↔ ¬b :=
 iff.intro (λ h₁ h₂, h₁ (iff.mpr h h₂)) (λ h₁ h₂, h₁ (iff.mp h h₂))
 
-@[simp] lemma ne_self_iff_false {A : Type u} (a : A) : (not (a = a)) ↔ false :=
+@[simp] lemma ne_self_iff_false {α : Type u} (a : α) : (not (a = a)) ↔ false :=
 iff.intro false_of_ne false.elim
 
-@[simp] lemma eq_self_iff_true {A : Type u} (a : A) : (a = a) ↔ true :=
+@[simp] lemma eq_self_iff_true {α : Type u} (a : α) : (a = a) ↔ true :=
 iff_true_intro rfl
 
-@[simp] lemma heq_self_iff_true {A : Type u} (a : A) : (a == a) ↔ true :=
+@[simp] lemma heq_self_iff_true {α : Type u} (a : α) : (a == a) ↔ true :=
 iff_true_intro (heq.refl a)
 
 @[simp] lemma iff_not_self (a : Prop) : (a ↔ ¬a) ↔ false :=
@@ -505,8 +505,8 @@ iff.intro (λ h, trivial) (λ ha h, false.elim h)
 
 /- exists -/
 
-inductive Exists {A : Type u} (p : A → Prop) : Prop
-| intro : ∀ (a : A), p a → Exists
+inductive Exists {α : Type u} (p : α → Prop) : Prop
+| intro : ∀ (a : α), p a → Exists
 
 attribute [intro] Exists.intro
 
@@ -515,54 +515,54 @@ def exists.intro := @Exists.intro
 notation `exists` binders `, ` r:(scoped P, Exists P) := r
 notation `∃` binders `, ` r:(scoped P, Exists P) := r
 
-lemma exists.elim {A : Type u} {p : A → Prop} {b : Prop}
-  (h₁ : ∃ x, p x) (h₂ : ∀ (a : A), p a → b) : b :=
+lemma exists.elim {α : Type u} {p : α → Prop} {b : Prop}
+  (h₁ : ∃ x, p x) (h₂ : ∀ (a : α), p a → b) : b :=
 Exists.rec h₂ h₁
 
 /- exists unique -/
 
-def exists_unique {A : Type u} (p : A → Prop) :=
+def exists_unique {α : Type u} (p : α → Prop) :=
 ∃ x, p x ∧ ∀ y, p y → y = x
 
 notation `∃!` binders `, ` r:(scoped P, exists_unique P) := r
 
 attribute [intro]
-lemma exists_unique.intro {A : Type u} {p : A → Prop} (w : A) (h₁ : p w) (h₂ : ∀ y, p y → y = w) :
+lemma exists_unique.intro {α : Type u} {p : α → Prop} (w : α) (h₁ : p w) (h₂ : ∀ y, p y → y = w) :
   ∃! x, p x :=
 exists.intro w ⟨h₁, h₂⟩
 
 attribute [recursor 4]
-lemma exists_unique.elim {A : Type u} {p : A → Prop} {b : Prop}
+lemma exists_unique.elim {α : Type u} {p : α → Prop} {b : Prop}
     (h₂ : ∃! x, p x) (h₁ : ∀ x, p x → (∀ y, p y → y = x) → b) : b :=
 exists.elim h₂ (λ w hw, h₁ w (and.left hw) (and.right hw))
 
-lemma exists_unique_of_exists_of_unique {A : Type u} {p : A → Prop}
+lemma exists_unique_of_exists_of_unique {α : Type u} {p : α → Prop}
     (hex : ∃ x, p x) (hunique : ∀ y₁ y₂, p y₁ → p y₂ → y₁ = y₂) :  ∃! x, p x :=
 exists.elim hex (λ x px, exists_unique.intro x px (take y, suppose p y, hunique y x this px))
 
-lemma exists_of_exists_unique {A : Type u} {p : A → Prop} (h : ∃! x, p x) : ∃ x, p x :=
+lemma exists_of_exists_unique {α : Type u} {p : α → Prop} (h : ∃! x, p x) : ∃ x, p x :=
 exists.elim h (λ x hx, ⟨x, and.left hx⟩)
 
-lemma unique_of_exists_unique {A : Type u} {p : A → Prop}
-    (h : ∃! x, p x) {y₁ y₂ : A} (py₁ : p y₁) (py₂ : p y₂) : y₁ = y₂ :=
+lemma unique_of_exists_unique {α : Type u} {p : α → Prop}
+    (h : ∃! x, p x) {y₁ y₂ : α} (py₁ : p y₁) (py₂ : p y₂) : y₁ = y₂ :=
 exists_unique.elim h
   (take x, suppose p x,
     assume unique : ∀ y, p y → y = x,
     show y₁ = y₂, from eq.trans (unique _ py₁) (eq.symm (unique _ py₂)))
 
 /- exists, forall, exists unique congruences -/
-@[congr] lemma forall_congr {A : Type u} {p q : A → Prop} (h : ∀ a, (p a ↔ q a)) : (∀ a, p a) ↔ ∀ a, q a :=
+@[congr] lemma forall_congr {α : Type u} {p q : α → Prop} (h : ∀ a, (p a ↔ q a)) : (∀ a, p a) ↔ ∀ a, q a :=
 iff.intro (λ p a, iff.mp (h a) (p a)) (λ q a, iff.mpr (h a) (q a))
 
-lemma exists_imp_exists {A : Type u} {p q : A → Prop} (h : ∀ a, (p a → q a)) (p : ∃ a, p a) : ∃ a, q a :=
+lemma exists_imp_exists {α : Type u} {p q : α → Prop} (h : ∀ a, (p a → q a)) (p : ∃ a, p a) : ∃ a, q a :=
 exists.elim p (λ a hp, ⟨a, h a hp⟩)
 
-@[congr] lemma exists_congr {A : Type u} {p q : A → Prop} (h : ∀ a, (p a ↔ q a)) : (Exists p) ↔ ∃ a, q a :=
+@[congr] lemma exists_congr {α : Type u} {p q : α → Prop} (h : ∀ a, (p a ↔ q a)) : (Exists p) ↔ ∃ a, q a :=
 iff.intro
   (exists_imp_exists (λ a, iff.mp (h a)))
   (exists_imp_exists (λ a, iff.mpr (h a)))
 
-@[congr] lemma exists_unique_congr {A : Type u} {p₁ p₂ : A → Prop} (h : ∀ x, p₁ x ↔ p₂ x) : (exists_unique p₁) ↔ (∃! x, p₂ x) := --
+@[congr] lemma exists_unique_congr {α : Type u} {p₁ p₂ : α → Prop} (h : ∀ x, p₁ x ↔ p₂ x) : (exists_unique p₁) ↔ (∃! x, p₂ x) := --
 exists_congr (λ x, and_congr (h x) (forall_congr (λ y, imp_congr (h y) iff.rfl)))
 
 /- decidable -/
@@ -580,12 +580,12 @@ is_false not_false
 
 -- We use "dependent" if-then-else to be able to communicate the if-then-else condition
 -- to the branches
-@[inline] def dite (c : Prop) [h : decidable c] {A : Type u} : (c → A) → (¬ c → A) → A :=
+@[inline] def dite (c : Prop) [h : decidable c] {α : Type u} : (c → α) → (¬ c → α) → α :=
 λ t e, decidable.rec_on h e t
 
 /- if-then-else -/
 
-@[inline] def ite (c : Prop) [h : decidable c] {A : Type u} (t e : A) : A :=
+@[inline] def ite (c : Prop) [h : decidable c] {α : Type u} (t e : α) : α :=
 decidable.rec_on h (λ hnc, e) (λ hc, t)
 
 namespace decidable
@@ -599,7 +599,7 @@ namespace decidable
       : decidable.rec_on h h₂ h₁ :=
   decidable.rec_on h (λ h, h₄) (λ h, false.rec _ (h₃ h))
 
-  def by_cases {q : Type u} [C : decidable p] : (p → q) → (¬p → q) → q := dite _
+  def by_cases {q : Type u} [φ : decidable p] : (p → q) → (¬p → q) → q := dite _
 
   lemma em (p : Prop) [decidable p] : p ∨ ¬p := by_cases or.inl or.inr
 
@@ -616,8 +616,8 @@ section
   def  decidable_of_decidable_of_eq (hp : decidable p) (h : p = q) : decidable q :=
   decidable_of_decidable_of_iff hp h^.to_iff
 
-  protected def or.by_cases [decidable p] [decidable q] {A : Type u}
-                                   (h : p ∨ q) (h₁ : p → A) (h₂ : q → A) : A :=
+  protected def or.by_cases [decidable p] [decidable q] {α : Type u}
+                                   (h : p ∨ q) (h₁ : p → α) (h₂ : q → α) : α :=
   if hp : p then h₁ hp else
     if hq : q then h₂ hq else
       false.rec _ (or.elim h hp hq)
@@ -650,14 +650,14 @@ section
   and.decidable
 end
 
-instance {A : Type u} [decidable_eq A] (a b : A) : decidable (a ≠ b) :=
+instance {α : Type u} [decidable_eq α] (a b : α) : decidable (a ≠ b) :=
 implies.decidable
 
 lemma bool.ff_ne_tt : ff = tt → false
 .
 
-def is_dec_eq {A : Type u} (p : A → A → bool) : Prop   := ∀ ⦃x y : A⦄, p x y = tt → x = y
-def is_dec_refl {A : Type u} (p : A → A → bool) : Prop := ∀ x, p x x = tt
+def is_dec_eq {α : Type u} (p : α → α → bool) : Prop   := ∀ ⦃x y : α⦄, p x y = tt → x = y
+def is_dec_refl {α : Type u} (p : α → α → bool) : Prop := ∀ x, p x x = tt
 
 open decidable
 instance : decidable_eq bool
@@ -666,18 +666,18 @@ instance : decidable_eq bool
 | tt ff := is_false (ne.symm bool.ff_ne_tt)
 | tt tt := is_true rfl
 
-def decidable_eq_of_bool_pred {A : Type u} {p : A → A → bool} (h₁ : is_dec_eq p) (h₂ : is_dec_refl p) : decidable_eq A :=
-take x y : A,
+def decidable_eq_of_bool_pred {α : Type u} {p : α → α → bool} (h₁ : is_dec_eq p) (h₂ : is_dec_refl p) : decidable_eq α :=
+take x y : α,
  if hp : p x y = tt then is_true (h₁ hp)
  else is_false (assume hxy : x = y, absurd (h₂ y) (@eq.rec_on _ _ (λ z, ¬p z y = tt) _ hxy hp))
 
-lemma decidable_eq_inl_refl {A : Type u} [h : decidable_eq A] (a : A) : h a a = is_true (eq.refl a) :=
+lemma decidable_eq_inl_refl {α : Type u} [h : decidable_eq α] (a : α) : h a a = is_true (eq.refl a) :=
 match (h a a) with
 | (is_true e)  := rfl
 | (is_false n) := absurd rfl n
 end
 
-lemma decidable_eq_inr_neg {A : Type u} [h : decidable_eq A] {a b : A} : Π n : a ≠ b, h a b = is_false n :=
+lemma decidable_eq_inr_neg {α : Type u} [h : decidable_eq α] {a b : α} : Π n : a ≠ b, h a b = is_false n :=
 assume n,
 match (h a b) with
 | (is_true e)   := absurd e n
@@ -686,23 +686,23 @@ end
 
 /- inhabited -/
 
-class inhabited (A : Type u) :=
-(default : A)
+class inhabited (α : Type u) :=
+(default : α)
 
-def default (A : Type u) [inhabited A] : A :=
-inhabited.default A
+def default (α : Type u) [inhabited α] : α :=
+inhabited.default α
 
-@[inline, irreducible] def arbitrary (A : Type u) [inhabited A] : A :=
-default A
+@[inline, irreducible] def arbitrary (α : Type u) [inhabited α] : α :=
+default α
 
 instance prop.inhabited : inhabited Prop :=
 ⟨true⟩
 
-instance fun.inhabited (A : Type u) {B : Type v} [h : inhabited B] : inhabited (A → B) :=
+instance fun.inhabited (α : Type u) {β : Type v} [h : inhabited β] : inhabited (α → β) :=
 inhabited.rec_on h (λ b, ⟨λ a, b⟩)
 
-instance pi.inhabited (A : Type u) {B : A → Type v} [Π x, inhabited (B x)] : inhabited (Π x, B x) :=
-⟨λ a, default (B a)⟩
+instance pi.inhabited (α : Type u) {β : α → Type v} [Π x, inhabited (β x)] : inhabited (Π x, β x) :=
+⟨λ a, default (β a)⟩
 
 instance : inhabited bool :=
 ⟨ff⟩
@@ -713,28 +713,28 @@ instance : inhabited pos_num :=
 instance : inhabited num :=
 ⟨num.zero⟩
 
-class inductive nonempty (A : Type u) : Prop
-| intro : A → nonempty
+class inductive nonempty (α : Type u) : Prop
+| intro : α → nonempty
 
-protected def nonempty.elim {A : Type u} {p : Prop} (h₁ : nonempty A) (h₂ : A → p) : p :=
+protected def nonempty.elim {α : Type u} {p : Prop} (h₁ : nonempty α) (h₂ : α → p) : p :=
 nonempty.rec h₂ h₁
 
-instance nonempty_of_inhabited {A : Type u} [inhabited A] : nonempty A :=
-⟨default A⟩
+instance nonempty_of_inhabited {α : Type u} [inhabited α] : nonempty α :=
+⟨default α⟩
 
-lemma nonempty_of_exists {A : Type u} {p : A → Prop} : (∃ x, p x) → nonempty A
+lemma nonempty_of_exists {α : Type u} {p : α → Prop} : (∃ x, p x) → nonempty α
 | ⟨w, h⟩ := ⟨w⟩
 
 /- subsingleton -/
 
-class inductive subsingleton (A : Type u) : Prop
-| intro : (∀ a b : A, a = b) → subsingleton
+class inductive subsingleton (α : Type u) : Prop
+| intro : (∀ a b : α, a = b) → subsingleton
 
-protected def subsingleton.elim {A : Type u} [h : subsingleton A] : ∀ (a b : A), a = b :=
+protected def subsingleton.elim {α : Type u} [h : subsingleton α] : ∀ (a b : α), a = b :=
 subsingleton.rec (λ p, p) h
 
-protected def subsingleton.helim {A B : Type u} [h : subsingleton A] (h : A = B) : ∀ (a : A) (b : B), a == b :=
-eq.rec_on h (λ a b : A, heq_of_eq (subsingleton.elim a b))
+protected def subsingleton.helim {α β : Type u} [h : subsingleton α] (h : α = β) : ∀ (a : α) (b : β), a == b :=
+eq.rec_on h (λ a b : α, heq_of_eq (subsingleton.elim a b))
 
 instance subsingleton_prop (p : Prop) : subsingleton p :=
 ⟨λ a b, proof_irrel a b⟩
@@ -762,20 +762,20 @@ match h with
 | (is_false h) := h₄ h
 end
 
-lemma if_pos {c : Prop} [h : decidable c] (hc : c) {A : Type u} {t e : A} : (ite c t e) = t :=
+lemma if_pos {c : Prop} [h : decidable c] (hc : c) {α : Type u} {t e : α} : (ite c t e) = t :=
 match h with
 | (is_true  hc)  := rfl
 | (is_false hnc) := absurd hc hnc
 end
 
-lemma if_neg {c : Prop} [h : decidable c] (hnc : ¬c) {A : Type u} {t e : A} : (ite c t e) = e :=
+lemma if_neg {c : Prop} [h : decidable c] (hnc : ¬c) {α : Type u} {t e : α} : (ite c t e) = e :=
 match h with
 | (is_true hc)   := absurd hc hnc
 | (is_false hnc) := rfl
 end
 
 attribute [simp]
-lemma if_t_t (c : Prop) [h : decidable c] {A : Type u} (t : A) : (ite c t t) = t :=
+lemma if_t_t (c : Prop) [h : decidable c] {α : Type u} (t : α) : (ite c t t) = t :=
 match h with
 | (is_true hc)   := rfl
 | (is_false hnc) := rfl
@@ -787,8 +787,8 @@ assume hc, eq.rec_on (if_pos hc : ite c t e = t) h
 lemma implies_of_if_neg {c t e : Prop} [decidable c] (h : ite c t e) : ¬c → e :=
 assume hnc, eq.rec_on (if_neg hnc : ite c t e = e) h
 
-lemma if_ctx_congr {A : Type u} {b c : Prop} [dec_b : decidable b] [dec_c : decidable c]
-                   {x y u v : A}
+lemma if_ctx_congr {α : Type u} {b c : Prop} [dec_b : decidable b] [dec_c : decidable c]
+                   {x y u v : α}
                    (h_c : b ↔ c) (h_t : c → x = u) (h_e : ¬c → y = v) :
         ite b x y = ite c u v :=
 match dec_b, dec_c with
@@ -799,29 +799,29 @@ match dec_b, dec_c with
 end
 
 @[congr]
-lemma if_congr {A : Type u} {b c : Prop} [dec_b : decidable b] [dec_c : decidable c]
-               {x y u v : A}
+lemma if_congr {α : Type u} {b c : Prop} [dec_b : decidable b] [dec_c : decidable c]
+               {x y u v : α}
                (h_c : b ↔ c) (h_t : x = u) (h_e : y = v) :
         ite b x y = ite c u v :=
-@if_ctx_congr A b c dec_b dec_c x y u v h_c (λ h, h_t) (λ h, h_e)
+@if_ctx_congr α b c dec_b dec_c x y u v h_c (λ h, h_t) (λ h, h_e)
 
-lemma if_ctx_simp_congr {A : Type u} {b c : Prop} [dec_b : decidable b] {x y u v : A}
+lemma if_ctx_simp_congr {α : Type u} {b c : Prop} [dec_b : decidable b] {x y u v : α}
                         (h_c : b ↔ c) (h_t : c → x = u) (h_e : ¬c → y = v) :
-        ite b x y = (@ite c (decidable_of_decidable_of_iff dec_b h_c) A u v) :=
-@if_ctx_congr A b c dec_b (decidable_of_decidable_of_iff dec_b h_c) x y u v h_c h_t h_e
+        ite b x y = (@ite c (decidable_of_decidable_of_iff dec_b h_c) α u v) :=
+@if_ctx_congr α b c dec_b (decidable_of_decidable_of_iff dec_b h_c) x y u v h_c h_t h_e
 
 @[congr]
-lemma if_simp_congr {A : Type u} {b c : Prop} [dec_b : decidable b] {x y u v : A}
+lemma if_simp_congr {α : Type u} {b c : Prop} [dec_b : decidable b] {x y u v : α}
                     (h_c : b ↔ c) (h_t : x = u) (h_e : y = v) :
-        ite b x y = (@ite c (decidable_of_decidable_of_iff dec_b h_c) A u v) :=
-@if_ctx_simp_congr A b c dec_b x y u v h_c (λ h, h_t) (λ h, h_e)
+        ite b x y = (@ite c (decidable_of_decidable_of_iff dec_b h_c) α u v) :=
+@if_ctx_simp_congr α b c dec_b x y u v h_c (λ h, h_t) (λ h, h_e)
 
 @[simp]
-def if_true {A : Type u} (t e : A) : (if true then t else e) = t :=
+def if_true {α : Type u} (t e : α) : (if true then t else e) = t :=
 if_pos trivial
 
 @[simp]
-def if_false {A : Type u} (t e : A) : (if false then t else e) = e :=
+def if_false {α : Type u} (t e : α) : (if false then t else e) = e :=
 if_neg not_false
 
 lemma if_ctx_congr_prop {b c x y u v : Prop} [dec_b : decidable b] [dec_c : decidable c]
@@ -851,24 +851,24 @@ lemma if_simp_congr_prop {b c x y u v : Prop} [dec_b : decidable b]
         ite b x y ↔ (@ite c (decidable_of_decidable_of_iff dec_b h_c) Prop u v) :=
 @if_ctx_simp_congr_prop b c x y u v dec_b h_c (λ h, h_t) (λ h, h_e)
 
-lemma dif_pos {c : Prop} [h : decidable c] (hc : c) {A : Type u} {t : c → A} {e : ¬ c → A} : dite c t e = t hc :=
+lemma dif_pos {c : Prop} [h : decidable c] (hc : c) {α : Type u} {t : c → α} {e : ¬ c → α} : dite c t e = t hc :=
 match h with
 | (is_true hc)   := rfl
 | (is_false hnc) := absurd hc hnc
 end
 
-lemma dif_neg {c : Prop} [h : decidable c] (hnc : ¬c) {A : Type u} {t : c → A} {e : ¬ c → A} : dite c t e = e hnc :=
+lemma dif_neg {c : Prop} [h : decidable c] (hnc : ¬c) {α : Type u} {t : c → α} {e : ¬ c → α} : dite c t e = e hnc :=
 match h with
 | (is_true hc)   := absurd hc hnc
 | (is_false hnc) := rfl
 end
 
-lemma dif_ctx_congr {A : Type u} {b c : Prop} [dec_b : decidable b] [dec_c : decidable c]
-                    {x : b → A} {u : c → A} {y : ¬b → A} {v : ¬c → A}
+lemma dif_ctx_congr {α : Type u} {b c : Prop} [dec_b : decidable b] [dec_c : decidable c]
+                    {x : b → α} {u : c → α} {y : ¬b → α} {v : ¬c → α}
                     (h_c : b ↔ c)
                     (h_t : ∀ (h : c),    x (iff.mpr h_c h)                      = u h)
                     (h_e : ∀ (h : ¬c),   y (iff.mpr (not_iff_not_of_iff h_c) h) = v h) :
-        (@dite b dec_b A x y) = (@dite c dec_c A u v) :=
+        (@dite b dec_b α x y) = (@dite c dec_c α u v) :=
 match dec_b, dec_c with
 | (is_false h₁), (is_false h₂) := h_e h₂
 | (is_true h₁),  (is_true h₂)  := h_t h₂
@@ -876,16 +876,16 @@ match dec_b, dec_c with
 | (is_true h₁),  (is_false h₂) := absurd h₁ (iff.mpr (not_iff_not_of_iff h_c) h₂)
 end
 
-lemma dif_ctx_simp_congr {A : Type u} {b c : Prop} [dec_b : decidable b]
-                         {x : b → A} {u : c → A} {y : ¬b → A} {v : ¬c → A}
+lemma dif_ctx_simp_congr {α : Type u} {b c : Prop} [dec_b : decidable b]
+                         {x : b → α} {u : c → α} {y : ¬b → α} {v : ¬c → α}
                          (h_c : b ↔ c)
                          (h_t : ∀ (h : c),    x (iff.mpr h_c h)                      = u h)
                          (h_e : ∀ (h : ¬c),   y (iff.mpr (not_iff_not_of_iff h_c) h) = v h) :
-        (@dite b dec_b A x y) = (@dite c (decidable_of_decidable_of_iff dec_b h_c) A u v) :=
-@dif_ctx_congr A b c dec_b (decidable_of_decidable_of_iff dec_b h_c) x u y v h_c h_t h_e
+        (@dite b dec_b α x y) = (@dite c (decidable_of_decidable_of_iff dec_b h_c) α u v) :=
+@dif_ctx_congr α b c dec_b (decidable_of_decidable_of_iff dec_b h_c) x u y v h_c h_t h_e
 
 -- Remark: dite and ite are "defally equal" when we ignore the proofs.
-lemma dite_ite_eq (c : Prop) [h : decidable c] {A : Type u} (t : A) (e : A) : dite c (λ h, t) (λ h, e) = ite c t e :=
+lemma dite_ite_eq (c : Prop) [h : decidable c] {α : Type u} (t : α) (e : α) : dite c (λ h, t) (λ h, e) = ite c t e :=
 match h with
 | (is_true hc)   := rfl
 | (is_false hnc) := rfl
@@ -904,31 +904,31 @@ match h₁, h₂ with
 end
 
 /- Universe lifting operation -/
-structure {r s} ulift (A : Type s) : Type (max 1 s r) :=
-up :: (down : A)
+structure {r s} ulift (α : Type s) : Type (max 1 s r) :=
+up :: (down : α)
 
 namespace ulift
-/- Bijection between A and ulift.{v} A -/
-lemma up_down {A : Type u} : ∀ (b : ulift.{v} A), up (down b) = b
+/- βijection between α and ulift.{v} α -/
+lemma up_down {α : Type u} : ∀ (b : ulift.{v} α), up (down b) = b
 | (up a) := rfl
 
-lemma down_up {A : Type u} (a : A) : down (up.{v} a) = a :=
+lemma down_up {α : Type u} (a : α) : down (up.{v} a) = a :=
 rfl
 end ulift
 
 /- Equalities for rewriting let-expressions -/
-lemma let_value_eq {A : Type u} {B : Type v} {a₁ a₂ : A} (b : A → B) :
-                   a₁ = a₂ → (let x : A := a₁ in b x) = (let x : A := a₂ in b x) :=
+lemma let_value_eq {α : Type u} {β : Type v} {a₁ a₂ : α} (b : α → β) :
+                   a₁ = a₂ → (let x : α := a₁ in b x) = (let x : α := a₂ in b x) :=
 λ h, eq.rec_on h rfl
 
-lemma let_value_heq {A : Type v} {B : A → Type u} {a₁ a₂ : A} (b : Π x : A, B x) :
-                    a₁ = a₂ → (let x : A := a₁ in b x) == (let x : A := a₂ in b x) :=
+lemma let_value_heq {α : Type v} {β : α → Type u} {a₁ a₂ : α} (b : Π x : α, β x) :
+                    a₁ = a₂ → (let x : α := a₁ in b x) == (let x : α := a₂ in b x) :=
 λ h, eq.rec_on h (heq.refl (b a₁))
 
-lemma let_body_eq {A : Type v} {B : A → Type u} (a : A) {b₁ b₂ : Π x : A, B x} :
-                  (∀ x, b₁ x = b₂ x) → (let x : A := a in b₁ x) = (let x : A := a in b₂ x) :=
+lemma let_body_eq {α : Type v} {β : α → Type u} (a : α) {b₁ b₂ : Π x : α, β x} :
+                  (∀ x, b₁ x = b₂ x) → (let x : α := a in b₁ x) = (let x : α := a in b₂ x) :=
 λ h, h a
 
-lemma let_eq {A : Type v} {B : Type u} {a₁ a₂ : A} {b₁ b₂ : A → B} :
-             a₁ = a₂ → (∀ x, b₁ x = b₂ x) → (let x : A := a₁ in b₁ x) = (let x : A := a₂ in b₂ x) :=
+lemma let_eq {α : Type v} {β : Type u} {a₁ a₂ : α} {b₁ b₂ : α → β} :
+             a₁ = a₂ → (∀ x, b₁ x = b₂ x) → (let x : α := a₁ in b₁ x) = (let x : α := a₂ in b₂ x) :=
 λ h₁ h₂, eq.rec_on h₁ (h₂ a₁)

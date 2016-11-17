@@ -49,7 +49,7 @@ meta constant inductive_dep_elim : environment → name → bool
 /- Return tt iff the given name is a generalized inductive datatype -/
 meta constant is_ginductive : environment → name → bool
 /- Fold over declarations in the environment -/
-meta constant fold {A :Type} : environment → A → (declaration → A → A) → A
+meta constant fold {α :Type} : environment → α → (declaration → α → α) → α
 /- (relation_info env n) returns some value if n is marked as a relation in the given environment.
    the tuple contains: total number of arguments of the relation, lhs position and rhs position. -/
 meta constant relation_info : environment → name → option (nat × nat × nat)

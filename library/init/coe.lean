@@ -27,123 +27,123 @@ prelude
 import init.list init.subtype init.prod
 universe variables u v
 
-class has_lift (A : Type u) (B : Type v) :=
-(lift : A → B)
+class has_lift (a : Type u) (b : Type v) :=
+(lift : a → b)
 
-/- Auxiliary class that contains the transitive closure of has_lift. -/
-class has_lift_t (A : Type u) (B : Type v) :=
-(lift : A → B)
+/- auxiliary class that contains the transitive closure of has_lift. -/
+class has_lift_t (a : Type u) (b : Type v) :=
+(lift : a → b)
 
-class has_coe (A : Type u) (B : Type v) :=
-(coe : A → B)
+class has_coe (a : Type u) (b : Type v) :=
+(coe : a → b)
 
-/- Auxiliary class that contains the transitive closure of has_coe. -/
-class has_coe_t (A : Type u) (B : Type v) :=
-(coe : A → B)
+/- auxiliary class that contains the transitive closure of has_coe. -/
+class has_coe_t (a : Type u) (b : Type v) :=
+(coe : a → b)
 
-class has_coe_to_fun (A : Type u) : Type (max u (v+1)) :=
-(F : A → Type v) (coe : Π a, F a)
+class has_coe_to_fun (a : Type u) : Type (max u (v+1)) :=
+(F : a → Type v) (coe : Π x, F x)
 
-class has_coe_to_sort (A : Type u) : Type (max u (v+1)) :=
-(S : Type v) (coe : A → S)
+class has_coe_to_sort (a : Type u) : Type (max u (v+1)) :=
+(S : Type v) (coe : a → S)
 
-def lift {A : Type u} {B : Type v} [has_lift A B] : A → B :=
-@has_lift.lift A B _
+def lift {a : Type u} {b : Type v} [has_lift a b] : a → b :=
+@has_lift.lift a b _
 
-def lift_t {A : Type u} {B : Type v} [has_lift_t A B] : A → B :=
-@has_lift_t.lift A B _
+def lift_t {a : Type u} {b : Type v} [has_lift_t a b] : a → b :=
+@has_lift_t.lift a b _
 
-def coe_b {A : Type u} {B : Type v} [has_coe A B] : A → B :=
-@has_coe.coe A B _
+def coe_b {a : Type u} {b : Type v} [has_coe a b] : a → b :=
+@has_coe.coe a b _
 
-def coe_t {A : Type u} {B : Type v} [has_coe_t A B] : A → B :=
-@has_coe_t.coe A B _
+def coe_t {a : Type u} {b : Type v} [has_coe_t a b] : a → b :=
+@has_coe_t.coe a b _
 
-def coe_fn_b {A : Type u} [has_coe_to_fun.{u v} A] : Π a : A, has_coe_to_fun.F.{u v} a :=
+def coe_fn_b {a : Type u} [has_coe_to_fun.{u v} a] : Π x : a, has_coe_to_fun.F.{u v} x :=
 has_coe_to_fun.coe
 
 /- User level coercion operators -/
 
-def coe {A : Type u} {B : Type v} [has_lift_t A B] : A → B :=
+def coe {a : Type u} {b : Type v} [has_lift_t a b] : a → b :=
 lift_t
 
-def coe_fn {A : Type u} [has_coe_to_fun.{u v} A] : Π a : A, has_coe_to_fun.F.{u v} a :=
+def coe_fn {a : Type u} [has_coe_to_fun.{u v} a] : Π x : a, has_coe_to_fun.F.{u v} x :=
 has_coe_to_fun.coe
 
-def coe_sort {A : Type u} [has_coe_to_sort.{u v} A] : A → has_coe_to_sort.S.{u v} A :=
+def coe_sort {a : Type u} [has_coe_to_sort.{u v} a] : a → has_coe_to_sort.S.{u v} a :=
 has_coe_to_sort.coe
 
 /- Notation -/
 
-notation `↑`:max a:max := coe a
+notation `↑`:max x:max := coe x
 
-notation `⇑`:max a:max := coe_fn a
+notation `⇑`:max x:max := coe_fn x
 
-notation `↥`:max a:max := coe_sort a
+notation `↥`:max x:max := coe_sort x
 
 universe variables u₁ u₂ u₃
 
 /- Transitive closure for has_lift, has_coe, has_coe_to_fun -/
 
-instance lift_trans {A : Type u₁} {B : Type u₂} {C : Type u₃} [has_lift A B] [has_lift_t B C] : has_lift_t A C :=
-⟨λ a, lift_t (lift a : B)⟩
+instance lift_trans {a : Type u₁} {b : Type u₂} {c : Type u₃} [has_lift a b] [has_lift_t b c] : has_lift_t a c :=
+⟨λ x, lift_t (lift x : b)⟩
 
-instance lift_base {A : Type u} {B : Type v} [has_lift A B] : has_lift_t A B :=
+instance lift_base {a : Type u} {b : Type v} [has_lift a b] : has_lift_t a b :=
 ⟨lift⟩
 
-instance coe_trans {A : Type u₁} {B : Type u₂} {C : Type u₃} [has_coe A B] [has_coe_t B C] : has_coe_t A C :=
-⟨λ a, coe_t (coe_b a : B)⟩
+instance coe_trans {a : Type u₁} {b : Type u₂} {c : Type u₃} [has_coe a b] [has_coe_t b c] : has_coe_t a c :=
+⟨λ x, coe_t (coe_b x : b)⟩
 
-instance coe_base {A : Type u} {B : Type v} [has_coe A B] : has_coe_t A B :=
+instance coe_base {a : Type u} {b : Type v} [has_coe a b] : has_coe_t a b :=
 ⟨coe_b⟩
 
-instance coe_fn_trans {A : Type u₁} {B : Type u₂} [has_lift_t A B] [has_coe_to_fun.{u₂ u₃} B] : has_coe_to_fun.{u₁ u₃} A :=
-{ F   := λ a, @has_coe_to_fun.F.{u₂ u₃} B _ (coe a),
-  coe := λ a, coe_fn (coe a) }
+instance coe_fn_trans {a : Type u₁} {b : Type u₂} [has_lift_t a b] [has_coe_to_fun.{u₂ u₃} b] : has_coe_to_fun.{u₁ u₃} a :=
+{ F   := λ x, @has_coe_to_fun.F.{u₂ u₃} b _ (coe x),
+  coe := λ x, coe_fn (coe x) }
 
-instance coe_sort_trans {A : Type u₁} {B : Type u₂} [has_lift_t A B] [has_coe_to_sort.{u₂ u₃} B] : has_coe_to_sort.{u₁ u₃} A :=
-{ S   := has_coe_to_sort.S.{u₂ u₃} B,
-  coe := λ a, coe_sort (coe a) }
+instance coe_sort_trans {a : Type u₁} {b : Type u₂} [has_lift_t a b] [has_coe_to_sort.{u₂ u₃} b] : has_coe_to_sort.{u₁ u₃} a :=
+{ S   := has_coe_to_sort.S.{u₂ u₃} b,
+  coe := λ x, coe_sort (coe x) }
 
 /- Every coercion is also a lift -/
 
-instance coe_to_lift {A : Type u} {B : Type v} [has_coe_t A B] : has_lift_t A B :=
+instance coe_to_lift {a : Type u} {b : Type v} [has_coe_t a b] : has_lift_t a b :=
 ⟨coe_t⟩
 
-/- Basic coercions -/
+/- basic coercions -/
 
 instance coe_bool_to_Prop : has_coe bool Prop :=
-⟨λ b, b = tt⟩
+⟨λ y, y = tt⟩
 
-instance coe_decidable_eq (b : bool) : decidable (coe b) :=
-show decidable (b = tt), from bool.decidable_eq b tt
+instance coe_decidable_eq (x : bool) : decidable (coe x) :=
+show decidable (x = tt), from bool.decidable_eq x tt
 
-instance coe_subtype {A : Type u} {p : A → Prop} : has_coe {a // p a} A :=
+instance coe_subtype {a : Type u} {p : a → Prop} : has_coe {x // p x} a :=
 ⟨λ s, subtype.elt_of s⟩
 
-/- Basic lifts -/
+/- basic lifts -/
 
 universe variables ua ua₁ ua₂ ub ub₁ ub₂
 
-/- Remark: we can't use [has_lift_t A₂ A₁] since it will produce non-termination whenever a type class resolution
+/- Remark: we cant use [has_lift_t a₂ a₁] since it will produce non-termination whenever a type class resolution
    problem does not have a solution. -/
-instance lift_fn {A₁ : Type ua₁} {A₂ : Type ua₂} {B₁ : Type ub₁} {B₂ : Type ub₂} [has_lift A₂ A₁] [has_lift_t B₁ B₂] : has_lift (A₁ → B₁) (A₂ → B₂) :=
-⟨λ f a, ↑(f ↑a)⟩
+instance lift_fn {a₁ : Type ua₁} {a₂ : Type ua₂} {b₁ : Type ub₁} {b₂ : Type ub₂} [has_lift a₂ a₁] [has_lift_t b₁ b₂] : has_lift (a₁ → b₁) (a₂ → b₂) :=
+⟨λ f x, ↑(f ↑x)⟩
 
-instance lift_fn_range {A : Type ua} {B₁ : Type ub₁} {B₂ : Type ub₂} [has_lift_t B₁ B₂] : has_lift (A → B₁) (A → B₂) :=
-⟨λ f a, ↑(f a)⟩
+instance lift_fn_range {a : Type ua} {b₁ : Type ub₁} {b₂ : Type ub₂} [has_lift_t b₁ b₂] : has_lift (a → b₁) (a → b₂) :=
+⟨λ f x, ↑(f x)⟩
 
-instance lift_fn_dom {A₁ : Type ua₁} {A₂ : Type ua₂} {B : Type ub} [has_lift A₂ A₁] : has_lift (A₁ → B) (A₂ → B) :=
-⟨λ f a, f ↑a⟩
+instance lift_fn_dom {a₁ : Type ua₁} {a₂ : Type ua₂} {b : Type ub} [has_lift a₂ a₁] : has_lift (a₁ → b) (a₂ → b) :=
+⟨λ f x, f ↑x⟩
 
-instance lift_pair {A₁ : Type ua₁} {A₂ : Type ub₂} {B₁ : Type ub₁} {B₂ : Type ub₂} [has_lift_t A₁ A₂] [has_lift_t B₁ B₂] : has_lift (A₁ × B₁) (A₂ × B₂) :=
-⟨λ p, prod.cases_on p (λ a b, (↑a, ↑b))⟩
+instance lift_pair {a₁ : Type ua₁} {a₂ : Type ub₂} {b₁ : Type ub₁} {b₂ : Type ub₂} [has_lift_t a₁ a₂] [has_lift_t b₁ b₂] : has_lift (a₁ × b₁) (a₂ × b₂) :=
+⟨λ p, prod.cases_on p (λ x y, (↑x, ↑y))⟩
 
-instance lift_pair₁ {A₁ : Type ua₁} {A₂ : Type ua₂} {B : Type ub} [has_lift_t A₁ A₂] : has_lift (A₁ × B) (A₂ × B) :=
-⟨λ p, prod.cases_on p (λ a b, (↑a, b))⟩
+instance lift_pair₁ {a₁ : Type ua₁} {a₂ : Type ua₂} {b : Type ub} [has_lift_t a₁ a₂] : has_lift (a₁ × b) (a₂ × b) :=
+⟨λ p, prod.cases_on p (λ x y, (↑x, y))⟩
 
-instance lift_pair₂ {A : Type ua} {B₁ : Type ub₁} {B₂ : Type ub₂} [has_lift_t B₁ B₂] : has_lift (A × B₁) (A × B₂) :=
-⟨λ p, prod.cases_on p (λ a b, (a, ↑b))⟩
+instance lift_pair₂ {a : Type ua} {b₁ : Type ub₁} {b₂ : Type ub₂} [has_lift_t b₁ b₂] : has_lift (a × b₁) (a × b₂) :=
+⟨λ p, prod.cases_on p (λ x y, (x, ↑y))⟩
 
-instance lift_list {A : Type u} {B : Type v} [has_lift_t A B] : has_lift (list A) (list B) :=
-⟨λ l, list.map (@coe A B _) l⟩
+instance lift_list {a : Type u} {b : Type v} [has_lift_t a b] : has_lift (list a) (list b) :=
+⟨λ l, list.map (@coe a b _) l⟩

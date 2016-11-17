@@ -6,10 +6,10 @@ Authors: Luke Nelson and Jared Roesch
 prelude
 universe variables u v
 
-class functor (F : Type u → Type v) : Type (max u+1 v) :=
-(map : Π {A B : Type u}, (A → B) → F A → F B)
+class functor (f : Type u → Type v) : Type (max u+1 v) :=
+(map : Π {a b : Type u}, (a → b) → f a → f b)
 
-@[inline] def fmap {F : Type u → Type v} [functor F] {A B : Type u} : (A → B) → F A → F B :=
+@[inline] def fmap {f : Type u → Type v} [functor f] {a b : Type u} : (a → b) → f a → f b :=
 functor.map
 
 infixr ` <$> `:100 := fmap

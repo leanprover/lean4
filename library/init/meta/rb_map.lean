@@ -17,7 +17,7 @@ meta constant contains {key : Type} {data : Type}       : rb_map key data → ke
 meta constant find {key : Type} {data : Type}           : rb_map key data → key → option data
 meta constant min {key : Type} {data : Type}            : rb_map key data → option data
 meta constant max {key : Type} {data : Type}            : rb_map key data → option data
-meta constant fold {key : Type} {data : Type} {A :Type} : rb_map key data → A → (key → data → A → A) → A
+meta constant fold {key : Type} {data : Type} {α :Type} : rb_map key data → α → (key → data → α → α) → α
 
 attribute [inline]
 meta def mk (key : Type) [has_ordering key] (data : Type) : rb_map key data :=

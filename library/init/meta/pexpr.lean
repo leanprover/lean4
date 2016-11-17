@@ -20,10 +20,10 @@ meta constant pexpr.to_string : pexpr → string
 meta instance : has_to_string pexpr :=
 ⟨pexpr.to_string⟩
 
-meta class has_to_pexpr (A : Type u) :=
-(to_pexpr : A → pexpr)
+meta class has_to_pexpr (α : Type u) :=
+(to_pexpr : α → pexpr)
 
-meta def to_pexpr {A : Type u} [has_to_pexpr A] : A → pexpr :=
+meta def to_pexpr {α : Type u} [has_to_pexpr α] : α → pexpr :=
 has_to_pexpr.to_pexpr
 
 meta instance : has_to_pexpr pexpr :=

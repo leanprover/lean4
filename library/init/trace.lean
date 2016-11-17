@@ -5,5 +5,5 @@ prelude
 import init.string
 
 /- This function has a native implementation that displays the given string in the regular output stream. -/
-def trace {A : Type} (s : string) (f : unit → A) : A :=
+def trace {α : Type} (s : string) (f : unit → α) : α :=
 f ()

@@ -17,8 +17,8 @@ structure user_attribute :=
    `user_attribute` or a sub-structure. -/
 meta constant attribute.register : name → command
 
-meta structure caching_user_attribute (A : Type) extends user_attribute :=
-(mk_cache     : list _root_.name → tactic A)
+meta structure caching_user_attribute (α : Type) extends user_attribute :=
+(mk_cache     : list _root_.name → tactic α)
 (dependencies : list _root_.name)
 
-meta constant caching_user_attribute.get_cache : Π {A : Type}, caching_user_attribute A → tactic A
+meta constant caching_user_attribute.get_cache : Π {α : Type}, caching_user_attribute α → tactic α

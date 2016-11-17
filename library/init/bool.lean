@@ -4,9 +4,9 @@
 prelude
 import init.core
 
-@[inline] def {u} cond {A : Type u} : bool → A → A → A
-| tt a b := a
-| ff a b := b
+@[inline] def {u} cond {a : Type u} : bool → a → a → a
+| tt x y := x
+| ff x y := y
 
 @[inline] def bor : bool → bool → bool
 | tt _  := tt
@@ -27,5 +27,5 @@ import init.core
 | ff tt  := tt
 | _  _   := ff
 
-notation a || b := bor a b
-notation a && b := band a b
+notation x || y := bor x y
+notation x && y := band x y

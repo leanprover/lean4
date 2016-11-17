@@ -68,14 +68,14 @@ meta constant args_info : vm_decl → list vm_local_info
 end vm_decl
 
 meta constant vm_core : Type → Type
-meta constant vm_core.map {A B : Type} : (A → B) → vm_core A → vm_core B
-meta constant vm_core.ret {A : Type} : A → vm_core A
-meta constant vm_core.bind {A B : Type} : vm_core A → (A → vm_core B) → vm_core B
+meta constant vm_core.map {α β : Type} : (α → β) → vm_core α → vm_core β
+meta constant vm_core.ret {α : Type} : α → vm_core α
+meta constant vm_core.bind {α β : Type} : vm_core α → (α → vm_core β) → vm_core β
 
 meta instance : monad vm_core :=
 ⟨@vm_core.map, @vm_core.ret, @vm_core.bind⟩
 
-@[reducible] meta def vm (A : Type) : Type := optionT.{1 1} vm_core A
+@[reducible] meta def vm (α : Type) : Type := option_t.{1 1} vm_core α
 
 namespace vm
 meta constant get_env              : vm environment
@@ -120,7 +120,7 @@ meta constant eof                  : vm bool
 /- Return the list of declarations tagged with the given attribute. -/
 meta constant get_attribute        : name → vm (list name)
 
-meta def trace {A : Type} [has_to_format A] (a : A) : vm unit :=
+meta def trace {α : Type} [has_to_format α] (a : α) : vm unit :=
 do fmt ← return $ to_fmt a,
    return $ _root_.trace_fmt fmt (λ u, ())
 

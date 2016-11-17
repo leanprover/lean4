@@ -435,7 +435,7 @@ void scanner::next_utf(buffer<char> & cs) {
 }
 
 static bool is_id_first(buffer<char> const & cs, unsigned i) {
-    if (std::isalpha(cs[i]) || cs[i] == '_')
+    if (std::isalpha(cs[i]) || cs[i] == '_' || cs[i] == '\'')
         return true;
     unsigned u = utf8_to_unicode(cs.begin() + i, cs.end());
     return is_letter_like_unicode(u);

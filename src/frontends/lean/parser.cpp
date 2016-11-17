@@ -183,7 +183,6 @@ parser::parser(environment const & env, io_state const & ios,
     if (s) {
         m_env                = s->m_env;
         m_ios.set_options(s->m_options);
-        m_delayed_thms       = s->m_delayed_thms;
         m_old_buckets_from_snapshot = s->m_sub_buckets;
         m_local_level_decls  = s->m_lds;
         m_local_decls        = s->m_eds;
@@ -2111,11 +2110,9 @@ void parser::process_imports() {
     unsigned fingerprint = 0;
     auto imports = parse_imports(fingerprint);
 
-    name_map<task_result<certified_declaration>> del_thms;
-
     for (auto & n : imports) {
         try {
-            m_env = import_module(m_env, m_file_name, n, del_thms, m_import_fn);
+            m_env = import_module(m_env, m_file_name, n, m_import_fn);
         } catch (exception & ex) {
             m_found_errors = true;
             parser_exception error((sstream() << "invalid import '" << n.m_name << "'").str(),
@@ -2126,13 +2123,6 @@ void parser::process_imports() {
                 throw error;
         }
     }
-
-    del_thms.for_each([=] (name const & thm_name, task_result<certified_declaration> const & cdecl) {
-        delayed_theorem del_thm;
-        del_thm.m_imported = true;
-        del_thm.m_cert_decl = cdecl;
-        m_delayed_thms.insert(thm_name, del_thm);
-    });
 
     m_env = update_fingerprint(m_env, fingerprint);
     m_env = activate_export_decls(m_env, {}); // explicitly activate exports in root namespace
@@ -2241,43 +2231,11 @@ bool parser::curr_is_command_like() const {
     }
 }
 
-static void replace_theorem(certified_declaration const & thm, environment & env, bool ignore_noncomputable) {
-    // TODO(gabriel): move somewhere else
-    env = env.replace(thm);
-    name const & thm_name = thm.get_declaration().get_name();
-    if (!ignore_noncomputable && !check_computable(env, thm_name)) {
-        throw exception(sstream() << "declaration '" << thm_name
-                        << "' was marked as a theorem, but it is a noncomputable definition");
-    }
-}
-
-environment parser::reveal_theorems(buffer<name> const & ds) {
-    environment env = m_env;
-    for (auto & d : ds) {
-        if (auto * dt = m_delayed_thms.find(d)) {
-            replace_theorem(dt->m_cert_decl.get(), env, m_ignore_noncomputable);
-        } else {
-            throw exception(sstream() << "not a delayed theorem: " << d);
-        }
-    }
-    return env;
-}
-
-environment parser::reveal_all_theorems() {
-    buffer<name> ds;
-    m_delayed_thms.for_each([&] (name const & d, delayed_theorem const &) { ds.push_back(d); });
-    return reveal_theorems(ds);
-}
-
-bool parser::is_delayed_theorem(name const & n) {
-    return m_delayed_thms.contains(n);
-}
-
 void parser::save_snapshot(scope_message_context & smc) {
     if (!m_snapshot_vector)
         return;
     if (m_snapshot_vector->empty() || m_snapshot_vector->back().m_pos != m_scanner.get_pos_info()) {
-        m_snapshot_vector->push_back(snapshot(m_env, smc.get_sub_buckets(), m_delayed_thms, m_local_level_decls, m_local_decls,
+        m_snapshot_vector->push_back(snapshot(m_env, smc.get_sub_buckets(), m_local_level_decls, m_local_decls,
                                               m_level_variables, m_variables, m_include_vars,
                                               m_ios.get_options(), m_imports_parsed, m_parser_scope_stack, m_scanner.get_pos_info()));
     }
@@ -2307,37 +2265,6 @@ message_builder parser::mk_message(pos_info const &p, message_severity severity)
 }
 message_builder parser::mk_message(message_severity severity) {
     return mk_message(pos(), severity);
-}
-
-class proof_checking_task : public module_task<certified_declaration> {
-    delayed_theorem m_del_thm;
-public:
-    proof_checking_task(delayed_theorem const & del_thm, pos_info const & pos) :
-            module_task(optional<pos_info>(pos), task_kind::elab), m_del_thm(del_thm) {}
-
-    void description(std::ostream & out) const override {
-        out << "checking " << m_del_thm.m_ax_decl.get_name() << " (" << get_module() << ")";
-    }
-
-    std::vector<generic_task_result> get_dependencies() override { return { m_del_thm.m_proof }; }
-
-    certified_declaration execute_core() override {
-        auto & ax_decl = m_del_thm.m_ax_decl;
-        auto thm_decl = mk_theorem(ax_decl.get_name(), ax_decl.get_univ_params(),
-                                   ax_decl.get_type(), m_del_thm.m_proof.get());
-        // TODO(gabriel): noncomputability check
-        return check(m_del_thm.m_decl_env, thm_decl);
-    }
-};
-
-void parser::add_delayed_theorem(delayed_theorem del_thm) {
-    del_thm.m_imported = false;
-    del_thm.m_cert_decl = get_global_task_queue().submit<proof_checking_task>(del_thm, m_last_cmd_pos);
-    if (m_stop_at) {
-        // TODO(gabriel): check whether the theorem covers the line we stop at
-        del_thm.m_proof.get();
-    }
-    m_delayed_thms.insert(del_thm.m_ax_decl.get_name(), del_thm);
 }
 
 bool parse_commands(environment & env, io_state & ios, char const * fname, optional<std::string> const & base_dir,

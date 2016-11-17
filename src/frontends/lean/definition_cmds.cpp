@@ -345,7 +345,7 @@ static expr fix_rec_fn_name(expr const & e, name const & c_name, name const & c_
 
 static pair<environment, name>
 declare_definition(parser & p, environment const & env, def_cmd_kind kind, buffer<name> const & lp_names,
-                   name const & c_name, expr const & type, optional<expr> const & _val,
+                   name const & c_name, expr const & type, optional<expr> const & _val, task_result<expr> const & proof,
                    decl_modifiers const & modifiers, decl_attributes attrs, optional<std::string> const & doc_string,
                    pos_info const & pos) {
     auto env_n = mk_real_name(env, c_name, modifiers.m_is_private, pos);
@@ -357,7 +357,7 @@ declare_definition(parser & p, environment const & env, def_cmd_kind kind, buffe
     bool use_conv_opt = true;
     bool is_trusted   = !modifiers.m_is_meta;
     auto def          =
-        !val ? mk_axiom(c_real_name, to_list(lp_names), type) : (kind == Theorem ?
+        !val ? mk_theorem(c_real_name, to_list(lp_names), type, proof) : (kind == Theorem ?
         mk_theorem(c_real_name, to_list(lp_names), type, *val) :
         mk_definition(new_env, c_real_name, to_list(lp_names), type, *val, use_conv_opt, is_trusted));
     auto cdef         = check(p, new_env, c_name, def, pos);
@@ -764,9 +764,8 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
                     decl_env, p.get_options(), params_vec, new_fn, val,
                     elab.mctx(), elab.lctx(), p.get_parser_pos_provider(header_pos));
 
-            env_n = declare_definition(p, elab.env(), kind, lp_names, c_name, type, opt_val, modifiers, attrs,
+            env_n = declare_definition(p, elab.env(), kind, lp_names, c_name, type, opt_val, elab_task, modifiers, attrs,
                                        doc_string, header_pos);
-            p.add_delayed_theorem(delayed_theorem {false, decl_env, env_n.first.get(env_n.second), elab_task, {}});
         } else if (kind == Example) {
             std::vector<expr> params_vec(new_params.begin(), new_params.end());
             get_global_task_queue().submit<example_checking_task>(
@@ -789,7 +788,7 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
             }
             finalize_definition(elab, new_params, type, val, lp_names);
             opt_val = optional<expr>(val);
-            env_n = declare_definition(p, elab.env(), kind, lp_names, c_name, type, opt_val, modifiers, attrs, doc_string, header_pos);
+            env_n = declare_definition(p, elab.env(), kind, lp_names, c_name, type, opt_val, {}, modifiers, attrs, doc_string, header_pos);
         }
         environment new_env = env_n.first;
         name c_real_name    = env_n.second;

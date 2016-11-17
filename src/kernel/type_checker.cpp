@@ -6,6 +6,8 @@ Author: Leonardo de Moura
 */
 #include <utility>
 #include <vector>
+#include <util/task_queue.h>
+#include <library/module_mgr.h>
 #include "util/interrupt.h"
 #include "util/lbool.h"
 #include "util/flet.h"
@@ -745,7 +747,7 @@ static void check_duplicated_params(environment const & env, declaration const &
     }
 }
 
-certified_declaration check(environment const & env, declaration const & d) {
+static void check_core(environment const & env, declaration const & d) {
     if (d.is_definition())
         check_no_mlocal(env, d.get_name(), d.get_value(), false);
     check_no_mlocal(env, d.get_name(), d.get_type(), true);
@@ -759,8 +761,66 @@ certified_declaration check(environment const & env, declaration const & d) {
         expr val_type = checker.check(d.get_value(), d.get_univ_params());
         if (!checker.is_def_eq(val_type, d.get_type())) {
             throw_kernel_exception(env, d.get_value(), [=](formatter const & fmt) {
+                return pp_def_type_mismatch(fmt, d.get_name(), d.get_type(), val_type, true);
+            });
+        }
+    }
+}
+
+class proof_checking_task : public module_task<expr> {
+    environment m_env;
+    declaration m_decl;
+public:
+    proof_checking_task(environment const & env, declaration const & d) :
+            module_task({}, task_kind::elab), m_env(env), m_decl(d) {
+        lean_assert(d.is_theorem());
+    }
+
+    void description(std::ostream & out) const override {
+        out << "type-checking " << m_decl.get_name();
+    }
+
+    std::vector<generic_task_result> get_dependencies() override {
+        return { m_decl.get_value_task() };
+    }
+
+    expr execute_core() override {
+        // TODO(gabriel): noncomputable check
+        bool memoize = true;
+        bool trusted_only = m_decl.is_trusted();
+        type_checker checker(m_env, memoize, trusted_only);
+        expr val_type = checker.check(m_decl.get_value(), m_decl.get_univ_params());
+        if (!checker.is_def_eq(val_type, m_decl.get_type())) {
+            throw_kernel_exception(m_env, m_decl.get_value(), [=](formatter const &fmt) {
+                return pp_def_type_mismatch(fmt, m_decl.get_name(), m_decl.get_type(), val_type, true);
+            });
+        }
+        return m_decl.get_value();
+    }
+};
+
+certified_declaration check(environment const & env, declaration const & d) {
+    if (d.is_definition())
+        check_no_mlocal(env, d.get_name(), d.get_value(), false);
+    check_no_mlocal(env, d.get_name(), d.get_type(), true);
+    check_name(env, d.get_name());
+    check_duplicated_params(env, d);
+    bool memoize = true; bool trusted_only = d.is_trusted();
+    type_checker checker(env, memoize, trusted_only);
+    expr sort = checker.check(d.get_type(), d.get_univ_params());
+    checker.ensure_sort(sort, d.get_type());
+    if (d.is_definition()) {
+        if (env.trust_lvl() != 0 && d.is_theorem()) {
+            auto checked_proof = get_global_task_queue().submit<proof_checking_task>(env, d);
+            return certified_declaration(env.get_id(),
+                                         mk_theorem(d.get_name(), d.get_univ_params(), d.get_type(), checked_proof));
+        } else {
+            expr val_type = checker.check(d.get_value(), d.get_univ_params());
+            if (!checker.is_def_eq(val_type, d.get_type())) {
+                throw_kernel_exception(env, d.get_value(), [=](formatter const &fmt) {
                     return pp_def_type_mismatch(fmt, d.get_name(), d.get_type(), val_type, true);
                 });
+            }
         }
     }
     return certified_declaration(env.get_id(), d);

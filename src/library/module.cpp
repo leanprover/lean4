@@ -182,6 +182,19 @@ deserializer & operator>>(deserializer & d, module_name & r) {
     return d;
 }
 
+LEAN_THREAD_PTR(std::vector<task_result<expr>>, g_export_delayed_proofs);
+class scoped_delayed_proofs {
+    std::vector<task_result<expr>> * m_old;
+public:
+    scoped_delayed_proofs(std::vector<task_result<expr>> & r) {
+        m_old = g_export_delayed_proofs;
+        g_export_delayed_proofs = &r;
+    }
+    ~scoped_delayed_proofs() {
+        g_export_delayed_proofs = m_old;
+    }
+};
+
 void export_module(std::ostream & out, environment const & env) {
     module_ext const & ext = get_extension(env);
 
@@ -217,6 +230,13 @@ void export_module(std::ostream & out, environment const & env) {
     s2.write_unsigned(r.size());
     for (unsigned i = 0; i < r.size(); i++)
         s2.write_char(r[i]);
+}
+
+std::vector<task_result<expr>> export_module_delayed(std::ostream & out, environment const & env) {
+    std::vector<task_result<expr>> delayed_proofs;
+    scoped_delayed_proofs _(delayed_proofs);
+    export_module(out, env);
+    return delayed_proofs;
 }
 
 typedef std::unordered_map<std::string, module_object_reader> object_readers;
@@ -262,10 +282,21 @@ environment update_module_defs(environment const & env, declaration const & d) {
     }
 }
 
+static declaration theorem2axiom(declaration const & decl) {
+    lean_assert(decl.is_theorem());
+    return mk_axiom(decl.get_name(), decl.get_univ_params(), decl.get_type());
+}
+
 static environment export_decl(environment const & env, declaration const & d) {
     name n = d.get_name();
     return add(env, *g_decl_key, [=](environment const & env, serializer & s) {
-            s << env.get(n);
+            auto d = env.get(n);
+            if (g_export_delayed_proofs && d.is_theorem()) {
+                s << true << theorem2axiom(d) << static_cast<unsigned>(g_export_delayed_proofs->size());
+                g_export_delayed_proofs->push_back(d.get_value_task());
+            } else {
+                s << false << d;
+            }
         });
 }
 
@@ -354,85 +385,45 @@ struct import_helper {
     }
 };
 
-class theorem_import_task : public module_task<certified_declaration> {
-    environment m_decl_env;
-    declaration m_ax_decl;
-    task_result<expr> m_proof;
-public:
-    theorem_import_task(environment const & decl_env, declaration ax_decl, task_result<expr> const & proof) :
-            module_task(optional<pos_info>(), task_kind::elab),
-            m_decl_env(decl_env), m_ax_decl(ax_decl), m_proof(proof) {}
-
-    certified_declaration execute_core() override {
-        auto proof = m_proof.get();
-        auto decl = mk_theorem(m_ax_decl.get_name(), m_ax_decl.get_univ_params(),
-                               m_ax_decl.get_type(), proof);
-        return import_helper::certify_or_check(m_decl_env, decl);
-    }
-
-    void description(std::ostream & out) const override {
-        out << "importing theorem " << m_ax_decl.get_name();
-    }
-
-    bool is_tiny() const override { return m_decl_env.trust_lvl() != 0; }
-
-    std::vector<generic_task_result> get_dependencies() override {
-        return {m_proof};
-    }
-};
-
 static void import_module(environment & env, std::string const & module_file_name, module_name const & ref,
-                          name_map<task_result<certified_declaration>> & del_thms, module_loader const & mod_ldr) {
+                          module_loader const & mod_ldr) {
     auto res = mod_ldr(module_file_name, ref);
     if (get_extension(env).m_imported.contains(res.m_module_name)) return;
     std::istringstream in(res.m_obj_code, std::ios_base::binary);
     auto olean = parse_olean(in, res.m_module_name, false);
     for (auto & dep : olean.first) {
-        import_module(env, res.m_module_name, dep, del_thms, mod_ldr);
+        import_module(env, res.m_module_name, dep, mod_ldr);
     }
     auto ext = get_extension(env);
     ext.m_imported.insert(res.m_module_name);
     env = update(env, ext);
-    import_module(olean.second, res.m_module_name, env);
-    res.m_delayed_proofs.for_each([&] (name const & n, task_result<expr> const & delayed_proof) {
-        del_thms.insert(n, get_global_task_queue().submit<theorem_import_task>(
-                env, env.get(n), delayed_proof));
-    });
+    import_module(olean.second, res.m_module_name, env, res.m_delayed_proofs);
 }
 
 environment import_module(environment const & env0, std::string const & module_file_name,
                           module_name const & ref,
-                          name_map<task_result<certified_declaration>> & del_thms,
                           module_loader const & mod_ldr) {
     environment env = env0;
     module_ext ext = get_extension(env);
     ext.m_direct_imports = cons(ref, ext.m_direct_imports);
     env = update(env, ext);
-    import_module(env, module_file_name, ref, del_thms, mod_ldr);
+    import_module(env, module_file_name, ref, mod_ldr);
     return env;
 }
 
-environment import_module(environment const & env, std::string const & current_mod, module_name const & ref,
-                          module_loader const & mod_ldr) {
-    name_map<task_result<certified_declaration>> del_thms;
-    return import_module(env, current_mod, ref, del_thms, mod_ldr);
-}
-
-static declaration theorem2axiom(declaration const & decl) {
-    lean_assert(decl.is_theorem());
-    return mk_axiom(decl.get_name(), decl.get_univ_params(), decl.get_type());
-}
-
-static optional<name> import_decl(deserializer & d, environment & env) {
+static optional<name> import_decl(deserializer & d, environment & env,
+                                  std::vector<task_result<expr>> const & delayed_proofs) {
+    bool is_delayed; d >> is_delayed;
     declaration decl = read_declaration(d);
     decl = unfold_untrusted_macros(env, decl);
     if (decl.get_name() == get_sorry_name() && has_sorry(env)) {
         // TODO(gabriel): not sure why this is here
         return optional<name>();
     }
-    if (decl.is_theorem() && false) {  // TODO(gabriel): was proof already revealed?
-        decl = theorem2axiom(decl);
-        // TODO(gabriel): delay proofs
+    if (is_delayed) {
+        unsigned i; d >> i;
+        auto delayed_proof = delayed_proofs.at(i);
+        decl = mk_theorem(decl.get_name(), decl.get_univ_params(), decl.get_type(), delayed_proof);
     }
     env = import_helper::add_unchecked(env, decl);
     return optional<name>(decl.get_name());
@@ -443,7 +434,8 @@ static void import_universe(deserializer & d, environment & env) {
     env = env.add_universe(l);
 }
 
-void import_module(std::vector<char> const & olean_code, std::string const & file_name, environment & env) {
+void import_module(std::vector<char> const & olean_code, std::string const & file_name, environment & env,
+                   std::vector<task_result<expr>> const & delayed_proofs) {
     // TODO(gabriel): update extension
     std::string s(olean_code.data(), olean_code.size());
     std::istringstream in(s, std::ios_base::binary);
@@ -455,7 +447,7 @@ void import_module(std::vector<char> const & olean_code, std::string const & fil
         if (k == g_olean_end_file) {
             break;
         } else if (k == *g_decl_key) {
-            if (auto decl_name = import_decl(d, env))
+            if (auto decl_name = import_decl(d, env, delayed_proofs))
                 env = add_decl_olean(env, *decl_name, file_name);
         } else if (k == *g_glvl_key) {
             import_universe(d, env);

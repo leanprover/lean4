@@ -16,7 +16,7 @@
     "structure" "record" "universe" "universes"
     "alias" "help" "precedence" "reserve" "declare_trace" "add_key_equivalence"
     "match" "infix" "infixl" "infixr" "notation" "postfix" "prefix" "instance"
-    "eval" "vm_eval" "check" "end" "reveal" "this" "suppose"
+    "eval" "vm_eval" "check" "end" "this" "suppose"
     "using" "using_well_founded" "namespace" "section" "fields"
     "attribute" "local" "set_option" "extends" "include" "omit" "classes" "class"
     "instances" "coercions" "attributes" "raw" "replacing"

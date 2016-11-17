@@ -205,8 +205,10 @@ void mt_task_queue::wait(generic_task_result const & t) {
             } else {
                 m_wake_up_worker.notify_one();
             }
+            t->m_task->m_has_finished.wait(lock);
+        } else {
+            t->m_task->m_has_finished.wait(lock);
         }
-        t->m_task->m_has_finished.wait(lock);
     }
     switch (t->m_state.load()) {
         case task_result_state::FAILED: std::rethrow_exception(t->m_ex);

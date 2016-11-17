@@ -577,17 +577,6 @@ static environment omit_cmd(parser & p) {
     return include_cmd_core(p, false);
 }
 
-
-static environment reveal_cmd(parser & p) {
-    buffer<name> ds;
-    name d          = p.check_constant_next("invalid 'reveal' command, constant expected");
-    ds.push_back(d);
-    while (p.curr_is_identifier()) {
-        ds.push_back(p.check_constant_next("invalid 'reveal' command, constant expected"));
-    }
-    return p.reveal_theorems(ds);
-}
-
 void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("universe",        "declare a universe level", universe_cmd));
     add_cmd(r, cmd_info("universes",       "declare universe levels", universes_cmd));
@@ -608,7 +597,6 @@ void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("theorem",         "add new theorem", definition_cmd, false));
     add_cmd(r, cmd_info("instance",        "add new instance", definition_cmd, false));
     add_cmd(r, cmd_info("example",         "add new example", definition_cmd, false));
-    add_cmd(r, cmd_info("reveal",          "reveal given theorems", reveal_cmd));
     add_cmd(r, cmd_info("include",         "force section parameter/variable to be included", include_cmd));
     add_cmd(r, cmd_info("attribute",       "set declaration attributes", attribute_cmd));
     add_cmd(r, cmd_info("@[",              "declaration attributes", compact_attribute_cmd));

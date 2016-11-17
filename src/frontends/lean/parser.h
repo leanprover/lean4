@@ -53,19 +53,10 @@ struct parser_scope {
 };
 typedef list<parser_scope> parser_scope_stack;
 
-struct delayed_theorem {
-    bool m_imported;
-    environment m_decl_env;
-    declaration m_ax_decl;
-    task_result<expr> m_proof;
-    task_result<certified_declaration> m_cert_decl;
-};
-
 /** \brief Snapshot of the state of the Lean parser */
 struct snapshot {
     environment        m_env;
     name_set           m_sub_buckets;
-    name_map<delayed_theorem> m_delayed_thms;
     local_level_decls  m_lds;
     local_expr_decls   m_eds;
     name_set           m_lvars; // subset of m_lds that is tagged as level variable
@@ -75,11 +66,11 @@ struct snapshot {
     bool               m_imports_parsed;
     parser_scope_stack m_parser_scope_stack;
     pos_info           m_pos;
-    snapshot(environment const & env, name_set const & sub_buckets, name_map<delayed_theorem> delayed_thms, local_level_decls const & lds,
+    snapshot(environment const & env, name_set const & sub_buckets, local_level_decls const & lds,
              local_expr_decls const & eds, name_set const & lvars, name_set const & vars,
              name_set const & includes, options const & opts, bool imports_parsed, parser_scope_stack const & pss,
              pos_info const & pos):
-        m_env(env), m_sub_buckets(sub_buckets), m_delayed_thms(delayed_thms), m_lds(lds), m_eds(eds), m_lvars(lvars), m_vars(vars), m_include_vars(includes),
+        m_env(env), m_sub_buckets(sub_buckets), m_lds(lds), m_eds(eds), m_lvars(lvars), m_vars(vars), m_include_vars(includes),
         m_options(opts), m_imports_parsed(imports_parsed), m_parser_scope_stack(pss), m_pos(pos) {}
 };
 
@@ -156,9 +147,6 @@ class parser : public abstract_parser {
 
     // Docgen
     optional<std::string>  m_doc_string;
-
-    // delayed theorems
-    name_map<delayed_theorem> m_delayed_thms;
 
     void throw_parser_exception(char const * msg, pos_info p);
     void throw_nested_exception(throwable const & ex, pos_info p);
@@ -253,9 +241,6 @@ public:
     environment const & env() const { return m_env; }
     io_state const & ios() const { return m_ios; }
 
-    name_map<delayed_theorem> get_delayed_theorems() const { return m_delayed_thms; }
-    void add_delayed_theorem(delayed_theorem);
-
     message_builder mk_message(pos_info const & p, message_severity severity);
     message_builder mk_message(message_severity severity);
 
@@ -285,10 +270,6 @@ public:
     expr mk_app(expr fn, expr arg, pos_info const & p);
     expr mk_app(expr fn, buffer<expr> const & args, pos_info const & p);
     expr mk_app(std::initializer_list<expr> const & args, pos_info const & p);
-
-    bool is_delayed_theorem(name const &);
-    environment reveal_theorems(buffer<name> const & ds);
-    environment reveal_all_theorems();
 
     /** \brief Read the next token. */
     void scan();

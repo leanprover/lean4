@@ -5,5 +5,4 @@ calc d  == c  : heq.symm H₃
     ... == a₂ : heq.symm H₁
     ... =  a₁ : eq.symm H₀
 
-reveal tst
 print definition tst

@@ -66,16 +66,10 @@ public:
                         std::get<1>(d).m_relative == import.m_relative) {
                     auto mod_info = std::get<2>(d);
 
-                    name_map<task_result<expr>> delayed_thms;
-                    mod_info.m_result.get().m_delayed_theorems.for_each(
-                            [&] (name const & thm_name, delayed_theorem const & del_thm) {
-                                if (!del_thm.m_imported) delayed_thms.insert(thm_name, del_thm.m_proof);
-                            });
-
                     return loaded_module {
                             mod_info.m_mod,
                             mod_info.m_result.get().m_obj_code,
-                            delayed_thms
+                            mod_info.m_result.get().m_obj_code_delayed_proofs,
                     };
                 }
             }
@@ -96,12 +90,12 @@ public:
 
         {
             std::ostringstream obj_code_buf(std::ios_base::binary);
-            export_module(obj_code_buf, p.env());
+            mod.m_obj_code_delayed_proofs =
+                    export_module_delayed(obj_code_buf, p.env());
             mod.m_obj_code = obj_code_buf.str();
         }
 
         mod.m_env = optional<environment>(p.env());
-        mod.m_delayed_theorems = p.get_delayed_theorems();
 
         mod.m_ok = parsed_ok; // TODO(gabriel): what should this be?
 
@@ -120,11 +114,9 @@ public:
     std::vector<generic_task_result> get_dependencies() override {
         if (auto res = m_mod.m_result.peek()) {
             std::vector<generic_task_result> deps;
-            res->m_delayed_theorems.for_each(
-                    [&] (name const &, delayed_theorem const & del_thm) {
-                        if (!del_thm.m_imported)
-                            deps.push_back(del_thm.m_cert_decl);
-                    });
+            res->m_env->for_each_declaration([&] (declaration const & d) {
+                if (d.is_theorem()) deps.push_back(d.get_value_task());
+            });
             return deps;
         } else {
             return {m_mod.m_result};
@@ -140,12 +132,6 @@ public:
             throw exception("cannot build olean from olean");
         auto res = m_mod.m_result.get();
         auto env = *res.m_env;
-
-        res.m_delayed_theorems.for_each(
-                [&] (name const &, delayed_theorem const & del_thm) {
-                    if (!del_thm.m_imported)
-                        env = env.replace(del_thm.m_cert_decl.get());
-                });
 
         auto olean_fn = olean_of_lean(m_mod.m_mod);
         exclusive_file_lock output_lock(olean_fn);

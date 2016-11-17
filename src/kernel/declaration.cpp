@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <util/task_queue.h>
 #include "kernel/declaration.h"
 #include "kernel/environment.h"
 #include "kernel/for_each_fn.h"
@@ -48,7 +49,7 @@ declaration::~declaration() { if (m_ptr) m_ptr->dec_ref(); }
 declaration & declaration::operator=(declaration const & s) { LEAN_COPY_REF(s); }
 declaration & declaration::operator=(declaration && s) { LEAN_MOVE_REF(s); }
 
-bool declaration::is_definition() const    { return static_cast<bool>(m_ptr->m_value); }
+bool declaration::is_definition() const    { return static_cast<bool>(m_ptr->m_value) || static_cast<bool>(m_ptr->m_proof); }
 bool declaration::is_constant_assumption() const { return !is_definition(); }
 bool declaration::is_axiom() const         { return is_constant_assumption() && m_ptr->m_theorem; }
 bool declaration::is_theorem() const       { return is_definition() && m_ptr->m_theorem; }
@@ -59,12 +60,23 @@ level_param_names const & declaration::get_univ_params() const { return m_ptr->m
 unsigned declaration::get_num_univ_params() const { return length(get_univ_params()); }
 expr const & declaration::get_type() const { return m_ptr->m_type; }
 
-expr const & declaration::get_value() const { lean_assert(is_definition()); return *(m_ptr->m_value); }
+task_result<expr> const & declaration::get_value_task() const {
+    lean_assert(is_definition());
+    return m_ptr->m_proof;
+}
+expr const & declaration::get_value() const {
+    lean_assert(is_definition());
+    if (m_ptr->m_proof) {
+        return m_ptr->m_proof.get();
+    } else {
+        return *(m_ptr->m_value);
+    }
+}
 reducibility_hints const & declaration::get_hints() const { return m_ptr->m_hints; }
 
 declaration mk_definition(name const & n, level_param_names const & params, expr const & t, expr const & v,
                           reducibility_hints const & h, bool trusted) {
-    return declaration(new declaration::cell(n, params, t, false, v, h, trusted));
+    return declaration(new declaration::cell(n, params, t, v, h, trusted));
 }
 static unsigned get_max_height(environment const & env, expr const & v) {
     unsigned h = 0;
@@ -84,8 +96,11 @@ declaration mk_definition(environment const & env, name const & n, level_param_n
     unsigned h = get_max_height(env, v);
     return mk_definition(n, params, t, v, reducibility_hints::mk_regular(h+1, use_self_opt), trusted);
 }
+declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, task_result<expr> const & v) {
+    return declaration(new declaration::cell(n, params, t, v));
+}
 declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v) {
-    return declaration(new declaration::cell(n, params, t, true, v, reducibility_hints::mk_opaque(), true));
+    return mk_theorem(n, params, t, mk_pure_task_result(v, {}));
 }
 declaration mk_axiom(name const & n, level_param_names const & params, expr const & t) {
     return declaration(new declaration::cell(n, params, t, true, true));

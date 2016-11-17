@@ -72,7 +72,7 @@ struct print_axioms_deps {
 static void print_axioms(parser & p, message_builder & out) {
     if (p.curr_is_identifier()) {
         name c = p.check_constant_next("invalid 'print axioms', constant expected");
-        auto env = p.reveal_all_theorems(); // FIXME
+        auto env = p.env();
         type_context tc(env, p.get_options());
         auto new_out = io_state_stream(env, p.ios(), tc, out.get_text_stream().get_channel());
         print_axioms_deps(env, new_out)(c);
@@ -80,7 +80,7 @@ static void print_axioms(parser & p, message_builder & out) {
         bool has_axioms = false;
         p.env().for_each_declaration([&](declaration const & d) {
                 name const & n = d.get_name();
-                if (!d.is_definition() && !p.env().is_builtin(n) && d.is_trusted() && !p.is_delayed_theorem(n)) {
+                if (!d.is_definition() && !p.env().is_builtin(n) && d.is_trusted()) {
                     out << n << " : " << d.get_type() << endl;
                     has_axioms = true;
                 }
@@ -216,7 +216,7 @@ static void print_definition(environment const & env, message_builder & out, nam
     declaration d = env.get(n);
     if (d.is_axiom())
         throw parser_error(sstream() << "invalid 'print definition', theorem '" << to_user_name(env, n)
-                           << "' is not available (suggestion: use command 'reveal " << to_user_name(env, n) << "')", pos);
+                           << "' is not available", pos);
     if (!d.is_definition())
         throw parser_error(sstream() << "invalid 'print definition', '" << to_user_name(env, n) << "' is not a definition", pos);
     options opts        = out.get_text_stream().get_options();
@@ -357,12 +357,6 @@ bool print_id_info(parser & p, message_builder & out, name const & id, bool show
                         print_constant(p, out, "eliminator", d);
                     } else if (is_quotient_decl(env, c)) {
                         print_constant(p, out, "builtin-quotient-type-constant", d);
-                    } else if (d.is_axiom() && p.is_delayed_theorem(c)) {
-                        buffer<name> ns; ns.push_back(c);
-                        auto revealed_env = p.reveal_theorems(ns);
-                        print_constant(p, out, "[delayed] theorem", revealed_env.get(c), show_value);
-                        if (show_value)
-                            print_definition(revealed_env, out, c, pos);
                     } else if (d.is_axiom()) {
                         print_constant(p, out, "axiom", d);
                     } else {

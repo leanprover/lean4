@@ -10,5 +10,4 @@ section
 
 end
 
-reveal tst
 print tst

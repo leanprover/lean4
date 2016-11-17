@@ -41,9 +41,11 @@ struct module_info {
 
     struct parse_result {
         optional<environment> m_env;
-        name_map<delayed_theorem> m_delayed_theorems;
-        std::string m_obj_code;
         bool m_ok = false;
+
+        std::string m_obj_code;
+        std::vector<task_result<expr>> m_obj_code_delayed_proofs;
+
         snapshot_vector m_snapshots;
     };
 

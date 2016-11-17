@@ -170,7 +170,7 @@ public:
     task_result<T> & operator=(task_result<T> const & t) { LEAN_COPY_REF(t); }
     task_result<T> & operator=(task_result<T> && t) { LEAN_MOVE_REF(t); }
 
-    T get() const;
+    T const & get() const;
 
     optional<T> peek() const {
         if (m_ptr->m_state.load() == task_result_state::FINISHED) {
@@ -219,7 +219,7 @@ public:
     }
 
     template <typename T>
-    T get_result(task_result<T> const & t) {
+    T const & get_result(task_result<T> const & t) {
         wait(t);
         lean_assert(t.get_ptr()->m_result);
         return *t.get_ptr()->m_result;
@@ -243,7 +243,7 @@ public:
 task_queue & get_global_task_queue();
 
 template <class T>
-T task_result<T>::get() const {
+T const & task_result<T>::get() const {
     return get_global_task_queue().get_result(*this);
 }
 

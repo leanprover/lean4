@@ -620,6 +620,10 @@ order for the change to take effect."
   ("H"    . ("ℍ"))
   ("K"    . ("𝕂"))
 
+  ("a" . ("α"))
+  ("b" . ("β"))
+  ("g" . ("γ"))
+
   ;; Musical symbols.
 
   ("note" . ,(lean-input-to-string-list "♩♪♫♬"))

@@ -4,7 +4,7 @@
 definition s1 : set ℕ :=
 {1, 2 + 3, 3, 4}
 definition s2 : set char :=
-{'a', 'b', 'c'}
+{#"a", #"b", #"c"}
 definition s3 : set string :=
 {"hello", "world"}
 {a ∈ s1 | a > 1} : set ℕ

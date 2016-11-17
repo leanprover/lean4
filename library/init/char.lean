@@ -28,4 +28,4 @@ have decidable_eq (fin char_sz), from fin.decidable_eq _,
 this
 
 instance : inhabited char :=
-⟨'A'⟩
+⟨#"A"⟩

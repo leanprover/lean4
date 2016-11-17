@@ -51,14 +51,13 @@ instance {A : Type u} {P : A → Prop} [has_to_string A] : has_to_string (subtyp
 ⟨λ s, to_string (elt_of s)⟩
 
 def char.quote_core (c : char) : string :=
-if       c = '\n' then "\\n"
-else if  c = '\\' then "\\\\"
-else if  c = '\"' then "\\\""
-else if  c = '\'' then "\\\'"
+if       c = #"\n" then "\\n"
+else if  c = #"\\" then "\\\\"
+else if  c = #"\"" then "\\\""
 else c::nil
 
 instance : has_to_string char :=
-⟨λ c, "'" ++ char.quote_core c ++ "'"⟩
+⟨λ c, "#\"" ++ char.quote_core c ++ "\""⟩
 
 def string.quote_aux : string → string
 | []      := ""

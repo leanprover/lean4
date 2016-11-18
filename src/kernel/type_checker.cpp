@@ -747,26 +747,6 @@ static void check_duplicated_params(environment const & env, declaration const &
     }
 }
 
-static void check_core(environment const & env, declaration const & d) {
-    if (d.is_definition())
-        check_no_mlocal(env, d.get_name(), d.get_value(), false);
-    check_no_mlocal(env, d.get_name(), d.get_type(), true);
-    check_name(env, d.get_name());
-    check_duplicated_params(env, d);
-    bool memoize = true; bool trusted_only = d.is_trusted();
-    type_checker checker(env, memoize, trusted_only);
-    expr sort = checker.check(d.get_type(), d.get_univ_params());
-    checker.ensure_sort(sort, d.get_type());
-    if (d.is_definition()) {
-        expr val_type = checker.check(d.get_value(), d.get_univ_params());
-        if (!checker.is_def_eq(val_type, d.get_type())) {
-            throw_kernel_exception(env, d.get_value(), [=](formatter const & fmt) {
-                return pp_def_type_mismatch(fmt, d.get_name(), d.get_type(), val_type, true);
-            });
-        }
-    }
-}
-
 class proof_checking_task : public module_task<expr> {
     environment m_env;
     declaration m_decl;
@@ -791,8 +771,9 @@ public:
         type_checker checker(m_env, memoize, trusted_only);
         expr val_type = checker.check(m_decl.get_value(), m_decl.get_univ_params());
         if (!checker.is_def_eq(val_type, m_decl.get_type())) {
+            auto decl = m_decl;
             throw_kernel_exception(m_env, m_decl.get_value(), [=](formatter const &fmt) {
-                return pp_def_type_mismatch(fmt, m_decl.get_name(), m_decl.get_type(), val_type, true);
+                return pp_def_type_mismatch(fmt, decl.get_name(), decl.get_type(), val_type, true);
             });
         }
         return m_decl.get_value();

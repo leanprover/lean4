@@ -18,6 +18,12 @@ lemma eq_of_veq : ∀ {i j : fin n}, (val i) = (val j) → i = j
 lemma veq_of_eq : ∀ {i j : fin n}, i = j → (val i) = (val j)
 | ⟨iv, ilt⟩ .⟨iv, ilt⟩ rfl := rfl
 
+lemma ne_of_vne {i j : fin n} (h : val i ≠ val j) : i ≠ j :=
+λ h', absurd (veq_of_eq h') h
+
+lemma vne_of_ne {i j : fin n} (h : i ≠ j) : val i ≠ val j :=
+λ h', absurd (eq_of_veq h') h
+
 end fin
 
 open fin

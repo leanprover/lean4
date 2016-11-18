@@ -1,4 +1,4 @@
-The Lean Standard Library
+dThe Lean Standard Library
 =========================
 
 The Lean standard library is contained in the following files and directories:
@@ -39,9 +39,9 @@ excluded middle, use `open classical`. The additional axioms are used
 sparingly. For example:
 
 * The constructions of finite sets and the rationals use quotients.
-* The set library uses propext and funext, as well as excluded middle to prove 
+* The set library uses propext and funext, as well as excluded middle to prove
   some classical identities.
-* Hilbert choice is used to define the multiplicative inverse on the reals, and 
+* Hilbert choice is used to define the multiplicative inverse on the reals, and
   also to define function inverses classically.
 
 You can use `print axioms foo` to see which axioms `foo` depends

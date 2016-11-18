@@ -152,11 +152,15 @@ void mt_task_queue::submit(generic_task_result const & t) {
 }
 
 void mt_task_queue::bump_prio(generic_task_result const & t, task_priority const & new_prio) {
-    if (t->m_task && new_prio < t->m_task->m_prio) {
+    if (t->m_task && new_prio < t->m_task->m_prio && t->m_state.load() == task_result_state::QUEUED) {
         if (!m_waiting.count(t)) {
-            auto & q = m_queue[t->m_task->m_prio.m_prio];
+            auto prio = t->m_task->m_prio.m_prio;
+            auto & q = m_queue[prio];
             auto it = std::find(q.begin(), q.end(), t);
+            lean_assert(it != q.end());
             q.erase(it);
+            if (q.empty()) m_queue.erase(prio);
+
             t->m_task->m_prio.bump(new_prio);
             enqueue(t);
         } else {

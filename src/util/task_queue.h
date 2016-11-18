@@ -49,6 +49,7 @@ class generic_task_result_cell {
 };
 
 class generic_task_result {
+    friend class task_queue;
     friend class st_task_queue;
     friend class mt_task_queue;
     template <class T> friend class task_result;
@@ -158,8 +159,7 @@ template <class T>
 class task_result : public generic_task_result {
     friend class task_queue;
 
-    task_result_cell<T> * get_ptr() { return static_cast<task_result_cell<T> *>(m_ptr); }
-    task_result_cell<T> const * get_ptr() const { return static_cast<task_result_cell<T> *>(m_ptr); }
+    optional<T> const & get_current_result() const { return static_cast<task_result_cell<T> *>(m_ptr)->m_result; }
 
 public:
     task_result(task_result_cell<T> * t) : generic_task_result(t) {}
@@ -174,7 +174,7 @@ public:
 
     optional<T> peek() const {
         if (m_ptr->m_state.load() == task_result_state::FINISHED) {
-            return get_ptr()->m_result;
+            return get_current_result();
         } else {
             return optional<T>();
         }
@@ -220,9 +220,16 @@ public:
 
     template <typename T>
     T const & get_result(task_result<T> const & t) {
-        wait(t);
-        lean_assert(t.get_ptr()->m_result);
-        return *t.get_ptr()->m_result;
+        while (true) {
+            switch (t->m_state.load()) {
+                case task_result_state::FINISHED:
+                    return *t.get_current_result();
+                case task_result_state::FAILED:
+                    std::rethrow_exception(t->m_ex);
+                default:
+                    wait(t);
+            }
+        }
     }
 
     virtual void wait(generic_task_result const & t) = 0;

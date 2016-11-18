@@ -198,7 +198,13 @@ do e ← to_expr p,
 
 meta def cases (p : qexpr0) (ids : with_ident_list) : tactic unit :=
 do e ← to_expr p,
-   cases_core semireducible e ids
+   if e^.is_local_constant then
+     cases_core semireducible e ids
+   else do
+     x ← mk_fresh_name,
+     tactic.generalize e x <|> fail "cases tactic failed to generalize given expression",
+     h ← tactic.intro1,
+     cases_core semireducible h ids
 
 meta def generalize (p : qexpr) (x : ident) : tactic unit :=
 do e ← to_expr p,

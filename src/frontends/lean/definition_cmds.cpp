@@ -571,7 +571,7 @@ static environment copy_equation_lemmas(environment const & env, name const & d_
         }
         new_eqn_value = locals.mk_lambda(new_eqn_value);
         declaration new_decl = mk_theorem(new_eqn_name, d.get_univ_params(), new_eqn_type, new_eqn_value);
-        new_env = module::add(new_env, check(new_env, new_decl));
+        new_env = module::add(new_env, check(new_env, new_decl, true));
         new_env = add_eqn_lemma(new_env, new_eqn_name);
         i++;
     }

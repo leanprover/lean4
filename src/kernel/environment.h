@@ -217,7 +217,7 @@ class name_generator;
 */
 class certified_declaration {
     friend class certify_unchecked;
-    friend certified_declaration check(environment const & env, declaration const & d);
+    friend certified_declaration check(environment const & env, declaration const & d, bool immediately);
     environment_id m_id;
     declaration    m_declaration;
     certified_declaration(environment_id const & id, declaration const & d):m_id(id), m_declaration(d) {}

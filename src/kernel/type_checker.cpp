@@ -783,7 +783,7 @@ public:
     }
 };
 
-certified_declaration check(environment const & env, declaration const & d) {
+certified_declaration check(environment const & env, declaration const & d, bool immediately) {
     check_no_mlocal(env, d.get_name(), d.get_type(), true);
     check_name(env, d.get_name());
     check_duplicated_params(env, d);
@@ -792,7 +792,7 @@ certified_declaration check(environment const & env, declaration const & d) {
     expr sort = checker.check(d.get_type(), d.get_univ_params());
     checker.ensure_sort(sort, d.get_type());
     if (d.is_definition()) {
-        if (env.trust_lvl() != 0 && d.is_theorem()) {
+        if (!immediately && env.trust_lvl() != 0 && d.is_theorem()) {
             auto checked_proof = get_global_task_queue().submit<proof_checking_task>(env, d);
             return certified_declaration(env.get_id(),
                                          mk_theorem(d.get_name(), d.get_univ_params(), d.get_type(), checked_proof));

@@ -335,73 +335,75 @@ static bool print_constant(parser const & p, message_builder & out, char const *
 }
 
 bool print_id_info(parser & p, message_builder & out, name const & id, bool show_value, pos_info const & pos) {
+    environment const & env = p.env();
+    bool found = false;
+
     // declarations
+    list<name> cs;
     try {
-        environment const & env = p.env();
-        try {
-            list<name> cs = p.to_constants(id, "", pos);
-            bool first = true;
-            for (name const & c : cs) {
-                if (first) first = false; else out << "\n";
-                declaration const & d = env.get(c);
-                if (d.is_theorem()) {
-                    print_constant(p, out, "theorem", d, show_value);
-                    if (show_value)
-                        print_definition(env, out, c, pos);
-                } else if (d.is_axiom() || d.is_constant_assumption()) {
-                    if (inductive::is_inductive_decl(env, c)) {
-                        print_inductive(p, out, c, pos);
-                    } else if (inductive::is_intro_rule(env, c)) {
-                        print_constant(p, out, "constructor", d);
-                    } else if (inductive::is_elim_rule(env, c)) {
-                        print_constant(p, out, "eliminator", d);
-                    } else if (is_quotient_decl(env, c)) {
-                        print_constant(p, out, "builtin-quotient-type-constant", d);
-                    } else if (d.is_axiom()) {
-                        print_constant(p, out, "axiom", d);
-                    } else {
-                        print_constant(p, out, "constant", d);
-                    }
-                } else if (d.is_definition()) {
-                    print_constant(p, out, "definition", d, show_value);
-                    if (show_value)
-                        print_definition(env, out, c, pos);
-                }
-                // print_patterns(p, c);
+        cs = p.to_constants(id, "", pos);
+        found = true;
+    } catch (parser_error) {}
+    bool first = true;
+    for (name const & c : cs) {
+        if (first) first = false; else out << "\n";
+        declaration const & d = env.get(c);
+        if (d.is_theorem()) {
+            print_constant(p, out, "theorem", d, show_value);
+            try {
+                if (show_value)
+                    print_definition(env, out, c, pos);
+            } catch (exception & ex) {
+                out << "[incorrect proof]\n";
+                bool use_pos = false;
+                out.set_exception(ex, use_pos);
+            }
+        } else if (d.is_axiom() || d.is_constant_assumption()) {
+            if (inductive::is_inductive_decl(env, c)) {
+                print_inductive(p, out, c, pos);
+            } else if (inductive::is_intro_rule(env, c)) {
+                print_constant(p, out, "constructor", d);
+            } else if (inductive::is_elim_rule(env, c)) {
+                print_constant(p, out, "eliminator", d);
+            } else if (is_quotient_decl(env, c)) {
+                print_constant(p, out, "builtin-quotient-type-constant", d);
+            } else if (d.is_axiom()) {
+                print_constant(p, out, "axiom", d);
+            } else {
+                print_constant(p, out, "constant", d);
+            }
+        } else if (d.is_definition()) {
+            print_constant(p, out, "definition", d, show_value);
+            if (show_value)
+                print_definition(env, out, c, pos);
+        }
+        // print_patterns(p, c);
+    }
+    if (found) return true;
+
+    // variables and parameters
+    if (expr const * type = p.get_local(id)) {
+        if (is_local(*type)) {
+            if (p.is_local_variable(*type)) {
+                out << "variable " << id << " : " << mlocal_type(*type) << "\n";
+            } else {
+                out << "parameter " << id << " : " << mlocal_type(*type) << "\n";
             }
             return true;
-        } catch (exception & ex) {
-            std::cerr << ex.what() << std::endl;
         }
-
-        // variables and parameters
-        if (expr const * type = p.get_local(id)) {
-            if (is_local(*type)) {
-                if (p.is_local_variable(*type)) {
-                    out << "variable " << id << " : " << mlocal_type(*type) << "\n";
-                } else {
-                    out << "parameter " << id << " : " << mlocal_type(*type) << "\n";
-                }
-                return true;
-            }
-        }
-
-        // options
-        auto decls = get_option_declarations();
-        bool found = false;
-        decls.for_each([&](name const &, option_declaration const & opt) {
-                if (found) return;
-                if (opt.get_name() == id || opt.get_name() == name("lean") + id) {
-                    out << "option  " << opt.get_name() << " (" << opt.kind() << ") "
-                        << opt.get_description() << " (default: " << opt.get_default_value() << ")" << endl;
-                    found = true;
-                }
-            });
-        if (found) return true;
-    } catch (exception & ex) {
-        std::cerr << ex.what() << std::endl;
     }
-    return false;
+
+    // options
+    get_option_declarations().for_each([&](name const &, option_declaration const & opt) {
+            if (found) return;
+            if (opt.get_name() == id || opt.get_name() == name("lean") + id) {
+                out << "option  " << opt.get_name() << " (" << opt.kind() << ") "
+                    << opt.get_description() << " (default: " << opt.get_default_value() << ")" << endl;
+                found = true;
+            }
+        });
+
+    return found;
 }
 
 bool print_token_info(parser const & p, message_builder & out, name const & tk) {

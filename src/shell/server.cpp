@@ -377,7 +377,8 @@ mt_tq_prioritizer mk_interactive_prioritizer(module_id const & roi) {
         ELAB_PRIO = 23;
 
     return[=] (generic_task * t) {
-        task_priority p { DEFAULT_PRIO, optional<chrono::steady_clock::time_point>() };
+        task_priority p;
+        p.m_prio = DEFAULT_PRIO;
 
         if (auto mod_task = dynamic_cast<generic_module_task *>(t)) {
             bool in_roi = mod_task->get_module() == roi;

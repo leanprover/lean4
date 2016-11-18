@@ -747,6 +747,16 @@ static void check_duplicated_params(environment const & env, declaration const &
     }
 }
 
+static void check_definition(environment const & env, declaration const & d, type_checker & checker) {
+    check_no_mlocal(env, d.get_name(), d.get_value(), false);
+    expr val_type = checker.check(d.get_value(), d.get_univ_params());
+    if (!checker.is_def_eq(val_type, d.get_type())) {
+        throw_kernel_exception(env, d.get_value(), [=](formatter const &fmt) {
+            return pp_def_type_mismatch(fmt, d.get_name(), d.get_type(), val_type, true);
+        });
+    }
+}
+
 class proof_checking_task : public module_task<expr> {
     environment m_env;
     declaration m_decl;
@@ -765,18 +775,10 @@ public:
     }
 
     expr execute_core() override {
-        check_no_mlocal(m_env, m_decl.get_name(), m_decl.get_value(), false);
-        // TODO(gabriel): noncomputable check
         bool memoize = true;
         bool trusted_only = m_decl.is_trusted();
         type_checker checker(m_env, memoize, trusted_only);
-        expr val_type = checker.check(m_decl.get_value(), m_decl.get_univ_params());
-        if (!checker.is_def_eq(val_type, m_decl.get_type())) {
-            auto decl = m_decl;
-            throw_kernel_exception(m_env, m_decl.get_value(), [=](formatter const &fmt) {
-                return pp_def_type_mismatch(fmt, decl.get_name(), decl.get_type(), val_type, true);
-            });
-        }
+        check_definition(m_env, m_decl, checker);
         return m_decl.get_value();
     }
 };
@@ -794,15 +796,8 @@ certified_declaration check(environment const & env, declaration const & d) {
             auto checked_proof = get_global_task_queue().submit<proof_checking_task>(env, d);
             return certified_declaration(env.get_id(),
                                          mk_theorem(d.get_name(), d.get_univ_params(), d.get_type(), checked_proof));
-        } else {
-            check_no_mlocal(env, d.get_name(), d.get_value(), false);
-            expr val_type = checker.check(d.get_value(), d.get_univ_params());
-            if (!checker.is_def_eq(val_type, d.get_type())) {
-                throw_kernel_exception(env, d.get_value(), [=](formatter const &fmt) {
-                    return pp_def_type_mismatch(fmt, d.get_name(), d.get_type(), val_type, true);
-                });
-            }
         }
+        check_definition(env, d, checker);
     }
     return certified_declaration(env.get_id(), d);
 }

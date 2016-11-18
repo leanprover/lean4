@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/cache_helper.h"
 #include "library/module.h"
+#include "library/scoped_ext.h"
 #include "library/vm/vm_environment.h"
 #include "library/vm/vm_exceptional.h"
 #include "library/vm/vm_format.h"
@@ -613,6 +614,11 @@ vm_obj tactic_add_decl(vm_obj const & _d, vm_obj const & _s) {
     }
 }
 
+vm_obj tactic_opened_namespaces(vm_obj const & s) {
+    environment env = to_tactic_state(s).env();
+    return mk_tactic_success(to_obj(get_namespaces(env)), to_tactic_state(s));
+}
+
 void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic_state", "env"}),            tactic_state_env);
     DECLARE_VM_BUILTIN(name({"tactic_state", "format_expr"}),    tactic_state_format_expr);
@@ -645,6 +651,7 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic", "is_trace_enabled_for"}), tactic_is_trace_enabled_for);
     DECLARE_VM_BUILTIN(name({"tactic", "instantiate_mvars"}),    tactic_instantiate_mvars);
     DECLARE_VM_BUILTIN(name({"tactic", "add_decl"}),             tactic_add_decl);
+    DECLARE_VM_BUILTIN(name({"tactic", "opened_namespaces"}),    tactic_opened_namespaces);
     g_pp_instantiate_goal_mvars = new name{"pp", "instantiate_goal_mvars"};
     register_bool_option(*g_pp_instantiate_goal_mvars, LEAN_DEFAULT_PP_INSTANTIATE_GOAL_MVARS,
                          "(pretty printer) instantiate assigned metavariables before pretty printing goals");

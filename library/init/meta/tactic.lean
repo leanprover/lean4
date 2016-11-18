@@ -364,6 +364,8 @@ try $ do
 
 /- (save_type_info e ref) save (typeof e) at position associated with ref -/
 meta constant save_type_info : expr → expr → tactic unit
+/- Return list of currently opened namespace -/
+meta constant opened_namespaces : tactic (list name)
 open list nat
 
 /- Remark: set_goals will erase any solved goal -/

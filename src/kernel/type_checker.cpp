@@ -765,6 +765,7 @@ public:
     }
 
     expr execute_core() override {
+        check_no_mlocal(m_env, m_decl.get_name(), m_decl.get_value(), false);
         // TODO(gabriel): noncomputable check
         bool memoize = true;
         bool trusted_only = m_decl.is_trusted();
@@ -781,8 +782,6 @@ public:
 };
 
 certified_declaration check(environment const & env, declaration const & d) {
-    if (d.is_definition())
-        check_no_mlocal(env, d.get_name(), d.get_value(), false);
     check_no_mlocal(env, d.get_name(), d.get_type(), true);
     check_name(env, d.get_name());
     check_duplicated_params(env, d);
@@ -796,6 +795,7 @@ certified_declaration check(environment const & env, declaration const & d) {
             return certified_declaration(env.get_id(),
                                          mk_theorem(d.get_name(), d.get_univ_params(), d.get_type(), checked_proof));
         } else {
+            check_no_mlocal(env, d.get_name(), d.get_value(), false);
             expr val_type = checker.check(d.get_value(), d.get_univ_params());
             if (!checker.is_def_eq(val_type, d.get_type())) {
                 throw_kernel_exception(env, d.get_value(), [=](formatter const &fmt) {

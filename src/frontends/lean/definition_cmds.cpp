@@ -240,26 +240,25 @@ static expr_pair elaborate_definition(parser & p, elaborator & elab, def_cmd_kin
     }
 }
 
-static void finalize_definition_type(elaborator & elab, buffer<expr> const & params, expr & type, buffer<name> & lp_names) {
+static void finalize_theorem_type(elaborator & elab, buffer<expr> const & params, expr & type,
+                                  buffer<name> & lp_names,
+                                  elaborator::theorem_finalization_info & info) {
     type = elab.mk_pi(params, type);
-    buffer<expr> type_val;
     buffer<name> implicit_lp_names;
-    type_val.push_back(type);
-    elab.finalize(type_val, implicit_lp_names, true, false);
-    type = unfold_untrusted_macros(elab.env(), type_val[0]);
+    std::tie(type, info) = elab.finalize_theorem_type(type, implicit_lp_names);
+    type = unfold_untrusted_macros(elab.env(), type);
     lp_names.append(implicit_lp_names);
 }
 
-static void finalize_definition_val(elaborator & elab, buffer<expr> const & params, expr & val) {
+static void finalize_theorem_proof(elaborator & elab, buffer<expr> const & params, expr & val,
+                                   elaborator::theorem_finalization_info const & info) {
     val  = elab.mk_lambda(params, val);
-    buffer<expr> type_val;
-    buffer<name> implicit_lp_names;
-    type_val.push_back(val);
-    elab.finalize(type_val, implicit_lp_names, true, false);
-    val = unfold_untrusted_macros(elab.env(), type_val[0]);
+    val = elab.finalize_theorem_proof(val, info);
+    val = unfold_untrusted_macros(elab.env(), val);
 }
 
-static void finalize_definition(elaborator & elab, buffer<expr> const & params, expr & type, expr & val, buffer<name> & lp_names) {
+static void finalize_definition(elaborator & elab, buffer<expr> const & params, expr & type,
+                                expr & val, buffer<name> & lp_names) {
     type = elab.mk_pi(params, type);
     val  = elab.mk_lambda(params, val);
     buffer<expr> type_val;
@@ -600,6 +599,7 @@ class proof_elaboration_task : public module_task<expr> {
 
     std::vector<expr> m_params;
     expr m_fn, m_val;
+    elaborator::theorem_finalization_info m_finfo;
 
     metavar_context m_mctx;
     local_context m_lctx;
@@ -608,13 +608,13 @@ class proof_elaboration_task : public module_task<expr> {
 public:
     proof_elaboration_task(environment const & decl_env,
                            options const & opts,
-                           std::vector<expr> const & params,
-                           expr fn, expr val,
+                           buffer<expr> const & params,
+                           expr const & fn, expr const & val, elaborator::theorem_finalization_info const & finfo,
                            metavar_context const & mctx, local_context const & lctx,
                            parser_pos_provider const & prov) :
         module_task(optional<pos_info>(prov.get_some_pos()), task_kind::elab),
         m_decl_env(decl_env), m_opts(opts), m_use_info_manager(get_global_info_manager() != nullptr),
-        m_params(params), m_fn(fn), m_val(val),
+        m_params(params.begin(), params.end()), m_fn(fn), m_val(val), m_finfo(finfo),
         m_mctx(mctx), m_lctx(lctx), m_pos_provider(prov) {}
 
     void description(std::ostream & out) const override {
@@ -632,12 +632,10 @@ public:
 
         try {
             elaborator elab(m_decl_env, m_opts, m_mctx, m_lctx);
-
             expr val, type = mlocal_type(m_fn);
             std::tie(val, type) = elab.elaborate_with_type(m_val, mk_as_is(type));
             buffer<expr> params; for (auto & e : m_params) params.push_back(e);
-            finalize_definition_val(elab, params, val);
-
+            finalize_theorem_proof(elab, params, val, m_finfo);
             return inline_new_defs(m_decl_env, elab.env(), val);
         } catch (exception & ex) {
             message_builder error_msg(&m_pos_provider, tc, m_decl_env, get_global_ios(),
@@ -669,15 +667,16 @@ public:
     example_checking_task(environment const & decl_env, options const & opts,
                           decl_modifiers modifiers,
                           level_param_names const & univ_params,
-                          std::vector<expr> const & params,
-                          expr fn, expr val,
+                          buffer<expr> const & params,
+                          expr const & fn, expr const & val,
                           metavar_context const & mctx, local_context const & lctx,
                           parser_pos_provider const & prov) :
-            module_task(optional<pos_info>(prov.get_some_pos()), task_kind::print),
-            m_decl_env(decl_env), m_opts(opts), m_use_info_manager(get_global_info_manager() != nullptr),
-            m_modifiers(modifiers),
-            m_univ_params(univ_params), m_params(params), m_fn(fn), m_val(val),
-            m_mctx(mctx), m_lctx(lctx), m_pos_provider(prov) {}
+        module_task(optional<pos_info>(prov.get_some_pos()), task_kind::print),
+        m_decl_env(decl_env), m_opts(opts), m_use_info_manager(get_global_info_manager() != nullptr),
+        m_modifiers(modifiers),
+        m_univ_params(univ_params), m_params(params.begin(), params.end()), m_fn(fn), m_val(val),
+        m_mctx(mctx), m_lctx(lctx), m_pos_provider(prov) {
+    }
 
     void description(std::ostream & out) const override {
         out << "checking example on line " << m_pos_provider.get_some_pos().first << " (" << get_module() << ")";
@@ -755,23 +754,19 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
             elab.ensure_no_unassigned_metavars(type);
             expr new_fn = update_mlocal(fn, type);
             val = replace_local_preserving_pos_info(val, fn, new_fn);
-
-            finalize_definition_type(elab, new_params, type, lp_names);
-
-            std::vector<expr> params_vec(new_params.begin(), new_params.end());
+            elaborator::theorem_finalization_info thm_finfo;
+            finalize_theorem_type(elab, new_params, type, lp_names, thm_finfo);
             auto decl_env = elab.env();
             auto elab_task = get_global_task_queue().submit<proof_elaboration_task>(
-                    decl_env, p.get_options(), params_vec, new_fn, val,
-                    elab.mctx(), elab.lctx(), p.get_parser_pos_provider(header_pos));
-
+                decl_env, p.get_options(), new_params, new_fn, val, thm_finfo,
+                elab.mctx(), elab.lctx(), p.get_parser_pos_provider(header_pos));
             env_n = declare_definition(p, elab.env(), kind, lp_names, c_name, type, opt_val, elab_task, modifiers, attrs,
                                        doc_string, header_pos);
         } else if (kind == Example) {
-            std::vector<expr> params_vec(new_params.begin(), new_params.end());
             get_global_task_queue().submit<example_checking_task>(
                     p.env(), p.get_options(),
                     modifiers, to_list(lp_names),
-                    params_vec, fn, val,
+                    new_params, fn, val,
                     elab.mctx(), elab.lctx(),
                     p.get_parser_pos_provider(header_pos));
             return p.env();

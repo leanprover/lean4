@@ -20,6 +20,8 @@ enum class elaborator_strategy {
     AsEliminator
 };
 
+class sanitize_param_names_fn;
+
 class elaborator {
 public:
     class checkpoint;
@@ -236,6 +238,9 @@ private:
 
     void unassigned_uvars_to_params(level const & l);
     void unassigned_uvars_to_params(expr const & e);
+
+    void finalize_core(sanitize_param_names_fn & S, buffer<expr> & es,
+                       bool check_unassigned, bool to_simple_metavar, bool collect_local_ctx);
 public:
     elaborator(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx);
     ~elaborator();
@@ -268,6 +273,21 @@ public:
     void finalize(buffer<expr> & es, buffer<name> & new_lp_names, bool check_unassigned, bool to_simple_metavar);
     /** Simpler version of \c finalize, where \c es contains only one expression. */
     pair<expr, level_param_names> finalize(expr const & e, bool check_unassigned, bool to_simple_metavar);
+
+    /* We finalize theorem in two steps: type, and then its proof.
+       We use theorem_finalization_info to communicate information from the first step to the second. */
+    struct theorem_finalization_info {
+        name_set        m_L;
+        name_map<level> m_R;
+        name_map<level> m_U;
+        theorem_finalization_info() {}
+        theorem_finalization_info(name_set const & L, name_map<level> const & R,
+                                  name_map<level> const & U):
+            m_L(L), m_R(R), m_U(U) {}
+    };
+    pair<expr, theorem_finalization_info> finalize_theorem_type(expr const & type, buffer<name> & new_lp_names);
+    expr finalize_theorem_proof(expr const & val, theorem_finalization_info const & info);
+
     environment const & env() const { return m_env; }
 };
 

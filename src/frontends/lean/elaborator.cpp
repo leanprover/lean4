@@ -2610,17 +2610,29 @@ struct sanitize_param_names_fn : public replace_visitor {
     name_map<level> m_R; /* map from tagged g_level_prefix to "clean" name not in L. */
     name_map<level> m_U; /* map from universe metavariable name to "clean" name not in L. */
     unsigned        m_idx{1};
-    bool            m_sanitized{false};
     buffer<name> &  m_new_param_names;
+    /* If m_fixed == true, then m_R, m_L and m_U are read only. We set m_fixed when elaborating
+       theorem proofs.
+       Remark: we should be able to infer the set of universe variables using just the
+       theorem type. */
+    bool            m_fixed;
 
     sanitize_param_names_fn(type_context & ctx, buffer<name> & new_lp_names):
-        m_ctx(ctx), m_new_param_names(new_lp_names) {}
+        m_ctx(ctx), m_new_param_names(new_lp_names), m_fixed(false) {}
+
+    sanitize_param_names_fn(type_context & ctx, elaborator::theorem_finalization_info const & info,
+                            buffer<name> & new_lp_names):
+        m_ctx(ctx), m_L(info.m_L), m_R(info.m_R), m_U(info.m_U),
+        m_new_param_names(new_lp_names), m_fixed(true) {}
 
     level mk_param() {
         while (true) {
             name new_n = m_p.append_after(m_idx);
             m_idx++;
             if (!m_L.contains(new_n)) {
+                if (m_fixed) {
+                    throw exception(sstream() << "theorem/lemma proof uses universe '" << new_n << "' which does not occur in its type");
+                }
                 m_new_param_names.push_back(new_n);
                 return mk_param_univ(new_n);
             }
@@ -2636,6 +2648,10 @@ struct sanitize_param_names_fn : public replace_visitor {
                         if (auto new_l = m_R.find(n)) {
                             return some_level(*new_l);
                         } else {
+                            if (m_fixed) {
+                                throw exception(sstream() << "theorem/lemma proof uses universe '" << n << "'"
+                                                << " which does not occur in its type (possible solution: use def instead of theorem)");
+                            }
                             level r = mk_param();
                             m_R.insert(n, r);
                             return some_level(r);
@@ -2649,6 +2665,10 @@ struct sanitize_param_names_fn : public replace_visitor {
                         if (auto new_l = m_U.find(n)) {
                             return some_level(*new_l);
                         } else {
+                            if (m_fixed) {
+                                throw exception(sstream() << "theorem/lemma proof contains an unassigned universe metavariable '" << n << "'"
+                                                << " (possible solution: use def instead of theorem)");
+                            }
                             level r = mk_param();
                             m_U.insert(n, r);
                             return some_level(r);
@@ -2668,12 +2688,10 @@ struct sanitize_param_names_fn : public replace_visitor {
     }
 
     void collect_params(expr const & e) {
-        lean_assert(!m_sanitized);
         m_L = collect_univ_params(e, m_L);
     }
 
     void collect_local_context_params() {
-        lean_assert(!m_sanitized);
         m_ctx.lctx().for_each([&](local_decl const & l) {
                 collect_params(m_ctx.instantiate_mvars(l.get_type()));
                 if (auto v = l.get_value())
@@ -2683,8 +2701,11 @@ struct sanitize_param_names_fn : public replace_visitor {
 
     expr sanitize(expr const & e) {
         expr r = operator()(e);
-        m_sanitized = true;
         return r;
+    }
+
+    elaborator::theorem_finalization_info mk_info() {
+        return elaborator::theorem_finalization_info(m_L, m_R, m_U);
     }
 };
 
@@ -2747,8 +2768,8 @@ expr_pair elaborator::elaborate_with_type(expr const & e, expr const & e_type) {
     return mk_pair(new_e, new_e_type);
 }
 
-void elaborator::finalize(buffer<expr> & es, buffer<name> & new_lp_names, bool check_unassigned, bool to_simple_metavar) {
-    sanitize_param_names_fn S(m_ctx, new_lp_names);
+void elaborator::finalize_core(sanitize_param_names_fn & S, buffer<expr> & es,
+                               bool check_unassigned, bool to_simple_metavar, bool collect_local_ctx) {
     name_map<expr> to_simple_mvar_cache;
     for (expr & e : es) {
         e = instantiate_mvars(e);
@@ -2761,10 +2782,16 @@ void elaborator::finalize(buffer<expr> & es, buffer<name> & new_lp_names, bool c
         e = instantiate_mvars(e);
         S.collect_params(e);
     }
-    S.collect_local_context_params();
+    if (collect_local_ctx)
+        S.collect_local_context_params();
     for (expr & e : es) {
         e = S.sanitize(e);
     }
+}
+
+void elaborator::finalize(buffer<expr> & es, buffer<name> & new_lp_names, bool check_unassigned, bool to_simple_metavar) {
+    sanitize_param_names_fn S(m_ctx, new_lp_names);
+    finalize_core(S, es, check_unassigned, to_simple_metavar, true);
 }
 
 pair<expr, level_param_names> elaborator::finalize(expr const & e, bool check_unassigned, bool to_simple_metavar) {
@@ -2772,6 +2799,28 @@ pair<expr, level_param_names> elaborator::finalize(expr const & e, bool check_un
     buffer<name> new_lp_names;
     finalize(es, new_lp_names, check_unassigned, to_simple_metavar);
     return mk_pair(es[0], to_list(new_lp_names));
+}
+
+auto elaborator::finalize_theorem_type(expr const & type, buffer<name> & new_lp_names)
+    -> pair<expr, theorem_finalization_info> {
+    sanitize_param_names_fn S(m_ctx, new_lp_names);
+    buffer<expr> es; es.push_back(type);
+    bool check_unassigned  = true;
+    bool to_simple_metavar = false;
+    bool collect_local_ctx = true;
+    finalize_core(S, es, check_unassigned, to_simple_metavar, collect_local_ctx);
+    return mk_pair(es[0], S.mk_info());
+}
+
+expr elaborator::finalize_theorem_proof(expr const & val, theorem_finalization_info const & info) {
+    buffer<name> dummy;
+    sanitize_param_names_fn S(m_ctx, info, dummy);
+    buffer<expr> es; es.push_back(val);
+    bool check_unassigned  = true;
+    bool to_simple_metavar = false;
+    bool collect_local_ctx = false;
+    finalize_core(S, es, check_unassigned, to_simple_metavar, collect_local_ctx);
+    return es[0];
 }
 
 pair<expr, level_param_names>

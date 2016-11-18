@@ -142,7 +142,7 @@ struct mk_aux_definition_fn {
             bool use_self_opt = true;
             d = mk_definition_inferring_trusted(env, c, to_list(m_level_params), def_type, def_value, use_self_opt);
         }
-        environment new_env = module::add(env, check(env, d));
+        environment new_env = module::add(env, check(env, d, true));
         buffer<level> ls;
         for (name const & n : m_level_params) {
             if (level const * l = m_univ_meta_to_param_inv.find(n))

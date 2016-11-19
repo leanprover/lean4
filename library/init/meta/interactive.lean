@@ -219,6 +219,12 @@ tactic.contradiction
 meta def repeat : itactic → tactic unit :=
 tactic.repeat
 
+meta def try : itactic → tactic unit :=
+tactic.try
+
+meta def solve1 : itactic → tactic unit :=
+tactic.solve1
+
 meta def assert (h : ident) (c : colon_tk) (q : qexpr0) : tactic unit :=
 do e ← to_expr_strict q,
    tactic.assert h e

@@ -74,10 +74,9 @@ begin
   begin
     change n + 0 = 0 + n, rw zadd n
   end,
-  show n + succ m' = succ m' + n,
-  begin
+  show n + succ m' = succ m' + n, {
     change succ (n + m') = succ m' + n,
     calc succ (n + m') = succ (m' + n) : by rw ih
                  ...   = succ m' + n   : by rw succ_add
-  end
+  }
 end

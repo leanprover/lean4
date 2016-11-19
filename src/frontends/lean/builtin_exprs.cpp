@@ -164,11 +164,14 @@ static expr parse_proof(parser & p) {
     } else if (p.curr_is_token(get_begin_tk())) {
         auto pos = p.pos();
         return parse_begin_end_core(p, pos, get_end_tk());
+    } else if (p.curr_is_token(get_lcurly_tk())) {
+        auto pos = p.pos();
+        return parse_begin_end_core(p, pos, get_rcurly_tk());
     } else if (p.curr_is_token(get_by_tk())) {
         auto pos = p.pos();
         return parse_by(p, 0, nullptr, pos);
     } else {
-        throw parser_error("invalid expression, 'by', 'begin', 'proof', 'using' or 'from' expected", p.pos());
+        throw parser_error("invalid expression, 'by', 'begin', '{', or 'from' expected", p.pos());
     }
 }
 

@@ -345,13 +345,32 @@ to_expr q >>= tactic.subst >> try reflexivity
 meta def clear : raw_ident_list → tactic unit :=
 tactic.clear_lst
 
+private meta def to_qualified_name_core : name → list name → tactic name
+| n []        := fail $ "unknown declaration '" ++ to_string n ++ "'"
+| n (ns::nss) := do
+  curr ← return $ ns ++ n,
+  env  ← get_env,
+  if env^.contains curr then return curr
+  else to_qualified_name_core n nss
+
+private meta def to_qualified_name (n : name) : tactic name :=
+do env ← get_env,
+   if env^.contains n then return n
+   else do
+     ns ← opened_namespaces,
+     to_qualified_name_core n ns
+
+private meta def to_qualified_names : list name → tactic (list name)
+| []      := return []
+| (c::cs) := do new_c ← to_qualified_name c, new_cs ← to_qualified_names cs, return (new_c::new_cs)
+
 private meta def dunfold_hyps : list name → location → tactic unit
 | cs []      := skip
 | cs (h::hs) := get_local h >>= dunfold_at cs >> dunfold_hyps cs hs
 
 meta def dunfold : raw_ident_list → location → tactic unit
-| cs [] := tactic.dunfold cs
-| cs hs := dunfold_hyps cs hs
+| cs [] := do new_cs ← to_qualified_names cs, tactic.dunfold new_cs
+| cs hs := do new_cs ← to_qualified_names cs, dunfold_hyps new_cs hs
 
 /- TODO(Leo): add support for non-refl lemmas -/
 meta def unfold : raw_ident_list → location → tactic unit :=
@@ -362,8 +381,8 @@ private meta def dunfold_hyps_occs : name → occurrences → location → tacti
 | c occs (h::hs) := get_local h >>= dunfold_core_at occs [c] >> dunfold_hyps_occs c occs hs
 
 meta def dunfold_occs : ident → list nat → location → tactic unit
-| c ps [] := tactic.dunfold_occs_of ps c
-| c ps hs := dunfold_hyps_occs c (occurrences.pos ps) hs
+| c ps [] := do new_c ← to_qualified_name c, tactic.dunfold_occs_of ps new_c
+| c ps hs := do new_c ← to_qualified_name c, dunfold_hyps_occs new_c (occurrences.pos ps) hs
 
 /- TODO(Leo): add support for non-refl lemmas -/
 meta def unfold_occs : ident → list nat → location → tactic unit :=

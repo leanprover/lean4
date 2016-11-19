@@ -1,4 +1,4 @@
-dThe Lean Standard Library
+The Lean Standard Library
 =========================
 
 The Lean standard library is contained in the following files and directories:

@@ -118,8 +118,15 @@ static expr parse_using_id(parser & p, name const & decl_name) {
 
 static expr parse_qexpr(parser & p, unsigned rbp) {
     auto pos = p.pos();
-    parser::quote_scope scope(p, true);
-    expr e = p.parse_expr(rbp);
+    expr e;
+    /* TODO(Leo): avoid p.in_quote by improving
+       parser::quote_scope constructor */
+    if (p.in_quote()) {
+        e = p.parse_expr(rbp);
+    } else {
+        parser::quote_scope scope(p, true);
+        e = p.parse_expr(rbp);
+    }
     return p.save_pos(mk_quote(e), pos);
 }
 

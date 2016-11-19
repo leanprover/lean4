@@ -263,9 +263,22 @@ static expr parse_auto_quote_tactic(parser & p, name const & decl_name) {
     return p.rec_save_pos(mk_app(mk_constant(decl_name), args), pos);
 }
 
+static bool is_curr_exact_shortcut(parser & p) {
+    return
+        p.curr_is_token(get_have_tk()) ||
+        p.curr_is_token(get_show_tk()) ||
+        p.curr_is_token(get_assume_tk()) ||
+        p.curr_is_token(get_calc_tk()) ||
+        p.curr_is_token(get_suppose_tk());
+}
+
 static expr parse_tactic(parser & p) {
     if (auto dname = is_auto_quote_tactic(p)) {
         return parse_auto_quote_tactic(p, *dname);
+    } else if (is_curr_exact_shortcut(p)) {
+        auto pos = p.pos();
+        expr arg = parse_qexpr(p, 0);
+        return p.rec_save_pos(mk_app(mk_constant(get_tactic_interactive_exact_name()), arg), pos);
     } else {
         return p.parse_expr();
     }
@@ -330,8 +343,13 @@ expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {
     return p.save_pos(mk_by(r), pos);
 }
 
-expr parse_auto_quote_tactic_block(parser & p, unsigned, expr const *, pos_info const &) {
+expr parse_auto_quote_tactic_block(parser & p, unsigned, expr const *, pos_info const & pos) {
     expr r = parse_tactic(p);
+    while (p.curr_is_token(get_comma_tk())) {
+        p.next();
+        expr next = parse_tactic(p);
+        r = p.rec_save_pos(mk_app(mk_constant(get_monad_and_then_name()), r, next), pos);
+    }
     p.check_token_next(get_rbracket_tk(), "invalid auto-quote tactic block, ']' expected");
     return r;
 }

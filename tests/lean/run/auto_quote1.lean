@@ -60,3 +60,24 @@ begin
   { change succ (n + m') = succ m' + n,
     rw [succ_add, ih] }
 end
+
+example (a b c : nat) : 0 = b → 0 + a + b + c = c + a :=
+by do
+  tactic.intro `h,
+  `[rewrite -h, rw zadd, rw @addc a 0, rw zadd, rw addc]
+
+example : ∀ n m : ℕ, n + m = m + n :=
+begin
+  intros n m,
+  induction m with m' ih,
+  show n + 0 = 0 + n,
+  begin
+    change n + 0 = 0 + n, rw zadd n
+  end,
+  show n + succ m' = succ m' + n,
+  begin
+    change succ (n + m') = succ m' + n,
+    calc succ (n + m') = succ (m' + n) : by rw ih
+                 ...   = succ m' + n   : by rw succ_add
+  end
+end

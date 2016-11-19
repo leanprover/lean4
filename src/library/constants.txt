@@ -348,6 +348,7 @@ tactic.to_expr
 tactic.skip
 tactic.try
 tactic.interactive
+tactic.interactive.exact
 tactic.interactive.types.ident
 tactic.interactive.types.opt_ident
 tactic.interactive.types.using_ident

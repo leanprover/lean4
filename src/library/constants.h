@@ -355,6 +355,7 @@ name const & get_tactic_to_expr_name();
 name const & get_tactic_skip_name();
 name const & get_tactic_try_name();
 name const & get_tactic_interactive_name();
+name const & get_tactic_interactive_exact_name();
 name const & get_tactic_interactive_types_ident_name();
 name const & get_tactic_interactive_types_opt_ident_name();
 name const & get_tactic_interactive_types_using_ident_name();

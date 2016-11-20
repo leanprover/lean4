@@ -199,7 +199,20 @@ name const * g_nat_has_le = nullptr;
 name const * g_nat_add = nullptr;
 name const * g_nat_no_confusion = nullptr;
 name const * g_nat_cases_on = nullptr;
-name const * g_ne = nullptr;
+name const * g_nat_bit0_ne = nullptr;
+name const * g_nat_bit0_ne_bit1 = nullptr;
+name const * g_nat_bit0_ne_zero = nullptr;
+name const * g_nat_bit0_ne_one = nullptr;
+name const * g_nat_bit1_ne = nullptr;
+name const * g_nat_bit1_ne_bit0 = nullptr;
+name const * g_nat_bit1_ne_zero = nullptr;
+name const * g_nat_bit1_ne_one = nullptr;
+name const * g_nat_zero_ne_one = nullptr;
+name const * g_nat_zero_ne_bit0 = nullptr;
+name const * g_nat_zero_ne_bit1 = nullptr;
+name const * g_nat_one_ne_zero = nullptr;
+name const * g_nat_one_ne_bit0 = nullptr;
+name const * g_nat_one_ne_bit1 = nullptr;
 name const * g_neg = nullptr;
 name const * g_norm_num_add1 = nullptr;
 name const * g_norm_num_add1_bit0 = nullptr;
@@ -592,7 +605,20 @@ void initialize_constants() {
     g_nat_add = new name{"nat", "add"};
     g_nat_no_confusion = new name{"nat", "no_confusion"};
     g_nat_cases_on = new name{"nat", "cases_on"};
-    g_ne = new name{"ne"};
+    g_nat_bit0_ne = new name{"nat", "bit0_ne"};
+    g_nat_bit0_ne_bit1 = new name{"nat", "bit0_ne_bit1"};
+    g_nat_bit0_ne_zero = new name{"nat", "bit0_ne_zero"};
+    g_nat_bit0_ne_one = new name{"nat", "bit0_ne_one"};
+    g_nat_bit1_ne = new name{"nat", "bit1_ne"};
+    g_nat_bit1_ne_bit0 = new name{"nat", "bit1_ne_bit0"};
+    g_nat_bit1_ne_zero = new name{"nat", "bit1_ne_zero"};
+    g_nat_bit1_ne_one = new name{"nat", "bit1_ne_one"};
+    g_nat_zero_ne_one = new name{"nat", "zero_ne_one"};
+    g_nat_zero_ne_bit0 = new name{"nat", "zero_ne_bit0"};
+    g_nat_zero_ne_bit1 = new name{"nat", "zero_ne_bit1"};
+    g_nat_one_ne_zero = new name{"nat", "one_ne_zero"};
+    g_nat_one_ne_bit0 = new name{"nat", "one_ne_bit0"};
+    g_nat_one_ne_bit1 = new name{"nat", "one_ne_bit1"};
     g_neg = new name{"neg"};
     g_norm_num_add1 = new name{"norm_num", "add1"};
     g_norm_num_add1_bit0 = new name{"norm_num", "add1_bit0"};
@@ -986,7 +1012,20 @@ void finalize_constants() {
     delete g_nat_add;
     delete g_nat_no_confusion;
     delete g_nat_cases_on;
-    delete g_ne;
+    delete g_nat_bit0_ne;
+    delete g_nat_bit0_ne_bit1;
+    delete g_nat_bit0_ne_zero;
+    delete g_nat_bit0_ne_one;
+    delete g_nat_bit1_ne;
+    delete g_nat_bit1_ne_bit0;
+    delete g_nat_bit1_ne_zero;
+    delete g_nat_bit1_ne_one;
+    delete g_nat_zero_ne_one;
+    delete g_nat_zero_ne_bit0;
+    delete g_nat_zero_ne_bit1;
+    delete g_nat_one_ne_zero;
+    delete g_nat_one_ne_bit0;
+    delete g_nat_one_ne_bit1;
     delete g_neg;
     delete g_norm_num_add1;
     delete g_norm_num_add1_bit0;
@@ -1379,7 +1418,20 @@ name const & get_nat_has_le_name() { return *g_nat_has_le; }
 name const & get_nat_add_name() { return *g_nat_add; }
 name const & get_nat_no_confusion_name() { return *g_nat_no_confusion; }
 name const & get_nat_cases_on_name() { return *g_nat_cases_on; }
-name const & get_ne_name() { return *g_ne; }
+name const & get_nat_bit0_ne_name() { return *g_nat_bit0_ne; }
+name const & get_nat_bit0_ne_bit1_name() { return *g_nat_bit0_ne_bit1; }
+name const & get_nat_bit0_ne_zero_name() { return *g_nat_bit0_ne_zero; }
+name const & get_nat_bit0_ne_one_name() { return *g_nat_bit0_ne_one; }
+name const & get_nat_bit1_ne_name() { return *g_nat_bit1_ne; }
+name const & get_nat_bit1_ne_bit0_name() { return *g_nat_bit1_ne_bit0; }
+name const & get_nat_bit1_ne_zero_name() { return *g_nat_bit1_ne_zero; }
+name const & get_nat_bit1_ne_one_name() { return *g_nat_bit1_ne_one; }
+name const & get_nat_zero_ne_one_name() { return *g_nat_zero_ne_one; }
+name const & get_nat_zero_ne_bit0_name() { return *g_nat_zero_ne_bit0; }
+name const & get_nat_zero_ne_bit1_name() { return *g_nat_zero_ne_bit1; }
+name const & get_nat_one_ne_zero_name() { return *g_nat_one_ne_zero; }
+name const & get_nat_one_ne_bit0_name() { return *g_nat_one_ne_bit0; }
+name const & get_nat_one_ne_bit1_name() { return *g_nat_one_ne_bit1; }
 name const & get_neg_name() { return *g_neg; }
 name const & get_norm_num_add1_name() { return *g_norm_num_add1; }
 name const & get_norm_num_add1_bit0_name() { return *g_norm_num_add1_bit0; }

@@ -16,6 +16,15 @@ namespace nat
   | n 0     := rfl
   | n (m+1) := congr_arg succ (succ_add n m)
 
+  lemma add_succ : ∀ n m : ℕ, n + succ m = succ (n + m) :=
+  λ n m, rfl
+
+  lemma add_zero : ∀ n : ℕ, n + 0 = n :=
+  λ n, rfl
+
+  lemma add_one_eq_succ : ∀ n : ℕ, n + 1 = succ n :=
+  λ n, rfl
+
   protected lemma add_comm : ∀ n m : ℕ, n + m = m + n
   | n 0     := eq.symm (nat.zero_add n)
   | n (m+1) :=
@@ -43,7 +52,7 @@ namespace nat
   protected lemma one_ne_zero : 1 ≠ (0 : ℕ) :=
   assume h, nat.no_confusion h
 
-  protected lemma bit0_ne_zero : ∀ n : ℕ, n ≠ 0 → bit0 n ≠ 0
+  protected lemma bit0_ne_zero : ∀ {n : ℕ}, n ≠ 0 → bit0 n ≠ 0
   | 0     h := absurd rfl h
   | (n+1) h := nat.succ_ne_zero _
 
@@ -51,7 +60,7 @@ namespace nat
   show succ (n + n) ≠ 0, from
   succ_ne_zero (n + n)
 
-  protected lemma bit1_ne_one : ∀ n : ℕ, n ≠ 0 → bit1 n ≠ 1
+  protected lemma bit1_ne_one : ∀ {n : ℕ}, n ≠ 0 → bit1 n ≠ 1
   | 0     h h1 := absurd rfl h
   | (n+1) h h1 := nat.no_confusion h1 (λ h2, absurd h2 (nat.succ_ne_zero _))
 
@@ -80,6 +89,44 @@ namespace nat
       nat.no_confusion h1 (λ h2', nat.no_confusion h2' (λ h2'', h2'')),
     absurd h2 (bit1_ne_bit0 n m)
 
+  protected lemma bit0_ne_bit1 : ∀ (n m : ℕ), bit0 n ≠ bit1 m :=
+  λ n m : nat, ne.symm (nat.bit1_ne_bit0 m n)
+
+  protected lemma bit0_inj : ∀ {n m : ℕ}, bit0 n = bit0 m → n = m
+  | 0     0     h := rfl
+  | 0     (m+1) h := by contradiction
+  | (n+1) 0     h := by contradiction
+  | (n+1) (m+1) h :=
+    have succ (succ (n + n)) = succ (succ (m + m)),
+    begin unfold bit0 at h, simp [add_one_eq_succ, add_succ, succ_add] at h, exact h end,
+    have n + n = m + m, begin repeat {injection this with this}, assumption end,
+    have n = m, from bit0_inj this,
+    by rw this
+
+  protected lemma bit1_inj : ∀ {n m : ℕ}, bit1 n = bit1 m → n = m :=
+  λ n m h,
+  have succ (bit0 n) = succ (bit0 m), begin simp [nat.bit1_eq_succ_bit0] at h, assumption end,
+  have bit0 n = bit0 m, from begin injection this, assumption end,
+  nat.bit0_inj this
+
+  protected lemma bit0_ne {n m : ℕ} : n ≠ m → bit0 n ≠ bit0 m :=
+  λ h₁ h₂, absurd (nat.bit0_inj h₂) h₁
+
+  protected lemma bit1_ne {n m : ℕ} : n ≠ m → bit1 n ≠ bit1 m :=
+  λ h₁ h₂, absurd (nat.bit1_inj h₂) h₁
+
+  protected lemma zero_ne_bit0 {n : ℕ} : n ≠ 0 → 0 ≠ bit0 n :=
+  λ h, ne.symm (nat.bit0_ne_zero h)
+
+  protected lemma zero_ne_bit1 (n : ℕ) : 0 ≠ bit1 n :=
+  ne.symm (nat.bit1_ne_zero n)
+
+  protected lemma one_ne_bit0 (n : ℕ) : 1 ≠ bit0 n :=
+  ne.symm (nat.bit0_ne_one n)
+
+  protected lemma one_ne_bit1 {n : ℕ} : n ≠ 0 → 1 ≠ bit1 n :=
+  λ h, ne.symm (nat.bit1_ne_one h)
+
   /- properties of inequality -/
 
   protected lemma le_of_eq {n m : ℕ} (p : n = m) : n ≤ m :=
@@ -91,7 +138,6 @@ namespace nat
   @[simp] lemma pred_le_iff_true (n : ℕ) : pred n ≤ n ↔ true :=
   iff_true_intro (pred_le n)
 
-
   lemma le_succ_of_le {n m : ℕ} (h : n ≤ m) : n ≤ succ m :=
   nat.le_trans h (le_succ m)
 
@@ -101,13 +147,11 @@ namespace nat
   protected lemma le_of_lt {n m : ℕ} (h : n < m) : n ≤ m :=
   le_of_succ_le h
 
-
   lemma le_succ_of_pred_le {n m : ℕ} : pred n ≤ m → n ≤ succ m :=
   nat.cases_on n le.step (λ a, succ_le_succ)
 
   lemma succ_le_zero_iff_false (n : ℕ) : succ n ≤ 0 ↔ false :=
   iff_false_intro (not_succ_le_zero n)
-
 
   @[simp] lemma succ_le_self_iff_false (n : ℕ) : succ n ≤ n ↔ false :=
   iff_false_intro (not_succ_le_self n)
@@ -206,7 +250,6 @@ namespace nat
   or.elim (nat.lt_trichotomy a b)
     (λ hlt, absurd hlt hnlt)
     (λ h, h)
-
 
   lemma lt_of_succ_le {a b : ℕ} (h : succ a ≤ b) : a < b := h
 

@@ -1,7 +1,5 @@
 open tactic expr
 
-constant nat.add_assoc (a b c : nat) : (a + b) + c = a + (b + c)
-
 meta definition is_op_app (op : expr) (e : expr) : option (expr × expr) :=
 match e with
 | (app (app fn a1) a2) := if op = fn then some (a1, a2) else none

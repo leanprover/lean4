@@ -1,6 +1,3 @@
-constant nat.add_assoc (a b c : nat) : (a + b) + c = a + (b + c)
-
-
 namespace foo
   attribute [simp] nat.add_assoc
   print nat.add_assoc

@@ -268,6 +268,9 @@ tactic.right
 meta def split : tactic unit :=
 tactic.split
 
+meta def exfalso : tactic unit :=
+tactic.exfalso
+
 meta def injection (q : qexpr0) (hs : with_ident_list) : tactic unit :=
 do e ← to_expr q, tactic.injection_with e hs
 

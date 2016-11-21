@@ -353,7 +353,7 @@ namespace nat
 
   protected lemma add_le_add_left {n m : ℕ} (h : n ≤ m) (k : ℕ) : k + n ≤ k + m :=
   match le.elim h with
-  | ⟨w, hw⟩ := @le.intro _ _ w begin dsimp at hw, rw [nat.add_assoc, hw] end
+  | ⟨w, hw⟩ := @le.intro _ _ w begin rw [nat.add_assoc, hw] end
   end
 
   protected lemma add_le_add_right {n m : ℕ} (h : n ≤ m) (k : ℕ) : n + k ≤ m + k :=

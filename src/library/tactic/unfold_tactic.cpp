@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "kernel/instantiate.h"
 #include "library/type_context.h"
+#include "library/util.h"
 #include "library/constants.h"
 #include "library/vm/vm_expr.h"
 #include "library/tactic/eqn_lemmas.h"
@@ -61,7 +62,7 @@ vm_obj tactic_dunfold_expr_core(vm_obj const & m, vm_obj const & _e, vm_obj cons
                 return mk_tactic_exception("dunfold_expr failed, incorrect number of universe levels", s);
             buffer<expr> args;
             get_app_args(e, args);
-            expr new_e = head_beta_reduce(mk_app(instantiate_value_univ_params(d, const_levels(fn)), args.size(), args.data()));
+            expr new_e = annotated_head_beta_reduce(mk_app(instantiate_value_univ_params(d, const_levels(fn)), args.size(), args.data()));
             return mk_tactic_success(to_obj(new_e), s);
         }
     } catch (exception & ex) {

@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/error_msgs.h"
 #include "library/trace.h"
+#include "library/util.h"
 #include "library/user_recursors.h"
 #include "library/locals.h"
 #include "library/app_builder.h"
@@ -51,12 +52,12 @@ static void set_clear(expr & R, type_context & ctx, expr const & M, expr const &
 }
 
 /* Helper function for computing the number of nested Pi-expressions.
-   It uses head_beta_reduce on intermediate terms. */
+   It uses annotated_head_beta_reduce on intermediate terms. */
 static unsigned get_expr_arity(expr type) {
     unsigned r = 0;
-    type = head_beta_reduce(type);
+    type = annotated_head_beta_reduce(type);
     while (is_pi(type)) {
-        type = head_beta_reduce(binding_body(type));
+        type = annotated_head_beta_reduce(binding_body(type));
         r++;
     }
     return r;
@@ -248,7 +249,7 @@ list<expr> induction(environment const & env, options const & opts, transparency
         } else {
             if (!produce_motive)
                 throw_ill_formed_recursor_exception(rec_info);
-            expr new_type  = head_beta_reduce(binding_domain(rec_type));
+            expr new_type  = annotated_head_beta_reduce(binding_domain(rec_type));
             expr rec_arg;
             if (binding_info(rec_type).is_inst_implicit()) {
                 if (optional<expr> inst = ctx2.mk_class_instance(new_type)) {
@@ -264,7 +265,7 @@ list<expr> induction(environment const & env, options const & opts, transparency
                 lean_assert(arity >= initial_arity);
                 unsigned nparams = arity - initial_arity; /* number of hypotheses due to minor premise */
                 unsigned nextra  = to_revert.size() - indices.size() - 1; /* extra dependencies that have been reverted */
-                expr new_M       = ctx2.mk_metavar_decl(ctx2.lctx(), head_beta_reduce(new_type));
+                expr new_M       = ctx2.mk_metavar_decl(ctx2.lctx(), annotated_head_beta_reduce(new_type));
                 expr aux_M;
                 buffer<name> param_names; buffer<name> extra_names;
                 /* Introduce constructor parameter for new goal associated with minor premise. */

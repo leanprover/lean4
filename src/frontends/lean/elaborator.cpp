@@ -39,6 +39,7 @@ Author: Leonardo de Moura
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/elaborate.h"
 #include "library/equations_compiler/compiler.h"
+#include "library/equations_compiler/util.h"
 #include "frontends/lean/builtin_exprs.h"
 #include "frontends/lean/opt_cmd.h"
 #include "frontends/lean/util.h"
@@ -190,6 +191,7 @@ expr elaborator::mk_instance_core(local_context const & lctx, expr const & C, ex
     if (!inst) {
         metavar_context mctx   = m_ctx.mctx();
         local_context new_lctx = lctx.instantiate_mvars(mctx);
+        new_lctx = erase_inaccessible_annotations(new_lctx);
         tactic_state s = ::lean::mk_tactic_state_for(m_env, m_opts, mctx, new_lctx, C);
         throw elaborator_exception(ref, format("failed to synthesize type class instance for") + line() + s.pp());
     }
@@ -2360,7 +2362,9 @@ tactic_state elaborator::mk_tactic_state_for(expr const & mvar) {
     metavar_context mctx = m_ctx.mctx();
     metavar_decl mdecl   = *mctx.get_metavar_decl(mvar);
     local_context lctx   = mdecl.get_context().instantiate_mvars(mctx);
+    lctx                 = erase_inaccessible_annotations(lctx);
     expr type            = mctx.instantiate_mvars(mdecl.get_type());
+    type                 = erase_inaccessible_annotations(type);
     m_ctx.set_mctx(mctx);
     return ::lean::mk_tactic_state_for(m_env, m_opts, mctx, lctx, type);
 }

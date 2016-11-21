@@ -44,6 +44,7 @@ vm_obj rewrite(transparency_mode const & m, bool use_instances, occurrences cons
         H      = mk_app(mk_constant(get_propext_name()), lhs, rhs, H);
         H_type = mk_eq(ctx, lhs, rhs);
     }
+    H_type = annotated_head_beta_reduce(H_type);
     if (!is_eq(H_type, A, lhs, rhs))
         return mk_tactic_exception("rewrite tactic failed, lemma is not an equality nor a iff", s);
     if (is_metavar(lhs))

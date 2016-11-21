@@ -247,6 +247,11 @@ optional<expr> get_binary_op(expr const & e, expr & arg1, expr & arg2);
 expr mk_nary_app(expr const & op, buffer<expr> const & nary_args);
 expr mk_nary_app(expr const & op, unsigned num_nary_args, expr const * nary_args);
 
+/* Similar to is_head_beta, but ignores annotations around the function. */
+bool is_annotated_head_beta(expr const & t);
+/* Similar to head_beta_reduce, but also reduces annotations around the function. */
+expr annotated_head_beta_reduce(expr const & t);
+
 expr try_eta(expr const & e);
 expr beta_reduce(expr t);
 expr eta_reduce(expr t);

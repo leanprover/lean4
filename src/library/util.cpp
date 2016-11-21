@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "kernel/inductive/inductive.h"
 #include "library/locals.h"
 #include "library/util.h"
+#include "library/annotation.h"
 #include "library/constants.h"
 #include "library/unfold_macros.h"
 #include "library/pp_options.h"
@@ -795,6 +796,29 @@ format pp_type_mismatch(formatter const & fmt, expr const & v, expr const & v_ty
     r += compose(line(), format("but is expected to have type"));
     r += expected_fmt;
     return r;
+}
+
+bool is_annotated_lamba(expr const & e) {
+    return
+        is_lambda(e) ||
+        (is_annotation(e) && is_lambda(get_nested_annotation_arg(e)));
+}
+
+bool is_annotated_head_beta(expr const & t) {
+    return is_app(t) && is_annotated_lamba(get_app_fn(t));
+}
+
+expr annotated_head_beta_reduce(expr const & t) {
+    if (!is_annotated_head_beta(t)) {
+        return t;
+    } else {
+        buffer<expr> args;
+        expr f = get_app_rev_args(t, args);
+        if (is_annotation(f))
+            f = get_nested_annotation_arg(f);
+        lean_assert(is_lambda(f));
+        return annotated_head_beta_reduce(apply_beta(f, args.size(), args.data()));
+    }
 }
 
 expr try_eta(expr const & e) {

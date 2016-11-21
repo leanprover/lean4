@@ -90,6 +90,10 @@ class local_context {
     local_context remove(buffer<expr> const & locals) const;
     expr mk_local_decl(name const & n, name const & ppn, expr const & type,
                        optional<expr> const & value, binder_info const & bi);
+    static local_decl update_local_decl(local_decl const & d, expr const & t,
+                                        optional<expr> const & v) {
+        return local_decl(d, t, v);
+    }
 public:
     local_context():m_next_idx(0) {}
 
@@ -177,7 +181,7 @@ public:
 
     /** \brief Replaced assigned metavariables with their values.
         This method is a little bit hackish since it reuses the names and ids of
-        the existing local_decls. So, it may affects cached information.
+        the existing local_decls. So, it may affect cached information.
 
         This method is mainly used in the elaborator for reporting errors,
         and for instantiating metavariables created by the elaborator before
@@ -187,6 +191,14 @@ public:
     friend bool is_decl_eqp(local_context const & ctx1, local_context const & ctx2) {
         return is_eqp(ctx1.m_idx2local_decl, ctx2.m_idx2local_decl);
     }
+
+    /** \brief Erase inaccessible annotations from the local context.
+        This function is defined in the file library/equations_compiler/util.h.
+        It is a little bit hackish (like instantiate_mvars) since it reuses the names
+        and ids of existing local_decls. So, it may affect cached information.
+
+        This function is used in the elaborator before invoking the tactic framework. */
+    friend local_context erase_inaccessible_annotations(local_context const & lctx);
 };
 
 /** \brief Return true iff `e` contains a local_decl_ref that contains a value */

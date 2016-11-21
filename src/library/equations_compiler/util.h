@@ -75,6 +75,9 @@ bool is_recursive_eqns(type_context & ctx, expr const & e);
 
 expr erase_inaccessible_annotations(expr const & e);
 list<expr> erase_inaccessible_annotations(list<expr> const & es);
+bool has_inaccessible_annotation(expr const & e);
+/* See comment at library/local_context.h */
+local_context erase_inaccessible_annotations(local_context const & lctx);
 
 pair<environment, expr> mk_aux_definition(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx,
                                           equations_header const & header, name const & n, expr const & type, expr const & value);

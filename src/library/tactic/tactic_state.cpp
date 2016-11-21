@@ -390,7 +390,7 @@ vm_obj tactic_eta_expand(vm_obj const & e, vm_obj const & s0) {
 vm_obj tactic_beta(vm_obj const & e, vm_obj const & s0) {
     tactic_state const & s = to_tactic_state(s0);
     try {
-        return mk_tactic_success(to_obj(head_beta_reduce(to_expr(e))), s);
+        return mk_tactic_success(to_obj(annotated_head_beta_reduce(to_expr(e))), s);
     } catch (exception & ex) {
         return mk_tactic_exception(ex, s);
     }

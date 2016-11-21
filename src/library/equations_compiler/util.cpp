@@ -204,6 +204,10 @@ bool is_recursive_eqns(type_context & ctx, expr const & e) {
     return false;
 }
 
+bool has_inaccessible_annotation(expr const & e) {
+    return static_cast<bool>(find(e, [&](expr const & e, unsigned) { return is_inaccessible(e); }));
+}
+
 class erase_inaccessible_annotations_fn : public replace_visitor {
     virtual expr visit_macro(expr const & e) override {
         if (is_inaccessible(e)) {
@@ -215,11 +219,30 @@ class erase_inaccessible_annotations_fn : public replace_visitor {
 };
 
 expr erase_inaccessible_annotations(expr const & e) {
-    return erase_inaccessible_annotations_fn()(e);
+    if (has_inaccessible_annotation(e))
+        return erase_inaccessible_annotations_fn()(e);
+    else
+        return e;
 }
 
 list<expr> erase_inaccessible_annotations(list<expr> const & es) {
     return map(es, [&](expr const & e) { return erase_inaccessible_annotations(e); });
+}
+
+local_context erase_inaccessible_annotations(local_context const & lctx) {
+    local_context r;
+    r.m_next_idx = lctx.m_next_idx;
+    lctx.m_idx2local_decl.for_each([&](unsigned, local_decl const & d) {
+            expr new_type = erase_inaccessible_annotations(d.get_type());
+            optional<expr> new_value;
+            if (auto val = d.get_value())
+                new_value = erase_inaccessible_annotations(*val);
+            auto new_d = local_context::update_local_decl(d, new_type, new_value);
+            r.m_name2local_decl.insert(d.get_name(), new_d);
+            r.m_idx2local_decl.insert(d.get_idx(), new_d);
+            r.insert_user_name(d);
+        });
+    return r;
 }
 
 static pair<environment, name> mk_def_name(environment const & env, bool is_private, name const & c) {

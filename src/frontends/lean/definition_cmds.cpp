@@ -481,14 +481,6 @@ static void get_args_for_instantiating_lemma(unsigned arity,
     }
 }
 
-/* Return true iff e is of the form (fun (a_1 : A_1) ... (a_n : A_n), eq.refl ...) */
-static bool is_refl_lemma(expr e) {
-    while (is_lambda(e))
-        e = binding_body(e);
-    expr const & fn = get_app_fn(e);
-    return is_constant(fn, get_eq_refl_name()) || is_constant(fn, get_rfl_name());
-}
-
 /**
    Given a declaration d defined as
      (fun (a_1 : A_1) ... (a_n : A_n), d._main a_1' ... a_n')
@@ -555,22 +547,11 @@ static environment copy_equation_lemmas(environment const & env, name const & d_
         new_eqn_type = locals.mk_pi(new_eqn_type);
         name new_eqn_name    = d_name + eqn_suffix;
         expr new_eqn_value;
-        if (is_refl_lemma(eqn_decl->get_value())) {
-            /* Create a refl-lemma to make sure it can be used by the defeq simplifier. */
-            type_context::tmp_locals extra_locals(ctx);
-            while (is_pi(eqn_type)) {
-                expr local = extra_locals.push_local_from_binding(eqn_type);
-                eqn_type = instantiate(binding_body(eqn_type), local);
-            }
-            expr lhs, rhs;
-            lean_verify(is_eq(eqn_type, lhs, rhs));
-            new_eqn_value = mk_eq_refl(ctx, lhs);
-            new_eqn_value = extra_locals.mk_lambda(new_eqn_value);
-        } else {
-            new_eqn_value = mk_app(mk_constant(eqn_name, eqn_levels), args);
-        }
+        new_eqn_value = mk_app(mk_constant(eqn_name, eqn_levels), args);
         new_eqn_value = locals.mk_lambda(new_eqn_value);
         declaration new_decl = mk_theorem(new_eqn_name, d.get_univ_params(), new_eqn_type, new_eqn_value);
+        if (is_rfl_lemma(env, eqn_name))
+            new_env = mark_rfl_lemma(env, new_eqn_name);
         new_env = module::add(new_env, check(new_env, new_decl, true));
         new_env = add_eqn_lemma(new_env, new_eqn_name);
         i++;
@@ -600,6 +581,8 @@ class proof_elaboration_task : public module_task<expr> {
     std::vector<expr> m_params;
     expr m_fn, m_val;
     elaborator::theorem_finalization_info m_finfo;
+    bool m_is_rfl_lemma;
+    expr m_final_type;
 
     metavar_context m_mctx;
     local_context m_lctx;
@@ -610,11 +593,13 @@ public:
                            options const & opts,
                            buffer<expr> const & params,
                            expr const & fn, expr const & val, elaborator::theorem_finalization_info const & finfo,
+                           bool is_rfl_lemma, expr const & final_type,
                            metavar_context const & mctx, local_context const & lctx,
                            parser_pos_provider const & prov) :
         module_task(optional<pos_info>(prov.get_some_pos()), task_kind::elab),
         m_decl_env(decl_env), m_opts(opts), m_use_info_manager(get_global_info_manager() != nullptr),
         m_params(params.begin(), params.end()), m_fn(fn), m_val(val), m_finfo(finfo),
+        m_is_rfl_lemma(is_rfl_lemma), m_final_type(final_type),
         m_mctx(mctx), m_lctx(lctx), m_pos_provider(prov) {}
 
     void description(std::ostream & out) const override {
@@ -636,6 +621,8 @@ public:
             std::tie(val, type) = elab.elaborate_with_type(m_val, mk_as_is(type));
             buffer<expr> params; for (auto & e : m_params) params.push_back(e);
             finalize_theorem_proof(elab, params, val, m_finfo);
+            if (m_is_rfl_lemma && !is_rfl_lemma(m_final_type, val))
+                throw exception("not a rfl-lemma, even though marked as rfl");
             return inline_new_defs(m_decl_env, elab.env(), val);
         } catch (exception & ex) {
             message_builder error_msg(&m_pos_provider, tc, m_decl_env, get_global_ios(),
@@ -723,6 +710,10 @@ public:
     }
 };
 
+static bool is_rfl_preexpr(expr const & e) {
+    return is_constant(e, get_rfl_name());
+}
+
 environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modifiers modifiers, decl_attributes attrs) {
     buffer<name> lp_names;
     buffer<expr> params;
@@ -734,6 +725,7 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
     bool is_example  = (kind == def_cmd_kind::Example);
     bool is_instance = modifiers.m_is_instance;
     bool aux_lemmas  = scope.gen_aux_lemmas();
+    bool is_rfl      = false;
     if (is_instance)
         attrs.set_attribute(p.env(), "instance");
     std::tie(fn, val) = parse_definition(p, lp_names, params, is_example, is_instance);
@@ -750,6 +742,7 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
         name c_name = mlocal_name(fn);
         pair<environment, name> env_n;
         if (kind == Theorem) {
+            is_rfl = is_rfl_preexpr(val);
             type = elab.elaborate_type(mlocal_type(fn));
             elab.ensure_no_unassigned_metavars(type);
             expr new_fn = update_mlocal(fn, type);
@@ -758,7 +751,7 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
             finalize_theorem_type(elab, new_params, type, lp_names, thm_finfo);
             auto decl_env = elab.env();
             auto elab_task = get_global_task_queue().submit<proof_elaboration_task>(
-                decl_env, p.get_options(), new_params, new_fn, val, thm_finfo,
+                decl_env, p.get_options(), new_params, new_fn, val, thm_finfo, is_rfl, type,
                 elab.mctx(), elab.lctx(), p.get_parser_pos_provider(header_pos));
             env_n = declare_definition(p, elab.env(), kind, lp_names, c_name, type, opt_val, elab_task, modifiers, attrs,
                                        doc_string, header_pos);
@@ -787,6 +780,7 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
         }
         environment new_env = env_n.first;
         name c_real_name    = env_n.second;
+        if (is_rfl) new_env = mark_rfl_lemma(new_env, c_real_name);
         new_env = add_local_ref(p, new_env, c_name, c_real_name, lp_names, params);
         if (eqns && aux_lemmas) {
             new_env = copy_equation_lemmas(new_env, c_real_name);

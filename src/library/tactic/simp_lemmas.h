@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "library/type_context.h"
 #include "library/head_map.h"
 #include "library/vm/vm.h"
+#include "library/attribute_manager.h"
 
 namespace lean {
 enum class simp_lemma_kind { Refl, Simp, Congr };
@@ -147,6 +148,11 @@ expr refl_lemma_rewrite(type_context & ctx, expr const & e, simp_lemma const & s
 
 simp_lemmas const & to_simp_lemmas(vm_obj const & o);
 vm_obj to_obj(simp_lemmas const & s);
+
+basic_attribute const & get_refl_lemma_attribute();
+bool is_rfl_lemma(expr type, expr pf);
+bool is_rfl_lemma(environment const & env, name const & cname);
+environment mark_rfl_lemma(environment const & env, name const & cname);
 
 void initialize_simp_lemmas();
 void finalize_simp_lemmas();

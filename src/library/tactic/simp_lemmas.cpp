@@ -685,11 +685,7 @@ static simp_lemmas add_core(type_context & ctx, simp_lemmas const & s, name cons
     return new_s;
 }
 
-static bool is_rfl_lemma(environment const & env, name const & cname) {
-    declaration const & d = env.get(cname);
-    if (!d.is_definition()) return false;
-    expr type = d.get_type();
-    expr pf   = d.get_value();
+bool is_rfl_lemma(expr type, expr pf) {
     while (is_pi(type)) {
         if (!is_lambda(pf)) return false;
         pf   = binding_body(pf);
@@ -701,7 +697,18 @@ static bool is_rfl_lemma(environment const & env, name const & cname) {
     return lhs != rhs;
 }
 
+<<<<<<< HEAD
 static levels mk_tmp_levels_for(type_context & ctx, declaration const & d) {
+=======
+bool is_rfl_lemma(environment const & env, name const & cname) {
+    return get_refl_lemma_attribute().is_instance(env, cname);
+}
+
+static simp_lemmas add_core(type_context & ctx, simp_lemmas const & s, name const & cname, unsigned priority) {
+    environment const & env = ctx.env();
+    type_context::tmp_mode_scope scope(ctx);
+    declaration const & d = env.get(cname);
+>>>>>>> refactor(library/tactic/simp_lemmas): mark rfl-lemmas with a _refl_lemma attribute
     buffer<level> us;
     unsigned num_univs = d.get_num_univ_params();
     for (unsigned i = 0; i < num_univs; i++) {
@@ -1421,14 +1428,27 @@ vm_obj is_valid_simp_lemma(vm_obj const & m, vm_obj const & e, vm_obj const & s)
                              to_tactic_state(s));
 }
 
+static name * g_refl_lemma_attr = nullptr;
+
+basic_attribute const & get_refl_lemma_attribute() {
+    return static_cast<basic_attribute const &>(get_system_attribute(*g_refl_lemma_attr));
+}
+
+environment mark_rfl_lemma(environment const & env, name const & cname) {
+    return get_refl_lemma_attribute().set(env, get_dummy_ios(), cname, LEAN_DEFAULT_PRIORITY, true);
+}
+
 void initialize_simp_lemmas() {
     g_dummy               = new simp_lemma_cell();
     g_simp_lemmas_configs = new std::vector<simp_lemmas_config>();
     g_name2simp_token     = new name_map<unsigned>();
     g_default_token       = register_simp_attribute("default", {"simp", "wrapper_eq"}, {"congr"});
+    g_refl_lemma_attr     = new name{"_refl_lemma"};
     register_trace_class("simp_lemmas");
     register_trace_class("simp_lemmas_cache");
     register_trace_class(name{"simp_lemmas", "failure"});
+    register_system_attribute(basic_attribute(
+            *g_refl_lemma_attr, "marks that a lemma that can be used by the defeq simplifier"));
 
     DECLARE_VM_BUILTIN(name({"simp_lemmas", "mk"}), simp_lemmas_mk);
     DECLARE_VM_BUILTIN(name({"simp_lemmas", "join"}), simp_lemmas_join);

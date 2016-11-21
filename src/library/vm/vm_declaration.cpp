@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_list.h"
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_option.h"
+#include "vm_task.h"
 
 namespace lean {
 /*
@@ -64,7 +65,7 @@ vm_obj declaration_defn(vm_obj const & n, vm_obj const & ls, vm_obj const & type
 }
 
 vm_obj declaration_thm(vm_obj const & n, vm_obj const & ls, vm_obj const & type, vm_obj const & value) {
-    return to_obj(mk_theorem(to_name(n), to_list_name(ls), to_expr(type), to_expr(value)));
+    return to_obj(mk_theorem(to_name(n), to_list_name(ls), to_expr(type), to_expr_task(value)));
 }
 
 vm_obj declaration_cnst(vm_obj const & n, vm_obj const & ls, vm_obj const & type, vm_obj const & trusted) {
@@ -81,7 +82,7 @@ unsigned declaration_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
     data.push_back(to_obj(d.get_univ_params()));
     data.push_back(to_obj(d.get_type()));
     if (d.is_theorem()) {
-        data.push_back(to_obj(d.get_value()));
+        data.push_back(to_obj(d.get_value_task()));
         return 1;
     } else if (d.is_axiom()) {
         return 3;

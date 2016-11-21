@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.meta.expr init.meta.name
+import init.meta.expr init.meta.name init.meta.task
 
 /-
 Reducibility hints are used in the convertibility checker.
@@ -48,7 +48,7 @@ meta inductive declaration
 /- definition: name, list universe parameters, type, value, is_trusted -/
 | defn : name → list name → expr → expr → reducibility_hints → bool → declaration
 /- theorem: name, list universe parameters, type, value (remark: theorems are always trusted) -/
-| thm  : name → list name → expr → expr → declaration
+| thm  : name → list name → expr → task expr → declaration
 /- constant assumption: name, list universe parameters, type, is_trusted -/
 | cnst : name → list name → expr → bool → declaration
 /- axiom : name → list universe parameters, type (remark: axioms are always trusted) -/
@@ -86,12 +86,12 @@ meta def declaration.update_name : declaration → name → declaration
 
 meta def declaration.update_value : declaration → expr → declaration
 | (declaration.defn n ls t v h tr) new_v := declaration.defn n ls t new_v h tr
-| (declaration.thm n ls t v)       new_v := declaration.thm n ls t new_v
+| (declaration.thm n ls t v)       new_v := declaration.thm n ls t (task.pure new_v)
 | d                                new_v := d
 
 meta def declaration.to_definition : declaration → declaration
 | (declaration.cnst n ls t tr) := declaration.defn n ls t (default expr) reducibility_hints.abbrev tr
-| (declaration.ax n ls t)      := declaration.thm n ls t (default expr)
+| (declaration.ax n ls t)      := declaration.thm n ls t (task.pure (default expr))
 | d                            := d
 
 /- Instantiate a universe polymorphic declaration type with the given universes. -/

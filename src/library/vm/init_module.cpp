@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_exceptional.h"
 #include "library/vm/vm_declaration.h"
 #include "library/vm/vm_environment.h"
+#include "library/vm/vm_task.h"
 
 namespace lean {
 void initialize_vm_core_module() {
@@ -35,12 +36,14 @@ void initialize_vm_core_module() {
     initialize_vm_pexpr();
     initialize_vm_list();
     initialize_vm_exceptional();
+    initialize_vm_task();
     initialize_vm_declaration();
     initialize_vm_environment();
 }
 void finalize_vm_core_module() {
     finalize_vm_environment();
     finalize_vm_declaration();
+    finalize_vm_task();
     finalize_vm_exceptional();
     finalize_vm_list();
     finalize_vm_pexpr();

@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.nat init.meta
+import init.nat init.meta init.congr
 
 namespace nat
 
@@ -32,15 +32,21 @@ namespace nat
       eq.symm (succ_add m n) ▸ this,
     congr_arg succ (add_comm n m)
 
-  protected lemma bit0_succ_eq (n : ℕ) : bit0 (succ n) = succ (succ (bit0 n)) :=
-  show succ (succ n + n) = succ (succ (n + n)), from
-  congr_arg succ (succ_add n n)
+  protected lemma add_assoc : ∀ n m k : ℕ, (n + m) + k = n + (m + k)
+  | n m 0        := rfl
+  | n m (succ k) := by simp [add_succ, add_assoc n m k]
 
-  protected lemma bit1_eq_succ_bit0 (n : ℕ) : bit1 n = succ (bit0 n) :=
-  rfl
+  set_option trace.app_builder true
 
-  protected lemma bit1_succ_eq (n : ℕ) : bit1 (succ n) = succ (succ (bit1 n)) :=
-  eq.trans (nat.bit1_eq_succ_bit0 (succ n)) (congr_arg succ (nat.bit0_succ_eq n))
+  protected lemma add_left_cancel : ∀ {n m k : ℕ}, n + m = n + k → m = k
+  | 0        m k := by ctx_simp [nat.zero_add]
+  | (succ n) m k := λ h,
+    have n+m = n+k, begin simp [succ_add] at h, injection h, assumption end,
+    add_left_cancel this
+
+  protected lemma add_right_cancel {n m k : ℕ} (h : n + m = k + m) : n = k :=
+  have m + n = m + k, begin rw [nat.add_comm n m, nat.add_comm k m] at h, assumption end,
+  nat.add_left_cancel this
 
   lemma succ_ne_zero (n : ℕ) : succ n ≠ 0 :=
   assume h, nat.no_confusion h
@@ -51,6 +57,28 @@ namespace nat
 
   protected lemma one_ne_zero : 1 ≠ (0 : ℕ) :=
   assume h, nat.no_confusion h
+
+  lemma eq_zero_of_add_eq_zero_right : ∀ {n m : ℕ}, n + m = 0 → n = 0
+  | 0     m := by ctx_simp [nat.zero_add]
+  | (n+1) m := λ h,
+    begin
+      exfalso,
+      rw [add_one_eq_succ, succ_add] at h,
+      apply succ_ne_zero _ h
+    end
+
+  lemma eq_zero_of_add_eq_zero_left {n m : ℕ} (h : n + m = 0) : m = 0 :=
+  @eq_zero_of_add_eq_zero_right m n (nat.add_comm n m ▸ h)
+
+  protected lemma bit0_succ_eq (n : ℕ) : bit0 (succ n) = succ (succ (bit0 n)) :=
+  show succ (succ n + n) = succ (succ (n + n)), from
+  congr_arg succ (succ_add n n)
+
+  protected lemma bit1_eq_succ_bit0 (n : ℕ) : bit1 n = succ (bit0 n) :=
+  rfl
+
+  protected lemma bit1_succ_eq (n : ℕ) : bit1 (succ n) = succ (succ (bit1 n)) :=
+  eq.trans (nat.bit1_eq_succ_bit0 (succ n)) (congr_arg succ (nat.bit0_succ_eq n))
 
   protected lemma bit0_ne_zero : ∀ {n : ℕ}, n ≠ 0 → bit0 n ≠ 0
   | 0     h := absurd rfl h
@@ -222,7 +250,6 @@ namespace nat
   lemma lt_of_succ_lt_succ {a b : ℕ} : succ a < succ b → a < b :=
   le_of_succ_le_succ
 
-
   protected lemma lt_or_ge : ∀ (a b : ℕ), a < b ∨ a ≥ b
   | a 0     := or.inr (zero_le a)
   | a (b+1) :=
@@ -255,6 +282,37 @@ namespace nat
 
   lemma succ_le_of_lt {a b : ℕ} (h : a < b) : succ a ≤ b := h
 
+  protected lemma zero_lt_one : 0 < (1:nat) :=
+  zero_lt_succ 0
+
+  protected lemma zero_lt_bit1 (n : nat) : 0 < bit1 n :=
+  zero_lt_succ _
+
+  protected lemma zero_lt_bit0 : ∀ {n : nat}, n ≠ 0 → 0 < bit0 n
+  | 0        h := by contradiction
+  | (succ n) h :=
+    begin
+      rw nat.bit0_succ_eq,
+      apply zero_lt_succ
+    end
+
+  protected lemma one_lt_bit1 : ∀ {n : nat}, n ≠ 0 → 1 < bit1 n
+  | 0        h := by contradiction
+  | (succ n) h :=
+    begin
+      rw nat.bit1_succ_eq,
+      apply succ_lt_succ,
+      apply zero_lt_succ
+    end
+
+  protected lemma one_lt_bit0 : ∀ {n : nat}, n ≠ 0 → 1 < bit0 n
+  | 0        h := by contradiction
+  | (succ n) h :=
+    begin
+      rw nat.bit0_succ_eq,
+      apply succ_lt_succ,
+      apply zero_lt_succ
+    end
 
   lemma sub_eq_succ_sub_succ (a b : ℕ) : a - b = succ a - succ b :=
   eq.symm (succ_sub_succ_eq_sub a b)
@@ -282,5 +340,42 @@ namespace nat
 
   lemma le_add_left (n m : ℕ): n ≤ m + n :=
   nat.add_comm n m ▸ le_add_right n m
+
+  lemma le.elim : ∀ {n m : ℕ}, n ≤ m → ∃ k, n + k = m
+  | n .n        (le.nat_refl .n)  := ⟨0, rfl⟩
+  | n .(succ m) (@le.step .n m h) :=
+    match le.elim h with
+    | ⟨w, hw⟩ := ⟨succ w, hw ▸ add_succ n w⟩
+    end
+
+  lemma le.intro {n m k : ℕ} (h : n + k = m) : n ≤ m :=
+  h ▸ le_add_right n k
+
+  protected lemma add_le_add_left {n m : ℕ} (h : n ≤ m) (k : ℕ) : k + n ≤ k + m :=
+  match le.elim h with
+  | ⟨w, hw⟩ := @le.intro _ _ w begin dsimp at hw, rw [nat.add_assoc, hw] end
+  end
+
+  protected lemma add_le_add_right {n m : ℕ} (h : n ≤ m) (k : ℕ) : n + k ≤ m + k :=
+  begin rw [nat.add_comm n k, nat.add_comm m k], apply nat.add_le_add_left h end
+
+  protected lemma le_of_add_le_add_left {k n m : ℕ} (h : k + n ≤ k + m) : n ≤ m :=
+  match le.elim h with
+  | ⟨w, hw⟩ := @le.intro _ _ w
+    begin
+      dsimp at hw,
+      rw [nat.add_assoc] at hw,
+      apply nat.add_left_cancel hw
+    end
+  end
+
+  protected lemma lt_of_le_and_ne {m n : ℕ} (h1 : m ≤ n) : m ≠ n → m < n :=
+  or.resolve_right (or.swap (nat.eq_or_lt_of_le h1))
+
+  protected theorem lt_of_add_lt_add_left {k n m : ℕ} (h : k + n < k + m) : n < m :=
+  let h' := nat.le_of_lt h in
+  nat.lt_of_le_and_ne
+    (nat.le_of_add_le_add_left h')
+    (λ heq, nat.lt_irrefl (k + m) begin rw heq at h, assumption end)
 
 end nat

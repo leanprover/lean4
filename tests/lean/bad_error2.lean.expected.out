@@ -1,0 +1,9 @@
+bad_error2.lean:8:6: error: rewrite tactic failed, did not find instance of the pattern in the target expression
+  ?m_1 + ?m_2 + ?m_3
+state:
+k n m : ℕ,
+h : k + n ≤ k + m,
+_match : (∃ (k_1 : ℕ), k + n + k_1 = k + m) → n ≤ m,
+w : ℕ,
+hw : (λ (k_1 : ℕ), k + n + k_1 = k + m) w
+⊢ n + w = m

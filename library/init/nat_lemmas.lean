@@ -36,8 +36,6 @@ namespace nat
   | n m 0        := rfl
   | n m (succ k) := by simp [add_succ, add_assoc n m k]
 
-  set_option trace.app_builder true
-
   protected lemma add_left_cancel : ∀ {n m k : ℕ}, n + m = n + k → m = k
   | 0        m k := by ctx_simp [nat.zero_add]
   | (succ n) m k := λ h,

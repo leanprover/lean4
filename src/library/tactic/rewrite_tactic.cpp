@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "library/app_builder.h"
 #include "library/constants.h"
 #include "library/trace.h"
+#include "library/pp_options.h"
 #include "library/vm/vm_list.h"
 #include "library/vm/vm_option.h"
 #include "library/vm/vm_nat.h"
@@ -64,12 +65,13 @@ vm_obj rewrite(transparency_mode const & m, bool use_instances, occurrences cons
     expr pattern = target ? lhs : rhs;
     expr e_abst  = kabstract(ctx, e, pattern, occs);
     if (closed(e_abst)) {
+        auto new_s = update_option_if_undef(s, get_pp_beta_name(), false);
         auto thunk = [=]() {
             format msg = format("rewrite tactic failed, did not find instance of the pattern in the target expression");
-            msg += pp_indented_expr(s, pattern);
+            msg += pp_indented_expr(new_s, pattern);
             return msg;
         };
-        return mk_tactic_exception(thunk, s);
+        return mk_tactic_exception(thunk, new_s);
     }
     /* Synthesize type class instances */
     if (use_instances) {

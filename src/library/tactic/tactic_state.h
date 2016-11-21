@@ -96,6 +96,9 @@ tactic_state set_env_mctx_goals(tactic_state const & s, environment const & env,
 
    \remark It returns s is is_eqp(s.mctx(), mctx) and is_decl_eqp(s.get_main_goal_decl()->get_context(), lctx) */
 tactic_state set_mctx_lctx(tactic_state const & s, metavar_context const & mctx, local_context const & lctx);
+template<typename T> tactic_state update_option_if_undef(tactic_state const & s, name const & n, T v) {
+    return set_options(s, s.get_options().update_if_undef(n, v));
+}
 
 bool is_tactic_state(vm_obj const & o);
 tactic_state const & to_tactic_state(vm_obj const & o);

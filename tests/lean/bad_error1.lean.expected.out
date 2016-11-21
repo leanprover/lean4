@@ -1,0 +1,6 @@
+bad_error1.lean:4:22: error: unexpected argument at application
+  nat.bit1_ne_bit0 n
+given argument
+  n
+expected argument
+  m

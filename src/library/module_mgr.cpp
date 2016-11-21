@@ -12,7 +12,7 @@ Author: Gabriel Ebner
 #include "util/lean_path.h"
 #include "frontends/lean/parser.h"
 #include "library/module.h"
-#include "versioned_msg_buf.h"
+#include "library/versioned_msg_buf.h"
 #include <sys/stat.h>
 #include <frontends/lean/pp.h>
 #include <util/file_lock.h>

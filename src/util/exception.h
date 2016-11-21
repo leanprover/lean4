@@ -61,13 +61,11 @@ public:
 };
 
 /** \brief Exception used to sign that a computation was interrupted */
-class interrupted : public throwable {
+class interrupted {
 public:
     interrupted() {}
     virtual ~interrupted() noexcept {}
     virtual char const * what() const noexcept { return "interrupted"; }
-    virtual throwable * clone() const { return new interrupted(); }
-    virtual void rethrow() const { throw *this; }
 };
 
 class stack_space_exception : public throwable {

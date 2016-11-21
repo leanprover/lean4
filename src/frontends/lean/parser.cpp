@@ -306,15 +306,9 @@ void parser::protected_call(std::function<void()> && f, std::function<void()> &&
     } catch (parser_error & ex) {
         CATCH((mk_message(ex.m_pos, ERROR) << ex.get_msg()).report(),
               throw_parser_exception(ex.what(), ex.m_pos));
-    } catch (interrupted & ex) {
-        reset_interrupt();
-        if (m_verbose)
-            (mk_message(m_last_cmd_pos, ERROR) << "!!!Interrupted!!!").report();
-        sync();
-        if (m_use_exceptions)
-            throw;
+    } catch (interrupted) {
+        throw;
     } catch (throwable & ex) {
-        reset_interrupt();
         CATCH(mk_message(m_last_cmd_pos, ERROR).set_exception(ex).report(),
               throw_nested_exception(ex, m_last_cmd_pos));
     }

@@ -25,7 +25,7 @@ bool interrupt_requested() {
 }
 
 void check_interrupted() {
-    if (interrupt_requested()) {
+    if (interrupt_requested() && !std::uncaught_exception()) {
         reset_interrupt();
         throw interrupted();
     }
@@ -49,6 +49,10 @@ void sleep_for(unsigned ms, unsigned step_ms) {
     }
     this_thread::sleep_for(r);
     check_interrupted();
+}
+
+atomic<bool> *get_interrupt_flag() {
+    return &get_g_interrupt();
 }
 
 atomic_bool * interruptible_thread::get_flag_addr() {

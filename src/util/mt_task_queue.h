@@ -31,6 +31,7 @@ class mt_task_queue : public task_queue {
     struct worker_info {
         thread m_thread;
         generic_task_result m_current_task;
+        atomic<bool> * m_interrupt_flag = nullptr;
     };
     std::vector<std::shared_ptr<worker_info>> m_workers;
     bool m_shutting_down = false;

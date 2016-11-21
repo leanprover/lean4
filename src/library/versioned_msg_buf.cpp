@@ -20,6 +20,7 @@ void versioned_msg_buf::start_bucket(message_bucket_id const & bucket) {
         auto & buf = m_buf[bucket.m_bucket];
         if (buf.m_version < bucket.m_version) {
             buf.m_version = bucket.m_version;
+            buf.m_cancel_on_invalidation.reset();
             buf.m_msgs.clear();
             buf.m_infom.reset();
         }
@@ -30,9 +31,7 @@ void versioned_msg_buf::report(message_bucket_id const & bucket, message const &
     unique_lock<mutex> lock(m_mutex);
 
     auto & buf = m_buf[bucket.m_bucket];
-    if (buf.m_version < bucket.m_version) {
-        throw exception("missing call to start_bucket");
-    } else if (buf.m_version == bucket.m_version) {
+    if (buf.m_version == bucket.m_version) {
         buf.m_msgs.push_back(msg);
     }
 }
@@ -56,9 +55,16 @@ void versioned_msg_buf::finish_bucket(message_bucket_id const & bucket, name_set
     });
 }
 
+void versioned_msg_buf::cancel_bucket(name const & bucket) {
+    auto & bck_buf = m_buf[bucket];
+    bck_buf.m_children.for_each([&] (name const & c) { cancel_bucket(c); });
+    if (auto & t = bck_buf.m_cancel_on_invalidation) { t.cancel(); t.reset(); }
+}
+
 void versioned_msg_buf::erase_bucket(name const & bucket) {
-    m_buf[bucket].m_children.for_each(
-            [&] (name const & c) { erase_bucket(c); });
+    auto & bck_buf = m_buf[bucket];
+    bck_buf.m_children.for_each([&] (name const & c) { erase_bucket(c); });
+    if (auto & t = bck_buf.m_cancel_on_invalidation) t.cancel();
     m_buf.erase(bucket);
 }
 
@@ -83,9 +89,7 @@ void versioned_msg_buf::report_info_manager(message_bucket_id const & bucket, in
     unique_lock<mutex> lock(m_mutex);
 
     auto & buf = m_buf[bucket.m_bucket];
-    if (buf.m_version < bucket.m_version) {
-        throw exception("missing call to start_bucket");
-    } else if (buf.m_version == bucket.m_version) {
+    if (buf.m_version == bucket.m_version) {
         buf.m_infom = std::unique_ptr<info_manager>(new info_manager(infom));
     }
 }
@@ -108,6 +112,16 @@ std::vector<info_manager> versioned_msg_buf::get_info_managers() {
             result.push_back(*buf.second.m_infom);
     }
     return result;
+}
+
+void versioned_msg_buf::cancel_when_invalidated(message_bucket_id const & bucket, generic_task_result const & t) {
+    unique_lock<mutex> lock(m_mutex);
+
+    auto & buf = m_buf[bucket.m_bucket];
+    if (buf.m_version < bucket.m_version) {
+        if (auto & t_old = buf.m_cancel_on_invalidation) t_old.cancel();
+        buf.m_cancel_on_invalidation = t;
+    }
 }
 
 }

@@ -12,6 +12,7 @@ Author: Gabriel Ebner
 #include "util/lean_path.h"
 #include "frontends/lean/parser.h"
 #include "library/module.h"
+#include "versioned_msg_buf.h"
 #include <sys/stat.h>
 #include <frontends/lean/pp.h>
 #include <util/file_lock.h>
@@ -398,6 +399,14 @@ scoped_module_id::~scoped_module_id() {
 }
 module_id const & get_global_module_id() {
     return *g_scoped_module_id;
+}
+
+void generic_module_task::set_result(generic_task_result const & self) {
+    if (m_auto_cancel) {
+        if (auto vmb = dynamic_cast<versioned_msg_buf *>(m_msg_buf))
+            vmb->cancel_when_invalidated(m_bucket, self);
+    }
+    generic_task::set_result(self);
 }
 
 }

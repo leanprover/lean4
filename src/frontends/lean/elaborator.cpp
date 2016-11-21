@@ -118,10 +118,12 @@ elaborator::elaborator(environment const & env, options const & opts, metavar_co
 }
 
 elaborator::~elaborator() {
-    if (m_uses_infom && get_global_info_manager()) {
-        m_info.instantiate_mvars(m_ctx.mctx());
-        get_global_info_manager()->merge(m_info);
-    }
+    try {
+        if (m_uses_infom && get_global_info_manager()) {
+            m_info.instantiate_mvars(m_ctx.mctx());
+            get_global_info_manager()->merge(m_info);
+        }
+    } catch (...) {}
 }
 
 auto elaborator::mk_pp_ctx() -> pp_fn {

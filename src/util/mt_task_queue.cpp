@@ -7,6 +7,8 @@ Author: Gabriel Ebner
 #include <string>
 #include <algorithm>
 #include "util/mt_task_queue.h"
+#include "interrupt.h"
+#include "flet.h"
 
 #if defined(LEAN_MULTI_THREAD)
 namespace lean {
@@ -63,6 +65,8 @@ void mt_task_queue::spawn_worker() {
     lean_assert(!m_shutting_down);
     auto this_worker = std::make_shared<worker_info>();
     this_worker->m_thread = thread([=] {
+        this_worker->m_interrupt_flag = get_interrupt_flag();
+
         scope_global_task_queue scope(this);
         unique_lock<mutex> lock(m_mutex);
         scoped_add<int> dec_required(m_required_workers, -1);
@@ -79,22 +83,22 @@ void mt_task_queue::spawn_worker() {
                 continue;
             }
 
-            this_worker->m_current_task = dequeue();
-
-            auto & t = this_worker->m_current_task;
-
+            auto t = dequeue();
             if (t->m_state.load() != task_result_state::QUEUED) continue;
 
             t->m_state = task_result_state::EXECUTING;
             bool is_ok;
             auto cb = m_progress_cb;
+            reset_interrupt();
             {
+                flet<generic_task_result> _(this_worker->m_current_task, t);
                 scoped_current_task scope_cur_task(&t);
                 lock.unlock();
                 if (cb) cb(t->m_task);
                 is_ok = t->execute();
                 lock.lock();
             }
+            reset_interrupt();
 
             t->m_state = is_ok ? task_result_state::FINISHED : task_result_state::FAILED;
             t->m_task->m_has_finished.notify_all();
@@ -117,7 +121,6 @@ void mt_task_queue::spawn_worker() {
             }
 
             t->clear_task();
-            this_worker->m_current_task.reset();
         }
     });
     m_workers.push_back(this_worker);
@@ -171,7 +174,10 @@ void mt_task_queue::bump_prio(generic_task_result const & t, task_priority const
 }
 
 bool mt_task_queue::check_deps(generic_task_result const & t) {
-    auto deps = t->m_task->get_dependencies();
+    std::vector<generic_task_result> deps;
+    try {
+        deps = t->m_task->get_dependencies();
+    } catch (...) {}
     for (auto & dep : deps) {
         if (dep && dep->m_state.load() == task_result_state::QUEUED)
             bump_prio(dep, t->m_task->m_prio);
@@ -231,6 +237,13 @@ void mt_task_queue::cancel(generic_task_result const & t) {
             if (t->m_task) t->m_task->m_has_finished.notify_all();
             propagate_failure(t);
             t->clear_task();
+            return;
+        case task_result_state::EXECUTING:
+            for (auto & w : m_workers) {
+                if (w->m_current_task == t) {
+                    w->m_interrupt_flag->store(true);
+                }
+            }
             return;
         default: return;
     }

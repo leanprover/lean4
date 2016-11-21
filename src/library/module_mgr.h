@@ -146,6 +146,8 @@ public:
         m_bucket(get_scope_message_context().new_sub_bucket()),
         m_pos(pos), m_auto_cancel(auto_cancel), m_kind(kind) {}
 
+    void set_result(generic_task_result const & self) override;
+
     task_kind get_kind() const { return m_kind; }
 
     module_id get_module() const { return m_mod; }
@@ -157,6 +159,10 @@ class module_task : public task<T>, public generic_module_task {
 public:
     module_task(optional<pos_info> const & pos, task_kind kind, bool auto_cancel = true) :
         generic_module_task(pos, kind, auto_cancel) {}
+
+    void set_result(generic_task_result const & self) override {
+        generic_module_task::set_result(self);
+    }
 
     virtual T execute_core() = 0;
 
@@ -170,12 +176,14 @@ T module_task<T>::execute() {
     scoped_message_buffer scoped_msg_buf(m_msg_buf);
     scope_message_context scope_msg_ctx(m_bucket);
     if (m_auto_cancel && !m_msg_buf->is_bucket_valid(m_bucket)) {
-        throw task_cancellation_exception();
+        throw interrupted();
     }
     try {
         scope_traces_as_messages scope_traces(get_module(), get_pos_or_something());
         return execute_core();
     } catch (task_cancellation_exception) {
+        throw;
+    } catch (interrupted) {
         throw;
     } catch (throwable & ex) {
         environment env;

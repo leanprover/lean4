@@ -15,6 +15,8 @@ std::string generic_task::description() const {
     return out.str();
 }
 
+void generic_task::set_result(generic_task_result const &) {}
+
 generic_task_result_cell::generic_task_result_cell(generic_task * t) :
         m_rc(0), m_task(t), m_desc(t->description()) {}
 
@@ -22,6 +24,21 @@ void generic_task_result_cell::clear_task() {
     if (m_task) {
         delete m_task;
         m_task = nullptr;
+    }
+}
+
+bool generic_task_result_cell::execute() {
+    lean_assert(!has_evaluated());
+    try {
+        execute_and_store_result();
+        return true;
+    } catch (interrupted) {
+        m_ex = std::make_exception_ptr(
+                task_cancellation_exception(generic_task_result(this)));
+        return false;
+    } catch (...) {
+        m_ex = std::current_exception();
+        return false;
     }
 }
 

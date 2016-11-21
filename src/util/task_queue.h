@@ -45,7 +45,8 @@ class generic_task_result_cell {
         return state != task_result_state::QUEUED && state != task_result_state::EXECUTING;
     }
 
-    virtual bool execute() = 0;
+    virtual void execute_and_store_result() = 0;
+    bool execute();
 };
 
 class generic_task_result {
@@ -117,6 +118,8 @@ public:
     std::string description() const;
     virtual std::vector<generic_task_result> get_dependencies() { return {}; }
 
+    virtual void set_result(generic_task_result const & self);
+
     virtual bool is_tiny() const { return false; }
 };
 
@@ -139,14 +142,8 @@ class task_result_cell : public generic_task_result_cell {
 
     task<T> * get_ptr() { return static_cast<task<T> *>(m_task); }
 
-    virtual bool execute() {
-        try {
-            m_result = { get_ptr()->execute() };
-            return true;
-        } catch (...) {
-            m_ex = std::current_exception();
-            return false;
-        }
+    virtual void execute_and_store_result() override {
+        m_result = { get_ptr()->execute() };
     }
 
 public:
@@ -214,6 +211,7 @@ public:
         task_result<typename T::result> task(
                 new task_result_cell<typename T::result>(
                         new T(std::forward<As>(args)...)));
+        task->m_task->set_result(task);
         submit(task);
         return task;
     }

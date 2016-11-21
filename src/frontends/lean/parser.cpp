@@ -2159,6 +2159,7 @@ bool parser::parse_commands() {
             if (m_stop_at && pos().first > m_stop_at_line) {
                 throw interrupt_parser();
             }
+            scoped_task_context scope_task_ctx(get_current_module(), pos());
             scope_message_context scope_msg_ctx;
             scoped_info_manager scope_infom( // TODO(gabriel): separate flag for snapshots/infos?
                     m_snapshot_vector ? scope_msg_ctx.enable_info_manager(m_file_name)

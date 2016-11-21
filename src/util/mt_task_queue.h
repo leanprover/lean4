@@ -12,6 +12,7 @@ Author: Gabriel Ebner
 #include <map>
 #include <functional>
 #include <unordered_map>
+#include <library/io_state.h>
 #include "util/optional.h"
 #include "util/task_queue.h"
 
@@ -42,8 +43,10 @@ class mt_task_queue : public task_queue {
     condition_variable m_wake_up_worker;
 
     mt_tq_prioritizer m_prioritizer;
-
     progress_cb m_progress_cb;
+
+    io_state m_ios;
+    message_buffer * m_msg_buf;
 
     generic_task_result dequeue();
     void enqueue(generic_task_result const &);
@@ -52,6 +55,7 @@ class mt_task_queue : public task_queue {
     void propagate_failure(generic_task_result const &);
     void submit(generic_task_result const &) override;
     void bump_prio(generic_task_result const &, task_priority const &);
+    void cancel_core(generic_task_result const &);
 
     void reprioritize_core();
 
@@ -65,6 +69,8 @@ public:
 
     void wait(generic_task_result const & t) override;
     void cancel(generic_task_result const & t) override;
+
+    void cancel_if(const std::function<bool(generic_task *)> &pred) override;
 
     void set_progress_callback(progress_cb const & cb) override;
 

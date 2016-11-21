@@ -36,4 +36,6 @@ void st_task_queue::set_progress_callback(progress_cb const & cb) {
     m_progress_cb = cb;
 }
 
+void st_task_queue::cancel_if(const std::function<bool(generic_task *)> &) {}
+
 }

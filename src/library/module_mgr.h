@@ -19,8 +19,6 @@ Author: Gabriel Ebner
 
 namespace lean {
 
-typedef std::string module_id;
-
 enum class module_src {
     OLEAN,
     LEAN,
@@ -115,83 +113,5 @@ public:
     options get_options() const { return m_ios.get_options(); }
     io_state get_io_state() const { return m_ios; }
 };
-
-module_id const & get_global_module_id();
-class scoped_module_id {
-    module_id * m_old;
-    module_id m_mod;
-public:
-    scoped_module_id(module_id const &);
-    ~scoped_module_id();
-};
-
-class generic_module_task : public generic_task {
-public:
-    enum class task_kind { parse, elab, print };
-
-private:
-    template <class T> friend class module_task;
-    message_buffer * m_msg_buf;
-    io_state m_ios;
-    module_id m_mod;
-    message_bucket_id m_bucket;
-    optional<pos_info> m_pos;
-    bool m_auto_cancel;
-    task_kind m_kind;
-
-public:
-    generic_module_task(optional<pos_info> const & pos, task_kind kind, bool auto_cancel) :
-        m_msg_buf(&get_global_message_buffer()), m_ios(get_global_ios()),
-        m_mod(get_global_module_id()),
-        m_bucket(get_scope_message_context().new_sub_bucket()),
-        m_pos(pos), m_auto_cancel(auto_cancel), m_kind(kind) {}
-
-    void set_result(generic_task_result const & self) override;
-
-    task_kind get_kind() const { return m_kind; }
-
-    module_id get_module() const { return m_mod; }
-    pos_info get_pos_or_something() const { return m_pos ? *m_pos : pos_info{1, 0}; }
-};
-
-template <class T>
-class module_task : public task<T>, public generic_module_task {
-public:
-    module_task(optional<pos_info> const & pos, task_kind kind, bool auto_cancel = true) :
-        generic_module_task(pos, kind, auto_cancel) {}
-
-    void set_result(generic_task_result const & self) override {
-        generic_module_task::set_result(self);
-    }
-
-    virtual T execute_core() = 0;
-
-    T execute() final override;
-};
-
-template <class T>
-T module_task<T>::execute() {
-    scoped_module_id scoped_mod_id(m_mod);
-    scope_global_ios scoped_ios(m_ios);
-    scoped_message_buffer scoped_msg_buf(m_msg_buf);
-    scope_message_context scope_msg_ctx(m_bucket);
-    if (m_auto_cancel && !m_msg_buf->is_bucket_valid(m_bucket)) {
-        throw interrupted();
-    }
-    try {
-        scope_traces_as_messages scope_traces(get_module(), get_pos_or_something());
-        return execute_core();
-    } catch (task_cancellation_exception) {
-        throw;
-    } catch (interrupted) {
-        throw;
-    } catch (throwable & ex) {
-        environment env;
-        message_builder builder(env, m_ios, get_module(), get_pos_or_something(), ERROR);
-        builder.set_exception(ex);
-        builder.report();
-        throw;
-    }
-}
 
 }

@@ -33,7 +33,7 @@ void module_mgr::mark_out_of_date(module_id const & id, buffer<module_id> & to_r
     }
 }
 
-class parse_lean_task : public module_task<module_info::parse_result> {
+class parse_lean_task : public task<module_info::parse_result> {
     environment m_initial_env;
     std::string m_contents;
     snapshot_vector m_snapshots;
@@ -44,13 +44,13 @@ public:
     parse_lean_task(std::string const & contents, environment const & initial_env,
                     snapshot_vector const & snapshots, bool use_snapshots,
                     std::vector<std::tuple<module_id, module_name, module_info>> const & deps) :
-        module_task(optional<pos_info>(), task_kind::parse),
         m_initial_env(initial_env), m_contents(contents),
         m_snapshots(snapshots), m_use_snapshots(use_snapshots),
         m_deps(deps) {}
+    task_kind get_kind() const override { return task_kind::parse; }
 
     void description(std::ostream & out) const override {
-        out << "parsing " << get_module();
+        out << "parsing " << get_module_id();
     }
 
     std::vector<generic_task_result> get_dependencies() override {
@@ -59,7 +59,7 @@ public:
         return deps;
     }
 
-    module_info::parse_result execute_core() override {
+    module_info::parse_result execute() override {
         module_loader import_fn = [=] (module_id const & base, module_name const & import) {
             for (auto d : m_deps) {
                 if (std::get<0>(d) == base &&
@@ -79,7 +79,7 @@ public:
 
         bool use_exceptions = false;
         std::istringstream in(m_contents);
-        parser p(m_initial_env, get_global_ios(), import_fn, in, get_module(),
+        parser p(m_initial_env, get_global_ios(), import_fn, in, get_module_id(),
                  use_exceptions,
                  (m_snapshots.empty() || !m_use_snapshots) ? nullptr : &m_snapshots.back(),
                  m_use_snapshots ? &m_snapshots : nullptr);
@@ -104,13 +104,12 @@ public:
     }
 };
 
-class olean_compilation_task : public module_task<unit> {
+class olean_compilation_task : public task<unit> {
     module_info m_mod;
 
 public:
-    olean_compilation_task(module_info const & mod) :
-            module_task(optional<pos_info>(), task_kind::parse),
-            m_mod(mod) {}
+    olean_compilation_task(module_info const & mod) : m_mod(mod) {}
+    task_kind get_kind() const override { return task_kind::parse; }
 
     std::vector<generic_task_result> get_dependencies() override {
         if (auto res = m_mod.m_result.peek()) {
@@ -125,10 +124,10 @@ public:
     }
 
     void description(std::ostream & out) const override {
-        out << "saving object code for " << get_module();
+        out << "saving object code for " << get_module_id();
     }
 
-    unit execute_core() override {
+    unit execute() override {
         if (m_mod.m_source != module_src::LEAN)
             throw exception("cannot build olean from olean");
         auto res = m_mod.m_result.get();
@@ -159,7 +158,7 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
 
     scope_global_ios scope_ios(m_ios);
     scoped_message_buffer scoped_msg_buf(m_msg_buf);
-    scoped_module_id scoped_mod_mgr(id);
+    scoped_task_context(id, {1, 0});
     message_bucket_id bucket_id { id, m_current_period };
     scope_message_context scope_msg_ctx(bucket_id);
     scope_traces_as_messages scope_trace_msgs(id, {1, 0});
@@ -204,6 +203,10 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
             res.m_ok = true;
             mod.m_result = mk_pure_task_result(res, "Loading " + olean_fn);
 
+            get_global_task_queue().cancel_if(
+                    [=] (generic_task * t) {
+                        return t->get_version() < m_current_period && t->get_module_id() == id;
+                    });
             if (auto old = m_modules[id].m_result) old.cancel();
             m_modules[id] = mod;
         } else if (src == module_src::LEAN) {
@@ -218,6 +221,8 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
                     return;
                 }
             }
+            auto task_pos = snapshots.empty() ? pos_info {1, 0} : snapshots.back().m_pos;
+            scoped_task_context scope_task_ctx2(id, task_pos);
 
             scope_message_context scope_msg_ctx2(bucket_name);
 
@@ -248,7 +253,9 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
             if (m_save_olean)
                 mod.m_olean_task = get_global_task_queue().submit<olean_compilation_task>(mod);
 
-            if (auto old = m_modules[id].m_result) old.cancel();
+            get_global_task_queue().cancel_if([=] (generic_task * t) {
+                return t->get_version() < m_current_period && t->get_module_id() == id && t->get_pos() >= task_pos;
+            });
             m_modules[id] = mod;
         } else {
             throw exception("unknown module source");
@@ -387,26 +394,6 @@ std::tuple<std::string, module_src, time_t> fs_module_vfs::load_module(module_id
     } catch (exception) {}
 
     return std::make_tuple(read_file(lean_fn), module_src::LEAN, lean_mtime);
-}
-
-LEAN_THREAD_PTR(module_id, g_scoped_module_id);
-scoped_module_id::scoped_module_id(module_id const & module) : m_mod(module) {
-    m_old = g_scoped_module_id;
-    g_scoped_module_id = &m_mod;
-}
-scoped_module_id::~scoped_module_id() {
-    g_scoped_module_id = m_old;
-}
-module_id const & get_global_module_id() {
-    return *g_scoped_module_id;
-}
-
-void generic_module_task::set_result(generic_task_result const & self) {
-    if (m_auto_cancel) {
-        if (auto vmb = dynamic_cast<versioned_msg_buf *>(m_msg_buf))
-            vmb->cancel_when_invalidated(m_bucket, self);
-    }
-    generic_task::set_result(self);
 }
 
 }

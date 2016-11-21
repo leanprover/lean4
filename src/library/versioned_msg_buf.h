@@ -20,15 +20,12 @@ class versioned_msg_buf : public message_buffer {
         std::unique_ptr<info_manager> m_infom;
         period m_version = 0;
 
-        generic_task_result m_cancel_on_invalidation;
-
         name_set m_children;
     };
 
     mutex m_mutex;
     std::unordered_map<name, msg_bucket, name_hash> m_buf;
 
-    void cancel_bucket(name const & bucket);
     void erase_bucket(name const & bucket);
     bool is_bucket_valid_core(message_bucket_id const & bucket);
 
@@ -40,8 +37,6 @@ public:
     void finish_bucket(message_bucket_id const & bucket, name_set const & children) override;
     bool is_bucket_valid(message_bucket_id const & bucket) override;
     void report_info_manager(message_bucket_id const & bucket, info_manager const & infom) override;
-
-    void cancel_when_invalidated(message_bucket_id const & bucket, generic_task_result const & t);
 
     std::vector<message> get_messages();
     std::vector<info_manager> get_info_managers();

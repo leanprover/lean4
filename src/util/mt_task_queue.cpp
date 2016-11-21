@@ -46,7 +46,8 @@ mt_task_queue::mt_task_queue(unsigned num_workers) :
     }) {}
 
 mt_task_queue::mt_task_queue(unsigned num_workers, mt_tq_prioritizer const & prioritizer) :
-        m_required_workers(num_workers), m_prioritizer(prioritizer) {
+        m_required_workers(num_workers), m_prioritizer(prioritizer),
+        m_ios(get_global_ios()), m_msg_buf(&get_global_message_buffer()) {
     for (unsigned i = 0; i < num_workers; i++)
         spawn_worker();
 }
@@ -68,7 +69,10 @@ void mt_task_queue::spawn_worker() {
     this_worker->m_thread = thread([=] {
         this_worker->m_interrupt_flag = get_interrupt_flag();
 
-        scope_global_task_queue scope(this);
+        scope_global_task_queue scope_tq(this);
+        scope_global_ios scope_ios(m_ios);
+        scoped_message_buffer scope_msg_buf(m_msg_buf);
+
         unique_lock<mutex> lock(m_mutex);
         scoped_add<int> dec_required(m_required_workers, -1);
         while (true) {
@@ -147,6 +151,7 @@ void mt_task_queue::propagate_failure(generic_task_result const & tr) {
 
 void mt_task_queue::submit(generic_task_result const & t) {
     unique_lock<mutex> lock(m_mutex);
+    check_interrupted();
     t->m_task->m_prio = m_prioritizer(t->m_task);
     if (check_deps(t)) {
         if (!t->has_evaluated()) enqueue(t);
@@ -228,9 +233,28 @@ void mt_task_queue::wait(generic_task_result const & t) {
     }
 }
 
-void mt_task_queue::cancel(generic_task_result const & t) {
-    if (!t) return;
+void mt_task_queue::cancel_if(const std::function<bool(generic_task *)> & pred) {
+    std::vector<generic_task_result> to_cancel;
     unique_lock<mutex> lock(m_mutex);
+
+    for (auto & w : m_workers)
+        if (w->m_current_task && pred(w->m_current_task->m_task))
+            to_cancel.push_back(w->m_current_task);
+
+    for (auto & q : m_queue)
+        for (auto & t : q.second)
+            if (t->m_task && pred(t->m_task))
+                to_cancel.push_back(t);
+
+    for (auto & t : m_waiting)
+        if (t->m_task && pred(t->m_task))
+            to_cancel.push_back(t);
+
+    for (auto & t : to_cancel)
+        cancel_core(t);
+}
+
+void mt_task_queue::cancel_core(generic_task_result const & t) {
     switch (t->m_state.load()) {
         case task_result_state::QUEUED:
             t->m_ex = std::make_exception_ptr(task_cancellation_exception(t));
@@ -248,6 +272,11 @@ void mt_task_queue::cancel(generic_task_result const & t) {
             return;
         default: return;
     }
+}
+void mt_task_queue::cancel(generic_task_result const & t) {
+    if (!t) return;
+    unique_lock<mutex> lock(m_mutex);
+    cancel_core(t);
 }
 
 bool mt_task_queue::empty() {

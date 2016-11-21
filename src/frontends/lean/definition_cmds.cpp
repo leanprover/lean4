@@ -573,7 +573,7 @@ static expr inline_new_defs(environment const & old_env, environment const & new
     });
 }
 
-class proof_elaboration_task : public module_task<expr> {
+class proof_elaboration_task : public task<expr> {
     environment m_decl_env;
     options m_opts;
     bool m_use_info_manager;
@@ -596,23 +596,22 @@ public:
                            bool is_rfl_lemma, expr const & final_type,
                            metavar_context const & mctx, local_context const & lctx,
                            parser_pos_provider const & prov) :
-        module_task(optional<pos_info>(prov.get_some_pos()), task_kind::elab),
         m_decl_env(decl_env), m_opts(opts), m_use_info_manager(get_global_info_manager() != nullptr),
         m_params(params.begin(), params.end()), m_fn(fn), m_val(val), m_finfo(finfo),
         m_is_rfl_lemma(is_rfl_lemma), m_final_type(final_type),
         m_mctx(mctx), m_lctx(lctx), m_pos_provider(prov) {}
 
     void description(std::ostream & out) const override {
-        out << "proving " << local_pp_name(m_fn) << " (" << get_module() << ")";
+        out << "proving " << local_pp_name(m_fn) << " (" << get_module_id() << ")";
     }
 
-    expr execute_core() override {
+    expr execute() override {
         scoped_expr_caching disable(false);  // FIXME: otherwise sigma.eq fails to elaborate
         auto tc = std::make_shared<type_context>(m_decl_env, m_opts, m_mctx, m_lctx);
         scope_trace_env scope2(m_decl_env, m_opts, *tc);
         scope_pos_info_provider scope3(m_pos_provider);
         scoped_info_manager scope4(
-                m_use_info_manager ? get_scope_message_context().enable_info_manager(get_module())
+                m_use_info_manager ? get_scope_message_context().enable_info_manager(get_module_id())
                                    : nullptr);
 
         try {
@@ -635,7 +634,7 @@ public:
     }
 };
 
-class example_checking_task : public module_task<unit> {
+class example_checking_task : public task<unit> {
     environment m_decl_env;
     options m_opts;
     bool m_use_info_manager;
@@ -658,24 +657,25 @@ public:
                           expr const & fn, expr const & val,
                           metavar_context const & mctx, local_context const & lctx,
                           parser_pos_provider const & prov) :
-        module_task(optional<pos_info>(prov.get_some_pos()), task_kind::print),
         m_decl_env(decl_env), m_opts(opts), m_use_info_manager(get_global_info_manager() != nullptr),
         m_modifiers(modifiers),
         m_univ_params(univ_params), m_params(params.begin(), params.end()), m_fn(fn), m_val(val),
         m_mctx(mctx), m_lctx(lctx), m_pos_provider(prov) {
     }
 
+    task_kind get_kind() const override { return task_kind::print; }
+
     void description(std::ostream & out) const override {
-        out << "checking example on line " << m_pos_provider.get_some_pos().first << " (" << get_module() << ")";
+        out << "checking example on line " << m_pos_provider.get_some_pos().first << " (" << get_module_id() << ")";
     }
 
-    unit execute_core() override {
+    unit execute() override {
         scoped_expr_caching disable(false);  // FIXME: otherwise sigma.eq fails to elaborate
         auto tc = std::make_shared<type_context>(m_decl_env, m_opts, m_mctx, m_lctx);
         scope_trace_env scope2(m_decl_env, m_opts, *tc);
         scope_pos_info_provider scope3(m_pos_provider);
         scoped_info_manager scope4(
-                m_use_info_manager ? get_scope_message_context().enable_info_manager(get_module())
+                m_use_info_manager ? get_scope_message_context().enable_info_manager(get_module_id())
                                    : nullptr);
 
         try {

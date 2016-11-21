@@ -757,12 +757,12 @@ static void check_definition(environment const & env, declaration const & d, typ
     }
 }
 
-class proof_checking_task : public module_task<expr> {
+class proof_checking_task : public task<expr> {
     environment m_env;
     declaration m_decl;
 public:
     proof_checking_task(environment const & env, declaration const & d) :
-            module_task({}, task_kind::elab), m_env(env), m_decl(d) {
+            m_env(env), m_decl(d) {
         lean_assert(d.is_theorem());
     }
 
@@ -774,7 +774,7 @@ public:
         return { m_decl.get_value_task() };
     }
 
-    expr execute_core() override {
+    expr execute() override {
         bool memoize = true;
         bool trusted_only = m_decl.is_trusted();
         type_checker checker(m_env, memoize, trusted_only);

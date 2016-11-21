@@ -45,6 +45,8 @@ server::server(unsigned num_threads, environment const & initial_env, io_state c
     m_ios.set_regular_channel(std::make_shared<stderr_channel>());
     m_ios.set_diagnostic_channel(std::make_shared<stderr_channel>());
 
+    scope_global_ios scoped_ios(m_ios);
+    scoped_message_buffer scope_msg_buf(&m_msg_buf);
 #if defined(LEAN_MULTI_THREAD)
     if (num_threads == 0)
         m_tq = new st_task_queue;
@@ -380,23 +382,21 @@ mt_tq_prioritizer mk_interactive_prioritizer(module_id const & roi) {
         task_priority p;
         p.m_prio = DEFAULT_PRIO;
 
-        if (auto mod_task = dynamic_cast<generic_module_task *>(t)) {
-            bool in_roi = mod_task->get_module() == roi;
+        bool in_roi = t->get_module_id() == roi;
 
-            if (!in_roi)
-                p.m_not_before = { chrono::steady_clock::now() + chrono::seconds(10) };
+        if (!in_roi)
+            p.m_not_before = { chrono::steady_clock::now() + chrono::seconds(10) };
 
-            switch (mod_task->get_kind()) {
-                case generic_module_task::task_kind::parse:
-                    p.m_prio = in_roi ? ROI_PARSING_PRIO : PARSING_PRIO;
-                    break;
-                case generic_module_task::task_kind::elab:
-                    p.m_prio = in_roi ? ROI_ELAB_PRIO : ELAB_PRIO;
-                    break;
-                case generic_module_task::task_kind::print:
-                    p.m_prio = in_roi ? ROI_PRINT_PRIO : PRINT_PRIO;
-                    break;
-            }
+        switch (t->get_kind()) {
+            case task_kind::parse:
+                p.m_prio = in_roi ? ROI_PARSING_PRIO : PARSING_PRIO;
+                break;
+            case task_kind::elab:
+                p.m_prio = in_roi ? ROI_ELAB_PRIO : ELAB_PRIO;
+                break;
+            case task_kind::print:
+                p.m_prio = in_roi ? ROI_PRINT_PRIO : PRINT_PRIO;
+                break;
         }
 
         return p;

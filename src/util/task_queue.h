@@ -9,6 +9,7 @@ Author: Gabriel Ebner
 #include <string>
 #include <vector>
 #include <unordered_set>
+#include <library/message_buffer.h>
 #include "util/thread.h"
 #include "util/optional.h"
 #include "util/rc.h"
@@ -103,7 +104,24 @@ struct task_priority {
     }
 };
 
+typedef std::string module_id;
+enum class task_kind { parse, elab, print };
+
+module_id get_current_module();
+pos_info get_current_task_pos();
+class scoped_task_context {
+    module_id * m_old_id;
+    pos_info * m_old_pos;
+    module_id m_id;
+    pos_info m_pos;
+
+public:
+    scoped_task_context(module_id const & mod, pos_info const & pos);
+    ~scoped_task_context();
+};
+
 class generic_task {
+    template <class T> friend class task;
     friend class task_queue;
     friend class st_task_queue;
     friend class mt_task_queue;
@@ -112,24 +130,34 @@ class generic_task {
     std::vector<generic_task_result> m_reverse_deps;
     condition_variable m_has_finished;
 
+    // metadata
+    message_bucket_id m_bucket;
+    module_id m_mod;
+    pos_info m_pos;
+
 public:
+    generic_task();
     virtual ~generic_task() {}
+
     virtual void description(std::ostream &) const = 0;
     std::string description() const;
     virtual std::vector<generic_task_result> get_dependencies() { return {}; }
 
-    virtual void set_result(generic_task_result const & self);
-
     virtual bool is_tiny() const { return false; }
+    virtual task_kind get_kind() const { return task_kind::elab; }
+    virtual pos_info get_pos() const { return get_task_pos(); }
+
+    message_bucket_id const & get_bucket() const { return m_bucket; }
+    period get_version() const { return m_bucket.m_version; }
+    module_id const & get_module_id() const { return m_mod; }
+    pos_info const & get_task_pos() const { return m_pos; }
 };
 
 template <class T>
 class task : public generic_task {
 public:
     typedef T result;
-
     virtual ~task() {}
-
     virtual T execute() = 0;
 };
 
@@ -211,7 +239,6 @@ public:
         task_result<typename T::result> task(
                 new task_result_cell<typename T::result>(
                         new T(std::forward<As>(args)...)));
-        task->m_task->set_result(task);
         submit(task);
         return task;
     }
@@ -233,6 +260,7 @@ public:
     virtual void wait(generic_task_result const & t) = 0;
 
     virtual void cancel(generic_task_result const & t) = 0;
+    virtual void cancel_if(std::function<bool(generic_task *)> const & pred) = 0; // NOLINT
 
     using progress_cb = std::function<void(generic_task *)>; // NOLINT
     // disabling lint because it this this is cast ^^^

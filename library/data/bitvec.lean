@@ -152,4 +152,10 @@ section from_bitvec
   list.foldl f (0 : α) (to_list v)
 end from_bitvec
 
+private def to_string {n : nat} : bitvec n → string
+| ⟨bs, p⟩ :=
+  "0b" ++ (bs^.reverse^.for (λ b, if b then #"1" else #"0"))
+
+instance (n : nat) : has_to_string (bitvec n) :=
+⟨to_string⟩
 end bitvec

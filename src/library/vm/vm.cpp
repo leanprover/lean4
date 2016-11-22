@@ -795,11 +795,11 @@ struct vm_decls : public environment_extension {
 
     vm_decls() {
         g_vm_builtins->for_each([&](name const & n, std::tuple<unsigned, char const *, vm_function> const & p) {
-                add(vm_decl(n, m_next_decl_idx, std::get<0>(p), std::get<2>(p)));
+                add_core(vm_decl(n, m_next_decl_idx, std::get<0>(p), std::get<2>(p)));
                 m_next_decl_idx++;
             });
         g_vm_cbuiltins->for_each([&](name const & n, std::tuple<unsigned, char const *, vm_cfunction> const & p) {
-                add(vm_decl(n, m_next_decl_idx, std::get<0>(p), std::get<2>(p)));
+                add_core(vm_decl(n, m_next_decl_idx, std::get<0>(p), std::get<2>(p)));
                 m_next_decl_idx++;
             });
         g_vm_cases_builtins->for_each([&](name const & n, std::tuple<char const *, vm_cases_function> const & p) {
@@ -811,11 +811,21 @@ struct vm_decls : public environment_extension {
             });
     }
 
-    void add(vm_decl const & d) {
+    void add_core(vm_decl const & d) {
         if (m_name2idx.contains(d.get_name()))
             throw exception(sstream() << "VM already contains code for '" << d.get_name() << "'");
         m_name2idx.insert(d.get_name(), d.get_idx());
         m_decls.insert(d.get_idx(), d);
+    }
+
+    void add_native(name const & n, unsigned arity, vm_cfunction fn) {
+        if (auto idx = m_name2idx.find(n)) {
+            lean_assert(m_decls.find(*idx)->get_arity() == arity);
+            m_decls.insert(*idx, vm_decl(n, *idx, arity, fn));
+        } else {
+            add_core(vm_decl(n, m_next_decl_idx, arity, fn));
+            m_next_decl_idx++;
+        }
     }
 
     unsigned reserve(name const & n, expr const & e) {
@@ -857,12 +867,7 @@ static environment update(environment const & env, vm_decls const & ext) {
 
 static environment add_native(environment const & env, name const & n, unsigned arity, vm_cfunction fn) {
     auto ext = get_extension(env);
-    if (auto idx = ext.m_name2idx.find(n)) {
-        lean_assert(ext.m_decls.find(*idx)->get_arity() == arity);
-        ext.m_decls.insert(*idx, vm_decl(n, *idx, arity, fn));
-    } else {
-        ext.add(vm_decl(n, ext.m_decls.size(), arity, fn));
-    }
+    ext.add_native(n, arity, fn);
     return update(env, ext);
 }
 

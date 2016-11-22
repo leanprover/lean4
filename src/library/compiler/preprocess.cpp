@@ -96,6 +96,7 @@ class expand_aux_fn : public compiler_step_visitor {
     }
 
     virtual expr visit_app(expr const & e) override {
+        type_context::nozeta_scope scope(ctx());
         switch (get_recursor_app_kind(e)) {
         case recursor_kind::NotRecursor: {
             if (is_not_vm_function(e) && !ctx().is_proof(e)) {

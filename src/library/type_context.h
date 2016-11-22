@@ -215,6 +215,9 @@ class type_context : public abstract_type_context {
        even if we are not in tmp_mode */
     bool               m_approximate;
 
+    /* If m_zeta, then use zeta-reduction (i.e., expand let-expressions at whnf) */
+    bool               m_zeta{true};
+
     /* Postponed universe constraints.
        We postpone universe constraints containing max/imax. Examples:
 
@@ -383,6 +386,11 @@ public:
     struct approximate_scope : public flet<bool> {
         approximate_scope(type_context & ctx):
             flet<bool>(ctx.m_approximate, true) {}
+    };
+
+    struct nozeta_scope : public flet<bool> {
+        nozeta_scope(type_context & ctx):
+            flet<bool>(ctx.m_zeta, false) {}
     };
 
     /* --------------------------

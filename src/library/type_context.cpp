@@ -634,7 +634,7 @@ expr type_context::whnf_core(expr const & e) {
         }
     case expr_kind::Let:
         check_system("whnf");
-        return whnf_core(::lean::instantiate(let_body(e), let_value(e)));
+        return m_zeta ? whnf_core(::lean::instantiate(let_body(e), let_value(e))) : e;
     case expr_kind::App: {
         check_system("whnf");
         buffer<expr> args;

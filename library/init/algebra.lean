@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.logic init.binary init.combinator init.meta.interactive init.meta.decl_cmds
+import init.monad_combinators
 
 /- Make sure instances defined in this file have lower priority than the ones
    defined for concrete structures -/
@@ -94,8 +95,36 @@ instance add_monoid.to_has_zero {α : Type u} [s : add_monoid α] : has_zero α 
 instance add_group.to_has_neg {α : Type u} [s : add_group α] : has_neg α :=
 ⟨@group.inv α s⟩
 
-meta def multiplicative_to_additive : name_map name :=
-rb_map.of_list $
+open tactic
+
+meta def transport_with_dict (dict : name_map name) (src : name) (tgt : name) : command :=
+copy_decl_updating_type dict src tgt
+>> copy_attribute `reducible src tt tgt
+>> copy_attribute `simp src tt tgt
+>> copy_attribute `instance src tt tgt
+
+meta def name_map_of_list_name (l : list name) : tactic (name_map name) :=
+do list_pair_name ← monad.for l (λ nm, do e ← mk_const nm, eval_expr (list (name × name)) e),
+   return $ rb_map.of_list (list.join list_pair_name)
+
+meta def transport_using_attr (attr : caching_user_attribute (name_map name))
+    (src : name) (tgt : name) : command :=
+do dict ← caching_user_attribute.get_cache attr,
+   transport_with_dict dict src tgt
+
+meta def multiplicative_to_additive_transport_attr : caching_user_attribute (name_map name) :=
+{ name  := `multiplicative_to_additive_transport,
+  descr := "list of name pairs for transporting multiplicative facts to additive ones",
+  mk_cache := name_map_of_list_name,
+  dependencies := [] }
+
+run_command attribute.register `multiplicative_to_additive_transport_attr
+
+meta def transport_to_additive : name → name → command :=
+transport_using_attr multiplicative_to_additive_transport_attr
+
+@[multiplicative_to_additive_transport]
+meta def multiplicative_to_additive_pairs : list (name × name) :=
   [/- map operations -/
    (`mul, `add), (`one, `zero), (`inv, `neg),
    /- map structures -/
@@ -118,21 +147,14 @@ rb_map.of_list $
    (`comm_group.to_comm_monoid, `add_comm_group.to_add_comm_monoid)
  ]
 
-open tactic
-
-meta def transport_to_additive (src : name) (tgt : name) : command :=
-copy_decl_updating_type multiplicative_to_additive src tgt
->> copy_attribute `reducible src tt tgt
->> copy_attribute `simp src tt tgt
->> copy_attribute `instance src tt tgt
-
 /- Make sure all constants at multiplicative_to_additive are declared -/
 meta def init_multiplicative_to_additive : command :=
-multiplicative_to_additive^.fold skip (λ s t tac, do
+list.foldl (λ (tac : tactic unit) (p : name × name), do
+  (s, t) ← return p,
   env ← get_env,
   if (env^.get t)^.to_bool = ff
   then tac >> transport_to_additive s t
-  else tac)
+  else tac) skip multiplicative_to_additive_pairs
 
 run_command init_multiplicative_to_additive
 run_command transport_to_additive `mul_assoc `add_assoc

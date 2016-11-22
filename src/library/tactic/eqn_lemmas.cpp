@@ -62,11 +62,7 @@ environment add_eqn_lemma_core(environment const & env, name const & eqn_lemma) 
 }
 
 environment add_eqn_lemma(environment const & env, name const & eqn_lemma) {
-    environment new_env = env;
-    auto d = env.get(eqn_lemma);
-    if (is_rfl_lemma(d.get_type(), d.get_value()))
-        new_env = mark_rfl_lemma(new_env, eqn_lemma);
-    new_env = add_eqn_lemma_core(new_env, eqn_lemma);
+    environment new_env = add_eqn_lemma_core(env, eqn_lemma);
     return module::add(new_env, *g_eqn_lemmas_key, [=](environment const &, serializer & s) { s << eqn_lemma; });
 }
 

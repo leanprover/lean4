@@ -694,7 +694,7 @@ bool is_rfl_lemma(expr type, expr pf) {
     expr lhs, rhs;
     if (!is_eq(type, lhs, rhs)) return false;
     if (!is_app_of(pf, get_eq_refl_name(), 2) && !is_app_of(pf, get_rfl_name(), 2)) return false;
-    return lhs != rhs;
+    return true;
 }
 
 bool is_rfl_lemma(environment const & env, name const & cname) {

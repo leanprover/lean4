@@ -321,6 +321,8 @@ static environment add_equation_lemma(environment const & env, options const & o
     }
     try {
         std::tie(new_env, r) = mk_aux_definition(new_env, mctx, lctx, new_c, new_type, new_value);
+        if (is_rfl_lemma(new_type, new_value))
+            new_env = mark_rfl_lemma(new_env, new_c);
         new_env = add_eqn_lemma(new_env, new_c);
     } catch (exception & ex) {
         throw_mk_aux_definition_error(lctx, c, new_type, new_value, ex);

@@ -10,7 +10,7 @@ Author: Gabriel Ebner
 #include <vector>
 #include <util/name.h>
 #include <kernel/environment.h>
-#include <util/task_queue.h>
+#include <library/task_queue.h>
 #include <unordered_map>
 #include "frontends/lean/parser.h"
 #include "library/message_buffer.h"

@@ -7,7 +7,7 @@ Author: Gabriel Ebner
 #include <string>
 #include <algorithm>
 #include <vector>
-#include "util/mt_task_queue.h"
+#include "library/mt_task_queue.h"
 #include "util/interrupt.h"
 #include "util/flet.h"
 
@@ -233,7 +233,7 @@ void mt_task_queue::wait(generic_task_result const & t) {
     }
 }
 
-void mt_task_queue::cancel_if(const std::function<bool(generic_task *)> & pred) {
+void mt_task_queue::cancel_if(const std::function<bool(generic_task *)> & pred) { // NOLINT
     std::vector<generic_task_result> to_cancel;
     unique_lock<mutex> lock(m_mutex);
 

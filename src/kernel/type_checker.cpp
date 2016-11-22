@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <utility>
 #include <vector>
-#include <util/task_queue.h>
+#include <library/task_queue.h>
 #include <library/module_mgr.h>
 #include "util/interrupt.h"
 #include "util/lbool.h"

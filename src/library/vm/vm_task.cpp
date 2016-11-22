@@ -7,10 +7,11 @@ Author: Gabriel Ebner
 #include "library/vm/vm_task.h"
 #include <string>
 #include <iostream>
+#include <vector>
 #include "library/vm/vm.h"
 #include "library/vm/vm_string.h"
 #include "library/vm/vm_expr.h"
-#include "util/task_queue.h"
+#include "library/task_queue.h"
 
 namespace lean {
 

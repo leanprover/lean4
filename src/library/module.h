@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 #include "util/optional.h"
 #include "kernel/inductive/inductive.h"
 #include "library/io_state.h"
-#include "util/task_queue.h"
+#include "library/task_queue.h"
 #include "kernel/pos_info_provider.h"
 
 namespace lean {

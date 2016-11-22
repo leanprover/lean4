@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Gabriel Ebner
 */
 #pragma once
-#include "util/task_queue.h"
+#include "library/task_queue.h"
 
 namespace lean {
 
@@ -22,7 +22,7 @@ public:
     void wait(generic_task_result const & t) override;
     void cancel(generic_task_result const & t) override;
 
-    void cancel_if(const std::function<bool(generic_task *)> &pred) override;
+    void cancel_if(std::function<bool(generic_task *)> const & pred) override; // NOLINT
 
     void set_progress_callback(progress_cb const &) override;
 };

@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include "util/utf8.h"
 #include <library/export_decl.h>
-#include "util/st_task_queue.h"
+#include "library/st_task_queue.h"
 #include "library/module_mgr.h"
 #include "util/interrupt.h"
 #include "util/sstream.h"

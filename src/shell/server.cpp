@@ -10,8 +10,8 @@ Authors: Gabriel Ebner, Leonardo de Moura, Sebastian Ullrich
 #include <algorithm>
 #include <vector>
 #include <clocale>
-#include "util/mt_task_queue.h"
-#include "util/st_task_queue.h"
+#include "library/mt_task_queue.h"
+#include "library/st_task_queue.h"
 #include "frontends/lean/parser.h"
 #include "library/module.h"
 #include "shell/server.h"

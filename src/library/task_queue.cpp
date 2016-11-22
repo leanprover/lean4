@@ -7,7 +7,7 @@ Author: Gabriel Ebner
 #include <string>
 #include <library/trace.h>
 #include <library/message_builder.h>
-#include "util/task_queue.h"
+#include "library/task_queue.h"
 
 namespace lean {
 

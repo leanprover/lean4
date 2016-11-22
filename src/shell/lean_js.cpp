@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include "library/module_mgr.h"
-#include "util/st_task_queue.h"
+#include "library/st_task_queue.h"
 #include "library/flycheck.h"
 #include "library/module.h"
 #include "library/standard_kernel.h"
@@ -31,7 +31,7 @@ private:
     scoped_message_buffer scope_msg_buf;
 
     module_mgr mod_mgr;
-    scoped_module_id scope_mod_id;
+    scoped_task_context scope_task_ctx;
 
     scope_message_context msg_ctx;
 
@@ -39,7 +39,7 @@ public:
     emscripten_shell() : trust_lvl(LEAN_BELIEVER_TRUST_LEVEL+1),
         env(mk_environment(trust_lvl)), ios(opts, mk_pretty_formatter_factory()),
         tq(), scope_tq(&tq), msg_buf(std::cout), scope_msg_buf(&msg_buf),
-        mod_mgr(nullptr, &msg_buf, env, ios), scope_mod_id(""),
+        mod_mgr(nullptr, &msg_buf, env, ios), scope_task_ctx("lean.js", {1, 0}),
         msg_ctx(message_bucket_id { "lean.js", 0 }) {
     }
 

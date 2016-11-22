@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 #include "util/flet.h"
 #include "util/name_map.h"
 #include "util/exception.h"
-#include "util/task_queue.h"
+#include "library/task_queue.h"
 #include "kernel/environment.h"
 #include "kernel/expr_maps.h"
 #include "library/abstract_parser.h"

@@ -12,8 +12,8 @@ Author: Leonardo de Moura
 #include <string>
 #include <utility>
 #include <vector>
-#include <util/st_task_queue.h>
-#include <util/mt_task_queue.h>
+#include <library/st_task_queue.h>
+#include <library/mt_task_queue.h>
 #include "library/module_mgr.h"
 #include "util/realpath.h"
 #include "util/stackinfo.h"

@@ -697,18 +697,11 @@ bool is_rfl_lemma(expr type, expr pf) {
     return lhs != rhs;
 }
 
-<<<<<<< HEAD
-static levels mk_tmp_levels_for(type_context & ctx, declaration const & d) {
-=======
 bool is_rfl_lemma(environment const & env, name const & cname) {
     return get_refl_lemma_attribute().is_instance(env, cname);
 }
 
-static simp_lemmas add_core(type_context & ctx, simp_lemmas const & s, name const & cname, unsigned priority) {
-    environment const & env = ctx.env();
-    type_context::tmp_mode_scope scope(ctx);
-    declaration const & d = env.get(cname);
->>>>>>> refactor(library/tactic/simp_lemmas): mark rfl-lemmas with a _refl_lemma attribute
+static levels mk_tmp_levels_for(type_context & ctx, declaration const & d) {
     buffer<level> us;
     unsigned num_univs = d.get_num_univ_params();
     for (unsigned i = 0; i < num_univs; i++) {

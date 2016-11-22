@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Gabriel Ebner
 */
-#include "util/st_task_queue.h"
+#include "library/st_task_queue.h"
 
 namespace lean {
 
@@ -36,6 +36,6 @@ void st_task_queue::set_progress_callback(progress_cb const & cb) {
     m_progress_cb = cb;
 }
 
-void st_task_queue::cancel_if(const std::function<bool(generic_task *)> &) {}
+void st_task_queue::cancel_if(const std::function<bool(generic_task *)> &) {} // NOLINT
 
 }

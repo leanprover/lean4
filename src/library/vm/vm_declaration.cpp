@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_list.h"
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_option.h"
-#include "vm_task.h"
+#include "library/vm/vm_task.h"
 
 namespace lean {
 /*

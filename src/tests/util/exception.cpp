@@ -38,7 +38,7 @@ static void tst3() {
 static void tst4() {
     try {
         throw interrupted();
-    } catch (throwable & ex) {
+    } catch (interrupted & ex) {
         lean_assert(std::string("interrupted") == ex.what());
     }
 }

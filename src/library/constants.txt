@@ -208,6 +208,17 @@ nat.zero_ne_bit1
 nat.one_ne_zero
 nat.one_ne_bit0
 nat.one_ne_bit1
+nat.bit0_lt
+nat.bit1_lt
+nat.bit0_lt_bit1
+nat.bit1_lt_bit0
+nat.zero_lt_one
+nat.zero_lt_bit1
+nat.zero_lt_bit0
+nat.one_lt_bit0
+nat.one_lt_bit1
+nat.le_of_lt
+nat.le_refl
 neg
 norm_num.add1
 norm_num.add1_bit0

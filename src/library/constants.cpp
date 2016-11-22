@@ -213,6 +213,17 @@ name const * g_nat_zero_ne_bit1 = nullptr;
 name const * g_nat_one_ne_zero = nullptr;
 name const * g_nat_one_ne_bit0 = nullptr;
 name const * g_nat_one_ne_bit1 = nullptr;
+name const * g_nat_bit0_lt = nullptr;
+name const * g_nat_bit1_lt = nullptr;
+name const * g_nat_bit0_lt_bit1 = nullptr;
+name const * g_nat_bit1_lt_bit0 = nullptr;
+name const * g_nat_zero_lt_one = nullptr;
+name const * g_nat_zero_lt_bit1 = nullptr;
+name const * g_nat_zero_lt_bit0 = nullptr;
+name const * g_nat_one_lt_bit0 = nullptr;
+name const * g_nat_one_lt_bit1 = nullptr;
+name const * g_nat_le_of_lt = nullptr;
+name const * g_nat_le_refl = nullptr;
 name const * g_neg = nullptr;
 name const * g_norm_num_add1 = nullptr;
 name const * g_norm_num_add1_bit0 = nullptr;
@@ -619,6 +630,17 @@ void initialize_constants() {
     g_nat_one_ne_zero = new name{"nat", "one_ne_zero"};
     g_nat_one_ne_bit0 = new name{"nat", "one_ne_bit0"};
     g_nat_one_ne_bit1 = new name{"nat", "one_ne_bit1"};
+    g_nat_bit0_lt = new name{"nat", "bit0_lt"};
+    g_nat_bit1_lt = new name{"nat", "bit1_lt"};
+    g_nat_bit0_lt_bit1 = new name{"nat", "bit0_lt_bit1"};
+    g_nat_bit1_lt_bit0 = new name{"nat", "bit1_lt_bit0"};
+    g_nat_zero_lt_one = new name{"nat", "zero_lt_one"};
+    g_nat_zero_lt_bit1 = new name{"nat", "zero_lt_bit1"};
+    g_nat_zero_lt_bit0 = new name{"nat", "zero_lt_bit0"};
+    g_nat_one_lt_bit0 = new name{"nat", "one_lt_bit0"};
+    g_nat_one_lt_bit1 = new name{"nat", "one_lt_bit1"};
+    g_nat_le_of_lt = new name{"nat", "le_of_lt"};
+    g_nat_le_refl = new name{"nat", "le_refl"};
     g_neg = new name{"neg"};
     g_norm_num_add1 = new name{"norm_num", "add1"};
     g_norm_num_add1_bit0 = new name{"norm_num", "add1_bit0"};
@@ -1026,6 +1048,17 @@ void finalize_constants() {
     delete g_nat_one_ne_zero;
     delete g_nat_one_ne_bit0;
     delete g_nat_one_ne_bit1;
+    delete g_nat_bit0_lt;
+    delete g_nat_bit1_lt;
+    delete g_nat_bit0_lt_bit1;
+    delete g_nat_bit1_lt_bit0;
+    delete g_nat_zero_lt_one;
+    delete g_nat_zero_lt_bit1;
+    delete g_nat_zero_lt_bit0;
+    delete g_nat_one_lt_bit0;
+    delete g_nat_one_lt_bit1;
+    delete g_nat_le_of_lt;
+    delete g_nat_le_refl;
     delete g_neg;
     delete g_norm_num_add1;
     delete g_norm_num_add1_bit0;
@@ -1432,6 +1465,17 @@ name const & get_nat_zero_ne_bit1_name() { return *g_nat_zero_ne_bit1; }
 name const & get_nat_one_ne_zero_name() { return *g_nat_one_ne_zero; }
 name const & get_nat_one_ne_bit0_name() { return *g_nat_one_ne_bit0; }
 name const & get_nat_one_ne_bit1_name() { return *g_nat_one_ne_bit1; }
+name const & get_nat_bit0_lt_name() { return *g_nat_bit0_lt; }
+name const & get_nat_bit1_lt_name() { return *g_nat_bit1_lt; }
+name const & get_nat_bit0_lt_bit1_name() { return *g_nat_bit0_lt_bit1; }
+name const & get_nat_bit1_lt_bit0_name() { return *g_nat_bit1_lt_bit0; }
+name const & get_nat_zero_lt_one_name() { return *g_nat_zero_lt_one; }
+name const & get_nat_zero_lt_bit1_name() { return *g_nat_zero_lt_bit1; }
+name const & get_nat_zero_lt_bit0_name() { return *g_nat_zero_lt_bit0; }
+name const & get_nat_one_lt_bit0_name() { return *g_nat_one_lt_bit0; }
+name const & get_nat_one_lt_bit1_name() { return *g_nat_one_lt_bit1; }
+name const & get_nat_le_of_lt_name() { return *g_nat_le_of_lt; }
+name const & get_nat_le_refl_name() { return *g_nat_le_refl; }
 name const & get_neg_name() { return *g_neg; }
 name const & get_norm_num_add1_name() { return *g_norm_num_add1; }
 name const & get_norm_num_add1_bit0_name() { return *g_norm_num_add1_bit0; }

@@ -9,13 +9,6 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 
 namespace lean {
-optional<expr> is_nat_succ(expr const & e) {
-    if (is_app_of(e, get_nat_succ_name(), 1))
-        return some_expr(app_arg(e));
-    else
-        return none_expr();
-}
-
 optional<expr> mk_nat_val_ne_proof(expr const & a, expr const & b) {
     if (a == b) return none_expr();
     if (auto a1 = is_bit0(a)) {
@@ -57,7 +50,7 @@ optional<expr> mk_nat_val_ne_proof(expr const & a, expr const & b) {
         if (auto b1 = is_bit0(b)) {
             return some_expr(mk_app(mk_constant(get_nat_one_ne_bit0_name()), *b1));
         } else if (auto b1 = is_bit1(b)) {
-            if (auto pr = mk_nat_val_ne_proof(*b1, mk_nat_one()))
+            if (auto pr = mk_nat_val_ne_proof(*b1, mk_nat_zero()))
                 return some_expr(mk_app(mk_constant(get_nat_one_ne_bit1_name()), *b1, *pr));
         } else if (is_zero(b)) {
             return some_expr(mk_constant(get_nat_one_ne_zero_name()));
@@ -65,6 +58,52 @@ optional<expr> mk_nat_val_ne_proof(expr const & a, expr const & b) {
             return none_expr();
         }
     }
+    return none_expr();
+}
+
+optional<expr> mk_nat_val_lt_proof(expr const & a, expr const & b) {
+    if (a == b) return none_expr();
+    if (auto a1 = is_bit0(a)) {
+        if (auto b1 = is_bit0(b)) {
+            if (auto pr = mk_nat_val_lt_proof(*a1, *b1))
+                return some_expr(mk_app(mk_constant(get_nat_bit0_lt_name()), *a1, *b1, *pr));
+        } else if (auto b1 = is_bit1(b)) {
+            if (auto pr = mk_nat_val_lt_proof(*a1, *b1))
+                return some_expr(mk_app(mk_constant(get_nat_bit0_lt_bit1_name()), *a1, *b1, *pr));
+        }
+    } else if (auto a1 = is_bit1(a)) {
+        if (auto b1 = is_bit0(b)) {
+            if (auto pr = mk_nat_val_lt_proof(*a1, *b1))
+                return some_expr(mk_app(mk_constant(get_nat_bit1_lt_bit0_name()), *a1, *b1, *pr));
+        } else if (auto b1 = is_bit1(b)) {
+            if (auto pr = mk_nat_val_lt_proof(*a1, *b1))
+                return some_expr(mk_app(mk_constant(get_nat_bit1_lt_name()), *a1, *b1, *pr));
+        }
+    } else if (is_zero(a)) {
+        if (auto b1 = is_bit0(b)) {
+            if (auto pr = mk_nat_val_ne_proof(*b1, a))
+                return some_expr(mk_app(mk_constant(get_nat_zero_lt_bit0_name()), *b1, *pr));
+        } else if (auto b1 = is_bit1(b)) {
+            return some_expr(mk_app(mk_constant(get_nat_zero_lt_bit1_name()), *b1));
+        } else if (is_one(b)) {
+            return some_expr(mk_constant(get_nat_zero_lt_one_name()));
+        }
+    } else if (is_one(a)) {
+        if (auto b1 = is_bit0(b)) {
+            if (auto pr = mk_nat_val_ne_proof(*b1, mk_nat_zero()))
+                return some_expr(mk_app(mk_constant(get_nat_one_lt_bit0_name()), *b1, *pr));
+        } else if (auto b1 = is_bit1(b)) {
+            if (auto pr = mk_nat_val_ne_proof(*b1, mk_nat_zero()))
+                return some_expr(mk_app(mk_constant(get_nat_one_lt_bit1_name()), *b1, *pr));
+        }
+    }
+}
+
+optional<expr> mk_nat_val_le_proof(expr const & a, expr const & b) {
+    if (a == b)
+        return some_expr(mk_app(mk_constant(get_nat_le_refl_name()), a));
+    if (auto pr = mk_nat_val_lt_proof(a, b))
+        return some_expr(mk_app(mk_constant(get_nat_le_of_lt_name()), a, b, *pr));
     return none_expr();
 }
 }

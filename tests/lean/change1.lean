@@ -1,7 +1,7 @@
 open tactic nat expr option
 
 attribute [simp]
-definition succ_eq_add (n : nat) : succ n = n + 1 :=
+lemma succ_eq_add (n : nat) : succ n = n + 1 :=
 rfl
 
 example (a b : nat) : a = b → succ (succ a) = succ (b + 1) :=

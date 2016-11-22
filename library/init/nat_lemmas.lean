@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.nat init.meta init.congr
+import init.nat init.meta init.congr init.binary
 
 namespace nat
 
@@ -35,6 +35,9 @@ namespace nat
   protected lemma add_assoc : ∀ n m k : ℕ, (n + m) + k = n + (m + k)
   | n m 0        := rfl
   | n m (succ k) := by simp [add_succ, add_assoc n m k]
+
+  protected lemma add_left_comm : ∀ (n m k : ℕ), n + (m + k) = m + (n + k) :=
+  left_comm nat.add nat.add_comm nat.add_assoc
 
   protected lemma add_left_cancel : ∀ {n m k : ℕ}, n + m = n + k → m = k
   | 0        m k := by ctx_simp [nat.zero_add]
@@ -67,6 +70,31 @@ namespace nat
 
   lemma eq_zero_of_add_eq_zero_left {n m : ℕ} (h : n + m = 0) : m = 0 :=
   @eq_zero_of_add_eq_zero_right m n (nat.add_comm n m ▸ h)
+
+  lemma pred_zero : pred 0 = 0 :=
+  rfl
+
+  lemma pred_succ (n : ℕ) : pred (succ n) = n :=
+  rfl
+
+  protected lemma mul_zero (n : ℕ) : n * 0 = 0 :=
+  rfl
+
+  lemma mul_succ (n m : ℕ) : n * succ m = n * m + n :=
+  rfl
+
+  protected theorem zero_mul : ∀ (n : ℕ), 0 * n = 0
+  | 0        := rfl
+  | (succ n) := by rw [mul_succ, zero_mul]
+
+  lemma succ_mul : ∀ (n m : ℕ), (succ n) * m = (n * m) + m
+  | n 0        := rfl
+  | n (succ m) :=
+    have succ n * m = (n * m) + m, from succ_mul n m,
+    begin
+      simp [mul_succ, add_succ, this],
+      simp [nat.add_assoc, nat.add_comm, nat.add_left_comm]
+    end
 
   protected lemma bit0_succ_eq (n : ℕ) : bit0 (succ n) = succ (succ (bit0 n)) :=
   show succ (succ n + n) = succ (succ (n + n)), from
@@ -280,38 +308,6 @@ namespace nat
 
   lemma succ_le_of_lt {a b : ℕ} (h : a < b) : succ a ≤ b := h
 
-  protected lemma zero_lt_one : 0 < (1:nat) :=
-  zero_lt_succ 0
-
-  protected lemma zero_lt_bit1 (n : nat) : 0 < bit1 n :=
-  zero_lt_succ _
-
-  protected lemma zero_lt_bit0 : ∀ {n : nat}, n ≠ 0 → 0 < bit0 n
-  | 0        h := by contradiction
-  | (succ n) h :=
-    begin
-      rw nat.bit0_succ_eq,
-      apply zero_lt_succ
-    end
-
-  protected lemma one_lt_bit1 : ∀ {n : nat}, n ≠ 0 → 1 < bit1 n
-  | 0        h := by contradiction
-  | (succ n) h :=
-    begin
-      rw nat.bit1_succ_eq,
-      apply succ_lt_succ,
-      apply zero_lt_succ
-    end
-
-  protected lemma one_lt_bit0 : ∀ {n : nat}, n ≠ 0 → 1 < bit0 n
-  | 0        h := by contradiction
-  | (succ n) h :=
-    begin
-      rw nat.bit0_succ_eq,
-      apply succ_lt_succ,
-      apply zero_lt_succ
-    end
-
   lemma sub_eq_succ_sub_succ (a b : ℕ) : a - b = succ a - succ b :=
   eq.symm (succ_sub_succ_eq_sub a b)
 
@@ -375,5 +371,46 @@ namespace nat
   nat.lt_of_le_and_ne
     (nat.le_of_add_le_add_left h')
     (λ heq, nat.lt_irrefl (k + m) begin rw heq at h, assumption end)
+
+  protected lemma add_lt_add_left {n m : ℕ} (h : n < m) (k : ℕ) : k + n < k + m :=
+  lt_of_succ_le (add_succ k n ▸ nat.add_le_add_left (succ_le_of_lt h) k)
+
+  protected lemma add_lt_add_right {n m : ℕ} (h : n < m) (k : ℕ) : n + k < m + k :=
+  nat.add_comm k m ▸ nat.add_comm k n ▸ nat.add_lt_add_left h k
+
+  protected lemma lt_add_of_pos_right {n k : ℕ} (h : k > 0) : n < n + k :=
+  nat.add_lt_add_left h n
+
+  protected lemma zero_lt_one : 0 < (1:nat) :=
+  zero_lt_succ 0
+
+  protected lemma zero_lt_bit1 (n : nat) : 0 < bit1 n :=
+  zero_lt_succ _
+
+  protected lemma zero_lt_bit0 : ∀ {n : nat}, n ≠ 0 → 0 < bit0 n
+  | 0        h := by contradiction
+  | (succ n) h :=
+    begin
+      rw nat.bit0_succ_eq,
+      apply zero_lt_succ
+    end
+
+  protected lemma one_lt_bit1 : ∀ {n : nat}, n ≠ 0 → 1 < bit1 n
+  | 0        h := by contradiction
+  | (succ n) h :=
+    begin
+      rw nat.bit1_succ_eq,
+      apply succ_lt_succ,
+      apply zero_lt_succ
+    end
+
+  protected lemma one_lt_bit0 : ∀ {n : nat}, n ≠ 0 → 1 < bit0 n
+  | 0        h := by contradiction
+  | (succ n) h :=
+    begin
+      rw nat.bit0_succ_eq,
+      apply succ_lt_succ,
+      apply zero_lt_succ
+    end
 
 end nat

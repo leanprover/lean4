@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.nat init.meta init.congr init.binary
+import init.nat init.meta init.congr init.binary init.algebra
 
 namespace nat
 
@@ -87,14 +87,67 @@ namespace nat
   | 0        := rfl
   | (succ n) := by rw [mul_succ, zero_mul]
 
+  private meta def sort_add :=
+  `[simp [nat.add_assoc, nat.add_comm, nat.add_left_comm]]
+
   lemma succ_mul : ∀ (n m : ℕ), (succ n) * m = (n * m) + m
   | n 0        := rfl
   | n (succ m) :=
-    have succ n * m = (n * m) + m, from succ_mul n m,
     begin
-      simp [mul_succ, add_succ, this],
-      simp [nat.add_assoc, nat.add_comm, nat.add_left_comm]
+      simp [mul_succ, add_succ, succ_mul n m],
+      sort_add
     end
+
+  protected lemma right_distrib : ∀ (n m k : ℕ), (n + m) * k = n * k + m * k
+  | n m 0        := rfl
+  | n m (succ k) :=
+    begin simp [mul_succ, right_distrib n m k], sort_add end
+
+  protected lemma left_distrib : ∀ (n m k : ℕ), n * (m + k) = n * m + n * k
+  | 0        m k := by simp [nat.zero_mul]
+  | (succ n) m k :=
+    begin simp [succ_mul, left_distrib n m k], sort_add end
+
+  protected lemma mul_comm : ∀ (n m : ℕ), n * m = m * n
+  | n 0        := by rw nat.zero_mul
+  | n (succ m) := by simp [mul_succ, succ_mul, mul_comm n m]
+
+  protected lemma mul_assoc : ∀ (n m k : ℕ), (n * m) * k = n * (m * k)
+  | n m 0        := rfl
+  | n m (succ k) := by simp [mul_succ, nat.left_distrib, mul_assoc n m k]
+
+  protected lemma mul_one : ∀ (n : ℕ), n * 1 = n
+  | 0        := rfl
+  | (succ n) := by simp [succ_mul, mul_one n]
+
+  protected lemma one_mul (n : ℕ) : 1 * n = n :=
+  by rw [nat.mul_comm, nat.mul_one]
+
+  lemma eq_zero_or_eq_zero_of_mul_eq_zero : ∀ {n m : ℕ}, n * m = 0 → n = 0 ∨ m = 0
+  | 0        m := λ h, or.inl rfl
+  | (succ n) m :=
+    begin
+      rw succ_mul, intro h,
+      exact or.inr (eq_zero_of_add_eq_zero_left h)
+    end
+
+  instance : comm_semiring nat :=
+  {add            := nat.add,
+   add_assoc      := nat.add_assoc,
+   zero           := nat.zero,
+   zero_add       := nat.zero_add,
+   add_zero       := nat.add_zero,
+   add_comm       := nat.add_comm,
+   mul            := nat.mul,
+   mul_assoc      := nat.mul_assoc,
+   one            := nat.succ nat.zero,
+   one_mul        := nat.one_mul,
+   mul_one        := nat.mul_one,
+   left_distrib   := nat.left_distrib,
+   right_distrib  := nat.right_distrib,
+   zero_mul       := nat.zero_mul,
+   mul_zero       := nat.mul_zero,
+   mul_comm       := nat.mul_comm}
 
   protected lemma bit0_succ_eq (n : ℕ) : bit0 (succ n) = succ (succ (bit0 n)) :=
   show succ (succ n + n) = succ (succ (n + n)), from
@@ -186,10 +239,10 @@ namespace nat
   protected lemma le_of_eq {n m : ℕ} (p : n = m) : n ≤ m :=
   p ▸ le.nat_refl n
 
-  @[simp] lemma le_succ_iff_true (n : ℕ) : n ≤ succ n ↔ true :=
+  lemma le_succ_iff_true (n : ℕ) : n ≤ succ n ↔ true :=
   iff_true_intro (le_succ n)
 
-  @[simp] lemma pred_le_iff_true (n : ℕ) : pred n ≤ n ↔ true :=
+  lemma pred_le_iff_true (n : ℕ) : pred n ≤ n ↔ true :=
   iff_true_intro (pred_le n)
 
   lemma le_succ_of_le {n m : ℕ} (h : n ≤ m) : n ≤ succ m :=
@@ -207,10 +260,10 @@ namespace nat
   lemma succ_le_zero_iff_false (n : ℕ) : succ n ≤ 0 ↔ false :=
   iff_false_intro (not_succ_le_zero n)
 
-  @[simp] lemma succ_le_self_iff_false (n : ℕ) : succ n ≤ n ↔ false :=
+  lemma succ_le_self_iff_false (n : ℕ) : succ n ≤ n ↔ false :=
   iff_false_intro (not_succ_le_self n)
 
-  @[simp] lemma zero_le_iff_true (n : ℕ) : 0 ≤ n ↔ true :=
+  lemma zero_le_iff_true (n : ℕ) : 0 ≤ n ↔ true :=
   iff_true_intro (zero_le n)
 
   protected lemma one_le_bit1 (n : ℕ) : 1 ≤ bit1 n :=
@@ -226,7 +279,7 @@ namespace nat
 
   def lt.step {n m : ℕ} : n < m → n < succ m := le.step
 
-  @[simp] lemma zero_lt_succ_iff_true (n : ℕ) : 0 < succ n ↔ true :=
+  lemma zero_lt_succ_iff_true (n : ℕ) : 0 < succ n ↔ true :=
   iff_true_intro (zero_lt_succ n)
 
   protected lemma lt_trans {n m k : ℕ} (h₁ : n < m) : m < k → n < k :=
@@ -240,7 +293,7 @@ namespace nat
 
   lemma self_lt_succ (n : ℕ) : n < succ n := nat.le_refl (succ n)
 
-  @[simp] lemma self_lt_succ_iff_true (n : ℕ) : n < succ n ↔ true :=
+  lemma self_lt_succ_iff_true (n : ℕ) : n < succ n ↔ true :=
   iff_true_intro (self_lt_succ n)
 
   def lt.base (n : ℕ) : n < succ n := nat.le_refl (succ n)
@@ -260,7 +313,6 @@ namespace nat
   protected lemma nat.lt_asymm {n m : ℕ} (h₁ : n < m) : ¬ m < n :=
   le_lt_antisymm (nat.le_of_lt h₁)
 
-  attribute [simp]
   lemma lt_zero_iff_false (a : ℕ) : a < 0 ↔ false :=
   iff_false_intro (not_lt_zero a)
 
@@ -311,21 +363,20 @@ namespace nat
   lemma sub_eq_succ_sub_succ (a b : ℕ) : a - b = succ a - succ b :=
   eq.symm (succ_sub_succ_eq_sub a b)
 
-  @[simp] lemma zero_sub_eq_zero : ∀ a : ℕ, 0 - a = 0
+  lemma zero_sub_eq_zero : ∀ a : ℕ, 0 - a = 0
   | 0     := rfl
   | (a+1) := congr_arg pred (zero_sub_eq_zero a)
 
   lemma zero_eq_zero_sub (a : ℕ) : 0 = 0 - a :=
   eq.symm (zero_sub_eq_zero a)
 
-
-  @[simp] lemma sub_le_iff_true (a b : ℕ) : a - b ≤ a ↔ true :=
+  lemma sub_le_iff_true (a b : ℕ) : a - b ≤ a ↔ true :=
   iff_true_intro (sub_le a b)
 
   lemma sub_lt_succ (a b : ℕ) : a - b < succ a :=
   lt_succ_of_le (sub_le a b)
 
-  @[simp] lemma sub_lt_succ_iff_true (a b : ℕ) : a - b < succ a ↔ true :=
+  lemma sub_lt_succ_iff_true (a b : ℕ) : a - b < succ a ↔ true :=
   iff_true_intro (sub_lt_succ a b)
 
   lemma le_add_right : ∀ (n k : ℕ), n ≤ n + k

@@ -103,18 +103,25 @@ section arith
   def sub : bitvec n → bitvec n → bitvec n
   | x y := prod.snd (sbb x y ff)
 
-  instance : has_zero (bitvec n) := has_zero.mk zero
-  instance : has_one (bitvec (succ n)) := has_one.mk one
-  instance : has_add (bitvec n)  := has_add.mk  add
-  instance : has_sub (bitvec n)  := has_sub.mk  sub
-  instance : has_neg (bitvec n)  := has_neg.mk  neg
+  instance : has_zero (bitvec n) := ⟨zero⟩
+  /- Remark: we used to have the instance has_one only for (bitvec (succ n)).
+     Now, we define it for all n to make sure we don't have to solve unification problems such as:
+     succ ?n =?= (bit0 (bit1 one)) -/
+  instance : has_one (bitvec n) :=
+  match n with
+  | 0            := ⟨zero⟩
+  | (nat.succ n) := ⟨one⟩
+  end
+  instance : has_add (bitvec n)  := ⟨add⟩
+  instance : has_sub (bitvec n)  := ⟨sub⟩
+  instance : has_neg (bitvec n)  := ⟨neg⟩
 
   def mul : bitvec n → bitvec n → bitvec n
   | x y :=
     let f := λr b, cond b (r + r + y) (r + r) in
     list.foldl f 0 (to_list x)
 
-  instance : has_mul (bitvec n)  := has_mul.mk  mul
+  instance : has_mul (bitvec n)  := ⟨mul⟩
 end arith
 
 section comparison

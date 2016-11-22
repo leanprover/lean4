@@ -7,7 +7,6 @@ prelude
 import init.ordered_group init.ring
 
 universe variable u
-variable α : Type u
 
 structure ordered_semiring (α : Type u)
   extends semiring α, ordered_mul_cancel_comm_monoid α renaming
@@ -24,6 +23,8 @@ structure ordered_semiring (α : Type u)
 /- we make it a class now (and not as part of the structure) to avoid
    ordered_semiring.to_ordered_mul_cancel_comm_monoid to be an instance -/
 attribute [class] ordered_semiring
+
+variable {α : Type u}
 
 instance add_comm_group_of_ordered_semiring (α : Type u) [s : ordered_semiring α] : semiring α :=
 @ordered_semiring.to_semiring α s

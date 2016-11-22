@@ -7,11 +7,12 @@ prelude
 import init.group
 
 universe variable u
-variable α : Type u
 
 class distrib (α : Type u) extends has_mul α, has_add α :=
 (left_distrib : ∀ a b c : α, a * (b + c) = (a * b) + (a * c))
 (right_distrib : ∀ a b c : α, (a + b) * c = (a * c) + (b * c))
+
+variable {α : Type u}
 
 lemma left_distrib [distrib α] (a b c : α) : a * (b + c) = a * b + a * c :=
 distrib.left_distrib a b c

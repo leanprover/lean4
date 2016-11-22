@@ -374,6 +374,9 @@ namespace nat
     mul_lt_mul_of_pos_right    := @nat.mul_lt_mul_of_pos_right,
     decidable_lt               := nat.decidable_lt }
 
+  lemma le_of_lt_succ {m n : nat} : m < succ n → m ≤ n :=
+  le_of_succ_le_succ
+
   /- sub properties -/
 
   lemma sub_eq_succ_sub_succ (a b : ℕ) : a - b = succ a - succ b :=
@@ -409,7 +412,7 @@ namespace nat
 
   protected lemma bit0_ne_zero : ∀ {n : ℕ}, n ≠ 0 → bit0 n ≠ 0
   | 0     h := absurd rfl h
-  | (n+1) h := nat.succ_ne_zero _
+  | (n+1) h := succ_ne_zero _
 
   protected lemma bit1_ne_zero (n : ℕ) : bit1 n ≠ 0 :=
   show succ (n + n) ≠ 0, from
@@ -417,7 +420,7 @@ namespace nat
 
   protected lemma bit1_ne_one : ∀ {n : ℕ}, n ≠ 0 → bit1 n ≠ 1
   | 0     h h1 := absurd rfl h
-  | (n+1) h h1 := nat.no_confusion h1 (λ h2, absurd h2 (nat.succ_ne_zero _))
+  | (n+1) h h1 := nat.no_confusion h1 (λ h2, absurd h2 (succ_ne_zero _))
 
   protected lemma bit0_ne_one : ∀ n : ℕ, bit0 n ≠ 1
   | 0     h := absurd h (ne.symm nat.one_ne_zero)
@@ -510,6 +513,23 @@ namespace nat
       apply succ_lt_succ,
       apply zero_lt_succ
     end
+
+  protected lemma bit0_lt {n m : nat} (h : n < m) : bit0 n < bit0 m :=
+  add_lt_add h h
+
+  protected lemma bit1_lt {n m : nat} (h : n < m) : bit1 n < bit1 m :=
+  succ_lt_succ (add_lt_add h h)
+
+  protected lemma bit0_lt_bit1 {n m : nat} (h : n < m) : bit0 n < bit1 m :=
+  lt_trans (nat.bit0_lt h) (self_lt_succ _)
+
+  protected lemma bit1_lt_bit0 : ∀ {n m : nat}, n < m → bit1 n < bit0 m
+  | n 0        h := absurd h (not_lt_zero _)
+  | n (succ m) h :=
+    have n ≤ m, from le_of_lt_succ h,
+    have succ (n + n) ≤ succ (m + m), from succ_le_succ (add_le_add this this),
+    have succ (n + n) ≤ succ m + m, {rw succ_add, assumption},
+    show succ (n + n) < succ (succ m + m), from lt_succ_of_le this
 
   protected lemma one_le_bit1 (n : ℕ) : 1 ≤ bit1 n :=
   show 1 ≤ succ (bit0 n), from

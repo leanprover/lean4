@@ -478,7 +478,6 @@ simp_result simplify_core_fn::rewrite(expr const & e) {
 
     list<simp_lemma> const * srs = sr->find(e);
     if (!srs) {
-        lean_trace_d(name({"debug", "simplify", "try_rewrite"}), tout() << "no simp lemmas for: " << e << "\n";);
         return simp_result(e);
     }
 
@@ -497,7 +496,11 @@ simp_result simplify_core_fn::rewrite(expr const & e) {
 simp_result simplify_core_fn::rewrite(expr const & e, simp_lemma const & sl) {
     tmp_type_context tmp_ctx(m_ctx, sl.get_num_umeta(), sl.get_num_emeta());
     if (!tmp_ctx.is_def_eq(e, sl.get_lhs())) {
-        lean_trace_d(name({"debug", "simplify", "try_rewrite"}), tout() << "fail to unify: " << sl.get_id() << "\n";);
+        lean_trace_d(name({"debug", "simplify", "try_rewrite"}),
+                     tout() << "fail to unify '" << sl.get_id()
+                     << "':\n------------------------------------------------\n"
+                     << e << "\n=?=\n" << sl.get_lhs()
+                     << "\n------------------------------------------------\n";);
         return simp_result(e);
     }
 
@@ -508,8 +511,11 @@ simp_result simplify_core_fn::rewrite(expr const & e, simp_lemma const & sl) {
     }
 
     for (unsigned i = 0; i < sl.get_num_umeta(); i++) {
-        if (!tmp_ctx.is_uassigned(i))
+        if (!tmp_ctx.is_uassigned(i)) {
+            lean_trace_d(name({"debug", "simplify", "try_rewrite"}), tout() << "fail to instantiate umetas: " <<
+                         sl.get_id() << "\n";);
             return simp_result(e);
+        }
     }
 
     expr new_lhs = tmp_ctx.instantiate_mvars(sl.get_lhs());

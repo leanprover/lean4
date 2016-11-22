@@ -81,12 +81,14 @@ group.mul_left_inv
    to the additive one.
 -/
 
-@[class] def add_semigroup      := semigroup
-@[class] def add_monoid         := monoid
-@[class] def add_group          := group
-@[class] def add_comm_semigroup := comm_semigroup
-@[class] def add_comm_monoid    := comm_monoid
-@[class] def add_comm_group     := comm_group
+@[class] def add_semigroup              := semigroup
+@[class] def add_monoid                 := monoid
+@[class] def add_group                  := group
+@[class] def add_comm_semigroup         := comm_semigroup
+@[class] def add_comm_monoid            := comm_monoid
+@[class] def add_comm_group             := comm_group
+@[class] def add_left_cancel_semigroup  := left_cancel_semigroup
+@[class] def add_right_cancel_semigroup := right_cancel_semigroup
 
 instance add_semigroup.to_has_add {α : Type u} [s : add_semigroup α] : has_add α :=
 ⟨@semigroup.mul α s⟩
@@ -134,6 +136,8 @@ meta def multiplicative_to_additive_pairs : list (name × name) :=
    (`comm_semigroup, `add_comm_semigroup),
    (`comm_monoid, `add_comm_monoid),
    (`comm_group, `add_comm_group),
+   (`left_cancel_semigroup, `add_left_cancel_semigroup),
+   (`right_cancel_semigroup, `add_right_cancel_semigroup),
    /- map instances -/
    (`semigroup.to_has_mul, `add_semigroup.to_has_add),
    (`monoid.to_has_one, `add_monoid.to_has_zero),
@@ -144,7 +148,9 @@ meta def multiplicative_to_additive_pairs : list (name × name) :=
    (`comm_monoid.to_comm_semigroup, `add_comm_monoid.to_add_comm_semigroup),
    (`group.to_monoid, `add_group.to_add_monoid),
    (`comm_group.to_group, `add_comm_group.to_add_group),
-   (`comm_group.to_comm_monoid, `add_comm_group.to_add_comm_monoid)
+   (`comm_group.to_comm_monoid, `add_comm_group.to_add_comm_monoid),
+   (`left_cancel_semigroup.to_semigroup, `add_left_cancel_semigroup.to_add_semigroup),
+   (`right_cancel_semigroup.to_semigroup, `add_right_cancel_semigroup.to_add_semigroup)
  ]
 
 /- Make sure all constants at multiplicative_to_additive are declared -/
@@ -227,3 +233,49 @@ instance monoid_of_ring (α : Type u) [s : ring α] : monoid α := @ring.to_mono
 
 instance distrib_of_ring (α : Type u) [s : ring α] : distrib α :=
 @ring.to_distrib α s
+
+/- ordered structures -/
+
+structure ordered_mul_cancel_comm_monoid (α : Type u)
+      extends comm_monoid α, left_cancel_semigroup α,
+              right_cancel_semigroup α, order_pair α :=
+(mul_le_mul_left       : ∀ a b : α, a ≤ b → ∀ c : α, c * a ≤ c * b)
+(le_of_mul_le_mul_left : ∀ a b c : α, a * b ≤ a * c → b ≤ c)
+(mul_lt_mul_left       : ∀ a b : α, a < b → ∀ c : α, c * a < c * b)
+(lt_of_mul_lt_mul_left : ∀ a b c : α, a * b < a * c → b < c)
+
+@[class] def ordered_cancel_comm_monoid : Type u → Type (max 1 u) :=
+ordered_mul_cancel_comm_monoid
+
+instance add_comm_monoid_of_ordered_cancel_comm_monoid
+  (α : Type u) [s : ordered_cancel_comm_monoid α] : add_comm_monoid α :=
+@ordered_mul_cancel_comm_monoid.to_comm_monoid α s
+
+instance add_left_cancel_semigroup_of_ordered_cancel_comm_monoid
+  (α : Type u) [s : ordered_cancel_comm_monoid α] : add_left_cancel_semigroup α :=
+@ordered_mul_cancel_comm_monoid.to_left_cancel_semigroup α s
+
+instance add_right_cancel_semigroup_of_ordered_cancel_comm_monoid
+  (α : Type u) [s : ordered_cancel_comm_monoid α] : add_right_cancel_semigroup α :=
+@ordered_mul_cancel_comm_monoid.to_right_cancel_semigroup α s
+
+instance order_pair_of_ordered_cancel_comm_monoid
+  (α : Type u) [s : ordered_cancel_comm_monoid α] : order_pair α :=
+@ordered_mul_cancel_comm_monoid.to_order_pair α s
+
+section
+variables [s : ordered_cancel_comm_monoid α]
+
+lemma add_le_add_left {a b : α} (h : a ≤ b) (c : α) : c + a ≤ c + b :=
+@ordered_mul_cancel_comm_monoid.mul_le_mul_left α s a b h c
+
+lemma le_of_add_le_add_left {a b c : α} (h : a + b ≤ a + c) : b ≤ c :=
+@ordered_mul_cancel_comm_monoid.le_of_mul_le_mul_left α s a b c h
+
+lemma add_lt_add_left {a b : α} (h : a < b) (c : α) : c + a < c + b :=
+@ordered_mul_cancel_comm_monoid.mul_lt_mul_left α s a b h c
+
+lemma lt_of_add_lt_add_left {a b c : α} (h : a + b < a + c) : b < c :=
+@ordered_mul_cancel_comm_monoid.lt_of_mul_lt_mul_left α s a b c h
+
+end

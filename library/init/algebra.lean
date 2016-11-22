@@ -60,6 +60,39 @@ monoid.mul_one
 @[simp] lemma mul_left_inv [group α] : ∀ a : α, a⁻¹ * a = 1 :=
 group.mul_left_inv
 
+@[simp] lemma inv_mul_cancel_left [group α] (a b : α) : a⁻¹ * (a * b) = b :=
+by rw [-mul_assoc, mul_left_inv, one_mul]
+
+@[simp] lemma inv_mul_cancel_right [group α] (a b : α) : a * b⁻¹ * b = a :=
+by simp
+
+@[simp] lemma inv_eq_of_mul_eq_one [group α] {a b : α} (h : a * b = 1) : a⁻¹ = b :=
+by rw [-mul_one a⁻¹, -h, -mul_assoc, mul_left_inv, one_mul]
+
+@[simp] lemma one_inv [group α] : 1⁻¹ = (1 : α) :=
+inv_eq_of_mul_eq_one (one_mul 1)
+
+@[simp] lemma inv_inv [group α] (a : α) : (a⁻¹)⁻¹ = a :=
+inv_eq_of_mul_eq_one (mul_left_inv a)
+
+@[simp] lemma mul_right_inv [group α] (a : α) : a * a⁻¹ = 1 :=
+have a⁻¹⁻¹ * a⁻¹ = 1, by rw mul_left_inv,
+begin rw [inv_inv] at this, assumption end
+
+lemma group.mul_left_cancel [group α] {a b c : α} (h : a * b = a * c) : b = c :=
+have a⁻¹ * (a * b) = b, by simp,
+begin simp [h] at this, rw this end
+
+lemma group.mul_right_cancel [group α] {a b c : α} (h : a * b = c * b) : a = c :=
+have a * b * b⁻¹ = a, by simp,
+begin simp [h] at this, rw this end
+
+instance group.to_left_cancel_semigroup [s : group α] : left_cancel_semigroup α :=
+{ s with mul_left_cancel := @group.mul_left_cancel α s }
+
+instance group.to_right_cancel_semigroup [s : group α] : right_cancel_semigroup α :=
+{ s with mul_right_cancel := @group.mul_right_cancel α s }
+
 /- αdditive "sister" structures.
    Example, add_semigroup mirrors semigroup.
    These structures exist just to help automation.
@@ -236,7 +269,7 @@ instance distrib_of_ring (α : Type u) [s : ring α] : distrib α :=
 
 /- ordered structures -/
 
-structure ordered_mul_cancel_comm_monoid (α : Type u)
+class ordered_mul_cancel_comm_monoid (α : Type u)
       extends comm_monoid α, left_cancel_semigroup α,
               right_cancel_semigroup α, order_pair α :=
 (mul_le_mul_left       : ∀ a b : α, a ≤ b → ∀ c : α, c * a ≤ c * b)
@@ -277,5 +310,61 @@ lemma add_lt_add_left {a b : α} (h : a < b) (c : α) : c + a < c + b :=
 
 lemma lt_of_add_lt_add_left {a b c : α} (h : a + b < a + c) : b < c :=
 @ordered_mul_cancel_comm_monoid.lt_of_mul_lt_mul_left α s a b c h
-
 end
+
+class ordered_mul_comm_group (α : Type u) extends comm_group α, order_pair α :=
+(mul_le_mul_left : ∀ a b : α, a ≤ b → ∀ c : α, c * a ≤ c * b)
+(mul_lt_mul_left : ∀ a b : α, a < b → ∀ c : α, c * a < c * b)
+
+@[class] def ordered_comm_group : Type u → Type (max 1 u) :=
+ordered_mul_comm_group
+
+instance add_comm_group_of_ordered_comm_group (α : Type u) [s : ordered_comm_group α] : add_comm_group α :=
+@ordered_mul_comm_group.to_comm_group α s
+
+lemma ordered_mul_comm_group.le_of_mul_le_mul_left [s : ordered_mul_comm_group α] {a b c : α}
+  (h : a * b ≤ a * c) : b ≤ c :=
+have a⁻¹ * (a * b) ≤ a⁻¹ * (a * c), from ordered_mul_comm_group.mul_le_mul_left _ _ h _,
+begin simp [inv_mul_cancel_left] at this, assumption end
+
+lemma ordered_mul_comm_group.lt_of_mul_lt_mul_left [s : ordered_mul_comm_group α] {a b c : α}
+  (h : a * b < a * c) : b < c :=
+have a⁻¹ * (a * b) < a⁻¹ * (a * c), from ordered_mul_comm_group.mul_lt_mul_left _ _ h _,
+begin simp [inv_mul_cancel_left] at this, assumption end
+
+instance ordered_mul_comm_group.to_ordered_mul_cancel_comm_monoid [s : ordered_mul_comm_group α] : ordered_mul_cancel_comm_monoid α :=
+{ s with
+  mul_left_cancel       := @mul_left_cancel α _,
+  mul_right_cancel      := @mul_right_cancel α _,
+  le_of_mul_le_mul_left := @ordered_mul_comm_group.le_of_mul_le_mul_left α _,
+  lt_of_mul_lt_mul_left := @ordered_mul_comm_group.lt_of_mul_lt_mul_left α _ }
+
+instance ordered_comm_group.to_ordered_cancel_comm_monoid  [s : ordered_comm_group α] : ordered_cancel_comm_monoid α :=
+@ordered_mul_comm_group.to_ordered_mul_cancel_comm_monoid α s
+
+class decidable_linear_ordered_mul_comm_group (α : Type u)
+    extends comm_group α, decidable_linear_order α :=
+(mul_le_mul_left : ∀ a b : α, a ≤ b → ∀ c : α, c * a ≤ c * b)
+(mul_lt_mul_left : ∀ a b : α, a < b → ∀ c : α, c * a < c * b)
+
+@[class] def decidable_linear_ordered_comm_group : Type u → Type (max 1 u) :=
+decidable_linear_ordered_mul_comm_group
+
+instance add_comm_group_of_decidable_linear_ordered_comm_group (α : Type u)
+  [s : decidable_linear_ordered_comm_group α] : add_comm_group α :=
+@decidable_linear_ordered_mul_comm_group.to_comm_group α s
+
+instance decidable_linear_order_of_decidable_linear_ordered_comm_group (α : Type u)
+  [s : decidable_linear_ordered_comm_group α] : decidable_linear_order α :=
+@decidable_linear_ordered_mul_comm_group.to_decidable_linear_order α s
+
+instance decidable_linear_ordered_mul_comm_group.to_ordered_mul_comm_group (α : Type u)
+  [s : decidable_linear_ordered_mul_comm_group α] : ordered_mul_comm_group α :=
+{s with
+ le_of_lt := @le_of_lt α _,
+ lt_of_le_of_lt := @lt_of_le_of_lt α _,
+ lt_of_lt_of_le := @lt_of_lt_of_le α _ }
+
+instance decidable_linear_ordered_comm_group.to_ordered_comm_group (α : Type u)
+  [s : decidable_linear_ordered_comm_group α] : ordered_comm_group α :=
+@decidable_linear_ordered_mul_comm_group.to_ordered_mul_comm_group α s

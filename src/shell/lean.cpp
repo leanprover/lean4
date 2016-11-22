@@ -393,6 +393,8 @@ int main(int argc, char ** argv) {
         ios.set_regular_channel(ios.get_diagnostic_channel_ptr());
     }
 #endif
+
+    scope_global_ios scope_ios(ios);
     scoped_message_buffer scope_msg_buf(msg_buf.get());
     scope_message_context scope_msg_ctx(message_bucket_id { "_global", 1 });
 

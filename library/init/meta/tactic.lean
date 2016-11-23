@@ -654,6 +654,8 @@ infer_type fn >>= get_pi_arity
 
 meta def triv : tactic unit := mk_const `trivial >>= exact
 
+notation `dec_trivial` := of_as_true (by tactic.triv)
+
 meta def by_contradiction (H : name) : tactic expr :=
 do tgt : expr ← target,
    (match_not tgt >> return ())

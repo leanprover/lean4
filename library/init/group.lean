@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2016 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura
+Authors: Jeremy Avigad, Leonardo de Moura
 -/
 prelude
 import init.logic init.binary init.combinator init.meta.interactive init.meta.decl_cmds

@@ -12,60 +12,60 @@ inductive acc {α : Type u} (r : α → α → Prop) : α → Prop
 | intro : ∀ x, (∀ y, r y x → acc y) → acc x
 
 namespace acc
-  variables {α : Type u} {r : α → α → Prop}
+variables {α : Type u} {r : α → α → Prop}
 
-  def inv {x y : α} (h₁ : acc r x) (h₂ : r y x) : acc r y :=
-  acc.rec_on h₁ (λ x₁ ac₁ ih h₂, ac₁ y h₂) h₂
+def inv {x y : α} (h₁ : acc r x) (h₂ : r y x) : acc r y :=
+acc.rec_on h₁ (λ x₁ ac₁ ih h₂, ac₁ y h₂) h₂
 
-  -- dependent elimination for acc
-  attribute [recursor]
-  protected def drec
-      {C : Π (a : α), acc r a → Type v}
-      (h₁ : Π (x : α) (acx : Π (y : α), r y x → acc r y), (Π (y : α) (ryx : r y x), C y (acx y ryx)) → C x (acc.intro x acx))
-      {a : α} (h₂ : acc r a) : C a h₂ :=
-  acc.rec (λ x acx ih h₂, h₁ x acx (λ y ryx, ih y ryx (acx y ryx))) h₂ h₂
+-- dependent elimination for acc
+attribute [recursor]
+protected def drec
+    {C : Π (a : α), acc r a → Type v}
+    (h₁ : Π (x : α) (acx : Π (y : α), r y x → acc r y), (Π (y : α) (ryx : r y x), C y (acx y ryx)) → C x (acc.intro x acx))
+    {a : α} (h₂ : acc r a) : C a h₂ :=
+acc.rec (λ x acx ih h₂, h₁ x acx (λ y ryx, ih y ryx (acx y ryx))) h₂ h₂
 end acc
 
 inductive well_founded {α : Type u} (r : α → α → Prop) : Prop
 | intro : (∀ a, acc r a) → well_founded
 
 namespace well_founded
-  def apply {α : Type u} {r : α → α → Prop} (wf : well_founded r) : ∀ a, acc r a :=
-  take a, well_founded.rec_on wf (λ p, p) a
+def apply {α : Type u} {r : α → α → Prop} (wf : well_founded r) : ∀ a, acc r a :=
+take a, well_founded.rec_on wf (λ p, p) a
 
-  section
-  parameters {α : Type u} {r : α → α → Prop}
-  local infix `≺`:50    := r
+section
+parameters {α : Type u} {r : α → α → Prop}
+local infix `≺`:50    := r
 
-  hypothesis hwf : well_founded r
+hypothesis hwf : well_founded r
 
-  lemma recursion {C : α → Type v} (a : α) (h : Π x, (Π y, y ≺ x → C y) → C x) : C a :=
-  acc.rec_on (apply hwf a) (λ x₁ ac₁ ih, h x₁ ih)
+lemma recursion {C : α → Type v} (a : α) (h : Π x, (Π y, y ≺ x → C y) → C x) : C a :=
+acc.rec_on (apply hwf a) (λ x₁ ac₁ ih, h x₁ ih)
 
-  lemma induction {C : α → Prop} (a : α) (h : ∀ x, (∀ y, y ≺ x → C y) → C x) : C a :=
-  recursion a h
+lemma induction {C : α → Prop} (a : α) (h : ∀ x, (∀ y, y ≺ x → C y) → C x) : C a :=
+recursion a h
 
-  variable {C : α → Type v}
-  variable F : Π x, (Π y, y ≺ x → C y) → C x
+variable {C : α → Type v}
+variable F : Π x, (Π y, y ≺ x → C y) → C x
 
-  def fix_F (x : α) (a : acc r x) : C x :=
-  acc.rec_on a (λ x₁ ac₁ ih, F x₁ ih)
+def fix_F (x : α) (a : acc r x) : C x :=
+acc.rec_on a (λ x₁ ac₁ ih, F x₁ ih)
 
-  lemma fix_F_eq (x : α) (r : acc r x) :
-    fix_F F x r = F x (λ (y : α) (p : y ≺ x), fix_F F y (acc.inv r p)) :=
-  acc.drec (λ x r ih, rfl) r
-  end
+lemma fix_F_eq (x : α) (r : acc r x) :
+  fix_F F x r = F x (λ (y : α) (p : y ≺ x), fix_F F y (acc.inv r p)) :=
+acc.drec (λ x r ih, rfl) r
+end
 
-  variables {α : Type u} {C : α → Type v} {r : α → α → Prop}
+variables {α : Type u} {C : α → Type v} {r : α → α → Prop}
 
-  -- Well-founded fixpoint
-  def fix (hwf : well_founded r) (F : Π x, (Π y, r y x → C y) → C x) (x : α) : C x :=
-  fix_F F x (apply hwf x)
+-- Well-founded fixpoint
+def fix (hwf : well_founded r) (F : Π x, (Π y, r y x → C y) → C x) (x : α) : C x :=
+fix_F F x (apply hwf x)
 
-  -- Well-founded fixpoint satisfies fixpoint equation
-  lemma fix_eq (hwf : well_founded r) (F : Π x, (Π y, r y x → C y) → C x) (x : α) :
-    fix hwf F x = F x (λ y h, fix hwf F y) :=
-  fix_F_eq F x (apply hwf x)
+-- Well-founded fixpoint satisfies fixpoint equation
+lemma fix_eq (hwf : well_founded r) (F : Π x, (Π y, r y x → C y) → C x) (x : α) :
+  fix hwf F x = F x (λ y h, fix hwf F y) :=
+fix_F_eq F x (apply hwf x)
 end well_founded
 
 open well_founded
@@ -144,9 +144,9 @@ def measure_wf {α : Type u} (f : α → ℕ) : well_founded (measure f) :=
 inv_image.wf f nat.lt_wf
 
 namespace prod
-  open well_founded
+open well_founded
 
-  section
+section
   variables {α : Type u} {β : Type v}
   variable  (ra  : α → α → Prop)
   variable  (rb  : β → β → Prop)
@@ -189,6 +189,5 @@ namespace prod
   def rprod_wf (ha : well_founded ra) (hb : well_founded rb) : well_founded (rprod ra rb) :=
   subrelation.wf (rprod_sub_lex) (lex_wf ha hb)
 
-  end
-
+end
 end prod

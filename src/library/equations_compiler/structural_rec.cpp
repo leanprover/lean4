@@ -414,12 +414,13 @@ struct structural_rec_fn {
         optional<expr> to_below(expr const & d, expr const & a, expr const & F) {
             expr const & fn = get_app_fn(d);
             trace_struct_aux(tout() << "d: " << d << ", a: " << a << ", F: " << F << "\n";);
-            if (is_constant(fn, get_prod_name())) {
+            if (is_constant(fn, get_prod_name()) || is_constant(fn, get_and_name())) {
+                bool prop   = is_constant(fn, get_and_name());
                 expr d_arg1 = m_ctx.whnf(app_arg(app_fn(d)));
                 expr d_arg2 = m_ctx.whnf(app_arg(d));
-                if (auto r = to_below(d_arg1, a, mk_fst(m_ctx, F)))
+                if (auto r = to_below(d_arg1, a, mk_fst(m_ctx, F, prop)))
                     return r;
-                else if (auto r = to_below(d_arg2, a, mk_snd(m_ctx, F)))
+                else if (auto r = to_below(d_arg2, a, mk_snd(m_ctx, F, prop)))
                     return r;
                 else
                     return none_expr();
@@ -551,9 +552,10 @@ struct structural_rec_fn {
 
     expr whnf_upto_below(type_context & ctx, name const & I_name, expr const & below_type) {
         name below_name(I_name, "below");
+        name ibelow_name(I_name, "ibelow");
         return ctx.whnf_pred(below_type, [&](expr const & e) {
                 expr const & fn = get_app_fn(e);
-                return !is_constant(fn) || const_name(fn) != below_name;
+                return !is_constant(fn) || (const_name(fn) != below_name && const_name(fn) != ibelow_name);
             });
     }
 

@@ -97,6 +97,7 @@ optional<expr> mk_nat_val_lt_proof(expr const & a, expr const & b) {
                 return some_expr(mk_app(mk_constant(get_nat_one_lt_bit1_name()), *b1, *pr));
         }
     }
+    return none_expr();
 }
 
 optional<expr> mk_nat_val_le_proof(expr const & a, expr const & b) {

@@ -61,6 +61,8 @@ optional<expr> mk_nat_val_ne_proof(expr const & a, expr const & b) {
     return none_expr();
 }
 
+optional<expr> mk_nat_val_le_proof(expr const & a, expr const & b);
+
 optional<expr> mk_nat_val_lt_proof(expr const & a, expr const & b) {
     if (a == b) return none_expr();
     if (auto a1 = is_bit0(a)) {
@@ -68,7 +70,7 @@ optional<expr> mk_nat_val_lt_proof(expr const & a, expr const & b) {
             if (auto pr = mk_nat_val_lt_proof(*a1, *b1))
                 return some_expr(mk_app(mk_constant(get_nat_bit0_lt_name()), *a1, *b1, *pr));
         } else if (auto b1 = is_bit1(b)) {
-            if (auto pr = mk_nat_val_lt_proof(*a1, *b1))
+            if (auto pr = mk_nat_val_le_proof(*a1, *b1))
                 return some_expr(mk_app(mk_constant(get_nat_bit0_lt_bit1_name()), *a1, *b1, *pr));
         }
     } else if (auto a1 = is_bit1(a)) {

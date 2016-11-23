@@ -520,8 +520,8 @@ namespace nat
   protected lemma bit1_lt {n m : nat} (h : n < m) : bit1 n < bit1 m :=
   succ_lt_succ (add_lt_add h h)
 
-  protected lemma bit0_lt_bit1 {n m : nat} (h : n < m) : bit0 n < bit1 m :=
-  lt_trans (nat.bit0_lt h) (self_lt_succ _)
+  protected lemma bit0_lt_bit1 {n m : nat} (h : n ≤ m) : bit0 n < bit1 m :=
+  lt_succ_of_le (add_le_add h h)
 
   protected lemma bit1_lt_bit0 : ∀ {n m : nat}, n < m → bit1 n < bit0 m
   | n 0        h := absurd h (not_lt_zero _)

@@ -6,6 +6,10 @@ Authors: Leonardo de Moura
 prelude
 import init.group
 
+/- Make sure instances defined in this file have lower priority than the ones
+   defined for concrete structures -/
+set_option default_priority 100
+
 universe variable u
 
 class distrib (α : Type u) extends has_mul α, has_add α :=

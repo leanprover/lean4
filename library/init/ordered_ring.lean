@@ -6,6 +6,10 @@ Authors: Leonardo de Moura
 prelude
 import init.ordered_group init.ring
 
+/- Make sure instances defined in this file have lower priority than the ones
+   defined for concrete structures -/
+set_option default_priority 100
+
 universe variable u
 
 structure ordered_semiring (α : Type u)

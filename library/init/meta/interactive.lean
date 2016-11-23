@@ -178,6 +178,10 @@ rw_core reducible
 meta def rw : qexpr_list_or_qexpr0 → location → tactic unit :=
 rewrite
 
+/- rewrite followed by assumption -/
+meta def rwa (q : qexpr_list_or_qexpr0) (l : location) : tactic unit :=
+rewrite q l >> try assumption
+
 meta def erewrite : qexpr_list_or_qexpr0 → location → tactic unit :=
 rw_core semireducible
 

@@ -59,3 +59,39 @@ lemma zero_lt_one [linear_ordered_semiring α] : 0 < (1:α) :=
 linear_ordered_semiring.zero_lt_one α
 
 class decidable_linear_ordered_semiring (α : Type u) extends linear_ordered_semiring α, decidable_linear_order α
+
+structure ordered_ring (α : Type u) extends ring α, ordered_mul_comm_group α renaming
+  mul→add mul_assoc→add_assoc one→zero one_mul→zero_add mul_one→add_zero inv→neg
+  mul_left_inv→add_left_inv mul_comm→add_comm mul_le_mul_left→add_le_add_left
+  mul_lt_mul_left→add_lt_add_left, zero_ne_one_class α :=
+(mul_nonneg : ∀ a b : α, 0 ≤ a → 0 ≤ b → 0 ≤ a * b)
+(mul_pos    : ∀ a b : α, 0 < a → 0 < b → 0 < a * b)
+
+/- we make it a class now (and not as part of the structure) to avoid
+   ordered_ring.to_ordered_mul_comm_group to be an instance -/
+attribute [class] ordered_ring
+
+instance add_comm_group_of_ordered_ring (α : Type u) [s : ordered_ring α] : ring α :=
+@ordered_ring.to_ring α s
+
+instance monoid_of_ordered_ring (α : Type u) [s : ordered_ring α] : ordered_comm_group α :=
+@ordered_ring.to_ordered_mul_comm_group α s
+
+instance zero_ne_one_class_of_ordered_ring (α : Type u) [s : ordered_ring α] : zero_ne_one_class α :=
+@ordered_ring.to_zero_ne_one_class α s
+
+/-
+TODO(Leo)
+instance ordered_ring.to_ordered_semiring [s : ordered_ring α] : ordered_semiring α :=
+{ s with
+  mul_zero                   := mul_zero,
+  zero_mul                   := zero_mul,
+  add_left_cancel            := @add_left_cancel α _,
+  add_right_cancel           := @add_right_cancel α _,
+  le_of_add_le_add_left      := @le_of_add_le_add_left α _,
+  mul_le_mul_of_nonneg_left  := @ordered_ring.mul_le_mul_of_nonneg_left α _,
+  mul_le_mul_of_nonneg_right := @ordered_ring.mul_le_mul_of_nonneg_right α _,
+  mul_lt_mul_of_pos_left     := @ordered_ring.mul_lt_mul_of_pos_left α _,
+  mul_lt_mul_of_pos_right    := @ordered_ring.mul_lt_mul_of_pos_right α _,
+  lt_of_add_lt_add_left      := @lt_of_add_lt_add_left α _}
+-/

@@ -77,7 +77,7 @@ inv_eq_of_mul_eq_one (mul_left_inv a)
 
 @[simp] lemma mul_right_inv [group α] (a : α) : a * a⁻¹ = 1 :=
 have a⁻¹⁻¹ * a⁻¹ = 1, by rw mul_left_inv,
-begin rw [inv_inv] at this, assumption end
+by rwa [inv_inv] at this
 
 lemma group.mul_left_cancel [group α] {a b c : α} (h : a * b = a * c) : b = c :=
 have a⁻¹ * (a * b) = b, by simp,
@@ -92,6 +92,15 @@ instance group.to_left_cancel_semigroup [s : group α] : left_cancel_semigroup �
 
 instance group.to_right_cancel_semigroup [s : group α] : right_cancel_semigroup α :=
 { s with mul_right_cancel := @group.mul_right_cancel α s }
+
+lemma mul_inv_cancel_left [s : group α] (a b : α) : a * (a⁻¹ * b) = b :=
+by rw [-mul_assoc, mul_right_inv, one_mul]
+
+lemma mul_inv_cancel_right [s : group α] (a b : α) : a * b * b⁻¹ = a :=
+by rw [mul_assoc, mul_right_inv, mul_one]
+
+@[simp] lemma mul_inv [s : group α] (a b : α) : (a * b)⁻¹ = b⁻¹ * a⁻¹ :=
+inv_eq_of_mul_eq_one begin rw [mul_assoc, -mul_assoc b, mul_right_inv, one_mul, mul_right_inv] end
 
 /- αdditive "sister" structures.
    Example, add_semigroup mirrors semigroup.
@@ -202,3 +211,129 @@ run_command transport_to_additive `mul_left_comm `add_left_comm
 run_command transport_to_additive `one_mul `zero_add
 run_command transport_to_additive `mul_one `add_zero
 run_command transport_to_additive `mul_left_inv `add_left_neg
+run_command transport_to_additive `mul_left_cancel `add_left_cancel
+run_command transport_to_additive `mul_right_cancel `add_right_cancel
+run_command transport_to_additive `mul_inv_cancel_left `add_neg_cancel_left
+run_command transport_to_additive `mul_inv_cancel_right `add_neg_cancel_right
+run_command transport_to_additive `inv_mul_cancel_left `neg_add_cancel_left
+run_command transport_to_additive `inv_mul_cancel_right `neg_add_cancel_right
+run_command transport_to_additive `inv_eq_of_mul_eq_one `neg_eq_of_add_eq_zero
+run_command transport_to_additive `one_inv `neg_zero
+run_command transport_to_additive `inv_inv `neg_neg
+run_command transport_to_additive `mul_right_inv `add_right_neg
+run_command transport_to_additive `mul_inv `neg_add_core
+
+section add_group
+variables [add_group α]
+
+@[reducible] protected def algebra.sub (a b : α) : α :=
+a + -b
+
+instance add_group_has_sub : has_sub α :=
+⟨algebra.sub⟩
+
+@[simp] lemma sub_eq_add_neg (a b : α) : a - b = a + -b :=
+rfl
+
+lemma sub_self (a : α) : a - a = 0 :=
+add_right_neg a
+
+lemma sub_add_cancel (a b : α) : a - b + b = a :=
+neg_add_cancel_right a b
+
+lemma add_sub_cancel (a b : α) : a + b - b = a :=
+add_neg_cancel_right a b
+
+lemma add_sub_assoc (a b c : α) : a + b - c = a + (b - c) :=
+by rw [sub_eq_add_neg, add_assoc, -sub_eq_add_neg]
+
+lemma eq_of_sub_eq_zero {a b : α} (h : a - b = 0) : a = b :=
+have 0 + b = b, by rw zero_add,
+have (a - b) + b = b, by rwa h,
+by rwa [sub_eq_add_neg, neg_add_cancel_right] at this
+
+lemma zero_sub (a : α) : 0 - a = -a :=
+zero_add (-a)
+
+lemma sub_zero (a : α) : a - 0 = a :=
+by rw [sub_eq_add_neg, neg_zero, add_zero]
+
+lemma sub_ne_zero_of_ne {a b : α} (h : a ≠ b) : a - b ≠ 0 :=
+begin
+  intro hab,
+  apply h,
+  apply eq_of_sub_eq_zero hab
+end
+
+lemma sub_neg_eq_add (a b : α) : a - (-b) = a + b :=
+by rw [sub_eq_add_neg, neg_neg]
+
+lemma neg_sub (a b : α) : -(a - b) = b - a :=
+neg_eq_of_add_eq_zero (by rw [sub_eq_add_neg, sub_eq_add_neg, add_assoc, neg_add_cancel_left, add_right_neg])
+
+lemma add_sub (a b c : α) : a + (b - c) = a + b - c :=
+by simp
+
+lemma sub_add_eq_sub_sub_swap (a b c : α) : a - (b + c) = a - c - b :=
+by simp
+
+lemma eq_sub_of_add_eq {a b c : α} (h : a + c = b) : a = b - c :=
+by simp [h^.symm]
+
+lemma sub_eq_of_eq_add {a b c : α} (h : a = c + b) : a - b = c :=
+by simp [h]
+
+lemma eq_add_of_sub_eq {a b c : α} (h : a - c = b) : a = b + c :=
+by simp [h^.symm]
+
+lemma add_eq_of_eq_sub {a b c : α} (h : a = c - b) : a + b = c :=
+by simp [h]
+
+end add_group
+
+section add_comm_group
+variable [add_comm_group α]
+
+lemma sub_add_eq_sub_sub (a b c : α) : a - (b + c) = a - b - c :=
+by simp
+
+lemma neg_add_eq_sub (a b : α) : -a + b = b - a :=
+by simp
+
+lemma neg_add (a b : α) : -(a + b) = -a + -b :=
+by simp
+
+lemma sub_add_eq_add_sub (a b c : α) : a - b + c = a + c - b :=
+by simp
+
+lemma sub_sub (a b c : α) : a - b - c = a - (b + c) :=
+by simp
+
+lemma add_sub_add_left_eq_sub (a b c : α) : (c + a) - (c + b) = a - b :=
+by simp
+
+lemma eq_sub_of_add_eq' {a b c : α} (h : c + a = b) : a = b - c :=
+by simp [h^.symm]
+
+lemma sub_eq_of_eq_add' {a b c : α} (h : a = b + c) : a - b = c :=
+by simp [h]
+
+lemma eq_add_of_sub_eq' {a b c : α} (h : a - b = c) : a = b + c :=
+by simp [h^.symm]
+
+lemma add_eq_of_eq_sub' {a b c : α} (h : b = c - a) : a + b = c :=
+begin simp [h], rw [add_comm c, add_neg_cancel_left] end
+
+lemma sub_sub_self (a b : α) : a - (a - b) = b :=
+begin simp, rw [add_comm b, add_neg_cancel_left] end
+
+lemma add_sub_comm (a b c d : α) : a + b - (c + d) = (a - c) + (b - d) :=
+by simp
+
+lemma sub_eq_sub_add_sub (a b c : α) : a - b = c - b + (a - c) :=
+by simp
+
+lemma neg_neg_sub_neg (a b : α) : - (-a - -b) = a - b :=
+by simp
+
+end add_comm_group

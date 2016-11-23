@@ -74,17 +74,11 @@ le_trans (add_le_add_right h₁ c) (add_le_add_left h₂ b)
 
 lemma le_add_of_nonneg_right {a b : α} (h : b ≥ 0) : a ≤ a + b :=
 have a + b ≥ a + 0, from add_le_add_left h a,
-begin
-  rw add_zero at this,
-  assumption
-end
+by rwa add_zero at this
 
 lemma le_add_of_nonneg_left {a b : α} (h : b ≥ 0) : a ≤ b + a :=
 have 0 + a ≤ b + a, from add_le_add_right h a,
-begin
-  rw zero_add at this,
-  assumption
-end
+by rwa zero_add at this
 
 lemma add_lt_add {a b c d : α} (h₁ : a < b) (h₂ : c < d) : a + c < b + d :=
 lt_trans (add_lt_add_right h₁ c) (add_lt_add_left h₂ b)
@@ -97,11 +91,11 @@ lt_of_lt_of_le (add_lt_add_right h₁ c) (add_le_add_left h₂ b)
 
 lemma lt_add_of_pos_right (a : α) {b : α} (h : b > 0) : a < a + b :=
 have a + 0 < a + b, from add_lt_add_left h a,
-begin rw [add_zero] at this, assumption end
+by rwa [add_zero] at this
 
 lemma lt_add_of_pos_left (a : α) {b : α} (h : b > 0) : a < b + a :=
 have 0 + a < b + a, from add_lt_add_right h a,
-begin rw [zero_add] at this, assumption end
+by rwa [zero_add] at this
 
 lemma le_of_add_le_add_right {a b c : α} (h : a + b ≤ c + b) : a ≤ c :=
 le_of_add_le_add_left
@@ -144,6 +138,36 @@ instance ordered_mul_comm_group.to_ordered_mul_cancel_comm_monoid (α : Type u) 
 
 instance ordered_comm_group.to_ordered_cancel_comm_monoid  (α : Type u) [s : ordered_comm_group α] : ordered_cancel_comm_monoid α :=
 @ordered_mul_comm_group.to_ordered_mul_cancel_comm_monoid α s
+
+section
+variables {α : Type u} [ordered_comm_group α]
+
+theorem neg_le_neg {a b : α} (h : a ≤ b) : -b ≤ -a :=
+have 0 ≤ -a + b,           from add_left_neg a ▸ add_le_add_left h (-a),
+have 0 + -b ≤ -a + b + -b, from add_le_add_right this (-b),
+by rwa [add_neg_cancel_right, zero_add] at this
+
+lemma le_of_neg_le_neg {a b : α} (h : -b ≤ -a) : a ≤ b :=
+suffices -(-a) ≤ -(-b), from
+  begin simp [neg_neg] at this, assumption end,
+neg_le_neg h
+
+lemma nonneg_of_neg_nonpos {a : α} (h : -a ≤ 0) : 0 ≤ a :=
+have -a ≤ -0, by rwa neg_zero,
+le_of_neg_le_neg this
+
+lemma neg_nonpos_of_nonneg {a : α} (h : 0 ≤ a) : -a ≤ 0 :=
+have -a ≤ -0, from neg_le_neg h,
+by rwa neg_zero at this
+
+lemma nonpos_of_neg_nonneg {a : α} (h : 0 ≤ -a) : a ≤ 0 :=
+have -0 ≤ -a, by rwa neg_zero,
+le_of_neg_le_neg this
+
+lemma neg_nonneg_of_nonpos {a : α} (h : a ≤ 0) : 0 ≤ -a :=
+have -0 ≤ -a, from neg_le_neg h,
+by rwa neg_zero at this
+end
 
 class decidable_linear_ordered_mul_comm_group (α : Type u)
     extends comm_group α, decidable_linear_order α :=

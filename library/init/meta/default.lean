@@ -13,3 +13,4 @@ import init.meta.backward init.meta.rewrite_tactic
 import init.meta.mk_dec_eq_instance init.meta.mk_inhabited_instance
 import init.meta.simp_tactic init.meta.set_get_option_tactics
 import init.meta.interactive init.meta.converter init.meta.vm
+import init.meta.comp_value_tactics

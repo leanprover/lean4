@@ -147,6 +147,9 @@ meta def is_constant_of : expr → name → bool
 meta def is_app_of (e : expr) (n : name) : bool :=
 is_app e && is_constant_of (get_app_fn e) n
 
+meta def is_napp_of (e : expr) (c : name) (n : nat) : bool :=
+to_bool (is_app_of e c ∧ get_app_num_args e = n)
+
 meta def is_false (e : expr) : bool :=
 is_constant_of e `false
 
@@ -156,17 +159,34 @@ meta def is_not : expr → option expr
 | e             := none
 
 meta def is_eq (e : expr) : option (expr × expr) :=
-if is_app_of e `eq ∧ get_app_num_args e = 3
+if is_napp_of e `eq 3
 then some (app_arg (app_fn e), app_arg e)
 else none
 
 meta def is_ne (e : expr) : option (expr × expr) :=
-if is_app_of e `ne ∧ get_app_num_args e = 3
+if is_napp_of e `ne 3
 then some (app_arg (app_fn e), app_arg e)
 else none
 
+meta def is_bin_arith_app (e : expr) (op : name) : option (expr × expr) :=
+if is_napp_of e op 4
+then some (app_arg (app_fn e), app_arg e)
+else none
+
+meta def is_lt (e : expr) : option (expr × expr) :=
+is_bin_arith_app e `lt
+
+meta def is_gt (e : expr) : option (expr × expr) :=
+is_bin_arith_app e `gt
+
+meta def is_le (e : expr) : option (expr × expr) :=
+is_bin_arith_app e `le
+
+meta def is_ge (e : expr) : option (expr × expr) :=
+is_bin_arith_app e `ge
+
 meta def is_heq (e : expr) : option (expr × expr × expr × expr) :=
-if is_app_of e `heq ∧ get_app_num_args e = 4
+if is_napp_of e `heq 4
 then some (app_arg (app_fn (app_fn (app_fn e))),
            app_arg (app_fn (app_fn e)),
            app_arg (app_fn e),

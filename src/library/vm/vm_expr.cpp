@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "kernel/replace_fn.h"
 #include "library/expr_lt.h"
 #include "library/deep_copy.h"
+#include "library/comp_val.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_string.h"
@@ -322,6 +323,19 @@ vm_obj expr_copy_pos_info(vm_obj const & src, vm_obj const & tgt) {
     return to_obj(copy_tag(to_expr(src), copy(to_expr(tgt))));
 }
 
+// TODO(Leo): move to a different file
+vm_obj vm_mk_nat_val_ne_proof(vm_obj const & a, vm_obj const & b) {
+    return to_obj(mk_nat_val_ne_proof(to_expr(a), to_expr(b)));
+}
+
+vm_obj vm_mk_nat_val_lt_proof(vm_obj const & a, vm_obj const & b) {
+    return to_obj(mk_nat_val_lt_proof(to_expr(a), to_expr(b)));
+}
+
+vm_obj vm_mk_nat_val_le_proof(vm_obj const & a, vm_obj const & b) {
+    return to_obj(mk_nat_val_le_proof(to_expr(a), to_expr(b)));
+}
+
 void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name({"expr", "var"}),              expr_var);
     DECLARE_VM_BUILTIN(name({"expr", "sort"}),             expr_sort);
@@ -355,6 +369,10 @@ void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name({"expr", "hash"}),             expr_hash);
     DECLARE_VM_BUILTIN(name({"expr", "copy_pos_info"}),    expr_copy_pos_info);
     DECLARE_VM_CASES_BUILTIN(name({"expr", "cases_on"}),   expr_cases_on);
+
+    DECLARE_VM_BUILTIN(name("mk_nat_val_ne_proof"),        vm_mk_nat_val_ne_proof);
+    DECLARE_VM_BUILTIN(name("mk_nat_val_lt_proof"),        vm_mk_nat_val_lt_proof);
+    DECLARE_VM_BUILTIN(name("mk_nat_val_le_proof"),        vm_mk_nat_val_le_proof);
 }
 
 void finalize_vm_expr() {

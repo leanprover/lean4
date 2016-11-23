@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 prelude
 import init.char init.list
 
-@[reducible] def string := list char
+def string := list char
 
 namespace string
 @[pattern] def empty : string := list.nil

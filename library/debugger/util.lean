@@ -19,12 +19,12 @@ def split (s : string) : list string :=
 (split_core s [])^.reverse
 
 def to_qualified_name_core : string → string → name
-| []      r := if r = [] then name.anonymous else mk_simple_name r^.reverse
+| []      r := if r = "" then name.anonymous else mk_simple_name r^.reverse
 | (c::cs) r :=
   if is_space c then to_qualified_name_core cs r
   else if c = #"." then
-       if r = [] then to_qualified_name_core cs []
-       else           name.mk_string r^.reverse (to_qualified_name_core cs [])
+       if r = ""   then to_qualified_name_core cs []
+       else             name.mk_string r^.reverse (to_qualified_name_core cs [])
   else to_qualified_name_core cs (c::r)
 
 def to_qualified_name (s : string) : name :=

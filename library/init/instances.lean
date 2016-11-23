@@ -14,6 +14,9 @@ by mk_dec_eq_instance
 instance {α : Type u} [decidable_eq α] : decidable_eq (list α) :=
 by mk_dec_eq_instance
 
+instance : decidable_eq string :=
+list.decidable_eq
+
 instance : decidable_eq occurrences :=
 by mk_dec_eq_instance
 

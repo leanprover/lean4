@@ -16,8 +16,11 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/annotation.h"
 #include "library/inverse.h"
+#include "library/num.h"
+#include "library/string.h"
 #include "library/replace_visitor.h"
 #include "library/aux_definition.h"
+#include "library/comp_val.h"
 #include "library/scope_pos_info_provider.h"
 #include "library/compiler/vm_compiler.h"
 #include "library/tactic/eqn_lemmas.h"
@@ -339,18 +342,63 @@ static bool is_ite_eq(expr const & lhs, buffer<expr> & ite_args) {
     return is_constant(fn, get_ite_name()) && ite_args.size() == 5 && is_eq(ite_args[0]);
 }
 
-/* Try to find (H : not c) at Hs */
-static optional<expr> find_if_neg_hypothesis(type_context & ctx, expr const & c, buffer<expr> const & Hs) {
+static bool conservative_is_def_eq(type_context & ctx, expr const & a, expr const & b) {
+    type_context::transparency_scope scope(ctx, transparency_mode::Reducible);
+    return ctx.is_def_eq(a, b);
+}
+
+static lbool compare_values(expr const & a, expr const & b) {
+    if (auto v1 = to_num(a)) {
+    if (auto v2 = to_num(b)) {
+        return to_lbool(*v1 == *v2);
+    }}
+
+    if (auto v1 = to_char(a)) {
+    if (auto v2 = to_char(b)) {
+        return to_lbool(*v1 == *v2);
+    }}
+
+    if (auto v1 = to_string(a)) {
+    if (auto v2 = to_string(b)) {
+        return to_lbool(*v1 == *v2);
+    }}
+
+    return l_undef;
+}
+
+static optional<expr> mk_val_ne_proof(type_context & ctx, expr const & a, expr const & b) {
+    expr type = ctx.infer(a);
+    if (ctx.is_def_eq(type, mk_constant(get_nat_name())))
+        return mk_nat_val_ne_proof(a, b);
+    if (ctx.is_def_eq(type, mk_constant(get_char_name())))
+        return mk_char_val_ne_proof(a, b);
+    if (ctx.is_def_eq(type, mk_constant(get_string_name())))
+        return mk_string_val_ne_proof(a, b);
+    return none_expr();
+}
+
+static bool quick_is_def_eq_when_values(type_context & ctx, expr const & a, expr const & b) {
+    if (!is_local(a) && !is_local(b)) {
+        if (compare_values(a, b) == l_true)
+            return true;
+    }
+    return conservative_is_def_eq(ctx, a, b);
+}
+
+/* Try to find (H : not (c_lhs = c_rhs)) at Hs */
+static optional<expr> find_if_neg_hypothesis(type_context & ctx, expr const & c_lhs, expr const & c_rhs,
+                                             buffer<expr> const & Hs) {
     for (expr const & H : Hs) {
         expr H_type = ctx.infer(H);
-        expr arg;
-        if (is_not(H_type, arg) && ctx.is_def_eq(c, arg)) {
+        expr arg, arg_lhs, arg_rhs;
+        if (is_not(H_type, arg) && is_eq(arg, arg_lhs, arg_rhs) &&
+            quick_is_def_eq_when_values(ctx, arg_lhs, c_lhs) &&
+            quick_is_def_eq_when_values(ctx, arg_rhs, c_rhs)) {
             return some_expr(H);
         }
     }
     return none_expr();
 }
-
 
 /*
   If `e` is of the form
@@ -448,14 +496,14 @@ static expr prove_eqn_lemma_core(type_context & ctx, buffer<expr> const & Hs, ex
         expr const & c = ite_args[0];
         expr c_lhs, c_rhs;
         lean_verify(is_eq(c, c_lhs, c_rhs));
-        if (auto H = find_if_neg_hypothesis(ctx, c, Hs)) {
+        if (auto H = find_if_neg_hypothesis(ctx, c_lhs, c_rhs, Hs)) {
             expr lhs_else = ite_args[4];
             expr A        = ite_args[2];
             level A_lvl   = get_level(ctx, A);
             expr H1       = mk_app(mk_constant(get_if_neg_name(), {A_lvl}), {c, ite_args[1], *H, A, ite_args[3], lhs_else});
             expr H2       = prove_eqn_lemma_core(ctx, Hs, lhs_else, rhs);
             return mk_app(mk_constant(get_eq_trans_name(), {A_lvl}), {A, lhs, lhs_else, rhs, H1, H2});
-        } else if (ctx.is_def_eq(c_lhs, c_rhs)) {
+        } else if (quick_is_def_eq_when_values(ctx, c_lhs, c_rhs)) {
             expr H = mk_eq_refl(ctx, c_lhs);
             expr lhs_then = ite_args[3];
             expr A        = ite_args[2];
@@ -464,6 +512,15 @@ static expr prove_eqn_lemma_core(type_context & ctx, buffer<expr> const & Hs, ex
             expr H2       = prove_eqn_lemma_core(ctx, Hs, lhs_then, rhs);
             expr eq_trans = mk_constant(get_eq_trans_name(), {A_lvl});
             return mk_app(eq_trans, {A, lhs, lhs_then, rhs, H1, H2});
+        } else if (compare_values(c_lhs, c_rhs) == l_false) {
+            if (auto H = mk_val_ne_proof(ctx, c_lhs, c_rhs)) {
+                expr lhs_else = ite_args[4];
+                expr A        = ite_args[2];
+                level A_lvl   = get_level(ctx, A);
+                expr H1       = mk_app(mk_constant(get_if_neg_name(), {A_lvl}), {c, ite_args[1], *H, A, ite_args[3], lhs_else});
+                expr H2       = prove_eqn_lemma_core(ctx, Hs, lhs_else, rhs);
+                return mk_app(mk_constant(get_eq_trans_name(), {A_lvl}), {A, lhs, lhs_else, rhs, H1, H2});
+            }
         }
     }
 

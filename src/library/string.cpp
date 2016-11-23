@@ -139,6 +139,11 @@ void initialize_string() {
                                 });
 }
 
+optional<expr> expand_string_macro(expr const & e) {
+    if (!is_string_macro(e)) return none_expr();
+    return some_expr(from_string_core(to_string_macro(e).get_value()));
+}
+
 void finalize_string() {
     delete g_nat;
     delete g_str;

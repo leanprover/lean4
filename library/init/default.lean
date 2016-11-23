@@ -12,4 +12,5 @@ import init.monad init.option init.state init.fin init.list init.char init.strin
 import init.monad_combinators init.set
 import init.timeit init.trace init.unsigned init.ordering init.list_classes init.coe
 import init.wf init.nat_div init.meta init.instances init.breakpoint
-import init.sigma_lex init.id_locked init.order init.algebra init.nat_lemmas init.char_lemmas
+import init.sigma_lex init.id_locked init.order init.algebra
+import init.nat_lemmas init.char_lemmas init.string_lemmas

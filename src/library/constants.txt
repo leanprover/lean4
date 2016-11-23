@@ -354,6 +354,10 @@ store
 string
 string.empty
 string.str
+string.empty_ne_str
+string.str_ne_empty
+string.str_ne_str_left
+string.str_ne_str_right
 sub
 subsingleton
 subsingleton.elim

@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "library/num.h"
+#include "library/string.h"
 #include "library/util.h"
 #include "library/constants.h"
 
@@ -113,7 +114,7 @@ optional<expr> mk_fin_val_ne_proof(expr const & a, expr const & b) {
     expr const & n   = app_arg(app_fn(app_fn(a)));
     expr const & v_a = app_arg(app_fn(a));
     expr const & v_b = app_arg(app_fn(b));
-    auto pr = mk_nat_val_lt_proof(v_a, v_b);
+    auto pr = mk_nat_val_ne_proof(v_a, v_b);
     if (!pr) return none_expr();
     return some_expr(mk_app(mk_constant(get_fin_ne_of_vne_name()), n, a, b, *pr));
 }
@@ -134,8 +135,51 @@ optional<expr> mk_char_val_ne_proof(expr const & a, expr const & b) {
     return mk_fin_val_ne_proof(a, b);
 }
 
+/* Remark: this function assumes 'e' has type string */
+static bool is_string_str(expr const & e, expr & c, expr & s) {
+    if (is_app_of(e, get_string_str_name(), 2) ||
+        is_app_of(e, get_list_cons_name(), 3)) {
+        c = app_arg(app_fn(e));
+        s = app_arg(e);
+        return true;
+    }
+    return false;
+}
+
+/* Remark: this function assumes 'e' has type string */
+static bool is_string_empty(expr const & e) {
+    return
+        is_constant(e, get_string_empty_name()) ||
+        is_app_of(e, get_list_nil_name(), 1);
+}
+
+optional<expr> mk_string_val_ne_proof(expr a, expr b) {
+    if (auto new_a = expand_string_macro(a))
+        a = *new_a;
+    if (auto new_b = expand_string_macro(b))
+        b = *new_b;
+    expr c_a, s_a;
+    expr c_b, s_b;
+    if (is_string_str(a, c_a, s_a)) {
+        if (is_string_str(b, c_b, s_b)) {
+            if (auto pr = mk_char_val_ne_proof(c_a, c_b)) {
+                return some_expr(mk_app({mk_constant(get_string_str_ne_str_left_name()), c_a, c_b, s_a, s_b, *pr}));
+            } else if (auto pr = mk_string_val_ne_proof(s_a, s_b)) {
+                return some_expr(mk_app({mk_constant(get_string_str_ne_str_right_name()), c_a, c_b, s_a, s_b, *pr}));
+            }
+        } else if (is_string_empty(b)) {
+            return some_expr(mk_app(mk_constant(get_string_str_ne_empty_name()), c_a, s_a));
+        }
+    } else if (is_string_empty(a)) {
+        if (is_string_str(b, c_b, s_b)) {
+            return some_expr(mk_app(mk_constant(get_string_empty_ne_str_name()), c_b, s_b));
+        }
+    }
+    return none_expr();
+}
+
 void initialize_comp_val() {
-    g_char_sz = new expr(to_nat_expr(mpz(255)));
+    g_char_sz = new expr(to_nat_expr(mpz(256)));
 }
 
 void finalize_comp_val() {

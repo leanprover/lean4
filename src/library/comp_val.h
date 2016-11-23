@@ -34,6 +34,9 @@ optional<expr> mk_fin_val_ne_proof(expr const & a, expr const & b);
 /* Similar to mk_char_val_ne_proof, but for char type */
 optional<expr> mk_char_val_ne_proof(expr const & a, expr const & b);
 
+/* Similar to mk_char_val_ne_proof, but for string type */
+optional<expr> mk_string_val_ne_proof(expr a, expr b);
+
 void initialize_comp_val();
 void finalize_comp_val();
 }

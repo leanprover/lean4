@@ -359,6 +359,10 @@ name const * g_store = nullptr;
 name const * g_string = nullptr;
 name const * g_string_empty = nullptr;
 name const * g_string_str = nullptr;
+name const * g_string_empty_ne_str = nullptr;
+name const * g_string_str_ne_empty = nullptr;
+name const * g_string_str_ne_str_left = nullptr;
+name const * g_string_str_ne_str_right = nullptr;
 name const * g_sub = nullptr;
 name const * g_subsingleton = nullptr;
 name const * g_subsingleton_elim = nullptr;
@@ -778,6 +782,10 @@ void initialize_constants() {
     g_string = new name{"string"};
     g_string_empty = new name{"string", "empty"};
     g_string_str = new name{"string", "str"};
+    g_string_empty_ne_str = new name{"string", "empty_ne_str"};
+    g_string_str_ne_empty = new name{"string", "str_ne_empty"};
+    g_string_str_ne_str_left = new name{"string", "str_ne_str_left"};
+    g_string_str_ne_str_right = new name{"string", "str_ne_str_right"};
     g_sub = new name{"sub"};
     g_subsingleton = new name{"subsingleton"};
     g_subsingleton_elim = new name{"subsingleton", "elim"};
@@ -1198,6 +1206,10 @@ void finalize_constants() {
     delete g_string;
     delete g_string_empty;
     delete g_string_str;
+    delete g_string_empty_ne_str;
+    delete g_string_str_ne_empty;
+    delete g_string_str_ne_str_left;
+    delete g_string_str_ne_str_right;
     delete g_sub;
     delete g_subsingleton;
     delete g_subsingleton_elim;
@@ -1617,6 +1629,10 @@ name const & get_store_name() { return *g_store; }
 name const & get_string_name() { return *g_string; }
 name const & get_string_empty_name() { return *g_string_empty; }
 name const & get_string_str_name() { return *g_string_str; }
+name const & get_string_empty_ne_str_name() { return *g_string_empty_ne_str; }
+name const & get_string_str_ne_empty_name() { return *g_string_str_ne_empty; }
+name const & get_string_str_ne_str_left_name() { return *g_string_str_ne_str_left; }
+name const & get_string_str_ne_str_right_name() { return *g_string_str_ne_str_right; }
 name const & get_sub_name() { return *g_sub; }
 name const & get_subsingleton_name() { return *g_subsingleton; }
 name const & get_subsingleton_elim_name() { return *g_subsingleton_elim; }

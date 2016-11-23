@@ -18,6 +18,8 @@ expr from_string(std::string const & s);
 optional<std::string> to_string(expr const & e);
 
 bool is_string_macro(expr const & e);
+/** \brief Expand string macro if 'e' is a string macro */
+optional<expr> expand_string_macro(expr const & e);
 
 optional<char> to_char(expr const & e);
 

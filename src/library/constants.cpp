@@ -27,6 +27,7 @@ name const * g_cast_eq = nullptr;
 name const * g_cast_heq = nullptr;
 name const * g_char = nullptr;
 name const * g_char_of_nat = nullptr;
+name const * g_char_of_nat_ne_of_ne = nullptr;
 name const * g_classical = nullptr;
 name const * g_classical_prop_decidable = nullptr;
 name const * g_classical_type_decidable_eq = nullptr;
@@ -78,6 +79,7 @@ name const * g_false_rec = nullptr;
 name const * g_field = nullptr;
 name const * g_fin = nullptr;
 name const * g_fin_mk = nullptr;
+name const * g_fin_ne_of_vne = nullptr;
 name const * g_forall_congr = nullptr;
 name const * g_forall_congr_eq = nullptr;
 name const * g_funext = nullptr;
@@ -444,6 +446,7 @@ void initialize_constants() {
     g_cast_heq = new name{"cast_heq"};
     g_char = new name{"char"};
     g_char_of_nat = new name{"char", "of_nat"};
+    g_char_of_nat_ne_of_ne = new name{"char", "of_nat_ne_of_ne"};
     g_classical = new name{"classical"};
     g_classical_prop_decidable = new name{"classical", "prop_decidable"};
     g_classical_type_decidable_eq = new name{"classical", "type_decidable_eq"};
@@ -495,6 +498,7 @@ void initialize_constants() {
     g_field = new name{"field"};
     g_fin = new name{"fin"};
     g_fin_mk = new name{"fin", "mk"};
+    g_fin_ne_of_vne = new name{"fin", "ne_of_vne"};
     g_forall_congr = new name{"forall_congr"};
     g_forall_congr_eq = new name{"forall_congr_eq"};
     g_funext = new name{"funext"};
@@ -862,6 +866,7 @@ void finalize_constants() {
     delete g_cast_heq;
     delete g_char;
     delete g_char_of_nat;
+    delete g_char_of_nat_ne_of_ne;
     delete g_classical;
     delete g_classical_prop_decidable;
     delete g_classical_type_decidable_eq;
@@ -913,6 +918,7 @@ void finalize_constants() {
     delete g_field;
     delete g_fin;
     delete g_fin_mk;
+    delete g_fin_ne_of_vne;
     delete g_forall_congr;
     delete g_forall_congr_eq;
     delete g_funext;
@@ -1279,6 +1285,7 @@ name const & get_cast_eq_name() { return *g_cast_eq; }
 name const & get_cast_heq_name() { return *g_cast_heq; }
 name const & get_char_name() { return *g_char; }
 name const & get_char_of_nat_name() { return *g_char_of_nat; }
+name const & get_char_of_nat_ne_of_ne_name() { return *g_char_of_nat_ne_of_ne; }
 name const & get_classical_name() { return *g_classical; }
 name const & get_classical_prop_decidable_name() { return *g_classical_prop_decidable; }
 name const & get_classical_type_decidable_eq_name() { return *g_classical_type_decidable_eq; }
@@ -1330,6 +1337,7 @@ name const & get_false_rec_name() { return *g_false_rec; }
 name const & get_field_name() { return *g_field; }
 name const & get_fin_name() { return *g_fin; }
 name const & get_fin_mk_name() { return *g_fin_mk; }
+name const & get_fin_ne_of_vne_name() { return *g_fin_ne_of_vne; }
 name const & get_forall_congr_name() { return *g_forall_congr; }
 name const & get_forall_congr_eq_name() { return *g_forall_congr_eq; }
 name const & get_funext_name() { return *g_funext; }

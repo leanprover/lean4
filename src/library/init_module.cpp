@@ -47,6 +47,7 @@ Author: Leonardo de Moura
 #include "library/arith_instance_manager.h"
 #include "library/inverse.h"
 #include "library/pattern_attribute.h"
+#include "library/comp_val.h"
 
 namespace lean {
 void initialize_library_core_module() {
@@ -104,9 +105,11 @@ void initialize_library_module() {
     initialize_arith_instance_manager();
     initialize_inverse();
     initialize_pattern_attribute();
+    initialize_comp_val();
 }
 
 void finalize_library_module() {
+    finalize_comp_val();
     finalize_pattern_attribute();
     finalize_inverse();
     finalize_arith_instance_manager();

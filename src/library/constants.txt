@@ -22,6 +22,7 @@ cast_eq
 cast_heq
 char
 char.of_nat
+char.of_nat_ne_of_ne
 classical
 classical.prop_decidable
 classical.type_decidable_eq
@@ -73,6 +74,7 @@ false.rec
 field
 fin
 fin.mk
+fin.ne_of_vne
 forall_congr
 forall_congr_eq
 funext

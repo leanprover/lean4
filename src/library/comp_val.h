@@ -27,4 +27,13 @@ optional<expr> mk_nat_val_ne_proof(expr const & a, expr const & b);
 optional<expr> mk_nat_val_lt_proof(expr const & a, expr const & b);
 /* Same for a <= b */
 optional<expr> mk_nat_val_le_proof(expr const & a, expr const & b);
+
+/* Similar to mk_nat_val_ne_proof, but for fin type */
+optional<expr> mk_fin_val_ne_proof(expr const & a, expr const & b);
+
+/* Similar to mk_char_val_ne_proof, but for char type */
+optional<expr> mk_char_val_ne_proof(expr const & a, expr const & b);
+
+void initialize_comp_val();
+void finalize_comp_val();
 }

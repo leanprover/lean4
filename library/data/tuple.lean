@@ -7,91 +7,93 @@ Tuples are lists of a fixed size.
 It is implemented as a subtype.
 -/
 import data.list
-import init.subtype
 
 def tuple (α : Type) (n : ℕ) := {l : list α // list.length l = n}
 
 namespace tuple
-  variables {α β φ : Type}
-  variable {n : ℕ}
+variables {α β φ : Type}
+variable {n : ℕ}
 
-  definition nil : tuple α 0 := ⟨ [],  rfl ⟩
+instance [decidable_eq α] : decidable_eq (tuple α n) :=
+begin unfold tuple, apply_instance end
 
-  definition cons : α → tuple α n → tuple α (nat.succ n)
-  | a ⟨ v, h ⟩ := ⟨ a::v, congr_arg nat.succ h ⟩
+definition nil : tuple α 0 := ⟨[],  rfl⟩
 
-  notation a :: b := cons a b
-  notation `[` l:(foldr `, ` (h t, cons h t) nil `]`) := l
+definition cons : α → tuple α n → tuple α (nat.succ n)
+| a ⟨ v, h ⟩ := ⟨ a::v, congr_arg nat.succ h ⟩
 
-  open nat
+notation a :: b := cons a b
+notation `[` l:(foldr `, ` (h t, cons h t) nil `]`) := l
 
-  definition head : tuple α (nat.succ n) → α
-  | ⟨list.nil,      h ⟩ := let q : 0 = succ n := h in by contradiction
-  | ⟨list.cons a v, h ⟩ := a
+open nat
 
-  theorem head_cons (a : α) : Π (v : tuple α n), head (a :: v) = a
-  | ⟨ l, h ⟩ := rfl
+definition head : tuple α (nat.succ n) → α
+| ⟨list.nil,      h ⟩ := let q : 0 = succ n := h in by contradiction
+| ⟨list.cons a v, h ⟩ := a
 
-  definition tail : tuple α (succ n) → tuple α n
-  | ⟨ list.nil,   h ⟩ := let q : 0 = succ n := h in by contradiction
-  | ⟨ list.cons a v, h ⟩ := ⟨ v,  congr_arg pred h ⟩
+theorem head_cons (a : α) : Π (v : tuple α n), head (a :: v) = a
+| ⟨ l, h ⟩ := rfl
 
-  theorem tail_cons (a : α) : Π (v : tuple α n), tail (a :: v) = v
-  | ⟨ l, h ⟩ := rfl
+definition tail : tuple α (succ n) → tuple α n
+| ⟨ list.nil,   h ⟩ := let q : 0 = succ n := h in by contradiction
+| ⟨ list.cons a v, h ⟩ := ⟨ v,  congr_arg pred h ⟩
 
-  definition to_list : tuple α n → list α | ⟨ l, h ⟩ := l
+theorem tail_cons (a : α) : Π (v : tuple α n), tail (a :: v) = v
+| ⟨ l, h ⟩ := rfl
 
-  /- append -/
+definition to_list : tuple α n → list α | ⟨ l, h ⟩ := l
 
-  definition append {n m : nat} : tuple α n → tuple α m → tuple α (n + m)
-  | ⟨ l₁, h₁ ⟩ ⟨ l₂, h₂ ⟩ :=
-    let p := calc
-       list.length (l₁ ++ l₂)
-             = list.length l₁ + list.length l₂ : list.length_append l₁ l₂
-         ... = n + list.length l₂ : congr_arg (λi, i + list.length l₂) h₁
-         ... = n + m              : congr_arg (λi, n + i) h₂ in
-    ⟨ list.append l₁ l₂, p ⟩
+/- append -/
 
-  /- map -/
+definition append {n m : nat} : tuple α n → tuple α m → tuple α (n + m)
+| ⟨ l₁, h₁ ⟩ ⟨ l₂, h₂ ⟩ :=
+  let p := calc
+     list.length (l₁ ++ l₂)
+           = list.length l₁ + list.length l₂ : list.length_append l₁ l₂
+       ... = n + list.length l₂ : congr_arg (λi, i + list.length l₂) h₁
+       ... = n + m              : congr_arg (λi, n + i) h₂ in
+  ⟨ list.append l₁ l₂, p ⟩
 
-  definition map (f : α → β) : tuple α n → tuple β n
-  | ⟨ l, h ⟩  :=
-    let q := calc list.length (list.map f l) = list.length l : list.length_map f l
-                                         ... = n             : h in
-    ⟨ list.map f l, q ⟩
+/- map -/
 
-  theorem map_nil (f : α → β) : map f nil = nil := rfl
+definition map (f : α → β) : tuple α n → tuple β n
+| ⟨ l, h ⟩  :=
+  let q := calc list.length (list.map f l) = list.length l : list.length_map f l
+                                       ... = n             : h in
+  ⟨ list.map f l, q ⟩
 
-  theorem map_cons (f : α → β) (a : α)
-        : Π (v : tuple α n), map f (a::v) = f a :: map f v
-  | ⟨ l, h ⟩ := rfl
+theorem map_nil (f : α → β) : map f nil = nil := rfl
 
-  definition map₂ (f : α → β → φ) : tuple α n → tuple β n → tuple φ n
-  | ⟨ x, px ⟩ ⟨ y, py ⟩ :=
-    let z : list φ := list.map₂ f x y in
-    let pxx : list.length x = n := px in
-    let pyy : list.length y = n := py in
-    let p : list.length z = n := calc
-         list.length z = min (list.length x) (list.length y) : list.length_map₂ f x y
-                   ... = min n n                             : by rewrite [pxx, pyy]
-                   ... = n                                   : min_self n in
-    ⟨ z, p ⟩
+theorem map_cons (f : α → β) (a : α)
+      : Π (v : tuple α n), map f (a::v) = f a :: map f v
+| ⟨ l, h ⟩ := rfl
 
-  definition repeat (a : α) : tuple α n
-    := ⟨ list.repeat a n, list.length_repeat a n ⟩
+definition map₂ (f : α → β → φ) : tuple α n → tuple β n → tuple φ n
+| ⟨ x, px ⟩ ⟨ y, py ⟩ :=
+  let z : list φ := list.map₂ f x y in
+  let pxx : list.length x = n := px in
+  let pyy : list.length y = n := py in
+  let p : list.length z = n := calc
+       list.length z = min (list.length x) (list.length y) : list.length_map₂ f x y
+                 ... = min n n                             : by rewrite [pxx, pyy]
+                 ... = n                                   : min_self n in
+  ⟨ z, p ⟩
 
-  definition dropn : Π (i:ℕ), tuple α n → tuple α (n - i)
-  | i ⟨ l, p ⟩ := ⟨ list.dropn i l, p ▸ list.length_dropn i l ⟩
+definition repeat (a : α) : tuple α n
+  := ⟨ list.repeat a n, list.length_repeat a n ⟩
 
-  definition firstn : Π (i:ℕ) {p:i ≤ n}, tuple α n → tuple α i
-  | i is_le ⟨ l, p ⟩ :=
-    let q := calc list.length (list.firstn i l)
-                     = min i (list.length l)  : list.length_firstn i l
-                 ... = min i n                : congr_arg (λ v, min i v) p
-                 ... = i                      : min_eq_left is_le in
-    ⟨ list.firstn i l, q ⟩
+definition dropn : Π (i:ℕ), tuple α n → tuple α (n - i)
+| i ⟨ l, p ⟩ := ⟨ list.dropn i l, p ▸ list.length_dropn i l ⟩
 
-  section accum
+definition firstn : Π (i:ℕ) {p:i ≤ n}, tuple α n → tuple α i
+| i is_le ⟨ l, p ⟩ :=
+  let q := calc list.length (list.firstn i l)
+                   = min i (list.length l)  : list.length_firstn i l
+               ... = min i n                : congr_arg (λ v, min i v) p
+               ... = i                      : min_eq_left is_le in
+  ⟨list.firstn i l, q⟩
+
+section accum
   open prod
   variable {σ : Type}
 
@@ -114,5 +116,5 @@ namespace tuple
               ... = n                                    : by rewrite [ pxx, pyy, min_self ] in
     (prod.fst z, ⟨prod.snd z, p ⟩)
 
-  end accum
+end accum
 end tuple

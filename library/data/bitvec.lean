@@ -12,9 +12,11 @@ import data.tuple
 def bitvec (n : ℕ) := tuple bool n
 
 namespace bitvec
-
 open nat
 open tuple
+
+instance (n : nat) : decidable_eq (bitvec n) :=
+begin unfold bitvec, apply_instance end
 
 -- Create a zero bitvector
 def zero {n : ℕ} : bitvec n := tuple.repeat ff

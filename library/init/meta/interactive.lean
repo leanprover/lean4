@@ -94,6 +94,9 @@ meta def intros : raw_ident_list → tactic unit
 meta def apply (q : qexpr0) : tactic unit :=
 to_expr q >>= tactic.apply
 
+meta def apply_instance : tactic unit :=
+tactic.apply_instance
+
 meta def refine : qexpr0 → tactic unit :=
 tactic.refine
 

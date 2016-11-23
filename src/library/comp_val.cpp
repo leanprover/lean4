@@ -41,8 +41,6 @@ optional<expr> mk_nat_val_ne_proof(expr const & a, expr const & b) {
                 return some_expr(mk_app(mk_constant(get_nat_zero_ne_bit0_name()), *b1, *pr));
         } else if (auto b1 = is_bit1(b)) {
             return some_expr(mk_app(mk_constant(get_nat_zero_ne_bit1_name()), *b1));
-        } else if (is_zero(b)) {
-            return none_expr();
         } else if (is_one(b)) {
             return some_expr(mk_constant(get_nat_zero_ne_one_name()));
         }
@@ -54,8 +52,6 @@ optional<expr> mk_nat_val_ne_proof(expr const & a, expr const & b) {
                 return some_expr(mk_app(mk_constant(get_nat_one_ne_bit1_name()), *b1, *pr));
         } else if (is_zero(b)) {
             return some_expr(mk_constant(get_nat_one_ne_zero_name()));
-        } else if (is_one(b)) {
-            return none_expr();
         }
     }
     return none_expr();

@@ -39,7 +39,7 @@ instance order_pair_of_ordered_cancel_comm_monoid
   (α : Type u) [s : ordered_cancel_comm_monoid α] : order_pair α :=
 @ordered_mul_cancel_comm_monoid.to_order_pair α s
 
-section
+section ordered_cancel_comm_monoid
 variable {α : Type u}
 variable [s : ordered_cancel_comm_monoid α]
 
@@ -54,9 +54,9 @@ lemma add_lt_add_left {a b : α} (h : a < b) (c : α) : c + a < c + b :=
 
 lemma lt_of_add_lt_add_left {a b c : α} (h : a + b < a + c) : b < c :=
 @ordered_mul_cancel_comm_monoid.lt_of_mul_lt_mul_left α s a b c h
-end
+end ordered_cancel_comm_monoid
 
-section
+section ordered_cancel_comm_monoid
 variable {α : Type u}
 variable [ordered_cancel_comm_monoid α]
 
@@ -104,7 +104,7 @@ le_of_add_le_add_left
 lemma lt_of_add_lt_add_right {a b c : α} (h : a + b < c + b) : a < c :=
 lt_of_add_lt_add_left
   (show b + a < b + c, begin rw [add_comm b a, add_comm b c], assumption end)
-end
+end ordered_cancel_comm_monoid
 
 class ordered_mul_comm_group (α : Type u) extends comm_group α, order_pair α :=
 (mul_le_mul_left : ∀ a b : α, a ≤ b → ∀ c : α, c * a ≤ c * b)
@@ -116,7 +116,7 @@ ordered_mul_comm_group
 instance add_comm_group_of_ordered_comm_group (α : Type u) [s : ordered_comm_group α] : add_comm_group α :=
 @ordered_mul_comm_group.to_comm_group α s
 
-section
+section ordered_mul_comm_group
 variable {α : Type u}
 variable [ordered_mul_comm_group α]
 
@@ -127,7 +127,7 @@ begin simp [inv_mul_cancel_left] at this, assumption end
 lemma ordered_mul_comm_group.lt_of_mul_lt_mul_left {a b c : α} (h : a * b < a * c) : b < c :=
 have a⁻¹ * (a * b) < a⁻¹ * (a * c), from ordered_mul_comm_group.mul_lt_mul_left _ _ h _,
 begin simp [inv_mul_cancel_left] at this, assumption end
-end
+end ordered_mul_comm_group
 
 instance ordered_mul_comm_group.to_ordered_mul_cancel_comm_monoid (α : Type u) [s : ordered_mul_comm_group α] : ordered_mul_cancel_comm_monoid α :=
 { s with
@@ -139,7 +139,7 @@ instance ordered_mul_comm_group.to_ordered_mul_cancel_comm_monoid (α : Type u) 
 instance ordered_comm_group.to_ordered_cancel_comm_monoid  (α : Type u) [s : ordered_comm_group α] : ordered_cancel_comm_monoid α :=
 @ordered_mul_comm_group.to_ordered_mul_cancel_comm_monoid α s
 
-section
+section ordered_comm_group
 variables {α : Type u} [ordered_comm_group α]
 
 theorem neg_le_neg {a b : α} (h : a ≤ b) : -b ≤ -a :=
@@ -167,7 +167,378 @@ le_of_neg_le_neg this
 lemma neg_nonneg_of_nonpos {a : α} (h : a ≤ 0) : 0 ≤ -a :=
 have -0 ≤ -a, from neg_le_neg h,
 by rwa neg_zero at this
+
+lemma neg_lt_neg {a b : α} (h : a < b) : -b < -a :=
+have 0 < -a + b, from add_left_neg a ▸ add_lt_add_left h (-a),
+have 0 + -b < -a + b + -b, from add_lt_add_right this (-b),
+by rwa [add_neg_cancel_right, zero_add] at this
+
+lemma lt_of_neg_lt_neg {a b : α} (h : -b < -a) : a < b :=
+neg_neg a ▸ neg_neg b ▸ neg_lt_neg h
+
+lemma pos_of_neg_neg {a : α} (h : -a < 0) : 0 < a :=
+have -a < -0, by rwa neg_zero,
+lt_of_neg_lt_neg this
+
+lemma neg_neg_of_pos {a : α} (h : 0 < a) : -a < 0 :=
+have -a < -0, from neg_lt_neg h,
+by rwa neg_zero at this
+
+lemma neg_of_neg_pos {a : α} (h : 0 < -a) : a < 0 :=
+have -0 < -a, by rwa neg_zero,
+lt_of_neg_lt_neg this
+
+lemma neg_pos_of_neg {a : α} (h : a < 0) : 0 < -a :=
+have -0 < -a, from neg_lt_neg h,
+by rwa neg_zero at this
+
+lemma le_neg_of_le_neg {a b : α} (h : a ≤ -b) : b ≤ -a :=
+begin
+  pose h := neg_le_neg h,
+  rwa neg_neg at h
 end
+
+lemma neg_le_of_neg_le {a b : α} (h : -a ≤ b) : -b ≤ a :=
+begin
+  pose h := neg_le_neg h,
+  rwa neg_neg at h
+end
+
+lemma lt_neg_of_lt_neg {a b : α} (h : a < -b) : b < -a :=
+begin
+  pose h := neg_lt_neg h,
+  rwa neg_neg at h
+end
+
+lemma neg_lt_of_neg_lt {a b : α} (h : -a < b) : -b < a :=
+begin
+  pose h := neg_lt_neg h,
+  rwa neg_neg at h
+end
+
+lemma sub_nonneg_of_le {a b : α} (h : b ≤ a) : 0 ≤ a - b :=
+begin
+  pose h := add_le_add_right h (-b),
+  rwa add_right_neg at h
+end
+
+lemma le_of_sub_nonneg {a b : α} (h : 0 ≤ a - b) : b ≤ a :=
+begin
+  pose h := add_le_add_right h b,
+  rwa [sub_add_cancel, zero_add] at h
+end
+
+lemma sub_nonpos_of_le {a b : α} (h : a ≤ b) : a - b ≤ 0 :=
+begin
+  pose h := add_le_add_right h (-b),
+  rwa add_right_neg at h
+end
+
+lemma le_of_sub_nonpos {a b : α} (h : a - b ≤ 0) : a ≤ b :=
+begin
+  pose h := add_le_add_right h b,
+  rwa [sub_add_cancel, zero_add] at h
+end
+
+lemma sub_pos_of_lt {a b : α} (h : b < a) : 0 < a - b :=
+begin
+  pose h := add_lt_add_right h (-b),
+  rwa add_right_neg at h
+end
+
+lemma lt_of_sub_pos {a b : α} (h : 0 < a - b) : b < a :=
+begin
+  pose h := add_lt_add_right h b,
+  rwa [sub_add_cancel, zero_add] at h
+end
+
+lemma sub_neg_of_lt {a b : α} (h : a < b) : a - b < 0 :=
+begin
+  pose h := add_lt_add_right h (-b),
+  rwa add_right_neg at h
+end
+
+lemma lt_of_sub_neg {a b : α} (h : a - b < 0) : a < b :=
+begin
+  pose h := add_lt_add_right h b,
+  rwa [sub_add_cancel, zero_add] at h
+end
+
+lemma add_le_of_le_neg_add {a b c : α} (h : b ≤ -a + c) : a + b ≤ c :=
+begin
+  pose h := add_le_add_left h a,
+  rwa add_neg_cancel_left at h
+end
+
+lemma le_neg_add_of_add_le {a b c : α} (h : a + b ≤ c) : b ≤ -a + c :=
+begin
+  pose h := add_le_add_left h (-a),
+  rwa neg_add_cancel_left at h
+end
+
+lemma add_le_of_le_sub_left {a b c : α} (h : b ≤ c - a) : a + b ≤ c :=
+begin
+  pose h := add_le_add_left h a,
+  rwa [-add_sub_assoc, add_comm a c, add_sub_cancel] at h
+end
+
+lemma le_sub_left_of_add_le {a b c : α} (h : a + b ≤ c) : b ≤ c - a :=
+begin
+  pose h := add_le_add_right h (-a),
+  rwa [add_comm a b, add_neg_cancel_right] at h
+end
+
+lemma add_le_of_le_sub_right {a b c : α} (h : a ≤ c - b) : a + b ≤ c :=
+begin
+  pose h := add_le_add_right h b,
+  rwa sub_add_cancel at h
+end
+
+lemma le_sub_right_of_add_le {a b c : α} (h : a + b ≤ c) : a ≤ c - b :=
+begin
+  pose h := add_le_add_right h (-b),
+  rwa add_neg_cancel_right at h
+end
+
+lemma le_add_of_neg_add_le {a b c : α} (h : -b + a ≤ c) : a ≤ b + c :=
+begin
+  pose h := add_le_add_left h b,
+  rwa add_neg_cancel_left at h
+end
+
+lemma neg_add_le_of_le_add {a b c : α} (h : a ≤ b + c) : -b + a ≤ c :=
+begin
+  pose h := add_le_add_left h (-b),
+  rwa neg_add_cancel_left at h
+end
+
+lemma le_add_of_sub_left_le {a b c : α} (h : a - b ≤ c) : a ≤ b + c :=
+begin
+  pose h := add_le_add_right h b,
+  rwa [sub_add_cancel, add_comm] at h
+end
+
+lemma sub_left_le_of_le_add {a b c : α} (h : a ≤ b + c) : a - b ≤ c :=
+begin
+  pose h := add_le_add_right h (-b),
+  rwa [add_comm b c, add_neg_cancel_right] at h
+end
+
+lemma le_add_of_sub_right_le {a b c : α} (h : a - c ≤ b) : a ≤ b + c :=
+begin
+  pose h := add_le_add_right h c,
+  rwa sub_add_cancel at h
+end
+
+lemma sub_right_le_of_le_add {a b c : α} (h : a ≤ b + c) : a - c ≤ b :=
+begin
+  pose h := add_le_add_right h (-c),
+  rwa add_neg_cancel_right at h
+end
+
+lemma le_add_of_neg_add_le_left {a b c : α} (h : -b + a ≤ c) : a ≤ b + c :=
+begin
+  rw add_comm at h,
+  exact le_add_of_sub_left_le h
+end
+
+lemma neg_add_le_left_of_le_add {a b c : α} (h : a ≤ b + c) : -b + a ≤ c :=
+begin
+  rw add_comm,
+  exact sub_left_le_of_le_add h
+end
+
+lemma le_add_of_neg_add_le_right {a b c : α} (h : -c + a ≤ b) : a ≤ b + c :=
+begin
+  rw add_comm at h,
+  exact le_add_of_sub_right_le h
+end
+
+lemma neg_add_le_right_of_le_add {a b c : α} (h : a ≤ b + c) : -c + a ≤ b :=
+begin
+  rw add_comm at h,
+  apply neg_add_le_left_of_le_add h
+end
+
+lemma le_add_of_neg_le_sub_left {a b c : α} (h : -a ≤ b - c) : c ≤ a + b :=
+le_add_of_neg_add_le_left (add_le_of_le_sub_right h)
+
+lemma neg_le_sub_left_of_le_add {a b c : α} (h : c ≤ a + b) : -a ≤ b - c :=
+begin
+  pose h := le_neg_add_of_add_le (sub_left_le_of_le_add h),
+  rwa add_comm at h
+end
+
+lemma le_add_of_neg_le_sub_right {a b c : α} (h : -b ≤ a - c) : c ≤ a + b :=
+le_add_of_sub_right_le (add_le_of_le_sub_left h)
+
+lemma neg_le_sub_right_of_le_add {a b c : α} (h : c ≤ a + b) : -b ≤ a - c :=
+le_sub_left_of_add_le (sub_right_le_of_le_add h)
+
+lemma sub_le_of_sub_le {a b c : α} (h : a - b ≤ c) : a - c ≤ b :=
+sub_left_le_of_le_add (le_add_of_sub_right_le h)
+
+lemma sub_le_sub_left {a b : α} (h : a ≤ b) (c : α) : c - b ≤ c - a :=
+add_le_add_left (neg_le_neg h) c
+
+lemma sub_le_sub_right {a b : α} (h : a ≤ b) (c : α) : a - c ≤ b - c :=
+add_le_add_right h (-c)
+
+lemma sub_le_sub {a b c d : α} (hab : a ≤ b) (hcd : c ≤ d) : a - d ≤ b - c :=
+add_le_add hab (neg_le_neg hcd)
+
+lemma add_lt_of_lt_neg_add {a b c : α} (h : b < -a + c) : a + b < c :=
+begin
+  pose h := add_lt_add_left h a,
+  rwa add_neg_cancel_left at h
+end
+
+lemma lt_neg_add_of_add_lt {a b c : α} (h : a + b < c) : b < -a + c :=
+begin
+  pose h := add_lt_add_left h (-a),
+  rwa neg_add_cancel_left at h
+end
+
+lemma add_lt_of_lt_sub_left {a b c : α} (h : b < c - a) : a + b < c :=
+begin
+  pose h := add_lt_add_left h a,
+  rwa [-add_sub_assoc, add_comm a c, add_sub_cancel] at h
+end
+
+lemma lt_sub_left_of_add_lt {a b c : α} (h : a + b < c) : b < c - a :=
+begin
+  pose h := add_lt_add_right h (-a),
+  rwa [add_comm a b, add_neg_cancel_right] at h
+end
+
+lemma add_lt_of_lt_sub_right {a b c : α} (h : a < c - b) : a + b < c :=
+begin
+  pose h := add_lt_add_right h b,
+  rwa sub_add_cancel at h
+end
+
+lemma lt_sub_right_of_add_lt {a b c : α} (h : a + b < c) : a < c - b :=
+begin
+  pose h := add_lt_add_right h (-b),
+  rwa add_neg_cancel_right at h
+end
+
+lemma lt_add_of_neg_add_lt {a b c : α} (h : -b + a < c) : a < b + c :=
+begin
+  pose h := add_lt_add_left h b,
+  rwa add_neg_cancel_left at h
+end
+
+lemma neg_add_lt_of_lt_add {a b c : α} (h : a < b + c) : -b + a < c :=
+begin
+  pose h := add_lt_add_left h (-b),
+  rwa neg_add_cancel_left at h
+end
+
+lemma lt_add_of_sub_left_lt {a b c : α} (h : a - b < c) : a < b + c :=
+begin
+  pose h := add_lt_add_right h b,
+  rwa [sub_add_cancel, add_comm] at h
+end
+
+lemma sub_left_lt_of_lt_add {a b c : α} (h : a < b + c) : a - b < c :=
+begin
+  pose h := add_lt_add_right h (-b),
+  rwa [add_comm b c, add_neg_cancel_right] at h
+end
+
+lemma lt_add_of_sub_right_lt {a b c : α} (h : a - c < b) : a < b + c :=
+begin
+  pose h := add_lt_add_right h c,
+  rwa sub_add_cancel at h
+end
+
+lemma sub_right_lt_of_lt_add {a b c : α} (h : a < b + c) : a - c < b :=
+begin
+  pose h := add_lt_add_right h (-c),
+  rwa add_neg_cancel_right at h
+end
+
+lemma lt_add_of_neg_add_lt_left {a b c : α} (h : -b + a < c) : a < b + c :=
+begin
+  rw add_comm at h,
+  exact lt_add_of_sub_left_lt h
+end
+
+lemma neg_add_lt_left_of_lt_add {a b c : α} (h : a < b + c) : -b + a < c :=
+begin
+  rw add_comm,
+  exact sub_left_lt_of_lt_add h
+end
+
+lemma lt_add_of_neg_add_lt_right {a b c : α} (h : -c + a < b) : a < b + c :=
+begin
+  rw add_comm at h,
+  exact lt_add_of_sub_right_lt h
+end
+
+lemma neg_add_lt_right_of_lt_add {a b c : α} (h : a < b + c) : -c + a < b :=
+begin
+  rw add_comm at h,
+  apply neg_add_lt_left_of_lt_add h
+end
+
+lemma lt_add_of_neg_lt_sub_left {a b c : α} (h : -a < b - c) : c < a + b :=
+lt_add_of_neg_add_lt_left (add_lt_of_lt_sub_right h)
+
+lemma neg_lt_sub_left_of_lt_add {a b c : α} (h : c < a + b) : -a < b - c :=
+begin
+  pose h := lt_neg_add_of_add_lt (sub_left_lt_of_lt_add h),
+  rwa add_comm at h
+end
+
+lemma lt_add_of_neg_lt_sub_right {a b c : α} (h : -b < a - c) : c < a + b :=
+lt_add_of_sub_right_lt (add_lt_of_lt_sub_left h)
+
+lemma neg_lt_sub_right_of_lt_add {a b c : α} (h : c < a + b) : -b < a - c :=
+lt_sub_left_of_add_lt (sub_right_lt_of_lt_add h)
+
+lemma sub_lt_of_sub_lt {a b c : α} (h : a - b < c) : a - c < b :=
+sub_left_lt_of_lt_add (lt_add_of_sub_right_lt h)
+
+lemma sub_lt_sub_left {a b : α} (h : a < b) (c : α) : c - b < c - a :=
+add_lt_add_left (neg_lt_neg h) c
+
+lemma sub_lt_sub_right {a b : α} (h : a < b) (c : α) : a - c < b - c :=
+add_lt_add_right h (-c)
+
+lemma sub_lt_sub {a b c d : α} (hab : a < b) (hcd : c < d) : a - d < b - c :=
+add_lt_add hab (neg_lt_neg hcd)
+
+lemma sub_lt_sub_of_le_of_lt {a b c d : α} (hab : a ≤ b) (hcd : c < d) : a - d < b - c :=
+add_lt_add_of_le_of_lt hab (neg_lt_neg hcd)
+
+lemma sub_lt_sub_of_lt_of_le {a b c d : α} (hab : a < b) (hcd : c ≤ d) : a - d < b - c :=
+add_lt_add_of_lt_of_le hab (neg_le_neg hcd)
+
+lemma sub_le_self (a : α) {b : α} (h : b ≥ 0) : a - b ≤ a :=
+calc
+  a - b = a + -b : rfl
+    ... ≤ a + 0  : add_le_add_left (neg_nonpos_of_nonneg h) _
+    ... = a      : by rw add_zero
+
+lemma sub_lt_self (a : α) {b : α} (h : b > 0) : a - b < a :=
+calc
+  a - b = a + -b : rfl
+    ... < a + 0  : add_lt_add_left (neg_neg_of_pos h) _
+    ... = a      : by rw add_zero
+
+lemma add_le_add_three {a b c d e f : α} (h₁ : a ≤ d) (h₂ : b ≤ e) (h₃ : c ≤ f) :
+      a + b + c ≤ d + e + f :=
+begin
+  apply le_trans,
+  apply add_le_add,
+  apply add_le_add,
+  repeat {assumption},
+  apply le_refl
+end
+
+end ordered_comm_group
 
 class decidable_linear_ordered_mul_comm_group (α : Type u)
     extends comm_group α, decidable_linear_order α :=

@@ -58,6 +58,9 @@ simp_lemmas.drewrite_core reducible
    The resulting expression is definitionally equal to the input. -/
 meta constant simp_lemmas.dsimplify_core (max_steps : nat) (visit_instances : bool) : simp_lemmas → expr → tactic expr
 
+meta constant is_valid_simp_lemma_cnst : transparency → name → tactic bool
+meta constant is_valid_simp_lemma : transparency → expr → tactic bool
+
 def default_max_steps := 10000000
 
 meta def simp_lemmas.dsimplify : simp_lemmas → expr → tactic expr :=

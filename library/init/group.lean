@@ -79,6 +79,10 @@ inv_eq_of_mul_eq_one (mul_left_inv a)
 have a⁻¹⁻¹ * a⁻¹ = 1, by rw mul_left_inv,
 by rwa [inv_inv] at this
 
+lemma inv_inj [group α] {a b : α} (h : a⁻¹ = b⁻¹) : a = b :=
+have a = a⁻¹⁻¹, by simp,
+begin rw this, simp [h] end
+
 lemma group.mul_left_cancel [group α] {a b c : α} (h : a * b = a * c) : b = c :=
 have a⁻¹ * (a * b) = b, by simp,
 begin simp [h] at this, rw this end

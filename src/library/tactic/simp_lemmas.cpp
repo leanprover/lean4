@@ -654,7 +654,7 @@ static simp_lemmas add_core(type_context & ctx, simp_lemmas const & s, name cons
     lean_assert(ctx.in_tmp_mode());
     list<expr_pair> ceqvs   = to_ceqvs(ctx, e, h);
     if (is_nil(ceqvs)) {
-        report_failure(sstream() << "invalid [simp] lemma '" << id << "' : " << e);
+        report_failure(sstream() << "invalid simplification lemma '" << id << "' : " << e);
         return s;
     }
     environment const & env = ctx.env();
@@ -701,16 +701,20 @@ static bool is_rfl_lemma(environment const & env, name const & cname) {
     return lhs != rhs;
 }
 
-static simp_lemmas add_core(type_context & ctx, simp_lemmas const & s, name const & cname, unsigned priority) {
-    environment const & env = ctx.env();
-    type_context::tmp_mode_scope scope(ctx);
-    declaration const & d = env.get(cname);
+static levels mk_tmp_levels_for(type_context & ctx, declaration const & d) {
     buffer<level> us;
     unsigned num_univs = d.get_num_univ_params();
     for (unsigned i = 0; i < num_univs; i++) {
         us.push_back(ctx.mk_tmp_univ_mvar());
     }
-    levels ls = to_list(us);
+    return to_list(us);
+}
+
+static simp_lemmas add_core(type_context & ctx, simp_lemmas const & s, name const & cname, unsigned priority) {
+    environment const & env = ctx.env();
+    type_context::tmp_mode_scope scope(ctx);
+    declaration const & d = env.get(cname);
+    levels ls = mk_tmp_levels_for(ctx, d);
     expr type = instantiate_type_univ_params(d, ls);
     if (is_rfl_lemma(env, cname)) {
         buffer<expr> emetas;
@@ -801,7 +805,7 @@ static simp_lemmas add_congr_core(type_context & ctx, simp_lemmas const & s, nam
     }
     expr rel, lhs, rhs;
     if (!is_simp_relation(ctx.env(), rule, rel, lhs, rhs) || !is_constant(rel)) {
-        report_failure(sstream() << "invalid [congr] lemma, '" << n
+        report_failure(sstream() << "invalid congruence lemma, '" << n
                        << "' resulting type is not of the form t ~ s, where '~' is a transitive and reflexive relation");
     }
     name_set found_mvars;
@@ -810,7 +814,7 @@ static simp_lemmas add_congr_core(type_context & ctx, simp_lemmas const & s, nam
     expr const & rhs_fn = get_app_args(rhs, rhs_args);
     if (is_constant(lhs_fn)) {
         if (!is_constant(rhs_fn) || const_name(lhs_fn) != const_name(rhs_fn) || lhs_args.size() != rhs_args.size()) {
-            report_failure(sstream() << "invalid [congr] lemma, '" << n
+            report_failure(sstream() << "invalid congruence lemma, '" << n
                            << "' resulting type is not of the form (" << const_name(lhs_fn) << "  ...) "
                            << "~ (" << const_name(lhs_fn) << " ...), where ~ is '" << const_name(rel) << "'");
         }
@@ -818,7 +822,7 @@ static simp_lemmas add_congr_core(type_context & ctx, simp_lemmas const & s, nam
             if (is_sort(lhs_arg))
                 continue;
             if (!is_metavar(lhs_arg) || found_mvars.contains(mlocal_name(lhs_arg))) {
-                report_failure(sstream() << "invalid [congr] lemma, '" << n
+                report_failure(sstream() << "invalid congruence lemma, '" << n
                                << "' the left-hand-side of the congruence resulting type must be of the form ("
                                << const_name(lhs_fn) << " x_1 ... x_n), where each x_i is a distinct variable or a sort");
             }
@@ -826,17 +830,17 @@ static simp_lemmas add_congr_core(type_context & ctx, simp_lemmas const & s, nam
         }
     } else if (is_binding(lhs)) {
         if (lhs.kind() != rhs.kind()) {
-            report_failure(sstream() << "invalid [congr] lemma, '" << n
+            report_failure(sstream() << "invalid congruence lemma, '" << n
                            << "' kinds of the left-hand-side and right-hand-side of "
                            << "the congruence resulting type do not match");
         }
         if (!is_valid_congr_rule_binding_lhs(lhs, found_mvars)) {
-            report_failure(sstream() << "invalid [congr] lemma, '" << n
+            report_failure(sstream() << "invalid congruence lemma, '" << n
                            << "' left-hand-side of the congruence resulting type must "
                            << "be of the form (fun/Pi (x : A), B x)");
         }
     } else {
-        report_failure(sstream() << "invalid [congr] lemma, '" << n
+        report_failure(sstream() << "invalid congruence lemma, '" << n
                        << "' left-hand-side is not an application nor a binding");
     }
 
@@ -858,18 +862,18 @@ static simp_lemmas add_congr_core(type_context & ctx, simp_lemmas const & s, nam
             for (expr const & local : locals.as_buffer()) {
                 j++;
                 if (!only_found_mvars(mlocal_type(local), found_mvars)) {
-                    report_failure(sstream() << "invalid [congr] lemma, '" << n
+                    report_failure(sstream() << "invalid congruence lemma, '" << n
                                    << "' argument #" << j << " of parameter #" << (i+1) << " contains "
                                    << "unresolved parameters");
                 }
             }
             if (!only_found_mvars(h_lhs, found_mvars)) {
-                report_failure(sstream() << "invalid [congr] lemma, '" << n
+                report_failure(sstream() << "invalid congruence lemma, '" << n
                                << "' argument #" << (i+1) << " is not a valid hypothesis, the left-hand-side contains "
                                << "unresolved parameters");
             }
             if (!is_valid_congr_hyp_rhs(h_rhs, found_mvars)) {
-                report_failure(sstream() << "invalid [congr] lemma, '" << n
+                report_failure(sstream() << "invalid congruence lemma, '" << n
                                << "' argument #" << (i+1) << " is not a valid hypothesis, the right-hand-side must be "
                                << "of the form (m l_1 ... l_n) where m is parameter that was not "
                                << "'assigned/resolved' yet and l_i's are locals");
@@ -1383,6 +1387,40 @@ vm_obj simp_lemmas_drewrite(vm_obj const & m, vm_obj const & sls, vm_obj const &
     return simp_lemmas_drewrite_core(to_transparency_mode(m), to_simp_lemmas(sls), to_expr(e), to_tactic_state(s));
 }
 
+static bool is_valid_simp_lemma_cnst_core(transparency_mode const & m, name const & cname, tactic_state const & s) {
+    try {
+        type_context ctx = mk_type_context_for(s, m);
+        type_context::tmp_mode_scope scope(ctx);
+        declaration const & d = ctx.env().get(cname);
+        levels ls  = mk_tmp_levels_for(ctx, d);
+        expr type  = instantiate_type_univ_params(d, ls);
+        expr proof = mk_constant(cname, ls);
+        return !is_nil(to_ceqvs(ctx, type, proof));
+    } catch (exception &) {
+        return false;
+    }
+}
+
+vm_obj is_valid_simp_lemma_cnst(vm_obj const & m, vm_obj const & n, vm_obj const & s) {
+    return mk_tactic_success(mk_vm_bool(is_valid_simp_lemma_cnst_core(to_transparency_mode(m), to_name(n), to_tactic_state(s))),
+                             to_tactic_state(s));
+}
+
+static bool is_valid_simp_lemma_core(transparency_mode const & m, expr const & e, tactic_state const & s) {
+    try {
+        type_context ctx = mk_type_context_for(s, m);
+        expr type = ctx.infer(e);
+        return !is_nil(to_ceqvs(ctx, type, e));
+    } catch (exception &) {
+        return false;
+    }
+}
+
+vm_obj is_valid_simp_lemma(vm_obj const & m, vm_obj const & e, vm_obj const & s) {
+    return mk_tactic_success(mk_vm_bool(is_valid_simp_lemma_core(to_transparency_mode(m), to_expr(e), to_tactic_state(s))),
+                             to_tactic_state(s));
+}
+
 void initialize_simp_lemmas() {
     g_dummy               = new simp_lemma_cell();
     g_simp_lemmas_configs = new std::vector<simp_lemmas_config>();
@@ -1401,6 +1439,9 @@ void initialize_simp_lemmas() {
     DECLARE_VM_BUILTIN(name({"simp_lemmas", "add_congr_core"}),  simp_lemmas_add_congr);
     DECLARE_VM_BUILTIN(name({"simp_lemmas", "rewrite_core"}),    simp_lemmas_rewrite);
     DECLARE_VM_BUILTIN(name({"simp_lemmas", "drewrite_core"}),   simp_lemmas_drewrite);
+
+    DECLARE_VM_BUILTIN(name("is_valid_simp_lemma"), is_valid_simp_lemma);
+    DECLARE_VM_BUILTIN(name("is_valid_simp_lemma_cnst"), is_valid_simp_lemma_cnst);
 }
 
 void finalize_simp_lemmas() {

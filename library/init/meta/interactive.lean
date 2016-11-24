@@ -282,11 +282,11 @@ meta def injection (q : qexpr0) (hs : with_ident_list) : tactic unit :=
 do e ← to_expr q, tactic.injection_with e hs
 
 private meta def simp_lemmas.resolve_and_add (s : simp_lemmas) (n : name) : tactic simp_lemmas :=
-(do h ← get_local n, s^.add h)
+(do h ← get_local n, b ← is_valid_simp_lemma reducible h, guard b, s^.add h)
 <|>
-(s^.add_simp n)
+(do b ← is_valid_simp_lemma_cnst reducible n, guard b, s^.add_simp n)
 <|>
-fail ("invalid simp lemma '" ++ to_string n ++ "'")
+fail ("invalid simplification lemma '" ++ to_string n ++ "' (use command 'set_option trace.simp_lemmas true' for more details)")
 
 private meta def simp_lemmas.add_pexpr (s : simp_lemmas) (p : pexpr) : tactic simp_lemmas :=
 let e := pexpr.to_raw_expr p in

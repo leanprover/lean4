@@ -510,6 +510,7 @@ environment add_key_equivalence_cmd(parser & p) {
 
 static environment run_command_cmd(parser & p) {
     /* initial state for executing the tactic */
+    module::scope_pos_info scope_pos(p.pos());
     environment env      = p.env();
     options opts         = p.get_options();
     metavar_context mctx;

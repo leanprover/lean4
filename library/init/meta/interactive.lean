@@ -91,6 +91,9 @@ meta def intros : raw_ident_list → tactic unit
 | [] := tactic.intros >> skip
 | hs := intro_lst hs >> skip
 
+meta def rename : ident → ident → tactic unit :=
+tactic.rename
+
 meta def apply (q : qexpr0) : tactic unit :=
 to_expr q >>= tactic.apply
 

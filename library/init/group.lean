@@ -226,6 +226,9 @@ run_command transport_to_additive `one_inv `neg_zero
 run_command transport_to_additive `inv_inv `neg_neg
 run_command transport_to_additive `mul_right_inv `add_right_neg
 run_command transport_to_additive `mul_inv `neg_add_core
+run_command transport_to_additive `inv_inj `neg_inj
+run_command transport_to_additive `group.to_left_cancel_semigroup `add_group.to_left_cancel_add_semigroup
+run_command transport_to_additive `group.to_right_cancel_semigroup `add_group.to_right_cancel_add_semigroup
 
 section add_group
 variables [add_group α]

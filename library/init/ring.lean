@@ -73,7 +73,25 @@ attribute [class] ring
 instance to_add_comm_group_of_ring (α : Type u) [s : ring α] : add_comm_group α :=
 @ring.to_comm_group α s
 
-instance monoid_of_ring (α : Type u) [s : ring α] : monoid α := @ring.to_monoid α s
+instance monoid_of_ring (α : Type u) [s : ring α] : monoid α :=
+@ring.to_monoid α s
 
 instance distrib_of_ring (α : Type u) [s : ring α] : distrib α :=
 @ring.to_distrib α s
+
+lemma ring.mul_zero [ring α] (a : α) : a * 0 = 0 :=
+have a * 0 + 0 = a * 0 + a * 0, from calc
+     a * 0 + 0 = a * (0 + 0)   : by simp
+           ... = a * 0 + a * 0 : by rw left_distrib,
+show a * 0 = 0, from (add_left_cancel this)^.symm
+
+lemma ring.zero_mul [ring α] (a : α) : 0 * a = 0 :=
+have 0 * a + 0 = 0 * a + 0 * a, from calc
+  0 * a + 0 = (0 + 0) * a   : by simp
+        ... = 0 * a + 0 * a : by rewrite right_distrib,
+show 0 * a = 0, from  (add_left_cancel this)^.symm
+
+instance ring.to_semiring [s : ring α] : semiring α :=
+{ s with
+  mul_zero := ring.mul_zero,
+  zero_mul := ring.zero_mul }

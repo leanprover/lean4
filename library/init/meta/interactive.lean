@@ -263,6 +263,10 @@ meta def note (h : ident) (a : assign_tk) (q : qexpr0) : tactic unit :=
 do p ← to_expr_strict q,
    tactic.note h p
 
+meta def pose (h : ident) (a : assign_tk) (q : qexpr0) : tactic unit :=
+do p ← to_expr_strict q,
+   tactic.pose h p
+
 meta def trace_state : tactic unit :=
 tactic.trace_state
 

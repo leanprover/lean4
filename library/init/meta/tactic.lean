@@ -383,6 +383,11 @@ meta def note (n : name) (pr : expr) : tactic unit :=
 do t ← infer_type pr,
    definev n t pr
 
+/- Add (H : T) to the current goal, given a proof (pr : T) -/
+meta def pose (n : name) (pr : expr) : tactic unit :=
+do t ← infer_type pr,
+   assertv n t pr
+
 meta def whnf : expr → tactic expr :=
 whnf_core semireducible
 

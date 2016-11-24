@@ -80,8 +80,42 @@ instance monoid_of_ordered_ring (α : Type u) [s : ordered_ring α] : ordered_co
 instance zero_ne_one_class_of_ordered_ring (α : Type u) [s : ordered_ring α] : zero_ne_one_class α :=
 @ordered_ring.to_zero_ne_one_class α s
 
-/-
-TODO(Leo)
+lemma ordered_ring.mul_le_mul_of_nonneg_left [s : ordered_ring α] {a b c : α}
+        (h₁ : a ≤ b) (h₂ : 0 ≤ c) : c * a ≤ c * b :=
+have 0 ≤ b - a,       from sub_nonneg_of_le h₁,
+have 0 ≤ c * (b - a), from ordered_ring.mul_nonneg s c (b - a) h₂ this,
+begin
+  rw mul_sub_left_distrib at this,
+  apply le_of_sub_nonneg this
+end
+
+lemma ordered_ring.mul_le_mul_of_nonneg_right [s : ordered_ring α] {a b c : α}
+      (h₁ : a ≤ b) (h₂ : 0 ≤ c) : a * c ≤ b * c  :=
+have 0 ≤ b - a,       from sub_nonneg_of_le h₁,
+have 0 ≤ (b - a) * c, from ordered_ring.mul_nonneg s (b - a) c this h₂,
+begin
+  rw mul_sub_right_distrib at this,
+  apply le_of_sub_nonneg this
+end
+
+lemma ordered_ring.mul_lt_mul_of_pos_left [s : ordered_ring α] {a b c : α}
+       (h₁ : a < b) (h₂ : 0 < c) : c * a < c * b :=
+have 0 < b - a,       from sub_pos_of_lt h₁,
+have 0 < c * (b - a), from ordered_ring.mul_pos s c (b - a) h₂ this,
+begin
+  rw mul_sub_left_distrib at this,
+  apply lt_of_sub_pos this
+end
+
+lemma ordered_ring.mul_lt_mul_of_pos_right [s : ordered_ring α] {a b c : α}
+      (h₁ : a < b) (h₂ : 0 < c) : a * c < b * c :=
+have 0 < b - a,       from sub_pos_of_lt h₁,
+have 0 < (b - a) * c, from ordered_ring.mul_pos s (b - a) c this h₂,
+begin
+  rw mul_sub_right_distrib at this,
+  apply lt_of_sub_pos this
+end
+
 instance ordered_ring.to_ordered_semiring [s : ordered_ring α] : ordered_semiring α :=
 { s with
   mul_zero                   := mul_zero,
@@ -94,4 +128,3 @@ instance ordered_ring.to_ordered_semiring [s : ordered_ring α] : ordered_semiri
   mul_lt_mul_of_pos_left     := @ordered_ring.mul_lt_mul_of_pos_left α _,
   mul_lt_mul_of_pos_right    := @ordered_ring.mul_lt_mul_of_pos_right α _,
   lt_of_add_lt_add_left      := @lt_of_add_lt_add_left α _}
--/

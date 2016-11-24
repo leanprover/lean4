@@ -95,3 +95,33 @@ instance ring.to_semiring [s : ring α] : semiring α :=
 { s with
   mul_zero := ring.mul_zero,
   zero_mul := ring.zero_mul }
+
+lemma neg_mul_eq_neg_mul [s : ring α] (a b : α) : -(a * b) = -a * b :=
+neg_eq_of_add_eq_zero
+  begin rw [-right_distrib, add_right_neg, zero_mul] end
+
+lemma neg_mul_eq_mul_neg [s : ring α] (a b : α) : -(a * b) = a * -b :=
+neg_eq_of_add_eq_zero
+  begin rw [-left_distrib, add_right_neg, mul_zero] end
+
+@[simp] lemma neg_mul_eq_neg_mul_symm [s : ring α] (a b : α) : - a * b = - (a * b) :=
+eq.symm (neg_mul_eq_neg_mul a b)
+
+@[simp] lemma mul_neg_eq_neg_mul_symm [s : ring α] (a b : α) : a * - b = - (a * b) :=
+eq.symm (neg_mul_eq_mul_neg a b)
+
+lemma neg_mul_neg [s : ring α] (a b : α) : -a * -b = a * b :=
+by simp
+
+lemma neg_mul_comm [s : ring α] (a b : α) : -a * b = a * -b :=
+by simp
+
+lemma mul_sub_left_distrib [s : ring α] (a b c : α) : a * (b - c) = a * b - a * c :=
+calc
+   a * (b - c) = a * b + a * -c : left_distrib a b (-c)
+           ... = a * b - a * c  : by simp
+
+lemma mul_sub_right_distrib [s : ring α] (a b c : α) : (a - b) * c = a * c - b * c :=
+calc
+  (a - b) * c = a * c  + -b * c : right_distrib a (-b) c
+          ... = a * c - b * c   : by simp

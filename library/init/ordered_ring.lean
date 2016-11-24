@@ -128,3 +128,20 @@ instance ordered_ring.to_ordered_semiring [s : ordered_ring α] : ordered_semiri
   mul_lt_mul_of_pos_left     := @ordered_ring.mul_lt_mul_of_pos_left α _,
   mul_lt_mul_of_pos_right    := @ordered_ring.mul_lt_mul_of_pos_right α _,
   lt_of_add_lt_add_left      := @lt_of_add_lt_add_left α _}
+
+class linear_ordered_ring (α : Type u) extends ordered_ring α, linear_strong_order_pair α :=
+(zero_lt_one : lt zero one)
+
+instance linear_ordered_ring.to_linear_ordered_semiring [s : linear_ordered_ring α] : linear_ordered_semiring α :=
+{ s with
+  mul_zero                   := mul_zero,
+  zero_mul                   := zero_mul,
+  add_left_cancel            := @add_left_cancel α _,
+  add_right_cancel           := @add_right_cancel α _,
+  le_of_add_le_add_left      := @le_of_add_le_add_left α _,
+  mul_le_mul_of_nonneg_left  := @mul_le_mul_of_nonneg_left α _,
+  mul_le_mul_of_nonneg_right := @mul_le_mul_of_nonneg_right α _,
+  mul_lt_mul_of_pos_left     := @mul_lt_mul_of_pos_left α _,
+  mul_lt_mul_of_pos_right    := @mul_lt_mul_of_pos_right α _,
+  le_total                   := linear_ordered_ring.le_total,
+  lt_of_add_lt_add_left      := @lt_of_add_lt_add_left α _ }

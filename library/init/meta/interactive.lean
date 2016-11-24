@@ -129,10 +129,16 @@ match pexpr.to_raw_expr p with
 | _                      := none
 end
 
-private meta def resolve_name (n : name) : tactic expr :=
-get_local n
-<|>
-mk_const n
+private meta def resolve_name' (n : name) : tactic expr :=
+do {
+  e ← resolve_name n,
+  match e with
+  | expr.const n _           := mk_const n -- create metavars for universe levels
+  | expr.local_const _ _ _ _ := return e
+  | expr.macro _ _ _         := fail ("failed to resolve name '" ++ to_string n ++ "', it is overloaded")
+  | _                        := fail ("failed to resolve name '" ++ to_string n ++ "', unexpected result")
+  end
+}
 <|>
 fail ("failed to resolve name '" ++ to_string n ++ "'")
 
@@ -143,8 +149,8 @@ fail ("failed to resolve name '" ++ to_string n ++ "'")
 private meta def to_expr' (p : pexpr) : tactic expr :=
 let e := pexpr.to_raw_expr p in
 match e with
-| (const c [])          := do new_e ← resolve_name c, save_type_info new_e e, return new_e
-| (local_const c _ _ _) := do new_e ← resolve_name c, save_type_info new_e e, return new_e
+| (const c [])          := do new_e ← resolve_name' c, save_type_info new_e e, return new_e
+| (local_const c _ _ _) := do new_e ← resolve_name' c, save_type_info new_e e, return new_e
 | _                     := to_expr p
 end
 
@@ -285,9 +291,16 @@ meta def injection (q : qexpr0) (hs : with_ident_list) : tactic unit :=
 do e ← to_expr q, tactic.injection_with e hs
 
 private meta def simp_lemmas.resolve_and_add (s : simp_lemmas) (n : name) : tactic simp_lemmas :=
-(do h ← get_local n, b ← is_valid_simp_lemma reducible h, guard b, s^.add h)
-<|>
-(do b ← is_valid_simp_lemma_cnst reducible n, guard b, s^.add_simp n)
+do {
+  e ← resolve_name n,
+  match e with
+  | expr.const n _           :=
+    do b ← is_valid_simp_lemma_cnst reducible n, guard b, s^.add_simp n
+  | expr.local_const _ _ _ _ :=
+    do b ← is_valid_simp_lemma reducible e, guard b, s^.add e
+  | _ := failed
+  end
+}
 <|>
 fail ("invalid simplification lemma '" ++ to_string n ++ "' (use command 'set_option trace.simp_lemmas true' for more details)")
 

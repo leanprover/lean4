@@ -106,11 +106,12 @@ parser::local_scope::~local_scope() {
 }
 
 parser::quote_scope::quote_scope(parser & p, bool q):
-    m_p(p), m_id_behavior(m_p.m_id_behavior), m_in_quote(q), m_saved_in_pattern(p.m_in_pattern) {
+    m_p(p), m_id_behavior(m_p.m_id_behavior), m_in_quote(q),
+    m_saved_in_pattern(p.m_in_pattern) {
     m_p.m_in_pattern = false;
     if (q) {
         lean_assert(!m_p.m_in_quote);
-        m_p.m_id_behavior = id_behavior::AssumeLocalIfUndef;
+        m_p.m_id_behavior = id_behavior::AllLocal;
         m_p.m_in_quote = true;
         m_p.push_local_scope(false);
         m_p.m_quote_stack = cons(m_p.mk_parser_scope(), m_p.m_quote_stack);

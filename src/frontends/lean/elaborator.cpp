@@ -31,7 +31,11 @@ Author: Leonardo de Moura
 #include "library/private.h"
 #include "library/attribute_manager.h"
 #include "library/module.h"
+#include "library/scoped_ext.h"
+#include "library/protected.h"
+#include "library/aliases.h"
 #include "library/vm/vm.h"
+#include "library/vm/vm_name.h"
 #include "library/vm/vm_expr.h"
 #include "library/compiler/rec_fn_macro.h"
 #include "library/compiler/vm_compiler.h"
@@ -2786,34 +2790,86 @@ elaborate(environment & env, options const & opts,
 }
 
 // Auxiliary procedure for #translate
-static expr translate_local_name(environment const & env, local_context const & lctx, name const & local_name,
-                                 expr const & src) {
-    if (auto decl = lctx.get_local_decl_from_user_name(local_name)) {
+static expr resolve_local_name(environment const & env, local_context const & lctx, name const & id,
+                               expr const & src) {
+    /* check local context */
+    if (auto decl = lctx.get_local_decl_from_user_name(id)) {
         return copy_tag(src, decl->mk_ref());
     }
-    if (env.find(local_name)) {
-        if (is_local(src))
-            return copy_tag(src, mk_constant(local_name));
-        else
-            return src;
+
+    /* check in current namespaces */
+    for (name const & ns : get_namespaces(env)) {
+        auto new_id = ns + id;
+        if (!ns.is_anonymous() && env.find(new_id) &&
+            (!id.is_atomic() || !is_protected(env, new_id))) {
+            return copy_tag(src, mk_constant(new_id));
+        }
     }
-    if (local_name == "sorry")
-        return mk_constant(local_name);
-    throw elaborator_exception(src, format("unknown identifier '") + format(local_name) + format("'"));
+
+    /* check if exact name was provided */
+    if (!id.is_atomic()) {
+        name new_id = id;
+        new_id = remove_root_prefix(new_id);
+        if (env.find(new_id)) {
+            return copy_tag(src, mk_constant(new_id));
+        }
+    }
+
+    if (id == "sorry")
+        return copy_tag(src, mk_constant(id));
+
+    optional<expr> r;
+    // globals
+    if (env.find(id))
+        r = copy_tag(src, mk_constant(id));
+    // aliases
+    list<name> as = get_expr_aliases(env, id);
+    if (!is_nil(as)) {
+        buffer<expr> new_as;
+        if (r)
+            new_as.push_back(*r);
+        for (auto const & a : as) {
+            new_as.push_back(copy_tag(src, mk_constant(a)));
+        }
+        r = copy_tag(src, mk_choice(new_as.size(), new_as.data()));
+    }
+
+    if (!r)
+        throw elaborator_exception(src, format("unknown identifier '") + format(id) + format("'"));
+
+    return *r;
+}
+
+vm_obj tactic_resolve_local_name(vm_obj const & vm_id, vm_obj const & vm_s) {
+    name const & id        = to_name(vm_id);
+    tactic_state const & s = to_tactic_state(vm_s);
+    try {
+        optional<metavar_decl> g = s.get_main_goal_decl();
+        if (!g) return mk_no_goals_exception(s);
+        expr src; // dummy
+        return mk_tactic_success(to_obj(resolve_local_name(s.env(), g->get_context(), id, src)), s);
+    } catch (exception & ex) {
+        return mk_tactic_exception(ex, s);
+    }
 }
 
 /** \brief Translated local constants (and undefined constants) occurring in \c e into
     local constants provided by \c ctx.
     Throw exception is \c ctx does not contain the local constant. */
-static expr translate(environment const & env, local_context const & lctx, expr const & e) {
+static expr resolve_names(environment const & env, local_context const & lctx, expr const & e) {
     auto fn = [&](expr const & e) {
         if (is_placeholder(e) || is_by(e) || is_as_is(e)) {
             return some_expr(e); // ignore placeholders, nested tactics and as_is terms
         } else if (is_constant(e)) {
-            expr new_e = copy_tag(e, translate_local_name(env, lctx, const_name(e), e));
-            return some_expr(new_e);
+            if (!is_nil(const_levels(e))) {
+                /* universe level were provided, so the constant was already resolved at parsing time */
+                return some_expr(e);
+            } else {
+                expr new_e = copy_tag(e, resolve_local_name(env, lctx, const_name(e), e));
+                return some_expr(new_e);
+            }
         } else if (is_local(e)) {
-            expr new_e = copy_tag(e, translate_local_name(env, lctx, local_pp_name(e), e));
+            expr new_e = copy_tag(e, resolve_local_name(env, lctx, local_pp_name(e), e));
             return some_expr(new_e);
         } else {
             return none_expr();
@@ -2826,7 +2882,7 @@ expr nested_elaborate(environment & env, options const & opts, metavar_context &
                       expr const & e, bool relaxed) {
     optional<info_manager> infom;
     elaborator elab(env, opts, mctx, lctx, infom);
-    expr r = elab.elaborate(translate(env, lctx, e));
+    expr r = elab.elaborate(resolve_names(env, lctx, e));
     if (!relaxed)
         elab.ensure_no_unassigned_metavars(r);
     mctx = elab.mctx();
@@ -2893,6 +2949,7 @@ void initialize_elaborator() {
     register_incompatible("elab_with_expected_type", "elab_as_eliminator");
 
     DECLARE_VM_BUILTIN(name({"tactic", "save_type_info"}), tactic_save_type_info);
+    DECLARE_VM_BUILTIN(name({"tactic", "resolve_name"}),   tactic_resolve_local_name);
 }
 
 void finalize_elaborator() {

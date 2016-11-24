@@ -254,6 +254,8 @@ meta constant is_def_eq_core : transparency → expr → expr → tactic unit
 meta constant infer_type    : expr → tactic expr
 
 meta constant get_local     : name → tactic expr
+/- Resolve a name using the current local context, environment, aliases, etc. -/
+meta constant resolve_name  : name → tactic expr
 /- Return the hypothesis in the main goal. Fail if tactic_state does not have any goal left. -/
 meta constant local_context : tactic (list expr)
 meta constant get_unused_name : name → option nat → tactic name

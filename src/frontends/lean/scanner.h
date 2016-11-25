@@ -24,7 +24,9 @@ namespace lean {
 */
 class scanner {
 public:
-    enum class token_kind {Keyword, CommandKeyword, Identifier, Numeral, Decimal, String, Char, QuotedSymbol, Eof};
+    enum class token_kind {Keyword, CommandKeyword, Identifier, Numeral, Decimal,
+                           String, Char, QuotedSymbol,
+                           DocBlock, ModDocBlock, Eof};
 protected:
     token_table const * m_tokens;
     std::istream &      m_stream;
@@ -76,6 +78,9 @@ protected:
     token_kind read_number();
     token_kind read_key_cmd_id();
     token_kind read_quoted_symbol();
+    void read_doc_block_core();
+    token_kind read_doc_block();
+    token_kind read_mod_doc_block();
 
 public:
     scanner(std::istream & strm, char const * strm_name = nullptr);

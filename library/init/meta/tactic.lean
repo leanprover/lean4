@@ -345,6 +345,9 @@ meta constant generalize_core : transparency → expr → name → tactic unit
 meta constant instantiate_mvars : expr → tactic expr
 /- Add the given declaration to the environment -/
 meta constant add_decl : declaration → tactic unit
+/- (doc_string env d) return the doc string for d (if available) -/
+meta constant doc_string : name → tactic string
+meta constant add_doc_string : name → string → tactic unit
 /- (set_basic_attribute_core attr_name c_name persistent prio) set attribute attr_name for constant c_name with the given priority.
    If the priority is none, then use default -/
 meta constant set_basic_attribute_core : name → name → bool → option nat → tactic unit

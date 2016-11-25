@@ -16,4 +16,4 @@ add_library(library OBJECT deep_copy.cpp expr_lt.cpp io_state.cpp
   mpq_macro.cpp arith_instance_manager.cpp replace_visitor_with_tc.cpp
   aux_definition.cpp inverse.cpp library_system.cpp pattern_attribute.cpp choice.cpp
   locals.cpp normalize.cpp discr_tree.cpp
-  messages.cpp message_builder.cpp comp_val.cpp)
+  messages.cpp message_builder.cpp comp_val.cpp documentation.cpp)

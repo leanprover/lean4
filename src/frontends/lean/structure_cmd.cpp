@@ -38,6 +38,7 @@ Author: Leonardo de Moura
 #include "library/kernel_serializer.h"
 #include "library/type_context.h"
 #include "library/app_builder.h"
+#include "library/documentation.h"
 #include "library/compiler/vm_compiler.h"
 #include "library/constructions/rec_on.h"
 #include "library/constructions/induction_on.h"
@@ -84,6 +85,7 @@ struct structure_cmd_fn {
     name                        m_namespace;
     name                        m_name;
     name                        m_given_name;
+    optional<std::string>       m_doc_string;
     pos_info                    m_name_pos;
     buffer<name>                m_level_names;
     decl_attributes             m_attrs;
@@ -117,6 +119,7 @@ struct structure_cmd_fn {
         m_infer_result_universe    = false;
         m_inductive_predicate      = false;
         m_prio                     = get_default_priority(p.get_options());
+        m_doc_string               = p.get_doc_string();
     }
 
     void check_attrs(decl_attributes const & attrs, pos_info const & pos) const {
@@ -838,6 +841,11 @@ struct structure_cmd_fn {
         add_alias(no_confusion_name);
     }
 
+    void add_doc_string() {
+        if (m_doc_string)
+            m_env = ::lean::add_doc_string(m_env, m_name, *m_doc_string);
+    }
+
     environment operator()() {
         process_header();
         module::scope_pos_info scope(m_name_pos);
@@ -871,6 +879,7 @@ struct structure_cmd_fn {
         declare_projections();
         declare_auxiliary();
         declare_coercions();
+        add_doc_string();
         if (!m_inductive_predicate) {
             declare_no_confustion();
         }

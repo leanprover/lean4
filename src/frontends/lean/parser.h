@@ -147,6 +147,9 @@ class parser : public abstract_parser {
     // noncomputable definitions not tagged as noncomputable.
     bool                   m_ignore_noncomputable;
 
+    // Docgen
+    optional<std::string>  m_doc_string;
+
     void throw_parser_exception(char const * msg, pos_info p);
     void throw_nested_exception(throwable const & ex, pos_info p);
 
@@ -167,6 +170,10 @@ class parser : public abstract_parser {
 
     void parse_imports();
     void check_modules_up_to_date();
+    void parse_doc_block();
+    void parse_mod_doc_block();
+    void check_no_doc_string();
+    void reset_doc_string();
     void parse_command();
     bool parse_commands();
     unsigned curr_lbp_core() const;
@@ -265,6 +272,8 @@ public:
     pos_info pos_of(expr const & e) const { return pos_of(e, pos()); }
     pos_info cmd_pos() const { return m_last_cmd_pos; }
     name const & get_cmd_token() const { return m_cmd_token; }
+
+    optional<std::string> get_doc_string() const { return m_doc_string; }
 
     expr mk_app(expr fn, expr arg, pos_info const & p);
     expr mk_app(expr fn, buffer<expr> const & args, pos_info const & p);

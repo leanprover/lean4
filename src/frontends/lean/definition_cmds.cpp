@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <string>
 #include "util/timeit.h"
 #include "kernel/type_checker.h"
 #include "kernel/declaration.h"
@@ -19,6 +20,7 @@ Author: Leonardo de Moura
 #include "library/unfold_macros.h"
 #include "library/noncomputable.h"
 #include "library/module.h"
+#include "library/documentation.h"
 #include "library/scope_pos_info_provider.h"
 #include "library/replace_visitor.h"
 #include "library/equations_compiler/equations.h"
@@ -318,7 +320,8 @@ static expr fix_rec_fn_name(expr const & e, name const & c_name, name const & c_
 static pair<environment, name>
 declare_definition(parser & p, environment const & env, def_cmd_kind kind, buffer<name> const & lp_names,
                    name const & c_name, expr const & type, expr const & _val,
-                   decl_modifiers const & modifiers, decl_attributes attrs, pos_info const & pos) {
+                   decl_modifiers const & modifiers, decl_attributes attrs, optional<std::string> const & doc_string,
+                   pos_info const & pos) {
     auto env_n = mk_real_name(env, c_name, modifiers.m_is_private, pos);
     environment new_env = env_n.first;
     name c_real_name    = env_n.second;
@@ -349,6 +352,9 @@ declare_definition(parser & p, environment const & env, def_cmd_kind kind, buffe
 
     new_env = attrs.apply(new_env, p.ios(), c_real_name);
     new_env = compile_decl(p, new_env, kind, modifiers.m_is_noncomputable, c_name, c_real_name, pos);
+    if (doc_string) {
+        new_env = add_doc_string(new_env, c_real_name, *doc_string);
+    }
     return mk_pair(new_env, c_real_name);
 }
 
@@ -554,6 +560,7 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
     buffer<expr> params;
     expr fn, val;
     auto header_pos = p.pos();
+    optional<std::string> doc_string = p.get_doc_string();
     module::scope_pos_info scope_pos(header_pos);
     declaration_info_scope scope(p, kind, modifiers);
     bool is_example  = (kind == def_cmd_kind::Example);
@@ -582,7 +589,7 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
         }
         finalize_definition(elab, new_params, type, val, lp_names);
         name c_name = mlocal_name(fn);
-        auto env_n  = declare_definition(p, elab.env(), kind, lp_names, c_name, type, val, modifiers, attrs, header_pos);
+        auto env_n  = declare_definition(p, elab.env(), kind, lp_names, c_name, type, val, modifiers, attrs, doc_string, header_pos);
         if (kind == Example) return p.env();
         environment new_env = env_n.first;
         name c_real_name    = env_n.second;

@@ -1944,7 +1944,8 @@ unsigned parser::curr_lbp() const {
         else
             return get_token_info().expr_precedence();
     case scanner::token_kind::CommandKeyword: case scanner::token_kind::Eof:
-    case scanner::token_kind::QuotedSymbol:
+    case scanner::token_kind::QuotedSymbol:   case scanner::token_kind::DocBlock:
+    case scanner::token_kind::ModDocBlock:
         return 0;
     case scanner::token_kind::Identifier:     case scanner::token_kind::Numeral:
     case scanner::token_kind::Decimal:        case scanner::token_kind::String:
@@ -2028,11 +2029,22 @@ public:
     virtual optional<expr> is_stuck(expr const & e) override { return ctx().is_stuck(e); }
 };
 
+static name_set * g_documentable_cmds = nullptr;
+
+static bool support_docummentation(name const & n) {
+    return g_documentable_cmds->contains(n);
+}
+
 void parser::parse_command() {
     lean_assert(curr() == scanner::token_kind::CommandKeyword);
     m_last_cmd_pos = pos();
     name cmd_name = get_token_info().value();
     m_cmd_token = get_token_info().token();
+    if (m_doc_string && !support_docummentation(cmd_name)) {
+        next();
+        reset_doc_string();
+        throw parser_error(sstream() << "command '" << cmd_name << "' does not support doc string", m_last_cmd_pos);
+    }
     if (auto it = cmds().find(cmd_name)) {
         lazy_type_context tc(m_env, get_options());
         scope_global_ios scope1(m_ios);
@@ -2049,10 +2061,35 @@ void parser::parse_command() {
             m_env = it->get_fn()(*this);
         }
     } else {
+        reset_doc_string();
         auto p = pos();
         next();
         throw parser_error(sstream() << "unknown command '" << cmd_name << "'", p);
     }
+    reset_doc_string();
+}
+
+void parser::parse_doc_block() {
+    m_doc_string = m_scanner.get_str_val();
+    next();
+}
+
+void parser::parse_mod_doc_block() {
+    next();
+    // TODO(Leo): save doc string
+}
+
+void parser::check_no_doc_string() {
+    if (m_doc_string) {
+        auto p = pos();
+        next();
+        reset_doc_string();
+        throw parser_error("invalid occurrence of doc string immediately before current position", p);
+    }
+}
+
+void parser::reset_doc_string() {
+    m_doc_string = optional<std::string>();
 }
 
 static optional<std::string> try_file(std::string const & base, optional<unsigned> const & k, name const & f, char const * ext) {
@@ -2174,15 +2211,27 @@ bool parser::parse_commands() {
                     check_interrupted();
                     switch (curr()) {
                     case scanner::token_kind::CommandKeyword:
-                        if (curr_is_token(get_end_tk()))
+                        if (curr_is_token(get_end_tk())) {
+                            check_no_doc_string();
                             save_snapshot();
+                        }
                         parse_command();
                         save_snapshot();
                         break;
+                    case scanner::token_kind::DocBlock:
+                        check_no_doc_string();
+                        parse_doc_block();
+                        break;
+                    case scanner::token_kind::ModDocBlock:
+                        check_no_doc_string();
+                        parse_mod_doc_block();
+                        break;
                     case scanner::token_kind::Eof:
+                        check_no_doc_string();
                         done = true;
                         break;
                     case scanner::token_kind::Keyword:
+                        check_no_doc_string();
                         if (curr_is_token(get_period_tk())) {
                             next();
                             break;
@@ -2306,6 +2355,20 @@ void initialize_parser() {
                          "(lean parser) import modules in parallel");
     g_tmp_prefix = new name(name::mk_internal_unique_name());
     g_anonymous_inst_name_prefix = new name("_inst");
+    g_documentable_cmds = new name_set();
+
+    g_documentable_cmds->insert("namespace");
+    g_documentable_cmds->insert("definition");
+    g_documentable_cmds->insert("theorem");
+    g_documentable_cmds->insert("constant");
+    g_documentable_cmds->insert("axiom");
+    g_documentable_cmds->insert("meta");
+    g_documentable_cmds->insert("mutual");
+    g_documentable_cmds->insert("@[");
+    g_documentable_cmds->insert("protected");
+    g_documentable_cmds->insert("class");
+    g_documentable_cmds->insert("inductive");
+    g_documentable_cmds->insert("structure");
 }
 
 void finalize_parser() {
@@ -2313,5 +2376,6 @@ void finalize_parser() {
     delete g_tmp_prefix;
     delete g_parser_show_errors;
     delete g_parser_parallel_import;
+    delete g_documentable_cmds;
 }
 }

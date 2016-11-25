@@ -351,6 +351,32 @@ void scanner::read_single_line_comment() {
     }
 }
 
+void scanner::read_doc_block_core() {
+    m_buffer.clear();
+    while (true) {
+        check_not_eof("unexpected end of documentation block");
+        char c = curr();
+        next();
+        if (c == '-') {
+            if (curr() == '/') {
+                next();
+                return;
+            }
+        }
+        m_buffer += c;
+    }
+}
+
+auto scanner::read_doc_block() -> token_kind {
+    read_doc_block_core();
+    return token_kind::DocBlock;
+}
+
+auto scanner::read_mod_doc_block() -> token_kind {
+    read_doc_block_core();
+    return token_kind::ModDocBlock;
+}
+
 void scanner::read_comment_block() {
     unsigned nesting = 1;
     while (true) {
@@ -537,17 +563,23 @@ auto scanner::read_key_cmd_id() -> token_kind {
 
 static name * g_begin_comment_tk        = nullptr;
 static name * g_begin_comment_block_tk  = nullptr;
+static name * g_begin_doc_block_tk      = nullptr;
+static name * g_begin_mod_doc_block_tk  = nullptr;
 static name * g_pound_tk                = nullptr;
 
 void initialize_scanner() {
     g_begin_comment_tk       = new name("--");
     g_begin_comment_block_tk = new name("/-");
+    g_begin_doc_block_tk     = new name("/--");
+    g_begin_mod_doc_block_tk = new name("/-!");
     g_pound_tk               = new name("#");
 }
 
 void finalize_scanner() {
     delete g_begin_comment_tk;
     delete g_begin_comment_block_tk;
+    delete g_begin_doc_block_tk;
+    delete g_begin_mod_doc_block_tk;
     delete g_pound_tk;
 }
 
@@ -577,12 +609,16 @@ auto scanner::scan(environment const & env) -> token_kind {
             } else {
                 token_kind k = read_key_cmd_id();
                 if (k == token_kind::Keyword) {
-                    // We treat '(--', '(*', '--' as "keyword".
+                    // We treat '/-', '/--', '/-!', '--' as "keyword".
                     name const & n = m_token_info.value();
                     if (n == *g_begin_comment_tk)
                         read_single_line_comment();
                     else if (n == *g_begin_comment_block_tk)
                         read_comment_block();
+                    else if (n == *g_begin_doc_block_tk)
+                        return read_doc_block();
+                    else if (n == *g_begin_mod_doc_block_tk)
+                        return read_mod_doc_block();
                     else if (n == *g_pound_tk && curr() == '"')
                         return read_char();
                     else

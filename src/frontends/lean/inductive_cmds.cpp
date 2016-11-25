@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Daniel Selsam, Leonardo de Moura
 */
 #include <algorithm>
-#include <library/attribute_manager.h>
+#include <string>
 #include "util/sstream.h"
 #include "util/name_map.h"
 #include "util/fresh_name.h"
@@ -17,6 +17,7 @@ Authors: Daniel Selsam, Leonardo de Moura
 #include "kernel/free_vars.h"
 #include "library/scoped_ext.h"
 #include "library/locals.h"
+#include "library/attribute_manager.h"
 #include "library/deep_copy.h"
 #include "library/placeholder.h"
 #include "library/aliases.h"
@@ -27,6 +28,7 @@ Authors: Daniel Selsam, Leonardo de Moura
 #include "library/trace.h"
 #include "library/app_builder.h"
 #include "library/type_context.h"
+#include "library/documentation.h"
 #include "library/inductive_compiler/add_decl.h"
 #include "frontends/lean/decl_cmds.h"
 #include "frontends/lean/decl_util.h"
@@ -72,6 +74,7 @@ class inductive_cmd_fn {
     level                           m_u; // temporary auxiliary global universe used for inferring the result
                                          // universe of an inductive datatype declaration.
     bool                            m_infer_result_universe{false};
+    optional<std::string>           m_doc_string;
 
     [[ noreturn ]] void throw_error(char const * error_msg) const { throw parser_error(error_msg, m_pos); }
     [[ noreturn ]] void throw_error(sstream const & strm) const { throw parser_error(strm, m_pos); }
@@ -480,13 +483,20 @@ public:
         m_env = m_env.add_universe(tmp_global_univ_name());
         m_u = mk_global_univ(tmp_global_univ_name());
         check_attrs(m_attrs);
+        m_doc_string = p.get_doc_string();
     }
 
     void post_process(buffer<expr> const & new_params, buffer<expr> const & new_inds, buffer<buffer<expr> > const & new_intro_rules) {
         add_aliases(new_params, new_inds, new_intro_rules);
         add_namespaces(new_inds);
-        for (expr const & ind : new_inds)
+        for (expr const & ind : new_inds) {
             m_env = m_attrs.apply(m_env, m_p.ios(), mlocal_name(ind));
+            /* TODO(Leo): add support for doc-strings in mutual inductive definitions.
+               We are currently using the same doc string for all elements.
+            */
+            if (m_doc_string)
+                m_env = add_doc_string(m_env, mlocal_name(ind), *m_doc_string);
+        }
         if (!m_mut_attrs.empty()) {
             lean_assert(new_inds.size() == m_mut_attrs.size());
             for (unsigned i = 0; i < new_inds.size(); ++i)

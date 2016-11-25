@@ -28,6 +28,7 @@ Author: Leonardo de Moura
 #include "library/type_context.h"
 #include "library/reducible.h"
 #include "library/typed_expr.h"
+#include "library/documentation.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_string.h"
 #include "library/compiler/vm_compiler.h"
@@ -107,6 +108,9 @@ environment namespace_cmd(parser & p) {
     unsigned old_export_decls_sz = length(get_active_export_decls(p.env()));
     environment env = push_scope(p.env(), p.ios(), scope_kind::Namespace, n);
     env = activate_export_decls(env, get_namespace(env));
+    if (auto doc = p.get_doc_string()) {
+        env = add_doc_string(env, get_namespace(env), *doc);
+    }
     return replay_export_decls_core(env, p.ios(), old_export_decls_sz);
 }
 

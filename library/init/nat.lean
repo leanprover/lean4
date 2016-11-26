@@ -59,6 +59,9 @@ def {u} repeat {α : Type u} (f : ℕ → α → α) : ℕ → α → α
 instance : inhabited ℕ :=
 ⟨nat.zero⟩
 
+@[simp] lemma nat_zero_eq_zero : nat.zero = 0 :=
+rfl
+
 /- properties of inequality -/
 
 @[refl] protected def le_refl : ∀ a : ℕ, a ≤ a :=

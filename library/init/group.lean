@@ -97,14 +97,22 @@ instance group.to_left_cancel_semigroup [s : group α] : left_cancel_semigroup �
 instance group.to_right_cancel_semigroup [s : group α] : right_cancel_semigroup α :=
 { s with mul_right_cancel := @group.mul_right_cancel α s }
 
-lemma mul_inv_cancel_left [s : group α] (a b : α) : a * (a⁻¹ * b) = b :=
+lemma mul_inv_cancel_left [group α] (a b : α) : a * (a⁻¹ * b) = b :=
 by rw [-mul_assoc, mul_right_inv, one_mul]
 
-lemma mul_inv_cancel_right [s : group α] (a b : α) : a * b * b⁻¹ = a :=
+lemma mul_inv_cancel_right [group α] (a b : α) : a * b * b⁻¹ = a :=
 by rw [mul_assoc, mul_right_inv, mul_one]
 
-@[simp] lemma mul_inv [s : group α] (a b : α) : (a * b)⁻¹ = b⁻¹ * a⁻¹ :=
+@[simp] lemma mul_inv [group α] (a b : α) : (a * b)⁻¹ = b⁻¹ * a⁻¹ :=
 inv_eq_of_mul_eq_one begin rw [mul_assoc, -mul_assoc b, mul_right_inv, one_mul, mul_right_inv] end
+
+lemma eq_inv_of_eq_inv [group α] {a b : α} (h : a = b⁻¹) : b = a⁻¹ :=
+by simp [h]
+
+lemma eq_inv_of_mul_eq_one [group α] {a b : α} (h : a * b = 1) : a = b⁻¹ :=
+have a⁻¹ = b, from inv_eq_of_mul_eq_one h,
+by simp [this^.symm]
+
 
 /- αdditive "sister" structures.
    Example, add_semigroup mirrors semigroup.
@@ -229,6 +237,8 @@ run_command transport_to_additive `mul_inv `neg_add_core
 run_command transport_to_additive `inv_inj `neg_inj
 run_command transport_to_additive `group.to_left_cancel_semigroup `add_group.to_left_cancel_add_semigroup
 run_command transport_to_additive `group.to_right_cancel_semigroup `add_group.to_right_cancel_add_semigroup
+run_command transport_to_additive `eq_inv_of_eq_inv `eq_neg_of_eq_neg
+run_command transport_to_additive `eq_inv_of_mul_eq_one `eq_neg_of_add_eq_zero
 
 section add_group
 variables [add_group α]
@@ -258,6 +268,9 @@ lemma eq_of_sub_eq_zero {a b : α} (h : a - b = 0) : a = b :=
 have 0 + b = b, by rw zero_add,
 have (a - b) + b = b, by rwa h,
 by rwa [sub_eq_add_neg, neg_add_cancel_right] at this
+
+lemma sub_eq_zero_of_eq {a b : α} (h : a = b) : a - b = 0 :=
+by rw [h, sub_self]
 
 lemma zero_sub (a : α) : 0 - a = -a :=
 zero_add (-a)

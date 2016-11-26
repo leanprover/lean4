@@ -60,6 +60,26 @@ instance distrib_of_semiring (α : Type u) [s : semiring α] : distrib α :=
 instance mul_zero_class_of_semiring (α : Type u) [s : semiring α] : mul_zero_class α :=
 @semiring.to_mul_zero_class α s
 
+section semiring
+  variables [semiring α]
+
+  lemma one_add_one_eq_two : 1 + 1 = (2 : α) :=
+  begin unfold bit0, reflexivity end
+
+  lemma ne_zero_of_mul_ne_zero_right {a b : α} (h : a * b ≠ 0) : a ≠ 0 :=
+  suppose a = 0,
+  have a * b = 0, by rw [this, zero_mul],
+  h this
+
+  lemma ne_zero_of_mul_ne_zero_left {a b : α} (h : a * b ≠ 0) : b ≠ 0 :=
+  suppose b = 0,
+  have a * b = 0, by rw [this, mul_zero],
+  h this
+
+  lemma distrib_three_right (a b c d : α) : (a + b + c) * d = a * d + b * d + c * d :=
+  by simp [right_distrib]
+end semiring
+
 class comm_semiring (α : Type u) extends semiring α, comm_monoid α
 
 /- ring -/
@@ -125,3 +145,85 @@ lemma mul_sub_right_distrib [s : ring α] (a b c : α) : (a - b) * c = a * c - b
 calc
   (a - b) * c = a * c  + -b * c : right_distrib a (-b) c
           ... = a * c - b * c   : by simp
+
+class comm_ring (α : Type u) extends ring α, comm_semigroup α
+
+instance comm_ring.to_comm_semiring [s : comm_ring α] : comm_semiring α :=
+{ s with
+  mul_zero := mul_zero,
+  zero_mul := zero_mul }
+
+section comm_ring
+  variable [comm_ring α]
+
+  lemma mul_self_sub_mul_self_eq (a b : α) : a * a - b * b = (a + b) * (a - b) :=
+  by simp [right_distrib, left_distrib]
+
+  lemma mul_self_sub_one_eq (a : α) : a * a - 1 = (a + 1) * (a - 1) :=
+  by simp [right_distrib, left_distrib]
+
+  lemma add_mul_self_eq (a b : α) : (a + b) * (a + b) = a*a + 2*a*b + b*b :=
+  calc (a + b)*(a + b) = a*a + (1+1)*a*b + b*b : by simp [right_distrib, left_distrib]
+               ...     = a*a + 2*a*b + b*b     : by rw one_add_one_eq_two
+end comm_ring
+
+class no_zero_divisors (α : Type u) extends has_mul α, has_zero α :=
+(eq_zero_or_eq_zero_of_mul_eq_zero : ∀ a b : α, a * b = 0 → a = 0 ∨ b = 0)
+
+lemma eq_zero_or_eq_zero_of_mul_eq_zero [no_zero_divisors α] {a b : α} (h : a * b = 0) : a = 0 ∨ b = 0 :=
+no_zero_divisors.eq_zero_or_eq_zero_of_mul_eq_zero a b h
+
+lemma eq_zero_of_mul_self_eq_zero [no_zero_divisors α] {a : α} (h : a * a = 0) : a = 0 :=
+or.elim (eq_zero_or_eq_zero_of_mul_eq_zero h) (assume h', h') (assume h', h')
+
+class integral_domain (α : Type u) extends comm_ring α, no_zero_divisors α, zero_ne_one_class α
+
+section integral_domain
+  variable [integral_domain α]
+
+  lemma mul_ne_zero {a b : α} (h₁ : a ≠ 0) (h₂ : b ≠ 0) : a * b ≠ 0 :=
+  λ h, or.elim (eq_zero_or_eq_zero_of_mul_eq_zero h) (assume h₃, h₁ h₃) (assume h₄, h₂ h₄)
+
+  lemma eq_of_mul_eq_mul_right {a b c : α} (ha : a ≠ 0) (h : b * a = c * a) : b = c :=
+  have b * a - c * a = 0, from sub_eq_zero_of_eq h,
+  have (b - c) * a = 0,   by rw [mul_sub_right_distrib, this],
+  have b - c = 0,         from (eq_zero_or_eq_zero_of_mul_eq_zero this)^.resolve_right ha,
+  eq_of_sub_eq_zero this
+
+  lemma eq_of_mul_eq_mul_left {a b c : α} (ha : a ≠ 0) (h : a * b = a * c) : b = c :=
+  have a * b - a * c = 0, from sub_eq_zero_of_eq h,
+  have a * (b - c) = 0,   by rw [mul_sub_left_distrib, this],
+  have b - c = 0,         from (eq_zero_or_eq_zero_of_mul_eq_zero this)^.resolve_left ha,
+  eq_of_sub_eq_zero this
+
+  lemma eq_zero_of_mul_eq_self_right {a b : α} (h₁ : b ≠ 1) (h₂ : a * b = a) : a = 0 :=
+  have hb : b - 1 ≠ 0, from
+    suppose b - 1 = 0,
+    have b = 0 + 1, from eq_add_of_sub_eq this,
+    have b = 1,     by rwa zero_add at this,
+    h₁ this,
+  have a * b - a = 0,   by simp [h₂],
+  have a * (b - 1) = 0, by rwa [mul_sub_left_distrib, mul_one],
+    show a = 0, from (eq_zero_or_eq_zero_of_mul_eq_zero this)^.resolve_right hb
+
+  lemma eq_zero_of_mul_eq_self_left {a b : α} (h₁ : b ≠ 1) (h₂ : b * a = a) : a = 0 :=
+  eq_zero_of_mul_eq_self_right h₁ (by rwa mul_comm at h₂)
+
+  lemma mul_self_eq_mul_self_iff (a b : α) : a * a = b * b ↔ a = b ∨ a = -b :=
+  iff.intro
+    (suppose a * a = b * b,
+      have (a - b) * (a + b) = 0,
+        by rewrite [mul_comm, -mul_self_sub_mul_self_eq, this, sub_self],
+      have a - b = 0 ∨ a + b = 0, from eq_zero_or_eq_zero_of_mul_eq_zero this,
+      or.elim this
+        (suppose a - b = 0, or.inl (eq_of_sub_eq_zero this))
+        (suppose a + b = 0, or.inr (eq_neg_of_add_eq_zero this)))
+    (suppose a = b ∨ a = -b, or.elim this
+      (suppose a = b,  by rewrite this)
+      (suppose a = -b, by rewrite [this, neg_mul_neg]))
+
+  lemma mul_self_eq_one_iff (a : α) : a * a = 1 ↔ a = 1 ∨ a = -1 :=
+  have a * a = 1 * 1 ↔ a = 1 ∨ a = -1, from mul_self_eq_mul_self_iff a 1,
+  by rwa mul_one at this
+
+end integral_domain

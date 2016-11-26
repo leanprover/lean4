@@ -8,8 +8,10 @@ Author: Leonardo de Moura
 #include <string>
 #include "kernel/environment.h"
 namespace lean {
-environment add_doc_string(environment const & env, name const & n, std::string doc);
-optional<std::string> get_doc_string(environment const & env, name const & n);
+enum class doc_kind { Declaration, Namespace };
+char const * to_string(doc_kind k);
+environment add_doc_string(environment const & env, name const & n, std::string, doc_kind k);
+optional<std::string> get_doc_string(environment const & env, name const & n, doc_kind k);
 void initialize_documentation();
 void finalize_documentation();
 }

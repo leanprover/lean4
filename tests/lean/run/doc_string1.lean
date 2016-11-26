@@ -40,9 +40,9 @@ end foo
 
 run_command do
   trace "--------",
-  doc_string `foo >>= trace,
+  namespace_doc_string `foo >>= trace,
   trace "--------",
-  doc_string `foo.bla >>= trace,
+  namespace_doc_string `foo.bla >>= trace,
   trace "--------",
   doc_string `foo.bla.single >>= trace
 

@@ -495,7 +495,7 @@ public:
                We are currently using the same doc string for all elements.
             */
             if (m_doc_string)
-                m_env = add_doc_string(m_env, mlocal_name(ind), *m_doc_string);
+                m_env = add_doc_string(m_env, mlocal_name(ind), *m_doc_string, doc_kind::Declaration);
         }
         if (!m_mut_attrs.empty()) {
             lean_assert(new_inds.size() == m_mut_attrs.size());

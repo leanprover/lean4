@@ -9,10 +9,11 @@ Author: Leonardo de Moura
 #include <functional>
 #include "util/sstream.h"
 #include "library/module.h"
+#include "library/documentation.h"
 
 namespace lean {
 struct documentation_ext : public environment_extension {
-    name_map<std::string> m_doc_strings;  // map: declaration/namespace -> doc string
+    name_map<std::string> m_doc_strings[2];  // map: declaration [0] namespace [1] -> doc string
 };
 
 struct documentation_ext_reg {
@@ -97,20 +98,22 @@ static std::string process_doc(std::string s) {
     return unindent(s);
 }
 
-environment add_doc_string(environment const & env, name const & n, std::string doc) {
+environment add_doc_string(environment const & env, name const & n, std::string doc, doc_kind k) {
+    unsigned idx = static_cast<unsigned>(k);
     doc = process_doc(doc);
     auto ext = get_extension(env);
-    if (ext.m_doc_strings.contains(n)) {
+    if (ext.m_doc_strings[idx].contains(n)) {
         throw exception(sstream() << "environment already contains a doc string for '" << n << "'");
     }
-    ext.m_doc_strings.insert(n, doc);
+    ext.m_doc_strings[idx].insert(n, doc);
     auto new_env = update(env, ext);
-    return module::add(new_env, *g_doc_key, [=](environment const &, serializer & s) { s << n << doc; });
+    return module::add(new_env, *g_doc_key, [=](environment const &, serializer & s) { s << n << doc << idx; });
 }
 
-optional<std::string> get_doc_string(environment const & env, name const & n) {
+optional<std::string> get_doc_string(environment const & env, name const & n, doc_kind k) {
+    unsigned idx = static_cast<unsigned>(k);
     auto ext = get_extension(env);
-    if (auto r = ext.m_doc_strings.find(n))
+    if (auto r = ext.m_doc_strings[idx].find(n))
         return optional<std::string>(*r);
     else
         return optional<std::string>();
@@ -119,13 +122,21 @@ optional<std::string> get_doc_string(environment const & env, name const & n) {
 static void documentation_reader(deserializer & d, shared_environment & senv,
                                  std::function<void(asynch_update_fn const &)> &,
                                  std::function<void(delayed_update_fn const &)> &) {
-    name n; std::string doc;
-    d >> n >> doc;
+    name n; std::string doc; unsigned idx;
+    d >> n >> doc >> idx;
     senv.update([=](environment const & env) -> environment {
             auto ext = get_extension(env);
-            ext.m_doc_strings.insert(n, doc);
+            ext.m_doc_strings[idx].insert(n, doc);
             return update(env, ext);
         });
+}
+
+char const * to_string(doc_kind k) {
+    switch (k) {
+    case doc_kind::Declaration: return "declaration";
+    case doc_kind::Namespace:   return "namespace";
+    default: lean_unreachable();
+    }
 }
 
 void initialize_documentation() {

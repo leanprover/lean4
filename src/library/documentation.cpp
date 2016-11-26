@@ -5,6 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
+#include <algorithm>
+#include <functional>
 #include "util/sstream.h"
 #include "library/module.h"
 
@@ -29,7 +31,74 @@ static environment update(environment const & env, documentation_ext const & ext
 static name * g_documentation = nullptr;
 static std::string * g_doc_key = nullptr;
 
-environment add_doc_string(environment const & env, name const & n, std::string const & doc) {
+static void remove_blank_lines_begin(std::string & s) {
+    optional<std::string::iterator> found;
+    for (auto it = s.begin(); it != s.end(); it++) {
+        if (*it == '\n') {
+            found = it + 1;
+        } else if (!isspace(*it)) {
+            break;
+        }
+    }
+    if (found)
+        s.erase(s.begin(), *found);
+}
+
+static void rtrim(std::string & s) {
+    s.erase(std::find_if(s.rbegin(), s.rend(),
+                         std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
+}
+
+static unsigned get_indentation(std::string const & s) {
+    optional<unsigned> r;
+    bool searching = true;
+    unsigned i = 0;
+    for (auto it = s.begin(); it != s.end(); it++) {
+        if (*it == '\n') {
+            i = 0;
+            searching = true;
+        } else if (isspace(*it) && searching) {
+            i++;
+        } else if (searching) {
+            searching = false;
+            if (r)
+                r = std::min(*r, i);
+            else
+                r = i;
+        }
+    }
+    return r ? *r : 0;
+}
+
+static std::string unindent(std::string const & s) {
+    unsigned i = get_indentation(s);
+    if (i > 0) {
+        std::string r;
+        unsigned j = 0;
+        for (auto it = s.begin(); it != s.end(); it++) {
+            if (*it == '\n') {
+                j = 0;
+                r += *it;
+            } else if (j < i) {
+                j++;
+            } else {
+                r += *it;
+            }
+        }
+        return r;
+    } else {
+        return s;
+    }
+}
+
+static std::string process_doc(std::string s) {
+    remove_blank_lines_begin(s);
+    rtrim(s);
+    return unindent(s);
+}
+
+environment add_doc_string(environment const & env, name const & n, std::string doc) {
+    doc = process_doc(doc);
     auto ext = get_extension(env);
     if (ext.m_doc_strings.contains(n)) {
         throw exception(sstream() << "environment already contains a doc string for '" << n << "'");

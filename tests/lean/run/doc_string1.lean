@@ -1,6 +1,9 @@
 /--
 Documentation for x
 
+```
+eval x + x
+```
 Testing...
 -/
 def x := 10 + 20
@@ -23,7 +26,12 @@ run_command do
 namespace foo
   /-- Documentation for bla -/
   namespace bla
-  /-- Documentation for single -/
+  /--
+    Documentation for single
+    testing...
+     hello
+      world
+  -/
   inductive single
   | unit
 
@@ -31,18 +39,26 @@ namespace foo
 end foo
 
 run_command do
+  trace "--------",
   doc_string `foo >>= trace,
+  trace "--------",
   doc_string `foo.bla >>= trace,
+  trace "--------",
   doc_string `foo.bla.single >>= trace
 
 
-/-- Documentation for constant A -/
+/-- Documentation for constant A
+ foo -/
 constant A : Type
 
 run_command doc_string `A >>= trace
 
-/-- Documentation for point -/
+/--Documentation for point
+test
+
+ -/
 structure point :=
 (x : nat) (y : nat)
 
 run_command doc_string `point >>= trace
+print "----------"

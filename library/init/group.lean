@@ -356,4 +356,31 @@ by simp
 lemma neg_neg_sub_neg (a b : α) : - (-a - -b) = a - b :=
 by simp
 
+@[simp] lemma neg_add_rev (a b : α) : -(a + b) = -b + -a :=
+neg_eq_of_add_eq_zero (by simp)
+
+lemma eq_add_neg_of_add_eq {a b c : α} (h : a + c = b) : a = b + -c :=
+by simp [h^.symm]
+
+lemma eq_neg_add_of_add_eq {a b c : α} (h : b + a = c) : a = -b + c :=
+by simp [h^.symm]
+
+lemma neg_add_eq_of_eq_add {a b c : α} (h : b = a + c) : -a + b = c :=
+by simp [h]
+
+lemma add_neg_eq_of_eq_add {a b c : α} (h : a = c + b) : a + -b = c :=
+by simp [h]
+
+lemma eq_add_of_add_neg_eq {a b c : α} (h : a + -c = b) : a = b + c :=
+by simp [h^.symm]
+
+lemma eq_add_of_neg_add_eq {a b c : α} (h : -b + a = c) : a = b + c :=
+by simp [h^.symm]
+
+lemma add_eq_of_eq_neg_add {a b c : α} (h : b = -a + c) : a + b = c :=
+by rw [h, add_neg_cancel_left]
+
+lemma add_eq_of_eq_add_neg {a b c : α} (h : a = c + -b) : a + b = c :=
+by simp [h]
+
 end add_comm_group

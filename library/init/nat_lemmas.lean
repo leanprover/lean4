@@ -545,4 +545,14 @@ protected lemma one_le_bit0 : ∀ (n : ℕ), n ≠ 0 → 1 ≤ bit0 n
     eq.symm (nat.bit0_succ_eq n) ▸ this,
   succ_le_succ (zero_le (succ (bit0 n)))
 
+/- Extra instances to short-circuit type class resolution -/
+instance : add_comm_monoid nat    := by apply_instance
+instance : add_monoid nat         := by apply_instance
+instance : monoid nat             := by apply_instance
+instance : comm_monoid nat        := by apply_instance
+instance : comm_semigroup nat     := by apply_instance
+instance : semigroup nat          := by apply_instance
+instance : add_comm_semigroup nat := by apply_instance
+instance : add_semigroup nat      := by apply_instance
+
 end nat

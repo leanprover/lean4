@@ -36,9 +36,10 @@ Author: Leonardo de Moura
 #include "frontends/lean/dependencies.h"
 #include "frontends/lean/opt_cmd.h"
 #include "frontends/smt2/parser.h"
+#include "frontends/lean/json.h"
 #include "init/init.h"
 #include "shell/simple_pos_info_provider.h"
-#include "frontends/lean/json.h"
+#include "shell/leandoc.h"
 #if defined(LEAN_SERVER)
 #include "shell/server.h"
 #endif
@@ -89,6 +90,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  --githash         display the git commit hash number used to build this binary\n";
     std::cout << "  --path            display the path used for finding Lean libraries and extensions\n";
     std::cout << "  --output=file -o  save the final environment in binary format in the given file\n";
+    std::cout << "  --doc=file -r     generate module documentation based on module doc strings\n";
     std::cout << "  --trust=num -t    trust level (default: max) 0 means do not trust any macro,\n"
               << "                    and type check all imported modules\n";
     std::cout << "  --quiet -q        do not print verbose messages\n";
@@ -144,6 +146,7 @@ static struct option g_long_options[] = {
     {"json",         no_argument,       0, 'J'},
     {"server",       no_argument,       0, 'S'},
 #endif
+    {"doc",          required_argument, 0, 'r'},
 #if defined(LEAN_USE_BOOST)
     {"tstack",       required_argument, 0, 's'},
 #endif
@@ -158,7 +161,7 @@ static struct option g_long_options[] = {
     {0, 0, 0, 0}
 };
 
-#define OPT_STR "PFdD:qupgvhk:012t:012o:E:L:012O:012GZAIT:B:"
+#define OPT_STR "rPFdD:qupgvhk:012t:012o:E:L:012O:012GZAIT:B:"
 
 #if defined(LEAN_TRACK_MEMORY)
 #define OPT_STR2 OPT_STR "M:012"
@@ -261,6 +264,7 @@ int main(int argc, char ** argv) {
     optional<std::string> export_txt;
     optional<std::string> export_all_txt;
     optional<std::string> base_dir;
+    optional<std::string> doc;
     while (true) {
         int c = getopt_long(argc, argv, g_opt_str, g_long_options, NULL);
         if (c == -1)
@@ -290,6 +294,9 @@ int main(int argc, char ** argv) {
         case 'o':
             output         = optarg;
             export_objects = true;
+            break;
+        case 'r':
+            doc = optarg;
             break;
         case 'M':
             lean::set_max_memory_megabyte(atoi(optarg));
@@ -427,6 +434,11 @@ int main(int argc, char ** argv) {
             exclusive_file_lock export_lock(*export_all_txt);
             std::ofstream out(*export_all_txt);
             export_all_as_lowtext(out, env);
+        }
+        if (doc) {
+            exclusive_file_lock export_lock(*doc);
+            std::ofstream out(*doc);
+            gen_doc(env, opts, out);
         }
         return ok ? 0 : 1;
     } catch (lean::throwable & ex) {

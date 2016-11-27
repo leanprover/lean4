@@ -641,6 +641,27 @@ vm_obj tactic_add_doc_string(vm_obj const & n, vm_obj const & doc, vm_obj const 
     }
 }
 
+/* meta constant module_doc_strings : tactic (list (option name × string)) */
+vm_obj tactic_module_doc_strings(vm_obj const & _s) {
+    tactic_state const & s  = to_tactic_state(_s);
+    buffer<doc_entry> entries;
+    get_module_doc_strings(s.env(), entries);
+    unsigned i = entries.size();
+    vm_obj r   = mk_vm_simple(0);
+    while (i > 0) {
+        --i;
+        vm_obj decl_name;
+        if (auto d = entries[i].get_decl_name())
+            decl_name = mk_vm_some(to_obj(*d));
+        else
+            decl_name = mk_vm_none();
+        vm_obj doc = to_obj(entries[i].get_doc());
+        vm_obj e   = mk_vm_pair(decl_name, doc);
+        r          = mk_vm_constructor(1, e, r);
+    }
+    return mk_tactic_success(r, s);
+}
+
 void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic_state", "env"}),            tactic_state_env);
     DECLARE_VM_BUILTIN(name({"tactic_state", "format_expr"}),    tactic_state_format_expr);
@@ -675,6 +696,7 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic", "add_decl"}),             tactic_add_decl);
     DECLARE_VM_BUILTIN(name({"tactic", "doc_string"}),           tactic_doc_string);
     DECLARE_VM_BUILTIN(name({"tactic", "add_doc_string"}),       tactic_add_doc_string);
+    DECLARE_VM_BUILTIN(name({"tactic", "module_doc_strings"}),   tactic_module_doc_strings);
     DECLARE_VM_BUILTIN(name({"tactic", "opened_namespaces"}),    tactic_opened_namespaces);
     g_pp_instantiate_goal_mvars = new name{"pp", "instantiate_goal_mvars"};
     register_bool_option(*g_pp_instantiate_goal_mvars, LEAN_DEFAULT_PP_INSTANTIATE_GOAL_MVARS,

@@ -8,8 +8,7 @@ Author: Leonardo de Moura
 #include <string>
 #include <limits>
 #include <vector>
-#include <util/utf8.h>
-#include <library/export_decl.h>
+#include "util/utf8.h"
 #include "util/interrupt.h"
 #include "util/sstream.h"
 #include "util/flet.h"
@@ -21,6 +20,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "kernel/error_msgs.h"
+#include "library/export_decl.h"
 #include "library/trace.h"
 #include "library/exception.h"
 #include "library/aliases.h"
@@ -40,12 +40,13 @@ Author: Leonardo de Moura
 #include "library/num.h"
 #include "library/string.h"
 #include "library/sorry.h"
+#include "library/documentation.h"
 #include "library/pp_options.h"
 #include "library/noncomputable.h"
 #include "library/scope_pos_info_provider.h"
 #include "library/type_context.h"
-#include "library/equations_compiler/equations.h"
 #include "library/pattern_attribute.h"
+#include "library/equations_compiler/equations.h"
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/builtin_exprs.h"
 #include "frontends/lean/parser.h"
@@ -2075,8 +2076,8 @@ void parser::parse_doc_block() {
 }
 
 void parser::parse_mod_doc_block() {
+    m_env = add_module_doc_string(m_env, m_scanner.get_str_val());
     next();
-    // TODO(Leo): save doc string
 }
 
 void parser::check_no_doc_string() {

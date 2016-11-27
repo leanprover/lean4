@@ -13,7 +13,10 @@ Author: Leonardo de Moura
 
 namespace lean {
 struct documentation_ext : public environment_extension {
-    name_map<std::string> m_doc_strings;
+    /** Doc string for the current module being processed. It does not include imported doc strings. */
+    list<doc_entry>       m_module_doc;
+    /** Doc strings for declarations (including imported ones). We store doc_strings for declarations in the .olean files. */
+    name_map<std::string> m_doc_string_map;
 };
 
 struct documentation_ext_reg {
@@ -98,23 +101,37 @@ static std::string process_doc(std::string s) {
     return unindent(s);
 }
 
+environment add_module_doc_string(environment const & env, std::string doc) {
+    doc = process_doc(doc);
+    auto ext = get_extension(env);
+    ext.m_module_doc = cons(doc_entry(doc), ext.m_module_doc);
+    return update(env, ext);
+}
+
 environment add_doc_string(environment const & env, name const & n, std::string doc) {
     doc = process_doc(doc);
     auto ext = get_extension(env);
-    if (ext.m_doc_strings.contains(n)) {
+    if (ext.m_doc_string_map.contains(n)) {
         throw exception(sstream() << "environment already contains a doc string for '" << n << "'");
     }
-    ext.m_doc_strings.insert(n, doc);
+    ext.m_doc_string_map.insert(n, doc);
+    ext.m_module_doc = cons(doc_entry(n, doc), ext.m_module_doc);
     auto new_env = update(env, ext);
     return module::add(new_env, *g_doc_key, [=](environment const &, serializer & s) { s << n << doc; });
 }
 
 optional<std::string> get_doc_string(environment const & env, name const & n) {
     auto ext = get_extension(env);
-    if (auto r = ext.m_doc_strings.find(n))
+    if (auto r = ext.m_doc_string_map.find(n))
         return optional<std::string>(*r);
     else
         return optional<std::string>();
+}
+
+void get_module_doc_strings(environment const & env, buffer<doc_entry> & result) {
+    auto ext = get_extension(env);
+    to_buffer(ext.m_module_doc, result);
+    std::reverse(result.begin(), result.end());
 }
 
 static void documentation_reader(deserializer & d, shared_environment & senv,
@@ -124,7 +141,7 @@ static void documentation_reader(deserializer & d, shared_environment & senv,
     d >> n >> doc;
     senv.update([=](environment const & env) -> environment {
             auto ext = get_extension(env);
-            ext.m_doc_strings.insert(n, doc);
+            ext.m_doc_string_map.insert(n, doc);
             return update(env, ext);
         });
 }

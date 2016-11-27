@@ -108,9 +108,6 @@ environment namespace_cmd(parser & p) {
     unsigned old_export_decls_sz = length(get_active_export_decls(p.env()));
     environment env = push_scope(p.env(), p.ios(), scope_kind::Namespace, n);
     env = activate_export_decls(env, get_namespace(env));
-    if (auto doc = p.get_doc_string()) {
-        env = add_doc_string(env, get_namespace(env), *doc, doc_kind::Namespace);
-    }
     return replay_export_decls_core(env, p.ios(), old_export_decls_sz);
 }
 

@@ -345,11 +345,9 @@ meta constant generalize_core : transparency → expr → name → tactic unit
 meta constant instantiate_mvars : expr → tactic expr
 /- Add the given declaration to the environment -/
 meta constant add_decl : declaration → tactic unit
-inductive doc_kind
-| decl | nspace
 /- (doc_string env d k) return the doc string for d (if available) -/
-meta constant doc_string_core : name → doc_kind → tactic string
-meta constant add_doc_string_core : name → string → doc_kind → tactic unit
+meta constant doc_string : name → tactic string
+meta constant add_doc_string : name → string → tactic unit
 /- (set_basic_attribute_core attr_name c_name persistent prio) set attribute attr_name for constant c_name with the given priority.
    If the priority is none, then use default -/
 meta constant set_basic_attribute_core : name → name → bool → option nat → tactic unit
@@ -374,18 +372,6 @@ meta constant save_type_info : expr → expr → tactic unit
 /- Return list of currently opened namespace -/
 meta constant opened_namespaces : tactic (list name)
 open list nat
-
-meta def doc_string (n : name) : tactic string :=
-doc_string_core n doc_kind.decl
-
-meta def namespace_doc_string (n : name) : tactic string :=
-doc_string_core n doc_kind.nspace
-
-meta def add_doc_string (n : name) (d : string) : tactic unit :=
-add_doc_string_core n d doc_kind.decl
-
-meta def add_namespace_doc_string (n : name) (d : string) : tactic unit :=
-add_doc_string_core n d doc_kind.nspace
 
 /- Remark: set_goals will erase any solved goal -/
 meta def cleanup : tactic unit :=

@@ -843,7 +843,7 @@ struct structure_cmd_fn {
 
     void add_doc_string() {
         if (m_doc_string)
-            m_env = ::lean::add_doc_string(m_env, m_name, *m_doc_string, doc_kind::Declaration);
+            m_env = ::lean::add_doc_string(m_env, m_name, *m_doc_string);
     }
 
     environment operator()() {

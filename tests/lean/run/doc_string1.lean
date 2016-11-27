@@ -22,9 +22,7 @@ run_command do
   d   ← doc_string `y,
   trace d
 
-/-- Documentation for foo -/
 namespace foo
-  /-- Documentation for bla -/
   namespace bla
   /--
     Documentation for single
@@ -39,10 +37,6 @@ namespace foo
 end foo
 
 run_command do
-  trace "--------",
-  namespace_doc_string `foo >>= trace,
-  trace "--------",
-  namespace_doc_string `foo.bla >>= trace,
   trace "--------",
   doc_string `foo.bla.single >>= trace
 

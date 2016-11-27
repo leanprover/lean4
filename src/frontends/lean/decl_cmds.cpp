@@ -127,7 +127,7 @@ static environment declare_var(parser & p, environment env,
             env = module::add(env, check(env, mk_constant_assumption(full_n, ls, new_type, is_trusted)));
         }
         if (auto doc = p.get_doc_string())
-            env = add_doc_string(env, full_n, *doc, doc_kind::Declaration);
+            env = add_doc_string(env, full_n, *doc);
         if (!ns.is_anonymous()) {
             if (modifiers.m_is_protected)
                 env = add_expr_alias(env, get_protected_shortest_name(full_n), full_n);

@@ -353,7 +353,7 @@ declare_definition(parser & p, environment const & env, def_cmd_kind kind, buffe
     new_env = attrs.apply(new_env, p.ios(), c_real_name);
     new_env = compile_decl(p, new_env, kind, modifiers.m_is_noncomputable, c_name, c_real_name, pos);
     if (doc_string) {
-        new_env = add_doc_string(new_env, c_real_name, *doc_string, doc_kind::Declaration);
+        new_env = add_doc_string(new_env, c_real_name, *doc_string);
     }
     return mk_pair(new_env, c_real_name);
 }

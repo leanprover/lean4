@@ -622,27 +622,19 @@ vm_obj tactic_opened_namespaces(vm_obj const & s) {
     return mk_tactic_success(to_obj(get_namespaces(env)), to_tactic_state(s));
 }
 
-doc_kind to_doc_kind(vm_obj const & k) {
-    switch (cidx(k)) {
-    case 0: return doc_kind::Declaration;
-    case 1: return doc_kind::Namespace;
-    default: lean_unreachable();
-    }
-}
-
-vm_obj tactic_doc_string(vm_obj const & n, vm_obj const & k, vm_obj const & _s) {
+vm_obj tactic_doc_string(vm_obj const & n, vm_obj const & _s) {
     tactic_state const & s  = to_tactic_state(_s);
-    if (optional<std::string> doc = get_doc_string(s.env(), to_name(n), to_doc_kind(k))) {
+    if (optional<std::string> doc = get_doc_string(s.env(), to_name(n))) {
         return mk_tactic_success(to_obj(*doc), s);
     } else {
-        return mk_tactic_exception(sstream() << "no doc string for " << to_string(to_doc_kind(k)) << ": '" << to_name(n) << "'", s);
+        return mk_tactic_exception(sstream() << "no doc string for '" << to_name(n) << "'", s);
     }
 }
 
-vm_obj tactic_add_doc_string(vm_obj const & n, vm_obj const & doc, vm_obj const & k, vm_obj const & _s) {
+vm_obj tactic_add_doc_string(vm_obj const & n, vm_obj const & doc, vm_obj const & _s) {
     tactic_state const & s  = to_tactic_state(_s);
     try {
-        environment new_env = add_doc_string(s.env(), to_name(n), to_string(doc), to_doc_kind(k));
+        environment new_env = add_doc_string(s.env(), to_name(n), to_string(doc));
         return mk_tactic_success(set_env(s, new_env));
     } catch (throwable & ex) {
         return mk_tactic_exception(ex, s);
@@ -681,8 +673,8 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic", "is_trace_enabled_for"}), tactic_is_trace_enabled_for);
     DECLARE_VM_BUILTIN(name({"tactic", "instantiate_mvars"}),    tactic_instantiate_mvars);
     DECLARE_VM_BUILTIN(name({"tactic", "add_decl"}),             tactic_add_decl);
-    DECLARE_VM_BUILTIN(name({"tactic", "doc_string_core"}),      tactic_doc_string);
-    DECLARE_VM_BUILTIN(name({"tactic", "add_doc_string_core"}),  tactic_add_doc_string);
+    DECLARE_VM_BUILTIN(name({"tactic", "doc_string"}),           tactic_doc_string);
+    DECLARE_VM_BUILTIN(name({"tactic", "add_doc_string"}),       tactic_add_doc_string);
     DECLARE_VM_BUILTIN(name({"tactic", "opened_namespaces"}),    tactic_opened_namespaces);
     g_pp_instantiate_goal_mvars = new name{"pp", "instantiate_goal_mvars"};
     register_bool_option(*g_pp_instantiate_goal_mvars, LEAN_DEFAULT_PP_INSTANTIATE_GOAL_MVARS,

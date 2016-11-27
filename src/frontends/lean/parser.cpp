@@ -2357,7 +2357,6 @@ void initialize_parser() {
     g_anonymous_inst_name_prefix = new name("_inst");
     g_documentable_cmds = new name_set();
 
-    g_documentable_cmds->insert("namespace");
     g_documentable_cmds->insert("definition");
     g_documentable_cmds->insert("theorem");
     g_documentable_cmds->insert("constant");

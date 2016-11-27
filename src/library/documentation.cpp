@@ -95,10 +95,38 @@ static std::string unindent(std::string const & s) {
     }
 }
 
+static std::string add_lean_suffix_to_code_blocks(std::string const & s) {
+    std::string r;
+    unsigned sz = s.size();
+    unsigned i = 0;
+    bool in_block = false;
+    while (i < sz) {
+        if (!in_block && s[i] == '`' && sz >= 4 && i < sz - 3 && s[i+1] == '`' && s[i+2] == '`' && isspace(s[i+3])) {
+            r += "```lean";
+            r += s[i+3];
+            i += 4;
+            in_block = true;
+        } else if (in_block && s[i] == '`' && sz >= 3 && i < sz - 2 && s[i+1] == '`' && s[i+2] == '`') {
+            r += "```";
+            i += 3;
+            in_block = false;
+        } else {
+            r += s[i];
+            i++;
+        }
+    }
+    if (in_block) {
+        std::cout << "------" << r << "-----\n";
+        throw exception("invalid doc string, end of code block ``` expected");
+    }
+    return r;
+}
+
 static std::string process_doc(std::string s) {
     remove_blank_lines_begin(s);
     rtrim(s);
-    return unindent(s);
+    s = unindent(s);
+    return add_lean_suffix_to_code_blocks(s);
 }
 
 environment add_module_doc_string(environment const & env, std::string doc) {

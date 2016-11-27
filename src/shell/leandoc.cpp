@@ -131,7 +131,7 @@ static void print_inductive(std::ostream & out, environment const & env, formatt
             format r   = format(c);
             r += space() + colon() + space();
             r += nest(get_pp_indent(o), line() + fmt(env.get(c).get_type()));
-            out << mk_pair(r, o) << "\n";
+            out << mk_pair(group(r), o) << "\n";
         }
         out << "```\n";
     }
@@ -181,9 +181,9 @@ void gen_doc(environment const & env, options const & _opts, std::ostream & out)
         if (auto decl_name = entry.get_decl_name()) {
             gen_decl_doc(out, env, fmt, *decl_name);
             out << "\n";
-            out << entry.get_doc() << "\n";
+            out << entry.get_doc();
         } else {
-            out << entry.get_doc() << "\n";
+            out << entry.get_doc();
         }
         out << "\n";
     }

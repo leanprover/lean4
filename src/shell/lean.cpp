@@ -368,6 +368,7 @@ int main(int argc, char ** argv) {
     #endif
 
     environment env = mk_environment(trust_lvl);
+
     io_state ios(opts, lean::mk_pretty_formatter_factory());
 #if defined(LEAN_SERVER)
     if (json_output) {
@@ -382,6 +383,7 @@ int main(int argc, char ** argv) {
         bool ok = true;
         for (int i = optind; i < argc; i++) {
             try {
+                if (doc) throw lean::exception("leandoc does not support .smt2 files");
                 ok = ::lean::smt2::parse_commands(env, ios, argv[i]);
             } catch (lean::exception & ex) {
                 ok = false;

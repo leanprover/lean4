@@ -9,9 +9,9 @@ open tactic
 @[reducible] def uname := string
 
 /--
-Arithmetic expressions abstract syntax tree.
+#brief Arithmetic expressions abstract syntax tree.
 
-For example, we encode x + 1 as
+We encode x + 1 as
 ```
 check aexp.plus (aexp.var "x") (aexp.val 1)
 ```
@@ -21,27 +21,26 @@ inductive aexp
 | var  : uname → aexp
 | plus : aexp → aexp → aexp
 
-/-- Arithmetic expressions have decidable equality. -/
+/-- #brief Arithmetic expressions have decidable equality. -/
 instance : decidable_eq aexp :=
 by mk_dec_eq_instance
 
-/-- Value assigned to variables. -/
+/-- #brief Value assigned to variables. -/
 @[reducible] def value := nat
 
-/-- The state is a mapping from variable names to their values. -/
+/-- #brief The state is a mapping from variable names to their values. -/
 def state := uname → value
 
 open aexp
 
 /--
-  Given an arithmetic expression and a state, this function returns the
+  #brief Given an arithmetic expression and a state, this function returns the
   value for the expression.
 
   ```
   example : aval (plus (val 3) (var "x")) (λ x, 0) = 3 :=
   rfl
   ```
-
   See [`aexp`](#imp.aexp)
 -/
 def aval : aexp → state → value
@@ -50,15 +49,15 @@ def aval : aexp → state → value
 | (plus a₁ a₂) s := aval a₁ s + aval a₂ s
 
 /--
-    Update the state with then entry `x -> v`.
+    #brief Update the state with then entry `x -> v`.
     We say we are assigning `v` to `x`.
 -/
 def updt (s : state) (x : uname) (v : value) : state :=
 λ y, if x = y then v else s y
 
 /--
-    Very basic constant folding simplification procedure.
-    For example, it reduces subexpressions such as (3 + 2) to 5.
+  #brief  Very basic constant folding simplification procedure.
+  For example, it reduces subexpressions such as (3 + 2) to 5.
 -/
 def asimp_const : aexp → aexp
 | (val n)      := val n
@@ -70,16 +69,14 @@ def asimp_const : aexp → aexp
   end
 
 /-!
-  We can prove by reflexivity the fact that the constant folder simplifier `(2+3)+x`
-  intro `5+x`.
-
+  _Remark_: we can prove by reflexivity the fact that the constant folder simplifies `(2+3)+x` into `5+x`.
   ```
   example : asimp_const (plus (plus (val 2) (val 3)) (var "x")) = plus (val 5) (var "x") :=
   rfl
   ```
 -/
 
-/-- Prove that constant folding preserves the value of an artihmetic expressions. -/
+/-- #brief Prove that constant folding preserves the value of an artihmetic expressions. -/
 lemma aval_asimp_const (a : aexp) (s : state) : aval (asimp_const a) s = aval a s :=
 begin
   induction a with n x a₁ a₂ ih₁ ih₂,
@@ -91,7 +88,7 @@ begin
 end
 
 /--
-  Alternative proof without tactics that constant folding preserves
+  #brief Alternative proof without tactics that constant folding preserves
   the value of an arithmetic expression.
 
   This alternative proof is more verbose because we are essentially writing
@@ -117,7 +114,7 @@ lemma aval_asimp_const₂ : ∀ (a : aexp) (s : state), aval (asimp_const a) s =
   end
 
 /--
-  Alternative proof that mixes proof terms and tactics.
+  #brief Alternative proof that mixes proof terms and tactics.
 
   See [`asimp_const`](#imp.asimp_const)
 -/

@@ -165,8 +165,63 @@ static void print_id_info(std::ostream & out, environment const & env, formatter
     }
 }
 
-static void gen_decl_doc(std::ostream & out, environment const & env, formatter const & fmt, name const & decl_name) {
+static void consume_spaces(std::string const & doc, unsigned & i) {
+    unsigned sz = doc.size();
+    for (; i < sz; i++) {
+        if (!isspace(doc[i]))
+            break;
+    }
+}
+
+static bool has_brief(std::string const & doc) {
+    unsigned i = 0;
+    consume_spaces(doc, i);
+    return doc.substr(i, i+6) == "#brief";
+}
+
+static pair<std::string, std::string> split_brief_body(std::string const & doc) {
+    lean_assert(has_brief(doc));
+    unsigned i = 0;
+    consume_spaces(doc, i);
+    lean_assert(doc.substr(i, i+6) == "#brief");
+    i += 6; // skip #brief
+    unsigned sz = doc.size();
+    consume_spaces(doc, i);
+    std::string brief;
+    std::string rest;
+    bool found_non_space = false;
+    for (; i < sz; i++) {
+        if (!isspace(doc[i]))
+            found_non_space = true;
+        if (doc[i] == '\n') {
+            if (!found_non_space) {
+                // blank line... end of brief section
+                i++;
+                break;
+            }
+            brief += doc[i];
+            found_non_space = false;
+        } else {
+            brief += doc[i];
+        }
+    }
+    for (; i < sz; i++)
+        rest += doc[i];
+    return mk_pair(brief, rest);
+}
+
+static void print_block(std::ostream & out, std::string const & s) {
+    if (s.empty())
+        return;
+    out << s;
+    if (s.back() != '\n')
+        out << "\n";
+}
+
+static void gen_decl_doc(std::ostream & out, environment const & env, formatter const & fmt, name const & decl_name, optional<std::string> const & brief) {
     out << "<a name=\"" << decl_name << "\"></a>**" << get_decl_kind(env, decl_name) << "** " << decl_name << "\n";
+    if (brief)
+        print_block(out, *brief);
     print_id_info(out, env, fmt, decl_name);
 }
 
@@ -179,11 +234,17 @@ void gen_doc(environment const & env, options const & _opts, std::ostream & out)
     get_module_doc_strings(env, entries);
     for (doc_entry const & entry : entries) {
         if (auto decl_name = entry.get_decl_name()) {
-            gen_decl_doc(out, env, fmt, *decl_name);
-            out << "\n";
-            out << entry.get_doc();
+            if (has_brief(entry.get_doc())) {
+                std::string brief, body;
+                std::tie(brief, body) = split_brief_body(entry.get_doc());
+                gen_decl_doc(out, env, fmt, *decl_name, optional<std::string>(brief));
+                print_block(out, body);
+            } else {
+                gen_decl_doc(out, env, fmt, *decl_name, optional<std::string>());
+                print_block(out, entry.get_doc());
+            }
         } else {
-            out << entry.get_doc();
+            print_block(out, entry.get_doc());
         }
         out << "\n";
     }

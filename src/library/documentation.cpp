@@ -116,7 +116,6 @@ static std::string add_lean_suffix_to_code_blocks(std::string const & s) {
         }
     }
     if (in_block) {
-        std::cout << "------" << r << "-----\n";
         throw exception("invalid doc string, end of code block ``` expected");
     }
     return r;

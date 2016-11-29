@@ -7,8 +7,8 @@ Author: Gabriel Ebner
 #pragma once
 #include <vector>
 #include <unordered_map>
-#include "library/message_buffer.h"
 #include "util/name.h"
+#include "library/message_buffer.h"
 #include "frontends/lean/info_manager.h"
 
 namespace lean {

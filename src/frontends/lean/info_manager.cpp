@@ -8,12 +8,12 @@ Author: Leonardo de Moura
 #include <vector>
 #include <set>
 #include <string>
-#include "frontends/lean/info_manager.h"
 #include "util/lean_path.h"
 #include "library/choice.h"
 #include "library/scoped_ext.h"
 #include "library/pp_options.h"
 #include "frontends/lean/json.h"
+#include "frontends/lean/info_manager.h"
 
 namespace lean {
 class type_info_data : public info_data_cell {

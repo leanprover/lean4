@@ -10,20 +10,20 @@ Authors: Gabriel Ebner, Leonardo de Moura, Sebastian Ullrich
 #include <algorithm>
 #include <vector>
 #include <clocale>
+#include "util/sexpr/option_declarations.h"
+#include "util/bitap_fuzzy_search.h"
+#include "kernel/instantiate.h"
 #include "library/mt_task_queue.h"
 #include "library/st_task_queue.h"
-#include "frontends/lean/parser.h"
-#include "library/module.h"
-#include "shell/server.h"
-#include "frontends/lean/info_manager.h"
-#include "frontends/lean/definition_cmds.h"
-#include "util/sexpr/option_declarations.h"
-#include "frontends/lean/util.h"
 #include "library/protected.h"
 #include "library/scoped_ext.h"
-#include "util/bitap_fuzzy_search.h"
 #include "library/type_context.h"
-#include "kernel/instantiate.h"
+#include "library/module.h"
+#include "frontends/lean/parser.h"
+#include "frontends/lean/info_manager.h"
+#include "frontends/lean/definition_cmds.h"
+#include "frontends/lean/util.h"
+#include "shell/server.h"
 
 #ifndef LEAN_DEFAULT_AUTO_COMPLETION_MAX_RESULTS
 #define LEAN_DEFAULT_AUTO_COMPLETION_MAX_RESULTS 100

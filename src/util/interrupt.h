@@ -11,8 +11,7 @@ Author: Leonardo de Moura
 #include "util/exception.h"
 
 namespace lean {
-
-atomic<bool> * get_interrupt_flag();
+atomic_bool * get_interrupt_flag();
 
 /**
    \brief Mark flag for interrupting current thread.

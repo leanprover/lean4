@@ -10,9 +10,9 @@ Author: Leonardo de Moura
 #include <string>
 #include "kernel/expr.h"
 #include "library/io_state_stream.h"
-#include "frontends/lean/json.h"
 #include "library/metavar_context.h"
 #include "library/tactic/tactic_state.h"
+#include "frontends/lean/json.h"
 
 namespace lean {
 

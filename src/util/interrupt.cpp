@@ -51,7 +51,7 @@ void sleep_for(unsigned ms, unsigned step_ms) {
     check_interrupted();
 }
 
-atomic<bool> *get_interrupt_flag() {
+atomic_bool * get_interrupt_flag() {
     return &get_g_interrupt();
 }
 

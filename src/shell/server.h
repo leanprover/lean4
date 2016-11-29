@@ -5,13 +5,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich
 */
 #pragma once
+#include <string>
 #include "kernel/pos_info_provider.h"
 #include "kernel/environment.h"
 #include "library/io_state.h"
-#include "frontends/lean/json.h"
-#include <string>
 #include "library/versioned_msg_buf.h"
 #include "library/module_mgr.h"
+#include "frontends/lean/json.h"
 
 namespace lean {
 

@@ -20,9 +20,7 @@ lean_bool lean_parse_file(lean_env env, lean_ios ios, char const * fname, lean_e
     check_nonnull(fname);
     environment _env     = to_env_ref(env);
     io_state    _ios     = to_io_state_ref(ios);
-    bool use_exceptions  = true;
-    unsigned num_threads = 1;
-    parse_commands(_env, _ios, fname, optional<std::string>(), use_exceptions, num_threads);
+    parse_commands(_env, _ios, fname);
     *new_env = of_env(new environment(_env));
     *new_ios = of_io_state(new io_state(_ios));
     LEAN_CATCH;

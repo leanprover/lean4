@@ -9,9 +9,6 @@ Author: Leonardo de Moura
 #include <limits>
 #include <vector>
 #include "util/utf8.h"
-#include <library/export_decl.h>
-#include "library/st_task_queue.h"
-#include "library/module_mgr.h"
 #include "util/interrupt.h"
 #include "util/sstream.h"
 #include "util/flet.h"
@@ -23,6 +20,8 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "kernel/error_msgs.h"
+#include "library/st_task_queue.h"
+#include "library/module_mgr.h"
 #include "library/export_decl.h"
 #include "library/trace.h"
 #include "library/exception.h"
@@ -2054,6 +2053,10 @@ void parser::reset_doc_string() {
     m_doc_string = optional<std::string>();
 }
 
+#if defined(__GNUC__) && !defined(__CLANG__)
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
+
 std::vector<module_name> parser::parse_imports(unsigned & fingerprint) {
     m_last_cmd_pos = pos();
     bool prelude     = false;
@@ -2070,19 +2073,25 @@ std::vector<module_name> parser::parse_imports(unsigned & fingerprint) {
         next();
         while (true) {
             optional<unsigned> k;
+            unsigned h = 0;
             while (true) {
                 if (curr_is_token(get_period_tk())) {
                     next();
-                    if (!k)
+                    if (!k) {
                         k = 0;
-                    else
+                    } else {
                         k = *k + 1;
+                        h++;
+                    }
                 } else if (curr_is_token(get_ellipsis_tk())) {
                     next();
-                    if (!k)
+                    if (!k) {
                         k = 2;
-                    else
+                        h = 2;
+                    } else {
                         k = *k + 3;
+                        h += 3;
+                    }
                 } else {
                     break;
                 }
@@ -2091,8 +2100,9 @@ std::vector<module_name> parser::parse_imports(unsigned & fingerprint) {
                 break;
             name f            = get_name_val();
             fingerprint       = hash(fingerprint, f.hash());
-            if (k)
-                fingerprint = hash(fingerprint, *k);
+            if (k) {
+                fingerprint = hash(fingerprint, h);
+            }
             imports.push_back({ f, k });
             next();
         }
@@ -2262,8 +2272,7 @@ message_builder parser::mk_message(message_severity severity) {
     return mk_message(pos(), severity);
 }
 
-bool parse_commands(environment & env, io_state & ios, char const * fname, optional<std::string> const & base_dir,
-                    bool use_exceptions, unsigned num_threads) {
+bool parse_commands(environment & env, io_state & ios, char const * fname) {
     st_task_queue tq;
     scope_global_task_queue scope(&tq);
     fs_module_vfs vfs;

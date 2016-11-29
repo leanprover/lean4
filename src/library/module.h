@@ -11,10 +11,10 @@ Author: Leonardo de Moura
 #include <vector>
 #include "util/serializer.h"
 #include "util/optional.h"
+#include "kernel/pos_info_provider.h"
 #include "kernel/inductive/inductive.h"
 #include "library/io_state.h"
 #include "library/task_queue.h"
-#include "kernel/pos_info_provider.h"
 
 namespace lean {
 class corrupted_file_exception : public exception {

@@ -4,10 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Gabriel Ebner
 */
+#include <string>
 #include "library/message_builder.h"
 #include "library/type_context.h"
 #include "library/message_buffer.h"
-#include <string>
 
 namespace lean {
 

@@ -8,14 +8,14 @@ Author: Gabriel Ebner
 #include <string>
 #include <utility>
 #include <vector>
-#include <util/name.h>
-#include <kernel/environment.h>
-#include <library/task_queue.h>
 #include <unordered_map>
-#include "frontends/lean/parser.h"
+#include "util/name.h"
+#include "kernel/environment.h"
+#include "library/task_queue.h"
 #include "library/message_buffer.h"
 #include "library/io_state.h"
 #include "library/trace.h"
+#include "frontends/lean/parser.h"
 
 namespace lean {
 

@@ -8,14 +8,14 @@ Author: Gabriel Ebner
 #include <string>
 #include <vector>
 #include <algorithm>
-#include "library/module_mgr.h"
+#include <sys/stat.h>
 #include "util/lean_path.h"
-#include "frontends/lean/parser.h"
+#include "util/file_lock.h"
+#include "library/module_mgr.h"
 #include "library/module.h"
 #include "library/versioned_msg_buf.h"
-#include <sys/stat.h>
-#include <frontends/lean/pp.h>
-#include <util/file_lock.h>
+#include "frontends/lean/pp.h"
+#include "frontends/lean/parser.h"
 
 namespace lean {
 
@@ -309,7 +309,7 @@ snapshot_vector module_mgr::get_snapshots(module_id const & id) {
 }
 
 bool
-module_mgr::get_snapshots_or_unchanged_module(module_id const &id, std::string const &contents, time_t mtime,
+module_mgr::get_snapshots_or_unchanged_module(module_id const &id, std::string const &contents, time_t /* mtime */,
                                               snapshot_vector &vector) {
     if (!m_modules.count(id)) return false;
 

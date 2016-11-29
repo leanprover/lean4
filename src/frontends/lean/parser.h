@@ -8,13 +8,13 @@ Author: Leonardo de Moura
 #include <string>
 #include <utility>
 #include <vector>
-#include "library/module.h"
 #include "util/flet.h"
 #include "util/name_map.h"
 #include "util/exception.h"
-#include "library/task_queue.h"
 #include "kernel/environment.h"
 #include "kernel/expr_maps.h"
+#include "library/module.h"
+#include "library/task_queue.h"
 #include "library/abstract_parser.h"
 #include "library/io_state.h"
 #include "library/io_state_stream.h"
@@ -502,8 +502,7 @@ public:
     virtual char const * get_file_name() const override;
 };
 
-bool parse_commands(environment & env, io_state & ios, char const * fname, optional<std::string> const & base,
-                    bool use_exceptions, unsigned num_threads);
+bool parse_commands(environment & env, io_state & ios, char const * fname);
 
 void initialize_parser();
 void finalize_parser();

@@ -7,7 +7,7 @@ Author: Gabriel Ebner
 #include <utility>
 #include <string>
 #include <vector>
-#include <util/name_set.h>
+#include "util/name_set.h"
 #include "library/versioned_msg_buf.h"
 #include "frontends/lean/info_manager.h"
 

@@ -12,9 +12,6 @@ Author: Leonardo de Moura
 #include <string>
 #include <utility>
 #include <vector>
-#include <library/st_task_queue.h>
-#include <library/mt_task_queue.h>
-#include "library/module_mgr.h"
 #include "util/realpath.h"
 #include "util/stackinfo.h"
 #include "util/macros.h"
@@ -31,6 +28,9 @@ Author: Leonardo de Moura
 #include "kernel/kernel_exception.h"
 #include "kernel/type_checker.h"
 #include "kernel/formatter.h"
+#include "library/st_task_queue.h"
+#include "library/mt_task_queue.h"
+#include "library/module_mgr.h"
 #include "library/standard_kernel.h"
 #include "library/module.h"
 #include "library/type_context.h"

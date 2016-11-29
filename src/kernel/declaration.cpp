@@ -4,10 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include <library/task_queue.h>
 #include "kernel/declaration.h"
 #include "kernel/environment.h"
 #include "kernel/for_each_fn.h"
+// TODO(gebner, leo): kernel should not depend on library folder
+#include "library/task_queue.h"
 
 namespace lean {
 int compare(reducibility_hints const & h1, reducibility_hints const & h2) {

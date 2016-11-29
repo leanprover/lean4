@@ -108,23 +108,4 @@
          :file_name (buffer-file-name)
          :content (buffer-string))))
 
-(defun lean-run-linja ()
-  "Runs linja for the current lean project."
-  (interactive)
-  (if (not (lean-project-inside-p))
-      (message "not inside a lean project")
-    (let* ((default-directory (lean-project-find-root))
-           (proc (start-file-process
-                  "linja" (format "*linja (%s)*" default-directory)
-                  (lean-get-executable "linja"))))
-      (lexical-let ((buffer (current-buffer)))
-        (set-process-sentinel proc
-                              (lambda (p e)
-                                (with-current-buffer (process-buffer p) (compilation-mode))
-                                (with-current-buffer buffer
-                                  (when lean-flycheck-use (flycheck-buffer))))))
-      (temp-buffer-window-show (process-buffer proc))
-      (with-current-buffer (process-buffer proc)
-        (let ((buffer-read-only nil)) (erase-buffer))))))
-
 (provide 'lean-server)

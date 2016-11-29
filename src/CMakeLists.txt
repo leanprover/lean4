@@ -351,9 +351,6 @@ configure_file("${LEAN_SOURCE_DIR}/version.h.in" "${LEAN_BINARY_DIR}/version.h")
 configure_file("${LEAN_SOURCE_DIR}/../bin/leanemacs.in" "${LEAN_SOURCE_DIR}/../bin/leanemacs")
 configure_file("${LEAN_SOURCE_DIR}/../bin/leanemacs.bat.in" "${LEAN_SOURCE_DIR}/../bin/leanemacs.bat")
 
-# linja
-configure_file("${LEAN_SOURCE_DIR}/../bin/linja.in" "${LEAN_SOURCE_DIR}/../bin/linja" @ONLY)
-
 include_directories("${LEAN_BINARY_DIR}")
 add_subdirectory(util)
 set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:util>)
@@ -479,10 +476,6 @@ add_custom_target(clean-std-lib
 
 add_custom_target(clean-olean
   DEPENDS clean-std-lib)
-
-install(FILES "${CMAKE_SOURCE_DIR}/../bin/linja"
-  DESTINATION bin
-  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   install(FILES "${CMAKE_SOURCE_DIR}/../bin/leanemacs.bat" "${CMAKE_SOURCE_DIR}/../bin/leanemacs.bat"

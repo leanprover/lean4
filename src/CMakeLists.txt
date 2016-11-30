@@ -317,7 +317,7 @@ if(NOT "${EMSCRIPTEN}" AND NOT "${TCMALLOC_FOUND}" AND NOT "${JEMALLOC_FOUND}" A
 endif()
 
 # Python
-find_package(PythonInterp REQUIRED)
+find_package(PythonInterp)
 
 include_directories(${LEAN_SOURCE_DIR})
 
@@ -452,7 +452,7 @@ endif()
 add_subdirectory(tests/util/lp)
 
 # Include style check
-if (NOT(${CMAKE_SYSTEM_NAME} MATCHES "Windows"))
+if (NOT(${CMAKE_SYSTEM_NAME} MATCHES "Windows") AND PYTHONINTERP_FOUND)
 include(StyleCheck)
 file(GLOB_RECURSE LEAN_SOURCES
   "${LEAN_SOURCE_DIR}"
@@ -541,9 +541,9 @@ else()
 endif()
 # CPack -- Debian
 if(STATIC)
-  SET(CPACK_DEBIAN_PACKAGE_DEPENDS "python")
+  SET(CPACK_DEBIAN_PACKAGE_DEPENDS "")
 else()
-  SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libstdc++-4.8-dev,libgmp-dev,libmpfr-dev,python")
+  SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libstdc++-4.8-dev,libgmp-dev,libmpfr-dev")
 endif()
 SET(CPACK_DEBIAN_PACKAGE_DESCRIPTION "Lean Theorem Prover")
 SET(CPACK_DEBIAN_PACKAGE_SECTION "devel")

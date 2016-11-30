@@ -171,7 +171,7 @@ parser::parser(environment const & env, io_state const & ios,
                module_loader const & import_fn,
                std::istream & strm, std::string const & file_name,
                bool use_exceptions,
-               snapshot const * s, snapshot_vector * sv):
+               std::shared_ptr<snapshot const> const & s, snapshot_vector * sv):
     m_env(env), m_ios(ios), m_verbose(true),
     m_use_exceptions(use_exceptions),
     m_import_fn(import_fn),
@@ -2239,10 +2239,11 @@ bool parser::curr_is_command_like() const {
 void parser::save_snapshot(scope_message_context & smc) {
     if (!m_snapshot_vector)
         return;
-    if (m_snapshot_vector->empty() || m_snapshot_vector->back().m_pos != m_scanner.get_pos_info()) {
-        m_snapshot_vector->push_back(snapshot(m_env, smc.get_sub_buckets(), m_local_level_decls, m_local_decls,
-                                              m_level_variables, m_variables, m_include_vars,
-                                              m_ios.get_options(), m_imports_parsed, m_parser_scope_stack, m_scanner.get_pos_info()));
+    if (m_snapshot_vector->empty() || m_snapshot_vector->back()->m_pos != m_scanner.get_pos_info()) {
+        m_snapshot_vector->push_back(std::make_shared<snapshot>(
+                m_env, smc.get_sub_buckets(), m_local_level_decls, m_local_decls,
+                m_level_variables, m_variables, m_include_vars,
+                m_ios.get_options(), m_imports_parsed, m_parser_scope_stack, m_scanner.get_pos_info()));
     }
 }
 

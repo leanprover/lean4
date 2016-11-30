@@ -33,7 +33,7 @@ class server : public module_vfs {
     std::string m_file_name;
     std::string m_content;
 
-    snapshot const * get_closest_snapshot(unsigned linenum);
+    std::shared_ptr<snapshot const> get_closest_snapshot(unsigned linenum);
 
     json handle_request(json const & req);
 

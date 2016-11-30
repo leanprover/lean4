@@ -81,7 +81,7 @@ public:
         std::istringstream in(m_contents);
         parser p(m_initial_env, get_global_ios(), import_fn, in, get_module_id(),
                  use_exceptions,
-                 (m_snapshots.empty() || !m_use_snapshots) ? nullptr : &m_snapshots.back(),
+                 (m_snapshots.empty() || !m_use_snapshots) ? std::shared_ptr<snapshot>() : m_snapshots.back(),
                  m_use_snapshots ? &m_snapshots : nullptr);
         bool parsed_ok = p();
 
@@ -221,7 +221,7 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
                     return;
                 }
             }
-            auto task_pos = snapshots.empty() ? pos_info {1, 0} : snapshots.back().m_pos;
+            auto task_pos = snapshots.empty() ? pos_info {1, 0} : snapshots.back()->m_pos;
             scoped_task_context scope_task_ctx2(id, task_pos);
 
             scope_message_context scope_msg_ctx2(bucket_name);
@@ -336,7 +336,7 @@ module_mgr::get_snapshots_or_unchanged_module(module_id const &id, std::string c
     if (auto diff_pos = get_first_diff_pos(contents, *mod->m_lean_contents)) {
         auto & snaps = mod->m_still_valid_snapshots;
         auto it = snaps.begin();
-        while (it != snaps.end() && it->m_pos < *diff_pos)
+        while (it != snaps.end() && (*it)->m_pos < *diff_pos)
             it++;
         if (it != snaps.begin())
             it--;

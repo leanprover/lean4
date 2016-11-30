@@ -74,7 +74,7 @@ struct snapshot {
         m_options(opts), m_imports_parsed(imports_parsed), m_parser_scope_stack(pss), m_pos(pos) {}
 };
 
-typedef std::vector<snapshot> snapshot_vector;
+typedef std::vector<std::shared_ptr<snapshot const>> snapshot_vector;
 
 class show_goal_exception : public std::exception {
 public:
@@ -220,7 +220,7 @@ public:
            module_loader const & import_fn,
            std::istream & strm, std::string const & file_name,
            bool use_exceptions = false,
-           snapshot const * s = nullptr, snapshot_vector * sv = nullptr);
+           std::shared_ptr<snapshot const> const & s = {}, snapshot_vector * sv = nullptr);
     ~parser();
 
     void enable_show_goal(pos_info const & pos);

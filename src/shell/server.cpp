@@ -166,12 +166,12 @@ json server::handle_check(json const &) {
     return res;
 }
 
-snapshot const * server::get_closest_snapshot(unsigned line) {
+std::shared_ptr<snapshot const> server::get_closest_snapshot(unsigned line) {
     auto snapshots = m_mod_mgr->get_snapshots(m_file_name);
-    snapshot const * ret = snapshots.size() ? &snapshots.front() : nullptr;
-    for (snapshot const & snap : snapshots) {
-        if (snap.m_pos.first <= line)
-            ret = &snap;
+    auto ret = snapshots.size() ? snapshots.front() : std::shared_ptr<snapshot>();
+    for (auto & snap : snapshots) {
+        if (snap->m_pos.first <= line)
+            ret = snap;
     }
     return ret;
 }
@@ -266,7 +266,7 @@ json server::handle_complete(json const & req) {
     unsigned line = req["line"];
     std::vector<json> completions;
 
-    if (snapshot const * snap = get_closest_snapshot(line)) {
+    if (auto snap = get_closest_snapshot(line)) {
         environment const & env = snap->m_env;
         options const & opts = snap->m_options;
         unsigned max_results = get_auto_completion_max_results(opts);
@@ -334,7 +334,7 @@ json server::handle_info(json const & req) {
     auto env = m_initial_env;
     if (auto mod = m_mod_mgr->get_module(m_file_name)->m_result.peek()) {
         if (mod->m_env) env = *mod->m_env;
-        if (!mod->m_snapshots.empty()) opts = mod->m_snapshots.back().m_options;
+        if (!mod->m_snapshots.empty()) opts = mod->m_snapshots.back()->m_options;
     }
 
     json record;

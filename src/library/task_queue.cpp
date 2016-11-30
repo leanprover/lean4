@@ -51,7 +51,6 @@ bool generic_task_result_cell::execute() {
         }
         return true;
     } catch (interrupted) {
-        std::cerr << "interrupted: " << m_desc << std::endl;
         m_ex = std::make_exception_ptr(
                 task_cancellation_exception(generic_task_result(this)));
         return false;

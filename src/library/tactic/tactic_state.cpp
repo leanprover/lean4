@@ -45,13 +45,12 @@ unsigned get_pp_instantiate_goal_mvars(options const & o) {
 }
 
 void tactic_state_cell::dealloc() {
-    this->~tactic_state_cell();
-    get_vm_allocator().deallocate(sizeof(tactic_state_cell), this);
+    delete this;
 }
 
 tactic_state::tactic_state(environment const & env, options const & o, metavar_context const & ctx,
                            list<expr> const & gs, expr const & main) {
-    m_ptr = new (get_vm_allocator().allocate(sizeof(tactic_state_cell))) tactic_state_cell(env, o, ctx, gs, main);
+    m_ptr = new tactic_state_cell(env, o, ctx, gs, main);
     m_ptr->inc_ref();
 }
 

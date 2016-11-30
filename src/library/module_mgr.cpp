@@ -21,7 +21,7 @@ namespace lean {
 
 void module_mgr::mark_out_of_date(module_id const & id, buffer<module_id> & to_rebuild) {
     for (auto & mod : m_modules) {
-        if (mod.second->m_out_of_date) continue;
+        if (!mod.second || mod.second->m_out_of_date) continue;
         for (auto & dep : mod.second->m_deps) {
             if (dep.first == id) {
                 to_rebuild.push_back(mod.first);

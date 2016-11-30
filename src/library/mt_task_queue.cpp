@@ -76,7 +76,11 @@ void mt_task_queue::spawn_worker() {
         unique_lock<mutex> lock(m_mutex);
         scoped_add<int> dec_required(m_required_workers, -1);
         while (true) {
-            if (m_shutting_down) return;
+            if (m_shutting_down) {
+                run_thread_finalizers();
+                run_post_thread_finalizers();
+                return;
+            }
             if (m_required_workers < 0) {
                 scoped_add<int> inc_required(m_required_workers, +1);
                 scoped_add<unsigned> inc_sleeping(m_sleeping_workers, +1);

@@ -1461,5 +1461,6 @@ void finalize_simp_lemmas() {
     delete g_simp_lemmas_configs;
     delete g_name2simp_token;
     delete g_dummy;
+    delete g_refl_lemma_attr;
 }
 }

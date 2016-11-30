@@ -1,4 +1,4 @@
-unify_tac1.lean:12:0: error: is_def_eq failed
+unify_tac1.lean:12:3: error: is_def_eq failed
 state:
 A : Type,
 a : A,

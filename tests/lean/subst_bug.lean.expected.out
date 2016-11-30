@@ -1,4 +1,4 @@
-subst_bug.lean:4:0: error: tactic failed, there are unsolved goals
+subst_bug.lean:4:3: error: tactic failed, there are unsolved goals
 state:
 b2 : bool
 ⊢ ff && b2 = ff

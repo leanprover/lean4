@@ -467,8 +467,7 @@ int main(int argc, char ** argv) {
             return ok ? 0 : 1;
         }
 
-        std::vector<std::pair<module_id, module_info>> mods;
-        std::vector<std::pair<module_id, task_result<std::string>>> olean_contents;
+        std::vector<std::pair<module_id, std::shared_ptr<module_info const>>> mods;
         for (auto & mod : module_args) {
             auto mod_info = mod_mgr.get_module(mod);
             mods.push_back({mod, mod_info});
@@ -476,8 +475,8 @@ int main(int argc, char ** argv) {
 
         for (auto & mod : mods) {
             try {
-                auto res = mod.second.m_result.get();
-                if (mod.second.m_olean_task) mod.second.m_olean_task.get();
+                auto res = mod.second->m_result.get();
+                if (mod.second->m_olean_task) mod.second->m_olean_task.get();
                 ok = ok && res.m_ok;
             } catch (exception & ex) {
                 ok = false;
@@ -488,12 +487,12 @@ int main(int argc, char ** argv) {
         if (export_txt && !mods.empty()) {
             exclusive_file_lock export_lock(*export_txt);
             std::ofstream out(*export_txt);
-            export_module_as_lowtext(out, *mods.front().second.m_result.get().m_env);
+            export_module_as_lowtext(out, *mods.front().second->m_result.get().m_env);
         }
         if (export_all_txt && !mods.empty()) {
             exclusive_file_lock export_lock(*export_all_txt);
             std::ofstream out(*export_all_txt);
-            export_all_as_lowtext(out, *mods.front().second.m_result.get().m_env);
+            export_all_as_lowtext(out, *mods.front().second->m_result.get().m_env);
         }
         if (doc) {
             exclusive_file_lock export_lock(*doc);

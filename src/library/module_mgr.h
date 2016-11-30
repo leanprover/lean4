@@ -79,16 +79,16 @@ class module_mgr {
     message_buffer * m_msg_buf;
 
     mutex m_mutex;
-    std::unordered_map<module_id, module_info> m_modules;
+    std::unordered_map<module_id, std::shared_ptr<module_info>> m_modules;
 
     void mark_out_of_date(module_id const & id, buffer<module_id> & to_rebuild);
     void build_module(module_id const & id, bool can_use_olean, name_set module_stack);
     std::vector<module_name> get_direct_imports(module_id const & id, std::string const & contents);
     void gather_transitive_imports(
-        std::vector<std::tuple<module_id, module_name, module_info>> & res,
+        std::vector<std::tuple<module_id, module_name, std::shared_ptr<module_info const>>> & res,
         std::unordered_set<module_id> & visited,
         module_id const & id, module_name const & import);
-    std::vector<std::tuple<module_id, module_name, module_info>> gather_transitive_imports(
+    std::vector<std::tuple<module_id, module_name, std::shared_ptr<module_info const>>> gather_transitive_imports(
             module_id const & id, std::vector<module_name> const & imports);
     bool get_snapshots_or_unchanged_module(
             module_id const & id, std::string const & contents, time_t mtime, snapshot_vector &vector);
@@ -99,7 +99,7 @@ public:
 
     void invalidate(module_id const & id);
 
-    module_info get_module(module_id const &);
+    std::shared_ptr<module_info const> get_module(module_id const &);
 
     snapshot_vector get_snapshots(module_id const & id);
 

@@ -2279,7 +2279,7 @@ bool parse_commands(environment & env, io_state & ios, char const * fname) {
     vfs.m_modules_to_load_from_source.insert(std::string(fname));
     module_mgr mod_mgr(&vfs, &get_global_message_buffer(), env, ios);
 
-    auto mod = mod_mgr.get_module(fname).m_result.get();
+    auto mod = mod_mgr.get_module(fname)->m_result.get();
 
     lean_assert(mod.m_env);
     env = *mod.m_env;

@@ -151,7 +151,7 @@ json server::handle_check(json const &) {
     }
 
     bool is_ok = false;
-    if (auto res = m_mod_mgr->get_module(m_file_name).m_result.peek()) {
+    if (auto res = m_mod_mgr->get_module(m_file_name)->m_result.peek()) {
         is_ok = res->m_ok;
     }
 
@@ -332,7 +332,7 @@ json server::handle_info(json const & req) {
 
     auto opts = m_ios.get_options();
     auto env = m_initial_env;
-    if (auto mod = m_mod_mgr->get_module(m_file_name).m_result.peek()) {
+    if (auto mod = m_mod_mgr->get_module(m_file_name)->m_result.peek()) {
         if (mod->m_env) env = *mod->m_env;
         if (!mod->m_snapshots.empty()) opts = mod->m_snapshots.back().m_options;
     }

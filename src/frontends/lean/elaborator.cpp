@@ -2458,6 +2458,8 @@ void elaborator::invoke_atomic_tactic(expr const & mvar, expr const & tactic) {
     expr const & ref = mvar;
     tactic_state s       = mk_tactic_state_for(mvar);
     add_tactic_state_info(s, ref);
+    /* Save information using tactic's position, ref is usually the `by` token position */
+    add_tactic_state_info(s, tactic);
     trace_elab(tout() << "initial tactic state\n" << s.pp() << "\n";);
     tactic_state new_s   = execute_tactic(tactic, s, ref);
     if (new_s.goals())

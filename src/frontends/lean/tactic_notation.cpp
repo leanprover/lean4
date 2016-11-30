@@ -343,10 +343,10 @@ expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {
     p.next();
     parser::local_scope scope(p);
     p.clear_locals();
+    auto tac_pos = p.pos();
     expr tac  = parse_tactic(p);
     expr type = mk_tactic_unit();
-    p.update_pos(tac, pos);
-    expr r    = p.save_pos(mk_typed_expr(type, tac), pos);
+    expr r    = p.save_pos(mk_typed_expr(type, tac), tac_pos);
     return p.save_pos(mk_by(r), pos);
 }
 

@@ -48,6 +48,8 @@ class mt_task_queue : public task_queue {
     io_state m_ios;
     message_buffer * m_msg_buf;
 
+    bool empty_core();
+
     generic_task_result dequeue();
     void enqueue(generic_task_result const &);
 

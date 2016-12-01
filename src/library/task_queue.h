@@ -16,7 +16,12 @@ Author: Gabriel Ebner
 
 namespace lean {
 
-enum class task_result_state { QUEUED, EXECUTING, FINISHED, FAILED };
+enum class task_result_state {
+    CREATED,
+    QUEUED, WAITING,
+    EXECUTING,
+    FINISHED, FAILED
+};
 
 class generic_task;
 class generic_task_result_cell {
@@ -30,7 +35,7 @@ class generic_task_result_cell {
     friend class generic_task_result;
 
     generic_task * m_task = nullptr;
-    atomic<task_result_state> m_state { task_result_state::QUEUED };
+    atomic<task_result_state> m_state { task_result_state::CREATED };
     std::string m_desc;
     std::exception_ptr m_ex;
 
@@ -42,8 +47,7 @@ class generic_task_result_cell {
             m_rc(0), m_state(task_result_state::FINISHED), m_desc(desc) {}
 
     bool has_evaluated() const {
-        auto state = m_state.load();
-        return state != task_result_state::QUEUED && state != task_result_state::EXECUTING;
+        return m_state.load() > task_result_state::EXECUTING;
     }
 
     virtual void execute_and_store_result() = 0;

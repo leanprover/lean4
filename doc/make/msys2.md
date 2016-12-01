@@ -35,7 +35,7 @@ pacman -S git
 Close the msys2 shell and add `c:\msys64\mingw64\bin` into the `PATH`
 environment variable.
 
- - Windows 7/8: Control Panel > System and Security > System > Advanced
+ - Windows 7/8/10: Control Panel > System and Security > System > Advanced
    System Settings > Environment Variables... > Edit User variable
    `Path`
 

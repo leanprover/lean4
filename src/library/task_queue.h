@@ -72,6 +72,7 @@ public:
     generic_task_result & operator=(generic_task_result && t) { LEAN_MOVE_REF(t); }
 
     bool operator==(generic_task_result const & t) const { return m_ptr == t.m_ptr; }
+    bool operator!=(generic_task_result const & t) const { return !(*this == t); }
     operator bool() const { return m_ptr != nullptr; }
 
     struct hash {

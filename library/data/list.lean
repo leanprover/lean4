@@ -41,6 +41,25 @@ theorem length_dropn
           = length l - i             : length_dropn i l
       ... = succ (length l) - succ i : nat.sub_eq_succ_sub_succ (length l) i
 
+definition has_decidable_eq [h : decidable_eq α]
+: ∀ (x y : list α), decidable (x = y)
+| nil nil := is_true rfl
+| nil (cons b s) := is_false (λ q, list.no_confusion q)
+| (cons a r) nil := is_false (λ q, list.no_confusion q)
+| (cons a r) (cons b s) :=
+  match h a b with
+  | (is_true h₁) :=
+    match has_decidable_eq r s with
+    | (is_true  h₂) :=
+       is_true (calc a :: r = b :: r : congr_arg (λc, c :: r) h₁
+                        ... = b :: s : congr_arg (λt, b :: t) h₂)
+    | (is_false h₂) :=
+      is_false (λ q, list.no_confusion q (λ heq teq, h₂ teq))
+    end
+  | (is_false h₁) :=
+     is_false (λ q, list.no_confusion q (λ heq teq, h₁ heq))
+  end
+
 /- firstn -/
 
 def firstn : ℕ → list α → list α
@@ -69,12 +88,12 @@ theorem map₂_nil_1 {α : Type u} {β : Type v} {φ : Type w} (f : α → β �
 | [] := eq.refl nil
 | (b::t) := eq.refl nil
 
-theorem map₂_nil_2 {α β φ : Type} (f : α → β → φ)
+theorem map₂_nil_2 {α : Type u} {β : Type v} {φ : Type w} (f : α → β → φ)
    : Π (x : list α), map₂ f x nil = nil
 | [] := eq.refl nil
 | (b::t) := eq.refl nil
 
-theorem length_map₂ {α β φ : Type} (f : α → β → φ)
+theorem length_map₂ {α : Type u} {β : Type v} {φ : Type w} (f : α → β → φ)
   : Π x y, length (map₂ f x y) = min (length x) (length y)
 | [] y :=
    calc length (map₂ f nil y) = 0 : congr_arg length (map₂_nil_1 f y)

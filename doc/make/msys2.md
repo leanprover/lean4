@@ -13,42 +13,24 @@ It is easy to install all dependencies, it produces native
 
 [The official webpage of msys2][msys2] provides one-click installers.
 We assume that you install [msys2][msys2] at `c:\msys64`.
-Once installed it, you can run msys2 shell from the start menu.
+Once installed it, you should run the "MSYS2 MinGW 64-bit shell" from the start menu.
 It has a package management system, [pacman][pacman], which is used in Arch Linux.
 
 Here are the commands to install all dependencies needed to compile Lean on your machine.
 
 ```bash
-# Install gcc (4.9.1)
-pacman -S mingw-w64-x86_64-gcc
-
-# Install mpfr, gmp
-pacman -S mingw-w64-x86_64-mpfr mingw-w64-x86_64-gmp
-
-# Install ninja, cmake
-pacman -S mingw-w64-x86_64-ninja mingw-w64-x86_64-cmake
-
-# Install git
-pacman -S git
+pacman -S mingw-w64-x86_64-gcc mingw-w64-x86_64-mpfr mingw-w64-x86_64-ninja mingw-w64-x86_64-cmake git
 ```
-
-Close the msys2 shell and add `c:\msys64\mingw64\bin` into the `PATH`
-environment variable.
-
- - Windows 7/8/10: Control Panel > System and Security > System > Advanced
-   System Settings > Environment Variables... > Edit User variable
-   `Path`
 
 ## Build Lean
 
 In the [msys2] shell, execute the following commands.
 
 ```bash
-cd /c/
 git clone https://github.com/leanprover/lean
 cd lean
 mkdir build && cd build
-cmake -D CMAKE_CXX_COMPILER=g++.exe -G Ninja ../src
+cmake ../src -G Ninja -D CMAKE_BUILD_TYPE=Release
 ninja
 ```
 

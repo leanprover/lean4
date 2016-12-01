@@ -95,6 +95,7 @@ static void display_help(std::ostream & out) {
 #if defined(LEAN_SERVER)
     std::cout << "  --json            print JSON-formatted structured error messages\n";
     std::cout << "  --server          start lean in server mode\n";
+    std::cout << "  --server=file     start lean in server mode, redirecting standard input from the specified file (for debugging)\n";
 #endif
     std::cout << "  --profile         display elaboration/type checking time for each definition/theorem\n";
 #if defined(LEAN_USE_BOOST)
@@ -126,7 +127,7 @@ static struct option g_long_options[] = {
     {"deps",         no_argument,       0, 'd'},
 #if defined(LEAN_SERVER)
     {"json",         no_argument,       0, 'J'},
-    {"server",       no_argument,       0, 'S'},
+    {"server",       optional_argument, 0, 'S'},
 #endif
     {"doc",          required_argument, 0, 'r'},
 #if defined(LEAN_USE_BOOST)
@@ -268,6 +269,7 @@ int main(int argc, char ** argv) {
     optional<std::string> export_txt;
     optional<std::string> export_all_txt;
     optional<std::string> doc;
+    optional<std::string> server_in;
     while (true) {
         int c = getopt_long(argc, argv, g_opt_str, g_long_options, NULL);
         if (c == -1)
@@ -329,6 +331,7 @@ int main(int argc, char ** argv) {
         case 'S':
             opts = opts.update("server", true);
             opts = opts.update(lean::name{"trace", "as_messages"}, true);
+            if (optarg) server_in = optional<std::string>(optarg);
             break;
 #endif
         case 'P':
@@ -380,6 +383,13 @@ int main(int argc, char ** argv) {
         /* Disable assertion violation dialog:
            (C)ontinue, (A)bort, (S)top, Invoke (G)DB */
         lean::enable_debug_dialog(false);
+
+        std::unique_ptr<std::ifstream> file_in;
+        if (server_in) {
+            file_in.reset(new std::ifstream(*server_in));
+            std::cin.rdbuf(file_in->rdbuf());
+        }
+
         server(num_threads, env, ios).run();
         return 0;
     }

@@ -19,8 +19,7 @@ About
 -----
 
 - [Homepage](http://leanprover.github.io)
-- Theorem Proving in Lean: [HTML](https://leanprover.github.io/tutorial/index.html), [PDF](http://leanprover.github.io/tutorial/tutorial.pdf)
-- [Authors](http://leanprover.github.io/people/)
+- [Theorem Proving in Lean](https://leanprover.github.io/theorem_proving_in_lean/index.html)
 - [Standard Library](library/library.md)
 - [Emacs Mode](src/emacs/README.md)
 - [Short Tutorial](doc/lean/tutorial.org)

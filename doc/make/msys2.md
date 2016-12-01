@@ -22,7 +22,7 @@ Here are the commands to install all dependencies needed to compile Lean on your
 # Install gcc (4.9.1)
 pacman -S mingw-w64-x86_64-gcc
 
-# Install mpfr, gmp, lua
+# Install mpfr, gmp
 pacman -S mingw-w64-x86_64-mpfr mingw-w64-x86_64-gmp
 
 # Install ninja, cmake

@@ -5,15 +5,12 @@
   </tr>
   <tr>
     <td><a href="LICENSE"><img src="https://img.shields.io/badge/license-APACHE_2-green.svg?dummy" title="License"/></a></td>
-    <td><a href="https://travis-ci.org/soonhokong/lean-windows"><img src="https://travis-ci.org/soonhokong/lean-windows.png?branch=master" title="Windows, x86_64-w64-mingw32-g++-4.8.2"/></a></td>
-    <td><a href="https://travis-ci.org/leanprover/lean"><img src="https://travis-ci.org/leanprover/lean.png?branch=master" title="Ubuntu 12.04 LTS 64bit, g++-4.8 | clang++-3.3"/></a></td>
-    <td><a href="https://travis-ci.org/soonhokong/lean-osx"><img src="https://travis-ci.org/soonhokong/lean-osx.png?branch=master" title="Mac OS X 10.8.2, g++-4.9"/></a></td>
-    <td><a href="http://build.leanprover.net"><img src="https://leanprover.github.io/images/cdash.svg"/></a></td>
+    <td><a href="https://ci.appveyor.com/project/gebner/lean"><img src="https://ci.appveyor.com/api/projects/status/github/gebner/lean?branch=ci_fixes"/></a></td>
+    <td><a href="https://travis-ci.org/leanprover/lean"><img src="https://travis-ci.org/leanprover/lean.png?branch=master"/></a></td>
   </tr>
 </table>
 
 [![Issue Stats](http://issuestats.com/github/leanprover/lean/badge/pr)](http://issuestats.com/github/leanprover/lean)
-[![Issue Stats](http://issuestats.com/github/leanprover/lean/badge/issue)](http://issuestats.com/github/leanprover/lean)
 
 About
 -----

@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
-REALPATH=realpath
-
 if [ $# -ne 3 -a $# -ne 2 ]; then
     echo "Usage: test_single.sh [lean-executable-path] [file] [yes/no]?"
     exit 1
 fi
 ulimit -s unlimited
 LEAN=$1
-ROOT_PATH=$($REALPATH ../../..)
+if command -v greadlink >/dev/null 2>&1; then
+  # macOS readlink doesn't support -f option
+  READLINK=greadlink
+else
+  READLINK=readlink
+fi
+ROOT_PATH=$($READLINK -f ../../..)
 
 if [[ "$OSTYPE" == "msys" ]]; then
     # Windows running MSYS2
@@ -16,7 +20,6 @@ if [[ "$OSTYPE" == "msys" ]]; then
 else
     ROOT_PATH_NORMALIZED=$ROOT_PATH
 fi
-
 export LEAN_PATH=$ROOT_PATH/library:.
 if [ $# -ne 3 ]; then
     INTERACTIVE=no

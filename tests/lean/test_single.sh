@@ -14,6 +14,12 @@ fi
 f=$2
 ff=$(./readlinkf.sh "$f")
 
+if [[ "$OSTYPE" == "msys" ]]; then
+    # Windows running MSYS2
+    # Replace /c/ with c:, and / with \\
+    ff=$(echo $ff  | sed 's|^/\([a-z]\)/|\1:/|' | sed 's|/|\\\\|g')
+fi
+
 echo "-- testing $f"
 "$LEAN" -Dpp.colors=false -Dpp.unicode=true -j0 "$ff" &> "$f.produced.out"
 sed "/warning: imported file uses 'sorry'/d" "$f.produced.out" > "$f.produced.out.tmp"

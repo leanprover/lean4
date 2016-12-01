@@ -50,8 +50,6 @@ option(CROSS_COMPILE      "CROSS_COMPILE"     OFF)
 option(CONSERVE_MEMORY    "CONSERVE_MEMORY"   OFF)
 # Include MSYS2 required DLLs and binaries in the binary distribution package
 option(INCLUDE_MSYS2_DLLS "INCLUDE_MSYS2_DLLS" OFF)
-# When ON we add lean binary dependency to standard
-option(LEAN_BIN_DEP       "LEAN_BIN_DEP"      ON)
 # When ON we include githash in the version string
 option(USE_GITHASH        "GIT_HASH"          ON)
 # When ON thread storage is automatically finalized, it assumes platform support pthreads.

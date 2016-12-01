@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include "util/flet.h"
+#include "util/thread.h"
 #include "kernel/find_fn.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/replace_fn.h"
@@ -119,7 +120,7 @@ elaborator::elaborator(environment const & env, options const & opts, metavar_co
 
 elaborator::~elaborator() {
     try {
-        if (m_uses_infom && get_global_info_manager()) {
+        if (m_uses_infom && get_global_info_manager() && !in_thread_finalization()) {
             m_info.instantiate_mvars(m_ctx.mctx());
             get_global_info_manager()->merge(m_info);
         }

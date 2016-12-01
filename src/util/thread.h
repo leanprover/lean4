@@ -223,4 +223,6 @@ void register_thread_finalizer(thread_finalizer fn, void * p);
 void run_thread_finalizers();
 void run_post_thread_finalizers();
 void delete_thread_finalizer_manager();
+
+bool in_thread_finalization();
 }

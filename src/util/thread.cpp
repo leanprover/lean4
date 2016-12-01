@@ -31,9 +31,16 @@ void initialize_thread() {}
 void finalize_thread() {}
 #endif
 
+LEAN_THREAD_VALUE(bool, g_finalizing, false);
+
+bool in_thread_finalization() {
+    return g_finalizing;
+}
+
 typedef std::vector<std::pair<thread_finalizer, void*>> thread_finalizers;
 
 void run_thread_finalizers_core(thread_finalizers & fns) {
+    g_finalizing = true;
     unsigned i = fns.size();
     while (i > 0) {
         --i;

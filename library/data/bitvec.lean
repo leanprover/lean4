@@ -28,6 +28,9 @@ local infix `++ₜ`:65 := tuple.append
 protected def cong {a b : ℕ} (h : a = b) : bitvec a → bitvec b
 | ⟨x, p⟩ := ⟨x, h ▸ p⟩
 
+-- bitvec specific version of tuple.append
+def append {m n} : bitvec m → bitvec n → bitvec (m + n) := tuple.append
+
 section shift
   variable {n : ℕ}
 

@@ -1,225 +1,93 @@
 language: cpp
+sudo: true
 cache: apt
-env:
-  global:
-   # GH_TOKEN=[secure]             (to push to osx/windows repo under soonhokong)
-   - secure: "bDcZ1BusPgeFcilXBXqJ+aLWmCD6ET6SY6GaIDz66zFFVvHULkr8PcGQgKHw/VxH4Kbll52hkKwYgKhXyBF+VlHiyAxQHzlr17honzIl42vbz+tC5qr4/oDASolqayUtz9xJqNOFbTwvh5EHZLbG5hjudSdGE8LX3QC6IN7wYy8="
-   # DROPBOX_KEY=[secure]          (to send binaries to dropbox, "access_token")
-   - secure: "CyASf1F7hGwB85jUQOfDoNBQSouSayP4BVvjqAJdRxirui/oyw2sJ02HC6ZTM+LO+ZyWy3eJOGwe81z6PEQFzovv9C8VLRbhV8Tk7aN+nQTCyyKLoxsON/T5PO/C74ZSu5hTNMwnHrbdphc88Y4ZrQqL2M3cTWT5nVFCshEq6IM="
-   # REPO=BLESSED                  (to perform extra stuff only for pushes to the blessed repo)
-   - secure: "iZEcYPaxqGRQs7loHwO88DlewbRngBwoNGfo438jabh0adF3y9zCPw0tcAtp6IJuCw8E6QVoM9JMwoQRvPbnqBelFjpXH+U3eYdaeeZRkBkyOthTWzzdwEexlnK7dXVEc+gTDjh2NBD9juXKDSJ5xOF1HfhEJaMXSLairnhpL6k="
-  matrix:
-   # =======================================================
-   # TESTCOV Build
-   # =======================================================
-   # TC. g++-4.9      | DEBUG                   | CDASH
-   - CMAKE_CXX_COMPILER=g++-4.9
-     CMAKE_BUILD_TYPE=Debug
-     TESTCOV=OFF
-     PUSH_TO_CDASH=TRUE
-     TCMALLOC=OFF
-     CONSERVE_MEMORY=ON
-   # =======================================================
-   # DEBUG Build
-   # =======================================================
-   # D1. clang++-3.4  | DEBUG   | TCMALLOC       | CDASH
-   - CMAKE_CXX_COMPILER=clang++-3.4
-     CMAKE_BUILD_TYPE=Debug
-     TCMALLOC=ON
-     PUSH_TO_CDASH=TRUE
-   # Leo: TRIGGERS are broken
-   # D2. g++-4.9     | DEBUG    | TCMALLOC       | CDASH + TRIGGERS
-   # - CMAKE_CXX_COMPILER=g++-4.9
-   #  CMAKE_BUILD_TYPE=Debug
-   #  TRIGGER_BB=TRUE
-   #  TRIGGER_OSX=TRUE
-   #  TRIGGER_WINDOWS=TRUE
-   #  TCMALLOC=ON
-   #  PUSH_TO_CDASH=TRUE
-   #  CONSERVE_MEMORY=ON
-   # D3. clang++-3.4 | DEBUG
-   - CMAKE_CXX_COMPILER=clang++-3.4
-     CMAKE_BUILD_TYPE=Debug
-     TCMALLOC=OFF
-     PUSH_TO_CDASH=TRUE
-   # D4. g++-4.9     | DEBUG
-   - CMAKE_CXX_COMPILER=g++-4.9
-     CMAKE_BUILD_TYPE=Debug
-     TCMALLOC=OFF
-     PUSH_TO_CDASH=TRUE
-     CONSERVE_MEMORY=ON
-   # =======================================================
-   # RELEASE Build
-   # =======================================================
-   # R1. clang++-3.4 | RELEASE | TCMALLOC        | CDASH
-   - CMAKE_CXX_COMPILER=clang++-3.4
-     CMAKE_BUILD_TYPE=Release
-     TCMALLOC=ON
-     PUSH_TO_CDASH=TRUE
-   # R2. g++-4.9     | RELEASE | TCMALLOC        | CDASH + UPLOAD=>DROPBOX
-   - CMAKE_CXX_COMPILER=g++-4.9
-     CMAKE_BUILD_TYPE=Release
-     TCMALLOC=ON
-     UPLOAD=linux_tcmalloc
-     PUSH_TO_CDASH=TRUE
-     PACKAGE=TRUE
-     CONSERVE_MEMORY=ON
-   # R3. clang++-3.4 | RELEASE
-   - CMAKE_CXX_COMPILER=clang++-3.4
-     CMAKE_BUILD_TYPE=Release
-     TCMALLOC=OFF
-     PUSH_TO_CDASH=TRUE
-   # R4. g++-4.9    | RELEASE                    | UPLOAD=>DROPBOX
-   - CMAKE_CXX_COMPILER=g++-4.9
-     CMAKE_BUILD_TYPE=Release
-     TCMALLOC=OFF
-     UPLOAD=linux
-     PUSH_TO_CDASH=TRUE
-     CONSERVE_MEMORY=ON
+dist: trusty
+addons:
+  apt:
+    sources: &apt_sources
+      - ubuntu-toolchain-r-test
+      - sourceline: 'ppa:kalakris/cmake'
+      - sourceline: 'ppa:h-rayflood/llvm'
+    packages: &default_packages
+      - cmake
+      - libgmp-dev
+      - libmpfr-dev
+      - libgoogle-perftools-dev
+      - g++-4.9
+      - clang-3.4
+      - lcov
+      - valgrind
+      - python-pip
 
-install:
-  - until sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test; do echo retry; done
-  - until sudo add-apt-repository --yes ppa:h-rayflood/llvm; do echo retry; done
-  - until sudo add-apt-repository --yes ppa:kalakris/cmake; do echo retry; done
-  - until sudo apt-get -qq update; do echo retry; done
-  - if [[ $TCMALLOC == ON ]]; then until sudo add-apt-repository --yes ppa:agent-8131/ppa && sudo apt-get -qq update && sudo apt-get -qq install libgoogle-perftools-dev; do echo retry; done; fi
-  - until sudo apt-get -qq install libgmp-dev libmpfr-dev; do echo retry; done
-  - until sudo apt-get -qq install cmake python; do echo retry; done
-  - wget http://dl.dropboxusercontent.com/u/203889738/gcc/ninja.tar.gz &&
-    tar xfz ninja.tar.gz &&
-    cd ninja &&
-    ./bootstrap.py > /dev/null 2>&1 &&
-    sudo cp -v ninja /usr/bin/ &&
-    cd ..
-  - until sudo apt-get -qq install libstdc++-4.9-dev; do echo retry; done
-  - if [[ $REPO == BLESSED && $MEMCHECK == TRUE ]]; then
-       sudo apt-get -qq install valgrind;
-    fi
-  - if [[ $CMAKE_CXX_COMPILER == g++-4.9 ]]; then until sudo apt-get -qq install g++-4.9; do echo retry; done fi
-  - if [[ $CMAKE_CXX_COMPILER == clang++-3.4 ]]; then until sudo apt-get -qq install clang-3.4; do echo retry; done fi
-  - if [[ $REPO == BLESSED && $UPLOAD ]]; then
-       sudo apt-get -qq install python python-pip &&
-       sudo pip install dropbox;
-    fi
-  - if [[ $TESTCOV == ON ]]; then
-       wget http://downloads.sourceforge.net/ltp/lcov-1.11.tar.gz &&
-       tar xvfz lcov-1.11.tar.gz &&
-       sudo make -C lcov-1.11 install &&
-       rm -rf lcov-1.11.tar.gz lcov-1.11 &&
-       sudo cp -v `which gcov-4.9` `which gcov`;
-    fi
+matrix:
+  include:
+   - os: linux
+     env:
+       CMAKE_CXX_COMPILER=clang++-3.4
+       CMAKE_BUILD_TYPE=Release
+       TCMALLOC=ON
 
-before_script:
-- if [[ $REPO == BLESSED && $TRIGGER_OSX == TRUE ]]; then
-      MSG=`git log --pretty=oneline --abbrev-commit -n 1 | cut -d ' ' -f 2-` &&
-      cp .travis.yml /tmp/.travis.temp.yml &&
-      cp .travis.osx.yml .travis.yml &&
-      git config --global user.email "notifications@travis-ci.org" &&
-      git config --global user.name "Travis CI" &&
-      git add .travis.yml &&
-      git commit -m "$MSG" &&
-      git push -q https://soonhokong:${GH_TOKEN}@github.com/soonhokong/lean-osx.git +HEAD:master &&
-      mv /tmp/.travis.temp.yml .travis.yml &&
-      git reset --hard HEAD~;
-  fi
-- if [[ $REPO == BLESSED && $TRIGGER_WINDOWS == TRUE ]]; then
-      MSG=`git log --pretty=oneline --abbrev-commit -n 1 | cut -d ' ' -f 2-` &&
-      cp .travis.yml /tmp/.travis.temp.yml &&
-      cp .travis.windows.yml .travis.yml &&
-      git config --global user.email "notifications@travis-ci.org" &&
-      git config --global user.name "Travis CI" &&
-      git add .travis.yml &&
-      git commit -m "$MSG" &&
-      git push -q https://soonhokong:${GH_TOKEN}@github.com/soonhokong/lean-windows.git +HEAD:master &&
-      mv /tmp/.travis.temp.yml .travis.yml &&
-      git reset --hard HEAD~;
-  fi
+   - os: linux
+     addons:
+       apt:
+         sources: *apt_sources
+         packages:
+           - *default_packages
+           - g++-6
+     env:
+       CMAKE_CXX_COMPILER=g++-6
+       CMAKE_BUILD_TYPE=Release
+       TCMALLOC=ON
+
+   - os: linux
+     env:
+       CMAKE_CXX_COMPILER=clang++-3.4
+       CMAKE_BUILD_TYPE=Debug
+       TCMALLOC=ON
+
+   - os: linux
+     dist: precise
+     env:
+       CMAKE_CXX_COMPILER=g++-4.9
+       CMAKE_BUILD_TYPE=Debug
+       CONSERVE_MEMORY=ON
+
+   - os: osx
+     env:
+       CMAKE_CXX_COMPILER=clang++
+       CMAKE_BUILD_TYPE=Release
+       PACKAGE=TRUE
+   - os: osx
+     env:
+       CMAKE_CXX_COMPILER=g++
+       CMAKE_BUILD_TYPE=Debug
+
+before_install:
+  - if [[ $TRAVIS_OS_NAME == osx ]]; then
+      brew update &&
+      brew install gcc &&
+      brew install gmp &&
+      brew install mpfr;
+    fi
 
 script:
   - mkdir -p build
   - cd build
-  - if [[ $CMAKE_BUILD_TYPE == Release && $CMAKE_CXX_COMPILER=clang++-3.4 ]]; then
-       GENERATOR=;
-    else
-       GENERATOR=-GNinja;
-    fi
-  - if [[ $TESTCOV != ON ]]; then
-       TESTCOV=OFF;
-    fi
-  - /usr/bin/cmake -DIGNORE_SORRY=ON -DCONSERVE_MEMORY=${CONSERVE_MEMORY} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DTESTCOV=${TESTCOV} -DTCMALLOC=${TCMALLOC} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} ${GENERATOR} -DCMAKE_PROGRAM_PATH=/usr/bin ../src
-  - if [[ $CMAKE_BUILD_TYPE == Debug || $CMAKE_BUILD_TYPE == Release || $TESTCOV == ON ]]; then
-       SITE=Ubuntu12.04@Travis &&
-       if [[ $CMAKE_BUILD_TYPE == Release ]]; then
-           BUILD_TYPE=Release;
-       else
-           BUILD_TYPE=Debug;
-       fi &&
-       BUILD_NAME=${TRAVIS_BRANCH}_${CMAKE_CXX_COMPILER}_${BUILD_TYPE} &&
-       if [[ $TCMALLOC == ON ]]; then
-           BUILD_NAME=${BUILD_NAME}_TC;
-       fi &&
-       CONFIG_FILE=DartConfiguration.tcl &&
-       sed -i "s/^Site:.*/Site:$SITE/" $CONFIG_FILE &&
-       sed -i "s/BuildName:.*/BuildName:$BUILD_NAME/" $CONFIG_FILE &&
-       if [[ $MEMCHECK == TRUE ]]; then
-           ninja -j 1;
-       else
-           ctest -D ExperimentalConfigure &&
-           sed -i "s/^Site:.*/Site:$SITE/" $CONFIG_FILE &&
-           sed -i "s/BuildName:.*/BuildName:$BUILD_NAME/" $CONFIG_FILE &&
-           ctest -D ExperimentalBuild -VV &&
-           yes "C" | ctest -D ExperimentalTest -VV | ../script/demangle_cpptype.py;
-       fi;
-    fi
+  - if [[ $TESTCOV != ON ]]; then TESTCOV=OFF; fi
+  - if [[ $TCMALLOC != ON ]]; then TCMALLOC=OFF; fi
+  - cmake -DCONSERVE_MEMORY=${CONSERVE_MEMORY} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DTESTCOV=${TESTCOV} -DTCMALLOC=${TCMALLOC} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} ../src
+  - make -j2
+  - if [[ $CMAKE_BUILD_TYPE == Release ]]; then yes "C" | ctest -j2 -V; fi
+  - if [[ $PACKAGE == TRUE ]]; then make package; fi
   - cd ..
 
 after_script:
-- cd build
-- if [[ $REPO == BLESSED && $TESTCOV == ON ]]; then
-     ctest -D ExperimentalCoverage &&
-     ninja -j 1 cov &&
-     npm install coveralls --save &&
-     cat coverage.info.cleaned | ./node_modules/coveralls/bin/coveralls.js;
-  fi
-- if [[ $REPO == BLESSED && $MEMCHECK == TRUE ]]; then
-     MEMCHECK_SUPP=`readlink -f ../src/memcheck.supp` &&
-     CONFIG_FILE=DartConfiguration.tcl &&
-     sed -i "s,^MemoryCheckSuppressionFile:\W*$,MemoryCheckSuppressionFile:$MEMCHECK_SUPP," $CONFIG_FILE &&
-     ulimit -s unlimited &&
-     yes "C" | ctest -D ExperimentalMemCheck -LE expensive -VV -I $MEMCHECK_RANGE | ../script/demangle_cpptype.py;
-  fi
-- if [[ $REPO == BLESSED && $PUSH_TO_CDASH == TRUE ]]; then
-      GIT_COMMIT=`git log --oneline -n 1 | cut -d ' ' -f 1` &&
-      GIT_SUBJECT=`git log --oneline -n 1 | cut -d ' ' -f 2-` &&
-      GIT_SUBJECT=${GIT_SUBJECT//\"/\\\"} &&
-      GIT_SUBJECT=${GIT_SUBJECT//,/\,} &&
-      GIT_SUBJECT=$(echo -e $(printf '%q' "$GIT_SUBJECT")) &&
-      find Testing -name "*.xml" -exec sed -i "s,Generator=\".*\",Generator=\"${GIT_COMMIT}###${GIT_SUBJECT}\"," {} ";" &&
-      find Testing \( -name "LastTest_*.log" -o -name "LastDynamicAnalysis_*.log" \) -exec sh -c 'TMP=`mktemp /tmp/ctesttmp_XXXX`; ../script/demangle_cpptype.py {} > $TMP; mv -v $TMP {}' ";" &&
-      ctest -D ExperimentalSubmit;
-  fi
-- if [[ $REPO == BLESSED && $PACKAGE == TRUE ]]; then
-     make package;
-  fi
-- cd ..
-- if [[ $REPO == BLESSED && $UPLOAD ]]; then
-      UPLOAD_DIR=bin &&
-      BINARY=lean_${UPLOAD} &&
-      NOW=`TZ='America/Los_Angeles' date +"%Y%m%d_%H%M"` &&
-      GIT_COMMIT=`git log --oneline -n 1 | cut -d ' ' -f 1` &&
-      OS=linux &&
-      ARCHIVE_BINARY=${NOW}_${TRAVIS_BRANCH}_${GIT_COMMIT}_${OS}_${CMAKE_CXX_COMPILER}_${BUILD_TYPE} &&
-      if [[ $TCMALLOC == ON ]]; then
-          ARCHIVE_BINARY=${ARCHIVE_BINARY}_tcmalloc
-      fi &&
-      mkdir ${UPLOAD_DIR} &&
-      if [[ $REPO == BLESSED && $PACKAGE == TRUE ]]; then
-          cp -v build/lean*.tar.gz ${UPLOAD_DIR}/
-      fi &&
-      cp -v build/shell/lean ${UPLOAD_DIR}/${BINARY} &&
-      tar cvfz ${UPLOAD_DIR}/${ARCHIVE_BINARY}.tar.gz ${UPLOAD_DIR}/${BINARY} &&
-      script/dropbox_upload.py --srcpath ${UPLOAD_DIR} --destpath /Public/${UPLOAD_DIR} --dropbox-token ${DROPBOX_KEY};
-  fi
+# - if [[ $REPO == BLESSED && $TESTCOV == ON ]]; then
+#      ctest -D ExperimentalCoverage &&
+#      make cov &&
+#      npm install coveralls --save &&
+#      cat coverage.info.cleaned | ./node_modules/coveralls/bin/coveralls.js;
+#   fi
 
 notifications:
   email:

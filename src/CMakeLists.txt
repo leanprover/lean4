@@ -59,6 +59,7 @@ set(EMACS_LISP_DIR        "share/emacs/site-lisp/lean" CACHE STRING "emacs site-
 # library dir
 set(LIBRARY_DIR           "lib/lean"                   CACHE STRING "library dir")
 set(LEAN_EXT_INCLUDE_DIR  "include/lean_ext"           CACHE STRING "include dir for building Lean extensions")
+set(LEAN_EXTRA_MAKE_OPTS  ""                           CACHE STRING "extra options to lean --make")
 
 message(STATUS "Lean emacs-mode will be installed at "
   "${CMAKE_INSTALL_PREFIX}/${EMACS_LISP_DIR}")
@@ -435,7 +436,7 @@ endif()
 
 add_custom_target(
     standard_lib ALL
-    COMMAND "${LEAN_SOURCE_DIR}/../bin/lean" --make
+    COMMAND "${LEAN_SOURCE_DIR}/../bin/lean" --make ${LEAN_EXTRA_MAKE_OPTS}
     DEPENDS "${CMAKE_BINARY_DIR}/shell/lean"
     WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
     )

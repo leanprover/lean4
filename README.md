@@ -18,18 +18,18 @@
 About
 -----
 
-- [Homepage](https://leanprover.github.io)
+- [Homepage](http://leanprover.github.io)
 - Theorem Proving in Lean: [HTML](https://leanprover.github.io/tutorial/index.html), [PDF](http://leanprover.github.io/tutorial/tutorial.pdf)
 - [Authors](http://leanprover.github.io/people/)
 - [Standard Library](library/library.md)
-- [HoTT Library](hott/hott.md)
 - [Emacs Mode](src/emacs/README.md)
 - [Short Tutorial](doc/lean/tutorial.org)
+- For HoTT mode, please use [Lean2](https://github.com/leanprover/lean2).
 
 Requirements
 ------------
 
-- C++11 compatible compiler: [g++](http://gcc.gnu.org/) (version >= 4.8.1), or [clang++](http://clang.llvm.org/cxx_status.html) (version >= 3.3)
+- C++11 compatible compiler
 - [CMake](http://www.cmake.org)
 - [GMP (GNU multiprecision library)](http://gmplib.org/)
 - [MPFR (GNU MPFR Library)](http://www.mpfr.org/)
@@ -44,14 +44,10 @@ Installing required packages at
 _Windows_
 
 - [MSys2](doc/make/msys2.md)
-- [Cygwin](doc/make/cygwin.md)
 
 _Linux_
 
 - [Ubuntu 16.04](doc/make/ubuntu-16.04.md)
-- [Ubuntu 12.04](doc/make/ubuntu-12.04.md)
-- [Ubuntu 12.04 (detailed)](doc/make/ubuntu-12.04-detailed.md)
-- [Fedora 19](doc/make/fedora-19.md)
 
 _OS X_
 
@@ -67,7 +63,6 @@ Build Instructions
 Miscellaneous
 -------------
 
-- [Testing and Code Coverage](doc/make/coverage.md)
 - Building Doxygen Documentation: `doxygen src/Doxyfile`
 - [Coding Style](doc/coding_style.md)
 - [Library Style Conventions](doc/lean/library_style.org)

@@ -15,12 +15,7 @@ Author: Leonardo de Moura
 #include "util/numerics/primes.h"
 
 namespace lean {
-extern "C" void * cxx_malloc(size_t size) { return lean::malloc(size); }
-extern "C" void * cxx_realloc(void * q, size_t, size_t new_size) { return lean::realloc(q, new_size); }
-extern "C" void cxx_free(void * p, size_t) { return lean::free(p); }
-
 void initialize_numerics_module() {
-    mp_set_memory_functions(cxx_malloc, cxx_realloc, cxx_free);
     initialize_mpz();
     initialize_mpq();
     initialize_mpbq();

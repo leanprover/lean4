@@ -14,7 +14,4 @@ void set_max_memory(size_t max);
 void set_max_memory_megabyte(unsigned max);
 void check_memory(char const * component_name);
 size_t get_allocated_memory();
-void * malloc(size_t sz);
-void * realloc(void * ptr, size_t sz);
-void free(void * ptr);
 }

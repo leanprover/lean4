@@ -84,10 +84,8 @@ static void display_help(std::ostream & out) {
     std::cout << "  --trust=num -t    trust level (default: max) 0 means do not trust any macro,\n"
               << "                    and type check all imported modules\n";
     std::cout << "  --quiet -q        do not print verbose messages\n";
-#if defined(LEAN_TRACK_MEMORY)
     std::cout << "  --memory=num -M   maximum amount of memory that should be used by Lean\n";
     std::cout << "                    (in megabytes)\n";
-#endif
 #if defined(LEAN_MULTI_THREAD)
     std::cout << "  --threads=num -j  number of threads used to process lean files\n";
 #endif
@@ -140,10 +138,7 @@ static struct option g_long_options[] = {
 };
 
 static char const * g_opt_str =
-    "PdD:qpgvht:012E:AB:j:012r"
-#if defined(LEAN_TRACK_MEMORY)
-    "M:012"
-#endif
+    "PdD:qpgvht:012E:AB:j:012rM:012"
 #if defined(LEAN_USE_BOOST) && defined(LEAN_MULTI_THREAD)
     "s:012"
 #endif

@@ -1,0 +1,14 @@
+environment:
+  matrix:
+  - MSYSTEM: MINGW64
+
+install:
+  # upgrading gcc to 6.x fails
+  - C:\msys64\usr\bin\bash -lc "pacman --noconfirm -Suuy mingw-w64-x86_64-ninja mingw-w64-x86_64-cmake git mingw-w64-x86_64-mpfr"
+
+build_script:
+  - C:\msys64\usr\bin\bash -lc "exec 0</dev/null && cd $APPVEYOR_BUILD_FOLDER && mkdir build && cd build && cmake ../src -DCMAKE_BUILD_TYPE=Release -G Ninja"
+  - C:\msys64\usr\bin\bash -lc "exec 0</dev/null && cd $APPVEYOR_BUILD_FOLDER/build && ninja"
+
+test_script:
+  - C:\msys64\usr\bin\bash -lc "exec 0</dev/null && cd $APPVEYOR_BUILD_FOLDER/build && ctest -j4"

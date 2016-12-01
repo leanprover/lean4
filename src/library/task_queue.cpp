@@ -72,8 +72,7 @@ task_queue & get_global_task_queue() {
     return *g_tq;
 }
 
-task_cancellation_exception::task_cancellation_exception(generic_task_result const & cancelled_task) :
-        m_cancelled_task(cancelled_task) {
+task_cancellation_exception::task_cancellation_exception(generic_task_result const & cancelled_task) {
     std::ostringstream out;
     if (cancelled_task) {
         out << "task cancelled: " << cancelled_task.description();

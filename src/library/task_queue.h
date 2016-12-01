@@ -212,14 +212,11 @@ task_result<T> mk_pure_task_result(T const & t, std::string const & desc) {
 }
 
 class task_cancellation_exception : public std::exception {
-    generic_task_result m_cancelled_task;
     std::string m_msg;
 public:
     task_cancellation_exception() : task_cancellation_exception(generic_task_result()) {}
     task_cancellation_exception(generic_task_result const & cancelled_task);
     char const * what() const noexcept override;
-
-    generic_task_result get_cancelled_task() const { return m_cancelled_task; }
 };
 
 class task_queue {

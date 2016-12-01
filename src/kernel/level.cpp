@@ -761,7 +761,6 @@ void initialize_level() {
 }
 
 void finalize_level() {
-    enable_level_caching(false);
     delete g_level_one;
     delete g_level_zero;
 }

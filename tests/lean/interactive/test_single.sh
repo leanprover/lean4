@@ -8,6 +8,15 @@ fi
 ulimit -s unlimited
 LEAN=$1
 ROOT_PATH=$($REALPATH ../../..)
+
+if [[ "$OSTYPE" == "msys" ]]; then
+    # Windows running MSYS2
+    # Replace /c/ with c:, and / with \\
+    ROOT_PATH_NORMALIZED=$(echo $ROOT_PATH  | sed 's|^/\([a-z]\)/|\U\1:/|' | sed 's|/|\\\\\\\\|g')
+else
+    ROOT_PATH_NORMALIZED=$ROOT_PATH
+fi
+
 export LEAN_PATH=$ROOT_PATH/library:.
 if [ $# -ne 3 ]; then
     INTERACTIVE=no
@@ -19,8 +28,12 @@ echo "-- testing $f"
 
 OUTPUT="$("$LEAN" -j0 -D pp.unicode=true --server < "$f")"
 # make paths system-independent
-OUTPUT=${OUTPUT//$ROOT_PATH/}
-echo "$OUTPUT" > "$f.produced.out"
+if [[ "$OSTYPE" == "msys" ]]; then
+    echo "$OUTPUT" | sed "s|$ROOT_PATH_NORMALIZED||g" | sed 's|\\\\|/|g' > "$f.produced.out"
+else
+    OUTPUT=${OUTPUT//$ROOT_PATH_NORMALIZED/}
+    echo "$OUTPUT" > "$f.produced.out"
+fi
 
 if test -f "$f.expected.out"; then
     if diff --ignore-all-space "$f.produced.out" "$f.expected.out"; then

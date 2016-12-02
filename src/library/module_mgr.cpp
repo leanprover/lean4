@@ -233,10 +233,17 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
             mod->m_source = module_src::LEAN;
             mod->m_trans_mtime = mod->m_mtime = mtime;
             for (auto & d : imports) {
-                auto d_id = resolve(id, d);
-                build_module(d_id, true, module_stack);
+                module_id d_id;
+                try {
+                    d_id = resolve(id, d);
+                    build_module(d_id, true, module_stack);
+                    mod->m_trans_mtime = std::max(mod->m_trans_mtime, m_modules[d_id]->m_trans_mtime);
+                } catch (throwable & ex) {
+                    message_builder msg(m_initial_env, m_ios, id, pos_info {1, 0}, ERROR);
+                    msg.set_exception(ex);
+                    msg.report();
+                }
                 mod->m_deps.push_back({ d_id, d });
-                mod->m_trans_mtime = std::max(mod->m_trans_mtime, m_modules[d_id]->m_trans_mtime);
             }
             if (m_use_snapshots) {
                 mod->m_lean_contents = optional<std::string>(contents);
@@ -317,7 +324,7 @@ module_mgr::get_snapshots_or_unchanged_module(module_id const &id, std::string c
     if (mod->m_source != module_src::LEAN) return false;
 
     for (auto d : mod->m_deps) {
-        if (m_modules[d.first]->m_version > mod->m_version) {
+        if (m_modules[d.first] && m_modules[d.first]->m_version > mod->m_version) {
             mod->m_still_valid_snapshots.clear();
             return false;
         }
@@ -361,13 +368,16 @@ void module_mgr::gather_transitive_imports(std::vector<std::tuple<module_id, mod
                                            std::unordered_set<module_id> & visited,
                                            module_id const & id,
                                            module_name const & import) {
-    auto import_id = resolve(id, import);
-    res.push_back(std::make_tuple(id, import, m_modules[import_id]));
-    if (!visited.count(import_id)) {
-        visited.insert(import_id);
-        for (auto & d : m_modules[import_id]->m_deps)
-            gather_transitive_imports(res, visited, import_id, d.second);
-    }
+    try {
+        auto import_id = resolve(id, import);
+        if (!m_modules[import_id]) return;
+        res.push_back(std::make_tuple(id, import, m_modules[import_id]));
+        if (!visited.count(import_id)) {
+            visited.insert(import_id);
+            for (auto & d : m_modules[import_id]->m_deps)
+                gather_transitive_imports(res, visited, import_id, d.second);
+        }
+    } catch (file_not_found_exception & ex) {}
 }
 
 std::vector<std::tuple<module_id, module_name, std::shared_ptr<module_info const>>> module_mgr::gather_transitive_imports(

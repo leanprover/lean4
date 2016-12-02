@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.functor
+import init.category.functor
 universe variables u v
 
 class applicative (f : Type u → Type v) extends functor f : Type (max u+1 v):=

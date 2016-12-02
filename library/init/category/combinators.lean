@@ -6,7 +6,7 @@ Authors: Jeremy Avigad
 Monad combinators, as in Haskell's Control.Monad.
 -/
 prelude
-import init.monad init.data.list.basic
+import init.category.monad init.data.list.basic
 universe variables u v w
 
 namespace monad

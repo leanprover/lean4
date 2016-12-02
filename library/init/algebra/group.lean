@@ -5,7 +5,6 @@ Authors: Jeremy Avigad, Leonardo de Moura
 -/
 prelude
 import init.logic init.binary init.combinator init.meta.interactive init.meta.decl_cmds
-import init.monad_combinators
 
 /- Make sure instances defined in this file have lower priority than the ones
    defined for concrete structures -/

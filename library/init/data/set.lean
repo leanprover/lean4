@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.logic init.functor
+import init.logic init.category.functor
 
 universe variables u v
 def set (α : Type u) := α → Prop

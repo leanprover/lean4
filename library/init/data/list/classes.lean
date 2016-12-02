@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.monad init.alternative
+import init.category.monad init.category.alternative init.data.list.basic
 open list
 
 universe variables u v

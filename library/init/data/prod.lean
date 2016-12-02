@@ -5,10 +5,6 @@ Author: Leonardo de Moura, Jeremy Avigad
 -/
 prelude
 import init.relation
-notation α × β := prod α β
--- notation for n-ary tuples
-notation `(` h `, ` t:(foldr `, ` (e r, prod.mk e r)) `)` := prod.mk h t
-
 universe variables u v
 
 instance {α : Type u} {β : Type v} [inhabited α] [inhabited β] : inhabited (prod α β) :=

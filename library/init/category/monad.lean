@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Luke Nelson and Jared Roesch
 -/
 prelude
-import init.applicative init.trace
+import init.category.applicative
 universe variables u v
 
 class monad (m : Type u → Type v) extends functor m : Type (max u+1 v) :=

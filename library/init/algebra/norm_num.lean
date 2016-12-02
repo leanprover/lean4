@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Robert Lewis and Leonardo de Moura
 -/
 prelude
-import init.ring
+import init.algebra.ring
 
 namespace norm_num
 universe variable u

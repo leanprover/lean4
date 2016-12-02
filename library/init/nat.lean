@@ -5,7 +5,6 @@ Authors: Floris van Doorn, Leonardo de Moura
 -/
 prelude
 import init.relation init.num
-import init.order
 
 notation `ℕ` := nat
 

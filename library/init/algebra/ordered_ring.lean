@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jeremy Avigad, Leonardo de Moura
 -/
 prelude
-import init.ordered_group init.ring
+import init.algebra.ordered_group init.algebra.ring
 
 /- Make sure instances defined in this file have lower priority than the ones
    defined for concrete structures -/

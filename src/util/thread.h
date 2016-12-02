@@ -6,11 +6,6 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <iostream>
-#include <chrono>
-
-namespace lean {
-namespace chrono = std::chrono;
-}
 
 #if defined(LEAN_MULTI_THREAD)
 #if !defined(LEAN_USE_BOOST)
@@ -20,7 +15,10 @@ namespace chrono = std::chrono;
 #include <atomic>
 #include <condition_variable>
 #define LEAN_THREAD_LOCAL thread_local
+#include <chrono>
+
 namespace lean {
+namespace chrono = std::chrono;
 inline void set_thread_stack_size(size_t ) {}
 using std::thread;
 using std::mutex;
@@ -48,8 +46,10 @@ inline unsigned hardware_concurrency() { return std::thread::hardware_concurrenc
 // MULTI THREADING SUPPORT BASED ON THE BOOST LIBRARY
 #include <boost/thread.hpp>
 #include <boost/atomic.hpp>
+#include <boost/chrono.hpp>
 #define LEAN_THREAD_LOCAL thread_local
 namespace lean {
+namespace chrono = boost::chrono;
 void set_thread_stack_size(size_t );
 boost::thread::attributes const & get_thread_attributes();
 using boost::thread;
@@ -79,8 +79,10 @@ inline unsigned hardware_concurrency() { return boost::thread::hardware_concurre
 // NO MULTI THREADING SUPPORT
 #include <utility>
 #include <cstdlib>
+#include <chrono> // NOLINT
 #define LEAN_THREAD_LOCAL
 namespace lean {
+namespace chrono = std::chrono;
 inline void set_thread_stack_size(size_t ) {}
 constexpr int memory_order_relaxed = 0;
 constexpr int memory_order_release = 0;

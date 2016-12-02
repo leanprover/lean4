@@ -205,6 +205,7 @@ if (BOOST AND MULTI_THREAD)
   find_package(Boost 1.54 COMPONENTS system thread atomic chrono REQUIRED)
   message(STATUS "Boost library will be used to implement multi-threading support")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D LEAN_USE_BOOST")
+  include_directories(${Boost_INCLUDE_DIRS})
   set(EXTRA_LIBS ${EXTRA_LIBS} ${Boost_LIBRARIES})
   if (("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin") AND ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU"))
      # Hide warnings when using Boost and g++ on OSX

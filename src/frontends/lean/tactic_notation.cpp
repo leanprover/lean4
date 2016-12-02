@@ -279,7 +279,7 @@ static bool is_curr_exact_shortcut(parser & p) {
         p.curr_is_token(get_suppose_tk());
 }
 
-static expr parse_tactic(parser & p) {
+static expr parse_tactic_core(parser & p) {
     if (auto dname = is_auto_quote_tactic(p)) {
         return parse_auto_quote_tactic(p, *dname);
     } else if (is_curr_exact_shortcut(p)) {
@@ -288,6 +288,15 @@ static expr parse_tactic(parser & p) {
         return p.rec_save_pos(mk_app(mk_constant(get_tactic_interactive_exact_name()), arg), pos);
     } else {
         return p.parse_expr();
+    }
+}
+
+static expr parse_tactic(parser & p) {
+    if (p.in_quote()) {
+        parser::quote_scope _(p, false);
+        return parse_tactic_core(p);
+    } else {
+        return parse_tactic_core(p);
     }
 }
 
@@ -336,12 +345,14 @@ expr parse_begin_end_core(parser & p, pos_info const & start_pos,
 }
 
 expr parse_begin_end(parser & p, unsigned, expr const *, pos_info const & pos) {
+    parser::local_scope _(p);
+    p.clear_locals();
     return parse_begin_end_core(p, pos, get_end_tk());
 }
 
 expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {
     p.next();
-    parser::local_scope scope(p);
+    parser::local_scope _(p);
     p.clear_locals();
     auto tac_pos = p.pos();
     expr tac  = parse_tactic(p);

@@ -151,9 +151,11 @@ json server::handle_check(json const &) {
     }
 
     bool is_ok = false;
-    if (auto res = m_mod_mgr->get_module(m_file_name)->m_result.peek()) {
-        is_ok = res->m_ok;
-    }
+    try {
+        if (auto res = m_mod_mgr->get_module(m_file_name)->m_result.peek()) {
+            is_ok = res->m_ok;
+        }
+    } catch (...) {}
 
     json res;
     res["response"] = "ok";

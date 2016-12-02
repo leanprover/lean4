@@ -20,7 +20,7 @@ enum class elaborator_strategy {
     AsEliminator
 };
 
-class sanitize_param_names_fn;
+struct sanitize_param_names_fn;
 
 class elaborator {
 public:

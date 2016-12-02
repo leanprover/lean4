@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Floris van Doorn, Leonardo de Moura
 -/
 prelude
-import init.relation init.num
+import init.relation init.data.num.basic
 
 notation `ℕ` := nat
 

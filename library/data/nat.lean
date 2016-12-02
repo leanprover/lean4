@@ -5,7 +5,6 @@ Author: Jeremy Avigad
 
 This is a minimal port of functions from the lean2 library.
 -/
-import init.nat
 import algebra.order
 
 namespace nat

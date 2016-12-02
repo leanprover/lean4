@@ -1,5 +1,5 @@
 prelude
-import init.string init.monad
+import init.data.string.basic init.monad
 
 meta constant {u} task : Type u → Type (max u 1)
 

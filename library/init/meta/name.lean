@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.ordering init.coe
+import init.data.ordering init.coe
 
 /- Reflect a C++ name object. The VM replaces it with the C++ implementation. -/
 inductive name

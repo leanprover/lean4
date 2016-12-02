@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.nat init.meta init.congr init.binary init.algebra
+import init.data.nat.basic init.meta init.congr init.binary init.algebra
 
 namespace nat
 

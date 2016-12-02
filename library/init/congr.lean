@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 Additional congruence lemmas.
 -/
 prelude
-import init.quot
+import init.data.quot
 universe variables u v
 
 lemma forall_congr_eq {a : Type u} {p q : a → Prop} (h : ∀ x, p x = q x) : (∀ x, p x) = ∀ x, q x :=

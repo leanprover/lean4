@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.fin
+import init.data.fin.basic
 
 open nat
 def char_sz : nat := succ 255

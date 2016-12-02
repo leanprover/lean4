@@ -1,5 +1,6 @@
 prelude
-import init.char init.meta init.logic init.nat_lemmas
+import init.meta init.logic init.data.nat.lemmas
+import init.data.char.basic
 
 namespace char
 lemma of_nat_eq_of_lt {n : nat} : ∀ h : n < char_sz, of_nat n = fin.mk n h :=

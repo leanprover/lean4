@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.bool
+import init.data.bool.basic
 
 namespace pos_num
 protected def mul (a b : pos_num) : pos_num :=

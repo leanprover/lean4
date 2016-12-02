@@ -4,9 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.trace init.function init.option init.combinator init.monad init.alternative
-import init.nat_div init.meta.exceptional init.meta.format init.meta.environment
-import init.meta.pexpr
+import init.trace init.function init.data.option.basic init.combinator init.monad init.alternative
+import init.data.nat.div init.meta.exceptional init.meta.format init.meta.environment
+import init.meta.pexpr init.data.to_string init.data.string.basic
 meta constant tactic_state : Type
 
 universe variables u v

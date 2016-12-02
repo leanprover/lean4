@@ -5,7 +5,7 @@ Author: Jeremy Avigad
 
 This is a minimal port of functions from the lean2 list library.
 -/
-import init.list
+import init.data.list.basic
 import algebra.order
 import data.nat
 

@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.wf init.nat
+import init.wf init.data.nat.basic
 namespace nat
 
 private def div_rec_lemma {x y : nat} : 0 < y ∧ y ≤ x → x - y < x :=

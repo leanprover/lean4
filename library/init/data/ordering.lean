@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.to_string init.prod init.sum
+import init.data.to_string init.data.prod init.data.sum.basic
 
 inductive ordering
 | lt | eq | gt

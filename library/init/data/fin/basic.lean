@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.nat
+import init.data.nat.basic
 open nat
 structure fin (n : nat) := (val : nat) (is_lt : val < n)
 

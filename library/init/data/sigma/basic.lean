@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura, Jeremy Avigad, Floris van Doorn
 -/
 prelude
-import init.logic init.num init.wf
+import init.logic init.wf
 
 notation `Σ` binders `, ` r:(scoped p, sigma p) := r
 

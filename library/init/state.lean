@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.logic init.monad init.alternative init.prod
+import init.logic init.monad init.alternative init.data.prod
 
 def state (σ : Type) (α : Type) : Type :=
 σ → α × σ

@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 Quotient types.
 -/
 prelude
-import init.sigma init.setoid init.logic
+import init.data.sigma.basic init.data.setoid init.logic
 open setoid
 
 universe variables u v

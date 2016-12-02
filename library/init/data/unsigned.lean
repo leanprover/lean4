@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.fin
+import init.data.fin.basic
 
 open nat
 def unsigned_sz : nat := succ 4294967295

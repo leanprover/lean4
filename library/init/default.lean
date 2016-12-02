@@ -4,13 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.core init.logic
-import init.relation init.nat init.prod init.sum init.combinator
-import init.bool init.unit init.num init.sigma init.setoid init.quot
-import init.funext init.function init.subtype init.classical init.congr
-import init.monad init.option init.state init.fin init.list init.char init.string init.to_string
-import init.monad_combinators init.set
-import init.timeit init.trace init.unsigned init.ordering init.list_classes init.coe
-import init.wf init.nat_div init.meta init.instances init.breakpoint
-import init.sigma_lex init.id_locked init.algebra
-import init.nat_lemmas init.char_lemmas init.string_lemmas
+import init.core init.logic init.relation init.data.basic
+import init.funext init.function init.classical init.congr
+import init.monad init.state init.monad_combinators
+import init.timeit init.trace init.coe
+import init.wf init.data.nat.div init.meta init.instances init.breakpoint
+import init.id_locked init.algebra init.data

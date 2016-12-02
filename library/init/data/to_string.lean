@@ -2,8 +2,8 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
 prelude
-import init.string init.bool init.subtype init.unsigned init.prod init.sum
-open bool list sum prod sigma subtype nat
+import init.data.string.basic init.data.bool.basic init.data.subtype init.data.unsigned init.data.prod init.data.sum.basic
+open sum subtype nat
 
 universe variables u v
 
@@ -54,7 +54,7 @@ def char.quote_core (c : char) : string :=
 if       c = #"\n" then "\\n"
 else if  c = #"\\" then "\\\\"
 else if  c = #"\"" then "\\\""
-else c::nil
+else [c]
 
 instance : has_to_string char :=
 ⟨λ c, "#\"" ++ char.quote_core c ++ "\""⟩

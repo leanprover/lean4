@@ -6,7 +6,7 @@ Author: Leonardo de Moura, Jeremy Avigad, Haitao Zhang
 General operations on functions.
 -/
 prelude
-import init.prod init.funext init.logic
+import init.data.prod init.funext init.logic
 notation f ` $ `:1 a:0 := f a
 universe variables u₁ u₂ u₃ u₄
 variables {α : Type u₁} {β : Type u₂} {φ : Type u₃} {δ : Type u₄} {ζ : Type u₁}

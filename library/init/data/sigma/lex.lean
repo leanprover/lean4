@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.sigma init.meta init.combinator
+import init.data.sigma.basic init.meta init.combinator
 universe variables u v
 namespace sigma
 section

@@ -125,6 +125,7 @@ void mt_task_queue::spawn_worker() {
                                         enqueue(rdep);
                                 }
                                 break;
+                            case task_result_state::QUEUED: break;
                             case task_result_state::FAILED: break;
                             default:
                                 lean_unreachable();

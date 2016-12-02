@@ -565,3 +565,11 @@ rfl
 
 attribute [simp.sizeof]
 lemma nat_add_zero (n : nat) : n + 0 = n := rfl
+
+/- Combinator calculus -/
+namespace combinator
+universe variables u₁ u₂ u₃
+def I {α : Type u₁} (a : α) := a
+def K {α : Type u₁} {β : Type u₂} (a : α) (b : β) := a
+def S {α : Type u₁} {β : Type u₂} {γ : Type u₃} (x : α → β → γ) (y : α → β) (z : α) := x z (y z)
+end combinator

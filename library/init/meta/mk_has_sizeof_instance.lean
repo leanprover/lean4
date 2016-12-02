@@ -6,8 +6,7 @@ Authors: Leonardo de Moura
 Helper tactic for constructing has_sizeof instance.
 -/
 prelude
-import init.meta.rec_util init.combinator
-import init.meta.constructor_tactic
+import init.meta.rec_util init.meta.constructor_tactic
 
 namespace tactic
 open expr environment list

@@ -39,6 +39,23 @@ matrix:
        TCMALLOC=ON
 
    - os: linux
+     addons:
+       apt:
+         sources: *apt_sources
+         packages:
+           - *default_packages
+           - g++-6
+           - gcc-6
+           - libboost-system-dev
+           - libboost-thread-dev
+           - libboost-atomic-dev
+           - libboost-chrono-dev
+     env:
+       CMAKE_CXX_COMPILER=g++-6
+       CMAKE_BUILD_TYPE=Release
+       BOOST=ON
+
+   - os: linux
      addons: *gcc6_addons
      env:
        CMAKE_CXX_COMPILER=g++-6
@@ -81,7 +98,8 @@ script:
   - cd build
   - if [[ $TESTCOV != ON ]]; then TESTCOV=OFF; fi
   - if [[ $TCMALLOC != ON ]]; then TCMALLOC=OFF; fi
-  - cmake -DCONSERVE_MEMORY=${CONSERVE_MEMORY} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DTESTCOV=${TESTCOV} -DTCMALLOC=${TCMALLOC} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} ../src
+  - if [[ $BOOST != ON ]]; then BOOST=OFF; fi
+  - cmake -DCONSERVE_MEMORY=${CONSERVE_MEMORY} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DTESTCOV=${TESTCOV} -DTCMALLOC=${TCMALLOC} -DBOOST=$BOOST -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} ../src
   - make -j2
   # TODO(gabriel): add smaller test subset for debug and emscripten builds
   - if [[ $CMAKE_BUILD_TYPE == Release ]]; then

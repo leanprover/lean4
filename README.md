@@ -1,12 +1,13 @@
 <p align=center><a href="https://leanprover.github.io"><img src="https://leanprover.github.io/images/lean_logo.svg" alt="logo" width="300px"/></a></p>
 <table>
   <tr>
-    <th>License</th><th>Windows</th><th>Ubuntu</th><th>OS X</th><th>Builds/Tests</th>
+    <th>License</th><th>Windows</th><th>Linux / macOS</th><th>Test Coverage</th>
   </tr>
   <tr>
     <td><a href="LICENSE"><img src="https://img.shields.io/badge/license-APACHE_2-green.svg?dummy" title="License"/></a></td>
     <td><a href="https://ci.appveyor.com/project/gebner/lean"><img src="https://ci.appveyor.com/api/projects/status/github/gebner/lean?branch=ci_fixes"/></a></td>
     <td><a href="https://travis-ci.org/leanprover/lean"><img src="https://travis-ci.org/leanprover/lean.png?branch=master"/></a></td>
+    <td><a href="https://codecov.io/gh/gebner/lean"><img src="https://codecov.io/gh/gebner/lean/branch/master/graph/badge.svg" alt="Codecov"/></a></td>
   </tr>
 </table>
 

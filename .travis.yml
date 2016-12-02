@@ -6,7 +6,8 @@ addons:
   apt:
     sources: &apt_sources
       - ubuntu-toolchain-r-test
-      - sourceline: 'ppa:kalakris/cmake'
+      - sourceline: 'ppa:kalakris/cmake' # cmake 2.8 for precise
+      - sourceline: 'ppa:adrozdoff/cmake' # cmake 3 for trusty
       - sourceline: 'ppa:h-rayflood/llvm'
     packages: &default_packages
       - cmake
@@ -15,9 +16,6 @@ addons:
       - libgoogle-perftools-dev
       - g++-4.9
       - clang-3.4
-      - lcov
-      - valgrind
-      - python-pip
 
 matrix:
   include:
@@ -28,16 +26,24 @@ matrix:
        TCMALLOC=ON
 
    - os: linux
-     addons:
+     addons: &gcc6_addons
        apt:
          sources: *apt_sources
          packages:
            - *default_packages
            - g++-6
+           - gcc-6
      env:
        CMAKE_CXX_COMPILER=g++-6
        CMAKE_BUILD_TYPE=Release
        TCMALLOC=ON
+
+   - os: linux
+     addons: *gcc6_addons
+     env:
+       CMAKE_CXX_COMPILER=g++-6
+       CMAKE_BUILD_TYPE=Release
+       TESTCOV=ON
 
    - os: linux
      env:
@@ -77,17 +83,17 @@ script:
   - if [[ $TCMALLOC != ON ]]; then TCMALLOC=OFF; fi
   - cmake -DCONSERVE_MEMORY=${CONSERVE_MEMORY} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DTESTCOV=${TESTCOV} -DTCMALLOC=${TCMALLOC} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} ../src
   - make -j2
-  - if [[ $CMAKE_BUILD_TYPE == Release ]]; then yes "C" | ctest -j2 -V; fi
+  # TODO(gabriel): add smaller test subset for debug and emscripten builds
+  - if [[ $CMAKE_BUILD_TYPE == Release ]]; then
+      yes "C" | ctest -j2 -V;
+    else
+      yes C | ctest -j2 -I 100,600,10 -V;
+    fi
   - if [[ $PACKAGE == TRUE ]]; then make package; fi
   - cd ..
 
 after_script:
-# - if [[ $REPO == BLESSED && $TESTCOV == ON ]]; then
-#      ctest -D ExperimentalCoverage &&
-#      make cov &&
-#      npm install coveralls --save &&
-#      cat coverage.info.cleaned | ./node_modules/coveralls/bin/coveralls.js;
-#   fi
+  - if [[ $TESTCOV == ON ]]; then bash <(curl -s https://codecov.io/bash) -x gcov-6; fi
 
 notifications:
   email:

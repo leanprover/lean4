@@ -171,10 +171,7 @@ endif()
 
 # Test coverage
 if(TESTCOV)
-  include(CodeCoverage)
-  message(STATUS "Enable test-coverage")
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -fprofile-arcs -ftest-coverage --coverage")
-  setup_target_for_coverage(cov "${LEAN_SOURCE_DIR}/../script/run_tests.sh" coverage)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")
 endif()
 
 # Compiler-specific C++11 activation.

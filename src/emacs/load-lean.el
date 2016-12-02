@@ -8,21 +8,21 @@
     (setq-local lean-emacs-path (getenv "LEAN_EMACS_PATH"))
     (error "LEAN_EMACS_PATH environment variable must be set"))
 
-(setq lean-emacs-dependencies-path (format "%s/dependencies" lean-emacs-path))
-
 (setq lean-logo
       (condition-case nil
           (create-image (format "%s/lean.pgm" lean-emacs-path))
         (error nil)))
+
 (setq lean-required-packages '(company dash dash-functional f fill-column-indicator flycheck let-alist s seq))
 
-(setq load-path
-      (append
-       (list lean-emacs-path)
-       (mapcar (lambda (p) (format "%s/%s" lean-emacs-dependencies-path p)) lean-required-packages)
-       load-path))
-
 (require 'package)
+(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+(package-initialize)
+(unless package-archive-contents (package-refresh-contents))
+(dolist (pkg lean-required-packages) (package-install pkg))
+
+(setq load-path (cons lean-emacs-path load-path))
+
 (require 'lean-mode)
 
 (defun lean-welcome ()

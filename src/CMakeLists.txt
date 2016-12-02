@@ -53,10 +53,6 @@ option(USE_GITHASH        "GIT_HASH"          ON)
 # When ON thread storage is automatically finalized, it assumes platform support pthreads.
 # This option is important when using Lean as library that is invoked from a different programming language (e.g., Haskell).
 option(AUTO_THREAD_FINALIZATION "AUTO_THREAD_FINALIZATION" ON)
-# Directory that include lean emacs mode dependecies
-set(EMACS_DEPENDENCIES "${CMAKE_SOURCE_DIR}/emacs/dependencies")
-
-message(STATUS "Emacs dependecies directory " ${EMACS_DEPENDENCIES})
 
 # emacs site-lisp dir
 set(EMACS_LISP_DIR        "share/emacs/site-lisp/lean" CACHE STRING "emacs site-lisp dir")
@@ -475,16 +471,6 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}/" DESTINATION "${LEAN_EXT_INCLUDE_DIR}"
 
 install(FILES "${CMAKE_SOURCE_DIR}/../src/emacs/lean.pgm"
         DESTINATION "${EMACS_LISP_DIR}")
-
-if(EXISTS "${EMACS_DEPENDENCIES}")
-  install(DIRECTORY "${EMACS_DEPENDENCIES}/" DESTINATION "${EMACS_LISP_DIR}/dependencies"
-    FILES_MATCHING
-    PATTERN "*.el"
-    PATTERN "dir"
-    PATTERN "*.info*")
-else()
-  message(STATUS "Emacs dependencies directory does not exist. Therefore, they will not be included in the binary installation package. The Emacs packages required by Lean Emacs mode can be retrieved from the repository https://github.com/leanprover/emacs-dependencies. The cmake option EMACS_DEPENDENCIES can be used to specify where these files are located.")
-endif()
 
 if("${INCLUDE_MSYS2_DLLS}" MATCHES "ON")
   # TODO(Leo): do not use hardlinks to required DLLs.

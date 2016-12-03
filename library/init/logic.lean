@@ -219,6 +219,8 @@ and.rec h₂ h₁
 lemma and.swap : a ∧ b → b ∧ a :=
 assume ⟨ha, hb⟩, ⟨hb, ha⟩
 
+def and.symm := @and.swap
+
 /- or -/
 
 notation a \/ b := or a b
@@ -235,7 +237,11 @@ assume not_em : ¬(a ∨ ¬a),
     assume pos_a : a, absurd (or.inl pos_a) not_em,
   absurd (or.inr neg_a) not_em
 
+def not_not_em := non_contradictory_em
+
 lemma or.swap : a ∨ b → b ∨ a := or.rec or.inr or.inl
+
+def or.symm := @or.swap
 
 /- xor -/
 def xor (a b : Prop) := (a ∧ ¬ b) ∨ (b ∧ ¬ a)
@@ -307,6 +313,8 @@ iff.intro
   (λ (hl : ¬¬¬a) (ha : a), hl (non_contradictory_intro ha))
   absurd
 
+def not_not_not_iff := not_non_contradictory_iff_absurd
+
 lemma imp_congr (h₁ : a ↔ c) (h₂ : b ↔ d) : (a → b) ↔ (c → d) :=
 iff.intro
   (λ hab hc, iff.mp h₂ (hab (iff.mpr h₁ hc)))
@@ -334,6 +342,8 @@ lemma not_of_not_not_not (h : ¬¬¬a) : ¬a :=
 
 @[simp] lemma not_true : (¬ true) ↔ false :=
 iff_false_intro (not_not_intro trivial)
+
+def not_true_iff := not_true
 
 @[simp] lemma not_false_iff : (¬ false) ↔ true :=
 iff_true_intro not_false
@@ -373,6 +383,8 @@ assume h, iff.mp h trivial
 lemma and.imp (hac : a → c) (hbd : b → d) : a ∧ b → c ∧ d :=
 assume ⟨ha, hb⟩, ⟨hac ha, hbd hb⟩
 
+def and_implies := @and.imp
+
 @[congr] lemma and_congr (h₁ : a ↔ c) (h₂ : b ↔ d) : (a ∧ b) ↔ (c ∧ d) :=
 iff.intro (and.imp (iff.mp h₁) (iff.mp h₂)) (and.imp (iff.mpr h₁) (iff.mpr h₂))
 
@@ -384,10 +396,14 @@ iff.intro
 @[simp] lemma and.comm : a ∧ b ↔ b ∧ a :=
 iff.intro and.swap and.swap
 
+lemma and_comm (a b : Prop) : a ∧ b ↔ b ∧ a := and.comm
+
 @[simp] lemma and.assoc : (a ∧ b) ∧ c ↔ a ∧ (b ∧ c) :=
 iff.intro
   (assume ⟨⟨ha, hb⟩, hc⟩, ⟨ha, ⟨hb, hc⟩⟩)
   (assume ⟨ha, ⟨hb, hc⟩⟩, ⟨⟨ha, hb⟩, hc⟩)
+
+lemma and_assoc (a b : Prop) : (a ∧ b) ∧ c ↔ a ∧ (b ∧ c) := and.assoc
 
 @[simp] lemma and.left_comm : a ∧ (b ∧ c) ↔ b ∧ (a ∧ c) :=
 iff.trans (iff.symm and.assoc) (iff.trans (and_congr and.comm (iff.refl c)) and.assoc)
@@ -435,10 +451,15 @@ iff.intro (or.imp (iff.mp h₁) (iff.mp h₂)) (or.imp (iff.mpr h₁) (iff.mpr h
 
 @[simp] lemma or.comm : a ∨ b ↔ b ∨ a := iff.intro or.swap or.swap
 
+lemma or_comm (a b : Prop) : a ∨ b ↔ b ∨ a := or.comm
+
 @[simp] lemma or.assoc : (a ∨ b) ∨ c ↔ a ∨ (b ∨ c) :=
 iff.intro
   (or.rec (or.imp_right or.inl) (λ h, or.inr (or.inr h)))
   (or.rec (λ h, or.inl (or.inl h)) (or.imp_left or.inr))
+
+lemma or_assoc (a b : Prop) : (a ∨ b) ∨ c ↔ a ∨ (b ∨ c) :=
+or.assoc
 
 @[simp] lemma or.left_comm : a ∨ (b ∨ c) ↔ b ∨ (a ∨ c) :=
 iff.trans (iff.symm or.assoc) (iff.trans (or_congr or.comm (iff.refl c)) or.assoc)

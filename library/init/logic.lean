@@ -932,3 +932,77 @@ lemma let_body_eq {α : Type v} {β : α → Type u} (a : α) {b₁ b₂ : Π x 
 lemma let_eq {α : Type v} {β : Type u} {a₁ a₂ : α} {b₁ b₂ : α → β} :
              a₁ = a₂ → (∀ x, b₁ x = b₂ x) → (let x : α := a₁ in b₁ x) = (let x : α := a₂ in b₂ x) :=
 λ h₁ h₂, eq.rec_on h₁ (h₂ a₁)
+
+section relation
+variables {α : Type u} {β : Type v} (r : β → β → Prop)
+local infix `≺`:50 := r
+
+def reflexive := ∀ x, x ≺ x
+
+def symmetric := ∀ ⦃x y⦄, x ≺ y → y ≺ x
+
+def transitive := ∀ ⦃x y z⦄, x ≺ y → y ≺ z → x ≺ z
+
+def equivalence := reflexive r ∧ symmetric r ∧ transitive r
+
+def total := ∀ x y, x ≺ y ∨ y ≺ x
+
+def mk_equivalence (rfl : reflexive r) (symm : symmetric r) (trans : transitive r) : equivalence r :=
+⟨rfl, symm, trans⟩
+
+def irreflexive := ∀ x, ¬ x ≺ x
+
+def anti_symmetric := ∀ ⦃x y⦄, x ≺ y → y ≺ x → x = y
+
+def empty_relation := λ a₁ a₂ : α, false
+
+def subrelation (q r : β → β → Prop) := ∀ ⦃x y⦄, q x y → r x y
+
+def inv_image (f : α → β) : α → α → Prop :=
+λ a₁ a₂, f a₁ ≺ f a₂
+
+lemma inv_image.trans (f : α → β) (h : transitive r) : transitive (inv_image r f) :=
+λ (a₁ a₂ a₃ : α) (h₁ : inv_image r f a₁ a₂) (h₂ : inv_image r f a₂ a₃), h h₁ h₂
+
+lemma inv_image.irreflexive (f : α → β) (h : irreflexive r) : irreflexive (inv_image r f) :=
+λ (a : α) (h₁ : inv_image r f a a), h (f a) h₁
+
+inductive tc {α : Type u} (r : α → α → Prop) : α → α → Prop
+| base  : ∀ a b, r a b → tc a b
+| trans : ∀ a b c, tc a b → tc b c → tc a c
+end relation
+
+section binary
+variables {α : Type u} {β : Type v}
+variable f : α → α → α
+variable inv : α → α
+variable one : α
+local notation a * b := f a b
+local notation a ⁻¹  := inv a
+variable g : α → α → α
+local notation a + b := g a b
+
+def commutative        := ∀ a b, a * b = b * a
+def associative        := ∀ a b c, (a * b) * c = a * (b * c)
+def left_identity      := ∀ a, one * a = a
+def right_identity     := ∀ a, a * one = a
+def right_inverse      := ∀ a, a * a⁻¹ = one
+def left_cancelative   := ∀ a b c, a * b = a * c → b = c
+def right_cancelative  := ∀ a b c, a * b = c * b → a = c
+def left_distributive  := ∀ a b c, a * (b + c) = a * b + a * c
+def right_distributive := ∀ a b c, (a + b) * c = a * c + b * c
+def right_commutative (h : β → α → β) := ∀ b a₁ a₂, h (h b a₁) a₂ = h (h b a₂) a₁
+def left_commutative  (h : α → β → β) := ∀ a₁ a₂ b, h a₁ (h a₂ b) = h a₂ (h a₁ b)
+
+lemma left_comm : commutative f → associative f → left_commutative f :=
+assume hcomm hassoc, take a b c, calc
+  a*(b*c) = (a*b)*c  : eq.symm (hassoc a b c)
+    ...   = (b*a)*c  : hcomm a b ▸ rfl
+    ...   = b*(a*c)  : hassoc b a c
+
+lemma right_comm : commutative f → associative f → right_commutative f :=
+assume hcomm hassoc, take a b c, calc
+  (a*b)*c = a*(b*c) : hassoc a b c
+    ...   = a*(c*b) : hcomm b c ▸ rfl
+    ...   = (a*c)*b : eq.symm (hassoc a c b)
+end binary

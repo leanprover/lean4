@@ -189,6 +189,8 @@ def lt.step {n m : ℕ} : n < m → n < succ m := less_than.step
 lemma zero_lt_succ_iff_true (n : ℕ) : 0 < succ n ↔ true :=
 iff_true_intro (zero_lt_succ n)
 
+def succ_pos_iff_true := zero_lt_succ_iff_true
+
 protected lemma lt_trans {n m k : ℕ} (h₁ : n < m) : m < k → n < k :=
 nat.le_trans (less_than.step h₁)
 
@@ -274,10 +276,10 @@ lemma le_add_right : ∀ (n k : ℕ), n ≤ n + k
 lemma le_add_left (n m : ℕ): n ≤ m + n :=
 nat.add_comm n m ▸ le_add_right n m
 
-lemma le.elim : ∀ {n m : ℕ}, n ≤ m → ∃ k, n + k = m
+lemma le.dest : ∀ {n m : ℕ}, n ≤ m → ∃ k, n + k = m
 | n .n        (less_than.refl .n)  := ⟨0, rfl⟩
 | n .(succ m) (@less_than.step .n m h) :=
-  match le.elim h with
+  match le.dest h with
   | ⟨w, hw⟩ := ⟨succ w, hw ▸ add_succ n w⟩
   end
 
@@ -285,7 +287,7 @@ lemma le.intro {n m k : ℕ} (h : n + k = m) : n ≤ m :=
 h ▸ le_add_right n k
 
 protected lemma add_le_add_left {n m : ℕ} (h : n ≤ m) (k : ℕ) : k + n ≤ k + m :=
-match le.elim h with
+match le.dest h with
 | ⟨w, hw⟩ := @le.intro _ _ w begin rw [nat.add_assoc, hw] end
 end
 
@@ -293,7 +295,7 @@ protected lemma add_le_add_right {n m : ℕ} (h : n ≤ m) (k : ℕ) : n + k ≤
 begin rw [nat.add_comm n k, nat.add_comm m k], apply nat.add_le_add_left h end
 
 protected lemma le_of_add_le_add_left {k n m : ℕ} (h : k + n ≤ k + m) : n ≤ m :=
-match le.elim h with
+match le.dest h with
 | ⟨w, hw⟩ := @le.intro _ _ w
   begin
     dsimp at hw,
@@ -336,7 +338,7 @@ protected lemma le_iff_lt_or_eq (m n : ℕ) : m ≤ n ↔ m < n ∨ m = n :=
 iff.intro nat.lt_or_eq_of_le nat.le_of_lt_or_eq
 
 lemma mul_le_mul_left {n m : ℕ} (k : ℕ) (h : n ≤ m) : k * n ≤ k * m :=
-match le.elim h with
+match le.dest h with
 | ⟨l, hl⟩ :=
   have k * n + k * l = k * m, by rw [-left_distrib, hl],
   le.intro this

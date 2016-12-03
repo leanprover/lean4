@@ -1,7 +1,7 @@
 open nat
 
 example {k n m : ℕ} (h : k + n ≤ k + m) : n ≤ m :=
-match le.elim h with
+match le.dest h with
 | ⟨w, hw⟩ := @le.intro _ _ w
     begin
       -- in the following error pp.beta is automatically disabled

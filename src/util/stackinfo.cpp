@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "util/exception.h"
 
 #if !defined(LEAN_USE_SPLIT_STACK)
-
 #if defined(LEAN_WINDOWS)
     // no extra included needed so far
 #elif defined(__APPLE__)
@@ -20,8 +19,6 @@ Author: Leonardo de Moura
     #include <sys/time.h> // NOLINT
     #include <sys/resource.h> // NOLINT
 #endif
-
-#define LEAN_MIN_STACK_SPACE 128*1024  // 128 Kb
 
 namespace lean {
 void throw_get_stack_size_failed() {
@@ -92,7 +89,7 @@ size_t get_available_stack_size() {
 void check_stack(char const * component_name) {
     if (!g_stack_info_init)
         save_stack_info(false);
-    if (get_used_stack_size() + LEAN_MIN_STACK_SPACE > g_stack_size)
+    if (get_used_stack_size() + LEAN_STACK_BUFFER_SPACE > g_stack_size)
         throw stack_space_exception(component_name);
 }
 }

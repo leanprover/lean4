@@ -20,7 +20,7 @@ namespace lean {
 size_t lthread::m_thread_stack_size = LEAN_DEFAULT_THREAD_STACK_SIZE;
 
 void lthread::set_thread_stack_size(size_t sz) {
-    m_thread_stack_size = sz;
+    m_thread_stack_size = sz + LEAN_STACK_BUFFER_SPACE;
 }
 
 size_t lthread::get_thread_stack_size() {

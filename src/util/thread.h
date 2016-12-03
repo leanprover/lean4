@@ -7,6 +7,10 @@ Author: Leonardo de Moura
 #pragma once
 #include <iostream>
 
+#ifndef LEAN_STACK_BUFFER_SPACE
+#define LEAN_STACK_BUFFER_SPACE 128*1024  // 128 Kb
+#endif
+
 #if defined(LEAN_MULTI_THREAD)
 #include <thread>
 #include <mutex>

@@ -5,6 +5,6 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.core init.logic init.relation init.category init.data.basic
-import init.category.combinators init.funext init.function init.classical init.congr
+import init.category.combinators init.propext init.funext init.function init.classical
 import init.timeit init.trace init.coe init.wf init.meta init.instances init.breakpoint
 import init.id_locked init.algebra init.data

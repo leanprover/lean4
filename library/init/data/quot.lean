@@ -6,14 +6,13 @@ Author: Leonardo de Moura
 Quotient types.
 -/
 prelude
-import init.data.sigma.basic init.data.setoid init.logic
+/- We import propext here, otherwise we would need a quot.lift for propositions. -/
+import init.data.sigma.basic init.data.setoid init.logic init.propext
 open setoid
 
 universe variables u v
 
 constant quot : Π {α : Type u}, setoid α → Type u
--- Remark: if we do not use propext here, then we would need a quot.lift for propositions.
-constant propext {a b : Prop} : (a ↔ b) → a = b
 
 -- iff can now be used to do substitutions in a calculation
 attribute [subst]

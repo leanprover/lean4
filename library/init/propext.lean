@@ -2,11 +2,13 @@
 Copyright (c) 2016 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
-
-Additional congruence lemmas.
 -/
 prelude
-import init.data.quot
+import init.logic
+
+constant propext {a b : Prop} : (a ↔ b) → a = b
+
+/- Additional congruence lemmas. -/
 universe variables u v
 
 lemma forall_congr_eq {a : Type u} {p q : a → Prop} (h : ∀ x, p x = q x) : (∀ x, p x) = ∀ x, q x :=

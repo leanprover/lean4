@@ -24,7 +24,7 @@ We use the has_coe_to_sort type class for encoding coercions from
 a type to a sort.
 -/
 prelude
-import init.data.list.basic init.data.subtype init.data.prod
+import init.data.list.basic init.data.subtype.basic init.data.prod
 universe variables u v
 
 class has_lift (a : Type u) (b : Type v) :=

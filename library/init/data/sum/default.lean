@@ -4,5 +4,4 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.data.basic init.data.sigma init.data.nat init.data.char init.data.string
-import init.data.list init.data.sum init.data.subtype
+import init.data.sum.basic

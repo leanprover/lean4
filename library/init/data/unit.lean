@@ -17,3 +17,6 @@ subsingleton.intro unit_eq
 
 instance : inhabited unit :=
 ⟨()⟩
+
+instance : decidable_eq unit :=
+λ a b, is_true (unit_eq a b)

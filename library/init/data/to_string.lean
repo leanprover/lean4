@@ -1,8 +1,11 @@
--- Copyright (c) 2016 Microsoft Corporation. All rights reserved.
--- Released under Apache 2.0 license as described in the file LICENSE.
--- Author: Leonardo de Moura
+/-
+Copyright (c) 2016 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Author: Leonardo de Moura
+-/
 prelude
-import init.data.string.basic init.data.bool.basic init.data.subtype init.data.unsigned init.data.prod init.data.sum.basic
+import init.data.string.basic init.data.bool.basic init.data.subtype.basic
+import init.data.unsigned init.data.prod init.data.sum.basic
 open sum subtype nat
 
 universe variables u v

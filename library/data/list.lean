@@ -7,6 +7,8 @@ This is a minimal port of functions from the lean2 list library.
 -/
 import init.data.list.basic
 
+import data.nat.order
+
 universe variables u v w
 
 namespace list

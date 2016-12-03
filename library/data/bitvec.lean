@@ -145,6 +145,13 @@ section comparison
 
 end comparison
 
+/-
+-- Create bitvecor from nat
+def from_nat {n} : ℕ → bitvec n
+| 0 := 0
+| (nat.succ x) := from_nat x + 1
+-/
+
 section conversion
   variable {α : Type}
 
@@ -178,3 +185,6 @@ private def to_string {n : nat} : bitvec n → string
 instance (n : nat) : has_to_string (bitvec n) :=
 ⟨to_string⟩
 end bitvec
+
+instance {n} {x y : bitvec n} : decidable (bitvec.ult x y) := bool.decidable_eq _ _
+instance {n} {x y : bitvec n} : decidable (bitvec.ugt x y) := bool.decidable_eq _ _

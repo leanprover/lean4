@@ -6,4 +6,4 @@ Author: Jeremy Avigad
 This is a minimal port of functions from the lean2 library.
 -/
 
-import .order .sub
+import data.nat.order .sub

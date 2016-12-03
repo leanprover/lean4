@@ -2394,6 +2394,7 @@ optional<vm_decl> vm_state::get_decl(name const & n) const {
         return optional<vm_decl>();
 }
 
+#if defined(LEAN_MULTI_THREAD)
 static name * g_profiler      = nullptr;
 static name * g_profiler_freq = nullptr;
 
@@ -2404,14 +2405,14 @@ bool get_profiler(options const & opts) {
 unsigned get_profiler_freq(options const & opts) {
     return opts.get_unsigned(*g_profiler_freq, LEAN_DEFAULT_PROFILER_FREQ);
 }
+#endif
 
 vm_state::profiler::profiler(vm_state & s, options const & opts):
     m_state(s),
     m_stop(false),
-    m_freq_ms(get_profiler_freq(opts)),
-    m_thread_ptr(
 #if defined(LEAN_MULTI_THREAD)
-        get_profiler(opts) ?
+    m_freq_ms(get_profiler_freq(opts)),
+    m_thread_ptr(get_profiler(opts) ?
         new interruptible_thread([&]() {
                 lean_assert(!m_state.m_profiling);
                 m_state.m_profiling = true;
@@ -2438,12 +2439,12 @@ vm_state::profiler::profiler(vm_state & s, options const & opts):
                     this_thread::sleep_for(d);
                 }
             }) :
-        nullptr
+        nullptr)
 #else
-        /* Multi thread support is disabled */
-        nullptr
+    m_freq_ms(0),
+    m_thread_ptr(nullptr)
 #endif
-        ) {
+        {
 }
 
 void vm_state::profiler::stop() {

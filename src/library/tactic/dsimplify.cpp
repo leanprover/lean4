@@ -205,7 +205,11 @@ optional<pair<expr, bool>> dsimplify_fn::pre(expr const & e) {
 }
 
 optional<pair<expr, bool>> dsimplify_fn::post(expr const & e) {
-    expr curr_e = e;
+    expr curr_e;
+    {
+        type_context::transparency_scope s(m_ctx, transparency_mode::Reducible);
+        curr_e = m_ctx.whnf(e);
+    }
     while (true) {
         check_system("dsimplify");
         inc_num_steps();

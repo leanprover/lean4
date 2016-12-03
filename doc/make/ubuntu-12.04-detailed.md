@@ -25,10 +25,6 @@ Preparing working environment on Ubuntu 12.04
     sudo apt-get install doxygen
     sudo apt-get install kcachegrind
 
-    sudo add-apt-repository --yes ppa:boost-latest/ppa
-    sudo apt-get install libboost1.54-dev
-    sudo apt-get install libboost-thread1.54-dev
-
 ### Fork Lean on github : https://github.com/leanprover/lean
 
 ### Create a projects directory
@@ -47,14 +43,6 @@ Preparing working environment on Ubuntu 12.04
     mkdir -p build/debug
     cd build/debug
     cmake -D CMAKE_BUILD_TYPE=Debug ../../src
-    make
-
-### Build Lean using Boost
-
-    cd lean
-    mkdir -p build/release
-    cd build/release
-    cmake -D CMAKE_BUILD_TYPE=Release -D BOOST=ON ../../src
     make
 
 ### If you are using Emacs, here are some basic configurations

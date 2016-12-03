@@ -11,7 +11,7 @@ the program.
 In principle, it is possible to build a program that uses split-stacks
 with libraries that do not. However, it did not work in our experiments.
 To be able to compile Lean with split-stacks, we also have to compile
-GMP, MPFR and Lua using split-stacks.
+GMP, MPFR using split-stacks.
 
 We also had to use the [gold linker](<http://en.wikipedia.org/wiki/Gold_(linker)>).
 
@@ -23,7 +23,7 @@ can install it by executing
 
     sudo apt-get install binutils-gold
 
-Before we compiled GMP, MPFR, Lua, and Lean, we created an alias
+Before we compiled GMP, MPFR, and Lean, we created an alias
 
     alias ld=ld.gold
 
@@ -62,25 +62,6 @@ Make sure MPFR does not produce any warning/error message. Then, build and insta
 
 We should have the file `libmpfr.a` at `$HOME/tools/split-stack/lib`.
 
-Compiling Lua using split-stacks
---------------------------------
-
-Download Lua from [http://www.lua.org/](http://www.lua.org/); uncompress the Lua tar-ball at `$HOME/tools`.
-Then, modify the following line in the file `src/Makefile` in the Lua directory.
-
-       CFLAGS= -O2 -Wall -DLUA_COMPAT_ALL $(SYSCFLAGS) $(MYCFLAGS)
-
-We should include the option `-fsplit-stack`
-
-       CFLAGS= -O2 -fsplit-stack -Wall -DLUA_COMPAT_ALL $(SYSCFLAGS) $(MYCFLAGS)
-
-Then, build and install using
-
-       make linux
-       make linux install INSTALL_TOP=$HOME/tools/split-stack
-
-We should have the file `liblua.a` at `$HOME/tools/split-stack/lib`.
-
 Compiling Lean using split-stacks
 --------------------------------
 
@@ -90,7 +71,7 @@ Go to the Lean directory, and create the folder `build/release`
 
 Configure Lean using
 
-      cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_CXX_COMPILER=g++ -D TCMALLOC=OFF -D LUA_LIBRARIES=$HOME/tools/split-stack/lib/liblua.a -D LUA_INCLUDE_DIR=$HOME/tool/split-stack/include -D GMP_INCLUDE_DIR=$HOME/tools/split-stack/include -D GMP_LIBRARIES=$HOME/tools/split-stack/lib/libgmp.a -D MPFR_LIBRARIES=$HOME/tools/split-stack/lib/libmpfr.a ../../src
+      cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_CXX_COMPILER=g++ -D TCMALLOC=OFF -D GMP_INCLUDE_DIR=$HOME/tools/split-stack/include -D GMP_LIBRARIES=$HOME/tools/split-stack/lib/libgmp.a -D MPFR_LIBRARIES=$HOME/tools/split-stack/lib/libmpfr.a ../../src
 
 Remark: if you have ninja build tool installed in your system, you can also provide `-G Ninja`
 

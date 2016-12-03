@@ -33,22 +33,3 @@ mkdir build && cd build
 cmake ../src -G Ninja -D CMAKE_BUILD_TYPE=Release
 ninja
 ```
-
-## Build Lean using Boost
-
-To install Boost in the [msys2] shell, use the following command:
-
-```bash
-pacman -S mingw-w64-x86_64-boost
-```
-
-In the [msys2] shell, execute the following commands.
-
-```bash
-cd /c/
-git clone https://github.com/leanprover/lean
-cd lean
-mkdir build && cd build
-cmake -D CMAKE_CXX_COMPILER=g++.exe -D BOOST=ON -G Ninja ../src
-ninja
-```

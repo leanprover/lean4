@@ -31,9 +31,6 @@ Requirements
 - [GMP (GNU multiprecision library)](http://gmplib.org/)
 - [MPFR (GNU MPFR Library)](http://www.mpfr.org/)
 - (optional) [gperftools](https://code.google.com/p/gperftools/)
-- (optional) [Boost](http://www.boost.org) (version >= 1.54), we can
-  build Lean using boost::thread instead of std::thread. When using
-  Boost, Lean can modify the thread stack size.
 
 Installing required packages at
 --------------------------------

@@ -59,6 +59,8 @@ monoid.mul_one
 @[simp] lemma mul_left_inv [group α] : ∀ a : α, a⁻¹ * a = 1 :=
 group.mul_left_inv
 
+def inv_mul_self := @mul_left_inv
+
 @[simp] lemma inv_mul_cancel_left [group α] (a b : α) : a⁻¹ * (a * b) = b :=
 by rw [-mul_assoc, mul_left_inv, one_mul]
 
@@ -77,6 +79,8 @@ inv_eq_of_mul_eq_one (mul_left_inv a)
 @[simp] lemma mul_right_inv [group α] (a : α) : a * a⁻¹ = 1 :=
 have a⁻¹⁻¹ * a⁻¹ = 1, by rw mul_left_inv,
 by rwa [inv_inv] at this
+
+def mul_inv_self := @mul_right_inv
 
 lemma inv_inj [group α] {a b : α} (h : a⁻¹ = b⁻¹) : a = b :=
 have a = a⁻¹⁻¹, by simp,
@@ -273,6 +277,11 @@ run_command transport_to_additive `eq_mul_of_mul_inv_eq `eq_add_of_add_neg_eq
 run_command transport_to_additive `eq_mul_of_inv_mul_eq `eq_add_of_neg_add_eq
 run_command transport_to_additive `mul_eq_of_eq_inv_mul `add_eq_of_eq_neg_add
 run_command transport_to_additive `mul_eq_of_eq_mul_inv `add_eq_of_eq_add_neg
+
+def neg_add_self := @add_left_neg
+def add_neg_self := @add_right_neg
+def eq_of_add_eq_add_left := @add_left_cancel
+def eq_of_add_eq_add_right := @add_right_cancel
 
 @[reducible] protected def algebra.sub [add_group α] (a b : α) : α :=
 a + -b

@@ -21,8 +21,12 @@ variable {α : Type u}
 lemma left_distrib [distrib α] (a b c : α) : a * (b + c) = a * b + a * c :=
 distrib.left_distrib a b c
 
+def mul_add := @left_distrib
+
 lemma right_distrib [distrib α] (a b c : α) : (a + b) * c = a * c + b * c :=
 distrib.right_distrib a b c
+
+def add_mul := @right_distrib
 
 class mul_zero_class (α : Type u) extends has_mul α, has_zero α :=
 (zero_mul : ∀ a : α, 0 * a = 0)
@@ -141,10 +145,14 @@ calc
    a * (b - c) = a * b + a * -c : left_distrib a b (-c)
            ... = a * b - a * c  : by simp
 
+def mul_sub := @mul_sub_left_distrib
+
 lemma mul_sub_right_distrib [s : ring α] (a b c : α) : (a - b) * c = a * c - b * c :=
 calc
   (a - b) * c = a * c  + -b * c : right_distrib a (-b) c
           ... = a * c - b * c   : by simp
+
+def sub_mul := @mul_sub_right_distrib
 
 class comm_ring (α : Type u) extends ring α, comm_semigroup α
 

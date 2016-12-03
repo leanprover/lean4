@@ -149,7 +149,7 @@ meta def is_constant_of : expr → name → bool
 | e             n  := ff
 
 meta def is_app_of (e : expr) (n : name) : bool :=
-is_app e && is_constant_of (get_app_fn e) n
+is_constant_of (get_app_fn e) n
 
 meta def is_napp_of (e : expr) (c : name) (n : nat) : bool :=
 to_bool (is_app_of e c ∧ get_app_num_args e = n)

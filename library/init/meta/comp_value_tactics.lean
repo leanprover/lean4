@@ -51,7 +51,7 @@ do t ← target,
        exact pr)
    <|>
    (do type   ← whnf type,
-       guard (is_app_of type `fin),
+       guard (is_napp_of type `fin 1),
        (a, b) ← returnopt (is_ne t),
        pr     ← returnopt (mk_fin_val_ne_proof a b),
        exact pr)

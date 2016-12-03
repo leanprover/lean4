@@ -1,5 +1,3 @@
-import init.string
-import init.bool
 import system.io
 
 inductive token

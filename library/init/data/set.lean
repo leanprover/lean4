@@ -22,7 +22,7 @@ instance : has_mem α set :=
 ⟨set.mem⟩
 
 protected def subset (s₁ s₂ : set α) :=
-∀ {a}, a ∈ s₁ → a ∈ s₂
+∀ ⦃a⦄, a ∈ s₁ → a ∈ s₂
 
 instance : has_subset (set α) :=
 ⟨set.subset⟩

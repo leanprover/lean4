@@ -60,13 +60,13 @@ mt_task_queue::~mt_task_queue() {
         m_queue_added.notify_all();
         m_wake_up_worker.notify_all();
     }
-    for (auto & w : m_workers) w->m_thread.join();
+    for (auto & w : m_workers) w->m_thread->join();
 }
 
 void mt_task_queue::spawn_worker() {
     lean_assert(!m_shutting_down);
     auto this_worker = std::make_shared<worker_info>();
-    this_worker->m_thread = thread([=] {
+    this_worker->m_thread.reset(new lthread([=]() {
         save_stack_info(false);
         this_worker->m_interrupt_flag = get_interrupt_flag();
 
@@ -140,7 +140,7 @@ void mt_task_queue::spawn_worker() {
             t->clear_task();
             m_queue_removed.notify_all();
         }
-    });
+    }));
     m_workers.push_back(this_worker);
 }
 

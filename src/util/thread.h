@@ -8,8 +8,6 @@ Author: Leonardo de Moura
 #include <iostream>
 
 #if defined(LEAN_MULTI_THREAD)
-#if !defined(LEAN_USE_BOOST)
-// MULTI THREADING SUPPORT BASED ON THE STANDARD LIBRARY
 #include <thread>
 #include <mutex>
 #include <atomic>
@@ -19,7 +17,6 @@ Author: Leonardo de Moura
 
 namespace lean {
 namespace chrono = std::chrono;
-inline void set_thread_stack_size(size_t ) {}
 using std::thread;
 using std::mutex;
 using std::recursive_mutex;
@@ -41,40 +38,21 @@ using std::memory_order_seq_cst;
 using std::atomic_thread_fence;
 namespace this_thread = std::this_thread;
 inline unsigned hardware_concurrency() { return std::thread::hardware_concurrency(); }
+/** Simple thread class that allows us to set the thread stack size.
+    We implement it using pthreads on OSX/Linux and WinThreads on Windows. */
+class lthread {
+    static size_t m_thread_stack_size;
+    struct imp;
+    std::unique_ptr<imp> m_imp;
+public:
+    lthread(std::function<void(void)> const & p);
+    ~lthread();
+    void join();
+    static void set_thread_stack_size(size_t sz);
+    static size_t get_thread_stack_size();
+};
 }
-#else
-// MULTI THREADING SUPPORT BASED ON THE BOOST LIBRARY
-#include <boost/thread.hpp>
-#include <boost/atomic.hpp>
-#include <boost/chrono.hpp>
-#define LEAN_THREAD_LOCAL thread_local
-namespace lean {
-namespace chrono = boost::chrono;
-void set_thread_stack_size(size_t );
-boost::thread::attributes const & get_thread_attributes();
-using boost::thread;
-using boost::mutex;
-using boost::recursive_mutex;
-using boost::atomic;
-using boost::memory_order_relaxed;
-using boost::memory_order_acquire;
-using boost::memory_order_release;
-using boost::memory_order_seq_cst;
-using boost::condition_variable;
-using boost::unique_lock;
-using boost::lock_guard;
-using boost::atomic_thread_fence;
-namespace this_thread = boost::this_thread;
-typedef atomic<bool>           atomic_bool;
-typedef atomic<unsigned short> atomic_ushort;
-typedef atomic<unsigned char>  atomic_uchar;
-typedef atomic<unsigned>       atomic_uint;
-template<typename T> T atomic_load(atomic<T> const * a) { return a->load(); }
-template<typename T> T atomic_fetch_add_explicit(atomic<T> * a, T v, boost::memory_order mo) { return a->fetch_add(v, mo); }
-template<typename T> T atomic_fetch_sub_explicit(atomic<T> * a, T v, boost::memory_order mo) { return a->fetch_sub(v, mo); }
-inline unsigned hardware_concurrency() { return boost::thread::hardware_concurrency(); }
-}
-#endif
+
 #else
 // NO MULTI THREADING SUPPORT
 #include <utility>
@@ -83,7 +61,6 @@ inline unsigned hardware_concurrency() { return boost::thread::hardware_concurre
 #define LEAN_THREAD_LOCAL
 namespace lean {
 namespace chrono = std::chrono;
-inline void set_thread_stack_size(size_t ) {}
 constexpr int memory_order_relaxed = 0;
 constexpr int memory_order_release = 0;
 constexpr int memory_order_acquire = 0;
@@ -139,6 +116,14 @@ public:
     typedef unsigned id;
     bool joinable() const { return true; }
     void join() {}
+};
+class lthread {
+public:
+    lthread(std::function<void(void)> const & p) { p(); }
+    ~lthread();
+    void join() {}
+    static void set_thread_stack_size(size_t) {}
+    static size_t get_thread_stack_size() { return 0; }
 };
 class this_thread {
 public:

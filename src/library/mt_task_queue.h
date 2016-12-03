@@ -30,7 +30,7 @@ class mt_task_queue : public task_queue {
     condition_variable m_queue_added, m_queue_removed;
 
     struct worker_info {
-        thread m_thread;
+        std::unique_ptr<lthread> m_thread;
         generic_task_result m_current_task;
         atomic_bool * m_interrupt_flag = nullptr;
     };

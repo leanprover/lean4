@@ -88,6 +88,7 @@ static void display_help(std::ostream & out) {
     std::cout << "                    (in megabytes)\n";
 #if defined(LEAN_MULTI_THREAD)
     std::cout << "  --threads=num -j  number of threads used to process lean files\n";
+    std::cout << "  --tstack=num -s   thread stack size in Kb\n";
 #endif
     std::cout << "  --deps            just print dependencies of a Lean input\n";
 #if defined(LEAN_SERVER)
@@ -96,9 +97,6 @@ static void display_help(std::ostream & out) {
     std::cout << "  --server=file     start lean in server mode, redirecting standard input from the specified file (for debugging)\n";
 #endif
     std::cout << "  --profile         display elaboration/type checking time for each definition/theorem\n";
-#if defined(LEAN_USE_BOOST)
-    std::cout << "  --tstack=num -s   thread stack size in Kb\n";
-#endif
     DEBUG_CODE(
     std::cout << "  --debug=tag       enable assertions with the given tag\n";
         )
@@ -128,7 +126,7 @@ static struct option g_long_options[] = {
     {"server",       optional_argument, 0, 'S'},
 #endif
     {"doc",          required_argument, 0, 'r'},
-#if defined(LEAN_USE_BOOST)
+#if defined(LEAN_MULTI_THREAD)
     {"tstack",       required_argument, 0, 's'},
 #endif
 #ifdef LEAN_DEBUG
@@ -139,7 +137,7 @@ static struct option g_long_options[] = {
 
 static char const * g_opt_str =
     "PdD:qpgvht:012E:AB:j:012rM:012"
-#if defined(LEAN_USE_BOOST) && defined(LEAN_MULTI_THREAD)
+#if defined(LEAN_MULTI_THREAD)
     "s:012"
 #endif
 ; // NOLINT
@@ -289,7 +287,7 @@ int main(int argc, char ** argv) {
             std::cout << lean::get_lean_path() << "\n";
             return 0;
         case 's':
-            lean::set_thread_stack_size(atoi(optarg)*1024);
+            lean::lthread::set_thread_stack_size(static_cast<size_t>((atoi(optarg)/4)*4)*static_cast<size_t>(1024));
             break;
         case 'm':
             make_mode = true;

@@ -9,27 +9,80 @@ Author: Leonardo de Moura
 #include <vector>
 #include <iostream>
 #include "util/thread.h"
+#include "util/exception.h"
+
+#ifndef LEAN_DEFAULT_THREAD_STACK_SIZE
+#define LEAN_DEFAULT_THREAD_STACK_SIZE 8*1024*1024 // 8Mb
+#endif
 
 namespace lean {
-#if defined(LEAN_USE_BOOST)
-static boost::thread::attributes * g_thread_attributes = nullptr;
-void initialize_thread() {
-    g_thread_attributes = new boost::thread::attributes();
-    g_thread_attributes->set_stack_size(8192*1024); // 8Mb
+#if defined(LEAN_MULTI_THREAD)
+size_t lthread::m_thread_stack_size = LEAN_DEFAULT_THREAD_STACK_SIZE;
+
+void lthread::set_thread_stack_size(size_t sz) {
+    m_thread_stack_size = sz;
 }
-void finalize_thread() {
-    delete g_thread_attributes;
+
+size_t lthread::get_thread_stack_size() {
+    return m_thread_stack_size;
 }
-void set_thread_stack_size(size_t sz) {
-    g_thread_attributes->set_stack_size(sz);
-}
-boost::thread::attributes const & get_thread_attributes() {
-    return *g_thread_attributes;
-}
+
+#if defined(LEAN_WINDOWS)
+/* Windows version */
+struct lthread::imp {
+    /* TODO(Leo): use win threads */
+    thread m_thread;
+
+    imp(std::function<void(void)> const & p):
+        m_thread(p) {
+    }
+
+    void join() {
+        m_thread.join();
+    }
+};
 #else
+/* OSX/Linux version based on pthreads */
+struct lthread::imp {
+    std::function<void(void)> m_proc;
+    pthread_attr_t            m_attr;
+    pthread_t                 m_thread;
+
+    static void * _main(void * p) {
+        (*reinterpret_cast<std::function<void(void)>*>(p))();
+        return nullptr;
+    }
+
+    imp(std::function<void(void)> const & p):
+        m_proc(p) {
+        pthread_attr_init(&m_attr);
+        if (pthread_attr_setstacksize(&m_attr, m_thread_stack_size)) {
+            throw exception("failed to set thread stack size");
+        }
+        if (pthread_create(&m_thread, &m_attr, _main, &m_proc)) {
+            throw exception("failed to create thread");
+        }
+    }
+    ~imp() {
+        pthread_attr_destroy(&m_attr);
+    }
+
+    void join() {
+        if (pthread_join(m_thread, nullptr)) {
+            throw exception("failed to join thread");
+        }
+    }
+};
+#endif
+lthread::lthread(std::function<void(void)> const & p):m_imp(new imp(p)) {}
+
+lthread::~lthread() {}
+
+void lthread::join() { m_imp->join(); }
+#endif
+
 void initialize_thread() {}
 void finalize_thread() {}
-#endif
 
 LEAN_THREAD_VALUE(bool, g_finalizing, false);
 

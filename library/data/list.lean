@@ -50,8 +50,8 @@ def firstn : ℕ → list α → list α
 
 theorem length_firstn
 : ∀ (i : ℕ) (l : list α), length (firstn i l) = min i (length l)
-| 0        l      := eq.symm (nat.min_zero_left (length l))
-| (succ n) []     := eq.symm (nat.min_zero_right (succ n))
+| 0        l      := eq.symm (nat.zero_min (length l))
+| (succ n) []     := eq.symm (nat.min_zero (succ n))
 | (succ n) (a::l) :=
   calc succ (length (firstn n l)) = succ (min n (length l)) : congr_arg succ (length_firstn n l)
                               ... = min (succ n) (succ (length l))
@@ -78,10 +78,10 @@ theorem length_map₂ {α β φ : Type} (f : α → β → φ)
   : Π x y, length (map₂ f x y) = min (length x) (length y)
 | [] y :=
    calc length (map₂ f nil y) = 0 : congr_arg length (map₂_nil_1 f y)
-           ... = min 0 (length y) : eq.symm (nat.min_zero_left (length y))
+           ... = min 0 (length y) : eq.symm (nat.zero_min (length y))
 | x [] :=
    calc length (map₂ f x nil) = 0 : congr_arg length (map₂_nil_2 f x)
-           ... = min (length x) 0 : eq.symm (nat.min_zero_right (length x))
+           ... = min (length x) 0 : eq.symm (nat.min_zero (length x))
 | (a::x) (b::y) :=
    calc succ (length (map₂ f x y))
              = succ (min (length x) (length y))

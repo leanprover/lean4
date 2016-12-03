@@ -67,6 +67,7 @@ void mt_task_queue::spawn_worker() {
     lean_assert(!m_shutting_down);
     auto this_worker = std::make_shared<worker_info>();
     this_worker->m_thread = thread([=] {
+        save_stack_info(false);
         this_worker->m_interrupt_flag = get_interrupt_flag();
 
         scope_global_task_queue scope_tq(this);

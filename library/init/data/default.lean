@@ -5,3 +5,4 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.data.basic init.data.sigma init.data.nat init.data.char init.data.string
+import init.data.instances

@@ -6,8 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import init.core init.logic init.category init.data.basic
 import init.propext init.funext init.category.combinators init.function init.classical
-import init.util init.coe init.wf init.meta init.instances
-import init.algebra init.data
+import init.util init.coe init.wf init.meta init.algebra init.data
 
 def debugger.attr : user_attribute :=
 { name  := `breakpoint,

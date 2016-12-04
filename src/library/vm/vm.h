@@ -49,7 +49,6 @@ public:
 #define LEAN_VM_BOX(num)    (reinterpret_cast<vm_obj_cell*>((num << 1) | 1))
 #define LEAN_VM_UNBOX(obj)  (reinterpret_cast<size_t>(obj) >> 1)
 
-void display(std::ostream & out, vm_obj const & o, std::function<optional<name>(unsigned)> const & idx2name);
 void display(std::ostream & out, vm_obj const & o);
 
 /** \brief VM object */
@@ -454,9 +453,6 @@ public:
     unsigned get_pc(unsigned i) const;
     void set_pc(unsigned i, unsigned pc);
 
-    void display(std::ostream & out,
-                 std::function<optional<name>(unsigned)> const & idx2name,
-                 std::function<optional<name>(unsigned)> const & cases_idx2name) const;
     void display(std::ostream & out) const;
 
     void serialize(serializer & s, std::function<name(unsigned)> const & idx2name) const;
@@ -573,8 +569,6 @@ class vm_state {
     cache_vector                m_cache_vector; /* for 0-ary declarations */
     builtin_cases_map           m_builtin_cases_map;
     builtin_cases_vector        m_builtin_cases_vector;
-    unsigned_map<name>          m_builtin_cases_names;
-    name_map<unsigned>          m_fn_name2idx;
     vm_instr const *            m_code;   /* code of the current function being executed */
     unsigned                    m_fn_idx; /* function idx being executed */
     unsigned                    m_pc;     /* program counter */
@@ -831,6 +825,11 @@ environment add_native(environment const & env, name const & n, vm_cfunction_6 f
 environment add_native(environment const & env, name const & n, vm_cfunction_7 fn);
 environment add_native(environment const & env, name const & n, vm_cfunction_8 fn);
 environment add_native(environment const & env, name const & n, unsigned arity, vm_cfunction_N fn);
+
+unsigned get_vm_index(name const & n);
+unsigned get_vm_index_bound();
+name const & get_vm_name(unsigned idx);
+optional<name> find_vm_name(unsigned idx);
 
 /** \brief Reserve an index for the given function in the VM, the expression
     \c e is the value of \c fn after preprocessing.

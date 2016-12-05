@@ -159,6 +159,9 @@ declaration mk_theorem(name const & n, level_param_names const & params, expr co
 declaration mk_axiom(name const & n, level_param_names const & params, expr const & t);
 declaration mk_constant_assumption(name const & n, level_param_names const & params, expr const & t, bool trusted = true);
 
+/** \brief Return true iff \c e depends on meta-declarations */
+bool use_untrusted(environment const & env, expr const & e);
+
 /** \brief Similar to mk_definition but infer the value of trusted flag.
     That is, set it to false if \c t or \c v contains a untrusted declaration. */
 declaration mk_definition_inferring_trusted(environment const & env, name const & n, level_param_names const & params,

@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/trace.h"
 #include "library/aux_definition.h"
+#include "library/unfold_macros.h"
 namespace lean {
 struct mk_aux_definition_fn {
     type_context &  m_ctx;
@@ -125,22 +126,28 @@ struct mk_aux_definition_fn {
         lean_assert(!is_lemma || *is_meta == false);
         expr new_type  = collect(m_ctx.instantiate_mvars(type));
         expr new_value = collect(m_ctx.instantiate_mvars(value));
+        environment const & env = m_ctx.env();
         buffer<expr> norm_params;
         collect_and_normalize_dependencies(norm_params);
         new_type  = replace_locals(new_type, m_params, norm_params);
         new_value = replace_locals(new_value, m_params, norm_params);
         expr def_type  = m_ctx.mk_pi(norm_params, new_type);
         expr def_value = m_ctx.mk_lambda(norm_params, new_value);
-        environment const & env = m_ctx.env();
+        bool untrusted = false;
+        if (is_meta)
+            untrusted = *is_meta;
+        else
+            untrusted = use_untrusted(env, def_type) || use_untrusted(env, def_value);
+        if (!untrusted) {
+            def_type  = unfold_untrusted_macros(env, def_type);
+            def_value = unfold_untrusted_macros(env, def_value);
+        }
         declaration d;
         if (is_lemma) {
             d = mk_theorem(c, to_list(m_level_params), def_type, def_value);
-        } else if (is_meta) {
-            bool use_self_opt = true;
-            d = mk_definition(env, c, to_list(m_level_params), def_type, def_value, use_self_opt, !*is_meta);
         } else {
             bool use_self_opt = true;
-            d = mk_definition_inferring_trusted(env, c, to_list(m_level_params), def_type, def_value, use_self_opt);
+            d = mk_definition(env, c, to_list(m_level_params), def_type, def_value, use_self_opt, !untrusted);
         }
         environment new_env = module::add(env, check(env, d, true));
         buffer<level> ls;

@@ -258,7 +258,7 @@ static void finalize_theorem_proof(elaborator & elab, buffer<expr> const & param
 }
 
 static void finalize_definition(elaborator & elab, buffer<expr> const & params, expr & type,
-                                expr & val, buffer<name> & lp_names) {
+                                expr & val, buffer<name> & lp_names, bool is_meta) {
     type = elab.mk_pi(params, type);
     val  = elab.mk_lambda(params, val);
     buffer<expr> type_val;
@@ -266,8 +266,13 @@ static void finalize_definition(elaborator & elab, buffer<expr> const & params, 
     type_val.push_back(type);
     type_val.push_back(val);
     elab.finalize(type_val, implicit_lp_names, true, false);
-    type = unfold_untrusted_macros(elab.env(), type_val[0]);
-    val  = unfold_untrusted_macros(elab.env(), type_val[1]);
+    if (!is_meta) {
+        type = unfold_untrusted_macros(elab.env(), type_val[0]);
+        val  = unfold_untrusted_macros(elab.env(), type_val[1]);
+    } else {
+        type = type_val[0];
+        val  = type_val[1];
+    }
     lp_names.append(implicit_lp_names);
 }
 
@@ -688,7 +693,7 @@ public:
                 val = fix_rec_fn_macro_args(elab, mlocal_name(m_fn), params_buf, type, val);
             }
             buffer<name> univ_params_buf; to_buffer(m_univ_params, univ_params_buf);
-            finalize_definition(elab, params_buf, type, val, univ_params_buf);
+            finalize_definition(elab, params_buf, type, val, univ_params_buf, m_modifiers.m_is_meta);
 
             bool use_conv_opt = true;
             bool is_trusted  = !m_modifiers.m_is_meta;
@@ -774,7 +779,7 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
                 lean_assert(get_equations_result_size(val) == 1);
                 val = get_equations_result(val, 0);
             }
-            finalize_definition(elab, new_params, type, val, lp_names);
+            finalize_definition(elab, new_params, type, val, lp_names, modifiers.m_is_meta);
             opt_val = optional<expr>(val);
             env_n = declare_definition(p, elab.env(), kind, lp_names, c_name, type, opt_val, {}, modifiers, attrs, doc_string, header_pos);
         }

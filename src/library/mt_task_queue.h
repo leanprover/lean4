@@ -67,6 +67,7 @@ public:
     ~mt_task_queue();
 
     optional<generic_task_result> get_current_task() override;
+    void join() override;
     bool empty() override;
 
     void wait(generic_task_result const & t) override;

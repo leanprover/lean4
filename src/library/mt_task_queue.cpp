@@ -313,6 +313,11 @@ void mt_task_queue::cancel(generic_task_result const & t) {
     cancel_core(t);
 }
 
+void mt_task_queue::join() {
+    unique_lock<mutex> lock(m_mutex);
+    m_queue_removed.wait(lock, [=] { return empty_core(); });
+}
+
 bool mt_task_queue::empty_core() {
     for (auto & w : m_workers) {
         if (w->m_current_task)

@@ -476,14 +476,15 @@ int main(int argc, char ** argv) {
             mods.push_back({mod, mod_info});
         }
 
+        tq->join();
+
         for (auto & mod : mods) {
             try {
                 auto res = mod.second->m_result.get();
-                if (mod.second->m_olean_task) mod.second->m_olean_task.get();
                 ok = ok && res.m_ok;
             } catch (exception & ex) {
                 ok = false;
-                message_builder(env, ios, mod.first, {1, 0}, ERROR).set_exception(ex).report();
+                // exception has already been reported
             }
         }
 

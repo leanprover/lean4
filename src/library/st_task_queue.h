@@ -19,6 +19,7 @@ public:
 
     optional<generic_task_result> get_current_task() override;
     bool empty() override;
+    void join() override;
     void wait(generic_task_result const & t) override;
     void cancel(generic_task_result const & t) override;
 

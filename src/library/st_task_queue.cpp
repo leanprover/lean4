@@ -15,6 +15,8 @@ void st_task_queue::wait(generic_task_result const & t) {
         std::rethrow_exception(t->m_ex);
 }
 
+void st_task_queue::join() {}
+
 bool st_task_queue::empty() {
     return true;
 }

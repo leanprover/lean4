@@ -235,6 +235,7 @@ public:
 
     virtual optional<generic_task_result> get_current_task() = 0;
     virtual bool empty() = 0;
+    virtual void join() = 0;
 
     template <typename T, typename... As>
     task_result<typename T::result> submit(As... args) {

@@ -45,10 +45,15 @@ struct lthread::imp {
         m_proc(p) {
         m_thread = CreateThread(nullptr, m_thread_stack_size,
                                 _main, &m_proc, 0, nullptr);
+        if (m_thread == NULL) {
+            throw exception("failed to create thread");
+        }
     }
 
     void join() {
-        WaitForSingleObject(m_thread, INFINITE);
+        if (WaitForSingleObject(m_thread, INFINITE) == WAIT_FAILED) {
+            throw exception("failed to join thread");
+        }
     }
 };
 #else

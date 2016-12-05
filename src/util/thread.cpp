@@ -8,6 +8,9 @@ Author: Leonardo de Moura
 #include <pthread.h>
 #include <vector>
 #include <iostream>
+#if defined(LEAN_WINDOWS)
+#include <windows.h>
+#endif
 #include "util/thread.h"
 #include "util/exception.h"
 
@@ -30,15 +33,22 @@ size_t lthread::get_thread_stack_size() {
 #if defined(LEAN_WINDOWS)
 /* Windows version */
 struct lthread::imp {
-    /* TODO(Leo): use win threads */
-    thread m_thread;
+    std::function<void(void)> m_proc;
+    HANDLE                    m_thread;
+
+    static DWORD WINAPI _main(void * p) {
+        (*reinterpret_cast<std::function<void(void)>*>(p))();
+        return 0;
+    }
 
     imp(std::function<void(void)> const & p):
-        m_thread(p) {
+        m_proc(p) {
+        m_thread = CreateThread(nullptr, m_thread_stack_size,
+                                _main, &m_proc, 0, nullptr);
     }
 
     void join() {
-        m_thread.join();
+        WaitForSingleObject(m_thread, INFINITE);
     }
 };
 #else

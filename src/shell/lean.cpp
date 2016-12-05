@@ -401,58 +401,58 @@ int main(int argc, char ** argv) {
     scoped_message_buffer scope_msg_buf(msg_buf.get());
     scope_message_context scope_msg_ctx(message_bucket_id { "_global", 1 });
 
-    std::vector<std::string> args(argv + optind, argv + argc);
-    if (make_mode) {
-        if (args.empty()) args.push_back(".");
-        std::vector<std::string> files;
-        for (auto & f : args) {
-            if (auto i_d = is_dir(f)) {
-                if (*i_d) {
-                    recursive_list_files(f, files);
-                } else {
-                    files.push_back(f);
+    try {
+        std::vector<std::string> args(argv + optind, argv + argc);
+        if (make_mode) {
+            if (args.empty()) args.push_back(".");
+            std::vector<std::string> files;
+            for (auto & f : args) {
+                if (auto i_d = is_dir(f)) {
+                    if (*i_d) {
+                        recursive_list_files(f, files);
+                    } else {
+                        files.push_back(f);
+                    }
                 }
             }
+            args.clear();
+            for (auto & f : files) {
+                if (is_lean_file(f))
+                    args.push_back(f);
+            }
         }
-        args.clear();
-        for (auto & f : files) {
-            if (is_lean_file(f))
-                args.push_back(f);
-        }
-    }
-    std::vector<std::string> module_args;
-    for (auto & f : args) module_args.push_back(lrealpath(f.c_str()));
+        std::vector<std::string> module_args;
+        for (auto & f : args) module_args.push_back(lrealpath(f.c_str()));
 
-    std::shared_ptr<task_queue> tq;
+        std::shared_ptr<task_queue> tq;
 #if defined(LEAN_MULTI_THREAD)
-    if (num_threads == 0) {
-        tq = std::make_shared<st_task_queue>();
-    } else {
-        tq = std::make_shared<mt_task_queue>(num_threads);
-    }
+        if (num_threads == 0) {
+            tq = std::make_shared<st_task_queue>();
+        } else {
+            tq = std::make_shared<mt_task_queue>(num_threads);
+        }
 #else
-    tq = std::make_shared<st_task_queue>();
+        tq = std::make_shared<st_task_queue>();
 #endif
-    scope_global_task_queue scope(tq.get());
+        scope_global_task_queue scope(tq.get());
 
-    if (make_mode) {
-        if (auto prog_msg_buf = std::dynamic_pointer_cast<progress_message_stream>(msg_buf))
-            tq->set_progress_callback([=](generic_task * t) {
-                if (!t->is_tiny())
-                    prog_msg_buf->show_current_task(t->description());
-            });
-    }
+        if (make_mode) {
+            if (auto prog_msg_buf = std::dynamic_pointer_cast<progress_message_stream>(msg_buf))
+                tq->set_progress_callback([=](generic_task * t) {
+                    if (!t->is_tiny())
+                        prog_msg_buf->show_current_task(t->description());
+                });
+        }
 
-    fs_module_vfs vfs;
-    if (!make_mode || export_txt || export_all_txt) {
-        for (auto & mod_id : module_args)
-            vfs.m_modules_to_load_from_source.insert(mod_id);
-    }
+        fs_module_vfs vfs;
+        if (!make_mode || export_txt || export_all_txt) {
+            for (auto & mod_id : module_args)
+                vfs.m_modules_to_load_from_source.insert(mod_id);
+        }
 
-    module_mgr mod_mgr(&vfs, msg_buf.get(), env, ios);
-    mod_mgr.set_save_olean(make_mode);
+        module_mgr mod_mgr(&vfs, msg_buf.get(), env, ios);
+        mod_mgr.set_save_olean(make_mode);
 
-    try {
         bool ok = true;
 
         if (only_deps) {

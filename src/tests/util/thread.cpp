@@ -14,7 +14,7 @@ Author: Leonardo de Moura
 #include "util/init_module.h"
 using namespace lean;
 
-#if defined(LEAN_MULTI_THREAD) && !defined(__APPLE__)
+#if defined(LEAN_MULTI_THREAD)
 LEAN_THREAD_PTR(std::vector<int>, g_v);
 void finalize_vector(void * p) {
     delete reinterpret_cast<std::vector<int>*>(p);
@@ -198,5 +198,9 @@ int main() {
     return has_violations() ? 1 : 0;
 }
 #else
-int main() { std::cout << "foo\n"; return 0; }
+int main() {
+    save_stack_info();
+    initialize_util_module();
+    return 0;
+}
 #endif

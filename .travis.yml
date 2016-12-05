@@ -46,6 +46,13 @@ matrix:
        TESTCOV=ON
 
    - os: linux
+     addons: *gcc6_addons
+     env:
+       CMAKE_CXX_COMPILER=g++-6
+       CMAKE_BUILD_TYPE=Release
+       MULTI_THREAD=OFF
+
+   - os: linux
      env:
        CMAKE_CXX_COMPILER=clang++-3.4
        CMAKE_BUILD_TYPE=Debug
@@ -81,7 +88,15 @@ script:
   - cd build
   - if [[ $TESTCOV != ON ]]; then TESTCOV=OFF; fi
   - if [[ $TCMALLOC != ON ]]; then TCMALLOC=OFF; fi
-  - cmake -DCONSERVE_MEMORY=${CONSERVE_MEMORY} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DTESTCOV=${TESTCOV} -DTCMALLOC=${TCMALLOC} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} ../src
+  - if [[ $MULTI_THREAD != OFF ]]; then MULTI_THREAD=ON; fi
+  - if [[ $CONSERVE_MEMORY != ON ]]; then CONSERVE_MEMORY=OFF; fi
+  - cmake -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE
+          -DCMAKE_CXX_COMPILER=$CMAKE_CXX_COMPILER
+          -DCONSERVE_MEMORY=$CONSERVE_MEMORY
+          -DTESTCOV=$TESTCOV
+          -DTCMALLOC=$TCMALLOC
+          -DMULTI_THREAD=$MULTI_THREAD
+          ../src
   - make -j2
   # TODO(gabriel): add smaller test subset for debug and emscripten builds
   - if [[ $CMAKE_BUILD_TYPE == Release ]]; then

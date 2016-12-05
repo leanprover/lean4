@@ -6,10 +6,16 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <iostream>
+#include <chrono>
+#include <functional>
 
 #ifndef LEAN_STACK_BUFFER_SPACE
 #define LEAN_STACK_BUFFER_SPACE 128*1024  // 128 Kb
 #endif
+
+namespace lean {
+namespace chrono = std::chrono;
+};
 
 #if defined(LEAN_MULTI_THREAD)
 #include <thread>
@@ -17,10 +23,8 @@ Author: Leonardo de Moura
 #include <atomic>
 #include <condition_variable>
 #define LEAN_THREAD_LOCAL thread_local
-#include <chrono>
 
 namespace lean {
-namespace chrono = std::chrono;
 using std::thread;
 using std::mutex;
 using std::recursive_mutex;
@@ -61,10 +65,8 @@ public:
 // NO MULTI THREADING SUPPORT
 #include <utility>
 #include <cstdlib>
-#include <chrono> // NOLINT
 #define LEAN_THREAD_LOCAL
 namespace lean {
-namespace chrono = std::chrono;
 constexpr int memory_order_relaxed = 0;
 constexpr int memory_order_release = 0;
 constexpr int memory_order_acquire = 0;

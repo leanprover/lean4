@@ -6,13 +6,13 @@ Author: Jared Roesch
 */
 #pragma once
 #include <string>
-#include <stdexcept>
+#include "util/exception.h"
 
 namespace lean {
 
-class dynamic_linking_exception : public std::runtime_error {
+class dynamic_linking_exception : public exception {
 public:
-    dynamic_linking_exception(std::string msg) : std::runtime_error(msg) {}
+    dynamic_linking_exception(std::string msg): exception(msg) {}
 };
 
 typedef void* dynamic_symbol;

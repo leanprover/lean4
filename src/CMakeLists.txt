@@ -237,7 +237,11 @@ else()
 endif()
 
 # DL
-set(EXTRA_LIBS ${EXTRA_LIBS} dl)
+if((${CYGWIN} EQUAL "1") OR (${CMAKE_SYSTEM_NAME} MATCHES "Windows"))
+  # TODO(Jared): config dlopen windows support
+else()
+  set(EXTRA_LIBS ${EXTRA_LIBS} dl)
+endif()
 
 # TRACK_MEMORY_USAGE
 if(TRACK_MEMORY_USAGE)

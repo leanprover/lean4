@@ -10,14 +10,16 @@ Author: Jared Roesch
 #include <iomanip>
 #include <utility>
 #include <unistd.h>
+#if defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
+//
+#else
 #include <sys/wait.h>
+#endif
 #include "util/process.h"
 #include "util/buffer.h"
 
 namespace lean {
-
 // TODO(jroesch): make this cross platform
-
 process::process(std::string n): m_proc_name(n), m_args() {
     m_args.push_back(m_proc_name);
 }
@@ -29,7 +31,7 @@ process & process::arg(std::string a) {
 
 #if defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
 void process::run() {
-    throw std::runtime_error("process::run not supported on Windows")
+    throw exception("process::run not supported on Windows");
 }
 #else
 

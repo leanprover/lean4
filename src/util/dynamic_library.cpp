@@ -25,7 +25,7 @@ char const * dlerror() {
 void * dlsym(void *, char const *) {
     throw exception("Windows does not currently have support for dynamically loading object files");
 }
-int dlclose(void *) {
+int dlclose(void *) { // NOLINT
     throw exception("Windows does not currently have support for dynamically loading object files");
 }
 #define RTLD_LAZY 0

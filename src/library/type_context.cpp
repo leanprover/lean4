@@ -2593,10 +2593,8 @@ public:
             auto instantiate_assignment_fn = [&](expr const & e, unsigned offset) {
                 if (is_var(e)) {
                     unsigned idx = var_idx(e) + offset;
-                    if (idx < m_assignment.size()) {
-                        lean_assert(m_assignment[idx]);
+                    if (idx < m_assignment.size() && m_assignment[idx])
                         return m_assignment[idx];
-                    }
                 }
                 return none_expr();
             };

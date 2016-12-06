@@ -461,16 +461,22 @@ expr mk_snd(abstract_type_context & ctx, expr const & p) {
     return mk_app(mk_constant(get_prod_snd_name(), const_levels(get_app_fn(AxB))), A, B, p);
 }
 
+static expr * g_nat = nullptr;
+
+expr mk_nat() {
+    return *g_nat;
+}
+
 expr mk_nat_zero() {
-    return mk_app(mk_constant(get_zero_name(), {mk_level_one()}), {mk_constant(get_nat_name()), mk_constant(get_nat_has_zero_name())});
+    return mk_app(mk_constant(get_zero_name(), {mk_level_one()}), {*g_nat, mk_constant(get_nat_has_zero_name())});
 }
 
 expr mk_nat_one() {
-    return mk_app(mk_constant(get_one_name(), {mk_level_one()}), {mk_constant(get_nat_name()), mk_constant(get_nat_has_one_name())});
+    return mk_app(mk_constant(get_one_name(), {mk_level_one()}), {*g_nat, mk_constant(get_nat_has_one_name())});
 }
 
 expr mk_nat_add(expr const & e1, expr const & e2) {
-    expr nat_add = mk_app(mk_constant(get_add_name(), {mk_level_one()}), {mk_constant(get_nat_name()), mk_constant(get_nat_has_add_name())});
+    expr nat_add = mk_app(mk_constant(get_add_name(), {mk_level_one()}), {*g_nat, mk_constant(get_nat_has_add_name())});
     return mk_app(nat_add, e1, e2);
 }
 
@@ -929,9 +935,11 @@ void initialize_library_util() {
     g_and_intro      = new expr(mk_constant(get_and_intro_name()));
     g_and_elim_left  = new expr(mk_constant(get_and_elim_left_name()));
     g_and_elim_right = new expr(mk_constant(get_and_elim_right_name()));
+    g_nat            = new expr(mk_constant(get_nat_name()));
 }
 
 void finalize_library_util() {
+    delete g_nat;
     delete g_true;
     delete g_true_intro;
     delete g_and;

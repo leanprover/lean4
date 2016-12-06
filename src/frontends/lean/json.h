@@ -17,6 +17,9 @@ json json_of_severity(message_severity sev);
 
 json json_of_message(message const & msg);
 
+json serialize_decl(name const & short_name, name const & long_name, environment const & env, options const & o);
+json serialize_decl(name const & d, environment const & env, options const & o);
+
 class json_message_stream : public message_buffer {
     std::ostream & m_out;
 public:

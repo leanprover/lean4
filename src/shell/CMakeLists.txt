@@ -1,4 +1,4 @@
-add_executable(lean lean.cpp server.cpp leandoc.cpp)
+add_executable(lean lean.cpp server.cpp completion.cpp leandoc.cpp)
 target_link_libraries(lean leanstatic)
 install(TARGETS lean DESTINATION bin)
 

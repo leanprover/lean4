@@ -12,12 +12,15 @@ Authors: Gabriel Ebner, Sebastian Ullrich
 #include "library/versioned_msg_buf.h"
 #include "library/module_mgr.h"
 #include "frontends/lean/json.h"
+#include "library/mt_task_queue.h"
 
 namespace lean {
 
 #if defined(LEAN_MULTI_THREAD)
 mt_tq_prioritizer mk_interactive_prioritizer(module_id const & roi);
 #endif
+
+unsigned get_auto_completion_max_results(options const &);
 
 class server : public module_vfs {
     versioned_msg_buf m_msg_buf;
@@ -46,8 +49,6 @@ class server : public module_vfs {
     json handle_complete(json const & req);
     json handle_info(json const & req);
 
-    json serialize_decl(name const & short_name, name const & long_name, environment const & env, options const & o);
-    json serialize_decl(name const & d, environment const & env, options const & o);
 public:
     server(unsigned num_threads, environment const & intial_env, io_state const & ios);
     ~server();

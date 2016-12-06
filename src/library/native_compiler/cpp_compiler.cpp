@@ -84,6 +84,12 @@ namespace lean {
           p.arg(arg);
       }
 
+#if defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
+// TODO(Jared): windows version
+#else
+      p.arg("-ldl"); // dlopen
+#endif
+
       if (m_debug) {
           p.arg("-g");
       }

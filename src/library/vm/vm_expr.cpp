@@ -24,6 +24,8 @@ Author: Leonardo de Moura
 #include "library/vm/vm_option.h"
 #include "library/vm/vm_level.h"
 #include "library/vm/vm_list.h"
+#include "library/compiler/simp_inductive.h"
+#include "library/compiler/nat_value.h"
 
 namespace lean {
 struct vm_macro_definition : public vm_external {
@@ -145,6 +147,10 @@ vm_obj expr_macro(vm_obj const & d, vm_obj const & n, vm_obj const & fn) {
 
 vm_obj expr_macro_arg(vm_obj const & m, vm_obj const & i) {
     return to_obj(macro_arg(to_expr(m), to_unsigned(i)));
+}
+
+vm_obj expr_macro_def_name(vm_obj const & d) {
+    return to_obj(to_macro_definition(d).get_name());
 }
 
 static unsigned g_expr_macro_arg_fun_idx = -1;
@@ -323,6 +329,49 @@ vm_obj expr_copy_pos_info(vm_obj const & src, vm_obj const & tgt) {
     return to_obj(copy_tag(to_expr(src), copy(to_expr(tgt))));
 }
 
+vm_obj expr_is_internal_cnstr(vm_obj const & e) {
+    auto opt_unsigned = is_internal_cnstr(to_expr(e));
+    if (opt_unsigned) {
+        std::cout << *opt_unsigned << std::endl;
+        vm_obj u = to_obj(*opt_unsigned);
+        return mk_vm_constructor(1, { u });
+    } else {
+        return mk_vm_constructor(0, {});
+    }
+}
+
+vm_obj expr_is_internal_proj(vm_obj const & e) {
+    auto opt_unsigned = is_internal_proj(to_expr(e));
+    if (opt_unsigned) {
+        std::cout << *opt_unsigned << std::endl;
+        vm_obj u = to_obj(*opt_unsigned);
+        return mk_vm_constructor(1, { u });
+    } else {
+        return mk_vm_constructor(0, {});
+    }
+}
+
+vm_obj expr_is_internal_cases(vm_obj const & e) {
+    auto opt_unsigned = is_internal_cases(to_expr(e));
+    if (opt_unsigned) {
+        std::cout << *opt_unsigned << std::endl;
+        vm_obj u = to_obj(*opt_unsigned);
+        return mk_vm_constructor(1, { u });
+    } else {
+        return mk_vm_constructor(0, {});
+    }
+}
+
+vm_obj expr_get_nat_value(vm_obj const & o) {
+    expr e = to_expr(o);
+    if (is_nat_value(e)) {
+        auto n = mk_vm_nat(get_nat_value_value(e));
+        return mk_vm_constructor(1, { n });
+    } else {
+        return mk_vm_simple(0);
+    }
+}
+
 // TODO(Leo): move to a different file
 vm_obj vm_mk_nat_val_ne_proof(vm_obj const & a, vm_obj const & b) {
     return to_obj(mk_nat_val_ne_proof(to_expr(a), to_expr(b)));
@@ -361,6 +410,7 @@ void initialize_vm_expr() {
     DECLARE_VM_BUILTIN("_expr_macro_arg",                  expr_macro_arg);
     DECLARE_VM_BUILTIN(name({"expr", "macro"}),            expr_macro);
     DECLARE_VM_BUILTIN(name({"expr", "mk_macro"}),         expr_mk_macro);
+    DECLARE_VM_BUILTIN(name({"expr", "macro_def_name"}),   expr_macro_def_name);
     DECLARE_VM_BUILTIN(name({"expr", "has_decidable_eq"}), expr_has_decidable_eq);
     DECLARE_VM_BUILTIN(name({"expr", "alpha_eqv"}),        expr_alpha_eqv);
     DECLARE_VM_BUILTIN(name({"expr", "to_string"}),        expr_to_string);
@@ -388,6 +438,10 @@ void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name("mk_fin_val_ne_proof"),        vm_mk_fin_val_ne_proof);
     DECLARE_VM_BUILTIN(name("mk_char_val_ne_proof"),       vm_mk_char_val_ne_proof);
     DECLARE_VM_BUILTIN(name("mk_string_val_ne_proof"),     vm_mk_string_val_ne_proof);
+
+    // Not sure if we should expose these or what?
+    DECLARE_VM_BUILTIN(name({"expr", "is_internal_cnstr"}), expr_is_internal_cnstr);
+    DECLARE_VM_BUILTIN(name({"expr", "get_nat_value"}), expr_get_nat_value);
 }
 
 void finalize_vm_expr() {

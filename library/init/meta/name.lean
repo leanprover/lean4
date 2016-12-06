@@ -36,12 +36,23 @@ def name.get_prefix : name → name
 | (mk_string s p)  := p
 | (mk_numeral s p) := p
 
-def name.to_string : name → string
+definition name.to_string_with_sep (sep : string) : name → string
 | anonymous                := "[anonymous]"
 | (mk_string s anonymous)  := s
 | (mk_numeral v anonymous) := to_string v
-| (mk_string s n)          := name.to_string n ++ "." ++ s
-| (mk_numeral v n)         := name.to_string n ++ "." ++ to_string v
+| (mk_string s n)          := name.to_string_with_sep n ++ sep ++ s
+| (mk_numeral v n)         := name.to_string_with_sep n ++ sep ++ to_string v
+
+private def name.components' : name -> list name
+| anonymous                := []
+| (mk_string s n)          := mk_string s anonymous :: name.components' n
+| (mk_numeral v n)         := mk_numeral v anonymous :: name.components' n
+
+def name.components (n : name) : list name :=
+  list.reverse (name.components' n)
+
+definition name.to_string : name → string :=
+  name.to_string_with_sep "."
 
 instance : has_to_string name :=
 ⟨name.to_string⟩

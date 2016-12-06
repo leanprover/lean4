@@ -98,6 +98,8 @@ public:
 
         mod.m_env = optional<environment>(p.env());
 
+        mod.m_opts = p.ios().get_options();
+
         mod.m_ok = parsed_ok; // TODO(gabriel): what should this be?
 
         return mod;

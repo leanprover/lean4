@@ -141,11 +141,14 @@ small_object_allocator & get_vm_allocator();
 // Constructors
 vm_obj mk_vm_simple(unsigned cidx);
 vm_obj mk_vm_constructor(unsigned cidx, unsigned sz, vm_obj const * args);
+vm_obj mk_vm_constructor(unsigned cidx, std::initializer_list<vm_obj const> args);
 vm_obj mk_vm_constructor(unsigned cidx, vm_obj const &);
 vm_obj mk_vm_constructor(unsigned cidx, vm_obj const &, vm_obj const &);
 vm_obj mk_vm_constructor(unsigned cidx, vm_obj const &, vm_obj const &, vm_obj const &);
 vm_obj mk_vm_constructor(unsigned cidx, vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &);
 vm_obj mk_vm_closure(unsigned fnidx, unsigned sz, vm_obj const * args);
+vm_obj mk_native_closure(environment const & env, name const & n, unsigned sz, vm_obj const * args);
+vm_obj mk_native_closure(environment const & env, name const & n, std::initializer_list<vm_obj const> args);
 vm_obj mk_vm_closure(unsigned cidx, vm_obj const &);
 vm_obj mk_vm_closure(unsigned cidx, vm_obj const &, vm_obj const &);
 vm_obj mk_vm_closure(unsigned cidx, vm_obj const &, vm_obj const &, vm_obj const &);
@@ -825,6 +828,9 @@ vm_builtin_kind get_vm_builtin_kind(name const & fn);
 /** \brief Return the arity of the C++ function that implements the builtin \c fn.
     \pre is_vm_builtin_function(fn) && get_vm_builtin_kind(fn) == vm_builtin_kind::CFun */
 unsigned get_vm_builtin_arity(name const & fn);
+
+environment load_external_fn(environment & env, name const & extern_n);
+// void* get_extern_symbol(std::string library_name, std::string extern_name);
 
 /** \brief Invoke closure \c fn with the given arguments. These procedures are meant to be use by
     C++ generated/extracted code. */

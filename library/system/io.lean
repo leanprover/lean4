@@ -13,6 +13,9 @@ constant put_str  : string → io unit
 constant put_nat  : nat → io unit
 constant get_line : io string
 
+def put_str_ln {A} [has_to_string A] (s : A) : io unit :=
+  put_str $ #"\n" :: (to_string s)
+
 meta constant format.print_using : format → options → io unit
 
 meta definition format.print (fmt : format) : io unit :=

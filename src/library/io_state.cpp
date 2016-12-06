@@ -92,6 +92,10 @@ char const * formatted_exception::what() const noexcept {
     return r.c_str();
 }
 
+options const & get_options_from_ios(io_state const & ios) {
+    return ios.get_options();
+}
+
 void initialize_io_state() {
     g_dummy_ios = new io_state(mk_print_formatter_factory());
 }

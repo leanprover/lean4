@@ -175,6 +175,7 @@ class erase_irrelevant_fn : public compiler_step_visitor {
         name const & I_name         = rec_name.get_prefix();
         if (I_name == get_false_name())
             return *g_unreachable_expr;
+
         /* This preprocessing step assumes that recursive recursors have already been eliminated */
         lean_assert(!is_recursive_datatype(env(), I_name));
         unsigned nparams            = *inductive::get_num_params(env(), I_name);

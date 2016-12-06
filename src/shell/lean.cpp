@@ -43,6 +43,9 @@ Author: Leonardo de Moura
 #include "frontends/lean/opt_cmd.h"
 #include "frontends/smt2/parser.h"
 #include "frontends/lean/json.h"
+#include "library/native_compiler/options.h"
+#include "library/native_compiler/native_compiler.h"
+#include "library/trace.h"
 #include "init/init.h"
 #include "shell/simple_pos_info_provider.h"
 #include "shell/leandoc.h"
@@ -121,6 +124,7 @@ static struct option g_long_options[] = {
     {"threads",      required_argument, 0, 'j'},
     {"quiet",        no_argument,       0, 'q'},
     {"deps",         no_argument,       0, 'd'},
+    {"compile",      optional_argument, 0, 'C'},
 #if defined(LEAN_SERVER)
     {"json",         no_argument,       0, 'J'},
     {"server",       optional_argument, 0, 'S'},
@@ -167,6 +171,8 @@ options set_config_option(options const & opts, char const * in) {
         case lean::IntOption:
         case lean::UnsignedOption:
             return opts.update(opt, atoi(val.c_str()));
+        case lean::StringOption:
+            return opts.update(opt, val);
         default:
             throw lean::exception(lean::sstream() << "invalid -D parameter, configuration option '" << opt
                                   << "' cannot be set in the command line, use set_option command");
@@ -250,6 +256,8 @@ int main(int argc, char ** argv) {
     bool make_mode          = false;
     unsigned trust_lvl      = LEAN_BELIEVER_TRUST_LEVEL+1;
     bool smt2               = false;
+    bool compile            = false;
+    bool export_native_objects = false;
     bool only_deps          = false;
     unsigned num_threads    = 0;
 #if defined(LEAN_MULTI_THREAD)
@@ -263,6 +271,7 @@ int main(int argc, char ** argv) {
     optional<std::string> export_all_txt;
     optional<std::string> doc;
     optional<std::string> server_in;
+    std::string native_output;
     while (true) {
         int c = getopt_long(argc, argv, g_opt_str, g_long_options, NULL);
         if (c == -1)
@@ -291,6 +300,13 @@ int main(int argc, char ** argv) {
             break;
         case 'm':
             make_mode = true;
+            break;
+        case 'n':
+            native_output         = optarg;
+            export_native_objects = true;
+            break;
+        case 'C':
+            compile = true;
             break;
         case 'r':
             doc = optarg;
@@ -488,11 +504,28 @@ int main(int argc, char ** argv) {
             }
         }
 
+        // Options appear to be empty, pretty sure I'm making a mistake here.
+        if (compile && !mods.empty()) {
+            auto final_env = *mods.front().second->m_result.get().m_env;
+            auto final_opts = mods.front().second->m_result.get().m_opts;
+            type_context tc(final_env, final_opts);
+            lean::scope_trace_env scope2(final_env, final_opts, tc);
+            lean::native::scope_config scoped_native_config(
+                final_opts);
+            native_compile_binary(final_env, final_env.get(lean::name("main")));
+        }
+
+        // if (!mods.empty() && export_native_objects) {
+        //     // this code is now broken
+        //     env = lean::set_native_module_path(env, lean::name(native_output));
+        // }
+
         if (export_txt && !mods.empty()) {
             exclusive_file_lock export_lock(*export_txt);
             std::ofstream out(*export_txt);
             export_module_as_lowtext(out, *mods.front().second->m_result.get().m_env);
         }
+
         if (export_all_txt && !mods.empty()) {
             exclusive_file_lock export_lock(*export_all_txt);
             std::ofstream out(*export_all_txt);

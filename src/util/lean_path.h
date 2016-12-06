@@ -19,6 +19,9 @@ public:
 
 /** \brief Initialize the lean_path */
 void init_lean_path();
+
+std::string get_exe_location();
+
 /** \brief Return the LEAN_PATH string */
 char const * get_lean_path();
 /**

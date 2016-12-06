@@ -210,9 +210,58 @@ struct indices_attribute_data : public attr_data {
     }
 };
 
+struct key_value_data : public attr_data {
+    // generalize: name_map<std::string> m_pairs;
+    std::string m_symbol;
+    std::string m_library;
+
+    virtual unsigned hash() const override {
+        // unsigned h = 0;
+        // // This isn't right ..., well maybe? I don't really know.
+        // // Rust's Hash trait is super good at this.
+        // m_pairs.for_each([&] (name const & n, std::string const & value) {
+        //         h += n.hash();
+        //         // h += ::lean::hash_str(value, h);
+        // });
+        return 0;
+    }
+
+    void write(serializer & s) const {
+        s << m_symbol;
+        s << m_library;
+    }
+
+    void read(deserializer & d) {
+        std::string m_symbol, m_library;
+        d >> m_symbol;
+        d >> m_library;
+    }
+
+    void parse(abstract_parser & p) override {
+        std::cout << "in extern parser" << std::endl;
+        std::string n = p.parse_string_lit();
+        std::string l = p.parse_string_lit();
+        std::cout << "link symbol: " << n << std::endl;
+        std::cout << "library symbol: " << l << std::endl;
+        this->m_symbol = n;
+        this->m_library = l;
+    }
+
+    virtual void print(std::ostream & out) override {
+        out << "external";
+        // for (auto p : m_idxs) {
+        //    out << " " << p + 1;
+        // }
+    }
+};
+
 template class typed_attribute<indices_attribute_data>;
 /** \brief Attribute that represents a list of indices. input and output are 1-indexed for convenience. */
 typedef typed_attribute<indices_attribute_data> indices_attribute;
+
+template class typed_attribute<key_value_data>;
+/** \brief Attribute that represents a list of indices. input and output are 1-indexed for convenience. */
+typedef typed_attribute<key_value_data> key_value_attribute;
 
 class user_attribute_ext {
 public:

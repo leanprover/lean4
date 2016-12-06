@@ -323,6 +323,8 @@ public:
 
     unsigned get_small_nat();
     virtual unsigned parse_small_nat() override final;
+    virtual std::string parse_string_lit() override final;
+    virtual name_map<std::string> parse_kv_pairs() override final;
     double parse_double();
 
     bool parse_local_notation_decl() { return parse_local_notation_decl(nullptr); }

@@ -111,6 +111,11 @@ def dropn : ℕ → list α → list α
 | (succ n) [] := []
 | (succ n) (x::r) := dropn n r
 
+def taken : ℕ → list α → list α
+| 0 a := []
+| (succ n) [] := []
+| (succ n) (x :: r) := x :: taken n r
+
 definition foldl (f : α → β → α) : α → list β → α
 | a []       := a
 | a (b :: l) := foldl (f a b) l

@@ -28,6 +28,7 @@ meta instance : inhabited expr :=
 ⟨expr.sort level.zero⟩
 
 meta constant expr.mk_macro (d : macro_def) : list expr → expr
+meta constant expr.macro_def_name (d : macro_def) : name
 meta def expr.mk_var (n : nat) : expr :=
 expr.var (unsigned.of_nat n)
 
@@ -81,6 +82,9 @@ meta constant expr.lift_vars     : expr → nat → nat → expr
 meta constant expr.lower_vars    : expr → nat → nat → expr
 /- (copy_pos_info src tgt) copy position information from src to tgt. -/
 meta constant expr.copy_pos_info : expr → expr → expr
+
+meta constant expr.is_internal_cnstr : expr → option unsigned
+meta constant expr.get_nat_value : expr → option nat
 
 namespace expr
 open decidable

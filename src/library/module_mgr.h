@@ -39,6 +39,7 @@ struct module_info {
 
     struct parse_result {
         optional<environment> m_env;
+        options               m_opts;
         bool m_ok = false;
 
         std::string m_obj_code;

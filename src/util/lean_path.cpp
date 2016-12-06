@@ -53,7 +53,7 @@ static char g_path_sep     = ';';
 static char g_path_alt_sep = ':';
 static char g_sep          = '\\';
 static char g_bad_sep      = '/';
-static std::string get_exe_location() {
+std::string get_exe_location() {
     HMODULE hModule = GetModuleHandleW(NULL);
     WCHAR path[MAX_PATH];
     GetModuleFileNameW(hModule, path, MAX_PATH);
@@ -69,7 +69,7 @@ bool is_path_sep(char c) { return c == g_path_sep || c == g_path_alt_sep; }
 static char g_path_sep     = ':';
 static char g_sep          = '/';
 static char g_bad_sep      = '\\';
-static std::string get_exe_location() {
+std::string get_exe_location() {
     char buf1[PATH_MAX];
     char buf2[PATH_MAX];
     uint32_t bufsize = PATH_MAX;
@@ -89,7 +89,7 @@ bool is_path_sep(char c) { return c == g_path_sep; }
 static char g_path_sep     = ':';
 static char g_sep          = '/';
 static char g_bad_sep      = '\\';
-static std::string get_exe_location() {
+std::string get_exe_location() {
     char path[PATH_MAX];
     char dest[PATH_MAX];
     memset(dest, 0, PATH_MAX);

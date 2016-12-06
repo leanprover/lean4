@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+
 #include <string>
 #include <algorithm>
 #include <vector>
@@ -25,6 +26,9 @@ Author: Leonardo de Moura
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_option.h"
 #include "library/vm/vm_expr.h"
+#include "library/normalize.h"
+#include "util/dynamic_library.h"
+#include "library/native_compiler/extern.h"
 
 #ifndef LEAN_DEFAULT_PROFILER
 #define LEAN_DEFAULT_PROFILER false
@@ -74,6 +78,10 @@ vm_obj mk_vm_constructor(unsigned cidx, unsigned sz, vm_obj const * data) {
     return mk_vm_composite(vm_obj_kind::Constructor, cidx, sz, data);
 }
 
+vm_obj mk_vm_constructor(unsigned cidx, std::initializer_list<vm_obj const> args) {
+    return mk_vm_constructor(cidx, args.size(), args.begin());
+}
+
 vm_obj mk_vm_constructor(unsigned cidx, vm_obj const & o1) {
     return mk_vm_constructor(cidx, 1, &o1);
 }
@@ -91,6 +99,14 @@ vm_obj mk_vm_constructor(unsigned cidx, vm_obj const & o1, vm_obj const & o2, vm
 vm_obj mk_vm_constructor(unsigned cidx, vm_obj const & o1, vm_obj const & o2, vm_obj const & o3, vm_obj const & o4) {
     vm_obj args[4] = {o1, o2, o3, o4};
     return mk_vm_constructor(cidx, 4, args);
+}
+
+vm_obj mk_native_closure(environment const & env, name const & n, std::initializer_list<vm_obj const> args) {
+    return mk_native_closure(env, n, args.size(), args.begin());
+}
+
+vm_obj mk_native_closure(environment const & env, name const & n, unsigned sz, vm_obj const * data) {
+    return get_vm_state().get_constant(n);
 }
 
 vm_obj mk_vm_closure(unsigned fn_idx, unsigned sz, vm_obj const * data) {
@@ -2590,7 +2606,15 @@ unsigned get_vm_builtin_arity(name const & fn) {
     lean_unreachable();
 }
 
+void* get_extern_symbol(
+ std::string library_name,
+    std::string extern_name) {
+    dynamic_library library(library_name);
+    return library.symbol(extern_name);
+}
+
 static std::string * g_vm_monitor_key = nullptr;
+
 
 static environment vm_monitor_register_core(environment const & env, name const & d) {
     expr const & type = env.get(d).get_type();
@@ -2604,6 +2628,46 @@ static environment vm_monitor_register_core(environment const & env, name const 
 environment vm_monitor_register(environment const & env, name const & d) {
     auto new_env = vm_monitor_register_core(env, d);
     return module::add(new_env, *g_vm_monitor_key, [=](environment const &, serializer & s) { s << d; });
+}
+
+environment load_external_fn(environment & env, name const & extern_n) {
+    try {
+        std::string lib_name = library_name(env, extern_n);
+        std::string symbol = symbol_name(env, extern_n);
+        dynamic_library *library = new dynamic_library(lib_name);
+        auto code = library->symbol(symbol);
+        lean_assert(code);
+
+        // Calculate the arity of the declared symbol.
+        unsigned arity = 1; // We always take at least one argument, because we are in the IO monad.
+        auto ty = normalize(env, env.get(extern_n).get_type(), true);
+        while (is_binding(ty)) {
+            ty = binding_body(ty);
+            arity += 1;
+        }
+        std::cout << arity << std::endl;
+
+        switch (arity) {
+        case 0: lean_unreachable();
+        case 1: return add_native(env, extern_n, (vm_cfunction_1)code);
+        case 2: return add_native(env, extern_n, (vm_cfunction_2)code);
+        case 3: return add_native(env, extern_n, (vm_cfunction_3)code);
+        case 4: return add_native(env, extern_n, (vm_cfunction_4)code);
+        case 5: return add_native(env, extern_n, (vm_cfunction_5)code);
+        case 6: return add_native(env, extern_n, (vm_cfunction_6)code);
+        case 7: return add_native(env, extern_n, (vm_cfunction_7)code);
+        case 8: return add_native(env, extern_n, (vm_cfunction_8)code);
+        default:
+            lean_unreachable();
+            // buffer<vm_obj> args;
+            // to_cbuffer(fn, args);
+            // args.push_back(a1);
+            // return to_fnN(d)(args.size(), args.data());
+        }
+    } catch (dynamic_linking_exception e) {
+        std::cout << e.what() << std::endl;
+        throw e;
+    }
 }
 
 static void vm_monitor_reader(deserializer & d, environment & env) {
@@ -2634,7 +2698,7 @@ void finalize_vm_core() {
 
 void initialize_vm() {
     g_ext = new vm_decls_reg();
-    g_may_update_vm_builtins = false;
+    // g_may_update_vm_builtins = false;
     g_vm_reserve_key = new std::string("VMR");
     g_vm_code_key    = new std::string("VMC");
     g_vm_monitor_key = new std::string("VMMonitor");

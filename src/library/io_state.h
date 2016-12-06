@@ -79,6 +79,8 @@ public:
     ~scope_global_ios();
 };
 
+options const & get_options_from_ios(io_state const & ios);
+
 void initialize_io_state();
 void finalize_io_state();
 }

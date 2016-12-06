@@ -33,10 +33,19 @@ vm_obj get_line(vm_obj const &) {
     return to_obj(str);
 }
 
+vm_obj forever (vm_obj const & action, vm_obj const &) {
+    while (true) {
+        invoke(action, mk_vm_simple(0));
+    }
+
+    return mk_vm_simple(0);
+}
+
 void initialize_vm_io() {
     DECLARE_VM_BUILTIN("put_str", put_str);
     DECLARE_VM_BUILTIN("put_nat", put_nat);
     DECLARE_VM_BUILTIN("get_line", get_line);
+    DECLARE_VM_BUILTIN("forever", forever);
 }
 
 void finalize_vm_io() {

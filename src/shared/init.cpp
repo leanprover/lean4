@@ -7,5 +7,5 @@ Author: Leonardo de Moura
 #include "init/init.h"
 namespace lean {
 // automatic initialization for the shared library
-initializer g_init;
+// initializer g_init;
 }

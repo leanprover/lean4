@@ -672,6 +672,32 @@ unsigned parser::get_small_nat() {
     return val.get_unsigned_int();
 }
 
+std::string parser::parse_string_lit() {
+    std::string v = get_str_val();
+    next();
+    return v;
+}
+
+name_map<std::string> parser::parse_kv_pairs() {
+    name_map<std::string> pairs;
+    return pairs;
+    // check_token_next(get_lparen_tk(), "invalid attribute options, '(' expected");
+    // bool comma = false;
+    // while (!p.curr_is_token(get_rparen_tk())) {
+    //     p.next();
+    //     if (comma) {
+    //         check_token_next(get_comma_tk(), "invalid attribute options, ',' expected");
+    //     } else {
+    //         comma = true;
+    //     }
+    //
+    //     std::string k = parse_string_lit();
+    //     std::cout << "parsed: " << k << std::endl;
+    // }
+    // check_token_next(get_rparen_tk(), "invalid attribute options, ')' expected");
+    // return pairs;
+}
+
 unsigned parser::parse_small_nat() {
     if (!curr_is_numeral())
         throw parser_error("(small) natural number expected", pos());

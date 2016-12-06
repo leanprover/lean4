@@ -24,6 +24,7 @@ void initialize_compiler_module() {
     initialize_simp_inductive();
     initialize_vm_compiler();
 }
+
 void finalize_compiler_module() {
     finalize_vm_compiler();
     finalize_simp_inductive();

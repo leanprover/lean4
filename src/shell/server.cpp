@@ -124,21 +124,30 @@ json server::handle_sync(json const & req) {
     json res;
     res["response"] = "ok";
 
-    m_mtime = time(nullptr);
-    if (m_file_name != new_file_name) {
+    auto mtime = time(nullptr);
+
 #if defined(LEAN_MULTI_THREAD)
+    if (m_visible_file != new_file_name) {
         if (auto tq = dynamic_cast<mt_task_queue *>(m_tq))
             tq->reprioritize(mk_interactive_prioritizer(new_file_name));
-#endif
-        m_mod_mgr->invalidate(m_file_name);
-        m_file_name = new_file_name;
-        m_content = new_content;
-        res["message"] = "new file name, reloading";
-    } else {
-        m_content = new_content;
-        res["message"] = "file partially invalidated";
+        m_visible_file = new_file_name;
     }
-    m_mod_mgr->invalidate(m_file_name);
+#endif
+
+    bool needs_invalidation = !m_open_files.count(new_file_name);
+
+    auto & ef = m_open_files[new_file_name];
+    if (ef.m_content != new_content) {
+        ef.m_content = new_content;
+        ef.m_mtime = mtime;
+        needs_invalidation = true;
+    }
+
+    if (needs_invalidation) {
+        m_mod_mgr->invalidate(new_file_name);
+        res["message"] = "file invalidated";
+    }
+
     return res;
 }
 
@@ -150,26 +159,18 @@ json server::handle_check(json const &) {
         json_messages.push_back(json_of_message(msg));
     }
 
-    bool is_ok = false;
-    try {
-        if (auto res = m_mod_mgr->get_module(m_file_name)->m_result.peek()) {
-            is_ok = res->m_ok;
-        }
-    } catch (...) {}
-
     json res;
     res["response"] = "ok";
     res["incomplete"] = incomplete;
     res["incomplete_reason"] = "";
     if (auto cur_task = get_global_task_queue().get_current_task())
         res["incomplete_reason"] = cur_task->description();
-    res["is_ok"] = is_ok;
     res["messages"] = json_messages;
     return res;
 }
 
-std::shared_ptr<snapshot const> server::get_closest_snapshot(unsigned line) {
-    auto snapshots = m_mod_mgr->get_snapshots(m_file_name);
+std::shared_ptr<snapshot const> server::get_closest_snapshot(module_id const & id, unsigned line) {
+    auto snapshots = m_mod_mgr->get_snapshots(id);
     auto ret = snapshots.size() ? snapshots.front() : std::shared_ptr<snapshot>();
     for (auto & snap : snapshots) {
         if (snap->m_pos.first <= line)
@@ -264,11 +265,12 @@ json server::serialize_decl(name const & d, environment const & env, options con
 }
 
 json server::handle_complete(json const & req) {
+    std::string fn = req["file_name"];
     std::string pattern = req["pattern"];
     unsigned line = req["line"];
     std::vector<json> completions;
 
-    if (auto snap = get_closest_snapshot(line)) {
+    if (auto snap = get_closest_snapshot(fn, line)) {
         environment const & env = snap->m_env;
         options const & opts = snap->m_options;
         unsigned max_results = get_auto_completion_max_results(opts);
@@ -329,19 +331,20 @@ json server::handle_complete(json const & req) {
 }
 
 json server::handle_info(json const & req) {
+    std::string fn = req["file_name"];
     unsigned line = req["line"];
     unsigned col = req["column"];
 
     auto opts = m_ios.get_options();
     auto env = m_initial_env;
-    if (auto mod = m_mod_mgr->get_module(m_file_name)->m_result.peek()) {
+    if (auto mod = m_mod_mgr->get_module(fn)->m_result.peek()) {
         if (mod->m_env) env = *mod->m_env;
         if (!mod->m_snapshots.empty()) opts = mod->m_snapshots.back()->m_options;
     }
 
     json record;
     for (auto & infom : m_msg_buf.get_info_managers()) {
-        if (infom.get_file_name() == m_file_name) {
+        if (infom.get_file_name() == fn) {
             infom.get_info_record(env, opts, m_ios, line, col, record);
         }
     }
@@ -353,8 +356,9 @@ json server::handle_info(json const & req) {
 }
 
 std::tuple<std::string, module_src, time_t> server::load_module(module_id const & id, bool can_use_olean) {
-    if (id == m_file_name) {
-        return std::make_tuple(m_content, module_src::LEAN, m_mtime);
+    if (m_open_files.count(id)) {
+        auto & ef = m_open_files[id];
+        return std::make_tuple(ef.m_content, module_src::LEAN, ef.m_mtime);
     }
     return m_fs_vfs.load_module(id, can_use_olean);
 }

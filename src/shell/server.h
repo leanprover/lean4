@@ -29,11 +29,15 @@ class server : public module_vfs {
     environment m_initial_env;
     io_state m_ios;
 
-    time_t m_mtime;
-    std::string m_file_name;
-    std::string m_content;
+    struct editor_file {
+        time_t m_mtime;
+        std::string m_content;
+    };
+    std::unordered_map<std::string, editor_file> m_open_files;
 
-    std::shared_ptr<snapshot const> get_closest_snapshot(unsigned linenum);
+    std::string m_visible_file;
+
+    std::shared_ptr<snapshot const> get_closest_snapshot(module_id const & id, unsigned linenum);
 
     json handle_request(json const & req);
 

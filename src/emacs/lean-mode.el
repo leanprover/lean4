@@ -134,23 +134,11 @@
 
 (defconst lean-hooks-alist
   '(
+    ;; server
+    ;; (kill-buffer-hook                    . lean-server-stop)
+    (after-change-functions              . lean-server-change-hook)
     ;; Handle events that may start automatic syntax checks
     (before-save-hook                    . lean-whitespace-cleanup)
-    ;; ;; Handle events that may triggered pending deferred checks
-    ;; (window-configuration-change-hook . lean-perform-deferred-syntax-check)
-    ;; (post-command-hook                . lean-perform-deferred-syntax-check)
-    ;; ;; Teardown Lean whenever the buffer state is about to get lost, to
-    ;; ;; clean up temporary files and directories.
-    ;; (kill-buffer-hook                 . lean-teardown)
-    ;; (change-major-mode-hook           . lean-teardown)
-    ;; (before-revert-hook                  . lean-before-revert)
-    ;; (after-revert-hook                   . lean-after-revert)
-    ;; ;; Update the error list if necessary
-    ;; (post-command-hook                . lean-error-list-update-source)
-    ;; (post-command-hook                . lean-error-list-highlight-errors)
-    ;; ;; Show or hide error popups after commands
-    ;; (post-command-hook                . lean-display-error-at-point-soon)
-    ;; (post-command-hook                . lean-hide-error-buffer)
     )
   "Hooks which lean-mode needs to hook in.
 
@@ -160,7 +148,8 @@ enabled and disabled respectively.")
 
 (defun lean-mode-setup ()
   "Default lean-mode setup"
-  (add-hook 'kill-buffer-hook 'lean-server-stop)
+  ;; server
+  (lean-server-ensure-alive)
   ;; Flycheck
   (when lean-flycheck-use
     (lean-flycheck-turn-on)

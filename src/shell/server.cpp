@@ -29,37 +29,126 @@ unsigned get_auto_completion_max_results(options const & o) {
     return o.get_unsigned(*g_auto_completion_max_results, LEAN_DEFAULT_AUTO_COMPLETION_MAX_RESULTS);
 }
 
+struct msg_reported_msg {
+    message m_msg;
+
+    json to_json_response() const {
+        json j;
+        j["response"] = "additional_message";
+        j["msg"] = json_of_message(m_msg);
+        return j;
+    }
+};
+
+struct all_messages_msg {
+    std::vector<message> m_msgs;
+
+    json to_json_response() const {
+        auto msgs = json::array();
+        for (auto & msg : m_msgs)
+            msgs.push_back(json_of_message(msg));
+
+        json j;
+        j["response"] = "all_messages";
+        j["msgs"] = msgs;
+        return j;
+    }
+};
+
+class server::msg_buf : public versioned_msg_buf {
+    server * m_srv;
+
+    std::unordered_set<name, name_hash> m_nonempty_buckets;
+
+public:
+    msg_buf(server * srv) : m_srv(srv) {}
+
+    void on_cleared(name const & bucket) override {
+        if (m_nonempty_buckets.count(bucket)) {
+            m_nonempty_buckets.clear();
+            for (auto & b : get_nonempty_buckets_core()) m_nonempty_buckets.insert(b);
+
+            // We need to remove a message, so let's send everything again
+            m_srv->send_msg(all_messages_msg{get_messages_core()});
+        }
+    }
+
+    void on_reported(name const & bucket, message const & msg) override {
+        m_nonempty_buckets.insert(bucket);
+        m_srv->send_msg(msg_reported_msg{msg});
+    }
+};
+
 server::server(unsigned num_threads, environment const & initial_env, io_state const & ios) :
         m_initial_env(initial_env), m_ios(ios) {
     m_ios.set_regular_channel(std::make_shared<stderr_channel>());
     m_ios.set_diagnostic_channel(std::make_shared<stderr_channel>());
 
+    m_msg_buf = std::make_unique<msg_buf>(this);
+
     scope_global_ios scoped_ios(m_ios);
-    scoped_message_buffer scope_msg_buf(&m_msg_buf);
+    scoped_message_buffer scope_msg_buf(m_msg_buf.get());
 #if defined(LEAN_MULTI_THREAD)
     if (num_threads == 0)
-        m_tq = new st_task_queue;
+        m_tq = std::make_unique<st_task_queue>();
     else
-        m_tq = new mt_task_queue(num_threads);
+        m_tq = std::make_unique<mt_task_queue>(num_threads);
 #else
-    m_tq = new st_task_queue;
+    m_tq = std::make_unique<st_task_queue>();
 #endif
 
-    scope_global_task_queue scope_tq(m_tq);
-    m_mod_mgr = new module_mgr(this, &m_msg_buf, m_initial_env, m_ios);
+    scope_global_task_queue scope_tq(m_tq.get());
+    m_mod_mgr = std::make_unique<module_mgr>(this, m_msg_buf.get(), m_initial_env, m_ios);
     m_mod_mgr->set_use_snapshots(true);
     m_mod_mgr->set_save_olean(false);
 }
 
-server::~server() {
-    delete m_tq;
-    delete m_mod_mgr;
-}
+server::~server() {}
+
+struct server::cmd_req {
+    unsigned m_seq_num = static_cast<unsigned>(-1);
+    std::string m_cmd_name;
+    json m_payload;
+};
+
+struct server::cmd_res {
+    cmd_res() {}
+    cmd_res(unsigned seq_num, json const & payload) : m_seq_num(seq_num), m_payload(payload) {}
+    cmd_res(unsigned seq_num, std::string const & error_msg) : m_seq_num(seq_num), m_error_msg(error_msg) {}
+
+    unsigned m_seq_num = static_cast<unsigned>(-1);
+    json m_payload;
+    optional<std::string> m_error_msg;
+
+    json to_json_response() const {
+        json j;
+        if (m_error_msg) {
+            j["response"] = "error";
+            j["message"] = *m_error_msg;
+        } else {
+            j = m_payload;
+            j["response"] = "ok";
+        }
+        j["seq_num"] = m_seq_num;
+        return j;
+    }
+};
+
+struct unrelated_error_msg {
+    std::string m_msg;
+
+    json to_json_response() const {
+        json j;
+        j["response"] = "error";
+        j["message"] = m_msg;
+        return j;
+    }
+};
 
 void server::run() {
-    scope_global_task_queue scope_tq(m_tq);
+    scope_global_task_queue scope_tq(m_tq.get());
     scope_global_ios scoped_ios(m_ios);
-    scoped_message_buffer scope_msg_buf(&m_msg_buf);
+    scoped_message_buffer scope_msg_buf(m_msg_buf.get());
 
     /* Leo: we use std::setlocale to make sure decimal period is displayed as ".".
        We added this hack because the json library code used for ensuring this property
@@ -76,48 +165,48 @@ void server::run() {
 
             json req = json::parse(req_string);
 
-            json res = handle_request(req);
-            std::cout << res << std::endl;
+            handle_request(req);
         } catch (std::exception & ex) {
-            json res;
-            res["response"] = "error";
-            res["message"] = ex.what();
-            std::cout << res << std::endl;
+            send_msg(unrelated_error_msg{ex.what()});
         }
     }
 }
 
-json server::handle_request(json const & req) {
-    std::string command = req["command"];
+void server::handle_request(json const & jreq) {
+    cmd_req req;
+    req.m_seq_num = jreq.at("seq_num");
+    try {
+        req.m_cmd_name = jreq.at("command");
+        req.m_payload = jreq;
+        handle_request(req);
+    } catch (throwable & ex) {
+        send_msg(cmd_res(req.m_seq_num, std::string(ex.what())));
+    }
+}
+
+void server::handle_request(server::cmd_req const & req) {
+    std::string command = req.m_cmd_name;
 
     if (command == "sync") {
-        return handle_sync(req);
-    } else if (command == "check") {
-        return handle_check(req);
+        return send_msg(handle_sync(req));
     } else if (command == "complete") {
         return handle_complete(req);
     } else if (command == "info") {
-        return handle_info(req);
+        return send_msg(handle_info(req));
     }
 
-    json res;
-    res["response"] = "error";
-    res["message"] = "unknown command";
-    return res;
+    send_msg(cmd_res(req.m_seq_num, std::string("unknown command")));
 }
 
-json server::handle_sync(json const & req) {
-    std::string new_file_name = req["file_name"];
-    std::string new_content = req["content"];
-
-    json res;
-    res["response"] = "ok";
+server::cmd_res server::handle_sync(server::cmd_req const & req) {
+    std::string new_file_name = req.m_payload.at("file_name");
+    std::string new_content = req.m_payload.at("content");
 
     auto mtime = time(nullptr);
 
 #if defined(LEAN_MULTI_THREAD)
     if (m_visible_file != new_file_name) {
-        if (auto tq = dynamic_cast<mt_task_queue *>(m_tq))
+        if (auto tq = dynamic_cast<mt_task_queue *>(m_tq.get()))
             tq->reprioritize(mk_interactive_prioritizer(new_file_name));
         m_visible_file = new_file_name;
     }
@@ -132,34 +221,20 @@ json server::handle_sync(json const & req) {
         needs_invalidation = true;
     }
 
+    json res;
     if (needs_invalidation) {
         m_mod_mgr->invalidate(new_file_name);
+        try { m_mod_mgr->get_module(new_file_name); } catch (...) {}
         res["message"] = "file invalidated";
+    } else {
+        res["message"] = "file unchanged";
     }
 
-    return res;
+    return { req.m_seq_num, res };
 }
 
-json server::handle_check(json const &) {
-    bool incomplete = !get_global_task_queue().empty(); // TODO(gabriel)
-
-    std::list<json> json_messages;
-    for (auto & msg : m_msg_buf.get_messages()) {
-        json_messages.push_back(json_of_message(msg));
-    }
-
-    json res;
-    res["response"] = "ok";
-    res["incomplete"] = incomplete;
-    res["incomplete_reason"] = "";
-    if (auto cur_task = get_global_task_queue().get_current_task())
-        res["incomplete_reason"] = cur_task->description();
-    res["messages"] = json_messages;
-    return res;
-}
-
-std::shared_ptr<snapshot const> server::get_closest_snapshot(module_id const & id, unsigned line) {
-    auto snapshots = m_mod_mgr->get_snapshots(id);
+std::shared_ptr<snapshot const> get_closest_snapshot(std::shared_ptr<module_info const> const & mod_info, unsigned line) {
+    auto snapshots = mod_info.get()->m_result.get().m_snapshots;
     auto ret = snapshots.size() ? snapshots.front() : std::shared_ptr<snapshot>();
     for (auto & snap : snapshots) {
         if (snap->m_pos.first <= line)
@@ -168,25 +243,63 @@ std::shared_ptr<snapshot const> server::get_closest_snapshot(module_id const & i
     return ret;
 }
 
-json server::handle_complete(json const & req) {
-    std::string fn = req["file_name"];
-    std::string pattern = req["pattern"];
-    unsigned line = req["line"];
+class server::auto_complete_task : public task<unit> {
+    server * m_server;
+    unsigned m_seq_num;
+    std::string m_pattern;
+    std::shared_ptr<module_info const> m_mod_info;
+    unsigned m_line;
 
-    std::vector<json> completions;
-    if (auto snap = get_closest_snapshot(fn, line))
-        completions = get_completions(pattern, snap->m_env, snap->m_options);
+public:
+    auto_complete_task(server * server, unsigned seq_num, std::string const & pattern, std::shared_ptr<module_info const> const & mod_info, unsigned line) :
+        m_server(server), m_seq_num(seq_num), m_pattern(pattern), m_mod_info(mod_info), m_line(line) {}
 
-    json res;
-    res["response"] = "ok";
-    res["completions"] = completions;
-    return res;
+    // TODO(gabriel): find cleaner way to give it high prio
+    task_kind get_kind() const override { return task_kind::parse; }
+
+    void description(std::ostream & out) const override {
+        out << "generating auto-completion for " << m_pattern;
+    }
+
+    std::vector<generic_task_result> get_dependencies() override {
+        return {m_mod_info->m_result};
+    }
+
+    // TODO(gabriel): handle cancellation
+
+    unit execute() override {
+        try {
+            std::vector<json> completions;
+            if (auto snap = get_closest_snapshot(m_mod_info, m_line))
+                completions = get_completions(m_pattern, snap->m_env, snap->m_options);
+
+            json j;
+            j["completions"] = completions;
+            m_server->send_msg(cmd_res(m_seq_num, j));
+        } catch (throwable & ex) {
+            m_server->send_msg(cmd_res(m_seq_num, std::string(ex.what())));
+        }
+        return {};
+    }
+};
+
+void server::handle_complete(cmd_req const & req) {
+    std::string fn = req.m_payload.at("file_name");
+    std::string pattern = req.m_payload.at("pattern");
+    unsigned line = req.m_payload.at("line");
+
+    scope_message_context scope_msg_ctx(message_bucket_id { "_server", 0 });
+    scoped_task_context scope_task_ctx(fn, {line, 0});
+
+    auto mod_info = m_mod_mgr->get_module(fn);
+
+    get_global_task_queue().submit<auto_complete_task>(this, req.m_seq_num, pattern, mod_info, line);
 }
 
-json server::handle_info(json const & req) {
-    std::string fn = req["file_name"];
-    unsigned line = req["line"];
-    unsigned col = req["column"];
+server::cmd_res server::handle_info(server::cmd_req const & req) {
+    std::string fn = req.m_payload.at("file_name");
+    unsigned line = req.m_payload.at("line");
+    unsigned col = req.m_payload.at("column");
 
     auto opts = m_ios.get_options();
     auto env = m_initial_env;
@@ -196,16 +309,15 @@ json server::handle_info(json const & req) {
     }
 
     json record;
-    for (auto & infom : m_msg_buf.get_info_managers()) {
+    for (auto & infom : m_msg_buf->get_info_managers()) {
         if (infom.get_file_name() == fn) {
             infom.get_info_record(env, opts, m_ios, line, col, record);
         }
     }
 
     json res;
-    res["response"] = "ok";
     res["record"] = record;
-    return res;
+    return { req.m_seq_num, res };
 }
 
 std::tuple<std::string, module_src, time_t> server::load_module(module_id const & id, bool can_use_olean) {
@@ -214,6 +326,13 @@ std::tuple<std::string, module_src, time_t> server::load_module(module_id const 
         return std::make_tuple(ef.m_content, module_src::LEAN, ef.m_mtime);
     }
     return m_fs_vfs.load_module(id, can_use_olean);
+}
+
+template <class Msg>
+void server::send_msg(Msg const & m) {
+    json j = m.to_json_response();
+    unique_lock<mutex> _(m_out_mutex);
+    std::cout << j << std::endl;
 }
 
 void initialize_server() {

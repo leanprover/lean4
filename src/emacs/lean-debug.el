@@ -5,24 +5,25 @@
 ;;
 (require 'cl-lib)
 
+(defvar lean-debug-mode nil)
+
 (defvar lean-debug-buffer-name "*lean-debug*")
 
 (defun lean-turn-on-debug-mode (&optional print-msg)
   (interactive)
-  (when (eq major-mode 'lean-mode)
-    (when (or (called-interactively-p 'any) print-msg)
-      (message "lean: turn on debug mode"))
-    (get-buffer-create lean-debug-buffer-name)
-    (display-buffer lean-debug-buffer-name 'display-buffer-reuse-window
-                    '((reusable-frames . t)))
-    (setq-local lean-debug-mode t)))
+  (when (or (called-interactively-p 'any) print-msg)
+    (message "lean: turn on debug mode"))
+  (get-buffer-create lean-debug-buffer-name)
+  (display-buffer lean-debug-buffer-name 'display-buffer-reuse-window
+                  '((reusable-frames . t)))
+  (setq lean-debug-mode t))
 
 (defun lean-turn-off-debug-mode (&optional print-msg)
   (interactive)
   (when (eq major-mode 'lean-mode)
     (when (or (called-interactively-p 'any) print-msg)
       (message "lean: turn off debug mode"))
-    (setq-local lean-debug-mode nil)))
+    (setq lean-debug-mode nil)))
 
 (defun lean-output-to-buffer (buffer-name format-string args)
   (with-current-buffer
@@ -41,20 +42,5 @@
                              (concat "%s -- " format-string "\n")
                              (cons (propertize time-str 'face 'font-lock-keyword-face)
                                    args)))))
-
-(defun lean-debug-mode-line-status-text ()
-  "Get a text describing STATUS for use in the mode line."
-  "LeanDebug")
-
-(define-minor-mode lean-debug-mode
-  "Minor mode for lean debugging."
-
-  :init-value nil
-  :lighter lean-debug-mode-line
-  :group 'lean
-  :require 'lean
-  (if lean-debug-mode
-      (lean-turn-on-debug-mode (called-interactively-p 'any))
-    (lean-turn-off-debug-mode (called-interactively-p 'any))))
 
 (provide 'lean-debug)

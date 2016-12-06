@@ -236,11 +236,10 @@ triggers a completion immediately."
 
 (defun company-lean--findp-candidates (prefix callback)
   (let ((line-number (line-number-at-pos)))
-    (lean-server-sync)
     (lean-server-send-command
-     (list :command "complete"
-           :line line-number
-           :pattern prefix)
+     'complete (list :file_name (buffer-file-name)
+                     :line line-number
+                     :pattern prefix)
      (cl-function
       (lambda (&key completions)
         (let ((candidates completions))

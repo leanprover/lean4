@@ -6,6 +6,9 @@ Authors: Gabriel Ebner, Leonardo de Moura, Sebastian Ullrich
 */
 #if defined(LEAN_SERVER)
 #include "shell/completion.h"
+#include <algorithm>
+#include <string>
+#include <vector>
 #include "shell/server.h"
 #include "util/bitap_fuzzy_search.h"
 #include "library/protected.h"

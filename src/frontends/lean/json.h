@@ -17,6 +17,8 @@ json json_of_severity(message_severity sev);
 
 json json_of_message(message const & msg);
 
+json json_of_name(name const &);
+
 json serialize_decl(name const & short_name, name const & long_name, environment const & env, options const & o);
 json serialize_decl(name const & d, environment const & env, options const & o);
 

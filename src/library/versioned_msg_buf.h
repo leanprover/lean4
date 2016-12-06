@@ -29,6 +29,13 @@ class versioned_msg_buf : public message_buffer {
     void erase_bucket(name const & bucket);
     bool is_bucket_valid_core(message_bucket_id const & bucket);
 
+protected:
+    virtual void on_cleared(name const &bucket);
+    virtual void on_reported(name const & bucket, message const & msg);
+
+    std::vector<message> get_messages_core();
+    std::vector<name> get_nonempty_buckets_core();
+
 public:
     versioned_msg_buf() {}
 

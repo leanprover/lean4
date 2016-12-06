@@ -48,9 +48,9 @@
   ;; TODO(sullrich): finding the start position should go into the server
   (let ((pos (lean-find-hname-beg)))
     (lean-server-send-command
-     (list :command "info"
-           :line (line-number-at-pos pos)
-           :column (lean-line-offset pos))
+     'info (list :file_name (buffer-file-name)
+                 :line (line-number-at-pos pos)
+                 :column (lean-line-offset pos))
      (cl-function
       (lambda (&key record)
         (funcall cont record))))))

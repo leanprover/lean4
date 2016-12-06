@@ -5,15 +5,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Gabriel Ebner
 */
 #ifdef LEAN_SERVER
-
+#include "frontends/lean/json.h"
+#include <string>
 #include "library/scoped_ext.h"
 #include "library/protected.h"
-#include "frontends/lean/json.h"
 #include "kernel/declaration.h"
 #include "library/type_context.h"
 #include "kernel/instantiate.h"
-#include "pp.h"
-#include "util.h"
+#include "frontends/lean/pp.h"
+#include "frontends/lean/util.h"
 
 namespace lean {
 
@@ -81,6 +81,24 @@ json serialize_decl(name const & d, environment const & env, options const & o) 
     } else {
         return serialize_decl(d, d, env, o);
     }
+}
+
+json json_of_name(name const & n0) {
+    json j = json::array();
+
+    name n = n0;
+    while (!n.is_anonymous()) {
+        if (n.is_numeral()) {
+            j.push_back(n.get_numeral());
+        } else if (n.is_string()) {
+            j.push_back(n.get_string());
+        } else {
+            j.push_back(json());
+        }
+        n = n.get_prefix();
+    }
+
+    return j;
 }
 
 void json_message_stream::report(message_bucket_id const &, message const & msg) {

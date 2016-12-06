@@ -22,6 +22,7 @@ void versioned_msg_buf::start_bucket(message_bucket_id const & bucket) {
             buf.m_version = bucket.m_version;
             buf.m_msgs.clear();
             buf.m_infom.reset();
+            on_cleared(bucket.m_bucket);
         }
     }
 }
@@ -32,6 +33,7 @@ void versioned_msg_buf::report(message_bucket_id const & bucket, message const &
     auto & buf = m_buf[bucket.m_bucket];
     if (buf.m_version == bucket.m_version) {
         buf.m_msgs.push_back(msg);
+        on_reported(bucket.m_bucket, msg);
     }
 }
 
@@ -58,6 +60,7 @@ void versioned_msg_buf::erase_bucket(name const & bucket) {
     auto & bck_buf = m_buf[bucket];
     bck_buf.m_children.for_each([&] (name const & c) { erase_bucket(c); });
     m_buf.erase(bucket);
+    on_cleared(bucket);
 }
 
 bool versioned_msg_buf::is_bucket_valid_core(message_bucket_id const &bucket) {
@@ -88,6 +91,9 @@ void versioned_msg_buf::report_info_manager(message_bucket_id const & bucket, in
 
 std::vector<message> versioned_msg_buf::get_messages() {
     unique_lock<mutex> lock(m_mutex);
+    return get_messages_core();
+}
+std::vector<message> versioned_msg_buf::get_messages_core() {
     std::vector<message> msgs;
     for (auto & buf : m_buf) {
         for (auto & msg : buf.second.m_msgs)
@@ -104,6 +110,18 @@ std::vector<info_manager> versioned_msg_buf::get_info_managers() {
             result.push_back(*buf.second.m_infom);
     }
     return result;
+}
+
+void versioned_msg_buf::on_cleared(name const &) {}
+void versioned_msg_buf::on_reported(name const &, message const &) {}
+
+std::vector<name> versioned_msg_buf::get_nonempty_buckets_core() {
+    std::vector<name> res;
+    for (auto & buf : m_buf) {
+        if (!buf.second.m_msgs.empty())
+            res.push_back(buf.first);
+    }
+    return res;
 }
 
 }

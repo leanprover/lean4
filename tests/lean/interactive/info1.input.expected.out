@@ -1,3 +1,2 @@
-{"message":"new file name, reloading","response":"ok"}
-{"incomplete":false,"incomplete_reason":"","is_ok":true,"messages":[],"response":"ok"}
-{"record":{"full-id":"foo.f","source":{"column":4,"line":1},"type":"ℕ → ℕ"},"response":"ok"}
+{"message":"file invalidated","response":"ok","seq_num":0}
+{"record":{"full-id":"foo.f","source":{"column":4,"line":1},"type":"ℕ → ℕ"},"response":"ok","seq_num":1}

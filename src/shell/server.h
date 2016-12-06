@@ -23,9 +23,12 @@ mt_tq_prioritizer mk_interactive_prioritizer(module_id const & roi);
 unsigned get_auto_completion_max_results(options const &);
 
 class server : public module_vfs {
-    versioned_msg_buf m_msg_buf;
-    task_queue * m_tq;
-    module_mgr * m_mod_mgr;
+    mutex m_out_mutex;
+
+    class msg_buf;
+    std::unique_ptr<msg_buf> m_msg_buf;
+    std::unique_ptr<module_mgr> m_mod_mgr;
+    std::unique_ptr<task_queue> m_tq;
     fs_module_vfs m_fs_vfs;
 
     options m_opts;
@@ -40,14 +43,18 @@ class server : public module_vfs {
 
     std::string m_visible_file;
 
-    std::shared_ptr<snapshot const> get_closest_snapshot(module_id const & id, unsigned linenum);
+    template <class Msg>
+    void send_msg(Msg const &);
 
-    json handle_request(json const & req);
+    struct cmd_res;
+    struct cmd_req;
+    void handle_request(json const & req);
+    void handle_request(cmd_req const & req);
 
-    json handle_sync(json const & req);
-    json handle_check(json const & req);
-    json handle_complete(json const & req);
-    json handle_info(json const & req);
+    cmd_res handle_sync(cmd_req const & req);
+    class auto_complete_task;
+    void handle_complete(cmd_req const & req);
+    cmd_res handle_info(cmd_req const & req);
 
 public:
     server(unsigned num_threads, environment const & intial_env, io_state const & ios);

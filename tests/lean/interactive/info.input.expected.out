@@ -1,3 +1,2 @@
-{"message":"new file name, reloading","response":"ok"}
-{"incomplete":false,"incomplete_reason":"","is_ok":true,"messages":[],"response":"ok"}
-{"record":{"full-id":"bool.tt","source":{"column":10,"file":"/library/init/core.lean","line":162},"type":"bool"},"response":"ok"}
+{"message":"file invalidated","response":"ok","seq_num":0}
+{"record":{"full-id":"bool.tt","source":{"column":10,"file":"/library/init/core.lean","line":162},"type":"bool"},"response":"ok","seq_num":1}

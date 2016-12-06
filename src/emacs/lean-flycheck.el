@@ -29,24 +29,16 @@
                          :checker checker :buffer buffer))
 
 (defun lean-flycheck-start (checker callback)
-  (lean-server-sync)
-  (lean-server-send-command
-   '(:command check)
-   (cl-function (lambda (&key messages incomplete incomplete_reason)
-     (let* ((buffer (current-buffer))
-            (errors (mapcar (lambda (j) (apply 'lean-flycheck-parse-error checker buffer j))
-                            messages)))
-       (when (eq incomplete t)
-         (setq errors (cons
-                       (flycheck-error-new-at 1 1 'warning
-                                              (concat "lean error checking still in progress: " incomplete_reason)
-                                              :checker checker :buffer buffer)
-                       errors))
-         (run-at-time "500 milliseconds" nil
-                      (lambda () (flycheck-buffer))))
-       (funcall callback 'finished errors))))
-   (cl-function (lambda (&key message)
-     (funcall callback 'errored message)))))
+  (let ((cur-fn (buffer-file-name))
+        (buffer (current-buffer)))
+    (funcall callback 'finished
+             (mapcar (lambda (msg) (apply #'lean-flycheck-parse-error checker buffer msg))
+                     (remove-if-not (lambda (msg) (equal cur-fn (plist-get msg :file_name)))
+                                    (if lean-server-session (lean-server-session-messages lean-server-session) nil))))))
+
+;; (flycheck-error-new-at 1 1 'warning
+;;                        (concat "lean error checking still in progress: " incomplete_reason)
+;;                        :checker checker :emacsbuffer buffer)
 
 (defun lean-flycheck-init ()
   "Initialize lean-flychek checker"

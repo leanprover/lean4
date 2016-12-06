@@ -5,9 +5,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Jared Roesch
 */
 #pragma once
-
+#include <string>
 #include <iostream>
-#include "unistd.h"
+#include <unistd.h>
 #include "kernel/environment.h"
 #include "kernel/expr.h"
 

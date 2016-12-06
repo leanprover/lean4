@@ -5,11 +5,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Jared Roesch
 */
 #pragma once
-
+#include <string>
 #include "kernel/environment.h"
 
 namespace lean {
-
 void initialize_install_path();
 std::string get_install_path();
 

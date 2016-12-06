@@ -5,15 +5,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Jared Roesch
 */
 #pragma once
-
+#include <string>
 #include <iostream>
 #include "kernel/environment.h"
 #include "kernel/expr.h"
 
 namespace lean  {
-    static const char * LEAN_OBJ_TYPE = "lean::vm_obj";
-    // static const char * LEAN_ERR = "lean::runtime_error";
-
     class cpp_emitter {
         int m_width;
     public:

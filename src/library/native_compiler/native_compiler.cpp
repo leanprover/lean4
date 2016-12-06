@@ -4,6 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Jared Roesch and Leonardo de Moura
 */
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string>
+#include <vector>
 #include "util/fresh_name.h"
 #include "util/sstream.h"
 #include "kernel/instantiate.h"
@@ -27,16 +34,10 @@ Author: Jared Roesch and Leonardo de Moura
 #include "library/native_compiler/extern.h"
 #include "library/compiler/vm_compiler.h"
 #include "library/module.h"
-#include "library/vm/vm.h"
-#include "cpp_emitter.h"
-#include "used_defs.h"
+#include "library/native_compiler/cpp_emitter.h"
+#include "library/native_compiler/used_defs.h"
 #include "util/lean_path.h"
 // #include "util/executable.h"
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
 
 static std::string* g_lean_install_path;
 
@@ -100,7 +101,6 @@ public:
         for (auto fn : in_lean_namespace) {
             auto np = get_vm_builtin_internal_name(fn.m_name);
             if (np && get_vm_builtin_kind(fn.m_name) == vm_builtin_kind::Cases) {
-                auto np = get_vm_builtin_internal_name(fn.m_name);
                 lean_assert(np);
                 this->m_emitter.emit_string("unsigned ");
                 this->m_emitter.mangle_name(fn.m_name);
@@ -108,7 +108,6 @@ public:
             } else {
                 this->m_emitter.emit_prototype(fn.m_name, fn.m_arity);
             }
-
         }
         this->m_emitter.emit_string("}\n\n");
         // We should be really generating things with C linkage to make
@@ -116,7 +115,6 @@ public:
         // this->m_emitter.emit_string("extern \"C\" {\n");
         for (auto fn : rest) {
             if (get_vm_builtin_cases_idx(m_env, fn.m_name)) {
-                auto np = get_vm_builtin_internal_name(fn.m_name);
                 lean_assert(np);
                 this->m_emitter.emit_string("unsigned ");
                 this->m_emitter.mangle_name(fn.m_name);
@@ -327,6 +325,7 @@ optional<extern_fn> get_builtin(name const & n) {
                     mk_lean_extern(internal_name, 2u));
             }
         }
+        lean_unreachable();
     } else {
         return optional<extern_fn>();
     }
@@ -335,8 +334,7 @@ optional<extern_fn> get_builtin(name const & n) {
 void populate_extern_fns(
     environment const & env,
     used_defs const & used,
-    buffer<extern_fn> & extern_fns, bool is_library)
-{
+    buffer<extern_fn> & extern_fns, bool is_library) {
     used.m_used_names.for_each([&] (name const & n) {
         if (auto builtin = get_builtin(n)) {
              // std::cout << "extern fn: " << n << std::endl;
@@ -469,7 +467,7 @@ void native_compile_binary(environment const & env, declaration const & d) {
 
 void native_compile_module(environment const & env) {
     buffer<declaration> decls;
-    // TODO: bring this code back
+    // TODO(Jared): bring this code back
     // decls_to_native_compile(env, decls);
     native_compile_module(env, decls);
 }
@@ -479,7 +477,7 @@ static std::string *g_native_module_key = nullptr;
 
 static void native_module_reader(
     deserializer & d,
-    environment & env) {
+    environment & /* env */) {
     name fn;
     d >> fn;
     std::cout << "reading native module from meta-data: " << fn << std::endl;

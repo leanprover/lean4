@@ -4,14 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Jared Roesch
 */
+#include <string>
 #include <fstream>
 #include <iostream>
 #include <iomanip>
 #include <utility>
+#include <unistd.h>
+#include <sys/wait.h>
 #include "util/process.h"
 #include "util/buffer.h"
-#include "unistd.h"
-#include "sys/wait.h"
 
 namespace lean {
 

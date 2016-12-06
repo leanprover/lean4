@@ -4,10 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Jared Roesch
 */
-
+#include <vector>
 #include <iostream>
 #include <utility>
-#include "used_defs.h"
 #include "kernel/environment.h"
 #include "kernel/instantiate.h"
 #include "kernel/inductive/inductive.h"
@@ -15,6 +14,7 @@ Author: Jared Roesch
 #include "library/compiler/nat_value.h"
 #include "util/name.h"
 #include "util/name_set.h"
+#include "library/native_compiler/used_defs.h"
 
 namespace lean {
 used_defs::used_defs(environment const & env, std::function<void(declaration const &)> action) : m_env(env) {

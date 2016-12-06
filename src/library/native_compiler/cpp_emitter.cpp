@@ -8,8 +8,9 @@ Author: Jared Roesch
 #include <iostream>
 #include <iomanip>
 #include <utility>
-#include "cpp_emitter.h"
+#include <string>
 #include "kernel/environment.h"
+#include "library/native_compiler/cpp_emitter.h"
 
 namespace lean {
 

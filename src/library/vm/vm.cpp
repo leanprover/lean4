@@ -105,7 +105,7 @@ vm_obj mk_native_closure(environment const & env, name const & n, std::initializ
     return mk_native_closure(env, n, args.size(), args.begin());
 }
 
-vm_obj mk_native_closure(environment const & env, name const & n, unsigned sz, vm_obj const * data) {
+vm_obj mk_native_closure(environment const & /* env */, name const & n, unsigned /* sz */, vm_obj const * /* data */) {
     return get_vm_state().get_constant(n);
 }
 
@@ -2606,15 +2606,12 @@ unsigned get_vm_builtin_arity(name const & fn) {
     lean_unreachable();
 }
 
-void* get_extern_symbol(
- std::string library_name,
-    std::string extern_name) {
+void* get_extern_symbol(std::string library_name, std::string extern_name) {
     dynamic_library library(library_name);
     return library.symbol(extern_name);
 }
 
 static std::string * g_vm_monitor_key = nullptr;
-
 
 static environment vm_monitor_register_core(environment const & env, name const & d) {
     expr const & type = env.get(d).get_type();

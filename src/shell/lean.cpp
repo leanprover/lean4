@@ -257,7 +257,6 @@ int main(int argc, char ** argv) {
     unsigned trust_lvl      = LEAN_BELIEVER_TRUST_LEVEL+1;
     bool smt2               = false;
     bool compile            = false;
-    bool export_native_objects = false;
     bool only_deps          = false;
     unsigned num_threads    = 0;
 #if defined(LEAN_MULTI_THREAD)
@@ -303,7 +302,6 @@ int main(int argc, char ** argv) {
             break;
         case 'n':
             native_output         = optarg;
-            export_native_objects = true;
             break;
         case 'C':
             compile = true;

@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Jared Roesch
 */
-
 #include <string>
 
 // Interacting with dynamic linking is *not* cross-platform, this is my first
@@ -12,7 +11,7 @@ Author: Jared Roesch
 
 #if defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
 void dlopen(const char * file, int mode) {
-    // TODO: add windows support
+    // TODO(Jared): add windows support
     throw std::runtime_error("Windows does not currently have support for dynamically loading object files");
 }
 #elif defined(__APPLE__)
@@ -20,9 +19,9 @@ void dlopen(const char * file, int mode) {
 #include <dlfcn.h>
 #else
 // Linux verison, dlfcn should be availble on this platform
-#include <dlfcn.h>
+#include <dlfcn.h> // NOLINT
 #endif
-#include "dynamic_library.h"
+#include "util/dynamic_library.h"
 
 namespace lean {
 

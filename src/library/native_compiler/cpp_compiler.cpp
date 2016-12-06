@@ -1,11 +1,12 @@
-    /*
+/*
 Copyright (c) 2016 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Jared Roesch
 */
-#include "cpp_compiler.h"
+#include <string>
 #include "util/process.h"
+#include "library/native_compiler/cpp_compiler.h"
 
 namespace lean {
   cpp_compiler & cpp_compiler::link(std::string lib) {
@@ -77,7 +78,7 @@ namespace lean {
       }
 
       // Add all the link arguments.
-      for (auto link: m_link) {
+      for (auto link : m_link) {
           std::string arg("-l");
           arg += link;
           p.arg(arg);

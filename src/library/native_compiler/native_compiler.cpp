@@ -115,7 +115,6 @@ public:
         // this->m_emitter.emit_string("extern \"C\" {\n");
         for (auto fn : rest) {
             if (get_vm_builtin_cases_idx(m_env, fn.m_name)) {
-                lean_assert(np);
                 this->m_emitter.emit_string("unsigned ");
                 this->m_emitter.mangle_name(fn.m_name);
                 this->m_emitter.emit_string("(lean::vm_obj const & o, lean::buffer<lean::vm_obj> & data);\n");

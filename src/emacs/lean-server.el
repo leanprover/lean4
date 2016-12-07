@@ -80,7 +80,7 @@
 
 (defun lean-server-session-create (project-dir)
   "Creates a new server session"
-  (let* ((default-directory (or project-dir "."))
+  (let* ((default-directory project-dir)
          ; Setting process-connection-type is necessary, otherwise
          ; emacs truncates lines with >4096 bytes:
          ; https://debbugs.gnu.org/cgi/bugreport.cgi?bug=24531
@@ -175,7 +175,9 @@
 (defun lean-server-ensure-alive ()
   "Ensures that the current buffer has a lean server"
   (when (not (lean-server-session-alive-p lean-server-session))
-    (setq lean-server-session (lean-server-session-get (lean-project-find-root)))
+    (setq lean-server-session (lean-server-session-get
+                               (or (lean-project-find-root)
+                                   (file-name-directory (buffer-file-name)))))
     (lean-server-sync)))
 
 (defun lean-server-restart ()

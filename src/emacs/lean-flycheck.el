@@ -17,6 +17,24 @@
    (flycheck-mode (flycheck-mode -1))
    (t             (flycheck-mode  1))))
 
+(cl-defun lean-flycheck-parse-task (checker buffer &key pos_line pos_col desc file_name &allow-other-keys)
+  (flycheck-error-new-at pos_line (1+ pos_col)
+                         'info
+                         (format "still running: %s" desc)
+                         :filename file_name
+                         :checker checker :buffer buffer))
+
+(defun lean-flycheck-mk-task-msgs (checker buffer sess)
+  (if (and sess (lean-server-session-tasks sess)
+           (plist-get (lean-server-session-tasks sess) :is_running))
+      (let* ((cur-fn (buffer-file-name))
+             (tasks-for-cur-file (remove-if-not (lambda (task) (equal cur-fn (plist-get task :file_name)))
+                                               (plist-get (lean-server-session-tasks lean-server-session) :tasks))))
+        (if tasks-for-cur-file
+            (mapcar (lambda (task) (apply #'lean-flycheck-parse-task checker buffer task)) tasks-for-cur-file)
+          (list (flycheck-error-new-at 1 1 'info "still running: lean error check"
+                                       :checker checker :buffer buffer))))))
+
 (cl-defun lean-flycheck-parse-error (checker buffer &key pos_line pos_col severity text file_name &allow-other-keys)
   (flycheck-error-new-at pos_line (1+ pos_col)
                          (pcase severity
@@ -32,13 +50,12 @@
   (let ((cur-fn (buffer-file-name))
         (buffer (current-buffer)))
     (funcall callback 'finished
-             (mapcar (lambda (msg) (apply #'lean-flycheck-parse-error checker buffer msg))
-                     (remove-if-not (lambda (msg) (equal cur-fn (plist-get msg :file_name)))
-                                    (if lean-server-session (lean-server-session-messages lean-server-session) nil))))))
-
-;; (flycheck-error-new-at 1 1 'warning
-;;                        (concat "lean error checking still in progress: " incomplete_reason)
-;;                        :checker checker :emacsbuffer buffer)
+             (if lean-server-session
+                 (append
+                  (lean-flycheck-mk-task-msgs checker buffer lean-server-session)
+                  (mapcar (lambda (msg) (apply #'lean-flycheck-parse-error checker buffer msg))
+                          (remove-if-not (lambda (msg) (equal cur-fn (plist-get msg :file_name)))
+                                         (lean-server-session-messages lean-server-session))))))))
 
 (defun lean-flycheck-init ()
   "Initialize lean-flychek checker"

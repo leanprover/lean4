@@ -15,6 +15,7 @@
   process          ; process object of lean --server
   seq-num          ; sequence number
   callbacks        ; alist of (seq_num . (success_cb . error_cb))
+  tasks            ; last deserialized current_tasks message
   messages)        ; list of messages in deserialized json
 
 (defun lean-server-session-proc-buffer (sess)
@@ -36,6 +37,9 @@
      (setf (lean-server-session-messages sess)
            (plist-get res :msgs))
      (lean-server-notify-messages-changed sess))
+    ("current_tasks"
+     (setf (lean-server-session-tasks sess) res)
+     (lean-server-notify-messages-changed sess))
     ("error"
      (message "error: %s" (plist-get res :message))
      ; TODO(gabriel): maybe even add the error as a message
@@ -50,6 +54,7 @@
   (with-demoted-errors "error in lean-server command handler: %s"
     (let* ((json-array-type 'list)
            (json-object-type 'plist)
+           (json-false nil)
            (response (json-read-from-string line)))
         (lean-debug "server=> %s" line)
         (lean-server-process-response sess response))))

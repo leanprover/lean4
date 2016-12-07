@@ -79,6 +79,37 @@ public:
     }
 };
 
+struct current_tasks_msg {
+    std::vector<json> m_tasks;
+    bool m_is_running = false;
+
+    json to_json_response() const {
+        json j;
+        j["response"] = "current_tasks";
+        j["is_running"] = m_is_running;
+        j["tasks"] = m_tasks;
+        return j;
+    }
+
+#if defined(LEAN_MULTI_THREAD)
+    current_tasks_msg(mt_tq_status const & st, std::string const & visible_file) {
+        m_is_running = st.size() > 0;
+        st.for_each([&] (generic_task const * t) {
+            if (m_tasks.size() >= 100) return;
+            if (!t->is_tiny() && t->get_module_id() == visible_file) {
+                json j;
+                j["file_name"] = t->get_module_id();
+                auto pos = t->get_pos();
+                j["pos_line"] = pos.first;
+                j["pos_col"] = pos.second;
+                j["desc"] = t->description();
+                m_tasks.push_back(j);
+            }
+        });
+    }
+#endif
+};
+
 server::server(unsigned num_threads, environment const & initial_env, io_state const & ios) :
         m_initial_env(initial_env), m_ios(ios) {
     m_ios.set_regular_channel(std::make_shared<stderr_channel>());
@@ -89,10 +120,17 @@ server::server(unsigned num_threads, environment const & initial_env, io_state c
     scope_global_ios scoped_ios(m_ios);
     scoped_message_buffer scope_msg_buf(m_msg_buf.get());
 #if defined(LEAN_MULTI_THREAD)
-    if (num_threads == 0)
+    if (num_threads == 0) {
         m_tq.reset(new st_task_queue());
-    else
-        m_tq.reset(new mt_task_queue(num_threads));
+    } else {
+        auto tq = new mt_task_queue(num_threads);
+        m_tq.reset(tq);
+        tq->set_monitor_interval(chrono::milliseconds(300));
+        tq->set_status_callback([this] (mt_tq_status const & st) {
+            unique_lock<mutex> _(m_visible_file_mutex);
+            send_msg(current_tasks_msg(st, m_visible_file));
+        });
+    }
 #else
     m_tq.reset(new st_task_queue());
 #endif
@@ -205,10 +243,13 @@ server::cmd_res server::handle_sync(server::cmd_req const & req) {
     auto mtime = time(nullptr);
 
 #if defined(LEAN_MULTI_THREAD)
-    if (m_visible_file != new_file_name) {
-        if (auto tq = dynamic_cast<mt_task_queue *>(m_tq.get()))
-            tq->reprioritize(mk_interactive_prioritizer(new_file_name));
-        m_visible_file = new_file_name;
+    {
+        unique_lock<mutex> _(m_visible_file_mutex);
+        if (m_visible_file != new_file_name) {
+            if (auto tq = dynamic_cast<mt_task_queue *>(m_tq.get()))
+                tq->reprioritize(mk_interactive_prioritizer(new_file_name));
+            m_visible_file = new_file_name;
+        }
     }
 #endif
 

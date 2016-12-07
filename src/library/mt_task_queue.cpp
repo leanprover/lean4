@@ -51,17 +51,64 @@ mt_task_queue::mt_task_queue(unsigned num_workers, mt_tq_prioritizer const & pri
         m_ios(get_global_ios()), m_msg_buf(&get_global_message_buffer()) {
     for (unsigned i = 0; i < num_workers; i++)
         spawn_worker();
+
+    m_monitor_thr.reset(new lthread([=] {
+        unique_lock<mutex> lock(m_mutex);
+        while (true) {
+            m_queue_changed.wait(lock, [=] { return m_monitor_needs_to_run; });
+            if (m_shutting_down) return;
+            m_monitor_needs_to_run = false;
+
+            mt_tq_status st;
+            if (m_status_cb) {
+                for (auto & w : m_workers)
+                    if (w->m_current_task)
+                        st.m_executing.push_back(unwrap(w->m_current_task)->m_task);
+                for (auto & q : m_queue)
+                    for (auto & tr : q.second)
+                        if (auto t = unwrap(tr)->m_task)
+                            st.m_queued.push_back(t);
+                for (auto & tr : m_waiting)
+                    if (auto t = unwrap(tr)->m_task)
+                        st.m_waiting.push_back(t);
+            }
+
+            generic_task * cur_task = nullptr;
+            if (m_progress_cb) {
+                for (auto & w : m_workers) {
+                    if (w->m_current_task) {
+                        cur_task = unwrap(w->m_current_task)->m_task;
+                        break;
+                    }
+                }
+            }
+
+            if (m_status_cb) m_status_cb(st);
+            if (m_progress_cb) m_progress_cb(cur_task);
+
+            m_shut_down_cv.wait_for(lock, m_monitor_ival);
+        }
+    }));
 }
 
 mt_task_queue::~mt_task_queue() {
     {
         unique_lock<mutex> lock(m_mutex);
-        m_queue_removed.wait(lock, [=] { return empty_core(); });
+        m_queue_changed.wait(lock, [=] { return empty_core(); });
         m_shutting_down = true;
+        m_monitor_needs_to_run = true;
         m_queue_added.notify_all();
+        m_queue_changed.notify_all();
         m_wake_up_worker.notify_all();
+        m_shut_down_cv.notify_all();
     }
     for (auto & w : m_workers) w->m_thread->join();
+    m_monitor_thr->join();
+}
+
+void mt_task_queue::notify_queue_changed() {
+    m_monitor_needs_to_run = true;
+    m_queue_changed.notify_all();
 }
 
 void mt_task_queue::spawn_worker() {
@@ -99,13 +146,12 @@ void mt_task_queue::spawn_worker() {
 
             unwrap(t)->m_state = task_result_state::EXECUTING;
             bool is_ok;
-            auto cb = m_progress_cb;
             reset_interrupt();
             {
                 flet<generic_task_result> _(this_worker->m_current_task, t);
                 scoped_current_task scope_cur_task(&t);
+                notify_queue_changed();
                 lock.unlock();
-                if (cb) cb(unwrap(t)->m_task);
                 is_ok = execute_task_with_scopes(unwrap(t));
                 lock.lock();
             }
@@ -139,7 +185,7 @@ void mt_task_queue::spawn_worker() {
             }
 
             unwrap(t)->clear_task();
-            m_queue_removed.notify_all();
+            notify_queue_changed();
         }
     }));
     m_workers.push_back(this_worker);
@@ -180,6 +226,7 @@ void mt_task_queue::submit(generic_task_result const & t) {
     } else {
         unwrap(t)->m_state = task_result_state::WAITING;
         m_waiting.insert(t);
+        notify_queue_changed();
     }
 }
 
@@ -317,7 +364,7 @@ void mt_task_queue::cancel(generic_task_result const & t) {
 
 void mt_task_queue::join() {
     unique_lock<mutex> lock(m_mutex);
-    m_queue_removed.wait(lock, [=] { return empty_core(); });
+    m_queue_changed.wait(lock, [=] { return empty_core(); });
 }
 
 bool mt_task_queue::empty_core() {
@@ -362,6 +409,7 @@ void mt_task_queue::enqueue(generic_task_result const & t) {
     unwrap(t)->m_state = task_result_state::QUEUED;
     m_queue[get_prio(t).m_prio].push_back(t);
     m_queue_added.notify_one();
+    notify_queue_changed();
 }
 
 void mt_task_queue::reprioritize(mt_tq_prioritizer const & p) {
@@ -396,9 +444,19 @@ void mt_task_queue::reprioritize_core() {
     }
 }
 
+void mt_task_queue::set_monitor_interval(chrono::milliseconds const & ival) {
+    unique_lock<mutex> lock(m_mutex);
+    m_monitor_ival = ival;
+}
+
 void mt_task_queue::set_progress_callback(progress_cb const & cb) {
     unique_lock<mutex> lock(m_mutex);
     m_progress_cb = cb;
+}
+
+void mt_task_queue::set_status_callback(mt_tq_status_cb const &cb) {
+    unique_lock<mutex> lock(m_mutex);
+    m_status_cb = cb;
 }
 
 }

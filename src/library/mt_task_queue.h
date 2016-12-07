@@ -24,11 +24,28 @@ namespace lean {
 using mt_tq_prioritizer = std::function<task_priority(generic_task *)>; // NOLINT
 // disabling lint because it thinks that this is a cast ^^^
 
+struct mt_tq_status {
+    std::vector<generic_task const *> m_executing, m_queued, m_waiting, m_delayed;
+
+    size_t size() const { return m_executing.size() + m_queued.size() + m_waiting.size() + m_delayed.size(); }
+    template <class F> void for_each(F && f) const {
+        for (auto & t : m_executing) f(t);
+        for (auto & t : m_queued) f(t);
+        for (auto & t : m_waiting) f(t);
+        for (auto & t : m_delayed) f(t);
+    }
+};
+using mt_tq_status_cb = std::function<void(mt_tq_status const &)>;
+
 class mt_task_queue : public task_queue {
     mutex m_mutex;
     std::map<unsigned, std::deque<generic_task_result>> m_queue;
     std::unordered_set<generic_task_result, generic_task_result::hash> m_waiting;
-    condition_variable m_queue_added, m_queue_removed;
+    condition_variable m_queue_added, m_queue_changed;
+    void notify_queue_changed();
+
+    bool m_shutting_down = false;
+    condition_variable m_shut_down_cv;
 
     struct worker_info {
         std::unique_ptr<lthread> m_thread;
@@ -36,7 +53,6 @@ class mt_task_queue : public task_queue {
         atomic_bool * m_interrupt_flag = nullptr;
     };
     std::vector<std::shared_ptr<worker_info>> m_workers;
-    bool m_shutting_down = false;
     void spawn_worker();
 
     unsigned m_sleeping_workers = 0;
@@ -44,7 +60,12 @@ class mt_task_queue : public task_queue {
     condition_variable m_wake_up_worker;
 
     mt_tq_prioritizer m_prioritizer;
-    progress_cb m_progress_cb;
+
+    chrono::milliseconds m_monitor_ival = chrono::milliseconds(100);
+    progress_cb      m_progress_cb;
+    mt_tq_status_cb  m_status_cb;
+    std::unique_ptr<lthread> m_monitor_thr;
+    bool             m_monitor_needs_to_run = false;
 
     io_state m_ios;
     message_buffer * m_msg_buf;
@@ -78,7 +99,9 @@ public:
 
     void cancel_if(std::function<bool(generic_task *)> const & pred) override; // NOLINT
 
+    void set_monitor_interval(chrono::milliseconds const &);
     void set_progress_callback(progress_cb const & cb) override;
+    void set_status_callback(mt_tq_status_cb const & cb);
 
     void reprioritize(mt_tq_prioritizer const & p);
     void reprioritize();

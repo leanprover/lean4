@@ -765,6 +765,8 @@ public:
         lean_assert(d.is_theorem());
     }
 
+    virtual bool is_tiny() const override { return true; }
+
     void description(std::ostream & out) const override {
         out << "type-checking " << m_decl.get_name();
     }

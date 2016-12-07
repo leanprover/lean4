@@ -453,7 +453,7 @@ int main(int argc, char ** argv) {
         if (make_mode) {
             if (auto prog_msg_buf = std::dynamic_pointer_cast<progress_message_stream>(msg_buf))
                 tq->set_progress_callback([=](generic_task * t) {
-                    if (!t->is_tiny())
+                    if (t && !t->is_tiny())
                         prog_msg_buf->show_current_task(t->description());
                 });
         }

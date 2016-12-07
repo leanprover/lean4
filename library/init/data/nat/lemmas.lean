@@ -202,8 +202,12 @@ iff_false_intro (λ h, absurd h (nat.lt_irrefl n))
 
 lemma self_lt_succ (n : ℕ) : n < succ n := nat.le_refl (succ n)
 
+def lt_succ_self := @self_lt_succ
+
 lemma self_lt_succ_iff_true (n : ℕ) : n < succ n ↔ true :=
 iff_true_intro (self_lt_succ n)
+
+def lt_succ_self_iff_true := @self_lt_succ_iff_true
 
 def lt.base (n : ℕ) : n < succ n := nat.le_refl (succ n)
 

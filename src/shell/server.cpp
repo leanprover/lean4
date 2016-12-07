@@ -84,21 +84,21 @@ server::server(unsigned num_threads, environment const & initial_env, io_state c
     m_ios.set_regular_channel(std::make_shared<stderr_channel>());
     m_ios.set_diagnostic_channel(std::make_shared<stderr_channel>());
 
-    m_msg_buf = std::make_unique<msg_buf>(this);
+    m_msg_buf.reset(new msg_buf(this));
 
     scope_global_ios scoped_ios(m_ios);
     scoped_message_buffer scope_msg_buf(m_msg_buf.get());
 #if defined(LEAN_MULTI_THREAD)
     if (num_threads == 0)
-        m_tq = std::make_unique<st_task_queue>();
+        m_tq.reset(new st_task_queue());
     else
-        m_tq = std::make_unique<mt_task_queue>(num_threads);
+        m_tq.reset(new mt_task_queue(num_threads));
 #else
-    m_tq = std::make_unique<st_task_queue>();
+    m_tq.reset(new st_task_queue());
 #endif
 
     scope_global_task_queue scope_tq(m_tq.get());
-    m_mod_mgr = std::make_unique<module_mgr>(this, m_msg_buf.get(), m_initial_env, m_ios);
+    m_mod_mgr.reset(new module_mgr(this, m_msg_buf.get(), m_initial_env, m_ios));
     m_mod_mgr->set_use_snapshots(true);
     m_mod_mgr->set_save_olean(false);
 }

@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include <thread>
 #include <iostream>
 #include "api/lean.h"
 
@@ -61,6 +60,9 @@ void test_import() {
     lean_ios_del(ios);
 }
 
+#if defined(LEAN_MULTI_THREAD)
+#include <thread>
+
 int main() {
     std::thread t1(test_import);
     std::thread t2(test_import);
@@ -68,3 +70,10 @@ int main() {
     t2.join();
     return 0;
 }
+#else
+int main() {
+    test_import();
+    test_import();
+    return 0;
+}
+#endif

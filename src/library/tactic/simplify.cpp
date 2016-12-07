@@ -78,7 +78,7 @@ void simplify_core_fn::inc_num_steps() {
 }
 
 bool simplify_core_fn::is_dependent_fn(expr const & f) {
-    expr f_type = m_ctx.whnf(m_ctx.infer(f));
+    expr f_type = m_ctx.relaxed_whnf(m_ctx.infer(f));
     lean_assert(is_pi(f_type));
     return !is_arrow(f_type);
 }

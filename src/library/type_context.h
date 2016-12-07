@@ -572,6 +572,12 @@ private:
     bool mk_nested_instance(expr const & m, expr const & m_type);
     friend class unification_hint_fn;
 
+    /* Support for solving offset constraints */
+    lbool try_offset_eq_offset(expr const & t, expr const & s);
+    lbool try_offset_eq_numeral(expr const & t, expr const & s);
+    lbool try_numeral_eq_numeral(expr const & t, expr const & s);
+    lbool try_nat_offset_cnstrs(expr const & t, expr const & s);
+
 protected:
     virtual bool on_is_def_eq_failure(expr const & t, expr const & s);
 

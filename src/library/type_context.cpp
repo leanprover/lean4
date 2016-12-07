@@ -30,9 +30,14 @@ Author: Leonardo de Moura
 #include "library/unification_hint.h"
 #include "library/delayed_abstraction.h"
 #include "library/fun_info.h"
+#include "library/num.h"
 
 #ifndef LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH
 #define LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH 32
+#endif
+
+#ifndef LEAN_DEFAULT_DEFEQ_SMALL_NAT_THRESHOLD
+#define LEAN_DEFAULT_DEFEQ_SMALL_NAT_THRESHOLD 256
 #endif
 
 namespace lean {
@@ -2457,6 +2462,115 @@ bool type_context::on_is_def_eq_failure(expr const & e1, expr const & e2) {
     return false;
 }
 
+static optional<unsigned> to_small_num(expr const & e) {
+    unsigned r;
+    if (is_constant(e, get_nat_zero_name())) {
+        r = 0;
+    } else if (is_app_of(e, get_zero_name(), 2) && is_constant(app_arg(e), get_nat_has_zero_name())) {
+        r = 0;
+    } else if (is_app_of(e, get_one_name(), 2) && is_constant(app_arg(e), get_nat_has_one_name())) {
+        r = 1;
+    } else if (auto a = is_bit0(e)) {
+        if (auto r1 = to_small_num(*a))
+            r = 2 * *r1;
+        else
+            return optional<unsigned>();
+    } else if (auto a = is_bit1(e)) {
+        if (auto r1 = to_small_num(*a))
+            r = 2 * *r1 + 1;
+        else
+            return optional<unsigned>();
+    } else if (is_app_of(e, get_nat_succ_name(), 1)) {
+        if (auto r1 = to_small_num(app_arg(e)))
+            r = *r1 + 1;
+        else
+            return optional<unsigned>();
+    } else {
+        return optional<unsigned>();
+    }
+    if (r > LEAN_DEFAULT_DEFEQ_SMALL_NAT_THRESHOLD)
+        return optional<unsigned>();
+    return optional<unsigned>(r);
+}
+
+/* Return true iff \c t is of the form (s + k) where k is a numeral */
+static optional<unsigned> is_offset_term (expr const & t) {
+    if (!is_app_of(t, get_add_name(), 4)) return optional<unsigned>();
+    expr const & k = app_arg(t);
+    return to_small_num(k);
+}
+
+static expr get_offset_term(expr const & t) {
+    lean_assert(is_offset_term(t));
+    return app_arg(app_fn(t));
+}
+
+static bool uses_nat_has_add_instance(expr const & t) {
+    lean_assert(is_offset_term(t));
+    return is_constant(app_arg(app_fn(app_fn(t))), get_nat_has_add_name());
+}
+
+lbool type_context::try_offset_eq_offset(expr const & t, expr const & s) {
+    optional<unsigned> k1 = is_offset_term(t);
+    if (!k1) return l_undef;
+    optional<unsigned> k2 = is_offset_term(s);
+    if (!k2) return l_undef;
+
+    if (!uses_nat_has_add_instance(t) || !uses_nat_has_add_instance(s))
+        return l_undef;
+
+    if (*k1 == *k2) {
+        return to_lbool(is_def_eq_core(get_offset_term(t), get_offset_term(s)));
+    } else if (*k1 > *k2) {
+        return to_lbool(is_def_eq_core(mk_app(app_fn(app_fn(t)), get_offset_term(t), to_nat_expr(mpz(*k1 - *k2))),
+                                       get_offset_term(s)));
+    } else {
+        lean_assert(*k2 > *k1);
+        return to_lbool(is_def_eq_core(get_offset_term(t),
+                                       mk_app(app_fn(app_fn(s)), get_offset_term(s), to_nat_expr(mpz(*k2 - *k1)))));
+    }
+}
+
+lbool type_context::try_offset_eq_numeral(expr const & t, expr const & s) {
+    optional<unsigned> k1 = is_offset_term(t);
+    if (!k1) return l_undef;
+    optional<unsigned> k2 = to_small_num(s);
+    if (!k2) return l_undef;
+
+    if (!uses_nat_has_add_instance(t))
+        return l_undef;
+
+    if (*k2 >= *k1) {
+        return to_lbool(is_def_eq_core(get_offset_term(t), to_nat_expr(mpz(*k2 - *k1))));
+    } else {
+        lean_assert(*k1 < *k2);
+        return l_false;
+    }
+}
+
+lbool type_context::try_numeral_eq_numeral(expr const & t, expr const & s) {
+    optional<unsigned> k1 = to_small_num(t);
+    if (!k1) return l_undef;
+    optional<unsigned> k2 = to_small_num(s);
+    if (!k2) return l_undef;
+
+    if (whnf(infer(t)) != mk_nat())
+        return l_undef;
+
+    return to_lbool(*k1 == *k2);
+}
+
+lbool type_context::try_nat_offset_cnstrs(expr const & t, expr const & s) {
+    lbool r;
+    r = try_offset_eq_offset(t, s);
+    if (r != l_undef) return r;
+    r = try_offset_eq_numeral(t, s);
+    if (r != l_undef) return r;
+    r = try_offset_eq_numeral(s, t);
+    if (r != l_undef) return r;
+    return try_numeral_eq_numeral(t, s);
+}
+
 bool type_context::is_def_eq_core_core(expr const & t, expr const & s) {
     lbool r = quick_is_def_eq(t, s);
     if (r != l_undef) return r == l_true;
@@ -2478,6 +2592,10 @@ bool type_context::is_def_eq_core_core(expr const & t, expr const & s) {
     }
 
     check_system("is_def_eq");
+    r = try_nat_offset_cnstrs(t, s);
+    if (r != l_undef) {
+        return r == l_true;
+    }
 
     r = is_def_eq_lazy_delta(t_n, s_n);
     if (r != l_undef) return r == l_true;

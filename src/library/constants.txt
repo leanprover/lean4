@@ -15,6 +15,7 @@ bit1
 bool
 bool.ff
 bool.tt
+bind
 bv
 caching_user_attribute
 cast
@@ -171,7 +172,6 @@ monad
 monad.map
 monad.bind
 monad.ret
-monad.and_then
 monoid
 mul
 mul_one
@@ -303,6 +303,8 @@ prod.snd
 propext
 pexpr
 pexpr.subst
+pre_monad.bind
+pre_monad.and_then
 put_str
 put_nat
 to_pexpr

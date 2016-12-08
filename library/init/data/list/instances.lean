@@ -17,7 +17,7 @@ join (map b a)
 [a]
 
 instance : monad list :=
-⟨@map, @list.ret, @list.bind⟩
+{map := @map, ret := @list.ret, bind := @list.bind}
 
 instance : alternative list :=
 ⟨@map, @list.ret, @fapp _ _, @nil, @list.append⟩

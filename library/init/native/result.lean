@@ -17,7 +17,6 @@ inductive result (E : Type) (R : Type) : Type
 | err {} : E → result
 | ok {} : R → result
 
--- TODO: elaborator is still underway, eventually clean these up, hacking around elab bugs
 def unwrap_or {E T : Type} : result E T → T → T
 | (result.err _) default := default
 | (result.ok t) _ := t
@@ -39,7 +38,7 @@ instance result_applicative (E : Type) : applicative (result E) :=
   applicative.mk (@result.map E) (@result.ok E) (@result.seq E)
 
 instance result_monad (E : Type) : monad (result E) :=
- monad.mk (@result.map E) (@result.ok E) (@result.and_then E)
+{map := @result.map E, ret := @result.ok E, bind := @result.and_then E}
 
 inductive resultT (M : Type → Type) (E : Type) (A : Type) : Type
 | run : M (result E A) → resultT
@@ -67,7 +66,7 @@ section resultT
 
   -- Should we unify functor and monad like haskell?
   instance resultT_monad [f : functor M] [m : monad M] (E : Type) : monad (resultT M E) :=
-    monad.mk (@resultT.map M f E) (@resultT.pure M m E) (@resultT.and_then M m E)
+  {map := @resultT.map M f E, ret := @resultT.pure M m E, bind := @resultT.and_then M m E}
 end resultT
 
 end native

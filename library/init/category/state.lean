@@ -22,7 +22,9 @@ variables {σ : Type} {α β : Type}
 λ s, match (a s) with (a', s') := b a' s' end
 
 instance (σ : Type) : monad (state σ) :=
-⟨@state_fmap σ, @state_return σ, @state_bind σ⟩
+{ map := @state_fmap σ,
+  ret  := @state_return σ,
+  bind := @state_bind σ }
 end
 
 namespace state
@@ -58,7 +60,9 @@ section
 end
 
 instance (σ : Type) (m : Type → Type) [monad m] : monad (state_t σ m) :=
-⟨@state_t_fmap σ m _, @state_t_return σ m _, @state_t_bind σ m _⟩
+{ map  := @state_t_fmap σ m _,
+  ret  := @state_t_return σ m _,
+  bind := @state_t_bind σ m _}
 
 namespace state_t
 def read {σ : Type} {m : Type → Type} [monad m] : state_t σ m σ :=

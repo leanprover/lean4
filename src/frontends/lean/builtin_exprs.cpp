@@ -524,7 +524,7 @@ static expr parse_do(parser & p, unsigned, expr const *, pos_info const &) {
         --i;
         if (auto lhs = lhss[i]) {
             if (is_local(*lhs)) {
-                r = p.rec_save_pos(mk_app(p.save_pos(mk_constant(get_monad_bind_name()), ps[i]), es[i], Fun(*lhs, r, p)), ps[i]);
+                r = p.rec_save_pos(mk_app(p.save_pos(mk_constant(get_bind_name()), ps[i]), es[i], Fun(*lhs, r, p)), ps[i]);
             } else {
                 // must introduce a "fake" match
                 auto pos   = ps[i];
@@ -546,13 +546,13 @@ static expr parse_do(parser & p, unsigned, expr const *, pos_info const &) {
                 expr eqns  = p.save_pos(mk_equations(h, eqs.size(), eqs.data()), pos);
                 expr local = mk_local("p", mk_expr_placeholder());
                 expr match = p.mk_app(eqns, local, pos);
-                r = p.rec_save_pos(mk_app(p.save_pos(mk_constant(get_monad_bind_name()), ps[i]),
+                r = p.rec_save_pos(mk_app(p.save_pos(mk_constant(get_bind_name()), ps[i]),
                                           es[i],
                                           p.save_pos(Fun(local, match, p), pos)),
                                    pos);
             }
         } else {
-            r = p.rec_save_pos(mk_app(p.save_pos(mk_constant(get_monad_bind_name()), ps[i]),
+            r = p.rec_save_pos(mk_app(p.save_pos(mk_constant(get_bind_name()), ps[i]),
                                       es[i],
                                       p.save_pos(mk_lambda("x", mk_expr_placeholder(), r), p.pos_of(r))),
                                ps[i]);

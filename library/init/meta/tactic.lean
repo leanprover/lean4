@@ -79,7 +79,7 @@ infixl ` >>[tactic] `:2  := tactic_seq
 end
 
 meta instance : monad tactic :=
-⟨@tactic_fmap, @tactic_return, @tactic_bind⟩
+{map := @tactic_fmap, ret := @tactic_return, bind := @tactic_bind}
 
 meta def tactic.fail {α : Type u} {β : Type v} [has_to_format β] (msg : β) : tactic α :=
 λ s, exception α (λ u, to_fmt msg) none s

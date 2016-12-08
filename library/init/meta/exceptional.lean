@@ -55,4 +55,4 @@ exception α (λ u, f)
 end exceptional
 
 meta instance : monad exceptional :=
-⟨@exceptional.fmap, @exceptional.return, @exceptional.bind⟩
+{map := @exceptional.fmap, ret := @exceptional.return, bind := @exceptional.bind}

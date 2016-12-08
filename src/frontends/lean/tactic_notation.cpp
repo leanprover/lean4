@@ -39,7 +39,7 @@ static expr mk_begin_end_element(parser & p, expr tac, pos_info const & pos) {
 
 static expr concat(parser & p, expr const & r, expr tac, pos_info const & start_pos, pos_info const & pos) {
     tac = mk_begin_end_element(p, tac, pos);
-    return p.save_pos(mk_app(mk_constant(get_monad_and_then_name()), r, tac), start_pos);
+    return p.save_pos(mk_app(mk_constant(get_pre_monad_and_then_name()), r, tac), start_pos);
 }
 
 static void get_begin_end_block_elements_core(expr const & e, buffer<expr> & elems) {
@@ -364,7 +364,7 @@ expr parse_auto_quote_tactic_block(parser & p, unsigned, expr const *, pos_info 
     while (p.curr_is_token(get_comma_tk())) {
         p.next();
         expr next = parse_tactic(p);
-        r = p.mk_app({p.save_pos(mk_constant(get_monad_and_then_name()), pos), r, next}, pos);
+        r = p.mk_app({p.save_pos(mk_constant(get_pre_monad_and_then_name()), pos), r, next}, pos);
     }
     p.check_token_next(get_rbracket_tk(), "invalid auto-quote tactic block, ']' expected");
     return r;

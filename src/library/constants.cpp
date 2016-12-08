@@ -20,6 +20,7 @@ name const * g_bit1 = nullptr;
 name const * g_bool = nullptr;
 name const * g_bool_ff = nullptr;
 name const * g_bool_tt = nullptr;
+name const * g_bind = nullptr;
 name const * g_bv = nullptr;
 name const * g_caching_user_attribute = nullptr;
 name const * g_cast = nullptr;
@@ -176,7 +177,6 @@ name const * g_monad = nullptr;
 name const * g_monad_map = nullptr;
 name const * g_monad_bind = nullptr;
 name const * g_monad_ret = nullptr;
-name const * g_monad_and_then = nullptr;
 name const * g_monoid = nullptr;
 name const * g_mul = nullptr;
 name const * g_mul_one = nullptr;
@@ -308,6 +308,8 @@ name const * g_prod_snd = nullptr;
 name const * g_propext = nullptr;
 name const * g_pexpr = nullptr;
 name const * g_pexpr_subst = nullptr;
+name const * g_pre_monad_bind = nullptr;
+name const * g_pre_monad_and_then = nullptr;
 name const * g_put_str = nullptr;
 name const * g_put_nat = nullptr;
 name const * g_to_pexpr = nullptr;
@@ -443,6 +445,7 @@ void initialize_constants() {
     g_bool = new name{"bool"};
     g_bool_ff = new name{"bool", "ff"};
     g_bool_tt = new name{"bool", "tt"};
+    g_bind = new name{"bind"};
     g_bv = new name{"bv"};
     g_caching_user_attribute = new name{"caching_user_attribute"};
     g_cast = new name{"cast"};
@@ -599,7 +602,6 @@ void initialize_constants() {
     g_monad_map = new name{"monad", "map"};
     g_monad_bind = new name{"monad", "bind"};
     g_monad_ret = new name{"monad", "ret"};
-    g_monad_and_then = new name{"monad", "and_then"};
     g_monoid = new name{"monoid"};
     g_mul = new name{"mul"};
     g_mul_one = new name{"mul_one"};
@@ -731,6 +733,8 @@ void initialize_constants() {
     g_propext = new name{"propext"};
     g_pexpr = new name{"pexpr"};
     g_pexpr_subst = new name{"pexpr", "subst"};
+    g_pre_monad_bind = new name{"pre_monad", "bind"};
+    g_pre_monad_and_then = new name{"pre_monad", "and_then"};
     g_put_str = new name{"put_str"};
     g_put_nat = new name{"put_nat"};
     g_to_pexpr = new name{"to_pexpr"};
@@ -867,6 +871,7 @@ void finalize_constants() {
     delete g_bool;
     delete g_bool_ff;
     delete g_bool_tt;
+    delete g_bind;
     delete g_bv;
     delete g_caching_user_attribute;
     delete g_cast;
@@ -1023,7 +1028,6 @@ void finalize_constants() {
     delete g_monad_map;
     delete g_monad_bind;
     delete g_monad_ret;
-    delete g_monad_and_then;
     delete g_monoid;
     delete g_mul;
     delete g_mul_one;
@@ -1155,6 +1159,8 @@ void finalize_constants() {
     delete g_propext;
     delete g_pexpr;
     delete g_pexpr_subst;
+    delete g_pre_monad_bind;
+    delete g_pre_monad_and_then;
     delete g_put_str;
     delete g_put_nat;
     delete g_to_pexpr;
@@ -1290,6 +1296,7 @@ name const & get_bit1_name() { return *g_bit1; }
 name const & get_bool_name() { return *g_bool; }
 name const & get_bool_ff_name() { return *g_bool_ff; }
 name const & get_bool_tt_name() { return *g_bool_tt; }
+name const & get_bind_name() { return *g_bind; }
 name const & get_bv_name() { return *g_bv; }
 name const & get_caching_user_attribute_name() { return *g_caching_user_attribute; }
 name const & get_cast_name() { return *g_cast; }
@@ -1446,7 +1453,6 @@ name const & get_monad_name() { return *g_monad; }
 name const & get_monad_map_name() { return *g_monad_map; }
 name const & get_monad_bind_name() { return *g_monad_bind; }
 name const & get_monad_ret_name() { return *g_monad_ret; }
-name const & get_monad_and_then_name() { return *g_monad_and_then; }
 name const & get_monoid_name() { return *g_monoid; }
 name const & get_mul_name() { return *g_mul; }
 name const & get_mul_one_name() { return *g_mul_one; }
@@ -1578,6 +1584,8 @@ name const & get_prod_snd_name() { return *g_prod_snd; }
 name const & get_propext_name() { return *g_propext; }
 name const & get_pexpr_name() { return *g_pexpr; }
 name const & get_pexpr_subst_name() { return *g_pexpr_subst; }
+name const & get_pre_monad_bind_name() { return *g_pre_monad_bind; }
+name const & get_pre_monad_and_then_name() { return *g_pre_monad_and_then; }
 name const & get_put_str_name() { return *g_put_str; }
 name const & get_put_nat_name() { return *g_put_nat; }
 name const & get_to_pexpr_name() { return *g_to_pexpr; }

@@ -379,7 +379,7 @@ class erase_irrelevant_fn : public compiler_step_visitor {
                 return visit_quot_mk(args);
             } else if (n == get_subtype_rec_name()) {
                 return visit_subtype_rec(args);
-            } else if (n == get_monad_bind_name()) {
+            } else if (n == get_monad_bind_name() || n == get_pre_monad_bind_name()) {
                 return visit_monad_bind(e, args);
             } else if (n == get_monad_ret_name()) {
                 return visit_monad_return(e, args);

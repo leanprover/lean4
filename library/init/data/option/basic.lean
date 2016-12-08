@@ -31,7 +31,7 @@ instance {α : Type u} [d : decidable_eq α] : decidable_eq (option α)
 | (some a) b := b a
 
 instance : monad option :=
-monad.mk @option_fmap @some @option_bind
+{map := @option_fmap, ret := @some, bind := @option_bind}
 
 def option_orelse {α : Type u} : option α → option α → option α
 | (some a) o         := some a
@@ -66,7 +66,7 @@ show m (option α), from
 return (some a)
 
 instance {m : Type (max 1 u) → Type v} [monad m] : monad (option_t m) :=
-monad.mk (@option_t_fmap m _) (@option_t_return m _) (@option_t_bind m _)
+{map := @option_t_fmap m _, ret := @option_t_return m _, bind := @option_t_bind m _}
 
 def option_t_orelse {m : Type (max 1 u) → Type v} [monad m] {α : Type u} (a : option_t m α) (b : option_t m α) : option_t m α :=
 show m (option α), from

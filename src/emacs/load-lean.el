@@ -14,7 +14,8 @@
         (error nil)))
 
 (setq lean-required-packages '(company dash dash-functional f
-                               fill-column-indicator flycheck let-alist s seq))
+                               fill-column-indicator flycheck let-alist s seq
+                               unicode-fonts))
 
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
@@ -26,6 +27,10 @@
         (package-refresh-contents)
         (setq need-to-refresh nil))
       (package-install p))))
+
+; This enables out-of-the-box support for characters such as ℕ at least on Windows.
+(require 'unicode-fonts)
+(unicode-fonts-setup)
 
 (setq load-path (cons lean-emacs-path load-path))
 

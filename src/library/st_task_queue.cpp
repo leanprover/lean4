@@ -26,6 +26,22 @@ optional<generic_task_result> st_task_queue::get_current_task() {
 }
 
 void st_task_queue::submit(generic_task_result const & t) {
+    std::vector<generic_task_result> deps;
+    try { deps = t->m_task->get_dependencies(); } catch (...) {}
+    for (auto & d : deps) {
+        switch (d->m_state.load()) {
+            case task_result_state::FAILED:
+                t->m_state = task_result_state::FAILED;
+                t->m_ex = d->m_ex;
+                t->clear_task();
+                return;
+            case task_result_state::FINISHED:
+                break;
+            default:
+                lean_unreachable();
+        }
+    }
+
     if (m_progress_cb) m_progress_cb(t->m_task);
     bool is_ok = t->execute();
     t->m_state = is_ok ? task_result_state::FINISHED : task_result_state::FAILED;

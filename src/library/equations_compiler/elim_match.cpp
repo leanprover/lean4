@@ -995,8 +995,9 @@ struct elim_match_fn {
         new_P.m_fn_name     = P.m_fn_name;
         new_P.m_goal        = P.m_goal;
         buffer<expr> new_var_stack;
-        for (unsigned i = I_nparams; i < C_args.size(); i++)
-            new_var_stack.push_back(C_args[i]);
+        for (unsigned i = I_nparams; i < C_args.size(); i++) {
+            new_var_stack.push_back(whnf_constructor(ctx, C_args[i]));
+        }
         to_buffer(tail(P.m_var_stack), new_var_stack);
         new_P.m_var_stack   = to_list(new_var_stack);
         new_P.m_equations   = get_equations_for(const_name(C), I_nparams, hsubstitution(), eqns);

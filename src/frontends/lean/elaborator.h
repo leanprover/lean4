@@ -289,6 +289,10 @@ public:
     expr finalize_theorem_proof(expr const & val, theorem_finalization_info const & info);
 
     environment const & env() const { return m_env; }
+    void set_env(environment const & env) {
+        m_env = env;
+        m_ctx.set_env(m_env);
+    }
 };
 
 pair<expr, level_param_names> elaborate(environment & env, options const & opts,

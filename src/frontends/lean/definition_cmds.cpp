@@ -629,12 +629,13 @@ public:
                 throw exception("not a rfl-lemma, even though marked as rfl");
             return inline_new_defs(m_decl_env, elab.env(), val);
         } catch (exception & ex) {
+            // TODO(gabriel,leo): remove this catch block after single threaded queue discard bad tasks
             message_builder error_msg(&m_pos_provider, tc, m_decl_env, get_global_ios(),
                                       m_pos_provider.get_file_name(), m_pos_provider.get_some_pos(),
                                       ERROR);
             error_msg.set_exception(ex);
             error_msg.report();
-            return mk_sorry();
+            throw exception("failed to elaborate theorem");
         }
     }
 };
@@ -734,6 +735,7 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
     if (is_instance)
         attrs.set_attribute(p.env(), "instance");
     std::tie(fn, val) = parse_definition(p, lp_names, params, is_example, is_instance);
+    p.declare_sorry_if_used();
     elaborator elab(p.env(), p.get_options(), metavar_context(), local_context());
     buffer<expr> new_params;
     elaborate_params(elab, params, new_params);
@@ -798,6 +800,8 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
     } catch (throwable & ex1) {
         /* Try again using 'sorry' */
         expr sorry = p.mk_sorry(header_pos);
+        p.declare_sorry_if_used();
+        elab.set_env(p.env());
         modifiers.m_is_noncomputable = true;
         environment new_env;
         try {

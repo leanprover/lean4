@@ -1,2 +1,1 @@
-noncomp_thm.lean:1:0: error: unknown declaration 'sorry'
 noncomp_thm.lean:1:0: error: definition 'foo' was incorrectly marked as noncomputable

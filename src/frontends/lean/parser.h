@@ -482,6 +482,7 @@ public:
 
     expr mk_sorry(pos_info const & p);
     bool used_sorry() const { return m_used_sorry; }
+    void declare_sorry_if_used();
 
     /** return true iff profiling is enabled */
     bool profiling() const { return m_profile; }

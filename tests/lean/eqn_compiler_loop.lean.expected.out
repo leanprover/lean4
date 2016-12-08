@@ -1,2 +1,1 @@
 eqn_compiler_loop.lean:3:8: error: invalid non-exhaustive set of equations (use 'set_option trace.eqn_compiler.elim_match true' for additional details)
-eqn_compiler_loop.lean:3:0: error: unknown declaration 'sorry'

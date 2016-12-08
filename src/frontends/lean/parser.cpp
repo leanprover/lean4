@@ -259,6 +259,7 @@ void parser::scan() {
 expr parser::mk_sorry(pos_info const & p) {
     m_used_sorry = true;
     m_ignore_noncomputable = true;
+    /* Remark: we should not declare 'sorry' here because we may be inside of a scope. */
     {
 #ifndef LEAN_IGNORE_SORRY
         // TODO(Leo): remove the #ifdef.
@@ -268,6 +269,11 @@ expr parser::mk_sorry(pos_info const & p) {
 #endif
     }
     return save_pos(::lean::mk_sorry(), p);
+}
+
+void parser::declare_sorry_if_used() {
+    if (m_used_sorry)
+        m_env = declare_sorry(m_env);
 }
 
 void parser::updt_options() {

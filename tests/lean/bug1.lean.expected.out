@@ -4,19 +4,16 @@ has type
   ∀ (c : bool), (p → q → c) → c
 but is expected to have type
   a
-bug1.lean:8:0: error: unknown declaration 'sorry'
 bug1.lean:13:3: error: type mismatch, expression
   λ (c : bool) (H : p → q → c), H H1 H2
 has type
   ∀ (c : bool), (p → q → c) → c
 but is expected to have type
   p ∧ p
-bug1.lean:12:0: error: unknown declaration 'sorry'
 bug1.lean:17:3: error: type mismatch, expression
   λ (c : bool) (H : p → q → c), H H1 H2
 has type
   ∀ (c : bool), (p → q → c) → c
 but is expected to have type
   q ∧ p
-bug1.lean:16:0: error: unknown declaration 'sorry'
 and_intro4 : ∀ (p q : bool), p → q → p ∧ q

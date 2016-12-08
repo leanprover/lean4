@@ -24,8 +24,8 @@ echo "-- testing $f"
 "$LEAN" -Dpp.colors=false -Dpp.unicode=true -j0 "$ff" &> "$f.produced.out"
 sed "/warning: imported file uses 'sorry'/d" "$f.produced.out" > "$f.produced.out.tmp"
 sed "/warning: using 'sorry'/d" "$f.produced.out.tmp" > "$f.produced.out"
-sed "s|^$ff|$f|" "$f.produced.out" > "$f.produced.out.tmp"
-mv "$f.produced.out.tmp" "$f.produced.out"
+sed "/failed to elaborate theorem/d" "$f.produced.out" > "$f.produced.tmp"
+sed "s|^$ff|$f|" "$f.produced.tmp" > "$f.produced.out"
 if test -f "$f.expected.out"; then
     if diff --ignore-all-space -I "executing external script" "$f.produced.out" "$f.expected.out"; then
         echo "-- checked"

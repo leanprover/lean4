@@ -4,4 +4,3 @@ given argument
   n
 expected argument
   m
-bad_error1.lean:3:0: error: unknown declaration 'sorry'

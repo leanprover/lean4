@@ -13,13 +13,19 @@
           (create-image (format "%s/lean.pgm" lean-emacs-path))
         (error nil)))
 
-(setq lean-required-packages '(company dash dash-functional f fill-column-indicator flycheck let-alist s seq))
+(setq lean-required-packages '(company dash dash-functional f
+                               fill-column-indicator flycheck let-alist s seq))
 
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
 (package-initialize)
-(unless package-archive-contents (package-refresh-contents))
-(dolist (pkg lean-required-packages) (package-install pkg))
+(let ((need-to-refresh t))
+  (dolist (p lean-required-packages)
+    (when (not (package-installed-p p))
+      (when need-to-refresh
+        (package-refresh-contents)
+        (setq need-to-refresh nil))
+      (package-install p))))
 
 (setq load-path (cons lean-emacs-path load-path))
 
@@ -40,8 +46,9 @@
     (insert "\n")
     (insert "\n\nPlease check our website periodically for news of later versions")
     (insert "\nat http://leanprover.github.io")
-    (insert "\n\nBug reports and suggestions for improvement should be posted at\nhttps://github.com/leanprover/lean/issues")
-    (insert "\n\nTo start using Lean, open a .lean or .hlean file")
+    (insert "\n\nBug reports and suggestions for improvement should be posted at")
+    (insert "\nhttps://github.com/leanprover/lean/issues")
+    (insert "\n\nTo start using Lean, open a .lean file")
     (set-buffer-modified-p nil)
     (text-mode)
     (toggle-read-only)

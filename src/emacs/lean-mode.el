@@ -86,7 +86,6 @@
   (local-set-key lean-keybinding-std-exe1                  'lean-std-exe)
   (local-set-key lean-keybinding-std-exe2                  'lean-std-exe)
   (local-set-key lean-keybinding-show-key                  'quail-show-key)
-  (local-set-key lean-keybinding-eval-cmd                  'lean-eval-cmd)
   (local-set-key lean-keybinding-server-restart            'lean-server-restart)
   (local-set-key lean-keybinding-find-definition           'lean-find-definition)
   (local-set-key lean-keybinding-tab-indent-or-complete    'lean-tab-indent-or-complete)
@@ -114,12 +113,10 @@
     ["Show goal"            lean-show-goal-at-pos             t]
     ["Show id/keyword info" lean-show-id-keyword-info         t]
     ["Find definition at point" lean-find-definition          t]
-    ["Global tag search"    lean-global-search                t]
     "-----------------"
     ["Run flycheck"         flycheck-compile                  (and lean-flycheck-use flycheck-mode)]
     ["List of errors"       flycheck-list-errors              (and lean-flycheck-use flycheck-mode)]
     "-----------------"
-    ["Clear all cache"      lean-clear-cache                  t]
     ["Restart lean process" lean-server-restart               t]
     "-----------------"
     ("Configuration"
@@ -200,9 +197,6 @@ Invokes `lean-mode-hook'.
   (pcase-dolist (`(,hook . ,fn) lean-hooks-alist)
     (add-hook hook fn nil 'local))
   (lean-mode-setup))
-
-;;; Automatically update TAGS file without asking
-(setq tags-revert-without-query t)
 
 ;; Automatically use lean-mode for .lean files.
 ;;;###autoload

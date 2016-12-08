@@ -112,6 +112,8 @@ class type_context_cache {
 
     /* Maximum search depth when performing type class resolution. */
     unsigned                      m_ci_max_depth;
+    /* See issue #1226 */
+    unsigned                      m_nat_offset_cnstr_threshold;
 
     friend class type_context;
     friend class type_context_cache_manager;
@@ -572,7 +574,9 @@ private:
     bool mk_nested_instance(expr const & m, expr const & m_type);
     friend class unification_hint_fn;
 
-    /* Support for solving offset constraints */
+    /* Support for solving offset constraints, see issue #1226 */
+    optional<unsigned> to_small_num(expr const & e);
+    optional<unsigned> is_offset_term (expr const & t);
     lbool try_offset_eq_offset(expr const & t, expr const & s);
     lbool try_offset_eq_numeral(expr const & t, expr const & s);
     lbool try_numeral_eq_numeral(expr const & t, expr const & s);

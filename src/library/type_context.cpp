@@ -36,16 +36,21 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH 32
 #endif
 
-#ifndef LEAN_DEFAULT_DEFEQ_SMALL_NAT_THRESHOLD
-#define LEAN_DEFAULT_DEFEQ_SMALL_NAT_THRESHOLD 256
+#ifndef LEAN_DEFAULT_NAT_OFFSET_CNSTR_THRESHOLD
+#define LEAN_DEFAULT_NAT_OFFSET_CNSTR_THRESHOLD 256
 #endif
 
 namespace lean {
 static name * g_class_instance_max_depth = nullptr;
 static name * g_instance                 = nullptr;
+static name * g_nat_offset_threshold     = nullptr;
 
 unsigned get_class_instance_max_depth(options const & o) {
     return o.get_unsigned(*g_class_instance_max_depth, LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH);
+}
+
+unsigned get_nat_offset_cnstr_threshold(options const & o) {
+    return o.get_unsigned(*g_nat_offset_threshold, LEAN_DEFAULT_NAT_OFFSET_CNSTR_THRESHOLD);
 }
 
 /* =====================
@@ -57,7 +62,8 @@ type_context_cache::type_context_cache(environment const & env, options const & 
     m_options(opts),
     m_proj_info(get_projection_info_map(env)),
     m_infer_cache(use_bi) {
-    m_ci_max_depth       = get_class_instance_max_depth(opts);
+    m_ci_max_depth               = get_class_instance_max_depth(opts);
+    m_nat_offset_cnstr_threshold = get_nat_offset_cnstr_threshold(opts);
     lean_trace("type_context_cache", tout() << "type_context_cache constructed\n";);
 }
 
@@ -2466,7 +2472,7 @@ bool type_context::on_is_def_eq_failure(expr const & e1, expr const & e2) {
 }
 
 /* If e is a (small) numeral, then return it. Otherwise return none. */
-static optional<unsigned> to_small_num(expr const & e) {
+optional<unsigned> type_context::to_small_num(expr const & e) {
     unsigned r;
     if (is_constant(e, get_nat_zero_name())) {
         r = 0;
@@ -2492,13 +2498,13 @@ static optional<unsigned> to_small_num(expr const & e) {
     } else {
         return optional<unsigned>();
     }
-    if (r > LEAN_DEFAULT_DEFEQ_SMALL_NAT_THRESHOLD)
+    if (r > m_cache->m_nat_offset_cnstr_threshold)
         return optional<unsigned>();
     return optional<unsigned>(r);
 }
 
 /* If \c t is of the form (s + k) where k is a numeral, then return k. Otherwise, return none. */
-optional<unsigned> is_offset_term (expr const & t) {
+optional<unsigned> type_context::is_offset_term (expr const & t) {
     if (!is_app_of(t, get_add_name(), 4)) return optional<unsigned>();
     expr const & k = app_arg(t);
     return to_small_num(k);
@@ -3381,10 +3387,17 @@ void initialize_type_context() {
     g_instance                     = new name{"instance"};
     register_unsigned_option(*g_class_instance_max_depth, LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH,
                              "(class) max allowed depth in class-instance resolution");
+    g_nat_offset_threshold         = new name{"unifier", "nat_offset_cnstr_threshold"};
+    register_unsigned_option(*g_nat_offset_threshold, LEAN_DEFAULT_NAT_OFFSET_CNSTR_THRESHOLD,
+                             "(unifier) the unifier has special support for offset nat constraints of the form: "
+                             "(t + k_1 =?= s + k_2), (t + k_1 =?= k_2) and (k_1 =?= k_2), "
+                             "where k_1 and k_2 are numerals, t and s are arbitrary terms, and they all have type nat, "
+                             "the offset constraint solver is used if k_1 and k_2 are smaller than the given threshold");
 }
 
 void finalize_type_context() {
     delete g_class_instance_max_depth;
     delete g_instance;
+    delete g_nat_offset_threshold;
 }
 }

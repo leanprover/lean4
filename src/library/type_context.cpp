@@ -2272,6 +2272,9 @@ lbool type_context::is_def_eq_lazy_delta(expr & t, expr & s) {
     while (true) {
         if (try_unification_hints(t, s))
             return l_true;
+        lbool r = try_nat_offset_cnstrs(t, s);
+        if (r != l_undef) return r;
+
         optional<declaration> d_t = is_delta(t);
         optional<declaration> d_s = is_delta(s);
         if (!d_t && !d_s) {
@@ -2374,7 +2377,7 @@ lbool type_context::is_def_eq_lazy_delta(expr & t, expr & s) {
                 }
             }
         }
-        auto r = quick_is_def_eq(t, s);
+        r = quick_is_def_eq(t, s);
         if (r != l_undef) return r;
         lean_trace(name({"type_context", "is_def_eq_detail"}),
                    scope_trace_env scope(env(), *this);
@@ -2462,6 +2465,7 @@ bool type_context::on_is_def_eq_failure(expr const & e1, expr const & e2) {
     return false;
 }
 
+/* If e is a (small) numeral, then return it. Otherwise return none. */
 static optional<unsigned> to_small_num(expr const & e) {
     unsigned r;
     if (is_constant(e, get_nat_zero_name())) {
@@ -2493,23 +2497,31 @@ static optional<unsigned> to_small_num(expr const & e) {
     return optional<unsigned>(r);
 }
 
-/* Return true iff \c t is of the form (s + k) where k is a numeral */
-static optional<unsigned> is_offset_term (expr const & t) {
+/* If \c t is of the form (s + k) where k is a numeral, then return k. Otherwise, return none. */
+optional<unsigned> is_offset_term (expr const & t) {
     if (!is_app_of(t, get_add_name(), 4)) return optional<unsigned>();
     expr const & k = app_arg(t);
     return to_small_num(k);
 }
 
+/* Return true iff t is of the form (t' + k) where k is a numeral */
 static expr get_offset_term(expr const & t) {
     lean_assert(is_offset_term(t));
     return app_arg(app_fn(t));
 }
 
+/* Return true iff t is of the form (@add _ nat_has_add a b)
+   \pre is_offset_term(t) */
 static bool uses_nat_has_add_instance(expr const & t) {
     lean_assert(is_offset_term(t));
     return is_constant(app_arg(app_fn(app_fn(t))), get_nat_has_add_name());
 }
 
+/* Solve unification constraints of the form
+
+       t' + k_1 =?= s' + k_2
+
+   where k_1 and k_2 are numerals, and type is nat */
 lbool type_context::try_offset_eq_offset(expr const & t, expr const & s) {
     optional<unsigned> k1 = is_offset_term(t);
     if (!k1) return l_undef;
@@ -2531,6 +2543,11 @@ lbool type_context::try_offset_eq_offset(expr const & t, expr const & s) {
     }
 }
 
+/* Solve unification constraints of the form
+
+       t' + k_1 =?= k_2
+
+   where k_1 and k_2 are numerals, and type is nat */
 lbool type_context::try_offset_eq_numeral(expr const & t, expr const & s) {
     optional<unsigned> k1 = is_offset_term(t);
     if (!k1) return l_undef;
@@ -2548,6 +2565,11 @@ lbool type_context::try_offset_eq_numeral(expr const & t, expr const & s) {
     }
 }
 
+/* Solve unification constraints of the form
+
+       k_1 =?= k_2
+
+   where k_1 and k_2 are numerals, and type is nat */
 lbool type_context::try_numeral_eq_numeral(expr const & t, expr const & s) {
     optional<unsigned> k1 = to_small_num(t);
     if (!k1) return l_undef;
@@ -2560,6 +2582,7 @@ lbool type_context::try_numeral_eq_numeral(expr const & t, expr const & s) {
     return to_lbool(*k1 == *k2);
 }
 
+/* Solve offset constraints. See discussion at issue #1226 */
 lbool type_context::try_nat_offset_cnstrs(expr const & t, expr const & s) {
     lbool r;
     r = try_offset_eq_offset(t, s);
@@ -2592,10 +2615,6 @@ bool type_context::is_def_eq_core_core(expr const & t, expr const & s) {
     }
 
     check_system("is_def_eq");
-    r = try_nat_offset_cnstrs(t, s);
-    if (r != l_undef) {
-        return r == l_true;
-    }
 
     r = is_def_eq_lazy_delta(t_n, s_n);
     if (r != l_undef) return r == l_true;

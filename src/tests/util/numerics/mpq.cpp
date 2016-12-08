@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "util/test.h"
 #include "util/serializer.h"
 #include "util/numerics/mpq.h"
+#include "util/init_module.h"
 using namespace lean;
 
 static void tst0() {
@@ -196,6 +197,7 @@ static void tst7() {
 }
 
 int main() {
+    initialize_util_module();
     tst0();
     tst1();
     tst2();
@@ -204,5 +206,6 @@ int main() {
     tst5();
     tst6();
     tst7();
+    finalize_util_module();
     return has_violations() ? 1 : 0;
 }

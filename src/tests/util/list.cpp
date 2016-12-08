@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "util/list.h"
 #include "util/list_fn.h"
 #include "util/timeit.h"
+#include "util/init_module.h"
 using namespace lean;
 
 static void tst1() {
@@ -229,6 +230,7 @@ static void tst18() {
 }
 
 int main() {
+    initialize_util_module();
     tst1();
     tst2();
     tst3();
@@ -247,5 +249,6 @@ int main() {
     tst16();
     tst17();
     tst18();
+    finalize_util_module();
     return has_violations() ? 1 : 0;
 }

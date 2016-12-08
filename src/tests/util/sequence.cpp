@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "util/sequence.h"
 #include "util/test.h"
+#include "util/init_module.h"
 using namespace lean;
 
 namespace lean {
@@ -33,6 +34,8 @@ static void tst1() {
 }
 
 int main() {
+    initialize_util_module();
     tst1();
+    finalize_util_module();
     return has_violations() ? 1 : 0;
 }

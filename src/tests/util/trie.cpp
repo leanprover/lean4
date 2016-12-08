@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "util/test.h"
 #include "util/trie.h"
+#include "util/init_module.h"
 using namespace lean;
 
 static void tst1() {
@@ -63,7 +64,9 @@ static void tst2() {
 }
 
 int main() {
+    initialize_util_module();
     tst1();
     tst2();
+    finalize_util_module();
     return has_violations() ? 1 : 0;
 }

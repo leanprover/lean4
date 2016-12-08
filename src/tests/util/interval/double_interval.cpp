@@ -8,6 +8,7 @@ Author: Soonho Kong
 #include "util/numerics/double.h"
 #include "util/interval/interval.h"
 #include "tests/util/interval/check.h"
+#include "util/init_module.h"
 
 using namespace lean;
 
@@ -1030,9 +1031,11 @@ static void double_interval_trans() {
 }
 
 int main() {
+    initialize_util_module();
     double_interval_arith();
     double_interval_inf1();
     double_interval_inf2();
     double_interval_trans();
+    finalize_util_module();
     return has_violations() ? 1 : 0;
 }

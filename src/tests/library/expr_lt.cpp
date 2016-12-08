@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "util/test.h"
 #include "kernel/abstract.h"
 #include "library/expr_lt.h"
+#include "util/init_module.h"
 using namespace lean;
 
 static void lt(expr const & e1, expr const & e2, bool expected) {
@@ -33,6 +34,8 @@ static void tst1() {
 
 int main() {
     save_stack_info();
+    initialize_util_module();
     tst1();
+    finalize_util_module();
     return has_violations() ? 1 : 0;
 }

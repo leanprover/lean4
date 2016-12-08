@@ -8,6 +8,7 @@ Author: Soonho Kong
 #include "util/numerics/mpfp.h"
 #include "util/interval/interval.h"
 #include "tests/util/interval/check.h"
+#include "util/init_module.h"
 
 using namespace lean;
 
@@ -1030,9 +1031,11 @@ static void mpfp_interval_trans() {
 }
 
 int main() {
+    initialize_util_module();
     mpfp_interval_arith();
     mpfp_interval_inf1();
     mpfp_interval_inf2();
     mpfp_interval_trans();
+    finalize_util_module();
     return has_violations() ? 1 : 0;
 }

@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <vector>
+#include "util/init_module.h"
 #include "util/test.h"
 #include "util/worker_queue.h"
 using namespace lean;
@@ -20,7 +21,9 @@ static void tst1() {
 }
 
 int main() {
+    initialize_util_module();
     save_stack_info();
     tst1();
+    finalize_util_module();
     return has_violations() ? 1 : 0;
 }

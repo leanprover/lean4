@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "util/test.h"
 #include "util/exception.h"
 #include "util/sstream.h"
+#include "util/init_module.h"
 using namespace lean;
 
 static void tst1() {
@@ -83,10 +84,12 @@ static void tst5() {
 }
 
 int main() {
+    initialize_util_module();
     tst1();
     tst2();
     tst3();
     tst4();
     tst5();
+    finalize_util_module();
     return has_violations() ? 1 : 0;
 }

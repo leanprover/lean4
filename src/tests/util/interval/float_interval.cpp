@@ -8,6 +8,7 @@ Author: Soonho Kong
 #include "util/numerics/float.h"
 #include "util/interval/interval.h"
 #include "tests/util/interval/check.h"
+#include "util/init_module.h"
 
 using namespace lean;
 
@@ -1030,9 +1031,11 @@ static void float_interval_trans() {
 }
 
 int main() {
+    initialize_util_module();
     float_interval_arith();
     float_interval_inf1();
     float_interval_inf2();
     float_interval_trans();
+    finalize_util_module();
     return has_violations() ? 1 : 0;
 }

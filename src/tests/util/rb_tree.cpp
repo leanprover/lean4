@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "util/rb_tree.h"
 #include "util/timeit.h"
 #include "util/thread.h"
+#include "util/init_module.h"
 using namespace lean;
 
 // Uncomment for running more comprehensive tests
@@ -251,6 +252,7 @@ static void tst7() {
 }
 
 int main() {
+    initialize_util_module();
     tst1();
     tst2();
     tst3();
@@ -258,5 +260,6 @@ int main() {
     tst5();
     tst6();
     tst7();
+    finalize_util_module();
     return has_violations() ? 1 : 0;
 }

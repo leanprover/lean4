@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "util/test.h"
 #include "util/numerics/mpbq.h"
 #include "util/numerics/mpq.h"
+#include "util/init_module.h"
 using namespace lean;
 
 static void tst1() {
@@ -242,6 +243,7 @@ static void tst10() {
 }
 
 int main() {
+    initialize_util_module();
     tst1();
     tst2();
     tst3();
@@ -252,5 +254,6 @@ int main() {
     tst8();
     tst9();
     tst10();
+    finalize_util_module();
     return has_violations() ? 1 : 0;
 }

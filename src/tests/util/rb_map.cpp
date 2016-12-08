@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "util/test.h"
 #include "util/rb_map.h"
 #include "util/name.h"
+#include "util/init_module.h"
 using namespace lean;
 typedef rb_map<int, name, int_cmp> int2name;
 
@@ -51,8 +52,10 @@ static void tst2() {
 }
 
 int main() {
+    initialize_util_module();
     tst0();
     tst1();
     tst2();
+    finalize_util_module();
     return has_violations() ? 1 : 0;
 }

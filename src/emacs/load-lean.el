@@ -14,8 +14,7 @@
         (error nil)))
 
 (setq lean-required-packages '(company dash dash-functional f
-                               fill-column-indicator flycheck let-alist s seq
-                               unicode-fonts))
+                               flycheck let-alist s seq unicode-fonts))
 
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))

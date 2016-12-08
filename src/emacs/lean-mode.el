@@ -158,15 +158,7 @@ enabled and disabled respectively.")
   (when lean-eldoc-use
     (set (make-local-variable 'eldoc-documentation-function)
          'lean-eldoc-documentation-function)
-    (eldoc-mode t))
-  ;; Draw a vertical line for rule-column
-  (when (and lean-rule-column
-             lean-show-rule-column-method)
-    (cl-case lean-show-rule-column-method
-      ('vline (require 'fill-column-indicator)
-              (setq fci-rule-column lean-rule-column)
-              (setq fci-rule-color lean-rule-color)
-              (fci-mode t)))))
+    (eldoc-mode t)))
 
 ;; Automode List
 ;;;###autoload

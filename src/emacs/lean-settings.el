@@ -88,27 +88,6 @@ written."
   :group 'lean
   :type 'boolean)
 
-(defcustom lean-rule-column 100
-  "Specify rule-column."
-  :group 'lean
-  :type '(choice (integer :tag "Columns")
-                 (const :tag "Unlimited" nil)))
-
-(defcustom lean-rule-color "#cccccc"
-  "Color used to draw the fill-column rule"
-  :group 'fill-column-indicator
-  :tag "Fill-column rule color"
-  :type 'color)
-
-(defcustom lean-show-rule-column-method nil
-  "If enabled, it highlights column"
-  :group 'lean
-  :type '(choice (const :tag "Disabled" nil)
-                 (const :tag "Vertical Line" vline)
-                 ;;(const :tag "Whole Lines" lines)
-                 ;;(const :tag "Only Beyond lean-rule-column" lines-tail)
-                 ))
-
 (defcustom lean-debug-mode-line '(:eval (lean-debug-mode-line-status-text))
   "Mode line lighter for Lean debug mode."
   :group 'lean

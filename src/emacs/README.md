@@ -72,7 +72,7 @@ case, just put the following code in your Emacs init file:
 (setq lean-emacs-path "~/projects/lean/src/emacs")
 
 (setq lean-required-packages '(company dash dash-functional f
-                               fill-column-indicator flycheck let-alist s seq))
+                               flycheck let-alist s seq))
 
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))

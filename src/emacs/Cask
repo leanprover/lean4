@@ -11,5 +11,4 @@
  (depends-on "f")
  (depends-on "flycheck")
  (depends-on "flymake")
- (depends-on "fill-column-indicator")
  (depends-on "s"))

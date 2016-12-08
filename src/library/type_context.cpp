@@ -2512,14 +2512,14 @@ optional<unsigned> type_context::is_offset_term (expr const & t) {
 
 /* Return true iff t is of the form (t' + k) where k is a numeral */
 static expr get_offset_term(expr const & t) {
-    lean_assert(is_offset_term(t));
+    lean_assert(is_app_of(t, get_add_name(), 4));
     return app_arg(app_fn(t));
 }
 
 /* Return true iff t is of the form (@add _ nat_has_add a b)
    \pre is_offset_term(t) */
 static bool uses_nat_has_add_instance(expr const & t) {
-    lean_assert(is_offset_term(t));
+    lean_assert(is_app_of(t, get_add_name(), 4));
     return is_constant(app_arg(app_fn(app_fn(t))), get_nat_has_add_name());
 }
 

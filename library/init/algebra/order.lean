@@ -45,12 +45,8 @@ class decidable_linear_order (α : Type u) extends linear_strong_order_pair α :
 @[refl] lemma le_refl [weak_order α] : ∀ a : α, a ≤ a :=
 weak_order.le_refl
 
-def le.refl := @le_refl
-
 @[trans] lemma le_trans [weak_order α] : ∀ {a b c : α}, a ≤ b → b ≤ c → a ≤ c :=
 weak_order.le_trans
-
-def le.trans := @le_trans
 
 lemma le_antisymm [weak_order α] : ∀ {a b : α}, a ≤ b → b ≤ a → a = b :=
 weak_order.le_antisymm
@@ -60,8 +56,6 @@ lemma le_of_eq [weak_order α] {a b : α} : a = b → a ≤ b :=
 
 @[trans] lemma ge_trans [weak_order α] : ∀ {a b c : α}, a ≥ b → b ≥ c → a ≥ c :=
 λ a b c h₁ h₂, le_trans h₂ h₁
-
-def ge.trans := @ge_trans
 
 lemma le_total [linear_weak_order α] : ∀ a b : α, a ≤ b ∨ b ≤ a :=
 linear_weak_order.le_total

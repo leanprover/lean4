@@ -24,7 +24,8 @@ end
 lemma of_nat_eq_of_ge {n : nat} : n ≥ char_sz → of_nat n = of_nat 0 :=
 begin
   intro h,
-  rw [of_nat_eq_fin_of_ge h]
+  rw [of_nat_eq_fin_of_ge h],
+  reflexivity
 end
 
 lemma of_nat_ne_of_ne {n₁ n₂ : nat} (h₁ : n₁ ≠ n₂) (h₂ : n₁ < char_sz) (h₃ : n₂ < char_sz) : of_nat n₁ ≠ of_nat n₂ :=

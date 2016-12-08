@@ -14,7 +14,7 @@ meta constant rewrite_at_core : transparency → bool → occurrences → bool �
 meta def rewrite (th_name : name) : tactic unit :=
 do th ← mk_const th_name,
    rewrite_core reducible tt occurrences.all ff th,
-   try reflexivity
+   try (reflexivity_core reducible)
 
 meta def rewrite_at (th_name : name) (H_name : name) : tactic unit :=
 do th ← mk_const th_name,

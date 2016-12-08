@@ -210,13 +210,13 @@ do (new_target, heq) ← target >>= simplify cfg extra_lemmas,
    mk_app `eq.mpr [heq, ht] >>= exact
 
 meta def simp : tactic unit :=
-simplify_goal default_simplify_config [] >> try triv >> try reflexivity
+simplify_goal default_simplify_config [] >> try triv >> try (reflexivity_core reducible)
 
 meta def simp_using (hs : list expr) : tactic unit :=
 simplify_goal default_simplify_config hs >> try triv
 
 meta def ctx_simp : tactic unit :=
-simplify_goal {default_simplify_config with contextual := tt} [] >> try triv >> try reflexivity
+simplify_goal {default_simplify_config with contextual := tt} [] >> try triv >> try (reflexivity_core reducible)
 
 meta def dsimp : tactic unit :=
 do S ← simp_lemmas.mk_default,

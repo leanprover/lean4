@@ -180,8 +180,8 @@ private meta def rw_hyps : transparency → list (bool × expr) → list name �
 private meta def rw_core (m : transparency) (hs : qexpr_list_or_qexpr0) (loc : location) : tactic unit :=
 do hlist ← to_symm_expr_list hs,
    match loc with
-   | [] := rw_goal m hlist >> try reflexivity
-   | hs := rw_hyps m hlist hs >> try reflexivity
+   | [] := rw_goal m hlist >> try (reflexivity_core reducible)
+   | hs := rw_hyps m hlist hs >> try (reflexivity_core reducible)
    end
 
 meta def rewrite : qexpr_list_or_qexpr0 → location → tactic unit :=
@@ -350,7 +350,7 @@ do s ← mk_simp_set attr_names hs ids,
    | [] := simp_goal cfg s
    | _  := simp_hyps cfg s loc
    end,
-   try tactic.triv, try tactic.reflexivity
+   try tactic.triv, try (tactic.reflexivity_core reducible)
 
 meta def simp (hs : opt_qexpr_list) (attr_names : with_ident_list) (ids : without_ident_list) (loc : location) : tactic unit :=
 simp_core default_simplify_config hs attr_names ids loc
@@ -376,7 +376,7 @@ meta def transitivity : tactic unit :=
 tactic.transitivity
 
 meta def subst (q : qexpr0) : tactic unit :=
-to_expr q >>= tactic.subst >> try reflexivity
+to_expr q >>= tactic.subst >> try (reflexivity_core reducible)
 
 meta def clear : raw_ident_list → tactic unit :=
 tactic.clear_lst

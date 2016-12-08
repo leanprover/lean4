@@ -112,7 +112,7 @@ protected lemma left_distrib : ∀ (n m k : ℕ), n * (m + k) = n * m + n * k
   begin simp [succ_mul, left_distrib n m k], sort_add end
 
 protected lemma mul_comm : ∀ (n m : ℕ), n * m = m * n
-| n 0        := by rw nat.zero_mul
+| n 0        := by rw [nat.zero_mul, nat.mul_zero]
 | n (succ m) := by simp [mul_succ, succ_mul, mul_comm n m]
 
 protected lemma mul_assoc : ∀ (n m k : ℕ), (n * m) * k = n * (m * k)
@@ -121,7 +121,7 @@ protected lemma mul_assoc : ∀ (n m k : ℕ), (n * m) * k = n * (m * k)
 
 protected lemma mul_one : ∀ (n : ℕ), n * 1 = n
 | 0        := rfl
-| (succ n) := by simp [succ_mul, mul_one n]
+| (succ n) := by simp [succ_mul, mul_one n, add_one_eq_succ]
 
 protected lemma one_mul (n : ℕ) : 1 * n = n :=
 by rw [nat.mul_comm, nat.mul_one]

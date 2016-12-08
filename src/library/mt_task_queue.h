@@ -12,8 +12,8 @@ Author: Gabriel Ebner
 #include <map>
 #include <functional>
 #include <unordered_map>
-#include <library/io_state.h>
 #include "util/optional.h"
+#include "library/io_state.h"
 #include "library/task_queue.h"
 
 namespace lean {

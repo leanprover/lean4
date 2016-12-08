@@ -9,10 +9,10 @@ Author: Gabriel Ebner
 #include <string>
 #include <vector>
 #include <unordered_set>
-#include <library/message_buffer.h>
 #include "util/thread.h"
 #include "util/optional.h"
 #include "util/rc.h"
+#include "library/message_buffer.h"
 
 namespace lean {
 

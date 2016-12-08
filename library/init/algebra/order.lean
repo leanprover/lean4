@@ -42,14 +42,12 @@ class linear_strong_order_pair (α : Type u) extends strong_order_pair α, linea
 class decidable_linear_order (α : Type u) extends linear_strong_order_pair α :=
 (decidable_lt : decidable_rel lt)
 
-attribute [refl]
-lemma le_refl [weak_order α] : ∀ a : α, a ≤ a :=
+@[refl] lemma le_refl [weak_order α] : ∀ a : α, a ≤ a :=
 weak_order.le_refl
 
 def le.refl := @le_refl
 
-attribute [trans]
-lemma le_trans [weak_order α] : ∀ {a b c : α}, a ≤ b → b ≤ c → a ≤ c :=
+@[trans] lemma le_trans [weak_order α] : ∀ {a b c : α}, a ≤ b → b ≤ c → a ≤ c :=
 weak_order.le_trans
 
 def le.trans := @le_trans
@@ -60,8 +58,7 @@ weak_order.le_antisymm
 lemma le_of_eq [weak_order α] {a b : α} : a = b → a ≤ b :=
 λ h, h ▸ le_refl a
 
-attribute [trans]
-lemma ge_trans [weak_order α] : ∀ {a b c : α}, a ≥ b → b ≥ c → a ≥ c :=
+@[trans] lemma ge_trans [weak_order α] : ∀ {a b c : α}, a ≥ b → b ≥ c → a ≥ c :=
 λ a b c h₁ h₂, le_trans h₂ h₁
 
 def ge.trans := @ge_trans
@@ -78,14 +75,12 @@ strict_order.lt_irrefl
 lemma gt_irrefl [strict_order α] : ∀ a : α, ¬ a > a :=
 lt_irrefl
 
-attribute [trans]
-lemma lt_trans [strict_order α] : ∀ {a b c : α}, a < b → b < c → a < c :=
+@[trans] lemma lt_trans [strict_order α] : ∀ {a b c : α}, a < b → b < c → a < c :=
 strict_order.lt_trans
 
 def lt.trans := @lt_trans
 
-attribute [trans]
-lemma gt_trans [strict_order α] : ∀ {a b c : α}, a > b → b > c → a > c :=
+@[trans] lemma gt_trans [strict_order α] : ∀ {a b c : α}, a > b → b > c → a > c :=
 λ a b c h₁ h₂, lt_trans h₂ h₁
 
 def gt.trans := @gt_trans
@@ -105,20 +100,16 @@ lt_asymm h
 lemma le_of_lt [order_pair α] : ∀ {a b : α}, a < b → a ≤ b :=
 order_pair.le_of_lt
 
-attribute [trans]
-lemma lt_of_lt_of_le [order_pair α] : ∀ {a b c : α}, a < b → b ≤ c → a < c :=
+@[trans] lemma lt_of_lt_of_le [order_pair α] : ∀ {a b c : α}, a < b → b ≤ c → a < c :=
 order_pair.lt_of_lt_of_le
 
-attribute [trans]
-lemma lt_of_le_of_lt [order_pair α] : ∀ {a b c : α}, a ≤ b → b < c → a < c :=
+@[trans] lemma lt_of_le_of_lt [order_pair α] : ∀ {a b c : α}, a ≤ b → b < c → a < c :=
 order_pair.lt_of_le_of_lt
 
-attribute [trans]
-lemma gt_of_gt_of_ge [order_pair α] {a b c : α} (h₁ : a > b) (h₂ : b ≥ c) : a > c :=
+@[trans] lemma gt_of_gt_of_ge [order_pair α] {a b c : α} (h₁ : a > b) (h₂ : b ≥ c) : a > c :=
 lt_of_le_of_lt h₂ h₁
 
-attribute [trans]
-lemma gt_of_ge_of_gt [order_pair α] {a b c : α} (h₁ : a ≥ b) (h₂ : b > c) : a > c :=
+@[trans] lemma gt_of_ge_of_gt [order_pair α] {a b c : α} (h₁ : a ≥ b) (h₂ : b > c) : a > c :=
 lt_of_lt_of_le h₂ h₁
 
 instance order_pair.to_strict_order [s : order_pair α] : strict_order α :=

@@ -96,9 +96,6 @@ lthread::~lthread() {}
 void lthread::join() { m_imp->join(); }
 #endif
 
-void initialize_thread() {}
-void finalize_thread() {}
-
 LEAN_THREAD_VALUE(bool, g_finalizing, false);
 
 bool in_thread_finalization() {
@@ -184,24 +181,19 @@ public:
     }
 };
 
-static thread_finalizers_manager * g_aux = nullptr;
-
-thread_finalizers_manager & get_manager() {
-    if (!g_aux)
-        g_aux = new thread_finalizers_manager();
-    return *g_aux;
-}
+static thread_finalizers_manager * g_thread_finalizers_mgr = nullptr;
 
 void delete_thread_finalizer_manager() {
-    delete g_aux;
+    delete g_thread_finalizers_mgr;
+    g_thread_finalizers_mgr = nullptr;
 }
 
 void register_thread_finalizer(thread_finalizer fn, void * p) {
-    get_manager().get_thread_finalizers().emplace_back(fn, p);
+    g_thread_finalizers_mgr->get_thread_finalizers().emplace_back(fn, p);
 }
 
 void register_post_thread_finalizer(thread_finalizer fn, void * p) {
-    get_manager().get_post_thread_finalizers().emplace_back(fn, p);
+    g_thread_finalizers_mgr->get_post_thread_finalizers().emplace_back(fn, p);
 }
 
 void run_thread_finalizers() {
@@ -209,6 +201,11 @@ void run_thread_finalizers() {
 
 void run_post_thread_finalizers() {
 }
+
+void initialize_thread() {
+    g_thread_finalizers_mgr = new thread_finalizers_manager;
+}
+void finalize_thread() {}
 #else
 // reference implementation
 LEAN_THREAD_PTR(thread_finalizers, g_finalizers);
@@ -244,5 +241,8 @@ void run_post_thread_finalizers() {
     run_thread_finalizers(g_post_finalizers);
     g_post_finalizers = nullptr;
 }
+
+void initialize_thread() {}
+void finalize_thread() {}
 #endif
 }

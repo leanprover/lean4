@@ -2566,7 +2566,7 @@ lbool type_context::try_offset_eq_numeral(expr const & t, expr const & s) {
     if (*k2 >= *k1) {
         return to_lbool(is_def_eq_core(get_offset_term(t), to_nat_expr(mpz(*k2 - *k1))));
     } else {
-        lean_assert(*k1 < *k2);
+        lean_assert(*k2 < *k1);
         return l_false;
     }
 }

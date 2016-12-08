@@ -44,11 +44,7 @@ dynamic_library::dynamic_library(std::string library_path):
 }
 
 dynamic_library::~dynamic_library() {
-    auto err = dlclose(m_handle);
-    if (err != 0) {
-        auto last_error_msg = dlerror();
-        throw dynamic_linking_exception(std::string(last_error_msg));
-    }
+    dlclose(m_handle);
 }
 
 dynamic_symbol dynamic_library::symbol(std::string name) {

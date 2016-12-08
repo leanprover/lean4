@@ -384,12 +384,12 @@ meta def step {α : Type u} (t : tactic α) : tactic unit :=
 t >>[tactic] cleanup
 
 /- Add (H : T := pr) to the current goal -/
-meta def note (n : name) (pr : expr) : tactic unit :=
+meta def pose (n : name) (pr : expr) : tactic unit :=
 do t ← infer_type pr,
    definev n t pr
 
 /- Add (H : T) to the current goal, given a proof (pr : T) -/
-meta def pose (n : name) (pr : expr) : tactic unit :=
+meta def note (n : name) (pr : expr) : tactic unit :=
 do t ← infer_type pr,
    assertv n t pr
 

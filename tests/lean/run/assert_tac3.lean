@@ -41,7 +41,7 @@ end
 
 definition tst6 (a : nat) : a = a :=
 begin
-  note x := a,
+  pose x := a,
   trace_state,
   exact eq.refl x
 end

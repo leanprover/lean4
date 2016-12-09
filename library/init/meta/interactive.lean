@@ -97,6 +97,9 @@ tactic.rename
 meta def apply (q : qexpr0) : tactic unit :=
 to_expr q >>= tactic.apply
 
+meta def fapply (q : qexpr0) : tactic unit :=
+to_expr q >>= tactic.fapply
+
 meta def apply_instance : tactic unit :=
 tactic.apply_instance
 

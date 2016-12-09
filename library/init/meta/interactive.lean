@@ -107,7 +107,7 @@ meta def assumption : tactic unit :=
 tactic.assumption
 
 meta def change (q : qexpr0) : tactic unit :=
-to_expr_strict q >>= tactic.change
+to_expr q >>= tactic.change
 
 meta def exact (q : qexpr0) : tactic unit :=
 do tgt : expr ← target,

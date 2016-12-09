@@ -221,7 +221,11 @@ do e ← to_expr p,
      cases_core semireducible e ids
    else do
      x ← mk_fresh_name,
-     tactic.generalize e x <|> fail "cases tactic failed to generalize given expression",
+     tactic.generalize e x <|>
+       (do t ← infer_type e,
+           tactic.assertv x t e,
+           get_local x >>= tactic.revert,
+           return ()),
      h ← tactic.intro1,
      cases_core semireducible h ids
 

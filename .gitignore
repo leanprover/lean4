@@ -1,4 +1,6 @@
 *~
+\#*
+.#*
 .lean_trace
 *.produced.out
 *.md.lua

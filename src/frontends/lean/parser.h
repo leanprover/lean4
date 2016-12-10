@@ -85,10 +85,23 @@ public:
 };
 
 enum class id_behavior {
-    ErrorIfUndef, /* Default: just generate an error when an undefined identifier is found */
-    AssumeConstantIfUndef, /* Assume an undefined identifier is a constant, we use it for parsing inductive datatypes. */
-    AssumeLocalIfUndef, /* Assume an undefined identifier is a local constant, we use it when parsing quoted terms. */
-    AllLocal    /* Assume that *all* identifiers (without level annotation) are local constants. */ };
+    /* Default: just generate an error when an undefined identifier is found */
+    ErrorIfUndef,
+    /* AssumeLocalIfNotLocal: if an identifier is not at m_local_decls tracked by the parser, then
+       assume it is a local. We use that when parsing tactics. The identifiers that are not in m_local_decls
+       are resolved at tactic execution time. */
+    AssumeLocalIfNotLocal,
+    /* AllLocal: assume that *all* identifiers (without level annotation) are local constants.
+       We use this mode when we are parsing something that might be a pattern and/or expression */
+    AllLocal,
+    /* AssumeLocalIfUndef: assume an undefined identifier is a local constant, we use it when parsing quoted terms.
+       We use this mode when converting t which might be a pattern and/or expression into a pattern.
+       We perform the conversion *after* we parsed the term using AllLocal.
+       Remark: we use ErrorIfUndef if we decide to convert it into a regular expression.
+       Remark: This mode is different from AssumeLocalIfNotLocal, because it runs the whole name resolution
+       procedure (including aliases, globals, etc). We cannot do this when processing tactics because
+       global constants may be shadowed by the local context at tactic execution time. */
+    AssumeLocalIfUndef};
 
 class parser : public abstract_parser {
     environment             m_env;
@@ -456,7 +469,6 @@ public:
         This behavior is useful when we are trying to parse mutually recursive declarations and
         tactics.
     */
-    struct undef_id_to_const_scope : public flet<id_behavior> { undef_id_to_const_scope(parser & p); };
     struct undef_id_to_local_scope : public flet<id_behavior> { undef_id_to_local_scope(parser &); };
     struct error_if_undef_scope : public flet<id_behavior> { error_if_undef_scope(parser & p); };
     struct all_id_local_scope : public flet<id_behavior> { all_id_local_scope(parser & p); };

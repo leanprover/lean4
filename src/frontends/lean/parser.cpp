@@ -111,7 +111,7 @@ parser::quote_scope::quote_scope(parser & p, bool q):
     m_p.m_in_pattern = false;
     if (q) {
         lean_assert(!m_p.m_in_quote);
-        m_p.m_id_behavior = id_behavior::AllLocal;
+        m_p.m_id_behavior = id_behavior::AssumeLocalIfNotLocal;
         m_p.m_in_quote = true;
         m_p.push_local_scope(false);
         m_p.m_quote_stack = cons(m_p.mk_parser_scope(), m_p.m_quote_stack);
@@ -141,8 +141,6 @@ parser::quote_scope::~quote_scope() {
     m_p.m_id_behavior = m_id_behavior;
 }
 
-parser::undef_id_to_const_scope::undef_id_to_const_scope(parser & p):
-    flet<id_behavior>(p.m_id_behavior, id_behavior::AssumeConstantIfUndef) {}
 parser::undef_id_to_local_scope::undef_id_to_local_scope(parser & p):
     flet<id_behavior>(p.m_id_behavior, id_behavior::AssumeLocalIfUndef) {}
 parser::error_if_undef_scope::error_if_undef_scope(parser & p):
@@ -1708,10 +1706,14 @@ expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only) 
 
     // locals
     if (auto it1 = m_local_decls.find(id)) {
-        if (ls && m_id_behavior != id_behavior::AssumeConstantIfUndef)
+        if (ls)
             throw parser_error("invalid use of explicit universe parameter, identifier is a variable, "
                                "parameter or a constant bound to parameters in a section", p);
         return copy_with_new_pos(*it1, p);
+    }
+
+    if (!explicit_levels && m_id_behavior == id_behavior::AssumeLocalIfNotLocal) {
+        return save_pos(mk_local(id, save_pos(mk_expr_placeholder(), p)), p);
     }
 
     for (name const & ns : get_namespaces(m_env)) {
@@ -1746,9 +1748,7 @@ expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only) 
         r = save_pos(mk_choice(new_as.size(), new_as.data()), p);
     }
     if (!r) {
-        if (m_id_behavior == id_behavior::AssumeConstantIfUndef) {
-            r = save_pos(mk_constant(get_namespace(m_env) + id, ls), p);
-        } else if (m_id_behavior == id_behavior::AssumeLocalIfUndef) {
+        if (m_id_behavior == id_behavior::AssumeLocalIfUndef) {
             expr local = mk_local(id, save_pos(mk_expr_placeholder(), p));
             if (!resolve_only)
                 m_undef_ids.push_back(local);

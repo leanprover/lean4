@@ -35,7 +35,8 @@ bool is_letter_like_unicode(unsigned u) {
 bool is_sub_script_alnum_unicode(unsigned u) {
     return
             (0x207f <= u && u <= 0x2089) || // n superscript and numberic subscripts
-            (0x2090 <= u && u <= 0x209c);   // letter-like subscripts
+            (0x2090 <= u && u <= 0x209c) || // letter-like subscripts
+            (0x1d62 <= u && u <= 0x1d6a);   // letter-like subscripts
 }
 
 bool is_id_first(char const * begin, char const * end) {

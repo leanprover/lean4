@@ -948,7 +948,13 @@ void parser::parse_close_binder_info(optional<binder_info> const & bi) {
 /** \brief Parse <tt>ID ':' expr</tt>, where the expression represents the type of the identifier. */
 expr parser::parse_binder_core(binder_info const & bi, unsigned rbp) {
     auto p  = pos();
-    name id = check_atomic_id_next("invalid binder, atomic identifier expected");
+    name id;
+    if (curr_is_token(get_placeholder_tk())) {
+        id = "_x";
+        next();
+    } else {
+        id = check_atomic_id_next("invalid binder, atomic identifier expected");
+    }
     expr type;
     if (curr_is_token(get_colon_tk())) {
         next();
@@ -1025,9 +1031,14 @@ bool parser::parse_binder_collection(buffer<pair<pos_info, name>> const & names,
 */
 void parser::parse_binder_block(buffer<expr> & r, binder_info const & bi, unsigned rbp) {
     buffer<pair<pos_info, name>> names;
-    while (curr_is_identifier()) {
+    while (curr_is_identifier() || curr_is_token(get_placeholder_tk())) {
         auto p = pos();
-        names.emplace_back(p, check_atomic_id_next("invalid binder, atomic identifier expected"));
+        if (curr_is_identifier()) {
+            names.emplace_back(p, check_atomic_id_next("invalid binder, atomic identifier expected"));
+        } else {
+            names.emplace_back(p, "_x");
+            next();
+        }
     }
     if (names.empty())
         throw parser_error("invalid binder, identifier expected", pos());
@@ -1084,7 +1095,7 @@ void parser::parse_inst_implicit_decl(buffer<expr> & r) {
 void parser::parse_binders_core(buffer<expr> & r, buffer<notation_entry> * nentries,
                                 bool & last_block_delimited, unsigned rbp, bool simple_only) {
     while (true) {
-        if (curr_is_identifier()) {
+        if (curr_is_identifier() || curr_is_token(get_placeholder_tk())) {
             parse_binder_block(r, binder_info(), rbp);
             last_block_delimited = false;
         } else {

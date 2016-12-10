@@ -1,7 +1,7 @@
 open tactic
 
 meta definition rewriteH (Hname : name) : tactic unit :=
-do get_local Hname >>= rewrite_core reducible tt occurrences.all ff,
+do get_local Hname >>= rewrite_core reducible tt tt occurrences.all ff,
    try reflexivity
 
 example (l : list nat) : list.append l [] = l :=

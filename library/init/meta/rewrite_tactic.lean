@@ -7,18 +7,18 @@ prelude
 import init.meta.relation_tactics init.meta.occurrences
 
 namespace tactic
-/- (rewrite_core m use_instances occs symm H) -/
-meta constant rewrite_core : transparency → bool → occurrences → bool → expr → tactic unit
-meta constant rewrite_at_core : transparency → bool → occurrences → bool → expr → expr → tactic unit
+/- (rewrite_core m approx use_instances occs symm H) -/
+meta constant rewrite_core : transparency → bool → bool → occurrences → bool → expr → tactic unit
+meta constant rewrite_at_core : transparency → bool → bool → occurrences → bool → expr → expr → tactic unit
 
 meta def rewrite (th_name : name) : tactic unit :=
 do th ← mk_const th_name,
-   rewrite_core reducible tt occurrences.all ff th,
+   rewrite_core reducible tt tt occurrences.all ff th,
    try (reflexivity_core reducible)
 
 meta def rewrite_at (th_name : name) (H_name : name) : tactic unit :=
 do th ← mk_const th_name,
    H  ← get_local H_name,
-   rewrite_at_core reducible tt occurrences.all ff th H
+   rewrite_at_core reducible tt tt occurrences.all ff th H
 
 end tactic

@@ -167,13 +167,13 @@ private meta def to_symm_expr_list : list pexpr → tactic (list (bool × expr))
 
 private meta def rw_goal : transparency → list (bool × expr) → tactic unit
 | m []              := return ()
-| m ((symm, e)::es) := rewrite_core m tt occurrences.all symm e >> rw_goal m es
+| m ((symm, e)::es) := rewrite_core m tt tt occurrences.all symm e >> rw_goal m es
 
 private meta def rw_hyp : transparency → list (bool × expr) → name → tactic unit
 | m []              hname := return ()
 | m ((symm, e)::es) hname :=
   do h ← get_local hname,
-     rewrite_at_core m tt occurrences.all symm e h,
+     rewrite_at_core m tt tt occurrences.all symm e h,
      rw_hyp m es hname
 
 private meta def rw_hyps : transparency → list (bool × expr) → list name → tactic unit

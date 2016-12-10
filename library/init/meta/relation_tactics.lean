@@ -14,7 +14,7 @@ do tgt ← target,
    env ← get_env,
    r   ← return $ get_app_fn tgt,
    match (op_for env (const_name r)) with
-   | (some refl) := mk_const refl >>= apply_core t ff tt
+   | (some refl) := mk_const refl >>= apply_core t tt ff tt
    | none        := fail $ tac_name ++ " tactic failed, target is not a relation application with the expected property."
    end
 

@@ -310,11 +310,12 @@ meta constant definev       : name → expr → expr → tactic unit
 meta constant rotate_left   : nat → tactic unit
 meta constant get_goals     : tactic (list expr)
 meta constant set_goals     : list expr → tactic unit
-/- (apply_core t all insts e), apply the expression e to the main goal,
+/- (apply_core t approx all insts e), apply the expression e to the main goal,
    the unification is performed using the given transparency mode.
+   If approx is tt, then fallback to first-order unification, and approximate context during unification.
    If all is tt, then all unassigned meta-variables are added as new goals.
    If insts is tt, then use type class resolution to instantiate unassigned meta-variables. -/
-meta constant apply_core    : transparency → bool → bool → expr → tactic unit
+meta constant apply_core    : transparency → bool → bool → bool → expr → tactic unit
 /- Create a fresh meta universe variable. -/
 meta constant mk_meta_univ  : tactic level
 /- Create a fresh meta-variable with the given type.
@@ -610,10 +611,10 @@ do n ← num_goals,
    when (n ≠ 0) (fail "now tactic failed, there are unsolved goals")
 
 meta def apply : expr → tactic unit :=
-apply_core semireducible ff tt
+apply_core semireducible tt ff tt
 
 meta def fapply : expr → tactic unit :=
-apply_core semireducible tt tt
+apply_core semireducible tt tt tt
 
 /- Try to solve the main goal using type class resolution. -/
 meta def apply_instance : tactic unit :=

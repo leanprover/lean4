@@ -386,8 +386,8 @@ public:
     };
 
     struct approximate_scope : public flet<bool> {
-        approximate_scope(type_context & ctx):
-            flet<bool>(ctx.m_approximate, true) {}
+        approximate_scope(type_context & ctx, bool approx = true):
+            flet<bool>(ctx.m_approximate, approx) {}
     };
 
     struct nozeta_scope : public flet<bool> {

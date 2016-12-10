@@ -145,10 +145,11 @@ optional<tactic_state> apply(type_context & ctx, bool add_all, bool use_instance
     return apply_core(ctx, add_all, use_instances, nullptr, e, s);
 }
 
-vm_obj apply_core(transparency_mode md, bool add_all, bool use_instances, expr e, tactic_state const & s) {
+vm_obj apply_core(transparency_mode md, bool approx, bool add_all, bool use_instances, expr e, tactic_state const & s) {
     optional<metavar_decl> g = s.get_main_goal_decl();
     if (!g) return mk_no_goals_exception(s);
     type_context ctx = mk_type_context_for(s, md);
+    type_context::approximate_scope _(ctx, approx);
     try {
         vm_obj error_obj;
         optional<tactic_state> new_s = apply_core(ctx, add_all, use_instances, &error_obj, e, s);
@@ -160,8 +161,8 @@ vm_obj apply_core(transparency_mode md, bool add_all, bool use_instances, expr e
     }
 }
 
-vm_obj tactic_apply_core(vm_obj const & md, vm_obj const & all, vm_obj const & insts, vm_obj const & e, vm_obj const & s) {
-    return apply_core(static_cast<transparency_mode>(cidx(md)), to_bool(all), to_bool(insts), to_expr(e), to_tactic_state(s));
+vm_obj tactic_apply_core(vm_obj const & md, vm_obj const & approx, vm_obj const & all, vm_obj const & insts, vm_obj const & e, vm_obj const & s) {
+    return apply_core(static_cast<transparency_mode>(cidx(md)), to_bool(approx), to_bool(all), to_bool(insts), to_expr(e), to_tactic_state(s));
 }
 
 void initialize_apply_tactic() {

@@ -22,10 +22,11 @@ Author: Leonardo de Moura
 #include "library/tactic/assert_tactic.h"
 
 namespace lean {
-vm_obj rewrite(transparency_mode const & m, bool use_instances, occurrences const & occs, bool symm, expr H, optional<expr> const & target, tactic_state const & s) {
+vm_obj rewrite(transparency_mode const & m, bool approx, bool use_instances, occurrences const & occs, bool symm, expr H, optional<expr> const & target, tactic_state const & s) {
     optional<metavar_decl> g = s.get_main_goal_decl();
     if (!g) return mk_no_goals_exception(s);
     type_context ctx = mk_type_context_for(s, m);
+    type_context::approximate_scope _(ctx, approx);
     expr H_type      = ctx.infer(H);
     /* Generate meta-variables for arguments */
     buffer<expr> metas;
@@ -128,12 +129,15 @@ vm_obj rewrite(transparency_mode const & m, bool use_instances, occurrences cons
     }
 }
 
-vm_obj tactic_rewrite(vm_obj const & m, vm_obj const & use_instances, vm_obj const & occs, vm_obj const & symm, vm_obj const & H, vm_obj const & s) {
-    return rewrite(to_transparency_mode(m), to_bool(use_instances), to_occurrences(occs), to_bool(symm), to_expr(H), none_expr(), to_tactic_state(s));
+vm_obj tactic_rewrite(vm_obj const & m, vm_obj const & approx, vm_obj const & use_instances, vm_obj const & occs, vm_obj const & symm, vm_obj const & H, vm_obj const & s) {
+    return rewrite(to_transparency_mode(m), to_bool(approx), to_bool(use_instances),
+                   to_occurrences(occs), to_bool(symm), to_expr(H), none_expr(), to_tactic_state(s));
 }
 
-vm_obj tactic_rewrite_at(vm_obj const & m, vm_obj const & use_instances, vm_obj const & occs, vm_obj const & symm, vm_obj const & H1, vm_obj const & H2, vm_obj const & s) {
-    return rewrite(to_transparency_mode(m), to_bool(use_instances), to_occurrences(occs), to_bool(symm), to_expr(H1), some_expr(to_expr(H2)), to_tactic_state(s));
+vm_obj tactic_rewrite_at(vm_obj const & m, vm_obj const & approx, vm_obj const & use_instances,
+                         vm_obj const & occs, vm_obj const & symm, vm_obj const & H1, vm_obj const & H2, vm_obj const & s) {
+    return rewrite(to_transparency_mode(m), to_bool(approx), to_bool(use_instances), to_occurrences(occs),
+                   to_bool(symm), to_expr(H1), some_expr(to_expr(H2)), to_tactic_state(s));
 }
 
 void initialize_rewrite_tactic() {

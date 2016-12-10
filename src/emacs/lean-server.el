@@ -160,11 +160,9 @@
   (dolist (buf (buffer-list))
     (with-current-buffer buf
       (when (eq sess lean-server-session)
-        (run-at-time nil nil
-                     (lambda ()
-                       (flycheck-mode -1)
-                       (flycheck-mode)
-                       (flycheck-buffer)))))))
+        (flycheck-mode -1)
+        (flycheck-mode)
+        (flycheck-buffer)))))
 
 (defun lean-server-stop ()
   "Stops the lean server associated with the current buffer"
@@ -195,10 +193,11 @@
   (lean-server-session-send-command lean-server-session cmd params cb error-cb))
 
 (defun lean-server-sync ()
-  "Synchronizes the current buffer state with the lean server"
-  (lean-server-send-command
-   'sync (list :file_name (buffer-file-name)
-               :content (buffer-string))))
+  "Synchronizes the current buffer state with lean server"
+  (save-match-data
+    (lean-server-send-command
+     'sync (list :file_name (buffer-file-name)
+                 :content (buffer-string)))))
 
 (defvar-local lean-server-sync-timer nil)
 

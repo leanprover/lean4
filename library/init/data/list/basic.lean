@@ -87,9 +87,12 @@ def tail : list α → list α
 | []       := []
 | (a :: l) := l
 
-def reverse : list α → list α
-| []       := []
-| (a :: l) := concat (reverse l) a
+def reverse_core : list α → list α → list α
+| []     r := r
+| (a::l) r := reverse_core l (a::r)
+
+def reverse : list α → list α :=
+λ l, reverse_core l []
 
 def map (f : α → β) : list α → list β
 | []       := []
@@ -139,8 +142,11 @@ def repeat (a : α) : ℕ → list α
 | 0 := []
 | (succ n) := a :: repeat n
 
-def iota : ℕ → list ℕ
-| 0 := []
-| (succ n) := iota n ++ [succ n]
+def iota_core : ℕ → list ℕ → list ℕ
+| 0        l := reverse l
+| (succ n) l := iota_core n (succ n :: l)
+
+def iota : ℕ → list ℕ :=
+λ n, iota_core n []
 
 end list

@@ -286,7 +286,7 @@ meta constant mk_mapp_core  : transparency → name → list (option expr) → t
    Otherwise, try to find a local constant that has type of the form (t = t') or (t' = t).
    The tactic fails if the given expression is not a local constant. -/
 meta constant subst         : expr → tactic unit
-meta constant exact         : expr → tactic unit
+meta constant exact_core    : transparency → expr → tactic unit
 /- Elaborate the given quoted expression with respect to the current main goal.
    If the boolean argument is tt, then metavariables are tolerated and
    become new goals. -/
@@ -490,6 +490,12 @@ get_local n >>= infer_type
 
 meta def trace_result : tactic unit :=
 format_result >>= trace
+
+meta def exact : expr → tactic unit :=
+exact_core semireducible
+
+meta def rexact : expr → tactic unit :=
+exact_core reducible
 
 /- (find_same_type t es) tries to find in es an expression with type definitionally equal to t -/
 meta def find_same_type : expr → list expr → tactic expr

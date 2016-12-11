@@ -237,13 +237,9 @@ class vm_compiler_fn {
         }
     }
 
-    bool is_builtin_cases(expr const & fn) {
-        return is_constant(fn) && get_vm_builtin_cases_idx(m_env, const_name(fn));
-    }
-
     void compile_app(expr const & e, unsigned bpz, name_map<unsigned> const & m) {
         expr const & fn = get_app_fn(e);
-        if (is_internal_cases(fn) || is_constant(fn, get_nat_cases_on_name()) || is_builtin_cases(fn)) {
+        if (is_vm_supported_cases(m_env, fn)) {
             compile_cases_on(e, bpz, m);
         } else if (is_internal_cnstr(fn)) {
             compile_cnstr(e, bpz, m);

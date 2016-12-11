@@ -58,6 +58,13 @@ optional<unsigned> is_internal_proj(expr const & e) {
     return is_internal_symbol(e, *g_proj);
 }
 
+bool is_vm_supported_cases(environment const & env, expr const & e) {
+    return
+        is_internal_cases(e) ||
+        is_constant(e, get_nat_cases_on_name()) ||
+        (is_constant(e) && get_vm_builtin_cases_idx(env, const_name(e)));
+}
+
 class simp_inductive_fn : public compiler_step_visitor {
     name_map<list<bool>> m_constructor_info;
 

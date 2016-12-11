@@ -194,16 +194,16 @@
 
 (defun lean-server-sync ()
   "Synchronizes the current buffer state with lean server"
-  (save-match-data
-    (lean-server-send-command
-     'sync (list :file_name (buffer-file-name)
-                 :content (buffer-string)))))
+  (lean-server-send-command
+   'sync (list :file_name (buffer-file-name)
+               :content (buffer-string))))
 
 (defvar-local lean-server-sync-timer nil)
 
 (defun lean-server-change-hook (begin end len)
-  (when lean-server-sync-timer (cancel-timer lean-server-sync-timer))
-  (setq lean-server-sync-timer
-        (run-at-time "200 milliseconds" nil #'lean-server-sync)))
+  (save-match-data
+    (when lean-server-sync-timer (cancel-timer lean-server-sync-timer))
+    (setq lean-server-sync-timer
+          (run-at-time "200 milliseconds" nil #'lean-server-sync))))
 
 (provide 'lean-server)

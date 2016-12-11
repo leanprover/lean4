@@ -561,4 +561,64 @@ instance : semigroup nat          := by apply_instance
 instance : add_comm_semigroup nat := by apply_instance
 instance : add_semigroup nat      := by apply_instance
 
+/- subtraction -/
+protected theorem sub_zero (n : ℕ) : n - 0 = n :=
+rfl
+
+theorem sub_succ (n m : ℕ) : n - succ m = pred (n - m) :=
+rfl
+
+protected theorem zero_sub : ∀ (n : ℕ), 0 - n = 0
+| 0        := by rw nat.sub_zero
+| (succ n) := by rw [nat.sub_succ, zero_sub n, pred_zero]
+
+theorem succ_sub_succ (n m : ℕ) : succ n - succ m = n - m :=
+succ_sub_succ_eq_sub n m
+
+protected theorem sub_self : ∀ (n : ℕ), n - n = 0
+| 0        := by rw nat.sub_zero
+| (succ n) := by rw [succ_sub_succ, sub_self n]
+
+protected theorem add_sub_add_right : ∀ (n k m : ℕ), (n + k) - (m + k) = n - m
+| n 0        m := by rw [add_zero, add_zero]
+| n (succ k) m := by rw [add_succ, add_succ, succ_sub_succ, add_sub_add_right n k m]
+
+protected theorem add_sub_add_left (k n m : ℕ) : (k + n) - (k + m) = n - m :=
+by rw [add_comm k n, add_comm k m, nat.add_sub_add_right]
+
+protected theorem add_sub_cancel (n m : ℕ) : n + m - m = n :=
+suffices n + m - (0 + m) = n, from
+  by rwa [zero_add] at this,
+by rw [nat.add_sub_add_right, nat.sub_zero]
+
+protected theorem add_sub_cancel_left (n m : ℕ) : n + m - n = m :=
+show n + m - (n + 0) = m, from
+by rw [nat.add_sub_add_left, nat.sub_zero]
+
+protected theorem sub_sub : ∀ (n m k : ℕ), n - m - k = n - (m + k)
+| n m 0        := by rw [add_zero, nat.sub_zero]
+| n m (succ k) := by rw [add_succ, nat.sub_succ, nat.sub_succ, sub_sub n m k]
+
+theorem succ_sub_sub_succ (n m k : ℕ) : succ n - m - succ k = n - m - k :=
+by rw [nat.sub_sub, nat.sub_sub, add_succ, succ_sub_succ]
+
+theorem sub_self_add (n m : ℕ) : n - (n + m) = 0 :=
+show (n + 0) - (n + m) = 0, from
+by rw [nat.add_sub_add_left, nat.zero_sub]
+
+protected theorem sub.right_comm (m n k : ℕ) : m - n - k = m - k - n :=
+by rw [nat.sub_sub, nat.sub_sub, add_comm]
+
+theorem sub_one (n : ℕ) : n - 1 = pred n :=
+rfl
+
+theorem succ_sub_one (n : ℕ) : succ n - 1 = n :=
+rfl
+
+theorem succ_pred_eq_of_pos : ∀ {n : ℕ}, n > 0 → succ (pred n) = n
+| 0 h        := absurd h (lt_irrefl 0)
+| (succ k) h := rfl
+
+/- TODO(Leo): port lemmas sub+multiplication -/
+
 end nat

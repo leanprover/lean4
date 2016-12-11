@@ -11,10 +11,6 @@ namespace nat
 
   /- sub theorems -/
 
-  theorem succ_sub_succ : Π (n m : ℕ), succ n - succ m = n - m
-  | n 0 := rfl
-  | n (succ m) :=  congr_arg pred (succ_sub_succ n m)
-
   theorem sub_add_cancel : Π{n i : ℕ}, i ≤ n → (n - i) + i = n
   | n 0 p := rfl
   | (succ n) (succ i) p :=

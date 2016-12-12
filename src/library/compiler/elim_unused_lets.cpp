@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 
 namespace lean {
 class elim_unused_lets_fn : public compiler_step_visitor {
-
     virtual expr visit_lambda(expr const & e) override {
         type_context::tmp_locals locals(m_ctx);
         expr t = e;

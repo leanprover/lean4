@@ -17,7 +17,7 @@ typedef uint64 period;
 
 struct message_bucket_id {
     name m_bucket;
-    period m_version;
+    period m_version = 0;
 };
 
 }

@@ -61,7 +61,7 @@ public:
 
     module_info::parse_result execute() override {
         module_loader import_fn = [=] (module_id const & base, module_name const & import) {
-            for (auto d : m_deps) {
+            for (auto & d : m_deps) {
                 if (std::get<0>(d) == base &&
                         std::get<1>(d).m_name == import.m_name &&
                         std::get<1>(d).m_relative == import.m_relative) {

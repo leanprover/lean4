@@ -32,6 +32,7 @@ Author: Leonardo de Moura
 #include "library/compiler/reduce_arity.h"
 #include "library/compiler/lambda_lifting.h"
 #include "library/compiler/simp_inductive.h"
+#include "library/compiler/elim_unused_lets.h"
 #include "library/compiler/cse.h"
 
 namespace lean {
@@ -227,6 +228,8 @@ public:
         lean_trace(name({"compiler", "lambda_lifting"}), tout() << "\n"; display(procs););
         simp_inductive(m_env, procs);
         lean_trace(name({"compiler", "simplify_inductive"}), tout() << "\n"; display(procs););
+        elim_unused_lets(m_env, procs);
+        lean_trace(name({"compiler", "elim_unused_lets"}), tout() << "\n"; display(procs););
         cse(m_env, procs);
         lean_trace(name({"compiler", "cse"}), tout() << "\n"; display(procs););
         lean_trace(name({"compiler", "preprocess"}), tout() << "\n"; display(procs););
@@ -249,6 +252,7 @@ void initialize_preprocess() {
     register_trace_class({"compiler", "reduce_arity"});
     register_trace_class({"compiler", "lambda_lifting"});
     register_trace_class({"compiler", "simplify_inductive"});
+    register_trace_class({"compiler", "elim_unused_lets"});
     register_trace_class({"compiler", "cse"});
     register_trace_class({"compiler", "preprocess"});
     g_tmp_prefix = new name(name::mk_internal_unique_name());

@@ -222,6 +222,7 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
             snapshot_vector snapshots;
             if (m_use_snapshots) {
                 if (get_snapshots_or_unchanged_module(id, contents, mtime, snapshots)) {
+                    m_modules[id]->m_out_of_date = false;
                     scope_msg_ctx.new_sub_bucket(bucket_name);
                     return;
                 }

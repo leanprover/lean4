@@ -74,7 +74,7 @@ class cse_fn : public compiler_step_visitor {
 
         virtual void visit_macro(expr const & e) override {
             if (check_visited(e)) return;
-            add_candidate(e);
+            if (macro_num_args(e) > 0) add_candidate(e);
             for (unsigned i = 0; i < macro_num_args(e); i++)
                 visit(macro_arg(e, i));
         }

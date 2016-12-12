@@ -519,6 +519,7 @@ public:
 /** \brief Virtual machine for executing VM bytecode. */
 class vm_state {
     typedef std::vector<vm_decl> decl_vector;
+    typedef std::vector<optional<vm_obj>> cache_vector;
     typedef unsigned_map<vm_decl> decl_map;
     typedef std::vector<vm_cases_function> builtin_cases_vector;
     typedef unsigned_map<vm_cases_function> builtin_cases_map;
@@ -526,6 +527,7 @@ class vm_state {
     options                     m_options;
     decl_map                    m_decl_map;
     decl_vector                 m_decl_vector;
+    cache_vector                m_cache_vector; /* for 0-ary declarations */
     builtin_cases_map           m_builtin_cases_map;
     builtin_cases_vector        m_builtin_cases_vector;
     unsigned_map<name>          m_builtin_cases_names;
@@ -543,8 +545,8 @@ class vm_state {
         unsigned                m_num;
         unsigned                m_pc;
         unsigned                m_bp;
-        /* The following two fields are only used for profiling the code */
         unsigned                m_curr_fn_idx;
+        /* The following two fields are only used for profiling the code */
         unsigned                m_frame_idx;
         frame(vm_instr const * code, unsigned fn_idx, unsigned num, unsigned pc, unsigned bp,
               unsigned curr_fn_idx, unsigned frame_idx):

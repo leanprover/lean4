@@ -1842,6 +1842,13 @@ unsigned vm_state::pop_frame_core() {
     lean_assert(sz - 1 < m_stack.size());
     swap(m_stack[sz - fr.m_num - 1], m_stack[sz - 1]);
     m_stack.resize(sz - fr.m_num);
+    unsigned curr_fidx = fr.m_curr_fn_idx;
+    if (curr_fidx != g_null_fn_idx && get_decl(curr_fidx).get_arity() == 0) {
+        /* cache result */
+        if (curr_fidx >= m_cache_vector.size())
+            m_cache_vector.resize(curr_fidx+1);
+        m_cache_vector[curr_fidx] = m_stack.back();
+    }
     if (m_debugging) shrink_stack_info();
     m_code   = fr.m_code;
     m_fn_idx = fr.m_fn_idx;
@@ -2305,6 +2312,14 @@ void vm_state::run() {
                where n is fn.arity
             */
             vm_decl decl = get_decl(instr.get_fn_idx());
+            /* If d is 0-ary, then check if value is cached */
+            if (decl.get_arity() == 0 && decl.get_idx() < m_cache_vector.size()) {
+                if (auto r = m_cache_vector[decl.get_idx()]) {
+                    m_stack.push_back(*r);
+                    m_pc++;
+                    goto main_loop;
+                }
+            }
             invoke_global(decl);
             goto main_loop;
         }

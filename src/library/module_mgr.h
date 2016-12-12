@@ -82,7 +82,7 @@ class module_mgr {
     mutex m_mutex;
     std::unordered_map<module_id, std::shared_ptr<module_info>> m_modules;
 
-    void mark_out_of_date(module_id const & id, buffer<module_id> & to_rebuild);
+    void mark_out_of_date(module_id const & id);
     void build_module(module_id const & id, bool can_use_olean, name_set module_stack);
     std::vector<module_name> get_direct_imports(module_id const & id, std::string const & contents);
     void gather_transitive_imports(

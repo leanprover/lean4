@@ -8,7 +8,6 @@ Author: Gabriel Ebner
 #include <string>
 #include <vector>
 #include <algorithm>
-#include <sys/stat.h>
 #include "util/lean_path.h"
 #include "util/file_lock.h"
 #include "library/module_mgr.h"
@@ -19,14 +18,13 @@ Author: Gabriel Ebner
 
 namespace lean {
 
-void module_mgr::mark_out_of_date(module_id const & id, buffer<module_id> & to_rebuild) {
+void module_mgr::mark_out_of_date(module_id const & id) {
     for (auto & mod : m_modules) {
         if (!mod.second || mod.second->m_out_of_date) continue;
         for (auto & dep : mod.second->m_deps) {
             if (dep.first == id) {
-                to_rebuild.push_back(mod.first);
                 mod.second->m_out_of_date = true;
-                mark_out_of_date(mod.first, to_rebuild);
+                mark_out_of_date(mod.first);
                 break;
             }
         }
@@ -156,20 +154,20 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
     if (auto & existing_mod = m_modules[id])
         if (!existing_mod->m_out_of_date) return;
 
-    auto orig_module_stack = module_stack;
-    if (module_stack.contains(id)) {
-        throw exception(sstream() << "cyclic import: " << id);
-    }
-    module_stack.insert(id);
-
-    scope_global_ios scope_ios(m_ios);
-    scoped_message_buffer scoped_msg_buf(m_msg_buf);
-    scoped_task_context(id, {1, 0});
-    message_bucket_id bucket_id { id, m_current_period };
-    scope_message_context scope_msg_ctx(bucket_id);
-    scope_traces_as_messages scope_trace_msgs(id, {1, 0});
-
     try {
+        auto orig_module_stack = module_stack;
+        if (module_stack.contains(id)) {
+            throw exception(sstream() << "cyclic import: " << id);
+        }
+        module_stack.insert(id);
+
+        scope_global_ios scope_ios(m_ios);
+        scoped_message_buffer scoped_msg_buf(m_msg_buf);
+        scoped_task_context(id, {1, 0});
+        message_bucket_id bucket_id { id, m_current_period };
+        scope_message_context scope_msg_ctx(bucket_id);
+        scope_traces_as_messages scope_trace_msgs(id, {1, 0});
+
         bool already_have_lean_version = m_modules[id] && m_modules[id]->m_source == module_src::LEAN;
 
         std::string contents;
@@ -294,13 +292,14 @@ void module_mgr::invalidate(module_id const & id) {
 
     if (auto & mod = m_modules[id]) {
         mod->m_out_of_date = true;
+        mark_out_of_date(id);
 
         buffer<module_id> to_rebuild;
-        mark_out_of_date(id, to_rebuild);
-
-        build_module(id, true, {});
+        for (auto & other : m_modules)
+            if (other.second->m_out_of_date)
+                to_rebuild.push_back(other.first);
         for (auto & i : to_rebuild)
-            build_module(i, true, {});
+            try { build_module(i, true, {}); } catch (...) {}
     }
 }
 

@@ -24,7 +24,7 @@ enum class task_result_state {
 };
 
 class generic_task;
-class generic_task_result_cell {
+struct generic_task_result_cell {
     MK_LEAN_RC()
     void dealloc() { delete this; }
 
@@ -51,7 +51,6 @@ class generic_task_result_cell {
     }
 
     virtual void execute_and_store_result() = 0;
-    bool execute();
 };
 
 class generic_task_result {

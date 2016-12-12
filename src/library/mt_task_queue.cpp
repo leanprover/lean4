@@ -10,6 +10,7 @@ Author: Gabriel Ebner
 #include "library/mt_task_queue.h"
 #include "util/interrupt.h"
 #include "util/flet.h"
+#include "task_helper.h"
 
 #if defined(LEAN_MULTI_THREAD)
 namespace lean {
@@ -105,7 +106,7 @@ void mt_task_queue::spawn_worker() {
                 scoped_current_task scope_cur_task(&t);
                 lock.unlock();
                 if (cb) cb(t->m_task);
-                is_ok = t->execute();
+                is_ok = execute_task_with_scopes(&*t);
                 lock.lock();
             }
             reset_interrupt();

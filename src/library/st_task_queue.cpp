@@ -6,6 +6,7 @@ Author: Gabriel Ebner
 */
 #include <vector>
 #include "library/st_task_queue.h"
+#include "task_helper.h"
 
 namespace lean {
 
@@ -44,7 +45,7 @@ void st_task_queue::submit(generic_task_result const & t) {
     }
 
     if (m_progress_cb) m_progress_cb(t->m_task);
-    bool is_ok = t->execute();
+    bool is_ok = execute_task_with_scopes(&*t);
     t->m_state = is_ok ? task_result_state::FINISHED : task_result_state::FAILED;
     t->clear_task();
 }

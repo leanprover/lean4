@@ -5,8 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Gabriel Ebner
 */
 #include <string>
-#include <library/trace.h>
-#include <library/message_builder.h>
 #include "library/task_queue.h"
 
 namespace lean {
@@ -27,36 +25,6 @@ void generic_task_result_cell::clear_task() {
     if (m_task) {
         delete m_task;
         m_task = nullptr;
-    }
-}
-
-bool generic_task_result_cell::execute() {
-    lean_assert(!has_evaluated());
-    try {
-        scoped_task_context ctx(m_task->get_module_id(), m_task->get_task_pos());
-        scope_message_context scope_msg_ctx(m_task->get_bucket());
-        try {
-            scope_traces_as_messages scope_traces(m_task->get_module_id(), m_task->get_pos());
-            execute_and_store_result();
-        } catch (task_cancellation_exception) {
-            throw;
-        } catch (interrupted) {
-            throw;
-        } catch (throwable & ex) {
-            environment env;
-            message_builder builder(env, get_global_ios(), m_task->get_module_id(), m_task->get_pos(), ERROR);
-            builder.set_exception(ex);
-            builder.report();
-            throw;
-        }
-        return true;
-    } catch (interrupted) {
-        m_ex = std::make_exception_ptr(
-                task_cancellation_exception(generic_task_result(this)));
-        return false;
-    } catch (...) {
-        m_ex = std::current_exception();
-        return false;
     }
 }
 

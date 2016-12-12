@@ -99,4 +99,22 @@ public:
     ~scoped_info_manager();
 };
 
+class auto_reporting_info_manager_scope {
+    optional<info_manager> m_infom;
+    scoped_info_manager m_infom_scope;
+
+public:
+    auto_reporting_info_manager_scope(std::string const & file_name, bool enabled) :
+            m_infom(enabled ? optional<info_manager>(info_manager(file_name)) : optional<info_manager>()),
+            m_infom_scope(enabled ? &*m_infom : nullptr) {}
+
+    ~auto_reporting_info_manager_scope() {
+        if (m_infom && !m_infom->empty()) {
+            try {
+                report_info_manager(*m_infom);
+            } catch (...) {}
+        }
+    }
+};
+
 }

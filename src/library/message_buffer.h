@@ -54,7 +54,6 @@ class scope_message_context {
     scope_message_context * m_old;
     message_bucket_id m_bucket;
     name_set m_sub_buckets;
-    std::unique_ptr<info_manager> m_info_manager;
 public:
     scope_message_context(message_bucket_id const &);
     scope_message_context(message_bucket_id const &, name_set const & sub_buckets_to_reuse);
@@ -66,8 +65,6 @@ public:
     message_bucket_id get_bucket_id() const { return m_bucket; }
     name_set get_sub_buckets() const { return m_sub_buckets; }
 
-    info_manager * enable_info_manager(std::string const & file_name);
-
     message_bucket_id new_sub_bucket();
     message_bucket_id new_sub_bucket(std::string const &);
 };
@@ -75,5 +72,6 @@ public:
 message_bucket_id get_global_msg_bucket_id();
 scope_message_context & get_scope_message_context();
 void report_message(message const &);
+void report_info_manager(info_manager const &);
 
 }

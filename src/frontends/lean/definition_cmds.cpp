@@ -615,9 +615,7 @@ public:
         auto tc = std::make_shared<type_context>(m_decl_env, m_opts, m_mctx, m_lctx);
         scope_trace_env scope2(m_decl_env, m_opts, *tc);
         scope_pos_info_provider scope3(m_pos_provider);
-        scoped_info_manager scope4(
-                m_use_info_manager ? get_scope_message_context().enable_info_manager(get_module_id())
-                                   : nullptr);
+        auto_reporting_info_manager_scope scope4(get_module_id(), m_use_info_manager);
 
         try {
             elaborator elab(m_decl_env, m_opts, m_mctx, m_lctx);
@@ -680,9 +678,7 @@ public:
         auto tc = std::make_shared<type_context>(m_decl_env, m_opts, m_mctx, m_lctx);
         scope_trace_env scope2(m_decl_env, m_opts, *tc);
         scope_pos_info_provider scope3(m_pos_provider);
-        scoped_info_manager scope4(
-                m_use_info_manager ? get_scope_message_context().enable_info_manager(get_module_id())
-                                   : nullptr);
+        auto_reporting_info_manager_scope scope4(get_module_id(), m_use_info_manager);
 
         try {
             elaborator elab(m_decl_env, m_opts, m_mctx, m_lctx);

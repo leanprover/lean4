@@ -2202,9 +2202,8 @@ bool parser::parse_commands() {
         // Only parse imports when we are at the beginning, i.e. not when starting from a snapshot.
         if (!m_imports_parsed) {
             scope_message_context scope_msg_ctx("imports");
-            scoped_info_manager scope_infom( // TODO(gabriel): separate flag for snapshots/infos?
-                    m_snapshot_vector ? scope_msg_ctx.enable_info_manager(m_file_name)
-                                      : nullptr);
+            // TODO(gabriel): separate flag for snapshots/infos?
+            auto_reporting_info_manager_scope scope_infom(m_file_name, m_snapshot_vector != nullptr);
             protected_call([&]() { process_imports(); }, [&]() { sync_command(); });
         }
         while (!done) {
@@ -2214,9 +2213,8 @@ bool parser::parse_commands() {
             }
             scoped_task_context scope_task_ctx(get_current_module(), pos());
             scope_message_context scope_msg_ctx;
-            scoped_info_manager scope_infom( // TODO(gabriel): separate flag for snapshots/infos?
-                    m_snapshot_vector ? scope_msg_ctx.enable_info_manager(m_file_name)
-                                      : nullptr);
+            // TODO(gabriel): separate flag for snapshots/infos?
+            auto_reporting_info_manager_scope scope_infom(m_file_name, m_snapshot_vector != nullptr);
             protected_call([&]() {
                     check_interrupted();
                     switch (curr()) {

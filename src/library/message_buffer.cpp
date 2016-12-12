@@ -7,7 +7,6 @@ Author: Gabriel Ebner
 #include <string>
 #include <vector>
 #include "library/message_buffer.h"
-#include "frontends/lean/info_manager.h"
 
 namespace lean {
 
@@ -84,8 +83,6 @@ scope_message_context::scope_message_context(std::string const & sub_name, name_
     scope_message_context(g_msg_ctx->new_sub_bucket(sub_name), sub_buckets_to_reuse) {}
 scope_message_context::~scope_message_context() {
     get_global_message_buffer().finish_bucket(m_bucket, m_sub_buckets);
-    if (m_info_manager && !m_info_manager->empty())
-        get_global_message_buffer().report_info_manager(m_bucket, *m_info_manager);
     g_msg_ctx = m_old;
 }
 message_bucket_id scope_message_context::new_sub_bucket() {
@@ -105,12 +102,6 @@ message_bucket_id scope_message_context::new_sub_bucket(std::string const & s) {
     }
     m_sub_buckets.insert(n);
     return { n, m_bucket.m_version };
-}
-
-info_manager * scope_message_context::enable_info_manager(std::string const & file_name) {
-    if (!m_info_manager)
-        m_info_manager = std::unique_ptr<info_manager>(new info_manager(file_name));
-    return m_info_manager.get();
 }
 
 }

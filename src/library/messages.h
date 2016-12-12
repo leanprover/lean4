@@ -6,7 +6,8 @@ Author: Gabriel Ebner
 */
 #pragma once
 #include <string>
-#include "kernel/pos_info_provider.h"
+#include "util/message_definitions.h"
+#include "util/exception.h"
 
 namespace lean {
 

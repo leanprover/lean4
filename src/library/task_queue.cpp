@@ -6,7 +6,6 @@ Author: Gabriel Ebner
 */
 #include <string>
 #include "library/task_queue.h"
-#include "library/message_buffer.h"
 
 namespace lean {
 
@@ -16,8 +15,7 @@ std::string generic_task::description() const {
     return out.str();
 }
 
-generic_task::generic_task() : m_bucket(get_scope_message_context().new_sub_bucket()),
-                               m_mod(get_current_module()), m_pos(get_current_task_pos()) {}
+generic_task::generic_task() : m_mod(get_current_module()), m_pos(get_current_task_pos()) {}
 
 generic_task_result_cell::generic_task_result_cell(generic_task * t) :
         m_rc(0), m_task(t), m_desc(t->description()) {}

@@ -169,6 +169,7 @@ void mt_task_queue::propagate_failure(generic_task_result const & tr) {
 }
 
 void mt_task_queue::submit(generic_task_result const & t) {
+    set_bucket(t, get_scope_message_context().new_sub_bucket());
     unique_lock<mutex> lock(m_mutex);
     check_interrupted();
     get_prio(t) = m_prioritizer(unwrap(t)->m_task);

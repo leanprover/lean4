@@ -216,9 +216,12 @@ protected:
     task_queue() {}
 
     // Friendship forwarding.
-    generic_task_result_cell * unwrap(generic_task_result const & tr) { return tr.m_ptr; }
-    task_scheduling_data & get_data(generic_task * t) { return t->m_data; }
-    task_scheduling_data & get_data(generic_task_result const & tr) { return get_data(unwrap(tr)->m_task); }
+    generic_task_result_cell * unwrap(generic_task_result const & tr) const { return tr.m_ptr; }
+    task_scheduling_data & get_data(generic_task * t) const { return t->m_data; }
+    task_scheduling_data & get_data(generic_task_result const & tr) const { return get_data(unwrap(tr)->m_task); }
+    void set_bucket(generic_task_result const & tr, message_bucket_id const & id) const {
+        tr.m_ptr->m_task->m_bucket = id;
+    }
 
 public:
     virtual ~task_queue() {}

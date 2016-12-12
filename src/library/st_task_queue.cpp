@@ -7,6 +7,7 @@ Author: Gabriel Ebner
 #include <vector>
 #include "library/st_task_queue.h"
 #include "task_helper.h"
+#include "library/message_buffer.h"
 
 namespace lean {
 
@@ -28,6 +29,8 @@ optional<generic_task_result> st_task_queue::get_current_task() {
 }
 
 void st_task_queue::submit(generic_task_result const & t) {
+    set_bucket(t, get_scope_message_context().new_sub_bucket());
+
     std::vector<generic_task_result> deps;
     try { deps = unwrap(t)->m_task->get_dependencies(); } catch (...) {}
     for (auto & d : deps) {

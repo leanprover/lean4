@@ -18,13 +18,14 @@ Author: Gabriel Ebner
 
 namespace lean {
 
-void module_mgr::mark_out_of_date(module_id const & id) {
+void module_mgr::mark_out_of_date(module_id const & id, buffer<module_id> & to_rebuild) {
     for (auto & mod : m_modules) {
         if (!mod.second || mod.second->m_out_of_date) continue;
         for (auto & dep : mod.second->m_deps) {
             if (dep.first == id) {
                 mod.second->m_out_of_date = true;
-                mark_out_of_date(mod.first);
+                to_rebuild.push_back(mod.first);
+                mark_out_of_date(mod.first, to_rebuild);
                 break;
             }
         }
@@ -291,13 +292,11 @@ void module_mgr::invalidate(module_id const & id) {
     m_current_period++;
 
     if (auto & mod = m_modules[id]) {
-        mod->m_out_of_date = true;
-        mark_out_of_date(id);
-
         buffer<module_id> to_rebuild;
-        for (auto & other : m_modules)
-            if (other.second->m_out_of_date)
-                to_rebuild.push_back(other.first);
+        mod->m_out_of_date = true;
+        to_rebuild.push_back(id);
+        mark_out_of_date(id, to_rebuild);
+
         for (auto & i : to_rebuild)
             try { build_module(i, true, {}); } catch (...) {}
     }

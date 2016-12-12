@@ -619,6 +619,27 @@ theorem succ_pred_eq_of_pos : ∀ {n : ℕ}, n > 0 → succ (pred n) = n
 | 0 h        := absurd h (lt_irrefl 0)
 | (succ k) h := rfl
 
-/- TODO(Leo): port lemmas sub+multiplication -/
+theorem mul_pred_left : ∀ (n m : ℕ), pred n * m = n * m - m
+| 0        m := by simp [nat.zero_sub, pred_zero, zero_mul]
+| (succ n) m := by rw [pred_succ, succ_mul, nat.add_sub_cancel]
+
+theorem mul_pred_right (n m : ℕ) : n * pred m = n * m - n :=
+by rw [mul_comm, mul_pred_left, mul_comm]
+
+protected theorem mul_sub_right_distrib : ∀ (n m k : ℕ), (n - m) * k = n * k - m * k
+| n 0        k := by simp [nat.sub_zero]
+| n (succ m) k := by rw [nat.sub_succ, mul_pred_left, mul_sub_right_distrib, succ_mul, nat.sub_sub]
+
+protected theorem mul_sub_left_distrib (n m k : ℕ) : n * (m - k) = n * m - n * k :=
+by rw [mul_comm, nat.mul_sub_right_distrib, mul_comm m n, mul_comm n k]
+
+protected theorem mul_self_sub_mul_self_eq (a b : nat) : a * a - b * b = (a + b) * (a - b) :=
+by rw [nat.mul_sub_left_distrib, right_distrib, right_distrib, mul_comm b a, add_comm (a*a) (a*b),
+       nat.add_sub_add_left]
+
+theorem succ_mul_succ_eq (a : nat) : succ a * succ a = a*a + a + a + 1 :=
+begin rw [-add_one_eq_succ], simp [right_distrib, left_distrib] end
+
+/- TODO(Leo): sub + inequalities -/
 
 end nat

@@ -204,6 +204,26 @@ bool type_context::tmp_locals::all_let_decls() const {
    ===================== */
 MK_THREAD_LOCAL_GET_DEF(type_context_cache_manager, get_tcm);
 
+void type_context::cache_failure(expr const & t, expr const & s) {
+    if (t.hash() <= s.hash())
+        get_failure_cache().insert(mk_pair(t, s));
+    else
+        get_failure_cache().insert(mk_pair(s, t));
+}
+
+bool type_context::is_cached_failure(expr const & t, expr const & s) {
+    type_context_cache::failure_cache fcache = get_failure_cache();
+    if (t.hash() < s.hash()) {
+        return fcache.find(mk_pair(t, s)) != fcache.end();
+    } else if (t.hash() > s.hash()) {
+        return fcache.find(mk_pair(s, t)) != fcache.end();
+    } else {
+        return
+            fcache.find(mk_pair(t, s)) != fcache.end() ||
+            fcache.find(mk_pair(s, t)) != fcache.end();
+    }
+}
+
 void type_context::init_local_instances() {
     m_local_instances = list<pair<name, expr>>();
     m_lctx.for_each([&](local_decl const & decl) {
@@ -2632,13 +2652,15 @@ bool type_context::is_def_eq_core_core(expr const & t, expr const & s) {
     if (is_local(t_n) && is_local(s_n) && mlocal_name(t_n) == mlocal_name(s_n))
         return true;
 
-    if (is_app(t_n) && is_app(s_n)) {
+    if (is_app(t_n) && is_app(s_n) && !is_cached_failure(t_n, s_n)) {
         scope s(*this);
         if (is_def_eq_core(get_app_fn(t_n), get_app_fn(s_n)) &&
             is_def_eq_args(t_n, s_n) &&
             process_postponed(s)) {
             s.commit();
             return true;
+        } else if (!has_expr_metavar(t_n) && !has_expr_metavar(s_n)) {
+            cache_failure(t_n, s_n);
         }
     }
 

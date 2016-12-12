@@ -42,6 +42,8 @@ class type_context_cache {
     typedef expr_struct_map<expr> whnf_cache;
     typedef expr_struct_map<optional<expr>> instance_cache;
     typedef expr_struct_map<optional<expr>> subsingleton_cache;
+    typedef std::unordered_set<expr_pair, expr_pair_hash, expr_pair_eq> failure_cache;
+
     environment                   m_env;
     options                       m_options;
     name_map<projection_info>     m_proj_info;
@@ -76,6 +78,8 @@ class type_context_cache {
     transparency_cache            m_transparency_cache[4];
 
     equiv_manager                 m_equiv_manager[4];
+
+    failure_cache                 m_failure_cache[4];
 
     whnf_cache                    m_whnf_cache[4];
 
@@ -274,6 +278,10 @@ class type_context : public abstract_type_context {
     void cache_equiv(expr const & e1, expr const & e2) {
         if (is_equiv_cache_target(e1, e2)) get_equiv_cache().add_equiv(e1, e2);
     }
+
+    type_context_cache::failure_cache & get_failure_cache() { return m_cache->m_failure_cache[static_cast<unsigned>(m_transparency_mode)]; }
+    void cache_failure(expr const & t, expr const & s);
+    bool is_cached_failure(expr const & t, expr const & s);
 
     void init_local_instances();
     void flush_instance_cache();

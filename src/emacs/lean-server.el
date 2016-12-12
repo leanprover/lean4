@@ -143,8 +143,8 @@
        (equal 'run (process-status (lean-server-session-process sess)))))
 
 (defun lean-server-session-kill (sess)
-  (delete-process (lean-server-session-process sess))
-  (kill-buffer (lean-server-session-proc-buffer sess))
+  (ignore-errors (delete-process (lean-server-session-process sess)))
+  (ignore-errors (kill-buffer (lean-server-session-proc-buffer sess)))
   (setf (lean-server-session-process sess) nil)
   (setq lean-server-sessions (delete sess lean-server-sessions)))
 

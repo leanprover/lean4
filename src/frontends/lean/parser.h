@@ -14,7 +14,7 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/expr_maps.h"
 #include "library/module.h"
-#include "library/task_queue.h"
+#include "util/task_queue.h"
 #include "library/abstract_parser.h"
 #include "library/io_state.h"
 #include "library/io_state_stream.h"

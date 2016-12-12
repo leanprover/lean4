@@ -6,7 +6,7 @@ Author: Gabriel Ebner
 */
 #include <vector>
 #include "library/st_task_queue.h"
-#include "task_helper.h"
+#include "library/task_helper.h"
 #include "library/message_buffer.h"
 
 namespace lean {

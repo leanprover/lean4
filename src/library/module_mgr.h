@@ -11,7 +11,7 @@ Author: Gabriel Ebner
 #include <unordered_map>
 #include "util/name.h"
 #include "kernel/environment.h"
-#include "library/task_queue.h"
+#include "util/task_queue.h"
 #include "library/message_buffer.h"
 #include "library/io_state.h"
 #include "library/trace.h"

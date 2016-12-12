@@ -16,6 +16,9 @@ typedef pair<unsigned, unsigned> pos_info; //!< Line and column information
 typedef uint64 period;
 
 struct message_bucket_id {
+    message_bucket_id() {}
+    message_bucket_id(name const & bucket, period version) : m_bucket(bucket), m_version(version) {}
+
     name m_bucket;
     period m_version = 0;
 };

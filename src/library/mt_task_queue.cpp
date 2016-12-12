@@ -10,7 +10,7 @@ Author: Gabriel Ebner
 #include "library/mt_task_queue.h"
 #include "util/interrupt.h"
 #include "util/flet.h"
-#include "task_helper.h"
+#include "library/task_helper.h"
 
 #if defined(LEAN_MULTI_THREAD)
 namespace lean {

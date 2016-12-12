@@ -11,7 +11,7 @@ Author: Gabriel Ebner
 #include "library/vm/vm.h"
 #include "library/vm/vm_string.h"
 #include "library/vm/vm_expr.h"
-#include "library/task_queue.h"
+#include "util/task_queue.h"
 
 namespace lean {
 

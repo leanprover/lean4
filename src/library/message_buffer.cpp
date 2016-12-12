@@ -101,7 +101,7 @@ message_bucket_id scope_message_context::new_sub_bucket(std::string const & s) {
         n = n_new;
     }
     m_sub_buckets.insert(n);
-    return { n, m_bucket.m_version };
+    return message_bucket_id { n, m_bucket.m_version };
 }
 
 }

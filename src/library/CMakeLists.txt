@@ -16,5 +16,5 @@ add_library(library OBJECT deep_copy.cpp expr_lt.cpp io_state.cpp
   mpq_macro.cpp arith_instance_manager.cpp replace_visitor_with_tc.cpp
   aux_definition.cpp inverse.cpp library_system.cpp pattern_attribute.cpp choice.cpp
   locals.cpp normalize.cpp discr_tree.cpp
-  task_queue.cpp mt_task_queue.cpp st_task_queue.cpp task_helper.cpp
+  mt_task_queue.cpp st_task_queue.cpp task_helper.cpp
   messages.cpp message_buffer.cpp versioned_msg_buf.cpp message_builder.cpp module_mgr.cpp comp_val.cpp documentation.cpp)

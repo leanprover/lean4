@@ -104,14 +104,14 @@ struct current_tasks_msg {
     }
 
 #if defined(LEAN_MULTI_THREAD)
-    current_tasks_msg(mt_tq_status const & st, std::string const & visible_file) {
+    current_tasks_msg(mt_tq_status const & st, std::unordered_set<std::string> const & visible_files) {
         m_is_running = st.size() > 0;
         if (!st.m_executing.empty()) {
             m_cur_task = { json_of_task(st.m_executing.front()) };
         }
         st.for_each([&] (generic_task const * t) {
             if (m_tasks.size() >= 100) return;
-            if (!t->is_tiny() && t->get_module_id() == visible_file) {
+            if (!t->is_tiny() && visible_files.count(t->get_module_id())) {
                 json j;
                 j["file_name"] = t->get_module_id();
                 auto pos = t->get_pos();
@@ -142,8 +142,8 @@ server::server(unsigned num_threads, environment const & initial_env, io_state c
         m_tq.reset(tq);
         tq->set_monitor_interval(chrono::milliseconds(300));
         tq->set_status_callback([this] (mt_tq_status const & st) {
-            unique_lock<mutex> _(m_visible_file_mutex);
-            send_msg(current_tasks_msg(st, m_visible_file));
+            unique_lock<mutex> _(m_visible_files_mutex);
+            send_msg(current_tasks_msg(st, m_visible_files));
         });
     }
 #else
@@ -259,11 +259,11 @@ server::cmd_res server::handle_sync(server::cmd_req const & req) {
 
 #if defined(LEAN_MULTI_THREAD)
     {
-        unique_lock<mutex> _(m_visible_file_mutex);
-        if (m_visible_file != new_file_name) {
+        unique_lock<mutex> _(m_visible_files_mutex);
+        if (m_visible_files.count(new_file_name) == 0) {
+            m_visible_files.insert(new_file_name);
             if (auto tq = dynamic_cast<mt_task_queue *>(m_tq.get()))
-                tq->reprioritize(mk_interactive_prioritizer(new_file_name));
-            m_visible_file = new_file_name;
+                tq->reprioritize(mk_interactive_prioritizer(m_visible_files));
         }
     }
 #endif
@@ -402,7 +402,7 @@ void finalize_server() {
 }
 
 #if defined(LEAN_MULTI_THREAD)
-mt_tq_prioritizer mk_interactive_prioritizer(module_id const & roi) {
+mt_tq_prioritizer mk_interactive_prioritizer(std::unordered_set<module_id> const & roi) {
     const unsigned
         ROI_PARSING_PRIO = 10,
         ROI_PRINT_PRIO = 11,
@@ -416,7 +416,7 @@ mt_tq_prioritizer mk_interactive_prioritizer(module_id const & roi) {
         task_priority p;
         p.m_prio = DEFAULT_PRIO;
 
-        bool in_roi = t->get_module_id() == roi;
+        bool in_roi = roi.count(t->get_module_id()) > 0;
 
         if (!in_roi)
             p.m_not_before = { chrono::steady_clock::now() + chrono::seconds(10) };

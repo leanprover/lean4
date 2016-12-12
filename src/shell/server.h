@@ -17,7 +17,7 @@ Authors: Gabriel Ebner, Sebastian Ullrich
 namespace lean {
 
 #if defined(LEAN_MULTI_THREAD)
-mt_tq_prioritizer mk_interactive_prioritizer(module_id const & roi);
+mt_tq_prioritizer mk_interactive_prioritizer(std::unordered_set<module_id> const & roi);
 #endif
 
 unsigned get_auto_completion_max_results(options const &);
@@ -33,8 +33,8 @@ class server : public module_vfs {
     };
     std::unordered_map<std::string, editor_file> m_open_files;
 
-    mutex m_visible_file_mutex;
-    std::string m_visible_file;
+    mutex m_visible_files_mutex;
+    std::unordered_set<std::string> m_visible_files;
 
     mutex m_out_mutex;
     class msg_buf;

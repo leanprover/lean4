@@ -81,19 +81,34 @@ public:
 
 struct current_tasks_msg {
     std::vector<json> m_tasks;
+    optional<json> m_cur_task;
     bool m_is_running = false;
 
     json to_json_response() const {
         json j;
         j["response"] = "current_tasks";
         j["is_running"] = m_is_running;
+        if (m_cur_task) j["cur_task"] = *m_cur_task;
         j["tasks"] = m_tasks;
+        return j;
+    }
+
+    json json_of_task(generic_task const * t) {
+        json j;
+        j["file_name"] = t->get_module_id();
+        auto pos = t->get_pos();
+        j["pos_line"] = pos.first;
+        j["pos_col"] = pos.second;
+        j["desc"] = t->description();
         return j;
     }
 
 #if defined(LEAN_MULTI_THREAD)
     current_tasks_msg(mt_tq_status const & st, std::string const & visible_file) {
         m_is_running = st.size() > 0;
+        if (!st.m_executing.empty()) {
+            m_cur_task = { json_of_task(st.m_executing.front()) };
+        }
         st.for_each([&] (generic_task const * t) {
             if (m_tasks.size() >= 100) return;
             if (!t->is_tiny() && t->get_module_id() == visible_file) {

@@ -17,23 +17,32 @@
    (flycheck-mode (flycheck-mode -1))
    (t             (flycheck-mode  1))))
 
-(cl-defun lean-flycheck-parse-task (checker buffer &key pos_line pos_col desc file_name &allow-other-keys)
-  (flycheck-error-new-at pos_line (1+ pos_col)
-                         'info
-                         (format "still running: %s" desc)
-                         :filename file_name
-                         :checker checker :buffer buffer))
+(cl-defun lean-flycheck-parse-task (checker buffer cur-file-name
+                                            &key pos_line pos_col desc file_name &allow-other-keys)
+  (if (equal cur-file-name file_name)
+      (flycheck-error-new-at pos_line (1+ pos_col)
+                             'info
+                             (format "still running: %s" desc)
+                             :filename file_name
+                             :checker checker :buffer buffer)
+    (flycheck-error-new-at 1 1
+                           'info
+                           (format "still running: %s" desc)
+                           :filename cur-file-name
+                           :checker checker :buffer buffer)))
 
 (defun lean-flycheck-mk-task-msgs (checker buffer sess)
   (if (and sess (lean-server-session-tasks sess)
            (plist-get (lean-server-session-tasks sess) :is_running))
       (let* ((cur-fn (buffer-file-name))
+             (tasks (lean-server-session-tasks sess))
+             (cur-task (plist-get tasks :cur_task))
              (tasks-for-cur-file (remove-if-not (lambda (task) (equal cur-fn (plist-get task :file_name)))
-                                               (plist-get (lean-server-session-tasks lean-server-session) :tasks))))
-        (if tasks-for-cur-file
-            (mapcar (lambda (task) (apply #'lean-flycheck-parse-task checker buffer task)) tasks-for-cur-file)
-          (list (flycheck-error-new-at 1 1 'info "still running: lean error check"
-                                       :checker checker :buffer buffer))))))
+                                                (plist-get tasks :tasks))))
+        (mapcar (lambda (task) (apply #'lean-flycheck-parse-task checker buffer cur-fn task))
+                (if (and tasks-for-cur-file (equal cur-fn (plist-get cur-task :file_name)))
+                    tasks-for-cur-file
+                  (cons cur-task tasks-for-cur-file))))))
 
 (cl-defun lean-flycheck-parse-error (checker buffer &key pos_line pos_col severity text file_name &allow-other-keys)
   (flycheck-error-new-at pos_line (1+ pos_col)

@@ -12,7 +12,7 @@ Author: Gabriel Ebner
 #include "util/thread.h"
 #include "util/optional.h"
 #include "util/rc.h"
-#include "library/message_buffer.h"
+#include "util/message_definitions.h"
 
 namespace lean {
 

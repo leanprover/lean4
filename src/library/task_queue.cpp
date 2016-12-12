@@ -6,6 +6,7 @@ Author: Gabriel Ebner
 */
 #include <string>
 #include "library/task_queue.h"
+#include "library/message_buffer.h"
 
 namespace lean {
 

@@ -8,9 +8,9 @@ Author: Leonardo de Moura
 #include <utility>
 #include "util/sexpr/format.h"
 #include "kernel/expr.h"
+#include "util/message_definitions.h"
 
 namespace lean {
-typedef pair<unsigned, unsigned> pos_info; //!< Line and column information
 /**
    \brief Abstract class for providing expression position information (line number and column).
 */

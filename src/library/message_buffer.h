@@ -11,15 +11,9 @@ Author: Gabriel Ebner
 #include "util/exception.h"
 #include "util/name_set.h"
 #include "library/messages.h"
+#include "util/message_definitions.h"
 
 namespace lean {
-
-typedef uint64 period;
-
-struct message_bucket_id {
-    name m_bucket;
-    period m_version;
-};
 
 class info_manager;
 

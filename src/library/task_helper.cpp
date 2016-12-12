@@ -5,9 +5,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Gabriel Ebner
 */
 #include <string>
-#include <library/trace.h>
-#include <library/message_builder.h>
+#include "library/trace.h"
+#include "library/message_builder.h"
 #include "library/task_helper.h"
+#include "library/message_buffer.h"
 
 namespace lean {
 

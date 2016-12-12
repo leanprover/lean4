@@ -62,6 +62,8 @@ class mt_task_queue : public task_queue {
 
     void reprioritize_core();
 
+    task_priority & get_prio(generic_task_result const & tr) { return get_data(tr).m_prio; }
+
 public:
     mt_task_queue(unsigned num_workers);
     mt_task_queue(unsigned num_workers, mt_tq_prioritizer const & prioritizer);

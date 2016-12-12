@@ -7,6 +7,7 @@ Author: Gabriel Ebner
 #ifdef LEAN_SERVER
 #pragma once
 #include "library/message_buffer.h"
+#include "kernel/environment.h"
 #include "util/json.hpp"
 
 namespace lean {

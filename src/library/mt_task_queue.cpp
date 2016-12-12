@@ -95,9 +95,9 @@ void mt_task_queue::spawn_worker() {
             }
 
             auto t = dequeue();
-            if (t->m_state.load() != task_result_state::QUEUED) continue;
+            if (unwrap(t)->m_state.load() != task_result_state::QUEUED) continue;
 
-            t->m_state = task_result_state::EXECUTING;
+            unwrap(t)->m_state = task_result_state::EXECUTING;
             bool is_ok;
             auto cb = m_progress_cb;
             reset_interrupt();
@@ -105,25 +105,25 @@ void mt_task_queue::spawn_worker() {
                 flet<generic_task_result> _(this_worker->m_current_task, t);
                 scoped_current_task scope_cur_task(&t);
                 lock.unlock();
-                if (cb) cb(t->m_task);
-                is_ok = execute_task_with_scopes(&*t);
+                if (cb) cb(unwrap(t)->m_task);
+                is_ok = execute_task_with_scopes(unwrap(t));
                 lock.lock();
             }
             reset_interrupt();
 
-            t->m_state = is_ok ? task_result_state::FINISHED : task_result_state::FAILED;
-            t->m_task->m_has_finished.notify_all();
+            unwrap(t)->m_state = is_ok ? task_result_state::FINISHED : task_result_state::FAILED;
+            get_data(t).m_has_finished.notify_all();
 
             if (is_ok) {
-                for (auto & rdep : t->m_task->m_reverse_deps) {
-                    if (rdep->has_evaluated()) {
+                for (auto & rdep : get_data(t).m_reverse_deps) {
+                    if (unwrap(rdep)->has_evaluated()) {
                         m_waiting.erase(rdep);
                     } else {
-                        switch (rdep->m_state.load()) {
+                        switch (unwrap(rdep)->m_state.load()) {
                             case task_result_state::WAITING:
                                 if (check_deps(rdep)) {
                                     m_waiting.erase(rdep);
-                                    if (!rdep->has_evaluated())
+                                    if (!unwrap(rdep)->has_evaluated())
                                         enqueue(rdep);
                                 }
                                 break;
@@ -138,7 +138,7 @@ void mt_task_queue::spawn_worker() {
                 propagate_failure(t);
             }
 
-            t->clear_task();
+            unwrap(t)->clear_task();
             m_queue_removed.notify_all();
         }
     }));
@@ -146,18 +146,18 @@ void mt_task_queue::spawn_worker() {
 }
 
 void mt_task_queue::propagate_failure(generic_task_result const & tr) {
-    lean_assert(tr->m_state.load() == task_result_state::FAILED);
+    lean_assert(unwrap(tr)->m_state.load() == task_result_state::FAILED);
     m_waiting.erase(tr);
 
-    if (auto t = tr->m_task) {
-        tr->m_task->m_has_finished.notify_all();
+    if (auto t = unwrap(tr)->m_task) {
+        get_data(tr).m_has_finished.notify_all();
 
-        for (auto & rdep : t->m_reverse_deps) {
-            switch (rdep->m_state.load()) {
+        for (auto & rdep : get_data(t).m_reverse_deps) {
+            switch (unwrap(rdep)->m_state.load()) {
                 case task_result_state::WAITING:
                 case task_result_state::QUEUED:
-                    rdep->m_ex = tr->m_ex;
-                    rdep->m_state = task_result_state::FAILED;
+                    unwrap(rdep)->m_ex = unwrap(tr)->m_ex;
+                    unwrap(rdep)->m_state = task_result_state::FAILED;
                     propagate_failure(rdep);
                     break;
                 default: break;
@@ -165,41 +165,41 @@ void mt_task_queue::propagate_failure(generic_task_result const & tr) {
         }
     }
 
-    tr->clear_task();
+    unwrap(tr)->clear_task();
 }
 
 void mt_task_queue::submit(generic_task_result const & t) {
     unique_lock<mutex> lock(m_mutex);
     check_interrupted();
-    t->m_task->m_prio = m_prioritizer(t->m_task);
+    get_prio(t) = m_prioritizer(unwrap(t)->m_task);
     if (check_deps(t)) {
-        if (!t->has_evaluated()) {
+        if (!unwrap(t)->has_evaluated()) {
             enqueue(t);
         }
     } else {
-        t->m_state = task_result_state::WAITING;
+        unwrap(t)->m_state = task_result_state::WAITING;
         m_waiting.insert(t);
     }
 }
 
 void mt_task_queue::bump_prio(generic_task_result const & t, task_priority const & new_prio) {
-    if (t->m_task && new_prio < t->m_task->m_prio) {
-        switch (t->m_state.load()) {
+    if (unwrap(t)->m_task && new_prio < get_prio(t)) {
+        switch (unwrap(t)->m_state.load()) {
         case task_result_state::QUEUED: {
-            auto prio = t->m_task->m_prio.m_prio;
+            auto prio = get_prio(t).m_prio;
             auto &q = m_queue[prio];
             auto it = std::find(q.begin(), q.end(), t);
             lean_assert(it != q.end());
             q.erase(it);
             if (q.empty()) m_queue.erase(prio);
 
-            t->m_task->m_prio.bump(new_prio);
+            get_prio(t).bump(new_prio);
             check_deps(t);
             enqueue(t);
             break;
         }
         case task_result_state::WAITING:
-            t->m_task->m_prio.bump(new_prio);
+            get_prio(t).bump(new_prio);
             check_deps(t);
             break;
         case task_result_state::EXECUTING:
@@ -214,25 +214,25 @@ void mt_task_queue::bump_prio(generic_task_result const & t, task_priority const
 bool mt_task_queue::check_deps(generic_task_result const & t) {
     std::vector<generic_task_result> deps;
     try {
-        deps = t->m_task->get_dependencies();
+        deps = unwrap(t)->m_task->get_dependencies();
     } catch (...) {}
     for (auto & dep : deps) {
-        if (dep) bump_prio(dep, t->m_task->m_prio);
+        if (dep) bump_prio(dep, get_prio(t));
     }
     for (auto & dep : deps) {
         if (!dep) continue;
-        switch (dep->m_state.load()) {
+        switch (unwrap(dep)->m_state.load()) {
             case task_result_state::WAITING:
             case task_result_state::QUEUED:
             case task_result_state::EXECUTING:
-                lean_assert(dep->m_task);
-                dep->m_task->m_reverse_deps.push_back(t);
+                lean_assert(unwrap(dep)->m_task);
+                get_data(dep).m_reverse_deps.push_back(t);
                 return false;
             case task_result_state::FINISHED:
                 break;
             case task_result_state::FAILED:
-                t->m_ex = dep->m_ex;
-                t->m_state = task_result_state::FAILED;
+                unwrap(t)->m_ex = unwrap(dep)->m_ex;
+                unwrap(t)->m_state = task_result_state::FAILED;
                 propagate_failure(t);
                 return true;
             default: lean_unreachable();
@@ -244,10 +244,10 @@ bool mt_task_queue::check_deps(generic_task_result const & t) {
 void mt_task_queue::wait(generic_task_result const & t) {
     if (!t) return;
     unique_lock<mutex> lock(m_mutex);
-    if (g_current_task && t->m_task && (*g_current_task)->m_task->m_prio < t->m_task->m_prio) {
-        bump_prio(t, (*g_current_task)->m_task->m_prio);
+    if (g_current_task && unwrap(t)->m_task && get_prio(*g_current_task) < get_prio(t)) {
+        bump_prio(t, get_prio(*g_current_task));
     }
-    while (!t->has_evaluated()) {
+    while (!unwrap(t)->has_evaluated()) {
         if (g_current_task) {
             scoped_add<int> inc_required(m_required_workers, +1);
             if (m_sleeping_workers == 0) {
@@ -255,13 +255,13 @@ void mt_task_queue::wait(generic_task_result const & t) {
             } else {
                 m_wake_up_worker.notify_one();
             }
-            t->m_task->m_has_finished.wait(lock);
+            get_data(t).m_has_finished.wait(lock);
         } else {
-            t->m_task->m_has_finished.wait(lock);
+            get_data(t).m_has_finished.wait(lock);
         }
     }
-    switch (t->m_state.load()) {
-        case task_result_state::FAILED: std::rethrow_exception(t->m_ex);
+    switch (unwrap(t)->m_state.load()) {
+        case task_result_state::FAILED: std::rethrow_exception(unwrap(t)->m_ex);
         case task_result_state::FINISHED: return;
         default: throw exception("invalid task state");
     }
@@ -272,16 +272,16 @@ void mt_task_queue::cancel_if(const std::function<bool(generic_task *)> & pred) 
     unique_lock<mutex> lock(m_mutex);
 
     for (auto & w : m_workers)
-        if (w->m_current_task && pred(w->m_current_task->m_task))
+        if (w->m_current_task && pred(unwrap(w->m_current_task)->m_task))
             to_cancel.push_back(w->m_current_task);
 
     for (auto & q : m_queue)
         for (auto & t : q.second)
-            if (t->m_task && pred(t->m_task))
+            if (unwrap(t)->m_task && pred(unwrap(t)->m_task))
                 to_cancel.push_back(t);
 
     for (auto & t : m_waiting)
-        if (t->m_task && pred(t->m_task))
+        if (unwrap(t)->m_task && pred(unwrap(t)->m_task))
             to_cancel.push_back(t);
 
     for (auto & t : to_cancel)
@@ -289,14 +289,14 @@ void mt_task_queue::cancel_if(const std::function<bool(generic_task *)> & pred) 
 }
 
 void mt_task_queue::cancel_core(generic_task_result const & t) {
-    switch (t->m_state.load()) {
+    switch (unwrap(t)->m_state.load()) {
         case task_result_state::WAITING:
             m_waiting.erase(t);
         case task_result_state::QUEUED:
-            t->m_ex = std::make_exception_ptr(task_cancellation_exception(t));
-            t->m_state = task_result_state::FAILED;
+            unwrap(t)->m_ex = std::make_exception_ptr(task_cancellation_exception(t));
+            unwrap(t)->m_state = task_result_state::FAILED;
             propagate_failure(t);
-            t->clear_task();
+            unwrap(t)->clear_task();
             return;
         case task_result_state::EXECUTING:
             for (auto & w : m_workers) {
@@ -356,10 +356,10 @@ generic_task_result mt_task_queue::dequeue() {
 }
 
 void mt_task_queue::enqueue(generic_task_result const & t) {
-    lean_assert(t->m_state.load() < task_result_state::EXECUTING);
-    lean_assert(t->m_task);
-    t->m_state = task_result_state::QUEUED;
-    m_queue[t->m_task->m_prio.m_prio].push_back(t);
+    lean_assert(unwrap(t)->m_state.load() < task_result_state::EXECUTING);
+    lean_assert(unwrap(t)->m_task);
+    unwrap(t)->m_state = task_result_state::QUEUED;
+    m_queue[get_prio(t).m_prio].push_back(t);
     m_queue_added.notify_one();
 }
 
@@ -379,8 +379,8 @@ void mt_task_queue::reprioritize_core() {
     m_queue.clear();
     for (auto & q : old_queues) {
         for (auto & t : q.second) {
-            if (t->m_task) {
-                t->m_task->m_prio = m_prioritizer(t->m_task);
+            if (unwrap(t)) {
+                get_prio(t) = m_prioritizer(unwrap(t)->m_task);
                 enqueue(t);
             }
         }
@@ -388,8 +388,8 @@ void mt_task_queue::reprioritize_core() {
     for (auto & q : old_queues) for (auto & t : q.second) check_deps(t);
 
     for (auto & t : m_waiting) {
-        if (t->m_task) {
-            t->m_task->m_prio = m_prioritizer(t->m_task);
+        if (unwrap(t)->m_task) {
+            get_prio(t) = m_prioritizer(unwrap(t)->m_task);
             check_deps(t);
         }
     }

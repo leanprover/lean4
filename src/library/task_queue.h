@@ -28,12 +28,6 @@ struct generic_task_result_cell {
     MK_LEAN_RC()
     void dealloc() { delete this; }
 
-    friend class task_queue;
-    friend class st_task_queue;
-    friend class mt_task_queue;
-    template <class T> friend class task_result_cell;
-    friend class generic_task_result;
-
     generic_task * m_task = nullptr;
     atomic<task_result_state> m_state { task_result_state::CREATED };
     std::string m_desc;
@@ -55,14 +49,9 @@ struct generic_task_result_cell {
 
 class generic_task_result {
     friend class task_queue;
-    friend class st_task_queue;
-    friend class mt_task_queue;
     template <class T> friend class task_result;
 
     generic_task_result_cell * m_ptr = nullptr;
-
-    generic_task_result_cell * operator->() const { return m_ptr; }
-    generic_task_result_cell & operator*() const { return *m_ptr; }
 
 public:
     generic_task_result(generic_task_result_cell * t) : m_ptr(t) { if (t) t->inc_ref(); }
@@ -124,15 +113,16 @@ public:
     ~scoped_task_context();
 };
 
-class generic_task {
-    template <class T> friend class task;
-    friend class task_queue;
-    friend class st_task_queue;
-    friend class mt_task_queue;
-
+struct task_scheduling_data {
     task_priority m_prio;
     std::vector<generic_task_result> m_reverse_deps;
     condition_variable m_has_finished;
+};
+
+class generic_task {
+    friend class task_queue;
+
+    task_scheduling_data m_data;
 
     // metadata
     message_bucket_id m_bucket;
@@ -166,10 +156,7 @@ public:
 };
 
 template <class T>
-class task_result_cell : public generic_task_result_cell {
-    friend class task_queue;
-    template <class S> friend class task_result;
-
+struct task_result_cell : public generic_task_result_cell {
     optional<T> m_result;
 
     task<T> * get_ptr() { return static_cast<task<T> *>(m_task); }
@@ -178,7 +165,6 @@ class task_result_cell : public generic_task_result_cell {
         m_result = { get_ptr()->execute() };
     }
 
-public:
     task_result_cell(task<T> * t) : generic_task_result_cell(t) {}
     task_result_cell(T const & t, std::string const & desc) :
             generic_task_result_cell(desc), m_result(t) {}
@@ -229,6 +215,11 @@ class task_queue {
 protected:
     task_queue() {}
 
+    // Friendship forwarding.
+    generic_task_result_cell * unwrap(generic_task_result const & tr) { return tr.m_ptr; }
+    task_scheduling_data & get_data(generic_task * t) { return t->m_data; }
+    task_scheduling_data & get_data(generic_task_result const & tr) { return get_data(unwrap(tr)->m_task); }
+
 public:
     virtual ~task_queue() {}
 
@@ -248,11 +239,11 @@ public:
     template <typename T>
     T const & get_result(task_result<T> const & t) {
         while (true) {
-            switch (t->m_state.load()) {
+            switch (unwrap(t)->m_state.load()) {
                 case task_result_state::FINISHED:
                     return *t.get_current_result();
                 case task_result_state::FAILED:
-                    std::rethrow_exception(t->m_ex);
+                    std::rethrow_exception(unwrap(t)->m_ex);
                 default:
                     wait(t);
             }

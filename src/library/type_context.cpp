@@ -212,7 +212,8 @@ void type_context::cache_failure(expr const & t, expr const & s) {
 }
 
 bool type_context::is_cached_failure(expr const & t, expr const & s) {
-    type_context_cache::failure_cache fcache = get_failure_cache();
+    if (has_expr_metavar(t) || has_expr_metavar(s)) return false;
+    type_context_cache::failure_cache const & fcache = get_failure_cache();
     if (t.hash() < s.hash()) {
         return fcache.find(mk_pair(t, s)) != fcache.end();
     } else if (t.hash() > s.hash()) {
@@ -2319,7 +2320,8 @@ lbool type_context::is_def_eq_lazy_delta(expr & t, expr & s) {
             if (is_eqp(*d_t, *d_s)) {
                 /* Same constant */
                 if (is_app(t) && is_app(s)) {
-                    {
+                    bool has_postponed = !m_postponed.empty();
+                    if (!is_cached_failure(t, s)) {
                         /* Heuristic: try so solve (f a =?= f b), by solving (a =?= b) */
                         scope S(*this);
                         if (is_def_eq_args(t, s) &&
@@ -2327,6 +2329,8 @@ lbool type_context::is_def_eq_lazy_delta(expr & t, expr & s) {
                             process_postponed(S)) {
                             S.commit();
                             return l_true;
+                        } else if (!has_postponed && !has_expr_metavar(t) && !has_expr_metavar(s)) {
+                            cache_failure(t, s);
                         }
                     }
                     /* Heuristic failed, then unfold both of them */
@@ -2652,15 +2656,13 @@ bool type_context::is_def_eq_core_core(expr const & t, expr const & s) {
     if (is_local(t_n) && is_local(s_n) && mlocal_name(t_n) == mlocal_name(s_n))
         return true;
 
-    if (is_app(t_n) && is_app(s_n) && !is_cached_failure(t_n, s_n)) {
+    if (is_app(t_n) && is_app(s_n)) {
         scope s(*this);
         if (is_def_eq_core(get_app_fn(t_n), get_app_fn(s_n)) &&
             is_def_eq_args(t_n, s_n) &&
             process_postponed(s)) {
             s.commit();
             return true;
-        } else if (!has_expr_metavar(t_n) && !has_expr_metavar(s_n)) {
-            cache_failure(t_n, s_n);
         }
     }
 

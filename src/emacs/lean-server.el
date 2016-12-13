@@ -100,7 +100,10 @@
                     :coding 'utf-8
                     :noquery t
                     :sentinel #'lean-server-handle-signal
-                    :stderr (format "*lean-server stderr (%s)*" project-dir))
+                    :stderr (make-pipe-process
+                             :name "lean-server stderr"
+                             :buffer (format "*lean-server stderr (%s)*" project-dir)
+                             :noquery t))
                  (start-file-process "lean-server"
                                      (format "*lean-server (%s)*" (buffer-name))
                                      (lean-get-executable lean-executable-name)

@@ -9,15 +9,6 @@ import algebra.order
 
 namespace nat
 
-  /- sub theorems -/
-
-  theorem sub_add_cancel : Π{n i : ℕ}, i ≤ n → (n - i) + i = n
-  | n 0 p := rfl
-  | (succ n) (succ i) p :=
-    calc (succ n - succ i) + succ i
-                      = ((n - i) + succ i) : congr_arg (λ v, v + succ i) (succ_sub_succ n i)
-                  ... = succ n             : congr_arg succ (sub_add_cancel (pred_le_pred p))
-
   /- min -/
 
   theorem min_zero_left (a : ℕ) : min 0 a = 0 := min_eq_left (zero_le a)

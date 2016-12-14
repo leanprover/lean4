@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2016 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura
+Authors: Leonardo de Moura, Jeremy Avigad
 -/
 prelude
 import init.data.nat.basic init.meta init.algebra
@@ -191,6 +191,9 @@ iff_true_intro (zero_lt_succ n)
 
 def succ_pos_iff_true := zero_lt_succ_iff_true
 
+protected lemma pos_of_ne_zero {n : nat} (h : n ≠ 0) : n > 0 :=
+begin cases n, contradiction, apply succ_pos end
+
 protected lemma lt_trans {n m k : ℕ} (h₁ : n < m) : m < k → n < k :=
 nat.le_trans (less_than.step h₁)
 
@@ -328,6 +331,8 @@ nat.add_lt_add_left h n
 
 protected lemma zero_lt_one : 0 < (1:nat) :=
 zero_lt_succ 0
+
+def one_pos := nat.zero_lt_one
 
 protected lemma le_total {m n : ℕ} : m ≤ n ∨ n ≤ m :=
 or.imp_left nat.le_of_lt (nat.lt_or_ge m n)
@@ -639,6 +644,32 @@ by rw [nat.mul_sub_left_distrib, right_distrib, right_distrib, mul_comm b a, add
 
 theorem succ_mul_succ_eq (a : nat) : succ a * succ a = a*a + a + a + 1 :=
 begin rw [-add_one_eq_succ], simp [right_distrib, left_distrib] end
+
+theorem sub_eq_zero_of_le {n m : ℕ} (h : n ≤ m) : n - m = 0 :=
+exists.elim (nat.le.dest h)
+  (take k, assume hk : n + k = m, by rw [-hk, sub_self_add])
+
+theorem succ_sub {m n : ℕ} (h : m ≥ n) : succ m - n  = succ (m - n) :=
+exists.elim (nat.le.dest h)
+  (take k, assume hk : n + k = m,
+    by rw [-hk, nat.add_sub_cancel_left, -add_succ, nat.add_sub_cancel_left])
+
+theorem add_sub_of_le {n m : ℕ} (h : n ≤ m) : n + (m - n) = m :=
+exists.elim (nat.le.dest h)
+  (take k, assume hk : n + k = m,
+    by rw [-hk, nat.add_sub_cancel_left])
+
+protected theorem sub_add_cancel {n m : ℕ} (h : n ≥ m) : n - m + m = n :=
+by rw [add_comm, add_sub_of_le h]
+
+protected theorem sub_pos_of_lt {m n : ℕ} (h : m < n) : n - m > 0 :=
+have 0 + m < n - m + m, begin rw [zero_add, nat.sub_add_cancel (le_of_lt h)], exact h end,
+lt_of_add_lt_add_right this
+
+protected theorem add_sub_assoc {m k : ℕ} (h : k ≤ m) (n : ℕ) : n + m - k = n + (m - k) :=
+exists.elim (nat.le.dest h)
+  (take l, assume hl : k + l = m,
+    by rw [-hl, nat.add_sub_cancel_left, add_comm k, -add_assoc, nat.add_sub_cancel])
 
 /- TODO(Leo): sub + inequalities -/
 

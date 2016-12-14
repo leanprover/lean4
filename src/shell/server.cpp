@@ -349,7 +349,7 @@ void server::handle_complete(cmd_req const & req) {
 
     auto mod_info = m_mod_mgr->get_module(fn);
 
-    get_global_task_queue().submit<auto_complete_task>(this, req.m_seq_num, pattern, mod_info, line);
+    get_global_task_queue()->submit<auto_complete_task>(this, req.m_seq_num, pattern, mod_info, line);
 }
 
 server::cmd_res server::handle_info(server::cmd_req const & req) {

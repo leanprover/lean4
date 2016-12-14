@@ -753,13 +753,13 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
             elaborator::theorem_finalization_info thm_finfo;
             finalize_theorem_type(elab, new_params, type, lp_names, thm_finfo);
             auto decl_env = elab.env();
-            auto elab_task = get_global_task_queue().submit<proof_elaboration_task>(
+            auto elab_task = get_global_task_queue()->submit<proof_elaboration_task>(
                 decl_env, p.get_options(), new_params, new_fn, val, thm_finfo, is_rfl, type,
                 elab.mctx(), elab.lctx(), p.get_parser_pos_provider(header_pos));
             env_n = declare_definition(p, elab.env(), kind, lp_names, c_name, type, opt_val, elab_task, modifiers, attrs,
                                        doc_string, header_pos);
         } else if (kind == Example) {
-            get_global_task_queue().submit<example_checking_task>(
+            get_global_task_queue()->submit<example_checking_task>(
                     p.env(), p.get_options(),
                     modifiers, to_list(lp_names),
                     new_params, fn, val,

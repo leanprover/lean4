@@ -41,7 +41,7 @@ public:
 
 template <class B, class A, class Fn>
 static task_result<B> mk_map_task(task_result<A> const & in, Fn const & fn) {
-    return get_global_task_queue().submit<map_task<A, B, Fn>>(fn, in);
+    return get_global_task_queue()->submit<map_task<A, B, Fn>>(fn, in);
 };
 
 struct vm_task : public vm_external {

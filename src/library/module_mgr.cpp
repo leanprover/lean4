@@ -207,7 +207,7 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
             res.m_ok = true;
             mod->m_result = mk_pure_task_result(res, "Loading " + olean_fn);
 
-            get_global_task_queue().cancel_if(
+            get_global_task_queue()->cancel_if(
                     [=] (generic_task * t) {
                         return t->get_version() < m_current_period && t->get_module_id() == id;
                     });
@@ -256,15 +256,15 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
             mod->m_version = m_current_period;
 
             auto deps = gather_transitive_imports(id, imports);
-            mod->m_result = get_global_task_queue().submit<parse_lean_task>(
+            mod->m_result = get_global_task_queue()->submit<parse_lean_task>(
                     contents, m_initial_env,
                     snapshots, m_use_snapshots,
                     deps);
 
             if (m_save_olean)
-                mod->m_olean_task = get_global_task_queue().submit<olean_compilation_task>(mod);
+                mod->m_olean_task = get_global_task_queue()->submit<olean_compilation_task>(mod);
 
-            get_global_task_queue().cancel_if([=] (generic_task * t) {
+            get_global_task_queue()->cancel_if([=] (generic_task * t) {
                 return t->get_version() < m_current_period && t->get_module_id() == id && t->get_pos() >= task_pos;
             });
             m_modules[id] = mod;

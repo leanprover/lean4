@@ -35,8 +35,8 @@ scope_global_task_queue::scope_global_task_queue(task_queue * tq) {
 scope_global_task_queue::~scope_global_task_queue() {
     g_tq = m_old_tq;
 }
-task_queue & get_global_task_queue() {
-    return *g_tq;
+task_queue * get_global_task_queue() {
+    return g_tq;
 }
 
 task_cancellation_exception::task_cancellation_exception(generic_task_result const & cancelled_task) {

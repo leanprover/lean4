@@ -269,15 +269,15 @@ public:
     scope_global_task_queue(task_queue * tq);
     ~scope_global_task_queue();
 };
-task_queue & get_global_task_queue();
+task_queue * get_global_task_queue();
 
 template <class T>
 T const & task_result<T>::get() const {
-    return get_global_task_queue().get_result(*this);
+    return get_global_task_queue()->get_result(*this);
 }
 
 inline void generic_task_result::cancel() const {
-    get_global_task_queue().cancel(*this);
+    get_global_task_queue()->cancel(*this);
 }
 
 }

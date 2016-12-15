@@ -1,0 +1,13 @@
+foo.b α : foo
+foo.b α : foo
+foo.b α : foo
+-------
+foo.b α
+foo
+-------
+bla.foo.b α : bla.foo α
+bla.foo.b α : bla.foo α
+bla.foo.b α : bla.foo α
+boo.foo.b α : boo.foo α
+boo.foo.b α : boo.foo α
+boo.foo.b α : boo.foo α

@@ -1696,6 +1696,12 @@ expr parser::patexpr_to_expr(expr const & pat_or_expr) {
         });
 }
 
+static void check_no_levels(levels const & ls, pos_info const & p) {
+    if (ls)
+        throw parser_error("invalid use of explicit universe parameter, identifier is a variable, "
+                           "parameter or a constant bound to parameters in a section", p);
+}
+
 expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only) {
     buffer<level> lvl_buffer;
     levels ls;
@@ -1716,14 +1722,17 @@ expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only) 
 
     // locals
     if (auto it1 = m_local_decls.find(id)) {
-        if (ls)
-            throw parser_error("invalid use of explicit universe parameter, identifier is a variable, "
-                               "parameter or a constant bound to parameters in a section", p);
+        check_no_levels(ls, p);
         return copy_with_new_pos(*it1, p);
     }
 
     if (!explicit_levels && m_id_behavior == id_behavior::AssumeLocalIfNotLocal) {
         return save_pos(mk_local(id, save_pos(mk_expr_placeholder(), p)), p);
+    }
+
+    if (auto ref = get_local_ref(m_env, id)) {
+        check_no_levels(ls, p);
+        return copy_with_new_pos(*ref, p);
     }
 
     for (name const & ns : get_namespaces(m_env)) {
@@ -1744,6 +1753,7 @@ expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only) 
 
     optional<expr> r;
     // globals
+
     if (m_env.find(id))
         r = save_pos(mk_constant(id, ls), p);
     // aliases

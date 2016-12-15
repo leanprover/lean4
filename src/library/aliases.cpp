@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
+#include "library/trace.h"
 #include "library/expr_lt.h"
 #include "library/aliases.h"
 #include "library/placeholder.h"
@@ -31,13 +32,21 @@ struct aliases_ext : public environment_extension {
         name_map<expr>        m_local_refs;
         state():m_in_section(false) {}
 
+        void add_local_ref(name const & a, expr const & ref) {
+            m_local_refs.insert(a, ref);
+        }
+
         void add_expr_alias(name const & a, name const & e, bool overwrite) {
-            auto it = m_aliases.find(a);
-            if (it && !overwrite)
-                m_aliases.insert(a, cons(e, filter(*it, [&](name const & t) { return t != e; })));
-            else
-                m_aliases.insert(a, to_list(e));
-            m_inv_aliases.insert(e, a);
+            if (auto ref = m_local_refs.find(e)) {
+                add_local_ref(a, *ref);
+            } else {
+                auto it = m_aliases.find(a);
+                if (it && !overwrite)
+                    m_aliases.insert(a, cons(e, filter(*it, [&](name const & t) { return t != e; })));
+                else
+                    m_aliases.insert(a, to_list(e));
+                m_inv_aliases.insert(e, a);
+            }
         }
     };
 
@@ -78,7 +87,7 @@ struct aliases_ext : public environment_extension {
     }
 
     void add_local_ref(name const & a, expr const & ref) {
-        m_state.m_local_refs.insert(a, ref);
+        m_state.add_local_ref(a, ref);
     }
 
     void push(bool in_section) {

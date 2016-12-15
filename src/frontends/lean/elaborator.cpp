@@ -2844,6 +2844,11 @@ static expr resolve_local_name(environment const & env, local_context const & lc
         return copy_tag(src, decl->mk_ref());
     }
 
+    /* check local_refs */
+    if (auto ref = get_local_ref(env, id)) {
+        return copy_tag(src, copy(*ref));
+    }
+
     /* check in current namespaces */
     for (name const & ns : get_namespaces(env)) {
         auto new_id = ns + id;

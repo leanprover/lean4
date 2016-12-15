@@ -2846,7 +2846,15 @@ static expr resolve_local_name(environment const & env, local_context const & lc
 
     /* check local_refs */
     if (auto ref = get_local_ref(env, id)) {
-        return copy_tag(src, copy(*ref));
+        /* ref may contain local references that have new names at lctx. */
+        return copy_tag(src, replace(*ref, [&](expr const & e, unsigned) {
+                    if (is_local(e)) {
+                        if (auto decl = lctx.get_local_decl_from_user_name(local_pp_name(e))) {
+                            return some_expr(decl->mk_ref());
+                        }
+                    }
+                    return none_expr();
+                }));
     }
 
     /* check in current namespaces */

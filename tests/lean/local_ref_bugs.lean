@@ -20,6 +20,8 @@ by do
   trace "-------",
   triv
 
+def ex : foo := begin trace_state, exact b end
+
 end
 
 namespace bla

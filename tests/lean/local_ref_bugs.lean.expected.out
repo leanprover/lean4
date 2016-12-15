@@ -5,6 +5,8 @@ foo.b α : foo
 foo.b α
 foo
 -------
+α : Type
+⊢ foo
 bla.foo.b α : bla.foo α
 bla.foo.b α : bla.foo α
 bla.foo.b α : bla.foo α

@@ -326,7 +326,11 @@ class erase_irrelevant_fn : public compiler_step_visitor {
 
                bind v b :=
                fun s, let a := v unit in
-                      b a unit
+                      b a a
+
+              We use (b a a) instead of (b a unit) to make sure the let-declaration
+              is not erased by the elim_unused_lets step. This is ok because
+              the second argument is not used during runtime.
 
               We use a let-expression to make sure that `v unit` is not erased.
             */
@@ -334,7 +338,7 @@ class erase_irrelevant_fn : public compiler_step_visitor {
             expr u    = mk_neutral_expr();
             expr vu   = mk_app(v, u);
             expr b    = visit(args[5]);
-            expr bau  = beta_reduce(mk_app(b, mk_var(0), u));
+            expr bau  = beta_reduce(mk_app(b, mk_var(0), mk_var(0)));
             expr let  = mk_let("a", u, vu, bau);
             return mk_lambda("S", u, let);
         } else {

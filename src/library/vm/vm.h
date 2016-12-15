@@ -20,7 +20,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 class vm_obj;
-enum class vm_obj_kind { Simple, Constructor, Closure, MPZ, External };
+enum class vm_obj_kind { Simple, Constructor, Closure, NativeClosure, MPZ, External };
 
 /** \brief Base class for VM objects.
 
@@ -135,6 +135,45 @@ public:
     ~vm_external() {}
 };
 
+/** Builtin functions that take arguments from the system stack.
+
+    \remark The C++ code generator produces this kind of function. */
+typedef vm_obj (*vm_cfunction)(vm_obj const &);
+typedef vm_obj (*vm_cfunction_0)();
+typedef vm_obj (*vm_cfunction_1)(vm_obj const &);
+typedef vm_obj (*vm_cfunction_2)(vm_obj const &, vm_obj const &);
+typedef vm_obj (*vm_cfunction_3)(vm_obj const &, vm_obj const &, vm_obj const &);
+typedef vm_obj (*vm_cfunction_4)(vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &);
+typedef vm_obj (*vm_cfunction_5)(vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &,
+                                 vm_obj const &);
+typedef vm_obj (*vm_cfunction_6)(vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &,
+                                 vm_obj const &, vm_obj const &);
+typedef vm_obj (*vm_cfunction_7)(vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &,
+                                 vm_obj const &, vm_obj const &, vm_obj const &);
+typedef vm_obj (*vm_cfunction_8)(vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &,
+                                 vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &);
+typedef vm_obj (*vm_cfunction_N)(unsigned n, vm_obj const *);
+
+/* Closure for C++ generated code, they do not require a vm_state object to be used. */
+class vm_native_closure : public vm_obj_cell {
+    vm_cfunction m_fn;
+    unsigned     m_arity;
+    unsigned     m_num_args;
+    vm_obj * get_args_ptr() {
+        return reinterpret_cast<vm_obj *>(reinterpret_cast<char *>(this)+sizeof(vm_native_closure));
+    }
+    friend vm_obj_cell;
+    void dealloc(buffer<vm_obj_cell*> & todelete);
+public:
+    vm_native_closure(vm_cfunction fn, unsigned arity, unsigned num_args, vm_obj const * args);
+    vm_cfunction get_fn() const { return m_fn; }
+    unsigned get_arity() const { return m_arity; }
+    unsigned get_num_args() const { return m_num_args; }
+    vm_obj const * get_args() const {
+        return reinterpret_cast<vm_obj const *>(reinterpret_cast<char const *>(this)+sizeof(vm_native_closure));
+    }
+};
+
 small_object_allocator & get_vm_allocator();
 
 // =======================================
@@ -146,9 +185,30 @@ vm_obj mk_vm_constructor(unsigned cidx, vm_obj const &);
 vm_obj mk_vm_constructor(unsigned cidx, vm_obj const &, vm_obj const &);
 vm_obj mk_vm_constructor(unsigned cidx, vm_obj const &, vm_obj const &, vm_obj const &);
 vm_obj mk_vm_constructor(unsigned cidx, vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &);
-vm_obj mk_vm_closure(unsigned fnidx, unsigned sz, vm_obj const * args);
+/* TODO(Leo, Jared): delete native closures that take environment as argument */
 vm_obj mk_native_closure(environment const & env, name const & n, unsigned sz, vm_obj const * args);
 vm_obj mk_native_closure(environment const & env, name const & n, std::initializer_list<vm_obj const> args);
+/* Native closures */
+vm_obj mk_native_closure(vm_cfunction_1 fn, unsigned num_args, vm_obj const * args);
+vm_obj mk_native_closure(vm_cfunction_2 fn, unsigned num_args, vm_obj const * args);
+vm_obj mk_native_closure(vm_cfunction_3 fn, unsigned num_args, vm_obj const * args);
+vm_obj mk_native_closure(vm_cfunction_4 fn, unsigned num_args, vm_obj const * args);
+vm_obj mk_native_closure(vm_cfunction_5 fn, unsigned num_args, vm_obj const * args);
+vm_obj mk_native_closure(vm_cfunction_6 fn, unsigned num_args, vm_obj const * args);
+vm_obj mk_native_closure(vm_cfunction_7 fn, unsigned num_args, vm_obj const * args);
+vm_obj mk_native_closure(vm_cfunction_8 fn, unsigned num_args, vm_obj const * args);
+vm_obj mk_native_closure(vm_cfunction_N fn, unsigned arity, unsigned num_args, vm_obj const * args);
+vm_obj mk_native_closure(vm_cfunction_1 fn, std::initializer_list<vm_obj> const & args);
+vm_obj mk_native_closure(vm_cfunction_2 fn, std::initializer_list<vm_obj> const & args);
+vm_obj mk_native_closure(vm_cfunction_3 fn, std::initializer_list<vm_obj> const & args);
+vm_obj mk_native_closure(vm_cfunction_4 fn, std::initializer_list<vm_obj> const & args);
+vm_obj mk_native_closure(vm_cfunction_5 fn, std::initializer_list<vm_obj> const & args);
+vm_obj mk_native_closure(vm_cfunction_6 fn, std::initializer_list<vm_obj> const & args);
+vm_obj mk_native_closure(vm_cfunction_7 fn, std::initializer_list<vm_obj> const & args);
+vm_obj mk_native_closure(vm_cfunction_8 fn, std::initializer_list<vm_obj> const & args);
+vm_obj mk_native_closure(vm_cfunction_N fn, unsigned arity, std::initializer_list<vm_obj> const & args);
+/* Closure to VM bytecode */
+vm_obj mk_vm_closure(unsigned fnidx, unsigned sz, vm_obj const * args);
 vm_obj mk_vm_closure(unsigned cidx, vm_obj const &);
 vm_obj mk_vm_closure(unsigned cidx, vm_obj const &, vm_obj const &);
 vm_obj mk_vm_closure(unsigned cidx, vm_obj const &, vm_obj const &, vm_obj const &);
@@ -171,6 +231,7 @@ inline vm_obj_kind kind(vm_obj_cell const * o) { return LEAN_VM_IS_PTR(o) ? o->k
 inline bool is_simple(vm_obj_cell const * o) { return !LEAN_VM_IS_PTR(o); }
 inline bool is_constructor(vm_obj_cell const * o) { return kind(o) == vm_obj_kind::Constructor; }
 inline bool is_closure(vm_obj_cell const * o) { return kind(o) == vm_obj_kind::Closure; }
+inline bool is_native_closure(vm_obj_cell const * o) { return kind(o) == vm_obj_kind::NativeClosure; }
 inline bool is_composite(vm_obj_cell const * o) { return is_constructor(o) || is_closure(o); }
 inline bool is_mpz(vm_obj_cell const * o) { return kind(o) == vm_obj_kind::MPZ; }
 inline bool is_external(vm_obj_cell const * o) { return kind(o) == vm_obj_kind::External; }
@@ -182,6 +243,7 @@ inline vm_composite * to_composite(vm_obj_cell * o) { lean_assert(is_composite(o
 inline vm_mpz * to_mpz_core(vm_obj_cell * o) { lean_assert(is_mpz(o)); return static_cast<vm_mpz*>(o); }
 inline mpz const & to_mpz(vm_obj_cell * o) { return to_mpz_core(o)->get_value(); }
 inline vm_external * to_external(vm_obj_cell * o) { lean_assert(is_external(o)); return static_cast<vm_external*>(o); }
+inline vm_native_closure * to_native_closure(vm_obj_cell * o) { lean_assert(is_native_closure(o)); return static_cast<vm_native_closure*>(o); }
 // =======================================
 
 // =======================================
@@ -205,25 +267,6 @@ class vm_state;
 
 /** Builtin functions that take arguments from the VM stack. */
 typedef void (*vm_function)(vm_state & s);
-
-/** Builtin functions that take arguments from the system stack.
-
-    \remark The C++ code generator produces this kind of function. */
-typedef vm_obj (*vm_cfunction)(vm_obj const &);
-typedef vm_obj (*vm_cfunction_0)();
-typedef vm_obj (*vm_cfunction_1)(vm_obj const &);
-typedef vm_obj (*vm_cfunction_2)(vm_obj const &, vm_obj const &);
-typedef vm_obj (*vm_cfunction_3)(vm_obj const &, vm_obj const &, vm_obj const &);
-typedef vm_obj (*vm_cfunction_4)(vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &);
-typedef vm_obj (*vm_cfunction_5)(vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &,
-                                 vm_obj const &);
-typedef vm_obj (*vm_cfunction_6)(vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &,
-                                 vm_obj const &, vm_obj const &);
-typedef vm_obj (*vm_cfunction_7)(vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &,
-                                 vm_obj const &, vm_obj const &, vm_obj const &);
-typedef vm_obj (*vm_cfunction_8)(vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &,
-                                 vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &);
-typedef vm_obj (*vm_cfunction_N)(unsigned n, vm_obj const *);
 
 /** Custom 'cases' operators. Given an object \c o, it returns the constructor index and stores
     the data stored in the object in the buffer \c data. */

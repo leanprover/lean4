@@ -9,7 +9,7 @@ import init.meta.tactic init.data.option.basic
 meta constant vm_obj : Type
 
 inductive vm_obj_kind
-| simple | constructor | closure | mpz
+| simple | constructor | closure | native_closure | mpz
 | name | level | expr | declaration
 | environment | tactic_state | format
 | options | other

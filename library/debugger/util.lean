@@ -79,19 +79,20 @@ meta def type_to_string : option expr → nat → vm string
 | none i := do
   o ← vm.stack_obj i,
   match o^.kind with
-  | vm_obj_kind.simple       := return "[tagged value]"
-  | vm_obj_kind.constructor  := return "[constructor]"
-  | vm_obj_kind.closure      := return "[closure]"
-  | vm_obj_kind.mpz          := return "[big num]"
-  | vm_obj_kind.name         := return "name"
-  | vm_obj_kind.level        := return "level"
-  | vm_obj_kind.expr         := return "expr"
-  | vm_obj_kind.declaration  := return "declaration"
-  | vm_obj_kind.environment  := return "environment"
-  | vm_obj_kind.tactic_state := return "tactic_state"
-  | vm_obj_kind.format       := return "format"
-  | vm_obj_kind.options      := return "options"
-  | vm_obj_kind.other        := return "[other]"
+  | vm_obj_kind.simple         := return "[tagged value]"
+  | vm_obj_kind.constructor    := return "[constructor]"
+  | vm_obj_kind.closure        := return "[closure]"
+  | vm_obj_kind.native_closure := return "[native closure]"
+  | vm_obj_kind.mpz            := return "[big num]"
+  | vm_obj_kind.name           := return "name"
+  | vm_obj_kind.level          := return "level"
+  | vm_obj_kind.expr           := return "expr"
+  | vm_obj_kind.declaration    := return "declaration"
+  | vm_obj_kind.environment    := return "environment"
+  | vm_obj_kind.tactic_state   := return "tactic_state"
+  | vm_obj_kind.format         := return "format"
+  | vm_obj_kind.options        := return "options"
+  | vm_obj_kind.other          := return "[other]"
   end
 | (some type) i := do
   fmt ← vm.pp_expr type,

@@ -61,17 +61,18 @@ vm_obj _vm_obj_kind(vm_obj const & o) {
     case vm_obj_kind::Simple: return mk_vm_simple(0);
     case vm_obj_kind::Constructor: return mk_vm_simple(1);
     case vm_obj_kind::Closure: return mk_vm_simple(2);
-    case vm_obj_kind::MPZ: return mk_vm_simple(3);
+    case vm_obj_kind::NativeClosure: return mk_vm_simple(3);
+    case vm_obj_kind::MPZ: return mk_vm_simple(4);
     case vm_obj_kind::External:
-        if (is_name(o)) return mk_vm_simple(4);
-        else if (is_level(o)) return mk_vm_simple(5);
-        else if (is_expr(o)) return mk_vm_simple(6);
-        else if (is_declaration(o)) return mk_vm_simple(7);
-        else if (is_env(o)) return mk_vm_simple(8);
-        else if (is_tactic_state(o)) return mk_vm_simple(9);
-        else if (is_format(o)) return mk_vm_simple(10);
-        else if (is_options(o)) return mk_vm_simple(11);
-        else return mk_vm_simple(12);
+        if (is_name(o)) return mk_vm_simple(5);
+        else if (is_level(o)) return mk_vm_simple(6);
+        else if (is_expr(o)) return mk_vm_simple(7);
+        else if (is_declaration(o)) return mk_vm_simple(8);
+        else if (is_env(o)) return mk_vm_simple(9);
+        else if (is_tactic_state(o)) return mk_vm_simple(10);
+        else if (is_format(o)) return mk_vm_simple(11);
+        else if (is_options(o)) return mk_vm_simple(12);
+        else return mk_vm_simple(13);
     }
     lean_unreachable();
 }

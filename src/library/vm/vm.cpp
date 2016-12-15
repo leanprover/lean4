@@ -1275,59 +1275,58 @@ void vm_state::invoke_builtin(vm_decl const & d) {
     m_pc++;
 }
 
-void vm_state::invoke_cfun(vm_decl const & d) {
+void vm_state::invoke_fn(vm_cfunction fn, unsigned arity) {
     flet<vm_state *> Set(g_vm_state, this);
     auto & S       = m_stack;
     unsigned sz    = S.size();
-    unsigned arity = d.get_arity();
     vm_obj r;
     /* Important The stack m_stack may be resized during the execution of the function d.get_cfn().
        Thus, to make sure the arguments are not garbage collected, we copy them into local variables a1 ... an.
        The copy operation will bump the reference counter. */
     switch (arity) {
     case 0:
-        r = reinterpret_cast<vm_cfunction_0>(d.get_cfn())();
+        r = reinterpret_cast<vm_cfunction_0>(fn)();
         break;
     case 1: {
         vm_obj a1 = S[sz-1];
-        r = reinterpret_cast<vm_cfunction_1>(d.get_cfn())(a1);
+        r = reinterpret_cast<vm_cfunction_1>(fn)(a1);
         break;
     }
     case 2: {
         vm_obj a1 = S[sz - 1], a2 = S[sz - 2];
-        r = reinterpret_cast<vm_cfunction_2>(d.get_cfn())(a1, a2);
+        r = reinterpret_cast<vm_cfunction_2>(fn)(a1, a2);
         break;
     }
     case 3: {
         vm_obj a1 = S[sz - 1], a2 = S[sz - 2], a3 = S[sz - 3];
-        r = reinterpret_cast<vm_cfunction_3>(d.get_cfn())(a1, a2, a3);
+        r = reinterpret_cast<vm_cfunction_3>(fn)(a1, a2, a3);
         break;
     }
     case 4: {
         vm_obj a1 = S[sz - 1], a2 = S[sz - 2], a3 = S[sz - 3], a4 = S[sz - 4];
-        r = reinterpret_cast<vm_cfunction_4>(d.get_cfn())(a1, a2, a3, a4);
+        r = reinterpret_cast<vm_cfunction_4>(fn)(a1, a2, a3, a4);
         break;
     }
     case 5: {
         vm_obj a1 = S[sz - 1], a2 = S[sz - 2], a3 = S[sz - 3], a4 = S[sz - 4], a5 = S[sz - 5];
-        r = reinterpret_cast<vm_cfunction_5>(d.get_cfn())(a1, a2, a3, a4, a5);
+        r = reinterpret_cast<vm_cfunction_5>(fn)(a1, a2, a3, a4, a5);
         break;
     }
     case 6: {
         vm_obj a1 = S[sz - 1], a2 = S[sz - 2], a3 = S[sz - 3], a4 = S[sz - 4], a5 = S[sz - 5], a6 = S[sz - 6];
-        r = reinterpret_cast<vm_cfunction_6>(d.get_cfn())(a1, a2, a3, a4, a5, a6);
+        r = reinterpret_cast<vm_cfunction_6>(fn)(a1, a2, a3, a4, a5, a6);
         break;
     }
     case 7: {
         vm_obj a1 = S[sz - 1], a2 = S[sz - 2], a3 = S[sz - 3], a4 = S[sz - 4], a5 = S[sz - 5], a6 = S[sz - 6];
         vm_obj a7 = S[sz - 7];
-        r = reinterpret_cast<vm_cfunction_7>(d.get_cfn())(a1, a2, a3, a4, a5, a6, a7);
+        r = reinterpret_cast<vm_cfunction_7>(fn)(a1, a2, a3, a4, a5, a6, a7);
         break;
     }
     case 8: {
         vm_obj a1 = S[sz - 1], a2 = S[sz - 2], a3 = S[sz - 3], a4 = S[sz - 4], a5 = S[sz - 5], a6 = S[sz - 6];
         vm_obj a7 = S[sz - 7], a8 = S[sz - 8];
-        r = reinterpret_cast<vm_cfunction_8>(d.get_cfn())(a1, a2, a3, a4, a5, a6, a7, a8);
+        r = reinterpret_cast<vm_cfunction_8>(fn)(a1, a2, a3, a4, a5, a6, a7, a8);
         break;
     }
     default: {
@@ -1338,7 +1337,7 @@ void vm_state::invoke_cfun(vm_decl const & d) {
             args.push_back(m_stack[i]);
         }
         lean_assert(args.size() == arity);
-        r = reinterpret_cast<vm_cfunction_N>(d.get_cfn())(args.size(), args.data());
+        r = reinterpret_cast<vm_cfunction_N>(fn)(args.size(), args.data());
         break;
     }}
     m_stack.resize(sz - arity);
@@ -1965,10 +1964,14 @@ vm_obj invoke(unsigned fn_idx, vm_obj const & arg) {
     return invoke(fn_idx, 1, &arg);
 }
 
-static vm_obj update_native_closure(vm_obj const & fn, buffer<vm_obj> const & new_args) {
+static vm_obj update_native_closure(vm_obj const & fn, unsigned num_new_args, vm_obj const * new_args) {
     vm_native_closure const * c = to_native_closure(fn);
-    lean_assert(new_args.size() < c->get_arity());
-    return mk_native_closure(c->get_fn(), c->get_arity(), new_args.size(), new_args.data());
+    lean_assert(num_new_args < c->get_arity());
+    return mk_native_closure(c->get_fn(), c->get_arity(), num_new_args, new_args);
+}
+
+static vm_obj update_native_closure(vm_obj const & fn, buffer<vm_obj> const & new_args) {
+    return update_native_closure(fn, new_args.size(), new_args.data());
 }
 
 inline vm_cfunction_1 to_nfn1(vm_obj const & fn) { return reinterpret_cast<vm_cfunction_1>(to_native_closure(fn)->get_fn()); }
@@ -2830,11 +2833,35 @@ void vm_state::run() {
             unsigned sz       = m_stack.size();
             vm_obj closure    = m_stack.back();
             stack_pop_back();
+            // TODO(Leo): remove redundant code. The following two branches in the if-then-else statement are very similar.
             if (is_native_closure(closure)) {
-                // NOT IMPLEMENTED YET.
-                // This branch can only be reached if we mix bytecode and generated C++ code.
-                // TODO(Leo): we need to be able to dynamic link generated C++ code to be able to test this branch.
-                lean_unreachable();
+                vm_native_closure const * c = to_native_closure(closure);
+                unsigned arity              = c->get_arity();
+                unsigned nargs              = c->get_num_args() + 1;
+                lean_assert(nargs <= arity);
+                /* Keep consuming 'apply' instructions while nargs < arity */
+                while (nargs < arity && m_code[m_pc+1].op() == opcode::Apply) {
+                    nargs++;
+                    m_pc++;
+                }
+                /* Copy closure data to the top of the stack */
+                std::copy(c->get_args(), c->get_args() + c->get_num_args(), std::back_inserter(m_stack));
+                if (nargs < arity) {
+                    /* Case 1) We don't have sufficient arguments. So, we create a new closure */
+                    sz = m_stack.size();
+                    vm_obj new_value = update_native_closure(closure, nargs, m_stack.data() + sz - nargs);
+                    m_stack.resize(sz - nargs + 1);
+                    swap(m_stack.back(), new_value);
+                    if (m_debugging) shrink_stack_info();
+                    m_pc++;
+                    goto main_loop;
+                } else {
+                    lean_assert(nargs == arity);
+                    buffer<vm_obj> args;
+                    /* Case 2 */
+                    invoke_fn(c->get_fn(), arity);
+                    goto main_loop;
+                }
             } else {
                 unsigned fn_idx   = cfn_idx(closure);
                 vm_decl d         = get_decl(fn_idx);

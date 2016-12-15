@@ -615,7 +615,8 @@ class vm_state {
     unsigned pop_frame_core();
     unsigned pop_frame();
     void invoke_builtin(vm_decl const & d);
-    void invoke_cfun(vm_decl const & d);
+    void invoke_fn(vm_cfunction fn, unsigned arity);
+    void invoke_cfun(vm_decl const & d) { invoke_fn(d.get_cfn(), d.get_arity()); }
     void invoke_global(vm_decl const & d);
     void invoke(vm_decl const & d);
     void run();

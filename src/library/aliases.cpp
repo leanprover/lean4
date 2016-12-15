@@ -28,6 +28,7 @@ struct aliases_ext : public environment_extension {
         name_map<name>        m_inv_aliases;
         name_map<name>        m_level_aliases;
         name_map<name>        m_inv_level_aliases;
+        name_map<expr>        m_local_refs;
         state():m_in_section(false) {}
 
         void add_expr_alias(name const & a, name const & e, bool overwrite) {
@@ -74,6 +75,10 @@ struct aliases_ext : public environment_extension {
             m_scopes = add_expr_alias_rec_core(m_scopes, a, e, overwrite);
         }
         add_expr_alias(a, e, overwrite);
+    }
+
+    void add_local_ref(name const & a, expr const & ref) {
+        m_state.m_local_refs.insert(a, ref);
     }
 
     void push(bool in_section) {
@@ -138,6 +143,20 @@ optional<name> is_expr_aliased(environment const & env, name const & t) {
 
 list<name> get_expr_aliases(environment const & env, name const & n) {
     return ptr_to_list(get_extension(env).m_state.m_aliases.find(n));
+}
+
+environment add_local_ref(environment const & env, name const & a, expr const & ref) {
+    aliases_ext ext = get_extension(env);
+    ext.add_local_ref(a, ref);
+    return update(env, ext);
+}
+
+optional<expr> get_local_ref(environment const & env, name const & n) {
+    aliases_ext const & ext = get_extension(env);
+    if (auto r = ext.m_state.m_local_refs.find(n))
+        return some_expr(*r);
+    else
+        return none_expr();
 }
 
 static void check_no_shadow(environment const & env, name const & a) {

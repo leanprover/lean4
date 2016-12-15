@@ -56,6 +56,12 @@ bool is_exception(name const & n, name const & prefix, unsigned num_exceptions, 
 
 void for_each_expr_alias(environment const & env, std::function<void(name const &, list<name> const &)> const & fn);
 
+/* When we declare a definition in a section, we create an alias for it that fixes the parameters in
+   universe parameters. */
+environment add_local_ref(environment const & env, name const & a, expr const & ref);
+
+optional<expr> get_local_ref(environment const & env, name const & n);
+
 void initialize_aliases();
 void finalize_aliases();
 }

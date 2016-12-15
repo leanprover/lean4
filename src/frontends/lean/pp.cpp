@@ -45,7 +45,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/token_table.h"
 #include "frontends/lean/builtin_exprs.h"
 #include "frontends/lean/parser_config.h"
-#include "frontends/lean/local_ref_info.h"
 #include "frontends/lean/scanner.h"
 
 namespace lean {
@@ -455,7 +454,7 @@ static local_ref_kind check_local_ref(environment const & env, expr const & e, u
     expr const & rfn = get_app_fn(e);
     if (!is_constant(rfn))
         return NotLocalRef;
-    auto ref = get_local_ref_info(env, const_name(rfn));
+    auto ref = get_local_ref(env, const_name(rfn));
     if (!ref)
         return NotLocalRef;
     if (is_as_atomic(*ref))

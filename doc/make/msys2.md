@@ -30,6 +30,6 @@ In the [msys2] shell, execute the following commands.
 git clone https://github.com/leanprover/lean
 cd lean
 mkdir build && cd build
-cmake ../src -G Ninja -D CMAKE_BUILD_TYPE=Release
+cmake ../src -G Ninja
 ninja
 ```

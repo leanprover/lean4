@@ -1,15 +1,15 @@
-foo.b α : foo
-foo.b α : foo
-foo.b α : foo
+foo.b : foo
+foo.b : foo
+foo.b : foo
 -------
-foo.b α
+foo.b
 foo
 -------
 α : Type
 ⊢ foo
-bla.foo.b α : bla.foo α
-bla.foo.b α : bla.foo α
-bla.foo.b α : bla.foo α
-boo.foo.b α : boo.foo α
-boo.foo.b α : boo.foo α
-boo.foo.b α : boo.foo α
+bla.foo.b : bla.foo
+bla.foo.b : bla.foo
+bla.foo.b : bla.foo
+boo.foo.b : boo.foo
+boo.foo.b : boo.foo
+boo.foo.b : boo.foo

@@ -521,16 +521,9 @@ auto pretty_fn::pp_overriden_local_ref(expr const & e) -> result {
     return result(max_bp()-1, r_fmt);
 }
 
-bool pretty_fn::ignore_local_ref(expr const & e) {
-    expr const & fn = get_app_fn(e);
-    return m_full_names && (!is_constant(fn) || !const_name(fn).is_atomic());
-}
-
 // Return some result if \c e is of the form (c p_1 ... p_n) where
 // c is a constant, and p_i's are parameters fixed in a section.
 auto pretty_fn::pp_local_ref(expr const & e) -> optional<result> {
-    if (ignore_local_ref(e))
-        return optional<result>();
     unsigned num_ref_univ_params;
     switch (check_local_ref(m_env, e, num_ref_univ_params)) {
     case NotLocalRef:
@@ -749,7 +742,7 @@ auto pretty_fn::pp_app(expr const & e) -> result {
     bool ignore_hide = true;
     result res_fn    = pp_child(fn, max_bp()-1, ignore_hide);
     format fn_fmt    = res_fn.fmt();
-    if (m_implict && (!is_app(fn) || (!ignore_local_ref(fn) && is_local_ref(m_env, fn))) && has_implicit_args(fn))
+    if (m_implict && (!is_app(fn) || (is_local_ref(m_env, fn))) && has_implicit_args(fn))
         fn_fmt = compose(*g_explicit_fmt, fn_fmt);
     result res_arg = pp_child(app_arg(e), max_bp());
     return result(max_bp()-1, group(compose(fn_fmt, nest(m_indent, compose(line(), res_arg.fmt())))));

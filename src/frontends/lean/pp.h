@@ -107,7 +107,6 @@ private:
     std::pair<bool, token_table const *> needs_space_sep(token_table const * t, std::string const &s1, std::string const &s2) const;
 
     result pp_overriden_local_ref(expr const & e);
-    bool ignore_local_ref(expr const & e);
     optional<result> pp_local_ref(expr const & e);
 
     result pp_hide_coercion(expr const & e, unsigned bp, bool ignore_hide = false);

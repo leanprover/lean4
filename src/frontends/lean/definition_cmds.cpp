@@ -570,8 +570,9 @@ static expr inline_new_defs(environment const & old_env, environment const & new
             return none_expr();
         } else if (is_constant(e) && !old_env.find(const_name(e))) {
             auto decl = new_env.get(const_name(e));
+            expr val  = instantiate_value_univ_params(decl, const_levels(e));
             lean_assert(decl.is_definition());
-            return some_expr(inline_new_defs(old_env, new_env, decl.get_value()));
+            return some_expr(inline_new_defs(old_env, new_env, val));
         } else {
             return none_expr();
         }

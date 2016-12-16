@@ -6,6 +6,7 @@ Authors: Robert Lewis, Leonardo de Moura
 Structures with multiplicative and additive components, including division rings and fields.
 The development is modeled after Isabelle's library.
 -/
+prelude
 import init.algebra.ring
 universe variables u
 

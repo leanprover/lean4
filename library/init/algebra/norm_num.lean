@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Robert Lewis and Leonardo de Moura
 -/
 prelude
-import init.algebra.ring
+import init.algebra.field
 
 namespace norm_num
 universe variable u
@@ -88,5 +88,58 @@ by simp [h]
 
 lemma pos_mul_neg_helper [ring α] (a b c : α) (h : a * b = c) : a * (-b) = -c :=
 by simp [h]
+
+lemma div_add_helper [field α] (n d b c val : α) (hd : d ≠ 0) (h : n + b * d = val)
+        (h2 : c * d = val) : n / d + b = c :=
+begin
+  apply eq_of_mul_eq_mul_of_nonzero_right hd,
+  rw [h2, -h, right_distrib, div_mul_cancel _ hd]
+end
+
+lemma add_div_helper [field α] (n d b c val : α) (hd : d ≠ 0) (h : d * b + n = val)
+        (h2 : d * c = val) : b + n / d = c :=
+begin
+  apply eq_of_mul_eq_mul_of_nonzero_left hd,
+  rw [h2, -h, left_distrib, mul_div_cancel' _ hd]
+end
+
+lemma div_mul_helper [field α] (n d c v : α) (hd : d ≠ 0) (h : (n * c) / d = v) :
+        (n / d) * c = v :=
+by rw [-h, field.div_mul_eq_mul_div_comm _ _ hd, mul_div_assoc]
+
+lemma mul_div_helper [s : field α] (a n d v : α) (hd : d ≠ 0) (h : (a * n) / d = v) :
+        a * (n / d) = v :=
+by rw [-h, mul_div_assoc]
+
+lemma nonzero_of_div_helper [s : field α] (a b : α) (ha : a ≠ 0) (hb : b ≠ 0) : a / b ≠ 0 :=
+begin
+  intro hab,
+  assert habb : (a / b) * b = 0, rw [hab, zero_mul],
+  rw [div_mul_cancel _ hb] at habb,
+  exact ha habb
+end
+
+lemma div_helper [s : field α] (n d v : α) (hd : d ≠ 0) (h : v * d = n) : n / d = v :=
+begin
+  apply eq_of_mul_eq_mul_of_nonzero_right hd,
+  rw (div_mul_cancel _ hd),
+  exact eq.symm h
+end
+
+lemma div_eq_div_helper [s : field α] (a b c d v : α) (h1 : a * d = v) (h2 : c * b = v)
+        (hb : b ≠ 0) (hd : d ≠ 0) : a / b = c / d :=
+begin
+  apply eq_div_of_mul_eq,
+  exact hd,
+  rw div_mul_eq_mul_div,
+  apply eq.symm,
+  apply eq_div_of_mul_eq,
+  exact hb,
+  rw [h1, h2]
+end
+
+lemma subst_into_div [s : has_div α] (a₁ b₁ a₂ b₂ v : α) (h : a₁ / b₁ = v) (h1 : a₂ = a₁)
+      (h2 : b₂ = b₁) : a₂ / b₂ = v :=
+by rw [h1, h2, h]
 
 end norm_num

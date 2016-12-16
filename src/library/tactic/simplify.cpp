@@ -705,7 +705,7 @@ simplify_core_fn::simplify_core_fn(type_context & ctx, simp_lemmas const & slss,
 }
 
 simp_result simplify_core_fn::operator()(name const & rel, expr const & e) {
-    m_rel = rel;
+    flet<name> _(m_rel, rel);
     m_cache.clear();
     simp_result r(e);
     while (true) {
@@ -924,6 +924,10 @@ optional<pair<simp_result, bool>> simplify_fn::post(expr const & e, optional<exp
         else
             return no_ext_result();
     }
+}
+
+optional<expr> simplify_fn::prove(expr const & e) {
+    return prove_by_simp(get_iff_name(), e);
 }
 
 class vm_simplify_fn : public simplify_ext_core_fn {

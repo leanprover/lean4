@@ -122,11 +122,13 @@ public:
                          bool canonize_instances, bool canonize_proofs, bool use_axioms);
 };
 
-/* Default (bottom-up) simplifier: reduce projections, and apply simplification lemmas */
+/* Default (bottom-up) simplifier: reduce projections, apply simplification lemmas,
+   and use itself to discharge hypotheses. */
 class simplify_fn : public simplify_ext_core_fn {
 protected:
     virtual optional<pair<simp_result, bool>> pre(expr const & e, optional<expr> const & parent) override;
     virtual optional<pair<simp_result, bool>> post(expr const & e, optional<expr> const & parent) override;
+    virtual optional<expr> prove(expr const & e) override;
 public:
     simplify_fn(type_context & ctx, simp_lemmas const & slss,
                 unsigned max_steps, bool contextual, bool lift_eq,

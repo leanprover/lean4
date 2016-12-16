@@ -1,5 +1,5 @@
+namespace hidden
 check if tt then "a" else "b"
-
 /- Remark: in the standard library nat_to_int and int_to_real are has_lift instances
    instead of has_coe. -/
 constant int  : Type
@@ -38,3 +38,4 @@ check ↑n + x
 
 check (i:real) + x
 check (n:real) + x
+end hidden

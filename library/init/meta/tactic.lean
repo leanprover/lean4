@@ -654,6 +654,13 @@ do u ← mk_meta_univ,
    t ← mk_meta_var (expr.sort u),
    mk_meta_var t
 
+meta def mk_local' (pp_name : name) (bi : binder_info) (type : expr) : tactic expr := do
+uniq_name ← mk_fresh_name,
+return $ expr.local_const uniq_name pp_name bi type
+
+meta def mk_local_def (pp_name : name) (type : expr) : tactic expr :=
+mk_local' pp_name binder_info.default type
+
 private meta def get_pi_arity_aux : expr → tactic nat
 | (expr.pi n bi d b) :=
   do m     ← mk_fresh_name,

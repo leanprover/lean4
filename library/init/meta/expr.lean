@@ -144,6 +144,10 @@ meta def local_pp_name : expr → name
 | (local_const x n bi t) := n
 | e                      := name.anonymous
 
+meta def local_type : expr → expr
+| (local_const _ _ _ t) := t
+| e := e
+
 meta def is_constant_of : expr → name → bool
 | (const n₁ ls) n₂ := to_bool (n₁ = n₂)
 | e             n  := ff
@@ -230,5 +234,26 @@ meta def binding_body : expr → expr
 | e             := e
 
 meta def prop : expr := expr.sort level.zero
+
+meta def imp (a b : expr) : expr :=
+pi `a binder_info.default a b
+
+meta def and_ (a b : expr) : expr :=
+app (app (const ``and []) a) b
+
+meta def not_ (a : expr) : expr :=
+app (const ``not []) a
+
+meta def false_ : expr := const ``false []
+
+meta def lambdas : list expr → expr → expr
+| (local_const uniq pp info t :: es) f :=
+  lam pp info t (abstract_local (lambdas es f) uniq)
+| _ f := f
+
+meta def pis : list expr → expr → expr
+| (local_const uniq pp info t :: es) f :=
+  pi pp info t (abstract_local (pis es f) uniq)
+| _ f := f
 
 end expr

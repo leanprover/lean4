@@ -103,7 +103,7 @@ meta instance {α : Type u} [has_to_format α] : has_to_format (option α) :=
   (to_fmt "none")
   (λ a, to_fmt "(some " ++ nest 6 (to_fmt a) ++ to_fmt ")")⟩
 
-meta instance {α : Type u} {β : Type v} [has_to_format α] [has_to_format β] : has_to_format (sum α β) :=
+meta instance sum_has_to_format {α : Type u} {β : Type v} [has_to_format α] [has_to_format β] : has_to_format (sum α β) :=
 ⟨λ s, sum.cases_on s
   (λ a, to_fmt "(inl " ++ nest 5 (to_fmt a) ++ to_fmt ")")
   (λ b, to_fmt "(inr " ++ nest 5 (to_fmt b) ++ to_fmt ")")⟩

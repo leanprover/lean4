@@ -22,7 +22,13 @@ if h : n < unsigned_sz then fin.mk n h else fin.mk 0 zero_lt_unsigned_sz
 
 def to_nat (c : unsigned) : nat :=
 fin.val c
+
+def succ (i : unsigned) :=
+of_nat i^.to_nat^.succ
+
 end unsigned
+
+instance : has_zero unsigned := ⟨unsigned.of_nat 0⟩
 
 instance : decidable_eq unsigned :=
 have decidable_eq (fin unsigned_sz), from fin.decidable_eq _,

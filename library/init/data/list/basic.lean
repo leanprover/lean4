@@ -10,12 +10,12 @@ open decidable list
 notation h :: t  := cons h t
 notation `[` l:(foldr `, ` (h t, cons h t) nil `]`) := l
 
-universe variables u v
+universe variables u v w
 
 instance (α : Type u) : inhabited (list α) :=
 ⟨list.nil⟩
 
-variables {α : Type u} {β : Type v}
+variables {α : Type u} {β : Type v} {γ : Type w}
 
 namespace list
 protected def append : list α → list α → list α
@@ -72,12 +72,26 @@ def length : list α → nat
 | []       := 0
 | (a :: l) := length l + 1
 
+def empty : list α → bool
+| []       := tt
+| (_ :: _) := ff
+
 open option nat
 
 def nth : list α → nat → option α
 | []       n     := none
 | (a :: l) 0     := some a
 | (a :: l) (n+1) := nth l n
+
+def update_nth : list α → ℕ → α → list α
+| (x::xs) 0     a := a :: xs
+| (x::xs) (i+1) a := x :: update_nth xs i a
+| []      _     _ := []
+
+def remove_nth : list α → ℕ → list α
+| []      _     := []
+| (x::xs) 0     := xs
+| (x::xs) (i+1) := x :: remove_nth xs i
 
 def head [inhabited α] : list α → α
 | []       := default α
@@ -133,14 +147,27 @@ foldr (λ a r, p a || r) ff l
 definition all (l : list α) (p : α → bool) : bool :=
 foldr (λ a r, p a && r) tt l
 
-def zip : list α → list β → list (prod α β)
-| []      _       := []
-| _       []      := []
-| (x::xs) (y::ys) := (prod.mk x y) :: zip xs ys
+def bor  (l : list bool) : bool := any l id
+
+def band (l : list bool) : bool := all l id
+
+def zip_with (f : α → β → γ) : list α → list β → list γ
+| (x::xs) (y::ys) := f x y :: zip_with xs ys
+| _       _       := []
+
+def zip : list α → list β → list (prod α β) :=
+zip_with prod.mk
 
 def repeat (a : α) : ℕ → list α
 | 0 := []
 | (succ n) := a :: repeat n
+
+def range_core : ℕ → list ℕ → list ℕ
+| 0        l := l
+| (succ n) l := range_core n (n :: l)
+
+def range (n : ℕ) : list ℕ :=
+range_core n []
 
 def iota_core : ℕ → list ℕ → list ℕ
 | 0        l := reverse l
@@ -148,5 +175,8 @@ def iota_core : ℕ → list ℕ → list ℕ
 
 def iota : ℕ → list ℕ :=
 λ n, iota_core n []
+
+def sum [has_add α] [has_zero α] : list α → α :=
+foldl add zero
 
 end list

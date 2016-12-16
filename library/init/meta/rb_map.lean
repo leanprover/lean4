@@ -28,6 +28,28 @@ meta def of_list {key : Type} {data : Type} [has_ordering key] : list (key × da
 | []           := mk key data
 | ((k, v)::ls) := insert (of_list ls) k v
 
+meta def keys {key : Type} {data : Type} (m : rb_map key data) : list key :=
+fold m [] (λk v ks, k :: ks)
+
+meta def values {key : Type} {data : Type} (m : rb_map key data) : list data :=
+fold m [] (λk v vs, v :: vs)
+
+meta def to_list {key : Type} {data : Type} (m : rb_map key data) : list (key × data) :=
+fold m [] (λk v res, (k, v) :: res)
+
+meta def set_of_list {A} [has_ordering A] : list A → rb_map A unit
+| []      := mk _ _
+| (x::xs) := insert (set_of_list xs) x ()
+
+meta def map {A B C} [has_ordering A] (f : B → C) (m : rb_map A B) : rb_map A C :=
+fold m (mk _ _) (λk v res, insert res k (f v))
+
+meta def for {A B C} [has_ordering A] (m : rb_map A B) (f : B → C) : rb_map A C :=
+map f m
+
+meta def filter {A B} [has_ordering A] (m : rb_map A B) (f : B → Prop) [decidable_pred f] :=
+fold m (mk _ _) $ λa b m', if f b then insert m' a b else m'
+
 end rb_map
 
 attribute [reducible]

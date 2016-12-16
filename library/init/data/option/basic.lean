@@ -9,6 +9,22 @@ open decidable
 
 universe variables u v
 
+namespace option
+
+def to_monad {m : Type → Type} [monad m] [alternative m] {A} : option A → m A
+| none := failure
+| (some a) := return a
+
+def get_or_else {α : Type u} : option α → α → α
+| (some x) _ := x
+| none     e := e
+
+def is_some {α : Type u} : option α → bool
+| (some _) := tt
+| none     := ff
+
+end option
+
 instance (α : Type u) : inhabited (option α) :=
 ⟨none⟩
 

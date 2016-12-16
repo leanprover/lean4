@@ -72,6 +72,11 @@ meta def declaration.type : declaration → expr
 | (declaration.cnst n ls t tr) := t
 | (declaration.ax n ls t) := t
 
+meta def declaration.value : declaration → expr
+| (declaration.defn n ls t v h tr) := v
+| (declaration.thm n ls t v) := v^.get
+| _ := default expr
+
 meta def declaration.update_type : declaration → expr → declaration
 | (declaration.defn n ls t v h tr) new_t := declaration.defn n ls new_t v h tr
 | (declaration.thm n ls t v)       new_t := declaration.thm n ls new_t v

@@ -70,4 +70,7 @@ def read {σ : Type} {m : Type → Type} [monad m] : state_t σ m σ :=
 
 def write {σ : Type} {m : Type → Type} [monad m] : σ → state_t σ m unit :=
 λ s' s, return ((), s')
+
+def modify {σ : Type} {m : Type → Type} [monad m] (f : σ → σ) : state_t σ m unit :=
+do s ← read, write (f s)
 end state_t

@@ -208,6 +208,9 @@ public:
     friend bool is_eqp_declarations(environment const & e1, environment const & e2) {
         return is_eqp(e1.m_declarations, e2.m_declarations);
     }
+
+    /** \brief Returns a task that returns true iff all proofs are correct.  May throw an exception otherwise. */
+    task_result<bool> is_correct() const;
 };
 
 void initialize_environment();

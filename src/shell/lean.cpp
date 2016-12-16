@@ -498,7 +498,7 @@ int main(int argc, char ** argv) {
         for (auto & mod : mods) {
             try {
                 auto res = mod.second->m_result.get();
-                ok = ok && res.m_ok;
+                ok = ok && res.is_ok();
             } catch (exception & ex) {
                 ok = false;
                 // exception has already been reported

@@ -211,4 +211,37 @@ void environment::for_each_declaration(std::function<void(declaration const & d)
 void environment::for_each_universe(std::function<void(name const & n)> const & f) const {
     m_global_levels.for_each([&](name const & n) { return f(n); });
 }
+
+class environment_check_task : public task<bool> {
+    environment m_env;
+public:
+    environment_check_task(environment const & env) : m_env(env) {}
+
+    bool is_tiny() const override { return true; }
+
+    void description(std::ostream & out) const override {
+        out << "checking environment for incorrect proofs (" << get_module_id() << ")";
+    }
+
+    std::vector<generic_task_result> get_dependencies() override {
+        std::vector<generic_task_result> deps;
+        m_env.for_each_declaration([&] (declaration const & d) {
+            if (d.is_theorem())
+                deps.push_back(d.get_value_task());
+        });
+        return deps;
+    }
+
+    bool execute() override {
+        m_env.for_each_declaration([&] (declaration const & d) {
+            if (d.is_definition()) d.get_value();
+        });
+        return true;
+    }
+};
+
+task_result<bool> environment::is_correct() const {
+    return get_global_task_queue()->submit<environment_check_task>(*this);
+}
+
 }

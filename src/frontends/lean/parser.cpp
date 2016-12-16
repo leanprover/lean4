@@ -2309,7 +2309,7 @@ bool parse_commands(environment & env, io_state & ios, char const * fname) {
 
     auto mod = mod_mgr.get_module(fname);
     env = mod->get_produced_env();
-    return mod->m_result.get().m_ok;
+    return mod->m_result.get().is_ok();
 }
 
 void initialize_parser() {

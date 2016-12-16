@@ -128,7 +128,8 @@ public:
 
         mod.m_opts = p.ios().get_options();
 
-        mod.m_ok = parsed_ok; // TODO(gabriel): what should this be?
+        mod.m_parsed_ok = parsed_ok;
+        mod.m_proofs_are_correct = p.env().is_correct();
 
         return mod;
     }
@@ -153,6 +154,7 @@ public:
         if (auto res = m_mod->m_result.peek()) {
             for (auto & mdf : res->m_loaded_module->m_modifications)
                 mdf->get_task_dependencies(deps);
+            deps.push_back(res->m_proofs_are_correct);
         }
 
         return deps;
@@ -166,7 +168,8 @@ public:
         if (m_mod->m_source != module_src::LEAN)
             throw exception("cannot build olean from olean");
         auto res = m_mod->m_result.get();
-        if (!res.m_ok)
+
+        if (!res.is_ok())
             throw exception("not creating olean file because of errors");
 
         auto olean_fn = olean_of_lean(m_mod->m_mod);
@@ -243,7 +246,8 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
                       parse_olean_modifications(parsed_olean.second, id), {} },
                     m_initial_env, [=] { return mk_loader(id, deps); });
 
-            res.m_ok = true;
+            res.m_parsed_ok = true;
+            res.m_proofs_are_correct = mk_pure_task_result(true, "");
             mod->m_result = mk_pure_task_result(res, "Loading " + olean_fn);
 
             get_global_task_queue()->cancel_if(
@@ -302,7 +306,7 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
                     mod->m_deps);
 
             if (m_save_olean)
-                mod->m_olean_task = get_global_task_queue()->submit<olean_compilation_task>(mod);
+                get_global_task_queue()->submit<olean_compilation_task>(mod);
 
             get_global_task_queue()->cancel_if([=] (generic_task * t) {
                 return t->get_version() < m_current_period && t->get_module_id() == id && t->get_pos() >= task_pos;

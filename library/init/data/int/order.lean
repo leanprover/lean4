@@ -5,7 +5,8 @@ Authors: Jeremy Avigad
 
 The order relation on the integers.
 -/
-import .basic
+prelude
+import init.data.int.basic
 
 namespace int
 

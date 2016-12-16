@@ -218,6 +218,7 @@ public:
     environment_check_task(environment const & env) : m_env(env) {}
 
     bool is_tiny() const override { return true; }
+    bool do_priority_inversion() const override { return false; }
 
     void description(std::ostream & out) const override {
         out << "checking environment for incorrect proofs (" << get_module_id() << ")";

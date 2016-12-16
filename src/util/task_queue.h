@@ -138,6 +138,8 @@ public:
     virtual std::vector<generic_task_result> get_dependencies() { return {}; }
 
     virtual bool is_tiny() const { return false; }
+    virtual bool do_priority_inversion() const { return true; }
+
     virtual task_kind get_kind() const { return task_kind::elab; }
     virtual pos_info get_pos() const { return get_task_pos(); }
 

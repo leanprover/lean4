@@ -268,10 +268,12 @@ bool mt_task_queue::check_deps(generic_task_result const & t) {
     try {
         deps = unwrap(t)->m_task->get_dependencies();
     } catch (...) {}
-    for (auto & dep : deps) {
-        if (dep) {
-            submit_core(dep);
-            bump_prio(dep, get_prio(t));
+    if (unwrap(t)->m_task->do_priority_inversion()) {
+        for (auto & dep : deps) {
+            if (dep) {
+                submit_core(dep);
+                bump_prio(dep, get_prio(t));
+            }
         }
     }
     for (auto & dep : deps) {

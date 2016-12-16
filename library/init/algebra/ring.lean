@@ -140,6 +140,9 @@ by simp
 lemma neg_mul_comm [s : ring α] (a b : α) : -a * b = a * -b :=
 by simp
 
+theorem neg_eq_neg_one_mul [s : ring α] (a : α) : -a = -1 * a :=
+by simp
+
 lemma mul_sub_left_distrib [s : ring α] (a b c : α) : a * (b - c) = a * b - a * c :=
 calc
    a * (b - c) = a * b + a * -c : left_distrib a b (-c)

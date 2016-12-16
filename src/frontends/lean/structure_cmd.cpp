@@ -685,13 +685,15 @@ struct structure_cmd_fn {
     }
 
     void add_rec_alias(name const & n) {
+        levels rec_ctx_levels;
+        if (!is_nil(m_ctx_levels))
+            rec_ctx_levels = levels(mk_level_placeholder(), m_ctx_levels);
         if (m_modifiers.m_is_private) {
             name given_rec_name = name(m_given_name, n.get_string());
-            m_env = ::lean::add_alias(m_p, m_env, given_rec_name, n, levels(mk_level_placeholder(), m_ctx_levels),
-                                      m_ctx_locals);
+            m_env = ::lean::add_alias(m_p, m_env, given_rec_name, n, rec_ctx_levels, m_ctx_locals);
         } else {
             bool composite = true;
-            m_env = ::lean::add_alias(m_p, m_env, composite, n, levels(mk_level_placeholder(), m_ctx_levels), m_ctx_locals);
+            m_env = ::lean::add_alias(m_p, m_env, composite, n, rec_ctx_levels, m_ctx_locals);
         }
     }
 

@@ -39,9 +39,6 @@ class linear_order_pair (α : Type u) extends order_pair α, linear_weak_order �
 
 class linear_strong_order_pair (α : Type u) extends strong_order_pair α, linear_weak_order α
 
-class decidable_linear_order (α : Type u) extends linear_strong_order_pair α :=
-(decidable_lt : decidable_rel lt)
-
 @[refl] lemma le_refl [weak_order α] : ∀ a : α, a ≤ a :=
 weak_order.le_refl
 
@@ -210,20 +207,38 @@ match lt_trichotomy a b with
 | or.inr (or.inr hgt) := or.inr hgt
 end
 
-instance [decidable_linear_order α] (a b : α) : decidable (a < b) :=
-decidable_linear_order.decidable_lt α a b
-
-instance [decidable_linear_order α] (a b : α) : decidable (a ≤ b) :=
+/- The following lemma can be used when defining a decidable_linear_order instance, and the concrete structure
+   does not have its own definition for decidable le  -/
+def decidable_le_of_decidable_lt [linear_strong_order_pair α] [∀ a b : α, decidable (a < b)] (a b : α) : decidable (a ≤ b) :=
 if h₁ : a < b      then is_true (le_of_lt h₁)
 else if h₂ : b < a then is_false (not_le_of_gt h₂)
 else                    is_true (le_of_not_gt h₂)
 
+/- The following lemma can be used when defining a decidable_linear_order instance, and the concrete structure
+   does not have its own definition for decidable le -/
+def decidable_eq_of_decidable_lt [linear_strong_order_pair α] [∀ a b : α, decidable (a < b)] (a b : α) : decidable (a = b) :=
+match decidable_le_of_decidable_lt a b with
+| is_true h₁  :=
+  match decidable_le_of_decidable_lt b a with
+  | is_true h₂  := is_true (le_antisymm h₁ h₂)
+  | is_false h₂ := is_false (λ he : a = b, h₂ (he ▸ le_refl a))
+  end
+| is_false h₁ := is_false (λ he : a = b, h₁ (he ▸ le_refl a))
+end
+
+class decidable_linear_order (α : Type u) extends linear_strong_order_pair α :=
+(decidable_lt : decidable_rel lt)
+(decidable_le : decidable_rel le) -- TODO(Leo): add default value using decidable_le_of_decidable_lt
+(decidable_eq : decidable_eq α)   -- TODO(Leo): add default value using decidable_eq_of_decidable_lt
+
+instance [decidable_linear_order α] (a b : α) : decidable (a < b) :=
+decidable_linear_order.decidable_lt α a b
+
+instance [decidable_linear_order α] (a b : α) : decidable (a ≤ b) :=
+decidable_linear_order.decidable_le α a b
+
 instance [decidable_linear_order α] (a b : α) : decidable (a = b) :=
-if h₁ : a ≤ b then
-  if h₂ : b ≤ a
-  then is_true (le_antisymm h₁ h₂)
-  else is_false (λ he : a = b, h₂ (he ▸ le_refl a))
-else is_false (λ he : a = b, h₁ (he ▸ le_refl a))
+decidable_linear_order.decidable_eq α a b
 
 lemma eq_or_lt_of_not_lt [decidable_linear_order α] {a b : α} (h : ¬ a < b) : a = b ∨ b < a :=
 if h₁ : a = b then or.inl h₁

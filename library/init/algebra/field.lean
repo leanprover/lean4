@@ -10,6 +10,10 @@ prelude
 import init.algebra.ring
 universe variables u
 
+/- Make sure instances defined in this file have lower priority than the ones
+   defined for concrete structures -/
+set_option default_priority 100
+
 class division_ring (α : Type u) extends ring α, has_inv α, zero_ne_one_class α :=
 (mul_inv_cancel : ∀ {a : α}, a ≠ 0 → a * a⁻¹ = 1)
 (inv_mul_cancel : ∀ {a : α}, a ≠ 0 → a⁻¹ * a = 1)

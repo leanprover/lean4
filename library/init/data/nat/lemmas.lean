@@ -386,7 +386,9 @@ instance : decidable_linear_ordered_semiring nat :=
   mul_le_mul_of_nonneg_right := (take a b c h₁ h₂, nat.mul_le_mul_right c h₁),
   mul_lt_mul_of_pos_left     := @nat.mul_lt_mul_of_pos_left,
   mul_lt_mul_of_pos_right    := @nat.mul_lt_mul_of_pos_right,
-  decidable_lt               := nat.decidable_lt }
+  decidable_lt               := nat.decidable_lt,
+  decidable_le               := nat.decidable_le,
+  decidable_eq               := nat.decidable_eq }
 
 lemma le_of_lt_succ {m n : nat} : m < succ n → m ≤ n :=
 le_of_succ_le_succ
@@ -671,6 +673,25 @@ exists.elim (nat.le.dest h)
   (take l, assume hl : k + l = m,
     by rw [-hl, nat.add_sub_cancel_left, add_comm k, -add_assoc, nat.add_sub_cancel])
 
+lemma min_zero_left (a : ℕ) : min 0 a = 0 :=
+min_eq_left (zero_le a)
+
+lemma min_zero_right (a : ℕ) : min a 0 = 0 :=
+min_eq_right (zero_le a)
+
+-- Distribute succ over min
+lemma min_succ_succ (x y : ℕ) : min (succ x) (succ y) = succ (min x y) :=
+have f : x ≤ y → min (succ x) (succ y) = succ (min x y), from λp,
+  calc min (succ x) (succ y)
+              = succ x         : if_pos (succ_le_succ p)
+          ... = succ (min x y) : congr_arg succ (eq.symm (if_pos p)),
+have g : ¬ (x ≤ y) → min (succ x) (succ y) = succ (min x y), from λp,
+  calc min (succ x) (succ y)
+              = succ y         : if_neg (λeq, p (pred_le_pred eq))
+          ... = succ (min x y) : congr_arg succ (eq.symm (if_neg p)),
+decidable.by_cases f g
+
 /- TODO(Leo): sub + inequalities -/
+
 
 end nat

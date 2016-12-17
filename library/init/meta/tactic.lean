@@ -394,6 +394,13 @@ meta def note (n : name) (pr : expr) : tactic unit :=
 do t ← infer_type pr,
    assertv n t pr
 
+meta def is_prop (e : expr) : tactic bool :=
+do t ← infer_type e,
+   return (to_bool (t = expr.prop))
+
+meta def is_proof (e : expr) : tactic bool :=
+infer_type e >>= is_prop
+
 meta def whnf : expr → tactic expr :=
 whnf_core semireducible
 

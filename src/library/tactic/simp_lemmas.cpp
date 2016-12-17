@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_list.h"
 #include "library/vm/vm_option.h"
 #include "library/vm/vm_name.h"
+#include "library/vm/vm_format.h"
 #include "library/tactic/simp_result.h"
 #include "library/tactic/simp_lemmas.h"
 #include "library/tactic/tactic_state.h"
@@ -1431,6 +1432,15 @@ environment mark_rfl_lemma(environment const & env, name const & cname) {
     return get_refl_lemma_attribute().set(env, get_dummy_ios(), cname, LEAN_DEFAULT_PRIORITY, true);
 }
 
+vm_obj simp_lemmas_pp(vm_obj const & S, vm_obj const & _s) {
+    formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
+    tactic_state const & s = to_tactic_state(_s);
+    type_context ctx = mk_type_context_for(s);
+    formatter fmt = fmtf(s.env(), s.get_options(), ctx);
+    format r = to_simp_lemmas(S).pp(fmt);
+    return mk_tactic_success(to_obj(r), s);
+}
+
 void initialize_simp_lemmas() {
     g_dummy               = new simp_lemma_cell();
     g_simp_lemmas_configs = new std::vector<simp_lemmas_config>();
@@ -1452,6 +1462,7 @@ void initialize_simp_lemmas() {
     DECLARE_VM_BUILTIN(name({"simp_lemmas", "add_congr_core"}),  simp_lemmas_add_congr);
     DECLARE_VM_BUILTIN(name({"simp_lemmas", "rewrite_core"}),    simp_lemmas_rewrite);
     DECLARE_VM_BUILTIN(name({"simp_lemmas", "drewrite_core"}),   simp_lemmas_drewrite);
+    DECLARE_VM_BUILTIN(name({"simp_lemmas", "pp"}),              simp_lemmas_pp);
 
     DECLARE_VM_BUILTIN(name("is_valid_simp_lemma"), is_valid_simp_lemma);
     DECLARE_VM_BUILTIN(name("is_valid_simp_lemma_cnst"), is_valid_simp_lemma_cnst);

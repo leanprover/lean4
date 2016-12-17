@@ -66,6 +66,8 @@ def default_max_steps := 10000000
 meta def simp_lemmas.dsimplify : simp_lemmas → expr → tactic expr :=
 simp_lemmas.dsimplify_core default_max_steps ff
 
+meta constant simp_lemmas.pp : simp_lemmas → tactic format
+
 namespace tactic
 meta constant dsimplify_core
   /- The user state type. -/

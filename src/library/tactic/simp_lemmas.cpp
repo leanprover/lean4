@@ -459,7 +459,23 @@ class to_ceqvs_fn {
     list<expr_pair> apply(expr const & e, expr const & H, bool restricted) {
         expr c, Hdec, A, arg1, arg2;
         if (is_relation(e)) {
-            return mk_singleton(e, H);
+            auto r = mk_singleton(e, H);
+            name const & rel_name = const_name(get_app_fn(e));
+            if (rel_name != get_eq_name() && rel_name != get_iff_name() && is_prop(e)) {
+                /* If the relation is not eq or iff, we also add the
+                   rule e <-> true.
+                   Reason: in the current implementation any transitive and reflexive
+                   relation is assumed to be a simplification relation. Then,
+                   a lemma such as (H : a <= b) is viewed as a simplification rule
+                   for (a -> b for the relation <=). Then, if we are simplifying using
+                   eq or iff, we will miss the reduction (a <= b -> true).
+                */
+                expr new_e = mk_iff(e, mk_true());
+                expr new_H = mk_app(mk_constant(get_iff_true_intro_name()), e, H);
+                return append(mk_singleton(new_e, new_H), r);
+            } else {
+                return r;
+            }
         } else if (is_not(e, arg1)) {
             expr new_e = mk_iff(arg1, mk_false());
             expr new_H = mk_app(mk_constant(get_iff_false_intro_name()), arg1, H);

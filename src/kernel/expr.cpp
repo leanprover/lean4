@@ -348,13 +348,11 @@ bool enable_expr_caching(bool f) {
     DEBUG_CODE(bool r1 =) enable_level_caching(f);
     bool r2 = g_expr_cache_enabled;
     lean_assert(r1 == r2);
-    expr_cache new_cache;
-    get_expr_cache().swap(new_cache);
+    cache(mk_Prop());
+    cache(mk_Type());
     if (f) {
         clear_abstract_cache();
         clear_instantiate_cache();
-        cache(mk_Prop());
-        cache(mk_Type());
     }
     g_expr_cache_enabled = f;
     return r2;
@@ -362,7 +360,13 @@ bool enable_expr_caching(bool f) {
 bool is_cached(expr const & e) {
     return get_expr_cache().find(e) != get_expr_cache().end();
 }
-
+void flush_expr_cache() {
+    flush_level_cache();
+    expr_cache new_cache;
+    get_expr_cache().swap(new_cache);
+    clear_abstract_cache();
+    clear_instantiate_cache();
+}
 expr mk_var(unsigned idx, tag g) {
     return cache(expr(new (get_var_allocator().allocate()) expr_var(idx, g)));
 }

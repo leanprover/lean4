@@ -82,6 +82,7 @@ inline optional<level> some_level(level && e) { return optional<level>(std::forw
 bool enable_level_caching(bool f);
 level cache(level const & l);
 bool is_cached(level const & l);
+void flush_level_cache();
 
 level const & mk_level_zero();
 level const & mk_level_one();

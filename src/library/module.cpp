@@ -439,6 +439,7 @@ void import_module(std::vector<char> const & olean_code, std::string const & fil
     // TODO(gabriel): update extension
     std::string s(olean_code.data(), olean_code.size());
     std::istringstream in(s, std::ios_base::binary);
+    scoped_expr_caching enable_caching(true);
     deserializer d(in, optional<std::string>(file_name));
     unsigned obj_counter = 0;
     while (true) {

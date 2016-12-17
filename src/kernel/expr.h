@@ -503,6 +503,7 @@ struct scoped_expr_caching {
 };
 /** \brief Return true iff \c e is in the cache */
 bool is_cached(expr const & e);
+void flush_expr_cache();
 // =======================================
 
 // =======================================

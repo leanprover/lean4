@@ -267,11 +267,13 @@ MK_THREAD_LOCAL_GET_DEF(level_cache, get_level_cache);
 bool enable_level_caching(bool f) {
     bool r = g_level_cache_enabled;
     g_level_cache_enabled = f;
-    level_cache new_cache;
-    get_level_cache().swap(new_cache);
     get_level_cache().insert(mk_level_zero());
     get_level_cache().insert(mk_level_one());
     return r;
+}
+void flush_level_cache() {
+    level_cache new_cache;
+    get_level_cache().swap(new_cache);
 }
 level cache(level const & e) {
     if (g_level_cache_enabled) {

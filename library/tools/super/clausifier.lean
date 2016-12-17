@@ -23,26 +23,26 @@ on_first_left c $ λtype, do
 
 meta def inf_whnf_r (c : clause) : tactic (list clause) :=
 on_first_right c $ λha, do
-  a' ← whnf_core transparency.reducible ha↣local_type,
-  guard $ a' ≠ ha↣local_type,
-  hna ← mk_local_def `hna (imp a' c↣local_false),
+  a' ← whnf_core transparency.reducible ha^.local_type,
+  guard $ a' ≠ ha^.local_type,
+  hna ← mk_local_def `hna (imp a' c^.local_false),
   return [([hna], app hna ha)]
 
 set_option eqn_compiler.max_steps 500
 
 meta def inf_false_l (c : clause) : tactic (list clause) :=
-first $ do i ← list.range c↣num_lits,
-  if c↣get_lit i = clause.literal.left false_
+first $ do i ← list.range c^.num_lits,
+  if c^.get_lit i = clause.literal.left false_
   then [return []]
   else []
 
 meta def inf_false_r (c : clause) : tactic (list clause) :=
 on_first_right c $ λhf,
-  if hf↣local_type = c↣local_false
+  if hf^.local_type = c^.local_false
   then return [([], hf)]
-  else match hf↣local_type with
+  else match hf^.local_type with
   | const ``false [] := do
-    pr ← mk_app ``false.rec [c↣local_false, hf],
+    pr ← mk_app ``false.rec [c^.local_false, hf],
     return [([], pr)]
   | _ := failed
   end
@@ -55,8 +55,8 @@ on_first_left c $ λt,
   end
 
 meta def inf_true_r (c : clause) : tactic (list clause) :=
-first $ do i ← list.range c↣num_lits,
-  if c↣get_lit i = clause.literal.right (const ``true [])
+first $ do i ← list.range c^.num_lits,
+  if c^.get_lit i = clause.literal.right (const ``true [])
   then [return []]
   else []
 
@@ -71,9 +71,9 @@ on_first_left c $ λtype,
 
 meta def inf_not_r (c : clause) : tactic (list clause) :=
 on_first_right c $ λhna,
-  match hna↣local_type with
+  match hna^.local_type with
   | app (const ``not []) a := do
-    hnna ← mk_local_def `h (imp (imp a false_) c↣local_false),
+    hnna ← mk_local_def `h (imp (imp a false_) c^.local_false),
     return [([hnna], app hnna hna)]
   | _ := failed
   end
@@ -97,11 +97,11 @@ on_first_right' c $ λhyp, do
 
 meta def inf_or_r (c : clause) : tactic (list clause) :=
 on_first_right c $ λhab,
-  match hab↣local_type with
+  match hab^.local_type with
   | (app (app (const ``or []) a) b) := do
-    hna ← mk_local_def `l (imp a c↣local_false),
-    hnb ← mk_local_def `r (imp b c↣local_false),
-    proof ← mk_app ``or.elim [a, b, c↣local_false, hab, hna, hnb],
+    hna ← mk_local_def `l (imp a c^.local_false),
+    hnb ← mk_local_def `r (imp b c^.local_false),
+    proof ← mk_app ``or.elim [a, b, c^.local_false, hab, hna, hnb],
     return [([hna, hnb], proof)]
   | _ := failed
   end
@@ -120,7 +120,7 @@ on_first_left c $ λab,
 
 meta def inf_all_r (c : clause) : tactic (list clause) :=
 on_first_right' c $ λhallb,
-  match hallb↣local_type with
+  match hallb^.local_type with
   | (pi n bi a b) := do
     ha ← mk_local_def `x a,
     return [([ha], app hallb ha)]
@@ -144,10 +144,10 @@ lemma imp_l_c {F : Prop} {a b} : ((a → b) → F) → ((a → F) → F) :=
 
 meta def inf_imp_l (c : clause) : tactic (list clause) :=
 on_first_left_dn c $ λhnab,
-  match hnab↣local_type with
+  match hnab^.local_type with
   | (pi _ _ (pi _ _ a b) _) :=
-    if b↣has_var then failed else do
-    hna ← mk_local_def `na (imp a c↣local_false),
+    if b^.has_var then failed else do
+    hna ← mk_local_def `na (imp a c^.local_false),
     pf ← first (do r ← [``super.imp_l, ``super.imp_l', ``super.imp_l_c],
                  [mk_app r [hnab, hna]]),
     hb ← mk_local_def `b b,
@@ -178,26 +178,26 @@ assume hab hnenb,
 
 meta def inf_all_l (c : clause) : tactic (list clause) :=
 on_first_left_dn c $ λhnallb,
-  match hnallb↣local_type with
+  match hnallb^.local_type with
   | pi _ _ (pi n bi a b) _ := do
-    enb ← mk_mapp ``Exists [none, some $ lam n binder_info.default a (imp b c↣local_false)],
-    hnenb ← mk_local_def `h (imp enb c↣local_false),
+    enb ← mk_mapp ``Exists [none, some $ lam n binder_info.default a (imp b c^.local_false)],
+    hnenb ← mk_local_def `h (imp enb c^.local_false),
     pr ← mk_app ``super.demorgan' [hnallb, hnenb],
     return [([hnenb], pr)]
   | _ := failed
   end
 
 meta def inf_ex_r  (c : clause) : tactic (list clause) := do
-(qf, ctx) ← c↣open_constn c↣num_quants,
+(qf, ctx) ← c^.open_constn c^.num_quants,
 skolemized ← on_first_right' qf $ λhexp,
-  match hexp↣local_type with
+  match hexp^.local_type with
   | (app (app (const ``Exists [u]) d) p) := do
     sk_sym_name_pp ← get_unused_name `sk (some 1),
     inh_lc ← mk_local' `w binder_info.implicit d,
     sk_sym ← mk_local_def sk_sym_name_pp (pis (ctx ++ [inh_lc]) d),
     sk_p ← whnf_core transparency.none $ app p (app_of_list sk_sym (ctx ++ [inh_lc])),
     sk_ax ← mk_mapp ``Exists [some (local_type sk_sym),
-      some (lambdas [sk_sym] (pis (ctx ++ [inh_lc]) (imp hexp↣local_type sk_p)))],
+      some (lambdas [sk_sym] (pis (ctx ++ [inh_lc]) (imp hexp^.local_type sk_p)))],
     sk_ax_name ← get_unused_name `sk_axiom (some 1), assert sk_ax_name sk_ax,
     nonempt_of_inh ← mk_mapp ``nonempty.intro [some d, some inh_lc],
     eps ← mk_mapp ``classical.epsilon [some d, some nonempt_of_inh, some p],
@@ -209,7 +209,7 @@ skolemized ← on_first_right' qf $ λhexp,
     return [([inh_lc], app_of_list sk_ax' (ctx ++ [inh_lc, hexp]))]
   | _ := failed
   end,
-return $ skolemized↣for (λs, s↣close_constn ctx)
+return $ skolemized^.for (λs, s^.close_constn ctx)
 
 meta def first_some {a : Type} : list (tactic (option a)) → tactic (option a)
 | [] := return none
@@ -219,7 +219,7 @@ private meta def get_clauses_core' (rules : list (clause → tactic (list clause
      : list clause → tactic (list clause) | cs :=
 lift list.join $ do
 for cs $ λc, do first $
-rules↣for (λr, r c >>= get_clauses_core') ++ [return [c]]
+rules^.for (λr, r c >>= get_clauses_core') ++ [return [c]]
 
 meta def get_clauses_core (rules : list (clause → tactic (list clause))) (initial : list clause)
      : tactic (list clause) := do
@@ -268,10 +268,10 @@ monad.for l (clause.of_proof local_false)
 meta def clausification_inf : inf_decl := inf_decl.mk 0 $
 λgiven, list.foldr orelse (return ()) $
         do r ← clausification_rules_classical,
-           [do cs ← ♯ r given↣c,
+           [do cs ← ♯ r given^.c,
                cs' ← ♯ get_clauses_classical cs,
-               for' cs' (λc, mk_derived c given↣sc↣sched_now >>= add_inferred),
-               remove_redundant given↣id []]
+               for' cs' (λc, mk_derived c given^.sc^.sched_now >>= add_inferred),
+               remove_redundant given^.id []]
 
 
 end super

@@ -26,7 +26,7 @@ namespace clause
 private meta def tactic_format (c : clause) : tactic format := do
 prf_fmt : format ← pp (proof c),
 type_fmt ← pp (type c),
-loc_fls_fmt ← pp c↣local_false,
+loc_fls_fmt ← pp c^.local_false,
 return $ prf_fmt ++ to_fmt " : " ++ type_fmt ++ to_fmt " (" ++
   to_fmt (num_quants c) ++ to_fmt " quants, "
   ++ to_fmt (num_lits c) ++ to_fmt " lits)"
@@ -39,7 +39,7 @@ meta def inst (c : clause) (e : expr) : clause :=
 (if num_quants c > 0
   then mk (num_quants c - 1) (num_lits c)
   else mk 0 (num_lits c - 1))
-(app (proof c) e) (instantiate_var (binding_body (type c)) e) c↣local_false
+(app (proof c) e) (instantiate_var (binding_body (type c)) e) c^.local_false
 
 meta def instn (c : clause) (es : list expr) : clause :=
 foldr (λe c', inst c' e) c es
@@ -59,11 +59,11 @@ match e with
     let abst_type' := abstract_local (type c) (local_uniq_name e) in
     let type' := pi pp binder_info.default t (abstract_local (type c) uniq) in
     let abs_prf := abstract_local (proof c) uniq in
-    let proof' := lambdas [e] c↣proof in
+    let proof' := lambdas [e] c^.proof in
     if num_quants c > 0 ∨ has_var abst_type' then
-      { c with num_quants := c↣num_quants + 1, proof := proof', type := type' }
+      { c with num_quants := c^.num_quants + 1, proof := proof', type := type' }
     else
-      { c with num_lits := c↣num_lits + 1, proof := proof', type := type' }
+      { c with num_lits := c^.num_lits + 1, proof := proof', type := type' }
 | _ := ⟨0, 0, default expr, default expr, default expr⟩
 end
 
@@ -92,8 +92,8 @@ private meta def parse_clause (local_false : expr) : expr → expr → tactic cl
   lc_n ← mk_fresh_name,
   lc ← return $ local_const lc_n n bi d,
   c ← parse_clause (app proof lc) (instantiate_var b lc),
-  return $ c↣close_const $ local_const lc_n n binder_info.default d
-| proof (app (const ``not []) formula) := parse_clause proof (formula↣imp false_)
+  return $ c^.close_const $ local_const lc_n n binder_info.default d
+| proof (app (const ``not []) formula) := parse_clause proof (formula^.imp false_)
 | proof type :=
 if type = local_false then do
   return { num_quants := 0, num_lits := 0, proof := proof, type := type, local_false := local_false }
@@ -133,7 +133,7 @@ meta def is_neg : literal → bool
 | (left _) := tt
 | (right _) := ff
 
-meta def is_pos (l : literal) : bool := bnot l↣is_neg
+meta def is_pos (l : literal) : bool := bnot l^.is_neg
 
 meta def to_formula (l : literal) : tactic expr :=
 if is_neg l then mk_mapp ``not [some (formula l)]
@@ -145,30 +145,30 @@ meta def type_str : literal → string
 
 meta instance : has_to_tactic_format literal :=
 ⟨λl, do
-pp_f ← pp l↣formula,
-return $ to_fmt l↣type_str ++ " (" ++ pp_f ++ ")"⟩
+pp_f ← pp l^.formula,
+return $ to_fmt l^.type_str ++ " (" ++ pp_f ++ ")"⟩
 
 end literal
 
 private meta def get_binding_body : expr → ℕ → expr
 | e 0 := e
-| e (i+1) := get_binding_body e↣binding_body i
+| e (i+1) := get_binding_body e^.binding_body i
 
 meta def get_binder (e : expr) (i : nat) :=
 binding_domain (get_binding_body e i)
 
 meta def validate (c : clause) : tactic unit := do
-concl ← return $ get_binding_body c↣type c↣num_binders,
-unify concl c↣local_false
-      <|> (do pp_concl ← pp concl, pp_lf ← pp c↣local_false,
+concl ← return $ get_binding_body c^.type c^.num_binders,
+unify concl c^.local_false
+      <|> (do pp_concl ← pp concl, pp_lf ← pp c^.local_false,
               fail $ to_fmt "wrong local false: " ++ pp_concl ++ " =!= " ++ pp_lf),
-type' ← infer_type c↣proof,
-unify c↣type type' <|> (do pp_ty ← pp c↣type, pp_ty' ← pp type',
+type' ← infer_type c^.proof,
+unify c^.type type' <|> (do pp_ty ← pp c^.type, pp_ty' ← pp type',
                            fail (to_fmt "wrong type: " ++ pp_ty ++ " =!= " ++ pp_ty'))
 
 meta def get_lit (c : clause) (i : nat) : literal :=
 let bind := get_binder (type c) (num_quants c + i) in
-match is_local_not c↣local_false bind with
+match is_local_not c^.local_false bind with
 | some formula := literal.right formula
 | none         := literal.left bind
 end
@@ -177,10 +177,10 @@ meta def lits_where (c : clause) (p : literal → bool) : list nat :=
 list.filter (λl, p (get_lit c l)) (range (num_lits c))
 
 meta def get_lits (c : clause) : list literal :=
-list.map (get_lit c) (range c↣num_lits)
+list.map (get_lit c) (range c^.num_lits)
 
 meta def is_maximal (gt : expr → expr → bool) (c : clause) (i : nat) : bool :=
-list.empty (list.filter (λj, gt (get_lit c j)↣formula (get_lit c i)↣formula) (range c↣num_lits))
+list.empty (list.filter (λj, gt (get_lit c j)^.formula (get_lit c i)^.formula) (range c^.num_lits))
 
 meta def normalize (c : clause) : tactic clause := do
 opened  ← open_constn c (num_binders c),
@@ -195,9 +195,9 @@ meta def whnf_head_lit (c : clause) : tactic clause := do
 atom' ← whnf $ literal.formula $ get_lit c 0,
 return $
 if literal.is_neg (get_lit c 0) then
-  { c with type := imp atom' (binding_body c↣type) }
+  { c with type := imp atom' (binding_body c^.type) }
 else
-  { c with type := imp (app (const ``not []) atom') c↣type↣binding_body }
+  { c with type := imp (app (const ``not []) atom') c^.type^.binding_body }
 
 end clause
 
@@ -239,16 +239,16 @@ clause.inst_mvars $ clause.close_constn qf' bs
 private meta def distinct' (local_false : expr) : list expr → expr → clause
 | [] proof := ⟨ 0, 0, proof, local_false, local_false ⟩
 | (h::hs) proof :=
-  let (dups, rest) := partition (λh' : expr, h↣local_type = h'↣local_type) hs,
+  let (dups, rest) := partition (λh' : expr, h^.local_type = h'^.local_type) hs,
       proof_wo_dups := foldl (λproof (h' : expr),
-                              instantiate_var (abstract_local proof h'↣local_uniq_name) h)
+                              instantiate_var (abstract_local proof h'^.local_uniq_name) h)
                          proof dups in
-    (distinct' rest proof_wo_dups)↣close_const h
+    (distinct' rest proof_wo_dups)^.close_const h
 
 meta def distinct (c : clause) : tactic clause := do
-(qf, vs) ← c↣open_constn c↣num_quants,
-(fls, hs) ← qf↣open_constn qf↣num_lits,
-return $ (distinct' c↣local_false hs fls↣proof)↣close_constn vs
+(qf, vs) ← c^.open_constn c^.num_quants,
+(fls, hs) ← qf^.open_constn qf^.num_lits,
+return $ (distinct' c^.local_false hs fls^.proof)^.close_constn vs
 
 end clause
 

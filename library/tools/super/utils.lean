@@ -60,10 +60,10 @@ def exists_ {A} (l : list A) (p : A → Prop) [decidable_pred p] : bool :=
 list.any l (λx, to_bool (p x))
 
 def subset_of {A} [decidable_eq A] (xs ys : list A) :=
-xs↣for_all (λx, x ∈ ys)
+xs^.for_all (λx, x ∈ ys)
 
 def filter_maximal {A} (gt : A → A → bool) (l : list A) : list A :=
-filter (λx, l↣for_all (λy, ¬gt y x)) l
+filter (λx, l^.for_all (λy, ¬gt y x)) l
 
 private def zip_with_index' {A} : ℕ → list A → list (A × ℕ)
 | _ nil := nil

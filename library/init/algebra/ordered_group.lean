@@ -566,3 +566,17 @@ instance decidable_linear_ordered_mul_comm_group.to_ordered_mul_comm_group (α :
 instance decidable_linear_ordered_comm_group.to_ordered_comm_group (α : Type u)
   [s : decidable_linear_ordered_comm_group α] : ordered_comm_group α :=
 @decidable_linear_ordered_mul_comm_group.to_ordered_mul_comm_group α s
+
+class decidable_linear_ordered_mul_cancel_comm_monoid (α : Type u)
+      extends ordered_mul_cancel_comm_monoid α, decidable_linear_order α
+
+@[class] def decidable_linear_ordered_cancel_comm_monoid : Type u → Type (max 1 u) :=
+decidable_linear_ordered_mul_cancel_comm_monoid
+
+instance ordered_cancel_comm_monoid_of_decidable_linear_ordered_cancel_comm_monoid (α : Type u)
+  [s : decidable_linear_ordered_cancel_comm_monoid α] : ordered_cancel_comm_monoid α :=
+@decidable_linear_ordered_mul_cancel_comm_monoid.to_ordered_mul_cancel_comm_monoid α s
+
+instance decidable_linear_order_of_decidable_linear_ordered_cancel_comm_monoid (α : Type u)
+  [s : decidable_linear_ordered_cancel_comm_monoid α] : decidable_linear_order α :=
+@decidable_linear_ordered_mul_cancel_comm_monoid.to_decidable_linear_order α s

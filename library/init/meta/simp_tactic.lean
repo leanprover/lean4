@@ -236,16 +236,23 @@ private meta def is_equation : expr → bool
 | (expr.pi n bi d b) := is_equation b
 | e                  := match (expr.is_eq e) with (some a) := tt | none := ff end
 
-private meta def collect_eqs : list expr → tactic (list expr)
+private meta def collect_simps : list expr → tactic (list expr)
 | []        := return []
 | (h :: hs) := do
-  Eqs   ← collect_eqs hs,
-  htype ← infer_type h >>= whnf,
-  return $ if is_equation htype then h :: Eqs else Eqs
+  result ← collect_simps hs,
+  htype  ← infer_type h >>= whnf,
+  if is_equation htype
+  then return (h :: result)
+  else do
+    pr ← is_prop htype,
+    return $ if pr then (h :: result) else result
+
+meta def collect_ctx_simps : tactic (list expr) :=
+local_context >>= collect_simps
 
 /- Simplify target using all hypotheses in the local context. -/
 meta def simp_using_hs : tactic unit :=
-local_context >>= collect_eqs >>= simp_using
+collect_ctx_simps >>= simp_using
 
 meta def simp_core_at (extra_lemmas : list expr) (h : expr) : tactic unit :=
 do when (expr.is_local_constant h = ff) (fail "tactic simp_at failed, the given expression is not a hypothesis"),
@@ -262,7 +269,7 @@ meta def simp_at_using (hs : list expr) : expr → tactic unit :=
 simp_core_at hs
 
 meta def simp_at_using_hs (h : expr) : tactic unit :=
-do hs ← local_context >>= collect_eqs,
+do hs ← collect_ctx_simps,
    simp_core_at (list.filter (ne h) hs) h
 
 meta def mk_eq_simp_ext (simp_ext : expr → tactic (expr × expr)) : tactic unit :=

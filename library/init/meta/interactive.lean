@@ -351,8 +351,9 @@ private meta def simp_hyps (cfg : simplify_config) : simp_lemmas → location �
 | s []      := skip
 | s (h::hs) := simp_hyp cfg s h >> simp_hyps s hs
 
-private meta def simp_core (cfg : simplify_config) (hs : opt_qexpr_list) (attr_names : with_ident_list) (ids : without_ident_list) (loc : location) : tactic unit :=
+private meta def simp_core (cfg : simplify_config) (ctx : list expr) (hs : opt_qexpr_list) (attr_names : with_ident_list) (ids : without_ident_list) (loc : location) : tactic unit :=
 do s ← mk_simp_set attr_names hs ids,
+   s ← s^.append ctx,
    match loc : _ → tactic unit with
    | [] := simp_goal cfg s
    | _  := simp_hyps cfg s loc
@@ -360,10 +361,14 @@ do s ← mk_simp_set attr_names hs ids,
    try tactic.triv, try (tactic.reflexivity_core reducible)
 
 meta def simp (hs : opt_qexpr_list) (attr_names : with_ident_list) (ids : without_ident_list) (loc : location) : tactic unit :=
-simp_core default_simplify_config hs attr_names ids loc
+simp_core default_simplify_config [] hs attr_names ids loc
 
 meta def ctx_simp (hs : opt_qexpr_list) (attr_names : with_ident_list) (ids : without_ident_list) (loc : location) : tactic unit :=
-simp_core {default_simplify_config with contextual := tt} hs attr_names ids loc
+simp_core {default_simplify_config with contextual := tt} [] hs attr_names ids loc
+
+meta def simp_using_hs (hs : opt_qexpr_list) (attr_names : with_ident_list) (ids : without_ident_list) : tactic unit :=
+do ctx ← collect_ctx_simps,
+   simp_core default_simplify_config ctx hs attr_names ids []
 
 private meta def dsimp_hyps : location → tactic unit
 | []      := skip

@@ -120,6 +120,9 @@ bool simplify_core_fn::instantiate_emetas(tmp_type_context & tmp_ctx, unsigned n
                 if (auto pf = prove(mvar_type)) {
                     lean_verify(tmp_ctx.is_def_eq(mvar, *pf));
                     return;
+                } else {
+                    lean_simp_trace(tmp_ctx, name({"simplify", "failure"}),
+                                    tout() << "failed to prove: " << mvar << " : " << mvar_type << "\n";);
                 }
             }
 

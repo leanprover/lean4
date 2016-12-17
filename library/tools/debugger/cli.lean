@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 
 Simple command line interface for debugging Lean programs and tactics.
 -/
-import debugger.util
+import tools.debugger.util
 
 namespace debugger
 

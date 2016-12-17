@@ -1,4 +1,4 @@
-import debugger
+import tools.debugger
 
 set_option debugger true
 set_option debugger.autorun true

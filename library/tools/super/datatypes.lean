@@ -36,15 +36,6 @@ on_right_at' c i $ λhyp,
   | _ := failed
   end
 
-example (x y : ℕ) (h : nat.zero = nat.succ nat.zero) (h2 : nat.succ x = nat.succ y) : true := by do
-h ← get_local `h >>= clause.of_classical_proof,
-h2 ← get_local `h2 >>= clause.of_classical_proof,
-cs ← try_no_confusion_eq_r h 0,
-for' cs clause.validate,
-cs ← try_no_confusion_eq_r h2 0,
-for' cs clause.validate,
-to_expr `(trivial) >>= exact
-
 @[super.inf]
 meta def datatype_infs : inf_decl := inf_decl.mk 10 $ take given, do
 sequence' (do i ← list.range given↣c↣num_lits, [inf_if_successful 0 given $ try_no_confusion_eq_r given↣c i])

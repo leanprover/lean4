@@ -1,4 +1,4 @@
-import .prover
+import tools.super
 open tactic
 
 constant nat_has_dvd : has_dvd nat

@@ -33,34 +33,3 @@ let nis := rb_map.of_list (list.zip_with_index ns) in
 | (some si, some ti) := to_bool (si > ti)
 | _ := ff
 end
-
-open tactic
-example (m n : ℕ) : true := by do
-e₁ ← to_expr `((0 + (m : ℕ)) + 0),
-e₂ ← to_expr `(0 + (0 + (m : ℕ))),
-e₃ ← to_expr `(0 + (m : ℕ)),
-prec ← return (contained_funsyms e₁)↣keys,
-prec_gt ← return $ prec_gt_of_name_list prec,
-guard $ lpo prec_gt e₁ e₃,
-guard $ lpo prec_gt e₂ e₃,
-to_expr `(trivial) >>= apply
-
-/-
-open tactic
-example (i : Type) (f : i → i) (c d x : i) : true := by do
-ef ← get_local `f, ec ← get_local `c, ed ← get_local `d,
-syms ← return [ef,ec,ed],
-prec_gt ← return $ prec_gt_of_name_list (list.map local_uniq_name [ef, ec, ed]),
-sequence' (do s1 ← syms, s2 ← syms, return (do
-  s1_fmt ← pp s1, s2_fmt ← pp s2,
-  trace (s1_fmt ++ to_fmt " > " ++ s2_fmt ++ to_fmt ": " ++ to_fmt (prec_gt s1 s2))
-)),
-
-exprs ← @mapM tactic _ _ _ to_expr [`(f c), `(f (f c)), `(f d), `(f x), `(f (f x))],
-sequence' (do e1 ← exprs, e2 ← exprs, return (do
-  e1_fmt ← pp e1, e2_fmt ← pp e2,
-  trace (e1_fmt ++ to_fmt" > " ++ e2_fmt ++ to_fmt": " ++ to_fmt (lpo prec_gt e1 e2))
-)),
-
-mk_const ``true.intro >>= apply
--/

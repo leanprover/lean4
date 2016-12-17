@@ -80,21 +80,6 @@ new_fin_prf ←
             abs_rwr_ctx, (op2↣1↣close_const hi2)↣proof, new_hi2],
 clause.meta_closure (qf1↣2 ++ qf2↣2) $ (op1↣1↣inst new_fin_prf)↣close_constn (op1↣2 ++ op2↣2↣update_nth i2 new_hi2)
 
-example (i : Type) (a b : i) (p : i → Prop) (H : a = b) (Hpa : p a) : true := by do
-H ← get_local `H >>= clause.of_classical_proof,
-Hpa ← get_local `Hpa >>= clause.of_classical_proof,
-a ← get_local `a,
-try_sup (λx y, ff) H Hpa 0 0 [0] tt ``super.sup_ltr >>= clause.validate,
-to_expr `(trivial) >>= apply
-
-example (i : Type) (a b : i) (p : i → Prop) (H : a = b) (Hpa : p a → false) (Hpb : p b → false) : true := by do
-H ← get_local `H >>= clause.of_classical_proof,
-Hpa ← get_local `Hpa >>= clause.of_classical_proof,
-Hpb ← get_local `Hpb >>= clause.of_classical_proof,
-try_sup (λx y, ff) H Hpa 0 0 [0] tt ``super.sup_ltr >>= clause.validate,
-try_sup (λx y, ff) H Hpb 0 0 [0] ff ``super.sup_rtl >>= clause.validate,
-to_expr `(trivial) >>= apply
-
 meta def rwr_positions (c : clause) (i : nat) : list (list ℕ) :=
 get_rwr_positions (c↣get_lit i)↣formula
 

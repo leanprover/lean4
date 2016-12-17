@@ -15,18 +15,6 @@ meta def get_components (hs : list expr) : list (list expr) :=
 (find_components hs (hs↣zip_with_index↣for $ λh, [h]))↣for $ λc,
 (sort_on (λh : expr × ℕ, h↣2) c)↣for $ λh, h↣1
 
-example (i : Type) (p q : i → Prop) (H : ∀x y, p x → q y → false) : true := by do
-h ← get_local `H >>= clause.of_classical_proof,
-(op, lcs) ← h↣open_constn h↣num_binders,
-guard $ (get_components lcs)↣length = 2,
-triv
-
-example (i : Type) (p : i → i → Prop) (H : ∀x y z, p x y → p y z → false) : true := by do
-h ← get_local `H >>= clause.of_classical_proof,
-(op, lcs) ← h↣open_constn h↣num_binders,
-guard $ (get_components lcs)↣length = 1,
-triv
-
 meta def extract_assertions : clause → prover (clause × list expr) | c :=
 if c↣num_lits = 0 then return (c, [])
 else if c↣num_quants ≠ 0 then do

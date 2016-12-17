@@ -10,13 +10,6 @@ return $ list.bor $ do
   l2 ← qf^.1^.get_lits, guard l2^.is_pos,
   [decidable.to_bool $ l1^.formula = l2^.formula]
 
-open tactic
-example (i : Type) (p : i → i → Type) (c : i) (h : ∀ (x : i), p x c → p x c) : true := by do
-h ← get_local `h, hcls ← clause.of_classical_proof h,
-taut ← is_taut hcls,
-when (¬taut) failed,
-to_expr `(trivial) >>= apply
-
 meta def tautology_removal_pre : prover unit :=
 preprocessing_rule $ λnew, filter (λc, lift bnot $♯ is_taut c↣c) new
 

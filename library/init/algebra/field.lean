@@ -25,7 +25,7 @@ a * b⁻¹
 instance division_ring_has_div [division_ring α] : has_div α :=
 ⟨algebra.div⟩
 
-lemma division.def (a b : α) : a / b = a * b⁻¹ :=
+lemma division_def (a b : α) : a / b = a * b⁻¹ :=
 rfl
 
 lemma mul_inv_cancel {a : α} (h : a ≠ 0) : a * a⁻¹ = 1 :=
@@ -38,7 +38,7 @@ lemma inv_eq_one_div (a : α) : a⁻¹ = 1 / a :=
 eq.symm $ one_mul (a⁻¹)
 
 local attribute [simp]
-division.def mul_comm mul_assoc
+division_def mul_comm mul_assoc
 mul_left_comm mul_inv_cancel inv_mul_cancel
 
 lemma div_eq_mul_one_div (a b : α) : a / b = a * (1 / b) :=
@@ -127,7 +127,7 @@ calc
 
 lemma div_neg_eq_neg_div {a : α} (b : α) (ha : a ≠ 0) : b / (- a) = - (b / a) :=
 calc
-  b / (- a) = b * (1 / (- a)) : by rw [-inv_eq_one_div, division.def]
+  b / (- a) = b * (1 / (- a)) : by rw [-inv_eq_one_div, division_def]
         ... = b * -(1 / a)    : by rw (division_ring.one_div_neg_eq_neg_one_div ha)
         ... = -(b * (1 / a))  : by rw neg_mul_eq_mul_neg
         ... = - (b * a⁻¹)     : by rw inv_eq_one_div
@@ -232,11 +232,11 @@ by rw [mul_comm, (div_mul_cancel _ hb)]
 lemma one_div_add_one_div {a b : α} (ha : a ≠ 0) (hb : b ≠ 0) : 1 / a + 1 / b = (a + b) / (a * b) :=
 have a * b ≠ 0, from (division_ring.mul_ne_zero ha hb),
 by rw [add_comm, -(field.div_mul_left ha this), -(field.div_mul_right hb this),
-       division.def, division.def, division.def, -right_distrib]
+       division_def, division_def, division_def, -right_distrib]
 
 lemma field.div_mul_div (a : α) {b : α} (c : α) {d : α} (hb : b ≠ 0) (hd : d ≠ 0) :
       (a / b) * (c / d) = (a * c) / (b * d) :=
-begin simp [division.def], rw [mul_inv_eq hd hb, mul_comm d⁻¹] end
+begin simp [division_def], rw [mul_inv_eq hd hb, mul_comm d⁻¹] end
 
 lemma mul_div_mul_left (a : α) {b c : α} (hb : b ≠ 0) (hc : c ≠ 0) :
       (c * a) / (c * b) = a / b :=
@@ -247,7 +247,7 @@ lemma mul_div_mul_right (a : α) {b c : α} (hb : b ≠ 0) (hc : c ≠ 0) :
 by rw [mul_comm a, mul_comm b, mul_div_mul_left _ hb hc]
 
 lemma div_mul_eq_mul_div (a b c : α) : (b / c) * a = (b * a) / c :=
-by simp [division.def]
+by simp [division_def]
 
 lemma field.div_mul_eq_mul_div_comm (a b : α) {c : α} (hc : c ≠ 0) :
       (b / c) * a = b * (a / c) :=
@@ -331,7 +331,7 @@ discrete_field.inv_zero α
 
 lemma one_div_zero : 1 / 0 = (0:α) :=
 calc
-  1 / 0 = (1:α) * 0⁻¹ : by rw division.def
+  1 / 0 = (1:α) * 0⁻¹ : by rw division_def
     ... = 1 * 0       : by rw inv_zero
     ... = (0:α)       : by rw mul_zero
 

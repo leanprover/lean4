@@ -1,3 +1,9 @@
+/-
+Copyright (c) 2016 Gabriel Ebner. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Gabriel Ebner
+-/
+
 -- Polytime version of lexicographic path order as described in:
 -- Things to know when implementing LPO, Bernd Löchner, ESFOR 2004
 import .utils

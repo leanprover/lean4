@@ -17,8 +17,8 @@ inductive less_than (a : ℕ) : ℕ → Prop
 instance : has_le ℕ :=
 ⟨nat.less_than⟩
 
-@[reducible] protected def le (n m : ℕ) := n ≤ m
-@[reducible] protected def lt (n m : ℕ) := succ n ≤ m
+@[reducible] protected def le (n m : ℕ) := nat.less_than n m
+@[reducible] protected def lt (n m : ℕ) := nat.less_than (succ n) m
 
 instance : has_lt ℕ :=
 ⟨nat.lt⟩

@@ -63,6 +63,9 @@ linear_weak_order.le_total
 lemma le_of_not_ge [linear_weak_order α] {a b : α} : ¬ a ≥ b → a ≤ b :=
 or.resolve_left (le_total b a)
 
+lemma le_of_not_le [linear_weak_order α] {a b : α} : ¬ a ≤ b → b ≤ a :=
+or.resolve_left (le_total a b)
+
 lemma lt_irrefl [strict_order α] : ∀ a : α, ¬ a < a :=
 strict_order.lt_irrefl
 

@@ -23,12 +23,12 @@ instance {p : Prop} : has_to_string (decidable p) :=
 -- Remark: type class inference will not consider local instance `b` in the new elaborator
 ⟨λ b : decidable p, @ite p b _ "tt" "ff"⟩
 
-def list.to_string_aux {α : Type u} [has_to_string α] : bool → list α → string
+protected def list.to_string_aux {α : Type u} [has_to_string α] : bool → list α → string
 | b  []      := ""
 | tt (x::xs) := to_string x ++ list.to_string_aux ff xs
 | ff (x::xs) := ", " ++ to_string x ++ list.to_string_aux ff xs
 
-def list.to_string {α : Type u} [has_to_string α] : list α → string
+protected def list.to_string {α : Type u} [has_to_string α] : list α → string
 | []      := "[]"
 | (x::xs) := "[" ++ list.to_string_aux tt (x::xs) ++ "]"
 

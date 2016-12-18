@@ -24,7 +24,7 @@ notation `-[1+ ` n `]` := int.neg_succ_of_nat n
 instance : decidable_eq int :=
 by tactic.mk_dec_eq_instance
 
-private def int.to_string : int → string
+protected def int.to_string : int → string
 | (int.of_nat n)          := to_string n
 | (int.neg_succ_of_nat n) := "-" ++ to_string (succ n)
 

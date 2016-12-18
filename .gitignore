@@ -13,3 +13,5 @@ GTAGS
 src/emacs/dependencies
 compile_commands.json
 *.idea
+tasks.json
+settings.json

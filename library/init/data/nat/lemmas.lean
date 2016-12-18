@@ -691,6 +691,13 @@ have g : ¬ (x ≤ y) → min (succ x) (succ y) = succ (min x y), from λp,
           ... = succ (min x y) : congr_arg succ (eq.symm (if_neg p)),
 decidable.by_cases f g
 
+lemma sub_eq_sub_min (n m : ℕ) : n - m = n - min n m :=
+if h : n ≥ m then by rewrite [min_eq_right h]
+else by rewrite [sub_eq_zero_of_le (le_of_not_ge h), min_eq_left (le_of_not_ge h), nat.sub_self]
+
+lemma sub_add_min_cancel (n m : ℕ) : n - m + min n m = n :=
+by rewrite [sub_eq_sub_min, nat.sub_add_cancel (min_le_left n m)]
+
 /- TODO(Leo): sub + inequalities -/
 
 

@@ -22,6 +22,8 @@ definition nil : tuple α 0 := ⟨[],  rfl⟩
 definition cons : α → tuple α n → tuple α (nat.succ n)
 | a ⟨ v, h ⟩ := ⟨ a::v, congr_arg nat.succ h ⟩
 
+@[reducible] def length (v : tuple α n) : ℕ := n
+
 notation a :: b := cons a b
 notation `[` l:(foldr `, ` (h t, cons h t) nil `]`) := l
 
@@ -79,18 +81,17 @@ definition map₂ (f : α → β → φ) : tuple α n → tuple β n → tuple �
                  ... = n                                   : min_self n in
   ⟨ z, p ⟩
 
-definition repeat (a : α) : tuple α n
-  := ⟨ list.repeat a n, list.length_repeat a n ⟩
+definition repeat (a : α) (n : ℕ) : tuple α n :=
+⟨list.repeat a n, list.length_repeat a n⟩
 
-definition dropn : Π (i:ℕ), tuple α n → tuple α (n - i)
-| i ⟨ l, p ⟩ := ⟨ list.dropn i l, p ▸ list.length_dropn i l ⟩
+definition dropn (i : ℕ) : tuple α n → tuple α (n - i)
+| ⟨l, p⟩ := ⟨list.dropn i l, p ▸ list.length_dropn i l⟩
 
-definition firstn : Π (i:ℕ) {p:i ≤ n}, tuple α n → tuple α i
-| i is_le ⟨ l, p ⟩ :=
+definition firstn (i : ℕ) : tuple α n → tuple α (min i n)
+| ⟨l, p⟩ :=
   let q := calc list.length (list.firstn i l)
                    = min i (list.length l)  : list.length_firstn i l
-               ... = min i n                : congr_arg (λ v, min i v) p
-               ... = i                      : min_eq_left is_le in
+               ... = min i n                : congr_arg (min i) p in
   ⟨list.firstn i l, q⟩
 
 section accum

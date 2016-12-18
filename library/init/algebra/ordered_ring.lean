@@ -36,7 +36,7 @@ instance add_comm_group_of_ordered_semiring (α : Type u) [s : ordered_semiring 
 instance monoid_of_ordered_semiring (α : Type u) [s : ordered_semiring α] : ordered_cancel_comm_monoid α :=
 @ordered_semiring.to_ordered_mul_cancel_comm_monoid α s
 
-section
+section ordered_semiring
 variable [ordered_semiring α]
 
 lemma mul_le_mul_of_nonneg_left {a b c : α} (h₁ : a ≤ b) (h₂ : 0 ≤ c) : c * a ≤ c * b :=
@@ -50,13 +50,128 @@ ordered_semiring.mul_lt_mul_of_pos_left _ a b c h₁ h₂
 
 lemma mul_lt_mul_of_pos_right {a b c : α} (h₁ : a < b) (h₂ : 0 < c) : a * c < b * c :=
 ordered_semiring.mul_lt_mul_of_pos_right _ a b c h₁ h₂
-end
+
+-- TODO: there are four variations, depending on which variables we assume to be nonneg
+lemma mul_le_mul {a b c d : α} (hac : a ≤ c) (hbd : b ≤ d) (nn_b : 0 ≤ b) (nn_c : 0 ≤ c) : a * b ≤ c * d :=
+calc
+  a * b ≤ c * b : mul_le_mul_of_nonneg_right hac nn_b
+    ... ≤ c * d : mul_le_mul_of_nonneg_left hbd nn_c
+
+lemma mul_nonneg {a b : α} (ha : a ≥ 0) (hb : b ≥ 0) : a * b ≥ 0 :=
+have h : 0 * b ≤ a * b, from mul_le_mul_of_nonneg_right ha hb,
+by rwa [zero_mul] at h
+
+lemma mul_nonpos_of_nonneg_of_nonpos {a b : α} (ha : a ≥ 0) (hb : b ≤ 0) : a * b ≤ 0 :=
+have h : a * b ≤ a * 0, from mul_le_mul_of_nonneg_left hb ha,
+by rwa mul_zero at h
+
+lemma mul_nonpos_of_nonpos_of_nonneg {a b : α} (ha : a ≤ 0) (hb : b ≥ 0) : a * b ≤ 0 :=
+have h : a * b ≤ 0 * b, from mul_le_mul_of_nonneg_right ha hb,
+by rwa zero_mul at h
+
+lemma mul_lt_mul {a b c d : α} (hac : a < c) (hbd : b ≤ d) (pos_b : 0 < b) (nn_c : 0 ≤ c) :  a * b < c * d :=
+calc
+  a * b < c * b : mul_lt_mul_of_pos_right hac pos_b
+    ... ≤ c * d : mul_le_mul_of_nonneg_left hbd nn_c
+
+lemma mul_lt_mul' {a b c d : α} (h1 : a < c) (h2 : b < d) (h3 : b ≥ 0) (h4 : c > 0) :
+       a * b < c * d :=
+calc
+   a * b ≤ c * b : mul_le_mul_of_nonneg_right (le_of_lt h1) h3
+     ... < c * d : mul_lt_mul_of_pos_left h2 h4
+
+lemma mul_pos {a b : α} (ha : a > 0) (hb : b > 0) : a * b > 0 :=
+have h : 0 * b < a * b, from mul_lt_mul_of_pos_right ha hb,
+by rwa zero_mul at h
+
+lemma mul_neg_of_pos_of_neg {a b : α} (ha : a > 0) (hb : b < 0) : a * b < 0 :=
+have h : a * b < a * 0, from mul_lt_mul_of_pos_left hb ha,
+by rwa mul_zero at h
+
+lemma mul_neg_of_neg_of_pos {a b : α} (ha : a < 0) (hb : b > 0) : a * b < 0 :=
+have h : a * b < 0 * b, from mul_lt_mul_of_pos_right ha hb,
+by rwa zero_mul at  h
+
+lemma mul_self_lt_mul_self {a b : α} (h1 : 0 ≤ a) (h2 : a < b) : a * a < b * b :=
+mul_lt_mul' h2 h2 h1 (lt_of_le_of_lt h1 h2)
+end ordered_semiring
 
 class linear_ordered_semiring (α : Type u) extends ordered_semiring α, linear_strong_order_pair α :=
 (zero_lt_one : zero < one)
 
-lemma zero_lt_one [linear_ordered_semiring α] : 0 < (1:α) :=
+section linear_ordered_semiring
+variable [linear_ordered_semiring α]
+
+lemma zero_lt_one : 0 < (1:α) :=
 linear_ordered_semiring.zero_lt_one α
+
+lemma lt_of_mul_lt_mul_left {a b c : α} (h : c * a < c * b) (hc : c ≥ 0) : a < b :=
+lt_of_not_ge
+  (assume h1 : b ≤ a,
+   have h2 : c * b ≤ c * a, from mul_le_mul_of_nonneg_left h1 hc,
+   not_lt_of_ge h2 h)
+
+lemma lt_of_mul_lt_mul_right {a b c : α} (h : a * c < b * c) (hc : c ≥ 0) : a < b :=
+lt_of_not_ge
+  (assume h1 : b ≤ a,
+   have h2 : b * c ≤ a * c, from mul_le_mul_of_nonneg_right h1 hc,
+   not_lt_of_ge h2 h)
+
+lemma le_of_mul_le_mul_left {a b c : α} (h : c * a ≤ c * b) (hc : c > 0) : a ≤ b :=
+le_of_not_gt
+  (assume h1 : b < a,
+   have h2 : c * b < c * a, from mul_lt_mul_of_pos_left h1 hc,
+   not_le_of_gt h2 h)
+
+lemma le_of_mul_le_mul_right {a b c : α} (h : a * c ≤ b * c) (hc : c > 0) : a ≤ b :=
+le_of_not_gt
+  (assume h1 : b < a,
+   have h2 : b * c < a * c, from mul_lt_mul_of_pos_right h1 hc,
+   not_le_of_gt h2 h)
+
+lemma pos_of_mul_pos_left {a b : α} (h : 0 < a * b) (h1 : 0 ≤ a) : 0 < b :=
+lt_of_not_ge
+  (assume h2 : b ≤ 0,
+   have h3 : a * b ≤ 0, from mul_nonpos_of_nonneg_of_nonpos h1 h2,
+   not_lt_of_ge h3 h)
+
+lemma pos_of_mul_pos_right {a b : α} (h : 0 < a * b) (h1 : 0 ≤ b) : 0 < a :=
+lt_of_not_ge
+  (assume h2 : a ≤ 0,
+   have h3 : a * b ≤ 0, from mul_nonpos_of_nonpos_of_nonneg h2 h1,
+   not_lt_of_ge h3 h)
+
+lemma nonneg_of_mul_nonneg_left {a b : α} (h : 0 ≤ a * b) (h1 : 0 < a) : 0 ≤ b :=
+le_of_not_gt
+  (assume h2 : b < 0,
+   not_le_of_gt (mul_neg_of_pos_of_neg h1 h2) h)
+
+lemma nonneg_of_mul_nonneg_right {a b : α} (h : 0 ≤ a * b) (h1 : 0 < b) : 0 ≤ a :=
+le_of_not_gt
+  (assume h2 : a < 0,
+   not_le_of_gt (mul_neg_of_neg_of_pos h2 h1) h)
+
+lemma neg_of_mul_neg_left {a b : α} (h : a * b < 0) (h1 : 0 ≤ a) : b < 0 :=
+lt_of_not_ge
+  (assume h2 : b ≥ 0,
+   not_lt_of_ge (mul_nonneg h1 h2) h)
+
+lemma neg_of_mul_neg_right {a b : α} (h : a * b < 0) (h1 : 0 ≤ b) : a < 0 :=
+lt_of_not_ge
+  (assume h2 : a ≥ 0,
+   not_lt_of_ge (mul_nonneg h2 h1) h)
+
+lemma nonpos_of_mul_nonpos_left {a b : α} (h : a * b ≤ 0) (h1 : 0 < a) : b ≤ 0 :=
+le_of_not_gt
+  (assume h2 : b > 0,
+   not_le_of_gt (mul_pos h1 h2) h)
+
+lemma nonpos_of_mul_nonpos_right {a b : α} (h : a * b ≤ 0) (h1 : 0 < b) : a ≤ 0 :=
+le_of_not_gt
+  (assume h2 : a > 0,
+   not_le_of_gt (mul_pos h2 h1) h)
+
+end linear_ordered_semiring
 
 class decidable_linear_ordered_semiring (α : Type u) extends linear_ordered_semiring α, decidable_linear_order α
 
@@ -129,6 +244,43 @@ instance ordered_ring.to_ordered_semiring [s : ordered_ring α] : ordered_semiri
   mul_lt_mul_of_pos_right    := @ordered_ring.mul_lt_mul_of_pos_right α _,
   lt_of_add_lt_add_left      := @lt_of_add_lt_add_left α _}
 
+section ordered_ring
+variable [ordered_ring α]
+
+lemma mul_le_mul_of_nonpos_left {a b c : α} (h : b ≤ a) (hc : c ≤ 0) : c * a ≤ c * b :=
+have -c ≥ 0,              from neg_nonneg_of_nonpos hc,
+have -c * b ≤ -c * a,     from mul_le_mul_of_nonneg_left h this,
+have -(c * b) ≤ -(c * a), by rwa [-neg_mul_eq_neg_mul, -neg_mul_eq_neg_mul] at this,
+le_of_neg_le_neg this
+
+lemma mul_le_mul_of_nonpos_right {a b c : α} (h : b ≤ a) (hc : c ≤ 0) : a * c ≤ b * c :=
+have -c ≥ 0,              from neg_nonneg_of_nonpos hc,
+have b * -c ≤ a * -c,     from mul_le_mul_of_nonneg_right h this,
+have -(b * c) ≤ -(a * c), by rwa [-neg_mul_eq_mul_neg, -neg_mul_eq_mul_neg] at this,
+le_of_neg_le_neg this
+
+lemma mul_nonneg_of_nonpos_of_nonpos {a b : α} (ha : a ≤ 0) (hb : b ≤ 0) : 0 ≤ a * b :=
+have 0 * b ≤ a * b, from mul_le_mul_of_nonpos_right ha hb,
+by rwa zero_mul at this
+
+lemma mul_lt_mul_of_neg_left {a b c : α} (h : b < a) (hc : c < 0) : c * a < c * b :=
+have -c > 0,              from neg_pos_of_neg hc,
+have -c * b < -c * a,     from mul_lt_mul_of_pos_left h this,
+have -(c * b) < -(c * a), by rwa [-neg_mul_eq_neg_mul, -neg_mul_eq_neg_mul] at this,
+lt_of_neg_lt_neg this
+
+lemma mul_lt_mul_of_neg_right {a b c : α} (h : b < a) (hc : c < 0) : a * c < b * c :=
+have -c > 0,              from neg_pos_of_neg hc,
+have b * -c < a * -c,     from mul_lt_mul_of_pos_right h this,
+have -(b * c) < -(a * c), by rwa [-neg_mul_eq_mul_neg, -neg_mul_eq_mul_neg] at this,
+lt_of_neg_lt_neg this
+
+lemma mul_pos_of_neg_of_neg {a b : α} (ha : a < 0) (hb : b < 0) : 0 < a * b :=
+have 0 * b < a * b, from mul_lt_mul_of_neg_right ha hb,
+by rwa zero_mul at this
+
+end ordered_ring
+
 class linear_ordered_ring (α : Type u) extends ordered_ring α, linear_strong_order_pair α :=
 (zero_lt_one : lt zero one)
 
@@ -145,3 +297,69 @@ instance linear_ordered_ring.to_linear_ordered_semiring [s : linear_ordered_ring
   mul_lt_mul_of_pos_right    := @mul_lt_mul_of_pos_right α _,
   le_total                   := linear_ordered_ring.le_total,
   lt_of_add_lt_add_left      := @lt_of_add_lt_add_left α _ }
+
+section linear_ordered_ring
+variable [linear_ordered_ring α]
+
+lemma mul_self_nonneg (a : α) : a * a ≥ 0 :=
+or.elim (le_total 0 a)
+  (assume h : a ≥ 0, mul_nonneg h h)
+  (assume h : a ≤ 0, mul_nonneg_of_nonpos_of_nonpos h h)
+
+lemma zero_le_one : 0 ≤ (1:α) :=
+have 1 * 1 ≥ (0:α), from mul_self_nonneg (1:α),
+by rwa one_mul at this
+
+lemma pos_and_pos_or_neg_and_neg_of_mul_pos {a b : α} (hab : a * b > 0) :
+    (a > 0 ∧ b > 0) ∨ (a < 0 ∧ b < 0) :=
+match lt_trichotomy 0 a with
+| or.inl hlt₁          :=
+  match lt_trichotomy 0 b with
+  | or.inl hlt₂          := or.inl ⟨hlt₁, hlt₂⟩
+  | or.inr (or.inl heq₂) := begin rw [-heq₂, mul_zero] at hab, exact absurd hab (lt_irrefl _) end
+  | or.inr (or.inr hgt₂) := absurd hab (lt_asymm (mul_neg_of_pos_of_neg hlt₁ hgt₂))
+  end
+| or.inr (or.inl heq₁) := begin rw [-heq₁, zero_mul] at hab, exact absurd hab (lt_irrefl _) end
+| or.inr (or.inr hgt₁) :=
+  match lt_trichotomy 0 b with
+  | or.inl hlt₂          := absurd hab (lt_asymm (mul_neg_of_neg_of_pos hgt₁ hlt₂))
+  | or.inr (or.inl heq₂) := begin rw [-heq₂, mul_zero] at hab, exact absurd hab (lt_irrefl _) end
+  | or.inr (or.inr hgt₂) := or.inr ⟨hgt₁, hgt₂⟩
+  end
+end
+
+lemma gt_of_mul_lt_mul_neg_left {a b c : α} (h : c * a < c * b) (hc : c ≤ 0) : a > b :=
+have nhc : -c ≥ 0, from neg_nonneg_of_nonpos hc,
+have h2 : -(c * b) < -(c * a), from neg_lt_neg h,
+have h3 : (-c) * b < (-c) * a, from calc
+     (-c) * b = - (c * b)    : by rewrite neg_mul_eq_neg_mul
+          ... < -(c * a)     : h2
+          ... = (-c) * a     : by rewrite neg_mul_eq_neg_mul,
+lt_of_mul_lt_mul_left h3 nhc
+
+
+lemma zero_gt_neg_one : -1 < (0:α) :=
+begin
+  note this := neg_lt_neg (@zero_lt_one α _),
+  rwa neg_zero at this
+end
+
+lemma le_of_mul_le_of_ge_one {a b c : α} (h : a * c ≤ b) (hb : b ≥ 0) (hc : c ≥ 1) : a ≤ b :=
+have h' : a * c ≤ b * c, from calc
+     a * c ≤ b : h
+       ... = b * 1 : by rewrite mul_one
+       ... ≤ b * c : mul_le_mul_of_nonneg_left hc hb,
+le_of_mul_le_mul_right h' (lt_of_lt_of_le zero_lt_one hc)
+
+lemma nonneg_le_nonneg_of_squares_le {a b : α} (ha : a ≥ 0) (hb : b ≥ 0) (h : a * a ≤ b * b) : a ≤ b :=
+begin
+  apply le_of_not_gt,
+  intro hab,
+  note hposa := lt_of_le_of_lt hb hab,
+  note h' := calc
+      b * b ≤ a * b : mul_le_mul_of_nonneg_right (le_of_lt hab) hb
+        ... < a * a : mul_lt_mul_of_pos_left hab hposa,
+  apply (not_le_of_gt h') h
+end
+
+end linear_ordered_ring

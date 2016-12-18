@@ -16,6 +16,12 @@ a + 1
 local attribute [reducible] bit0 bit1 add1
 local attribute [simp] right_distrib left_distrib
 
+private meta def u : tactic unit :=
+`[unfold bit0 bit1 add1]
+
+private meta def usimp : tactic unit :=
+u >> `[simp]
+
 lemma mul_zero [mul_zero_class α] (a : α) : a * 0 = 0 :=
 by simp
 
@@ -107,11 +113,11 @@ lemma div_mul_helper [field α] (n d c v : α) (hd : d ≠ 0) (h : (n * c) / d =
         (n / d) * c = v :=
 by rw [-h, field.div_mul_eq_mul_div_comm _ _ hd, mul_div_assoc]
 
-lemma mul_div_helper [s : field α] (a n d v : α) (hd : d ≠ 0) (h : (a * n) / d = v) :
+lemma mul_div_helper [field α] (a n d v : α) (hd : d ≠ 0) (h : (a * n) / d = v) :
         a * (n / d) = v :=
 by rw [-h, mul_div_assoc]
 
-lemma nonzero_of_div_helper [s : field α] (a b : α) (ha : a ≠ 0) (hb : b ≠ 0) : a / b ≠ 0 :=
+lemma nonzero_of_div_helper [field α] (a b : α) (ha : a ≠ 0) (hb : b ≠ 0) : a / b ≠ 0 :=
 begin
   intro hab,
   assert habb : (a / b) * b = 0, rw [hab, zero_mul],
@@ -119,14 +125,14 @@ begin
   exact ha habb
 end
 
-lemma div_helper [s : field α] (n d v : α) (hd : d ≠ 0) (h : v * d = n) : n / d = v :=
+lemma div_helper [field α] (n d v : α) (hd : d ≠ 0) (h : v * d = n) : n / d = v :=
 begin
   apply eq_of_mul_eq_mul_of_nonzero_right hd,
   rw (div_mul_cancel _ hd),
   exact eq.symm h
 end
 
-lemma div_eq_div_helper [s : field α] (a b c d v : α) (h1 : a * d = v) (h2 : c * b = v)
+lemma div_eq_div_helper [field α] (a b c d v : α) (h1 : a * d = v) (h2 : c * b = v)
         (hb : b ≠ 0) (hd : d ≠ 0) : a / b = c / d :=
 begin
   apply eq_div_of_mul_eq,
@@ -138,8 +144,98 @@ begin
   rw [h1, h2]
 end
 
-lemma subst_into_div [s : has_div α] (a₁ b₁ a₂ b₂ v : α) (h : a₁ / b₁ = v) (h1 : a₂ = a₁)
+lemma subst_into_div [has_div α] (a₁ b₁ a₂ b₂ v : α) (h : a₁ / b₁ = v) (h1 : a₂ = a₁)
       (h2 : b₂ = b₁) : a₂ / b₂ = v :=
 by rw [h1, h2, h]
+
+
+lemma add_comm_four [add_comm_semigroup α] (a b : α) : a + a + (b + b) = (a + b) + (a + b) :=
+by simp
+
+lemma add_comm_middle [add_comm_semigroup α] (a b c : α) : a + b + c = a + c + b :=
+by simp
+
+lemma bit0_add_bit0 [add_comm_semigroup α] (a b : α) : bit0 a + bit0 b = bit0 (a + b) :=
+by usimp
+
+lemma bit0_add_bit0_helper [add_comm_semigroup α] (a b t : α) (h : a + b = t) :
+        bit0 a + bit0 b = bit0 t :=
+begin rw -h, usimp end
+
+lemma bit1_add_bit0 [add_comm_semigroup α] [has_one α] (a b : α) : bit1 a + bit0 b = bit1 (a + b) :=
+by usimp
+
+lemma bit1_add_bit0_helper [add_comm_semigroup α] [has_one α] (a b t : α)
+        (h : a + b = t) : bit1 a + bit0 b = bit1 t :=
+begin rw -h, usimp end
+
+lemma bit0_add_bit1 [add_comm_semigroup α] [has_one α] (a b : α) :
+        bit0 a + bit1 b = bit1 (a + b) :=
+by usimp
+
+lemma bit0_add_bit1_helper [add_comm_semigroup α] [has_one α] (a b t : α)
+        (h : a + b = t) : bit0 a + bit1 b = bit1 t :=
+begin rw -h, usimp end
+
+lemma bit1_add_bit1 [add_comm_semigroup α] [has_one α] (a b : α) :
+        bit1 a + bit1 b = bit0 (add1 (a + b)) :=
+by usimp
+
+lemma bit1_add_bit1_helper [add_comm_semigroup α] [has_one α] (a b t s : α)
+        (h : (a + b) = t) (h2 : add1 t = s) : bit1 a + bit1 b = bit0 s :=
+begin rw -h at h2, rw -h2, usimp end
+
+lemma bin_add_zero [add_monoid α] (a : α) : a + zero = a :=
+by simp
+
+lemma bin_zero_add [add_monoid α] (a : α) : zero + a = a :=
+by simp
+
+lemma one_add_bit0 [add_comm_semigroup α] [has_one α] (a : α) : one + bit0 a = bit1 a :=
+begin unfold bit0 bit1, simp end
+
+lemma bit0_add_one [has_add α] [has_one α] (a : α) : bit0 a + one = bit1 a :=
+rfl
+
+lemma bit1_add_one [has_add α] [has_one α] (a : α) : bit1 a + one = add1 (bit1 a) :=
+rfl
+
+lemma bit1_add_one_helper [has_add α] [has_one α] (a t : α) (h : add1 (bit1 a) = t) :
+        bit1 a + one = t :=
+by rw -h
+
+lemma one_add_bit1 [add_comm_semigroup α] [has_one α] (a : α) : one + bit1 a = add1 (bit1 a) :=
+begin unfold bit0 bit1 add1, simp end
+
+lemma one_add_bit1_helper [add_comm_semigroup α] [has_one α] (a t : α)
+        (h : add1 (bit1 a) = t) : one + bit1 a = t :=
+begin rw -h, usimp end
+
+lemma add1_bit0 [has_add α] [has_one α] (a : α) : add1 (bit0 a) = bit1 a :=
+rfl
+
+lemma add1_bit1 [add_comm_semigroup α] [has_one α] (a : α) :
+        add1 (bit1 a) = bit0 (add1 a) :=
+by usimp
+
+lemma add1_bit1_helper [add_comm_semigroup α] [has_one α] (a t : α) (h : add1 a = t) :
+        add1 (bit1 a) = bit0 t :=
+begin rw -h, usimp end
+
+lemma add1_one [has_add α] [has_one α] : add1 (one : α) = bit0 one :=
+rfl
+
+lemma add1_zero [add_monoid α] [has_one α] : add1 (zero : α) = one :=
+by usimp
+
+lemma one_add_one [has_add α] [has_one α] : (one : α) + one = bit0 one :=
+rfl
+
+lemma subst_into_sum [has_add α] (l r tl tr t : α) (prl : l = tl) (prr : r = tr)
+        (prt : tl + tr = t) : l + r = t :=
+by rw [-prt, prr, prl]
+
+lemma neg_zero_helper [add_group α] (a : α) (h : a = 0) : - a = 0 :=
+begin rw h, simp end
 
 end norm_num

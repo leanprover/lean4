@@ -104,6 +104,100 @@ le_of_add_le_add_left
 lemma lt_of_add_lt_add_right {a b c : α} (h : a + b < c + b) : a < c :=
 lt_of_add_lt_add_left
   (show b + a < b + c, begin rw [add_comm b a, add_comm b c], assumption end)
+
+-- here we start using properties of zero.
+lemma add_nonneg {a b : α} (ha : 0 ≤ a) (hb : 0 ≤ b) : 0 ≤ a + b :=
+zero_add (0:α) ▸ (add_le_add ha hb)
+
+lemma add_pos {a b : α} (ha : 0 < a) (hb : 0 < b) : 0 < a + b :=
+  zero_add (0:α) ▸ (add_lt_add ha hb)
+
+lemma add_pos_of_pos_of_nonneg {a b : α} (ha : 0 < a) (hb : 0 ≤ b) : 0 < a + b :=
+zero_add (0:α) ▸ (add_lt_add_of_lt_of_le ha hb)
+
+lemma add_pos_of_nonneg_of_pos {a b : α} (ha : 0 ≤ a) (hb : 0 < b) : 0 < a + b :=
+zero_add (0:α) ▸ (add_lt_add_of_le_of_lt ha hb)
+
+lemma add_nonpos {a b : α} (ha : a ≤ 0) (hb : b ≤ 0) : a + b ≤ 0 :=
+zero_add (0:α) ▸ (add_le_add ha hb)
+
+lemma add_neg {a b : α} (ha : a < 0) (hb : b < 0) : a + b < 0 :=
+zero_add (0:α) ▸ (add_lt_add ha hb)
+
+lemma add_neg_of_neg_of_nonpos {a b : α} (ha : a < 0) (hb : b ≤ 0) : a + b < 0 :=
+zero_add (0:α) ▸ (add_lt_add_of_lt_of_le ha hb)
+
+lemma add_neg_of_nonpos_of_neg {a b : α} (ha : a ≤ 0) (hb : b < 0) : a + b < 0 :=
+zero_add (0:α) ▸ (add_lt_add_of_le_of_lt ha hb)
+
+lemma add_eq_zero_iff_eq_zero_and_eq_zero_of_nonneg_of_nonneg
+    {a b : α} (ha : 0 ≤ a) (hb : 0 ≤ b) : a + b = 0 ↔ a = 0 ∧ b = 0 :=
+iff.intro
+  (assume hab : a + b = 0,
+   have ha' : a ≤ 0, from
+   calc
+       a     = a + 0 : by rw add_zero
+         ... ≤ a + b : add_le_add_left hb _
+         ... = 0     : hab,
+   have haz : a = 0, from le_antisymm ha' ha,
+   have hb' : b ≤ 0, from
+   calc
+      b     = 0 + b : by rw zero_add
+        ... ≤ a + b : by exact add_le_add_right ha _
+        ... = 0     : hab,
+   have hbz : b = 0, from le_antisymm hb' hb,
+   and.intro haz hbz)
+  (assume ⟨ha', hb'⟩,
+   by rw [ha', hb', add_zero])
+
+lemma le_add_of_nonneg_of_le {a b c : α} (ha : 0 ≤ a) (hbc : b ≤ c) : b ≤ a + c :=
+zero_add b ▸ add_le_add ha hbc
+
+lemma le_add_of_le_of_nonneg {a b c : α} (hbc : b ≤ c) (ha : 0 ≤ a) : b ≤ c + a :=
+add_zero b ▸ add_le_add hbc ha
+
+lemma lt_add_of_pos_of_le {a b c : α} (ha : 0 < a) (hbc : b ≤ c) : b < a + c :=
+zero_add b ▸ add_lt_add_of_lt_of_le ha hbc
+
+lemma lt_add_of_le_of_pos {a b c : α} (hbc : b ≤ c) (ha : 0 < a) : b < c + a :=
+add_zero b ▸ add_lt_add_of_le_of_lt hbc ha
+
+lemma add_le_of_nonpos_of_le {a b c : α} (ha : a ≤ 0) (hbc : b ≤ c) : a + b ≤ c :=
+zero_add c ▸ add_le_add ha hbc
+
+lemma add_le_of_le_of_nonpos {a b c : α} (hbc : b ≤ c) (ha : a ≤ 0) : b + a ≤ c :=
+add_zero c ▸ add_le_add hbc ha
+
+lemma add_lt_of_neg_of_le {a b c : α} (ha : a < 0) (hbc : b ≤ c) : a + b < c :=
+zero_add c ▸ add_lt_add_of_lt_of_le ha hbc
+
+lemma add_lt_of_le_of_neg {a b c : α} (hbc : b ≤ c) (ha : a < 0) : b + a < c :=
+add_zero c ▸ add_lt_add_of_le_of_lt hbc ha
+
+lemma lt_add_of_nonneg_of_lt {a b c : α} (ha : 0 ≤ a) (hbc : b < c) : b < a + c :=
+zero_add b ▸ add_lt_add_of_le_of_lt ha hbc
+
+lemma lt_add_of_lt_of_nonneg {a b c : α} (hbc : b < c) (ha : 0 ≤ a) : b < c + a :=
+add_zero b ▸ add_lt_add_of_lt_of_le hbc ha
+
+lemma lt_add_of_pos_of_lt {a b c : α} (ha : 0 < a) (hbc : b < c) : b < a + c :=
+zero_add b ▸ add_lt_add ha hbc
+
+lemma lt_add_of_lt_of_pos {a b c : α} (hbc : b < c) (ha : 0 < a) : b < c + a :=
+add_zero b ▸ add_lt_add hbc ha
+
+lemma add_lt_of_nonpos_of_lt {a b c : α} (ha : a ≤ 0) (hbc : b < c) : a + b < c :=
+zero_add c ▸ add_lt_add_of_le_of_lt ha hbc
+
+lemma add_lt_of_lt_of_nonpos {a b c : α} (hbc : b < c) (ha : a ≤ 0)  : b + a < c :=
+add_zero c ▸ add_lt_add_of_lt_of_le hbc ha
+
+lemma add_lt_of_neg_of_lt {a b c : α} (ha : a < 0) (hbc : b < c) : a + b < c :=
+zero_add c ▸ add_lt_add ha hbc
+
+lemma add_lt_of_lt_of_neg {a b c : α} (hbc : b < c) (ha : a < 0) : b + a < c :=
+add_zero c ▸ add_lt_add hbc ha
+
 end ordered_cancel_comm_monoid
 
 class ordered_mul_comm_group (α : Type u) extends comm_group α, order_pair α :=
@@ -142,7 +236,7 @@ instance ordered_comm_group.to_ordered_cancel_comm_monoid  (α : Type u) [s : or
 section ordered_comm_group
 variables {α : Type u} [ordered_comm_group α]
 
-theorem neg_le_neg {a b : α} (h : a ≤ b) : -b ≤ -a :=
+lemma neg_le_neg {a b : α} (h : a ≤ b) : -b ≤ -a :=
 have 0 ≤ -a + b,           from add_left_neg a ▸ add_le_add_left h (-a),
 have 0 + -b ≤ -a + b + -b, from add_le_add_right this (-b),
 by rwa [add_neg_cancel_right, zero_add] at this

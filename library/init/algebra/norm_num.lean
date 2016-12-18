@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Robert Lewis and Leonardo de Moura
 -/
 prelude
-import init.algebra.field
+import init.algebra.field init.algebra.ordered_ring
 
 namespace norm_num
 universe variable u
@@ -237,5 +237,28 @@ by rw [-prt, prr, prl]
 
 lemma neg_zero_helper [add_group α] (a : α) (h : a = 0) : - a = 0 :=
 begin rw h, simp end
+
+lemma pos_bit0_helper [linear_ordered_semiring α] (a : α) (h : a > 0) : bit0 a > 0 :=
+begin u, apply add_pos h h end
+
+lemma nonneg_bit0_helper [linear_ordered_semiring α] (a : α) (h : a ≥ 0) : bit0 a ≥ 0 :=
+begin u, apply add_nonneg h h end
+
+lemma pos_bit1_helper [linear_ordered_semiring α] (a : α) (h : a ≥ 0) : bit1 a > 0 :=
+begin
+  u,
+  apply add_pos_of_nonneg_of_pos,
+  apply nonneg_bit0_helper _ h,
+  apply zero_lt_one
+end
+
+lemma nonneg_bit1_helper [linear_ordered_semiring α] (a : α) (h : a ≥ 0) : bit1 a ≥ 0 :=
+begin apply le_of_lt,  apply pos_bit1_helper _ h end
+
+lemma nonzero_of_pos_helper [linear_ordered_semiring α] (a : α) (h : a > 0) : a ≠ 0 :=
+  ne_of_gt h
+
+lemma nonzero_of_neg_helper [linear_ordered_ring α] (a : α) (h : a ≠ 0) : -a ≠ 0 :=
+begin intro ha, apply h, apply neg_inj, rwa neg_zero end
 
 end norm_num

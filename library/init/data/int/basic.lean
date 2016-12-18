@@ -408,14 +408,28 @@ instance : comm_ring int :=
   add_comm       := int.add_comm,
   mul            := int.mul,
   mul_assoc      := int.mul_assoc,
-  one            := 1,
+  one            := int.one,
   one_mul        := int.one_mul,
   mul_one        := int.mul_one,
   left_distrib   := int.distrib_left,
   right_distrib  := int.distrib_right,
   mul_comm       := int.mul_comm }
 
-protected theorem zero_ne_one : (0 : int) ≠ 1 :=
+/- Extra instances to short-circuit type class resolution -/
+instance : has_sub int            := by apply_instance
+instance : add_comm_monoid int    := by apply_instance
+instance : add_monoid int         := by apply_instance
+instance : monoid int             := by apply_instance
+instance : comm_monoid int        := by apply_instance
+instance : comm_semigroup int     := by apply_instance
+instance : semigroup int          := by apply_instance
+instance : add_comm_semigroup int := by apply_instance
+instance : add_semigroup int      := by apply_instance
+instance : comm_semiring int      := by apply_instance
+instance : semiring int           := by apply_instance
+instance : ring int               := by apply_instance
+
+protected lemma zero_ne_one : (0 : int) ≠ 1 :=
 assume h : 0 = 1, succ_ne_zero _ (int.of_nat_inj h)^.symm
 
 end int

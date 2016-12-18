@@ -618,7 +618,10 @@ vm_obj tactic_add_decl(vm_obj const & _d, vm_obj const & _s) {
 
 vm_obj tactic_opened_namespaces(vm_obj const & s) {
     environment env = to_tactic_state(s).env();
-    return mk_tactic_success(to_obj(get_namespaces(env)), to_tactic_state(s));
+    buffer<name> b;
+    to_buffer(get_namespaces(env), b);
+    get_opened_namespaces(env).to_buffer(b);
+    return mk_tactic_success(to_obj(b), to_tactic_state(s));
 }
 
 vm_obj tactic_doc_string(vm_obj const & n, vm_obj const & _s) {

@@ -74,7 +74,7 @@ instance : has_to_string string :=
 ⟨string.quote⟩
 
 /- Remark: the code generator replaces this definition with one that display natural numbers in decimal notation -/
-def nat.to_string : nat → string
+protected def nat.to_string : nat → string
 | 0        := "zero"
 | (succ a) := "(succ " ++ nat.to_string a ++ ")"
 

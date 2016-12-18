@@ -211,11 +211,12 @@
   (lean-server-ensure-alive)
   (lean-server-session-send-command lean-server-session cmd params cb error-cb))
 
-(defun lean-server-sync ()
-  "Synchronizes the current buffer state with lean server"
-  (lean-server-send-command
-   'sync (list :file_name (buffer-file-name)
-               :content (buffer-string))))
+(defun lean-server-sync (&optional buf)
+  "Synchronizes the state of BUF (or the current buffer, if nil) with the lean server"
+  (with-current-buffer (or buf (current-buffer))
+    (lean-server-send-command
+     'sync (list :file_name (buffer-file-name)
+                 :content (buffer-string)))))
 
 (defvar-local lean-server-sync-timer nil)
 
@@ -223,6 +224,6 @@
   (save-match-data
     (when lean-server-sync-timer (cancel-timer lean-server-sync-timer))
     (setq lean-server-sync-timer
-          (run-at-time "200 milliseconds" nil #'lean-server-sync))))
+          (run-at-time "200 milliseconds" nil #'lean-server-sync (current-buffer)))))
 
 (provide 'lean-server)

@@ -1,0 +1,2 @@
+{"seq_num": 0, "command": "sync", "file_name": "f", "content": "def f (n:nat) := n^.to_string"}
+{"seq_num": 1, "command": "info", "file_name": "f", "line": 1, "column": 20}

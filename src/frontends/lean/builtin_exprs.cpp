@@ -758,20 +758,22 @@ static std::string * g_field_notation_opcode = nullptr;
 class field_notation_macro_cell : public macro_definition_cell {
     name     m_field;
     unsigned m_field_idx;
+    pos_info m_field_pos;
 public:
-    field_notation_macro_cell(name const & f):m_field(f), m_field_idx(0) {}
+    field_notation_macro_cell(name const & f, pos_info field_pos):m_field(f), m_field_idx(0), m_field_pos(field_pos) {}
     field_notation_macro_cell(unsigned fidx):m_field_idx(fidx) {}
     virtual name get_name() const { return *g_field_notation_name; }
     virtual expr check_type(expr const &, abstract_type_context &, bool) const { throw_pn_ex(); }
     virtual optional<expr> expand(expr const &, abstract_type_context &) const { throw_pn_ex(); }
-    virtual void write(serializer & s) const { s << *g_field_notation_opcode << m_field << m_field_idx; }
+    virtual void write(serializer & s) const { s << *g_field_notation_opcode << m_field << m_field_idx << m_field_pos; }
     bool is_anonymous() const { return m_field.is_anonymous(); }
     name const & get_field_name() const { lean_assert(!is_anonymous()); return m_field; }
     unsigned get_field_idx() const { lean_assert(is_anonymous()); return m_field_idx; }
+    optional<pos_info> get_field_pos() const { return is_anonymous() ? optional<pos_info>() : some(m_field_pos); }
 };
 
-static expr mk_proj_notation(expr const & e, name const & field) {
-    macro_definition def(new field_notation_macro_cell(field));
+static expr mk_proj_notation(expr const & e, name const & field, pos_info field_pos) {
+    macro_definition def(new field_notation_macro_cell(field, field_pos));
     return mk_macro(def, 1, &e);
 }
 
@@ -799,6 +801,11 @@ unsigned get_field_notation_field_idx(expr const & e) {
     return static_cast<field_notation_macro_cell const*>(macro_def(e).raw())->get_field_idx();
 }
 
+optional<pos_info> get_field_notation_field_pos(expr const & e) {
+    lean_assert(is_field_notation(e));
+    return static_cast<field_notation_macro_cell const*>(macro_def(e).raw())->get_field_pos();
+}
+
 static expr parse_proj(parser & p, unsigned, expr const * args, pos_info const & pos) {
     if (p.curr_is_numeral()) {
         pos_info num_pos = p.pos();
@@ -807,8 +814,9 @@ static expr parse_proj(parser & p, unsigned, expr const * args, pos_info const &
             throw parser_error("invalid projection, index must be greater than 0", num_pos);
         return p.save_pos(mk_proj_notation(args[0], fidx), pos);
     } else {
+        pos_info field_pos = p.pos();
         name field = p.check_id_next("invalid '~>' notation, identifier or numeral expected");
-        return p.save_pos(mk_proj_notation(args[0], field), pos);
+        return p.save_pos(mk_proj_notation(args[0], field, field_pos), pos);
     }
 }
 
@@ -890,12 +898,12 @@ void initialize_builtin_exprs() {
                                 [](deserializer & d, unsigned num, expr const * args) {
                                     if (num != 1)
                                         throw corrupted_stream_exception();
-                                    name fname; unsigned fidx;
-                                    d >> fname >> fidx;
+                                    name fname; unsigned fidx; pos_info fpos;
+                                    d >> fname >> fidx >> fpos;
                                     if (fname.is_anonymous())
                                         return mk_proj_notation(args[0], fidx);
                                     else
-                                        return mk_proj_notation(args[0], fname);
+                                        return mk_proj_notation(args[0], fname, fpos);
                                 });
 }
 

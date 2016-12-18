@@ -669,11 +669,13 @@ expr elaborator::visit_const_core(expr const & e) {
 }
 
 /** \brief Auxiliary function for saving information about which overloaded identifier was used by the elaborator. */
-void elaborator::save_identifier_info(expr const & f) {
+void elaborator::save_identifier_info(expr const & f, optional<pos_info> pos) {
     if (!m_no_info && m_uses_infom && get_pos_info_provider() && (is_constant(f) || is_local(f))) {
-        if (auto p = get_pos_info_provider()->get_pos_info(f)) {
-            m_info.add_identifier_info(p->first, p->second, is_constant(f) ? const_name(f) : local_pp_name(f));
-            m_info.add_type_info(p->first, p->second, infer_type(f));
+        if (!pos)
+            pos = get_pos_info_provider()->get_pos_info(f);
+        if (pos) {
+            m_info.add_identifier_info(pos->first, pos->second, is_constant(f) ? const_name(f) : local_pp_name(f));
+            m_info.add_type_info(pos->first, pos->second, infer_type(f));
         }
     }
 }
@@ -1892,7 +1894,10 @@ expr elaborator::visit_field(expr const & e, optional<expr> const & expected_typ
     }
     expr proj  = copy_tag(e, mk_constant(full_fname));
     expr new_e = copy_tag(e, mk_app(proj, copy_tag(e, mk_as_is(s))));
-    return visit(new_e, expected_type);
+    expr r = visit(new_e, expected_type);
+    if (auto pos = get_field_notation_field_pos(e))
+        save_identifier_info(app_fn(r), pos);
+    return r;
 }
 
 expr elaborator::visit_structure_instance(expr const & e, optional<expr> const & _expected_type) {

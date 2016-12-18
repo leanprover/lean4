@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jeremy Avigad, Leonardo de Moura
 -/
 prelude
-import init.algebra.ordered_ring
+import init.algebra.ordered_field
 
 universe variables u
 
@@ -182,7 +182,7 @@ lemma max_eq_neg_min_neg_neg (a b : α) : max a b = - min (-a) (-b) :=
 by rw [min_neg_neg, neg_neg]
 end
 
-section
+section decidable_linear_ordered_comm_group
 variables {α : Type u} [decidable_linear_ordered_comm_group α]
 
 lemma abs_of_nonneg {a : α} (h : a ≥ 0) : abs a = a :=
@@ -360,4 +360,122 @@ begin
   apply hbu,
   apply hal
 end
+
+end decidable_linear_ordered_comm_group
+
+
+section decidable_linear_ordered_comm_ring
+variables {α : Type u} [decidable_linear_ordered_comm_ring α]
+
+lemma abs_mul (a b : α) : abs (a * b) = abs a * abs b :=
+or.elim (le_total 0 a)
+ (assume h1 : 0 ≤ a,
+   or.elim (le_total 0 b)
+      (assume h2 : 0 ≤ b,
+        calc
+          abs (a * b) = a * b         : abs_of_nonneg (mul_nonneg h1 h2)
+                  ... = abs a * b     : by rw (abs_of_nonneg h1)
+                  ... = abs a * abs b : by rw (abs_of_nonneg h2))
+      (assume h2 : b ≤ 0,
+        calc
+          abs (a * b) = -(a * b)      : abs_of_nonpos (mul_nonpos_of_nonneg_of_nonpos h1 h2)
+                  ... = a * -b        : by rw neg_mul_eq_mul_neg
+                  ... = abs a * -b    : by rw (abs_of_nonneg h1)
+                  ... = abs a * abs b : by rw (abs_of_nonpos h2)))
+  (assume h1 : a ≤ 0,
+    or.elim (le_total 0 b)
+      (assume h2 : 0 ≤ b,
+        calc
+          abs (a * b) = -(a * b)      : abs_of_nonpos (mul_nonpos_of_nonpos_of_nonneg h1 h2)
+                  ... = -a * b        : by rw neg_mul_eq_neg_mul
+                  ... = abs a * b     : by rw (abs_of_nonpos h1)
+                  ... = abs a * abs b : by rw (abs_of_nonneg h2))
+      (assume h2 : b ≤ 0,
+        calc
+          abs (a * b) = a * b         : abs_of_nonneg (mul_nonneg_of_nonpos_of_nonpos h1 h2)
+                  ... = -a * -b       : by rw neg_mul_neg
+                  ... = abs a * -b    : by rw (abs_of_nonpos h1)
+                  ... = abs a * abs b : by rw (abs_of_nonpos h2)))
+
+
+lemma abs_mul_abs_self (a : α) : abs a * abs a = a * a :=
+abs_by_cases (λ x, x * x = a * a) rfl (neg_mul_neg a a)
+
+lemma abs_mul_self (a : α) : abs (a * a) = a * a :=
+by rw [abs_mul, abs_mul_abs_self]
+
+lemma sub_le_of_abs_sub_le_left {a b c : α} (h : abs (a - b) ≤ c) : b - c ≤ a :=
+if hz : 0 ≤ a - b then
+  (calc
+      a ≥ b     : le_of_sub_nonneg hz
+    ... ≥ b - c : sub_le_self _ (le_trans (abs_nonneg _) h))
+else
+  have habs : b - a ≤ c, by rwa [abs_of_neg (lt_of_not_ge hz), neg_sub] at h,
+  have habs' : b ≤ c + a, from le_add_of_sub_right_le habs,
+  sub_left_le_of_le_add habs'
+
+lemma sub_le_of_abs_sub_le_right {a b c : α} (h : abs (a - b) ≤ c) : a - c ≤ b :=
+sub_le_of_abs_sub_le_left (abs_sub a b ▸ h)
+
+lemma sub_lt_of_abs_sub_lt_left {a b c : α} (h : abs (a - b) < c) : b - c < a :=
+if hz : 0 ≤ a - b then
+   (calc
+      a ≥ b     : le_of_sub_nonneg hz
+    ... > b - c : sub_lt_self _ (lt_of_le_of_lt (abs_nonneg _) h))
+else
+  have habs : b - a < c, by rwa [abs_of_neg (lt_of_not_ge hz), neg_sub] at h,
+  have habs' : b < c + a, from lt_add_of_sub_right_lt habs,
+  sub_left_lt_of_lt_add habs'
+
+
+lemma sub_lt_of_abs_sub_lt_right {a b c : α} (h : abs (a - b) < c) : a - c < b :=
+sub_lt_of_abs_sub_lt_left (abs_sub a b ▸ h)
+
+lemma abs_sub_square (a b : α) : abs (a - b) * abs (a - b) = a * a + b * b - (1 + 1) * a * b :=
+begin
+  rw abs_mul_abs_self,
+  simp [left_distrib, right_distrib]
 end
+
+lemma eq_zero_of_mul_self_add_mul_self_eq_zero {x y : α} (h : x * x + y * y = 0) : x = 0 :=
+have x * x ≤ (0 : α), from calc
+  x * x ≤ x * x + y * y : le_add_of_nonneg_right (mul_self_nonneg y)
+    ... = 0             : h,
+eq_zero_of_mul_self_eq_zero (le_antisymm this (mul_self_nonneg x))
+
+lemma abs_abs_sub_abs_le_abs_sub (a b : α) : abs (abs a - abs b) ≤ abs (a - b) :=
+begin
+   apply nonneg_le_nonneg_of_squares_le,
+   repeat {apply abs_nonneg},
+   repeat {rw abs_sub_square},
+   repeat {rw abs_abs},
+   repeat {rw abs_mul_abs_self},
+   apply sub_le_sub_left,
+   repeat {rw mul_assoc},
+   apply mul_le_mul_of_nonneg_left,
+   rw -abs_mul,
+   apply le_abs_self,
+   apply le_of_lt,
+   apply add_pos,
+   apply zero_lt_one,
+   apply zero_lt_one
+end
+
+end decidable_linear_ordered_comm_ring
+
+section discrete_linear_ordered_field
+variables {α : Type u} [discrete_linear_ordered_field α]
+
+lemma abs_div (a b : α) : abs (a / b) = abs a / abs b :=
+decidable.by_cases
+  (suppose h : b = 0, by rw [h, abs_zero, div_zero, div_zero, abs_zero])
+  (suppose h : b ≠ 0,
+   have h₁ : abs b ≠ 0, from
+     assume h₂, h (eq_zero_of_abs_eq_zero h₂),
+   eq_div_of_mul_eq _ _ h₁
+   (show abs (a / b) * abs b = abs a, by rw [-abs_mul, div_mul_cancel _ h]))
+
+lemma abs_one_div (a : α) : abs (1 / a) = 1 / abs a :=
+by rw [abs_div, abs_of_nonneg (zero_le_one : 1 ≥ (0 : α))]
+
+end discrete_linear_ordered_field

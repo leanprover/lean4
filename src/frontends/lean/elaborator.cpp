@@ -145,13 +145,17 @@ format elaborator::pp(expr const & e) {
     return fn(e);
 }
 
+format elaborator::pp_overload(pp_fn const & pp_fn, expr const & fn) {
+    return is_constant(fn) ? format(const_name(fn)) : pp_fn(fn);
+}
+
 format elaborator::pp_overloads(pp_fn const & pp_fn, buffer<expr> const & fns) {
     format r("overloads:");
     r += space();
     bool first = true;
     for (expr const & fn : fns) {
         if (first) first = false; else r += format(", ");
-        r += pp_fn(fn);
+        r += pp_overload(pp_fn, fn);
     }
     return paren(r);
 }
@@ -1176,8 +1180,7 @@ format elaborator::mk_no_overload_applicable_msg(buffer<expr> const & fns, buffe
     for (unsigned i = 0; i < fns.size(); i++) {
         if (i > 0) r += line();
         auto pp_fn = mk_pp_ctx();
-        format f_fmt = (is_constant(fns[i])) ? format(const_name(fns[i])) : pp_fn(fns[i]);
-        r += line() + format("error for") + space() + f_fmt;
+        r += line() + format("error for") + space() + pp_overload(pp_fn, fns[i]);
         r += line() + error_msgs[i].pp();
     }
     return r;
@@ -1302,7 +1305,13 @@ expr elaborator::visit_overloaded_app_with_expected(buffer<expr> const & fns, bu
             auto pp_fn = mk_pp_ctx();
             format msg = format("overload was disambiguated using expected type");
             msg += line() + pp_overloads(pp_fn, fns);
-            msg += line() + format("the only applicable one seemed to be: ") + pp(fn);
+            msg += line() + format("the only applicable one seemed to be: ") + pp_overload(pp_fn, fn);
+            msg += line();
+
+            for (auto const & error_msg : error_msgs) {
+                msg += line() + error_msg.pp();
+            }
+
             throw nested_elaborator_exception(ref, ex, msg);
         }
     }

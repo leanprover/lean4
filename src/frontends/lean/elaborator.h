@@ -97,6 +97,7 @@ private:
     format pp_indent(pp_fn const & pp_fn, expr const & e);
     format pp_indent(expr const & e);
     format pp(expr const & e);
+    format pp_overload(pp_fn const & pp_fn, expr const & fn);
     format pp_overloads(pp_fn const & pp_fn, buffer<expr> const & fns);
 
     expr whnf(expr const & e) { return m_ctx.whnf(e); }

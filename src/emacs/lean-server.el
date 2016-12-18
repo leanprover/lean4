@@ -164,13 +164,24 @@
 (defvar-local lean-server-session nil
   "Lean server session for the current buffer")
 
+(defvar-local lean-server-flycheck-delay-timer nil)
+
+(defun lean-server-show-messages (&optional buf)
+  (with-current-buffer (or buf (current-buffer))
+    (when flycheck-mode
+      (flycheck-buffer))))
+
 (defun lean-server-notify-messages-changed (sess)
   (dolist (buf (buffer-list))
     (with-current-buffer buf
-      (when (eq sess lean-server-session)
-        (flycheck-mode -1)
-        (flycheck-mode)
-        (flycheck-buffer)))))
+      (when (and (eq sess lean-server-session)
+                 ;; skip if timer already active
+                 (not (memq lean-server-flycheck-delay-timer timer-list))
+                 (or (eq buf flycheck-error-list-source-buffer)
+                     (get-buffer-window buf)))
+        (save-match-data
+          (setq lean-server-flycheck-delay-timer
+                (run-at-time "200 milliseconds" nil #'lean-server-show-messages buf)))))))
 
 (defun lean-server-stop ()
   "Stops the lean server associated with the current buffer"

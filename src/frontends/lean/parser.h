@@ -433,7 +433,7 @@ public:
 
     bool in_quote() const { return m_in_quote; }
 
-    void clear_locals();
+    void clear_expr_locals();
     bool has_locals() const { return !m_local_decls.empty() || !m_local_level_decls.empty(); }
     void add_local_level(name const & n, level const & l, bool is_variable = false);
     void add_local_expr(name const & n, expr const & p, bool is_variable = false);

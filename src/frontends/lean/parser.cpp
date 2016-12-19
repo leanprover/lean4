@@ -114,7 +114,7 @@ parser::quote_scope::quote_scope(parser & p, bool q):
         m_p.m_in_quote = true;
         m_p.push_local_scope(false);
         m_p.m_quote_stack = cons(m_p.mk_parser_scope(), m_p.m_quote_stack);
-        m_p.clear_locals();
+        m_p.clear_expr_locals();
     } else {
         lean_assert(m_p.m_in_quote);
         lean_assert(m_p.m_quote_stack);
@@ -535,8 +535,7 @@ void parser::pop_local_scope() {
     m_parser_scope_stack = tail(m_parser_scope_stack);
 }
 
-void parser::clear_locals() {
-    m_local_level_decls = local_level_decls();
+void parser::clear_expr_locals() {
     m_local_decls       = local_expr_decls();
 }
 

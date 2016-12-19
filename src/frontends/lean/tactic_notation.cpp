@@ -344,14 +344,14 @@ expr parse_begin_end_core(parser & p, pos_info const & start_pos,
 
 expr parse_begin_end(parser & p, unsigned, expr const *, pos_info const & pos) {
     parser::local_scope _(p);
-    p.clear_locals();
+    p.clear_expr_locals();
     return parse_begin_end_core(p, pos, get_end_tk());
 }
 
 expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {
     p.next();
     parser::local_scope _(p);
-    p.clear_locals();
+    p.clear_expr_locals();
     auto tac_pos = p.pos();
     expr tac  = parse_tactic(p);
     expr type = mk_tactic_unit();

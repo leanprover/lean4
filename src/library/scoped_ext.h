@@ -62,7 +62,7 @@ optional<name> to_valid_namespace_name(environment const & env, name const & n);
 /** \brief Mark the given namespace as opened */
 environment mark_namespace_as_open(environment const & env, name const & n);
 /** \brief Return the set of namespaces marked as "open" using \c mark_namespace_as_open. */
-name_set get_open_namespaces(environment const & env);
+name_set get_opened_namespaces(environment const & env);
 
 /** \brief Auxilary template used to simplify the creation of environment extensions that support
     the scope */

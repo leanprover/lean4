@@ -620,7 +620,7 @@ vm_obj tactic_open_namespaces(vm_obj const & s) {
     environment env = to_tactic_state(s).env();
     buffer<name> b;
     to_buffer(get_namespaces(env), b);
-    get_open_namespaces(env).to_buffer(b);
+    get_opened_namespaces(env).to_buffer(b);
     return mk_tactic_success(to_obj(b), to_tactic_state(s));
 }
 

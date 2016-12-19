@@ -674,14 +674,16 @@ struct structural_rec_fn {
         }
 
         /* Return the ith recursive argument of \c e */
-        pair<expr, unsigned> get_ith_rec_arg(expr e, unsigned ith) {
+        optional<pair<expr, unsigned>> get_ith_rec_arg(expr e, unsigned ith) {
             e = m_ctx.relaxed_whnf(e);
             buffer<pair<expr, unsigned>> rec_args;
             if (get_constructor_rec_args(m_ctx.env(), e, rec_args)) {
-                lean_assert(ith < rec_args.size());
-                return rec_args[ith];
+                if (ith < rec_args.size())
+                    return optional<pair<expr, unsigned>>(rec_args[ith]);
+                else
+                    return optional<pair<expr, unsigned>>();
             }
-            lean_unreachable();
+            return optional<pair<expr, unsigned>>();
         }
 
         optional<name> is_constructor(name const & n) const { return inductive::is_intro_rule(m_ctx.env(), n); }
@@ -709,8 +711,21 @@ struct structural_rec_fn {
             }
         }
 
-        /* Auxiliary method for decode_rec_arg */
-        pair<expr, unsigned> decode_rec_arg_core(expr const & e, unsigned i, buffer<unsigned> const & path) {
+        /* Auxiliary method for decode_rec_arg.
+
+           The result is *none* if path is not valid.
+
+           This can happen in definitions such as:
+
+           def split : list α → list α × list α
+           | []            := ([], [])
+           | [a]           := ([a], [])
+           | (a :: b :: l) :=
+             (a :: (split l).1, b :: (split l).2)
+
+             Where the prod.fst around (split l) will create a "false" path starting point.
+        */
+        optional<pair<expr, unsigned>> decode_rec_arg_core(expr const & e, unsigned i, buffer<unsigned> const & path) {
             unsigned rec_arg_idx = 0;
             while (true) {
                 lean_assert(i < path.size());
@@ -721,11 +736,17 @@ struct structural_rec_fn {
             }
             i++;
             auto result = get_ith_rec_arg(e, rec_arg_idx);
+            if (!result) return result;
             if (path[i] == 1) {
-                return mk_pair(normalize_constructor_apps(result.first), result.second);
+                if (i == path.size() - 1) {
+                    return some(mk_pair(normalize_constructor_apps(result->first), result->second));
+                } else {
+                    /* path is not valid */
+                    return optional<pair<expr, unsigned>>();
+                }
             } else {
                 i++;
-                return decode_rec_arg_core(result.first, i, path);
+                return decode_rec_arg_core(result->first, i, path);
             }
         }
 
@@ -760,7 +781,7 @@ struct structural_rec_fn {
 
            Then, the result of this method is the pair (f, 1).
            The value 1 indicates that f takes one argument. */
-        pair<expr, unsigned> decode_rec_arg(buffer<unsigned> const & path) {
+        optional<pair<expr, unsigned>> decode_rec_arg(buffer<unsigned> const & path) {
             return decode_rec_arg_core(m_lhs_rec_arg, 0, path);
         }
 
@@ -773,35 +794,37 @@ struct structural_rec_fn {
                     path.push_back(1);
                     unsigned b_next_idx   = 3; /* fst A B F b_1 ... */
                     expr rec_arg; unsigned rec_arg_arity;
-                    std::tie(rec_arg, rec_arg_arity) = decode_rec_arg(path);
-                    for (unsigned i = 0; i < rec_arg_arity; i++, b_next_idx++) {
-                        rec_arg = mk_app(rec_arg, args[b_next_idx]);
-                    }
-                    expr rec_arg_type     = m_ctx.relaxed_whnf(m_ctx.infer(rec_arg));
-                    buffer<expr> I_args;
-                    expr const & I        = get_app_args(rec_arg_type, I_args);
-                    lean_assert(is_constant(I));
-                    name I_name           = const_name(I);
-                    lean_assert(inductive::is_inductive_decl(env(), I_name));
-                    unsigned nindices     = m_indices_pos.size();
-                    lean_assert(*inductive::get_num_indices(env(), I_name) == m_indices_pos.size());
-                    unsigned I_next_idx   = I_args.size() - nindices;
-                    unsigned new_nargs    = nindices + 1 + args.size() - b_next_idx;
-                    buffer<expr> new_args;
-                    for (unsigned i = 0; i < new_nargs; i++) {
-                        if (i == m_arg_pos) {
-                            new_args.push_back(rec_arg);
-                        } else if (std::find(m_indices_pos.begin(), m_indices_pos.end(), i) != m_indices_pos.end()) {
-                            new_args.push_back(I_args[I_next_idx]);
-                            I_next_idx++;
-                        } else {
-                            new_args.push_back(args[b_next_idx]);
-                            b_next_idx++;
+                    if (auto rr = decode_rec_arg(path)) {
+                        std::tie(rec_arg, rec_arg_arity) = *rr;
+                        for (unsigned i = 0; i < rec_arg_arity; i++, b_next_idx++) {
+                            rec_arg = mk_app(rec_arg, args[b_next_idx]);
                         }
+                        expr rec_arg_type     = m_ctx.relaxed_whnf(m_ctx.infer(rec_arg));
+                        buffer<expr> I_args;
+                        expr const & I        = get_app_args(rec_arg_type, I_args);
+                        lean_assert(is_constant(I));
+                        name I_name           = const_name(I);
+                        lean_assert(inductive::is_inductive_decl(env(), I_name));
+                        unsigned nindices     = m_indices_pos.size();
+                        lean_assert(*inductive::get_num_indices(env(), I_name) == m_indices_pos.size());
+                        unsigned I_next_idx   = I_args.size() - nindices;
+                        unsigned new_nargs    = nindices + 1 + args.size() - b_next_idx;
+                        buffer<expr> new_args;
+                        for (unsigned i = 0; i < new_nargs; i++) {
+                            if (i == m_arg_pos) {
+                                new_args.push_back(rec_arg);
+                            } else if (std::find(m_indices_pos.begin(), m_indices_pos.end(), i) != m_indices_pos.end()) {
+                                new_args.push_back(I_args[I_next_idx]);
+                                I_next_idx++;
+                            } else {
+                                new_args.push_back(args[b_next_idx]);
+                                b_next_idx++;
+                            }
+                        }
+                        expr new_e = mk_app(m_fn, new_args);
+                        trace_debug_struct_aux(tout() << "decoded equation rhs term:\n" << e << "\n==>\n" << new_e << "\n";);
+                        return new_e;
                     }
-                    expr new_e = mk_app(m_fn, new_args);
-                    trace_debug_struct_aux(tout() << "decoded equation rhs term:\n" << e << "\n==>\n" << new_e << "\n";);
-                    return new_e;
                 }
             }
             return replace_visitor_with_tc::visit_app(e);

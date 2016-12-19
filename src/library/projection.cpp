@@ -38,20 +38,35 @@ static environment update(environment const & env, projection_ext const & ext) {
     return env.update(g_ext->m_ext_id, std::make_shared<projection_ext>(ext));
 }
 
-static std::string * g_proj_key = nullptr;
+struct proj_modification : public modification {
+    LEAN_MODIFICATION("proj")
 
-static environment save_projection_info_core(environment const & env, name const & p, name const & mk, unsigned nparams,
-                                             unsigned i, bool inst_implicit) {
-    projection_ext ext = get_extension(env);
-    ext.m_info.insert(p, projection_info(mk, nparams, i, inst_implicit));
-    return update(env, ext);
-}
+    name m_proj;
+    projection_info m_info;
+
+    proj_modification() {}
+    proj_modification(name const & proj, projection_info const & info) : m_proj(proj), m_info(info) {}
+
+    void perform(environment & env) const override {
+        projection_ext ext = get_extension(env);
+        ext.m_info.insert(m_proj, m_info);
+        env = update(env, ext);
+    }
+
+    void serialize(serializer & s) const override {
+        s << m_proj << m_info.m_constructor << m_info.m_nparams << m_info.m_i << m_info.m_inst_implicit;
+    }
+
+    static std::shared_ptr<modification const> deserialize(deserializer & d) {
+        name p, mk; unsigned nparams, i; bool inst_implicit;
+        d >> p >> mk >> nparams >> i >> inst_implicit;
+        return std::make_shared<proj_modification>(p, projection_info(mk, nparams, i, inst_implicit));
+    }
+};
 
 environment save_projection_info(environment const & env, name const & p, name const & mk, unsigned nparams, unsigned i, bool inst_implicit) {
-    environment new_env = save_projection_info_core(env, p, mk, nparams, i, inst_implicit);
-    return module::add(new_env, *g_proj_key, [=](environment const &, serializer & s) {
-            s << p << mk << nparams << i << inst_implicit;
-        });
+    return module::add_and_perform(env, std::make_shared<proj_modification>(
+            p, projection_info(mk, nparams, i, inst_implicit)));
 }
 
 projection_info const * get_projection_info(environment const & env, name const & p) {
@@ -61,12 +76,6 @@ projection_info const * get_projection_info(environment const & env, name const 
 
 name_map<projection_info> const & get_projection_info_map(environment const & env) {
     return get_extension(env).m_info;
-}
-
-static void projection_info_reader(deserializer & d, environment & env) {
-    name p, mk; unsigned nparams, i; bool inst_implicit;
-    d >> p >> mk >> nparams >> i >> inst_implicit;
-    env = save_projection_info_core(env, p, mk, nparams, i, inst_implicit);
 }
 
 /** \brief Return true iff the type named \c S can be viewed as
@@ -82,12 +91,11 @@ bool is_structure_like(environment const & env, name const & S) {
 
 void initialize_projection() {
     g_ext      = new projection_ext_reg();
-    g_proj_key = new std::string("proj");
-    register_module_object_reader(*g_proj_key, projection_info_reader);
+    proj_modification::init();
 }
 
 void finalize_projection() {
-    delete g_proj_key;
+    proj_modification::finalize();
     delete g_ext;
 }
 }

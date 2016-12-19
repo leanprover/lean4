@@ -77,14 +77,37 @@ optional<name> to_valid_namespace_name(environment const & env, name const & n) 
     return optional<name>();
 }
 
-static std::string * g_new_namespace_key = nullptr;
+struct new_namespace_modification : public modification {
+    LEAN_MODIFICATION("nspace")
+
+    name m_ns;
+
+    new_namespace_modification(name const & ns) : m_ns(ns) {}
+    new_namespace_modification() {}
+
+    void perform(environment & env) const override {
+        scope_mng_ext ext = get_extension(env);
+        ext.m_namespace_set.insert(m_ns);
+        env = update(env, ext);
+    }
+
+    void serialize(serializer & s) const override {
+        s << m_ns;
+    }
+
+    static std::shared_ptr<modification const> deserialize(deserializer & d) {
+        name n;
+        d >> n;
+        return std::make_shared<new_namespace_modification>(n);
+    }
+};
 
 environment add_namespace(environment const & env, name const & ns) {
     scope_mng_ext ext = get_extension(env);
     if (!ext.m_namespace_set.contains(ns)) {
         ext.m_namespace_set.insert(ns);
         environment r = update(env, ext);
-        r = module::add(r, *g_new_namespace_key, [=](environment const &, serializer & s) { s << ns; });
+        r = module::add(r, std::make_shared<new_namespace_modification>(ns));
         if (ns.is_atomic())
             return r;
         else
@@ -114,16 +137,8 @@ environment push_scope(environment const & env, io_state const & ios, scope_kind
         r = std::get<0>(t)(r, ios, k);
     }
     if (save_ns)
-        r = module::add(r, *g_new_namespace_key, [=](environment const &, serializer & s) { s << new_n; });
+        r = module::add(r, std::make_shared<new_namespace_modification>(new_n));
     return r;
-}
-
-static void namespace_reader(deserializer & d, environment & env) {
-    name n;
-    d >> n;
-    scope_mng_ext ext = get_extension(env);
-    ext.m_namespace_set.insert(n);
-    env = update(env, ext);
 }
 
 environment pop_scope_core(environment const & env, io_state const & ios) {
@@ -159,12 +174,11 @@ bool has_open_scopes(environment const & env) {
 void initialize_scoped_ext() {
     g_exts = new scoped_exts();
     g_ext  = new scope_mng_ext_reg();
-    g_new_namespace_key = new std::string("nspace");
-    register_module_object_reader(*g_new_namespace_key, namespace_reader);
+    new_namespace_modification::init();
 }
 
 void finalize_scoped_ext() {
-    delete g_new_namespace_key;
+    new_namespace_modification::finalize();
     delete g_exts;
     delete g_ext;
 }

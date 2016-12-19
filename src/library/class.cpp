@@ -76,7 +76,6 @@ struct class_state {
 };
 
 static name * g_class_name = nullptr;
-static std::string * g_key = nullptr;
 
 struct class_config {
     typedef class_state state;
@@ -94,9 +93,7 @@ struct class_config {
     static name const & get_class_name() {
         return *g_class_name;
     }
-    static std::string const & get_serialization_key() {
-        return *g_key;
-    }
+    static const char * get_serialization_key() { return "class"; }
     static void  write_entry(serializer & s, entry const & e) {
         s << static_cast<char>(e.m_kind);
         switch (e.m_kind) {
@@ -246,7 +243,6 @@ void initialize_class() {
     g_class_attr_name = new name("class");
     g_instance_attr_name = new name("instance");
     g_class_name = new name("class");
-    g_key = new std::string("class");
     class_ext::initialize();
 
     register_system_attribute(basic_attribute(*g_class_attr_name, "type class",
@@ -264,7 +260,6 @@ void initialize_class() {
 
 void finalize_class() {
     class_ext::finalize();
-    delete g_key;
     delete g_class_name;
     delete g_class_attr_name;
     delete g_instance_attr_name;

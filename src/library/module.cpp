@@ -40,11 +40,9 @@ corrupted_file_exception::corrupted_file_exception(std::string const & fname):
     exception(sstream() << "failed to import '" << fname << "', file is corrupted, please regenerate the file from sources") {
 }
 
-typedef pair<std::string, std::function<void(environment const &, serializer &)>> writer;
-
 struct module_ext : public environment_extension {
     list<module_name>  m_direct_imports;
-    list<writer>      m_writers;
+    list<std::shared_ptr<modification const>> m_modifications;
     list<name>        m_module_univs;
     list<name>        m_module_decls;
     name_set          m_module_defs;
@@ -103,7 +101,6 @@ optional<std::string> get_decl_olean(environment const & env, name const & decl_
         return optional<std::string>();
 }
 
-static std::string * g_pos_info_key = nullptr;
 LEAN_THREAD_VALUE(bool, g_has_pos, false);
 LEAN_THREAD_VALUE(unsigned, g_curr_line, 0);
 LEAN_THREAD_VALUE(unsigned, g_curr_column, 0);
@@ -118,17 +115,36 @@ module::scope_pos_info::~scope_pos_info() {
     g_has_pos = false;
 }
 
+struct pos_info_mod : public modification {
+    LEAN_MODIFICATION("PInfo")
+
+    name m_decl_name;
+    pos_info m_pos_info;
+
+    pos_info_mod(name const & decl_name, pos_info const & pos) :
+        m_decl_name(decl_name), m_pos_info(pos) {}
+
+    void perform(environment & env) const override {
+        auto ext = get_extension(env);
+        ext.m_decl2pos_info.insert(m_decl_name, m_pos_info);
+        env = update(env, ext);
+    }
+
+    void serialize(serializer & s) const override {
+        s << m_decl_name << m_pos_info.first << m_pos_info.second;
+    }
+
+    static std::shared_ptr<modification const> deserialize(deserializer & d) {
+        name decl_name; unsigned line, column;
+        d >> decl_name >> line >> column;
+        return std::make_shared<pos_info_mod>(decl_name, pos_info {line, column});
+    }
+};
+
 static environment add_decl_pos_info(environment const & env, name const & decl_name) {
     if (!g_has_pos)
         return env;
-    module_ext ext = get_extension(env);
-    unsigned line   = g_curr_line;
-    unsigned column = g_curr_column;
-    ext.m_decl2pos_info.insert(decl_name, mk_pair(line, column));
-    environment new_env = update(env, ext);
-    return module::add(new_env, *g_pos_info_key, [=](environment const &, serializer & s) {
-            s << decl_name << line << column;
-        });
+    return module::add_and_perform(env, std::make_shared<pos_info_mod>(decl_name, pos_info {g_curr_line, g_curr_column}));
 }
 
 optional<pos_info> get_decl_pos_info(environment const & env, name const & decl_name) {
@@ -150,13 +166,6 @@ environment add_transient_decl_pos_info(environment const & env, name const & de
     module_ext ext = get_extension(env);
     ext.m_decl2pos_info.insert(decl_name, pos);
     return update(env, ext);
-}
-
-static void pos_info_reader(deserializer & d, environment & env) {
-    name decl_name;
-    unsigned line, column;
-    d >> decl_name >> line >> column;
-    env = add_transient_decl_pos_info(env, decl_name, pos_info(line, column));
 }
 
 static char const * g_olean_end_file = "EndFile";
@@ -182,38 +191,14 @@ deserializer & operator>>(deserializer & d, module_name & r) {
     return d;
 }
 
-LEAN_THREAD_PTR(std::vector<task_result<expr>>, g_export_delayed_proofs);
-class scoped_delayed_proofs {
-    std::vector<task_result<expr>> * m_old;
-public:
-    scoped_delayed_proofs(std::vector<task_result<expr>> & r) {
-        m_old = g_export_delayed_proofs;
-        g_export_delayed_proofs = &r;
-    }
-    ~scoped_delayed_proofs() {
-        g_export_delayed_proofs = m_old;
-    }
-};
-
-void export_module(std::ostream & out, environment const & env) {
-    module_ext const & ext = get_extension(env);
-
-    buffer<module_name> imports;
-    to_buffer(ext.m_direct_imports, imports);
-    std::reverse(imports.begin(), imports.end());
-
-    buffer<writer const *> writers;
-    for (writer const & w : ext.m_writers)
-        writers.push_back(&w);
-    std::reverse(writers.begin(), writers.end());
-
+void write_module(loaded_module const & mod, std::ostream & out) {
     std::ostringstream out1(std::ios_base::binary);
     serializer s1(out1);
 
     // store objects
-    for (auto p : writers) {
-        s1 << p->first;
-        p->second(env, s1);
+    for (auto p : mod.m_modifications) {
+        s1 << std::string(p->get_key());
+        p->serialize(s1);
     }
     s1 << g_olean_end_file;
 
@@ -223,8 +208,8 @@ void export_module(std::ostream & out, environment const & env) {
     s2 << g_olean_header << LEAN_VERSION_MAJOR << LEAN_VERSION_MINOR << LEAN_VERSION_PATCH;
     s2 << h;
     // store imported files
-    s2 << imports.size();
-    for (auto m : imports)
+    s2 << static_cast<unsigned>(mod.m_imports.size());
+    for (auto m : mod.m_imports)
         s2 << m;
     // store object code
     s2.write_unsigned(r.size());
@@ -232,41 +217,144 @@ void export_module(std::ostream & out, environment const & env) {
         s2.write_char(r[i]);
 }
 
-std::vector<task_result<expr>> export_module_delayed(std::ostream & out, environment const & env) {
-    std::vector<task_result<expr>> delayed_proofs;
-    scoped_delayed_proofs _(delayed_proofs);
-    export_module(out, env);
-    return delayed_proofs;
+loaded_module export_module(environment const & env, std::string const & mod_name) {
+    loaded_module out;
+    out.m_module_name = mod_name;
+
+    module_ext const & ext = get_extension(env);
+
+    for (auto & i : ext.m_direct_imports)
+        out.m_imports.push_back(i);
+    std::reverse(out.m_imports.begin(), out.m_imports.end());
+
+    for (auto & w : ext.m_modifications)
+        out.m_modifications.push_back(w);
+    std::reverse(out.m_modifications.begin(), out.m_modifications.end());
+
+    return out;
 }
 
-typedef std::unordered_map<std::string, module_object_reader> object_readers;
+typedef std::unordered_map<std::string, module_modification_reader> object_readers;
 static object_readers * g_object_readers = nullptr;
 static object_readers & get_object_readers() { return *g_object_readers; }
 
-void register_module_object_reader(std::string const & k, module_object_reader r) {
+void register_module_object_reader(std::string const & k, module_modification_reader && r) {
     object_readers & readers = get_object_readers();
     lean_assert(readers.find(k) == readers.end());
     readers[k] = r;
 }
 
-static std::string * g_glvl_key  = nullptr;
-static std::string * g_decl_key  = nullptr;
-static std::string * g_inductive = nullptr;
-static std::string * g_quotient  = nullptr;
+struct import_helper {
+    static environment add_unchecked(environment const & env, declaration const & decl) {
+        return env.add(certify_or_check(env, decl));
+    }
+    static certified_declaration certify_or_check(environment const & env, declaration const & decl) {
+        return certify_unchecked::certify_or_check(env, decl);
+    }
+};
+
+struct glvl_modification : public modification {
+    LEAN_MODIFICATION("glvl")
+
+    name m_name;
+
+    glvl_modification() {}
+    glvl_modification(name const & name) : m_name(name) {}
+
+    void perform(environment & env) const override {
+        env = env.add_universe(m_name);
+    }
+
+    void serialize(serializer & s) const override {
+        s << m_name;
+    }
+
+    static std::shared_ptr<modification const> deserialize(deserializer & d) {
+        return std::make_shared<glvl_modification>(read_name(d));
+    }
+};
+
+struct decl_modification : public modification {
+    LEAN_MODIFICATION("decl")
+
+    declaration m_decl;
+
+    decl_modification() {}
+    decl_modification(declaration const & decl) : m_decl(decl) {}
+
+    void perform(environment & env) const override {
+        auto decl = m_decl;
+        decl = unfold_untrusted_macros(env, decl);
+        if (decl.get_name() == get_sorry_name() && has_sorry(env)) {
+            // ignore double sorrys
+            return;
+        }
+        // TODO(gabriel): this might be a bit more unsafe here than before
+        env = import_helper::add_unchecked(env, decl);
+    }
+
+    void serialize(serializer & s) const override {
+        s << m_decl;
+    }
+
+    static std::shared_ptr<modification const> deserialize(deserializer & d) {
+        return std::make_shared<decl_modification>(read_declaration(d));
+    }
+};
+
+struct inductive_modification : public modification {
+    LEAN_MODIFICATION("ind")
+
+    inductive::certified_inductive_decl m_decl;
+
+    inductive_modification(inductive::certified_inductive_decl const & decl) : m_decl(decl) {}
+
+    void perform(environment & env) const override {
+        env = m_decl.add(env);
+    }
+
+    void serialize(serializer & s) const override {
+        s << m_decl;
+    }
+
+    static std::shared_ptr<modification const> deserialize(deserializer & d) {
+        return std::make_shared<inductive_modification>(read_certified_inductive_decl(d));
+    }
+};
+
+struct quot_modification : public modification {
+    LEAN_MODIFICATION("quot")
+
+    void perform(environment & env) const override {
+        env = ::lean::declare_quotient(env);
+    }
+
+    void serialize(serializer &) const override {}
+
+    static std::shared_ptr<modification const> deserialize(deserializer &) {
+        return std::make_shared<quot_modification>();
+    }
+};
 
 namespace module {
-environment add(environment const & env, std::string const & k, std::function<void(environment const &, serializer &)> const & wr) {
+environment add(environment const & env, std::shared_ptr<modification const> const & modf) {
     module_ext ext = get_extension(env);
-    ext.m_writers  = cons(writer(k, wr), ext.m_writers);
+    ext.m_modifications = cons(modf, ext.m_modifications);
     return update(env, ext);
 }
 
+environment add_and_perform(environment const & env, std::shared_ptr<modification const> const & modf) {
+    auto new_env = env;
+    modf->perform(new_env);
+    module_ext ext = get_extension(new_env);
+    ext.m_modifications = cons(modf, ext.m_modifications);
+    return update(new_env, ext);
+}
+
 environment add_universe(environment const & env, name const & l) {
-    environment new_env = env.add_universe(l);
     module_ext ext = get_extension(env);
     ext.m_module_univs = cons(l, ext.m_module_univs);
-    new_env = update(new_env, ext);
-    return add(new_env, *g_glvl_key, [=](environment const &, serializer & s) { s << l; });
+    return add_and_perform(update(env, ext), std::make_shared<glvl_modification>(l));
 }
 
 environment update_module_defs(environment const & env, declaration const & d) {
@@ -282,30 +370,13 @@ environment update_module_defs(environment const & env, declaration const & d) {
     }
 }
 
-static declaration theorem2axiom(declaration const & decl) {
-    lean_assert(decl.is_theorem());
-    return mk_axiom(decl.get_name(), decl.get_univ_params(), decl.get_type());
-}
-
-static environment export_decl(environment const & env, declaration const & d) {
-    name n = d.get_name();
-    return add(env, *g_decl_key, [=](environment const & env, serializer & s) {
-            auto d = env.get(n);
-            if (g_export_delayed_proofs && d.is_theorem()) {
-                s << true << theorem2axiom(d) << static_cast<unsigned>(g_export_delayed_proofs->size());
-                g_export_delayed_proofs->push_back(d.get_value_task());
-            } else {
-                s << false << d;
-            }
-        });
-}
-
 environment add(environment const & env, certified_declaration const & d) {
     environment new_env = env.add(d);
     declaration _d = d.get_declaration();
     if (!check_computable(new_env, _d.get_name()))
         new_env = mark_noncomputable(new_env, _d.get_name());
-    new_env = export_decl(update_module_defs(new_env, _d), _d);
+    new_env = update_module_defs(new_env, _d);
+    new_env = add(new_env, std::make_shared<decl_modification>(_d));
     return add_decl_pos_info(new_env, _d.get_name());
 }
 
@@ -315,12 +386,7 @@ bool is_definition(environment const & env, name const & n) {
 }
 
 environment declare_quotient(environment const & env) {
-    environment new_env = ::lean::declare_quotient(env);
-    return add(new_env, *g_quotient, [=](environment const &, serializer &) {});
-}
-
-static void quotient_reader(deserializer &, environment & env) {
-    env = ::lean::declare_quotient(env);
+    return add_and_perform(env, std::make_shared<quot_modification>());
 }
 
 using inductive::certified_inductive_decl;
@@ -335,9 +401,7 @@ environment add_inductive(environment                       env,
     ext.m_module_decls = cons(decl.m_name, ext.m_module_decls);
     new_env = update(new_env, ext);
     new_env = add_decl_pos_info(new_env, decl.m_name);
-    return add(new_env, *g_inductive, [=](environment const &, serializer & s) {
-            s << cdecl;
-        });
+    return add(new_env, std::make_shared<inductive_modification>(cdecl));
 }
 } // end of namespace module
 
@@ -376,28 +440,17 @@ std::pair<std::vector<module_name>, std::vector<char>> parse_olean(std::istream 
     return { imports, code };
 }
 
-struct import_helper {
-    static environment add_unchecked(environment const & env, declaration const & decl) {
-        return env.add(certify_or_check(env, decl));
-    }
-    static certified_declaration certify_or_check(environment const & env, declaration const & decl) {
-        return certify_unchecked::certify_or_check(env, decl);
-    }
-};
-
 static void import_module(environment & env, std::string const & module_file_name, module_name const & ref,
                           module_loader const & mod_ldr) {
     auto res = mod_ldr(module_file_name, ref);
     if (get_extension(env).m_imported.contains(res.m_module_name)) return;
-    std::istringstream in(res.m_obj_code, std::ios_base::binary);
-    auto olean = parse_olean(in, res.m_module_name, false);
-    for (auto & dep : olean.first) {
+    for (auto & dep : res.m_imports) {
         import_module(env, res.m_module_name, dep, mod_ldr);
     }
     auto ext = get_extension(env);
     ext.m_imported.insert(res.m_module_name);
     env = update(env, ext);
-    import_module(olean.second, res.m_module_name, env, res.m_delayed_proofs);
+    import_module(res.m_modifications, res.m_module_name, env);
 }
 
 environment import_module(environment const & env0, std::string const & module_file_name,
@@ -411,68 +464,52 @@ environment import_module(environment const & env0, std::string const & module_f
     return env;
 }
 
-static optional<name> import_decl(deserializer & d, environment & env,
-                                  std::vector<task_result<expr>> const & delayed_proofs) {
-    bool is_delayed; d >> is_delayed;
-    declaration decl = read_declaration(d);
-    decl = unfold_untrusted_macros(env, decl);
-    if (decl.get_name() == get_sorry_name() && has_sorry(env)) {
-        // TODO(gabriel): not sure why this is here
-        return optional<name>();
-    }
-    if (is_delayed) {
-        unsigned i; d >> i;
-        auto delayed_proof = delayed_proofs.at(i);
-        decl = mk_theorem(decl.get_name(), decl.get_univ_params(), decl.get_type(), delayed_proof);
-    }
-    env = import_helper::add_unchecked(env, decl);
-    return optional<name>(decl.get_name());
-}
-
-static void import_universe(deserializer & d, environment & env) {
-    name const l = read_name(d);
-    env = env.add_universe(l);
-}
-
-void import_module(std::vector<char> const & olean_code, std::string const & file_name, environment & env,
-                   std::vector<task_result<expr>> const & delayed_proofs) {
-    // TODO(gabriel): update extension
+modification_list parse_olean_modifications(std::vector<char> const & olean_code, std::string const & file_name) {
+    modification_list ms;
     std::string s(olean_code.data(), olean_code.size());
     std::istringstream in(s, std::ios_base::binary);
-    scoped_expr_caching enable_caching(true);
+    scoped_expr_caching enable_caching(false);
     deserializer d(in, optional<std::string>(file_name));
+    object_readers & readers = get_object_readers();
     unsigned obj_counter = 0;
     while (true) {
         std::string k;
         d >> k;
         if (k == g_olean_end_file) {
             break;
-        } else if (k == *g_decl_key) {
-            if (auto decl_name = import_decl(d, env, delayed_proofs))
-                env = add_decl_olean(env, *decl_name, file_name);
-        } else if (k == *g_glvl_key) {
-            import_universe(d, env);
-        } else if (k == *g_inductive) {
-            inductive::certified_inductive_decl cdecl = read_certified_inductive_decl(d);
-            env = cdecl.add(env);
-            env = add_decl_olean(env, cdecl.get_decl().m_name, file_name);
-        } else {
-            object_readers & readers = get_object_readers();
-            auto it = readers.find(k);
-            if (it == readers.end())
-                throw exception(sstream() << "file '" << file_name << "' has been corrupted, unknown object: " << k);
-            it->second(d, env);
         }
+
+        auto it = readers.find(k);
+        if (it == readers.end())
+            throw exception(sstream() << "file '" << file_name << "' has been corrupted, unknown object: " << k);
+        ms.emplace_back(it->second(d));
+
         obj_counter++;
+    }
+    return ms;
+}
+
+void import_module(modification_list const & modifications, std::string const & file_name, environment & env) {
+    for (auto & m : modifications) {
+        m->perform(env);
+
+        if (auto dm = dynamic_cast<decl_modification const *>(m.get())) {
+            env = add_decl_olean(env, dm->m_decl.get_name(), file_name);
+        } else if (auto im = dynamic_cast<inductive_modification const *>(m.get())) {
+            env = add_decl_olean(env, im->m_decl.get_decl().m_name, file_name);
+        }
     }
 }
 
 module_loader mk_olean_loader() {
+    bool check_hash = false;
     return[=] (std::string const & module_fn, module_name const & ref) {
         auto base_dir = dirname(module_fn.c_str());
         auto fn = find_file(base_dir, ref.m_relative, ref.m_name, ".olean");
-        auto contents = read_file(fn, std::ios_base::binary);
-        return loaded_module { fn, contents, {} };
+        std::ifstream in(fn, std::ios_base::binary);
+        auto parsed = parse_olean(in, fn, check_hash);
+        auto modifs = parse_olean_modifications(parsed.second, fn);
+        return loaded_module { fn, parsed.first, modifs };
     };
 }
 
@@ -485,22 +522,20 @@ module_loader mk_dummy_loader() {
 void initialize_module() {
     g_ext            = new module_ext_reg();
     g_object_readers = new object_readers();
-    g_glvl_key       = new std::string("glvl");
-    g_decl_key       = new std::string("decl");
-    g_inductive      = new std::string("ind");
-    g_quotient       = new std::string("quot");
-    g_pos_info_key   = new std::string("PInfo");
-    register_module_object_reader(*g_quotient, module::quotient_reader);
-    register_module_object_reader(*g_pos_info_key, pos_info_reader);
+    glvl_modification::init();
+    decl_modification::init();
+    inductive_modification::init();
+    quot_modification::init();
+    pos_info_mod::init();
 }
 
 void finalize_module() {
-    delete g_inductive;
-    delete g_quotient;
-    delete g_decl_key;
-    delete g_glvl_key;
+    quot_modification::finalize();
+    pos_info_mod::finalize();
+    inductive_modification::finalize();
+    decl_modification::finalize();
+    glvl_modification::finalize();
     delete g_object_readers;
     delete g_ext;
-    delete g_pos_info_key;
 }
 }

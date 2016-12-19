@@ -932,13 +932,10 @@ struct vm_decls : public environment_extension {
         return idx;
     }
 
-    void update(name const & n, unsigned code_sz, vm_instr const * code,
-                list<vm_local_info> const & args_info, optional<pos_info> const & pos,
-                optional<std::string> const & olean = optional<std::string>()) {
-        unsigned idx      = get_vm_index(n);
-        vm_decl const * d = m_decls.find(idx);
-        lean_assert(d);
-        m_decls.insert(idx, vm_decl(n, idx, d->get_expr(), code_sz, code, args_info, pos, olean));
+    void update(vm_decl const & new_decl) {
+        lean_assert(new_decl.get_idx() == get_vm_index(new_decl.get_name()));
+        lean_assert(m_decls.contains(new_decl.get_idx()));
+        m_decls.insert(new_decl.get_idx(), new_decl);
     }
 };
 
@@ -1028,59 +1025,100 @@ optional<unsigned> get_vm_builtin_idx(name const & n) {
         return optional<unsigned>();
 }
 
-static std::string * g_vm_reserve_key = nullptr;
-static std::string * g_vm_code_key = nullptr;
+struct vm_reserve_modification : public modification {
+    LEAN_MODIFICATION("VMR")
+
+    name m_fn;
+    expr m_e;
+
+    vm_reserve_modification(name const & fn, expr const & e) : m_fn(fn), m_e(e) {}
+
+    void perform(environment & env) const override {
+        vm_decls ext = get_extension(env);
+        ext.reserve(m_fn, m_e);
+        env = update(env, ext);
+    }
+
+    void serialize(serializer & s) const override {
+        s << m_fn << m_e;
+    }
+
+    static std::shared_ptr<modification const> deserialize(deserializer & d) {
+        name fn; expr e;
+        d >> fn >> e;
+        return std::make_shared<vm_reserve_modification>(fn, e);
+    }
+};
+
+struct vm_code_modification : public modification {
+    LEAN_MODIFICATION("VMC")
+
+    vm_decl m_decl;
+
+    vm_code_modification(vm_decl const & decl) : m_decl(decl) {}
+    vm_code_modification() {}
+
+    void perform(environment & env) const override {
+        vm_decls ext = get_extension(env);
+        ext.update(m_decl);
+        env = update(env, ext);
+    }
+
+    void serialize(serializer & s) const override {
+        unsigned code_sz = m_decl.get_code_size();
+        s << m_decl.get_name() << m_decl.get_expr() << code_sz << m_decl.get_pos_info();
+        write_list(s, m_decl.get_args_info());
+        auto c = m_decl.get_code();
+        for (unsigned i = 0; i < code_sz; i++)
+            c[i].serialize(s, get_vm_name);
+    }
+
+    static std::shared_ptr<modification const> deserialize(deserializer & d) {
+        name fn; unsigned code_sz; expr e; optional<pos_info> pos;
+        d >> fn >> e >> code_sz >> pos;
+        auto args_info = read_list<vm_local_info>(d);
+        buffer<vm_instr> code;
+        for (unsigned i = 0; i < code_sz; i++)
+            code.emplace_back(read_vm_instr(d));
+        optional<std::string> file_name; // TODO(gabriel)
+        return std::make_shared<vm_code_modification>(
+                vm_decl(fn, get_vm_index(fn), e, code_sz, code.data(), args_info, pos, file_name));
+    }
+};
+
+struct vm_monitor_modification : public modification {
+    LEAN_MODIFICATION("VMMonitor")
+
+    name m_monitor;
+
+    vm_monitor_modification() {}
+    vm_monitor_modification(name const & n) : m_monitor(n) {}
+
+    void perform(environment & env) const override {
+        vm_decls ext = get_extension(env);
+        ext.m_monitor = m_monitor;
+        env = update(env, ext);
+    }
+
+    void serialize(serializer & s) const override {
+        s << m_monitor;
+    }
+
+    static std::shared_ptr<modification const> deserialize(deserializer & d) {
+        auto m = std::make_shared<vm_monitor_modification>();
+        d >> m->m_monitor;
+        return m;
+    }
+};
 
 environment reserve_vm_index(environment const & env, name const & fn, expr const & e) {
-    vm_decls ext = get_extension(env);
-    ext.reserve(fn, e);
-    environment new_env = update(env, ext);
-    return module::add(new_env, *g_vm_reserve_key, [=](environment const &, serializer & s) {
-            s << fn << e;
-        });
-}
-
-static void reserve_reader(deserializer & d, environment & env) {
-    name fn; expr e;
-    d >> fn >> e;
-    vm_decls ext = get_extension(env);
-    ext.reserve(fn, e);
-    env = update(env, ext);
-}
-
-void serialize_code(serializer & s, unsigned fidx, unsigned_map<vm_decl> const & decls) {
-    vm_decl const * d = decls.find(fidx);
-    s << d->get_name() << d->get_code_size() << d->get_pos_info();
-    write_list(s, d->get_args_info());
-    vm_instr const * code = d->get_code();
-    auto fn = [&](unsigned idx) { return decls.find(idx)->get_name(); };
-    for (unsigned i = 0; i < d->get_code_size(); i++) {
-        code[i].serialize(s, fn);
-    }
-}
-
-static void code_reader(deserializer & d, environment & env) {
-    name fn; unsigned code_sz; list<vm_local_info> args_info; optional<pos_info> pos;
-    d >> fn >> code_sz >> pos;
-    args_info = read_list<vm_local_info>(d);
-    vm_decls ext = get_extension(env);
-    buffer<vm_instr> code;
-    for (unsigned i = 0; i < code_sz; i++) {
-        code.push_back(read_vm_instr(d));
-    }
-    ext.update(fn, code_sz, code.data(), args_info, pos, d.get_fname());
-    env = update(env, ext);
+    return module::add_and_perform(env, std::make_shared<vm_reserve_modification>(fn, e));
 }
 
 environment update_vm_code(environment const & env, name const & fn, unsigned code_sz, vm_instr const * code,
                            list<vm_local_info> const & args_info, optional<pos_info> const & pos) {
-    vm_decls ext = get_extension(env);
-    ext.update(fn, code_sz, code, args_info, pos);
-    environment new_env = update(env, ext);
-    unsigned fidx       = get_vm_index(fn);
-    return module::add(new_env, *g_vm_code_key, [=](environment const & env, serializer & s) {
-            serialize_code(s, fidx, get_extension(env).m_decls);
-        });
+    vm_decl decl(fn, get_vm_index(fn), get_vm_decl(env, fn)->get_expr(), code_sz, code, args_info, pos);
+    return module::add_and_perform(env, std::make_shared<vm_code_modification>(decl));
 }
 
 environment add_vm_code(environment const & env, name const & fn, expr const & e, unsigned code_sz, vm_instr const * code,
@@ -3181,20 +3219,11 @@ void* get_extern_symbol(std::string library_name, std::string extern_name) {
     return library.symbol(extern_name);
 }
 
-static std::string * g_vm_monitor_key = nullptr;
-
-static environment vm_monitor_register_core(environment const & env, name const & d) {
+environment vm_monitor_register(environment const & env, name const & d) {
     expr const & type = env.get(d).get_type();
     if (!is_app_of(type, get_vm_monitor_name(), 1))
         throw exception("invalid vm_monitor.register argument, must be name of a definition of type (vm_monitor ?s) ");
-    auto ext = get_extension(env);
-    ext.m_monitor = d;
-    return update(env, ext);
-}
-
-environment vm_monitor_register(environment const & env, name const & d) {
-    auto new_env = vm_monitor_register_core(env, d);
-    return module::add(new_env, *g_vm_monitor_key, [=](environment const &, serializer & s) { s << d; });
+    return module::add_and_perform(env, std::make_shared<vm_monitor_modification>(d));
 }
 
 environment load_external_fn(environment & env, name const & extern_n) {
@@ -3235,14 +3264,6 @@ environment load_external_fn(environment & env, name const & extern_n) {
         std::cout << e.what() << std::endl;
         throw e;
     }
-}
-
-static void vm_monitor_reader(deserializer & d, environment & env) {
-    name n;
-    d >> n;
-    vm_decls ext = get_extension(env);
-    ext.m_monitor = n;
-    env = update(env, ext);
 }
 
 class vm_index_manager {
@@ -3330,12 +3351,9 @@ void finalize_vm_core() {
 void initialize_vm() {
     g_ext = new vm_decls_reg();
     // g_may_update_vm_builtins = false;
-    g_vm_reserve_key = new std::string("VMR");
-    g_vm_code_key    = new std::string("VMC");
-    g_vm_monitor_key = new std::string("VMMonitor");
-    register_module_object_reader(*g_vm_reserve_key, reserve_reader);
-    register_module_object_reader(*g_vm_code_key, code_reader);
-    register_module_object_reader(*g_vm_monitor_key, vm_monitor_reader);
+    vm_reserve_modification::init();
+    vm_code_modification::init();
+    vm_monitor_modification::init();
 #if defined(LEAN_MULTI_THREAD)
     g_profiler       = new name{"profiler"};
     g_profiler_freq  = new name{"profiler", "freq"};
@@ -3351,9 +3369,9 @@ void initialize_vm() {
 
 void finalize_vm() {
     delete g_ext;
-    delete g_vm_reserve_key;
-    delete g_vm_code_key;
-    delete g_vm_monitor_key;
+    vm_reserve_modification::finalize();
+    vm_code_modification::finalize();
+    vm_monitor_modification::finalize();
 #if defined(LEAN_MULTI_THREAD)
     delete g_profiler;
     delete g_profiler_freq;

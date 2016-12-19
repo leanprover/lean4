@@ -75,7 +75,7 @@ class scoped_ext : public environment_extension {
     }
     static void  write_entry(serializer & s, entry const & e) { Config::write_entry(s, e); }
     static entry read_entry(deserializer & d) { return Config::read_entry(d); }
-    static std::string const & get_serialization_key() { return Config::get_serialization_key(); }
+    static const char * get_serialization_key() { return Config::get_serialization_key(); }
     static optional<unsigned> get_fingerprint(entry const & e) {
         return Config::get_fingerprint(e);
     }
@@ -128,12 +128,36 @@ public:
         return r;
     }
 
+    struct modification : public lean::modification {
+        LEAN_MODIFICATION(get_serialization_key())
+
+        entry m_entry;
+
+        modification() {}
+        modification(entry const & e) : m_entry(e) {}
+
+        void perform(environment & env) const override {
+            env = register_entry(env, get_global_ios(), m_entry);
+        }
+
+        void serialize(serializer & s) const override {
+            write_entry(s, m_entry);
+        }
+
+        static std::shared_ptr<lean::modification const> deserialize(deserializer & d) {
+            return std::make_shared<modification>(read_entry(d));
+        }
+    };
+
     struct reg {
         unsigned m_ext_id;
         reg() {
             register_scoped_ext(push_fn, pop_fn);
-            register_module_object_reader(get_serialization_key(), reader);
+            modification::init();
             m_ext_id = environment::register_extension(std::make_shared<scoped_ext>());
+        }
+        ~reg() {
+            modification::finalize();
         }
     };
 
@@ -166,17 +190,11 @@ public:
             return update(env, get(env)._add_tmp_entry(env, ios, e));
         } else {
             name n = get_namespace(env);
-            env = module::add(env, get_serialization_key(), [=](environment const &, serializer & s) {
-                write_entry(s, e);
-            });
+            env = module::add(env, std::make_shared<modification>(e));
             return update(env, get(env)._register_entry(env, ios, e));
         }
     }
 
-    static void reader(deserializer & d, environment & env) {
-        entry e = read_entry(d);
-        env = register_entry(env, get_global_ios(), e);
-    }
     static state const & get_state(environment const & env) {
         return get(env).m_state;
     }

@@ -100,13 +100,33 @@ static environment update(environment const & env, key_equivalence_ext const & e
     return env.update(g_ext->m_ext_id, std::make_shared<key_equivalence_ext>(ext));
 }
 
-static std::string * g_key_equivalence_key = nullptr;
+struct key_equivalence_modification : public modification {
+    LEAN_MODIFICATION("key_eqv")
+
+    name m_n1, m_n2;
+
+    key_equivalence_modification() {}
+    key_equivalence_modification(name const & n1, name const & n2) : m_n1(n1), m_n2(n2) {}
+
+    void perform(environment & env) const override {
+        key_equivalence_ext ext = get_extension(env);
+        ext.add_alias(m_n1, m_n2);
+        env = update(env, ext);
+    }
+
+    void serialize(serializer & s) const override {
+        s << m_n1 << m_n2;
+    }
+
+    static std::shared_ptr<modification const> deserialize(deserializer & d) {
+        name n1, n2;
+        d >> n1 >> n2;
+        return std::make_shared<key_equivalence_modification>(n1, n2);
+    }
+};
 
 environment add_key_equivalence(environment const & env, name const & n1, name const & n2) {
-    key_equivalence_ext ext = get_extension(env);
-    ext.add_alias(n1, n2);
-    environment new_env = update(env, ext);
-    return module::add(new_env, *g_key_equivalence_key, [=](environment const &, serializer & s) { s << n1 << n2; });
+    return module::add_and_perform(env, std::make_shared<key_equivalence_modification>(n1, n2));
 }
 
 bool is_key_equivalent(environment const & env, name const & n1, name const & n2) {
@@ -128,14 +148,6 @@ void for_each_key_equivalence(environment const & env, std::function<void(buffer
                 });
             fn(eqv);
         });
-}
-
-static void key_equivalence_reader(deserializer & d, environment & env) {
-    name n1, n2;
-    d >> n1 >> n2;
-    key_equivalence_ext ext = get_extension(env);
-    ext.add_alias(n1, n2);
-    env = update(env, ext);
 }
 
 expr kabstract(type_context & ctx, expr const & e, expr const & t, occurrences const & occs) {
@@ -165,12 +177,11 @@ expr kabstract(type_context & ctx, expr const & e, expr const & t, occurrences c
 
 void initialize_kabstract() {
     g_ext           = new key_equivalence_ext_reg();
-    g_key_equivalence_key = new std::string("keyeqv");
-    register_module_object_reader(*g_key_equivalence_key, key_equivalence_reader);
+    key_equivalence_modification::init();
 }
 
 void finalize_kabstract() {
-    delete g_key_equivalence_key;
+    key_equivalence_modification::finalize();
     delete g_ext;
 }
 }

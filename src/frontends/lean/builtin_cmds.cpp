@@ -485,18 +485,31 @@ static environment vm_eval_cmd(parser & p) {
     return p.env();
 }
 
-static std::string * g_declare_trace_key = nullptr;
+struct declare_trace_modification : public modification {
+    LEAN_MODIFICATION("decl_trace")
+
+    name m_cls;
+
+    declare_trace_modification(name const & cls) : m_cls(cls) {}
+    declare_trace_modification() {}
+
+    void perform(environment &) const override {
+        // TODO(gabriel): this is just fundamentally wrong
+        register_trace_class(m_cls);
+    }
+
+    void serialize(serializer & s) const override {
+        s << m_cls;
+    }
+
+    static std::shared_ptr<modification const> deserialize(deserializer & d) {
+        return std::make_shared<declare_trace_modification>(read_name(d));
+    }
+};
 
 environment declare_trace_cmd(parser & p) {
     name cls = p.check_id_next("invalid declare_trace command, identifier expected");
-    register_trace_class(cls);
-    return module::add(p.env(), *g_declare_trace_key, [=](environment const &, serializer & s) { s << cls; });
-}
-
-static void declare_trace_reader(deserializer & d, environment &) {
-    name cls;
-    d >> cls;
-    register_trace_class(cls);
+    return module::add_and_perform(p.env(), std::make_shared<declare_trace_modification>(cls));
 }
 
 environment add_key_equivalence_cmd(parser & p) {
@@ -558,12 +571,11 @@ cmd_table get_builtin_cmds() {
 void initialize_builtin_cmds() {
     g_cmds = new cmd_table();
     init_cmd_table(*g_cmds);
-    g_declare_trace_key = new std::string("decl_trace");
-    register_module_object_reader(*g_declare_trace_key, declare_trace_reader);
+    declare_trace_modification::init();
 }
 
 void finalize_builtin_cmds() {
+    declare_trace_modification::finalize();
     delete g_cmds;
-    delete g_declare_trace_key;
 }
 }

@@ -16,6 +16,7 @@ struct token_entry {
     std::string m_token;
     unsigned    m_prec;
     token_entry(std::string const & tk, unsigned prec): m_token(tk), m_prec(prec) {}
+    token_entry() : m_prec(0) {}
 };
 inline token_entry mk_token_entry(std::string const & tk, unsigned prec) { return token_entry(tk, prec); }
 

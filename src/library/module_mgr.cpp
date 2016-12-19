@@ -65,12 +65,7 @@ public:
                         std::get<1>(d).m_name == import.m_name &&
                         std::get<1>(d).m_relative == import.m_relative) {
                     auto & mod_info = std::get<2>(d);
-
-                    return loaded_module {
-                            mod_info->m_mod,
-                            mod_info->m_result.get().m_obj_code,
-                            mod_info->m_result.get().m_obj_code_delayed_proofs,
-                    };
+                    return mod_info->m_result.get().m_loaded_module;
                 }
             }
             throw exception(sstream() << "could not resolve import: " << import.m_name);
@@ -88,12 +83,7 @@ public:
 
         mod.m_snapshots = std::move(m_snapshots);
 
-        {
-            std::ostringstream obj_code_buf(std::ios_base::binary);
-            mod.m_obj_code_delayed_proofs =
-                    export_module_delayed(obj_code_buf, p.env());
-            mod.m_obj_code = obj_code_buf.str();
-        }
+        mod.m_loaded_module = export_module(p.env(), get_module_id());
 
         mod.m_env = optional<environment>(p.env());
 
@@ -132,15 +122,13 @@ public:
         if (m_mod->m_source != module_src::LEAN)
             throw exception("cannot build olean from olean");
         auto res = m_mod->m_result.get();
-        auto env = *res.m_env;
-
         if (!res.m_ok)
             throw exception("not creating olean file because of errors");
 
         auto olean_fn = olean_of_lean(m_mod->m_mod);
         exclusive_file_lock output_lock(olean_fn);
         std::ofstream out(olean_fn, std::ios_base::binary);
-        export_module(out, env);
+        write_module(res.m_loaded_module, out);
         return {};
     }
 };
@@ -181,7 +169,8 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
 
             std::istringstream in2(obj_code, std::ios_base::binary);
             auto olean_fn = olean_of_lean(id);
-            auto parsed_olean = parse_olean(in2, olean_fn);
+            bool check_hash = false;
+            auto parsed_olean = parse_olean(in2, olean_fn, check_hash);
 
             auto mod = std::make_shared<module_info>();
 
@@ -204,7 +193,7 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
                 return build_module(id, false, orig_module_stack);
 
             module_info::parse_result res;
-            res.m_obj_code = obj_code;
+            res.m_loaded_module = { id, parsed_olean.first, parse_olean_modifications(parsed_olean.second, id) };
             res.m_ok = true;
             mod->m_result = mk_pure_task_result(res, "Loading " + olean_fn);
 

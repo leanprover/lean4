@@ -31,7 +31,6 @@ struct inverse_state {
 };
 
 static name * g_inverse_name = nullptr;
-static std::string * g_key = nullptr;
 
 struct inverse_config {
     typedef inverse_state state;
@@ -42,8 +41,8 @@ struct inverse_config {
     static name const & get_class_name() {
         return *g_inverse_name;
     }
-    static std::string const & get_serialization_key() {
-        return *g_key;
+    static const char * get_serialization_key() {
+        return "inverse";
     }
     static void  write_entry(serializer & s, entry const & e) {
         s << e.m_fn << e.m_info.m_arity << e.m_info.m_inv << e.m_info.m_inv_arity << e.m_info.m_lemma;
@@ -107,7 +106,6 @@ environment add_inverse_lemma(environment const & env, name const & lemma, bool 
 
 void initialize_inverse() {
     g_inverse_name = new name("inverse");
-    g_key = new std::string("inverse");
     inverse_ext::initialize();
 
     register_system_attribute(basic_attribute("inverse", "attribute for marking inverse lemmas "
@@ -120,7 +118,6 @@ void initialize_inverse() {
 
 void finalize_inverse() {
     inverse_ext::finalize();
-    delete g_key;
     delete g_inverse_name;
 }
 }

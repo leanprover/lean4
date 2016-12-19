@@ -70,9 +70,6 @@ inline deserializer & operator>>(deserializer & d, ginductive_entry & entry) {
     return d;
 }
 
-static name * g_ginductive_extension = nullptr;
-static std::string * g_ginductive_key = nullptr;
-
 struct ginductive_env_ext : public environment_extension {
     list<name>                m_all_nested_inds;
     list<name>                m_all_mutual_inds;
@@ -163,9 +160,32 @@ static environment update(environment const & env, ginductive_env_ext const & ex
     return env.update(g_ext->m_ext_id, std::make_shared<ginductive_env_ext>(ext));
 }
 
-environment register_ginductive_decl(environment const & env, ginductive_decl const & decl, ginductive_kind k) {
-    ginductive_env_ext ext(get_extension(env));
+struct ginductive_modification : public modification {
+    LEAN_MODIFICATION("gind")
 
+    ginductive_entry m_entry;
+
+    ginductive_modification() {}
+    ginductive_modification(ginductive_entry const & entry) : m_entry(entry) {}
+
+    void perform(environment & env) const override {
+        auto ext = get_extension(env);
+        ext.register_ginductive_entry(m_entry);
+        env = update(env, ext);
+    }
+
+    void serialize(serializer & s) const override {
+        s << m_entry;
+    }
+
+    static std::shared_ptr<modification const> deserialize(deserializer & d) {
+        ginductive_entry entry;
+        d >> entry;
+        return std::make_shared<ginductive_modification>(entry);
+    }
+};
+
+environment register_ginductive_decl(environment const & env, ginductive_decl const & decl, ginductive_kind k) {
     ginductive_entry entry;
     entry.m_kind = k;
     entry.m_num_params = decl.get_num_params();
@@ -185,9 +205,7 @@ environment register_ginductive_decl(environment const & env, ginductive_decl co
     }
     entry.m_intro_rules = to_list(intro_rules);
 
-    ext.register_ginductive_entry(entry);
-    environment new_env = update(env, ext);
-    return module::add(new_env, *g_ginductive_key, [=](environment const &, serializer & s) { s << entry; });
+    return module::add_and_perform(env, std::make_shared<ginductive_modification>(entry));
 }
 
 optional<ginductive_kind> is_ginductive(environment const & env, name const & ind_name) {
@@ -218,25 +236,13 @@ list<name> get_ginductive_all_nested_inds(environment const & env) {
     return get_extension(env).get_all_nested_inds();
 }
 
-static void ginductive_reader(deserializer & d, environment & env) {
-    ginductive_entry entry;
-    d >> entry;
-    ginductive_env_ext ext = get_extension(env);
-    ext.register_ginductive_entry(entry);
-    env = update(env, ext);
-}
-
 void initialize_inductive_compiler_ginductive() {
-    g_ginductive_extension = new name("ginductive_extension");
-    g_ginductive_key       = new std::string("gind");
+    ginductive_modification::init();
     g_ext                  = new ginductive_env_ext_reg();
-
-    register_module_object_reader(*g_ginductive_key, ginductive_reader);
 }
 
 void finalize_inductive_compiler_ginductive() {
-    delete g_ginductive_extension;
-    delete g_ginductive_key;
+    ginductive_modification::finalize();
     delete g_ext;
 }
 }

@@ -471,29 +471,30 @@ void native_compile_module(environment const & env) {
     native_compile_module(env, decls);
 }
 
-// Setup for the storage of native modules to .olean files.
-static std::string *g_native_module_key = nullptr;
+struct native_module_path_modification : public modification {
+    LEAN_MODIFICATION("native_module_path")
 
-static void native_module_reader(
-    deserializer & d,
-    environment & /* env */) {
-    name fn;
-    d >> fn;
-    std::cout << "reading native module from meta-data: " << fn << std::endl;
-    // senv.update([&](environment const & env) -> environment {
-    //     vm_decls ext = get_extension(env);
-    //     // ext.update(fn, code_sz, code.data());
-    //     // return update(env, ext);
-    //     return
-    // });
-}
+    name m_native_module_path;
+
+    native_module_path_modification() {}
+    native_module_path_modification(name const & fn) : m_native_module_path(fn) {}
+
+    void perform(environment &) const override {
+        // TODO(gabriel,jared): I have no idea what this is supposed to do.
+        // ???
+    }
+
+    void serialize(serializer & s) const override {
+        s << m_native_module_path;
+    }
+
+    static std::shared_ptr<modification const> deserialize(deserializer & d) {
+        return std::make_shared<native_module_path_modification>(read_name(d));
+    }
+};
 
 environment set_native_module_path(environment & env, name const & n) {
-    return module::add(env, *g_native_module_key, [=] (environment const & e, serializer & s) {
-        std::cout << "writing out" << n << std::endl;
-        s << n;
-        native_compile_module(e);
-    });
+    return module::add(env, std::make_shared<native_module_path_modification>(n));
 }
 
 void initialize_native_compiler() {
@@ -502,13 +503,12 @@ void initialize_native_compiler() {
     register_trace_class({"compiler", "native"});
     register_trace_class({"compiler", "native", "preprocess"});
     register_trace_class({"compiler", "native", "cpp_compiler"});
-    g_native_module_key = new std::string("native_module_path");
-    register_module_object_reader(*g_native_module_key, native_module_reader);
+    native_module_path_modification::init();
 }
 
 void finalize_native_compiler() {
     native::finalize_options();
-    delete g_native_module_key;
     delete g_lean_install_path;
+    native_module_path_modification::finalize();
 }
 }

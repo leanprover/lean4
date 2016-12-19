@@ -298,8 +298,6 @@ struct recursor_state {
     }
 };
 
-static std::string * g_key = nullptr;
-
 struct recursor_config {
     typedef recursor_state  state;
     typedef recursor_info   entry;
@@ -307,9 +305,7 @@ struct recursor_config {
     static void add_entry(environment const &, io_state const &, state & s, entry const & e) {
         s.insert(e);
     }
-    static std::string const & get_serialization_key() {
-        return *g_key;
-    }
+    static const char * get_serialization_key() { return "UREC"; }
     static void  write_entry(serializer & s, entry const & e) {
         e.write(s);
     }
@@ -357,7 +353,6 @@ static indices_attribute const & get_recursor_attribute() {
 }
 
 void initialize_user_recursors() {
-    g_key        = new std::string("UREC");
     recursor_ext::initialize();
     register_system_attribute(indices_attribute("recursor", "user defined recursor",
                                                 [](environment const & env, io_state const &, name const & n, unsigned,
@@ -372,6 +367,5 @@ void initialize_user_recursors() {
 
 void finalize_user_recursors() {
     recursor_ext::finalize();
-    delete g_key;
 }
 }

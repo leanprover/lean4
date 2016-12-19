@@ -35,16 +35,28 @@ static environment update(environment const & env, noncomputable_ext const & ext
     return env.update(g_ext->m_ext_id, std::make_shared<noncomputable_ext>(ext));
 }
 
-static name * g_noncomputable = nullptr;
-static std::string * g_key    = nullptr;
+struct noncomputable_modification : public modification {
+    LEAN_MODIFICATION("ncomp")
 
-static void noncomputable_reader(deserializer & d, environment & env) {
-    name n;
-    d >> n;
-    noncomputable_ext ext = get_extension(env);
-    ext.m_noncomputable.insert(n);
-    env = update(env, ext);
-}
+    name m_decl;
+
+    noncomputable_modification() {}
+    noncomputable_modification(name const & decl) : m_decl(decl) {}
+
+    void perform(environment & env) const override {
+        noncomputable_ext ext = get_extension(env);
+        ext.m_noncomputable.insert(m_decl);
+        env = update(env, ext);
+    }
+
+    void serialize(serializer & s) const override {
+        s << m_decl;
+    }
+
+    static std::shared_ptr<modification const> deserialize(deserializer & d) {
+        return std::make_shared<noncomputable_modification>(read_name(d));
+    }
+};
 
 static bool is_noncomputable(type_checker & tc, noncomputable_ext const & ext, name const & n) {
     environment const & env = tc.env();
@@ -77,7 +89,7 @@ environment mark_noncomputable(environment const & env, name const & n) {
     auto ext = get_extension(env);
     ext.m_noncomputable.insert(n);
     environment new_env = update(env, ext);
-    return module::add(new_env, *g_key, [=](environment const &, serializer & s) { s << n; });
+    return module::add(new_env, std::make_shared<noncomputable_modification>(n));
 }
 
 optional<name> get_noncomputable_reason(environment const & env, name const & n) {
@@ -105,14 +117,11 @@ bool check_computable(environment const & env, name const & n) {
 
 void initialize_noncomputable() {
     g_ext           = new noncomputable_ext_reg();
-    g_noncomputable = new name("noncomputable");
-    g_key           = new std::string("ncomp");
-    register_module_object_reader(*g_key, noncomputable_reader);
+    noncomputable_modification::init();
 }
 
 void finalize_noncomputable() {
-    delete g_key;
-    delete g_noncomputable;
+    noncomputable_modification::finalize();
     delete g_ext;
 }
 }

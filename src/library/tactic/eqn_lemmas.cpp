@@ -32,9 +32,6 @@ static environment update(environment const & env, eqn_lemmas_ext const & ext) {
     return env.update(g_ext->m_ext_id, std::make_shared<eqn_lemmas_ext>(ext));
 }
 
-static name * g_eqn_lemmas = nullptr;
-static std::string * g_eqn_lemmas_key = nullptr;
-
 environment add_eqn_lemma_core(environment const & env, name const & eqn_lemma) {
     type_context ctx(env, transparency_mode::None);
     simp_lemmas lemmas = add(ctx, simp_lemmas(), eqn_lemma, LEAN_DEFAULT_PRIORITY);
@@ -61,9 +58,29 @@ environment add_eqn_lemma_core(environment const & env, name const & eqn_lemma) 
     return update(env, ext);
 }
 
+struct eqn_lemmas_modification : public modification {
+    LEAN_MODIFICATION("EqnL")
+
+    name m_lemma;
+
+    eqn_lemmas_modification() {}
+    eqn_lemmas_modification(name const & lemma) : m_lemma(lemma) {}
+
+    void perform(environment & env) const override {
+        env = add_eqn_lemma_core(env, m_lemma);
+    }
+
+    void serialize(serializer & s) const override {
+        s << m_lemma;
+    }
+
+    static std::shared_ptr<modification const> deserialize(deserializer & d) {
+        return std::make_shared<eqn_lemmas_modification>(read_name(d));
+    }
+};
+
 environment add_eqn_lemma(environment const & env, name const & eqn_lemma) {
-    environment new_env = add_eqn_lemma_core(env, eqn_lemma);
-    return module::add(new_env, *g_eqn_lemmas_key, [=](environment const &, serializer & s) { s << eqn_lemma; });
+    return module::add_and_perform(env, std::make_shared<eqn_lemmas_modification>(eqn_lemma));
 }
 
 void get_eqn_lemmas_for(environment const & env, name const & cname, bool refl_only, buffer<simp_lemma> & result) {
@@ -81,22 +98,13 @@ bool has_eqn_lemmas(environment const & env, name const & cname) {
     return ext.m_lemmas.contains(cname);
 }
 
-static void eqn_lemmas_reader(deserializer & d, environment & env) {
-    name lemma;
-    d >> lemma;
-    env = add_eqn_lemma_core(env, lemma);
-}
-
 void initialize_eqn_lemmas() {
     g_ext            = new eqn_lemmas_ext_reg();
-    g_eqn_lemmas     = new name("eqn_lemmas");
-    g_eqn_lemmas_key = new std::string("EqnL");
-    register_module_object_reader(*g_eqn_lemmas_key, eqn_lemmas_reader);
+    eqn_lemmas_modification::init();
 }
 
 void finalize_eqn_lemmas() {
+    eqn_lemmas_modification::finalize();
     delete g_ext;
-    delete g_eqn_lemmas;
-    delete g_eqn_lemmas_key;
 }
 }

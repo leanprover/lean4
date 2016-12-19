@@ -10,8 +10,6 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 
 namespace lean {
-static std::string * g_export_decl_key = nullptr;
-static std::string * g_active_export_decls_key = nullptr;
 
 static void write_pair_name(serializer & s, pair<name, name> const & p) {
     s << p.first << p.second;
@@ -66,14 +64,35 @@ static environment update(environment const & env, export_decl_env_ext const & e
     return env.update(g_ext->m_ext_id, std::make_shared<export_decl_env_ext>(ext));
 }
 
-static void read_export_decls(deserializer & d, environment & env) {
-    name in_ns;
-    export_decl e;
-    d >> in_ns >> e.m_ns >> e.m_as >> e.m_had_explicit;
-    e.m_except_names = read_list<name>(d, read_name);
-    e.m_renames = read_list<pair<name, name>>(d, read_pair_name);
-    env = add_export_decl(env, in_ns, e);
-}
+struct export_decl_modification : public modification {
+    LEAN_MODIFICATION("export_decl")
+
+    name m_in_ns;
+    export_decl m_export_decl;
+
+    export_decl_modification() {}
+    export_decl_modification(name const & in_ns, export_decl const & e) :
+        m_in_ns(in_ns), m_export_decl(e) {}
+
+    void perform(environment & env) const override {
+        env = add_export_decl(env, m_in_ns, m_export_decl);
+    }
+
+    void serialize(serializer & s) const override {
+        s << m_in_ns << m_export_decl.m_ns << m_export_decl.m_as << m_export_decl.m_had_explicit;
+        write_list<name>(s, m_export_decl.m_except_names);
+        write_list<pair<name, name>>(s, m_export_decl.m_renames);
+    }
+
+    static std::shared_ptr<modification const> deserialize(deserializer & d) {
+        auto m = std::make_shared<export_decl_modification>();
+        auto & e = m->m_export_decl;
+        d >> m->m_in_ns >> e.m_ns >> e.m_as >> e.m_had_explicit;
+        e.m_except_names = read_list<name>(d, read_name);
+        e.m_renames = read_list<pair<name, name>>(d, read_pair_name);
+        return m;
+    }
+};
 
 environment add_export_decl(environment const & env, name const & in_ns, export_decl const & e) {
     auto ns_map = get_export_decl_extension(env).m_ns_map;
@@ -85,11 +104,7 @@ environment add_export_decl(environment const & env, name const & in_ns, export_
         return env;
 
     auto new_env = update(env, export_decl_env_ext(insert(ns_map, in_ns, cons(e, decls))));
-    return module::add(new_env, *g_export_decl_key, [=](environment const &, serializer & s) {
-        s << in_ns << e.m_ns << e.m_as << e.m_had_explicit;
-        write_list<name>(s, e.m_except_names);
-        write_list<pair<name, name>>(s, e.m_renames);
-    });
+    return module::add(new_env, std::make_shared<export_decl_modification>(in_ns, e));
 }
 environment add_export_decl(environment const & env, export_decl const & entry) {
     return add_export_decl(env, get_namespace(env), entry);
@@ -109,7 +124,7 @@ struct active_export_decls_config {
     }
 
     // uses local scope only
-    static std::string const & get_serialization_key() { return *g_active_export_decls_key; }
+    static const char * get_serialization_key() { return "active_export_decls"; }
     static void write_entry(serializer &, entry const &) { lean_unreachable(); }
     static entry read_entry(deserializer &) { lean_unreachable(); }
 };
@@ -136,17 +151,14 @@ list<export_decl> get_active_export_decls(environment const & env) {
 }
 
 void initialize_export_decl() {
-    g_export_decl_key = new std::string("export_decl");
-    g_active_export_decls_key = new std::string("active_export_decls"); // unused
     g_ext = new export_decl_env_ext_reg();
-    register_module_object_reader(*g_export_decl_key, read_export_decls);
+    export_decl_modification::init();
     active_export_decls_ext::initialize();
 }
 
 void finalize_export_decl() {
     active_export_decls_ext::finalize();
-    delete g_active_export_decls_key;
-    delete g_export_decl_key;
+    export_decl_modification::finalize();
     delete g_ext;
 }
 }

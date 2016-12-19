@@ -80,7 +80,6 @@ struct token_config {
     typedef token_state  state;
     typedef token_entry  entry;
     static name * g_class_name;
-    static std::string * g_key;
 
     static void add_entry(environment const &, io_state const &, state & s, entry const & e) {
         s.m_table = add_token(s.m_table, e.m_token.c_str(), e.m_prec);
@@ -88,9 +87,7 @@ struct token_config {
     static name const & get_class_name() {
         return *g_class_name;
     }
-    static std::string const & get_serialization_key() {
-        return *g_key;
-    }
+    static const char * get_serialization_key() { return "TK"; }
     static void  write_entry(serializer & s, entry const & e) {
         s << e.m_token.c_str() << e.m_prec;
     }
@@ -104,7 +101,6 @@ struct token_config {
     }
 };
 name * token_config::g_class_name = nullptr;
-std::string * token_config::g_key = nullptr;
 
 template class scoped_ext<token_config>;
 typedef scoped_ext<token_config> token_ext;
@@ -239,7 +235,6 @@ struct notation_config {
     typedef notation_state  state;
     typedef notation_entry  entry;
     static name * g_class_name;
-    static std::string * g_key;
 
     static void updt_inv_map(state & s, head_index const & idx, entry const & e) {
         if (!e.parse_only())
@@ -281,9 +276,7 @@ struct notation_config {
     static name const & get_class_name() {
         return *g_class_name;
     }
-    static std::string const & get_serialization_key() {
-        return *g_key;
-    }
+    static char const * get_serialization_key() { return "NOTA"; }
     static void  write_entry(serializer & s, entry const & e) {
         s << static_cast<char>(e.kind()) << e.overload() << e.parse_only() << e.get_expr();
         if (e.is_numeral()) {
@@ -321,7 +314,6 @@ struct notation_config {
     }
 };
 name * notation_config::g_class_name = nullptr;
-std::string * notation_config::g_key = nullptr;
 
 template class scoped_ext<notation_config>;
 typedef scoped_ext<notation_config> notation_ext;
@@ -386,20 +378,16 @@ cmd_table const & get_cmd_table(environment const & env) {
 
 void initialize_parser_config() {
     token_config::g_class_name = new name("notation");
-    token_config::g_key        = new std::string("TK");
     token_ext::initialize();
     notation_config::g_class_name = new name("notation");
-    notation_config::g_key        = new std::string("NOTA");
     notation_ext::initialize();
     g_ext = new cmd_ext_reg();
 }
 void finalize_parser_config() {
     delete g_ext;
     notation_ext::finalize();
-    delete notation_config::g_key;
     delete notation_config::g_class_name;
     token_ext::finalize();
-    delete token_config::g_key;
     delete token_config::g_class_name;
 }
 }

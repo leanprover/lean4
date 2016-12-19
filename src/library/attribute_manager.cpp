@@ -32,8 +32,6 @@ void set_user_attribute_ext(std::unique_ptr<user_attribute_ext> ext) {
 
 static std::vector<pair<name, name>> * g_incomp = nullptr;
 
-static std::string * g_key = nullptr;
-
 bool is_system_attribute(name const & attr) {
     return g_system_attributes->contains(attr);
 }
@@ -122,9 +120,7 @@ struct attr_config {
         s.insert(e.m_attr, mk_pair(m, h));
     }
 
-    static std::string const & get_serialization_key() {
-        return *g_key;
-    }
+    static const char * get_serialization_key() { return "ATTR"; }
 
     static void write_entry(serializer & s, entry const & e) {
         s << e.m_attr << e.m_prio << e.m_record.m_decl << e.m_record.deleted();
@@ -276,13 +272,11 @@ void initialize_attribute_manager() {
     g_system_attributes     = new name_map<attribute_ptr>();
     g_user_attribute_ext    = new user_attribute_ext();
     g_incomp                = new std::vector<pair<name, name>>();
-    g_key                   = new std::string("ATTR");
     attribute_ext::initialize();
 }
 
 void finalize_attribute_manager() {
     attribute_ext::finalize();
-    delete g_key;
     delete g_incomp;
     delete g_user_attribute_ext;
     delete g_system_attributes;

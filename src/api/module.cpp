@@ -31,8 +31,9 @@ lean_bool lean_env_import(lean_env env, lean_ios ios, lean_list_name modules, le
 lean_bool lean_env_export(lean_env env, char const * fname, lean_exception * ex) {
     LEAN_TRY;
     check_nonnull(env);
+    auto lm = export_module(to_env_ref(env), fname);
     std::ofstream out(fname, std::ofstream::binary);
-    export_module(out, to_env_ref(env));
+    write_module(lm, out);
     LEAN_CATCH;
 }
 

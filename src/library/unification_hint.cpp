@@ -40,8 +40,6 @@ int unification_hint_cmp::operator()(unification_hint const & uh1, unification_h
 
 /* Environment extension */
 
-static std::string * g_key = nullptr;
-
 struct unification_hint_state {
     unification_hints m_hints;
     name_map<unsigned> m_decl_names_to_prio; // Note: redundant but convenient
@@ -127,9 +125,7 @@ struct unification_hint_config {
         // TODO(dhs): the downside to this approach is that a [unify] tag on an actual axiom will be silently ignored.
         if (decl.is_definition()) s.register_hint(e.m_decl_name, decl.get_value(), e.m_priority);
     }
-    static std::string const & get_serialization_key() {
-        return *g_key;
-    }
+    static const char * get_serialization_key() { return "UNIFICATION_HINT"; }
     static void  write_entry(serializer & s, entry const & e) {
         s << e.m_decl_name << e.m_priority;
     }
@@ -200,8 +196,6 @@ format pp_unification_hints(unification_hints const & hints, formatter const & f
 }
 
 void initialize_unification_hint() {
-    g_key           = new std::string("UNIFICATION_HINT");
-
     unification_hint_ext::initialize();
 
     register_system_attribute(basic_attribute("unify", "unification hint", add_unification_hint));
@@ -209,6 +203,5 @@ void initialize_unification_hint() {
 
 void finalize_unification_hint() {
     unification_hint_ext::finalize();
-    delete g_key;
 }
 }

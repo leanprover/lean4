@@ -28,21 +28,31 @@ static environment update(environment const & env, protected_ext const & ext) {
     return env.update(g_ext->m_ext_id, std::make_shared<protected_ext>(ext));
 }
 
-static std::string * g_prt_key = nullptr;
+struct protected_modification : public modification {
+    LEAN_MODIFICATION("prt")
+
+    name m_name;
+
+    protected_modification() {}
+    protected_modification(name const & n) : m_name(n) {}
+
+    void perform(environment & env) const override {
+        protected_ext ext = get_extension(env);
+        ext.m_protected.insert(m_name);
+        env = update(env, ext);
+    }
+
+    void serialize(serializer & s) const override {
+        s << m_name;
+    }
+
+    static std::shared_ptr<modification const> deserialize(deserializer & d) {
+        return std::make_shared<protected_modification>(read_name(d));
+    }
+};
 
 environment add_protected(environment const & env, name const & n) {
-    protected_ext ext = get_extension(env);
-    ext.m_protected.insert(n);
-    environment new_env = update(env, ext);
-    return module::add(new_env, *g_prt_key, [=](environment const &, serializer & s) { s << n; });
-}
-
-static void protected_reader(deserializer & d, environment & env) {
-    name n;
-    d >> n;
-    protected_ext ext = get_extension(env);
-    ext.m_protected.insert(n);
-    env = update(env, ext);
+    return module::add_and_perform(env, std::make_shared<protected_modification>(n));
 }
 
 bool is_protected(environment const & env, name const & n) {
@@ -60,12 +70,11 @@ name get_protected_shortest_name(name const & n) {
 
 void initialize_protected() {
     g_ext     = new protected_ext_reg();
-    g_prt_key = new std::string("prt");
-    register_module_object_reader(*g_prt_key, protected_reader);
+    protected_modification::init();
 }
 
 void finalize_protected() {
-    delete g_prt_key;
+    protected_modification::finalize();
     delete g_ext;
 }
 }

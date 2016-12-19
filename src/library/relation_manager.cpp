@@ -147,8 +147,6 @@ struct rel_state {
     }
 };
 
-static std::string * g_key = nullptr;
-
 struct rel_config {
     typedef rel_state state;
     typedef rel_entry entry;
@@ -161,9 +159,7 @@ struct rel_config {
         case op_kind::Symm:     s.add_symm(env, e.m_name); break;
         }
     }
-    static std::string const & get_serialization_key() {
-        return *g_key;
-    }
+    static const char * get_serialization_key() { return "REL"; }
     static void  write_entry(serializer & s, entry const & e) {
         s << static_cast<char>(e.m_kind) << e.m_name;
     }
@@ -323,7 +319,6 @@ is_relation_pred mk_is_relation_pred(environment const & env) {
 }
 
 void initialize_relation_manager() {
-    g_key       = new std::string("REL");
     rel_ext::initialize();
     register_system_attribute(basic_attribute("refl", "reflexive relation",
                                               [](environment const & env, io_state const &, name const & d, unsigned,
@@ -352,6 +347,5 @@ void initialize_relation_manager() {
 
 void finalize_relation_manager() {
     rel_ext::finalize();
-    delete g_key;
 }
 }

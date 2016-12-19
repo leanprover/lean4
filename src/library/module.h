@@ -27,10 +27,13 @@ struct module_name {
     optional<unsigned> m_relative;
 };
 
+struct modification;
+
+using modification_list = std::vector<std::shared_ptr<modification const>>;
 struct loaded_module {
     std::string m_module_name;
-    std::string m_obj_code;
-    std::vector<task_result<expr>> m_delayed_proofs;
+    std::vector<module_name> m_imports;
+    modification_list m_modifications;
 };
 using module_loader = std::function<loaded_module(std::string const &, module_name const &)>;
 module_loader mk_olean_loader();
@@ -66,25 +69,36 @@ optional<pos_info> get_decl_pos_info(environment const & env, name const & decl_
     .olean files. We use this function for attaching position information to temporary functions. */
 environment add_transient_decl_pos_info(environment const & env, name const & decl_name, pos_info const & pos);
 
-/** \brief Store/Export module using \c env to the output stream \c out. */
-void export_module(std::ostream & out, environment const & env);
-std::vector<task_result<expr>> export_module_delayed(std::ostream & out, environment const & env);
+/** \brief Store/Export module using \c env. */
+loaded_module export_module(environment const & env, std::string const & mod_name);
+void write_module(loaded_module const & mod, std::ostream & out);
 
 std::pair<std::vector<module_name>, std::vector<char>> parse_olean(
         std::istream & in, std::string const & file_name, bool check_hash = true);
-void import_module(std::vector<char> const & olean_code, std::string const & file_name, environment & env,
-                   std::vector<task_result<expr>> const & delayed_proofs);
+modification_list parse_olean_modifications(std::vector<char> const & olean_code, std::string const & file_name);
+void import_module(modification_list const & modifications, std::string const & file_name, environment & env);
 
-/** \brief A reader for importing data from a stream using deserializer \c d.
-    There is one way to update the environment being constructed.
-     1- Direct update it using \c env.
-*/
-typedef void (*module_object_reader)(deserializer & d, environment & env);
+struct modification {
+public:
+    virtual ~modification() {}
+    virtual const char * get_key() const = 0;
+    virtual void perform(environment &) const = 0;
+    virtual void serialize(serializer &) const = 0;
+};
+
+#define LEAN_MODIFICATION(k) \
+  static void init() { \
+    register_module_object_reader(k, module_modification_reader(deserialize)); \
+  } \
+  static void finalize() {} \
+  const char * get_key() const override { return k; }
+
+using module_modification_reader = std::function<std::shared_ptr<modification const>(deserializer &)>;
 
 /** \brief Register a module object reader. The key \c k is used to identify the class of objects
     that can be read by the given reader.
 */
-void register_module_object_reader(std::string const & k, module_object_reader r);
+void register_module_object_reader(std::string const & k, module_modification_reader && r);
 
 namespace module {
 /** \brief Add a function that should be invoked when the environment is exported.
@@ -93,7 +107,8 @@ namespace module {
 
     \see module_object_reader
 */
-environment add(environment const & env, std::string const & k, std::function<void(environment const &, serializer &)> const & writer);
+environment add(environment const & env, std::shared_ptr<modification const> const & modif);
+environment add_and_perform(environment const & env, std::shared_ptr<modification const> const & modif);
 
 /** \brief Add the global universe declaration to the environment, and mark it to be exported. */
 environment add_universe(environment const & env, name const & l);

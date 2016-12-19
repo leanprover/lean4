@@ -42,8 +42,7 @@ struct module_info {
         options               m_opts;
         bool m_ok = false;
 
-        std::string m_obj_code;
-        std::vector<task_result<expr>> m_obj_code_delayed_proofs;
+        loaded_module m_loaded_module;
 
         snapshot_vector m_snapshots;
     };

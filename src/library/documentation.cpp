@@ -32,8 +32,31 @@ static environment update(environment const & env, documentation_ext const & ext
     return env.update(g_ext->m_ext_id, std::make_shared<documentation_ext>(ext));
 }
 
-static name * g_documentation = nullptr;
-static std::string * g_doc_key = nullptr;
+struct doc_modification : public modification {
+    LEAN_MODIFICATION("doc")
+
+    name m_decl;
+    std::string m_doc;
+
+    doc_modification() {}
+    doc_modification(name const & decl, std::string const & doc) : m_decl(decl), m_doc(doc) {}
+
+    void perform(environment & env) const override {
+        auto ext = get_extension(env);
+        ext.m_doc_string_map.insert(m_decl, m_doc);
+        env = update(env, ext);
+    }
+
+    void serialize(serializer & s) const override {
+        s << m_decl << m_doc;
+    }
+
+    static std::shared_ptr<modification const> deserialize(deserializer & d) {
+        name decl; std::string doc;
+        d >> decl >> doc;
+        return std::make_shared<doc_modification>(decl, doc);
+    }
+};
 
 static void remove_blank_lines_begin(std::string & s) {
     optional<std::string::iterator> found;
@@ -144,7 +167,8 @@ environment add_doc_string(environment const & env, name const & n, std::string 
     ext.m_doc_string_map.insert(n, doc);
     ext.m_module_doc = cons(doc_entry(n, doc), ext.m_module_doc);
     auto new_env = update(env, ext);
-    return module::add(new_env, *g_doc_key, [=](environment const &, serializer & s) { s << n << doc; });
+    // TODO(gabriel,leo): why does this not update the module documentation?
+    return module::add(new_env, std::make_shared<doc_modification>(n, doc));
 }
 
 optional<std::string> get_doc_string(environment const & env, name const & n) {
@@ -161,24 +185,13 @@ void get_module_doc_strings(environment const & env, buffer<doc_entry> & result)
     std::reverse(result.begin(), result.end());
 }
 
-static void documentation_reader(deserializer & d, environment & env) {
-    name n; std::string doc;
-    d >> n >> doc;
-    auto ext = get_extension(env);
-    ext.m_doc_string_map.insert(n, doc);
-    env = update(env, ext);
-}
-
 void initialize_documentation() {
     g_ext     = new documentation_ext_reg();
-    g_documentation = new name("documentation");
-    g_doc_key = new std::string("doc");
-    register_module_object_reader(*g_doc_key, documentation_reader);
+    doc_modification::init();
 }
 
 void finalize_documentation() {
-    delete g_doc_key;
-    delete g_documentation;
+    doc_modification::finalize();
     delete g_ext;
 }
 }

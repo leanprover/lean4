@@ -25,8 +25,6 @@ Author: Sebastian Ullrich
 namespace lean {
 
 /* typed_attribute */
-static std::string * g_key = nullptr;
-
 struct user_attr_data : public attr_data {
     // to be filled
 
@@ -80,13 +78,6 @@ static environment add_user_attr(environment const & env, name const & d) {
     return update(env, ext);
 }
 
-static void user_attr_reader(deserializer & d, environment & env) {
-    name n;
-    d >> n;
-    env = add_user_attr(env, n);
-}
-
-
 /* Integration into attribute_manager */
 class actual_user_attribute_ext : public user_attribute_ext {
 public:
@@ -95,6 +86,26 @@ public:
     }
 };
 
+struct user_attr_modification : public modification {
+    LEAN_MODIFICATION("USR_ATTR")
+
+    name m_name;
+
+    user_attr_modification() {}
+    user_attr_modification(name const & name) : m_name(name) {}
+
+    void perform(environment & env) const override {
+        env = add_user_attr(env, m_name);
+    }
+
+    void serialize(serializer & s) const override {
+        s << m_name;
+    }
+
+    static std::shared_ptr<modification const> deserialize(deserializer & d) {
+        return std::make_shared<user_attr_modification>(read_name(d));
+    }
+};
 
 /* VM builtins */
 vm_obj attribute_get_instances(vm_obj const & vm_n, vm_obj const & vm_s) {
@@ -111,8 +122,7 @@ vm_obj attribute_register(vm_obj const & vm_n, vm_obj const & vm_s) {
     auto const & s = to_tactic_state(vm_s);
     auto const & n = to_name(vm_n);
     LEAN_TACTIC_TRY;
-    auto env = add_user_attr(s.env(), n);
-    env = module::add(env, *g_key, [=](environment const &, serializer & s) { s << n; });
+    auto env = module::add_and_perform(s.env(), std::make_shared<user_attr_modification>(n));
     return mk_tactic_success(set_env(s, env));
     LEAN_TACTIC_CATCH(s);
 }
@@ -251,12 +261,11 @@ void initialize_user_attribute() {
 
     register_trace_class("user_attributes_cache");
     g_ext = new user_attr_ext_reg();
-    g_key = new std::string("USR_ATTR");
-    register_module_object_reader(*g_key, user_attr_reader);
+    user_attr_modification::init();
     set_user_attribute_ext(std::unique_ptr<user_attribute_ext>(new actual_user_attribute_ext));
 }
 void finalize_user_attribute() {
-    delete g_key;
+    user_attr_modification::finalize();
     delete g_ext;
 }
 }

@@ -176,6 +176,7 @@ parser::parser(environment const & env, io_state const & ios,
     m_scanner(strm, m_file_name.c_str(), s ? s->m_pos : pos_info(1, 0)),
     m_imports_parsed(false),
     m_snapshot_vector(sv) {
+    m_next_inst_idx = 1;
     if (s) {
         m_env                = s->m_env;
         m_ios.set_options(s->m_options);
@@ -187,6 +188,7 @@ parser::parser(environment const & env, io_state const & ios,
         m_include_vars       = s->m_include_vars;
         m_imports_parsed     = s->m_imports_parsed;
         m_parser_scope_stack = s->m_parser_scope_stack;
+        m_next_inst_idx      = s->m_next_inst_idx;
     }
     m_ignore_noncomputable = false;
     m_profile     = ios.get_options().get_bool("profiler", false);
@@ -200,7 +202,6 @@ parser::parser(environment const & env, io_state const & ios,
     m_stop_at = false;
     updt_options();
     m_next_tag_idx  = 0;
-    m_next_inst_idx = 1;
     m_curr = scanner::token_kind::Identifier;
     protected_call([&]() { scan(); },
                    [&]() { sync_command(); });
@@ -2293,7 +2294,7 @@ void parser::save_snapshot(scope_message_context & smc) {
         m_snapshot_vector->push_back(std::make_shared<snapshot>(
                 m_env, smc.get_sub_buckets(), m_local_level_decls, m_local_decls,
                 m_level_variables, m_variables, m_include_vars,
-                m_ios.get_options(), m_imports_parsed, m_parser_scope_stack, m_scanner.get_pos_info()));
+                m_ios.get_options(), m_imports_parsed, m_parser_scope_stack, m_next_inst_idx, m_scanner.get_pos_info()));
     }
 }
 

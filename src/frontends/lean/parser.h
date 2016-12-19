@@ -65,13 +65,14 @@ struct snapshot {
     options            m_options;
     bool               m_imports_parsed;
     parser_scope_stack m_parser_scope_stack;
+    unsigned           m_next_inst_idx;
     pos_info           m_pos;
     snapshot(environment const & env, name_set const & sub_buckets, local_level_decls const & lds,
              local_expr_decls const & eds, name_set const & lvars, name_set const & vars,
              name_set const & includes, options const & opts, bool imports_parsed, parser_scope_stack const & pss,
-             pos_info const & pos):
+             unsigned next_inst_idx, pos_info const & pos):
         m_env(env), m_sub_buckets(sub_buckets), m_lds(lds), m_eds(eds), m_lvars(lvars), m_vars(vars), m_include_vars(includes),
-        m_options(opts), m_imports_parsed(imports_parsed), m_parser_scope_stack(pss), m_pos(pos) {}
+        m_options(opts), m_imports_parsed(imports_parsed), m_parser_scope_stack(pss), m_next_inst_idx(next_inst_idx), m_pos(pos) {}
 };
 
 typedef std::vector<std::shared_ptr<snapshot const>> snapshot_vector;

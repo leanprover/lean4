@@ -616,11 +616,11 @@ vm_obj tactic_add_decl(vm_obj const & _d, vm_obj const & _s) {
     }
 }
 
-vm_obj tactic_opened_namespaces(vm_obj const & s) {
+vm_obj tactic_open_namespaces(vm_obj const & s) {
     environment env = to_tactic_state(s).env();
     buffer<name> b;
     to_buffer(get_namespaces(env), b);
-    get_opened_namespaces(env).to_buffer(b);
+    get_open_namespaces(env).to_buffer(b);
     return mk_tactic_success(to_obj(b), to_tactic_state(s));
 }
 
@@ -699,7 +699,7 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic", "doc_string"}),           tactic_doc_string);
     DECLARE_VM_BUILTIN(name({"tactic", "add_doc_string"}),       tactic_add_doc_string);
     DECLARE_VM_BUILTIN(name({"tactic", "module_doc_strings"}),   tactic_module_doc_strings);
-    DECLARE_VM_BUILTIN(name({"tactic", "opened_namespaces"}),    tactic_opened_namespaces);
+    DECLARE_VM_BUILTIN(name({"tactic", "open_namespaces"}),      tactic_open_namespaces);
     g_pp_instantiate_goal_mvars = new name{"pp", "instantiate_goal_mvars"};
     register_bool_option(*g_pp_instantiate_goal_mvars, LEAN_DEFAULT_PP_INSTANTIATE_GOAL_MVARS,
                          "(pretty printer) instantiate assigned metavariables before pretty printing goals");

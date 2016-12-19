@@ -405,7 +405,7 @@ private meta def to_qualified_name (n : name) : tactic name :=
 do env ← get_env,
    if env^.contains n then return n
    else do
-     ns ← opened_namespaces,
+     ns ← open_namespaces,
      to_qualified_name_core n ns
 
 private meta def to_qualified_names : list name → tactic (list name)

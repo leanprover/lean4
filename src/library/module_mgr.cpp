@@ -59,8 +59,9 @@ public:
     }
 
     module_info::parse_result execute() override {
+        auto deps = std::move(m_deps);
         module_loader import_fn = [=] (module_id const & base, module_name const & import) {
-            for (auto & d : m_deps) {
+            for (auto & d : deps) {
                 if (std::get<0>(d) == base &&
                         std::get<1>(d).m_name == import.m_name &&
                         std::get<1>(d).m_relative == import.m_relative) {
@@ -83,7 +84,13 @@ public:
 
         mod.m_snapshots = std::move(m_snapshots);
 
-        mod.m_loaded_module = export_module(p.env(), get_module_id());
+        auto lm = std::make_shared<loaded_module>(export_module(p.env(), get_module_id()));
+        std::weak_ptr<loaded_module> weak_lm = lm;
+        auto initial_env = m_initial_env;
+        lm->m_env = lazy_value<environment>([initial_env, weak_lm, import_fn] {
+            return mk_preimported_module(initial_env, *weak_lm.lock(), import_fn);
+        });
+        mod.m_loaded_module = lm;
 
         mod.m_env = optional<environment>(p.env());
 
@@ -128,7 +135,7 @@ public:
         auto olean_fn = olean_of_lean(m_mod->m_mod);
         exclusive_file_lock output_lock(olean_fn);
         std::ofstream out(olean_fn, std::ios_base::binary);
-        write_module(res.m_loaded_module, out);
+        write_module(*res.m_loaded_module, out);
         return {};
     }
 };
@@ -193,7 +200,9 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
                 return build_module(id, false, orig_module_stack);
 
             module_info::parse_result res;
-            res.m_loaded_module = { id, parsed_olean.first, parse_olean_modifications(parsed_olean.second, id) };
+            // TODO(gabriel)
+            res.m_loaded_module = std::make_shared<loaded_module>(
+                    loaded_module { id, parsed_olean.first, parse_olean_modifications(parsed_olean.second, id), {} });
             res.m_ok = true;
             mod->m_result = mk_pure_task_result(res, "Loading " + olean_fn);
 

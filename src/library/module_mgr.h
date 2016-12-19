@@ -42,7 +42,7 @@ struct module_info {
         options               m_opts;
         bool m_ok = false;
 
-        loaded_module m_loaded_module;
+        std::shared_ptr<loaded_module const> m_loaded_module;
 
         snapshot_vector m_snapshots;
     };

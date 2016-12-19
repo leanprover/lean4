@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "kernel/inductive/inductive.h"
 #include "library/io_state.h"
 #include "util/task_queue.h"
+#include "util/lazy_value.h"
 
 namespace lean {
 class corrupted_file_exception : public exception {
@@ -34,8 +35,10 @@ struct loaded_module {
     std::string m_module_name;
     std::vector<module_name> m_imports;
     modification_list m_modifications;
+
+    lazy_value<environment> m_env;
 };
-using module_loader = std::function<loaded_module(std::string const &, module_name const &)>;
+using module_loader = std::function<std::shared_ptr<loaded_module const> (std::string const &, module_name const &)>;
 module_loader mk_olean_loader();
 module_loader mk_dummy_loader();
 
@@ -57,6 +60,10 @@ environment
 import_module(environment const & env,
               std::string const & current_mod, module_name const & ref,
               module_loader const & mod_ldr);
+
+environment mk_preimported_module(environment const & initial_env,
+                                  loaded_module const & lm,
+                                  module_loader const & mod_ldr);
 
 /** \brief Return the .olean file where decl_name was defined. The result is none if the declaration
     was not defined in an imported file. */

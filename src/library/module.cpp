@@ -443,24 +443,41 @@ std::pair<std::vector<module_name>, std::vector<char>> parse_olean(std::istream 
 static void import_module(environment & env, std::string const & module_file_name, module_name const & ref,
                           module_loader const & mod_ldr) {
     auto res = mod_ldr(module_file_name, ref);
-    if (get_extension(env).m_imported.contains(res.m_module_name)) return;
-    for (auto & dep : res.m_imports) {
-        import_module(env, res.m_module_name, dep, mod_ldr);
+
+    auto & ext0 = get_extension(env);
+    if (ext0.m_imported.contains(res->m_module_name)) return;
+
+    if (ext0.m_imported.empty() && res->m_env) {
+        env = *res->m_env;
+    } else {
+        for (auto & dep : res->m_imports) {
+            import_module(env, res->m_module_name, dep, mod_ldr);
+        }
+        import_module(res->m_modifications, res->m_module_name, env);
     }
+
     auto ext = get_extension(env);
-    ext.m_imported.insert(res.m_module_name);
+    ext.m_imported.insert(res->m_module_name);
     env = update(env, ext);
-    import_module(res.m_modifications, res.m_module_name, env);
 }
 
 environment import_module(environment const & env0, std::string const & module_file_name,
                           module_name const & ref,
                           module_loader const & mod_ldr) {
     environment env = env0;
+    import_module(env, module_file_name, ref, mod_ldr);
     module_ext ext = get_extension(env);
     ext.m_direct_imports = cons(ref, ext.m_direct_imports);
     env = update(env, ext);
-    import_module(env, module_file_name, ref, mod_ldr);
+    return env;
+}
+
+environment mk_preimported_module(environment const & initial_env, loaded_module const & lm, module_loader const & mod_ldr) {
+    auto env = initial_env;
+    for (auto & dep : lm.m_imports) {
+        import_module(env, lm.m_module_name, dep, mod_ldr);
+    }
+    import_module(lm.m_modifications, lm.m_module_name, env);
     return env;
 }
 
@@ -509,12 +526,12 @@ module_loader mk_olean_loader() {
         std::ifstream in(fn, std::ios_base::binary);
         auto parsed = parse_olean(in, fn, check_hash);
         auto modifs = parse_olean_modifications(parsed.second, fn);
-        return loaded_module { fn, parsed.first, modifs };
+        return std::make_shared<loaded_module>(loaded_module { fn, parsed.first, modifs, {} });
     };
 }
 
 module_loader mk_dummy_loader() {
-    return[=] (std::string const &, module_name const &) -> loaded_module {
+    return[=] (std::string const &, module_name const &) -> std::shared_ptr<loaded_module const> {
         throw exception("module importing disabled");
     };
 }

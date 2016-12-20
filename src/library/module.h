@@ -91,6 +91,7 @@ public:
     virtual const char * get_key() const = 0;
     virtual void perform(environment &) const = 0;
     virtual void serialize(serializer &) const = 0;
+    virtual void get_task_dependencies(std::vector<generic_task_result> &) const {}
 };
 
 #define LEAN_MODIFICATION(k) \

@@ -112,9 +112,8 @@ public:
     std::vector<generic_task_result> get_dependencies() override {
         if (auto res = m_mod->m_result.peek()) {
             std::vector<generic_task_result> deps;
-            res->m_env->for_each_declaration([&] (declaration const & d) {
-                if (d.is_theorem()) deps.push_back(d.get_value_task());
-            });
+            for (auto & mdf : res->m_loaded_module->m_modifications)
+                mdf->get_task_dependencies(deps);
             return deps;
         } else {
             return {m_mod->m_result};

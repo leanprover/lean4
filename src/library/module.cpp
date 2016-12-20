@@ -300,6 +300,11 @@ struct decl_modification : public modification {
     static std::shared_ptr<modification const> deserialize(deserializer & d) {
         return std::make_shared<decl_modification>(read_declaration(d));
     }
+
+    void get_task_dependencies(std::vector<generic_task_result> & deps) const override {
+        if (m_decl.is_theorem())
+            deps.push_back(m_decl.get_value_task());
+    }
 };
 
 struct inductive_modification : public modification {

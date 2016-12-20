@@ -896,7 +896,7 @@ vm_obj invoke(vm_obj const & fn, unsigned nargs, vm_obj const * args);
 vm_obj invoke(unsigned fn_idx, unsigned nargs, vm_obj const * args);
 vm_obj invoke(unsigned fn_idx, vm_obj const & arg);
 
-void display_vm_code(std::ostream & out, environment const & env, unsigned code_sz, vm_instr const * code);
+void display_vm_code(std::ostream & out, unsigned code_sz, vm_instr const * code);
 
 environment vm_monitor_register(environment const & env, name const & d);
 

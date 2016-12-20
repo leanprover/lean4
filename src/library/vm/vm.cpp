@@ -3180,7 +3180,7 @@ void vm_state::profiler::snapshots::display(std::ostream & out) const {
     }
 }
 
-void display_vm_code(std::ostream & out, environment const & env, unsigned code_sz, vm_instr const * code) {
+void display_vm_code(std::ostream & out, unsigned code_sz, vm_instr const * code) {
     for (unsigned i = 0; i < code_sz; i++) {
         out << i << ": ";
         code[i].display(out);

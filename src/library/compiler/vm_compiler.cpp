@@ -389,10 +389,10 @@ static environment vm_compile(environment const & env, buffer<procedure> const &
         unsigned arity;
         std::tie(arity, args_info) = gen(p.m_code);
         lean_trace(name({"compiler", "code_gen"}), tout() << " " << p.m_name << " " << arity << "\n";
-                   display_vm_code(tout().get_stream(), new_env, code.size(), code.data()););
+                   display_vm_code(tout().get_stream(), code.size(), code.data()););
         optimize(new_env, code);
         lean_trace(name({"compiler", "optimize_bytecode"}), tout() << " " << p.m_name << " " << arity << "\n";
-                   display_vm_code(tout().get_stream(), new_env, code.size(), code.data()););
+                   display_vm_code(tout().get_stream(), code.size(), code.data()););
         new_env = update_vm_code(new_env, p.m_name, code.size(), code.data(), args_info, p.m_pos);
     }
     return new_env;

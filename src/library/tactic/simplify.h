@@ -95,6 +95,8 @@ protected:
 
     virtual simp_result visit(expr const & e, optional<expr> const & parent);
 
+    simp_result simplify(expr const & e);
+
 public:
     simplify_core_fn(type_context & ctx, simp_lemmas const & slss,
                      unsigned max_steps, bool contextual, bool lift_eq,

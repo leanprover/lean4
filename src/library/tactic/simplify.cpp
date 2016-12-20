@@ -542,6 +542,7 @@ simp_result simplify_core_fn::rewrite(expr const & e, simp_lemma const & sl) {
 simp_result simplify_core_fn::propext_rewrite(expr const & e) {
     if (m_rel != get_eq_name()) return simp_result(e);
     flet<name> set_rel(m_rel, get_iff_name());
+    freset<simplify_cache> reset_cache(m_cache);
     simp_result r = rewrite(e);
     if (!r.has_proof()) return r;
     expr new_pr = mk_app(m_ctx, get_propext_name(), r.get_proof());
@@ -707,8 +708,7 @@ simplify_core_fn::simplify_core_fn(type_context & ctx, simp_lemmas const & slss,
     m_lift_eq(lift_eq), m_canonize_instances(canonize_instances), m_canonize_proofs(canonize_proofs) {
 }
 
-simp_result simplify_core_fn::operator()(name const & rel, expr const & e) {
-    flet<name> _(m_rel, rel);
+simp_result simplify_core_fn::simplify(expr const & e) {
     m_cache.clear();
     simp_result r(e);
     while (true) {
@@ -717,6 +717,16 @@ simp_result simplify_core_fn::operator()(name const & rel, expr const & e) {
         if (!m_need_restart || !should_defeq_canonize())
             return r;
         m_cache.clear();
+    }
+}
+
+simp_result simplify_core_fn::operator()(name const & rel, expr const & e) {
+    if (m_rel != rel) {
+        flet<name> _(m_rel, rel);
+        freset<simplify_cache> reset_cache(m_cache);
+        return simplify(e);
+    } else {
+        return simplify(e);
     }
 }
 

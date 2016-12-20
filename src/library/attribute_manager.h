@@ -265,6 +265,7 @@ typedef typed_attribute<key_value_data> key_value_attribute;
 
 class user_attribute_ext {
 public:
+    virtual ~user_attribute_ext() {}
     virtual name_map<attribute_ptr> get_attributes(environment const & env);
     virtual void write_entry(serializer &, attr_data const &) {}
     virtual attr_data_ptr read_entry(deserializer &) {

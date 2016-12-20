@@ -14,10 +14,9 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 
 namespace lean {
-static name_map<attribute_ptr> * g_system_attributes;
-static std::unique_ptr<user_attribute_ext> g_user_attribute_ext;
-
-static attr_data_ptr * g_default_attr_data_ptr = nullptr;
+static name_map<attribute_ptr> * g_system_attributes = nullptr;
+static user_attribute_ext * g_user_attribute_ext     = nullptr;
+static attr_data_ptr * g_default_attr_data_ptr       = nullptr;
 
 attr_data_ptr get_default_attr_data() {
     return *g_default_attr_data_ptr;
@@ -27,7 +26,8 @@ name_map<attribute_ptr> user_attribute_ext::get_attributes(environment const &) 
     return {};
 }
 void set_user_attribute_ext(std::unique_ptr<user_attribute_ext> ext) {
-    g_user_attribute_ext = std::move(ext);
+    if (g_user_attribute_ext) delete g_user_attribute_ext;
+    g_user_attribute_ext = ext.release();
 }
 
 static std::vector<pair<name, name>> * g_incomp = nullptr;
@@ -273,10 +273,10 @@ unsigned get_attribute_fingerprint(environment const & env, name const & attr) {
 
 void initialize_attribute_manager() {
     g_default_attr_data_ptr = new attr_data_ptr(new attr_data);
-    g_system_attributes  = new name_map<attribute_ptr>();
-    g_user_attribute_ext.reset(new user_attribute_ext());
-    g_incomp             = new std::vector<pair<name, name>>();
-    g_key                = new std::string("ATTR");
+    g_system_attributes     = new name_map<attribute_ptr>();
+    g_user_attribute_ext    = new user_attribute_ext();
+    g_incomp                = new std::vector<pair<name, name>>();
+    g_key                   = new std::string("ATTR");
     attribute_ext::initialize();
 }
 
@@ -284,7 +284,7 @@ void finalize_attribute_manager() {
     attribute_ext::finalize();
     delete g_key;
     delete g_incomp;
-    g_user_attribute_ext.reset();
+    delete g_user_attribute_ext;
     delete g_system_attributes;
     delete g_default_attr_data_ptr;
 }

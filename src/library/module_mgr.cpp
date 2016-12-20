@@ -128,14 +128,19 @@ public:
     task_kind get_kind() const override { return task_kind::parse; }
 
     std::vector<generic_task_result> get_dependencies() override {
+        std::vector<generic_task_result> deps;
+
+        // Write the olean files in the correct order, so that they have the right mtime.
+        for (auto & d : m_mod->m_deps)
+            deps.push_back(d.m_mod_info->m_olean_task);
+
+        deps.push_back(m_mod->m_result);
         if (auto res = m_mod->m_result.peek()) {
-            std::vector<generic_task_result> deps;
             for (auto & mdf : res->m_loaded_module->m_modifications)
                 mdf->get_task_dependencies(deps);
-            return deps;
-        } else {
-            return {m_mod->m_result};
         }
+        
+        return deps;
     }
 
     void description(std::ostream & out) const override {

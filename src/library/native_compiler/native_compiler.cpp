@@ -39,7 +39,7 @@ Author: Jared Roesch and Leonardo de Moura
 #include "util/lean_path.h"
 // #include "util/executable.h"
 
-static std::string* g_lean_install_path;
+static std::string * g_lean_install_path = nullptr;
 
 namespace lean {
 
@@ -509,5 +509,6 @@ void initialize_native_compiler() {
 void finalize_native_compiler() {
     native::finalize_options();
     delete g_native_module_key;
+    delete g_lean_install_path;
 }
 }

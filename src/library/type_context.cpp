@@ -1546,6 +1546,50 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
     buffer<expr> args;
     expr const & mvar = get_app_args(m, args);
     lean_assert(is_mvar(mvar));
+
+    /* Check if constraint is of the form
+
+             ?m a =?= f ?x
+
+       and solve it using
+
+             ?m =?= f
+             a  =?= ?x
+
+       This is an approximate solution, but it is useful when solving unification constraints for
+       expressions such as
+
+            a ∈ []
+
+       where ∈ has type, and (a : A)
+
+           def mem {α : Type u} {γ : Type u → Type v} [has_mem α γ] : α → γ α → Prop :=
+
+       without the approximation above, Lean will produce the more general solution
+
+           @mem A (fun a, list (?m A)) ?s a (@nil (list (?m A)))
+
+       since no other constraint is restricting ?m, type class resolution is not fired,
+       and an error is produced.
+
+       The approximation above produces a solution that is equivalent to (?m := (fun x, x))
+       However, any ?m can be used.
+    */
+    if (approximate() && args.size() == 1 && is_app(v) &&
+        is_mvar(app_arg(v)) && !is_assigned(app_arg(v))) {
+        expr arg = args[0];
+        if (is_meta(arg))
+            arg = instantiate_mvars(arg);
+        expr fn  = app_fn(v);
+        if (is_meta(fn))
+            fn  = instantiate_mvars(fn);
+        if (is_local_decl_ref(arg) && (is_local(fn) || is_constant(fn))) {
+            return
+                is_def_eq_core(mvar, app_fn(v)) &&
+                is_def_eq_core(app_arg(v), args[0]);
+        }
+    }
+
     optional<metavar_decl> mvar_decl;
     if (!in_tmp_mode()) {
         mvar_decl = m_mctx.get_metavar_decl(mvar);

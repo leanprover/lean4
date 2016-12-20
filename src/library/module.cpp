@@ -41,7 +41,7 @@ corrupted_file_exception::corrupted_file_exception(std::string const & fname):
 }
 
 struct module_ext : public environment_extension {
-    list<module_name>  m_direct_imports;
+    std::vector<module_name> m_direct_imports;
     list<std::shared_ptr<modification const>> m_modifications;
     list<name>        m_module_univs;
     list<name>        m_module_decls;
@@ -74,7 +74,7 @@ list<name> const & get_curr_module_univ_names(environment const & env) {
     return get_extension(env).m_module_univs;
 }
 
-list<module_name> get_curr_module_imports(environment const & env) {
+std::vector<module_name> get_curr_module_imports(environment const & env) {
     return get_extension(env).m_direct_imports;
 }
 
@@ -223,9 +223,7 @@ loaded_module export_module(environment const & env, std::string const & mod_nam
 
     module_ext const & ext = get_extension(env);
 
-    for (auto & i : ext.m_direct_imports)
-        out.m_imports.push_back(i);
-    std::reverse(out.m_imports.begin(), out.m_imports.end());
+    out.m_imports = ext.m_direct_imports;
 
     for (auto & w : ext.m_modifications)
         out.m_modifications.push_back(w);
@@ -466,24 +464,38 @@ static void import_module(environment & env, std::string const & module_file_nam
     env = update(env, ext);
 }
 
-environment import_module(environment const & env0, std::string const & module_file_name,
-                          module_name const & ref,
-                          module_loader const & mod_ldr) {
+environment import_modules(environment const & env0, std::string const & module_file_name,
+                           std::vector<module_name> const & refs, module_loader const & mod_ldr) {
     environment env = env0;
-    import_module(env, module_file_name, ref, mod_ldr);
+
+    for (auto & ref : refs)
+        import_module(env, module_file_name, ref, mod_ldr);
+
     module_ext ext = get_extension(env);
-    ext.m_direct_imports = cons(ref, ext.m_direct_imports);
+    ext.m_direct_imports = refs;
     env = update(env, ext);
+
     return env;
 }
 
-environment mk_preimported_module(environment const & initial_env, loaded_module const & lm, module_loader const & mod_ldr) {
+static environment mk_preimported_module(environment const & initial_env, loaded_module const & lm, module_loader const & mod_ldr) {
     auto env = initial_env;
     for (auto & dep : lm.m_imports) {
         import_module(env, lm.m_module_name, dep, mod_ldr);
     }
     import_module(lm.m_modifications, lm.m_module_name, env);
     return env;
+}
+
+std::shared_ptr<loaded_module const> cache_preimported_env(
+        loaded_module && lm_ref, environment const & env0,
+        std::function<module_loader()> const & mk_mod_ldr) {
+    auto lm_ptr = std::make_shared<loaded_module>(lm_ref);
+    auto & lm = *lm_ptr;
+    lm_ptr->m_env = lazy_value<environment>([&lm, env0, mk_mod_ldr] {
+        return mk_preimported_module(env0, lm, mk_mod_ldr());
+    });
+    return lm_ptr;
 }
 
 modification_list parse_olean_modifications(std::vector<char> const & olean_code, std::string const & file_name) {

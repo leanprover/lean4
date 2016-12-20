@@ -47,7 +47,7 @@ list<name> const & get_curr_module_decl_names(environment const & env);
 /** \brief Return the list of universes declared in the current module */
 list<name> const & get_curr_module_univ_names(environment const & env);
 /** \brief Return the list of modules directly imported by the current module */
-list<module_name> get_curr_module_imports(environment const & env);
+std::vector<module_name> get_curr_module_imports(environment const & env);
 
 /** \brief Return an environment based on \c env, where all modules in \c modules are imported.
     Modules included directly or indirectly by them are also imported.
@@ -57,13 +57,9 @@ list<module_name> get_curr_module_imports(environment const & env);
     checked. The idea is to save memory.
 */
 environment
-import_module(environment const & env,
-              std::string const & current_mod, module_name const & ref,
-              module_loader const & mod_ldr);
-
-environment mk_preimported_module(environment const & initial_env,
-                                  loaded_module const & lm,
-                                  module_loader const & mod_ldr);
+import_modules(environment const & env,
+               std::string const & current_mod, std::vector<module_name> const & ref,
+               module_loader const & mod_ldr);
 
 /** \brief Return the .olean file where decl_name was defined. The result is none if the declaration
     was not defined in an imported file. */
@@ -79,6 +75,10 @@ environment add_transient_decl_pos_info(environment const & env, name const & de
 /** \brief Store/Export module using \c env. */
 loaded_module export_module(environment const & env, std::string const & mod_name);
 void write_module(loaded_module const & mod, std::ostream & out);
+
+std::shared_ptr<loaded_module const> cache_preimported_env(
+        loaded_module &&, environment const & initial_env,
+        std::function<module_loader()> const & mk_mod_ldr);
 
 std::pair<std::vector<module_name>, std::vector<char>> parse_olean(
         std::istream & in, std::string const & file_name, bool check_hash = true);

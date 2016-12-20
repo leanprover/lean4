@@ -298,10 +298,7 @@ class exporter {
 
     void export_direct_imports() {
         if (!m_all) {
-            buffer<module_name> imports;
-            to_buffer(get_curr_module_imports(m_env), imports);
-            std::reverse(imports.begin(), imports.end());
-            for (module_name const & m : imports) {
+            for (module_name const & m : get_curr_module_imports(m_env)) {
                 unsigned n = export_name(m.m_name);
                 if (m.m_relative) {
                     m_out << "#RI " << *m.m_relative << " " << n << "\n";

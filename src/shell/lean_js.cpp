@@ -46,7 +46,7 @@ public:
     int import_module(std::string mname) {
         try {
             // FIXME(gabriel): discarding proofs fails at the moment with "invalid equation lemma, unexpected form"
-            env = lean::import_module(env, "importing", {mname, optional<unsigned>()}, mk_olean_loader());
+            env = lean::import_modules(env, "importing", {{mname, optional<unsigned>()}}, mk_olean_loader());
             return 0;
         } catch (exception & ex) {
             message_builder(env, ios, "importing", {1, 0}, ERROR).set_exception(ex).report();

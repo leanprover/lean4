@@ -696,8 +696,7 @@ public:
 
         auto mod_ldr = mk_olean_loader();
         optional<unsigned> k;
-        m_env = import_module(m_env, get_stream_name(), {"init", k}, mod_ldr);
-        m_env = import_module(m_env, get_stream_name(), {"smt", k}, mod_ldr);
+        m_env = import_modules(m_env, get_stream_name(), {{"init", k}, {"smt", k}}, mod_ldr);
 
         bool ok = true;
         try {

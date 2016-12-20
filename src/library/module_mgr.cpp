@@ -108,13 +108,9 @@ public:
 
         mod.m_snapshots = std::move(m_snapshots);
 
-        auto lm = std::make_shared<loaded_module>(export_module(p.env(), get_module_id()));
-        std::weak_ptr<loaded_module> weak_lm = lm;
-        auto initial_env = m_initial_env;
-        lm->m_env = lazy_value<environment>([initial_env, weak_lm, import_fn] {
-            return mk_preimported_module(initial_env, *weak_lm.lock(), import_fn);
-        });
-        mod.m_loaded_module = lm;
+        mod.m_loaded_module = cache_preimported_env(
+                export_module(p.env(), get_module_id()),
+                m_initial_env, [=] { return import_fn; });
 
         mod.m_opts = p.ios().get_options();
 
@@ -221,18 +217,11 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
 
             module_info::parse_result res;
 
-            auto lm = std::make_shared<loaded_module>();
-            {
-                lm->m_module_name = id;
-                lm->m_imports = parsed_olean.first;
-                lm->m_modifications = parse_olean_modifications(parsed_olean.second, id);
-                auto lm_ptr = lm.get();
-                auto deps = mod->m_deps;
-                lm->m_env = lazy_value<environment>([=] {
-                    return mk_preimported_module(m_initial_env, *lm_ptr, mk_loader(id, deps));
-                });
-            }
-            res.m_loaded_module = lm;
+            auto deps = mod->m_deps;
+            res.m_loaded_module = cache_preimported_env(
+                    { id, parsed_olean.first,
+                      parse_olean_modifications(parsed_olean.second, id), {} },
+                    m_initial_env, [=] { return mk_loader(id, deps); });
 
             res.m_ok = true;
             mod->m_result = mk_pure_task_result(res, "Loading " + olean_fn);

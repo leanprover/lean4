@@ -131,12 +131,13 @@ format tactic_state::pp_expr(formatter_factory const & fmtf, expr const & e) con
 }
 
 format tactic_state::pp_goal(formatter_factory const & fmtf, expr const & g) const {
-    bool inst_mvars            = get_pp_instantiate_goal_mvars(get_options());
+    options opts               = get_options().update_if_undef(get_pp_purify_locals_name(), false);
+    bool inst_mvars            = get_pp_instantiate_goal_mvars(opts);
     metavar_decl decl          = *mctx().get_metavar_decl(g);
     local_context lctx         = decl.get_context();
     metavar_context mctx_tmp   = mctx();
     type_context ctx(env(), get_options(), mctx_tmp, lctx, transparency_mode::All);
-    formatter fmt              = fmtf(env(), get_options(), ctx);
+    formatter fmt              = fmtf(env(), opts, ctx);
     if (inst_mvars)
         lctx                   = lctx.instantiate_mvars(mctx_tmp);
     format r                   = lctx.pp(fmt);

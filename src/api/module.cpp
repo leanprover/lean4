@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
+#include <vector>
 #include "util/lean_path.h"
 #include "library/module.h"
 #include "library/util.h"

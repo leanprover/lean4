@@ -139,7 +139,7 @@ public:
             for (auto & mdf : res->m_loaded_module->m_modifications)
                 mdf->get_task_dependencies(deps);
         }
-        
+
         return deps;
     }
 

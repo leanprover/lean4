@@ -32,13 +32,19 @@ struct module_info {
     module_id m_mod;
     module_src m_source = module_src::LEAN;
     time_t m_mtime = -1, m_trans_mtime = -1;
-    std::vector<std::pair<module_id, module_name>> m_deps;
+
+    struct dependency {
+        module_id m_id;
+        module_name m_import_name;
+        std::shared_ptr<module_info const> m_mod_info;
+    };
+    std::vector<dependency> m_deps;
+
     optional<std::string> m_lean_contents;
 
     period m_version = 0;
 
     struct parse_result {
-        optional<environment> m_env;
         options               m_opts;
         bool m_ok = false;
 
@@ -51,6 +57,10 @@ struct module_info {
     snapshot_vector m_still_valid_snapshots;
 
     task_result<unit> m_olean_task;
+
+    environment const & get_produced_env() const {
+        return *m_result.get().m_loaded_module->m_env;
+    }
 };
 
 class module_vfs {
@@ -84,10 +94,6 @@ class module_mgr {
     void mark_out_of_date(module_id const & id, buffer<module_id> & to_rebuild);
     void build_module(module_id const & id, bool can_use_olean, name_set module_stack);
     std::vector<module_name> get_direct_imports(module_id const & id, std::string const & contents);
-    void gather_transitive_imports(
-        std::vector<std::tuple<module_id, module_name, std::shared_ptr<module_info const>>> & res,
-        std::unordered_set<module_id> & visited,
-        module_id const & id, module_name const & import);
     std::vector<std::tuple<module_id, module_name, std::shared_ptr<module_info const>>> gather_transitive_imports(
             module_id const & id, std::vector<module_name> const & imports);
     bool get_snapshots_or_unchanged_module(

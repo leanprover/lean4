@@ -360,7 +360,8 @@ server::cmd_res server::handle_info(server::cmd_req const & req) {
     auto opts = m_ios.get_options();
     auto env = m_initial_env;
     if (auto mod = m_mod_mgr->get_module(fn)->m_result.peek()) {
-        if (mod->m_env) env = *mod->m_env;
+        if (mod->m_loaded_module->m_env)
+            env = *mod->m_loaded_module->m_env;
         if (!mod->m_snapshots.empty()) opts = mod->m_snapshots.back()->m_options;
     }
 

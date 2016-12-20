@@ -504,7 +504,7 @@ int main(int argc, char ** argv) {
 
         // Options appear to be empty, pretty sure I'm making a mistake here.
         if (compile && !mods.empty()) {
-            auto final_env = *mods.front().second->m_result.get().m_env;
+            auto final_env = mods.front().second->get_produced_env();
             auto final_opts = mods.front().second->m_result.get().m_opts;
             type_context tc(final_env, final_opts);
             lean::scope_trace_env scope2(final_env, final_opts, tc);
@@ -521,13 +521,13 @@ int main(int argc, char ** argv) {
         if (export_txt && !mods.empty()) {
             exclusive_file_lock export_lock(*export_txt);
             std::ofstream out(*export_txt);
-            export_module_as_lowtext(out, *mods.front().second->m_result.get().m_env);
+            export_module_as_lowtext(out, mods.front().second->get_produced_env());
         }
 
         if (export_all_txt && !mods.empty()) {
             exclusive_file_lock export_lock(*export_all_txt);
             std::ofstream out(*export_all_txt);
-            export_all_as_lowtext(out, *mods.front().second->m_result.get().m_env);
+            export_all_as_lowtext(out, mods.front().second->get_produced_env());
         }
         if (doc) {
             exclusive_file_lock export_lock(*doc);

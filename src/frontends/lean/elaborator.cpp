@@ -2252,6 +2252,7 @@ expr elaborator::visit_suffices_expr(expr const & e, optional<expr> const & expe
         new_fn          = locals.mk_lambda(new_body);
     }
     expr new_rest = visit(rest, some_expr(new_type));
+    new_rest      = enforce_type(new_rest, new_type, "invalid suffices-expression", rest);
     return mk_suffices_annotation(mk_app(new_fn, new_rest));
 }
 

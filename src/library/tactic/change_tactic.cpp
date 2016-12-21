@@ -34,7 +34,7 @@ vm_obj change(expr const & e, tactic_state const & s) {
             auto thunk = [=]() {
                 format m("tactic.change failed, given type");
                 m += pp_indented_expr(s, e);
-                m += format("is not definitionally equal to");
+                m += line() + format("is not definitionally equal to");
                 m += pp_indented_expr(s, g->get_type());
                 return m;
             };

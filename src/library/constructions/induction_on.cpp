@@ -30,6 +30,7 @@ environment mk_induction_on(environment const & env, name const & n) {
                                             mk_definition_inferring_trusted(new_env, induction_on_name, rec_on_decl.get_univ_params(),
                                                                             rec_on_decl.get_type(), rec_on_decl.get_value(),
                                                                             reducibility_hints::mk_opaque()));
+        new_env = add_aux_recursor(new_env, induction_on_name);
         new_env = module::add(new_env, cdecl);
     } else {
         level_param_names induction_on_univs = tail(rec_on_decl.get_univ_params());

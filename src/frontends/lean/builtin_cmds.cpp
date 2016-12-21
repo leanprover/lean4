@@ -525,8 +525,8 @@ static environment run_command_cmd(parser & p) {
     options opts         = p.get_options();
     metavar_context mctx;
     expr tactic          = p.parse_expr();
-    expr try_constructor = mk_app(mk_constant(get_tactic_try_name()), mk_constant(get_tactic_constructor_name()));
-    tactic               = mk_app(mk_constant(get_pre_monad_and_then_name()), tactic, try_constructor);
+    expr try_triv        = mk_app(mk_constant(get_tactic_try_name()), mk_constant(get_tactic_triv_name()));
+    tactic               = mk_app(mk_constant(get_pre_monad_and_then_name()), tactic, try_triv);
     expr val             = mk_typed_expr(mk_true(), mk_by(tactic));
     bool check_unassigned = false;
     elaborate(env, opts, mctx, local_context(), val, check_unassigned);

@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "library/util.h"
+#include "library/constants.h"
 #include "library/vm/vm_expr.h"
 #include "library/tactic/tactic_state.h"
 
@@ -16,7 +18,16 @@ vm_obj change(expr const & e, tactic_state const & s) {
         if (ctx.is_def_eq(e, g->get_type())) {
             auto mctx    = ctx.mctx();
             expr new_M   = mctx.mk_metavar_decl(g->get_context(), e);
-            mctx.assign(head(s.goals()), new_M);
+            /*
+               We use the proof term
+
+                  (@id_locked (g->get_type()) new_M)
+
+               to create a "checkpoint". See discussion at issue #1260
+            */
+            level lvl = get_level(ctx, g->get_type());
+            expr  pr  = mk_app(mk_constant(get_id_locked_name(), {lvl}), g->get_type(), new_M);
+            mctx.assign(head(s.goals()), pr);
             list<expr> new_gs(new_M, tail(s.goals()));
             return mk_tactic_success(set_mctx_goals(s, mctx, new_gs));
         } else {

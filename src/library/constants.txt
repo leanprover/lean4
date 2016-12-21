@@ -104,6 +104,7 @@ heq.refl
 heq.symm
 heq.trans
 heq_of_eq
+id_locked
 if_neg
 if_pos
 iff
@@ -379,6 +380,7 @@ tactic.step
 tactic.to_expr
 tactic.skip
 tactic.try
+tactic.triv
 tactic.interactive
 tactic.interactive.exact
 tactic.interactive.types.ident

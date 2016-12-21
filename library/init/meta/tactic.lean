@@ -753,3 +753,22 @@ meta def name.to_expr : name → tactic expr
 | (name.mk_numeral i n) := do is ← i^.to_expr, en ← name.to_expr n, to_expr `(name.mk_string %%is %%en)
 
 notation `command`:max := tactic unit
+
+open tactic
+/-
+  Define id_locked using meta-programming because we don't have
+  syntax for setting reducibility_hints.
+
+  See module init.meta.declaration.
+
+  Remark: id_locked is used in the builtin implementation of tactic.change
+-/
+run_command do
+ l  ← return $ level.param `l,
+ Ty ← return $ expr.sort l,
+ type ← to_expr `(Π {α : %%Ty}, α → α),
+ val  ← to_expr `(λ {α : %%Ty} (a : α), a),
+ add_decl (declaration.defn `id_locked [`l] type val reducibility_hints.opaque tt)
+
+lemma id_locked_eq {α : Type u} (a : α) : id_locked a = a :=
+rfl

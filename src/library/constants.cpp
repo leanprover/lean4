@@ -109,6 +109,7 @@ name const * g_heq_refl = nullptr;
 name const * g_heq_symm = nullptr;
 name const * g_heq_trans = nullptr;
 name const * g_heq_of_eq = nullptr;
+name const * g_id_locked = nullptr;
 name const * g_if_neg = nullptr;
 name const * g_if_pos = nullptr;
 name const * g_iff = nullptr;
@@ -384,6 +385,7 @@ name const * g_tactic_step = nullptr;
 name const * g_tactic_to_expr = nullptr;
 name const * g_tactic_skip = nullptr;
 name const * g_tactic_try = nullptr;
+name const * g_tactic_triv = nullptr;
 name const * g_tactic_interactive = nullptr;
 name const * g_tactic_interactive_exact = nullptr;
 name const * g_tactic_interactive_types_ident = nullptr;
@@ -534,6 +536,7 @@ void initialize_constants() {
     g_heq_symm = new name{"heq", "symm"};
     g_heq_trans = new name{"heq", "trans"};
     g_heq_of_eq = new name{"heq_of_eq"};
+    g_id_locked = new name{"id_locked"};
     g_if_neg = new name{"if_neg"};
     g_if_pos = new name{"if_pos"};
     g_iff = new name{"iff"};
@@ -809,6 +812,7 @@ void initialize_constants() {
     g_tactic_to_expr = new name{"tactic", "to_expr"};
     g_tactic_skip = new name{"tactic", "skip"};
     g_tactic_try = new name{"tactic", "try"};
+    g_tactic_triv = new name{"tactic", "triv"};
     g_tactic_interactive = new name{"tactic", "interactive"};
     g_tactic_interactive_exact = new name{"tactic", "interactive", "exact"};
     g_tactic_interactive_types_ident = new name{"tactic", "interactive", "types", "ident"};
@@ -960,6 +964,7 @@ void finalize_constants() {
     delete g_heq_symm;
     delete g_heq_trans;
     delete g_heq_of_eq;
+    delete g_id_locked;
     delete g_if_neg;
     delete g_if_pos;
     delete g_iff;
@@ -1235,6 +1240,7 @@ void finalize_constants() {
     delete g_tactic_to_expr;
     delete g_tactic_skip;
     delete g_tactic_try;
+    delete g_tactic_triv;
     delete g_tactic_interactive;
     delete g_tactic_interactive_exact;
     delete g_tactic_interactive_types_ident;
@@ -1385,6 +1391,7 @@ name const & get_heq_refl_name() { return *g_heq_refl; }
 name const & get_heq_symm_name() { return *g_heq_symm; }
 name const & get_heq_trans_name() { return *g_heq_trans; }
 name const & get_heq_of_eq_name() { return *g_heq_of_eq; }
+name const & get_id_locked_name() { return *g_id_locked; }
 name const & get_if_neg_name() { return *g_if_neg; }
 name const & get_if_pos_name() { return *g_if_pos; }
 name const & get_iff_name() { return *g_iff; }
@@ -1660,6 +1667,7 @@ name const & get_tactic_step_name() { return *g_tactic_step; }
 name const & get_tactic_to_expr_name() { return *g_tactic_to_expr; }
 name const & get_tactic_skip_name() { return *g_tactic_skip; }
 name const & get_tactic_try_name() { return *g_tactic_try; }
+name const & get_tactic_triv_name() { return *g_tactic_triv; }
 name const & get_tactic_interactive_name() { return *g_tactic_interactive; }
 name const & get_tactic_interactive_exact_name() { return *g_tactic_interactive_exact; }
 name const & get_tactic_interactive_types_ident_name() { return *g_tactic_interactive_types_ident; }

@@ -378,6 +378,7 @@ pair<local_context, expr> type_context::revert_core(buffer<expr> & to_revert, lo
     }
     local_decl d0  = *ctx.get_local_decl(to_revert[0]);
     unsigned next_idx = 1;
+    unsigned init_sz  = to_revert.size();
     ctx.for_each_after(d0, [&](local_decl const & d) {
             /* Check if d is in initial to_revert */
             for (unsigned i = next_idx; i < num; i++) {
@@ -388,6 +389,23 @@ pair<local_context, expr> type_context::revert_core(buffer<expr> & to_revert, lo
             }
             /* We may still need to revert d if it depends on locals already in reverted */
             if (depends_on(d, m_mctx, to_revert)) {
+                if (d.get_info().is_rec()) {
+                    /* We should not revert auxiliary declarations added by the equation compiler.
+                       See discussion at issue #1258 at github. */
+                    sstream out;
+                    out << "failed to revert ";
+                    for (unsigned i = 0; i < init_sz; i++) {
+                        if (i > 0) out << " ";
+                        out << "'" << to_revert[i] << "'";
+                    }
+                    out << ", '" << d.get_pp_name() << "' "
+                        << "depends on " << (init_sz == 1 ? "it" : "them")
+                        << ", and '" << d.get_pp_name() << "' is an auxiliary declaration "
+                        << "introduced by the equation compiler (possible solution: "
+                        << "use tactic 'clear' to remove '" << d.get_pp_name() << "' "
+                        << "from the local context)\n";
+                    throw exception(out);
+                }
                 to_revert.push_back(d.mk_ref());
             }
         });

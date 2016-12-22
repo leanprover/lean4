@@ -1,0 +1,8 @@
+1258.lean:4:19: error: failed to revert 'xs', 'foo' depends on it, and 'foo' is an auxiliary declaration introduced by the equation compiler (possible solution: use tactic 'clear' to remove 'foo' from the local context)
+
+state:
+xs : list ℕ,
+foo : ∀ (ns : list ℕ), P xs ns,
+n : ℕ,
+ns : list ℕ
+⊢ P xs (n :: ns)

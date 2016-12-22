@@ -1231,4 +1231,45 @@ bool congruence_closure::state::check_invariant() const {
         });
     return true;
 }
+
+format congruence_closure::state::pp_eqc(formatter const & fmt, expr const & e) const {
+    format r;
+    bool first = true;
+    expr it = e;
+    do {
+        auto it_n = m_entries.find(it);
+        if (first) first = false; else r += comma() + line();
+        r += fmt(it);
+        it = it_n->m_next;
+    } while (it != e);
+    return bracket("{", group(r), "}");
+}
+
+format congruence_closure::state::pp_eqcs(formatter const & fmt) const {
+    buffer<expr> roots;
+    m_entries.for_each([&](expr const & k, entry const & n) {
+            if (k == n.m_root)
+                roots.push_back(k);
+        });
+    format r;
+    bool first = true;
+    for (expr const & root : roots) {
+        if (first) first = false; r += line();
+        r += pp_eqc(fmt, root);
+    }
+    return r;
+}
+
+void initialize_congruence_closure() {
+    register_trace_class("cc");
+    register_trace_class({"cc", "merge"});
+    name prefix = name::mk_internal_unique_name();
+    g_congr_mark    = new expr(mk_constant(name(prefix, "[congruence]")));
+    g_eq_true_mark  = new expr(mk_constant(name(prefix, "[iff-true]")));
+}
+
+void finalize_congruence_closure() {
+    delete g_congr_mark;
+    delete g_eq_true_mark;
+}
 }

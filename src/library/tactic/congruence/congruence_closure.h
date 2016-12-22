@@ -113,6 +113,8 @@ class congruence_closure {
         unsigned get_mt(expr const & e) const;
         bool is_congr_root(expr const & e) const;
         bool check_invariant() const;
+        format pp_eqc(formatter const & fmt, expr const & e) const;
+        format pp_eqcs(formatter const & fmt) const;
     };
 
     type_context &        m_ctx;
@@ -214,14 +216,19 @@ public:
 struct ext_congr_lemma {
     /* The basic congr_lemma object defined at congr_lemma_manager */
     congr_lemma          m_congr_lemma;
-    /* If m_fixed_fun is false, then we build equivalences for functions, and use generic congr lemma, and ignore m_congr_lemma.
+    /* If m_fixed_fun is false, then we build equivalences for functions,
+       and use generic congr lemma, and ignore m_congr_lemma.
        That is, even the function can be treated as an Eq argument. */
     unsigned             m_fixed_fun:1;
-    /* If m_heq_result is true, then lemma is based on heterogeneous equality and the conclusion is a heterogeneous equality. */
+    /* If m_heq_result is true, then lemma is based on heterogeneous equality
+       and the conclusion is a heterogeneous equality. */
     unsigned             m_heq_result:1;
     /* If m_heq_lemma is true, then lemma was created using mk_hcongr_lemma. */
     unsigned             m_hcongr_lemma:1;
     ext_congr_lemma(congr_lemma const & H):
         m_congr_lemma(H), m_fixed_fun(false), m_heq_result(false), m_hcongr_lemma(false) {}
 };
+
+void initialize_congruence_closure();
+void finalize_congruence_closure();
 }

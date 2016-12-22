@@ -96,11 +96,11 @@ congruence_closure::~congruence_closure() {
     get_clcm().recycle(m_cache_ptr);
 }
 
-inline congr_lemma_cache_ptr & get_cache_ptr(congruence_closure & cc) {
+inline congr_lemma_cache_ptr const & get_cache_ptr(congruence_closure const & cc) {
     return cc.m_cache_ptr;
 }
 
-inline congr_lemma_cache_data & get_cache(congruence_closure & cc) {
+inline congr_lemma_cache_data & get_cache(congruence_closure const & cc) {
     return get_cache_ptr(cc)->m_cache[static_cast<unsigned>(cc.mode())];
 }
 
@@ -121,7 +121,7 @@ static optional<ext_congr_lemma> mk_hcongr_lemma_core(type_context & ctx, expr c
     return optional<ext_congr_lemma>(res1);
 }
 
-optional<ext_congr_lemma> congruence_closure::mk_ext_congr_lemma(expr const & e) {
+optional<ext_congr_lemma> congruence_closure::mk_ext_congr_lemma(expr const & e) const {
     expr const & fn     = get_app_fn(e);
     unsigned nargs      = get_app_num_args(e);
     auto & cache        = get_cache(*this);
@@ -261,25 +261,25 @@ auto congruence_closure::mk_congr_key(expr const & e) const -> congr_key {
     return k;
 }
 
-auto congruence_closure::is_symm_relation(expr const & e, expr & lhs, expr & rhs) const -> optional<symm_kind> {
+optional<name> congruence_closure::is_symm_relation(expr const & e, expr & lhs, expr & rhs) const {
     if (is_eq(e, lhs, rhs)) {
-        return optional<symm_kind>(symm_kind::Eq);
+        return optional<name>(get_eq_name());
     } else if (is_iff(e, lhs, rhs)) {
-        return optional<symm_kind>(symm_kind::Iff);
+        return optional<name>(get_iff_name());
     } else {
-        if (!is_app(e)) return optional<symm_kind>();
+        if (!is_app(e)) return optional<name>();
         expr fn = get_app_fn(e);
-        if (!is_constant(fn)) return optional<symm_kind>();
+        if (!is_constant(fn)) return optional<name>();
         if (auto info = m_rel_info_getter(const_name(fn))) {
-            if (!m_symm_info_getter(const_name(fn))) return optional<symm_kind>();
+            if (!m_symm_info_getter(const_name(fn))) return optional<name>();
             buffer<expr> args;
             get_app_args(e, args);
-            if (args.size() != info->get_arity()) return optional<symm_kind>();
+            if (args.size() != info->get_arity()) return optional<name>();
             lhs = args[info->get_lhs_pos()];
             rhs = args[info->get_rhs_pos()];
-            return optional<symm_kind>(symm_kind::Other);
+            return optional<name>(const_name(fn));
         }
-        return optional<symm_kind>();
+        return optional<name>();
     }
 }
 
@@ -291,11 +291,11 @@ bool congruence_closure::is_symm_relation(expr const & e) {
 /* \brief Create a symm congruence table key. */
 auto congruence_closure::mk_symm_congr_key(expr const & e) const -> symm_congr_key {
     expr lhs, rhs;
-    if (auto kind = is_symm_relation(e, lhs, rhs)) {
+    if (auto rel = is_symm_relation(e, lhs, rhs)) {
         symm_congr_key key;
         key.m_expr = e;
         key.m_hash = symm_hash(lhs, rhs);
-        key.m_kind = *kind;
+        key.m_rel  = *rel;
         return key;
     }
     lean_unreachable();
@@ -304,20 +304,18 @@ auto congruence_closure::mk_symm_congr_key(expr const & e) const -> symm_congr_k
 int congruence_closure::symm_congr_key_cmp::operator()(symm_congr_key const & k1, symm_congr_key const & k2) const {
     if (k1.m_hash != k2.m_hash)
         return unsigned_cmp()(k1.m_hash, k2.m_hash);
-    if (k1.m_kind != k2.m_kind)
-        return unsigned_cmp()(static_cast<unsigned>(k1.m_kind), static_cast<unsigned>(k2.m_kind));
+    if (k1.m_rel != k2.m_rel)
+        return name_quick_cmp()(k1.m_rel, k2.m_rel);
     expr const & e1 = k1.m_expr;
     expr const & e2 = k2.m_expr;
-    switch (k1.m_kind) {
-    case symm_kind::Eq: case symm_kind::Iff:
+    if (k1.m_rel == get_eq_name() || k1.m_rel == get_iff_name()) {
         return g_cc->compare_symm(app_arg(app_fn(e1)), app_arg(e1), app_arg(app_fn(e2)), app_arg(e2));
-    case symm_kind::Other: {
+    } else {
         expr lhs1, rhs1, lhs2, rhs2;
         g_cc->is_symm_relation(e1, lhs1, rhs1);
         g_cc->is_symm_relation(e2, lhs2, rhs2);
         return g_cc->compare_symm(lhs1, rhs1, lhs2, rhs2);
-    }}
-    lean_unreachable();
+    }
 }
 
 /* TODO(Leo): this should not be hard-coded.
@@ -674,14 +672,141 @@ expr congruence_closure::flip_proof(expr const & H, bool flipped, bool heq_proof
     }
 }
 
-expr congruence_closure::mk_trans(bool heq_proofs, optional<expr> const & H1, expr const & H2) const {
-    if (!H1) return H2;
-    return heq_proofs ? mk_heq_trans(m_ctx, *H1, H2) : mk_eq_trans(m_ctx, *H1, H2);
+expr congruence_closure::mk_trans(expr const & H1, expr const & H2, bool heq_proofs) const {
+    return heq_proofs ? mk_heq_trans(m_ctx, H1, H2) : mk_eq_trans(m_ctx, H1, H2);
 }
 
-expr congruence_closure::mk_congr_proof(expr const & /* lhs */, expr const & /* rhs */, bool /* heq_proofs */) const {
-    /* TODO(Leo) */
-    return expr();
+expr congruence_closure::mk_trans(optional<expr> const & H1, expr const & H2, bool heq_proofs) const {
+    if (!H1) return H2;
+    return mk_trans(H1, H2, heq_proofs);
+}
+
+expr congruence_closure::mk_congr_proof_core(expr const & lhs, expr const & rhs, bool heq_proofs) const {
+    buffer<expr> lhs_args, rhs_args;
+    expr const & lhs_fn = get_app_args(lhs, lhs_args);
+    expr const & rhs_fn = get_app_args(rhs, rhs_args);
+    lean_assert(lhs_args.size() == rhs_args.size());
+    auto lemma = mk_ext_congr_lemma(lhs);
+    lean_assert(lemma);
+    if (lemma->m_fixed_fun) {
+        /* Main case: convers automatically generated congruence lemmas */
+        list<congr_arg_kind> const * it = &lemma->m_congr_lemma.get_arg_kinds();
+        buffer<expr> lemma_args;
+        for (unsigned i = 0; i < lhs_args.size(); i++) {
+            lean_assert(*it);
+            switch (head(*it)) {
+            case congr_arg_kind::HEq:
+                lemma_args.push_back(lhs_args[i]);
+                lemma_args.push_back(rhs_args[i]);
+                lemma_args.push_back(*get_heq_proof(lhs_args[i], rhs_args[i]));
+                break;
+            case congr_arg_kind::Eq:
+                lemma_args.push_back(lhs_args[i]);
+                lemma_args.push_back(rhs_args[i]);
+                lemma_args.push_back(*get_eq_proof(lhs_args[i], rhs_args[i]));
+                break;
+            case congr_arg_kind::Fixed:
+                lemma_args.push_back(lhs_args[i]);
+                break;
+            case congr_arg_kind::FixedNoParam:
+                break;
+            case congr_arg_kind::Cast:
+                lemma_args.push_back(lhs_args[i]);
+                lemma_args.push_back(rhs_args[i]);
+                break;
+            }
+            it = &(tail(*it));
+        }
+        expr r = mk_app(lemma->m_congr_lemma.get_proof(), lemma_args);
+        if (lemma->m_heq_result && !heq_proofs)
+            r = mk_eq_of_heq(m_ctx, r);
+        else if (!lemma->m_heq_result && heq_proofs)
+            r = mk_heq_of_eq(m_ctx, r);
+        return r;
+    } else {
+        /* This branch builds congruence proofs that handle equality between functions.
+           The proof is created using congr_arg/congr_fun/congr lemmas.
+           It can build proofs for congruence such as:
+                f = g -> a = b -> f a = g b
+           but it is limited to simply typed functions. */
+        optional<expr> r;
+        unsigned i = 0;
+        if (!m_ctx.is_def_eq(lhs_fn, rhs_fn)) {
+            r = get_eq_proof(lhs_fn, rhs_fn);
+        } else {
+            for (; i < lhs_args.size(); i++) {
+                if (!m_ctx.is_def_eq(lhs_args[i], rhs_args[i])) {
+                    expr g  = mk_app(lhs_fn, i, lhs_args.data());
+                    expr Hi = *get_eq_proof(lhs_args[i], rhs_args[i]);
+                    r = mk_congr_arg(m_ctx, g, Hi);
+                    i++;
+                    break;
+                }
+            }
+            if (!r) {
+                // lhs and rhs are definitionally equal
+                r = mk_eq_refl(m_ctx, lhs);
+            }
+        }
+        lean_assert(r);
+        for (; i < lhs_args.size(); i++) {
+            if (m_ctx.is_def_eq(lhs_args[i], rhs_args[i])) {
+                r = mk_congr_fun(m_ctx, *r, lhs_args[i]);
+            } else {
+                expr Hi = *get_eq_proof(lhs_args[i], rhs_args[i]);
+                r = mk_congr(m_ctx, *r, Hi);
+            }
+        }
+        if (heq_proofs)
+            r = mk_heq_of_eq(m_ctx, *r);
+        return *r;
+    }
+}
+
+optional<expr> congruence_closure::mk_symm_congr_proof(expr const & e1, expr const & e2, bool heq_proofs) const {
+    expr lhs1, rhs1, lhs2, rhs2;
+    auto R1 = is_symm_relation(e1, lhs1, rhs1);
+    if (!R1) return none_expr();
+    auto R2 = is_symm_relation(e2, lhs2, rhs2);
+    if (!R2 || *R1 != *R2) return none_expr();
+    if (!is_eqv(lhs1, lhs2)) {
+        lean_assert(is_eqv(lhs1, rhs2));
+        /*
+          We must apply symmetry.
+          The symm congruence table is implicitly using symmetry.
+          That is, we have
+             e1 := lhs1 ~R1~ rhs1
+          and
+             e2 := lhs2 ~R1~ rhs2
+          But,
+          (lhs1 ~R1 ~rhs2) and (rhs1 ~R1~ lhs2)
+        */
+        /*
+         Given e1 := lhs1 ~R1~ rhs1,
+         create proof for
+           (lhs1 ~R1~ rhs1) = (rhs1 ~R1~ lhs1)
+        */
+        expr new_e1 = mk_rel(m_ctx, *R1, rhs1, lhs1);
+        type_context::tmp_locals locals(m_ctx);
+        expr h1  = locals.push_local("_h1", e1);
+        expr h2  = locals.push_local("_h2", new_e1);
+        expr e1_iff_new_e1 = mk_app(m_ctx, get_iff_intro_name(),
+                                    m_ctx.mk_lambda(h1, mk_symm(m_ctx, *R1, h1)),
+                                    m_ctx.mk_lambda(h2, mk_symm(m_ctx, *R1, h2)));
+        expr e1_eq_new_e1  = mk_propext(e1, new_e1, e1_iff_new_e1);
+        expr new_e1_eq_e2  = mk_congr_proof_core(new_e1, e2, heq_proofs);
+        if (heq_proofs)
+            e1_eq_new_e1   = mk_heq_of_eq(m_ctx, e1_eq_new_e1);
+        return some_expr(mk_trans(e1_eq_new_e1, new_e1_eq_e2, heq_proofs));
+    }
+    return none_expr();
+}
+
+expr congruence_closure::mk_congr_proof(expr const & e1, expr const & e2, bool heq_proofs) const {
+    if (auto r = mk_symm_congr_proof(e1, e2, heq_proofs))
+        return *r;
+    else
+        return mk_congr_proof_core(e1, e2, heq_proofs);
 }
 
 expr congruence_closure::mk_proof(expr const & lhs, expr const & rhs, expr const & H, bool heq_proofs) const {
@@ -757,13 +882,13 @@ optional<expr> congruence_closure::get_eq_proof_core(expr const & e1, expr const
     optional<expr> pr;
     expr lhs = e1;
     for (unsigned i = 0; i < path1.size(); i++) {
-        pr  = mk_trans(heq_proofs, pr, mk_proof(lhs, path1[i], Hs1[i], heq_proofs));
+        pr  = mk_trans(pr, mk_proof(lhs, path1[i], Hs1[i], heq_proofs), heq_proofs);
         lhs = path1[i];
     }
     unsigned i = Hs2.size();
     while (i > 0) {
         --i;
-        pr  = mk_trans(heq_proofs, pr, mk_proof(lhs, path2[i], Hs2[i], heq_proofs));
+        pr  = mk_trans(pr, mk_proof(lhs, path2[i], Hs2[i], heq_proofs), heq_proofs);
         lhs = path2[i];
     }
     lean_assert(pr);

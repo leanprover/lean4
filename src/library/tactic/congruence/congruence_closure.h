@@ -28,8 +28,6 @@ class congruence_closure {
         int operator()(congr_key const & k1, congr_key const & k2) const;
     };
 
-    enum class symm_kind {Eq, Iff, Other};
-
     /* Key for the equality congruence table for symmetric relations.
 
        Remark: the same congruence table can be used to handle
@@ -37,7 +35,7 @@ class congruence_closure {
     struct symm_congr_key {
         expr      m_expr;
         unsigned  m_hash;
-        symm_kind m_kind;
+        name      m_rel;
     };
 
     struct symm_congr_key_cmp {
@@ -128,7 +126,7 @@ class congruence_closure {
     entry const * get_entry(expr const & e) const { return m_state.m_entries.find(e); }
     int compare_symm(expr lhs1, expr rhs1, expr lhs2, expr rhs2) const;
     unsigned symm_hash(expr const & lhs, expr const & rhs) const;
-    optional<symm_kind> is_symm_relation(expr const & e, expr & lhs, expr & rhs) const;
+    optional<name> is_symm_relation(expr const & e, expr & lhs, expr & rhs) const;
     bool is_symm_relation(expr const & e);
     congr_key mk_congr_key(expr const & e) const;
     symm_congr_key mk_symm_congr_key(expr const & e) const;
@@ -151,7 +149,11 @@ class congruence_closure {
     void update_mt(expr const & e);
     bool has_heq_proofs(expr const & root) const;
     expr flip_proof(expr const & H, bool flipped, bool heq_proofs) const;
-    expr mk_trans(bool heq_proofs, optional<expr> const & H1, expr const & H2) const;
+    optional<ext_congr_lemma> mk_ext_congr_lemma(expr const & e) const;
+    expr mk_trans(expr const & H1, expr const & H2, bool heq_proofs) const;
+    expr mk_trans(optional<expr> const & H1, expr const & H2, bool heq_proofs) const;
+    expr mk_congr_proof_core(expr const & e1, expr const & e2, bool heq_proofs) const;
+    optional<expr> mk_symm_congr_proof(expr const & e1, expr const & e2, bool heq_proofs) const;
     expr mk_congr_proof(expr const & lhs, expr const & rhs, bool heq_proofs) const;
     expr mk_proof(expr const & lhs, expr const & rhs, expr const & H, bool heq_proofs) const;
     optional<expr> get_eq_proof_core(expr const & e1, expr const & e2, bool as_heq) const;
@@ -166,9 +168,8 @@ class congruence_closure {
     void add_eqv_core(expr const & lhs, expr const & rhs, expr const & H,
                       optional<expr> const & added_prop, bool heq_proof);
     bool check_eqc(expr const & e) const;
-    optional<ext_congr_lemma> mk_ext_congr_lemma(expr const & e);
 
-    friend congr_lemma_cache_ptr & get_cache_ptr(congruence_closure & cc);
+    friend congr_lemma_cache_ptr const & get_cache_ptr(congruence_closure const & cc);
 
 public:
     congruence_closure(type_context & ctx, state & s);

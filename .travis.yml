@@ -100,9 +100,9 @@ script:
   - make -j2
   # TODO(gabriel): add smaller test subset for debug and emscripten builds
   - if [[ $CMAKE_BUILD_TYPE == Release ]]; then
-      yes "C" | ctest -j2 -V;
+      yes "A" | ctest -j2 -V;
     else
-      yes C | ctest -j2 -I 100,600,10 -V;
+      yes "A" | ctest -j2 -I 100,600,10 -V;
     fi
   - if [[ $PACKAGE == TRUE ]]; then make package; fi
   - cd ..

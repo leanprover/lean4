@@ -142,11 +142,14 @@ list<expr> induction(environment const & env, options const & opts, transparency
                         << "' does not support dependent elimination, but conclusion "
                         << "depends on major premise");
     }
+    /* We should not revert auxiliary declarations added by the equation compiler.
+       See discussion at issue #1258 at github. */
+    expr mvar0 = clear_recs(mctx, mvar);
     /* Revert indices and major premise */
     buffer<expr> to_revert;
     to_revert.append(indices);
     to_revert.push_back(H);
-    expr mvar1 = revert(env, opts, mctx, mvar, to_revert);
+    expr mvar1 = revert(env, opts, mctx, mvar0, to_revert);
     lean_assert(to_revert.size() >= indices.size() + 1);
     /* Re-introduce indices and major. */
     buffer<name> indices_H;

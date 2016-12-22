@@ -28,6 +28,27 @@ expr clear(metavar_context & mctx, expr const & mvar, expr const & H) {
     return new_mvar;
 }
 
+expr clear_rec_core(metavar_context & mctx, expr const & mvar) {
+    optional<metavar_decl> g   = mctx.get_metavar_decl(mvar);
+    lean_assert(g);
+    local_context lctx         = g->get_context();
+    if (optional<local_decl> d = lctx.find_if([](local_decl const & d) { return d.get_info().is_rec(); })) {
+        return clear(mctx, mvar, d->mk_ref());
+    } else {
+        return mvar;
+    }
+}
+
+expr clear_recs(metavar_context & mctx, expr const & mvar) {
+    expr curr = mvar;
+    while (true) {
+        expr next = clear_rec_core(mctx, curr);
+        if (next == curr)
+            return curr;
+        curr = next;
+    }
+}
+
 vm_obj clear(expr const & H, tactic_state const & s) {
     lean_assert(is_local(H));
     try {

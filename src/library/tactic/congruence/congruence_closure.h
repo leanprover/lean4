@@ -122,11 +122,14 @@ class congruence_closure {
     transparency_mode     m_mode;
     relation_info_getter  m_rel_info_getter;
     symm_info_getter      m_symm_info_getter;
+    refl_info_getter      m_refl_info_getter;
 
     entry const * get_entry(expr const & e) const { return m_state.m_entries.find(e); }
     int compare_symm(expr lhs1, expr rhs1, expr lhs2, expr rhs2) const;
     unsigned symm_hash(expr const & lhs, expr const & rhs) const;
+    optional<name> is_binary_relation(expr const & e, expr & lhs, expr & rhs) const;
     optional<name> is_symm_relation(expr const & e, expr & lhs, expr & rhs) const;
+    optional<name> is_refl_relation(expr const & e, expr & lhs, expr & rhs) const;
     bool is_symm_relation(expr const & e);
     congr_key mk_congr_key(expr const & e) const;
     symm_congr_key mk_symm_congr_key(expr const & e) const;

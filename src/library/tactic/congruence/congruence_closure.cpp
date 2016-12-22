@@ -89,7 +89,8 @@ MK_THREAD_LOCAL_GET_DEF(congr_lemma_cache_manager, get_clcm);
 congruence_closure::congruence_closure(type_context & ctx, state & s):
     m_ctx(ctx), m_state(s), m_cache_ptr(get_clcm().mk(ctx.env())), m_mode(ctx.mode()),
     m_rel_info_getter(mk_relation_info_getter(ctx.env())),
-    m_symm_info_getter(mk_symm_info_getter(ctx.env())) {
+    m_symm_info_getter(mk_symm_info_getter(ctx.env())),
+    m_refl_info_getter(mk_refl_info_getter(ctx.env())) {
 }
 
 congruence_closure::~congruence_closure() {
@@ -261,26 +262,43 @@ auto congruence_closure::mk_congr_key(expr const & e) const -> congr_key {
     return k;
 }
 
+optional<name> congruence_closure::is_binary_relation(expr const & e, expr & lhs, expr & rhs) const {
+    if (!is_app(e)) return optional<name>();
+    expr fn = get_app_fn(e);
+    if (!is_constant(fn)) return optional<name>();
+    if (auto info = m_rel_info_getter(const_name(fn))) {
+        buffer<expr> args;
+        get_app_args(e, args);
+        if (args.size() != info->get_arity()) return optional<name>();
+        lhs = args[info->get_lhs_pos()];
+        rhs = args[info->get_rhs_pos()];
+        return optional<name>(const_name(fn));
+    }
+    return optional<name>();
+}
+
 optional<name> congruence_closure::is_symm_relation(expr const & e, expr & lhs, expr & rhs) const {
     if (is_eq(e, lhs, rhs)) {
         return optional<name>(get_eq_name());
     } else if (is_iff(e, lhs, rhs)) {
         return optional<name>(get_iff_name());
-    } else {
-        if (!is_app(e)) return optional<name>();
-        expr fn = get_app_fn(e);
-        if (!is_constant(fn)) return optional<name>();
-        if (auto info = m_rel_info_getter(const_name(fn))) {
-            if (!m_symm_info_getter(const_name(fn))) return optional<name>();
-            buffer<expr> args;
-            get_app_args(e, args);
-            if (args.size() != info->get_arity()) return optional<name>();
-            lhs = args[info->get_lhs_pos()];
-            rhs = args[info->get_rhs_pos()];
-            return optional<name>(const_name(fn));
-        }
-        return optional<name>();
+    } else if (auto r = is_binary_relation(e, lhs, rhs)) {
+        if (!m_symm_info_getter(const_name(get_app_fn(e)))) return optional<name>();
+        return r;
     }
+    return optional<name>();
+}
+
+optional<name> congruence_closure::is_refl_relation(expr const & e, expr & lhs, expr & rhs) const {
+    if (is_eq(e, lhs, rhs)) {
+        return optional<name>(get_eq_name());
+    } else if (is_iff(e, lhs, rhs)) {
+        return optional<name>(get_iff_name());
+    } else if (auto r = is_binary_relation(e, lhs, rhs)) {
+        if (!m_refl_info_getter(const_name(get_app_fn(e)))) return optional<name>();
+        return r;
+    }
+    return optional<name>();
 }
 
 bool congruence_closure::is_symm_relation(expr const & e) {
@@ -436,14 +454,14 @@ void congruence_closure::add_congruence_table(expr const & e) {
 void congruence_closure::check_eq_true(symm_congr_key const & k) {
     expr const & e = k.m_expr;
     expr lhs, rhs;
-    if (!is_symm_relation(e, lhs, rhs))
+    if (!is_refl_relation(e, lhs, rhs))
         return;
     if (is_eqv(e, mk_true()))
         return; // it is already equivalent to true
     lhs = get_root(lhs);
     rhs = get_root(rhs);
     if (lhs != rhs) return;
-    // Add e <-> true
+    // Add e = true
     bool heq_proof = false;
     push_todo(e, mk_true(), *g_eq_true_mark, heq_proof);
 }
@@ -813,8 +831,23 @@ expr congruence_closure::mk_proof(expr const & lhs, expr const & rhs, expr const
     if (H == *g_congr_mark) {
         return mk_congr_proof(lhs, rhs, heq_proofs);
     } else if (H == *g_eq_true_mark) {
-        /* TODO(Leo) */
-        return expr();
+        bool flip;
+        expr a, b;
+        name R;
+        if (lhs == mk_true()) {
+            R = *is_refl_relation(rhs, a, b);
+            flip = true;
+        } else {
+            R = *is_refl_relation(lhs, a, b);
+            flip = false;
+        }
+        expr a_eq_b        = *get_eq_proof(a, b);
+        expr a_R_b         = lift_from_eq(m_ctx, R, a_eq_b);
+        expr a_R_b_eq_true = mk_eq_true_intro(m_ctx, a_R_b);
+        if (flip)
+            return mk_eq_symm(m_ctx, a_R_b_eq_true);
+        else
+            return a_R_b_eq_true;
     } else {
         return H;
     }

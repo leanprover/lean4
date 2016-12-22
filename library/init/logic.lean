@@ -290,6 +290,11 @@ iff.intro iff.symm iff.symm
 lemma eq.to_iff {a b : Prop} (h : a = b) : a ↔ b :=
 eq.rec_on h iff.rfl
 
+lemma neq_of_not_iff {a b : Prop} : ¬(a ↔ b) → a ≠ b :=
+λ h₁ h₂,
+have a ↔ b, from eq.subst h₂ (iff.refl a),
+absurd this h₁
+
 lemma not_iff_not_of_iff (h₁ : a ↔ b) : ¬a ↔ ¬b :=
 iff.intro
  (assume (hna : ¬ a) (hb : b), hna (iff.elim_right h₁ hb))

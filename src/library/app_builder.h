@@ -137,6 +137,13 @@ expr mk_of_iff_true(type_context & ctx, expr const & H);
 /** \brief (true <-> false) -> false */
 expr mk_false_of_true_iff_false(type_context & ctx, expr const & H);
 
+/** \brief not p -> (p = false) */
+expr mk_eq_false_intro(type_context & ctx, expr const & H);
+/** \brief p -> (p = true) */
+expr mk_eq_true_intro(type_context & ctx, expr const & H);
+/** not(p <-> q) -> not(p = q) */
+expr mk_neq_of_not_iff(type_context & ctx, expr const & H);
+
 expr mk_not(type_context & ctx, expr const & H);
 
 expr mk_partial_add(type_context & ctx, expr const & A);

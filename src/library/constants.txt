@@ -66,6 +66,8 @@ eq.symm
 eq.trans
 eq_of_heq
 eq_rec_heq
+eq_true_intro
+eq_false_intro
 exists.elim
 format
 functor
@@ -223,6 +225,7 @@ nat.one_lt_bit1
 nat.le_of_lt
 nat.le_refl
 neg
+neq_of_not_iff
 norm_num.add1
 norm_num.add1_bit0
 norm_num.add1_bit1_helper

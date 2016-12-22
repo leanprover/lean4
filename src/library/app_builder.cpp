@@ -885,6 +885,21 @@ expr mk_iff_true_intro(type_context & ctx, expr const & H) {
     return mk_app(ctx, get_iff_true_intro_name(), {H});
 }
 
+expr mk_eq_false_intro(type_context & ctx, expr const & H) {
+    // TODO(Leo): implement custom version if bottleneck.
+    return mk_app(ctx, get_eq_false_intro_name(), {H});
+}
+
+expr mk_eq_true_intro(type_context & ctx, expr const & H) {
+    // TODO(Leo): implement custom version if bottleneck.
+    return mk_app(ctx, get_eq_true_intro_name(), {H});
+}
+
+expr mk_neq_of_not_iff(type_context & ctx, expr const & H) {
+    // TODO(Leo): implement custom version if bottleneck.
+    return mk_app(ctx, get_neq_of_not_iff_name(), {H});
+}
+
 expr mk_not_of_iff_false(type_context & ctx, expr const & H) {
     if (is_constant(get_app_fn(H), get_iff_false_intro_name())) {
         // not_of_iff_false (iff_false_intro H) == H

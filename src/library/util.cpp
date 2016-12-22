@@ -540,9 +540,8 @@ expr mk_iff(expr const & lhs, expr const & rhs) {
 expr mk_iff_refl(expr const & a) {
     return mk_app(mk_constant(get_iff_refl_name()), a);
 }
-expr apply_propext(expr const & iff_pr, expr const & iff_term) {
-    lean_assert(is_iff(iff_term));
-    return mk_app(mk_constant(get_propext_name()), app_arg(app_fn(iff_term)), app_arg(iff_term), iff_pr);
+expr mk_propext(expr const & lhs, expr const & rhs, expr const & iff_pr) {
+    return mk_app(mk_constant(get_propext_name()), lhs, rhs, iff_pr);
 }
 
 expr mk_eq(abstract_type_context & ctx, expr const & lhs, expr const & rhs) {
@@ -693,6 +692,11 @@ bool is_heq(expr const & e, expr & A, expr & lhs, expr & B, expr & rhs) {
     } else {
         return false;
     }
+}
+
+bool is_heq(expr const & e, expr & lhs, expr & rhs) {
+    expr A, B;
+    return is_heq(e, A, lhs, B, rhs);
 }
 
 expr mk_false() {

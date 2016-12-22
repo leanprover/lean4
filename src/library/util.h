@@ -186,7 +186,7 @@ bool is_iff(expr const & e, expr & lhs, expr & rhs);
 expr mk_iff(expr const & lhs, expr const & rhs);
 expr mk_iff_refl(expr const & a);
 
-expr apply_propext(expr const & iff_pr, expr const & iff_term);
+expr mk_propext(expr const & lhs, expr const & rhs, expr const & iff_pr);
 
 expr mk_eq(abstract_type_context & ctx, expr const & lhs, expr const & rhs);
 expr mk_eq_refl(abstract_type_context & ctx, expr const & a);
@@ -218,6 +218,7 @@ bool is_eq_a_a(abstract_type_context & ctx, expr const & e);
 
 expr mk_heq(abstract_type_context & ctx, expr const & lhs, expr const & rhs);
 bool is_heq(expr const & e);
+bool is_heq(expr const & e, expr & lhs, expr & rhs);
 bool is_heq(expr const & e, expr & A, expr & lhs, expr & B, expr & rhs);
 
 expr mk_false();

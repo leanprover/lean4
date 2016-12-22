@@ -71,6 +71,8 @@ name const * g_eq_symm = nullptr;
 name const * g_eq_trans = nullptr;
 name const * g_eq_of_heq = nullptr;
 name const * g_eq_rec_heq = nullptr;
+name const * g_eq_true_intro = nullptr;
+name const * g_eq_false_intro = nullptr;
 name const * g_exists_elim = nullptr;
 name const * g_format = nullptr;
 name const * g_functor = nullptr;
@@ -228,6 +230,7 @@ name const * g_nat_one_lt_bit1 = nullptr;
 name const * g_nat_le_of_lt = nullptr;
 name const * g_nat_le_refl = nullptr;
 name const * g_neg = nullptr;
+name const * g_neq_of_not_iff = nullptr;
 name const * g_norm_num_add1 = nullptr;
 name const * g_norm_num_add1_bit0 = nullptr;
 name const * g_norm_num_add1_bit1_helper = nullptr;
@@ -498,6 +501,8 @@ void initialize_constants() {
     g_eq_trans = new name{"eq", "trans"};
     g_eq_of_heq = new name{"eq_of_heq"};
     g_eq_rec_heq = new name{"eq_rec_heq"};
+    g_eq_true_intro = new name{"eq_true_intro"};
+    g_eq_false_intro = new name{"eq_false_intro"};
     g_exists_elim = new name{"exists", "elim"};
     g_format = new name{"format"};
     g_functor = new name{"functor"};
@@ -655,6 +660,7 @@ void initialize_constants() {
     g_nat_le_of_lt = new name{"nat", "le_of_lt"};
     g_nat_le_refl = new name{"nat", "le_refl"};
     g_neg = new name{"neg"};
+    g_neq_of_not_iff = new name{"neq_of_not_iff"};
     g_norm_num_add1 = new name{"norm_num", "add1"};
     g_norm_num_add1_bit0 = new name{"norm_num", "add1_bit0"};
     g_norm_num_add1_bit1_helper = new name{"norm_num", "add1_bit1_helper"};
@@ -926,6 +932,8 @@ void finalize_constants() {
     delete g_eq_trans;
     delete g_eq_of_heq;
     delete g_eq_rec_heq;
+    delete g_eq_true_intro;
+    delete g_eq_false_intro;
     delete g_exists_elim;
     delete g_format;
     delete g_functor;
@@ -1083,6 +1091,7 @@ void finalize_constants() {
     delete g_nat_le_of_lt;
     delete g_nat_le_refl;
     delete g_neg;
+    delete g_neq_of_not_iff;
     delete g_norm_num_add1;
     delete g_norm_num_add1_bit0;
     delete g_norm_num_add1_bit1_helper;
@@ -1353,6 +1362,8 @@ name const & get_eq_symm_name() { return *g_eq_symm; }
 name const & get_eq_trans_name() { return *g_eq_trans; }
 name const & get_eq_of_heq_name() { return *g_eq_of_heq; }
 name const & get_eq_rec_heq_name() { return *g_eq_rec_heq; }
+name const & get_eq_true_intro_name() { return *g_eq_true_intro; }
+name const & get_eq_false_intro_name() { return *g_eq_false_intro; }
 name const & get_exists_elim_name() { return *g_exists_elim; }
 name const & get_format_name() { return *g_format; }
 name const & get_functor_name() { return *g_functor; }
@@ -1510,6 +1521,7 @@ name const & get_nat_one_lt_bit1_name() { return *g_nat_one_lt_bit1; }
 name const & get_nat_le_of_lt_name() { return *g_nat_le_of_lt; }
 name const & get_nat_le_refl_name() { return *g_nat_le_refl; }
 name const & get_neg_name() { return *g_neg; }
+name const & get_neq_of_not_iff_name() { return *g_neq_of_not_iff; }
 name const & get_norm_num_add1_name() { return *g_norm_num_add1; }
 name const & get_norm_num_add1_bit0_name() { return *g_norm_num_add1_bit0; }
 name const & get_norm_num_add1_bit1_helper_name() { return *g_norm_num_add1_bit1_helper; }

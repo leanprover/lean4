@@ -360,12 +360,6 @@ type_context mk_type_context_for(vm_obj const & s, vm_obj const & m) {
     return mk_type_context_for(to_tactic_state(s), to_transparency_mode(m));
 }
 
-formatter mk_formatter_for(tactic_state const & s) {
-    type_context ctx         = mk_type_context_for(s);
-    formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
-    return fmtf(s.env(), s.get_options(), ctx);
-}
-
 vm_obj tactic_infer_type(vm_obj const & e, vm_obj const & s0) {
     tactic_state const & s = to_tactic_state(s0);
     type_context ctx       = mk_type_context_for(s);

@@ -62,14 +62,18 @@ vm_obj cc_state_mk_using_hs(vm_obj const & _s) {
 
 vm_obj cc_state_pp(vm_obj const & ccs, vm_obj const & _s) {
     tactic_state const & s   = to_tactic_state(_s);
-    formatter fmt            = mk_formatter_for(s);
+    type_context ctx         = mk_type_context_for(s);
+    formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
+    formatter fmt            = fmtf(s.env(), s.get_options(), ctx);
     format r                 = to_cc_state(ccs).pp_eqcs(fmt);
     return mk_tactic_success(to_obj(r), s);
 }
 
 vm_obj cc_state_pp_eqc(vm_obj const & ccs, vm_obj const & e, vm_obj const & _s) {
     tactic_state const & s   = to_tactic_state(_s);
-    formatter fmt            = mk_formatter_for(s);
+    type_context ctx         = mk_type_context_for(s);
+    formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
+    formatter fmt            = fmtf(s.env(), s.get_options(), ctx);
     format r                 = to_cc_state(ccs).pp_eqc(fmt, to_expr(e));
     return mk_tactic_success(to_obj(r), s);
 }

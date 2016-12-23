@@ -940,6 +940,17 @@ optional<expr> congruence_closure::get_heq_proof(expr const & e1, expr const & e
     return get_eq_proof_core(e1, e2, true);
 }
 
+optional<expr> congruence_closure::get_proof(expr const & e1, expr const & e2) const {
+    auto n1 = get_entry(e1);
+    if (!n1) return none_expr();
+    if (!has_heq_proofs(n1->m_root))
+        return get_eq_proof(e1, e2);
+    else if (m_ctx.relaxed_is_def_eq(m_ctx.infer(e1), m_ctx.infer(e2)))
+        return get_eq_proof(e1, e2);
+    else
+        return get_heq_proof(e1, e2);
+}
+
 void congruence_closure::push_subsingleton_eq(expr const & a, expr const & b) {
     expr A = m_ctx.infer(a);
     expr B = m_ctx.infer(b);

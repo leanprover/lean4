@@ -91,6 +91,7 @@ class congruence_closure {
     typedef rb_map<expr, expr, expr_quick_cmp>           subsingleton_reprs;
     typedef std::tuple<expr, expr, expr, bool>           todo_entry;
 
+public:
     class state {
         entries            m_entries;
         parents            m_parents;
@@ -113,10 +114,12 @@ class congruence_closure {
         unsigned get_mt(expr const & e) const;
         bool is_congr_root(expr const & e) const;
         bool check_invariant() const;
+        bool inconsistent() const { return m_inconsistent; }
         format pp_eqc(formatter const & fmt, expr const & e) const;
         format pp_eqcs(formatter const & fmt) const;
     };
 
+private:
     type_context &        m_ctx;
     state &               m_state;
     buffer<todo_entry>    m_todo;
@@ -162,8 +165,6 @@ class congruence_closure {
     expr mk_congr_proof(expr const & lhs, expr const & rhs, bool heq_proofs) const;
     expr mk_proof(expr const & lhs, expr const & rhs, expr const & H, bool heq_proofs) const;
     optional<expr> get_eq_proof_core(expr const & e1, expr const & e2, bool as_heq) const;
-    optional<expr> get_heq_proof(expr const & e1, expr const & e2) const;
-    optional<expr> get_eq_proof(expr const & e1, expr const & e2) const;
     void push_subsingleton_eq(expr const & a, expr const & b);
     void check_new_subsingleton_eq(expr const & old_root, expr const & new_root);
     void propagate_no_confusion_eq(expr const & e1, expr const & e2);
@@ -209,6 +210,10 @@ public:
     expr get_root(expr const & e) const { return m_state.get_root(e); }
     expr get_next(expr const & e) const { return m_state.get_next(e); }
     bool is_congr_root(expr const & e) const { return m_state.is_congr_root(e); }
+
+    optional<expr> get_heq_proof(expr const & e1, expr const & e2) const;
+    optional<expr> get_eq_proof(expr const & e1, expr const & e2) const;
+    optional<expr> get_proof(expr const & e1, expr const & e2) const;
 
     bool check_invariant() const { return m_state.check_invariant(); }
 };

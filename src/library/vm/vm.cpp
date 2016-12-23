@@ -686,7 +686,7 @@ void vm_instr::serialize(serializer & s, std::function<name(unsigned)> const & i
         s << m_pc[1];
         break;
     case opcode::BuiltinCases:
-        s << m_cases_idx;
+        s << idx2name(m_cases_idx);
         // continue on CasesN
     case opcode::CasesN:
         s << m_npcs[0];
@@ -759,7 +759,7 @@ static vm_instr read_vm_instr(deserializer & d) {
         return mk_casesn_instr(pcs.size(), pcs.data());
     }
     case opcode::BuiltinCases: {
-        idx = d.read_unsigned();
+        idx = get_vm_index(read_name(d));
         buffer<unsigned> pcs;
         read_cases_pcs(d, pcs);
         return mk_builtin_cases_instr(idx, pcs.size(), pcs.data());

@@ -109,6 +109,7 @@ public:
         friend class congruence_closure;
         bool check_eqc(expr const & e) const;
     public:
+        void get_roots(buffer<expr> & roots) const;
         expr get_root(expr const & e) const;
         expr get_next(expr const & e) const;
         unsigned get_mt(expr const & e) const;

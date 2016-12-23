@@ -22,6 +22,7 @@ struct congr_lemma_key {
     expr     m_fn;
     unsigned m_nargs;
     unsigned m_hash;
+    congr_lemma_key():m_nargs(0), m_hash(0) {}
     congr_lemma_key(expr const & fn, unsigned nargs):
         m_fn(fn), m_nargs(nargs),
         m_hash(hash(fn.hash(), nargs)) {}
@@ -153,6 +154,13 @@ expr congruence_closure::state::get_root(expr const & e) const {
     } else {
         return e;
     }
+}
+
+void congruence_closure::state::get_roots(buffer<expr> & roots) const {
+    m_entries.for_each([&](expr const & k, entry const & n) {
+            if (k == n.m_root)
+                roots.push_back(k);
+        });
 }
 
 expr congruence_closure::state::get_next(expr const & e) const {
@@ -1210,6 +1218,20 @@ bool congruence_closure::proved(expr const & e) const {
     return is_eqv(e, mk_true());
 }
 
+void congruence_closure::internalize(expr const & e, bool toplevel) {
+    flet<congruence_closure *> set_cc(g_cc, this);
+    bool to_propagate = false; // We don't need to mark units for propagation
+    internalize_core(e, toplevel, to_propagate);
+    process_todo(none_expr());
+}
+
+void congruence_closure::internalize(expr const & e) {
+    if (m_ctx.is_prop(e))
+        internalize(e, true);
+    else
+        internalize(e, false);
+}
+
 bool congruence_closure::state::check_eqc(expr const & e) const {
     expr root     = get_root(e);
     unsigned size = 0;
@@ -1258,10 +1280,7 @@ format congruence_closure::state::pp_eqc(formatter const & fmt, expr const & e) 
 
 format congruence_closure::state::pp_eqcs(formatter const & fmt) const {
     buffer<expr> roots;
-    m_entries.for_each([&](expr const & k, entry const & n) {
-            if (k == n.m_root)
-                roots.push_back(k);
-        });
+    get_roots(roots);
     format r;
     bool first = true;
     for (expr const & root : roots) {

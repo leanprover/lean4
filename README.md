@@ -20,7 +20,6 @@ About
 - [Theorem Proving in Lean](https://leanprover.github.io/theorem_proving_in_lean/index.html)
 - [Standard Library](library/library.md)
 - [Emacs Mode](src/emacs/README.md)
-- [Short Tutorial](doc/lean/tutorial.org)
 - For HoTT mode, please use [Lean2](https://github.com/leanprover/lean2).
 
 Requirements

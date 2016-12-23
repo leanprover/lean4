@@ -900,15 +900,15 @@ struct vm_decls : public environment_extension {
     name                            m_monitor;
 
     vm_decls() {
+        g_vm_cases_builtins->for_each([&](name const & n, std::tuple<char const *, vm_cases_function> const & p) {
+                unsigned idx = get_vm_index(n);
+                m_cases.insert(idx, std::get<1>(p));
+            });
         g_vm_builtins->for_each([&](name const & n, std::tuple<unsigned, char const *, vm_function> const & p) {
                 add_core(vm_decl(n, get_vm_index(n), std::get<0>(p), std::get<2>(p)));
             });
         g_vm_cbuiltins->for_each([&](name const & n, std::tuple<unsigned, char const *, vm_cfunction> const & p) {
                 add_core(vm_decl(n, get_vm_index(n), std::get<0>(p), std::get<2>(p)));
-            });
-        g_vm_cases_builtins->for_each([&](name const & n, std::tuple<char const *, vm_cases_function> const & p) {
-                unsigned idx = get_vm_index(n);
-                m_cases.insert(idx, std::get<1>(p));
             });
     }
 

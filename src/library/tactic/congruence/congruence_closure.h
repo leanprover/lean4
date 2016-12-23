@@ -124,10 +124,9 @@ public:
         config             m_config;
         friend class congruence_closure;
         bool check_eqc(expr const & e) const;
+        void mk_entry_core(expr const & e, bool to_propagate, bool interpreted, bool constructor);
     public:
-        state(name_set const & ho_fns = name_set(), config const & cfg = config()):
-            m_ho_fns(ho_fns),
-            m_config(cfg) {}
+        state(name_set const & ho_fns = name_set(), config const & cfg = config());
         void get_roots(buffer<expr> & roots) const;
         expr get_root(expr const & e) const;
         expr get_next(expr const & e) const;
@@ -165,7 +164,6 @@ private:
     void add_congruence_table(expr const & e);
     void check_eq_true(symm_congr_key const & k);
     void add_symm_congruence_table(expr const & e);
-    void mk_entry_core(expr const & e, bool to_propagate, bool interpreted, bool constructor);
     void mk_entry_core(expr const & e, bool to_propagate);
     void mk_entry(expr const & e, bool to_propagate);
     void internalize_core(expr const & e, bool toplevel, bool to_propagate);

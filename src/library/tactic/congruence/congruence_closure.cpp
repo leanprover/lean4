@@ -500,7 +500,13 @@ void congruence_closure::add_symm_congruence_table(expr const & e) {
     check_eq_true(k);
 }
 
-void congruence_closure::mk_entry_core(expr const & e, bool to_propagate, bool interpreted, bool constructor) {
+congruence_closure::state::state(name_set const & ho_fns, config const & cfg):
+    m_ho_fns(ho_fns), m_config(cfg) {
+    mk_entry_core(mk_true(), false, true, false);
+    mk_entry_core(mk_false(), false, true, false);
+}
+
+void congruence_closure::state::mk_entry_core(expr const & e, bool to_propagate, bool interpreted, bool constructor) {
     lean_assert(!get_entry(e));
     entry n;
     n.m_next         = e;
@@ -512,15 +518,15 @@ void congruence_closure::mk_entry_core(expr const & e, bool to_propagate, bool i
     n.m_constructor  = constructor;
     n.m_to_propagate = to_propagate;
     n.m_heq_proofs   = false;
-    n.m_mt           = m_state.m_gmt;
-    m_state.m_entries.insert(e, n);
-    process_subsingleton_elem(e);
+    n.m_mt           = m_gmt;
+    m_entries.insert(e, n);
 }
 
 void congruence_closure::mk_entry_core(expr const & e, bool to_propagate) {
     bool interpreted = false;
     bool constructor = static_cast<bool>(is_constructor_app(env(), e));
-    return mk_entry_core(e, to_propagate, interpreted, constructor);
+    m_state.mk_entry_core(e, to_propagate, interpreted, constructor);
+    process_subsingleton_elem(e);
 }
 
 void congruence_closure::mk_entry(expr const & e, bool to_propagate) {

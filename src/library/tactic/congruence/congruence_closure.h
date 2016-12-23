@@ -95,7 +95,8 @@ public:
     struct config {
         unsigned m_ignore_instances:1;
         unsigned m_values:1;
-        config() { m_ignore_instances = true; m_values = true; }
+        unsigned m_all_ho:1;
+        config() { m_ignore_instances = true; m_values = true; m_all_ho = false; }
     };
 
     class state {
@@ -112,11 +113,21 @@ public:
         short              m_froze_partitions{false};
         short              m_inconsistent{false};
         unsigned           m_gmt{0};
+        /** Only for constant functions in m_ho_fns, we add the extra occurrences discussed in
+            the paper "Congruence Closure in Intensional Type Theory". The idea is to avoid
+            the quadratic number of entries in the parent occurrences data-structures,
+            and avoid the creation of entries for partial applications. For example, given
+            (@add nat nat_has_add a b), it seems wasteful to create entries for
+            (@add nat), (@add nat nat_has_add) and (@nat nat_has_add a).
+            This set is ignore if m_config.m_all_ho is true. */
+        name_set           m_ho_fns;
         config             m_config;
         friend class congruence_closure;
         bool check_eqc(expr const & e) const;
     public:
-        state(config const & cfg = config()):m_config(cfg) {}
+        state(name_set const & ho_fns = name_set(), config const & cfg = config()):
+            m_ho_fns(ho_fns),
+            m_config(cfg) {}
         void get_roots(buffer<expr> & roots) const;
         expr get_root(expr const & e) const;
         expr get_next(expr const & e) const;

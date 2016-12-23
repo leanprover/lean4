@@ -620,12 +620,31 @@ void congruence_closure::internalize_core(expr const & e, bool toplevel, bool to
             add_symm_congruence_table(e);
         } else if (auto lemma = mk_ext_congr_lemma(e)) {
             bool symm_table = false;
-            if (m_state.m_config.m_ignore_instances) {
-                buffer<expr> apps;
-                expr const & fn = get_app_apps(e, apps);
+            buffer<expr> apps;
+            expr const & fn = get_app_apps(e, apps);
+            lean_assert(is_app(apps.back(), e));
+            list<param_info> pinfos;
+            if (m_state.m_config.m_ignore_instances)
+                pinfos = get_fun_info(m_ctx, fn, apps.size()).get_params_info();
+            if (!m_state.m_config.m_all_ho && is_constant(fn) && !m_state.m_ho_fns.contains(const_name(fn))) {
+                for (unsigned i = 0; i < apps.size(); i++) {
+                    expr const & arg = app_arg(apps[i]);
+                    add_occurrence(e, arg, symm_table);
+                    if (pinfos && head(pinfos).is_inst_implicit()) {
+                        /* We do not recurse on instances when m_state.m_config.m_ignore_instances is true. */
+                        mk_entry_core(arg, to_propagate);
+                    } else {
+                        internalize_core(arg, toplevel, to_propagate);
+                    }
+                    if (pinfos) pinfos = tail(pinfos);
+                }
+                internalize_core(fn, toplevel, to_propagate);
+                add_occurrence(e, fn, symm_table);
+                add_congruence_table(e);
+            } else {
+                /* Expensive case where we store a quadratic number of occurrences,
+                   as described in the paper "Congruence Closure in Internsional Type Theory" */
                 lean_assert(is_app(apps.back(), e));
-                fun_info info   = get_fun_info(m_ctx, fn, apps.size());
-                auto it         = info.get_params_info();
                 for (unsigned i = 0; i < apps.size(); i++) {
                     expr const & curr = apps[i];
                     lean_assert(is_app(curr));
@@ -635,7 +654,7 @@ void congruence_closure::internalize_core(expr const & e, bool toplevel, bool to
                         add_occurrence(apps[j], curr_arg, symm_table);
                         add_occurrence(apps[j], curr_fn, symm_table);
                     }
-                    if (it && head(it).is_inst_implicit()) {
+                    if (pinfos && head(pinfos).is_inst_implicit()) {
                         /* We do not recurse on instances when m_state.m_config.m_ignore_instances is true. */
                         mk_entry_core(curr_arg, to_propagate);
                         mk_entry_core(curr_fn, to_propagate);
@@ -643,19 +662,9 @@ void congruence_closure::internalize_core(expr const & e, bool toplevel, bool to
                         internalize_core(curr_arg, toplevel, to_propagate);
                         mk_entry_core(curr_fn, to_propagate);
                     }
-                    if (it) it = tail(it);
+                    if (pinfos) pinfos = tail(pinfos);
                     add_congruence_table(curr);
                 }
-            } else {
-                internalize_core(app_fn(e), toplevel, to_propagate);
-                internalize_core(app_arg(e), toplevel, to_propagate);
-                expr it = e;
-                while (is_app(it)) {
-                    add_occurrence(e, app_fn(it), symm_table);
-                    add_occurrence(e, app_arg(it), symm_table);
-                    it = app_fn(it);
-                }
-                add_congruence_table(e);
             }
         }
         apply_simple_eqvs(e);

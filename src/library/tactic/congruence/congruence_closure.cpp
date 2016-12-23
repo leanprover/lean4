@@ -1287,10 +1287,10 @@ format congruence_closure::state::pp_eqcs(formatter const & fmt) const {
     format r;
     bool first = true;
     for (expr const & root : roots) {
-        if (first) first = false; r += line();
+        if (first) first = false; else r += comma() + line();
         r += pp_eqc(fmt, root);
     }
-    return r;
+    return bracket("{", group(r), "}");
 }
 
 void initialize_congruence_closure() {

@@ -12,6 +12,9 @@ def string := list char
 namespace string
 @[pattern] def empty : string := list.nil
 
+instance : inhabited string :=
+⟨empty⟩
+
 @[pattern] def str : char → string → string := list.cons
 
 def concat (a b : string) : string :=

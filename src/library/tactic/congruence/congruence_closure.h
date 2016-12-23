@@ -92,6 +92,12 @@ class congruence_closure {
     typedef std::tuple<expr, expr, expr, bool>           todo_entry;
 
 public:
+    struct config {
+        unsigned m_ignore_instances:1;
+        unsigned m_values:1;
+        config() { m_ignore_instances = true; m_values = true; }
+    };
+
     class state {
         entries            m_entries;
         parents            m_parents;
@@ -106,9 +112,11 @@ public:
         short              m_froze_partitions{false};
         short              m_inconsistent{false};
         unsigned           m_gmt{0};
+        config             m_config;
         friend class congruence_closure;
         bool check_eqc(expr const & e) const;
     public:
+        state(config const & cfg = config()):m_config(cfg) {}
         void get_roots(buffer<expr> & roots) const;
         expr get_root(expr const & e) const;
         expr get_next(expr const & e) const;

@@ -193,6 +193,10 @@ optional<char> to_char(expr const & e) {
     }
 }
 
+bool is_char(expr const & e) {
+    return static_cast<bool>(to_char(e));
+}
+
 static bool append_char(expr const & e, std::string & r) {
     if (auto c = to_char(e)) {
         r.push_back(*c);
@@ -232,5 +236,10 @@ optional<std::string> to_string(expr const & e) {
             return optional<std::string>();
         }
     }
+}
+
+bool is_string(expr const & e) {
+    /* TODO(Leo): optimize if needed */
+    return static_cast<bool>(to_string(e));
 }
 }

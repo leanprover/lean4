@@ -8,7 +8,10 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include "library/util.h"
 #include "library/constants.h"
+#include "library/num.h"
+#include "library/string.h"
 #include "library/trace.h"
+#include "library/fun_info.h"
 #include "library/app_builder.h"
 #include "library/defeq_canonizer.h"
 #include "library/tactic/congruence/congruence_closure.h"
@@ -534,6 +537,26 @@ void congruence_closure::mk_entry(expr const & e, bool to_propagate) {
     mk_entry_core(e, to_propagate);
 }
 
+/** Return true if 'e' represents a value (numerial, character of string).
+    TODO(Leo): move this code to a different place. */
+static bool is_value(expr const & e) {
+    return is_num(e) || is_char(e) || is_string(e);
+}
+
+/** Given (f a b c), store in r, (f a), (f a b), (f a b c), and return f.
+    Remark: this procedure is very similar to get_app_args.
+    TODO(Leo): move this code to a differen place. */
+static expr const & get_app_apps(expr const & e, buffer<expr> & r) {
+    unsigned sz = r.size();
+    expr const * it = &e;
+    while (is_app(*it)) {
+        r.push_back(*it);
+        it = &(app_fn(*it));
+    }
+    std::reverse(r.begin() + sz, r.end());
+    return *it;
+}
+
 void congruence_closure::internalize_core(expr const & e, bool toplevel, bool to_propagate) {
     lean_assert(closed(e));
     /* We allow metavariables after partitions have been frozen. */
@@ -574,6 +597,10 @@ void congruence_closure::internalize_core(expr const & e, bool toplevel, bool to
     case expr_kind::App: {
         bool is_lapp = is_logical_app(e);
         mk_entry_core(e, to_propagate && !is_lapp);
+        if (m_state.m_config.m_values && is_value(e)) {
+            /* we treat values as atomic symbols */
+            return;
+        }
         if (toplevel) {
             if (is_lapp) {
                 to_propagate = true; // we must propagate the children of a top-level logical app (or, and, iff, ite)
@@ -592,16 +619,44 @@ void congruence_closure::internalize_core(expr const & e, bool toplevel, bool to
             add_occurrence(e, rhs, symm_table);
             add_symm_congruence_table(e);
         } else if (auto lemma = mk_ext_congr_lemma(e)) {
-            internalize_core(app_fn(e), toplevel, to_propagate);
-            internalize_core(app_arg(e), toplevel, to_propagate);
-            expr it = e;
             bool symm_table = false;
-            while (is_app(it)) {
-                add_occurrence(e, app_fn(it), symm_table);
-                add_occurrence(e, app_arg(it), symm_table);
-                it = app_fn(it);
+            if (m_state.m_config.m_ignore_instances) {
+                buffer<expr> apps;
+                expr const & fn = get_app_apps(e, apps);
+                lean_assert(is_app(apps.back(), e));
+                fun_info info   = get_fun_info(m_ctx, fn, apps.size());
+                auto it         = info.get_params_info();
+                for (unsigned i = 0; i < apps.size(); i++) {
+                    expr const & curr = apps[i];
+                    lean_assert(is_app(curr));
+                    expr const & curr_arg  = app_arg(curr);
+                    expr const & curr_fn   = app_fn(curr);
+                    for (unsigned j = i; j < apps.size(); j++) {
+                        add_occurrence(apps[j], curr_arg, symm_table);
+                        add_occurrence(apps[j], curr_fn, symm_table);
+                    }
+                    if (it && head(it).is_inst_implicit()) {
+                        /* We do not recurse on instances when m_state.m_config.m_ignore_instances is true. */
+                        mk_entry_core(curr_arg, to_propagate);
+                        mk_entry_core(curr_fn, to_propagate);
+                    } else {
+                        internalize_core(curr_arg, toplevel, to_propagate);
+                        mk_entry_core(curr_fn, to_propagate);
+                    }
+                    if (it) it = tail(it);
+                    add_congruence_table(curr);
+                }
+            } else {
+                internalize_core(app_fn(e), toplevel, to_propagate);
+                internalize_core(app_arg(e), toplevel, to_propagate);
+                expr it = e;
+                while (is_app(it)) {
+                    add_occurrence(e, app_fn(it), symm_table);
+                    add_occurrence(e, app_arg(it), symm_table);
+                    it = app_fn(it);
+                }
+                add_congruence_table(e);
             }
-            add_congruence_table(e);
         }
         apply_simple_eqvs(e);
         break;

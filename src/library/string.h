@@ -16,12 +16,14 @@ expr from_string(std::string const & s);
 /** \brief If the given expression encodes a string, then convert it back to a string.
     \see from_string */
 optional<std::string> to_string(expr const & e);
+bool is_string(expr const & e);
 
 bool is_string_macro(expr const & e);
 /** \brief Expand string macro if 'e' is a string macro */
 optional<expr> expand_string_macro(expr const & e);
 
 optional<char> to_char(expr const & e);
+bool is_char(expr const & e);
 
 format pp_string_literal(std::string const & s);
 format pp_char_literal(char c);

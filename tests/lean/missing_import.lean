@@ -1,1 +1,3 @@
-import does.not.exist
+import does.not.exist data.bitvec
+
+print bitvec

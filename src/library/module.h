@@ -52,14 +52,21 @@ std::vector<module_name> get_curr_module_imports(environment const & env);
 /** \brief Return an environment based on \c env, where all modules in \c modules are imported.
     Modules included directly or indirectly by them are also imported.
     The environment \c env is usually an empty environment.
-
-    If \c keep_proofs is false, then the proof of the imported theorems is discarded after being
-    checked. The idea is to save memory.
 */
 environment
 import_modules(environment const & env,
                std::string const & current_mod, std::vector<module_name> const & ref,
                module_loader const & mod_ldr);
+
+struct import_error {
+    module_id m_mod;
+    module_name m_import;
+    std::exception_ptr m_ex;
+};
+environment
+import_modules(environment const & env,
+               std::string const & current_mod, std::vector<module_name> const & ref,
+               module_loader const & mod_ldr, buffer<import_error> & errors);
 
 /** \brief Return the .olean file where decl_name was defined. The result is none if the declaration
     was not defined in an imported file. */

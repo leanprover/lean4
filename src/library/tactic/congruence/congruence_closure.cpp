@@ -18,65 +18,68 @@ namespace lean {
    for congruence_closure::congr_key_cmp */
 LEAN_THREAD_PTR(congruence_closure, g_cc);
 
-struct congr_lemma_key {
+struct ext_congr_lemma_key {
     expr     m_fn;
     unsigned m_nargs;
     unsigned m_hash;
-    congr_lemma_key():m_nargs(0), m_hash(0) {}
-    congr_lemma_key(expr const & fn, unsigned nargs):
+    ext_congr_lemma_key():m_nargs(0), m_hash(0) {}
+    ext_congr_lemma_key(expr const & fn, unsigned nargs):
         m_fn(fn), m_nargs(nargs),
         m_hash(hash(fn.hash(), nargs)) {}
 };
 
-struct congr_lemma_key_hash_fn {
-    unsigned operator()(congr_lemma_key const & k) const { return k.m_hash; }
+struct ext_congr_lemma_key_hash_fn {
+    unsigned operator()(ext_congr_lemma_key const & k) const { return k.m_hash; }
 };
 
-struct congr_lemma_key_eq_fn {
-    bool operator()(congr_lemma_key const & k1, congr_lemma_key const & k2) const {
+struct ext_congr_lemma_key_eq_fn {
+    bool operator()(ext_congr_lemma_key const & k1, ext_congr_lemma_key const & k2) const {
         return k1.m_fn == k2.m_fn && k1.m_nargs == k2.m_nargs;
     }
 };
 
-typedef std::unordered_map<congr_lemma_key, optional<ext_congr_lemma>, congr_lemma_key_hash_fn, congr_lemma_key_eq_fn> congr_lemma_cache_data;
+typedef std::unordered_map<ext_congr_lemma_key,
+                           optional<ext_congr_lemma>,
+                           ext_congr_lemma_key_hash_fn,
+                           ext_congr_lemma_key_eq_fn> ext_congr_lemma_cache_data;
 
-struct congr_lemma_cache {
-    environment            m_env;
-    congr_lemma_cache_data m_cache[4];
+struct ext_congr_lemma_cache {
+    environment                m_env;
+    ext_congr_lemma_cache_data m_cache[4];
 
-    congr_lemma_cache(environment const & env):m_env(env) {
+    ext_congr_lemma_cache(environment const & env):m_env(env) {
     }
 };
 
-typedef std::shared_ptr<congr_lemma_cache> congr_lemma_cache_ptr;
+typedef std::shared_ptr<ext_congr_lemma_cache> ext_congr_lemma_cache_ptr;
 
-class congr_lemma_cache_manager {
-    congr_lemma_cache_ptr  m_cache_ptr;
+class ext_congr_lemma_cache_manager {
+    ext_congr_lemma_cache_ptr  m_cache_ptr;
     unsigned               m_reducibility_fingerprint;
     environment            m_env;
 
-    congr_lemma_cache_ptr release() {
+    ext_congr_lemma_cache_ptr release() {
         auto c = m_cache_ptr;
         m_cache_ptr.reset();
         return c;
     }
 
 public:
-    congr_lemma_cache_manager() {}
+    ext_congr_lemma_cache_manager() {}
 
-    congr_lemma_cache_ptr mk(environment const & env) {
+    ext_congr_lemma_cache_ptr mk(environment const & env) {
         if (!m_cache_ptr)
-            return std::make_shared<congr_lemma_cache>(env);
+            return std::make_shared<ext_congr_lemma_cache>(env);
         if (is_eqp(env, m_env))
             return release();
         if (!env.is_descendant(m_env) ||
             get_reducibility_fingerprint(env) != m_reducibility_fingerprint)
-            return std::make_shared<congr_lemma_cache>(env);
+            return std::make_shared<ext_congr_lemma_cache>(env);
         m_cache_ptr->m_env     = env;
         return release();
     }
 
-    void recycle(congr_lemma_cache_ptr const & ptr) {
+    void recycle(ext_congr_lemma_cache_ptr const & ptr) {
         m_cache_ptr = ptr;
         if (!is_eqp(ptr->m_env, m_env)) {
             m_env = ptr->m_env;
@@ -85,7 +88,7 @@ public:
     }
 };
 
-MK_THREAD_LOCAL_GET_DEF(congr_lemma_cache_manager, get_clcm);
+MK_THREAD_LOCAL_GET_DEF(ext_congr_lemma_cache_manager, get_clcm);
 
 congruence_closure::congruence_closure(type_context & ctx, state & s):
     m_ctx(ctx), m_state(s), m_cache_ptr(get_clcm().mk(ctx.env())), m_mode(ctx.mode()),
@@ -98,11 +101,11 @@ congruence_closure::~congruence_closure() {
     get_clcm().recycle(m_cache_ptr);
 }
 
-inline congr_lemma_cache_ptr const & get_cache_ptr(congruence_closure const & cc) {
+inline ext_congr_lemma_cache_ptr const & get_cache_ptr(congruence_closure const & cc) {
     return cc.m_cache_ptr;
 }
 
-inline congr_lemma_cache_data & get_cache(congruence_closure const & cc) {
+inline ext_congr_lemma_cache_data & get_cache(congruence_closure const & cc) {
     return get_cache_ptr(cc)->m_cache[static_cast<unsigned>(cc.mode())];
 }
 
@@ -129,7 +132,7 @@ optional<ext_congr_lemma> congruence_closure::mk_ext_congr_lemma(expr const & e)
     auto & cache        = get_cache(*this);
 
     /* Check if (fn, nargs) is in the cache */
-    congr_lemma_key key1(fn, nargs);
+    ext_congr_lemma_key key1(fn, nargs);
     auto it1 = cache.find(key1);
     if (it1 != cache.end())
         return it1->second;

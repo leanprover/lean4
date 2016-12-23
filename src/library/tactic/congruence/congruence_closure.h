@@ -14,8 +14,8 @@ Author: Leonardo de Moura
 namespace lean {
 struct ext_congr_lemma;
 
-class congr_lemma_cache;
-typedef std::shared_ptr<congr_lemma_cache> congr_lemma_cache_ptr;
+struct ext_congr_lemma_cache;
+typedef std::shared_ptr<ext_congr_lemma_cache> ext_congr_lemma_cache_ptr;
 
 class congruence_closure {
     /* Key for the equality congruence table. */
@@ -121,14 +121,14 @@ public:
     };
 
 private:
-    type_context &        m_ctx;
-    state &               m_state;
-    buffer<todo_entry>    m_todo;
-    congr_lemma_cache_ptr m_cache_ptr;
-    transparency_mode     m_mode;
-    relation_info_getter  m_rel_info_getter;
-    symm_info_getter      m_symm_info_getter;
-    refl_info_getter      m_refl_info_getter;
+    type_context &            m_ctx;
+    state &                   m_state;
+    buffer<todo_entry>        m_todo;
+    ext_congr_lemma_cache_ptr m_cache_ptr;
+    transparency_mode         m_mode;
+    relation_info_getter      m_rel_info_getter;
+    symm_info_getter          m_symm_info_getter;
+    refl_info_getter          m_refl_info_getter;
 
     entry const * get_entry(expr const & e) const { return m_state.m_entries.find(e); }
     int compare_symm(expr lhs1, expr rhs1, expr lhs2, expr rhs2) const;
@@ -176,7 +176,7 @@ private:
                       optional<expr> const & added_prop, bool heq_proof);
     bool check_eqc(expr const & e) const;
 
-    friend congr_lemma_cache_ptr const & get_cache_ptr(congruence_closure const & cc);
+    friend ext_congr_lemma_cache_ptr const & get_cache_ptr(congruence_closure const & cc);
 
 public:
     congruence_closure(type_context & ctx, state & s);

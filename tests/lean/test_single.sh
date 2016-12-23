@@ -22,11 +22,11 @@ fi
 
 echo "-- testing $f"
 "$LEAN" -Dpp.colors=false -Dpp.unicode=true -j0 "$ff" &> "$f.produced.out"
-sed "/warning: imported file uses 'sorry'/d" "$f.produced.out" > "$f.produced.out.tmp"
-sed "/warning: using 'sorry'/d" "$f.produced.out.tmp" > "$f.produced.out"
-sed "/failed to elaborate theorem/d" "$f.produced.out" > "$f.produced.out.tmp"
-sed "s|^$ff|$f|" "$f.produced.out.tmp" > "$f.produced.out"
-rm "$f.produced.out.tmp"
+sed -i 's|does\\not\\exist|does/not/exist|' "$f.produced.out"
+sed -i "/warning: imported file uses 'sorry'/d" "$f.produced.out"
+sed -i "/warning: using 'sorry'/d" "$f.produced.out"
+sed -i "/failed to elaborate theorem/d" "$f.produced.out"
+sed -i "s|^$ff|$f|" "$f.produced.out"
 if test -f "$f.expected.out"; then
     if diff --ignore-all-space -I "executing external script" "$f.produced.out" "$f.expected.out"; then
         echo "-- checked"

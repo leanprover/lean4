@@ -231,6 +231,7 @@ name const & get_nat_one_lt_bit0_name();
 name const & get_nat_one_lt_bit1_name();
 name const & get_nat_le_of_lt_name();
 name const & get_nat_le_refl_name();
+name const & get_ne_name();
 name const & get_neg_name();
 name const & get_neq_of_not_iff_name();
 name const & get_norm_num_add1_name();

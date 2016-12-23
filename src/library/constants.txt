@@ -224,6 +224,7 @@ nat.one_lt_bit0
 nat.one_lt_bit1
 nat.le_of_lt
 nat.le_refl
+ne
 neg
 neq_of_not_iff
 norm_num.add1

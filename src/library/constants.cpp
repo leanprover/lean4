@@ -229,6 +229,7 @@ name const * g_nat_one_lt_bit0 = nullptr;
 name const * g_nat_one_lt_bit1 = nullptr;
 name const * g_nat_le_of_lt = nullptr;
 name const * g_nat_le_refl = nullptr;
+name const * g_ne = nullptr;
 name const * g_neg = nullptr;
 name const * g_neq_of_not_iff = nullptr;
 name const * g_norm_num_add1 = nullptr;
@@ -659,6 +660,7 @@ void initialize_constants() {
     g_nat_one_lt_bit1 = new name{"nat", "one_lt_bit1"};
     g_nat_le_of_lt = new name{"nat", "le_of_lt"};
     g_nat_le_refl = new name{"nat", "le_refl"};
+    g_ne = new name{"ne"};
     g_neg = new name{"neg"};
     g_neq_of_not_iff = new name{"neq_of_not_iff"};
     g_norm_num_add1 = new name{"norm_num", "add1"};
@@ -1090,6 +1092,7 @@ void finalize_constants() {
     delete g_nat_one_lt_bit1;
     delete g_nat_le_of_lt;
     delete g_nat_le_refl;
+    delete g_ne;
     delete g_neg;
     delete g_neq_of_not_iff;
     delete g_norm_num_add1;
@@ -1520,6 +1523,7 @@ name const & get_nat_one_lt_bit0_name() { return *g_nat_one_lt_bit0; }
 name const & get_nat_one_lt_bit1_name() { return *g_nat_one_lt_bit1; }
 name const & get_nat_le_of_lt_name() { return *g_nat_le_of_lt; }
 name const & get_nat_le_refl_name() { return *g_nat_le_refl; }
+name const & get_ne_name() { return *g_ne; }
 name const & get_neg_name() { return *g_neg; }
 name const & get_neq_of_not_iff_name() { return *g_neq_of_not_iff; }
 name const & get_norm_num_add1_name() { return *g_norm_num_add1; }

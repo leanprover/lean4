@@ -1215,7 +1215,7 @@ void congruence_closure::add(expr const & type, expr const & proof) {
     flet<congruence_closure *> set_cc(g_cc, this);
     m_todo.clear();
     expr p      = type;
-    bool is_neg = is_not(type, p);
+    bool is_neg = is_not_or_ne(type, p);
     expr lhs, rhs;
     if (is_eq(type, lhs, rhs) || is_heq(type, lhs, rhs)) {
         if (is_neg) {

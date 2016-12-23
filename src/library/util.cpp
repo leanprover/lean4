@@ -740,16 +740,25 @@ bool is_or(expr const & e, expr & A, expr & B) {
 }
 
 bool is_not(expr const & e, expr & a) {
-    if (is_app(e)) {
-        expr const & f = app_fn(e);
-        if (!is_constant(f) || const_name(f) != get_not_name())
-            return false;
+    if (is_app_of(e, get_not_name(), 1)) {
         a = app_arg(e);
         return true;
-    } else if (is_pi(e)) {
-        if (!is_false(binding_body(e)))
-            return false;
+    } else if (is_pi(e) && is_false(binding_body(e))) {
         a = binding_domain(e);
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool is_not_or_ne(expr const & e, expr & a) {
+    if (is_not(e, a)) {
+        return true;
+    } else if (is_app_of(e, get_ne_name(), 3)) {
+        buffer<expr> args;
+        expr const & fn = get_app_args(e, args);
+        expr new_fn     = mk_constant(get_eq_name(), const_levels(fn));
+        a               = mk_app(new_fn, args);
         return true;
     } else {
         return false;

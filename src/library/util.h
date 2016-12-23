@@ -232,9 +232,11 @@ expr mk_false_rec(abstract_type_context & ctx, expr const & f, expr const & t);
 bool is_or(expr const & e);
 bool is_or(expr const & e, expr & A, expr & B);
 
-/** \brief Return true if \c e is of the form <tt>(not arg)</tt>, and store \c arg in \c a.
+/** \brief Return true if \c e is of the form <tt>(not arg)</tt> or <tt>arg -> false</tt>, and store \c arg in \c a.
      Return false otherwise */
 bool is_not(expr const & e, expr & a);
+/** \brief Extends is_not to handle (lhs ≠ rhs). In the new case, it stores (lhs = rhs) in \c a. */
+bool is_not_or_ne(expr const & e, expr & a);
 expr mk_not(expr const & e);
 
 /** \brief Create the term <tt>absurd e not_e : t</tt>. */

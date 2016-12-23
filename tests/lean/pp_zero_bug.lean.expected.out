@@ -1,0 +1,2 @@
+zero : Π {α : Type u_1} [_inst_1 : has_zero α], α
+zero : Π [_inst_1 : has_zero ℕ], ℕ

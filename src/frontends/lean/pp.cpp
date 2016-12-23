@@ -98,7 +98,7 @@ public:
                     return optional<unsigned>(); // just in case, it does not really happen in practice
                 r++;
                 it = &app_arg(*it);
-            } else if (is_constant(get_app_fn(*it), get_zero_name())) {
+            } else if (is_zero(get_app_fn(*it))) {
                 return optional<unsigned>(r);
             } else {
                 return optional<unsigned>();

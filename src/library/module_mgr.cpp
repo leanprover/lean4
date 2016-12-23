@@ -22,7 +22,7 @@ void module_mgr::mark_out_of_date(module_id const & id, buffer<module_id> & to_r
     for (auto & mod : m_modules) {
         if (!mod.second || mod.second->m_out_of_date) continue;
         for (auto & dep : mod.second->m_deps) {
-            if (dep.m_mod_info->m_mod == id) {
+            if (dep.m_id == id) {
                 mod.second->m_out_of_date = true;
                 to_rebuild.push_back(mod.first);
                 mark_out_of_date(mod.first, to_rebuild);
@@ -38,18 +38,22 @@ static module_loader mk_loader(module_id const & cur_mod, std::vector<module_inf
 
     buffer<module_info const *> to_process;
     for (auto & d : deps) {
-        deps_per_mod[cur_mod].push_back(d);
-        to_process.push_back(d.m_mod_info.get());
+        if (d.m_mod_info) {
+            deps_per_mod[cur_mod].push_back(d);
+            to_process.push_back(d.m_mod_info.get());
+        }
     }
     while (!to_process.empty()) {
-        auto & m = *to_process.back();
+        module_info const & m = *to_process.back();
         to_process.pop_back();
         if (deps_per_mod.count(m.m_mod)) continue;
 
         for (auto & d : m.m_deps) {
-            deps_per_mod[m.m_mod].push_back(d);
-            if (!deps_per_mod.count(d.m_mod_info->m_mod))
-                to_process.push_back(d.m_mod_info.get());
+            if (d.m_mod_info) {
+                deps_per_mod[m.m_mod].push_back(d);
+                if (!deps_per_mod.count(d.m_mod_info->m_mod))
+                    to_process.push_back(d.m_mod_info.get());
+            }
         }
     }
 
@@ -89,7 +93,9 @@ public:
 
     std::vector<generic_task_result> get_dependencies() override {
         std::vector<generic_task_result> deps;
-        for (auto & d : m_deps) deps.push_back(d.m_mod_info->m_result);
+        for (auto & d : m_deps)
+            if (d.m_mod_info)
+                deps.push_back(d.m_mod_info->m_result);
         return deps;
     }
 
@@ -132,7 +138,8 @@ public:
 
         // Write the olean files in the correct order, so that they have the right mtime.
         for (auto & d : m_mod->m_deps)
-            deps.push_back(d.m_mod_info->m_olean_task);
+            if (d.m_mod_info)
+                deps.push_back(d.m_mod_info->m_olean_task);
 
         deps.push_back(m_mod->m_result);
         if (auto res = m_mod->m_result.peek()) {

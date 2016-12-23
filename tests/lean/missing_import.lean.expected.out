@@ -1,0 +1,2 @@
+missing_import.lean:1:0: error: file 'does/not/exist' not found in the LEAN_PATH
+missing_import.lean:1:0: error: invalid import

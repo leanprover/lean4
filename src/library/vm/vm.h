@@ -828,7 +828,7 @@ environment add_native(environment const & env, name const & n, unsigned arity, 
 
 unsigned get_vm_index(name const & n);
 unsigned get_vm_index_bound();
-name const & get_vm_name(unsigned idx);
+name get_vm_name(unsigned idx);
 optional<name> find_vm_name(unsigned idx);
 
 /** \brief Reserve an index for the given function in the VM, the expression

@@ -3298,7 +3298,7 @@ public:
         return static_cast<unsigned>(m_idx2name.size());
     }
 
-    name const & get_name(unsigned idx) {
+    name get_name(unsigned idx) {
         shared_lock lock(m_mutex);
         lean_assert(idx < m_idx2name.size());
         return m_idx2name.at(idx);
@@ -3321,7 +3321,7 @@ unsigned get_vm_index(name const & n) {
 unsigned get_vm_index_bound() {
     return g_vm_index_manager->get_index_bound();
 }
-name const & get_vm_name(unsigned idx) {
+name get_vm_name(unsigned idx) {
     return g_vm_index_manager->get_name(idx);
 }
 optional<name> find_vm_name(unsigned idx) {

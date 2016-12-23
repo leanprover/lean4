@@ -29,11 +29,16 @@ public:
     during type inference.
 
     \remark This methods uses just higher-order pattern matching.
-*/
-expr mk_app(type_context & ctx, name const & c, unsigned nargs, expr const * args);
 
-inline expr mk_app(type_context & ctx, name const & c, std::initializer_list<expr> const & args) {
-    return mk_app(ctx, c, args.size(), args.begin());
+    \remark if the transparency mode is not provided, then mk_app will use Semireducible
+    if the ctx.mode() is Reducible or None.
+*/
+expr mk_app(type_context & ctx, name const & c, unsigned nargs, expr const * args,
+            optional<transparency_mode> const & md = optional<transparency_mode>());
+
+inline expr mk_app(type_context & ctx, name const & c, std::initializer_list<expr> const & args,
+                   optional<transparency_mode> const & md = optional<transparency_mode>()) {
+    return mk_app(ctx, c, args.size(), args.begin(), md);
 }
 
 inline expr mk_app(type_context & ctx, name const & c, expr const & a1) {

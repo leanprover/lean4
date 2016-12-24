@@ -965,8 +965,17 @@ expr congruence_closure::mk_proof(expr const & lhs, expr const & rhs, expr const
             R = *is_refl_relation(lhs, a, b);
             flip = false;
         }
-        expr a_eq_b        = *get_eq_proof(a, b);
-        expr a_R_b         = lift_from_eq(m_ctx, R, a_eq_b);
+        expr a_R_b;
+        if (R == get_eq_name()) {
+            a_R_b        = *get_eq_proof(a, b);
+        } else if (R == get_heq_name()) {
+            a_R_b        = *get_heq_proof(a, b);
+        } else {
+            /* TODO(Leo): the following code assumes R is homogeneous.
+               We should add support arbitrary heterogenous reflexive relations. */
+            expr a_eq_b  = *get_eq_proof(a, b);
+            a_R_b        = lift_from_eq(m_ctx, R, a_eq_b);
+        }
         expr a_R_b_eq_true = mk_eq_true_intro(m_ctx, a_R_b);
         if (flip)
             return mk_eq_symm(m_ctx, a_R_b_eq_true);

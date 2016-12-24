@@ -198,36 +198,58 @@ bool congruence_closure::state::is_congr_root(expr const & e) const {
     See paper: Congruence Closure for Intensional Type Theory. */
 static bool is_congruent(expr const & e1, expr const & e2) {
     lean_assert(is_app(e1) && is_app(e2));
-    /* Given e1 := f a,  e2 := g b */
-    expr f = app_fn(e1);
-    expr a = app_arg(e1);
-    expr g = app_fn(e2);
-    expr b = app_arg(e2);
-    if (g_cc->get_root(a) != g_cc->get_root(b)) {
-        /* a and b are not equivalent */
+    if (g_cc->get_entry(e1)->m_fo) {
+        buffer<expr> args1, args2;
+        expr const & f1 = get_app_args(e1, args1);
+        expr const & f2 = get_app_args(e2, args2);
+        if (args1.size() != args2.size()) return false;
+        for (unsigned i = 0; i < args1.size(); i++) {
+            if (g_cc->get_root(args1[i]) != g_cc->get_root(args2[i]))
+                return false;
+        }
+        if (f1 == f2) return true;
+        if (g_cc->get_root(f1) != g_cc->get_root(f2)) {
+            /* f1 and f2 are not equivalent */
+            return false;
+        }
+        type_context & ctx = g_cc->ctx();
+        if (ctx.is_def_eq(ctx.infer(f1), ctx.infer(f2))) {
+            /* f1 and f2 have the same type, then we can create a congruence proof for e1 == e2 */
+            return true;
+        }
+        return false;
+    } else {
+        /* Given e1 := f a,  e2 := g b */
+        expr f = app_fn(e1);
+        expr a = app_arg(e1);
+        expr g = app_fn(e2);
+        expr b = app_arg(e2);
+        if (g_cc->get_root(a) != g_cc->get_root(b)) {
+            /* a and b are not equivalent */
+            return false;
+        }
+        if (g_cc->get_root(f) != g_cc->get_root(g)) {
+            /* f and g are not equivalent */
+            return false;
+        }
+        type_context & ctx = g_cc->ctx();
+        if (ctx.is_def_eq(ctx.infer(f), ctx.infer(g))) {
+            /* Case 1: f and g have the same type, then we can create a congruence proof for f a == g b */
+            return true;
+        }
+        if (is_app(f) && is_app(g)) {
+            /* Case 2: f and g are congruent */
+            return is_congruent(f, g);
+        }
+        /*
+        f and g are not congruent nor they have the same type.
+        We can't generate a congruence proof in this case because the following lemma
+
+            hcongr : f1 == f2 -> a1 == a2 -> f1 a1 == f2 a2
+
+        is not provable. Remark: it is also not provable in MLTT, Coq and Agda (even if we assume UIP). */
         return false;
     }
-    if (g_cc->get_root(f) != g_cc->get_root(g)) {
-        /* f and g are not equivalent */
-        return false;
-    }
-    type_context & ctx = g_cc->ctx();
-    if (ctx.is_def_eq(ctx.infer(f), ctx.infer(g))) {
-        /* Case 1: f and g have the same type, then we can create a congruence proof for f a == g b */
-        return true;
-    }
-    if (is_app(f) && is_app(g)) {
-        /* Case 2: f and g are congruent */
-        return is_congruent(f, g);
-    }
-    /*
-      f and g are not congruent nor they have the same type.
-      We can't generate a congruence proof in this case because the following lemma
-
-          hcongr : f1 == f2 -> a1 == a2 -> f1 a1 == f2 a2
-
-      is not provable. Remark: it is also not provable in MLTT, Coq and Agda (even if we assume UIP). */
-    return false;
 }
 
 int congruence_closure::congr_key_cmp::operator()(congr_key const & k1, congr_key const & k2) const {
@@ -270,9 +292,20 @@ auto congruence_closure::mk_congr_key(expr const & e) const -> congr_key {
     lean_assert(is_app(e));
     congr_key k;
     k.m_expr = e;
-    expr const & f = app_fn(e);
-    expr const & a = app_arg(e);
-    k.m_hash = hash(get_root(f).hash(), get_root(a).hash());
+    if (get_entry(e)->m_fo) {
+        /* first-order case, where we do not consider all partial applications */
+        k.m_hash = get_root(app_arg(e)).hash();
+        expr const * it = &(app_fn(e));
+        while (is_app(*it)) {
+            k.m_hash = hash(k.m_hash, get_root(app_arg(*it)).hash());
+            it = &app_fn(*it);
+        }
+        k.m_hash = hash(k.m_hash, get_root(*it).hash());
+    } else {
+        expr const & f = app_fn(e);
+        expr const & a = app_arg(e);
+        k.m_hash = hash(get_root(f).hash(), get_root(a).hash());
+    }
     return k;
 }
 
@@ -507,7 +540,7 @@ congruence_closure::state::state(name_set const & ho_fns, config const & cfg):
 }
 
 void congruence_closure::state::mk_entry_core(expr const & e, bool to_propagate, bool interpreted, bool constructor) {
-    lean_assert(!get_entry(e));
+    lean_assert(m_entries.find(e) == nullptr);
     entry n;
     n.m_next         = e;
     n.m_root         = e;
@@ -519,6 +552,7 @@ void congruence_closure::state::mk_entry_core(expr const & e, bool to_propagate,
     n.m_to_propagate = to_propagate;
     n.m_heq_proofs   = false;
     n.m_mt           = m_gmt;
+    n.m_fo           = false;
     m_entries.insert(e, n);
 }
 
@@ -628,7 +662,8 @@ void congruence_closure::internalize_core(expr const & e, bool toplevel, bool to
             bool symm_table = false;
             buffer<expr> apps;
             expr const & fn = get_app_apps(e, apps);
-            lean_assert(is_app(apps.back(), e));
+            lean_assert(apps.size() > 0);
+            lean_assert(apps.back() == e);
             list<param_info> pinfos;
             if (m_state.m_config.m_ignore_instances)
                 pinfos = get_fun_info(m_ctx, fn, apps.size()).get_params_info();
@@ -638,7 +673,7 @@ void congruence_closure::internalize_core(expr const & e, bool toplevel, bool to
                     add_occurrence(e, arg, symm_table);
                     if (pinfos && head(pinfos).is_inst_implicit()) {
                         /* We do not recurse on instances when m_state.m_config.m_ignore_instances is true. */
-                        mk_entry_core(arg, to_propagate);
+                        mk_entry(arg, to_propagate);
                     } else {
                         internalize_core(arg, toplevel, to_propagate);
                     }
@@ -646,27 +681,29 @@ void congruence_closure::internalize_core(expr const & e, bool toplevel, bool to
                 }
                 internalize_core(fn, toplevel, to_propagate);
                 add_occurrence(e, fn, symm_table);
+                set_fo(e);
                 add_congruence_table(e);
             } else {
                 /* Expensive case where we store a quadratic number of occurrences,
                    as described in the paper "Congruence Closure in Internsional Type Theory" */
-                lean_assert(is_app(apps.back(), e));
                 for (unsigned i = 0; i < apps.size(); i++) {
                     expr const & curr = apps[i];
                     lean_assert(is_app(curr));
                     expr const & curr_arg  = app_arg(curr);
                     expr const & curr_fn   = app_fn(curr);
+                    if (i < apps.size() - 1)
+                        mk_entry(curr, to_propagate);
                     for (unsigned j = i; j < apps.size(); j++) {
                         add_occurrence(apps[j], curr_arg, symm_table);
                         add_occurrence(apps[j], curr_fn, symm_table);
                     }
                     if (pinfos && head(pinfos).is_inst_implicit()) {
                         /* We do not recurse on instances when m_state.m_config.m_ignore_instances is true. */
-                        mk_entry_core(curr_arg, to_propagate);
-                        mk_entry_core(curr_fn, to_propagate);
+                        mk_entry(curr_arg, to_propagate);
+                        mk_entry(curr_fn, to_propagate);
                     } else {
                         internalize_core(curr_arg, toplevel, to_propagate);
-                        mk_entry_core(curr_fn, to_propagate);
+                        mk_entry(curr_fn, to_propagate);
                     }
                     if (pinfos) pinfos = tail(pinfos);
                     add_congruence_table(curr);
@@ -747,6 +784,12 @@ void congruence_closure::update_mt(expr const & e) {
                 update_mt(p.m_expr);
             }
         });
+}
+
+void congruence_closure::set_fo(expr const & e) {
+    entry d = *get_entry(e);
+    d.m_fo  = true;
+    m_state.m_entries.insert(e, d);
 }
 
 bool congruence_closure::has_heq_proofs(expr const & root) const {

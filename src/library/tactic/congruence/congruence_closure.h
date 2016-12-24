@@ -58,6 +58,9 @@ class congruence_closure {
         /* m_heq_proofs == true iff some proofs in the equivalence class are based on heterogeneous equality.
            We represent equality and heterogeneous equality in a single equivalence class. */
         unsigned       m_heq_proofs:1;
+        /* If m_fo == true, then the expression associated with this entry is an application, and
+           we are using first-order approximation to encode it. That is, we ignore its partial applications. */
+        unsigned       m_fo:1;
         unsigned       m_size;           // number of elements in the equivalence class, it is meaningless if 'e' != m_root
         /* The field m_mt is used to implement the mod-time optimization introduce by the Simplify theorem prover.
            The basic idea is to introduce a counter gmt that records the number of heuristic instantiation that have
@@ -148,7 +151,6 @@ private:
     symm_info_getter          m_symm_info_getter;
     refl_info_getter          m_refl_info_getter;
 
-    entry const * get_entry(expr const & e) const { return m_state.m_entries.find(e); }
     int compare_symm(expr lhs1, expr rhs1, expr lhs2, expr rhs2) const;
     unsigned symm_hash(expr const & lhs, expr const & rhs) const;
     optional<name> is_binary_relation(expr const & e, expr & lhs, expr & rhs) const;
@@ -157,6 +159,7 @@ private:
     bool is_symm_relation(expr const & e);
     congr_key mk_congr_key(expr const & e) const;
     symm_congr_key mk_symm_congr_key(expr const & e) const;
+    void set_fo(expr const & e);
     bool is_logical_app(expr const & n);
     void process_subsingleton_elem(expr const & e);
     void apply_simple_eqvs(expr const & e);
@@ -233,6 +236,7 @@ public:
     optional<expr> get_eq_proof(expr const & e1, expr const & e2) const;
     optional<expr> get_proof(expr const & e1, expr const & e2) const;
 
+    entry const * get_entry(expr const & e) const { return m_state.m_entries.find(e); }
     bool check_invariant() const { return m_state.check_invariant(); }
 };
 

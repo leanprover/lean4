@@ -172,6 +172,7 @@ void initialize_congruence_tactics() {
     DECLARE_VM_BUILTIN(name({"cc_state", "add"}),              cc_state_add);
     DECLARE_VM_BUILTIN(name({"cc_state", "is_eqv"}),           cc_state_is_eqv);
     DECLARE_VM_BUILTIN(name({"cc_state", "is_not_eqv"}),       cc_state_is_not_eqv);
+    DECLARE_VM_BUILTIN(name({"cc_state", "inconsistent"}),     cc_state_inconsistent);
     DECLARE_VM_BUILTIN(name({"cc_state", "eqv_proof"}),        cc_state_eqv_proof);
 }
 

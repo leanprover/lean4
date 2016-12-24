@@ -13,14 +13,38 @@ meta constant cc_state.mk           : cc_state
 meta constant cc_state.mk_using_hs  : tactic cc_state
 meta constant cc_state.next         : cc_state → expr → expr
 meta constant cc_state.inconsistent : cc_state → bool
-meta constant cc_state.roots        : cc_state → list expr
+meta constant cc_state.roots_core   : cc_state → bool → list expr
 meta constant cc_state.root         : cc_state → expr → expr
 meta constant cc_state.mt           : cc_state → expr → nat
 meta constant cc_state.is_cg_root   : cc_state → expr → bool
 meta constant cc_state.pp_eqc       : cc_state → expr → tactic format
-meta constant cc_state.pp           : cc_state → tactic format
+meta constant cc_state.pp_core      : cc_state → bool → tactic format
 meta constant cc_state.internalize  : cc_state → expr → bool → tactic cc_state
 meta constant cc_state.add          : cc_state → expr → tactic cc_state
 meta constant cc_state.is_eqv       : cc_state → expr → expr → tactic bool
 meta constant cc_state.is_not_eqv   : cc_state → expr → expr → tactic bool
 meta constant cc_state.eqv_proof    : cc_state → expr → expr → tactic expr
+
+namespace cc_state
+
+meta def roots (s : cc_state) : list expr :=
+cc_state.roots_core s tt
+
+meta def pp (s : cc_state) : tactic format :=
+cc_state.pp_core s tt
+
+meta def eqc_of_core (s : cc_state) : expr → expr → list expr → list expr
+| e f r :=
+  let n := s^.next e in
+  if n = f then e::r else eqc_of_core n f (e::r)
+
+meta def eqc_of (s : cc_state) (e : expr) : list expr :=
+s^.eqc_of_core e e []
+
+meta def in_singlenton_eqc (s : cc_state) (e : expr) : bool :=
+to_bool (s^.next e = e)
+
+meta def eqc_size (s : cc_state) (e : expr) : nat :=
+(s^.eqc_of e)^.length
+
+end cc_state

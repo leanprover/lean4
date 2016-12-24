@@ -130,15 +130,16 @@ public:
         void mk_entry_core(expr const & e, bool to_propagate, bool interpreted, bool constructor);
     public:
         state(name_set const & ho_fns = name_set(), config const & cfg = config());
-        void get_roots(buffer<expr> & roots) const;
+        void get_roots(buffer<expr> & roots, bool nonsingleton_only = true) const;
         expr get_root(expr const & e) const;
         expr get_next(expr const & e) const;
         unsigned get_mt(expr const & e) const;
         bool is_congr_root(expr const & e) const;
         bool check_invariant() const;
         bool inconsistent() const { return m_inconsistent; }
+        bool in_singleton_eqc(expr const & e) const;
         format pp_eqc(formatter const & fmt, expr const & e) const;
-        format pp_eqcs(formatter const & fmt) const;
+        format pp_eqcs(formatter const & fmt, bool nonsingleton_only = true) const;
     };
 
 private:

@@ -60,12 +60,12 @@ vm_obj cc_state_mk_using_hs(vm_obj const & _s) {
     }
 }
 
-vm_obj cc_state_pp(vm_obj const & ccs, vm_obj const & _s) {
+vm_obj cc_state_pp_core(vm_obj const & ccs, vm_obj const & nonsingleton, vm_obj const & _s) {
     tactic_state const & s   = to_tactic_state(_s);
     type_context ctx         = mk_type_context_for(s);
     formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
     formatter fmt            = fmtf(s.env(), s.get_options(), ctx);
-    format r                 = to_cc_state(ccs).pp_eqcs(fmt);
+    format r                 = to_cc_state(ccs).pp_eqcs(fmt, to_bool(nonsingleton));
     return mk_tactic_success(to_obj(r), s);
 }
 
@@ -90,9 +90,9 @@ vm_obj cc_state_is_cg_root(vm_obj const & ccs, vm_obj const & e) {
     return mk_vm_bool(to_cc_state(ccs).is_congr_root(to_expr(e)));
 }
 
-vm_obj cc_state_roots(vm_obj const & ccs) {
+vm_obj cc_state_roots_core(vm_obj const & ccs, vm_obj const & nonsingleton) {
     buffer<expr> roots;
-    to_cc_state(ccs).get_roots(roots);
+    to_cc_state(ccs).get_roots(roots, to_bool(nonsingleton));
     return to_obj(roots);
 }
 
@@ -124,7 +124,7 @@ vm_obj cc_state_add(vm_obj const & ccs, vm_obj const & H, vm_obj const & _s) {
             if (ctx.is_prop(type))
                 return mk_tactic_exception("cc_state.add failed, given expression is not a proof term", s);
             cc.add(type, to_expr(H));
-        });
+    });
 }
 
 vm_obj cc_state_internalize(vm_obj const & ccs, vm_obj const & e, vm_obj const & top_level, vm_obj const & _s) {
@@ -161,13 +161,13 @@ void initialize_congruence_tactics() {
     DECLARE_VM_BUILTIN(name({"cc_state", "mk"}),               cc_state_mk);
     DECLARE_VM_BUILTIN(name({"cc_state", "next"}),             cc_state_next);
     DECLARE_VM_BUILTIN(name({"cc_state", "mk_using_hs"}),      cc_state_mk_using_hs);
-    DECLARE_VM_BUILTIN(name({"cc_state", "pp"}),               cc_state_pp);
+    DECLARE_VM_BUILTIN(name({"cc_state", "pp_core"}),          cc_state_pp_core);
     DECLARE_VM_BUILTIN(name({"cc_state", "pp_eqc"}),           cc_state_pp_eqc);
     DECLARE_VM_BUILTIN(name({"cc_state", "next"}),             cc_state_next);
     DECLARE_VM_BUILTIN(name({"cc_state", "root"}),             cc_state_root);
     DECLARE_VM_BUILTIN(name({"cc_state", "mt"}),               cc_state_mt);
     DECLARE_VM_BUILTIN(name({"cc_state", "is_cg_root"}),       cc_state_is_cg_root);
-    DECLARE_VM_BUILTIN(name({"cc_state", "roots"}),            cc_state_roots);
+    DECLARE_VM_BUILTIN(name({"cc_state", "roots_core"}),       cc_state_roots_core);
     DECLARE_VM_BUILTIN(name({"cc_state", "internalize"}),      cc_state_internalize);
     DECLARE_VM_BUILTIN(name({"cc_state", "add"}),              cc_state_add);
     DECLARE_VM_BUILTIN(name({"cc_state", "is_eqv"}),           cc_state_is_eqv);

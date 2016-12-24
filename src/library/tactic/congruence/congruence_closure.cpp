@@ -162,9 +162,9 @@ expr congruence_closure::state::get_root(expr const & e) const {
     }
 }
 
-void congruence_closure::state::get_roots(buffer<expr> & roots) const {
+void congruence_closure::state::get_roots(buffer<expr> & roots, bool nonsingleton_only) const {
     m_entries.for_each([&](expr const & k, entry const & n) {
-            if (k == n.m_root)
+            if (k == n.m_root && (!nonsingleton_only || !in_singleton_eqc(k)))
                 roots.push_back(k);
         });
 }
@@ -1394,9 +1394,15 @@ format congruence_closure::state::pp_eqc(formatter const & fmt, expr const & e) 
     return bracket("{", group(r), "}");
 }
 
-format congruence_closure::state::pp_eqcs(formatter const & fmt) const {
+bool congruence_closure::state::in_singleton_eqc(expr const & e) const {
+    if (auto it = m_entries.find(e))
+        return it->m_next == e;
+    return  true;
+}
+
+format congruence_closure::state::pp_eqcs(formatter const & fmt, bool nonsingleton_only) const {
     buffer<expr> roots;
-    get_roots(roots);
+    get_roots(roots, nonsingleton_only);
     format r;
     bool first = true;
     for (expr const & root : roots) {

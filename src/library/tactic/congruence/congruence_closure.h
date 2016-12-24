@@ -179,6 +179,7 @@ private:
     void update_mt(expr const & e);
     bool has_heq_proofs(expr const & root) const;
     expr flip_proof(expr const & H, bool flipped, bool heq_proofs) const;
+    optional<ext_congr_lemma> mk_ext_hcongr_lemma(expr const & fn, unsigned nargs) const;
     optional<ext_congr_lemma> mk_ext_congr_lemma(expr const & e) const;
     expr mk_trans(expr const & H1, expr const & H2, bool heq_proofs) const;
     expr mk_trans(optional<expr> const & H1, expr const & H2, bool heq_proofs) const;

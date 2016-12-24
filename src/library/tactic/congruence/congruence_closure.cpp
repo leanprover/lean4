@@ -129,6 +129,24 @@ static optional<ext_congr_lemma> mk_hcongr_lemma_core(type_context & ctx, expr c
     return optional<ext_congr_lemma>(res1);
 }
 
+optional<ext_congr_lemma> congruence_closure::mk_ext_hcongr_lemma(expr const & fn, unsigned nargs) const {
+    auto & cache = get_cache(*this);
+    ext_congr_lemma_key key1(fn, nargs);
+    auto it1 = cache.find(key1);
+    if (it1 != cache.end())
+        return it1->second;
+
+    if (auto lemma = mk_hcongr_lemma_core(m_ctx, fn, nargs)) {
+        /* succeeded */
+        cache.insert(mk_pair(key1, lemma));
+        return lemma;
+    }
+
+    /* cache failure */
+    cache.insert(mk_pair(key1, optional<ext_congr_lemma>()));
+    return optional<ext_congr_lemma>();
+}
+
 optional<ext_congr_lemma> congruence_closure::mk_ext_congr_lemma(expr const & e) const {
     expr const & fn     = get_app_fn(e);
     unsigned nargs      = get_app_num_args(e);
@@ -825,95 +843,73 @@ expr congruence_closure::mk_trans(optional<expr> const & H1, expr const & H2, bo
 
 expr congruence_closure::mk_congr_proof_core(expr const & lhs, expr const & rhs, bool heq_proofs) const {
     buffer<expr> lhs_args, rhs_args;
-    expr const & lhs_fn = get_app_args(lhs, lhs_args);
-    expr const & rhs_fn = get_app_args(rhs, rhs_args);
-    lean_assert(lhs_args.size() == rhs_args.size());
-    auto lemma = mk_ext_congr_lemma(lhs);
-    lean_assert(lemma);
-    if (lemma->m_fixed_fun) {
-        /* Main case: convers automatically generated congruence lemmas */
-        list<congr_arg_kind> const * it = &lemma->m_congr_lemma.get_arg_kinds();
-        buffer<expr> lemma_args;
-        for (unsigned i = 0; i < lhs_args.size(); i++) {
-            lean_assert(*it);
-            switch (head(*it)) {
-            case congr_arg_kind::HEq:
-                lemma_args.push_back(lhs_args[i]);
-                lemma_args.push_back(rhs_args[i]);
-                lemma_args.push_back(*get_heq_proof(lhs_args[i], rhs_args[i]));
+    expr const * lhs_it = &lhs;
+    expr const * rhs_it = &rhs;
+    if (lhs != rhs) {
+        while (true) {
+            lhs_args.push_back(app_arg(*lhs_it));
+            rhs_args.push_back(app_arg(*rhs_it));
+            lhs_it = &app_fn(*lhs_it);
+            rhs_it = &app_fn(*rhs_it);
+            if (*lhs_it == *rhs_it)
                 break;
-            case congr_arg_kind::Eq:
-                lemma_args.push_back(lhs_args[i]);
-                lemma_args.push_back(rhs_args[i]);
-                lemma_args.push_back(*get_eq_proof(lhs_args[i], rhs_args[i]));
+            if (m_ctx.is_def_eq(*lhs_it, *rhs_it))
                 break;
-            case congr_arg_kind::Fixed:
-                lemma_args.push_back(lhs_args[i]);
+            if (is_eqv(*lhs_it, *rhs_it) &&
+                m_ctx.is_def_eq(m_ctx.infer(*lhs_it), m_ctx.infer(*rhs_it)))
                 break;
-            case congr_arg_kind::FixedNoParam:
-                break;
-            case congr_arg_kind::Cast:
-                lemma_args.push_back(lhs_args[i]);
-                lemma_args.push_back(rhs_args[i]);
-                break;
-            }
-            it = &(tail(*it));
         }
-        expr r = mk_app(lemma->m_congr_lemma.get_proof(), lemma_args);
-        if (lemma->m_heq_result && !heq_proofs)
-            r = mk_eq_of_heq(m_ctx, r);
-        else if (!lemma->m_heq_result && heq_proofs)
-            r = mk_heq_of_eq(m_ctx, r);
-        if (lhs_fn == rhs_fn ||
-            m_ctx.is_def_eq(lhs_fn, rhs_fn))
-            return r;
-        /* Convert r into a proof of lhs = rhs using eq.rec and
-           the proof that lhs_fn = rhs_fn */
-        expr lhs_fn_eq_rhs_fn = *get_eq_proof(lhs_fn, rhs_fn);
-        type_context::tmp_locals locals(m_ctx);
-        expr x                = locals.push_local("_x", m_ctx.infer(lhs_fn));
-        expr motive_rhs       = mk_app(x, rhs_args);
-        expr motive           = heq_proofs ? mk_heq(m_ctx, lhs, motive_rhs) : mk_eq(m_ctx, lhs, motive_rhs);
-        motive                = locals.mk_lambda(motive);
-        return mk_eq_rec(m_ctx, motive, r, lhs_fn_eq_rhs_fn);
-    } else {
-        /* This branch builds congruence proofs that handle equality between functions.
-           The proof is created using congr_arg/congr_fun/congr lemmas.
-           It can build proofs for congruence such as:
-                f = g -> a = b -> f a = g b
-           but it is limited to simply typed functions. */
-        optional<expr> r;
-        unsigned i = 0;
-        if (!m_ctx.is_def_eq(lhs_fn, rhs_fn)) {
-            r = get_eq_proof(lhs_fn, rhs_fn);
-        } else {
-            for (; i < lhs_args.size(); i++) {
-                if (!m_ctx.is_def_eq(lhs_args[i], rhs_args[i])) {
-                    expr g  = mk_app(lhs_fn, i, lhs_args.data());
-                    expr Hi = *get_eq_proof(lhs_args[i], rhs_args[i]);
-                    r = mk_congr_arg(m_ctx, g, Hi);
-                    i++;
-                    break;
-                }
-            }
-            if (!r) {
-                // lhs and rhs are definitionally equal
-                r = mk_eq_refl(m_ctx, lhs);
-            }
-        }
-        lean_assert(r);
-        for (; i < lhs_args.size(); i++) {
-            if (m_ctx.is_def_eq(lhs_args[i], rhs_args[i])) {
-                r = mk_congr_fun(m_ctx, *r, lhs_args[i]);
-            } else {
-                expr Hi = *get_eq_proof(lhs_args[i], rhs_args[i]);
-                r = mk_congr(m_ctx, *r, Hi);
-            }
-        }
-        if (heq_proofs)
-            r = mk_heq_of_eq(m_ctx, *r);
-        return *r;
     }
+    if (lhs_args.empty()) {
+        if (heq_proofs)
+            return mk_heq_refl(m_ctx, lhs);
+        else
+            return mk_eq_refl(m_ctx, lhs);
+    }
+    std::reverse(lhs_args.begin(), lhs_args.end());
+    std::reverse(rhs_args.begin(), rhs_args.end());
+    lean_assert(lhs_args.size() == rhs_args.size());
+    expr const & lhs_fn = *lhs_it;
+    expr const & rhs_fn = *rhs_it;
+    lean_assert(is_eqv(lhs_fn, rhs_fn) || m_ctx.is_def_eq(lhs_fn, rhs_fn));
+    lean_assert(m_ctx.is_def_eq(m_ctx.infer(lhs_fn), m_ctx.infer(rhs_fn)));
+    /* Create proof for
+          (lhs_fn lhs_args[0] ... lhs_args[n-1]) = (lhs_fn rhs_args[0] ... rhs_args[n-1])
+       where
+          n == lhs_args.size()
+    */
+    auto spec_lemma = mk_ext_hcongr_lemma(lhs_fn, lhs_args.size());
+    lean_assert(spec_lemma);
+    list<congr_arg_kind> const * kinds_it = &spec_lemma->m_congr_lemma.get_arg_kinds();
+    buffer<expr> lemma_args;
+    for (unsigned i = 0; i < lhs_args.size(); i++) {
+        lean_assert(kinds_it);
+        lemma_args.push_back(lhs_args[i]);
+        lemma_args.push_back(rhs_args[i]);
+        if (head(*kinds_it) == congr_arg_kind::HEq) {
+            lemma_args.push_back(*get_heq_proof(lhs_args[i], rhs_args[i]));
+        } else {
+            lean_assert(head(*kinds_it) == congr_arg_kind::Eq);
+            lemma_args.push_back(*get_eq_proof(lhs_args[i], rhs_args[i]));
+        }
+        kinds_it = &(tail(*kinds_it));
+    }
+    expr r = mk_app(spec_lemma->m_congr_lemma.get_proof(), lemma_args);
+    if (spec_lemma->m_heq_result && !heq_proofs)
+        r = mk_eq_of_heq(m_ctx, r);
+    else if (!spec_lemma->m_heq_result && heq_proofs)
+        r = mk_heq_of_eq(m_ctx, r);
+    if (m_ctx.is_def_eq(lhs_fn, rhs_fn))
+        return r;
+    /* Convert r into a proof of lhs = rhs using eq.rec and
+       the proof that lhs_fn = rhs_fn */
+    expr lhs_fn_eq_rhs_fn = *get_eq_proof(lhs_fn, rhs_fn);
+    type_context::tmp_locals locals(m_ctx);
+    expr x                = locals.push_local("_x", m_ctx.infer(lhs_fn));
+    expr motive_rhs       = mk_app(x, rhs_args);
+    expr motive           = heq_proofs ? mk_heq(m_ctx, lhs, motive_rhs) : mk_eq(m_ctx, lhs, motive_rhs);
+    motive                = locals.mk_lambda(motive);
+    return mk_eq_rec(m_ctx, motive, r, lhs_fn_eq_rhs_fn);
 }
 
 optional<expr> congruence_closure::mk_symm_congr_proof(expr const & e1, expr const & e2, bool heq_proofs) const {

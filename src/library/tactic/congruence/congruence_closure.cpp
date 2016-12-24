@@ -820,7 +820,7 @@ expr congruence_closure::mk_trans(expr const & H1, expr const & H2, bool heq_pro
 
 expr congruence_closure::mk_trans(optional<expr> const & H1, expr const & H2, bool heq_proofs) const {
     if (!H1) return H2;
-    return mk_trans(H1, H2, heq_proofs);
+    return mk_trans(*H1, H2, heq_proofs);
 }
 
 expr congruence_closure::mk_congr_proof_core(expr const & lhs, expr const & rhs, bool heq_proofs) const {
@@ -1346,6 +1346,19 @@ void congruence_closure::internalize(expr const & e) {
         internalize(e, true);
     else
         internalize(e, false);
+}
+
+optional<expr> congruence_closure::get_inconsistency_proof() const {
+    lean_assert(!m_state.m_froze_partitions);
+    try {
+        if (auto p = get_eq_proof(mk_true(), mk_false())) {
+            return some_expr(mk_false_of_true_eq_false(m_ctx, *p));
+        } else {
+            return none_expr();
+        }
+    } catch (app_builder_exception &) {
+        return none_expr();
+    }
 }
 
 bool congruence_closure::state::check_eqc(expr const & e) const {

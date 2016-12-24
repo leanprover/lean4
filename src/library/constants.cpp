@@ -78,6 +78,7 @@ name const * g_format = nullptr;
 name const * g_functor = nullptr;
 name const * g_false = nullptr;
 name const * g_false_of_true_iff_false = nullptr;
+name const * g_false_of_true_eq_false = nullptr;
 name const * g_false_rec = nullptr;
 name const * g_field = nullptr;
 name const * g_fin = nullptr;
@@ -509,6 +510,7 @@ void initialize_constants() {
     g_functor = new name{"functor"};
     g_false = new name{"false"};
     g_false_of_true_iff_false = new name{"false_of_true_iff_false"};
+    g_false_of_true_eq_false = new name{"false_of_true_eq_false"};
     g_false_rec = new name{"false", "rec"};
     g_field = new name{"field"};
     g_fin = new name{"fin"};
@@ -941,6 +943,7 @@ void finalize_constants() {
     delete g_functor;
     delete g_false;
     delete g_false_of_true_iff_false;
+    delete g_false_of_true_eq_false;
     delete g_false_rec;
     delete g_field;
     delete g_fin;
@@ -1372,6 +1375,7 @@ name const & get_format_name() { return *g_format; }
 name const & get_functor_name() { return *g_functor; }
 name const & get_false_name() { return *g_false; }
 name const & get_false_of_true_iff_false_name() { return *g_false_of_true_iff_false; }
+name const & get_false_of_true_eq_false_name() { return *g_false_of_true_eq_false; }
 name const & get_false_rec_name() { return *g_false_rec; }
 name const & get_field_name() { return *g_field; }
 name const & get_fin_name() { return *g_fin; }

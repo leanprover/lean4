@@ -931,6 +931,11 @@ expr mk_false_of_true_iff_false(type_context & ctx, expr const & H) {
     return mk_app(ctx, get_false_of_true_iff_false_name(), {H});
 }
 
+expr mk_false_of_true_eq_false(type_context & ctx, expr const & H) {
+    // TODO(Leo): implement custom version if bottleneck.
+    return mk_app(ctx, get_false_of_true_eq_false_name(), {H});
+}
+
 expr mk_not(type_context & ctx, expr const & H) {
     // TODO(dhs): implement custom version if bottleneck.
     return mk_app(ctx, get_not_name(), {H});

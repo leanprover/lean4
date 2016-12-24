@@ -21,3 +21,56 @@ by do intros,
       pr ← s^.eqv_proof t₁ t₂,
       note `h pr,
       contradiction
+
+example (a b : nat) (f : nat → nat) : a = b → f a = f b :=
+by cc
+
+set_option trace.app_builder true
+
+example (a b : nat) (f : nat → nat) : a = b → f a ≠ f b → false :=
+by cc
+
+example (a b : nat) (f : nat → nat) : a = b → f (f a) ≠ f (f b) → false :=
+by cc
+
+example (a b c : nat) (f : nat → nat) : a = b → c = b → f (f a) ≠ f (f c) → false :=
+by cc
+
+example (a b c : nat) (f : nat → nat → nat) : a = b → c = b → f (f a b) a ≠ f (f c c) c → false :=
+by cc
+
+example (a b c : nat) (f : nat → nat → nat) : a = b → c = b → f (f a b) a = f (f c c) c :=
+by cc
+
+example (a b c d : nat) : a == b → b = c → c == d → a == d :=
+by cc
+
+example (a b c d : nat) : a = b → b = c → c == d → a == d :=
+by cc
+
+example (a b c d : nat) : a = b → b == c → c == d → a == d :=
+by cc
+
+example (a b c d : nat) : a == b → b == c → c = d → a == d :=
+by cc
+
+example (a b c d : nat) : a == b → b = c → c = d → a == d :=
+by cc
+
+example (a b c d : nat) : a = b → b = c → c = d → a == d :=
+by cc
+
+example (a b c d : nat) : a = b → b == c → c = d → a == d :=
+by cc
+
+constant f {α : Type} : α → α → α
+constant g : nat → nat
+
+example (a b c : nat) : a = b → g a == g b :=
+by cc
+
+example (a b c : nat) : a = b → c = b → f (f a b) (g c) = f (f c a) (g b) :=
+by cc
+
+example (a b c d e x y : nat) : a = b → a = x → b = y → c = d → c = e → c = b → a = e :=
+by cc

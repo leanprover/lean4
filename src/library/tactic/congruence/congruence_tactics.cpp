@@ -157,6 +157,16 @@ vm_obj cc_state_eqv_proof(vm_obj const & ccs, vm_obj const & e1, vm_obj const & 
         });
 }
 
+vm_obj cc_state_false_proof(vm_obj const & ccs, vm_obj const & _s) {
+    cc_state_proc({
+            if (auto pr = cc.get_inconsistency_proof()) {
+                return mk_tactic_success(to_obj(*pr), s);
+            } else {
+                return mk_tactic_exception("cc_state.false_proof failed, state is not inconsistent", s);
+            }
+        });
+}
+
 void initialize_congruence_tactics() {
     DECLARE_VM_BUILTIN(name({"cc_state", "mk"}),               cc_state_mk);
     DECLARE_VM_BUILTIN(name({"cc_state", "next"}),             cc_state_next);
@@ -173,6 +183,7 @@ void initialize_congruence_tactics() {
     DECLARE_VM_BUILTIN(name({"cc_state", "is_eqv"}),           cc_state_is_eqv);
     DECLARE_VM_BUILTIN(name({"cc_state", "is_not_eqv"}),       cc_state_is_not_eqv);
     DECLARE_VM_BUILTIN(name({"cc_state", "inconsistent"}),     cc_state_inconsistent);
+    DECLARE_VM_BUILTIN(name({"cc_state", "false_proof"}),      cc_state_false_proof);
     DECLARE_VM_BUILTIN(name({"cc_state", "eqv_proof"}),        cc_state_eqv_proof);
 }
 

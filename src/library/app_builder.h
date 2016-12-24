@@ -141,6 +141,8 @@ expr mk_not_of_iff_false(type_context & ctx, expr const & H);
 expr mk_of_iff_true(type_context & ctx, expr const & H);
 /** \brief (true <-> false) -> false */
 expr mk_false_of_true_iff_false(type_context & ctx, expr const & H);
+/** \brief (true = false) -> false */
+expr mk_false_of_true_eq_false(type_context & ctx, expr const & H);
 
 /** \brief not p -> (p = false) */
 expr mk_eq_false_intro(type_context & ctx, expr const & H);

@@ -236,6 +236,7 @@ public:
     optional<expr> get_heq_proof(expr const & e1, expr const & e2) const;
     optional<expr> get_eq_proof(expr const & e1, expr const & e2) const;
     optional<expr> get_proof(expr const & e1, expr const & e2) const;
+    optional<expr> get_inconsistency_proof() const;
 
     entry const * get_entry(expr const & e) const { return m_state.m_entries.find(e); }
     bool check_invariant() const { return m_state.check_invariant(); }

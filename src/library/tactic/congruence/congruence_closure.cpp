@@ -984,7 +984,7 @@ expr congruence_closure::mk_proof(expr const & lhs, expr const & rhs, expr const
 optional<expr> congruence_closure::get_eq_proof_core(expr const & e1, expr const & e2, bool as_heq) const {
     if (has_expr_metavar(e1) || has_expr_metavar(e2)) return none_expr();
     if (m_ctx.is_def_eq(e1, e2))
-        return some_expr(mk_eq_refl(m_ctx, e1));
+        return as_heq ? some_expr(mk_heq_refl(m_ctx, e1)) : some_expr(mk_eq_refl(m_ctx, e1));
     auto n1 = get_entry(e1);
     if (!n1) return none_expr();
     auto n2 = get_entry(e2);

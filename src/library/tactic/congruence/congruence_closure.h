@@ -255,7 +255,7 @@ struct ext_congr_lemma {
     /* If m_heq_lemma is true, then lemma was created using mk_hcongr_lemma. */
     unsigned             m_hcongr_lemma:1;
     ext_congr_lemma(congr_lemma const & H):
-        m_congr_lemma(H), m_fixed_fun(false), m_heq_result(false), m_hcongr_lemma(false) {}
+        m_congr_lemma(H), m_fixed_fun(true), m_heq_result(false), m_hcongr_lemma(false) {}
 };
 
 void initialize_congruence_closure();

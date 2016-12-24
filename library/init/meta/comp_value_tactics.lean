@@ -12,6 +12,7 @@ meta constant mk_nat_val_le_proof : expr → expr → option expr
 meta constant mk_fin_val_ne_proof : expr → expr → option expr
 meta constant mk_char_val_ne_proof : expr → expr → option expr
 meta constant mk_string_val_ne_proof : expr → expr → option expr
+meta constant mk_int_val_ne_proof : expr → expr → option expr
 
 namespace tactic
 open expr
@@ -48,6 +49,11 @@ do t ← target,
    (do is_def_eq type (const `string []),
        (a, b) ← returnopt (is_ne t),
        pr     ← returnopt (mk_string_val_ne_proof a b),
+       exact pr)
+   <|>
+   (do is_def_eq type (const `int []),
+       (a, b) ← returnopt (is_ne t),
+       pr     ← returnopt (mk_int_val_ne_proof a b),
        exact pr)
    <|>
    (do type   ← whnf type,

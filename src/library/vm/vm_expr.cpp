@@ -397,6 +397,10 @@ vm_obj vm_mk_string_val_ne_proof(vm_obj const & a, vm_obj const & b) {
     return to_obj(mk_string_val_ne_proof(to_expr(a), to_expr(b)));
 }
 
+vm_obj vm_mk_int_val_ne_proof(vm_obj const & a, vm_obj const & b) {
+    return to_obj(mk_int_val_ne_proof(to_expr(a), to_expr(b)));
+}
+
 void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name({"expr", "var"}),              expr_var);
     DECLARE_VM_BUILTIN(name({"expr", "sort"}),             expr_sort);
@@ -438,6 +442,7 @@ void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name("mk_fin_val_ne_proof"),        vm_mk_fin_val_ne_proof);
     DECLARE_VM_BUILTIN(name("mk_char_val_ne_proof"),       vm_mk_char_val_ne_proof);
     DECLARE_VM_BUILTIN(name("mk_string_val_ne_proof"),     vm_mk_string_val_ne_proof);
+    DECLARE_VM_BUILTIN(name("mk_int_val_ne_proof"),        vm_mk_int_val_ne_proof);
 
     // Not sure if we should expose these or what?
     DECLARE_VM_BUILTIN(name({"expr", "is_internal_cnstr"}), expr_is_internal_cnstr);

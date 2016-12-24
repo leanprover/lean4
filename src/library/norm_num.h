@@ -80,8 +80,6 @@ public:
     expr from_mpq(mpq const &, expr const &);
 };
 
-inline bool is_neg(expr const & e);
-
 inline bool is_numeral(type_context & type_ctx, expr const & e) {
     return norm_num_context(type_ctx).is_numeral(e);
 }

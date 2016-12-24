@@ -13,10 +13,14 @@ bool is_const_app(expr const &, name const &, unsigned);
 /** \brief Return true iff the given expression encodes a numeral. */
 bool is_num(expr const & e);
 
+/** \brief Return true iff is_num(e) or \c e is of the form (- e') where to_num(e') */
+bool is_signed_num(expr const & e);
+
 bool is_zero(expr const & e);
 bool is_one(expr const & e);
 optional<expr> is_bit0(expr const & e);
 optional<expr> is_bit1(expr const & e);
+optional<expr> is_neg(expr const & e);
 
 /** \brief Return true iff \c n is zero, one, bit0 or bit1 */
 bool is_numeral_const_name(name const & n);

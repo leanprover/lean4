@@ -8,6 +8,12 @@ Author: Leonardo de Moura
 #include "library/string.h"
 #include "library/util.h"
 #include "library/constants.h"
+#include "library/comp_val.h"
+#include "library/expr_pair.h"
+#include "library/trace.h"
+
+/* Remark: we can improve performance by using Lean macros for delaying the
+   proof construction. */
 
 namespace lean {
 optional<expr> mk_nat_val_ne_proof(expr const & a, expr const & b) {
@@ -176,6 +182,110 @@ optional<expr> mk_string_val_ne_proof(expr a, expr b) {
         }
     }
     return none_expr();
+}
+
+optional<expr> mk_int_val_nonneg_proof(expr const & a) {
+    if (auto a1 = is_bit0(a)) {
+        if (auto pr = mk_int_val_nonneg_proof(*a1))
+            return some_expr(mk_app(mk_constant(get_int_bit0_nonneg_name()), *a1, *pr));
+    } else if (auto a1 = is_bit1(a)) {
+        if (auto pr = mk_int_val_nonneg_proof(*a1))
+            return some_expr(mk_app(mk_constant(get_int_bit1_nonneg_name()), *a1, *pr));
+    } else if (is_one(a)) {
+        return some_expr(mk_constant(get_int_one_nonneg_name()));
+    } else if (is_zero(a)) {
+        return some_expr(mk_constant(get_int_zero_nonneg_name()));
+    }
+    return none_expr();
+}
+
+optional<expr> mk_int_val_pos_proof(expr const & a) {
+    if (auto a1 = is_bit0(a)) {
+        if (auto pr = mk_int_val_pos_proof(*a1))
+            return some_expr(mk_app(mk_constant(get_int_bit0_pos_name()), *a1, *pr));
+    } else if (auto a1 = is_bit1(a)) {
+        if (auto pr = mk_int_val_nonneg_proof(*a1))
+            return some_expr(mk_app(mk_constant(get_int_bit1_pos_name()), *a1, *pr));
+    } else if (is_one(a)) {
+        return some_expr(mk_constant(get_int_one_pos_name()));
+    }
+    return none_expr();
+}
+
+/* Given a nonnegative int numeral a, return a pair (n, H)
+   where n is a nat numeral, and (H : nat_abs a = n) */
+optional<expr_pair> mk_nat_abs_eq(expr const & a) {
+    if (is_zero(a)) {
+        return optional<expr_pair>(mk_pair(mk_nat_zero(), mk_constant(get_int_nat_abs_zero_name())));
+    } else if (is_one(a)) {
+        return optional<expr_pair>(mk_pair(mk_nat_one(), mk_constant(get_int_nat_abs_one_name())));
+    } else if (auto a1 = is_bit0(a)) {
+        if (auto p = mk_nat_abs_eq(*a1))
+            return optional<expr_pair>(mk_pair(mk_nat_bit0(p->first),
+                                               mk_app(mk_constant(get_int_nat_abs_bit0_step_name()), *a1, p->first, p->second)));
+    } else if (auto a1 = is_bit1(a)) {
+        if (auto p = mk_nat_abs_eq(*a1)) {
+            expr new_n   = mk_nat_bit1(p->first);
+            expr Hnonneg = *mk_int_val_nonneg_proof(*a1);
+            expr new_H   = mk_app(mk_constant(get_int_nat_abs_bit1_nonneg_step_name()), *a1, p->first, Hnonneg, p->second);
+            return optional<expr_pair>(mk_pair(new_n, new_H));
+        }
+    }
+    return optional<expr_pair>();
+}
+
+/* Given nonneg int numerals a and b, create a proof for a != b IF they are not equal. */
+optional<expr> mk_int_nonneg_val_ne_proof(expr const & a, expr const & b) {
+    auto p1 = mk_nat_abs_eq(a);
+    if (!p1) return none_expr();
+    auto p2 = mk_nat_abs_eq(b);
+    if (!p2) return none_expr();
+    auto Ha_nonneg = mk_int_val_nonneg_proof(a);
+    if (!Ha_nonneg) return none_expr();
+    auto Hb_nonneg = mk_int_val_nonneg_proof(a);
+    if (!Hb_nonneg) return none_expr();
+    auto H_nat_ne  = mk_nat_val_ne_proof(p1->first, p2->first);
+    if (!H_nat_ne) return none_expr();
+    expr H = mk_app({mk_constant(get_int_ne_of_nat_ne_nonneg_case_name()), a, b, p1->first, p2->first,
+                *Ha_nonneg, *Hb_nonneg, p1->second, p2->second, *H_nat_ne});
+    return some_expr(H);
+}
+
+optional<expr> mk_int_val_ne_proof(expr const & a, expr const & b) {
+    if (auto a1 = is_neg(a)) {
+        if (auto b1 = is_neg(b)) {
+            auto H = mk_int_nonneg_val_ne_proof(*a1, *b1);
+            if (!H) return none_expr();
+            return some_expr(mk_app(mk_constant(get_int_ne_neg_of_ne_name()), *a1, *b1, *H));
+        } else {
+            if (is_zero(b)) {
+                auto H = mk_int_nonneg_val_ne_proof(*a1, b);
+                if (!H) return none_expr();
+                return some_expr(mk_app(mk_constant(get_int_neg_ne_zero_of_ne_name()), *a1, *H));
+            } else {
+                auto Ha1_nonneg = mk_int_val_pos_proof(*a1);
+                if (!Ha1_nonneg) return none_expr();
+                auto Hb_nonneg  = mk_int_val_pos_proof(b);
+                if (!Hb_nonneg) return none_expr();
+                return some_expr(mk_app(mk_constant(get_int_neg_ne_of_pos_name()), *a1, b, *Ha1_nonneg, *Hb_nonneg));
+            }
+        }
+    } else {
+        if (auto b1 = is_neg(b)) {
+            if (is_zero(a)) {
+                auto H = mk_int_nonneg_val_ne_proof(a, *b1);
+                if (!H) return none_expr();
+                return some_expr(mk_app(mk_constant(get_int_zero_ne_neg_of_ne_name()), *b1, *H));
+            } else {
+                auto Ha_nonneg = mk_int_val_pos_proof(a);
+                if (!Ha_nonneg) return none_expr();
+                auto Hb1_nonneg = mk_int_val_pos_proof(*b1);
+                return some_expr(mk_app(mk_constant(get_int_ne_neg_of_pos_name()), a, *b1, *Ha_nonneg, *Hb1_nonneg));
+            }
+        } else {
+            return mk_int_nonneg_val_ne_proof(a, b);
+        }
+    }
 }
 
 void initialize_comp_val() {

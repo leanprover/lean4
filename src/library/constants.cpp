@@ -147,6 +147,23 @@ name const * g_int_has_le = nullptr;
 name const * g_int_has_lt = nullptr;
 name const * g_int_has_neg = nullptr;
 name const * g_int_has_mod = nullptr;
+name const * g_int_bit0_nonneg = nullptr;
+name const * g_int_bit1_nonneg = nullptr;
+name const * g_int_one_nonneg = nullptr;
+name const * g_int_zero_nonneg = nullptr;
+name const * g_int_bit0_pos = nullptr;
+name const * g_int_bit1_pos = nullptr;
+name const * g_int_one_pos = nullptr;
+name const * g_int_nat_abs_zero = nullptr;
+name const * g_int_nat_abs_one = nullptr;
+name const * g_int_nat_abs_bit0_step = nullptr;
+name const * g_int_nat_abs_bit1_nonneg_step = nullptr;
+name const * g_int_ne_of_nat_ne_nonneg_case = nullptr;
+name const * g_int_ne_neg_of_ne = nullptr;
+name const * g_int_neg_ne_of_pos = nullptr;
+name const * g_int_ne_neg_of_pos = nullptr;
+name const * g_int_neg_ne_zero_of_ne = nullptr;
+name const * g_int_zero_ne_neg_of_ne = nullptr;
 name const * g_int_decidable_linear_ordered_comm_group = nullptr;
 name const * g_io = nullptr;
 name const * g_io_functor = nullptr;
@@ -579,6 +596,23 @@ void initialize_constants() {
     g_int_has_lt = new name{"int", "has_lt"};
     g_int_has_neg = new name{"int", "has_neg"};
     g_int_has_mod = new name{"int", "has_mod"};
+    g_int_bit0_nonneg = new name{"int", "bit0_nonneg"};
+    g_int_bit1_nonneg = new name{"int", "bit1_nonneg"};
+    g_int_one_nonneg = new name{"int", "one_nonneg"};
+    g_int_zero_nonneg = new name{"int", "zero_nonneg"};
+    g_int_bit0_pos = new name{"int", "bit0_pos"};
+    g_int_bit1_pos = new name{"int", "bit1_pos"};
+    g_int_one_pos = new name{"int", "one_pos"};
+    g_int_nat_abs_zero = new name{"int", "nat_abs_zero"};
+    g_int_nat_abs_one = new name{"int", "nat_abs_one"};
+    g_int_nat_abs_bit0_step = new name{"int", "nat_abs_bit0_step"};
+    g_int_nat_abs_bit1_nonneg_step = new name{"int", "nat_abs_bit1_nonneg_step"};
+    g_int_ne_of_nat_ne_nonneg_case = new name{"int", "ne_of_nat_ne_nonneg_case"};
+    g_int_ne_neg_of_ne = new name{"int", "ne_neg_of_ne"};
+    g_int_neg_ne_of_pos = new name{"int", "neg_ne_of_pos"};
+    g_int_ne_neg_of_pos = new name{"int", "ne_neg_of_pos"};
+    g_int_neg_ne_zero_of_ne = new name{"int", "neg_ne_zero_of_ne"};
+    g_int_zero_ne_neg_of_ne = new name{"int", "zero_ne_neg_of_ne"};
     g_int_decidable_linear_ordered_comm_group = new name{"int_decidable_linear_ordered_comm_group"};
     g_io = new name{"io"};
     g_io_functor = new name{"io", "functor"};
@@ -1012,6 +1046,23 @@ void finalize_constants() {
     delete g_int_has_lt;
     delete g_int_has_neg;
     delete g_int_has_mod;
+    delete g_int_bit0_nonneg;
+    delete g_int_bit1_nonneg;
+    delete g_int_one_nonneg;
+    delete g_int_zero_nonneg;
+    delete g_int_bit0_pos;
+    delete g_int_bit1_pos;
+    delete g_int_one_pos;
+    delete g_int_nat_abs_zero;
+    delete g_int_nat_abs_one;
+    delete g_int_nat_abs_bit0_step;
+    delete g_int_nat_abs_bit1_nonneg_step;
+    delete g_int_ne_of_nat_ne_nonneg_case;
+    delete g_int_ne_neg_of_ne;
+    delete g_int_neg_ne_of_pos;
+    delete g_int_ne_neg_of_pos;
+    delete g_int_neg_ne_zero_of_ne;
+    delete g_int_zero_ne_neg_of_ne;
     delete g_int_decidable_linear_ordered_comm_group;
     delete g_io;
     delete g_io_functor;
@@ -1444,6 +1495,23 @@ name const & get_int_has_le_name() { return *g_int_has_le; }
 name const & get_int_has_lt_name() { return *g_int_has_lt; }
 name const & get_int_has_neg_name() { return *g_int_has_neg; }
 name const & get_int_has_mod_name() { return *g_int_has_mod; }
+name const & get_int_bit0_nonneg_name() { return *g_int_bit0_nonneg; }
+name const & get_int_bit1_nonneg_name() { return *g_int_bit1_nonneg; }
+name const & get_int_one_nonneg_name() { return *g_int_one_nonneg; }
+name const & get_int_zero_nonneg_name() { return *g_int_zero_nonneg; }
+name const & get_int_bit0_pos_name() { return *g_int_bit0_pos; }
+name const & get_int_bit1_pos_name() { return *g_int_bit1_pos; }
+name const & get_int_one_pos_name() { return *g_int_one_pos; }
+name const & get_int_nat_abs_zero_name() { return *g_int_nat_abs_zero; }
+name const & get_int_nat_abs_one_name() { return *g_int_nat_abs_one; }
+name const & get_int_nat_abs_bit0_step_name() { return *g_int_nat_abs_bit0_step; }
+name const & get_int_nat_abs_bit1_nonneg_step_name() { return *g_int_nat_abs_bit1_nonneg_step; }
+name const & get_int_ne_of_nat_ne_nonneg_case_name() { return *g_int_ne_of_nat_ne_nonneg_case; }
+name const & get_int_ne_neg_of_ne_name() { return *g_int_ne_neg_of_ne; }
+name const & get_int_neg_ne_of_pos_name() { return *g_int_neg_ne_of_pos; }
+name const & get_int_ne_neg_of_pos_name() { return *g_int_ne_neg_of_pos; }
+name const & get_int_neg_ne_zero_of_ne_name() { return *g_int_neg_ne_zero_of_ne; }
+name const & get_int_zero_ne_neg_of_ne_name() { return *g_int_zero_ne_neg_of_ne; }
 name const & get_int_decidable_linear_ordered_comm_group_name() { return *g_int_decidable_linear_ordered_comm_group; }
 name const & get_io_name() { return *g_io; }
 name const & get_io_functor_name() { return *g_io_functor; }

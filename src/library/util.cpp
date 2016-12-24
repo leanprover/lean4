@@ -461,24 +461,37 @@ expr mk_snd(abstract_type_context & ctx, expr const & p) {
     return mk_app(mk_constant(get_prod_snd_name(), const_levels(get_app_fn(AxB))), A, B, p);
 }
 
-static expr * g_nat = nullptr;
+static expr * g_nat         = nullptr;
+static expr * g_nat_zero    = nullptr;
+static expr * g_nat_one     = nullptr;
+static expr * g_nat_bit0_fn = nullptr;
+static expr * g_nat_bit1_fn = nullptr;
+static expr * g_nat_add_fn  = nullptr;
 
-expr mk_nat() {
-    return *g_nat;
+static void initialize_nat() {
+    g_nat            = new expr(mk_constant(get_nat_name()));
+    g_nat_zero       = new expr(mk_app(mk_constant(get_zero_name(), {mk_level_one()}), {*g_nat, mk_constant(get_nat_has_zero_name())}));
+    g_nat_one        = new expr(mk_app(mk_constant(get_one_name(), {mk_level_one()}), {*g_nat, mk_constant(get_nat_has_one_name())}));
+    g_nat_bit0_fn    = new expr(mk_app(mk_constant(get_bit0_name(), {mk_level_one()}), {*g_nat, mk_constant(get_nat_has_add_name())}));
+    g_nat_bit1_fn    = new expr(mk_app(mk_constant(get_bit1_name(), {mk_level_one()}), {*g_nat, mk_constant(get_nat_has_one_name()), mk_constant(get_nat_has_add_name())}));
+    g_nat_add_fn     = new expr(mk_app(mk_constant(get_add_name(), {mk_level_one()}), {*g_nat, mk_constant(get_nat_has_add_name())}));
 }
 
-expr mk_nat_zero() {
-    return mk_app(mk_constant(get_zero_name(), {mk_level_one()}), {*g_nat, mk_constant(get_nat_has_zero_name())});
+static void finalize_nat() {
+    delete g_nat;
+    delete g_nat_zero;
+    delete g_nat_one;
+    delete g_nat_bit0_fn;
+    delete g_nat_bit1_fn;
+    delete g_nat_add_fn;
 }
 
-expr mk_nat_one() {
-    return mk_app(mk_constant(get_one_name(), {mk_level_one()}), {*g_nat, mk_constant(get_nat_has_one_name())});
-}
-
-expr mk_nat_add(expr const & e1, expr const & e2) {
-    expr nat_add = mk_app(mk_constant(get_add_name(), {mk_level_one()}), {*g_nat, mk_constant(get_nat_has_add_name())});
-    return mk_app(nat_add, e1, e2);
-}
+expr mk_nat() { return *g_nat; }
+expr mk_nat_zero() { return *g_nat_zero; }
+expr mk_nat_one() { return *g_nat_one; }
+expr mk_nat_bit0(expr const & e) { return mk_app(*g_nat_bit0_fn, e); }
+expr mk_nat_bit1(expr const & e) { return mk_app(*g_nat_bit1_fn, e); }
+expr mk_nat_add(expr const & e1, expr const & e2) { return mk_app(*g_nat_add_fn, e1, e2); }
 
 expr mk_unit(level const & l, bool prop) { return prop ? mk_true() : mk_unit(l); }
 expr mk_unit_mk(level const & l, bool prop) { return prop ? mk_true_intro() : mk_unit_mk(l); }
@@ -948,11 +961,11 @@ void initialize_library_util() {
     g_and_intro      = new expr(mk_constant(get_and_intro_name()));
     g_and_elim_left  = new expr(mk_constant(get_and_elim_left_name()));
     g_and_elim_right = new expr(mk_constant(get_and_elim_right_name()));
-    g_nat            = new expr(mk_constant(get_nat_name()));
+    initialize_nat();
 }
 
 void finalize_library_util() {
-    delete g_nat;
+    finalize_nat();
     delete g_true;
     delete g_true_intro;
     delete g_and;

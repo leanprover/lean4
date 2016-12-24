@@ -13,8 +13,17 @@ namespace int
 
 /- 1. Lemmas for reducing the problem to the case where the numerals are positive -/
 
-protected lemma ne_neg_of_ne (a b : ℤ) : a ≠ b → -a ≠ -b :=
+protected lemma ne_neg_of_ne {a b : ℤ} : a ≠ b → -a ≠ -b :=
 λ h₁ h₂, absurd (neg_inj h₂) h₁
+
+protected lemma neg_ne_zero_of_ne {a : ℤ} : a ≠ 0 → -a ≠ 0 :=
+λ h₁ h₂,
+  have -a = -0, by rwa neg_zero,
+  have a = 0, from neg_inj this,
+  by contradiction
+
+protected lemma zero_ne_neg_of_ne {a : ℤ} (h : 0 ≠ a) : 0 ≠ -a :=
+ne.symm (int.neg_ne_zero_of_ne (ne.symm h))
 
 protected lemma neg_ne_of_pos {a b : ℤ} : a > 0 → b > 0 → -a ≠ b :=
 λ h₁ h₂ h,
@@ -69,9 +78,9 @@ assume h,
   have of_nat (nat_abs a) = of_nat (nat_abs b), by rwa [of_nat_nat_abs_eq_of_nonneg ha, of_nat_nat_abs_eq_of_nonneg hb],
   begin injection this, contradiction end
 
-protected lemma ne_of_nat_ne_pos_case {a b : ℤ} {n m : nat} (ha : a > 0) (hb : b > 0) (e1 : nat_abs a = n) (e2 : nat_abs b = m) (h : n ≠ m) : a ≠ b :=
+protected lemma ne_of_nat_ne_nonneg_case {a b : ℤ} {n m : nat} (ha : a ≥ 0) (hb : b ≥ 0) (e1 : nat_abs a = n) (e2 : nat_abs b = m) (h : n ≠ m) : a ≠ b :=
 have nat_abs a ≠ nat_abs b, by rwa [e1, e2],
-ne_of_nat_abs_ne_nat_abs_of_nonneg (le_of_lt ha) (le_of_lt hb) this
+ne_of_nat_abs_ne_nat_abs_of_nonneg ha hb this
 
 /- 4. Aux lemmas for pushing nat_abs inside numerals
    nat_abs_zero and nat_abs_one are defined at init/data/int/basic.lean -/

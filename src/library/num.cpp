@@ -73,6 +73,15 @@ bool is_num(expr const & e) {
     return is_num(e, true);
 }
 
+bool is_signed_num(expr const & e) {
+    if (is_num(e))
+        return true;
+    else if (auto r = is_neg(e))
+        return is_num(*r);
+    else
+        return false;
+}
+
 static optional<mpz> to_num(expr const & e, bool first) {
     if (is_zero(e)) {
         return first ? some(mpz(0)) : optional<mpz>();

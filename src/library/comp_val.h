@@ -31,11 +31,24 @@ optional<expr> mk_nat_val_le_proof(expr const & a, expr const & b);
 /* Similar to mk_nat_val_ne_proof, but for fin type */
 optional<expr> mk_fin_val_ne_proof(expr const & a, expr const & b);
 
-/* Similar to mk_char_val_ne_proof, but for char type */
+/* Similar to mk_nat_val_ne_proof, but for char type */
 optional<expr> mk_char_val_ne_proof(expr const & a, expr const & b);
 
-/* Similar to mk_char_val_ne_proof, but for string type */
+/* Similar to mk_nat_val_ne_proof, but for string type */
 optional<expr> mk_string_val_ne_proof(expr a, expr b);
+
+/* Return a proof for e >= 0 if e is a nonnegative int numeral.
+
+   \pre typeof(e) is int. */
+optional<expr> mk_int_val_nonneg_proof(expr const & e);
+
+/* Return a proof for e > 0 if e is a nonnegative int numeral.
+
+   \pre typeof(e) is int. */
+optional<expr> mk_int_val_pos_proof(expr const & a);
+
+/* Similar to mk_nat_val_ne_proof, but for int type */
+optional<expr> mk_int_val_ne_proof(expr const & a, expr const & b);
 
 void initialize_comp_val();
 void finalize_comp_val();

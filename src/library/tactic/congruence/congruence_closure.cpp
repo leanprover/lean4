@@ -864,7 +864,18 @@ expr congruence_closure::mk_congr_proof_core(expr const & lhs, expr const & rhs,
             r = mk_eq_of_heq(m_ctx, r);
         else if (!lemma->m_heq_result && heq_proofs)
             r = mk_heq_of_eq(m_ctx, r);
-        return r;
+        if (lhs_fn == rhs_fn ||
+            m_ctx.is_def_eq(lhs_fn, rhs_fn))
+            return r;
+        /* Convert r into a proof of lhs = rhs using eq.rec and
+           the proof that lhs_fn = rhs_fn */
+        expr lhs_fn_eq_rhs_fn = *get_eq_proof(lhs_fn, rhs_fn);
+        type_context::tmp_locals locals(m_ctx);
+        expr x                = locals.push_local("_x", m_ctx.infer(lhs_fn));
+        expr motive_rhs       = mk_app(x, rhs_args);
+        expr motive           = heq_proofs ? mk_heq(m_ctx, lhs, motive_rhs) : mk_eq(m_ctx, lhs, motive_rhs);
+        motive                = locals.mk_lambda(motive);
+        return mk_eq_rec(m_ctx, motive, r, lhs_fn_eq_rhs_fn);
     } else {
         /* This branch builds congruence proofs that handle equality between functions.
            The proof is created using congr_arg/congr_fun/congr lemmas.

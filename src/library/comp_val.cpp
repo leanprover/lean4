@@ -242,7 +242,7 @@ optional<expr> mk_int_nonneg_val_ne_proof(expr const & a, expr const & b) {
     if (!p2) return none_expr();
     auto Ha_nonneg = mk_int_val_nonneg_proof(a);
     if (!Ha_nonneg) return none_expr();
-    auto Hb_nonneg = mk_int_val_nonneg_proof(a);
+    auto Hb_nonneg = mk_int_val_nonneg_proof(b);
     if (!Hb_nonneg) return none_expr();
     auto H_nat_ne  = mk_nat_val_ne_proof(p1->first, p2->first);
     if (!H_nat_ne) return none_expr();

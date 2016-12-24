@@ -427,7 +427,7 @@ bool is_simp_relation(environment const & env, expr const & e, expr & lhs, expr 
     return is_simp_relation(env, e, rel, lhs, rhs);
 }
 
-static bool is_ceqv(type_context & ctx, expr e);
+static bool is_ceqv(type_context & ctx, name const & id, expr e);
 
 /** \brief Auxiliary functional object for creating "conditional equations" */
 class to_ceqvs_fn {
@@ -532,20 +532,23 @@ class to_ceqvs_fn {
 public:
     to_ceqvs_fn(type_context & ctx):m_env(ctx.env()), m_ctx(ctx) {}
 
-    list<expr_pair> operator()(expr const & e, expr const & H) {
+    list<expr_pair> operator()(name const & id, expr const & e, expr const & H) {
         bool restricted = false;
         list<expr_pair> lst = apply(e, H, restricted);
-        return filter(lst, [&](expr_pair const & p) { return is_ceqv(m_ctx, p.first); });
+        return filter(lst, [&](expr_pair const & p) { return is_ceqv(m_ctx, id, p.first); });
     }
 };
 
-static list<expr_pair> to_ceqvs(type_context & ctx, expr const & e, expr const & H) {
-    return to_ceqvs_fn(ctx)(e, H);
+static list<expr_pair> to_ceqvs(type_context & ctx, name const & id, expr const & e, expr const & H) {
+    return to_ceqvs_fn(ctx)(id, e, H);
 }
 
-static bool is_ceqv(type_context & ctx, expr e) {
-    if (has_expr_metavar(e))
+static bool is_ceqv(type_context & ctx, name const & id, expr e) {
+    if (has_expr_metavar(e)) {
+        lean_trace(name({"simp_lemmas", "invalid"}),
+                   tout() << "type of rule derived from '" << id << "' has metavar\n";);
         return false;
+    }
     name_set to_find;
     // Define a procedure for removing arguments from to_find.
     auto visitor_fn = [&](expr const & e, unsigned) {
@@ -582,18 +585,30 @@ static bool is_ceqv(type_context & ctx, expr e) {
         e = instantiate(binding_body(e), local);
     }
     expr lhs, rhs;
-    if (!is_simp_relation(env, e, lhs, rhs))
+    if (!is_simp_relation(env, e, lhs, rhs)) {
+        lean_trace(name({"simp_lemmas", "invalid"}),
+                   tout() << "body of rule derived from '" << id << "' not a reflexive and transitive relation\n";);
         return false;
+    }
     // traverse lhs, and remove found variables from to_find
     for_each(lhs, visitor_fn);
-    if (!to_find.empty())
+    if (!to_find.empty()) {
+        lean_trace(name({"simp_lemmas", "invalid"}),
+                   tout() << "rule derived from '" << id << "' contains argument that is (a) not a Prop, (b) not an instance, and (c) not in the LHS of the rule\n";);
         return false;
+    }
     // basic looping ceq detection: the left-hand-side should not occur in the right-hand-side,
     // nor it should occur in any of the hypothesis
-    if (occurs(lhs, rhs))
+    if (occurs(lhs, rhs)) {
+        lean_trace(name({"simp_lemmas", "invalid"}),
+                   tout() << "LHS of rule derived from '" << id << "' occurs in RHS\n";);
         return false;
-    if (std::any_of(hypotheses.begin(), hypotheses.end(), [&](expr const & h) { return occurs(lhs, h); }))
+    }
+    if (std::any_of(hypotheses.begin(), hypotheses.end(), [&](expr const & h) { return occurs(lhs, h); })) {
+        lean_trace(name({"simp_lemmas", "invalid"}),
+                   tout() << "LHS of rule derived from '" << id << "' occurs in one of the hypotheses\n";);
         return false;
+    }
     return true;
 }
 
@@ -662,14 +677,14 @@ static void report_failure(sstream const & strm) {
     if (g_throw_ex){
         throw exception(strm);
     } else {
-        lean_trace(name({"simp_lemmas", "failure"}), tout() << strm.str() << "\n";);
+        lean_trace(name({"simp_lemmas", "invalid"}), tout() << strm.str() << "\n";);
     }
 }
 
 static simp_lemmas add_core(type_context & ctx, simp_lemmas const & s, name const & id, levels const & univ_metas,
                             expr const & e, expr const & h, unsigned priority) {
     lean_assert(ctx.in_tmp_mode());
-    list<expr_pair> ceqvs   = to_ceqvs(ctx, e, h);
+    list<expr_pair> ceqvs   = to_ceqvs(ctx, id, e, h);
     if (is_nil(ceqvs)) {
         report_failure(sstream() << "invalid simplification lemma '" << id << "' : " << e);
         return s;
@@ -1134,7 +1149,7 @@ static bool instantiate_emetas(type_context & ctx, list<expr> const & _emetas, l
         if (instances[i]) {
             if (auto v = ctx.mk_class_instance(m_type)) {
                 if (!ctx.is_def_eq(m, *v)) {
-                    lean_trace(name({"simp_lemma", "failure"}),
+                    lean_trace(name({"simp_lemmas", "failure"}),
                                tout() << "unable to assign instance for: " << m_type << "\n";);
                     return false;
                 } else {
@@ -1142,12 +1157,12 @@ static bool instantiate_emetas(type_context & ctx, list<expr> const & _emetas, l
                     continue;
                 }
             } else {
-                lean_trace(name({"simp_lemma", "failure"}),
+                lean_trace(name({"simp_lemmas", "failure"}),
                            tout() << "unable to synthesize instance for: " << m_type << "\n";);
                 return false;
             }
         } else {
-            lean_trace(name({"simp_lemma", "failure"}),
+            lean_trace(name({"simp_lemmas", "failure"}),
                        tout() << "failed to assign: " << m << " : " << m_type << "\n";);
             return false;
         }
@@ -1160,7 +1175,7 @@ expr refl_lemma_rewrite(type_context & ctx, expr const & e, simp_lemma const & s
     type_context::tmp_mode_scope scope(ctx, sl.get_num_umeta(), sl.get_num_emeta());
     if (!ctx.is_def_eq(e, sl.get_lhs())) return e;
 
-    lean_trace("simp_lemma",
+    lean_trace("simp_lemmas",
                expr new_lhs = ctx.instantiate_mvars(sl.get_lhs());
                expr new_rhs = ctx.instantiate_mvars(sl.get_rhs());
                tout() << "(" << sl.get_id() << ") "
@@ -1412,7 +1427,7 @@ static bool is_valid_simp_lemma_cnst_core(transparency_mode const & m, name cons
         levels ls  = mk_tmp_levels_for(ctx, d);
         expr type  = instantiate_type_univ_params(d, ls);
         expr proof = mk_constant(cname, ls);
-        return !is_nil(to_ceqvs(ctx, type, proof));
+        return !is_nil(to_ceqvs(ctx, cname, type, proof));
     } catch (exception &) {
         return false;
     }
@@ -1427,7 +1442,7 @@ static bool is_valid_simp_lemma_core(transparency_mode const & m, expr const & e
     try {
         type_context ctx = mk_type_context_for(s, m);
         expr type = ctx.infer(e);
-        return !is_nil(to_ceqvs(ctx, type, e));
+        return !is_nil(to_ceqvs(ctx, name(), type, e));
     } catch (exception &) {
         return false;
     }
@@ -1466,6 +1481,7 @@ void initialize_simp_lemmas() {
     register_trace_class("simp_lemmas");
     register_trace_class("simp_lemmas_cache");
     register_trace_class(name{"simp_lemmas", "failure"});
+    register_trace_class(name{"simp_lemmas", "invalid"});
     register_system_attribute(basic_attribute(
             *g_refl_lemma_attr, "marks that a lemma that can be used by the defeq simplifier"));
 

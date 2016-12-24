@@ -698,6 +698,12 @@ else by rewrite [sub_eq_zero_of_le (le_of_not_ge h), min_eq_left (le_of_not_ge h
 lemma sub_add_min_cancel (n m : ℕ) : n - m + min n m = n :=
 by rewrite [sub_eq_sub_min, nat.sub_add_cancel (min_le_left n m)]
 
+lemma pred_inj : ∀ {a b : nat}, a > 0 → b > 0 → nat.pred a = nat.pred b → a = b
+| (succ a) (succ b) ha hb h := have a = b, from h, by rw this
+| (succ a) 0        ha hb h := absurd hb (lt_irrefl _)
+| 0        (succ b) ha hb h := absurd ha (lt_irrefl _)
+| 0        0        ha hb h := rfl
+
 /- TODO(Leo): sub + inequalities -/
 
 

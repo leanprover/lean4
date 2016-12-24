@@ -119,9 +119,6 @@ static optional<ext_congr_lemma> mk_hcongr_lemma_core(type_context & ctx, expr c
     ext_congr_lemma res1(*eq_congr);
     expr type = eq_congr->get_type();
     while (is_pi(type)) type = binding_body(type);
-    /* If all arguments are Eq kind, then we can use generic congr axiom and consider equality for the function. */
-    if (!is_heq(type) && eq_congr->all_eq_kind())
-        res1.m_fixed_fun = false;
     lean_assert(is_eq(type) || is_heq(type));
     res1.m_hcongr_lemma = true;
     if (is_heq(type))

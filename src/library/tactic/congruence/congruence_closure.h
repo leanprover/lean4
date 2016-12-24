@@ -246,17 +246,13 @@ public:
 struct ext_congr_lemma {
     /* The basic congr_lemma object defined at congr_lemma_manager */
     congr_lemma          m_congr_lemma;
-    /* If m_fixed_fun is false, then we build equivalences for functions,
-       and use generic congr lemma, and ignore m_congr_lemma.
-       That is, even the function can be treated as an Eq argument. */
-    unsigned             m_fixed_fun:1;
     /* If m_heq_result is true, then lemma is based on heterogeneous equality
        and the conclusion is a heterogeneous equality. */
     unsigned             m_heq_result:1;
     /* If m_heq_lemma is true, then lemma was created using mk_hcongr_lemma. */
     unsigned             m_hcongr_lemma:1;
     ext_congr_lemma(congr_lemma const & H):
-        m_congr_lemma(H), m_fixed_fun(true), m_heq_result(false), m_hcongr_lemma(false) {}
+        m_congr_lemma(H), m_heq_result(false), m_hcongr_lemma(false) {}
 };
 
 void initialize_congruence_closure();

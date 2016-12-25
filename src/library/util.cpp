@@ -486,12 +486,26 @@ static void finalize_nat() {
     delete g_nat_add_fn;
 }
 
-expr mk_nat() { return *g_nat; }
+expr mk_nat_type() { return *g_nat; }
+bool is_nat_type(expr const & e) { return e == *g_nat; }
 expr mk_nat_zero() { return *g_nat_zero; }
 expr mk_nat_one() { return *g_nat_one; }
 expr mk_nat_bit0(expr const & e) { return mk_app(*g_nat_bit0_fn, e); }
 expr mk_nat_bit1(expr const & e) { return mk_app(*g_nat_bit1_fn, e); }
 expr mk_nat_add(expr const & e1, expr const & e2) { return mk_app(*g_nat_add_fn, e1, e2); }
+
+static expr * g_int = nullptr;
+
+static void initialize_int() {
+    g_int = new expr(mk_constant(get_int_name()));
+}
+
+static void finalize_int() {
+    delete g_int;
+}
+
+expr mk_int_type() { return *g_int; }
+bool is_int_type(expr const & e) { return e == *g_int; }
 
 expr mk_unit(level const & l, bool prop) { return prop ? mk_true() : mk_unit(l); }
 expr mk_unit_mk(level const & l, bool prop) { return prop ? mk_true_intro() : mk_unit_mk(l); }
@@ -962,9 +976,11 @@ void initialize_library_util() {
     g_and_elim_left  = new expr(mk_constant(get_and_elim_left_name()));
     g_and_elim_right = new expr(mk_constant(get_and_elim_right_name()));
     initialize_nat();
+    initialize_int();
 }
 
 void finalize_library_util() {
+    finalize_int();
     finalize_nat();
     delete g_true;
     delete g_true_intro;

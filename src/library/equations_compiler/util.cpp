@@ -376,6 +376,8 @@ static optional<expr> mk_val_ne_proof(type_context & ctx, expr const & a, expr c
         return mk_char_val_ne_proof(a, b);
     if (ctx.is_def_eq(type, mk_constant(get_string_name())))
         return mk_string_val_ne_proof(a, b);
+    if (ctx.is_def_eq(type, mk_constant(get_int_name())))
+        return mk_int_val_ne_proof(a, b);
     return none_expr();
 }
 

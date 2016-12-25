@@ -9,11 +9,11 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 #include "library/constants.h"
 #include "library/num.h"
+#include "library/util.h"
 #include "library/kernel_serializer.h"
 #include "library/replace_visitor_with_tc.h"
 
 namespace lean {
-static expr * g_nat               = nullptr;
 static name * g_nat_macro         = nullptr;
 static std::string * g_nat_opcode = nullptr;
 
@@ -28,7 +28,7 @@ public:
     virtual name get_name() const { return *g_nat_macro; }
 
     virtual expr check_type(expr const &, abstract_type_context &, bool) const {
-        return *g_nat;
+        return mk_nat_type();
     }
 
     static expr convert(mpz const & n, expr const & one, expr const & add) {
@@ -85,7 +85,7 @@ mpz const & get_nat_value_value(expr const & e) {
 optional<expr> to_nat_value(type_context & ctx, expr const & e) {
     if (optional<mpz> v = to_num(e)) {
         expr type = ctx.whnf(ctx.infer(e));
-        if (is_constant(type, get_nat_name())) {
+        if (is_nat_type(type)) {
             return some_expr(mk_nat_value(*v));
         }
     }
@@ -109,7 +109,6 @@ expr find_nat_values(environment const & env, expr const & e) {
 
 void initialize_nat_value() {
     g_nat_macro  = new name("nat_value_macro");
-    g_nat        = new expr(Const(get_nat_name()));
     g_nat_opcode = new std::string("CNatM");
     register_macro_deserializer(*g_nat_opcode,
                                 [](deserializer & d, unsigned num, expr const *) {
@@ -123,6 +122,5 @@ void initialize_nat_value() {
 void finalize_nat_value() {
     delete g_nat_opcode;
     delete g_nat_macro;
-    delete g_nat;
 }
 }

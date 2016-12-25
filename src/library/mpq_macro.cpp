@@ -8,6 +8,7 @@ Author: Daniel Selsam
 #include "util/sstream.h"
 #include "util/hash.h"
 #include "library/num.h"
+#include "library/util.h"
 #include "library/mpq_macro.h"
 #include "library/constants.h"
 #include "library/kernel_serializer.h"
@@ -70,7 +71,7 @@ class mpq_macro_definition_cell : public macro_definition_cell {
         if (!is_macro(m) || macro_num_args(m) != 1)
             throw exception(sstream() << "invalid 'mpq' macro, incorrect number of arguments");
         expr const & type = macro_arg(m, 0);
-        bool ok_type = type == mk_constant(get_nat_name()) || type == mk_constant(get_int_name()) || type == mk_constant(get_real_name());
+        bool ok_type = is_nat_type(type) || is_int_type(type) || type == mk_constant(get_real_name());
         if (!ok_type)
             throw exception(sstream() << "invalid 'mpq' macro, only nat, int, and real accepted");
     }

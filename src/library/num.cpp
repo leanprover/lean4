@@ -134,44 +134,23 @@ bool is_num_leaf_constant(name const & n) {
         n == get_has_one_one_name();
 }
 
-static expr * g_bit0_nat = nullptr;
-static expr * g_bit1_nat = nullptr;
-static expr * g_zero_nat = nullptr;
-static expr * g_one_nat  = nullptr;
-
 expr to_nat_expr_core(mpz const & n) {
     lean_assert(n >= 0);
     if (n == 1)
-        return *g_one_nat;
+        return mk_nat_one();
     else if (n % mpz(2) == 0)
-        return mk_app(*g_bit0_nat, to_nat_expr(n / 2));
+        return mk_nat_bit0(to_nat_expr(n / 2));
     else
-        return mk_app(*g_bit1_nat, to_nat_expr(n / 2));
+        return mk_nat_bit1(to_nat_expr(n / 2));
 }
 
 expr to_nat_expr(mpz const & n) {
     if (n == 0)
-        return *g_zero_nat;
+        return mk_nat_zero();
     else
         return to_nat_expr_core(n);
 }
 
-void initialize_num() {
-    expr nat          = Const(get_nat_name());
-    expr nat_has_add  = Const(get_nat_has_add_name());
-    expr nat_has_one  = Const(get_nat_has_one_name());
-    expr nat_has_zero = Const(get_nat_has_zero_name());
-
-    g_bit0_nat = new expr(mk_app(mk_constant(get_bit0_name(), {mk_level_one()}), nat, nat_has_add));
-    g_bit1_nat = new expr(mk_app(mk_constant(get_bit1_name(), {mk_level_one()}), nat, nat_has_one, nat_has_add));
-    g_one_nat  = new expr(mk_app(mk_constant(get_one_name(), {mk_level_one()}), nat, nat_has_one));
-    g_zero_nat = new expr(mk_app(mk_constant(get_zero_name(), {mk_level_one()}), nat, nat_has_zero));
-}
-
-void finalize_num() {
-    delete g_bit0_nat;
-    delete g_bit1_nat;
-    delete g_zero_nat;
-    delete g_one_nat;
-}
+void initialize_num() {}
+void finalize_num() {}
 }

@@ -266,7 +266,7 @@ def ssuperset {α : Type u} [has_ssubset α] (a b : α) : Prop := ssubset b a
 def bit0 {α : Type u} [s  : has_add α] (a  : α)                 : α := add a a
 def bit1 {α : Type u} [s₁ : has_one α] [s₂ : has_add α] (a : α) : α := add (bit0 a) one
 
-attribute [pattern] zero one bit0 bit1 add
+attribute [pattern] zero one bit0 bit1 add neg
 
 def insert {α : Type u} {γ : Type u → Type v} [has_insert α γ] : α → γ α → γ α :=
 has_insert.insert

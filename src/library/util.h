@@ -173,12 +173,16 @@ expr mk_pair(abstract_type_context & ctx, expr const & a, expr const & b, bool p
 expr mk_fst(abstract_type_context & ctx, expr const & p, bool prop);
 expr mk_snd(abstract_type_context & ctx, expr const & p, bool prop);
 
-expr mk_nat();
+expr mk_nat_type();
+bool is_nat_type(expr const & e);
 expr mk_nat_zero();
 expr mk_nat_one();
 expr mk_nat_bit0(expr const & e);
 expr mk_nat_bit1(expr const & e);
 expr mk_nat_add(expr const & e1, expr const & e2);
+
+expr mk_int_type();
+bool is_int_type(expr const & e);
 
 bool is_ite(expr const & e, expr & c, expr & H, expr & A, expr & t, expr & f);
 bool is_ite(expr const & e);

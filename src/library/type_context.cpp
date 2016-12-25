@@ -2668,7 +2668,7 @@ lbool type_context::try_numeral_eq_numeral(expr const & t, expr const & s) {
     optional<unsigned> k2 = to_small_num(s);
     if (!k2) return l_undef;
 
-    if (whnf(infer(t)) != mk_nat())
+    if (is_nat_type(whnf(infer(t))))
         return l_undef;
 
     return to_lbool(*k1 == *k2);

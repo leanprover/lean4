@@ -283,9 +283,14 @@ struct elim_match_fn {
         return result;
     }
 
-    bool is_value(expr const & e) {
+    bool is_value(type_context & ctx, expr const & e) {
         if (!m_use_ite) return false;
-        if (to_num(e) || to_char(e) || to_string(e)) return true;
+        if (to_char(e) || to_string(e)) return true;
+        if (is_signed_num(e)) {
+            expr type = ctx.infer(e);
+            if (ctx.is_def_eq(type, mk_nat_type()) || ctx.is_def_eq(type, mk_int_type()))
+                return true;
+        }
         if (optional<name> I_name = is_constructor(e)) return is_nontrivial_enum(*I_name);
         return false;
     }
@@ -325,7 +330,7 @@ struct elim_match_fn {
             return e;
         } else {
             return ctx.whnf_pred(e, [&](expr const & e) {
-                    return !is_constructor_app(e) && !is_value(e) && !is_transport_app(e);
+                    return !is_constructor_app(e) && !is_value(ctx, e) && !is_transport_app(e);
                 });
         }
     }
@@ -452,8 +457,9 @@ struct elim_match_fn {
 
     /* Return true iff the next pattern in all equations is a constructor. */
     bool is_constructor_transition(problem const & P) {
+        type_context ctx = mk_type_context(P);
         return all_next_pattern(P, [&](expr const & p) {
-                return is_constructor_app(p) || is_value(p);
+                return is_constructor_app(p) || is_value(ctx, p);
             });
     }
 
@@ -483,12 +489,13 @@ struct elim_match_fn {
     bool is_complete_transition(problem const & P, bool value_is_contructor) {
         bool has_variable    = false;
         bool has_constructor = false;
+        type_context ctx     = mk_type_context(P);
         bool r = all_next_pattern(P, [&](expr const & p) {
                 if (is_local(p)) {
                     has_variable = true; return true;
                 } else if (is_constructor_app(p)) {
                     has_constructor = true; return true;
-                } else if (is_value(p)) {
+                } else if (is_value(ctx, p)) {
                     if (value_is_contructor) has_constructor = true;
                     return true;
                 } else {
@@ -504,10 +511,11 @@ struct elim_match_fn {
     bool is_value_transition(problem const & P) {
         bool has_value    = false;
         bool has_variable = false;
+        type_context ctx  = mk_type_context(P);
         bool r = all_next_pattern(P, [&](expr const & p) {
                 if (is_local(p)) {
                     has_variable = true; return true;
-                } else if (is_value(p)) {
+                } else if (is_value(ctx, p)) {
                     has_value    = true; return true;
                 } else {
                     return false;
@@ -517,7 +525,6 @@ struct elim_match_fn {
             return false;
         /* Check whether other variables on the variable stack depend on the head. */
         expr const & v   = head(P.m_var_stack);
-        type_context ctx = mk_type_context(P);
         for (expr const & w : tail(P.m_var_stack)) {
             expr w_type = ctx.infer(w);
             if (depends_on(w_type, v)) {

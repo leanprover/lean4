@@ -74,6 +74,7 @@ functor
 false
 false_of_true_iff_false
 false_of_true_eq_false
+true_eq_false_of_false
 false.rec
 field
 fin

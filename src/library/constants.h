@@ -81,6 +81,7 @@ name const & get_functor_name();
 name const & get_false_name();
 name const & get_false_of_true_iff_false_name();
 name const & get_false_of_true_eq_false_name();
+name const & get_true_eq_false_of_false_name();
 name const & get_false_rec_name();
 name const & get_field_name();
 name const & get_fin_name();

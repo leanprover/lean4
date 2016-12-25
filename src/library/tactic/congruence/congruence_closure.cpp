@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "library/comp_val.h"
 #include "library/app_builder.h"
 #include "library/defeq_canonizer.h"
+#include "library/constructions/constructor.h"
 #include "library/tactic/congruence/congruence_closure.h"
 
 namespace lean {
@@ -1145,12 +1146,26 @@ void congruence_closure::check_new_subsingleton_eq(expr const & old_root, expr c
     }
 }
 
-void congruence_closure::propagate_no_confusion_eq(expr const & e1, expr const & e2) {
-    lean_assert(is_constructor_app(env(), e1));
-    lean_assert(is_constructor_app(env(), e2));
+void congruence_closure::propagate_constructor_eq(expr const & e1, expr const & e2) {
+    optional<name> c1 = is_constructor_app(env(), e1);
+    optional<name> c2 = is_constructor_app(env(), e2);
+    lean_assert(c1 && c2);
     expr type       = mk_eq(m_ctx, e1, e2);
-    expr pr         = *get_eq_proof(e1, e2);
-    /* TODO(Leo): use no_confusion to build proofs for arguments */
+    expr h          = *get_eq_proof(e1, e2);
+    bool heq_proof  = false;
+    if (*c1 == *c2) {
+        buffer<std::tuple<expr, expr, expr>> implied_eqs;
+        lean_verify(mk_constructor_eq_constructor_implied_eqs(m_ctx, e1, e2, h, implied_eqs));
+        for (std::tuple<expr, expr, expr> const & t : implied_eqs) {
+            expr lhs, rhs, H;
+            std::tie(lhs, rhs, H) = t;
+            push_todo(lhs, rhs, H, heq_proof);
+        }
+    } else {
+        expr false_pr = *mk_constructor_eq_constructor_inconsistency_proof(m_ctx, e1, e2, h);
+        expr H        = mk_app(mk_constant(get_true_eq_false_of_false_name()), false_pr);
+        push_todo(mk_true(), mk_false(), H, heq_proof);
+    }
 }
 
 void congruence_closure::propagate_value_inconsistency(expr const & e1, expr const & e2) {
@@ -1216,8 +1231,7 @@ void congruence_closure::add_eqv_step(expr e1, expr e2, expr const & H,
         }
     }
 
-    bool use_no_confusion = r1->m_constructor && r2->m_constructor;
-
+    bool constructor_eq = r1->m_constructor && r2->m_constructor;
     expr e1_root   = n1->m_root;
     expr e2_root   = n2->m_root;
     entry new_n1   = *n1;
@@ -1292,8 +1306,8 @@ void congruence_closure::add_eqv_step(expr e1, expr e2, expr const & H,
         */
     }
 
-    if (use_no_confusion) {
-        propagate_no_confusion_eq(e1_root, e2_root);
+    if (constructor_eq) {
+        propagate_constructor_eq(e1_root, e2_root);
     }
 
     if (value_inconsistency) {

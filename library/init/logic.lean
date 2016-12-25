@@ -387,6 +387,9 @@ assume h, iff.mp h trivial
 lemma false_of_true_eq_false : (true = false) → false :=
 assume h, h ▸ trivial
 
+lemma true_eq_false_of_false : false → (true = false) :=
+false.elim
+
 /- and simp rules -/
 lemma and.imp (hac : a → c) (hbd : b → d) : a ∧ b → c ∧ d :=
 assume ⟨ha, hb⟩, ⟨hac ha, hbd hb⟩

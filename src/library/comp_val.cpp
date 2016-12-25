@@ -288,6 +288,19 @@ optional<expr> mk_int_val_ne_proof(expr const & a, expr const & b) {
     }
 }
 
+optional<expr> mk_val_ne_proof(type_context & ctx, expr const & a, expr const & b) {
+    expr type = ctx.infer(a);
+    if (ctx.is_def_eq(type, mk_nat_type()))
+        return mk_nat_val_ne_proof(a, b);
+    if (ctx.is_def_eq(type, mk_int_type()))
+        return mk_int_val_ne_proof(a, b);
+    if (ctx.is_def_eq(type, mk_constant(get_char_name())))
+        return mk_char_val_ne_proof(a, b);
+    if (ctx.is_def_eq(type, mk_constant(get_string_name())))
+        return mk_string_val_ne_proof(a, b);
+    return none_expr();
+}
+
 void initialize_comp_val() {
     g_char_sz = new expr(to_nat_expr(mpz(256)));
 }

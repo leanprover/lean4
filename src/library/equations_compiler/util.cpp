@@ -368,19 +368,6 @@ static lbool compare_values(expr const & a, expr const & b) {
     return l_undef;
 }
 
-static optional<expr> mk_val_ne_proof(type_context & ctx, expr const & a, expr const & b) {
-    expr type = ctx.infer(a);
-    if (ctx.is_def_eq(type, mk_constant(get_nat_name())))
-        return mk_nat_val_ne_proof(a, b);
-    if (ctx.is_def_eq(type, mk_constant(get_char_name())))
-        return mk_char_val_ne_proof(a, b);
-    if (ctx.is_def_eq(type, mk_constant(get_string_name())))
-        return mk_string_val_ne_proof(a, b);
-    if (ctx.is_def_eq(type, mk_constant(get_int_name())))
-        return mk_int_val_ne_proof(a, b);
-    return none_expr();
-}
-
 static bool quick_is_def_eq_when_values(type_context & ctx, expr const & a, expr const & b) {
     if (!is_local(a) && !is_local(b)) {
         if (compare_values(a, b) == l_true)

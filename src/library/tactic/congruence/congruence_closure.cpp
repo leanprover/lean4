@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/string.h"
 #include "library/trace.h"
 #include "library/fun_info.h"
+#include "library/comp_val.h"
 #include "library/app_builder.h"
 #include "library/defeq_canonizer.h"
 #include "library/tactic/congruence/congruence_closure.h"
@@ -571,8 +572,7 @@ void congruence_closure::state::mk_entry_core(expr const & e, bool to_propagate,
     m_entries.insert(e, n);
 }
 
-void congruence_closure::mk_entry_core(expr const & e, bool to_propagate) {
-    bool interpreted = false;
+void congruence_closure::mk_entry_core(expr const & e, bool to_propagate, bool interpreted) {
     bool constructor = static_cast<bool>(is_constructor_app(env(), e));
     m_state.mk_entry_core(e, to_propagate, interpreted, constructor);
     process_subsingleton_elem(e);
@@ -592,10 +592,22 @@ void congruence_closure::mk_entry(expr const & e, bool to_propagate) {
     mk_entry_core(e, to_propagate);
 }
 
-/** Return true if 'e' represents a value (numerial, character of string).
+/** Return true if 'e' represents a value (numeral, character, or string).
     TODO(Leo): move this code to a different place. */
-static bool is_value(expr const & e) {
-    return is_num(e) || is_char(e) || is_string(e);
+bool congruence_closure::is_value(expr const & e) {
+    return is_signed_num(e) || is_char_value(e) || is_string_value(e);
+}
+
+/** Return true if 'e' represents a value (nat/int numereal, character, or string).
+    TODO(Leo): move this code to a different place. */
+bool congruence_closure::is_interpreted_value(expr const & e) {
+    if (is_char_value(e) || is_string_value(e))
+        return true;
+    if (is_signed_num(e)) {
+        expr type = m_ctx.infer(e);
+        return m_ctx.is_def_eq(type, mk_nat_type()) || m_ctx.is_def_eq(type, mk_int_type());
+    }
+    return false;
 }
 
 /** Given (f a b c), store in r, (f a), (f a b), (f a b c), and return f.
@@ -635,9 +647,14 @@ void congruence_closure::internalize_core(expr const & e, bool toplevel, bool to
         mk_entry_core(e, false);
         return;
     case expr_kind::Macro:
-        for (unsigned i = 0; i < macro_num_args(e); i++)
-            internalize_core(macro_arg(e, i), false, false);
-        mk_entry_core(e, to_propagate);
+        if (is_interpreted_value(e)) {
+            bool interpreted = true;
+            mk_entry_core(e, false, interpreted);
+        } else {
+            for (unsigned i = 0; i < macro_num_args(e); i++)
+                internalize_core(macro_arg(e, i), false, false);
+            mk_entry_core(e, to_propagate);
+        }
         break;
     case expr_kind::Pi:
         if (is_arrow(e) && m_ctx.is_prop(binding_domain(e)) && m_ctx.is_prop(binding_body(e))) {
@@ -650,12 +667,23 @@ void congruence_closure::internalize_core(expr const & e, bool toplevel, bool to
         }
         return;
     case expr_kind::App: {
-        bool is_lapp = is_logical_app(e);
-        mk_entry_core(e, to_propagate && !is_lapp);
-        if (m_state.m_config.m_values && is_value(e)) {
-            /* we treat values as atomic symbols */
-            return;
+        bool is_lapp = false;
+        if (is_interpreted_value(e)) {
+            bool interpreted = true;
+            mk_entry_core(e, false, interpreted);
+            if (m_state.m_config.m_values) {
+                /* we treat values as atomic symbols */
+                return;
+            }
+        } else {
+            is_lapp = is_logical_app(e);
+            mk_entry_core(e, to_propagate && !is_lapp);
+            if (m_state.m_config.m_values && is_value(e)) {
+                /* we treat values as atomic symbols */
+                return;
+            }
         }
+
         if (toplevel) {
             if (is_lapp) {
                 to_propagate = true; // we must propagate the children of a top-level logical app (or, and, iff, ite)
@@ -1125,6 +1153,17 @@ void congruence_closure::propagate_no_confusion_eq(expr const & e1, expr const &
     /* TODO(Leo): use no_confusion to build proofs for arguments */
 }
 
+void congruence_closure::propagate_value_inconsistency(expr const & e1, expr const & e2) {
+    lean_assert(is_interpreted_value(e1));
+    lean_assert(is_interpreted_value(e2));
+    expr ne_proof      = *mk_val_ne_proof(m_ctx, e1, e2);
+    expr eq_proof      = *get_eq_proof(e1, e2);
+    expr true_eq_false = mk_eq(m_ctx, mk_true(), mk_false());
+    expr H             = mk_absurd(m_ctx, eq_proof, ne_proof, true_eq_false);
+    bool heq_proof     = false;
+    push_todo(mk_true(), mk_false(), H, heq_proof);
+}
+
 static bool is_true_or_false(expr const & e) {
     return is_constant(e, get_true_name()) || is_constant(e, get_false_name());
 }
@@ -1168,8 +1207,14 @@ void congruence_closure::add_eqv_step(expr e1, expr e2, expr const & H,
         flipped = true;
     }
 
-    if (r1->m_interpreted && r2->m_interpreted)
-        m_state.m_inconsistent = true;
+    bool value_inconsistency = false;
+    if (r1->m_interpreted && r2->m_interpreted) {
+        if (is_true(n1->m_root) || is_true(n2->m_root)) {
+            m_state.m_inconsistent = true;
+        } else {
+            value_inconsistency = true;
+        }
+    }
 
     bool use_no_confusion = r1->m_constructor && r2->m_constructor;
 
@@ -1249,6 +1294,10 @@ void congruence_closure::add_eqv_step(expr e1, expr e2, expr const & H,
 
     if (use_no_confusion) {
         propagate_no_confusion_eq(e1_root, e2_root);
+    }
+
+    if (value_inconsistency) {
+        propagate_value_inconsistency(e1_root, e2_root);
     }
 
     update_mt(e2_root);

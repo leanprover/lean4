@@ -941,6 +941,10 @@ expr mk_not(type_context & ctx, expr const & H) {
     return mk_app(ctx, get_not_name(), {H});
 }
 
+expr mk_absurd(type_context & ctx, expr const & Hp, expr const & Hnp, expr const & b) {
+    return mk_app(ctx, get_absurd_name(), {b, Hp, Hnp});
+}
+
 expr mk_partial_add(type_context & ctx, expr const & A) {
     return app_builder(ctx).mk_partial_add(A);
 }

@@ -153,6 +153,9 @@ expr mk_neq_of_not_iff(type_context & ctx, expr const & H);
 
 expr mk_not(type_context & ctx, expr const & H);
 
+/** p -> not p -> b */
+expr mk_absurd(type_context & ctx, expr const & Hp, expr const & Hnp, expr const & b);
+
 expr mk_partial_add(type_context & ctx, expr const & A);
 expr mk_partial_mul(type_context & ctx, expr const & A);
 expr mk_zero(type_context & ctx, expr const & A);

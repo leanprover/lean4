@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "kernel/expr.h"
+#include "library/type_context.h"
 
 namespace lean {
 /** \brief If 'a' and 'b' are two distinct natural number values, then return a proof
@@ -49,6 +49,9 @@ optional<expr> mk_int_val_pos_proof(expr const & a);
 
 /* Similar to mk_nat_val_ne_proof, but for int type */
 optional<expr> mk_int_val_ne_proof(expr const & a, expr const & b);
+
+/* Return a proof for a != b, a/b has type nat/int/char/string, and they are distinct values. */
+optional<expr> mk_val_ne_proof(type_context & ctx, expr const & a, expr const & b);
 
 void initialize_comp_val();
 void finalize_comp_val();

@@ -162,13 +162,15 @@ private:
     symm_congr_key mk_symm_congr_key(expr const & e) const;
     void set_fo(expr const & e);
     bool is_logical_app(expr const & n);
+    bool is_value(expr const & e);
+    bool is_interpreted_value(expr const & e);
     void process_subsingleton_elem(expr const & e);
     void apply_simple_eqvs(expr const & e);
     void add_occurrence(expr const & parent, expr const & child, bool symm_table);
     void add_congruence_table(expr const & e);
     void check_eq_true(symm_congr_key const & k);
     void add_symm_congruence_table(expr const & e);
-    void mk_entry_core(expr const & e, bool to_propagate);
+    void mk_entry_core(expr const & e, bool to_propagate, bool interpreted = false);
     void mk_entry(expr const & e, bool to_propagate);
     void internalize_core(expr const & e, bool toplevel, bool to_propagate);
     void push_todo(expr const & lhs, expr const & rhs, expr const & H, bool heq_proof);
@@ -191,6 +193,7 @@ private:
     void push_subsingleton_eq(expr const & a, expr const & b);
     void check_new_subsingleton_eq(expr const & old_root, expr const & new_root);
     void propagate_no_confusion_eq(expr const & e1, expr const & e2);
+    void propagate_value_inconsistency(expr const & e1, expr const & e2);
     void add_eqv_step(expr e1, expr e2, expr const & H,
                       optional<expr> const & added_prop, bool heq_proof);
     void process_todo(optional<expr> const & added_prop);

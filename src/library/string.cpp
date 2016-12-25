@@ -193,7 +193,7 @@ optional<char> to_char(expr const & e) {
     }
 }
 
-bool is_char(expr const & e) {
+bool is_char_value(expr const & e) {
     return static_cast<bool>(to_char(e));
 }
 
@@ -238,7 +238,7 @@ optional<std::string> to_string(expr const & e) {
     }
 }
 
-bool is_string(expr const & e) {
+bool is_string_value(expr const & e) {
     /* TODO(Leo): optimize if needed */
     return static_cast<bool>(to_string(e));
 }

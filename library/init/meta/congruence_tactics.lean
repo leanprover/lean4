@@ -51,7 +51,7 @@ meta def eqc_size (s : cc_state) (e : expr) : nat :=
 end cc_state
 
 open tactic
-meta def tactic.cc : tactic unit :=
+meta def tactic.cc_core (dbg : bool) : tactic unit :=
 do intros, s ← cc_state.mk_using_hs, t ← target, s ← s^.internalize t tt,
    if s^.inconsistent then do {
      pr ← s^.false_proof,
@@ -61,6 +61,18 @@ do intros, s ← cc_state.mk_using_hs, t ← target, s ← s^.internalize t tt,
      b ← s^.is_eqv t tr,
      if b then do {
        pr ← s^.eqv_proof t tr,
-       mk_app `of_eq_true [pr] >>= exact}
-     else fail "cc tactic failed"
+       mk_app `of_eq_true [pr] >>= exact
+     } else if dbg then do {
+       ccf ← s^.pp,
+       msg ← return $ to_fmt "cc tactic failed, equivalence classes: " ++ format.line ++ ccf,
+       fail msg
+     } else do {
+       fail "cc tactic failed"
+     }
    }
+
+meta def tactic.cc : tactic unit :=
+tactic.cc_core ff
+
+meta def tactic.cc_dbg : tactic unit :=
+tactic.cc_core tt

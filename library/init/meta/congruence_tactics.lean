@@ -76,3 +76,17 @@ tactic.cc_core ff
 
 meta def tactic.cc_dbg : tactic unit :=
 tactic.cc_core tt
+
+/- Heuristic instantiation lemma -/
+meta constant hinst_lemma : Type
+
+/- (mk_core m e as_simp prio) -/
+meta constant hinst_lemma.mk_core           : transparency → expr → bool → nat → tactic hinst_lemma
+meta constant hinst_lemma.mk_from_decl_core : transparency → name → bool → nat → tactic hinst_lemma
+meta constant hinst_lemma.pp                : hinst_lemma → tactic format
+
+meta def hinst_lemma.mk (h : expr) : tactic hinst_lemma :=
+hinst_lemma.mk_core semireducible h ff 0
+
+meta def hinst_lemma.mk_from_decl (h : name) : tactic hinst_lemma :=
+hinst_lemma.mk_from_decl_core semireducible h ff 0

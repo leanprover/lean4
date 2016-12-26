@@ -582,6 +582,7 @@ static expr inline_new_defs(environment const & old_env, environment const & new
 class proof_elaboration_task : public task<expr> {
     environment m_decl_env;
     options m_opts;
+    pos_info m_header_pos;
     bool m_use_info_manager;
 
     std::vector<expr> m_params;
@@ -596,19 +597,41 @@ class proof_elaboration_task : public task<expr> {
 
 public:
     proof_elaboration_task(environment const & decl_env,
-                           options const & opts,
+                           options const & opts, pos_info const & header_pos,
                            buffer<expr> const & params,
                            expr const & fn, expr const & val, elaborator::theorem_finalization_info const & finfo,
                            bool is_rfl_lemma, expr const & final_type,
                            metavar_context const & mctx, local_context const & lctx,
                            parser_pos_provider const & prov) :
-        m_decl_env(decl_env), m_opts(opts), m_use_info_manager(get_global_info_manager() != nullptr),
+        m_decl_env(decl_env), m_opts(opts), m_header_pos(header_pos), m_use_info_manager(get_global_info_manager() != nullptr),
         m_params(params.begin(), params.end()), m_fn(fn), m_val(val), m_finfo(finfo),
         m_is_rfl_lemma(is_rfl_lemma), m_final_type(final_type),
         m_mctx(mctx), m_lctx(lctx), m_pos_provider(prov) {}
 
     void description(std::ostream & out) const override {
         out << "proving " << local_pp_name(m_fn) << " (" << get_module_id() << ")";
+    }
+
+    expr_pair elaborate_proof_core(elaborator & elab) {
+        expr type = mlocal_type(m_fn);
+        return elab.elaborate_with_type(m_val, mk_as_is(type));
+    }
+
+    expr_pair elaborate_proof(elaborator & elab) {
+        // TODO(Leo): create an aux function for retrieving this info
+        if (m_opts.get_bool("profiler", false)) {
+            // TODO(Leo): cleanup this hack
+            xtimeit timer(LEAN_PROFILE_THRESHOLD, [&](double duration) {
+                    scope_traces_as_messages traces_as_messages(m_pos_provider.get_file_name(), m_header_pos);
+                    std::ostringstream out;
+                    out << "elaboration time for " << local_pp_name(m_fn) << " "
+                        << std::fixed << std::setprecision(5) << duration << " secs\n";
+                    tout() << out.str();
+                });
+            return elaborate_proof_core(elab);
+        } else {
+            return elaborate_proof_core(elab);
+        }
     }
 
     expr execute() override {
@@ -620,8 +643,8 @@ public:
 
         try {
             elaborator elab(m_decl_env, m_opts, m_mctx, m_lctx);
-            expr val, type = mlocal_type(m_fn);
-            std::tie(val, type) = elab.elaborate_with_type(m_val, mk_as_is(type));
+            expr val, type;
+            std::tie(val, type) = elaborate_proof(elab);
             buffer<expr> params; for (auto & e : m_params) params.push_back(e);
             finalize_theorem_proof(elab, params, val, m_finfo);
             if (m_is_rfl_lemma && !is_rfl_lemma(m_final_type, val))
@@ -755,7 +778,7 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
             finalize_theorem_type(elab, new_params, type, lp_names, thm_finfo);
             auto decl_env = elab.env();
             auto elab_task = get_global_task_queue()->submit<proof_elaboration_task>(
-                decl_env, p.get_options(), new_params, new_fn, val, thm_finfo, is_rfl, type,
+                decl_env, p.get_options(), header_pos, new_params, new_fn, val, thm_finfo, is_rfl, type,
                 elab.mctx(), elab.lctx(), p.get_parser_pos_provider(header_pos));
             env_n = declare_definition(p, elab.env(), kind, lp_names, c_name, type, opt_val, elab_task, modifiers, attrs,
                                        doc_string, header_pos);

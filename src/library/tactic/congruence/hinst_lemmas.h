@@ -67,6 +67,8 @@ list<multi_pattern> mk_multipatterns(environment const & env, io_state const & i
 hinst_lemma mk_hinst_lemma(type_context & ctx, expr const & H, bool simp = false, unsigned prio = LEAN_DEFAULT_PRIORITY);
 hinst_lemma mk_hinst_lemma(type_context & ctx, name const & n, bool simp = false, unsigned prio = LEAN_DEFAULT_PRIORITY);
 
+format pp_hinst_lemma(formatter const & fmt, hinst_lemma const & h);
+
 void initialize_hinst_lemmas();
 void finalize_hinst_lemmas();
 }

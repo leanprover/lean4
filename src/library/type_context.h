@@ -531,12 +531,13 @@ private:
     expr infer_app(expr const & e);
     expr infer_let(expr e);
 
-private:
+public:
     /* ------------
        is_def_eq
        ------------ */
     void push_scope();
     void pop_scope();
+private:
     void commit_scope();
     class scope {
         friend class type_context;

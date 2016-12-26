@@ -210,6 +210,13 @@ bool congruence_closure::state::is_congr_root(expr const & e) const {
     }
 }
 
+bool congruence_closure::state::in_heterogeneous_eqc(expr const & e) const {
+    if (auto n = m_entries.find(get_root(e)))
+        return n->m_heq_proofs;
+    else
+        return false;
+}
+
 /** \brief Return true iff the given function application are congruent
 
     See paper: Congruence Closure for Intensional Type Theory. */

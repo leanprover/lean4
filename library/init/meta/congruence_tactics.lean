@@ -90,3 +90,19 @@ hinst_lemma.mk_core semireducible h ff 0
 
 meta def hinst_lemma.mk_from_decl (h : name) : tactic hinst_lemma :=
 hinst_lemma.mk_from_decl_core semireducible h ff 0
+
+/- Ematching -/
+meta constant ematch_state             : Type
+meta constant ematch_state.mk          : nat → ematch_state
+meta constant ematch_state.internalize : ematch_state → expr → tactic ematch_state
+
+namespace tactic
+meta constant ematch_core       : transparency → cc_state → ematch_state → hinst_lemma → expr → tactic (list (expr × expr) × cc_state × ematch_state)
+meta constant ematch_all_core   : transparency → cc_state → ematch_state → hinst_lemma → bool → tactic (list (expr × expr) × cc_state × ematch_state)
+
+meta def ematch : cc_state → ematch_state → hinst_lemma → expr → tactic (list (expr × expr) × cc_state × ematch_state) :=
+ematch_core reducible
+
+meta def ematch_all : cc_state → ematch_state → hinst_lemma → bool → tactic (list (expr × expr) × cc_state × ematch_state) :=
+ematch_all_core reducible
+end tactic

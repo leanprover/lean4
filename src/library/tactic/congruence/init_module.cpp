@@ -7,14 +7,18 @@ Author: Leonardo de Moura
 #include "library/tactic/congruence/congruence_closure.h"
 #include "library/tactic/congruence/congruence_tactics.h"
 #include "library/tactic/congruence/hinst_lemmas.h"
+#include "library/tactic/congruence/ematch.h"
 
 namespace lean {
 void initialize_congruence_module() {
     initialize_congruence_closure();
     initialize_congruence_tactics();
     initialize_hinst_lemmas();
+    initialize_ematch();
 }
+
 void finalize_congruence_module() {
+    finalize_ematch();
     finalize_hinst_lemmas();
     finalize_congruence_tactics();
     finalize_congruence_closure();

@@ -138,8 +138,10 @@ public:
         bool check_invariant() const;
         bool inconsistent() const { return m_inconsistent; }
         bool in_singleton_eqc(expr const & e) const;
+        bool in_heterogeneous_eqc(expr const & e) const;
         format pp_eqc(formatter const & fmt, expr const & e) const;
         format pp_eqcs(formatter const & fmt, bool nonsingleton_only = true) const;
+        unsigned get_gmt() const { return m_gmt; }
     };
 
 private:
@@ -182,7 +184,6 @@ private:
     bool has_heq_proofs(expr const & root) const;
     expr flip_proof(expr const & H, bool flipped, bool heq_proofs) const;
     optional<ext_congr_lemma> mk_ext_hcongr_lemma(expr const & fn, unsigned nargs) const;
-    optional<ext_congr_lemma> mk_ext_congr_lemma(expr const & e) const;
     expr mk_trans(expr const & H1, expr const & H2, bool heq_proofs) const;
     expr mk_trans(optional<expr> const & H1, expr const & H2, bool heq_proofs) const;
     expr mk_congr_proof_core(expr const & e1, expr const & e2, bool heq_proofs) const;
@@ -236,11 +237,17 @@ public:
     expr get_root(expr const & e) const { return m_state.get_root(e); }
     expr get_next(expr const & e) const { return m_state.get_next(e); }
     bool is_congr_root(expr const & e) const { return m_state.is_congr_root(e); }
+    bool in_heterogeneous_eqc(expr const & e) const { return m_state.in_heterogeneous_eqc(e); }
 
     optional<expr> get_heq_proof(expr const & e1, expr const & e2) const;
     optional<expr> get_eq_proof(expr const & e1, expr const & e2) const;
     optional<expr> get_proof(expr const & e1, expr const & e2) const;
     optional<expr> get_inconsistency_proof() const;
+
+    unsigned get_gmt() const { return m_state.get_gmt(); }
+    unsigned get_mt(expr const & t) const { return m_state.get_mt(t); }
+
+    optional<ext_congr_lemma> mk_ext_congr_lemma(expr const & e) const;
 
     entry const * get_entry(expr const & e) const { return m_state.m_entries.find(e); }
     bool check_invariant() const { return m_state.check_invariant(); }

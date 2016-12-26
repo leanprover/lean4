@@ -1,2 +1,2 @@
 add_library(congruence OBJECT congruence_closure.cpp congruence_tactics.cpp
-            hinst_lemmas.cpp init_module.cpp)
+            hinst_lemmas.cpp ematch.cpp init_module.cpp)

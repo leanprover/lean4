@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <cstdlib>
 #include <string>
 #include "util/debug.h"
+#include "util/optional.h"
 
 namespace lean {
 bool is_utf8_next(unsigned char c) { return (c & 0xC0) == 0x80; }
@@ -38,6 +39,19 @@ size_t utf8_strlen(char const * str) {
         str += sz;
     }
     return r;
+}
+
+optional<size_t> utf8_char_pos(char const * str, size_t char_idx) {
+    size_t r = 0;
+    while (*str != 0) {
+        if (char_idx == 0)
+            return some<size_t>(r);
+        char_idx--;
+        unsigned sz = get_utf8_size(*str);
+        r += sz;
+        str += sz;
+    }
+    return optional<size_t>();
 }
 
 char const * get_utf8_last_char(char const * str) {

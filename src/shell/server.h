@@ -55,7 +55,8 @@ class server : public module_vfs {
     cmd_res handle_sync(cmd_req const & req);
     class auto_complete_task;
     void handle_complete(cmd_req const & req);
-    cmd_res handle_info(cmd_req const & req);
+    class info_task;
+    void handle_info(cmd_req const & req);
 
 public:
     server(unsigned num_threads, environment const & intial_env, io_state const & ios);

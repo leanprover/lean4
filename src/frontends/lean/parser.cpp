@@ -210,48 +210,19 @@ parser::parser(environment const & env, io_state const & ios,
 parser::~parser() {
 }
 
-void parser::scan() {
-    if (m_info_at) {
-        m_curr = m_scanner.scan(m_env);
-        pos_info p = pos();
-        if (p.first == m_info_at_line) {
-            if (curr_is_identifier()) {
-                name const & id = get_name_val();
-                if (p.second <= m_info_at_col && m_info_at_col < p.second + id.utf8_size()) {
-                    auto out = mk_message(INFORMATION);
-                    bool ok = true;
-                    try {
-                        bool show_value = false;
-                        ok = print_id_info(*this, out, id, show_value, p);
-                    } catch (exception &) {
-                        ok = false;
-                    }
-                    if (!ok)
-                        out << "unknown identifier '" << id << "'\n";
-                    out.report();
-                    m_info_at = false;
-                }
-            } else if (curr_is_keyword()) {
-                name const & tk = get_token_info().token();
-                if (p.second <= m_info_at_col && m_info_at_col < p.second + tk.utf8_size()) {
-                    auto out = mk_message(INFORMATION);
-                    try {
-                        print_token_info(*this, out, tk);
-                    } catch (exception &) {}
-                    out.report();
-                    m_info_at = false;
-                }
-            } else if (curr_is_command()) {
-                name const & tk = get_token_info().token();
-                if (p.second <= m_info_at_col && m_info_at_col < p.second + tk.utf8_size()) {
-                    (mk_message(INFORMATION) << "'" << tk << "' is a command").report();
-                    m_info_at = false;
-                }
-            }
-        }
-    } else {
-        m_curr = m_scanner.scan(m_env);
+bool parser::check_break_at_pos(pos_info const & p, name const & tk) {
+    if (m_break_at_pos && p.first == m_break_at_pos->first && p.second <= m_break_at_pos->second) {
+        std::string s = tk.to_string();
+        if (utf8_char_pos(s.c_str(), m_break_at_pos->second - p.second))
+            return true;
     }
+    return false;
+}
+
+void parser::scan() {
+    if (curr_is_identifier() && check_break_at_pos(pos(), get_name_val()))
+        throw break_at_pos_exception(pos(), get_name_val());
+    m_curr = m_scanner.scan(m_env);
 }
 
 expr parser::mk_sorry(pos_info const & p) {
@@ -302,7 +273,7 @@ void parser::protected_call(std::function<void()> && f, std::function<void()> &&
             m_env = ex.get_env();
             ex.get_exception().rethrow();
         }
-    } catch (show_goal_exception) {
+    } catch (break_at_pos_exception) {
         throw;
     } catch (parser_exception & ex) {
         CATCH(report_message(ex), throw);
@@ -1288,6 +1259,13 @@ static pair<notation::transition, parse_table> const * get_non_skip(list<pair<no
 expr parser::parse_notation(parse_table t, expr * left) {
     lean_assert(curr() == scanner::token_kind::Keyword);
     auto p = pos();
+    auto first_token = get_token_info().value();
+    auto check_break = [&]() {
+        if (check_break_at_pos(pos(), get_token_info().value())) {
+            // info is stored at position of first notation token
+            throw break_at_pos_exception(p, first_token);
+        }
+    };
     buffer<expr>                     args;
     buffer<notation::action_kind>    kinds;
     buffer<list<expr>>               nargs; // nary args
@@ -1309,6 +1287,7 @@ expr parser::parse_notation(parse_table t, expr * left) {
         auto r = t.find(get_token_info().value());
         if (!r)
             break;
+        check_break();
         pair<notation::transition, parse_table> const * curr_pair = nullptr;
         if (tail(r)) {
             // There is more than one possible actions.
@@ -1345,12 +1324,14 @@ expr parser::parse_notation(parse_table t, expr * left) {
                 r_args.push_back(parse_expr(a.rbp()));
                 name sep = utf8_trim(a.get_sep().to_string()); // remove padding
                 while (curr_is_token(sep)) {
+                    check_break();
                     next();
                     r_args.push_back(parse_expr(a.rbp()));
                 }
             }
             if (terminator) {
                 if (curr_is_token(*terminator)) {
+                    check_break();
                     next();
                 } else {
                     throw parser_error(sstream() << "invalid composite expression, '" << *terminator << "' expected", pos());

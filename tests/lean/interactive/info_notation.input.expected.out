@@ -1,0 +1,2 @@
+{"message":"file invalidated","response":"ok","seq_num":0}
+{"record":{"full-id":"list.cons","source":{"column":10,"file":"/library/init/core.lean","line":189},"type":"Π {T : Type}, T → list T → list T"},"response":"ok","seq_num":1}

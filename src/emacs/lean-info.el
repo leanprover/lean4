@@ -45,15 +45,13 @@
 
 (defun lean-get-info-record-at-point (cont)
   "Get info-record at the current point"
-  ;; TODO(sullrich): finding the start position should go into the server
-  (let ((pos (lean-find-hname-beg)))
-    (lean-server-send-command
-     'info (list :file_name (buffer-file-name)
-                 :line (line-number-at-pos pos)
-                 :column (lean-line-offset pos))
-     (cl-function
-      (lambda (&key record)
-        (funcall cont record))))))
+  (lean-server-send-command
+   'info (list :file_name (buffer-file-name)
+               :line (line-number-at-pos)
+               :column (lean-line-offset))
+   (cl-function
+    (lambda (&key record)
+      (funcall cont record)))))
 
 (cl-defun lean-find-definition-cont (&key file line column)
   (when (fboundp 'xref-push-marker-stack) (xref-push-marker-stack))

@@ -77,12 +77,13 @@ struct snapshot {
 
 typedef std::vector<std::shared_ptr<snapshot const>> snapshot_vector;
 
-class show_goal_exception : public std::exception {
+class break_at_pos_exception : public std::exception {
 public:
-    pos_info m_pos;
-    tactic_state m_state;
+    pos_info    m_token_pos;
+    name        m_token;
 
-    show_goal_exception(pos_info const & pos, tactic_state const & goal) : m_pos(pos), m_state(goal) {}
+    break_at_pos_exception(pos_info const & token_pos, name const & token):
+            m_token_pos(token_pos), m_token(token) {}
 };
 
 enum class id_behavior {
@@ -139,6 +140,7 @@ class parser : public abstract_parser {
     // info support
     snapshot_vector *       m_snapshot_vector;
     name_set                m_old_buckets_from_snapshot;
+    optional<pos_info>      m_break_at_pos;
 
     // curr command token
     name                   m_cmd_token;
@@ -237,6 +239,8 @@ public:
            std::shared_ptr<snapshot const> const & s = {}, snapshot_vector * sv = nullptr);
     ~parser();
 
+    void set_break_at_pos(pos_info const & pos) { m_break_at_pos = some(pos); }
+    bool check_break_at_pos(pos_info const & p, name const & tk);
     void enable_show_goal(pos_info const & pos);
     void enable_show_info(pos_info const & pos);
 

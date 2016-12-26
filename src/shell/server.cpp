@@ -11,6 +11,7 @@ Authors: Gabriel Ebner, Leonardo de Moura, Sebastian Ullrich
 #include <vector>
 #include <clocale>
 #include "util/sexpr/option_declarations.h"
+#include "util/utf8.h"
 #include "library/mt_task_queue.h"
 #include "library/st_task_queue.h"
 #include "frontends/lean/parser.h"
@@ -245,7 +246,7 @@ void server::handle_request(server::cmd_req const & req) {
     } else if (command == "complete") {
         return handle_complete(req);
     } else if (command == "info") {
-        return send_msg(handle_info(req));
+        return handle_info(req);
     }
 
     send_msg(cmd_res(req.m_seq_num, std::string("unknown command")));
@@ -293,7 +294,7 @@ std::shared_ptr<snapshot const> get_closest_snapshot(std::shared_ptr<module_info
     auto snapshots = mod_info.get()->m_result.get().m_snapshots;
     auto ret = snapshots.size() ? snapshots.front() : std::shared_ptr<snapshot>();
     for (auto & snap : snapshots) {
-        if (snap->m_pos.first <= line)
+        if (snap->m_pos.first < line)
             ret = snap;
     }
     return ret;
@@ -352,29 +353,85 @@ void server::handle_complete(cmd_req const & req) {
     get_global_task_queue()->submit<auto_complete_task>(this, req.m_seq_num, pattern, mod_info, line);
 }
 
-server::cmd_res server::handle_info(server::cmd_req const & req) {
-    std::string fn = req.m_payload.at("file_name");
-    unsigned line = req.m_payload.at("line");
-    unsigned col = req.m_payload.at("column");
+class server::info_task : public task<unit> {
+    server * m_server;
+    unsigned m_seq_num;
+    std::shared_ptr<module_info const> m_mod_info;
 
-    auto opts = m_ios.get_options();
-    auto env = m_initial_env;
-    if (auto mod = m_mod_mgr->get_module(fn)->m_result.peek()) {
-        if (mod->m_loaded_module->m_env)
-            env = *mod->m_loaded_module->m_env;
-        if (!mod->m_snapshots.empty()) opts = mod->m_snapshots.back()->m_options;
+public:
+    info_task(server * server, unsigned seq_num, std::shared_ptr<module_info const> const & mod_info):
+            m_server(server), m_seq_num(seq_num), m_mod_info(mod_info) {}
+
+    // TODO(gabriel): find cleaner way to give it high prio
+    task_kind get_kind() const override { return task_kind::parse; }
+
+    virtual bool is_tiny() const override { return true; }
+
+    void description(std::ostream & out) const override {
+        out << "info at (" << get_pos().first << ", " << get_pos().second << ")";
     }
 
-    json record;
-    for (auto & infom : m_msg_buf->get_info_managers()) {
-        if (infom.get_file_name() == fn) {
-            infom.get_info_record(env, opts, m_ios, line, col, record);
+    std::vector<generic_task_result> get_dependencies() override {
+        return {m_mod_info->m_result};
+    }
+
+    // TODO(gabriel): handle cancellation
+
+    unit execute() override {
+        try {
+            pos_info pos = get_pos();
+            std::istringstream in(*m_mod_info->m_lean_contents);
+            json j;
+            if (auto snap = get_closest_snapshot(m_mod_info, pos.first)) {
+                snapshot s = *snap;
+                s.m_sub_buckets.clear(); // HACK
+                try {
+                    bool use_exceptions = true;
+                    parser p(s.m_env, get_global_ios(), mk_dummy_loader(), in, get_module_id(),
+                             use_exceptions, std::make_shared<snapshot>(s), nullptr);
+                    p.set_break_at_pos(pos);
+                    p();
+                } catch (break_at_pos_exception & e) {
+                    lean_assert(e.m_token_pos.first == pos.first);
+
+                    auto opts = m_server->m_ios.get_options();
+                    auto env = m_server->m_initial_env;
+                    if (auto mod = m_mod_info->m_result.peek()) {
+                        if (mod->m_loaded_module->m_env)
+                            env = *mod->m_loaded_module->m_env;
+                        if (!mod->m_snapshots.empty()) opts = mod->m_snapshots.back()->m_options;
+                    }
+
+                    json record;
+                    for (auto & infom : m_server->m_msg_buf->get_info_managers()) {
+                        if (infom.get_file_name() == get_module_id()) {
+                            infom.get_info_record(env, opts, m_server->m_ios, e.m_token_pos.first, e.m_token_pos.second,
+                                                  record);
+                        }
+                    }
+
+                    j["record"] = record;
+                }
+            }
+
+            m_server->send_msg(cmd_res(m_seq_num, j));
+        } catch (throwable & ex) {
+            m_server->send_msg(cmd_res(m_seq_num, std::string(ex.what())));
         }
+        return {};
     }
+};
 
-    json res;
-    res["record"] = record;
-    return { req.m_seq_num, res };
+void server::handle_info(server::cmd_req const & req) {
+    std::string fn = req.m_payload.at("file_name");
+    pos_info pos = {req.m_payload.at("line"), req.m_payload.at("column")};
+
+    scope_message_context scope_msg_ctx(message_bucket_id { "_server", 0 });
+    scoped_task_context scope_task_ctx(fn, pos);
+
+    auto mod_info = m_mod_mgr->get_module(fn);
+
+    get_global_task_queue()->submit<info_task>(this, req.m_seq_num, mod_info);
 }
 
 std::tuple<std::string, module_src, time_t> server::load_module(module_id const & id, bool can_use_olean) {

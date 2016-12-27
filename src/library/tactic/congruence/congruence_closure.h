@@ -176,6 +176,7 @@ private:
     void mk_entry(expr const & e, bool to_propagate);
     void internalize_core(expr const & e, bool toplevel, bool to_propagate);
     void push_todo(expr const & lhs, expr const & rhs, expr const & H, bool heq_proof);
+    void push_refl_eq(expr const & lhs, expr const & rhs);
     void invert_trans(expr const & e, bool new_flipped, optional<expr> new_target, optional<expr> new_proof);
     void invert_trans(expr const & e);
     void remove_parents(expr const & e);

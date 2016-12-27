@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/string.h"
 #include "library/trace.h"
 #include "library/fun_info.h"
+#include "library/annotation.h"
 #include "library/comp_val.h"
 #include "library/app_builder.h"
 #include "library/defeq_canonizer.h"
@@ -499,8 +500,13 @@ void congruence_closure::add_occurrence(expr const & parent, expr const & child,
     m_state.m_parents.insert(child, ps);
 }
 
-static expr * g_congr_mark    = nullptr; // dummy congruence proof, it is just a placeholder.
-static expr * g_eq_true_mark = nullptr;  // dummy eq_true proof, it is just a placeholder.
+static expr * g_congr_mark   = nullptr; // dummy congruence proof, it is just a placeholder.
+static expr * g_eq_true_mark = nullptr; // dummy eq_true proof, it is just a placeholder.
+static expr * g_refl_mark    = nullptr; // dummy refl proof, it is just a placeholder.
+
+void congruence_closure::push_refl_eq(expr const & lhs, expr const & rhs) {
+    m_todo.emplace_back(lhs, rhs, *g_refl_mark, false);
+}
 
 void congruence_closure::add_congruence_table(expr const & e) {
     lean_assert(is_app(e));
@@ -662,6 +668,8 @@ void congruence_closure::internalize_core(expr const & e, bool toplevel, bool to
             for (unsigned i = 0; i < macro_num_args(e); i++)
                 internalize_core(macro_arg(e, i), false, false);
             mk_entry_core(e, to_propagate);
+            if (is_annotation(e))
+                push_refl_eq(e, get_annotation_arg(e));
         }
         break;
     case expr_kind::Pi:
@@ -850,7 +858,7 @@ bool congruence_closure::has_heq_proofs(expr const & root) const {
 }
 
 expr congruence_closure::flip_proof(expr const & H, bool flipped, bool heq_proofs) const {
-    if (H == *g_congr_mark || H == *g_eq_true_mark) {
+    if (H == *g_congr_mark || H == *g_eq_true_mark || H == *g_refl_mark) {
         return H;
     } else {
         expr new_H = H;
@@ -1021,6 +1029,10 @@ expr congruence_closure::mk_proof(expr const & lhs, expr const & rhs, expr const
             return mk_eq_symm(m_ctx, a_R_b_eq_true);
         else
             return a_R_b_eq_true;
+    } else if (H == *g_refl_mark) {
+        expr type  = heq_proofs ? mk_heq(m_ctx, lhs, rhs) : mk_eq(m_ctx, lhs, rhs);
+        expr proof = heq_proofs ? mk_heq_refl(m_ctx, lhs) : mk_eq_refl(m_ctx, lhs);
+        return mk_app(mk_constant(get_id_locked_name(), {mk_level_zero()}), type, proof);
     } else {
         return H;
     }
@@ -1511,13 +1523,15 @@ format congruence_closure::state::pp_eqcs(formatter const & fmt, bool nonsinglet
 void initialize_congruence_closure() {
     register_trace_class("cc");
     register_trace_class({"cc", "merge"});
-    name prefix = name::mk_internal_unique_name();
+    name prefix     = name::mk_internal_unique_name();
     g_congr_mark    = new expr(mk_constant(name(prefix, "[congruence]")));
     g_eq_true_mark  = new expr(mk_constant(name(prefix, "[iff-true]")));
+    g_refl_mark     = new expr(mk_constant(name(prefix, "[refl]")));
 }
 
 void finalize_congruence_closure() {
     delete g_congr_mark;
     delete g_eq_true_mark;
+    delete g_refl_mark;
 }
 }

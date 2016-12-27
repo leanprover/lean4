@@ -415,7 +415,7 @@ public:
                     }
 
                     j["record"] = record;
-                } catch (break_at_pos_exception & e) {}
+                } catch (throwable & ex) {}
             }
 
             m_server->send_msg(cmd_res(m_seq_num, j));

@@ -766,9 +766,9 @@ open tactic
 run_command do
  l  ← return $ level.param `l,
  Ty ← return $ expr.sort l,
- type ← to_expr `(Π {α : %%Ty}, α → α),
- val  ← to_expr `(λ {α : %%Ty} (a : α), a),
+ type ← to_expr `(Π (α : %%Ty), α → α),
+ val  ← to_expr `(λ (α : %%Ty) (a : α), a),
  add_decl (declaration.defn `id_locked [`l] type val reducibility_hints.opaque tt)
 
-lemma id_locked_eq {α : Type u} (a : α) : id_locked a = a :=
+lemma id_locked_eq {α : Type u} (a : α) : id_locked α a = a :=
 rfl

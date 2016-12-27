@@ -494,10 +494,11 @@ void congruence_closure::apply_simple_eqvs(expr const & e) {
 
 void congruence_closure::add_occurrence(expr const & parent, expr const & child, bool symm_table) {
     parent_occ_set ps;
-    if (auto old_ps = m_state.m_parents.find(child))
+    expr child_root = get_root(child);
+    if (auto old_ps = m_state.m_parents.find(child_root))
         ps = *old_ps;
     ps.insert(parent_occ(parent, symm_table));
-    m_state.m_parents.insert(child, ps);
+    m_state.m_parents.insert(child_root, ps);
 }
 
 static expr * g_congr_mark   = nullptr; // dummy congruence proof, it is just a placeholder.

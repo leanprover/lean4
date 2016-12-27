@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "library/annotation.h"
 #include "library/comp_val.h"
 #include "library/app_builder.h"
+#include "library/projection.h"
 #include "library/defeq_canonizer.h"
 #include "library/constructions/constructor.h"
 #include "library/tactic/congruence/congruence_closure.h"
@@ -489,6 +490,10 @@ void congruence_closure::apply_simple_eqvs(expr const & e) {
         expr proof = mk_app({mk_constant(get_eq_rec_heq_name(), {l_1, l_2}), A, P, a, a_prime, H, p});
         bool heq_proof = true;
         push_todo(e, p, proof, heq_proof);
+    }
+
+    if (auto r = m_ctx.reduce_projection(e)) {
+        push_refl_eq(e, *r);
     }
 }
 
@@ -1168,6 +1173,14 @@ void congruence_closure::check_new_subsingleton_eq(expr const & old_root, expr c
     }
 }
 
+/* Given a new equality e1 = e2, where e1 and e2 are constructor applications.
+   Implement the following implications:
+
+   - c a_1 ... a_n = c b_1 ... b_n => a_1 = b_1, ..., a_n = b_n
+
+   - c_1 ... = c_2 ... => false
+
+   where c, c_1 and c_2 are constructors */
 void congruence_closure::propagate_constructor_eq(expr const & e1, expr const & e2) {
     /* Remark: is_constructor_app does not check for partially applied constructor applications.
        So, we must check whether mk_constructor_eq_constructor_inconsistency_proof fails,
@@ -1192,6 +1205,30 @@ void congruence_closure::propagate_constructor_eq(expr const & e1, expr const & 
             push_todo(mk_true(), mk_false(), H, heq_proof);
         }
     }
+}
+
+/* Given c a constructor application, if p is a projection application such that major premise is equal to c,
+   then propagate new equality.
+
+   Example: if p is of the form b.1, c is of the form (x, y), and b = c, we add the equality
+   (x, y).1 = x */
+void congruence_closure::propagate_projection_constructor(expr const & p, expr const & c) {
+    lean_verify(is_constructor_app(env(), c));
+    expr const & p_fn = get_app_fn(p);
+    if (!is_constant(p_fn)) return;
+    projection_info const * info = get_projection_info(env(), const_name(p_fn));
+    if (!info) return;
+    buffer<expr> p_args;
+    get_app_args(p, p_args);
+    if (p_args.size() <= info->m_nparams) return;
+    unsigned mkidx  = info->m_nparams;
+    if (!is_eqv(p_args[mkidx], c)) return;
+    if (!m_ctx.relaxed_is_def_eq(m_ctx.infer(p_args[mkidx]), m_ctx.infer(c))) return;
+    /* Create new projection application using c (e.g., (x, y).1), and internalize it.
+       The internalizer will add the new equality. */
+    p_args[mkidx] = c;
+    expr new_p = mk_app(p_fn, p_args);
+    internalize_core(new_p, false, false);
 }
 
 void congruence_closure::propagate_value_inconsistency(expr const & e1, expr const & e2) {
@@ -1320,8 +1357,12 @@ void congruence_closure::add_eqv_step(expr e1, expr e2, expr const & H,
         if (auto it = m_state.m_parents.find(e2_root))
             ps2 = *it;
         ps1->for_each([&](parent_occ const & p) {
-                if (is_congr_root(p.m_expr))
+                if (is_congr_root(p.m_expr)) {
+                    if (!constructor_eq && r2->m_constructor)  {
+                        propagate_projection_constructor(p.m_expr, e2_root);
+                    }
                     ps2.insert(p);
+                }
             });
         m_state.m_parents.erase(e1_root);
         m_state.m_parents.insert(e2_root, ps2);

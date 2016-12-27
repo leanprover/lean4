@@ -427,6 +427,8 @@ public:
 };
 
 void server::handle_info(server::cmd_req const & req) {
+    m_info_result.cancel();
+
     std::string fn = req.m_payload.at("file_name");
     pos_info pos = {req.m_payload.at("line"), req.m_payload.at("column")};
 
@@ -435,7 +437,7 @@ void server::handle_info(server::cmd_req const & req) {
 
     auto mod_info = m_mod_mgr->get_module(fn);
 
-    get_global_task_queue()->submit<info_task>(this, req.m_seq_num, mod_info);
+    m_info_result = {get_global_task_queue()->submit<info_task>(this, req.m_seq_num, mod_info)};
 }
 
 std::tuple<std::string, module_src, time_t> server::load_module(module_id const & id, bool can_use_olean) {

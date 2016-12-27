@@ -44,6 +44,8 @@ class server : public module_vfs {
     std::unique_ptr<task_queue> m_tq;
     fs_module_vfs m_fs_vfs;
 
+    task_result<unit> m_info_result;
+
     template <class Msg>
     void send_msg(Msg const &);
 

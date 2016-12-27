@@ -141,6 +141,8 @@ public:
         bool in_heterogeneous_eqc(expr const & e) const;
         format pp_eqc(formatter const & fmt, expr const & e) const;
         format pp_eqcs(formatter const & fmt, bool nonsingleton_only = true) const;
+        format pp_parent_occs(formatter const & fmt, expr const & e) const;
+        format pp_parent_occs(formatter const & fmt) const;
         unsigned get_gmt() const { return m_gmt; }
     };
 

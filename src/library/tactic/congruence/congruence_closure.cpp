@@ -807,6 +807,7 @@ void congruence_closure::remove_parents(expr const & e) {
     auto ps = m_state.m_parents.find(e);
     if (!ps) return;
     ps->for_each([&](parent_occ const & p) {
+            lean_trace(name({"debug", "cc"}), scope_trace_env(m_ctx.env(), m_ctx); tout() << "remove parent: " << p.m_expr << "\n";);
             if (p.m_symm_table) {
                 symm_congr_key k = mk_symm_congr_key(p.m_expr);
                 m_state.m_symm_congruences.erase(k);
@@ -821,6 +822,7 @@ void congruence_closure::reinsert_parents(expr const & e) {
     auto ps = m_state.m_parents.find(e);
     if (!ps) return;
     ps->for_each([&](parent_occ const & p) {
+            lean_trace(name({"debug", "cc"}), scope_trace_env(m_ctx.env(), m_ctx); tout() << "reinsert parent: " << p.m_expr << "\n";);
             if (p.m_symm_table) {
                 add_symm_congruence_table(p.m_expr);
             } else {
@@ -1254,6 +1256,8 @@ void congruence_closure::add_eqv_step(expr e1, expr e2, expr const & H,
     expr e1_root   = n1->m_root;
     expr e2_root   = n2->m_root;
     entry new_n1   = *n1;
+    lean_trace(name({"debug", "cc"}), scope_trace_env scope(m_ctx.env(), m_ctx);
+               tout() << "merging:\n" << e1 << " ==> " << e1_root << "\nwith\n" << e2_root << " <== " << e2 << "\n";);
 
     /*
      Following target/proof we have
@@ -1337,6 +1341,13 @@ void congruence_closure::add_eqv_step(expr e1, expr e2, expr const & H,
     check_new_subsingleton_eq(e1_root, e2_root);
     lean_trace(name({"cc", "merge"}), scope_trace_env scope(m_ctx.env(), m_ctx);
                tout() << e1_root << " = " << e2_root << "\n";);
+    lean_trace(name({"debug", "cc"}), scope_trace_env scope(m_ctx.env(), m_ctx);
+               auto out = tout();
+               auto fmt = out.get_formatter();
+               out << "merged: " << e1_root << " = " << e2_root << "\n";
+               out << m_state.pp_eqcs(fmt) << "\n";
+               out << m_state.pp_parent_occs(fmt) << "\n";
+               out << "--------\n";);
 }
 
 void congruence_closure::process_todo(optional<expr> const & added_prop) {
@@ -1520,9 +1531,33 @@ format congruence_closure::state::pp_eqcs(formatter const & fmt, bool nonsinglet
     return bracket("{", group(r), "}");
 }
 
+format congruence_closure::state::pp_parent_occs(formatter const & fmt, expr const & e) const {
+    format r = fmt(e) + line() + format(":=") + line();
+    format ps;
+    if (parent_occ_set const * poccs = m_parents.find(e)) {
+        bool first = true;
+        poccs->for_each([&](parent_occ const & o) {
+                if (first) first = false; else ps += comma() + line();
+                ps += fmt(o.m_expr);
+            });
+    }
+    return group(r + bracket("{", group(ps), "}"));
+}
+
+format congruence_closure::state::pp_parent_occs(formatter const & fmt) const {
+    format r;
+    bool first = true;
+    m_parents.for_each([&](expr const & k, parent_occ_set const &) {
+            if (first) first = false; else r += comma() + line();
+            r += pp_parent_occs(fmt, k);
+        });
+    return group(bracket("{", group(r), "}"));
+}
+
 void initialize_congruence_closure() {
     register_trace_class("cc");
     register_trace_class({"cc", "merge"});
+    register_trace_class({"debug", "cc"});
     name prefix     = name::mk_internal_unique_name();
     g_congr_mark    = new expr(mk_constant(name(prefix, "[congruence]")));
     g_eq_true_mark  = new expr(mk_constant(name(prefix, "[iff-true]")));

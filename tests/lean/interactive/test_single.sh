@@ -32,7 +32,7 @@ echo "-- testing $f"
 OUTPUT="$("$LEAN" -j0 -D pp.unicode=true --server < "$f")"
 # make paths system-independent
 if [[ "$OSTYPE" == "msys" ]]; then
-    echo "$OUTPUT" | sed "s|$ROOT_PATH_NORMALIZED||g" | sed 's|\\\\|/|g' > "$f.produced.out"
+    echo "$OUTPUT" | grep -v '"response":"current_tasks"' | sed "s|$ROOT_PATH_NORMALIZED||g" | sed 's|\\\\|/|g' > "$f.produced.out"
 else
     OUTPUT=${OUTPUT//$ROOT_PATH_NORMALIZED/}
     echo "$OUTPUT" > "$f.produced.out"

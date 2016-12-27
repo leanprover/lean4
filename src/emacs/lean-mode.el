@@ -75,7 +75,7 @@
   (interactive)
   (if (minibufferp)
       (minibuffer-complete)
-    (cond ((and lean-company-use (company-lean--check-prefix))
+    (cond ((and lean-company-use (company-lean--exec))
            (company-complete-common))
           (lean-company-use (lean-tab-indent))
           ((lean-check-expansion)

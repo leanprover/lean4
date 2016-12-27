@@ -15,10 +15,7 @@
 (require 'lean-server)
 
 (defun company-lean-hook ()
-  (set (make-local-variable 'company-backends) '(;company-lean--import
-                                                 ;company-lean--option-name
-                                                 ;company-lean--findg
-                                                 company-lean--findp))
+  (set (make-local-variable 'company-backends) '(company-lean))
   (setq-local company-tooltip-limit 20)                      ; bigger popup window
   (setq-local company-minimum-prefix-length 5)
   (setq-local company-idle-delay nil)                        ; decrease delay before autocompletion popup shows
@@ -26,200 +23,7 @@
   (setq-local company-begin-commands '(self-insert-command)) ; start autocompletion only after typing
   (company-mode t))
 
-(defun company-lean--check-prefix ()
-  "Check whether to use company-lean or not"
-  (or ;(company-lean--import-prefix)
-      ;(company-lean--option-name-prefix)
-      ;(company-lean--findg-prefix)
-      (company-lean--findp-prefix)))
-
-(defun company-lean--import-remove-lean (file-name)
-  (cond
-   ((s-ends-with? "/default.lean" file-name)
-    (s-left (- (length file-name)
-                   (length "/default.lean"))
-                file-name))
-   ((s-ends-with? "/default.hlean" file-name)
-    (s-left (- (length file-name)
-                   (length "/default.hlean"))
-                file-name))
-   ((s-ends-with? ".lean" file-name)
-    (s-left (- (length file-name)
-                   (length ".lean"))
-                file-name))
-   ((s-ends-with? ".hlean" file-name)
-    (s-left (- (length file-name)
-                   (length ".hlean"))
-                file-name))
-   (t file-name)))
-
-(defun company-lean--import-candidates-main (root-dir)
-  (when root-dir
-    (let* ((dummy (message "finding files under %s..." root-dir))
-           (lean-files (with-timeout (lean-company-import-timeout
-                                      (message "finding files under %s... timeout (%S sec)"
-                                               root-dir lean-company-import-timeout) nil)
-                         (lean-find-files root-dir
-                                          (lambda (file) (equal (f-ext file) "lean"))
-                                          t)))
-           (lean-files-r (--map (f-relative it root-dir) lean-files))
-           (candidates
-            (--map (s-replace-all `((,(f-path-separator)  . "."))
-                                  (company-lean--import-remove-lean it))
-                   lean-files-r)))
-      (--zip-with (propertize it 'file-name other) candidates lean-files))))
-
-(defun company-lean--import-prefix ()
-  "Import auto-completion is triggered when it looks at 'import ...'"
-  (when (looking-back
-         (rx "import"
-             (* (+ white)
-                (+ (or alnum digit "." "_")))
-             (? (+ white))))
-    (company-grab-symbol)))
-
-(defun company-lean--import-candidates (prefix)
-  (let* ((cur-dir (f-dirname (buffer-file-name)))
-         (parent-dir (f-parent cur-dir))
-         (candidates
-          (cond
-           ;; prefix = ".."
-           ((and parent-dir (s-starts-with? ".." prefix))
-            (--map (concat ".." it)
-                   (company-lean--import-candidates-main parent-dir)))
-           ;; prefix = "."
-           ((s-starts-with? "." prefix)
-            (--map (concat "." it)
-                   (company-lean--import-candidates-main cur-dir)))
-           ;; normal prefix
-           (t (-flatten
-               (-map 'company-lean--import-candidates-main
-                     (lean-path-list)))))))
-    (--filter (s-starts-with? prefix it) candidates)))
-
-(defun company-lean--import-location (arg)
-  (let ((file-name (get-text-property 0 'file-name arg)))
-    `(,file-name . 1)))
-
-(defun company-lean--import (command &optional arg &rest ignored)
-  (cl-case command
-    (prefix (company-lean--import-prefix))
-    (candidates (company-lean--import-candidates arg))
-    (location   (company-lean--import-location arg))
-    (sorted t)))
-
-;; OPTION
-;; ======
-(defun company-lean--option-name-prefix ()
-  "Option auto-completion is triggered when it looks at 'set-option '"
-  (when (looking-back (rx "set_option" (+ white) (* (or alnum digit "." "_"))))
-    (company-grab-symbol)))
-
-(defun company-lean--option-make-candidate (arg)
-  (let* ((text   (car arg))
-         (option (cdr arg))
-         (type   (lean-option-record-type  option))
-         (value  (lean-option-record-value option))
-         (desc   (lean-option-record-desc  option)))
-    (propertize text
-                'type  type
-                'value value
-                'desc  desc)))
-
-(defun company-lean--option-name-meta (candidate)
-  (get-text-property 0 'desc candidate))
-
-(defun company-lean--option-name-annotation (candidate)
-  (let* ((type (get-text-property 0 'type candidate))
-         (value (get-text-property 0 'value candidate)))
-    (format " : %s = %s" type value)))
-
-(defun company-lean--option-name-candidates (prefix)
-  (let ((candidates
-         (lean-get-options-sync-with-cont
-          (lambda (option-record-alist)
-            (-map 'company-lean--option-make-candidate option-record-alist)))))
-    (--filter (s-starts-with? prefix it) candidates)))
-
-(defun company-lean--option-name (command &optional arg &rest ignored)
-  (cl-case command
-    (prefix (company-lean--option-name-prefix))
-    (candidates (company-lean--option-name-candidates arg))
-    (meta       (company-lean--option-name-meta arg))
-    (annotation (company-lean--option-name-annotation arg))
-    (no-cache t)
-    (sorted t)))
-
-;; FINDG
-;; =====
-
-(defun company-lean--findg-prefix ()
-  "FINDG is triggered when it looks at '_'"
-  (when (looking-at (rx symbol-start "_")) ""))
-
-(defun company-lean--findg-candidates (prefix)
-  (let ((line-number (line-number-at-pos))
-        (column-number (lean-line-offset))
-        pattern)
-    (lean-server-send-cmd-sync (lean-cmd-wait) '(lambda () ()))
-    (setq pattern (if current-prefix-arg
-                      (read-string "Filter for find declarations (e.g: +intro -and): " "" nil "")
-                    ""))
-    (lean-server-send-cmd-sync (lean-cmd-findg line-number column-number pattern)
-                               (lambda (candidates)
-                                 (lean-debug "executing continuation for FINDG")
-                                 (--map (company-lean--findp-make-candidate it prefix) candidates)))))
-
-(defun company-lean--findg-pre-completion (args)
-  "Delete current '_' before filling the selected AC candidate"
-  (when (looking-at (rx "_"))
-    (delete-forward-char 1)))
-
-(defun company-lean--findg (command &optional arg &rest ignored)
-  (cl-case command
-    (prefix (company-lean--findg-prefix))
-    (candidates (company-lean--findg-candidates arg))
-    (annotation (company-lean--findp-annotation arg))
-    (location (company-lean--findp-location arg))
-    (pre-completion (company-lean--findg-pre-completion arg))
-    (sorted t)))
-
-;; FINDP
-;; -----
-(defun company-lean--need-autocomplete ()
-  (interactive)
-  (cond ((looking-back (rx "print" (+ white) "definition" (+ white) (* (not white))))
-         t)
-        ((looking-back
-          (rx (or "theorem" "definition" "lemma" "axiom" "parameter"
-                  "variable" "hypothesis" "conjecture"
-                  "corollary" "open")
-              (+ white)
-              (* (not white))))
-         nil)
-        ((looking-back (rx "set_option"
-                           (+ white)
-                           (+ (or alnum digit "." "_"))
-                           (+ white)
-                           (* (or alnum digit "." "_"))))
-         nil)
-        (t t)))
-
-(defun company-lean--findp-prefix ()
-  "Returns the symbol to complete. Also, if point is on a dot,
-triggers a completion immediately."
-  (let ((prefix (lean-grab-hname)))
-    (when (and
-           prefix
-           (company-lean--need-autocomplete)
-           (or
-            (>= (length prefix) 1)
-            (string-match "[_.]" prefix)))
-      (when (s-starts-with? "@" prefix)
-        (setq prefix (substring prefix 1)))
-      prefix)))
-
-(cl-defun company-lean--findp-make-candidate (prefix &key text type)
+(cl-defun company-lean--make-candidate (prefix &key text type)
   (let ((start (s-index-of prefix text)))
     (propertize text
                 'type  type
@@ -234,25 +38,25 @@ triggers a completion immediately."
     (cond ((s-prefix? prefix candidate) candidates)
           (t                            `(,candidate ,prefix)))))
 
-(defun company-lean--findp-candidates (prefix callback)
-  (let ((line-number (line-number-at-pos)))
-    (lean-server-send-command
-     'complete (list :file_name (buffer-file-name)
-                     :line line-number
-                     :pattern prefix)
-     (cl-function
-      (lambda (&key completions)
-        (let ((candidates completions))
-          (lean-debug "executing continuation for FINDP")
-          (setq candidates
-                (--map (apply 'company-lean--findp-make-candidate prefix it)
-                       candidates))
-          (when (= (length candidates) 1)
-            (setq candidates
-                  (company-lean--handle-singleton-candidate prefix candidates)))
-          (funcall callback candidates))))
-     (lambda (&rest)
-       (funcall callback nil)))))
+(defun company-lean--exec ()
+  "Synchronously queries completions for the current point from server and returns a plist with keys :prefix and :candidates., or nil if no completion should be triggered."
+  (lean-server-sync)
+  (let* ((col (lean-line-offset))
+         (response (lean-server-send-synchronous-command
+                    'complete (list :file_name (buffer-file-name)
+                                    :line (line-number-at-pos)
+                                    :column col)))
+         (candidates (plist-get response :completions))
+         (prefix (plist-get response :prefix)))
+    (when candidates
+      (setq candidates
+            (--map (apply 'company-lean--make-candidate prefix it)
+                   candidates))
+      (when (= (length candidates) 1)
+        (setq candidates
+              (company-lean--handle-singleton-candidate prefix candidates))))
+    (when (plist-member response :prefix)
+      (list :prefix prefix :candidates candidates))))
 
 ; (defun company-lean--findp-location (arg cb)
 ;   (lean-get-info-record-at-point
@@ -260,7 +64,7 @@ triggers a completion immediately."
 ;      (-if-let (source-record (plist-get info-record :source))
 ;          (funcall cb (plist-get source-record :file) . (plist-get source-record :line))))))
 
-(defun company-lean--findp-annotation (candidate)
+(defun company-lean--annotation (candidate)
   (let ((type (get-text-property 0 'type candidate)))
     (when type
       (let* ((annotation-str (format " : %s" type))
@@ -278,7 +82,7 @@ triggers a completion immediately."
                  "...")))
         annotation-str))))
 
-(defun company-lean--findp-match (arg)
+(defun company-lean--match (arg)
   "Return the end of matched region"
   (let ((prefix (get-text-property 0 'prefix arg))
         (start  (get-text-property 0 'start  arg)))
@@ -286,13 +90,13 @@ triggers a completion immediately."
         (+ start (length prefix))
       0)))
 
-(defun company-lean--findp (command &optional arg &rest ignored)
+(defun company-lean (command &optional arg &rest ignored)
   (cl-case command
-    (prefix (company-lean--findp-prefix))
-    (candidates (cons :async (lambda (cb) (company-lean--findp-candidates arg cb))))
-    (annotation (company-lean--findp-annotation arg))
+    (prefix (plist-get (company-lean--exec) :prefix))
+    (candidates (plist-get (company-lean--exec) :candidates))
+    (annotation (company-lean--annotation arg))
     ;(location (cons :async (lambda (cb) (company-lean--findp-location arg cb))))
-    (match (company-lean--findp-match arg))
+    (match (company-lean--match arg))
     (no-cache t)
     (require-match 'never)
     (sorted t)))

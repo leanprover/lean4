@@ -211,6 +211,18 @@
   (lean-server-ensure-alive)
   (lean-server-session-send-command lean-server-session cmd params cb error-cb))
 
+(defun lean-server-send-synchronous-command (cmd params)
+  "Sends a command to the lean server for the current buffer, waiting for and returning the response"
+  ;; inspired by company--force-sync
+  (let ((res 'trash)
+        (start (time-to-seconds)))
+    (lean-server-send-command cmd params (lambda (&rest result) (setq res result)))
+    (while (eq res 'trash)
+      (if (> (- (time-to-seconds) start) company-async-timeout)
+          (error "Lean server timed out")
+        (sleep-for company-async-wait)))
+    res))
+
 (defun lean-server-sync (&optional buf)
   "Synchronizes the state of BUF (or the current buffer, if nil) with the lean server"
   (with-current-buffer (or buf (current-buffer))

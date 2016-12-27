@@ -300,22 +300,40 @@ std::shared_ptr<snapshot const> get_closest_snapshot(std::shared_ptr<module_info
     return ret;
 }
 
+void parse_breaking_at_pos(module_id const & mod_id, std::shared_ptr<module_info const> mod_info, pos_info pos) {
+    std::istringstream in(*mod_info->m_lean_contents);
+    if (auto snap = get_closest_snapshot(mod_info, pos.first)) {
+        snapshot s = *snap;
+        s.m_sub_buckets.clear(); // HACK
+
+        // ignore messages from reparsing
+        null_message_buffer null_msg_buf;
+        scoped_message_buffer scope(&null_msg_buf);
+
+        bool use_exceptions = true;
+        parser p(s.m_env, get_global_ios(), mk_dummy_loader(), in, mod_id,
+                 use_exceptions, std::make_shared<snapshot>(s), nullptr);
+        p.set_break_at_pos(pos);
+        p();
+    }
+}
+
 class server::auto_complete_task : public task<unit> {
     server * m_server;
     unsigned m_seq_num;
-    std::string m_pattern;
     std::shared_ptr<module_info const> m_mod_info;
-    unsigned m_line;
 
 public:
-    auto_complete_task(server * server, unsigned seq_num, std::string const & pattern, std::shared_ptr<module_info const> const & mod_info, unsigned line) :
-        m_server(server), m_seq_num(seq_num), m_pattern(pattern), m_mod_info(mod_info), m_line(line) {}
+    auto_complete_task(server * server, unsigned seq_num, std::shared_ptr<module_info const> const & mod_info) :
+        m_server(server), m_seq_num(seq_num), m_mod_info(mod_info) {}
 
     // TODO(gabriel): find cleaner way to give it high prio
     task_kind get_kind() const override { return task_kind::parse; }
 
+    virtual bool is_tiny() const override { return true; }
+
     void description(std::ostream & out) const override {
-        out << "generating auto-completion for " << m_pattern;
+        out << "generating auto-completion at (" << get_pos().first << ", " << get_pos().second << ")";
     }
 
     std::vector<generic_task_result> get_dependencies() override {
@@ -326,12 +344,23 @@ public:
 
     unit execute() override {
         try {
-            std::vector<json> completions;
-            if (auto snap = get_closest_snapshot(m_mod_info, m_line))
-                completions = get_completions(m_pattern, snap->m_env, snap->m_options);
-
+            pos_info pos = get_pos();
             json j;
-            j["completions"] = completions;
+
+            if (auto snap = get_closest_snapshot(m_mod_info, pos.first)) {
+                try {
+                    parse_breaking_at_pos(get_module_id(), m_mod_info, {pos.first, pos.second - 1});
+                } catch (break_at_pos_exception & e) {
+                    if (e.m_token) {
+                        std::string prefix = e.m_token->to_string();
+                        if (auto stop = utf8_char_pos(prefix.c_str(), get_pos().second - e.m_token_pos->second))
+                            prefix = prefix.substr(0, *stop);
+                        j["completions"] = get_completions(prefix, snap->m_env, snap->m_options);
+                        j["prefix"] = prefix;
+                    }
+                } catch (throwable & ex) {}
+            }
+
             m_server->send_msg(cmd_res(m_seq_num, j));
         } catch (throwable & ex) {
             m_server->send_msg(cmd_res(m_seq_num, std::string(ex.what())));
@@ -342,15 +371,14 @@ public:
 
 void server::handle_complete(cmd_req const & req) {
     std::string fn = req.m_payload.at("file_name");
-    std::string pattern = req.m_payload.at("pattern");
-    unsigned line = req.m_payload.at("line");
+    pos_info pos = {req.m_payload.at("line"), req.m_payload.at("column")};
 
     scope_message_context scope_msg_ctx(message_bucket_id { "_server", 0 });
-    scoped_task_context scope_task_ctx(fn, {line, 0});
+    scoped_task_context scope_task_ctx(fn, pos);
 
     auto mod_info = m_mod_mgr->get_module(fn);
 
-    get_global_task_queue()->submit<auto_complete_task>(this, req.m_seq_num, pattern, mod_info, line);
+    get_global_task_queue()->submit<auto_complete_task>(this, req.m_seq_num, mod_info);
 }
 
 class server::info_task : public task<unit> {
@@ -380,49 +408,36 @@ public:
     unit execute() override {
         try {
             pos_info pos = get_pos();
-            std::istringstream in(*m_mod_info->m_lean_contents);
             json j;
-            if (auto snap = get_closest_snapshot(m_mod_info, pos.first)) {
-                snapshot s = *snap;
-                s.m_sub_buckets.clear(); // HACK
-                try {
-                    // ignore messages from reparsing
-                    null_message_buffer null_msg_buf;
-                    scoped_message_buffer scope(&null_msg_buf);
-
-                    bool use_exceptions = true;
-                    parser p(s.m_env, get_global_ios(), mk_dummy_loader(), in, get_module_id(),
-                             use_exceptions, std::make_shared<snapshot>(s), nullptr);
-                    p.set_break_at_pos(pos);
-                    p();
-                } catch (break_at_pos_exception & e) {
-                    json record;
-                    if (e.m_token_pos || e.m_goal_pos) {
-                        auto opts = m_server->m_ios.get_options();
-                        auto env = m_server->m_initial_env;
-                        if (auto mod = m_mod_info->m_result.peek()) {
-                            if (mod->m_loaded_module->m_env)
-                                env = *mod->m_loaded_module->m_env;
-                            if (!mod->m_snapshots.empty()) opts = mod->m_snapshots.back()->m_options;
-                        }
-
-                        for (auto & infom : m_server->m_msg_buf->get_info_managers()) {
-                            if (infom.get_file_name() == get_module_id()) {
-                                if (e.m_token_pos)
-                                    infom.get_info_record(env, opts, m_server->m_ios, e.m_token_pos->first,
-                                                          e.m_token_pos->second, record);
-                                if (e.m_goal_pos)
-                                    infom.get_info_record(env, opts, m_server->m_ios, e.m_goal_pos->first,
-                                                          e.m_goal_pos->second, record, [](info_data const & d) {
-                                                return dynamic_cast<tactic_state_info_data const *>(d.raw());
-                                            });
-                            }
-                        }
+            try {
+                parse_breaking_at_pos(get_module_id(), m_mod_info, pos);
+            } catch (break_at_pos_exception & e) {
+                json record;
+                if (e.m_token_pos || e.m_goal_pos) {
+                    auto opts = m_server->m_ios.get_options();
+                    auto env = m_server->m_initial_env;
+                    if (auto mod = m_mod_info->m_result.peek()) {
+                        if (mod->m_loaded_module->m_env)
+                            env = *mod->m_loaded_module->m_env;
+                        if (!mod->m_snapshots.empty()) opts = mod->m_snapshots.back()->m_options;
                     }
 
-                    j["record"] = record;
-                } catch (throwable & ex) {}
-            }
+                    for (auto & infom : m_server->m_msg_buf->get_info_managers()) {
+                        if (infom.get_file_name() == get_module_id()) {
+                            if (e.m_token_pos)
+                                infom.get_info_record(env, opts, m_server->m_ios, e.m_token_pos->first,
+                                                      e.m_token_pos->second, record);
+                            if (e.m_goal_pos)
+                                infom.get_info_record(env, opts, m_server->m_ios, e.m_goal_pos->first,
+                                                      e.m_goal_pos->second, record, [](info_data const & d) {
+                                            return dynamic_cast<tactic_state_info_data const *>(d.raw());
+                                        });
+                        }
+                    }
+                }
+
+                j["record"] = record;
+            } catch (throwable & ex) {}
 
             m_server->send_msg(cmd_res(m_seq_num, j));
         } catch (throwable & ex) {

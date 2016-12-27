@@ -644,6 +644,15 @@ static expr const & get_app_apps(expr const & e, buffer<expr> & r) {
     return *it;
 }
 
+void congruence_closure::propagate_inst_implicit(expr const & e) {
+    bool updated;
+    expr new_e = defeq_canonize(m_ctx, e, updated);
+    if (e != new_e) {
+        mk_entry_core(new_e, false);
+        push_refl_eq(e, new_e);
+    }
+}
+
 void congruence_closure::internalize_core(expr const & e, bool toplevel, bool to_propagate) {
     lean_assert(closed(e));
     /* We allow metavariables after partitions have been frozen. */
@@ -739,6 +748,7 @@ void congruence_closure::internalize_core(expr const & e, bool toplevel, bool to
                     if (pinfos && head(pinfos).is_inst_implicit()) {
                         /* We do not recurse on instances when m_state.m_config.m_ignore_instances is true. */
                         mk_entry(arg, to_propagate);
+                        propagate_inst_implicit(arg);
                     } else {
                         internalize_core(arg, toplevel, to_propagate);
                     }
@@ -766,6 +776,7 @@ void congruence_closure::internalize_core(expr const & e, bool toplevel, bool to
                         /* We do not recurse on instances when m_state.m_config.m_ignore_instances is true. */
                         mk_entry(curr_arg, to_propagate);
                         mk_entry(curr_fn, to_propagate);
+                        propagate_inst_implicit(curr_arg);
                     } else {
                         internalize_core(curr_arg, toplevel, to_propagate);
                         mk_entry(curr_fn, to_propagate);

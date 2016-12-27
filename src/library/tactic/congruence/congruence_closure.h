@@ -197,6 +197,7 @@ private:
     optional<expr> get_eq_proof_core(expr const & e1, expr const & e2, bool as_heq) const;
     void push_subsingleton_eq(expr const & a, expr const & b);
     void check_new_subsingleton_eq(expr const & old_root, expr const & new_root);
+    void propagate_inst_implicit(expr const & e);
     void propagate_constructor_eq(expr const & e1, expr const & e2);
     void propagate_projection_constructor(expr const & p, expr const & c);
     void propagate_value_inconsistency(expr const & e1, expr const & e2);

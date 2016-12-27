@@ -90,7 +90,7 @@ expr dsimplify_core_fn::visit_app(expr const & e) {
             lean_assert(i < args.size());
             expr new_a;
             if (pinfo.is_inst_implicit()) {
-                new_a = defeq_canonize(m_ctx, args[i], m_need_restart);
+                new_a = m_defeq_canonizer.canonize(args[i], m_need_restart);
             } else {
                 new_a = visit(args[i]);
             }
@@ -177,7 +177,7 @@ expr dsimplify_core_fn::visit(expr const & e) {
 }
 
 dsimplify_core_fn::dsimplify_core_fn(type_context & ctx, unsigned max_steps, bool visit_instances):
-    m_ctx(ctx), m_num_steps(0), m_need_restart(false),
+    m_ctx(ctx), m_defeq_canonizer(ctx), m_num_steps(0), m_need_restart(false),
     m_max_steps(max_steps), m_visit_instances(visit_instances) {}
 
 expr dsimplify_core_fn::operator()(expr e) {
@@ -284,6 +284,10 @@ public:
     vm_obj const & get_a() const { return m_a; }
 };
 
+static tactic_state update_defeq_canonizer_state(tactic_state const & s, dsimplify_core_fn const & f) {
+    return set_env(s, f.update_defeq_canonizer_state(s.env()));
+}
+
 vm_obj tactic_dsimplify_core(vm_obj const &, vm_obj const & a,
                              vm_obj const & max_steps, vm_obj const & visit_instances,
                              vm_obj const & pre, vm_obj const & post, vm_obj const & e, vm_obj const & s) {
@@ -293,6 +297,7 @@ vm_obj tactic_dsimplify_core(vm_obj const &, vm_obj const & a,
                               to_bool(visit_instances), a, pre, post);
         expr new_e = F(to_expr(e));
         tactic_state new_s = set_mctx(to_tactic_state(s), F.mctx());
+        new_s = update_defeq_canonizer_state(new_s, F);
         return mk_tactic_success(mk_vm_pair(F.get_a(), to_obj(new_e)), new_s);
     } catch (exception & ex) {
         return mk_tactic_exception(ex, to_tactic_state(s));
@@ -310,6 +315,7 @@ vm_obj simp_lemmas_dsimplify_core(vm_obj const & max_steps, vm_obj const & visit
                        to_bool(visit_instances), dlemmas);
         expr new_e = F(to_expr(e));
         tactic_state new_s = set_mctx(to_tactic_state(s), F.mctx());
+        new_s = update_defeq_canonizer_state(new_s, F);
         return mk_tactic_success(to_obj(new_e), new_s);
     } catch (exception & ex) {
         return mk_tactic_exception(ex, to_tactic_state(s));

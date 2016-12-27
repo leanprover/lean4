@@ -6,12 +6,14 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "library/type_context.h"
+#include "library/defeq_canonizer.h"
 #include "library/tactic/simp_lemmas.h"
 
 namespace lean {
 class dsimplify_core_fn {
 protected:
     type_context &        m_ctx;
+    defeq_canonizer       m_defeq_canonizer;
     expr_struct_map<expr> m_cache;
     unsigned              m_num_steps;
     bool                  m_need_restart;
@@ -33,6 +35,10 @@ public:
     dsimplify_core_fn(type_context & ctx, unsigned max_steps, bool visit_instances);
     expr operator()(expr e);
     metavar_context const & mctx() const;
+
+    environment update_defeq_canonizer_state(environment const & env) const {
+        return m_defeq_canonizer.update_state(env);
+    }
 };
 
 class dsimplify_fn : public dsimplify_core_fn {

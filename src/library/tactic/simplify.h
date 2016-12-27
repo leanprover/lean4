@@ -6,6 +6,7 @@ Author: Daniel Selsam, Leonardo de Moura
 #pragma once
 #include "kernel/expr_pair.h"
 #include "library/type_context.h"
+#include "library/defeq_canonizer.h"
 #include "library/vm/vm.h"
 #include "library/tactic/simp_lemmas.h"
 #include "library/tactic/simp_result.h"
@@ -35,6 +36,7 @@ protected:
     typedef expr_struct_map<simp_result> simplify_cache;
 
     type_context              m_ctx;
+    defeq_canonizer           m_defeq_canonizer;
     name                      m_rel;
     simp_lemmas               m_slss;
     simplify_cache            m_cache;
@@ -106,6 +108,10 @@ public:
     simp_result operator()(name const & rel, expr const & e);
 
     optional<expr> prove_by_simp(name const & rel, expr const & e);
+
+    environment update_defeq_canonizer_state(environment const & env) const {
+        return m_defeq_canonizer.update_state(env);
+    }
 };
 
 /* Extend simplify_core_fn functionality by assuming function

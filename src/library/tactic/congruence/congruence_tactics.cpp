@@ -18,6 +18,10 @@ Author: Leonardo de Moura
 #include "library/tactic/congruence/ematch.h"
 
 namespace lean {
+static tactic_state update_defeq_canonizer_state(tactic_state const & s, congruence_closure const & cc) {
+    return set_env(s, cc.update_defeq_canonizer_state(s.env()));
+}
+
 struct vm_cc_state : public vm_external {
     congruence_closure::state m_val;
     vm_cc_state(congruence_closure::state const & v):m_val(v) {}
@@ -59,7 +63,8 @@ vm_obj cc_state_mk_using_hs(vm_obj const & _s) {
                     cc.add(d.get_type(), d.mk_ref());
                 }
             });
-        return mk_tactic_success(to_obj(r), s);
+        tactic_state new_s = update_defeq_canonizer_state(s, cc);
+        return mk_tactic_success(to_obj(r), new_s);
     } catch (exception & ex) {
         return mk_tactic_exception(ex, s);
     }
@@ -130,7 +135,7 @@ vm_obj cc_state_inc_gmt(vm_obj const & ccs) {
         return mk_tactic_exception(ex, s);                      \
     }
 
-#define cc_state_updt_proc(CODE) cc_state_proc({ CODE; return mk_tactic_success(to_obj(S), s); })
+#define cc_state_updt_proc(CODE) cc_state_proc({ CODE; return mk_tactic_success(to_obj(S), update_defeq_canonizer_state(s, cc)); })
 
 
 vm_obj cc_state_add(vm_obj const & ccs, vm_obj const & H, vm_obj const & _s) {
@@ -317,7 +322,8 @@ vm_obj ematch_core(vm_obj const & md, vm_obj const & _ccs, vm_obj const & _ems, 
     buffer<expr_pair> new_inst_buffer;
     ematch(ctx, ems, cc, to_hinst_lemma(hlemma), to_expr(t), new_inst_buffer);
     vm_obj r = mk_ematch_result(new_inst_buffer, ccs, ems);
-    return mk_tactic_success(r, to_tactic_state(s));
+    tactic_state new_s = update_defeq_canonizer_state(to_tactic_state(s), cc);
+    return mk_tactic_success(r, new_s);
     LEAN_TACTIC_CATCH(to_tactic_state(s));
 }
 
@@ -330,7 +336,8 @@ vm_obj ematch_all_core(vm_obj const & md, vm_obj const & _ccs, vm_obj const & _e
     buffer<expr_pair> new_inst_buffer;
     ematch_all(ctx, ems, cc, to_hinst_lemma(hlemma), to_bool(filter), new_inst_buffer);
     vm_obj r = mk_ematch_result(new_inst_buffer, ccs, ems);
-    return mk_tactic_success(r, to_tactic_state(s));
+    tactic_state new_s = update_defeq_canonizer_state(to_tactic_state(s), cc);
+    return mk_tactic_success(r, new_s);
     LEAN_TACTIC_CATCH(to_tactic_state(s));
 }
 

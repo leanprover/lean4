@@ -5,15 +5,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include "library/expr_lt.h"
 #include "library/type_context.h"
 
 namespace lean {
 /* \brief Return an expression that is definitionally equal to \c e.
 
    \remark The predicate locals_subset(r, e) holds for the resulting expression r.
-
-   \remark The procedure maintains thread local storage. The results are reset
-   whenever ctx.env() is not pointer equal to the environment in the previous call.
 
    \remark updated is set to true if previous results may have been updated.
 
@@ -29,5 +27,40 @@ namespace lean {
    \remark Suppose we invoke defeq_canonize for every type class instance in a big term T,
    and updated is true in the end. Then, if we reset updated to false and restart the process,
    then eventually updated will be false after a finite number of restarts. */
-expr defeq_canonize(type_context & ctx, expr const & e, bool & updated);
+class defeq_canonizer {
+public:
+    struct state {
+        /* Canonical mapping I -> J (i.e., J is the canonical expression for I).
+           Invariant: locals_subset(J, I) */
+        rb_map<expr, expr, expr_quick_cmp> m_C;
+        /* Mapping from head symbol N to list of expressions es s.t.
+           for each e in es, head_symbol(e) = N. */
+        name_map<list<expr>>               m_M;
+    };
+private:
+    type_context & m_ctx;
+    state          m_state;
+    bool *         m_updated{nullptr};
+
+    optional<name> get_head_symbol(expr type);
+    optional<expr> find_defeq(name const & h, expr const & e);
+    void replace_C(expr const & e1, expr const & e2);
+    void insert_C(expr const & e1, expr const & e2);
+    void insert_M(name const & h, expr const & e);
+    void replace_M(name const & h, expr const & e, expr const & new_e);
+    expr canonize_core(expr const & e);
+
+public:
+    defeq_canonizer(type_context & ctx);
+
+    expr canonize(expr const & e, bool & updated);
+    expr canonize(expr const & e);
+
+    /* Update the defeq_canonizer::state in the given environment with the state in this
+       defeq_canonizer object. */
+    environment update_state(environment const & env) const;
+};
+
+void initialize_defeq_canonizer();
+void finalize_defeq_canonizer();
 }

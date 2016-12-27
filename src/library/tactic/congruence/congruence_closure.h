@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "library/type_context.h"
 #include "library/congr_lemma.h"
 #include "library/relation_manager.h"
+#include "library/defeq_canonizer.h"
 
 namespace lean {
 struct ext_congr_lemma;
@@ -149,6 +150,7 @@ public:
 
 private:
     type_context &            m_ctx;
+    defeq_canonizer           m_defeq_canonizer;
     state &                   m_state;
     buffer<todo_entry>        m_todo;
     ext_congr_lemma_cache_ptr m_cache_ptr;
@@ -257,6 +259,10 @@ public:
 
     entry const * get_entry(expr const & e) const { return m_state.m_entries.find(e); }
     bool check_invariant() const { return m_state.check_invariant(); }
+
+    environment update_defeq_canonizer_state(environment const & env) const {
+        return m_defeq_canonizer.update_state(env);
+    }
 };
 
 struct ext_congr_lemma {

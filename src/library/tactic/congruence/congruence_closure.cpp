@@ -16,7 +16,6 @@ Author: Leonardo de Moura
 #include "library/comp_val.h"
 #include "library/app_builder.h"
 #include "library/projection.h"
-#include "library/defeq_canonizer.h"
 #include "library/constructions/constructor.h"
 #include "library/tactic/congruence/congruence_closure.h"
 
@@ -98,7 +97,7 @@ public:
 MK_THREAD_LOCAL_GET_DEF(ext_congr_lemma_cache_manager, get_clcm);
 
 congruence_closure::congruence_closure(type_context & ctx, state & s):
-    m_ctx(ctx), m_state(s), m_cache_ptr(get_clcm().mk(ctx.env())), m_mode(ctx.mode()),
+    m_ctx(ctx), m_defeq_canonizer(ctx), m_state(s), m_cache_ptr(get_clcm().mk(ctx.env())), m_mode(ctx.mode()),
     m_rel_info_getter(mk_relation_info_getter(ctx.env())),
     m_symm_info_getter(mk_symm_info_getter(ctx.env())),
     m_refl_info_getter(mk_refl_info_getter(ctx.env())) {
@@ -433,7 +432,7 @@ void congruence_closure::process_subsingleton_elem(expr const & e) {
     if (!ss) return; /* type is not a subsingleton */
     /* use defeq_canonize to "normalize" instance */
     bool dummy;
-    type = defeq_canonize(m_ctx, type, dummy);
+    type = m_defeq_canonizer.canonize(type, dummy);
     /* Make sure type has been internalized */
     bool toplevel  = true;
     bool propagate = false;
@@ -646,7 +645,7 @@ static expr const & get_app_apps(expr const & e, buffer<expr> & r) {
 
 void congruence_closure::propagate_inst_implicit(expr const & e) {
     bool updated;
-    expr new_e = defeq_canonize(m_ctx, e, updated);
+    expr new_e = m_defeq_canonizer.canonize(e, updated);
     if (e != new_e) {
         mk_entry_core(new_e, false);
         push_refl_eq(e, new_e);

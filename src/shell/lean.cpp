@@ -40,7 +40,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/dependencies.h"
-#include "frontends/lean/opt_cmd.h"
 #include "frontends/smt2/parser.h"
 #include "frontends/lean/json.h"
 #include "library/native_compiler/options.h"

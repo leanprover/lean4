@@ -150,13 +150,6 @@ class parser : public abstract_parser {
     // profiling
     bool                   m_profile;
 
-    // stop/info at line/col
-    bool                   m_stop_at; // if true, then parser stops execution after the given line and column is reached
-    unsigned               m_stop_at_line;
-    bool                   m_info_at;
-    unsigned               m_info_at_line;
-    unsigned               m_info_at_col;
-
     // If the following flag is true we do not raise error messages
     // noncomputable definitions not tagged as noncomputable.
     bool                   m_ignore_noncomputable;
@@ -241,8 +234,6 @@ public:
 
     void set_break_at_pos(pos_info const & pos) { m_break_at_pos = some(pos); }
     bool check_break_at_pos(pos_info const & p, name const & tk);
-    void enable_show_goal(pos_info const & pos);
-    void enable_show_info(pos_info const & pos);
 
     bool ignore_noncomputable() const { return m_ignore_noncomputable; }
     void set_ignore_noncomputable() { m_ignore_noncomputable = true; }

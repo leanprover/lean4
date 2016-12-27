@@ -5,6 +5,6 @@ notation_cmd.cpp calc.cpp decl_cmds.cpp util.cpp
 inductive_cmds.cpp dependencies.cpp
 pp.cpp structure_cmd.cpp structure_instance.cpp
 init_module.cpp type_util.cpp decl_attributes.cpp
-opt_cmd.cpp prenum.cpp print_cmd.cpp elaborator.cpp elaborator_exception.cpp
+prenum.cpp print_cmd.cpp elaborator.cpp elaborator_exception.cpp
 match_expr.cpp local_context_adapter.cpp decl_util.cpp definition_cmds.cpp
 brackets.cpp tactic_notation.cpp info_manager.cpp json.cpp)

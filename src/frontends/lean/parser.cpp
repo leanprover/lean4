@@ -56,7 +56,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/notation_cmd.h"
 #include "frontends/lean/parser_pos_provider.h"
 #include "frontends/lean/update_environment_exception.h"
-#include "frontends/lean/opt_cmd.h"
 #include "frontends/lean/builtin_cmds.h"
 #include "frontends/lean/prenum.h"
 #include "frontends/lean/elaborator.h"
@@ -149,21 +148,6 @@ parser::all_id_local_scope::all_id_local_scope(parser & p):
 
 static name * g_tmp_prefix = nullptr;
 
-void parser::enable_show_goal(pos_info const & pos) {
-    m_stop_at = true;
-    m_stop_at_line = pos.first;
-    m_ios.set_options(set_show_goal(m_ios.get_options(), pos.first, pos.second));
-}
-
-void parser::enable_show_info(pos_info const & pos) {
-    m_stop_at = true;
-    m_stop_at_line = pos.first;
-    m_info_at = true;
-    m_info_at_line = pos.first;
-    m_info_at_col = pos.second;
-    m_ios.set_options(set_show_info(m_ios.get_options(), pos.first, pos.second));
-}
-
 parser::parser(environment const & env, io_state const & ios,
                module_loader const & import_fn,
                std::istream & strm, std::string const & file_name,
@@ -198,8 +182,6 @@ parser::parser(environment const & env, io_state const & ios,
     m_id_behavior  = id_behavior::ErrorIfUndef;
     m_found_errors = false;
     m_used_sorry   = false;
-    m_info_at = false;
-    m_stop_at = false;
     updt_options();
     m_next_tag_idx  = 0;
     m_curr = scanner::token_kind::Identifier;
@@ -2203,9 +2185,6 @@ bool parser::parse_commands() {
         }
         while (!done) {
             save_snapshot(scope_parser_msgs);
-            if (m_stop_at && pos().first > m_stop_at_line) {
-                throw interrupt_parser();
-            }
             scoped_task_context scope_task_ctx(get_current_module(), pos());
             scope_message_context scope_msg_ctx;
             // TODO(gabriel): separate flag for snapshots/infos?

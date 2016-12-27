@@ -46,7 +46,6 @@ Author: Leonardo de Moura
 #include "library/equations_compiler/compiler.h"
 #include "library/equations_compiler/util.h"
 #include "frontends/lean/builtin_exprs.h"
-#include "frontends/lean/opt_cmd.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/prenum.h"
 #include "frontends/lean/elaborator.h"

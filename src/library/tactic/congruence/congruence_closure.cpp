@@ -1169,6 +1169,9 @@ void congruence_closure::check_new_subsingleton_eq(expr const & old_root, expr c
 }
 
 void congruence_closure::propagate_constructor_eq(expr const & e1, expr const & e2) {
+    /* Remark: is_constructor_app does not check for partially applied constructor applications.
+       So, we must check whether mk_constructor_eq_constructor_inconsistency_proof fails,
+       and we should not assume that mk_constructor_eq_constructor_implied_eqs will succeed. */
     optional<name> c1 = is_constructor_app(env(), e1);
     optional<name> c2 = is_constructor_app(env(), e2);
     lean_assert(c1 && c2);
@@ -1177,16 +1180,17 @@ void congruence_closure::propagate_constructor_eq(expr const & e1, expr const & 
     bool heq_proof  = false;
     if (*c1 == *c2) {
         buffer<std::tuple<expr, expr, expr>> implied_eqs;
-        lean_verify(mk_constructor_eq_constructor_implied_eqs(m_ctx, e1, e2, h, implied_eqs));
+        mk_constructor_eq_constructor_implied_eqs(m_ctx, e1, e2, h, implied_eqs);
         for (std::tuple<expr, expr, expr> const & t : implied_eqs) {
             expr lhs, rhs, H;
             std::tie(lhs, rhs, H) = t;
             push_todo(lhs, rhs, H, heq_proof);
         }
     } else {
-        expr false_pr = *mk_constructor_eq_constructor_inconsistency_proof(m_ctx, e1, e2, h);
-        expr H        = mk_app(mk_constant(get_true_eq_false_of_false_name()), false_pr);
-        push_todo(mk_true(), mk_false(), H, heq_proof);
+        if (optional<expr> false_pr = mk_constructor_eq_constructor_inconsistency_proof(m_ctx, e1, e2, h)) {
+            expr H        = mk_app(mk_constant(get_true_eq_false_of_false_name()), *false_pr);
+            push_todo(mk_true(), mk_false(), H, heq_proof);
+        }
     }
 }
 

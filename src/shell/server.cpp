@@ -107,12 +107,12 @@ struct current_tasks_msg {
 #if defined(LEAN_MULTI_THREAD)
     current_tasks_msg(mt_tq_status const & st, std::unordered_set<std::string> const & visible_files) {
         m_is_running = st.size() > 0;
-        if (!st.m_executing.empty()) {
-            m_cur_task = { json_of_task(st.m_executing.front()) };
-        }
         st.for_each([&] (generic_task const * t) {
             if (m_tasks.size() >= 100) return;
             if (!t->is_tiny() && visible_files.count(t->get_module_id())) {
+                if (!m_cur_task) {
+                    m_cur_task = { json_of_task(t) };
+                }
                 json j;
                 j["file_name"] = t->get_module_id();
                 auto pos = t->get_pos();

@@ -40,7 +40,8 @@
              (tasks-for-cur-file (remove-if-not (lambda (task) (equal cur-fn (plist-get task :file_name)))
                                                 (plist-get tasks :tasks))))
         (mapcar (lambda (task) (apply #'lean-flycheck-parse-task checker buffer cur-fn task))
-                (if (and tasks-for-cur-file (equal cur-fn (plist-get cur-task :file_name)))
+                (if (or (not cur-task)
+                        (and tasks-for-cur-file (equal cur-fn (plist-get cur-task :file_name))))
                     tasks-for-cur-file
                   (cons cur-task tasks-for-cur-file))))))
 

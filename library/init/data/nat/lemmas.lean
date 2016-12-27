@@ -567,6 +567,9 @@ instance : comm_semigroup nat     := by apply_instance
 instance : semigroup nat          := by apply_instance
 instance : add_comm_semigroup nat := by apply_instance
 instance : add_semigroup nat      := by apply_instance
+instance : distrib nat            := by apply_instance
+instance : semiring nat           := by apply_instance
+instance : ordered_semiring nat   := by apply_instance
 
 /- subtraction -/
 protected theorem sub_zero (n : ℕ) : n - 0 = n :=

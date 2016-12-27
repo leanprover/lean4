@@ -428,6 +428,7 @@ instance : add_semigroup int      := by apply_instance
 instance : comm_semiring int      := by apply_instance
 instance : semiring int           := by apply_instance
 instance : ring int               := by apply_instance
+instance : distrib int            := by apply_instance
 
 protected lemma zero_ne_one : (0 : int) ≠ 1 :=
 assume h : 0 = 1, succ_ne_zero _ (int.of_nat_inj h)^.symm

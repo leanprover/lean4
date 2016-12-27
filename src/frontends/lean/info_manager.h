@@ -34,6 +34,20 @@ public:
 #endif
 };
 
+class tactic_state_info_data : public info_data_cell {
+    tactic_state m_state;
+public:
+    tactic_state_info_data(tactic_state const & s):m_state(s) {}
+
+#ifdef LEAN_SERVER
+    virtual void report(io_state_stream const &, json & record) const override {
+        std::ostringstream ss;
+        ss << m_state.pp();
+        record["state"] = ss.str();
+    }
+#endif
+};
+
 class info_data {
 private:
     info_data_cell * m_ptr;
@@ -87,7 +101,7 @@ public:
 
 #ifdef LEAN_SERVER
     void get_info_record(environment const & env, options const & o, io_state const & ios, unsigned line,
-                         unsigned col, json &) const;
+                         unsigned col, json & record, std::function<bool (info_data const &)> pred = {}) const;
 #endif
 };
 

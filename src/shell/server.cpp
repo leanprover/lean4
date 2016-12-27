@@ -395,22 +395,28 @@ public:
                              use_exceptions, std::make_shared<snapshot>(s), nullptr);
                     p.set_break_at_pos(pos);
                     p();
-                } catch (info_at_pos_exception & e) {
-                    lean_assert(e.m_token_pos.first == pos.first);
-
-                    auto opts = m_server->m_ios.get_options();
-                    auto env = m_server->m_initial_env;
-                    if (auto mod = m_mod_info->m_result.peek()) {
-                        if (mod->m_loaded_module->m_env)
-                            env = *mod->m_loaded_module->m_env;
-                        if (!mod->m_snapshots.empty()) opts = mod->m_snapshots.back()->m_options;
-                    }
-
+                } catch (break_at_pos_exception & e) {
                     json record;
-                    for (auto & infom : m_server->m_msg_buf->get_info_managers()) {
-                        if (infom.get_file_name() == get_module_id()) {
-                            infom.get_info_record(env, opts, m_server->m_ios, e.m_token_pos.first, e.m_token_pos.second,
-                                                  record);
+                    if (e.m_token_pos || e.m_goal_pos) {
+                        auto opts = m_server->m_ios.get_options();
+                        auto env = m_server->m_initial_env;
+                        if (auto mod = m_mod_info->m_result.peek()) {
+                            if (mod->m_loaded_module->m_env)
+                                env = *mod->m_loaded_module->m_env;
+                            if (!mod->m_snapshots.empty()) opts = mod->m_snapshots.back()->m_options;
+                        }
+
+                        for (auto & infom : m_server->m_msg_buf->get_info_managers()) {
+                            if (infom.get_file_name() == get_module_id()) {
+                                if (e.m_token_pos)
+                                    infom.get_info_record(env, opts, m_server->m_ios, e.m_token_pos->first,
+                                                          e.m_token_pos->second, record);
+                                if (e.m_goal_pos)
+                                    infom.get_info_record(env, opts, m_server->m_ios, e.m_goal_pos->first,
+                                                          e.m_goal_pos->second, record, [](info_data const & d) {
+                                                return dynamic_cast<tactic_state_info_data const *>(d.raw());
+                                            });
+                            }
                         }
                     }
 

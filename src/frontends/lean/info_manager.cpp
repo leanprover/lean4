@@ -55,20 +55,6 @@ public:
 #endif
 };
 
-class tactic_state_info_data : public info_data_cell {
-    tactic_state m_state;
-public:
-    tactic_state_info_data(tactic_state const & s):m_state(s) {}
-
-#ifdef LEAN_SERVER
-    virtual void report(io_state_stream const &, json & record) const override {
-        std::ostringstream ss;
-        ss << m_state.pp();
-        record["state"] = ss.str();
-    }
-#endif
-};
-
 /*
 class extra_type_info_data : public info_data_cell {
 protected:
@@ -284,13 +270,14 @@ static bool is_tactic_id(name const & id) {
 
 #ifdef LEAN_SERVER
 void info_manager::get_info_record(environment const & env, options const & o, io_state const & ios, unsigned line,
-                                   unsigned col, json & record) const {
+                                   unsigned col, json & record, std::function<bool (info_data const &)> pred) const {
     type_context tc(env, o);
     io_state_stream out = regular(env, ios, tc).update_options(o);
     get_line_info_set(line).for_each([&](unsigned c, list<info_data> const & ds) {
         if (c == col) {
             for (auto const & d : ds) {
-                d.report(out, record);
+                if (!pred || pred(d))
+                    d.report(out, record);
             }
         }
     });

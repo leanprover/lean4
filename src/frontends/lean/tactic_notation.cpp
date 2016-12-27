@@ -301,32 +301,32 @@ static expr parse_tactic(parser & p) {
 expr parse_begin_end_core(parser & p, pos_info const & start_pos,
                           name const & end_token, bool nested) {
     p.next();
-    bool first = true;
     expr r = p.save_pos(mk_begin_end_element(mk_constant(get_tactic_skip_name())), start_pos);
     try {
         while (!p.curr_is_token(end_token)) {
-            if (first) {
-                first = false;
-            } else {
-                p.check_token_next(get_comma_tk(), "invalid 'begin-end' expression, ',' expected");
-            }
             auto pos = p.pos();
-            /* parse next element */
-            expr next_tac;
-            if (p.curr_is_token(get_begin_tk())) {
-                next_tac = parse_begin_end_core(p, pos, get_end_tk(), true);
-            } else if (p.curr_is_token(get_lcurly_tk())) {
-                next_tac = parse_begin_end_core(p, pos, get_rcurly_tk(), true);
-            } else if (p.curr_is_token(get_do_tk())) {
-                expr tac  = p.parse_expr();
-                expr type = p.save_pos(mk_tactic_unit(), pos);
-                next_tac  = p.save_pos(mk_typed_expr(type, tac), pos);
-            } else if (p.curr_is_token(end_token)) {
-                break;
-            } else {
-                next_tac = parse_tactic(p);
+            try {
+                /* parse next element */
+                expr next_tac;
+                if (p.curr_is_token(get_begin_tk())) {
+                    next_tac = parse_begin_end_core(p, pos, get_end_tk(), true);
+                } else if (p.curr_is_token(get_lcurly_tk())) {
+                    next_tac = parse_begin_end_core(p, pos, get_rcurly_tk(), true);
+                } else if (p.curr_is_token(get_do_tk())) {
+                    expr tac = p.parse_expr();
+                    expr type = p.save_pos(mk_tactic_unit(), pos);
+                    next_tac = p.save_pos(mk_typed_expr(type, tac), pos);
+                } else {
+                    next_tac = parse_tactic(p);
+                }
+                r = concat(p, r, next_tac, start_pos, pos);
+                if (!p.curr_is_token(end_token)) {
+                    p.check_token_next(get_comma_tk(), "invalid 'begin-end' expression, ',' expected");
+                }
+            } catch (break_at_pos_exception & ex) {
+                ex.report_goal_pos(pos);
+                throw ex;
             }
-            r = concat(p, r, next_tac, start_pos, pos);
         }
     } catch (exception & ex) {
         if (end_token == get_end_tk())
@@ -353,10 +353,15 @@ expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {
     parser::local_scope _(p);
     p.clear_expr_locals();
     auto tac_pos = p.pos();
-    expr tac  = parse_tactic(p);
-    expr type = mk_tactic_unit();
-    expr r    = p.save_pos(mk_typed_expr(type, tac), tac_pos);
-    return p.save_pos(mk_by(r), pos);
+    try {
+        expr tac  = parse_tactic(p);
+        expr type = mk_tactic_unit();
+        expr r    = p.save_pos(mk_typed_expr(type, tac), tac_pos);
+        return p.save_pos(mk_by(r), pos);
+    } catch (break_at_pos_exception & ex) {
+        ex.report_goal_pos(tac_pos);
+        throw ex;
+    }
 }
 
 expr parse_auto_quote_tactic_block(parser & p, unsigned, expr const *, pos_info const & pos) {

@@ -756,6 +756,11 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
         attrs.set_attribute(p.env(), "instance");
     std::tie(fn, val) = parse_definition(p, lp_names, params, is_example, is_instance);
     p.declare_sorry_if_used();
+
+    // skip elaboration of definitions during reparsing
+    if (p.get_break_at_pos())
+        return p.env();
+
     elaborator elab(p.env(), p.get_options(), metavar_context(), local_context());
     buffer<expr> new_params;
     elaborate_params(elab, params, new_params);

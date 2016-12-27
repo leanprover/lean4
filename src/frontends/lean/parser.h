@@ -233,6 +233,7 @@ public:
     ~parser();
 
     void set_break_at_pos(pos_info const & pos) { m_break_at_pos = some(pos); }
+    optional<pos_info> const & get_break_at_pos() const { return m_break_at_pos; }
     bool check_break_at_pos(pos_info const & p, name const & tk);
 
     bool ignore_noncomputable() const { return m_ignore_noncomputable; }

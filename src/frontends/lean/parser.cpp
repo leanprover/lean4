@@ -209,7 +209,7 @@ bool parser::check_break_at_pos(pos_info const & p, name const & tk) {
 
 void parser::scan() {
     if (curr_is_identifier() && check_break_at_pos(pos(), get_name_val()))
-        throw break_at_pos_exception(pos(), get_name_val());
+        throw break_at_pos_exception(pos(), get_name_val(), break_at_pos_exception::token_context::ident);
     if (m_break_at_pos && *m_break_at_pos < pos())
         throw break_at_pos_exception();
     m_curr = m_scanner.scan(m_env);
@@ -402,11 +402,17 @@ void parser::check_token_or_id_next(name const & tk, char const * msg) {
     next();
 }
 
-name parser::check_id_next(char const * msg) {
+name parser::check_id_next(char const * msg, optional<break_at_pos_exception::token_context> ctxt) {
     if (!curr_is_identifier())
         throw parser_error(msg, pos());
     name r = get_name_val();
-    next();
+    try {
+        next();
+    } catch (break_at_pos_exception & ex) {
+        if (ctxt && ex.m_token_info)
+            ex.m_token_info->m_context = *ctxt;
+        throw;
+    }
     return r;
 }
 
@@ -1253,7 +1259,7 @@ expr parser::parse_notation(parse_table t, expr * left) {
     auto check_break = [&]() {
         if (check_break_at_pos(pos(), get_token_info().value())) {
             // info is stored at position of first notation token
-            throw break_at_pos_exception(p, first_token);
+            throw break_at_pos_exception(p, first_token, break_at_pos_exception::token_context::notation);
         }
     };
     buffer<expr>                     args;

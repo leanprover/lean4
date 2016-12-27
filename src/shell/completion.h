@@ -13,6 +13,7 @@ Authors: Gabriel Ebner, Leonardo de Moura, Sebastian Ullrich
 
 namespace lean {
 
-std::vector<json> get_completions(std::string const & pattern, environment const & env, options const & o);
+std::vector<json> get_decl_completions(std::string const & pattern, environment const & env, options const & o);
+std::vector<json> get_option_completions(std::string const & pattern, options const & opts);
 
 }

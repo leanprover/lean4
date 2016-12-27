@@ -353,12 +353,23 @@ public:
                 try {
                     parse_breaking_at_pos(get_module_id(), m_mod_info, {pos.first, pos.second - 1});
                 } catch (break_at_pos_exception & e) {
-                    if (e.m_token) {
-                        std::string prefix = e.m_token->to_string();
-                        if (auto stop = utf8_char_pos(prefix.c_str(), get_pos().second - e.m_token_pos->second))
+                    if (e.m_token_info) {
+                        std::string prefix = e.m_token_info->m_token.to_string();
+                        if (auto stop = utf8_char_pos(prefix.c_str(), get_pos().second - e.m_token_info->m_pos.second))
                             prefix = prefix.substr(0, *stop);
-                        if (!m_skip_completions)
-                            j["completions"] = get_completions(prefix, snap->m_env, snap->m_options);
+                        switch (e.m_token_info->m_context) {
+                            case break_at_pos_exception::token_context::ident:
+                                if (!m_skip_completions)
+                                    j["completions"] = get_decl_completions(prefix, snap->m_env, snap->m_options);
+                                break;
+                            case break_at_pos_exception::token_context::option:
+                                if (!m_skip_completions)
+                                    j["completions"] = get_option_completions(prefix, m_server->m_ios.get_options());
+                                break;
+                            case break_at_pos_exception::token_context::notation:
+                                // do not complete notations
+                                return {};
+                        }
                         j["prefix"] = prefix;
                     }
                 } catch (throwable & ex) {}
@@ -419,7 +430,7 @@ public:
                 parse_breaking_at_pos(get_module_id(), m_mod_info, pos);
             } catch (break_at_pos_exception & e) {
                 json record;
-                if (e.m_token_pos || e.m_goal_pos) {
+                if (e.m_token_info || e.m_goal_pos) {
                     auto opts = m_server->m_ios.get_options();
                     auto env = m_server->m_initial_env;
                     if (auto mod = m_mod_info->m_result.peek()) {
@@ -430,9 +441,9 @@ public:
 
                     for (auto & infom : m_server->m_msg_buf->get_info_managers()) {
                         if (infom.get_file_name() == get_module_id()) {
-                            if (e.m_token_pos)
-                                infom.get_info_record(env, opts, m_server->m_ios, e.m_token_pos->first,
-                                                      e.m_token_pos->second, record);
+                            if (e.m_token_info)
+                                infom.get_info_record(env, opts, m_server->m_ios, e.m_token_info->m_pos.first,
+                                                      e.m_token_info->m_pos.second, record);
                             if (e.m_goal_pos)
                                 infom.get_info_record(env, opts, m_server->m_ios, e.m_goal_pos->first,
                                                       e.m_goal_pos->second, record, [](info_data const & d) {

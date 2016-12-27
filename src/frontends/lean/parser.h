@@ -79,13 +79,19 @@ typedef std::vector<std::shared_ptr<snapshot const>> snapshot_vector;
 
 class break_at_pos_exception : public std::exception {
 public:
-    optional<pos_info> m_token_pos;
-    optional<name>     m_token;
-    optional<pos_info> m_goal_pos;
+    enum class token_context { ident, notation, option };
+    struct token_info {
+        pos_info      m_pos;
+        token_context m_context;
+        name          m_token;
+    };
+
+    optional<token_info> m_token_info;
+    optional<pos_info>   m_goal_pos;
 
     break_at_pos_exception() {}
-    break_at_pos_exception(pos_info const & token_pos, name const & token):
-            m_token_pos(token_pos), m_token(token) {}
+    break_at_pos_exception(pos_info const & token_pos, name const & token, token_context ctxt):
+            m_token_info(token_info {token_pos, ctxt, token}) {}
 
     void report_goal_pos(pos_info goal_pos);
 };
@@ -317,7 +323,7 @@ public:
     void check_token_or_id_next(name const & tk, char const * msg);
     /** \brief Check if the current token is an identifier, if it is return it and move to next token,
         otherwise throw an exception. */
-    name check_id_next(char const * msg);
+    name check_id_next(char const * msg, optional<break_at_pos_exception::token_context> ctxt = {});
     /** \brief Similar to check_id_next, but also ensures the identifier is *not* an internal/reserved name. */
     name check_decl_id_next(char const * msg);
     /** \brief Check if the current token is an atomic identifier, if it is, return it and move to next token,

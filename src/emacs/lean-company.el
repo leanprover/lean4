@@ -38,14 +38,15 @@
     (cond ((s-prefix? prefix candidate) candidates)
           (t                            `(,candidate ,prefix)))))
 
-(defun company-lean--exec ()
+(cl-defun company-lean--exec (&key skip-completions)
   "Synchronously queries completions for the current point from server and returns a plist with keys :prefix and :candidates., or nil if no completion should be triggered."
   (lean-server-sync)
   (let* ((col (lean-line-offset))
          (response (lean-server-send-synchronous-command
                     'complete (list :file_name (buffer-file-name)
                                     :line (line-number-at-pos)
-                                    :column col)))
+                                    :column col
+                                    :skip_completions (or skip-completions :json-false))))
          (candidates (plist-get response :completions))
          (prefix (plist-get response :prefix)))
     (when candidates
@@ -92,7 +93,7 @@
 
 (defun company-lean (command &optional arg &rest ignored)
   (cl-case command
-    (prefix (plist-get (company-lean--exec) :prefix))
+    (prefix (plist-get (company-lean--exec :skip-completions t) :prefix))
     (candidates (plist-get (company-lean--exec) :candidates))
     (annotation (company-lean--annotation arg))
     ;(location (cons :async (lambda (cb) (company-lean--findp-location arg cb))))

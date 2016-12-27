@@ -322,10 +322,12 @@ class server::auto_complete_task : public task<unit> {
     server * m_server;
     unsigned m_seq_num;
     std::shared_ptr<module_info const> m_mod_info;
+    bool     m_skip_completions;
 
 public:
-    auto_complete_task(server * server, unsigned seq_num, std::shared_ptr<module_info const> const & mod_info) :
-        m_server(server), m_seq_num(seq_num), m_mod_info(mod_info) {}
+    auto_complete_task(server * server, unsigned seq_num, std::shared_ptr<module_info const> const & mod_info,
+                       bool skip_completions) :
+        m_server(server), m_seq_num(seq_num), m_mod_info(mod_info), m_skip_completions(skip_completions) {}
 
     // TODO(gabriel): find cleaner way to give it high prio
     task_kind get_kind() const override { return task_kind::parse; }
@@ -355,7 +357,8 @@ public:
                         std::string prefix = e.m_token->to_string();
                         if (auto stop = utf8_char_pos(prefix.c_str(), get_pos().second - e.m_token_pos->second))
                             prefix = prefix.substr(0, *stop);
-                        j["completions"] = get_completions(prefix, snap->m_env, snap->m_options);
+                        if (!m_skip_completions)
+                            j["completions"] = get_completions(prefix, snap->m_env, snap->m_options);
                         j["prefix"] = prefix;
                     }
                 } catch (throwable & ex) {}
@@ -372,13 +375,16 @@ public:
 void server::handle_complete(cmd_req const & req) {
     std::string fn = req.m_payload.at("file_name");
     pos_info pos = {req.m_payload.at("line"), req.m_payload.at("column")};
+    bool skip_completions = false;
+    if (req.m_payload.count("skip_completions"))
+        skip_completions = req.m_payload.at("skip_completions");
 
     scope_message_context scope_msg_ctx(message_bucket_id { "_server", 0 });
     scoped_task_context scope_task_ctx(fn, pos);
 
     auto mod_info = m_mod_mgr->get_module(fn);
 
-    get_global_task_queue()->submit<auto_complete_task>(this, req.m_seq_num, mod_info);
+    get_global_task_queue()->submit<auto_complete_task>(this, req.m_seq_num, mod_info, skip_completions);
 }
 
 class server::info_task : public task<unit> {

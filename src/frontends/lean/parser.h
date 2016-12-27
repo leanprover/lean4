@@ -77,12 +77,14 @@ struct snapshot {
 
 typedef std::vector<std::shared_ptr<snapshot const>> snapshot_vector;
 
-class break_at_pos_exception : public std::exception {
+class break_at_pos_exception : public std::exception {};
+
+class info_at_pos_exception : public break_at_pos_exception {
 public:
     pos_info    m_token_pos;
     name        m_token;
 
-    break_at_pos_exception(pos_info const & token_pos, name const & token):
+    info_at_pos_exception(pos_info const & token_pos, name const & token):
             m_token_pos(token_pos), m_token(token) {}
 };
 

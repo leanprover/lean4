@@ -391,7 +391,7 @@ public:
                              use_exceptions, std::make_shared<snapshot>(s), nullptr);
                     p.set_break_at_pos(pos);
                     p();
-                } catch (break_at_pos_exception & e) {
+                } catch (info_at_pos_exception & e) {
                     lean_assert(e.m_token_pos.first == pos.first);
 
                     auto opts = m_server->m_ios.get_options();
@@ -411,7 +411,7 @@ public:
                     }
 
                     j["record"] = record;
-                }
+                } catch (break_at_pos_exception & e) {}
             }
 
             m_server->send_msg(cmd_res(m_seq_num, j));

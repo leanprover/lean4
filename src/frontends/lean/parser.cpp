@@ -203,7 +203,9 @@ bool parser::check_break_at_pos(pos_info const & p, name const & tk) {
 
 void parser::scan() {
     if (curr_is_identifier() && check_break_at_pos(pos(), get_name_val()))
-        throw break_at_pos_exception(pos(), get_name_val());
+        throw info_at_pos_exception(pos(), get_name_val());
+    if (m_break_at_pos && *m_break_at_pos < pos())
+        throw break_at_pos_exception();
     m_curr = m_scanner.scan(m_env);
 }
 
@@ -1245,7 +1247,7 @@ expr parser::parse_notation(parse_table t, expr * left) {
     auto check_break = [&]() {
         if (check_break_at_pos(pos(), get_token_info().value())) {
             // info is stored at position of first notation token
-            throw break_at_pos_exception(p, first_token);
+            throw info_at_pos_exception(p, first_token);
         }
     };
     buffer<expr>                     args;

@@ -386,6 +386,10 @@ public:
                 snapshot s = *snap;
                 s.m_sub_buckets.clear(); // HACK
                 try {
+                    // ignore messages from reparsing
+                    null_message_buffer null_msg_buf;
+                    scoped_message_buffer scope(&null_msg_buf);
+
                     bool use_exceptions = true;
                     parser p(s.m_env, get_global_ios(), mk_dummy_loader(), in, get_module_id(),
                              use_exceptions, std::make_shared<snapshot>(s), nullptr);

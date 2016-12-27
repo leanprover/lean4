@@ -15,6 +15,8 @@ meta constant cc_state.next         : cc_state → expr → expr
 meta constant cc_state.roots_core   : cc_state → bool → list expr
 meta constant cc_state.root         : cc_state → expr → expr
 meta constant cc_state.mt           : cc_state → expr → nat
+meta constant cc_state.gmt          : cc_state → nat
+meta constant cc_state.inc_gmt      : cc_state → cc_state
 meta constant cc_state.is_cg_root   : cc_state → expr → bool
 meta constant cc_state.pp_eqc       : cc_state → expr → tactic format
 meta constant cc_state.pp_core      : cc_state → bool → tactic format

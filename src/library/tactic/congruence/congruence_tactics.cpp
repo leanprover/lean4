@@ -109,6 +109,16 @@ vm_obj cc_state_mt(vm_obj const & ccs, vm_obj const & e) {
     return mk_vm_nat(to_cc_state(ccs).get_mt(to_expr(e)));
 }
 
+vm_obj cc_state_gmt(vm_obj const & ccs) {
+    return mk_vm_nat(to_cc_state(ccs).get_gmt());
+}
+
+vm_obj cc_state_inc_gmt(vm_obj const & ccs) {
+    congruence_closure::state s = to_cc_state(ccs);
+    s.inc_gmt();
+    return to_obj(s);
+}
+
 #define cc_state_proc(CODE)                                     \
     tactic_state const & s   = to_tactic_state(_s);             \
     try {                                                       \
@@ -333,6 +343,8 @@ void initialize_congruence_tactics() {
     DECLARE_VM_BUILTIN(name({"cc_state", "next"}),                 cc_state_next);
     DECLARE_VM_BUILTIN(name({"cc_state", "root"}),                 cc_state_root);
     DECLARE_VM_BUILTIN(name({"cc_state", "mt"}),                   cc_state_mt);
+    DECLARE_VM_BUILTIN(name({"cc_state", "gmt"}),                  cc_state_gmt);
+    DECLARE_VM_BUILTIN(name({"cc_state", "inc_gmt"}),              cc_state_inc_gmt);
     DECLARE_VM_BUILTIN(name({"cc_state", "is_cg_root"}),           cc_state_is_cg_root);
     DECLARE_VM_BUILTIN(name({"cc_state", "roots_core"}),           cc_state_roots_core);
     DECLARE_VM_BUILTIN(name({"cc_state", "internalize"}),          cc_state_internalize);

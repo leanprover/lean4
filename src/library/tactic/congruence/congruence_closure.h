@@ -144,6 +144,7 @@ public:
         format pp_parent_occs(formatter const & fmt, expr const & e) const;
         format pp_parent_occs(formatter const & fmt) const;
         unsigned get_gmt() const { return m_gmt; }
+        void inc_gmt() { m_gmt++; }
     };
 
 private:

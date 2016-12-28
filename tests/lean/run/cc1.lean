@@ -25,8 +25,6 @@ by do intros,
 example (a b : nat) (f : nat → nat) : a = b → f a = f b :=
 by cc
 
-set_option trace.app_builder true
-
 example (a b : nat) (f : nat → nat) : a = b → f a ≠ f b → false :=
 by cc
 

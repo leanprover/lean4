@@ -648,7 +648,7 @@ void congruence_closure::propagate_inst_implicit(expr const & e) {
     bool updated;
     expr new_e = m_defeq_canonizer.canonize(e, updated);
     if (e != new_e) {
-        mk_entry_core(new_e, false);
+        mk_entry(new_e, false);
         push_refl_eq(e, new_e);
     }
 }

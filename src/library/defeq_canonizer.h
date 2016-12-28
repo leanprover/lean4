@@ -32,7 +32,7 @@ public:
     struct state {
         /* Canonical mapping I -> J (i.e., J is the canonical expression for I).
            Invariant: locals_subset(J, I) */
-        rb_map<expr, expr, expr_quick_cmp> m_C;
+        rb_expr_map<expr> m_C;
         /* Mapping from head symbol N to list of expressions es s.t.
            for each e in es, head_symbol(e) = N. */
         name_map<list<expr>>               m_M;

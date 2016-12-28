@@ -86,13 +86,12 @@ class congruence_closure {
         }
     };
 
-    typedef rb_tree<expr, expr_quick_cmp>                expr_set;
-    typedef rb_map<expr, entry, expr_quick_cmp>          entries;
+    typedef rb_expr_map<entry>                           entries;
     typedef rb_tree<parent_occ, parent_occ_cmp>          parent_occ_set;
-    typedef rb_map<expr, parent_occ_set, expr_quick_cmp> parents;
+    typedef rb_expr_map<parent_occ_set>                  parents;
     typedef rb_tree<congr_key, congr_key_cmp>            congruences;
     typedef rb_tree<symm_congr_key, symm_congr_key_cmp>  symm_congruences;
-    typedef rb_map<expr, expr, expr_quick_cmp>           subsingleton_reprs;
+    typedef rb_expr_map<expr>                            subsingleton_reprs;
     typedef std::tuple<expr, expr, expr, bool>           todo_entry;
 
 public:

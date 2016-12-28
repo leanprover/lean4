@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "library/tactic/congruence/hinst_lemmas.h"
 
 namespace lean {
-typedef rb_tree<expr, expr_quick_cmp> expr_set;
+typedef rb_expr_tree expr_set;
 typedef rb_map<head_index, expr_set, head_index::cmp> app_map;
 
 class ematch_state {

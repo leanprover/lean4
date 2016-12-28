@@ -1072,7 +1072,7 @@ optional<expr> congruence_closure::get_eq_proof_core(expr const & e1, expr const
     bool heq_proofs = has_heq_proofs(n1->m_root);
     // 1. Retrieve "path" from e1 to root
     buffer<expr> path1, Hs1;
-    rb_tree<expr, expr_quick_cmp> visited;
+    rb_expr_tree visited;
     expr it1 = e1;
     while (true) {
         visited.insert(it1);

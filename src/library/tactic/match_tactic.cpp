@@ -33,9 +33,9 @@ void get_pattern_fields(vm_obj const & p, expr & target, list<expr> & os, unsign
 
 struct mk_pattern_fn {
     typedef rb_tree<level, level_quick_cmp>        level_set;
-    typedef rb_tree<expr, expr_quick_cmp>          expr_set;
-    typedef rb_map<level, level, level_quick_cmp> level2meta;
-    typedef rb_map<expr, expr, expr_quick_cmp>    expr2meta;
+    typedef rb_expr_tree                           expr_set;
+    typedef rb_map<level, level, level_quick_cmp>  level2meta;
+    typedef rb_expr_map<expr>                      expr2meta;
     type_context m_ctx;
     level2meta   m_level2meta;
     expr2meta    m_expr2meta;

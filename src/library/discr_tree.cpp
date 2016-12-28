@@ -73,7 +73,7 @@ struct discr_tree::node_cell {
        that may match an input term containing metavariables. In the literature, they are called
        skip set/list. */
     rb_tree<node, node_cmp>       m_skip;
-    rb_tree<expr, expr_quick_cmp> m_values;
+    rb_expr_tree                  m_values;
     void dealloc();
     node_cell();
     node_cell(node_cell const & s);

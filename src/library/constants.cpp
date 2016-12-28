@@ -170,7 +170,9 @@ name const * g_io = nullptr;
 name const * g_io_functor = nullptr;
 name const * g_io_monad = nullptr;
 name const * g_is_associative = nullptr;
-name const * g_is_associative_op_assoc = nullptr;
+name const * g_is_associative_assoc = nullptr;
+name const * g_is_commutative = nullptr;
+name const * g_is_commutative_comm = nullptr;
 name const * g_is_int = nullptr;
 name const * g_is_trunc_is_prop = nullptr;
 name const * g_is_trunc_is_prop_elim = nullptr;
@@ -620,7 +622,9 @@ void initialize_constants() {
     g_io_functor = new name{"io", "functor"};
     g_io_monad = new name{"io", "monad"};
     g_is_associative = new name{"is_associative"};
-    g_is_associative_op_assoc = new name{"is_associative", "op_assoc"};
+    g_is_associative_assoc = new name{"is_associative", "assoc"};
+    g_is_commutative = new name{"is_commutative"};
+    g_is_commutative_comm = new name{"is_commutative", "comm"};
     g_is_int = new name{"is_int"};
     g_is_trunc_is_prop = new name{"is_trunc", "is_prop"};
     g_is_trunc_is_prop_elim = new name{"is_trunc", "is_prop", "elim"};
@@ -1071,7 +1075,9 @@ void finalize_constants() {
     delete g_io_functor;
     delete g_io_monad;
     delete g_is_associative;
-    delete g_is_associative_op_assoc;
+    delete g_is_associative_assoc;
+    delete g_is_commutative;
+    delete g_is_commutative_comm;
     delete g_is_int;
     delete g_is_trunc_is_prop;
     delete g_is_trunc_is_prop_elim;
@@ -1521,7 +1527,9 @@ name const & get_io_name() { return *g_io; }
 name const & get_io_functor_name() { return *g_io_functor; }
 name const & get_io_monad_name() { return *g_io_monad; }
 name const & get_is_associative_name() { return *g_is_associative; }
-name const & get_is_associative_op_assoc_name() { return *g_is_associative_op_assoc; }
+name const & get_is_associative_assoc_name() { return *g_is_associative_assoc; }
+name const & get_is_commutative_name() { return *g_is_commutative; }
+name const & get_is_commutative_comm_name() { return *g_is_commutative_comm; }
 name const & get_is_int_name() { return *g_is_int; }
 name const & get_is_trunc_is_prop_name() { return *g_is_trunc_is_prop; }
 name const & get_is_trunc_is_prop_elim_name() { return *g_is_trunc_is_prop_elim; }

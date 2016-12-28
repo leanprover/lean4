@@ -6,10 +6,96 @@ Author: Leonardo de Moura
 */
 #include "library/trace.h"
 #include "library/util.h"
+#include "library/reducible.h"
+#include "library/app_builder.h"
+#include "library/class.h"
+#include "library/constants.h"
 #include "library/vm/vm_expr.h"
 #include "library/tactic/tactic_state.h"
+#include "library/tactic/ac_tactics.h"
 
 namespace lean {
+struct ac_manager::cache {
+    environment                     m_env;
+    unsigned                        m_reducibility_fingerprint;
+    unsigned                        m_instance_fingerprint;
+    expr_struct_map<optional<expr>> m_assoc_cache[2];
+    expr_struct_map<optional<expr>> m_comm_cache[2];
+    cache(environment const & env):
+        m_env(env),
+        m_reducibility_fingerprint(get_reducibility_fingerprint(env)),
+        m_instance_fingerprint(get_instance_fingerprint(env)) {}
+};
+
+MK_THREAD_LOCAL_GET_DEF(ac_manager::cache_ptr, get_cache_ptr);
+
+static ac_manager::cache_ptr get_cache(environment const & env) {
+    auto & cache_ptr = get_cache_ptr();
+    if (!cache_ptr ||
+        !env.is_descendant(cache_ptr->m_env) ||
+        get_reducibility_fingerprint(env) != cache_ptr->m_reducibility_fingerprint ||
+        get_instance_fingerprint(env)     != cache_ptr->m_instance_fingerprint) {
+        cache_ptr.reset();
+        return std::make_shared<ac_manager::cache>(env);
+    }
+    ac_manager::cache_ptr r = cache_ptr;
+    cache_ptr.reset();
+    r->m_env = env;
+    if (!is_eqp_declarations(env, r->m_env)) {
+        /* erase cache for expressions containing locals, since it is probably not useful. */
+        r->m_assoc_cache[1].clear();
+        r->m_comm_cache[1].clear();
+    }
+    return r;
+}
+
+static void recycle_cache(ac_manager::cache_ptr const & cache) {
+    get_cache_ptr() = cache;
+}
+
+ac_manager::ac_manager(type_context & ctx):
+    m_ctx(ctx),
+    m_cache_ptr(get_cache(ctx.env())) {
+}
+
+ac_manager::~ac_manager() {
+    recycle_cache(m_cache_ptr);
+}
+
+optional<expr> ac_manager::is_assoc(expr const & e) {
+    auto op = get_binary_op(e);
+    if (!op) return none_expr();
+    bool idx = has_local(e);
+    auto it  = m_cache_ptr->m_assoc_cache[idx].find(*op);
+    if (it != m_cache_ptr->m_assoc_cache[idx].end())
+        return it->second;
+    optional<expr> r;
+    try {
+        expr assoc_class = mk_app(m_ctx, get_is_associative_name(), *op);
+        if (auto assoc_inst = m_ctx.mk_class_instance(assoc_class))
+            r = some_expr(mk_app(m_ctx, get_is_associative_assoc_name(), 3, *op, *assoc_inst));
+    } catch (app_builder_exception & ex) {}
+    m_cache_ptr->m_assoc_cache[idx].insert(mk_pair(*op, r));
+    return r;
+}
+
+optional<expr> ac_manager::is_comm(expr const & e) {
+    auto op = get_binary_op(e);
+    if (!op) return none_expr();
+    bool idx = has_local(e);
+    auto it  = m_cache_ptr->m_comm_cache[idx].find(*op);
+    if (it != m_cache_ptr->m_comm_cache[idx].end())
+        return it->second;
+    optional<expr> r;
+    try {
+        expr comm_class = mk_app(m_ctx, get_is_commutative_name(), *op);
+        if (auto comm_inst = m_ctx.mk_class_instance(comm_class))
+            r = some_expr(mk_app(m_ctx, get_is_commutative_comm_name(), 3, *op, *comm_inst));
+    } catch (app_builder_exception & ex) {}
+    m_cache_ptr->m_comm_cache[idx].insert(mk_pair(*op, r));
+    return r;
+}
+
 struct flat_assoc_fn {
     abstract_type_context & m_ctx;
     expr                    m_op;

@@ -165,7 +165,9 @@ io
 io.functor
 io.monad
 is_associative
-is_associative.op_assoc
+is_associative.assoc
+is_commutative
+is_commutative.comm
 is_int
 is_trunc.is_prop
 is_trunc.is_prop.elim

@@ -239,6 +239,14 @@ environment add_instance(environment const & env, name const & n, unsigned prior
     return static_cast<basic_attribute const &>(get_system_attribute(*g_instance_attr_name)).set(env, get_global_ios(), n, priority, persistent);
 }
 
+name const & get_instance_attr_name() {
+    return *g_instance_attr_name;
+}
+
+unsigned get_instance_fingerprint(environment const & env) {
+    return get_attribute_fingerprint(env, get_instance_attr_name());
+}
+
 void initialize_class() {
     g_class_attr_name = new name("class");
     g_instance_attr_name = new name("instance");

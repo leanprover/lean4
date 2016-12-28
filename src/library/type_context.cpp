@@ -42,7 +42,6 @@ Author: Leonardo de Moura
 
 namespace lean {
 static name * g_class_instance_max_depth = nullptr;
-static name * g_instance                 = nullptr;
 static name * g_nat_offset_threshold     = nullptr;
 
 unsigned get_class_instance_max_depth(options const & o) {
@@ -152,10 +151,10 @@ type_context_cache_ptr type_context_cache_manager::mk(environment const & env, o
     }
     if (!env.is_descendant(m_env) ||
         get_reducibility_fingerprint(env) != m_reducibility_fingerprint ||
-        get_attribute_fingerprint(env, *g_instance) != m_instance_fingerprint) {
+        get_instance_fingerprint(env) != m_instance_fingerprint) {
         lean_trace("type_context_cache",
                    bool c1 = (get_reducibility_fingerprint(env) == m_reducibility_fingerprint);
-                   bool c2 = (get_attribute_fingerprint(env, *g_instance) == m_instance_fingerprint);
+                   bool c2 = (get_instance_fingerprint(env) == m_instance_fingerprint);
                    tout() << "creating new cache, is_descendant: " << env.is_descendant(m_env)
                    << ", reducibility compatibility: " << c1 << ", instance compatibility: " << c2 << "\n";);
         return mk_cache(env, o, m_use_bi);
@@ -171,7 +170,7 @@ void type_context_cache_manager::recycle(type_context_cache_ptr const & ptr) {
     if (!is_eqp(ptr->m_env, m_env)) {
         m_env = ptr->m_env;
         m_reducibility_fingerprint = get_reducibility_fingerprint(ptr->m_env);
-        m_instance_fingerprint     = get_attribute_fingerprint(ptr->m_env, *g_instance);
+        m_instance_fingerprint     = get_instance_fingerprint(ptr->m_env);
     }
     if (!ptr->m_instance_fingerprint) {
         ptr->m_instance_cache.clear();
@@ -3470,7 +3469,6 @@ void initialize_type_context() {
     register_trace_class(name({"type_context", "tmp_vars"}));
     register_trace_class("type_context_cache");
     g_class_instance_max_depth     = new name{"class", "instance_max_depth"};
-    g_instance                     = new name{"instance"};
     register_unsigned_option(*g_class_instance_max_depth, LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH,
                              "(class) max allowed depth in class-instance resolution");
     g_nat_offset_threshold         = new name{"unifier", "nat_offset_cnstr_threshold"};
@@ -3483,7 +3481,6 @@ void initialize_type_context() {
 
 void finalize_type_context() {
     delete g_class_instance_max_depth;
-    delete g_instance;
     delete g_nat_offset_threshold;
 }
 }

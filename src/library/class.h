@@ -25,6 +25,10 @@ list<name> get_class_instances(environment const & env, name const & c);
 void get_classes(environment const & env, buffer<name> & classes);
 name get_class_name(environment const & env, expr const & e);
 
+/** \brief Return name for attribute [instance] */
+name const & get_instance_attr_name();
+unsigned get_instance_fingerprint(environment const & env);
+
 void initialize_class();
 void finalize_class();
 }

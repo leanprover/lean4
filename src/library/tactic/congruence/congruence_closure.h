@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "library/congr_lemma.h"
 #include "library/relation_manager.h"
 #include "library/defeq_canonizer.h"
+#include "library/tactic/congruence/theory_ac.h"
 
 namespace lean {
 struct ext_congr_lemma;
@@ -52,6 +53,8 @@ class congruence_closure {
            store 'target' at 'm_target', and 'H' at 'm_proof'. Both fields are none if 'e' == m_root */
         optional<expr> m_target;
         optional<expr> m_proof;
+        /* Representative used in the AC theory */
+        optional<expr> m_ac_rep;
         unsigned       m_flipped:1;      // proof has been flipped
         unsigned       m_to_propagate:1; // must be propagated back to state when in equivalence class containing true/false
         unsigned       m_interpreted:1;  // true if the node should be viewed as an abstract value
@@ -124,6 +127,9 @@ public:
             (@add nat), (@add nat nat_has_add) and (@nat nat_has_add a).
             This set is ignore if m_config.m_all_ho is true. */
         name_set           m_ho_fns;
+        /* We are planning to have very few theories in this module. So, we don't
+           use any abstract theory state object. */
+        theory_ac::state   m_ac_state;
         config             m_config;
         friend class congruence_closure;
         bool check_eqc(expr const & e) const;
@@ -157,6 +163,7 @@ private:
     relation_info_getter      m_rel_info_getter;
     symm_info_getter          m_symm_info_getter;
     refl_info_getter          m_refl_info_getter;
+    theory_ac                 m_ac;
 
     int compare_symm(expr lhs1, expr rhs1, expr lhs2, expr rhs2) const;
     unsigned symm_hash(expr const & lhs, expr const & rhs) const;
@@ -178,7 +185,9 @@ private:
     void add_symm_congruence_table(expr const & e);
     void mk_entry_core(expr const & e, bool to_propagate, bool interpreted = false);
     void mk_entry(expr const & e, bool to_propagate);
-    void internalize_core(expr const & e, bool toplevel, bool to_propagate);
+    void set_ac_rep(expr const & e, expr const & ac_rep);
+    void internalize_app(expr const & e, bool toplevel, bool to_propagate);
+    void internalize_core(expr const & e, bool toplevel, bool to_propagate, optional<expr> const & parent);
     void push_todo(expr const & lhs, expr const & rhs, expr const & H, bool heq_proof);
     void push_refl_eq(expr const & lhs, expr const & rhs);
     void invert_trans(expr const & e, bool new_flipped, optional<expr> new_target, optional<expr> new_proof);

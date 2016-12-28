@@ -315,17 +315,17 @@ expr_macro::expr_macro(macro_definition const & m, unsigned num, expr const * ar
                    g),
     m_definition(m),
     m_num_args(num) {
-    m_args = new expr[num];
-    for (unsigned i = 0; i < m_num_args; i++)
-        m_args[i] = args[i];
+    expr * data = get_args_ptr();
+    std::uninitialized_copy(args, args + num, data);
 }
 void expr_macro::dealloc(buffer<expr_cell*> & todelete) {
-    for (unsigned i = 0; i < m_num_args; i++) dec_ref(m_args[i], todelete);
-    delete(this);
+    expr * args = get_args_ptr();
+    for (unsigned i = 0; i < m_num_args; i++) dec_ref(args[i], todelete);
+    this->~expr_macro();
+    char * mem = reinterpret_cast<char*>(this);
+    delete[] mem;
 }
-expr_macro::~expr_macro() {
-    delete[] m_args;
-}
+expr_macro::~expr_macro() {}
 
 // =======================================
 // Constructors
@@ -374,7 +374,8 @@ expr mk_constant(name const & n, levels const & ls, tag g) {
     return cache(expr(new (get_const_allocator().allocate()) expr_const(n, ls, g)));
 }
 expr mk_macro(macro_definition const & m, unsigned num, expr const * args, tag g) {
-    return cache(expr(new expr_macro(m, num, args, g)));
+    char * mem = new char[sizeof(expr_macro) + num*sizeof(expr const *)];
+    return cache(expr(new (mem) expr_macro(m, num, args, g)));
 }
 expr mk_metavar(name const & n, expr const & t, tag g) {
     return cache(expr(new (get_mlocal_allocator().allocate()) expr_mlocal(true, n, t, g)));

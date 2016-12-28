@@ -389,18 +389,23 @@ public:
 class expr_macro : public expr_composite {
     macro_definition m_definition;
     unsigned         m_num_args;
-    expr *           m_args;
     friend class expr_cell;
     friend expr copy(expr const & a);
     friend expr update_macro(expr const & e, unsigned num, expr const * args);
     void dealloc(buffer<expr_cell*> & todelete);
+    expr * get_args_ptr() {
+        return reinterpret_cast<expr *>(reinterpret_cast<char *>(this)+sizeof(expr_macro));
+    }
+    expr const * get_args_ptr() const {
+        return reinterpret_cast<expr const *>(reinterpret_cast<char const *>(this)+sizeof(expr_macro));
+    }
 public:
     expr_macro(macro_definition const & v, unsigned num, expr const * args, tag g);
     ~expr_macro();
 
     macro_definition const & get_def() const { return m_definition; }
-    expr const * get_args() const { return m_args; }
-    expr const & get_arg(unsigned idx) const { lean_assert(idx < m_num_args); return m_args[idx]; }
+    expr const * get_args() const { return get_args_ptr(); }
+    expr const & get_arg(unsigned idx) const { lean_assert(idx < m_num_args); return get_args_ptr()[idx]; }
     unsigned get_num_args() const { return m_num_args; }
 };
 

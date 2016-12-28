@@ -38,13 +38,13 @@ class comm_group (α : Type u) extends group α, comm_monoid α
 @[simp] lemma mul_assoc [semigroup α] : ∀ a b c : α, a * b * c = a * (b * c) :=
 semigroup.mul_assoc
 
-instance semigroup_to_is_eq_associative [semigroup α] : is_eq_associative α mul :=
+instance semigroup_to_is_associative [semigroup α] : is_associative α mul :=
 ⟨mul_assoc⟩
 
 @[simp] lemma mul_comm [comm_semigroup α] : ∀ a b : α, a * b = b * a :=
 comm_semigroup.mul_comm
 
-instance comm_semigroup_to_is_eq_commutative [comm_semigroup α] : is_eq_commutative α mul :=
+instance comm_semigroup_to_is_commutative [comm_semigroup α] : is_commutative α mul :=
 ⟨mul_comm⟩
 
 @[simp] lemma mul_left_comm [comm_semigroup α] : ∀ a b c : α, a * (b * c) = b * (a * c) :=
@@ -284,10 +284,10 @@ run_command transport_to_additive `eq_mul_of_inv_mul_eq `eq_add_of_neg_add_eq
 run_command transport_to_additive `mul_eq_of_eq_inv_mul `add_eq_of_eq_neg_add
 run_command transport_to_additive `mul_eq_of_eq_mul_inv `add_eq_of_eq_add_neg
 
-instance add_semigroup_to_is_eq_associative [add_semigroup α] : is_eq_associative α add :=
+instance add_semigroup_to_is_eq_associative [add_semigroup α] : is_associative α add :=
 ⟨add_assoc⟩
 
-instance add_comm_semigroup_to_is_eq_commutative [add_comm_semigroup α] : is_eq_commutative α add :=
+instance add_comm_semigroup_to_is_eq_commutative [add_comm_semigroup α] : is_commutative α add :=
 ⟨add_comm⟩
 
 def neg_add_self := @add_left_neg

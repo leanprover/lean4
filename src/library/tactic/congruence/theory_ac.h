@@ -36,6 +36,11 @@ public:
         optional<expr> find_if(F && f) const {
             return m_occs.find_if(f);
         }
+
+        template<typename F>
+        void for_each(F && f) const {
+            m_occs.for_each(f);
+        }
     };
 
     struct entry {
@@ -47,6 +52,7 @@ public:
         entry(unsigned idx):m_idx(idx) {}
         occurrences const & get_R_occs(bool lhs) const { return m_R_occs[lhs]; }
         occurrences const & get_R_lhs_occs() const { return get_R_occs(true); }
+        occurrences const & get_R_rhs_occs() const { return get_R_occs(false); }
         void set_R_occs(occurrences const & occs, bool lhs) { m_R_occs[lhs] = occs; }
     };
 
@@ -72,6 +78,11 @@ public:
         format pp_decls(formatter const & fmt) const;
         format pp_R(formatter const & fmt) const;
         format pp(formatter const & fmt) const;
+        unsigned get_num_R_occs(expr const & e, bool in_lhs) const;
+        expr get_var_with_least_occs(expr const & e, bool in_lhs) const;
+        expr get_var_with_least_rhs_occs(expr const & e) const {
+            return get_var_with_least_occs(e, false);
+        }
     };
 
 private:
@@ -84,9 +95,17 @@ private:
     optional<expr> is_ac(expr const & e);
     expr convert(expr const & op, expr const & e, buffer<expr> & args);
     bool internalize_var(expr const & e);
-    void add_R_occ(expr const & arg, expr const & lhs, bool in_lhs);
-    void add_R_occs(expr const & e, expr const & lhs, bool in_lhs);
-    void add_R_occs(expr const & lhs, expr const & rhs);
+    void insert_erase_R_occ(expr const & arg, expr const & lhs, bool in_lhs, bool is_insert);
+    void insert_erase_R_occs(expr const & e, expr const & lhs, bool in_lhs, bool is_insert);
+    void insert_R_occs(expr const & e, expr const & lhs, bool in_lhs);
+    void erase_R_occs(expr const & e, expr const & lhs, bool in_lhs);
+    void erase_R_rhs_occs(expr const & e, expr const & lhs) { erase_R_occs(e, lhs, false); }
+    void insert_R_rhs_occs(expr const & e, expr const & lhs) { insert_R_occs(e, lhs, false); }
+    void insert_R_occs(expr const & lhs, expr const & rhs);
+    void compose(expr const & lhs, expr const & rhs, expr const & H);
+    void collapse(expr const & lhs, expr const & rhs, expr const & H);
+    void superpose(expr const & lhs, expr const & rhs, expr const & H);
+    expr_pair simplify_core(expr const & e, expr const & lhs, expr const & rhs, expr const & H);
     optional<expr_pair> simplify_step(expr const & e);
     optional<expr_pair> simplify(expr const & e);
     void process();

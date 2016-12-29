@@ -481,63 +481,83 @@ void theory_ac::internalize(expr const & e, optional<expr> const & parent) {
     dbg_trace_state();
 }
 
-void theory_ac::add_R_occ(expr const & arg, expr const & lhs, bool in_lhs) {
+void theory_ac::insert_erase_R_occ(expr const & arg, expr const & lhs, bool in_lhs, bool is_insert) {
     entry new_entry  = *m_state.m_entries.find(arg);
     occurrences occs = new_entry.get_R_occs(in_lhs);
-    occs.insert(lhs);
+    if (is_insert)
+        occs.insert(lhs);
+    else
+        occs.erase(lhs);
     new_entry.set_R_occs(occs, in_lhs);
     m_state.m_entries.insert(arg, new_entry);
 }
 
-void theory_ac::add_R_occs(expr const & e, expr const & lhs, bool in_lhs) {
+void theory_ac::insert_erase_R_occs(expr const & e, expr const & lhs, bool in_lhs, bool is_insert) {
     if (is_ac_app(e)) {
         unsigned nargs    = get_ac_app_num_args(e);
         expr const * args = get_ac_app_args(e);
-        add_R_occ(args[0], e, lhs);
+        insert_erase_R_occ(args[0], e, lhs, is_insert);
         for (unsigned i = 1; i < nargs; i++) {
             if (args[i] != args[i-1])
-                add_R_occ(args[i], lhs, in_lhs);
+                insert_erase_R_occ(args[i], lhs, in_lhs, is_insert);
         }
     } else {
-        add_R_occ(e, lhs, in_lhs);
+        insert_erase_R_occ(e, lhs, in_lhs, is_insert);
     }
 }
 
-void theory_ac::add_R_occs(expr const & lhs, expr const & rhs) {
-    add_R_occs(lhs, lhs, true);
-    add_R_occs(rhs, lhs, false);
+void theory_ac::insert_R_occs(expr const & e, expr const & lhs, bool in_lhs) {
+    insert_erase_R_occs(e, lhs, in_lhs, true);
+}
+
+void theory_ac::erase_R_occs(expr const & e, expr const & lhs, bool in_lhs) {
+    insert_erase_R_occs(e, lhs, in_lhs, false);
+}
+
+void theory_ac::insert_R_occs(expr const & lhs, expr const & rhs) {
+    insert_R_occs(lhs, lhs, true);
+    insert_R_occs(rhs, lhs, false);
+}
+
+/*
+  Given, e is of the form lhs*r, (H : lhs = rhs),
+  return (rhs*r) and proof ac_simp_pr(e, lhs, rhs, r, rhs*r, H) : e = rhs*r
+*/
+expr_pair theory_ac::simplify_core(expr const & e, expr const & lhs, expr const & rhs, expr const & H) {
+    lean_assert(is_ac_subset(lhs, e));
+    if (e == lhs) {
+        return mk_pair(rhs, H);
+    } else {
+        lean_assert(is_ac_app(e));
+        expr dummy = mk_Prop();
+        expr op    = get_ac_app_op(e);
+        buffer<expr> new_args;
+        ac_diff(e, lhs, new_args);
+        expr r      = new_args.empty() ? dummy : mk_ac_app(op, new_args);
+        ac_append(rhs, new_args);
+        expr new_e  = mk_ac_app(op, new_args);
+        auto ac_prs = m_state.m_op_info.find(op);
+        lean_assert(ac_prs);
+        expr new_pr = mk_ac_simp_proof(e, lhs, rhs, r, new_e, H, ac_prs->first, ac_prs->second);
+        return mk_pair(new_e, new_pr);
+    }
 }
 
 optional<expr_pair> theory_ac::simplify_step(expr const & e) {
     if (is_ac_app(e)) {
-        expr const & op = get_ac_app_op(e);
         unsigned nargs = get_ac_app_num_args(e);
         expr const * args = get_ac_app_args(e);
         for (unsigned i = 0; i < nargs; i++) {
             if (i == 0 || args[i] != args[i-1]) {
                 occurrences const & occs = m_state.m_entries.find(args[i])->get_R_lhs_occs();
-                optional<expr> t = occs.find_if([&](expr const & t) {
+                optional<expr> lhs = occs.find_if([&](expr const & t) {
                         return is_ac_subset(t, e);
                     });
-                if (t) {
-                    /*
-                      e is of the form  t*r, and we have t -> s with proof pr
-                      So, the new simplified new_e is
-                      s*r
-                      with proof ac_simp_pr(e, t, s, s*r, pr) : e = s*r
-                    */
-                    buffer<expr> new_args;
-                    ac_diff(e, *t, new_args);
-                    expr r      = new_args.empty() ? mk_Prop() /* dummy value */ : mk_ac_app(op, new_args);
-                    expr_pair const & p = *m_state.m_R.find(*t);
-                    expr const & s  = p.first;
-                    expr const & pr = p.second;
-                    ac_append(s, new_args);
-                    expr new_e  = mk_ac_app(op, new_args);
-                    auto ac_prs = m_state.m_op_info.find(op);
-                    lean_assert(ac_prs);
-                    expr new_pr = mk_ac_simp_proof(e, *t, s, r, new_e, pr, ac_prs->first, ac_prs->second);
-                    return optional<expr_pair>(mk_pair(new_e, new_pr));
+                if (lhs) {
+                    expr_pair const & p = *m_state.m_R.find(*lhs);
+                    expr const & rhs = p.first;
+                    expr const & H   = p.second;
+                    return optional<expr_pair>(simplify_core(e, *lhs, rhs, H));
                 }
             }
         }
@@ -558,6 +578,66 @@ optional<expr_pair> theory_ac::simplify(expr const & e) {
         curr = new_curr;
     }
     return optional<expr_pair>(mk_pair(curr, pr));
+}
+
+unsigned theory_ac::state::get_num_R_occs(expr const & e, bool in_lhs) const {
+    return m_entries.find(e)->m_R_occs[in_lhs].size();
+}
+
+expr theory_ac::state::get_var_with_least_occs(expr const & e, bool in_lhs) const {
+    if (is_ac_app(e)) {
+        unsigned nargs    = get_ac_app_num_args(e);
+        expr const * args = get_ac_app_args(e);
+        expr r            = args[0];
+        unsigned num_occs = get_num_R_occs(r, in_lhs);
+        for (unsigned i = 1; i < nargs; i++) {
+            if (args[i] != args[i-1]) {
+                unsigned curr_occs = get_num_R_occs(args[i], in_lhs);
+                if (curr_occs < num_occs) {
+                    r        = args[i];
+                    num_occs = curr_occs;
+                }
+            }
+        }
+        return r;
+    } else {
+        return e;
+    }
+}
+
+void theory_ac::compose(expr const & lhs, expr const & rhs, expr const & H) {
+    expr x           = m_state.get_var_with_least_rhs_occs(lhs);
+    occurrences occs = m_state.m_entries.find(x)->get_R_rhs_occs();
+    occs.for_each([&](expr const & R_lhs) {
+            auto p = m_state.m_R.find(R_lhs);
+            expr R_rhs = p->first;
+            expr R_H  = p->second;
+            if (is_ac_subset(lhs, R_rhs)) {
+                expr new_R_rhs, R_rhs_eq_new_R_rhs;
+                std::tie(new_R_rhs, R_rhs_eq_new_R_rhs) = simplify_core(R_rhs, lhs, rhs, H);
+                expr new_R_H = mk_eq_trans(m_ctx, R_lhs, R_rhs, new_R_rhs, R_H, R_rhs_eq_new_R_rhs);
+                m_state.m_R.insert(R_lhs, mk_pair(new_R_rhs, new_R_H));
+                erase_R_rhs_occs(R_rhs, R_lhs);
+                insert_R_rhs_occs(new_R_rhs, R_lhs);
+                lean_trace(name({"debug", "cc", "ac"}), scope_trace_env s(m_ctx.env(), m_ctx);
+                           auto out      = tout();
+                           auto fmt      = out.get_formatter();
+                           format old_rw = group(paren(pp_term(fmt, R_lhs) + line() + format("-->") + line() + pp_term(fmt, R_rhs)));
+                           format new_rw = group(paren(pp_term(fmt, lhs) + line() + format("-->") + line() + pp_term(fmt, rhs)));
+                           format r      = format("compose:");
+                           r += nest(get_pp_indent(fmt.get_options()), line() + group(old_rw + line() + format("with") + line() + new_rw) +
+                                     line() + format(":=") + line() + pp_term(fmt, new_R_rhs));
+                           out << group(r) << "\n";);
+            }
+        });
+}
+
+void theory_ac::collapse(expr const & lhs, expr const & rhs, expr const & H) {
+    // TODO(Leo)
+}
+
+void theory_ac::superpose(expr const & lhs, expr const & rhs, expr const & H) {
+    // TODO(Leo)
 }
 
 void theory_ac::process() {
@@ -600,15 +680,16 @@ void theory_ac::process() {
             std::swap(lhs, rhs);
         }
 
-        /* Simplify (forward/backward) R (aka collapse/compose) */
-        // TODO(Leo)
+        /* Backward simplification */
+        compose(lhs, rhs, pr);
+        collapse(lhs, rhs, pr);
 
-        /* Superpose */
-        // TODO(Leo)
+        /* Superposition */
+        superpose(lhs, rhs, pr);
 
         /* Update R */
         m_state.m_R.insert(lhs, mk_pair(rhs, pr));
-        add_R_occs(lhs, rhs);
+        insert_R_occs(lhs, rhs);
     }
 }
 

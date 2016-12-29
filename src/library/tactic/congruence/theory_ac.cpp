@@ -237,7 +237,7 @@ void theory_ac::insert_erase_R_occs(expr const & e, expr const & lhs, bool in_lh
     if (is_ac_app(e)) {
         unsigned nargs    = get_ac_app_num_args(e);
         expr const * args = get_ac_app_args(e);
-        insert_erase_R_occ(args[0], e, lhs, is_insert);
+        insert_erase_R_occ(args[0], lhs, in_lhs, is_insert);
         for (unsigned i = 1; i < nargs; i++) {
             if (args[i] != args[i-1])
                 insert_erase_R_occ(args[i], lhs, in_lhs, is_insert);
@@ -496,6 +496,12 @@ void theory_ac::process() {
         /* Update R */
         m_state.m_R.insert(lhs, mk_pair(rhs, H));
         insert_R_occs(lhs, rhs);
+
+        lean_trace(name({"debug", "cc", "ac"}), scope_trace_env s(m_ctx.env(), m_ctx);
+                   auto out      = tout();
+                   auto fmt      = out.get_formatter();
+                   format new_rw = group(pp_term(fmt, lhs) + line() + format("-->") + line() + pp_term(fmt, rhs));
+                   out << group(format("new rw:") + line() + new_rw) << "\n";);
     }
 }
 

@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "library/app_builder.h"
 #include "library/class.h"
 #include "library/constants.h"
+#include "library/kernel_serializer.h"
 #include "library/vm/vm_expr.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/ac_tactics.h"
@@ -342,13 +343,271 @@ struct perm_ac_fn : public flat_assoc_fn {
     }
 };
 
-
 pair<expr, optional<expr>> flat_assoc(abstract_type_context & ctx, expr const & op, expr const & assoc, expr const & e) {
     return flat_assoc_fn(ctx, op, assoc).flat_core(e);
 }
 
 expr perm_ac(abstract_type_context & ctx, expr const & op, expr const & assoc, expr const & comm, expr const & e1, expr const & e2) {
     return perm_ac_fn(ctx, op, assoc, comm).perm(e1, e2);
+}
+
+static name * g_ac_app_name = nullptr;
+static macro_definition * g_ac_app_macro = nullptr;
+static std::string * g_ac_app_opcode = nullptr;
+
+static expr expand_ac_core(expr const & e) {
+    unsigned nargs = macro_num_args(e);
+    unsigned i     = nargs - 1;
+    expr const & op = macro_arg(e, i);
+    --i;
+    expr r = macro_arg(e, i);
+    while (i > 0) {
+        --i;
+        r = mk_app(op, macro_arg(e, i), r);
+    }
+    return r;
+}
+
+class ac_app_macro_cell : public macro_definition_cell {
+public:
+    virtual name get_name() const { return *g_ac_app_name; }
+
+    virtual unsigned trust_level() const { return LEAN_AC_MACROS_TRUST_LEVEL; }
+
+    virtual expr check_type(expr const & e, abstract_type_context & ctx, bool) const {
+        return ctx.infer(macro_arg(e, 0));
+    }
+
+    virtual optional<expr> expand(expr const & e, abstract_type_context &) const {
+        return some_expr(expand_ac_core(e));
+    }
+
+    virtual void write(serializer & s) const {
+        s.write_string(*g_ac_app_opcode);
+    }
+
+    virtual bool operator==(macro_definition_cell const & other) const {
+        ac_app_macro_cell const * other_ptr = dynamic_cast<ac_app_macro_cell const *>(&other);
+        return other_ptr;
+    }
+
+    virtual unsigned hash() const { return 37; }
+};
+
+static expr mk_ac_app_core(unsigned nargs, expr const * args_op) {
+    lean_assert(nargs >= 3);
+    return mk_macro(*g_ac_app_macro, nargs, args_op);
+}
+
+static expr mk_ac_app_core(expr const & op, buffer<expr> & args) {
+    lean_assert(args.size() >= 2);
+    args.push_back(op);
+    expr r = mk_ac_app_core(args.size(), args.data());
+    args.pop_back();
+    return r;
+}
+
+expr mk_ac_app(expr const & op, buffer<expr> & args) {
+    lean_assert(args.size() > 0);
+    if (args.size() == 1) {
+        return args[0];
+    } else {
+        std::sort(args.begin(), args.end(), is_hash_lt);
+        return mk_ac_app_core(op, args);
+    }
+}
+
+bool is_ac_app(expr const & e) {
+    return is_macro(e) && is_eqp(macro_def(e), *g_ac_app_macro);
+}
+
+expr const & get_ac_app_op(expr const & e) {
+    lean_assert(is_ac_app(e));
+    return macro_arg(e, macro_num_args(e) - 1);
+}
+
+unsigned get_ac_app_num_args(expr const & e) {
+    lean_assert(is_ac_app(e));
+    return macro_num_args(e) - 1;
+}
+
+expr const * get_ac_app_args(expr const & e) {
+    lean_assert(is_ac_app(e));
+    return macro_args(e);
+}
+
+/* Return true iff e1 is a "subset" of e2.
+   Example: The result is true for e1 := (a*a*a*b*d) and e2 := (a*a*a*a*b*b*c*d*d) */
+bool is_ac_subset(expr const & e1, expr const & e2) {
+    if (is_ac_app(e1)) {
+        if (is_ac_app(e2) && get_ac_app_op(e1) == get_ac_app_op(e2)) {
+            unsigned nargs1 = get_ac_app_num_args(e1);
+            unsigned nargs2 = get_ac_app_num_args(e2);
+            if (nargs1 > nargs2) return false;
+            expr const * args1 = get_ac_app_args(e1);
+            expr const * args2 = get_ac_app_args(e2);
+            unsigned i1 = 0;
+            unsigned i2 = 0;
+            while (i1 < nargs1 && i2 < nargs2) {
+                if (args1[i1] == args2[i2]) {
+                    i1++;
+                    i2++;
+                } else if (is_hash_lt(args2[i2], args1[i1])) {
+                    i2++;
+                } else {
+                    lean_assert(is_hash_lt(args1[i1], args2[i2]));
+                    return false;
+                }
+            }
+            return i1 == nargs1;
+        } else {
+            return false;
+        }
+    } else {
+        if (is_ac_app(e2)) {
+            unsigned nargs2    = get_ac_app_num_args(e2);
+            expr const * args2 = get_ac_app_args(e2);
+            return std::find(args2, args2+nargs2, e1) != args2+nargs2;
+        } else {
+            return e1 == e2;
+        }
+    }
+}
+
+/* Store in r e1\e2.
+   Example: given e1 := (a*a*a*a*b*b*c*d*d*d) and e2 := (a*a*a*b*b*d),
+   the result is (a, c, d, d)
+
+   \pre is_ac_subset(e2, e1) */
+void ac_diff(expr const & e1, expr const & e2, buffer<expr> & r) {
+    lean_assert(is_ac_subset(e2, e1));
+    if (is_ac_app(e1)) {
+        if (is_ac_app(e2) && get_ac_app_op(e1) == get_ac_app_op(e2)) {
+            unsigned nargs1 = get_ac_app_num_args(e1);
+            unsigned nargs2 = get_ac_app_num_args(e2);
+            lean_assert(nargs1 >= nargs2);
+            expr const * args1 = get_ac_app_args(e1);
+            expr const * args2 = get_ac_app_args(e2);
+            unsigned i2 = 0;
+            for (unsigned i1 = 0; i1 < nargs1; i1++) {
+                if (i2 == nargs2) {
+                    r.push_back(args1[i1]);
+                } else if (args1[i1] == args2[i2]) {
+                    i2++;
+                } else {
+                    lean_assert(is_hash_lt(args1[i1], args2[i2]));
+                    r.push_back(args1[i1]);
+                }
+            }
+        } else {
+            bool found = false;
+            unsigned nargs1    = get_ac_app_num_args(e1);
+            expr const * args1 = get_ac_app_args(e1);
+            for (unsigned i = 0; i < nargs1; i++) {
+                if (!found && args1[i] == e2) {
+                    found = true;
+                } else {
+                    r.push_back(args1[i]);
+                }
+            }
+            lean_assert(found);
+        }
+    } else {
+        lean_assert(!is_ac_app(e1));
+        lean_assert(!is_ac_app(e2));
+        lean_assert(e1 == e2);
+    }
+}
+
+void ac_append(expr const & e, buffer<expr> & r) {
+    if (is_ac_app(e)) {
+        r.append(get_ac_app_num_args(e), get_ac_app_args(e));
+    } else {
+        r.push_back(e);
+    }
+}
+
+/* lexdeg order */
+bool ac_lt(expr const & e1, expr const & e2) {
+    if (is_ac_app(e1)) {
+        if (is_ac_app(e2) && get_ac_app_op(e1) == get_ac_app_op(e2)) {
+            unsigned nargs1 = get_ac_app_num_args(e1);
+            unsigned nargs2 = get_ac_app_num_args(e2);
+            if (nargs1 < nargs2) return true;
+            if (nargs1 > nargs2) return false;
+            expr const * args1 = get_ac_app_args(e1);
+            expr const * args2 = get_ac_app_args(e2);
+            for (unsigned i = 0; i < nargs1; i++) {
+                if (args1[i] != args2[i])
+                    return is_hash_lt(args1[i], args2[i]);
+            }
+            return false;
+        } else {
+            return false;
+        }
+    } else {
+        if (is_ac_app(e2)) {
+            return true;
+        } else {
+            return is_hash_lt(e1, e2);
+        }
+    }
+}
+
+static expr expand_if_ac_app(expr const & e) {
+    if (is_ac_app(e))
+        return expand_ac_core(e);
+    else
+        return e;
+}
+
+static name * g_perm_ac_name = nullptr;
+static macro_definition * g_perm_ac_macro = nullptr;
+static std::string * g_perm_ac_opcode = nullptr;
+
+class perm_ac_macro_cell : public macro_definition_cell {
+public:
+    virtual name get_name() const { return *g_perm_ac_name; }
+
+    virtual expr check_type(expr const & e, abstract_type_context & ctx, bool) const {
+        return mk_eq(ctx, macro_arg(e, 2), macro_arg(e, 3));
+    }
+
+    virtual unsigned trust_level() const { return LEAN_AC_MACROS_TRUST_LEVEL; }
+
+    virtual optional<expr> expand(expr const & e, abstract_type_context & ctx) const {
+        expr const & assoc = macro_arg(e, 0);
+        expr const & comm  = macro_arg(e, 1);
+        expr e1            = expand_if_ac_app(macro_arg(e, 2));
+        expr e2            = expand_if_ac_app(macro_arg(e, 3));
+        expr const & op    = app_fn(app_fn(e1));
+        return some_expr(perm_ac(ctx, op, assoc, comm, e1, e2));
+    }
+
+    virtual void write(serializer & s) const {
+        s.write_string(*g_perm_ac_opcode);
+    }
+
+    virtual bool operator==(macro_definition_cell const & other) const {
+        perm_ac_macro_cell const * other_ptr = dynamic_cast<perm_ac_macro_cell const *>(&other);
+        return other_ptr;
+    }
+
+    virtual unsigned hash() const { return 31; }
+};
+
+expr mk_perm_ac_macro_core(expr const & assoc, expr const & comm, expr const & e1, expr const & e2) {
+    lean_assert((get_binary_op(e1) || is_ac_app(e1)) && (get_binary_op(e2) || is_ac_app(e2)));
+    expr args[4] = {assoc, comm, e1, e2};
+    return mk_macro(*g_perm_ac_macro, 4, args);
+}
+
+expr mk_perm_ac_macro(abstract_type_context & ctx, expr const & assoc, expr const & comm, expr const & e1, expr const & e2) {
+    if (e1 == e2) {
+        return mk_eq_refl(ctx, e1);
+    } else {
+        return mk_perm_ac_macro_core(assoc, comm, e1, e2);
+    }
 }
 
 #define TRY   LEAN_TACTIC_TRY
@@ -374,8 +633,32 @@ void initialize_ac_tactics() {
     register_trace_class(name{"tactic", "perm_ac"});
     DECLARE_VM_BUILTIN(name({"tactic", "flat_assoc"}), tactic_flat_assoc);
     DECLARE_VM_BUILTIN(name({"tactic", "perm_ac"}),    tactic_perm_ac);
+
+    g_ac_app_name   = new name("ac_app");
+    g_ac_app_opcode = new std::string("ACApp");
+    g_ac_app_macro  = new macro_definition(new ac_app_macro_cell());
+    register_macro_deserializer(*g_ac_app_opcode,
+                                [](deserializer &, unsigned num, expr const * args) {
+                                    return mk_ac_app_core(num, args);
+                                });
+
+    g_perm_ac_name   = new name("perm_ac");
+    g_perm_ac_opcode = new std::string("PermAC");
+    g_perm_ac_macro  = new macro_definition(new perm_ac_macro_cell());
+    register_macro_deserializer(*g_perm_ac_opcode,
+                                [](deserializer &, unsigned num, expr const * args) {
+                                    if (num != 4) corrupted_stream_exception();
+                                    return mk_perm_ac_macro_core(args[0], args[1], args[2], args[3]);
+                                });
 }
 
 void finalize_ac_tactics() {
+    delete g_ac_app_name;
+    delete g_ac_app_opcode;
+    delete g_ac_app_macro;
+
+    delete g_perm_ac_name;
+    delete g_perm_ac_opcode;
+    delete g_perm_ac_macro;
 }
 }

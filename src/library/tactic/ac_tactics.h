@@ -7,6 +7,9 @@ Author: Leonardo de Moura
 #pragma once
 #include "library/type_context.h"
 
+/* TODO(Leo): reduce after testing */
+#define LEAN_AC_MACROS_TRUST_LEVEL 10000000
+
 namespace lean {
 class ac_manager {
 public:
@@ -30,6 +33,26 @@ pair<expr, optional<expr>> flat_assoc(abstract_type_context & ctx, expr const & 
 /* Construct a proof that e1 = e2 modulo AC for the operator op. The proof uses the lemmas \c assoc and \c comm.
    It throws an exception if they are not equal modulo AC. */
 expr perm_ac(abstract_type_context & ctx, expr const & op, expr const & assoc, expr const & comm, expr const & e1, expr const & e2);
+
+expr mk_ac_app(expr const & op, buffer<expr> & args);
+bool is_ac_app(expr const & e);
+expr const & get_ac_app_op(expr const & e);
+unsigned get_ac_app_num_args(expr const & e);
+expr const * get_ac_app_args(expr const & e);
+/* Return true iff e1 is a "subset" of e2.
+   Example: The result is true for e1 := (a*a*a*b*d) and e2 := (a*a*a*a*b*b*c*d*d) */
+bool is_ac_subset(expr const & e1, expr const & e2);
+/* Store in r e1\e2.
+   Example: given e1 := (a*a*a*a*b*b*c*d*d*d) and e2 := (a*a*a*b*b*d),
+   the result is (a, c, d, d)
+
+   \pre is_ac_subset(e2, e1) */
+void ac_diff(expr const & e1, expr const & e2, buffer<expr> & r);
+void ac_append(expr const & e, buffer<expr> & r);
+/* lexdeg order */
+bool ac_lt(expr const & e1, expr const & e2);
+
+expr mk_perm_ac_macro(abstract_type_context & ctx, expr const & assoc, expr const & comm, expr const & e1, expr const & e2);
 
 void initialize_ac_tactics();
 void finalize_ac_tactics();

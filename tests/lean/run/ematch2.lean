@@ -31,7 +31,7 @@ theorem add_comm_three  (a b c : α) : a + b + c = c + b + a :=
 begin ematch_test `add_comm, ematch_test `add_assoc, cc end
 
 theorem add.comm4 : ∀ (n m k l : α), n + m + (k + l) = n + k + (m + l) :=
-begin intros, ematch_test `add_comm, ematch_test `add_assoc, ematch_test `add_comm, ematch_test `add_assoc, cc end
-end
+by cc
 
+end
 end foo

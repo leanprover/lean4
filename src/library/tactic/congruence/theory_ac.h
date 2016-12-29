@@ -102,8 +102,8 @@ private:
     void insert_erase_R_occs(expr const & e, expr const & lhs, bool in_lhs, bool is_insert);
     void insert_R_occs(expr const & e, expr const & lhs, bool in_lhs);
     void erase_R_occs(expr const & e, expr const & lhs, bool in_lhs);
-    void erase_R_rhs_occs(expr const & e, expr const & lhs) { erase_R_occs(e, lhs, false); }
     void insert_R_rhs_occs(expr const & e, expr const & lhs) { insert_R_occs(e, lhs, false); }
+    void erase_R_rhs_occs(expr const & e, expr const & lhs) { erase_R_occs(e, lhs, false); }
     void insert_R_occs(expr const & lhs, expr const & rhs);
     void erase_R_occs(expr const & lhs, expr const & rhs);
     void compose(expr const & lhs, expr const & rhs, expr const & H);

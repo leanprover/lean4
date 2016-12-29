@@ -519,12 +519,43 @@ void ac_diff(expr const & e1, expr const & e2, buffer<expr> & r) {
     }
 }
 
-void ac_append(expr const & e, buffer<expr> & r) {
-    if (is_ac_app(e)) {
+void ac_append(expr const & op, expr const & e, buffer<expr> & r) {
+    if (is_ac_app(e) && get_ac_app_op(e) == op) {
         r.append(get_ac_app_num_args(e), get_ac_app_args(e));
     } else {
         r.push_back(e);
     }
+}
+
+void ac_intersection(expr const & e1, expr const & e2, buffer<expr> & r) {
+    lean_assert(is_ac_app(e1));
+    lean_assert(is_ac_app(e2));
+    lean_assert(get_ac_app_op(e1) == get_ac_app_op(e2));
+    unsigned nargs1 = get_ac_app_num_args(e1);
+    unsigned nargs2 = get_ac_app_num_args(e2);
+    expr const * args1 = get_ac_app_args(e1);
+    expr const * args2 = get_ac_app_args(e2);
+    unsigned i1 = 0;
+    unsigned i2 = 0;
+    while (i1 < nargs1 && i2 < nargs2) {
+        if (args1[i1] == args2[i2]) {
+            r.push_back(args1[i1]);
+            i1++;
+            i2++;
+        } else if (is_hash_lt(args2[i2], args1[i1])) {
+            i2++;
+        } else {
+            lean_assert(is_hash_lt(args1[i1], args2[i2]));
+            i1++;
+        }
+    }
+}
+
+expr mk_ac_flat_app(expr const & op, expr const & e1, expr const & e2) {
+    buffer<expr> new_args;
+    ac_append(op, e1, new_args);
+    ac_append(op, e2, new_args);
+    return mk_ac_app(op, new_args);
 }
 
 /* lexdeg order */

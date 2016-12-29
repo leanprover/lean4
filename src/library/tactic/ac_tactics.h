@@ -48,9 +48,28 @@ bool is_ac_subset(expr const & e1, expr const & e2);
 
    \pre is_ac_subset(e2, e1) */
 void ac_diff(expr const & e1, expr const & e2, buffer<expr> & r);
-void ac_append(expr const & e, buffer<expr> & r);
+/* If e is an AC application for operator op, then copy its arguments to r.
+   Otherwise, just copy e to r.
+
+   Example: Given op := * and e := a*b*b*c, we append [a,b,b,c] to r.
+   Example: Given op := + and e := a*b*b*c, we append [(a*b*b*c)] to r.
+   Example: Given op := * and e := a,       we append [a] to r. */
+void ac_append(expr const & op, expr const & e, buffer<expr> & r);
 /* lexdeg order */
 bool ac_lt(expr const & e1, expr const & e2);
+/*
+   Store the intersection of two AC terms in r.
+   Example: Given (a*a*b*b*d) (a*b*b*c*c*d*d*d), we get (a, b, b, d) in r.
+
+   \pre is_ac_app(e1) && is_ac_app(e2) */
+void ac_intersection(expr const & e1, expr const & e2, buffer<expr> & r);
+/* Create a flat AC application for e1 and e2.
+
+   Example: op := *, (a*a*b*c) (a*c*c) ==> (a*a*a*c*b*c*c*c)
+   Example: op := *, (a*a*b*c) a       ==> (a*a*a*b*c)
+   Example: op := *, a         b       ==> (a*b)
+*/
+expr mk_ac_flat_app(expr const & op, expr const & e1, expr const & e2);
 
 expr mk_perm_ac_macro(abstract_type_context & ctx, expr const & assoc, expr const & comm, expr const & e1, expr const & e2);
 

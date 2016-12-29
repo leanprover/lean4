@@ -83,6 +83,9 @@ public:
         expr get_var_with_least_rhs_occs(expr const & e) const {
             return get_var_with_least_occs(e, false);
         }
+        expr get_var_with_least_lhs_occs(expr const & e) const {
+            return get_var_with_least_occs(e, true);
+        }
     };
 
 private:
@@ -102,6 +105,7 @@ private:
     void erase_R_rhs_occs(expr const & e, expr const & lhs) { erase_R_occs(e, lhs, false); }
     void insert_R_rhs_occs(expr const & e, expr const & lhs) { insert_R_occs(e, lhs, false); }
     void insert_R_occs(expr const & lhs, expr const & rhs);
+    void erase_R_occs(expr const & lhs, expr const & rhs);
     void compose(expr const & lhs, expr const & rhs, expr const & H);
     void collapse(expr const & lhs, expr const & rhs, expr const & H);
     void superpose(expr const & lhs, expr const & rhs, expr const & H);

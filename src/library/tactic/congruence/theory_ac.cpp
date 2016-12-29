@@ -519,6 +519,11 @@ void theory_ac::insert_R_occs(expr const & lhs, expr const & rhs) {
     insert_R_occs(rhs, lhs, false);
 }
 
+void theory_ac::erase_R_occs(expr const & lhs, expr const & rhs) {
+    erase_R_occs(lhs, lhs, true);
+    erase_R_occs(rhs, lhs, false);
+}
+
 /*
   Given, e is of the form lhs*r, (H : lhs = rhs),
   return (rhs*r) and proof ac_simp_pr(e, lhs, rhs, r, rhs*r, H) : e = rhs*r
@@ -633,7 +638,30 @@ void theory_ac::compose(expr const & lhs, expr const & rhs, expr const & H) {
 }
 
 void theory_ac::collapse(expr const & lhs, expr const & rhs, expr const & H) {
-    // TODO(Leo)
+    expr x           = m_state.get_var_with_least_lhs_occs(lhs);
+    occurrences occs = m_state.m_entries.find(x)->get_R_lhs_occs();
+    occs.for_each([&](expr const & R_lhs) {
+            if (is_ac_subset(lhs, R_lhs)) {
+                expr R_rhs, R_H;
+                std::tie(R_rhs, R_H) = *m_state.m_R.find(R_lhs);
+                erase_R_occs(R_lhs, R_rhs);
+                m_state.m_R.erase(R_lhs);
+                expr new_R_lhs, R_lhs_eq_new_R_lhs;
+                std::tie(new_R_lhs, R_lhs_eq_new_R_lhs) = simplify_core(R_lhs, lhs, rhs, H);
+                expr new_R_lhs_eq_R_lhs = mk_eq_symm(m_ctx, R_lhs, new_R_lhs, R_lhs_eq_new_R_lhs);
+                expr new_R_H            = mk_eq_trans(m_ctx, new_R_lhs, R_lhs, R_rhs, new_R_lhs_eq_R_lhs, R_H);
+                m_todo.emplace_back(new_R_lhs, R_rhs, new_R_H);
+                lean_trace(name({"debug", "cc", "ac"}), scope_trace_env s(m_ctx.env(), m_ctx);
+                           auto out      = tout();
+                           auto fmt      = out.get_formatter();
+                           format new_rw = group(paren(pp_term(fmt, lhs) + line() + format("-->") + line() + pp_term(fmt, rhs)));
+                           format old_rw = group(paren(pp_term(fmt, R_rhs) + line() + format("<--") + line() + pp_term(fmt, R_lhs)));
+                           format r      = format("collapse:");
+                           r += nest(get_pp_indent(fmt.get_options()), line() + group(new_rw + line() + format("at") + line() + old_rw) +
+                                     line() + format(":=") + line() + pp_term(fmt, new_R_lhs));
+                           out << group(r) << "\n";);
+            }
+        });
 }
 
 void theory_ac::superpose(expr const & lhs, expr const & rhs, expr const & H) {

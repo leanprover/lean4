@@ -442,14 +442,15 @@ bool theory_ac::internalize_var(expr const & e) {
 void theory_ac::dbg_trace_state() const {
     lean_trace(name({"debug", "cc", "ac"}), scope_trace_env s(m_ctx.env(), m_ctx);
                auto out = tout();
-               out << m_state.pp(out.get_formatter()) << "\n";);
+               auto fmt = out.get_formatter();
+               out << group(format("state:") + nest(get_pp_indent(fmt.get_options()), line() + m_state.pp(fmt))) << "\n";);
 }
 
 void theory_ac::dbg_trace_eq(char const * header, expr const & lhs, expr const & rhs) const {
     lean_trace(name({"debug", "cc", "ac"}), scope_trace_env s(m_ctx.env(), m_ctx);
                auto out = tout();
                auto fmt = out.get_formatter();
-               out << header << " " << pp_term(fmt, lhs) << " = " << pp_term(fmt, rhs) << "\n";);
+               out << group(format(header) + line() + pp_term(fmt, lhs) + line() + format("=") + line() + pp_term(fmt, rhs)) << "\n";);
 }
 
 void theory_ac::internalize(expr const & e, optional<expr> const & parent) {
@@ -470,7 +471,10 @@ void theory_ac::internalize(expr const & e, optional<expr> const & parent) {
 
     lean_trace(name({"debug", "cc", "ac"}), scope_trace_env s(m_ctx.env(), m_ctx);
                auto out = tout();
-               out << "new term:\n" << e << "\n===>\n" << pp_term(out.get_formatter(), rep) << "\n";);
+               auto fmt = out.get_formatter();
+               format d = group(paren(pp_term(fmt, e) + space() + format(":=") + line() + fmt(e)));
+               format r = format("new term:") + line() + d + line() + format("===>") + line() + pp_term(fmt, rep);
+               out << group(r) << "\n";);
 
     m_todo.emplace_back(e, rep, pr);
     process();
@@ -561,6 +565,9 @@ void theory_ac::process() {
         expr lhs, rhs, pr;
         std::tie(lhs, rhs, pr) = m_todo.back();
         m_todo.pop_back();
+        dbg_trace_eq("process eq:", lhs, rhs);
+        expr lhs0 = lhs;
+        expr rhs0 = rhs;
 
         /* Simplify lhs/rhs */
         if (optional<expr_pair> p = simplify(lhs)) {
@@ -572,7 +579,9 @@ void theory_ac::process() {
             rhs = p->first;
         }
 
-        dbg_trace_eq("after simp:", lhs, rhs);
+        if (lhs != lhs0 || rhs != rhs0) {
+            dbg_trace_eq("after simp:", lhs, rhs);
+        }
 
         /* Check trivial */
         if (lhs == rhs) {
@@ -604,7 +613,7 @@ void theory_ac::process() {
 }
 
 void theory_ac::add_eq(expr const & e1, expr const & e2) {
-    dbg_trace_eq("new eq:", e1, e2);
+    dbg_trace_eq("cc eq:", e1, e2);
     m_todo.emplace_back(e1, e2, mk_delayed_cc_eq_proof(e1, e2));
     process();
     dbg_trace_state();

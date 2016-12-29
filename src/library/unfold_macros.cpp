@@ -15,6 +15,11 @@ Author: Leonardo de Moura
 #include "library/replace_visitor.h"
 #include "library/exception.h"
 
+/* If the trust level of all macros is < LEAN_BELIEVER_TRUST_LEVEL,
+   then we skip the unfold_untrusted_macros potentially expensive step.
+   The following definition is commented because we are currently testing the AC macros. */
+// #define LEAN_ALL_MACROS_HAVE_SMALL_TRUST_LVL
+
 namespace lean {
 class unfold_untrusted_macros_fn {
     typedef expr_bi_struct_map<expr> cache;
@@ -119,8 +124,9 @@ public:
 };
 
 static bool contains_untrusted_macro(unsigned trust_lvl, expr const & e) {
-    if (trust_lvl > LEAN_BELIEVER_TRUST_LEVEL)
-        return false;
+#if defined(LEAN_ALL_MACROS_HAVE_SMALL_TRUST_LVL)
+    if (trust_lvl > LEAN_BELIEVER_TRUST_LEVEL) return false;
+#endif
     return static_cast<bool>(find(e, [&](expr const & e, unsigned) {
                 return is_macro(e) && macro_def(e).trust_level() >= trust_lvl;
             }));
@@ -143,7 +149,10 @@ expr unfold_all_macros(environment const & env, expr const & e) {
 }
 
 static bool contains_untrusted_macro(unsigned trust_lvl, declaration const & d) {
-    if (trust_lvl > LEAN_BELIEVER_TRUST_LEVEL || !d.is_trusted())
+#if defined(LEAN_ALL_MACROS_HAVE_SMALL_TRUST_LVL)
+    if (trust_lvl > LEAN_BELIEVER_TRUST_LEVEL) return false;
+#endif
+    if (!d.is_trusted())
         return false;
     if (contains_untrusted_macro(trust_lvl, d.get_type()))
         return true;

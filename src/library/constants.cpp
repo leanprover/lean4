@@ -179,6 +179,7 @@ name const * g_is_trunc_is_prop_elim = nullptr;
 name const * g_is_trunc_is_set = nullptr;
 name const * g_ite = nullptr;
 name const * g_left_distrib = nullptr;
+name const * g_left_comm = nullptr;
 name const * g_le = nullptr;
 name const * g_le_refl = nullptr;
 name const * g_lift = nullptr;
@@ -631,6 +632,7 @@ void initialize_constants() {
     g_is_trunc_is_set = new name{"is_trunc", "is_set"};
     g_ite = new name{"ite"};
     g_left_distrib = new name{"left_distrib"};
+    g_left_comm = new name{"left_comm"};
     g_le = new name{"le"};
     g_le_refl = new name{"le", "refl"};
     g_lift = new name{"lift"};
@@ -1084,6 +1086,7 @@ void finalize_constants() {
     delete g_is_trunc_is_set;
     delete g_ite;
     delete g_left_distrib;
+    delete g_left_comm;
     delete g_le;
     delete g_le_refl;
     delete g_lift;
@@ -1536,6 +1539,7 @@ name const & get_is_trunc_is_prop_elim_name() { return *g_is_trunc_is_prop_elim;
 name const & get_is_trunc_is_set_name() { return *g_is_trunc_is_set; }
 name const & get_ite_name() { return *g_ite; }
 name const & get_left_distrib_name() { return *g_left_distrib; }
+name const & get_left_comm_name() { return *g_left_comm; }
 name const & get_le_name() { return *g_le; }
 name const & get_le_refl_name() { return *g_le_refl; }
 name const & get_lift_name() { return *g_lift; }

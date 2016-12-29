@@ -248,7 +248,7 @@ struct perm_ac_fn : public flat_assoc_fn {
         if (!m_left_comm) {
             expr A    = m_ctx.infer(a);
             level lvl = get_level(m_ctx, A);
-            m_left_comm = mk_app(mk_constant(name{"binary", "left_comm"}, {lvl}), A, m_op, m_comm, m_assoc);
+            m_left_comm = mk_app(mk_constant(get_left_comm_name(), {lvl}), A, m_op, m_comm, m_assoc);
         }
         return mk_app(*m_left_comm, a, b, c);
     }

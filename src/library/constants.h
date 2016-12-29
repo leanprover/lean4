@@ -181,6 +181,7 @@ name const & get_is_trunc_is_prop_elim_name();
 name const & get_is_trunc_is_set_name();
 name const & get_ite_name();
 name const & get_left_distrib_name();
+name const & get_left_comm_name();
 name const & get_le_name();
 name const & get_le_refl_name();
 name const & get_lift_name();

@@ -383,6 +383,10 @@ public:
     unsigned hash() const { return m_ptr->hash(); }
     void write(serializer & s) const { return m_ptr->write(s); }
     macro_definition_cell const * raw() const { return m_ptr; }
+
+    friend bool is_eqp(macro_definition const & d1, macro_definition const & d2) {
+        return d1.m_ptr == d2.m_ptr;
+    }
 };
 
 /** \brief Macro attachments */

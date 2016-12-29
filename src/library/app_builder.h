@@ -91,12 +91,14 @@ expr mk_heq_refl(type_context & ctx, expr const & a);
 /** \brief Similar a symmetry proof for the given relation */
 expr mk_symm(type_context & ctx, name const & relname, expr const & H);
 expr mk_eq_symm(type_context & ctx, expr const & H);
+expr mk_eq_symm(type_context & ctx, expr const & a, expr const & b, expr const & H);
 expr mk_iff_symm(type_context & ctx, expr const & H);
 expr mk_heq_symm(type_context & ctx, expr const & H);
 
 /** \brief Similar a transitivity proof for the given relation */
 expr mk_trans(type_context & ctx, name const & relname, expr const & H1, expr const & H2);
 expr mk_eq_trans(type_context & ctx, expr const & H1, expr const & H2);
+expr mk_eq_trans(type_context & ctx, expr const & a, expr const & b, expr const & c, expr const & H1, expr const & H2);
 expr mk_iff_trans(type_context & ctx, expr const & H1, expr const & H2);
 expr mk_heq_trans(type_context & ctx, expr const & H1, expr const & H2);
 

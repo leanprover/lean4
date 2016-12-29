@@ -499,6 +499,8 @@ public:
         }
     }
     expr mk_eq_symm(expr const & H) {
+        if (is_app_of(H, get_eq_refl_name()))
+            return H;
         expr p    = m_ctx.relaxed_whnf(m_ctx.infer(H));
         expr A, lhs, rhs;
         if (!is_eq(p, A, lhs, rhs)) {
@@ -507,6 +509,11 @@ public:
         }
         level lvl = get_level(A);
         return ::lean::mk_app(mk_constant(get_eq_symm_name(), {lvl}), A, lhs, rhs, H);
+    }
+    expr mk_eq_symm(expr const & a, expr const & b, expr const & H) {
+        expr A    = m_ctx.infer(a);
+        level lvl = get_level(A);
+        return ::lean::mk_app(mk_constant(get_eq_symm_name(), {lvl}), A, a, b, H);
     }
     expr mk_iff_symm(expr const & H) {
         expr p    = m_ctx.infer(H);
@@ -547,6 +554,10 @@ public:
         }
     }
     expr mk_eq_trans(expr const & H1, expr const & H2) {
+        if (is_app_of(H1, get_eq_refl_name()))
+            return H2;
+        if (is_app_of(H2, get_eq_refl_name()))
+            return H1;
         expr p1    = m_ctx.relaxed_whnf(m_ctx.infer(H1));
         expr p2    = m_ctx.relaxed_whnf(m_ctx.infer(H2));
         expr A, lhs1, rhs1, lhs2, rhs2;
@@ -558,6 +569,15 @@ public:
         }
         level lvl  = get_level(A);
         return ::lean::mk_app({mk_constant(get_eq_trans_name(), {lvl}), A, lhs1, rhs1, rhs2, H1, H2});
+    }
+    expr mk_eq_trans(expr const & a, expr const & b, expr const & c, expr const & H1, expr const & H2) {
+        if (is_app_of(H1, get_eq_refl_name()))
+            return H2;
+        if (is_app_of(H2, get_eq_refl_name()))
+            return H1;
+        expr A    = m_ctx.infer(a);
+        level lvl = get_level(A);
+        return ::lean::mk_app({mk_constant(get_eq_trans_name(), {lvl}), A, a, b, c, H1, H2});
     }
     expr mk_iff_trans(expr const & H1, expr const & H2) {
         expr p1    = m_ctx.infer(H1);
@@ -820,6 +840,10 @@ expr mk_eq_symm(type_context & ctx, expr const & H) {
     return app_builder(ctx).mk_eq_symm(H);
 }
 
+expr mk_eq_symm(type_context & ctx, expr const & a, expr const & b, expr const & H) {
+    return app_builder(ctx).mk_eq_symm(a, b, H);
+}
+
 expr mk_iff_symm(type_context & ctx, expr const & H) {
     return app_builder(ctx).mk_iff_symm(H);
 }
@@ -834,6 +858,10 @@ expr mk_trans(type_context & ctx, name const & relname, expr const & H1, expr co
 
 expr mk_eq_trans(type_context & ctx, expr const & H1, expr const & H2) {
     return app_builder(ctx).mk_eq_trans(H1, H2);
+}
+
+expr mk_eq_trans(type_context & ctx, expr const & a, expr const & b, expr const & c, expr const & H1, expr const & H2) {
+    return app_builder(ctx).mk_eq_trans(a, b, c, H1, H2);
 }
 
 expr mk_iff_trans(type_context & ctx, expr const & H1, expr const & H2) {

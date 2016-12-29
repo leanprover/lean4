@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "library/app_builder.h"
 #include "library/projection.h"
 #include "library/constructions/constructor.h"
+#include "library/tactic/congruence/util.h"
 #include "library/tactic/congruence/congruence_closure.h"
 
 namespace lean {
@@ -653,15 +654,15 @@ void congruence_closure::propagate_inst_implicit(expr const & e) {
     }
 }
 
-void congruence_closure::set_ac_rep(expr const & e, expr const & ac_rep) {
+void congruence_closure::set_ac_var(expr const & e) {
     expr e_root = get_root(e);
-    auto n      = get_entry(e);
-    if (n->m_ac_rep) {
-        m_ac.add_eq(*n->m_ac_rep, ac_rep);
+    auto root_entry = get_entry(e_root);
+    if (root_entry->m_ac_var) {
+        m_ac.add_eq(*root_entry->m_ac_var, e);
     } else {
-        entry new_entry    = *n;
-        new_entry.m_ac_rep = some_expr(ac_rep);
-        m_state.m_entries.insert(e_root, new_entry);
+        entry new_root_entry = *root_entry;
+        new_root_entry.m_ac_var = some_expr(e);
+        m_state.m_entries.insert(e_root, new_root_entry);
     }
 }
 
@@ -807,9 +808,8 @@ void congruence_closure::internalize_core(expr const & e, bool toplevel, bool to
         break;
     }}
 
-    if (optional<expr> ac_rep = m_ac.internalize(e, parent)) {
-        set_ac_rep(e, *ac_rep);
-    }
+    if (m_state.m_config.m_ac)
+        m_ac.internalize(e, parent);
 }
 
 /*
@@ -897,19 +897,26 @@ bool congruence_closure::has_heq_proofs(expr const & root) const {
     return get_entry(root)->m_heq_proofs;
 }
 
+expr congruence_closure::flip_proof_core(expr const & H, bool flipped, bool heq_proofs) const {
+    expr new_H = H;
+    if (heq_proofs && is_eq(m_ctx.relaxed_whnf(m_ctx.infer(new_H)))) {
+        new_H = mk_heq_of_eq(m_ctx, new_H);
+    }
+    if (!flipped) {
+        return new_H;
+    } else {
+        return heq_proofs ? mk_heq_symm(m_ctx, new_H) : mk_eq_symm(m_ctx, new_H);
+    }
+}
+
 expr congruence_closure::flip_proof(expr const & H, bool flipped, bool heq_proofs) const {
     if (H == *g_congr_mark || H == *g_eq_true_mark || H == *g_refl_mark) {
         return H;
+    } else if (is_cc_theory_proof(H)) {
+        expr H1 = flip_proof_core(get_cc_theory_proof_arg(H), flipped, heq_proofs);
+        return mark_cc_theory_proof(H1);
     } else {
-        expr new_H = H;
-        if (heq_proofs && is_eq(m_ctx.relaxed_whnf(m_ctx.infer(new_H)))) {
-            new_H = mk_heq_of_eq(m_ctx, new_H);
-        }
-        if (!flipped) {
-            return new_H;
-        } else {
-            return heq_proofs ? mk_heq_symm(m_ctx, new_H) : mk_eq_symm(m_ctx, new_H);
-        }
+        return flip_proof_core(H, flipped, heq_proofs);
     }
 }
 
@@ -1073,6 +1080,8 @@ expr congruence_closure::mk_proof(expr const & lhs, expr const & rhs, expr const
         expr type  = heq_proofs ? mk_heq(m_ctx, lhs, rhs) : mk_eq(m_ctx, lhs, rhs);
         expr proof = heq_proofs ? mk_heq_refl(m_ctx, lhs) : mk_eq_refl(m_ctx, lhs);
         return mk_app(mk_constant(get_id_locked_name(), {mk_level_zero()}), type, proof);
+    } else if (is_cc_theory_proof(H)) {
+        return expand_delayed_cc_proofs(*this, get_cc_theory_proof_arg(H));
     } else {
         return H;
     }
@@ -1376,10 +1385,10 @@ void congruence_closure::add_eqv_step(expr e1, expr e2, expr const & H,
     new_r1.m_next  = r2->m_next;
     new_r2.m_next  = r1->m_next;
     new_r2.m_size += r1->m_size;
-    optional<expr> ac_rep1 = r1->m_ac_rep;
-    optional<expr> ac_rep2 = r2->m_ac_rep;
-    if (!ac_rep2)
-        new_r2.m_ac_rep    = ac_rep1;
+    optional<expr> ac_var1 = r1->m_ac_var;
+    optional<expr> ac_var2 = r2->m_ac_var;
+    if (!ac_var2)
+        new_r2.m_ac_var    = ac_var1;
     if (heq_proof)
         new_r2.m_heq_proofs = true;
     m_state.m_entries.insert(e1_root, new_r1);
@@ -1404,8 +1413,8 @@ void congruence_closure::add_eqv_step(expr e1, expr e2, expr const & H,
         m_state.m_parents.insert(e2_root, ps2);
     }
 
-    if (ac_rep1 && ac_rep2)
-        m_ac.add_eq(*ac_rep1, *ac_rep2);
+    if (ac_var1 && ac_var2)
+        m_ac.add_eq(*ac_var1, *ac_var2);
 
     // propagate new hypotheses back to current state
     if (!to_propagate.empty()) {

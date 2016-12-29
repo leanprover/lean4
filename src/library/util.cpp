@@ -584,6 +584,8 @@ expr mk_eq_refl(abstract_type_context & ctx, expr const & a) {
 }
 
 expr mk_eq_symm(abstract_type_context & ctx, expr const & H) {
+    if (is_app_of(H, get_eq_refl_name()))
+        return H;
     expr p    = ctx.whnf(ctx.infer(H));
     lean_assert(is_eq(p));
     expr lhs  = app_arg(app_fn(p));
@@ -594,6 +596,10 @@ expr mk_eq_symm(abstract_type_context & ctx, expr const & H) {
 }
 
 expr mk_eq_trans(abstract_type_context & ctx, expr const & H1, expr const & H2) {
+    if (is_app_of(H1, get_eq_refl_name()))
+        return H2;
+    if (is_app_of(H2, get_eq_refl_name()))
+        return H1;
     expr p1    = ctx.whnf(ctx.infer(H1));
     expr p2    = ctx.whnf(ctx.infer(H2));
     lean_assert(is_eq(p1) && is_eq(p2));

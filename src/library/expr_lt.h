@@ -18,6 +18,7 @@ namespace lean {
 bool is_lt(expr const & a, expr const & b, bool use_hash);
 /** \brief Similar to is_lt, but universe level parameter names are ignored. */
 bool is_lt_no_level_params(expr const & a, expr const & b);
+inline bool is_hash_lt(expr const & a, expr const & b) { return is_lt(a, b, true); }
 inline bool operator<(expr const & a, expr const & b)  { return is_lt(a, b, true); }
 inline bool operator>(expr const & a, expr const & b)  { return is_lt(b, a, true); }
 inline bool operator<=(expr const & a, expr const & b) { return !is_lt(b, a, true); }

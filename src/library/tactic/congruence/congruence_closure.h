@@ -53,8 +53,8 @@ class congruence_closure {
            store 'target' at 'm_target', and 'H' at 'm_proof'. Both fields are none if 'e' == m_root */
         optional<expr> m_target;
         optional<expr> m_proof;
-        /* Representative used in the AC theory */
-        optional<expr> m_ac_rep;
+        /* Variable in the AC theory. */
+        optional<expr> m_ac_var;
         unsigned       m_flipped:1;      // proof has been flipped
         unsigned       m_to_propagate:1; // must be propagated back to state when in equivalence class containing true/false
         unsigned       m_interpreted:1;  // true if the node should be viewed as an abstract value
@@ -102,7 +102,8 @@ public:
         unsigned m_ignore_instances:1;
         unsigned m_values:1;
         unsigned m_all_ho:1;
-        config() { m_ignore_instances = true; m_values = true; m_all_ho = false; }
+        unsigned m_ac:1;
+        config() { m_ignore_instances = true; m_values = true; m_all_ho = false; m_ac = true; }
     };
 
     class state {
@@ -165,6 +166,8 @@ private:
     refl_info_getter          m_refl_info_getter;
     theory_ac                 m_ac;
 
+    friend class theory_ac;
+
     int compare_symm(expr lhs1, expr rhs1, expr lhs2, expr rhs2) const;
     unsigned symm_hash(expr const & lhs, expr const & rhs) const;
     optional<name> is_binary_relation(expr const & e, expr & lhs, expr & rhs) const;
@@ -185,10 +188,11 @@ private:
     void add_symm_congruence_table(expr const & e);
     void mk_entry_core(expr const & e, bool to_propagate, bool interpreted = false);
     void mk_entry(expr const & e, bool to_propagate);
-    void set_ac_rep(expr const & e, expr const & ac_rep);
+    void set_ac_var(expr const & e);
     void internalize_app(expr const & e, bool toplevel, bool to_propagate);
     void internalize_core(expr const & e, bool toplevel, bool to_propagate, optional<expr> const & parent);
     void push_todo(expr const & lhs, expr const & rhs, expr const & H, bool heq_proof);
+    void push_new_eq(expr const & lhs, expr const & rhs, expr const & H) { push_todo(lhs, rhs, H, false); }
     void push_refl_eq(expr const & lhs, expr const & rhs);
     void invert_trans(expr const & e, bool new_flipped, optional<expr> new_target, optional<expr> new_proof);
     void invert_trans(expr const & e);
@@ -196,6 +200,7 @@ private:
     void reinsert_parents(expr const & e);
     void update_mt(expr const & e);
     bool has_heq_proofs(expr const & root) const;
+    expr flip_proof_core(expr const & H, bool flipped, bool heq_proofs) const;
     expr flip_proof(expr const & H, bool flipped, bool heq_proofs) const;
     optional<ext_congr_lemma> mk_ext_hcongr_lemma(expr const & fn, unsigned nargs) const;
     expr mk_trans(expr const & H1, expr const & H2, bool heq_proofs) const;
@@ -219,7 +224,6 @@ private:
     bool check_eqc(expr const & e) const;
 
     friend ext_congr_lemma_cache_ptr const & get_cache_ptr(congruence_closure const & cc);
-
 public:
     congruence_closure(type_context & ctx, state & s);
     ~congruence_closure();
@@ -227,6 +231,7 @@ public:
     environment const & env() const { return m_ctx.env(); }
     type_context & ctx() { return m_ctx; }
     transparency_mode mode() const { return m_mode; }
+    defeq_canonizer & get_defeq_canonizer() { return m_defeq_canonizer; }
 
     /** \brief Register expression \c e in this data-structure.
        It creates entries for each sub-expression in \c e.

@@ -18,7 +18,7 @@ Author: Leonardo de Moura
 /* If the trust level of all macros is < LEAN_BELIEVER_TRUST_LEVEL,
    then we skip the unfold_untrusted_macros potentially expensive step.
    The following definition is commented because we are currently testing the AC macros. */
-// #define LEAN_ALL_MACROS_HAVE_SMALL_TRUST_LVL
+#define LEAN_ALL_MACROS_HAVE_SMALL_TRUST_LVL
 
 namespace lean {
 class unfold_untrusted_macros_fn {

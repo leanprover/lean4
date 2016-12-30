@@ -147,6 +147,9 @@ static environment redeclare_aliases(environment env, parser & p,
 environment end_scoped_cmd(parser & p) {
     local_level_decls level_decls  = p.get_local_level_decls();
     list<pair<name, expr>> entries = p.get_local_entries();
+    if (!p.has_local_scopes()) {
+        throw exception("invalid 'end', there is no open namespace/section");
+    }
     p.pop_local_scope();
     if (p.curr_is_identifier()) {
         name n = p.check_id_next("invalid end of scope, identifier expected");

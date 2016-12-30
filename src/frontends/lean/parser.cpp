@@ -493,9 +493,7 @@ void parser::push_local_scope(bool save_options) {
 }
 
 void parser::pop_local_scope() {
-    if (!m_parser_scope_stack) {
-        throw parser_error("invalid 'end', there is no open namespace/section", pos());
-    }
+    lean_assert(m_parser_scope_stack);
     auto s = head(m_parser_scope_stack);
     restore_parser_scope(s);
     m_undef_ids.shrink(s.m_num_undef_ids);

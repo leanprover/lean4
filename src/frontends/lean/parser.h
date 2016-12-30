@@ -229,6 +229,7 @@ class parser : public abstract_parser {
     parser_scope mk_parser_scope(optional<options> const & opts = optional<options>());
     void restore_parser_scope(parser_scope const & s);
 
+    bool has_local_scopes() const { return !is_nil(m_parser_scope_stack); }
     void push_local_scope(bool save_options = true);
     void pop_local_scope();
 

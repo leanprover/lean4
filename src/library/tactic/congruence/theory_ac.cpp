@@ -415,6 +415,7 @@ void theory_ac::superpose(expr const & ts, expr const & a, expr const & ts_eq_a)
         if (i == 0 || args[i] != args[i-1]) {
             occurrences const & occs = m_state.m_entries.find(args[i])->get_R_lhs_occs();
             occs.for_each([&](expr const & tr) {
+                    if (get_ac_app_op(tr) != op) return;
                     expr b, tr_eq_b;
                     std::tie(b, tr_eq_b) = *m_state.m_R.find(tr);
                     buffer<expr> t_args, s_args, r_args;

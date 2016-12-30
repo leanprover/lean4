@@ -438,38 +438,50 @@ expr const * get_ac_app_args(expr const & e) {
     return macro_args(e);
 }
 
+/* Return true iff e1 occurs in e2.
+   Example ac_mem(b, a*a*b*c) returns true. */
+static bool ac_mem(expr const & e1, expr const & e2) {
+    unsigned nargs2    = get_ac_app_num_args(e2);
+    expr const * args2 = get_ac_app_args(e2);
+    return std::find(args2, args2+nargs2, e1) != args2+nargs2;
+}
+
 /* Return true iff e1 is a "subset" of e2.
    Example: The result is true for e1 := (a*a*a*b*d) and e2 := (a*a*a*a*b*b*c*d*d) */
 bool is_ac_subset(expr const & e1, expr const & e2) {
     if (is_ac_app(e1)) {
-        if (is_ac_app(e2) && get_ac_app_op(e1) == get_ac_app_op(e2)) {
-            unsigned nargs1 = get_ac_app_num_args(e1);
-            unsigned nargs2 = get_ac_app_num_args(e2);
-            if (nargs1 > nargs2) return false;
-            expr const * args1 = get_ac_app_args(e1);
-            expr const * args2 = get_ac_app_args(e2);
-            unsigned i1 = 0;
-            unsigned i2 = 0;
-            while (i1 < nargs1 && i2 < nargs2) {
-                if (args1[i1] == args2[i2]) {
-                    i1++;
-                    i2++;
-                } else if (is_hash_lt(args2[i2], args1[i1])) {
-                    i2++;
-                } else {
-                    lean_assert(is_hash_lt(args1[i1], args2[i2]));
-                    return false;
+        if (is_ac_app(e2)) {
+            if (get_ac_app_op(e1) == get_ac_app_op(e2)) {
+                unsigned nargs1 = get_ac_app_num_args(e1);
+                unsigned nargs2 = get_ac_app_num_args(e2);
+                if (nargs1 > nargs2) return false;
+                expr const * args1 = get_ac_app_args(e1);
+                expr const * args2 = get_ac_app_args(e2);
+                unsigned i1 = 0;
+                unsigned i2 = 0;
+                while (i1 < nargs1 && i2 < nargs2) {
+                    if (args1[i1] == args2[i2]) {
+                        i1++;
+                        i2++;
+                    } else if (is_hash_lt(args2[i2], args1[i1])) {
+                        i2++;
+                    } else {
+                        lean_assert(is_hash_lt(args1[i1], args2[i2]));
+                        return false;
+                    }
                 }
+                return i1 == nargs1;
+            } else {
+                lean_assert(get_ac_app_op(e1) != get_ac_app_op(e2));
+                /* treat e1 as an atomic value that may occur in e2 */
+                return ac_mem(e1, e2);
             }
-            return i1 == nargs1;
         } else {
             return false;
         }
     } else {
         if (is_ac_app(e2)) {
-            unsigned nargs2    = get_ac_app_num_args(e2);
-            expr const * args2 = get_ac_app_args(e2);
-            return std::find(args2, args2+nargs2, e1) != args2+nargs2;
+            return ac_mem(e1, e2);
         } else {
             return e1 == e2;
         }

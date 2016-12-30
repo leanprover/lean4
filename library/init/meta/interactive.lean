@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.meta.tactic init.meta.rewrite_tactic init.meta.simp_tactic
+import init.meta.congruence_tactics
 
 namespace tactic
 namespace interactive
@@ -381,11 +382,23 @@ meta def dsimp : location → tactic unit
 meta def reflexivity : tactic unit :=
 tactic.reflexivity
 
+meta def refl : tactic unit :=
+tactic.reflexivity
+
 meta def symmetry : tactic unit :=
 tactic.symmetry
 
 meta def transitivity : tactic unit :=
 tactic.transitivity
+
+meta def ac_reflixivity : tactic unit :=
+tactic.ac_refl
+
+meta def ac_refl : tactic unit :=
+tactic.ac_refl
+
+meta def cc : tactic unit :=
+tactic.cc
 
 meta def subst (q : qexpr0) : tactic unit :=
 to_expr q >>= tactic.subst >> try (reflexivity_core reducible)

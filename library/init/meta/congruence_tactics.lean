@@ -79,6 +79,19 @@ tactic.cc_core ff
 meta def tactic.cc_dbg : tactic unit :=
 tactic.cc_core tt
 
+meta def tactic.ac_refl : tactic unit :=
+do (lhs, rhs) ← target >>= match_eq,
+   s ← return $ cc_state.mk,
+   s ← s^.internalize lhs ff,
+   s ← s^.internalize rhs ff,
+   b ← s^.is_eqv lhs rhs,
+   if b then do {
+     t ← return $ expr.const `true [],
+     s^.eqv_proof lhs rhs >>= exact
+   } else do {
+     fail "ac_refl failed"
+   }
+
 /- Heuristic instantiation lemma -/
 meta constant hinst_lemma : Type
 

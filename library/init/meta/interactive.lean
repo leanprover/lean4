@@ -391,7 +391,7 @@ tactic.symmetry
 meta def transitivity : tactic unit :=
 tactic.transitivity
 
-meta def ac_reflixivity : tactic unit :=
+meta def ac_reflexivity : tactic unit :=
 tactic.ac_refl
 
 meta def ac_refl : tactic unit :=

@@ -1651,6 +1651,7 @@ format congruence_closure::state::pp_parent_occs(formatter const & fmt) const {
 
 void initialize_congruence_closure() {
     register_trace_class("cc");
+    register_trace_class({"cc", "failure"});
     register_trace_class({"cc", "merge"});
     register_trace_class({"debug", "cc"});
     name prefix     = name::mk_internal_unique_name();

@@ -4,31 +4,51 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.meta.tactic
+import init.meta.tactic init.meta.set_get_option_tactics
+
+structure cc_config :=
+/- If tt, congruence closure will treat implicit instance arguments as constants. -/
+(ignore_instances : bool)
+/- If tt, congruence closure modulo AC. -/
+(ac               : bool)
+/- If ho_fns is (some fns), then full (and more expensive) support for higher-order functions is
+   *only* considered for the functions in fns and local functions. The performance overhead is described in the paper
+   "Congruence Closure in Intensional Type Theory". If ho_fns is none, then full support is provided
+   for *all* constants. -/
+(ho_fns           : option (list name))
+
+def default_cc_config : cc_config :=
+{ignore_instances := tt, ac := tt, ho_fns := some []}
 
 /- Congruence closure state -/
-meta constant cc_state              : Type
-meta constant cc_state.mk           : cc_state
+meta constant cc_state                  : Type
+meta constant cc_state.mk_core          : cc_config → cc_state
 /- Create a congruence closure state object using the hypotheses in the current goal. -/
-meta constant cc_state.mk_using_hs  : tactic cc_state
-meta constant cc_state.next         : cc_state → expr → expr
-meta constant cc_state.roots_core   : cc_state → bool → list expr
-meta constant cc_state.root         : cc_state → expr → expr
-meta constant cc_state.mt           : cc_state → expr → nat
-meta constant cc_state.gmt          : cc_state → nat
-meta constant cc_state.inc_gmt      : cc_state → cc_state
-meta constant cc_state.is_cg_root   : cc_state → expr → bool
-meta constant cc_state.pp_eqc       : cc_state → expr → tactic format
-meta constant cc_state.pp_core      : cc_state → bool → tactic format
-meta constant cc_state.internalize  : cc_state → expr → bool → tactic cc_state
-meta constant cc_state.add          : cc_state → expr → tactic cc_state
-meta constant cc_state.is_eqv       : cc_state → expr → expr → tactic bool
-meta constant cc_state.is_not_eqv   : cc_state → expr → expr → tactic bool
-meta constant cc_state.eqv_proof    : cc_state → expr → expr → tactic expr
-meta constant cc_state.inconsistent : cc_state → bool
+meta constant cc_state.mk_using_hs_core : cc_config → tactic cc_state
+meta constant cc_state.next             : cc_state → expr → expr
+meta constant cc_state.roots_core       : cc_state → bool → list expr
+meta constant cc_state.root             : cc_state → expr → expr
+meta constant cc_state.mt               : cc_state → expr → nat
+meta constant cc_state.gmt              : cc_state → nat
+meta constant cc_state.inc_gmt          : cc_state → cc_state
+meta constant cc_state.is_cg_root       : cc_state → expr → bool
+meta constant cc_state.pp_eqc           : cc_state → expr → tactic format
+meta constant cc_state.pp_core          : cc_state → bool → tactic format
+meta constant cc_state.internalize      : cc_state → expr → bool → tactic cc_state
+meta constant cc_state.add              : cc_state → expr → tactic cc_state
+meta constant cc_state.is_eqv           : cc_state → expr → expr → tactic bool
+meta constant cc_state.is_not_eqv       : cc_state → expr → expr → tactic bool
+meta constant cc_state.eqv_proof        : cc_state → expr → expr → tactic expr
+meta constant cc_state.inconsistent     : cc_state → bool
 /- If the given state is inconsistent, return a proof for false. Otherwise fail. -/
-meta constant cc_state.false_proof  : cc_state → tactic expr
+meta constant cc_state.false_proof      : cc_state → tactic expr
 namespace cc_state
+
+meta def mk : cc_state :=
+cc_state.mk_core default_cc_config
+
+meta def mk_using_hs : tactic cc_state :=
+cc_state.mk_using_hs_core default_cc_config
 
 meta def roots (s : cc_state) : list expr :=
 cc_state.roots_core s tt
@@ -53,8 +73,8 @@ meta def eqc_size (s : cc_state) (e : expr) : nat :=
 end cc_state
 
 open tactic
-meta def tactic.cc_core (dbg : bool) : tactic unit :=
-do intros, s ← cc_state.mk_using_hs, t ← target, s ← s^.internalize t tt,
+meta def tactic.cc_core (cfg : cc_config) : tactic unit :=
+do intros, s ← cc_state.mk_using_hs_core cfg, t ← target, s ← s^.internalize t tt,
    if s^.inconsistent then do {
      pr ← s^.false_proof,
      mk_app `false.elim [t, pr] >>= exact}
@@ -64,20 +84,28 @@ do intros, s ← cc_state.mk_using_hs, t ← target, s ← s^.internalize t tt,
      if b then do {
        pr ← s^.eqv_proof t tr,
        mk_app `of_eq_true [pr] >>= exact
-     } else if dbg then do {
-       ccf ← s^.pp,
-       msg ← return $ to_fmt "cc tactic failed, equivalence classes: " ++ format.line ++ ccf,
-       fail msg
      } else do {
-       fail "cc tactic failed"
+       dbg ← get_bool_option `trace.cc.failure ff,
+       if dbg then do {
+         ccf ← s^.pp,
+         msg ← return $ to_fmt "cc tactic failed, equivalence classes: " ++ format.line ++ ccf,
+         fail msg
+       } else do {
+         fail "cc tactic failed"
+       }
      }
    }
 
 meta def tactic.cc : tactic unit :=
-tactic.cc_core ff
+tactic.cc_core default_cc_config
+
+meta def tactic.cc_dbg_core (cfg : cc_config) : tactic unit :=
+save_options $
+  set_bool_option `trace.cc.failure tt
+  >> tactic.cc_core cfg
 
 meta def tactic.cc_dbg : tactic unit :=
-tactic.cc_core tt
+tactic.cc_dbg_core default_cc_config
 
 meta def tactic.ac_refl : tactic unit :=
 do (lhs, rhs) ← target >>= match_eq,

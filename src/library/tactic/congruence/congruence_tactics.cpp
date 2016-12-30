@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_list.h"
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_name.h"
+#include "library/vm/vm_option.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/congruence/congruence_closure.h"
 #include "library/tactic/congruence/hinst_lemmas.h"
@@ -45,18 +46,38 @@ vm_obj to_obj(congruence_closure::state const & s) {
     return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_cc_state))) vm_cc_state(s));
 }
 
-vm_obj cc_state_mk() {
-    return to_obj(congruence_closure::state());
+/*
+structure cc_config :=
+(ignore_instances : bool)
+(ac               : bool)
+(ho_fns           : option (list name))
+*/
+static congruence_closure::state mk_core(vm_obj const & cfg) {
+    congruence_closure::config c;
+    name_set ho_fns;
+    c.m_ignore_instances = to_bool(cfield(cfg, 0));
+    c.m_ac               = to_bool(cfield(cfg, 1));
+    if (is_none(cfield(cfg, 2))) {
+        c.m_all_ho       = true;
+    } else {
+        c.m_all_ho       = false;
+        ho_fns           = to_name_set(to_list_name(get_some_value(cfield(cfg, 2))));
+    }
+    return congruence_closure::state(ho_fns, c);
 }
 
-vm_obj cc_state_mk_using_hs(vm_obj const & _s) {
+vm_obj cc_state_mk_core(vm_obj const & cfg) {
+    return to_obj(mk_core(cfg));
+}
+
+vm_obj cc_state_mk_using_hs_core(vm_obj const & cfg, vm_obj const & _s) {
     tactic_state const & s   = to_tactic_state(_s);
     optional<metavar_decl> g = s.get_main_goal_decl();
     if (!g) return mk_no_goals_exception(s);
     try {
-        local_context lctx       = g->get_context();
-        type_context ctx         = mk_type_context_for(s);
-        congruence_closure::state r;
+        local_context lctx          = g->get_context();
+        type_context ctx            = mk_type_context_for(s);
+        congruence_closure::state r = mk_core(cfg);
         congruence_closure cc(ctx, r);
         lctx.for_each([&](local_decl const & d) {
                 if (ctx.is_prop(d.get_type())) {
@@ -342,9 +363,9 @@ vm_obj ematch_all_core(vm_obj const & md, vm_obj const & _ccs, vm_obj const & _e
 }
 
 void initialize_congruence_tactics() {
-    DECLARE_VM_BUILTIN(name({"cc_state", "mk"}),                   cc_state_mk);
+    DECLARE_VM_BUILTIN(name({"cc_state", "mk_core"}),              cc_state_mk_core);
     DECLARE_VM_BUILTIN(name({"cc_state", "next"}),                 cc_state_next);
-    DECLARE_VM_BUILTIN(name({"cc_state", "mk_using_hs"}),          cc_state_mk_using_hs);
+    DECLARE_VM_BUILTIN(name({"cc_state", "mk_using_hs_core"}),     cc_state_mk_using_hs_core);
     DECLARE_VM_BUILTIN(name({"cc_state", "pp_core"}),              cc_state_pp_core);
     DECLARE_VM_BUILTIN(name({"cc_state", "pp_eqc"}),               cc_state_pp_eqc);
     DECLARE_VM_BUILTIN(name({"cc_state", "next"}),                 cc_state_next);

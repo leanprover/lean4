@@ -214,6 +214,15 @@ do s ← read,
 meta def get_options : tactic options :=
 do s ← read, return s^.get_options
 
+meta def set_options (o : options) : tactic unit :=
+do s ← read, write (s^.set_options o)
+
+meta def save_options {α : Type} (t : tactic α) : tactic α :=
+do o ← get_options,
+   a ← t,
+   set_options o,
+   return a
+
 inductive transparency
 | all | semireducible | reducible | none
 

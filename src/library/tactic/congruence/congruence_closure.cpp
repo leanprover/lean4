@@ -764,50 +764,51 @@ void congruence_closure::internalize_core(expr const & e, bool toplevel, bool to
     if (has_expr_metavar(e) && !m_state.m_froze_partitions)
         return;
     /* Check whether 'e' has already been internalized. */
-    if (get_entry(e))
-        return;
-
-    switch (e.kind()) {
-    case expr_kind::Var:
-        lean_unreachable();
-    case expr_kind::Sort:
-        break;
-    case expr_kind::Constant:
-    case expr_kind::Local:
-    case expr_kind::Meta:
-        mk_entry_core(e, to_propagate);
-        break;;
-    case expr_kind::Lambda:
-    case expr_kind::Let:
-        mk_entry_core(e, false);
-        break;
-    case expr_kind::Macro:
-        if (is_interpreted_value(e)) {
-            bool interpreted = true;
-            mk_entry_core(e, false, interpreted);
-        } else {
-            for (unsigned i = 0; i < macro_num_args(e); i++)
-                internalize_core(macro_arg(e, i), false, false, some_expr(e));
+    if (!get_entry(e)) {
+        switch (e.kind()) {
+        case expr_kind::Var:
+            lean_unreachable();
+        case expr_kind::Sort:
+            break;
+        case expr_kind::Constant:
+        case expr_kind::Local:
+        case expr_kind::Meta:
             mk_entry_core(e, to_propagate);
-            if (is_annotation(e))
-                push_refl_eq(e, get_annotation_arg(e));
-        }
-        break;
-    case expr_kind::Pi:
-        if (is_arrow(e) && m_ctx.is_prop(binding_domain(e)) && m_ctx.is_prop(binding_body(e))) {
-            to_propagate = toplevel; /*  We must propagate children if arrow is top-level */
-            internalize_core(binding_domain(e), toplevel, to_propagate, some_expr(e));
-            internalize_core(binding_body(e), toplevel, to_propagate, some_expr(e));
-        }
-        if (m_ctx.is_prop(e)) {
+            break;;
+        case expr_kind::Lambda:
+        case expr_kind::Let:
             mk_entry_core(e, false);
-        }
-        break;
-    case expr_kind::App: {
-        internalize_app(e, toplevel, to_propagate);
-        break;
-    }}
+            break;
+        case expr_kind::Macro:
+            if (is_interpreted_value(e)) {
+                bool interpreted = true;
+                mk_entry_core(e, false, interpreted);
+            } else {
+                for (unsigned i = 0; i < macro_num_args(e); i++)
+                    internalize_core(macro_arg(e, i), false, false, some_expr(e));
+                mk_entry_core(e, to_propagate);
+                if (is_annotation(e))
+                    push_refl_eq(e, get_annotation_arg(e));
+            }
+            break;
+        case expr_kind::Pi:
+            if (is_arrow(e) && m_ctx.is_prop(binding_domain(e)) && m_ctx.is_prop(binding_body(e))) {
+                to_propagate = toplevel; /*  We must propagate children if arrow is top-level */
+                internalize_core(binding_domain(e), toplevel, to_propagate, some_expr(e));
+                internalize_core(binding_body(e), toplevel, to_propagate, some_expr(e));
+            }
+            if (m_ctx.is_prop(e)) {
+                mk_entry_core(e, false);
+            }
+            break;
+        case expr_kind::App: {
+            internalize_app(e, toplevel, to_propagate);
+            break;
+        }}
+    }
 
+    /* Remark: if should invoke m_ac.internalize even if the test !get_entry(e) above failed.
+       Reason, the first time e was visited, it may have been visited with a different parent. */
     if (m_state.m_config.m_ac)
         m_ac.internalize(e, parent);
 }

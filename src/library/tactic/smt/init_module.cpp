@@ -4,16 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "library/tactic/congruence/util.h"
-#include "library/tactic/congruence/congruence_closure.h"
-#include "library/tactic/congruence/congruence_tactics.h"
-#include "library/tactic/congruence/hinst_lemmas.h"
-#include "library/tactic/congruence/ematch.h"
-#include "library/tactic/congruence/theory_ac.h"
+#include "library/tactic/smt/util.h"
+#include "library/tactic/smt/congruence_closure.h"
+#include "library/tactic/smt/congruence_tactics.h"
+#include "library/tactic/smt/hinst_lemmas.h"
+#include "library/tactic/smt/ematch.h"
+#include "library/tactic/smt/theory_ac.h"
 
 namespace lean {
-void initialize_congruence_module() {
-    initialize_congruence_util();
+void initialize_smt_module() {
+    initialize_smt_util();
     initialize_congruence_closure();
     initialize_congruence_tactics();
     initialize_hinst_lemmas();
@@ -21,12 +21,12 @@ void initialize_congruence_module() {
     initialize_theory_ac();
 }
 
-void finalize_congruence_module() {
+void finalize_smt_module() {
     finalize_theory_ac();
     finalize_ematch();
     finalize_hinst_lemmas();
     finalize_congruence_tactics();
     finalize_congruence_closure();
-    finalize_congruence_util();
+    finalize_smt_util();
 }
 }

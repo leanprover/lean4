@@ -7,8 +7,8 @@ Author: Leonardo de Moura
 #pragma once
 #include "library/type_context.h"
 #include "library/head_map.h"
-#include "library/tactic/congruence/congruence_closure.h"
-#include "library/tactic/congruence/hinst_lemmas.h"
+#include "library/tactic/smt/congruence_closure.h"
+#include "library/tactic/smt/hinst_lemmas.h"
 
 namespace lean {
 typedef rb_expr_tree expr_set;

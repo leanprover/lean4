@@ -11,10 +11,10 @@ Author: Leonardo de Moura
 #include "library/app_builder.h"
 #include "library/fun_info.h"
 #include "library/idx_metavar.h"
-#include "library/tactic/congruence/ematch.h"
-#include "library/tactic/congruence/congruence_closure.h"
-#include "library/tactic/congruence/congruence_tactics.h"
-#include "library/tactic/congruence/hinst_lemmas.h"
+#include "library/tactic/smt/ematch.h"
+#include "library/tactic/smt/congruence_closure.h"
+#include "library/tactic/smt/congruence_tactics.h"
+#include "library/tactic/smt/hinst_lemmas.h"
 
 namespace lean {
 void ematch_state::internalize(type_context & ctx, expr const & e) {

@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include "library/annotation.h"
 #include "library/util.h"
 #include "library/replace_visitor.h"
-#include "library/tactic/congruence/congruence_closure.h"
+#include "library/tactic/smt/congruence_closure.h"
 
 namespace lean {
 static name * g_cc_proof_name = nullptr;
@@ -86,14 +86,14 @@ expr expand_delayed_cc_proofs(congruence_closure const & cc, expr const & e) {
     return expand_delayed_cc_proofs_fn(cc)(e);
 }
 
-void initialize_congruence_util() {
+void initialize_smt_util() {
     g_cc_proof_name   = new name("cc_proof");
     g_cc_proof_macro  = new macro_definition(new cc_proof_macro_cell());
     g_theory_proof    = new name("th_proof");
     register_annotation(*g_theory_proof);
 }
 
-void finalize_congruence_util() {
+void finalize_smt_util() {
     delete g_cc_proof_macro;
     delete g_cc_proof_name;
     delete g_theory_proof;

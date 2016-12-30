@@ -16,6 +16,6 @@ bool is_cc_theory_proof(expr const & e);
 class congruence_closure;
 expr expand_delayed_cc_proofs(congruence_closure const & cc, expr const & e);
 
-void initialize_congruence_util();
-void finalize_congruence_util();
+void initialize_smt_util();
+void finalize_smt_util();
 }

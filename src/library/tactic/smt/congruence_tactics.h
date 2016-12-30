@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "library/vm/vm.h"
-#include "library/tactic/congruence/congruence_closure.h"
+#include "library/tactic/smt/congruence_closure.h"
 
 namespace lean {
 bool is_cc_state(vm_obj const & o);

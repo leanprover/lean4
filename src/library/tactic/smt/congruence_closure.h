@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "library/congr_lemma.h"
 #include "library/relation_manager.h"
 #include "library/defeq_canonizer.h"
-#include "library/tactic/congruence/theory_ac.h"
+#include "library/tactic/smt/theory_ac.h"
 
 namespace lean {
 struct ext_congr_lemma;

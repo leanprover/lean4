@@ -17,8 +17,8 @@ Author: Leonardo de Moura
 #include "library/app_builder.h"
 #include "library/projection.h"
 #include "library/constructions/constructor.h"
-#include "library/tactic/congruence/util.h"
-#include "library/tactic/congruence/congruence_closure.h"
+#include "library/tactic/smt/util.h"
+#include "library/tactic/smt/congruence_closure.h"
 
 namespace lean {
 /* Small hack for not storing a pointer to the congruence_closure object

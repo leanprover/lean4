@@ -9,9 +9,9 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 #include "library/app_builder.h"
 #include "library/tactic/ac_tactics.h"
-#include "library/tactic/congruence/util.h"
-#include "library/tactic/congruence/congruence_closure.h"
-#include "library/tactic/congruence/theory_ac.h"
+#include "library/tactic/smt/util.h"
+#include "library/tactic/smt/congruence_closure.h"
+#include "library/tactic/smt/theory_ac.h"
 
 namespace lean {
 /* Given e and ac_term that is provably equal to e using AC, return a proof for e = ac_term */

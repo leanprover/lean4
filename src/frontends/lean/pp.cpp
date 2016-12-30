@@ -37,7 +37,7 @@ Author: Leonardo de Moura
 #include "library/idx_metavar.h"
 #include "library/equations_compiler/equations.h"
 #include "library/tactic/tactic_state.h"
-#include "library/tactic/congruence/hinst_lemmas.h"
+#include "library/tactic/smt/hinst_lemmas.h"
 #include "library/compiler/comp_irrelevant.h"
 #include "library/compiler/erase_irrelevant.h"
 #include "library/compiler/rec_fn_macro.h"

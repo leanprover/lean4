@@ -35,7 +35,7 @@ Author: Leonardo de Moura
 #include "library/tactic/vm_monitor.h"
 #include "library/tactic/norm_num_tactic.h"
 #include "library/tactic/backward/init_module.h"
-#include "library/tactic/congruence/init_module.h"
+#include "library/tactic/smt/init_module.h"
 
 namespace lean {
 void initialize_tactic_module() {
@@ -70,10 +70,10 @@ void initialize_tactic_module() {
     initialize_dsimplify();
     initialize_norm_num_tactic();
     initialize_vm_monitor();
-    initialize_congruence_module();
+    initialize_smt_module();
 }
 void finalize_tactic_module() {
-    finalize_congruence_module();
+    finalize_smt_module();
     finalize_vm_monitor();
     finalize_norm_num_tactic();
     finalize_dsimplify();

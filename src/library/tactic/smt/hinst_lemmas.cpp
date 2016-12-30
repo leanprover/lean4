@@ -19,7 +19,7 @@ Author: Leonardo de Moura
 #include "library/replace_visitor.h"
 #include "library/attribute_manager.h"
 #include "library/tactic/tactic_state.h"
-#include "library/tactic/congruence/hinst_lemmas.h"
+#include "library/tactic/smt/hinst_lemmas.h"
 
 #ifndef LEAN_DEFAULT_HINST_LEMMA_PATTERN_MAX_STEPS
 #define LEAN_DEFAULT_HINST_LEMMA_PATTERN_MAX_STEPS 1024

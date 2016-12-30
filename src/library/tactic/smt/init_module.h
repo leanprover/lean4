@@ -6,6 +6,6 @@ Author: Leonardo de Moura
 */
 #pragma once
 namespace lean {
-void initialize_congruence_module();
-void finalize_congruence_module();
+void initialize_smt_module();
+void finalize_smt_module();
 }

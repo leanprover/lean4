@@ -21,7 +21,7 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 #include "library/kernel_serializer.h"
 #include "library/tactic/elaborate.h"
-#include "library/tactic/congruence/hinst_lemmas.h"
+#include "library/tactic/smt/hinst_lemmas.h"
 #include "library/equations_compiler/equations.h"
 #include "frontends/lean/builtin_exprs.h"
 #include "frontends/lean/decl_cmds.h"

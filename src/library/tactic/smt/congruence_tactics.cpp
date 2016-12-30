@@ -14,9 +14,9 @@ Author: Leonardo de Moura
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_option.h"
 #include "library/tactic/tactic_state.h"
-#include "library/tactic/congruence/congruence_closure.h"
-#include "library/tactic/congruence/hinst_lemmas.h"
-#include "library/tactic/congruence/ematch.h"
+#include "library/tactic/smt/congruence_closure.h"
+#include "library/tactic/smt/hinst_lemmas.h"
+#include "library/tactic/smt/ematch.h"
 
 namespace lean {
 static tactic_state update_defeq_canonizer_state(tactic_state const & s, congruence_closure const & cc) {

@@ -376,6 +376,8 @@ public:
     bool is_prop(expr const & e);
     bool is_proof(expr const & e);
 
+    optional<expr> expand_macro(expr const & e);
+
     optional<name> is_class(expr const & type);
     optional<expr> mk_class_instance(expr const & type);
     optional<expr> mk_subsingleton_instance(expr const & type);
@@ -471,7 +473,6 @@ private:
     optional<expr> unfold_definition(expr const & e);
     optional<expr> try_unfold_definition(expr const & e);
     bool should_unfold_macro(expr const & e);
-    optional<expr> expand_macro(expr const & e);
     expr whnf_core(expr const & e);
     optional<declaration> is_transparent(transparency_mode m, name const & n);
     optional<declaration> is_transparent(name const & n);

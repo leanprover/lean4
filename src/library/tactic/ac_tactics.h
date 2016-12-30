@@ -7,7 +7,8 @@ Author: Leonardo de Moura
 #pragma once
 #include "library/type_context.h"
 
-#define LEAN_AC_MACROS_TRUST_LEVEL 10
+/* TODO(Leo): reduce after testing */
+#define LEAN_AC_MACROS_TRUST_LEVEL 10000000
 
 namespace lean {
 class ac_manager {

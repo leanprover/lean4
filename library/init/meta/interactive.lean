@@ -7,7 +7,6 @@ prelude
 import init.meta.tactic init.meta.rewrite_tactic init.meta.simp_tactic
 import init.meta.congruence_tactics
 
-namespace tactic
 namespace interactive
 namespace types
 /- The parser treats constants in the tactic.interactice namespace specially.
@@ -81,8 +80,11 @@ meta def itactic : Type := tactic unit
 meta def assign_tk : Type := unit
 meta def colon_tk : Type := unit
 end types
+end interactive
 
-open types expr
+namespace tactic
+namespace interactive
+open interactive.types expr
 
 meta def intro : opt_ident → tactic unit
 | none     := intro1 >> skip

@@ -106,6 +106,7 @@ match res with
 end
 
 namespace tactic.interactive
+open interactive
 
 meta def with_lemmas (ls : types.raw_ident_list) : tactic unit := monad.for' ls $ λl, do
 p ← mk_const l,

@@ -224,39 +224,39 @@ static expr parse_auto_quote_tactic(parser & p, name const & decl_name) {
     while (is_pi(type)) {
         if (is_explicit(binding_info(type))) {
             expr arg_type = binding_domain(type);
-            if (is_constant(arg_type, get_tactic_interactive_types_qexpr_name())) {
+            if (is_constant(arg_type, get_interactive_types_qexpr_name())) {
                 args.push_back(parse_qexpr(p, get_max_prec()));
-            } else if (is_constant(arg_type, get_tactic_interactive_types_qexpr0_name())) {
+            } else if (is_constant(arg_type, get_interactive_types_qexpr0_name())) {
                 args.push_back(parse_qexpr(p, 0));
-            } else if (is_constant(arg_type, get_tactic_interactive_types_qexpr_list_name())) {
+            } else if (is_constant(arg_type, get_interactive_types_qexpr_list_name())) {
                 args.push_back(parse_qexpr_list(p));
-            } else if (is_constant(arg_type, get_tactic_interactive_types_opt_qexpr_list_name())) {
+            } else if (is_constant(arg_type, get_interactive_types_opt_qexpr_list_name())) {
                 args.push_back(parse_opt_qexpr_list(p));
-            } else if (is_constant(arg_type, get_tactic_interactive_types_qexpr_list_or_qexpr0_name())) {
+            } else if (is_constant(arg_type, get_interactive_types_qexpr_list_or_qexpr0_name())) {
                 args.push_back(parse_qexpr_list_or_qexpr0(p));
-            } else if (is_constant(arg_type, get_tactic_interactive_types_ident_name())) {
+            } else if (is_constant(arg_type, get_interactive_types_ident_name())) {
                 args.push_back(parse_quoted_ident(p, decl_name));
-            } else if (is_constant(arg_type, get_tactic_interactive_types_opt_ident_name())) {
+            } else if (is_constant(arg_type, get_interactive_types_opt_ident_name())) {
                 args.push_back(parse_optional_quoted_ident(p, decl_name));
-            } else if (is_constant(arg_type, get_tactic_interactive_types_raw_ident_list_name())) {
+            } else if (is_constant(arg_type, get_interactive_types_raw_ident_list_name())) {
                 args.push_back(parse_raw_id_list(p));
-            } else if (is_constant(arg_type, get_tactic_interactive_types_with_ident_list_name())) {
+            } else if (is_constant(arg_type, get_interactive_types_with_ident_list_name())) {
                 args.push_back(parse_with_id_list(p));
-            } else if (is_constant(arg_type, get_tactic_interactive_types_without_ident_list_name())) {
+            } else if (is_constant(arg_type, get_interactive_types_without_ident_list_name())) {
                 args.push_back(parse_without_id_list(p));
-            } else if (is_constant(arg_type, get_tactic_interactive_types_using_ident_name())) {
+            } else if (is_constant(arg_type, get_interactive_types_using_ident_name())) {
                 args.push_back(parse_using_id(p, decl_name));
-            } else if (is_constant(arg_type, get_tactic_interactive_types_location_name())) {
+            } else if (is_constant(arg_type, get_interactive_types_location_name())) {
                 args.push_back(parse_location(p));
-            } else if (is_constant(arg_type, get_tactic_interactive_types_itactic_name())) {
+            } else if (is_constant(arg_type, get_interactive_types_itactic_name())) {
                 args.push_back(parse_nested_auto_quote_tactic(p));
-            } else if (is_constant(arg_type, get_tactic_interactive_types_colon_tk_name())) {
+            } else if (is_constant(arg_type, get_interactive_types_colon_tk_name())) {
                 p.check_token_next(get_colon_tk(), "invalid auto-quote tactic, ':' expected");
                 args.push_back(mk_constant(get_unit_star_name()));
-            } else if (is_constant(arg_type, get_tactic_interactive_types_assign_tk_name())) {
+            } else if (is_constant(arg_type, get_interactive_types_assign_tk_name())) {
                 p.check_token_next(get_assign_tk(), "invalid auto-quote tactic, ':=' expected");
                 args.push_back(mk_constant(get_unit_star_name()));
-            } else if (is_constant(arg_type, get_tactic_interactive_types_comma_tk_name())) {
+            } else if (is_constant(arg_type, get_interactive_types_comma_tk_name())) {
                 p.check_token_next(get_comma_tk(), "invalid auto-quote tactic, ',' expected");
                 args.push_back(mk_constant(get_unit_star_name()));
             } else {

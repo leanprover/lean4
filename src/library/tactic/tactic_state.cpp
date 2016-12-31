@@ -155,7 +155,7 @@ format tactic_state::pp_goal(formatter_factory const & fmtf, expr const & g) con
     return r;
 }
 
-format tactic_state::pp(formatter_factory const & fmtf) const {
+format tactic_state::pp_core(formatter_factory const & fmtf) const {
     format r;
     bool first = true;
     for (auto const & g : goals()) {
@@ -166,9 +166,9 @@ format tactic_state::pp(formatter_factory const & fmtf) const {
     return r;
 }
 
-format tactic_state::pp() const {
+format tactic_state::pp_core() const {
     formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
-    return pp(fmtf);
+    return pp_core(fmtf);
 }
 
 format tactic_state::pp_expr(expr const & e) const {
@@ -220,7 +220,7 @@ vm_obj tactic_state_env(vm_obj const & s) {
 }
 
 vm_obj tactic_state_to_format(vm_obj const & s) {
-    return to_obj(to_tactic_state(s).pp());
+    return to_obj(to_tactic_state(s).pp_core());
 }
 
 format pp_expr(tactic_state const & s, expr const & e) {
@@ -663,6 +663,33 @@ vm_obj tactic_module_doc_strings(vm_obj const & _s) {
         r          = mk_vm_constructor(1, e, r);
     }
     return mk_tactic_success(r, s);
+}
+
+format tactic_state::pp() const {
+    type_context ctx = mk_type_context_for(*this, transparency_mode::Semireducible);
+    expr ts_expr     = mk_constant("tactic_state");
+    optional<expr> to_fmt_inst = ctx.mk_class_instance(mk_app(mk_constant("has_to_format", {mk_level_one()}), ts_expr));
+    if (!to_fmt_inst) {
+        return pp_core();
+    } else {
+        try {
+            expr code            = mk_app(mk_constant("to_fmt", {mk_level_one()}), ts_expr, *to_fmt_inst);
+            expr type            = ctx.infer(code);
+            environment new_env  = ctx.env();
+            bool use_conv_opt    = true;
+            bool is_trusted      = false;
+            name pp_name("_pp_tactic_state");
+            auto cd              = check(new_env, mk_definition(new_env, pp_name, {}, type, code, use_conv_opt, is_trusted));
+            new_env              = new_env.add(cd);
+            new_env              = vm_compile(new_env, new_env.get(pp_name));
+            vm_state S(new_env, get_options());
+            vm_obj r             = S.invoke(pp_name, to_obj(*this));
+            std::ostringstream ss;
+            return to_format(r);
+        } catch (exception &) {
+            return pp_core();
+        }
+    }
 }
 
 void initialize_tactic_state() {

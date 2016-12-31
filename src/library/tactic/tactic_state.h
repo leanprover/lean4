@@ -58,8 +58,9 @@ public:
     friend void swap(tactic_state & a, tactic_state & b) { std::swap(a.m_ptr, b.m_ptr); }
     friend bool is_eqp(tactic_state const & a, tactic_state const & b) { return a.m_ptr == b.m_ptr; }
 
-    format pp(formatter_factory const & fmtf) const;
+    format pp_core(formatter_factory const & fmtf) const;
     format pp_expr(formatter_factory const & fmtf, expr const & e) const;
+    format pp_core() const;
     format pp() const;
     format pp_expr(expr const & e) const;
     format pp_goal(expr const & g) const;

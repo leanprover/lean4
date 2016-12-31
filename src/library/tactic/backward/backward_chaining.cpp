@@ -129,11 +129,11 @@ struct back_chaining_fn {
     bool run() {
         while (true) {
           loop_entry:
-            lean_back_trace(tout() << "current state:\n" << m_state.pp() << "\n";);
+            lean_back_trace(tout() << "current state:\n" << m_state.pp_core() << "\n";);
             if (!m_state.goals())
                 return true;
             if (m_choices.size() >= m_max_depth) {
-                lean_back_trace(tout() << "maximum depth reached\n" << m_state.pp() << "\n";);
+                lean_back_trace(tout() << "maximum depth reached\n" << m_state.pp_core() << "\n";);
                 if (!backtrack())
                     return false;
                 goto loop_entry;

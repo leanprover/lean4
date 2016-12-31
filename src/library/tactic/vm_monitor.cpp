@@ -318,7 +318,7 @@ vm_obj vm_pp_stack_obj(vm_obj const & i, vm_obj const & /*s*/) {
             r = default_format(vm, idx);
         }
     } else if (is_tactic_state(o)) {
-        r = to_tactic_state(o).pp();
+        r = to_tactic_state(o).pp_core();
     } else if (is_env(o)) {
         r = format("[environment]");
     } else {

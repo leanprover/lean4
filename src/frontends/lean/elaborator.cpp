@@ -2450,7 +2450,7 @@ tactic_state elaborator::execute_begin_end_tactics(buffer<expr> const & tactics,
 void elaborator::invoke_begin_end_tactics(expr const & mvar, buffer<expr> const & tactics) {
     expr const & ref   = mvar;
     tactic_state s     = mk_tactic_state_for(mvar);
-    trace_elab(tout() << "initial tactic state\n" << s.pp() << "\n";);
+    trace_elab(tout() << "initial tactic state\n" << s.pp_core() << "\n";);
     tactic_state new_s = execute_begin_end_tactics(tactics, s, ref);
     metavar_context mctx = new_s.mctx();
     expr val             = mctx.instantiate_mvars(new_s.main());
@@ -2471,7 +2471,7 @@ void elaborator::invoke_atomic_tactic(expr const & mvar, expr const & tactic) {
     add_tactic_state_info(s, ref);
     /* Save information using tactic's position, ref is usually the `by` token position */
     add_tactic_state_info(s, tactic);
-    trace_elab(tout() << "initial tactic state\n" << s.pp() << "\n";);
+    trace_elab(tout() << "initial tactic state\n" << s.pp_core() << "\n";);
     tactic_state new_s   = execute_tactic(tactic, s, ref);
     if (new_s.goals())
         throw_unsolved_tactic_state(new_s, "tactic failed, there are unsolved goals", ref);

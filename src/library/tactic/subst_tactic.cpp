@@ -34,7 +34,7 @@ bool check_hypothesis_in_context(metavar_context const & mctx, expr const & mvar
 expr subst(environment const & env, options const & opts, transparency_mode const & m, metavar_context & mctx,
            expr const & mvar, expr const & H, bool symm, hsubstitution * subst) {
     #define lean_subst_trace(CODE) lean_trace(name({"tactic", "subst"}), CODE)
-#define lean_subst_trace_state(MVAR, MSG) lean_trace(name({"tactic", "subst"}), tactic_state S(env, opts, mctx, to_list(MVAR), MVAR); type_context TMP_CTX = mk_type_context_for(S, m); scope_trace_env _scope1(env, TMP_CTX); tout() << MSG << S.pp() << "\n";)
+#define lean_subst_trace_state(MVAR, MSG) lean_trace(name({"tactic", "subst"}), tactic_state S(env, opts, mctx, to_list(MVAR), MVAR); type_context TMP_CTX = mk_type_context_for(S, m); scope_trace_env _scope1(env, TMP_CTX); tout() << MSG << S.pp_core() << "\n";)
 
     lean_subst_trace_state(mvar, "initial:\n");
     lean_assert(mctx.get_metavar_decl(mvar));

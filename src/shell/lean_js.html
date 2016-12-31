@@ -58,7 +58,7 @@ outputLog('--- Import complete. ' + checkTimer());
 outputLog('--- Writing test.lean to virtual FS...'); startTimer();
 testfile = ''
          + 'variables p q r s : Prop\n'
-         + 'theorem and_comm : p ∧ q ↔ q ∧ p :=\n'
+         + 'theorem my_and_comm : p ∧ q ↔ q ∧ p :=\n'
          + 'iff.intro\n'
          + '  (assume Hpq : p ∧ q,\n'
          + '    and.intro (and.elim_right Hpq) (and.elim_left Hpq))\n'

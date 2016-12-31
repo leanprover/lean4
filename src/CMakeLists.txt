@@ -7,17 +7,6 @@ set(LEAN_VERSION_PATCH 0)
 set(LEAN_EXTRA_LINKER_FLAGS "")
 set(LEAN_EXTRA_CXX_FLAGS "")
 
-if("${CMAKE_C_COMPILER}" MATCHES "emcc")
-    set(EMSCRIPTEN ON)
-    set(CROSS_COMPILE ON)
-    set(IGNORE_SORRY ON)
-    set(MULTI_THREAD OFF)
-    set(TCMALLOC OFF)
-    set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_EMSCRIPTEN")
-    set(LEAN_JS_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/../library" CACHE STRING
-            "location of olean files for lean.js")
-endif()
-
 if (NOT CMAKE_BUILD_TYPE)
   message(STATUS "No build type selected, default to Release")
   set(CMAKE_BUILD_TYPE "Release")
@@ -64,6 +53,15 @@ message(STATUS "Lean emacs-mode will be installed at "
   "${CMAKE_INSTALL_PREFIX}/${EMACS_LISP_DIR}")
 message(STATUS "Lean library will be installed at "
   "${CMAKE_INSTALL_PREFIX}/${LIBRARY_DIR}")
+
+if("${CMAKE_C_COMPILER}" MATCHES "emcc")
+    set(EMSCRIPTEN ON)
+    set(MULTI_THREAD OFF)
+    set(TCMALLOC OFF)
+    set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_EMSCRIPTEN")
+    set(LEAN_JS_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/../library" CACHE STRING
+            "location of olean files for lean.js")
+endif()
 
 # Added for CTest
 include(CTest)

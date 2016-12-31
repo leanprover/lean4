@@ -235,7 +235,9 @@ else()
 endif()
 
 # DL
-if((${CYGWIN} EQUAL "1") OR (${CMAKE_SYSTEM_NAME} MATCHES "Windows"))
+if (EMSCRIPTEN)
+    # no dlopen
+elseif((${CYGWIN} EQUAL "1") OR (${CMAKE_SYSTEM_NAME} MATCHES "Windows"))
   # TODO(Jared): config dlopen windows support
 else()
   set(EXTRA_LIBS ${EXTRA_LIBS} dl)

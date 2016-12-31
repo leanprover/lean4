@@ -40,11 +40,7 @@ public:
     tactic_state_info_data(tactic_state const & s):m_state(s) {}
 
 #ifdef LEAN_SERVER
-    virtual void report(io_state_stream const &, json & record) const override {
-        std::ostringstream ss;
-        ss << m_state.pp();
-        record["state"] = ss.str();
-    }
+    virtual void report(io_state_stream const &, json & record) const override;
 #endif
 };
 
@@ -91,13 +87,6 @@ public:
     void add_tactic_state_info(unsigned l, unsigned c, tactic_state const & s);
     void instantiate_mvars(metavar_context const & mctx);
     void merge(info_manager const & info);
-    /*void add_extra_type_info(unsigned l, unsigned c, expr const & e, expr const & t);
-    void add_synth_info(unsigned l, unsigned c, expr const & e);
-    void add_overload_info(unsigned l, unsigned c, expr const & e);
-    void add_overload_notation_info(unsigned l, unsigned c, list<expr> const & a);
-    void add_coercion_info(unsigned l, unsigned c, expr const & e, expr const & t);
-    void add_symbol_info(unsigned l, unsigned c, name const & n);
-    */
 
 #ifdef LEAN_SERVER
     void get_info_record(environment const & env, options const & o, io_state const & ios, unsigned line,

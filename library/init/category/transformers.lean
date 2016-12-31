@@ -3,8 +3,10 @@ Copyright (c) 2016 Gabriel Ebner. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner
 -/
-namespace monad
+prelude
+import init.category.state init.function init.coe
 
+namespace monad
 class monad_transformer (transformer : ∀m [monad m], Type → Type) :=
 (is_monad : ∀m [monad m], monad (transformer m))
 (monad_lift : ∀m [monad m] α, m α → transformer m α)

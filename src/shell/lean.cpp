@@ -226,8 +226,12 @@ public:
     void show_current_task(std::string const & desc) {
         unique_lock<mutex> lock(m_mutex);
         clear_shown_task();
+#if defined(LEAN_EMSCRIPTEN)
+        m_out << desc << std::endl;
+#else
         m_out << desc << std::flush;
         m_showing_task = true;
+#endif
     }
 };
 

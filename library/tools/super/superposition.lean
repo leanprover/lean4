@@ -89,7 +89,7 @@ meta def rwr_positions (c : clause) (i : nat) : list (list ℕ) :=
 get_rwr_positions (c^.get_lit i)^.formula
 
 meta def try_add_sup : prover unit :=
-(do c' ← ♯ try_sup gt ac1^.c ac2^.c i1 i2 pos ltr congr_ax,
+(do c' ← try_sup gt ac1^.c ac2^.c i1 i2 pos ltr congr_ax,
     inf_score 2 [ac1^.sc, ac2^.sc] >>= mk_derived c' >>= add_inferred)
   <|> return ()
 

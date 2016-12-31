@@ -16,7 +16,7 @@ return $ list.bor $ do
   [decidable.to_bool $ l1^.formula = l2^.formula]
 
 meta def tautology_removal_pre : prover unit :=
-preprocessing_rule $ λnew, filter (λc, lift bnot $♯ is_taut c^.c) new
+preprocessing_rule $ λnew, filter (λc, lift bnot $ is_taut c^.c) new
 
 meta def remove_duplicates : list derived_clause → list derived_clause
 | [] := []

@@ -423,9 +423,7 @@ void elaborator::trace_coercion_failure(expr const & e_type, expr const & type, 
         });
 }
 
-optional<expr> elaborator::mk_coercion(expr const & e, expr const & _e_type, expr const & _type, expr const & ref) {
-    expr e_type = instantiate_mvars(_e_type);
-    expr type   = instantiate_mvars(_type);
+optional<expr> elaborator::mk_coercion_core(expr const & e, expr const & e_type, expr const & type, expr const & ref) {
     if (!has_expr_metavar(e_type) && !has_expr_metavar(type)) {
         expr has_coe_t;
         try {
@@ -448,6 +446,76 @@ optional<expr> elaborator::mk_coercion(expr const & e, expr const & _e_type, exp
         expr coe_to_lift = mk_app(mk_constant(get_coe_to_lift_name(), {u_1, u_2}), e_type, type, *inst);
         expr coe         = mk_app(mk_constant(get_coe_name(), {u_1, u_2}), e_type, type, coe_to_lift, e);
         return some_expr(coe);
+    } else {
+        return none_expr();
+    }
+}
+
+bool elaborator::is_monad(expr const & e) {
+    expr m = mk_app(m_ctx, get_monad_name(), e);
+    return static_cast<bool>(m_ctx.mk_class_instance(m));
+}
+
+/*
+   When lifting monads in do-notation and/or bind, it is very common to have coercion problems such as
+
+          tactic name  ===>  solver ?a
+
+   Coercion resolution cannot be used because (solver ?a) contains meta-variables. Recall that
+   coercion resolution is based on type class resolution, and we can only synthesize type class instances
+   if the type does not contain meta-variables.
+
+   The coercion problem above is generated in scenarios such as
+
+       do v ← t1,
+          ...
+
+   which is notation for
+
+       @bind ?m ?inst ?a ?b t1 (fun v : ?a, ...)
+
+   Now, assume (t1 : tactic name) and the expected type is (solver unit).
+   Then, the following meta-variables can be resolved.
+
+        ?m    := solver
+        ?b    := unit
+        ?inst := solver.monad
+
+   and we get
+
+       @bind solver solver.monad ?a unit t1 (fun v : ?a, ...)
+
+   At this point, we get a type mismatch at t1 because th expected type is (solver ?a) and the given type
+   is (tactic name).
+
+   In this method, we consider the following compromise: we assign ?a := name, and then, try to perform
+   coercion resolution again.
+
+   TODO(leo): can/should we generalize this approach? */
+optional<expr> elaborator::try_monad_coercion(expr const & e, expr const & e_type, expr type, expr const & ref) {
+    if (has_expr_metavar(e_type)
+        || !is_app(e_type)
+        || !is_app(type)
+        || has_expr_metavar(app_fn(type))
+        || !is_metavar(app_arg(type))
+        || !is_monad(app_fn(e_type))
+        || !is_monad(app_fn(type))) {
+        /* Not applicable */
+        return none_expr();
+    }
+    if (!m_ctx.is_def_eq(app_arg(e_type), app_arg(type)))
+        return none_expr();
+    type   = instantiate_mvars(type);
+    return mk_coercion_core(e, e_type, type, ref);
+}
+
+optional<expr> elaborator::mk_coercion(expr const & e, expr e_type, expr type, expr const & ref) {
+    e_type = instantiate_mvars(e_type);
+    type   = instantiate_mvars(type);
+    if (!has_expr_metavar(e_type) && !has_expr_metavar(type)) {
+        return mk_coercion_core(e, e_type, type, ref);
+    } else if (auto r = try_monad_coercion(e, e_type, type, ref)) {
+        return r;
     } else {
         trace_coercion_failure(e_type, type, ref,
                                "was not considered because types contain metavariables");

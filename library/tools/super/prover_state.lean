@@ -132,7 +132,7 @@ meta def prover := state_t prover_state tactic
 meta instance : monad prover := state_t.monad _ _
 meta instance : has_monad_lift tactic prover := monad.monad_transformer_lift (state_t prover_state) tactic
 
-meta def prover.fail {A B : Type} [has_to_format B] (msg : B) : prover A := ♯ @tactic.fail A _ _ msg
+meta def prover.fail {A B : Type} [has_to_format B] (msg : B) : prover A := @tactic.fail A _ _ msg
 
 meta def prover.failed {A : Type} : prover A :=
 prover.fail "failed"
@@ -177,7 +177,7 @@ set_precedence (new_syms ++ p)
 
 meta def in_sat_solver {A} (cmd : cdcl.solver A) : prover A := do
 state ← state_t.read,
-result ← ♯ cmd state^.sat_solver,
+result ← cmd state^.sat_solver,
 state_t.write { state with sat_solver := result.2 },
 return result.1
 
@@ -200,11 +200,11 @@ return state^.clause_counter
 
 meta def mk_derived (c : clause) (sc : score) : prover derived_clause := do
 ass ← collect_ass_hyps c,
-id ← ♯ get_new_cls_id,
+id ← get_new_cls_id,
 return { id := id, c := c, selected := [], assertions := ass, sc := sc }
 
 meta def add_inferred (c : derived_clause) : prover unit := do
-c' ← ♯c^.c^.normalize, c' ← return { c with c := c' },
+c' ← c^.c^.normalize, c' ← return { c with c := c' },
 register_consts_in_precedence (contained_funsyms c'^.c^.type)^.values,
 state ← state_t.read,
 state_t.write { state with newly_derived := c' :: state^.newly_derived }
@@ -214,16 +214,16 @@ state_t.write { state with newly_derived := c' :: state^.newly_derived }
 -- FIXME: what if we've seen the variable before, but with a weaker score?
 meta def mk_sat_var (v : expr) (suggested_ph : bool) (suggested_ev : score) : prover unit :=
 do st ← state_t.read, if st^.sat_hyps^.contains v then return () else do
-hpv ← ♯ mk_local_def `h v,
-hnv ← ♯ mk_local_def `hn $ imp v st^.local_false,
+hpv ← mk_local_def `h v,
+hnv ← mk_local_def `hn $ imp v st^.local_false,
 state_t.modify $ λst, { st with sat_hyps := st^.sat_hyps^.insert v (hpv, hnv) },
 in_sat_solver $ cdcl.mk_var_core v suggested_ph,
 match v with
 | (pi _ _ _ _) := do
-  c ← ♯ clause.of_proof st^.local_false hpv,
+  c ← clause.of_proof st^.local_false hpv,
   mk_derived c suggested_ev >>= add_inferred
-| _ := do cp ← ♯ clause.of_proof st^.local_false hpv, mk_derived cp suggested_ev >>= add_inferred,
-          cn ← ♯ clause.of_proof st^.local_false hnv, mk_derived cn suggested_ev >>= add_inferred
+| _ := do cp ← clause.of_proof st^.local_false hpv, mk_derived cp suggested_ev >>= add_inferred,
+          cn ← clause.of_proof st^.local_false hnv, mk_derived cn suggested_ev >>= add_inferred
 end
 
 meta def get_sat_hyp_core (v : expr) (ph : bool) : prover (option expr) :=
@@ -241,7 +241,7 @@ match hyp_opt with
 end
 
 meta def add_sat_clause (c : clause) (suggested_ev : score) : prover unit := do
-c ← ♯ c^.distinct,
+c ← c^.distinct,
 already_added ← flip monad.lift state_t.read $ λst, decidable.to_bool $
                      c^.type ∈ st^.sat_solver^.clauses^.for (λd, d^.type),
 if already_added then return () else do
@@ -272,11 +272,11 @@ return ff
 | [] := return tt
 
 private meta def intern_clause (c : derived_clause) : prover derived_clause := do
-hyp_name ← ♯ get_unused_name (mk_simple_name $ "clause_" ++ to_string c^.id^.to_nat) none,
+hyp_name ← get_unused_name (mk_simple_name $ "clause_" ++ to_string c^.id^.to_nat) none,
 c' ← return $ c^.c^.close_constn c^.assertions,
-♯ assertv hyp_name c'^.type c'^.proof,
-proof' ← ♯ get_local hyp_name,
-type ← ♯ infer_type proof', -- FIXME: otherwise ""
+assertv hyp_name c'^.type c'^.proof,
+proof' ← get_local hyp_name,
+type ← infer_type proof', -- FIXME: otherwise ""
 return { c with c := { (c^.c : clause) with proof := app_of_list proof' c^.assertions } }
 
 meta def register_as_passive (c : derived_clause) : prover unit := do
@@ -423,13 +423,13 @@ return $ list.foldl score.combine { priority := score.prio.default,
                                   } scores
 
 meta def inf_if_successful (add_cost : ℕ) (parent : derived_clause) (tac : tactic (list clause)) : prover unit :=
-(do inferred ← ♯tac,
+(do inferred ← tac,
     for' inferred $ λc,
       inf_score add_cost [parent^.sc] >>= mk_derived c >>= add_inferred)
 <|> return ()
 
 meta def simp_if_successful (parent : derived_clause) (tac : tactic (list clause)) : prover unit :=
-(do inferred ← ♯tac,
+(do inferred ← tac,
     for' inferred $ λc,
       mk_derived c parent^.sc^.sched_now >>= add_inferred,
     remove_redundant parent^.id [])

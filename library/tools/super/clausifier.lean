@@ -268,8 +268,8 @@ monad.for l (clause.of_proof local_false)
 meta def clausification_inf : inf_decl := inf_decl.mk 0 $
 λgiven, list.foldr orelse (return ()) $
         do r ← clausification_rules_classical,
-           [do cs ← ♯ r given^.c,
-               cs' ← ♯ get_clauses_classical cs,
+           [do cs ← r given^.c,
+               cs' ← get_clauses_classical cs,
                for' cs' (λc, mk_derived c given^.sc^.sched_now >>= add_inferred),
                remove_redundant given^.id []]
 

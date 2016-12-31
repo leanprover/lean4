@@ -29,7 +29,7 @@ clause.meta_closure (qf1.2 ++ qf2.2) $
   (op1.1^.inst (op2.1^.close_const a_in_op2)^.proof)^.close_constn (op1.2 ++ op2.2^.remove_nth i2)
 
 meta def try_add_resolvent : prover unit := do
-c' ← ♯ try_resolve gt ac1^.c ac2^.c i1 i2,
+c' ← try_resolve gt ac1^.c ac2^.c i1 i2,
 inf_score 1 [ac1^.sc, ac2^.sc] >>= mk_derived c' >>= add_inferred
 
 meta def maybe_add_resolvent : prover unit :=

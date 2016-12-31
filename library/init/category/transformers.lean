@@ -26,7 +26,8 @@ class has_monad_lift_t (m n : Type → Type) :=
 def monad_lift {m n} [has_monad_lift_t m n] {α} : m α → n α :=
 has_monad_lift_t.monad_lift n α
 
-prefix `♯ `:0 := monad_lift
+instance {m n} [has_monad_lift_t m n] {α} : has_coe (m α) (n α) :=
+⟨monad_lift⟩
 
 instance has_monad_lift_t_trans (m n o) [has_monad_lift n o] [has_monad_lift_t m n] : has_monad_lift_t m o :=
 ⟨ λα (ma : m α), has_monad_lift.monad_lift o α $ has_monad_lift_t.monad_lift n α ma ⟩

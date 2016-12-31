@@ -34,7 +34,7 @@ set_option trace.super false
 namespace super
 
 meta def trace_clauses : prover unit :=
-do state ← state_t.read, ♯ trace state
+do state ← state_t.read, trace state
 
 meta def run_prover_loop
   (literal_selection : selection_strategy)
@@ -44,7 +44,7 @@ meta def run_prover_loop
   : ℕ → prover (option expr) | i := do
 sequence' preprocessing_rules,
 new ← take_newly_derived, for' new register_as_passive,
-♯ when (is_trace_enabled_for `super) $ for' new $ λn,
+  when (is_trace_enabled_for `super) $ for' new $ λn,
   tactic.trace { n with c := { (n^.c) with proof := const (mk_simple_name " derived") [] } },
 needs_sat_run ← flip monad.lift state_t.read (λst, st^.needs_sat_run),
 if needs_sat_run then do
@@ -53,7 +53,7 @@ if needs_sat_run then do
   | some proof := return (some proof)
   | none := do
     model ← flip monad.lift state_t.read (λst, st^.current_model),
-    ♯ when (is_trace_enabled_for `super) (do
+      when (is_trace_enabled_for `super) (do
       pp_model ← pp (model^.to_list^.for (λlit, if lit.2 = tt then lit.1 else not_ lit.1)),
       trace $ to_fmt "sat model: " ++ pp_model),
     run_prover_loop i
@@ -66,7 +66,7 @@ given ← option.to_monad (rb_map.find passive given_name),
 -- trace_clauses,
 remove_passive given_name,
 given ← literal_selection given,
-♯ when (is_trace_enabled_for `super) (do
+  when (is_trace_enabled_for `super) (do
   fmt ← pp given, trace (to_fmt "given: " ++ fmt)),
 add_active given,
 seq_inferences inference_rules given,

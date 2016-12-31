@@ -27,8 +27,8 @@ meta def try_factor (c : clause) (i j : nat) : tactic clause :=
 if i > j then try_factor' gt c j i else try_factor' gt c i j
 
 meta def try_infer_factor (c : derived_clause) (i j : nat) : prover unit := do
-f ← ♯ try_factor gt c^.c i j,
-ss ← ♯ does_subsume f c^.c,
+f  ← try_factor gt c^.c i j,
+ss ← does_subsume f c^.c,
 if ss then do
   f ← mk_derived f c^.sc^.sched_now,
   add_inferred f,
@@ -44,7 +44,7 @@ take given, do gt ← get_term_order, sequence' $ do
   return $ try_infer_factor gt given i j <|> return ()
 
 meta def factor_dup_lits_pre := preprocessing_rule $ take new, do
-♯ for new $ λdc, do
+for new $ λdc, do
   dist ← dc^.c^.distinct,
   return { dc with c := dist }
 

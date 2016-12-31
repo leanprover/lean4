@@ -28,7 +28,7 @@ meta def does_subsume (small large : clause) : tactic bool :=
 
 meta def does_subsume_with_assertions (small large : derived_clause) : prover bool := do
 if small^.assertions^.subset_of large^.assertions then do
-  ♯ does_subsume small^.c large^.c
+  does_subsume small^.c large^.c
 else
   return ff
 
@@ -46,7 +46,7 @@ take given, do active ← get_active,
 sequence' $ do a ← active^.values,
   guard $ a^.id ≠ given^.id,
   return $ do
-    ss ← ♯ does_subsume a^.c given^.c,
+    ss ← does_subsume a^.c given^.c,
     if ss
     then remove_redundant given^.id [a]
     else return ()
@@ -55,7 +55,7 @@ meta def forward_subsumption_pre : prover unit := preprocessing_rule $ λnew, do
 active ← get_active, filter (λn, do
   do ss ← any_tt active (λa,
         if a^.assertions^.subset_of n^.assertions then do
-          ♯ does_subsume a^.c n^.c
+          does_subsume a^.c n^.c
         else
           -- TODO: move to locked
           return ff),
@@ -86,7 +86,7 @@ meta def keys_where_tt {m} {K V : Type} [monad m] (active : rb_map K V) (pred : 
 @[super.inf]
 meta def backward_subsumption : inf_decl := inf_decl.mk 20 $ λgiven, do
 active ← get_active,
-ss ← ♯ keys_where_tt active (λa, does_subsume given^.c a^.c),
+ss ← keys_where_tt active (λa, does_subsume given^.c a^.c),
 sequence' $ do id ← ss, guard (id ≠ given^.id), [remove_redundant id [given]]
 
 end super

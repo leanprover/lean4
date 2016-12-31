@@ -51,8 +51,12 @@ expr mk_local(name const & n) {
 void initialize_install_path() {
     // 8 is the size of the string bin/lean which we want to remove from
     // the installed version of Lean.
+#if defined(LEAN_EMSCRIPTEN)
+    g_lean_install_path = new std::string;
+#else
     auto path = get_exe_location();
     g_lean_install_path = new std::string(path.substr(0, path.size() - 8));
+#endif
 }
 
 std::string get_install_path() {

@@ -20,7 +20,9 @@ public:
 /** \brief Initialize the lean_path */
 void init_lean_path();
 
+#if !defined(LEAN_EMSCRIPTEN)
 std::string get_exe_location();
+#endif
 
 /** \brief Return the LEAN_PATH string */
 char const * get_lean_path();

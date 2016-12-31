@@ -34,6 +34,7 @@ void st_task_queue::submit(generic_task_result const & t) {
     std::vector<generic_task_result> deps;
     try { deps = unwrap(t)->m_task->get_dependencies(); } catch (...) {}
     for (auto & d : deps) {
+        if (!d) continue;
         switch (unwrap(d)->m_state.load()) {
             case task_result_state::FAILED:
                 unwrap(t)->m_state = task_result_state::FAILED;

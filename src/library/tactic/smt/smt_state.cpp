@@ -79,7 +79,7 @@ vm_obj get_tactic_result_state(vm_obj const & r) {
     return cfield(r, 1);
 }
 
-vm_obj tactic_result_to_smt_tatic_result(vm_obj const & r, vm_obj const & s_state) {
+vm_obj tactic_result_to_smt_tactic_result(vm_obj const & r, vm_obj const & s_state) {
     return mk_tactic_result(mk_vm_pair(get_tactic_result_value(r), s_state), get_tactic_result_state(r));
 }
 
@@ -219,7 +219,7 @@ vm_obj tactic_to_smt_tactic(vm_obj const &, vm_obj const & tac, vm_obj const & s
     list<smt::goal> smt_goals = to_smt_state(s_state);
     if (!smt_goals) {
         /* There is no SMT state associated with any goal. */
-        return tactic_result_to_smt_tatic_result(r1, s_state);
+        return tactic_result_to_smt_tactic_result(r1, s_state);
     }
     /* We only handle the common cases:
        1) goals is of the form (a_1, a_2, ..., a_m)
@@ -239,17 +239,17 @@ vm_obj tactic_to_smt_tactic(vm_obj const &, vm_obj const & tac, vm_obj const & s
     vm_obj new_t_state = get_tactic_result_state(r1);
     if (is_eqp(to_tactic_state(t_state), to_tactic_state(new_t_state))) {
         /* The tactic_state was not modified */
-        return tactic_result_to_smt_tatic_result(r1, s_state);
+        return tactic_result_to_smt_tactic_result(r1, s_state);
     }
     list<expr> goals          = to_tactic_state(t_state).goals();
     list<expr> new_goals      = to_tactic_state(new_t_state).goals();
     if (goals == new_goals) {
         /* Set of goals did not change. */
-        return tactic_result_to_smt_tatic_result(r1, s_state);
+        return tactic_result_to_smt_tactic_result(r1, s_state);
     }
     if (!new_goals) {
         /* There are no new goals */
-        return tactic_result_to_smt_tatic_result(r1, to_obj(smt_state()));
+        return tactic_result_to_smt_tactic_result(r1, to_obj(smt_state()));
     }
     if (!goals) {
         return mk_tactic_exception("failed to lift tactic to smt_tactic, there were no goals to be solved", to_tactic_state(t_state));
@@ -260,20 +260,20 @@ vm_obj tactic_to_smt_tactic(vm_obj const &, vm_obj const & tac, vm_obj const & s
             /* remove one SMT goal */
             smt_goals = tail(smt_goals);
         }
-        return tactic_result_to_smt_tatic_result(r1, to_obj(smt_goals));
+        return tactic_result_to_smt_tactic_result(r1, to_obj(smt_goals));
     }
     metavar_context const & mctx = to_tactic_state(new_t_state).mctx();
     if (tail(new_goals) == tail(goals) && same_hyps(mctx, head(new_goals), head(goals))) {
         /* The set of hypotheses in the main goal did not change */
-        return tactic_result_to_smt_tatic_result(r1, s_state);
+        return tactic_result_to_smt_tactic_result(r1, s_state);
     }
     while (true) {
         if (!same_hyps(mctx, head(new_goals), head(goals))) {
-            return mk_tactic_exception("failed to lift tactic to smt_tactic, set of hypotheses has been modified, this tactic has to be lifted manually",
+            return mk_tactic_exception("failed to lift tactic to smt_tactic, set of hypotheses has been modified, at least one of the used tactics has to be lifted manually",
                                        to_tactic_state(t_state));
         }
         if (tail(new_goals) == tail(goals)) {
-            return tactic_result_to_smt_tatic_result(r1, to_obj(smt_goals));
+            return tactic_result_to_smt_tactic_result(r1, to_obj(smt_goals));
         }
         /* copy smt state */
         smt_goals = cons(head(smt_goals), smt_goals);
@@ -316,7 +316,7 @@ vm_obj smt_state_to_format(vm_obj const & s_state, vm_obj const & t_state) {
             type_context ctx(ts.env(), ts.get_options(), mctx, d.get_context(), transparency_mode::Semireducible);
             formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
             formatter fmt                  = fmtf(ts.env(), ts.get_options(), ctx);
-            r += line() + turnstile + space() + nest(3, fmt(d.get_type()));
+            r += line() + line() + turnstile + space() + nest(3, fmt(d.get_type()));
         }
     }
     return to_obj(r);

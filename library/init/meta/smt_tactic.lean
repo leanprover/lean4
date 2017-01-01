@@ -94,6 +94,31 @@ do (g₁, _) ← smt_tactic.read,
 meta def set_goals : list smt_goal → list expr → smt_tactic unit :=
 λ g₁ g₂ ss, tactic.set_goals g₂ >> return ((), g₁)
 
+private meta def all_goals_core (tac : smt_tactic unit) : list smt_goal → list expr → list smt_goal → list expr → smt_tactic unit
+| []        ts        acs act := set_goals acs (ts ++ act)
+| (s :: ss) []        acs act := fail "ill-formed smt_state"
+| (s :: ss) (t :: ts) acs act :=
+  do set_goals [s] [t],
+     tac,
+     (new_ss, new_ts) ← get_goals,
+     all_goals_core ss ts (acs ++ new_ss) (act ++ new_ts)
+
+/- Apply the given tactic to all goals. -/
+meta def all_goals (tac : smt_tactic unit) : smt_tactic unit :=
+do (ss, ts) ← get_goals,
+   all_goals_core tac ss ts [] []
+
+/- LCF-style AND_THEN tactic. It applies tac1, and if succeed applies tac2 to each subgoal produced by tac1 -/
+meta def seq (tac1 : smt_tactic unit) (tac2 : smt_tactic unit) : smt_tactic unit :=
+do (s::ss, t::ts) ← get_goals | failed,
+   set_goals [s] [t],
+   tac1, all_goals tac2,
+   (new_ss, new_ts) ← get_goals,
+   set_goals (new_ss ++ ss) (new_ts ++ ts)
+
+meta def destruct (e : expr) : smt_tactic unit :=
+smt_tactic.seq (tactic.destruct e) smt_tactic.intros
+
 end smt_tactic
 
 open smt_tactic

@@ -335,8 +335,8 @@ class rb_tree : private CMP {
         if ((n1 == nullptr) != (n2 == nullptr)) return false;
         if (!n1) { lean_assert (!n2); return true; }
         return
-            cmp(n1->m_value, n2->m_value) == 0 ||
-            equal_elems(n1->m_left.m_ptr, n2->m_left.m_ptr) ||
+            cmp(n1->m_value, n2->m_value) == 0 &&
+            equal_elems(n1->m_left.m_ptr, n2->m_left.m_ptr) &&
             equal_elems(n1->m_right.m_ptr, n2->m_right.m_ptr);
     }
 

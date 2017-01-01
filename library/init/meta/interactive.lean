@@ -9,7 +9,7 @@ import init.meta.congruence_tactics
 
 namespace interactive
 namespace types
-/- The parser treats constants in the tactic.interactice namespace specially.
+/- The parser treats constants in the tactic.interactive namespace specially.
    The following argument types have special parser support when interactive tactics
    are used inside `begin ... end` blocks.
 

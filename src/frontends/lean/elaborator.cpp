@@ -503,13 +503,19 @@ bool elaborator::is_monad(expr const & e) {
    In this method, we consider the following compromise: we assign ?a := name, and then, try to perform
    coercion resolution again.
 
+   Remark: this method also handle the case where the metavariable is at e_type. Example:
+
+          tactic ?a    ===> smt_tactic unit
+
    TODO(leo): can/should we generalize this approach? */
 optional<expr> elaborator::try_monad_coercion(expr const & e, expr const & e_type, expr type, expr const & ref) {
-    if (has_expr_metavar(e_type)
+    if ((has_expr_metavar(e_type) && has_expr_metavar(type))
+        || (!has_expr_metavar(e_type) && !has_expr_metavar(type))
         || !is_app(e_type)
         || !is_app(type)
         || has_expr_metavar(app_fn(type))
-        || !is_metavar(app_arg(type))
+        || has_expr_metavar(app_fn(e_type))
+        || (!is_metavar(app_arg(e_type)) && !is_metavar(app_arg(type)))
         || !is_monad(app_fn(e_type))
         || !is_monad(app_fn(type))) {
         /* Not applicable */

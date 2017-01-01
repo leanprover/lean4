@@ -17,8 +17,14 @@ Author: Leonardo de Moura
 #include "library/projection.h"
 #include "library/metavar_context.h"
 #include "library/expr_pair_maps.h"
+#include "library/exception.h"
 
 namespace lean {
+class class_exception : public generic_exception {
+public:
+    class_exception(expr const & m, char const * msg):generic_exception(m, msg) {}
+};
+
 enum class transparency_mode { All, Semireducible, Reducible, None };
 
 /* \brief Cached information for type_context. */

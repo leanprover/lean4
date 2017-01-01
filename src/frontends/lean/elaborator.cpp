@@ -434,7 +434,15 @@ optional<expr> elaborator::mk_coercion_core(expr const & e, expr const & e_type,
                                    "('set_option trace.app_builder true' for more information)");
             return none_expr();
         }
-        optional<expr> inst = m_ctx.mk_class_instance_at(m_ctx.lctx(), has_coe_t);
+        optional<expr> inst;
+        try {
+            inst = m_ctx.mk_class_instance_at(m_ctx.lctx(), has_coe_t);
+        } catch (class_exception &) {
+            trace_coercion_failure(e_type, type, ref,
+                                   "failed to synthesize class instance for 'has_coe_t' "
+                                   "('set_option trace.class_instances true' for more information)");
+            return none_expr();
+        }
         if (!inst) {
             trace_coercion_failure(e_type, type, ref,
                                    "failed to synthesize 'has_coe_t' type class instance "
@@ -452,8 +460,12 @@ optional<expr> elaborator::mk_coercion_core(expr const & e, expr const & e_type,
 }
 
 bool elaborator::is_monad(expr const & e) {
-    expr m = mk_app(m_ctx, get_monad_name(), e);
-    return static_cast<bool>(m_ctx.mk_class_instance(m));
+    try {
+        expr m = mk_app(m_ctx, get_monad_name(), e);
+        return static_cast<bool>(m_ctx.mk_class_instance(m));
+    } catch (class_exception &) {
+        return false;
+    }
 }
 
 /*

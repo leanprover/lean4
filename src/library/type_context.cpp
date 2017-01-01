@@ -2959,7 +2959,7 @@ optional<name> type_context::is_class(expr const & type) {
     return is_full_class(type);
 }
 
-[[ noreturn ]] static void throw_class_exception(expr const & m, char const * msg) { throw generic_exception(m, msg); }
+[[ noreturn ]] static void throw_class_exception(expr const & m, char const * msg) { throw class_exception(m, msg); }
 
 struct instance_synthesizer {
     struct stack_entry {

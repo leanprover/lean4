@@ -33,7 +33,7 @@ public:
     void add(expr const & type, expr const & proof);
 };
 
-typedef list<smt::goal> smt_state;
+typedef smt::goal smt_goal;
 
 void initialize_smt_state();
 void finalize_smt_state();

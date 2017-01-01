@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "library/delayed_abstraction.h"
 #include "library/type_context.h"
 #include "library/vm/vm.h"
+#include "library/vm/vm_list.h"
 #include "library/vm/vm_format.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/revert_tactic.h"
@@ -39,27 +40,27 @@ void smt::add(expr const & type, expr const & proof) {
     m_cc.add(type, proof);
 }
 
-struct vm_smt_state : public vm_external {
-    smt_state m_val;
-    vm_smt_state(smt_state const & v):m_val(v) {}
-    virtual ~vm_smt_state() {}
+struct vm_smt_goal : public vm_external {
+    smt_goal m_val;
+    vm_smt_goal(smt_goal const & v):m_val(v) {}
+    virtual ~vm_smt_goal() {}
     virtual void dealloc() override {
-        this->~vm_smt_state(); get_vm_allocator().deallocate(sizeof(vm_smt_state), this);
+        this->~vm_smt_goal(); get_vm_allocator().deallocate(sizeof(vm_smt_goal), this);
     }
 };
 
-bool is_smt_state(vm_obj const & o) {
-    return is_external(o) && dynamic_cast<vm_smt_state*>(to_external(o));
+bool is_smt_goal(vm_obj const & o) {
+    return is_external(o) && dynamic_cast<vm_smt_goal*>(to_external(o));
 }
 
-smt_state const & to_smt_state(vm_obj const & o) {
+smt_goal const & to_smt_goal(vm_obj const & o) {
     lean_assert(is_external(o));
-    lean_assert(dynamic_cast<vm_smt_state*>(to_external(o)));
-    return static_cast<vm_smt_state*>(to_external(o))->m_val;
+    lean_assert(dynamic_cast<vm_smt_goal*>(to_external(o)));
+    return static_cast<vm_smt_goal*>(to_external(o))->m_val;
 }
 
-vm_obj to_obj(smt_state const & s) {
-    return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_smt_state))) vm_smt_state(s));
+vm_obj to_obj(smt_goal const & s) {
+    return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_smt_goal))) vm_smt_goal(s));
 }
 
 bool is_tactic_result_exception(vm_obj const & a) {
@@ -91,8 +92,8 @@ vm_obj mk_smt_tactic_success(vm_obj const & ss, vm_obj const & ts) {
     return mk_smt_tactic_success(mk_vm_unit(), ss, ts);
 }
 
-vm_obj mk_smt_tactic_success(smt_state const & ss, tactic_state const & ts) {
-    return mk_smt_tactic_success(mk_vm_unit(), to_obj(ss), to_obj(ts));
+vm_obj mk_smt_tactic_success(vm_obj const & ss, tactic_state const & ts) {
+    return mk_smt_tactic_success(ss, to_obj(ts));
 }
 
 tactic_state revert_all(tactic_state const & s) {
@@ -116,12 +117,12 @@ vm_obj initial_dsimp(tactic_state const & s) {
     return change(new_target, s);
 }
 
-vm_obj intro_all(tactic_state s, smt::goal new_goal) {
-    lean_assert(s.goals());
-    type_context ctx = mk_type_context_for(s, transparency_mode::Semireducible);
-    smt S(ctx, new_goal);
-    optional<metavar_decl> g = s.get_main_goal_decl();
-    expr target = g->get_type();
+expr intros(environment const & env, options const & opts, metavar_context & mctx, expr const & mvar, smt::goal & s_goal) {
+    optional<metavar_decl> decl = mctx.get_metavar_decl(mvar);
+    lean_assert(decl);
+    type_context ctx(env, opts, mctx, decl->get_context(), transparency_mode::Semireducible);
+    smt S(ctx, s_goal);
+    expr target = decl->get_type();
     type_context::tmp_locals locals(ctx);
     buffer<expr> new_Hs;
     buffer<expr> to_inst;
@@ -176,10 +177,9 @@ vm_obj intro_all(tactic_state s, smt::goal new_goal) {
         }
     }
     lean_assert(!ctx.mctx().is_assigned(new_M));
-    metavar_context mctx = ctx.mctx();
-    mctx.assign(head(s.goals()), new_val);
-    s = set_mctx_goals(s, mctx, cons(new_M, tail(s.goals())));
-    return mk_tactic_success(to_obj(smt_state(new_goal)), s);
+    mctx = ctx.mctx();
+    mctx.assign(mvar, new_val);
+    return new_M;
 }
 
 vm_obj mk_smt_state(tactic_state s, smt_config const & cfg) {
@@ -188,8 +188,12 @@ vm_obj mk_smt_state(tactic_state s, smt_config const & cfg) {
     vm_obj r = initial_dsimp(s);
     if (is_tactic_result_exception(r)) return r;
     s = to_tactic_state(get_tactic_result_state(r));
-    smt::goal new_goal(cfg);
-    return intro_all(s, new_goal);
+
+    smt_goal new_goal(cfg);
+    metavar_context mctx = s.mctx();
+    expr new_M = intros(s.env(), s.get_options(), mctx, head(s.goals()), new_goal);
+    s = set_mctx_goals(s, mctx, cons(new_M, tail(s.goals())));
+    return mk_tactic_success(mk_vm_cons(to_obj(new_goal), mk_vm_nil()), s);
 }
 
 /*
@@ -218,16 +222,15 @@ bool same_hyps(metavar_context const & mctx, expr const & mvar1, expr const & mv
     return d1 && d2 && equal_locals(d1->get_context(), d2->get_context());
 }
 
-vm_obj tactic_to_smt_tactic(vm_obj const &, vm_obj const & tac, vm_obj const & s_state, vm_obj const & t_state) {
-    vm_obj r1 = invoke(tac, t_state);
+vm_obj tactic_to_smt_tactic(vm_obj const &, vm_obj const & tac, vm_obj const & ss, vm_obj const & ts) {
+    vm_obj r1 = invoke(tac, ts);
     if (is_tactic_result_exception(r1)) {
         /* Tactic failed */
         return r1;
     }
-    list<smt::goal> smt_goals = to_smt_state(s_state);
-    if (!smt_goals) {
+    if (is_nil(ss)) {
         /* There is no SMT state associated with any goal. */
-        return tactic_result_to_smt_tactic_result(r1, s_state);
+        return tactic_result_to_smt_tactic_result(r1, ss);
     }
     /* We only handle the common cases:
        1) goals is of the form (a_1, a_2, ..., a_m)
@@ -235,69 +238,68 @@ vm_obj tactic_to_smt_tactic(vm_obj const &, vm_obj const & tac, vm_obj const & s
        3) the sets of hypotheses in new_1 ... new_n are equal to the
           set of hypotheses of a_1
 
-       In this case, given a s_state of the form
+       In this case, given a ss of the form
 
           (s_1, ..., s_k)
 
-       where k <= m, we obtain a new valid s_state
+       where k <= m, we obtain a new valid ss
 
           (s_1, ..., s_1, s_2, ..., s_k)
            n copies of s_1
     */
-    vm_obj new_t_state = get_tactic_result_state(r1);
-    if (is_eqp(to_tactic_state(t_state), to_tactic_state(new_t_state))) {
+    vm_obj new_ts = get_tactic_result_state(r1);
+    if (is_eqp(to_tactic_state(ts), to_tactic_state(new_ts))) {
         /* The tactic_state was not modified */
-        return tactic_result_to_smt_tactic_result(r1, s_state);
+        return tactic_result_to_smt_tactic_result(r1, ss);
     }
-    list<expr> goals          = to_tactic_state(t_state).goals();
-    list<expr> new_goals      = to_tactic_state(new_t_state).goals();
+    list<expr> goals          = to_tactic_state(ts).goals();
+    list<expr> new_goals      = to_tactic_state(new_ts).goals();
     if (goals == new_goals) {
         /* Set of goals did not change. */
-        return tactic_result_to_smt_tactic_result(r1, s_state);
+        return tactic_result_to_smt_tactic_result(r1, ss);
     }
     if (!new_goals) {
         /* There are no new goals */
-        return tactic_result_to_smt_tactic_result(r1, to_obj(smt_state()));
+        return tactic_result_to_smt_tactic_result(r1, mk_vm_nil());
     }
     if (!goals) {
-        return mk_tactic_exception("failed to lift tactic to smt_tactic, there were no goals to be solved", to_tactic_state(t_state));
+        return mk_tactic_exception("failed to lift tactic to smt_tactic, there were no goals to be solved", to_tactic_state(ts));
     }
     if (new_goals == tail(goals)) {
         /* Main goal was solved */
-        if (smt_goals) {
-            /* remove one SMT goal */
-            smt_goals = tail(smt_goals);
-        }
-        return tactic_result_to_smt_tactic_result(r1, to_obj(smt_goals));
+        /* remove one SMT goal */
+        vm_obj new_ss = tail(ss);
+        return tactic_result_to_smt_tactic_result(r1, new_ss);
     }
-    metavar_context const & mctx = to_tactic_state(new_t_state).mctx();
+    metavar_context const & mctx = to_tactic_state(new_ts).mctx();
     if (tail(new_goals) == tail(goals) && same_hyps(mctx, head(new_goals), head(goals))) {
         /* The set of hypotheses in the main goal did not change */
-        return tactic_result_to_smt_tactic_result(r1, s_state);
+        return tactic_result_to_smt_tactic_result(r1, ss);
     }
+    vm_obj new_ss = ss;
     while (true) {
         if (!same_hyps(mctx, head(new_goals), head(goals))) {
             return mk_tactic_exception("failed to lift tactic to smt_tactic, set of hypotheses has been modified, at least one of the used tactics has to be lifted manually",
-                                       to_tactic_state(t_state));
+                                       to_tactic_state(ts));
         }
         if (tail(new_goals) == tail(goals)) {
-            return tactic_result_to_smt_tactic_result(r1, to_obj(smt_goals));
+            return tactic_result_to_smt_tactic_result(r1, new_ss);
         }
         /* copy smt state */
-        smt_goals = cons(head(smt_goals), smt_goals);
+        new_ss = mk_vm_cons(head(new_ss), new_ss);
 
         /* Move to next */
         new_goals = tail(new_goals);
         if (!new_goals) {
             return mk_tactic_exception("failed to lift tactic to smt_tactic, only tactics that modify a prefix of the list of goals can be automatically lifted",
-                                       to_tactic_state(t_state));
+                                       to_tactic_state(ts));
         }
     }
 }
 
-vm_obj smt_state_to_format(vm_obj const & s_state, vm_obj const & t_state) {
+vm_obj smt_state_to_format(vm_obj const & ss, vm_obj const & _ts) {
+    tactic_state ts = to_tactic_state(_ts);
     LEAN_TACTIC_TRY;
-    tactic_state ts = to_tactic_state(t_state);
     format r;
     if (!ts.goals()) {
         r = format("no goals");
@@ -305,8 +307,8 @@ vm_obj smt_state_to_format(vm_obj const & s_state, vm_obj const & t_state) {
         r = ts.pp_goal(head(ts.goals()));
         /* TODO(Leo): improve, we are just pretty printing equivalence classes. */
         /* TODO(Leo): disable local name purification */
-        if (to_smt_state(s_state)) {
-            cc_state ccs                   = head(to_smt_state(s_state)).m_cc_state;
+        if (!is_nil(ss)) {
+            cc_state ccs                   = to_smt_goal(head(ss)).m_cc_state;
             type_context ctx               = mk_type_context_for(ts);
             formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
             formatter fmt                  = fmtf(ts.env(), ts.get_options(), ctx);
@@ -328,33 +330,32 @@ vm_obj smt_state_to_format(vm_obj const & s_state, vm_obj const & t_state) {
         }
     }
     return to_obj(r);
-    LEAN_TACTIC_CATCH(to_tactic_state(t_state));
+    LEAN_TACTIC_CATCH(ts);
 }
 
 vm_obj mk_smt_state_empty_exception(tactic_state const & ts) {
     return mk_tactic_exception("tactic failed, smt_state is empty", ts);
 }
 
-vm_obj exact_core(expr const & e, smt_state const & ss, tactic_state const & ts) {
-    lean_assert(ss);
+vm_obj exact_core(expr const & e, vm_obj const & ss, tactic_state const & ts) {
+    lean_assert(!is_nil(ss));
     lean_assert(ts.goals());
-    smt_state new_ss = tail(ss);
+    vm_obj new_ss = tail(ss);
     auto mctx = ts.mctx();
     mctx.assign(head(ts.goals()), e);
     tactic_state new_ts = set_mctx_goals(ts, mctx, tail(ts.goals()));
-    return mk_smt_tactic_success(new_ss, new_ts);
+    return mk_smt_tactic_success(new_ss, to_obj(new_ts));
 }
 
-vm_obj smt_tactic_close(vm_obj const & _ss, vm_obj const & _ts) {
-    smt_state const & ss    = to_smt_state(_ss);
+vm_obj smt_tactic_close(vm_obj const & ss, vm_obj const & _ts) {
     tactic_state const & ts = to_tactic_state(_ts);
     LEAN_TACTIC_TRY;
-    if (!ss)
+    if (is_nil(ss))
         return mk_smt_state_empty_exception(ts);
     lean_assert(ts.goals());
     expr target      = ts.get_main_goal_decl()->get_type();
     type_context ctx = mk_type_context_for(ts);
-    cc_state ccs     = head(ss).m_cc_state;
+    cc_state ccs     = to_smt_goal(head(ss)).m_cc_state;
     congruence_closure cc(ctx, ccs);
     if (cc.inconsistent()) {
         if (auto pr = cc.get_inconsistency_proof()) {
@@ -380,11 +381,27 @@ vm_obj smt_tactic_close(vm_obj const & _ss, vm_obj const & _ts) {
     return mk_tactic_exception("smt_tactic.close failed", ts);
 }
 
+vm_obj smt_tactic_intros(vm_obj const & ss, vm_obj const & _ts) {
+    tactic_state const & ts = to_tactic_state(_ts);
+    if (is_nil(ss))
+        return mk_smt_state_empty_exception(ts);
+    LEAN_TACTIC_TRY;
+    smt_goal new_sgoal   = to_smt_goal(head(ss));
+    metavar_context mctx = ts.mctx();
+    expr new_mvar = intros(ts.env(), ts.get_options(), mctx, head(ts.goals()), new_sgoal);
+
+    tactic_state new_ts = set_mctx_goals(ts, mctx, cons(new_mvar, tail(ts.goals())));
+    vm_obj new_ss    = mk_vm_cons(to_obj(new_sgoal), tail(ss));
+    return mk_smt_tactic_success(new_ss, new_ts);
+    LEAN_TACTIC_CATCH(ts);
+}
+
 void initialize_smt_state() {
     DECLARE_VM_BUILTIN(name({"smt_state", "mk"}),             smt_state_mk);
     DECLARE_VM_BUILTIN(name({"smt_state", "to_format"}),      smt_state_to_format);
     DECLARE_VM_BUILTIN("tactic_to_smt_tactic",                tactic_to_smt_tactic);
     DECLARE_VM_BUILTIN(name({"smt_tactic", "close"}),         smt_tactic_close);
+    DECLARE_VM_BUILTIN(name({"smt_tactic", "intros"}),        smt_tactic_intros);
 }
 
 void finalize_smt_state() {

@@ -16,7 +16,9 @@ def default_smt_config : smt_config :=
 {cc_cfg := default_cc_config,
  em_cfg := default_ematch_config}
 
-meta constant smt_state                 : Type
+meta constant smt_goal                  : Type
+meta def smt_state :=
+list smt_goal
 meta constant smt_state.mk              : smt_config → tactic smt_state
 meta constant smt_state.to_format       : smt_state → tactic_state → format
 
@@ -51,7 +53,8 @@ meta instance : alternative smt_tactic :=
  map     := @fmap _ _}
 
 namespace smt_tactic
-meta constant close : smt_tactic unit
+meta constant intros    : smt_tactic unit
+meta constant close     : smt_tactic unit
 
 meta def try {α : Type} (t : smt_tactic α) : smt_tactic unit :=
 λ ss ts, tactic_result.cases_on (t ss ts)
@@ -81,6 +84,15 @@ do s₁ ← state_t.read,
 meta def trace_state : smt_tactic unit :=
 do (s₁, s₂) ← smt_tactic.read,
    trace (smt_state.to_format s₁ s₂)
+
+/- Low level primitives for managing set of goals -/
+meta def get_goals : smt_tactic (list smt_goal × list expr) :=
+do (g₁, _) ← smt_tactic.read,
+   g₂ ← tactic.get_goals,
+   return (g₁, g₂)
+
+meta def set_goals : list smt_goal → list expr → smt_tactic unit :=
+λ g₁ g₂ ss, tactic.set_goals g₂ >> return ((), g₁)
 
 end smt_tactic
 

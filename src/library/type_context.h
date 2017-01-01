@@ -316,6 +316,9 @@ public:
     expr mk_metavar_decl(local_context const & ctx, expr const & type) { return m_mctx.mk_metavar_decl(ctx, type); }
     level mk_univ_metavar_decl() { return m_mctx.mk_univ_metavar_decl(); }
 
+    name get_unused_name(name const & prefix, unsigned & idx) const { return m_lctx.get_unused_name(prefix, idx); }
+    name get_unused_name(name const & suggestion) const { return m_lctx.get_unused_name(suggestion); }
+
     /* note: mctx must be a descendant of m_mctx */
     void set_mctx(metavar_context const & mctx) { m_mctx = mctx; }
     /* note: env must be a descendant of m_env */

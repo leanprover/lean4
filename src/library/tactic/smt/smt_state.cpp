@@ -123,10 +123,10 @@ vm_obj intro_all(tactic_state s, smt::goal new_goal) {
             to_inst.clear();
             target = ctx.relaxed_try_to_pi(target);
         }
-        /* TODO(Leo): mk names unique */
         if (is_pi(target)) {
             expr type = instantiate_rev(binding_domain(target), to_inst.size(), to_inst.data());
-            expr h    = locals.push_local(binding_name(target), type);
+            name n    = ctx.get_unused_name(binding_name(target));
+            expr h    = locals.push_local(n, type);
             to_inst.push_back(h);
             /* TODO(Leo): usual SMT preprocessing: destruct and/exists, push negation, ... */
             new_Hs.push_back(h);
@@ -137,7 +137,8 @@ vm_obj intro_all(tactic_state s, smt::goal new_goal) {
         } else if (is_let(target)) {
             expr type  = instantiate_rev(let_type(target), to_inst.size(), to_inst.data());
             expr value = instantiate_rev(let_value(target), to_inst.size(), to_inst.data());
-            expr h     = locals.push_let(let_name(target), type, value);
+            name n     = ctx.get_unused_name(let_name(target));
+            expr h     = locals.push_let(n, type, value);
             to_inst.push_back(h);
             new_Hs.push_back(h);
             S.internalize(type, true);

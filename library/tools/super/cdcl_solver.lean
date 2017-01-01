@@ -108,6 +108,8 @@ end state
 meta def solver := state_t state tactic
 meta instance : monad solver := state_t.monad _ _
 meta instance : has_monad_lift tactic solver := monad.monad_transformer_lift (state_t state) tactic
+meta instance (α : Type) : has_coe (tactic α) (solver α) :=
+⟨monad.monad_lift⟩
 
 meta def fail {A B} [has_to_format B] (b : B) : solver A :=
 @tactic.fail A B _ b

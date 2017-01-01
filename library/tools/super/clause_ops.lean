@@ -8,6 +8,8 @@ open monad tactic expr
 
 namespace super
 
+local attribute [instance] has_monad_lift_to_has_coe
+
 meta def on_left_at {m} [monad m] (c : clause) (i : ℕ)
                     [has_monad_lift_t tactic m]
                     -- f gets a type and returns a list of proofs of that type

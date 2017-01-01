@@ -131,6 +131,8 @@ meta instance : has_to_tactic_format prover_state :=
 meta def prover := state_t prover_state tactic
 meta instance : monad prover := state_t.monad _ _
 meta instance : has_monad_lift tactic prover := monad.monad_transformer_lift (state_t prover_state) tactic
+meta instance (α : Type) : has_coe (tactic α) (prover α) :=
+⟨monad.monad_lift⟩
 
 meta def prover.fail {A B : Type} [has_to_format B] (msg : B) : prover A := @tactic.fail A _ _ msg
 

@@ -33,6 +33,9 @@ meta constant tactic_to_smt_tactic (α : Type) : tactic α → smt_tactic α
 meta instance : monad.has_monad_lift tactic smt_tactic :=
 ⟨tactic_to_smt_tactic⟩
 
+meta instance (α : Type) : has_coe (tactic α) (smt_tactic α) :=
+⟨monad.monad_lift⟩
+
 namespace smt_tactic
 open tactic
 

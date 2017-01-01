@@ -36,7 +36,41 @@ meta instance : monad.has_monad_lift tactic smt_tactic :=
 meta instance (α : Type) : has_coe (tactic α) (smt_tactic α) :=
 ⟨monad.monad_lift⟩
 
+meta def smt_tactic_orelse {α : Type} (t₁ t₂ : smt_tactic α) : smt_tactic α :=
+λ ss ts, tactic_result.cases_on (t₁ ss ts)
+  tactic_result.success
+  (λ e₁ ref₁ s', tactic_result.cases_on (t₂ ss ts)
+     tactic_result.success
+     (tactic_result.exception (α × smt_state)))
+
+meta instance : alternative smt_tactic :=
+{failure := λ α, @tactic.failed α,
+ orelse  := @smt_tactic_orelse,
+ pure    := @return _ _,
+ seq     := @fapp _ _,
+ map     := @fmap _ _}
+
 namespace smt_tactic
+meta constant close : smt_tactic unit
+
+meta def try {α : Type} (t : smt_tactic α) : smt_tactic unit :=
+λ ss ts, tactic_result.cases_on (t ss ts)
+ (λ ⟨a, new_ss⟩, tactic_result.success ((), new_ss))
+ (λ e ref s', tactic_result.success ((), ss) ts)
+
+/- (repeat_at_most n t): repeat the given tactic at most n times or until t fails -/
+meta def repeat_at_most : nat → smt_tactic unit → smt_tactic unit
+| 0     t := return ()
+| (n+1) t := (do t, repeat_at_most n t) <|> return ()
+
+/- (repeat_exactly n t) : execute t n times -/
+meta def repeat_exactly : nat → smt_tactic unit → smt_tactic unit
+| 0     t := return ()
+| (n+1) t := do t, repeat_exactly n t
+
+meta def repeat : smt_tactic unit → smt_tactic unit :=
+repeat_at_most 100000
+
 open tactic
 
 protected meta def read : smt_tactic (smt_state × tactic_state) :=
@@ -50,9 +84,11 @@ do (s₁, s₂) ← smt_tactic.read,
 
 end smt_tactic
 
+open smt_tactic
+
 meta def using_smt_core (cfg : smt_config) (t : smt_tactic unit) : tactic unit :=
 do ss ← smt_state.mk cfg,
-   t ss,
+   (t >> repeat close) ss,
    return ()
 
 meta def using_smt : smt_tactic unit → tactic unit :=

@@ -264,6 +264,7 @@ public:
     optional<expr> get_eq_proof(expr const & e1, expr const & e2) const;
     optional<expr> get_proof(expr const & e1, expr const & e2) const;
     optional<expr> get_inconsistency_proof() const;
+    bool inconsistent() const { return m_state.inconsistent(); }
 
     unsigned get_gmt() const { return m_state.get_gmt(); }
     unsigned get_mt(expr const & t) const { return m_state.get_mt(t); }
@@ -277,6 +278,8 @@ public:
         return m_defeq_canonizer.update_state(env);
     }
 };
+
+typedef congruence_closure::state cc_state;
 
 struct ext_congr_lemma {
     /* The basic congr_lemma object defined at congr_lemma_manager */

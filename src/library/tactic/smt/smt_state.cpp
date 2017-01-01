@@ -79,12 +79,20 @@ vm_obj get_tactic_result_state(vm_obj const & r) {
     return cfield(r, 1);
 }
 
-vm_obj tactic_result_to_smt_tactic_result(vm_obj const & r, vm_obj const & s_state) {
-    return mk_tactic_result(mk_vm_pair(get_tactic_result_value(r), s_state), get_tactic_result_state(r));
+vm_obj tactic_result_to_smt_tactic_result(vm_obj const & r, vm_obj const & ss) {
+    return mk_tactic_result(mk_vm_pair(get_tactic_result_value(r), ss), get_tactic_result_state(r));
 }
 
-vm_obj mk_smt_tactic_success(vm_obj const & a, vm_obj const & s_state, vm_obj const & t_state) {
-    return mk_vm_constructor(0, mk_vm_pair(a, s_state), t_state);
+vm_obj mk_smt_tactic_success(vm_obj const & a, vm_obj const & ss, vm_obj const & ts) {
+    return mk_vm_constructor(0, mk_vm_pair(a, ss), ts);
+}
+
+vm_obj mk_smt_tactic_success(vm_obj const & ss, vm_obj const & ts) {
+    return mk_smt_tactic_success(mk_vm_unit(), ss, ts);
+}
+
+vm_obj mk_smt_tactic_success(smt_state const & ss, tactic_state const & ts) {
+    return mk_smt_tactic_success(mk_vm_unit(), to_obj(ss), to_obj(ts));
 }
 
 tactic_state revert_all(tactic_state const & s) {
@@ -298,7 +306,7 @@ vm_obj smt_state_to_format(vm_obj const & s_state, vm_obj const & t_state) {
         /* TODO(Leo): improve, we are just pretty printing equivalence classes. */
         /* TODO(Leo): disable local name purification */
         if (to_smt_state(s_state)) {
-            congruence_closure::state ccs  = head(to_smt_state(s_state)).m_cc_state;
+            cc_state ccs                   = head(to_smt_state(s_state)).m_cc_state;
             type_context ctx               = mk_type_context_for(ts);
             formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
             formatter fmt                  = fmtf(ts.env(), ts.get_options(), ctx);
@@ -323,10 +331,60 @@ vm_obj smt_state_to_format(vm_obj const & s_state, vm_obj const & t_state) {
     LEAN_TACTIC_CATCH(to_tactic_state(t_state));
 }
 
+vm_obj mk_smt_state_empty_exception(tactic_state const & ts) {
+    return mk_tactic_exception("tactic failed, smt_state is empty", ts);
+}
+
+vm_obj exact_core(expr const & e, smt_state const & ss, tactic_state const & ts) {
+    lean_assert(ss);
+    lean_assert(ts.goals());
+    smt_state new_ss = tail(ss);
+    auto mctx = ts.mctx();
+    mctx.assign(head(ts.goals()), e);
+    tactic_state new_ts = set_mctx_goals(ts, mctx, tail(ts.goals()));
+    return mk_smt_tactic_success(new_ss, new_ts);
+}
+
+vm_obj smt_tactic_close(vm_obj const & _ss, vm_obj const & _ts) {
+    smt_state const & ss    = to_smt_state(_ss);
+    tactic_state const & ts = to_tactic_state(_ts);
+    LEAN_TACTIC_TRY;
+    if (!ss)
+        return mk_smt_state_empty_exception(ts);
+    lean_assert(ts.goals());
+    expr target      = ts.get_main_goal_decl()->get_type();
+    type_context ctx = mk_type_context_for(ts);
+    cc_state ccs     = head(ss).m_cc_state;
+    congruence_closure cc(ctx, ccs);
+    if (cc.inconsistent()) {
+        if (auto pr = cc.get_inconsistency_proof()) {
+            expr H      = mk_false_rec(ctx, target, *pr);
+            return exact_core(H, ss, ts);
+        }
+    }
+
+    cc.internalize(target, true);
+    expr lhs, rhs;
+    if (is_eq(target, lhs, rhs)) {
+        if (auto pr = cc.get_eq_proof(lhs, rhs)) {
+            return exact_core(*pr, ss, ts);
+        }
+    }
+
+    if (cc.is_eqv(target, mk_true())) {
+        if (auto pr = cc.get_eq_proof(target, mk_true())) {
+            return exact_core(*pr, ss, ts);
+        }
+    }
+    LEAN_TACTIC_CATCH(ts);
+    return mk_tactic_exception("smt_tactic.close failed", ts);
+}
+
 void initialize_smt_state() {
     DECLARE_VM_BUILTIN(name({"smt_state", "mk"}),             smt_state_mk);
     DECLARE_VM_BUILTIN(name({"smt_state", "to_format"}),      smt_state_to_format);
     DECLARE_VM_BUILTIN("tactic_to_smt_tactic",                tactic_to_smt_tactic);
+    DECLARE_VM_BUILTIN(name({"smt_tactic", "close"}),         smt_tactic_close);
 }
 
 void finalize_smt_state() {

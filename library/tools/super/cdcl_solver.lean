@@ -105,7 +105,7 @@ meta def watches_for (st : state) (pl : prop_lit) : watch_map :=
 
 end state
 
-@[reducible] meta def solver := state_t state tactic
+meta def solver := state_t state tactic
 meta instance : monad solver := state_t.monad _ _
 meta instance : has_monad_lift tactic solver := monad.monad_transformer_lift (state_t state) tactic
 

@@ -14,14 +14,18 @@ namespace lean {
 typedef rb_expr_tree expr_set;
 typedef rb_map<head_index, expr_set, head_index::cmp> app_map;
 
+struct ematch_config {
+    unsigned  m_max_instances{0};
+};
+
 class ematch_state {
-    app_map   m_app_map;
-    expr_set  m_instances;
-    unsigned  m_max_instances;
-    unsigned  m_num_instances{0};
-    bool      m_max_instances_exceeded{false};
+    app_map       m_app_map;
+    expr_set      m_instances;
+    unsigned      m_num_instances{0};
+    bool          m_max_instances_exceeded{false};
+    ematch_config m_config;
 public:
-    ematch_state(unsigned max_instances):m_max_instances(max_instances) {}
+    ematch_state(ematch_config const & cfg):m_config(cfg) {}
 
     void internalize(type_context & ctx, expr const & e);
     bool max_instances_exceeded() const { return m_max_instances_exceeded; }

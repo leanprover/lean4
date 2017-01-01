@@ -76,7 +76,7 @@ class local_context {
     typedef unsigned_map<local_decl> idx2local_decl;
     unsigned                   m_next_idx;
     name_map<local_decl>       m_name2local_decl;
-    subscripted_name_set  m_user_names;
+    subscripted_name_set       m_user_names;
     name_map<list<local_decl>> m_user_name2local_decls;
     idx2local_decl             m_idx2local_decl;
     optional<unsigned>         m_instance_fingerprint;
@@ -189,7 +189,11 @@ public:
     local_context instantiate_mvars(metavar_context & ctx) const;
 
     friend bool is_decl_eqp(local_context const & ctx1, local_context const & ctx2) {
-        return is_eqp(ctx1.m_idx2local_decl, ctx2.m_idx2local_decl);
+        return is_eqp(ctx1.m_name2local_decl, ctx2.m_name2local_decl);
+    }
+
+    friend bool equal_locals(local_context const & ctx1, local_context const & ctx2) {
+        return is_decl_eqp(ctx1, ctx2) || ctx1.m_name2local_decl.equal_keys(ctx2.m_name2local_decl);
     }
 
     /** \brief Erase inaccessible annotations from the local context.

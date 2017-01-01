@@ -134,9 +134,15 @@ hinst_lemma.mk_core semireducible h ff 0
 meta def hinst_lemma.mk_from_decl (h : name) : tactic hinst_lemma :=
 hinst_lemma.mk_from_decl_core semireducible h ff 0
 
+structure ematch_config :=
+(max_instances : nat)
+
+def default_ematch_config : ematch_config :=
+{max_instances := 10000}
+
 /- Ematching -/
 meta constant ematch_state             : Type
-meta constant ematch_state.mk          : nat → ematch_state
+meta constant ematch_state.mk          : ematch_config → ematch_state
 meta constant ematch_state.internalize : ematch_state → expr → tactic ematch_state
 
 namespace tactic

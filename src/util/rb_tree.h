@@ -331,6 +331,15 @@ class rb_tree : private CMP {
         }
     }
 
+    bool equal_elems(node_cell const * n1, node_cell const * n2) const {
+        if ((n1 == nullptr) != (n2 == nullptr)) return false;
+        if (!n1) { lean_assert (!n2); return true; }
+        return
+            cmp(n1->m_value, n2->m_value) == 0 ||
+            equal_elems(n1->m_left.m_ptr, n2->m_left.m_ptr) ||
+            equal_elems(n1->m_right.m_ptr, n2->m_right.m_ptr);
+    }
+
     bool check_invariant(node_cell const * n, unsigned curr_black, optional<unsigned> & num_black) const {
         // We check:
         //  1) the nodes are really ordered, that is, left->value < n->value < right->value
@@ -455,6 +464,12 @@ public:
     friend std::ostream & operator<<(std::ostream & out, rb_tree const & t) {
         t.display(out);
         return out;
+    }
+
+    /* Return true iff this and other have the same set of elements with respect to CMP.
+       This method assumes the cmp for this and other are the same. */
+    bool equal_elems(rb_tree const & other) const {
+        return equal_elems(m_root.m_ptr, other.m_root.m_ptr);
     }
 
     bool check_invariant() const {

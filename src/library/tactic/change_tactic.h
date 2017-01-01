@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 namespace lean {
+vm_obj change(expr const & e, tactic_state const & s);
 void initialize_change_tactic();
 void finalize_change_tactic();
 }

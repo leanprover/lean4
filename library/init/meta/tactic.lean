@@ -150,12 +150,10 @@ meta def decorate_ex (msg : format) (t : tactic α) : tactic α :=
   success
   (λ e, exception α (λ u, msg ++ format.nest 2 (format.line ++ e u)))
 
-attribute [inline]
-meta def write (s' : tactic_state) : tactic unit :=
+@[inline] meta def write (s' : tactic_state) : tactic unit :=
 λ s, success () s'
 
-attribute [inline]
-meta def read : tactic tactic_state :=
+@[inline] meta def read : tactic tactic_state :=
 λ s, success s s
 end tactic
 

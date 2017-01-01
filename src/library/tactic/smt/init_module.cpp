@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "library/tactic/smt/hinst_lemmas.h"
 #include "library/tactic/smt/ematch.h"
 #include "library/tactic/smt/theory_ac.h"
+#include "library/tactic/smt/smt_state.h"
 
 namespace lean {
 void initialize_smt_module() {
@@ -19,9 +20,11 @@ void initialize_smt_module() {
     initialize_hinst_lemmas();
     initialize_ematch();
     initialize_theory_ac();
+    initialize_smt_state();
 }
 
 void finalize_smt_module() {
+    finalize_smt_state();
     finalize_theory_ac();
     finalize_ematch();
     finalize_hinst_lemmas();

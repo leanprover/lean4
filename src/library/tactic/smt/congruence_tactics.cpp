@@ -52,7 +52,7 @@ structure cc_config :=
 (ac               : bool)
 (ho_fns           : option (list name))
 */
-static congruence_closure::state mk_core(vm_obj const & cfg) {
+pair<name_set, congruence_closure::config> to_ho_fns_cc_config(vm_obj const & cfg) {
     congruence_closure::config c;
     name_set ho_fns;
     c.m_ignore_instances = to_bool(cfield(cfg, 0));
@@ -63,6 +63,13 @@ static congruence_closure::state mk_core(vm_obj const & cfg) {
         c.m_all_ho       = false;
         ho_fns           = to_name_set(to_list_name(get_some_value(cfield(cfg, 2))));
     }
+    return mk_pair(ho_fns, c);
+}
+
+static congruence_closure::state mk_core(vm_obj const & cfg) {
+    congruence_closure::config c;
+    name_set ho_fns;
+    std::tie(ho_fns, c) = to_ho_fns_cc_config(cfg);
     return congruence_closure::state(ho_fns, c);
 }
 
@@ -310,8 +317,14 @@ vm_obj to_obj(ematch_state const & s) {
     return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_ematch_state))) vm_ematch_state(s));
 }
 
-vm_obj ematch_state_mk(vm_obj const & max_instances) {
-    return to_obj(ematch_state(force_to_unsigned(max_instances, std::numeric_limits<unsigned>::max())));
+ematch_config to_ematch_config(vm_obj const & cfg) {
+    ematch_config r;
+    r.m_max_instances = force_to_unsigned(cfg, std::numeric_limits<unsigned>::max());
+    return r;
+}
+
+vm_obj ematch_state_mk(vm_obj const & cfg) {
+    return to_obj(ematch_state(to_ematch_config(cfg)));
 }
 
 vm_obj ematch_state_internalize(vm_obj const & ems, vm_obj const & e, vm_obj const & s) {

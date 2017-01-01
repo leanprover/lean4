@@ -53,9 +53,9 @@ void ematch_state::internalize(type_context & ctx, expr const & e) {
 }
 
 bool ematch_state::save_instance(expr const & i) {
-    if (m_num_instances >= m_max_instances) {
+    if (m_num_instances >= m_config.m_max_instances) {
         if (!m_max_instances_exceeded) {
-            lean_trace("ematch", tout() << "maximum number of ematching instances (" << m_max_instances << ") has been reached, "
+            lean_trace("ematch", tout() << "maximum number of ematching instances (" << m_config.m_max_instances << ") has been reached, "
                        << "set option ematch.max_instances to increase limit\n";);
         }
         m_max_instances_exceeded = true;

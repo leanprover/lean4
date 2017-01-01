@@ -17,7 +17,7 @@ meta def internalize_hs : list expr → ematch_state → tactic ematch_state
 meta def ematch_test (h : name) : tactic unit :=
 do cc  ← cc_state.mk_using_hs,
    ctx ← local_context,
-   ems ← internalize_hs ctx (ematch_state.mk 10000),
+   ems ← internalize_hs ctx (ematch_state.mk default_ematch_config),
    tgt ← target,
    ems ← ems^.internalize tgt,
    hlemma ← hinst_lemma.mk_from_decl h,

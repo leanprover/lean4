@@ -1197,6 +1197,10 @@ struct vm_simp_lemmas : public vm_external {
     virtual void dealloc() override { this->~vm_simp_lemmas(); get_vm_allocator().deallocate(sizeof(vm_simp_lemmas), this); }
 };
 
+bool is_simp_lemmas(vm_obj const & o) {
+    return is_external(o) && dynamic_cast<vm_simp_lemmas*>(to_external(o));
+}
+
 simp_lemmas const & to_simp_lemmas(vm_obj const & o) {
     lean_assert(is_external(o));
     lean_assert(dynamic_cast<vm_simp_lemmas*>(to_external(o)));

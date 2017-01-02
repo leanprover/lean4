@@ -7,6 +7,7 @@ prelude
 import init.data.nat.basic init.meta init.algebra
 
 namespace nat
+attribute [pre_smt] nat_zero_eq_zero
 
 protected lemma zero_add : ∀ n : ℕ, 0 + n = n
 | 0     := rfl

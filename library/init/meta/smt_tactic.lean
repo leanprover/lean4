@@ -5,16 +5,28 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.meta.congruence_tactics init.category.transformers
+import init.meta.simp_tactic
 
 universe variables u
 
+run_command mk_simp_attr `pre_smt
+
+/--
+Configuration for the smt_state object.
+
+pre_simp_attr is the attribute name for the simplification lemmas that
+are used to preprocess facts as they are introduced. The initialization
+will fail if the data associated with the given attribute does not
+have type simp_lemmas. -/
 structure smt_config :=
-(cc_cfg : cc_config)
-(em_cfg : ematch_config)
+(cc_cfg        : cc_config)
+(em_cfg        : ematch_config)
+(pre_simp_attr : name)
 
 def default_smt_config : smt_config :=
-{cc_cfg := default_cc_config,
- em_cfg := default_ematch_config}
+{cc_cfg        := default_cc_config,
+ em_cfg        := default_ematch_config,
+ pre_simp_attr := `pre_smt}
 
 meta constant smt_goal                  : Type
 meta def smt_state :=

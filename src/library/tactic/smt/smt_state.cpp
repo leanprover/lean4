@@ -6,12 +6,15 @@ Author: Leonardo de Moura
 */
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
+#include "library/constants.h"
 #include "library/app_builder.h"
 #include "library/delayed_abstraction.h"
 #include "library/type_context.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_list.h"
+#include "library/vm/vm_name.h"
 #include "library/vm/vm_format.h"
+#include "library/tactic/user_attribute.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/revert_tactic.h"
 #include "library/tactic/dsimplify.h"
@@ -20,12 +23,13 @@ Author: Leonardo de Moura
 #include "library/tactic/smt/smt_state.h"
 
 namespace lean {
-smt::goal::goal(smt_config const & cfg):
+smt_goal::smt_goal(smt_config const & cfg):
     m_cc_state(cfg.m_ho_fns, cfg.m_cc_config),
-    m_em_state(cfg.m_em_config) {
+    m_em_state(cfg.m_em_config),
+    m_simp_lemmas(cfg.m_simp_lemmas) {
 }
 
-smt::smt(type_context & ctx, goal & g):
+smt::smt(type_context & ctx, smt_goal & g):
     m_ctx(ctx),
     m_goal(g),
     m_cc(ctx, m_goal.m_cc_state) {
@@ -105,19 +109,22 @@ tactic_state revert_all(tactic_state const & s) {
     return revert(hs, s);
 }
 
-vm_obj initial_dsimp(tactic_state const & s) {
+vm_obj preprocess(tactic_state const & s, simp_lemmas const & lemmas) {
     lean_assert(s.goals());
     optional<metavar_decl> g = s.get_main_goal_decl();
     type_context ctx         = mk_type_context_for(s, transparency_mode::Reducible);
     unsigned max_steps       = 10000000; /* TODO(Leo): move to smt_config */
     bool visit_instances     = false;
     expr target              = g->get_type();
-    simp_lemmas_for no_lemmas;
-    expr new_target          = dsimplify_fn(ctx, max_steps, visit_instances, no_lemmas)(target);
+    simp_lemmas_for eq_lemmas;
+    if (auto r = lemmas.find(get_eq_name()))
+        eq_lemmas = *r;
+    expr new_target          = dsimplify_fn(ctx, max_steps, visit_instances, eq_lemmas)(target);
+    /* TODO(Leo): use simplify too */
     return change(new_target, s);
 }
 
-expr intros(environment const & env, options const & opts, metavar_context & mctx, expr const & mvar, smt::goal & s_goal) {
+expr intros(environment const & env, options const & opts, metavar_context & mctx, expr const & mvar, smt_goal & s_goal) {
     optional<metavar_decl> decl = mctx.get_metavar_decl(mvar);
     lean_assert(decl);
     type_context ctx(env, opts, mctx, decl->get_context(), transparency_mode::Semireducible);
@@ -185,32 +192,48 @@ expr intros(environment const & env, options const & opts, metavar_context & mct
 vm_obj mk_smt_state(tactic_state s, smt_config const & cfg) {
     if (!s.goals()) return mk_no_goals_exception(s);
     s = revert_all(s);
-    vm_obj r = initial_dsimp(s);
+
+    smt_goal new_goal(cfg);
+
+    vm_obj r = preprocess(s, new_goal.get_simp_lemmas());
     if (is_tactic_result_exception(r)) return r;
     s = to_tactic_state(get_tactic_result_state(r));
 
-    smt_goal new_goal(cfg);
     metavar_context mctx = s.mctx();
     expr new_M = intros(s.env(), s.get_options(), mctx, head(s.goals()), new_goal);
     s = set_mctx_goals(s, mctx, cons(new_M, tail(s.goals())));
     return mk_tactic_success(mk_vm_cons(to_obj(new_goal), mk_vm_nil()), s);
 }
 
+static simp_lemmas get_simp_lemmas(name const & attr_name, tactic_state const & s) {
+    auto & S      = get_vm_state();
+    vm_obj attr   = S.get_constant(attr_name);
+    vm_obj r      = caching_user_attribute_get_cache(mk_vm_unit(), attr, to_obj(s));
+    if (is_tactic_result_exception(r))
+        throw exception(sstream() << "failed to initialize sm_state, failed to retrieve attribute '" << attr_name << "'");
+    vm_obj lemmas = get_tactic_result_value(r);
+    if (!is_simp_lemmas(lemmas))
+        throw exception(sstream() << "failed to initialize smt_state, attribute '" << attr_name << "' is not a simp_lemmas");
+    return to_simp_lemmas(lemmas);
+}
+
 /*
-def default_smt_config : smt_config :=
-{cc_cfg := default_cc_config,
- em_cfg := default_ematch_config}
+structure smt_config :=
+(cc_cfg        : cc_config)
+(em_cfg        : ematch_config)
+(pre_simp_attr : name)
 */
-smt_config to_smt_config(vm_obj const & cfg) {
+static smt_config to_smt_config(vm_obj const & cfg, tactic_state const & s) {
     smt_config r;
     std::tie(r.m_ho_fns, r.m_cc_config) = to_ho_fns_cc_config(cfield(cfg, 0));
     r.m_em_config                       = to_ematch_config(cfield(cfg, 1));
+    r.m_simp_lemmas                     = get_simp_lemmas(to_name(cfield(cfg, 2)), s);
     return r;
 }
 
 vm_obj smt_state_mk(vm_obj const & cfg, vm_obj const & s) {
     LEAN_TACTIC_TRY;
-    return mk_smt_state(to_tactic_state(s), to_smt_config(cfg));
+    return mk_smt_state(to_tactic_state(s), to_smt_config(cfg, to_tactic_state(s)));
     LEAN_TACTIC_CATCH(to_tactic_state(s));
 }
 
@@ -308,7 +331,7 @@ vm_obj smt_state_to_format(vm_obj const & ss, vm_obj const & _ts) {
         /* TODO(Leo): improve, we are just pretty printing equivalence classes. */
         /* TODO(Leo): disable local name purification */
         if (!is_nil(ss)) {
-            cc_state ccs                   = to_smt_goal(head(ss)).m_cc_state;
+            cc_state ccs                   = to_smt_goal(head(ss)).get_cc_state();
             type_context ctx               = mk_type_context_for(ts);
             formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
             formatter fmt                  = fmtf(ts.env(), ts.get_options(), ctx);
@@ -355,7 +378,7 @@ vm_obj smt_tactic_close(vm_obj const & ss, vm_obj const & _ts) {
     lean_assert(ts.goals());
     expr target      = ts.get_main_goal_decl()->get_type();
     type_context ctx = mk_type_context_for(ts);
-    cc_state ccs     = to_smt_goal(head(ss)).m_cc_state;
+    cc_state ccs     = to_smt_goal(head(ss)).get_cc_state();
     congruence_closure cc(ctx, ccs);
     if (cc.inconsistent()) {
         if (auto pr = cc.get_inconsistency_proof()) {
@@ -382,11 +405,17 @@ vm_obj smt_tactic_close(vm_obj const & ss, vm_obj const & _ts) {
 }
 
 vm_obj smt_tactic_intros(vm_obj const & ss, vm_obj const & _ts) {
-    tactic_state const & ts = to_tactic_state(_ts);
+    tactic_state ts = to_tactic_state(_ts);
     if (is_nil(ss))
         return mk_smt_state_empty_exception(ts);
     LEAN_TACTIC_TRY;
+
     smt_goal new_sgoal   = to_smt_goal(head(ss));
+
+    vm_obj r = preprocess(ts, new_sgoal.get_simp_lemmas());
+    if (is_tactic_result_exception(r)) return r;
+    ts = to_tactic_state(get_tactic_result_state(r));
+
     metavar_context mctx = ts.mctx();
     expr new_mvar = intros(ts.env(), ts.get_options(), mctx, head(ts.goals()), new_sgoal);
 

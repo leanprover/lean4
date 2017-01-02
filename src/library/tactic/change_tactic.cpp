@@ -14,6 +14,7 @@ vm_obj change(expr const & e, tactic_state const & s) {
     try {
         optional<metavar_decl> g = s.get_main_goal_decl();
         if (!g) return mk_no_goals_exception(s);
+        if (e == g->get_type()) return mk_tactic_success(s);
         type_context ctx         = mk_type_context_for(s);
         if (ctx.is_def_eq(e, g->get_type())) {
             auto mctx    = ctx.mctx();

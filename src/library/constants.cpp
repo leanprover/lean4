@@ -303,10 +303,12 @@ name const * g_norm_num_subst_into_subtr = nullptr;
 name const * g_norm_num_subst_into_sum = nullptr;
 name const * g_not = nullptr;
 name const * g_not_of_iff_false = nullptr;
+name const * g_not_of_eq_false = nullptr;
 name const * g_not_of_not_not_not = nullptr;
 name const * g_num = nullptr;
 name const * g_num_pos = nullptr;
 name const * g_num_zero = nullptr;
+name const * g_of_eq_true = nullptr;
 name const * g_of_iff_true = nullptr;
 name const * g_one = nullptr;
 name const * g_one_mul = nullptr;
@@ -756,10 +758,12 @@ void initialize_constants() {
     g_norm_num_subst_into_sum = new name{"norm_num", "subst_into_sum"};
     g_not = new name{"not"};
     g_not_of_iff_false = new name{"not_of_iff_false"};
+    g_not_of_eq_false = new name{"not_of_eq_false"};
     g_not_of_not_not_not = new name{"not_of_not_not_not"};
     g_num = new name{"num"};
     g_num_pos = new name{"num", "pos"};
     g_num_zero = new name{"num", "zero"};
+    g_of_eq_true = new name{"of_eq_true"};
     g_of_iff_true = new name{"of_iff_true"};
     g_one = new name{"one"};
     g_one_mul = new name{"one_mul"};
@@ -1210,10 +1214,12 @@ void finalize_constants() {
     delete g_norm_num_subst_into_sum;
     delete g_not;
     delete g_not_of_iff_false;
+    delete g_not_of_eq_false;
     delete g_not_of_not_not_not;
     delete g_num;
     delete g_num_pos;
     delete g_num_zero;
+    delete g_of_eq_true;
     delete g_of_iff_true;
     delete g_one;
     delete g_one_mul;
@@ -1663,10 +1669,12 @@ name const & get_norm_num_subst_into_subtr_name() { return *g_norm_num_subst_int
 name const & get_norm_num_subst_into_sum_name() { return *g_norm_num_subst_into_sum; }
 name const & get_not_name() { return *g_not; }
 name const & get_not_of_iff_false_name() { return *g_not_of_iff_false; }
+name const & get_not_of_eq_false_name() { return *g_not_of_eq_false; }
 name const & get_not_of_not_not_not_name() { return *g_not_of_not_not_not; }
 name const & get_num_name() { return *g_num; }
 name const & get_num_pos_name() { return *g_num_pos; }
 name const & get_num_zero_name() { return *g_num_zero; }
+name const & get_of_eq_true_name() { return *g_of_eq_true; }
 name const & get_of_iff_true_name() { return *g_of_iff_true; }
 name const & get_one_name() { return *g_one; }
 name const & get_one_mul_name() { return *g_one_mul; }

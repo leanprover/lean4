@@ -52,15 +52,30 @@ void smt::propagated(unsigned n, expr const * p) {
     }
 }
 
-lbool smt::get_value(expr const & e) {
+lbool smt::get_value_core(expr const & e) {
     if (m_cc.is_eqv(e, mk_true())) return l_true;
     if (m_cc.is_eqv(e, mk_false())) return l_false;
     return l_undef;
 }
 
+lbool smt::get_value(expr const & e) {
+    lbool r = get_value_core(e);
+    if (r != l_undef) return r;
+    expr arg;
+    if (is_not(e, arg)) {
+        return ~get_value_core(arg);
+    }
+    return l_undef;
+}
+
 optional<expr> smt::get_proof(expr const & e) {
-    if (m_cc.is_eqv(e, mk_true())) return m_cc.get_eq_proof(e, mk_true());
-    if (m_cc.is_eqv(e, mk_false())) return m_cc.get_eq_proof(e, mk_false());
+    if (m_cc.is_eqv(e, mk_true()))
+        if (auto pr = m_cc.get_eq_proof(e, mk_true()))
+            return some_expr(mk_of_eq_true(m_ctx, *pr));
+    expr arg;
+    if (is_not(e, arg) && m_cc.is_eqv(arg, mk_false()))
+        if (auto pr = m_cc.get_eq_proof(arg, mk_false()))
+            return some_expr(mk_not_of_eq_false(m_ctx, *pr));
     return none_expr();
 }
 
@@ -407,27 +422,25 @@ vm_obj smt_tactic_close(vm_obj const & ss, vm_obj const & _ts) {
     lean_assert(ts.goals());
     expr target      = ts.get_main_goal_decl()->get_type();
     type_context ctx = mk_type_context_for(ts);
-    cc_state ccs     = to_smt_goal(head(ss)).get_cc_state();
-    congruence_closure cc(ctx, ccs);
-    if (cc.inconsistent()) {
-        if (auto pr = cc.get_inconsistency_proof()) {
+    smt_goal g       = to_smt_goal(head(ss));
+    smt S(ctx, g);
+    if (S.inconsistent()) {
+        if (auto pr = S.get_inconsistency_proof()) {
             expr H      = mk_false_rec(ctx, target, *pr);
             return exact_core(H, ss, ts);
         }
     }
 
-    cc.internalize(target);
+    S.internalize(target);
     expr lhs, rhs;
     if (is_eq(target, lhs, rhs)) {
-        if (auto pr = cc.get_eq_proof(lhs, rhs)) {
+        if (auto pr = S.get_eq_proof(lhs, rhs)) {
             return exact_core(*pr, ss, ts);
         }
     }
 
-    if (cc.is_eqv(target, mk_true())) {
-        if (auto pr = cc.get_eq_proof(target, mk_true())) {
-            return exact_core(*pr, ss, ts);
-        }
+    if (auto pr = S.get_proof(target)) {
+        return exact_core(*pr, ss, ts);
     }
     LEAN_TACTIC_CATCH(ts);
     return mk_tactic_exception("smt_tactic.close failed", ts);

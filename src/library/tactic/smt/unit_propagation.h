@@ -41,7 +41,8 @@ private:
     state &        m_state;
     assignment &   m_assignment;
 
-    lbool get_value(expr const & e);
+    lbool get_value(expr const & e) { return m_assignment.get_value(e); }
+    optional<expr> get_proof(expr const & e) { return m_assignment.get_proof(e); }
     void visit_lemma(expr const & e);
     void visit_dep_lemma(expr const & e);
     void propagate(expr const & e);

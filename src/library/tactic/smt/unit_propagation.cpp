@@ -37,24 +37,8 @@ static bool is_fact(type_context & ctx, expr const & e) {
     return ctx.is_prop(e) && !is_lemma(ctx, e) && !is_dep_lemma(ctx, e);
 }
 
-static expr flip(expr const & e) {
-    expr not_e;
-    if (is_not(e, not_e))
-        return not_e;
-    else
-        return mk_not(e);
-}
-
 unit_propagation::unit_propagation(type_context & ctx, state & s, assignment & assignment):
     m_ctx(ctx), m_state(s), m_assignment(assignment) {}
-
-lbool unit_propagation::get_value(expr const & e) {
-    expr arg;
-    if (is_not(e, arg))
-        return ~m_assignment.get_value(arg);
-    else
-        return m_assignment.get_value(e);
-}
 
 static expr get_var(expr const & e) {
     expr arg;
@@ -113,7 +97,7 @@ void unit_propagation::visit_lemma(expr const & e) {
     /* TODO(Leo): */
 }
 
-void unit_propagation::visit_dep_lemma(expr const & e) {
+void unit_propagation::visit_dep_lemma(expr const & /* e */) {
     /* TODO(Leo): */
 }
 
@@ -130,7 +114,6 @@ void unit_propagation::propagate(expr const & e) {
 }
 
 void unit_propagation::assigned(expr const & e) {
-    tout() << "assigned: " << e << " ::: " << m_assignment.get_value(e) << "\n";
     if (is_lemma(m_ctx, e) && m_assignment.get_value(e) == l_true) {
         visit_lemma(e);
     } else if (is_dep_lemma(m_ctx, e) && m_assignment.get_value(e) == l_true) {

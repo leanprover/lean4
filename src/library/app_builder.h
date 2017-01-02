@@ -153,6 +153,9 @@ expr mk_eq_true_intro(type_context & ctx, expr const & H);
 /** not(p <-> q) -> not(p = q) */
 expr mk_neq_of_not_iff(type_context & ctx, expr const & H);
 
+expr mk_of_eq_true(type_context & ctx, expr const & H);
+expr mk_not_of_eq_false(type_context & ctx, expr const & H);
+
 expr mk_not(type_context & ctx, expr const & H);
 
 /** p -> not p -> b */

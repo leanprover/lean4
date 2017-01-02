@@ -298,10 +298,12 @@ norm_num.subst_into_subtr
 norm_num.subst_into_sum
 not
 not_of_iff_false
+not_of_eq_false
 not_of_not_not_not
 num
 num.pos
 num.zero
+of_eq_true
 of_iff_true
 one
 one_mul

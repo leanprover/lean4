@@ -774,6 +774,48 @@ public:
         level lvl_2  = get_level(B);
         return ::lean::mk_app({mk_constant(get_congr_arg_name(), {lvl_1, lvl_2}), A, B, lhs, rhs, f, H});
     }
+
+    expr mk_eq_true_intro(expr const & H) {
+        expr p = m_ctx.infer(H);
+        return ::lean::mk_app(mk_constant(get_eq_true_intro_name()), p, H);
+    }
+
+    expr mk_eq_false_intro(expr const & H) {
+        expr not_p = m_ctx.relaxed_whnf(m_ctx.infer(H));
+        if (!is_pi(not_p)) {
+            lean_app_builder_trace(tout() << "failed to build eq_false_intro, negation expected:\n" << not_p << "\n";);
+            throw app_builder_exception();
+        }
+        return ::lean::mk_app(mk_constant(get_eq_false_intro_name()), binding_domain(not_p), H);
+    }
+
+    expr mk_of_eq_true(expr const & H) {
+        if (is_constant(get_app_fn(H), get_eq_true_intro_name())) {
+            // of_eq_true (eq_true_intro H) == H
+            return app_arg(H);
+        }
+        expr eq = m_ctx.relaxed_whnf(m_ctx.infer(H));
+        expr lhs, rhs;
+        if (!is_eq(eq, lhs, rhs)) {
+            lean_app_builder_trace(tout() << "failed to build of_eq_true, equality expected:\n" << eq << "\n";);
+            throw app_builder_exception();
+        }
+        return ::lean::mk_app(mk_constant(get_of_eq_true_name()), lhs, H);
+    }
+
+    expr mk_not_of_eq_false(expr const & H) {
+        if (is_constant(get_app_fn(H), get_eq_false_intro_name())) {
+            // not_of_eq_false (eq_false_intro H) == H
+            return app_arg(H);
+        }
+        expr eq = m_ctx.relaxed_whnf(m_ctx.infer(H));
+        expr lhs, rhs;
+        if (!is_eq(eq, lhs, rhs)) {
+            lean_app_builder_trace(tout() << "failed to build not_of_eq_false, equality expected:\n" << eq << "\n";);
+            throw app_builder_exception();
+        }
+        return ::lean::mk_app(mk_constant(get_not_of_eq_false_name()), lhs, H);
+    }
 };
 
 level get_level(type_context & ctx, expr const & A) {
@@ -922,13 +964,19 @@ expr mk_iff_true_intro(type_context & ctx, expr const & H) {
 }
 
 expr mk_eq_false_intro(type_context & ctx, expr const & H) {
-    // TODO(Leo): implement custom version if bottleneck.
-    return mk_app(ctx, get_eq_false_intro_name(), {H});
+    return app_builder(ctx).mk_eq_false_intro(H);
 }
 
 expr mk_eq_true_intro(type_context & ctx, expr const & H) {
-    // TODO(Leo): implement custom version if bottleneck.
-    return mk_app(ctx, get_eq_true_intro_name(), {H});
+    return app_builder(ctx).mk_eq_true_intro(H);
+}
+
+expr mk_not_of_eq_false(type_context & ctx, expr const & H) {
+    return app_builder(ctx).mk_not_of_eq_false(H);
+}
+
+expr mk_of_eq_true(type_context & ctx, expr const & H) {
+    return app_builder(ctx).mk_of_eq_true(H);
 }
 
 expr mk_neq_of_not_iff(type_context & ctx, expr const & H) {

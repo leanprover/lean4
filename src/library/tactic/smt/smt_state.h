@@ -40,15 +40,22 @@ private:
     congruence_closure m_cc;
     unit_propagation   m_up;
 
+    lbool get_value_core(expr const & e);
     virtual void propagated(unsigned n, expr const * p) override;
     virtual lbool get_value(expr const & e) override;
-    virtual optional<expr> get_proof(expr const & e) override;
 public:
     smt(type_context & ctx, smt_goal & g);
     virtual ~smt();
 
     void internalize(expr const & e);
     void add(expr const & type, expr const & proof);
+
+    virtual optional<expr> get_proof(expr const & e) override;
+    bool inconsistent() const { return m_cc.inconsistent(); }
+    optional<expr> get_inconsistency_proof() const { return m_cc.get_inconsistency_proof(); }
+    optional<expr> get_eq_proof(expr const & lhs, expr const & rhs) const {
+        return m_cc.get_eq_proof(lhs, rhs);
+    }
 };
 
 void initialize_smt_state();

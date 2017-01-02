@@ -31,13 +31,16 @@ public:
     simp_lemmas const & get_simp_lemmas() const { return m_simp_lemmas; }
 };
 
-class smt {
+class smt : public cc_propagation_handler {
 private:
     type_context &     m_ctx;
     smt_goal &         m_goal;
     congruence_closure m_cc;
+
+    virtual void propagated(unsigned n, expr const * p) override;
 public:
     smt(type_context & ctx, smt_goal & g);
+    virtual ~smt();
 
     void internalize(expr const & e, bool toplevel);
     void add(expr const & type, expr const & proof);

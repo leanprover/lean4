@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "library/app_builder.h"
 #include "library/delayed_abstraction.h"
 #include "library/type_context.h"
+#include "library/trace.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_list.h"
 #include "library/vm/vm_name.h"
@@ -32,7 +33,19 @@ smt_goal::smt_goal(smt_config const & cfg):
 smt::smt(type_context & ctx, smt_goal & g):
     m_ctx(ctx),
     m_goal(g),
-    m_cc(ctx, m_goal.m_cc_state) {
+    m_cc(ctx, m_goal.m_cc_state, this) {
+}
+
+smt::~smt() {
+}
+
+void smt::propagated(unsigned n, expr const * p) {
+    lean_trace(name({"smt", "units"}), scope_trace_env _(m_ctx.env(), m_ctx);
+               auto out = tout();
+               auto fmt = out.get_formatter();
+               format r;
+               for (unsigned i = 0; i < n; i++) { if (i > 0) r += comma() + line(); r += fmt(p[i]); }
+               tout() << group(format("new facts:") + line() + bracket("{", r, "}")) << "\n";);
 }
 
 void smt::internalize(expr const & e, bool toplevel) {
@@ -426,6 +439,8 @@ vm_obj smt_tactic_intros(vm_obj const & ss, vm_obj const & _ts) {
 }
 
 void initialize_smt_state() {
+    register_trace_class(name({"smt", "units"}));
+
     DECLARE_VM_BUILTIN(name({"smt_state", "mk"}),             smt_state_mk);
     DECLARE_VM_BUILTIN(name({"smt_state", "to_format"}),      smt_state_to_format);
     DECLARE_VM_BUILTIN("tactic_to_smt_tactic",                tactic_to_smt_tactic);

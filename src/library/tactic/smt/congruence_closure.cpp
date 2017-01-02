@@ -97,12 +97,13 @@ public:
 
 MK_THREAD_LOCAL_GET_DEF(ext_congr_lemma_cache_manager, get_clcm);
 
-congruence_closure::congruence_closure(type_context & ctx, state & s):
+congruence_closure::congruence_closure(type_context & ctx, state & s, cc_propagation_handler * phandler):
     m_ctx(ctx), m_defeq_canonizer(ctx), m_state(s), m_cache_ptr(get_clcm().mk(ctx.env())), m_mode(ctx.mode()),
     m_rel_info_getter(mk_relation_info_getter(ctx.env())),
     m_symm_info_getter(mk_symm_info_getter(ctx.env())),
     m_refl_info_getter(mk_refl_info_getter(ctx.env())),
-    m_ac(*this, m_state.m_ac_state) {
+    m_ac(*this, m_state.m_ac_state),
+    m_phandler(phandler) {
 }
 
 congruence_closure::~congruence_closure() {
@@ -1414,26 +1415,25 @@ void congruence_closure::add_eqv_step(expr e1, expr e2, expr const & H,
         m_state.m_parents.insert(e2_root, ps2);
     }
 
-    if (ac_var1 && ac_var2)
-        m_ac.add_eq(*ac_var1, *ac_var2);
+    if (!m_state.m_inconsistent) {
+        if (ac_var1 && ac_var2)
+            m_ac.add_eq(*ac_var1, *ac_var2);
 
-    // propagate new hypotheses back to current state
-    if (!to_propagate.empty()) {
-        /*
-          TODO(Leo): decide how to communicate propagations.
-        */
+        if (constructor_eq) {
+            propagate_constructor_eq(e1_root, e2_root);
+        }
+
+        if (value_inconsistency) {
+            propagate_value_inconsistency(e1_root, e2_root);
+        }
+
+        update_mt(e2_root);
+        check_new_subsingleton_eq(e1_root, e2_root);
+
+        if (!to_propagate.empty() && m_phandler) {
+            m_phandler->propagated(to_propagate);
+        }
     }
-
-    if (constructor_eq) {
-        propagate_constructor_eq(e1_root, e2_root);
-    }
-
-    if (value_inconsistency) {
-        propagate_value_inconsistency(e1_root, e2_root);
-    }
-
-    update_mt(e2_root);
-    check_new_subsingleton_eq(e1_root, e2_root);
     lean_trace(name({"cc", "merge"}), scope_trace_env scope(m_ctx.env(), m_ctx);
                tout() << e1_root << " = " << e2_root << "\n";);
     lean_trace(name({"debug", "cc"}), scope_trace_env scope(m_ctx.env(), m_ctx);
@@ -1447,6 +1447,10 @@ void congruence_closure::add_eqv_step(expr e1, expr e2, expr const & H,
 
 void congruence_closure::process_todo(optional<expr> const & added_prop) {
     while (!m_todo.empty()) {
+        if (m_state.m_inconsistent) {
+            m_todo.clear();
+            return;
+        }
         expr lhs, rhs, H; bool heq_proof;
         std::tie(lhs, rhs, H, heq_proof) = m_todo.back();
         m_todo.pop_back();
@@ -1537,7 +1541,7 @@ bool congruence_closure::proved(expr const & e) const {
 
 void congruence_closure::internalize(expr const & e, bool toplevel) {
     flet<congruence_closure *> set_cc(g_cc, this);
-    bool to_propagate = false; // We don't need to mark units for propagation
+    bool to_propagate = true;
     internalize_core(e, toplevel, to_propagate, none_expr());
     process_todo(none_expr());
 }

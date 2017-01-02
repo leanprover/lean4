@@ -19,6 +19,13 @@ struct ext_congr_lemma;
 struct ext_congr_lemma_cache;
 typedef std::shared_ptr<ext_congr_lemma_cache> ext_congr_lemma_cache_ptr;
 
+class cc_propagation_handler {
+public:
+    virtual ~cc_propagation_handler() {}
+    virtual void propagated(unsigned n, expr const * data) = 0;
+    void propagated(buffer<expr> const & p) { propagated(p.size(), p.data()); }
+};
+
 class congruence_closure {
     /* Key for the equality congruence table. */
     struct congr_key {
@@ -165,7 +172,7 @@ private:
     symm_info_getter          m_symm_info_getter;
     refl_info_getter          m_refl_info_getter;
     theory_ac                 m_ac;
-
+    cc_propagation_handler *  m_phandler;
     friend class theory_ac;
 
     int compare_symm(expr lhs1, expr rhs1, expr lhs2, expr rhs2) const;
@@ -225,7 +232,7 @@ private:
 
     friend ext_congr_lemma_cache_ptr const & get_cache_ptr(congruence_closure const & cc);
 public:
-    congruence_closure(type_context & ctx, state & s);
+    congruence_closure(type_context & ctx, state & s, cc_propagation_handler * phandler = nullptr);
     ~congruence_closure();
 
     environment const & env() const { return m_ctx.env(); }

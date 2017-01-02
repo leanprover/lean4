@@ -65,13 +65,13 @@ Installation
 ============
 
 You can also include lean-mode permanently in your emacs init file.  In this
-case, just put the following code in your Emacs init file:
+case, just put the following code in your Emacs init file (typically `~/.emacs.d/init.el`):
 ```elisp
 ;; You need to modify the following two lines:
 (setq lean-rootdir "~/projects/lean")
 (setq lean-emacs-path "~/projects/lean/src/emacs")
 
-(setq lean-required-packages '(company dash dash-functional f
+(setq lean-mode-required-packages '(company dash dash-functional f
                                flycheck let-alist s seq))
 
 (require 'package)

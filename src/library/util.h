@@ -241,6 +241,7 @@ bool is_or(expr const & e, expr & A, expr & B);
 /** \brief Return true if \c e is of the form <tt>(not arg)</tt> or <tt>arg -> false</tt>, and store \c arg in \c a.
      Return false otherwise */
 bool is_not(expr const & e, expr & a);
+inline bool is_not(expr const & e) { expr a; return is_not(e, a); }
 /** \brief Extends is_not to handle (lhs ≠ rhs). In the new case, it stores (lhs = rhs) in \c a. */
 bool is_not_or_ne(expr const & e, expr & a);
 expr mk_not(expr const & e);

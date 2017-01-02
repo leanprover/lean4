@@ -137,8 +137,8 @@ struct ematch_fn {
                        Important: we must process arguments from left to right. Otherwise, the "trick"
                        above will not work.
                     */
-                    m_cc.internalize(p_type, false);
-                    m_cc.internalize(t_type, false);
+                    m_cc.internalize(p_type);
+                    m_cc.internalize(t_type);
                     if (auto H = m_cc.get_eq_proof(t_type, p_type)) {
                         expr cast_H_t = mk_app(m_ctx, get_cast_name(), *H, t);
                         return m_ctx.is_def_eq(p, cast_H_t);
@@ -324,7 +324,7 @@ struct ematch_fn {
             return success;
         } else {
             /* Check if the types are provably equal, and cast t */
-            m_cc.internalize(p_type, false);
+            m_cc.internalize(p_type);
             if (auto H = m_cc.get_eq_proof(t_type, p_type)) {
                 expr cast_H_t = mk_app(m_ctx, get_cast_name(), *H, t);
                 bool success = m_ctx.is_def_eq(p, cast_H_t);

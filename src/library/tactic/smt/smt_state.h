@@ -47,7 +47,7 @@ public:
     smt(type_context & ctx, smt_goal & g);
     virtual ~smt();
 
-    void internalize(expr const & e, bool toplevel);
+    void internalize(expr const & e);
     void add(expr const & type, expr const & proof);
 };
 

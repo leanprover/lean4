@@ -48,7 +48,7 @@ void smt::propagated(unsigned n, expr const * p) {
                for (unsigned i = 0; i < n; i++) { if (i > 0) r += comma() + line(); r += fmt(p[i]); }
                tout() << group(format("new facts:") + line() + bracket("{", r, "}")) << "\n";);
     for (unsigned i = 0; i < n; i++) {
-        m_up.assignment_updated(p[i]);
+        m_up.assigned(p[i]);
     }
 }
 
@@ -64,8 +64,8 @@ optional<expr> smt::get_proof(expr const & e) {
     return none_expr();
 }
 
-void smt::internalize(expr const & e, bool toplevel) {
-    m_cc.internalize(e, toplevel);
+void smt::internalize(expr const & e) {
+    m_cc.internalize(e);
     m_goal.m_em_state.internalize(m_ctx, e);
 }
 
@@ -176,7 +176,7 @@ expr intros(environment const & env, options const & opts, metavar_context & mct
             /* TODO(Leo): usual SMT preprocessing: destruct and/exists, push negation, ... */
             new_Hs.push_back(h);
 
-            S.internalize(h, true);
+            S.internalize(h);
             S.add(type, h);
             target = binding_body(target);
         } else if (is_let(target)) {
@@ -186,8 +186,8 @@ expr intros(environment const & env, options const & opts, metavar_context & mct
             expr h     = locals.push_let(n, type, value);
             to_inst.push_back(h);
             new_Hs.push_back(h);
-            S.internalize(type, true);
-            S.internalize(value, true);
+            S.internalize(type);
+            S.internalize(value);
             /* TODO(Leo): add equality between h and value at CC? */
             S.add(type, h);
             target = let_body(target);
@@ -416,7 +416,7 @@ vm_obj smt_tactic_close(vm_obj const & ss, vm_obj const & _ts) {
         }
     }
 
-    cc.internalize(target, true);
+    cc.internalize(target);
     expr lhs, rhs;
     if (is_eq(target, lhs, rhs)) {
         if (auto pr = cc.get_eq_proof(lhs, rhs)) {

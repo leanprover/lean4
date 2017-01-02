@@ -24,8 +24,6 @@ class unit_propagation {
 public:
     class state {
         friend class unit_propagation;
-        rb_expr_map<expr>                        m_lemmas_to_proofs;
-        rb_expr_map<expr>                        m_watched_facts[2];
         rb_multi_map<expr, expr, expr_quick_cmp> m_facts_to_lemmas;
         rb_multi_map<expr, expr, expr_quick_cmp> m_facts_to_dep_lemmas;
     public:
@@ -42,10 +40,15 @@ private:
     type_context & m_ctx;
     state &        m_state;
     assignment &   m_assignment;
+
+    lbool get_value(expr const & e);
+    void visit_lemma(expr const & e);
+    void visit_dep_lemma(expr const & e);
+    void propagate(expr const & e);
+
 public:
     unit_propagation(type_context & ctx, state & s, assignment & assignment);
-    void internalize(expr const & e);
-    void assignment_updated(expr const & e);
+    void assigned(expr const & e);
 };
 
 typedef unit_propagation::state up_state;

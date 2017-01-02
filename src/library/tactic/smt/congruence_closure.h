@@ -63,7 +63,6 @@ class congruence_closure {
         /* Variable in the AC theory. */
         optional<expr> m_ac_var;
         unsigned       m_flipped:1;      // proof has been flipped
-        unsigned       m_to_propagate:1; // must be propagated back to state when in equivalence class containing true/false
         unsigned       m_interpreted:1;  // true if the node should be viewed as an abstract value
         unsigned       m_constructor:1;  // true if head symbol is a constructor
         /* m_heq_proofs == true iff some proofs in the equivalence class are based on heterogeneous equality.
@@ -141,7 +140,7 @@ public:
         config             m_config;
         friend class congruence_closure;
         bool check_eqc(expr const & e) const;
-        void mk_entry_core(expr const & e, bool to_propagate, bool interpreted, bool constructor);
+        void mk_entry_core(expr const & e, bool interpreted, bool constructor);
     public:
         state(name_set const & ho_fns = name_set(), config const & cfg = config());
         void get_roots(buffer<expr> & roots, bool nonsingleton_only = true) const;
@@ -193,11 +192,10 @@ private:
     void add_congruence_table(expr const & e);
     void check_eq_true(symm_congr_key const & k);
     void add_symm_congruence_table(expr const & e);
-    void mk_entry_core(expr const & e, bool to_propagate, bool interpreted = false);
-    void mk_entry(expr const & e, bool to_propagate);
+    void mk_entry(expr const & e, bool interpreted);
     void set_ac_var(expr const & e);
-    void internalize_app(expr const & e, bool toplevel, bool to_propagate);
-    void internalize_core(expr const & e, bool toplevel, bool to_propagate, optional<expr> const & parent);
+    void internalize_app(expr const & e);
+    void internalize_core(expr const & e, optional<expr> const & parent);
     void push_todo(expr const & lhs, expr const & rhs, expr const & H, bool heq_proof);
     void push_new_eq(expr const & lhs, expr const & rhs, expr const & H) { push_todo(lhs, rhs, H, false); }
     void push_refl_eq(expr const & lhs, expr const & rhs);
@@ -253,7 +251,6 @@ public:
        4- Terms containing meta-variables.
        5- The subterms of lambda-expressions.
        6- Sorts (Type and Prop). */
-    void internalize(expr const & e, bool toplevel);
     void internalize(expr const & e);
 
     void add(expr const & type, expr const & proof);

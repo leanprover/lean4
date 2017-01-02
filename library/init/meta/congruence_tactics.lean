@@ -34,7 +34,7 @@ meta constant cc_state.inc_gmt          : cc_state → cc_state
 meta constant cc_state.is_cg_root       : cc_state → expr → bool
 meta constant cc_state.pp_eqc           : cc_state → expr → tactic format
 meta constant cc_state.pp_core          : cc_state → bool → tactic format
-meta constant cc_state.internalize      : cc_state → expr → bool → tactic cc_state
+meta constant cc_state.internalize      : cc_state → expr → tactic cc_state
 meta constant cc_state.add              : cc_state → expr → tactic cc_state
 meta constant cc_state.is_eqv           : cc_state → expr → expr → tactic bool
 meta constant cc_state.is_not_eqv       : cc_state → expr → expr → tactic bool
@@ -74,7 +74,7 @@ end cc_state
 
 open tactic
 meta def tactic.cc_core (cfg : cc_config) : tactic unit :=
-do intros, s ← cc_state.mk_using_hs_core cfg, t ← target, s ← s^.internalize t tt,
+do intros, s ← cc_state.mk_using_hs_core cfg, t ← target, s ← s^.internalize t,
    if s^.inconsistent then do {
      pr ← s^.false_proof,
      mk_app `false.elim [t, pr] >>= exact}
@@ -110,8 +110,8 @@ tactic.cc_dbg_core default_cc_config
 meta def tactic.ac_refl : tactic unit :=
 do (lhs, rhs) ← target >>= match_eq,
    s ← return $ cc_state.mk,
-   s ← s^.internalize lhs ff,
-   s ← s^.internalize rhs ff,
+   s ← s^.internalize lhs,
+   s ← s^.internalize rhs,
    b ← s^.is_eqv lhs rhs,
    if b then do {
      t ← return $ expr.const `true [],

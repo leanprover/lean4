@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "library/util.h"
+#include "library/trace.h"
 #include "library/tactic/smt/unit_propagation.h"
 
 namespace lean {
@@ -13,6 +14,7 @@ static bool is_lemma(type_context & ctx, expr e) {
     bool arrow = false;
     while (is_arrow(e) && !is_not(e)) {
         arrow = true;
+        if (!ctx.is_prop(binding_domain(e))) return false;
         e     = binding_body(e);
     }
     return arrow || is_or(e);
@@ -46,11 +48,95 @@ static expr flip(expr const & e) {
 unit_propagation::unit_propagation(type_context & ctx, state & s, assignment & assignment):
     m_ctx(ctx), m_state(s), m_assignment(assignment) {}
 
-void unit_propagation::internalize(expr const & /*e*/) {
-    // TODO(Leo)
+lbool unit_propagation::get_value(expr const & e) {
+    expr arg;
+    if (is_not(e, arg))
+        return ~m_assignment.get_value(arg);
+    else
+        return m_assignment.get_value(e);
 }
 
-void unit_propagation::assignment_updated(expr const & /*e*/) {
-    // TODO(Leo)
+static expr get_var(expr const & e) {
+    expr arg;
+    if (is_not(e, arg))
+        return arg;
+    else
+        return e;
+}
+
+void unit_propagation::visit_lemma(expr const & e) {
+    lean_assert(is_lemma(ctx, e));
+    expr it        = e;
+    unsigned i     = 0;
+    expr watches[2];
+
+    /* Traverse A_i */
+    while (is_arrow(it) && !is_not(it) && i < 2) {
+        expr const & p = binding_domain(it);
+        switch (get_value(p)) {
+        case l_true:   break;
+        case l_false: case l_undef:
+            watches[i] = get_var(p);
+            i++;
+            break;
+        }
+        it = binding_body(it);
+    }
+
+    /* Traverse B_j */
+    bool done = false;
+    while (!done && i < 2) {
+        expr p, next_it;
+        if (is_or(it, p, next_it)) {
+            it   = next_it;
+        } else {
+            p    = it;
+            done = true;
+        }
+        switch (get_value(p)) {
+        case l_false: break;
+        case l_true: case l_undef:
+            watches[i] = get_var(p);
+            i++;
+            break;
+        }
+    }
+
+    if (i == 2) {
+        m_state.m_facts_to_lemmas.insert(watches[0], e);
+        m_state.m_facts_to_lemmas.insert(watches[1], e);
+        return;
+    }
+
+    if (i == 0) return;
+
+    /* TODO(Leo): */
+}
+
+void unit_propagation::visit_dep_lemma(expr const & e) {
+    /* TODO(Leo): */
+}
+
+void unit_propagation::propagate(expr const & e) {
+    if (list<expr> const * lemmas = m_state.m_facts_to_lemmas.find(e)) {
+        for (expr const & lemma : *lemmas)
+            visit_lemma(lemma);
+    }
+
+    if (list<expr> const * lemmas = m_state.m_facts_to_dep_lemmas.find(e)) {
+        for (expr const & lemma : *lemmas)
+            visit_dep_lemma(lemma);
+    }
+}
+
+void unit_propagation::assigned(expr const & e) {
+    tout() << "assigned: " << e << " ::: " << m_assignment.get_value(e) << "\n";
+    if (is_lemma(m_ctx, e) && m_assignment.get_value(e) == l_true) {
+        visit_lemma(e);
+    } else if (is_dep_lemma(m_ctx, e) && m_assignment.get_value(e) == l_true) {
+        visit_dep_lemma(e);
+    } else if (is_fact(m_ctx, e)) {
+        propagate(e);
+    }
 }
 }

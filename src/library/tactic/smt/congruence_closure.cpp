@@ -437,9 +437,7 @@ void congruence_closure::process_subsingleton_elem(expr const & e) {
     bool dummy;
     type = m_defeq_canonizer.canonize(type, dummy);
     /* Make sure type has been internalized */
-    bool toplevel  = true;
-    bool propagate = false;
-    internalize_core(type, toplevel, propagate, none_expr());
+    internalize_core(type, none_expr());
     /* Try to find representative */
     if (auto it = m_state.m_subsingleton_reprs.find(type)) {
         push_subsingleton_eq(e, *it);
@@ -573,11 +571,13 @@ void congruence_closure::add_symm_congruence_table(expr const & e) {
 
 congruence_closure::state::state(name_set const & ho_fns, config const & cfg):
     m_ho_fns(ho_fns), m_config(cfg) {
-    mk_entry_core(mk_true(), false, true, false);
-    mk_entry_core(mk_false(), false, true, false);
+    bool interpreted = true;
+    bool constructor = false;
+    mk_entry_core(mk_true(), interpreted, constructor);
+    mk_entry_core(mk_false(), interpreted, constructor);
 }
 
-void congruence_closure::state::mk_entry_core(expr const & e, bool to_propagate, bool interpreted, bool constructor) {
+void congruence_closure::state::mk_entry_core(expr const & e, bool interpreted, bool constructor) {
     lean_assert(m_entries.find(e) == nullptr);
     entry n;
     n.m_next         = e;
@@ -587,31 +587,16 @@ void congruence_closure::state::mk_entry_core(expr const & e, bool to_propagate,
     n.m_flipped      = false;
     n.m_interpreted  = interpreted;
     n.m_constructor  = constructor;
-    n.m_to_propagate = to_propagate;
     n.m_heq_proofs   = false;
     n.m_mt           = m_gmt;
     n.m_fo           = false;
     m_entries.insert(e, n);
 }
 
-void congruence_closure::mk_entry_core(expr const & e, bool to_propagate, bool interpreted) {
+void congruence_closure::mk_entry(expr const & e, bool interpreted) {
     bool constructor = static_cast<bool>(is_constructor_app(env(), e));
-    m_state.mk_entry_core(e, to_propagate, interpreted, constructor);
+    m_state.mk_entry_core(e, interpreted, constructor);
     process_subsingleton_elem(e);
-}
-
-void congruence_closure::mk_entry(expr const & e, bool to_propagate) {
-    if (to_propagate && !m_ctx.is_prop(e))
-        to_propagate = false;
-    if (auto it = get_entry(e)) {
-        if (!it->m_to_propagate && to_propagate) {
-            entry new_it = *it;
-            new_it.m_to_propagate = to_propagate;
-            m_state.m_entries.insert(e, new_it);
-        }
-        return;
-    }
-    mk_entry_core(e, to_propagate);
 }
 
 /** Return true if 'e' represents a value (numeral, character, or string).
@@ -667,37 +652,27 @@ void congruence_closure::set_ac_var(expr const & e) {
     }
 }
 
-void congruence_closure::internalize_app(expr const & e, bool toplevel, bool to_propagate) {
-    bool is_lapp = false;
+void congruence_closure::internalize_app(expr const & e) {
     if (is_interpreted_value(e)) {
         bool interpreted = true;
-        mk_entry_core(e, false, interpreted);
+        mk_entry(e, interpreted);
         if (m_state.m_config.m_values) {
             /* we treat values as atomic symbols */
             return;
         }
     } else {
-        is_lapp = is_logical_app(e);
-        mk_entry_core(e, to_propagate && !is_lapp);
+        bool interpreted = false;
+        mk_entry(e, interpreted);
         if (m_state.m_config.m_values && is_value(e)) {
             /* we treat values as atomic symbols */
             return;
         }
     }
 
-    if (toplevel) {
-        if (is_lapp) {
-            to_propagate = true; // we must propagate the children of a top-level logical app (or, and, iff, ite)
-        } else {
-            toplevel = false;    // children of a non-logical application will not be marked as toplevel
-        }
-    } else {
-        to_propagate = false;
-    }
     expr lhs, rhs;
     if (is_symm_relation(e, lhs, rhs)) {
-        internalize_core(lhs, toplevel, to_propagate, some_expr(e));
-        internalize_core(rhs, toplevel, to_propagate, some_expr(e));
+        internalize_core(lhs, some_expr(e));
+        internalize_core(rhs, some_expr(e));
         bool symm_table = true;
         add_occurrence(e, lhs, symm_table);
         add_occurrence(e, rhs, symm_table);
@@ -717,14 +692,15 @@ void congruence_closure::internalize_app(expr const & e, bool toplevel, bool to_
                 add_occurrence(e, arg, symm_table);
                 if (pinfos && head(pinfos).is_inst_implicit()) {
                     /* We do not recurse on instances when m_state.m_config.m_ignore_instances is true. */
-                    mk_entry(arg, to_propagate);
+                    bool interpreted = false;
+                    mk_entry(arg, interpreted);
                     propagate_inst_implicit(arg);
                 } else {
-                    internalize_core(arg, toplevel, to_propagate, some_expr(e));
+                    internalize_core(arg, some_expr(e));
                 }
                 if (pinfos) pinfos = tail(pinfos);
             }
-            internalize_core(fn, toplevel, to_propagate, some_expr(e));
+            internalize_core(fn, some_expr(e));
             add_occurrence(e, fn, symm_table);
             set_fo(e);
             add_congruence_table(e);
@@ -736,20 +712,24 @@ void congruence_closure::internalize_app(expr const & e, bool toplevel, bool to_
                 lean_assert(is_app(curr));
                 expr const & curr_arg  = app_arg(curr);
                 expr const & curr_fn   = app_fn(curr);
-                if (i < apps.size() - 1)
-                    mk_entry(curr, to_propagate);
+                if (i < apps.size() - 1) {
+                    bool interpreted = false;
+                    mk_entry(curr, interpreted);
+                }
                 for (unsigned j = i; j < apps.size(); j++) {
                     add_occurrence(apps[j], curr_arg, symm_table);
                     add_occurrence(apps[j], curr_fn, symm_table);
                 }
                 if (pinfos && head(pinfos).is_inst_implicit()) {
                     /* We do not recurse on instances when m_state.m_config.m_ignore_instances is true. */
-                    mk_entry(curr_arg, to_propagate);
-                    mk_entry(curr_fn, to_propagate);
+                    bool interpreted = false;
+                    mk_entry(curr_arg, interpreted);
+                    mk_entry(curr_fn, interpreted);
                     propagate_inst_implicit(curr_arg);
                 } else {
-                    internalize_core(curr_arg, toplevel, to_propagate, some_expr(e));
-                    mk_entry(curr_fn, to_propagate);
+                    internalize_core(curr_arg, some_expr(e));
+                    bool interpreted = false;
+                    mk_entry(curr_fn, interpreted);
                 }
                 if (pinfos) pinfos = tail(pinfos);
                 add_congruence_table(curr);
@@ -759,7 +739,7 @@ void congruence_closure::internalize_app(expr const & e, bool toplevel, bool to_
     apply_simple_eqvs(e);
 }
 
-void congruence_closure::internalize_core(expr const & e, bool toplevel, bool to_propagate, optional<expr> const & parent) {
+void congruence_closure::internalize_core(expr const & e, optional<expr> const & parent) {
     lean_assert(closed(e));
     /* We allow metavariables after partitions have been frozen. */
     if (has_expr_metavar(e) && !m_state.m_froze_partitions)
@@ -774,36 +754,36 @@ void congruence_closure::internalize_core(expr const & e, bool toplevel, bool to
         case expr_kind::Constant:
         case expr_kind::Local:
         case expr_kind::Meta:
-            mk_entry_core(e, to_propagate);
+            mk_entry(e, false);
             break;;
         case expr_kind::Lambda:
         case expr_kind::Let:
-            mk_entry_core(e, false);
+            mk_entry(e, false);
             break;
         case expr_kind::Macro:
             if (is_interpreted_value(e)) {
                 bool interpreted = true;
-                mk_entry_core(e, false, interpreted);
+                mk_entry(e, interpreted);
             } else {
                 for (unsigned i = 0; i < macro_num_args(e); i++)
-                    internalize_core(macro_arg(e, i), false, false, some_expr(e));
-                mk_entry_core(e, to_propagate);
+                    internalize_core(macro_arg(e, i), some_expr(e));
+                bool interpreted = false;
+                mk_entry(e, interpreted);
                 if (is_annotation(e))
                     push_refl_eq(e, get_annotation_arg(e));
             }
             break;
         case expr_kind::Pi:
             if (is_arrow(e) && m_ctx.is_prop(binding_domain(e)) && m_ctx.is_prop(binding_body(e))) {
-                to_propagate = toplevel; /*  We must propagate children if arrow is top-level */
-                internalize_core(binding_domain(e), toplevel, to_propagate, some_expr(e));
-                internalize_core(binding_body(e), toplevel, to_propagate, some_expr(e));
+                internalize_core(binding_domain(e), some_expr(e));
+                internalize_core(binding_body(e), some_expr(e));
             }
             if (m_ctx.is_prop(e)) {
-                mk_entry_core(e, false);
+                mk_entry(e, false);
             }
             break;
         case expr_kind::App: {
-            internalize_app(e, toplevel, to_propagate);
+            internalize_app(e);
             break;
         }}
     }
@@ -1271,7 +1251,7 @@ void congruence_closure::propagate_projection_constructor(expr const & p, expr c
        The internalizer will add the new equality. */
     p_args[mkidx] = c;
     expr new_p = mk_app(p_fn, p_args);
-    internalize_core(new_p, false, false, none_expr());
+    internalize_core(new_p, none_expr());
 }
 
 void congruence_closure::propagate_value_inconsistency(expr const & e1, expr const & e2) {
@@ -1366,7 +1346,7 @@ void congruence_closure::add_eqv_step(expr e1, expr e2, expr const & H,
     expr it = e1;
     do {
         auto it_n = get_entry(it);
-        if (propagate && it_n->m_to_propagate)
+        if (propagate)
             to_propagate.push_back(it);
         lean_assert(it_n);
         entry new_it_n   = *it_n;
@@ -1473,37 +1453,29 @@ void congruence_closure::add(expr const & type, expr const & proof) {
     expr lhs, rhs;
     if (is_eq(type, lhs, rhs) || is_heq(type, lhs, rhs)) {
         if (is_neg) {
-            bool toplevel     = true;
-            bool to_propagate = false;
             bool heq_proof    = false;
-            internalize_core(p, toplevel, to_propagate, none_expr());
+            internalize_core(p, none_expr());
             add_eqv_core(p, mk_false(), mk_eq_false_intro(m_ctx, proof), some_expr(type), heq_proof);
         } else {
-            bool toplevel     = false;
-            bool to_propagate = false;
             bool heq_proof    = is_heq(type);
-            internalize_core(lhs, toplevel, to_propagate, none_expr());
-            internalize_core(rhs, toplevel, to_propagate, none_expr());
+            internalize_core(lhs, none_expr());
+            internalize_core(rhs, none_expr());
             add_eqv_core(lhs, rhs, proof, some_expr(type), heq_proof);
         }
     } else if (is_iff(type, lhs, rhs)) {
-        bool toplevel     = true;
-        bool to_propagate = true;
         bool heq_proof    = false;
         if (is_neg) {
             expr neq_proof = mk_neq_of_not_iff(m_ctx, proof);
-            internalize_core(p, toplevel, to_propagate, none_expr());
+            internalize_core(p, none_expr());
             add_eqv_core(p, mk_false(), mk_eq_false_intro(m_ctx, neq_proof), some_expr(type), heq_proof);
         } else {
-            internalize_core(lhs, toplevel, to_propagate, none_expr());
-            internalize_core(rhs, toplevel, to_propagate, none_expr());
+            internalize_core(lhs, none_expr());
+            internalize_core(rhs, none_expr());
             add_eqv_core(lhs, rhs, mk_propext(lhs, rhs, proof), some_expr(type), heq_proof);
         }
     } else if (is_neg || m_ctx.is_prop(p)) {
-        bool toplevel     = true;
-        bool to_propagate = false;
         bool heq_proof    = false;
-        internalize_core(p, toplevel, to_propagate, none_expr());
+        internalize_core(p, none_expr());
         if (is_neg) {
             add_eqv_core(p, mk_false(), mk_eq_false_intro(m_ctx, proof), some_expr(type), heq_proof);
         } else {
@@ -1539,18 +1511,10 @@ bool congruence_closure::proved(expr const & e) const {
     return is_eqv(e, mk_true());
 }
 
-void congruence_closure::internalize(expr const & e, bool toplevel) {
-    flet<congruence_closure *> set_cc(g_cc, this);
-    bool to_propagate = true;
-    internalize_core(e, toplevel, to_propagate, none_expr());
-    process_todo(none_expr());
-}
-
 void congruence_closure::internalize(expr const & e) {
-    if (m_ctx.is_prop(e))
-        internalize(e, true);
-    else
-        internalize(e, false);
+    flet<congruence_closure *> set_cc(g_cc, this);
+    internalize_core(e, none_expr());
+    process_todo(none_expr());
 }
 
 optional<expr> congruence_closure::get_inconsistency_proof() const {

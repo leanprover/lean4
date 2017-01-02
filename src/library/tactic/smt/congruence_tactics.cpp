@@ -175,9 +175,9 @@ vm_obj cc_state_add(vm_obj const & ccs, vm_obj const & H, vm_obj const & _s) {
     });
 }
 
-vm_obj cc_state_internalize(vm_obj const & ccs, vm_obj const & e, vm_obj const & top_level, vm_obj const & _s) {
+vm_obj cc_state_internalize(vm_obj const & ccs, vm_obj const & e, vm_obj const & _s) {
     cc_state_updt_proc({
-            cc.internalize(to_expr(e), to_bool(top_level));
+            cc.internalize(to_expr(e));
         });
 }
 

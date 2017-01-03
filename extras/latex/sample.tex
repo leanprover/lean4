@@ -5,7 +5,6 @@
 
 \usepackage{color}
 \definecolor{keywordcolor}{rgb}{0.7, 0.1, 0.1}   % red
-\definecolor{tacticcolor}{rgb}{0.1, 0.2, 0.6}    % blue
 \definecolor{commentcolor}{rgb}{0.4, 0.4, 0.4}   % grey
 \definecolor{symbolcolor}{rgb}{0.0, 0.1, 0.6}    % blue
 \definecolor{sortcolor}{rgb}{0.1, 0.5, 0.1}      % green
@@ -30,42 +29,43 @@ Here is a block of code:
 /-
 Basic properties of lists.
 -/
-import logic tools.helper_tactics data.nat.basic algebra.function
-open eq.ops helper_tactics nat prod function option
 
-inductive list (T : Type) : Type :=
-| nil {} : list T
-| cons   : T → list T → list T
+inductive list (α : Type) : Type
+| nil {} : list
+| cons   : α → list → list
 
 namespace list
+
 notation h :: t  := cons h t
 notation `[` l:(foldr `,` (h t, cons h t) nil `]`) := l
 
-variable {T : Type}
+variable {α : Type}
 
 /- append -/
 
-definition append : list T → list T → list T
+def append : list α → list α → list α
 | []       l := l
 | (h :: s) t := h :: (append s t)
 
 notation l₁ ++ l₂ := append l₁ l₂
 
-theorem append_nil_left (t : list T) : [] ++ t = t
+theorem nil_append (t : list α) : [] ++ t = t := rfl
 
-theorem append_cons (x : T) (s t : list T) : (x::s) ++ t = x::(s ++ t)
+theorem append_cons (x : α) (s t : list α) : (x::s) ++ t = x::(s ++ t) := rfl
 
-theorem append_nil_right : ∀ (t : list T), t ++ [] = t
+theorem append_nil : ∀ (t : list α), t ++ [] = t
 | []       := rfl
 | (a :: l) := calc
   (a :: l) ++ [] = a :: (l ++ []) : rfl
-             ... = a :: l         : append_nil_right l
+             ... = a :: l         : by rw append_nil l
 
-theorem append.assoc : ∀ (s t u : list T), s ++ t ++ u = s ++ (t ++ u)
+theorem append.assoc : ∀ (s t u : list α), s ++ t ++ u = s ++ (t ++ u)
 | []       t u := rfl
 | (a :: l) t u :=
   show a :: (l ++ t ++ u) = (a :: l) ++ (t ++ u),
-  by rewrite (append.assoc l t u)
+  begin rw (append.assoc l t u), reflexivity end
+
+end list
 \end{lstlisting}
 
 \end{document}

@@ -27,7 +27,6 @@ preamble in your document:
 
 \usepackage{color}
 \definecolor{keywordcolor}{rgb}{0.7, 0.1, 0.1}   % red
-\definecolor{tacticcolor}{rgb}{0.1, 0.2, 0.6}    % blue
 \definecolor{commentcolor}{rgb}{0.4, 0.4, 0.4}   % grey
 \definecolor{symbolcolor}{rgb}{0.0, 0.1, 0.6}    % blue
 \definecolor{sortcolor}{rgb}{0.1, 0.5, 0.1}      % green

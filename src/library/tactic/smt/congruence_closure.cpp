@@ -1914,7 +1914,7 @@ void initialize_congruence_closure() {
     g_or_eq_of_eq_false_right = new expr(mk_constant("or_eq_of_eq_false_right"));
     g_or_eq_of_eq             = new expr(mk_constant("or_eq_of_eq"));
 
-    g_not_eq_of_eq_true       = new expr(mk_constant("not_eq_of_eq_true "));
+    g_not_eq_of_eq_true       = new expr(mk_constant("not_eq_of_eq_true"));
     g_not_eq_of_eq_false      = new expr(mk_constant("not_eq_of_eq_false"));
     g_false_of_a_eq_not_a     = new expr(mk_constant("false_of_a_eq_not_a"));
 

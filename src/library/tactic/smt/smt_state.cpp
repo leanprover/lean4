@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "library/constants.h"
 #include "library/app_builder.h"
+#include "library/pp_options.h"
 #include "library/delayed_abstraction.h"
 #include "library/type_context.h"
 #include "library/trace.h"
@@ -390,40 +391,127 @@ vm_obj tactic_to_smt_tactic(vm_obj const &, vm_obj const & tac, vm_obj const & s
     }
 }
 
-vm_obj smt_state_to_format(vm_obj const & ss, vm_obj const & _ts) {
-    tactic_state ts = to_tactic_state(_ts);
-    LEAN_TACTIC_TRY;
-    format r;
-    if (!ts.goals()) {
-        r = format("no goals");
-    } else {
-        r = ts.pp_goal(head(ts.goals()));
-        /* TODO(Leo): improve, we are just pretty printing equivalence classes. */
-        /* TODO(Leo): disable local name purification */
-        if (!is_nil(ss)) {
-            cc_state ccs                   = to_smt_goal(head(ss)).get_cc_state();
-            type_context ctx               = mk_type_context_for(ts);
-            formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
-            formatter fmt                  = fmtf(ts.env(), ts.get_options(), ctx);
-            format cc_fmt                  = ccs.pp_eqcs(fmt, true);
-            r += line() + cc_fmt;
-        }
+static bool ignore_pp_fact(expr const & e) {
+    return
+        is_arrow(e) ||
+        is_true(e) ||
+        is_false(e) ||
+        is_or(e) ||
+        is_and(e) ||
+        is_not(e) ||
+        is_iff(e) ||
+        is_ite(e);
+}
 
-        /* Pretty print type of remaining goals
-           TODO(Leo): move this code to a different place */
-        metavar_context mctx = ts.mctx();
-        bool unicode         = get_pp_unicode(ts.get_options());
-        format turnstile     = unicode ? format("\u22A2") /* ⊢ */ : format("|-");
-        for (expr const & g : tail(ts.goals())) {
-            metavar_decl d = *mctx.get_metavar_decl(g);
-            type_context ctx(ts.env(), ts.get_options(), mctx, d.get_context(), transparency_mode::Semireducible);
-            formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
-            formatter fmt                  = fmtf(ts.env(), ts.get_options(), ctx);
-            r += line() + line() + turnstile + space() + nest(3, fmt(d.get_type()));
+static optional<format> pp_facts(cc_state const & ccs, expr const & root, formatter const & fmt) {
+    optional<format> r;
+    expr it = root;
+    do {
+        if (!ignore_pp_fact(it)) {
+            if (r)
+                r = *r + comma() + line() + fmt(it);
+            else
+                r = fmt(it);
         }
+        it = ccs.get_next(it);
+    } while (it != root);
+    return r;
+}
+
+static format pp_positive_facts(cc_state const & ccs, formatter const & fmt) {
+    if (auto r = pp_facts(ccs, mk_true(), fmt))
+        return group(format("facts:") + line() + bracket("{", *r, "}")) + line();
+    else
+        return format();
+}
+
+static format pp_negative_facts(cc_state const & ccs, formatter const & fmt) {
+    if (auto r = pp_facts(ccs, mk_false(), fmt))
+        return group(format("refuted facts:") + line() + bracket("{", *r, "}")) + line();
+    else
+        return format();
+}
+
+static format pp_equivalences(type_context & ctx, cc_state const & ccs, formatter const & fmt) {
+    format r;
+    bool first = true;
+    buffer<expr> roots;
+    ccs.get_roots(roots);
+    for (expr const & root : roots) {
+        if (root == mk_true() || root == mk_false()) continue;
+        if (ctx.is_proof(root)) continue;
+        if (first) first = false; else r += comma() + line();
+        r += ccs.pp_eqc(fmt, root);
     }
-    return to_obj(r);
-    LEAN_TACTIC_CATCH(ts);
+    if (!first) {
+        return group(format("equalities:") + line() + bracket("{", r, "}")) + line();
+    } else {
+        return format();
+    }
+}
+
+format smt_goal_to_format(smt_goal sg, tactic_state const & ts) {
+    lean_assert(ts.goals());
+    options opts               = ts.get_options().update_if_undef(get_pp_purify_locals_name(), false);
+    bool inst_mvars            = get_pp_instantiate_goal_mvars(opts);
+    bool unicode               = get_pp_unicode(opts);
+    unsigned indent            = get_pp_indent(opts);
+    metavar_decl decl          = *ts.get_main_goal_decl();
+    local_context lctx         = decl.get_context();
+    metavar_context mctx_tmp   = ts.mctx();
+    expr target                = decl.get_type();
+    if (inst_mvars)
+        target                 = mctx_tmp.instantiate_mvars(target);
+    format turnstile           = unicode ? format("\u22A2") /* ⊢ */ : format("|-");
+    type_context ctx(ts.env(), opts, mctx_tmp, lctx, transparency_mode::All);
+    formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
+    formatter fmt              = fmtf(ts.env(), opts, ctx);
+    smt S(ctx, sg);
+    format r;
+    if (S.inconsistent()) {
+        r  = format("contradictory goal, use 'smt_tactic.close' to close this goal");
+        r += line();
+    } else {
+        if (inst_mvars)
+            lctx                   = lctx.instantiate_mvars(mctx_tmp);
+        /* TODO(Leo): add support for hidding hypotheses */
+        r                          = lctx.pp(fmt, [&](local_decl const &) { return true; });
+        if (!lctx.empty())
+            r += line();
+        cc_state ccs               = sg.get_cc_state();
+        r += pp_positive_facts(ccs, fmt);
+        r += pp_negative_facts(ccs, fmt);
+        r += pp_equivalences(ctx, ccs, fmt);
+    }
+    r += turnstile + space() + nest(indent, fmt(target));
+    return r;
+}
+
+format smt_state_to_format_core(vm_obj const & ss, tactic_state const & ts) {
+    if (!ts.goals()) return format("no goals");
+    if (is_nil(ss))  return ts.pp(); /* fallback */
+    format r;
+    r = smt_goal_to_format(to_smt_goal(head(ss)), ts);
+
+    /* Pretty print type of remaining goals
+       TODO(Leo): move this code to a different place */
+    metavar_context mctx = ts.mctx();
+    bool unicode         = get_pp_unicode(ts.get_options());
+    format turnstile     = unicode ? format("\u22A2") /* ⊢ */ : format("|-");
+    for (expr const & g : tail(ts.goals())) {
+        metavar_decl d = *mctx.get_metavar_decl(g);
+        type_context ctx(ts.env(), ts.get_options(), mctx, d.get_context(), transparency_mode::Semireducible);
+        formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
+        formatter fmt                  = fmtf(ts.env(), ts.get_options(), ctx);
+        r += line() + line() + turnstile + space() + nest(3, fmt(d.get_type()));
+    }
+    return r;
+}
+
+vm_obj smt_state_to_format(vm_obj const & ss, vm_obj const & ts) {
+    LEAN_TACTIC_TRY;
+    return to_obj(smt_state_to_format_core(ss, to_tactic_state(ts)));
+    LEAN_TACTIC_CATCH(to_tactic_state(ts));
 }
 
 vm_obj mk_smt_state_empty_exception(tactic_state const & ts) {

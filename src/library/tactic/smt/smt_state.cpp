@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/revert_tactic.h"
 #include "library/tactic/dsimplify.h"
+#include "library/tactic/simplify.h"
 #include "library/tactic/change_tactic.h"
 #include "library/tactic/smt/congruence_tactics.h"
 #include "library/tactic/smt/smt_state.h"
@@ -162,8 +163,24 @@ vm_obj preprocess(tactic_state const & s, smt_pre_config const & cfg) {
     if (auto r = cfg.m_simp_lemmas.find(get_eq_name()))
         eq_lemmas = *r;
     expr new_target          = dsimplify_fn(ctx, max_steps, visit_instances, eq_lemmas)(target);
-    /* TODO(Leo): use simplify too */
-    return change(new_target, s);
+    bool contextual          = false;
+    bool lift_eq             = true;
+    bool canonize_instances  = true;
+    bool canonize_proofs     = false;
+    bool use_axioms          = true;
+    simp_result r            = simplify_fn(ctx, cfg.m_simp_lemmas, max_steps,
+                                           contextual, lift_eq, canonize_instances,
+                                           canonize_proofs, use_axioms)(get_eq_name(), new_target);
+    if (!r.has_proof()) {
+        return change(r.get_new(), s);
+    } else {
+        expr new_M           = ctx.mk_metavar_decl(ctx.lctx(), r.get_new());
+        expr h               = mk_app(ctx, get_eq_mpr_name(), r.get_proof(), new_M);
+        metavar_context mctx = ctx.mctx();
+        mctx.assign(head(s.goals()), h);
+        tactic_state new_s   = set_mctx_goals(s, mctx, cons(new_M, tail(s.goals())));
+        return mk_tactic_success(new_s);
+    }
 }
 
 expr intros(environment const & env, options const & opts, metavar_context & mctx, expr const & mvar, smt_goal & s_goal) {
@@ -186,9 +203,7 @@ expr intros(environment const & env, options const & opts, metavar_context & mct
             name n    = ctx.get_unused_name(binding_name(target));
             expr h    = locals.push_local(n, type);
             to_inst.push_back(h);
-            /* TODO(Leo): usual SMT preprocessing: destruct and/exists, push negation, ... */
             new_Hs.push_back(h);
-
             S.internalize(h);
             S.add(type, h);
             target = binding_body(target);

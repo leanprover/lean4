@@ -17,7 +17,7 @@ class app_builder_exception : public exception {
 public:
     // We may provide more information in the future.
     app_builder_exception():
-        exception("app_builder_exception, more information can be obtained using commad "
+        exception("app_builder_exception, more information can be obtained using command "
                   "`set_option trace.app_builder true`") {}
 };
 

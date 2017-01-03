@@ -51,7 +51,7 @@ Requirements
 ``lean-mode`` requires [Emacs 24][emacs24] or later and the following
 packages, which can be installed via <kbd>M-x package-install</kbd>:
 [dash][dash], [dash-functional][dash], [f][f], [s][s], [company][company],
-[flycheck][flycheck], and [fill-column-indicator][fci].
+and [flycheck][flycheck]
 
 [emacs24]: http://www.gnu.org/software/emacs
 [dash]: https://github.com/magnars/dash.el
@@ -59,7 +59,6 @@ packages, which can be installed via <kbd>M-x package-install</kbd>:
 [s]: https://github.com/magnars/s.el
 [company]: http://company-mode.github.io/
 [flycheck]: http://www.flycheck.org/manual/latest/index.html
-[fci]: https://github.com/alpaker/Fill-Column-Indicator
 
 Installation
 ============

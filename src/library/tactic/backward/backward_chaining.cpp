@@ -190,7 +190,7 @@ vm_obj tactic_backward_chaining(vm_obj const & md, vm_obj const & use_instances,
                                 vm_obj const & pre_tactics, vm_obj const & leaf_tactic,
                                 vm_obj const & lemmas, vm_obj const & s) {
     return back_chaining(to_transparency_mode(md), to_bool(use_instances),
-                         force_to_unsigned(max_depth, std::numeric_limits<unsigned>::max()),
+                         force_to_unsigned(max_depth),
                          pre_tactics, leaf_tactic, to_backward_lemmas(lemmas), to_tactic_state(s));
 }
 

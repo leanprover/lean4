@@ -255,14 +255,14 @@ vm_obj vm_stack_size(vm_obj const & /*s*/) {
 
 vm_obj vm_stack_obj(vm_obj const & i, vm_obj const & /*s*/) {
     auto const & vm = get_vm_state_being_debugged();
-    unsigned idx = force_to_unsigned(i, std::numeric_limits<unsigned>::max());
+    unsigned idx = force_to_unsigned(i);
     if (idx >= vm.stack_size()) return mk_vm_failure();
     return mk_vm_success(vm.get_core(idx));
 }
 
 vm_obj vm_stack_obj_info(vm_obj const & i, vm_obj const & /*s*/) {
     auto const & vm = get_vm_state_being_debugged();
-    unsigned idx    = force_to_unsigned(i, std::numeric_limits<unsigned>::max());
+    unsigned idx    = force_to_unsigned(i);
     vm_local_info info = vm.get_info(idx);
     return mk_vm_success(mk_vm_pair(to_obj(info.first), to_obj(info.second)));
 }
@@ -303,7 +303,7 @@ static format default_format(vm_state const & vm, unsigned idx) {
 
 vm_obj vm_pp_stack_obj(vm_obj const & i, vm_obj const & /*s*/) {
     auto const & vm = get_vm_state_being_debugged();
-    unsigned idx = force_to_unsigned(i, std::numeric_limits<unsigned>::max());
+    unsigned idx = force_to_unsigned(i);
     if (idx >= vm.stack_size()) return mk_vm_failure();
     vm_obj o = vm.get_core(idx);
 
@@ -333,14 +333,14 @@ vm_obj vm_call_stack_size(vm_obj const & /*s*/) {
 
 vm_obj vm_call_stack_fn(vm_obj const & i, vm_obj const & /*s*/) {
     auto const & vm = get_vm_state_being_debugged();
-    unsigned idx = force_to_unsigned(i, std::numeric_limits<unsigned>::max());
+    unsigned idx = force_to_unsigned(i);
     if (idx >= vm.call_stack_size()) return mk_vm_failure();
     return mk_vm_success(to_obj(vm.call_stack_fn(idx)));
 }
 
 vm_obj vm_call_stack_var_range(vm_obj const & i, vm_obj const & /*s*/) {
     auto const & vm = get_vm_state_being_debugged();
-    unsigned idx = force_to_unsigned(i, std::numeric_limits<unsigned>::max());
+    unsigned idx = force_to_unsigned(i);
     unsigned csz = vm.call_stack_size();
     if (idx >= csz) {
         return mk_vm_failure();

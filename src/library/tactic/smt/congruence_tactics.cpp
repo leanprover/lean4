@@ -321,7 +321,7 @@ vm_obj to_obj(ematch_state const & s) {
 
 ematch_config to_ematch_config(vm_obj const & cfg) {
     ematch_config r;
-    r.m_max_instances = force_to_unsigned(cfg, std::numeric_limits<unsigned>::max());
+    r.m_max_instances = force_to_unsigned(cfg);
     return r;
 }
 

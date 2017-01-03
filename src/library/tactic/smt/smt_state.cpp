@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm.h"
 #include "library/vm/vm_list.h"
 #include "library/vm/vm_name.h"
+#include "library/vm/vm_nat.h"
 #include "library/vm/vm_format.h"
 #include "library/tactic/user_attribute.h"
 #include "library/tactic/tactic_state.h"
@@ -27,7 +28,7 @@ namespace lean {
 smt_goal::smt_goal(smt_config const & cfg):
     m_cc_state(cfg.m_ho_fns, cfg.m_cc_config),
     m_em_state(cfg.m_em_config),
-    m_simp_lemmas(cfg.m_simp_lemmas) {
+    m_pre_config(cfg.m_pre_config) {
 }
 
 smt::smt(type_context & ctx, smt_goal & g):
@@ -149,15 +150,16 @@ tactic_state revert_all(tactic_state const & s) {
     return revert(hs, s);
 }
 
-vm_obj preprocess(tactic_state const & s, simp_lemmas const & lemmas) {
+vm_obj preprocess(tactic_state const & s, smt_pre_config const & cfg) {
     lean_assert(s.goals());
     optional<metavar_decl> g = s.get_main_goal_decl();
     type_context ctx         = mk_type_context_for(s, transparency_mode::Reducible);
-    unsigned max_steps       = 10000000; /* TODO(Leo): move to smt_config */
+    type_context::zeta_scope _1(ctx, cfg.m_zeta);
+    unsigned max_steps       = cfg.m_max_steps;
     bool visit_instances     = false;
     expr target              = g->get_type();
     simp_lemmas_for eq_lemmas;
-    if (auto r = lemmas.find(get_eq_name()))
+    if (auto r = cfg.m_simp_lemmas.find(get_eq_name()))
         eq_lemmas = *r;
     expr new_target          = dsimplify_fn(ctx, max_steps, visit_instances, eq_lemmas)(target);
     /* TODO(Leo): use simplify too */
@@ -199,7 +201,6 @@ expr intros(environment const & env, options const & opts, metavar_context & mct
             new_Hs.push_back(h);
             S.internalize(type);
             S.internalize(value);
-            /* TODO(Leo): add equality between h and value at CC? */
             S.add(type, h);
             target = let_body(target);
         } else {
@@ -235,7 +236,7 @@ vm_obj mk_smt_state(tactic_state s, smt_config const & cfg) {
 
     smt_goal new_goal(cfg);
 
-    vm_obj r = preprocess(s, new_goal.get_simp_lemmas());
+    vm_obj r = preprocess(s, cfg.m_pre_config);
     if (is_tactic_result_exception(r)) return r;
     s = to_tactic_state(get_tactic_result_state(r));
 
@@ -258,16 +259,30 @@ static simp_lemmas get_simp_lemmas(name const & attr_name, tactic_state const & 
 }
 
 /*
+structure smt_pre_config :=
+(simp_attr : name)
+(max_steps : nat)
+(zeta      : bool)
+*/
+static smt_pre_config to_smt_pre_config(vm_obj const & cfg, tactic_state const & s) {
+    smt_pre_config r;
+    r.m_simp_lemmas   = get_simp_lemmas(to_name(cfield(cfg, 0)), s);
+    r.m_max_steps     = force_to_unsigned(cfield(cfg, 1));
+    r.m_zeta          = to_bool(cfield(cfg, 2));
+    return r;
+}
+
+/*
 structure smt_config :=
 (cc_cfg        : cc_config)
 (em_cfg        : ematch_config)
-(pre_simp_attr : name)
+(pre_cfg       : smt_pre_config)
 */
 static smt_config to_smt_config(vm_obj const & cfg, tactic_state const & s) {
     smt_config r;
     std::tie(r.m_ho_fns, r.m_cc_config) = to_ho_fns_cc_config(cfield(cfg, 0));
     r.m_em_config                       = to_ematch_config(cfield(cfg, 1));
-    r.m_simp_lemmas                     = get_simp_lemmas(to_name(cfield(cfg, 2)), s);
+    r.m_pre_config                      = to_smt_pre_config(cfield(cfg, 2), s);
     return r;
 }
 
@@ -450,7 +465,7 @@ vm_obj smt_tactic_intros(vm_obj const & ss, vm_obj const & _ts) {
 
     smt_goal new_sgoal   = to_smt_goal(head(ss));
 
-    vm_obj r = preprocess(ts, new_sgoal.get_simp_lemmas());
+    vm_obj r = preprocess(ts, new_sgoal.get_pre_config());
     if (is_tactic_result_exception(r)) return r;
     ts = to_tactic_state(get_tactic_result_state(r));
 

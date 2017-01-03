@@ -300,7 +300,8 @@ public:
     }
 };
 
-typedef congruence_closure::state cc_state;
+typedef congruence_closure::state  cc_state;
+typedef congruence_closure::config cc_config;
 
 struct ext_congr_lemma {
     /* The basic congr_lemma object defined at congr_lemma_manager */

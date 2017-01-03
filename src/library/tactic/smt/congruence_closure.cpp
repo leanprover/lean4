@@ -759,13 +759,22 @@ void congruence_closure::internalize_core(expr const & e, optional<expr> const &
         case expr_kind::Sort:
             break;
         case expr_kind::Constant:
-        case expr_kind::Local:
         case expr_kind::Meta:
             mk_entry(e, false);
-            break;;
+            break;
         case expr_kind::Lambda:
         case expr_kind::Let:
             mk_entry(e, false);
+            break;
+        case expr_kind::Local:
+            mk_entry(e, false);
+            if (is_local_decl_ref(e)) {
+                if (auto d = m_ctx.lctx().get_local_decl(e)) {
+                    if (auto v = d->get_value()) {
+                        push_refl_eq(e, *v);
+                    }
+                }
+            }
             break;
         case expr_kind::Macro:
             if (is_interpreted_value(e)) {

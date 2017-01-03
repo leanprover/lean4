@@ -631,6 +631,13 @@ optional<expr> type_context::expand_macro(expr const & e) {
     }
 }
 
+bool type_context::use_zeta() const {
+    /* Remark: we want zeta when using relaxed_whnf. In the current implementation
+       relaxed_whnf sets m_transparency_mode to All. It seems hackish. Perhaps,
+       a better alternative is to add a m_relaxed flag. */
+    return m_zeta || m_transparency_mode == transparency_mode::All;
+}
+
 /*
   Apply beta-reduction, zeta-reduction (i.e., unfold let local-decls), iota-reduction,
   unfold macros, expand let-expressions, expand assigned meta-variables.
@@ -648,7 +655,7 @@ expr type_context::whnf_core(expr const & e) {
         /* Remark: we do not unfold Constants eagerly in this method */
         return e;
     case expr_kind::Local:
-        if (is_local_decl_ref(e)) {
+        if (use_zeta() && is_local_decl_ref(e)) {
             if (auto d = m_lctx.get_local_decl(e)) {
                 if (auto v = d->get_value()) {
                     /* zeta-reduction */
@@ -683,7 +690,7 @@ expr type_context::whnf_core(expr const & e) {
         }
     case expr_kind::Let:
         check_system("whnf");
-        return m_zeta ? whnf_core(::lean::instantiate(let_body(e), let_value(e))) : e;
+        return use_zeta() ? whnf_core(::lean::instantiate(let_body(e), let_value(e))) : e;
     case expr_kind::App: {
         check_system("whnf");
         buffer<expr> args;

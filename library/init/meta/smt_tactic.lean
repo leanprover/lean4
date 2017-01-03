@@ -12,21 +12,39 @@ universe variables u
 run_command mk_simp_attr `pre_smt
 
 /--
-Configuration for the smt_state object.
+  Configuration for the smt tactic preprocessor. The preprocessor
+  is applied whenever a new hypothesis is introduced.
 
-pre_simp_attr is the attribute name for the simplification lemmas that
-are used to preprocess facts as they are introduced. The initialization
-will fail if the data associated with the given attribute does not
-have type simp_lemmas. -/
+  - simp_attr: is the attribute name for the simplification lemmas
+    that are used during the preprocessing step.
+
+  - max_steps: it is the maximum number of steps performed by the simplifier.
+
+  - zeta: if tt, then zeta reduction (i.e., unfolding let-expressions)
+    is used during preprocessing.
+-/
+structure smt_pre_config :=
+(simp_attr : name)
+(max_steps : nat)
+(zeta      : bool)
+
+def default_smt_pre_config : smt_pre_config :=
+{ simp_attr := `pre_smt,
+  max_steps := 1000000,
+  zeta      := ff }
+
+/--
+Configuration for the smt_state object.
+-/
 structure smt_config :=
 (cc_cfg        : cc_config)
 (em_cfg        : ematch_config)
-(pre_simp_attr : name)
+(pre_cfg       : smt_pre_config)
 
 def default_smt_config : smt_config :=
 {cc_cfg        := default_cc_config,
  em_cfg        := default_ematch_config,
- pre_simp_attr := `pre_smt}
+ pre_cfg       := default_smt_pre_config}
 
 meta constant smt_goal                  : Type
 meta def smt_state :=

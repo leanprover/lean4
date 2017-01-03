@@ -409,9 +409,13 @@ public:
             flet<bool>(ctx.m_approximate, approx) {}
     };
 
-    struct nozeta_scope : public flet<bool> {
-        nozeta_scope(type_context & ctx):
-            flet<bool>(ctx.m_zeta, false) {}
+    struct zeta_scope : public flet<bool> {
+        zeta_scope(type_context & ctx, bool val):
+            flet<bool>(ctx.m_zeta, val) {}
+    };
+
+    struct nozeta_scope : public zeta_scope {
+        nozeta_scope(type_context & ctx):zeta_scope(ctx, false) {}
     };
 
     /* --------------------------
@@ -485,6 +489,7 @@ private:
     expr whnf_core(expr const & e);
     optional<declaration> is_transparent(transparency_mode m, name const & n);
     optional<declaration> is_transparent(name const & n);
+    bool use_zeta() const;
 
 private:
     pair<local_context, expr> revert_core(buffer<expr> & to_revert, local_context const & ctx,

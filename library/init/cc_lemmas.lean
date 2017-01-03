@@ -55,6 +55,14 @@ h^.symm ▸ propext (iff.intro (λ h, trivial) (λ h₁ h₂, h₁))
 lemma imp_eq_of_eq_false_left {a b : Prop} (h : a = false) : (a → b) = true :=
 h^.symm ▸ propext (iff.intro (λ h, trivial) (λ h₁ h₂, false.elim h₂))
 
+lemma imp_eq_of_eq_false_right {a b : Prop} (h : b = false) : (a → b) = not a :=
+h^.symm ▸ propext (iff.intro (λ h, h) (λ hna ha, hna ha))
+
+/- Remark: the congruence closure module will only use the following lemma is
+   cc_config.em is tt. -/
+lemma not_imp_eq_of_eq_false_right {a b : Prop} (h : b = false) : (not a → b) = a :=
+h^.symm ▸ propext (iff.intro (λ h', classical.by_contradiction (λ hna, h' hna)) (λ ha hna, hna ha))
+
 lemma imp_eq_true_of_eq {a b : Prop} (h : a = b) : (a → b) = true :=
 h ▸ propext (iff.intro (λ h, trivial) (λ h ha, ha))
 

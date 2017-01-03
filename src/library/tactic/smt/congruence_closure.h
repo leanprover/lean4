@@ -240,11 +240,9 @@ private:
     void propagate_constructor_eq(expr const & e1, expr const & e2);
     void propagate_projection_constructor(expr const & p, expr const & c);
     void propagate_value_inconsistency(expr const & e1, expr const & e2);
-    void add_eqv_step(expr e1, expr e2, expr const & H,
-                      optional<expr> const & added_prop, bool heq_proof);
-    void process_todo(optional<expr> const & added_prop);
-    void add_eqv_core(expr const & lhs, expr const & rhs, expr const & H,
-                      optional<expr> const & added_prop, bool heq_proof);
+    void add_eqv_step(expr e1, expr e2, expr const & H, bool heq_proof);
+    void process_todo();
+    void add_eqv_core(expr const & lhs, expr const & rhs, expr const & H, bool heq_proof);
     bool check_eqc(expr const & e) const;
 
     friend ext_congr_lemma_cache_ptr const & get_cache_ptr(congruence_closure const & cc);

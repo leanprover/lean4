@@ -1397,10 +1397,12 @@ void congruence_closure::propagate_not_up(expr const & e) {
     }
 }
 
-static expr * g_imp_eq_of_eq_true_left  = nullptr;
-static expr * g_imp_eq_of_eq_false_left = nullptr;
-static expr * g_imp_eq_of_eq_true_right = nullptr;
-static expr * g_imp_eq_true_of_eq       = nullptr;
+static expr * g_imp_eq_of_eq_true_left       = nullptr;
+static expr * g_imp_eq_of_eq_false_left      = nullptr;
+static expr * g_imp_eq_of_eq_true_right      = nullptr;
+static expr * g_imp_eq_true_of_eq            = nullptr;
+static expr * g_not_imp_eq_of_eq_false_right = nullptr;
+static expr * g_imp_eq_of_eq_false_right     = nullptr;
 
 void congruence_closure::propagate_imp_up(expr const & e) {
     lean_assert(is_arrow(e));
@@ -1416,6 +1418,19 @@ void congruence_closure::propagate_imp_up(expr const & e) {
     } else if (is_eq_true(b)) {
         // b = true  -> (a -> b) = true
         push_eq(e, mk_true(), mk_app(*g_imp_eq_of_eq_true_right, a, b, get_eq_true_proof(b)));
+    } else if (is_eq_false(b)) {
+        expr arg;
+        if (is_not(a, arg)) {
+            if (m_state.m_config.m_em) {
+                // b = false -> (not a -> b) = a
+                push_eq(e, arg, mk_app(*g_not_imp_eq_of_eq_false_right, arg, b, get_eq_false_proof(b)));
+            }
+        } else {
+            // b = false -> (a -> b) = not a
+            expr not_a = mk_not(a);
+            internalize_core(not_a, none_expr());
+            push_eq(e, not_a, mk_app(*g_imp_eq_of_eq_false_right, a, b, get_eq_false_proof(b)));
+        }
     } else if (is_eqv(a, b)) {
         // a = b     -> (a -> b) = true
         push_eq(e, mk_true(), mk_app(*g_imp_eq_true_of_eq, a, b, get_prop_eq_proof(a, b)));
@@ -1532,10 +1547,7 @@ static bool is_true_or_false(expr const & e) {
     return is_constant(e, get_true_name()) || is_constant(e, get_false_name());
 }
 
-/* Remark: If added_prop is not none, then it contains the proposition provided to ::add.
-   We use it here to avoid an unnecessary propagation back to the current_state. */
-void congruence_closure::add_eqv_step(expr e1, expr e2, expr const & H,
-                                      optional<expr> const & /* added_prop */, bool heq_proof) {
+void congruence_closure::add_eqv_step(expr e1, expr e2, expr const & H, bool heq_proof) {
     auto n1 = get_entry(e1);
     auto n2 = get_entry(e2);
     if (!n1 || !n2)
@@ -1696,7 +1708,7 @@ void congruence_closure::add_eqv_step(expr e1, expr e2, expr const & H,
                out << "--------\n";);
 }
 
-void congruence_closure::process_todo(optional<expr> const & added_prop) {
+void congruence_closure::process_todo() {
     while (!m_todo.empty()) {
         if (m_state.m_inconsistent) {
             m_todo.clear();
@@ -1705,14 +1717,13 @@ void congruence_closure::process_todo(optional<expr> const & added_prop) {
         expr lhs, rhs, H; bool heq_proof;
         std::tie(lhs, rhs, H, heq_proof) = m_todo.back();
         m_todo.pop_back();
-        add_eqv_step(lhs, rhs, H, added_prop, heq_proof);
+        add_eqv_step(lhs, rhs, H, heq_proof);
     }
 }
 
-void congruence_closure::add_eqv_core(expr const & lhs, expr const & rhs, expr const & H,
-                                      optional<expr> const & added_prop, bool heq_proof) {
+void congruence_closure::add_eqv_core(expr const & lhs, expr const & rhs, expr const & H, bool heq_proof) {
     push_todo(lhs, rhs, H, heq_proof);
-    process_todo(added_prop);
+    process_todo();
 }
 
 void congruence_closure::add(expr const & type, expr const & proof) {
@@ -1726,31 +1737,31 @@ void congruence_closure::add(expr const & type, expr const & proof) {
         if (is_neg) {
             bool heq_proof    = false;
             internalize_core(p, none_expr());
-            add_eqv_core(p, mk_false(), mk_eq_false_intro(m_ctx, proof), some_expr(type), heq_proof);
+            add_eqv_core(p, mk_false(), mk_eq_false_intro(m_ctx, proof), heq_proof);
         } else {
             bool heq_proof    = is_heq(type);
             internalize_core(lhs, none_expr());
             internalize_core(rhs, none_expr());
-            add_eqv_core(lhs, rhs, proof, some_expr(type), heq_proof);
+            add_eqv_core(lhs, rhs, proof, heq_proof);
         }
     } else if (is_iff(type, lhs, rhs)) {
         bool heq_proof    = false;
         if (is_neg) {
             expr neq_proof = mk_neq_of_not_iff(m_ctx, proof);
             internalize_core(p, none_expr());
-            add_eqv_core(p, mk_false(), mk_eq_false_intro(m_ctx, neq_proof), some_expr(type), heq_proof);
+            add_eqv_core(p, mk_false(), mk_eq_false_intro(m_ctx, neq_proof), heq_proof);
         } else {
             internalize_core(lhs, none_expr());
             internalize_core(rhs, none_expr());
-            add_eqv_core(lhs, rhs, mk_propext(lhs, rhs, proof), some_expr(type), heq_proof);
+            add_eqv_core(lhs, rhs, mk_propext(lhs, rhs, proof), heq_proof);
         }
     } else if (is_neg || m_ctx.is_prop(p)) {
         bool heq_proof    = false;
         internalize_core(p, none_expr());
         if (is_neg) {
-            add_eqv_core(p, mk_false(), mk_eq_false_intro(m_ctx, proof), some_expr(type), heq_proof);
+            add_eqv_core(p, mk_false(), mk_eq_false_intro(m_ctx, proof), heq_proof);
         } else {
-            add_eqv_core(p, mk_true(), mk_eq_true_intro(m_ctx, proof), some_expr(type), heq_proof);
+            add_eqv_core(p, mk_true(), mk_eq_true_intro(m_ctx, proof), heq_proof);
         }
     }
 }
@@ -1785,7 +1796,7 @@ bool congruence_closure::proved(expr const & e) const {
 void congruence_closure::internalize(expr const & e) {
     flet<congruence_closure *> set_cc(g_cc, this);
     internalize_core(e, none_expr());
-    process_todo(none_expr());
+    process_todo();
 }
 
 optional<expr> congruence_closure::get_inconsistency_proof() const {
@@ -1923,6 +1934,9 @@ void initialize_congruence_closure() {
     g_imp_eq_of_eq_true_right = new expr(mk_constant("imp_eq_of_eq_true_right"));
     g_imp_eq_true_of_eq       = new expr(mk_constant("imp_eq_true_of_eq"));
 
+    g_not_imp_eq_of_eq_false_right = new expr(mk_constant("not_imp_eq_of_eq_false_right"));
+    g_imp_eq_of_eq_false_right     = new expr(mk_constant("imp_eq_of_eq_false_right"));
+
     g_if_eq_of_eq_true  = new name("if_eq_of_eq_true");
     g_if_eq_of_eq_false = new name("if_eq_of_eq_false");
     g_if_eq_of_eq       = new name("if_eq_of_eq");
@@ -1966,6 +1980,9 @@ void finalize_congruence_closure() {
     delete g_imp_eq_of_eq_false_left;
     delete g_imp_eq_of_eq_true_right;
     delete g_imp_eq_true_of_eq;
+
+    delete g_not_imp_eq_of_eq_false_right;
+    delete g_imp_eq_of_eq_false_right;
 
     delete g_if_eq_of_eq_true;
     delete g_if_eq_of_eq_false;

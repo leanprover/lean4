@@ -411,20 +411,6 @@ int congruence_closure::symm_congr_key_cmp::operator()(symm_congr_key const & k1
     }
 }
 
-/* TODO(Leo): this should not be hard-coded.
-   In the future, we may add a new attribute to control it. */
-bool congruence_closure::is_logical_app(expr const & n) {
-    if (!is_app(n)) return false;
-    expr const & fn = get_app_fn(n);
-    return
-        is_constant(fn) &&
-        (const_name(fn) == get_or_name()  ||
-         const_name(fn) == get_and_name() ||
-         const_name(fn) == get_not_name() ||
-         const_name(fn) == get_iff_name() ||
-         (const_name(fn) == get_ite_name() && m_ctx.is_prop(n)));
-}
-
 void congruence_closure::push_todo(expr const & lhs, expr const & rhs, expr const & H, bool heq_proof) {
     m_todo.emplace_back(lhs, rhs, H, heq_proof);
 }
@@ -1532,6 +1518,17 @@ void congruence_closure::propagate_not_down(expr const & e) {
     }
 }
 
+void congruence_closure::propagate_eq_down(expr const & e) {
+    if (is_eq_true(e)) {
+        expr a, b;
+        if (is_eq(e, a, b) || is_iff(e, a, b)) {
+            push_eq(a, b, mk_of_eq_true(m_ctx, get_eq_true_proof(e)));
+        } else {
+            lean_unreachable();
+        }
+    }
+}
+
 void congruence_closure::propagate_down(expr const & e) {
     if (is_and(e)) {
         propagate_and_down(e);
@@ -1539,6 +1536,8 @@ void congruence_closure::propagate_down(expr const & e) {
         propagate_or_down(e);
     } else if (is_not(e)) {
         propagate_not_down(e);
+    } else if (is_eq(e) || is_iff(e)) {
+        propagate_eq_down(e);
     }
 }
 

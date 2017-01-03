@@ -184,7 +184,6 @@ private:
     congr_key mk_congr_key(expr const & e) const;
     symm_congr_key mk_symm_congr_key(expr const & e) const;
     void set_fo(expr const & e);
-    bool is_logical_app(expr const & n);
     bool is_value(expr const & e);
     bool is_interpreted_value(expr const & e);
     void process_subsingleton_elem(expr const & e);
@@ -235,6 +234,7 @@ private:
     void propagate_and_down(expr const & e);
     void propagate_or_down(expr const & e);
     void propagate_not_down(expr const & e);
+    void propagate_eq_down(expr const & e);
     void propagate_down(expr const & e);
     void propagate_inst_implicit(expr const & e);
     void propagate_constructor_eq(expr const & e1, expr const & e2);

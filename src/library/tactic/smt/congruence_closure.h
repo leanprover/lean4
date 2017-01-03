@@ -109,7 +109,8 @@ public:
         unsigned m_values:1;
         unsigned m_all_ho:1;
         unsigned m_ac:1;
-        config() { m_ignore_instances = true; m_values = true; m_all_ho = false; m_ac = true; }
+        unsigned m_em:1;
+        config() { m_ignore_instances = true; m_values = true; m_all_ho = false; m_ac = true; m_em = true; }
     };
 
     class state {
@@ -197,11 +198,12 @@ private:
     void internalize_app(expr const & e);
     void internalize_core(expr const & e, optional<expr> const & parent);
     void push_todo(expr const & lhs, expr const & rhs, expr const & H, bool heq_proof);
-    void push_new_eq(expr const & lhs, expr const & rhs, expr const & H) { push_todo(lhs, rhs, H, false); }
+    void push_heq(expr const & lhs, expr const & rhs, expr const & H);
+    void push_eq(expr const & lhs, expr const & rhs, expr const & H);
     void push_refl_eq(expr const & lhs, expr const & rhs);
     void invert_trans(expr const & e, bool new_flipped, optional<expr> new_target, optional<expr> new_proof);
     void invert_trans(expr const & e);
-    void remove_parents(expr const & e);
+    void remove_parents(expr const & e, buffer<expr> & parents_to_propagate);
     void reinsert_parents(expr const & e);
     void update_mt(expr const & e);
     bool has_heq_proofs(expr const & root) const;
@@ -217,6 +219,23 @@ private:
     optional<expr> get_eq_proof_core(expr const & e1, expr const & e2, bool as_heq) const;
     void push_subsingleton_eq(expr const & a, expr const & b);
     void check_new_subsingleton_eq(expr const & old_root, expr const & new_root);
+    bool is_eq_true(expr const & e) const;
+    bool is_eq_false(expr const & e) const;
+    expr get_eq_true_proof(expr const & e) const;
+    expr get_eq_false_proof(expr const & e) const;
+    expr get_prop_eq_proof(expr const & a, expr const & b) const;
+    static bool may_propagate(expr const & e);
+    void propagate_iff_up(expr const & e);
+    void propagate_and_up(expr const & e);
+    void propagate_or_up(expr const & e);
+    void propagate_not_up(expr const & e);
+    void propagate_imp_up(expr const & e);
+    void propagate_ite_up(expr const & e);
+    void propagate_up(expr const & e);
+    void propagate_and_down(expr const & e);
+    void propagate_or_down(expr const & e);
+    void propagate_not_down(expr const & e);
+    void propagate_down(expr const & e);
     void propagate_inst_implicit(expr const & e);
     void propagate_constructor_eq(expr const & e1, expr const & e2);
     void propagate_projection_constructor(expr const & p, expr const & c);

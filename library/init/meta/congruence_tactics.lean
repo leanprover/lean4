@@ -16,9 +16,12 @@ structure cc_config :=
    "Congruence Closure in Intensional Type Theory". If ho_fns is none, then full support is provided
    for *all* constants. -/
 (ho_fns           : option (list name))
+/- If true, then use excluded middle -/
+(em               : bool)
+
 
 def default_cc_config : cc_config :=
-{ignore_instances := tt, ac := tt, ho_fns := some []}
+{ignore_instances := tt, ac := tt, ho_fns := some [], em := tt}
 
 /- Congruence closure state -/
 meta constant cc_state                  : Type

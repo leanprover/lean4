@@ -51,6 +51,7 @@ structure cc_config :=
 (ignore_instances : bool)
 (ac               : bool)
 (ho_fns           : option (list name))
+(em               : bool)
 */
 pair<name_set, congruence_closure::config> to_ho_fns_cc_config(vm_obj const & cfg) {
     congruence_closure::config c;
@@ -63,6 +64,7 @@ pair<name_set, congruence_closure::config> to_ho_fns_cc_config(vm_obj const & cf
         c.m_all_ho       = false;
         ho_fns           = to_name_set(to_list_name(get_some_value(cfield(cfg, 2))));
     }
+    c.m_em               = to_bool(cfield(cfg, 3));
     return mk_pair(ho_fns, c);
 }
 

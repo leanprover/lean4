@@ -478,7 +478,7 @@ void theory_ac::process() {
 
         /* Propagate new equality to congruence closure module */
         if (!is_ac_app(lhs) && !is_ac_app(rhs) && m_cc.get_root(lhs) != m_cc.get_root(rhs)) {
-            m_cc.push_new_eq(lhs, rhs, mark_cc_theory_proof(H));
+            m_cc.push_eq(lhs, rhs, mark_cc_theory_proof(H));
         }
 
         /* Orient */

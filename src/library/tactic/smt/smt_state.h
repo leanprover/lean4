@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #pragma once
 #include "library/discr_tree.h"
 #include "library/tactic/simp_lemmas.h"
-#include "library/tactic/smt/unit_propagation.h"
 #include "library/tactic/smt/congruence_closure.h"
 #include "library/tactic/smt/ematch.h"
 
@@ -25,7 +24,6 @@ class smt_goal {
     friend class smt;
     cc_state          m_cc_state;
     ematch_state      m_em_state;
-    up_state          m_up_state;
     simp_lemmas       m_simp_lemmas;
 public:
     smt_goal(smt_config const & cfg);
@@ -33,16 +31,16 @@ public:
     simp_lemmas const & get_simp_lemmas() const { return m_simp_lemmas; }
 };
 
-class smt : public cc_propagation_handler, public up_assignment {
+class smt : public cc_propagation_handler {
 private:
     type_context &     m_ctx;
     smt_goal &         m_goal;
     congruence_closure m_cc;
-    unit_propagation   m_up;
 
     lbool get_value_core(expr const & e);
+    lbool get_value(expr const & e);
     virtual void propagated(unsigned n, expr const * p) override;
-    virtual lbool get_value(expr const & e) override;
+
 public:
     smt(type_context & ctx, smt_goal & g);
     virtual ~smt();
@@ -50,7 +48,7 @@ public:
     void internalize(expr const & e);
     void add(expr const & type, expr const & proof);
 
-    virtual optional<expr> get_proof(expr const & e) override;
+    optional<expr> get_proof(expr const & e);
     bool inconsistent() const { return m_cc.inconsistent(); }
     optional<expr> get_inconsistency_proof() const { return m_cc.get_inconsistency_proof(); }
     optional<expr> get_eq_proof(expr const & lhs, expr const & rhs) const {

@@ -33,8 +33,7 @@ smt_goal::smt_goal(smt_config const & cfg):
 smt::smt(type_context & ctx, smt_goal & g):
     m_ctx(ctx),
     m_goal(g),
-    m_cc(ctx, m_goal.m_cc_state, this),
-    m_up(ctx, m_goal.m_up_state, *this) {
+    m_cc(ctx, m_goal.m_cc_state, this) {
 }
 
 smt::~smt() {
@@ -47,9 +46,6 @@ void smt::propagated(unsigned n, expr const * p) {
                format r;
                for (unsigned i = 0; i < n; i++) { if (i > 0) r += comma() + line(); r += fmt(p[i]); }
                tout() << group(format("new facts:") + line() + bracket("{", r, "}")) << "\n";);
-    for (unsigned i = 0; i < n; i++) {
-        m_up.assigned(p[i]);
-    }
 }
 
 lbool smt::get_value_core(expr const & e) {

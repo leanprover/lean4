@@ -429,6 +429,14 @@ void congruence_closure::push_todo(expr const & lhs, expr const & rhs, expr cons
     m_todo.emplace_back(lhs, rhs, H, heq_proof);
 }
 
+void congruence_closure::push_heq(expr const & lhs, expr const & rhs, expr const & H) {
+    m_todo.emplace_back(lhs, rhs, H, true);
+}
+
+void congruence_closure::push_eq(expr const & lhs, expr const & rhs, expr const & H) {
+    m_todo.emplace_back(lhs, rhs, H, false);
+}
+
 void congruence_closure::process_subsingleton_elem(expr const & e) {
     expr type = m_ctx.infer(e);
     optional<expr> ss = m_ctx.mk_subsingleton_instance(type);
@@ -472,8 +480,7 @@ void congruence_closure::apply_simple_eqvs(expr const & e) {
         expr const & cast = get_app_args(e, args);
         expr const & a    = args[3];
         expr proof        = mk_app(mk_constant(get_cast_heq_name(), const_levels(cast)), args);
-        bool heq_proof    = true;
-        push_todo(e, a, proof, heq_proof);
+        push_heq(e, a, proof);
     }
 
     if (is_app_of(e, get_eq_rec_name(), 6)) {
@@ -488,13 +495,14 @@ void congruence_closure::apply_simple_eqvs(expr const & e) {
         level l_2  = head(const_levels(eq_rec));
         level l_1  = head(tail(const_levels(eq_rec)));
         expr proof = mk_app({mk_constant(get_eq_rec_heq_name(), {l_1, l_2}), A, P, a, a_prime, H, p});
-        bool heq_proof = true;
-        push_todo(e, p, proof, heq_proof);
+        push_heq(e, p, proof);
     }
 
     if (auto r = m_ctx.reduce_projection(e)) {
         push_refl_eq(e, *r);
     }
+
+    propagate_up(e);
 }
 
 void congruence_closure::add_occurrence(expr const & parent, expr const & child, bool symm_table) {
@@ -545,8 +553,7 @@ void congruence_closure::check_eq_true(symm_congr_key const & k) {
     rhs = get_root(rhs);
     if (lhs != rhs) return;
     // Add e = true
-    bool heq_proof = false;
-    push_todo(e, mk_true(), *g_eq_true_mark, heq_proof);
+    push_eq(e, mk_true(), *g_eq_true_mark);
 }
 
 void congruence_closure::add_symm_congruence_table(expr const & e) {
@@ -561,8 +568,7 @@ void congruence_closure::add_symm_congruence_table(expr const & e) {
         new_entry.m_cg_root = old_k->m_expr;
         m_state.m_entries.insert(e, new_entry);
         /* 2. Put new equivalence in the TODO queue */
-        bool heq_proof      = false;
-        push_todo(e, old_k->m_expr, *g_congr_mark, heq_proof);
+        push_eq(e, old_k->m_expr, *g_congr_mark);
     } else {
         m_state.m_symm_congruences.insert(k);
     }
@@ -594,6 +600,7 @@ void congruence_closure::state::mk_entry_core(expr const & e, bool interpreted, 
 }
 
 void congruence_closure::mk_entry(expr const & e, bool interpreted) {
+    if (get_entry(e)) return;
     bool constructor = static_cast<bool>(is_constructor_app(env(), e));
     m_state.mk_entry_core(e, interpreted, constructor);
     process_subsingleton_elem(e);
@@ -777,6 +784,10 @@ void congruence_closure::internalize_core(expr const & e, optional<expr> const &
             if (is_arrow(e) && m_ctx.is_prop(binding_domain(e)) && m_ctx.is_prop(binding_body(e))) {
                 internalize_core(binding_domain(e), some_expr(e));
                 internalize_core(binding_body(e), some_expr(e));
+                bool symm_table = false;
+                add_occurrence(e, binding_domain(e), symm_table);
+                add_occurrence(e, binding_body(e), symm_table);
+                propagate_imp_up(e);
             }
             if (m_ctx.is_prop(e)) {
                 mk_entry(e, false);
@@ -823,17 +834,22 @@ void congruence_closure::invert_trans(expr const & e) {
     invert_trans(e, false, none_expr(), none_expr());
 }
 
-void congruence_closure::remove_parents(expr const & e) {
+void congruence_closure::remove_parents(expr const & e, buffer<expr> & parents_to_propagate) {
     auto ps = m_state.m_parents.find(e);
     if (!ps) return;
-    ps->for_each([&](parent_occ const & p) {
-            lean_trace(name({"debug", "cc"}), scope_trace_env(m_ctx.env(), m_ctx); tout() << "remove parent: " << p.m_expr << "\n";);
-            if (p.m_symm_table) {
-                symm_congr_key k = mk_symm_congr_key(p.m_expr);
-                m_state.m_symm_congruences.erase(k);
-            } else {
-                congr_key k = mk_congr_key(p.m_expr);
-                m_state.m_congruences.erase(k);
+    ps->for_each([&](parent_occ const & pocc) {
+            expr const & p = pocc.m_expr;
+            lean_trace(name({"debug", "cc"}), scope_trace_env(m_ctx.env(), m_ctx); tout() << "remove parent: " << p << "\n";);
+            if (may_propagate(p))
+                parents_to_propagate.push_back(p);
+            if (is_app(p)) {
+                if (pocc.m_symm_table) {
+                    symm_congr_key k = mk_symm_congr_key(p);
+                    m_state.m_symm_congruences.erase(k);
+                } else {
+                    congr_key k = mk_congr_key(p);
+                    m_state.m_congruences.erase(k);
+                }
             }
         });
 }
@@ -843,10 +859,12 @@ void congruence_closure::reinsert_parents(expr const & e) {
     if (!ps) return;
     ps->for_each([&](parent_occ const & p) {
             lean_trace(name({"debug", "cc"}), scope_trace_env(m_ctx.env(), m_ctx); tout() << "reinsert parent: " << p.m_expr << "\n";);
-            if (p.m_symm_table) {
-                add_symm_congruence_table(p.m_expr);
-            } else {
-                add_congruence_table(p.m_expr);
+            if (is_app(p.m_expr)) {
+                if (p.m_symm_table) {
+                    add_symm_congruence_table(p.m_expr);
+                } else {
+                    add_congruence_table(p.m_expr);
+                }
             }
         });
 }
@@ -1173,14 +1191,12 @@ void congruence_closure::push_subsingleton_eq(expr const & a, expr const & b) {
     /* TODO(Leo): check if the following test is a performance bottleneck */
     if (m_ctx.relaxed_is_def_eq(A, B)) {
         /* TODO(Leo): to improve performance we can create the following proof lazily */
-        bool heq_proof = false;
         expr proof     = mk_app(m_ctx, get_subsingleton_elim_name(), a, b);
-        push_todo(a, b, proof, heq_proof);
+        push_eq(a, b, proof);
     } else {
         expr A_eq_B    = *get_eq_proof(A, B);
         expr proof     = mk_app(m_ctx, get_subsingleton_helim_name(), A_eq_B, a, b);
-        bool heq_proof = true;
-        push_todo(a, b, proof, heq_proof);
+        push_heq(a, b, proof);
     }
 }
 
@@ -1213,19 +1229,18 @@ void congruence_closure::propagate_constructor_eq(expr const & e1, expr const & 
     lean_assert(c1 && c2);
     expr type       = mk_eq(m_ctx, e1, e2);
     expr h          = *get_eq_proof(e1, e2);
-    bool heq_proof  = false;
     if (*c1 == *c2) {
         buffer<std::tuple<expr, expr, expr>> implied_eqs;
         mk_constructor_eq_constructor_implied_eqs(m_ctx, e1, e2, h, implied_eqs);
         for (std::tuple<expr, expr, expr> const & t : implied_eqs) {
             expr lhs, rhs, H;
             std::tie(lhs, rhs, H) = t;
-            push_todo(lhs, rhs, H, heq_proof);
+            push_eq(lhs, rhs, H);
         }
     } else {
         if (optional<expr> false_pr = mk_constructor_eq_constructor_inconsistency_proof(m_ctx, e1, e2, h)) {
             expr H        = mk_app(mk_constant(get_true_eq_false_of_false_name()), *false_pr);
-            push_todo(mk_true(), mk_false(), H, heq_proof);
+            push_eq(mk_true(), mk_false(), H);
         }
     }
 }
@@ -1254,6 +1269,255 @@ void congruence_closure::propagate_projection_constructor(expr const & p, expr c
     internalize_core(new_p, none_expr());
 }
 
+bool congruence_closure::is_eq_true(expr const & e) const {
+    return is_eqv(e, mk_true());
+}
+
+bool congruence_closure::is_eq_false(expr const & e) const {
+    return is_eqv(e, mk_false());
+}
+
+// Remark: possible optimization: use delayed proof macros for get_eq_true_proof, get_eq_false_proof and get_prop_eq_proof
+
+expr congruence_closure::get_eq_true_proof(expr const & e) const {
+    lean_assert(is_eq_true(e));
+    return *get_eq_proof(e, mk_true());
+}
+
+expr congruence_closure::get_eq_false_proof(expr const & e) const {
+    lean_assert(is_eq_false(e));
+    return *get_eq_proof(e, mk_false());
+}
+
+expr congruence_closure::get_prop_eq_proof(expr const & a, expr const & b) const {
+    lean_assert(is_eqv(a, b));
+    return *get_eq_proof(a, b);
+}
+
+static expr * g_iff_eq_of_eq_true_left  = nullptr;
+static expr * g_iff_eq_of_eq_true_right = nullptr;
+static expr * g_iff_eq_true_of_eq       = nullptr;
+
+void congruence_closure::propagate_iff_up(expr const & e) {
+    expr a, b;
+    lean_verify(is_iff(e, a, b));
+
+    if (is_eq_true(a)) {
+        // a = true  -> (iff a b) = b
+        push_eq(e, b, mk_app(*g_iff_eq_of_eq_true_left, a, b, get_eq_true_proof(a)));
+    } else if (is_eq_true(b)) {
+        // b = true  -> (iff a b) = a
+        push_eq(e, a, mk_app(*g_iff_eq_of_eq_true_right, a, b, get_eq_true_proof(b)));
+    } else if (is_eqv(a, b)) {
+        // a = b     -> (iff a b) = true
+        push_eq(e, mk_true(), mk_app(*g_iff_eq_true_of_eq, a, b, get_prop_eq_proof(a, b)));
+    }
+}
+
+static expr * g_and_eq_of_eq_true_left   = nullptr;
+static expr * g_and_eq_of_eq_true_right  = nullptr;
+static expr * g_and_eq_of_eq_false_left  = nullptr;
+static expr * g_and_eq_of_eq_false_right = nullptr;
+static expr * g_and_eq_of_eq             = nullptr;
+
+void congruence_closure::propagate_and_up(expr const & e) {
+    expr a, b;
+    lean_verify(is_and(e, a, b));
+
+    if (is_eq_true(a)) {
+        // a = true  -> (and a b) = b
+        push_eq(e, b, mk_app(*g_and_eq_of_eq_true_left, a, b, get_eq_true_proof(a)));
+    } else if (is_eq_true(b)) {
+        // b = true  -> (and a b) = a
+        push_eq(e, a, mk_app(*g_and_eq_of_eq_true_right, a, b, get_eq_true_proof(b)));
+    } else if (is_eq_false(a)) {
+        // a = false -> (and a b) = false
+        push_eq(e, mk_false(), mk_app(*g_and_eq_of_eq_false_left, a, b, get_eq_false_proof(a)));
+    } else if (is_eq_false(b)) {
+        // b = false -> (and a b) = false
+        push_eq(e, mk_false(), mk_app(*g_and_eq_of_eq_false_right, a, b, get_eq_false_proof(b)));
+    } else if (is_eqv(a, b)) {
+        // a = b     -> (and a b) = a
+        push_eq(e, a, mk_app(*g_and_eq_of_eq, a, b, get_prop_eq_proof(a, b)));
+    }
+
+    // We may also add
+    // a = not b -> (and a b) = false
+}
+
+static expr * g_or_eq_of_eq_true_left   = nullptr;
+static expr * g_or_eq_of_eq_true_right  = nullptr;
+static expr * g_or_eq_of_eq_false_left  = nullptr;
+static expr * g_or_eq_of_eq_false_right = nullptr;
+static expr * g_or_eq_of_eq             = nullptr;
+
+void congruence_closure::propagate_or_up(expr const & e) {
+    expr a, b;
+    lean_verify(is_or(e, a, b));
+
+    if (is_eq_true(a)) {
+        // a = true  -> (or a b) = true
+        push_eq(e, mk_true(), mk_app(*g_or_eq_of_eq_true_left, a, b, get_eq_true_proof(a)));
+    } else if (is_eq_true(b)) {
+        // b = true  -> (or a b) = true
+        push_eq(e, mk_true(), mk_app(*g_or_eq_of_eq_true_right, a, b, get_eq_true_proof(b)));
+    } else if (is_eq_false(a)) {
+        // a = false -> (or a b) = b
+        push_eq(e, b, mk_app(*g_or_eq_of_eq_false_left, a, b, get_eq_false_proof(a)));
+    } else if (is_eq_false(b)) {
+        // b = false -> (or a b) = a
+        push_eq(e, a, mk_app(*g_or_eq_of_eq_false_right, a, b, get_eq_false_proof(b)));
+    } else if (is_eqv(a, b)) {
+        // a = b     -> (or a b) = a
+        push_eq(e, a, mk_app(*g_or_eq_of_eq, a, b, get_prop_eq_proof(a, b)));
+    }
+
+    // We may also add
+    // a = not b -> (or a b) = true
+}
+
+static expr * g_not_eq_of_eq_true   = nullptr;
+static expr * g_not_eq_of_eq_false  = nullptr;
+static expr * g_false_of_a_eq_not_a = nullptr;
+
+void congruence_closure::propagate_not_up(expr const & e) {
+    expr a;
+    lean_verify(is_not(e, a));
+
+    if (is_eq_true(a)) {
+        // a = true  -> not a = false
+        push_eq(e, mk_false(), mk_app(*g_not_eq_of_eq_true, a, get_eq_true_proof(a)));
+    } else if (is_eq_false(a)) {
+        // a = false -> not a = true
+        push_eq(e, mk_true(), mk_app(*g_not_eq_of_eq_false, a, get_eq_false_proof(a)));
+    } else if (is_eqv(a, e)) {
+        expr false_pr = mk_app(*g_false_of_a_eq_not_a, a, get_prop_eq_proof(a, e));
+        expr H        = mk_app(mk_constant(get_true_eq_false_of_false_name()), false_pr);
+        push_eq(mk_true(), mk_false(), H);
+    }
+}
+
+static expr * g_imp_eq_of_eq_true_left  = nullptr;
+static expr * g_imp_eq_of_eq_false_left = nullptr;
+static expr * g_imp_eq_of_eq_true_right = nullptr;
+static expr * g_imp_eq_true_of_eq       = nullptr;
+
+void congruence_closure::propagate_imp_up(expr const & e) {
+    lean_assert(is_arrow(e));
+    expr a = binding_domain(e);
+    expr b = binding_body(e);
+
+    if (is_eq_true(a)) {
+        // a = true  -> (a -> b) = b
+        push_eq(e, b, mk_app(*g_imp_eq_of_eq_true_left, a, b, get_eq_true_proof(a)));
+    } else if (is_eq_false(a)) {
+        // a = false -> (a -> b) = true
+        push_eq(e, mk_true(), mk_app(*g_imp_eq_of_eq_false_left, a, b, get_eq_false_proof(a)));
+    } else if (is_eq_true(b)) {
+        // b = true  -> (a -> b) = true
+        push_eq(e, mk_true(), mk_app(*g_imp_eq_of_eq_true_right, a, b, get_eq_true_proof(b)));
+    } else if (is_eqv(a, b)) {
+        // a = b     -> (a -> b) = true
+        push_eq(e, mk_true(), mk_app(*g_imp_eq_true_of_eq, a, b, get_prop_eq_proof(a, b)));
+    }
+}
+
+static name * g_if_eq_of_eq_true  = nullptr;
+static name * g_if_eq_of_eq_false = nullptr;
+static name * g_if_eq_of_eq       = nullptr;
+
+void congruence_closure::propagate_ite_up(expr const & e) {
+    expr c, d, A, a, b;
+    lean_verify(is_ite(e, c, d, A, a, b));
+
+    if (is_eq_true(c)) {
+        // c = true  -> (ite c a b) = a
+        level lvl = get_level(m_ctx, A);
+        push_eq(e, a, mk_app({mk_constant(*g_if_eq_of_eq_true, {lvl}), c, d, A, a, b, get_eq_true_proof(c)}));
+    } else if (is_eq_false(c)) {
+        // c = false -> (ite c a b) = b
+        level lvl = get_level(m_ctx, A);
+        push_eq(e, b, mk_app({mk_constant(*g_if_eq_of_eq_false, {lvl}), c, d, A, a, b, get_eq_false_proof(c)}));
+    } else if (is_eqv(a, b)) {
+        // a = b     -> (ite c a b) = a
+        level lvl = get_level(m_ctx, A);
+        push_eq(e, a, mk_app({mk_constant(*g_if_eq_of_eq, {lvl}), c, d, A, a, b, get_prop_eq_proof(a, b)}));
+    }
+}
+
+bool congruence_closure::may_propagate(expr const & e) {
+    return
+        is_iff(e) || is_and(e) || is_or(e) || is_not(e) || is_arrow(e) || is_ite(e);
+}
+
+void congruence_closure::propagate_up(expr const & e) {
+    if (m_state.m_inconsistent) return;
+    if (is_iff(e)) {
+        propagate_iff_up(e);
+    } else if (is_and(e)) {
+        propagate_and_up(e);
+    } else if (is_or(e)) {
+        propagate_or_up(e);
+    } else if (is_not(e)) {
+        propagate_not_up(e);
+    } else if (is_arrow(e)) {
+        propagate_imp_up(e);
+    } else if (is_ite(e)) {
+        propagate_ite_up(e);
+    }
+}
+
+static expr * g_eq_true_of_and_eq_true_left  = nullptr;
+static expr * g_eq_true_of_and_eq_true_right = nullptr;
+
+void congruence_closure::propagate_and_down(expr const & e) {
+    if (is_eq_true(e)) {
+        expr a, b;
+        lean_verify(is_and(e, a, b));
+        expr h = get_eq_true_proof(e);
+        push_eq(a, mk_true(), mk_app(*g_eq_true_of_and_eq_true_left, a, b, h));
+        push_eq(b, mk_true(), mk_app(*g_eq_true_of_and_eq_true_right, a, b, h));
+    }
+}
+
+static expr * g_eq_false_of_or_eq_false_left  = nullptr;
+static expr * g_eq_false_of_or_eq_false_right = nullptr;
+
+void congruence_closure::propagate_or_down(expr const & e) {
+    if (is_eq_false(e)) {
+        expr a, b;
+        lean_verify(is_or(e, a, b));
+        expr h = get_eq_false_proof(e);
+        push_eq(a, mk_false(), mk_app(*g_eq_false_of_or_eq_false_left, a, b, h));
+        push_eq(b, mk_false(), mk_app(*g_eq_false_of_or_eq_false_right, a, b, h));
+    }
+}
+
+static expr * g_eq_false_of_not_eq_true = nullptr;
+static expr * g_eq_true_of_not_eq_false = nullptr;
+
+void congruence_closure::propagate_not_down(expr const & e) {
+    if (is_eq_true(e)) {
+        expr a;
+        lean_verify(is_not(e, a));
+        push_eq(a, mk_false(), mk_app(*g_eq_false_of_not_eq_true, a, get_eq_true_proof(e)));
+    } else if (m_state.m_config.m_em && is_eq_false(e)) {
+        expr a;
+        lean_verify(is_not(e, a));
+        push_eq(a, mk_true(), mk_app(*g_eq_true_of_not_eq_false, a, get_eq_false_proof(e)));
+    }
+}
+
+void congruence_closure::propagate_down(expr const & e) {
+    if (is_and(e)) {
+        propagate_and_down(e);
+    } else if (is_or(e)) {
+        propagate_or_down(e);
+    } else if (is_not(e)) {
+        propagate_not_down(e);
+    }
+}
+
 void congruence_closure::propagate_value_inconsistency(expr const & e1, expr const & e2) {
     lean_assert(is_interpreted_value(e1));
     lean_assert(is_interpreted_value(e2));
@@ -1261,8 +1525,7 @@ void congruence_closure::propagate_value_inconsistency(expr const & e1, expr con
     expr eq_proof      = *get_eq_proof(e1, e2);
     expr true_eq_false = mk_eq(m_ctx, mk_true(), mk_false());
     expr H             = mk_absurd(m_ctx, eq_proof, ne_proof, true_eq_false);
-    bool heq_proof     = false;
-    push_todo(mk_true(), mk_false(), H, heq_proof);
+    push_eq(mk_true(), mk_false(), H);
 }
 
 static bool is_true_or_false(expr const & e) {
@@ -1337,8 +1600,9 @@ void congruence_closure::add_eqv_step(expr e1, expr e2, expr const & H,
     new_n1.m_flipped = flipped;
     m_state.m_entries.insert(e1, new_n1);
 
+    buffer<expr> parents_to_propagate;
     /* The hash code for the parents is going to change */
-    remove_parents(e1_root);
+    remove_parents(e1_root, parents_to_propagate);
 
     /* force all m_root fields in e1 equivalence class to point to e2_root */
     bool propagate = is_true_or_false(e2_root);
@@ -1384,7 +1648,7 @@ void congruence_closure::add_eqv_step(expr e1, expr e2, expr const & H,
         if (auto it = m_state.m_parents.find(e2_root))
             ps2 = *it;
         ps1->for_each([&](parent_occ const & p) {
-                if (is_congr_root(p.m_expr)) {
+                if (is_app(p.m_expr) && is_congr_root(p.m_expr)) {
                     if (!constructor_eq && r2->m_constructor)  {
                         propagate_projection_constructor(p.m_expr, e2_root);
                     }
@@ -1395,25 +1659,32 @@ void congruence_closure::add_eqv_step(expr e1, expr e2, expr const & H,
         m_state.m_parents.insert(e2_root, ps2);
     }
 
+    if (!m_state.m_inconsistent && ac_var1 && ac_var2)
+        m_ac.add_eq(*ac_var1, *ac_var2);
+
+    if (!m_state.m_inconsistent && constructor_eq)
+        propagate_constructor_eq(e1_root, e2_root);
+
+    if (!m_state.m_inconsistent && value_inconsistency)
+        propagate_value_inconsistency(e1_root, e2_root);
+
     if (!m_state.m_inconsistent) {
-        if (ac_var1 && ac_var2)
-            m_ac.add_eq(*ac_var1, *ac_var2);
-
-        if (constructor_eq) {
-            propagate_constructor_eq(e1_root, e2_root);
-        }
-
-        if (value_inconsistency) {
-            propagate_value_inconsistency(e1_root, e2_root);
-        }
-
         update_mt(e2_root);
         check_new_subsingleton_eq(e1_root, e2_root);
-
-        if (!to_propagate.empty() && m_phandler) {
-            m_phandler->propagated(to_propagate);
-        }
     }
+
+    if (!m_state.m_inconsistent) {
+        for (expr const & p : parents_to_propagate)
+            propagate_up(p);
+    }
+
+    if (!m_state.m_inconsistent && !to_propagate.empty()) {
+        for (expr const & e : to_propagate)
+            propagate_down(e);
+        if (m_phandler)
+            m_phandler->propagated(to_propagate);
+    }
+
     lean_trace(name({"cc", "merge"}), scope_trace_env scope(m_ctx.env(), m_ctx);
                tout() << e1_root << " = " << e2_root << "\n";);
     lean_trace(name({"debug", "cc"}), scope_trace_env scope(m_ctx.env(), m_ctx);
@@ -1626,11 +1897,87 @@ void initialize_congruence_closure() {
     g_congr_mark    = new expr(mk_constant(name(prefix, "[congruence]")));
     g_eq_true_mark  = new expr(mk_constant(name(prefix, "[iff-true]")));
     g_refl_mark     = new expr(mk_constant(name(prefix, "[refl]")));
+
+    g_iff_eq_of_eq_true_left  = new expr(mk_constant("iff_eq_of_eq_true_left"));
+    g_iff_eq_of_eq_true_right = new expr(mk_constant("iff_eq_of_eq_true_right"));
+    g_iff_eq_true_of_eq       = new expr(mk_constant("iff_eq_true_of_eq"));
+
+    g_and_eq_of_eq_true_left   = new expr(mk_constant("and_eq_of_eq_true_left"));
+    g_and_eq_of_eq_true_right  = new expr(mk_constant("and_eq_of_eq_true_right"));
+    g_and_eq_of_eq_false_left  = new expr(mk_constant("and_eq_of_eq_false_left"));
+    g_and_eq_of_eq_false_right = new expr(mk_constant("and_eq_of_eq_false_right"));
+    g_and_eq_of_eq             = new expr(mk_constant("and_eq_of_eq"));
+
+    g_or_eq_of_eq_true_left   = new expr(mk_constant("or_eq_of_eq_true_left"));
+    g_or_eq_of_eq_true_right  = new expr(mk_constant("or_eq_of_eq_true_right"));
+    g_or_eq_of_eq_false_left  = new expr(mk_constant("or_eq_of_eq_false_left"));
+    g_or_eq_of_eq_false_right = new expr(mk_constant("or_eq_of_eq_false_right"));
+    g_or_eq_of_eq             = new expr(mk_constant("or_eq_of_eq"));
+
+    g_not_eq_of_eq_true       = new expr(mk_constant("not_eq_of_eq_true "));
+    g_not_eq_of_eq_false      = new expr(mk_constant("not_eq_of_eq_false"));
+    g_false_of_a_eq_not_a     = new expr(mk_constant("false_of_a_eq_not_a"));
+
+    g_imp_eq_of_eq_true_left  = new expr(mk_constant("imp_eq_of_eq_true_left"));
+    g_imp_eq_of_eq_false_left = new expr(mk_constant("imp_eq_of_eq_false_left"));
+    g_imp_eq_of_eq_true_right = new expr(mk_constant("imp_eq_of_eq_true_right"));
+    g_imp_eq_true_of_eq       = new expr(mk_constant("imp_eq_true_of_eq"));
+
+    g_if_eq_of_eq_true  = new name("if_eq_of_eq_true");
+    g_if_eq_of_eq_false = new name("if_eq_of_eq_false");
+    g_if_eq_of_eq       = new name("if_eq_of_eq");
+
+    g_eq_true_of_and_eq_true_left  = new expr(mk_constant("eq_true_of_and_eq_true_left"));
+    g_eq_true_of_and_eq_true_right = new expr(mk_constant("eq_true_of_and_eq_true_right"));
+
+    g_eq_false_of_or_eq_false_left  = new expr(mk_constant("eq_false_of_or_eq_false_left"));
+    g_eq_false_of_or_eq_false_right = new expr(mk_constant("eq_false_of_or_eq_false_right"));
+
+    g_eq_false_of_not_eq_true = new expr(mk_constant("eq_false_of_not_eq_true"));
+    g_eq_true_of_not_eq_false = new expr(mk_constant("eq_true_of_not_eq_false"));
 }
 
 void finalize_congruence_closure() {
     delete g_congr_mark;
     delete g_eq_true_mark;
     delete g_refl_mark;
+
+    delete g_iff_eq_of_eq_true_left;
+    delete g_iff_eq_of_eq_true_right;
+    delete g_iff_eq_true_of_eq;
+
+    delete g_and_eq_of_eq_true_left;
+    delete g_and_eq_of_eq_true_right;
+    delete g_and_eq_of_eq_false_left;
+    delete g_and_eq_of_eq_false_right;
+    delete g_and_eq_of_eq;
+
+    delete g_or_eq_of_eq_true_left;
+    delete g_or_eq_of_eq_true_right;
+    delete g_or_eq_of_eq_false_left;
+    delete g_or_eq_of_eq_false_right;
+    delete g_or_eq_of_eq;
+
+    delete g_not_eq_of_eq_true;
+    delete g_not_eq_of_eq_false;
+    delete g_false_of_a_eq_not_a;
+
+    delete g_imp_eq_of_eq_true_left;
+    delete g_imp_eq_of_eq_false_left;
+    delete g_imp_eq_of_eq_true_right;
+    delete g_imp_eq_true_of_eq;
+
+    delete g_if_eq_of_eq_true;
+    delete g_if_eq_of_eq_false;
+    delete g_if_eq_of_eq;
+
+    delete g_eq_true_of_and_eq_true_left;
+    delete g_eq_true_of_and_eq_true_right;
+
+    delete g_eq_false_of_or_eq_false_left;
+    delete g_eq_false_of_or_eq_false_right;
+
+    delete g_eq_false_of_not_eq_true;
+    delete g_eq_true_of_not_eq_false;
 }
 }

@@ -1648,7 +1648,7 @@ void congruence_closure::add_eqv_step(expr e1, expr e2, expr const & H,
         if (auto it = m_state.m_parents.find(e2_root))
             ps2 = *it;
         ps1->for_each([&](parent_occ const & p) {
-                if (is_app(p.m_expr) && is_congr_root(p.m_expr)) {
+                if (!is_app(p.m_expr) || is_congr_root(p.m_expr)) {
                     if (!constructor_eq && r2->m_constructor)  {
                         propagate_projection_constructor(p.m_expr, e2_root);
                     }

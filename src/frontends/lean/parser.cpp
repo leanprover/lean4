@@ -208,11 +208,22 @@ bool parser::check_break_at_pos(pos_info const & p, name const & tk) {
 }
 
 void parser::scan() {
-    if (curr_is_identifier() && check_break_at_pos(pos(), get_name_val()))
-        throw break_at_pos_exception(pos(), get_name_val(), break_at_pos_exception::token_context::ident);
-    if (m_break_at_pos && *m_break_at_pos < pos())
+    if (m_break_at_pos && curr_is_identifier()) {
+        pos_info curr_pos = pos();
+        name curr_ident = get_name_val();
+        if (check_break_at_pos(curr_pos, curr_ident))
+            throw break_at_pos_exception(curr_pos, curr_ident, break_at_pos_exception::token_context::ident);
+        m_curr = m_scanner.scan(m_env);
+        // when breaking on a '.' token trailing an identifier, report them as a single, concatenated token
+        if (m_break_at_pos->first == curr_pos.first &&
+                m_break_at_pos->second == curr_pos.second + curr_ident.utf8_size() && curr_is_token(get_period_tk()))
+            throw break_at_pos_exception(curr_pos, name(curr_ident.to_string() + get_period_tk()),
+                                         break_at_pos_exception::token_context::ident);
+    } else if (m_break_at_pos && *m_break_at_pos < pos()) {
         throw break_at_pos_exception();
-    m_curr = m_scanner.scan(m_env);
+    } else {
+        m_curr = m_scanner.scan(m_env);
+    }
 }
 
 expr parser::mk_sorry(pos_info const & p) {

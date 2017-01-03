@@ -230,6 +230,9 @@ private:
     void propagate_not_up(expr const & e);
     void propagate_imp_up(expr const & e);
     void propagate_ite_up(expr const & e);
+    optional<expr> mk_ne_of_eq_of_ne(expr const & a, expr const & a1, expr const & a1_ne_b);
+    optional<expr> mk_ne_of_ne_of_eq(expr const & a_ne_b1, expr const & b1, expr const & b);
+    void propagate_eq_up(expr const & e);
     void propagate_up(expr const & e);
     void propagate_and_down(expr const & e);
     void propagate_or_down(expr const & e);

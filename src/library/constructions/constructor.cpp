@@ -27,6 +27,15 @@ optional<expr> mk_constructor_eq_constructor_inconsistency_proof(type_context & 
     return some_expr(pr);
 }
 
+optional<expr> mk_constructor_ne_constructor_proof(type_context & ctx, expr const & e1, expr const & e2) {
+    type_context::tmp_locals locals(ctx);
+    expr h  = locals.push_local("_h", mk_eq(ctx, e1, e2));
+    if (optional<expr> pr = mk_constructor_eq_constructor_inconsistency_proof(ctx, e1, e2, h))
+        return some_expr(locals.mk_lambda(*pr));
+    else
+        return none_expr();
+}
+
 optional<expr> mk_constructor_eq_constructor_implied_core(type_context & ctx, expr const & e1, expr const & e2, expr const & h, buffer<expr_pair> & implied_pairs) {
     // TODO(Leo, Daniel): add support for generalized inductive datatypes
     // TODO(Leo): add a definition for this proof at inductive datatype declaration time?

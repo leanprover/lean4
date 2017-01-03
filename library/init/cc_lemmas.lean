@@ -109,3 +109,9 @@ eq_false_intro (λ ha, absurd ha (eq.mpr h trivial))
    cc_config.em is tt. -/
 lemma eq_true_of_not_eq_false {a : Prop} (h : (not a) = false) : a = true :=
 eq_true_intro (classical.by_contradiction (λ hna, eq.mp h hna))
+
+lemma ne_of_eq_of_ne {α : Type u} {a b c : α} (h₁ : a = b) (h₂ : b ≠ c) : a ≠ c :=
+h₁^.symm ▸ h₂
+
+lemma ne_of_ne_of_eq {α : Type u} {a b c : α} (h₁ : a ≠ b) (h₂ : b = c) : a ≠ c :=
+h₂ ▸ h₁

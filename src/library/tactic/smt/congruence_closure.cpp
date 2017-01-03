@@ -1460,6 +1460,51 @@ bool congruence_closure::may_propagate(expr const & e) {
         is_iff(e) || is_and(e) || is_or(e) || is_not(e) || is_arrow(e) || is_ite(e);
 }
 
+static name * g_ne_of_eq_of_ne = nullptr;
+static name * g_ne_of_ne_of_eq = nullptr;
+
+optional<expr> congruence_closure::mk_ne_of_eq_of_ne(expr const & a, expr const & a1, expr const & a1_ne_b) {
+    lean_assert(is_eqv(a, a1));
+    if (a == a1)
+        return some_expr(a1_ne_b);
+    auto a_eq_a1 = get_eq_proof(a, a1);
+    if (!a_eq_a1) return none_expr(); // failed to build proof
+    return some_expr(mk_app(m_ctx, *g_ne_of_eq_of_ne, 6, *a_eq_a1, a1_ne_b));
+}
+
+optional<expr> congruence_closure::mk_ne_of_ne_of_eq(expr const & a_ne_b1, expr const & b1, expr const & b) {
+    lean_assert(is_eqv(b, b1));
+    if (b == b1)
+        return some_expr(a_ne_b1);
+    auto b1_eq_b = get_eq_proof(b1, b);
+    if (!b1_eq_b) return none_expr(); // failed to build proof
+    return some_expr(mk_app(m_ctx, *g_ne_of_ne_of_eq, 6, a_ne_b1, *b1_eq_b));
+}
+
+void congruence_closure::propagate_eq_up(expr const & e) {
+    /* Remark: the positive case is implemented at check_eq_true
+       for any reflexive relation. */
+    expr a, b;
+    lean_verify(is_eq(e, a, b));
+    expr ra = get_root(a);
+    expr rb = get_root(b);
+    if (ra != rb) {
+        optional<expr> ra_ne_rb;
+        if (is_interpreted_value(ra) && is_interpreted_value(rb)) {
+            ra_ne_rb = mk_val_ne_proof(m_ctx, ra, rb);
+        } else {
+            if (optional<name> c1 = is_constructor_app(env(), ra))
+            if (optional<name> c2 = is_constructor_app(env(), rb))
+            if (c1 && c2 && *c1 != *c2)
+                ra_ne_rb = mk_constructor_ne_constructor_proof(m_ctx, ra, rb);
+        }
+        if (ra_ne_rb)
+        if (auto a_ne_rb = mk_ne_of_eq_of_ne(a, ra, *ra_ne_rb))
+        if (auto a_ne_b = mk_ne_of_ne_of_eq(*a_ne_rb, rb, b))
+            push_eq(e, mk_false(), mk_eq_false_intro(m_ctx, *a_ne_b));
+    }
+}
+
 void congruence_closure::propagate_up(expr const & e) {
     if (m_state.m_inconsistent) return;
     if (is_iff(e)) {
@@ -1474,6 +1519,8 @@ void congruence_closure::propagate_up(expr const & e) {
         propagate_imp_up(e);
     } else if (is_ite(e)) {
         propagate_ite_up(e);
+    } else if (is_eq(e)) {
+        propagate_eq_up(e);
     }
 }
 
@@ -1957,6 +2004,9 @@ void initialize_congruence_closure() {
 
     g_eq_false_of_not_eq_true = new expr(mk_constant("eq_false_of_not_eq_true"));
     g_eq_true_of_not_eq_false = new expr(mk_constant("eq_true_of_not_eq_false"));
+
+    g_ne_of_eq_of_ne   = new name("ne_of_eq_of_ne");
+    g_ne_of_ne_of_eq   = new name("ne_of_ne_of_eq");
 }
 
 void finalize_congruence_closure() {
@@ -2004,5 +2054,8 @@ void finalize_congruence_closure() {
 
     delete g_eq_false_of_not_eq_true;
     delete g_eq_true_of_not_eq_false;
+
+    delete g_ne_of_eq_of_ne;
+    delete g_ne_of_ne_of_eq;
 }
 }

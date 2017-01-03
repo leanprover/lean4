@@ -48,3 +48,6 @@ example (f : list nat → list nat) (a b c : list nat) :
         f a = f b ∨ f a = c →
         c = [] :=
 by using_smt $ return()
+
+example (a b c d e : int) : a = b → b ≠ c → (a = c ∨ d = e) → d = e :=
+by using_smt $ return()

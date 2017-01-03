@@ -177,7 +177,7 @@ public:
         That is, all local_decl references in \c e are defined in this context. */
     bool well_formed(expr const & e) const;
 
-    format pp(formatter const & fmt, std::function<bool(local_decl const &)> const & pred) const;
+    format pp(formatter const & fmt, std::function<bool(local_decl const &)> const & pred) const; // NOLINT
     format pp(formatter const & fmt) const { return pp(fmt, [](local_decl const &) { return true; }); }
 
     /** \brief Replaced assigned metavariables with their values.

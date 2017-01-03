@@ -2009,6 +2009,9 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
             expected_type = none_expr();
     }
     get_structure_instance_info(e, S_name, src, fnames, fvalues);
+    if (!S_name.is_anonymous() && !is_structure(env(), S_name))
+        throw elaborator_exception(e, sstream() << "invalid structure instance, '" <<
+                                   S_name << "' is not the name of a structure type");
     lean_assert(fnames.size() == fvalues.size());
     name src_S_name;
     unsigned src_S_nparams = 0;

@@ -463,6 +463,8 @@ bool elaborator::is_monad(expr const & e) {
     try {
         expr m = mk_app(m_ctx, get_monad_name(), e);
         return static_cast<bool>(m_ctx.mk_class_instance(m));
+    } catch (app_builder_exception &) {
+        return false;
     } catch (class_exception &) {
         return false;
     }

@@ -1,0 +1,8 @@
+1279.lean:12:33: error: type mismatch at application
+  compose source g f
+term
+  f
+has type
+  Hom source A B
+but is expected to have type
+  Hom source C ?m_1

@@ -406,6 +406,10 @@ name const * g_sum = nullptr;
 name const * g_sum_cases_on = nullptr;
 name const * g_sum_inl = nullptr;
 name const * g_sum_inr = nullptr;
+name const * g_default_smt_config = nullptr;
+name const * g_smt_state_mk = nullptr;
+name const * g_smt_tactic_execute = nullptr;
+name const * g_smt_tactic_execute_with = nullptr;
 name const * g_tactic = nullptr;
 name const * g_tactic_eval_expr = nullptr;
 name const * g_tactic_constructor = nullptr;
@@ -861,6 +865,10 @@ void initialize_constants() {
     g_sum_cases_on = new name{"sum", "cases_on"};
     g_sum_inl = new name{"sum", "inl"};
     g_sum_inr = new name{"sum", "inr"};
+    g_default_smt_config = new name{"default_smt_config"};
+    g_smt_state_mk = new name{"smt_state", "mk"};
+    g_smt_tactic_execute = new name{"smt_tactic", "execute"};
+    g_smt_tactic_execute_with = new name{"smt_tactic", "execute_with"};
     g_tactic = new name{"tactic"};
     g_tactic_eval_expr = new name{"tactic", "eval_expr"};
     g_tactic_constructor = new name{"tactic", "constructor"};
@@ -1317,6 +1325,10 @@ void finalize_constants() {
     delete g_sum_cases_on;
     delete g_sum_inl;
     delete g_sum_inr;
+    delete g_default_smt_config;
+    delete g_smt_state_mk;
+    delete g_smt_tactic_execute;
+    delete g_smt_tactic_execute_with;
     delete g_tactic;
     delete g_tactic_eval_expr;
     delete g_tactic_constructor;
@@ -1772,6 +1784,10 @@ name const & get_sum_name() { return *g_sum; }
 name const & get_sum_cases_on_name() { return *g_sum_cases_on; }
 name const & get_sum_inl_name() { return *g_sum_inl; }
 name const & get_sum_inr_name() { return *g_sum_inr; }
+name const & get_default_smt_config_name() { return *g_default_smt_config; }
+name const & get_smt_state_mk_name() { return *g_smt_state_mk; }
+name const & get_smt_tactic_execute_name() { return *g_smt_tactic_execute; }
+name const & get_smt_tactic_execute_with_name() { return *g_smt_tactic_execute_with; }
 name const & get_tactic_name() { return *g_tactic; }
 name const & get_tactic_eval_expr_name() { return *g_tactic_eval_expr; }
 name const & get_tactic_constructor_name() { return *g_tactic_constructor; }

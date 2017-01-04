@@ -10,8 +10,11 @@ namespace smt_tactic
 meta def skip : smt_tactic unit :=
 return ()
 
+meta def solve_goals : smt_tactic unit :=
+repeat close
+
 meta def step {α : Type} (tac : smt_tactic α) : smt_tactic unit :=
-tac >> return ()
+tac >> solve_goals
 
 meta def execute (tac : smt_tactic unit) : tactic unit :=
 using_smt tac

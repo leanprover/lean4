@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "library/discr_tree.h"
+#include "library/tactic/tactic_state.h"
 #include "library/tactic/simp_lemmas.h"
 #include "library/tactic/smt/congruence_closure.h"
 #include "library/tactic/smt/ematch.h"
@@ -65,6 +66,8 @@ public:
 bool is_smt_goal(vm_obj const & o);
 smt_goal const & to_smt_goal(vm_obj const & o);
 vm_obj to_obj(smt_goal const & s);
+
+format smt_state_pp(vm_obj const & ss, tactic_state const & ts);
 
 void initialize_smt_state();
 void finalize_smt_state();

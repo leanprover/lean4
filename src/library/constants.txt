@@ -401,6 +401,10 @@ sum
 sum.cases_on
 sum.inl
 sum.inr
+default_smt_config
+smt_state.mk
+smt_tactic.execute
+smt_tactic.execute_with
 tactic
 tactic.eval_expr
 tactic.constructor

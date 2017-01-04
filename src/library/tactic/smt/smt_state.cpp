@@ -500,6 +500,10 @@ format smt_state_to_format_core(vm_obj const & ss, tactic_state const & ts) {
     return r;
 }
 
+format smt_state_pp(vm_obj const & ss, tactic_state const & ts) {
+    return smt_state_to_format_core(ss, ts);
+}
+
 vm_obj smt_state_to_format(vm_obj const & ss, vm_obj const & ts) {
     LEAN_TACTIC_TRY;
     return to_obj(smt_state_to_format_core(ss, to_tactic_state(ts)));

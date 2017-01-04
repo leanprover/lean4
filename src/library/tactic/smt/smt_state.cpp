@@ -152,7 +152,7 @@ tactic_state revert_all(tactic_state const & s) {
     return revert(hs, s);
 }
 
-vm_obj preprocess(tactic_state const & s, smt_pre_config const & cfg) {
+vm_obj preprocess(tactic_state s, smt_pre_config const & cfg) {
     lean_assert(s.goals());
     optional<metavar_decl> g = s.get_main_goal_decl();
     type_context ctx         = mk_type_context_for(s, transparency_mode::Reducible);
@@ -163,28 +163,34 @@ vm_obj preprocess(tactic_state const & s, smt_pre_config const & cfg) {
     simp_lemmas_for eq_lemmas;
     if (auto r = cfg.m_simp_lemmas.find(get_eq_name()))
         eq_lemmas = *r;
-    expr new_target          = dsimplify_fn(ctx, max_steps, visit_instances, eq_lemmas)(target);
+    dsimplify_fn dsimp(ctx, max_steps, visit_instances, eq_lemmas);
+    expr new_target          = dsimp(target);
+    ctx.set_env(dsimp.update_defeq_canonizer_state(ctx.env()));
     bool contextual          = false;
     bool lift_eq             = true;
     bool canonize_instances  = true;
     bool canonize_proofs     = false;
     bool use_axioms          = true;
-    simp_result r            = simplify_fn(ctx, cfg.m_simp_lemmas, max_steps,
-                                           contextual, lift_eq, canonize_instances,
-                                           canonize_proofs, use_axioms)(get_eq_name(), new_target);
+    simplify_fn simp(ctx, cfg.m_simp_lemmas, max_steps,
+                     contextual, lift_eq, canonize_instances,
+                     canonize_proofs, use_axioms);
+    simp_result r            = simp(get_eq_name(), new_target);
+    ctx.set_env(simp.update_defeq_canonizer_state(ctx.env()));
     if (!r.has_proof()) {
+        s = set_env(s, ctx.env());
         return change(r.get_new(), s);
     } else {
         expr new_M           = ctx.mk_metavar_decl(ctx.lctx(), r.get_new());
         expr h               = mk_app(ctx, get_eq_mpr_name(), r.get_proof(), new_M);
         metavar_context mctx = ctx.mctx();
         mctx.assign(head(s.goals()), h);
-        tactic_state new_s   = set_mctx_goals(s, mctx, cons(new_M, tail(s.goals())));
+        tactic_state new_s   = set_env_mctx_goals(s, ctx.env(), mctx, cons(new_M, tail(s.goals())));
         return mk_tactic_success(new_s);
     }
 }
 
-expr intros(environment const & env, options const & opts, metavar_context & mctx, expr const & mvar, smt_goal & s_goal) {
+expr intros(environment const & env, options const & opts, metavar_context & mctx, expr const & mvar, smt_goal & s_goal,
+            bool use_unused_names) {
     optional<metavar_decl> decl = mctx.get_metavar_decl(mvar);
     lean_assert(decl);
     type_context ctx(env, opts, mctx, decl->get_context(), transparency_mode::Semireducible);
@@ -201,7 +207,8 @@ expr intros(environment const & env, options const & opts, metavar_context & mct
         }
         if (is_pi(target)) {
             expr type = instantiate_rev(binding_domain(target), to_inst.size(), to_inst.data());
-            name n    = ctx.get_unused_name(binding_name(target));
+            name n    = binding_name(target);
+            if (use_unused_names) n = ctx.get_unused_name(n);
             expr h    = locals.push_local(n, type);
             to_inst.push_back(h);
             new_Hs.push_back(h);
@@ -211,7 +218,8 @@ expr intros(environment const & env, options const & opts, metavar_context & mct
         } else if (is_let(target)) {
             expr type  = instantiate_rev(let_type(target), to_inst.size(), to_inst.data());
             expr value = instantiate_rev(let_value(target), to_inst.size(), to_inst.data());
-            name n     = ctx.get_unused_name(let_name(target));
+            name n     = let_name(target);
+            if (use_unused_names) n = ctx.get_unused_name(n);
             expr h     = locals.push_let(n, type, value);
             to_inst.push_back(h);
             new_Hs.push_back(h);
@@ -257,7 +265,8 @@ vm_obj mk_smt_state(tactic_state s, smt_config const & cfg) {
     s = to_tactic_state(get_tactic_result_state(r));
 
     metavar_context mctx = s.mctx();
-    expr new_M = intros(s.env(), s.get_options(), mctx, head(s.goals()), new_goal);
+    bool use_unused_names = true;
+    expr new_M = intros(s.env(), s.get_options(), mctx, head(s.goals()), new_goal, use_unused_names);
     s = set_mctx_goals(s, mctx, cons(new_M, tail(s.goals())));
     return mk_tactic_success(mk_vm_cons(to_obj(new_goal), mk_vm_nil()), s);
 }
@@ -560,7 +569,7 @@ vm_obj smt_tactic_close(vm_obj const & ss, vm_obj const & _ts) {
     return mk_tactic_exception("smt_tactic.close failed", ts);
 }
 
-vm_obj smt_tactic_intros(vm_obj const & ss, vm_obj const & _ts) {
+vm_obj smt_tactic_intros_core(vm_obj const & use_unused_names, vm_obj const & ss, vm_obj const & _ts) {
     tactic_state ts = to_tactic_state(_ts);
     if (is_nil(ss))
         return mk_smt_state_empty_exception(ts);
@@ -573,7 +582,8 @@ vm_obj smt_tactic_intros(vm_obj const & ss, vm_obj const & _ts) {
     ts = to_tactic_state(get_tactic_result_state(r));
 
     metavar_context mctx = ts.mctx();
-    expr new_mvar = intros(ts.env(), ts.get_options(), mctx, head(ts.goals()), new_sgoal);
+    expr new_mvar = intros(ts.env(), ts.get_options(), mctx, head(ts.goals()), new_sgoal,
+                           to_bool(use_unused_names));
 
     tactic_state new_ts = set_mctx_goals(ts, mctx, cons(new_mvar, tail(ts.goals())));
     vm_obj new_ss    = mk_vm_cons(to_obj(new_sgoal), tail(ss));
@@ -588,7 +598,7 @@ void initialize_smt_state() {
     DECLARE_VM_BUILTIN(name({"smt_state", "to_format"}),      smt_state_to_format);
     DECLARE_VM_BUILTIN("tactic_to_smt_tactic",                tactic_to_smt_tactic);
     DECLARE_VM_BUILTIN(name({"smt_tactic", "close"}),         smt_tactic_close);
-    DECLARE_VM_BUILTIN(name({"smt_tactic", "intros"}),        smt_tactic_intros);
+    DECLARE_VM_BUILTIN(name({"smt_tactic", "intros_core"}),   smt_tactic_intros_core);
 }
 
 void finalize_smt_state() {

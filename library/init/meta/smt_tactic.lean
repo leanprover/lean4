@@ -83,8 +83,13 @@ meta instance : alternative smt_tactic :=
  map     := @fmap _ _}
 
 namespace smt_tactic
-meta constant intros    : smt_tactic unit
-meta constant close     : smt_tactic unit
+/-- (intros_core fresh_names), if fresh_names is tt, then create fresh names for new hypotheses.
+    Otherwise, it just uses the given names. -/
+meta constant intros_core : bool → smt_tactic unit
+meta constant close       : smt_tactic unit
+
+meta def intros : smt_tactic unit :=
+intros_core tt
 
 meta def try {α : Type} (t : smt_tactic α) : smt_tactic unit :=
 λ ss ts, tactic_result.cases_on (t ss ts)
@@ -145,6 +150,39 @@ do (s::ss, t::ts) ← get_goals | failed,
    tac1, all_goals tac2,
    (new_ss, new_ts) ← get_goals,
    set_goals (new_ss ++ ss) (new_ts ++ ts)
+
+meta def swap : smt_tactic unit :=
+do (ss, ts) ← get_goals,
+   match ss, ts with
+   | (s₁ :: s₂ :: ss), (t₁ :: t₂ :: ts) := set_goals (s₂ :: s₁ :: ss) (t₂ :: t₁ :: ts)
+   | _,                _                := failed
+   end
+
+/- (assert h t), adds a new goal for t, and the hypothesis (h : t) in the current goal. -/
+meta def assert (h : name) (t : expr) : smt_tactic unit :=
+tactic.assert_core h t >> swap >> intros_core ff >> swap >> try close
+
+/- (assertv h t v), adds the hypothesis (h : t) in the current goal if v has type t. -/
+meta def assertv (h : name) (t : expr) (v : expr) : smt_tactic unit :=
+tactic.assertv_core h t v >> intros_core ff >> return ()
+
+/- (define h t), adds a new goal for t, and the hypothesis (h : t := ?M) in the current goal. -/
+meta def define  (h : name) (t : expr) : smt_tactic unit :=
+tactic.define_core h t >> swap >> intros_core ff >> swap >> try close
+
+/- (definev h t v), adds the hypothesis (h : t := v) in the current goal if v has type t. -/
+meta def definev (h : name) (t : expr) (v : expr) : smt_tactic unit :=
+tactic.definev_core h t v >> intros_core ff >> return ()
+
+/- Add (h : t := pr) to the current goal -/
+meta def pose (h : name) (pr : expr) : smt_tactic unit :=
+do t ← tactic.infer_type pr,
+   definev h t pr
+
+/- Add (h : t) to the current goal, given a proof (pr : t) -/
+meta def note (n : name) (pr : expr) : smt_tactic unit :=
+do t ← tactic.infer_type pr,
+   assertv n t pr
 
 meta def destruct (e : expr) : smt_tactic unit :=
 smt_tactic.seq (tactic.destruct e) smt_tactic.intros

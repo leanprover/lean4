@@ -23,6 +23,8 @@ optional<expr> intron(environment const & env, options const & opts, metavar_con
 optional<expr> intron(environment const & env, options const & opts, metavar_context & mctx,
                       expr const & mvar, unsigned n);
 
+vm_obj intro(name const & n, tactic_state const & s);
+
 void initialize_intro_tactic();
 void finalize_intro_tactic();
 }

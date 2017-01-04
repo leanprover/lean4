@@ -305,14 +305,14 @@ meta constant mk_instance   : expr → tactic expr
 /- Change the target of the main goal.
    The input expression must be definitionally equal to the current target. -/
 meta constant change        : expr → tactic unit
-/- (assert H T), adds a new goal for T, and the hypothesis (H : T) in the current goal. -/
-meta constant assert        : name → expr → tactic unit
-/- (assertv H T P), adds the hypothesis (H : T) in the current goal if P has type T. -/
-meta constant assertv       : name → expr → expr → tactic unit
-/- (define H T), adds a new goal for T, and the hypothesis (H : T := ?M) in the current goal. -/
-meta constant define        : name → expr → tactic unit
-/- (definev H T P), adds the hypothesis (H : T := P) in the current goal if P has type T. -/
-meta constant definev       : name → expr → expr → tactic unit
+/- (assert_core H T), adds a new goal for T, and change target to (T -> target). -/
+meta constant assert_core   : name → expr → tactic unit
+/- (assertv_core H T P), change target to (T -> target) if P has type T. -/
+meta constant assertv_core  : name → expr → expr → tactic unit
+/- (define_core H T), adds a new goal for T, and change target to  (let H : T := ?M in target) in the current goal. -/
+meta constant define_core   : name → expr → tactic unit
+/- (definev_core H T P), change target to (Let H : T := P in target) if P has type T. -/
+meta constant definev_core  : name → expr → expr → tactic unit
 /- rotate goals to the left -/
 meta constant rotate_left   : nat → tactic unit
 meta constant get_goals     : tactic (list expr)
@@ -392,16 +392,6 @@ get_goals >>= set_goals
 /- Auxiliary definition used to implement begin ... end blocks -/
 meta def step {α : Type u} (t : tactic α) : tactic unit :=
 t >>[tactic] cleanup
-
-/- Add (H : T := pr) to the current goal -/
-meta def pose (n : name) (pr : expr) : tactic unit :=
-do t ← infer_type pr,
-   definev n t pr
-
-/- Add (H : T) to the current goal, given a proof (pr : T) -/
-meta def note (n : name) (pr : expr) : tactic unit :=
-do t ← infer_type pr,
-   assertv n t pr
 
 meta def is_prop (e : expr) : tactic bool :=
 do t ← infer_type e,
@@ -536,6 +526,32 @@ do gs ← get_goals,
    | (g₁ :: g₂ :: rs) := set_goals (g₂ :: g₁ :: rs)
    | e                := skip
    end
+
+/- (assert h t), adds a new goal for t, and the hypothesis (h : t) in the current goal. -/
+meta def assert (h : name) (t : expr) : tactic unit :=
+assert_core h t >> swap >> intro h >> swap
+
+/- (assertv h t v), adds the hypothesis (h : t) in the current goal if v has type t. -/
+meta def assertv (h : name) (t : expr) (v : expr) : tactic unit :=
+assertv_core h t v >> intro h >> return ()
+
+/- (define h t), adds a new goal for t, and the hypothesis (h : t := ?M) in the current goal. -/
+meta def define  (h : name) (t : expr) : tactic unit :=
+define_core h t >> swap >> intro h >> swap
+
+/- (definev h t v), adds the hypothesis (h : t := v) in the current goal if v has type t. -/
+meta def definev (h : name) (t : expr) (v : expr) : tactic unit :=
+definev_core h t v >> intro h >> return ()
+
+/- Add (h : t := pr) to the current goal -/
+meta def pose (h : name) (pr : expr) : tactic unit :=
+do t ← infer_type pr,
+   definev h t pr
+
+/- Add (h : t) to the current goal, given a proof (pr : t) -/
+meta def note (n : name) (pr : expr) : tactic unit :=
+do t ← infer_type pr,
+   assertv n t pr
 
 /- Return the number of goals that need to be solved -/
 meta def num_goals     : tactic nat :=

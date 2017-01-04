@@ -412,7 +412,7 @@ expr parse_begin_end_expr(parser & p, pos_info const & pos) {
 }
 
 expr parse_curly_begin_end_expr(parser & p, pos_info const & pos) {
-    return parse_begin_end_expr_core(p, pos, get_lcurly_tk());
+    return parse_begin_end_expr_core(p, pos, get_rcurly_tk());
 }
 
 expr parse_begin_end(parser & p, unsigned, expr const *, pos_info const & pos) {

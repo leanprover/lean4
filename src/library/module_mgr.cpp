@@ -96,6 +96,14 @@ public:
         for (auto & d : m_deps)
             if (d.m_mod_info)
                 deps.push_back(d.m_mod_info->m_result);
+        if (!m_deps.empty()) {
+            // also add the preimported environment of the first dependency
+            if (auto & mod_info = m_deps.front().m_mod_info) {
+                if (auto res = mod_info->m_result.peek()) {
+                    deps.push_back(res->m_loaded_module->m_env);
+                }
+            }
+        }
         return deps;
     }
 

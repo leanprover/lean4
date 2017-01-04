@@ -13,6 +13,12 @@ return ()
 meta def step {α : Type} (tac : smt_tactic α) : smt_tactic unit :=
 tac >> return ()
 
+meta def execute (tac : smt_tactic unit) : tactic unit :=
+using_smt tac
+
+meta def execute_with (cfg : smt_config) (tac : smt_tactic unit) : tactic unit :=
+using_smt_core cfg tac
+
 namespace interactive
 open interactive.types
 
@@ -62,6 +68,11 @@ do p ← tactic.to_expr_strict q,
 meta def pose (h : ident) (a : assign_tk) (q : qexpr0) : smt_tactic unit :=
 do p ← tactic.to_expr_strict q,
    smt_tactic.pose h p
+
+meta def add_fact (q : qexpr0) : smt_tactic unit :=
+do h ← tactic.get_unused_name `h none,
+   p ← tactic.to_expr_strict q,
+   smt_tactic.note h p
 
 meta def trace_state : smt_tactic unit :=
 smt_tactic.trace_state

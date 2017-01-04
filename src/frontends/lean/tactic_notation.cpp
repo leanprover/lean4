@@ -392,8 +392,6 @@ expr parse_begin_end_block(parser & p, pos_info const & start_pos, name const & 
     auto end_pos = p.pos();
     p.next();
     r = p.save_pos(mk_begin_end_block(r), end_pos);
-    expr type = mk_tactic_unit(tac_class);
-    r         = p.save_pos(mk_typed_expr(type, r), end_pos);
     if (nested)
         return r;
     else

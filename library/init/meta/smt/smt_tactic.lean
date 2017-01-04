@@ -4,8 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.meta.congruence_tactics init.category.transformers
-import init.meta.simp_tactic
+import init.meta.simp_tactic init.meta.smt.congruence_tactics
 
 universe variables u
 

@@ -30,7 +30,10 @@ Author: Leonardo de Moura
 
    5) Extend is_tactic_class.
 
-   6) TODO(Leo): add elaborator interface */
+   6) Extend tactic_evaluator execute_begin_end method
+
+   TODO(Leo): improve the "recipe" above. It is too ad hoc.
+*/
 namespace lean {
 static name * g_begin_end = nullptr;
 static name * g_begin_end_element = nullptr;
@@ -223,7 +226,7 @@ static expr parse_location(parser & p) {
     }
 }
 
-expr parse_begin_end_block(parser & p, pos_info const & start_pos, name const & end_token, bool nested, name tac_class);
+static expr parse_begin_end_block(parser & p, pos_info const & start_pos, name const & end_token, bool nested, name const & tac_class);
 
 static expr parse_nested_auto_quote_tactic(parser & p, name const & tac_class) {
     auto pos = p.pos();
@@ -354,9 +357,8 @@ static expr mk_tactic_skip(environment const & env, name const & tac_class) {
         return mk_app(mk_constant("return"), mk_constant(get_unit_star_name()));
 }
 
-expr parse_begin_end_block(parser & p, pos_info const & start_pos, name const & end_token, bool nested, name tac_class) {
+static expr parse_begin_end_block(parser & p, pos_info const & start_pos, name const & end_token, bool nested, name const & tac_class) {
     p.next();
-    tac_class = parse_tactic_class(p, tac_class);
     expr r = p.save_pos(mk_begin_end_element(mk_tactic_skip(p.env(), tac_class)), start_pos);
     try {
         while (!p.curr_is_token(end_token)) {
@@ -402,7 +404,8 @@ expr parse_begin_end_expr_core(parser & p, pos_info const & pos, name const & en
     parser::local_scope _(p);
     p.clear_expr_locals();
     bool nested = false;
-    return parse_begin_end_block(p, pos, end_token, nested, get_tactic_name());
+    name tac_class = parse_tactic_class(p, get_tactic_name());
+    return parse_begin_end_block(p, pos, end_token, nested, tac_class);
 }
 
 expr parse_begin_end_expr(parser & p, pos_info const & pos) {
@@ -434,7 +437,7 @@ expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {
 }
 
 expr parse_auto_quote_tactic_block(parser & p, unsigned, expr const *, pos_info const & pos) {
-    name tac_class = parse_tactic_class(p, get_tactic_name());
+    name const & tac_class = get_tactic_name();
     expr r = parse_tactic(p, tac_class);
     while (p.curr_is_token(get_comma_tk())) {
         p.next();

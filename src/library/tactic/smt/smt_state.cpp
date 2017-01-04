@@ -574,11 +574,21 @@ vm_obj smt_tactic_intros_core(vm_obj const & use_unused_names, vm_obj const & ss
     LEAN_TACTIC_CATCH(ts);
 }
 
+vm_obj smt_state_classical(vm_obj const & ss) {
+    bool r = false;
+    if (!is_nil(ss)) {
+        smt_goal const & g = to_smt_goal(head(ss));
+        r = g.get_cc_state().get_config().m_em;
+    }
+    return mk_vm_bool(r);
+}
+
 void initialize_smt_state() {
     register_trace_class(name({"smt", "units"}));
 
     DECLARE_VM_BUILTIN(name({"smt_state", "mk"}),             smt_state_mk);
     DECLARE_VM_BUILTIN(name({"smt_state", "to_format"}),      smt_state_to_format);
+    DECLARE_VM_BUILTIN(name({"smt_state", "classical"}),      smt_state_classical);
     DECLARE_VM_BUILTIN("tactic_to_smt_tactic",                tactic_to_smt_tactic);
     DECLARE_VM_BUILTIN(name({"smt_tactic", "close"}),         smt_tactic_close);
     DECLARE_VM_BUILTIN(name({"smt_tactic", "intros_core"}),   smt_tactic_intros_core);

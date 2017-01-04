@@ -77,5 +77,16 @@ do h ← tactic.get_unused_name `h none,
 meta def trace_state : smt_tactic unit :=
 smt_tactic.trace_state
 
+meta def destruct (q : qexpr0) : smt_tactic unit :=
+do p ← tactic.to_expr_strict q,
+   smt_tactic.destruct p
+
+meta def by_cases (q : qexpr0) : smt_tactic unit :=
+do p ← tactic.to_expr_strict q,
+   smt_tactic.by_cases p
+
+meta def by_contradiction : smt_tactic unit :=
+smt_tactic.by_contradiction
+
 end interactive
 end smt_tactic

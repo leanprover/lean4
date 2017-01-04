@@ -45,11 +45,17 @@ def default_smt_config : smt_config :=
  em_cfg        := default_ematch_config,
  pre_cfg       := default_smt_pre_config}
 
+meta def smt_config.set_classical (c : smt_config) (b : bool) : smt_config :=
+{c with cc_cfg := { (c^.cc_cfg) with em := b}}
+
 meta constant smt_goal                  : Type
 meta def smt_state :=
 list smt_goal
 meta constant smt_state.mk              : smt_config → tactic smt_state
 meta constant smt_state.to_format       : smt_state → tactic_state → format
+/- The following returns tt if classical excluded middle was enabled at
+   smt_state.mk -/
+meta constant smt_state.classical       : smt_state → bool
 
 meta def smt_tactic :=
 state_t smt_state tactic
@@ -119,6 +125,10 @@ meta def trace_state : smt_tactic unit :=
 do (s₁, s₂) ← smt_tactic.read,
    trace (smt_state.to_format s₁ s₂)
 
+meta def classical : smt_tactic bool :=
+do s ← state_t.read,
+   return s^.classical
+
 /- Low level primitives for managing set of goals -/
 meta def get_goals : smt_tactic (list smt_goal × list expr) :=
 do (g₁, _) ← smt_tactic.read,
@@ -185,6 +195,30 @@ do t ← tactic.infer_type pr,
 
 meta def destruct (e : expr) : smt_tactic unit :=
 smt_tactic.seq (tactic.destruct e) smt_tactic.intros
+
+meta def by_cases (e : expr) : smt_tactic unit :=
+do c ← classical,
+   if c then
+     destruct (expr.app (expr.const `classical.em []) e)
+   else do
+     dec_e ← (mk_app `decidable [e] <|> fail "by_cases smt_tactic failed, type is not a proposition"),
+     inst  ← (mk_instance dec_e <|> fail "by_cases smt_tactic failed, type of given expression is not decidable"),
+     em    ← mk_app `decidable.em [e, inst],
+     destruct em
+
+meta def by_contradiction : smt_tactic unit :=
+do t ← target,
+   c ← classical,
+   if t^.is_false then skip
+   else if c then do
+      apply (expr.app (expr.const `classical.by_contradiction []) t),
+      intros
+   else do
+     dec_t ← (mk_app `decidable [t] <|> fail "by_contradiction smt_tactic failed, target is not a proposition"),
+     inst  ← (mk_instance dec_t <|> fail "by_contradiction smt_tactic failed, target is not decidable"),
+     a     ← mk_mapp `decidable.by_contradiction [some t, some inst],
+     apply a,
+     intros
 
 end smt_tactic
 

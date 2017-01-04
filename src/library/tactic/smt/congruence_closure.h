@@ -159,6 +159,7 @@ public:
         format pp_parent_occs(formatter const & fmt) const;
         unsigned get_gmt() const { return m_gmt; }
         void inc_gmt() { m_gmt++; }
+        config const & get_config() const { return m_config; }
     };
 
 private:

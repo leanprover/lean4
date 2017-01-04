@@ -394,12 +394,12 @@ static name parse_tactic_class(parser & p, name tac_class) {
     if (p.curr_is_token(get_lbracket_tk())) {
         p.next();
         auto id_pos = p.pos();
-        name id = p.check_id_next("invalid 'begin[tactic] ... end' block, identifier expected");
+        name id = p.check_id_next("invalid 'begin [...] ... end' block, identifier expected");
         auto new_class = is_tactic_class(p.env(), id);
         if (!new_class)
             throw parser_error(sstream() << "invalid 'begin [" << id << "] ...end' block, "
                                << "'" << id << "' is not a valid tactic class", id_pos);
-        p.check_token_next(get_rbracket_tk(), "invalid 'begin[tactic] ... end block', ']' expected");
+        p.check_token_next(get_rbracket_tk(), "invalid 'begin [...] ... end block', ']' expected");
         return *new_class;
     } else {
         return tac_class;
@@ -411,9 +411,20 @@ expr parse_begin_end_expr_core(parser & p, pos_info const & pos, name const & en
     p.clear_expr_locals();
     p.next();
     name tac_class = parse_tactic_class(p, get_tactic_name());
-    expr tac = parse_begin_end_block(p, pos, end_token, tac_class);
-    if (tac_class != get_tactic_name()) {
-        tac = copy_tag(tac, mk_app(mk_constant(name(tac_class, "execute")), tac));
+    expr tac;
+    if (tac_class == get_tactic_name()) {
+        tac = parse_begin_end_block(p, pos, end_token, tac_class);
+    } else {
+        if (p.curr_is_token(get_with_tk())) {
+            p.next();
+            expr cfg = p.parse_expr();
+            p.check_token_next(get_comma_tk(), "invalid begin [...] with cfg, ... end block, ',' expected");
+            tac = parse_begin_end_block(p, pos, end_token, tac_class);
+            tac = copy_tag(tac, mk_app(mk_constant(name(tac_class, "execute_with")), cfg, tac));
+        } else {
+            tac = parse_begin_end_block(p, pos, end_token, tac_class);
+            tac = copy_tag(tac, mk_app(mk_constant(name(tac_class, "execute")), tac));
+        }
     }
     return copy_tag(tac, mk_by(tac));
 }

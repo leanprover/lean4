@@ -256,6 +256,29 @@ optional<tactic_exception_info> is_tactic_exception(vm_state & S, vm_obj const &
     }
 }
 
+vm_obj mk_tactic_result(vm_obj const & a, vm_obj const & s) {
+    lean_assert(is_tactic_state(s));
+    return mk_vm_constructor(0, a, s);
+}
+
+bool is_tactic_result_exception(vm_obj const & r) {
+    return is_constructor(r) && cidx(r) == 1;
+}
+
+bool is_tactic_result_success(vm_obj const & r) {
+    return is_constructor(r) && cidx(r) == 0;
+}
+
+vm_obj get_tactic_result_value(vm_obj const & r) {
+    lean_assert(is_tactic_result_success(r));
+    return cfield(r, 0);
+}
+
+vm_obj get_tactic_result_state(vm_obj const & r) {
+    lean_assert(is_tactic_result_success(r));
+    return cfield(r, 1);
+}
+
 vm_obj mk_tactic_success(vm_obj const & a, tactic_state const & s) {
     return mk_vm_constructor(0, a, to_obj(s));
 }

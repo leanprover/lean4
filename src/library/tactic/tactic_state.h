@@ -108,6 +108,12 @@ vm_obj to_obj(tactic_state const & s);
 transparency_mode to_transparency_mode(vm_obj const & o);
 vm_obj to_obj(transparency_mode m);
 
+bool is_tactic_result_exception(vm_obj const & r);
+bool is_tactic_result_success(vm_obj const & r);
+vm_obj get_tactic_result_value(vm_obj const & r);
+vm_obj get_tactic_result_state(vm_obj const & r);
+vm_obj mk_tactic_result(vm_obj const & a, vm_obj const & s);
+
 vm_obj mk_tactic_success(vm_obj const & a, tactic_state const & s);
 vm_obj mk_tactic_success(tactic_state const & s);
 vm_obj mk_tactic_exception(vm_obj const & fn, tactic_state const & s);

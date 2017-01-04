@@ -62,6 +62,10 @@ public:
     }
 };
 
+bool is_smt_goal(vm_obj const & o);
+smt_goal const & to_smt_goal(vm_obj const & o);
+vm_obj to_obj(smt_goal const & s);
+
 void initialize_smt_state();
 void finalize_smt_state();
 }

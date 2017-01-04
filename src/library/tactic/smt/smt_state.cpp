@@ -110,23 +110,6 @@ vm_obj to_obj(smt_goal const & s) {
     return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_smt_goal))) vm_smt_goal(s));
 }
 
-bool is_tactic_result_exception(vm_obj const & a) {
-    return is_constructor(a) && cidx(a) == 1;
-}
-
-vm_obj mk_tactic_result(vm_obj const & a, vm_obj const & s) {
-    lean_assert(is_tactic_state(s));
-    return mk_vm_constructor(0, a, s);
-}
-
-vm_obj get_tactic_result_value(vm_obj const & r) {
-    return cfield(r, 0);
-}
-
-vm_obj get_tactic_result_state(vm_obj const & r) {
-    return cfield(r, 1);
-}
-
 vm_obj tactic_result_to_smt_tactic_result(vm_obj const & r, vm_obj const & ss) {
     return mk_tactic_result(mk_vm_pair(get_tactic_result_value(r), ss), get_tactic_result_state(r));
 }

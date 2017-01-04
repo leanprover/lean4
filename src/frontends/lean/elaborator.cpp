@@ -31,15 +31,11 @@ Author: Leonardo de Moura
 #include "library/locals.h"
 #include "library/private.h"
 #include "library/attribute_manager.h"
-#include "library/module.h"
 #include "library/scoped_ext.h"
 #include "library/protected.h"
 #include "library/aliases.h"
-#include "library/vm/vm.h"
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_expr.h"
-#include "library/compiler/rec_fn_macro.h"
-#include "library/compiler/vm_compiler.h"
 #include "library/tactic/kabstract.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/elaborate.h"
@@ -49,7 +45,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/util.h"
 #include "frontends/lean/prenum.h"
 #include "frontends/lean/elaborator.h"
-#include "frontends/lean/tactic_notation.h"
+#include "frontends/lean/tactic_evaluator.h"
 #include "frontends/lean/structure_cmd.h"
 #include "frontends/lean/structure_instance.h"
 
@@ -2434,23 +2430,6 @@ void elaborator::synthesize_type_class_instances() {
     }
 }
 
-[[noreturn]] static void throw_unsolved_tactic_state(tactic_state const & ts, format const & fmt, expr const & ref) {
-    format msg = fmt + line() + format("state:") + line() + ts.pp();
-    throw elaborator_exception(ref, msg);
-}
-
-[[noreturn]] static void throw_unsolved_tactic_state(tactic_state const & ts, char const * msg, expr const & ref) {
-    throw_unsolved_tactic_state(ts, format(msg), ref);
-}
-
-void elaborator::add_tactic_state_info(tactic_state const & s, expr const & ref) {
-    if (!get_global_info_manager()) return;
-    pos_info_provider * pip = get_pos_info_provider();
-    if (!pip) return;
-    if (auto p = pip->get_pos_info(ref))
-        m_info.add_tactic_state_info(p->first, p->second, s);
-}
-
 tactic_state elaborator::mk_tactic_state_for(expr const & mvar) {
     metavar_context mctx = m_ctx.mctx();
     metavar_decl mdecl   = *mctx.get_metavar_decl(mvar);
@@ -2462,123 +2441,20 @@ tactic_state elaborator::mk_tactic_state_for(expr const & mvar) {
     return ::lean::mk_tactic_state_for(m_env, m_opts, mctx, lctx, type);
 }
 
-/* Apply the given tactic to the state 's'.
-   Report any errors detected during the process using position information associated with 'ref'. */
-tactic_state elaborator::execute_tactic(expr const & tactic, tactic_state const & s, expr const & ref) {
-    pos_info_provider * provider = get_pos_info_provider();
-    scope_traces_as_messages traces_as_messages(provider, ref);
-
-    /* Compile tactic into bytecode */
-    name tactic_name("_tactic");
-    expr tactic_type = mk_tactic_unit();
-    environment new_env = m_env;
-    bool use_conv_opt    = true;
-    bool is_trusted      = false;
-    auto cd = check(new_env, mk_definition(new_env, tactic_name, {}, tactic_type, tactic, use_conv_opt, is_trusted));
-    new_env = new_env.add(cd);
-    if (auto pos = provider->get_pos_info(tactic))
-        new_env = add_transient_decl_pos_info(new_env, tactic_name, *pos);
-    new_env = vm_compile(new_env, new_env.get(tactic_name));
-
-    /* Invoke tactic */
-    vm_state S(new_env, m_opts);
-    vm_state::profiler prof(S, m_opts);
-    vm_obj r = S.invoke(tactic_name, to_obj(s));
-    if (prof.enabled())
-        prof.get_snapshots().display(get_global_ios().get_regular_stream());
-
-    if (optional<tactic_state> new_s = is_tactic_success(r)) {
-        trace_elab(tout() << "tactic at " << pos_string_for(ref) << " succeeded\n";);
-        return *new_s;
-    } else if (optional<tactic_exception_info> ex = is_tactic_exception(S, r)) {
-        format fmt          = std::get<0>(*ex);
-        optional<expr> ref1 = std::get<1>(*ex);
-        tactic_state s1     = std::get<2>(*ex);
-        if (ref1 && provider && provider->get_pos_info(*ref1))
-            throw elaborator_exception(*ref1, fmt);
-        else
-            throw_unsolved_tactic_state(s1, fmt, ref);
-    } else {
-        lean_unreachable();
-    }
-}
-
-tactic_state elaborator::execute_begin_end_tactics(buffer<expr> const & tactics, tactic_state const & s, expr const & ref) {
-    lean_assert(!tactics.empty());
-    list<expr> gs = s.goals();
-    if (!gs) throw elaborator_exception(ref, "tactic failed, there are no goals to be solved");
-    tactic_state new_s = set_goals(s, to_list(head(gs)));
-    for (expr const & tactic : tactics) {
-        expr const & curr_ref = tactic;
-        trace_elab_debug(tout() << "executing tactic:\n" << tactic << "\n";);
-        if (is_begin_end_element(tactic)) {
-            add_tactic_state_info(new_s, curr_ref);
-            new_s = execute_tactic(get_annotation_arg(tactic), new_s, curr_ref);
-        } else if (is_begin_end_block(tactic)) {
-            buffer<expr> nested_tactics;
-            get_begin_end_block_elements(tactic, nested_tactics);
-            new_s = execute_begin_end_tactics(nested_tactics, new_s, curr_ref);
-        } else {
-            throw elaborator_exception(curr_ref, "ill-formed 'begin ... end' tactic block");
-        }
-    }
-    add_tactic_state_info(new_s, ref);
-    if (new_s.goals()) throw_unsolved_tactic_state(new_s, "tactic failed, there are unsolved goals", ref);
-    return set_goals(new_s, tail(gs));
-}
-
-/* Try to synthesize 'mvar' by executing a sequence of tactics.
-   This method is used to process `begin ... end` blocks. */
-void elaborator::invoke_begin_end_tactics(expr const & mvar, buffer<expr> const & tactics) {
-    expr const & ref   = mvar;
-    tactic_state s     = mk_tactic_state_for(mvar);
-    trace_elab(tout() << "initial tactic state\n" << s.pp_core() << "\n";);
-    tactic_state new_s = execute_begin_end_tactics(tactics, s, ref);
-    metavar_context mctx = new_s.mctx();
-    expr val             = mctx.instantiate_mvars(new_s.main());
-    if (has_expr_metavar(val)) {
-        throw_unsolved_tactic_state(new_s, "tactic failed, result contains meta-variables", ref);
-    }
-    mctx.assign(mvar, val);
-    m_env = new_s.env();
-    m_ctx.set_env(m_env);
-    m_ctx.set_mctx(mctx);
-}
-
-/* Try to synthesize 'mvar' by executing the given tactic.
-   This method is used to process `by tactic` expressions */
-void elaborator::invoke_atomic_tactic(expr const & mvar, expr const & tactic) {
-    expr const & ref = mvar;
-    tactic_state s       = mk_tactic_state_for(mvar);
-    add_tactic_state_info(s, ref);
-    /* Save information using tactic's position, ref is usually the `by` token position */
-    add_tactic_state_info(s, tactic);
-    trace_elab(tout() << "initial tactic state\n" << s.pp_core() << "\n";);
-    tactic_state new_s   = execute_tactic(tactic, s, ref);
-    if (new_s.goals())
-        throw_unsolved_tactic_state(new_s, "tactic failed, there are unsolved goals", ref);
-    metavar_context mctx = new_s.mctx();
-    expr val             = mctx.instantiate_mvars(new_s.main());
-    if (has_expr_metavar(val)) {
-        throw_unsolved_tactic_state(new_s, "tactic failed, result contains meta-variables", ref);
-    }
-    mctx.assign(mvar, val);
-    m_env = new_s.env();
-    m_ctx.set_env(m_env);
-    m_ctx.set_mctx(mctx);
-}
-
 void elaborator::invoke_tactic(expr const & mvar, expr const & tactic) {
-    expr const & ref = mvar;
-    /* Build initial state */
-    trace_elab(tout() << "executing tactic at " << pos_string_for(ref) << "\n";);
-    if (is_begin_end_block(tactic)) {
-        buffer<expr> tactics;
-        get_begin_end_block_elements(tactic, tactics);
-        invoke_begin_end_tactics(mvar, tactics);
-    } else {
-        invoke_atomic_tactic(mvar, tactic);
+    expr const & ref     = mvar;
+    tactic_state s       = mk_tactic_state_for(mvar);
+    tactic_state new_s   = tactic_evaluator(m_ctx, m_info, m_opts)(s, tactic, ref);
+
+    metavar_context mctx = new_s.mctx();
+    expr val             = mctx.instantiate_mvars(new_s.main());
+    if (has_expr_metavar(val)) {
+        throw_unsolved_tactic_state(new_s, "tactic failed, result contains meta-variables", ref);
     }
+    mctx.assign(mvar, val);
+    m_env = new_s.env();
+    m_ctx.set_env(m_env);
+    m_ctx.set_mctx(mctx);
 }
 
 void elaborator::synthesize_using_tactics() {

@@ -12,6 +12,20 @@ Author: Leonardo de Moura
 #include "library/tactic/tactic_state.h"
 
 namespace lean {
+static void add_minors(type_context & ctx, unsigned nminors, expr & cases, buffer<expr> & new_goals) {
+    expr cases_type           = ctx.infer(cases);
+    for (unsigned i = 0; i < nminors; i++) {
+        cases_type            = ctx.relaxed_whnf(cases_type);
+        if (!is_pi(cases_type))
+            throw exception("destruct tactic failed, ill-formed inductive datatype");
+        expr new_type         = annotated_head_beta_reduce(binding_domain(cases_type));
+        expr new_M            = ctx.mk_metavar_decl(ctx.lctx(), new_type);
+        new_goals.push_back(new_M);
+        cases                 = mk_app(cases, new_M);
+        cases_type            = binding_body(cases_type);
+    }
+}
+
 tactic_state destruct(transparency_mode md, expr const & e, tactic_state const & s) {
     if (!s.goals())
         throw exception("destruct tactic failed, there are no goals to be solved");
@@ -38,79 +52,100 @@ tactic_state destruct(transparency_mode md, expr const & e, tactic_state const &
     declaration I_decl        = env.get(I_name);
     declaration cases_on_decl = env.get({I_name, "cases_on"});
 
-    if (!dep_elim)
-        throw exception("destruct tactic failed, cases_on recursor does not support dependent elimination");
-
     if (I_args.size() != nindices + nparams)
         throw exception("destruct tactic failed, ill-formed inductive datatype");
 
+    expr cases;
+    levels lvls;
+    if (env.get(name(I_name, "rec")).get_num_univ_params() != length(I_lvls))
+        lvls = cons(target_lvl, I_lvls);
+    else
+        lvls = I_lvls;
+
     /* cases will contain the cases_on application that we will assing to the main goal */
-    expr cases                = mk_constant(cases_on_decl.get_name(), cons(target_lvl, I_lvls));
+    cases                     = mk_constant(cases_on_decl.get_name(), lvls);
     /* add params */
     cases                     = mk_app(cases, I_args.size() - nindices, I_args.data());
-    /* add motive */
-    buffer<expr> refls; /* refl proof for indices and major */
-    {
-        type_context::tmp_locals locals(ctx);
-        buffer<expr> js;
-        buffer<expr> eqs;
-        expr I_A              = mk_app(I, I_args.size() - nindices, I_args.data());
-        expr I_A_type         = ctx.infer(I_A);
-        if (nindices > 0) {
-            for (unsigned idx = 0; idx < nindices; idx++) {
-                I_A_type      = ctx.relaxed_whnf(I_A_type);
-                if (!is_pi(I_A_type))
-                    throw exception("destruct tactic failed, ill-formed inductive datatype");
-                expr j        = locals.push_local_from_binding(I_A_type);
-                js.push_back(j);
-                expr i        = I_args[nparams + idx];
-                if (ctx.is_def_eq(ctx.infer(j), ctx.infer(i))) {
-                    eqs.push_back(mk_eq(ctx, i, j));
-                    refls.push_back(mk_eq_refl(ctx, i));
-                } else {
-                    eqs.push_back(mk_heq(ctx, i, j));
-                    refls.push_back(mk_heq_refl(ctx, i));
-                }
-                I_A_type      = instantiate(binding_body(I_A_type), j);
-            }
-        }
-        expr motive           = target;
-        expr w                = locals.push_local("w", mk_app(I_A, js));
-        if (ctx.is_def_eq(ctx.infer(w), e_type)) {
-            motive            = mk_arrow(mk_eq(ctx, e, w), motive);
-            refls.push_back(mk_eq_refl(ctx, e));
-        } else {
-            motive            = mk_arrow(mk_heq(ctx, e, w), motive);
-            refls.push_back(mk_heq_refl(ctx, e));
-        }
-        unsigned i = eqs.size();
-        while (i > 0) {
-            --i;
-            motive            = mk_arrow(eqs[i], motive);
-        }
-        motive                = locals.mk_lambda(motive);
-        cases                 = mk_app(cases, motive);
-    }
-    /* add indices */
-    cases                     = mk_app(cases, nindices, I_args.data() + nparams);
-    /* add major */
-    cases                     = mk_app(cases, e);
-    /* add minors */
-    expr cases_type           = ctx.infer(cases);
     buffer<expr> new_goals;
-    for (unsigned i = 0; i < nminors; i++) {
-        cases_type            = ctx.relaxed_whnf(cases_type);
-        if (!is_pi(cases_type))
-            throw exception("destruct tactic failed, ill-formed inductive datatype");
-        expr new_type         = annotated_head_beta_reduce(binding_domain(cases_type));
-        expr new_M            = ctx.mk_metavar_decl(ctx.lctx(), new_type);
-        new_goals.push_back(new_M);
-        cases                 = mk_app(cases, new_M);
-        cases_type            = binding_body(cases_type);
+    if (dep_elim) {
+        /* add motive */
+        buffer<expr> refls; /* refl proof for indices and major */
+        {
+            type_context::tmp_locals locals(ctx);
+            buffer<expr> js;
+            buffer<expr> eqs;
+            expr I_A              = mk_app(I, I_args.size() - nindices, I_args.data());
+            expr I_A_type         = ctx.infer(I_A);
+            if (nindices > 0) {
+                for (unsigned idx = 0; idx < nindices; idx++) {
+                    I_A_type      = ctx.relaxed_whnf(I_A_type);
+                    if (!is_pi(I_A_type))
+                        throw exception("destruct tactic failed, ill-formed inductive datatype");
+                    expr j        = locals.push_local_from_binding(I_A_type);
+                    js.push_back(j);
+                    expr i        = I_args[nparams + idx];
+                    if (ctx.is_def_eq(ctx.infer(j), ctx.infer(i))) {
+                        eqs.push_back(mk_eq(ctx, i, j));
+                        refls.push_back(mk_eq_refl(ctx, i));
+                    } else {
+                        eqs.push_back(mk_heq(ctx, i, j));
+                        refls.push_back(mk_heq_refl(ctx, i));
+                    }
+                    I_A_type      = instantiate(binding_body(I_A_type), j);
+                }
+            }
+            expr motive           = target;
+            expr w                = locals.push_local("w", mk_app(I_A, js));
+            if (ctx.is_def_eq(ctx.infer(w), e_type)) {
+                motive            = mk_arrow(mk_eq(ctx, e, w), motive);
+                refls.push_back(mk_eq_refl(ctx, e));
+            } else {
+                motive            = mk_arrow(mk_heq(ctx, e, w), motive);
+                refls.push_back(mk_heq_refl(ctx, e));
+            }
+            unsigned i = eqs.size();
+            while (i > 0) {
+                --i;
+                motive            = mk_arrow(eqs[i], motive);
+            }
+            motive                = locals.mk_lambda(motive);
+            cases                 = mk_app(cases, motive);
+        }
+        /* add indices */
+        cases                     = mk_app(cases, nindices, I_args.data() + nparams);
+        /* add major */
+        cases                     = mk_app(cases, e);
+        /* add minors */
+        add_minors(ctx, nminors, cases, new_goals);
+        /* add refl proofs for indices */
+        cases                     = mk_app(cases, refls);
+    } else {
+        lean_assert(!dep_elim);
+        /* add motive */
+        {
+            type_context::tmp_locals locals(ctx);
+            if (nindices > 0) {
+                expr I_A          = mk_app(I, I_args.size() - nindices, I_args.data());
+                expr I_A_type     = ctx.infer(I_A);
+                for (unsigned idx = 0; idx < nindices; idx++) {
+                    I_A_type      = ctx.relaxed_whnf(I_A_type);
+                    if (!is_pi(I_A_type))
+                        throw exception("destruct tactic failed, ill-formed inductive datatype");
+                    expr j        = locals.push_local_from_binding(I_A_type);
+                    I_A_type      = instantiate(binding_body(I_A_type), j);
+                }
+            }
+            expr motive           = target;
+            motive                = locals.mk_lambda(motive);
+            cases                 = mk_app(cases, motive);
+        }
+        /* add indices */
+        cases                     = mk_app(cases, nindices, I_args.data() + nparams);
+        /* add major */
+        cases                     = mk_app(cases, e);
+        /* add minors */
+        add_minors(ctx, nminors, cases, new_goals);
     }
-    /* add refl proofs for indices */
-    cases                     = mk_app(cases, refls);
-
     /* create new tactic state */
     expr g                    = head(s.goals());
     list<expr> gs             = tail(s.goals());

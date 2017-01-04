@@ -215,9 +215,13 @@ void mt_task_queue::propagate_failure(generic_task_result const & tr) {
 }
 
 void mt_task_queue::submit(generic_task_result const & t) {
-    set_bucket(t, get_scope_message_context().new_sub_bucket());
+    if (!t || unwrap(t)->m_state.load() >= task_result_state::QUEUED) return;
     unique_lock<mutex> lock(m_mutex);
     check_interrupted();
+    submit_core(t);
+}
+void mt_task_queue::submit_core(generic_task_result const & t) {
+    if (!t || unwrap(t)->m_state.load() >= task_result_state::QUEUED) return;
     get_prio(t) = m_prioritizer(unwrap(t)->m_task);
     if (check_deps(t)) {
         if (!unwrap(t)->has_evaluated()) {
@@ -265,7 +269,10 @@ bool mt_task_queue::check_deps(generic_task_result const & t) {
         deps = unwrap(t)->m_task->get_dependencies();
     } catch (...) {}
     for (auto & dep : deps) {
-        if (dep) bump_prio(dep, get_prio(t));
+        if (dep) {
+            submit_core(dep);
+            bump_prio(dep, get_prio(t));
+        }
     }
     for (auto & dep : deps) {
         if (!dep) continue;
@@ -292,6 +299,7 @@ bool mt_task_queue::check_deps(generic_task_result const & t) {
 void mt_task_queue::wait(generic_task_result const & t) {
     if (!t) return;
     unique_lock<mutex> lock(m_mutex);
+    submit_core(t);
     if (g_current_task && unwrap(t)->m_task && get_prio(*g_current_task) < get_prio(t)) {
         bump_prio(t, get_prio(*g_current_task));
     }
@@ -457,6 +465,10 @@ void mt_task_queue::set_progress_callback(progress_cb const & cb) {
 void mt_task_queue::set_status_callback(mt_tq_status_cb const &cb) {
     unique_lock<mutex> lock(m_mutex);
     m_status_cb = cb;
+}
+
+void mt_task_queue::prepare_task(generic_task_result const & t) {
+    set_bucket(t, get_scope_message_context().new_sub_bucket());
 }
 
 }

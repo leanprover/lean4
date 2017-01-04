@@ -210,7 +210,7 @@ public:
 };
 
 class task_queue {
-    virtual void submit(generic_task_result const &) = 0;
+    virtual void prepare_task(generic_task_result const &) = 0;
 
 protected:
     task_queue() {}
@@ -230,11 +230,21 @@ public:
     virtual bool empty() = 0;
     virtual void join() = 0;
 
+    virtual void submit(generic_task_result const &) = 0;
+
     template <typename T, typename... As>
-    task_result<typename T::result> submit(As... args) {
+    task_result<typename T::result> mk_lazy_task(As... args) {
         task_result<typename T::result> task(
                 new task_result_cell<typename T::result>(
                         new T(std::forward<As>(args)...)));
+        prepare_task(task);
+        return task;
+    }
+
+    template <typename T, typename... As>
+    task_result<typename T::result> submit(As... args) {
+        task_result<typename T::result> task =
+                mk_lazy_task<T, As...>(std::forward<As>(args)...);
         submit(task);
         return task;
     }

@@ -15,7 +15,6 @@ Author: Leonardo de Moura
 #include "kernel/inductive/inductive.h"
 #include "library/io_state.h"
 #include "util/task_queue.h"
-#include "util/lazy_value.h"
 
 namespace lean {
 class corrupted_file_exception : public exception {
@@ -36,7 +35,7 @@ struct loaded_module {
     std::vector<module_name> m_imports;
     modification_list m_modifications;
 
-    lazy_value<environment> m_env;
+    task_result<environment> m_env;
 };
 using module_loader = std::function<std::shared_ptr<loaded_module const> (std::string const &, module_name const &)>;
 module_loader mk_olean_loader();

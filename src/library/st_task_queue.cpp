@@ -14,8 +14,15 @@ namespace lean {
 st_task_queue::st_task_queue() {}
 
 void st_task_queue::wait(generic_task_result const & t) {
-    if (unwrap(t)->m_state.load() != task_result_state::FINISHED)
-        std::rethrow_exception(unwrap(t)->m_ex);
+    submit(t);
+    switch (unwrap(t)->m_state.load()) {
+        case task_result_state::FAILED:
+            std::rethrow_exception(unwrap(t) -> m_ex);
+        case task_result_state::FINISHED:
+            return;
+        default:
+            lean_unreachable();
+    }
 }
 
 void st_task_queue::join() {}
@@ -29,12 +36,14 @@ optional<generic_task_result> st_task_queue::get_current_task() {
 }
 
 void st_task_queue::submit(generic_task_result const & t) {
-    set_bucket(t, get_scope_message_context().new_sub_bucket());
+    if (!t) return;
+    if (unwrap(t)->m_state.load() >= task_result_state::QUEUED) return;
 
     std::vector<generic_task_result> deps;
     try { deps = unwrap(t)->m_task->get_dependencies(); } catch (...) {}
     for (auto & d : deps) {
         if (!d) continue;
+        submit(d);
         switch (unwrap(d)->m_state.load()) {
             case task_result_state::FAILED:
                 unwrap(t)->m_state = task_result_state::FAILED;
@@ -58,6 +67,10 @@ void st_task_queue::cancel(generic_task_result const &) {}
 
 void st_task_queue::set_progress_callback(progress_cb const & cb) {
     m_progress_cb = cb;
+}
+
+void st_task_queue::prepare_task(generic_task_result const & t) {
+    set_bucket(t, get_scope_message_context().new_sub_bucket());
 }
 
 void st_task_queue::cancel_if(const std::function<bool(generic_task *)> &) {} // NOLINT

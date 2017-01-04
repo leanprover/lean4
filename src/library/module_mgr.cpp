@@ -188,7 +188,7 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
 
         scope_global_ios scope_ios(m_ios);
         scoped_message_buffer scoped_msg_buf(m_msg_buf);
-        scoped_task_context(id, {1, 0});
+        scoped_task_context scope_task_ctx(id, {1, 0});
         message_bucket_id bucket_id { id, m_current_period };
         scope_message_context scope_msg_ctx(bucket_id);
         scope_traces_as_messages scope_trace_msgs(id, {1, 0});

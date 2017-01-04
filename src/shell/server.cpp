@@ -417,7 +417,12 @@ public:
     }
 
     std::vector<generic_task_result> get_dependencies() override {
-        return {m_mod_info->m_result};
+        std::vector<generic_task_result> deps;
+        deps.push_back(m_mod_info->m_result);
+        if (auto mod = m_mod_info->m_result.peek()) {
+            deps.push_back(mod->m_loaded_module->m_env);
+        }
+        return deps;
     }
 
     // TODO(gabriel): handle cancellation
@@ -435,7 +440,7 @@ public:
                     auto env = m_server->m_initial_env;
                     if (auto mod = m_mod_info->m_result.peek()) {
                         if (mod->m_loaded_module->m_env)
-                            env = *mod->m_loaded_module->m_env;
+                            env = mod->m_loaded_module->m_env.get();
                         if (!mod->m_snapshots.empty()) opts = mod->m_snapshots.back()->m_options;
                     }
 

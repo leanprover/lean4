@@ -474,7 +474,7 @@ static void import_module(environment & env, std::string const & module_file_nam
         if (ext0.m_imported.contains(res->m_module_name)) return;
 
         if (ext0.m_imported.empty() && res->m_env) {
-            env = *res->m_env;
+            env = res->m_env.get();
         } else {
             for (auto &dep : res->m_imports) {
                 import_module(env, res->m_module_name, dep, mod_ldr, import_errors);
@@ -522,15 +522,44 @@ static environment mk_preimported_module(environment const & initial_env, loaded
     return env;
 }
 
+struct preimport_task : public task<environment> {
+    std::weak_ptr<loaded_module> m_lm;
+    environment m_env0;
+    std::function<module_loader()> m_mk_mod_ldr;
+
+public:
+    preimport_task(std::weak_ptr<loaded_module> const & lm,
+        environment const & env0, std::function<module_loader()> mk_mod_ldr) :
+            m_lm(lm), m_env0(env0), m_mk_mod_ldr(mk_mod_ldr) {}
+
+    void description(std::ostream & out) const override {
+        out << "precompiling import ";
+        if (auto lm = m_lm.lock()) {
+            out << lm->m_module_name;
+        } else {
+            out << "<deallocated>";
+        }
+    }
+
+    std::vector<generic_task_result> get_dependencies() override {
+        return {};
+    }
+
+    environment execute() override {
+        if (auto lm = m_lm.lock()) {
+            return mk_preimported_module(m_env0, *lm, m_mk_mod_ldr());
+        } else {
+            throw exception("loaded_module got deallocated before preimporting");
+        }
+    }
+};
+
 std::shared_ptr<loaded_module const> cache_preimported_env(
         loaded_module && lm_ref, environment const & env0,
         std::function<module_loader()> const & mk_mod_ldr) {
-    auto lm_ptr = std::make_shared<loaded_module>(lm_ref);
-    auto & lm = *lm_ptr;
-    lm_ptr->m_env = lazy_value<environment>([&lm, env0, mk_mod_ldr] {
-        return mk_preimported_module(env0, lm, mk_mod_ldr());
-    });
-    return lm_ptr;
+    auto lm = std::make_shared<loaded_module>(lm_ref);
+    lm->m_env = get_global_task_queue()->mk_lazy_task<preimport_task>(lm, env0, mk_mod_ldr);
+    return lm;
 }
 
 modification_list parse_olean_modifications(std::vector<char> const & olean_code, std::string const & file_name) {

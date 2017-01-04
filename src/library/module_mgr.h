@@ -59,7 +59,7 @@ struct module_info {
     task_result<unit> m_olean_task;
 
     environment const & get_produced_env() const {
-        return *m_result.get().m_loaded_module->m_env;
+        return m_result.get().m_loaded_module->m_env.get();
     }
 };
 

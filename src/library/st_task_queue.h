@@ -12,7 +12,7 @@ namespace lean {
 class st_task_queue : public task_queue {
     progress_cb m_progress_cb;
 
-    void submit(generic_task_result const &) override;
+    void prepare_task(generic_task_result const &result) override;
 
 public:
     st_task_queue();
@@ -22,6 +22,7 @@ public:
     void join() override;
     void wait(generic_task_result const & t) override;
     void cancel(generic_task_result const & t) override;
+    void submit(generic_task_result const &) override;
 
     void cancel_if(std::function<bool(generic_task *)> const & pred) override; // NOLINT
 

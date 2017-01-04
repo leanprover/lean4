@@ -75,9 +75,11 @@ class mt_task_queue : public task_queue {
     generic_task_result dequeue();
     void enqueue(generic_task_result const &);
 
+    void prepare_task(generic_task_result const &result) override;
+
     bool check_deps(generic_task_result const &);
     void propagate_failure(generic_task_result const &);
-    void submit(generic_task_result const &) override;
+    void submit_core(generic_task_result const &);
     void bump_prio(generic_task_result const &, task_priority const &);
     void cancel_core(generic_task_result const &);
 
@@ -94,6 +96,7 @@ public:
     void join() override;
     bool empty() override;
 
+    void submit(generic_task_result const &) override;
     void wait(generic_task_result const & t) override;
     void cancel(generic_task_result const & t) override;
 

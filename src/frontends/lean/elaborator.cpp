@@ -159,15 +159,6 @@ format elaborator::pp_overloads(pp_fn const & pp_fn, buffer<expr> const & fns) {
     return paren(r);
 }
 
-static std::string pos_string_for(expr const & e) {
-    pos_info_provider * provider = get_pos_info_provider();
-    if (!provider) return "'unknown'";
-    pos_info pos  = provider->get_pos_info_or_some(e);
-    sstream s;
-    s << provider->get_file_name() << ":" << pos.first << ":" << pos.second << ":";
-    return s.str();
-}
-
 level elaborator::mk_univ_metavar() {
     return m_ctx.mk_univ_metavar_decl();
 }
@@ -1579,7 +1570,7 @@ expr elaborator::visit_app(expr const & e, optional<expr> const & expected_type)
 
 expr elaborator::visit_by(expr const & e, optional<expr> const & expected_type) {
     lean_assert(is_by(e));
-    expr tac = strict_visit(get_by_arg(e), some_expr(mk_tactic_unit()));
+    expr tac = strict_visit(get_by_arg(e), none_expr());
     expr const & ref = e;
     expr mvar        = mk_metavar(expected_type, ref);
     m_tactics = cons(mk_pair(mvar, tac), m_tactics);

@@ -16,4 +16,5 @@ public:
 };
 
 pos_info_provider * get_pos_info_provider();
+std::string pos_string_for(expr const & e);
 }

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/sstream.h"
 #include "library/scope_pos_info_provider.h"
 
 namespace lean {
@@ -14,5 +15,14 @@ scope_pos_info_provider::~scope_pos_info_provider() { g_p = m_old_p; }
 
 pos_info_provider * get_pos_info_provider() {
     return g_p;
+}
+
+std::string pos_string_for(expr const & e) {
+    pos_info_provider * provider = get_pos_info_provider();
+    if (!provider) return "'unknown'";
+    pos_info pos  = provider->get_pos_info_or_some(e);
+    sstream s;
+    s << provider->get_file_name() << ":" << pos.first << ":" << pos.second << ":";
+    return s.str();
 }
 }

@@ -13,3 +13,21 @@ example (p q : Prop) : p ∨ q → p ∨ ¬q → ¬p ∨ q → ¬p ∨ ¬q → f
 begin [smt]
    by_cases p,
 end
+
+example (a b c : nat) : a = b → p (f a) (f b) → p a b :=
+begin
+  intro h,
+  subst h,
+  begin [smt]
+    assert h₁ : p (f a) (f a),
+    trace_state,
+    add_fact (pf _ h₁)
+  end
+end
+
+example (p q : Prop) : p ∨ q → p ∨ ¬q → ¬p ∨ q → p ∧ q :=
+begin [smt]
+   tactic.split,
+   { by_cases p },
+   { by_cases p }
+end

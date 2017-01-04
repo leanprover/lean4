@@ -30,7 +30,7 @@ class tactic_evaluator {
     tactic_state execute_atomic(tactic_state const & s, expr const & tactic, expr const & ref);
     pair<vm_obj, tactic_state> execute_smt_begin_end_core(vm_obj const & ss, tactic_state const & ts, buffer<expr> const & tactics, expr const & ref);
     pair<vm_obj, tactic_state> mk_smt_state(tactic_state const & s, expr const & smt_cfg, expr const & ref);
-    tactic_state execute_smt_begin_end(tactic_state s, expr const & tactic, optional<expr> cfg, expr const & ref);
+    tactic_state execute_smt_begin_end(tactic_state s, expr tactic, expr const & ref);
 
 public:
     tactic_evaluator(type_context & ctx, info_manager & info, options const & opts);

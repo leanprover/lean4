@@ -130,6 +130,12 @@ pair<vm_obj, tactic_state> tactic_evaluator::execute_smt_tactic(expr const & tac
     lean_unreachable();
 }
 
+bool is_smt_begin_end_block(expr const & tactic) {
+    return
+        is_app_of(tactic, get_smt_tactic_execute_name(), 1) ||
+        is_app_of(tactic, get_smt_tactic_execute_with_name(), 2);
+}
+
 tactic_state tactic_evaluator::execute_begin_end(tactic_state const & s, buffer<expr> const & tactics, expr const & ref) {
     lean_assert(!tactics.empty());
     list<expr> gs = s.goals();
@@ -144,6 +150,8 @@ tactic_state tactic_evaluator::execute_begin_end(tactic_state const & s, buffer<
             buffer<expr> nested_tactics;
             get_begin_end_block_elements(tactic, nested_tactics);
             new_s = execute_begin_end(new_s, nested_tactics, curr_ref);
+        } else if (is_smt_begin_end_block(tactic)) {
+            new_s = execute_smt_begin_end(s, tactic, ref);
         } else {
             throw elaborator_exception(curr_ref, "ill-formed 'begin ... end' tactic block");
         }
@@ -213,14 +221,18 @@ pair<vm_obj, tactic_state> tactic_evaluator::execute_smt_begin_end_core(vm_obj c
     return mk_pair(new_ss, new_ts);
 }
 
-tactic_state tactic_evaluator::execute_smt_begin_end(tactic_state ts, expr const & tactic, optional<expr> smt_cfg, expr const & ref) {
-    lean_assert(is_begin_end_block(tactic));
-    if (!smt_cfg)
+tactic_state tactic_evaluator::execute_smt_begin_end(tactic_state ts, expr tactic, expr const & ref) {
+    lean_assert(is_smt_begin_end_block(tactic));
+    expr smt_cfg;
+    if (is_app_of(tactic, get_smt_tactic_execute_with_name(), 2))
+        smt_cfg = app_arg(app_fn(tactic));
+    else
         smt_cfg = copy_tag(ref, mk_constant(get_default_smt_config_name()));
+    tactic = app_arg(tactic);
     buffer<expr> tactics;
     get_begin_end_block_elements(tactic, tactics);
     vm_obj ss;
-    std::tie(ss, ts) = mk_smt_state(ts, *smt_cfg, ref);
+    std::tie(ss, ts) = mk_smt_state(ts, smt_cfg, ref);
     return execute_smt_begin_end_core(ss, ts, tactics, ref).second;
 }
 
@@ -229,10 +241,8 @@ tactic_state tactic_evaluator::operator()(tactic_state const & s, expr const & t
         buffer<expr> tactics;
         get_begin_end_block_elements(tactic, tactics);
         return execute_begin_end(s, tactics, ref);
-    } else if (is_app_of(tactic, get_smt_tactic_execute_name(), 1)) {
-        return execute_smt_begin_end(s, app_arg(tactic), none_expr(), ref);
-    } else if (is_app_of(tactic, get_smt_tactic_execute_with_name(), 2)) {
-        return execute_smt_begin_end(s, app_arg(tactic), some_expr(app_arg(app_fn(tactic))), ref);
+    } else if (is_smt_begin_end_block(tactic)) {
+        return execute_smt_begin_end(s, tactic, ref);
     } else {
         return execute_atomic(s, tactic, ref);
     }

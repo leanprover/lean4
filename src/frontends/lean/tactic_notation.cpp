@@ -52,8 +52,23 @@ bool is_begin_end_block(expr const & e) { return is_annotation(e, *g_begin_end);
 static expr mk_begin_end_element(expr const & e) { return mk_annotation(*g_begin_end_element, e, nulltag); }
 bool is_begin_end_element(expr const & e) { return is_annotation(e, *g_begin_end_element); }
 
+/* Return true iff e is of the form:
+   - Tac.execute begin_end_block
+   - Tac.execute_with cfg begin_end_block */
+static bool is_nested_execute(expr const & e) {
+    if (!is_app(e)) return false;
+    if (!is_begin_end_block(app_arg(e))) return false;
+    expr const & fn = get_app_fn(e);
+    if (!is_constant(fn)) return false;
+    name const & n = const_name(fn);
+    if (n.is_atomic() || n.is_numeral()) return false;
+    return
+        (strcmp(n.get_string(), "execute") == 0      && get_app_num_args(e) == 1) ||
+        (strcmp(n.get_string(), "execute_with") == 0 && get_app_num_args(e) == 2);
+}
+
 static expr mk_begin_end_element(parser & p, expr tac, pos_info const & pos, name const & tac_class) {
-    if (is_begin_end_block(tac)) {
+    if (is_begin_end_block(tac) || is_nested_execute(tac)) {
         return tac;
     } else {
         if (tac.get_tag() == nulltag)
@@ -73,7 +88,9 @@ static expr concat(parser & p, expr const & r, expr tac, pos_info const & start_
 }
 
 static void get_begin_end_block_elements_core(expr const & e, buffer<expr> & elems) {
-    if (is_app(e)) {
+    if (is_nested_execute(e)) {
+        elems.push_back(e);
+    } else if (is_app(e)) {
         get_begin_end_block_elements_core(app_fn(e), elems);
         get_begin_end_block_elements_core(app_arg(e), elems);
     } else if (is_begin_end_element(e)) {
@@ -234,15 +251,13 @@ static expr parse_location(parser & p) {
     }
 }
 
-static expr parse_begin_end_block(parser & p, pos_info const & start_pos, name const & end_token, name const & tac_class);
+static expr parse_begin_end_block(parser & p, pos_info const & start_pos, name const & end_token, name tac_class);
 
 static expr parse_nested_auto_quote_tactic(parser & p, name const & tac_class) {
     auto pos = p.pos();
     if (p.curr_is_token(get_lcurly_tk())) {
-        p.next();
         return parse_begin_end_block(p, pos, get_rcurly_tk(), tac_class);
     } else if (p.curr_is_token(get_begin_tk())) {
-        p.next();
         return parse_begin_end_block(p, pos, get_end_tk(), tac_class);
     } else {
         throw parser_error("invalid nested auto-quote tactic, '{' or 'begin' expected", pos);
@@ -343,45 +358,6 @@ static expr mk_tactic_skip(environment const & env, name const & tac_class) {
         return mk_app(mk_constant("return"), mk_constant(get_unit_star_name()));
 }
 
-static expr parse_begin_end_block(parser & p, pos_info const & start_pos, name const & end_token, name const & tac_class) {
-    expr r = p.save_pos(mk_begin_end_element(mk_tactic_skip(p.env(), tac_class)), start_pos);
-    try {
-        while (!p.curr_is_token(end_token)) {
-            auto pos = p.pos();
-            try {
-                /* parse next element */
-                expr next_tac;
-                if (p.curr_is_token(get_begin_tk())) {
-                    p.next();
-                    next_tac = parse_begin_end_block(p, pos, get_end_tk(), tac_class);
-                } else if (p.curr_is_token(get_lcurly_tk())) {
-                    p.next();
-                    next_tac = parse_begin_end_block(p, pos, get_rcurly_tk(), tac_class);
-                } else if (p.curr_is_token(get_do_tk())) {
-                    expr tac = p.parse_expr();
-                    expr type = p.save_pos(mk_tactic_unit(tac_class), pos);
-                    next_tac = p.save_pos(mk_typed_expr(type, tac), pos);
-                } else {
-                    next_tac = parse_tactic(p, tac_class);
-                }
-                r = concat(p, r, next_tac, start_pos, pos, tac_class);
-                if (!p.curr_is_token(end_token)) {
-                    p.check_token_next(get_comma_tk(), "invalid 'begin-end' expression, ',' expected");
-                }
-            } catch (break_at_pos_exception & ex) {
-                ex.report_goal_pos(pos);
-                throw ex;
-            }
-        }
-    } catch (exception & ex) {
-        if (end_token == get_end_tk())
-            consume_until_end(p);
-        throw;
-    }
-    auto end_pos = p.pos();
-    p.next();
-    return p.save_pos(mk_begin_end_block(r), end_pos);
-}
 
 static optional<name> is_tactic_class(environment const & /* env */, name const & n) {
     if (n == "smt")
@@ -406,26 +382,67 @@ static name parse_tactic_class(parser & p, name tac_class) {
     }
 }
 
+static expr parse_begin_end_block(parser & p, pos_info const & start_pos, name const & end_token, name tac_class) {
+    p.next();
+    name new_tac_class = tac_class;
+    if (tac_class == get_tactic_name())
+        new_tac_class = parse_tactic_class(p, tac_class);
+    optional<expr> cfg;
+    bool is_ext_tactic_class = tac_class == get_tactic_name() && new_tac_class != get_tactic_name();
+    if (is_ext_tactic_class && p.curr_is_token(get_with_tk())) {
+        p.next();
+        cfg = p.parse_expr();
+        p.check_token_next(get_comma_tk(), "invalid begin [...] with cfg, ... end block, ',' expected");
+    }
+    tac_class = new_tac_class;
+    expr r = p.save_pos(mk_begin_end_element(mk_tactic_skip(p.env(), tac_class)), start_pos);
+    try {
+        while (!p.curr_is_token(end_token)) {
+            auto pos = p.pos();
+            try {
+                /* parse next element */
+                expr next_tac;
+                if (p.curr_is_token(get_begin_tk())) {
+                    next_tac = parse_begin_end_block(p, pos, get_end_tk(), tac_class);
+                } else if (p.curr_is_token(get_lcurly_tk())) {
+                    next_tac = parse_begin_end_block(p, pos, get_rcurly_tk(), tac_class);
+                } else if (p.curr_is_token(get_do_tk())) {
+                    expr tac = p.parse_expr();
+                    expr type = p.save_pos(mk_tactic_unit(tac_class), pos);
+                    next_tac = p.save_pos(mk_typed_expr(type, tac), pos);
+                } else {
+                    next_tac = parse_tactic(p, tac_class);
+                }
+                r = concat(p, r, next_tac, start_pos, pos, tac_class);
+                if (!p.curr_is_token(end_token)) {
+                    p.check_token_next(get_comma_tk(), "invalid 'begin-end' expression, ',' expected");
+                }
+            } catch (break_at_pos_exception & ex) {
+                ex.report_goal_pos(pos);
+                throw ex;
+            }
+        }
+    } catch (exception & ex) {
+        if (end_token == get_end_tk())
+            consume_until_end(p);
+        throw;
+    }
+    auto end_pos = p.pos();
+    p.next();
+    r = p.save_pos(mk_begin_end_block(r), end_pos);
+    if (!is_ext_tactic_class) {
+        return r;
+    } else if (cfg) {
+        return copy_tag(r, mk_app(mk_constant(name(tac_class, "execute_with")), *cfg, r));
+    } else {
+        return copy_tag(r, mk_app(mk_constant(name(tac_class, "execute")), r));
+    }
+}
+
 expr parse_begin_end_expr_core(parser & p, pos_info const & pos, name const & end_token) {
     parser::local_scope _(p);
     p.clear_expr_locals();
-    p.next();
-    name tac_class = parse_tactic_class(p, get_tactic_name());
-    expr tac;
-    if (tac_class == get_tactic_name()) {
-        tac = parse_begin_end_block(p, pos, end_token, tac_class);
-    } else {
-        if (p.curr_is_token(get_with_tk())) {
-            p.next();
-            expr cfg = p.parse_expr();
-            p.check_token_next(get_comma_tk(), "invalid begin [...] with cfg, ... end block, ',' expected");
-            tac = parse_begin_end_block(p, pos, end_token, tac_class);
-            tac = copy_tag(tac, mk_app(mk_constant(name(tac_class, "execute_with")), cfg, tac));
-        } else {
-            tac = parse_begin_end_block(p, pos, end_token, tac_class);
-            tac = copy_tag(tac, mk_app(mk_constant(name(tac_class, "execute")), tac));
-        }
-    }
+    expr tac = parse_begin_end_block(p, pos, end_token, get_tactic_name());
     return copy_tag(tac, mk_by(tac));
 }
 

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "library/noncomputable.h"
 #include "util/fresh_name.h"
 #include "util/sstream.h"
 #include "kernel/instantiate.h"
@@ -399,7 +400,9 @@ static environment vm_compile(environment const & env, buffer<procedure> const &
 }
 
 environment vm_compile(environment const & env, declaration const & d) {
-    if (!d.is_definition()) return env;
+    if (!d.is_definition() || d.is_theorem() || is_noncomputable(env, d.get_name()) || is_vm_builtin_function(d.get_name()))
+        return env;
+
     buffer<procedure> procs;
     preprocess(env, d, procs);
     return vm_compile(env, procs);

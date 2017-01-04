@@ -319,13 +319,10 @@ static void check_noncomputable(bool ignore_noncomputable, environment const & e
     }
 }
 
-static environment compile_decl(parser & p, environment const & env, def_cmd_kind kind, bool is_noncomputable,
+static environment compile_decl(parser & p, environment const & env,
                                 name const & c_name, name const & c_real_name, pos_info const & pos) {
-    if (is_noncomputable || kind == Theorem || kind == Example || is_vm_builtin_function(c_real_name))
-        return env;
     try {
-        declaration d = env.get(c_real_name);
-        return vm_compile(env, d);
+        return vm_compile(env, env.get(c_real_name));
     } catch (exception & ex) {
         if (p.found_errors())
             return env;
@@ -379,7 +376,7 @@ declare_definition(parser & p, environment const & env, def_cmd_kind kind, buffe
     }
 
     new_env = attrs.apply(new_env, p.ios(), c_real_name);
-    new_env = compile_decl(p, new_env, kind, modifiers.m_is_noncomputable, c_name, c_real_name, pos);
+    new_env = compile_decl(p, new_env, c_name, c_real_name, pos);
     if (doc_string) {
         new_env = add_doc_string(new_env, c_real_name, *doc_string);
     }

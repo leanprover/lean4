@@ -292,15 +292,12 @@ pair<environment, expr> mk_aux_definition(environment const & env, options const
     } catch (exception & ex) {
         throw_mk_aux_definition_error(lctx, c, new_type, new_value, ex);
     }
-    if (!header.m_is_lemma && !header.m_is_noncomputable) {
-        try {
-            declaration d = new_env.get(new_c);
-            new_env = vm_compile(new_env, d);
-        } catch (exception & ex) {
-            if (!header.m_prev_errors) {
-                throw nested_exception(sstream() << "equation compiler failed to generate bytecode for "
-                                       << "auxiliary declaration '" << c << "'", ex);
-            }
+    try {
+        new_env = vm_compile(new_env, new_env.get(new_c));
+    } catch (exception & ex) {
+        if (!header.m_prev_errors) {
+            throw nested_exception(sstream() << "equation compiler failed to generate bytecode for "
+                                   << "auxiliary declaration '" << c << "'", ex);
         }
     }
     return mk_pair(new_env, r);

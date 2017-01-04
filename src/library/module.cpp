@@ -276,32 +276,23 @@ struct decl_modification : public modification {
     LEAN_MODIFICATION("decl")
 
     declaration m_decl;
-    bool        m_from_olean;
+    unsigned    m_trust_lvl = LEAN_BELIEVER_TRUST_LEVEL + 1;
 
     decl_modification() {}
-    decl_modification(declaration const & decl, bool from_olean = false):
-        m_decl(decl), m_from_olean(from_olean) {}
+    decl_modification(declaration const & decl, unsigned trust_lvl):
+        m_decl(decl), m_trust_lvl(trust_lvl) {}
 
     void perform(environment & env) const override {
         auto decl = m_decl;
-        /* Gabriel, I had to add the following condition to avoid a deadlock that was happening at Travis.
-           I managed to reproduce the deadlock on my macbook, but it doesn't happen in my Ubuntu desktop.
-           The problem was exposed by commit 7f86ad64eb9d5f644. Before this commit, unfold_untrusted_macros
-           was a no-op if the user did not set the trust level in the command line.
-
-           The procedure unfold_untrusted_macros tries to access decl.get_value(). I believe the dead lock
-           occurs when we try to perform the modification but the proof elaboration did not finish yet.
-
+        /*
            The unfold_untrusted_macros is only needed when we are importing the declaration from a .olean
            file that has been created with a different (and higher) trust level. So, it may contain macros
            that will not be accepted by the current kernel, and they must be unfolded.
 
            In a single Lean session, the trust level is fixed, and we invoke unfold_untrusted_macros
-           at frontends/lean/definition_cmds.cpp before we even create the declaration. So, I added
-           the flag m_from_olean to distinguish whether the modification came from a .olean or a .lean file.
-           I'm setting it to true at deserialize.
+           at frontends/lean/definition_cmds.cpp before we even create the declaration.
         */
-        if (m_from_olean) {
+        if (m_trust_lvl > env.trust_lvl()) {
             decl = unfold_untrusted_macros(env, decl);
         }
 
@@ -314,11 +305,13 @@ struct decl_modification : public modification {
     }
 
     void serialize(serializer & s) const override {
-        s << m_decl;
+        s << m_decl << m_trust_lvl;
     }
 
     static std::shared_ptr<modification const> deserialize(deserializer & d) {
-        return std::make_shared<decl_modification>(read_declaration(d), true);
+        auto decl = read_declaration(d);
+        unsigned trust_lvl; d >> trust_lvl;
+        return std::make_shared<decl_modification>(std::move(decl), trust_lvl);
     }
 
     void get_task_dependencies(std::vector<generic_task_result> & deps) const override {
@@ -401,7 +394,7 @@ environment add(environment const & env, certified_declaration const & d) {
     if (!check_computable(new_env, _d.get_name()))
         new_env = mark_noncomputable(new_env, _d.get_name());
     new_env = update_module_defs(new_env, _d);
-    new_env = add(new_env, std::make_shared<decl_modification>(_d));
+    new_env = add(new_env, std::make_shared<decl_modification>(_d, env.trust_lvl()));
     return add_decl_pos_info(new_env, _d.get_name());
 }
 

@@ -447,8 +447,8 @@ public:
                             if (e.m_goal_pos)
                                 infom.get_info_record(env, opts, m_server->m_ios, e.m_goal_pos->first,
                                                       e.m_goal_pos->second, record, [](info_data const & d) {
-                                            return dynamic_cast<tactic_state_info_data const *>(d.raw());
-                                        });
+                                                          return dynamic_cast<tactic_state_info_data const *>(d.raw());
+                                                      });
                         }
                     }
                 }

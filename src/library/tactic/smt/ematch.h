@@ -11,8 +11,8 @@ Author: Leonardo de Moura
 #include "library/tactic/smt/hinst_lemmas.h"
 
 namespace lean {
-typedef rb_expr_tree expr_set;
-typedef rb_map<head_index, expr_set, head_index::cmp> app_map;
+typedef rb_expr_tree rb_expr_set;
+typedef rb_map<head_index, rb_expr_set, head_index::cmp> app_map;
 
 struct ematch_config {
     unsigned  m_max_instances{0};
@@ -20,7 +20,7 @@ struct ematch_config {
 
 class ematch_state {
     app_map       m_app_map;
-    expr_set      m_instances;
+    rb_expr_set   m_instances;
     unsigned      m_num_instances{0};
     bool          m_max_instances_exceeded{false};
     ematch_config m_config;

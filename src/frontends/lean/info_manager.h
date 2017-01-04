@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/io_state_stream.h"
 #include "library/metavar_context.h"
 #include "library/tactic/tactic_state.h"
+#include "library/tactic/smt/smt_state.h"
 #include "frontends/lean/json.h"
 
 namespace lean {
@@ -35,9 +36,21 @@ public:
 };
 
 class tactic_state_info_data : public info_data_cell {
+protected:
     tactic_state m_state;
 public:
     tactic_state_info_data(tactic_state const & s):m_state(s) {}
+
+#ifdef LEAN_SERVER
+    virtual void report(io_state_stream const &, json & record) const override;
+#endif
+};
+
+class smt_tactic_state_info_data : public tactic_state_info_data {
+    list<smt_goal> m_smt_state;
+public:
+    smt_tactic_state_info_data(list<smt_goal> const & ss, tactic_state const & ts):
+        tactic_state_info_data(ts), m_smt_state(ss) {}
 
 #ifdef LEAN_SERVER
     virtual void report(io_state_stream const &, json & record) const override;
@@ -85,6 +98,7 @@ public:
     void add_type_info(unsigned l, unsigned c, expr const & e);
     void add_identifier_info(unsigned l, unsigned c, name const & full_id);
     void add_tactic_state_info(unsigned l, unsigned c, tactic_state const & s);
+    void add_smt_tactic_state_info(unsigned l, unsigned c, list<smt_goal> const & ss, tactic_state const & ts);
     void instantiate_mvars(metavar_context const & mctx);
     void merge(info_manager const & info);
 
@@ -119,5 +133,4 @@ public:
         }
     }
 };
-
 }

@@ -71,14 +71,13 @@ static list<smt_goal> to_smt_state(vm_obj const & ss) {
     return to_list<smt_goal>(ss, to_smt_goal);
 }
 
-void tactic_evaluator::add_smt_tactic_state_info(vm_obj const & ss, tactic_state const & /* ts */, expr const & ref) {
+void tactic_evaluator::add_smt_tactic_state_info(vm_obj const & ss, tactic_state const & ts, expr const & ref) {
     if (!get_global_info_manager()) return;
     pos_info_provider * pip = get_pos_info_provider();
     if (!pip) return;
     if (auto p = pip->get_pos_info(ref)) {
         list<smt_goal> _ss = to_smt_state(ss);
-        // TODO(Leo)
-        // m_info.add_smt_tactic_state_info(p->first, p->second, _ss, ts);
+        m_info.add_smt_tactic_state_info(p->first, p->second, _ss, ts);
     }
 }
 

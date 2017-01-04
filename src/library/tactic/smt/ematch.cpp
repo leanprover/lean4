@@ -39,7 +39,7 @@ void ematch_state::internalize(type_context & ctx, expr const & e) {
         expr const & f = get_app_args(e, args);
         if ((is_constant(f) && !has_no_inst_pattern_attribute(ctx.env(), const_name(f))) ||
             (is_local(f))) {
-            expr_set s;
+            rb_expr_set s;
             if (auto old_s = m_app_map.find(head_index(f)))
                 s = *old_s;
             s.insert(e);
@@ -170,7 +170,7 @@ struct ematch_fn {
     bool match_leaf(expr const & p, expr const & t) {
         if (m_cc.in_heterogeneous_eqc(t)) {
             buffer<state> new_states;
-            expr_set types_seen;
+            rb_expr_set types_seen;
             expr it = t;
             do {
                 expr it_type = m_ctx.infer(it);
@@ -509,7 +509,7 @@ struct ematch_fn {
         expr const & f   = get_app_args(p0, p0_args);
         unsigned gmt     = m_cc.get_gmt();
         state init_state = mk_inital_state(ps);
-        if (expr_set const * s = m_ematch_state.get_app_map().find(head_index(f))) {
+        if (rb_expr_set const * s = m_ematch_state.get_app_map().find(head_index(f))) {
             s->for_each([&](expr const & t) {
                     if ((m_cc.is_congr_root(t) || m_cc.in_heterogeneous_eqc(t)) &&
                         (!filter || m_cc.get_mt(t) == gmt)) {

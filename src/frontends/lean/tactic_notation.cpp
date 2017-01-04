@@ -204,13 +204,15 @@ static expr parse_location(parser & p) {
     }
 }
 
+expr parse_begin_end_block(parser & p, pos_info const & start_pos, name const & end_token, bool nested);
+
 static expr parse_nested_auto_quote_tactic(parser & p) {
     auto pos = p.pos();
     bool nested = true;
     if (p.curr_is_token(get_lcurly_tk())) {
-        return parse_begin_end_core(p, pos, get_rcurly_tk(), nested);
+        return parse_begin_end_block(p, pos, get_rcurly_tk(), nested);
     } else if (p.curr_is_token(get_begin_tk())) {
-        return parse_begin_end_core(p, pos, get_end_tk(), nested);
+        return parse_begin_end_block(p, pos, get_end_tk(), nested);
     } else {
         throw parser_error("invalid nested auto-quote tactic, '{' or 'begin' expected", pos);
     }
@@ -298,7 +300,7 @@ static expr parse_tactic(parser & p) {
     }
 }
 
-expr parse_begin_end_core(parser & p, pos_info const & start_pos,
+expr parse_begin_end_block(parser & p, pos_info const & start_pos,
                           name const & end_token, bool nested) {
     p.next();
     expr r = p.save_pos(mk_begin_end_element(mk_constant(get_tactic_skip_name())), start_pos);
@@ -309,9 +311,9 @@ expr parse_begin_end_core(parser & p, pos_info const & start_pos,
                 /* parse next element */
                 expr next_tac;
                 if (p.curr_is_token(get_begin_tk())) {
-                    next_tac = parse_begin_end_core(p, pos, get_end_tk(), true);
+                    next_tac = parse_begin_end_block(p, pos, get_end_tk(), true);
                 } else if (p.curr_is_token(get_lcurly_tk())) {
-                    next_tac = parse_begin_end_core(p, pos, get_rcurly_tk(), true);
+                    next_tac = parse_begin_end_block(p, pos, get_rcurly_tk(), true);
                 } else if (p.curr_is_token(get_do_tk())) {
                     expr tac = p.parse_expr();
                     expr type = p.save_pos(mk_tactic_unit(), pos);
@@ -342,10 +344,23 @@ expr parse_begin_end_core(parser & p, pos_info const & start_pos,
         return p.save_pos(mk_by(r), end_pos);
 }
 
-expr parse_begin_end(parser & p, unsigned, expr const *, pos_info const & pos) {
+expr parse_begin_end_expr_core(parser & p, pos_info const & pos, name const & end_token) {
     parser::local_scope _(p);
     p.clear_expr_locals();
-    return parse_begin_end_core(p, pos, get_end_tk());
+    bool nested = false;
+    return parse_begin_end_block(p, pos, end_token, nested);
+}
+
+expr parse_begin_end_expr(parser & p, pos_info const & pos) {
+    return parse_begin_end_expr_core(p, pos, get_end_tk());
+}
+
+expr parse_curly_begin_end_expr(parser & p, pos_info const & pos) {
+    return parse_begin_end_expr_core(p, pos, get_lcurly_tk());
+}
+
+expr parse_begin_end(parser & p, unsigned, expr const *, pos_info const & pos) {
+    return parse_begin_end_expr(p, pos);
 }
 
 expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {

@@ -164,10 +164,10 @@ static expr parse_proof(parser & p) {
         return p.parse_expr();
     } else if (p.curr_is_token(get_begin_tk())) {
         auto pos = p.pos();
-        return parse_begin_end_core(p, pos, get_end_tk());
+        return parse_begin_end_expr(p, pos);
     } else if (p.curr_is_token(get_lcurly_tk())) {
         auto pos = p.pos();
-        return parse_begin_end_core(p, pos, get_rcurly_tk());
+        return parse_curly_begin_end_expr(p, pos);
     } else if (p.curr_is_token(get_by_tk())) {
         auto pos = p.pos();
         return parse_by(p, 0, nullptr, pos);

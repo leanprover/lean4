@@ -7,7 +7,8 @@ Author: Leonardo de Moura
 #pragma once
 #include "frontends/lean/parser.h"
 namespace lean {
-expr parse_begin_end_core(parser & p, pos_info const & start_pos, name const & end_token, bool nested = false);
+expr parse_begin_end_expr(parser & p, pos_info const & pos);
+expr parse_curly_begin_end_expr(parser & p, pos_info const & pos);
 expr parse_begin_end(parser & p, unsigned, expr const *, pos_info const & pos);
 expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos);
 expr parse_auto_quote_tactic_block(parser & p, unsigned, expr const *, pos_info const & pos);

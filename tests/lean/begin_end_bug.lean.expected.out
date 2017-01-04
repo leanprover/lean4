@@ -1,0 +1,2 @@
+begin_end_bug.lean:3:24: error: unknown identifier 'a'
+begin_end_bug.lean:8:0: error: invalid 'end', there is no open namespace/section

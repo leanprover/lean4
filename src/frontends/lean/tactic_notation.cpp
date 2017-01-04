@@ -16,6 +16,21 @@ Author: Leonardo de Moura
 #include "frontends/lean/util.h"
 #include "frontends/lean/tactic_notation.h"
 
+/* The auto quotation currently supports two classes of tactics: tactic and smt_tactic.
+   To add a new class Tac, we have to
+
+   1) Make sure it is a monad. That is, we have an instance for (monad Tac)
+
+   2) There is a namespace Tac.interactive
+
+   3) There is a definition: Tac.step {α : Type} (t : Tac α) : Tac unit
+
+   4) There is a definition: Tac.skip : Tac unit
+      If it is not available, then the parser will use 'return ()' instead.
+
+   5) Extend is_tactic_class.
+
+   6) TODO(Leo): add elaborator interface */
 namespace lean {
 static name * g_begin_end = nullptr;
 static name * g_begin_end_element = nullptr;
@@ -26,19 +41,23 @@ bool is_begin_end_block(expr const & e) { return is_annotation(e, *g_begin_end);
 static expr mk_begin_end_element(expr const & e) { return mk_annotation(*g_begin_end_element, e, nulltag); }
 bool is_begin_end_element(expr const & e) { return is_annotation(e, *g_begin_end_element); }
 
-static expr mk_begin_end_element(parser & p, expr tac, pos_info const & pos) {
+static expr mk_begin_end_element(parser & p, expr tac, pos_info const & pos, name const & tac_class) {
     if (is_begin_end_block(tac)) {
         return tac;
     } else {
         if (tac.get_tag() == nulltag)
             tac = p.save_pos(tac, pos);
-        tac = p.save_pos(mk_app(mk_constant(get_tactic_step_name()), tac), pos);
+        name step_name(tac_class, "step");
+        if (!p.env().find(step_name))
+            throw parser_error(sstream() << "invalid tactic class '" << tac_class << "', '" <<
+                               tac_class << ".step' has not been defined", pos);
+        tac = p.save_pos(mk_app(mk_constant(step_name), tac), pos);
         return p.save_pos(mk_begin_end_element(tac), pos);
     }
 }
 
-static expr concat(parser & p, expr const & r, expr tac, pos_info const & start_pos, pos_info const & pos) {
-    tac = mk_begin_end_element(p, tac, pos);
+static expr concat(parser & p, expr const & r, expr tac, pos_info const & start_pos, pos_info const & pos, name const & tac_class) {
+    tac = mk_begin_end_element(p, tac, pos, tac_class);
     return p.save_pos(mk_app(mk_constant(get_pre_monad_and_then_name()), r, tac), start_pos);
 }
 
@@ -61,9 +80,9 @@ void get_begin_end_block_elements(expr const & e, buffer<expr> & elems) {
     return get_begin_end_block_elements_core(get_annotation_arg(e), elems);
 }
 
-static optional<name> is_auto_quote_tactic(parser & p) {
+static optional<name> is_auto_quote_tactic(parser & p, name const & tac_class) {
     if (!p.curr_is_identifier()) return optional<name>();
-    name id = get_tactic_interactive_name() + p.get_name_val();
+    name id = tac_class + name("interactive") + p.get_name_val();
     if (p.env().find(id))
         return optional<name>(id);
     else
@@ -204,21 +223,21 @@ static expr parse_location(parser & p) {
     }
 }
 
-expr parse_begin_end_block(parser & p, pos_info const & start_pos, name const & end_token, bool nested);
+expr parse_begin_end_block(parser & p, pos_info const & start_pos, name const & end_token, bool nested, name tac_class);
 
-static expr parse_nested_auto_quote_tactic(parser & p) {
+static expr parse_nested_auto_quote_tactic(parser & p, name const & tac_class) {
     auto pos = p.pos();
     bool nested = true;
     if (p.curr_is_token(get_lcurly_tk())) {
-        return parse_begin_end_block(p, pos, get_rcurly_tk(), nested);
+        return parse_begin_end_block(p, pos, get_rcurly_tk(), nested, tac_class);
     } else if (p.curr_is_token(get_begin_tk())) {
-        return parse_begin_end_block(p, pos, get_end_tk(), nested);
+        return parse_begin_end_block(p, pos, get_end_tk(), nested, tac_class);
     } else {
         throw parser_error("invalid nested auto-quote tactic, '{' or 'begin' expected", pos);
     }
 }
 
-static expr parse_auto_quote_tactic(parser & p, name const & decl_name) {
+static expr parse_auto_quote_tactic(parser & p, name const & decl_name, name const & tac_class) {
     auto pos = p.pos();
     p.next();
     expr type = p.env().get(decl_name).get_type();
@@ -251,7 +270,7 @@ static expr parse_auto_quote_tactic(parser & p, name const & decl_name) {
             } else if (is_constant(arg_type, get_interactive_types_location_name())) {
                 args.push_back(parse_location(p));
             } else if (is_constant(arg_type, get_interactive_types_itactic_name())) {
-                args.push_back(parse_nested_auto_quote_tactic(p));
+                args.push_back(parse_nested_auto_quote_tactic(p, tac_class));
             } else if (is_constant(arg_type, get_interactive_types_colon_tk_name())) {
                 p.check_token_next(get_colon_tk(), "invalid auto-quote tactic, ':' expected");
                 args.push_back(mk_constant(get_unit_star_name()));
@@ -279,31 +298,66 @@ static bool is_curr_exact_shortcut(parser & p) {
         p.curr_is_token(get_suppose_tk());
 }
 
-static expr parse_tactic_core(parser & p) {
-    if (auto dname = is_auto_quote_tactic(p)) {
-        return parse_auto_quote_tactic(p, *dname);
+static expr parse_tactic_core(parser & p, name const & tac_class) {
+    if (auto dname = is_auto_quote_tactic(p, tac_class)) {
+        return parse_auto_quote_tactic(p, *dname, tac_class);
     } else if (is_curr_exact_shortcut(p)) {
         auto pos = p.pos();
         expr arg = parse_qexpr(p, 0);
-        return p.mk_app(p.save_pos(mk_constant(get_tactic_interactive_exact_name()), pos), arg, pos);
+        return p.mk_app(p.save_pos(mk_constant(tac_class + name({"interactive", "exact"})), pos), arg, pos);
     } else {
         return p.parse_expr();
     }
 }
 
-static expr parse_tactic(parser & p) {
+static expr parse_tactic(parser & p, name const & tac_class) {
     if (p.in_quote()) {
         parser::quote_scope _(p, false);
-        return parse_tactic_core(p);
+        return parse_tactic_core(p, tac_class);
     } else {
-        return parse_tactic_core(p);
+        return parse_tactic_core(p, tac_class);
     }
 }
 
-expr parse_begin_end_block(parser & p, pos_info const & start_pos,
-                          name const & end_token, bool nested) {
+static optional<name> is_tactic_class(environment const & /* env */, name const & n) {
+    if (n == "smt")
+        return optional<name>(name("smt_tactic"));
+    else
+        return optional<name>();
+}
+
+static name parse_tactic_class(parser & p, name tac_class) {
+    if (p.curr_is_token(get_lbracket_tk())) {
+        p.next();
+        auto id_pos = p.pos();
+        name id = p.check_id_next("invalid 'begin[tactic] ... end' block, identifier expected");
+        auto new_class = is_tactic_class(p.env(), id);
+        if (!new_class)
+            throw parser_error(sstream() << "invalid 'begin [" << id << "] ...end' block, "
+                               << "'" << id << "' is not a valid tactic class", id_pos);
+        p.check_token_next(get_rbracket_tk(), "invalid 'begin[tactic] ... end block', ']' expected");
+        return *new_class;
+    } else {
+        return tac_class;
+    }
+}
+
+static expr mk_tactic_unit(name const & tac_class) {
+    return mk_app(mk_constant(tac_class), mk_constant(get_unit_name()));
+}
+
+static expr mk_tactic_skip(environment const & env, name const & tac_class) {
+    name skip_name(tac_class, "skip");
+    if (env.find(skip_name))
+        return mk_constant(skip_name);
+    else
+        return mk_app(mk_constant("return"), mk_constant(get_unit_star_name()));
+}
+
+expr parse_begin_end_block(parser & p, pos_info const & start_pos, name const & end_token, bool nested, name tac_class) {
     p.next();
-    expr r = p.save_pos(mk_begin_end_element(mk_constant(get_tactic_skip_name())), start_pos);
+    tac_class = parse_tactic_class(p, tac_class);
+    expr r = p.save_pos(mk_begin_end_element(mk_tactic_skip(p.env(), tac_class)), start_pos);
     try {
         while (!p.curr_is_token(end_token)) {
             auto pos = p.pos();
@@ -311,17 +365,17 @@ expr parse_begin_end_block(parser & p, pos_info const & start_pos,
                 /* parse next element */
                 expr next_tac;
                 if (p.curr_is_token(get_begin_tk())) {
-                    next_tac = parse_begin_end_block(p, pos, get_end_tk(), true);
+                    next_tac = parse_begin_end_block(p, pos, get_end_tk(), true, tac_class);
                 } else if (p.curr_is_token(get_lcurly_tk())) {
-                    next_tac = parse_begin_end_block(p, pos, get_rcurly_tk(), true);
+                    next_tac = parse_begin_end_block(p, pos, get_rcurly_tk(), true, tac_class);
                 } else if (p.curr_is_token(get_do_tk())) {
                     expr tac = p.parse_expr();
-                    expr type = p.save_pos(mk_tactic_unit(), pos);
+                    expr type = p.save_pos(mk_tactic_unit(tac_class), pos);
                     next_tac = p.save_pos(mk_typed_expr(type, tac), pos);
                 } else {
-                    next_tac = parse_tactic(p);
+                    next_tac = parse_tactic(p, tac_class);
                 }
-                r = concat(p, r, next_tac, start_pos, pos);
+                r = concat(p, r, next_tac, start_pos, pos, tac_class);
                 if (!p.curr_is_token(end_token)) {
                     p.check_token_next(get_comma_tk(), "invalid 'begin-end' expression, ',' expected");
                 }
@@ -338,6 +392,8 @@ expr parse_begin_end_block(parser & p, pos_info const & start_pos,
     auto end_pos = p.pos();
     p.next();
     r = p.save_pos(mk_begin_end_block(r), end_pos);
+    expr type = mk_tactic_unit(tac_class);
+    r         = p.save_pos(mk_typed_expr(type, r), end_pos);
     if (nested)
         return r;
     else
@@ -348,7 +404,7 @@ expr parse_begin_end_expr_core(parser & p, pos_info const & pos, name const & en
     parser::local_scope _(p);
     p.clear_expr_locals();
     bool nested = false;
-    return parse_begin_end_block(p, pos, end_token, nested);
+    return parse_begin_end_block(p, pos, end_token, nested, get_tactic_name());
 }
 
 expr parse_begin_end_expr(parser & p, pos_info const & pos) {
@@ -369,8 +425,8 @@ expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {
     p.clear_expr_locals();
     auto tac_pos = p.pos();
     try {
-        expr tac  = parse_tactic(p);
-        expr type = mk_tactic_unit();
+        expr tac  = parse_tactic(p, get_tactic_name());
+        expr type = mk_tactic_unit(get_tactic_name());
         expr r    = p.save_pos(mk_typed_expr(type, tac), tac_pos);
         return p.save_pos(mk_by(r), pos);
     } catch (break_at_pos_exception & ex) {
@@ -380,10 +436,11 @@ expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {
 }
 
 expr parse_auto_quote_tactic_block(parser & p, unsigned, expr const *, pos_info const & pos) {
-    expr r = parse_tactic(p);
+    name tac_class = parse_tactic_class(p, get_tactic_name());
+    expr r = parse_tactic(p, tac_class);
     while (p.curr_is_token(get_comma_tk())) {
         p.next();
-        expr next = parse_tactic(p);
+        expr next = parse_tactic(p, tac_class);
         r = p.mk_app({p.save_pos(mk_constant(get_pre_monad_and_then_name()), pos), r, next}, pos);
     }
     p.check_token_next(get_rbracket_tk(), "invalid auto-quote tactic block, ']' expected");

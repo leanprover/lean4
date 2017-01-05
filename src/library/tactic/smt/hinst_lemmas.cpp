@@ -19,6 +19,10 @@ Author: Leonardo de Moura
 #include "library/exception.h"
 #include "library/replace_visitor.h"
 #include "library/attribute_manager.h"
+#include "library/vm/vm.h"
+#include "library/vm/vm_expr.h"
+#include "library/vm/vm_format.h"
+#include "library/vm/vm_name.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/smt/hinst_lemmas.h"
 
@@ -656,6 +660,89 @@ format pp_hinst_lemma(formatter const & fmt, hinst_lemma const & h) {
     return group(bracket("[", r, "]"));
 }
 
+struct vm_hinst_lemma : public vm_external {
+    hinst_lemma m_val;
+    vm_hinst_lemma(hinst_lemma const & v): m_val(v) {}
+    virtual ~vm_hinst_lemma() {}
+    virtual void dealloc() override { this->~vm_hinst_lemma(); get_vm_allocator().deallocate(sizeof(vm_hinst_lemma), this); }
+};
+
+hinst_lemma const & to_hinst_lemma(vm_obj const & o) {
+    lean_assert(is_external(o));
+    lean_assert(dynamic_cast<vm_hinst_lemma*>(to_external(o)));
+    return static_cast<vm_hinst_lemma*>(to_external(o))->m_val;
+}
+
+vm_obj to_obj(hinst_lemma const & s) {
+    return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_hinst_lemma))) vm_hinst_lemma(s));
+}
+
+vm_obj hinst_lemma_mk_core(vm_obj const & m, vm_obj const & lemma, vm_obj const & simp, vm_obj const & s) {
+    LEAN_TACTIC_TRY;
+    type_context ctx        = mk_type_context_for(s);
+    hinst_lemma h           = mk_hinst_lemma(ctx, to_transparency_mode(m), to_expr(lemma), to_bool(simp));
+    return mk_tactic_success(to_obj(h), to_tactic_state(s));
+    LEAN_TACTIC_CATCH(to_tactic_state(s));
+}
+
+vm_obj hinst_lemma_mk_from_decl_core(vm_obj const & m, vm_obj const & lemma_name, vm_obj const & simp, vm_obj const & s) {
+    LEAN_TACTIC_TRY;
+    type_context ctx        = mk_type_context_for(s);
+    hinst_lemma h           = mk_hinst_lemma(ctx, to_transparency_mode(m), to_name(lemma_name), to_bool(simp));
+    return mk_tactic_success(to_obj(h), to_tactic_state(s));
+    LEAN_TACTIC_CATCH(to_tactic_state(s));
+}
+
+vm_obj hinst_lemma_pp(vm_obj const & h, vm_obj const & _s) {
+    tactic_state const & s = to_tactic_state(_s);
+    LEAN_TACTIC_TRY;
+    formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
+    type_context ctx = mk_type_context_for(s);
+    formatter fmt = fmtf(s.env(), s.get_options(), ctx);
+    format r = pp_hinst_lemma(fmt, to_hinst_lemma(h));
+    return mk_tactic_success(to_obj(r), s);
+    LEAN_TACTIC_CATCH(s);
+}
+
+struct vm_hinst_lemmas : public vm_external {
+    hinst_lemmas m_val;
+    vm_hinst_lemmas(hinst_lemmas const & v): m_val(v) {}
+    virtual ~vm_hinst_lemmas() {}
+    virtual void dealloc() override { this->~vm_hinst_lemmas(); get_vm_allocator().deallocate(sizeof(vm_hinst_lemmas), this); }
+};
+
+hinst_lemmas const & to_hinst_lemmas(vm_obj const & o) {
+    lean_assert(is_external(o));
+    lean_assert(dynamic_cast<vm_hinst_lemmas*>(to_external(o)));
+    return static_cast<vm_hinst_lemmas*>(to_external(o))->m_val;
+}
+
+bool is_hinst_lemmas(vm_obj const & o) {
+    return is_external(o) && dynamic_cast<vm_hinst_lemmas*>(to_external(o));
+}
+
+vm_obj to_obj(hinst_lemmas const & s) {
+    return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_hinst_lemmas))) vm_hinst_lemmas(s));
+}
+
+vm_obj hinst_lemmas_mk() {
+    return to_obj(hinst_lemmas());
+}
+
+vm_obj hinst_lemmas_add(vm_obj const & hls, vm_obj const & h) {
+    hinst_lemmas new_lemmas = to_hinst_lemmas(hls);
+    new_lemmas.insert(to_hinst_lemma(h));
+    return to_obj(new_lemmas);
+}
+
+vm_obj hinst_lemmas_fold(vm_obj const &, vm_obj const & hls, vm_obj const & a, vm_obj const & fn) {
+    vm_obj r = a;
+    to_hinst_lemmas(hls).for_each([&](hinst_lemma const & h) {
+            r = invoke(fn, to_obj(h), r);
+        });
+    return r;
+}
+
 void initialize_hinst_lemmas() {
     g_pattern_hint      = new name("pattern_hint");
     register_annotation(*g_pattern_hint);
@@ -669,6 +756,14 @@ void initialize_hinst_lemmas() {
                              "(hinst_lemma) max number of steps performed by pattern inference procedure for heuristic instantiation lemmas, "
                              "we have this threshold because in the worst case this procedure may take "
                              "an exponetial number of steps");
+
+    DECLARE_VM_BUILTIN(name({"hinst_lemma", "mk_core"}),           hinst_lemma_mk_core);
+    DECLARE_VM_BUILTIN(name({"hinst_lemma", "mk_from_decl_core"}), hinst_lemma_mk_from_decl_core);
+    DECLARE_VM_BUILTIN(name({"hinst_lemma", "pp"}),                hinst_lemma_pp);
+
+    DECLARE_VM_BUILTIN(name({"hinst_lemmas", "mk"}),               hinst_lemmas_mk);
+    DECLARE_VM_BUILTIN(name({"hinst_lemmas", "add"}),              hinst_lemmas_add);
+    DECLARE_VM_BUILTIN(name({"hinst_lemmas", "fold"}),             hinst_lemmas_fold);
 }
 
 void finalize_hinst_lemmas() {

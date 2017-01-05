@@ -23,10 +23,6 @@ structure cc_config :=
 pair<name_set, congruence_closure::config> to_ho_fns_cc_config(vm_obj const & cfg);
 ematch_config to_ematch_config(vm_obj const & cfg);
 
-bool is_hinst_lemmas(vm_obj const & o);
-hinst_lemmas const & to_hinst_lemmas(vm_obj const & o);
-vm_obj to_obj(hinst_lemmas const & s);
-
 void initialize_congruence_tactics();
 void finalize_congruence_tactics();
 }

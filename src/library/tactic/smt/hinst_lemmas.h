@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "library/expr_lt.h"
 #include "library/type_context.h"
 #include "library/attribute_manager.h"
+#include "library/vm/vm.h"
 
 namespace lean {
 /** \brief Annotate \c e as a pattern hint */
@@ -70,6 +71,14 @@ hinst_lemma mk_hinst_lemma(type_context & ctx, transparency_mode md_norm, expr c
 hinst_lemma mk_hinst_lemma(type_context & ctx, transparency_mode md_norm, name const & n, bool simp = false);
 
 format pp_hinst_lemma(formatter const & fmt, hinst_lemma const & h);
+
+bool is_hinst_lemma(vm_obj const & o);
+hinst_lemma const & to_hinst_lemma(vm_obj const & o);
+vm_obj to_obj(hinst_lemma const & s);
+
+bool is_hinst_lemmas(vm_obj const & o);
+hinst_lemmas const & to_hinst_lemmas(vm_obj const & o);
+vm_obj to_obj(hinst_lemmas const & s);
 
 void initialize_hinst_lemmas();
 void finalize_hinst_lemmas();

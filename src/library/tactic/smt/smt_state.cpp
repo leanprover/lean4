@@ -23,6 +23,7 @@ Author: Leonardo de Moura
 #include "library/tactic/revert_tactic.h"
 #include "library/tactic/dsimplify.h"
 #include "library/tactic/simplify.h"
+#include "library/tactic/eqn_lemmas.h"
 #include "library/tactic/change_tactic.h"
 #include "library/tactic/smt/congruence_tactics.h"
 #include "library/tactic/smt/ematch.h"
@@ -706,6 +707,36 @@ vm_obj smt_tactic_add_ematch_lemma_from_decl_core(vm_obj const & md, vm_obj cons
     LEAN_TACTIC_CATCH(ts);
 }
 
+vm_obj smt_tactic_add_ematch_eqn_lemmas_for_core(vm_obj const & md, vm_obj const & decl_name, vm_obj const & ss, vm_obj const & _ts) {
+    tactic_state ts = to_tactic_state(_ts);
+    if (is_nil(ss)) return mk_smt_state_empty_exception(ts);
+    lean_assert(ts.goals());
+    LEAN_TACTIC_TRY;
+    type_context ctx    = mk_type_context_for(ts);
+    smt_goal g          = to_smt_goal(head(ss));
+    smt S(ctx, g);
+    buffer<name> eqns;
+    get_ext_eqn_lemmas_for(ts.env(), to_name(decl_name), eqns);
+    if (eqns.empty())
+        return mk_tactic_exception(sstream() << "tactic failed, '" << to_name(decl_name) << "' does not have equation lemmas", ts);
+    for (name const & eqn : eqns) {
+        declaration eqn_decl = ctx.env().get(eqn);
+        if (eqn_decl.get_num_univ_params() == 0 && !is_pi(ctx.relaxed_whnf(ctx.env().get(eqn).get_type()))) {
+            expr h            = mk_constant(eqn);
+            expr type         = ctx.infer(h);
+            std::tie(type, h) = preprocess_forward(ctx, g, type, h);
+            S.add(type, h);
+        } else {
+            hinst_lemma lemma   = mk_hinst_lemma(ctx, to_transparency_mode(md), eqn, true);
+            g.add_lemma(lemma);
+        }
+    }
+    vm_obj new_ss       = mk_vm_cons(to_obj(g), tail(ss));
+    tactic_state new_ts = set_env_mctx(ts, ctx.env(), ctx.mctx());
+    return mk_smt_tactic_success(new_ss, new_ts);
+    LEAN_TACTIC_CATCH(ts);
+}
+
 vm_obj smt_tactic_to_cc_state(vm_obj const & ss, vm_obj const & ts) {
     if (is_nil(ss)) return mk_smt_state_empty_exception(ts);
     return mk_smt_tactic_success(to_obj(to_smt_goal(head(ss)).get_cc_state()), ss, ts);
@@ -745,6 +776,7 @@ void initialize_smt_state() {
     DECLARE_VM_BUILTIN(name({"smt_tactic", "preprocess"}),                       smt_tactic_preprocess);
     DECLARE_VM_BUILTIN(name({"smt_tactic", "add_ematch_lemma_core"}),            smt_tactic_add_ematch_lemma_core);
     DECLARE_VM_BUILTIN(name({"smt_tactic", "add_ematch_lemma_from_decl_core"}),  smt_tactic_add_ematch_lemma_from_decl_core);
+    DECLARE_VM_BUILTIN(name({"smt_tactic", "add_ematch_eqn_lemmas_for_core"}),   smt_tactic_add_ematch_eqn_lemmas_for_core);
 }
 
 void finalize_smt_state() {

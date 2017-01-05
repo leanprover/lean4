@@ -129,5 +129,20 @@ add_lemma_pexprs reducible ff l
 meta def add_lhs_lemma (l : qexpr_list_or_qexpr0) : smt_tactic unit :=
 add_lemma_pexprs reducible tt l
 
+private meta def add_eqn_lemmas_for_core (md : transparency) : list name → smt_tactic unit
+| []      := return ()
+| (c::cs) := do
+  e ← resolve_name c,
+  match e with
+  | expr.const n _           := add_ematch_eqn_lemmas_for_core md n >> add_eqn_lemmas_for_core cs
+  | _                        := fail $ "'" ++ to_string c ++ "' is not a constant"
+  end
+
+meta def add_eqn_lemmas_for (ids : raw_ident_list) : smt_tactic unit :=
+add_eqn_lemmas_for_core reducible ids
+
+meta def add_eqn_lemmas (ids : raw_ident_list) : smt_tactic unit :=
+add_eqn_lemmas_for ids
+
 end interactive
 end smt_tactic

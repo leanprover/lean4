@@ -11,6 +11,9 @@ namespace lean {
 environment add_eqn_lemma(environment const & env, name const & eqn_lemma);
 bool has_eqn_lemmas(environment const & env, name const & cname);
 void get_eqn_lemmas_for(environment const & env, name const & cname, bool refl_only, buffer<simp_lemma> & result);
+void get_eqn_lemmas_for(environment const & env, name const & cname, buffer<name> & result);
+void get_ext_eqn_lemmas_for(environment const & env, name const & cname, buffer<name> & result);
+
 void initialize_eqn_lemmas();
 void finalize_eqn_lemmas();
 }

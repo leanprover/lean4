@@ -103,6 +103,7 @@ meta constant close                           : smt_tactic unit
 meta constant ematch_core                     : (expr → bool) → smt_tactic unit
 meta constant add_ematch_lemma_core           : transparency → bool → expr → smt_tactic unit
 meta constant add_ematch_lemma_from_decl_core : transparency → bool → name → smt_tactic unit
+meta constant add_ematch_eqn_lemmas_for_core  : transparency → name → smt_tactic unit
 meta constant to_cc_state                     : smt_tactic cc_state
 meta constant to_em_state                     : smt_tactic ematch_state
 meta constant preprocess                      : expr → smt_tactic (expr × expr)
@@ -261,6 +262,21 @@ do cc ← to_cc_state,
 meta def get_refuted_facts : smt_tactic (list expr) :=
 do cc ← to_cc_state,
    return $ cc^.eqc_of expr.mk_false
+
+meta def add_ematch_lemma : expr → smt_tactic unit :=
+add_ematch_lemma_core reducible ff
+
+meta def add_ematch_lhs_lemma : expr → smt_tactic unit :=
+add_ematch_lemma_core reducible tt
+
+meta def add_ematch_lemma_from_decl : name → smt_tactic unit :=
+add_ematch_lemma_from_decl_core reducible ff
+
+meta def add_ematch_lhs_lemma_from_decl : name → smt_tactic unit :=
+add_ematch_lemma_from_decl_core reducible ff
+
+meta def add_ematch_eqn_lemmas_for : name → smt_tactic unit :=
+add_ematch_eqn_lemmas_for_core reducible
 
 meta def add_lemmas_from_facts_core : list expr → smt_tactic unit
 | []      := return ()

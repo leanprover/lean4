@@ -5,9 +5,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
+#include "kernel/for_each_fn.h"
 #include "library/attribute_manager.h"
 #include "library/kernel_serializer.h"
 #include "library/trace.h"
+#include "library/util.h"
 #include "library/constants.h"
 #include "library/module.h"
 #include "library/tactic/eqn_lemmas.h"
@@ -90,6 +92,39 @@ void get_eqn_lemmas_for(environment const & env, name const & cname, bool refl_o
             if (!refl_only || sl.is_refl())
                 result.push_back(sl);
         }
+    }
+}
+
+void get_eqn_lemmas_for(environment const & env, name const & cname, buffer<name> & result) {
+    name base(name(cname, "equations"), "eqn");
+    unsigned idx = 1;
+    while (true) {
+        name eqn = base.append_after(idx);
+        if (env.find(eqn)) {
+            result.push_back(eqn);
+            idx++;
+        } else {
+            break;
+        }
+    }
+}
+
+void get_ext_eqn_lemmas_for(environment const & env, name const & cname, buffer<name> & result) {
+    name_set visited;
+    unsigned i = result.size();
+    get_eqn_lemmas_for(env, cname, result);
+    for (; i < result.size(); i++) {
+        expr type = env.get(result[i]).get_type();
+        for_each(type, [&](expr const & e, unsigned) {
+                if (is_constant(e)) {
+                    name const & n = const_name(e);
+                    if (n != cname && is_prefix_of(cname, n) && !visited.contains(n) && is_internal_name(n)) {
+                        get_eqn_lemmas_for(env, n, result);
+                        visited.insert(n);
+                    }
+                }
+                return true;
+            });
     }
 }
 

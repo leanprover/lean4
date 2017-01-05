@@ -189,7 +189,10 @@ pair<vm_obj, tactic_state> tactic_evaluator::mk_smt_state(tactic_state const & s
     if (is_tactic_result_success(r)) {
         return mk_pair(get_tactic_result_value(r), to_tactic_state(get_tactic_result_state(r)));
     }
-    throw elaborator_exception(ref, "failed to execute smt_tactic, initial smt_state could not be constructed");
+    tactic_exception_info info = *is_tactic_exception(S, r);
+    throw elaborator_exception(ref,
+                               format("failed to execute smt_tactic, initial smt_state could not be constructed, nested error:") +
+                               line() + std::get<0>(info));
 }
 
 pair<vm_obj, tactic_state> tactic_evaluator::execute_smt_begin_end_core(vm_obj const & ss, tactic_state const & ts, buffer<expr> const & tactics, expr const & ref) {

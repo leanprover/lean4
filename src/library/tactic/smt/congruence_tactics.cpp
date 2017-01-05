@@ -282,24 +282,18 @@ vm_obj hinst_lemmas_mk() {
     return to_obj(hinst_lemmas());
 }
 
-vm_obj hinst_lemmas_add_core(vm_obj const & m, vm_obj const & lemmas, vm_obj const & lemma, vm_obj const & simp, vm_obj const & s) {
-    LEAN_TACTIC_TRY;
-    type_context ctx        = mk_type_context_for(s, m);
-    hinst_lemma h           = mk_hinst_lemma(ctx, to_expr(lemma), to_bool(simp));
-    hinst_lemmas new_lemmas = to_hinst_lemmas(lemmas);
-    new_lemmas.insert(h);
-    return mk_tactic_success(to_obj(new_lemmas), to_tactic_state(s));
-    LEAN_TACTIC_CATCH(to_tactic_state(s));
+vm_obj hinst_lemmas_add(vm_obj const & hls, vm_obj const & h) {
+    hinst_lemmas new_lemmas = to_hinst_lemmas(hls);
+    new_lemmas.insert(to_hinst_lemma(h));
+    return to_obj(new_lemmas);
 }
 
-vm_obj hinst_lemmas_add_decl_core(vm_obj const & m, vm_obj const & lemmas, vm_obj const & lemma_name, vm_obj const & simp, vm_obj const & s) {
-    LEAN_TACTIC_TRY;
-    type_context ctx        = mk_type_context_for(s, m);
-    hinst_lemma h           = mk_hinst_lemma(ctx, to_name(lemma_name), to_bool(simp));
-    hinst_lemmas new_lemmas = to_hinst_lemmas(lemmas);
-    new_lemmas.insert(h);
-    return mk_tactic_success(to_obj(new_lemmas), to_tactic_state(s));
-    LEAN_TACTIC_CATCH(to_tactic_state(s));
+vm_obj hinst_lemmas_fold(vm_obj const &, vm_obj const & hls, vm_obj const & a, vm_obj const & fn) {
+    vm_obj r = a;
+    to_hinst_lemmas(hls).for_each([&](hinst_lemma const & h) {
+            r = invoke(fn, to_obj(h), r);
+        });
+    return r;
 }
 
 struct vm_ematch_state : public vm_external {
@@ -401,6 +395,10 @@ void initialize_congruence_tactics() {
     DECLARE_VM_BUILTIN(name({"hinst_lemma", "mk_core"}),           hinst_lemma_mk_core);
     DECLARE_VM_BUILTIN(name({"hinst_lemma", "mk_from_decl_core"}), hinst_lemma_mk_from_decl_core);
     DECLARE_VM_BUILTIN(name({"hinst_lemma", "pp"}),                hinst_lemma_pp);
+
+    DECLARE_VM_BUILTIN(name({"hinst_lemmas", "mk"}),               hinst_lemmas_mk);
+    DECLARE_VM_BUILTIN(name({"hinst_lemmas", "add"}),              hinst_lemmas_add);
+    DECLARE_VM_BUILTIN(name({"hinst_lemmas", "fold"}),             hinst_lemmas_fold);
 
     DECLARE_VM_BUILTIN(name({"ematch_state", "mk"}),               ematch_state_mk);
     DECLARE_VM_BUILTIN(name({"ematch_state", "internalize"}),      ematch_state_internalize);

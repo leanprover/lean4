@@ -10,16 +10,34 @@ open tactic
 /- Heuristic instantiation lemma -/
 meta constant hinst_lemma : Type
 
+meta constant hinst_lemmas : Type
+
 /- (mk_core m e as_simp prio) -/
 meta constant hinst_lemma.mk_core           : transparency → expr → bool → tactic hinst_lemma
 meta constant hinst_lemma.mk_from_decl_core : transparency → name → bool → tactic hinst_lemma
 meta constant hinst_lemma.pp                : hinst_lemma → tactic format
+meta constant hinst_lemma.id                : hinst_lemma → name
 
 meta def hinst_lemma.mk (h : expr) : tactic hinst_lemma :=
 hinst_lemma.mk_core semireducible h ff
 
 meta def hinst_lemma.mk_from_decl (h : name) : tactic hinst_lemma :=
 hinst_lemma.mk_from_decl_core semireducible h ff
+
+meta constant hinst_lemmas.mk              : hinst_lemmas
+meta constant hinst_lemmas.add             : hinst_lemmas → hinst_lemma → hinst_lemmas
+meta constant hinst_lemmas.fold {α : Type} : hinst_lemmas → α → (hinst_lemma → α → α) → α
+
+meta def hinst_lemmas.pp (s : hinst_lemmas) : tactic format :=
+let tac := s^.fold (return format.nil)
+    (λ h tac, do
+      hpp ← h^.pp,
+      r   ← tac,
+      if r^.is_nil then return hpp
+      else return (r ++ to_fmt "," ++ format.line ++ hpp))
+in do
+  r ← tac,
+  return $ format.cbrace (format.group r)
 
 structure ematch_config :=
 (max_instances : nat)

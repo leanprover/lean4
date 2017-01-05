@@ -2725,6 +2725,7 @@ expr_pair elaborator::elaborate_with_type(expr const & e, expr const & e_type) {
     {
         expr Type  = visit(copy_tag(e_type, mk_sort(mk_level_placeholder())), none_expr());
         new_e_type = visit(e_type, some_expr(Type));
+        ensure_type(new_e_type, e_type);
         new_e      = visit(e,      some_expr(new_e_type));
         synthesize();
     }

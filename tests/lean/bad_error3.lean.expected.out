@@ -1,0 +1,4 @@
+bad_error3.lean:1:33: error: type expected at
+  p 0
+bad_error3.lean:5:32: error: type expected at
+  p 0

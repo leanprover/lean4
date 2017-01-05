@@ -244,7 +244,6 @@ struct mk_hinst_lemma_fn {
     name_set           m_no_inst_patterns;
     expr               m_H;
     unsigned           m_num_uvars;
-    unsigned           m_priority;
     unsigned           m_max_steps;
     /* If m_simp is true, the pattern inference procedure assumes the given lemma is a [simp] lemma.
        That is, the conclusion is of the form (t ~ s), and it will try to use t as a pattern. */
@@ -256,9 +255,9 @@ struct mk_hinst_lemma_fn {
     unsigned           m_num_steps;
 
     mk_hinst_lemma_fn(type_context & ctx, expr const & H,
-                   unsigned num_uvars, unsigned prio, unsigned max_steps, bool simp):
+                   unsigned num_uvars, unsigned max_steps, bool simp):
         m_ctx(ctx), m_no_inst_patterns(get_no_inst_patterns(ctx.env())),
-        m_H(H), m_num_uvars(num_uvars), m_priority(prio), m_max_steps(max_steps),
+        m_H(H), m_num_uvars(num_uvars), m_max_steps(max_steps),
         m_simp(simp) {}
 
     struct candidate {
@@ -574,7 +573,6 @@ struct mk_hinst_lemma_fn {
         hinst_lemma r;
         r.m_num_uvars        = m_num_uvars;
         r.m_num_mvars        = m_mvars.size();
-        r.m_priority         = m_priority;
         r.m_multi_patterns   = mps;
         r.m_mvars            = to_list(m_mvars);
         r.m_is_inst_implicit = to_list(inst_implicit_flags);
@@ -586,16 +584,16 @@ struct mk_hinst_lemma_fn {
 };
 
 hinst_lemma mk_hinst_lemma_core(type_context & ctx, expr const & H, unsigned num_uvars,
-                                unsigned priority, unsigned max_steps, bool simp) {
+                                unsigned max_steps, bool simp) {
     try {
         type_context::tmp_mode_scope tscope(ctx, num_uvars, 0);
         bool erase_hints = false;
-        return mk_hinst_lemma_fn(ctx, H, num_uvars, priority, max_steps, simp)(erase_hints);
+        return mk_hinst_lemma_fn(ctx, H, num_uvars, max_steps, simp)(erase_hints);
     } catch (mk_hinst_lemma_fn::try_again_without_hints &) {
         type_context::tmp_mode_scope tscope(ctx, num_uvars, 0);
         try {
             bool erase_hints = true;
-            return mk_hinst_lemma_fn(ctx, H, num_uvars, priority, max_steps, simp)(erase_hints);
+            return mk_hinst_lemma_fn(ctx, H, num_uvars, max_steps, simp)(erase_hints);
         } catch (mk_hinst_lemma_fn::try_again_without_hints &) {
             lean_unreachable();
         }
@@ -608,15 +606,15 @@ unsigned get_hinst_lemma_max_steps(options const & o) {
     return o.get_unsigned(*g_hinst_lemma_max_steps, LEAN_DEFAULT_HINST_LEMMA_PATTERN_MAX_STEPS);
 }
 
-hinst_lemma mk_hinst_lemma(type_context & ctx, expr const & H, bool simp, unsigned prio) {
+hinst_lemma mk_hinst_lemma(type_context & ctx, expr const & H, bool simp) {
     unsigned max_steps = get_hinst_lemma_max_steps(ctx.get_options());
-    hinst_lemma r = mk_hinst_lemma_core(ctx, H, 0, prio, max_steps, simp);
+    hinst_lemma r = mk_hinst_lemma_core(ctx, H, 0, max_steps, simp);
     if (is_local(H))
         r.m_id = local_pp_name(H);
     return r;
 }
 
-hinst_lemma mk_hinst_lemma(type_context & ctx, name const & c, bool simp, unsigned priority) {
+hinst_lemma mk_hinst_lemma(type_context & ctx, name const & c, bool simp) {
     unsigned max_steps = get_hinst_lemma_max_steps(ctx.get_options());
     declaration const & d = ctx.env().get(c);
     buffer<level> us;
@@ -624,7 +622,7 @@ hinst_lemma mk_hinst_lemma(type_context & ctx, name const & c, bool simp, unsign
     for (unsigned i = 0; i < num_us; i++)
         us.push_back(mk_idx_metauniv(i));
     expr H          = mk_constant(c, to_list(us));
-    hinst_lemma r   = mk_hinst_lemma_core(ctx, H, num_us, priority, max_steps, simp);
+    hinst_lemma r   = mk_hinst_lemma_core(ctx, H, num_us, max_steps, simp);
     r.m_id          = c;
     return r;
 }

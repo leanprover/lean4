@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.meta.tactic init.meta.rewrite_tactic init.meta.simp_tactic
-import init.meta.smt.congruence_tactics
+import init.meta.smt.congruence_closure
 
 namespace interactive
 namespace types

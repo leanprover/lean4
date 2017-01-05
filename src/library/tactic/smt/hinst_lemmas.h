@@ -35,7 +35,6 @@ struct hinst_lemma {
     name                 m_id;
     unsigned             m_num_uvars;
     unsigned             m_num_mvars;
-    unsigned             m_priority;
     list<multi_pattern>  m_multi_patterns;
     list<bool>           m_is_inst_implicit;
     list<expr>           m_mvars;
@@ -45,16 +44,9 @@ struct hinst_lemma {
     expr                 m_expr;
 };
 
-struct hinst_lemma_prio_fn { unsigned operator()(hinst_lemma const & s) const { return s.m_priority; } };
-
-inline bool operator==(hinst_lemma const & l1, hinst_lemma const & l2) { return l1.m_prop == l2.m_prop; }
-inline bool operator!=(hinst_lemma const & l1, hinst_lemma const & l2) { return l1.m_prop != l2.m_prop; }
 struct hinst_lemma_cmp {
     int operator()(hinst_lemma const & l1, hinst_lemma const & l2) const {
-        if (l1.m_priority != l2.m_priority)
-            return unsigned_cmp()(l1.m_priority, l2.m_priority);
-        else
-            return expr_quick_cmp()(l1.m_prop, l2.m_prop);
+        return expr_quick_cmp()(l1.m_prop, l2.m_prop);
     }
 };
 typedef rb_tree<hinst_lemma, hinst_lemma_cmp> hinst_lemmas;
@@ -64,8 +56,8 @@ list<multi_pattern> mk_multipatterns(environment const & env, io_state const & i
 
 /** \brief Create a (local) heuristic instantiation lemma for \c H.
     The maximum number of steps is extracted from the blast config object. */
-hinst_lemma mk_hinst_lemma(type_context & ctx, expr const & H, bool simp = false, unsigned prio = LEAN_DEFAULT_PRIORITY);
-hinst_lemma mk_hinst_lemma(type_context & ctx, name const & n, bool simp = false, unsigned prio = LEAN_DEFAULT_PRIORITY);
+hinst_lemma mk_hinst_lemma(type_context & ctx, expr const & H, bool simp = false);
+hinst_lemma mk_hinst_lemma(type_context & ctx, name const & n, bool simp = false);
 
 format pp_hinst_lemma(formatter const & fmt, hinst_lemma const & h);
 

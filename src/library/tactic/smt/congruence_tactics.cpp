@@ -234,18 +234,18 @@ vm_obj to_obj(hinst_lemma const & s) {
     return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_hinst_lemma))) vm_hinst_lemma(s));
 }
 
-vm_obj hinst_lemma_mk_core(vm_obj const & m, vm_obj const & lemma, vm_obj const & simp, vm_obj const & prio, vm_obj const & s) {
+vm_obj hinst_lemma_mk_core(vm_obj const & m, vm_obj const & lemma, vm_obj const & simp, vm_obj const & s) {
     LEAN_TACTIC_TRY;
     type_context ctx        = mk_type_context_for(s, m);
-    hinst_lemma h           = mk_hinst_lemma(ctx, to_expr(lemma), to_bool(simp), force_to_unsigned(prio, 0));
+    hinst_lemma h           = mk_hinst_lemma(ctx, to_expr(lemma), to_bool(simp));
     return mk_tactic_success(to_obj(h), to_tactic_state(s));
     LEAN_TACTIC_CATCH(to_tactic_state(s));
 }
 
-vm_obj hinst_lemma_mk_from_decl_core(vm_obj const & m, vm_obj const & lemma_name, vm_obj const & simp, vm_obj const & prio, vm_obj const & s) {
+vm_obj hinst_lemma_mk_from_decl_core(vm_obj const & m, vm_obj const & lemma_name, vm_obj const & simp, vm_obj const & s) {
     LEAN_TACTIC_TRY;
     type_context ctx        = mk_type_context_for(s, m);
-    hinst_lemma h           = mk_hinst_lemma(ctx, to_name(lemma_name), to_bool(simp), force_to_unsigned(prio, 0));
+    hinst_lemma h           = mk_hinst_lemma(ctx, to_name(lemma_name), to_bool(simp));
     return mk_tactic_success(to_obj(h), to_tactic_state(s));
     LEAN_TACTIC_CATCH(to_tactic_state(s));
 }
@@ -282,20 +282,20 @@ vm_obj hinst_lemmas_mk() {
     return to_obj(hinst_lemmas());
 }
 
-vm_obj hinst_lemmas_add_core(vm_obj const & m, vm_obj const & lemmas, vm_obj const & lemma, vm_obj const & simp, vm_obj const & prio, vm_obj const & s) {
+vm_obj hinst_lemmas_add_core(vm_obj const & m, vm_obj const & lemmas, vm_obj const & lemma, vm_obj const & simp, vm_obj const & s) {
     LEAN_TACTIC_TRY;
     type_context ctx        = mk_type_context_for(s, m);
-    hinst_lemma h           = mk_hinst_lemma(ctx, to_expr(lemma), to_bool(simp), force_to_unsigned(prio, 0));
+    hinst_lemma h           = mk_hinst_lemma(ctx, to_expr(lemma), to_bool(simp));
     hinst_lemmas new_lemmas = to_hinst_lemmas(lemmas);
     new_lemmas.insert(h);
     return mk_tactic_success(to_obj(new_lemmas), to_tactic_state(s));
     LEAN_TACTIC_CATCH(to_tactic_state(s));
 }
 
-vm_obj hinst_lemmas_add_decl_core(vm_obj const & m, vm_obj const & lemmas, vm_obj const & lemma_name, vm_obj const & simp, vm_obj const & prio, vm_obj const & s) {
+vm_obj hinst_lemmas_add_decl_core(vm_obj const & m, vm_obj const & lemmas, vm_obj const & lemma_name, vm_obj const & simp, vm_obj const & s) {
     LEAN_TACTIC_TRY;
     type_context ctx        = mk_type_context_for(s, m);
-    hinst_lemma h           = mk_hinst_lemma(ctx, to_name(lemma_name), to_bool(simp), force_to_unsigned(prio, 0));
+    hinst_lemma h           = mk_hinst_lemma(ctx, to_name(lemma_name), to_bool(simp));
     hinst_lemmas new_lemmas = to_hinst_lemmas(lemmas);
     new_lemmas.insert(h);
     return mk_tactic_success(to_obj(new_lemmas), to_tactic_state(s));

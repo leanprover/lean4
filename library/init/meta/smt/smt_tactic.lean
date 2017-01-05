@@ -103,6 +103,8 @@ meta constant close                           : smt_tactic unit
 meta constant ematch_core                     : (expr → bool) → smt_tactic unit
 meta constant add_ematch_lemma_core           : transparency → bool → expr → smt_tactic unit
 meta constant add_ematch_lemma_from_decl_core : transparency → bool → name → smt_tactic unit
+meta constant to_cc_state                     : smt_tactic cc_state
+meta constant to_em_state                     : smt_tactic ematch_state
 
 meta def intros : smt_tactic unit :=
 intros_core tt
@@ -144,6 +146,9 @@ do s₁ ← state_t.read,
 meta def trace_state : smt_tactic unit :=
 do (s₁, s₂) ← smt_tactic.read,
    trace (smt_state.to_format s₁ s₂)
+
+meta def trace {α : Type} [has_to_tactic_format α] (a : α) : smt_tactic unit :=
+tactic.trace a
 
 meta def classical : smt_tactic bool :=
 do s ← state_t.read,
@@ -239,6 +244,31 @@ do t ← target,
      a     ← mk_mapp `decidable.by_contradiction [some t, some inst],
      apply a,
      intros
+
+/- Return a proof for e, if 'e' is a known fact in the main goal. -/
+meta def proof_for (e : expr) : smt_tactic expr :=
+do cc ← to_cc_state, cc^.proof_for e
+
+/- Return a refutation for e (i.e., a proof for (not e)), if 'e' has been refuted in the main goal. -/
+meta def refutation_for (e : expr) : smt_tactic expr :=
+do cc ← to_cc_state, cc^.refutation_for e
+
+meta def get_facts : smt_tactic (list expr) :=
+do cc ← to_cc_state,
+   return $ cc^.eqc_of expr.mk_true
+
+meta def get_refuted_facts : smt_tactic (list expr) :=
+do cc ← to_cc_state,
+   return $ cc^.eqc_of expr.mk_false
+
+meta def add_lemmas_from_facts_core : list expr → smt_tactic unit
+| []      := return ()
+| (f::fs) := do
+  try (is_prop f >> guard (f^.is_pi && bnot (f^.is_arrow)) >> proof_for f >>= add_ematch_lemma_core reducible ff),
+  add_lemmas_from_facts_core fs
+
+meta def add_lemmas_from_facts : smt_tactic unit :=
+get_facts >>= add_lemmas_from_facts_core
 
 end smt_tactic
 

@@ -93,6 +93,12 @@ open decidable
 meta instance : has_ordering expr :=
 ⟨ expr.cmp ⟩
 
+meta def mk_true : expr :=
+const `true []
+
+meta def mk_false : expr :=
+const `false []
+
 meta def app_of_list : expr → list expr → expr
 | f []      := f
 | f (p::ps) := app_of_list (f p) ps

@@ -6,6 +6,8 @@ Author: Leonardo de Moura
 */
 #include <limits>
 #include "library/io_state.h"
+#include "library/util.h"
+#include "library/app_builder.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_expr.h"
 #include "library/vm/vm_format.h"
@@ -207,7 +209,27 @@ vm_obj cc_state_eqv_proof(vm_obj const & ccs, vm_obj const & e1, vm_obj const & 
         });
 }
 
-vm_obj cc_state_false_proof(vm_obj const & ccs, vm_obj const & _s) {
+vm_obj cc_state_proof_for(vm_obj const & ccs, vm_obj const & e, vm_obj const & _s) {
+    cc_state_proc({
+            if (optional<expr> r = cc.get_eq_proof(to_expr(e), mk_true())) {
+                return mk_tactic_success(to_obj(mk_of_eq_true(cc.ctx(), *r)), s);
+            } else {
+                return mk_tactic_exception("cc_state.get_proof_for failed to build proof", s);
+            }
+        });
+}
+
+vm_obj cc_state_refutation_for(vm_obj const & ccs, vm_obj const & e, vm_obj const & _s) {
+    cc_state_proc({
+            if (optional<expr> r = cc.get_eq_proof(to_expr(e), mk_false())) {
+                return mk_tactic_success(to_obj(mk_not_of_eq_false(cc.ctx(), *r)), s);
+            } else {
+                return mk_tactic_exception("cc_state.get_refutation_for failed to build proof", s);
+            }
+        });
+}
+
+vm_obj cc_state_proof_for_false(vm_obj const & ccs, vm_obj const & _s) {
     cc_state_proc({
             if (auto pr = cc.get_inconsistency_proof()) {
                 return mk_tactic_success(to_obj(*pr), s);
@@ -235,8 +257,10 @@ void initialize_congruence_tactics() {
     DECLARE_VM_BUILTIN(name({"cc_state", "is_eqv"}),               cc_state_is_eqv);
     DECLARE_VM_BUILTIN(name({"cc_state", "is_not_eqv"}),           cc_state_is_not_eqv);
     DECLARE_VM_BUILTIN(name({"cc_state", "inconsistent"}),         cc_state_inconsistent);
-    DECLARE_VM_BUILTIN(name({"cc_state", "false_proof"}),          cc_state_false_proof);
+    DECLARE_VM_BUILTIN(name({"cc_state", "proof_for_false"}),      cc_state_proof_for_false);
     DECLARE_VM_BUILTIN(name({"cc_state", "eqv_proof"}),            cc_state_eqv_proof);
+    DECLARE_VM_BUILTIN(name({"cc_state", "proof_for"}),            cc_state_proof_for);
+    DECLARE_VM_BUILTIN(name({"cc_state", "refutation_for"}),       cc_state_refutation_for);
 }
 
 void finalize_congruence_tactics() {

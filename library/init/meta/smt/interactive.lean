@@ -83,6 +83,9 @@ do h ← tactic.get_unused_name `h none,
 meta def trace_state : smt_tactic unit :=
 smt_tactic.trace_state
 
+meta def trace {α : Type} [has_to_tactic_format α] (a : α) : smt_tactic unit :=
+tactic.trace a
+
 meta def destruct (q : qexpr0) : smt_tactic unit :=
 do p ← tactic.to_expr_strict q,
    smt_tactic.destruct p

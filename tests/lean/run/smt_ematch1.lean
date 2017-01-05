@@ -32,3 +32,21 @@ begin [smt]
    add_lemma [h, fax, add_zero],
    ematch
 end
+
+local attribute [ematch] fax add_zero
+
+open smt_tactic
+
+example (a b c d e : nat) : (∀ x, g x (f x) = 0) → a = f b → g b a + 0 = f 0 :=
+begin [smt]
+  add_lemmas_from_facts,
+  ematch
+end
+
+example (a b c d e : nat) : d ≠ e → (∀ x, g x (f x) = 0) → a = f b → g b a + 0 = f 0 :=
+begin [smt]
+  get_facts >>= trace,
+  get_refuted_facts >>= trace,
+  add_lemmas_from_facts,
+  ematch
+end

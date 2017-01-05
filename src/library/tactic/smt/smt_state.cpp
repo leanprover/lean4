@@ -549,6 +549,11 @@ vm_obj mk_smt_state_empty_exception(tactic_state const & ts) {
     return mk_tactic_exception("tactic failed, smt_state is empty", ts);
 }
 
+vm_obj mk_smt_state_empty_exception(vm_obj const & ts) {
+    lean_assert(is_tactic_state(ts));
+    return mk_smt_state_empty_exception(to_tactic_state(ts));
+}
+
 vm_obj exact_core(expr const & e, vm_obj const & ss, tactic_state const & ts) {
     lean_assert(!is_nil(ss));
     lean_assert(ts.goals());
@@ -698,6 +703,16 @@ vm_obj smt_tactic_add_ematch_lemma_from_decl_core(vm_obj const & md, vm_obj cons
     LEAN_TACTIC_CATCH(ts);
 }
 
+vm_obj smt_tactic_to_cc_state(vm_obj const & ss, vm_obj const & ts) {
+    if (is_nil(ss)) return mk_smt_state_empty_exception(ts);
+    return mk_smt_tactic_success(to_obj(to_smt_goal(head(ss)).get_cc_state()), ss, ts);
+}
+
+vm_obj smt_tactic_to_em_state(vm_obj const & ss, vm_obj const & ts) {
+    if (is_nil(ss)) return mk_smt_state_empty_exception(ts);
+    return mk_smt_tactic_success(to_obj(to_smt_goal(head(ss)).get_em_state()), ss, ts);
+}
+
 void initialize_smt_state() {
     register_trace_class(name({"smt", "units"}));
 
@@ -708,6 +723,8 @@ void initialize_smt_state() {
     DECLARE_VM_BUILTIN(name({"smt_tactic", "close"}),                            smt_tactic_close);
     DECLARE_VM_BUILTIN(name({"smt_tactic", "intros_core"}),                      smt_tactic_intros_core);
     DECLARE_VM_BUILTIN(name({"smt_tactic", "ematch_core"}),                      smt_tactic_ematch_core);
+    DECLARE_VM_BUILTIN(name({"smt_tactic", "to_cc_state"}),                      smt_tactic_to_cc_state);
+    DECLARE_VM_BUILTIN(name({"smt_tactic", "to_em_state"}),                      smt_tactic_to_em_state);
     DECLARE_VM_BUILTIN(name({"smt_tactic", "add_ematch_lemma_core"}),            smt_tactic_add_ematch_lemma_core);
     DECLARE_VM_BUILTIN(name({"smt_tactic", "add_ematch_lemma_from_decl_core"}),  smt_tactic_add_ematch_lemma_from_decl_core);
 }

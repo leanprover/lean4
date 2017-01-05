@@ -67,6 +67,9 @@ structure cc_config :=
 pair<name_set, congruence_closure::config> to_ho_fns_cc_config(vm_obj const & cfg);
 ematch_config to_ematch_config(vm_obj const & cfg);
 
+ematch_state const & to_ematch_state(vm_obj const & o);
+vm_obj to_obj(ematch_state const & s);
+
 void initialize_ematch();
 void finalize_ematch();
 }

@@ -43,8 +43,12 @@ meta constant cc_state.is_eqv           : cc_state → expr → expr → tactic 
 meta constant cc_state.is_not_eqv       : cc_state → expr → expr → tactic bool
 meta constant cc_state.eqv_proof        : cc_state → expr → expr → tactic expr
 meta constant cc_state.inconsistent     : cc_state → bool
+/- (proof_for cc e) constructs a proof for e if it is equivalent to true in cc_state -/
+meta constant cc_state.proof_for        : cc_state → expr → tactic expr
+/- (refutation_for cc e) constructs a proof for (not e) if it is equivalent to false in cc_state -/
+meta constant cc_state.refutation_for   : cc_state → expr → tactic expr
 /- If the given state is inconsistent, return a proof for false. Otherwise fail. -/
-meta constant cc_state.false_proof      : cc_state → tactic expr
+meta constant cc_state.proof_for_false  : cc_state → tactic expr
 namespace cc_state
 
 meta def mk : cc_state :=
@@ -79,7 +83,7 @@ open tactic
 meta def tactic.cc_core (cfg : cc_config) : tactic unit :=
 do intros, s ← cc_state.mk_using_hs_core cfg, t ← target, s ← s^.internalize t,
    if s^.inconsistent then do {
-     pr ← s^.false_proof,
+     pr ← s^.proof_for_false,
      mk_app `false.elim [t, pr] >>= exact}
    else do {
      tr ← return $ expr.const `true [],

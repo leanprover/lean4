@@ -36,6 +36,7 @@ class smt_goal {
 public:
     smt_goal(smt_config const & cfg);
     cc_state const & get_cc_state() const { return m_cc_state; }
+    ematch_state const & get_em_state() const { return m_em_state; }
     smt_pre_config const & get_pre_config() const { return m_pre_config; }
     void add_lemma(hinst_lemma const & lemma) { m_em_state.add_lemma(lemma); }
 };

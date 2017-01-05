@@ -20,8 +20,8 @@ option(STATIC             "STATIC"             OFF)
 option(SPLIT_STACK        "SPLIT_STACK"        OFF)
 option(TCMALLOC           "TCMALLOC"           ON)
 option(JEMALLOC           "JEMALLOC"           OFF)
-# When ON we enable the lean-server support used for IDEs
-option(SERVER             "SERVER"             ON)
+# When OFF we disable JSON support to support older compilers
+option(JSON               "JSON"               ON)
 
 # IGNORE_SORRY is a tempory option (hack). It allows us to build
 # a version of Lean that does not report when 'sorry' is used.
@@ -80,9 +80,10 @@ if("${CYGWIN}" EQUAL "1")
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_CYGWIN")
 endif()
 
-if("${SERVER}" MATCHES "ON")
-  message(STATUS "Compile server enabled")
-  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_SERVER")
+if(JSON)
+  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_JSON")
+else()
+  message(WARNING "Disabling JSON support, compile server will not be available")
 endif()
 
 if(MINGW AND CMAKE_COMPILER_IS_GNUCXX)

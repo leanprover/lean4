@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Gabriel Ebner, Leonardo de Moura, Sebastian Ullrich
 */
-#if defined(LEAN_SERVER)
+#if defined(LEAN_JSON)
 #include <list>
 #include <string>
 #include <algorithm>

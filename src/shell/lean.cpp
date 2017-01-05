@@ -48,7 +48,7 @@ Author: Leonardo de Moura
 #include "init/init.h"
 #include "shell/simple_pos_info_provider.h"
 #include "shell/leandoc.h"
-#if defined(LEAN_SERVER)
+#if defined(LEAN_JSON)
 #include "shell/server.h"
 #endif
 #if defined(LEAN_EMSCRIPTEN)
@@ -93,7 +93,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  --tstack=num -s   thread stack size in Kb\n";
 #endif
     std::cout << "  --deps            just print dependencies of a Lean input\n";
-#if defined(LEAN_SERVER)
+#if defined(LEAN_JSON)
     std::cout << "  --json            print JSON-formatted structured error messages\n";
     std::cout << "  --server          start lean in server mode\n";
     std::cout << "  --server=file     start lean in server mode, redirecting standard input from the specified file (for debugging)\n";
@@ -124,7 +124,7 @@ static struct option g_long_options[] = {
     {"quiet",        no_argument,       0, 'q'},
     {"deps",         no_argument,       0, 'd'},
     {"compile",      optional_argument, 0, 'C'},
-#if defined(LEAN_SERVER)
+#if defined(LEAN_JSON)
     {"json",         no_argument,       0, 'J'},
     {"server",       optional_argument, 0, 'S'},
 #endif
@@ -186,12 +186,12 @@ private:
     lean::initializer m_init;
 public:
     initializer() {
-#if defined(LEAN_SERVER)
+#if defined(LEAN_JSON)
         lean::initialize_server();
 #endif
     }
     ~initializer() {
-#if defined(LEAN_SERVER)
+#if defined(LEAN_JSON)
         lean::finalize_server();
 #endif
     }
@@ -265,7 +265,7 @@ int main(int argc, char ** argv) {
 #if defined(LEAN_MULTI_THREAD)
     num_threads = hardware_concurrency();
 #endif
-#if defined(LEAN_SERVER)
+#if defined(LEAN_JSON)
     bool json_output        = false;
 #endif
     options opts;
@@ -333,7 +333,7 @@ int main(int argc, char ** argv) {
                 return 1;
             }
             break;
-#if defined(LEAN_SERVER)
+#if defined(LEAN_JSON)
         case 'J':
             opts = opts.update(lean::name{"trace", "as_messages"}, true);
             json_output = true;
@@ -388,7 +388,7 @@ int main(int argc, char ** argv) {
         return ok ? 0 : 1;
     }
 
-#if defined(LEAN_SERVER)
+#if defined(LEAN_JSON)
     if (opts.get_bool("server")) {
         /* Disable assertion violation dialog:
            (C)ontinue, (A)bort, (S)top, Invoke (G)DB */
@@ -407,7 +407,7 @@ int main(int argc, char ** argv) {
 
     std::shared_ptr<message_buffer> msg_buf =
             std::make_shared<progress_message_stream>(std::cout);
-#if defined(LEAN_SERVER)
+#if defined(LEAN_JSON)
     if (json_output) {
         msg_buf = std::make_shared<json_message_stream>(std::cout);
         ios.set_regular_channel(ios.get_diagnostic_channel_ptr());

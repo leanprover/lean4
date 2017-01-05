@@ -33,7 +33,7 @@ public:
         m_expr = metavar_context(mctx).instantiate_mvars(m_expr);
     }
 
-#ifdef LEAN_SERVER
+#ifdef LEAN_JSON
     virtual void report(io_state_stream const & ios, json & record) const override {
         std::ostringstream ss;
         ss << flatten(ios.get_formatter()(m_expr));
@@ -47,7 +47,7 @@ class identifier_info_data : public info_data_cell {
 public:
     identifier_info_data(name const & full_id): m_full_id(full_id) {}
 
-#ifdef LEAN_SERVER
+#ifdef LEAN_JSON
     virtual void report(io_state_stream const & ios, json & record) const override {
         record["full-id"] = m_full_id.to_string();
         if (auto olean = get_decl_olean(ios.get_environment(), m_full_id))
@@ -60,7 +60,7 @@ public:
 #endif
 };
 
-#ifdef LEAN_SERVER
+#ifdef LEAN_JSON
 void tactic_state_info_data::report(io_state_stream const &, json & record) const {
     std::ostringstream ss;
     ss << m_state.pp();
@@ -131,7 +131,7 @@ void info_manager::add_smt_tactic_state_info(unsigned l, unsigned c, list<smt_go
     add_info(l, c, mk_smt_tactic_state_info(ss, ts));
 }
 
-#ifdef LEAN_SERVER
+#ifdef LEAN_JSON
 void info_manager::get_info_record(environment const & env, options const & o, io_state const & ios, unsigned line,
                                    unsigned col, json & record, std::function<bool (info_data const &)> pred) const {
     type_context tc(env, o);

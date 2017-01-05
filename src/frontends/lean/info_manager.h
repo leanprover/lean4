@@ -30,7 +30,7 @@ public:
     info_data_cell():m_rc(0) {}
     virtual ~info_data_cell() {}
     virtual void instantiate_mvars(metavar_context const &) {}
-#ifdef LEAN_SERVER
+#ifdef LEAN_JSON
     virtual void report(io_state_stream const & ios, json & record) const = 0;
 #endif
 };
@@ -41,7 +41,7 @@ protected:
 public:
     tactic_state_info_data(tactic_state const & s):m_state(s) {}
 
-#ifdef LEAN_SERVER
+#ifdef LEAN_JSON
     virtual void report(io_state_stream const &, json & record) const override;
 #endif
 };
@@ -52,7 +52,7 @@ public:
     smt_tactic_state_info_data(list<smt_goal> const & ss, tactic_state const & ts):
         tactic_state_info_data(ts), m_smt_state(ss) {}
 
-#ifdef LEAN_SERVER
+#ifdef LEAN_JSON
     virtual void report(io_state_stream const &, json & record) const override;
 #endif
 };
@@ -69,7 +69,7 @@ public:
     info_data & operator=(info_data const & s) { LEAN_COPY_REF(s); }
     info_data & operator=(info_data && s) { LEAN_MOVE_REF(s); }
     info_data_cell const * raw() const { return m_ptr; }
-#ifdef LEAN_SERVER
+#ifdef LEAN_JSON
     void report(io_state_stream const & ios, json & record) const {
         return m_ptr->report(ios, record);
     }
@@ -102,7 +102,7 @@ public:
     void instantiate_mvars(metavar_context const & mctx);
     void merge(info_manager const & info);
 
-#ifdef LEAN_SERVER
+#ifdef LEAN_JSON
     void get_info_record(environment const & env, options const & o, io_state const & ios, unsigned line,
                          unsigned col, json & record, std::function<bool (info_data const &)> pred = {}) const;
 #endif

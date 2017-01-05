@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Gabriel Ebner
 */
-#ifdef LEAN_SERVER
+#ifdef LEAN_JSON
 #include "frontends/lean/json.h"
 #include <string>
 #include "library/scoped_ext.h"

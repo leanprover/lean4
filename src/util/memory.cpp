@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #include <new>
 #include <cstdlib>
 #include <iostream>
-#include "./compatibility.h"
 #include "util/exception.h"
 #include "util/memory.h"
 #include "util/thread.h"

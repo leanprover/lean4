@@ -18,7 +18,6 @@ enable_testing()
 option(MULTI_THREAD       "MULTI_THREAD"       ON)
 option(STATIC             "STATIC"             OFF)
 option(SPLIT_STACK        "SPLIT_STACK"        OFF)
-option(READLINE           "READLINE"           OFF)
 option(TCMALLOC           "TCMALLOC"           ON)
 option(JEMALLOC           "JEMALLOC"           OFF)
 # When ON we enable the lean-server support used for IDEs
@@ -276,14 +275,6 @@ if(NOT "${JEMALLOC_FOUND}")
  endif()
 endif()
 
-# Readline
-if(READLINE)
-  find_package(Readline)
-  set(EXTRA_LIBS ${EXTRA_LIBS} ${READLINE_LIBRARY})
-  message(STATUS "Using GNU readline")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DLEAN_USE_READLINE")
-endif()
-
 # Python
 find_package(PythonInterp)
 
@@ -407,15 +398,6 @@ add_subdirectory(tests/kernel)
 add_subdirectory(tests/library)
 add_subdirectory(tests/frontends/lean)
 add_subdirectory(tests/shell)
-
-# Compatibility Checks using https://github.com/foonathan/compatibility
-set(COMP_CMAKE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules" CACHE INTERNAL "")
-include(CompBase)
-if(NOT EMSCRIPTEN)
-  # This test does not work when compiling with emscripten
-  comp_target_features(lean PUBLIC cpp14_lang/sized_deallocation)
-endif()
-configure_file("${LEAN_SOURCE_DIR}/compatibility.h.in" "${LEAN_BINARY_DIR}/compatibility.h")
 
 # The DLL (shared library) is not being generated correctly when we use cross-compilation (i.e., generate the Windows DLL using Linux).
 # For some strange reason, it contains a copy of pthread_equal.

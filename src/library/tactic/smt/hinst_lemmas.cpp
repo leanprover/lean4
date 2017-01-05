@@ -432,7 +432,6 @@ struct mk_hinst_lemma_fn {
           b) delete any candidate c_1 if there is a c_2 s.t.
              c_1 is a subterm of c_2, and c_2.m_vars is a strict superset of c_1.m_vars */
     list<multi_pattern> mk_multi_patterns_using(candidate_set s, bool heuristic) {
-
         if (heuristic) {
             buffer<multi_pattern> unit_patterns;
             s.for_each([&](candidate const & c) {

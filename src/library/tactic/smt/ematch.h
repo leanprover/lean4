@@ -58,6 +58,15 @@ void ematch(type_context & ctx, ematch_state & s, congruence_closure & cc, hinst
    For s.m_lemmas, only terms with mt >= gmt are considered. */
 void ematch(type_context & ctx, ematch_state & s, congruence_closure & cc, buffer<expr_pair> & result);
 
+/*
+structure cc_config :=
+(ignore_instances : bool)
+(ac               : bool)
+(ho_fns           : option (list name))
+*/
+pair<name_set, congruence_closure::config> to_ho_fns_cc_config(vm_obj const & cfg);
+ematch_config to_ematch_config(vm_obj const & cfg);
+
 void initialize_ematch();
 void finalize_ematch();
 }

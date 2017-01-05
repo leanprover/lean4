@@ -19,7 +19,7 @@ Author: Leonardo de Moura
 #include "library/tactic/smt/ematch.h"
 
 namespace lean {
-static tactic_state update_defeq_canonizer_state(tactic_state const & s, congruence_closure const & cc) {
+tactic_state update_defeq_canonizer_state(tactic_state const & s, congruence_closure const & cc) {
     return set_env(s, cc.update_defeq_canonizer_state(s.env()));
 }
 
@@ -217,81 +217,6 @@ vm_obj cc_state_false_proof(vm_obj const & ccs, vm_obj const & _s) {
         });
 }
 
-struct vm_ematch_state : public vm_external {
-    ematch_state m_val;
-    vm_ematch_state(ematch_state const & v): m_val(v) {}
-    virtual ~vm_ematch_state() {}
-    virtual void dealloc() override { this->~vm_ematch_state(); get_vm_allocator().deallocate(sizeof(vm_ematch_state), this); }
-};
-
-ematch_state const & to_ematch_state(vm_obj const & o) {
-    lean_assert(is_external(o));
-    lean_assert(dynamic_cast<vm_ematch_state*>(to_external(o)));
-    return static_cast<vm_ematch_state*>(to_external(o))->m_val;
-}
-
-vm_obj to_obj(ematch_state const & s) {
-    return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_ematch_state))) vm_ematch_state(s));
-}
-
-ematch_config to_ematch_config(vm_obj const & cfg) {
-    ematch_config r;
-    r.m_max_instances = force_to_unsigned(cfg);
-    return r;
-}
-
-vm_obj ematch_state_mk(vm_obj const & cfg) {
-    return to_obj(ematch_state(to_ematch_config(cfg)));
-}
-
-vm_obj ematch_state_internalize(vm_obj const & ems, vm_obj const & e, vm_obj const & s) {
-    LEAN_TACTIC_TRY;
-    ematch_state S   = to_ematch_state(ems);
-    type_context ctx = mk_type_context_for(s);
-    S.internalize(ctx, to_expr(e));
-    return mk_tactic_success(to_obj(S), to_tactic_state(s));
-    LEAN_TACTIC_CATCH(to_tactic_state(s));
-}
-
-vm_obj mk_ematch_result(buffer<expr_pair> const & new_inst_buffer, congruence_closure::state const & ccs,
-                        ematch_state const & ems) {
-    vm_obj new_insts = mk_vm_nil();
-    unsigned i = new_inst_buffer.size();
-    while (i > 0) {
-        --i;
-        new_insts = mk_vm_cons(mk_vm_pair(to_obj(new_inst_buffer[i].first), to_obj(new_inst_buffer[i].second)), new_insts);
-    }
-    return mk_vm_pair(new_insts, mk_vm_pair(to_obj(ccs), to_obj(ems)));
-}
-
-vm_obj ematch_core(vm_obj const & md, vm_obj const & _ccs, vm_obj const & _ems, vm_obj const & hlemma, vm_obj const & t, vm_obj const & s) {
-    LEAN_TACTIC_TRY;
-    type_context ctx = mk_type_context_for(s, md);
-    ematch_state ems = to_ematch_state(_ems);
-    congruence_closure::state ccs = to_cc_state(_ccs);
-    congruence_closure cc(ctx, ccs);
-    buffer<expr_pair> new_inst_buffer;
-    ematch(ctx, ems, cc, to_hinst_lemma(hlemma), to_expr(t), new_inst_buffer);
-    vm_obj r = mk_ematch_result(new_inst_buffer, ccs, ems);
-    tactic_state new_s = update_defeq_canonizer_state(to_tactic_state(s), cc);
-    return mk_tactic_success(r, new_s);
-    LEAN_TACTIC_CATCH(to_tactic_state(s));
-}
-
-vm_obj ematch_all_core(vm_obj const & md, vm_obj const & _ccs, vm_obj const & _ems, vm_obj const & hlemma, vm_obj const & filter, vm_obj const & s) {
-    LEAN_TACTIC_TRY;
-    type_context ctx = mk_type_context_for(s, md);
-    ematch_state ems = to_ematch_state(_ems);
-    congruence_closure::state ccs = to_cc_state(_ccs);
-    congruence_closure cc(ctx, ccs);
-    buffer<expr_pair> new_inst_buffer;
-    ematch(ctx, ems, cc, to_hinst_lemma(hlemma), to_bool(filter), new_inst_buffer);
-    vm_obj r = mk_ematch_result(new_inst_buffer, ccs, ems);
-    tactic_state new_s = update_defeq_canonizer_state(to_tactic_state(s), cc);
-    return mk_tactic_success(r, new_s);
-    LEAN_TACTIC_CATCH(to_tactic_state(s));
-}
-
 void initialize_congruence_tactics() {
     DECLARE_VM_BUILTIN(name({"cc_state", "mk_core"}),              cc_state_mk_core);
     DECLARE_VM_BUILTIN(name({"cc_state", "next"}),                 cc_state_next);
@@ -312,11 +237,6 @@ void initialize_congruence_tactics() {
     DECLARE_VM_BUILTIN(name({"cc_state", "inconsistent"}),         cc_state_inconsistent);
     DECLARE_VM_BUILTIN(name({"cc_state", "false_proof"}),          cc_state_false_proof);
     DECLARE_VM_BUILTIN(name({"cc_state", "eqv_proof"}),            cc_state_eqv_proof);
-
-    DECLARE_VM_BUILTIN(name({"ematch_state", "mk"}),               ematch_state_mk);
-    DECLARE_VM_BUILTIN(name({"ematch_state", "internalize"}),      ematch_state_internalize);
-    DECLARE_VM_BUILTIN(name({"tactic", "ematch_core"}),            ematch_core);
-    DECLARE_VM_BUILTIN(name({"tactic", "ematch_all_core"}),        ematch_all_core);
 }
 
 void finalize_congruence_tactics() {

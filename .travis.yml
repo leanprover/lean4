@@ -63,7 +63,6 @@ matrix:
      env:
        CMAKE_CXX_COMPILER=g++-4.9
        CMAKE_BUILD_TYPE=Debug
-       CONSERVE_MEMORY=ON
 
    - os: osx
      env:
@@ -89,10 +88,8 @@ script:
   - if [[ $TESTCOV != ON ]]; then TESTCOV=OFF; fi
   - if [[ $TCMALLOC != ON ]]; then TCMALLOC=OFF; fi
   - if [[ $MULTI_THREAD != OFF ]]; then MULTI_THREAD=ON; fi
-  - if [[ $CONSERVE_MEMORY != ON ]]; then CONSERVE_MEMORY=OFF; fi
   - cmake -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE
           -DCMAKE_CXX_COMPILER=$CMAKE_CXX_COMPILER
-          -DCONSERVE_MEMORY=$CONSERVE_MEMORY
           -DTESTCOV=$TESTCOV
           -DTCMALLOC=$TCMALLOC
           -DMULTI_THREAD=$MULTI_THREAD

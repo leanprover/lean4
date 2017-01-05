@@ -31,8 +31,6 @@ option(IGNORE_SORRY       "IGNORE_SORRY"      OFF)
 # the executable will not work on the host machine
 option(CROSS_COMPILE      "CROSS_COMPILE"     OFF)
 # When ON we try to minimize the amount of memory needed to compile Lean using gcc.
-# We use this flag when compiling at Travis.
-option(CONSERVE_MEMORY    "CONSERVE_MEMORY"   OFF)
 # Include MSYS2 required DLLs and binaries in the binary distribution package
 option(INCLUDE_MSYS2_DLLS "INCLUDE_MSYS2_DLLS" OFF)
 # When ON we include githash in the version string
@@ -101,11 +99,6 @@ endif()
 
 if(AUTO_THREAD_FINALIZATION)
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_AUTO_THREAD_FINALIZATION")
-endif()
-
-if(CONSERVE_MEMORY AND ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU"))
-  message(STATUS "Using compilation flags for minimizing the amount of memory used by gcc")
-  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} --param ggc-min-heapsize=32768 --param ggc-min-expand=20")
 endif()
 
 if(STATIC)

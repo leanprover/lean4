@@ -780,6 +780,10 @@ meta def name.to_expr : name → tactic expr
 | (name.mk_string s n)  := do es ← s^.to_expr, en ← name.to_expr n, to_expr `(name.mk_string %%es %%en)
 | (name.mk_numeral i n) := do is ← i^.to_expr, en ← name.to_expr n, to_expr `(name.mk_string %%is %%en)
 
+meta def list_name.to_expr : list name → tactic expr
+| []     := to_expr `(([] : list name))
+| (h::t) := do eh ← h^.to_expr, et ← list_name.to_expr t, to_expr `(%%eh :: %%et)
+
 notation `command`:max := tactic unit
 
 open tactic

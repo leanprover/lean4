@@ -11,6 +11,7 @@ import init.meta.smt.ematch
 universe variables u
 
 run_command mk_simp_attr `pre_smt
+run_command mk_hinst_lemma_attr_set `smt_lemma [] [`smt_simp_lemma]
 
 /--
   Configuration for the smt tactic preprocessor. The preprocessor

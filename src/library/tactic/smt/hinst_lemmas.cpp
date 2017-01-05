@@ -253,12 +253,14 @@ struct mk_hinst_lemma_fn {
     idx_metavar_set    m_trackable;
     idx_metavar_set    m_residue;
     unsigned           m_num_steps;
+    name               m_id;
 
     mk_hinst_lemma_fn(type_context & ctx, expr const & H,
-                   unsigned num_uvars, unsigned max_steps, bool simp):
+                      unsigned num_uvars, unsigned max_steps, bool simp,
+                      name const & id):
         m_ctx(ctx), m_no_inst_patterns(get_no_inst_patterns(ctx.env())),
         m_H(H), m_num_uvars(num_uvars), m_max_steps(max_steps),
-        m_simp(simp) {}
+        m_simp(simp), m_id(id) {}
 
     struct candidate {
         expr            m_expr;
@@ -391,7 +393,7 @@ struct mk_hinst_lemma_fn {
     void mk_multi_patterns_core(unsigned i, buffer<candidate> const & s, buffer<expr> & mp, idx_metavar_set const & mvars, buffer<multi_pattern> & mps) {
         m_num_steps++;
         if (m_num_steps > m_max_steps)
-            throw exception(sstream() << "pattern inference failed for [forward] annotation, the maximum number (" << m_max_steps << ") of steps has been reached "
+            throw exception(sstream() << "pattern inference failed for '" << m_id << "', the maximum number (" << m_max_steps << ") of steps has been reached "
                             "(possible solutions: provide pattern hints using the notation '(: t :)' for marking subterms; increase threshold using option pattern.max_steps)");
         if (i == s.size())
             return;
@@ -567,10 +569,11 @@ struct mk_hinst_lemma_fn {
             }
         }
         if (!mps) {
-            throw exception(sstream() << "pattern inference failed for [forward] annotation, "
+            throw exception(sstream() << "pattern inference failed for '" << m_id << "', "
                             "(solution: provide pattern hints using the notation '(: t :)' )");
         }
         hinst_lemma r;
+        r.m_id               = m_id;
         r.m_num_uvars        = m_num_uvars;
         r.m_num_mvars        = m_mvars.size();
         r.m_multi_patterns   = mps;
@@ -584,16 +587,16 @@ struct mk_hinst_lemma_fn {
 };
 
 hinst_lemma mk_hinst_lemma_core(type_context & ctx, expr const & H, unsigned num_uvars,
-                                unsigned max_steps, bool simp) {
+                                unsigned max_steps, bool simp, name const & id) {
     try {
         type_context::tmp_mode_scope tscope(ctx, num_uvars, 0);
         bool erase_hints = false;
-        return mk_hinst_lemma_fn(ctx, H, num_uvars, max_steps, simp)(erase_hints);
+        return mk_hinst_lemma_fn(ctx, H, num_uvars, max_steps, simp, id)(erase_hints);
     } catch (mk_hinst_lemma_fn::try_again_without_hints &) {
         type_context::tmp_mode_scope tscope(ctx, num_uvars, 0);
         try {
             bool erase_hints = true;
-            return mk_hinst_lemma_fn(ctx, H, num_uvars, max_steps, simp)(erase_hints);
+            return mk_hinst_lemma_fn(ctx, H, num_uvars, max_steps, simp, id)(erase_hints);
         } catch (mk_hinst_lemma_fn::try_again_without_hints &) {
             lean_unreachable();
         }
@@ -608,10 +611,10 @@ unsigned get_hinst_lemma_max_steps(options const & o) {
 
 hinst_lemma mk_hinst_lemma(type_context & ctx, expr const & H, bool simp) {
     unsigned max_steps = get_hinst_lemma_max_steps(ctx.get_options());
-    hinst_lemma r = mk_hinst_lemma_core(ctx, H, 0, max_steps, simp);
+    name id;
     if (is_local(H))
-        r.m_id = local_pp_name(H);
-    return r;
+        id = local_pp_name(H);
+    return mk_hinst_lemma_core(ctx, H, 0, max_steps, simp, id);
 }
 
 hinst_lemma mk_hinst_lemma(type_context & ctx, name const & c, bool simp) {
@@ -622,9 +625,8 @@ hinst_lemma mk_hinst_lemma(type_context & ctx, name const & c, bool simp) {
     for (unsigned i = 0; i < num_us; i++)
         us.push_back(mk_idx_metauniv(i));
     expr H          = mk_constant(c, to_list(us));
-    hinst_lemma r   = mk_hinst_lemma_core(ctx, H, num_us, max_steps, simp);
-    r.m_id          = c;
-    return r;
+    name id         = c;
+    return mk_hinst_lemma_core(ctx, H, num_us, max_steps, simp, id);
 }
 
 format pp_hinst_lemma(formatter const & fmt, hinst_lemma const & h) {

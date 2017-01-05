@@ -105,6 +105,7 @@ meta constant add_ematch_lemma_core           : transparency → bool → expr �
 meta constant add_ematch_lemma_from_decl_core : transparency → bool → name → smt_tactic unit
 meta constant to_cc_state                     : smt_tactic cc_state
 meta constant to_em_state                     : smt_tactic ematch_state
+meta constant preprocess                      : expr → smt_tactic (expr × expr)
 
 meta def intros : smt_tactic unit :=
 intros_core tt

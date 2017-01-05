@@ -142,9 +142,6 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 endif()
 
-include(CheckIncludeFileCXX)
-check_include_file_cxx("unistd.h" HAVE_UNISTD)
-
 if (IGNORE_SORRY)
   message(STATUS "IGNORE_SORRY is ON, Lean will not report when 'sorry' is used directly or indirectly")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D LEAN_IGNORE_SORRY")

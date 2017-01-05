@@ -456,14 +456,14 @@ instance default_has_sizeof (α : Type u) : has_sizeof α :=
 /- TODO(Leo): the [simp.sizeof] annotations are not really necessary.
    What we need is a robust way of unfolding sizeof definitions. -/
 attribute [simp.sizeof]
-def default_has_sizeof_eq (α : Type u) (a : α) : @sizeof α (default_has_sizeof α) a = 0 :=
+lemma default_has_sizeof_eq (α : Type u) (a : α) : @sizeof α (default_has_sizeof α) a = 0 :=
 rfl
 
 instance : has_sizeof nat :=
 ⟨λ a, a⟩
 
 attribute [simp.sizeof]
-def sizeof_nat_eq (a : nat) : sizeof a = a :=
+lemma sizeof_nat_eq (a : nat) : sizeof a = a :=
 rfl
 
 protected def prod.sizeof {α : Type u} {β : Type v} [has_sizeof α] [has_sizeof β] : (prod α β) → nat
@@ -473,7 +473,7 @@ instance (α : Type u) (β : Type v) [has_sizeof α] [has_sizeof β] : has_sizeo
 ⟨prod.sizeof⟩
 
 attribute [simp.sizeof]
-def sizeof_prod_eq {α : Type u} {β : Type v} [has_sizeof α] [has_sizeof β] (a : α) (b : β) : sizeof (prod.mk a b) = 1 + sizeof a + sizeof b :=
+lemma sizeof_prod_eq {α : Type u} {β : Type v} [has_sizeof α] [has_sizeof β] (a : α) (b : β) : sizeof (prod.mk a b) = 1 + sizeof a + sizeof b :=
 rfl
 
 protected def sum.sizeof {α : Type u} {β : Type v} [has_sizeof α] [has_sizeof β] : (sum α β) → nat
@@ -484,11 +484,11 @@ instance (α : Type u) (β : Type v) [has_sizeof α] [has_sizeof β] : has_sizeo
 ⟨sum.sizeof⟩
 
 attribute [simp.sizeof]
-def sizeof_sum_eq_left {α : Type u} {β : Type v} [has_sizeof α] [has_sizeof β] (a : α) : sizeof (@sum.inl α β a) = 1 + sizeof a :=
+lemma sizeof_sum_eq_left {α : Type u} {β : Type v} [has_sizeof α] [has_sizeof β] (a : α) : sizeof (@sum.inl α β a) = 1 + sizeof a :=
 rfl
 
 attribute [simp.sizeof]
-def sizeof_sum_eq_right {α : Type u} {β : Type v} [has_sizeof α] [has_sizeof β] (b : β) : sizeof (@sum.inr α β b) = 1 + sizeof b :=
+lemma sizeof_sum_eq_right {α : Type u} {β : Type v} [has_sizeof α] [has_sizeof β] (b : β) : sizeof (@sum.inr α β b) = 1 + sizeof b :=
 rfl
 
 protected def sigma.sizeof {α : Type u} {β : α → Type v} [has_sizeof α] [∀ a, has_sizeof (β a)] : sigma β → nat
@@ -498,39 +498,39 @@ instance (α : Type u) (β : α → Type v) [has_sizeof α] [∀ a, has_sizeof (
 ⟨sigma.sizeof⟩
 
 attribute [simp.sizeof]
-def sizeof_sigma_eq {α : Type u} {β : α → Type v} [has_sizeof α] [∀ a, has_sizeof (β a)] (a : α) (b : β a) : sizeof (@sigma.mk α β a b) = 1 + sizeof a + sizeof b :=
+lemma sizeof_sigma_eq {α : Type u} {β : α → Type v} [has_sizeof α] [∀ a, has_sizeof (β a)] (a : α) (b : β a) : sizeof (@sigma.mk α β a b) = 1 + sizeof a + sizeof b :=
 rfl
 
 instance : has_sizeof unit := ⟨λ u, 1⟩
 
 attribute [simp.sizeof]
-def sizeof_unit_eq (u : unit) : sizeof u = 1 :=
+lemma sizeof_unit_eq (u : unit) : sizeof u = 1 :=
 rfl
 
 instance : has_sizeof poly_unit := ⟨λ u, 1⟩
 
 attribute [simp.sizeof]
-def sizeof_poly_unit_eq (u : poly_unit) : sizeof u = 1 :=
+lemma sizeof_poly_unit_eq (u : poly_unit) : sizeof u = 1 :=
 rfl
 
 instance : has_sizeof bool := ⟨λ u, 1⟩
 
 attribute [simp.sizeof]
-def sizeof_bool_eq (b : bool) : sizeof b = 1 :=
+lemma sizeof_bool_eq (b : bool) : sizeof b = 1 :=
 rfl
 
 instance : has_sizeof pos_num :=
 ⟨nat.of_pos_num⟩
 
 attribute [simp.sizeof]
-def sizeof_pos_num_eq (p : pos_num) : sizeof p = nat.of_pos_num p :=
+lemma sizeof_pos_num_eq (p : pos_num) : sizeof p = nat.of_pos_num p :=
 rfl
 
 instance : has_sizeof num :=
 ⟨nat.of_num⟩
 
 attribute [simp.sizeof]
-def sizeof_num_eq (n : num) : sizeof n = nat.of_num n :=
+lemma sizeof_num_eq (n : num) : sizeof n = nat.of_num n :=
 rfl
 
 protected def option.sizeof {α : Type u} [has_sizeof α] : option α → nat
@@ -541,11 +541,11 @@ instance (α : Type u) [has_sizeof α] : has_sizeof (option α) :=
 ⟨option.sizeof⟩
 
 attribute [simp.sizeof]
-def sizeof_option_none_eq (α : Type u) [has_sizeof α] : sizeof (@none α) = 1 :=
+lemma sizeof_option_none_eq (α : Type u) [has_sizeof α] : sizeof (@none α) = 1 :=
 rfl
 
 attribute [simp.sizeof]
-def sizeof_option_some_eq {α : Type u} [has_sizeof α] (a : α) : sizeof (some a) = 1 + sizeof a :=
+lemma sizeof_option_some_eq {α : Type u} [has_sizeof α] (a : α) : sizeof (some a) = 1 + sizeof a :=
 rfl
 
 protected def list.sizeof {α : Type u} [has_sizeof α] : list α → nat
@@ -556,11 +556,11 @@ instance (α : Type u) [has_sizeof α] : has_sizeof (list α) :=
 ⟨list.sizeof⟩
 
 attribute [simp.sizeof]
-def sizeof_list_nil_eq (α : Type u) [has_sizeof α] : sizeof (@list.nil α) = 1 :=
+lemma sizeof_list_nil_eq (α : Type u) [has_sizeof α] : sizeof (@list.nil α) = 1 :=
 rfl
 
 attribute [simp.sizeof]
-def sizeof_list_cons_eq {α : Type u} [has_sizeof α] (a : α) (l : list α) : sizeof (list.cons a l) = 1 + sizeof a + sizeof l :=
+lemma sizeof_list_cons_eq {α : Type u} [has_sizeof α] (a : α) (l : list α) : sizeof (list.cons a l) = 1 + sizeof a + sizeof l :=
 rfl
 
 attribute [simp.sizeof]

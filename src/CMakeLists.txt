@@ -30,7 +30,6 @@ option(IGNORE_SORRY       "IGNORE_SORRY"      OFF)
 # When cross-compiling, we do not compile the standard library since
 # the executable will not work on the host machine
 option(CROSS_COMPILE      "CROSS_COMPILE"     OFF)
-# When ON we try to minimize the amount of memory needed to compile Lean using gcc.
 # Include MSYS2 required DLLs and binaries in the binary distribution package
 option(INCLUDE_MSYS2_DLLS "INCLUDE_MSYS2_DLLS" OFF)
 # When ON we include githash in the version string

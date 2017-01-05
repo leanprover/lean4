@@ -31,6 +31,9 @@ smt_tactic.intros
 meta def close : smt_tactic unit :=
 smt_tactic.close
 
+meta def ematch : smt_tactic unit :=
+smt_tactic.ematch
+
 meta def apply (q : qexpr0) : smt_tactic unit :=
 tactic.interactive.apply q
 

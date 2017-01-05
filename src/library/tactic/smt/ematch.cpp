@@ -82,7 +82,7 @@ struct ematch_fn {
     typedef list<state>                        choice;
 
     type_context &             m_ctx;
-    ematch_state &             m_ematch_state;
+    ematch_state &             m_em_state;
     congruence_closure &       m_cc;
     buffer<expr_pair> &        m_new_instances;
 
@@ -90,7 +90,7 @@ struct ematch_fn {
     buffer<choice>             m_choice_stack;
 
     ematch_fn(type_context & ctx, ematch_state & ems, congruence_closure & cc, buffer<expr_pair> & new_insts):
-        m_ctx(ctx), m_ematch_state(ems), m_cc(cc), m_new_instances(new_insts) {}
+        m_ctx(ctx), m_em_state(ems), m_cc(cc), m_new_instances(new_insts) {}
 
     void push_states(buffer<state> & new_states) {
         if (new_states.size() == 1) {
@@ -273,7 +273,7 @@ struct ematch_fn {
         buffer<expr> p_args;
         expr const & f = get_app_args(p, p_args);
         buffer<state> new_states;
-        if (auto s = m_ematch_state.get_app_map().find(head_index(f))) {
+        if (auto s = m_em_state.get_app_map().find(head_index(f))) {
             s->for_each([&](expr const & t) {
                     if (m_cc.is_congr_root(t) || m_cc.in_heterogeneous_eqc(t)) {
                         state new_state = m_state;
@@ -431,7 +431,7 @@ struct ematch_fn {
             }
         }
 
-        if (!m_ematch_state.save_instance(lemma.m_prop, lemma_args)) {
+        if (!m_em_state.save_instance(lemma.m_prop, lemma_args)) {
             return; // already added this instance
         }
 
@@ -509,7 +509,7 @@ struct ematch_fn {
         expr const & f   = get_app_args(p0, p0_args);
         unsigned gmt     = m_cc.get_gmt();
         state init_state = mk_inital_state(ps);
-        if (rb_expr_set const * s = m_ematch_state.get_app_map().find(head_index(f))) {
+        if (rb_expr_set const * s = m_em_state.get_app_map().find(head_index(f))) {
             s->for_each([&](expr const & t) {
                     if ((m_cc.is_congr_root(t) || m_cc.in_heterogeneous_eqc(t)) &&
                         (!filter || m_cc.get_mt(t) == gmt)) {
@@ -539,14 +539,36 @@ struct ematch_fn {
             ematch_all(lemma, mp, filter);
         }
     }
+
+    void ematch_lemmas(hinst_lemmas const & lemmas, bool filter) {
+        lemmas.for_each([&](hinst_lemma const & lemma) {
+                if (!m_em_state.max_instances_exceeded()) {
+                    ematch_all(lemma, filter);
+                }
+            });
+    }
+
+    void operator()() {
+        if (m_em_state.max_instances_exceeded())
+            return;
+        ematch_lemmas(m_em_state.get_new_lemmas(), false);
+        ematch_lemmas(m_em_state.get_lemmas(), true);
+        m_em_state.m_lemmas.merge(m_em_state.m_new_lemmas);
+        m_em_state.m_new_lemmas = hinst_lemmas();
+        m_cc.inc_gmt();
+    }
 };
 
 void ematch(type_context & ctx, ematch_state & s, congruence_closure & cc, hinst_lemma const & lemma, expr const & t, buffer<expr_pair> & result) {
     ematch_fn(ctx, s, cc, result).ematch(lemma, t);
 }
 
-void ematch_all(type_context & ctx, ematch_state & s, congruence_closure & cc, hinst_lemma const & lemma, bool filter, buffer<expr_pair> & result) {
+void ematch(type_context & ctx, ematch_state & s, congruence_closure & cc, hinst_lemma const & lemma, bool filter, buffer<expr_pair> & result) {
     ematch_fn(ctx, s, cc, result).ematch_all(lemma, filter);
+}
+
+void ematch(type_context & ctx, ematch_state & s, congruence_closure & cc, buffer<expr_pair> & result) {
+    ematch_fn(ctx, s, cc, result)();
 }
 
 void initialize_ematch() {

@@ -11,7 +11,7 @@ import init.meta.smt.ematch
 universe variables u
 
 run_command mk_simp_attr `pre_smt
-run_command mk_hinst_lemma_attr_set `smt_lemma [] [`smt_simp_lemma]
+run_command mk_hinst_lemma_attr_set `ematch [] [`ematch_lhs]
 
 /--
   Configuration for the smt tactic preprocessor. The preprocessor
@@ -37,16 +37,20 @@ def default_smt_pre_config : smt_pre_config :=
 
 /--
 Configuration for the smt_state object.
--/
+
+- em_attr: is the attribute name for the hinst_lemmas
+  that are used for ematching -/
 structure smt_config :=
 (cc_cfg        : cc_config)
 (em_cfg        : ematch_config)
 (pre_cfg       : smt_pre_config)
+(em_attr       : name)
 
 def default_smt_config : smt_config :=
 {cc_cfg        := default_cc_config,
  em_cfg        := default_ematch_config,
- pre_cfg       := default_smt_pre_config}
+ pre_cfg       := default_smt_pre_config,
+ em_attr       := `ematch}
 
 meta def smt_config.set_classical (c : smt_config) (b : bool) : smt_config :=
 {c with cc_cfg := { (c^.cc_cfg) with em := b}}
@@ -95,9 +99,13 @@ namespace smt_tactic
     Otherwise, it just uses the given names. -/
 meta constant intros_core : bool → smt_tactic unit
 meta constant close       : smt_tactic unit
+meta constant ematch_core : (expr → bool) → smt_tactic unit
 
 meta def intros : smt_tactic unit :=
 intros_core tt
+
+meta def ematch : smt_tactic unit :=
+ematch_core (λ _, tt)
 
 meta def try {α : Type} (t : smt_tactic α) : smt_tactic unit :=
 λ ss ts, tactic_result.cases_on (t ss ts)

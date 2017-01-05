@@ -274,6 +274,10 @@ hinst_lemmas const & to_hinst_lemmas(vm_obj const & o) {
     return static_cast<vm_hinst_lemmas*>(to_external(o))->m_val;
 }
 
+bool is_hinst_lemmas(vm_obj const & o) {
+    return is_external(o) && dynamic_cast<vm_hinst_lemmas*>(to_external(o));
+}
+
 vm_obj to_obj(hinst_lemmas const & s) {
     return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_hinst_lemmas))) vm_hinst_lemmas(s));
 }
@@ -364,7 +368,7 @@ vm_obj ematch_all_core(vm_obj const & md, vm_obj const & _ccs, vm_obj const & _e
     congruence_closure::state ccs = to_cc_state(_ccs);
     congruence_closure cc(ctx, ccs);
     buffer<expr_pair> new_inst_buffer;
-    ematch_all(ctx, ems, cc, to_hinst_lemma(hlemma), to_bool(filter), new_inst_buffer);
+    ematch(ctx, ems, cc, to_hinst_lemma(hlemma), to_bool(filter), new_inst_buffer);
     vm_obj r = mk_ematch_result(new_inst_buffer, ccs, ems);
     tactic_state new_s = update_defeq_canonizer_state(to_tactic_state(s), cc);
     return mk_tactic_success(r, new_s);

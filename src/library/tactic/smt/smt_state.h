@@ -25,6 +25,7 @@ struct smt_config {
     cc_config      m_cc_config;
     ematch_config  m_em_config;
     smt_pre_config m_pre_config;
+    hinst_lemmas   m_em_lemmas;
 };
 
 class smt_goal {
@@ -54,6 +55,7 @@ public:
 
     void internalize(expr const & e);
     void add(expr const & type, expr const & proof);
+    void ematch(buffer<expr_pair> & result);
 
     optional<expr> get_proof(expr const & e);
     bool inconsistent() const { return m_cc.inconsistent(); }

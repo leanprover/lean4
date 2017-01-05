@@ -293,6 +293,7 @@ public:
 
     unsigned get_gmt() const { return m_state.get_gmt(); }
     unsigned get_mt(expr const & t) const { return m_state.get_mt(t); }
+    void inc_gmt() { m_state.inc_gmt(); }
 
     optional<ext_congr_lemma> mk_ext_congr_lemma(expr const & e) const;
 

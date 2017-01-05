@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "library/util.h"
 #include "library/trace.h"
+#include "library/normalize.h"
 #include "library/idx_metavar.h"
 #include "library/type_context.h"
 #include "library/annotation.h"
@@ -241,6 +242,7 @@ expr extract_trackable(type_context & ctx, expr const & type,
 
 struct mk_hinst_lemma_fn {
     type_context &     m_ctx;
+    transparency_mode  m_md_norm;
     name_set           m_no_inst_patterns;
     expr               m_H;
     unsigned           m_num_uvars;
@@ -255,10 +257,10 @@ struct mk_hinst_lemma_fn {
     unsigned           m_num_steps;
     name               m_id;
 
-    mk_hinst_lemma_fn(type_context & ctx, expr const & H,
+    mk_hinst_lemma_fn(type_context & ctx, transparency_mode md_norm, expr const & H,
                       unsigned num_uvars, unsigned max_steps, bool simp,
                       name const & id):
-        m_ctx(ctx), m_no_inst_patterns(get_no_inst_patterns(ctx.env())),
+        m_ctx(ctx), m_md_norm(md_norm), m_no_inst_patterns(get_no_inst_patterns(ctx.env())),
         m_H(H), m_num_uvars(num_uvars), m_max_steps(max_steps),
         m_simp(simp), m_id(id) {}
 
@@ -283,6 +285,11 @@ struct mk_hinst_lemma_fn {
 
     typedef rb_tree<candidate, candidate_lt> candidate_set;
 
+    expr normalize(expr const & e) {
+        type_context::transparency_scope _(m_ctx, m_md_norm);
+        return ::lean::normalize(m_ctx, e);
+    }
+
     void collect_pattern_hints(expr const & e, candidate_set & s) {
         for_each(e, [&](expr const & e, unsigned) {
                 if (is_pattern_hint(e)) {
@@ -290,7 +297,7 @@ struct mk_hinst_lemma_fn {
                     // TODO(Leo): if hint was unfolded and is not an application anymore, we should
                     // report to user this fact.
                     if (is_app(hint)) {
-                        s.insert(candidate(hint));
+                        s.insert(candidate(normalize(hint)));
                     }
                     return false;
                 }
@@ -382,10 +389,10 @@ struct mk_hinst_lemma_fn {
         if (m_simp) {
             expr lhs, rhs;
             if (is_eq(a, lhs, rhs) || is_heq(a, lhs, rhs)) {
-                m_candidates.insert(candidate(lhs));
+                m_candidates.insert(candidate(normalize(lhs)));
             }
         } else {
-            save_candidates(collect_core(a));
+            save_candidates(collect_core(normalize(a)));
         }
         return m_candidates;
     }
@@ -425,6 +432,7 @@ struct mk_hinst_lemma_fn {
           b) delete any candidate c_1 if there is a c_2 s.t.
              c_1 is a subterm of c_2, and c_2.m_vars is a strict superset of c_1.m_vars */
     list<multi_pattern> mk_multi_patterns_using(candidate_set s, bool heuristic) {
+
         if (heuristic) {
             buffer<multi_pattern> unit_patterns;
             s.for_each([&](candidate const & c) {
@@ -586,17 +594,17 @@ struct mk_hinst_lemma_fn {
     }
 };
 
-hinst_lemma mk_hinst_lemma_core(type_context & ctx, expr const & H, unsigned num_uvars,
+hinst_lemma mk_hinst_lemma_core(type_context & ctx, transparency_mode md_norm, expr const & H, unsigned num_uvars,
                                 unsigned max_steps, bool simp, name const & id) {
     try {
         type_context::tmp_mode_scope tscope(ctx, num_uvars, 0);
         bool erase_hints = false;
-        return mk_hinst_lemma_fn(ctx, H, num_uvars, max_steps, simp, id)(erase_hints);
+        return mk_hinst_lemma_fn(ctx, md_norm, H, num_uvars, max_steps, simp, id)(erase_hints);
     } catch (mk_hinst_lemma_fn::try_again_without_hints &) {
         type_context::tmp_mode_scope tscope(ctx, num_uvars, 0);
         try {
             bool erase_hints = true;
-            return mk_hinst_lemma_fn(ctx, H, num_uvars, max_steps, simp, id)(erase_hints);
+            return mk_hinst_lemma_fn(ctx, md_norm, H, num_uvars, max_steps, simp, id)(erase_hints);
         } catch (mk_hinst_lemma_fn::try_again_without_hints &) {
             lean_unreachable();
         }
@@ -609,15 +617,15 @@ unsigned get_hinst_lemma_max_steps(options const & o) {
     return o.get_unsigned(*g_hinst_lemma_max_steps, LEAN_DEFAULT_HINST_LEMMA_PATTERN_MAX_STEPS);
 }
 
-hinst_lemma mk_hinst_lemma(type_context & ctx, expr const & H, bool simp) {
+hinst_lemma mk_hinst_lemma(type_context & ctx, transparency_mode md_norm, expr const & H, bool simp) {
     unsigned max_steps = get_hinst_lemma_max_steps(ctx.get_options());
     name id;
     if (is_local(H))
         id = local_pp_name(H);
-    return mk_hinst_lemma_core(ctx, H, 0, max_steps, simp, id);
+    return mk_hinst_lemma_core(ctx, md_norm, H, 0, max_steps, simp, id);
 }
 
-hinst_lemma mk_hinst_lemma(type_context & ctx, name const & c, bool simp) {
+hinst_lemma mk_hinst_lemma(type_context & ctx, transparency_mode md_norm, name const & c, bool simp) {
     unsigned max_steps = get_hinst_lemma_max_steps(ctx.get_options());
     declaration const & d = ctx.env().get(c);
     buffer<level> us;
@@ -626,7 +634,7 @@ hinst_lemma mk_hinst_lemma(type_context & ctx, name const & c, bool simp) {
         us.push_back(mk_idx_metauniv(i));
     expr H          = mk_constant(c, to_list(us));
     name id         = c;
-    return mk_hinst_lemma_core(ctx, H, num_us, max_steps, simp, id);
+    return mk_hinst_lemma_core(ctx, md_norm, H, num_us, max_steps, simp, id);
 }
 
 format pp_hinst_lemma(formatter const & fmt, hinst_lemma const & h) {

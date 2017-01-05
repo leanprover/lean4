@@ -174,6 +174,24 @@ template<typename T> inline list<T>         to_list(optional<T> const & v) { ret
 template<typename T> inline list<T>         to_list(T const * v) { return v ? to_list(*v) : list<T>(); }
 template<typename T> inline list<T>         ptr_to_list(list<T> const * l) { return l ? *l : list<T>(); }
 
+template<typename T, typename CMP>
+int cmp(list<T> const & l1, list<T> const & l2, CMP const & c) {
+    list<T> const * it1 = &l1;
+    list<T> const * it2 = &l2;
+    while (*it1 && *it2) {
+        int r = c(head(*it1), head(*it2));
+        if (r != 0) return r;
+        it1 = &tail(*it1);
+        it2 = &tail(*it2);
+    }
+    if (!*it1) {
+        return !*it2 ? 0 : -1;
+    } else {
+        lean_assert(*it1 && !*it2);
+        return 1;
+    }
+}
+
 template<typename T> inline std::ostream & operator<<(std::ostream & out, list<T> const & l) {
     out << "(";
     bool first = true;

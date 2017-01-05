@@ -44,20 +44,30 @@ struct hinst_lemma {
     expr                 m_expr;
 };
 
+inline int multi_pattern_cmp(multi_pattern const & m1, multi_pattern const & m2) {
+    return cmp<expr>(m1, m2, expr_quick_cmp());
+}
+
 struct hinst_lemma_cmp {
     int operator()(hinst_lemma const & l1, hinst_lemma const & l2) const {
-        return expr_quick_cmp()(l1.m_prop, l2.m_prop);
+        int r = expr_quick_cmp()(l1.m_prop, l2.m_prop);
+        if (r != 0) return r;
+        return cmp(l1.m_multi_patterns, l2.m_multi_patterns, multi_pattern_cmp);
     }
 };
+
 typedef rb_tree<hinst_lemma, hinst_lemma_cmp> hinst_lemmas;
 
 /** \brief Try to compute multipatterns for declaration \c c using the current environment configuration. */
 list<multi_pattern> mk_multipatterns(environment const & env, io_state const & ios, name const & c);
 
 /** \brief Create a (local) heuristic instantiation lemma for \c H.
-    The maximum number of steps is extracted from the blast config object. */
-hinst_lemma mk_hinst_lemma(type_context & ctx, expr const & H, bool simp = false);
-hinst_lemma mk_hinst_lemma(type_context & ctx, name const & n, bool simp = false);
+    The maximum number of steps is extracted from the blast config object.
+
+    \c md_norm is the transparency_mode used for normalizing the type of the lemma.
+    The idea is to unfold the lemmas using the given transparency mode. */
+hinst_lemma mk_hinst_lemma(type_context & ctx, transparency_mode md_norm, expr const & H, bool simp = false);
+hinst_lemma mk_hinst_lemma(type_context & ctx, transparency_mode md_norm, name const & n, bool simp = false);
 
 format pp_hinst_lemma(formatter const & fmt, hinst_lemma const & h);
 

@@ -236,16 +236,16 @@ vm_obj to_obj(hinst_lemma const & s) {
 
 vm_obj hinst_lemma_mk_core(vm_obj const & m, vm_obj const & lemma, vm_obj const & simp, vm_obj const & s) {
     LEAN_TACTIC_TRY;
-    type_context ctx        = mk_type_context_for(s, m);
-    hinst_lemma h           = mk_hinst_lemma(ctx, to_expr(lemma), to_bool(simp));
+    type_context ctx        = mk_type_context_for(s);
+    hinst_lemma h           = mk_hinst_lemma(ctx, to_transparency_mode(m), to_expr(lemma), to_bool(simp));
     return mk_tactic_success(to_obj(h), to_tactic_state(s));
     LEAN_TACTIC_CATCH(to_tactic_state(s));
 }
 
 vm_obj hinst_lemma_mk_from_decl_core(vm_obj const & m, vm_obj const & lemma_name, vm_obj const & simp, vm_obj const & s) {
     LEAN_TACTIC_TRY;
-    type_context ctx        = mk_type_context_for(s, m);
-    hinst_lemma h           = mk_hinst_lemma(ctx, to_name(lemma_name), to_bool(simp));
+    type_context ctx        = mk_type_context_for(s);
+    hinst_lemma h           = mk_hinst_lemma(ctx, to_transparency_mode(m), to_name(lemma_name), to_bool(simp));
     return mk_tactic_success(to_obj(h), to_tactic_state(s));
     LEAN_TACTIC_CATCH(to_tactic_state(s));
 }

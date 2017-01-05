@@ -12,17 +12,19 @@ meta constant hinst_lemma : Type
 
 meta constant hinst_lemmas : Type
 
-/- (mk_core m e as_simp prio) -/
+/- (mk_core m e as_simp), m is used to decide which definitions will be unfolded in patterns.
+   If as_simp is tt, then this tactic will try to use the left-hand-side of the conclusion
+   as a pattern. -/
 meta constant hinst_lemma.mk_core           : transparency → expr → bool → tactic hinst_lemma
 meta constant hinst_lemma.mk_from_decl_core : transparency → name → bool → tactic hinst_lemma
 meta constant hinst_lemma.pp                : hinst_lemma → tactic format
 meta constant hinst_lemma.id                : hinst_lemma → name
 
 meta def hinst_lemma.mk (h : expr) : tactic hinst_lemma :=
-hinst_lemma.mk_core semireducible h ff
+hinst_lemma.mk_core reducible h ff
 
 meta def hinst_lemma.mk_from_decl (h : name) : tactic hinst_lemma :=
-hinst_lemma.mk_from_decl_core semireducible h ff
+hinst_lemma.mk_from_decl_core reducible h ff
 
 meta constant hinst_lemmas.mk              : hinst_lemmas
 meta constant hinst_lemmas.add             : hinst_lemmas → hinst_lemma → hinst_lemmas

@@ -176,6 +176,13 @@ expr mk_false_rec(type_context & ctx, expr const & c, expr const & H);
 /* (if c then t else e) */
 expr mk_ite(type_context & ctx, expr const & c, expr const & t, expr const & e);
 
+/* (@id_locked type h) */
+expr mk_id_locked(type_context & ctx, expr const & type, expr const & h);
+
+expr mk_eq_mp(type_context & ctx, expr const & h1, expr const & h2);
+
+expr mk_eq_mpr(type_context & ctx, expr const & h1, expr const & h2);
+
 level get_level(type_context & ctx, expr const & A);
 
 void initialize_app_builder();

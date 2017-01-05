@@ -1059,6 +1059,19 @@ expr mk_ite(type_context & ctx, expr const & c, expr const & t, expr const & e) 
     return mk_app(ctx, get_ite_name(), 5, mask, args);
 }
 
+expr mk_id_locked(type_context & ctx, expr const & type, expr const & h) {
+    level lvl = get_level(ctx, type);
+    return mk_app(mk_constant(get_id_locked_name(), {lvl}), type, h);
+}
+
+expr mk_eq_mp(type_context & ctx, expr const & h1, expr const & h2) {
+    return mk_app(ctx, get_eq_mp_name(), h1, h2);
+}
+
+expr mk_eq_mpr(type_context & ctx, expr const & h1, expr const & h2) {
+    return mk_app(ctx, get_eq_mpr_name(), h1, h2);
+}
+
 void initialize_app_builder() {
     register_trace_class("app_builder");
 }

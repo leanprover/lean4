@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "library/util.h"
 #include "library/constants.h"
+#include "library/app_builder.h"
 #include "library/vm/vm_expr.h"
 #include "library/tactic/tactic_state.h"
 
@@ -26,8 +27,7 @@ vm_obj change(expr const & e, tactic_state const & s) {
 
                to create a "checkpoint". See discussion at issue #1260
             */
-            level lvl = get_level(ctx, g->get_type());
-            expr  pr  = mk_app(mk_constant(get_id_locked_name(), {lvl}), g->get_type(), new_M);
+            expr  pr  = mk_id_locked(ctx, g->get_type(), new_M);
             mctx.assign(head(s.goals()), pr);
             list<expr> new_gs(new_M, tail(s.goals()));
             return mk_tactic_success(set_mctx_goals(s, mctx, new_gs));

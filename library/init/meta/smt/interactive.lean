@@ -94,5 +94,37 @@ do p ← tactic.to_expr_strict q,
 meta def by_contradiction : smt_tactic unit :=
 smt_tactic.by_contradiction
 
+open tactic (resolve_name transparency to_expr)
+
+private meta def add_lemma_name (md : transparency) (lhs_lemma : bool) (n : name) : smt_tactic unit :=
+do {
+  e ← resolve_name n,
+  match e with
+  | expr.const n _           := add_ematch_lemma_from_decl_core md lhs_lemma n
+  | expr.local_const _ _ _ _ := add_ematch_lemma_core md lhs_lemma e
+  | _                        := failed
+  end
+}
+<|>
+fail ("invalid ematch lemma '" ++ to_string n ++ "'")
+
+private meta def add_lemma_pexpr (md : transparency) (lhs_lemma : bool) (p : pexpr) : smt_tactic unit :=
+let e := pexpr.to_raw_expr p in
+match e with
+| (expr.const c [])          := add_lemma_name md lhs_lemma c
+| (expr.local_const c _ _ _) := add_lemma_name md lhs_lemma c
+| _                          := do new_e ← to_expr p, add_ematch_lemma_core md lhs_lemma new_e
+end
+
+private meta def add_lemma_pexprs (md : transparency) (lhs_lemma : bool) : list pexpr → smt_tactic unit
+| []      := return ()
+| (p::ps) := add_lemma_pexpr md lhs_lemma p >> add_lemma_pexprs ps
+
+meta def add_lemma (l : qexpr_list_or_qexpr0) : smt_tactic unit :=
+add_lemma_pexprs reducible ff l
+
+meta def add_lhs_lemma (l : qexpr_list_or_qexpr0) : smt_tactic unit :=
+add_lemma_pexprs reducible tt l
+
 end interactive
 end smt_tactic

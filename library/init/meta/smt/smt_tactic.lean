@@ -95,17 +95,26 @@ meta instance : alternative smt_tactic :=
  map     := @fmap _ _}
 
 namespace smt_tactic
+open tactic (transparency)
 /-- (intros_core fresh_names), if fresh_names is tt, then create fresh names for new hypotheses.
     Otherwise, it just uses the given names. -/
-meta constant intros_core : bool → smt_tactic unit
-meta constant close       : smt_tactic unit
-meta constant ematch_core : (expr → bool) → smt_tactic unit
+meta constant intros_core                     : bool → smt_tactic unit
+meta constant close                           : smt_tactic unit
+meta constant ematch_core                     : (expr → bool) → smt_tactic unit
+meta constant add_ematch_lemma_core           : transparency → bool → expr → smt_tactic unit
+meta constant add_ematch_lemma_from_decl_core : transparency → bool → name → smt_tactic unit
 
 meta def intros : smt_tactic unit :=
 intros_core tt
 
 meta def ematch : smt_tactic unit :=
 ematch_core (λ _, tt)
+
+meta def failed : smt_tactic unit :=
+tactic.failed
+
+meta def fail {α : Type} {β : Type u} [has_to_format β] (msg : β) : tactic α :=
+tactic.fail msg
 
 meta def try {α : Type} (t : smt_tactic α) : smt_tactic unit :=
 λ ss ts, tactic_result.cases_on (t ss ts)

@@ -622,6 +622,22 @@ vm_obj smt_state_classical(vm_obj const & ss) {
     return mk_vm_bool(r);
 }
 
+static expr_pair preprocess_forward(type_context & ctx, smt_pre_config const & cfg, expr const & type, expr const & h) {
+    simp_result r = preprocess(ctx, cfg, type);
+    if (r.has_proof()) {
+        expr new_h = mk_eq_mp(ctx, r.get_proof(), h);
+        return mk_pair(r.get_new(), new_h);
+    } else if (r.get_new() == type) {
+        return mk_pair(type, h);
+    } else {
+        return mk_pair(r.get_new(), mk_id_locked(ctx, r.get_new(), h));
+    }
+}
+
+static expr_pair preprocess_forward(type_context & ctx, smt_goal const & g, expr const & type, expr const & h) {
+    return preprocess_forward(ctx, g.get_pre_config(), type, h);
+}
+
 vm_obj smt_tactic_ematch_core(vm_obj const & pred, vm_obj const & ss, vm_obj const & _ts) {
     tactic_state ts = to_tactic_state(_ts);
     if (is_nil(ss)) return mk_smt_state_empty_exception(ts);
@@ -639,17 +655,43 @@ vm_obj smt_tactic_ematch_core(vm_obj const & pred, vm_obj const & ss, vm_obj con
         expr proof  = p.second;
         vm_obj keep = invoke(pred, to_obj(type));
         if (to_bool(keep)) {
-            simp_result r = preprocess(ctx, g.get_pre_config(), type);
-            // TODO(Leo): check if lemma is already known to be true, and discard
-            if (r.has_proof()) {
-                expr new_proof = mk_app(ctx, get_eq_mp_name(), r.get_proof(), proof);
-                S.add(r.get_new(), new_proof);
-            } else {
-                // TODO(Leo): check if we need to use id_locked
-                S.add(r.get_new(), proof);
-            }
+            std::tie(type, proof) = preprocess_forward(ctx, g, type, proof);
+            S.add(type, proof);
         }
     }
+    vm_obj new_ss       = mk_vm_cons(to_obj(g), tail(ss));
+    tactic_state new_ts = set_env_mctx(ts, ctx.env(), ctx.mctx());
+    return mk_smt_tactic_success(new_ss, new_ts);
+    LEAN_TACTIC_CATCH(ts);
+}
+
+vm_obj smt_tactic_add_ematch_lemma_core(vm_obj const & md, vm_obj const & as_simp, vm_obj const & _h, vm_obj const & ss, vm_obj const & _ts) {
+    tactic_state ts = to_tactic_state(_ts);
+    if (is_nil(ss)) return mk_smt_state_empty_exception(ts);
+    lean_assert(ts.goals());
+    LEAN_TACTIC_TRY;
+    type_context ctx    = mk_type_context_for(ts);
+    smt_goal g          = to_smt_goal(head(ss));
+    expr h              = to_expr(_h);
+    expr type           = ctx.infer(h);
+    std::tie(type, h)   = preprocess_forward(ctx, g, type, h);
+    hinst_lemma lemma   = mk_hinst_lemma(ctx, to_transparency_mode(md), h, to_bool(as_simp));
+    g.add_lemma(lemma);
+    vm_obj new_ss       = mk_vm_cons(to_obj(g), tail(ss));
+    tactic_state new_ts = set_env_mctx(ts, ctx.env(), ctx.mctx());
+    return mk_smt_tactic_success(new_ss, new_ts);
+    LEAN_TACTIC_CATCH(ts);
+}
+
+vm_obj smt_tactic_add_ematch_lemma_from_decl_core(vm_obj const & md, vm_obj const & as_simp, vm_obj const & decl_name, vm_obj const & ss, vm_obj const & _ts) {
+    tactic_state ts = to_tactic_state(_ts);
+    if (is_nil(ss)) return mk_smt_state_empty_exception(ts);
+    lean_assert(ts.goals());
+    LEAN_TACTIC_TRY;
+    type_context ctx    = mk_type_context_for(ts);
+    smt_goal g          = to_smt_goal(head(ss));
+    hinst_lemma lemma   = mk_hinst_lemma(ctx, to_transparency_mode(md), to_name(decl_name), to_bool(as_simp));
+    g.add_lemma(lemma);
     vm_obj new_ss       = mk_vm_cons(to_obj(g), tail(ss));
     tactic_state new_ts = set_env_mctx(ts, ctx.env(), ctx.mctx());
     return mk_smt_tactic_success(new_ss, new_ts);
@@ -659,13 +701,15 @@ vm_obj smt_tactic_ematch_core(vm_obj const & pred, vm_obj const & ss, vm_obj con
 void initialize_smt_state() {
     register_trace_class(name({"smt", "units"}));
 
-    DECLARE_VM_BUILTIN(name({"smt_state", "mk"}),             smt_state_mk);
-    DECLARE_VM_BUILTIN(name({"smt_state", "to_format"}),      smt_state_to_format);
-    DECLARE_VM_BUILTIN(name({"smt_state", "classical"}),      smt_state_classical);
-    DECLARE_VM_BUILTIN("tactic_to_smt_tactic",                tactic_to_smt_tactic);
-    DECLARE_VM_BUILTIN(name({"smt_tactic", "close"}),         smt_tactic_close);
-    DECLARE_VM_BUILTIN(name({"smt_tactic", "intros_core"}),   smt_tactic_intros_core);
-    DECLARE_VM_BUILTIN(name({"smt_tactic", "ematch_core"}),   smt_tactic_ematch_core);
+    DECLARE_VM_BUILTIN(name({"smt_state", "mk"}),                                smt_state_mk);
+    DECLARE_VM_BUILTIN(name({"smt_state", "to_format"}),                         smt_state_to_format);
+    DECLARE_VM_BUILTIN(name({"smt_state", "classical"}),                         smt_state_classical);
+    DECLARE_VM_BUILTIN("tactic_to_smt_tactic",                                   tactic_to_smt_tactic);
+    DECLARE_VM_BUILTIN(name({"smt_tactic", "close"}),                            smt_tactic_close);
+    DECLARE_VM_BUILTIN(name({"smt_tactic", "intros_core"}),                      smt_tactic_intros_core);
+    DECLARE_VM_BUILTIN(name({"smt_tactic", "ematch_core"}),                      smt_tactic_ematch_core);
+    DECLARE_VM_BUILTIN(name({"smt_tactic", "add_ematch_lemma_core"}),            smt_tactic_add_ematch_lemma_core);
+    DECLARE_VM_BUILTIN(name({"smt_tactic", "add_ematch_lemma_from_decl_core"}),  smt_tactic_add_ematch_lemma_from_decl_core);
 }
 
 void finalize_smt_state() {

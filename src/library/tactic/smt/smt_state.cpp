@@ -435,10 +435,13 @@ static optional<format> pp_facts(cc_state const & ccs, expr const & root, format
     expr it = root;
     do {
         if (!ignore_pp_fact(it)) {
+            format fmt_it = fmt(it);
+            if (is_pi(it) || is_lambda(it) || is_let(it))
+                fmt_it = paren(fmt_it);
             if (r)
-                r = *r + comma() + line() + fmt(it);
+                r = *r + comma() + line() + fmt_it;
             else
-                r = fmt(it);
+                r = fmt_it;
         }
         it = ccs.get_next(it);
     } while (it != root);

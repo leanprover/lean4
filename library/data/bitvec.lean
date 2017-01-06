@@ -145,13 +145,6 @@ section comparison
 
 end comparison
 
-/-
--- Create bitvecor from nat
-def from_nat {n} : ℕ → bitvec n
-| 0 := 0
-| (nat.succ x) := from_nat x + 1
--/
-
 section conversion
   variable {α : Type}
 

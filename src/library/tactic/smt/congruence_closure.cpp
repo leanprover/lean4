@@ -1907,7 +1907,10 @@ format congruence_closure::state::pp_eqc(formatter const & fmt, expr const & e) 
     do {
         auto it_n = m_entries.find(it);
         if (first) first = false; else r += comma() + line();
-        r += fmt(it);
+        format fmt_it = fmt(it);
+        if (is_pi(it) || is_lambda(it) || is_let(it))
+            fmt_it = paren(fmt_it);
+        r += fmt_it;
         it = it_n->m_next;
     } while (it != e);
     return bracket("{", group(r), "}");

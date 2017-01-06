@@ -93,7 +93,7 @@ bool is_private(environment const & env, name const & n) {
 
 void initialize_private() {
     g_ext     = new private_ext_reg();
-    g_private = new name("private");
+    g_private = new name("_private");
     private_modification::init();
 }
 

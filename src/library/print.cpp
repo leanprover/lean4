@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/free_vars.h"
 #include "library/annotation.h"
+#include "library/util.h"
 #include "library/print.h"
 
 namespace lean {
@@ -38,12 +39,6 @@ name pick_unused_name(expr const & t, name const & s) {
         i++;
     }
     return r;
-}
-
-bool is_internal_name(name n) {
-    while (!n.is_atomic())
-        n = n.get_prefix();
-    return n.is_numeral();
 }
 
 static name * g_x        = nullptr;

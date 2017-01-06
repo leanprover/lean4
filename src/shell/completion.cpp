@@ -5,18 +5,19 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Leonardo de Moura, Sebastian Ullrich
 */
 #if defined(LEAN_JSON)
-#include "shell/completion.h"
 #include <algorithm>
 #include <string>
 #include <vector>
+#include "util/lean_path.h"
 #include "util/sexpr/option_declarations.h"
-#include "shell/server.h"
 #include "util/bitap_fuzzy_search.h"
 #include "library/protected.h"
+#include "library/util.h"
 #include "library/scoped_ext.h"
 #include "library/class.h"
 #include "frontends/lean/util.h"
-#include "util/lean_path.h"
+#include "shell/server.h"
+#include "shell/completion.h"
 
 namespace lean {
 
@@ -106,6 +107,9 @@ std::vector<json> get_decl_completions(std::string const & pattern, environment 
             auto s_name = d.get_name().get_prefix();
             if (is_class(env, s_name))
                 return;
+        }
+        if (is_internal_name(d.get_name())) {
+            return;
         }
         if (auto it = exact_prefix_match(env, pattern, d)) {
             exact_matches.emplace_back(*it, d.get_name());

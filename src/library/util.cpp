@@ -35,7 +35,13 @@ unsigned get_arity(expr type) {
 }
 
 bool is_internal_name(name const & n) {
-    return !n.is_anonymous() && n.is_string() && n.get_string() && n.get_string()[0] == '_';
+    name it = n;
+    while (!it.is_anonymous()) {
+        if (!it.is_anonymous() && it.is_string() && it.get_string() && it.get_string()[0] == '_')
+            return true;
+        it = it.get_prefix();
+    }
+    return false;
 }
 
 level get_level(abstract_type_context & ctx, expr const & A) {

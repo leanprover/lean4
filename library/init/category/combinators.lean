@@ -47,6 +47,15 @@ def filter {m : Type → Type v} [monad m] {α : Type} (f : α → m bool) : lis
 | []       := return []
 | (h :: t) := do b ← f h, t' ← filter t, cond b (return (h :: t')) (return t')
 
+def foldl {m : Type u → Type v} [monad m] {s : Type u} {α : Type w} : (s → α → m s) → s → list α → m s
+| f s [] := return s
+| f s (h :: r) := do
+  s' ← f s h,
+  foldl f s' r
+
+def when {m : Type → Type} [monad m] (c : Prop) [h : decidable c] (t : m unit) : m unit :=
+ite c t (pure ())
+
 def whenb {m : Type → Type} [monad m] (b : bool) (t : m unit) : m unit :=
 cond b t (return ())
 

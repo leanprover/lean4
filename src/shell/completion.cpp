@@ -206,5 +206,29 @@ std::vector<json> get_interactive_tactic_completions(std::string const & pattern
         completions.push_back(candidate);
     return completions;
 }
+
+std::vector<json> get_attribute_completions(std::string const & pattern, environment const & env,
+                                            options const & opts) {
+    unsigned max_results = get_auto_completion_max_results(opts);
+    unsigned max_errors = get_fuzzy_match_max_errors(pattern.size());
+    std::vector<pair<std::string, name>> selected;
+    bitap_fuzzy_search matcher(pattern, max_errors);
+    std::vector<json> completions;
+
+    buffer<attribute const *> attrs;
+    get_attributes(env, attrs);
+    for (auto const & attr : attrs) {
+        auto s = attr->get_name().to_string();
+        if (matcher.match(s))
+            selected.emplace_back(s, attr->get_name());
+    }
+    filter_completions(pattern, selected, completions, max_results, [&](name const & n) {
+        json completion;
+        completion["text"] = n.to_string();
+        completion["type"] = get_attribute(env, n).get_description();
+        return completion;
+    });
+    return completions;
+}
 }
 #endif

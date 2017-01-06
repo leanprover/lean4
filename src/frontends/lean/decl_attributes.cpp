@@ -39,7 +39,8 @@ void decl_attributes::parse_core(parser & p, bool compact) {
             id = p.get_token_info().value();
             p.next();
         } else {
-            id = p.check_id_next("invalid attribute declaration, identifier expected");
+            id = p.check_id_next("invalid attribute declaration, identifier expected",
+                                 break_at_pos_exception::token_context::attribute);
         }
         if (id == "priority") {
             if (deleted)

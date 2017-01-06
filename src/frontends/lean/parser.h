@@ -255,7 +255,6 @@ public:
     bool found_errors() const { return m_found_errors; }
 
     name mk_anonymous_inst_name();
-    bool is_anonymous_inst_name(name const & n) const;
 
     unsigned curr_lbp() const;
 

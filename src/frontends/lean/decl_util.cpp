@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "kernel/replace_fn.h"
 #include "library/locals.h"
+#include "library/class.h"
 #include "library/trace.h"
 #include "library/placeholder.h"
 #include "library/protected.h"
@@ -159,7 +160,7 @@ void collect_annonymous_inst_implicit(parser const & p, collected_locals & local
         auto const & entry = entries[i];
         if (is_local(entry.second) && !locals.contains(entry.second) && local_info(entry.second).is_inst_implicit() &&
             // remark: remove the following condition condition, if we want to auto inclusion also for non anonymous ones.
-            p.is_anonymous_inst_name(entry.first)) {
+            is_anonymous_inst_name(entry.first)) {
             bool ok = true;
             for_each(mlocal_type(entry.second), [&](expr const & e, unsigned) {
                     if (!ok) return false; // stop

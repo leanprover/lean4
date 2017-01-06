@@ -247,6 +247,23 @@ unsigned get_instance_fingerprint(environment const & env) {
     return get_attribute_fingerprint(env, get_instance_attr_name());
 }
 
+static name * g_anonymous_inst_name_prefix = nullptr;
+
+name const & get_anonymous_instance_prefix() {
+    return *g_anonymous_inst_name_prefix;
+}
+
+name mk_anonymous_inst_name(unsigned idx) {
+    return g_anonymous_inst_name_prefix->append_after(idx);
+}
+
+bool is_anonymous_inst_name(name const & n) {
+    if (!n.is_atomic() || !n.is_string()) return false;
+    return strncmp(n.get_string(),
+                   g_anonymous_inst_name_prefix->get_string(),
+                   strlen(g_anonymous_inst_name_prefix->get_string())) == 0;
+}
+
 void initialize_class() {
     g_class_attr_name = new name("class");
     g_instance_attr_name = new name("instance");
@@ -264,6 +281,8 @@ void initialize_class() {
                                                  unsigned prio, bool persistent) {
                                                   return add_instance_core(env, d, prio, persistent);
                                               }));
+
+    g_anonymous_inst_name_prefix = new name("_inst");
 }
 
 void finalize_class() {
@@ -271,5 +290,6 @@ void finalize_class() {
     delete g_class_name;
     delete g_class_attr_name;
     delete g_instance_attr_name;
+    delete g_anonymous_inst_name_prefix;
 }
 }

@@ -24,6 +24,7 @@ Author: Leonardo de Moura
 #include "library/module_mgr.h"
 #include "library/export_decl.h"
 #include "library/trace.h"
+#include "library/class.h"
 #include "library/exception.h"
 #include "library/aliases.h"
 #include "library/constants.h"
@@ -86,8 +87,6 @@ bool get_parser_show_errors(options const & opts) {
 }
 
 // ==========================================
-
-static name * g_anonymous_inst_name_prefix = nullptr;
 
 parser::local_scope::local_scope(parser & p, bool save_options):
     m_p(p), m_env(p.env()) {
@@ -306,17 +305,9 @@ tag parser::get_tag(expr e) {
 }
 
 name parser::mk_anonymous_inst_name() {
-    name n = g_anonymous_inst_name_prefix->append_after(m_next_inst_idx);
+    name n = ::lean::mk_anonymous_inst_name(m_next_inst_idx);
     m_next_inst_idx++;
     return n;
-}
-
-bool parser::is_anonymous_inst_name(name const & n) const {
-    return
-        n.is_atomic() &&
-        n.is_string() &&
-        strlen(n.get_string()) >= strlen(g_anonymous_inst_name_prefix->get_string()) &&
-        memcmp(n.get_string(), g_anonymous_inst_name_prefix->get_string(), strlen(g_anonymous_inst_name_prefix->get_string())) == 0;
 }
 
 expr parser::save_pos(expr e, pos_info p) {
@@ -2347,7 +2338,6 @@ void initialize_parser() {
     register_bool_option(*g_parser_parallel_import, LEAN_DEFAULT_PARSER_PARALLEL_IMPORT,
                          "(lean parser) import modules in parallel");
     g_tmp_prefix = new name(name::mk_internal_unique_name());
-    g_anonymous_inst_name_prefix = new name("_inst");
     g_documentable_cmds = new name_set();
 
     g_documentable_cmds->insert("definition");
@@ -2365,7 +2355,6 @@ void initialize_parser() {
 }
 
 void finalize_parser() {
-    delete g_anonymous_inst_name_prefix;
     delete g_tmp_prefix;
     delete g_parser_show_errors;
     delete g_parser_parallel_import;

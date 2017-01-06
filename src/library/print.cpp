@@ -41,24 +41,19 @@ name pick_unused_name(expr const & t, name const & s) {
     return r;
 }
 
-static name * g_x        = nullptr;
-static name * g_internal = nullptr;
+static name * g_M   = nullptr;
 
 void initialize_print() {
-    g_internal = new name("M");
-    g_x        = new name("x");
+    g_M = new name("M");
 }
 
 void finalize_print() {
-    delete g_x;
-    delete g_internal;
+    delete g_M;
 }
 
 pair<expr, expr> binding_body_fresh(expr const & b, bool preserve_type) {
     lean_assert(is_binding(b));
     name n = binding_name(b);
-    if (is_internal_name(n))
-        n = *g_x;
     n = pick_unused_name(binding_body(b), n);
     expr c = mk_local(n, preserve_type ? binding_domain(b) : expr(), binding_info(b));
     return mk_pair(instantiate(binding_body(b), c), c);
@@ -67,21 +62,19 @@ pair<expr, expr> binding_body_fresh(expr const & b, bool preserve_type) {
 pair<expr, expr> let_body_fresh(expr const & b, bool preserve_type) {
     lean_assert(is_let(b));
     name n = let_name(b);
-    if (is_internal_name(n))
-        n = *g_x;
     n = pick_unused_name(let_body(b), n);
     expr c = mk_local(n, preserve_type ? let_type(b) : expr());
     return mk_pair(instantiate(let_body(b), c), c);
 }
 
-name fix_internal_name(name const & a) {
+name fix_name(name const & a) {
     if (a.is_atomic()) {
         if (a.is_numeral())
-            return *g_internal;
+            return *g_M;
         else
             return a;
     } else {
-        name p = fix_internal_name(a.get_prefix());
+        name p = fix_name(a.get_prefix());
         if (p == a.get_prefix())
             return a;
         else if (a.is_numeral())
@@ -206,10 +199,10 @@ struct print_expr_fn {
     void print(expr const & a) {
         switch (a.kind()) {
         case expr_kind::Meta:
-            out() << "?" << fix_internal_name(mlocal_name(a));
+            out() << "?" << fix_name(mlocal_name(a));
             break;
         case expr_kind::Local:
-            out() << fix_internal_name(local_pp_name(a));
+            out() << fix_name(local_pp_name(a));
             break;
         case expr_kind::Var:
             out() << "#" << var_idx(a);

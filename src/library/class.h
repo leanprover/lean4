@@ -29,6 +29,10 @@ name get_class_name(environment const & env, expr const & e);
 name const & get_instance_attr_name();
 unsigned get_instance_fingerprint(environment const & env);
 
+name const & get_anonymous_instance_prefix();
+name mk_anonymous_inst_name(unsigned idx);
+bool is_anonymous_inst_name(name const & n);
+
 void initialize_class();
 void finalize_class();
 }

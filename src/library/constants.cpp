@@ -433,7 +433,6 @@ name const * g_interactive_types_qexpr0 = nullptr;
 name const * g_interactive_types_qexpr_list = nullptr;
 name const * g_interactive_types_opt_qexpr_list = nullptr;
 name const * g_interactive_types_qexpr_list_or_qexpr0 = nullptr;
-name const * g_interactive_types_itactic = nullptr;
 name const * g_interactive_types_colon_tk = nullptr;
 name const * g_interactive_types_assign_tk = nullptr;
 name const * g_interactive_types_comma_tk = nullptr;
@@ -892,7 +891,6 @@ void initialize_constants() {
     g_interactive_types_qexpr_list = new name{"interactive", "types", "qexpr_list"};
     g_interactive_types_opt_qexpr_list = new name{"interactive", "types", "opt_qexpr_list"};
     g_interactive_types_qexpr_list_or_qexpr0 = new name{"interactive", "types", "qexpr_list_or_qexpr0"};
-    g_interactive_types_itactic = new name{"interactive", "types", "itactic"};
     g_interactive_types_colon_tk = new name{"interactive", "types", "colon_tk"};
     g_interactive_types_assign_tk = new name{"interactive", "types", "assign_tk"};
     g_interactive_types_comma_tk = new name{"interactive", "types", "comma_tk"};
@@ -1352,7 +1350,6 @@ void finalize_constants() {
     delete g_interactive_types_qexpr_list;
     delete g_interactive_types_opt_qexpr_list;
     delete g_interactive_types_qexpr_list_or_qexpr0;
-    delete g_interactive_types_itactic;
     delete g_interactive_types_colon_tk;
     delete g_interactive_types_assign_tk;
     delete g_interactive_types_comma_tk;
@@ -1811,7 +1808,6 @@ name const & get_interactive_types_qexpr0_name() { return *g_interactive_types_q
 name const & get_interactive_types_qexpr_list_name() { return *g_interactive_types_qexpr_list; }
 name const & get_interactive_types_opt_qexpr_list_name() { return *g_interactive_types_opt_qexpr_list; }
 name const & get_interactive_types_qexpr_list_or_qexpr0_name() { return *g_interactive_types_qexpr_list_or_qexpr0; }
-name const & get_interactive_types_itactic_name() { return *g_interactive_types_itactic; }
 name const & get_interactive_types_colon_tk_name() { return *g_interactive_types_colon_tk; }
 name const & get_interactive_types_assign_tk_name() { return *g_interactive_types_assign_tk; }
 name const & get_interactive_types_comma_tk_name() { return *g_interactive_types_comma_tk; }

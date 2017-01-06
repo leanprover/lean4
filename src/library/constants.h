@@ -435,7 +435,6 @@ name const & get_interactive_types_qexpr0_name();
 name const & get_interactive_types_qexpr_list_name();
 name const & get_interactive_types_opt_qexpr_list_name();
 name const & get_interactive_types_qexpr_list_or_qexpr0_name();
-name const & get_interactive_types_itactic_name();
 name const & get_interactive_types_colon_tk_name();
 name const & get_interactive_types_assign_tk_name();
 name const & get_interactive_types_comma_tk_name();

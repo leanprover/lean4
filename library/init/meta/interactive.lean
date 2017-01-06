@@ -60,9 +60,6 @@ namespace types
             expr
 
             and produce a list of quoted expressions
-
-  - itactic: parse a nested "interactive" tactic. That is, parse
-           `(` tactic `)`
 -/
 def ident : Type := name
 def opt_ident : Type := option ident
@@ -76,7 +73,6 @@ def location : Type := list ident
 meta def qexpr_list : Type := list qexpr
 meta def opt_qexpr_list : Type := list qexpr
 meta def qexpr_list_or_qexpr0 : Type := list qexpr
-meta def itactic : Type := tactic unit
 meta def assign_tk : Type := unit
 meta def colon_tk : Type := unit
 end types
@@ -85,6 +81,13 @@ end interactive
 namespace tactic
 namespace interactive
 open interactive.types expr
+
+/-
+itactic: parse a nested "interactive" tactic. That is, parse
+  `(` tactic `)`
+-/
+meta def itactic : Type :=
+tactic unit
 
 meta def intro : opt_ident → tactic unit
 | none     := intro1 >> skip

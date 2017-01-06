@@ -54,3 +54,8 @@ begin [smt]
   add_eqn_lemmas boo foo r,
   ematch,
 end
+
+example (a b : nat) : a = 0 → b = a → b = 0 :=
+begin [smt]
+  try { trace "hello", smt_tactic.failed },
+end

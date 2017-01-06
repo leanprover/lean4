@@ -267,7 +267,8 @@ static expr parse_nested_auto_quote_tactic(parser & p, name const & tac_class) {
 static expr parse_auto_quote_tactic(parser & p, name const & decl_name, name const & tac_class) {
     auto pos = p.pos();
     p.next();
-    expr type = p.env().get(decl_name).get_type();
+    expr type    = p.env().get(decl_name).get_type();
+    name itactic(name(tac_class, "interactive"), "itactic");
     buffer<expr> args;
     while (is_pi(type)) {
         if (is_explicit(binding_info(type))) {
@@ -296,8 +297,6 @@ static expr parse_auto_quote_tactic(parser & p, name const & decl_name, name con
                 args.push_back(parse_using_id(p, decl_name));
             } else if (is_constant(arg_type, get_interactive_types_location_name())) {
                 args.push_back(parse_location(p));
-            } else if (is_constant(arg_type, get_interactive_types_itactic_name())) {
-                args.push_back(parse_nested_auto_quote_tactic(p, tac_class));
             } else if (is_constant(arg_type, get_interactive_types_colon_tk_name())) {
                 p.check_token_next(get_colon_tk(), "invalid auto-quote tactic, ':' expected");
                 args.push_back(mk_constant(get_unit_star_name()));
@@ -307,6 +306,8 @@ static expr parse_auto_quote_tactic(parser & p, name const & decl_name, name con
             } else if (is_constant(arg_type, get_interactive_types_comma_tk_name())) {
                 p.check_token_next(get_comma_tk(), "invalid auto-quote tactic, ',' expected");
                 args.push_back(mk_constant(get_unit_star_name()));
+            } else if (is_constant(arg_type, itactic)) {
+                args.push_back(parse_nested_auto_quote_tactic(p, tac_class));
             } else {
                 args.push_back(p.parse_expr(get_max_prec()));
             }

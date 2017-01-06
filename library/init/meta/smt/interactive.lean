@@ -25,6 +25,9 @@ using_smt_core cfg tac
 namespace interactive
 open interactive.types
 
+meta def itactic : Type :=
+smt_tactic unit
+
 meta def intros : smt_tactic unit :=
 smt_tactic.intros
 
@@ -143,6 +146,12 @@ add_eqn_lemmas_for_core reducible ids
 
 meta def add_eqn_lemmas (ids : raw_ident_list) : smt_tactic unit :=
 add_eqn_lemmas_for ids
+
+meta def try (t : itactic) : smt_tactic unit :=
+smt_tactic.try t
+
+meta def repeat (t : itactic) : smt_tactic unit :=
+smt_tactic.repeat t
 
 end interactive
 end smt_tactic

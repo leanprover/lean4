@@ -46,7 +46,7 @@ smt::~smt() {
 }
 
 void smt::propagated(unsigned n, expr const * p) {
-    lean_trace(name({"smt", "units"}), scope_trace_env _(m_ctx.env(), m_ctx);
+    lean_trace(name({"smt", "fact"}), scope_trace_env _(m_ctx.env(), m_ctx);
                auto out = tout();
                auto fmt = out.get_formatter();
                format r;
@@ -219,6 +219,8 @@ expr intros(environment const & env, options const & opts, metavar_context & mct
             new_Hs.push_back(h);
             S.internalize(h);
             S.add(type, h);
+            lean_trace(name({"smt", "intro"}), scope_trace_env _(env, ctx);
+                       tout() << n << " : " << type << "\n";);
             target = binding_body(target);
         } else if (is_let(target)) {
             expr type  = instantiate_rev(let_type(target), to_inst.size(), to_inst.data());
@@ -231,6 +233,8 @@ expr intros(environment const & env, options const & opts, metavar_context & mct
             S.internalize(type);
             S.internalize(value);
             S.add(type, h);
+            lean_trace(name({"smt", "intro"}), scope_trace_env _(env, ctx);
+                       tout() << n << " : " << type << "\n";);
             target = let_body(target);
         } else {
             break;
@@ -665,6 +669,8 @@ vm_obj smt_tactic_ematch_core(vm_obj const & pred, vm_obj const & ss, vm_obj con
         vm_obj keep = invoke(pred, to_obj(type));
         if (to_bool(keep)) {
             std::tie(type, proof) = preprocess_forward(ctx, g, type, proof);
+            lean_trace(name({"smt", "ematch"}), scope_trace_env _(ctx.env(), ctx);
+                       tout() << "new instance\n" << type << "\n";);
             S.add(type, proof);
         }
     }
@@ -686,6 +692,8 @@ vm_obj smt_tactic_add_ematch_lemma_core(vm_obj const & md, vm_obj const & as_sim
     std::tie(type, h)   = preprocess_forward(ctx, g, type, h);
     hinst_lemma lemma   = mk_hinst_lemma(ctx, to_transparency_mode(md), h, to_bool(as_simp));
     g.add_lemma(lemma);
+    lean_trace(name({"smt", "ematch"}), scope_trace_env _(ctx.env(), ctx);
+               tout() << "new lemma " << lemma << "\n" << lemma.m_prop << "\n";);
     vm_obj new_ss       = mk_vm_cons(to_obj(g), tail(ss));
     tactic_state new_ts = set_env_mctx(ts, ctx.env(), ctx.mctx());
     return mk_smt_tactic_success(new_ss, new_ts);
@@ -701,6 +709,8 @@ vm_obj smt_tactic_add_ematch_lemma_from_decl_core(vm_obj const & md, vm_obj cons
     smt_goal g          = to_smt_goal(head(ss));
     hinst_lemma lemma   = mk_hinst_lemma(ctx, to_transparency_mode(md), to_name(decl_name), to_bool(as_simp));
     g.add_lemma(lemma);
+    lean_trace(name({"smt", "ematch"}), scope_trace_env _(ctx.env(), ctx);
+               tout() << "new lemma " << lemma << "\n" << lemma.m_prop << "\n";);
     vm_obj new_ss       = mk_vm_cons(to_obj(g), tail(ss));
     tactic_state new_ts = set_env_mctx(ts, ctx.env(), ctx.mctx());
     return mk_smt_tactic_success(new_ss, new_ts);
@@ -725,10 +735,14 @@ vm_obj smt_tactic_add_ematch_eqn_lemmas_for_core(vm_obj const & md, vm_obj const
             expr h            = mk_constant(eqn);
             expr type         = ctx.infer(h);
             std::tie(type, h) = preprocess_forward(ctx, g, type, h);
+            lean_trace(name({"smt", "ematch"}), scope_trace_env _(ctx.env(), ctx);
+                       tout() << "new ground fact: " << type << "\n";);
             S.add(type, h);
         } else {
             hinst_lemma lemma   = mk_hinst_lemma(ctx, to_transparency_mode(md), eqn, true);
             g.add_lemma(lemma);
+            lean_trace(name({"smt", "ematch"}), scope_trace_env _(ctx.env(), ctx);
+                       tout() << "new equation lemma " << lemma << "\n" << lemma.m_prop << "\n";);
         }
     }
     vm_obj new_ss       = mk_vm_cons(to_obj(g), tail(ss));
@@ -762,7 +776,10 @@ vm_obj smt_tactic_preprocess(vm_obj const & e, vm_obj const & ss, vm_obj const &
 }
 
 void initialize_smt_state() {
-    register_trace_class(name({"smt", "units"}));
+    register_trace_class("smt");
+    register_trace_class(name({"smt", "fact"}));
+    register_trace_class(name({"smt", "intro"}));
+    register_trace_class(name({"smt", "ematch"}));
 
     DECLARE_VM_BUILTIN(name({"smt_state", "mk"}),                                smt_state_mk);
     DECLARE_VM_BUILTIN(name({"smt_state", "to_format"}),                         smt_state_to_format);

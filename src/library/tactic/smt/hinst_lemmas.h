@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "library/expr_lt.h"
 #include "library/type_context.h"
+#include "library/io_state_stream.h"
 #include "library/attribute_manager.h"
 #include "library/vm/vm.h"
 
@@ -71,6 +72,11 @@ hinst_lemma mk_hinst_lemma(type_context & ctx, transparency_mode md_norm, expr c
 hinst_lemma mk_hinst_lemma(type_context & ctx, transparency_mode md_norm, name const & n, bool simp = false);
 
 format pp_hinst_lemma(formatter const & fmt, hinst_lemma const & h);
+
+inline io_state_stream const & operator<<(io_state_stream const & out, hinst_lemma const & e) {
+    out << mk_pair(pp_hinst_lemma(out.get_formatter(), e), out.get_options());
+    return out;
+}
 
 bool is_hinst_lemma(vm_obj const & o);
 hinst_lemma const & to_hinst_lemma(vm_obj const & o);

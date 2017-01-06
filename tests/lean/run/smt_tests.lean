@@ -59,3 +59,11 @@ example (a b : nat) : a = 0 → b = a → b = 0 :=
 begin [smt]
   try { trace "hello", smt_tactic.failed },
 end
+
+set_option trace.smt true
+
+example (n : nat) : n = 0 → boo (n+1) = r 2 :=
+begin [smt]
+  add_eqn_lemmas boo foo r,
+  ematch,
+end

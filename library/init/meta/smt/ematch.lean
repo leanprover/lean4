@@ -35,6 +35,9 @@ meta constant hinst_lemmas.add             : hinst_lemmas → hinst_lemma → hi
 meta constant hinst_lemmas.fold {α : Type} : hinst_lemmas → α → (hinst_lemma → α → α) → α
 meta constant hinst_lemmas.merge           : hinst_lemmas → hinst_lemmas → hinst_lemmas
 
+meta def mk_hinst_singleton : hinst_lemma → hinst_lemmas :=
+hinst_lemmas.add hinst_lemmas.mk
+
 meta def hinst_lemmas.pp (s : hinst_lemmas) : tactic format :=
 let tac := s^.fold (return format.nil)
     (λ h tac, do

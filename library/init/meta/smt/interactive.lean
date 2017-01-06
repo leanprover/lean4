@@ -147,6 +147,34 @@ add_eqn_lemmas_for_core reducible ids
 meta def add_eqn_lemmas (ids : raw_ident_list) : smt_tactic unit :=
 add_eqn_lemmas_for ids
 
+private meta def add_hinst_lemma_from_name (md : transparency) (lhs_lemma : bool) (n : name) (hs : hinst_lemmas) : smt_tactic hinst_lemmas :=
+do {
+  e ← resolve_name n,
+  match e with
+  | expr.const n _           := do h ← hinst_lemma.mk_from_decl_core md n lhs_lemma, return $ hs^.add h
+  | expr.local_const _ _ _ _ := do h ← hinst_lemma.mk_core md e lhs_lemma, return $ hs^.add h
+  | _                        := fail "failed"
+  end
+}
+<|>
+fail ("invalid ematch lemma '" ++ to_string n ++ "'")
+
+private meta def add_hinst_lemma_from_pexpr (md : transparency) (lhs_lemma : bool) (p : pexpr) (hs : hinst_lemmas) : smt_tactic hinst_lemmas :=
+let e := pexpr.to_raw_expr p in
+match e with
+| (expr.const c [])          := add_hinst_lemma_from_name md lhs_lemma c hs
+| (expr.local_const c _ _ _) := add_hinst_lemma_from_name md lhs_lemma c hs
+| _                          := do new_e ← to_expr p, h ← hinst_lemma.mk_core md new_e lhs_lemma, return $ hs^.add h
+end
+
+private meta def add_hinst_lemmas_from_pexprs (md : transparency) (lhs_lemma : bool) : list pexpr → hinst_lemmas → smt_tactic hinst_lemmas
+| []      hs := return hs
+| (p::ps) hs := do hs₁ ← add_hinst_lemma_from_pexpr md lhs_lemma p hs, add_hinst_lemmas_from_pexprs ps hs₁
+
+meta def ematch_using (l : qexpr_list_or_qexpr0) : smt_tactic unit :=
+do hs ← add_hinst_lemmas_from_pexprs reducible ff l hinst_lemmas.mk,
+   smt_tactic.ematch_using hs
+
 meta def try (t : itactic) : smt_tactic unit :=
 smt_tactic.try t
 

@@ -59,6 +59,7 @@ public:
     void internalize(expr const & e);
     void add(expr const & type, expr const & proof);
     void ematch(buffer<expr_pair> & result);
+    void ematch_using(hinst_lemmas const & lemmas, buffer<expr_pair> & result);
 
     optional<expr> get_proof(expr const & e);
     bool inconsistent() const { return m_cc.inconsistent(); }

@@ -35,8 +35,8 @@ typedef list<expr> multi_pattern;
 /** Heuristic instantiation lemma */
 struct hinst_lemma {
     name                 m_id;
-    unsigned             m_num_uvars;
-    unsigned             m_num_mvars;
+    unsigned             m_num_uvars{0};
+    unsigned             m_num_mvars{0};
     list<multi_pattern>  m_multi_patterns;
     list<bool>           m_is_inst_implicit;
     list<expr>           m_mvars;

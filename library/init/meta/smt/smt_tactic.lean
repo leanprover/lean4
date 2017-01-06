@@ -101,14 +101,26 @@ open tactic (transparency)
 meta constant intros_core                     : bool → smt_tactic unit
 meta constant close                           : smt_tactic unit
 meta constant ematch_core                     : (expr → bool) → smt_tactic unit
-meta constant add_ematch_lemma_core           : transparency → bool → expr → smt_tactic unit
-meta constant add_ematch_lemma_from_decl_core : transparency → bool → name → smt_tactic unit
-meta constant add_ematch_eqn_lemmas_for_core  : transparency → name → smt_tactic unit
+meta constant ematch_using                    : hinst_lemmas → smt_tactic unit
+meta constant mk_ematch_eqn_lemmas_for_core   : transparency → name → smt_tactic hinst_lemmas
 meta constant to_cc_state                     : smt_tactic cc_state
 meta constant to_em_state                     : smt_tactic ematch_state
 meta constant preprocess                      : expr → smt_tactic (expr × expr)
 meta constant get_lemmas                      : smt_tactic hinst_lemmas
 meta constant set_lemmas                      : hinst_lemmas → smt_tactic unit
+meta constant add_lemmas                      : hinst_lemmas → smt_tactic unit
+
+meta def add_ematch_lemma_core (md : transparency) (as_simp : bool) (e : expr) : smt_tactic unit :=
+do h  ← hinst_lemma.mk_core md e as_simp,
+   add_lemmas (mk_hinst_singleton h)
+
+meta def add_ematch_lemma_from_decl_core (md : transparency) (as_simp : bool) (n : name) : smt_tactic unit :=
+do h  ← hinst_lemma.mk_from_decl_core md n as_simp,
+   add_lemmas (mk_hinst_singleton h)
+
+meta def add_ematch_eqn_lemmas_for_core  (md : transparency) (n : name) : smt_tactic unit :=
+do hs ← mk_ematch_eqn_lemmas_for_core md n,
+   add_lemmas hs
 
 meta def intros : smt_tactic unit :=
 intros_core tt

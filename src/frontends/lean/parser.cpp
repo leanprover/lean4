@@ -208,8 +208,8 @@ bool parser::check_break_at_pos(pos_info const & p, name const & tk) {
 }
 
 void parser::scan() {
+    pos_info curr_pos = pos();
     if (m_break_at_pos && curr_is_identifier()) {
-        pos_info curr_pos = pos();
         name curr_ident = get_name_val();
         if (check_break_at_pos(curr_pos, curr_ident))
             throw break_at_pos_exception(curr_pos, curr_ident, break_at_pos_exception::token_context::ident);
@@ -219,11 +219,11 @@ void parser::scan() {
                 m_break_at_pos->second == curr_pos.second + curr_ident.utf8_size() && curr_is_token(get_period_tk()))
             throw break_at_pos_exception(curr_pos, name(curr_ident.to_string() + get_period_tk()),
                                          break_at_pos_exception::token_context::ident);
-    } else if (m_break_at_pos && *m_break_at_pos < pos()) {
-        throw break_at_pos_exception();
     } else {
         m_curr = m_scanner.scan(m_env);
     }
+    if (m_break_at_pos && curr_pos <= *m_break_at_pos && *m_break_at_pos < pos())
+        throw break_at_pos_exception();
 }
 
 expr parser::mk_sorry(pos_info const & p) {
@@ -2110,39 +2110,53 @@ std::vector<module_name> parser::parse_imports(unsigned & fingerprint) {
         m_last_cmd_pos = pos();
         next();
         while (true) {
+            pos_info p = pos();
             optional<unsigned> k;
-            unsigned h = 0;
-            while (true) {
-                if (curr_is_token(get_period_tk())) {
-                    next();
-                    if (!k) {
-                        k = 0;
+            try {
+                unsigned h = 0;
+                while (true) {
+                    if (curr_is_token(get_period_tk())) {
+                        if (!k) {
+                            k = 0;
+                        } else {
+                            k = *k + 1;
+                            h++;
+                        }
+                        next();
+                    } else if (curr_is_token(get_ellipsis_tk())) {
+                        if (!k) {
+                            k = 2;
+                            h = 2;
+                        } else {
+                            k = *k + 3;
+                            h += 3;
+                        }
+                        next();
                     } else {
-                        k = *k + 1;
-                        h++;
+                        break;
                     }
-                } else if (curr_is_token(get_ellipsis_tk())) {
-                    next();
-                    if (!k) {
-                        k = 2;
-                        h = 2;
-                    } else {
-                        k = *k + 3;
-                        h += 3;
-                    }
-                } else {
+                }
+                if (!curr_is_identifier())
                     break;
+                name f = get_name_val();
+                fingerprint = hash(fingerprint, f.hash());
+                if (k) {
+                    fingerprint = hash(fingerprint, h);
+                }
+                imports.push_back({f, k});
+                next();
+            } catch (break_at_pos_exception & e) {
+                if (k || e.m_token_info) {
+                    std::string tk;
+                    if (k)
+                        tk += std::string(*k + 1, '.');
+                    if (e.m_token_info)
+                        tk += e.m_token_info->m_token.to_string();
+                    throw break_at_pos_exception(p, tk, break_at_pos_exception::token_context::import);
+                } else {
+                    throw;
                 }
             }
-            if (!curr_is_identifier())
-                break;
-            name f            = get_name_val();
-            fingerprint       = hash(fingerprint, f.hash());
-            if (k) {
-                fingerprint = hash(fingerprint, h);
-            }
-            imports.push_back({ f, k });
-            next();
         }
     }
     return imports;
@@ -2199,8 +2213,10 @@ bool parser::parse_commands() {
     scope_message_context scope_parser_msgs("_parser", m_old_buckets_from_snapshot);
     try {
         bool done = false;
-        // Only parse imports when we are at the beginning, i.e. not when starting from a snapshot.
+        // Only parse imports when we are at the beginning.
         if (!m_imports_parsed) {
+            // initial snapshot strictly before actual input
+            save_snapshot(scope_parser_msgs, {0, 0});
             scope_message_context scope_msg_ctx("imports");
             // TODO(gabriel): separate flag for snapshots/infos?
             auto_reporting_info_manager_scope scope_infom(m_file_name, m_snapshot_vector != nullptr);
@@ -2274,14 +2290,14 @@ bool parser::curr_is_command_like() const {
     }
 }
 
-void parser::save_snapshot(scope_message_context & smc) {
+void parser::save_snapshot(scope_message_context & smc, pos_info p) {
     if (!m_snapshot_vector)
         return;
-    if (m_snapshot_vector->empty() || m_snapshot_vector->back()->m_pos != m_scanner.get_pos_info()) {
+    if (m_snapshot_vector->empty() || m_snapshot_vector->back()->m_pos != p) {
         m_snapshot_vector->push_back(std::make_shared<snapshot>(
                 m_env, smc.get_sub_buckets(), m_local_level_decls, m_local_decls,
                 m_level_variables, m_variables, m_include_vars,
-                m_ios.get_options(), m_imports_parsed, m_parser_scope_stack, m_next_inst_idx, m_scanner.get_pos_info()));
+                m_ios.get_options(), m_imports_parsed, m_parser_scope_stack, m_next_inst_idx, p));
     }
 }
 

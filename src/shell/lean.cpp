@@ -426,7 +426,7 @@ int main(int argc, char ** argv) {
             for (auto & f : args) {
                 if (auto i_d = is_dir(f)) {
                     if (*i_d) {
-                        recursive_list_files(f, files);
+                        find_files(f, ".lean", files);
                     } else {
                         files.push_back(f);
                     }

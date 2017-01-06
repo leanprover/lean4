@@ -79,7 +79,7 @@ typedef std::vector<std::shared_ptr<snapshot const>> snapshot_vector;
 
 class break_at_pos_exception : public std::exception {
 public:
-    enum class token_context { ident, notation, option };
+    enum class token_context { ident, notation, option, import };
     struct token_info {
         pos_info      m_pos;
         token_context m_context;
@@ -190,7 +190,6 @@ class parser : public abstract_parser {
     void check_no_doc_string();
     void reset_doc_string();
 
-    std::vector<module_name> parse_imports(unsigned & fingerprint);
     void process_imports();
     void parse_command();
     bool parse_commands();
@@ -233,7 +232,8 @@ class parser : public abstract_parser {
     void push_local_scope(bool save_options = true);
     void pop_local_scope();
 
-    void save_snapshot(scope_message_context &);
+    void save_snapshot(scope_message_context &, pos_info);
+    void save_snapshot(scope_message_context & smc) { save_snapshot(smc, m_scanner.get_pos_info()); }
 
 public:
     parser(environment const & env, io_state const & ios,
@@ -420,6 +420,8 @@ public:
     expr parse_expr_with_env(local_environment const & lenv, unsigned rbp = 0);
 
     expr parse_tactic(unsigned rbp = 0);
+
+    std::vector<module_name> parse_imports(unsigned & fingerprint);
 
     struct local_scope {
         parser & m_p; environment m_env;

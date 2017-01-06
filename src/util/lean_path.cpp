@@ -223,7 +223,7 @@ std::string name_to_file(name const & fname) {
 std::string find_file(std::string fname, std::initializer_list<char const *> const & extensions) {
     bool is_known = is_known_file_ext(fname);
     fname = normalize_path(fname);
-    for (auto path : *g_lean_path_vector) {
+    for (auto const & path : *g_lean_path_vector) {
         if (is_known) {
             if (auto r = check_file(path, fname))
                 return *r;
@@ -269,6 +269,46 @@ std::string find_file(name const & fname) {
 
 std::string find_file(name const & fname, std::initializer_list<char const *> const & exts) {
     return find_file(fname.to_string(g_sep_str), exts);
+}
+
+void find_files(std::string const & base, char const * ext, std::vector<std::string> & files) {
+    for (auto & fn : read_dir(base)) {
+        if (auto i_d = is_dir(fn)) {
+            if (*i_d) {
+                find_files(fn, ext, files);
+            } else if (has_file_ext(fn, ext)) {
+                files.push_back(fn);
+            }
+        }
+    }
+}
+
+void find_imports_core(std::string const & base, optional<unsigned> const & k, std::vector<std::string> & imports) {
+    std::vector<std::string> files;
+    find_files(base, ".lean", files);
+
+    for (auto const & file : files) {
+        auto import = file.substr(base.size() + 1, file.size() - base.size() - 1 - std::string(".lean").size());
+        std::replace(import.begin(), import.end(), g_sep, '.');
+        if (k)
+            import = std::string(*k + 1, '.') + import;
+        imports.push_back(import);
+    }
+}
+
+void find_imports(std::string const & base, optional<unsigned> const & k, std::vector<std::string> & imports) {
+    if (!k) {
+        for (auto const & base : *g_lean_path_vector)
+            if (is_dir(base))
+                find_imports_core(base, k, imports);
+    } else {
+        auto path = base;
+        for (unsigned i = 0; i < *k; i++) {
+            path += g_sep;
+            path += "..";
+        }
+        find_imports_core(path, k, imports);
+    }
 }
 
 char const * get_lean_path() {
@@ -352,7 +392,7 @@ optional<bool> is_dir(std::string const & fn) {
 
 std::vector<std::string> read_dir(std::string const &dirname) {
     auto dir = opendir(dirname.c_str());
-    if (!dir) throw exception(sstream() << "could not open directory: " << dirname);
+    if (!dir) throw exception(sstream() << "could not open directory " << dirname << ": " << std::strerror(errno));
 
     std::vector<std::string> files;
     while (auto ep = readdir(dir)) { // NOLINT
@@ -362,19 +402,8 @@ std::vector<std::string> read_dir(std::string const &dirname) {
         if (fn == "." || fn == "..") continue;
         files.push_back(path_append(dirname.c_str(), fn.c_str()));
     }
+    closedir(dir);
     return files;
-}
-
-void recursive_list_files(std::string const & dirname, std::vector<std::string> & files) {
-    for (auto & fn : read_dir(dirname)) {
-        if (auto i_d = is_dir(fn)) {
-            if (*i_d) {
-                recursive_list_files(fn, files);
-            } else {
-                files.push_back(fn);
-            }
-        }
-    }
 }
 
 }

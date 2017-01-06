@@ -10,6 +10,7 @@ Authors: Gabriel Ebner, Leonardo de Moura, Sebastian Ullrich
 #include <algorithm>
 #include <vector>
 #include <clocale>
+#include "util/lean_path.h"
 #include "util/sexpr/option_declarations.h"
 #include "util/utf8.h"
 #include "library/mt_task_queue.h"
@@ -290,11 +291,11 @@ server::cmd_res server::handle_sync(server::cmd_req const & req) {
     return { req.m_seq_num, res };
 }
 
-std::shared_ptr<snapshot const> get_closest_snapshot(std::shared_ptr<module_info const> const & mod_info, unsigned line) {
+std::shared_ptr<snapshot const> get_closest_snapshot(std::shared_ptr<module_info const> const & mod_info, pos_info p) {
     auto snapshots = mod_info.get()->m_result.get().m_snapshots;
     auto ret = snapshots.size() ? snapshots.front() : std::shared_ptr<snapshot>();
     for (auto & snap : snapshots) {
-        if (snap->m_pos.first < line)
+        if (snap->m_pos < p)
             ret = snap;
     }
     return ret;
@@ -302,7 +303,7 @@ std::shared_ptr<snapshot const> get_closest_snapshot(std::shared_ptr<module_info
 
 void parse_breaking_at_pos(module_id const & mod_id, std::shared_ptr<module_info const> mod_info, pos_info pos) {
     std::istringstream in(*mod_info->m_lean_contents);
-    if (auto snap = get_closest_snapshot(mod_info, pos.first)) {
+    if (auto snap = get_closest_snapshot(mod_info, pos)) {
         snapshot s = *snap;
         s.m_sub_buckets.clear(); // HACK
 
@@ -349,7 +350,7 @@ public:
             pos_info pos = get_pos();
             json j;
 
-            if (auto snap = get_closest_snapshot(m_mod_info, pos.first)) {
+            if (auto snap = get_closest_snapshot(m_mod_info, pos)) {
                 try {
                     parse_breaking_at_pos(get_module_id(), m_mod_info, {pos.first, pos.second - 1});
                 } catch (break_at_pos_exception & e) {
@@ -364,7 +365,12 @@ public:
                                 break;
                             case break_at_pos_exception::token_context::option:
                                 if (!m_skip_completions)
-                                    j["completions"] = get_option_completions(prefix, m_server->m_ios.get_options());
+                                    j["completions"] = get_option_completions(prefix, snap->m_options);
+                                break;
+                            case break_at_pos_exception::token_context::import:
+                                if (!m_skip_completions)
+                                    j["completions"] = get_import_completions(prefix, dirname(m_mod_info->m_mod.c_str()),
+                                                                              snap->m_options);
                                 break;
                             case break_at_pos_exception::token_context::notation:
                                 // do not complete notations

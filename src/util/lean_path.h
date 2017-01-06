@@ -42,6 +42,10 @@ std::string find_file(std::string const & base, optional<unsigned> const & rel, 
                       std::initializer_list<char const *> const & extensions);
 std::string find_file(std::string const & base, optional<unsigned> const & k, name const & fname, char const * ext);
 
+/** \brief Find all files with the given extension recursively. */
+void find_files(std::string const & base, char const * ext, std::vector<std::string> & files);
+void find_imports(std::string const & base, optional<unsigned> const & k, std::vector<std::string> & files);
+
 /** \brief Return true iff fname ends with ".lean" */
 bool is_lean_file(std::string const & fname);
 /** \brief Return true iff fname ends with ".olean" */
@@ -66,7 +70,6 @@ std::string read_file(std::string const & fname, std::ios_base::openmode mode = 
 
 optional<bool> is_dir(std::string const & fn);
 std::vector<std::string> read_dir(std::string const & dirname);
-void recursive_list_files(std::string const & dirname, std::vector<std::string> & files);
 
 time_t get_mtime(std::string const & fname);
 

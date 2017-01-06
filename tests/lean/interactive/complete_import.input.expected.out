@@ -1,0 +1,4 @@
+{"msg":{"caption":"","file_name":"f","pos_col":0,"pos_line":1,"severity":"error","text":"file 'a' not found in the LEAN_PATH"},"response":"additional_message"}
+{"msg":{"caption":"","file_name":"f","pos_col":0,"pos_line":1,"severity":"error","text":"invalid import: a\ncould not resolve import: a"},"response":"additional_message"}
+{"message":"file invalidated","response":"ok","seq_num":0}
+{"prefix":"..a","response":"ok","seq_num":1}

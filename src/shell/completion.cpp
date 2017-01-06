@@ -15,6 +15,7 @@ Authors: Gabriel Ebner, Leonardo de Moura, Sebastian Ullrich
 #include "library/protected.h"
 #include "library/scoped_ext.h"
 #include "frontends/lean/util.h"
+#include "util/lean_path.h"
 
 namespace lean {
 
@@ -152,5 +153,34 @@ std::vector<json> get_option_completions(std::string const & pattern, options co
     return completions;
 }
 
+std::vector<json> get_import_completions(std::string const & pattern, std::string const & curr_dir,
+                                         options const & opts) {
+    unsigned max_results = get_auto_completion_max_results(opts);
+    unsigned max_errors = get_fuzzy_match_max_errors(pattern.size());
+    std::vector<pair<std::string, name>> selected;
+    bitap_fuzzy_search matcher(pattern, max_errors);
+    std::vector<json> completions;
+
+    optional<unsigned> depth;
+    if (pattern.size() && pattern[0] == '.') {
+        unsigned i = 1;
+        while (i < pattern.size() && pattern[i] == '.')
+            i++;
+        depth = {i - 1};
+    }
+    std::vector<std::string> imports;
+    find_imports(curr_dir, depth, imports);
+
+    for (auto const & candidate : imports) {
+        if (matcher.match(candidate))
+            selected.emplace_back(candidate, candidate);
+    }
+    filter_completions(pattern, selected, completions, max_results, [&](name const & n) {
+        json completion;
+        completion["text"] = n.to_string();
+        return completion;
+    });
+    return completions;
+}
 }
 #endif

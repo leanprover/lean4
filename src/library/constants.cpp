@@ -87,6 +87,7 @@ name const * g_fin_mk = nullptr;
 name const * g_fin_ne_of_vne = nullptr;
 name const * g_forall_congr = nullptr;
 name const * g_forall_congr_eq = nullptr;
+name const * g_forall_not_of_not_exists = nullptr;
 name const * g_funext = nullptr;
 name const * g_ge = nullptr;
 name const * g_get_line = nullptr;
@@ -545,6 +546,7 @@ void initialize_constants() {
     g_fin_ne_of_vne = new name{"fin", "ne_of_vne"};
     g_forall_congr = new name{"forall_congr"};
     g_forall_congr_eq = new name{"forall_congr_eq"};
+    g_forall_not_of_not_exists = new name{"forall_not_of_not_exists"};
     g_funext = new name{"funext"};
     g_ge = new name{"ge"};
     g_get_line = new name{"get_line"};
@@ -1004,6 +1006,7 @@ void finalize_constants() {
     delete g_fin_ne_of_vne;
     delete g_forall_congr;
     delete g_forall_congr_eq;
+    delete g_forall_not_of_not_exists;
     delete g_funext;
     delete g_ge;
     delete g_get_line;
@@ -1462,6 +1465,7 @@ name const & get_fin_mk_name() { return *g_fin_mk; }
 name const & get_fin_ne_of_vne_name() { return *g_fin_ne_of_vne; }
 name const & get_forall_congr_name() { return *g_forall_congr; }
 name const & get_forall_congr_eq_name() { return *g_forall_congr_eq; }
+name const & get_forall_not_of_not_exists_name() { return *g_forall_not_of_not_exists; }
 name const & get_funext_name() { return *g_funext; }
 name const & get_ge_name() { return *g_ge; }
 name const & get_get_line_name() { return *g_get_line; }

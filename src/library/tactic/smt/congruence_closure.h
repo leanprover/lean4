@@ -240,6 +240,8 @@ private:
     void propagate_or_down(expr const & e);
     void propagate_not_down(expr const & e);
     void propagate_eq_down(expr const & e);
+    expr_pair to_forall_not(expr const & ex, expr const & h_not_ex);
+    void propagate_exists_down(expr const & e);
     void propagate_down(expr const & e);
     void propagate_inst_implicit(expr const & e);
     void propagate_constructor_eq(expr const & e1, expr const & e2);

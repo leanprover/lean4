@@ -597,6 +597,9 @@ iff.intro
 @[congr] lemma exists_unique_congr {α : Type u} {p₁ p₂ : α → Prop} (h : ∀ x, p₁ x ↔ p₂ x) : (exists_unique p₁) ↔ (∃! x, p₂ x) := --
 exists_congr (λ x, and_congr (h x) (forall_congr (λ y, imp_congr (h y) iff.rfl)))
 
+lemma forall_not_of_not_exists {α : Type u} {p : α → Prop} : ¬(∃ x, p x) → (∀ x, ¬p x) :=
+λ hne x hp, hne ⟨x, hp⟩
+
 /- decidable -/
 
 def decidable.to_bool (p : Prop) [h : decidable p] : bool :=

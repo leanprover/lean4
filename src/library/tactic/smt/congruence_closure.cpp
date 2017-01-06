@@ -1597,6 +1597,45 @@ void congruence_closure::propagate_eq_down(expr const & e) {
     }
 }
 
+/** Given (h_not_ex : not ex) where ex is of the form (exists x, p x),
+    return a (forall x, not p x) and a proof for it.
+
+    This function handles nested existentials. */
+expr_pair congruence_closure::to_forall_not(expr const & ex, expr const & h_not_ex) {
+    lean_assert(is_exists(ex));
+    expr A, p;
+    lean_verify(is_exists(ex, A, p));
+    type_context::tmp_locals locals(m_ctx);
+    level lvl         = get_level(m_ctx, A);
+    expr x            = locals.push_local("_x", A);
+    expr px           = head_beta_reduce(mk_app(p, x));
+    expr not_px       = mk_not(px);
+    expr h_all_not_px = mk_app({mk_constant(get_forall_not_of_not_exists_name(), {lvl}), A, p, h_not_ex});
+    if (is_exists(px)) {
+        expr h_not_px = locals.push_local("_h", not_px);
+        auto p               = to_forall_not(px, h_not_px);
+        expr qx              = p.first;
+        expr all_qx          = m_ctx.mk_pi(x, qx);
+        expr h_qx            = p.second;
+        expr h_not_px_imp_qx = m_ctx.mk_lambda(h_not_px, h_qx);
+        expr h_all_qx        = m_ctx.mk_lambda({x}, mk_app(h_not_px_imp_qx, mk_app(h_all_not_px, x)));
+        return mk_pair(all_qx, h_all_qx);
+    } else {
+        expr all_not_px      = m_ctx.mk_pi(x, not_px);
+        return mk_pair(all_not_px, h_all_not_px);
+    }
+}
+
+void congruence_closure::propagate_exists_down(expr const & e) {
+    if (is_eq_false(e)) {
+        expr h_not_e = mk_not_of_eq_false(m_ctx, get_eq_false_proof(e));
+        expr all, h_all;
+        std::tie(all, h_all) = to_forall_not(e, h_not_e);
+        internalize_core(all, none_expr());
+        push_eq(all, mk_true(), mk_eq_true_intro(m_ctx, h_all));
+    }
+}
+
 void congruence_closure::propagate_down(expr const & e) {
     if (is_and(e)) {
         propagate_and_down(e);
@@ -1606,6 +1645,8 @@ void congruence_closure::propagate_down(expr const & e) {
         propagate_not_down(e);
     } else if (is_eq(e) || is_iff(e)) {
         propagate_eq_down(e);
+    } else if (is_exists(e)) {
+        propagate_exists_down(e);
     }
 }
 

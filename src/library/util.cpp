@@ -808,6 +808,20 @@ expr mk_absurd(abstract_type_context & ctx, expr const & t, expr const & e, expr
     return mk_app(mk_constant(get_absurd_name(), {t_lvl}), e_type, t, e, not_e);
 }
 
+bool is_exists(expr const & e, expr & A, expr & p) {
+    if (is_app_of(e, get_Exists_name(), 2)) {
+        A = app_arg(app_fn(e));
+        p = app_arg(e);
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool is_exists(expr const & e) {
+    return is_app_of(e, get_Exists_name(), 2);
+}
+
 optional<expr> get_binary_op(expr const & e) {
     if (!is_app(e) || !is_app(app_fn(e)))
         return none_expr();

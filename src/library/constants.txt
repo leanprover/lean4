@@ -82,6 +82,7 @@ fin.mk
 fin.ne_of_vne
 forall_congr
 forall_congr_eq
+forall_not_of_not_exists
 funext
 ge
 get_line

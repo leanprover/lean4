@@ -89,6 +89,7 @@ name const & get_fin_mk_name();
 name const & get_fin_ne_of_vne_name();
 name const & get_forall_congr_name();
 name const & get_forall_congr_eq_name();
+name const & get_forall_not_of_not_exists_name();
 name const & get_funext_name();
 name const & get_ge_name();
 name const & get_get_line_name();

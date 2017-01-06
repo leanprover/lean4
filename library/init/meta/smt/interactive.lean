@@ -100,6 +100,9 @@ do p ← tactic.to_expr_strict q,
 meta def by_contradiction : smt_tactic unit :=
 smt_tactic.by_contradiction
 
+meta def by_contra : smt_tactic unit :=
+smt_tactic.by_contradiction
+
 open tactic (resolve_name transparency to_expr)
 
 private meta def add_lemma_name (md : transparency) (lhs_lemma : bool) (n : name) : smt_tactic unit :=

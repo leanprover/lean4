@@ -486,7 +486,10 @@ public:
     }
 
     void merge(rb_tree const & s) {
-        s.for_each([&](T const & v) { insert(v); });
+        if (empty())
+            *this = s;
+        else if (!is_eqp(*this, s))
+            s.for_each([&](T const & v) { insert(v); });
     }
 
     bool is_superset(rb_tree const & s) const {

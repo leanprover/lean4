@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.meta.tactic init.meta.rewrite_tactic init.meta.simp_tactic
-import init.meta.smt.congruence_closure
+import init.meta.smt.congruence_closure init.category.combinators
 
 namespace interactive
 namespace types
@@ -310,12 +310,18 @@ tactic.exfalso
 meta def injection (q : qexpr0) (hs : with_ident_list) : tactic unit :=
 do e ← to_expr q, tactic.injection_with e hs
 
+private meta def add_simps : simp_lemmas → list name → tactic simp_lemmas
+| s []      := return s
+| s (n::ns) := do s' ← s^.add_simp n, add_simps s' ns
+
 private meta def simp_lemmas.resolve_and_add (s : simp_lemmas) (n : name) : tactic simp_lemmas :=
 do {
   e ← resolve_name n,
   match e with
   | expr.const n _           :=
-    do b ← is_valid_simp_lemma_cnst reducible n, guard b, s^.add_simp n
+    (do b ← is_valid_simp_lemma_cnst reducible n, guard b, s^.add_simp n)
+    <|>
+    (do eqns ← get_eqn_lemmas_for tt n, guard (eqns^.length > 0), add_simps s eqns)
   | expr.local_const _ _ _ _ :=
     do b ← is_valid_simp_lemma reducible e, guard b, s^.add e
   | _ := failed

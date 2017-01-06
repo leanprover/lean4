@@ -69,6 +69,10 @@ simp_lemmas.dsimplify_core default_max_steps ff
 meta constant simp_lemmas.pp : simp_lemmas → tactic format
 
 namespace tactic
+/- (get_eqn_lemmas_for deps d) returns the automatically generated equational lemmas for definition d.
+   If deps is tt, then lemmas for automatically generated auxiliary declarations used to define d are also included. -/
+meta constant get_eqn_lemmas_for : bool → name → tactic (list name)
+
 meta constant dsimplify_core
   /- The user state type. -/
   {α : Type}

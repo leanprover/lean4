@@ -306,7 +306,7 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
                     mod->m_deps);
 
             if (m_save_olean)
-                get_global_task_queue()->submit<olean_compilation_task>(mod);
+                mod->m_olean_task = get_global_task_queue()->submit<olean_compilation_task>(mod);
 
             get_global_task_queue()->cancel_if([=] (generic_task * t) {
                 return t->get_version() < m_current_period && t->get_module_id() == id && t->get_pos() >= task_pos;

@@ -118,7 +118,9 @@ set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE        "-O3 -DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g3")
 set(CMAKE_CXX_FLAGS_GPROF          "-O2 -g -pg")
-set(CMAKE_CXX_FLAGS_EMSCRIPTEN     "-Oz -O3 -s ALLOW_MEMORY_GROWTH=1 --llvm-lto 1 -s DISABLE_EXCEPTION_CATCHING=0 -Wno-warn-absolute-paths")
+set(CFLAGS_EMSCRIPTEN              "-Oz -O3")
+set(CMAKE_CXX_FLAGS_EMSCRIPTEN     "${CFLAGS_EMSCRIPTEN} -Wno-warn-absolute-paths")
+set(CMAKE_EXE_LINKER_FLAGS_EMSCRIPTEN "--llvm-lto 1 -s ALLOW_MEMORY_GROWTH=1 -s DISABLE_EXCEPTION_CATCHING=0 ${CFLAGS_EMSCRIPTEN}")
 
 # OSX .dmg generation (this is working in progress)
 set(CPACK_DMG_BACKGROUND_IMAGE "${LEAN_SOURCE_DIR}/../images/lean.png")
@@ -181,7 +183,7 @@ else()
     message(FATAL_ERROR "Your C++ compiler does not support C++11.")
 endif ()
 
-if (${EMSCRIPTEN})
+if (EMSCRIPTEN)
     include(ExternalProject)
     set(gmp_install_prefix ${CMAKE_CURRENT_BINARY_DIR}/gmp-root)
     # The plethory of configure arguments only makes sure that gmp thinks sizeof(mp_limb_t) == sizeof(long) == 4
@@ -190,7 +192,7 @@ if (${EMSCRIPTEN})
             URL https://gmplib.org/download/gmp/gmp-6.1.1.tar.bz2
             URL_HASH SHA256=a8109865f2893f1373b0a8ed5ff7429de8db696fc451b1036bd7bdf95bbeffd6
             BUILD_IN_SOURCE 1
-            CONFIGURE_COMMAND emconfigure ./configure CFLAGS=-m32\ -DPIC --build=i686-pc-linux-gnu --disable-assembly --prefix=${gmp_install_prefix}
+            CONFIGURE_COMMAND emconfigure ./configure "CFLAGS=-m32 -DPIC ${CFLAGS_EMSCRIPTEN}" --build=i686-pc-linux-gnu --disable-assembly --prefix=${gmp_install_prefix}
             BUILD_COMMAND emmake make -j4
             INSTALL_COMMAND make install
     )
@@ -201,7 +203,7 @@ if (${EMSCRIPTEN})
             URL http://www.mpfr.org/mpfr-current/mpfr-3.1.5.tar.bz2
             URL_HASH SHA256=ca498c1c7a74dd37a576f353312d1e68d490978de4395fa28f1cbd46a364e658
             BUILD_IN_SOURCE 1
-            CONFIGURE_COMMAND emconfigure ./configure --prefix=${mpfr_install_prefix} --with-gmp-include=${gmp_install_prefix}/include --with-gmp-lib=${gmp_install_prefix}/lib
+            CONFIGURE_COMMAND emconfigure ./configure "CFLAGS=${CFLAGS_EMSCRIPTEN}" --prefix=${mpfr_install_prefix} --with-gmp-include=${gmp_install_prefix}/include --with-gmp-lib=${gmp_install_prefix}/lib
             BUILD_COMMAND emmake make -j4
             INSTALL_COMMAND make install
     )

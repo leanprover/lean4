@@ -33,7 +33,12 @@ if(${EMSCRIPTEN})
 
     file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/lean_js.html DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
-    target_link_libraries(lean_js "--embed-file library --memory-init-file 0 --bind")
+    target_link_libraries(lean_js
+            "--embed-file library
+             --memory-init-file 0
+             --bind
+             -s WASM=0
+             -s \"BINARYEN_METHOD='native-wasm,asmjs'\"")
     add_dependencies(lean_js lean_js_library)
     set_target_properties(lean_js PROPERTIES COMPILE_FLAGS --bind -s NO_EXIT_RUNTIME=1)
 else()

@@ -532,6 +532,10 @@ static expr prove_eqn_lemma(type_context & ctx, buffer<expr> const & Hs, expr co
     return ctx.mk_lambda(Hs, body);
 }
 
+static name mk_equation_name(name const & f_name, unsigned eqn_idx) {
+    return name(name(f_name, "equations"), "eqn").append_after(eqn_idx);
+}
+
 environment mk_equation_lemma(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx,
                               name const & f_name, unsigned eqn_idx, bool is_private,
                               buffer<expr> const & Hs, expr const & lhs, expr const & rhs) {
@@ -539,8 +543,33 @@ environment mk_equation_lemma(environment const & env, options const & opts, met
     type_context ctx(env, opts, mctx, lctx, transparency_mode::Semireducible);
     expr type     = ctx.mk_pi(Hs, mk_eq(ctx, lhs, rhs));
     expr proof    = prove_eqn_lemma(ctx, Hs, lhs, rhs);
-    name eqn_name = name(name(f_name, "equations"), "eqn").append_after(eqn_idx);
+    name eqn_name = mk_equation_name(f_name, eqn_idx);
     return add_equation_lemma(env, opts, mctx, lctx, is_private, eqn_name, type, proof);
+}
+
+environment mk_simple_equation_lemma_for(environment const & env, options const & opts, bool is_private, name const & c, unsigned arity) {
+    if (!env.find(get_eq_name())) return env;
+    if (!get_eqn_compiler_lemmas(opts)) return env;
+    declaration d = env.get(c);
+    type_context ctx(env, transparency_mode::All);
+    expr type  = d.get_type();
+    expr value = d.get_value();
+    expr lhs   = mk_constant(c, param_names_to_levels(d.get_univ_params()));
+    type_context::tmp_locals locals(ctx);
+    for (unsigned i = 0; i < arity; i++) {
+        type  = ctx.relaxed_whnf(type);
+        value = ctx.relaxed_whnf(value);
+        if (!is_pi(type) || !is_lambda(value))
+            throw exception(sstream() << "failed to create equational lemma for '" << c << "', incorrect arity");
+        expr x = locals.push_local_from_binding(type);
+        lhs    = mk_app(lhs, x);
+        type   = instantiate(binding_body(type), x);
+        value  = instantiate(binding_body(value), x);
+    }
+    name eqn_name  = mk_equation_name(c, 1);
+    expr eqn_type  = locals.mk_pi(mk_eq(ctx, lhs, value));
+    expr eqn_proof = locals.mk_lambda(mk_eq_refl(ctx, lhs));
+    return add_equation_lemma(env, opts, metavar_context(), ctx.lctx(), is_private, eqn_name, eqn_type, eqn_proof);
 }
 
 void initialize_eqn_compiler_util() {

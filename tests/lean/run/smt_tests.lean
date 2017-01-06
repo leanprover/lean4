@@ -46,3 +46,11 @@ begin [smt]
   add_eqn_lemmas boo foo,
   ematch,
 end
+
+def r (x : nat) := x
+
+example (n : nat) : n = 0 → boo (n+1) = r 2 :=
+begin [smt]
+  add_eqn_lemmas boo foo r,
+  ematch,
+end

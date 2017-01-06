@@ -7,12 +7,12 @@ check false
 theorem false.elim (C : Prop) (H : false) : C
 := H C
 
-definition eq {A : Type} (a b : A)
+definition Eq {A : Type} (a b : A)
 := ∀ {P : A → Prop}, P a → P b
 
-check eq
+check Eq
 
-infix `=`:50 := eq
+infix `=`:50 := Eq
 
 theorem refl {A : Type} (a : A) : a = a
 := λ P H, H

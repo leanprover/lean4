@@ -33,10 +33,10 @@ check double
 check double.{1 2}
 
 definition Prop := Type 0
-constant eq : Π {A : Type*}, A → A → Prop
-infix `=`:50 := eq
+constant Eq : Π {A : Type*}, A → A → Prop
+infix `=`:50 := Eq
 
-check eq.{1}
+check Eq.{1}
 
 section
   universe variable l

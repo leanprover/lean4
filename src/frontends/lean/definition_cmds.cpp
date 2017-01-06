@@ -26,6 +26,7 @@ Author: Leonardo de Moura
 #include "library/documentation.h"
 #include "library/scope_pos_info_provider.h"
 #include "library/replace_visitor.h"
+#include "library/equations_compiler/util.h"
 #include "library/equations_compiler/equations.h"
 #include "library/compiler/vm_compiler.h"
 #include "library/compiler/rec_fn_macro.h"
@@ -813,6 +814,10 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
         new_env = add_local_ref(p, new_env, c_name, c_real_name, lp_names, params);
         if (eqns && aux_lemmas) {
             new_env = copy_equation_lemmas(new_env, c_real_name);
+        }
+        if (!eqns && !modifiers.m_is_meta && kind == Definition) {
+            unsigned arity = new_params.size();
+            new_env = mk_simple_equation_lemma_for(new_env, p.get_options(), modifiers.m_is_private, c_real_name, arity);
         }
         return new_env;
     };

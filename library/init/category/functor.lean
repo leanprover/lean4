@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Luke Nelson and Jared Roesch
 -/
 prelude
+import init.core
 universe variables u v
 
 class functor (f : Type u → Type v) : Type (max u+1 v) :=

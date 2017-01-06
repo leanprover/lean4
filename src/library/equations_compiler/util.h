@@ -86,6 +86,17 @@ environment mk_equation_lemma(environment const & env, options const & opts, met
                               name const & f_name, unsigned eqn_idx, bool is_private,
                               buffer<expr> const & Hs, expr const & lhs, expr const & rhs);
 
+/* Create an equational lemma for definition c based on its value.
+   Example: Given
+      def foo (x y : nat) := x + 10
+   we create
+      forall x y, foo x y = x + 10
+
+   The proof is by reflexivity.
+
+   This function is used to make sure we have equations for all definitions. */
+environment mk_simple_equation_lemma_for(environment const & env, options const & opts, bool is_private, name const & c, unsigned arity);
+
 void initialize_eqn_compiler_util();
 void finalize_eqn_compiler_util();
 }

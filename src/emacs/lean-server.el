@@ -93,7 +93,7 @@
          (proc (if (fboundp 'make-process)
                    (make-process ;; emacs >= 25 lets us redirect stderr
                     :name "lean-server"
-                    :buffer (format "*lean-server (%s)*" project-dir)
+                    :buffer (format " *lean-server (%s)*" project-dir)
                     :command `(,(lean-get-executable lean-executable-name)
                                "--server"
                                ,(format "*%s*" project-dir))
@@ -105,7 +105,7 @@
                              :buffer (format "*lean-server stderr (%s)*" project-dir)
                              :noquery t))
                  (start-file-process "lean-server"
-                                     (format "*lean-server (%s)*" (buffer-name))
+                                     (format " *lean-server (%s)*" (buffer-name))
                                      (lean-get-executable lean-executable-name)
                                      "--server"
                                      (format "*%s*" (buffer-name)))))

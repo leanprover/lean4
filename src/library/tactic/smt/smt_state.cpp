@@ -775,6 +775,25 @@ vm_obj smt_tactic_preprocess(vm_obj const & e, vm_obj const & ss, vm_obj const &
     LEAN_TACTIC_CATCH(ts);
 }
 
+vm_obj smt_tactic_get_lemmas(vm_obj const & ss, vm_obj const & _ts) {
+    tactic_state ts = to_tactic_state(_ts);
+    if (is_nil(ss)) return mk_smt_state_empty_exception(ts);
+    smt_goal g      = to_smt_goal(head(ss));
+    hinst_lemmas s  = g.get_em_state().get_lemmas();
+    s.merge(g.get_em_state().get_new_lemmas());
+    vm_obj r        = to_obj(s);
+    return mk_smt_tactic_success(r, ss, _ts);
+}
+
+vm_obj smt_tactic_set_lemmas(vm_obj const & lemmas, vm_obj const & ss, vm_obj const & _ts) {
+    tactic_state ts     = to_tactic_state(_ts);
+    if (is_nil(ss)) return mk_smt_state_empty_exception(ts);
+    smt_goal g          = to_smt_goal(head(ss));
+    g.set_lemmas(to_hinst_lemmas(lemmas));
+    vm_obj new_ss       = mk_vm_cons(to_obj(g), tail(ss));
+    return mk_smt_tactic_success(new_ss, _ts);
+}
+
 void initialize_smt_state() {
     register_trace_class("smt");
     register_trace_class(name({"smt", "fact"}));
@@ -791,6 +810,8 @@ void initialize_smt_state() {
     DECLARE_VM_BUILTIN(name({"smt_tactic", "to_cc_state"}),                      smt_tactic_to_cc_state);
     DECLARE_VM_BUILTIN(name({"smt_tactic", "to_em_state"}),                      smt_tactic_to_em_state);
     DECLARE_VM_BUILTIN(name({"smt_tactic", "preprocess"}),                       smt_tactic_preprocess);
+    DECLARE_VM_BUILTIN(name({"smt_tactic", "get_lemmas"}),                       smt_tactic_get_lemmas);
+    DECLARE_VM_BUILTIN(name({"smt_tactic", "set_lemmas"}),                       smt_tactic_set_lemmas);
     DECLARE_VM_BUILTIN(name({"smt_tactic", "add_ematch_lemma_core"}),            smt_tactic_add_ematch_lemma_core);
     DECLARE_VM_BUILTIN(name({"smt_tactic", "add_ematch_lemma_from_decl_core"}),  smt_tactic_add_ematch_lemma_from_decl_core);
     DECLARE_VM_BUILTIN(name({"smt_tactic", "add_ematch_eqn_lemmas_for_core"}),   smt_tactic_add_ematch_eqn_lemmas_for_core);

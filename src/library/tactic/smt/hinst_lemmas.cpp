@@ -743,6 +743,12 @@ vm_obj hinst_lemmas_fold(vm_obj const &, vm_obj const & hls, vm_obj const & a, v
     return r;
 }
 
+vm_obj hinst_lemmas_merge(vm_obj const & s1, vm_obj const & s2) {
+    hinst_lemmas r = to_hinst_lemmas(s1);
+    r.merge(to_hinst_lemmas(s2));
+    return to_obj(r);
+}
+
 void initialize_hinst_lemmas() {
     g_pattern_hint      = new name("pattern_hint");
     register_annotation(*g_pattern_hint);
@@ -764,6 +770,7 @@ void initialize_hinst_lemmas() {
     DECLARE_VM_BUILTIN(name({"hinst_lemmas", "mk"}),               hinst_lemmas_mk);
     DECLARE_VM_BUILTIN(name({"hinst_lemmas", "add"}),              hinst_lemmas_add);
     DECLARE_VM_BUILTIN(name({"hinst_lemmas", "fold"}),             hinst_lemmas_fold);
+    DECLARE_VM_BUILTIN(name({"hinst_lemmas", "merge"}),            hinst_lemmas_merge);
 }
 
 void finalize_hinst_lemmas() {

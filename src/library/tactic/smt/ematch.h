@@ -42,6 +42,7 @@ public:
     hinst_lemmas const & get_lemmas() const { return m_lemmas; }
     hinst_lemmas const & get_new_lemmas() const { return m_new_lemmas; }
     void add_lemma(hinst_lemma const & lemma) { m_new_lemmas.insert(lemma); }
+    void set_lemmas(hinst_lemmas const & lemmas) { m_lemmas.clear(); m_new_lemmas = lemmas; }
 };
 
 /* Ematch patterns in lemma with t, and add instances of lemma at result */

@@ -21,6 +21,9 @@ meta constant hinst_lemma.mk_from_decl_core : transparency → name → bool →
 meta constant hinst_lemma.pp                : hinst_lemma → tactic format
 meta constant hinst_lemma.id                : hinst_lemma → name
 
+meta instance : has_to_tactic_format hinst_lemma :=
+⟨hinst_lemma.pp⟩
+
 meta def hinst_lemma.mk (h : expr) : tactic hinst_lemma :=
 hinst_lemma.mk_core reducible h ff
 
@@ -30,6 +33,7 @@ hinst_lemma.mk_from_decl_core reducible h ff
 meta constant hinst_lemmas.mk              : hinst_lemmas
 meta constant hinst_lemmas.add             : hinst_lemmas → hinst_lemma → hinst_lemmas
 meta constant hinst_lemmas.fold {α : Type} : hinst_lemmas → α → (hinst_lemma → α → α) → α
+meta constant hinst_lemmas.merge           : hinst_lemmas → hinst_lemmas → hinst_lemmas
 
 meta def hinst_lemmas.pp (s : hinst_lemmas) : tactic format :=
 let tac := s^.fold (return format.nil)
@@ -41,6 +45,9 @@ let tac := s^.fold (return format.nil)
 in do
   r ← tac,
   return $ format.cbrace (format.group r)
+
+meta instance : has_to_tactic_format hinst_lemmas :=
+⟨hinst_lemmas.pp⟩
 
 open tactic
 

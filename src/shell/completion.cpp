@@ -14,6 +14,7 @@ Authors: Gabriel Ebner, Leonardo de Moura, Sebastian Ullrich
 #include "util/bitap_fuzzy_search.h"
 #include "library/protected.h"
 #include "library/scoped_ext.h"
+#include "library/class.h"
 #include "frontends/lean/util.h"
 #include "util/lean_path.h"
 
@@ -101,8 +102,11 @@ std::vector<json> get_decl_completions(std::string const & pattern, environment 
     std::vector<pair<std::string, name>> selected;
     bitap_fuzzy_search matcher(pattern, max_errors);
     env.for_each_declaration([&](declaration const & d) {
-        if (is_projection(env, d.get_name()))
-            return;
+        if (is_projection(env, d.get_name())) {
+            auto s_name = d.get_name().get_prefix();
+            if (is_class(env, s_name))
+                return;
+        }
         if (auto it = exact_prefix_match(env, pattern, d)) {
             exact_matches.emplace_back(*it, d.get_name());
         } else {

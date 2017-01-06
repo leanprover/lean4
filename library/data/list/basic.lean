@@ -62,25 +62,4 @@ theorem length_firstn
                               ... = min (succ n) (succ (length l))
                                      : eq.symm (nat.min_succ_succ  n (length l))
 
-/- decidable -/
-
-definition has_decidable_eq [h : decidable_eq α]
-: ∀ (x y : list α), decidable (x = y)
-| nil nil := is_true rfl
-| nil (cons b s) := is_false (λ q, list.no_confusion q)
-| (cons a r) nil := is_false (λ q, list.no_confusion q)
-| (cons a r) (cons b s) :=
-  match h a b with
-  | (is_true h₁) :=
-    match has_decidable_eq r s with
-    | (is_true  h₂) :=
-       is_true (calc a :: r = b :: r : congr_arg (λc, c :: r) h₁
-                        ... = b :: s : congr_arg (λt, b :: t) h₂)
-    | (is_false h₂) :=
-      is_false (λ q, list.no_confusion q (λ heq teq, h₂ teq))
-    end
-  | (is_false h₁) :=
-     is_false (λ q, list.no_confusion q (λ heq teq, h₁ heq))
-  end
-
 end list

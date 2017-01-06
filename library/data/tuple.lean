@@ -47,14 +47,6 @@ theorem tail_cons (a : α) : Π (v : tuple α n), tail (a :: v) = v
 
 definition to_list : tuple α n → list α | ⟨ l, h ⟩ := l
 
-definition has_decidable_eq [decidable_eq α] {n:ℕ}
-  : ∀ (x y : tuple α n), decidable (x = y)
-| ⟨s,p⟩ ⟨t,q⟩ :=
-  match list.has_decidable_eq s t with
-  | (is_true h)  := is_true (subtype.eq h)
-  | (is_false h) := is_false (λr, subtype.no_confusion r (λleq (peq : p == q), h leq))
-  end
-
 /- append -/
 
 definition append {n m : nat} : tuple α n → tuple α m → tuple α (n + m)
@@ -129,7 +121,3 @@ section accum
 
 end accum
 end tuple
-
-instance decide_tuple_eq {A:Type.{1}} [decidable_eq A] {n:ℕ}
-  : ∀ {x y : tuple A n}, decidable (x = y)
-  := tuple.has_decidable_eq

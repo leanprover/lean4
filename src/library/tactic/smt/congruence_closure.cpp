@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <unordered_map>
 #include <algorithm>
+#include "kernel/instantiate.h"
 #include "library/util.h"
 #include "library/constants.h"
 #include "library/num.h"
@@ -488,6 +489,25 @@ void congruence_closure::apply_simple_eqvs(expr const & e) {
         push_refl_eq(e, *r);
     }
 
+    expr const & fn = get_app_fn(e);
+    if (is_lambda(fn)) {
+        expr reduced_e = head_beta_reduce(e);
+        internalize_core(reduced_e, none_expr());
+        push_refl_eq(e, reduced_e);
+    }
+
+    expr root_fn = get_root(fn);
+    auto it      = get_entry(root_fn);
+    if (it && it->m_has_lambdas) {
+        buffer<expr> lambdas;
+        get_eqc_lambdas(root_fn, lambdas);
+        buffer<expr> new_lambda_apps;
+        propagate_beta(e, lambdas, new_lambda_apps);
+        for (expr const & new_app : new_lambda_apps) {
+            internalize_core(new_app, none_expr());
+        }
+    }
+
     propagate_up(e);
 }
 
@@ -579,6 +599,7 @@ void congruence_closure::state::mk_entry_core(expr const & e, bool interpreted, 
     n.m_flipped      = false;
     n.m_interpreted  = interpreted;
     n.m_constructor  = constructor;
+    n.m_has_lambdas  = is_lambda(e);
     n.m_heq_proofs   = false;
     n.m_mt           = m_gmt;
     n.m_fo           = false;
@@ -1602,6 +1623,31 @@ static bool is_true_or_false(expr const & e) {
     return is_constant(e, get_true_name()) || is_constant(e, get_false_name());
 }
 
+void congruence_closure::get_eqc_lambdas(expr const & e, buffer<expr> & r) {
+    lean_assert(get_root(e) == e);
+    if (!get_entry(e)->m_has_lambdas) return;
+    auto it = e;
+    do {
+        if (is_lambda(it))
+            r.push_back(it);
+        auto it_n = get_entry(it);
+        it = it_n->m_next;
+    } while (it != e);
+}
+
+void congruence_closure::propagate_beta(expr const & e, buffer<expr> const & lambdas, buffer<expr> & new_lambda_apps) {
+    lean_assert(is_app(e));
+    buffer<expr> args;
+    expr const & fn = get_app_args(e, args);
+    for (expr const & lambda : lambdas) {
+        lean_assert(is_lambda(lambda));
+        if (fn != lambda && m_ctx.relaxed_is_def_eq(m_ctx.infer(fn), m_ctx.infer(lambda))) {
+            expr new_app = mk_app(lambda, args);
+            new_lambda_apps.push_back(new_app);
+        }
+    }
+}
+
 void congruence_closure::add_eqv_step(expr e1, expr e2, expr const & H, bool heq_proof) {
     auto n1 = get_entry(e1);
     auto n2 = get_entry(e2);
@@ -1671,6 +1717,10 @@ void congruence_closure::add_eqv_step(expr e1, expr e2, expr const & H, bool heq
     /* The hash code for the parents is going to change */
     remove_parents(e1_root, parents_to_propagate);
 
+    buffer<expr> lambdas1, lambdas2;
+    get_eqc_lambdas(e1_root, lambdas1);
+    get_eqc_lambdas(e2_root, lambdas2);
+
     /* force all m_root fields in e1 equivalence class to point to e2_root */
     bool propagate = is_true_or_false(e2_root);
     buffer<expr> to_propagate;
@@ -1693,11 +1743,13 @@ void congruence_closure::add_eqv_step(expr e1, expr e2, expr const & H, bool heq
     r2 = get_entry(e2_root);
     lean_assert(r1 && r2);
     lean_assert(r1->m_root == e2_root);
-    entry new_r1   = *r1;
-    entry new_r2   = *r2;
-    new_r1.m_next  = r2->m_next;
-    new_r2.m_next  = r1->m_next;
-    new_r2.m_size += r1->m_size;
+
+    entry new_r1          = *r1;
+    entry new_r2          = *r2;
+    new_r1.m_next         = r2->m_next;
+    new_r2.m_next         = r1->m_next;
+    new_r2.m_size        += r1->m_size;
+    new_r2.m_has_lambdas |= r1->m_has_lambdas;
     optional<expr> ac_var1 = r1->m_ac_var;
     optional<expr> ac_var2 = r2->m_ac_var;
     if (!ac_var2)
@@ -1707,6 +1759,19 @@ void congruence_closure::add_eqv_step(expr e1, expr e2, expr const & H, bool heq
     m_state.m_entries.insert(e1_root, new_r1);
     m_state.m_entries.insert(e2_root, new_r2);
     lean_assert(check_invariant());
+
+    buffer<expr> lambda_apps_to_internalize;
+
+    if (!lambdas1.empty()) {
+        // beta with e2_root parents and lambdas1 (of e1 class)
+        if (auto ps2 = m_state.m_parents.find(e2_root)) {
+            ps2->for_each([&](parent_occ const & p) {
+                    if (is_app(p.m_expr) && get_root(get_app_fn(p.m_expr)) == e2) {
+                        propagate_beta(p.m_expr, lambdas1, lambda_apps_to_internalize);
+                    }
+                });
+        }
+    }
 
     // copy e1_root parents to e2_root
     auto ps1 = m_state.m_parents.find(e1_root);
@@ -1720,6 +1785,10 @@ void congruence_closure::add_eqv_step(expr e1, expr e2, expr const & H, bool heq
                         propagate_projection_constructor(p.m_expr, e2_root);
                     }
                     ps2.insert(p);
+                }
+                if (!lambdas2.empty() && is_app(p.m_expr) && get_root(get_app_fn(p.m_expr)) == e2) {
+                    // beta with e1_root parents and lambdas2 (of e2 class)
+                    propagate_beta(p.m_expr, lambdas2, lambda_apps_to_internalize);
                 }
             });
         m_state.m_parents.erase(e1_root);
@@ -1750,6 +1819,12 @@ void congruence_closure::add_eqv_step(expr e1, expr e2, expr const & H, bool heq
             propagate_down(e);
         if (m_phandler)
             m_phandler->propagated(to_propagate);
+    }
+
+    if (!m_state.m_inconsistent) {
+        for (expr const & e : lambda_apps_to_internalize) {
+            internalize_core(e, none_expr());
+        }
     }
 
     lean_trace(name({"cc", "merge"}), scope_trace_env scope(m_ctx.env(), m_ctx);

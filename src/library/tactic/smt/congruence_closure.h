@@ -65,6 +65,7 @@ class congruence_closure {
         unsigned       m_flipped:1;      // proof has been flipped
         unsigned       m_interpreted:1;  // true if the node should be viewed as an abstract value
         unsigned       m_constructor:1;  // true if head symbol is a constructor
+        unsigned       m_has_lambdas:1;  // true if equivalence class contains lambda expressions
         /* m_heq_proofs == true iff some proofs in the equivalence class are based on heterogeneous equality.
            We represent equality and heterogeneous equality in a single equivalence class. */
         unsigned       m_heq_proofs:1;
@@ -244,6 +245,8 @@ private:
     void propagate_constructor_eq(expr const & e1, expr const & e2);
     void propagate_projection_constructor(expr const & p, expr const & c);
     void propagate_value_inconsistency(expr const & e1, expr const & e2);
+    void get_eqc_lambdas(expr const & e, buffer<expr> & r);
+    void propagate_beta(expr const & e, buffer<expr> const & lambdas, buffer<expr> & r);
     void add_eqv_step(expr e1, expr e2, expr const & H, bool heq_proof);
     void process_todo();
     void add_eqv_core(expr const & lhs, expr const & rhs, expr const & H, bool heq_proof);

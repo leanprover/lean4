@@ -95,10 +95,8 @@ void smt::ematch(buffer<expr_pair> & result) {
     ::lean::ematch(m_ctx, m_goal.m_em_state, m_cc, result);
 }
 
-void smt::ematch_using(hinst_lemmas const & lemmas, buffer<expr_pair> & result) {
-    lemmas.for_each([&](hinst_lemma const & lemma) {
-            ::lean::ematch(m_ctx, m_goal.m_em_state, m_cc, lemma, false, result);
-        });
+void smt::ematch_using(hinst_lemma const & lemma, buffer<expr_pair> & result) {
+    ::lean::ematch(m_ctx, m_goal.m_em_state, m_cc, lemma, false, result);
 }
 
 struct vm_smt_goal : public vm_external {
@@ -795,7 +793,18 @@ vm_obj smt_tactic_ematch_using(vm_obj const & hs, vm_obj const & ss, vm_obj cons
     smt S(ctx, g);
     S.internalize(target);
     buffer<expr_pair> new_instances;
-    S.ematch_using(to_hinst_lemmas(hs), new_instances);
+    to_hinst_lemmas(hs).for_each([&](hinst_lemma const & lemma) {
+            if (lemma.m_num_mvars == 0 && lemma.m_num_uvars == 0) {
+                expr type  = lemma.m_prop;
+                expr h     = lemma.m_proof;
+                std::tie(type, h) = preprocess_forward(ctx, g, type, h);
+                lean_trace(name({"smt", "ematch"}), scope_trace_env _(ctx.env(), ctx);
+                           tout() << "new ground fact: " << type << "\n";);
+                S.add(type, h);
+            } else {
+                S.ematch_using(lemma, new_instances);
+            }
+        });
     for (expr_pair const & p : new_instances) {
         expr type   = p.first;
         expr proof  = p.second;

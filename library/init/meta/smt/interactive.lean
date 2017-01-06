@@ -151,7 +151,10 @@ private meta def add_hinst_lemma_from_name (md : transparency) (lhs_lemma : bool
 do {
   e ← resolve_name n,
   match e with
-  | expr.const n _           := do h ← hinst_lemma.mk_from_decl_core md n lhs_lemma, return $ hs^.add h
+  | expr.const n _           :=
+    (do h ← hinst_lemma.mk_from_decl_core md n lhs_lemma, return $ hs^.add h)
+    <|>
+    (do hs₁ ← mk_ematch_eqn_lemmas_for_core md n, return $ hs^.merge hs₁)
   | expr.local_const _ _ _ _ := do h ← hinst_lemma.mk_core md e lhs_lemma, return $ hs^.add h
   | _                        := fail "failed"
   end

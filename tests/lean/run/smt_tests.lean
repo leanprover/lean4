@@ -28,6 +28,11 @@ begin [smt]
   ematch
 end
 
+example (n : nat) : n = 0 → foo (n+1) = 2*0 :=
+begin [smt]
+  ematch_using [foo, mul_zero, zero_mul],
+end
+
 example (n : nat) : n = 0 → foo n = 0 :=
 begin [smt]
   add_eqn_lemmas foo
@@ -45,6 +50,11 @@ example (n : nat) : n = 0 → boo (n+1) = 2 :=
 begin [smt]
   add_eqn_lemmas boo foo,
   ematch,
+end
+
+example (n : nat) : n = 0 → boo (n+1) = 2 :=
+begin [smt]
+  ematch_using [boo, foo]
 end
 
 def r (x : nat) := x

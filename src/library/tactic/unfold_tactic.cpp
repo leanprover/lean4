@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "library/type_context.h"
 #include "library/util.h"
+#include "library/trace.h"
 #include "library/constants.h"
 #include "library/vm/vm_expr.h"
 #include "library/tactic/eqn_lemmas.h"
@@ -48,12 +49,22 @@ vm_obj tactic_dunfold_expr_core(vm_obj const & m, vm_obj const & _e, vm_obj cons
             buffer<simp_lemma> lemmas;
             bool refl_only = true;
             get_eqn_lemmas_for(env, const_name(fn), refl_only, lemmas);
-            for (simp_lemma const & sl : lemmas) {
-                expr new_e = refl_lemma_rewrite(ctx, e, sl);
-                if (new_e != e)
-                    return mk_tactic_success(to_obj(new_e), s);
+            expr it = e;
+            buffer<expr> extra_args;
+            while (true) {
+                for (simp_lemma const & sl : lemmas) {
+                    expr new_it = refl_lemma_rewrite(ctx, it, sl);
+                    if (new_it != it) {
+                        expr new_e = annotated_head_beta_reduce(mk_rev_app(new_it, extra_args));
+                        return mk_tactic_success(to_obj(new_e), s);
+                    }
+                }
+                if (!is_app(it))
+                    break;
+                extra_args.push_back(app_arg(it));
+                it = app_fn(it);
             }
-            return mk_tactic_exception("dunfold_expr failed, none of the rfl lemmas is application", s);
+            return mk_tactic_exception("dunfold_expr failed, none of the rfl lemmas is applicable", s);
         } else {
             declaration d = env.get(const_name(fn));
             if (!d.is_definition())

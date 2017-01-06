@@ -182,5 +182,29 @@ std::vector<json> get_import_completions(std::string const & pattern, std::strin
     });
     return completions;
 }
+
+std::vector<json> get_interactive_tactic_completions(std::string const & pattern, name const & tac_class,
+                                                     environment const & env, options const & opts) {
+    std::vector<json> completions;
+
+    unsigned max_results = get_auto_completion_max_results(opts);
+    unsigned max_errors = get_fuzzy_match_max_errors(pattern.size());
+    std::vector<pair<std::string, name>> selected;
+    bitap_fuzzy_search matcher(pattern, max_errors);
+    name namespc = tac_class + name("interactive");
+    env.for_each_declaration([&](declaration const & d) {
+        auto const & n = d.get_name();
+        if (n.get_prefix() == namespc && n.is_string() && matcher.match(n.get_string())) {
+            selected.emplace_back(n.get_string(), n);
+        }
+    });
+    filter_completions(pattern, selected, completions, max_results, [&](name const & n) {
+        return serialize_decl(n.get_string(), n, env, opts);
+    });
+    // append regular completions
+    for (auto candidate : get_decl_completions(pattern, env, opts))
+        completions.push_back(candidate);
+    return completions;
+}
 }
 #endif

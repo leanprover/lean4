@@ -372,6 +372,11 @@ public:
                                     j["completions"] = get_import_completions(prefix, dirname(m_mod_info->m_mod.c_str()),
                                                                               snap->m_options);
                                 break;
+                            case break_at_pos_exception::token_context::interactive_tactic:
+                                if (!m_skip_completions)
+                                    j["completions"] = get_interactive_tactic_completions(
+                                            prefix, e.m_token_info->m_tac_class, snap->m_env, snap->m_options);
+                                break;
                             case break_at_pos_exception::token_context::notation:
                                 // do not complete notations
                                 return {};

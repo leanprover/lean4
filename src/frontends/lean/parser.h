@@ -79,19 +79,21 @@ typedef std::vector<std::shared_ptr<snapshot const>> snapshot_vector;
 
 class break_at_pos_exception : public std::exception {
 public:
-    enum class token_context { ident, notation, option, import };
+    enum class token_context { ident, notation, option, import, interactive_tactic };
     struct token_info {
         pos_info      m_pos;
-        token_context m_context;
         name          m_token;
+
+        token_context m_context;
+        name          m_tac_class;
     };
 
     optional<token_info> m_token_info;
     optional<pos_info>   m_goal_pos;
 
     break_at_pos_exception() {}
-    break_at_pos_exception(pos_info const & token_pos, name const & token, token_context ctxt):
-            m_token_info(token_info {token_pos, ctxt, token}) {}
+    break_at_pos_exception(pos_info const & token_pos, name const & token, token_context ctxt, name tac_class = {}):
+            m_token_info(token_info {token_pos, token, ctxt, tac_class}) {}
 
     void report_goal_pos(pos_info goal_pos);
 };

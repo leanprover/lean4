@@ -17,5 +17,7 @@ std::vector<json> get_decl_completions(std::string const & pattern, environment 
 std::vector<json> get_option_completions(std::string const & pattern, options const & opts);
 std::vector<json> get_import_completions(std::string const & pattern, std::string const & curr_dir,
                                          options const & opts);
+std::vector<json> get_interactive_tactic_completions(std::string const & pattern, name const & tac_class,
+                                                     environment const & env, options const & opts);
 
 }

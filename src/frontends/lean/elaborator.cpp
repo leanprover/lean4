@@ -532,7 +532,11 @@ optional<expr> elaborator::mk_coercion(expr const & e, expr e_type, expr type, e
 
 bool elaborator::is_def_eq(expr const & e1, expr const & e2) {
     type_context::approximate_scope scope(m_ctx);
-    return m_ctx.is_def_eq(e1, e2);
+    try {
+        return m_ctx.is_def_eq(e1, e2);
+    } catch (exception &) {
+        return false;
+    }
 }
 
 bool elaborator::try_is_def_eq(expr const & e1, expr const & e2) {

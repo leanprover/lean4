@@ -1,0 +1,8 @@
+bad_error4.lean:5:0: error: type mismatch at application
+  foo.mk (λ (a : unit) (b : delayed[?m_1]), delayed[?m_2])
+term
+  λ (a : unit) (b : delayed[?m_1]), delayed[?m_2]
+has type
+  Π (a : unit) (b : delayed[?m_1]), delayed[?m_3]
+but is expected to have type
+  unit → unit

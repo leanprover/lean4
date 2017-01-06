@@ -59,11 +59,11 @@ end
 
 private lemma sub_nat_nat_of_sub_eq_zero {m n : ℕ} (h : n - m = 0) :
   sub_nat_nat m n = of_nat (m - n) :=
-begin unfold sub_nat_nat, rw [h, sub_nat_nat._match_1.equations.eqn_1] end
+begin unfold sub_nat_nat, rw h, unfold sub_nat_nat._match_1, reflexivity end
 
 private lemma sub_nat_nat_of_sub_eq_succ {m n k : ℕ} (h : n - m = succ k) :
   sub_nat_nat m n = -[1+ k] :=
-begin unfold sub_nat_nat, rw [h, sub_nat_nat._match_1.equations.eqn_2] end
+begin unfold sub_nat_nat, rw h, unfold sub_nat_nat._match_1, reflexivity end
 
 protected def neg : ℤ → ℤ
 | (of_nat n) := neg_of_nat n
@@ -276,7 +276,7 @@ protected lemma mul_comm : ∀ a b : ℤ, a * b = b * a
 private lemma of_nat_mul_neg_of_nat (m : ℕ) :
    ∀ n, of_nat m * neg_of_nat n = neg_of_nat (m * n)
 | 0        := rfl
-| (succ n) := by simp [neg_of_nat.equations.eqn_2]
+| (succ n) := begin unfold neg_of_nat, simp end
 
 private lemma neg_of_nat_mul_of_nat (m n : ℕ) :
     neg_of_nat m * of_nat n = neg_of_nat (m * n) :=
@@ -285,7 +285,7 @@ begin rw int.mul_comm, simp [of_nat_mul_neg_of_nat] end
 private lemma neg_succ_of_nat_mul_neg_of_nat (m : ℕ) :
   ∀ n, -[1+ m] * neg_of_nat n = of_nat (succ m * n)
 | 0        := rfl
-| (succ n) := by simp [neg_of_nat.equations.eqn_2]
+| (succ n) := begin unfold neg_of_nat, simp end
 
 private lemma neg_of_nat_mul_neg_succ_of_nat (m n : ℕ) :
   neg_of_nat n * -[1+ m] = of_nat (n * succ m) :=

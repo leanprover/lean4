@@ -97,6 +97,8 @@ environment mk_equation_lemma(environment const & env, options const & opts, met
    This function is used to make sure we have equations for all definitions. */
 environment mk_simple_equation_lemma_for(environment const & env, options const & opts, bool is_private, name const & c, unsigned arity);
 
+name mk_equation_name(name const & f_name, unsigned eqn_idx);
+
 void initialize_eqn_compiler_util();
 void finalize_eqn_compiler_util();
 }

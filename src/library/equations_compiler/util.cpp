@@ -532,8 +532,8 @@ static expr prove_eqn_lemma(type_context & ctx, buffer<expr> const & Hs, expr co
     return ctx.mk_lambda(Hs, body);
 }
 
-static name mk_equation_name(name const & f_name, unsigned eqn_idx) {
-    return name(name(f_name, "equations"), "eqn").append_after(eqn_idx);
+name mk_equation_name(name const & f_name, unsigned eqn_idx) {
+    return name(name(f_name, "equations"), "_eqn").append_after(eqn_idx);
 }
 
 environment mk_equation_lemma(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx,

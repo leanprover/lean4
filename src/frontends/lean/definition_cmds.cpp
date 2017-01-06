@@ -514,8 +514,7 @@ static environment copy_equation_lemmas(environment const & env, name const & d_
     environment new_env = env;
     unsigned i = 1;
     while (true) {
-        name eqn_suffix = name({"equations", "eqn"}).append_after(i);
-        name eqn_name = const_name(fn) + eqn_suffix;
+        name eqn_name = mk_equation_name(const_name(fn), i);
         optional<declaration> eqn_decl = env.find(eqn_name);
         if (!eqn_decl) break;
         unsigned num_eqn_levels = eqn_decl->get_num_univ_params();
@@ -548,7 +547,7 @@ static environment copy_equation_lemmas(environment const & env, name const & d_
                     return none_expr();
             });
         new_eqn_type = locals.mk_pi(new_eqn_type);
-        name new_eqn_name    = d_name + eqn_suffix;
+        name new_eqn_name    = mk_equation_name(d_name, i);
         expr new_eqn_value;
         new_eqn_value = mk_app(mk_constant(eqn_name, eqn_levels), args);
         new_eqn_value = locals.mk_lambda(new_eqn_value);

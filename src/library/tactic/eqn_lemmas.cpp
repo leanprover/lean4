@@ -12,7 +12,11 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/constants.h"
 #include "library/module.h"
+#include "library/vm/vm_name.h"
+#include "library/vm/vm_list.h"
+#include "library/equations_compiler/util.h"
 #include "library/tactic/eqn_lemmas.h"
+#include "library/tactic/tactic_state.h"
 
 namespace lean {
 struct eqn_lemmas_ext : public environment_extension {
@@ -96,10 +100,9 @@ void get_eqn_lemmas_for(environment const & env, name const & cname, bool refl_o
 }
 
 void get_eqn_lemmas_for(environment const & env, name const & cname, buffer<name> & result) {
-    name base(name(cname, "equations"), "eqn");
     unsigned idx = 1;
     while (true) {
-        name eqn = base.append_after(idx);
+        name eqn = mk_equation_name(cname, idx);
         if (env.find(eqn)) {
             result.push_back(eqn);
             idx++;
@@ -128,6 +131,16 @@ void get_ext_eqn_lemmas_for(environment const & env, name const & cname, buffer<
     }
 }
 
+vm_obj tactic_get_eqn_lemmas_for(vm_obj const & all, vm_obj const & n, vm_obj const & s) {
+    buffer<name> result;
+    if (to_bool(all)) {
+        get_ext_eqn_lemmas_for(to_tactic_state(s).env(), to_name(n), result);
+    } else {
+        get_eqn_lemmas_for(to_tactic_state(s).env(), to_name(n), result);
+    }
+    return mk_tactic_success(to_obj(result), to_tactic_state(s));
+}
+
 bool has_eqn_lemmas(environment const & env, name const & cname) {
     eqn_lemmas_ext const & ext = get_extension(env);
     return ext.m_lemmas.contains(cname);
@@ -136,6 +149,7 @@ bool has_eqn_lemmas(environment const & env, name const & cname) {
 void initialize_eqn_lemmas() {
     g_ext            = new eqn_lemmas_ext_reg();
     eqn_lemmas_modification::init();
+    DECLARE_VM_BUILTIN(name({"tactic", "get_eqn_lemmas_for"}), tactic_get_eqn_lemmas_for);
 }
 
 void finalize_eqn_lemmas() {

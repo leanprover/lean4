@@ -16,14 +16,14 @@ noncomputable definition bla {A : Type*} : ∀ n : tree A, P n
 | (tree.leaf a) := mk1 a
 | (tree.node n xs) := mk2 n xs
 
-check bla._main.equations.eqn_1
-check bla._main.equations.eqn_2
+check bla._main.equations._eqn_1
+check bla._main.equations._eqn_2
 
 noncomputable definition foo {A : Type*} : nat → tree A → nat
 | 0     _                                     := sorry
 | (n+1) (tree.leaf a)                         := 0
 | (n+1) (tree.node m xs)                      := foo n (tree.node m xs)
 
-check @foo._main.equations.eqn_1
-check @foo._main.equations.eqn_2
-check @foo._main.equations.eqn_3
+check @foo._main.equations._eqn_1
+check @foo._main.equations._eqn_2
+check @foo._main.equations._eqn_3

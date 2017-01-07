@@ -32,13 +32,9 @@ protected:
     expr visit(expr const & e);
 
 public:
-    dsimplify_core_fn(type_context & ctx, unsigned max_steps, bool visit_instances);
+    dsimplify_core_fn(type_context & ctx, defeq_canonizer::state & s, unsigned max_steps, bool visit_instances);
     expr operator()(expr e);
     metavar_context const & mctx() const;
-
-    environment update_defeq_canonizer_state(environment const & env) const {
-        return m_defeq_canonizer.update_state(env);
-    }
 };
 
 class dsimplify_fn : public dsimplify_core_fn {
@@ -48,8 +44,8 @@ class dsimplify_fn : public dsimplify_core_fn {
     virtual optional<pair<expr, bool>> pre(expr const & e) override;
     virtual optional<pair<expr, bool>> post(expr const & e) override;
 public:
-    dsimplify_fn(type_context & ctx, unsigned max_steps, bool visit_instances, simp_lemmas_for const & lemmas,
-                 bool use_eta);
+    dsimplify_fn(type_context & ctx, defeq_canonizer::state & s,
+                 unsigned max_steps, bool visit_instances, simp_lemmas_for const & lemmas, bool use_eta);
 };
 
 void initialize_dsimplify();

@@ -256,7 +256,8 @@ private:
 
     friend ext_congr_lemma_cache_ptr const & get_cache_ptr(congruence_closure const & cc);
 public:
-    congruence_closure(type_context & ctx, state & s, cc_propagation_handler * phandler = nullptr);
+    congruence_closure(type_context & ctx, state & s, defeq_canonizer::state & dcs,
+                       cc_propagation_handler * phandler = nullptr);
     ~congruence_closure();
 
     environment const & env() const { return m_ctx.env(); }
@@ -304,10 +305,6 @@ public:
 
     entry const * get_entry(expr const & e) const { return m_state.m_entries.find(e); }
     bool check_invariant() const { return m_state.check_invariant(); }
-
-    environment update_defeq_canonizer_state(environment const & env) const {
-        return m_defeq_canonizer.update_state(env);
-    }
 };
 
 typedef congruence_closure::state  cc_state;

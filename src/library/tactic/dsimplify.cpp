@@ -176,8 +176,8 @@ expr dsimplify_core_fn::visit(expr const & e) {
     return curr_e;
 }
 
-dsimplify_core_fn::dsimplify_core_fn(type_context & ctx, unsigned max_steps, bool visit_instances):
-    m_ctx(ctx), m_defeq_canonizer(ctx), m_num_steps(0), m_need_restart(false),
+dsimplify_core_fn::dsimplify_core_fn(type_context & ctx, defeq_canonizer::state & dcs, unsigned max_steps, bool visit_instances):
+    m_ctx(ctx), m_defeq_canonizer(ctx, dcs), m_num_steps(0), m_need_restart(false),
     m_max_steps(max_steps), m_visit_instances(visit_instances) {}
 
 expr dsimplify_core_fn::operator()(expr e) {
@@ -242,9 +242,9 @@ optional<pair<expr, bool>> dsimplify_fn::post(expr const & e) {
         return optional<pair<expr, bool>>(curr_e, true);
 }
 
-dsimplify_fn::dsimplify_fn(type_context & ctx, unsigned max_steps, bool visit_instances, simp_lemmas_for const & lemmas,
+dsimplify_fn::dsimplify_fn(type_context & ctx, defeq_canonizer::state & dcs, unsigned max_steps, bool visit_instances, simp_lemmas_for const & lemmas,
                            bool use_eta):
-    dsimplify_core_fn(ctx, max_steps, visit_instances),
+    dsimplify_core_fn(ctx, dcs, max_steps, visit_instances),
     m_simp_lemmas(lemmas),
     m_use_eta(use_eta) {
 }
@@ -256,11 +256,12 @@ class tactic_dsimplify_fn : public dsimplify_core_fn {
     tactic_state m_s;
 
     optional<pair<expr, bool>> invoke_fn(vm_obj const & fn, expr const & e) {
-        m_s = set_mctx_lctx(m_s, m_ctx.mctx(), m_ctx.lctx());
+        m_s = set_mctx_lctx_dcs(m_s, m_ctx.mctx(), m_ctx.lctx(), m_defeq_canonizer.get_state());
         vm_obj r = invoke(fn, m_a, to_obj(e), to_obj(m_s));
         if (optional<tactic_state> new_s = is_tactic_success(r)) {
             m_s = *new_s;
             m_ctx.set_mctx(m_s.mctx());
+            m_defeq_canonizer.set_state(m_s.dcs());
             vm_obj p   = cfield(r, 0);
             m_a        = cfield(p, 0);
             vm_obj p1  = cfield(p, 1);
@@ -281,9 +282,9 @@ class tactic_dsimplify_fn : public dsimplify_core_fn {
     }
 
 public:
-    tactic_dsimplify_fn(type_context & ctx, unsigned max_steps, bool visit_instances,
+    tactic_dsimplify_fn(type_context & ctx, defeq_canonizer::state & dcs, unsigned max_steps, bool visit_instances,
                         vm_obj const & a, vm_obj const & pre, vm_obj const & post):
-        dsimplify_core_fn(ctx, max_steps, visit_instances),
+        dsimplify_core_fn(ctx, dcs, max_steps, visit_instances),
         m_a(a),
         m_pre(pre),
         m_post(post),
@@ -293,42 +294,40 @@ public:
     vm_obj const & get_a() const { return m_a; }
 };
 
-static tactic_state update_defeq_canonizer_state(tactic_state const & s, dsimplify_core_fn const & f) {
-    return set_env(s, f.update_defeq_canonizer_state(s.env()));
-}
-
 vm_obj tactic_dsimplify_core(vm_obj const &, vm_obj const & a,
                              vm_obj const & max_steps, vm_obj const & visit_instances,
-                             vm_obj const & pre, vm_obj const & post, vm_obj const & e, vm_obj const & s) {
+                             vm_obj const & pre, vm_obj const & post, vm_obj const & e, vm_obj const & _s) {
+    tactic_state const & s = to_tactic_state(_s);
     try {
-        type_context ctx = mk_type_context_for(to_tactic_state(s));
-        tactic_dsimplify_fn F(ctx, force_to_unsigned(max_steps, std::numeric_limits<unsigned>::max()),
+        type_context ctx = mk_type_context_for(s);
+        defeq_can_state dcs = s.dcs();
+        tactic_dsimplify_fn F(ctx, dcs, force_to_unsigned(max_steps, std::numeric_limits<unsigned>::max()),
                               to_bool(visit_instances), a, pre, post);
         expr new_e = F(to_expr(e));
-        tactic_state new_s = set_mctx(to_tactic_state(s), F.mctx());
-        new_s = update_defeq_canonizer_state(new_s, F);
+        tactic_state new_s = set_mctx_dcs(s, F.mctx(), dcs);
         return mk_tactic_success(mk_vm_pair(F.get_a(), to_obj(new_e)), new_s);
     } catch (exception & ex) {
-        return mk_tactic_exception(ex, to_tactic_state(s));
+        return mk_tactic_exception(ex, s);
     }
 }
 
 vm_obj simp_lemmas_dsimplify_core(vm_obj const & max_steps, vm_obj const & visit_instances, vm_obj const & lemmas,
-                                  vm_obj const & e, vm_obj const & s) {
+                                  vm_obj const & e, vm_obj const & _s) {
+    tactic_state const & s = to_tactic_state(_s);
     try {
-        type_context ctx = mk_type_context_for(to_tactic_state(s));
+        type_context ctx    = mk_type_context_for(s);
+        defeq_can_state dcs = s.dcs();
         simp_lemmas_for dlemmas;
         if (auto * dls = to_simp_lemmas(lemmas).find(get_eq_name()))
             dlemmas = *dls;
         bool use_eta = true; /* TODO(Leo): expose flag in the Lean API */
-        dsimplify_fn F(ctx, force_to_unsigned(max_steps, std::numeric_limits<unsigned>::max()),
+        dsimplify_fn F(ctx, dcs, force_to_unsigned(max_steps, std::numeric_limits<unsigned>::max()),
                        to_bool(visit_instances), dlemmas, use_eta);
         expr new_e = F(to_expr(e));
-        tactic_state new_s = set_mctx(to_tactic_state(s), F.mctx());
-        new_s = update_defeq_canonizer_state(new_s, F);
+        tactic_state new_s = set_mctx_dcs(s, F.mctx(), dcs);
         return mk_tactic_success(to_obj(new_e), new_s);
     } catch (exception & ex) {
-        return mk_tactic_exception(ex, to_tactic_state(s));
+        return mk_tactic_exception(ex, s);
     }
 }
 

@@ -32,14 +32,14 @@ public:
     struct state {
         /* Canonical mapping I -> J (i.e., J is the canonical expression for I).
            Invariant: locals_subset(J, I) */
-        rb_expr_map<expr> m_C;
+        rb_expr_map<expr>    m_C;
         /* Mapping from head symbol N to list of expressions es s.t.
            for each e in es, head_symbol(e) = N. */
-        name_map<list<expr>>               m_M;
+        name_map<list<expr>> m_M;
     };
 private:
     type_context & m_ctx;
-    state          m_state;
+    state &        m_state;
     bool *         m_updated{nullptr};
 
     optional<name> get_head_symbol(expr type);
@@ -51,15 +51,18 @@ private:
     expr canonize_core(expr const & e);
 
 public:
-    defeq_canonizer(type_context & ctx);
+    defeq_canonizer(type_context & ctx, state & s);
 
     expr canonize(expr const & e, bool & updated);
     expr canonize(expr const & e);
 
-    /* Update the defeq_canonizer::state in the given environment with the state in this
-       defeq_canonizer object. */
-    environment update_state(environment const & env) const;
+    state const & get_state() const { return m_state; }
+    void set_state(state const & s) { m_state = s; }
 };
+
+inline bool is_eqp(defeq_canonizer::state const & s1, defeq_canonizer::state const & s2) {
+    return is_eqp(s1.m_C, s2.m_C) && is_eqp(s1.m_M, s2.m_M);
+}
 
 void initialize_defeq_canonizer();
 void finalize_defeq_canonizer();

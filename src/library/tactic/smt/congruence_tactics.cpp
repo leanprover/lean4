@@ -21,10 +21,6 @@ Author: Leonardo de Moura
 #include "library/tactic/smt/ematch.h"
 
 namespace lean {
-tactic_state update_defeq_canonizer_state(tactic_state const & s, congruence_closure const & cc) {
-    return set_env(s, cc.update_defeq_canonizer_state(s.env()));
-}
-
 struct vm_cc_state : public vm_external {
     congruence_closure::state m_val;
     vm_cc_state(congruence_closure::state const & v):m_val(v) {}
@@ -88,14 +84,15 @@ vm_obj cc_state_mk_using_hs_core(vm_obj const & cfg, vm_obj const & _s) {
     try {
         local_context lctx          = g->get_context();
         type_context ctx            = mk_type_context_for(s);
+        defeq_can_state dcs         = s.dcs();
         congruence_closure::state r = mk_core(cfg);
-        congruence_closure cc(ctx, r);
+        congruence_closure cc(ctx, r, dcs);
         lctx.for_each([&](local_decl const & d) {
                 if (ctx.is_prop(d.get_type())) {
                     cc.add(d.get_type(), d.mk_ref());
                 }
             });
-        tactic_state new_s = update_defeq_canonizer_state(s, cc);
+        tactic_state new_s = set_dcs(s, dcs);
         return mk_tactic_success(to_obj(r), new_s);
     } catch (exception & ex) {
         return mk_tactic_exception(ex, s);
@@ -161,14 +158,14 @@ vm_obj cc_state_inc_gmt(vm_obj const & ccs) {
     try {                                                       \
         type_context ctx            = mk_type_context_for(s);   \
         congruence_closure::state S = to_cc_state(ccs);         \
-        congruence_closure cc(ctx, S);                          \
+        defeq_can_state dcs         = s.dcs();                  \
+        congruence_closure cc(ctx, S, dcs);                     \
         CODE                                                    \
     } catch (exception & ex) {                                  \
         return mk_tactic_exception(ex, s);                      \
     }
 
-#define cc_state_updt_proc(CODE) cc_state_proc({ CODE; return mk_tactic_success(to_obj(S), update_defeq_canonizer_state(s, cc)); })
-
+#define cc_state_updt_proc(CODE) cc_state_proc({ CODE; return mk_tactic_success(to_obj(S), set_dcs(s, dcs)); })
 
 vm_obj cc_state_add(vm_obj const & ccs, vm_obj const & H, vm_obj const & _s) {
     cc_state_updt_proc({

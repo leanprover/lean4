@@ -1266,7 +1266,8 @@ class add_nested_inductive_decl_fn {
         bool canonize_instances = false;
         bool canonize_proofs    = false;
         bool use_axioms         = false;
-        simplify_fn simplifier(tctx, all_lemmas, max_steps, contextual, lift_eq,
+        defeq_can_state dcs;
+        simplify_fn simplifier(tctx, dcs, all_lemmas, max_steps, contextual, lift_eq,
                                canonize_instances, canonize_proofs, use_axioms);
         auto thm_pr = simplifier.prove_by_simp(get_eq_name(), thm);
         if (!thm_pr) {

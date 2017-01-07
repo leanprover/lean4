@@ -56,7 +56,7 @@ struct cases_tactic_fn {
 
     /* throw exception that stores the intermediate state */
     [[ noreturn ]] void throw_exception(expr const & mvar, char const * msg) {
-        throw cases_tactic_exception(tactic_state(m_env, m_opts, m_mctx, to_list(mvar), mvar), msg);
+        throw cases_tactic_exception(mk_tactic_state_for_metavar(m_env, m_opts, m_mctx, mvar), msg);
     }
 
     #define lean_cases_trace(MVAR, CODE) lean_trace(name({"tactic", "cases"}), type_context TMP_CTX = mk_type_context_for(MVAR); scope_trace_env _scope1(m_env, TMP_CTX); CODE)
@@ -232,7 +232,7 @@ struct cases_tactic_fn {
     }
 
     format pp_goal(expr const & mvar) {
-        tactic_state tmp(m_env, m_opts, m_mctx, to_list(mvar), mvar);
+        tactic_state tmp = mk_tactic_state_for_metavar(m_env, m_opts, m_mctx, mvar);
         return tmp.pp_goal(mvar);
     }
 

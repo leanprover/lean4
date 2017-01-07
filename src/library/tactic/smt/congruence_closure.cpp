@@ -98,8 +98,8 @@ public:
 
 MK_THREAD_LOCAL_GET_DEF(ext_congr_lemma_cache_manager, get_clcm);
 
-congruence_closure::congruence_closure(type_context & ctx, state & s, cc_propagation_handler * phandler):
-    m_ctx(ctx), m_defeq_canonizer(ctx), m_state(s), m_cache_ptr(get_clcm().mk(ctx.env())), m_mode(ctx.mode()),
+congruence_closure::congruence_closure(type_context & ctx, state & s, defeq_canonizer::state & dcs, cc_propagation_handler * phandler):
+    m_ctx(ctx), m_defeq_canonizer(ctx, dcs), m_state(s), m_cache_ptr(get_clcm().mk(ctx.env())), m_mode(ctx.mode()),
     m_rel_info_getter(mk_relation_info_getter(ctx.env())),
     m_symm_info_getter(mk_symm_info_getter(ctx.env())),
     m_refl_info_getter(mk_refl_info_getter(ctx.env())),

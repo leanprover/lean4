@@ -100,7 +100,7 @@ protected:
     simp_result simplify(expr const & e);
 
 public:
-    simplify_core_fn(type_context & ctx, simp_lemmas const & slss,
+    simplify_core_fn(type_context & ctx, defeq_canonizer::state & dcs, simp_lemmas const & slss,
                      unsigned max_steps, bool contextual, bool lift_eq,
                      bool canonize_instances, bool canonize_proofs);
 
@@ -108,10 +108,6 @@ public:
     simp_result operator()(name const & rel, expr const & e);
 
     optional<expr> prove_by_simp(name const & rel, expr const & e);
-
-    environment update_defeq_canonizer_state(environment const & env) const {
-        return m_defeq_canonizer.update_state(env);
-    }
 };
 
 /* Extend simplify_core_fn functionality by assuming function
@@ -125,7 +121,7 @@ protected:
     virtual simp_result visit_pi(expr const & e) override;
     virtual simp_result visit_let(expr const & e) override;
 public:
-    simplify_ext_core_fn(type_context & ctx, simp_lemmas const & slss,
+    simplify_ext_core_fn(type_context & ctx, defeq_canonizer::state & dcs, simp_lemmas const & slss,
                          unsigned max_steps, bool contextual, bool lift_eq,
                          bool canonize_instances, bool canonize_proofs, bool use_axioms);
 };
@@ -138,10 +134,10 @@ protected:
     virtual optional<pair<simp_result, bool>> post(expr const & e, optional<expr> const & parent) override;
     virtual optional<expr> prove(expr const & e) override;
 public:
-    simplify_fn(type_context & ctx, simp_lemmas const & slss,
+    simplify_fn(type_context & ctx, defeq_canonizer::state & dcs, simp_lemmas const & slss,
                 unsigned max_steps, bool contextual, bool lift_eq,
                 bool canonize_instances, bool canonize_proofs, bool use_axioms):
-        simplify_ext_core_fn(ctx, slss, max_steps, contextual, lift_eq,
+        simplify_ext_core_fn(ctx, dcs, slss, max_steps, contextual, lift_eq,
                              canonize_instances, canonize_proofs, use_axioms) {}
 };
 

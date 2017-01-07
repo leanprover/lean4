@@ -623,32 +623,36 @@ vm_obj mk_ematch_result(buffer<expr_pair> const & new_inst_buffer, congruence_cl
     return mk_vm_pair(new_insts, mk_vm_pair(to_obj(ccs), to_obj(ems)));
 }
 
-vm_obj ematch_core(vm_obj const & md, vm_obj const & _ccs, vm_obj const & _ems, vm_obj const & hlemma, vm_obj const & t, vm_obj const & s) {
+vm_obj ematch_core(vm_obj const & md, vm_obj const & _ccs, vm_obj const & _ems, vm_obj const & hlemma, vm_obj const & t, vm_obj const & _s) {
+    tactic_state const & s = to_tactic_state(_s);
     LEAN_TACTIC_TRY;
-    type_context ctx = mk_type_context_for(s, md);
-    ematch_state ems = to_ematch_state(_ems);
+    type_context ctx    = mk_type_context_for(_s, md);
+    ematch_state ems    = to_ematch_state(_ems);
+    defeq_can_state dcs = s.dcs();
     congruence_closure::state ccs = to_cc_state(_ccs);
-    congruence_closure cc(ctx, ccs);
+    congruence_closure cc(ctx, ccs, dcs);
     buffer<expr_pair> new_inst_buffer;
     ematch(ctx, ems, cc, to_hinst_lemma(hlemma), to_expr(t), new_inst_buffer);
     vm_obj r = mk_ematch_result(new_inst_buffer, ccs, ems);
-    tactic_state new_s = update_defeq_canonizer_state(to_tactic_state(s), cc);
+    tactic_state new_s = set_dcs(s, dcs);
     return mk_tactic_success(r, new_s);
-    LEAN_TACTIC_CATCH(to_tactic_state(s));
+    LEAN_TACTIC_CATCH(s);
 }
 
-vm_obj ematch_all_core(vm_obj const & md, vm_obj const & _ccs, vm_obj const & _ems, vm_obj const & hlemma, vm_obj const & filter, vm_obj const & s) {
+vm_obj ematch_all_core(vm_obj const & md, vm_obj const & _ccs, vm_obj const & _ems, vm_obj const & hlemma, vm_obj const & filter, vm_obj const & _s) {
+    tactic_state const & s = to_tactic_state(_s);
     LEAN_TACTIC_TRY;
-    type_context ctx = mk_type_context_for(s, md);
-    ematch_state ems = to_ematch_state(_ems);
+    type_context ctx    = mk_type_context_for(_s, md);
+    ematch_state ems    = to_ematch_state(_ems);
+    defeq_can_state dcs = s.dcs();
     congruence_closure::state ccs = to_cc_state(_ccs);
-    congruence_closure cc(ctx, ccs);
+    congruence_closure cc(ctx, ccs, dcs);
     buffer<expr_pair> new_inst_buffer;
     ematch(ctx, ems, cc, to_hinst_lemma(hlemma), to_bool(filter), new_inst_buffer);
     vm_obj r = mk_ematch_result(new_inst_buffer, ccs, ems);
-    tactic_state new_s = update_defeq_canonizer_state(to_tactic_state(s), cc);
+    tactic_state new_s = set_dcs(s, dcs);
     return mk_tactic_success(r, new_s);
-    LEAN_TACTIC_CATCH(to_tactic_state(s));
+    LEAN_TACTIC_CATCH(s);
 }
 
 void initialize_ematch() {

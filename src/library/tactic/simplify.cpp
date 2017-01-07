@@ -701,10 +701,10 @@ optional<pair<simp_result, bool>> simplify_core_fn::post(expr const &, optional<
     return optional<pair<simp_result, bool>>();
 }
 
-simplify_core_fn::simplify_core_fn(type_context & ctx, simp_lemmas const & slss,
+simplify_core_fn::simplify_core_fn(type_context & ctx, defeq_canonizer::state & dcs, simp_lemmas const & slss,
                                    unsigned max_steps, bool contextual, bool lift_eq,
                                    bool canonize_instances, bool canonize_proofs):
-    m_ctx(ctx), m_defeq_canonizer(m_ctx), m_slss(slss), m_max_steps(max_steps), m_contextual(contextual),
+    m_ctx(ctx), m_defeq_canonizer(m_ctx, dcs), m_slss(slss), m_max_steps(max_steps), m_contextual(contextual),
     m_lift_eq(lift_eq), m_canonize_instances(canonize_instances), m_canonize_proofs(canonize_proofs) {
 }
 
@@ -759,11 +759,11 @@ optional<expr> simplify_core_fn::prove_by_simp(name const & rel, expr const & e)
    simplify_ext_core_fn
    ------------------------------------ */
 
-simplify_ext_core_fn::simplify_ext_core_fn(type_context & ctx, simp_lemmas const & slss,
+simplify_ext_core_fn::simplify_ext_core_fn(type_context & ctx, defeq_can_state & dcs, simp_lemmas const & slss,
                                            unsigned max_steps, bool contextual, bool lift_eq,
                                            bool canonize_instances, bool canonize_proofs,
                                            bool use_axioms):
-    simplify_core_fn(ctx, slss, max_steps, contextual, lift_eq, canonize_instances, canonize_proofs),
+    simplify_core_fn(ctx, dcs, slss, max_steps, contextual, lift_eq, canonize_instances, canonize_proofs),
     m_use_axioms (use_axioms) {
 }
 
@@ -951,12 +951,13 @@ class vm_simplify_fn : public simplify_ext_core_fn {
     tactic_state m_s;
 
     optional<pair<simp_result, bool>> invoke_fn(vm_obj const & fn, expr const & e, optional<expr> const & parent) {
-        m_s = set_mctx_lctx(m_s, m_ctx.mctx(), m_ctx.lctx());
+        m_s = set_mctx_lctx_dcs(m_s, m_ctx.mctx(), m_ctx.lctx(), m_defeq_canonizer.get_state());
         vm_obj r = invoke(fn, m_a, to_obj(m_slss), to_obj(m_rel), to_obj(parent), to_obj(e), to_obj(m_s));
         /* r : tactic_state (A × expr × option expr × bool) */
         if (optional<tactic_state> new_s = is_tactic_success(r)) {
             m_s = *new_s;
             m_ctx.set_mctx(m_s.mctx());
+            m_defeq_canonizer.set_state(m_s.dcs());
             vm_obj t = cfield(r, 0);
             /* t : A × expr × option expr × bool */
             m_a        = cfield(t, 0);
@@ -996,11 +997,11 @@ class vm_simplify_fn : public simplify_ext_core_fn {
     }
 
 public:
-    vm_simplify_fn(type_context & ctx, simp_lemmas const & slss,
+    vm_simplify_fn(type_context & ctx, defeq_can_state & dcs, simp_lemmas const & slss,
                    unsigned max_steps, bool contextual, bool lift_eq,
                    bool canonize_instances, bool canonize_proofs, bool use_axioms,
                    vm_obj const & prove, vm_obj const & pre, vm_obj const & post):
-        simplify_ext_core_fn(ctx, slss, max_steps, contextual, lift_eq,
+        simplify_ext_core_fn(ctx, dcs, slss, max_steps, contextual, lift_eq,
                              canonize_instances, canonize_proofs, use_axioms),
         m_prove(prove), m_pre(pre), m_post(post),
         m_s(mk_tactic_state_for(ctx.env(), ctx.get_options(), ctx.mctx(), ctx.lctx(), mk_true())) {}
@@ -1011,10 +1012,6 @@ public:
         return mk_pair(m_a, r);
     }
 };
-
-static tactic_state update_defeq_canonizer_state(tactic_state const & s, simplify_core_fn const & f) {
-    return set_env(s, f.update_defeq_canonizer_state(s.env()));
-}
 
 /*
 structure simplify_config :=
@@ -1048,12 +1045,13 @@ vm_obj tactic_simplify_core(vm_obj const & c, vm_obj const & slss, vm_obj const 
         unsigned max_steps; bool contextual, lift_eq, canonize_instances, canonize_proofs, use_axioms;
         get_simplify_config(c, max_steps, contextual, lift_eq, canonize_instances, canonize_proofs, use_axioms);
         type_context ctx     = mk_type_context_for(s, transparency_mode::Reducible);
-        simplify_fn simp(ctx, to_simp_lemmas(slss), max_steps, contextual, lift_eq,
+        defeq_can_state dcs  = s.dcs();
+        simplify_fn simp(ctx, dcs, to_simp_lemmas(slss), max_steps, contextual, lift_eq,
                          canonize_instances, canonize_proofs, use_axioms);
         simp_result result   = simp(to_name(rel), to_expr(e));
         if (result.get_new() != to_expr(e)) {
             result = finalize(ctx, to_name(rel), result);
-            tactic_state new_s = update_defeq_canonizer_state(s, simp);
+            tactic_state new_s = set_dcs(s, dcs);
             return mk_tactic_success(mk_vm_pair(to_obj(result.get_new()), to_obj(result.get_proof())), new_s);
         } else {
             return mk_tactic_exception("simplify tactic failed to simplify", s);
@@ -1070,13 +1068,14 @@ static vm_obj ext_simplify_core(vm_obj const & a, vm_obj const & c, simp_lemmas 
         unsigned max_steps; bool contextual, lift_eq, canonize_instances, canonize_proofs, use_axioms;
         get_simplify_config(c, max_steps, contextual, lift_eq, canonize_instances, canonize_proofs, use_axioms);
         type_context ctx     = mk_type_context_for(s, transparency_mode::Reducible);
-        vm_simplify_fn simp(ctx, slss, max_steps, contextual, lift_eq, canonize_instances, canonize_proofs,
+        defeq_can_state dcs  = s.dcs();
+        vm_simplify_fn simp(ctx, dcs, slss, max_steps, contextual, lift_eq, canonize_instances, canonize_proofs,
                             use_axioms, prove, pre, post);
         pair<vm_obj, simp_result> p = simp(a, r, e);
         if (p.second.get_new() != e) {
             vm_obj const & a   = p.first;
             simp_result result = finalize(ctx, r, p.second);
-            tactic_state new_s = update_defeq_canonizer_state(s, simp);
+            tactic_state new_s = set_dcs(s, dcs);
             return mk_tactic_success(mk_vm_pair(a, mk_vm_pair(to_obj(result.get_new()), to_obj(result.get_proof()))), new_s);
         } else {
             return mk_tactic_exception("simplify tactic failed to simplify", s);

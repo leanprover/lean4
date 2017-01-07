@@ -53,7 +53,7 @@ private:
     virtual void propagated(unsigned n, expr const * p) override;
 
 public:
-    smt(type_context & ctx, smt_goal & g);
+    smt(type_context & ctx, defeq_can_state & dcs, smt_goal & g);
     virtual ~smt();
 
     void internalize(expr const & e);

@@ -11,36 +11,11 @@ Author: Leonardo de Moura
 #include "library/defeq_canonizer.h"
 
 namespace lean {
-struct defeq_canonizer_ext : public environment_extension {
-    defeq_canonizer::state m_state;
-    defeq_canonizer_ext() {}
-    defeq_canonizer_ext(defeq_canonizer::state const & s):m_state(s) {}
-};
+void initialize_defeq_canonizer() {}
+void finalize_defeq_canonizer() {}
 
-struct defeq_canonizer_ext_reg {
-    unsigned m_ext_id;
-    defeq_canonizer_ext_reg() { m_ext_id = environment::register_extension(std::make_shared<defeq_canonizer_ext>()); }
-};
-
-static defeq_canonizer_ext_reg * g_ext = nullptr;
-static defeq_canonizer_ext const & get_extension(environment const & env) {
-    return static_cast<defeq_canonizer_ext const &>(env.get_extension(g_ext->m_ext_id));
-}
-static environment update(environment const & env, defeq_canonizer_ext const & ext) {
-    return env.update(g_ext->m_ext_id, std::make_shared<defeq_canonizer_ext>(ext));
-}
-
-void initialize_defeq_canonizer() {
-    g_ext = new defeq_canonizer_ext_reg();
-}
-
-void finalize_defeq_canonizer() {
-    delete g_ext;
-}
-
-defeq_canonizer::defeq_canonizer(type_context & ctx):
-    m_ctx(ctx),
-    m_state(get_extension(ctx.env()).m_state) {
+defeq_canonizer::defeq_canonizer(type_context & ctx, state & s):
+    m_ctx(ctx), m_state(s) {
 }
 
 optional<name> defeq_canonizer::get_head_symbol(expr type) {
@@ -134,11 +109,5 @@ expr defeq_canonizer::canonize(expr const & e, bool & updated) {
 expr defeq_canonizer::canonize(expr const & e) {
     m_updated = nullptr;
     return canonize_core(e);
-}
-
-environment defeq_canonizer::update_state(environment const & env) const {
-    lean_assert(env.is_descendant(m_ctx.env()));
-    defeq_canonizer_ext ext(m_state);
-    return update(env, ext);
 }
 }

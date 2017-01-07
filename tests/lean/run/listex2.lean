@@ -1,3 +1,5 @@
+import tools.super
+
 universe variable u
 
 constant in_tail  {α : Type u} {a : α}   (b : α)      {l : list α} : a ∈ l → a ∈ b::l
@@ -51,3 +53,18 @@ set_option trace.search_mem_list true
 
 example (a b c : nat) (l₁ l₂ : list nat) : a ∈ l₁ → a ∈ b::b::c::l₂ ++ b::c::l₁ ++ [c, c, b] :=
 by tactic.intros >> mk_mem_list
+
+set_option trace.smt.ematch true
+
+/- Using ematching -/
+lemma ex (a b c : nat) (l₁ l₂ : list nat) : a ∈ l₁ → a ∈ b::b::c::l₂ ++ b::c::l₁ ++ [c, c, b] :=
+begin [smt]
+  add_lemma [in_left, in_right, in_head, in_tail],
+  repeat {ematch} -- It will loop if there is a matching loop
+end
+
+set_option profiler true
+
+/- Smaller problems can be solved using superposition in a reasonable amount of time. -/
+example (a b c : nat) (l₁ l₂ : list nat) : a ∈ l₁ → a ∈ b::l₁ ++ [c] :=
+by super with in_left in_right in_head in_tail

@@ -150,10 +150,27 @@ tactic_state revert_all(tactic_state const & s) {
 static dsimplify_fn mk_dsimp(type_context & ctx, smt_pre_config const & cfg) {
     unsigned max_steps       = cfg.m_max_steps;
     bool visit_instances     = false;
+    /* We use eta reduction to make sure terms such as (fun x, list x) are reduced to list.
+
+       Given (a : nat) (l : list nat) (a ∈ a::l), the elaborator produces
+
+              @mem nat list (@list.has_mem nat) a (a::l)
+
+       On the other hand, it elaborates (λ (α : Type u) (l : list α) (a : α), a ∈ l) as
+
+             (λ (α : Type u) (l : list α) (a : α), @mem α (λ (α : Type u), list α) (@list.has_mem α) a l)
+
+       Another option is to use eta expansion. When we have metavariables, eta expansion is a better option.
+       Example:  (fun x, ?m)  =?= f
+       To solve this unification problem, we need to eta expand.
+
+       This is not an issue in this module since it assumes goals do not contain metavariables.
+    */
+    bool use_eta             = true;
     simp_lemmas_for eq_lemmas;
     if (auto r = cfg.m_simp_lemmas.find(get_eq_name()))
         eq_lemmas = *r;
-    return dsimplify_fn(ctx, max_steps, visit_instances, eq_lemmas);
+    return dsimplify_fn(ctx, max_steps, visit_instances, eq_lemmas, use_eta);
 }
 
 static simplify_fn mk_simp(type_context & ctx, smt_pre_config const & cfg) {

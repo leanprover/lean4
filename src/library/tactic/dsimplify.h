@@ -43,10 +43,13 @@ public:
 
 class dsimplify_fn : public dsimplify_core_fn {
     simp_lemmas_for m_simp_lemmas;
+    bool            m_use_eta;
+    expr whnf(expr const & e);
     virtual optional<pair<expr, bool>> pre(expr const & e) override;
     virtual optional<pair<expr, bool>> post(expr const & e) override;
 public:
-    dsimplify_fn(type_context & ctx, unsigned max_steps, bool visit_instances, simp_lemmas_for const & lemmas);
+    dsimplify_fn(type_context & ctx, unsigned max_steps, bool visit_instances, simp_lemmas_for const & lemmas,
+                 bool use_eta);
 };
 
 void initialize_dsimplify();

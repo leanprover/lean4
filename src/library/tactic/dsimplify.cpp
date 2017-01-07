@@ -194,9 +194,16 @@ metavar_context const & dsimplify_core_fn::mctx() const {
     return m_ctx.mctx();
 }
 
+expr dsimplify_fn::whnf(expr const & e) {
+    expr new_e = m_ctx.whnf(e);
+    if (m_use_eta)
+        new_e = try_eta(new_e);
+    return new_e;
+}
+
 optional<pair<expr, bool>> dsimplify_fn::pre(expr const & e) {
     type_context::transparency_scope s(m_ctx, transparency_mode::Reducible);
-    expr new_e = m_ctx.whnf(e);
+    expr new_e = whnf(e);
     if (new_e != e) {
         return optional<pair<expr, bool>>(new_e, true);
     } else {
@@ -208,7 +215,7 @@ optional<pair<expr, bool>> dsimplify_fn::post(expr const & e) {
     expr curr_e;
     {
         type_context::transparency_scope s(m_ctx, transparency_mode::Reducible);
-        curr_e = m_ctx.whnf(e);
+        curr_e = whnf(e);
     }
     while (true) {
         check_system("dsimplify");
@@ -235,9 +242,11 @@ optional<pair<expr, bool>> dsimplify_fn::post(expr const & e) {
         return optional<pair<expr, bool>>(curr_e, true);
 }
 
-dsimplify_fn::dsimplify_fn(type_context & ctx, unsigned max_steps, bool visit_instances, simp_lemmas_for const & lemmas):
+dsimplify_fn::dsimplify_fn(type_context & ctx, unsigned max_steps, bool visit_instances, simp_lemmas_for const & lemmas,
+                           bool use_eta):
     dsimplify_core_fn(ctx, max_steps, visit_instances),
-    m_simp_lemmas(lemmas) {
+    m_simp_lemmas(lemmas),
+    m_use_eta(use_eta) {
 }
 
 class tactic_dsimplify_fn : public dsimplify_core_fn {
@@ -311,8 +320,9 @@ vm_obj simp_lemmas_dsimplify_core(vm_obj const & max_steps, vm_obj const & visit
         simp_lemmas_for dlemmas;
         if (auto * dls = to_simp_lemmas(lemmas).find(get_eq_name()))
             dlemmas = *dls;
+        bool use_eta = true; /* TODO(Leo): expose flag in the Lean API */
         dsimplify_fn F(ctx, force_to_unsigned(max_steps, std::numeric_limits<unsigned>::max()),
-                       to_bool(visit_instances), dlemmas);
+                       to_bool(visit_instances), dlemmas, use_eta);
         expr new_e = F(to_expr(e));
         tactic_state new_s = set_mctx(to_tactic_state(s), F.mctx());
         new_s = update_defeq_canonizer_state(new_s, F);

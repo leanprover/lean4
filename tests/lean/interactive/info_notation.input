@@ -1,2 +1,0 @@
-{"seq_num": 0, "command": "sync", "file_name": "f", "content": "def f := [tt]"}
-{"seq_num": 1, "command": "info", "file_name": "f", "line": 1, "column": 12}

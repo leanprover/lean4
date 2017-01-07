@@ -3,40 +3,14 @@ if [ $# -ne 3 -a $# -ne 2 ]; then
     echo "Usage: test_single.sh [lean-executable-path] [file] [yes/no]?"
     exit 1
 fi
-ulimit -s unlimited
-LEAN=$1
-if command -v greadlink >/dev/null 2>&1; then
-  # macOS readlink doesn't support -f option
-  READLINK=greadlink
-else
-  READLINK=readlink
-fi
-ROOT_PATH=$($READLINK -f ../../..)
-
-if [[ "$OSTYPE" == "msys" ]]; then
-    # Windows running MSYS2
-    # Replace /c/ with c:, and / with \\
-    ROOT_PATH_NORMALIZED=$(echo $ROOT_PATH  | sed 's|^/\([a-z]\)/|\U\1:/|' | sed 's|/|\\\\\\\\|g')
-else
-    ROOT_PATH_NORMALIZED=$ROOT_PATH
-fi
-export LEAN_PATH=$ROOT_PATH/library:.
+f=$2
 if [ $# -ne 3 ]; then
     INTERACTIVE=no
 else
     INTERACTIVE=$3
 fi
-f=$2
-echo "-- testing $f"
 
-OUTPUT="$("$LEAN" -j0 -D pp.unicode=true --server < "$f")"
-# make paths system-independent
-if [[ "$OSTYPE" == "msys" ]]; then
-    echo "$OUTPUT" | grep -v '"response":"current_tasks"' | sed "s|$ROOT_PATH_NORMALIZED||g" | sed 's|\\\\|/|g' > "$f.produced.out"
-else
-    OUTPUT=${OUTPUT//$ROOT_PATH_NORMALIZED/}
-    echo "$OUTPUT" > "$f.produced.out"
-fi
+./run_single.sh $1 $f > "$f.produced.out"
 
 if test -f "$f.expected.out"; then
     if diff --ignore-all-space "$f.produced.out" "$f.expected.out"; then

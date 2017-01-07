@@ -171,7 +171,7 @@ ENDFOREACH(T)
 
 if("${MULTI_THREAD}" MATCHES "ON")
 # LEAN INTERACTIVE TESTS
-file(GLOB LEANITTESTS "${LEAN_SOURCE_DIR}/../tests/lean/interactive/*.input")
+file(GLOB LEANITTESTS "${LEAN_SOURCE_DIR}/../tests/lean/interactive/*.input" "${LEAN_SOURCE_DIR}/../tests/lean/interactive/*.lean")
 FOREACH(T ${LEANITTESTS})
   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
   add_test(NAME "leanittest_${T_NAME}"

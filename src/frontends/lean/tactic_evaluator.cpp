@@ -151,7 +151,7 @@ tactic_state tactic_evaluator::execute_begin_end(tactic_state const & s, buffer<
             get_begin_end_block_elements(tactic, nested_tactics);
             new_s = execute_begin_end(new_s, nested_tactics, curr_ref);
         } else if (is_smt_begin_end_block(tactic)) {
-            new_s = execute_smt_begin_end(s, tactic, ref);
+            new_s = execute_smt_begin_end(new_s, tactic, curr_ref);
         } else {
             throw elaborator_exception(curr_ref, "ill-formed 'begin ... end' tactic block");
         }

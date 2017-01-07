@@ -41,19 +41,35 @@ name pick_unused_name(expr const & t, name const & s) {
     return r;
 }
 
+bool is_numerical_name(name n) {
+    while (!n.is_atomic())
+        n = n.get_prefix();
+    return n.is_numeral();
+}
+
 static name * g_M   = nullptr;
+static name * g_x   = nullptr;
 
 void initialize_print() {
     g_M = new name("M");
+    g_x = new name("x");
 }
 
 void finalize_print() {
     delete g_M;
+    delete g_x;
+}
+
+static name cleanup_name(name const & n) {
+    if (is_numerical_name(n))
+        return *g_x;
+    else
+        return n;
 }
 
 pair<expr, expr> binding_body_fresh(expr const & b, bool preserve_type) {
     lean_assert(is_binding(b));
-    name n = binding_name(b);
+    name n = cleanup_name(binding_name(b));
     n = pick_unused_name(binding_body(b), n);
     expr c = mk_local(n, preserve_type ? binding_domain(b) : expr(), binding_info(b));
     return mk_pair(instantiate(binding_body(b), c), c);
@@ -61,7 +77,7 @@ pair<expr, expr> binding_body_fresh(expr const & b, bool preserve_type) {
 
 pair<expr, expr> let_body_fresh(expr const & b, bool preserve_type) {
     lean_assert(is_let(b));
-    name n = let_name(b);
+    name n = cleanup_name(let_name(b));
     n = pick_unused_name(let_body(b), n);
     expr c = mk_local(n, preserve_type ? let_type(b) : expr());
     return mk_pair(instantiate(let_body(b), c), c);

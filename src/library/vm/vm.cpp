@@ -3144,6 +3144,7 @@ auto vm_state::profiler::get_snapshots() -> snapshots {
     return r;
 }
 
+#if 0
 static bool equal_fns(vm_state::profiler::snapshot const & s1, vm_state::profiler::snapshot const & s2) {
     if (s1.m_stack.size() != s2.m_stack.size()) return false;
     for (unsigned i = 0; i < s1.m_stack.size(); i++) {
@@ -3152,6 +3153,7 @@ static bool equal_fns(vm_state::profiler::snapshot const & s1, vm_state::profile
     }
     return true;
 }
+#endif
 
 void vm_state::profiler::snapshots::display(std::ostream & out) const {
     for (auto & cum_time : m_cum_times) {

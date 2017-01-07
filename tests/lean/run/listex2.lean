@@ -63,7 +63,7 @@ begin [smt]
   repeat {ematch} -- It will loop if there is a matching loop
 end
 
-set_option profiler true
+-- set_option profiler true
 
 /- Smaller problems can be solved using superposition in a reasonable amount of time. -/
 example (a b c : nat) (l₁ l₂ : list nat) : a ∈ l₁ → a ∈ b::l₁ ++ [c] :=

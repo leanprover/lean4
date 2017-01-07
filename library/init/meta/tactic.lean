@@ -254,6 +254,8 @@ meta constant eta_expand    : expr → tactic expr
 meta constant beta          : expr → tactic expr
 /- zeta reduction -/
 meta constant zeta          : expr → tactic expr
+/- eta reduction -/
+meta constant eta           : expr → tactic expr
 meta constant unify_core    : transparency → expr → expr → tactic unit
 /- is_def_eq_core is similar to unify_core, but it treats metavariables as constants. -/
 meta constant is_def_eq_core : transparency → expr → expr → tactic unit

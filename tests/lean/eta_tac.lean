@@ -10,4 +10,6 @@ by do
   mk_const `nat.succ >>= eta_expand >>= trace,
   to_expr `(add a) >>= eta_expand >>= trace,
   to_expr `(λ x : nat, add x) >>= eta_expand >>= trace,
+  to_expr `(λ x : nat, add x) >>= eta >>= trace,
+  to_expr `(add a) >>= eta_expand >>= eta >>= trace,
   constructor

@@ -413,6 +413,15 @@ vm_obj tactic_eta_expand(vm_obj const & e, vm_obj const & s0) {
     }
 }
 
+vm_obj tactic_eta(vm_obj const & e, vm_obj const & s0) {
+    tactic_state const & s = to_tactic_state(s0);
+    try {
+        return mk_tactic_success(to_obj(try_eta(to_expr(e))), s);
+    } catch (exception & ex) {
+        return mk_tactic_exception(ex, s);
+    }
+}
+
 vm_obj tactic_beta(vm_obj const & e, vm_obj const & s0) {
     tactic_state const & s = to_tactic_state(s0);
     try {
@@ -728,6 +737,7 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic", "whnf_core"}),            tactic_whnf_core);
     DECLARE_VM_BUILTIN(name({"tactic", "is_def_eq_core"}),       tactic_is_def_eq_core);
     DECLARE_VM_BUILTIN(name({"tactic", "eta_expand"}),           tactic_eta_expand);
+    DECLARE_VM_BUILTIN(name({"tactic", "eta"}),                  tactic_eta);
     DECLARE_VM_BUILTIN(name({"tactic", "beta"}),                 tactic_beta);
     DECLARE_VM_BUILTIN(name({"tactic", "zeta"}),                 tactic_zeta);
     DECLARE_VM_BUILTIN(name({"tactic", "is_class"}),             tactic_is_class);

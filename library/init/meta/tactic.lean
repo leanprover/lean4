@@ -491,6 +491,9 @@ match (environment.is_refl_app env e) with
 | none                 := fail "expression is not an application of a reflexive relation"
 end
 
+meta def match_app_of (e : expr) (n : name) : tactic (list expr) :=
+guard (expr.is_app_of e n) >> return e^.get_app_args
+
 meta def get_local_type (n : name) : tactic expr :=
 get_local n >>= infer_type
 
@@ -509,6 +512,9 @@ meta def find_same_type : expr → list expr → tactic expr
 | e (H :: Hs) :=
   do t ← infer_type H,
      (unify e t >> return H) <|> find_same_type e Hs
+
+meta def find_assumption (e : expr) : tactic expr :=
+do ctx ← local_context, find_same_type e ctx
 
 meta def assumption : tactic unit :=
 do { ctx ← local_context,

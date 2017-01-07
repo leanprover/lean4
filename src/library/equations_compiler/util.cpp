@@ -234,7 +234,8 @@ list<expr> erase_inaccessible_annotations(list<expr> const & es) {
 
 local_context erase_inaccessible_annotations(local_context const & lctx) {
     local_context r;
-    r.m_next_idx = lctx.m_next_idx;
+    r.m_next_idx             = lctx.m_next_idx;
+    r.m_instance_fingerprint = lctx.m_instance_fingerprint;
     lctx.m_idx2local_decl.for_each([&](unsigned, local_decl const & d) {
             expr new_type = erase_inaccessible_annotations(d.get_type());
             optional<expr> new_value;

@@ -277,7 +277,8 @@ local_context local_context::remove(buffer<expr> const & locals) const {
                                 return is_local_decl_ref(l) && get_local_decl(l);
                             }));
     /* TODO(Leo): check whether the following loop is a performance bottleneck. */
-    local_context r = *this;
+    local_context r          = *this;
+    r.m_instance_fingerprint = m_instance_fingerprint;
     for (expr const & l : locals) {
         r.m_name2local_decl.erase(mlocal_name(l));
         local_decl d = *get_local_decl(l);

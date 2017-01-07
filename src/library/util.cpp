@@ -388,26 +388,15 @@ expr mk_true_intro() {
     return *g_true_intro;
 }
 
-bool is_and(expr const & e, expr & arg1, expr & arg2) {
-    if (get_app_fn(e) == *g_and) {
-        buffer<expr> args; get_app_args(e, args);
-        if (args.size() == 2) {
-            arg1 = args[0];
-            arg2 = args[1];
-            return true;
-        } else {
-            return false;
-        }
-    } else {
-        return false;
-    }
+bool is_and(expr const & e) {
+    return is_app_of(e, get_and_name(), 2);
 }
 
-bool is_and(expr const & e) {
-    if (get_app_fn(e) == *g_and) {
-        buffer<expr> args; get_app_args(e, args);
-        if (args.size() == 2) return true;
-        else return false;
+bool is_and(expr const & e, expr & arg1, expr & arg2) {
+    if (is_and(e)) {
+        arg1 = app_arg(app_fn(e));
+        arg2 = app_arg(e);
+        return true;
     } else {
         return false;
     }
@@ -528,40 +517,28 @@ expr mk_snd(abstract_type_context & ctx, expr const & p, bool prop) {
     return prop ? mk_and_elim_right(ctx, p) : mk_snd(ctx, p);
 }
 
-bool is_ite(expr const & e, expr & c, expr & H, expr & A, expr & t, expr & f) {
-    expr const & fn = get_app_fn(e);
-    if (is_constant(fn) && const_name(fn) == get_ite_name()) {
-        buffer<expr> args;
-        get_app_args(e, args);
-        if (args.size() == 5) {
-            c = args[0]; H = args[1]; A = args[2]; t = args[3]; f = args[4];
-            return true;
-        } else {
-            return false;
-        }
-    } else {
-        return false;
-    }
+bool is_ite(expr const & e) {
+    return is_app_of(e, get_ite_name(), 5);
 }
 
-bool is_ite(expr const & e) {
-    expr const & fn = get_app_fn(e);
-    if (is_constant(fn) && const_name(fn) == get_ite_name()) {
+bool is_ite(expr const & e, expr & c, expr & H, expr & A, expr & t, expr & f) {
+    if (is_ite(e)) {
         buffer<expr> args;
         get_app_args(e, args);
-        if (args.size() == 5) return true;
-        else return false;
+        lean_assert(args.size() == 5);
+        c = args[0]; H = args[1]; A = args[2]; t = args[3]; f = args[4];
+        return true;
     } else {
         return false;
     }
 }
 
 bool is_iff(expr const & e) {
-    expr const & fn = get_app_fn(e);
-    return is_constant(fn) && const_name(fn) == get_iff_name();
+    return is_app_of(e, get_iff_name(), 2);
 }
+
 bool is_iff(expr const & e, expr & lhs, expr & rhs) {
-    if (!is_iff(e) || !is_app(app_fn(e)))
+    if (!is_iff(e))
         return false;
     lhs = app_arg(app_fn(e));
     rhs = app_arg(e);
@@ -676,12 +653,11 @@ bool is_eq_drec(expr const & e) {
 }
 
 bool is_eq(expr const & e) {
-    expr const & fn = get_app_fn(e);
-    return is_constant(fn) && const_name(fn) == get_eq_name();
+    return is_app_of(e, get_eq_name(), 3);
 }
 
 bool is_eq(expr const & e, expr & lhs, expr & rhs) {
-    if (!is_eq(e) || get_app_num_args(e) != 3)
+    if (!is_eq(e))
         return false;
     lhs = app_arg(app_fn(e));
     rhs = app_arg(e);
@@ -689,7 +665,7 @@ bool is_eq(expr const & e, expr & lhs, expr & rhs) {
 }
 
 bool is_eq(expr const & e, expr & A, expr & lhs, expr & rhs) {
-    if (!is_eq(e) || get_app_num_args(e) != 3)
+    if (!is_eq(e))
         return false;
     A   = app_arg(app_fn(app_fn(e)));
     lhs = app_arg(app_fn(e));
@@ -700,32 +676,28 @@ bool is_eq(expr const & e, expr & A, expr & lhs, expr & rhs) {
 bool is_eq_a_a(expr const & e) {
     if (!is_eq(e))
         return false;
-    buffer<expr> args;
-    get_app_args(e, args);
-    return args.size() == 3 && args[1] == args[2];
+    expr lhs = app_arg(app_fn(e));
+    expr rhs = app_arg(e);
+    return lhs == rhs;
 }
 
 bool is_eq_a_a(abstract_type_context & ctx, expr const & e) {
     if (!is_eq(e))
         return false;
-    buffer<expr> args;
-    get_app_args(e, args);
-    if (args.size() != 3)
-        return false;
-    return ctx.is_def_eq(args[1], args[2]);
+    expr lhs = app_arg(app_fn(e));
+    expr rhs = app_arg(e);
+    return ctx.is_def_eq(lhs, rhs);
 }
 
 bool is_heq(expr const & e) {
-    expr const & fn = get_app_fn(e);
-    return is_constant(fn) && const_name(fn) == get_heq_name();
+    return is_app_of(e, get_heq_name(), 4);
 }
 
 bool is_heq(expr const & e, expr & A, expr & lhs, expr & B, expr & rhs) {
     if (is_heq(e)) {
         buffer<expr> args;
         get_app_args(e, args);
-        if (args.size() != 4)
-            return false;
+        lean_assert(args.size() == 4);
         A = args[0]; lhs = args[1]; B = args[2]; rhs = args[3];
         return true;
     } else {
@@ -760,18 +732,13 @@ expr mk_false_rec(abstract_type_context & ctx, expr const & f, expr const & t) {
 }
 
 bool is_or(expr const & e) {
-    buffer<expr> args;
-    expr const & fn = get_app_args(e, args);
-    if (is_constant(fn) && const_name(fn) == get_or_name() && args.size() == 2) return true;
-    else return false;
+    return is_app_of(e, get_or_name(), 2);
 }
 
 bool is_or(expr const & e, expr & A, expr & B) {
-    buffer<expr> args;
-    expr const & fn = get_app_args(e, args);
-    if (is_constant(fn) && const_name(fn) == get_or_name() && args.size() == 2) {
-        A = args[0];
-        B = args[1];
+    if (is_or(e)) {
+        A = app_arg(app_fn(e));
+        B = app_arg(e);
         return true;
     } else {
         return false;

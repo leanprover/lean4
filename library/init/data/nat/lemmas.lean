@@ -20,7 +20,7 @@ lemma succ_add : ∀ n m : ℕ, (succ n) + m = succ (n + m)
 lemma add_succ : ∀ n m : ℕ, n + succ m = succ (n + m) :=
 λ n m, rfl
 
-lemma add_zero : ∀ n : ℕ, n + 0 = n :=
+protected lemma add_zero : ∀ n : ℕ, n + 0 = n :=
 λ n, rfl
 
 lemma add_one_eq_succ : ∀ n : ℕ, n + 1 = succ n :=

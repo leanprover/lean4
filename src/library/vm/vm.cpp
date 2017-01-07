@@ -3160,7 +3160,7 @@ void vm_state::profiler::snapshots::display(std::ostream & out) const {
             << (100.0f * cum_time.second.count()) / m_total_time.count() << "%   "
             << cum_time.first << "\n";
     }
-
+#if 0
     unsigned i = 0;
     while (i < m_snapshots.size()) {
         snapshot const & s = m_snapshots[i];
@@ -3178,6 +3178,7 @@ void vm_state::profiler::snapshots::display(std::ostream & out) const {
         }
         out << "\n";
     }
+#endif
 }
 
 void display_vm_code(std::ostream & out, unsigned code_sz, vm_instr const * code) {

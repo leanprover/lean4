@@ -684,6 +684,8 @@ vm_obj smt_tactic_ematch_core(vm_obj const & pred, vm_obj const & ss, vm_obj con
     S.internalize(target);
     buffer<expr_pair> new_instances;
     S.ematch(new_instances);
+    if (new_instances.empty())
+        return mk_tactic_exception("ematch failed, no new instance was produced", ts);
     for (expr_pair const & p : new_instances) {
         expr type   = p.first;
         expr proof  = p.second;
@@ -822,6 +824,8 @@ vm_obj smt_tactic_ematch_using(vm_obj const & hs, vm_obj const & ss, vm_obj cons
                 S.ematch_using(lemma, new_instances);
             }
         });
+    if (new_instances.empty())
+        return mk_tactic_exception("ematch_using failed, no instance was produced", ts);
     for (expr_pair const & p : new_instances) {
         expr type   = p.first;
         expr proof  = p.second;

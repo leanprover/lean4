@@ -151,14 +151,8 @@ struct back_chaining_fn {
             metavar_decl g = *m_state.get_main_goal_decl();
             expr target    = m_ctx.whnf(g.get_type());
             list<backward_lemma> lemmas = m_lemmas.find(head_index(target));
-            if (!lemmas) {
+            if (!lemmas || !try_lemmas(lemmas)) {
                 if (!invoke_leaf_tactic()) {
-                    if (!backtrack())
-                        return false;
-                    goto loop_entry;
-                }
-            } else {
-                if (!try_lemmas(lemmas)) {
                     if (!backtrack())
                         return false;
                     goto loop_entry;
@@ -174,7 +168,7 @@ struct back_chaining_fn {
             tactic_state final_state = set_goals(m_state, tail(goals));
             return mk_tactic_success(final_state);
         } else {
-            return mk_tactic_exception("back_chaining failed, use command 'set_option trace.back_chaining true' to obtain more details", m_initial_state);
+            return mk_tactic_exception("back_chaining failed, use command 'set_option trace.tactic.back_chaining true' to obtain more details", m_initial_state);
         }
     }
 };
@@ -196,6 +190,7 @@ vm_obj tactic_backward_chaining(vm_obj const & md, vm_obj const & use_instances,
 
 void initialize_backward_chaining() {
     DECLARE_VM_BUILTIN(name({"tactic", "backward_chaining_core"}),   tactic_backward_chaining);
+    register_trace_class(name({"tactic", "back_chaining"}));
     g_backward_chaining_max_depth = new name{"back_chaining", "max_depth"};
     register_unsigned_option(*g_backward_chaining_max_depth, LEAN_DEFAULT_BACKWARD_CHAINING_MAX_DEPTH,
                              "maximum number of nested backward chaining steps");

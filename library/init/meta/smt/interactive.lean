@@ -105,17 +105,18 @@ smt_tactic.by_contradiction
 
 open tactic (resolve_name transparency to_expr)
 
+private meta def report_invalid_em_lemma {α : Type} (n : name) : tactic α :=
+fail ("invalid ematch lemma '" ++ to_string n ++ "'")
+
 private meta def add_lemma_name (md : transparency) (lhs_lemma : bool) (n : name) : smt_tactic unit :=
-do {
+do
   e ← resolve_name n,
   match e with
-  | expr.const n _           := add_ematch_lemma_from_decl_core md lhs_lemma n
-  | expr.local_const _ _ _ _ := add_ematch_lemma_core md lhs_lemma e
-  | _                        := failed
+  | expr.const n _           := (add_ematch_lemma_from_decl_core md lhs_lemma n) <|> report_invalid_em_lemma n
+  | expr.local_const _ _ _ _ := (add_ematch_lemma_core md lhs_lemma e) <|> report_invalid_em_lemma n
+  | _                        := tactic.report_resolve_name_failure e n
   end
-}
-<|>
-fail ("invalid ematch lemma '" ++ to_string n ++ "'")
+
 
 private meta def add_lemma_pexpr (md : transparency) (lhs_lemma : bool) (p : pexpr) : smt_tactic unit :=
 let e := pexpr.to_raw_expr p in
@@ -151,19 +152,21 @@ meta def add_eqn_lemmas (ids : raw_ident_list) : smt_tactic unit :=
 add_eqn_lemmas_for ids
 
 private meta def add_hinst_lemma_from_name (md : transparency) (lhs_lemma : bool) (n : name) (hs : hinst_lemmas) : smt_tactic hinst_lemmas :=
-do {
+do
   e ← resolve_name n,
   match e with
   | expr.const n _           :=
     (do h ← hinst_lemma.mk_from_decl_core md n lhs_lemma, return $ hs^.add h)
     <|>
     (do hs₁ ← mk_ematch_eqn_lemmas_for_core md n, return $ hs^.merge hs₁)
-  | expr.local_const _ _ _ _ := do h ← hinst_lemma.mk_core md e lhs_lemma, return $ hs^.add h
-  | _                        := fail "failed"
+    <|>
+    report_invalid_em_lemma n
+  | expr.local_const _ _ _ _ :=
+    (do h ← hinst_lemma.mk_core md e lhs_lemma, return $ hs^.add h)
+    <|>
+    report_invalid_em_lemma n
+  | _                        := tactic.report_resolve_name_failure e n
   end
-}
-<|>
-fail ("invalid ematch lemma '" ++ to_string n ++ "'")
 
 private meta def add_hinst_lemma_from_pexpr (md : transparency) (lhs_lemma : bool) (p : pexpr) (hs : hinst_lemmas) : smt_tactic hinst_lemmas :=
 let e := pexpr.to_raw_expr p in

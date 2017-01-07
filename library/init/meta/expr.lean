@@ -32,6 +32,9 @@ meta constant expr.macro_def_name (d : macro_def) : name
 meta def expr.mk_var (n : nat) : expr :=
 expr.var (unsigned.of_nat n)
 
+/- Choice macros are used to implement overloading. -/
+meta constant expr.is_choice_macro : expr → bool
+
 -- Compares expressions, including binder names.
 meta constant expr.has_decidable_eq : decidable_eq expr
 attribute [instance] expr.has_decidable_eq

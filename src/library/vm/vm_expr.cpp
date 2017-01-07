@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "library/expr_lt.h"
 #include "library/deep_copy.h"
 #include "library/comp_val.h"
+#include "library/choice.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_string.h"
@@ -401,6 +402,10 @@ vm_obj vm_mk_int_val_ne_proof(vm_obj const & a, vm_obj const & b) {
     return to_obj(mk_int_val_ne_proof(to_expr(a), to_expr(b)));
 }
 
+vm_obj expr_is_choice_macro(vm_obj const & e) {
+    return mk_vm_bool(is_choice(to_expr(e)));
+}
+
 void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name({"expr", "var"}),              expr_var);
     DECLARE_VM_BUILTIN(name({"expr", "sort"}),             expr_sort);
@@ -443,6 +448,8 @@ void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name("mk_char_val_ne_proof"),       vm_mk_char_val_ne_proof);
     DECLARE_VM_BUILTIN(name("mk_string_val_ne_proof"),     vm_mk_string_val_ne_proof);
     DECLARE_VM_BUILTIN(name("mk_int_val_ne_proof"),        vm_mk_int_val_ne_proof);
+
+    DECLARE_VM_BUILTIN(name("expr", "is_choice_macro"),    expr_is_choice_macro);
 
     // Not sure if we should expose these or what?
     DECLARE_VM_BUILTIN(name({"expr", "is_internal_cnstr"}), expr_is_internal_cnstr);

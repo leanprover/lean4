@@ -79,6 +79,11 @@ end types
 end interactive
 
 namespace tactic
+meta def report_resolve_name_failure {α : Type} (e : expr) (n : name) : tactic α :=
+if e^.is_choice_macro
+then fail ("failed to resolve name '" ++ to_string n ++ "', it is overloaded")
+else fail ("failed to resolve name '" ++ to_string n ++ "', unexpected result")
+
 namespace interactive
 open interactive.types expr
 
@@ -144,12 +149,9 @@ do {
   match e with
   | expr.const n _           := mk_const n -- create metavars for universe levels
   | expr.local_const _ _ _ _ := return e
-  | expr.macro _ _ _         := fail ("failed to resolve name '" ++ to_string n ++ "', it is overloaded")
-  | _                        := fail ("failed to resolve name '" ++ to_string n ++ "', unexpected result")
+  | _                        := report_resolve_name_failure e n
   end
 }
-<|>
-fail ("failed to resolve name '" ++ to_string n ++ "'")
 
 /- Version of to_expr that tries to bypass the elaborator if `p` is just a constant or local constant.
    This is not an optimization, by skipping the elaborator we make sure that unwanted resolution is used.
@@ -314,21 +316,25 @@ private meta def add_simps : simp_lemmas → list name → tactic simp_lemmas
 | s []      := return s
 | s (n::ns) := do s' ← s^.add_simp n, add_simps s' ns
 
+private meta def report_invalid_simp_lemma {α : Type} (n : name): tactic α :=
+fail ("invalid simplification lemma '" ++ to_string n ++ "' (use command 'set_option trace.simp_lemmas true' for more details)")
+
 private meta def simp_lemmas.resolve_and_add (s : simp_lemmas) (n : name) : tactic simp_lemmas :=
-do {
+do
   e ← resolve_name n,
   match e with
   | expr.const n _           :=
     (do b ← is_valid_simp_lemma_cnst reducible n, guard b, s^.add_simp n)
     <|>
     (do eqns ← get_eqn_lemmas_for tt n, guard (eqns^.length > 0), add_simps s eqns)
+    <|>
+    report_invalid_simp_lemma n
   | expr.local_const _ _ _ _ :=
-    do b ← is_valid_simp_lemma reducible e, guard b, s^.add e
-  | _ := failed
+    (do b ← is_valid_simp_lemma reducible e, guard b, s^.add e)
+    <|>
+    report_invalid_simp_lemma n
+  | _                        := report_resolve_name_failure e n
   end
-}
-<|>
-fail ("invalid simplification lemma '" ++ to_string n ++ "' (use command 'set_option trace.simp_lemmas true' for more details)")
 
 private meta def simp_lemmas.add_pexpr (s : simp_lemmas) (p : pexpr) : tactic simp_lemmas :=
 let e := pexpr.to_raw_expr p in

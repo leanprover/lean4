@@ -35,7 +35,6 @@ on_right_at' c i $ λhyp, do
   prf  ← mk_app ``eq.mpr [heqsymm, hyp],
   return [(add_hyps, prf)]
 
-@[super.inf]
 meta def simp_inf : inf_decl := inf_decl.mk 40 $ take given, sequence' $ do
 r ← [try_simplify_right, try_simplify_left],
 i ← list.range given^.c^.num_lits,

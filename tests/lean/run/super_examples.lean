@@ -23,11 +23,10 @@ example (n : ℕ) : n > 0 ↔ is_positive n := by super
 example (m n : ℕ) : 0 + m = 0 + n → m = n :=
 by super with nat.zero_add
 
-local attribute [simp] nat.zero_add nat.succ_add
-@[simp] lemma nat_add_succ (m n : ℕ) : m + nat.succ n = nat.succ (m + n) := rfl
-@[simp] lemma nat_zero_has_zero : nat.zero = 0 := rfl
 example : ∀x y : ℕ, x + y = y + x :=
-begin intros, induction x, super, super end
+begin intros, induction x,
+      super with nat.add_zero nat.zero_add,
+      super with nat.add_succ nat.succ_add end
 
 example (i) [inhabited i] : nonempty i := by super
 example (i) [nonempty i] : ¬(inhabited i → false) := by super

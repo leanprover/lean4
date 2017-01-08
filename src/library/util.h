@@ -227,6 +227,8 @@ bool is_heq(expr const & e);
 bool is_heq(expr const & e, expr & lhs, expr & rhs);
 bool is_heq(expr const & e, expr & A, expr & lhs, expr & B, expr & rhs);
 
+expr mk_cast(abstract_type_context & ctx, expr const & H, expr const & e);
+
 expr mk_false();
 expr mk_empty();
 

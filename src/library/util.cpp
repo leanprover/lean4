@@ -710,6 +710,15 @@ bool is_heq(expr const & e, expr & lhs, expr & rhs) {
     return is_heq(e, A, lhs, B, rhs);
 }
 
+expr mk_cast(abstract_type_context & ctx, expr const & H, expr const & e) {
+    expr type = ctx.relaxed_whnf(ctx.infer(H));
+    expr A, B;
+    if (!is_eq(type, A, B))
+        throw exception("cast failed, equality proof expected");
+    level lvl = get_level(ctx, A);
+    return mk_app(mk_constant(get_cast_name(), {lvl}), A, B, H, e);
+}
+
 expr mk_false() {
     return mk_constant(get_false_name());
 }

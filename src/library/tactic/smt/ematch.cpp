@@ -145,7 +145,7 @@ struct ematch_fn {
                     m_cc.internalize(p_type);
                     m_cc.internalize(t_type);
                     if (auto H = m_cc.get_eq_proof(t_type, p_type)) {
-                        expr cast_H_t = mk_app(m_ctx, get_cast_name(), *H, t);
+                        expr cast_H_t = mk_cast(m_ctx, *H, t);
                         return m_ctx.is_def_eq(p, cast_H_t);
                     } else {
                         /* Types are not definitionally equal nor provably equal */
@@ -331,7 +331,7 @@ struct ematch_fn {
             /* Check if the types are provably equal, and cast t */
             m_cc.internalize(p_type);
             if (auto H = m_cc.get_eq_proof(t_type, p_type)) {
-                expr cast_H_t = mk_app(m_ctx, get_cast_name(), *H, t);
+                expr cast_H_t = mk_cast(m_ctx, *H, t);
                 bool success = m_ctx.is_def_eq(p, cast_H_t);
                 lean_trace(name({"debug", "ematch"}),
                            tout() << "types can be proved equal and assignment..." << (success ? "succeeded" : "failed") << "\n";);

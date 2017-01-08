@@ -1253,6 +1253,13 @@ void congruence_closure::propagate_constructor_eq(expr const & e1, expr const & 
     optional<name> c1 = is_constructor_app(env(), e1);
     optional<name> c2 = is_constructor_app(env(), e2);
     lean_assert(c1 && c2);
+    if (!m_ctx.is_def_eq(m_ctx.infer(e1), m_ctx.infer(e2))) {
+        /* The implications above only hold if the types are equal.
+
+           TODO(Leo): if the types are different, we may still propagate by searching the equivalence
+           classes of e1 and e2 for other constructors that may have compatible types. */
+        return;
+    }
     expr type       = mk_eq(m_ctx, e1, e2);
     expr h          = *get_eq_proof(e1, e2);
     if (*c1 == *c2) {
@@ -1885,7 +1892,7 @@ void congruence_closure::add_eqv_step(expr e1, expr e2, expr const & H, bool heq
                auto fmt = out.get_formatter();
                out << "merged: " << e1_root << " = " << e2_root << "\n";
                out << m_state.pp_eqcs(fmt) << "\n";
-               out << m_state.pp_parent_occs(fmt) << "\n";
+               // out << m_state.pp_parent_occs(fmt) << "\n";
                out << "--------\n";);
 }
 

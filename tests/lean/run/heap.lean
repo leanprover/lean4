@@ -17,7 +17,7 @@ axiom noalias : ∀ (h : heap) (y₁ y₂ : ptr) (w₁ w₂ : val), is_def (h �
 
 -/
 
-set_option profiler true
+-- set_option profiler true
 
 lemma ex
 (h₁ h₂ : heap) (x₁ x₂ x₃ x₄ : ptr) (v₁ v₂ v₃ : val)

@@ -98,13 +98,16 @@ public:
 
 MK_THREAD_LOCAL_GET_DEF(ext_congr_lemma_cache_manager, get_clcm);
 
-congruence_closure::congruence_closure(type_context & ctx, state & s, defeq_canonizer::state & dcs, cc_propagation_handler * phandler):
+congruence_closure::congruence_closure(type_context & ctx, state & s, defeq_canonizer::state & dcs,
+                                       cc_propagation_handler * phandler,
+                                       cc_normalizer * normalizer):
     m_ctx(ctx), m_defeq_canonizer(ctx, dcs), m_state(s), m_cache_ptr(get_clcm().mk(ctx.env())), m_mode(ctx.mode()),
     m_rel_info_getter(mk_relation_info_getter(ctx.env())),
     m_symm_info_getter(mk_symm_info_getter(ctx.env())),
     m_refl_info_getter(mk_refl_info_getter(ctx.env())),
     m_ac(*this, m_state.m_ac_state),
-    m_phandler(phandler) {
+    m_phandler(phandler),
+    m_normalizer(normalizer) {
 }
 
 congruence_closure::~congruence_closure() {
@@ -424,13 +427,18 @@ void congruence_closure::push_eq(expr const & lhs, expr const & rhs, expr const 
     m_todo.emplace_back(lhs, rhs, H, false);
 }
 
+expr congruence_closure::normalize(expr const & e) {
+    if (m_normalizer)
+        return m_normalizer->normalize(e);
+    else
+        return e;
+}
+
 void congruence_closure::process_subsingleton_elem(expr const & e) {
     expr type = m_ctx.infer(e);
     optional<expr> ss = m_ctx.mk_subsingleton_instance(type);
     if (!ss) return; /* type is not a subsingleton */
-    /* use defeq_canonize to "normalize" instance */
-    bool dummy;
-    type = m_defeq_canonizer.canonize(type, dummy);
+    type = normalize(type);
     /* Make sure type has been internalized */
     internalize_core(type, none_expr());
     /* Try to find representative */
@@ -1202,8 +1210,10 @@ optional<expr> congruence_closure::get_proof(expr const & e1, expr const & e2) c
 }
 
 void congruence_closure::push_subsingleton_eq(expr const & a, expr const & b) {
-    expr A = m_ctx.infer(a);
-    expr B = m_ctx.infer(b);
+    /* Remark: we must use normalize here because we have use it before
+       internalizing the types of 'a' and 'b'. */
+    expr A = normalize(m_ctx.infer(a));
+    expr B = normalize(m_ctx.infer(b));
     /* TODO(Leo): check if the following test is a performance bottleneck */
     if (m_ctx.relaxed_is_def_eq(A, B)) {
         /* TODO(Leo): to improve performance we can create the following proof lazily */

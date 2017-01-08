@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "library/congr_lemma.h"
 #include "library/relation_manager.h"
 #include "library/defeq_canonizer.h"
+#include "library/tactic/simp_result.h"
 #include "library/tactic/smt/theory_ac.h"
 
 namespace lean {
@@ -24,6 +25,15 @@ public:
     virtual ~cc_propagation_handler() {}
     virtual void propagated(unsigned n, expr const * data) = 0;
     void propagated(buffer<expr> const & p) { propagated(p.size(), p.data()); }
+};
+
+/* The congruence_closure module (optionally) uses a normalizer.
+   The idea is to use it (if available) to normalize auxiliary expressions
+   produced by internal propagation rules (e.g., subsingleton propagator). */
+class cc_normalizer {
+public:
+    virtual ~cc_normalizer() {}
+    virtual expr normalize(expr const & e) = 0;
 };
 
 class congruence_closure {
@@ -175,6 +185,7 @@ private:
     refl_info_getter          m_refl_info_getter;
     theory_ac                 m_ac;
     cc_propagation_handler *  m_phandler;
+    cc_normalizer *           m_normalizer;
     friend class theory_ac;
 
     int compare_symm(expr lhs1, expr rhs1, expr lhs2, expr rhs2) const;
@@ -254,10 +265,13 @@ private:
     void add_eqv_core(expr const & lhs, expr const & rhs, expr const & H, bool heq_proof);
     bool check_eqc(expr const & e) const;
 
+    expr normalize(expr const & e);
+
     friend ext_congr_lemma_cache_ptr const & get_cache_ptr(congruence_closure const & cc);
 public:
     congruence_closure(type_context & ctx, state & s, defeq_canonizer::state & dcs,
-                       cc_propagation_handler * phandler = nullptr);
+                       cc_propagation_handler * phandler = nullptr,
+                       cc_normalizer * normalizer = nullptr);
     ~congruence_closure();
 
     environment const & env() const { return m_ctx.env(); }

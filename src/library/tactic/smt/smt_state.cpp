@@ -38,8 +38,9 @@ smt_goal::smt_goal(smt_config const & cfg):
 
 smt::smt(type_context & ctx, defeq_can_state & dcs, smt_goal & g):
     m_ctx(ctx),
+    m_dcs(dcs),
     m_goal(g),
-    m_cc(ctx, m_goal.m_cc_state, dcs, this) {
+    m_cc(ctx, m_goal.m_cc_state, dcs, this, this) {
 }
 
 smt::~smt() {
@@ -97,6 +98,14 @@ void smt::ematch(buffer<expr_pair> & result) {
 
 void smt::ematch_using(hinst_lemma const & lemma, buffer<expr_pair> & result) {
     ::lean::ematch(m_ctx, m_goal.m_em_state, m_cc, lemma, false, result);
+}
+
+static dsimplify_fn mk_dsimp(type_context & ctx, defeq_can_state & dcs, smt_pre_config const & cfg);
+
+expr smt::normalize(expr const & e) {
+    type_context::zeta_scope _1(m_ctx, m_goal.m_pre_config.m_zeta);
+    dsimplify_fn dsimp       = mk_dsimp(m_ctx, m_dcs, m_goal.m_pre_config);
+    return dsimp(e);
 }
 
 struct vm_smt_goal : public vm_external {

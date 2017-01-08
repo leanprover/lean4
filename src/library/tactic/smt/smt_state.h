@@ -42,16 +42,17 @@ public:
     void set_lemmas(hinst_lemmas const & lemmas) { m_em_state.set_lemmas(lemmas); }
 };
 
-class smt : public cc_propagation_handler {
+class smt : public cc_propagation_handler, public cc_normalizer {
 private:
     type_context &     m_ctx;
+    defeq_can_state &  m_dcs;
     smt_goal &         m_goal;
     congruence_closure m_cc;
 
     lbool get_value_core(expr const & e);
     lbool get_value(expr const & e);
     virtual void propagated(unsigned n, expr const * p) override;
-
+    virtual expr normalize(expr const & e) override;
 public:
     smt(type_context & ctx, defeq_can_state & dcs, smt_goal & g);
     virtual ~smt();

@@ -14,16 +14,21 @@ namespace super
 meta def try_option {a : Type (u + 1)} (tac : tactic a) : tactic (option a) :=
 lift some tac <|> return none
 
-meta def inf_whnf_l (c : clause) : tactic (list clause) :=
+private meta def normalize : expr → tactic expr | e := do
+e' ← whnf_core transparency.none e,
+args' ← monad.for e'^.get_app_args normalize,
+return $ app_of_list e'^.get_app_fn args'
+
+meta def inf_normalize_l (c : clause) : tactic (list clause) :=
 on_first_left c $ λtype, do
-  type' ← whnf_core transparency.reducible type,
+  type' ← normalize type,
   guard $ type' ≠ type,
   h ← mk_local_def `h type',
   return [([h], h)]
 
-meta def inf_whnf_r (c : clause) : tactic (list clause) :=
+meta def inf_normalize_r (c : clause) : tactic (list clause) :=
 on_first_right c $ λha, do
-  a' ← whnf_core transparency.reducible ha^.local_type,
+  a' ← normalize ha^.local_type,
   guard $ a' ≠ ha^.local_type,
   hna ← mk_local_def `hna (imp a' c^.local_false),
   return [([hna], app hna ha)]
@@ -232,7 +237,7 @@ meta def clausification_rules_intuit : list (clause → tactic (list clause)) :=
   inf_and_l, inf_and_r,
   inf_or_l, inf_or_r,
   inf_ex_l,
-  inf_whnf_l, inf_whnf_r ]
+  inf_normalize_l, inf_normalize_r ]
 
 meta def clausification_rules_classical : list (clause → tactic (list clause)) :=
 [ inf_false_l, inf_false_r, inf_true_l, inf_true_r,
@@ -242,7 +247,7 @@ meta def clausification_rules_classical : list (clause → tactic (list clause))
   inf_imp_l, inf_all_r,
   inf_ex_l,
   inf_all_l, inf_ex_r,
-  inf_whnf_l, inf_whnf_r ]
+  inf_normalize_l, inf_normalize_r ]
 
 meta def get_clauses_classical : list clause → tactic (list clause) :=
 get_clauses_core clausification_rules_classical

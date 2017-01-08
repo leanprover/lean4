@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_format.h"
 #include "library/tactic/user_attribute.h"
 #include "library/tactic/tactic_state.h"
+#include "library/tactic/clear_tactic.h"
 #include "library/tactic/revert_tactic.h"
 #include "library/tactic/dsimplify.h"
 #include "library/tactic/simplify.h"
@@ -145,6 +146,21 @@ vm_obj mk_smt_tactic_success(vm_obj const & ss, vm_obj const & ts) {
 
 vm_obj mk_smt_tactic_success(vm_obj const & ss, tactic_state const & ts) {
     return mk_smt_tactic_success(ss, to_obj(ts));
+}
+
+/* Remove auxiliary definitions introduced by the equation compiler.
+   Reason: ematching will close the goal by instantiating them.
+   Then later, the equation compiler will fail to eliminate this application
+   using structural or well founded induction. */
+tactic_state clear_recs(tactic_state const & s) {
+    lean_assert(s.goals());
+    expr mvar                = head(s.goals());
+    metavar_context mctx     = s.mctx();
+    expr new_mvar            = clear_recs(mctx, mvar);
+    if (new_mvar == mvar)
+        return s;
+    else
+        return set_mctx_goals(s, mctx, cons(new_mvar, tail(s.goals())));
 }
 
 tactic_state revert_all(tactic_state const & s) {
@@ -294,7 +310,7 @@ expr intros(environment const & env, options const & opts, metavar_context & mct
 
 vm_obj mk_smt_state(tactic_state s, smt_config const & cfg) {
     if (!s.goals()) return mk_no_goals_exception(s);
-    s = revert_all(s);
+    s = revert_all(clear_recs(s));
 
     smt_goal new_goal(cfg);
 

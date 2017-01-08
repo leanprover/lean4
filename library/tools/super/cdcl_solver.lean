@@ -412,4 +412,20 @@ meta def solve (local_false : expr) (clauses : list clause) : tactic result := d
 res ← (do for clauses mk_clause, run theory_solver) (state.initial local_false),
 return res.1
 
+meta def theory_solver_of_tactic (th_solver : tactic unit) : cdcl.solver (option cdcl.proof_term) :=
+do s ← state_t.read, ↑do
+hyps ← return $ s^.trail^.for (λe, e^.hyp),
+subgoal ← mk_meta_var s^.local_false,
+goals ← get_goals,
+set_goals [subgoal],
+hvs ← for hyps (λhyp, assertv hyp^.local_pp_name hyp^.local_type hyp),
+solved ← (do th_solver, now, return tt) <|> return ff,
+set_goals goals,
+if solved then do
+proof ← instantiate_mvars subgoal,
+proof' ← whnf proof, -- gets rid of the unnecessary asserts
+return $ some proof'
+else
+return none
+
 end cdcl

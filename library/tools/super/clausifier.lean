@@ -269,7 +269,14 @@ local_false ← target,
 l ← local_context,
 monad.for l (clause.of_proof local_false)
 
-@[super.inf]
+meta def clausify_pre := preprocessing_rule $ take new, lift list.join $ for new $ λ dc, do
+cs ← get_clauses_classical [dc^.c],
+if cs^.length ≤ 1 then
+  return (for cs $ λ c, { dc with c := c })
+else
+  for cs (λc, mk_derived c dc^.sc)
+
+-- @[super.inf]
 meta def clausification_inf : inf_decl := inf_decl.mk 0 $
 λgiven, list.foldr orelse (return ()) $
         do r ← clausification_rules_classical,

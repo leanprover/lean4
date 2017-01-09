@@ -24,6 +24,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_format.h"
 #include "library/vm/vm_name.h"
 #include "library/tactic/tactic_state.h"
+#include "library/tactic/dsimplify.h"
 #include "library/tactic/smt/hinst_lemmas.h"
 
 #ifndef LEAN_DEFAULT_HINST_LEMMA_PATTERN_MAX_STEPS
@@ -264,7 +265,8 @@ struct mk_hinst_lemma_fn {
     mk_hinst_lemma_fn(type_context & ctx, transparency_mode md_norm, expr const & H,
                       unsigned num_uvars, unsigned max_steps, bool simp,
                       name const & id):
-        m_ctx(ctx), m_md_norm(md_norm), m_no_inst_patterns(get_no_inst_patterns(ctx.env())),
+        m_ctx(ctx), m_md_norm(md_norm),
+        m_no_inst_patterns(get_no_inst_patterns(ctx.env())),
         m_H(H), m_num_uvars(num_uvars), m_max_steps(max_steps),
         m_simp(simp), m_id(id) {}
 
@@ -290,8 +292,17 @@ struct mk_hinst_lemma_fn {
     typedef rb_tree<candidate, candidate_lt> candidate_set;
 
     expr normalize(expr const & e) {
-        type_context::transparency_scope _(m_ctx, m_md_norm);
-        return ::lean::normalize(m_ctx, e);
+        /* We used to use ::lean::normalize here, but it was bad since it would unfold type class instances.
+           First, this may be a performance problem.
+           Second, it would expose a problem with the way we define some algebraic structures.
+           See discussion at ring.lean.
+        */
+        defeq_can_state dcs;
+        bool visit_instances = false;
+        unsigned max_steps   = 1000000; /* TODO(Leo): add parameter? */
+        bool use_eta         = true;
+        auto dsimp = dsimplify_fn(m_ctx, dcs, max_steps, visit_instances, simp_lemmas_for(), use_eta, m_md_norm);
+        return dsimp(e);
     }
 
     void collect_pattern_hints(expr const & e, candidate_set & s) {

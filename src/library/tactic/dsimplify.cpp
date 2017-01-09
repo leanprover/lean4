@@ -202,7 +202,7 @@ expr dsimplify_fn::whnf(expr const & e) {
 }
 
 optional<pair<expr, bool>> dsimplify_fn::pre(expr const & e) {
-    type_context::transparency_scope s(m_ctx, transparency_mode::Reducible);
+    type_context::transparency_scope s(m_ctx, m_md);
     expr new_e = whnf(e);
     if (new_e != e) {
         return optional<pair<expr, bool>>(new_e, true);
@@ -214,7 +214,7 @@ optional<pair<expr, bool>> dsimplify_fn::pre(expr const & e) {
 optional<pair<expr, bool>> dsimplify_fn::post(expr const & e) {
     expr curr_e;
     {
-        type_context::transparency_scope s(m_ctx, transparency_mode::Reducible);
+        type_context::transparency_scope s(m_ctx, m_md);
         curr_e = whnf(e);
     }
     while (true) {
@@ -243,10 +243,11 @@ optional<pair<expr, bool>> dsimplify_fn::post(expr const & e) {
 }
 
 dsimplify_fn::dsimplify_fn(type_context & ctx, defeq_canonizer::state & dcs, unsigned max_steps, bool visit_instances, simp_lemmas_for const & lemmas,
-                           bool use_eta):
+                           bool use_eta, transparency_mode md):
     dsimplify_core_fn(ctx, dcs, max_steps, visit_instances),
     m_simp_lemmas(lemmas),
-    m_use_eta(use_eta) {
+    m_use_eta(use_eta),
+    m_md(md) {
 }
 
 class tactic_dsimplify_fn : public dsimplify_core_fn {

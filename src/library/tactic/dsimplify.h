@@ -38,14 +38,16 @@ public:
 };
 
 class dsimplify_fn : public dsimplify_core_fn {
-    simp_lemmas_for m_simp_lemmas;
-    bool            m_use_eta;
+    simp_lemmas_for   m_simp_lemmas;
+    bool              m_use_eta;
+    transparency_mode m_md;
     expr whnf(expr const & e);
     virtual optional<pair<expr, bool>> pre(expr const & e) override;
     virtual optional<pair<expr, bool>> post(expr const & e) override;
 public:
     dsimplify_fn(type_context & ctx, defeq_canonizer::state & s,
-                 unsigned max_steps, bool visit_instances, simp_lemmas_for const & lemmas, bool use_eta);
+                 unsigned max_steps, bool visit_instances, simp_lemmas_for const & lemmas,
+                 bool use_eta, transparency_mode md = transparency_mode::Reducible);
 };
 
 void initialize_dsimplify();

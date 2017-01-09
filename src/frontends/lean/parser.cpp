@@ -966,6 +966,10 @@ bool parser::parse_binder_collection(buffer<pair<pos_info, name>> const & names,
     notation::accepting const & acc = head(acc_lst);
     lean_assert(!acc.get_postponed());
     expr pred     = acc.get_expr();
+    auto k        = p.first.get_action().kind();
+    if (k == notation::action_kind::Skip ||
+        k == notation::action_kind::Ext)
+        return false;
     unsigned rbp  = p.first.get_action().rbp();
     next(); // consume tk
     expr S        = parse_expr(rbp);

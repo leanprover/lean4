@@ -59,6 +59,8 @@ bool in_section(environment const & env);
     Then, the procedure tries n, 'foo.bla.boo'+n, 'foo.bla'+n, 'foo'+n. */
 optional<name> to_valid_namespace_name(environment const & env, name const & n);
 
+std::vector<name> get_namespace_completion_candidates(environment const & env);
+
 /** \brief Mark the given namespace as opened */
 environment mark_namespace_as_open(environment const & env, name const & n);
 /** \brief Return the set of namespaces marked as "open" using \c mark_namespace_as_open. */

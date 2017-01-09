@@ -101,7 +101,8 @@ environment execute_open(environment env, io_state const & ios, export_decl cons
 }
 
 environment namespace_cmd(parser & p) {
-    name n = p.check_decl_id_next("invalid namespace declaration, identifier expected");
+    name n = p.check_decl_id_next("invalid namespace declaration, identifier expected",
+                                  break_at_pos_exception::token_context::namespc);
     p.push_local_scope();
     unsigned old_export_decls_sz = length(get_active_export_decls(p.env()));
     environment env = push_scope(p.env(), p.ios(), scope_kind::Namespace, n);
@@ -245,7 +246,8 @@ environment open_export_cmd(parser & p, bool open) {
     environment env = p.env();
     while (true) {
         auto pos   = p.pos();
-        name ns    = p.check_id_next("invalid 'open/export' command, identifier expected");
+        name ns    = p.check_id_next("invalid 'open/export' command, identifier expected",
+                                     break_at_pos_exception::token_context::namespc);
         optional<name> real_ns = to_valid_namespace_name(env, ns);
         if (!real_ns)
             throw parser_error(sstream() << "invalid namespace name '" << ns << "'", pos);

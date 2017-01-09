@@ -239,5 +239,28 @@ std::vector<json> get_attribute_completions(std::string const & pattern, environ
     });
     return completions;
 }
+
+std::vector<json> get_namespace_completions(std::string const & pattern, environment const & env,
+                                            options const & opts) {
+    unsigned max_results = get_auto_completion_max_results(opts);
+    unsigned max_errors = get_fuzzy_match_max_errors(pattern.size());
+    std::vector<pair<std::string, name>> selected;
+    bitap_fuzzy_search matcher(pattern, max_errors);
+    std::vector<json> completions;
+
+    for (auto const & ns : get_namespace_completion_candidates(env)) {
+        if (ns.is_anonymous())
+            continue;
+        auto s = ns.to_string();
+        if (matcher.match(s))
+            selected.emplace_back(s, ns);
+    }
+    filter_completions(pattern, selected, completions, max_results, [&](name const & n) {
+        json completion;
+        completion["text"] = n.to_string();
+        return completion;
+    });
+    return completions;
+}
 }
 #endif

@@ -3,7 +3,7 @@
 INPUT="$(cat)"
 ESC_INPUT="${INPUT//$'\n'/\\n}"
 ESC_INPUT="${ESC_INPUT//\"/\\\"}"
-echo "{\"seq_num\": 0, \"command\": \"sync\", \"file_name\": \"f\", \"content\": \""$ESC_INPUT"\"}"
+echo "{\"seq_num\": 0, \"command\": \"sync\", \"file_name\": \"f\", \"content\": \"$ESC_INPUT\"}"
 awk '{
     i = match($0, /--\^/);
     if (i > 0) {

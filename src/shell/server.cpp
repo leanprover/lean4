@@ -386,6 +386,10 @@ public:
                             if (!m_skip_completions)
                                 j["completions"] = get_attribute_completions(prefix, snap->m_env, snap->m_options);
                             break;
+                        case break_at_pos_exception::token_context::namespc:
+                            if (!m_skip_completions)
+                                j["completions"] = get_namespace_completions(prefix, snap->m_env, snap->m_options);
+                            break;
                         case break_at_pos_exception::token_context::none:
                         case break_at_pos_exception::token_context::notation:
                             m_server->send_msg(cmd_res(m_seq_num, j));

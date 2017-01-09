@@ -441,9 +441,9 @@ static void check_not_internal(name const & id, pos_info const & p) {
         throw parser_error(sstream() << "invalid declaration name '" << id << "', identifiers starting with '_' are reserved to the system", p);
 }
 
-name parser::check_decl_id_next(char const * msg) {
+name parser::check_decl_id_next(char const * msg, break_at_pos_exception::token_context ctxt) {
     auto p  = pos();
-    name id = check_id_next(msg);
+    name id = check_id_next(msg, ctxt);
     check_not_internal(id, p);
     return id;
 }

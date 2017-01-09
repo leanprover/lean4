@@ -77,6 +77,18 @@ optional<name> to_valid_namespace_name(environment const & env, name const & n) 
     return optional<name>();
 }
 
+std::vector<name> get_namespace_completion_candidates(environment const & env) {
+    std::vector<name> ret;
+    scope_mng_ext const & ext = get_extension(env);
+    ext.m_namespace_set.for_each([&](name const & ns) {
+        ret.push_back(ns);
+        for (auto const & open_ns : ext.m_namespaces)
+            if (open_ns != ns && is_prefix_of(open_ns, ns))
+                ret.push_back(ns.replace_prefix(open_ns, {}));
+    });
+    return ret;
+}
+
 struct new_namespace_modification : public modification {
     LEAN_MODIFICATION("nspace")
 

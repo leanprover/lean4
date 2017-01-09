@@ -75,6 +75,7 @@ void filter_completions(std::string const & pattern, std::vector<pair<std::strin
     if (sz == 1) {
         completions.push_back(serialize(selected[0].second));
     } else if (sz > 1) {
+        std::sort(selected.begin(), selected.end());
         std::vector<pair<std::string, name>> next_selected;
         for (unsigned k = 0; k <= max_errors && num_results < max_results; k++) {
             bitap_fuzzy_search matcher(pattern, k);

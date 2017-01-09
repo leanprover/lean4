@@ -14,4 +14,4 @@ def fib_aux2 : ℕ → ℕ × ℕ
 
 def fib2 n := (fib_aux2 n).2
 
-vm_eval fib 10000
+vm_eval fib2 10000

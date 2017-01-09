@@ -6,14 +6,12 @@ Author: Leonardo de Moura
 */
 #include "util/list_fn.h"
 #include "kernel/instantiate.h"
+#include "library/trace.h"
 #include "library/locals.h"
 #include "library/type_context.h"
 #include "library/defeq_canonizer.h"
 
 namespace lean {
-void initialize_defeq_canonizer() {}
-void finalize_defeq_canonizer() {}
-
 defeq_canonizer::defeq_canonizer(type_context & ctx, state & s):
     m_ctx(ctx), m_state(s) {
 }
@@ -101,13 +99,28 @@ expr defeq_canonizer::canonize_core(expr const & e) {
     }
 }
 
+static void trace(type_context & ctx, expr const & e, expr const & r) {
+    lean_trace("defeq_canonizer", scope_trace_env _(ctx.env(), ctx); tout() << "\n" << e << "\n==>\n" << r << "\n";);
+}
+
 expr defeq_canonizer::canonize(expr const & e, bool & updated) {
     m_updated = &updated;
-    return canonize_core(e);
+    expr r = canonize_core(e);
+    trace(m_ctx, e, r);
+    return r;
 }
 
 expr defeq_canonizer::canonize(expr const & e) {
     m_updated = nullptr;
-    return canonize_core(e);
+    expr r = canonize_core(e);
+    trace(m_ctx, e, r);
+    return r;
+}
+
+void initialize_defeq_canonizer() {
+    register_trace_class("defeq_canonizer");
+}
+
+void finalize_defeq_canonizer() {
 }
 }

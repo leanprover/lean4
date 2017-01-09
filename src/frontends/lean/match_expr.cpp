@@ -78,7 +78,7 @@ expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos) {
             p.next();
         }
     } catch (exception & ex) {
-        consume_until_end(p);
+        consume_until_end_or_command(p);
         ex.rethrow();
     }
     p.check_token_next(get_end_tk(), "invalid 'match' expression, 'end' expected");

@@ -1,0 +1,2 @@
+1292.lean:4:0: error: invalid expression, unexpected token
+1292.lean:4:0: warning: using 'exit' to interrupt Lean

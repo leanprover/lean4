@@ -430,7 +430,7 @@ static expr parse_begin_end_block(parser & p, pos_info const & start_pos, name c
         }
     } catch (exception & ex) {
         if (end_token == get_end_tk())
-            consume_until_end(p);
+            consume_until_end_or_command(p);
         throw;
     }
     auto end_pos = p.pos();

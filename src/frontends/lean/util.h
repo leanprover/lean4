@@ -15,8 +15,8 @@ Author: Leonardo de Moura
 
 namespace lean {
 class parser;
-/** \brief Consume tokes until 'end' token is consumed */
-void consume_until_end(parser & p);
+/** \brief Consume tokens until 'end' token is consumed or a command/eof is found */
+void consume_until_end_or_command(parser & p);
 
 /** \brief Throw and error if the current token is not a command, nor a '.', nor an end-of-file. */
 void check_command_period_or_eof(parser const & p);

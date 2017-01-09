@@ -31,13 +31,14 @@ Author: Leonardo de Moura
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/decl_util.h" // TODO(Leo): remove
 namespace lean {
-void consume_until_end(parser & p) {
-    while (!p.curr_is_token(get_end_tk())) {
+void consume_until_end_or_command(parser & p) {
+    while (!p.curr_is_command() && !p.curr_is_eof() && !p.curr_is_token(get_period_tk())) {
         if (p.curr() == scanner::token_kind::Eof)
             return;
         p.next();
     }
-    p.next();
+    if (p.curr_is_token(get_end_tk()))
+        p.next();
 }
 
 void check_command_period_or_eof(parser const & p) {

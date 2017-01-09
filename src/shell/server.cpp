@@ -475,7 +475,8 @@ public:
                     }
                 }
 
-                j["record"] = record;
+                if (!record.is_null())
+                    j["record"] = record;
             } catch (throwable & ex) {}
 
             m_server->send_msg(cmd_res(m_seq_num, j));

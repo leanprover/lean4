@@ -182,8 +182,10 @@ class cse_fn : public compiler_step_visitor {
         type_context::tmp_locals all_locals(m_ctx); /* new local declarations + let-decls for common-subexprs */
         local_context const & lctx = m_ctx.lctx();
 
-        auto process = [&](expr const & e) {
+        std::function<expr(expr const &, optional<expr> const &)>
+        process = [&](expr const & e, optional<expr> const & main) {
             return replace(e, [&](expr const & s, unsigned) {
+                    if (main && s == *main) return none_expr();
                     if (!is_app(s) && !is_macro(s)) return none_expr();
                     if (!closed(s)) return none_expr();
                     auto it1 = common_subexpr_to_local.find(s);
@@ -191,10 +193,12 @@ class cse_fn : public compiler_step_visitor {
                         return some_expr(it1->second);
                     if (common_subexprs.find(s) == common_subexprs.end())
                         return none_expr();
-                    expr v = replace_locals(s, new_locals.size(), locals.data(), new_locals.data());
+                    /* Eliminate common subexpressions nested in s */
+                    expr new_v = process(s, some_expr(s));
+                    new_v      = replace_locals(new_v, new_locals.size(), locals.data(), new_locals.data());
                     name n = name("_c").append_after(m_counter);
                     m_counter++;
-                    expr l = all_locals.push_let(n, mk_neutral_expr(), v);
+                    expr l = all_locals.push_let(n, mk_neutral_expr(), new_v);
                     common_subexpr_to_local.insert(mk_pair(s, l));
                     return some_expr(l);
                 });
@@ -204,7 +208,7 @@ class cse_fn : public compiler_step_visitor {
             local_decl decl = *lctx.get_local_decl(local);
             if (decl.get_value()) {
                 /* let-entry */
-                expr new_v = process(*decl.get_value());
+                expr new_v = process(*decl.get_value(), none_expr());
                 expr l     = all_locals.push_let(decl.get_pp_name(),
                                                  replace_locals(decl.get_type(), new_locals.size(), locals.data(), new_locals.data()),
                                                  replace_locals(new_v, new_locals.size(), locals.data(), new_locals.data()));
@@ -218,7 +222,7 @@ class cse_fn : public compiler_step_visitor {
             }
         }
 
-        expr new_t = process(t);
+        expr new_t = process(t, none_expr());
         new_t = replace_locals(new_t, new_locals.size(), locals.data(), new_locals.data());
         return copy_tag(e, all_locals.mk_lambda(new_t));
     }

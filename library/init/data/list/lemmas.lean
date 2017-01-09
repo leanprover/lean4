@@ -11,10 +11,10 @@ variables {α : Type u} {β : Type v}
 
 namespace list
 
-lemma append_nil (s : list α) : [] ++ s = s :=
+lemma nil_append (s : list α) : [] ++ s = s :=
 rfl
 
-lemma append_cons (x : α) (s t : list α) : (x::s) ++ t = x::(s ++ t) :=
+lemma cons_append (x : α) (s t : list α) : (x::s) ++ t = x::(s ++ t) :=
 rfl
 
 theorem map_nil (f : α → β) : map f [] = [] :=

@@ -428,7 +428,7 @@ infix `++ₛ`:65 := append_stream
 
 lemma append_append_stream : ∀ (l₁ l₂ : list α) (s : stream α), (l₁ ++ l₂) ++ₛ s = l₁ ++ₛ (l₂ ++ₛ s)
 | []               l₂ s := rfl
-| (list.cons a l₁) l₂ s := by rw [list.append_cons, cons_append_stream, cons_append_stream, append_append_stream]
+| (list.cons a l₁) l₂ s := by rw [list.cons_append, cons_append_stream, cons_append_stream, append_append_stream]
 
 lemma map_append_stream (f : α → β) : ∀ (l : list α) (s : stream α), map f (l ++ₛ s) = list.map f l ++ₛ map f s
 | []              s := rfl

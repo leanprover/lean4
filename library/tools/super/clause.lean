@@ -23,16 +23,6 @@ meta structure clause :=
 
 namespace clause
 
-private meta def tactic_format (c : clause) : tactic format := do
-prf_fmt : format ← pp (proof c),
-type_fmt ← pp (type c),
-loc_fls_fmt ← pp c^.local_false,
-return $ prf_fmt ++ to_fmt " : " ++ type_fmt ++ to_fmt " (" ++
-  to_fmt (num_quants c) ++ to_fmt " quants, "
-  ++ to_fmt (num_lits c) ++ to_fmt " lits)"
-
-meta instance : has_to_tactic_format clause := ⟨tactic_format⟩
-
 meta def num_binders (c : clause) : ℕ := num_quants c + num_lits c
 
 meta def inst (c : clause) (e : expr) : clause :=
@@ -135,9 +125,10 @@ meta def is_neg : literal → bool
 
 meta def is_pos (l : literal) : bool := bnot l^.is_neg
 
-meta def to_formula (l : literal) : tactic expr :=
-if is_neg l then mk_mapp ``not [some (formula l)]
-else return (formula l)
+meta def to_formula (l : literal) : expr :=
+if l^.is_neg
+then app (const ``not []) l^.formula
+else formula l
 
 meta def type_str : literal → string
 | (literal.left _) := "left"
@@ -178,6 +169,12 @@ list.filter (λl, p (get_lit c l)) (range (num_lits c))
 
 meta def get_lits (c : clause) : list literal :=
 list.map (get_lit c) (range c^.num_lits)
+
+private meta def tactic_format (c : clause) : tactic format := do
+c ← c^.open_metan c^.num_quants,
+pp (do l ← c.1^.get_lits, [l^.to_formula])
+
+meta instance : has_to_tactic_format clause := ⟨tactic_format⟩
 
 meta def is_maximal (gt : expr → expr → bool) (c : clause) (i : nat) : bool :=
 list.empty (list.filter (λj, gt (get_lit c j)^.formula (get_lit c i)^.formula) (range c^.num_lits))

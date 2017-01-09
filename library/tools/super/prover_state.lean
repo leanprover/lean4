@@ -63,10 +63,12 @@ namespace derived_clause
 
 meta instance : has_to_tactic_format derived_clause :=
 ⟨λc, do
+prf_fmt ← pp c^.c^.proof,
 c_fmt ← pp c^.c,
 ass_fmt ← pp (c^.assertions^.for (λa, a^.local_type)),
 return $
 to_string c^.sc ++ " " ++
+prf_fmt ++ " " ++
 c_fmt ++ " <- " ++ ass_fmt ++
 " (selected: " ++ to_fmt c^.selected ++
 ")"

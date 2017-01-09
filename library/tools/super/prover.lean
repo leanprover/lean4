@@ -29,7 +29,6 @@ import .defs
 open monad tactic expr
 
 declare_trace super
-set_option trace.super false
 
 namespace super
 
@@ -44,8 +43,8 @@ meta def run_prover_loop
   : ℕ → prover (option expr) | i := do
 sequence' preprocessing_rules,
 new ← take_newly_derived, for' new register_as_passive,
-  when (is_trace_enabled_for `super) $ for' new $ λn,
-  tactic.trace { n with c := { (n^.c) with proof := const (mk_simple_name " derived") [] } },
+when (is_trace_enabled_for `super) $ for' new $ λn,
+  tactic.trace { n with c := { (n^.c) with proof := const (mk_simple_name "derived") [] } },
 needs_sat_run ← flip monad.lift state_t.read (λst, st^.needs_sat_run),
 if needs_sat_run then do
   res ← do_sat_run,

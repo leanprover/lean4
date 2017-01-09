@@ -245,6 +245,13 @@ expr intros(environment const & env, options const & opts, metavar_context & mct
     lean_assert(decl);
     type_context ctx(env, opts, mctx, decl->get_context(), transparency_mode::Semireducible);
     smt S(ctx, dcs, s_goal);
+    /* We need to use dsimp to canonize instances as we introduce hypotheses.
+       Example: suppose we are introducing
+         forall {α : Type u} [field α] (x y : α), f (x + y) (y + x) (x + y) = 0
+
+       The nested instances of has_add and has_zero must be canonized and registered at dcs.
+    */
+    dsimplify_fn dsimp = mk_dsimp(ctx, dcs, s_goal.get_pre_config());
     expr target = decl->get_type();
     type_context::tmp_locals locals(ctx);
     buffer<expr> new_Hs;
@@ -256,7 +263,7 @@ expr intros(environment const & env, options const & opts, metavar_context & mct
             target = ctx.relaxed_try_to_pi(target);
         }
         if (is_pi(target)) {
-            expr type = instantiate_rev(binding_domain(target), to_inst.size(), to_inst.data());
+            expr type = dsimp(instantiate_rev(binding_domain(target), to_inst.size(), to_inst.data()));
             name n    = binding_name(target);
             if (use_unused_names) n = ctx.get_unused_name(n);
             expr h    = locals.push_local(n, type);
@@ -268,8 +275,8 @@ expr intros(environment const & env, options const & opts, metavar_context & mct
                        tout() << n << " : " << type << "\n";);
             target = binding_body(target);
         } else if (is_let(target)) {
-            expr type  = instantiate_rev(let_type(target), to_inst.size(), to_inst.data());
-            expr value = instantiate_rev(let_value(target), to_inst.size(), to_inst.data());
+            expr type  = dsimp(instantiate_rev(let_type(target), to_inst.size(), to_inst.data()));
+            expr value = dsimp(instantiate_rev(let_value(target), to_inst.size(), to_inst.data()));
             name n     = let_name(target);
             if (use_unused_names) n = ctx.get_unused_name(n);
             expr h     = locals.push_let(n, type, value);
@@ -285,7 +292,7 @@ expr intros(environment const & env, options const & opts, metavar_context & mct
             break;
         }
     }
-    target = instantiate_rev(target, to_inst.size(), to_inst.data());
+    target = dsimp(instantiate_rev(target, to_inst.size(), to_inst.data()));
 
     expr new_M   = ctx.mk_metavar_decl(ctx.lctx(), target);
     expr new_val = abstract_locals(mk_delayed_abstraction_with_locals(new_M, new_Hs), new_Hs.size(), new_Hs.data());

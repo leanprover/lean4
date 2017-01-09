@@ -74,7 +74,7 @@ namespace lean {
 
 void break_at_pos_exception::report_goal_pos(pos_info goal_pos) {
     if (!m_goal_pos)
-        m_goal_pos = {goal_pos};
+        m_goal_pos = goal_pos;
 }
 
 // ==========================================
@@ -197,32 +197,49 @@ parser::parser(environment const & env, io_state const & ios,
 parser::~parser() {
 }
 
-bool parser::check_break_at_pos(pos_info const & p, name const & tk) {
+void parser::check_break_at_pos(break_at_pos_exception::token_context ctxt) {
+    auto p = pos();
     if (m_break_at_pos && p.first == m_break_at_pos->first && p.second <= m_break_at_pos->second) {
-        std::string s = tk.to_string();
-        if (utf8_char_pos(s.c_str(), m_break_at_pos->second - p.second))
-            return true;
+        name tk;
+        if (curr_is_identifier())
+            tk = get_name_val();
+        else if (curr_is_command() || curr_is_keyword()) {
+            tk = get_token_info().token();
+            // When completing at the end of a token that cannot be extended into an identifier,
+            // start an empty completion instead (in the next call to `check_break_before/at_pos`, using the correct
+            // context).
+            if (m_complete && m_break_at_pos->second == p.second + tk.utf8_size() - 1 &&
+                    !curr_is_token(get_period_tk())) {
+                auto s = tk.to_string();
+                if (!is_id_rest(get_utf8_last_char(s.c_str()), s.c_str() + s.size()))
+                    return;
+            }
+        } else {
+            return;
+        }
+        if (m_break_at_pos->second < p.second + tk.utf8_size())
+            throw break_at_pos_exception(p, tk, ctxt);
     }
-    return false;
+}
+
+void parser::check_break_before(break_at_pos_exception::token_context ctxt) {
+    if (m_break_at_pos && *m_break_at_pos < pos())
+        throw break_at_pos_exception(*m_break_at_pos, "", ctxt);
 }
 
 void parser::scan() {
+    check_break_before();
+    check_break_at_pos();
     pos_info curr_pos = pos();
-    if (m_break_at_pos && curr_is_identifier()) {
+    if (m_break_at_pos && m_break_at_pos->first == curr_pos.first && curr_is_identifier()) {
         name curr_ident = get_name_val();
-        if (check_break_at_pos(curr_pos, curr_ident))
-            throw break_at_pos_exception(curr_pos, curr_ident, break_at_pos_exception::token_context::ident);
         m_curr = m_scanner.scan(m_env);
         // when breaking on a '.' token trailing an identifier, report them as a single, concatenated token
-        if (m_break_at_pos->first == curr_pos.first &&
-                m_break_at_pos->second == curr_pos.second + curr_ident.utf8_size() && curr_is_token(get_period_tk()))
-            throw break_at_pos_exception(curr_pos, name(curr_ident.to_string() + get_period_tk()),
-                                         break_at_pos_exception::token_context::ident);
-    } else {
-        m_curr = m_scanner.scan(m_env);
+        if (*m_break_at_pos == pos() && curr_is_token(get_period_tk()))
+            throw break_at_pos_exception(curr_pos, name(curr_ident.to_string() + get_period_tk()));
+        return;
     }
-    if (m_break_at_pos && curr_pos <= *m_break_at_pos && *m_break_at_pos < pos())
-        throw break_at_pos_exception();
+    m_curr = m_scanner.scan(m_env);
 }
 
 expr parser::mk_sorry(pos_info const & p) {
@@ -404,15 +421,16 @@ void parser::check_token_or_id_next(name const & tk, char const * msg) {
     next();
 }
 
-name parser::check_id_next(char const * msg, optional<break_at_pos_exception::token_context> ctxt) {
+name parser::check_id_next(char const * msg, break_at_pos_exception::token_context ctxt) {
+    // initiate empty completion even if following token is not an identifier
+    check_break_before(ctxt);
     if (!curr_is_identifier())
         throw parser_error(msg, pos());
     name r = get_name_val();
     try {
         next();
-    } catch (break_at_pos_exception & ex) {
-        if (ctxt && ex.m_token_info)
-            ex.m_token_info->m_context = *ctxt;
+    } catch (break_at_pos_exception & e) {
+        e.m_token_info.m_context = ctxt;
         throw;
     }
     return r;
@@ -1261,9 +1279,12 @@ expr parser::parse_notation(parse_table t, expr * left) {
     auto p = pos();
     auto first_token = get_token_info().value();
     auto check_break = [&]() {
-        if (check_break_at_pos(pos(), get_token_info().value())) {
+        try {
+            check_break_at_pos(break_at_pos_exception::token_context::notation);
+        } catch (break_at_pos_exception & e) {
             // info is stored at position of first notation token
-            throw break_at_pos_exception(p, first_token, break_at_pos_exception::token_context::notation);
+            e.m_token_info.m_pos = p;
+            throw;
         }
     };
     buffer<expr>                     args;
@@ -1829,8 +1850,8 @@ name parser::check_constant_next(char const * msg) {
 
 expr parser::parse_id() {
     auto p  = pos();
-    name id = get_name_val();
-    next();
+    lean_assert(curr_is_identifier());
+    name id = check_id_next("", break_at_pos_exception::token_context::expr);
     return id_to_expr(id, p);
 }
 
@@ -2128,6 +2149,7 @@ std::vector<module_name> parser::parse_imports(unsigned & fingerprint) {
                         }
                         next();
                     } else {
+                        check_break_before();
                         break;
                     }
                 }
@@ -2141,16 +2163,11 @@ std::vector<module_name> parser::parse_imports(unsigned & fingerprint) {
                 imports.push_back({f, k});
                 next();
             } catch (break_at_pos_exception & e) {
-                if (k || e.m_token_info) {
-                    std::string tk;
-                    if (k)
-                        tk += std::string(*k + 1, '.');
-                    if (e.m_token_info)
-                        tk += e.m_token_info->m_token.to_string();
-                    throw break_at_pos_exception(p, tk, break_at_pos_exception::token_context::import);
-                } else {
-                    throw;
-                }
+                if (k)
+                    e.m_token_info.m_token = std::string(*k + 1, '.') + e.m_token_info.m_token.to_string();
+                e.m_token_info.m_context = break_at_pos_exception::token_context::import;
+                e.m_token_info.m_pos = p;
+                throw;
             }
         }
     }

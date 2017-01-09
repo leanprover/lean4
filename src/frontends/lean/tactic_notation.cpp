@@ -327,9 +327,14 @@ static bool is_curr_exact_shortcut(parser & p) {
 }
 
 static expr parse_tactic_core(parser & p, name const & tac_class) {
-    if (p.curr_is_identifier() && p.check_break_at_pos(p.pos(), p.get_name_val())) {
-        throw break_at_pos_exception(p.pos(), p.get_name_val(),
-                                     break_at_pos_exception::token_context::interactive_tactic, tac_class);
+    try {
+        p.check_break_before();
+        if (p.curr_is_identifier())
+            p.check_break_at_pos();
+    } catch (break_at_pos_exception & e) {
+        e.m_token_info.m_context = break_at_pos_exception::token_context::interactive_tactic;
+        e.m_token_info.m_tac_class = tac_class;
+        throw;
     }
 
     if (auto dname = is_auto_quote_tactic(p, tac_class)) {

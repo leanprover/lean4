@@ -301,7 +301,8 @@ std::shared_ptr<snapshot const> get_closest_snapshot(std::shared_ptr<module_info
     return ret;
 }
 
-void parse_breaking_at_pos(module_id const & mod_id, std::shared_ptr<module_info const> mod_info, pos_info pos) {
+void parse_breaking_at_pos(module_id const & mod_id, std::shared_ptr<module_info const> mod_info, pos_info pos,
+                           bool complete = false) {
     std::istringstream in(*mod_info->m_lean_contents);
     if (auto snap = get_closest_snapshot(mod_info, pos)) {
         snapshot s = *snap;
@@ -315,6 +316,7 @@ void parse_breaking_at_pos(module_id const & mod_id, std::shared_ptr<module_info
         parser p(s.m_env, get_global_ios(), mk_dummy_loader(), in, mod_id,
                  use_exceptions, std::make_shared<snapshot>(s), nullptr);
         p.set_break_at_pos(pos);
+        p.set_complete(complete);
         p();
     }
 }
@@ -348,45 +350,48 @@ public:
     unit execute() override {
         try {
             pos_info pos = get_pos();
+            if (pos.second == 0)
+                pos.first--;
+            pos.second--;
             json j;
 
             if (auto snap = get_closest_snapshot(m_mod_info, pos)) {
                 try {
-                    parse_breaking_at_pos(get_module_id(), m_mod_info, {pos.first, pos.second - 1});
+                    parse_breaking_at_pos(get_module_id(), m_mod_info, pos, true);
                 } catch (break_at_pos_exception & e) {
-                    if (e.m_token_info) {
-                        std::string prefix = e.m_token_info->m_token.to_string();
-                        if (auto stop = utf8_char_pos(prefix.c_str(), get_pos().second - e.m_token_info->m_pos.second))
-                            prefix = prefix.substr(0, *stop);
-                        switch (e.m_token_info->m_context) {
-                            case break_at_pos_exception::token_context::ident:
-                                if (!m_skip_completions)
-                                    j["completions"] = get_decl_completions(prefix, snap->m_env, snap->m_options);
-                                break;
-                            case break_at_pos_exception::token_context::option:
-                                if (!m_skip_completions)
-                                    j["completions"] = get_option_completions(prefix, snap->m_options);
-                                break;
-                            case break_at_pos_exception::token_context::import:
-                                if (!m_skip_completions)
-                                    j["completions"] = get_import_completions(prefix, dirname(m_mod_info->m_mod.c_str()),
-                                                                              snap->m_options);
-                                break;
-                            case break_at_pos_exception::token_context::interactive_tactic:
-                                if (!m_skip_completions)
-                                    j["completions"] = get_interactive_tactic_completions(
-                                            prefix, e.m_token_info->m_tac_class, snap->m_env, snap->m_options);
-                                break;
-                            case break_at_pos_exception::token_context::attribute:
-                                if (!m_skip_completions)
-                                    j["completions"] = get_attribute_completions(prefix, snap->m_env, snap->m_options);
-                                break;
-                            case break_at_pos_exception::token_context::notation:
-                                // do not complete notations
-                                return {};
-                        }
-                        j["prefix"] = prefix;
+                    unsigned offset = get_pos().second - e.m_token_info.m_pos.second;
+                    std::string prefix = e.m_token_info.m_token.to_string();
+                    if (auto stop = utf8_char_pos(prefix.c_str(), offset))
+                        prefix = prefix.substr(0, *stop);
+                    switch (e.m_token_info.m_context) {
+                        case break_at_pos_exception::token_context::expr:
+                            if (!m_skip_completions)
+                                j["completions"] = get_decl_completions(prefix, snap->m_env, snap->m_options);
+                            break;
+                        case break_at_pos_exception::token_context::option:
+                            if (!m_skip_completions)
+                                j["completions"] = get_option_completions(prefix, snap->m_options);
+                            break;
+                        case break_at_pos_exception::token_context::import:
+                            if (!m_skip_completions)
+                                j["completions"] = get_import_completions(prefix, dirname(m_mod_info->m_mod.c_str()),
+                                                                          snap->m_options);
+                            break;
+                        case break_at_pos_exception::token_context::interactive_tactic:
+                            if (!m_skip_completions)
+                                j["completions"] = get_interactive_tactic_completions(
+                                        prefix, e.m_token_info.m_tac_class, snap->m_env, snap->m_options);
+                            break;
+                        case break_at_pos_exception::token_context::attribute:
+                            if (!m_skip_completions)
+                                j["completions"] = get_attribute_completions(prefix, snap->m_env, snap->m_options);
+                            break;
+                        case break_at_pos_exception::token_context::none:
+                        case break_at_pos_exception::token_context::notation:
+                            m_server->send_msg(cmd_res(m_seq_num, j));
+                            return {};
                     }
+                    j["prefix"] = prefix;
                 } catch (throwable & ex) {}
             }
 
@@ -450,26 +455,23 @@ public:
                 parse_breaking_at_pos(get_module_id(), m_mod_info, pos);
             } catch (break_at_pos_exception & e) {
                 json record;
-                if (e.m_token_info || e.m_goal_pos) {
-                    auto opts = m_server->m_ios.get_options();
-                    auto env = m_server->m_initial_env;
-                    if (auto mod = m_mod_info->m_result.peek()) {
-                        if (mod->m_loaded_module->m_env)
-                            env = mod->m_loaded_module->m_env.get();
-                        if (!mod->m_snapshots.empty()) opts = mod->m_snapshots.back()->m_options;
-                    }
+                auto opts = m_server->m_ios.get_options();
+                auto env = m_server->m_initial_env;
+                if (auto mod = m_mod_info->m_result.peek()) {
+                    if (mod->m_loaded_module->m_env)
+                        env = mod->m_loaded_module->m_env.get();
+                    if (!mod->m_snapshots.empty()) opts = mod->m_snapshots.back()->m_options;
+                }
 
-                    for (auto & infom : m_server->m_msg_buf->get_info_managers()) {
-                        if (infom.get_file_name() == get_module_id()) {
-                            if (e.m_token_info)
-                                infom.get_info_record(env, opts, m_server->m_ios, e.m_token_info->m_pos.first,
-                                                      e.m_token_info->m_pos.second, record);
-                            if (e.m_goal_pos)
-                                infom.get_info_record(env, opts, m_server->m_ios, e.m_goal_pos->first,
-                                                      e.m_goal_pos->second, record, [](info_data const & d) {
-                                                          return dynamic_cast<tactic_state_info_data const *>(d.raw());
-                                                      });
-                        }
+                for (auto & infom : m_server->m_msg_buf->get_info_managers()) {
+                    if (infom.get_file_name() == get_module_id()) {
+                        infom.get_info_record(env, opts, m_server->m_ios, e.m_token_info.m_pos.first,
+                                              e.m_token_info.m_pos.second, record);
+                        if (e.m_goal_pos)
+                            infom.get_info_record(env, opts, m_server->m_ios, e.m_goal_pos->first,
+                                                  e.m_goal_pos->second, record, [](info_data const & d) {
+                                        return dynamic_cast<tactic_state_info_data const *>(d.raw());
+                                    });
                     }
                 }
 

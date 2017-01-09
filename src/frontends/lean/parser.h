@@ -79,7 +79,7 @@ typedef std::vector<std::shared_ptr<snapshot const>> snapshot_vector;
 
 class break_at_pos_exception : public std::exception {
 public:
-    enum class token_context { ident, notation, option, import, interactive_tactic, attribute };
+    enum class token_context { none, expr, notation, option, import, interactive_tactic, attribute };
     struct token_info {
         pos_info      m_pos;
         name          m_token;
@@ -88,11 +88,11 @@ public:
         name          m_tac_class;
     };
 
-    optional<token_info> m_token_info;
+    token_info m_token_info;
     optional<pos_info>   m_goal_pos;
 
-    break_at_pos_exception() {}
-    break_at_pos_exception(pos_info const & token_pos, name const & token, token_context ctxt, name tac_class = {}):
+    break_at_pos_exception(pos_info const & token_pos, name token = "",
+                           token_context ctxt = break_at_pos_exception::token_context::none, name tac_class = {}):
             m_token_info(token_info {token_pos, token, ctxt, tac_class}) {}
 
     void report_goal_pos(pos_info goal_pos);
@@ -153,6 +153,8 @@ class parser : public abstract_parser {
     snapshot_vector *       m_snapshot_vector;
     name_set                m_old_buckets_from_snapshot;
     optional<pos_info>      m_break_at_pos;
+    // auto completing
+    bool                    m_complete;
 
     // curr command token
     name                   m_cmd_token;
@@ -247,7 +249,12 @@ public:
 
     void set_break_at_pos(pos_info const & pos) { m_break_at_pos = some(pos); }
     optional<pos_info> const & get_break_at_pos() const { return m_break_at_pos; }
-    bool check_break_at_pos(pos_info const & p, name const & tk);
+    void set_complete(bool complete) { m_complete = complete; }
+    /** \brief Throw \c break_at_pos_exception with given context if \c m_break_at_pos is inside current token. */
+    void check_break_at_pos(break_at_pos_exception::token_context ctxt = break_at_pos_exception::token_context::none);
+    /** \brief Throw \c break_at_pos_exception with empty token and given context if \c m_break_at_pos is before current
+        position. */
+    void check_break_before(break_at_pos_exception::token_context ctxt = break_at_pos_exception::token_context::none);
 
     bool ignore_noncomputable() const { return m_ignore_noncomputable; }
     void set_ignore_noncomputable() { m_ignore_noncomputable = true; }
@@ -325,10 +332,8 @@ public:
     void check_token_or_id_next(name const & tk, char const * msg);
     /** \brief Check if the current token is an identifier, if it is return it and move to next token,
         otherwise throw an exception. */
-    name check_id_next(char const * msg, optional<break_at_pos_exception::token_context> ctxt = {});
-    name check_id_next(char const * msg, break_at_pos_exception::token_context ctxt) {
-        return check_id_next(msg, some(std::move(ctxt)));
-    }
+    name check_id_next(char const * msg, break_at_pos_exception::token_context ctxt =
+            break_at_pos_exception::token_context::none);
     /** \brief Similar to check_id_next, but also ensures the identifier is *not* an internal/reserved name. */
     name check_decl_id_next(char const * msg);
     /** \brief Check if the current token is an atomic identifier, if it is, return it and move to next token,

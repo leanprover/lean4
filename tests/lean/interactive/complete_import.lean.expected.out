@@ -1,2 +1,22 @@
+{"msg":{"caption":"","file_name":"f","pos_col":0,"pos_line":1,"severity":"error","text":"file 'foo' not found in the LEAN_PATH"},"response":"additional_message"}
+{"msg":{"caption":"","file_name":"f","pos_col":0,"pos_line":1,"severity":"error","text":"file 'foo' not found in the LEAN_PATH"},"response":"additional_message"}
+{"msg":{"caption":"","file_name":"f","pos_col":0,"pos_line":1,"severity":"error","text":"file 'foo' not found in the LEAN_PATH"},"response":"additional_message"}
+{"msg":{"caption":"","file_name":"f","pos_col":0,"pos_line":1,"severity":"error","text":"file 'foo' not found in the LEAN_PATH"},"response":"additional_message"}
+{"msg":{"caption":"","file_name":"f","pos_col":0,"pos_line":1,"severity":"error","text":"file 'foo' not found in the LEAN_PATH"},"response":"additional_message"}
+{"msg":{"caption":"","file_name":"f","pos_col":0,"pos_line":1,"severity":"error","text":"file 'bar' not found in the LEAN_PATH"},"response":"additional_message"}
+{"msg":{"caption":"","file_name":"f","pos_col":0,"pos_line":17,"severity":"error","text":"invalid import: foo\ncould not resolve import: foo"},"response":"additional_message"}
+{"msg":{"caption":"","file_name":"f","pos_col":0,"pos_line":17,"severity":"error","text":"invalid import: foo\ncould not resolve import: foo"},"response":"additional_message"}
+{"msg":{"caption":"","file_name":"f","pos_col":0,"pos_line":17,"severity":"error","text":"invalid import: foo\ncould not resolve import: foo"},"response":"additional_message"}
+{"msg":{"caption":"","file_name":"f","pos_col":0,"pos_line":17,"severity":"error","text":"invalid import: foo\ncould not resolve import: foo"},"response":"additional_message"}
+{"msg":{"caption":"","file_name":"f","pos_col":0,"pos_line":17,"severity":"error","text":"invalid import: foo\ncould not resolve import: foo"},"response":"additional_message"}
+{"msg":{"caption":"","file_name":"f","pos_col":0,"pos_line":17,"severity":"error","text":"invalid import: bar\ncould not resolve import: bar"},"response":"additional_message"}
 {"message":"file invalidated","response":"ok","seq_num":0}
-{"prefix":"..","response":"ok","seq_num":2}
+{"response":"ok","seq_num":2}
+{"prefix":"","response":"ok","seq_num":4}
+{"prefix":".","response":"ok","seq_num":6}
+{"prefix":"..","response":"ok","seq_num":8}
+{"prefix":"foo","response":"ok","seq_num":10}
+{"prefix":"foo.","response":"ok","seq_num":12}
+{"prefix":".foo","response":"ok","seq_num":14}
+{"prefix":"","response":"ok","seq_num":16}
+{"prefix":"bar","response":"ok","seq_num":18}

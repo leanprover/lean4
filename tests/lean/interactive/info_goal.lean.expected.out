@@ -1,0 +1,4 @@
+{"message":"file invalidated","response":"ok","seq_num":0}
+{"record":{"full-id":"tactic.interactive.exact","source":{"column":9,"file":"/library/init/meta/interactive.lean","line":126},"state":"⊢ ℕ → ℕ","type":"interactive.types.qexpr0 → command"},"response":"ok","seq_num":4}
+{"record":{"state":"no goals"},"response":"ok","seq_num":6}
+{"record":{"state":"⊢ ℕ → ℕ"},"response":"ok","seq_num":9}

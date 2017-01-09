@@ -95,7 +95,6 @@ private:
     ac_manager           m_ac_manager;
     buffer<expr_triple>  m_todo;
 
-    optional<expr> is_ac(expr const & e);
     expr convert(expr const & op, expr const & e, buffer<expr> & args);
     bool internalize_var(expr const & e);
     void insert_erase_R_occ(expr const & arg, expr const & lhs, bool in_lhs, bool is_insert);
@@ -122,6 +121,7 @@ public:
 
     void internalize(expr const & e, optional<expr> const & parent);
     void add_eq(expr const & e1, expr const & e2);
+    optional<expr> is_ac(expr const & e);
 
     format pp_term(formatter const & fmt, expr const & e) const {
         return m_state.pp_term(fmt, e);

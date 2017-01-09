@@ -265,8 +265,6 @@ private:
     void add_eqv_core(expr const & lhs, expr const & rhs, expr const & H, bool heq_proof);
     bool check_eqc(expr const & e) const;
 
-    expr normalize(expr const & e);
-
     friend ext_congr_lemma_cache_ptr const & get_cache_ptr(congruence_closure const & cc);
 public:
     congruence_closure(type_context & ctx, state & s, defeq_canonizer::state & dcs,
@@ -317,8 +315,23 @@ public:
 
     optional<ext_congr_lemma> mk_ext_congr_lemma(expr const & e) const;
 
+    optional<expr> is_ac(expr const & e) {
+        if (m_state.m_config.m_ac) return m_ac.is_ac(e);
+        else return none_expr();
+    }
+
     entry const * get_entry(expr const & e) const { return m_state.m_entries.find(e); }
     bool check_invariant() const { return m_state.check_invariant(); }
+
+    expr normalize(expr const & e);
+
+    class state_scope {
+        congruence_closure & m_cc;
+        state                m_saved_state;
+    public:
+        state_scope(congruence_closure & cc):m_cc(cc), m_saved_state(cc.m_state) {}
+        ~state_scope() { m_cc.m_state = m_saved_state; }
+    };
 };
 
 typedef congruence_closure::state  cc_state;

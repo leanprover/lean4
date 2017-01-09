@@ -86,4 +86,16 @@ bool has_idx_metavar(expr const & e) {
         });
     return found;
 }
+
+bool has_idx_expr_metavar(expr const & e) {
+    if (!has_expr_metavar(e))
+        return false;
+    bool found = false;
+    for_each(e, [&](expr const & e, unsigned) {
+            if (found || !has_expr_metavar(e)) return false;
+            if (is_idx_metavar(e)) found = true;
+            return true;
+        });
+    return found;
+}
 }

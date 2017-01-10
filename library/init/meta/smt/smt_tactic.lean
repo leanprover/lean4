@@ -67,6 +67,9 @@ meta constant smt_state.classical       : smt_state → bool
 meta def smt_tactic :=
 state_t smt_state tactic
 
+meta instance : has_append smt_state :=
+list.has_append
+
 meta instance : monad smt_tactic :=
 state_t.monad _ _
 
@@ -105,6 +108,7 @@ meta constant ematch_using                    : hinst_lemmas → smt_tactic unit
 meta constant mk_ematch_eqn_lemmas_for_core   : transparency → name → smt_tactic hinst_lemmas
 meta constant to_cc_state                     : smt_tactic cc_state
 meta constant to_em_state                     : smt_tactic ematch_state
+meta constant get_config                      : smt_tactic cc_config
 meta constant preprocess                      : expr → smt_tactic (expr × expr)
 meta constant get_lemmas                      : smt_tactic hinst_lemmas
 meta constant set_lemmas                      : hinst_lemmas → smt_tactic unit
@@ -158,6 +162,32 @@ protected meta def read : smt_tactic (smt_state × tactic_state) :=
 do s₁ ← state_t.read,
    s₂ ← tactic.read,
    return (s₁, s₂)
+
+private meta def mk_smt_goals_for (cfg : smt_config) : list expr → list smt_goal → list expr
+                                  → tactic (list smt_goal × list expr)
+| []        sr tr := return (sr^.reverse, tr^.reverse)
+| (tg::tgs) sr tr := do
+  tactic.set_goals [tg],
+  [new_sg] ← smt_state.mk cfg | tactic.failed,
+  [new_tg] ← get_goals | tactic.failed,
+  mk_smt_goals_for tgs (new_sg::sr) (new_tg::tr)
+
+/- This lift operation will restart the SMT state.
+   It is useful for using tactics that change the set of hypotheses. -/
+meta def slift {α : Type} (t : tactic α) : smt_tactic α :=
+λ ss, do
+  _::sgs  ← return ss | fail "slift tactic failed, there no smt goals to be solved",
+  cfg     ← return default_smt_config, -- TODO(Leo): use get_config
+  tg::tgs ← tactic.get_goals | tactic.failed,
+  tactic.set_goals [tg], a ← t,
+  tactic.trace_state, trace "--------",
+  new_tgs ← tactic.get_goals,
+  (new_sgs, new_tgs) ← mk_smt_goals_for cfg new_tgs [] [],
+  trace (new_tgs ++ tgs)^.length,
+  tactic.set_goals (new_tgs ++ tgs),
+  tactic.get_goals >>= (λ l, trace l^.length),
+  tactic.trace_state, trace "--------",
+  return (a, new_sgs ++ sgs)
 
 meta def trace_state : smt_tactic unit :=
 do (s₁, s₂) ← smt_tactic.read,

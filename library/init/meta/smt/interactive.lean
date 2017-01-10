@@ -190,5 +190,8 @@ smt_tactic.try t
 meta def repeat (t : itactic) : smt_tactic unit :=
 smt_tactic.repeat t
 
+meta def induction (p : qexpr0) (rec_name : using_ident) (ids : with_ident_list) : smt_tactic unit :=
+slift (tactic.interactive.induction p rec_name ids)
+
 end interactive
 end smt_tactic

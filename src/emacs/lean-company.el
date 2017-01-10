@@ -24,11 +24,9 @@
   (company-mode t))
 
 (cl-defun company-lean--make-candidate (prefix &key text type)
-  (let ((start (s-index-of prefix text)))
-    (propertize text
-                'type  type
-                'start start
-                'prefix prefix)))
+  (propertize text
+              'type  type
+              'prefix prefix))
 
 (defun company-lean--handle-singleton-candidate (prefix candidates)
   "Handle singleton candidate. If the candidate does not start
@@ -85,11 +83,9 @@
 
 (defun company-lean--match (arg)
   "Return the end of matched region"
-  (let ((prefix (get-text-property 0 'prefix arg))
-        (start  (get-text-property 0 'start  arg)))
-    (if start
-        (+ start (length prefix))
-      0)))
+  (let ((prefix (get-text-property 0 'prefix arg)))
+    (when (eq (s-index-of prefix arg) 0)
+        (length prefix))))
 
 (defun company-lean (command &optional arg &rest ignored)
   (cl-case command

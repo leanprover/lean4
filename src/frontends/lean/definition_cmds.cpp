@@ -561,15 +561,20 @@ static environment copy_equation_lemmas(environment const & env, name const & d_
     return new_env;
 }
 
-static expr inline_new_defs(environment const & old_env, environment const & new_env, expr const & e) {
+static expr inline_new_defs(environment const & old_env, environment const & new_env, name const & n, expr const & e) {
     return replace(e, [=] (expr const & e, unsigned) -> optional<expr> {
         if (is_sorry(e)) {
             return none_expr();
         } else if (is_constant(e) && !old_env.find(const_name(e))) {
             auto decl = new_env.get(const_name(e));
-            expr val  = instantiate_value_univ_params(decl, const_levels(e));
-            lean_assert(decl.is_definition());
-            return some_expr(inline_new_defs(old_env, new_env, val));
+            if (decl.is_definition()) {
+                expr val  = instantiate_value_univ_params(decl, const_levels(e));
+                lean_assert(decl.is_definition());
+                return some_expr(inline_new_defs(old_env, new_env, n, val));
+            } else {
+                throw exception(sstream() << "invalid theorem '" << n << "', theorems should not depend on axioms introduced using "
+                                "tactics (solution: mark theorem as a definition)");
+            }
         } else {
             return none_expr();
         }
@@ -646,7 +651,7 @@ public:
             finalize_theorem_proof(elab, params, val, m_finfo);
             if (m_is_rfl_lemma && !is_rfl_lemma(m_final_type, val))
                 throw exception("not a rfl-lemma, even though marked as rfl");
-            return inline_new_defs(m_decl_env, elab.env(), val);
+            return inline_new_defs(m_decl_env, elab.env(), local_pp_name(m_fn), val);
         } catch (exception & ex) {
             /* Remark: we need the catch to be able to produce correct line information */
             message_builder error_msg(&m_pos_provider, tc, m_decl_env, get_global_ios(),

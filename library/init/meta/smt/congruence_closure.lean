@@ -121,7 +121,6 @@ do (lhs, rhs) ← target >>= match_eq,
    s ← s^.internalize rhs,
    b ← s^.is_eqv lhs rhs,
    if b then do {
-     t ← return $ expr.const `true [],
      s^.eqv_proof lhs rhs >>= exact
    } else do {
      fail "ac_refl failed"

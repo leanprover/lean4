@@ -20,6 +20,14 @@ addons:
 matrix:
   include:
    - os: linux
+     dist: precise
+     env:
+       CMAKE_CXX_COMPILER=g++-4.9
+       CMAKE_BUILD_TYPE=Release
+       TARGET=lean-0.3.0-linux.tar.gz
+       UPLOAD=ON
+
+   - os: linux
      env:
        CMAKE_CXX_COMPILER=clang++-3.4
        CMAKE_BUILD_TYPE=Release
@@ -113,3 +121,13 @@ notifications:
      - lean-build@googlegroups.com
     on_success: change
     on_failure: always
+
+deploy:
+  provider: releases
+  api_key: "LoyZ4vZ5J4Xp7V4M2cggQkloCxemRWr9KN2nNH+5cUqHRZrVb9O635WGfcR7/YdYprtyfllvaBxI8q8F09C2anz5Rh4kUv3J6tml+T8yC3Ibs1+X4SD0f0COMKRCSE8VScJsI7EN8govdmvlFT4SLMqSGHMsPmILOBpsmaMIHCM="
+  file: $TARGET
+  skip_cleanup: true
+  overwrite: true
+  on:
+    condition: $UPLOAD = ON
+    tags: true

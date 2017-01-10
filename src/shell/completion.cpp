@@ -198,7 +198,7 @@ std::vector<json> get_import_completions(std::string const & pattern, std::strin
         if (matcher.match(candidate.first))
             selected.emplace_back(candidate.first, candidate);
     }
-    filter_completions<pair<std::string, std::string>>(pattern, selected, completions, max_results,[&](pair<std::string, std::string> const & c) {
+    filter_completions<pair<std::string, std::string>>(pattern, selected, completions, max_results, [&](pair<std::string, std::string> const & c) {
         json completion;
         completion["text"] = c.first;
         completion["type"] = c.second;

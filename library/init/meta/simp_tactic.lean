@@ -224,17 +224,21 @@ simplify_goal default_simplify_config hs >> try triv
 meta def ctx_simp : tactic unit :=
 simplify_goal {default_simplify_config with contextual := tt} [] >> try triv >> try (reflexivity_core reducible)
 
-meta def dsimp : tactic unit :=
-do S ← simp_lemmas.mk_default,
-   target >>= S^.dsimplify >>= change
+meta def dsimp_core (s : simp_lemmas) : tactic unit :=
+target >>= s^.dsimplify >>= change
 
-meta def dsimp_at (h : expr) : tactic unit :=
+meta def dsimp : tactic unit :=
+simp_lemmas.mk_default >>= dsimp_core
+
+meta def dsimp_at_core (s : simp_lemmas) (h : expr) : tactic unit :=
 do num_reverted : ℕ ← revert h,
    (expr.pi n bi d b : expr) ← target | failed,
-   S      ← simp_lemmas.mk_default,
-   h_simp ← S^.dsimplify d,
+   h_simp ← s^.dsimplify d,
    change $ expr.pi n bi h_simp b,
    intron num_reverted
+
+meta def dsimp_at (h : expr) : tactic unit :=
+do s ← simp_lemmas.mk_default, dsimp_at_core s h
 
 private meta def is_equation : expr → bool
 | (expr.pi n bi d b) := is_equation b

@@ -391,13 +391,13 @@ meta def simp_using_hs (hs : opt_qexpr_list) (attr_names : with_ident_list) (ids
 do ctx ← collect_ctx_simps,
    simp_core default_simplify_config ctx hs attr_names ids []
 
-private meta def dsimp_hyps : location → tactic unit
+private meta def dsimp_hyps (s : simp_lemmas) : location → tactic unit
 | []      := skip
-| (h::hs) := get_local h >>= dsimp_at
+| (h::hs) := get_local h >>= dsimp_at_core s
 
-meta def dsimp : location → tactic unit
-| [] := tactic.dsimp
-| hs := dsimp_hyps hs
+meta def dsimp (es : opt_qexpr_list) (attr_names : with_ident_list) (ids : without_ident_list) : location → tactic unit
+| [] := do s ← mk_simp_set attr_names es ids, tactic.dsimp_core s
+| hs := do s ← mk_simp_set attr_names es ids, dsimp_hyps s hs
 
 meta def reflexivity : tactic unit :=
 tactic.reflexivity

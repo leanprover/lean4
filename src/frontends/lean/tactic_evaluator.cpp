@@ -48,7 +48,11 @@ environment tactic_evaluator::compile_tactic(name const & tactic_name, expr cons
     new_env = new_env.add(cd);
     if (auto pos = provider->get_pos_info(tactic))
         new_env = add_transient_decl_pos_info(new_env, tactic_name, *pos);
-    return vm_compile(new_env, new_env.get(tactic_name));
+    try {
+        return vm_compile(new_env, new_env.get(tactic_name));
+    } catch (exception & ex) {
+        throw elaborator_exception(tactic, ex.what());
+    }
 }
 
 vm_obj tactic_evaluator::invoke_tactic(vm_state & S, name const & tactic_name, std::initializer_list<vm_obj> const & args) {
@@ -183,7 +187,11 @@ pair<vm_obj, tactic_state> tactic_evaluator::mk_smt_state(tactic_state const & s
     name init_state_name("_init_state");
     auto cd = check(new_env, mk_definition(new_env, init_state_name, {}, type, value, use_conv_opt, is_trusted));
     new_env = new_env.add(cd);
-    new_env = vm_compile(new_env, new_env.get(init_state_name));
+    try {
+        new_env = vm_compile(new_env, new_env.get(init_state_name));
+    } catch (exception & ex) {
+        throw elaborator_exception(ref, ex.what());
+    }
     vm_state S(new_env, m_opts);
     vm_obj r = S.invoke(init_state_name, to_obj(s));
     if (is_tactic_result_success(r)) {

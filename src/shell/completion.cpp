@@ -57,10 +57,6 @@ optional<name> exact_prefix_match(environment const & env, std::string const & p
         // if pattern "perfectly" matches beginning of declaration name, we just display d on the top of the list
         if (it_str.compare(0, pattern.size(), pattern) == 0)
             return it;
-    } else {
-        std::string d_str = d.get_name().to_string();
-        if (d_str.compare(0, pattern.size(), pattern) == 0)
-            return optional<name>(d.get_name());
     }
     return optional<name>();
 }
@@ -77,17 +73,32 @@ void filter_completions(std::string const & pattern, std::vector<pair<std::strin
     } else if (sz > 1) {
         std::sort(selected.begin(), selected.end());
         std::vector<pair<std::string, name>> next_selected;
+        auto process = [&](pair<std::string, name> const & s, bool select) {
+            if (select) {
+                completions.push_back(serialize(s.second));
+                num_results++;
+                if (num_results >= max_results)
+                    return false;
+            } else {
+                next_selected.push_back(s);
+            }
+            return true;
+        };
+
+        // 1. exact prefix matches
+        for (auto const & s : selected) {
+            if (!process(s, s.first.compare(0, pattern.size(), pattern) == 0))
+                break;
+        }
+        std::swap(selected, next_selected);
+        next_selected.clear();
+
+        // 2. fuzzy matches by increasing error count
         for (unsigned k = 0; k <= max_errors && num_results < max_results; k++) {
             bitap_fuzzy_search matcher(pattern, k);
             for (auto const & s : selected) {
-                if (matcher.match(s.first)) {
-                    completions.push_back(serialize(s.second));
-                    num_results++;
-                    if (num_results >= max_results)
-                        break;
-                } else {
-                    next_selected.push_back(s);
-                }
+                if (!process(s, matcher.match(s.first)))
+                    break;
             }
             std::swap(selected, next_selected);
             next_selected.clear();

@@ -73,6 +73,10 @@ void filter_completions(std::string const & pattern, std::vector<pair<std::strin
         completions.push_back(serialize(selected[0].second));
     } else if (sz > 1) {
         std::sort(selected.begin(), selected.end());
+        auto it = std::unique(selected.begin(), selected.end(), [](pair<std::string, T> const & s1, pair<std::string, T> const & s2) {
+            return s1.first == s2.first;
+        });
+        selected.resize(it - selected.begin());
         std::vector<pair<std::string, T>> next_selected;
         auto process = [&](pair<std::string, T> const & s, bool select) {
             if (select) {

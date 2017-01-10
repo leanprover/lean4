@@ -1,4 +1,4 @@
 {"message":"file invalidated","response":"ok","seq_num":0}
-{"completions":[{"text":"foo","type":"Type"},{"text":"foo.rec","type":"Π (C : foo → Type l) (n : foo), C n"},{"text":"foo.rec_on","type":"Π (C : foo → Type l) (n : foo), C n"},{"text":"foo.induction_on","type":"∀ (C : foo → Prop) (n : foo), C n"}],"prefix":"fo","response":"ok","seq_num":6}
+{"completions":[{"source":{"column":10,"line":3},"text":"foo","type":"Type"},{"source":{"column":10,"line":3},"text":"foo.induction_on","type":"∀ (C : foo → Prop) (n : foo), C n"},{"source":{"column":10,"line":3},"text":"foo.rec","type":"Π (C : foo → Type l) (n : foo), C n"},{"source":{"column":10,"line":3},"text":"foo.rec_on","type":"Π (C : foo → Type l) (n : foo), C n"}],"prefix":"fo","response":"ok","seq_num":6}
 {"prefix":"","response":"ok","seq_num":9}
 {"prefix":"","response":"ok","seq_num":13}

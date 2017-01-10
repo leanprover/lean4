@@ -1,5 +1,5 @@
 {"msg":{"caption":"","file_name":"f","pos_col":14,"pos_line":1,"severity":"error","text":"assumption tactic failed\nstate:\n⊢ ?m_1"},"response":"additional_message"}
-{"msg":{"caption":"","file_name":"f","pos_col":52,"pos_line":5,"severity":"error","text":"invalid expression, unexpected token"},"response":"additional_message"}
+{"msg":{"caption":"","file_name":"f","pos_col":66,"pos_line":5,"severity":"error","text":"invalid expression, unexpected token"},"response":"additional_message"}
 {"message":"file invalidated","response":"ok","seq_num":0}
 {"prefix":"","response":"ok","seq_num":2}
 {"prefix":"","response":"ok","seq_num":5}

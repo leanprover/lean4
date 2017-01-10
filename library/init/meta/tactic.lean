@@ -113,6 +113,11 @@ meta def try (t : tactic α) : tactic unit :=
 meta def skip : tactic unit :=
 success ()
 
+meta def fail_if_success {α : Type u} (t : tactic α) : tactic unit :=
+λ s, tactic_result.cases_on (t s)
+ (λ a s, exception _ (λ _, to_fmt "fail_if_success combinator failed, given tactic succeeded") none s)
+ (λ e ref s', success () s)
+
 open list
 meta def foreach : list α → (α → tactic unit) → tactic unit
 | []      fn := skip

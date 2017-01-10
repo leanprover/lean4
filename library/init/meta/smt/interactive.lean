@@ -193,5 +193,17 @@ smt_tactic.repeat t
 meta def induction (p : qexpr0) (rec_name : using_ident) (ids : with_ident_list) : smt_tactic unit :=
 slift (tactic.interactive.induction p rec_name ids)
 
+meta def simp (hs : opt_qexpr_list) (attr_names : with_ident_list) (ids : without_ident_list) : smt_tactic unit :=
+tactic.interactive.simp hs attr_names ids []
+
+meta def ctx_simp (hs : opt_qexpr_list) (attr_names : with_ident_list) (ids : without_ident_list) : smt_tactic unit :=
+tactic.interactive.ctx_simp hs attr_names ids []
+
+meta def simp_using_hs (hs : opt_qexpr_list) (attr_names : with_ident_list) (ids : without_ident_list) : smt_tactic unit :=
+tactic.interactive.simp_using_hs hs attr_names ids
+
+meta def dsimp (es : opt_qexpr_list) (attr_names : with_ident_list) (ids : without_ident_list) : tactic unit :=
+tactic.interactive.dsimp es attr_names ids []
+
 end interactive
 end smt_tactic

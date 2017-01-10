@@ -180,13 +180,9 @@ meta def slift {α : Type} (t : tactic α) : smt_tactic α :=
   cfg     ← return default_smt_config, -- TODO(Leo): use get_config
   tg::tgs ← tactic.get_goals | tactic.failed,
   tactic.set_goals [tg], a ← t,
-  tactic.trace_state, trace "--------",
   new_tgs ← tactic.get_goals,
   (new_sgs, new_tgs) ← mk_smt_goals_for cfg new_tgs [] [],
-  trace (new_tgs ++ tgs)^.length,
   tactic.set_goals (new_tgs ++ tgs),
-  tactic.get_goals >>= (λ l, trace l^.length),
-  tactic.trace_state, trace "--------",
   return (a, new_sgs ++ sgs)
 
 meta def trace_state : smt_tactic unit :=

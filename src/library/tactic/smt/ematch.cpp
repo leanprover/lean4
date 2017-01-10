@@ -105,7 +105,7 @@ struct ematch_cnstr_cell {
 
 /* Ematching constraint smart pointer */
 class ematch_cnstr {
-    friend class ematch_cnstr_cell;
+    friend struct ematch_cnstr_cell;
     ematch_cnstr_cell * m_data;
 public:
     ematch_cnstr():m_data(nullptr) {}

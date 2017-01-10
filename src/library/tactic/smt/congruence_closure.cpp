@@ -1746,6 +1746,11 @@ void congruence_closure::add_eqv_step(expr e1, expr e2, expr const & H, bool heq
     if (r1->m_interpreted && r2->m_interpreted) {
         if (is_true(n1->m_root) || is_true(n2->m_root)) {
             m_state.m_inconsistent = true;
+        } else if (is_num(n1->m_root) && is_num(n2->m_root)) {
+            /* Little hack to cope with the fact that we don't have a canonical representation
+               for nat numerals. For example: is_num returns true for
+               both (nat.succ nat.zero) and (@one nat nat.has_one). */
+            value_inconsistency = to_num(n1->m_root) != to_num(n2->m_root);
         } else {
             value_inconsistency = true;
         }

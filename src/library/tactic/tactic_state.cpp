@@ -405,10 +405,18 @@ type_context mk_type_context_for(vm_obj const & s, vm_obj const & m) {
     return mk_type_context_for(to_tactic_state(s), to_transparency_mode(m));
 }
 
+static void check_closed(char const * tac_name, expr const & e) {
+    if (!closed(e))
+        throw exception(sstream() << "tactic '" << tac_name << "' failed, "
+                        "given expression should not contain de-Bruijn variables, "
+                        "they should be replaced with local constants before using this tactic");
+}
+
 vm_obj tactic_infer_type(vm_obj const & e, vm_obj const & s0) {
     tactic_state const & s = to_tactic_state(s0);
     type_context ctx       = mk_type_context_for(s);
     try {
+        check_closed("infer_type", to_expr(e));
         return mk_tactic_success(to_obj(ctx.infer(to_expr(e))), s);
     } catch (exception & ex) {
         return mk_tactic_exception(ex, s);
@@ -419,6 +427,7 @@ vm_obj tactic_whnf_core(vm_obj const & t, vm_obj const & e, vm_obj const & s0) {
     tactic_state const & s = to_tactic_state(s0);
     type_context ctx       = mk_type_context_for(s, to_transparency_mode(t));
     try {
+        check_closed("whnf", to_expr(e));
         return mk_tactic_success(to_obj(ctx.whnf(to_expr(e))), s);
     } catch (exception & ex) {
         return mk_tactic_exception(ex, s);
@@ -429,6 +438,7 @@ vm_obj tactic_eta_expand(vm_obj const & e, vm_obj const & s0) {
     tactic_state const & s = to_tactic_state(s0);
     type_context ctx       = mk_type_context_for(s);
     try {
+        check_closed("eta_expand", to_expr(e));
         return mk_tactic_success(to_obj(ctx.eta_expand(to_expr(e))), s);
     } catch (exception & ex) {
         return mk_tactic_exception(ex, s);
@@ -454,21 +464,27 @@ vm_obj tactic_beta(vm_obj const & e, vm_obj const & s0) {
 }
 
 vm_obj tactic_zeta(vm_obj const & e0, vm_obj const & s0) {
-    expr const & e = to_expr(e0);
     tactic_state const & s = to_tactic_state(s0);
-    if (!is_local(e)) return mk_tactic_success(e0, s);
-    optional<metavar_decl> mdecl = s.get_main_goal_decl();
-    if (!mdecl) return mk_tactic_success(e0, s);
-    local_context lctx = mdecl->get_context();
-    optional<local_decl> ldecl = lctx.get_local_decl(e);
-    if (!ldecl || !ldecl->get_value()) return mk_tactic_success(e0, s);
-    return mk_tactic_success(to_obj(*ldecl->get_value()), s);
+    try {
+        expr const & e = to_expr(e0);
+        check_closed("zeta", e);
+        if (!is_local(e)) return mk_tactic_success(e0, s);
+        optional<metavar_decl> mdecl = s.get_main_goal_decl();
+        if (!mdecl) return mk_tactic_success(e0, s);
+        local_context lctx = mdecl->get_context();
+        optional<local_decl> ldecl = lctx.get_local_decl(e);
+        if (!ldecl || !ldecl->get_value()) return mk_tactic_success(e0, s);
+        return mk_tactic_success(to_obj(*ldecl->get_value()), s);
+    } catch (exception & ex) {
+        return mk_tactic_exception(ex, s);
+    }
 }
 
 vm_obj tactic_is_class(vm_obj const & e, vm_obj const & s0) {
     tactic_state const & s = to_tactic_state(s0);
     type_context ctx       = mk_type_context_for(s);
     try {
+        check_closed("is_class", to_expr(e));
         return mk_tactic_success(mk_vm_bool(static_cast<bool>(ctx.is_class(to_expr(e)))), s);
     } catch (exception & ex) {
         return mk_tactic_exception(ex, s);
@@ -479,6 +495,7 @@ vm_obj tactic_mk_instance(vm_obj const & e, vm_obj const & s0) {
     tactic_state const & s = to_tactic_state(s0);
     type_context ctx       = mk_type_context_for(s);
     try {
+        check_closed("mk_instance", to_expr(e));
         if (auto r = ctx.mk_class_instance(to_expr(e))) {
             return mk_tactic_success(to_obj(*r), s);
         } else {
@@ -498,6 +515,8 @@ vm_obj tactic_unify_core(vm_obj const & t, vm_obj const & e1, vm_obj const & e2,
     tactic_state const & s = to_tactic_state(s0);
     type_context ctx       = mk_type_context_for(s, to_transparency_mode(t));
     try {
+        check_closed("unify", to_expr(e1));
+        check_closed("unify", to_expr(e2));
         bool r = ctx.is_def_eq(to_expr(e1), to_expr(e2));
         if (r)
             return mk_tactic_success(set_mctx(s, ctx.mctx()));
@@ -513,6 +532,8 @@ vm_obj tactic_is_def_eq_core(vm_obj const & t, vm_obj const & e1, vm_obj const &
     type_context ctx       = mk_type_context_for(s, to_transparency_mode(t));
     type_context::tmp_mode_scope scope(ctx);
     try {
+        check_closed("is_def_eq", to_expr(e1));
+        check_closed("is_def_eq", to_expr(e2));
         bool r = ctx.is_def_eq(to_expr(e1), to_expr(e2));
         if (r)
             return mk_tactic_success(s);

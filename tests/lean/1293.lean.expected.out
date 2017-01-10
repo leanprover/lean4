@@ -1,0 +1,20 @@
+1293.lean:3:21: error: tactic 'whnf' failed, given expression should not contain de-Bruijn variables, they should be replaced with local constants before using this tactic
+state:
+⊢ true
+1293.lean:5:21: error: tactic 'whnf' failed, given expression should not contain de-Bruijn variables, they should be replaced with local constants before using this tactic
+state:
+⊢ true
+1293.lean:7:21: error: tactic 'zeta' failed, given expression should not contain de-Bruijn variables, they should be replaced with local constants before using this tactic
+state:
+⊢ true
+1293.lean:9:21: error: tactic 'unify' failed, given expression should not contain de-Bruijn variables, they should be replaced with local constants before using this tactic
+state:
+⊢ true
+1293.lean:11:21: error: tactic 'is_def_eq' failed, given expression should not contain de-Bruijn variables, they should be replaced with local constants before using this tactic
+state:
+⊢ true
+1293.lean:13:26: error: tactic 'infer_type' failed, given expression should not contain de-Bruijn variables, they should be replaced with local constants before using this tactic
+state:
+foo : ?m_1,
+trivial : ?m_2
+⊢ ?m_3

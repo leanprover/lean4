@@ -101,8 +101,7 @@ environment execute_open(environment env, io_state const & ios, export_decl cons
 }
 
 environment namespace_cmd(parser & p) {
-    name n = p.check_decl_id_next("invalid namespace declaration, identifier expected",
-                                  break_at_pos_exception::token_context::namespc);
+    name n = p.check_decl_id_next("invalid namespace declaration, identifier expected");
     p.push_local_scope();
     unsigned old_export_decls_sz = length(get_active_export_decls(p.env()));
     environment env = push_scope(p.env(), p.ios(), scope_kind::Namespace, n);

@@ -283,7 +283,8 @@ void find_files(std::string const & base, char const * ext, std::vector<std::str
     }
 }
 
-void find_imports_core(std::string const & base, optional<unsigned> const & k, std::vector<std::string> & imports) {
+void find_imports_core(std::string const & base, optional<unsigned> const & k,
+                       std::vector<pair<std::string, std::string>> & imports) {
     std::vector<std::string> files;
     find_files(base, ".lean", files);
 
@@ -292,11 +293,12 @@ void find_imports_core(std::string const & base, optional<unsigned> const & k, s
         std::replace(import.begin(), import.end(), g_sep, '.');
         if (k)
             import = std::string(*k + 1, '.') + import;
-        imports.push_back(import);
+        imports.push_back({import, file});
     }
 }
 
-void find_imports(std::string const & base, optional<unsigned> const & k, std::vector<std::string> & imports) {
+void find_imports(std::string const & base, optional<unsigned> const & k,
+                  std::vector<pair<std::string, std::string>> & imports) {
     if (!k) {
         for (auto const & base : *g_lean_path_vector)
             if (is_dir(base))

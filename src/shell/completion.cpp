@@ -61,8 +61,9 @@ optional<name> exact_prefix_match(environment const & env, std::string const & p
     return optional<name>();
 }
 
-void filter_completions(std::string const & pattern, std::vector<pair<std::string, name>> & selected,
-                        std::vector<json> & completions, unsigned max_results, std::function<json(name)> serialize) {
+template<class T>
+void filter_completions(std::string const & pattern, std::vector<pair<std::string, T>> & selected,
+                        std::vector<json> & completions, unsigned max_results, std::function<json(T const &)> serialize) {
     unsigned max_errors = get_fuzzy_match_max_errors(pattern.size());
     std::vector<pair<name, name>> exact_matches;
     bitap_fuzzy_search matcher(pattern, max_errors);
@@ -72,8 +73,8 @@ void filter_completions(std::string const & pattern, std::vector<pair<std::strin
         completions.push_back(serialize(selected[0].second));
     } else if (sz > 1) {
         std::sort(selected.begin(), selected.end());
-        std::vector<pair<std::string, name>> next_selected;
-        auto process = [&](pair<std::string, name> const & s, bool select) {
+        std::vector<pair<std::string, T>> next_selected;
+        auto process = [&](pair<std::string, T> const & s, bool select) {
             if (select) {
                 completions.push_back(serialize(s.second));
                 num_results++;
@@ -144,7 +145,7 @@ std::vector<json> get_decl_completions(std::string const & pattern, environment 
                 break;
         }
     }
-    filter_completions(pattern, selected, completions, max_results - num_results, [&](name const & n) {
+    filter_completions<name>(pattern, selected, completions, max_results - num_results, [&](name const & n) {
         return serialize_decl(n, env, opts);
     });
     return completions;
@@ -162,12 +163,14 @@ std::vector<json> get_option_completions(std::string const & pattern, options co
         if (matcher.match(text))
             selected.emplace_back(text, n);
     });
-    filter_completions(pattern, selected, completions, max_results, [&](name const & n) {
+    filter_completions<name>(pattern, selected, completions, max_results, [&](name const & n) {
         json completion;
         completion["text"] = n.to_string();
         std::stringstream ss;
-        get_option_declarations().find(n)->display_value(ss, opts);
+        auto const & decl = *get_option_declarations().find(n);
+        decl.display_value(ss, opts);
         completion["type"] = ss.str();
+        completion["doc"] = decl.get_description();
         return completion;
     });
     return completions;
@@ -177,7 +180,7 @@ std::vector<json> get_import_completions(std::string const & pattern, std::strin
                                          options const & opts) {
     unsigned max_results = get_auto_completion_max_results(opts);
     unsigned max_errors = get_fuzzy_match_max_errors(pattern.size());
-    std::vector<pair<std::string, name>> selected;
+    std::vector<pair<std::string, pair<std::string, std::string>>> selected;
     bitap_fuzzy_search matcher(pattern, max_errors);
     std::vector<json> completions;
 
@@ -188,16 +191,20 @@ std::vector<json> get_import_completions(std::string const & pattern, std::strin
             i++;
         depth = {i - 1};
     }
-    std::vector<std::string> imports;
+    std::vector<pair<std::string, std::string>> imports;
     find_imports(curr_dir, depth, imports);
 
     for (auto const & candidate : imports) {
-        if (matcher.match(candidate))
-            selected.emplace_back(candidate, candidate);
+        if (matcher.match(candidate.first))
+            selected.emplace_back(candidate.first, candidate);
     }
-    filter_completions(pattern, selected, completions, max_results, [&](name const & n) {
+    filter_completions<pair<std::string, std::string>>(pattern, selected, completions, max_results,[&](pair<std::string, std::string> const & c) {
         json completion;
-        completion["text"] = n.to_string();
+        completion["text"] = c.first;
+        completion["type"] = c.second;
+        completion["source"]["file"] = c.second;
+        completion["source"]["line"] = 1;
+        completion["source"]["column"] = 0;
         return completion;
     });
     return completions;
@@ -218,7 +225,7 @@ std::vector<json> get_interactive_tactic_completions(std::string const & pattern
             selected.emplace_back(n.get_string(), n);
         }
     });
-    filter_completions(pattern, selected, completions, max_results, [&](name const & n) {
+    filter_completions<name>(pattern, selected, completions, max_results, [&](name const & n) {
         return serialize_decl(n.get_string(), n, env, opts);
     });
     // append regular completions
@@ -242,10 +249,11 @@ std::vector<json> get_attribute_completions(std::string const & pattern, environ
         if (matcher.match(s))
             selected.emplace_back(s, attr->get_name());
     }
-    filter_completions(pattern, selected, completions, max_results, [&](name const & n) {
+    filter_completions<name>(pattern, selected, completions, max_results, [&](name const & n) {
         json completion;
         completion["text"] = n.to_string();
-        completion["type"] = get_attribute(env, n).get_description();
+        completion["doc"] = get_attribute(env, n).get_description();
+        add_source_info(env, n, completion);
         return completion;
     });
     return completions;
@@ -266,7 +274,7 @@ std::vector<json> get_namespace_completions(std::string const & pattern, environ
         if (matcher.match(s))
             selected.emplace_back(s, ns);
     }
-    filter_completions(pattern, selected, completions, max_results, [&](name const & n) {
+    filter_completions<name>(pattern, selected, completions, max_results, [&](name const & n) {
         json completion;
         completion["text"] = n.to_string();
         return completion;

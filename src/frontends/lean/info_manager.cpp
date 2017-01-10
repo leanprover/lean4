@@ -50,12 +50,7 @@ public:
 #ifdef LEAN_JSON
     virtual void report(io_state_stream const & ios, json & record) const override {
         record["full-id"] = m_full_id.to_string();
-        if (auto olean = get_decl_olean(ios.get_environment(), m_full_id))
-            record["source"]["file"] = *olean;
-        if (auto pos = get_decl_pos_info(ios.get_environment(), m_full_id)) {
-            record["source"]["line"] = pos->first;
-            record["source"]["column"] = pos->second;
-        }
+        add_source_info(ios.get_environment(), m_full_id, record);
     }
 #endif
 };

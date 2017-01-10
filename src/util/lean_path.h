@@ -44,8 +44,8 @@ std::string find_file(std::string const & base, optional<unsigned> const & k, na
 
 /** \brief Find all files with the given extension recursively. */
 void find_files(std::string const & base, char const * ext, std::vector<std::string> & files);
-void find_imports(std::string const & base, optional<unsigned> const & k, std::vector<std::string> & files);
-
+void find_imports(std::string const & base, optional<unsigned> const & k,
+                  std::vector<pair<std::string, std::string>> & imports_and_files);
 /** \brief Return true iff fname ends with ".lean" */
 bool is_lean_file(std::string const & fname);
 /** \brief Return true iff fname ends with ".olean" */

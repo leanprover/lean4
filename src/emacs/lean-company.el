@@ -23,10 +23,16 @@
   (setq-local company-begin-commands '(self-insert-command)) ; start autocompletion only after typing
   (company-mode t))
 
-(cl-defun company-lean--make-candidate (prefix &key text type)
-  (propertize text
-              'type  type
-              'prefix prefix))
+(cl-defun company-lean--make-candidate (prefix &key text type doc source &allow-other-keys)
+  (destructuring-bind (&key file line column) source
+    (let ((source (cond
+                   (file (cons file line))
+                   (line (cons (current-buffer) (lean-pos-at-line-col line 0))))))
+      (propertize text
+                  'type   type
+                  'doc    doc
+                  'source source
+                  'prefix prefix))))
 
 (defun company-lean--handle-singleton-candidate (prefix candidates)
   "Handle singleton candidate. If the candidate does not start
@@ -57,12 +63,6 @@
     (when (plist-member response :prefix)
       (list :prefix prefix :candidates candidates))))
 
-; (defun company-lean--findp-location (arg cb)
-;   (lean-get-info-record-at-point
-;    (lambda (info-record)
-;      (-if-let (source-record (plist-get info-record :source))
-;          (funcall cb (plist-get source-record :file) . (plist-get source-record :line))))))
-
 (defun company-lean--annotation (candidate)
   (let ((type (get-text-property 0 'type candidate)))
     (when type
@@ -81,19 +81,26 @@
                  "...")))
         annotation-str))))
 
+(defun company-lean--location (arg)
+  (get-text-property 0 'source arg))
+
 (defun company-lean--match (arg)
   "Return the end of matched region"
   (let ((prefix (get-text-property 0 'prefix arg)))
     (when (eq (s-index-of prefix arg) 0)
         (length prefix))))
 
+(defun company-lean--meta (arg)
+  (get-text-property 0 'doc arg))
+
 (defun company-lean (command &optional arg &rest ignored)
   (cl-case command
     (prefix (plist-get (company-lean--exec :skip-completions t) :prefix))
     (candidates (plist-get (company-lean--exec) :candidates))
     (annotation (company-lean--annotation arg))
-    ;(location (cons :async (lambda (cb) (company-lean--findp-location arg cb))))
+    (location (company-lean--location arg))
     (match (company-lean--match arg))
+    (meta (company-lean--meta arg))
     (no-cache t)
     (require-match 'never)
     (sorted t)))

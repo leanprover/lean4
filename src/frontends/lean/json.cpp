@@ -7,6 +7,7 @@ Author: Gabriel Ebner
 #ifdef LEAN_JSON
 #include "frontends/lean/json.h"
 #include <string>
+#include "library/documentation.h"
 #include "library/scoped_ext.h"
 #include "library/protected.h"
 #include "kernel/declaration.h"
@@ -39,6 +40,15 @@ json json_of_message(message const & msg) {
 
 #define LEAN_COMPLETE_CONSUME_IMPLICIT true // lean will add metavariables for implicit arguments in serialize_decl()
 
+void add_source_info(environment const & env, name const & d, json & record) {
+    if (auto olean = get_decl_olean(env, d))
+        record["source"]["file"] = *olean;
+    if (auto pos = get_decl_pos_info(env, d)) {
+        record["source"]["line"] = pos->first;
+        record["source"]["column"] = pos->second;
+    }
+}
+
 json serialize_decl(name const & short_name, name const & long_name, environment const & env, options const & o) {
     declaration const & d = env.get(long_name);
     type_context tc(env);
@@ -61,6 +71,9 @@ json serialize_decl(name const & short_name, name const & long_name, environment
     std::ostringstream ss;
     ss << mk_pair(flatten(fmter(type)), o);
     completion["type"] = ss.str();
+    add_source_info(env, long_name, completion);
+    if (auto doc = get_doc_string(env, long_name))
+        completion["doc"] = *doc;
     return completion;
 }
 

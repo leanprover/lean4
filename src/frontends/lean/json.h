@@ -20,6 +20,7 @@ json json_of_message(message const & msg);
 
 json json_of_name(name const &);
 
+void add_source_info(environment const & env, name const & d, json & record);
 json serialize_decl(name const & short_name, name const & long_name, environment const & env, options const & o);
 json serialize_decl(name const & d, environment const & env, options const & o);
 

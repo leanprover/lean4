@@ -37,6 +37,15 @@
             (point))))
     (- pos bol-pos)))
 
+(defun lean-pos-at-line-col (l c)
+  "Return the point of the given line and column."
+  ;; http://emacs.stackexchange.com/a/8083
+  (save-excursion
+    (goto-char (point-min))
+    (forward-line (- l 1))
+    (move-to-column c)
+    (point)))
+
 (defun lean-whitespace-cleanup ()
     (when lean-delete-trailing-whitespace
       (delete-trailing-whitespace)))

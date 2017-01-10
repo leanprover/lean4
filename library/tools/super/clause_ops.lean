@@ -14,7 +14,7 @@ meta def on_left_at {m} [monad m] (c : clause) (i : ℕ)
                     [has_monad_lift_t tactic m]
                     -- f gets a type and returns a list of proofs of that type
                     (f : expr → m (list (list expr × expr))) : m (list clause) := do
-op : clause × list expr ← c^.open_constn (c^.num_quants + i),
+op ← c^.open_constn (c^.num_quants + i),
 @guard tactic _ (op.1^.get_lit 0)^.is_neg _,
 new_hyps ← f (op.1^.get_lit 0)^.formula,
 return $ new_hyps^.for (λnew_hyp,
@@ -24,8 +24,8 @@ meta def on_left_at_dn {m} [monad m] [alternative m] (c : clause) (i : ℕ)
                     [has_monad_lift_t tactic m]
                     -- f gets a hypothesis of ¬type and returns a list of proofs of false
                     (f : expr → m (list (list expr × expr))) : m (list clause) := do
-qf : clause × list expr ← c^.open_constn c^.num_quants,
-op : clause × list expr ← qf.1^.open_constn c^.num_lits,
+qf ← c^.open_constn c^.num_quants,
+op ← qf.1^.open_constn c^.num_lits,
 lci ← (op.2^.nth i)^.to_monad,
 @guard tactic _ (qf.1^.get_lit i)^.is_neg _,
 h ← mk_local_def `h $ imp (qf.1^.get_lit i)^.formula c^.local_false,
@@ -39,7 +39,7 @@ meta def on_right_at {m} [monad m] (c : clause) (i : ℕ)
                      [has_monad_lift_t tactic m]
                      -- f gets a hypothesis and returns a list of proofs of false
                      (f : expr → m (list (list expr × expr))) : m (list clause) := do
-op : clause × list expr ← c^.open_constn (c^.num_quants + i),
+op ← c^.open_constn (c^.num_quants + i),
 @guard tactic _ ((op.1^.get_lit 0)^.is_pos) _,
 h ← mk_local_def `h (op.1^.get_lit 0)^.formula,
 new_hyps ← f h,
@@ -50,7 +50,7 @@ meta def on_right_at' {m} [monad m] (c : clause) (i : ℕ)
                      [has_monad_lift_t tactic m]
                      -- f gets a hypothesis and returns a list of proofs
                      (f : expr → m (list (list expr × expr))) : m (list clause) := do
-op : clause × list expr ← c^.open_constn (c^.num_quants + i),
+op ← c^.open_constn (c^.num_quants + i),
 @guard tactic _ ((op.1^.get_lit 0)^.is_pos) _,
 h ← mk_local_def `h (op.1^.get_lit 0)^.formula,
 new_hyps ← f h,

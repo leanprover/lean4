@@ -850,6 +850,7 @@ vm_obj smt_tactic_ematch_using(vm_obj const & hs, vm_obj const & ss, vm_obj cons
     smt_goal g          = to_smt_goal(head(ss));
     smt S(ctx, dcs, g);
     S.internalize(target);
+    bool add_facts = false;
     buffer<expr_pair> new_instances;
     to_hinst_lemmas(hs).for_each([&](hinst_lemma const & lemma) {
             if (lemma.m_num_mvars == 0 && lemma.m_num_uvars == 0) {
@@ -858,12 +859,13 @@ vm_obj smt_tactic_ematch_using(vm_obj const & hs, vm_obj const & ss, vm_obj cons
                 std::tie(type, h) = preprocess_forward(ctx, dcs, g, type, h);
                 lean_trace(name({"smt", "ematch"}), scope_trace_env _(ctx.env(), ctx);
                            tout() << "new ground fact: " << type << "\n";);
+                add_facts = true;
                 S.add(type, h);
             } else {
                 S.ematch_using(lemma, new_instances);
             }
         });
-    if (new_instances.empty())
+    if (!add_facts && new_instances.empty())
         return mk_tactic_exception("ematch_using failed, no instance was produced", ts);
     for (expr_pair const & p : new_instances) {
         expr type   = p.first;

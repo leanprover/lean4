@@ -62,6 +62,9 @@ public:
     void ematch(buffer<expr_pair> & result);
     void ematch_using(hinst_lemma const & lemma, buffer<expr_pair> & result);
 
+    defeq_can_state & dcs() { return m_dcs; }
+    smt_pre_config const & get_pre_config() { return m_goal.get_pre_config(); }
+
     optional<expr> get_proof(expr const & e);
     bool inconsistent() const { return m_cc.inconsistent(); }
     optional<expr> get_inconsistency_proof() const { return m_cc.get_inconsistency_proof(); }

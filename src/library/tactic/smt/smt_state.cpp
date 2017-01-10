@@ -239,6 +239,22 @@ static vm_obj preprocess(tactic_state s, smt_pre_config const & cfg) {
     }
 }
 
+static expr_pair preprocess_forward(type_context & ctx, defeq_can_state & dcs, smt_pre_config const & cfg, expr const & type, expr const & h) {
+    simp_result r = preprocess(ctx, dcs, cfg, type);
+    if (r.has_proof()) {
+        expr new_h = mk_eq_mp(ctx, r.get_proof(), h);
+        return mk_pair(r.get_new(), new_h);
+    } else if (r.get_new() == type) {
+        return mk_pair(type, h);
+    } else {
+        return mk_pair(r.get_new(), mk_id_locked(ctx, r.get_new(), h));
+    }
+}
+
+static expr_pair preprocess_forward(type_context & ctx, defeq_can_state & dcs, smt_goal const & g, expr const & type, expr const & h) {
+    return preprocess_forward(ctx, dcs, g.get_pre_config(), type, h);
+}
+
 expr intros(environment const & env, options const & opts, metavar_context & mctx, expr const & mvar,
             defeq_can_state & dcs, smt_goal & s_goal, bool use_unused_names) {
     optional<metavar_decl> decl = mctx.get_metavar_decl(mvar);
@@ -315,6 +331,33 @@ expr intros(environment const & env, options const & opts, metavar_context & mct
     return new_M;
 }
 
+/* Assert lemma in the current state if does not have universal metavariables, and return true.
+   Return false otherwise. */
+static bool add_em_fact(smt & S, type_context & ctx, hinst_lemma const & lemma) {
+    if (lemma.m_num_mvars == 0 && lemma.m_num_uvars == 0) {
+        expr type  = lemma.m_prop;
+        expr h     = lemma.m_proof;
+        std::tie(type, h) = preprocess_forward(ctx, S.dcs(), S.get_pre_config(), type, h);
+        lean_trace(name({"smt", "ematch"}), scope_trace_env _(ctx.env(), ctx);
+                   tout() << "new ground fact: " << type << "\n";);
+        S.add(type, h);
+        return true;
+    } else {
+        return false;
+    }
+}
+
+tactic_state add_em_facts(tactic_state const & ts, smt_goal & g) {
+    type_context ctx      = mk_type_context_for(ts);
+    defeq_can_state dcs   = ts.dcs();
+    smt S(ctx, dcs, g);
+    hinst_lemmas lemmas   = g.get_em_state().get_new_lemmas();
+    lemmas.for_each([&](hinst_lemma const & lemma) {
+            add_em_fact(S, ctx, lemma);
+        });
+    return set_dcs(ts, dcs);
+}
+
 vm_obj mk_smt_state(tactic_state s, smt_config const & cfg) {
     if (!s.goals()) return mk_no_goals_exception(s);
     s = revert_all(clear_recs(s));
@@ -329,7 +372,10 @@ vm_obj mk_smt_state(tactic_state s, smt_config const & cfg) {
     bool use_unused_names = true;
     defeq_can_state dcs = s.dcs();
     expr new_M = intros(s.env(), s.get_options(), mctx, head(s.goals()), dcs, new_goal, use_unused_names);
+
     s = set_mctx_goals_dcs(s, mctx, cons(new_M, tail(s.goals())), dcs);
+    s = add_em_facts(s, new_goal);
+
     return mk_tactic_success(mk_vm_cons(to_obj(new_goal), mk_vm_nil()), s);
 }
 
@@ -691,22 +737,6 @@ vm_obj smt_state_classical(vm_obj const & ss) {
     return mk_vm_bool(r);
 }
 
-static expr_pair preprocess_forward(type_context & ctx, defeq_can_state & dcs, smt_pre_config const & cfg, expr const & type, expr const & h) {
-    simp_result r = preprocess(ctx, dcs, cfg, type);
-    if (r.has_proof()) {
-        expr new_h = mk_eq_mp(ctx, r.get_proof(), h);
-        return mk_pair(r.get_new(), new_h);
-    } else if (r.get_new() == type) {
-        return mk_pair(type, h);
-    } else {
-        return mk_pair(r.get_new(), mk_id_locked(ctx, r.get_new(), h));
-    }
-}
-
-static expr_pair preprocess_forward(type_context & ctx, defeq_can_state & dcs, smt_goal const & g, expr const & type, expr const & h) {
-    return preprocess_forward(ctx, dcs, g.get_pre_config(), type, h);
-}
-
 vm_obj smt_tactic_ematch_core(vm_obj const & pred, vm_obj const & ss, vm_obj const & _ts) {
     tactic_state ts = to_tactic_state(_ts);
     if (is_nil(ss)) return mk_smt_state_empty_exception(ts);
@@ -752,17 +782,8 @@ vm_obj smt_tactic_mk_ematch_eqn_lemmas_for_core(vm_obj const & md, vm_obj const 
     hinst_lemmas hs;
     for (name const & eqn : eqns) {
         declaration eqn_decl = ctx.env().get(eqn);
-        if (eqn_decl.get_num_univ_params() == 0 && !is_pi(ctx.relaxed_whnf(ctx.env().get(eqn).get_type()))) {
-            hinst_lemma h;
-            h.m_id    = eqn;
-            h.m_proof = mk_constant(eqn);
-            h.m_prop  = ctx.infer(h.m_proof);
-            h.m_expr  = h.m_proof;
-            hs.insert(h);
-        } else {
-            hinst_lemma h = mk_hinst_lemma(ctx, to_transparency_mode(md), eqn, true);
-            hs.insert(h);
-        }
+        hinst_lemma h = mk_hinst_lemma(ctx, to_transparency_mode(md), eqn, true);
+        hs.insert(h);
     }
     tactic_state new_ts = set_env_mctx(ts, ctx.env(), ctx.mctx());
     return mk_smt_tactic_success(to_obj(hs), ss, to_obj(new_ts));
@@ -821,14 +842,8 @@ vm_obj smt_tactic_add_lemmas(vm_obj const & lemmas, vm_obj const & ss, vm_obj co
     smt_goal g          = to_smt_goal(head(ss));
     smt S(ctx, dcs, g);
     to_hinst_lemmas(lemmas).for_each([&](hinst_lemma const & lemma) {
-            if (lemma.m_num_mvars == 0 && lemma.m_num_uvars == 0) {
-                expr type  = lemma.m_prop;
-                expr h     = lemma.m_proof;
-                std::tie(type, h) = preprocess_forward(ctx, dcs, g, type, h);
-                lean_trace(name({"smt", "ematch"}), scope_trace_env _(ctx.env(), ctx);
-                           tout() << "new ground fact: " << type << "\n";);
-                S.add(type, h);
-            } else {
+            bool is_fact = add_em_fact(S, ctx, lemma);
+            if (!is_fact) {
                 lean_trace(name({"smt", "ematch"}), scope_trace_env _(ctx.env(), ctx);
                            tout() << "new equation lemma " << lemma << "\n" << lemma.m_prop << "\n";);
                 g.add_lemma(lemma);
@@ -850,22 +865,16 @@ vm_obj smt_tactic_ematch_using(vm_obj const & hs, vm_obj const & ss, vm_obj cons
     smt_goal g          = to_smt_goal(head(ss));
     smt S(ctx, dcs, g);
     S.internalize(target);
-    bool add_facts = false;
+    bool added_facts = false;
     buffer<expr_pair> new_instances;
     to_hinst_lemmas(hs).for_each([&](hinst_lemma const & lemma) {
-            if (lemma.m_num_mvars == 0 && lemma.m_num_uvars == 0) {
-                expr type  = lemma.m_prop;
-                expr h     = lemma.m_proof;
-                std::tie(type, h) = preprocess_forward(ctx, dcs, g, type, h);
-                lean_trace(name({"smt", "ematch"}), scope_trace_env _(ctx.env(), ctx);
-                           tout() << "new ground fact: " << type << "\n";);
-                add_facts = true;
-                S.add(type, h);
+            if (add_em_fact(S, ctx, lemma)) {
+                added_facts = true;
             } else {
                 S.ematch_using(lemma, new_instances);
             }
         });
-    if (!add_facts && new_instances.empty())
+    if (!added_facts && new_instances.empty())
         return mk_tactic_exception("ematch_using failed, no instance was produced", ts);
     for (expr_pair const & p : new_instances) {
         expr type   = p.first;

@@ -244,6 +244,18 @@ expr extract_trackable(type_context & ctx, expr const & type,
     return B;
 }
 
+static expr dsimp(type_context & ctx, transparency_mode md, expr const & e) {
+    /* We used to use ::lean::normalize here, but it was bad since it would unfold type class instances.
+       First, this may be a performance problem.
+       Second, it would expose a problem with the way we define some algebraic structures.
+       See discussion at ring.lean.
+    */
+    defeq_can_state dcs;
+    bool visit_instances = false;
+    unsigned max_steps   = 1000000; /* TODO(Leo): add parameter? */
+    bool use_eta         = true;
+    return dsimplify_fn(ctx, dcs, max_steps, visit_instances, simp_lemmas_for(), use_eta, md)(e);
+}
 
 struct mk_hinst_lemma_fn {
     type_context &     m_ctx;
@@ -292,17 +304,7 @@ struct mk_hinst_lemma_fn {
     typedef rb_tree<candidate, candidate_lt> candidate_set;
 
     expr normalize(expr const & e) {
-        /* We used to use ::lean::normalize here, but it was bad since it would unfold type class instances.
-           First, this may be a performance problem.
-           Second, it would expose a problem with the way we define some algebraic structures.
-           See discussion at ring.lean.
-        */
-        defeq_can_state dcs;
-        bool visit_instances = false;
-        unsigned max_steps   = 1000000; /* TODO(Leo): add parameter? */
-        bool use_eta         = true;
-        auto dsimp = dsimplify_fn(m_ctx, dcs, max_steps, visit_instances, simp_lemmas_for(), use_eta, m_md_norm);
-        return dsimp(e);
+        return dsimp(m_ctx, m_md_norm, e);
     }
 
     void collect_pattern_hints(expr const & e, candidate_set & s) {
@@ -610,17 +612,26 @@ struct mk_hinst_lemma_fn {
 
 hinst_lemma mk_hinst_lemma_core(type_context & ctx, transparency_mode md_norm, expr const & H, unsigned num_uvars,
                                 unsigned max_steps, bool simp, name const & id) {
-    try {
-        type_context::tmp_mode_scope tscope(ctx, num_uvars, 0);
-        bool erase_hints = false;
-        return mk_hinst_lemma_fn(ctx, md_norm, H, num_uvars, max_steps, simp, id)(erase_hints);
-    } catch (mk_hinst_lemma_fn::try_again_without_hints &) {
-        type_context::tmp_mode_scope tscope(ctx, num_uvars, 0);
+    if (num_uvars == 0 && !is_pi(ctx.relaxed_whnf(ctx.infer(H)))) {
+        hinst_lemma h;
+        h.m_id    = id;
+        h.m_proof = H;
+        h.m_prop  = dsimp(ctx, md_norm, ctx.infer(h.m_proof));
+        h.m_expr  = h.m_proof;
+        return h;
+    } else {
         try {
-            bool erase_hints = true;
+            type_context::tmp_mode_scope tscope(ctx, num_uvars, 0);
+            bool erase_hints = false;
             return mk_hinst_lemma_fn(ctx, md_norm, H, num_uvars, max_steps, simp, id)(erase_hints);
         } catch (mk_hinst_lemma_fn::try_again_without_hints &) {
-            lean_unreachable();
+            type_context::tmp_mode_scope tscope(ctx, num_uvars, 0);
+            try {
+                bool erase_hints = true;
+                return mk_hinst_lemma_fn(ctx, md_norm, H, num_uvars, max_steps, simp, id)(erase_hints);
+            } catch (mk_hinst_lemma_fn::try_again_without_hints &) {
+                lean_unreachable();
+            }
         }
     }
 }

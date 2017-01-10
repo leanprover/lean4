@@ -2218,74 +2218,76 @@ std::vector<module_name> parser::get_imports() {
 }
 
 bool parser::parse_commands() {
-    // We disable hash-consing while parsing to make sure the pos-info are correct.
-    scoped_expr_caching disable(false);
-    scoped_set_distinguishing_pp_options set(get_distinguishing_pp_options());
-    scope_pos_info_provider scope1(*this);
-    scope_message_context scope_parser_msgs("_parser", m_old_buckets_from_snapshot);
-    try {
-        bool done = false;
-        // Only parse imports when we are at the beginning.
-        if (!m_imports_parsed) {
-            // initial snapshot strictly before actual input
-            save_snapshot(scope_parser_msgs, {0, 0});
-            scope_message_context scope_msg_ctx("imports");
-            // TODO(gabriel): separate flag for snapshots/infos?
-            auto_reporting_info_manager_scope scope_infom(m_file_name, m_snapshot_vector != nullptr);
-            protected_call([&]() { process_imports(); }, [&]() { sync_command(); });
-        }
-        while (!done) {
+    protected_call([&]() {
+        // We disable hash-consing while parsing to make sure the pos-info are correct.
+        scoped_expr_caching disable(false);
+        scoped_set_distinguishing_pp_options set(get_distinguishing_pp_options());
+        scope_pos_info_provider scope1(*this);
+        scope_message_context scope_parser_msgs("_parser", m_old_buckets_from_snapshot);
+        try {
+            bool done = false;
+            // Only parse imports when we are at the beginning.
+            if (!m_imports_parsed) {
+                // initial snapshot strictly before actual input
+                save_snapshot(scope_parser_msgs, {0, 0});
+                scope_message_context scope_msg_ctx("imports");
+                // TODO(gabriel): separate flag for snapshots/infos?
+                auto_reporting_info_manager_scope scope_infom(m_file_name, m_snapshot_vector != nullptr);
+                protected_call([&]() { process_imports(); }, [&]() { sync_command(); });
+            }
+            while (!done) {
+                save_snapshot(scope_parser_msgs);
+                scoped_task_context scope_task_ctx(get_current_module(), pos());
+                scope_message_context scope_msg_ctx;
+                // TODO(gabriel): separate flag for snapshots/infos?
+                auto_reporting_info_manager_scope scope_infom(m_file_name, m_snapshot_vector != nullptr);
+                protected_call([&]() {
+                                   check_interrupted();
+                                   switch (curr()) {
+                                       case scanner::token_kind::CommandKeyword:
+                                           if (curr_is_token(get_end_tk())) {
+                                               check_no_doc_string();
+                                           }
+                                           parse_command();
+                                           break;
+                                       case scanner::token_kind::DocBlock:
+                                           check_no_doc_string();
+                                           parse_doc_block();
+                                           break;
+                                       case scanner::token_kind::ModDocBlock:
+                                           check_no_doc_string();
+                                           parse_mod_doc_block();
+                                           break;
+                                       case scanner::token_kind::Eof:
+                                           check_no_doc_string();
+                                           done = true;
+                                           break;
+                                       case scanner::token_kind::Keyword:
+                                           check_no_doc_string();
+                                           if (curr_is_token(get_period_tk())) {
+                                               next();
+                                               break;
+                                           }
+                                       default:
+                                           throw parser_error("command expected", pos());
+                                   }
+                               },
+                               [&]() { sync_command(); });
+            }
+            scope_message_context scope_msg_ctx("end");
+            if (has_open_scopes(m_env)) {
+                m_found_errors = true;
+                if (!m_use_exceptions && m_show_errors)
+                    (mk_message(ERROR) << "invalid end of module, expecting 'end'").report();
+                else if (m_use_exceptions)
+                    throw_parser_exception("invalid end of module, expecting 'end'", pos());
+            }
             save_snapshot(scope_parser_msgs);
-            scoped_task_context scope_task_ctx(get_current_module(), pos());
-            scope_message_context scope_msg_ctx;
-            // TODO(gabriel): separate flag for snapshots/infos?
-            auto_reporting_info_manager_scope scope_infom(m_file_name, m_snapshot_vector != nullptr);
-            protected_call([&]() {
-                    check_interrupted();
-                    switch (curr()) {
-                    case scanner::token_kind::CommandKeyword:
-                        if (curr_is_token(get_end_tk())) {
-                            check_no_doc_string();
-                        }
-                        parse_command();
-                        break;
-                    case scanner::token_kind::DocBlock:
-                        check_no_doc_string();
-                        parse_doc_block();
-                        break;
-                    case scanner::token_kind::ModDocBlock:
-                        check_no_doc_string();
-                        parse_mod_doc_block();
-                        break;
-                    case scanner::token_kind::Eof:
-                        check_no_doc_string();
-                        done = true;
-                        break;
-                    case scanner::token_kind::Keyword:
-                        check_no_doc_string();
-                        if (curr_is_token(get_period_tk())) {
-                            next();
-                            break;
-                        }
-                    default:
-                        throw parser_error("command expected", pos());
-                    }
-                },
-                [&]() { sync_command(); });
+        } catch (interrupt_parser) {
+            while (has_open_scopes(m_env))
+                m_env = pop_scope_core(m_env, m_ios);
         }
-        scope_message_context scope_msg_ctx("end");
-        if (has_open_scopes(m_env)) {
-            m_found_errors = true;
-            if (!m_use_exceptions && m_show_errors)
-                (mk_message(ERROR) << "invalid end of module, expecting 'end'").report();
-            else if (m_use_exceptions)
-                throw_parser_exception("invalid end of module, expecting 'end'", pos());
-        }
-        save_snapshot(scope_parser_msgs);
-    } catch (interrupt_parser) {
-        while (has_open_scopes(m_env))
-            m_env = pop_scope_core(m_env, m_ios);
-    }
+    }, [](){});
     return !m_found_errors;
 }
 

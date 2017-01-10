@@ -797,7 +797,7 @@ meta def list_name.to_expr : list name → tactic expr
 | []     := to_expr `(([] : list name))
 | (h::t) := do eh ← h^.to_expr, et ← list_name.to_expr t, to_expr `(%%eh :: %%et)
 
-notation `command`:max := tactic unit
+notation [parsing_only] `command`:max := tactic unit
 
 open tactic
 /-

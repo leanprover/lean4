@@ -12,6 +12,7 @@ import .trim
 -- 0
 import .clausifier
 -- 10
+import .demod
 import .inhabited
 import .datatypes
 -- 20

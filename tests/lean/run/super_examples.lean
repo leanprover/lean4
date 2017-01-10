@@ -24,7 +24,7 @@ example (m n : ℕ) : 0 + m = 0 + n → m = n :=
 by super with nat.zero_add
 
 example : ∀x y : ℕ, x + y = y + x :=
-begin intros, induction x,
+begin intros, induction x, assertv h : nat.zero = 0 := rfl,
       super with nat.add_zero nat.zero_add,
       super with nat.add_succ nat.succ_add end
 

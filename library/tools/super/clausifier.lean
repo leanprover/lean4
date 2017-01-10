@@ -15,7 +15,7 @@ meta def try_option {a : Type (u + 1)} (tac : tactic a) : tactic (option a) :=
 lift some tac <|> return none
 
 private meta def normalize : expr → tactic expr | e := do
-e' ← whnf_core transparency.none e,
+e' ← whnf_core transparency.reducible e,
 args' ← monad.for e'^.get_app_args normalize,
 return $ app_of_list e'^.get_app_fn args'
 

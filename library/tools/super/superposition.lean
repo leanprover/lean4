@@ -8,7 +8,9 @@ open tactic monad expr
 
 namespace super
 
-meta def get_rwr_positions : expr → list (list ℕ)
+def position := list ℕ
+
+meta def get_rwr_positions : expr → list position
 | (app a b) := [[]] ++
   do arg ← list.zip_with_index (get_app_args (app a b)),
      pos ← get_rwr_positions arg.1,
@@ -16,7 +18,7 @@ meta def get_rwr_positions : expr → list (list ℕ)
 | (var _) := []
 | e := [[]]
 
-meta def get_position : expr → list ℕ → expr
+meta def get_position : expr → position → expr
 | (app a b) (p::ps) :=
 match list.nth (get_app_args (app a b)) p with
 | some arg := get_position arg ps
@@ -24,7 +26,7 @@ match list.nth (get_app_args (app a b)) p with
 end
 | e _ := e
 
-meta def replace_position (v : expr) : expr → list ℕ → expr
+meta def replace_position (v : expr) : expr → position → expr
 | (app a b) (p::ps) :=
 let args := get_app_args (app a b) in
 match args^.nth p with
@@ -40,6 +42,7 @@ variables (ac1 ac2 : derived_clause)
 variables (i1 i2 : nat)
 variable pos : list ℕ
 variable ltr : bool
+variable lt_in_termorder : bool
 variable congr_ax : name
 
 lemma {u v w} sup_ltr (F : Type u) (A : Type v) (a1 a2) (f : A → Type w) : (f a1 → F) → f a2 → a1 = a2 → F :=
@@ -60,12 +63,15 @@ qf2 ← c2^.open_metan c2^.num_quants,
 (rwr_from, rwr_to) ← (is_eq_dir (qf1.1^.get_lit i1)^.formula ltr)^.to_monad,
 atom ← return (qf2.1^.get_lit i2)^.formula,
 eq_type ← infer_type rwr_from,
-atom_at_pos_type ← infer_type $ get_position atom pos,
+atom_at_pos ← return $ get_position atom pos,
+atom_at_pos_type ← infer_type atom_at_pos,
 unify eq_type atom_at_pos_type,
-unify_core transparency.none rwr_from (get_position atom pos),
-rwr_from' ← instantiate_mvars rwr_from,
+unify_core transparency.none rwr_from atom_at_pos,
+rwr_from' ← instantiate_mvars atom_at_pos,
 rwr_to' ← instantiate_mvars rwr_to,
-guard $ ¬gt rwr_to' rwr_from',
+if lt_in_termorder
+  then guard (gt rwr_from' rwr_to')
+  else guard (¬gt rwr_to' rwr_from'),
 rwr_ctx_varn ← mk_fresh_name,
 abs_rwr_ctx ← return $
   lam rwr_ctx_varn binder_info.default eq_type
@@ -89,7 +95,7 @@ meta def rwr_positions (c : clause) (i : nat) : list (list ℕ) :=
 get_rwr_positions (c^.get_lit i)^.formula
 
 meta def try_add_sup : prover unit :=
-(do c' ← try_sup gt ac1^.c ac2^.c i1 i2 pos ltr congr_ax,
+(do c' ← try_sup gt ac1^.c ac2^.c i1 i2 pos ltr ff congr_ax,
     inf_score 2 [ac1^.sc, ac2^.sc] >>= mk_derived c' >>= add_inferred)
   <|> return ()
 

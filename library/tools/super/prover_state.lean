@@ -354,7 +354,7 @@ state_t.write { state with newly_derived := [] },
 return state^.newly_derived
 
 meta def remove_redundant (id : clause_id) (parents : list derived_clause) : prover unit := do
-guard $ parents^.for_all $ λp, p^.id ≠ id,
+when (not $ parents^.for_all $ λp, p^.id ≠ id) (fail "clause is redundant because of itself"),
 red ← flip monad.lift state_t.read (λst, st^.active^.find id),
 match red with
 | none := return ()

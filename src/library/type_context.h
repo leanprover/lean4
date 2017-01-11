@@ -271,6 +271,10 @@ class type_context : public abstract_type_context {
 
        We also only cache results that do not have pending postponed constraints. */
     buffer<pair<level, level>> m_postponed;
+    /* If m_full_postponed is false, then postponed constraints involving max and imax
+       that cannot be solved precisely are ignored. This step is approximate, and it is
+       useful to skip it until we have additional information. */
+    bool                       m_full_postponed{true};
 
     std::function<bool(expr const & e)> const * m_unfold_pred; // NOLINT
 
@@ -416,6 +420,11 @@ public:
 
     struct nozeta_scope : public zeta_scope {
         nozeta_scope(type_context & ctx):zeta_scope(ctx, false) {}
+    };
+
+    struct full_postponed_scope : public flet<bool> {
+        full_postponed_scope(type_context & ctx, bool full = true):
+            flet<bool>(ctx.m_full_postponed, full) {}
     };
 
     /* --------------------------

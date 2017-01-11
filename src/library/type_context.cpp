@@ -1426,7 +1426,7 @@ bool type_context::process_postponed(scope const & s) {
             curr->clear();
             std::swap(next, curr);
             lean_assert(next->empty());
-        } else {
+        } else if (m_full_postponed) {
             // use full (and approximate) is_def_eq to process the first constraint
             // in next.
             auto p = (*next)[0];
@@ -1442,6 +1442,10 @@ bool type_context::process_postponed(scope const & s) {
             curr->clear();
             curr->append(next->size() - 1, next->data() + 1);
             next->clear();
+        } else {
+            lean_assert(!m_full_postponed);
+            /* Skip remaining universe constraints. */
+            return true;
         }
     }
 }

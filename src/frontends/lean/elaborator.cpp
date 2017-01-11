@@ -1227,6 +1227,39 @@ expr elaborator::visit_base_app_core(expr const & fn, arg_mask amask, buffer<exp
     snapshot C(*this);
     first_pass_info info;
     try {
+        /* In the first pass, we skip universe contraints such as
+
+               (max 1 ?m) =?= ?m
+               (max ?m1 1) =?= (max 1 ?m2)
+
+           The first one cannot be solved by type_context, and an approximate
+           solution is used for the second one. In the second pass, we will have
+           additional information propagated from the expected_type, and these
+           constraints may become trivial.
+
+           The following definition illustrates the issue:
+
+              meta def foo (ex_lst : list name) (e : expr) : list name :=
+              expr.fold e [] (λ _ _ l, l)
+
+           expr.fold has type
+
+              meta constant expr.fold {α : Type} : expr → α → (expr → nat → α → α) → α
+
+           So, when processing [], we have to unify ?α with (list ?m), where
+
+                     ?α      : Type 1
+                     list ?m : Type (max 1 ?u)
+
+           Thus, we also have to solve
+
+                   1 =?= (max 1 ?u)
+
+           which, as described above, cannot be solved by type_context.
+           However, this constraint becomes trivial after we propagate the expected type
+           (list name), and we have to solve (list name) =?= (list ?m)
+        */
+        type_context::full_postponed_scope scope(m_ctx, false);
         first_pass(fn, args, *expected_type, ref, info);
     } catch (elaborator_exception & ex1) {
         C.restore(*this);

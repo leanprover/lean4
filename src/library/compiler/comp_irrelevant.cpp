@@ -35,19 +35,27 @@ protected:
             return e;
     }
 
-    expr mark_lambda_let(expr const & e) {
+    /* In the past, we would also mark a lambda comp_irrelevant
+       when its body was comp_irrelevant. This is incorrect for
+       nonsensical code such as
+
+       map (fun _, true) [1]
+
+       By erasing the lambda, the generated code will crash since
+       map is expecting a closure.
+
+       See issue #1302 */
+    expr mark_let(expr const & e) {
         /* if body is marked as computationally irrelevant, then mark e */
         expr body = e;
         while (true) {
-            if (is_lambda(body))
-                body = binding_body(body);
-            else if (is_let(body))
+            if (is_let(body))
                 body = let_body(body);
             else
                 break;
         }
         if (is_marked_as_comp_irrelevant(body))
-            return mark_comp_irrelevant(e);
+           return mark_comp_irrelevant(e);
         else
             return e;
     }
@@ -84,12 +92,8 @@ protected:
             return compiler_step_visitor::visit_app(e);
     }
 
-    virtual expr visit_lambda(expr const & e) override {
-        return mark_lambda_let(compiler_step_visitor::visit_lambda(e));
-    }
-
     virtual expr visit_let(expr const & e) override {
-        return mark_lambda_let(compiler_step_visitor::visit_let(e));
+        return mark_let(compiler_step_visitor::visit_let(e));
     }
 public:
     mark_comp_irrelevant_fn(environment const & env):compiler_step_visitor(env) {}

@@ -161,7 +161,7 @@ char scanner::read_quoted_char(char const * error_msg) {
     }
 }
 
-auto scanner::read_string() -> token_kind {
+scanner::token_kind scanner::read_string() {
     lean_assert(curr() == '\"');
     next();
     m_buffer.clear();

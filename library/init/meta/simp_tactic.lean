@@ -203,26 +203,31 @@ meta constant ext_simplify_core
   (r : name) :
   expr → tactic (α × expr × expr)
 
-meta def simplify (cfg : simplify_config) (extra_lemmas : list expr) (e : expr) : tactic (expr × expr) :=
-do lemmas       ← simp_lemmas.mk_default,
-   new_lemmas   ← lemmas^.append extra_lemmas,
-   e_type       ← infer_type e >>= whnf,
-   simplify_core cfg new_lemmas `eq e
+meta def simplify (cfg : simplify_config) (S : simp_lemmas) (e : expr) : tactic (expr × expr) :=
+do e_type       ← infer_type e >>= whnf,
+   simplify_core cfg S `eq e
 
-meta def simplify_goal (cfg : simplify_config) (extra_lemmas : list expr) : tactic unit :=
-do (new_target, heq) ← target >>= simplify cfg extra_lemmas,
+meta def simplify_goal_core (cfg : simplify_config) (S : simp_lemmas) : tactic unit :=
+do (new_target, heq) ← target >>= simplify cfg S,
    assert `htarget new_target, swap,
    ht ← get_local `htarget,
    mk_app `eq.mpr [heq, ht] >>= exact
 
+meta def simplify_goal (S : simp_lemmas) : tactic unit :=
+simplify_goal_core default_simplify_config S
+
 meta def simp : tactic unit :=
-simplify_goal default_simplify_config [] >> try triv >> try (reflexivity_core reducible)
+do S ← simp_lemmas.mk_default,
+simplify_goal S >> try triv >> try (reflexivity_core reducible)
 
 meta def simp_using (hs : list expr) : tactic unit :=
-simplify_goal default_simplify_config hs >> try triv
+do S ← simp_lemmas.mk_default,
+   S ← S^.append hs,
+simplify_goal S >> try triv
 
 meta def ctx_simp : tactic unit :=
-simplify_goal {default_simplify_config with contextual := tt} [] >> try triv >> try (reflexivity_core reducible)
+do S ← simp_lemmas.mk_default,
+simplify_goal_core {default_simplify_config with contextual := tt} S >> try triv >> try (reflexivity_core reducible)
 
 meta def dsimp_core (s : simp_lemmas) : tactic unit :=
 target >>= s^.dsimplify >>= change
@@ -265,7 +270,9 @@ collect_ctx_simps >>= simp_using
 meta def simp_core_at (extra_lemmas : list expr) (h : expr) : tactic unit :=
 do when (expr.is_local_constant h = ff) (fail "tactic simp_at failed, the given expression is not a hypothesis"),
    htype ← infer_type h,
-   (new_htype, heq) ← simplify default_simplify_config extra_lemmas htype,
+   S     ← simp_lemmas.mk_default,
+   S     ← S^.append extra_lemmas,
+   (new_htype, heq) ← simplify default_simplify_config S htype,
    assert (expr.local_pp_name h) new_htype,
    mk_app `eq.mp [heq, h] >>= exact,
    try $ clear h

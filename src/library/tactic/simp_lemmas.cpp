@@ -187,8 +187,10 @@ format simp_lemma::pp(formatter const & fmt) const {
         r += space() + paren(format(get_priority()));
     if (is_refl())
         r += space() + format("defeq");
+    /*
     if (is_permutation())
         r += space() + format("perm");
+    */
     if (kind() == simp_lemma_kind::Congr) {
         format r1;
         for (expr const & h : get_congr_hyps()) {

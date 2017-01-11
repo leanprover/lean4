@@ -78,12 +78,12 @@ name::name() {
     m_ptr = nullptr;
 }
 
-name::name(name const & prefix, char const * name) {
-    size_t sz  = strlen(name);
+name::name(name const & prefix, char const * nam) {
+    size_t sz  = strlen(nam);
     lean_assert(sz < (1u << 31));
     char * mem = new char[sizeof(imp) + sz + 1];
     m_ptr      = new (mem) imp(true, prefix.m_ptr);
-    std::memcpy(mem + sizeof(imp), name, sz + 1);
+    std::memcpy(mem + sizeof(imp), nam, sz + 1);
     m_ptr->m_str       = mem + sizeof(imp);
     // Emscripten easily breaks with small changes here.  The main fix seems to be to use m_ptr->m_str instead of name.
     m_ptr->m_hash = hash_str(static_cast<unsigned>(sz), m_ptr->m_str, prefix.hash());

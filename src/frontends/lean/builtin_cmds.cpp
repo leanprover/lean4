@@ -537,6 +537,10 @@ static environment run_command_cmd(parser & p) {
     return env;
 }
 
+environment import_cmd(parser & p) {
+    throw parser_error("invalid 'import' command, it must be used in the beginning of the file", p.cmd_pos());
+}
+
 void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("open",              "create aliases for declarations, and use objects defined in other namespaces",
                         open_cmd));
@@ -556,6 +560,7 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("declare_trace",     "declare a new trace class (for debugging Lean tactics)", declare_trace_cmd));
     add_cmd(r, cmd_info("add_key_equivalence", "register that to symbols are equivalence for key-matching", add_key_equivalence_cmd));
     add_cmd(r, cmd_info("run_command",       "execute an user defined command at top-level", run_command_cmd));
+    add_cmd(r, cmd_info("import",            "import module(s)", import_cmd));
     add_cmd(r, cmd_info("#unify",            "(for debugging purposes)", unify_cmd));
     add_cmd(r, cmd_info("#compile",          "(for debugging purposes)", compile_cmd));
 

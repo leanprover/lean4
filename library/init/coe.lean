@@ -64,13 +64,13 @@ has_coe_to_fun.coe
 
 /- User level coercion operators -/
 
-def coe {a : Type u} {b : Type v} [has_lift_t a b] : a → b :=
+@[reducible] def coe {a : Type u} {b : Type v} [has_lift_t a b] : a → b :=
 lift_t
 
-def coe_fn {a : Type u} [has_coe_to_fun.{u v} a] : Π x : a, has_coe_to_fun.F.{u v} x :=
+@[reducible] def coe_fn {a : Type u} [has_coe_to_fun.{u v} a] : Π x : a, has_coe_to_fun.F.{u v} x :=
 has_coe_to_fun.coe
 
-def coe_sort {a : Type u} [has_coe_to_sort.{u v} a] : a → has_coe_to_sort.S.{u v} a :=
+@[reducible] def coe_sort {a : Type u} [has_coe_to_sort.{u v} a] : a → has_coe_to_sort.S.{u v} a :=
 has_coe_to_sort.coe
 
 /- Notation -/

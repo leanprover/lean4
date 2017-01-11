@@ -253,9 +253,11 @@ std::vector<json> get_attribute_completions(std::string const & pattern, environ
     buffer<attribute const *> attrs;
     get_attributes(env, attrs);
     for (auto const & attr : attrs) {
-        auto s = attr->get_name().to_string();
-        if (matcher.match(s))
-            selected.emplace_back(s, attr->get_name());
+        if (!is_internal_name(attr->get_name())) {
+            auto s = attr->get_name().to_string();
+            if (matcher.match(s))
+                selected.emplace_back(s, attr->get_name());
+        }
     }
     filter_completions<name>(pattern, selected, completions, max_results, [&](name const & n) {
         json completion;

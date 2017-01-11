@@ -180,6 +180,16 @@ std::vector<json> get_option_completions(std::string const & pattern, options co
     return completions;
 }
 
+pair<optional<unsigned>, std::string> parse_import(std::string s) {
+    if (s.size() && s[0] == '.') {
+        unsigned i = 1;
+        while (i < s.size() && s[i] == '.')
+            i++;
+        return {some(i - 1), s.substr(i)};
+    }
+    return {{}, s};
+}
+
 std::vector<json> get_import_completions(std::string const & pattern, std::string const & curr_dir,
                                          options const & opts) {
     unsigned max_results = get_auto_completion_max_results(opts);
@@ -188,13 +198,7 @@ std::vector<json> get_import_completions(std::string const & pattern, std::strin
     bitap_fuzzy_search matcher(pattern, max_errors);
     std::vector<json> completions;
 
-    optional<unsigned> depth;
-    if (pattern.size() && pattern[0] == '.') {
-        unsigned i = 1;
-        while (i < pattern.size() && pattern[i] == '.')
-            i++;
-        depth = {i - 1};
-    }
+    optional<unsigned> depth = parse_import(pattern).first;
     std::vector<pair<std::string, std::string>> imports;
     find_imports(curr_dir, depth, imports);
 

@@ -10,13 +10,10 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/lean_path.h"
 #include "kernel/type_checker.h"
-#include "library/choice.h"
+#include "library/documentation.h"
 #include "library/scoped_ext.h"
-#include "library/pp_options.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_list.h"
-#include "library/vm/vm_format.h"
-#include "library/compiler/vm_compiler.h"
 #include "frontends/lean/json.h"
 #include "frontends/lean/info_manager.h"
 
@@ -51,6 +48,8 @@ public:
     virtual void report(io_state_stream const & ios, json & record) const override {
         record["full-id"] = m_full_id.to_string();
         add_source_info(ios.get_environment(), m_full_id, record);
+        if (auto doc = get_doc_string(ios.get_environment(), m_full_id))
+            record["doc"] = *doc;
     }
 #endif
 };

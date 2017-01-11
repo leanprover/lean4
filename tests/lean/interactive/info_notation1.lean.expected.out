@@ -1,2 +1,0 @@
-{"message":"file invalidated","response":"ok","seq_num":0}
-{"record":{"full-id":"append","source":{"column":4,"file":"/library/init/core.lean","line":251},"type":"Π {α : Type} [_inst_1 : has_append α], α → α → α"},"response":"ok","seq_num":2}

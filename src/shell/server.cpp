@@ -459,12 +459,41 @@ public:
                 parse_breaking_at_pos(get_module_id(), m_mod_info, pos);
             } catch (break_at_pos_exception & e) {
                 json record;
+
                 auto opts = m_server->m_ios.get_options();
                 auto env = m_server->m_initial_env;
                 if (auto mod = m_mod_info->m_result.peek()) {
                     if (mod->m_loaded_module->m_env)
                         env = mod->m_loaded_module->m_env.get();
                     if (!mod->m_snapshots.empty()) opts = mod->m_snapshots.back()->m_options;
+                }
+
+                // info data not dependent on elaboration/info_manager
+                auto const & tk = e.m_token_info.m_token;
+                if (tk.size()) {
+                    switch (e.m_token_info.m_context) {
+                        case break_at_pos_exception::token_context::attribute:
+                            record["doc"] = get_attribute(env, tk).get_description();
+                            add_source_info(env, tk, record);
+                            break;
+                        case break_at_pos_exception::token_context::import: {
+                            auto parsed = parse_import(tk.to_string());
+                            try {
+                                auto f = find_file(m_mod_info->m_mod, parsed.first, string_to_name(parsed.second),
+                                                   ".lean");
+                                record["source"]["file"] = f;
+                                record["source"]["line"] = 1;
+                                record["source"]["column"] = 0;
+                            } catch (file_not_found_exception) {}
+                            break;
+                        }
+                        case break_at_pos_exception::token_context::option:
+                            if (auto it = get_option_declarations().find(tk))
+                                record["doc"] = it->get_description();
+                            break;
+                        default:
+                            break;
+                    }
                 }
 
                 for (auto & infom : m_server->m_msg_buf->get_info_managers()) {

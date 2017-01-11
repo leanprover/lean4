@@ -40,7 +40,7 @@
 
 (cl-defun lean-info-record-to-string (info-record)
   "Given typeinfo, overload, and sym-name, compose information as a string."
-  (destructuring-bind (&key type overloads synth coercion proofstate full-id symbol extra &allow-other-keys) info-record
+  (destructuring-bind (&key type doc overloads synth coercion proofstate full-id symbol extra &allow-other-keys) info-record
     (let (name-str type-str coercion-str extra-str proofstate-str overload-str stale-str str)
       (setq name-str
             (cond
@@ -81,6 +81,8 @@
                                   overload-str))))
       (when proofstate
         (setq str proofstate))
+      (when (and doc (not str))
+        (setq str doc))
       str)))
 
 (defun lean-eldoc-documentation-function-cont (info-record &optional add-to-kill-ring)

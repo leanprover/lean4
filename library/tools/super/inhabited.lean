@@ -8,6 +8,11 @@ open expr tactic monad
 
 namespace super
 
+meta def try_assumption_lookup_left (c : clause) : tactic (list clause) :=
+on_first_left c $ λtype, do
+  ass ← find_assumption type,
+  return [([], ass)]
+
 meta def try_nonempty_lookup_left (c : clause) : tactic (list clause) :=
 on_first_left_dn c $ λhnx,
   match is_local_not c^.local_false hnx^.local_type with
@@ -62,9 +67,10 @@ on_first_right' c $ λhinh,
 
 @[super.inf]
 meta def inhabited_infs : inf_decl := inf_decl.mk 10 $ take given, do
-for' [try_nonempty_lookup_left,
-       try_nonempty_left, try_nonempty_right,
-       try_inhabited_left, try_inhabited_right] $ λr,
+for' [try_assumption_lookup_left,
+      try_nonempty_lookup_left,
+      try_nonempty_left, try_nonempty_right,
+      try_inhabited_left, try_inhabited_right] $ λr,
       simp_if_successful given (r given^.c)
 
 end super

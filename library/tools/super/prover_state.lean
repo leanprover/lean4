@@ -118,6 +118,7 @@ passive_fmts ← mapm pp $ rb_map.values s^.passive,
 new_fmts ← mapm pp s^.newly_derived,
 locked_fmts ← mapm pp s^.locked,
 sat_fmts ← mapm pp s^.sat_solver^.clauses,
+sat_model_fmts ← for s^.current_model^.to_list (λx, if x.2 = tt then pp x.1 else pp (not_ x.1)),
 prec_fmts ← mapm pp s^.prec,
 return (join_with_nl
   ([to_fmt "active:"] ++ map (append (to_fmt "  ")) active_fmts ++
@@ -125,6 +126,7 @@ return (join_with_nl
   [to_fmt "new:"] ++ map (append (to_fmt "  ")) new_fmts ++
   [to_fmt "locked:"] ++ map (append (to_fmt "  ")) locked_fmts ++
   [to_fmt "sat formulas:"] ++ map (append (to_fmt "  ")) sat_fmts ++
+  [to_fmt "sat model:"] ++ map (append (to_fmt "  ")) sat_model_fmts ++
   [to_fmt "precedence order: " ++ to_fmt prec_fmts]))
 
 meta instance : has_to_tactic_format prover_state :=

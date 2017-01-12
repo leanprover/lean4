@@ -404,12 +404,16 @@ module_mgr::get_snapshots_or_unchanged_module(module_id const &id, std::string c
 }
 
 std::vector<module_name> module_mgr::get_direct_imports(module_id const & id, std::string const & contents) {
-    scope_message_context scope("dependencies");
-    std::istringstream in(contents);
-    bool use_exceptions = true;
-    parser p(get_initial_env(), m_ios, nullptr, in, id, use_exceptions);
-    std::vector<std::pair<module_name, module_id>> deps;
-    return p.get_imports();
+    try {
+        scope_message_context scope("dependencies");
+        std::istringstream in(contents);
+        bool use_exceptions = true;
+        parser p(get_initial_env(), m_ios, nullptr, in, id, use_exceptions);
+        std::vector<std::pair<module_name, module_id>> deps;
+        return p.get_imports();
+    } catch (...) {
+        return {};
+    }
 }
 
 std::tuple<std::string, module_src, time_t> fs_module_vfs::load_module(module_id const & id, bool can_use_olean) {

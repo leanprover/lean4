@@ -2,10 +2,10 @@ add_executable(lean lean.cpp server.cpp completion.cpp leandoc.cpp)
 target_link_libraries(lean leanstatic)
 install(TARGETS lean DESTINATION bin)
 
-add_executable(lean_js lean_js.cpp lean_js_main.cpp)
+add_executable(lean_js lean_js.cpp lean_js_main.cpp server.cpp completion.cpp leandoc.cpp)
 target_link_libraries(lean_js leanstatic)
 
-add_library(shell_js OBJECT lean_js.cpp)
+add_library(shell_js OBJECT lean_js.cpp server.cpp completion.cpp leandoc.cpp)
 
 if(${EMSCRIPTEN})
     target_link_libraries(lean "--memory-init-file 0")

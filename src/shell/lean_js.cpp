@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #include <string>
 #include "library/module_mgr.h"
 #include "library/st_task_queue.h"
-#include "library/flycheck.h"
 #include "library/module.h"
 #include "library/standard_kernel.h"
 #include "library/type_context.h"
@@ -15,53 +14,35 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser.h"
 #include "init/init.h"
 #include "shell/simple_pos_info_provider.h"
+#include "shell/server.h"
 
 namespace lean {
 class emscripten_shell {
 private:
-    unsigned trust_lvl;
-    options opts;
-    environment env;
-    io_state ios;
+    environment m_env;
+    io_state m_ios;
+    server m_server;
 
-    st_task_queue tq;
-    scope_global_task_queue scope_tq;
+    st_task_queue m_tq;
 
-    flycheck_message_stream msg_buf;
-    scoped_message_buffer scope_msg_buf;
-
-    module_mgr mod_mgr;
-    scoped_task_context scope_task_ctx;
-
-    scope_message_context msg_ctx;
-
+    json_message_stream m_msg_buf;
 public:
-    emscripten_shell() : trust_lvl(LEAN_BELIEVER_TRUST_LEVEL+1),
-        env(mk_environment(trust_lvl)), ios(opts, mk_pretty_formatter_factory()),
-        tq(), scope_tq(&tq), msg_buf(std::cout), scope_msg_buf(&msg_buf),
-        mod_mgr(nullptr, &msg_buf, env, ios), scope_task_ctx("lean.js", {1, 0}),
-        msg_ctx(message_bucket_id { "lean.js", 0 }) {
-    }
+    emscripten_shell(): m_env(mk_environment(LEAN_BELIEVER_TRUST_LEVEL + 1)),
+                        m_ios(options({"trace", "as_messages"}, true),
+                              mk_pretty_formatter_factory()),
+                        m_server(0, m_env, m_ios),
+                        m_msg_buf(std::cout) { }
 
-    int import_module(std::string mname) {
+    int process_request(std::string msg) {
+        scope_global_task_queue scope_tq(&m_tq);
+        scope_global_ios scoped_ios(m_ios);
+        scoped_message_buffer scope_msg_buf(&m_msg_buf);
+        scope_message_context msg_ctx(message_bucket_id { "lean.js", 0 });
         try {
-            // FIXME(gabriel): discarding proofs fails at the moment with "invalid equation lemma, unexpected form"
-            env = lean::import_modules(env, "importing", {{mname, optional<unsigned>()}}, mk_olean_loader());
+            m_server.handle_request(json::parse(msg));
             return 0;
-        } catch (exception & ex) {
-            message_builder(env, ios, "importing", {1, 0}, ERROR).set_exception(ex).report();
-            return 1;
-        }
-    }
-
-    int process_file(std::string input_filename) {
-        try {
-            std::ifstream in(input_filename);
-            bool use_exceptions = false;
-            parser p(env, ios, mk_olean_loader(), in, input_filename, use_exceptions);
-            if (p()) return 0;
-        } catch (exception & ex) {
-            message_builder(env, ios, input_filename, {1, 0}, ERROR).set_exception(ex).report();
+        } catch (std::exception & ex) {
+            message_builder(m_env, m_ios, "processing request", {1, 0}, ERROR).set_exception(ex).report();
         }
         return 1;
     }
@@ -81,10 +62,6 @@ void finalize_emscripten() {
     delete g_init;
 }
 
-int emscripten_import_module(std::string mname) {
-    return g_shell->import_module(mname);
-}
-
-int emscripten_process_file(std::string input_filename) {
-    return g_shell->process_file(input_filename);
+int emscripten_process_request(uintptr_t msg) {
+    return g_shell->process_request(reinterpret_cast<char *>(msg));
 }

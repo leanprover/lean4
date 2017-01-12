@@ -183,7 +183,11 @@ public:
 // TODO(gabriel): adapt to vfs
 static module_id resolve(module_id const & module_file_name, module_name const & ref) {
     auto base_dir = dirname(module_file_name.c_str());
-    return find_file(base_dir, ref.m_relative, ref.m_name, ".lean");
+    try {
+        return find_file(base_dir, ref.m_relative, ref.m_name, ".lean");
+    } catch (file_not_found_exception) {
+        return olean_file_to_lean_file(find_file(base_dir, ref.m_relative, ref.m_name, ".olean"));
+    }
 }
 
 void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set module_stack) {

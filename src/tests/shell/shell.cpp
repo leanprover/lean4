@@ -12,14 +12,9 @@ using namespace lean;
 int main() {
     save_stack_info();
     initialize_emscripten();
-    emscripten_import_module("standard");
-    int r = emscripten_process_file("file1.lean");
-    if (r != 0)
-        return r;
-    r = emscripten_process_file("file2.lean");
-    if (r != 0)
-        return r;
-    r = has_violations() ? 1 : 0;
+    std::string msg = "{\"seq_num\": 0, \"command\": \"sync\", \"file_name\": \"f\", \"content\": \"inductive f\\ndef g := f\"}";
+    emscripten_process_request(reinterpret_cast<uintptr_t>(msg.c_str()));
+    msg = "{\"seq_num\": 1, \"command\": \"info\", \"file_name\": \"f\", \"line\": 2, \"column\": 9}";
+    emscripten_process_request(reinterpret_cast<uintptr_t>(msg.c_str()));
     finalize_emscripten();
-    return r;
 }

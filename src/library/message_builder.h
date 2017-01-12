@@ -47,7 +47,7 @@ public:
     template <typename T>
     message_builder & operator<<(T const & t) { m_text_stream << t; return *this; }
 
-    message_builder & set_exception(throwable const & ex, bool use_pos = true);
+    message_builder & set_exception(std::exception const & ex, bool use_pos = true);
 };
 
 }

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <iostream>
 #include <string>
 #include "shell/lean_js.h"
 
@@ -12,19 +13,21 @@ Author: Leonardo de Moura
 #include <emscripten/bind.h>
 EMSCRIPTEN_BINDINGS(LEAN_JS) {
         emscripten::function("lean_init", &initialize_emscripten);
-        emscripten::function("lean_import_module", &emscripten_import_module);
-        emscripten::function("lean_process_file", &emscripten_process_file);
+        emscripten::function("lean_process_request", &emscripten_process_request, emscripten::allow_raw_pointers());
 }
 
 int main() { return 0; }
 
 #else
 
-int main(int argc, char ** argv) {
+int main() {
     initialize_emscripten();
-    emscripten_import_module("standard");
-    for (int i = 1; i < argc; i++)
-        emscripten_process_file(argv[i]);
+    while (true) {
+        std::string req_string;
+        std::getline(std::cin, req_string);
+        if (std::cin.eof()) return 0;
+        emscripten_process_request(reinterpret_cast<uintptr_t>(req_string.c_str()));
+    }
 }
 
 #endif

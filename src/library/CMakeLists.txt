@@ -6,7 +6,7 @@ add_library(library OBJECT deep_copy.cpp expr_lt.cpp io_state.cpp
   explicit.cpp num.cpp string.cpp head_map.cpp
   class.cpp util.cpp print.cpp annotation.cpp quote.cpp
   typed_expr.cpp protected.cpp reducible.cpp init_module.cpp
-  exception.cpp fingerprint.cpp flycheck.cpp pp_options.cpp
+  exception.cpp fingerprint.cpp pp_options.cpp
   unfold_macros.cpp app_builder.cpp projection.cpp relation_manager.cpp
   export.cpp user_recursors.cpp idx_metavar.cpp noncomputable.cpp
   aux_recursors.cpp norm_num.cpp trace.cpp

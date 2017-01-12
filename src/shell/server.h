@@ -51,7 +51,6 @@ class server : public module_vfs {
 
     struct cmd_res;
     struct cmd_req;
-    void handle_request(json const & req);
     void handle_request(cmd_req const & req);
 
     cmd_res handle_sync(cmd_req const & req);
@@ -67,6 +66,7 @@ public:
     std::tuple<std::string, module_src, time_t> load_module(module_id const & id, bool can_use_olean) override;
 
     void run();
+    void handle_request(json const & req);
 };
 
 void initialize_server();

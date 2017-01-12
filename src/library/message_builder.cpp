@@ -34,7 +34,7 @@ message message_builder::build() {
     return message(m_file_name, m_pos, m_severity, m_caption, text);
 }
 
-message_builder & message_builder::set_exception(throwable const & ex, bool use_pos) {
+message_builder & message_builder::set_exception(std::exception const & ex, bool use_pos) {
     if (auto ext_ex = dynamic_cast<ext_exception const *>(&ex)) {
         if (use_pos && m_pos_info_provider && ext_ex->get_main_expr()) {
             if (auto main_pos = m_pos_info_provider->get_pos_info(*ext_ex->get_main_expr()))

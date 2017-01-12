@@ -687,7 +687,7 @@ public:
 
     optional<vm_decl> get_decl(name const & n) const;
 
-    name curr_fn() const { return m_decl_map.find(m_fn_idx)->get_name(); }
+    optional<name> curr_fn() const;
 
     void invoke_fn(name const & fn);
     void invoke_fn(unsigned fn_idx);

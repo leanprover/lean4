@@ -3034,6 +3034,13 @@ optional<vm_decl> vm_state::get_decl(name const & n) const {
         return optional<vm_decl>();
 }
 
+optional<name> vm_state::curr_fn() const {
+    if (m_fn_idx == g_null_fn_idx)
+        return optional<name>();
+    else
+        return optional<name>(m_decl_map.find(m_fn_idx)->get_name());
+}
+
 #if defined(LEAN_MULTI_THREAD)
 static name * g_profiler      = nullptr;
 static name * g_profiler_freq = nullptr;

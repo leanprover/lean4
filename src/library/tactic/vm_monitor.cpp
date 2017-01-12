@@ -375,7 +375,11 @@ vm_obj vm_get_options(vm_obj const & /*s*/) {
 }
 
 vm_obj vm_curr_fn(vm_obj const & /*s*/) {
-    return mk_vm_success(to_obj(get_vm_state_being_debugged().curr_fn()));
+    if (auto fn = get_vm_state_being_debugged().curr_fn()) {
+        return mk_vm_success(to_obj(*fn));
+    } else {
+        return mk_vm_failure();
+    }
 }
 
 vm_obj vm_obj_to_string(vm_obj const & o, vm_obj const & /*s*/) {

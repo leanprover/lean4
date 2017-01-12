@@ -197,8 +197,10 @@ do
     cmd_loop s ["s"]
 
 meta def bp_reached (s : state) : vm bool :=
-do fn    ← vm.curr_fn,
-   return $ s^.fn_bps^.any (λ p, p^.is_prefix_of fn)
+(do fn    ← vm.curr_fn,
+    return $ s^.fn_bps^.any (λ p, p^.is_prefix_of fn))
+<|>
+return ff
 
 meta def in_active_bps (s : state) : vm bool :=
 do sz ← vm.call_stack_size,

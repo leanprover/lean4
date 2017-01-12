@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "library/kernel_serializer.h"
 #include "library/string.h"
+#include "library/util.h"
 #include "library/constants.h"
 #include "library/num.h"
 #include "library/trace.h"
@@ -173,7 +174,7 @@ expr from_string(std::string const & s) {
     return mk_string_macro(s);
 }
 
-optional<char> to_char(expr const & e) {
+optional<char> to_char_core(expr const & e) {
     buffer<expr> args;
     expr const & fn = get_app_args(e, args);
     if (fn == *g_fin_mk && args.size() == 3) {
@@ -193,12 +194,24 @@ optional<char> to_char(expr const & e) {
     }
 }
 
-bool is_char_value(expr const & e) {
-    return static_cast<bool>(to_char(e));
+bool is_char_value_core(expr const & e) {
+    return static_cast<bool>(to_char_core(e));
+}
+
+optional<char> to_char(abstract_type_context & ctx, expr const & e) {
+    if (auto v = to_char_core(e)) {
+        if (ctx.is_def_eq(ctx.infer(e), mk_char_type()))
+            return v;
+    }
+    return optional<char>();
+}
+
+bool is_char_value(abstract_type_context & ctx, expr const & e) {
+    return is_char_value_core(e) && ctx.is_def_eq(ctx.infer(e), mk_char_type());
 }
 
 static bool append_char(expr const & e, std::string & r) {
-    if (auto c = to_char(e)) {
+    if (auto c = to_char_core(e)) {
         r.push_back(*c);
         return true;
     } else {

@@ -348,13 +348,15 @@ static bool conservative_is_def_eq(type_context & ctx, expr const & a, expr cons
 }
 
 static lbool compare_values(expr const & a, expr const & b) {
+    /* We know 'a' and 'b' are values. So, we don't need
+       to check the type here. */
     if (auto v1 = to_num(a)) {
     if (auto v2 = to_num(b)) {
         return to_lbool(*v1 == *v2);
     }}
 
-    if (auto v1 = to_char(a)) {
-    if (auto v2 = to_char(b)) {
+    if (auto v1 = to_char_core(a)) {
+    if (auto v2 = to_char_core(b)) {
         return to_lbool(*v1 == *v2);
     }}
 

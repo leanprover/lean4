@@ -184,6 +184,8 @@ expr mk_nat_add(expr const & e1, expr const & e2);
 expr mk_int_type();
 bool is_int_type(expr const & e);
 
+expr mk_char_type();
+
 bool is_ite(expr const & e, expr & c, expr & H, expr & A, expr & t, expr & f);
 bool is_ite(expr const & e);
 

@@ -624,13 +624,15 @@ void congruence_closure::mk_entry(expr const & e, bool interpreted) {
 /** Return true if 'e' represents a value (numeral, character, or string).
     TODO(Leo): move this code to a different place. */
 bool congruence_closure::is_value(expr const & e) {
-    return is_signed_num(e) || is_char_value(e) || is_string_value(e);
+    return is_signed_num(e) || is_char_value(m_ctx, e) || is_string_value(e);
 }
 
 /** Return true if 'e' represents a value (nat/int numereal, character, or string).
     TODO(Leo): move this code to a different place. */
 bool congruence_closure::is_interpreted_value(expr const & e) {
-    if (is_char_value(e) || is_string_value(e))
+    if (is_string_value(e))
+        return true;
+    if (is_char_value(m_ctx, e))
         return true;
     if (is_signed_num(e)) {
         expr type = m_ctx.infer(e);

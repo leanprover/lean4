@@ -502,6 +502,18 @@ static void finalize_int() {
 expr mk_int_type() { return *g_int; }
 bool is_int_type(expr const & e) { return e == *g_int; }
 
+static expr * g_char = nullptr;
+
+expr mk_char_type() { return *g_char; }
+
+static void initialize_char() {
+    g_char = new expr(mk_constant(get_char_name()));
+}
+
+static void finalize_char() {
+    delete g_char;
+}
+
 expr mk_unit(level const & l, bool prop) { return prop ? mk_true() : mk_unit(l); }
 expr mk_unit_mk(level const & l, bool prop) { return prop ? mk_true_intro() : mk_unit_mk(l); }
 expr mk_prod(abstract_type_context & ctx, expr const & a, expr const & b, bool prop) {
@@ -979,11 +991,13 @@ void initialize_library_util() {
     g_and_elim_right = new expr(mk_constant(get_and_elim_right_name()));
     initialize_nat();
     initialize_int();
+    initialize_char();
 }
 
 void finalize_library_util() {
     finalize_int();
     finalize_nat();
+    finalize_char();
     delete g_true;
     delete g_true_intro;
     delete g_and;

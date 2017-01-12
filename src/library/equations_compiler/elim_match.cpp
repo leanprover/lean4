@@ -285,7 +285,7 @@ struct elim_match_fn {
 
     bool is_value(type_context & ctx, expr const & e) {
         if (!m_use_ite) return false;
-        if (to_char(e) || to_string(e)) return true;
+        if (to_char(ctx, e) || to_string(e)) return true;
         if (is_signed_num(e)) {
             expr type = ctx.infer(e);
             if (ctx.is_def_eq(type, mk_nat_type()) || ctx.is_def_eq(type, mk_int_type()))

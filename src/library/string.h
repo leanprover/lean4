@@ -22,8 +22,11 @@ bool is_string_macro(expr const & e);
 /** \brief Expand string macro if 'e' is a string macro */
 optional<expr> expand_string_macro(expr const & e);
 
-optional<char> to_char(expr const & e);
-bool is_char_value(expr const & e);
+optional<char> to_char_core(expr const & e);
+bool is_char_value_core(expr const & e);
+
+optional<char> to_char(abstract_type_context & ctx, expr const & e);
+bool is_char_value(abstract_type_context & ctx, expr const & e);
 
 format pp_string_literal(std::string const & s);
 format pp_char_literal(char c);

@@ -579,7 +579,7 @@ auto pretty_fn::pp_child(expr const & e, unsigned bp, bool ignore_hide) -> resul
         }
         if (m_strings) {
             if (auto r = to_string(e)) return pp_string_literal(*r);
-            if (auto r = to_char(e)) return pp_char_literal(*r);
+            if (auto r = to_char(m_ctx, e)) return pp_char_literal(*r);
         }
         expr const & f = app_fn(e);
         if (is_implicit(f)) {
@@ -1195,7 +1195,7 @@ auto pretty_fn::pp_notation_child(expr const & e, unsigned lbp, unsigned rbp) ->
         }
         if (m_strings) {
             if (auto r = to_string(e)) return pp_string_literal(*r);
-            if (auto r = to_char(e))   return pp_char_literal(*r);
+            if (auto r = to_char(m_ctx, e))   return pp_char_literal(*r);
         }
         expr const & f = app_fn(e);
         if (is_implicit(f)) {
@@ -1572,8 +1572,8 @@ auto pretty_fn::pp(expr const & e, bool ignore_hide) -> result {
         if (auto n = to_num_core(e)) return pp_num(*n);
     }
     if (m_strings) {
-        if (auto r = to_string(e)) return pp_string_literal(*r);
-        if (auto r = to_char(e))   return pp_char_literal(*r);
+        if (auto r = to_string(e))      return pp_string_literal(*r);
+        if (auto r = to_char(m_ctx, e)) return pp_char_literal(*r);
     }
     if (auto t = is_proof(e)) {
         return pp_proof_type(*t);

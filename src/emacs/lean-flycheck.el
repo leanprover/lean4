@@ -133,7 +133,9 @@
 (defconst lean-next-error-buffer-name "*Lean Next Error*")
 
 (defun lean-next-error-copy ()
-  (when (and (equal major-mode 'lean-mode))
+  (when (and (equal major-mode 'lean-mode)
+             ; check whether current window of current buffer is selected (i.e., in focus)
+             (eq (current-buffer) (window-buffer)))
     (let* ((errors (sort (flycheck-overlay-errors-in (line-beginning-position) (line-end-position))
                          #'flycheck-error-<)))
 

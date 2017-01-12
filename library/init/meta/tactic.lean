@@ -210,6 +210,9 @@ meta def trace {α : Type u} [has_to_tactic_format α] (a : α) : tactic unit :=
 do fmt ← pp a,
    return $ _root_.trace_fmt fmt (λ u, ())
 
+meta def trace_call_stack : tactic unit :=
+take state, trace_call_stack (λ u, success u state)
+
 meta def trace_state : tactic unit :=
 do s ← read,
    trace $ to_fmt s

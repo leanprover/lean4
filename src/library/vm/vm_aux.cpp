@@ -23,9 +23,19 @@ vm_obj vm_trace(vm_obj const &, vm_obj const & s, vm_obj const & fn) {
     return invoke(fn, mk_vm_unit());
 }
 
+vm_obj vm_trace_call_stack(vm_obj const &, vm_obj const & fn) {
+    auto & s = get_vm_state();
+    auto out = tout();
+    for (unsigned i = 0; i < s.call_stack_size() - 1; i++) {
+        out << s.call_stack_fn(i) << "\n";
+    }
+    return invoke(fn, mk_vm_unit());
+}
+
 void initialize_vm_aux() {
     DECLARE_VM_BUILTIN("timeit", vm_timeit);
     DECLARE_VM_BUILTIN("trace",  vm_trace);
+    DECLARE_VM_BUILTIN("trace_call_stack", vm_trace_call_stack);
 }
 
 void finalize_vm_aux() {

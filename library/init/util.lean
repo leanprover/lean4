@@ -13,3 +13,7 @@ f ()
 /- This function has a native implementation that displays the given string in the regular output stream. -/
 def trace {α : Type} (s : string) (f : unit → α) : α :=
 f ()
+
+/- This function has a native implementation that shows the VM call stack. -/
+def trace_call_stack {α : Type} (f : unit → α) : α :=
+f ()

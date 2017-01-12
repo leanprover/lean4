@@ -1,2 +1,2 @@
-protected definition nat.add : ℕ → ℕ → ℕ :=
+protected def nat.add : ℕ → ℕ → ℕ :=
 nat.add._main

@@ -1,10 +1,10 @@
 eq.refl
-attribute [foo, refl]
+@[foo, refl]
 constructor eq.refl : ∀ {α : Type u} (a : α), a = a
 [eq.refl]
 ---
 eq.refl
-attribute [foo, foo.baz, refl]
+@[foo, foo.baz, refl]
 constructor eq.refl : ∀ {α : Type u} (a : α), a = a
 [eq.refl]
 user_attribute.lean:24:0: error: an attribute named [reducible] has already been registered

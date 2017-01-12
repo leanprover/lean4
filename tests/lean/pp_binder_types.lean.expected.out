@@ -1,4 +1,4 @@
-definition f : Π (n : ℕ), n = n → ℕ → ℕ :=
+def f : Π (n : ℕ), n = n → ℕ → ℕ :=
 λ (n : ℕ) (H : n = n) (m : ℕ), id (n + m)
-definition f : Π (n : ℕ), n = n → ℕ → ℕ :=
+def f : Π (n : ℕ), n = n → ℕ → ℕ :=
 λ (n : ℕ) (H : n = n) (m : ℕ), id (n + m)

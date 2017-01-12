@@ -1,6 +1,6 @@
 missing_import.lean:1:0: error: file 'does/not/exist' not found in the LEAN_PATH
 missing_import.lean:1:0: error: invalid import: does.not.exist
 could not resolve import: does.not.exist
-attribute [reducible]
-definition bitvec : ℕ → Type :=
+@[reducible]
+def bitvec : ℕ → Type :=
 λ (n : ℕ), tuple bool n

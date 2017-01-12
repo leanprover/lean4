@@ -6,7 +6,7 @@ but is expected to have type
   ℕ → ℕ → ℕ
 f : ℕ → ℕ → ℕ
 g : ℕ → ℕ → ℕ
-noncomputable definition g : ℕ → ℕ → ℕ :=
+noncomputable def g : ℕ → ℕ → ℕ :=
 f
-noncomputable definition h : ℕ → ℕ → ℕ :=
+noncomputable def h : ℕ → ℕ → ℕ :=
 h._main

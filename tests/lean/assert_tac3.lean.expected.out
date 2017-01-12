@@ -4,7 +4,7 @@ x : ℕ := ?m_1
 
 a : ℕ
 ⊢ ℕ
-definition tst2 : ∀ (a : ℕ), a = a :=
+def tst2 : ∀ (a : ℕ), a = a :=
 λ (a : ℕ), let x : ℕ := a in eq.refl a
 a b : ℕ,
 x : ℕ := ?m_1

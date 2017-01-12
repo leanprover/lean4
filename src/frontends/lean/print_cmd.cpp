@@ -31,6 +31,8 @@ Author: Leonardo de Moura
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/structure_cmd.h"
 
+// TODO(gabriel): make print command async
+
 namespace lean {
 struct print_axioms_deps {
     environment     m_env;
@@ -214,9 +216,6 @@ static name to_user_name(environment const & env, name const & n) {
 
 static void print_definition(environment const & env, message_builder & out, name const & n, pos_info const & pos) {
     declaration d = env.get(n);
-    if (d.is_axiom())
-        throw parser_error(sstream() << "invalid 'print definition', theorem '" << to_user_name(env, n)
-                           << "' is not available", pos);
     if (!d.is_definition())
         throw parser_error(sstream() << "invalid 'print definition', '" << to_user_name(env, n) << "' is not a definition", pos);
     options opts        = out.get_text_stream().get_options();
@@ -237,7 +236,7 @@ static void print_attributes(parser const & p, message_builder & out, name const
             continue;
         if (auto data = attr->get_untyped(env, n)) {
             if (first) {
-                out << "attribute [";
+                out << "@[";
                 first = false;
             } else {
                 out << ", ";
@@ -325,6 +324,8 @@ static bool print_constant(parser const & p, message_builder & out, char const *
         out << "protected ";
     if (d.is_definition() && is_marked_noncomputable(p.env(), d.get_name()))
         out << "noncomputable ";
+    if (!d.is_trusted())
+        out << "meta ";
     out << kind << " " << to_user_name(p.env(), d.get_name());
     out.get_text_stream().update_options(out.get_text_stream().get_options().update((name {"pp", "binder_types"}), true))
             << " : " << d.get_type();
@@ -373,7 +374,7 @@ bool print_id_info(parser & p, message_builder & out, name const & id, bool show
                 print_constant(p, out, "constant", d);
             }
         } else if (d.is_definition()) {
-            print_constant(p, out, "definition", d, show_value);
+            print_constant(p, out, "def", d, show_value);
             if (show_value)
                 print_definition(env, out, c, pos);
         }

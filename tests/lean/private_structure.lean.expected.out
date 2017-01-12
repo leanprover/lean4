@@ -17,7 +17,7 @@ private_structure.lean:29:6: error: unknown identifier 'point.induction_on'
 private_structure.lean:30:6: error: unknown identifier 'point.no_confusion'
 private_structure.lean:31:6: error: unknown identifier 'point.x'
 private_structure.lean:32:6: error: unknown identifier 'point.y'
-definition foo.bla : Type :=
+def foo.bla : Type :=
 point
 private_structure.lean:37:7: error: invalid constructor ⟨...⟩, type is a private inductive datatype
 foo.mk : foo.bla

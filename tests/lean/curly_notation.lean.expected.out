@@ -1,11 +1,11 @@
 {1, 2, 3} : set ℕ
 {1} : set ℕ
 ∅ : set ℕ
-definition s1 : set ℕ :=
+def s1 : set ℕ :=
 {1, 2 + 3, 3, 4}
-definition s2 : set char :=
+def s2 : set char :=
 {#"a", #"b", #"c"}
-definition s3 : set string :=
+def s3 : set string :=
 {"hello", "world"}
 {a ∈ s1 | a > 1} : set ℕ
 {a ∈ s1 | a > 1} : set ℕ

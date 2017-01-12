@@ -4,3 +4,12 @@ fin.mk 1 (of_as_true trivial) : fin 3
 to_string #"a" : string
 "#\"a\""
 #"a"
+#"\x01"
+#"\x01"
+#"\x14"
+#"\x01" : char
+#"\x14" : char
+#"\x0f" : char
+#"\x10" : char
+#"\x0f"
+#"\x10"

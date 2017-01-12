@@ -31,20 +31,21 @@ static expr * g_list_nil_char        = nullptr;
 expr from_string_core(std::string const & s);
 
 static void display_char_literal_core(std::ostream & out, char c, bool in_string) {
-    if (c == '\n')
+    if (c == '\n') {
         out << "\\n";
-    else if (c == '\t')
+    } else if (c == '\t') {
         out << "\\t";
-    else if (c == '\r')
-        out << "\\r";
-    else if (c == 0)
-        out << "\\0";
-    else if (in_string && c == '\"')
+    } else if (in_string && c == '\"') {
         out << "\\\"";
-    else if (!in_string && c == '\'')
+    } else if (!in_string && c == '\'') {
         out << "\\'";
-    else
+    } else if (0 <= c && c <= 31) {
+        out << "\\x";
+        if (c < 16) out << "0";
+        out << std::hex << static_cast<int>(c);
+    } else {
         out << c;
+    }
 }
 
 static void display_char_literal(std::ostream & out, char c) {

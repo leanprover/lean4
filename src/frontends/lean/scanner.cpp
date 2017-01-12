@@ -142,10 +142,12 @@ char scanner::read_quoted_char(char const * error_msg) {
     next();
     check_not_eof(error_msg);
     char c = curr();
-    if (c != '\\' && c != '\"' && c != 'n' && c != '\'' && c != 'x')
+    if (c != '\\' && c != '\"' && c != 'n' && c != 't' && c != '\'' && c != 'x')
         throw_exception("invalid escape sequence");
     if (c == 'n') {
         return '\n';
+    } else if (c == 't') {
+        return '\t';
     } else if (c == 'x') {
         next();
         char c = curr();

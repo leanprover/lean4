@@ -5,7 +5,7 @@ Author: Leonardo de Moura
 -/
 prelude
 import init.data.string.basic init.data.bool.basic init.data.subtype.basic
-import init.data.unsigned init.data.prod init.data.sum.basic
+import init.data.unsigned init.data.prod init.data.sum.basic init.data.nat.div
 open sum subtype nat
 
 universe variables u v
@@ -53,10 +53,35 @@ instance {α : Type u} {β : α → Type v} [has_to_string α] [s : ∀ x, has_t
 instance {α : Type u} {p : α → Prop} [has_to_string α] : has_to_string (subtype p) :=
 ⟨λ s, to_string (elt_of s)⟩
 
+/- Remark: the code generator replaces this definition with one that display natural numbers in decimal notation -/
+protected def nat.to_string : nat → string
+| 0        := "zero"
+| (succ a) := "(succ " ++ nat.to_string a ++ ")"
+
+instance : has_to_string nat :=
+⟨nat.to_string⟩
+
+def hex_digit_to_string (n : nat) : string :=
+if n ≤ 9 then to_string n
+else if n = 10 then "a"
+else if n = 11 then "b"
+else if n = 12 then "c"
+else if n = 13 then "d"
+else if n = 14 then "e"
+else "f"
+
+def char_to_hex (c : char) : string :=
+let n  := char.to_nat c,
+    d2 := div n 16,
+    d1 := n % 16
+in hex_digit_to_string d2 ++ hex_digit_to_string d1
+
 def char.quote_core (c : char) : string :=
 if       c = #"\n" then "\\n"
+else if  c = #"\t" then "\\t"
 else if  c = #"\\" then "\\\\"
 else if  c = #"\"" then "\\\""
+else if  char.to_nat c <= 31 then "\\x" ++ char_to_hex c
 else [c]
 
 instance : has_to_string char :=
@@ -73,13 +98,6 @@ def string.quote : string → string
 instance : has_to_string string :=
 ⟨string.quote⟩
 
-/- Remark: the code generator replaces this definition with one that display natural numbers in decimal notation -/
-protected def nat.to_string : nat → string
-| 0        := "zero"
-| (succ a) := "(succ " ++ nat.to_string a ++ ")"
-
-instance : has_to_string nat :=
-⟨nat.to_string⟩
 
 instance (n : nat) : has_to_string (fin n) :=
 ⟨λ f, to_string (fin.val f)⟩

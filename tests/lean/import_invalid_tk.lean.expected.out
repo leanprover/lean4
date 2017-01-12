@@ -1,0 +1,4 @@
+import_invalid_tk.lean:1:21: error: invalid binary digit
+attribute [reducible]
+definition bitvec : ℕ → Type :=
+λ (n : ℕ), tuple bool n

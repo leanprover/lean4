@@ -431,7 +431,7 @@ public:
 
     expr parse_tactic(unsigned rbp = 0);
 
-    std::vector<module_name> parse_imports(unsigned & fingerprint);
+    void parse_imports(unsigned & fingerprint, std::vector<module_name> &);
 
     struct local_scope {
         parser & m_p; environment m_env;
@@ -522,7 +522,7 @@ public:
     /** parse all commands in the input stream */
     bool operator()() { return parse_commands(); }
 
-    std::vector<module_name> get_imports();
+    void get_imports(std::vector<module_name> &);
 
     class in_notation_ctx {
         scanner::in_notation_ctx m_ctx;

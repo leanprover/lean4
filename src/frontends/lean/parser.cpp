@@ -2111,14 +2111,13 @@ void parser::reset_doc_string() {
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
 
-std::vector<module_name> parser::parse_imports(unsigned & fingerprint) {
+void parser::parse_imports(unsigned & fingerprint, std::vector<module_name> & imports) {
     m_last_cmd_pos = pos();
     bool prelude     = false;
     if (curr_is_token(get_prelude_tk())) {
         next();
         prelude = true;
     }
-    std::vector<module_name> imports;
     if (!prelude) {
         imports.push_back({ "init", optional<unsigned>() });
     }
@@ -2171,12 +2170,18 @@ std::vector<module_name> parser::parse_imports(unsigned & fingerprint) {
             }
         }
     }
-    return imports;
 }
 
 void parser::process_imports() {
     unsigned fingerprint = 0;
-    auto imports = parse_imports(fingerprint);
+    std::vector<module_name> imports;
+
+    std::exception_ptr exception_during_scanning;
+    try {
+        parse_imports(fingerprint, imports);
+    } catch (parser_exception) {
+        exception_during_scanning = std::current_exception();
+    }
 
     buffer<import_error> import_errors;
     m_env = import_modules(m_env, m_file_name, imports, m_import_fn, import_errors);
@@ -2209,12 +2214,14 @@ void parser::process_imports() {
 #endif
     }
     m_imports_parsed = true;
+
+    if (exception_during_scanning) std::rethrow_exception(exception_during_scanning);
 }
 
-std::vector<module_name> parser::get_imports() {
+void parser::get_imports(std::vector<module_name> & imports) {
     scope_pos_info_provider scope1(*this);
     unsigned fingerprint;
-    return parse_imports(fingerprint);
+    parse_imports(fingerprint, imports);
 }
 
 bool parser::parse_commands() {

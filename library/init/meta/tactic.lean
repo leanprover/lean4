@@ -742,6 +742,9 @@ cases_core semireducible H []
 meta def cases_using : expr → list name → tactic unit :=
 cases_core semireducible
 
+meta def induction : expr → name → list name → tactic unit :=
+induction_core semireducible
+
 meta def destruct (e : expr) : tactic unit :=
 destruct_core semireducible e
 

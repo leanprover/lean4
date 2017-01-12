@@ -256,7 +256,7 @@ static environment variable_cmd_core(parser & p, variable_kind k, decl_modifiers
         }
     }
     p.parse_close_binder_info(bi);
-    check_command_period_or_eof(p);
+    check_command_period_docstring_or_eof(p);
     level_param_names ls;
     if (ls_buffer.empty()) {
         ls = to_level_param_names(collect_univ_params(type));

@@ -19,7 +19,7 @@ class parser;
 void consume_until_end_or_command(parser & p);
 
 /** \brief Throw and error if the current token is not a command, nor a '.', nor an end-of-file. */
-void check_command_period_or_eof(parser const & p);
+void check_command_period_docstring_or_eof(parser const & p);
 /** \brief Throw and error if the current token is not a command, nor an open binder, nor a '.', nor an end-of-file. */
 void check_command_period_open_binder_or_eof(parser const & p);
 void check_atomic(name const & n);

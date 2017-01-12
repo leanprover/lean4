@@ -8,23 +8,11 @@ open monad expr tactic
 
 namespace super
 
-meta def count_var_occs : unsigned → expr → ℕ
-| k (var k')              := if k = k' then 1 else 0
-| _ (sort _)              := 0
-| _ (const _ _)           := 0
-| _ (mvar _ _)            := 0
-| k (local_const _ _ _ t) := count_var_occs k t
-| k (app a b)             := count_var_occs k a + count_var_occs k b
-| k (lam _ _ t b)         := count_var_occs k t + count_var_occs k^.succ b
-| k (pi _ _ t b)          := count_var_occs k t + count_var_occs k^.succ b
-| k (elet _ t v b)        := count_var_occs k t + count_var_occs k v + count_var_occs k^.succ b
-| _ (macro _ _ _)         := 0 -- TODO(gabriel)
-
 -- TODO(gabriel): rewrite using conversions
 meta def trim : expr → tactic expr
 | (app (lam n m d b) arg) :=
-  if has_var b = ff ∨ count_var_occs 0 b ≤ 1 then
-    trim (instantiate_var b arg)
+  if ¬b^.has_var then
+    trim b
   else
     lift₂ app (trim (lam n m d b)) (trim arg)
 | (app a b) := lift₂ app (trim a) (trim b)

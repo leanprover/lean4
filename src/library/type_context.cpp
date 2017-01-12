@@ -632,10 +632,7 @@ optional<expr> type_context::expand_macro(expr const & e) {
 }
 
 bool type_context::use_zeta() const {
-    /* Remark: we want zeta when using relaxed_whnf. In the current implementation
-       relaxed_whnf sets m_transparency_mode to All. It seems hackish. Perhaps,
-       a better alternative is to add a m_relaxed flag. */
-    return m_zeta || m_transparency_mode == transparency_mode::All;
+    return m_zeta;
 }
 
 /*
@@ -766,7 +763,7 @@ expr type_context::whnf_pred(expr const & e, std::function<bool(expr const &)> c
 }
 
 expr type_context::relaxed_whnf(expr const & e) {
-    flet<transparency_mode> set(m_transparency_mode, transparency_mode::All);
+    relaxed_scope scope(*this);
     return whnf(e);
 }
 
@@ -804,7 +801,7 @@ expr type_context::try_to_pi(expr const & e) {
 }
 
 expr type_context::relaxed_try_to_pi(expr const & e) {
-    flet<transparency_mode> set(m_transparency_mode, transparency_mode::All);
+    relaxed_scope scope(*this);
     return try_to_pi(e);
 }
 
@@ -813,7 +810,7 @@ expr type_context::relaxed_try_to_pi(expr const & e) {
    --------------- */
 
 expr type_context::infer(expr const & e) {
-    flet<transparency_mode> set(m_transparency_mode, transparency_mode::All);
+    relaxed_scope scope(*this);
     return infer_core(e);
 }
 
@@ -1790,7 +1787,7 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
            This change is consistent with the general approach used in the rest of the code
            base where spurious typing errors due reducibility are avoided by using
            relaxed_is_def_eq. */
-        transparency_scope _(*this, transparency_mode::All);
+        relaxed_scope _(*this);
         if (!is_def_eq_core(t1, t2)) {
             lean_trace(name({"type_context", "is_def_eq_detail"}),
                        scope_trace_env scope(env(), *this);
@@ -2785,7 +2782,7 @@ bool type_context::is_def_eq(expr const & t, expr const & s) {
 }
 
 bool type_context::relaxed_is_def_eq(expr const & e1, expr const & e2) {
-    flet<transparency_mode> set(m_transparency_mode, transparency_mode::All);
+    relaxed_scope scope(*this);
     return is_def_eq(e1, e2);
 }
 

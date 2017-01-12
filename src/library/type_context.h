@@ -427,6 +427,14 @@ public:
             flet<bool>(ctx.m_full_postponed, full) {}
     };
 
+    struct relaxed_scope {
+        transparency_scope m_transparency_scope;
+        zeta_scope         m_zeta_scope;
+        relaxed_scope(type_context & ctx):
+            m_transparency_scope(ctx, transparency_mode::All),
+            m_zeta_scope(ctx, true) {}
+    };
+
     /* --------------------------
        Temporary assignment mode.
        It is used when performing type class resolution and matching.

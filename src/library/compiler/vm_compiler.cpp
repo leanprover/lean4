@@ -219,8 +219,8 @@ class vm_compiler_fn {
         buffer<expr> args;
         expr fn = get_app_args(e, args);
         if (!is_constant(fn)) {
-            compile_rev_args(args.size(), args.data(), bpz+1, m);
-            compile(fn, bpz, m);
+            compile_rev_args(args.size(), args.data(), bpz, m);
+            compile(fn, bpz + args.size(), m);
             emit_apply_instr(args.size());
             return;
         } else if (is_constant(fn)) {

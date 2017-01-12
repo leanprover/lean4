@@ -217,12 +217,11 @@ match list.filter (λm, ¬has_meta_var (get_meta_type m)) metas with
        for' metas (λm, do trace (expr.to_string m), t ← infer_type m, trace (expr.to_string t)),
        fail "could not sort metas"
 | ((mvar n t) :: _) := do
-  t' ← infer_type (mvar n t),
-  uniq ← mk_fresh_name,
-  c ← return (local_const uniq uniq binder_info.default t'),
+  c ← infer_type (mvar n t) >>= mk_local_def `x,
   unify c (mvar n t),
   rest ← sort_and_constify_metas metas,
-  return (rest ++ [c])
+  c ← instantiate_mvars c,
+  return ([c] ++ rest)
 | _ := failed
 end
 

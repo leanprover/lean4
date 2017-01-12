@@ -133,25 +133,29 @@ meta instance : has_to_tactic_format prover_state :=
 ⟨prover_state_tactic_fmt⟩
 
 meta def prover := state_t prover_state tactic
+
+namespace prover
+
 meta instance : monad prover := state_t.monad _ _
-meta instance : has_monad_lift tactic prover := monad.monad_transformer_lift (state_t prover_state) tactic
+
+meta instance : has_monad_lift tactic prover :=
+monad.monad_transformer_lift (state_t prover_state) tactic
+
 meta instance (α : Type) : has_coe (tactic α) (prover α) :=
 ⟨monad.monad_lift⟩
 
-meta def prover.fail {A B : Type} [has_to_format B] (msg : B) : prover A := @tactic.fail A _ _ msg
+meta def fail {α β : Type} [has_to_format β] (msg : β) : prover α :=
+fail msg
 
-meta def prover.failed {A : Type} : prover A :=
-prover.fail "failed"
-
-meta def prover.orelse {A : Type} (p1 p2 : prover A) : prover A :=
+meta def orelse (A : Type) (p1 p2 : prover A) : prover A :=
 take state, p1 state <|> p2 state
 
 meta instance : alternative prover :=
-alternative.mk (@monad.map _ _)
-  (@applicative.pure _ (monad_is_applicative prover))
-  (@applicative.seq _ (monad_is_applicative prover))
-  @prover.failed
-  @prover.orelse
+{ monad_is_applicative prover with
+  failure := λα, fail "failed",
+  orelse := orelse }
+
+end prover
 
 meta def selection_strategy := derived_clause → prover derived_clause
 
@@ -243,7 +247,7 @@ meta def get_sat_hyp (v : expr) (ph : bool) : prover expr :=
 do hyp_opt ← get_sat_hyp_core v ph,
 match hyp_opt with
 | some hyp := return hyp
-| none := prover.fail $ "unknown sat variable: " ++ v^.to_string
+| none := fail $ "unknown sat variable: " ++ v^.to_string
 end
 
 meta def add_sat_clause (c : clause) (suggested_ev : score) : prover unit := do

@@ -7,7 +7,8 @@ Author: Leonardo de Moura
 #pragma once
 #include "kernel/environment.h"
 namespace lean {
-/** \brief Return the eta expanded normal form for \c e.
-    \pre \c e does not contain variables nor metavariables. */
+/** \brief Eta-expand constructor/projection applications, I.rec and I.cases_on applications,
+    the minor premises of I.rec and I.cases_on applications, I.no_confusion applications,
+    quotient type constructor and lift applications, and subtype.elt_of applications. */
 expr eta_expand(environment const & env, expr const & e);
 }

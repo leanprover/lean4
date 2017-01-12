@@ -8,10 +8,8 @@ open tactic expr monad
 
 namespace super
 
--- FIXME: how to cleanly unfold one level of definitions?
--- what should one level even be? consider dvd->has_dvd->nat_has_dvd->...
-meta def try_unfold_one_def (type : expr) : tactic expr := do
-whnf type
+meta def try_unfold_one_def (type : expr) : tactic expr :=
+dunfold_expr_core transparency.all type
 
 meta def try_unfold_def_left (c : clause) (i : ℕ) : tactic (list clause) :=
 on_left_at c i $ λt, do

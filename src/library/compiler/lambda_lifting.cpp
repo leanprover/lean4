@@ -89,17 +89,24 @@ class lambda_lifting_fn : public compiler_step_visitor {
             return e;
         } else {
             while (!map.empty()) {
-                /* remove local_decl with biggest idx */
+                /* Remove local_decl with biggest idx */
                 local_decl d = map.erase_min();
+                /* Remark: lambda lifting is applied after the erase_irrelevant step.
+                   So, we don't need to make sure the result can be type checked by the Lean kernel.
+                   Therefore, we don't need to be concerned about let-expressions when performing
+                   lambda lifting. That is, we don't need to be concerned about
+                   the case where
+
+                      (let x := v in f[x]) is type correct, but
+                      ((fun x, f [x]) v) isn't.
+
+                   In the past, we would expand let-expressions to avoid this non-issue,
+                   and it would create performance problems in the generated code.
+                */
                 expr l       = d.mk_ref();
-                if (auto v = d.get_value()) {
-                    collect_locals(*v, map);
-                    e = instantiate(abstract_local(e, l), *v);
-                } else {
-                    locals.push_back(l);
-                    e = abstract_local(e, l);
-                    e = mk_lambda(d.get_name(), d.get_type(), e);
-                }
+                locals.push_back(l);
+                e = abstract_local(e, l);
+                e = mk_lambda(d.get_name(), d.get_type(), e);
             }
             return e;
         }

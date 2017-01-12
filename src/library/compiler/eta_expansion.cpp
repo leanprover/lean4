@@ -16,6 +16,7 @@ namespace lean {
 class eta_expand_fn : public compiler_step_visitor {
     optional<expr> expand_core(expr const & e) {
         lean_assert(!is_lambda(e));
+        type_context::nozeta_scope scope(ctx());
         expr t = ctx().whnf(ctx().infer(e));
         if (!is_pi(t))
             return none_expr();

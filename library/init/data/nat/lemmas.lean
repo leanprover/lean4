@@ -156,7 +156,7 @@ instance : comm_semiring nat :=
 /- properties of inequality -/
 
 protected lemma le_of_eq {n m : ℕ} (p : n = m) : n ≤ m :=
-p ▸ less_than.refl n
+p ▸ less_than_or_equal.refl n
 
 lemma le_succ_iff_true (n : ℕ) : n ≤ succ n ↔ true :=
 iff_true_intro (le_succ n)
@@ -174,7 +174,7 @@ protected lemma le_of_lt {n m : ℕ} (h : n < m) : n ≤ m :=
 le_of_succ_le h
 
 lemma le_succ_of_pred_le {n m : ℕ} : pred n ≤ m → n ≤ succ m :=
-nat.cases_on n less_than.step (λ a, succ_le_succ)
+nat.cases_on n less_than_or_equal.step (λ a, succ_le_succ)
 
 lemma succ_le_zero_iff_false (n : ℕ) : succ n ≤ 0 ↔ false :=
 iff_false_intro (not_succ_le_zero n)
@@ -185,7 +185,7 @@ iff_false_intro (not_succ_le_self n)
 lemma zero_le_iff_true (n : ℕ) : 0 ≤ n ↔ true :=
 iff_true_intro (zero_le n)
 
-def lt.step {n m : ℕ} : n < m → n < succ m := less_than.step
+def lt.step {n m : ℕ} : n < m → n < succ m := less_than_or_equal.step
 
 lemma zero_lt_succ_iff_true (n : ℕ) : 0 < succ n ↔ true :=
 iff_true_intro (zero_lt_succ n)
@@ -196,7 +196,7 @@ protected lemma pos_of_ne_zero {n : nat} (h : n ≠ 0) : n > 0 :=
 begin cases n, contradiction, apply succ_pos end
 
 protected lemma lt_trans {n m k : ℕ} (h₁ : n < m) : m < k → n < k :=
-nat.le_trans (less_than.step h₁)
+nat.le_trans (less_than_or_equal.step h₁)
 
 protected lemma lt_of_le_of_lt {n m k : ℕ} (h₁ : n ≤ m) : m < k → n < k :=
 nat.le_trans (succ_le_succ h₁)
@@ -219,10 +219,10 @@ lemma le_lt_antisymm {n m : ℕ} (h₁ : n ≤ m) (h₂ : m < n) : false :=
 nat.lt_irrefl n (nat.lt_of_le_of_lt h₁ h₂)
 
 protected lemma le_antisymm {n m : ℕ} (h₁ : n ≤ m) : m ≤ n → n = m :=
-less_than.cases_on h₁ (λ a, rfl) (λ a b c, absurd (nat.lt_of_le_of_lt b c) (nat.lt_irrefl n))
+less_than_or_equal.cases_on h₁ (λ a, rfl) (λ a b c, absurd (nat.lt_of_le_of_lt b c) (nat.lt_irrefl n))
 
 instance : weak_order ℕ :=
-⟨@nat.less_than, @nat.le_refl, @nat.le_trans, @nat.le_antisymm⟩
+⟨@nat.less_than_or_equal, @nat.le_refl, @nat.le_trans, @nat.le_antisymm⟩
 
 lemma lt_le_antisymm {n m : ℕ} (h₁ : n < m) (h₂ : m ≤ n) : false :=
 le_lt_antisymm h₂ h₁
@@ -285,8 +285,8 @@ lemma le_add_left (n m : ℕ): n ≤ m + n :=
 nat.add_comm n m ▸ le_add_right n m
 
 lemma le.dest : ∀ {n m : ℕ}, n ≤ m → ∃ k, n + k = m
-| n .n        (less_than.refl .n)  := ⟨0, rfl⟩
-| n .(succ m) (@less_than.step .n m h) :=
+| n .n        (less_than_or_equal.refl .n)  := ⟨0, rfl⟩
+| n .(succ m) (@less_than_or_equal.step .n m h) :=
   match le.dest h with
   | ⟨w, hw⟩ := ⟨succ w, hw ▸ add_succ n w⟩
   end

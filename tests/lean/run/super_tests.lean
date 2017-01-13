@@ -6,15 +6,15 @@ example (i : Type) (a b : i) (p : i → Prop) (H : a = b) (Hpa : p a) : true := 
 H ← get_local `H >>= clause.of_classical_proof,
 Hpa ← get_local `Hpa >>= clause.of_classical_proof,
 a ← get_local `a,
-try_sup (λx y, ff) H Hpa 0 0 [0] tt ``super.sup_ltr >>= clause.validate,
+try_sup (λx y, ff) H Hpa 0 0 [0] tt ff ``super.sup_ltr >>= clause.validate,
 to_expr `(trivial) >>= apply
 
 example (i : Type) (a b : i) (p : i → Prop) (H : a = b) (Hpa : p a → false) (Hpb : p b → false) : true := by do
 H ← get_local `H >>= clause.of_classical_proof,
 Hpa ← get_local `Hpa >>= clause.of_classical_proof,
 Hpb ← get_local `Hpb >>= clause.of_classical_proof,
-try_sup (λx y, ff) H Hpa 0 0 [0] tt ``super.sup_ltr >>= clause.validate,
-try_sup (λx y, ff) H Hpb 0 0 [0] ff ``super.sup_rtl >>= clause.validate,
+try_sup (λx y, ff) H Hpa 0 0 [0] tt ff ``super.sup_ltr >>= clause.validate,
+try_sup (λx y, ff) H Hpb 0 0 [0] ff ff ``super.sup_rtl >>= clause.validate,
 to_expr `(trivial) >>= apply
 
 example (i : Type) (p q : i → Prop) (H : ∀x y, p x → q y → false) : true := by do

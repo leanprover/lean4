@@ -173,7 +173,7 @@ environment pop_scope(environment const & env, io_state const & ios, name const 
     if (is_nil(ext.m_namespaces))
         throw exception("invalid end of scope, there are no open namespaces/sections");
     if (n != head(ext.m_headers))
-        throw exception(sstream() << "invalid end of scope, begin/end mistmatch, scope starts with '"
+        throw exception(sstream() << "invalid end of scope, begin/end mismatch, scope starts with '"
                         << head(ext.m_headers) << "', and ends with '" << n << "'");
     return pop_scope_core(env, ios);
 }

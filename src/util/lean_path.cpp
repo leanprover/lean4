@@ -287,12 +287,16 @@ void find_imports_core(std::string const & base, optional<unsigned> const & k,
                        std::vector<pair<std::string, std::string>> & imports) {
     std::vector<std::string> files;
     find_files(base, ".lean", files);
+    find_files(base, ".olean", files);
 
     for (auto const & file : files) {
-        auto import = file.substr(base.size() + 1, file.size() - base.size() - 1 - std::string(".lean").size());
+        auto import = file.substr(base.size() + 1, file.rfind('.') - (base.size() + 1));
         std::replace(import.begin(), import.end(), g_sep, '.');
         if (k)
             import = std::string(*k + 1, '.') + import;
+        auto n = import.rfind(".default");
+        if (n != -1 && n == import.size() - std::string(".default").size())
+            import = import.substr(0, n);
         imports.push_back({import, file});
     }
 }

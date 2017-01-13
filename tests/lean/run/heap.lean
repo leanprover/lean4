@@ -26,6 +26,7 @@ lemma ex
 (hnoalias : ∀ h y₁ y₂ w₁ w₂, is_def (h ∙ y₁ ↣ w₁ ∙ y₂ ↣ w₂) → y₁ ≠ y₂)
 : is_def (h₁ ∙ (x₁ ↣ v₁ ∙ x₂ ↣ v₂) ∙ h₂ ∙ (x₃ ↣ v₃)) → x₁ ≠ x₃ ∧ x₁ ≠ x₂ ∧ x₂ ≠ x₃ :=
 begin [smt]
+  intros,
   smt_tactic.add_lemmas_from_facts,
   repeat {ematch}
 end

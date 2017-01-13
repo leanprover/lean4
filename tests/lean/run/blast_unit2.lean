@@ -1,7 +1,7 @@
 variables {A₁ A₂ A₃ A₄ B₁ B₂ B₃ B₄ : Prop}
 
 meta def blast : tactic unit :=
-using_smt $ return ()
+using_smt $ smt_tactic.intros >> return ()
 
 constants (a b c d e : nat)
 constants (p : nat → Prop)

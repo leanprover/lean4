@@ -152,7 +152,7 @@ vm_obj mk_smt_tactic_success(vm_obj const & ss, tactic_state const & ts) {
    Reason: ematching will close the goal by instantiating them.
    Then later, the equation compiler will fail to eliminate this application
    using structural or well founded induction. */
-tactic_state clear_recs(tactic_state const & s) {
+static tactic_state clear_recs(tactic_state const & s) {
     lean_assert(s.goals());
     expr mvar                = head(s.goals());
     metavar_context mctx     = s.mctx();
@@ -163,13 +163,14 @@ tactic_state clear_recs(tactic_state const & s) {
         return set_mctx_goals(s, mctx, cons(new_mvar, tail(s.goals())));
 }
 
-tactic_state revert_all(tactic_state const & s) {
+static pair<tactic_state, unsigned> revert_all(tactic_state const & s) {
     lean_assert(s.goals());
     optional<metavar_decl> g = s.get_main_goal_decl();
     local_context lctx       = g->get_context();
     buffer<expr> hs;
     lctx.for_each([&](local_decl const & d) { hs.push_back(d.mk_ref()); });
-    return revert(hs, s);
+    tactic_state new_s = revert(hs, s);
+    return mk_pair(new_s, hs.size());
 }
 
 static dsimplify_fn mk_dsimp(type_context & ctx, defeq_can_state & dcs, smt_pre_config const & cfg) {
@@ -255,8 +256,21 @@ static expr_pair preprocess_forward(type_context & ctx, defeq_can_state & dcs, s
     return preprocess_forward(ctx, dcs, g.get_pre_config(), type, h);
 }
 
-expr intros(environment const & env, options const & opts, metavar_context & mctx, expr const & mvar,
-            defeq_can_state & dcs, smt_goal & s_goal, bool use_unused_names) {
+static name mk_intro_name(type_context & ctx, name const & bname, bool use_unused_names, list<name> & user_ids) {
+    if (user_ids) {
+        name r   = head(user_ids);
+        user_ids = tail(user_ids);
+        return r;
+    } else if (use_unused_names) {
+        return ctx.get_unused_name(bname);
+    } else {
+        return bname;
+    }
+}
+
+static expr intros(environment const & env, options const & opts, metavar_context & mctx, expr const & mvar,
+                   defeq_can_state & dcs, smt_goal & s_goal, bool use_unused_names,
+                   optional<unsigned> const & num, list<name> ids) {
     optional<metavar_decl> decl = mctx.get_metavar_decl(mvar);
     lean_assert(decl);
     type_context ctx(env, opts, mctx, decl->get_context(), transparency_mode::Semireducible);
@@ -272,7 +286,7 @@ expr intros(environment const & env, options const & opts, metavar_context & mct
     type_context::tmp_locals locals(ctx);
     buffer<expr> new_Hs;
     buffer<expr> to_inst;
-    while (true) {
+    for (unsigned i = 0; !num || i < *num; i++) {
         if (!is_pi(target) && !is_let(target)) {
             target = instantiate_rev(target, to_inst.size(), to_inst.data());
             to_inst.clear();
@@ -280,8 +294,7 @@ expr intros(environment const & env, options const & opts, metavar_context & mct
         }
         if (is_pi(target)) {
             expr type = dsimp(instantiate_rev(binding_domain(target), to_inst.size(), to_inst.data()));
-            name n    = binding_name(target);
-            if (use_unused_names) n = ctx.get_unused_name(n);
+            name n    = mk_intro_name(ctx, binding_name(target), use_unused_names, ids);
             expr h    = locals.push_local(n, type);
             to_inst.push_back(h);
             new_Hs.push_back(h);
@@ -293,8 +306,7 @@ expr intros(environment const & env, options const & opts, metavar_context & mct
         } else if (is_let(target)) {
             expr type  = dsimp(instantiate_rev(let_type(target), to_inst.size(), to_inst.data()));
             expr value = dsimp(instantiate_rev(let_value(target), to_inst.size(), to_inst.data()));
-            name n     = let_name(target);
-            if (use_unused_names) n = ctx.get_unused_name(n);
+            name n     = mk_intro_name(ctx, let_name(target), use_unused_names, ids);
             expr h     = locals.push_let(n, type, value);
             to_inst.push_back(h);
             new_Hs.push_back(h);
@@ -360,7 +372,8 @@ tactic_state add_em_facts(tactic_state const & ts, smt_goal & g) {
 
 vm_obj mk_smt_state(tactic_state s, smt_config const & cfg) {
     if (!s.goals()) return mk_no_goals_exception(s);
-    s = revert_all(clear_recs(s));
+    unsigned num_reverted;
+    std::tie(s, num_reverted) = revert_all(clear_recs(s));
 
     smt_goal new_goal(cfg);
 
@@ -371,7 +384,9 @@ vm_obj mk_smt_state(tactic_state s, smt_config const & cfg) {
     metavar_context mctx = s.mctx();
     bool use_unused_names = true;
     defeq_can_state dcs = s.dcs();
-    expr new_M = intros(s.env(), s.get_options(), mctx, head(s.goals()), dcs, new_goal, use_unused_names);
+    list<name> ids;
+    expr new_M = intros(s.env(), s.get_options(), mctx, head(s.goals()), dcs, new_goal, use_unused_names,
+                        optional<unsigned>(num_reverted), ids);
 
     s = set_mctx_goals_dcs(s, mctx, cons(new_M, tail(s.goals())), dcs);
     s = add_em_facts(s, new_goal);
@@ -719,8 +734,9 @@ vm_obj smt_tactic_intros_core(vm_obj const & use_unused_names, vm_obj const & ss
 
     metavar_context mctx = ts.mctx();
     defeq_can_state dcs  = ts.dcs();
+    list<name> ids;
     expr new_mvar = intros(ts.env(), ts.get_options(), mctx, head(ts.goals()),
-                           dcs, new_sgoal, to_bool(use_unused_names));
+                           dcs, new_sgoal, to_bool(use_unused_names), optional<unsigned>(), ids);
 
     tactic_state new_ts = set_mctx_goals_dcs(ts, mctx, cons(new_mvar, tail(ts.goals())), dcs);
     vm_obj new_ss       = mk_vm_cons(to_obj(new_sgoal), tail(ss));

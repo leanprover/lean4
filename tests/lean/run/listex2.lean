@@ -59,6 +59,7 @@ set_option trace.smt.ematch true
 /- Using ematching -/
 lemma ex (a b c : nat) (l₁ l₂ : list nat) : a ∈ l₁ → a ∈ b::b::c::l₂ ++ b::c::l₁ ++ [c, c, b] :=
 begin [smt]
+  intros,
   add_lemma [in_left, in_right, in_head, in_tail],
   repeat {ematch} -- It will loop if there is a matching loop
 end

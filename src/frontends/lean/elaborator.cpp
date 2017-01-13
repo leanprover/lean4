@@ -2380,6 +2380,9 @@ expr elaborator::visit(expr const & e, optional<expr> const & expected_type) {
         return copy_tag(e, visit_have_expr(e, expected_type));
     } else if (is_suffices_annotation(e)) {
         return copy_tag(e, visit_suffices_expr(e, expected_type));
+    } else if (is_no_info(e)) {
+        flet<bool> set(m_no_info, true);
+        return visit(get_annotation_arg(e), expected_type);
     } else {
         switch (e.kind()) {
         case expr_kind::Var:        lean_unreachable();  // LCOV_EXCL_LINE

@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "kernel/error_msgs.h"
 #include "kernel/for_each_fn.h"
 #include "library/scoped_ext.h"
+#include "library/annotation.h"
 #include "library/locals.h"
 #include "library/explicit.h"
 #include "library/aliases.h"
@@ -347,5 +348,20 @@ expr quote_name(name const & n) {
     } else {
         lean_unreachable();
     }
+}
+
+static name * g_no_info = nullptr;
+name const & get_no_info() { return *g_no_info; }
+
+expr mk_no_info(expr const & e) { return mk_annotation(get_no_info(), e); }
+bool is_no_info(expr const & e) { return is_annotation(e, get_no_info()); }
+
+void initialize_frontend_lean_util() {
+    g_no_info = new name("no_info");
+    register_annotation(*g_no_info);
+}
+
+void finalize_frontend_lean_util() {
+    delete g_no_info;
 }
 }

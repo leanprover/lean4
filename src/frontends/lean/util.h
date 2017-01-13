@@ -106,4 +106,10 @@ pair<name, option_kind> parse_option_name(parser & p, char const * error_msg);
 expr mk_tactic_unit();
 
 expr quote_name(name const & n);
+
+expr mk_no_info(expr const & e);
+bool is_no_info(expr const & e);
+
+void initialize_frontend_lean_util();
+void finalize_frontend_lean_util();
 }

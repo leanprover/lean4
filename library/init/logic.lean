@@ -542,6 +542,7 @@ inductive Exists {α : Type u} (p : α → Prop) : Prop
 
 attribute [intro] Exists.intro
 
+@[pattern]
 def exists.intro := @Exists.intro
 
 notation `exists` binders `, ` r:(scoped P, Exists P) := r

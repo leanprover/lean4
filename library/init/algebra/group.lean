@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jeremy Avigad, Leonardo de Moura
 -/
 prelude
-import init.logic init.algebra.ac init.meta.interactive init.meta.decl_cmds
+import init.logic init.algebra.ac init.meta init.meta.decl_cmds
 
 /- Make sure instances defined in this file have lower priority than the ones
    defined for concrete structures -/

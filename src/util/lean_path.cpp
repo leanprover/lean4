@@ -295,7 +295,7 @@ void find_imports_core(std::string const & base, optional<unsigned> const & k,
         if (k)
             import = std::string(*k + 1, '.') + import;
         auto n = import.rfind(".default");
-        if (n != -1 && n == import.size() - std::string(".default").size())
+        if (n != static_cast<unsigned>(-1) && n == import.size() - std::string(".default").size())
             import = import.substr(0, n);
         imports.push_back({import, file});
     }

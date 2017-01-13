@@ -1,7 +1,7 @@
 open tactic
 
-example : let x := 1 in ∀ y, x = y → y = 1 :=
-by using_smt $ get_local `x >>= (fun a, trace a) >> return ()
+lemma ex1 : let x := 1 in ∀ y, x = y → y = 1 :=
+by using_smt $ smt_tactic.intros >> get_local `x >>= (fun a, trace a)
 
 open tactic_result
 
@@ -17,5 +17,5 @@ def my_pre_config : smt_pre_config :=
 def my_smt_config : smt_config :=
 { default_smt_config with pre_cfg := my_pre_config }
 
-example : let x := 1 in ∀ y, x = y → y = 1 :=
-by using_smt_core my_smt_config $ fail_if_success (get_local `x) >> return ()
+lemma ex2 : let x := 1 in ∀ y, x = y → y = 1 :=
+by using_smt_core my_smt_config $ smt_tactic.intros >> fail_if_success (get_local `x) >> return ()

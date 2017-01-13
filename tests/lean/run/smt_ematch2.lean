@@ -35,7 +35,7 @@ constant subt : nat → nat → Prop
 axiom subt_trans {a b c : nat} : subt a b → subt b c → subt a c
 attribute [ematch] subt_trans
 
-example (a b c d : nat) : subt a b → subt b c → subt c d → subt a d :=
+lemma ex (a b c d : nat) : subt a b → subt b c → subt c d → subt a d :=
 by blast
 end subt
 
@@ -43,7 +43,7 @@ end subt
 section ring
 variables [ring α] (a b : α)
 attribute [ematch] zero_mul
-example : a = 0 → a * b = 0 :=
+lemma ex2 : a = 0 → a * b = 0 :=
 by blast
 
 definition ex1 (a b : int) : a = 0 → a * b = 0 :=
@@ -57,7 +57,7 @@ constant f : ∀ n, C n → C n
 axiom fax (n : nat) (a : C (2*n)) : (: f (2*n) a :) = a
 attribute [ematch] fax
 
-example (n m : nat) (a : C n) : n = 2*m → f n a = a :=
+lemma ex3 (n m : nat) (a : C n) : n = 2*m → f n a = a :=
 by blast
 end cast1
 
@@ -69,7 +69,7 @@ constant g : ∀ n, C n → C n → C n
 axiom gffax (n : nat) (a b : C n) : (: g n (f n a) (f n b) :) = a
 attribute [ematch] gffax
 
-example (n m : nat) (a c : C n) (b : C m) : n = m → a == f m b → g n a (f n c) == b :=
+lemma ex4 (n m : nat) (a c : C n) (b : C m) : n = m → a == f m b → g n a (f n c) == b :=
 by blast
 end cast2
 
@@ -81,7 +81,7 @@ constant g : ∀ n, C n → C n → C n
 axiom gffax (n : nat) (a b : C n) : (: g n a b :) = a
 attribute [ematch] gffax
 
-example (n m : nat) (a c : C n) (b : C m) (e : m = n) : a == b → g n a a == b :=
+lemma ex5 (n m : nat) (a c : C n) (b : C m) (e : m = n) : a == b → g n a a == b :=
 by blast
 end cast3
 
@@ -99,7 +99,7 @@ variables {xs : tuple α m}
 variables {ys : tuple α n}
 variables {zs : tuple α p}
 variables {ws : tuple α q}
-example : p = m + n  → zs == xs ++ ys →  zs ++ ws == xs ++ (ys ++ ws) :=
+lemma ex6 : p = m + n  → zs == xs ++ ys →  zs ++ ws == xs ++ (ys ++ ws) :=
 by blast
 
 def ex : p = n + m  → zs == xs ++ ys →  zs ++ ws == xs ++ (ys ++ ws) :=

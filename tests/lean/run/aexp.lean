@@ -61,7 +61,7 @@ begin [smt]
  all_goals {destruct (asimp_const a), all_goals {destruct (asimp_const a_1), eblast}}
 end
 
-example (a : aexp) (s : state) : aval (asimp_const a) s = aval a s :=
+lemma ex2 (a : aexp) (s : state) : aval (asimp_const a) s = aval a s :=
 begin [smt]
  induction a,
  all_goals {destruct (asimp_const a), all_goals {destruct (asimp_const a_1), eblast_using [asimp_const, aval]}}

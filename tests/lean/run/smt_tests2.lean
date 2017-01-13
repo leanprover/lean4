@@ -1,43 +1,45 @@
-example (a b c : nat) (f : nat → nat → nat) : f 0 1 = 1 → (λ x y : nat, x) = f → false :=
+lemma ex1 (a b c : nat) (f : nat → nat → nat) : f 0 1 = 1 → (λ x y : nat, x) = f → false :=
 begin [smt]
-  close
+  intros
 end
 
-example (a b c : nat) (f : nat → nat → nat) : f 0 1 = 1 → f = (λ x y, x) → false :=
+lemma ex2 (a b c : nat) (f : nat → nat → nat) : f 0 1 = 1 → f = (λ x y, x) → false :=
 begin [smt]
-  close
+  intros
 end
 
-example (a b c : nat) (f : nat → nat) : f = (λ x, x) → f 0 = 1 → false :=
+lemma ex3 (a b c : nat) (f : nat → nat) : f = (λ x, x) → f 0 = 1 → false :=
 begin [smt]
-  close
+  intros
 end
 
-example (a b c : nat) (f : nat → nat) : (λ x : nat, x) = f → f 0 = 1 → false :=
+lemma ex4 (a b c : nat) (f : nat → nat) : (λ x : nat, x) = f → f 0 = 1 → false :=
 begin [smt]
-  close
+  intros
 end
 
 open list
 universe variables u
 
-example {α : Type u} (l : list α) (a : α) (f : α → α × α) :
+lemma ex5 {α : Type u} (l : list α) (a : α) (f : α → α × α) :
         f = (λ x, (x, x)) → map f (a::l) = (a, a) :: map f l :=
 begin [smt]
+  intros,
   add_eqn_lemmas map,
   ematch
 end
 
-example {α : Type u} (l : list α) (a : α) (f : α → α × α) :
+lemma ex6 {α : Type u} (l : list α) (a : α) (f : α → α × α) :
         map f (a::l) ≠ (a, a) :: map f l → f = (λ x, (x, x)) → false :=
 begin [smt]
+  intros,
   add_eqn_lemmas map,
   ematch
 end
 
-example (a b c : nat) (f : nat → nat → nat) : f 0 1 = 1 → (λ (x : nat) (y : char), x) == f → f = (λ (x : nat) (y : nat), 2) → false :=
+lemma ex7 (a b c : nat) (f : nat → nat → nat) : f 0 1 = 1 → (λ (x : nat) (y : char), x) == f → f = (λ (x : nat) (y : nat), 2) → false :=
 begin [smt]
-  close
+  intros
 end
 
 /-

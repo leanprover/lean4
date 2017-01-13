@@ -5,5 +5,5 @@ attribute [ematch] fax
 
 universe variables u
 
-example {α : Type u} [field α] (x y : α) : f (x + y) (y + x) (x + y) = 0 :=
+lemma ex {α : Type u} [field α] (x y : α) : f (x + y) (y + x) (x + y) = 0 :=
 begin [smt] ematch end

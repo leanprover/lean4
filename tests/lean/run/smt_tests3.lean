@@ -2,7 +2,7 @@ def f : nat → nat
 | 0     := 1
 | (n+1) := f n + 1
 
-example (a : nat) : f a ≠ 0 :=
+lemma ex(a : nat) : f a ≠ 0 :=
 begin
   induction a,
   dsimp [f], intro x, contradiction,
@@ -11,29 +11,29 @@ begin
   apply nat.succ_ne_zero
 end
 
-example (a : nat) : f a ≠ 0 :=
+lemma ex2  (a : nat) : f a ≠ 0 :=
 begin [smt]
   induction a,
-  { ematch_using [f] },
+  { intros, ematch_using [f] },
   { repeat {ematch_using [f, nat.add_one_eq_succ, nat.succ_ne_zero]}}
 end
 
-example (a : nat) : f (a+1) = f a + 1 :=
+lemma ex3 (a : nat) : f (a+1) = f a + 1 :=
 begin [smt]
   dsimp [f]
 end
 
-example (a : nat) : f (a+1) = f a + 1 :=
+lemma ex4 (a : nat) : f (a+1) = f a + 1 :=
 begin [smt]
   simp [f]
 end
 
-example (a : nat) : f (a+1) = f a + 1 :=
+lemma ex5 (a : nat) : f (a+1) = f a + 1 :=
 begin [smt]
   ematch_using [f]
 end
 
-example (a : nat) : f 0 = 1 :=
+lemma ex6 (a : nat) : f 0 = 1 :=
 begin [smt]
   ematch_using [f]
 end

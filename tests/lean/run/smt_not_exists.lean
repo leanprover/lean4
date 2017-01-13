@@ -10,8 +10,7 @@ end
 
 print ex
 
-
-example (p q : nat → nat → Prop) (h : ∃ x, p x x ∧ q x x) : ∃ x, p x x :=
+lemma ex2 (p q : nat → nat → Prop) (h : ∃ x, p x x ∧ q x x) : ∃ x, p x x :=
 begin [smt]
   by_contra,
   destruct h,

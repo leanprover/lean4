@@ -31,9 +31,21 @@ smt_tactic unit
 meta def intros : smt_tactic unit :=
 smt_tactic.intros
 
+/--
+  Try to close main goal by using equalities implied by the congruence
+  closure module.
+-/
 meta def close : smt_tactic unit :=
 smt_tactic.close
 
+/--
+  Produce new facts using heuristic lemma instantiation based on E-matching.
+  This tactic tries to match patterns from lemmas in the main goal with terms
+  in the main goal. The set of lemmas is populated with theorems
+  tagged with the attribute specified at smt_config.em_attr, and lemmas
+  added using tactics such as `smt_tactic.add_lemmas`.
+  The current set of lemmas can be retrieved using the tactic `smt_tactic.get_lemmas`.
+-/
 meta def ematch : smt_tactic unit :=
 smt_tactic.ematch
 
@@ -184,26 +196,43 @@ meta def ematch_using (l : qexpr_list_or_qexpr0) : smt_tactic unit :=
 do hs ← add_hinst_lemmas_from_pexprs reducible ff l hinst_lemmas.mk,
    smt_tactic.ematch_using hs
 
+/-- Try the given tactic, and do nothing if it fails. -/
 meta def try (t : itactic) : smt_tactic unit :=
 smt_tactic.try t
 
+/-- Keep applying the given tactic until it fails. -/
 meta def repeat (t : itactic) : smt_tactic unit :=
 smt_tactic.repeat t
+
+/-- Apply the given tactic to all remaining goals. -/
+meta def all_goals (t : itactic) : smt_tactic unit :=
+smt_tactic.all_goals t
 
 meta def induction (p : qexpr0) (rec_name : using_ident) (ids : with_ident_list) : smt_tactic unit :=
 slift (tactic.interactive.induction p rec_name ids)
 
+/-- Simplify the target type of the main goal. -/
 meta def simp (hs : opt_qexpr_list) (attr_names : with_ident_list) (ids : without_ident_list) : smt_tactic unit :=
 tactic.interactive.simp hs attr_names ids []
 
 meta def ctx_simp (hs : opt_qexpr_list) (attr_names : with_ident_list) (ids : without_ident_list) : smt_tactic unit :=
 tactic.interactive.ctx_simp hs attr_names ids []
 
+/-- Simplify the target type of the main goal using simplification lemmas and the current set of hypotheses. -/
 meta def simp_using_hs (hs : opt_qexpr_list) (attr_names : with_ident_list) (ids : without_ident_list) : smt_tactic unit :=
 tactic.interactive.simp_using_hs hs attr_names ids
 
-meta def dsimp (es : opt_qexpr_list) (attr_names : with_ident_list) (ids : without_ident_list) : tactic unit :=
+meta def dsimp (es : opt_qexpr_list) (attr_names : with_ident_list) (ids : without_ident_list) : smt_tactic unit :=
 tactic.interactive.dsimp es attr_names ids []
+
+/-- Keep applying heuristic instantiation until the current goal is solved, or it fails. -/
+meta def eblast : smt_tactic unit :=
+smt_tactic.eblast
+
+/-- Keep applying heuristic instantiation using the given lemmas until the current goal is solved, or it fails. -/
+meta def eblast_using (l : qexpr_list_or_qexpr0) : smt_tactic unit :=
+do hs ← add_hinst_lemmas_from_pexprs reducible ff l hinst_lemmas.mk,
+   smt_tactic.repeat (smt_tactic.ematch_using hs >> smt_tactic.try smt_tactic.close)
 
 end interactive
 end smt_tactic

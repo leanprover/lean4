@@ -60,8 +60,7 @@ meta def smt_state :=
 list smt_goal
 meta constant smt_state.mk              : smt_config → tactic smt_state
 meta constant smt_state.to_format       : smt_state → tactic_state → format
-/- The following returns tt if classical excluded middle was enabled at
-   smt_state.mk -/
+/-- Return tt iff classical excluded middle was enabled at  smt_state.mk -/
 meta constant smt_state.classical       : smt_state → bool
 
 meta def smt_tactic :=
@@ -102,13 +101,38 @@ open tactic (transparency)
 /-- (intros_core fresh_names), if fresh_names is tt, then create fresh names for new hypotheses.
     Otherwise, it just uses the given names. -/
 meta constant intros_core                     : bool → smt_tactic unit
+/--
+  Try to close main goal by using equalities implied by the congruence
+  closure module.
+-/
 meta constant close                           : smt_tactic unit
+/--
+  Produce new facts using heuristic lemma instantiation based on E-matching.
+  This tactic tries to match patterns from lemmas in the main goal with terms
+  in the main goal. The set of lemmas is populated with theorems
+  tagged with the attribute specified at smt_config.em_attr, and lemmas
+  added using tactics such as `smt_tactic.add_lemmas`.
+  The current set of lemmas can be retrieved using the tactic `smt_tactic.get_lemmas`.
+
+  Remark: the given predicate is applied to every new instance. The instance
+  is only added to the state if the predicate returns tt.
+-/
 meta constant ematch_core                     : (expr → bool) → smt_tactic unit
+/--
+  Produce new facts using heuristic lemma instantiation based on E-matching.
+  This tactic tries to match patterns from the given lemmas with terms in
+  the main goal.
+-/
 meta constant ematch_using                    : hinst_lemmas → smt_tactic unit
 meta constant mk_ematch_eqn_lemmas_for_core   : transparency → name → smt_tactic hinst_lemmas
 meta constant to_cc_state                     : smt_tactic cc_state
 meta constant to_em_state                     : smt_tactic ematch_state
 meta constant get_config                      : smt_tactic cc_config
+/--
+  Preprocess the given term using the same simplifications rules used when
+  we introduce a new hypothesis. The result is pair containing the resulting
+  term and a proof that it is equal to the given one.
+-/
 meta constant preprocess                      : expr → smt_tactic (expr × expr)
 meta constant get_lemmas                      : smt_tactic hinst_lemmas
 meta constant set_lemmas                      : hinst_lemmas → smt_tactic unit
@@ -148,13 +172,16 @@ meta def repeat_at_most : nat → smt_tactic unit → smt_tactic unit
 | 0     t := return ()
 | (n+1) t := (do t, repeat_at_most n t) <|> return ()
 
-/- (repeat_exactly n t) : execute t n times -/
+/-- (repeat_exactly n t) : execute t n times -/
 meta def repeat_exactly : nat → smt_tactic unit → smt_tactic unit
 | 0     t := return ()
 | (n+1) t := do t, repeat_exactly n t
 
 meta def repeat : smt_tactic unit → smt_tactic unit :=
 repeat_at_most 100000
+
+meta def eblast : smt_tactic unit :=
+repeat (ematch >> try close)
 
 open tactic
 
@@ -172,8 +199,10 @@ private meta def mk_smt_goals_for (cfg : smt_config) : list expr → list smt_go
   [new_tg] ← get_goals | tactic.failed,
   mk_smt_goals_for tgs (new_sg::sr) (new_tg::tr)
 
-/- This lift operation will restart the SMT state.
-   It is useful for using tactics that change the set of hypotheses. -/
+/--
+  This lift operation will restart the SMT state.
+  It is useful for using tactics that change the set of hypotheses.
+-/
 meta def slift {α : Type} (t : tactic α) : smt_tactic α :=
 λ ss, do
   _::sgs  ← return ss | fail "slift tactic failed, there no smt goals to be solved",
@@ -234,23 +263,23 @@ do (ss, ts) ← get_goals,
    | _,                _                := failed
    end
 
-/- (assert h t), adds a new goal for t, and the hypothesis (h : t) in the current goal. -/
+/-- Add a new goal for t, and the hypothesis (h : t) in the current goal. -/
 meta def assert (h : name) (t : expr) : smt_tactic unit :=
 tactic.assert_core h t >> swap >> intros_core ff >> swap >> try close
 
-/- (assertv h t v), adds the hypothesis (h : t) in the current goal if v has type t. -/
+/-- Add the hypothesis (h : t) in the current goal if v has type t. -/
 meta def assertv (h : name) (t : expr) (v : expr) : smt_tactic unit :=
 tactic.assertv_core h t v >> intros_core ff >> return ()
 
-/- (define h t), adds a new goal for t, and the hypothesis (h : t := ?M) in the current goal. -/
+/-- Add a new goal for t, and the hypothesis (h : t := ?M) in the current goal. -/
 meta def define  (h : name) (t : expr) : smt_tactic unit :=
 tactic.define_core h t >> swap >> intros_core ff >> swap >> try close
 
-/- (definev h t v), adds the hypothesis (h : t := v) in the current goal if v has type t. -/
+/-- Add the hypothesis (h : t := v) in the current goal if v has type t. -/
 meta def definev (h : name) (t : expr) (v : expr) : smt_tactic unit :=
 tactic.definev_core h t v >> intros_core ff >> return ()
 
-/- Add (h : t := pr) to the current goal -/
+/-- Add (h : t := pr) to the current goal -/
 meta def pose (h : name) (pr : expr) : smt_tactic unit :=
 do t ← tactic.infer_type pr,
    definev h t pr

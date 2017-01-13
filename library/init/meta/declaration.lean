@@ -54,6 +54,9 @@ meta inductive declaration
 /- axiom : name → list universe parameters, type (remark: axioms are always trusted) -/
 | ax   : name → list name → expr → declaration
 
+meta def mk_definition (n : name) (ls : list name) (v : expr) (e : expr) : declaration :=
+declaration.defn n ls v e (reducibility_hints.regular 1 tt) tt
+
 meta def declaration.to_name : declaration → name
 | (declaration.defn n ls t v h tr) := n
 | (declaration.thm n ls t v) := n

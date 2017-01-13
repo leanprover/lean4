@@ -282,6 +282,7 @@ static expr intros(environment const & env, options const & opts, metavar_contex
        The nested instances of has_add and has_zero must be canonized and registered at dcs.
     */
     dsimplify_fn dsimp = mk_dsimp(ctx, dcs, s_goal.get_pre_config());
+    type_context::zeta_scope _1(ctx, s_goal.get_pre_config().m_zeta);
     expr target = decl->get_type();
     type_context::tmp_locals locals(ctx);
     buffer<expr> new_Hs;

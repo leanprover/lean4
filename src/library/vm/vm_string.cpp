@@ -5,10 +5,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
+#include "util/interrupt.h"
 #include "library/vm/vm_string.h"
 
 namespace lean {
 static void to_string(vm_obj const & o, std::string & s) {
+    check_system("to_string");
     if (!is_simple(o)) {
         to_string(cfield(o, 1), s);
         s += static_cast<char>(cidx(cfield(o, 0)));

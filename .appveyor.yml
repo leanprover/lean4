@@ -18,7 +18,7 @@ deploy:
   provider: GitHub
   auth_token:
     secure: d+yPrDEAbiNrcf3a0PDNYEn/ieOOP6M7cP9zje+QkJEjHFdjBjWMe8b3qrC1hrus
-  artifact: /lean.*zip/            # upload all NuGet packages to release assets
+  artifact: C:/projects/lean/build/lean-0.3.0-windows.zip
   draft: false
   prerelease: false
   on:

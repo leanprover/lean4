@@ -125,10 +125,12 @@ notifications:
 
 deploy:
   provider: releases
-  api_key: "MXtOUjDbLJbDrruZ/VCGkvyE47x9kWJXQCnOmIZKFof3hg390x+E6HKm7/C2KRQUjfhQrg3cfmSZ0aSNY6I/B+iTA4jEtggWlM0Vr7fKTqoFcC6yAL0nPw70mmhz81manvqnoLgIP4sELI2fHj+Nh/GosLqlnGmVw9rhgDeR2Fk="
+  api_key:
+    secure: NeTKs0tb0hM9yC1lJyc7Y8ev1rfEe9tpY8bS20hUivNKcX8S0HjJh/xtx/3LgrhcqVP0xKuDPE0YNQk3E9SO1ni2ESjIFIVXI/hpDLNjxjfaeW7rcpYcc7dy7ynEP23HnAOMr4PMHs0T/ATsJHKyDXTUi4yrQToBBTQUFvCKgo8=
   file: $TARGET
   skip_cleanup: true
   overwrite: true
   on:
     condition: $UPLOAD = ON
+    repo: leanprover/lean
     tags: true

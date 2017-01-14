@@ -365,9 +365,11 @@ add_subdirectory(api)
 # For some strange reason, it contains a copy of pthread_equal.
 # Remark: this problem does not happen when we generate the DLL using msys2 on Windows.
 if (NOT("${CROSS_COMPILE}" MATCHES "ON"))
-  add_library(leanshared SHARED shared/init.cpp $<TARGET_OBJECTS:api> ${LEAN_OBJS})
-  target_link_libraries(leanshared ${EXTRA_LIBS})
-  install(TARGETS leanshared DESTINATION lib)
+  if ("${STATIC}" MATCHES "OFF")
+    add_library(leanshared SHARED shared/init.cpp $<TARGET_OBJECTS:api> ${LEAN_OBJS})
+    target_link_libraries(leanshared ${EXTRA_LIBS})
+    install(TARGETS leanshared DESTINATION lib)
+  endif()
   install(TARGETS leanstatic DESTINATION lib)
 endif()
 
@@ -393,7 +395,7 @@ add_subdirectory(tests/shell)
 
 # The DLL (shared library) is not being generated correctly when we use cross-compilation (i.e., generate the Windows DLL using Linux).
 # For some strange reason, it contains a copy of pthread_equal.
-if (NOT("${CROSS_COMPILE}" MATCHES "ON"))
+if (NOT("${CROSS_COMPILE}" MATCHES "ON") AND ("${STATIC}" MATCHES "OFF"))
   add_subdirectory(tests/shared)
 endif()
 add_subdirectory(tests/util/lp)

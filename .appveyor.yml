@@ -13,12 +13,16 @@ build_script:
 test_script:
   - C:\msys64\usr\bin\bash -lc "exec 0</dev/null && cd $APPVEYOR_BUILD_FOLDER/build && ctest -j4"
 
+artifacts:
+  - path: build\lean-0.3.0-windows.zip
+    name: binary
+
 deploy:
   description: 'Lean release'
   provider: GitHub
   auth_token:
     secure: d+yPrDEAbiNrcf3a0PDNYEn/ieOOP6M7cP9zje+QkJEjHFdjBjWMe8b3qrC1hrus
-  artifact: **\*.zip
+  artifact: binary
   draft: false
   prerelease: false
   on:

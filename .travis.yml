@@ -110,6 +110,7 @@ script:
       yes "A" | ctest -j2 -I 100,600,10 -V;
     fi
   - if [[ $PACKAGE == TRUE ]]; then make package; fi
+  - if [[ $UPLOAD == TRUE ]]; then cpack; fi
   - cd ..
 
 after_script:

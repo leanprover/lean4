@@ -125,7 +125,7 @@ notifications:
 
 deploy:
   provider: releases
-  api_key: "LoyZ4vZ5J4Xp7V4M2cggQkloCxemRWr9KN2nNH+5cUqHRZrVb9O635WGfcR7/YdYprtyfllvaBxI8q8F09C2anz5Rh4kUv3J6tml+T8yC3Ibs1+X4SD0f0COMKRCSE8VScJsI7EN8govdmvlFT4SLMqSGHMsPmILOBpsmaMIHCM="
+  api_key: "MXtOUjDbLJbDrruZ/VCGkvyE47x9kWJXQCnOmIZKFof3hg390x+E6HKm7/C2KRQUjfhQrg3cfmSZ0aSNY6I/B+iTA4jEtggWlM0Vr7fKTqoFcC6yAL0nPw70mmhz81manvqnoLgIP4sELI2fHj+Nh/GosLqlnGmVw9rhgDeR2Fk="
   file: $TARGET
   skip_cleanup: true
   overwrite: true

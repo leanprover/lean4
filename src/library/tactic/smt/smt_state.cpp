@@ -721,7 +721,42 @@ vm_obj smt_tactic_close(vm_obj const & ss, vm_obj const & _ts) {
     return mk_tactic_exception("smt_tactic.close failed", ts);
 }
 
-vm_obj smt_tactic_intros_core(vm_obj const & use_unused_names, vm_obj const & ss, vm_obj const & _ts) {
+vm_obj smt_tactic_intros_core(list<name> const & ids, optional<unsigned> const & num, vm_obj const & ss, tactic_state ts) {
+    if (is_nil(ss))
+        return mk_smt_state_empty_exception(ts);
+    LEAN_TACTIC_TRY;
+
+    smt_goal new_sgoal   = to_smt_goal(head(ss));
+
+    vm_obj r = preprocess(ts, new_sgoal.get_pre_config());
+    if (is_tactic_result_exception(r)) return r;
+    ts = to_tactic_state(get_tactic_result_state(r));
+
+    metavar_context mctx = ts.mctx();
+    defeq_can_state dcs  = ts.dcs();
+    expr new_mvar = intros(ts.env(), ts.get_options(), mctx, head(ts.goals()),
+                           dcs, new_sgoal, true, num, ids);
+
+    tactic_state new_ts = set_mctx_goals_dcs(ts, mctx, cons(new_mvar, tail(ts.goals())), dcs);
+    vm_obj new_ss       = mk_vm_cons(to_obj(new_sgoal), tail(ss));
+    return mk_smt_tactic_success(new_ss, new_ts);
+    LEAN_TACTIC_CATCH(ts);
+}
+
+vm_obj smt_tactic_intros(vm_obj const & ss, vm_obj const & ts) {
+    return smt_tactic_intros_core(list<name>(), optional<unsigned>(), ss, to_tactic_state(ts));
+}
+
+vm_obj smt_tactic_intron(vm_obj const & n, vm_obj const & ss, vm_obj const & ts) {
+    return smt_tactic_intros_core(list<name>(), optional<unsigned>(force_to_unsigned(n)), ss, to_tactic_state(ts));
+}
+
+vm_obj smt_tactic_intro_lst(vm_obj const & _ids, vm_obj const & ss, vm_obj const & ts) {
+    list<name> const & ids = to_list_name(_ids);
+    return smt_tactic_intros_core(list<name>(ids), optional<unsigned>(length(ids)), ss, to_tactic_state(ts));
+}
+
+vm_obj smt_tactic_intros_core(vm_obj const & _ids, vm_obj const & ss, vm_obj const & _ts) {
     tactic_state ts = to_tactic_state(_ts);
     if (is_nil(ss))
         return mk_smt_state_empty_exception(ts);
@@ -735,9 +770,11 @@ vm_obj smt_tactic_intros_core(vm_obj const & use_unused_names, vm_obj const & ss
 
     metavar_context mctx = ts.mctx();
     defeq_can_state dcs  = ts.dcs();
-    list<name> ids;
+    list<name> ids       = to_list_name(_ids);
+    optional<unsigned> n;
+    if (ids) n = length(ids);
     expr new_mvar = intros(ts.env(), ts.get_options(), mctx, head(ts.goals()),
-                           dcs, new_sgoal, to_bool(use_unused_names), optional<unsigned>(), ids);
+                           dcs, new_sgoal, true, n, ids);
 
     tactic_state new_ts = set_mctx_goals_dcs(ts, mctx, cons(new_mvar, tail(ts.goals())), dcs);
     vm_obj new_ss       = mk_vm_cons(to_obj(new_sgoal), tail(ss));
@@ -918,7 +955,9 @@ void initialize_smt_state() {
     DECLARE_VM_BUILTIN(name({"smt_state", "classical"}),                         smt_state_classical);
     DECLARE_VM_BUILTIN("tactic_to_smt_tactic",                                   tactic_to_smt_tactic);
     DECLARE_VM_BUILTIN(name({"smt_tactic", "close"}),                            smt_tactic_close);
-    DECLARE_VM_BUILTIN(name({"smt_tactic", "intros_core"}),                      smt_tactic_intros_core);
+    DECLARE_VM_BUILTIN(name({"smt_tactic", "intros"}),                           smt_tactic_intros);
+    DECLARE_VM_BUILTIN(name({"smt_tactic", "intron"}),                           smt_tactic_intron);
+    DECLARE_VM_BUILTIN(name({"smt_tactic", "intro_lst"}),                        smt_tactic_intro_lst);
     DECLARE_VM_BUILTIN(name({"smt_tactic", "ematch_core"}),                      smt_tactic_ematch_core);
     DECLARE_VM_BUILTIN(name({"smt_tactic", "ematch_using"}),                     smt_tactic_ematch_using);
     DECLARE_VM_BUILTIN(name({"smt_tactic", "to_cc_state"}),                      smt_tactic_to_cc_state);

@@ -28,8 +28,9 @@ open interactive.types
 meta def itactic : Type :=
 smt_tactic unit
 
-meta def intros : smt_tactic unit :=
-smt_tactic.intros
+meta def intros : raw_ident_list → smt_tactic unit
+| [] := smt_tactic.intros
+| hs := smt_tactic.intro_lst hs
 
 /--
   Try to close main goal by using equalities implied by the congruence

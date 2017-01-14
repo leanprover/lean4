@@ -98,9 +98,9 @@ meta instance : alternative smt_tactic :=
 
 namespace smt_tactic
 open tactic (transparency)
-/-- (intros_core fresh_names), if fresh_names is tt, then create fresh names for new hypotheses.
-    Otherwise, it just uses the given names. -/
-meta constant intros_core                     : bool → smt_tactic unit
+meta constant intros                     : smt_tactic unit
+meta constant intron                     : nat  → smt_tactic unit
+meta constant intro_lst                  : list name → smt_tactic unit
 /--
   Try to close main goal by using equalities implied by the congruence
   closure module.
@@ -149,9 +149,6 @@ do h  ← hinst_lemma.mk_from_decl_core md n as_simp,
 meta def add_ematch_eqn_lemmas_for_core  (md : transparency) (n : name) : smt_tactic unit :=
 do hs ← mk_ematch_eqn_lemmas_for_core md n,
    add_lemmas hs
-
-meta def intros : smt_tactic unit :=
-intros_core tt
 
 meta def ematch : smt_tactic unit :=
 ematch_core (λ _, tt)
@@ -265,19 +262,19 @@ do (ss, ts) ← get_goals,
 
 /-- Add a new goal for t, and the hypothesis (h : t) in the current goal. -/
 meta def assert (h : name) (t : expr) : smt_tactic unit :=
-tactic.assert_core h t >> swap >> intros_core ff >> swap >> try close
+tactic.assert_core h t >> swap >> intros >> swap >> try close
 
 /-- Add the hypothesis (h : t) in the current goal if v has type t. -/
 meta def assertv (h : name) (t : expr) (v : expr) : smt_tactic unit :=
-tactic.assertv_core h t v >> intros_core ff >> return ()
+tactic.assertv_core h t v >> intros >> return ()
 
 /-- Add a new goal for t, and the hypothesis (h : t := ?M) in the current goal. -/
 meta def define  (h : name) (t : expr) : smt_tactic unit :=
-tactic.define_core h t >> swap >> intros_core ff >> swap >> try close
+tactic.define_core h t >> swap >> intros >> swap >> try close
 
 /-- Add the hypothesis (h : t := v) in the current goal if v has type t. -/
 meta def definev (h : name) (t : expr) (v : expr) : smt_tactic unit :=
-tactic.definev_core h t v >> intros_core ff >> return ()
+tactic.definev_core h t v >> intros >> return ()
 
 /-- Add (h : t := pr) to the current goal -/
 meta def pose (h : name) (pr : expr) : smt_tactic unit :=

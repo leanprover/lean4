@@ -7,7 +7,7 @@ install:
   - C:\msys64\usr\bin\bash -lc "pacman --noconfirm -Suuy mingw-w64-x86_64-ninja mingw-w64-x86_64-cmake git mingw-w64-x86_64-mpfr"
 
 build_script:
-  - C:\msys64\usr\bin\bash -lc "exec 0</dev/null && cd $APPVEYOR_BUILD_FOLDER && mkdir build && cd build && cmake ../src -DCMAKE_BUILD_TYPE=Release -G Ninja"
+  - C:\msys64\usr\bin\bash -lc "exec 0</dev/null && cd $APPVEYOR_BUILD_FOLDER && mkdir build && cd build && cmake ../src -DINCLUDE_MSYS2_DLLS=ON -DCMAKE_BUILD_TYPE=Release -G Ninja"
   - C:\msys64\usr\bin\bash -lc "exec 0</dev/null && cd $APPVEYOR_BUILD_FOLDER/build && ninja && cpack"
 
 test_script:

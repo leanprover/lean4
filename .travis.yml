@@ -24,7 +24,7 @@ matrix:
      env:
        CMAKE_CXX_COMPILER=g++-4.9
        CMAKE_BUILD_TYPE=Release
-       TARGET=lean-0.3.0-linux.tar.gz
+       TARGET=build/lean-0.3.0-linux.tar.gz
        UPLOAD=ON
 
    - os: linux
@@ -76,7 +76,10 @@ matrix:
      env:
        CMAKE_CXX_COMPILER=clang++
        CMAKE_BUILD_TYPE=Release
+       TARGET=build/lean-0.3.0-darwin.zip
+       UPLOAD=ON
        PACKAGE=TRUE
+
    - os: osx
      env:
        CMAKE_CXX_COMPILER=g++
@@ -103,6 +106,7 @@ script:
           -DMULTI_THREAD=$MULTI_THREAD
           ../src
   - make -j2
+  - cpack
   # TODO(gabriel): add smaller test subset for debug and emscripten builds
   - if [[ $CMAKE_BUILD_TYPE == Release ]]; then
       yes "A" | ctest -j2 -V;
@@ -110,7 +114,6 @@ script:
       yes "A" | ctest -j2 -I 100,600,10 -V;
     fi
   - if [[ $PACKAGE == TRUE ]]; then make package; fi
-  - if [[ $UPLOAD == TRUE ]]; then cpack; fi
   - cd ..
 
 after_script:

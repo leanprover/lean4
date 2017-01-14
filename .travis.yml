@@ -99,12 +99,14 @@ script:
   - cd build
   - if [[ $TESTCOV != ON ]]; then TESTCOV=OFF; fi
   - if [[ $TCMALLOC != ON ]]; then TCMALLOC=OFF; fi
+  - if [[ $STATIC != ON ]]; then STATIC=OFF; fi
   - if [[ $MULTI_THREAD != OFF ]]; then MULTI_THREAD=ON; fi
   - cmake -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE
           -DCMAKE_CXX_COMPILER=$CMAKE_CXX_COMPILER
           -DTESTCOV=$TESTCOV
           -DTCMALLOC=$TCMALLOC
           -DMULTI_THREAD=$MULTI_THREAD
+          -DSTATIC=$STATIC
           ../src
   - make -j2
   - cpack

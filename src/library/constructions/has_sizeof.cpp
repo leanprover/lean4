@@ -164,6 +164,7 @@ class mk_has_sizeof_fn {
                 ir_ty = m_tctx.relaxed_whnf(instantiate(binding_body(ir_ty), params[param_idx]));
             }
 
+            buffer<expr> ih_locals;
             while (is_pi(ir_ty)) {
                 expr local = mk_local_for(ir_ty);
                 locals.push_back(local);
@@ -171,22 +172,20 @@ class mk_has_sizeof_fn {
 
                 buffer<expr> arg_args;
                 if (is_recursive_arg(arg_ty, arg_args)) {
-                    rec_arg_args.push_back(arg_args);
+                    expr ih_local = mk_local_pp("ih", Pi(arg_args, mk_constant(get_nat_name())));
+                    ih_locals.push_back(ih_local);
+                    if (arg_args.empty()) {
+                        /* Remark: recursive arguments of the form (A -> I), where I is the inductive datatype,
+                           do not contribute to has_sizeof */
+                        result = mk_nat_add(result, ih_local);
+                    }
                 } else if (auto inst = mk_has_sizeof(arg_ty)) {
                     level l = get_level(m_tctx, arg_ty);
                     result = mk_nat_add(result, mk_app(mk_constant(get_sizeof_name(), {l}), arg_ty, *inst, local));
                 }
                 ir_ty = m_tctx.relaxed_whnf(instantiate(binding_body(ir_ty), local));
             }
-
-            // Introduce locals for the recursive arguments of type nat
-            for (buffer<expr> const & arg_args : rec_arg_args) {
-                expr local = mk_local_pp("IH", Pi(arg_args, mk_constant(get_nat_name())));
-                locals.push_back(local);
-                if (arg_args.empty())
-                    result = mk_nat_add(result, local);
-            }
-            minor_premises.push_back(Fun(locals, result));
+            minor_premises.push_back(Fun(locals, Fun(ih_locals, result)));
         }
 
         expr recursor_application =
@@ -220,7 +219,8 @@ class mk_has_sizeof_fn {
         has_sizeof_val = m_tctx.mk_lambda(params, m_tctx.mk_lambda(used_param_insts, has_sizeof_val));
 
         lean_trace(name({"constructions", "has_sizeof"}), tout()
-                   << has_sizeof_name << " : " << has_sizeof_type << "\n";);
+                   << has_sizeof_name << " : " << has_sizeof_type << "\n"
+                   << has_sizeof_val << "\n";);
 
         m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, has_sizeof_name, lp_names, has_sizeof_type, has_sizeof_val, true)));
         m_env = add_instance(m_env, has_sizeof_name, LEAN_DEFAULT_PRIORITY, true);
@@ -270,6 +270,10 @@ class mk_has_sizeof_fn {
             expr dsimp_rule_type = m_tctx.mk_pi(params, m_tctx.mk_pi(used_param_insts, Pi(locals, mk_eq(m_tctx, lhs, rhs))));
             expr dsimp_rule_val = m_tctx.mk_lambda(params, m_tctx.mk_lambda(used_param_insts, Fun(locals, mk_eq_refl(m_tctx, lhs))));
             name dsimp_rule_name = mk_sizeof_spec_name(inductive::intro_rule_name(ir));
+
+            lean_trace(name({"constructions", "has_sizeof"}), tout() << "eq rule\n"
+                       << dsimp_rule_name << " : " << dsimp_rule_type << "\n"
+                       << dsimp_rule_val << "\n";);
 
             m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, dsimp_rule_name, lp_names, dsimp_rule_type, dsimp_rule_val, true)));
             m_env = set_simp_sizeof(m_env, dsimp_rule_name);

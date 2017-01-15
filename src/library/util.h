@@ -96,6 +96,13 @@ unsigned get_constructor_idx(environment const & env, name const & n);
     hypotheses. This function return then number of inductive hypotheses for the minor premise associated with
     the constructor named \c n. */
 unsigned get_num_inductive_hypotheses_for(environment const & env, name const & n);
+/** Given a constructor \c n, store in the bitmask rec_mask[i] = true iff the i-th argument
+    of \c n is recursive.
+
+    \pre is_intro_rule(n) && rec_mask.empty() */
+void get_constructor_rec_arg_mask(environment const & env, name const & n, buffer<bool> & rec_mask);
+/** Combines get_num_inductive_hypotheses_for and get_constructor_rec_arg_mask */
+unsigned get_num_inductive_hypotheses_for(environment const & env, name const & n, buffer<bool> & rec_mask);
 
 /* Store in `rec_args` the recursive arguments of constructor application \c `e`.
    The result is false if `e` is not a constructor application.

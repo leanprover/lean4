@@ -178,9 +178,8 @@ protected:
                 type_context::tmp_locals minor_locals(m_ctx);
                 buffer<expr> minor_recs; /* "recursive calls" */
                 lean_assert(carity >= nparams);
-                unsigned num_recursive = get_num_inductive_hypotheses_for(env(), cnames[i]);
-                lean_assert(num_recursive <= carity - nparams);
-                unsigned num_nonrecursive = carity - nparams - num_recursive;
+                buffer<bool> rec_mask;
+                get_constructor_rec_arg_mask(env(), cnames[i], rec_mask);
                 for (unsigned j = 0; j < carity - nparams; j++) {
                     minor            = ctx().whnf(minor);
                     lean_assert(is_lambda(minor));
@@ -194,7 +193,7 @@ protected:
                         expr aux_local = aux_locals.push_local_from_binding(minor_local_type);
                         minor_local_type = ctx().whnf(instantiate(binding_body(minor_local_type), aux_local));
                     }
-                    if (j >= num_nonrecursive) {
+                    if (rec_mask[nparams + j]) {
                         /* Recursive data, we must update minor_recs */
                         buffer<expr> I_args;
                         get_app_args(minor_local_type, I_args);

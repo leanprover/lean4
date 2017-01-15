@@ -285,8 +285,9 @@ unsigned get_constructor_idx(environment const & env, name const & n) {
     lean_unreachable();
 }
 
-unsigned get_num_inductive_hypotheses_for(environment const & env, name const & n) {
+unsigned get_num_inductive_hypotheses_for(environment const & env, name const & n, buffer<bool> & rec_mask) {
     lean_assert(inductive::is_intro_rule(env, n));
+    lean_assert(rec_mask.empty());
     name I_name = *inductive::is_intro_rule(env, n);
     inductive::inductive_decl decl = *inductive::is_inductive_decl(env, I_name);
     expr type   = env.get(n).get_type();
@@ -300,11 +301,24 @@ unsigned get_num_inductive_hypotheses_for(environment const & env, name const & 
                     }
                     return false;
                 })) {
+
             r++;
+            rec_mask.push_back(true);
+        } else {
+            rec_mask.push_back(false);
         }
         type = binding_body(type);
     }
     return r;
+}
+
+unsigned get_num_inductive_hypotheses_for(environment const & env, name const & n) {
+    buffer<bool> rec_mask;
+    return get_num_inductive_hypotheses_for(env, n, rec_mask);
+}
+
+void get_constructor_rec_arg_mask(environment const & env, name const & n, buffer<bool> & rec_mask) {
+    get_num_inductive_hypotheses_for(env, n, rec_mask);
 }
 
 expr instantiate_univ_param (expr const & e, name const & p, level const & l) {

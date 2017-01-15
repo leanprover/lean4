@@ -65,7 +65,14 @@ static module_loader mk_loader(module_id const & cur_mod, std::vector<module_inf
                 }
             }
         } catch (std::out_of_range) {
-            lean_unreachable();
+            /* The following line of code is reachable.
+               Repro: create a file containing an "open" comment block.
+               Example:
+
+                 /-
+                   def x := 10
+            */
+            // lean_unreachable();
         }
         throw exception(sstream() << "could not resolve import: " << import.m_name);
     };

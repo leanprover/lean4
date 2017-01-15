@@ -301,7 +301,6 @@ unsigned get_num_inductive_hypotheses_for(environment const & env, name const & 
                     }
                     return false;
                 })) {
-
             r++;
             rec_mask.push_back(true);
         } else {

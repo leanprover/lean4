@@ -40,6 +40,8 @@ Author: Leonardo de Moura
          each u_i, in the sequence u, is of the form
                x :: \Epsilon[A, b], I A p_i[A, b, x]
 
+         Remark: we don't enforce that all b arguments occur before all u arguments.
+
          Again, all introduction rules must have the same sequence of global parameters
 
    The universe levels of arguments b and u must be smaller than or equal to l_k in I.
@@ -401,9 +403,6 @@ struct add_inductive_fn {
                                            << "of '" << n << "' is too big for the corresponding inductive datatype");
                 check_positivity(binding_domain(t), n, i);
                 bool is_rec = (bool)is_rec_argument(binding_domain(t)); // NOLINT
-                if (found_rec && !is_rec)
-                    throw kernel_exception(m_env, sstream() << "arg #" << (i + 1) << " of '" << n << "' "
-                                           << "is not recursive, but it occurs after recursive arguments");
                 if (is_rec)
                     found_rec = true;
                 if (!found_rec) {
@@ -563,9 +562,9 @@ struct add_inductive_fn {
             is_zero(m_it_level) &&             // It is a Prop
             length(m_decl.m_intro_rules) == 1; // datatype has only one intro rule
         for (auto ir : m_decl.m_intro_rules) {
-            buffer<expr> b; // nonrec args
-            buffer<expr> u; // rec args
-            buffer<expr> v; // inductive args
+            buffer<expr> b_u; // nonrec and rec args
+            buffer<expr> u;   // rec args
+            buffer<expr> v;   // inductive args
             expr t     = intro_rule_type(ir);
             unsigned i = 0;
             while (is_pi(t)) {
@@ -574,9 +573,8 @@ struct add_inductive_fn {
                 } else {
                     is_K_target = false; // See comment before for-loop.
                     expr l = mk_local_for(t);
-                    if (!is_rec_argument(binding_domain(t)))
-                        b.push_back(l);
-                    else
+                    b_u.push_back(l);
+                    if (is_rec_argument(binding_domain(t)))
                         u.push_back(l);
                     t = instantiate(binding_body(t), l);
                 }
@@ -586,7 +584,7 @@ struct add_inductive_fn {
             get_I_indices(t, it_indices);
             expr C_app      = mk_app(m_elim_info.m_C, it_indices);
             if (m_dep_elim) {
-                expr intro_app  = mk_app(mk_app(mk_app(mk_constant(intro_rule_name(ir), m_levels), m_param_consts), b), u);
+                expr intro_app  = mk_app(mk_app(mk_constant(intro_rule_name(ir), m_levels), m_param_consts), b_u);
                 C_app = mk_app(C_app, intro_app);
             }
             // populate v using u
@@ -610,7 +608,7 @@ struct add_inductive_fn {
                 expr v_i    = mk_local(mk_fresh_name(), name("ih").append_after(i+1), v_i_ty, binder_info());
                 v.push_back(v_i);
             }
-            expr minor_ty = Pi(b, Pi(u, Pi(v, C_app)));
+            expr minor_ty = Pi(b_u, Pi(v, C_app));
             expr minor = mk_local(mk_fresh_name(), name("e").append_after(minor_idx), minor_ty, binder_info());
             m_elim_info.m_minor_premises.push_back(minor);
             minor_idx++;
@@ -679,8 +677,8 @@ struct add_inductive_fn {
         levels ls = get_elim_level_params();
         buffer<certified_inductive_decl::comp_rule> comp_rules;
         for (auto ir : m_decl.m_intro_rules) {
-            buffer<expr> b;
-            buffer<expr> u;
+            buffer<expr> b_u; // nonrec and rec arguments
+            buffer<expr> u;   // rec arguments only
             expr t = intro_rule_type(ir);
             unsigned i = 0;
             while (is_pi(t)) {
@@ -688,9 +686,8 @@ struct add_inductive_fn {
                     t = instantiate(binding_body(t), m_param_consts[i]);
                 } else {
                     expr l = mk_local_for(t);
-                    if (!is_rec_argument(binding_domain(t)))
-                        b.push_back(l);
-                    else
+                    b_u.push_back(l);
+                    if (is_rec_argument(binding_domain(t)))
                         u.push_back(l);
                     t = instantiate(binding_body(t), l);
                 }
@@ -712,10 +709,10 @@ struct add_inductive_fn {
                 elim_app = mk_app(mk_app(mk_app(mk_app(mk_app(elim_app, m_param_consts), C), e), it_indices), mk_app(u_i, xs));
                 v.push_back(Fun(xs, elim_app));
             }
-            expr e_app = mk_app(mk_app(mk_app(e[minor_idx], b), u), v);
-            expr comp_rhs   = Fun(m_param_consts, Fun(C, Fun(e, Fun(b, Fun(u, e_app)))));
+            expr e_app = mk_app(mk_app(e[minor_idx], b_u), v);
+            expr comp_rhs   = Fun(m_param_consts, Fun(C, Fun(e, Fun(b_u, e_app))));
             tc().check(comp_rhs, get_elim_level_param_names());
-            comp_rules.emplace_back(b.size() + u.size(), comp_rhs);
+            comp_rules.emplace_back(b_u.size(), comp_rhs);
             minor_idx++;
         }
         bool elim_Prop = !is_param(m_elim_level);

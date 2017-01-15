@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_option.h"
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_format.h"
+#include "library/tactic/eqn_lemmas.h"
 #include "library/tactic/simp_result.h"
 #include "library/tactic/simp_lemmas.h"
 #include "library/tactic/tactic_state.h"
@@ -771,6 +772,21 @@ static simp_lemmas add_core(type_context & ctx, simp_lemmas const & s, name cons
     }
 }
 
+/* Extended version. If cname is a definition with equational lemmas associated to it, then
+   add the equational lemmas. */
+static simp_lemmas ext_add_core(type_context & ctx, simp_lemmas const & s, name const & cname, unsigned priority) {
+    buffer<name> eqn_lemmas;
+    get_ext_eqn_lemmas_for(ctx.env(), cname, eqn_lemmas);
+    if (eqn_lemmas.empty()) {
+        return add_core(ctx, s, cname, priority);
+    } else {
+        simp_lemmas r = s;
+        for (name const & eqn_lemma : eqn_lemmas)
+            r = add_core(ctx, r, eqn_lemma, priority);
+        return r;
+    }
+}
+
 /* Return true iff lhs is of the form (B (x : ?m1), ?m2) or (B (x : ?m1), ?m2 x),
    where B is lambda or Pi */
 static bool is_valid_congr_rule_binding_lhs(expr const & lhs, name_set & found_mvars) {
@@ -923,7 +939,7 @@ static simp_lemmas add_congr_core(type_context & ctx, simp_lemmas const & s, nam
 }
 
 simp_lemmas add(type_context & ctx, simp_lemmas const & s, name const & id, unsigned priority) {
-    return add_core(ctx, s, id, priority);
+    return ext_add_core(ctx, s, id, priority);
 }
 
 simp_lemmas add(type_context & ctx, simp_lemmas const & s, name const & id, expr const & e, expr const & h, unsigned priority) {
@@ -961,7 +977,7 @@ static void on_add_simp_lemma(environment const & env, name const & c, bool) {
     type_context ctx(env);
     simp_lemmas s;
     flet<bool> set_ex(g_throw_ex, true);
-    add_core(ctx, s, c, LEAN_DEFAULT_PRIORITY);
+    ext_add_core(ctx, s, c, LEAN_DEFAULT_PRIORITY);
 }
 
 static void on_add_congr_lemma(environment const & env, name const & c, bool) {
@@ -979,7 +995,7 @@ static simp_lemmas get_simp_lemmas_from_attribute(type_context & ctx, name const
     while (i > 0) {
         i--;
         name const & id = simp_lemmas[i];
-        result = add_core(ctx, result, id, attr.get_prio(ctx.env(), id));
+        result = ext_add_core(ctx, result, id, attr.get_prio(ctx.env(), id));
     }
     return result;
 }

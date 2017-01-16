@@ -1,0 +1,9 @@
+notation_error_pos.lean:6:6: error: failed to synthesize type class instance for
+⊢ has_one string
+notation_error_pos.lean:8:6: error: failed to synthesize type class instance for
+⊢ has_one string
+notation_error_pos.lean:10:6: error: failed to synthesize type class instance for
+⊢ has_one string
+notation_error_pos.lean:12:6: error: failed to synthesize type class instance for
+x : string
+⊢ has_add string

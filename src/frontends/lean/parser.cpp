@@ -370,16 +370,16 @@ expr parser::copy_with_new_pos(expr const & e, pos_info p) {
                                        copy_with_new_pos(binding_body(e), p)),
                         p);
     case expr_kind::Let:
-        return save_pos(update_let(e,
-                                   copy_with_new_pos(let_type(e), p),
-                                   copy_with_new_pos(let_value(e), p),
-                                   copy_with_new_pos(let_body(e), p)),
+        return save_pos(::lean::mk_let(let_name(e),
+                                       copy_with_new_pos(let_type(e), p),
+                                       copy_with_new_pos(let_value(e), p),
+                                       copy_with_new_pos(let_body(e), p)),
                         p);
     case expr_kind::Macro: {
         buffer<expr> args;
         for (unsigned i = 0; i < macro_num_args(e); i++)
             args.push_back(copy_with_new_pos(macro_arg(e, i), p));
-        return save_pos(update_macro(e, args.size(), args.data()), p);
+        return save_pos(::lean::mk_macro(macro_def(e), args.size(), args.data()), p);
     }}
     lean_unreachable(); // LCOV_EXCL_LINE
 }

@@ -89,8 +89,8 @@
   (local-set-key lean-keybinding-server-restart            'lean-server-restart)
   (local-set-key lean-keybinding-find-definition           'lean-find-definition)
   (local-set-key lean-keybinding-tab-indent-or-complete    'lean-tab-indent-or-complete)
-  (local-set-key lean-keybinding-lean-show-goal-at-pos     'lean-show-goal-at-pos)
-  (local-set-key lean-keybinding-lean-next-error-mode      'lean-next-error-mode)
+  (local-set-key lean-keybinding-lean-toggle-show-goal     'lean-toggle-show-goal)
+  (local-set-key lean-keybinding-lean-toggle-next-error    'lean-toggle-next-error)
   )
 
 (defun lean-define-key-binding (key cmd)
@@ -109,7 +109,8 @@
     ["Create a new project" (call-interactively 'lean-project-create) (not (lean-project-inside-p))]
     "-----------------"
     ["Show type info"       lean-show-type                    (and lean-eldoc-use eldoc-mode)]
-    ["Show goal"            lean-show-goal-at-pos             t]
+    ["Toggle goal display"  lean-toggle-show-goal             t]
+    ["Toggle next error display" lean-toggle-next-error       t]
     ["Find definition at point" lean-find-definition          t]
     "-----------------"
     ["Run flycheck"         flycheck-compile                  (and lean-flycheck-use flycheck-mode)]
@@ -121,9 +122,7 @@
      ["Use flycheck (on-the-fly syntax check)"
       lean-toggle-flycheck-mode :active t :style toggle :selected flycheck-mode]
      ["Show type at point"
-      lean-toggle-eldoc-mode :active t :style toggle :selected eldoc-mode]
-     ["Show next error in dedicated buffer"
-      lean-next-error-mode :active t :style toggle :selected lean-next-error-mode])
+      lean-toggle-eldoc-mode :active t :style toggle :selected eldoc-mode])
     "-----------------"
     ["Customize lean-mode" (customize-group 'lean)            t]))
 
@@ -135,6 +134,10 @@
     (focus-in-hook                       . lean-server-show-messages)
     ;; Handle events that may start automatic syntax checks
     (before-save-hook                    . lean-whitespace-cleanup)
+    ;; info windows
+    (post-command-hook                   . lean-show-goal--handler)
+    (post-command-hook                   . lean-next-error--handler)
+    (flycheck-after-syntax-check-hook    . lean-next-error--handler)
     )
   "Hooks which lean-mode needs to hook in.
 

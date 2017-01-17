@@ -28,20 +28,30 @@
   (set (make-local-variable 'lisp-indent-function)
        'common-lisp-indent-function))
 
-(defconst lean-info-buffer-name "*lean-info*")
+(defmacro lean-with-info-output-to-buffer (buffer &rest body)
+  `(let ((buf (get-buffer ,buffer)))
+     (with-current-buffer buf
+       (setq buffer-read-only nil)
+       (erase-buffer)
+       (setq standard-output buf)
+       . ,body)))
 
-(defmacro with-output-to-lean-info (&rest body)
-  `(let ((lean-info-buffer (get-buffer lean-info-buffer-name)))
-     (if (and lean-info-buffer (get-buffer-window lean-info-buffer))
-         (with-current-buffer lean-info-buffer
-           (setq buffer-read-only nil)
-           (erase-buffer)
-           (setq standard-output lean-info-buffer)
-           . ,body)
-       (let ((temp-buffer-setup-hook #'lean-info-mode))
-         (with-output-to-temp-buffer lean-info-buffer-name . ,body)))))
+(defun lean-toggle-info-buffer (buffer)
+  (-if-let (window (get-buffer-window buffer))
+      (quit-window nil window)
+    (unless (get-buffer buffer)
+      (with-current-buffer (get-buffer-create buffer)
+        (buffer-disable-undo)
+        (lean-info-mode)))
+    (display-buffer buffer)))
 
-(provide 'lean-info)
+(defun lean-info-buffer-active (buffer)
+  "Checks whether the given info buffer should show info for the current buffer"
+  (and
+   ;; info buffer visible
+   (get-buffer-window buffer)
+   ;; current window of current buffer is selected (i.e., in focus)
+   (eq (current-buffer) (window-buffer))))
 
 (defun lean-get-info-record-at-point (cont)
   "Get info-record at the current point"
@@ -72,3 +82,5 @@
        (-if-let (id (plist-get info-record :full-id))
            (message "no source location available for %s" id)
          (message "unknown thing at point"))))))
+
+(provide 'lean-info)

@@ -34,10 +34,10 @@ Key Bindings and Commands
 | <kbd>M-.</kbd>     | jump to definition in source file (`lean-find-definition`)                      |
 | <kbd>TAB</kbd>     | tab complete identifier, option, filename, etc. (`lean-tab-indent-or-complete`) |
 | <kbd>C-c C-k</kbd> | shows the keystroke needed to input the symbol under the cursor                 |
-| <kbd>C-c C-g</kbd> | show goal in tactic proof (`lean-show-goal-at-pos`)                             |
 | <kbd>C-c C-x</kbd> | execute lean in stand-alone mode (`lean-std-exe`)                               |
-| <kbd>C-c C-n</kbd> | toggle next-error-mode: shows next error in dedicated lean-info buffer          |
-| <kbd>C-c C-r</kbd> | restart the lean server                                                         |
+| <kbd>C-c C-g</kbd> | toggle showing current tactic proof goal (`lean-toggle-show-goal`)              |
+| <kbd>C-c C-n</kbd> | toggle showing next error in dedicated buffer (`lean-toggle-next-error`)        |
+| <kbd>C-c C-r</kbd> | restart the lean server (`lean-server-restart`)                                 |
 | <kbd>C-c ! n</kbd> | flycheck: go to next error                                                      |
 | <kbd>C-c ! p</kbd> | flycheck: go to previous error                                                  |
 | <kbd>C-c ! l</kbd> | flycheck: show list of errors                                                   |

@@ -132,10 +132,10 @@ false (nil)."
 (defcustom lean-keybinding-tab-indent-or-complete (kbd "TAB")
   "Lean Keybinding for tab-indent-or-complete"
   :group 'lean-keybinding  :type 'key-sequence)
-(defcustom lean-keybinding-lean-show-goal-at-pos (kbd "C-c C-g")
+(defcustom lean-keybinding-lean-toggle-show-goal (kbd "C-c C-g")
   "Lean Keybinding for show-goal-at-pos"
   :group 'lean-keybinding  :type 'key-sequence)
-(defcustom lean-keybinding-lean-next-error-mode (kbd "C-c C-n")
-  "Lean Keybinding for lean-next-error-mode"
+(defcustom lean-keybinding-lean-toggle-next-error (kbd "C-c C-n")
+  "Lean Keybinding for lean-toggle-next-error"
   :group 'lean-keybinding  :type 'key-sequence)
 (provide 'lean-settings)

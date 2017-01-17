@@ -132,10 +132,8 @@
 
 (defconst lean-next-error-buffer-name "*Lean Next Error*")
 
-(defun lean-next-error-copy ()
-  (when (and (equal major-mode 'lean-mode)
-             ; check whether current window of current buffer is selected (i.e., in focus)
-             (eq (current-buffer) (window-buffer)))
+(defun lean-next-error--handler ()
+  (when (lean-info-buffer-active lean-next-error-buffer-name)
     (let* ((errors (sort (flycheck-overlay-errors-in (line-beginning-position) (line-end-position))
                          #'flycheck-error-<)))
 
@@ -149,7 +147,7 @@
                      (e (get-char-property pos 'flycheck-error)))
               (setq errors (list e))))
 
-      (with-output-to-lean-info
+      (lean-with-info-output-to-buffer lean-next-error-buffer-name
        (dolist (e errors)
          (princ (format "%d:%d: " (flycheck-error-line e) (flycheck-error-column e)))
          (princ (flycheck-error-message e))
@@ -157,28 +155,9 @@
        (when flycheck-current-errors
          (princ (format "(%d more messages above...)" (length flycheck-current-errors))))))))
 
-(define-minor-mode lean-next-error-mode
-  "Toggle lean-next-error-mode on and off.
-lean-next-error-mode takes the next error (or all errors of the current line, if any) from
-flycheck and shows them in a dedicated buffer set to `lean-info-mode'."
-  :group 'lean
-  :global t
-  (let ((hooks '(flycheck-after-syntax-check-hook post-command-hook)))
-    (if lean-next-error-mode
-        (progn
-
-          (unless (get-buffer lean-next-error-buffer-name)
-            (with-current-buffer (get-buffer-create lean-next-error-buffer-name)
-              (lean-info-mode)))
-
-          (dolist (hook hooks)
-            (add-hook hook 'lean-next-error-copy))
-
-          (setq lean-next-error-old-display-function flycheck-display-errors-function
-                flycheck-display-errors-function nil))
-
-      (setq flycheck-display-errors-function lean-next-error-old-display-function)
-      (dolist (hook hooks)
-        (remove-hook hook 'lean-next-error-copy)))))
+(defun lean-toggle-next-error ()
+  (interactive)
+  (lean-toggle-info-buffer lean-next-error-buffer-name)
+  (lean-next-error--handler))
 
 (provide 'lean-flycheck)

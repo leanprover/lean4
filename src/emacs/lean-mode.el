@@ -90,7 +90,6 @@
   (local-set-key lean-keybinding-find-definition           'lean-find-definition)
   (local-set-key lean-keybinding-tab-indent-or-complete    'lean-tab-indent-or-complete)
   (local-set-key lean-keybinding-lean-show-goal-at-pos     'lean-show-goal-at-pos)
-  (local-set-key lean-keybinding-lean-show-id-keyword-info 'lean-show-id-keyword-info)
   (local-set-key lean-keybinding-lean-next-error-mode      'lean-next-error-mode)
   )
 
@@ -111,7 +110,6 @@
     "-----------------"
     ["Show type info"       lean-show-type                    (and lean-eldoc-use eldoc-mode)]
     ["Show goal"            lean-show-goal-at-pos             t]
-    ["Show id/keyword info" lean-show-id-keyword-info         t]
     ["Find definition at point" lean-find-definition          t]
     "-----------------"
     ["Run flycheck"         flycheck-compile                  (and lean-flycheck-use flycheck-mode)]

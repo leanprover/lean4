@@ -135,9 +135,6 @@ false (nil)."
 (defcustom lean-keybinding-lean-show-goal-at-pos (kbd "C-c C-g")
   "Lean Keybinding for show-goal-at-pos"
   :group 'lean-keybinding  :type 'key-sequence)
-(defcustom lean-keybinding-lean-show-id-keyword-info (kbd "C-c C-p")
-  "Lean Keybinding for show-id-keyword-info"
-  :group 'lean-keybinding  :type 'key-sequence)
 (defcustom lean-keybinding-lean-next-error-mode (kbd "C-c C-n")
   "Lean Keybinding for lean-next-error-mode"
   :group 'lean-keybinding  :type 'key-sequence)

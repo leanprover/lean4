@@ -1291,6 +1291,13 @@ elim_match_result elim_match(environment & env, options const & opts, metavar_co
     return r;
 }
 
+static expr get_fn_type_from_eqns(expr const & eqns) {
+    /* TODO(Leo): implement more efficient version if needed */
+    buffer<expr> eqn_buffer;
+    to_equations(eqns, eqn_buffer);
+    return binding_domain(eqn_buffer[0]);
+}
+
 expr mk_nonrec(environment & env, options const & opts, metavar_context & mctx,
                local_context const & lctx, expr const & eqns) {
     equations_header header = get_equations_header(eqns);
@@ -1300,7 +1307,16 @@ expr mk_nonrec(environment & env, options const & opts, metavar_context & mctx,
         return R.m_fn;
     }
     type_context ctx1(env, opts, mctx, lctx, transparency_mode::Semireducible);
-    expr fn_type = ctx1.infer(R.m_fn);
+    /*
+       We should use the type specified at eqns instead of m_ctx.infer(R.m_fn).
+       These two types must be definitionally equal, but the shape of
+       m_ctx.infer(R.m_fn) may confuse automaton. For example,
+       it might be of the form (Pi (_a : nat), (fun x, nat) _a) which is
+       definitionally equal to (nat -> nat), but may confuse simplifier and
+       congruence closure modules make them "believe" that this is
+       a dependent function.
+    */
+    expr fn_type = get_fn_type_from_eqns(eqns);
     expr fn;
     std::tie(env, fn) = mk_aux_definition(env, opts, mctx, lctx, header, head(header.m_fn_names), fn_type, R.m_fn);
     name fn_name = const_name(get_app_fn(fn));

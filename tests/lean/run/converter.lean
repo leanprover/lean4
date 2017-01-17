@@ -5,11 +5,11 @@ run_command mk_simp_attr `foo
 run_command mk_simp_attr `bla
 
 constant f : nat → nat → nat
-@[foo] def f_lemma : ∀ x, f x x = 0 :=
+@[foo] lemma f_lemma : ∀ x, f x x = 0 :=
 sorry
 
 constant g : nat → nat
-@[bla] def g_lemma : ∀ x, g x = x :=
+@[bla] lemma g_lemma : ∀ x, g x = x :=
 sorry
 
 example (a b c : nat) : (λ x, g (f (a + 0) (sizeof x))) a = 0 :=

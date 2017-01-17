@@ -109,6 +109,7 @@ static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, nota
                                   unsigned priority)
 -> pair<notation_entry, optional<token_entry>> {
     bool explicit_pp = p.curr_is_quoted_symbol();
+    pos_info tk_pos = p.pos();
     std::string pp_tk = parse_symbol(p, "invalid notation declaration, quoted symbol or identifier expected");
     std::string tk = utf8_trim(pp_tk);
     char const * tks = tk.c_str();
@@ -138,6 +139,7 @@ static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, nota
         }
     }
 
+    pos_info prec_pos;
     if (p.curr_is_token(get_colon_tk())) {
         // Remark: we do not throw an exception, if it is local notation.
         // We allow local notation to override reserved one.
@@ -145,11 +147,12 @@ static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, nota
             throw parser_error("invalid notation declaration, invalid ':' occurrence "
                                "(declaration matches reserved notation)", p.pos());
         p.next();
+        prec_pos = p.pos();
         prec = parse_precedence(p);
     }
 
     if (prec && k == mixfix_kind::infixr && *prec == 0)
-        throw parser_error("invalid infixr declaration, precedence must be greater than zero", p.pos());
+        throw parser_error("invalid infixr declaration, precedence must be greater than zero", prec_pos);
 
     if (!prec) {
         if (reserved_action && k == mixfix_kind::prefix && reserved_action->kind() == notation::action_kind::Expr) {
@@ -175,7 +178,7 @@ static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, nota
         lean_assert(!reserved_pt);
         throw parser_error("invalid notation declaration, precedence was not provided, "
                            "and it is not set for the given symbol, "
-                           "solution: use the 'precedence' command", p.pos());
+                           "solution: use the 'precedence' command", tk_pos);
     }
 
     unsigned _prec = 0;
@@ -185,19 +188,19 @@ static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, nota
         switch (k) {
         case mixfix_kind::infixl:
             if (reserved_action->kind() != notation::action_kind::Expr || reserved_action->rbp() != _prec)
-                throw parser_error("invalid infixl declaration, declaration conflicts with reserved notation", p.pos());
+                throw parser_error("invalid infixl declaration, declaration conflicts with reserved notation", tk_pos);
             break;
         case mixfix_kind::infixr:
             if (reserved_action->kind() != notation::action_kind::Expr || reserved_action->rbp() != _prec)
-                throw parser_error("invalid infixr declaration, declaration conflicts with reserved notation", p.pos());
+                throw parser_error("invalid infixr declaration, declaration conflicts with reserved notation", tk_pos);
             break;
         case mixfix_kind::postfix:
             if (reserved_action->kind() != notation::action_kind::Skip)
-                throw parser_error("invalid postfix declaration, declaration conflicts with reserved notation", p.pos());
+                throw parser_error("invalid postfix declaration, declaration conflicts with reserved notation", tk_pos);
             break;
         case mixfix_kind::prefix:
             if (reserved_action->kind() != notation::action_kind::Expr || reserved_action->rbp() != _prec)
-                throw parser_error("invalid prefix declaration, declaration conflicts with reserved notation", p.pos());
+                throw parser_error("invalid prefix declaration, declaration conflicts with reserved notation", tk_pos);
             break;
         }
     }

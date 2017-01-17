@@ -74,14 +74,8 @@ static module_loader mk_loader(module_id const & cur_mod, std::vector<module_inf
                 }
             }
         } catch (std::out_of_range) {
-            /* The following line of code is reachable.
-               Repro: create a file containing an "open" comment block.
-               Example:
-
-                 /-
-                   def x := 10
-            */
-            // lean_unreachable();
+            // In files with syntax errors, it can happen that the
+            // initial dependency scan does not find all dependencies.
         }
         throw exception(sstream() << "could not resolve import: " << import.m_name);
     };

@@ -664,7 +664,12 @@ public:
 
     name call_stack_fn(unsigned idx) const {
         lean_assert(idx < m_call_stack.size());
-        return m_decl_map.find(m_call_stack[idx].m_curr_fn_idx)->get_name();
+        // m_curr_fn_idx may be equal to g_null_fn_idx
+        if (auto decl = m_decl_map.find(m_call_stack[idx].m_curr_fn_idx)) {
+            return decl->get_name();
+        } else {
+            return name();
+        }
     }
 
     unsigned call_stack_bp(unsigned idx) const {

@@ -365,6 +365,11 @@ public:
                         prefix = prefix.substr(0, *stop);
                     switch (e.m_token_info.m_context) {
                         case break_at_pos_exception::token_context::expr:
+                            // no empty prefix completion for declarations
+                            if (!prefix.size()) {
+                                m_server->send_msg(cmd_res(m_seq_num, j));
+                                return {};
+                            }
                             if (!m_skip_completions)
                                 j["completions"] = get_decl_completions(prefix, snap->m_env, snap->m_options);
                             break;

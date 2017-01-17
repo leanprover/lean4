@@ -112,7 +112,6 @@ struct current_tasks_msg {
     current_tasks_msg(mt_tq_status const & st, std::unordered_set<std::string> const & visible_files) {
         m_is_running = st.size() > 0;
         st.for_each([&] (generic_task const * t) {
-            if (m_tasks.size() >= 100) return;
             if (!t->is_tiny() && visible_files.count(t->get_module_id())) {
                 auto j = json_of_task(t);
                 if (!m_cur_task) m_cur_task = {j};

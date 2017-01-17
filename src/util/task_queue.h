@@ -142,6 +142,7 @@ public:
 
     virtual task_kind get_kind() const { return task_kind::elab; }
     virtual pos_info get_pos() const { return get_task_pos(); }
+    virtual pos_info get_end_pos() const { return get_pos(); }
 
     message_bucket_id const & get_bucket() const { return m_bucket; }
     period get_version() const { return m_bucket.m_version; }

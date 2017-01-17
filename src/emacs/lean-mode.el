@@ -149,6 +149,7 @@ enabled and disabled respectively.")
   "Default lean-mode setup"
   ;; server
   (lean-server-ensure-alive)
+  (setq mode-name '("Lean" (:eval (lean-server-status-string))))
   ;; Flycheck
   (when lean-flycheck-use
     (lean-flycheck-turn-on)

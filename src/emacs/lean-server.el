@@ -39,6 +39,7 @@
      (lean-server-notify-messages-changed sess))
     ("current_tasks"
      (setf (lean-server-session-tasks sess) res)
+     (force-mode-line-update)
      (lean-server-notify-messages-changed sess))
     ("error"
      (message "error: %s" (plist-get res :message))
@@ -164,11 +165,61 @@
 (defvar-local lean-server-session nil
   "Lean server session for the current buffer")
 
+(defun lean-server-status-string ()
+  (if (not lean-server-session) " ☠"
+    (let ((ts (lean-server-session-tasks lean-server-session)))
+      (if (plist-get ts :is_running) " ⌛" " ✓"))))
+
 (defvar-local lean-server-flycheck-delay-timer nil)
+
+(defvar-local lean-server-task-overlays nil)
+
+(defun lean-server-task-region (task)
+  (let ((bl (1- (plist-get task :pos_line)))
+        (bc (plist-get task :pos_col))
+        (el (1- (plist-get task :end_pos_line)))
+        (ec (plist-get task :end_pos_col)))
+    (save-excursion
+      (widen)
+      (goto-char (point-min))
+      (forward-line bl)
+      (if (equal (cons bl bc) (cons el ec))
+          (progn
+            (let ((beg (point)))
+              (forward-line 1)
+              (cons beg (point))))
+        (forward-char bc)
+        (let ((beg (point)))
+          (goto-char (point-min))
+          (forward-line el)
+          (forward-char ec)
+          (cons beg (point)))))))
+
+(defface lean-server-task-face
+  '((((class color) (background light))
+     :background "navajo white")
+    (((class color) (background dark))
+     :background "salmon4")
+    (t :inverse-video t))
+  "Face to highlight running Lean tasks."
+  :group 'lean-server-faces)
+
+(defun lean-server-update-task-overlays (&optional buf)
+  (dolist (ov lean-server-task-overlays) (delete-overlay ov))
+  (setq lean-server-task-overlays nil)
+  (let ((tasks (if lean-server-session (lean-server-session-tasks lean-server-session)))
+        (cur-fn (buffer-file-name)))
+    (dolist (task tasks)
+      (if (equal (plist-get task :file_name) cur-fn)
+          (let* ((reg (lean-server-task-region task))
+                (ov (make-overlay (car reg) (cdr reg))))
+            (setq lean-server-task-overlays (cons ov lean-server-task-overlays))
+            (overlay-put ov 'face 'lean-server-task-face))))))
 
 (defun lean-server-show-messages (&optional buf)
   (with-current-buffer (or buf (current-buffer))
     (when flycheck-mode
+      (lean-server-update-task-overlays)
       (flycheck-buffer))))
 
 (defun lean-server-notify-messages-changed (sess)

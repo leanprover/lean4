@@ -101,6 +101,9 @@ struct current_tasks_msg {
         auto pos = t->get_pos();
         j["pos_line"] = pos.first;
         j["pos_col"] = pos.second;
+        auto end_pos = t->get_end_pos();
+        j["end_pos_line"] = end_pos.first;
+        j["end_pos_col"] = end_pos.second;
         j["desc"] = t->description();
         return j;
     }
@@ -111,15 +114,8 @@ struct current_tasks_msg {
         st.for_each([&] (generic_task const * t) {
             if (m_tasks.size() >= 100) return;
             if (!t->is_tiny() && visible_files.count(t->get_module_id())) {
-                if (!m_cur_task) {
-                    m_cur_task = { json_of_task(t) };
-                }
-                json j;
-                j["file_name"] = t->get_module_id();
-                auto pos = t->get_pos();
-                j["pos_line"] = pos.first;
-                j["pos_col"] = pos.second;
-                j["desc"] = t->description();
+                auto j = json_of_task(t);
+                if (!m_cur_task) m_cur_task = {j};
                 m_tasks.push_back(j);
             }
         });

@@ -4,17 +4,17 @@ inductive vec (A : Type*) : nat → Type*
 
 open tactic nat vec
 
-definition head {A : Type*} : ∀ {n : nat}, vec A (n+1) → A
+def head {A : Type*} : ∀ {n : nat}, vec A (n+1) → A
 | n (cons h t) := h
 
-definition tail {A : Type*} : ∀ {n : nat}, vec A (n+1) → vec A n
+def tail {A : Type*} : ∀ {n : nat}, vec A (n+1) → vec A n
 | n (cons h t) := t
 
-@[simp] definition head_cons {A : Type*} {n : nat} (a : A) (v : vec A n) : head (cons a v) = a :=
+@[simp] lemma head_cons {A : Type*} {n : nat} (a : A) (v : vec A n) : head (cons a v) = a :=
 rfl
 
 @[simp]
-definition tail_cons {A : Type*} {n : nat} (a : A) (v : vec A n) : tail (cons a v) = v :=
+lemma tail_cons {A : Type*} {n : nat} (a : A) (v : vec A n) : tail (cons a v) = v :=
 rfl
 
 example {A : Type*} {n : nat} (v w : vec A (n+1)) : head v = head w → tail v = tail w → v = w :=

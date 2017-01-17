@@ -8,6 +8,6 @@ do e ← tactic.to_expr p, guard (t = e)
 example (n : nat): f (n+1) n = n + 1 :=
 begin
   unfold f,
-  (tactic.target >>= check_expr `((λ x, x + 1) n = n + 1)),
+  (tactic.target >>= check_expr `((n + 1 = n + 1))),
   reflexivity,
 end

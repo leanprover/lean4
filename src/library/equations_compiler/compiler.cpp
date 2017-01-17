@@ -210,7 +210,12 @@ struct pull_nested_rec_fn : public replace_visitor {
             expr g           = declare_new_local(uid, fn_aux, val_type);
             m_new_locals.push_back(g);
             m_new_values.push_back(val);
-            return mk_app(g, local_deps);
+            expr r           = g;
+            for (expr const & d : local_deps) {
+                if (!lctx().get_local_decl(d)->get_value())
+                    r = mk_app(r, d);
+            }
+            return r;
         } else {
             return default_visit_app(e, fn, args);
         }

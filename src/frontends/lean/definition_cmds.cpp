@@ -363,6 +363,8 @@ declare_definition(parser & p, environment const & env, def_cmd_kind kind, buffe
         mk_theorem(c_real_name, to_list(lp_names), type, *val) :
         mk_definition(new_env, c_real_name, to_list(lp_names), type, *val, use_conv_opt, is_trusted));
     auto cdef         = check(p, new_env, c_name, def, pos);
+    if (cdef.get_declaration().is_theorem())
+        p.require_success(cdef.get_declaration().get_value_task());
     new_env           = module::add(new_env, cdef);
 
     check_noncomputable(p.ignore_noncomputable(), new_env, c_name, c_real_name, modifiers.m_is_noncomputable);
@@ -733,6 +735,7 @@ public:
                                       ERROR);
             error_msg.set_exception(ex);
             error_msg.report();
+            throw std::exception(); // this bypasses the default exception reporting
         }
         return {};
     }
@@ -787,15 +790,16 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
             auto elab_task = get_global_task_queue()->submit<proof_elaboration_task>(
                 decl_env, p.get_options(), header_pos, new_params, new_fn, val, thm_finfo, is_rfl, type,
                 elab.mctx(), elab.lctx(), p.get_parser_pos_provider(header_pos));
+            p.require_success(elab_task);
             env_n = declare_definition(p, elab.env(), kind, lp_names, c_name, type, opt_val, elab_task, modifiers, attrs,
                                        doc_string, header_pos);
         } else if (kind == Example) {
-            get_global_task_queue()->submit<example_checking_task>(
+            p.require_success(get_global_task_queue()->submit<example_checking_task>(
                     p.env(), p.get_options(),
                     modifiers, to_list(lp_names),
                     new_params, fn, val,
                     elab.mctx(), elab.lctx(),
-                    p.get_parser_pos_provider(header_pos));
+                    p.get_parser_pos_provider(header_pos)));
             return p.env();
         } else {
             std::tie(val, type) = elaborate_definition(p, elab, kind, fn, val, header_pos);

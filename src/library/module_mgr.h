@@ -47,9 +47,9 @@ struct module_info {
     struct parse_result {
         options               m_opts;
 
-        bool m_parsed_ok = false;
+        task_result<bool> m_parsed_ok;
         task_result<bool> m_proofs_are_correct;
-        bool is_ok() const { return m_parsed_ok && m_proofs_are_correct.get(); }
+        bool is_ok() const;
 
         std::shared_ptr<loaded_module const> m_loaded_module;
 

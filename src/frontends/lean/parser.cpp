@@ -2224,7 +2224,34 @@ void parser::get_imports(std::vector<module_name> & imports) {
     parse_imports(fingerprint, imports);
 }
 
-bool parser::parse_commands() {
+struct combine_parse_success_task : public task<bool> {
+    list<generic_task_result> m_required_successes;
+
+    combine_parse_success_task(list<generic_task_result> const & required_successes) :
+            task(), m_required_successes(required_successes) {}
+
+    void description(std::ostream & out) const override {
+        out << "Checking parse success (" << get_module_id() << ")";
+    }
+
+    std::vector<generic_task_result> get_dependencies() override {
+        std::vector<generic_task_result> deps;
+        for (auto & d : m_required_successes)
+            deps.push_back(d);
+        return deps;
+    }
+
+    bool is_tiny() const override { return true; }
+
+    bool do_priority_inversion() const override { return false; }
+
+    bool execute() override {
+        for (auto & d : m_required_successes) get_global_task_queue()->wait(d);
+        return true;
+    }
+};
+
+task_result<bool> parser::parse_commands() {
     protected_call([&]() {
         // We disable hash-consing while parsing to make sure the pos-info are correct.
         scoped_expr_caching disable(false);
@@ -2295,7 +2322,12 @@ bool parser::parse_commands() {
                 m_env = pop_scope_core(m_env, m_ios);
         }
     }, [](){});
-    return !m_found_errors;
+
+    if (m_found_errors) {
+        return mk_pure_task_result(false, "parse success");
+    } else {
+        return get_global_task_queue()->submit<combine_parse_success_task>(m_required_successes);
+    }
 }
 
 bool parser::curr_is_command_like() const {
@@ -2318,7 +2350,8 @@ void parser::save_snapshot(scope_message_context & smc, pos_info p) {
         m_snapshot_vector->push_back(std::make_shared<snapshot>(
                 m_env, smc.get_sub_buckets(), m_local_level_decls, m_local_decls,
                 m_level_variables, m_variables, m_include_vars,
-                m_ios.get_options(), m_imports_parsed, m_parser_scope_stack, m_next_inst_idx, p));
+                m_ios.get_options(), m_imports_parsed, m_parser_scope_stack, m_next_inst_idx, p,
+                m_required_successes));
     }
 }
 

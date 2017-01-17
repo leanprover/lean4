@@ -20,7 +20,7 @@ set_option pp.all false
 example (a b : nat) : a = 0 → a = b :=
 by do
   intro `H,
-  apply_core semireducible tt ff (expr.const `foo [level.of_nat 1]),
+  apply_core semireducible ff tt ff (expr.const `foo [level.of_nat 1]),
   trace_state,
   a ← get_local `a,
   trace_state,
@@ -45,6 +45,6 @@ by do
 example (a b : nat) : a = 0 → a = b :=
 by do
   `[intro],
-  apply_core semireducible tt ff (expr.const `foo [level.of_nat 1]),
+  apply_core semireducible ff tt ff (expr.const `foo [level.of_nat 1]),
   `[exact inhabited.mk a],
   reflexivity

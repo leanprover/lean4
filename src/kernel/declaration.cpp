@@ -60,7 +60,7 @@ unsigned declaration::get_num_univ_params() const { return length(get_univ_param
 expr const & declaration::get_type() const { return m_ptr->m_type; }
 
 task_result<expr> const & declaration::get_value_task() const {
-    lean_assert(is_definition());
+    lean_assert(is_theorem());
     return m_ptr->m_proof;
 }
 expr const & declaration::get_value() const {

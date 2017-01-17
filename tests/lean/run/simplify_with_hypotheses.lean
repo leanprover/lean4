@@ -1,9 +1,9 @@
 open tactic
 
-example (A : Type) (a₁ a₂ : A) (f : A → A) (H₀ : a₁ = a₂) : f a₁ = f a₂ := by simp_using_hs >> try reflexivity
+example (A : Type) (a₁ a₂ : A) (f : A → A) (H₀ : a₁ = a₂) : f a₁ = f a₂ := by do simp_using_hs >> try reflexivity
 
 example (A : Type) (a₁ a₁' a₂ a₂' : A) (f : A → A) (H₀ : a₁' = a₂') (H₁ : f a₁ = a₁') (H₂ : f a₂ = a₂')
-: f a₁ = f a₂ := by simp_using_hs >> try reflexivity
+: f a₁ = f a₂ := by do simp_using_hs >> try reflexivity
 
 constants (A : Type.{1}) (x y z w : A) (f : A → A) (H₁ : f (f x) = f y) (H₂ : f (f y) = f z) (H₃ : f (f z) = w)
 

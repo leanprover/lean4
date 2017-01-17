@@ -67,12 +67,14 @@ struct snapshot {
     parser_scope_stack m_parser_scope_stack;
     unsigned           m_next_inst_idx;
     pos_info           m_pos;
+    list<generic_task_result> m_required_successes;
     snapshot(environment const & env, name_set const & sub_buckets, local_level_decls const & lds,
              local_expr_decls const & eds, name_set const & lvars, name_set const & vars,
              name_set const & includes, options const & opts, bool imports_parsed, parser_scope_stack const & pss,
-             unsigned next_inst_idx, pos_info const & pos):
+             unsigned next_inst_idx, pos_info const & pos, list<generic_task_result> const & required_successes):
         m_env(env), m_sub_buckets(sub_buckets), m_lds(lds), m_eds(eds), m_lvars(lvars), m_vars(vars), m_include_vars(includes),
-        m_options(opts), m_imports_parsed(imports_parsed), m_parser_scope_stack(pss), m_next_inst_idx(next_inst_idx), m_pos(pos) {}
+        m_options(opts), m_imports_parsed(imports_parsed), m_parser_scope_stack(pss), m_next_inst_idx(next_inst_idx), m_pos(pos),
+        m_required_successes(required_successes) {}
 };
 
 typedef std::vector<std::shared_ptr<snapshot const>> snapshot_vector;
@@ -171,6 +173,9 @@ class parser : public abstract_parser {
     // Docgen
     optional<std::string>  m_doc_string;
 
+    // Tasks that need to be successful (no exception) for parsing to succeed
+    list<generic_task_result> m_required_successes;
+
     void throw_parser_exception(char const * msg, pos_info p);
     void throw_nested_exception(throwable const & ex, pos_info p);
 
@@ -196,7 +201,7 @@ class parser : public abstract_parser {
 
     void process_imports();
     void parse_command();
-    bool parse_commands();
+    task_result<bool> parse_commands();
     void process_postponed(buffer<expr> const & args, bool is_left, buffer<notation::action_kind> const & kinds,
                            buffer<list<expr>> const & nargs, buffer<expr> const & ps, buffer<pair<unsigned, pos_info>> const & scoped_info,
                            list<notation::action> const & postponed, pos_info const & p, buffer<expr> & new_args);
@@ -516,11 +521,15 @@ public:
     bool used_sorry() const { return m_used_sorry; }
     void declare_sorry_if_used();
 
+    void require_success(generic_task_result const & t) {
+        m_required_successes = cons(t, m_required_successes);
+    }
+
     /** return true iff profiling is enabled */
     bool profiling() const { return m_profile; }
 
     /** parse all commands in the input stream */
-    bool operator()() { return parse_commands(); }
+    task_result<bool> operator()() { return parse_commands(); }
 
     void get_imports(std::vector<module_name> &);
 

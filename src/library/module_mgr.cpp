@@ -18,6 +18,14 @@ Author: Gabriel Ebner
 
 namespace lean {
 
+bool module_info::parse_result::is_ok() const {
+    try {
+        return m_parsed_ok.get() && m_proofs_are_correct.get();
+    } catch (...) {
+        return false;
+    }
+}
+
 void module_mgr::mark_out_of_date(module_id const & id, buffer<module_id> & to_rebuild) {
     for (auto & mod : m_modules) {
         if (!mod.second || mod.second->m_out_of_date) continue;
@@ -123,7 +131,7 @@ public:
                  use_exceptions,
                  (m_snapshots.empty() || !m_use_snapshots) ? std::shared_ptr<snapshot>() : m_snapshots.back(),
                  m_use_snapshots ? &m_snapshots : nullptr);
-        bool parsed_ok = p();
+        auto parsed_ok = p();
 
         module_info::parse_result mod;
 
@@ -161,6 +169,7 @@ public:
         if (auto res = m_mod->m_result.peek()) {
             for (auto & mdf : res->m_loaded_module->m_modifications)
                 mdf->get_task_dependencies(deps);
+            deps.push_back(res->m_parsed_ok);
             deps.push_back(res->m_proofs_are_correct);
         }
 
@@ -257,7 +266,7 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
                       parse_olean_modifications(parsed_olean.second, id), {} },
                     m_initial_env, [=] { return mk_loader(id, deps); });
 
-            res.m_parsed_ok = true;
+            res.m_parsed_ok = mk_pure_task_result(true, "olean parse success");
             res.m_proofs_are_correct = mk_pure_task_result(true, "");
             mod->m_result = mk_pure_task_result(res, "Loading " + olean_fn);
 

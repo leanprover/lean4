@@ -426,6 +426,9 @@ static expr parse_begin_end_block(parser & p, pos_info const & start_pos, name c
                 }
                 r = concat(p, r, next_tac, start_pos, pos, tac_class);
                 if (!p.curr_is_token(end_token)) {
+                    // small 'info' tweak: on `,`, report tactic state at following token instead
+                    if (!p.get_complete() && p.get_break_at_pos() == some(p.pos()))
+                        p.set_break_at_pos({p.pos().first, p.pos().second + 1});
                     p.check_token_next(get_comma_tk(), "invalid 'begin-end' expression, ',' expected");
                 }
             } catch (break_at_pos_exception & ex) {
@@ -439,7 +442,12 @@ static expr parse_begin_end_block(parser & p, pos_info const & start_pos, name c
         throw;
     }
     auto end_pos = p.pos();
-    p.next();
+    try {
+        p.next();
+    } catch (break_at_pos_exception & ex) {
+        ex.report_goal_pos(end_pos);
+        throw;
+    }
     r = p.save_pos(mk_begin_end_block(r), end_pos);
     if (!is_ext_tactic_class) {
         return r;

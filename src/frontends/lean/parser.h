@@ -254,6 +254,7 @@ public:
 
     void set_break_at_pos(pos_info const & pos) { m_break_at_pos = some(pos); }
     optional<pos_info> const & get_break_at_pos() const { return m_break_at_pos; }
+    bool get_complete() { return m_complete; }
     void set_complete(bool complete) { m_complete = complete; }
     /** \brief Throw \c break_at_pos_exception with given context if \c m_break_at_pos is inside current token. */
     void check_break_at_pos(break_at_pos_exception::token_context ctxt = break_at_pos_exception::token_context::none);

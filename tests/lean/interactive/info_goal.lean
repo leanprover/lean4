@@ -2,6 +2,8 @@ example : ℕ → ℕ :=
 begin
   exact id
 --^ "command": "info"
+          ,
+        --^ "command": "info"
 end
 --^ "command": "info"
 

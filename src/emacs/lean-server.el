@@ -77,6 +77,7 @@
 
 (defun lean-server-handle-signal (process event)
   "Handle signals for lean-server-process"
+  (force-mode-line-update)
   (let ((event-string (s-trim event)))
     (lean-debug "lean-server-handle-signal: %s"
                 (propertize event-string 'face '(:foreground "red")))
@@ -166,7 +167,7 @@
   "Lean server session for the current buffer")
 
 (defun lean-server-status-string ()
-  (if (not lean-server-session) " ☠"
+  (if (not (lean-server-session-alive-p lean-server-session)) " ☠"
     (let ((ts (lean-server-session-tasks lean-server-session)))
       (if (plist-get ts :is_running) " ⌛" " ✓"))))
 

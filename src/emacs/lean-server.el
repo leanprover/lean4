@@ -166,10 +166,13 @@
 (defvar-local lean-server-session nil
   "Lean server session for the current buffer")
 
+(defun lean-server-session-running-p (sess)
+  (and sess (plist-get (lean-server-session-tasks sess) :is_running)))
+
 (defun lean-server-status-string ()
   (if (not (lean-server-session-alive-p lean-server-session)) " ☠"
-    (let ((ts (lean-server-session-tasks lean-server-session)))
-      (if (plist-get ts :is_running) " ⌛" " ✓"))))
+    (if (lean-server-session-running-p lean-server-session) " ⌛"
+      " ✓")))
 
 (defvar-local lean-server-flycheck-delay-timer nil)
 
@@ -226,14 +229,19 @@
 (defun lean-server-notify-messages-changed (sess)
   (dolist (buf (buffer-list))
     (with-current-buffer buf
-      (when (and (eq sess lean-server-session)
-                 ;; skip if timer already active
-                 (not (memq lean-server-flycheck-delay-timer timer-list))
-                 (or (eq buf flycheck-error-list-source-buffer)
-                     (get-buffer-window buf)))
-        (save-match-data
-          (setq lean-server-flycheck-delay-timer
-                (run-at-time "200 milliseconds" nil #'lean-server-show-messages buf)))))))
+      (when (eq sess lean-server-session)
+        (if (lean-server-session-running-p lean-server-session)
+            (when ;; skip if timer already active
+                (and (not (memq lean-server-flycheck-delay-timer timer-list))
+                     (or (eq buf flycheck-error-list-source-buffer)
+                         (get-buffer-window buf)))
+              (save-match-data
+                (setq lean-server-flycheck-delay-timer
+                      (run-at-time "200 milliseconds" nil #'lean-server-show-messages buf))))
+          (when lean-server-flycheck-delay-timer
+            (cancel-timer lean-server-flycheck-delay-timer)
+            (setq lean-server-flycheck-delay-timer nil))
+          (lean-server-show-messages))))))
 
 (defun lean-server-stop ()
   "Stops the lean server associated with the current buffer"

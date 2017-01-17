@@ -127,6 +127,7 @@
          (req `(:seq_num ,seq-num :command ,cmd-name . ,params))
          (json-array-type 'list)
          (json-object-type 'plist)
+         (json-false :json-false)
          (json-req (json-encode req))
          (cur-buf (current-buffer))
          (wrapped-cb (and cb (lambda (res) (with-current-buffer cur-buf (apply cb :allow-other-keys t res)))))

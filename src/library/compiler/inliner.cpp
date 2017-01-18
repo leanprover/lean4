@@ -130,18 +130,15 @@ class inline_simple_definitions_fn : public compiler_step_visitor {
             v = binding_body(v);
         }
 
-        if (arity > nargs) {
-            // not fully applied
-            return default_visit_app(e);
-        }
-
-        if (is_inline(env(), n) || is_simple_application(v)) {
+        if (is_inline(env(), n) || (is_simple_application(v) && arity <= nargs)) {
             if (auto r = unfold_term(env(), e))
                 return visit(copy_tag(e, expr(*r)));
         }
 
-        if (auto r = ctx().reduce_projection(e)) {
-            return visit(*r);
+        if (arity <= nargs) {
+            if (auto r = ctx().reduce_projection(e)) {
+                return visit(*r);
+            }
         }
 
         return default_visit_app(e);

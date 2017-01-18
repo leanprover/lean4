@@ -62,7 +62,9 @@ class expand_aux_fn : public compiler_step_visitor {
     }
 
     expr visit_cases_on(expr const & e) {
-        /* try to reduce cases_on */
+        /* Try to reduce cases_on.
+           Remark: we only unfold reducible constants. */
+        type_context::transparency_scope scope(ctx(), transparency_mode::Reducible);
         if (auto r1 = ctx().reduce_aux_recursor(e)) {
             if (auto r2 = ctx().norm_ext(*r1)) {
                 return compiler_step_visitor::visit(*r2);

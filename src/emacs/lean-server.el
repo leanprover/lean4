@@ -206,8 +206,8 @@
     (((class color) (background dark))
      :background "salmon4")
     (t :inverse-video t))
-  "Face to highlight running Lean tasks."
-  :group 'lean-server-faces)
+  "Face to highlight pending Lean tasks."
+  :group 'lean)
 
 (defun lean-server-update-task-overlays (&optional buf)
   (dolist (ov lean-server-task-overlays) (delete-overlay ov))

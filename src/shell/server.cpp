@@ -368,6 +368,10 @@ public:
                             if (!m_skip_completions)
                                 j["completions"] = get_decl_completions(prefix, snap->m_env, snap->m_options);
                             break;
+                        case break_at_pos_exception::token_context::field:
+                            if (!m_skip_completions)
+                                j["completions"] = get_field_completions(e.m_token_info.m_struct, prefix, snap->m_env, snap->m_options);
+                            break;
                         case break_at_pos_exception::token_context::option:
                             if (!m_skip_completions)
                                 j["completions"] = get_option_completions(prefix, snap->m_options);

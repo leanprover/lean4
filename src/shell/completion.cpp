@@ -155,6 +155,58 @@ std::vector<json> get_decl_completions(std::string const & pattern, environment 
     return completions;
 }
 
+std::vector<json> get_field_completions(name const & s, std::string const & pattern, environment const & env, options const & opts) {
+    std::vector<json> completions;
+
+    unsigned max_results = get_auto_completion_max_results(opts);
+    unsigned max_errors = get_fuzzy_match_max_errors(pattern.size());
+
+    std::string new_pattern;
+    new_pattern  = s.to_string();
+    if (!pattern.empty()) {
+        new_pattern += ".";
+        new_pattern += pattern;
+    }
+
+    std::vector<pair<name, name>> exact_matches;
+    std::vector<pair<std::string, name>> selected;
+    bitap_fuzzy_search matcher(new_pattern, max_errors);
+
+    env.for_each_declaration([&](declaration const & d) {
+        if (d.get_name() == s ||
+            !is_prefix_of(s, d.get_name()) ||
+            is_internal_name(d.get_name())) {
+            return;
+        }
+        if (auto it = exact_prefix_match(env, new_pattern, d)) {
+            exact_matches.emplace_back(*it, d.get_name());
+        } else {
+            std::string text = d.get_name().to_string();
+            if (matcher.match(text))
+                selected.emplace_back(text, d.get_name());
+        }
+    });
+    unsigned num_results = 0;
+    if (!exact_matches.empty()) {
+        std::sort(exact_matches.begin(), exact_matches.end(),
+                  [](pair<name, name> const & p1, pair<name, name> const & p2) {
+                      return p1.first.size() < p2.first.size();
+                  });
+        for (pair<name, name> const & p : exact_matches) {
+            name fname = p.second.replace_prefix(s, name());
+            completions.push_back(serialize_decl(fname, p.second, env, opts));
+            num_results++;
+            if (num_results >= max_results)
+                break;
+        }
+    }
+    filter_completions<name>(pattern, selected, completions, max_results - num_results, [&](name const & n) {
+        name fname = n.replace_prefix(s, name());
+        return serialize_decl(fname, n, env, opts);
+    });
+    return completions;
+}
+
 std::vector<json> get_option_completions(std::string const & pattern, options const & opts) {
     unsigned max_results = get_auto_completion_max_results(opts);
     unsigned max_errors = get_fuzzy_match_max_errors(pattern.size());

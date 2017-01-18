@@ -12,8 +12,8 @@ Authors: Gabriel Ebner, Leonardo de Moura, Sebastian Ullrich
 #include "frontends/lean/json.h"
 
 namespace lean {
-
 std::vector<json> get_decl_completions(std::string const & pattern, environment const & env, options const & o);
+std::vector<json> get_field_completions(name const & s, std::string const & pattern, environment const & env, options const & o);
 std::vector<json> get_option_completions(std::string const & pattern, options const & opts);
 pair<optional<unsigned>, std::string> parse_import(std::string s);
 std::vector<json> get_import_completions(std::string const & pattern, std::string const & curr_dir,
@@ -22,5 +22,4 @@ std::vector<json> get_interactive_tactic_completions(std::string const & pattern
                                                      environment const & env, options const & opts);
 std::vector<json> get_attribute_completions(std::string const & pattern, environment const & env, options const & opts);
 std::vector<json> get_namespace_completions(std::string const & pattern, environment const & env, options const & opts);
-
 }

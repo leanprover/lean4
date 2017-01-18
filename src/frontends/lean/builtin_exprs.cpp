@@ -811,16 +811,38 @@ optional<pos_info> get_field_notation_field_pos(expr const & e) {
 }
 
 static expr parse_proj(parser & p, unsigned, expr const * args, pos_info const & pos) {
-    if (p.curr_is_numeral()) {
-        pos_info num_pos = p.pos();
-        unsigned fidx = p.parse_small_nat();
-        if (fidx == 0)
-            throw parser_error("invalid projection, index must be greater than 0", num_pos);
-        return p.save_pos(mk_proj_notation(args[0], fidx), pos);
-    } else {
-        pos_info field_pos = p.pos();
-        name field = p.check_id_next("invalid '~>' notation, identifier or numeral expected");
-        return p.save_pos(mk_proj_notation(args[0], field, field_pos), pos);
+    try {
+        p.check_break_at_pos(break_at_pos_exception::token_context::expr);
+        if (p.curr_is_numeral()) {
+            pos_info num_pos = p.pos();
+            unsigned fidx = p.parse_small_nat();
+            if (fidx == 0)
+                throw parser_error("invalid projection, index must be greater than 0", num_pos);
+            return p.save_pos(mk_proj_notation(args[0], fidx), pos);
+        } else {
+            pos_info field_pos = p.pos();
+            name field = p.check_id_next("invalid '~>' notation, identifier or numeral expected");
+            return p.save_pos(mk_proj_notation(args[0], field, field_pos), pos);
+        }
+    } catch (break_at_pos_exception & ex) {
+        expr lhs = args[0];
+        expr lhs_type;
+        try {
+            metavar_context mctx;
+            bool check_unassigned = false;
+            lhs = p.elaborate(mctx, lhs, check_unassigned).first;
+            type_checker tc(p.env(), true, false);
+            lhs_type = tc.infer(lhs);
+        } catch (exception &) {
+            /* failed to elaborate or infer type */
+            throw;
+        }
+        expr fn       = get_app_fn(lhs_type);
+        if (is_constant(fn)) {
+            ex.m_token_info.m_struct  = const_name(fn);
+            ex.m_token_info.m_context = break_at_pos_exception::token_context::field;
+        }
+        throw;
     }
 }
 

@@ -407,6 +407,13 @@ meta def is_prop (e : expr) : tactic bool :=
 do t ← infer_type e,
    return (to_bool (t = expr.prop))
 
+/-- Return true iff n is the name of declaration that is a proposition. -/
+meta def is_prop_decl (n : name) : tactic bool :=
+do env ← get_env,
+   d   ← returnex $ env^.get n,
+   t   ← return $ d^.type,
+   is_prop t
+
 meta def is_proof (e : expr) : tactic bool :=
 infer_type e >>= is_prop
 

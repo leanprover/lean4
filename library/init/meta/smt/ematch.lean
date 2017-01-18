@@ -56,19 +56,25 @@ open tactic
 
 meta def to_hinst_lemmas_core (m : transparency) : bool → list name → hinst_lemmas → tactic hinst_lemmas
 | as_simp []      hs := return hs
-| as_simp (n::ns) hs := do
+| as_simp (n::ns) hs :=
+  let add_core n := do
+    h ← hinst_lemma.mk_from_decl_core m n as_simp,
+    new_hs ← return $ hs^.add h,
+    to_hinst_lemmas_core as_simp ns new_hs
+  in do
   /- First check if n is the name of a function with equational lemmas associated with it -/
   eqns   ← tactic.get_eqn_lemmas_for tt n,
   match eqns with
   | []  := do
     /- n is not the name of a function definition or it does not have equational lemmas, then check if it is a lemma -/
-    h ← hinst_lemma.mk_from_decl_core m n as_simp,
-    new_hs ← return $ hs^.add h,
-    to_hinst_lemmas_core as_simp ns new_hs
+    add_core n
   | _   := do
-    /- And equational lemmas to resulting hinst_lemmas -/
-    new_hs ← to_hinst_lemmas_core tt eqns hs,
-    to_hinst_lemmas_core as_simp ns new_hs
+    p ← is_prop_decl n,
+    if p then add_core n /- n is a proposition -/
+    else do
+      /- Add equational lemmas to resulting hinst_lemmas -/
+      new_hs ← to_hinst_lemmas_core tt eqns hs,
+      to_hinst_lemmas_core as_simp ns new_hs
   end
 
 meta def mk_hinst_lemma_attr_core (attr_name : name) (as_simp : bool) : command :=

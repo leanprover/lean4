@@ -777,14 +777,15 @@ static simp_lemmas add_core(type_context & ctx, simp_lemmas const & s, name cons
 static simp_lemmas ext_add_core(type_context & ctx, simp_lemmas const & s, name const & cname, unsigned priority) {
     buffer<name> eqn_lemmas;
     get_ext_eqn_lemmas_for(ctx.env(), cname, eqn_lemmas);
-    if (eqn_lemmas.empty()) {
+    if (eqn_lemmas.empty())
         return add_core(ctx, s, cname, priority);
-    } else {
-        simp_lemmas r = s;
-        for (name const & eqn_lemma : eqn_lemmas)
-            r = add_core(ctx, r, eqn_lemma, priority);
-        return r;
-    }
+    expr type = ctx.env().get(cname).get_type();
+    if (ctx.is_prop(type))
+        return add_core(ctx, s, cname, priority);
+    simp_lemmas r = s;
+    for (name const & eqn_lemma : eqn_lemmas)
+        r = add_core(ctx, r, eqn_lemma, priority);
+    return r;
 }
 
 /* Return true iff lhs is of the form (B (x : ?m1), ?m2) or (B (x : ?m1), ?m2 x),

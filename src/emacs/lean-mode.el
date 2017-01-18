@@ -19,6 +19,7 @@
 (require 'pcase)
 (require 'lean-require)
 (require 'eri)
+(require 'flycheck)
 (require 'lean-util)
 (require 'lean-settings)
 (require 'lean-input)
@@ -110,7 +111,7 @@
     ["Toggle next error display" lean-toggle-next-error       t]
     ["Find definition at point" lean-find-definition          t]
     "-----------------"
-    ["List of errors"       flycheck-list-errors              (and lean-flycheck-use flycheck-mode)]
+    ["List of errors"       flycheck-list-errors              flycheck-mode]
     "-----------------"
     ["Restart lean process" lean-server-restart               t]
     "-----------------"
@@ -147,9 +148,8 @@ enabled and disabled respectively.")
   (lean-server-ensure-alive)
   (setq mode-name '("Lean" (:eval (lean-server-status-string))))
   ;; Flycheck
-  (when lean-flycheck-use
-    (lean-flycheck-turn-on)
-    (setq-local flycheck-disabled-checkers '()))
+  (lean-flycheck-turn-on)
+  (setq-local flycheck-disabled-checkers '())
   ;; company-mode
   (when lean-company-use
     (company-lean-hook))
@@ -200,10 +200,8 @@ Invokes `lean-mode-hook'.
 (modify-coding-system-alist 'file "\\.hlean\\'" 'utf-8)
 
 ;; Flycheck init
-(when lean-flycheck-use
-  (require 'flycheck)
-  (eval-after-load 'flycheck
-    '(lean-flycheck-init)))
+(eval-after-load 'flycheck
+  '(lean-flycheck-init))
 
 (provide 'lean-mode)
 ;;; lean-mode.el ends here

@@ -223,9 +223,8 @@
 
 (defun lean-server-show-messages (&optional buf)
   (with-current-buffer (or buf (current-buffer))
-    (when flycheck-mode
-      (lean-server-update-task-overlays)
-      (flycheck-buffer))))
+    (lean-server-update-task-overlays)
+    (flycheck-buffer)))
 
 (defun lean-server-notify-messages-changed (sess)
   (dolist (buf (buffer-list))
@@ -263,9 +262,8 @@
   (interactive)
   (lean-server-stop)
   (lean-server-ensure-alive)
-  (when lean-flycheck-use
-    (flycheck-stop)
-    (flycheck-buffer)))
+  (flycheck-stop)
+  (flycheck-buffer))
 
 (defun lean-server-send-command (cmd params &optional cb error-cb)
   "Sends a command to the lean server for the current buffer, with a callback to be called upon completion"

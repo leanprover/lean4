@@ -46,26 +46,7 @@
   (add-to-list 'flycheck-checkers 'lean-checker))
 
 (defun lean-flycheck-turn-on ()
-  (interactive)
-  (unless lean-flycheck-use
-    (when (called-interactively-p 'any)
-      (message "use flycheck in lean-mode"))
-    (setq lean-flycheck-use t))
   (flycheck-mode t))
-
-(defun lean-flycheck-turn-off ()
-  (interactive)
-  (when lean-flycheck-use
-    (when (called-interactively-p 'any)
-      (message "no flycheck in lean-mode")))
-  (flycheck-mode 0)
-  (setq lean-flycheck-use nil))
-
-(defun lean-flycheck-toggle-use ()
-  (interactive)
-  (if lean-flycheck-use
-      (lean-flycheck-turn-off)
-    (lean-flycheck-turn-on)))
 
 (defun lean-flycheck-error-list-buffer-width ()
   "Return the width of flycheck-error list buffer"

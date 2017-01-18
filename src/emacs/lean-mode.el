@@ -93,9 +93,6 @@
   (local-set-key lean-keybinding-lean-toggle-next-error    'lean-toggle-next-error)
   )
 
-(defun lean-define-key-binding (key cmd)
-  (local-set-key key `(lambda () (interactive) ,cmd)))
-
 (define-abbrev-table 'lean-abbrev-table
   '())
 
@@ -113,7 +110,6 @@
     ["Toggle next error display" lean-toggle-next-error       t]
     ["Find definition at point" lean-find-definition          t]
     "-----------------"
-    ["Run flycheck"         flycheck-compile                  (and lean-flycheck-use flycheck-mode)]
     ["List of errors"       flycheck-list-errors              (and lean-flycheck-use flycheck-mode)]
     "-----------------"
     ["Restart lean process" lean-server-restart               t]

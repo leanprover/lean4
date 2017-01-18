@@ -77,9 +77,6 @@
      ;; If "*Flycheck errors" buffer is available, use its width
      (flycheck-error-window
       (window-body-width flycheck-error-window))
-     ;; If lean-flycheck-msg-width is set, use it
-     (lean-flycheck-msg-width
-      lean-flycheck-msg-width)
      ;; Can we split vertically?
      ((window-splittable-p window nil)
       body-width)

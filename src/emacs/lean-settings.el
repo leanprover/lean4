@@ -64,23 +64,6 @@
   :group 'lean
   :type 'boolean)
 
-(defcustom lean-flycheck-max-messages-to-display 100
-  "Maximum number of flycheck messages to displaylean-flychecker checker name
-   (Restart required to be effective)"
-  :group 'lean
-  :type 'number)
-
-(defcustom lean-default-pp-width 120
-  "Width of Lean error/warning messages"
-  :group 'lean
-  :type 'number)
-
-(defcustom lean-flycheck-msg-width nil
-  "Width of Lean error/warning messages"
-  :group 'lean
-  :type '(choice (const   :tag "Let lean-mode automatically detect this" nil)
-                 (integer :tag "Specify the value and force lean-mode to use")))
-
 (defcustom lean-delete-trailing-whitespace nil
   "Set this variable to true to automatically delete trailing
 whitespace when a buffer is loaded from a file or when it is
@@ -88,25 +71,12 @@ written."
   :group 'lean
   :type 'boolean)
 
-(defcustom lean-debug-mode-line '(:eval (lean-debug-mode-line-status-text))
-  "Mode line lighter for Lean debug mode."
-  :group 'lean
-  :type 'sexp
-  :risky t)
-
 (defcustom lean-show-type-add-to-kill-ring nil
   "If it is non-nil, add the type information to the kill-ring so
 that user can yank(paste) it later. By default, it's
 false (nil)."
   :group 'lean
   :type 'boolean)
-
-(defcustom lean-proofstate-display-style 'show-first-and-other-conclusions
-  "Choose how to display proof state in *lean-info* buffer."
-  :group 'lean
-  :type '(choice (const :tag "Show all goals" show-all)
-                 (const :tag "Show only the first" show-first)
-                 (const :tag "Show the first goal, and the conclusions of all other goals" show-first-and-other-conclusions)))
 
 (defcustom lean-keybinding-std-exe1 (kbd "C-c C-x")
   "Lean Keybinding for std-exe #1"
@@ -116,12 +86,6 @@ false (nil)."
   :group 'lean-keybinding  :type 'key-sequence)
 (defcustom lean-keybinding-show-key (kbd "C-c C-k")
   "Lean Keybinding for show-key"
-  :group 'lean-keybinding  :type 'key-sequence)
-(defcustom lean-keybinding-set-option (kbd "C-c C-o")
-  "Lean Keybinding for set-option"
-  :group 'lean-keybinding  :type 'key-sequence)
-(defcustom lean-keybinding-eval-cmd (kbd "C-c C-e")
-  "Lean Keybinding for eval-cmd"
   :group 'lean-keybinding  :type 'key-sequence)
 (defcustom lean-keybinding-server-restart (kbd "C-c C-r")
   "Lean Keybinding for server-restart"

@@ -23,22 +23,10 @@
   (interactive
    (list (read-directory-name "Specify the project root directory: ")))
   (let ((project-file (concat (file-name-as-directory directory)
-                              lean-project-file-name))
-        (ext "lean")
-        (default-contents
-          (s-join "\n"
-                  ;;  EXT is a placeholder.
-                  '("# Lean project file"
-                    ""
-                    "# Include all .EXT files under this directory"
-                    "+ *.EXT"
-                    ""
-                    "# Exclude emacs temp files"
-                    "- .#*.EXT"))))
+                              lean-project-file-name)))
     (if (file-exists-p project-file)
         (user-error "project-file %s already exists" project-file))
     (find-file project-file)
-    (insert (s-replace "EXT" ext default-contents))
     (save-buffer)))
 
 (provide 'lean-project)

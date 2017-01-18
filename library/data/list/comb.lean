@@ -6,7 +6,6 @@ Authors: Leonardo de Moura, Haitao Zhang, Floris van Doorn
 List combinators.
 -/
 import init.data.list.basic
-import data.nat.order
 
 universe variables u v w
 

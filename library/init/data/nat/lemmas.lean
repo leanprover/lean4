@@ -415,6 +415,10 @@ lt_succ_of_le (sub_le a b)
 lemma sub_lt_succ_iff_true (a b : ℕ) : a - b < succ a ↔ true :=
 iff_true_intro (sub_lt_succ a b)
 
+protected theorem sub_le_sub_right {n m : ℕ} (h : n ≤ m) : ∀ k, n - k ≤ m - k
+| 0        := h
+| (succ z) := pred_le_pred (sub_le_sub_right z)
+
 /- bit0/bit1 properties -/
 
 protected lemma bit0_succ_eq (n : ℕ) : bit0 (succ n) = succ (succ (bit0 n)) :=
@@ -682,6 +686,12 @@ min_eq_left (zero_le a)
 
 lemma min_zero_right (a : ℕ) : min a 0 = 0 :=
 min_eq_right (zero_le a)
+
+theorem zero_min (a : ℕ) : min 0 a = 0 :=
+min_zero_left a
+
+theorem min_zero (a : ℕ) : min a 0 = 0 :=
+min_zero_right a
 
 -- Distribute succ over min
 lemma min_succ_succ (x y : ℕ) : min (succ x) (succ y) = succ (min x y) :=

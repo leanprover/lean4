@@ -6,7 +6,6 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn
 Basic properties of lists.
 -/
 import init.data.list.basic
-import data.nat.order
 
 universe variables u v w
 

@@ -284,6 +284,7 @@ struct elim_match_fn {
     }
 
     bool is_value(type_context & ctx, expr const & e) {
+        try {
         if (!m_use_ite) return false;
         if (to_char(ctx, e) || to_string(e)) return true;
         if (is_signed_num(e)) {
@@ -293,6 +294,9 @@ struct elim_match_fn {
         }
         if (optional<name> I_name = is_constructor(e)) return is_nontrivial_enum(*I_name);
         return false;
+        } catch (exception &) {
+            lean_unreachable();
+        }
     }
 
     bool is_transport_app(expr const & e) {
@@ -441,13 +445,20 @@ struct elim_match_fn {
     }
 
     template<typename Pred>
-    bool all_next_pattern(problem const & P, Pred && p) const {
+    bool all_equations(problem const & P, Pred && p) const {
         for (equation const & eqn : P.m_equations) {
-            lean_assert(eqn.m_patterns);
-            if (!p(head(eqn.m_patterns)))
+            if (!p(eqn))
                 return false;
         }
         return true;
+    }
+
+    template<typename Pred>
+    bool all_next_pattern(problem const & P, Pred && p) const {
+        return all_equations(P, [&](equation const & eqn) {
+                lean_assert(eqn.m_patterns);
+                return p(head(eqn.m_patterns));
+            });
     }
 
     /* Return true iff the next pattern in all equations is a variable. */
@@ -457,9 +468,12 @@ struct elim_match_fn {
 
     /* Return true iff the next pattern in all equations is a constructor. */
     bool is_constructor_transition(problem const & P) {
-        type_context ctx = mk_type_context(P);
-        return all_next_pattern(P, [&](expr const & p) {
-                return is_constructor_app(p) || is_value(ctx, p);
+        return all_equations(P, [&](equation const & eqn) {
+                expr const & p = head(eqn.m_patterns);
+                if (is_constructor_app(p))
+                    return true;
+                type_context ctx = mk_type_context(eqn.m_lctx);
+                return is_value(ctx, p);
             });
     }
 
@@ -489,17 +503,20 @@ struct elim_match_fn {
     bool is_complete_transition(problem const & P, bool value_is_contructor) {
         bool has_variable    = false;
         bool has_constructor = false;
-        type_context ctx     = mk_type_context(P);
-        bool r = all_next_pattern(P, [&](expr const & p) {
+        bool r = all_equations(P, [&](equation const & eqn) {
+                expr const & p = head(eqn.m_patterns);
                 if (is_local(p)) {
                     has_variable = true; return true;
                 } else if (is_constructor_app(p)) {
                     has_constructor = true; return true;
-                } else if (is_value(ctx, p)) {
-                    if (value_is_contructor) has_constructor = true;
-                    return true;
                 } else {
-                    return false;
+                    type_context ctx = mk_type_context(eqn.m_lctx);
+                    if (is_value(ctx, p)) {
+                        if (value_is_contructor) has_constructor = true;
+                        return true;
+                    } else {
+                        return false;
+                    }
                 }
             });
         return r && has_variable && has_constructor;
@@ -511,18 +528,22 @@ struct elim_match_fn {
     bool is_value_transition(problem const & P) {
         bool has_value    = false;
         bool has_variable = false;
-        type_context ctx  = mk_type_context(P);
-        bool r = all_next_pattern(P, [&](expr const & p) {
+        bool r = all_equations(P, [&](equation const & eqn) {
+                expr const & p = head(eqn.m_patterns);
                 if (is_local(p)) {
                     has_variable = true; return true;
-                } else if (is_value(ctx, p)) {
-                    has_value    = true; return true;
                 } else {
-                    return false;
+                    type_context ctx = mk_type_context(eqn.m_lctx);
+                    if (is_value(ctx, p)) {
+                        has_value    = true; return true;
+                    } else {
+                        return false;
+                    }
                 }
             });
         if (!r || !has_value || !has_variable)
             return false;
+        type_context ctx  = mk_type_context(P);
         /* Check whether other variables on the variable stack depend on the head. */
         expr const & v   = head(P.m_var_stack);
         for (expr const & w : tail(P.m_var_stack)) {

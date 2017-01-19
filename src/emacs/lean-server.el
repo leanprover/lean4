@@ -52,13 +52,15 @@
        (when (car cb) (funcall (car cb) res))))))
 
 (defun lean-server-process-line (sess line)
-  (with-demoted-errors "error in lean-server command handler: %s"
-    (lean-debug "server=> %s" line)
-    (let* ((json-array-type 'list)
-           (json-object-type 'plist)
-           (json-false nil)
-           (response (json-read-from-string line)))
-        (lean-server-process-response sess response))))
+  (condition-case-unless-debug err
+      (progn
+        (lean-debug "server=> %s" line)
+        (let* ((json-array-type 'list)
+               (json-object-type 'plist)
+               (json-false nil)
+               (response (json-read-from-string line)))
+          (lean-server-process-response sess response)))
+    (error (message "error in lean-server command handler: %s\nServer response was:\n%s" err (buffer-string)))))
 
 (defun lean-server-process-buffer (sess)
   (goto-char (point-min))

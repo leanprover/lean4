@@ -73,6 +73,11 @@ false (nil)."
   :group 'lean
   :type 'boolean)
 
+(defcustom lean-server-show-pending-tasks nil
+  "Highlights pending tasks in the current buffer."
+  :group 'lean
+  :type 'boolean)
+
 (defcustom lean-keybinding-std-exe1 (kbd "C-c C-x")
   "Lean Keybinding for std-exe #1"
   :group 'lean-keybinding :type 'key-sequence)

@@ -209,17 +209,27 @@
   "Face to highlight pending Lean tasks."
   :group 'lean)
 
-(defun lean-server-update-task-overlays (&optional buf)
+(defun lean-server-update-task-overlays ()
   (dolist (ov lean-server-task-overlays) (delete-overlay ov))
   (setq lean-server-task-overlays nil)
-  (let ((tasks (if lean-server-session (lean-server-session-tasks lean-server-session)))
-        (cur-fn (buffer-file-name)))
-    (dolist (task tasks)
-      (if (equal (plist-get task :file_name) cur-fn)
-          (let* ((reg (lean-server-task-region task))
-                (ov (make-overlay (car reg) (cdr reg))))
-            (setq lean-server-task-overlays (cons ov lean-server-task-overlays))
-            (overlay-put ov 'face 'lean-server-task-face))))))
+  (when lean-server-show-pending-tasks
+    (let ((tasks (if lean-server-session (lean-server-session-tasks lean-server-session)))
+          (cur-fn (buffer-file-name)))
+      (dolist (task tasks)
+        (if (equal (plist-get task :file_name) cur-fn)
+            (let* ((reg (lean-server-task-region task))
+                   (ov (make-overlay (car reg) (cdr reg))))
+              (setq lean-server-task-overlays (cons ov lean-server-task-overlays))
+              (overlay-put ov 'face 'lean-server-task-face)))))))
+
+(defun lean-server-toggle-show-pending-tasks ()
+  "Toggles highlighting of pending tasks"
+  (interactive)
+  (setq lean-server-show-pending-tasks (not lean-server-show-pending-tasks))
+  (dolist (buf (buffer-list))
+    (with-current-buffer buf
+      (when lean-server-session
+        (lean-server-update-task-overlays)))))
 
 (defun lean-server-show-messages (&optional buf)
   (with-current-buffer (or buf (current-buffer))

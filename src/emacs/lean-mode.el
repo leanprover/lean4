@@ -109,6 +109,8 @@
     ["Show type info"       lean-show-type                    (and lean-eldoc-use eldoc-mode)]
     ["Toggle goal display"  lean-toggle-show-goal             t]
     ["Toggle next error display" lean-toggle-next-error       t]
+    ["Highlight pending tasks"  lean-server-toggle-show-pending-tasks
+     :active t :style toggle :selected lean-server-show-pending-tasks]
     ["Find definition at point" lean-find-definition          t]
     "-----------------"
     ["List of errors"       flycheck-list-errors              flycheck-mode]

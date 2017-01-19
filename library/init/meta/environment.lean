@@ -9,6 +9,19 @@ import init.meta.declaration init.meta.exceptional
 meta constant environment : Type
 
 namespace environment
+/--
+Information for a projection declaration
+- `cname`    is the name of the constructor associated with the projection.
+- `nparams`  is the number of constructor parameters
+- `idx`      is the parameter being projected by this projection
+- `is_class` is tt iff this is a class projection.
+-/
+structure projection_info :=
+(cname : name)
+(nparams : nat)
+(idx : nat)
+(is_class : bool)
+
 /- Create a standard environment using the given trust level -/
 meta constant mk_std          : nat → environment
 /- Return the trust level of the given environment -/
@@ -48,6 +61,7 @@ meta constant inductive_num_indices : environment → name → nat
 meta constant inductive_dep_elim : environment → name → bool
 /- Return tt iff the given name is a generalized inductive datatype -/
 meta constant is_ginductive : environment → name → bool
+meta constant is_projection : environment → name → option projection_info
 /- Fold over declarations in the environment -/
 meta constant fold {α :Type} : environment → α → (declaration → α → α) → α
 /- (relation_info env n) returns some value if n is marked as a relation in the given environment.

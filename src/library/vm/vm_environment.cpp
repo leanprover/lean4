@@ -7,11 +7,12 @@ Author: Leonardo de Moura
 #include <string>
 #include "kernel/type_checker.h"
 #include "kernel/inductive/inductive.h"
-#include "library/inductive_compiler/ginductive.h"
 #include "library/standard_kernel.h"
 #include "library/module.h"
+#include "library/projection.h"
 #include "library/util.h"
 #include "library/relation_manager.h"
+#include "library/inductive_compiler/ginductive.h"
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_option.h"
@@ -208,6 +209,22 @@ vm_obj environment_decl_pos_info(vm_obj const & env, vm_obj const & n) {
     }
 }
 
+/*
+structure projection_info :=
+(cname : name)
+(nparams : nat)
+(idx : nat)
+(is_class : bool)
+*/
+vm_obj environment_is_projection(vm_obj const & env, vm_obj const & n) {
+    if (auto info = get_projection_info(to_env(env), to_name(n))) {
+        return mk_vm_some(mk_vm_constructor(0, to_obj(info->m_constructor), mk_vm_nat(info->m_nparams),
+                                            mk_vm_nat(info->m_i), mk_vm_bool(info->m_inst_implicit)));
+    } else {
+        return mk_vm_none();
+    }
+}
+
 void initialize_vm_environment() {
     DECLARE_VM_BUILTIN(name({"environment", "mk_std"}),                environment_mk_std);
     DECLARE_VM_BUILTIN(name({"environment", "trust_lvl"}),             environment_trust_lvl);
@@ -226,6 +243,7 @@ void initialize_vm_environment() {
     DECLARE_VM_BUILTIN(name({"environment", "inductive_num_indices"}), environment_inductive_num_indices);
     DECLARE_VM_BUILTIN(name({"environment", "inductive_dep_elim"}),    environment_inductive_dep_elim);
     DECLARE_VM_BUILTIN(name({"environment", "is_ginductive"}),         environment_is_ginductive);
+    DECLARE_VM_BUILTIN(name({"environment", "is_projection"}),         environment_is_projection);
     DECLARE_VM_BUILTIN(name({"environment", "relation_info"}),         environment_relation_info);
     DECLARE_VM_BUILTIN(name({"environment", "refl_for"}),              environment_refl_for);
     DECLARE_VM_BUILTIN(name({"environment", "symm_for"}),              environment_symm_for);

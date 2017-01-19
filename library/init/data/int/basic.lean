@@ -260,7 +260,7 @@ private lemma sub_nat_self : ∀ n, sub_nat_nat n n = 0
 
 local attribute [simp] sub_nat_self
 
-protected lemma add_left_inv : ∀ a : ℤ, -a + a = 0
+protected lemma add_left_neg : ∀ a : ℤ, -a + a = 0
 | (of_nat 0)        := rfl
 | (of_nat (succ m)) := by simp
 | -[1+ m]           := by simp
@@ -404,7 +404,7 @@ instance : comm_ring int :=
   zero_add       := int.zero_add,
   add_zero       := int.add_zero,
   neg            := int.neg,
-  add_left_inv   := int.add_left_inv,
+  add_left_neg   := int.add_left_neg,
   add_comm       := int.add_comm,
   mul            := int.mul,
   mul_assoc      := int.mul_assoc,

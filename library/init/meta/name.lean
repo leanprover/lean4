@@ -36,6 +36,11 @@ def name.get_prefix : name → name
 | (mk_string s p)  := p
 | (mk_numeral s p) := p
 
+def name.update_prefix : name → name → name
+| anonymous        new_p := anonymous
+| (mk_string s p)  new_p := mk_string s new_p
+| (mk_numeral s p) new_p := mk_numeral s new_p
+
 definition name.to_string_with_sep (sep : string) : name → string
 | anonymous                := "[anonymous]"
 | (mk_string s anonymous)  := s

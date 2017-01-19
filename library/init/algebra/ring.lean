@@ -46,23 +46,7 @@ lemma zero_ne_one [s: zero_ne_one_class α] : 0 ≠ (1:α) :=
 
 /- semiring -/
 
-structure semiring (α : Type u) extends comm_monoid α renaming
-  mul→add mul_assoc→add_assoc one→zero one_mul→zero_add mul_one→add_zero mul_comm→add_comm,
-  monoid α, distrib α, mul_zero_class α
-
-attribute [class] semiring
-
-instance add_comm_monoid_of_semiring (α : Type u) [s : semiring α] : add_comm_monoid α :=
-@semiring.to_comm_monoid α s
-
-instance monoid_of_semiring (α : Type u) [s : semiring α] : monoid α :=
-@semiring.to_monoid α s
-
-instance distrib_of_semiring (α : Type u) [s : semiring α] : distrib α :=
-@semiring.to_distrib α s
-
-instance mul_zero_class_of_semiring (α : Type u) [s : semiring α] : mul_zero_class α :=
-@semiring.to_mul_zero_class α s
+class semiring (α : Type u) extends add_comm_monoid α, monoid α, distrib α, mul_zero_class α
 
 section semiring
   variables [semiring α]
@@ -88,48 +72,7 @@ class comm_semiring (α : Type u) extends semiring α, comm_monoid α
 
 /- ring -/
 
-/- In the algebra folder, we regularly use the trick of defining an algebraic structure
-   as a class, and then mark it as class. One problem with this construction is that
-   projections have slightly different types. Example:
-
-     ring.add : Π (α : Type u), (ring α) → α → α → α
-
-   instead of
-
-     ring.add : Π (α : Type u) [s : ring α], α → α → α
-
-   the type we would get if we had marked ring.add as a class when we declare it.
-
-   I think this is problematic. For example, the following unification constraint cannot be solved
-   without adding unification hints.
-
-       ring.add α ?s  =?= field.add α s
-
-   If ring.add had type (Π (α : Type u) [s : ring α], α → α → α), the unifier would
-   try to synthesize ?s using type class resolution, and would obtain (field.to_ring s),
-   and the constraint would be solved.
-
-   I don't think it is feasible to add unification hints for all problems like this one.
-   We would have to add so many hints since there are many projections and many instructions.
-
-   I think we should stop using this kind of trick. We can avoid duplication by
-   implementing a stronger transport that will translate not just the type but the
-   actual definition too.
--/
-structure ring (α : Type u) extends comm_group α renaming mul→add mul_assoc→add_assoc
-  one→zero one_mul→zero_add mul_one→add_zero inv→neg mul_left_inv→add_left_inv mul_comm→add_comm,
-  monoid α, distrib α
-
-attribute [class] ring
-
-instance to_add_comm_group_of_ring (α : Type u) [s : ring α] : add_comm_group α :=
-@ring.to_comm_group α s
-
-instance monoid_of_ring (α : Type u) [s : ring α] : monoid α :=
-@ring.to_monoid α s
-
-instance distrib_of_ring (α : Type u) [s : ring α] : distrib α :=
-@ring.to_distrib α s
+class ring (α : Type u) extends add_comm_group α, monoid α, distrib α
 
 lemma ring.mul_zero [ring α] (a : α) : a * 0 = 0 :=
 have a * 0 + 0 = a * 0 + a * 0, from calc

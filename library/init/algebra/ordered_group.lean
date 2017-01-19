@@ -12,48 +12,29 @@ set_option default_priority 100
 
 universe variable u
 
-class ordered_mul_cancel_comm_monoid (α : Type u)
-      extends comm_monoid α, left_cancel_semigroup α,
-              right_cancel_semigroup α, order_pair α :=
-(mul_le_mul_left       : ∀ a b : α, a ≤ b → ∀ c : α, c * a ≤ c * b)
-(le_of_mul_le_mul_left : ∀ a b c : α, a * b ≤ a * c → b ≤ c)
-(mul_lt_mul_left       : ∀ a b : α, a < b → ∀ c : α, c * a < c * b)
-(lt_of_mul_lt_mul_left : ∀ a b c : α, a * b < a * c → b < c)
-
-@[class] def ordered_cancel_comm_monoid : Type u → Type (max 1 u) :=
-ordered_mul_cancel_comm_monoid
-
-instance add_comm_monoid_of_ordered_cancel_comm_monoid
-  (α : Type u) [s : ordered_cancel_comm_monoid α] : add_comm_monoid α :=
-@ordered_mul_cancel_comm_monoid.to_comm_monoid α s
-
-instance add_left_cancel_semigroup_of_ordered_cancel_comm_monoid
-  (α : Type u) [s : ordered_cancel_comm_monoid α] : add_left_cancel_semigroup α :=
-@ordered_mul_cancel_comm_monoid.to_left_cancel_semigroup α s
-
-instance add_right_cancel_semigroup_of_ordered_cancel_comm_monoid
-  (α : Type u) [s : ordered_cancel_comm_monoid α] : add_right_cancel_semigroup α :=
-@ordered_mul_cancel_comm_monoid.to_right_cancel_semigroup α s
-
-instance order_pair_of_ordered_cancel_comm_monoid
-  (α : Type u) [s : ordered_cancel_comm_monoid α] : order_pair α :=
-@ordered_mul_cancel_comm_monoid.to_order_pair α s
+class ordered_cancel_comm_monoid (α : Type u)
+      extends add_comm_monoid α, add_left_cancel_semigroup α,
+              add_right_cancel_semigroup α, order_pair α :=
+(add_le_add_left       : ∀ a b : α, a ≤ b → ∀ c : α, c + a ≤ c + b)
+(le_of_add_le_add_left : ∀ a b c : α, a + b ≤ a + c → b ≤ c)
+(add_lt_add_left       : ∀ a b : α, a < b → ∀ c : α, c + a < c + b)
+(lt_of_add_lt_add_left : ∀ a b c : α, a + b < a + c → b < c)
 
 section ordered_cancel_comm_monoid
 variable {α : Type u}
 variable [s : ordered_cancel_comm_monoid α]
 
 lemma add_le_add_left {a b : α} (h : a ≤ b) (c : α) : c + a ≤ c + b :=
-@ordered_mul_cancel_comm_monoid.mul_le_mul_left α s a b h c
+@ordered_cancel_comm_monoid.add_le_add_left α s a b h c
 
 lemma le_of_add_le_add_left {a b c : α} (h : a + b ≤ a + c) : b ≤ c :=
-@ordered_mul_cancel_comm_monoid.le_of_mul_le_mul_left α s a b c h
+@ordered_cancel_comm_monoid.le_of_add_le_add_left α s a b c h
 
 lemma add_lt_add_left {a b : α} (h : a < b) (c : α) : c + a < c + b :=
-@ordered_mul_cancel_comm_monoid.mul_lt_mul_left α s a b h c
+@ordered_cancel_comm_monoid.add_lt_add_left α s a b h c
 
 lemma lt_of_add_lt_add_left {a b c : α} (h : a + b < a + c) : b < c :=
-@ordered_mul_cancel_comm_monoid.lt_of_mul_lt_mul_left α s a b c h
+@ordered_cancel_comm_monoid.lt_of_add_lt_add_left α s a b c h
 end ordered_cancel_comm_monoid
 
 section ordered_cancel_comm_monoid
@@ -200,38 +181,29 @@ add_zero c ▸ add_lt_add hbc ha
 
 end ordered_cancel_comm_monoid
 
-class ordered_mul_comm_group (α : Type u) extends comm_group α, order_pair α :=
-(mul_le_mul_left : ∀ a b : α, a ≤ b → ∀ c : α, c * a ≤ c * b)
-(mul_lt_mul_left : ∀ a b : α, a < b → ∀ c : α, c * a < c * b)
+class ordered_comm_group (α : Type u) extends add_comm_group α, order_pair α :=
+(add_le_add_left : ∀ a b : α, a ≤ b → ∀ c : α, c + a ≤ c + b)
+(add_lt_add_left : ∀ a b : α, a < b → ∀ c : α, c + a < c + b)
 
-@[class] def ordered_comm_group : Type u → Type (max 1 u) :=
-ordered_mul_comm_group
-
-instance add_comm_group_of_ordered_comm_group (α : Type u) [s : ordered_comm_group α] : add_comm_group α :=
-@ordered_mul_comm_group.to_comm_group α s
-
-section ordered_mul_comm_group
+section ordered_comm_group
 variable {α : Type u}
-variable [ordered_mul_comm_group α]
+variable [ordered_comm_group α]
 
-lemma ordered_mul_comm_group.le_of_mul_le_mul_left {a b c : α} (h : a * b ≤ a * c) : b ≤ c :=
-have a⁻¹ * (a * b) ≤ a⁻¹ * (a * c), from ordered_mul_comm_group.mul_le_mul_left _ _ h _,
-begin simp [inv_mul_cancel_left] at this, assumption end
+lemma ordered_comm_group.le_of_add_le_add_left {a b c : α} (h : a + b ≤ a + c) : b ≤ c :=
+have -a + (a + b) ≤ -a + (a + c), from ordered_comm_group.add_le_add_left _ _ h _,
+begin simp [neg_add_cancel_left] at this, assumption end
 
-lemma ordered_mul_comm_group.lt_of_mul_lt_mul_left {a b c : α} (h : a * b < a * c) : b < c :=
-have a⁻¹ * (a * b) < a⁻¹ * (a * c), from ordered_mul_comm_group.mul_lt_mul_left _ _ h _,
-begin simp [inv_mul_cancel_left] at this, assumption end
-end ordered_mul_comm_group
+lemma ordered_comm_group.lt_of_add_lt_add_left {a b c : α} (h : a + b < a + c) : b < c :=
+have -a + (a + b) < -a + (a + c), from ordered_comm_group.add_lt_add_left _ _ h _,
+begin simp [neg_add_cancel_left] at this, assumption end
+end ordered_comm_group
 
-instance ordered_mul_comm_group.to_ordered_mul_cancel_comm_monoid (α : Type u) [s : ordered_mul_comm_group α] : ordered_mul_cancel_comm_monoid α :=
+instance ordered_comm_group.to_ordered_cancel_comm_monoid (α : Type u) [s : ordered_comm_group α] : ordered_cancel_comm_monoid α :=
 { s with
-  mul_left_cancel       := @mul_left_cancel α _,
-  mul_right_cancel      := @mul_right_cancel α _,
-  le_of_mul_le_mul_left := @ordered_mul_comm_group.le_of_mul_le_mul_left α _,
-  lt_of_mul_lt_mul_left := @ordered_mul_comm_group.lt_of_mul_lt_mul_left α _ }
-
-instance ordered_comm_group.to_ordered_cancel_comm_monoid  (α : Type u) [s : ordered_comm_group α] : ordered_cancel_comm_monoid α :=
-@ordered_mul_comm_group.to_ordered_mul_cancel_comm_monoid α s
+  add_left_cancel       := @add_left_cancel α _,
+  add_right_cancel      := @add_right_cancel α _,
+  le_of_add_le_add_left := @ordered_comm_group.le_of_add_le_add_left α _,
+  lt_of_add_lt_add_left := @ordered_comm_group.lt_of_add_lt_add_left α _ }
 
 section ordered_comm_group
 variables {α : Type u} [ordered_comm_group α]
@@ -634,43 +606,17 @@ end
 
 end ordered_comm_group
 
-class decidable_linear_ordered_mul_comm_group (α : Type u)
-    extends comm_group α, decidable_linear_order α :=
-(mul_le_mul_left : ∀ a b : α, a ≤ b → ∀ c : α, c * a ≤ c * b)
-(mul_lt_mul_left : ∀ a b : α, a < b → ∀ c : α, c * a < c * b)
+class decidable_linear_ordered_comm_group (α : Type u)
+    extends add_comm_group α, decidable_linear_order α :=
+(add_le_add_left : ∀ a b : α, a ≤ b → ∀ c : α, c + a ≤ c + b)
+(add_lt_add_left : ∀ a b : α, a < b → ∀ c : α, c + a < c + b)
 
-@[class] def decidable_linear_ordered_comm_group : Type u → Type (max 1 u) :=
-decidable_linear_ordered_mul_comm_group
-
-instance add_comm_group_of_decidable_linear_ordered_comm_group (α : Type u)
-  [s : decidable_linear_ordered_comm_group α] : add_comm_group α :=
-@decidable_linear_ordered_mul_comm_group.to_comm_group α s
-
-instance decidable_linear_order_of_decidable_linear_ordered_comm_group (α : Type u)
-  [s : decidable_linear_ordered_comm_group α] : decidable_linear_order α :=
-@decidable_linear_ordered_mul_comm_group.to_decidable_linear_order α s
-
-instance decidable_linear_ordered_mul_comm_group.to_ordered_mul_comm_group (α : Type u)
-  [s : decidable_linear_ordered_mul_comm_group α] : ordered_mul_comm_group α :=
+instance decidable_linear_ordered_comm_group.to_ordered_comm_group (α : Type u)
+  [s : decidable_linear_ordered_comm_group α] : ordered_comm_group α :=
 {s with
  le_of_lt := @le_of_lt α _,
  lt_of_le_of_lt := @lt_of_le_of_lt α _,
  lt_of_lt_of_le := @lt_of_lt_of_le α _ }
 
-instance decidable_linear_ordered_comm_group.to_ordered_comm_group (α : Type u)
-  [s : decidable_linear_ordered_comm_group α] : ordered_comm_group α :=
-@decidable_linear_ordered_mul_comm_group.to_ordered_mul_comm_group α s
-
-class decidable_linear_ordered_mul_cancel_comm_monoid (α : Type u)
-      extends ordered_mul_cancel_comm_monoid α, decidable_linear_order α
-
-@[class] def decidable_linear_ordered_cancel_comm_monoid : Type u → Type (max 1 u) :=
-decidable_linear_ordered_mul_cancel_comm_monoid
-
-instance ordered_cancel_comm_monoid_of_decidable_linear_ordered_cancel_comm_monoid (α : Type u)
-  [s : decidable_linear_ordered_cancel_comm_monoid α] : ordered_cancel_comm_monoid α :=
-@decidable_linear_ordered_mul_cancel_comm_monoid.to_ordered_mul_cancel_comm_monoid α s
-
-instance decidable_linear_order_of_decidable_linear_ordered_cancel_comm_monoid (α : Type u)
-  [s : decidable_linear_ordered_cancel_comm_monoid α] : decidable_linear_order α :=
-@decidable_linear_ordered_mul_cancel_comm_monoid.to_decidable_linear_order α s
+class decidable_linear_ordered_cancel_comm_monoid (α : Type u)
+      extends ordered_cancel_comm_monoid α, decidable_linear_order α

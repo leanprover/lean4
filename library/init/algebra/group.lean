@@ -170,54 +170,40 @@ by rw [mul_inv_rev, mul_comm]
    to the additive one.
 -/
 
-@[class] def add_semigroup              := semigroup
-@[class] def add_monoid                 := monoid
-@[class] def add_group                  := group
-@[class] def add_comm_semigroup         := comm_semigroup
-@[class] def add_comm_monoid            := comm_monoid
-@[class] def add_comm_group             := comm_group
-@[class] def add_left_cancel_semigroup  := left_cancel_semigroup
-@[class] def add_right_cancel_semigroup := right_cancel_semigroup
+class add_semigroup (α : Type u) extends has_add α :=
+(add_assoc : ∀ a b c : α, a + b + c = a + (b + c))
 
-instance add_semigroup.to_has_add {α : Type u} [s : add_semigroup α] : has_add α :=
-⟨@semigroup.mul α s⟩
-instance add_monoid.to_has_zero {α : Type u} [s : add_monoid α] : has_zero α :=
-⟨@monoid.one α s⟩
-instance add_group.to_has_neg {α : Type u} [s : add_group α] : has_neg α :=
-⟨@group.inv α s⟩
+class add_comm_semigroup (α : Type u) extends add_semigroup α :=
+(add_comm : ∀ a b : α, a + b = b + a)
+
+class add_left_cancel_semigroup (α : Type u) extends add_semigroup α :=
+(add_left_cancel : ∀ a b c : α, a + b = a + c → b = c)
+
+class add_right_cancel_semigroup (α : Type u) extends add_semigroup α :=
+(add_right_cancel : ∀ a b c : α, a + b = c + b → a = c)
+
+class add_monoid (α : Type u) extends add_semigroup α, has_zero α :=
+(zero_add : ∀ a : α, 0 + a = a) (add_zero : ∀ a : α, a + 0 = a)
+
+class add_comm_monoid (α : Type u) extends add_monoid α, add_comm_semigroup α
+
+class add_group (α : Type u) extends add_monoid α, has_neg α :=
+(add_left_neg : ∀ a : α, -a + a = 0)
+
+class add_comm_group (α : Type u) extends add_group α, add_comm_monoid α
 
 open tactic
 
 meta def transport_with_dict (dict : name_map name) (src : name) (tgt : name) : command :=
-copy_decl_updating_type dict src tgt
+copy_decl_using dict src tgt
 >> copy_attribute `reducible src tt tgt
 >> copy_attribute `simp src tt tgt
 >> copy_attribute `instance src tt tgt
 
-meta def name_map_of_list_name (l : list name) : tactic (name_map name) :=
-do list_pair_name ← monad.for l (λ nm, do e ← mk_const nm, eval_expr (list (name × name)) e),
-   return $ rb_map.of_list (list.join list_pair_name)
-
-meta def transport_using_attr (attr : caching_user_attribute (name_map name))
-    (src : name) (tgt : name) : command :=
-do dict ← caching_user_attribute.get_cache attr,
-   transport_with_dict dict src tgt
-
-meta def multiplicative_to_additive_transport_attr : caching_user_attribute (name_map name) :=
-{ name  := `multiplicative_to_additive_transport,
-  descr := "list of name pairs for transporting multiplicative facts to additive ones",
-  mk_cache := name_map_of_list_name,
-  dependencies := [] }
-
-run_command attribute.register `multiplicative_to_additive_transport_attr
-
-meta def transport_to_additive : name → name → command :=
-transport_using_attr multiplicative_to_additive_transport_attr
-
-@[multiplicative_to_additive_transport]
 meta def multiplicative_to_additive_pairs : list (name × name) :=
   [/- map operations -/
    (`mul, `add), (`one, `zero), (`inv, `neg),
+   (`has_mul, `has_add), (`has_one, `has_zero), (`has_inv, `has_neg),
    /- map structures -/
    (`semigroup, `add_semigroup),
    (`monoid, `add_monoid),
@@ -227,6 +213,8 @@ meta def multiplicative_to_additive_pairs : list (name × name) :=
    (`comm_group, `add_comm_group),
    (`left_cancel_semigroup, `add_left_cancel_semigroup),
    (`right_cancel_semigroup, `add_right_cancel_semigroup),
+   (`left_cancel_semigroup.mk, `add_left_cancel_semigroup.mk),
+   (`right_cancel_semigroup.mk, `add_right_cancel_semigroup.mk),
    /- map instances -/
    (`semigroup.to_has_mul, `add_semigroup.to_has_add),
    (`monoid.to_has_one, `add_monoid.to_has_zero),
@@ -239,50 +227,64 @@ meta def multiplicative_to_additive_pairs : list (name × name) :=
    (`comm_group.to_group, `add_comm_group.to_add_group),
    (`comm_group.to_comm_monoid, `add_comm_group.to_add_comm_monoid),
    (`left_cancel_semigroup.to_semigroup, `add_left_cancel_semigroup.to_add_semigroup),
-   (`right_cancel_semigroup.to_semigroup, `add_right_cancel_semigroup.to_add_semigroup)
- ]
+   (`right_cancel_semigroup.to_semigroup, `add_right_cancel_semigroup.to_add_semigroup),
+   /- map projections -/
+   (`semigroup.mul_assoc, `add_semigroup.add_assoc),
+   (`comm_semigroup.mul_comm, `add_comm_semigroup.add_comm),
+   (`left_cancel_semigroup.mul_left_cancel, `add_left_cancel_semigroup.add_left_cancel),
+   (`right_cancel_semigroup.mul_right_cancel, `add_right_cancel_semigroup.add_right_cancel),
+   (`monoid.one_mul, `add_monoid.zero_add),
+   (`monoid.mul_one, `add_monoid.add_zero),
+   (`group.mul_left_inv, `add_group.add_left_neg),
+   (`group.mul, `add_group.add),
+   (`group.mul_assoc, `add_group.add_assoc),
+   /- map lemmas -/
+   (`mul_assoc, `add_assoc),
+   (`mul_comm, `add_comm),
+   (`mul_left_comm, `add_left_comm),
+   (`one_mul, `zero_add),
+   (`mul_one, `add_zero),
+   (`mul_left_inv, `add_left_neg),
+   (`mul_left_cancel, `add_left_cancel),
+   (`mul_right_cancel, `add_right_cancel),
+   (`inv_mul_cancel_left, `neg_add_cancel_left),
+   (`inv_mul_cancel_right, `neg_add_cancel_right),
+   (`eq_inv_mul_of_mul_eq, `eq_neg_add_of_add_eq),
+   (`inv_eq_of_mul_eq_one, `neg_eq_of_add_eq_zero),
+   (`inv_inv, `neg_neg),
+   (`mul_right_inv, `add_right_neg),
+   (`mul_inv_cancel_left, `add_neg_cancel_left),
+   (`mul_inv_cancel_right, `add_neg_cancel_right),
+   (`mul_inv_rev, `neg_add_rev),
+   (`mul_inv, `neg_add),
+   (`inv_inj, `neg_inj),
+   (`group.mul_left_cancel, `add_group.add_left_cancel),
+   (`group.mul_right_cancel, `add_group.add_right_cancel),
+   (`group.to_left_cancel_semigroup, `add_group.to_left_cancel_add_semigroup),
+   (`group.to_right_cancel_semigroup, `add_group.to_right_cancel_add_semigroup),
+   (`eq_inv_of_eq_inv, `eq_neg_of_eq_neg),
+   (`eq_inv_of_mul_eq_one, `eq_neg_of_add_eq_zero),
+   (`eq_mul_inv_of_mul_eq, `eq_add_neg_of_add_eq),
+   (`inv_mul_eq_of_eq_mul, `neg_add_eq_of_eq_add),
+   (`mul_inv_eq_of_eq_mul, `add_neg_eq_of_eq_add),
+   (`eq_mul_of_mul_inv_eq, `eq_add_of_add_neg_eq),
+   (`eq_mul_of_inv_mul_eq, `eq_add_of_neg_add_eq),
+   (`mul_eq_of_eq_inv_mul, `add_eq_of_eq_neg_add),
+   (`mul_eq_of_eq_mul_inv, `add_eq_of_eq_add_neg),
+   (`one_inv, `neg_zero)
+]
 
-/- Make sure all constants at multiplicative_to_additive are declared -/
-meta def init_multiplicative_to_additive : command :=
-list.foldl (λ (tac : tactic unit) (p : name × name), do
-  (s, t) ← return p,
+/- Transport multiplicative to additive -/
+meta def transport_multiplicative_to_additive : command :=
+let dict := rb_map.of_list multiplicative_to_additive_pairs in
+list.foldl (λ t (p : name × name), do
   env ← get_env,
-  if (env^.get t)^.to_bool = ff
-  then tac >> transport_to_additive s t
-  else tac) skip multiplicative_to_additive_pairs
+  if (env^.get p.2)^.to_bool = ff
+  then t >> transport_with_dict dict p.1 p.2
+  else t)
+skip multiplicative_to_additive_pairs
 
-run_command init_multiplicative_to_additive
-run_command transport_to_additive `mul_assoc `add_assoc
-run_command transport_to_additive `mul_comm  `add_comm
-run_command transport_to_additive `mul_left_comm `add_left_comm
-run_command transport_to_additive `one_mul `zero_add
-run_command transport_to_additive `mul_one `add_zero
-run_command transport_to_additive `mul_left_inv `add_left_neg
-run_command transport_to_additive `mul_left_cancel `add_left_cancel
-run_command transport_to_additive `mul_right_cancel `add_right_cancel
-run_command transport_to_additive `mul_inv_cancel_left `add_neg_cancel_left
-run_command transport_to_additive `mul_inv_cancel_right `add_neg_cancel_right
-run_command transport_to_additive `inv_mul_cancel_left `neg_add_cancel_left
-run_command transport_to_additive `inv_mul_cancel_right `neg_add_cancel_right
-run_command transport_to_additive `inv_eq_of_mul_eq_one `neg_eq_of_add_eq_zero
-run_command transport_to_additive `one_inv `neg_zero
-run_command transport_to_additive `inv_inv `neg_neg
-run_command transport_to_additive `mul_right_inv `add_right_neg
-run_command transport_to_additive `mul_inv_rev `neg_add_rev
-run_command transport_to_additive `mul_inv `neg_add
-run_command transport_to_additive `inv_inj `neg_inj
-run_command transport_to_additive `group.to_left_cancel_semigroup `add_group.to_left_cancel_add_semigroup
-run_command transport_to_additive `group.to_right_cancel_semigroup `add_group.to_right_cancel_add_semigroup
-run_command transport_to_additive `eq_inv_of_eq_inv `eq_neg_of_eq_neg
-run_command transport_to_additive `eq_inv_of_mul_eq_one `eq_neg_of_add_eq_zero
-run_command transport_to_additive `eq_mul_inv_of_mul_eq `eq_add_neg_of_add_eq
-run_command transport_to_additive `eq_inv_mul_of_mul_eq `eq_neg_add_of_add_eq
-run_command transport_to_additive `inv_mul_eq_of_eq_mul `neg_add_eq_of_eq_add
-run_command transport_to_additive `mul_inv_eq_of_eq_mul `add_neg_eq_of_eq_add
-run_command transport_to_additive `eq_mul_of_mul_inv_eq `eq_add_of_add_neg_eq
-run_command transport_to_additive `eq_mul_of_inv_mul_eq `eq_add_of_neg_add_eq
-run_command transport_to_additive `mul_eq_of_eq_inv_mul `add_eq_of_eq_neg_add
-run_command transport_to_additive `mul_eq_of_eq_mul_inv `add_eq_of_eq_add_neg
+run_command transport_multiplicative_to_additive
 
 instance add_semigroup_to_is_eq_associative [add_semigroup α] : is_associative α add :=
 ⟨add_assoc⟩

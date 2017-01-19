@@ -53,11 +53,11 @@
 
 (defun lean-server-process-line (sess line)
   (with-demoted-errors "error in lean-server command handler: %s"
+    (lean-debug "server=> %s" line)
     (let* ((json-array-type 'list)
            (json-object-type 'plist)
            (json-false nil)
            (response (json-read-from-string line)))
-        (lean-debug "server=> %s" line)
         (lean-server-process-response sess response))))
 
 (defun lean-server-process-buffer (sess)

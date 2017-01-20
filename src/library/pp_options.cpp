@@ -56,7 +56,7 @@ Author: Leonardo de Moura
 #endif
 
 #ifndef LEAN_DEFAULT_PP_BETA
-#define LEAN_DEFAULT_PP_BETA true
+#define LEAN_DEFAULT_PP_BETA false
 #endif
 
 #ifndef LEAN_DEFAULT_PP_NUMERALS

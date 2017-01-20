@@ -24,7 +24,7 @@ matrix:
      env:
        CMAKE_CXX_COMPILER=g++-4.9
        CMAKE_BUILD_TYPE=Release
-       TARGET=build/lean-3.0.0-linux.tar.gz
+       TARGET=build/lean-@LEAN_VERSION_MAJOR@.@LEAN_VERSION_MINOR@.@LEAN_VERSION_PATCH@-linux.tar.gz
        UPLOAD=ON
        STATIC=ON
 
@@ -77,7 +77,7 @@ matrix:
      env:
        CMAKE_CXX_COMPILER=clang++
        CMAKE_BUILD_TYPE=Release
-       TARGET=build/lean-3.0.0-darwin.zip
+       TARGET=build/lean-@LEAN_VERSION_MAJOR@.@LEAN_VERSION_MINOR@.@LEAN_VERSION_PATCH@-darwin.zip
        UPLOAD=ON
        PACKAGE=TRUE
 

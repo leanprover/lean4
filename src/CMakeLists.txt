@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.7)
 project(LEAN CXX C)
-set(LEAN_VERSION_MAJOR 0)
-set(LEAN_VERSION_MINOR 3)
+set(LEAN_VERSION_MAJOR 3)
+set(LEAN_VERSION_MINOR 0)
 set(LEAN_VERSION_PATCH 0)
 
 set(LEAN_EXTRA_LINKER_FLAGS "")
@@ -297,6 +297,8 @@ configure_file("${LEAN_SOURCE_DIR}/githash.h.in" "${LEAN_BINARY_DIR}/githash.h")
 
 # Version
 configure_file("${LEAN_SOURCE_DIR}/version.h.in" "${LEAN_BINARY_DIR}/version.h")
+configure_file("${LEAN_SOURCE_DIR}/../.travis.yml.in" "${LEAN_SOURCE_DIR}/../.travis.yml")
+configure_file("${LEAN_SOURCE_DIR}/../.appveyor.yml.in" "${LEAN_SOURCE_DIR}/../.appveyor.yml")
 
 # leanemacs file
 configure_file("${LEAN_SOURCE_DIR}/../bin/leanemacs.in" "${LEAN_SOURCE_DIR}/../bin/leanemacs")

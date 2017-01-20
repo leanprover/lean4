@@ -14,7 +14,7 @@ test_script:
   - C:\msys64\usr\bin\bash -lc "exec 0</dev/null && cd $APPVEYOR_BUILD_FOLDER/build && ctest -j4"
 
 artifacts:
-  - path: build\lean-3.0.0-windows.zip
+  - path: build\lean-@LEAN_VERSION_MAJOR@.@LEAN_VERSION_MINOR@.@LEAN_VERSION_PATCH@-windows.zip
     name: binary
 
 deploy:

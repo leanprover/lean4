@@ -26,5 +26,5 @@ begin
   intro n,
   destruct n,
    dsimp, intros, note h := lt_irrefl 0, cc,
-   dsimp, intros, subst n, reflexivity
+   dsimp, intros, subst n
 end

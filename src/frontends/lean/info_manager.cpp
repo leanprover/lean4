@@ -13,7 +13,10 @@ Author: Leonardo de Moura
 #include "library/documentation.h"
 #include "library/scoped_ext.h"
 #include "library/vm/vm.h"
+#include "library/vm/vm_nat.h"
+#include "library/vm/vm_format.h"
 #include "library/vm/vm_list.h"
+#include "library/tactic/tactic_state.h"
 #include "frontends/lean/json.h"
 #include "frontends/lean/info_manager.h"
 
@@ -55,6 +58,17 @@ public:
 };
 
 #ifdef LEAN_JSON
+void vm_obj_format_info::report(io_state_stream const & ios, json & record) const {
+    if (!m_cache) {
+        vm_state S(m_env, ios.get_options());
+        vm_obj thunk = m_thunk.to_vm_obj();
+        const_cast<vm_obj_format_info*>(this)->m_cache = to_format(S.invoke(thunk, mk_vm_unit()));
+    }
+    std::ostringstream ss;
+    ss << mk_pair(*m_cache, ios.get_options());
+    record["state"] = ss.str();
+}
+
 void tactic_state_info_data::report(io_state_stream const &, json & record) const {
     std::ostringstream ss;
     ss << m_state.pp();
@@ -71,6 +85,7 @@ void smt_tactic_state_info_data::report(io_state_stream const &, json & record) 
 
 info_data mk_type_info(expr const & e) { return info_data(new type_info_data(e)); }
 info_data mk_identifier_info(name const & full_id) { return info_data(new identifier_info_data(full_id)); }
+info_data mk_vm_obj_format_info(environment const & env, vm_obj const & thunk) { return info_data(new vm_obj_format_info(env, thunk)); }
 info_data mk_tactic_state_info(tactic_state const & s) { return info_data(new tactic_state_info_data(s)); }
 info_data mk_smt_tactic_state_info(list<smt_goal> const & ss, tactic_state const & ts) { return info_data(new smt_tactic_state_info_data(ss, ts)); }
 
@@ -117,6 +132,10 @@ void info_manager::add_identifier_info(unsigned l, unsigned c, name const & full
     add_info(l, c, mk_identifier_info(full_id));
 }
 
+void info_manager::add_vm_obj_format_info(unsigned l, unsigned c, environment const & env, vm_obj const & thunk) {
+    add_info(l, c, mk_vm_obj_format_info(env, thunk));
+}
+
 void info_manager::add_tactic_state_info(unsigned l, unsigned c, tactic_state const & s) {
     add_info(l, c, mk_tactic_state_info(s));
 }
@@ -151,5 +170,22 @@ scoped_info_manager::~scoped_info_manager() {
 }
 info_manager * get_global_info_manager() {
     return g_info_m;
+}
+
+vm_obj tactic_save_info_thunk(vm_obj const & line, vm_obj const & col, vm_obj const & thunk, vm_obj const & s) {
+    try {
+        if (g_info_m) {
+            g_info_m->add_vm_obj_format_info(force_to_unsigned(line), force_to_unsigned(col), to_tactic_state(s).env(), thunk);
+        }
+        return mk_tactic_success(to_tactic_state(s));
+    } catch (exception & ex) {
+        return mk_tactic_exception(ex, to_tactic_state(s));
+    }
+}
+
+void initialize_info_manager() {
+    DECLARE_VM_BUILTIN(name({"tactic", "save_info_thunk"}),  tactic_save_info_thunk);
+}
+void finalize_info_manager() {
 }
 }

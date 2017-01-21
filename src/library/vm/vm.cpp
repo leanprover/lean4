@@ -311,6 +311,171 @@ void display(std::ostream & out, vm_obj const & o) {
     }
 }
 
+struct vm_obj_cell_hash {
+    unsigned operator()(vm_obj_cell const * o) const { return hash_ptr(o); }
+};
+
+struct vm_obj_cell_eq {
+    bool operator()(vm_obj_cell const * o1, vm_obj_cell const * o2) const { return o1 == o2; }
+};
+
+struct ts_vm_obj::to_ts_vm_obj_fn {
+    std::unordered_map<vm_obj_cell *, vm_obj, vm_obj_cell_hash, vm_obj_cell_eq> m_cache;
+    std::vector<vm_obj_cell*> & m_objs;
+
+    void * alloc_composite(unsigned sz) {
+        return new char[sizeof(vm_composite) + sz * sizeof(vm_obj)];
+    }
+
+    void * alloc_native_closure(unsigned num_args) {
+        return new char[sizeof(vm_native_closure) + num_args * sizeof(vm_obj)];
+    }
+
+    vm_obj visit_constructor(vm_obj const & o) {
+        buffer<vm_obj> fields;
+        for (unsigned i = 0; i < csize(o); i++)
+            fields.push_back(visit(cfield(o, i)));
+        return vm_obj(new (alloc_composite(fields.size())) vm_composite(vm_obj_kind::Constructor, cidx(o), fields.size(), fields.data()));
+    }
+
+    vm_obj visit_closure(vm_obj const & o) {
+        buffer<vm_obj> fields;
+        for (unsigned i = 0; i < csize(o); i++)
+            fields.push_back(visit(cfield(o, i)));
+        return vm_obj(new (alloc_composite(fields.size())) vm_composite(vm_obj_kind::Closure, cfn_idx(o), fields.size(), fields.data()));
+    }
+
+    vm_obj visit_mpz(vm_obj const & o) {
+        return vm_obj(new vm_mpz(to_mpz(o)));
+    }
+
+    vm_obj visit_external(vm_obj const & o) {
+        return mk_vm_external(to_external(o)->ts_clone());
+    }
+
+    vm_obj visit_native_closure(vm_obj const & o) {
+        vm_native_closure * cell = to_native_closure(o);
+        buffer<vm_obj> args;
+        unsigned nargs = cell->get_num_args();
+        for (unsigned i = 0; i < nargs; i++)
+            args.push_back(visit(cell->get_args()[i]));
+        return vm_obj(new (alloc_native_closure(nargs)) vm_native_closure(cell->get_fn(), cell->get_arity(),
+                                                                          nargs, args.data()));
+    }
+
+    vm_obj visit(vm_obj const & o) {
+        if (is_simple(o)) return o;
+        auto it = m_cache.find(o.raw());
+        if (it != m_cache.end())
+            return it->second;
+        vm_obj r;
+        switch (o.kind()) {
+        case vm_obj_kind::Simple:        lean_unreachable();
+        case vm_obj_kind::Constructor:   r = visit_constructor(o); break;
+        case vm_obj_kind::Closure:       r = visit_closure(o); break;
+        case vm_obj_kind::MPZ:           r = visit_mpz(o); break;
+        case vm_obj_kind::External:      r = visit_external(o); break;
+        case vm_obj_kind::NativeClosure: r = visit_native_closure(o); break;
+        }
+        m_objs.push_back(r.raw());
+        m_cache.insert(mk_pair(o.raw(), r));
+        return r;
+    }
+
+    to_ts_vm_obj_fn(std::vector<vm_obj_cell*> & objs):m_objs(objs) {}
+
+    vm_obj operator()(vm_obj const & o) { return visit(o); }
+};
+
+ts_vm_obj::ts_vm_obj(vm_obj const & o) {
+    m_data = std::make_shared<data>();
+    m_data->m_root = to_ts_vm_obj_fn(m_data->m_objs)(o);
+}
+
+ts_vm_obj::data::~data() {
+    steal_ptr(m_root);
+    for (vm_obj_cell * cell : m_objs) {
+        switch (cell->kind()) {
+        case vm_obj_kind::Simple:
+            lean_assert(false);
+            break;
+        case vm_obj_kind::Constructor:
+        case vm_obj_kind::Closure:
+            static_cast<vm_composite*>(cell)->~vm_composite();
+            delete[] reinterpret_cast<char*>(cell);
+            break;
+        case vm_obj_kind::MPZ:
+            delete static_cast<vm_mpz*>(cell);
+            break;
+        case vm_obj_kind::External:
+            delete static_cast<vm_external*>(cell);
+            break;
+        case vm_obj_kind::NativeClosure:
+            static_cast<vm_native_closure*>(cell)->~vm_native_closure();
+            delete[] reinterpret_cast<char*>(cell);
+            break;
+        }
+    }
+}
+
+struct ts_vm_obj::to_vm_obj_fn {
+    std::unordered_map<vm_obj_cell *, vm_obj, vm_obj_cell_hash, vm_obj_cell_eq> m_cache;
+
+    vm_obj visit_constructor(vm_obj const & o) {
+        buffer<vm_obj> fields;
+        for (unsigned i = 0; i < csize(o); i++)
+            fields.push_back(visit(cfield(o, i)));
+        return mk_vm_constructor(cidx(o), fields.size(), fields.data());
+    }
+
+    vm_obj visit_closure(vm_obj const & o) {
+        buffer<vm_obj> fields;
+        for (unsigned i = 0; i < csize(o); i++)
+            fields.push_back(visit(cfield(o, i)));
+        return mk_vm_closure(cfn_idx(o), fields.size(), fields.data());
+    }
+
+    vm_obj visit_mpz(vm_obj const & o) {
+        return mk_vm_mpz(to_mpz(o));
+    }
+
+    vm_obj visit_external(vm_obj const & o) {
+        return mk_vm_external(to_external(o)->clone());
+    }
+
+    vm_obj visit_native_closure(vm_obj const & o) {
+        vm_native_closure * cell = to_native_closure(o);
+        buffer<vm_obj> args;
+        for (unsigned i = 0; i < cell->get_num_args(); i++)
+            args.push_back(visit(cell->get_args()[i]));
+        return mk_native_closure(cell->get_fn(), cell->get_arity(), args.size(), args.data());
+    }
+
+    vm_obj visit(vm_obj const & o) {
+        if (is_simple(o)) return o;
+        auto it = m_cache.find(o.raw());
+        if (it != m_cache.end())
+            return it->second;
+        vm_obj r;
+        switch (o.kind()) {
+        case vm_obj_kind::Simple:        lean_unreachable();
+        case vm_obj_kind::Constructor:   r = visit_constructor(o); break;
+        case vm_obj_kind::Closure:       r = visit_closure(o); break;
+        case vm_obj_kind::MPZ:           r = visit_mpz(o); break;
+        case vm_obj_kind::External:      r = visit_external(o); break;
+        case vm_obj_kind::NativeClosure: r = visit_native_closure(o); break;
+        }
+        m_cache.insert(mk_pair(o.raw(), r));
+        return r;
+    }
+
+    vm_obj operator()(vm_obj const & o) { return visit(o); }
+};
+
+vm_obj ts_vm_obj::to_vm_obj() const {
+    return to_vm_obj_fn()(m_data->m_root);
+}
+
 static void display_fn(std::ostream & out, unsigned fn_idx) {
     if (auto r = find_vm_name(fn_idx))
         out << *r;

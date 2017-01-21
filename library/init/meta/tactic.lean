@@ -407,6 +407,7 @@ try $ do
 
 /- (save_type_info e ref) save (typeof e) at position associated with ref -/
 meta constant save_type_info : expr → expr → tactic unit
+meta constant save_info_thunk : nat → nat → (unit → format) → tactic unit
 /- Return list of currently opened namespace -/
 meta constant open_namespaces : tactic (list name)
 open list nat

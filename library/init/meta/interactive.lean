@@ -7,6 +7,12 @@ prelude
 import init.meta.tactic init.meta.rewrite_tactic init.meta.simp_tactic
 import init.meta.smt.congruence_closure init.category.combinators
 
+namespace tactic
+meta def save_info (line : nat) (col : nat) : tactic unit :=
+do s ← read,
+   tactic.save_info_thunk line col (λ _, tactic_state.to_format s)
+end tactic
+
 namespace interactive
 namespace types
 /- The parser treats constants in the tactic.interactive namespace specially.

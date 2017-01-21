@@ -24,6 +24,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/tactic_notation.h"
 #include "frontends/lean/decl_attributes.h"
 #include "frontends/lean/util.h"
+#include "frontends/lean/info_manager.h"
 
 namespace lean {
 void initialize_frontend_lean_module() {
@@ -47,8 +48,10 @@ void initialize_frontend_lean_module() {
     initialize_notation_cmd();
     initialize_tactic_notation();
     initialize_frontend_lean_util();
+    initialize_info_manager();
 }
 void finalize_frontend_lean_module() {
+    finalize_info_manager();
     finalize_frontend_lean_util();
     finalize_tactic_notation();
     finalize_notation_cmd();

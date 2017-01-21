@@ -7,6 +7,10 @@ prelude
 import init.meta.smt.smt_tactic init.meta.interactive
 
 namespace smt_tactic
+meta def save_info (line : nat) (col : nat) : smt_tactic unit :=
+do (ss, ts) ← smt_tactic.read,
+   tactic.save_info_thunk line col (λ _, smt_state.to_format ss ts)
+
 meta def skip : smt_tactic unit :=
 return ()
 

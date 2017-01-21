@@ -1214,6 +1214,8 @@ struct vm_simp_lemmas : public vm_external {
     vm_simp_lemmas(simp_lemmas const & v): m_val(v) {}
     virtual ~vm_simp_lemmas() {}
     virtual void dealloc() override { this->~vm_simp_lemmas(); get_vm_allocator().deallocate(sizeof(vm_simp_lemmas), this); }
+    virtual vm_external * ts_clone() { return new vm_simp_lemmas(m_val); }
+    virtual vm_external * clone() { return new (get_vm_allocator().allocate(sizeof(vm_simp_lemmas))) vm_simp_lemmas(m_val); }
 };
 
 bool is_simp_lemmas(vm_obj const & o) {

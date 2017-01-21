@@ -35,6 +35,17 @@ public:
 #endif
 };
 
+class vm_obj_format_info : public info_data_cell {
+    environment      m_env;
+    ts_vm_obj        m_thunk;
+    optional<format> m_cache;
+public:
+    vm_obj_format_info(environment const & env, vm_obj const & thunk):m_env(env), m_thunk(thunk) {}
+#ifdef LEAN_JSON
+    virtual void report(io_state_stream const & ios, json & record) const;
+#endif
+};
+
 class tactic_state_info_data : public info_data_cell {
 protected:
     tactic_state m_state;
@@ -99,6 +110,8 @@ public:
     void add_identifier_info(unsigned l, unsigned c, name const & full_id);
     void add_tactic_state_info(unsigned l, unsigned c, tactic_state const & s);
     void add_smt_tactic_state_info(unsigned l, unsigned c, list<smt_goal> const & ss, tactic_state const & ts);
+    void add_vm_obj_format_info(unsigned l, unsigned c, environment const & env, vm_obj const & thunk);
+
     void instantiate_mvars(metavar_context const & mctx);
     void merge(info_manager const & info);
 
@@ -133,4 +146,7 @@ public:
         }
     }
 };
+
+void initialize_info_manager();
+void finalize_info_manager();
 }

@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 class vm_obj;
+class ts_vm_obj;
 enum class vm_obj_kind { Simple, Constructor, Closure, NativeClosure, MPZ, External };
 
 /** \brief Base class for VM objects.
@@ -55,6 +56,7 @@ void display(std::ostream & out, vm_obj const & o);
 class vm_obj {
     vm_obj_cell * m_data;
     friend class vm_obj_cell;
+    friend class ts_vm_obj;
     vm_obj_cell * steal_ptr() {
         lean_assert(LEAN_VM_IS_PTR(m_data)); vm_obj_cell * r = m_data; m_data = LEAN_VM_BOX(0); return r;
     }
@@ -131,7 +133,26 @@ protected:
     virtual void dealloc() = 0;
 public:
     vm_external():vm_obj_cell(vm_obj_kind::External) {}
-    ~vm_external() {}
+    virtual ~vm_external() {}
+    virtual vm_external * ts_clone() = 0;
+    virtual vm_external * clone() = 0;
+};
+
+/* Thread safe vm_obj, it can be used to move vm_obj's between threads.
+   We perform a deep copy to convert a vm_obj into a ts_vm_obj, and vice-versa. */
+class ts_vm_obj {
+    struct to_ts_vm_obj_fn;
+    struct to_vm_obj_fn;
+    struct data {
+        vm_obj                     m_root;
+        std::vector<vm_obj_cell *> m_objs;
+        ~data();
+    };
+    static void steal_ptr(vm_obj & o) { o.steal_ptr(); }
+    std::shared_ptr<data>          m_data;
+public:
+    ts_vm_obj(vm_obj const & o);
+    vm_obj to_vm_obj() const;
 };
 
 /** Builtin functions that take arguments from the system stack.

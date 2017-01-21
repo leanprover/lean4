@@ -1,0 +1,3 @@
+42
+vm_sorry.lean:6:0: error: _main._val_1: trying to evaluate sorry
+vm_sorry.lean:12:0: error: undefined

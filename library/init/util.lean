@@ -23,3 +23,7 @@ f ()
    The arguments line and col are filled by the elaborator. -/
 def scope_trace {α : Type u} {line col: nat} (f : unit → α) : α :=
 f ()
+
+meta constant {u} undefined_core {α : Type u} (message : string) : α
+
+meta def {u} undefined {α : Type u} : α := undefined_core "undefined"

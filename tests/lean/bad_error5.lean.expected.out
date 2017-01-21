@@ -1,1 +1,1 @@
-bad_error5.lean:13:10: error: code generation failed, VM does not have code for 'sorry'
+bad_error5.lean:9:0: error: _tactic: trying to evaluate sorry

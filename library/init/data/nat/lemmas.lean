@@ -597,6 +597,8 @@ protected theorem sub_self : ∀ (n : ℕ), n - n = 0
 | 0        := by rw nat.sub_zero
 | (succ n) := by rw [succ_sub_succ, sub_self n]
 
+/- TODO(Leo): remove the following ematch annotations as soon as we have
+   arithmetic theory in the smt_stactic -/
 @[ematch]
 protected theorem add_sub_add_right : ∀ (n k m : ℕ), (n + k) - (m + k) = n - m
 | n 0        m := by rw [add_zero, add_zero]

@@ -13,8 +13,7 @@ open expr tactic decidable environment
 private meta def contra_p_not_p : list expr → list expr → tactic unit
 | []         Hs := failed
 | (H1 :: Rs) Hs :=
-  do t_0 ← infer_type H1,
-     t   ← whnf t_0,
+  do t ← infer_type H1 >>= whnf,
      (do a ← match_not t,
          H2 ← find_same_type a Hs,
          tgt ← target,
@@ -54,7 +53,7 @@ private meta def contra_not_a_refl_rel_a : list expr → tactic unit
 private meta def contra_constructor_eq : list expr → tactic unit
 | []        := failed
 | (H :: Hs) :=
-  do t ← infer_type H,
+  do t ← infer_type H >>= whnf,
      match (is_eq t) with
      | (some (lhs_0, rhs_0)) :=
        do env ← get_env,

@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "library/tactic/tactic_state.h"
 
 namespace lean {
+#define lean_dsimp_trace(CTX, N, CODE) lean_trace(N, scope_trace_env _scope1(CTX.env(), CTX); CODE)
 
 optional<pair<expr, bool>> dsimplify_core_fn::pre(expr const &) {
     return optional<pair<expr, bool>>();
@@ -122,6 +123,9 @@ expr dsimplify_core_fn::visit(expr const & e) {
     check_system("dsimplify");
     inc_num_steps();
 
+    lean_trace_inc_depth("dsimplify");
+    lean_dsimp_trace(m_ctx, "dsimplify", tout() << e << "\n";);
+
     auto it = m_cache.find(e);
     if (it != m_cache.end())
         return it->second;
@@ -205,6 +209,7 @@ optional<pair<expr, bool>> dsimplify_fn::pre(expr const & e) {
     type_context::transparency_scope s(m_ctx, m_md);
     expr new_e = whnf(e);
     if (new_e != e) {
+        lean_dsimp_trace(m_ctx, "dsimplify", tout() << "whnf\n" << e << "\n==>\n" << new_e << "\n";);
         return optional<pair<expr, bool>>(new_e, true);
     } else {
         return optional<pair<expr, bool>>();
@@ -216,6 +221,9 @@ optional<pair<expr, bool>> dsimplify_fn::post(expr const & e) {
     {
         type_context::transparency_scope s(m_ctx, m_md);
         curr_e = whnf(e);
+        if (curr_e != e) {
+            lean_dsimp_trace(m_ctx, "dsimplify", tout() << "whnf\n" << e << "\n==>\n" << curr_e << "\n";);
+        }
     }
     while (true) {
         check_system("dsimplify");
@@ -228,12 +236,15 @@ optional<pair<expr, bool>> dsimplify_fn::post(expr const & e) {
         expr new_e = curr_e;
         for (simp_lemma const & sl : simp_lemmas) {
             if (sl.is_refl()) {
+                lean_dsimp_trace(m_ctx, name({"debug", "dsimplify"}),
+                                 tout() << "try rewrite " << sl.get_id() << "\n";);
                 new_e = refl_lemma_rewrite(m_ctx, curr_e, sl);
                 if (new_e != curr_e)
                     break;
             }
         }
         if (new_e == curr_e) break;
+        lean_dsimp_trace(m_ctx, "dsimplify", tout() << "rewrite\n" << curr_e << "\n==>\n" << new_e << "\n";);
         curr_e = new_e;
     }
     if (curr_e == e)
@@ -333,6 +344,9 @@ vm_obj simp_lemmas_dsimplify_core(vm_obj const & max_steps, vm_obj const & visit
 }
 
 void initialize_dsimplify() {
+    register_trace_class("dsimplify");
+    register_trace_class(name{"debug", "dsimplify"});
+
     DECLARE_VM_BUILTIN(name({"tactic", "dsimplify_core"}), tactic_dsimplify_core);
     DECLARE_VM_BUILTIN(name({"simp_lemmas", "dsimplify_core"}), simp_lemmas_dsimplify_core);
 }

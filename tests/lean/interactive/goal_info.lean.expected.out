@@ -1,0 +1,6 @@
+{"message":"file invalidated","response":"ok","seq_num":0}
+{"record":{"state":"n : ℕ\n⊢ n + 0 = 0 + n\n\nn m' : ℕ,\nih : n + m' = m' + n\n⊢ n + succ m' = succ m' + n"},"response":"ok","seq_num":11}
+{"record":{"state":"n : ℕ\n⊢ n + 0 = 0 + n\n\nn m' : ℕ,\nih : n + m' = m' + n\n⊢ n + succ m' = succ m' + n"},"response":"ok","seq_num":13}
+{"record":{"state":"n m' : ℕ,\nih : n + m' = m' + n\n⊢ succ (n + m') = succ m' + n"},"response":"ok","seq_num":16}
+{"record":{"state":"n : ℕ\n⊢ n + 0 = 0 + n"},"response":"ok","seq_num":25}
+{"record":{"state":"no goals"},"response":"ok","seq_num":36}

@@ -414,8 +414,12 @@ static expr parse_begin_end_block(parser & p, pos_info const & start_pos, name c
                 /* parse next element */
                 expr next_tac;
                 if (p.curr_is_token(get_begin_tk())) {
+                    expr skip_tac = p.save_pos(mk_tactic_skip(p.env(), tac_class), pos);
+                    r = concat(p, r, skip_tac, start_pos, pos, tac_class);
                     next_tac = parse_begin_end_block(p, pos, get_end_tk(), tac_class);
                 } else if (p.curr_is_token(get_lcurly_tk())) {
+                    expr skip_tac = p.save_pos(mk_begin_end_element(mk_tactic_skip(p.env(), tac_class)), pos);
+                    r = concat(p, r, skip_tac, start_pos, pos, tac_class);
                     next_tac = parse_begin_end_block(p, pos, get_rcurly_tk(), tac_class);
                 } else if (p.curr_is_token(get_do_tk())) {
                     expr tac = p.parse_expr();

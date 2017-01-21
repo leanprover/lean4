@@ -157,7 +157,7 @@ class parser : public abstract_parser {
     name_set                m_old_buckets_from_snapshot;
     optional<pos_info>      m_break_at_pos;
     // auto completing
-    bool                    m_complete;
+    bool                    m_complete{false};
 
     // curr command token
     name                   m_cmd_token;

@@ -10,7 +10,7 @@ import data.list
 
 universe variables u v w
 
-def tuple (α : Type u) (n : ℕ) := {l : list α // list.length l = n}
+def tuple (α : Type u) (n : ℕ) := { l : list α // l^.length = n }
 
 namespace tuple
 variables {α : Type u} {β : Type v} {φ : Type w}
@@ -32,92 +32,60 @@ notation `[` l:(foldr `, ` (h t, cons h t) nil `]`) := l
 open nat
 
 def head : tuple α (nat.succ n) → α
-| ⟨list.nil,      h ⟩ := let q : 0 = succ n := h in by contradiction
-| ⟨list.cons a v, h ⟩ := a
+| ⟨ [],     h ⟩ := by contradiction
+| ⟨ a :: v, h ⟩ := a
 
 theorem head_cons (a : α) : Π (v : tuple α n), head (a :: v) = a
 | ⟨ l, h ⟩ := rfl
 
 def tail : tuple α (succ n) → tuple α n
-| ⟨ list.nil,   h ⟩ := let q : 0 = succ n := h in by contradiction
-| ⟨ list.cons a v, h ⟩ := ⟨ v,  congr_arg pred h ⟩
+| ⟨ [],     h ⟩ := by contradiction
+| ⟨ a :: v, h ⟩ := ⟨ v, congr_arg pred h ⟩
 
 theorem tail_cons (a : α) : Π (v : tuple α n), tail (a :: v) = v
 | ⟨ l, h ⟩ := rfl
 
 def to_list : tuple α n → list α | ⟨ l, h ⟩ := l
 
-/- append -/
-
 def append {n m : nat} : tuple α n → tuple α m → tuple α (n + m)
-| ⟨ l₁, h₁ ⟩ ⟨ l₂, h₂ ⟩ :=
-  let p := calc
-     list.length (l₁ ++ l₂)
-           = list.length l₁ + list.length l₂ : list.length_append l₁ l₂
-       ... = n + list.length l₂ : congr_arg (λi, i + list.length l₂) h₁
-       ... = n + m              : congr_arg (λi, n + i) h₂ in
-  ⟨ list.append l₁ l₂, p ⟩
+| ⟨ l₁, h₁ ⟩ ⟨ l₂, h₂ ⟩ := ⟨ l₁ ++ l₂, by simp_using_hs ⟩
 
 /- map -/
 
 def map (f : α → β) : tuple α n → tuple β n
-| ⟨ l, h ⟩  :=
-  let q := calc list.length (list.map f l) = list.length l : list.length_map f l
-                                       ... = n             : h in
-  ⟨ list.map f l, q ⟩
+| ⟨ l, h ⟩  := ⟨ list.map f l, by simp_using_hs ⟩
 
-theorem map_nil (f : α → β) : map f nil = nil := rfl
+@[simp] lemma map_nil (f : α → β) : map f nil = nil := rfl
 
-theorem map_cons (f : α → β) (a : α)
-      : Π (v : tuple α n), map f (a::v) = f a :: map f v
-| ⟨ l, h ⟩ := rfl
+lemma map_cons (f : α → β) (a : α) : Π (v : tuple α n), map f (a::v) = f a :: map f v
+| ⟨l,h⟩ := rfl
 
 def map₂ (f : α → β → φ) : tuple α n → tuple β n → tuple φ n
-| ⟨ x, px ⟩ ⟨ y, py ⟩ :=
-  let z : list φ := list.map₂ f x y in
-  let pxx : list.length x = n := px in
-  let pyy : list.length y = n := py in
-  let p : list.length z = n := calc
-       list.length z = min (list.length x) (list.length y) : list.length_map₂ f x y
-                 ... = min n n                             : by rewrite [pxx, pyy]
-                 ... = n                                   : min_self n in
-  ⟨ z, p ⟩
+| ⟨ x, _ ⟩ ⟨ y, _ ⟩ := ⟨ list.map₂ f x y, by simp_using_hs ⟩
 
 def repeat (a : α) (n : ℕ) : tuple α n :=
-⟨list.repeat a n, list.length_repeat a n⟩
+⟨ list.repeat a n, list.length_repeat a n ⟩
 
 def dropn (i : ℕ) : tuple α n → tuple α (n - i)
-| ⟨l, p⟩ := ⟨list.dropn i l, p ▸ list.length_dropn i l⟩
+| ⟨l, p⟩ := ⟨ list.dropn i l, by simp_using_hs ⟩
 
 def firstn (i : ℕ) : tuple α n → tuple α (min i n)
-| ⟨l, p⟩ :=
-  let q := calc list.length (list.firstn i l)
-                   = min i (list.length l)  : list.length_firstn i l
-               ... = min i n                : congr_arg (min i) p in
-  ⟨list.firstn i l, q⟩
+| ⟨l, p⟩ := ⟨ list.firstn i l, by simp_using_hs ⟩
 
 section accum
   open prod
   variable {σ : Type}
 
-  def map_accumr
-  : (α → σ → σ × β) → tuple α n → σ → σ × tuple β n
-  | f ⟨ x, px ⟩ c :=
-    let z := list.map_accumr f x c in
-    let p := eq.trans (list.length_map_accumr f x c) px in
-    (prod.fst z, ⟨ prod.snd z, p ⟩)
+  def map_accumr (f : α → σ → σ × β) : tuple α n → σ → σ × tuple β n
+  | ⟨ x, px ⟩ c :=
+    let res := list.map_accumr f x c in
+    ⟨ res.1, res.2, by simp_using_hs ⟩
 
   def map_accumr₂ {α β σ φ : Type} (f : α → β → σ → σ × φ)
    : tuple α n → tuple β n → σ → σ × tuple φ n
   | ⟨ x, px ⟩ ⟨ y, py ⟩ c :=
-    let z := list.map_accumr₂ f x y c in
-    let pxx : list.length x = n := px in
-    let pyy : list.length y = n := py in
-    let p := calc
-          list.length (prod.snd (list.map_accumr₂ f x y c))
-                  = min (list.length x) (list.length y)  : list.length_map_accumr₂ f x y c
-              ... = n                                    : by rewrite [ pxx, pyy, min_self ] in
-    (prod.fst z, ⟨prod.snd z, p ⟩)
+    let res := list.map_accumr₂ f x y c in
+    ⟨ res.1, res.2, by simp_using_hs ⟩
 
 end accum
 end tuple

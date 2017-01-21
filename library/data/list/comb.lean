@@ -22,16 +22,19 @@ definition map₂ {α : Type u} {β : Type v} {φ : Type w} (f : α → β → �
 | l [] := []
 | (a::s) (b::t) := f a b :: map₂ s t
 
+@[simp]
 theorem map₂_nil_1 {α : Type u} {β : Type v} {φ : Type w} (f : α → β → φ)
    : Π y, map₂ f nil y = nil
 | [] := eq.refl nil
 | (b::t) := eq.refl nil
 
+@[simp]
 theorem map₂_nil_2 {α : Type u} {β : Type v} {φ : Type w} (f : α → β → φ)
    : Π (x : list α), map₂ f x nil = nil
 | [] := eq.refl nil
 | (b::t) := eq.refl nil
 
+@[simp]
 theorem length_map₂ {α : Type u} {β : Type v} {φ : Type w} (f : α → β → φ)
   : Π x y, length (map₂ f x y) = min (length x) (length y)
 | [] y :=
@@ -59,6 +62,7 @@ definition map_accumr (f : α → σ → σ × β) : list α → σ → (σ × l
   let z := f y (prod.fst r) in
   (prod.fst z, prod.snd z :: prod.snd r)
 
+@[simp]
 theorem length_map_accumr
 : ∀ (f : α → σ → σ × β) (x : list α) (s : σ),
   length (prod.snd (map_accumr f x s)) = length x
@@ -80,6 +84,7 @@ definition map_accumr₂ {α β σ φ : Type} (f : α → β → σ → σ × φ
   let q := f x y (prod.fst r) in
   (prod.fst q, prod.snd q :: (prod.snd r))
 
+@[simp]
 theorem length_map_accumr₂ {α β σ φ : Type}
 : ∀ (f : α → β → σ → σ × φ) x y c,
   length (prod.snd (map_accumr₂ f x y c)) = min (length x) (length y)

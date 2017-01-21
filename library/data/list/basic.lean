@@ -17,6 +17,7 @@ variables {α : Type u} {β : Type v} {φ : Type w}
 
 /- length theorems -/
 
+@[simp]
 theorem length_append : ∀ (x y : list α), length (x ++ y) = length x + length y
   | [] l := eq.symm (nat.zero_add (length l))
   | (a::s) l :=
@@ -28,6 +29,7 @@ theorem length_concat (a : α) : ∀ (l : list α), length (concat l a) = succ (
   | nil := rfl
   | (cons b l) := congr_arg succ (length_concat l)
 
+@[simp]
 theorem length_dropn
 : ∀ (i : ℕ) (l : list α), length (dropn i l) = length l - i
 | 0 l := rfl
@@ -37,10 +39,12 @@ theorem length_dropn
           = length l - i             : length_dropn i l
       ... = succ (length l) - succ i : nat.sub_eq_succ_sub_succ (length l) i
 
+@[simp]
 theorem length_map (f : α → β) : ∀ (a : list α), length (map f a) = length a
 | [] := rfl
 | (a :: l) := congr_arg succ (length_map l)
 
+@[simp]
 theorem length_repeat (a : α) : ∀ (n : ℕ), length (repeat a n) = n
   | 0 := eq.refl 0
   | (succ i) := congr_arg succ (length_repeat i)
@@ -52,6 +56,7 @@ def firstn : ℕ → list α → list α
 | (succ n) []     := []
 | (succ n) (a::l) := a :: firstn n l
 
+@[simp]
 theorem length_firstn
 : ∀ (i : ℕ) (l : list α), length (firstn i l) = min i (length l)
 | 0        l      := eq.symm (nat.zero_min (length l))

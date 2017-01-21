@@ -75,9 +75,11 @@ lemma eq_zero_of_add_eq_zero_right : ∀ {n m : ℕ}, n + m = 0 → n = 0
 lemma eq_zero_of_add_eq_zero_left {n m : ℕ} (h : n + m = 0) : m = 0 :=
 @eq_zero_of_add_eq_zero_right m n (nat.add_comm n m ▸ h)
 
+@[simp]
 lemma pred_zero : pred 0 = 0 :=
 rfl
 
+@[simp]
 lemma pred_succ (n : ℕ) : pred (succ n) = n :=
 rfl
 
@@ -577,6 +579,7 @@ instance : semiring nat           := by apply_instance
 instance : ordered_semiring nat   := by apply_instance
 
 /- subtraction -/
+@[simp]
 protected theorem sub_zero (n : ℕ) : n - 0 = n :=
 rfl
 
@@ -594,18 +597,22 @@ protected theorem sub_self : ∀ (n : ℕ), n - n = 0
 | 0        := by rw nat.sub_zero
 | (succ n) := by rw [succ_sub_succ, sub_self n]
 
+@[ematch]
 protected theorem add_sub_add_right : ∀ (n k m : ℕ), (n + k) - (m + k) = n - m
 | n 0        m := by rw [add_zero, add_zero]
 | n (succ k) m := by rw [add_succ, add_succ, succ_sub_succ, add_sub_add_right n k m]
 
+@[ematch]
 protected theorem add_sub_add_left (k n m : ℕ) : (k + n) - (k + m) = n - m :=
 by rw [add_comm k n, add_comm k m, nat.add_sub_add_right]
 
+@[ematch]
 protected theorem add_sub_cancel (n m : ℕ) : n + m - m = n :=
 suffices n + m - (0 + m) = n, from
   by rwa [zero_add] at this,
 by rw [nat.add_sub_add_right, nat.sub_zero]
 
+@[ematch]
 protected theorem add_sub_cancel_left (n m : ℕ) : n + m - n = m :=
 show n + m - (n + 0) = m, from
 by rw [nat.add_sub_add_left, nat.sub_zero]
@@ -709,6 +716,7 @@ lemma sub_eq_sub_min (n m : ℕ) : n - m = n - min n m :=
 if h : n ≥ m then by rewrite [min_eq_right h]
 else by rewrite [sub_eq_zero_of_le (le_of_not_ge h), min_eq_left (le_of_not_ge h), nat.sub_self]
 
+@[simp]
 lemma sub_add_min_cancel (n m : ℕ) : n - m + min n m = n :=
 by rewrite [sub_eq_sub_min, nat.sub_add_cancel (min_le_left n m)]
 

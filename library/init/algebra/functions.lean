@@ -62,12 +62,15 @@ end
 lemma min_left_comm : ∀ (a b c : α), min a (min b c) = min b (min a c) :=
 left_comm (@min α _) (@min_comm α _) (@min_assoc α _)
 
+@[simp]
 lemma min_self (a : α) : min a a = a :=
 by min_tac a a
 
+@[ematch]
 lemma min_eq_left {a b : α} (h : a ≤ b) : min a b = a :=
 begin apply eq.symm, apply eq_min (le_refl _) h, intros, assumption end
 
+@[ematch]
 lemma min_eq_right {a b : α} (h : b ≤ a) : min a b = b :=
 eq.subst (min_comm b a) (min_eq_left h)
 
@@ -89,6 +92,7 @@ end
 lemma max_left_comm : ∀ (a b c : α), max a (max b c) = max b (max a c) :=
 left_comm (@max α _) (@max_comm α _) (@max_assoc α _)
 
+@[simp]
 lemma max_self (a : α) : max a a = a :=
 by min_tac a a
 

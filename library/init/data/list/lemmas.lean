@@ -11,31 +11,38 @@ variables {α : Type u} {β : Type v}
 
 namespace list
 
+@[simp]
 lemma nil_append (s : list α) : [] ++ s = s :=
 rfl
 
 lemma cons_append (x : α) (s t : list α) : (x::s) ++ t = x::(s ++ t) :=
 rfl
 
+@[simp]
 lemma map_nil (f : α → β) : map f [] = [] :=
 rfl
 
 lemma map_cons (f : α → β) (a : α) (l : list α) : map f (a :: l) = f a :: map f l :=
 rfl
 
+@[simp]
 lemma length_nil : length (@nil α) = 0 :=
 rfl
 
+@[simp]
 lemma length_cons (x : α) (t : list α) : length (x::t) = length t + 1 :=
 rfl
 
+@[simp]
 lemma nth_zero (a : α) (l : list α) : nth (a :: l) 0 = some a :=
 rfl
 
+@[simp]
 lemma nth_succ (a : α) (l : list α) (n : nat) : nth (a::l) (nat.succ n) = nth l n :=
 rfl
 
 /- list membership -/
+@[simp]
 lemma mem_nil_iff (a : α) : a ∈ [] ↔ false :=
 iff.rfl
 

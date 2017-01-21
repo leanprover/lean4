@@ -35,26 +35,13 @@ section shift
   variable {n : ℕ}
 
   def shl (x : bitvec n) (i : ℕ) : bitvec n :=
-  let r := dropn i x ++ₜ repeat ff (min n i) in
-  have length r = n, begin dsimp, rewrite [nat.sub_add_min_cancel] end,
-  bitvec.cong this r
+  bitvec.cong (by simp) $
+    dropn i x ++ₜ repeat ff (min n i)
 
+  local attribute [ematch] nat.add_sub_assoc sub_le le_of_not_ge sub_eq_zero_of_le
   def fill_shr (x : bitvec n) (i : ℕ) (fill : bool) : bitvec n :=
-  let y := repeat fill (min n i) ++ₜ firstn (n-i) x in
-  have length y = n, from if h : i ≤ n then
-    begin
-      dsimp,
-      rw [min_eq_right h, min_eq_left (sub_le _ _), -nat.add_sub_assoc h,
-        nat.add_sub_cancel_left]
-    end
-  else
-    have h : i ≥ n, from le_of_not_ge h,
-    begin
-      dsimp,
-      rw [min_eq_left h, sub_eq_zero_of_le h, min_eq_left (zero_le _)],
-      apply rfl
-    end,
-  bitvec.cong this y
+  bitvec.cong (begin [smt] by_cases (i ≤ n), eblast end) $
+    repeat fill (min n i) ++ₜ firstn (n-i) x
 
   -- unsigned shift right
   def ushr (x : bitvec n) (i : ℕ) : bitvec n :=
@@ -84,7 +71,7 @@ section arith
   protected def carry (x y c : bool) :=
   x && y || x && c || y && c
 
-  def neg (x : bitvec n) : bitvec n :=
+  protected def neg (x : bitvec n) : bitvec n :=
   let f := λ y c, (y || c, bxor y c) in
   prod.snd (map_accumr f x ff)
 
@@ -94,7 +81,7 @@ section arith
   let ⟨c, z⟩ := tuple.map_accumr₂ f x y c in
   c :: z
 
-  def add (x y : bitvec n) : bitvec n := tail (adc x y ff)
+  protected def add (x y : bitvec n) : bitvec n := tail (adc x y ff)
 
   protected def borrow (x y b : bool) :=
   bnot x && y || bnot x && b || y && b
@@ -104,19 +91,19 @@ section arith
   let f := λ x y c, (bitvec.borrow x y c, bitvec.xor3 x y c) in
   tuple.map_accumr₂ f x y b
 
-  def sub (x y : bitvec n) : bitvec n := prod.snd (sbb x y ff)
+  protected def sub (x y : bitvec n) : bitvec n := prod.snd (sbb x y ff)
 
   instance : has_zero (bitvec n) := ⟨bitvec.zero n⟩
   instance : has_one (bitvec n)  := ⟨bitvec.one n⟩
-  instance : has_add (bitvec n)  := ⟨add⟩
-  instance : has_sub (bitvec n)  := ⟨sub⟩
-  instance : has_neg (bitvec n)  := ⟨neg⟩
+  instance : has_add (bitvec n)  := ⟨bitvec.add⟩
+  instance : has_sub (bitvec n)  := ⟨bitvec.sub⟩
+  instance : has_neg (bitvec n)  := ⟨bitvec.neg⟩
 
-  def mul (x y : bitvec n) : bitvec n :=
+  protected def mul (x y : bitvec n) : bitvec n :=
   let f := λ r b, cond b (r + r + y) (r + r) in
   list.foldl f 0 (to_list x)
 
-  instance : has_mul (bitvec n)  := ⟨mul⟩
+  instance : has_mul (bitvec n)  := ⟨bitvec.mul⟩
 end arith
 
 section comparison
@@ -133,10 +120,11 @@ section comparison
   def sborrow : Π {n : ℕ}, bitvec n → bitvec n → bool
   | 0        _ _ := ff
   | (succ n) x y :=
-     bool.cases_on
-       (head x)
-       (bool.cases_on (head y) (uborrow (tail x) (tail y)) tt)
-       (bool.cases_on (head y) ff (uborrow (tail x) (tail y)))
+    match (head x, head y) with
+    | (tt, ff) := tt
+    | (ff, tt) := ff
+    | _        := uborrow (tail x) (tail y)
+    end
 
   def slt (x y : bitvec n) : Prop := sborrow x y
   def sgt (x y : bitvec n) : Prop := slt y x

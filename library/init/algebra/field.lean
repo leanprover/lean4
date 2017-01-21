@@ -32,14 +32,20 @@ instance division_ring_has_div [division_ring α] : has_div α :=
 lemma division_def (a b : α) : a / b = a * b⁻¹ :=
 rfl
 
+@[simp]
 lemma mul_inv_cancel {a : α} (h : a ≠ 0) : a * a⁻¹ = 1 :=
 division_ring.mul_inv_cancel h
 
+@[simp]
 lemma inv_mul_cancel {a : α} (h : a ≠ 0) : a⁻¹ * a = 1 :=
 division_ring.inv_mul_cancel h
 
+@[simp]
+lemma one_div_eq_inv (a : α) : 1 / a = a⁻¹ :=
+one_mul a⁻¹
+
 lemma inv_eq_one_div (a : α) : a⁻¹ = 1 / a :=
-eq.symm $ one_mul (a⁻¹)
+by simp
 
 local attribute [simp]
 division_def mul_comm mul_assoc

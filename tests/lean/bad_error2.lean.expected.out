@@ -7,3 +7,11 @@ _match : (∃ (k_1 : ℕ), k + n + k_1 = k + m) → n ≤ m,
 w : ℕ,
 hw : (λ (k_1 : ℕ), k + n + k_1 = k + m) w
 ⊢ n + w = m
+bad_error2.lean:10:4: error: failed
+state:
+k n m : ℕ,
+h : k + n ≤ k + m,
+_match : (∃ (k_1 : ℕ), k + n + k_1 = k + m) → n ≤ m,
+w : ℕ,
+hw : (λ (k_1 : ℕ), k + n + k_1 = k + m) w
+⊢ n + w = m

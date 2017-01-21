@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 #include "library/explicit.h"
 #include "library/scope_pos_info_provider.h"
 #include "library/choice.h"
+#include "library/string.h"
 #include "library/sorry.h"
 #include "library/quote.h"
 #include "library/util.h"
@@ -33,6 +34,7 @@ Author: Leonardo de Moura
 #include "library/attribute_manager.h"
 #include "library/scoped_ext.h"
 #include "library/protected.h"
+#include "library/message_builder.h"
 #include "library/aliases.h"
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_expr.h"
@@ -1579,7 +1581,25 @@ expr elaborator::visit_constant(expr const & e, optional<expr> const & expected_
     return visit_app_core(e, buffer<expr>(), expected_type, e);
 }
 
+expr elaborator::visit_scope_trace(expr const & e, optional<expr> const & expected_type) {
+    buffer<expr> new_args;
+    auto pip = get_pos_info_provider();
+    unsigned line = 0, col = 0;
+    if (pip) {
+        pos_info pos = pip->get_pos_info_or_some(e);
+        line         = pos.first;
+        col          = pos.second;
+    }
+    new_args.push_back(copy_tag(e, mk_expr_placeholder()));
+    new_args.push_back(copy_tag(e, mk_prenum(mpz(line))));
+    new_args.push_back(copy_tag(e, mk_prenum(mpz(col))));
+    new_args.push_back(app_arg(e));
+    return visit(mk_app(copy_tag(e, mk_explicit(app_fn(e))), new_args.size(), new_args.data()), expected_type);
+}
+
 expr elaborator::visit_app(expr const & e, optional<expr> const & expected_type) {
+    if (is_app_of(e, get_scope_trace_name(), 1))
+        return visit_scope_trace(e, expected_type);
     expr const & ref = e;
     buffer<expr> args;
     expr const & fn = get_app_args(e, args);
@@ -2579,6 +2599,17 @@ void elaborator::unassigned_uvars_to_params(expr const & e) {
         });
 }
 
+void elaborator::report_error(tactic_state const & s, char const * state_header,
+                              char const * msg, expr const & ref) {
+    auto tc = std::make_shared<type_context>(m_env, m_opts, m_ctx.mctx(), m_ctx.lctx());
+    auto pip = get_pos_info_provider();
+    if (!pip) return;
+    message_builder out(pip, tc, m_env, get_global_ios(), pip->get_file_name(),
+                        pip->get_pos_info_or_some(ref), ERROR);
+    out << msg << "\n" << state_header << "\n" << mk_pair(s.pp(), m_opts);
+    out.report();
+}
+
 void elaborator::ensure_no_unassigned_metavars(expr const & e) {
     if (!has_expr_metavar(e)) return;
     metavar_context mctx = m_ctx.mctx();
@@ -2586,7 +2617,8 @@ void elaborator::ensure_no_unassigned_metavars(expr const & e) {
             if (!has_expr_metavar(e)) return false;
             if (is_metavar_decl_ref(e) && !mctx.is_assigned(e)) {
                 tactic_state s = mk_tactic_state_for(e);
-                throw_unsolved_tactic_state(s, "don't know how to synthesize placeholder", e);
+                report_error(s, "context:", "don't know how to synthesize placeholder", e);
+                throw elaborator_exception(e, "elaborator failed");
             }
             return true;
         });

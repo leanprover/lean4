@@ -15,6 +15,8 @@ Authors: Gabriel Ebner, Leonardo de Moura, Sebastian Ullrich
 #include "util/utf8.h"
 #include "library/mt_task_queue.h"
 #include "library/st_task_queue.h"
+#include "library/attribute_manager.h"
+#include "library/tactic/tactic_state.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/info_manager.h"
 #include "shell/server.h"
@@ -504,11 +506,12 @@ public:
                     if (infom.get_file_name() == get_module_id()) {
                         infom.get_info_record(env, opts, m_server->m_ios, e.m_token_info.m_pos.first,
                                               e.m_token_info.m_pos.second, record);
-                        if (e.m_goal_pos)
+                        if (e.m_goal_pos) {
                             infom.get_info_record(env, opts, m_server->m_ios, e.m_goal_pos->first,
                                                   e.m_goal_pos->second, record, [](info_data const & d) {
-                                        return dynamic_cast<tactic_state_info_data const *>(d.raw());
+                                        return dynamic_cast<vm_obj_format_info const *>(d.raw());
                                     });
+                        }
                     }
                 }
 

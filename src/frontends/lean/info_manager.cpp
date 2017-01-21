@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/lean_path.h"
 #include "kernel/type_checker.h"
+#include "library/trace.h"
 #include "library/documentation.h"
 #include "library/scoped_ext.h"
 #include "library/vm/vm.h"
@@ -68,26 +69,11 @@ void vm_obj_format_info::report(io_state_stream const & ios, json & record) cons
     ss << mk_pair(*m_cache, ios.get_options());
     record["state"] = ss.str();
 }
-
-void tactic_state_info_data::report(io_state_stream const &, json & record) const {
-    std::ostringstream ss;
-    ss << m_state.pp();
-    record["state"] = ss.str();
-}
-
-void smt_tactic_state_info_data::report(io_state_stream const &, json & record) const {
-    std::ostringstream ss;
-    vm_obj vm_smt_state = to_vm_list(m_smt_state, [](smt_goal const & g) { return to_obj(g); });
-    ss << smt_state_pp(vm_smt_state, m_state);
-    record["state"] = ss.str();
-}
 #endif
 
 info_data mk_type_info(expr const & e) { return info_data(new type_info_data(e)); }
 info_data mk_identifier_info(name const & full_id) { return info_data(new identifier_info_data(full_id)); }
 info_data mk_vm_obj_format_info(environment const & env, vm_obj const & thunk) { return info_data(new vm_obj_format_info(env, thunk)); }
-info_data mk_tactic_state_info(tactic_state const & s) { return info_data(new tactic_state_info_data(s)); }
-info_data mk_smt_tactic_state_info(list<smt_goal> const & ss, tactic_state const & ts) { return info_data(new smt_tactic_state_info_data(ss, ts)); }
 
 void info_manager::add_info(unsigned l, unsigned c, info_data data) {
     line_info_data_set line_set = m_line_data[l];
@@ -134,14 +120,6 @@ void info_manager::add_identifier_info(unsigned l, unsigned c, name const & full
 
 void info_manager::add_vm_obj_format_info(unsigned l, unsigned c, environment const & env, vm_obj const & thunk) {
     add_info(l, c, mk_vm_obj_format_info(env, thunk));
-}
-
-void info_manager::add_tactic_state_info(unsigned l, unsigned c, tactic_state const & s) {
-    add_info(l, c, mk_tactic_state_info(s));
-}
-
-void info_manager::add_smt_tactic_state_info(unsigned l, unsigned c, list<smt_goal> const & ss, tactic_state const & ts) {
-    add_info(l, c, mk_smt_tactic_state_info(ss, ts));
 }
 
 #ifdef LEAN_JSON

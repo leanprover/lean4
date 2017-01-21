@@ -361,6 +361,7 @@ real.to_int
 rfl
 right_distrib
 ring
+scope_trace
 set_of
 sep
 select
@@ -429,8 +430,10 @@ interactive.types.location
 interactive.types.qexpr
 interactive.types.qexpr0
 interactive.types.qexpr_list
+interactive.types.qexpr_list_with_pos
 interactive.types.opt_qexpr_list
 interactive.types.qexpr_list_or_qexpr0
+interactive.types.qexpr_list_or_qexpr0_with_pos
 interactive.types.colon_tk
 interactive.types.assign_tk
 interactive.types.comma_tk

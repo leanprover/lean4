@@ -20,18 +20,8 @@ class tactic_evaluator {
     environment compile_tactic(name const & tactic_name, expr const & tactic);
     vm_obj invoke_tactic(vm_state & S, name const & tactic_name, std::initializer_list<vm_obj> const & args);
 
-    void add_tactic_state_info(tactic_state const & s, expr const & ref);
-    void add_smt_tactic_state_info(vm_obj const & ss, tactic_state const & ts, expr const & ref);
-
     tactic_state execute_tactic(expr const & tactic, tactic_state const & s, expr const & ref);
-    pair<vm_obj, tactic_state> execute_smt_tactic(expr const & tactic, vm_obj const & ss, tactic_state const & ts, expr const & ref);
-
-    tactic_state execute_begin_end(tactic_state const & s, buffer<expr> const & tactics, expr const & ref);
     tactic_state execute_atomic(tactic_state const & s, expr const & tactic, expr const & ref);
-    pair<vm_obj, tactic_state> execute_smt_begin_end_core(vm_obj const & ss, tactic_state const & ts, buffer<expr> const & tactics, expr const & ref);
-    pair<vm_obj, tactic_state> mk_smt_state(tactic_state const & s, expr const & smt_cfg, expr const & ref);
-    tactic_state execute_smt_begin_end(tactic_state s, expr tactic, expr const & ref);
-
 public:
     tactic_evaluator(type_context & ctx, info_manager & info, options const & opts);
 

@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <iostream>
 #include "util/sexpr/format.h"
 #include "library/trace.h"
+#include "library/scope_pos_info_provider.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_string.h"
@@ -103,6 +104,16 @@ vm_obj trace_fmt(vm_obj const &, vm_obj const & fmt, vm_obj const & fn) {
     return invoke(fn, mk_vm_unit());
 }
 
+vm_obj scope_trace(vm_obj const &, vm_obj const & line, vm_obj const & col, vm_obj const & fn) {
+    pos_info_provider * pip = get_pos_info_provider();
+    if (pip) {
+        scope_traces_as_messages traces_as_messages(pip->get_file_name(), pos_info(force_to_unsigned(line), force_to_unsigned(col)));
+        return invoke(fn, mk_vm_unit());
+    } else {
+        return invoke(fn, mk_vm_unit());
+    }
+}
+
 struct vm_format_thunk : public vm_external {
     std::function<format()> m_val;
     vm_format_thunk(std::function<format()> const & fn):m_val(fn) {}
@@ -150,6 +161,7 @@ void initialize_vm_format() {
     DECLARE_VM_BUILTIN(name({"format", "of_options"}),       format_of_options);
     DECLARE_VM_BUILTIN(name({"format", "is_nil"}),           format_is_nil);
     DECLARE_VM_BUILTIN(name("trace_fmt"),                    trace_fmt);
+    DECLARE_VM_BUILTIN(name("scope_trace"),                  scope_trace);
     DECLARE_VM_BUILTIN("_apply_format_thunk", apply_format_thunk);
 }
 

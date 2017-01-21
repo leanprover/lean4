@@ -1,4 +1,5 @@
 hole_in_fn.lean:6:13: error: don't know how to synthesize placeholder
-state:
+context:
 n : ℕ
 ⊢ ℕ
+hole_in_fn.lean:6:13: error: elaborator failed

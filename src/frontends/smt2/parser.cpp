@@ -8,7 +8,6 @@ Author: Daniel Selsam
 #include <stack>
 #include <utility>
 #include <vector>
-#include <library/message_builder.h>
 #include "util/flet.h"
 #include "util/name_map.h"
 #include "util/exception.h"
@@ -23,6 +22,7 @@ Author: Daniel Selsam
 #include "kernel/type_checker.h"
 #include "kernel/expr_maps.h"
 #include "kernel/pos_info_provider.h"
+#include "library/message_builder.h"
 #include "library/app_builder.h"
 #include "library/constants.h"
 #include "library/io_state.h"

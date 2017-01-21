@@ -20,6 +20,13 @@ repeat close
 meta def step {α : Type} (tac : smt_tactic α) : smt_tactic unit :=
 tac >> solve_goals
 
+meta def rstep {α : Type} (line : nat) (col : nat) (tac : smt_tactic α) : smt_tactic unit :=
+λ ss ts, tactic_result.cases_on (@scope_trace _ line col (λ _, (tac >> solve_goals) ss ts))
+  (λ ⟨a, new_ss⟩ new_ts, tactic_result.success ((), new_ss) new_ts)
+  (λ msg_thunk e ts,
+    let msg := msg_thunk () ++ format.line ++ to_fmt "state:" ++ format.line ++ ts^.to_format in
+        (tactic.report_error line col msg >> tactic.failed) ts)
+
 meta def execute (tac : smt_tactic unit) : tactic unit :=
 using_smt tac
 

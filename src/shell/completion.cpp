@@ -13,6 +13,7 @@ Authors: Gabriel Ebner, Leonardo de Moura, Sebastian Ullrich
 #include "util/bitap_fuzzy_search.h"
 #include "library/protected.h"
 #include "library/util.h"
+#include "library/attribute_manager.h"
 #include "library/scoped_ext.h"
 #include "library/class.h"
 #include "frontends/lean/util.h"

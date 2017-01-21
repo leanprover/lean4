@@ -253,6 +253,21 @@ do (s::ss, t::ts) ← get_goals | failed,
    (new_ss, new_ts) ← get_goals,
    set_goals (new_ss ++ ss) (new_ts ++ ts)
 
+meta def solve1 (tac : smt_tactic unit) : smt_tactic unit :=
+do (ss, gs) ← get_goals,
+   match ss, gs with
+   | [],     _    := fail "focus tactic failed, there isn't any goal left to focus"
+   | _,     []    := fail "focus tactic failed, there isn't any smt goal left to focus"
+   | s::ss, g::gs :=
+     do set_goals [s] [g],
+        tac,
+        (ss', gs') ← get_goals,
+        match ss', gs' with
+        | [], [] := set_goals ss gs
+        | _,  _  := fail "focus tactic failed, focused goal has not been solved"
+        end
+   end
+
 meta def swap : smt_tactic unit :=
 do (ss, ts) ← get_goals,
    match ss, ts with

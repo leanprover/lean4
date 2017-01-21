@@ -1,6 +1,18 @@
 auto_quote_error.lean:5:29: error: don't know how to synthesize placeholder
-state:
+context:
 a b c : ℕ,
 h1 : a = b,
 h2 : b = c
 ⊢ b = c
+auto_quote_error.lean:5:2: error: elaborator failed
+state:
+a b c : ℕ,
+h1 : a = b,
+h2 : b = c
+⊢ c = a
+auto_quote_error.lean:6:0: error: failed
+state:
+a b c : ℕ,
+h1 : a = b,
+h2 : b = c
+⊢ c = a

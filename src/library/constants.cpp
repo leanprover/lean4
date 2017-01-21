@@ -366,6 +366,7 @@ name const * g_real_to_int = nullptr;
 name const * g_rfl = nullptr;
 name const * g_right_distrib = nullptr;
 name const * g_ring = nullptr;
+name const * g_scope_trace = nullptr;
 name const * g_set_of = nullptr;
 name const * g_sep = nullptr;
 name const * g_select = nullptr;
@@ -434,8 +435,10 @@ name const * g_interactive_types_location = nullptr;
 name const * g_interactive_types_qexpr = nullptr;
 name const * g_interactive_types_qexpr0 = nullptr;
 name const * g_interactive_types_qexpr_list = nullptr;
+name const * g_interactive_types_qexpr_list_with_pos = nullptr;
 name const * g_interactive_types_opt_qexpr_list = nullptr;
 name const * g_interactive_types_qexpr_list_or_qexpr0 = nullptr;
+name const * g_interactive_types_qexpr_list_or_qexpr0_with_pos = nullptr;
 name const * g_interactive_types_colon_tk = nullptr;
 name const * g_interactive_types_assign_tk = nullptr;
 name const * g_interactive_types_comma_tk = nullptr;
@@ -827,6 +830,7 @@ void initialize_constants() {
     g_rfl = new name{"rfl"};
     g_right_distrib = new name{"right_distrib"};
     g_ring = new name{"ring"};
+    g_scope_trace = new name{"scope_trace"};
     g_set_of = new name{"set_of"};
     g_sep = new name{"sep"};
     g_select = new name{"select"};
@@ -895,8 +899,10 @@ void initialize_constants() {
     g_interactive_types_qexpr = new name{"interactive", "types", "qexpr"};
     g_interactive_types_qexpr0 = new name{"interactive", "types", "qexpr0"};
     g_interactive_types_qexpr_list = new name{"interactive", "types", "qexpr_list"};
+    g_interactive_types_qexpr_list_with_pos = new name{"interactive", "types", "qexpr_list_with_pos"};
     g_interactive_types_opt_qexpr_list = new name{"interactive", "types", "opt_qexpr_list"};
     g_interactive_types_qexpr_list_or_qexpr0 = new name{"interactive", "types", "qexpr_list_or_qexpr0"};
+    g_interactive_types_qexpr_list_or_qexpr0_with_pos = new name{"interactive", "types", "qexpr_list_or_qexpr0_with_pos"};
     g_interactive_types_colon_tk = new name{"interactive", "types", "colon_tk"};
     g_interactive_types_assign_tk = new name{"interactive", "types", "assign_tk"};
     g_interactive_types_comma_tk = new name{"interactive", "types", "comma_tk"};
@@ -1289,6 +1295,7 @@ void finalize_constants() {
     delete g_rfl;
     delete g_right_distrib;
     delete g_ring;
+    delete g_scope_trace;
     delete g_set_of;
     delete g_sep;
     delete g_select;
@@ -1357,8 +1364,10 @@ void finalize_constants() {
     delete g_interactive_types_qexpr;
     delete g_interactive_types_qexpr0;
     delete g_interactive_types_qexpr_list;
+    delete g_interactive_types_qexpr_list_with_pos;
     delete g_interactive_types_opt_qexpr_list;
     delete g_interactive_types_qexpr_list_or_qexpr0;
+    delete g_interactive_types_qexpr_list_or_qexpr0_with_pos;
     delete g_interactive_types_colon_tk;
     delete g_interactive_types_assign_tk;
     delete g_interactive_types_comma_tk;
@@ -1750,6 +1759,7 @@ name const & get_real_to_int_name() { return *g_real_to_int; }
 name const & get_rfl_name() { return *g_rfl; }
 name const & get_right_distrib_name() { return *g_right_distrib; }
 name const & get_ring_name() { return *g_ring; }
+name const & get_scope_trace_name() { return *g_scope_trace; }
 name const & get_set_of_name() { return *g_set_of; }
 name const & get_sep_name() { return *g_sep; }
 name const & get_select_name() { return *g_select; }
@@ -1818,8 +1828,10 @@ name const & get_interactive_types_location_name() { return *g_interactive_types
 name const & get_interactive_types_qexpr_name() { return *g_interactive_types_qexpr; }
 name const & get_interactive_types_qexpr0_name() { return *g_interactive_types_qexpr0; }
 name const & get_interactive_types_qexpr_list_name() { return *g_interactive_types_qexpr_list; }
+name const & get_interactive_types_qexpr_list_with_pos_name() { return *g_interactive_types_qexpr_list_with_pos; }
 name const & get_interactive_types_opt_qexpr_list_name() { return *g_interactive_types_opt_qexpr_list; }
 name const & get_interactive_types_qexpr_list_or_qexpr0_name() { return *g_interactive_types_qexpr_list_or_qexpr0; }
+name const & get_interactive_types_qexpr_list_or_qexpr0_with_pos_name() { return *g_interactive_types_qexpr_list_or_qexpr0_with_pos; }
 name const & get_interactive_types_colon_tk_name() { return *g_interactive_types_colon_tk; }
 name const & get_interactive_types_assign_tk_name() { return *g_interactive_types_assign_tk; }
 name const & get_interactive_types_comma_tk_name() { return *g_interactive_types_comma_tk; }

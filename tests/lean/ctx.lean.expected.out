@@ -1,8 +1,9 @@
 ctx.lean:3:0: error: don't know how to synthesize placeholder
-state:
+context:
 A B : Type u,
 a1 a2 a3 a4 a5 a6 a7 a8 a9 a10 : ℕ,
 b1 b2 b3 : bool,
 h : A = B,
 p1 p2 : A × B
 ⊢ ℕ
+ctx.lean:3:0: error: elaborator failed

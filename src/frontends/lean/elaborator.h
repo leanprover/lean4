@@ -154,6 +154,7 @@ private:
 
     expr strict_visit(expr const & e, optional<expr> const & expected_type);
 
+    expr visit_scope_trace(expr const & e, optional<expr> const & expected_type);
     expr visit_typed_expr(expr const & e);
     expr visit_prenum_core(expr const & e, optional<expr> const & expected_type);
     expr visit_prenum(expr const & e, optional<expr> const & expected_type);
@@ -260,6 +261,8 @@ public:
     expr elaborate(expr const & e);
     expr elaborate_type(expr const & e);
     expr_pair elaborate_with_type(expr const & e, expr const & e_type);
+    void report_error(tactic_state const & s, char const * state_header,
+                      char const * msg, expr const & ref);
     void ensure_no_unassigned_metavars(expr const & e);
     /**
        \brief Finalize all expressions in \c es.

@@ -222,7 +222,7 @@ void finalize_trace() {
 }
 
 scope_traces_as_messages::scope_traces_as_messages(std::string const & stream_name, pos_info const & pos) :
-        m_stream_name(stream_name), m_pos(pos) {
+    m_stream_name(stream_name), m_pos(pos) {
     if (get_global_ios().get_options().get_bool(*g_trace_as_messages, false)) {
         m_redirected_ios = std::unique_ptr<io_state>(new io_state(get_global_ios()));
         m_buffer = std::make_shared<string_output_channel>();

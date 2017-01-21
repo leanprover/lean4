@@ -201,9 +201,9 @@ void parser::check_break_at_pos(break_at_pos_exception::token_context ctxt) {
     auto p = pos();
     if (m_break_at_pos && p.first == m_break_at_pos->first && p.second <= m_break_at_pos->second) {
         name tk;
-        if (curr_is_identifier())
+        if (curr_is_identifier()) {
             tk = get_name_val();
-        else if (curr_is_command() || curr_is_keyword()) {
+        } else if (curr_is_command() || curr_is_keyword()) {
             tk = get_token_info().token();
             // When completing at the end of a token that cannot be extended into an identifier,
             // start an empty completion instead (in the next call to `check_break_before/at_pos`, using the correct

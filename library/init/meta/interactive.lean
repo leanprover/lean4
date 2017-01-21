@@ -358,14 +358,14 @@ private meta def simp_goal (cfg : simplify_config) : simp_lemmas → tactic unit
    (new_target, Heq) ← target >>= simplify_core cfg s `eq,
    tactic.assert `Htarget new_target, swap,
    Ht ← get_local `Htarget,
-   mk_app `eq.mpr [Heq, Ht] >>= tactic.exact
+   mk_eq_mpr Heq Ht >>= tactic.exact
 
 private meta def simp_hyp (cfg : simplify_config) (s : simp_lemmas) (h_name : name) : tactic unit :=
 do h     ← get_local h_name,
    htype ← infer_type h,
    (new_htype, eqpr) ← simplify_core cfg s `eq htype,
    tactic.assert (expr.local_pp_name h) new_htype,
-   mk_app `eq.mp [eqpr, h] >>= tactic.exact,
+   mk_eq_mp eqpr h >>= tactic.exact,
    try $ tactic.clear h
 
 private meta def simp_hyps (cfg : simplify_config) : simp_lemmas → location → tactic unit

@@ -26,6 +26,49 @@ vm_obj tactic_mk_app_core(vm_obj const & tmode, vm_obj const & c, vm_obj const &
     }
 }
 
+#define MK_APP(CODE) {                                                  \
+    tactic_state const & s = to_tactic_state(_s);                       \
+    try {                                                               \
+        type_context ctx       = mk_type_context_for(s);                \
+        expr r = CODE;                                                  \
+        return mk_tactic_success(to_obj(r), s);                         \
+    } catch (exception & ex) {                                          \
+        return mk_tactic_exception(ex, s);                              \
+    }                                                                   \
+}
+
+vm_obj tactic_mk_congr_arg(vm_obj const & f, vm_obj const & H, vm_obj const & _s) {
+    MK_APP(mk_congr_arg(ctx, to_expr(f), to_expr(H)));
+}
+
+vm_obj tactic_mk_congr_fun(vm_obj const & H, vm_obj const & a, vm_obj const & _s) {
+    MK_APP(mk_congr_fun(ctx, to_expr(H), to_expr(a)));
+}
+
+vm_obj tactic_mk_congr(vm_obj const & H1, vm_obj const & H2, vm_obj const & _s) {
+    MK_APP(mk_congr(ctx, to_expr(H1), to_expr(H2)));
+}
+
+vm_obj tactic_mk_eq_refl(vm_obj const & a, vm_obj const & _s) {
+    MK_APP(mk_eq_refl(ctx, to_expr(a)));
+}
+
+vm_obj tactic_mk_eq_symm(vm_obj const & h, vm_obj const & _s) {
+    MK_APP(mk_eq_symm(ctx, to_expr(h)));
+}
+
+vm_obj tactic_mk_eq_trans(vm_obj const & h1, vm_obj const & h2, vm_obj const & _s) {
+    MK_APP(mk_eq_trans(ctx, to_expr(h1), to_expr(h2)));
+}
+
+vm_obj tactic_mk_eq_mpr(vm_obj const & h1, vm_obj const & h2, vm_obj const & _s) {
+    MK_APP(mk_eq_mpr(ctx, to_expr(h1), to_expr(h2)));
+}
+
+vm_obj tactic_mk_eq_mp(vm_obj const & h1, vm_obj const & h2, vm_obj const & _s) {
+    MK_APP(mk_eq_mp(ctx, to_expr(h1), to_expr(h2)));
+}
+
 vm_obj tactic_mk_mapp_core(vm_obj const & tmode, vm_obj const & c, vm_obj const & as, vm_obj const & _s) {
     tactic_state const & s = to_tactic_state(_s);
     try {
@@ -53,6 +96,14 @@ vm_obj tactic_mk_mapp_core(vm_obj const & tmode, vm_obj const & c, vm_obj const 
 void initialize_app_builder_tactics() {
     DECLARE_VM_BUILTIN(name({"tactic", "mk_app_core"}),   tactic_mk_app_core);
     DECLARE_VM_BUILTIN(name({"tactic", "mk_mapp_core"}),  tactic_mk_mapp_core);
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_congr_arg"}),  tactic_mk_congr_arg);
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_congr_fun"}),  tactic_mk_congr_fun);
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_congr"}),      tactic_mk_congr);
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_eq_refl"}),    tactic_mk_eq_refl);
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_eq_symm"}),    tactic_mk_eq_symm);
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_eq_trans"}),   tactic_mk_eq_trans);
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_eq_mp"}),      tactic_mk_eq_mp);
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_eq_mpr"}),     tactic_mk_eq_mpr);
 }
 
 void finalize_app_builder_tactics() {

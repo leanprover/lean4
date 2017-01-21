@@ -299,6 +299,22 @@ meta constant mk_app_core   : transparency → name → list expr → tactic exp
    returns the application
      @ite.{1} (a > b) (nat.decidable_gt a b) nat a b -/
 meta constant mk_mapp_core  : transparency → name → list (option expr) → tactic expr
+/-- (mk_congr_arg h₁ h₂) is a more efficient version of (mk_app `congr_arg [h₁, h₂]) -/
+meta constant mk_congr_arg  : expr → expr → tactic expr
+/-- (mk_congr_fun h₁ h₂) is a more efficient version of (mk_app `congr_fun [h₁, h₂]) -/
+meta constant mk_congr_fun  : expr → expr → tactic expr
+/-- (mk_congr h₁ h₂) is a more efficient version of (mk_app `congr [h₁, h₂]) -/
+meta constant mk_congr      : expr → expr → tactic expr
+/-- (mk_eq_refl h) is a more efficient version of (mk_app `eq.refl [h]) -/
+meta constant mk_eq_refl    : expr → tactic expr
+/-- (mk_eq_symm h) is a more efficient version of (mk_app `eq.symm [h]) -/
+meta constant mk_eq_symm    : expr → tactic expr
+/-- (mk_eq_trans h₁ h₂) is a more efficient version of (mk_app `eq.trans [h₁, h₂]) -/
+meta constant mk_eq_trans   : expr → expr → tactic expr
+/-- (mk_eq_mp h₁ h₂) is a more efficient version of (mk_app `eq.mp [h₁, h₂]) -/
+meta constant mk_eq_mp      : expr → expr → tactic expr
+/-- (mk_eq_mpr h₁ h₂) is a more efficient version of (mk_app `eq.mpr [h₁, h₂]) -/
+meta constant mk_eq_mpr      : expr → expr → tactic expr
 /- Given a local constant t, if t has type (lhs = rhs) apply susbstitution.
    Otherwise, try to find a local constant that has type of the form (t = t') or (t' = t).
    The tactic fails if the given expression is not a local constant. -/

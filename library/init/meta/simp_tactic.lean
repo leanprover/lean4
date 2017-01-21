@@ -211,7 +211,7 @@ meta def simplify_goal_core (cfg : simplify_config) (S : simp_lemmas) : tactic u
 do (new_target, heq) ← target >>= simplify cfg S,
    assert `htarget new_target, swap,
    ht ← get_local `htarget,
-   mk_app `eq.mpr [heq, ht] >>= exact
+   mk_eq_mpr heq ht >>= exact
 
 meta def simplify_goal (S : simp_lemmas) : tactic unit :=
 simplify_goal_core default_simplify_config S
@@ -274,7 +274,7 @@ do when (expr.is_local_constant h = ff) (fail "tactic simp_at failed, the given 
    S     ← S^.append extra_lemmas,
    (new_htype, heq) ← simplify default_simplify_config S htype,
    assert (expr.local_pp_name h) new_htype,
-   mk_app `eq.mp [heq, h] >>= exact,
+   mk_eq_mp heq h >>= exact,
    try $ clear h
 
 meta def simp_at : expr → tactic unit :=

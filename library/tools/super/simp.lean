@@ -25,15 +25,15 @@ meta def try_simplify_left (c : clause) (i : ℕ) : tactic (list clause) :=
 on_left_at c i $ λtype, do
   (type', heq, add_hyps) ← simplify_capturing_assumptions type,
   hyp ← mk_local_def `h type',
-  prf  ← mk_app ``eq.mpr [heq, hyp],
+  prf  ← mk_eq_mpr heq hyp,
   return [(hyp::add_hyps, prf)]
 
 meta def try_simplify_right (c : clause) (i : ℕ) : tactic (list clause) :=
 on_right_at' c i $ λhyp, do
   (type', heq, add_hyps) ← simplify_capturing_assumptions hyp^.local_type,
   heqtype ← infer_type heq,
-  heqsymm ← mk_app ``eq.symm [heq],
-  prf  ← mk_app ``eq.mpr [heqsymm, hyp],
+  heqsymm ← mk_eq_symm heq,
+  prf  ← mk_eq_mpr heqsymm hyp,
   return [(add_hyps, prf)]
 
 meta def simp_inf : inf_decl := inf_decl.mk 40 $ take given, sequence' $ do

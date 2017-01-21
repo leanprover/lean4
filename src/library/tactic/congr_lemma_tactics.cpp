@@ -39,70 +39,70 @@ static vm_obj mk_result(optional<congr_lemma> const & l, vm_obj const & s) {
 #define TRY   LEAN_TACTIC_TRY
 #define CATCH LEAN_TACTIC_CATCH(to_tactic_state(s))
 
-vm_obj tactic_mk_congr_simp(vm_obj const & m, vm_obj const & fn, vm_obj const & s) {
+vm_obj tactic_mk_congr_lemma_simp(vm_obj const & m, vm_obj const & fn, vm_obj const & s) {
     TRY;
     type_context ctx = mk_type_context_for(s, m);
     return mk_result(mk_congr_simp(ctx, to_expr(fn)), s);
     CATCH;
 }
 
-vm_obj tactic_mk_congr_simp_n(vm_obj const & m, vm_obj const & fn, vm_obj const & n, vm_obj const & s) {
+vm_obj tactic_mk_congr_lemma_simp_n(vm_obj const & m, vm_obj const & fn, vm_obj const & n, vm_obj const & s) {
     TRY;
     type_context ctx = mk_type_context_for(s, m);
     return mk_result(mk_congr_simp(ctx, to_expr(fn), force_to_unsigned(n, 0)), s);
     CATCH;
 }
 
-vm_obj tactic_mk_specialized_congr_simp(vm_obj const & m, vm_obj const & a, vm_obj const & s) {
+vm_obj tactic_mk_specialized_congr_lemma_simp(vm_obj const & m, vm_obj const & a, vm_obj const & s) {
     TRY;
     type_context ctx = mk_type_context_for(s, m);
     return mk_result(mk_specialized_congr_simp(ctx, to_expr(a)), s);
     CATCH;
 }
 
-vm_obj tactic_mk_congr(vm_obj const & m, vm_obj const & fn, vm_obj const & s) {
+vm_obj tactic_mk_congr_lemma(vm_obj const & m, vm_obj const & fn, vm_obj const & s) {
     TRY;
     type_context ctx = mk_type_context_for(s, m);
     return mk_result(mk_congr(ctx, to_expr(fn)), s);
     CATCH;
 }
 
-vm_obj tactic_mk_congr_n(vm_obj const & m, vm_obj const & fn, vm_obj const & n, vm_obj const & s) {
+vm_obj tactic_mk_congr_lemma_n(vm_obj const & m, vm_obj const & fn, vm_obj const & n, vm_obj const & s) {
     TRY;
     type_context ctx = mk_type_context_for(s, m);
     return mk_result(mk_congr(ctx, to_expr(fn), force_to_unsigned(n, 0)), s);
     CATCH;
 }
 
-vm_obj tactic_mk_specialized_congr(vm_obj const & m, vm_obj const & a, vm_obj const & s) {
+vm_obj tactic_mk_specialized_congr_lemma(vm_obj const & m, vm_obj const & a, vm_obj const & s) {
     TRY;
     type_context ctx = mk_type_context_for(s, m);
     return mk_result(mk_specialized_congr(ctx, to_expr(a)), s);
     CATCH;
 }
 
-vm_obj tactic_mk_hcongr(vm_obj const & m, vm_obj const & fn, vm_obj const & s) {
+vm_obj tactic_mk_hcongr_lemma(vm_obj const & m, vm_obj const & fn, vm_obj const & s) {
     TRY;
     type_context ctx = mk_type_context_for(s, m);
     return mk_result(mk_hcongr(ctx, to_expr(fn)), s);
     CATCH;
 }
 
-vm_obj tactic_mk_hcongr_n(vm_obj const & m, vm_obj const & fn, vm_obj const & n, vm_obj const & s) {
+vm_obj tactic_mk_hcongr_lemma_n(vm_obj const & m, vm_obj const & fn, vm_obj const & n, vm_obj const & s) {
     TRY;
     type_context ctx = mk_type_context_for(s, m);
     return mk_result(mk_hcongr(ctx, to_expr(fn), force_to_unsigned(n, 0)), s);
     CATCH;
 }
 
-vm_obj tactic_mk_rel_iff_congr(vm_obj const & m, vm_obj const & r, vm_obj const & s) {
+vm_obj tactic_mk_rel_iff_congr_lemma(vm_obj const & m, vm_obj const & r, vm_obj const & s) {
     TRY;
     type_context ctx = mk_type_context_for(s, m);
     return mk_result(mk_rel_iff_congr(ctx, to_expr(r)), s);
     CATCH;
 }
 
-vm_obj tactic_mk_rel_eq_congr(vm_obj const & m, vm_obj const & r, vm_obj const & s) {
+vm_obj tactic_mk_rel_eq_congr_lemma(vm_obj const & m, vm_obj const & r, vm_obj const & s) {
     TRY;
     type_context ctx = mk_type_context_for(s, m);
     return mk_result(mk_rel_eq_congr(ctx, to_expr(r)), s);
@@ -110,16 +110,16 @@ vm_obj tactic_mk_rel_eq_congr(vm_obj const & m, vm_obj const & r, vm_obj const &
 }
 
 void initialize_congr_lemma_tactics() {
-    DECLARE_VM_BUILTIN(name({"tactic", "mk_congr_simp_core"}),             tactic_mk_congr_simp);
-    DECLARE_VM_BUILTIN(name({"tactic", "mk_congr_simp_n_core"}),           tactic_mk_congr_simp_n);
-    DECLARE_VM_BUILTIN(name({"tactic", "mk_specialized_congr_simp_core"}), tactic_mk_specialized_congr_simp);
-    DECLARE_VM_BUILTIN(name({"tactic", "mk_congr_core"}),                  tactic_mk_congr);
-    DECLARE_VM_BUILTIN(name({"tactic", "mk_congr_n_core"}),                tactic_mk_congr_n);
-    DECLARE_VM_BUILTIN(name({"tactic", "mk_specialized_congr_core"}),      tactic_mk_specialized_congr);
-    DECLARE_VM_BUILTIN(name({"tactic", "mk_hcongr_core"}),                 tactic_mk_hcongr);
-    DECLARE_VM_BUILTIN(name({"tactic", "mk_hcongr_n_core"}),               tactic_mk_hcongr_n);
-    DECLARE_VM_BUILTIN(name({"tactic", "mk_rel_iff_congr_core"}),          tactic_mk_rel_iff_congr);
-    DECLARE_VM_BUILTIN(name({"tactic", "mk_rel_eq_congr_core"}),           tactic_mk_rel_eq_congr);
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_congr_lemma_simp_core"}),             tactic_mk_congr_lemma_simp);
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_congr_lemma_simp_n_core"}),           tactic_mk_congr_lemma_simp_n);
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_specialized_congr_lemma_simp_core"}), tactic_mk_specialized_congr_lemma_simp);
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_congr_lemma_core"}),                  tactic_mk_congr_lemma);
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_congr_lemma_n_core"}),                tactic_mk_congr_lemma_n);
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_specialized_congr_lemma_core"}),      tactic_mk_specialized_congr_lemma);
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_hcongr_lemma_core"}),                 tactic_mk_hcongr_lemma);
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_hcongr_lemma_n_core"}),               tactic_mk_hcongr_lemma_n);
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_rel_iff_congr_lemma_core"}),          tactic_mk_rel_iff_congr_lemma);
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_rel_eq_congr_lemma_core"}),           tactic_mk_rel_eq_congr_lemma);
 }
 
 void finalize_congr_lemma_tactics() {

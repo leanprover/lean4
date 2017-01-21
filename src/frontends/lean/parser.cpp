@@ -1582,6 +1582,16 @@ struct to_pattern_fn {
         } else if (is_app(e)) {
             collect_new_locals(app_fn(e), skip_main_fn);
             collect_new_locals(app_arg(e), false);
+        } else if (is_choice(e)) {
+            for (unsigned i = 0; i < get_num_choices(e); i++) {
+                expr const & c = get_choice(e, i);
+                if (!is_constant(c) || !is_pattern_constant(const_name(c))) {
+                    throw parser_error(sstream() << "invalid pattern, '" << e << "' is overloaded, "
+                                       << "and some interpretations may occur in patterns and others not "
+                                       << "(solution: use fully qualified names)",
+                                       m_parser.pos_of(e));
+                }
+            }
         } else if (is_local(e)) {
             if (skip_main_fn) {
                 // do nothing
@@ -1635,6 +1645,11 @@ struct to_pattern_fn {
             expr new_f = visit(app_fn(e));
             expr new_a = visit(app_arg(e));
             return update_app(e, new_f, new_a);
+        } else if (is_choice(e)) {
+            buffer<expr> new_args;
+            for (unsigned i = 0; i < macro_num_args(e); i++)
+                new_args.push_back(visit(macro_arg(e, i)));
+            return update_macro(e, new_args.size(), new_args.data());
         } else if (is_local(e)) {
             if (auto r = m_locals_map.find(local_pp_name(e)))
                 return *r;

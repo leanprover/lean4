@@ -19,9 +19,9 @@ variable {n : ℕ}
 instance [decidable_eq α] : decidable_eq (tuple α n) :=
 begin unfold tuple, apply_instance end
 
-definition nil : tuple α 0 := ⟨[],  rfl⟩
+@[pattern] def nil : tuple α 0 := ⟨[],  rfl⟩
 
-definition cons : α → tuple α n → tuple α (nat.succ n)
+@[pattern] def cons : α → tuple α n → tuple α (nat.succ n)
 | a ⟨ v, h ⟩ := ⟨ a::v, congr_arg nat.succ h ⟩
 
 @[reducible] def length (v : tuple α n) : ℕ := n
@@ -31,25 +31,25 @@ notation `[` l:(foldr `, ` (h t, cons h t) nil `]`) := l
 
 open nat
 
-definition head : tuple α (nat.succ n) → α
+def head : tuple α (nat.succ n) → α
 | ⟨list.nil,      h ⟩ := let q : 0 = succ n := h in by contradiction
 | ⟨list.cons a v, h ⟩ := a
 
 theorem head_cons (a : α) : Π (v : tuple α n), head (a :: v) = a
 | ⟨ l, h ⟩ := rfl
 
-definition tail : tuple α (succ n) → tuple α n
+def tail : tuple α (succ n) → tuple α n
 | ⟨ list.nil,   h ⟩ := let q : 0 = succ n := h in by contradiction
 | ⟨ list.cons a v, h ⟩ := ⟨ v,  congr_arg pred h ⟩
 
 theorem tail_cons (a : α) : Π (v : tuple α n), tail (a :: v) = v
 | ⟨ l, h ⟩ := rfl
 
-definition to_list : tuple α n → list α | ⟨ l, h ⟩ := l
+def to_list : tuple α n → list α | ⟨ l, h ⟩ := l
 
 /- append -/
 
-definition append {n m : nat} : tuple α n → tuple α m → tuple α (n + m)
+def append {n m : nat} : tuple α n → tuple α m → tuple α (n + m)
 | ⟨ l₁, h₁ ⟩ ⟨ l₂, h₂ ⟩ :=
   let p := calc
      list.length (l₁ ++ l₂)
@@ -60,7 +60,7 @@ definition append {n m : nat} : tuple α n → tuple α m → tuple α (n + m)
 
 /- map -/
 
-definition map (f : α → β) : tuple α n → tuple β n
+def map (f : α → β) : tuple α n → tuple β n
 | ⟨ l, h ⟩  :=
   let q := calc list.length (list.map f l) = list.length l : list.length_map f l
                                        ... = n             : h in
@@ -72,7 +72,7 @@ theorem map_cons (f : α → β) (a : α)
       : Π (v : tuple α n), map f (a::v) = f a :: map f v
 | ⟨ l, h ⟩ := rfl
 
-definition map₂ (f : α → β → φ) : tuple α n → tuple β n → tuple φ n
+def map₂ (f : α → β → φ) : tuple α n → tuple β n → tuple φ n
 | ⟨ x, px ⟩ ⟨ y, py ⟩ :=
   let z : list φ := list.map₂ f x y in
   let pxx : list.length x = n := px in
@@ -83,13 +83,13 @@ definition map₂ (f : α → β → φ) : tuple α n → tuple β n → tuple �
                  ... = n                                   : min_self n in
   ⟨ z, p ⟩
 
-definition repeat (a : α) (n : ℕ) : tuple α n :=
+def repeat (a : α) (n : ℕ) : tuple α n :=
 ⟨list.repeat a n, list.length_repeat a n⟩
 
-definition dropn (i : ℕ) : tuple α n → tuple α (n - i)
+def dropn (i : ℕ) : tuple α n → tuple α (n - i)
 | ⟨l, p⟩ := ⟨list.dropn i l, p ▸ list.length_dropn i l⟩
 
-definition firstn (i : ℕ) : tuple α n → tuple α (min i n)
+def firstn (i : ℕ) : tuple α n → tuple α (min i n)
 | ⟨l, p⟩ :=
   let q := calc list.length (list.firstn i l)
                    = min i (list.length l)  : list.length_firstn i l
@@ -100,14 +100,14 @@ section accum
   open prod
   variable {σ : Type}
 
-  definition map_accumr
+  def map_accumr
   : (α → σ → σ × β) → tuple α n → σ → σ × tuple β n
   | f ⟨ x, px ⟩ c :=
     let z := list.map_accumr f x c in
     let p := eq.trans (list.length_map_accumr f x c) px in
     (prod.fst z, ⟨ prod.snd z, p ⟩)
 
-  definition map_accumr₂ {α β σ φ : Type} (f : α → β → σ → σ × φ)
+  def map_accumr₂ {α β σ φ : Type} (f : α → β → σ → σ × φ)
    : tuple α n → tuple β n → σ → σ × tuple φ n
   | ⟨ x, px ⟩ ⟨ y, py ⟩ c :=
     let z := list.map_accumr₂ f x y c in

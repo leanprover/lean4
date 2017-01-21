@@ -1,0 +1,4 @@
+1327.lean:4:0: error: tactic failed, there are unsolved goals
+state:
+n : ℕ
+⊢ nat.pred n = n

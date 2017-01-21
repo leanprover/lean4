@@ -25,6 +25,6 @@ example : ∀ n, 0 < n → succ (pred n) = n :=
 begin
   intro n,
   destruct n,
-   dsimp, intros, note h := lt_irrefl 0, cc,
-   dsimp, intros, subst n
+   {dsimp, intros, note h := lt_irrefl 0, cc},
+   {intros, subst n, dsimp, reflexivity}
 end

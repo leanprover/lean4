@@ -1,6 +1,6 @@
-attribute [reducible]
-definition nat_has_add2 : has_add nat :=
-has_add.mk (λ x y : nat, x + y)
+@[reducible]
+def nat_has_add2 : has_add nat :=
+⟨λ x y : nat, nat.add x y⟩
 
 set_option pp.all true
 

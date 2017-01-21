@@ -311,7 +311,7 @@ vm_obj tactic_dsimplify_core(vm_obj const &, vm_obj const & a,
                              vm_obj const & pre, vm_obj const & post, vm_obj const & e, vm_obj const & _s) {
     tactic_state const & s = to_tactic_state(_s);
     try {
-        type_context ctx = mk_type_context_for(s);
+        type_context ctx = mk_type_context_for(s, transparency_mode::Reducible);
         defeq_can_state dcs = s.dcs();
         tactic_dsimplify_fn F(ctx, dcs, force_to_unsigned(max_steps, std::numeric_limits<unsigned>::max()),
                               to_bool(visit_instances), a, pre, post);
@@ -327,7 +327,7 @@ vm_obj simp_lemmas_dsimplify_core(vm_obj const & max_steps, vm_obj const & visit
                                   vm_obj const & e, vm_obj const & _s) {
     tactic_state const & s = to_tactic_state(_s);
     try {
-        type_context ctx    = mk_type_context_for(s);
+        type_context ctx    = mk_type_context_for(s, transparency_mode::Reducible);
         defeq_can_state dcs = s.dcs();
         simp_lemmas_for dlemmas;
         if (auto * dls = to_simp_lemmas(lemmas).find(get_eq_name()))

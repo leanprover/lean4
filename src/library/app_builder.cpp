@@ -1064,12 +1064,59 @@ expr mk_id_locked(type_context & ctx, expr const & type, expr const & h) {
     return mk_app(mk_constant(get_id_locked_name(), {lvl}), type, h);
 }
 
+static bool is_eq_trans(expr const & h, expr & h1, expr & h2) {
+    if (is_app_of(h, get_eq_trans_name(), 6)) {
+        h1 = app_arg(app_fn(h));
+        h2 = app_arg(h);
+        return true;
+    } else {
+        return false;
+    }
+}
+
+static bool is_propext(expr const & h, expr & h1) {
+    if (is_app_of(h, get_propext_name(), 3)) {
+        h1 = app_arg(h);
+        return true;
+    } else {
+        return false;
+    }
+}
+
+static bool is_eq_self_iff_true(expr const & h, expr & t) {
+    if (is_app_of(h, get_eq_self_iff_true_name(), 2)) {
+        t = app_arg(h);
+        return true;
+    } else {
+        return false;
+    }
+}
+
+expr mk_eq_mpr(type_context & ctx, expr const & h1, expr const & h2) {
+    /*
+       eq.mpr (eq.trans H (propext (@eq_self_iff_true t))) h2
+       ==>
+       eq.mpr H (eq.refl t)
+
+       Remark: note that (h2 : true)
+    */
+    expr H, P, E, t;
+    if (is_eq_trans(h1, H, P) && is_propext(P, E) && is_eq_self_iff_true(E, t)) {
+        return mk_app(ctx, get_eq_mpr_name(), H, mk_eq_refl(ctx, t));
+    }
+    return mk_app(ctx, get_eq_mpr_name(), h1, h2);
+}
+
+expr mk_iff_mpr(type_context & ctx, expr const & h1, expr const & h2) {
+    return mk_app(ctx, get_iff_mpr_name(), h1, h2);
+}
+
 expr mk_eq_mp(type_context & ctx, expr const & h1, expr const & h2) {
     return mk_app(ctx, get_eq_mp_name(), h1, h2);
 }
 
-expr mk_eq_mpr(type_context & ctx, expr const & h1, expr const & h2) {
-    return mk_app(ctx, get_eq_mpr_name(), h1, h2);
+expr mk_iff_mp(type_context & ctx, expr const & h1, expr const & h2) {
+    return mk_app(ctx, get_iff_mpr_name(), h1, h2);
 }
 
 void initialize_app_builder() {

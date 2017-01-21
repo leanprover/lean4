@@ -68,6 +68,7 @@ eq_of_heq
 eq_rec_heq
 eq_true_intro
 eq_false_intro
+eq_self_iff_true
 exists.elim
 format
 functor
@@ -416,6 +417,7 @@ tactic.try
 tactic.triv
 tactic.interactive
 tactic.interactive.exact
+trivial
 interactive.types.ident
 interactive.types.opt_ident
 interactive.types.using_ident

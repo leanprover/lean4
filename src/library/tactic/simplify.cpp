@@ -730,24 +730,30 @@ simp_result simplify_core_fn::operator()(name const & rel, expr const & e) {
     }
 }
 
+static expr mk_mpr(type_context & ctx, name const & rel, expr const & h1, expr const & h2) {
+    lean_assert(rel == get_eq_name() || rel == get_iff_name());
+    if (rel == get_eq_name())
+        return mk_eq_mpr(ctx, h1, h2);
+    else
+        return mk_iff_mpr(ctx, h1, h2);
+}
+
 optional<expr> simplify_core_fn::prove_by_simp(name const & rel, expr const & e) {
     lean_assert(rel == get_eq_name() || rel == get_iff_name());
     simp_result r = operator()(rel, e);
-    name const & mpr = rel == get_eq_name() ? get_eq_mpr_name() : get_iff_mpr_name();
-
     name rrel;
     expr lhs, rhs;
     if (is_relation(m_ctx.env(), r.get_new(), rrel, lhs, rhs) &&
         is_refl_relation(m_ctx.env(), rrel) &&
         m_ctx.is_def_eq(lhs, rhs)) {
         if (r.has_proof()) {
-            return some_expr(mk_app(m_ctx, mpr, r.get_proof(), mk_refl(m_ctx, rrel, lhs)));
+            return some_expr(mk_mpr(m_ctx, rel, r.get_proof(), mk_refl(m_ctx, rrel, lhs)));
         } else {
             return some_expr(mk_refl(m_ctx, rrel, lhs));
         }
     } else if (is_true(r.get_new())) {
         if (r.has_proof()) {
-            return some_expr(mk_app(m_ctx, mpr, r.get_proof(), mk_true_intro()));
+            return some_expr(mk_mpr(m_ctx, rel, r.get_proof(), mk_true_intro()));
         } else {
             return some_expr(mk_true_intro());
         }

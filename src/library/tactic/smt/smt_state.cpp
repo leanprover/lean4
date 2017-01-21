@@ -232,7 +232,7 @@ static vm_obj preprocess(tactic_state s, smt_pre_config const & cfg) {
         return change(r.get_new(), new_s);
     } else {
         expr new_M           = ctx.mk_metavar_decl(ctx.lctx(), r.get_new());
-        expr h               = mk_app(ctx, get_eq_mpr_name(), r.get_proof(), new_M);
+        expr h               = mk_eq_mpr(ctx, r.get_proof(), new_M);
         metavar_context mctx = ctx.mctx();
         mctx.assign(head(s.goals()), h);
         tactic_state new_s   = set_mctx_goals_dcs(s, mctx, cons(new_M, tail(s.goals())), dcs);

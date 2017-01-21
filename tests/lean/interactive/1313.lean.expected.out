@@ -1,0 +1,11 @@
+{"msg":{"caption":"","file_name":"f","pos_col":0,"pos_line":5,"severity":"error","text":"tactic failed, there are unsolved goals\nstate:\np q : Prop,\na : p,\nb : q\n⊢ p ∧ q ∧ p"},"response":"additional_message"}
+{"msg":{"caption":"","file_name":"f","pos_col":0,"pos_line":12,"severity":"error","text":"tactic failed, there are unsolved goals\nstate:\np q : Prop,\na : p,\nb : q\n⊢ p\n\np q : Prop,\na : p,\nb : q\n⊢ q ∧ p"},"response":"additional_message"}
+{"msg":{"caption":"","file_name":"f","pos_col":0,"pos_line":18,"severity":"error","text":"tactic failed, there are unsolved goals\nstate:\np q : Prop,\na : p,\nb : q\n⊢ p\n\np q : Prop,\na : p,\nb : q\n⊢ q ∧ p"},"response":"additional_message"}
+{"msg":{"caption":"","file_name":"f","pos_col":0,"pos_line":25,"severity":"error","text":"tactic failed, there are unsolved goals\nstate:\np q : Prop,\na : p,\nb : q\n⊢ p\n\np q : Prop,\na : p,\nb : q\n⊢ q ∧ p"},"response":"additional_message"}
+{"msg":{"caption":"","file_name":"f","pos_col":0,"pos_line":34,"severity":"error","text":"tactic failed, there are unsolved goals\nstate:\np q : Prop,\na : p,\nb : q\n⊢ q ∧ p"},"response":"additional_message"}
+{"message":"file invalidated","response":"ok","seq_num":0}
+{"record":{"state":"p q : Prop,\na : p,\nb : q\n⊢ p ∧ q ∧ p"},"response":"ok","seq_num":4}
+{"record":{"state":"p q : Prop,\na : p,\nb : q\n⊢ p\n\np q : Prop,\na : p,\nb : q\n⊢ q ∧ p"},"response":"ok","seq_num":11}
+{"record":{"state":"p q : Prop,\na : p,\nb : q\n⊢ p\n\np q : Prop,\na : p,\nb : q\n⊢ q ∧ p"},"response":"ok","seq_num":17}
+{"record":{"state":"p q : Prop,\na : p,\nb : q\n⊢ p\n\np q : Prop,\na : p,\nb : q\n⊢ q ∧ p"},"response":"ok","seq_num":24}
+{"record":{"state":"p q : Prop,\na : p,\nb : q\n⊢ p\n\np q : Prop,\na : p,\nb : q\n⊢ q ∧ p"},"response":"ok","seq_num":32}

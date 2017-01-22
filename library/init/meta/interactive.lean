@@ -106,35 +106,92 @@ itactic: parse a nested "interactive" tactic. That is, parse
 meta def itactic : Type :=
 tactic unit
 
+/--
+This tactic applies to a goal that is either a Pi/forall or starts with a let binder.
+
+If the current goal is a Pi/forall `∀ x:T, U` (resp `let x:=t in U`) then intro puts `x:T` (resp `x:=t`) in the local context. The new subgoal target is `U`.
+
+If the goal is an arrow `T → U`, then it puts in the local context either `h:T`, and the new goal target is `U`.
+
+If the goal is neither a Pi/forall nor starting with a let definition,
+the tactic `intro` applies the tactic `whnf` until the tactic `intro` can be applied or the goal is not `head-reducible`.
+-/
 meta def intro : opt_ident → tactic unit
 | none     := intro1 >> skip
 | (some h) := tactic.intro h >> skip
 
+/--
+Similar to `intro` tactic. The tactic `intros` will keep introducing new hypotheses until the goal target is not a Pi/forall or let binder.
+The variant `intros h_1 ... h_n` introduces `n` new hypotheses using the given identifiers to name them.
+-/
 meta def intros : raw_ident_list → tactic unit
 | [] := tactic.intros >> skip
 | hs := intro_lst hs >> skip
 
+/--
+The tactic `rename h₁ h₂` renames hypothesis `h₁` into `h₂` in the current local context.
+-/
 meta def rename : ident → ident → tactic unit :=
 tactic.rename
 
+/--
+This tactic applies to any goal.
+The argument term is a term well-formed in the local context of the main goal.
+The tactic apply tries to match the current goal against the conclusion of the type of term.
+If it succeeds, then the tactic returns as many subgoals as the number of non-dependent premises
+that have not been fixed by type inference or type class resolution.
+
+The tactic `apply` uses higher-order pattern matching, type class resolution, and
+first-order unification with dependent types.
+-/
 meta def apply (q : qexpr0) : tactic unit :=
 to_expr q >>= tactic.apply
 
+/--
+Similar to the `apply` tactic, but it also creates subgoals for dependent premises
+that have not been fixed by type inference or type class resolution.
+-/
 meta def fapply (q : qexpr0) : tactic unit :=
 to_expr q >>= tactic.fapply
 
+/--
+This tactic tries to close the main goal `... |- U` using type class resolution.
+It succeeds if it generates a term of type `U` using type class resolution.
+-/
 meta def apply_instance : tactic unit :=
 tactic.apply_instance
 
+/--
+This tactic applies to any goal. It behaves like `exact` with a big difference:
+the user can leave some holes `_` in the term.
+`refine` will generate as many subgoals as there are holes in the term.
+Note that some holes may be implicit.
+The type of holes must be either synthesized by the system or declared by
+an explicit type ascription like (e.g., `(_ : nat → Prop)`).
+-/
 meta def refine : qexpr0 → tactic unit :=
 tactic.refine
 
+/--
+This tactic looks in the local context for an hypothesis which type is equal to the goal target.
+If it is the case, the subgoal is proved. Otherwise, it fails.
+-/
 meta def assumption : tactic unit :=
 tactic.assumption
 
+/--
+This tactic applies to any goal. `change U` replaces the main goal target `T` with `U`
+providing that `U` is well-formed with respect to the main goal local context,
+and `T` and `U` are definitionally equal.
+-/
 meta def change (q : qexpr0) : tactic unit :=
 to_expr q >>= tactic.change
 
+/--
+This tactic applies to any goal. It gives directly the exact proof
+term of the goal. Let `T` be our goal, let `p` be a term of type `U` then
+`exact p` succeeds iff `T` and `U` are definitionally equal.
+-/
 meta def exact (q : qexpr0) : tactic unit :=
 do tgt : expr ← target,
    to_expr_strict `((%%q : %%tgt)) >>= tactic.exact

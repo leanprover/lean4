@@ -358,7 +358,7 @@ do p ← to_expr_strict q,
 meta def trace_state : tactic unit :=
 tactic.trace_state
 
-meta def trace {A : Type} [has_to_tactic_format A] (a : A) : tactic unit :=
+meta def trace {α : Type} [has_to_tactic_format α] (a : α) : tactic unit :=
 tactic.trace a
 
 meta def existsi (e : qexpr0) : tactic unit :=

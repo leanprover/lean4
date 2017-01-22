@@ -332,9 +332,6 @@ private meta def add_simps : simp_lemmas → list name → tactic simp_lemmas
 private meta def report_invalid_simp_lemma {α : Type} (n : name): tactic α :=
 fail ("invalid simplification lemma '" ++ to_string n ++ "' (use command 'set_option trace.simp_lemmas true' for more details)")
 
-private meta def save_const_type_info (n : name) (ref : expr) : tactic unit :=
-try (do c ← mk_const n, save_type_info c ref)
-
 private meta def simp_lemmas.resolve_and_add (s : simp_lemmas) (n : name) (ref : expr) : tactic simp_lemmas :=
 do
   e ← resolve_name n,

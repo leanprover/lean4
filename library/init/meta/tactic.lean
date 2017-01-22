@@ -731,6 +731,9 @@ do env  ← get_env,
    ls   ← mk_num_meta_univs num,
    return (expr.const c ls)
 
+meta def save_const_type_info (n : name) (ref : expr) : tactic unit :=
+try (do c ← mk_const n, save_type_info c ref)
+
 /- Create a fresh universe ?u, a metavariable (?T : Type.{?u}),
    and return metavariable (?M : ?T).
    This action can be used to create a meta-variable when

@@ -132,12 +132,12 @@ open tactic (resolve_name transparency to_expr)
 private meta def report_invalid_em_lemma {α : Type} (n : name) : tactic α :=
 fail ("invalid ematch lemma '" ++ to_string n ++ "'")
 
-private meta def add_lemma_name (md : transparency) (lhs_lemma : bool) (n : name) : smt_tactic unit :=
+private meta def add_lemma_name (md : transparency) (lhs_lemma : bool) (n : name) (ref : expr) : smt_tactic unit :=
 do
   e ← resolve_name n,
   match e with
-  | expr.const n _           := (add_ematch_lemma_from_decl_core md lhs_lemma n) <|> report_invalid_em_lemma n
-  | expr.local_const _ _ _ _ := (add_ematch_lemma_core md lhs_lemma e) <|> report_invalid_em_lemma n
+  | expr.const n _           := (add_ematch_lemma_from_decl_core md lhs_lemma n >> tactic.save_const_type_info n ref) <|> report_invalid_em_lemma n
+  | expr.local_const _ _ _ _ := (add_ematch_lemma_core md lhs_lemma e >> try (tactic.save_type_info e ref)) <|> report_invalid_em_lemma n
   | _                        := tactic.report_resolve_name_failure e n
   end
 
@@ -145,8 +145,8 @@ do
 private meta def add_lemma_pexpr (md : transparency) (lhs_lemma : bool) (p : pexpr) : smt_tactic unit :=
 let e := pexpr.to_raw_expr p in
 match e with
-| (expr.const c [])          := add_lemma_name md lhs_lemma c
-| (expr.local_const c _ _ _) := add_lemma_name md lhs_lemma c
+| (expr.const c [])          := add_lemma_name md lhs_lemma c e
+| (expr.local_const c _ _ _) := add_lemma_name md lhs_lemma c e
 | _                          := do new_e ← to_expr p, add_ematch_lemma_core md lhs_lemma new_e
 end
 
@@ -175,18 +175,18 @@ add_eqn_lemmas_for_core reducible ids
 meta def add_eqn_lemmas (ids : raw_ident_list) : smt_tactic unit :=
 add_eqn_lemmas_for ids
 
-private meta def add_hinst_lemma_from_name (md : transparency) (lhs_lemma : bool) (n : name) (hs : hinst_lemmas) : smt_tactic hinst_lemmas :=
+private meta def add_hinst_lemma_from_name (md : transparency) (lhs_lemma : bool) (n : name) (hs : hinst_lemmas) (ref : expr) : smt_tactic hinst_lemmas :=
 do
   e ← resolve_name n,
   match e with
   | expr.const n _           :=
-    (do h ← hinst_lemma.mk_from_decl_core md n lhs_lemma, return $ hs^.add h)
+    (do h ← hinst_lemma.mk_from_decl_core md n lhs_lemma, tactic.save_const_type_info n ref, return $ hs^.add h)
     <|>
-    (do hs₁ ← mk_ematch_eqn_lemmas_for_core md n, return $ hs^.merge hs₁)
+    (do hs₁ ← mk_ematch_eqn_lemmas_for_core md n, tactic.save_const_type_info n ref, return $ hs^.merge hs₁)
     <|>
     report_invalid_em_lemma n
   | expr.local_const _ _ _ _ :=
-    (do h ← hinst_lemma.mk_core md e lhs_lemma, return $ hs^.add h)
+    (do h ← hinst_lemma.mk_core md e lhs_lemma, try (tactic.save_type_info e ref), return $ hs^.add h)
     <|>
     report_invalid_em_lemma n
   | _                        := tactic.report_resolve_name_failure e n
@@ -195,8 +195,8 @@ do
 private meta def add_hinst_lemma_from_pexpr (md : transparency) (lhs_lemma : bool) (p : pexpr) (hs : hinst_lemmas) : smt_tactic hinst_lemmas :=
 let e := pexpr.to_raw_expr p in
 match e with
-| (expr.const c [])          := add_hinst_lemma_from_name md lhs_lemma c hs
-| (expr.local_const c _ _ _) := add_hinst_lemma_from_name md lhs_lemma c hs
+| (expr.const c [])          := add_hinst_lemma_from_name md lhs_lemma c hs e
+| (expr.local_const c _ _ _) := add_hinst_lemma_from_name md lhs_lemma c hs e
 | _                          := do new_e ← to_expr p, h ← hinst_lemma.mk_core md new_e lhs_lemma, return $ hs^.add h
 end
 

@@ -332,18 +332,21 @@ private meta def add_simps : simp_lemmas → list name → tactic simp_lemmas
 private meta def report_invalid_simp_lemma {α : Type} (n : name): tactic α :=
 fail ("invalid simplification lemma '" ++ to_string n ++ "' (use command 'set_option trace.simp_lemmas true' for more details)")
 
-private meta def simp_lemmas.resolve_and_add (s : simp_lemmas) (n : name) : tactic simp_lemmas :=
+private meta def save_const_type_info (n : name) (ref : expr) : tactic unit :=
+try (do c ← mk_const n, save_type_info c ref)
+
+private meta def simp_lemmas.resolve_and_add (s : simp_lemmas) (n : name) (ref : expr) : tactic simp_lemmas :=
 do
   e ← resolve_name n,
   match e with
   | expr.const n _           :=
-    (do b ← is_valid_simp_lemma_cnst reducible n, guard b, s^.add_simp n)
+    (do b ← is_valid_simp_lemma_cnst reducible n, guard b, save_const_type_info n ref, s^.add_simp n)
     <|>
-    (do eqns ← get_eqn_lemmas_for tt n, guard (eqns^.length > 0), add_simps s eqns)
+    (do eqns ← get_eqn_lemmas_for tt n, guard (eqns^.length > 0), save_const_type_info n ref, add_simps s eqns)
     <|>
     report_invalid_simp_lemma n
   | expr.local_const _ _ _ _ :=
-    (do b ← is_valid_simp_lemma reducible e, guard b, s^.add e)
+    (do b ← is_valid_simp_lemma reducible e, guard b, try (save_type_info e ref), s^.add e)
     <|>
     report_invalid_simp_lemma n
   | _                        := report_resolve_name_failure e n
@@ -352,8 +355,8 @@ do
 private meta def simp_lemmas.add_pexpr (s : simp_lemmas) (p : pexpr) : tactic simp_lemmas :=
 let e := pexpr.to_raw_expr p in
 match e with
-| (const c [])          := simp_lemmas.resolve_and_add s c
-| (local_const c _ _ _) := simp_lemmas.resolve_and_add s c
+| (const c [])          := simp_lemmas.resolve_and_add s c e
+| (local_const c _ _ _) := simp_lemmas.resolve_and_add s c e
 | _                     := do new_e ← to_expr p, s^.add new_e
 end
 

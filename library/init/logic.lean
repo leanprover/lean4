@@ -248,24 +248,22 @@ def xor (a b : Prop) := (a ∧ ¬ b) ∨ (b ∧ ¬ a)
 
 /- iff -/
 
-def iff (a b : Prop) := (a → b) ∧ (b → a)
+structure iff (a b : Prop) : Prop :=
+intro :: (mp : a → b) (mpr : b → a)
 
 notation a <-> b := iff a b
 notation a ↔ b := iff a b
 
-lemma iff.intro : (a → b) → (b → a) → (a ↔ b) := and.intro
-
-lemma iff.elim : ((a → b) → (b → a) → c) → (a ↔ b) → c := and.rec
+lemma iff.elim : ((a → b) → (b → a) → c) → (a ↔ b) → c := iff.rec
 
 attribute [recursor 5] iff.elim
 
-lemma iff.elim_left : (a ↔ b) → a → b := and.left
+lemma iff.elim_left : (a ↔ b) → a → b := iff.mp
 
-def iff.mp := @iff.elim_left
+lemma iff.elim_right : (a ↔ b) → b → a := iff.mpr
 
-lemma iff.elim_right : (a ↔ b) → b → a := and.right
-
-def iff.mpr := @iff.elim_right
+lemma iff_iff_implies_and_implies (a b : Prop) : (a ↔ b) ↔ (a → b) ∧ (b → a) :=
+iff.intro (λ h, and.intro h^.mp h^.mpr) (λ h, iff.intro h^.left h^.right)
 
 attribute [refl]
 lemma iff.refl (a : Prop) : a ↔ a :=
@@ -517,7 +515,7 @@ iff.intro (assume h, iff.mpr h trivial) iff_true_intro
 iff.trans iff.comm (iff_true a)
 
 @[simp] lemma iff_false (a : Prop) : (a ↔ false) ↔ ¬ a :=
-iff.intro and.left iff_false_intro
+iff.intro iff.mp iff_false_intro
 
 @[simp] lemma false_iff (a : Prop) : (false ↔ a) ↔ ¬ a :=
 iff.trans iff.comm (iff_false a)
@@ -526,7 +524,9 @@ iff.trans iff.comm (iff_false a)
 iff_true_intro iff.rfl
 
 @[congr] lemma iff_congr (h₁ : a ↔ c) (h₂ : b ↔ d) : (a ↔ b) ↔ (c ↔ d) :=
-and_congr (imp_congr h₁ h₂) (imp_congr h₂ h₁)
+(iff_iff_implies_and_implies a b)^.trans
+  ((and_congr (imp_congr h₁ h₂) (imp_congr h₂ h₁))^.trans
+    (iff_iff_implies_and_implies c d)^.symm)
 
 /- implies simp rule -/
 @[simp] lemma implies_true_iff (a : Prop) : (a → true) ↔ true :=
@@ -683,7 +683,7 @@ section
   else is_true (assume h, absurd h hp)
 
   instance [decidable p] [decidable q] : decidable (p ↔ q) :=
-  and.decidable
+  decidable_of_decidable_of_iff and.decidable (iff_iff_implies_and_implies p q)^.symm
 end
 
 instance {α : Type u} [decidable_eq α] (a b : α) : decidable (a ≠ b) :=

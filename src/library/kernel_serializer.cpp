@@ -8,8 +8,6 @@ Author: Leonardo de Moura
 #include "util/object_serializer.h"
 #include "kernel/expr.h"
 #include "kernel/declaration.h"
-#include "library/annotation.h"
-#include "library/max_sharing.h"
 #include "library/kernel_serializer.h"
 
 // Procedures for serializing and deserializing kernel objects (levels, exprs, declarations)
@@ -137,9 +135,8 @@ static binder_info read_binder_info(deserializer & d) {
 
 static name * g_binder_name = nullptr;
 
-class expr_serializer : public object_serializer<expr, expr_hash_alloc, expr_eqp> {
-    typedef object_serializer<expr, expr_hash_alloc, expr_eqp> super;
-    max_sharing_fn m_max_sharing_fn;
+class expr_serializer : public object_serializer<expr, expr_hash, is_bi_equal_proc> {
+    typedef object_serializer<expr, expr_hash, is_bi_equal_proc> super;
     unsigned       m_next_id;
 
     void write_binder_name(serializer & s, name const & a) {
@@ -201,7 +198,7 @@ class expr_serializer : public object_serializer<expr, expr_hash_alloc, expr_eqp
 public:
     expr_serializer() { m_next_id = 0; }
     void write(expr const & a) {
-        write_core(m_max_sharing_fn(a));
+        write_core(a);
     }
 };
 

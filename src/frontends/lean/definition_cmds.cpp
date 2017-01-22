@@ -109,8 +109,9 @@ expr mk_equations(parser & p, expr const & fn, name const & full_name, buffer<ex
 void check_valid_end_of_equations(parser const & p) {
     if (!p.curr_is_command() && !p.curr_is_eof() &&
         p.curr() != scanner::token_kind::DocBlock &&
-        p.curr() != scanner::token_kind::ModDocBlock) {
-        throw parser_error("invalid equations, must be followed by a command or EOF", p.pos());
+        p.curr() != scanner::token_kind::ModDocBlock &&
+        !p.curr_is_token(get_period_tk())) {
+        throw parser_error("invalid equations, must be followed by a command, '.', doc-string or EOF", p.pos());
     }
 }
 

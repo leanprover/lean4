@@ -2,7 +2,7 @@ add_library(library OBJECT deep_copy.cpp expr_lt.cpp io_state.cpp
   io_state_stream.cpp bin_app.cpp constants.cpp kernel_serializer.cpp
   max_sharing.cpp shared_environment.cpp module.cpp
   private.cpp placeholder.cpp aliases.cpp
-  update_declaration.cpp scoped_ext.cpp standard_kernel.cpp sorry.cpp replace_visitor.cpp
+  update_declaration.cpp scoped_ext.cpp sorry.cpp replace_visitor.cpp
   explicit.cpp num.cpp string.cpp head_map.cpp
   class.cpp util.cpp print.cpp annotation.cpp quote.cpp
   typed_expr.cpp protected.cpp reducible.cpp init_module.cpp

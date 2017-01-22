@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "library/unfold_macros.h"
 #include "kernel/type_checker.h"
 #include "kernel/inductive/inductive.h"
-#include "library/standard_kernel.h"
+#include "kernel/standard_kernel.h"
 #include "library/module.h"
 #include "library/projection.h"
 #include "library/util.h"

@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "kernel/environment.h"
-#include "library/standard_kernel.h"
+#include "kernel/standard_kernel.h"
 #include "library/module.h"
 #include "api/decl.h"
 #include "api/string.h"

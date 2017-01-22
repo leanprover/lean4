@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "library/module_mgr.h"
 #include "library/st_task_queue.h"
 #include "library/module.h"
-#include "library/standard_kernel.h"
+#include "kernel/standard_kernel.h"
 #include "library/type_context.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/parser.h"

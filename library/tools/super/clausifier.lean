@@ -100,6 +100,23 @@ on_first_right' c $ λhyp, do
   pb ← mk_mapp ``and.right [none, none, some hyp],
   return [([], pa), ([], pb)]
 
+meta def inf_iff_l (c : clause) : tactic (list clause) :=
+on_first_left c $ λab,
+  match ab with
+  | (app (app (const ``iff []) a) b) := do
+    hab ← mk_local_def `l (imp a b),
+    hba ← mk_local_def `r (imp b a),
+    pab ← mk_mapp ``iff.intro [some a, some b, some hab, some hba],
+    return [([hab, hba], pab)]
+  | _ := failed
+  end
+
+meta def inf_iff_r (c : clause) : tactic (list clause) :=
+on_first_right' c $ λhyp, do
+  pa ← mk_mapp ``iff.mp [none, none, some hyp],
+  pb ← mk_mapp ``iff.mpr [none, none, some hyp],
+  return [([], pa), ([], pb)]
+
 meta def inf_or_r (c : clause) : tactic (list clause) :=
 on_first_right c $ λhab,
   match hab^.local_type with
@@ -235,6 +252,7 @@ meta def clausification_rules_intuit : list (clause → tactic (list clause)) :=
 [ inf_false_l, inf_false_r, inf_true_l, inf_true_r,
   inf_not_l, inf_not_r,
   inf_and_l, inf_and_r,
+  inf_iff_l, inf_iff_r,
   inf_or_l, inf_or_r,
   inf_ex_l,
   inf_normalize_l, inf_normalize_r ]
@@ -243,6 +261,7 @@ meta def clausification_rules_classical : list (clause → tactic (list clause))
 [ inf_false_l, inf_false_r, inf_true_l, inf_true_r,
   inf_not_l, inf_not_r,
   inf_and_l, inf_and_r,
+  inf_iff_l, inf_iff_r,
   inf_or_l, inf_or_r,
   inf_imp_l, inf_all_r,
   inf_ex_l,

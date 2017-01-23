@@ -77,7 +77,7 @@ if((${CYGWIN} EQUAL "1") OR (${CMAKE_SYSTEM_NAME} MATCHES "Windows"))
   set(LEAN_WIN_STACK_SIZE "104857600")
   set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} -Wl,--stack,${LEAN_WIN_STACK_SIZE}")
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_WINDOWS -D LEAN_WIN_STACK_SIZE=${LEAN_WIN_STACK_SIZE}")
-  set(EXTRA_LIBS ${EXTRA_LIBS} -lpsapi)
+  set(EXTRA_UTIL_LIBS ${EXTRA_UTIL_LIBS} -lpsapi)
 endif()
 
 if("${CYGWIN}" EQUAL "1")
@@ -273,6 +273,8 @@ if(NOT "${JEMALLOC_FOUND}")
    message(STATUS "Using standard malloc.")
  endif()
 endif()
+
+set(EXTRA_LIBS ${EXTRA_LIBS} ${EXTRA_UTIL_LIBS})
 
 # Python
 find_package(PythonInterp)

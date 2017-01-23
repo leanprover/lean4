@@ -8,7 +8,7 @@ Author: Gabriel Ebner
 #include "kernel/init_module.h"
 #include "util/init_module.h"
 #include "util/test.h"
-#include "util/numerics/init_module.h"
+#include "util/sstream.h"
 #include "util/sexpr/init_module.h"
 #include "kernel/quotient/quotient.h"
 #include "kernel/inductive/inductive.h"
@@ -66,6 +66,7 @@ int main(int argc, char ** argv) {
 
     try {
         std::ifstream in(argv[1]);
+        if (!in) throw exception(sstream() << "file not found: " << argv[1]);
 
         unsigned trust_lvl = 0;
         auto env = mk_environment(trust_lvl);

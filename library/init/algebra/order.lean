@@ -17,7 +17,6 @@ class weak_order (α : Type u) extends has_le α :=
 (le_trans : ∀ a b c : α, a ≤ b → b ≤ c → a ≤ c)
 (le_antisymm : ∀ a b : α, a ≤ b → b ≤ a → a = b)
 
-set_option pp.all true
 class linear_weak_order (α : Type u) extends weak_order α :=
 (le_total : ∀ a b : α, a ≤ b ∨ b ≤ a)
 

@@ -110,7 +110,7 @@ static expr read_macro_definition(deserializer & d, unsigned num, expr const * a
     auto k  = d.read_string();
     macro_readers & readers = get_macro_readers();
     auto it = readers.find(k);
-    lean_assert(it != readers.end());
+    if (it == readers.end()) throw corrupted_stream_exception();
     return it->second(d, num, args);
 }
 

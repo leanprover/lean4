@@ -18,7 +18,7 @@ enable_testing()
 option(MULTI_THREAD       "MULTI_THREAD"       ON)
 option(STATIC             "STATIC"             OFF)
 option(SPLIT_STACK        "SPLIT_STACK"        OFF)
-option(TCMALLOC           "TCMALLOC"           ON)
+option(TCMALLOC           "TCMALLOC"           OFF)
 option(JEMALLOC           "JEMALLOC"           OFF)
 # When OFF we disable JSON support to support older compilers
 option(JSON               "JSON"               ON)

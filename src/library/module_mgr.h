@@ -97,8 +97,6 @@ class module_mgr {
     void mark_out_of_date(module_id const & id, buffer<module_id> & to_rebuild);
     void build_module(module_id const & id, bool can_use_olean, name_set module_stack);
     std::vector<module_name> get_direct_imports(module_id const & id, std::string const & contents);
-    std::vector<std::tuple<module_id, module_name, std::shared_ptr<module_info const>>> gather_transitive_imports(
-            module_id const & id, std::vector<module_name> const & imports);
     bool get_snapshots_or_unchanged_module(
             module_id const & id, std::string const & contents, time_t mtime, snapshot_vector &vector);
 
@@ -122,5 +120,8 @@ public:
     options get_options() const { return m_ios.get_options(); }
     io_state get_io_state() const { return m_ios; }
 };
+
+environment get_combined_environment(environment const & env0,
+                                     buffer<std::shared_ptr<module_info const>> const & mods);
 
 }

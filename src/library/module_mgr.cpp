@@ -464,4 +464,20 @@ std::tuple<std::string, module_src, time_t> fs_module_vfs::load_module(module_id
     return std::make_tuple(read_file(lean_fn), module_src::LEAN, lean_mtime);
 }
 
+environment get_combined_environment(environment const & env,
+                                     buffer<std::shared_ptr<module_info const>> const & mods) {
+    module_id combined_id = "<combined_environment.lean>";
+
+    std::vector<module_info::dependency> deps;
+    std::vector<module_name> refs;
+    for (auto & mod : mods) {
+        // TODO(gabriel): switch module_ids to names, then we don't need this hack
+        module_name ref { name(mod->m_mod), {} };
+        deps.push_back({ mod->m_mod, ref, mod });
+        refs.push_back(ref);
+    }
+
+    return import_modules(env, combined_id, refs, mk_loader(combined_id, deps));
+}
+
 }

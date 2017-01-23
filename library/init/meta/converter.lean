@@ -220,7 +220,7 @@ meta def bottom_up (c : conv unit) : conv unit :=
 λ r e, do
   s ← simp_lemmas.mk_default,
   (a, new_e, pr) ←
-     ext_simplify_core () default_simplify_config s
+     ext_simplify_core () {} s
        (λ u, return u)
        (λ a s r p e, failed)
        (λ a s r p e, do ⟨u, new_e, pr⟩ ← c r e, return ((), new_e, pr, tt))
@@ -231,7 +231,7 @@ meta def top_down (c : conv unit) : conv unit :=
 λ r e, do
   s ← simp_lemmas.mk_default,
   (a, new_e, pr) ←
-     ext_simplify_core () default_simplify_config s
+     ext_simplify_core () {} s
        (λ u, return u)
        (λ a s r p e, do ⟨u, new_e, pr⟩ ← c r e, return ((), new_e, pr, tt))
        (λ a s r p e, failed)
@@ -242,7 +242,7 @@ meta def find (c : conv unit) : conv unit :=
 λ r e, do
   s ← simp_lemmas.mk_default,
   (a, new_e, pr) ←
-     ext_simplify_core () default_simplify_config s
+     ext_simplify_core () {} s
        (λ u, return u)
        (λ a s r p e,
          (do ⟨u, new_e, pr⟩ ← c r e, return ((), new_e, pr, ff))
@@ -256,7 +256,7 @@ meta def find_pattern (pat : pattern) (c : conv unit) : conv unit :=
 λ r e, do
   s ← simp_lemmas.mk_default,
   (a, new_e, pr) ←
-     ext_simplify_core () default_simplify_config s
+     ext_simplify_core () {} s
        (λ u, return u)
        (λ a s r p e, do
          matched ← (tactic.match_pattern pat e >> return tt) <|> return ff,

@@ -510,21 +510,21 @@ It has many variants.
 - `simp with attr` simplifies the main goal target using the lemmas tagged with the attribute `[attr]`.
 -/
 meta def simp (hs : opt_qexpr_list) (attr_names : with_ident_list) (ids : without_ident_list) (loc : location) : tactic unit :=
-simp_core default_simplify_config [] hs attr_names ids loc
+simp_core {} [] hs attr_names ids loc
 
 /--
 Similar to the `simp` tactic, but uses contextual simplification. For example, when simplifying `t = s → p`,
 the equation `t = s` is automatically added to the set of simplification rules when simplifying `p`.
 -/
 meta def ctx_simp (hs : opt_qexpr_list) (attr_names : with_ident_list) (ids : without_ident_list) (loc : location) : tactic unit :=
-simp_core {default_simplify_config with contextual := tt} [] hs attr_names ids loc
+simp_core {contextual := tt} [] hs attr_names ids loc
 
 /--
 Similar to the `simp` tactic, but adds all applicable hypotheses as simplification rules.
 -/
 meta def simp_using_hs (hs : opt_qexpr_list) (attr_names : with_ident_list) (ids : without_ident_list) : tactic unit :=
 do ctx ← collect_ctx_simps,
-   simp_core default_simplify_config ctx hs attr_names ids []
+   simp_core {} ctx hs attr_names ids []
 
 private meta def dsimp_hyps (s : simp_lemmas) : location → tactic unit
 | []      := skip

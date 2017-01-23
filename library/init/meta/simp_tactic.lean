@@ -152,20 +152,12 @@ do num_reverted : ℕ ← revert h,
    intron num_reverted
 
 structure simplify_config :=
-(max_steps : nat)
-(contextual : bool)
-(lift_eq : bool)
-(canonize_instances : bool)
-(canonize_proofs : bool)
-(use_axioms : bool)
-
-def default_simplify_config : simplify_config :=
-{ max_steps  := default_max_steps,
-  contextual := ff,
-  lift_eq    := tt,
-  canonize_instances := tt,
-  canonize_proofs    := ff,
-  use_axioms := tt }
+(max_steps : nat           := default_max_steps)
+(contextual : bool         := ff)
+(lift_eq : bool            := tt)
+(canonize_instances : bool := tt)
+(canonize_proofs : bool    := ff)
+(use_axioms : bool         := tt)
 
 meta constant simplify_core
   (c : simplify_config)
@@ -214,7 +206,7 @@ do (new_target, heq) ← target >>= simplify cfg S,
    mk_eq_mpr heq ht >>= exact
 
 meta def simplify_goal (S : simp_lemmas) : tactic unit :=
-simplify_goal_core default_simplify_config S
+simplify_goal_core {} S
 
 meta def simp : tactic unit :=
 do S ← simp_lemmas.mk_default,
@@ -227,7 +219,7 @@ simplify_goal S >> try triv
 
 meta def ctx_simp : tactic unit :=
 do S ← simp_lemmas.mk_default,
-simplify_goal_core {default_simplify_config with contextual := tt} S >> try triv >> try (reflexivity_core reducible)
+simplify_goal_core {contextual := tt} S >> try triv >> try (reflexivity_core reducible)
 
 meta def dsimp_core (s : simp_lemmas) : tactic unit :=
 target >>= s^.dsimplify >>= change
@@ -272,7 +264,7 @@ do when (expr.is_local_constant h = ff) (fail "tactic simp_at failed, the given 
    htype ← infer_type h,
    S     ← simp_lemmas.mk_default,
    S     ← S^.append extra_lemmas,
-   (new_htype, heq) ← simplify default_simplify_config S htype,
+   (new_htype, heq) ← simplify {} S htype,
    assert (expr.local_pp_name h) new_htype,
    mk_eq_mp heq h >>= exact,
    try $ clear h

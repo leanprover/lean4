@@ -1,7 +1,7 @@
 Low level format
 ================
 
-Lean can export .lean and .hlean files in a low-level format that is easy to parse and process.
+Lean can export .lean files in a low-level format that is easy to parse and process.
 The exported file contains only fully elaborated terms.
 The file describes hierarchical names, universe levels and expressions.
 These objects are used to declare inductive datatypes, definitions and axioms.
@@ -136,24 +136,6 @@ We annotate some commands with comments of the form `-- ...` to make the example
 9 #EA 8 5        -- vector.{1} nat (nat.succ (nat.succ (nat.succ nat.zero)))
 ```
 
-Imported files
---------------
-
-As `.lean` and `.hlean` files, the exported files may import other exported files.
-The _import_ commands can be relative or absolute paths (with respect to the `LEAN_PATH` environment variable).
-```
-#DI <nidx>
-#RI <integer> <nidx>
-```
-Paths are described using hierarchical names. The hierarchical name `foo.bla.boo` corresponds to the path `foo/bla/boo`.
-The command `#DI` is the direct import, it instructs the reader to import the file at the location corresponding to
-the hierarchical name `nidx`. The command `#RI` is the relative import, the integer represents how many `../` should be added the path
-represented by the hierarchical name `nidx`.
-
-Optionally, we may request Lean to generate self contained export
-files that include any declaration the exported module depends on. In
-this case, the exported file does not include `#DI` or `#RI` commands.
-
 Global universe level declaration
 ---------------------------------
 
@@ -168,13 +150,13 @@ Definitions and Axioms
 
 The command
 ```
-#DEF <nidx> <nidx>* | <eidx_1> <edix_2>
+#DEF <nidx> <eidx_1> <edix_2> <nidx*>
 ```
 declares a definition with name `nidx` with zero or more universe parameters named `<nidx>*`.
 The type is given by the expression `eidx_1` and the value by `eidx_2`.
 Axioms are declared in a similar way
 ```
-#AX <nidx> <nidx>* | <eidx>
+#AX <nidx> <eidx> <nidx*>
 ```
 We are postulating the existence of an element with the given type.
 The following command declare the `definition id.{l} {A : Type.{l}} (a : A) : A := a`.
@@ -191,91 +173,53 @@ The following command declare the `definition id.{l} {A : Type.{l}} (a : A) : A 
 4 #EP #BI 4 0 3
 5 #EL #BD 5 1 1
 6 #EL #BD 4 0 5
-#DEF 2 3 | 4 6
+#DEF 4 6 2 3
 ```
 
 Inductive definitions
 ---------------------
 
-Mutually inductive datatype declarations are slightly more complicated.
-They are declared by a block of commands delimited by the command `#BIND` and `#EIND`.
-The command `#BIND` has the following form:
+Inductive definitions are given by the number of parameters, name, type,
+introduction rules, and universe parameters.
 ```
-#BIND <integer> <integer> <nidx>*
+#IND <num> <nidx> <eidx> <num_intros> <intro>* <nidx*>
 ```
-where the first integer are the number of parameters, the second is the number of
-mutually recursive types being declared by the block, and `nidx*` is the sequence
-of universe parameter _names_.
-The command `#EIND` is just a delimiter and does not have arguments.
-The block is composed by commands `#IND` and `#INTRO`.
-```
-#IND <nidx> <eidx>
-#INTRO <nidx> <eidx>
-```
-The command `#IND` declares an inductive type with name `nidx` and type `eidx`.
-The command `#INTRO` declares an introduction rule (aka constructor) with name
-`nidx` and type `eidx`. The first command in a block is always an `#IND`,
-the subsequent `#INTRO` commands are declaring the introduction rules for this
-inductive type.
+Each `<intro>` is a pair of indices for the name and type of the introduction rule.
 
-For example, the following mutually recursive declaration
+For example, consider the inductive data type of lists:
 ```lean
-inductive tree.{l} (A : Type.{l}) : Type.{max 1 l} :=
-| node  : tree_list.{l} A → tree.{l} A
-| empty : tree.{l} A
-with tree_list : Type.{max 1 l} :=
-| nil  : tree_list.{l} A
-| cons : tree.{l} A → tree_list.{l} A → tree_list.{l} A
+inductive {u} list (α : Type u) : Type u
+| nil : list
+| cons : α → list → list
 ```
-is encoded by the following sequence of commands
+It gets exported as the following commands (not showing constructions such as
+`list.induction_on`, etc.):
 ```
-2 #NS 0 l
-3 #NS 0 tree
-4 #NS 0 A
-1 #UP 2
+1 #NS 0 u
+2 #NS 0 list
+3 #NS 0 α
+1 #UP 1
 0 #ES 1
-2 #US 0
-3 #UM 2 1
-1 #ES 3
-2 #EP #D 4 0 1
-5 #NS 3 node
+1 #EP #BD 3 0 0
+4 #NS 2 nil
+2 #EC 2 1
+3 #EV 0
+4 #EA 2 3
+5 #EP #BD 3 0 4
+5 #NS 2 cons
 6 #NS 0 a
-7 #NS 0 tree_list
-3 #EC 7 1
-4 #EV 0
-5 #EA 3 4
-6 #EC 3 1
-7 #EV 1
-8 #EA 6 7
-9 #EP #BD 6 5 8
-10 #EP #BI 4 0 9
-8 #NS 3 empty
-11 #EA 6 4
-12 #EP #BD 4 0 11
-9 #NS 7 nil
-13 #EP #BD 4 0 5
-10 #NS 7 cons
-14 #EA 3 7
-15 #EV 2
-16 #EA 3 15
-17 #EP #BD 6 14 16
-18 #EP #BD 6 11 17
-19 #EP #BI 4 0 18
-#BIND 1 2 2
-#IND 3 2
-#INTRO 5 10
-#INTRO 8 12
-#IND 7 2
-#INTRO 9 13
-#INTRO 10 19
-#EIND
+6 #EV 1
+7 #EA 2 6
+8 #EV 2
+9 #EA 2 8
+10 #EP #BD 6 7 9
+11 #EP #BD 6 3 10
+12 #EP #BI 3 0 11
+#IND 1 2 1 2 4 5 5 12 1
 ```
 
 Exporting declarations
 ----------------------
 
 The command line option `-E filename` (or `--export=filename`) is used
-to export declarations in the format described above.  The command
-line option `-A filename` (or `--export-all=filename`) produces a self
-contained export file that contains any declaration the `.lean` or
-`.hlean` file depends on.
+to export declarations in the format described above.

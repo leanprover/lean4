@@ -1063,7 +1063,7 @@ auto pretty_fn::pp_let(expr e) -> result {
 }
 
 auto pretty_fn::pp_num(mpz const & n) -> result {
-    return result(format(n));
+    return result(format(n.to_string()));
 }
 
 // Return the number of parameters in a notation declaration.
@@ -1227,7 +1227,7 @@ static bool is_atomic_notation(notation_entry const & entry) {
 
 auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>> & args) -> optional<result> {
     if (entry.is_numeral()) {
-        return some(result(format(entry.get_num())));
+        return some(result(format(entry.get_num().to_string())));
     } else if (is_atomic_notation(entry)) {
         format fmt   = format(head(entry.get_transitions()).get_token());
         return some(result(fmt));

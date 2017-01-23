@@ -73,7 +73,7 @@ vm_obj format_of_nat(vm_obj const & n) {
     if (is_simple(n))
         return to_obj(format(cidx(n)));
     else
-        return to_obj(format(to_mpz(n)));
+        return to_obj(format(to_mpz(n).to_string()));
 }
 
 vm_obj format_flatten(vm_obj const & fmt) {

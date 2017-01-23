@@ -106,13 +106,9 @@ static void tst4() {
     s << "(" << format() << ") ";
     s << "(" << (format("foo") ^ format("bar")) << ") ";
     s << pp(sexpr()) << " ";
-    s << pp(sexpr("test")) << " ";
-    sexpr s1(mpz(100));
-    sexpr s2(mpq(1, 2));
-    sexpr s3{s1, s2};
-    s << pp(s3);
+    s << pp(sexpr("test"));
     std::cout << s.str() << "\n";
-    lean_assert_eq(s.str(), "() (foo bar) nil \"test\" (100 1/2)");
+    lean_assert_eq(s.str(), "() (foo bar) nil \"test\"");
 }
 
 static void tst5() {

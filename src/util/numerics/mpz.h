@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "util/debug.h"
 #include "util/serializer.h"
 #include "util/numerics/numeric_traits.h"
+#include <string>
 
 namespace lean {
 class mpq;
@@ -220,6 +221,8 @@ public:
     friend mpz lcm(mpz const & a, mpz const & b) { mpz l; lcm(l, a, b); return l; }
 
     friend std::ostream & operator<<(std::ostream & out, mpz const & v);
+
+    std::string to_string() const;
 };
 
 struct mpz_cmp_fn {

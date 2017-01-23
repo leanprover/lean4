@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include "library/kernel_serializer.h"
+#include "util/numerics/mpz.h"
 
 namespace lean {
 static name * g_prenum_name = nullptr;
@@ -18,7 +19,7 @@ public:
     prenum_macro_definition_cell(mpz const & v):m_value(v) {}
     mpz const & get_value() const { return m_value; }
     virtual name get_name() const { return *g_prenum_name; }
-    virtual format pp(formatter const &) const { return format(m_value); }
+    virtual format pp(formatter const &) const { return format(m_value.to_string()); }
     virtual void display(std::ostream & out) const { out << m_value; }
     virtual expr check_type(expr const &, abstract_type_context &, bool) const { throw_ex(); }
     virtual optional<expr> expand(expr const &, abstract_type_context &) const { throw_ex(); }

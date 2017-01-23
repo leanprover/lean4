@@ -47,7 +47,6 @@ int main(int argc, char ** argv) {
         initer() {
             save_stack_info();
             initialize_util_module();
-            initialize_numerics_module();
             initialize_sexpr_module();
             initialize_kernel_module();
             initialize_inductive_module();
@@ -58,7 +57,6 @@ int main(int argc, char ** argv) {
             finalize_inductive_module();
             finalize_kernel_module();
             finalize_sexpr_module();
-            finalize_numerics_module();
             finalize_util_module();
         }
     } initer;

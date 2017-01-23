@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "util/thread.h"
 #include "util/numerics/mpz.h"
+#include <string>
 
 namespace lean {
 
@@ -75,6 +76,12 @@ void display(std::ostream & out, __mpz_struct const * v) {
 std::ostream & operator<<(std::ostream & out, mpz const & v) {
     display(out, v.m_val);
     return out;
+}
+
+std::string mpz::to_string() const {
+    std::ostringstream out;
+    out << *this;
+    return out.str();
 }
 
 static mpz * g_zero = nullptr;

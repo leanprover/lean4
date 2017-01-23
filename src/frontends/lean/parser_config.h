@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/token_table.h"
 #include "frontends/lean/parse_table.h"
 #include "frontends/lean/cmd_table.h"
+#include "util/numerics/mpz.h"
 
 namespace lean {
 struct token_entry {

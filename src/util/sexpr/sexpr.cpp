@@ -14,8 +14,6 @@ Author: Leonardo de Moura
 #include "util/buffer.h"
 #include "util/sstream.h"
 #include "util/object_serializer.h"
-#include "util/numerics/mpz.h"
-#include "util/numerics/mpq.h"
 #include "util/sexpr/sexpr.h"
 
 namespace lean {
@@ -69,22 +67,6 @@ struct sexpr_name : public sexpr_cell {
     name m_value;
     sexpr_name(name const & v):
         sexpr_cell(sexpr_kind::Name, v.hash()),
-        m_value(v) {}
-};
-
-/** \brief S-expression cell: multi-precision integer atom */
-struct sexpr_mpz : public sexpr_cell {
-    mpz m_value;
-    sexpr_mpz(mpz const & v):
-        sexpr_cell(sexpr_kind::MPZ, v.hash()),
-        m_value(v) {}
-};
-
-/** \brief S-expression cell: multi-precision rational atom */
-struct sexpr_mpq : public sexpr_cell {
-    mpq m_value;
-    sexpr_mpq(mpq const & v):
-        sexpr_cell(sexpr_kind::MPQ, v.hash()),
         m_value(v) {}
 };
 
@@ -145,8 +127,6 @@ void sexpr_cell::dealloc() {
     case sexpr_kind::Int:         delete static_cast<sexpr_int*>(this);    break;
     case sexpr_kind::Double:      delete static_cast<sexpr_double*>(this); break;
     case sexpr_kind::Name:        delete static_cast<sexpr_name*>(this);   break;
-    case sexpr_kind::MPZ:         delete static_cast<sexpr_mpz*>(this);    break;
-    case sexpr_kind::MPQ:         delete static_cast<sexpr_mpq*>(this);    break;
     case sexpr_kind::Ext:         delete static_cast<sexpr_ext*>(this);    break;
     case sexpr_kind::Cons:        static_cast<sexpr_cons*>(this)->dealloc_cons(); break;
     }
@@ -158,8 +138,6 @@ sexpr::sexpr(bool v):m_ptr(new sexpr_bool(v)) {}
 sexpr::sexpr(int v):m_ptr(new sexpr_int(v)) {}
 sexpr::sexpr(double v):m_ptr(new sexpr_double(v)) {}
 sexpr::sexpr(name const & v):m_ptr(new sexpr_name(v)) {}
-sexpr::sexpr(mpz const & v):m_ptr(new sexpr_mpz(v)) {}
-sexpr::sexpr(mpq const & v):m_ptr(new sexpr_mpq(v)) {}
 sexpr::sexpr(std::unique_ptr<sexpr_ext_atom> && v):m_ptr(new sexpr_ext(std::move(v))) {}
 sexpr::sexpr(sexpr const & h, sexpr const & t):m_ptr(new sexpr_cons(h, t)) {}
 sexpr::sexpr(sexpr const & s):m_ptr(s.m_ptr) {
@@ -182,8 +160,6 @@ bool sexpr::get_bool() const { return static_cast<sexpr_bool*>(m_ptr)->m_value; 
 int sexpr::get_int() const { return static_cast<sexpr_int*>(m_ptr)->m_value; }
 double sexpr::get_double() const { return static_cast<sexpr_double*>(m_ptr)->m_value; }
 name const & sexpr::get_name() const { return static_cast<sexpr_name*>(m_ptr)->m_value; }
-mpz const & sexpr::get_mpz() const { return static_cast<sexpr_mpz*>(m_ptr)->m_value; }
-mpq const & sexpr::get_mpq() const { return static_cast<sexpr_mpq*>(m_ptr)->m_value; }
 sexpr_ext_atom const & sexpr::get_ext() const { return *static_cast<sexpr_ext*>(m_ptr)->m_value; }
 
 unsigned sexpr::hash() const { return m_ptr == nullptr ? 23 : m_ptr->m_hash; }
@@ -235,8 +211,6 @@ bool operator==(sexpr const & a, sexpr const & b) {
     case sexpr_kind::Int:         return to_int(a) == to_int(b);
     case sexpr_kind::Double:      return to_double(a) == to_double(b);
     case sexpr_kind::Name:        return to_name(a) == to_name(b);
-    case sexpr_kind::MPZ:         return to_mpz(a) == to_mpz(b);
-    case sexpr_kind::MPQ:         return to_mpq(a) == to_mpq(b);
     case sexpr_kind::Ext:         return to_ext(a).cmp(to_ext(b)) == 0;
     case sexpr_kind::Cons:        return head(a) == head(b) && tail(a) == tail(b);
     }
@@ -261,8 +235,6 @@ int cmp(sexpr const & a, sexpr const & b) {
     case sexpr_kind::Int:         return to_int(a) == to_int(b) ? 0 : (to_int(a) < to_int(b) ? -1 : 1);
     case sexpr_kind::Double:      return to_double(a) == to_double(b) ? 0 : (to_double(a) < to_double(b) ? -1 : 1);
     case sexpr_kind::Name:        return cmp(to_name(a), to_name(b));
-    case sexpr_kind::MPZ:         return cmp(to_mpz(a), to_mpz(b));
-    case sexpr_kind::MPQ:         return cmp(to_mpq(a), to_mpq(b));
     case sexpr_kind::Ext:         return to_ext(a).cmp(to_ext(b));
     case sexpr_kind::Cons:        {
         int r = cmp(head(a), head(b));
@@ -281,8 +253,6 @@ std::ostream & operator<<(std::ostream & out, sexpr const & s) {
     case sexpr_kind::Int:         out << to_int(s); break;
     case sexpr_kind::Double:      out << to_double(s); break;
     case sexpr_kind::Name:        out << to_name(s); break;
-    case sexpr_kind::MPZ:         out << to_mpz(s); break;
-    case sexpr_kind::MPQ:         out << to_mpq(s); break;
     case sexpr_kind::Ext:         to_ext(s).display(out); break;
     case sexpr_kind::Cons: {
         out << "(";
@@ -306,8 +276,6 @@ std::ostream & operator<<(std::ostream & out, sexpr const & s) {
 }
 
 bool operator==(sexpr const & a, name const & b) { return is_name(a) && to_name(a) == b; }
-bool operator==(sexpr const & a, mpz const & b) { return is_mpz(a) && to_mpz(a) == b; }
-bool operator==(sexpr const & a, mpq const & b) { return is_mpq(a) && to_mpq(a) == b; }
 
 class sexpr_serializer : public object_serializer<sexpr, sexpr::ptr_hash, sexpr::ptr_eq> {
     typedef object_serializer<sexpr, sexpr::ptr_hash, sexpr::ptr_eq> super;
@@ -324,8 +292,6 @@ public:
                 case sexpr_kind::Int:    s << to_int(a);               break;
                 case sexpr_kind::Double: s << to_double(a);            break;
                 case sexpr_kind::Name:   s << to_name(a);              break;
-                case sexpr_kind::MPZ:    s << to_mpz(a);               break;
-                case sexpr_kind::MPQ:    s << to_mpq(a);               break;
                 case sexpr_kind::Cons:   write(car(a)); write(cdr(a)); break;
                 case sexpr_kind::Ext:
                     throw exception("s-expressions constaining external atoms cannot be serialized");
@@ -348,8 +314,6 @@ public:
                 case sexpr_kind::Int:    return sexpr(d.read_int());
                 case sexpr_kind::Double: return sexpr(d.read_double());
                 case sexpr_kind::Name:   return sexpr(read_name(d));
-                case sexpr_kind::MPZ:    return sexpr(read_mpz(d));
-                case sexpr_kind::MPQ:    return sexpr(read_mpq(d));
                 case sexpr_kind::Ext:    lean_unreachable(); // LCOV_EXCL_LINE
                 case sexpr_kind::Cons:   {
                     sexpr h = read();

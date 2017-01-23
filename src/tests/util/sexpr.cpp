@@ -38,7 +38,6 @@ static void tst1() {
     lean_assert(cdr(s2) == sexpr(30, nil()));
     lean_assert(car(s2) == sexpr("name"));
     std::cout << sexpr(name(name("foo"), 1), s2) << "\n";
-    lean_assert(to_mpq(sexpr(mpq("1/3"))) == mpq(1, 3));
     lean_assert(to_int(sexpr(1)) == 1);
     lean_assert(is_int(sexpr(1)));
     lean_assert(!is_nil(sexpr(2)));
@@ -104,16 +103,6 @@ static void tst2() {
     lean_assert(a == sexpr(name(name("foo"), 1)));
     lean_assert(a == name(name("foo"), 1));
     lean_assert(name(name("foo"), 1) == a);
-    a = mpq(1, 3);
-    lean_assert(a == sexpr(mpq(1, 3)));
-    lean_assert(a == mpq(1, 3));
-    lean_assert(mpq(1, 3) == a);
-    lean_assert(mpq(2, 3) != a);
-    a = pow(mpz(2), 100);
-    lean_assert(a == sexpr(pow(mpz(2), 100)));
-    lean_assert(a == pow(mpz(2), 100));
-    lean_assert(pow(mpz(2), 100) == a);
-    lean_assert(mpq(pow(mpz(2), 100)) != a);
     lean_assert(sexpr(1, 2) != sexpr(2, 1));
     lean_assert(sexpr(1, 2) != sexpr(1, sexpr(2, nil())));
     lean_assert(sexpr(1, 2) == sexpr(1, sexpr(2)));
@@ -195,14 +184,6 @@ static void tst8() {
     lean_assert(cmp(sexpr(1.0), sexpr(2.0)) < 0);
     lean_assert(cmp(sexpr(name("aaa")), sexpr(name("aaa"))) == 0);
     lean_assert(cmp(sexpr(name("aaa")), sexpr(name("bbb"))) < 0);
-    lean_assert(cmp(sexpr(mpz(10)), sexpr(mpz(10))) == 0);
-    lean_assert(cmp(sexpr(mpz(20)), sexpr(mpz(10))) > 0);
-    lean_assert(cmp(sexpr(mpq(1, 2)), sexpr(mpq(1, 2))) == 0);
-    lean_assert(cmp(sexpr(mpq(1, 3)), sexpr(mpq(1, 2))) < 0);
-    std::ostringstream s;
-    s << sexpr() << " " << sexpr(mpq(1, 2));
-    std::cout << s.str() << "\n";
-    lean_assert(s.str() == "nil 1/2");
 }
 
 static void tst9() {
@@ -217,7 +198,7 @@ static sexpr mk_shared(unsigned n) {
     sexpr f("f");
     sexpr a(10);
     sexpr b(true);
-    sexpr r(f, sexpr({a, b, sexpr(name({"foo", "bla"})), sexpr(mpz("10")), sexpr(mpq(1, 3))}));
+    sexpr r(f, sexpr({a, b, sexpr(name({"foo", "bla"}))}));
     for (unsigned i = 0; i < n; i++) {
         r = sexpr(f, sexpr(r, r));
     }

@@ -9,6 +9,7 @@ Author: Gabriel Ebner
 #include "kernel/inductive/inductive.h"
 #include "kernel/type_checker.h"
 #include "util/sstream.h"
+#include <string>
 #include <iostream>
 #include <unordered_map>
 

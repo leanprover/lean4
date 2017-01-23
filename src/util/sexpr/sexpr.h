@@ -14,17 +14,15 @@ Author: Leonardo de Moura
 
 namespace lean {
 class name;
-class mpq;
-class mpz;
 struct sexpr_cell;
 
-enum class sexpr_kind { Nil, String, Bool, Int, Double, Name, MPZ, MPQ, Cons, Ext };
+enum class sexpr_kind { Nil, String, Bool, Int, Double, Name, Cons, Ext };
 
 class sexpr_ext_atom;
 
 /**
    \brief Simple LISP-like S-expressions.
-   1. Atoms: nil, string, int, name, mpz or mpq
+   1. Atoms: nil, string, int, name
    2. Pair: (x . y) where x and y are S-expressions.
 
    S-expressions are used for tracking configuration options, statistics, etc.
@@ -43,8 +41,6 @@ public:
     explicit sexpr(int v);
     explicit sexpr(double v);
     explicit sexpr(name const & v);
-    explicit sexpr(mpz const & v);
-    explicit sexpr(mpq const & v);
     explicit sexpr(std::unique_ptr<sexpr_ext_atom> && v);
     sexpr(sexpr const & h, sexpr const & t);
     template<typename T>
@@ -77,8 +73,6 @@ public:
     bool get_bool() const;
     double get_double() const;
     name const & get_name() const;
-    mpz const & get_mpz() const;
-    mpq const & get_mpq() const;
     sexpr_ext_atom const & get_ext() const;
 
     /** \brief Hash code for this S-expression*/
@@ -131,8 +125,6 @@ inline bool is_bool(sexpr const & s)     { return s.kind() == sexpr_kind::Bool; 
 inline bool is_int(sexpr const & s)      { return s.kind() == sexpr_kind::Int; }
 inline bool is_double(sexpr const & s)   { return s.kind() == sexpr_kind::Double; }
 inline bool is_name(sexpr const & s)     { return s.kind() == sexpr_kind::Name; }
-inline bool is_mpz(sexpr const & s)      { return s.kind() == sexpr_kind::MPZ; }
-inline bool is_mpq(sexpr const & s)      { return s.kind() == sexpr_kind::MPQ; }
 inline bool is_external(sexpr const & s) { return s.kind() == sexpr_kind::Ext; }
 
 inline std::string const & to_string(sexpr const & s) { return s.get_string(); }
@@ -140,8 +132,6 @@ inline bool to_bool(sexpr const & s) { return s.get_bool(); }
 inline int to_int(sexpr const & s) { return s.get_int(); }
 inline double to_double(sexpr const & s) { return s.get_double(); }
 inline name const & to_name(sexpr const & s) { return s.get_name(); }
-inline mpz const & to_mpz(sexpr const & s) { return s.get_mpz(); }
-inline mpq const & to_mpq(sexpr const & s) { return s.get_mpq(); }
 inline sexpr_ext_atom const & to_ext(sexpr const & s) { return s.get_ext(); }
 
 /** \brief Return true iff \c s is nil or \c s is a cons cell where \c is_list(tail(s)). */
@@ -164,8 +154,6 @@ inline bool operator==(sexpr const & a, double b) { return is_double(a) && to_do
 inline bool operator==(sexpr const & a, std::string const & b) { return is_string(a) && to_string(a) == b; }
 inline bool operator==(sexpr const & a, char const * b) { return is_string(a) && to_string(a) == b; }
 bool operator==(sexpr const & a, name const & b);
-bool operator==(sexpr const & a, mpz const & b);
-bool operator==(sexpr const & a, mpq const & b);
 template<typename T> inline bool operator==(T const & a, sexpr const & b) { return b == a; }
 inline bool operator!=(sexpr const & a, sexpr const & b) { return !(a == b); }
 template<typename T> inline bool operator!=(sexpr const & a, T const & b) { return !(a == b); }

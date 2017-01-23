@@ -14,8 +14,6 @@
 #include "util/hash.h"
 #include "util/escaped.h"
 #include "util/interrupt.h"
-#include "util/numerics/mpz.h"
-#include "util/numerics/mpq.h"
 #include "util/sexpr/sexpr.h"
 #include "util/sexpr/format.h"
 #include "util/sexpr/sexpr_fn.h"
@@ -474,8 +472,6 @@ struct sexpr_pp_fn {
         case sexpr_kind::Int:         return format(to_int(s));
         case sexpr_kind::Double:      return format(to_double(s));
         case sexpr_kind::Name:        return pp(to_name(s));
-        case sexpr_kind::MPZ:         return format(to_mpz(s));
-        case sexpr_kind::MPQ:         return format(to_mpq(s));
         case sexpr_kind::Ext: {
             std::ostringstream ss;
             to_ext(s).display(ss);

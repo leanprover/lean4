@@ -14,7 +14,6 @@ Author: Soonho Kong
 #include <vector>
 #include "util/pair.h"
 #include "util/debug.h"
-#include "util/numerics/mpz.h"
 #include "util/sexpr/sexpr.h"
 
 namespace lean {
@@ -158,10 +157,12 @@ public:
     explicit format(std::string const & v):m_value(sexpr_text(sexpr(v))) {}
     explicit format(int v):m_value(sexpr_text(sexpr(v))) {}
     explicit format(double v):m_value(sexpr_text(sexpr(v))) {}
-    explicit format(unsigned v):m_value(sexpr_text(sexpr(mpz(v)))) {}
+    explicit format(unsigned v) {
+        std::ostringstream out;
+        out << v;
+        m_value = sexpr_text(out.str());
+    }
     explicit format(name const & v):m_value(sexpr_text(sexpr(v))) {}
-    explicit format(mpz const & v):m_value(sexpr_text(sexpr(v))) {}
-    explicit format(mpq const & v):m_value(sexpr_text(sexpr(v))) {}
     format(format const & f1, format const & f2):m_value(sexpr_compose({f1.m_value, f2.m_value})) {}
     format(format const & f):m_value(f.m_value) {}
     format_kind kind() const {

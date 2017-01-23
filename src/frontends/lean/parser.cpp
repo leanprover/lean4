@@ -2348,8 +2348,9 @@ task_result<bool> parser::parse_commands() {
 bool parser::curr_is_command_like() const {
     switch (curr()) {
     case scanner::token_kind::CommandKeyword:
-        return true;
     case scanner::token_kind::Eof:
+    case scanner::token_kind::DocBlock:
+    case scanner::token_kind::ModDocBlock:
         return true;
     case scanner::token_kind::Keyword:
         return curr_is_token(get_period_tk());

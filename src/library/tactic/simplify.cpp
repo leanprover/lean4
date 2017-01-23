@@ -22,6 +22,7 @@ Author: Daniel Selsam, Leonardo de Moura
 #include "library/expr_lt.h"
 #include "library/locals.h"
 #include "library/num.h"
+#include "library/idx_metavar.h"
 #include "library/util.h"
 #include "library/norm_num.h"
 #include "library/attribute_manager.h"
@@ -91,7 +92,7 @@ bool simplify_core_fn::instantiate_emetas(tmp_type_context & tmp_ctx, unsigned n
             i--;
             if (failed) return;
             expr mvar_type = tmp_ctx.instantiate_mvars(tmp_ctx.infer(mvar));
-            if (has_metavar(mvar_type)) {
+            if (has_idx_metavar(mvar_type)) {
                 failed = true;
                 return;
             }
@@ -252,7 +253,7 @@ simp_result simplify_core_fn::try_user_congr(expr const & e, simp_lemma const & 
             expr d = instantiate_rev(binding_domain(m_type), local_factory.as_buffer().size(),
                                      local_factory.as_buffer().data());
             expr l = local_factory.push_local(binding_name(m_type), d, binding_info(m_type));
-            lean_assert(!has_metavar(l));
+            lean_assert(!has_idx_metavar(l));
             m_type = binding_body(m_type);
         }
         m_type = instantiate_rev(m_type, local_factory.as_buffer().size(), local_factory.as_buffer().data());

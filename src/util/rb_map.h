@@ -114,6 +114,14 @@ public:
     bool equal_keys(rb_map const & other) const {
         return m_map.equal_elems(other.m_map);
     }
+
+    // For debugging purposes
+    void display(std::ostream & out) const { m_map.display(out); }
+
+    class iterator : public rb_tree<entry, entry_cmp>::iterator {
+    public:
+        iterator(rb_map const & map):rb_tree<entry, entry_cmp>::iterator(map.m_map) {}
+    };
 };
 template<typename K, typename T, typename CMP>
 rb_map<K, T, CMP> insert(rb_map<K, T, CMP> const & m, K const & k, T const & v) {

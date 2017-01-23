@@ -331,15 +331,6 @@ class rb_tree : private CMP {
         }
     }
 
-    bool equal_elems(node_cell const * n1, node_cell const * n2) const {
-        if ((n1 == nullptr) != (n2 == nullptr)) return false;
-        if (!n1) { lean_assert (!n2); return true; }
-        return
-            cmp(n1->m_value, n2->m_value) == 0 &&
-            equal_elems(n1->m_left.m_ptr, n2->m_left.m_ptr) &&
-            equal_elems(n1->m_right.m_ptr, n2->m_right.m_ptr);
-    }
-
     bool check_invariant(node_cell const * n, unsigned curr_black, optional<unsigned> & num_black) const {
         // We check:
         //  1) the nodes are really ordered, that is, left->value < n->value < right->value
@@ -466,12 +457,6 @@ public:
         return out;
     }
 
-    /* Return true iff this and other have the same set of elements with respect to CMP.
-       This method assumes the cmp for this and other are the same. */
-    bool equal_elems(rb_tree const & other) const {
-        return equal_elems(m_root.m_ptr, other.m_root.m_ptr);
-    }
-
     bool check_invariant() const {
         optional<unsigned> num_black;
         return check_invariant(m_root.m_ptr, 0, num_black);
@@ -507,6 +492,58 @@ public:
     }
 
     friend bool is_eqp(rb_tree const & s1, rb_tree const & s2) { return is_eqp(s1.m_root, s2.m_root); }
+
+    class iterator {
+        buffer<node_cell const *> m_path;
+
+        void push_left(node_cell const * it) {
+            while (it) {
+                m_path.push_back(it);
+                it = it->m_left.m_ptr;
+            }
+        }
+
+    public:
+        iterator(rb_tree const & t) {
+            push_left(t.m_root.m_ptr);
+        }
+
+        bool has_next() const { return !m_path.empty(); }
+
+        T const & next() {
+            lean_assert(has_next());
+            node_cell const * it = m_path.back();
+            node_cell const * r  = it;
+            /* if you can walk right, walk right, then fully left.
+               otherwise, walk up until you come from left. */
+            if (it->m_right.m_ptr != nullptr) {
+                push_left(it->m_right.m_ptr);
+                return r->m_value;
+            } else {
+                m_path.pop_back();
+                while (!m_path.empty()) {
+                    node_cell const * p = m_path.back();
+                    if (p->m_left.m_ptr == it)
+                        break;
+                    it = p;
+                    m_path.pop_back();
+                }
+                return r->m_value;
+            }
+        }
+    };
+
+    /* Return true iff this and other have the same set of elements with respect to CMP.
+       This method assumes the cmp for this and other are the same. */
+    bool equal_elems(rb_tree const & other) const {
+        iterator it1(*this);
+        iterator it2(other);
+        while (it1.has_next() && it2.has_next()) {
+            if (cmp(it1.next(), it2.next()) != 0)
+                return false;
+        }
+        return !it1.has_next() && !it2.has_next();
+    }
 };
 
 template<typename T, typename CMP>

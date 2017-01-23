@@ -19,7 +19,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 class unfold_untrusted_macros_fn : public replace_visitor_with_tc {
-    unsigned     m_trust_lvl;
+    optional<unsigned> m_trust_lvl;
 
     virtual expr visit_macro(expr const & e) override {
         buffer<expr> new_args;
@@ -27,7 +27,7 @@ class unfold_untrusted_macros_fn : public replace_visitor_with_tc {
             new_args.push_back(visit(macro_arg(e, i)));
         auto def = macro_def(e);
         expr r = update_macro(e, new_args.size(), new_args.data());
-        if (def.trust_level() >= m_trust_lvl) {
+        if (!m_trust_lvl || def.trust_level() >= *m_trust_lvl) {
             if (optional<expr> new_r = m_ctx.expand_macro(r)) {
                 return *new_r;
             } else {
@@ -39,7 +39,7 @@ class unfold_untrusted_macros_fn : public replace_visitor_with_tc {
     }
 
 public:
-    unfold_untrusted_macros_fn(type_context & ctx, unsigned lvl):
+    unfold_untrusted_macros_fn(type_context & ctx, optional<unsigned> const & lvl):
         replace_visitor_with_tc(ctx), m_trust_lvl(lvl) {}
 };
 
@@ -52,8 +52,8 @@ static bool contains_untrusted_macro(unsigned trust_lvl, expr const & e) {
             }));
 }
 
-expr unfold_untrusted_macros(environment const & env, expr const & e, unsigned trust_lvl) {
-    if (contains_untrusted_macro(trust_lvl, e)) {
+expr unfold_untrusted_macros(environment const & env, expr const & e, optional<unsigned> const & trust_lvl) {
+    if (!trust_lvl || contains_untrusted_macro(*trust_lvl, e)) {
         type_context ctx(env, transparency_mode::All);
         return unfold_untrusted_macros_fn(ctx, trust_lvl)(e);
     } else {
@@ -62,11 +62,11 @@ expr unfold_untrusted_macros(environment const & env, expr const & e, unsigned t
 }
 
 expr unfold_untrusted_macros(environment const & env, expr const & e) {
-    return unfold_untrusted_macros(env, e, env.trust_lvl());
+    return unfold_untrusted_macros(env, e, optional<unsigned>(env.trust_lvl()));
 }
 
 expr unfold_all_macros(environment const & env, expr const & e) {
-    return unfold_untrusted_macros(env, e, 0);
+    return unfold_untrusted_macros(env, e, {});
 }
 
 static bool contains_untrusted_macro(unsigned trust_lvl, declaration const & d) {
@@ -80,8 +80,8 @@ static bool contains_untrusted_macro(unsigned trust_lvl, declaration const & d) 
     return (d.is_definition() || d.is_theorem()) && contains_untrusted_macro(trust_lvl, d.get_value());
 }
 
-declaration unfold_untrusted_macros(environment const & env, declaration const & d, unsigned trust_lvl) {
-    if (contains_untrusted_macro(trust_lvl, d)) {
+declaration unfold_untrusted_macros(environment const & env, declaration const & d, optional<unsigned> const & trust_lvl) {
+    if (!trust_lvl || contains_untrusted_macro(*trust_lvl, d)) {
         expr new_t = unfold_untrusted_macros(env, d.get_type(), trust_lvl);
         if (d.is_theorem()) {
             expr new_v = unfold_untrusted_macros(env, d.get_value(), trust_lvl);
@@ -103,10 +103,10 @@ declaration unfold_untrusted_macros(environment const & env, declaration const &
 }
 
 declaration unfold_untrusted_macros(environment const & env, declaration const & d) {
-    return unfold_untrusted_macros(env, d, env.trust_lvl());
+    return unfold_untrusted_macros(env, d, optional<unsigned>(env.trust_lvl()));
 }
 
 declaration unfold_all_macros(environment const & env, declaration const & d) {
-    return unfold_untrusted_macros(env, d, 0);
+    return unfold_untrusted_macros(env, d, {});
 }
 }

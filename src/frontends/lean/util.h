@@ -79,6 +79,7 @@ expr Pi(expr const & local, expr const & e, parser & p);
 expr Fun_as_is(buffer<expr> const & locals, expr const & e, parser & p);
 /** \brief Similar to Pi(locals, e, p), but the types are marked as 'as-is' (i.e., they are not processed by the elaborator. */
 expr Pi_as_is(buffer<expr> const & locals, expr const & e, parser & p);
+expr Pi_as_is(expr const & local, expr const & e);
 /** \brief Create the resultant universe level using the levels computed during introduction rule elaboration */
 level mk_result_level(buffer<level> const & r_lvls);
 

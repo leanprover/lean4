@@ -243,6 +243,10 @@ expr Pi_as_is(buffer<expr> const & locals, expr const & e, parser & p) {
     return p.rec_save_pos(mk_binding_as_is<false>(locals.size(), locals.data(), e), p.pos_of(e));
 }
 
+expr Pi_as_is(expr const & local, expr const & e) {
+    return mk_binding_as_is<false>(1, &local, e);
+}
+
 level mk_result_level(buffer<level> const & r_lvls) {
     if (r_lvls.empty()) {
         return mk_level_one();

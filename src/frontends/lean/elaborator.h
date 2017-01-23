@@ -163,6 +163,7 @@ private:
     expr visit_suffices_expr(expr const & e, optional<expr> const & expected_type);
     expr visit_by(expr const & e, optional<expr> const & expected_type);
     expr visit_anonymous_constructor(expr const & e, optional<expr> const & expected_type);
+    expr visit_emptyc_or_emptys(expr const & e, optional<expr> const & expected_type);
 
     expr visit_sort(expr const & e);
     expr visit_const_core(expr const & e);

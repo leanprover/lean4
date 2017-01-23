@@ -44,6 +44,7 @@ Author: Leonardo de Moura
 #include "library/equations_compiler/compiler.h"
 #include "library/equations_compiler/util.h"
 #include "frontends/lean/builtin_exprs.h"
+#include "frontends/lean/brackets.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/prenum.h"
 #include "frontends/lean/elaborator.h"
@@ -2104,6 +2105,7 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
     expr c = copy_tag(e, mk_constant(c_names[0]));
     expr c_type = m_env.get(c_names[0]).get_type();
     unsigned i = 0;
+    name_map<expr> field2value;
     while (is_pi(c_type)) {
         if (i < nparams) {
             if (is_explicit(binding_info(c_type))) {
@@ -2118,6 +2120,7 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
                 for (; j < fnames.size(); j++) {
                     if (S_fname == fnames[j]) {
                         used[j] = true;
+                        field2value.insert(S_fname, fvalues[j]);
                         c = copy_tag(e, mk_app(c, fvalues[j]));
                         break;
                     }
@@ -2139,10 +2142,23 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
                                                    << " was not provided, nor it was found in the source", ex);
                         }
                         f = copy_tag(e, mk_as_is(f));
+                        field2value.insert(S_fname, f);
                         c = copy_tag(e, mk_app(c, f));
                     } else {
-                        throw elaborator_exception(e, sstream() << "invalid structure value { ... }, field '" <<
-                                                   S_fname << "' was not provided");
+                        name full_S_fname = S_name + S_fname;
+                        if (optional<name> default_value_fn = has_default_value(m_env, full_S_fname)) {
+                            expr value = mk_field_default_value(m_env, full_S_fname, [&](name const & fname) {
+                                    if (auto v = field2value.find(fname))
+                                        return some_expr(*v);
+                                    else
+                                        return none_expr();
+                                });
+                            field2value.insert(S_fname, value);
+                            c = copy_tag(e, mk_app(c, value));
+                        } else {
+                            throw elaborator_exception(e, sstream() << "invalid structure value { ... }, field '" <<
+                                                       S_fname << "' was not provided");
+                        }
                     }
                 }
             } else {
@@ -2390,6 +2406,22 @@ expr elaborator::visit_suffices_expr(expr const & e, optional<expr> const & expe
     return mk_suffices_annotation(mk_app(new_fn, new_rest));
 }
 
+expr elaborator::visit_emptyc_or_emptys(expr const & e, optional<expr> const & expected_type) {
+    if (!expected_type) {
+        return visit(copy_tag(e, mk_constant(get_emptyc_name())), expected_type);
+    } else {
+        synthesize_type_class_instances();
+        expr new_expected_type = instantiate_mvars(*expected_type);
+        expr S = get_app_fn(new_expected_type);
+        if (is_constant(S) && is_structure(m_env, const_name(S))) {
+            expr empty_struct = copy_tag(e, mk_structure_instance(name(), buffer<name>(), buffer<expr>()));
+            return visit(empty_struct, expected_type);
+        } else {
+            return visit(copy_tag(e, mk_constant(get_emptyc_name())), expected_type);
+        }
+    }
+}
+
 expr elaborator::visit(expr const & e, optional<expr> const & expected_type) {
     flet<unsigned> inc_depth(m_depth, m_depth+1);
     trace_elab_detail(tout() << "[" << m_depth << "] visiting\n" << e << "\n";
@@ -2403,6 +2435,8 @@ expr elaborator::visit(expr const & e, optional<expr> const & expected_type) {
     } else if (is_no_info(e)) {
         flet<bool> set(m_no_info, true);
         return visit(get_annotation_arg(e), expected_type);
+    } else if (is_emptyc_or_emptys(e)) {
+        return visit_emptyc_or_emptys(e, expected_type);
     } else {
         switch (e.kind()) {
         case expr_kind::Var:        lean_unreachable();  // LCOV_EXCL_LINE

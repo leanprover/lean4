@@ -8,4 +8,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser.h"
 namespace lean {
 expr parse_curly_bracket(parser & p, unsigned, expr const * args, pos_info const & pos);
+bool is_emptyc_or_emptys(expr const & e);
+void initialize_brackets();
+void finalize_brackets();
 }

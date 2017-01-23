@@ -37,11 +37,6 @@ static expr parse_set_of(parser & p, pos_info const & pos, expr const & local) {
     return p.mk_app(set_of, pred, pos);
 }
 
-/* Create empty collection for '{' '}' */
-static expr mk_empty_collection(parser & p, pos_info const & pos) {
-    return p.save_pos(mk_constant(get_emptyc_name()), pos);
-}
-
 /* Create singletoncollection for '{' expr '}' */
 static expr mk_singleton(parser & p, pos_info const & pos, expr const & e) {
     return p.mk_app(p.save_pos(mk_constant(get_singleton_name()), pos), e, pos);
@@ -97,8 +92,15 @@ static expr parse_structure_instance_core(parser & p, optional<expr> const & src
 
 /* Parse rest of the qualified structure instance prefix '{' S '.' ... */
 static expr parse_qualified_structure_instance(parser & p, name const & S) {
-    name fname = p.check_id_next("invalid structure instance, identifier expected");
-    return parse_structure_instance_core(p, none_expr(), S, fname);
+    if (p.curr_is_token(get_rcurly_tk())) {
+        p.next();
+        buffer<name> fns;
+        buffer<expr> fvs;
+        return mk_structure_instance(S, fns, fvs);
+    } else {
+        name fname = p.check_id_next("invalid structure instance, identifier expected");
+        return parse_structure_instance_core(p, none_expr(), S, fname);
+    }
 }
 
 /* Parse rest of the structure instance prefix '{' fname ... */
@@ -112,11 +114,17 @@ static expr parse_structure_instance_update(parser & p, expr const & e) {
     return parse_structure_instance_core(p, some_expr(e), name(), fname);
 }
 
+static name * g_emptyc_or_emptys = nullptr;
+
+bool is_emptyc_or_emptys(expr const & e) {
+    return is_constant(e, *g_emptyc_or_emptys);
+}
+
 expr parse_curly_bracket(parser & p, unsigned, expr const *, pos_info const & pos) {
     expr e;
     if (p.curr_is_token(get_rcurly_tk())) {
         p.next();
-        return mk_empty_collection(p, pos);
+        return p.save_pos(mk_constant(*g_emptyc_or_emptys), pos);
     } else if (p.curr_is_identifier()) {
         auto id_pos = p.pos();
         name id     = p.get_name_val();
@@ -158,6 +166,10 @@ expr parse_curly_bracket(parser & p, unsigned, expr const *, pos_info const & po
             }
             e = left;
         }
+    } else if (p.curr_is_token(get_period_tk())) {
+        p.next();
+        p.check_token_next(get_rcurly_tk(), "invalid empty structure instance, '}' expected");
+        return p.save_pos(mk_structure_instance(name(), buffer<name>(), buffer<expr>()), pos);
     } else {
         e = p.parse_expr();
     }
@@ -172,5 +184,13 @@ expr parse_curly_bracket(parser & p, unsigned, expr const *, pos_info const & po
     } else {
         throw parser_error("invalid '{' expression, ',', '}', 'with', `//` or `|` expected", p.pos());
     }
+}
+
+void initialize_brackets() {
+    g_emptyc_or_emptys = new name("_emptyc_or_emptys");
+}
+
+void finalize_brackets() {
+    delete g_emptyc_or_emptys;
 }
 }

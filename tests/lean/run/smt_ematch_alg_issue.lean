@@ -3,7 +3,7 @@ add_comm
 
 open smt_tactic
 meta def no_ac : smt_config :=
-{ default_smt_config with cc_cfg := { default_cc_config with ac := ff }}
+{ cc_cfg := { ac := ff }}
 
 lemma ex {α : Type} [field α] (a b : α) : a + b = b + a :=
 begin [smt] with no_ac,

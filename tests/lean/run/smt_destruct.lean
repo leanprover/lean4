@@ -28,7 +28,7 @@ begin [smt] -- the default configuration is classical
 end
 
 lemma ex5 (p q : Prop) [decidable p] : p ∨ q → p ∨ ¬q → ¬p ∨ q → ¬p ∨ ¬q → false :=
-begin [smt] with default_smt_config^.set_classical ff,
+begin [smt] with {smt_config .}^.set_classical ff,
    intros,
    by_cases p -- will fail if p is not decidable
 end
@@ -42,13 +42,13 @@ begin [smt] -- the default configuration is classical
 end
 
 lemma ex7 (p q : Prop) [decidable p] : p ∨ q → p ∨ ¬q → ¬p ∨ q → p ∧ q :=
-begin [smt] with default_smt_config^.set_classical ff,
+begin [smt] with {smt_config .}^.set_classical ff,
    intros,
    by_cases p -- will fail if p is not decidable
 end
 
 lemma ex8 (p q : Prop) [decidable p] [decidable q] : p ∨ q → p ∨ ¬q → ¬p ∨ q → p ∧ q :=
-begin [smt] with default_smt_config^.set_classical ff,
+begin [smt] with {smt_config .}^.set_classical ff,
    intros,
    by_contradiction, -- will fail if p or q is not decidable
    trace_state,

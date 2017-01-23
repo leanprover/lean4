@@ -26,14 +26,9 @@ run_command mk_hinst_lemma_attr_set `ematch [] [`ematch_lhs]
     is used during preprocessing.
 -/
 structure smt_pre_config :=
-(simp_attr : name)
-(max_steps : nat)
-(zeta      : bool)
-
-def default_smt_pre_config : smt_pre_config :=
-{ simp_attr := `pre_smt,
-  max_steps := 1000000,
-  zeta      := ff }
+(simp_attr : name := `pre_smt)
+(max_steps : nat  := 1000000)
+(zeta      : bool := ff)
 
 /--
 Configuration for the smt_state object.
@@ -41,16 +36,10 @@ Configuration for the smt_state object.
 - em_attr: is the attribute name for the hinst_lemmas
   that are used for ematching -/
 structure smt_config :=
-(cc_cfg        : cc_config)
-(em_cfg        : ematch_config)
-(pre_cfg       : smt_pre_config)
-(em_attr       : name)
-
-def default_smt_config : smt_config :=
-{cc_cfg        := default_cc_config,
- em_cfg        := default_ematch_config,
- pre_cfg       := default_smt_pre_config,
- em_attr       := `ematch}
+(cc_cfg        : cc_config      := {})
+(em_cfg        : ematch_config  := {})
+(pre_cfg       : smt_pre_config := {})
+(em_attr       : name           := `ematch)
 
 meta def smt_config.set_classical (c : smt_config) (b : bool) : smt_config :=
 {c with cc_cfg := { (c^.cc_cfg) with em := b}}
@@ -203,7 +192,7 @@ private meta def mk_smt_goals_for (cfg : smt_config) : list expr → list smt_go
 meta def slift {α : Type} (t : tactic α) : smt_tactic α :=
 λ ss, do
   _::sgs  ← return ss | fail "slift tactic failed, there no smt goals to be solved",
-  cfg     ← return default_smt_config, -- TODO(Leo): use get_config
+  cfg     ← return {smt_config .}, -- TODO(Leo): use get_config
   tg::tgs ← tactic.get_goals | tactic.failed,
   tactic.set_goals [tg], a ← t,
   new_tgs ← tactic.get_goals,
@@ -381,4 +370,4 @@ do ss ← smt_state.mk cfg,
    return ()
 
 meta def using_smt : smt_tactic unit → tactic unit :=
-using_smt_core default_smt_config
+using_smt_core {}

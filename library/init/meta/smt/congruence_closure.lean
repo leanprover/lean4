@@ -8,20 +8,16 @@ import init.meta.tactic init.meta.set_get_option_tactics
 
 structure cc_config :=
 /- If tt, congruence closure will treat implicit instance arguments as constants. -/
-(ignore_instances : bool)
+(ignore_instances : bool               := tt)
 /- If tt, congruence closure modulo AC. -/
-(ac               : bool)
+(ac               : bool               := tt)
 /- If ho_fns is (some fns), then full (and more expensive) support for higher-order functions is
    *only* considered for the functions in fns and local functions. The performance overhead is described in the paper
    "Congruence Closure in Intensional Type Theory". If ho_fns is none, then full support is provided
    for *all* constants. -/
-(ho_fns           : option (list name))
+(ho_fns           : option (list name) := some [])
 /- If true, then use excluded middle -/
-(em               : bool)
-
-
-def default_cc_config : cc_config :=
-{ignore_instances := tt, ac := tt, ho_fns := some [], em := tt}
+(em               : bool               := tt)
 
 /- Congruence closure state -/
 meta constant cc_state                  : Type
@@ -52,10 +48,10 @@ meta constant cc_state.proof_for_false  : cc_state → tactic expr
 namespace cc_state
 
 meta def mk : cc_state :=
-cc_state.mk_core default_cc_config
+cc_state.mk_core {}
 
 meta def mk_using_hs : tactic cc_state :=
-cc_state.mk_using_hs_core default_cc_config
+cc_state.mk_using_hs_core {}
 
 meta def roots (s : cc_state) : list expr :=
 cc_state.roots_core s tt
@@ -104,7 +100,7 @@ do intros, s ← cc_state.mk_using_hs_core cfg, t ← target, s ← s^.internali
    }
 
 meta def tactic.cc : tactic unit :=
-tactic.cc_core default_cc_config
+tactic.cc_core {}
 
 meta def tactic.cc_dbg_core (cfg : cc_config) : tactic unit :=
 save_options $
@@ -112,7 +108,7 @@ save_options $
   >> tactic.cc_core cfg
 
 meta def tactic.cc_dbg : tactic unit :=
-tactic.cc_dbg_core default_cc_config
+tactic.cc_dbg_core {}
 
 meta def tactic.ac_refl : tactic unit :=
 do (lhs, rhs) ← target >>= match_eq,

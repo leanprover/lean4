@@ -338,7 +338,7 @@ do passive ← flip monad.lift state_t.read $ λst, st^.passive, for' passive^.t
     return ()
 
 def super_cc_config : cc_config :=
-{ default_cc_config with em := ff }
+{ em := ff }
 
 meta def do_sat_run : prover (option expr) :=
 do sat_result ← in_sat_solver $ cdcl.run (cdcl.theory_solver_of_tactic $ using_smt $ return ()),

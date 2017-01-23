@@ -4,7 +4,7 @@ variables {α : Type u}
 
 open smt_tactic
 meta def no_ac : smt_config :=
-{ default_smt_config with cc_cfg := { default_cc_config with ac := ff }}
+{ cc_cfg := { ac := ff }}
 
 meta def blast : tactic unit :=
 using_smt_core no_ac $ intros >> repeat (ematch >> try close)

@@ -18,7 +18,7 @@ lemma app_nil_right {n : nat} (v : vector α n) : app v nil == v :=
 begin induction v, reflexivity, {[smt] ematch_using [app, add_comm, zero_add, add_zero] }, end
 
 def smt_cfg : smt_config :=
-{ default_smt_config with cc_cfg := {default_cc_config with ac := ff}}
+{ cc_cfg := {ac := ff}}
 
 lemma app_assoc {n₁ n₂ n₃ : nat} (v₁ : vector α n₁) (v₂ : vector α n₂) (v₃ : vector α n₃) :
                      app v₁ (app v₂ v₃) == app (app v₁ v₂) v₃ :=

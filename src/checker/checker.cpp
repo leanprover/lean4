@@ -14,6 +14,9 @@ Author: Gabriel Ebner
 #include "kernel/inductive/inductive.h"
 #include "kernel/standard_kernel.h"
 #include "checker/text_import.h"
+#if defined(LEAN_EMSCRIPTEN)
+#include <emscripten.h>
+#endif
 
 using namespace lean;  // NOLINT
 

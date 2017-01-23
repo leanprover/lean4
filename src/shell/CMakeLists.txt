@@ -8,8 +8,6 @@ target_link_libraries(lean_js leanstatic)
 add_library(shell_js OBJECT lean_js.cpp server.cpp completion.cpp leandoc.cpp)
 
 if(${EMSCRIPTEN})
-    target_link_libraries(lean "--memory-init-file 0")
-
     file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/lean_with_path
             "#!/bin/sh\nLEAN_PATH=${CMAKE_CURRENT_SOURCE_DIR}/../../library node ${CMAKE_CURRENT_BINARY_DIR}/lean.js \"$@\"\n")
     execute_process(COMMAND chmod +x ${CMAKE_CURRENT_BINARY_DIR}/lean_with_path)
@@ -35,7 +33,6 @@ if(${EMSCRIPTEN})
 
     target_link_libraries(lean_js
             "--embed-file library
-             --memory-init-file 0
              --bind
              -s WASM=0
              -s \"BINARYEN_METHOD='native-wasm,asmjs'\"")
@@ -49,6 +46,12 @@ else()
     )
 endif()
 
+add_test(NAME leanchecker
+        WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
+        COMMAND bash "${LEAN_SOURCE_DIR}/cmake/run_checker.sh" "${CMAKE_CROSSCOMPILING_EMULATOR}"
+            "$<TARGET_FILE:lean>" "$<TARGET_FILE:leanchecker>" "${CMAKE_CURRENT_BINARY_DIR}/library_export.out"
+            "${LEAN_SOURCE_DIR}/../library")
+
 # add_test(example1_stdin1 ${LEAN_SOURCE_DIR}/cmake/redirect.sh ${CMAKE_CURRENT_BINARY_DIR}/lean "${LEAN_SOURCE_DIR}/../tests/lean/single.lean")
 # add_test(lean_export ${CMAKE_CURRENT_BINARY_DIR}/lean "-o simple.olean" "${LEAN_SOURCE_DIR}/../tests/lean/run/simple.lean")
 add_test(lean_help1    "${CMAKE_CURRENT_BINARY_DIR}/lean" --help)
@@ -61,7 +64,7 @@ add_test(lean_ghash1   "${CMAKE_CURRENT_BINARY_DIR}/lean" -g)
 add_test(lean_ghash2   "${CMAKE_CURRENT_BINARY_DIR}/lean" --githash)
 add_test(lean_path1    "${CMAKE_CURRENT_BINARY_DIR}/lean" -p)
 add_test(lean_path2    "${CMAKE_CURRENT_BINARY_DIR}/lean" --path)
-add_test(export_all    env "LEAN_PATH=${LEAN_SOURCE_DIR}/../library" "${CMAKE_CURRENT_BINARY_DIR}/lean" --export-all=all.out "${LEAN_SOURCE_DIR}/../library/standard.lean")
+add_test(export_all    env "LEAN_PATH=${LEAN_SOURCE_DIR}/../library" "${CMAKE_CURRENT_BINARY_DIR}/lean" --export=all.out "${LEAN_SOURCE_DIR}/../library/standard.lean")
 add_test(lean_unknown_option bash "${LEAN_SOURCE_DIR}/cmake/check_failure.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" "-z")
 add_test(lean_unknown_file1 bash "${LEAN_SOURCE_DIR}/cmake/check_failure.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" "boofoo.lean")
 # The following test needs new elaborator to support match

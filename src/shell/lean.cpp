@@ -83,6 +83,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  --path            display the path used for finding Lean libraries and extensions\n";
     std::cout << "  --doc=file -r     generate module documentation based on module doc strings\n";
     std::cout << "  --make            create olean files\n";
+    std::cout << "  --recursive       recursively find *.lean files in directory arguments\n";
     std::cout << "  --trust=num -t    trust level (default: max) 0 means do not trust any macro,\n"
               << "                    and type check all imported modules\n";
     std::cout << "  --quiet -q        do not print verbose messages\n";
@@ -105,7 +106,6 @@ static void display_help(std::ostream & out) {
     std::cout << "  -D name=value     set a configuration option (see set_option command)\n";
     std::cout << "Exporting data:\n";
     std::cout << "  --export=file -E  export final environment as textual low-level file\n";
-    std::cout << "  --export-all=file -A  export final environment (and all dependencies) as textual low-level file\n";
 }
 
 static struct option g_long_options[] = {
@@ -115,8 +115,8 @@ static struct option g_long_options[] = {
     {"path",         no_argument,       0, 'p'},
     {"githash",      no_argument,       0, 'g'},
     {"make",         no_argument,       0, 'm'},
+    {"recursive",    no_argument,       0, 'R'},
     {"export",       required_argument, 0, 'E'},
-    {"export-all",   required_argument, 0, 'A'},
     {"memory",       required_argument, 0, 'M'},
     {"trust",        required_argument, 0, 't'},
     {"profile",      no_argument,       0, 'P'},
@@ -257,6 +257,7 @@ int main(int argc, char ** argv) {
 #endif
     ::initializer init;
     bool make_mode          = false;
+    bool recursive          = false;
     unsigned trust_lvl      = LEAN_BELIEVER_TRUST_LEVEL+1;
     bool smt2               = false;
     bool compile            = false;
@@ -270,7 +271,6 @@ int main(int argc, char ** argv) {
 #endif
     options opts;
     optional<std::string> export_txt;
-    optional<std::string> export_all_txt;
     optional<std::string> doc;
     optional<std::string> server_in;
     std::string native_output;
@@ -302,6 +302,10 @@ int main(int argc, char ** argv) {
             break;
         case 'm':
             make_mode = true;
+            recursive = true;
+            break;
+        case 'R':
+            recursive = true;
             break;
         case 'n':
             native_output         = optarg;
@@ -355,9 +359,6 @@ int main(int argc, char ** argv) {
             lean::enable_debug(optarg);
             break;
 #endif
-        case 'A':
-            export_all_txt = std::string(optarg);
-            break;
         default:
             std::cerr << "Unknown command line option\n";
             display_help(std::cerr);
@@ -420,7 +421,7 @@ int main(int argc, char ** argv) {
 
     try {
         std::vector<std::string> args(argv + optind, argv + argc);
-        if (make_mode) {
+        if (recursive) {
             if (args.empty()) args.push_back(".");
             std::vector<std::string> files;
             for (auto & f : args) {
@@ -462,7 +463,7 @@ int main(int argc, char ** argv) {
         }
 
         fs_module_vfs vfs;
-        if (!make_mode || export_txt || export_all_txt) {
+        if (!recursive) {
             for (auto & mod_id : module_args)
                 vfs.m_modules_to_load_from_source.insert(mod_id);
         }
@@ -522,16 +523,15 @@ int main(int argc, char ** argv) {
         // }
 
         if (export_txt && !mods.empty()) {
+            buffer<std::shared_ptr<module_info const>> mod_infos;
+            for (auto & mod : mods) mod_infos.push_back(mod.second);
+            auto combined_env = get_combined_environment(mod_mgr.get_initial_env(), mod_infos);
+
             exclusive_file_lock export_lock(*export_txt);
             std::ofstream out(*export_txt);
-            export_module_as_lowtext(out, mods.front().second->get_produced_env());
+            export_all_as_lowtext(out, combined_env);
         }
 
-        if (export_all_txt && !mods.empty()) {
-            exclusive_file_lock export_lock(*export_all_txt);
-            std::ofstream out(*export_all_txt);
-            export_all_as_lowtext(out, mods.front().second->get_produced_env());
-        }
         if (doc) {
             exclusive_file_lock export_lock(*doc);
             std::ofstream out(*doc);

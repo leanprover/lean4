@@ -23,19 +23,10 @@ using name_hmap = typename std::unordered_map<name, T, name_hash, name_eq>;
 class exporter {
     std::ostream &               m_out;
     environment                  m_env;
-    bool                         m_all;
-    name_set                     m_exported;
+    std::unordered_set<name, name_hash> m_exported;
     name_hmap<unsigned>          m_name2idx;
     level_map<unsigned>          m_level2idx;
     expr_bi_struct_map<unsigned> m_expr2idx;
-
-    void mark(name const & n) {
-        m_exported.insert(n);
-    }
-
-    bool already_exported(name const & n) {
-        return m_exported.contains(n);
-    }
 
     unsigned export_name(name const & n) {
         auto it = m_name2idx.find(n);
@@ -46,14 +37,14 @@ class exporter {
             lean_unreachable();
         } else if (n.is_string()) {
             unsigned p = export_name(n.get_prefix());
-            i = m_name2idx.size();
+            i = static_cast<unsigned>(m_name2idx.size());
             m_out << i << " #NS " << p << " " << n.get_string() << "\n";
         } else {
             unsigned p = export_name(n.get_prefix());
-            i = m_name2idx.size();
+            i = static_cast<unsigned>(m_name2idx.size());
             m_out << i << " #NI " << p << " " << n.get_numeral() << "\n";
         }
-        m_name2idx.insert(mk_pair(n, i));
+        m_name2idx[n] = i;
         return i;
     }
 
@@ -69,35 +60,35 @@ class exporter {
             break;
         case level_kind::Succ:
             l1 = export_level(succ_of(l));
-            i  = m_level2idx.size();
+            i = static_cast<unsigned>(m_level2idx.size());
             m_out << i << " #US " << l1 << "\n";
             break;
         case level_kind::Max:
             l1 = export_level(max_lhs(l));
             l2 = export_level(max_rhs(l));
-            i  = m_level2idx.size();
+            i = static_cast<unsigned>(m_level2idx.size());
             m_out << i << " #UM " << l1 << " " << l2 << "\n";
             break;
         case level_kind::IMax:
             l1 = export_level(imax_lhs(l));
             l2 = export_level(imax_rhs(l));
-            i  = m_level2idx.size();
+            i = static_cast<unsigned>(m_level2idx.size());
             m_out << i << " #UIM " << l1 << " " << l2 << "\n";
             break;
         case level_kind::Param:
             n = export_name(param_id(l));
-            i = m_level2idx.size();
+            i = static_cast<unsigned>(m_level2idx.size());
             m_out << i << " #UP " << n << "\n";
             break;
         case level_kind::Global:
             n = export_name(global_id(l));
-            i = m_level2idx.size();
+            i = static_cast<unsigned>(m_level2idx.size());
             m_out << i << " #UG " << n << "\n";
             break;
         case level_kind::Meta:
             throw exception("invalid 'export', universe meta-variables cannot be exported");
         }
-        m_level2idx.insert(mk_pair(l, i));
+        m_level2idx[l] = i;
         return i;
     }
 
@@ -116,7 +107,7 @@ class exporter {
         unsigned n  = export_name(binding_name(e));
         unsigned e1 = export_expr(binding_domain(e));
         unsigned e2 = export_expr(binding_body(e));
-        unsigned i  = m_expr2idx.size();
+        unsigned i = static_cast<unsigned>(m_expr2idx.size());
         m_out << i << " " << k << " ";
         display_binder_info(binding_info(e));
         m_out << " " << n << " " << e1 << " " << e2 << "\n";
@@ -128,7 +119,7 @@ class exporter {
         unsigned n = export_name(const_name(e));
         for (level const & l : const_levels(e))
             ls.push_back(export_level(l));
-        unsigned i  = m_expr2idx.size();
+        unsigned i = static_cast<unsigned>(m_expr2idx.size());
         m_out << i << " #EC " << n;
         for (unsigned l : ls)
             m_out << " " << l;
@@ -144,12 +135,12 @@ class exporter {
         unsigned l, e1, e2;
         switch (e.kind()) {
         case expr_kind::Var:
-            i = m_expr2idx.size();
+            i = static_cast<unsigned>(m_expr2idx.size());
             m_out << i << " #EV " << var_idx(e) << "\n";
             break;
         case expr_kind::Sort:
             l = export_level(sort_level(e));
-            i = m_expr2idx.size();
+            i = static_cast<unsigned>(m_expr2idx.size());
             m_out << i << " #ES " << l << "\n";
             break;
         case expr_kind::Constant:
@@ -158,17 +149,23 @@ class exporter {
         case expr_kind::App:
             e1 = export_expr(app_fn(e));
             e2 = export_expr(app_arg(e));
-            i  = m_expr2idx.size();
+            i = static_cast<unsigned>(m_expr2idx.size());
             m_out << i << " #EA " << e1 << " " << e2 << "\n";
             break;
-        case expr_kind::Let:
-            i = export_expr(instantiate(let_body(e), let_value(e)));
+        case expr_kind::Let: {
+            auto n = export_name(let_name(e));
+            e1 = export_expr(let_type(e));
+            e2 = export_expr(let_value(e));
+            auto e3 = export_expr(let_body(e));
+            i = static_cast<unsigned>(m_expr2idx.size());
+            m_out << i << " #EZ " << n << " " << e1 << " " << e2 << " " << e3 << "\n";
             break;
+        }
         case expr_kind::Lambda:
-            i  = export_binding(e, "#EL");
+            i = export_binding(e, "#EL");
             break;
         case expr_kind::Pi:
-            i  = export_binding(e, "#EP");
+            i = export_binding(e, "#EP");
             break;
         case expr_kind::Meta:
             throw exception("invalid 'export', meta-variables cannot be exported");
@@ -177,172 +174,134 @@ class exporter {
         case expr_kind::Macro:
             throw exception("invalid 'export', macros cannot be exported");
         }
-        m_expr2idx.insert(mk_pair(e, i));
+        m_expr2idx[e] = i;
         return i;
     }
 
-    unsigned export_root_expr(expr const & e) {
-        return export_expr(unfold_all_macros(m_env, e));
-    }
-
     void export_dependencies(expr const & e) {
-        for_each(e, [&](expr const & e, unsigned) {
-                if (is_constant(e)) {
-                    name const & n = const_name(e);
-                    export_declaration(n);
-                }
+        for_each(e, [&](expr const & c, unsigned) {
+                if (is_constant(c))
+                    export_declaration(const_name(c));
                 return true;
             });
     }
 
     void export_definition(declaration const & d) {
-        if (already_exported(d.get_name()))
-            return;
-        mark(d.get_name());
         unsigned n = export_name(d.get_name());
-        buffer<unsigned> ps;
-        if (m_all) {
-            export_dependencies(d.get_type());
-            export_dependencies(d.get_value());
-        }
-        for (name const & p : d.get_univ_params())
-            ps.push_back(export_name(p));
-        unsigned t = export_root_expr(d.get_type());
-        unsigned v = export_root_expr(d.get_value());
-        m_out << "#DEF " << n;
+        export_dependencies(d.get_type());
+        export_dependencies(d.get_value());
+        auto ps = map2<unsigned>(d.get_univ_params(), [&] (name const & p) { return export_name(p); });
+        auto t = export_expr(d.get_type());
+        auto v = export_expr(d.get_value());
+        m_out << "#DEF " << n << " " << t << " " << v;
         for (unsigned p : ps)
             m_out << " " << p;
-        m_out << " | " << t << " " << v << "\n";
+        m_out << "\n";
     }
 
     void export_axiom(declaration const & d) {
-        if (inductive::is_intro_rule(m_env, d.get_name()) || inductive::is_elim_rule(m_env, d.get_name()))
-            return;
-        if (already_exported(d.get_name()))
-            return;
-        mark(d.get_name());
         unsigned n = export_name(d.get_name());
-        buffer<unsigned> ps;
-        if (m_all)
-            export_dependencies(d.get_type());
-        for (name const & p : d.get_univ_params())
-            ps.push_back(export_name(p));
-        unsigned t = export_root_expr(d.get_type());
-        m_out << "#AX " << n;
+        export_dependencies(d.get_type());
+        auto ps = map2<unsigned>(d.get_univ_params(), [&] (name const & p) { return export_name(p); });
+        auto t = export_expr(d.get_type());
+        m_out << "#AX " << n << " " << t;
         for (unsigned p : ps)
             m_out << " " << p;
-        m_out << " | " << t << "\n";
-    }
-
-    void export_inductive(name const & n) {
-        if (already_exported(n))
-            return;
-        mark(n);
-        inductive::inductive_decl decl = *inductive::is_inductive_decl(m_env, n);
-        if (m_all) {
-            export_dependencies(decl.m_type);
-            for (inductive::intro_rule const & c : decl.m_intro_rules) {
-                export_dependencies(inductive::intro_rule_type(c));
-            }
-        }
-        for (name const & p : decl.m_level_params)
-            export_name(p);
-        export_name(decl.m_name);
-        export_root_expr(decl.m_type);
-        for (inductive::intro_rule const & c : decl.m_intro_rules) {
-            export_name(inductive::intro_rule_name(c));
-            export_root_expr(inductive::intro_rule_type(c));
-        }
-        // TODO(Leo): the 1 is redundant since we don't support mutually inductive datatypes anymore in the kernel.
-        m_out << "#BIND " << decl.m_num_params << " " << 1;
-        for (name const & p : decl.m_level_params)
-            m_out << " " << export_name(p);
         m_out << "\n";
-        m_out << "#IND " << export_name(decl.m_name) << " "
-              << export_root_expr(decl.m_type) << "\n";
-        for (inductive::intro_rule const & c : decl.m_intro_rules) {
-            m_out << "#INTRO " << export_name(inductive::intro_rule_name(c)) << " "
-                  << export_root_expr(inductive::intro_rule_type(c)) << "\n";
-        }
-        m_out << "#EIND\n";
     }
 
     void export_declaration(name const & n) {
-        if (inductive::is_inductive_decl(m_env, n)) {
-            export_inductive(n);
+        if (!m_exported.count(n))
+            export_declaration(m_env.get(n));
+    }
+
+    void export_declaration(declaration d) {
+        // do not export meta declarations
+        if (!d.is_trusted()) return;
+
+        if (inductive::is_inductive_decl(m_env, d.get_name()))
+            return export_inductive(d.get_name());
+        if (auto ind_type = inductive::is_intro_rule(m_env, d.get_name()))
+            return export_inductive(*ind_type);
+        if (auto ind_type = inductive::is_elim_rule(m_env, d.get_name()))
+            return export_inductive(*ind_type);
+
+        if (m_exported.count(d.get_name())) return;
+        m_exported.insert(d.get_name());
+
+        d = unfold_all_macros(m_env, d);
+
+        if (d.is_definition()) {
+            return export_definition(d);
         } else {
-            declaration const & d = m_env.get(n);
-            if (!d.is_trusted())
-                return; // ignore untrusted declarations
-            if (d.is_definition())
-                export_definition(d);
-            else
-                export_axiom(d);
+            return export_axiom(d);
         }
+    }
+
+    void export_inductive(name const & n) {
+        if (m_exported.count(n)) return;
+        m_exported.insert(n);
+
+        auto decl = *inductive::is_inductive_decl(m_env, n);
+        decl.m_type = unfold_all_macros(m_env, decl.m_type);
+        decl.m_intro_rules = map(decl.m_intro_rules,
+                                 [&] (inductive::intro_rule const & i) {
+                                     return unfold_all_macros(m_env, i);
+                                 });
+
+        export_dependencies(decl.m_type);
+        for (auto & c : decl.m_intro_rules)
+            export_dependencies(c);
+
+        for (auto & p : decl.m_level_params)
+            export_name(p);
+        export_name(decl.m_name);
+        export_expr(decl.m_type);
+        for (auto & c : decl.m_intro_rules) {
+            export_name(inductive::intro_rule_name(c));
+            export_expr(inductive::intro_rule_type(c));
+        }
+
+        m_out << "#IND " << decl.m_num_params << " "
+              << export_name(decl.m_name) << " "
+              << export_expr(decl.m_type) << " "
+              << length(decl.m_intro_rules);
+        for (auto & c : decl.m_intro_rules) {
+            // intro rules are stored as local constants, we split them up so that
+            // the type checkers do not need to implement local constants.
+            m_out << " " << export_name(inductive::intro_rule_name(c))
+                  << " " << export_expr(inductive::intro_rule_type(c));
+        }
+        for (name const & p : decl.m_level_params)
+            m_out << " " << export_name(p);
+        m_out << "\n";
     }
 
     void export_declarations() {
-        if (m_all) {
-            m_env.for_each_declaration([&](declaration const & d) {
-                    export_declaration(d.get_name());
-                });
-        } else {
-            buffer<name> ns;
-            to_buffer(get_curr_module_decl_names(m_env), ns);
-            std::reverse(ns.begin(), ns.end());
-            for (name const & n : ns) {
-                export_declaration(n);
-            }
-        }
-    }
-
-    void export_direct_imports() {
-        if (!m_all) {
-            for (module_name const & m : get_curr_module_imports(m_env)) {
-                unsigned n = export_name(m.m_name);
-                if (m.m_relative) {
-                    m_out << "#RI " << *m.m_relative << " " << n << "\n";
-                } else {
-                    m_out << "#DI " << n << "\n";
-                }
-            }
-        }
+        m_env.for_each_declaration([&] (declaration const & d) {
+                export_declaration(d);
+            });
     }
 
     void export_global_universes() {
-        if (m_all) {
-            m_env.for_each_universe([&](name const & u) {
-                    unsigned n = export_name(u);
-                    m_out << "#UNI " << n << "\n";
-                });
-        } else {
-            buffer<name> ns;
-            to_buffer(get_curr_module_univ_names(m_env), ns);
-            std::reverse(ns.begin(), ns.end());
-            for (name const & u : ns) {
+        m_env.for_each_universe([&](name const & u) {
                 unsigned n = export_name(u);
                 m_out << "#UNI " << n << "\n";
-            }
-        }
+            });
     }
 
 public:
-    exporter(std::ostream & out, environment const & env, bool all):m_out(out), m_env(env), m_all(all) {}
+    exporter(std::ostream & out, environment const & env) : m_out(out), m_env(env) {}
 
     void operator()() {
-        m_name2idx.insert(mk_pair(name(), 0));
-        m_level2idx.insert(mk_pair(level(), 0));
-        export_direct_imports();
+        m_name2idx[{}] = 0;
+        m_level2idx[{}] = 0;
         export_global_universes();
         export_declarations();
     }
 };
 
-void export_module_as_lowtext(std::ostream & out, environment const & env) {
-    exporter(out, env, false)();
-}
-
 void export_all_as_lowtext(std::ostream & out, environment const & env) {
-    exporter(out, env, true)();
+    exporter(out, env)();
 }
 }

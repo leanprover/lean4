@@ -6,13 +6,13 @@ Author: Leonardo de Moura
 
 Quotient types for kernels with proof irrelevance.
 */
+#include "kernel/quotient/quotient.h"
 #include "util/sstream.h"
 #include "kernel/abstract.h"
 #include "kernel/type_checker.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/environment.h"
 #include "kernel/abstract_type_context.h"
-#include "kernel/quotient/quotient.h"
 #include "kernel/inductive/inductive.h"
 
 namespace lean {

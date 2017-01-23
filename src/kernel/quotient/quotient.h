@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 Quotient types for kernels with proof irrelevance.
 */
 #pragma once
+#include "kernel/normalizer_extension.h"
 
 namespace lean {
 /** \brief Normalizer extension for applying quotient computational rules. */

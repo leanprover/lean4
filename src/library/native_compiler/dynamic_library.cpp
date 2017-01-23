@@ -4,13 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Jared Roesch
 */
+#include "library/native_compiler/dynamic_library.h"
 #include <string>
 // Interacting with dynamic linking is *not* cross-platform, this is my first
 // attempt at supporting all platforms.
 #if !defined (LEAN_WINDOWS)
 #include <dlfcn.h>
 #endif
-#include "util/dynamic_library.h"
 #include "util/exception.h"
 
 namespace lean {

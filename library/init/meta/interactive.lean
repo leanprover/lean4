@@ -200,6 +200,11 @@ private meta def get_locals : list name → tactic (list expr)
 | []      := return []
 | (n::ns) := do h ← get_local n, hs ← get_locals ns, return (h::hs)
 
+/--
+`revert h₁ ... hₙ` applies to any goal with hypotheses `h₁` ... `hₙ`.
+It moves the hypotheses and its dependencies to the goal target.
+This tactic is the inverse of `intro`.
+-/
 meta def revert (ids : raw_ident_list) : tactic unit :=
 do hs ← get_locals ids, revert_lst hs, skip
 
@@ -317,6 +322,11 @@ do e ← to_expr p,
 meta def trivial : tactic unit :=
 tactic.triv <|> tactic.reflexivity <|> tactic.contradiction <|> fail "trivial tactic failed"
 
+/--
+This tactic applies to any goal. The contradiction tactic attempts to find in the current local context an hypothesis that is equivalent to
+an empty inductive type (e.g. `false`), a hypothesis of the form `c_1 ... = c_2 ...` where `c_1` and `c_2` are distinct constructors,
+or two contradictory hypotheses.
+-/
 meta def contradiction : tactic unit :=
 tactic.contradiction
 
@@ -329,6 +339,10 @@ tactic.try
 meta def solve1 : itactic → tactic unit :=
 tactic.solve1
 
+/--
+This tactic applies to any goal. `assert h : T` adds a new hypothesis of name `h` and type `T` to the current goal and opens a new subgoal with target `T`.
+The new subgoal becomes the main goal.
+-/
 meta def assert (h : ident) (c : colon_tk) (q : qexpr0) : tactic unit :=
 do e ← to_expr_strict q,
    tactic.assert h e
@@ -337,6 +351,9 @@ meta def define (h : ident) (c : colon_tk) (q : qexpr0) : tactic unit :=
 do e ← to_expr_strict q,
    tactic.define h e
 
+/--
+This tactic applies to any goal. `assertv h : T := p` adds a new hypothesis of name `h` and type `T` to the current goal if `p` a term of type `T`.
+-/
 meta def assertv (h : ident) (c : colon_tk) (q₁ : qexpr0) (a : assign_tk) (q₂ : qexpr0) : tactic unit :=
 do t ← to_expr_strict q₁,
    v ← to_expr_strict `((%%q₂ : %%t)),
@@ -355,15 +372,25 @@ meta def pose (h : ident) (a : assign_tk) (q : qexpr0) : tactic unit :=
 do p ← to_expr_strict q,
    tactic.pose h p
 
+/--
+This tactic displays the current state in the tracing buffer.
+-/
 meta def trace_state : tactic unit :=
 tactic.trace_state
 
+/--
+`trace a` displays `a` in the tracing buffer.
+-/
 meta def trace {α : Type} [has_to_tactic_format α] (a : α) : tactic unit :=
 tactic.trace a
 
 meta def existsi (e : qexpr0) : tactic unit :=
 to_expr e >>= tactic.existsi
 
+/--
+This tactic applies to a goal such that its conclusion is an inductive type (say `I`).
+It tries to apply each constructor of `I` until it succeeds.
+-/
 meta def constructor : tactic unit :=
 tactic.constructor
 
@@ -379,6 +406,20 @@ tactic.split
 meta def exfalso : tactic unit :=
 tactic.exfalso
 
+/--
+The injection tactic is based on the fact that constructors of inductive datatypes are injections.
+That means that if `c` is a constructor of an inductive datatype,
+and if `(c t₁)` and `(c t₂)` are two terms that are equal then  `t₁` and `t₂` are equal too.
+
+If `q` is a proof of a statement of conclusion `t₁ = t₂`,
+then injection applies injectivity to derive the equality of all arguments of `t₁` and `t₂` placed in the same positions.
+For example, from `(a::b) = (c::d)` we derive `a=c` and `b=d`.
+To use this tactic `t₁` and `t₂` should be constructor applications of the same constructor.
+
+Given `h : a::b = c::d`, the tactic `injection h` adds to new hypothesis with types `a = c` and `b = d`
+to the main goal. The tactic `injection h with h₁ h₂` uses the names `h₁` an `h₂` to name the new
+hypotheses.
+-/
 meta def injection (q : qexpr0) (hs : with_ident_list) : tactic unit :=
 do e ← to_expr q, tactic.injection_with e hs
 
@@ -451,12 +492,36 @@ do s ← mk_simp_set attr_names hs ids,
    end,
    try tactic.triv, try (tactic.reflexivity_core reducible)
 
+/--
+This tactic uses lemmas and hypotheses to simplify the main goal target or non-dependent hypotheses.
+It has many variants.
+
+- `simp` simplifies the main goal target using lemmas tagged with the attribute `[simp]`.
+
+- `simp [h_1, ..., h_n]` simplifies the main goal target using the lemmas tagged with the attribute `[simp]` and the given `h_i`s.
+   The `h_i`'s are terms. If a `h_i` is a definition `f`, then the equational lemmas associated with `f` are used.
+   This is a convenient way to "unfold" `f`.
+
+- `simp without id_1 ... id_n` simplifies the main goal target using the lemmas tagged with the attribute `[simp]`,
+   but removes the ones named `id_i`s.
+
+- `simp at h` simplifies the non dependent hypothesis `h : T`. The tactic fails if the target or another hypothesis depends on `h`.
+
+- `simp with attr` simplifies the main goal target using the lemmas tagged with the attribute `[attr]`.
+-/
 meta def simp (hs : opt_qexpr_list) (attr_names : with_ident_list) (ids : without_ident_list) (loc : location) : tactic unit :=
 simp_core default_simplify_config [] hs attr_names ids loc
 
+/--
+Similar to the `simp` tactic, but uses contextual simplification. For example, when simplifying `t = s → p`,
+the equation `t = s` is automatically added to the set of simplification rules when simplifying `p`.
+-/
 meta def ctx_simp (hs : opt_qexpr_list) (attr_names : with_ident_list) (ids : without_ident_list) (loc : location) : tactic unit :=
 simp_core {default_simplify_config with contextual := tt} [] hs attr_names ids loc
 
+/--
+Similar to the `simp` tactic, but adds all applicable hypotheses as simplification rules.
+-/
 meta def simp_using_hs (hs : opt_qexpr_list) (attr_names : with_ident_list) (ids : without_ident_list) : tactic unit :=
 do ctx ← collect_ctx_simps,
    simp_core default_simplify_config ctx hs attr_names ids []
@@ -469,9 +534,17 @@ meta def dsimp (es : opt_qexpr_list) (attr_names : with_ident_list) (ids : witho
 | [] := do s ← mk_simp_set attr_names es ids, tactic.dsimp_core s
 | hs := do s ← mk_simp_set attr_names es ids, dsimp_hyps s hs
 
+/--
+This tactic applies to a goal that has the form `t ~ u` where `~` is a reflexive relation.
+That is, a relation which has a reflexivity lemma tagged with the attribute `[refl]`.
+The tactic checks whether `t` and `u` are definitionally equal and then solves the goal.
+-/
 meta def reflexivity : tactic unit :=
 tactic.reflexivity
 
+/--
+Shorter name for the tactic `reflexivity`.
+-/
 meta def refl : tactic unit :=
 tactic.reflexivity
 

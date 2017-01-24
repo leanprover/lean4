@@ -100,6 +100,8 @@ prefix `¬` := not
 inductive eq {α : Type u} (a : α) : α → Prop
 | refl : eq a
 
+init_quotient
+
 inductive heq {α : Type u} (a : α) : Π {β : Type u}, β → Prop
 | refl : heq a
 

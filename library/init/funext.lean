@@ -30,7 +30,7 @@ mk_equivalence (@function.equiv α β) (@equiv.refl α β) (@equiv.symm α β) (
 end function
 
 section
-open quot
+open quotient
 variables {α : Type u} {β : α → Type v}
 
 @[instance]
@@ -38,7 +38,7 @@ private def fun_setoid (α : Type u) (β : α → Type v) : setoid (Π x : α, �
 setoid.mk (@function.equiv α β) (function.equiv.is_equivalence α β)
 
 private def extfun (α : Type u) (β : α → Type v) : Type (imax u v) :=
-quot (fun_setoid α β)
+quotient (fun_setoid α β)
 
 private def fun_to_extfun (f : Π x : α, β x) : extfun α β :=
 ⟦f⟧

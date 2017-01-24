@@ -14,5 +14,5 @@ run_command show_pos `nat.succ
 run_command show_pos `subsingleton.intro
 run_command show_pos `subsingleton.rec
 run_command show_pos `nat.add
-run_command show_pos `quot
+run_command show_pos `quotient
 run_command show_pos `g

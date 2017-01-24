@@ -1,3 +1,3 @@
-ind c ⟦a⟧ : (λ (_x : quot s), B _x) ⟦a⟧
+quotient.ind c ⟦a⟧ : (λ (_x : quotient s), B _x) ⟦a⟧
 c a : B ⟦a⟧
 c a

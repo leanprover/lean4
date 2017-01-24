@@ -7,10 +7,13 @@ Author: Leonardo de Moura
 Quotient types for kernels with proof irrelevance.
 */
 #include "util/sstream.h"
+#include "kernel/abstract.h"
+#include "kernel/type_checker.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/environment.h"
 #include "kernel/abstract_type_context.h"
 #include "kernel/quotient/quotient.h"
+#include "kernel/inductive/inductive.h"
 
 namespace lean {
 static name * g_quotient_extension = nullptr;
@@ -19,7 +22,6 @@ static name * g_quotient       = nullptr;
 static name * g_quotient_lift  = nullptr;
 static name * g_quotient_ind   = nullptr;
 static name * g_quotient_mk    = nullptr;
-static name * g_quotient_sound = nullptr;
 
 struct quotient_env_ext : public environment_extension {
     bool m_initialized;
@@ -44,10 +46,77 @@ static environment update(environment const & env, quotient_env_ext const & ext)
     return env.update(g_ext->m_ext_id, std::make_shared<quotient_env_ext>(ext));
 }
 
+static environment add_constant(environment const & env, name const & n, std::initializer_list<name> lvls, expr const & type) {
+    auto cd = check(env, mk_constant_assumption(n, level_param_names(lvls), type));
+    return env.add(cd);
+}
+
+static void check_eq_type(environment const & env) {
+    optional<inductive::inductive_decl> decl = inductive::is_inductive_decl(env, "eq");
+    if (!decl) throw exception("failed to initialize quot module, environment does not have 'eq' type");
+    if (length(decl->m_level_params) != 1)
+        throw exception("failed to initialize quot module, unexpected number of universe params at 'eq' type");
+    level u = mk_param_univ(head(decl->m_level_params));
+    expr alpha = mk_local("α", "α", mk_sort(u), mk_implicit_binder_info());
+    expr expected_eq_type = Pi(alpha, mk_arrow(alpha, mk_arrow(alpha, mk_Prop())));
+    if (decl->m_type != expected_eq_type)
+        throw exception("failed to initialize quot module, 'eq' has an expected type");
+    if (length(decl->m_intro_rules) != 1)
+        throw exception("failed to initialize quot module, unexpected number of constructors for 'eq' type");
+    expr a = mk_local("a", alpha);
+    expr expected_eq_refl_type = Pi(alpha, Pi(a, mk_app(mk_constant("eq", {u}), alpha, a, a)));
+    if (mlocal_type(head(decl->m_intro_rules)) != expected_eq_refl_type) {
+        std::cout << mlocal_type(head(decl->m_intro_rules)) << "\n";
+        std::cout << expected_eq_refl_type << "\n";
+        throw exception("failed to initialize quot module, unexpected type for 'eq' type constructor");
+    }
+}
+
 environment declare_quotient(environment const & env) {
+    check_eq_type(env);
+    environment new_env = env;
+    name u_name("u");
+    level u         = mk_param_univ(u_name);
+    expr Type_u     = mk_sort(u);
+    expr alpha      = mk_local("α", "α", Type_u, mk_implicit_binder_info());
+    expr r          = mk_local("r", mk_arrow(alpha, mk_arrow(alpha, mk_Prop())));
+    /* constant {u} quot {α : Type u} (r : α → α → Prop) : Type u */
+    new_env = add_constant(new_env, *g_quotient, {u_name}, Pi(alpha, Pi(r, Type_u)));
+    expr quot_r     = mk_app(mk_constant(*g_quotient, {u}), alpha, r);
+    expr a          = mk_local("a", alpha);
+    /* constant {u} quot.mk {α : Type u} (r : α → α → Prop) (a : α) : @quot.{u} α r */
+    new_env = add_constant(new_env, *g_quotient_mk, {u_name},
+                           Pi(alpha, Pi(r, Pi(a, quot_r))));
+    /* make r implicit */
+    r               = mk_local("r", "r", mk_arrow(alpha, mk_arrow(alpha, mk_Prop())), mk_implicit_binder_info());
+    name v_name("v");
+    level v         = mk_param_univ(v_name);
+    expr Type_v     = mk_sort(v);
+    expr beta       = mk_local("β", "β", Type_v, mk_implicit_binder_info());
+    expr f          = mk_local("f", mk_arrow(alpha, beta));
+    expr b          = mk_local("b", alpha);
+    expr r_a_b      = mk_app(r, a, b);
+    /* f a = f b */
+    expr f_a_eq_f_b = mk_app(mk_constant("eq", {v}), beta, mk_app(f, a), mk_app(f, b));
+    /* (∀ a b : α, r a b → f a = f b) */
+    expr sanity     = Pi(a, Pi(b, mk_arrow(r_a_b, f_a_eq_f_b)));
+    /* constant {u v} quot.lift {α : Type u} {r : α → α → Prop} {β : Type v} (f : α → β)
+                                : (∀ a b : α, r a b → f a = f b) →  @quot.{u} α r → β */
+    new_env = add_constant(new_env, *g_quotient_lift, {u_name, v_name},
+                           Pi(alpha, Pi(r, Pi(beta, Pi(f, mk_arrow(sanity, mk_arrow(quot_r, beta)))))));
+    /* {β : @quot.{u} α r → Prop} */
+    beta            = mk_local("β", "β", mk_arrow(quot_r, mk_Prop()), mk_implicit_binder_info());
+    expr quot_mk_a  = mk_app(mk_constant(*g_quotient_mk, {u}), alpha, r, a);
+    expr all_quot   = Pi(a, mk_app(beta, quot_mk_a));
+    expr q          = mk_local("q", quot_r);
+    expr beta_q     = mk_app(beta, q);
+    /* constant {u} quot.ind {α : Type u} {r : α → α → Prop} {β : @quot.{u} α r → Prop}
+                   : (∀ a : α, β (@quot.mk.{u} α r a)) → ∀ q : @quot.{u} α r, β q */
+    new_env = add_constant(new_env, *g_quotient_ind, {u_name},
+                           Pi(alpha, Pi(r, Pi(beta, mk_arrow(all_quot, Pi(q, beta_q))))));
     quotient_env_ext ext = get_extension(env);
     ext.m_initialized = true;
-    return update(env, ext);
+    return update(new_env, ext);
 }
 
 optional<expr> quotient_normalizer_extension::operator()(expr const & e, abstract_type_context & ctx) const {
@@ -143,7 +212,6 @@ void initialize_quotient_module() {
     g_quotient_lift      = new name{"quot", "lift"};
     g_quotient_ind       = new name{"quot", "ind"};
     g_quotient_mk        = new name{"quot", "mk"};
-    g_quotient_sound     = new name{"quot", "sound"};
     g_ext                = new quotient_env_ext_reg();
 }
 
@@ -155,6 +223,5 @@ void finalize_quotient_module() {
     delete g_quotient_lift;
     delete g_quotient_ind;
     delete g_quotient_mk;
-    delete g_quotient_sound;
 }
 }

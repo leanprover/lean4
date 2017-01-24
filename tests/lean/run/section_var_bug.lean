@@ -1,8 +1,7 @@
-
 section
 variable {A : Type}
 variable [s : setoid A]
-variable {B : quot s → Type}
+variable {B : quotient s → Type}
 include s
 
 attribute [reducible]

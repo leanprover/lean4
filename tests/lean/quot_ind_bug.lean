@@ -1,6 +1,6 @@
-open quot
+open quotient
 
-variables {A : Type} [s : setoid A] {B : quot s → Prop} (c : ∀ (a : A), B (quot.mk a)) (a : A)
-check (quot.ind c ⟦a⟧ : B ⟦a⟧)
+variables {A : Type} [s : setoid A] {B : quotient s → Prop} (c : ∀ (a : A), B (quotient.mk a)) (a : A)
+check (quotient.ind c ⟦a⟧ : B ⟦a⟧)
 check c a
-eval (quot.ind c ⟦a⟧ : B ⟦a⟧)
+eval (quotient.ind c ⟦a⟧ : B ⟦a⟧)

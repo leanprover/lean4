@@ -29,12 +29,15 @@
        'common-lisp-indent-function))
 
 (defmacro lean-with-info-output-to-buffer (buffer &rest body)
-  `(let ((buf (get-buffer ,buffer)))
-     (with-current-buffer buf
-       (setq buffer-read-only nil)
-       (erase-buffer)
-       (setq standard-output buf)
-       . ,body)))
+  ;; `princ`ing into a different buffer somehow interferes with Transient Mark mode
+  ;; https://github.com/leanprover/lean/issues/1332
+  `(if (not (region-active-p))
+       (let ((buf (get-buffer ,buffer)))
+         (with-current-buffer buf
+           (setq buffer-read-only nil)
+           (erase-buffer)
+           (setq standard-output buf)
+           . ,body))))
 
 (defun lean-toggle-info-buffer (buffer)
   (-if-let (window (get-buffer-window buffer))

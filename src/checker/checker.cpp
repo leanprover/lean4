@@ -14,6 +14,8 @@ Author: Gabriel Ebner
 #include "kernel/inductive/inductive.h"
 #include "kernel/standard_kernel.h"
 #include "checker/text_import.h"
+#include "checker/simple_pp.h"
+
 #if defined(LEAN_EMSCRIPTEN)
 #include <emscripten.h>
 #endif
@@ -41,8 +43,8 @@ int main(int argc, char ** argv) {
         });
 #endif
 
-    if (argc != 2) {
-        std::cout << "usage: leanchecker export.out" << std::endl;
+    if (argc < 2) {
+        std::cout << "usage: leanchecker export.out lemma_to_print" << std::endl;
         return 1;
     }
 
@@ -72,6 +74,22 @@ int main(int argc, char ** argv) {
         auto env = mk_environment(trust_lvl);
         env = declare_quotient(env);
         import_from_text(in, env);
+
+        env.for_each_declaration([&] (declaration const & d) {
+            if (d.is_axiom()) {
+                std::cout << compose_many(
+                        {format("axiom"), space(), simple_pp(d.get_name()), space(), format(":"), space(),
+                         simple_pp(env, d.get_type()), line()});
+            }
+        });
+
+        for (int i = 2; i < argc; i++) {
+            name n = string_to_name(argv[i]);
+            auto d = env.get(n);
+            std::cout << compose_many(
+                    {format("theorem"), space(), simple_pp(d.get_name()), space(), format(":"), space(),
+                     simple_pp(env, d.get_type()), line()});
+        }
 
         unsigned num_decls = 0;
         env.for_each_declaration([&] (declaration const &) { num_decls++; });

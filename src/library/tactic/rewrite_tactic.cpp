@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "library/app_builder.h"
 #include "library/constants.h"
 #include "library/trace.h"
+#include "library/check.h"
 #include "library/pp_options.h"
 #include "library/vm/vm_list.h"
 #include "library/vm/vm_option.h"
@@ -105,6 +106,11 @@ vm_obj rewrite(transparency_mode const & m, bool approx, bool use_instances, occ
     /* Motive and resulting type */
     expr new_e  = ctx.instantiate_mvars(instantiate(e_abst, target ? rhs : lhs));
     expr motive = mk_lambda("a", A, e_abst);
+    try {
+        check(ctx, motive);
+    } catch (exception & ex) {
+        throw nested_exception("rewrite tactic failed, motive is not type correct", ex);
+    }
     if (target) {
         expr prf        = mk_eq_rec(ctx, motive, *target, H);
         name Hname      = is_local(*target) ? local_pp_name(*target) : name("H");
@@ -130,14 +136,18 @@ vm_obj rewrite(transparency_mode const & m, bool approx, bool use_instances, occ
 }
 
 vm_obj tactic_rewrite(vm_obj const & m, vm_obj const & approx, vm_obj const & use_instances, vm_obj const & occs, vm_obj const & symm, vm_obj const & H, vm_obj const & s) {
+    LEAN_TACTIC_TRY;
     return rewrite(to_transparency_mode(m), to_bool(approx), to_bool(use_instances),
                    to_occurrences(occs), to_bool(symm), to_expr(H), none_expr(), to_tactic_state(s));
+    LEAN_TACTIC_CATCH(to_tactic_state(s));
 }
 
 vm_obj tactic_rewrite_at(vm_obj const & m, vm_obj const & approx, vm_obj const & use_instances,
                          vm_obj const & occs, vm_obj const & symm, vm_obj const & H1, vm_obj const & H2, vm_obj const & s) {
+    LEAN_TACTIC_TRY;
     return rewrite(to_transparency_mode(m), to_bool(approx), to_bool(use_instances), to_occurrences(occs),
                    to_bool(symm), to_expr(H1), some_expr(to_expr(H2)), to_tactic_state(s));
+    LEAN_TACTIC_CATCH(to_tactic_state(s));
 }
 
 void initialize_rewrite_tactic() {

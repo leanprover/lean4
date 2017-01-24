@@ -25,11 +25,6 @@ using namespace lean;  // NOLINT
 int main(int argc, char ** argv) {
 #if defined(LEAN_EMSCRIPTEN)
     EM_ASM(
-        var lean_path = process.env['LEAN_PATH'];
-        if (lean_path) {
-            ENV['LEAN_PATH'] = lean_path;
-        }
-
         try {
             // emscripten cannot mount all of / in the vfs,
             // we can only mount subdirectories...

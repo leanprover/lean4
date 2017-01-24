@@ -1,9 +1,4 @@
-[check] application type mismatch at
-  map a f₂
-argument type
-  Π ⦃a : α₁⦄, α₂ a → α₂ (f₁ a)
-expected type
-  Π ⦃a_1 : α₁⦄, (λ (a : α₁), α₂ a) a_1 → α₂ (a a_1)/home/leo/projects/lean/tests/lean/1277.lean:10:2: error: rewrite tactic failed, motive is not type correct
+1277.lean:8:2: error: rewrite tactic failed, motive is not type correct
 nested exception message:
 check failed, application type mismatch (use 'set_option trace.check true' for additional details)
 state:
@@ -13,7 +8,7 @@ f₁ : α₁ → α₁,
 f₂ : Π ⦃a : α₁⦄, α₂ a → α₂ (f₁ a),
 eq₁ : f₁ = id
 ⊢ map f₁ f₂ = id
-1277.lean:11:0: error: failed
+1277.lean:9:0: error: failed
 state:
 α₁ : Type,
 α₂ : α₁ → Type,

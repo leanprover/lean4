@@ -15,7 +15,7 @@ structure cc_config :=
    *only* considered for the functions in fns and local functions. The performance overhead is described in the paper
    "Congruence Closure in Intensional Type Theory". If ho_fns is none, then full support is provided
    for *all* constants. -/
-(ho_fns           : option (list name) := some [])
+(ho_fns           : option (list name) := none)
 /- If true, then use excluded middle -/
 (em               : bool               := tt)
 

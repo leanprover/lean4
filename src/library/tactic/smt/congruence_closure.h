@@ -259,7 +259,9 @@ private:
     void propagate_projection_constructor(expr const & p, expr const & c);
     void propagate_value_inconsistency(expr const & e1, expr const & e2);
     void get_eqc_lambdas(expr const & e, buffer<expr> & r);
-    void propagate_beta(expr const & e, buffer<expr> const & lambdas, buffer<expr> & r);
+    void propagate_beta(expr const & fn, buffer<expr> const & rev_args, buffer<expr> const & lambdas, buffer<expr> & r);
+    void propagate_beta_to_eqc(buffer<expr> const & fn_roots, buffer<expr> const & lambdas, buffer<expr> & new_lambda_apps);
+    void collect_fn_roots(expr const & root, buffer<expr> & fn_roots);
     void add_eqv_step(expr e1, expr e2, expr const & H, bool heq_proof);
     void process_todo();
     void add_eqv_core(expr const & lhs, expr const & rhs, expr const & H, bool heq_proof);

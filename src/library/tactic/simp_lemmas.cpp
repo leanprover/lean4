@@ -1189,9 +1189,10 @@ static bool instantiate_emetas(type_context & ctx, list<expr> const & _emetas, l
     return true;
 }
 
-expr refl_lemma_rewrite(type_context & ctx, expr const & e, simp_lemma const & sl) {
+static expr refl_lemma_rewrite_core(type_context & ctx, expr const & e, simp_lemma const & sl) {
     lean_assert(sl.is_refl());
     type_context::tmp_mode_scope scope(ctx, sl.get_num_umeta(), sl.get_num_emeta());
+
     if (!ctx.is_def_eq(e, sl.get_lhs())) return e;
 
     lean_trace("simp_lemmas",
@@ -1207,6 +1208,31 @@ expr refl_lemma_rewrite(type_context & ctx, expr const & e, simp_lemma const & s
     }
 
     return ctx.instantiate_mvars(sl.get_rhs());
+}
+
+expr refl_lemma_rewrite(type_context & ctx, expr const & e, simp_lemma const & sl) {
+    if (!is_app(e))
+        return refl_lemma_rewrite_core(ctx, e, sl);
+    unsigned e_nargs   = get_app_num_args(e);
+    unsigned lhs_nargs = get_app_num_args(sl.get_lhs());
+    if (e_nargs == lhs_nargs)
+        return refl_lemma_rewrite_core(ctx, e, sl);
+    if (e_nargs < lhs_nargs)
+        return e;
+    buffer<expr> extra_args;
+    unsigned i = e_nargs;
+    auto it = e;
+    while (i > lhs_nargs) {
+        --i;
+        extra_args.push_back(app_arg(it));
+        it = app_fn(it);
+    }
+    lean_assert(get_app_num_args(it) == lhs_nargs);
+    expr new_it = refl_lemma_rewrite_core(ctx, it, sl);
+    if (new_it == it)
+        return e;
+    else
+        return mk_rev_app(new_it, extra_args);
 }
 
 struct vm_simp_lemmas : public vm_external {

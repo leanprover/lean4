@@ -497,7 +497,7 @@ simp_result simplify_core_fn::rewrite(expr const & e) {
     return simp_result(e);
 }
 
-simp_result simplify_core_fn::rewrite(expr const & e, simp_lemma const & sl) {
+simp_result simplify_core_fn::rewrite_core(expr const & e, simp_lemma const & sl) {
     tmp_type_context tmp_ctx(m_ctx, sl.get_num_umeta(), sl.get_num_emeta());
     if (!tmp_ctx.is_def_eq(e, sl.get_lhs())) {
         lean_trace_d(name({"debug", "simplify", "try_rewrite"}),
@@ -538,6 +538,39 @@ simp_result simplify_core_fn::rewrite(expr const & e, simp_lemma const & sl) {
         expr pf = tmp_ctx.instantiate_mvars(sl.get_proof());
         return simp_result(new_rhs, pf);
     }
+}
+
+simp_result simplify_core_fn::rewrite(expr const & e, simp_lemma const & sl) {
+    if (!is_app(e))
+        return rewrite_core(e, sl);
+    unsigned e_nargs   = get_app_num_args(e);
+    unsigned lhs_nargs = get_app_num_args(sl.get_lhs());
+    if (e_nargs == lhs_nargs)
+        return rewrite_core(e, sl);
+    if (e_nargs < lhs_nargs)
+        return simp_result(e);
+    buffer<expr> extra_args;
+    unsigned i = e_nargs;
+    auto it = e;
+    while (i > lhs_nargs) {
+        --i;
+        extra_args.push_back(app_arg(it));
+        it = app_fn(it);
+    }
+    lean_assert(get_app_num_args(it) == lhs_nargs);
+    simp_result it_r = rewrite_core(it, sl);
+    if (it_r.get_new() == it)
+        return simp_result(e);
+    expr new_e = head_beta_reduce(mk_rev_app(it_r.get_new(), extra_args));
+    if (!it_r.has_proof())
+        return simp_result(new_e);
+    expr pr = it_r.get_proof();
+    i = extra_args.size();
+    while (i > 0) {
+        --i;
+        pr = mk_congr_fun(m_ctx, pr, extra_args[i]);
+    }
+    return simp_result(new_e, pr);
 }
 
 simp_result simplify_core_fn::propext_rewrite(expr const & e) {

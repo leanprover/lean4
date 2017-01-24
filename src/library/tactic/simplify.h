@@ -80,6 +80,7 @@ protected:
        but used in subclasses.*/
     simp_result rewrite(expr const & e);
     simp_result rewrite(expr const & e, simp_lemma const & sl);
+    simp_result rewrite_core(expr const & e, simp_lemma const & sl);
     simp_result propext_rewrite(expr const & e);
 
     /* Visitors */

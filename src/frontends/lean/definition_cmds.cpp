@@ -653,6 +653,8 @@ public:
             elaborator elab(m_decl_env, m_opts, m_mctx, m_lctx);
             expr val, type;
             std::tie(val, type) = elaborate_proof(elab);
+            if (is_equations_result(val))
+                val = get_equations_result(val, 0);
             buffer<expr> params; for (auto & e : m_params) params.push_back(e);
             finalize_theorem_proof(elab, params, val, m_finfo);
             if (m_is_rfl_lemma && !is_rfl_lemma(m_final_type, val))

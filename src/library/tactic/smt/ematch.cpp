@@ -62,8 +62,8 @@ void ematch_state::internalize(type_context & ctx, expr const & e) {
 bool ematch_state::save_instance(expr const & i) {
     if (m_num_instances >= m_config.m_max_instances) {
         if (!m_max_instances_exceeded) {
-            lean_trace("ematch", tout() << "maximum number of ematching instances (" << m_config.m_max_instances << ") has been reached, "
-                       << "set option ematch.max_instances to increase limit\n";);
+            lean_trace(name({"smt", "ematch"}),
+                       tout() << "maximum number of ematching instances (" << m_config.m_max_instances << ") has been reached\n";);
         }
         m_max_instances_exceeded = true;
         return false;
@@ -263,15 +263,16 @@ static list<expr> const & ac_t(ematch_cnstr const & c) { return to_ac_cnstr(c)->
 */
 struct ematch_fn {
     typedef list<ematch_cnstr> state;
-    type_context &             m_ctx;
-    ematch_state &             m_em_state;
-    congruence_closure &       m_cc;
-    buffer<expr_pair> &        m_new_instances;
+    type_context &                m_ctx;
+    ematch_state &                m_em_state;
+    congruence_closure &          m_cc;
+    buffer<new_instance> &        m_new_instances;
+    unsigned                      m_gen;
 
-    state                      m_state;
-    buffer<state>              m_choice_stack;
+    state                         m_state;
+    buffer<pair<state, unsigned>> m_choice_stack;
 
-    ematch_fn(type_context & ctx, ematch_state & ems, congruence_closure & cc, buffer<expr_pair> & new_insts):
+    ematch_fn(type_context & ctx, ematch_state & ems, congruence_closure & cc, buffer<new_instance> & new_insts):
         m_ctx(ctx), m_em_state(ems), m_cc(cc), m_new_instances(new_insts) {}
 
     expr instantiate_mvars(expr const & e) {
@@ -307,9 +308,9 @@ struct ematch_fn {
             return none_expr();
     }
 
-    expr internalize(expr const & e) {
+    expr tmp_internalize(expr const & e) {
         expr new_e = m_cc.normalize(e);
-        m_cc.internalize(new_e);
+        m_cc.internalize(new_e, 0);
         return new_e;
     }
 
@@ -355,7 +356,7 @@ struct ematch_fn {
                 p_args[j] = p_args[i];
                 j++;
             } else {
-                expr p = internalize(p_args[i]);
+                expr p = tmp_internalize(p_args[i]);
                 unsigned k = 0;
                 for (; k < t_args.size(); k++) {
                     if (is_ground_eq(p, t_args[k])) {
@@ -399,7 +400,7 @@ struct ematch_fn {
         out << r;
     }
 
-    void process_new_ac_cnstr(state const & s, expr const & p, expr const & t, buffer<state> & new_states) {
+    void process_new_ac_cnstr(state const & s, expr const & p, expr const & t, buffer<pair<state, unsigned>> & new_states) {
         optional<expr> op = is_ac(t);
         lean_assert(op);
         buffer<expr> p_args, t_args;
@@ -413,7 +414,7 @@ struct ematch_fn {
         lean_assert(p_args.size() >= 2);
         ac_cancel_terms(p_args, t_args);
         if (p_args.size() == 1 && t_args.size() == 1) {
-            new_states.push_back(cons(mk_match_eq_cnstr(p_args[0], t_args[0]), s));
+            new_states.emplace_back(cons(mk_match_eq_cnstr(p_args[0], t_args[0]), s), m_gen);
             return;
         }
         list<expr> ps  = to_list(p_args);
@@ -447,8 +448,8 @@ struct ematch_fn {
             check_system("ematching");
             if (i == t_args.size()) {
                 ematch_cnstr c = mk_match_ac_cnstr(*op, ps, to_list(new_t_args));
-                lean_trace(name({"debug", "ematch"}), tout() << "new ac constraint: "; display_ac_cnstr(tout(), c); tout() << "\n";);
-                new_states.push_back(cons(c, s));
+                lean_trace(name({"debug", "smt", "ematch"}), tout() << "new ac constraint: "; display_ac_cnstr(tout(), c); tout() << "\n";);
+                new_states.emplace_back(cons(c, s), m_gen);
             } else {
                 expr const & t_arg = t_args[i];
                 new_t_args.push_back(t_arg);
@@ -478,13 +479,15 @@ struct ematch_fn {
         expand(0, rb_expr_tree());
     }
 
-    void push_states(buffer<state> & new_states) {
+    void push_states(buffer<pair<state, unsigned>> & new_states) {
         if (new_states.size() == 1) {
-            lean_trace(name({"debug", "ematch"}), tout() << "(only one match)\n";);
-            m_state = new_states[0];
+            lean_trace(name({"debug", "smt", "ematch"}), tout() << "(only one match)\n";);
+            m_state = new_states[0].first;
+            m_gen   = new_states[0].second;
         } else {
-            lean_trace(name({"debug", "ematch"}), tout() << "# matches: " << new_states.size() << "\n";);
-            m_state = new_states.back();
+            lean_trace(name({"debug", "smt", "ematch"}), tout() << "# matches: " << new_states.size() << "\n";);
+            m_state = new_states.back().first;
+            m_gen   = new_states.back().second;
             new_states.pop_back();
             m_choice_stack.append(new_states);
             for (unsigned i = 0; i < new_states.size(); i++)
@@ -508,7 +511,7 @@ struct ematch_fn {
                that have not been internalized. */
             expr new_p = safe_instantiate_mvars(p);
             if (!has_expr_metavar(new_p)) {
-                new_p = internalize(new_p);
+                new_p = tmp_internalize(new_p);
                 return is_ground_eq(new_p, t);
             } else {
                 return m_ctx.is_def_eq(new_p, t);
@@ -549,8 +552,8 @@ struct ematch_fn {
                        Important: we must process arguments from left to right. Otherwise, the "trick"
                        above will not work.
                     */
-                    p_type = internalize(p_type);
-                    t_type = internalize(t_type);
+                    p_type = tmp_internalize(p_type);
+                    t_type = tmp_internalize(t_type);
                     if (auto H = m_cc.get_eq_proof(t_type, p_type)) {
                         expr cast_H_t = mk_cast(m_ctx, *H, t);
                         return m_ctx.is_def_eq(p, cast_H_t);
@@ -584,14 +587,14 @@ struct ematch_fn {
        successfully. */
     bool match_leaf(expr const & p, expr const & t) {
         if (m_cc.in_heterogeneous_eqc(t)) {
-            buffer<state> new_states;
+            buffer<pair<state, unsigned>> new_states;
             rb_expr_set types_seen;
             expr it = t;
             do {
                 expr it_type = m_ctx.infer(it);
                 if (!types_seen.find(it_type)) {
                     types_seen.insert(it_type);
-                    new_states.push_back(cons(mk_eqv_cnstr(p, it), m_state));
+                    new_states.emplace_back(cons(mk_eqv_cnstr(p, it), m_state), m_gen);
                 }
                 it = m_cc.get_next(it);
             } while (it != t);
@@ -638,7 +641,7 @@ struct ematch_fn {
     }
 
     bool process_match(expr const & p, expr const & t) {
-        lean_trace(name({"debug", "ematch"}),
+        lean_trace(name({"debug", "smt", "ematch"}),
                    expr new_p      = safe_instantiate_mvars(p);
                    expr new_p_type = safe_instantiate_mvars(m_ctx.infer(p));
                    expr t_type     = m_ctx.infer(t);
@@ -652,36 +655,40 @@ struct ematch_fn {
         if (m_ctx.is_mvar(fn)) {
             return match_leaf(p, t);
         }
-        buffer<expr> candidates;
+        buffer<pair<expr, unsigned>> candidates;
         expr t_fn;
         expr it = t;
         do {
-            expr const & it_fn = get_app_fn(it);
-            bool ok = false;
-            if ((m_cc.is_congr_root(it) || m_cc.in_heterogeneous_eqc(it)) &&
-                m_ctx.is_def_eq(it_fn, fn) &&
-                get_app_num_args(it) == p_args.size()) {
-                t_fn = it_fn;
-                ok = true;
-                candidates.push_back(it);
+            if (check_generation(it)) {
+                expr const & it_fn = get_app_fn(it);
+                bool ok = false;
+                if ((m_cc.is_congr_root(it) || m_cc.in_heterogeneous_eqc(it)) &&
+                    m_ctx.is_def_eq(it_fn, fn) &&
+                    get_app_num_args(it) == p_args.size()) {
+                    t_fn = it_fn;
+                    ok = true;
+                    candidates.emplace_back(it, m_cc.get_generation_of(it));
+                }
+                lean_trace(name({"debug", "smt", "ematch"}),
+                           tout() << "candidate: " << it << "..." << (ok ? "ok" : "skip") << "\n";);
             }
-            lean_trace(name({"debug", "ematch"}),
-                       tout() << "candidate: " << it << "..." << (ok ? "ok" : "skip") << "\n";);
             it = m_cc.get_next(it);
         } while (it != t);
 
         if (candidates.empty()) {
-            lean_trace(name({"debug", "ematch"}), tout() << "(no candidates)\n";);
+            lean_trace(name({"debug", "smt", "ematch"}), tout() << "(no candidates)\n";);
             return false;
         }
-        buffer<state> new_states;
-        for (expr const & c : candidates) {
+        buffer<pair<state, unsigned>> new_states;
+        for (pair<expr, unsigned> const & c_gen : candidates) {
+            expr const & c = c_gen.first;
+            unsigned gen   = c_gen.second;
             state new_state = m_state;
             if (is_ac(c)) {
                 process_new_ac_cnstr(new_state, p, t, new_states);
             } else if (match_args(new_state, p_args, c)) {
-                lean_trace(name({"debug", "ematch"}), tout() << "match: " << c << "\n";);
-                new_states.push_back(new_state);
+                lean_trace(name({"debug", "smt", "ematch"}), tout() << "match: " << c << "\n";);
+                new_states.emplace_back(new_state, std::max(m_gen, gen));
             }
         }
         push_states(new_states);
@@ -698,17 +705,28 @@ struct ematch_fn {
         return match_args(s, p_args, it);
     }
 
+    bool check_generation(expr const & t) {
+        unsigned gen = m_cc.get_generation_of(t);
+        if (gen >= m_em_state.m_config.m_max_generation) {
+            lean_trace(name({"smt", "ematch"}), tout() << "skipping term generation: " << gen
+                       << ", instances based on exceeds the limit\n" << t << "\n";);
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     bool process_continue(expr const & p) {
-        lean_trace(name({"debug", "ematch"}), tout() << "process_continue: " << p << "\n";);
+        lean_trace(name({"debug", "smt", "ematch"}), tout() << "process_continue: " << p << "\n";);
         buffer<expr> p_args;
         expr const & f = get_app_args(p, p_args);
-        buffer<state> new_states;
+        buffer<pair<state, unsigned>> new_states;
         if (auto s = m_em_state.get_app_map().find(head_index(f))) {
             s->for_each([&](expr const & t) {
-                    if (m_cc.is_congr_root(t) || m_cc.in_heterogeneous_eqc(t)) {
+                    if (check_generation(t) && (m_cc.is_congr_root(t) || m_cc.in_heterogeneous_eqc(t))) {
                         state new_state = m_state;
                         if (match_args_prefix(new_state, p_args, t))
-                            new_states.push_back(new_state);
+                            new_states.emplace_back(new_state, m_cc.get_generation_of(t));
                     }
                 });
             if (new_states.empty()) {
@@ -725,7 +743,7 @@ struct ematch_fn {
     /* (Basic) subsingleton matching support: solve p =?= t when
        typeof(p) and typeof(t) are subsingletons */
     bool process_matchss(expr const & p, expr const & t) {
-        lean_trace(name({"debug", "ematch"}),
+        lean_trace(name({"debug", "smt", "ematch"}),
                    expr new_p      = safe_instantiate_mvars(p);
                    expr new_p_type = safe_instantiate_mvars(m_ctx.infer(p));
                    expr t_type     = m_ctx.infer(t);
@@ -734,28 +752,28 @@ struct ematch_fn {
         if (!is_metavar(p)) {
             /* If p is not a metavariable we simply ignore it.
                We should improve this case in the future. */
-            lean_trace(name({"debug", "ematch"}), tout() << "(p not a metavar)\n";);
+            lean_trace(name({"debug", "smt", "ematch"}), tout() << "(p not a metavar)\n";);
             return true;
         }
         expr p_type = safe_instantiate_mvars(m_ctx.infer(p));
         expr t_type = m_ctx.infer(t);
         if (m_ctx.is_def_eq(p_type, t_type)) {
             bool success = m_ctx.is_def_eq(p, t);
-            lean_trace(name({"debug", "ematch"}),
+            lean_trace(name({"debug", "smt", "ematch"}),
                        tout() << "types are def_eq and assignment..." << (success ? "succeeded" : "failed") << "\n";);
             return success;
         } else {
             /* Check if the types are provably equal, and cast t */
-            p_type = internalize(p_type);
+            p_type = tmp_internalize(p_type);
             if (auto H = m_cc.get_eq_proof(t_type, p_type)) {
                 expr cast_H_t = mk_cast(m_ctx, *H, t);
                 bool success = m_ctx.is_def_eq(p, cast_H_t);
-                lean_trace(name({"debug", "ematch"}),
+                lean_trace(name({"debug", "smt", "ematch"}),
                            tout() << "types can be proved equal and assignment..." << (success ? "succeeded" : "failed") << "\n";);
                 return success;
             }
         }
-        lean_trace(name({"debug", "ematch"}), tout() << "types cannot be proved equal\n";);
+        lean_trace(name({"debug", "smt", "ematch"}), tout() << "types cannot be proved equal\n";);
         return false;
     }
 
@@ -763,7 +781,7 @@ struct ematch_fn {
         expr const & p = cnstr_p(c);
         expr const & t = cnstr_t(c);
         bool success = m_ctx.is_def_eq(p, t);
-        lean_trace(name({"debug", "ematch"}),
+        lean_trace(name({"debug", "smt", "ematch"}),
                    expr new_p      = safe_instantiate_mvars(p);
                    expr new_p_type = safe_instantiate_mvars(m_ctx.infer(p));
                    expr t_type     = m_ctx.infer(t);
@@ -777,7 +795,7 @@ struct ematch_fn {
         expr const & p = cnstr_p(c);
         expr const & t = cnstr_t(c);
         bool success = is_eqv(p, t);
-        lean_trace(name({"debug", "ematch"}),
+        lean_trace(name({"debug", "smt", "ematch"}),
                    expr new_p      = safe_instantiate_mvars(p);
                    expr new_p_type = safe_instantiate_mvars(m_ctx.infer(p));
                    expr t_type     = m_ctx.infer(t);
@@ -819,11 +837,12 @@ struct ematch_fn {
     }
 
     bool backtrack() {
-        lean_trace(name({"debug", "ematch"}), tout() << "backtrack\n";);
+        lean_trace(name({"debug", "smt", "ematch"}), tout() << "backtrack\n";);
         if (m_choice_stack.empty())
             return false;
         m_ctx.pop_scope();
-        m_state = m_choice_stack.back();
+        m_state = m_choice_stack.back().first;
+        m_gen   = m_choice_stack.back().second;
         m_choice_stack.pop_back();
         return true;
     }
@@ -834,20 +853,20 @@ struct ematch_fn {
         for (expr const & mvar : lemma.m_mvars) {
             if (!m_ctx.is_assigned(mvar)) {
                 if (!head(*it)) {
-                    lean_trace(name({"debug", "ematch"}),
+                    lean_trace(name({"debug", "smt", "ematch"}),
                                tout() << "instantiation failure [" << lemma.m_id << "], " <<
                                "unassigned argument not inst-implicit: " << m_ctx.infer(mvar) << "\n";);
                     return; // fail, argument is not instance implicit
                 }
                 auto new_val = m_ctx.mk_class_instance(m_ctx.infer(mvar));
                 if (!new_val) {
-                    lean_trace(name({"debug", "ematch"}),
+                    lean_trace(name({"debug", "smt", "ematch"}),
                                tout() << "instantiation failure [" << lemma.m_id << "], " <<
                                "cannot synthesize unassigned inst-implicit argument: " << m_ctx.infer(mvar) << "\n";);
                     return; // fail, instance could not be generated
                 }
                 if (!m_ctx.is_def_eq(mvar, *new_val)) {
-                    lean_trace(name({"debug", "ematch"}),
+                    lean_trace(name({"debug", "smt", "ematch"}),
                                tout() << "instantiation failure [" << lemma.m_id << "], " <<
                                "unable to assign inst-implicit argument: " << *new_val << " : " << m_ctx.infer(mvar) << "\n";);
                     return; // fail, type error
@@ -860,7 +879,7 @@ struct ematch_fn {
         for (expr & lemma_arg : lemma_args) {
             lemma_arg = instantiate_mvars(lemma_arg);
             if (has_idx_metavar(lemma_arg)) {
-                lean_trace(name({"debug", "ematch"}),
+                lean_trace(name({"debug", "smt", "ematch"}),
                            tout() << "instantiation failure [" << lemma.m_id << "], " <<
                            "there are unassigned metavariables\n";);
                 return; // result contains temporary metavariables
@@ -873,15 +892,17 @@ struct ematch_fn {
 
         expr new_inst  = instantiate_mvars(lemma.m_prop);
         if (has_idx_metavar(new_inst)) {
-            lean_trace(name({"debug", "ematch"}),
-                       tout() << "new instance contains unassigned metavariables\n" << new_inst << "\n";);
+            lean_trace(name({"debug", "smt", "ematch"}),
+                       tout() << "new instance contains unassigned metavariables\n"
+                       << new_inst << "\n";);
             return; // result contains temporary metavariables
         }
 
-        lean_trace("ematch",
-                   tout() << "instance [" << lemma.m_id << "]: " << new_inst << "\n";);
+        lean_trace(name({"smt", "ematch"}),
+                   tout() << "instance [" << lemma.m_id << "], generation: " << m_gen+1
+                   << "\n" << new_inst << "\n";);
         expr new_proof = instantiate_mvars(lemma.m_proof);
-        m_new_instances.emplace_back(new_inst, new_proof);
+        m_new_instances.push_back({new_inst, new_proof, m_gen+1});
     }
 
     void search(hinst_lemma const & lemma) {
@@ -927,9 +948,10 @@ struct ematch_fn {
         m_state = init;
         buffer<expr> p_args;
         expr const & fn = get_app_args(p, p_args);
+        m_gen = m_cc.get_generation_of(t);
         if (!m_ctx.is_def_eq(fn, get_app_fn(t)))
             return;
-        if (!match_args_prefix(m_state, p_args, t))
+        if (check_generation(t) && !match_args_prefix(m_state, p_args, t))
             return;
         search(lemma);
     }
@@ -1008,17 +1030,17 @@ struct ematch_fn {
     }
 };
 
-void ematch(type_context & ctx, ematch_state & s, congruence_closure & cc, hinst_lemma const & lemma, expr const & t, buffer<expr_pair> & result) {
+void ematch(type_context & ctx, ematch_state & s, congruence_closure & cc, hinst_lemma const & lemma, expr const & t, buffer<new_instance> & result) {
     congruence_closure::state_scope scope(cc);
     ematch_fn(ctx, s, cc, result).ematch_term(lemma, t);
 }
 
-void ematch(type_context & ctx, ematch_state & s, congruence_closure & cc, hinst_lemma const & lemma, bool filter, buffer<expr_pair> & result) {
+void ematch(type_context & ctx, ematch_state & s, congruence_closure & cc, hinst_lemma const & lemma, bool filter, buffer<new_instance> & result) {
     congruence_closure::state_scope scope(cc);
     ematch_fn(ctx, s, cc, result).ematch_terms(lemma, filter);
 }
 
-void ematch(type_context & ctx, ematch_state & s, congruence_closure & cc, buffer<expr_pair> & result) {
+void ematch(type_context & ctx, ematch_state & s, congruence_closure & cc, buffer<new_instance> & result) {
     congruence_closure::state_scope scope(cc);
     ematch_fn(ctx, s, cc, result)();
 }
@@ -1042,9 +1064,15 @@ vm_obj to_obj(ematch_state const & s) {
     return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_ematch_state))) vm_ematch_state(s));
 }
 
+/*
+structure ematch_config :=
+(max_instances  : nat := 10000)
+(max_generation : nat := 10)
+*/
 ematch_config to_ematch_config(vm_obj const & cfg) {
     ematch_config r;
-    r.m_max_instances = force_to_unsigned(cfg);
+    r.m_max_instances  = force_to_unsigned(cfield(cfg, 0));
+    r.m_max_generation = force_to_unsigned(cfield(cfg, 1));
     return r;
 }
 
@@ -1061,13 +1089,13 @@ vm_obj ematch_state_internalize(vm_obj const & ems, vm_obj const & e, vm_obj con
     LEAN_TACTIC_CATCH(to_tactic_state(s));
 }
 
-vm_obj mk_ematch_result(buffer<expr_pair> const & new_inst_buffer, congruence_closure::state const & ccs,
+vm_obj mk_ematch_result(buffer<new_instance> const & new_inst_buffer, congruence_closure::state const & ccs,
                         ematch_state const & ems) {
     vm_obj new_insts = mk_vm_nil();
     unsigned i = new_inst_buffer.size();
     while (i > 0) {
         --i;
-        new_insts = mk_vm_cons(mk_vm_pair(to_obj(new_inst_buffer[i].first), to_obj(new_inst_buffer[i].second)), new_insts);
+        new_insts = mk_vm_cons(mk_vm_pair(to_obj(new_inst_buffer[i].m_instance), to_obj(new_inst_buffer[i].m_proof)), new_insts);
     }
     return mk_vm_pair(new_insts, mk_vm_pair(to_obj(ccs), to_obj(ems)));
 }
@@ -1080,7 +1108,7 @@ vm_obj ematch_core(vm_obj const & md, vm_obj const & _ccs, vm_obj const & _ems, 
     defeq_can_state dcs = s.dcs();
     congruence_closure::state ccs = to_cc_state(_ccs);
     congruence_closure cc(ctx, ccs, dcs);
-    buffer<expr_pair> new_inst_buffer;
+    buffer<new_instance> new_inst_buffer;
     ematch(ctx, ems, cc, to_hinst_lemma(hlemma), to_expr(t), new_inst_buffer);
     vm_obj r = mk_ematch_result(new_inst_buffer, ccs, ems);
     tactic_state new_s = set_dcs(s, dcs);
@@ -1096,7 +1124,7 @@ vm_obj ematch_all_core(vm_obj const & md, vm_obj const & _ccs, vm_obj const & _e
     defeq_can_state dcs = s.dcs();
     congruence_closure::state ccs = to_cc_state(_ccs);
     congruence_closure cc(ctx, ccs, dcs);
-    buffer<expr_pair> new_inst_buffer;
+    buffer<new_instance> new_inst_buffer;
     ematch(ctx, ems, cc, to_hinst_lemma(hlemma), to_bool(filter), new_inst_buffer);
     vm_obj r = mk_ematch_result(new_inst_buffer, ccs, ems);
     tactic_state new_s = set_dcs(s, dcs);
@@ -1105,8 +1133,8 @@ vm_obj ematch_all_core(vm_obj const & md, vm_obj const & _ccs, vm_obj const & _e
 }
 
 void initialize_ematch() {
-    register_trace_class("ematch");
-    register_trace_class(name({"debug", "ematch"}));
+    register_trace_class(name{"smt", "ematch"});
+    register_trace_class(name({"debug", "smt", "ematch"}));
 
     DECLARE_VM_BUILTIN(name({"ematch_state", "mk"}),               ematch_state_mk);
     DECLARE_VM_BUILTIN(name({"ematch_state", "internalize"}),      ematch_state_internalize);

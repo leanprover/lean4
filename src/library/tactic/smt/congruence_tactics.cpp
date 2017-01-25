@@ -91,7 +91,7 @@ vm_obj cc_state_mk_using_hs_core(vm_obj const & cfg, vm_obj const & _s) {
         congruence_closure cc(ctx, r, dcs);
         lctx.for_each([&](local_decl const & d) {
                 if (ctx.is_prop(d.get_type())) {
-                    cc.add(d.get_type(), d.mk_ref());
+                    cc.add(d.get_type(), d.mk_ref(), 0);
                 }
             });
         tactic_state new_s = set_dcs(s, dcs);
@@ -174,13 +174,13 @@ vm_obj cc_state_add(vm_obj const & ccs, vm_obj const & H, vm_obj const & _s) {
             expr type                   = ctx.infer(to_expr(H));
             if (ctx.is_prop(type))
                 return mk_tactic_exception("cc_state.add failed, given expression is not a proof term", s);
-            cc.add(type, to_expr(H));
+            cc.add(type, to_expr(H), 0);
     });
 }
 
 vm_obj cc_state_internalize(vm_obj const & ccs, vm_obj const & e, vm_obj const & _s) {
     cc_state_updt_proc({
-            cc.internalize(to_expr(e));
+            cc.internalize(to_expr(e), 0);
         });
 }
 

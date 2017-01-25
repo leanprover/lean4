@@ -84,7 +84,7 @@ optional<expr> smt::get_proof(expr const & e) {
 }
 
 void smt::internalize(expr const & e) {
-    m_cc.internalize(e);
+    m_cc.internalize(e, 0);
     m_goal.m_em_state.internalize(m_ctx, e);
 }
 
@@ -92,16 +92,16 @@ void smt::new_aux_cc_term(expr const & e) {
     m_goal.m_em_state.internalize(m_ctx, e);
 }
 
-void smt::add(expr const & type, expr const & proof) {
+void smt::add(expr const & type, expr const & proof, unsigned gen) {
     m_goal.m_em_state.internalize(m_ctx, type);
-    m_cc.add(type, proof);
+    m_cc.add(type, proof, gen);
 }
 
-void smt::ematch(buffer<expr_pair> & result) {
+void smt::ematch(buffer<new_instance> & result) {
     ::lean::ematch(m_ctx, m_goal.m_em_state, m_cc, result);
 }
 
-void smt::ematch_using(hinst_lemma const & lemma, buffer<expr_pair> & result) {
+void smt::ematch_using(hinst_lemma const & lemma, buffer<new_instance> & result) {
     ::lean::ematch(m_ctx, m_goal.m_em_state, m_cc, lemma, false, result);
 }
 
@@ -808,19 +808,20 @@ vm_obj smt_tactic_ematch_core(vm_obj const & pred, vm_obj const & ss, vm_obj con
     smt_goal g          = to_smt_goal(head(ss));
     smt S(ctx, dcs, g);
     S.internalize(target);
-    buffer<expr_pair> new_instances;
+    buffer<new_instance> new_instances;
     S.ematch(new_instances);
     if (new_instances.empty())
         return mk_tactic_exception("ematch failed, no new instance was produced", ts);
-    for (expr_pair const & p : new_instances) {
-        expr type   = p.first;
-        expr proof  = p.second;
+    for (new_instance const & p : new_instances) {
+        expr type   = p.m_instance;
+        expr proof  = p.m_proof;
         vm_obj keep = invoke(pred, to_obj(type));
         if (to_bool(keep)) {
             std::tie(type, proof) = preprocess_forward(ctx, dcs, g, type, proof);
             lean_trace(name({"smt", "ematch"}), scope_trace_env _(ctx.env(), ctx);
-                       tout() << "new instance\n" << type << "\n";);
-            S.add(type, proof);
+                       tout() << "instance, generation: " << p.m_generation << ", after preprocessing\n"
+                       << type << "\n";);
+            S.add(type, proof, p.m_generation);
         }
     }
     vm_obj new_ss       = mk_vm_cons(to_obj(g), tail(ss));
@@ -926,7 +927,7 @@ vm_obj smt_tactic_ematch_using(vm_obj const & hs, vm_obj const & ss, vm_obj cons
     smt S(ctx, dcs, g);
     S.internalize(target);
     bool added_facts = false;
-    buffer<expr_pair> new_instances;
+    buffer<new_instance> new_instances;
     to_hinst_lemmas(hs).for_each([&](hinst_lemma const & lemma) {
             if (add_em_fact(S, ctx, lemma)) {
                 added_facts = true;
@@ -936,13 +937,14 @@ vm_obj smt_tactic_ematch_using(vm_obj const & hs, vm_obj const & ss, vm_obj cons
         });
     if (!added_facts && new_instances.empty())
         return mk_tactic_exception("ematch_using failed, no instance was produced", ts);
-    for (expr_pair const & p : new_instances) {
-        expr type   = p.first;
-        expr proof  = p.second;
+    for (new_instance const & p : new_instances) {
+        expr type   = p.m_instance;
+        expr proof  = p.m_proof;
         std::tie(type, proof) = preprocess_forward(ctx, dcs, g, type, proof);
         lean_trace(name({"smt", "ematch"}), scope_trace_env _(ctx.env(), ctx);
-                   tout() << "new instance\n" << type << "\n";);
-        S.add(type, proof);
+                   tout() << "instance, generation: " << p.m_generation
+                   << ", after preprocessing\n" << type << "\n";);
+        S.add(type, proof, p.m_generation);
     }
     vm_obj new_ss       = mk_vm_cons(to_obj(g), tail(ss));
     tactic_state new_ts = set_mctx_dcs(ts, ctx.mctx(), dcs);

@@ -15,20 +15,21 @@ typedef rb_expr_tree rb_expr_set;
 typedef rb_map<head_index, rb_expr_set, head_index::cmp> app_map;
 
 struct ematch_config {
-    unsigned  m_max_instances{0};
+    unsigned  m_max_instances{1000};
+    unsigned  m_max_generation{10};
 };
 
 struct ematch_fn;
 
 class ematch_state {
     friend struct ematch_fn;
-    app_map       m_app_map;
-    rb_expr_set   m_instances;
-    unsigned      m_num_instances{0};
-    bool          m_max_instances_exceeded{false};
-    ematch_config m_config;
-    hinst_lemmas  m_lemmas;
-    hinst_lemmas  m_new_lemmas;
+    app_map               m_app_map;
+    rb_expr_set           m_instances;
+    unsigned              m_num_instances{0};
+    bool                  m_max_instances_exceeded{false};
+    ematch_config         m_config;
+    hinst_lemmas          m_lemmas;
+    hinst_lemmas          m_new_lemmas;
 public:
     ematch_state(ematch_config const & cfg, hinst_lemmas const & lemmas = hinst_lemmas()):
         m_config(cfg), m_new_lemmas(lemmas) {}
@@ -45,19 +46,25 @@ public:
     void set_lemmas(hinst_lemmas const & lemmas) { m_lemmas.clear(); m_new_lemmas = lemmas; }
 };
 
+struct new_instance {
+    expr     m_instance;
+    expr     m_proof;
+    unsigned m_generation;
+};
+
 /* Ematch patterns in lemma with t, and add instances of lemma at result */
 void ematch(type_context & ctx, ematch_state & s, congruence_closure & cc, hinst_lemma const & lemma, expr const & t,
-            buffer<expr_pair> & result);
+            buffer<new_instance> & result);
 
 /* Ematch patterns in lemma with terms internalized in the ematch_state, and add instances of lemma at result */
 void ematch(type_context & ctx, ematch_state & s, congruence_closure & cc, hinst_lemma const & lemma, bool filter,
-            buffer<expr_pair> & result);
+            buffer<new_instance> & result);
 
 /* Ematch patterns of lemmas in s.m_lemmas and s.m_new_lemmas with terms internalized in the ematch_state.
    Add instances to result.
    Move s.m_new_lemmas to s.m_lemmas, and increment gmt from cc.
    For s.m_lemmas, only terms with mt >= gmt are considered. */
-void ematch(type_context & ctx, ematch_state & s, congruence_closure & cc, buffer<expr_pair> & result);
+void ematch(type_context & ctx, ematch_state & s, congruence_closure & cc, buffer<new_instance> & result);
 
 /*
 structure cc_config :=

@@ -59,9 +59,9 @@ public:
     virtual ~smt();
 
     void internalize(expr const & e);
-    void add(expr const & type, expr const & proof);
-    void ematch(buffer<expr_pair> & result);
-    void ematch_using(hinst_lemma const & lemma, buffer<expr_pair> & result);
+    void add(expr const & type, expr const & proof, unsigned gen = 0);
+    void ematch(buffer<new_instance> & result);
+    void ematch_using(hinst_lemma const & lemma, buffer<new_instance> & result);
 
     defeq_can_state & dcs() { return m_dcs; }
     smt_pre_config const & get_pre_config() { return m_goal.get_pre_config(); }

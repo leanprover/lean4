@@ -91,6 +91,7 @@ class congruence_closure {
            occurred in the current branch. It is incremented after each round of heuristic instantiation.
            The field m_mt records the last time any proper descendant of of thie entry was involved in a merge. */
         unsigned       m_mt;
+        unsigned       m_generation;
     };
 
     struct parent_occ {
@@ -155,7 +156,7 @@ public:
         config             m_config;
         friend class congruence_closure;
         bool check_eqc(expr const & e) const;
-        void mk_entry_core(expr const & e, bool interpreted, bool constructor);
+        void mk_entry_core(expr const & e, bool interpreted, bool constructor, unsigned gen);
     public:
         state(name_set const & ho_fns = name_set(), config const & cfg = config());
         void get_roots(buffer<expr> & roots, bool nonsingleton_only = true) const;
@@ -208,10 +209,10 @@ private:
     void add_congruence_table(expr const & e);
     void check_eq_true(symm_congr_key const & k);
     void add_symm_congruence_table(expr const & e);
-    void mk_entry(expr const & e, bool interpreted);
+    void mk_entry(expr const & e, bool interpreted, unsigned gen);
     void set_ac_var(expr const & e);
-    void internalize_app(expr const & e);
-    void internalize_core(expr const & e, optional<expr> const & parent);
+    void internalize_app(expr const & e, unsigned gen);
+    void internalize_core(expr const & e, optional<expr> const & parent, unsigned gen);
     void push_todo(expr const & lhs, expr const & rhs, expr const & H, bool heq_proof);
     void push_heq(expr const & lhs, expr const & rhs, expr const & H);
     void push_eq(expr const & lhs, expr const & rhs, expr const & H);
@@ -295,9 +296,9 @@ public:
        4- Terms containing meta-variables.
        5- The subterms of lambda-expressions.
        6- Sorts (Type and Prop). */
-    void internalize(expr const & e);
+    void internalize(expr const & e, unsigned gen);
 
-    void add(expr const & type, expr const & proof);
+    void add(expr const & type, expr const & proof, unsigned gen);
 
     bool is_eqv(expr const & e1, expr const & e2) const;
     bool is_not_eqv(expr const & e1, expr const & e2) const;
@@ -329,6 +330,13 @@ public:
     bool check_invariant() const { return m_state.check_invariant(); }
 
     expr normalize(expr const & e);
+
+    unsigned get_generation_of(expr const & e) const {
+        if (auto it = get_entry(e))
+            return it->m_generation;
+        else
+            return 0;
+    }
 
     class state_scope {
         congruence_closure & m_cc;

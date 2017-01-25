@@ -140,7 +140,8 @@ do
   caching_user_attribute.get_cache attr
 
 structure ematch_config :=
-(max_instances : nat := 10000)
+(max_instances  : nat := 10000)
+(max_generation : nat := 10)
 
 /- Ematching -/
 meta constant ematch_state             : Type

@@ -15,6 +15,7 @@ protected meta constant pexpr.subst    : pexpr → pexpr → pexpr
 /- Low level primitives for accessing internal representation. -/
 protected meta constant pexpr.to_raw_expr : pexpr → expr
 protected meta constant pexpr.of_raw_expr : expr → pexpr
+meta constant pexpr.mk_placeholder : pexpr
 
 meta constant pexpr.to_string : pexpr → string
 meta instance : has_to_string pexpr :=

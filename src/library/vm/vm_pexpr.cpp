@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "kernel/instantiate.h"
+#include "library/placeholder.h"
 #include "library/explicit.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_expr.h"
@@ -38,12 +39,17 @@ vm_obj pexpr_of_raw_expr(vm_obj const & e) {
     return e;
 }
 
+vm_obj pexpr_mk_placeholder() {
+    return to_obj(mk_expr_placeholder());
+}
+
 void initialize_vm_pexpr() {
-    DECLARE_VM_BUILTIN(name({"pexpr", "subst"}),        pexpr_subst);
-    DECLARE_VM_BUILTIN(name({"pexpr", "of_expr"}),      pexpr_of_expr);
-    DECLARE_VM_BUILTIN(name({"pexpr", "to_string"}),    pexpr_to_string);
-    DECLARE_VM_BUILTIN(name({"pexpr", "of_raw_expr"}),  pexpr_of_raw_expr);
-    DECLARE_VM_BUILTIN(name({"pexpr", "to_raw_expr"}),  pexpr_to_raw_expr);
+    DECLARE_VM_BUILTIN(name({"pexpr", "subst"}),          pexpr_subst);
+    DECLARE_VM_BUILTIN(name({"pexpr", "of_expr"}),        pexpr_of_expr);
+    DECLARE_VM_BUILTIN(name({"pexpr", "to_string"}),      pexpr_to_string);
+    DECLARE_VM_BUILTIN(name({"pexpr", "of_raw_expr"}),    pexpr_of_raw_expr);
+    DECLARE_VM_BUILTIN(name({"pexpr", "to_raw_expr"}),    pexpr_to_raw_expr);
+    DECLARE_VM_BUILTIN(name({"pexpr", "mk_placeholder"}), pexpr_mk_placeholder);
 }
 
 void finalize_vm_pexpr() {

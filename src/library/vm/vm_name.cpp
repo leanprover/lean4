@@ -18,8 +18,8 @@ struct vm_name : public vm_external {
     vm_name(name const & v):m_val(v) {}
     virtual ~vm_name() {}
     virtual void dealloc() override { this->~vm_name(); get_vm_allocator().deallocate(sizeof(vm_name), this); }
-    virtual vm_external * ts_clone() { return new vm_name(m_val); }
-    virtual vm_external * clone() { return new (get_vm_allocator().allocate(sizeof(vm_name))) vm_name(m_val); }
+    virtual vm_external * ts_clone() override { return new vm_name(m_val); }
+    virtual vm_external * clone() override { return new (get_vm_allocator().allocate(sizeof(vm_name))) vm_name(m_val); }
 };
 
 bool is_name(vm_obj const & o) {

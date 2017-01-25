@@ -36,8 +36,8 @@ struct vm_macro_definition : public vm_external {
     virtual void dealloc() override {
         this->~vm_macro_definition(); get_vm_allocator().deallocate(sizeof(vm_macro_definition), this);
     }
-    virtual vm_external * ts_clone() { return new vm_macro_definition(m_val); }
-    virtual vm_external * clone() { return new (get_vm_allocator().allocate(sizeof(vm_macro_definition))) vm_macro_definition(m_val); }
+    virtual vm_external * ts_clone() override { return new vm_macro_definition(m_val); }
+    virtual vm_external * clone() override { return new (get_vm_allocator().allocate(sizeof(vm_macro_definition))) vm_macro_definition(m_val); }
 };
 
 macro_definition const & to_macro_definition(vm_obj const & o) {
@@ -55,8 +55,8 @@ struct vm_expr : public vm_external {
     vm_expr(expr const & v):m_val(v) {}
     virtual ~vm_expr() {}
     virtual void dealloc() override { this->~vm_expr(); get_vm_allocator().deallocate(sizeof(vm_expr), this); }
-    virtual vm_external * ts_clone() { return new vm_expr(m_val); }
-    virtual vm_external * clone()  { return new (get_vm_allocator().allocate(sizeof(vm_expr))) vm_expr(m_val); }
+    virtual vm_external * ts_clone() override { return new vm_expr(m_val); }
+    virtual vm_external * clone() override { return new (get_vm_allocator().allocate(sizeof(vm_expr))) vm_expr(m_val); }
 };
 
 bool is_expr(vm_obj const & o) {

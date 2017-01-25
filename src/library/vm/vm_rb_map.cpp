@@ -28,8 +28,8 @@ struct vm_rb_map : public vm_external {
     vm_rb_map(vm_obj_map const & m):m_map(m) {}
     virtual ~vm_rb_map() {}
     virtual void dealloc() override { this->~vm_rb_map(); get_vm_allocator().deallocate(sizeof(vm_rb_map), this); }
-    virtual vm_external * ts_clone() { return new vm_rb_map(m_map); }
-    virtual vm_external * clone() { return new (get_vm_allocator().allocate(sizeof(vm_rb_map))) vm_rb_map(m_map); }
+    virtual vm_external * ts_clone() override { return new vm_rb_map(m_map); }
+    virtual vm_external * clone() override { return new (get_vm_allocator().allocate(sizeof(vm_rb_map))) vm_rb_map(m_map); }
 };
 
 vm_obj_map const & to_map(vm_obj const & o) {

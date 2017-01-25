@@ -17,8 +17,8 @@ struct vm_options : public vm_external {
     vm_options(options const & v):m_val(v) {}
     virtual ~vm_options() {}
     virtual void dealloc() override { this->~vm_options(); get_vm_allocator().deallocate(sizeof(vm_options), this); }
-    virtual vm_external * ts_clone() { return new vm_options(m_val); }
-    virtual vm_external * clone()  { return new (get_vm_allocator().allocate(sizeof(vm_options))) vm_options(m_val); }
+    virtual vm_external * ts_clone() override { return new vm_options(m_val); }
+    virtual vm_external * clone() override { return new (get_vm_allocator().allocate(sizeof(vm_options))) vm_options(m_val); }
 };
 
 options const & to_options(vm_obj const & o) {

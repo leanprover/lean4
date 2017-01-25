@@ -19,8 +19,8 @@ struct vm_list : public vm_external {
     virtual void dealloc() override {
         this->~vm_list(); get_vm_allocator().deallocate(sizeof(vm_list<A>), this);
     }
-    virtual vm_external * ts_clone() { return new vm_list<A>(m_val); }
-    virtual vm_external * clone() { return new (get_vm_allocator().allocate(sizeof(vm_list<A>))) vm_list<A>(m_val); }
+    virtual vm_external * ts_clone() override { return new vm_list<A>(m_val); }
+    virtual vm_external * clone() override { return new (get_vm_allocator().allocate(sizeof(vm_list<A>))) vm_list<A>(m_val); }
 };
 
 template<typename A>

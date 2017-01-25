@@ -52,6 +52,7 @@ private:
     lbool get_value_core(expr const & e);
     lbool get_value(expr const & e);
     virtual void propagated(unsigned n, expr const * p) override;
+    virtual void new_aux_cc_term(expr const & e) override;
     virtual expr normalize(expr const & e) override;
 public:
     smt(type_context & ctx, defeq_can_state & dcs, smt_goal & g);

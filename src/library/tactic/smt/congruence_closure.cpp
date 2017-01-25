@@ -500,6 +500,8 @@ void congruence_closure::apply_simple_eqvs(expr const & e) {
     expr const & fn = get_app_fn(e);
     if (is_lambda(fn)) {
         expr reduced_e = head_beta_reduce(e);
+        if (m_phandler)
+            m_phandler->new_aux_cc_term(reduced_e);
         internalize_core(reduced_e, none_expr());
         push_refl_eq(e, reduced_e);
     }

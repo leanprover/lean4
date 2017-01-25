@@ -25,6 +25,9 @@ public:
     virtual ~cc_propagation_handler() {}
     virtual void propagated(unsigned n, expr const * data) = 0;
     void propagated(buffer<expr> const & p) { propagated(p.size(), p.data()); }
+    /* Congruence closure module invokes the following method when
+       a new auxiliary term is created during propagation. */
+    virtual void new_aux_cc_term(expr const & e) = 0;
 };
 
 /* The congruence_closure module (optionally) uses a normalizer.

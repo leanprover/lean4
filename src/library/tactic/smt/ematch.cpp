@@ -688,6 +688,16 @@ struct ematch_fn {
         return true;
     }
 
+    bool match_args_prefix(state & s, buffer<expr> const & p_args, expr const & t) {
+        unsigned t_nargs = get_app_num_args(t);
+        expr it = t;
+        while (t_nargs > p_args.size()) {
+            t_nargs--;
+            it = app_fn(it);
+        }
+        return match_args(s, p_args, it);
+    }
+
     bool process_continue(expr const & p) {
         lean_trace(name({"debug", "ematch"}), tout() << "process_continue: " << p << "\n";);
         buffer<expr> p_args;
@@ -697,7 +707,7 @@ struct ematch_fn {
             s->for_each([&](expr const & t) {
                     if (m_cc.is_congr_root(t) || m_cc.in_heterogeneous_eqc(t)) {
                         state new_state = m_state;
-                        if (match_args(new_state, p_args, t))
+                        if (match_args_prefix(new_state, p_args, t))
                             new_states.push_back(new_state);
                     }
                 });
@@ -919,7 +929,7 @@ struct ematch_fn {
         expr const & fn = get_app_args(p, p_args);
         if (!m_ctx.is_def_eq(fn, get_app_fn(t)))
             return;
-        if (!match_args(m_state, p_args, t))
+        if (!match_args_prefix(m_state, p_args, t))
             return;
         search(lemma);
     }

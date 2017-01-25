@@ -88,6 +88,10 @@ void smt::internalize(expr const & e) {
     m_goal.m_em_state.internalize(m_ctx, e);
 }
 
+void smt::new_aux_cc_term(expr const & e) {
+    m_goal.m_em_state.internalize(m_ctx, e);
+}
+
 void smt::add(expr const & type, expr const & proof) {
     m_goal.m_em_state.internalize(m_ctx, type);
     m_cc.add(type, proof);

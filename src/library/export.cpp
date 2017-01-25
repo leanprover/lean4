@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <unordered_map>
+#include "kernel/quotient/quotient.h"
 #include "kernel/expr_maps.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/instantiate.h"
@@ -27,6 +28,7 @@ class exporter {
     name_hmap<unsigned>          m_name2idx;
     level_map<unsigned>          m_level2idx;
     expr_bi_struct_map<unsigned> m_expr2idx;
+    bool                         m_quotient_exported = false;
 
     unsigned export_name(name const & n) {
         auto it = m_name2idx.find(n);
@@ -219,6 +221,8 @@ class exporter {
         // do not export meta declarations
         if (!d.is_trusted()) return;
 
+        if (is_quotient_decl(m_env, d.get_name()))
+            return export_quotient();
         if (inductive::is_inductive_decl(m_env, d.get_name()))
             return export_inductive(d.get_name());
         if (auto ind_type = inductive::is_intro_rule(m_env, d.get_name()))
@@ -290,6 +294,16 @@ class exporter {
             });
     }
 
+    void export_quotient() {
+        if (m_quotient_exported) return;
+        m_quotient_exported = true;
+
+        for (auto & n : quotient_required_decls())
+            export_declaration(n);
+
+        m_out << "#QUOT\n";
+    }
+
 public:
     exporter(std::ostream & out, environment const & env) : m_out(out), m_env(env) {}
 
@@ -297,6 +311,8 @@ public:
         m_name2idx[{}] = 0;
         m_level2idx[{}] = 0;
         export_global_universes();
+        if (has_quotient(m_env))
+            export_quotient();
         export_declarations();
     }
 };

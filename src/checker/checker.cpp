@@ -67,7 +67,6 @@ int main(int argc, char ** argv) {
 
         unsigned trust_lvl = 0;
         auto env = mk_environment(trust_lvl);
-        env = declare_quotient(env);
         import_from_text(in, env);
 
         env.for_each_declaration([&] (declaration const & d) {

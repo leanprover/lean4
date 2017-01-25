@@ -210,7 +210,6 @@ struct simple_pp_fn {
                 fmt = compose_many({fmt, space(), pp_name(lc.m_pp_name)});
 
             fmt = compose_many({fmt, space(), format(":"), space(),
-
                                 pp(lcs.back().domain()).maybe_paren(1), format(","),
                                 space(), pp(e)});
             return result(group(fmt), 0);

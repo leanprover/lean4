@@ -12,6 +12,7 @@ Author: Gabriel Ebner
 #include <string>
 #include <iostream>
 #include <unordered_map>
+#include "kernel/quotient/quotient.h"
 
 namespace lean {
 
@@ -103,6 +104,8 @@ struct text_importer {
             handle_def(in);
         } else if (cmd == "#AX") {
             handle_ax(in);
+        } else if (cmd == "#QUOT") {
+            m_env = declare_quotient(m_env);
         } else if (std::istringstream(cmd) >> idx) {
             std::string kind;
             in >> kind;

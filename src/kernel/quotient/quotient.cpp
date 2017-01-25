@@ -113,6 +113,8 @@ environment declare_quotient(environment const & env) {
     new_env = add_constant(new_env, *g_quotient_ind, {u_name},
                            Pi(alpha, Pi(r, Pi(beta, mk_arrow(all_quot, Pi(q, beta_q))))));
     quotient_env_ext ext = get_extension(env);
+    if (ext.m_initialized)
+        throw exception("failed to initialize quot module, already initialized");
     ext.m_initialized = true;
     return update(new_env, ext);
 }
@@ -201,6 +203,14 @@ bool is_quotient_decl(environment const & env, name const & n) {
         return false;
     return
         n == *g_quotient || n == *g_quotient_lift || n == *g_quotient_ind || n == *g_quotient_mk;
+}
+
+bool has_quotient(environment const & env) {
+    return get_extension(env).m_initialized;
+}
+
+std::vector<name> quotient_required_decls() {
+    return {"eq", *g_propext};
 }
 
 void initialize_quotient_module() {

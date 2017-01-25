@@ -6,6 +6,11 @@ The exported file contains only fully elaborated terms.
 The file describes hierarchical names, universe levels and expressions.
 These objects are used to declare inductive datatypes, definitions and axioms.
 
+```
+cd lean/library
+lean --export=export.out --recursive
+```
+
 Hierarchical names
 ------------------
 
@@ -218,8 +223,8 @@ It gets exported as the following commands (not showing constructions such as
 #IND 1 2 1 2 4 5 5 12 1
 ```
 
-Exporting declarations
-----------------------
+Quotient declaration
+--------------------
 
-The command line option `-E filename` (or `--export=filename`) is used
-to export declarations in the format described above.
+The declaration of the quotient type and its computational rule is exported as
+`#QUOT`.

@@ -24,6 +24,10 @@ public:
 environment declare_quotient(environment const & env);
 /** \brief Return true iff \c n is one of the quotient type builtin constants. */
 bool is_quotient_decl(environment const & env, name const & n);
+/** \brief Return true iff the environment has a declared quotient type. */
+bool has_quotient(environment const & env);
+/** \brief Names of declarations that are required for the quotient extension. */
+std::vector<name> quotient_required_decls();
 void initialize_quotient_module();
 void finalize_quotient_module();
 }

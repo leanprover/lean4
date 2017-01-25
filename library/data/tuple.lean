@@ -69,8 +69,8 @@ def repeat (a : α) (n : ℕ) : tuple α n :=
 def dropn (i : ℕ) : tuple α n → tuple α (n - i)
 | ⟨l, p⟩ := ⟨ list.dropn i l, by simp_using_hs ⟩
 
-def firstn (i : ℕ) : tuple α n → tuple α (min i n)
-| ⟨l, p⟩ := ⟨ list.firstn i l, by simp_using_hs ⟩
+def taken (i : ℕ) : tuple α n → tuple α (min i n)
+| ⟨l, p⟩ := ⟨ list.taken i l, by simp_using_hs ⟩
 
 section accum
   open prod

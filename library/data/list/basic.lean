@@ -30,6 +30,16 @@ theorem length_concat (a : α) : ∀ (l : list α), length (concat l a) = succ (
   | (cons b l) := congr_arg succ (length_concat l)
 
 @[simp]
+theorem length_taken
+: ∀ (i : ℕ) (l : list α), length (taken i l) = min i (length l)
+| 0        l      := eq.symm (nat.zero_min (length l))
+| (succ n) []     := eq.symm (nat.min_zero (succ n))
+| (succ n) (a::l) :=
+  calc succ (length (taken n l)) = succ (min n (length l)) : congr_arg succ (length_taken n l)
+                             ... = min (succ n) (succ (length l))
+                                     : eq.symm (nat.min_succ_succ  n (length l))
+
+@[simp]
 theorem length_dropn
 : ∀ (i : ℕ) (l : list α), length (dropn i l) = length l - i
 | 0 l := rfl
@@ -48,22 +58,5 @@ theorem length_map (f : α → β) : ∀ (a : list α), length (map f a) = lengt
 theorem length_repeat (a : α) : ∀ (n : ℕ), length (repeat a n) = n
   | 0 := eq.refl 0
   | (succ i) := congr_arg succ (length_repeat i)
-
-/- firstn -/
-
-def firstn : ℕ → list α → list α
-| 0 l             := []
-| (succ n) []     := []
-| (succ n) (a::l) := a :: firstn n l
-
-@[simp]
-theorem length_firstn
-: ∀ (i : ℕ) (l : list α), length (firstn i l) = min i (length l)
-| 0        l      := eq.symm (nat.zero_min (length l))
-| (succ n) []     := eq.symm (nat.min_zero (succ n))
-| (succ n) (a::l) :=
-  calc succ (length (firstn n l)) = succ (min n (length l)) : congr_arg succ (length_firstn n l)
-                              ... = min (succ n) (succ (length l))
-                                     : eq.symm (nat.min_succ_succ  n (length l))
 
 end list

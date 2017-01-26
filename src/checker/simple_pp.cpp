@@ -185,11 +185,25 @@ struct simple_pp_fn {
         });
     }
 
+    format wrap_binder(std::initializer_list<format> const & fmts, binder_info const & bi) {
+        auto fmt = compose_many(fmts);
+        if (bi.is_implicit()) {
+            return compose_many({format("{"), fmt, format("}")});
+        } else if (bi.is_strict_implicit()) {
+            return compose_many({format("{{"), fmt, format("}}")});
+        } else if (bi.is_inst_implicit()) {
+            return compose_many({format("["), fmt, format("]")});
+        } else {
+            return fmt;
+        }
+    }
+
     result pp_lambda(expr const & e) {
         local_const lc(this, e);
-        return result(group(compose_many({format("λ"), space(), pp(lc.m_lc), space(), format(":"), space(),
-                                    pp(binding_domain(e)).maybe_paren(1), format(","),
-                                    space(), pp(instantiate(binding_body(e), lc.m_lc))})), 0);
+        return result(group(compose_many({format("λ"), space(),
+                                          wrap_binder({pp(lc.m_lc), space(), format(":"), space(),
+                                                       pp(binding_domain(e)).maybe_paren(1)}, binding_info(e)),
+                                          format(","), space(), pp(instantiate(binding_body(e), lc.m_lc))})), 0);
     }
 
     result pp_pi(expr e) {
@@ -198,20 +212,27 @@ struct simple_pp_fn {
             return result(group(compose_many({pp(binding_domain(e)).maybe_paren(25), space(), format("->"),
                                               space(), pp(binding_body(e)).maybe_paren(24)})), 24);
         } else {
+            auto bi = binding_info(e);
+            auto ty = binding_domain(e);
+
             buffer<local_const> lcs;
             do {
                 lcs.emplace_back(this, e);
                 e = instantiate(binding_body(e), lcs.back().m_lc);
             } while (is_pi(e) && has_free_vars(binding_body(e)) &&
-                    m_tc.is_def_eq(lcs.back().domain(), binding_domain(e)));
+                    binding_info(e) == bi &&
+                    m_tc.is_def_eq(binding_domain(e), ty));
 
-            auto fmt = format("Π");
-            for (auto & lc : lcs)
-                fmt = compose_many({fmt, space(), pp_name(lc.m_pp_name)});
+            format bound_vars;
+            for (auto & lc : lcs) {
+                if (!bound_vars.is_nil_fmt()) bound_vars = compose(bound_vars, space());
+                bound_vars = compose_many({bound_vars, pp_name(lc.m_pp_name)});
+            }
 
-            fmt = compose_many({fmt, space(), format(":"), space(),
-                                pp(lcs.back().domain()).maybe_paren(1), format(","),
-                                space(), pp(e)});
+            auto fmt = compose_many({format("Π"), space(),
+                                     wrap_binder({bound_vars, space(), format(":"), space(),
+                                                  pp(ty).maybe_paren(1)}, bi),
+                                     format(","), space(), pp(e)});
             return result(group(fmt), 0);
         }
     }

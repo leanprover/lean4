@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/documentation.h"
 #include "library/scoped_ext.h"
+#include "library/unfold_macros.h"
 #include "library/vm/vm_environment.h"
 #include "library/vm/vm_exceptional.h"
 #include "library/vm/vm_format.h"

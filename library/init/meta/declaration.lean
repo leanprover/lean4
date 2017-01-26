@@ -80,6 +80,11 @@ meta def declaration.value : declaration → expr
 | (declaration.thm n ls t v) := v^.get
 | _ := default expr
 
+meta def declaration.value_task : declaration → task expr
+| (declaration.defn n ls t v h tr) := task.pure v
+| (declaration.thm n ls t v) := v
+| _ := task.pure (default expr)
+
 meta def declaration.update_type : declaration → expr → declaration
 | (declaration.defn n ls t v h tr) new_t := declaration.defn n ls new_t v h tr
 | (declaration.thm n ls t v)       new_t := declaration.thm n ls new_t v
@@ -95,6 +100,11 @@ meta def declaration.update_name : declaration → name → declaration
 meta def declaration.update_value : declaration → expr → declaration
 | (declaration.defn n ls t v h tr) new_v := declaration.defn n ls t new_v h tr
 | (declaration.thm n ls t v)       new_v := declaration.thm n ls t (task.pure new_v)
+| d                                new_v := d
+
+meta def declaration.update_value_task : declaration → task expr → declaration
+| (declaration.defn n ls t v h tr) new_v := declaration.defn n ls t new_v^.get h tr
+| (declaration.thm n ls t v)       new_v := declaration.thm n ls t new_v
 | d                                new_v := d
 
 meta def declaration.to_definition : declaration → declaration

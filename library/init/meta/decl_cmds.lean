@@ -47,6 +47,6 @@ meta def copy_decl_using (replacements : name_map name) (src_decl_name : name) (
 do env       ← get_env,
    decl      ← returnex $ env^.get src_decl_name,
    new_type  ← return $ apply_replacement replacements decl^.type,
-   new_value ← return $ apply_replacement replacements decl^.value,
-   add_decl (((decl^.to_definition^.update_type new_type)^.update_name new_decl_name)^.update_value new_value),
+   new_value ← return $ task.map (apply_replacement replacements) decl^.value_task,
+   add_decl (((decl^.to_definition^.update_type new_type)^.update_name new_decl_name)^.update_value_task new_value),
    return ()

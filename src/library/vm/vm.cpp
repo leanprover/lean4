@@ -395,7 +395,7 @@ ts_vm_obj::ts_vm_obj(vm_obj const & o) {
 }
 
 ts_vm_obj::data::~data() {
-    steal_ptr(m_root);
+    if (!is_simple(m_root)) steal_ptr(m_root);
     for (vm_obj_cell * cell : m_objs) {
         switch (cell->kind()) {
         case vm_obj_kind::Simple:

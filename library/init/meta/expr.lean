@@ -89,6 +89,8 @@ meta constant expr.copy_pos_info : expr → expr → expr
 meta constant expr.is_internal_cnstr : expr → option unsigned
 meta constant expr.get_nat_value : expr → option nat
 
+meta constant expr.collect_univ_params : expr → list name
+
 namespace expr
 open decidable
 

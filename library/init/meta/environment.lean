@@ -80,6 +80,8 @@ meta constant decl_olean : environment → name → option string
 meta constant decl_pos_info : environment → name → option (nat × nat)
 open expr
 
+meta constant unfold_untrusted_macros : environment → expr → expr
+
 meta def is_constructor_app (env : environment) (e : expr) : bool :=
 is_constant (get_app_fn e) && is_constructor env (const_name (get_app_fn e))
 

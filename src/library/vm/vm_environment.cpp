@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
+#include "library/unfold_macros.h"
 #include "kernel/type_checker.h"
 #include "kernel/inductive/inductive.h"
 #include "library/standard_kernel.h"
@@ -227,6 +228,10 @@ vm_obj environment_is_projection(vm_obj const & env, vm_obj const & n) {
     }
 }
 
+vm_obj environment_unfold_untrusted_macros(vm_obj const & env, vm_obj const & e) {
+    return to_obj(unfold_untrusted_macros(to_env(env), to_expr(e)));
+}
+
 void initialize_vm_environment() {
     DECLARE_VM_BUILTIN(name({"environment", "mk_std"}),                environment_mk_std);
     DECLARE_VM_BUILTIN(name({"environment", "trust_lvl"}),             environment_trust_lvl);
@@ -252,6 +257,7 @@ void initialize_vm_environment() {
     DECLARE_VM_BUILTIN(name({"environment", "trans_for"}),             environment_trans_for);
     DECLARE_VM_BUILTIN(name({"environment", "decl_olean"}),            environment_decl_olean);
     DECLARE_VM_BUILTIN(name({"environment", "decl_pos_info"}),         environment_decl_pos_info);
+    DECLARE_VM_BUILTIN(name({"environment", "unfold_untrusted_macros"}), environment_unfold_untrusted_macros);
 }
 
 void finalize_vm_environment() {

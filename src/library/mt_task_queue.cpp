@@ -307,6 +307,7 @@ void mt_task_queue::wait(generic_task_result const & t) {
     }
     while (!unwrap(t)->has_evaluated()) {
         if (g_current_task) {
+            // std::cerr << "waiting: " << g_current_task->description() <<  " -> " << t.description() << std::endl;
             scoped_add<int> inc_required(m_required_workers, +1);
             if (m_sleeping_workers == 0) {
                 spawn_worker();

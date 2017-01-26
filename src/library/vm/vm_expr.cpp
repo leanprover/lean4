@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include <iostream>
+#include <library/locals.h>
 #include "kernel/expr.h"
 #include "kernel/free_vars.h"
 #include "kernel/instantiate.h"
@@ -377,6 +378,13 @@ vm_obj expr_get_nat_value(vm_obj const & o) {
     }
 }
 
+vm_obj expr_collect_univ_params(vm_obj const & o) {
+    list<name> param_list;
+    collect_univ_params(to_expr(o), name_set()).for_each(
+            [&] (name const & n) { param_list = cons(n, param_list); });
+    return to_obj(param_list);
+}
+
 // TODO(Leo): move to a different file
 vm_obj vm_mk_nat_val_ne_proof(vm_obj const & a, vm_obj const & b) {
     return to_obj(mk_nat_val_ne_proof(to_expr(a), to_expr(b)));
@@ -443,6 +451,7 @@ void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name({"expr", "lower_vars"}),       expr_lower_vars);
     DECLARE_VM_BUILTIN(name({"expr", "hash"}),             expr_hash);
     DECLARE_VM_BUILTIN(name({"expr", "copy_pos_info"}),    expr_copy_pos_info);
+    DECLARE_VM_BUILTIN(name({"expr", "collect_univ_params"}), expr_collect_univ_params);
     DECLARE_VM_CASES_BUILTIN(name({"expr", "cases_on"}),   expr_cases_on);
 
     DECLARE_VM_BUILTIN(name("mk_nat_val_ne_proof"),        vm_mk_nat_val_ne_proof);

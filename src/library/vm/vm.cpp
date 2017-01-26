@@ -709,6 +709,26 @@ vm_instr mk_closure_instr(unsigned fn_idx, unsigned n) {
     return r;
 }
 
+void vm_instr::release_memory() {
+    switch (m_op) {
+    case opcode::CasesN:
+    case opcode::BuiltinCases:
+        delete[] m_npcs;
+        break;
+    case opcode::Num:
+        delete m_mpz;
+        break;
+    case opcode::Pexpr:
+        delete m_expr;
+        break;
+    case opcode::LocalInfo:
+        delete m_local_info;
+        break;
+    default:
+        break;
+    }
+}
+
 void vm_instr::copy_args(vm_instr const & i) {
     switch (i.m_op) {
     case opcode::InvokeGlobal: case opcode::InvokeBuiltin: case opcode::InvokeCFun:
@@ -785,31 +805,18 @@ vm_instr::vm_instr(vm_instr && i):
 }
 
 vm_instr::~vm_instr() {
-    switch (m_op) {
-    case opcode::Num:
-        delete m_mpz;
-        break;
-    case opcode::CasesN: case opcode::BuiltinCases:
-        delete[] m_npcs;
-        break;
-    case opcode::Pexpr:
-        delete m_expr;
-        break;
-    case opcode::LocalInfo:
-        delete m_local_info;
-        break;
-    default:
-        break;
-    }
+    release_memory();
 }
 
 vm_instr & vm_instr::operator=(vm_instr const & s) {
+    release_memory();
     m_op = s.m_op;
     copy_args(s);
     return *this;
 }
 
 vm_instr & vm_instr::operator=(vm_instr && s) {
+    release_memory();
     m_op = s.m_op;
     switch (m_op) {
     case opcode::Num:

@@ -362,6 +362,7 @@ class vm_instr {
     friend vm_instr mk_pexpr_instr(expr const & e);
     friend vm_instr mk_local_info_instr(unsigned idx, name const & n, optional<expr> const & e);
 
+    void release_memory();
     void copy_args(vm_instr const & i);
 public:
     vm_instr():m_op(opcode::Ret) {}

@@ -85,21 +85,23 @@ expr mk_field_default_value(environment const & env, name const & full_field_nam
     optional<name> default_name = has_default_value(env, full_field_name);
     lean_assert(default_name);
     declaration decl = env.get(*default_name);
-    expr type = decl.get_type();
-    buffer<expr> explicit_args;
-    while (is_pi(type)) {
-        if (is_explicit(binding_info(type))) {
-            name fname = binding_name(type);
+    expr value = decl.get_value();
+    buffer<expr> args;
+    while (is_lambda(value)) {
+        if (is_explicit(binding_info(value))) {
+            name fname = binding_name(value);
             optional<expr> fval = get_field_value(fname);
             if (!fval) {
                 throw exception(sstream() << "failed to construct default value for '" << full_field_name << "', "
                                 << "it depends on field '" << fname << "', but the value for this field is not available");
             }
-            explicit_args.push_back(*fval);
+            args.push_back(*fval);
+        } else {
+            args.push_back(mk_expr_placeholder());
         }
-        type = binding_body(type);
+        value = binding_body(value);
     }
-    return mk_app(mk_constant(*default_name), explicit_args);
+    return mk_app(mk_explicit(mk_constant(*default_name)), args);
 }
 
 struct structure_cmd_fn {
@@ -888,7 +890,7 @@ struct structure_cmd_fn {
                 }
                 name decl_name  = name(m_name + local_pp_name(field.first), "_default");
                 expr decl_type  = Pi(args, mlocal_type(field.first));
-                expr decl_value = Fun(args, *field.second);
+                expr decl_value = Fun(args, mk_explicit(*field.second));
                 name_set used_univs;
                 used_univs = collect_univ_params(decl_value, used_univs);
                 used_univs = collect_univ_params(decl_type, used_univs);

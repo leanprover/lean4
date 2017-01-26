@@ -14,6 +14,7 @@ Quotient types for kernels with proof irrelevance.
 #include "kernel/environment.h"
 #include "kernel/abstract_type_context.h"
 #include "kernel/inductive/inductive.h"
+#include <vector>
 
 namespace lean {
 static name * g_quotient_extension = nullptr;

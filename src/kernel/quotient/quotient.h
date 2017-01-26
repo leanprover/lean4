@@ -8,6 +8,7 @@ Quotient types for kernels with proof irrelevance.
 */
 #pragma once
 #include "kernel/normalizer_extension.h"
+#include <vector>
 
 namespace lean {
 /** \brief Normalizer extension for applying quotient computational rules. */

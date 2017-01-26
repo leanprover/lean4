@@ -890,8 +890,8 @@ struct structure_cmd_fn {
                 expr decl_type  = Pi(args, mlocal_type(field.first));
                 expr decl_value = Fun(args, *field.second);
                 name_set used_univs;
-                collect_univ_params(decl_value, used_univs);
-                collect_univ_params(decl_type, used_univs);
+                used_univs = collect_univ_params(decl_value, used_univs);
+                used_univs = collect_univ_params(decl_type, used_univs);
                 level_param_names decl_lvls = to_level_param_names(used_univs);
                 declaration new_decl = mk_definition_inferring_trusted(m_env, decl_name, decl_lvls,
                                                                        decl_type, decl_value, reducibility_hints::mk_abbreviation());

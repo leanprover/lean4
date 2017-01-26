@@ -20,8 +20,8 @@ struct vm_level : public vm_external {
     vm_level(level const & v):m_val(v) {}
     virtual ~vm_level() {}
     virtual void dealloc() override { this->~vm_level(); get_vm_allocator().deallocate(sizeof(vm_level), this); }
-    virtual vm_external * ts_clone() override { return new vm_level(m_val); }
-    virtual vm_external * clone() override { return new (get_vm_allocator().allocate(sizeof(vm_level))) vm_level(m_val); }
+    virtual vm_external * ts_clone(vm_clone_fn const &) override { return new vm_level(m_val); }
+    virtual vm_external * clone(vm_clone_fn const &) override { return new (get_vm_allocator().allocate(sizeof(vm_level))) vm_level(m_val); }
 };
 
 bool is_level(vm_obj const & o) {

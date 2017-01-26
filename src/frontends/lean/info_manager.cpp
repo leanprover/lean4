@@ -62,6 +62,7 @@ public:
 void vm_obj_format_info::report(io_state_stream const & ios, json & record) const {
     if (!m_cache) {
         vm_state S(m_env, ios.get_options());
+        scope_vm_state scope(S);
         vm_obj thunk = m_thunk.to_vm_obj();
         const_cast<vm_obj_format_info*>(this)->m_cache = to_format(S.invoke(thunk, mk_vm_unit()));
     }

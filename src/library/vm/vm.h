@@ -57,9 +57,6 @@ class vm_obj {
     vm_obj_cell * m_data;
     friend class vm_obj_cell;
     friend class ts_vm_obj;
-    vm_obj_cell * steal_ptr() {
-        lean_assert(LEAN_VM_IS_PTR(m_data)); vm_obj_cell * r = m_data; m_data = LEAN_VM_BOX(0); return r;
-    }
 public:
     vm_obj():m_data(LEAN_VM_BOX(0)) {
         static_assert(sizeof(vm_obj) == sizeof(void *), "unexpected class obj size"); // NOLINT
@@ -99,6 +96,10 @@ public:
     vm_obj_cell * raw() const {
         return m_data;
     }
+
+    vm_obj_cell * steal_ptr() {
+        lean_assert(LEAN_VM_IS_PTR(m_data)); vm_obj_cell * r = m_data; m_data = LEAN_VM_BOX(0); return r;
+    }
 };
 
 class vm_composite : public vm_obj_cell {
@@ -127,6 +128,8 @@ public:
     mpz const & get_value() const { return m_value; }
 };
 
+typedef std::function<vm_obj(vm_obj const &)> vm_clone_fn;
+
 class vm_external : public vm_obj_cell {
 protected:
     friend vm_obj_cell;
@@ -134,8 +137,8 @@ protected:
 public:
     vm_external():vm_obj_cell(vm_obj_kind::External) {}
     virtual ~vm_external() {}
-    virtual vm_external * ts_clone() = 0;
-    virtual vm_external * clone() = 0;
+    virtual vm_external * ts_clone(vm_clone_fn const &) = 0;
+    virtual vm_external * clone(vm_clone_fn const &) = 0;
 };
 
 /* Thread safe vm_obj, it can be used to move vm_obj's between threads.

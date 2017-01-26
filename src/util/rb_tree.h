@@ -377,6 +377,8 @@ public:
     rb_tree & operator=(rb_tree const & s) { m_root = s.m_root; return *this; }
     rb_tree & operator=(rb_tree && s) { m_root = s.m_root; return *this; }
 
+    CMP const & get_cmp() const { return *this; }
+
     unsigned get_rc() const { return m_root ? m_root->get_rc() : 0; }
 
     void insert(T const & v) {

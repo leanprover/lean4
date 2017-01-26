@@ -135,8 +135,8 @@ struct vm_backward_lemmas : public vm_external {
     vm_backward_lemmas(backward_lemma_index const & v):m_val(v) {}
     virtual ~vm_backward_lemmas() {}
     virtual void dealloc() override { this->~vm_backward_lemmas(); get_vm_allocator().deallocate(sizeof(vm_backward_lemmas), this); }
-    virtual vm_external * ts_clone() override { return new vm_backward_lemmas(m_val); }
-    virtual vm_external * clone() override { return new (get_vm_allocator().allocate(sizeof(vm_backward_lemmas))) vm_backward_lemmas(m_val); }
+    virtual vm_external * ts_clone(vm_clone_fn const &) override { return new vm_backward_lemmas(m_val); }
+    virtual vm_external * clone(vm_clone_fn const &) override { return new (get_vm_allocator().allocate(sizeof(vm_backward_lemmas))) vm_backward_lemmas(m_val); }
 };
 
 backward_lemma_index const & to_backward_lemmas(vm_obj const & o) {

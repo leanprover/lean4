@@ -21,6 +21,7 @@ private:
     struct entry_cmp : private CMP {
         entry_cmp(CMP const & c):CMP(c) {}
         int operator()(entry const & e1, entry const & e2) const { return CMP::operator()(e1.first, e2.first); }
+        CMP const & get_cmp() const { return *this; }
     };
     rb_tree<entry, entry_cmp> m_map;
 public:
@@ -36,6 +37,8 @@ public:
     void erase(K const & k) { m_map.erase(mk_pair(k, T())); }
 
     unsigned get_rc() const { return m_map.get_rc(); }
+
+    CMP const & get_cmp() const { return m_map.get_cmp().get_cmp(); }
 
     T erase_min() {
         lean_assert(!empty());

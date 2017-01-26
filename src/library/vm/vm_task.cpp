@@ -49,8 +49,13 @@ struct vm_task : public vm_external {
     vm_task(task_result<vm_obj> const & v) : m_val(v) {}
     virtual ~vm_task() {}
     virtual void dealloc() override { this->~vm_task(); get_vm_allocator().deallocate(sizeof(vm_task), this); }
-    virtual vm_external * ts_clone() override { return new vm_task(m_val); }
-    virtual vm_external * clone() override { return new (get_vm_allocator().allocate(sizeof(vm_task))) vm_task(m_val); }
+    virtual vm_external * ts_clone(vm_clone_fn const &) override {
+        /* A possible workaround is to use get() here and wait for the task to be done. */
+        throw exception("vm_task object cannot be copied to thread safe storage");
+    }
+    virtual vm_external * clone(vm_clone_fn const &) override {
+        lean_unreachable();
+    }
 };
 
 bool is_task(vm_obj const & o) {

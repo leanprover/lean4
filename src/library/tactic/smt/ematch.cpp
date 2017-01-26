@@ -1050,8 +1050,8 @@ struct vm_ematch_state : public vm_external {
     vm_ematch_state(ematch_state const & v): m_val(v) {}
     virtual ~vm_ematch_state() {}
     virtual void dealloc() override { this->~vm_ematch_state(); get_vm_allocator().deallocate(sizeof(vm_ematch_state), this); }
-    virtual vm_external * ts_clone() override { return new vm_ematch_state(m_val); }
-    virtual vm_external * clone() override { return new (get_vm_allocator().allocate(sizeof(vm_ematch_state))) vm_ematch_state(m_val); }
+    virtual vm_external * ts_clone(vm_clone_fn const &) override { return new vm_ematch_state(m_val); }
+    virtual vm_external * clone(vm_clone_fn const &) override { return new (get_vm_allocator().allocate(sizeof(vm_ematch_state))) vm_ematch_state(m_val); }
 };
 
 ematch_state const & to_ematch_state(vm_obj const & o) {

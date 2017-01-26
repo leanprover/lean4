@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <vector>
 #include <iostream>
 #include "util/rb_map.h"
 #include "library/vm/vm.h"
@@ -28,9 +29,48 @@ struct vm_rb_map : public vm_external {
     vm_rb_map(vm_obj_map const & m):m_map(m) {}
     virtual ~vm_rb_map() {}
     virtual void dealloc() override { this->~vm_rb_map(); get_vm_allocator().deallocate(sizeof(vm_rb_map), this); }
-    virtual vm_external * ts_clone() override { return new vm_rb_map(m_map); }
-    virtual vm_external * clone() override { return new (get_vm_allocator().allocate(sizeof(vm_rb_map))) vm_rb_map(m_map); }
+    virtual vm_external * ts_clone(vm_clone_fn const &) override;
+    virtual vm_external * clone(vm_clone_fn const &) override { lean_unreachable(); }
 };
+
+/* Auxiliary object used by vm_rb_map::ts_clone.
+   This is the "thread safe" version used when creating a ts_vm_obj that contains
+   a nested vm_rb_map. */
+struct vm_rb_map_ts_copy : public vm_external {
+    vm_obj                            m_cmp;
+    std::vector<pair<vm_obj, vm_obj>> m_entries;
+    virtual ~vm_rb_map_ts_copy() {
+        /* The object ts_vm_obj manages the life cycle of all vm_obj's.
+           We should prevent this destructor from invoking the destructor of m_cmp and the
+           vm_obj's nested in m_entries. */
+        m_cmp.steal_ptr();
+        for (auto & p : m_entries) {
+            p.first.steal_ptr();
+            p.second.steal_ptr();
+        }
+    }
+    virtual void dealloc() override { lean_unreachable(); }
+    virtual vm_external * ts_clone(vm_clone_fn const &) override { lean_unreachable(); }
+    virtual vm_external * clone(vm_clone_fn const &) override;
+};
+
+vm_external * vm_rb_map::ts_clone(vm_clone_fn const & fn) {
+    vm_rb_map_ts_copy * r = new vm_rb_map_ts_copy();
+    r->m_cmp = fn(m_map.get_cmp().m_cmp);
+    m_map.for_each([&](vm_obj const & k, vm_obj const & v) {
+            r->m_entries.emplace_back(fn(k), fn(v));
+        });
+    return r;
+}
+
+vm_external * vm_rb_map_ts_copy::clone(vm_clone_fn const & fn) {
+    vm_obj new_cmp = fn(m_cmp);
+    vm_obj_map new_map = vm_obj_map(vm_obj_cmp(new_cmp));
+    for (auto const & p : m_entries) {
+        new_map.insert(fn(p.first), fn(p.second));
+    }
+    return new (get_vm_allocator().allocate(sizeof(vm_rb_map))) vm_rb_map(new_map);
+}
 
 vm_obj_map const & to_map(vm_obj const & o) {
     lean_assert(is_external(o));

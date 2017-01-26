@@ -212,8 +212,8 @@ struct vm_tactic_state : public vm_external {
     virtual void dealloc() override {
         this->~vm_tactic_state(); get_vm_allocator().deallocate(sizeof(vm_tactic_state), this);
     }
-    virtual vm_external * ts_clone() override { return new vm_tactic_state(m_val); }
-    virtual vm_external * clone() override { return new (get_vm_allocator().allocate(sizeof(vm_tactic_state))) vm_tactic_state(m_val); }
+    virtual vm_external * ts_clone(vm_clone_fn const &) override { return new vm_tactic_state(m_val); }
+    virtual vm_external * clone(vm_clone_fn const &) override { return new (get_vm_allocator().allocate(sizeof(vm_tactic_state))) vm_tactic_state(m_val); }
 };
 
 bool is_tactic_state(vm_obj const & o) {

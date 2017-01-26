@@ -19,8 +19,8 @@ struct vm_format : public vm_external {
     vm_format(format const & v):m_val(v) {}
     virtual ~vm_format() {}
     virtual void dealloc() override { this->~vm_format(); get_vm_allocator().deallocate(sizeof(vm_format), this); }
-    virtual vm_external * ts_clone() override { return new vm_format(m_val); }
-    virtual vm_external * clone() override { return new (get_vm_allocator().allocate(sizeof(vm_format))) vm_format(m_val); }
+    virtual vm_external * ts_clone(vm_clone_fn const &) override { return new vm_format(m_val); }
+    virtual vm_external * clone(vm_clone_fn const &) override { return new (get_vm_allocator().allocate(sizeof(vm_format))) vm_format(m_val); }
 };
 
 bool is_format(vm_obj const & o) {
@@ -119,8 +119,8 @@ struct vm_format_thunk : public vm_external {
     vm_format_thunk(std::function<format()> const & fn):m_val(fn) {}
     virtual ~vm_format_thunk() {}
     virtual void dealloc() override { this->~vm_format_thunk(); get_vm_allocator().deallocate(sizeof(vm_format_thunk), this); }
-    virtual vm_external * ts_clone() override { return new vm_format_thunk(m_val); }
-    virtual vm_external * clone() override { return new (get_vm_allocator().allocate(sizeof(vm_format_thunk))) vm_format_thunk(m_val); }
+    virtual vm_external * ts_clone(vm_clone_fn const &) override { return new vm_format_thunk(m_val); }
+    virtual vm_external * clone(vm_clone_fn const &) override { return new (get_vm_allocator().allocate(sizeof(vm_format_thunk))) vm_format_thunk(m_val); }
 };
 
 std::function<format()> const & to_format_thunk(vm_obj const & o) {

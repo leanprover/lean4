@@ -176,8 +176,8 @@ struct vm_vm_decl : public vm_external {
     vm_vm_decl(vm_decl const & v):m_val(v) {}
     virtual ~vm_vm_decl() {}
     virtual void dealloc() override { this->~vm_vm_decl(); get_vm_allocator().deallocate(sizeof(vm_vm_decl), this); }
-    virtual vm_external * ts_clone() override { return new vm_vm_decl(m_val); }
-    virtual vm_external * clone() override { return new (get_vm_allocator().allocate(sizeof(vm_vm_decl))) vm_vm_decl(m_val); }
+    virtual vm_external * ts_clone(vm_clone_fn const &) override { return new vm_vm_decl(m_val); }
+    virtual vm_external * clone(vm_clone_fn const &) override { return new (get_vm_allocator().allocate(sizeof(vm_vm_decl))) vm_vm_decl(m_val); }
 };
 
 vm_decl const & to_vm_decl(vm_obj const & o) {

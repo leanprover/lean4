@@ -1,0 +1,8 @@
+{"msg":{"caption":"trace output","file_name":"f","pos_col":2,"pos_line":60,"severity":"information","text":"test\n"},"response":"additional_message"}
+{"msg":{"caption":"print result","file_name":"f","pos_col":0,"pos_line":69,"severity":"information","text":"theorem ex₁ : ∀ (p q : Prop), p → q → p ∧ q :=\nλ (p q : Prop) (a : p) (a_1 : q), and.intro a a_1"},"response":"additional_message"}
+{"msg":{"caption":"trace output","file_name":"f","pos_col":2,"pos_line":75,"severity":"information","text":"test\n"},"response":"additional_message"}
+{"msg":{"caption":"print result","file_name":"f","pos_col":0,"pos_line":83,"severity":"information","text":"theorem ex₂ : ∀ (p q : Prop), p → q → p ∧ q :=\nλ (p q : Prop) (a : p) (a_1 : q), and.intro a a_1"},"response":"additional_message"}
+{"message":"file invalidated","response":"ok","seq_num":0}
+{"record":{"full-id":"mytac.interactive.trace","source":{"column":9,"file":"f","line":42},"state":"Custom state: ⟨x ← 10⟩\np q : Prop,\na : p,\na_1 : q\n⊢ p ∧ q","type":"string → mytac unit"},"response":"ok","seq_num":61}
+{"record":{"full-id":"mytac.interactive.assumption","source":{"column":9,"file":"f","line":45},"state":"Custom state: ⟨y ← 20, x ← 10⟩\np q : Prop,\na : p,\na_1 : q\n⊢ p\n\np q : Prop,\na : p,\na_1 : q\n⊢ q","type":"mytac unit"},"response":"ok","seq_num":65}
+{"record":{"full-id":"mytac.interactive.assumption","source":{"column":9,"file":"f","line":45},"state":"Custom state: ⟨y ← 20, x ← 10⟩\np q : Prop,\na : p,\na_1 : q\n⊢ p\n\np q : Prop,\na : p,\na_1 : q\n⊢ q","type":"mytac unit"},"response":"ok","seq_num":79}

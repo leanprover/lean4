@@ -322,6 +322,7 @@ struct vm_obj_cell_eq {
 struct ts_vm_obj::to_ts_vm_obj_fn {
     std::unordered_map<vm_obj_cell *, vm_obj, vm_obj_cell_hash, vm_obj_cell_eq> m_cache;
     std::vector<vm_obj_cell*> & m_objs;
+    vm_clone_fn                 m_fn;
 
     void * alloc_composite(unsigned sz) {
         return new char[sizeof(vm_composite) + sz * sizeof(vm_obj)];
@@ -350,7 +351,7 @@ struct ts_vm_obj::to_ts_vm_obj_fn {
     }
 
     vm_obj visit_external(vm_obj const & o) {
-        return mk_vm_external(to_external(o)->ts_clone());
+        return mk_vm_external(to_external(o)->ts_clone(m_fn));
     }
 
     vm_obj visit_native_closure(vm_obj const & o) {
@@ -382,7 +383,8 @@ struct ts_vm_obj::to_ts_vm_obj_fn {
         return r;
     }
 
-    to_ts_vm_obj_fn(std::vector<vm_obj_cell*> & objs):m_objs(objs) {}
+    to_ts_vm_obj_fn(std::vector<vm_obj_cell*> & objs):
+        m_objs(objs), m_fn([&](vm_obj const & o) { return visit(o); }) {}
 
     vm_obj operator()(vm_obj const & o) { return visit(o); }
 };
@@ -420,6 +422,7 @@ ts_vm_obj::data::~data() {
 
 struct ts_vm_obj::to_vm_obj_fn {
     std::unordered_map<vm_obj_cell *, vm_obj, vm_obj_cell_hash, vm_obj_cell_eq> m_cache;
+    vm_clone_fn m_fn;
 
     vm_obj visit_constructor(vm_obj const & o) {
         buffer<vm_obj> fields;
@@ -440,7 +443,7 @@ struct ts_vm_obj::to_vm_obj_fn {
     }
 
     vm_obj visit_external(vm_obj const & o) {
-        return mk_vm_external(to_external(o)->clone());
+        return mk_vm_external(to_external(o)->clone(m_fn));
     }
 
     vm_obj visit_native_closure(vm_obj const & o) {
@@ -470,6 +473,8 @@ struct ts_vm_obj::to_vm_obj_fn {
     }
 
     vm_obj operator()(vm_obj const & o) { return visit(o); }
+
+    to_vm_obj_fn():m_fn([&](vm_obj const & o) { return visit(o); }) {}
 };
 
 vm_obj ts_vm_obj::to_vm_obj() const {

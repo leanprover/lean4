@@ -1,0 +1,2 @@
+quot_abuse2.lean:3:0: error: failed to initialize quot module, environment does not have 'eq' type
+quot_abuse2.lean:9:0: error: failed to initialize quot module, unexpected type for 'eq' type constructor

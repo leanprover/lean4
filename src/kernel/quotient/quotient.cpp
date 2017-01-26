@@ -66,8 +66,6 @@ static void check_eq_type(environment const & env) {
     expr a = mk_local("a", alpha);
     expr expected_eq_refl_type = Pi(alpha, Pi(a, mk_app(mk_constant("eq", {u}), alpha, a, a)));
     if (mlocal_type(head(decl->m_intro_rules)) != expected_eq_refl_type) {
-        std::cout << mlocal_type(head(decl->m_intro_rules)) << "\n";
-        std::cout << expected_eq_refl_type << "\n";
         throw exception("failed to initialize quot module, unexpected type for 'eq' type constructor");
     }
 }

@@ -1,0 +1,4 @@
+trace message from a different task
+def foo : Π {α : Type u} {n : ℕ}, vector α (0 + n) → vector α n :=
+λ {α : Type u} {n : ℕ},
+  ite (n = 0) (λ (v : vector α (0 + n)), cast (foo._aux_1 v) v) (λ (v : vector α (0 + n)), cast (foo._aux_2 v) v)

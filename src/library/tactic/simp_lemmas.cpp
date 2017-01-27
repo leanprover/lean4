@@ -1317,8 +1317,8 @@ vm_obj simp_lemmas_erase(vm_obj const & lemmas, vm_obj const & lemma_list) {
     return to_obj(new_lemmas);
 }
 
-static optional<expr> prove(type_context & ctx, vm_obj const & prove_fn, expr const & e) {
-    tactic_state s         = mk_tactic_state_for(ctx.env(), ctx.get_options(), ctx.lctx(), e);
+static optional<expr> prove(type_context & ctx, vm_obj const & prove_fn, expr const & e, tactic_state s) {
+    s                      = mk_tactic_state_for(s.env(), s.get_options(), s.decl_name(), ctx.lctx(), e);
     vm_obj r_obj           = invoke(prove_fn, to_obj(s));
     optional<tactic_state> s_new = is_tactic_success(r_obj);
     if (!s_new || s_new->goals()) return none_expr();
@@ -1329,7 +1329,7 @@ static optional<expr> prove(type_context & ctx, vm_obj const & prove_fn, expr co
     return some_expr(result);
 }
 
-static bool instantiate_emetas(type_context & ctx, vm_obj const & prove_fn, unsigned num_emeta, list<expr> const & emetas, list<bool> const & instances) {
+static bool instantiate_emetas(type_context & ctx, vm_obj const & prove_fn, unsigned num_emeta, list<expr> const & emetas, list<bool> const & instances, tactic_state const & s) {
     environment const & env = ctx.env();
     bool failed = false;
     unsigned i  = num_emeta;
@@ -1364,7 +1364,7 @@ static bool instantiate_emetas(type_context & ctx, vm_obj const & prove_fn, unsi
 
             // Note: m_type has no metavars
             if (ctx.is_prop(m_type)) {
-                if (auto pf = prove(ctx, prove_fn, m_type)) {
+                if (auto pf = prove(ctx, prove_fn, m_type, s)) {
                     lean_verify(ctx.is_def_eq(m, *pf));
                     return;
                 }
@@ -1381,14 +1381,14 @@ static bool instantiate_emetas(type_context & ctx, vm_obj const & prove_fn, unsi
 }
 
 
-static simp_result simp_lemma_rewrite(type_context & ctx, simp_lemma const & sl, vm_obj const & prove_fn, expr const & e) {
+static simp_result simp_lemma_rewrite(type_context & ctx, simp_lemma const & sl, vm_obj const & prove_fn, expr const & e, tactic_state const & s) {
     type_context::tmp_mode_scope scope(ctx, sl.get_num_umeta(), sl.get_num_emeta());
     if (!ctx.is_def_eq(e, sl.get_lhs())) {
         lean_trace("simp_lemmas", tout() << "fail to unify: " << sl.get_id() << "\n";);
         return simp_result(e);
     }
 
-    if (!instantiate_emetas(ctx, prove_fn, sl.get_num_emeta(), sl.get_emetas(), sl.get_instances())) {
+    if (!instantiate_emetas(ctx, prove_fn, sl.get_num_emeta(), sl.get_emetas(), sl.get_instances(), s)) {
         lean_trace("simp_lemmas", tout() << "fail to instantiate emetas: " << sl.get_id() << "\n";);
         return simp_result(e);
     }
@@ -1426,7 +1426,7 @@ vm_obj simp_lemmas_rewrite_core(transparency_mode const & m, simp_lemmas const &
     type_context ctx = mk_type_context_for(s, m);
 
     for (simp_lemma const & lemma : *srs) {
-        simp_result r = simp_lemma_rewrite(ctx, lemma, prove_fn, e);
+        simp_result r = simp_lemma_rewrite(ctx, lemma, prove_fn, e, s);
         if (!is_eqp(r.get_new(), e)) {
             lean_trace("simp_lemmas", scope_trace_env scope(ctx.env(), ctx);
                        tout() << "[" << lemma.get_id() << "]: " << e << " ==> " << r.get_new() << "\n";);

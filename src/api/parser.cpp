@@ -56,7 +56,7 @@ lean_bool lean_parse_expr(lean_env env, lean_ios ios, char const * str, lean_exp
     parser p(_env, _ios, mk_dummy_loader(), in, strname, use_exceptions);
     expr e = p.parse_expr();
     expr _e; level_param_names _ps;
-    std::tie(_e, _ps) = p.elaborate(list<expr>(), e);
+    std::tie(_e, _ps) = p.elaborate(strname, list<expr>(), e);
     *new_expr = of_expr(new expr(_e));
     *new_ps   = of_list_name(new list<name>(_ps));
     LEAN_CATCH;

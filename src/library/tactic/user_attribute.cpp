@@ -184,7 +184,7 @@ vm_obj caching_user_attribute_get_cache(vm_obj const &, vm_obj const & vm_attr, 
     lean_trace("user_attributes_cache", tout() << "recomputing cache for [" << attr.get_name() << "]\n";);
     buffer<name> instances;
     attr.get_instances(env, instances);
-    tactic_state s0 = mk_tactic_state_for(env, options(), local_context(), mk_true());
+    tactic_state s0 = mk_tactic_state_for(env, options(), {}, local_context(), mk_true());
     vm_obj result = invoke(cache_handler, to_obj(to_list(instances)), to_obj(s0));
     if (is_tactic_success(result)) {
         user_attr_cache::entry entry;

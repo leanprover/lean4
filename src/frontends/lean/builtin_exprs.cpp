@@ -830,7 +830,7 @@ static expr parse_proj(parser & p, unsigned, expr const * args, pos_info const &
         try {
             metavar_context mctx;
             bool check_unassigned = false;
-            lhs = p.elaborate(mctx, lhs, check_unassigned).first;
+            lhs = p.elaborate({}, mctx, lhs, check_unassigned).first;
             type_checker tc(p.env(), true, false);
             lhs_type = tc.infer(lhs);
         } catch (exception &) {

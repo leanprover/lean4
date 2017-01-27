@@ -405,6 +405,9 @@ try $ do
   prio ← has_attribute attr_name src,
   set_basic_attribute_core attr_name tgt p (some prio)
 
+/-- Name of the declaration currently being elaborated. -/
+meta constant decl_name : tactic name
+
 /- (save_type_info e ref) save (typeof e) at position associated with ref -/
 meta constant save_type_info : expr → expr → tactic unit
 meta constant save_info_thunk : nat → nat → (unit → format) → tactic unit

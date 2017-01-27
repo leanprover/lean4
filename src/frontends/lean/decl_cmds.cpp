@@ -266,7 +266,7 @@ static environment variable_cmd_core(parser & p, variable_kind k, decl_modifiers
     }
     level_param_names new_ls;
     list<expr> ctx = p.locals_to_context();
-    std::tie(type, new_ls) = p.elaborate_type(ctx, type);
+    std::tie(type, new_ls) = p.elaborate_type("_variable", ctx, type);
     if (k == variable_kind::Variable || k == variable_kind::Parameter)
         update_local_levels(p, new_ls, k == variable_kind::Variable);
     return declare_var(p, p.env(), n, append(ls, new_ls), type, k, bi, pos, modifiers);
@@ -369,7 +369,7 @@ static environment variables_cmd_core(parser & p, variable_kind k, decl_modifier
         level_param_names new_ls;
         expr new_type;
         check_command_period_open_binder_or_eof(p);
-        std::tie(new_type, new_ls) = p.elaborate_type(ctx, type);
+        std::tie(new_type, new_ls) = p.elaborate_type("_variables", ctx, type);
         if (k == variable_kind::Variable || k == variable_kind::Parameter)
             update_local_levels(p, new_ls, k == variable_kind::Variable);
         new_ls = append(ls, new_ls);

@@ -163,7 +163,7 @@ environment end_scoped_cmd(parser & p) {
 
 environment check_cmd(parser & p) {
     expr e; level_param_names ls;
-    std::tie(e, ls) = parse_local_expr(p);
+    std::tie(e, ls) = parse_local_expr(p, "_check");
     type_checker tc(p.env(), true, false);
     expr type = tc.check(e, ls);
     auto out              = p.mk_message(p.cmd_pos(), INFORMATION);
@@ -184,7 +184,7 @@ environment eval_cmd(parser & p) {
         whnf = true;
     }
     expr e; level_param_names ls;
-    std::tie(e, ls) = parse_local_expr(p);
+    std::tie(e, ls) = parse_local_expr(p, "_eval");
     expr r;
     if (whnf) {
         type_checker tc(p.env(), true, false);
@@ -380,10 +380,10 @@ static expr convert_metavars(metavar_context & ctx, expr const & e) {
 static environment unify_cmd(parser & p) {
     environment const & env = p.env();
     expr e1; level_param_names ls1;
-    std::tie(e1, ls1) = parse_local_expr(p);
+    std::tie(e1, ls1) = parse_local_expr(p, "_unify");
     p.check_token_next(get_comma_tk(), "invalid #unify command, proper usage \"#unify e1, e2\"");
     expr e2; level_param_names ls2;
-    std::tie(e2, ls2) = parse_local_expr(p);
+    std::tie(e2, ls2) = parse_local_expr(p, "_unify");
     metavar_context mctx;
     local_context   lctx;
     e1 = convert_metavars(mctx, e1);
@@ -436,7 +436,7 @@ static void vm_eval_core(vm_state & s, name const & main, optional<vm_obj> const
 static environment vm_eval_cmd(parser & p) {
     auto pos = p.pos();
     expr e; level_param_names ls;
-    std::tie(e, ls) = parse_local_expr(p);
+    std::tie(e, ls) = parse_local_expr(p, "_eval");
     if (has_metavar(e))
         throw parser_error("invalid vm_eval command, expression contains metavariables", pos);
     type_context tc(p.env(), transparency_mode::All);
@@ -533,7 +533,7 @@ static environment run_command_cmd(parser & p) {
     tactic               = mk_app(mk_constant(get_pre_monad_and_then_name()), tactic, try_triv);
     expr val             = mk_typed_expr(mk_true(), mk_by(tactic));
     bool check_unassigned = false;
-    elaborate(env, opts, mctx, local_context(), val, check_unassigned);
+    elaborate(env, opts, "_run_command", mctx, local_context(), val, check_unassigned);
     return env;
 }
 

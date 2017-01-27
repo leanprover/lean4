@@ -1024,7 +1024,7 @@ class vm_simplify_fn : public simplify_ext_core_fn {
     }
 
     virtual optional<expr> prove(expr const & e) override {
-        tactic_state s         = mk_tactic_state_for(m_ctx.env(), m_ctx.get_options(), m_ctx.lctx(), e);
+        auto s = mk_tactic_state_for(m_ctx.env(), m_ctx.get_options(), m_s.decl_name(), m_ctx.lctx(), e);
         vm_obj r_obj           = invoke(m_prove, m_a, to_obj(s));
         optional<tactic_state> s_new = is_tactic_success(r_obj);
         if (!s_new || s_new->goals()) return none_expr();
@@ -1040,11 +1040,12 @@ public:
     vm_simplify_fn(type_context & ctx, defeq_can_state & dcs, simp_lemmas const & slss,
                    unsigned max_steps, bool contextual, bool lift_eq,
                    bool canonize_instances, bool canonize_proofs, bool use_axioms,
-                   vm_obj const & prove, vm_obj const & pre, vm_obj const & post):
+                   vm_obj const & prove, vm_obj const & pre, vm_obj const & post,
+                   tactic_state const & s):
         simplify_ext_core_fn(ctx, dcs, slss, max_steps, contextual, lift_eq,
                              canonize_instances, canonize_proofs, use_axioms),
         m_prove(prove), m_pre(pre), m_post(post),
-        m_s(mk_tactic_state_for(ctx.env(), ctx.get_options(), ctx.mctx(), ctx.lctx(), mk_true())) {}
+        m_s(s) {}
 
     pair<vm_obj, simp_result> operator()(vm_obj const & a, name const & rel, expr const & e) {
         m_a = a;
@@ -1110,7 +1111,7 @@ static vm_obj ext_simplify_core(vm_obj const & a, vm_obj const & c, simp_lemmas 
         type_context ctx     = mk_type_context_for(s, transparency_mode::Reducible);
         defeq_can_state dcs  = s.dcs();
         vm_simplify_fn simp(ctx, dcs, slss, max_steps, contextual, lift_eq, canonize_instances, canonize_proofs,
-                            use_axioms, prove, pre, post);
+                            use_axioms, prove, pre, post, s);
         pair<vm_obj, simp_result> p = simp(a, r, e);
         if (p.second.get_new() != e) {
             vm_obj const & a   = p.first;

@@ -478,7 +478,7 @@ private:
 
         metavar_context mctx;
         expr goal_mvar = mctx.mk_metavar_decl(lctx(), mk_constant(get_false_name()));
-        vm_obj s = to_obj(mk_tactic_state_for_metavar(env(), ios().get_options(), mctx, goal_mvar));
+        vm_obj s = to_obj(mk_tactic_state_for_metavar(env(), ios().get_options(), "check-sat", mctx, goal_mvar));
 
         vm_state state(env(), ios().get_options());
         scope_vm_state scope(state);

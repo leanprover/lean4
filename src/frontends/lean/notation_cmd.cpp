@@ -47,7 +47,7 @@ static unsigned parse_precedence_core(parser & p) {
         parser::local_scope scope(p, env);
         expr pre_val = p.parse_expr(get_max_prec());
         pre_val  = mk_typed_expr(mk_constant(get_num_name()), pre_val);
-        expr val = p.elaborate(list<expr>(), pre_val).first;
+        expr val = p.elaborate("notation", list<expr>(), pre_val).first;
         val = normalize(p.env(), val);
         if (optional<mpz> mpz_val = to_num_core(val)) {
             if (!mpz_val->is_unsigned_int())

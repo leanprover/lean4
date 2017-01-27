@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "library/local_context.h"
 #include "library/type_context.h"
 #include "library/tactic/tactic_state.h"
+#include "library/tactic/elaborate.h"
 #include "frontends/lean/elaborator_exception.h"
 #include "frontends/lean/info_manager.h"
 
@@ -34,6 +35,7 @@ private:
     };
     environment       m_env;
     options           m_opts;
+    name              m_decl_name;
     type_context      m_ctx;
     info_manager      m_info;
 
@@ -248,7 +250,7 @@ private:
     void finalize_core(sanitize_param_names_fn & S, buffer<expr> & es,
                        bool check_unassigned, bool to_simple_metavar, bool collect_local_ctx);
 public:
-    elaborator(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx);
+    elaborator(environment const & env, options const & opts, name const & decl_name, metavar_context const & mctx, local_context const & lctx);
     ~elaborator();
     metavar_context const & mctx() const { return m_ctx.mctx(); }
     local_context const & lctx() const { return m_ctx.lctx(); }
@@ -303,12 +305,14 @@ public:
     }
 };
 
-pair<expr, level_param_names> elaborate(environment & env, options const & opts,
+pair<expr, level_param_names> elaborate(environment & env, options const & opts, name const & decl_name,
                                         metavar_context & mctx, local_context const & lctx,
                                         expr const & e, bool check_unassigend);
 
-expr nested_elaborate(environment & env, options const & opts, metavar_context & mctx, local_context const & lctx,
-                      expr const & e, bool relaxed);
+/** \brief Translated local constants (and undefined constants) occurring in \c e into
+    local constants provided by \c ctx.
+    Throw exception is \c ctx does not contain the local constant. */
+expr resolve_names(environment const & env, local_context const & lctx, expr const & e);
 
 void initialize_elaborator();
 void finalize_elaborator();

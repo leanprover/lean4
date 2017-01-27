@@ -48,9 +48,9 @@ void tactic_state_cell::dealloc() {
     delete this;
 }
 
-tactic_state::tactic_state(environment const & env, options const & o, metavar_context const & ctx,
+tactic_state::tactic_state(environment const & env, options const & o, name const & decl_name, metavar_context const & ctx,
                            list<expr> const & gs, expr const & main, defeq_canonizer::state const & dcs) {
-    m_ptr = new tactic_state_cell(env, o, ctx, gs, main, dcs);
+    m_ptr = new tactic_state_cell(env, o, decl_name, ctx, gs, main, dcs);
     m_ptr->inc_ref();
 }
 
@@ -64,40 +64,42 @@ optional<metavar_decl> tactic_state::get_main_goal_decl() const {
     return mctx().get_metavar_decl(head(goals()));
 }
 
-tactic_state mk_tactic_state_for(environment const & env, options const & o, metavar_context mctx, local_context const & lctx, expr const & type) {
+tactic_state mk_tactic_state_for(environment const & env, options const & o, name const & decl_name,
+                                 metavar_context mctx, local_context const & lctx, expr const & type) {
     expr main = mctx.mk_metavar_decl(lctx, type);
-    return tactic_state(env, o, mctx, list<expr>(main), main, defeq_canonizer::state());
+    return tactic_state(env, o, decl_name, mctx, list<expr>(main), main, defeq_canonizer::state());
 }
 
-tactic_state mk_tactic_state_for(environment const & env, options const & o, local_context const & lctx, expr const & type) {
-    metavar_context mctx;
-    return mk_tactic_state_for(env, o, mctx, lctx, type);
+tactic_state mk_tactic_state_for(environment const & env, options const & o, name const & decl_name,
+                                 local_context const & lctx, expr const & type) {
+    return mk_tactic_state_for(env, o, decl_name, {}, lctx, type);
 }
 
-tactic_state mk_tactic_state_for_metavar(environment const & env, options const & opts, metavar_context const & mctx, expr const & mvar) {
-    return tactic_state(env, opts, mctx, list<expr>(mvar), mvar, defeq_canonizer::state());
+tactic_state mk_tactic_state_for_metavar(environment const & env, options const & opts, name const & decl_name,
+                                         metavar_context const & mctx, expr const & mvar) {
+    return tactic_state(env, opts, decl_name, mctx, list<expr>(mvar), mvar, defeq_canonizer::state());
 }
 
 tactic_state set_options(tactic_state const & s, options const & o) {
-    return tactic_state(s.env(), o, s.mctx(), s.goals(), s.main(), s.dcs());
+    return tactic_state(s.env(), o, s.decl_name(), s.mctx(), s.goals(), s.main(), s.dcs());
 }
 
 tactic_state set_env(tactic_state const & s, environment const & env) {
-    return tactic_state(env, s.get_options(), s.mctx(), s.goals(), s.main(), s.dcs());
+    return tactic_state(env, s.get_options(), s.decl_name(), s.mctx(), s.goals(), s.main(), s.dcs());
 }
 
 tactic_state set_mctx(tactic_state const & s, metavar_context const & mctx) {
     if (is_eqp(s.mctx(), mctx)) return s;
-    return tactic_state(s.env(), s.get_options(), mctx, s.goals(), s.main(), s.dcs());
+    return tactic_state(s.env(), s.get_options(), s.decl_name(), mctx, s.goals(), s.main(), s.dcs());
 }
 
 tactic_state set_mctx_dcs(tactic_state const & s, metavar_context const & mctx, defeq_can_state const & dcs) {
     if (is_eqp(s.mctx(), mctx) && is_eqp(s.dcs(), dcs)) return s;
-    return tactic_state(s.env(), s.get_options(), mctx, s.goals(), s.main(), dcs);
+    return tactic_state(s.env(), s.get_options(), s.decl_name(), mctx, s.goals(), s.main(), dcs);
 }
 
 tactic_state set_env_mctx(tactic_state const & s, environment const & env, metavar_context const & mctx) {
-    return tactic_state(env, s.get_options(), mctx, s.goals(), s.main(), s.dcs());
+    return tactic_state(env, s.get_options(), s.decl_name(), mctx, s.goals(), s.main(), s.dcs());
 }
 
 static list<expr> consume_solved_prefix(metavar_context const & mctx, list<expr> const & gs) {
@@ -110,11 +112,11 @@ static list<expr> consume_solved_prefix(metavar_context const & mctx, list<expr>
 }
 
 tactic_state set_goals(tactic_state const & s, list<expr> const & gs) {
-    return tactic_state(s.env(), s.get_options(), s.mctx(), consume_solved_prefix(s.mctx(), gs), s.main(), s.dcs());
+    return tactic_state(s.env(), s.get_options(), s.decl_name(), s.mctx(), consume_solved_prefix(s.mctx(), gs), s.main(), s.dcs());
 }
 
 tactic_state set_mctx_goals_dcs(tactic_state const & s, metavar_context const & mctx, list<expr> const & gs, defeq_can_state const & dcs) {
-    return tactic_state(s.env(), s.get_options(), mctx, consume_solved_prefix(mctx, gs), s.main(), dcs);
+    return tactic_state(s.env(), s.get_options(), s.decl_name(), mctx, consume_solved_prefix(mctx, gs), s.main(), dcs);
 }
 
 tactic_state set_mctx_goals(tactic_state const & s, metavar_context const & mctx, list<expr> const & gs) {
@@ -123,7 +125,7 @@ tactic_state set_mctx_goals(tactic_state const & s, metavar_context const & mctx
 
 tactic_state set_env_mctx_goals(tactic_state const & s, environment const & env,
                                 metavar_context const & mctx, list<expr> const & gs) {
-    return tactic_state(env, s.get_options(), mctx, consume_solved_prefix(mctx, gs), s.main(), s.dcs());
+    return tactic_state(env, s.get_options(), s.decl_name(), mctx, consume_solved_prefix(mctx, gs), s.main(), s.dcs());
 }
 
 tactic_state set_mctx_lctx_dcs(tactic_state const & s, metavar_context const & mctx, local_context const & lctx, defeq_can_state const & dcs) {
@@ -134,7 +136,7 @@ tactic_state set_mctx_lctx_dcs(tactic_state const & s, metavar_context const & m
     }
     metavar_context new_mctx = mctx;
     expr mvar = new_mctx.mk_metavar_decl(lctx, mk_true());
-    return tactic_state(s.env(), s.get_options(), new_mctx, to_list(mvar), mvar, s.dcs());
+    return tactic_state(s.env(), s.get_options(), s.decl_name(), new_mctx, to_list(mvar), mvar, s.dcs());
 }
 
 tactic_state set_mctx_lctx(tactic_state const & s, metavar_context const & mctx, local_context const & lctx) {
@@ -143,7 +145,7 @@ tactic_state set_mctx_lctx(tactic_state const & s, metavar_context const & mctx,
 
 tactic_state set_defeq_can_state(tactic_state const & s, defeq_can_state const & dcs) {
     if (is_eqp(s.dcs(), dcs)) return s;
-    return tactic_state(s.env(), s.get_options(), s.mctx(), s.goals(), s.main(), dcs);
+    return tactic_state(s.env(), s.get_options(), s.decl_name(), s.mctx(), s.goals(), s.main(), dcs);
 }
 
 format tactic_state::pp_expr(formatter_factory const & fmtf, expr const & e) const {
@@ -742,6 +744,11 @@ vm_obj tactic_module_doc_strings(vm_obj const & _s) {
     return mk_tactic_success(r, s);
 }
 
+vm_obj tactic_decl_name(vm_obj const & _s) {
+    auto & s = to_tactic_state(_s);
+    return mk_tactic_success(to_obj(s.decl_name()), s);
+}
+
 format tactic_state::pp() const {
     type_context ctx = mk_type_context_for(*this, transparency_mode::Semireducible);
     expr ts_expr     = mk_constant("tactic_state");
@@ -806,6 +813,7 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic", "add_doc_string"}),       tactic_add_doc_string);
     DECLARE_VM_BUILTIN(name({"tactic", "module_doc_strings"}),   tactic_module_doc_strings);
     DECLARE_VM_BUILTIN(name({"tactic", "open_namespaces"}),      tactic_open_namespaces);
+    DECLARE_VM_BUILTIN(name({"tactic", "decl_name"}),            tactic_decl_name);
     g_pp_instantiate_goal_mvars = new name{"pp", "instantiate_goal_mvars"};
     register_bool_option(*g_pp_instantiate_goal_mvars, LEAN_DEFAULT_PP_INSTANTIATE_GOAL_MVARS,
                          "(pretty printer) instantiate assigned metavariables before pretty printing goals");

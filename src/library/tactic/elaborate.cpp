@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <frontends/lean/elaborator.h>
 #include "kernel/for_each_fn.h"
 #include "library/annotation.h"
 #include "library/vm/vm_expr.h"
@@ -17,28 +18,21 @@ expr mk_by(expr const & e) { return mk_annotation(*g_by_name, e); }
 bool is_by(expr const & e) { return is_annotation(e, *g_by_name); }
 expr const & get_by_arg(expr const & e) { lean_assert(is_by(e)); return get_annotation_arg(e); }
 
-LEAN_THREAD_PTR(elaborate_fn const, g_elaborate);
-
-scope_elaborate_fn::scope_elaborate_fn(elaborate_fn const & fn) {
-    m_old = g_elaborate;
-    g_elaborate = &fn;
-}
-
-scope_elaborate_fn::~scope_elaborate_fn() {
-    g_elaborate = m_old;
-}
-
 vm_obj tactic_to_expr_core(vm_obj const & relaxed, vm_obj const & qe, vm_obj const & _s) {
     tactic_state const & s = to_tactic_state(_s);
     optional<metavar_decl> g = s.get_main_goal_decl();
     if (!g) return mk_no_goals_exception(s);
-    if (!g_elaborate) {
-        return mk_tactic_exception("elaborator is not available", s);
-    }
     metavar_context mctx = s.mctx();
     try {
         environment env = s.env();
-        expr r = (*g_elaborate)(env, s.get_options(), mctx, g->get_context(), to_expr(qe), to_bool(relaxed));
+        auto e = to_expr(qe);
+        elaborator elab(env, s.get_options(), s.decl_name(), mctx, g->get_context());
+        expr r = elab.elaborate(resolve_names(env, g->get_context(), e));
+        if (!to_bool(relaxed))
+            elab.ensure_no_unassigned_metavars(r);
+        mctx = elab.mctx();
+        env  = elab.env();
+
         r = mctx.instantiate_mvars(r);
         if (to_bool(relaxed) && has_expr_metavar(r)) {
             buffer<expr> new_goals;

@@ -157,7 +157,7 @@ environment mutual_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
     buffer<expr> fns, params;
     declaration_info_scope scope(p, kind, modifiers);
     expr val = parse_mutual_definition(p, lp_names, fns, params);
-    elaborator elab(p.env(), p.get_options(), metavar_context(), local_context());
+    elaborator elab(p.env(), p.get_options(), local_pp_name(fns[0]), metavar_context(), local_context());
     buffer<expr> new_params;
     elaborate_params(elab, params, new_params);
     val = replace_locals_preserving_pos_info(val, params, new_params);
@@ -650,7 +650,7 @@ public:
         auto_reporting_info_manager_scope scope4(get_module_id(), m_use_info_manager);
 
         try {
-            elaborator elab(m_decl_env, m_opts, m_mctx, m_lctx);
+            elaborator elab(m_decl_env, m_opts, local_pp_name(m_fn), m_mctx, m_lctx);
             expr val, type;
             std::tie(val, type) = elaborate_proof(elab);
             if (is_equations_result(val))
@@ -721,7 +721,7 @@ public:
         auto_reporting_info_manager_scope scope4(get_module_id(), m_use_info_manager);
 
         try {
-            elaborator elab(m_decl_env, m_opts, m_mctx, m_lctx);
+            elaborator elab(m_decl_env, m_opts, "example", m_mctx, m_lctx);
 
             expr val, type;
             std::tie(val, type) = elab.elaborate_with_type(m_val, mlocal_type(m_fn));
@@ -778,7 +778,7 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
     if (p.get_break_at_pos())
         return p.env();
 
-    elaborator elab(p.env(), p.get_options(), metavar_context(), local_context());
+    elaborator elab(p.env(), p.get_options(), local_pp_name(fn), metavar_context(), local_context());
     buffer<expr> new_params;
     elaborate_params(elab, params, new_params);
     elab.set_instance_fingerprint();

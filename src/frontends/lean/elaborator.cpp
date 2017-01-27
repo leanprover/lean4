@@ -109,9 +109,9 @@ elaborator_strategy get_elaborator_strategy(environment const & env, name const 
 #define trace_elab_detail(CODE) lean_trace("elaborator_detail", scope_trace_env _scope(m_env, m_ctx); CODE)
 #define trace_elab_debug(CODE) lean_trace("elaborator_debug", scope_trace_env _scope(m_env, m_ctx); CODE)
 
-elaborator::elaborator(environment const & env, options const & opts, metavar_context const & mctx,
-                       local_context const & lctx):
-    m_env(env), m_opts(opts),
+elaborator::elaborator(environment const & env, options const & opts, name const & decl_name,
+                       metavar_context const & mctx, local_context const & lctx):
+    m_env(env), m_opts(opts), m_decl_name(decl_name),
     m_ctx(env, opts, mctx, lctx, get_tcm(), transparency_mode::Semireducible),
     m_uses_infom(get_global_info_manager() != nullptr) {
 }
@@ -186,7 +186,7 @@ expr elaborator::mk_instance_core(local_context const & lctx, expr const & C, ex
         metavar_context mctx   = m_ctx.mctx();
         local_context new_lctx = lctx.instantiate_mvars(mctx);
         new_lctx = erase_inaccessible_annotations(new_lctx);
-        tactic_state s = ::lean::mk_tactic_state_for(m_env, m_opts, mctx, new_lctx, C);
+        tactic_state s = ::lean::mk_tactic_state_for(m_env, m_opts, m_decl_name, mctx, new_lctx, C);
         throw elaborator_exception(ref, format("failed to synthesize type class instance for") + line() + s.pp());
     }
     return *inst;
@@ -2544,7 +2544,7 @@ tactic_state elaborator::mk_tactic_state_for(expr const & mvar) {
     expr type            = mctx.instantiate_mvars(mdecl.get_type());
     type                 = erase_inaccessible_annotations(type);
     m_ctx.set_mctx(mctx);
-    return ::lean::mk_tactic_state_for(m_env, m_opts, mctx, lctx, type);
+    return ::lean::mk_tactic_state_for(m_env, m_opts, m_decl_name, mctx, lctx, type);
 }
 
 void elaborator::invoke_tactic(expr const & mvar, expr const & tactic) {
@@ -2567,8 +2567,6 @@ void elaborator::synthesize_using_tactics() {
     buffer<expr_pair> to_process;
     to_buffer(m_tactics, to_process);
     m_tactics = list<expr_pair>();
-    elaborate_fn fn(nested_elaborate);
-    scope_elaborate_fn scope(fn);
     for (expr_pair const & p : to_process) {
         lean_assert(is_metavar(p.first));
         invoke_tactic(p.first, p.second);
@@ -2916,10 +2914,10 @@ expr elaborator::finalize_theorem_proof(expr const & val, theorem_finalization_i
 }
 
 pair<expr, level_param_names>
-elaborate(environment & env, options const & opts,
+elaborate(environment & env, options const & opts, name const & decl_name,
           metavar_context & mctx, local_context const & lctx, expr const & e,
           bool check_unassigned) {
-    elaborator elab(env, opts, mctx, lctx);
+    elaborator elab(env, opts, decl_name, mctx, lctx);
     expr r = elab.elaborate(e);
     auto p = elab.finalize(r, check_unassigned, true);
     mctx = elab.mctx();
@@ -3004,10 +3002,7 @@ vm_obj tactic_resolve_local_name(vm_obj const & vm_id, vm_obj const & vm_s) {
     }
 }
 
-/** \brief Translated local constants (and undefined constants) occurring in \c e into
-    local constants provided by \c ctx.
-    Throw exception is \c ctx does not contain the local constant. */
-static expr resolve_names(environment const & env, local_context const & lctx, expr const & e) {
+expr resolve_names(environment const & env, local_context const & lctx, expr const & e) {
     auto fn = [&](expr const & e) {
         if (is_placeholder(e) || is_by(e) || is_as_is(e)) {
             return some_expr(e); // ignore placeholders, nested tactics and as_is terms
@@ -3027,17 +3022,6 @@ static expr resolve_names(environment const & env, local_context const & lctx, e
         }
     };
     return replace(e, fn);
-}
-
-expr nested_elaborate(environment & env, options const & opts, metavar_context & mctx, local_context const & lctx,
-                      expr const & e, bool relaxed) {
-    elaborator elab(env, opts, mctx, lctx);
-    expr r = elab.elaborate(resolve_names(env, lctx, e));
-    if (!relaxed)
-        elab.ensure_no_unassigned_metavars(r);
-    mctx = elab.mctx();
-    env  = elab.env();
-    return r;
 }
 
 static vm_obj tactic_save_type_info(vm_obj const & _e, vm_obj const & ref, vm_obj const & _s) {

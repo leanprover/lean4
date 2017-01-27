@@ -161,7 +161,7 @@ vm_obj vm_obj_to_tactic_state(vm_obj const & o) {
     if (is_tactic_state(o))
         return o;
     else
-        return to_obj(mk_tactic_state_for(environment(), options(), local_context(), mk_Prop()));
+        return to_obj(mk_tactic_state_for(environment(), options(), {}, local_context(), mk_Prop()));
 }
 
 vm_obj vm_obj_to_format(vm_obj const & o) {

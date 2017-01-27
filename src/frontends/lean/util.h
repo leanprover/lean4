@@ -84,7 +84,7 @@ expr Pi_as_is(expr const & local, expr const & e);
 level mk_result_level(buffer<level> const & r_lvls);
 
 /** \brief Auxiliary function for check/eval/find_decl */
-std::tuple<expr, level_param_names> parse_local_expr(parser & p, bool relaxed = true);
+std::tuple<expr, level_param_names> parse_local_expr(parser & p, name const & decl_name, bool relaxed = true);
 
 optional<name> is_uniquely_aliased(environment const & env, name const & n);
 

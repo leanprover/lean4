@@ -295,12 +295,12 @@ class tactic_dsimplify_fn : public dsimplify_core_fn {
 
 public:
     tactic_dsimplify_fn(type_context & ctx, defeq_canonizer::state & dcs, unsigned max_steps, bool visit_instances,
-                        vm_obj const & a, vm_obj const & pre, vm_obj const & post):
+                        vm_obj const & a, vm_obj const & pre, vm_obj const & post, tactic_state const & s):
         dsimplify_core_fn(ctx, dcs, max_steps, visit_instances),
         m_a(a),
         m_pre(pre),
         m_post(post),
-        m_s(mk_tactic_state_for(ctx.env(), ctx.get_options(), ctx.mctx(), ctx.lctx(), mk_true())) {
+        m_s(s) {
     }
 
     vm_obj const & get_a() const { return m_a; }
@@ -314,7 +314,7 @@ vm_obj tactic_dsimplify_core(vm_obj const &, vm_obj const & a,
         type_context ctx = mk_type_context_for(s, transparency_mode::Reducible);
         defeq_can_state dcs = s.dcs();
         tactic_dsimplify_fn F(ctx, dcs, force_to_unsigned(max_steps, std::numeric_limits<unsigned>::max()),
-                              to_bool(visit_instances), a, pre, post);
+                              to_bool(visit_instances), a, pre, post, s);
         expr new_e = F(to_expr(e));
         tactic_state new_s = set_mctx_dcs(s, F.mctx(), dcs);
         return mk_tactic_success(mk_vm_pair(F.get_a(), to_obj(new_e)), new_s);

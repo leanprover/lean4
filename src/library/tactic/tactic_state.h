@@ -20,6 +20,7 @@ class tactic_state_cell {
     MK_LEAN_RC();
     environment     m_env;
     options         m_options;
+    name            m_decl_name;
     metavar_context m_mctx;
     list<expr>      m_goals;
     expr            m_main;
@@ -27,9 +28,11 @@ class tactic_state_cell {
     friend class tactic_state;
     void dealloc();
 public:
-    tactic_state_cell(environment const & env, options const & o, metavar_context const & ctx, list<expr> const & gs,
+    tactic_state_cell(environment const & env, options const & o, name const & decl_name,
+                      metavar_context const & ctx, list<expr> const & gs,
                       expr const & main, defeq_can_state const & s):
-        m_rc(0), m_env(env), m_options(o), m_mctx(ctx), m_goals(gs), m_main(main), m_defeq_can_state(s) {}
+        m_rc(0), m_env(env), m_options(o), m_decl_name(decl_name),
+        m_mctx(ctx), m_goals(gs), m_main(main), m_defeq_can_state(s) {}
 };
 
 class tactic_state {
@@ -41,7 +44,8 @@ private:
     explicit tactic_state(tactic_state_cell * ptr):m_ptr(ptr) { if (m_ptr) m_ptr->inc_ref(); }
     format pp_goal(formatter_factory const & fmtf, expr const & g) const;
 public:
-    tactic_state(environment const & env, options const & o, metavar_context const & ctx, list<expr> const & gs,
+    tactic_state(environment const & env, options const & o, name const & decl_name,
+                 metavar_context const & ctx, list<expr> const & gs,
                  expr const & main, defeq_can_state const & s);
     tactic_state(tactic_state const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
     tactic_state(tactic_state && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
@@ -55,6 +59,7 @@ public:
     metavar_context const & mctx() const { lean_assert(m_ptr); return m_ptr->m_mctx; }
     list<expr> const & goals() const { lean_assert(m_ptr); return m_ptr->m_goals; }
     expr const & main() const { lean_assert(m_ptr); return m_ptr->m_main; }
+    name const & decl_name() const { lean_assert(m_ptr); return m_ptr->m_decl_name; }
     defeq_can_state const & get_defeq_canonizer_state() const { return m_ptr->m_defeq_can_state; }
     defeq_can_state const & dcs() const { return get_defeq_canonizer_state(); }
 
@@ -80,11 +85,12 @@ inline optional<tactic_state> none_tactic_state() { return optional<tactic_state
 inline optional<tactic_state> some_tactic_state(tactic_state const & e) { return optional<tactic_state>(e); }
 inline optional<tactic_state> some_tactic_state(tactic_state && e) { return optional<tactic_state>(std::forward<tactic_state>(e)); }
 
-tactic_state mk_tactic_state_for(environment const & env, options const & opts, metavar_context mctx,
+tactic_state mk_tactic_state_for(environment const & env, options const & opts, name const & decl_name, metavar_context mctx,
                                  local_context const & lctx, expr const & type);
-tactic_state mk_tactic_state_for(environment const & env, options const & opts,
+tactic_state mk_tactic_state_for(environment const & env, options const & opts, name const & decl_name,
                                  local_context const & lctx, expr const & type);
-tactic_state mk_tactic_state_for_metavar(environment const & env, options const & opts, metavar_context const & mctx, expr const & mvar);
+tactic_state mk_tactic_state_for_metavar(environment const & env, options const & opts, name const & decl_name,
+                                         metavar_context const & mctx, expr const & mvar);
 
 tactic_state set_options(tactic_state const & s, options const & o);
 tactic_state set_env(tactic_state const & s, environment const & env);

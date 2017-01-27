@@ -36,17 +36,17 @@ e^.replace (λ e d,
    creates the declaration
         lemma g_lemma : forall a, g a > 0 := ... -/
 meta def copy_decl_updating_type (replacements : name_map name) (src_decl_name : name) (new_decl_name : name) : command :=
-do env       ← get_env,
-   decl      ← returnex $ env^.get src_decl_name,
-   new_type  ← return $ apply_replacement replacements decl^.type,
-   new_value ← return $ expr.const src_decl_name (decl^.univ_params^.for level.param),
-   add_decl (((decl^.to_definition^.update_type new_type)^.update_name new_decl_name)^.update_value new_value),
-   return ()
+do env  ← get_env,
+   decl ← returnex $ env^.get src_decl_name,
+   decl ← return $ decl^.update_name $ new_decl_name,
+   decl ← return $ decl^.update_type $ apply_replacement replacements decl^.type,
+   decl ← return $ decl^.update_value $ expr.const src_decl_name (decl^.univ_params^.for level.param),
+   add_decl decl
 
 meta def copy_decl_using (replacements : name_map name) (src_decl_name : name) (new_decl_name : name) : command :=
-do env       ← get_env,
-   decl      ← returnex $ env^.get src_decl_name,
-   new_type  ← return $ apply_replacement replacements decl^.type,
-   new_value ← return $ task.map (apply_replacement replacements) decl^.value_task,
-   add_decl (((decl^.to_definition^.update_type new_type)^.update_name new_decl_name)^.update_value_task new_value),
-   return ()
+do env  ← get_env,
+   decl ← returnex $ env^.get src_decl_name,
+   decl ← return $ decl^.update_name $ new_decl_name,
+   decl ← return $ decl^.update_type $ apply_replacement replacements decl^.type,
+   decl ← return $ decl^.map_value $ apply_replacement replacements,
+   add_decl decl

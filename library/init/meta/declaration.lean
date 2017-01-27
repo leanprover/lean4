@@ -107,6 +107,11 @@ meta def declaration.update_value_task : declaration → task expr → declarati
 | (declaration.thm n ls t v)       new_v := declaration.thm n ls t new_v
 | d                                new_v := d
 
+meta def declaration.map_value : declaration → (expr → expr) → declaration
+| (declaration.defn n ls t v h tr) f := declaration.defn n ls t (f v) h tr
+| (declaration.thm n ls t v)       f := declaration.thm n ls t (task.map f v)
+| d                                f := d
+
 meta def declaration.to_definition : declaration → declaration
 | (declaration.cnst n ls t tr) := declaration.defn n ls t (default expr) reducibility_hints.abbrev tr
 | (declaration.ax n ls t)      := declaration.thm n ls t (task.pure (default expr))

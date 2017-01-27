@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include <iostream>
+#include "library/util.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_string.h"
@@ -84,6 +85,10 @@ vm_obj name_append(vm_obj const & n1, vm_obj const & n2) {
     return to_obj(to_name(n1) + to_name(n2));
 }
 
+vm_obj name_is_internal(vm_obj const & n) {
+    return mk_vm_bool(is_internal_name(to_name(n)));
+}
+
 void initialize_vm_name() {
     DECLARE_VM_BUILTIN(name({"name", "anonymous"}),        name_anonymous);
     DECLARE_VM_BUILTIN(name({"name", "mk_string"}),        name_mk_string);
@@ -93,6 +98,7 @@ void initialize_vm_name() {
     DECLARE_VM_BUILTIN(name({"name", "lex_cmp"}),          name_lex_cmp);
     DECLARE_VM_BUILTIN(name({"name", "append_after"}),     name_append_after);
     DECLARE_VM_BUILTIN(name({"name", "append"}),           name_append);
+    DECLARE_VM_BUILTIN(name({"name", "is_internal"}),      name_is_internal);
     DECLARE_VM_CASES_BUILTIN(name({"name", "cases_on"}),   name_cases_on);
 }
 

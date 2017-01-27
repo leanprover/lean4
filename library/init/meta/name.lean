@@ -68,6 +68,7 @@ meta constant name.has_decidable_eq : decidable_eq name
 meta constant name.cmp : name → name → ordering
 meta constant name.lex_cmp : name → name → ordering
 meta constant name.append : name → name → name
+meta constant name.is_internal : name → bool
 
 attribute [instance] name.has_decidable_eq
 

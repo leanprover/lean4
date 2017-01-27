@@ -612,5 +612,13 @@ meta def dunfold_occs : ident → list nat → location → tactic unit
 meta def unfold_occs : ident → list nat → location → tactic unit :=
 dunfold_occs
 
+private meta def delta_hyps : list name → location → tactic unit
+| cs []      := skip
+| cs (h::hs) := get_local h >>= delta_at cs >> dunfold_hyps cs hs
+
+meta def delta : raw_ident_list → location → tactic unit
+| cs [] := do new_cs ← to_qualified_names cs, tactic.delta new_cs
+| cs hs := do new_cs ← to_qualified_names cs, delta_hyps new_cs hs
+
 end interactive
 end tactic

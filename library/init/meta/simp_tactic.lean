@@ -138,16 +138,50 @@ meta def dunfold_occs_of (occs : list nat) (c : name) : tactic unit :=
 target >>= dunfold_occs_core reducible default_max_steps (occurrences.pos occs) [c] >>= change
 
 meta def dunfold_core_at (occs : occurrences) (cs : list name) (h : expr) : tactic unit :=
-do num_reverted : ℕ ← revert h,
+do num_reverted ← revert h,
    (expr.pi n bi d b : expr) ← target | failed,
    new_d : expr ← dunfold_occs_core reducible default_max_steps occs cs d,
    change $ expr.pi n bi new_d b,
    intron num_reverted
 
 meta def dunfold_at (cs : list name) (h : expr) : tactic unit :=
-do num_reverted : ℕ ← revert h,
+do num_reverted ← revert h,
    (expr.pi n bi d b : expr) ← target | failed,
    new_d : expr ← dunfold_core reducible default_max_steps cs d,
+   change $ expr.pi n bi new_d b,
+   intron num_reverted
+
+structure delta_config :=
+(max_steps       := default_max_steps)
+(visit_instances := tt)
+
+private meta def is_delta_target (e : expr) (cs : list name) : bool :=
+cs^.any (λ c,
+  if e^.is_app_of c then tt   /- Exact match -/
+  else let f := e^.get_app_fn in
+       /- f is an auxiliary constant generated when compiling c -/
+       f^.is_constant && f^.const_name^.is_internal && to_bool (f^.const_name^.get_prefix = c))
+
+/- Delta reduce the given constant names -/
+meta def delta_core (cfg : delta_config) (cs : list name) (e : expr) : tactic expr :=
+let unfold (u : unit) (e : expr) : tactic (unit × expr × bool) := do
+  guard (is_delta_target e cs),
+  (expr.const f_name f_lvls) ← return $ e^.get_app_fn | failed,
+  env   ← get_env,
+  decl  ← returnex $ env^.get f_name,
+  new_f ← returnopt $ decl^.instantiate_value_univ_params f_lvls,
+  new_e ← beta (expr.mk_app new_f e^.get_app_args),
+  return (u, new_e, tt)
+in do (c, new_e) ← dsimplify_core () cfg^.max_steps cfg^.visit_instances (λ c e, failed) unfold e,
+      return new_e
+
+meta def delta (cs : list name) : tactic unit :=
+target >>= delta_core {} cs >>= change
+
+meta def delta_at (cs : list name) (h : expr) : tactic unit :=
+do num_reverted ← revert h,
+   (expr.pi n bi d b : expr) ← target | failed,
+   new_d : expr ← delta_core {} cs d,
    change $ expr.pi n bi new_d b,
    intron num_reverted
 

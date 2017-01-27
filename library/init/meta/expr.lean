@@ -133,6 +133,10 @@ meta def get_app_args_aux : list expr → expr → list expr
 meta def get_app_args : expr → list expr :=
 get_app_args_aux []
 
+meta def mk_app : expr → list expr → expr
+| e []      := e
+| e (x::xs) := mk_app (e x) xs
+
 meta def ith_arg_aux : expr → nat → expr
 | (app f a) 0     := a
 | (app f a) (n+1) := ith_arg_aux f n

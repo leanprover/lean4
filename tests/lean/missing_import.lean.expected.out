@@ -3,4 +3,4 @@ missing_import.lean:1:0: error: invalid import: does.not.exist
 could not resolve import: does.not.exist
 @[reducible]
 def bitvec : ℕ → Type :=
-λ (n : ℕ), tuple bool n
+λ (n : ℕ), vector bool n

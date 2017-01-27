@@ -7,15 +7,15 @@ Basic operations on bitvectors.
 
 This is a work-in-progress, and contains additions to other theories.
 -/
-import data.tuple
+import data.vector
 
-@[reducible] def bitvec (n : ℕ) := tuple bool n
+@[reducible] def bitvec (n : ℕ) := vector bool n
 
 namespace bitvec
 open nat
-open tuple
+open vector
 
-local infix `++ₜ`:65 := tuple.append
+local infix `++ₜ`:65 := vector.append
 
 -- Create a zero bitvector
 @[reducible] protected def zero (n : ℕ) : bitvec n := repeat ff n
@@ -28,8 +28,8 @@ local infix `++ₜ`:65 := tuple.append
 protected def cong {a b : ℕ} (h : a = b) : bitvec a → bitvec b
 | ⟨x, p⟩ := ⟨x, h ▸ p⟩
 
--- bitvec specific version of tuple.append
-def append {m n} : bitvec m → bitvec n → bitvec (m + n) := tuple.append
+-- bitvec specific version of vector.append
+def append {m n} : bitvec m → bitvec n → bitvec (m + n) := vector.append
 
 section shift
   variable {n : ℕ}
@@ -78,7 +78,7 @@ section arith
   -- Add with carry (no overflow)
   def adc (x y : bitvec n) (c : bool) : bitvec (n+1) :=
   let f := λ x y c, (bitvec.carry x y c, bitvec.xor3 x y c) in
-  let ⟨c, z⟩ := tuple.map_accumr₂ f x y c in
+  let ⟨c, z⟩ := vector.map_accumr₂ f x y c in
   c :: z
 
   protected def add (x y : bitvec n) : bitvec n := tail (adc x y ff)
@@ -89,7 +89,7 @@ section arith
   -- Subtract with borrow
   def sbb (x y : bitvec n) (b : bool) : bool × bitvec n :=
   let f := λ x y c, (bitvec.borrow x y c, bitvec.xor3 x y c) in
-  tuple.map_accumr₂ f x y b
+  vector.map_accumr₂ f x y b
 
   protected def sub (x y : bitvec n) : bitvec n := prod.snd (sbb x y ff)
 

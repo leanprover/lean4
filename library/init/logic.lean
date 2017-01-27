@@ -927,6 +927,18 @@ match h with
 | (is_false hnc) := rfl
 end
 
+instance {c t e : Prop} [d_c : decidable c] [d_t : decidable t] [d_e : decidable e] : decidable (if c then t else e)  :=
+match d_c with
+| (is_true hc)  := d_t
+| (is_false hc) := d_e
+end
+
+instance {c : Prop} {t : c → Prop} {e : ¬c → Prop} [d_c : decidable c] [d_t : ∀ h, decidable (t h)] [d_e : ∀ h, decidable (e h)] : decidable (if h : c then t h else e h)  :=
+match d_c with
+| (is_true hc)  := d_t hc
+| (is_false hc) := d_e hc
+end
+
 def as_true (c : Prop) [decidable c] : Prop :=
 if c then true else false
 

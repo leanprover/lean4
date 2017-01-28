@@ -312,6 +312,7 @@ one_mul
 option
 option.none
 option.some
+opt_param
 or
 or.elim
 or.intro_left

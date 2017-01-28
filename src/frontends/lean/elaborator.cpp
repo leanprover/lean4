@@ -1014,6 +1014,14 @@ struct elaborator::first_pass_info {
     buffer<unsigned> new_instances_size;
 };
 
+static optional<expr> is_optional_param(expr const & e) {
+    if (is_app_of(e, get_opt_param_name(), 2)) {
+        return some_expr(app_arg(e));
+    } else {
+        return none_expr();
+    }
+}
+
 /* Check if fn args resulting type matches the expected type, and fill
    first_pass_info & info with information collected in this first pass.
    Return true iff the types match.
@@ -1032,7 +1040,7 @@ void elaborator::first_pass(expr const & fn, buffer<expr> const & args,
     while (is_pi(type)) {
         binder_info const & bi = binding_info(type);
         expr const & d = binding_domain(type);
-        if (bi.is_strict_implicit() && i == args.size())
+        if (bi.is_strict_implicit() && i == args.size() && !is_optional_param(d))
             break;
         expr new_arg;
         if (!is_explicit(bi)) {
@@ -1052,6 +1060,8 @@ void elaborator::first_pass(expr const & fn, buffer<expr> const & args,
             info.args_mvars.push_back(new_arg);
             info.new_args_size.push_back(info.new_args.size());
             info.new_instances_size.push_back(info.new_instances.size());
+        } else if (auto def_value = is_optional_param(d)) {
+            new_arg = *def_value;
         } else {
             break;
         }
@@ -1149,7 +1159,7 @@ expr elaborator::visit_base_app_simple(expr const & _fn, arg_mask amask, buffer<
             binder_info const & bi = binding_info(type);
             expr const & d = binding_domain(type);
             expr new_arg;
-            if (amask == arg_mask::Default && bi.is_strict_implicit() && i == args.size())
+            if (amask == arg_mask::Default && bi.is_strict_implicit() && i == args.size() && !is_optional_param(d))
                 break;
             if ((amask == arg_mask::Default && !is_explicit(bi)) ||
                 (amask == arg_mask::InstHoExplicit && !is_explicit(bi) && !bi.is_inst_implicit() && !is_pi(d))) {
@@ -1184,6 +1194,8 @@ expr elaborator::visit_base_app_simple(expr const & _fn, arg_mask amask, buffer<
                     throw elaborator_exception(ref, msg);
                 }
                 i++;
+            } else if (auto def_value = is_optional_param(d)) {
+                new_arg = *def_value;
             } else {
                 break;
             }

@@ -81,6 +81,10 @@ reserve infixl `; `:1
 
 universe variables u v
 
+/- gadget for optional parameter support -/
+@[reducible] def opt_param (α : Type u) (default : α) : Type u :=
+α
+
 inductive poly_unit : Type u
 | star : poly_unit
 

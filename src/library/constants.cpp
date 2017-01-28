@@ -317,6 +317,7 @@ name const * g_one_mul = nullptr;
 name const * g_option = nullptr;
 name const * g_option_none = nullptr;
 name const * g_option_some = nullptr;
+name const * g_opt_param = nullptr;
 name const * g_or = nullptr;
 name const * g_or_elim = nullptr;
 name const * g_or_intro_left = nullptr;
@@ -781,6 +782,7 @@ void initialize_constants() {
     g_option = new name{"option"};
     g_option_none = new name{"option", "none"};
     g_option_some = new name{"option", "some"};
+    g_opt_param = new name{"opt_param"};
     g_or = new name{"or"};
     g_or_elim = new name{"or", "elim"};
     g_or_intro_left = new name{"or", "intro_left"};
@@ -1246,6 +1248,7 @@ void finalize_constants() {
     delete g_option;
     delete g_option_none;
     delete g_option_some;
+    delete g_opt_param;
     delete g_or;
     delete g_or_elim;
     delete g_or_intro_left;
@@ -1710,6 +1713,7 @@ name const & get_one_mul_name() { return *g_one_mul; }
 name const & get_option_name() { return *g_option; }
 name const & get_option_none_name() { return *g_option_none; }
 name const & get_option_some_name() { return *g_option_some; }
+name const & get_opt_param_name() { return *g_opt_param; }
 name const & get_or_name() { return *g_or; }
 name const & get_or_elim_name() { return *g_or_elim; }
 name const & get_or_intro_left_name() { return *g_or_intro_left; }

@@ -319,6 +319,7 @@ name const & get_one_mul_name();
 name const & get_option_name();
 name const & get_option_none_name();
 name const & get_option_some_name();
+name const & get_opt_param_name();
 name const & get_or_name();
 name const & get_or_elim_name();
 name const & get_or_intro_left_name();

@@ -11,7 +11,7 @@ universe variables u v
 inductive format.color
 | red | green | orange | blue | pink | cyan | grey
 
-meta constant format : Type 1
+meta constant format : Type
 meta constant format.line            : format
 meta constant format.space           : format
 meta constant format.nil             : format

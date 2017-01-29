@@ -328,10 +328,11 @@ pos_num
 pos_num.bit0
 pos_num.bit1
 pos_num.one
-prod
 prod.mk
-prod.fst
-prod.snd
+pprod
+pprod.mk
+pprod.fst
+pprod.snd
 propext
 pexpr
 pexpr.subst
@@ -372,6 +373,11 @@ sigma.cases_on
 sigma.mk
 sigma.fst
 sigma.snd
+psigma
+psigma.cases_on
+psigma.mk
+psigma.fst
+psigma.snd
 simp
 simplifier.assoc_subst
 simplifier.congr_bin_op
@@ -405,6 +411,10 @@ sum
 sum.cases_on
 sum.inl
 sum.inr
+psum
+psum.cases_on
+psum.inl
+psum.inr
 default_smt_config
 smt_state.mk
 smt_tactic.execute

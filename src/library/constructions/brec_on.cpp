@@ -125,10 +125,10 @@ static environment mk_below(environment const & env, name const & n, bool ibelow
                 expr fst  = mlocal_type(minor_arg);
                 minor_arg = update_mlocal(minor_arg, Pi(minor_arg_args, Type_result));
                 expr snd = Pi(minor_arg_args, mk_app(minor_arg, minor_arg_args));
-                prod_pairs.push_back(mk_prod(tc, fst, snd, ibelow));
+                prod_pairs.push_back(mk_pprod(tc, fst, snd, ibelow));
             }
         }
-        expr new_arg = foldr([&](expr const & a, expr const & b) { return mk_prod(tc, a, b, ibelow); },
+        expr new_arg = foldr([&](expr const & a, expr const & b) { return mk_pprod(tc, a, b, ibelow); },
                              [&]() { return mk_unit(rlvl, ibelow); },
                              prod_pairs.size(), prod_pairs.data());
         rec = mk_app(rec, Fun(minor_args, new_arg));
@@ -273,7 +273,7 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
         to_telescope(mlocal_type(C), C_args);
         expr C_t     = mk_app(C, C_args);
         expr below_t = mk_app(belows[j], C_args);
-        expr prod    = mk_prod(tc, C_t, below_t, ind);
+        expr prod    = mk_pprod(tc, C_t, below_t, ind);
         rec = mk_app(rec, Fun(C_args, prod));
     }
     // add minor premises to rec
@@ -289,19 +289,19 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
             if (auto k = is_typeformer_app(typeformer_names, minor_arg_type)) {
                 buffer<expr> C_args;
                 get_app_args(minor_arg_type, C_args);
-                expr new_minor_arg_type = mk_prod(tc, minor_arg_type, mk_app(belows[*k], C_args), ind);
+                expr new_minor_arg_type = mk_pprod(tc, minor_arg_type, mk_app(belows[*k], C_args), ind);
                 minor_arg = update_mlocal(minor_arg, Pi(minor_arg_args, new_minor_arg_type));
                 if (minor_arg_args.empty()) {
                     pairs.push_back(minor_arg);
                 } else {
                     expr r = mk_app(minor_arg, minor_arg_args);
-                    expr r_1 = Fun(minor_arg_args, mk_fst(tc, r, ind));
-                    expr r_2 = Fun(minor_arg_args, mk_snd(tc, r, ind));
-                    pairs.push_back(mk_pair(tc, r_1, r_2, ind));
+                    expr r_1 = Fun(minor_arg_args, mk_pprod_fst(tc, r, ind));
+                    expr r_2 = Fun(minor_arg_args, mk_pprod_snd(tc, r, ind));
+                    pairs.push_back(mk_pprod_mk(tc, r_1, r_2, ind));
                 }
             }
         }
-        expr b = foldr([&](expr const & a, expr const & b) { return mk_pair(tc, a, b, ind); },
+        expr b = foldr([&](expr const & a, expr const & b) { return mk_pprod_mk(tc, a, b, ind); },
                        [&]() { return mk_unit_mk(rlvl, ind); },
                        pairs.size(), pairs.data());
         unsigned F_idx = *is_typeformer_app(typeformer_names, minor_type);
@@ -309,7 +309,7 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
         buffer<expr> F_args;
         get_app_args(minor_type, F_args);
         F_args.push_back(b);
-        expr new_arg = mk_pair(tc, mk_app(F, F_args), b, ind);
+        expr new_arg = mk_pprod_mk(tc, mk_app(F, F_args), b, ind);
         rec = mk_app(rec, Fun(minor_args, new_arg));
     }
     // add indices and major to rec
@@ -319,7 +319,7 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
 
     name brec_on_name  = name(n, ind ? "binduction_on" : "brec_on");
     expr brec_on_type  = Pi(args, result_type);
-    expr brec_on_value = Fun(args, mk_fst(tc, rec, ind));
+    expr brec_on_value = Fun(args, mk_pprod_fst(tc, rec, ind));
 
     declaration new_d = mk_definition_inferring_trusted(env, brec_on_name, blps, brec_on_type, brec_on_value,
                                                         reducibility_hints::mk_abbreviation());

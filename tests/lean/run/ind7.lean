@@ -1,5 +1,5 @@
 namespace list
-  inductive list (A : Type*) : Type*
+  inductive {u} list (A : Type u) : Type u
   | nil  : list
   | cons : A → list → list
 

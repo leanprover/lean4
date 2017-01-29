@@ -48,18 +48,44 @@ bool get_parser_checkpoint_have(options const & opts) {
 
 using namespace notation; // NOLINT
 
+static name * g_no_universe_annotation = nullptr;
+
+bool is_sort_wo_universe(expr const & e) {
+    return is_annotation(e, *g_no_universe_annotation);
+}
+
+expr mk_sort_wo_universe(parser & p, pos_info const & pos, bool is_type) {
+    expr r = p.save_pos(mk_sort(is_type ? mk_level_one() : mk_level_zero()), pos);
+    return p.save_pos(mk_annotation(*g_no_universe_annotation, r), pos);
+}
+
 static expr parse_Type(parser & p, unsigned, expr const *, pos_info const & pos) {
     if (p.curr_is_token(get_llevel_curly_tk())) {
         p.next();
-        level l = p.parse_level();
+        level l = mk_succ(p.parse_level());
         p.check_token_next(get_rcurly_tk(), "invalid Type expression, '}' expected");
         return p.save_pos(mk_sort(l), pos);
     } else {
-        return p.save_pos(mk_sort(mk_level_one_placeholder()), pos);
+        return mk_sort_wo_universe(p, pos, true);
+    }
+}
+
+static expr parse_PType(parser & p, unsigned, expr const *, pos_info const & pos) {
+    if (p.curr_is_token(get_llevel_curly_tk())) {
+        p.next();
+        level l = p.parse_level();
+        p.check_token_next(get_rcurly_tk(), "invalid PType expression, '}' expected");
+        return p.save_pos(mk_sort(l), pos);
+    } else {
+        return mk_sort_wo_universe(p, pos, false);
     }
 }
 
 static expr parse_Type_star(parser & p, unsigned, expr const *, pos_info const & pos) {
+    return p.save_pos(mk_sort(mk_succ(mk_level_placeholder())), pos);
+}
+
+static expr parse_PType_star(parser & p, unsigned, expr const *, pos_info const & pos) {
     return p.save_pos(mk_sort(mk_level_placeholder()), pos);
 }
 
@@ -743,6 +769,8 @@ parse_table init_nud_table() {
     r = r.add({transition("Pi", Binders), transition(",", mk_scoped_expr_action(x0, 0, false))}, x0);
     r = r.add({transition("Type", mk_ext_action(parse_Type))}, x0);
     r = r.add({transition("Type*", mk_ext_action(parse_Type_star))}, x0);
+    r = r.add({transition("PType", mk_ext_action(parse_PType))}, x0);
+    r = r.add({transition("PType*", mk_ext_action(parse_PType_star))}, x0);
     r = r.add({transition("let", mk_ext_action(parse_let_expr))}, x0);
     r = r.add({transition("calc", mk_ext_action(parse_calc_expr))}, x0);
     r = r.add({transition("@", mk_ext_action(parse_explicit_expr))}, x0);
@@ -902,6 +930,9 @@ parse_table get_builtin_led_table() {
 }
 
 void initialize_builtin_exprs() {
+    g_no_universe_annotation = new name("no_univ");
+    register_annotation(*g_no_universe_annotation);
+
     g_not               = new expr(mk_constant(get_not_name()));
     g_nud_table         = new parse_table();
     *g_nud_table        = init_nud_table();
@@ -944,5 +975,6 @@ void finalize_builtin_exprs() {
     delete g_anonymous_constructor;
     delete g_field_notation_opcode;
     delete g_field_notation_name;
+    delete g_no_universe_annotation;
 }
 }

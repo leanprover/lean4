@@ -1,7 +1,7 @@
 prelude
-definition Prop : Type.{1} := Type.{0}
+definition Prop : PType.{1} := PType.{0}
 constant eq : forall {A : Type}, A → A → Prop
-constant N : Type.{1}
+constant N : Type
 constants a b c : N
 infix `=`:50 := eq
 check a = b

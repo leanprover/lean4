@@ -158,6 +158,7 @@ private:
 
     expr visit_scope_trace(expr const & e, optional<expr> const & expected_type);
     expr visit_typed_expr(expr const & e);
+    level dec_level(level const & l, expr const & ref);
     expr visit_prenum_core(expr const & e, optional<expr> const & expected_type);
     expr visit_prenum(expr const & e, optional<expr> const & expected_type);
     expr visit_placeholder(expr const & e, optional<expr> const & expected_type);

@@ -37,7 +37,7 @@ variables {α : Type u} {β : α → Type v}
 private def fun_setoid (α : Type u) (β : α → Type v) : setoid (Π x : α, β x) :=
 setoid.mk (@function.equiv α β) (function.equiv.is_equivalence α β)
 
-private def extfun (α : Type u) (β : α → Type v) : Type (imax u v) :=
+private def extfun (α : Type u) (β : α → Type v) : Type (max u v) :=
 quotient (fun_setoid α β)
 
 private def fun_to_extfun (f : Π x : α, β x) : extfun α β :=

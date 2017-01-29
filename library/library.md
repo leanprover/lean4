@@ -21,7 +21,7 @@ Constructions with:
 
 * an impredicative, proof-irrelevant type `Prop` of propositions
 * universe polymorphism
-* a non-cumulative hierarchy of universes, `Type 1`, `Type 2`, ... above `Prop`
+* a non-cumulative hierarchy of universes, `Type 0`, `Type 1`, ... above `Prop`
 * inductively defined types
 * quotient types
 

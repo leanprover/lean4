@@ -1,34 +1,34 @@
 set_option trace.inductive_compiler.nested.define.failure true
 set_option max_memory 1000000
 
-inductive vec (A : Type*) : nat -> Type*
+inductive {u} vec (A : Type u) : nat -> Type u
 | vnil : vec 0
 | vcons : Pi (n : nat), A -> vec n -> vec (n+1)
 
 namespace X1
 print "simple"
-inductive foo
+inductive foo : Type
 | mk : list foo -> foo
 
 end X1
 
 namespace X2
 print "with param"
-inductive foo (A : Type*)
+inductive {u} foo (A : Type u) : Type u
 | mk : A -> list foo -> foo
 
 end X2
 
 namespace X3
 print "with indices"
-inductive foo (A B : Type*)
+inductive {u} foo (A B : Type u) : Type u
 | mk : A -> B -> vec foo 0 -> foo
 
 end X3
 
 namespace X4
 print "with locals in indices"
-inductive foo (A : Type*)
+inductive {u} foo (A : Type u) : Type u
 | mk : Pi (n : nat), A -> vec foo n -> foo
 
 end X4

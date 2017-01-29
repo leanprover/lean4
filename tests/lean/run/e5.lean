@@ -1,7 +1,7 @@
 prelude
-definition Prop := Type.{0}
+definition Prop := PType.{0}
 
-definition false : Prop := ∀x : Prop, x
+definition false : Prop := ∀ x : Prop, x
 check false
 
 theorem false.elim (C : Prop) (H : false) : C

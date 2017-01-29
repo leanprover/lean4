@@ -414,13 +414,13 @@ struct structural_rec_fn {
         optional<expr> to_below(expr const & d, expr const & a, expr const & F) {
             expr const & fn = get_app_fn(d);
             trace_struct_aux(tout() << "d: " << d << ", a: " << a << ", F: " << F << "\n";);
-            if (is_constant(fn, get_prod_name()) || is_constant(fn, get_and_name())) {
+            if (is_constant(fn, get_pprod_name()) || is_constant(fn, get_and_name())) {
                 bool prop   = is_constant(fn, get_and_name());
                 expr d_arg1 = m_ctx.whnf(app_arg(app_fn(d)));
                 expr d_arg2 = m_ctx.whnf(app_arg(d));
-                if (auto r = to_below(d_arg1, a, mk_fst(m_ctx, F, prop)))
+                if (auto r = to_below(d_arg1, a, mk_pprod_fst(m_ctx, F, prop)))
                     return r;
-                else if (auto r = to_below(d_arg2, a, mk_snd(m_ctx, F, prop)))
+                else if (auto r = to_below(d_arg2, a, mk_pprod_snd(m_ctx, F, prop)))
                     return r;
                 else
                     return none_expr();
@@ -660,11 +660,11 @@ struct structural_rec_fn {
             buffer<expr> args;
             expr const & fn = get_app_args(e, args);
             if (args.size() == 3) {
-                if (is_constant(fn, get_prod_fst_name())) {
+                if (is_constant(fn, get_pprod_fst_name())) {
                     bool r = is_F_instance(args[2], path);
                     path.push_back(1);
                     return r;
-                } else if (is_constant(fn, get_prod_snd_name())) {
+                } else if (is_constant(fn, get_pprod_snd_name())) {
                     bool r = is_F_instance(args[2], path);
                     path.push_back(2);
                     return r;
@@ -788,7 +788,7 @@ struct structural_rec_fn {
         virtual expr visit_app(expr const & e) {
             buffer<expr> args;
             expr const & fn = get_app_args(e, args);
-            if (is_constant(fn, get_prod_fst_name()) && args.size() >= 3) {
+            if (is_constant(fn, get_pprod_fst_name()) && args.size() >= 3) {
                 buffer<unsigned> path;
                 if (is_F_instance(args[2], path)) {
                     path.push_back(1);

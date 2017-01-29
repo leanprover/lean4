@@ -22,10 +22,9 @@ import init.native.config
 import init.native.result
 
 namespace native
-
-inductive error
+inductive error : Type
 | string : string → error
-| many : list error → error
+| many   : list error → error
 
 meta def error.to_string : error → string
 | (error.string s) := s

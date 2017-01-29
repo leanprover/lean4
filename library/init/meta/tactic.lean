@@ -137,7 +137,7 @@ meta def repeat_exactly : nat → tactic unit → tactic unit
 meta def repeat : tactic unit → tactic unit :=
 repeat_at_most 100000
 
-meta def returnex {α : Type 1} (e : exceptional α) : tactic α :=
+meta def returnex {α : Type} (e : exceptional α) : tactic α :=
 λ s, match e with
 | (exceptional.success a)       := tactic_result.success a s
 | (exceptional.exception .α f) := tactic_result.exception α (λ u, f options.mk) none s -- TODO(Leo): extract options from environment
@@ -282,8 +282,8 @@ meta constant get_unused_name : name → option nat → tactic name
 
     Example, given
         rel.{l_1 l_2} : Pi (α : Type.{l_1}) (β : α -> Type.{l_2}), (Pi x : α, β x) -> (Pi x : α, β x) -> , Prop
-        nat     : Type 1
-        real    : Type 1
+        nat     : Type
+        real    : Type
         vec.{l} : Pi (α : Type l) (n : nat), Type.{l1}
         f g     : Pi (n : nat), vec real n
     then

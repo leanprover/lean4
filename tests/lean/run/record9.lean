@@ -1,6 +1,6 @@
-constant fibrant : Type* → Prop
+constant {u} fibrant : Type u → Prop
 
-structure Fib : Type* :=
-{type : Type*} (pred : fibrant type)
+structure {u} Fib : Type (u+1) :=
+{type : Type u} (pred : fibrant type)
 
 check Fib.mk

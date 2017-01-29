@@ -175,7 +175,7 @@ local attribute [instance] prop_decidable
 noncomputable def type_decidable_eq (a : Type u) : decidable_eq a :=
 λ x y, prop_decidable (x = y)
 
-noncomputable def type_decidable (a : Type u) : sum a (a → false) :=
+noncomputable def type_decidable (a : Type u) : sum a (a → empty) :=
 match (prop_decidable (nonempty a)) with
 | (is_true hp) := sum.inl (@inhabited.default _ (inhabited_of_nonempty hp))
 | (is_false hn) := sum.inr (λ a, absurd (nonempty.intro a) hn)

@@ -44,7 +44,7 @@ optional<level> dec_level(level const & l);
 bool has_poly_unit_decls(environment const & env);
 bool has_eq_decls(environment const & env);
 bool has_heq_decls(environment const & env);
-bool has_prod_decls(environment const & env);
+bool has_pprod_decls(environment const & env);
 bool has_lift_decls(environment const & env);
 
 /** \brief Return true iff \c n is the name of a recursive datatype in \c env.
@@ -167,18 +167,18 @@ expr mk_and_elim_right(abstract_type_context & ctx, expr const & H);
 expr mk_unit(level const & l);
 expr mk_unit_mk(level const & l);
 
-expr mk_prod(abstract_type_context & ctx, expr const & A, expr const & B);
-expr mk_pair(abstract_type_context & ctx, expr const & a, expr const & b);
-expr mk_fst(abstract_type_context & ctx, expr const & p);
-expr mk_snd(abstract_type_context & ctx, expr const & p);
+expr mk_pprod(abstract_type_context & ctx, expr const & A, expr const & B);
+expr mk_pprod_mk(abstract_type_context & ctx, expr const & a, expr const & b);
+expr mk_pprod_fst(abstract_type_context & ctx, expr const & p);
+expr mk_pprod_snd(abstract_type_context & ctx, expr const & p);
 
 expr mk_unit(level const & l, bool prop);
 expr mk_unit_mk(level const & l, bool prop);
 
-expr mk_prod(abstract_type_context & ctx, expr const & a, expr const & b, bool prop);
-expr mk_pair(abstract_type_context & ctx, expr const & a, expr const & b, bool prop);
-expr mk_fst(abstract_type_context & ctx, expr const & p, bool prop);
-expr mk_snd(abstract_type_context & ctx, expr const & p, bool prop);
+expr mk_pprod(abstract_type_context & ctx, expr const & a, expr const & b, bool prop);
+expr mk_pprod_mk(abstract_type_context & ctx, expr const & a, expr const & b, bool prop);
+expr mk_pprod_fst(abstract_type_context & ctx, expr const & p, bool prop);
+expr mk_pprod_snd(abstract_type_context & ctx, expr const & p, bool prop);
 
 expr mk_nat_type();
 bool is_nat_type(expr const & e);

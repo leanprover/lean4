@@ -1,7 +1,7 @@
 prelude
 import init.category
 
-meta constant {u} task : Type u → Type (max u 1)
+meta constant {u} task : Type u → Type u
 
 namespace task
 

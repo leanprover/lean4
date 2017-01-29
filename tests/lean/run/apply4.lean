@@ -5,7 +5,7 @@ constant foo {A : Type u} [inhabited A] (a b : A) : a = default A → a = b
 example (a b : nat) : a = 0 → a = b :=
 by do
   intro `H,
-  apply (expr.const `foo [level.of_nat 1]),
+  apply (expr.const `foo [level.of_nat 0]),
   trace_state,
   assumption
 
@@ -20,7 +20,7 @@ set_option pp.all false
 example (a b : nat) : a = 0 → a = b :=
 by do
   intro `H,
-  apply_core semireducible ff tt ff (expr.const `foo [level.of_nat 1]),
+  apply_core semireducible ff tt ff (expr.const `foo [level.of_nat 0]),
   trace_state,
   a ← get_local `a,
   trace_state,
@@ -45,6 +45,6 @@ by do
 example (a b : nat) : a = 0 → a = b :=
 by do
   `[intro],
-  apply_core semireducible ff tt ff (expr.const `foo [level.of_nat 1]),
+  apply_core semireducible ff tt ff (expr.const `foo [level.of_nat 0]),
   `[exact inhabited.mk a],
   reflexivity

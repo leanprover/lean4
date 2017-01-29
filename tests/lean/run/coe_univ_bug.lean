@@ -9,7 +9,7 @@ v + 1
 universe variable u
 
 instance pred2subtype {A : Type u} : has_coe_to_sort (A → Prop) :=
-⟨Type (max 1 u), (λ p : A → Prop, subtype p)⟩
+⟨Type u, (λ p : A → Prop, subtype p)⟩
 
 instance coesubtype {A : Type u} {p : A → Prop} : has_coe (@coe_sort _ pred2subtype p) A :=
 ⟨λ s, subtype.elt_of s⟩

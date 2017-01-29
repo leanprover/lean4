@@ -1,4 +1,4 @@
-inductive Foo : Type → Type*
+inductive {u} Foo : Type → Type (u+1)
 | mk     : Π (X : Type), Foo X
 | wrap   : Π (X : Type), Foo X → Foo X
 

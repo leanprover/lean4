@@ -76,7 +76,7 @@ class add_basic_inductive_decl_fn {
         bool has_unit = has_poly_unit_decls(m_env);
         bool has_eq   = has_eq_decls(m_env);
         bool has_heq  = has_heq_decls(m_env);
-        bool has_prod = has_prod_decls(m_env);
+        bool has_prod = has_pprod_decls(m_env);
 
         bool gen_rec_on       = get_inductive_rec_on(m_opts);
         bool gen_brec_on      = get_inductive_brec_on(m_opts);

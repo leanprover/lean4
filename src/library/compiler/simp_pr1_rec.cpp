@@ -47,7 +47,7 @@ class simp_pr1_rec_fn : public compiler_step_visitor {
 
         virtual expr visit_app(expr const & e) {
             expr const & f = get_app_fn(e);
-            if (is_constant(f) && const_name(f) == get_prod_fst_name()) {
+            if (is_constant(f) && const_name(f) == get_pprod_fst_name()) {
                 buffer<expr> args;
                 get_app_args(e, args);
                 if (args.size() >= 3 && is_rec_arg(args[2])) {
@@ -69,7 +69,7 @@ class simp_pr1_rec_fn : public compiler_step_visitor {
 
     optional<expr> simplify(expr const & e) {
         expr const & f = get_app_fn(e);
-        if (!is_constant(f) || const_name(f) != get_prod_fst_name())
+        if (!is_constant(f) || const_name(f) != get_pprod_fst_name())
             return none_expr();
         buffer<expr> args;
         get_app_args(e, args);
@@ -105,7 +105,7 @@ class simp_pr1_rec_fn : public compiler_step_visitor {
         buffer<expr> typeformer_body_args;
         expr typeformer_body_fn = get_app_args(typeformer_body, typeformer_body_args);
         if (!is_constant(typeformer_body_fn) ||
-            const_name(typeformer_body_fn) != get_prod_name() ||
+            const_name(typeformer_body_fn) != get_pprod_name() ||
             typeformer_body_args.size() != 2) {
             return none_expr();
         }
@@ -143,7 +143,7 @@ class simp_pr1_rec_fn : public compiler_step_visitor {
                     }
                     buffer<expr> type_args;
                     expr type_fn = get_app_args(type, type_args);
-                    if (!is_constant(type_fn) || const_name(type_fn) != get_prod_name() || type_args.size() != 2) {
+                    if (!is_constant(type_fn) || const_name(type_fn) != get_pprod_name() || type_args.size() != 2) {
                         return none_expr();
                     }
                     minor_ctx[k] = update_mlocal(minor_ctx[k], locals.mk_pi(type_args[0]));
@@ -154,7 +154,7 @@ class simp_pr1_rec_fn : public compiler_step_visitor {
             buffer<expr> minor_body_args;
             expr minor_body_fn = get_app_args(minor_body, minor_body_args);
             if (!is_constant(minor_body_fn) ||
-                const_name(minor_body_fn) != get_prod_mk_name() ||
+                const_name(minor_body_fn) != get_pprod_mk_name() ||
                 minor_body_args.size() != 4) {
                 return none_expr();
             }

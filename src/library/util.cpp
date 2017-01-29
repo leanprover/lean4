@@ -142,8 +142,8 @@ bool has_heq_decls(environment const & env) {
     return has_constructor(env, get_heq_refl_name(), get_heq_name(), 2);
 }
 
-bool has_prod_decls(environment const & env) {
-    return has_constructor(env, get_prod_mk_name(), get_prod_name(), 4);
+bool has_pprod_decls(environment const & env) {
+    return has_constructor(env, get_pprod_mk_name(), get_pprod_name(), 4);
 }
 
 bool has_lift_decls(environment const & env) {
@@ -441,32 +441,32 @@ expr mk_unit_mk(level const & l) {
     return mk_constant(get_poly_unit_star_name(), {l});
 }
 
-expr mk_prod(abstract_type_context & ctx, expr const & A, expr const & B) {
+expr mk_pprod(abstract_type_context & ctx, expr const & A, expr const & B) {
     level l1 = get_level(ctx, A);
     level l2 = get_level(ctx, B);
-    return mk_app(mk_constant(get_prod_name(), {l1, l2}), A, B);
+    return mk_app(mk_constant(get_pprod_name(), {l1, l2}), A, B);
 }
 
-expr mk_pair(abstract_type_context & ctx, expr const & a, expr const & b) {
+expr mk_pprod_mk(abstract_type_context & ctx, expr const & a, expr const & b) {
     expr A = ctx.infer(a);
     expr B = ctx.infer(b);
     level l1 = get_level(ctx, A);
     level l2 = get_level(ctx, B);
-    return mk_app(mk_constant(get_prod_mk_name(), {l1, l2}), A, B, a, b);
+    return mk_app(mk_constant(get_pprod_mk_name(), {l1, l2}), A, B, a, b);
 }
 
-expr mk_fst(abstract_type_context & ctx, expr const & p) {
+expr mk_pprod_fst(abstract_type_context & ctx, expr const & p) {
     expr AxB = ctx.whnf(ctx.infer(p));
     expr const & A = app_arg(app_fn(AxB));
     expr const & B = app_arg(AxB);
-    return mk_app(mk_constant(get_prod_fst_name(), const_levels(get_app_fn(AxB))), A, B, p);
+    return mk_app(mk_constant(get_pprod_fst_name(), const_levels(get_app_fn(AxB))), A, B, p);
 }
 
-expr mk_snd(abstract_type_context & ctx, expr const & p) {
+expr mk_pprod_snd(abstract_type_context & ctx, expr const & p) {
     expr AxB = ctx.whnf(ctx.infer(p));
     expr const & A = app_arg(app_fn(AxB));
     expr const & B = app_arg(AxB);
-    return mk_app(mk_constant(get_prod_snd_name(), const_levels(get_app_fn(AxB))), A, B, p);
+    return mk_app(mk_constant(get_pprod_snd_name(), const_levels(get_app_fn(AxB))), A, B, p);
 }
 
 static expr * g_nat         = nullptr;
@@ -478,11 +478,11 @@ static expr * g_nat_add_fn  = nullptr;
 
 static void initialize_nat() {
     g_nat            = new expr(mk_constant(get_nat_name()));
-    g_nat_zero       = new expr(mk_app(mk_constant(get_zero_name(), {mk_level_one()}), {*g_nat, mk_constant(get_nat_has_zero_name())}));
-    g_nat_one        = new expr(mk_app(mk_constant(get_one_name(), {mk_level_one()}), {*g_nat, mk_constant(get_nat_has_one_name())}));
-    g_nat_bit0_fn    = new expr(mk_app(mk_constant(get_bit0_name(), {mk_level_one()}), {*g_nat, mk_constant(get_nat_has_add_name())}));
-    g_nat_bit1_fn    = new expr(mk_app(mk_constant(get_bit1_name(), {mk_level_one()}), {*g_nat, mk_constant(get_nat_has_one_name()), mk_constant(get_nat_has_add_name())}));
-    g_nat_add_fn     = new expr(mk_app(mk_constant(get_add_name(), {mk_level_one()}), {*g_nat, mk_constant(get_nat_has_add_name())}));
+    g_nat_zero       = new expr(mk_app(mk_constant(get_zero_name(), {mk_level_zero()}), {*g_nat, mk_constant(get_nat_has_zero_name())}));
+    g_nat_one        = new expr(mk_app(mk_constant(get_one_name(), {mk_level_zero()}), {*g_nat, mk_constant(get_nat_has_one_name())}));
+    g_nat_bit0_fn    = new expr(mk_app(mk_constant(get_bit0_name(), {mk_level_zero()}), {*g_nat, mk_constant(get_nat_has_add_name())}));
+    g_nat_bit1_fn    = new expr(mk_app(mk_constant(get_bit1_name(), {mk_level_zero()}), {*g_nat, mk_constant(get_nat_has_one_name()), mk_constant(get_nat_has_add_name())}));
+    g_nat_add_fn     = new expr(mk_app(mk_constant(get_add_name(), {mk_level_zero()}), {*g_nat, mk_constant(get_nat_has_add_name())}));
 }
 
 static void finalize_nat() {
@@ -529,17 +529,18 @@ static void finalize_char() {
 
 expr mk_unit(level const & l, bool prop) { return prop ? mk_true() : mk_unit(l); }
 expr mk_unit_mk(level const & l, bool prop) { return prop ? mk_true_intro() : mk_unit_mk(l); }
-expr mk_prod(abstract_type_context & ctx, expr const & a, expr const & b, bool prop) {
-    return prop ? mk_and(a, b) : mk_prod(ctx, a, b);
+
+expr mk_pprod(abstract_type_context & ctx, expr const & a, expr const & b, bool prop) {
+    return prop ? mk_and(a, b) : mk_pprod(ctx, a, b);
 }
-expr mk_pair(abstract_type_context & ctx, expr const & a, expr const & b, bool prop) {
-    return prop ? mk_and_intro(ctx, a, b) : mk_pair(ctx, a, b);
+expr mk_pprod_mk(abstract_type_context & ctx, expr const & a, expr const & b, bool prop) {
+    return prop ? mk_and_intro(ctx, a, b) : mk_pprod_mk(ctx, a, b);
 }
-expr mk_fst(abstract_type_context & ctx, expr const & p, bool prop) {
-    return prop ? mk_and_elim_left(ctx, p) : mk_fst(ctx, p);
+expr mk_pprod_fst(abstract_type_context & ctx, expr const & p, bool prop) {
+    return prop ? mk_and_elim_left(ctx, p) : mk_pprod_fst(ctx, p);
 }
-expr mk_snd(abstract_type_context & ctx, expr const & p, bool prop) {
-    return prop ? mk_and_elim_right(ctx, p) : mk_snd(ctx, p);
+expr mk_pprod_snd(abstract_type_context & ctx, expr const & p, bool prop) {
+    return prop ? mk_and_elim_right(ctx, p) : mk_pprod_snd(ctx, p);
 }
 
 bool is_ite(expr const & e) {

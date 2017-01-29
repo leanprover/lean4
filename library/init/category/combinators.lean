@@ -10,9 +10,7 @@ import init.category.monad init.data.list.basic
 universe variables u v w
 
 namespace monad
-/- Remark: we use (u+1) to make sure β is not a proposition.
-   That is, we are making sure that β and (list β) inhabit the same universe -/
-def mapm {m : Type (u+1) → Type v} [monad m] {α : Type w} {β : Type (u+1)} (f : α → m β) : list α → m (list β)
+def mapm {m : Type u → Type v} [monad m] {α : Type w} {β : Type u} (f : α → m β) : list α → m (list β)
 | []       := return []
 | (h :: t) := do h' ← f h, t' ← mapm t, return (h' :: t')
 
@@ -20,13 +18,13 @@ def mapm' {m : Type → Type v} [monad m] {α : Type u} {β : Type} (f : α → 
 | []       := return ()
 | (h :: t) := f h >> mapm' t
 
-def for {m : Type (u+1) → Type v} [monad m] {α : Type w} {β : Type (u+1)} (l : list α) (f : α → m β) : m (list β) :=
+def for {m : Type u → Type v} [monad m] {α : Type w} {β : Type u} (l : list α) (f : α → m β) : m (list β) :=
 mapm f l
 
 def for' {m : Type → Type v} [monad m] {α : Type u} {β : Type} (l : list α) (f : α → m β) : m unit :=
 mapm' f l
 
-def sequence {m : Type (u+1) → Type v} [monad m] {α : Type (u+1)} : list (m α) → m (list α)
+def sequence {m : Type u → Type v} [monad m] {α : Type u} : list (m α) → m (list α)
 | []       := return []
 | (h :: t) := do h' ← h, t' ← sequence t, return (h' :: t')
 

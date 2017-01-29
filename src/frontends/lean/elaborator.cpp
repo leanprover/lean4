@@ -675,6 +675,15 @@ expr elaborator::visit_typed_expr(expr const & e) {
                                line() + format("but is expected to have type") + pp_indent(pp_fn, new_type));
 }
 
+level elaborator::dec_level(level const & l, expr const & ref) {
+    if (auto d = ::lean::dec_level(l))
+        return *d;
+    level r = m_ctx.mk_univ_metavar_decl();
+    if (!m_ctx.is_def_eq(mk_succ(r), l))
+        throw elaborator_exception(ref, "invalid pre-numeral, universe level must be > 0");
+    return r;
+}
+
 expr elaborator::visit_prenum(expr const & e, optional<expr> const & expected_type) {
     lean_assert(is_prenum(e));
     expr ref = e;
@@ -690,7 +699,7 @@ expr elaborator::visit_prenum(expr const & e, optional<expr> const & expected_ty
         m_numeral_types = cons(A, m_numeral_types);
     }
     level A_lvl = get_level(A, ref);
-    levels ls(A_lvl);
+    levels ls(dec_level(A_lvl, ref));
     if (v.is_neg())
         throw elaborator_exception(ref, "invalid pre-numeral, it must be a non-negative value");
     if (v.is_zero()) {
@@ -2449,6 +2458,8 @@ expr elaborator::visit(expr const & e, optional<expr> const & expected_type) {
         return visit(get_annotation_arg(e), expected_type);
     } else if (is_emptyc_or_emptys(e)) {
         return visit_emptyc_or_emptys(e, expected_type);
+    } else if (is_sort_wo_universe(e)) {
+        return visit(get_annotation_arg(e), expected_type);
     } else {
         switch (e.kind()) {
         case expr_kind::Var:        lean_unreachable();  // LCOV_EXCL_LINE

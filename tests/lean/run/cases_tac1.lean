@@ -1,4 +1,4 @@
-inductive vec (A : Type*) : nat → Type*
+inductive {u} vec (A : Type u) : nat → Type u
 | nil  : vec 0
 | cons : ∀ {n}, A → vec n → vec (n+1)
 

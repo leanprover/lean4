@@ -7,9 +7,9 @@ notation, basic datatypes and type classes
 -/
 prelude
 
-notation `Prop`  := Type 0
-notation `Type₂` := Type 2
-notation `Type₃` := Type 3
+notation `Prop`  := PType 0
+notation `Type₂` := PType 2
+notation `Type₃` := PType 3
 
 /- Logical operations and relations -/
 
@@ -82,10 +82,10 @@ reserve infixl `; `:1
 universe variables u v
 
 /- gadget for optional parameter support -/
-@[reducible] def opt_param (α : Type u) (default : α) : Type u :=
+@[reducible] def opt_param (α : PType u) (default : α) : PType u :=
 α
 
-inductive poly_unit : Type u
+inductive poly_unit : PType u
 | star : poly_unit
 
 inductive unit : Type
@@ -101,15 +101,20 @@ inductive empty : Type
 def not (a : Prop) := a → false
 prefix `¬` := not
 
-inductive eq {α : Type u} (a : α) : α → Prop
+inductive eq {α : PType u} (a : α) : α → Prop
 | refl : eq a
 
 init_quotient
 
-inductive heq {α : Type u} (a : α) : Π {β : Type u}, β → Prop
+inductive heq {α : PType u} (a : α) : Π {β : PType u}, β → Prop
 | refl : heq a
 
 structure prod (α : Type u) (β : Type v) :=
+(fst : α) (snd : β)
+
+/- Similar to prod, but α and β can be propositions.
+   We use this type internally to automatically generate the brec_on recursor. -/
+structure pprod (α : PType u) (β : PType v) :=
 (fst : α) (snd : β)
 
 inductive and (a b : Prop) : Prop
@@ -129,6 +134,10 @@ inductive sum (α : Type u) (β : Type v)
 | inl {} : α → sum
 | inr {} : β → sum
 
+inductive psum (α : PType u) (β : PType v)
+| inl {} : α → psum
+| inr {} : β → psum
+
 inductive or (a b : Prop) : Prop
 | inl {} : a → or
 | inr {} : b → or
@@ -139,7 +148,10 @@ or.inl ha
 def or.intro_right (a : Prop) {b : Prop} (hb : b) : or a b :=
 or.inr hb
 
-structure sigma {α : Type u} (β : α → Type v) :=
+structure sigma {α : Type u} (β : α → PType v) :=
+mk :: (fst : α) (snd : β fst)
+
+structure psigma {α : PType u} (β : α → PType v) :=
 mk :: (fst : α) (snd : β fst)
 
 inductive pos_num : Type
@@ -174,15 +186,15 @@ class inductive decidable (p : Prop)
 | is_true :  p → decidable
 
 @[reducible]
-def decidable_pred {α : Type u} (r : α → Prop) :=
+def decidable_pred {α : PType u} (r : α → Prop) :=
 Π (a : α), decidable (r a)
 
 @[reducible]
-def decidable_rel {α : Type u} (r : α → α → Prop) :=
+def decidable_rel {α : PType u} (r : α → α → Prop) :=
 Π (a b : α), decidable (r a b)
 
 @[reducible]
-def decidable_eq (α : Type u) :=
+def decidable_eq (α : PType u) :=
 decidable_rel (@eq α)
 
 inductive option (α : Type u)
@@ -428,26 +440,26 @@ notation `(` h `, ` t:(foldr `, ` (e r, prod.mk e r)) `)` := prod.mk h t
 
 attribute [refl] eq.refl
 
-@[pattern] def rfl {α : Type u} {a : α} : a = a := eq.refl a
+@[pattern] def rfl {α : PType u} {a : α} : a = a := eq.refl a
 
 @[elab_as_eliminator, subst]
-lemma eq.subst {α : Type u} {P : α → Prop} {a b : α} (h₁ : a = b) (h₂ : P a) : P b :=
+lemma eq.subst {α : PType u} {P : α → Prop} {a b : α} (h₁ : a = b) (h₂ : P a) : P b :=
 eq.rec h₂ h₁
 
 notation h1 ▸ h2 := eq.subst h1 h2
 
-@[trans] lemma eq.trans {α : Type u} {a b c : α} (h₁ : a = b) (h₂ : b = c) : a = c :=
+@[trans] lemma eq.trans {α : PType u} {a b c : α} (h₁ : a = b) (h₂ : b = c) : a = c :=
 h₂ ▸ h₁
 
-@[symm] lemma eq.symm {α : Type u} {a b : α} (h : a = b) : b = a :=
+@[symm] lemma eq.symm {α : PType u} {a b : α} (h : a = b) : b = a :=
 h ▸ rfl
 
 /- sizeof -/
 
-class has_sizeof (α : Type u) :=
+class has_sizeof (α : PType u) :=
 (sizeof : α → nat)
 
-def sizeof {α : Type u} [s : has_sizeof α] : α → nat :=
+def sizeof {α : PType u} [s : has_sizeof α] : α → nat :=
 has_sizeof.sizeof
 
 /-
@@ -456,13 +468,13 @@ From now on, the inductive compiler will automatically generate sizeof instances
 -/
 
 /- Every type `α` has a default has_sizeof instance that just returns 0 for every element of `α` -/
-instance default_has_sizeof (α : Type u) : has_sizeof α :=
+instance default_has_sizeof (α : PType u) : has_sizeof α :=
 ⟨λ a, nat.zero⟩
 
 /- TODO(Leo): the [simp.sizeof] annotations are not really necessary.
    What we need is a robust way of unfolding sizeof definitions. -/
 attribute [simp.sizeof]
-lemma default_has_sizeof_eq (α : Type u) (a : α) : @sizeof α (default_has_sizeof α) a = 0 :=
+lemma default_has_sizeof_eq (α : PType u) (a : α) : @sizeof α (default_has_sizeof α) a = 0 :=
 rfl
 
 instance : has_sizeof nat :=

@@ -19,10 +19,10 @@ do t ← infer_type e,
 /- Auxiliary function for using brec_on "dictionary" -/
 private meta def mk_rec_inst_aux : expr → nat → tactic expr
 | F 0     := do
-  P ← mk_app `prod.fst [F],
-  mk_app `prod.fst [P]
+  P ← mk_app `pprod.fst [F],
+  mk_app `pprod.fst [P]
 | F (n+1) := do
-  F' ← mk_app `prod.snd [F],
+  F' ← mk_app `pprod.snd [F],
   mk_rec_inst_aux F' n
 
 /- Construct brec_on "recursive value". F_name is the name of the brec_on "dictionary".

@@ -333,10 +333,11 @@ name const * g_pos_num = nullptr;
 name const * g_pos_num_bit0 = nullptr;
 name const * g_pos_num_bit1 = nullptr;
 name const * g_pos_num_one = nullptr;
-name const * g_prod = nullptr;
 name const * g_prod_mk = nullptr;
-name const * g_prod_fst = nullptr;
-name const * g_prod_snd = nullptr;
+name const * g_pprod = nullptr;
+name const * g_pprod_mk = nullptr;
+name const * g_pprod_fst = nullptr;
+name const * g_pprod_snd = nullptr;
 name const * g_propext = nullptr;
 name const * g_pexpr = nullptr;
 name const * g_pexpr_subst = nullptr;
@@ -377,6 +378,11 @@ name const * g_sigma_cases_on = nullptr;
 name const * g_sigma_mk = nullptr;
 name const * g_sigma_fst = nullptr;
 name const * g_sigma_snd = nullptr;
+name const * g_psigma = nullptr;
+name const * g_psigma_cases_on = nullptr;
+name const * g_psigma_mk = nullptr;
+name const * g_psigma_fst = nullptr;
+name const * g_psigma_snd = nullptr;
 name const * g_simp = nullptr;
 name const * g_simplifier_assoc_subst = nullptr;
 name const * g_simplifier_congr_bin_op = nullptr;
@@ -410,6 +416,10 @@ name const * g_sum = nullptr;
 name const * g_sum_cases_on = nullptr;
 name const * g_sum_inl = nullptr;
 name const * g_sum_inr = nullptr;
+name const * g_psum = nullptr;
+name const * g_psum_cases_on = nullptr;
+name const * g_psum_inl = nullptr;
+name const * g_psum_inr = nullptr;
 name const * g_default_smt_config = nullptr;
 name const * g_smt_state_mk = nullptr;
 name const * g_smt_tactic_execute = nullptr;
@@ -798,10 +808,11 @@ void initialize_constants() {
     g_pos_num_bit0 = new name{"pos_num", "bit0"};
     g_pos_num_bit1 = new name{"pos_num", "bit1"};
     g_pos_num_one = new name{"pos_num", "one"};
-    g_prod = new name{"prod"};
     g_prod_mk = new name{"prod", "mk"};
-    g_prod_fst = new name{"prod", "fst"};
-    g_prod_snd = new name{"prod", "snd"};
+    g_pprod = new name{"pprod"};
+    g_pprod_mk = new name{"pprod", "mk"};
+    g_pprod_fst = new name{"pprod", "fst"};
+    g_pprod_snd = new name{"pprod", "snd"};
     g_propext = new name{"propext"};
     g_pexpr = new name{"pexpr"};
     g_pexpr_subst = new name{"pexpr", "subst"};
@@ -842,6 +853,11 @@ void initialize_constants() {
     g_sigma_mk = new name{"sigma", "mk"};
     g_sigma_fst = new name{"sigma", "fst"};
     g_sigma_snd = new name{"sigma", "snd"};
+    g_psigma = new name{"psigma"};
+    g_psigma_cases_on = new name{"psigma", "cases_on"};
+    g_psigma_mk = new name{"psigma", "mk"};
+    g_psigma_fst = new name{"psigma", "fst"};
+    g_psigma_snd = new name{"psigma", "snd"};
     g_simp = new name{"simp"};
     g_simplifier_assoc_subst = new name{"simplifier", "assoc_subst"};
     g_simplifier_congr_bin_op = new name{"simplifier", "congr_bin_op"};
@@ -875,6 +891,10 @@ void initialize_constants() {
     g_sum_cases_on = new name{"sum", "cases_on"};
     g_sum_inl = new name{"sum", "inl"};
     g_sum_inr = new name{"sum", "inr"};
+    g_psum = new name{"psum"};
+    g_psum_cases_on = new name{"psum", "cases_on"};
+    g_psum_inl = new name{"psum", "inl"};
+    g_psum_inr = new name{"psum", "inr"};
     g_default_smt_config = new name{"default_smt_config"};
     g_smt_state_mk = new name{"smt_state", "mk"};
     g_smt_tactic_execute = new name{"smt_tactic", "execute"};
@@ -1264,10 +1284,11 @@ void finalize_constants() {
     delete g_pos_num_bit0;
     delete g_pos_num_bit1;
     delete g_pos_num_one;
-    delete g_prod;
     delete g_prod_mk;
-    delete g_prod_fst;
-    delete g_prod_snd;
+    delete g_pprod;
+    delete g_pprod_mk;
+    delete g_pprod_fst;
+    delete g_pprod_snd;
     delete g_propext;
     delete g_pexpr;
     delete g_pexpr_subst;
@@ -1308,6 +1329,11 @@ void finalize_constants() {
     delete g_sigma_mk;
     delete g_sigma_fst;
     delete g_sigma_snd;
+    delete g_psigma;
+    delete g_psigma_cases_on;
+    delete g_psigma_mk;
+    delete g_psigma_fst;
+    delete g_psigma_snd;
     delete g_simp;
     delete g_simplifier_assoc_subst;
     delete g_simplifier_congr_bin_op;
@@ -1341,6 +1367,10 @@ void finalize_constants() {
     delete g_sum_cases_on;
     delete g_sum_inl;
     delete g_sum_inr;
+    delete g_psum;
+    delete g_psum_cases_on;
+    delete g_psum_inl;
+    delete g_psum_inr;
     delete g_default_smt_config;
     delete g_smt_state_mk;
     delete g_smt_tactic_execute;
@@ -1729,10 +1759,11 @@ name const & get_pos_num_name() { return *g_pos_num; }
 name const & get_pos_num_bit0_name() { return *g_pos_num_bit0; }
 name const & get_pos_num_bit1_name() { return *g_pos_num_bit1; }
 name const & get_pos_num_one_name() { return *g_pos_num_one; }
-name const & get_prod_name() { return *g_prod; }
 name const & get_prod_mk_name() { return *g_prod_mk; }
-name const & get_prod_fst_name() { return *g_prod_fst; }
-name const & get_prod_snd_name() { return *g_prod_snd; }
+name const & get_pprod_name() { return *g_pprod; }
+name const & get_pprod_mk_name() { return *g_pprod_mk; }
+name const & get_pprod_fst_name() { return *g_pprod_fst; }
+name const & get_pprod_snd_name() { return *g_pprod_snd; }
 name const & get_propext_name() { return *g_propext; }
 name const & get_pexpr_name() { return *g_pexpr; }
 name const & get_pexpr_subst_name() { return *g_pexpr_subst; }
@@ -1773,6 +1804,11 @@ name const & get_sigma_cases_on_name() { return *g_sigma_cases_on; }
 name const & get_sigma_mk_name() { return *g_sigma_mk; }
 name const & get_sigma_fst_name() { return *g_sigma_fst; }
 name const & get_sigma_snd_name() { return *g_sigma_snd; }
+name const & get_psigma_name() { return *g_psigma; }
+name const & get_psigma_cases_on_name() { return *g_psigma_cases_on; }
+name const & get_psigma_mk_name() { return *g_psigma_mk; }
+name const & get_psigma_fst_name() { return *g_psigma_fst; }
+name const & get_psigma_snd_name() { return *g_psigma_snd; }
 name const & get_simp_name() { return *g_simp; }
 name const & get_simplifier_assoc_subst_name() { return *g_simplifier_assoc_subst; }
 name const & get_simplifier_congr_bin_op_name() { return *g_simplifier_congr_bin_op; }
@@ -1806,6 +1842,10 @@ name const & get_sum_name() { return *g_sum; }
 name const & get_sum_cases_on_name() { return *g_sum_cases_on; }
 name const & get_sum_inl_name() { return *g_sum_inl; }
 name const & get_sum_inr_name() { return *g_sum_inr; }
+name const & get_psum_name() { return *g_psum; }
+name const & get_psum_cases_on_name() { return *g_psum_cases_on; }
+name const & get_psum_inl_name() { return *g_psum_inl; }
+name const & get_psum_inr_name() { return *g_psum_inr; }
 name const & get_default_smt_config_name() { return *g_default_smt_config; }
 name const & get_smt_state_mk_name() { return *g_smt_state_mk; }
 name const & get_smt_tactic_execute_name() { return *g_smt_tactic_execute; }

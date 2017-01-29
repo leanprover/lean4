@@ -66,6 +66,6 @@ begin
   {intros, unfold size, apply nat.zero_lt_succ }
 end
 
-inductive tree_list (α : Type u)
+inductive tree_list (α : Type u) : Type u
 | leaf : tree_list
 | node : list tree_list → α → tree_list

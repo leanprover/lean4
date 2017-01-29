@@ -66,11 +66,11 @@ class add_mutual_inductive_decl_fn {
         expr l = mk_local_for(ty);
         expr dom = binding_domain(ty);
         expr rest = Fun(l, to_sigma_type(instantiate(binding_body(ty), l)));
-        return mk_app(m_tctx, get_sigma_name(), {dom, rest});
+        return mk_app(m_tctx, get_psigma_name(), {dom, rest});
     }
 
     expr mk_sum(expr const & A, expr const & B) {
-        return mk_app(m_tctx, get_sum_name(), A, B);
+        return mk_app(m_tctx, get_psum_name(), A, B);
     }
 
     expr mk_sum(unsigned num_args, expr const * args) {
@@ -108,8 +108,8 @@ class add_mutual_inductive_decl_fn {
             level l1 = get_level(m_tctx, A);
             level l2 = get_level(m_tctx, stype);
             stype = Fun(l, stype);
-            maker = mk_app(mk_constant(get_sigma_mk_name(), {l1, l2}), A, stype, l, maker);
-            stype = mk_app(m_tctx, get_sigma_name(), {A, stype});
+            maker = mk_app(mk_constant(get_psigma_mk_name(), {l1, l2}), A, stype, l, maker);
+            stype = mk_app(m_tctx, get_psigma_name(), {A, stype});
         }
         return mk_pair(Fun(locals, maker), stype);
     }
@@ -133,7 +133,7 @@ class add_mutual_inductive_decl_fn {
         expr l = mk_local_pp("rest", mk_sum(m_index_types.size() - i, m_index_types.data() + i));
         expr putter = l;
         for (unsigned j = i; j > 0; --j) {
-            putter = mk_app(m_tctx, get_sum_inr_name(), m_index_types[j-1], mk_sum(m_index_types.size() - j, m_index_types.data() + j), putter);
+            putter = mk_app(m_tctx, get_psum_inr_name(), m_index_types[j-1], mk_sum(m_index_types.size() - j, m_index_types.data() + j), putter);
         }
         return Fun(l, putter);
     }
@@ -144,13 +144,13 @@ class add_mutual_inductive_decl_fn {
 
         expr putter;
         if (ind_idx == num_inds - 1) {
-            putter = mk_app(m_tctx, get_sum_inr_name(), m_index_types[ind_idx - 1], m_index_types[ind_idx], l);
+            putter = mk_app(m_tctx, get_psum_inr_name(), m_index_types[ind_idx - 1], m_index_types[ind_idx], l);
             ind_idx--;
         } else {
-            putter = mk_app(m_tctx, get_sum_inl_name(), m_index_types[ind_idx], mk_sum(num_inds - ind_idx - 1, m_index_types.data() + ind_idx + 1), l);
+            putter = mk_app(m_tctx, get_psum_inl_name(), m_index_types[ind_idx], mk_sum(num_inds - ind_idx - 1, m_index_types.data() + ind_idx + 1), l);
         }
         for (unsigned i = ind_idx; i > 0; --i) {
-            putter = mk_app(m_tctx, get_sum_inr_name(), m_index_types[i - 1], mk_sum(num_inds - i, m_index_types.data() + i), putter);
+            putter = mk_app(m_tctx, get_psum_inr_name(), m_index_types[i - 1], mk_sum(num_inds - i, m_index_types.data() + i), putter);
         }
         return Fun(l, putter);
     }
@@ -445,8 +445,8 @@ class add_mutual_inductive_decl_fn {
             level l1 = get_level(m_tctx, A);
             level l2 = get_level(m_tctx, stype);
             stype = Fun(sarg, stype);
-            sigma = mk_app(mk_constant(get_sigma_mk_name(), {l1, l2}), A, stype, sarg, sigma);
-            stype = mk_app(m_tctx, get_sigma_name(), {A, stype});
+            sigma = mk_app(mk_constant(get_psigma_mk_name(), {l1, l2}), A, stype, sarg, sigma);
+            stype = mk_app(m_tctx, get_psigma_name(), {A, stype});
         }
         return sigma;
     }
@@ -497,7 +497,7 @@ class add_mutual_inductive_decl_fn {
             minor_premise = Fun({a, b}, rest);
         }
         levels lvls = {motive_level, get_level(m_tctx, A), get_level(m_tctx, B)};
-        return mk_app(mk_constant(get_sigma_cases_on_name(), lvls), {A, A_to_B, motive, major_premise, minor_premise});
+        return mk_app(mk_constant(get_psigma_cases_on_name(), lvls), {A, A_to_B, motive, major_premise, minor_premise});
     }
 
     expr unpack_sigma_and_apply_C(unsigned ind_idx, expr const & idx, expr const & C) {
@@ -551,7 +551,7 @@ class add_mutual_inductive_decl_fn {
         }
         level l1 = get_level(m_tctx, A);
         level l2 = get_level(m_tctx, B);
-        return mk_app(mk_constant(get_sum_cases_on_name(), {motive_level, l1, l2}), {A, B, motive, index, case1, case2});
+        return mk_app(mk_constant(get_psum_cases_on_name(), {motive_level, l1, l2}), {A, B, motive, index, case1, case2});
     }
 
     expr construct_inner_C(expr const & C, unsigned ind_idx) {

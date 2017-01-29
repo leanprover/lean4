@@ -1,5 +1,5 @@
 open tactic
-axiom Sorry : ∀ {A:Type*}, A
+axiom Sorry : ∀ {A:PType*}, A
 
 example (a b c : nat) (h₀ : c > 0) (h₁ : a > 1) (h₂ : b > 0) : a + b + c = 0 :=
 by do

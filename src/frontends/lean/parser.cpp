@@ -1950,9 +1950,13 @@ bool parser::curr_starts_expr() {
 }
 
 expr parser::parse_led(expr left) {
-    if (is_sort(left) && is_one_placeholder(sort_level(left)) &&
+    if (is_sort_wo_universe(left) &&
         (curr_is_numeral() || curr_is_identifier() || curr_is_token(get_lparen_tk()) || curr_is_token(get_placeholder_tk()))) {
+        left    = get_annotation_arg(left);
         level l = parse_level(get_max_prec());
+        lean_assert(sort_level(left) == mk_level_one() || sort_level(left) == mk_level_zero());
+        if (sort_level(left) == mk_level_one())
+            l = mk_succ(l);
         return copy_tag(left, update_sort(left, l));
     } else {
         switch (curr()) {

@@ -247,10 +247,16 @@ struct perm_ac_fn : public flat_assoc_fn {
         return mk_app(m_comm, a, b);
     }
 
+    level dec_level(level const & l) {
+        if (auto r = ::lean::dec_level(l))
+            return *r;
+        throw_failed();
+    }
+
     expr mk_left_comm(expr const & a, expr const & b, expr const & c) {
         if (!m_left_comm) {
             expr A    = m_ctx.infer(a);
-            level lvl = get_level(m_ctx, A);
+            level lvl = dec_level(get_level(m_ctx, A));
             m_left_comm = mk_app(mk_constant(get_left_comm_name(), {lvl}), A, m_op, m_comm, m_assoc);
         }
         return mk_app(*m_left_comm, a, b, c);

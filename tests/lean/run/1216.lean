@@ -1,6 +1,6 @@
 open nat
 
-inductive Vec (X : Type*) : ℕ → Type*
+inductive {u} Vec (X : Type u) : ℕ → Type u
 | nil {} : Vec 0
 | cons   : X → Pi {n : nat}, Vec n → Vec (n + 1)
 

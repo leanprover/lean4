@@ -1325,6 +1325,12 @@ lbool type_context::is_def_eq_core(level const & l1, level const & l2, bool part
         }
     }
 
+    if (l1.kind() != l2.kind() && (is_succ(l1) || is_succ(l2))) {
+        if (optional<level> pred_l1 = dec_level(l1))
+        if (optional<level> pred_l2 = dec_level(l2))
+            return is_def_eq_core(*pred_l1, *pred_l2, partial);
+    }
+
     if (partial && (is_max_like(l1) || is_max_like(l2)))
         return l_undef;
 
@@ -2341,7 +2347,7 @@ bool type_context::is_productive(expr const & e) {
     if (!is_constant(f))
         return true;
     name const & n = const_name(f);
-    if (n == get_prod_fst_name()) {
+    if (n == get_pprod_fst_name()) {
         /* We use prod.fst when compiling recursive equations and brec_on.
            So, we should check whether the main argument of the projection
            is productive */

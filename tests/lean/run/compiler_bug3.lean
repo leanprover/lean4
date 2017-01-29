@@ -1,4 +1,4 @@
-inductive tree (A : Type*)
+inductive {u} tree (A : Type u) : Type u
 | leaf : A -> tree
 | node : list tree -> tree
 

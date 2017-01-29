@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "library/protected.h"
 #include "library/constants.h"
 #include "library/normalize.h"
+#include "library/app_builder.h"
 #include "library/class.h"
 #include "library/user_recursors.h"
 #include "library/pp_options.h"
@@ -446,15 +447,16 @@ static environment vm_eval_cmd(parser & p) {
     bool is_string = false;
     if (!is_io) {
         /* Check if resultant type has an instance of has_to_string */
-        level lvl  = sort_level(tc.whnf(tc.infer(type)));
-        expr has_to_string_type = mk_app(mk_constant(get_has_to_string_name(), {lvl}), type0);
-        optional<expr> to_string_instance = tc.mk_class_instance(has_to_string_type);
-        if (to_string_instance) {
-            /* Modify the 'program' to (to_string e) */
-            e         = mk_app(mk_constant(get_to_string_name(), {lvl}), type0, *to_string_instance, e);
-            type      = tc.infer(e);
-            is_string = true;
-        }
+        try {
+            expr has_to_string_type = mk_app(tc, get_has_to_string_name(), type0);
+            optional<expr> to_string_instance = tc.mk_class_instance(has_to_string_type);
+            if (to_string_instance) {
+                /* Modify the 'program' to (to_string e) */
+                e         = mk_app(tc, get_to_string_name(), type0, *to_string_instance, e);
+                type      = tc.infer(e);
+                is_string = true;
+            }
+        } catch (exception &) {}
     }
     name main("_main");
     environment new_env = compile_expr(p.env(), main, ls, type, e, pos);

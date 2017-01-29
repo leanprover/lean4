@@ -322,8 +322,8 @@ or.neg_resolve_right
 or.rec
 or.resolve_left
 or.resolve_right
-poly_unit
-poly_unit.star
+punit
+punit.star
 pos_num
 pos_num.bit0
 pos_num.bit1

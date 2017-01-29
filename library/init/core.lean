@@ -83,8 +83,8 @@ universe variables u v
 @[reducible] def opt_param (α : Sort u) (default : α) : Sort u :=
 α
 
-inductive poly_unit : Sort u
-| star : poly_unit
+inductive punit : Sort u
+| star : punit
 
 inductive unit : Type
 | star : unit
@@ -523,10 +523,10 @@ attribute [simp.sizeof]
 lemma sizeof_unit_eq (u : unit) : sizeof u = 1 :=
 rfl
 
-instance : has_sizeof poly_unit := ⟨λ u, 1⟩
+instance : has_sizeof punit := ⟨λ u, 1⟩
 
 attribute [simp.sizeof]
-lemma sizeof_poly_unit_eq (u : poly_unit) : sizeof u = 1 :=
+lemma sizeof_punit_eq (u : punit) : sizeof u = 1 :=
 rfl
 
 instance : has_sizeof bool := ⟨λ u, 1⟩

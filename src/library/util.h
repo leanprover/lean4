@@ -41,10 +41,10 @@ optional<expr> unfold_app(environment const & env, expr const & e);
     \pre is_not_zero(l) */
 optional<level> dec_level(level const & l);
 
-bool has_poly_unit_decls(environment const & env);
+bool has_punit_decls(environment const & env);
+bool has_pprod_decls(environment const & env);
 bool has_eq_decls(environment const & env);
 bool has_heq_decls(environment const & env);
-bool has_pprod_decls(environment const & env);
 bool has_lift_decls(environment const & env);
 
 /** \brief Return true iff \c n is the name of a recursive datatype in \c env.

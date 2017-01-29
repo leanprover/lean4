@@ -327,8 +327,8 @@ name const * g_or_neg_resolve_right = nullptr;
 name const * g_or_rec = nullptr;
 name const * g_or_resolve_left = nullptr;
 name const * g_or_resolve_right = nullptr;
-name const * g_poly_unit = nullptr;
-name const * g_poly_unit_star = nullptr;
+name const * g_punit = nullptr;
+name const * g_punit_star = nullptr;
 name const * g_pos_num = nullptr;
 name const * g_pos_num_bit0 = nullptr;
 name const * g_pos_num_bit1 = nullptr;
@@ -802,8 +802,8 @@ void initialize_constants() {
     g_or_rec = new name{"or", "rec"};
     g_or_resolve_left = new name{"or", "resolve_left"};
     g_or_resolve_right = new name{"or", "resolve_right"};
-    g_poly_unit = new name{"poly_unit"};
-    g_poly_unit_star = new name{"poly_unit", "star"};
+    g_punit = new name{"punit"};
+    g_punit_star = new name{"punit", "star"};
     g_pos_num = new name{"pos_num"};
     g_pos_num_bit0 = new name{"pos_num", "bit0"};
     g_pos_num_bit1 = new name{"pos_num", "bit1"};
@@ -1278,8 +1278,8 @@ void finalize_constants() {
     delete g_or_rec;
     delete g_or_resolve_left;
     delete g_or_resolve_right;
-    delete g_poly_unit;
-    delete g_poly_unit_star;
+    delete g_punit;
+    delete g_punit_star;
     delete g_pos_num;
     delete g_pos_num_bit0;
     delete g_pos_num_bit1;
@@ -1753,8 +1753,8 @@ name const & get_or_neg_resolve_right_name() { return *g_or_neg_resolve_right; }
 name const & get_or_rec_name() { return *g_or_rec; }
 name const & get_or_resolve_left_name() { return *g_or_resolve_left; }
 name const & get_or_resolve_right_name() { return *g_or_resolve_right; }
-name const & get_poly_unit_name() { return *g_poly_unit; }
-name const & get_poly_unit_star_name() { return *g_poly_unit_star; }
+name const & get_punit_name() { return *g_punit; }
+name const & get_punit_star_name() { return *g_punit_star; }
 name const & get_pos_num_name() { return *g_pos_num; }
 name const & get_pos_num_bit0_name() { return *g_pos_num_bit0; }
 name const & get_pos_num_bit1_name() { return *g_pos_num_bit1; }

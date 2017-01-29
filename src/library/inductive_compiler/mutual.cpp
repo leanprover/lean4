@@ -53,8 +53,8 @@ class add_mutual_inductive_decl_fn {
 
     // For the recursor
     level                         m_elim_level;
-    expr poly_unit() const { return mk_constant(get_poly_unit_name(), {m_elim_level}); }
-    expr poly_unit_star() const { return mk_constant(get_poly_unit_star_name(), {m_elim_level}); }
+    expr punit() const { return mk_constant(get_punit_name(), {m_elim_level}); }
+    expr punit_star() const { return mk_constant(get_punit_star_name(), {m_elim_level}); }
 
     expr mk_local_for(expr const & b) { return mk_local(mk_fresh_name(), binding_name(b), binding_domain(b), binding_info(b)); }
     expr mk_local_pp(name const & n, expr const & ty) { return mk_local(mk_fresh_name(), n, ty, binder_info()); }
@@ -528,7 +528,7 @@ class add_mutual_inductive_decl_fn {
                 case1 = Fun(idx, unpack_sigma_and_apply_C(ind_idx, idx, C));
             } else {
                 expr x = mk_local_pp("x", mk_app(m_basic_decl.get_c_ind_params(0), mk_app(m_putters[i], idx)));
-                case1 = Fun({idx, x}, poly_unit());
+                case1 = Fun({idx, x}, punit());
             }
             lean_trace(name({"inductive_compiler", "mutual", "rec"}), tout() << "inner C case1: " << case1 << "\n";);
         }
@@ -539,7 +539,7 @@ class add_mutual_inductive_decl_fn {
             if (found_target) {
                 // case2 absorbs everything else
                 expr x = mk_local_pp("x", mk_app(m_basic_decl.get_c_ind_params(0), mk_app(mk_put_rest(ind_idx+1), idx)));
-                case2 = Fun({idx, x}, poly_unit());
+                case2 = Fun({idx, x}, punit());
             } else if (i + 1 == ind_idx && ind_idx + 1 == m_mut_decl.get_inds().size()) {
                 // case2 is the end, and has the payload
                 case2 = Fun(idx, unpack_sigma_and_apply_C(ind_idx, idx, C));
@@ -559,7 +559,7 @@ class add_mutual_inductive_decl_fn {
                              I₂
                              (λ (c : I₁ ⊎ I₂), @foo_vector c -> Type)
                              i
-                             (λ (i : I₁) (x : @foo_vector (put₁ i)), poly_unit)
+                             (λ (i : I₁) (x : @foo_vector (put₁ i)), punit)
                              (λ (n : I₂) (x : @foo_vector (put₂ n)), C n x)) */
         expr index = mk_local_pp("idx", m_full_index_type);
         return Fun(index, construct_inner_C_core(C, index, 0, ind_idx));
@@ -669,7 +669,7 @@ class add_mutual_inductive_decl_fn {
                     if (m_mut_decl.is_ind_app(ir_arg, inner_indices)) {
                         bool this_ind_app = m_mut_decl.is_ind_app(ir_arg, ind_idx);
                         expr C_term = mk_app(mk_app(C, inner_indices), mk_app(l, ir_arg_args));
-                        expr rec_arg_type = Pi(ir_arg_args, this_ind_app ? C_term : poly_unit());
+                        expr rec_arg_type = Pi(ir_arg_args, this_ind_app ? C_term : punit());
                         expr l2 = mk_local_pp("x", rec_arg_type);
                         rec_args.push_back(l2);
                         // We only pass recursive arguments of the inductive type in question to the minor premise
@@ -684,7 +684,7 @@ class add_mutual_inductive_decl_fn {
                 if (i == ind_idx) {
                     return_value = mk_app(mk_app(minor_premises[ir_idx], return_args), return_rec_args);
                 } else {
-                    return_value = poly_unit_star();
+                    return_value = punit_star();
                 }
                 expr inner_minor_premise = Fun(locals, return_value);
                 lean_trace(name({"inductive_compiler", "mutual", "rec"}), tout() << "inner minor premise: " << inner_minor_premise << "\n";);

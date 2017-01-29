@@ -73,9 +73,9 @@ class add_basic_inductive_decl_fn {
     void mk_basic_aux_decls() {
         name ind_name = mlocal_name(m_decl.get_inds()[0]);
 
-        bool has_unit = has_poly_unit_decls(m_env);
         bool has_eq   = has_eq_decls(m_env);
         bool has_heq  = has_heq_decls(m_env);
+        bool has_unit = has_punit_decls(m_env);
         bool has_prod = has_pprod_decls(m_env);
 
         bool gen_rec_on       = get_inductive_rec_on(m_opts);

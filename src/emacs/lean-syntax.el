@@ -155,8 +155,8 @@
      (,(rx word-start (group "example") ".") (1 'font-lock-keyword-face))
      (,(rx (or "∎")) . 'font-lock-keyword-face)
      ;; Types
-     (,(rx word-start (or "Prop" "Type" "Type*" "PType" "PType*" "Type₂" "Type₃") symbol-end) . 'font-lock-type-face)
-     (,(rx word-start (group (or "Prop" "Type")) ".") (1 'font-lock-type-face))
+     (,(rx word-start (or "Prop" "Type" "Type*" "Sort" "Sort*") symbol-end) . 'font-lock-type-face)
+     (,(rx word-start (group (or "Prop" "Type" "Sort")) ".") (1 'font-lock-type-face))
      ;; String
      ("\"[^\"]*\"" . 'font-lock-string-face)
      ;; ;; Constants

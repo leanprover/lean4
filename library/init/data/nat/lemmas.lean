@@ -259,10 +259,10 @@ protected lemma lt_or_ge : ∀ (a b : ℕ), a < b ∨ a ≥ b
     end
   end
 
-protected def {u} lt_ge_by_cases {a b : ℕ} {C : PType u} (h₁ : a < b → C) (h₂ : a ≥ b → C) : C :=
+protected def {u} lt_ge_by_cases {a b : ℕ} {C : Sort u} (h₁ : a < b → C) (h₂ : a ≥ b → C) : C :=
 decidable.by_cases h₁ (λ h, h₂ (or.elim (nat.lt_or_ge a b) (λ a, absurd a h) (λ a, a)))
 
-protected def {u} lt_by_cases {a b : ℕ} {C : PType u} (h₁ : a < b → C) (h₂ : a = b → C)
+protected def {u} lt_by_cases {a b : ℕ} {C : Sort u} (h₁ : a < b → C) (h₂ : a = b → C)
   (h₃ : b < a → C) : C :=
 nat.lt_ge_by_cases h₁ (λ h₁,
   nat.lt_ge_by_cases h₃ (λ h, h₂ (nat.le_antisymm h h₁)))

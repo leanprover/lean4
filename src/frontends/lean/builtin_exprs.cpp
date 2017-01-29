@@ -70,11 +70,11 @@ static expr parse_Type(parser & p, unsigned, expr const *, pos_info const & pos)
     }
 }
 
-static expr parse_PType(parser & p, unsigned, expr const *, pos_info const & pos) {
+static expr parse_Sort(parser & p, unsigned, expr const *, pos_info const & pos) {
     if (p.curr_is_token(get_llevel_curly_tk())) {
         p.next();
         level l = p.parse_level();
-        p.check_token_next(get_rcurly_tk(), "invalid PType expression, '}' expected");
+        p.check_token_next(get_rcurly_tk(), "invalid Sort expression, '}' expected");
         return p.save_pos(mk_sort(l), pos);
     } else {
         return mk_sort_wo_universe(p, pos, false);
@@ -85,7 +85,7 @@ static expr parse_Type_star(parser & p, unsigned, expr const *, pos_info const &
     return p.save_pos(mk_sort(mk_succ(mk_level_placeholder())), pos);
 }
 
-static expr parse_PType_star(parser & p, unsigned, expr const *, pos_info const & pos) {
+static expr parse_Sort_star(parser & p, unsigned, expr const *, pos_info const & pos) {
     return p.save_pos(mk_sort(mk_level_placeholder()), pos);
 }
 
@@ -769,8 +769,8 @@ parse_table init_nud_table() {
     r = r.add({transition("Pi", Binders), transition(",", mk_scoped_expr_action(x0, 0, false))}, x0);
     r = r.add({transition("Type", mk_ext_action(parse_Type))}, x0);
     r = r.add({transition("Type*", mk_ext_action(parse_Type_star))}, x0);
-    r = r.add({transition("PType", mk_ext_action(parse_PType))}, x0);
-    r = r.add({transition("PType*", mk_ext_action(parse_PType_star))}, x0);
+    r = r.add({transition("Sort", mk_ext_action(parse_Sort))}, x0);
+    r = r.add({transition("Sort*", mk_ext_action(parse_Sort_star))}, x0);
     r = r.add({transition("let", mk_ext_action(parse_let_expr))}, x0);
     r = r.add({transition("calc", mk_ext_action(parse_calc_expr))}, x0);
     r = r.add({transition("@", mk_ext_action(parse_explicit_expr))}, x0);

@@ -20,7 +20,7 @@ acc.rec_on h₁ (λ x₁ ac₁ ih h₂, ac₁ y h₂) h₂
 -- dependent elimination for acc
 attribute [recursor]
 protected def drec
-    {C : Π (a : α), acc r a → PType v}
+    {C : Π (a : α), acc r a → Sort v}
     (h₁ : Π (x : α) (acx : Π (y : α), r y x → acc r y), (Π (y : α) (ryx : r y x), C y (acx y ryx)) → C x (acc.intro x acx))
     {a : α} (h₂ : acc r a) : C a h₂ :=
 acc.rec (λ x acx ih h₂, h₁ x acx (λ y ryx, ih y ryx (acx y ryx))) h₂ h₂
@@ -39,7 +39,7 @@ local infix `≺`:50    := r
 
 hypothesis hwf : well_founded r
 
-lemma recursion {C : α → PType v} (a : α) (h : Π x, (Π y, y ≺ x → C y) → C x) : C a :=
+lemma recursion {C : α → Sort v} (a : α) (h : Π x, (Π y, y ≺ x → C y) → C x) : C a :=
 acc.rec_on (apply hwf a) (λ x₁ ac₁ ih, h x₁ ih)
 
 lemma induction {C : α → Prop} (a : α) (h : ∀ x, (∀ y, y ≺ x → C y) → C x) : C a :=

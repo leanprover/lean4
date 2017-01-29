@@ -78,13 +78,13 @@ absurd (eq.mpr h this) this
 
 universe variables u
 
-lemma if_eq_of_eq_true {c : Prop} [d : decidable c] {α : PType u} (t e : α) (h : c = true) : (@ite c d α t e) = t :=
+lemma if_eq_of_eq_true {c : Prop} [d : decidable c] {α : Sort u} (t e : α) (h : c = true) : (@ite c d α t e) = t :=
 if_pos (of_eq_true h)
 
-lemma if_eq_of_eq_false {c : Prop} [d : decidable c] {α : PType u} (t e : α) (h : c = false) : (@ite c d α t e) = e :=
+lemma if_eq_of_eq_false {c : Prop} [d : decidable c] {α : Sort u} (t e : α) (h : c = false) : (@ite c d α t e) = e :=
 if_neg (not_of_eq_false h)
 
-lemma if_eq_of_eq (c : Prop) [d : decidable c] {α : PType u} {t e : α} (h : t = e) : (@ite c d α t e) = t :=
+lemma if_eq_of_eq (c : Prop) [d : decidable c] {α : Sort u} {t e : α} (h : t = e) : (@ite c d α t e) = t :=
 match d with
 | (is_true hc)   := rfl
 | (is_false hnc) := eq.symm h
@@ -110,8 +110,8 @@ eq_false_intro (λ ha, absurd ha (eq.mpr h trivial))
 lemma eq_true_of_not_eq_false {a : Prop} (h : (not a) = false) : a = true :=
 eq_true_intro (classical.by_contradiction (λ hna, eq.mp h hna))
 
-lemma ne_of_eq_of_ne {α : PType u} {a b c : α} (h₁ : a = b) (h₂ : b ≠ c) : a ≠ c :=
+lemma ne_of_eq_of_ne {α : Sort u} {a b c : α} (h₁ : a = b) (h₂ : b ≠ c) : a ≠ c :=
 h₁^.symm ▸ h₂
 
-lemma ne_of_ne_of_eq {α : PType u} {a b c : α} (h₁ : a ≠ b) (h₂ : b = c) : a ≠ c :=
+lemma ne_of_ne_of_eq {α : Sort u} {a b c : α} (h₁ : a ≠ b) (h₂ : b = c) : a ≠ c :=
 h₂ ▸ h₁

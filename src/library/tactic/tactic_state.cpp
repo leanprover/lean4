@@ -753,12 +753,12 @@ vm_obj tactic_decl_name(vm_obj const & _s) {
 format tactic_state::pp() const {
     type_context ctx = mk_type_context_for(*this, transparency_mode::Semireducible);
     expr ts_expr     = mk_constant("tactic_state");
-    optional<expr> to_fmt_inst = ctx.mk_class_instance(mk_app(mk_constant("has_to_format", {mk_level_one()}), ts_expr));
+    optional<expr> to_fmt_inst = ctx.mk_class_instance(mk_app(mk_constant("has_to_format", {mk_level_zero()}), ts_expr));
     if (!to_fmt_inst) {
         return pp_core();
     } else {
         try {
-            expr code            = mk_app(mk_constant("to_fmt", {mk_level_one()}), ts_expr, *to_fmt_inst);
+            expr code            = mk_app(mk_constant("to_fmt", {mk_level_zero()}), ts_expr, *to_fmt_inst);
             expr type            = ctx.infer(code);
             environment new_env  = ctx.env();
             bool use_conv_opt    = true;

@@ -1,4 +1,4 @@
-inductive vec (A : Type*) : nat → Type*
+inductive vec (A : Sort*) : nat → Sort*
 | nil  : vec 0
 | cons : Π {n}, A → vec n → vec (n+1)
 

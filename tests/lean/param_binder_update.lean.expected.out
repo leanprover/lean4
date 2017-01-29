@@ -1,4 +1,4 @@
-id : Π {α : Type u_1}, α → α
+id : Π {α : Sort u_1}, α → α
 id₂ : Π {A : Type u_1}, A → A
 foo1 : A → B → A
 foo2 : A → B → A

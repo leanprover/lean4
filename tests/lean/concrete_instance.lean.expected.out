@@ -1,4 +1,4 @@
-@mul.{1} nat nat.has_mul a b : nat
-@add.{1} nat nat.has_add a b : nat
-@mul.{1} nat nat.has_mul a b : nat
-@add.{1} nat nat.has_add a b : nat
+@mul.{0} nat nat.has_mul a b : nat
+@add.{0} nat nat.has_add a b : nat
+@mul.{0} nat nat.has_mul a b : nat
+@add.{0} nat nat.has_add a b : nat

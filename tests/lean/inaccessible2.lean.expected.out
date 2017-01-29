@@ -1,4 +1,4 @@
-inaccessible2.lean:6:7: error: invalid occurrence of 'inaccessible' annotation, it must only occur in patterns
-inaccessible2.lean:9:10: error: invalid pattern, must be an application, constant, variable, type ascription or inaccessible term
-inaccessible2.lean:12:11: error: invalid pattern, must be an application, constant, variable, type ascription or inaccessible term
-inaccessible2.lean:15:9: error: invalid pattern, in a constructor application, the parameters of the inductive datatype must be marked as inaccessible
+inaccessible2.lean:5:7: error: invalid occurrence of 'inaccessible' annotation, it must only occur in patterns
+inaccessible2.lean:8:10: error: invalid pattern, must be an application, constant, variable, type ascription or inaccessible term
+inaccessible2.lean:11:11: error: invalid pattern, must be an application, constant, variable, type ascription or inaccessible term
+inaccessible2.lean:14:9: error: invalid pattern, in a constructor application, the parameters of the inductive datatype must be marked as inaccessible

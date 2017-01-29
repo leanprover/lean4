@@ -1,4 +1,4 @@
 ∃ (A : Type) (x y : A), x = y : Prop
 ∃ (x : num), x = 0 : Prop
 Σ (x : num), x = 10 : Type
-Σ (A : Type), List A : Type₂
+Σ (A : Type), List A : Type 1

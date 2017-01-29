@@ -10,7 +10,7 @@ constant lst.cons {A : Type} : A → lst A → lst A
 notation `[` l:(foldr `, ` (h t, vec.cons h t) vec.nil `]`) := l
 notation `[` l:(foldr `, ` (h t, lst.cons h t) lst.nil `]`) := l
 
-constant A : Type.{1}
+constant A : Type
 variables a b c : A
 
 check [a, b, c]

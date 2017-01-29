@@ -1,5 +1,5 @@
 a + b = 0
 after pp.all true
-@eq.{1} nat (@add.{1} nat nat.has_add a b) (@zero.{1} nat nat.has_zero)
+@eq.{1} nat (@add.{0} nat nat.has_add a b) (@zero.{0} nat nat.has_zero)
 set_bool_option tactic does not affect other commands
 0 + 1 : ℕ

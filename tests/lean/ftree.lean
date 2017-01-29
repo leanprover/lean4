@@ -1,4 +1,4 @@
-inductive List (T : Type*) : Type* | nil {} : List | cons   : T → List → List
+inductive List (T : Sort*) : Sort* | nil {} : List | cons   : T → List → List
 
 namespace explicit
 

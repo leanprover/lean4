@@ -1,5 +1,5 @@
 (λ (x : ℕ), x) a + of_num b = 10 : Prop
-@eq.{1} nat (@add.{1} nat nat.has_add ((λ (x : nat), x) a) (nat.of_num b))
-  (@bit0.{1} nat nat.has_add
-     (@bit1.{1} nat nat.has_one nat.has_add (@bit0.{1} nat nat.has_add (@one.{1} nat nat.has_one)))) :
+@eq.{1} nat (@add.{0} nat nat.has_add ((λ (x : nat), x) a) (nat.of_num b))
+  (@bit0.{0} nat nat.has_add
+     (@bit1.{0} nat nat.has_one nat.has_add (@bit0.{0} nat nat.has_add (@one.{0} nat nat.has_one)))) :
   Prop

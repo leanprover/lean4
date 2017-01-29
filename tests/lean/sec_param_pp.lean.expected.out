@@ -1,4 +1,4 @@
 id2 : A
 pr f id2 : A
 pr f id2 : A
-pr2.{1} num 10 : A
+pr2.{0} num 10 : A

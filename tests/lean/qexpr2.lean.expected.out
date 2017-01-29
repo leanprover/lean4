@@ -1,4 +1,4 @@
-@add.{1} nat nat.has_add ?m_1 b
+@add.{0} nat nat.has_add ?m_1 b
 nat
 ------ after instantiate_mvars
-@add.{1} nat nat.has_add c b
+@add.{0} nat nat.has_add c b

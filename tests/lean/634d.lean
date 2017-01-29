@@ -1,6 +1,6 @@
 section
   universe l
-  definition A {n : ℕ} (t : Type l) := t
+  definition A {n : ℕ} (t : Sort l) := t
   check A
   check _root_.A.{1}
   set_option pp.universes true
@@ -10,7 +10,7 @@ end
 
 section
   universe l
-  parameters {B : Type.{l}}
+  parameters {B : Sort l}
   definition P {n : ℕ} (b : B) := b
   check P
   check @_root_.P.{1} nat

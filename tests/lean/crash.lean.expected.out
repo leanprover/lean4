@@ -1,7 +1,7 @@
 crash.lean:6:11: error: don't know how to synthesize placeholder
 context:
 P : Prop
-⊢ Type ?
+⊢ Sort ?
 crash.lean:9:17: error: invalid have-expression, expression
   H
 has type

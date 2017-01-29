@@ -4,5 +4,5 @@ id2 Type num : Type
 id2 Type num : Type
 id2 Type num : Type
 id2 Type num : Type
-id2 Type₂ Type : Type₂
-id2 Type₂ Type : Type₂
+id2 Type 2 Type 1 : Type 2
+id2 Type 2 Type 1 : Type 2

@@ -1,5 +1,5 @@
 prelude namespace foo
-  constant A : Type.{1}
+  constant A : Type
   constant a : A
   constant x : A
   constant c : A

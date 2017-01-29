@@ -1,5 +1,5 @@
 prelude -- Correct version
-check let bool                      := Type.{0},
+check let bool                      := Sort 0,
           and  (p q : bool)         := ∀ c : bool, (p → q → c) → c,
           infixl `∧`:25             := and,
           and_intro (p q : bool) (H1 : p) (H2 : q) : p ∧ q
@@ -12,7 +12,7 @@ check let bool                      := Type.{0},
 
 -- TODO(Leo): fix expected output as soon as elaborator starts checking let-expression type again
 
-check let bool                := Type.{0},
+check let bool                := Sort 0,
           and  (p q : bool)   := ∀ c : bool, (p → q → c) → c,
           infixl `∧`:25       := and,
           and_intro (p q : bool) (H1 : p) (H2 : q) : q ∧ p

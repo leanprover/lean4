@@ -1,10 +1,10 @@
-@foo.{1 1} nat nat nat.has_add (@zero.{1} nat nat.has_zero) (@one.{1} nat nat.has_one) : nat
+@foo.{0 0} nat nat nat.has_add (@zero.{0} nat nat.has_zero) (@one.{0} nat nat.has_one) : nat
 elab2.lean:13:6: error: type mismatch at application
-  @bla.{1 ?l_1} nat ?m_2 nat.zero bool.tt
+  @bla.{0 ?l_1} nat ?m_2 nat.zero bool.tt
 term
   bool.tt
 has type
   bool
 but is expected to have type
   nat
-@bla.{1 1} nat bool (@zero.{1} nat nat.has_zero) (@zero.{1} nat nat.has_zero) bool.tt : nat
+@bla.{0 0} nat bool (@zero.{0} nat nat.has_zero) (@zero.{0} nat nat.has_zero) bool.tt : nat

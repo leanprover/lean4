@@ -1,106 +1,134 @@
 nat.succ
-  (prod.fst
-     (prod.fst
-        (nat.rec
-          ((λ (a : ℕ) (_F : nat.below a) (a_1 : ℕ),
-             (λ (a a_1 : ℕ) (_F : nat.below a_1),
-                nat.cases_on a_1 (λ (_F : nat.below 0), a)
-                  (λ (a_1 : ℕ) (_F : nat.below (nat.succ a_1)), nat.succ (prod.fst (prod.fst _F) a))
-                  _F)
-               a_1
-               a
-               _F)
-            0
-            poly_unit.star, poly_unit.star)
-          (λ (a : ℕ) (ih_1 : (λ (a : ℕ), ℕ → ℕ) a × nat.below a),
-             ((λ (a : ℕ) (_F : nat.below a) (a_1 : ℕ),
-                (λ (a a_1 : ℕ) (_F : nat.below a_1),
-                   nat.cases_on a_1 (λ (_F : nat.below 0), a)
-                     (λ (a_1 : ℕ) (_F : nat.below (nat.succ a_1)), nat.succ (prod.fst (prod.fst _F) a))
-                     _F)
-                  a_1
-                  a
-                  _F)
-               (nat.succ a)
-               (ih_1, poly_unit.star), ih_1, poly_unit.star))
-          (prod.fst
-             (prod.fst
-                (nat.rec
-                  ((λ (a : ℕ) (_F : nat.below a) (a_1 : ℕ),
+  (pprod.fst
+     (pprod.fst
+        (pprod.mk
+           (nat.rec
+              (pprod.mk
+                 ((λ (a : ℕ) (_F : nat.below a) (a_1 : ℕ),
                      (λ (a a_1 : ℕ) (_F : nat.below a_1),
                         nat.cases_on a_1 (λ (_F : nat.below 0), a)
-                          (λ (a_1 : ℕ) (_F : nat.below (nat.succ a_1)), nat.succ (prod.fst (prod.fst _F) a))
+                          (λ (a_1 : ℕ) (_F : nat.below (nat.succ a_1)), nat.succ (pprod.fst (pprod.fst _F) a))
                           _F)
                        a_1
                        a
                        _F)
                     0
-                    poly_unit.star, poly_unit.star)
-                  (λ (a : ℕ) (ih_1 : (λ (a : ℕ), ℕ → ℕ) a × nat.below a),
-                     ((λ (a : ℕ) (_F : nat.below a) (a_1 : ℕ),
-                        (λ (a a_1 : ℕ) (_F : nat.below a_1),
-                           nat.cases_on a_1 (λ (_F : nat.below 0), a)
-                             (λ (a_1 : ℕ) (_F : nat.below (nat.succ a_1)), nat.succ (prod.fst (prod.fst _F) a))
-                             _F)
-                          a_1
-                          a
-                          _F)
-                       (nat.succ a)
-                       (ih_1, poly_unit.star), ih_1, poly_unit.star))
-                  0, poly_unit.star))
-             1), poly_unit.star))
+                    punit.star)
+                 punit.star)
+              (λ (a : ℕ) (ih_1 : pprod ((λ (a : ℕ), ℕ → ℕ) a) (nat.below a)),
+                 pprod.mk
+                   ((λ (a : ℕ) (_F : nat.below a) (a_1 : ℕ),
+                       (λ (a a_1 : ℕ) (_F : nat.below a_1),
+                          nat.cases_on a_1 (λ (_F : nat.below 0), a)
+                            (λ (a_1 : ℕ) (_F : nat.below (nat.succ a_1)), nat.succ (pprod.fst (pprod.fst _F) a))
+                            _F)
+                         a_1
+                         a
+                         _F)
+                      (nat.succ a)
+                      (pprod.mk ih_1 punit.star))
+                   (pprod.mk ih_1 punit.star))
+              (pprod.fst
+                 (pprod.fst
+                    (pprod.mk
+                       (nat.rec
+                          (pprod.mk
+                             ((λ (a : ℕ) (_F : nat.below a) (a_1 : ℕ),
+                                 (λ (a a_1 : ℕ) (_F : nat.below a_1),
+                                    nat.cases_on a_1 (λ (_F : nat.below 0), a)
+                                      (λ (a_1 : ℕ) (_F : nat.below (nat.succ a_1)),
+                                         nat.succ (pprod.fst (pprod.fst _F) a))
+                                      _F)
+                                   a_1
+                                   a
+                                   _F)
+                                0
+                                punit.star)
+                             punit.star)
+                          (λ (a : ℕ) (ih_1 : pprod ((λ (a : ℕ), ℕ → ℕ) a) (nat.below a)),
+                             pprod.mk
+                               ((λ (a : ℕ) (_F : nat.below a) (a_1 : ℕ),
+                                   (λ (a a_1 : ℕ) (_F : nat.below a_1),
+                                      nat.cases_on a_1 (λ (_F : nat.below 0), a)
+                                        (λ (a_1 : ℕ) (_F : nat.below (nat.succ a_1)),
+                                           nat.succ (pprod.fst (pprod.fst _F) a))
+                                        _F)
+                                     a_1
+                                     a
+                                     _F)
+                                  (nat.succ a)
+                                  (pprod.mk ih_1 punit.star))
+                               (pprod.mk ih_1 punit.star))
+                          0)
+                       punit.star))
+                 1))
+           punit.star))
      a)
 nat.succ
-  (prod.fst
-     (prod.fst
-        (nat.rec
-          ((λ (a : ℕ) (_F : nat.below a) (a_1 : ℕ),
-             (λ (a a_1 : ℕ) (_F : nat.below a_1),
-                nat.cases_on a_1 (λ (_F : nat.below 0), a)
-                  (λ (a_1 : ℕ) (_F : nat.below (nat.succ a_1)), nat.succ (prod.fst (prod.fst _F) a))
-                  _F)
-               a_1
-               a
-               _F)
-            0
-            poly_unit.star, poly_unit.star)
-          (λ (a : ℕ) (ih_1 : (λ (a : ℕ), ℕ → ℕ) a × nat.below a),
-             ((λ (a : ℕ) (_F : nat.below a) (a_1 : ℕ),
-                (λ (a a_1 : ℕ) (_F : nat.below a_1),
-                   nat.cases_on a_1 (λ (_F : nat.below 0), a)
-                     (λ (a_1 : ℕ) (_F : nat.below (nat.succ a_1)), nat.succ (prod.fst (prod.fst _F) a))
-                     _F)
-                  a_1
-                  a
-                  _F)
-               (nat.succ a)
-               (ih_1, poly_unit.star), ih_1, poly_unit.star))
-          (prod.fst
-             (prod.fst
-                (nat.rec
-                  ((λ (a : ℕ) (_F : nat.below a) (a_1 : ℕ),
+  (pprod.fst
+     (pprod.fst
+        (pprod.mk
+           (nat.rec
+              (pprod.mk
+                 ((λ (a : ℕ) (_F : nat.below a) (a_1 : ℕ),
                      (λ (a a_1 : ℕ) (_F : nat.below a_1),
                         nat.cases_on a_1 (λ (_F : nat.below 0), a)
-                          (λ (a_1 : ℕ) (_F : nat.below (nat.succ a_1)), nat.succ (prod.fst (prod.fst _F) a))
+                          (λ (a_1 : ℕ) (_F : nat.below (nat.succ a_1)), nat.succ (pprod.fst (pprod.fst _F) a))
                           _F)
                        a_1
                        a
                        _F)
                     0
-                    poly_unit.star, poly_unit.star)
-                  (λ (a : ℕ) (ih_1 : (λ (a : ℕ), ℕ → ℕ) a × nat.below a),
-                     ((λ (a : ℕ) (_F : nat.below a) (a_1 : ℕ),
-                        (λ (a a_1 : ℕ) (_F : nat.below a_1),
-                           nat.cases_on a_1 (λ (_F : nat.below 0), a)
-                             (λ (a_1 : ℕ) (_F : nat.below (nat.succ a_1)), nat.succ (prod.fst (prod.fst _F) a))
-                             _F)
-                          a_1
-                          a
-                          _F)
-                       (nat.succ a)
-                       (ih_1, poly_unit.star), ih_1, poly_unit.star))
-                  0, poly_unit.star))
-             1), poly_unit.star))
+                    punit.star)
+                 punit.star)
+              (λ (a : ℕ) (ih_1 : pprod ((λ (a : ℕ), ℕ → ℕ) a) (nat.below a)),
+                 pprod.mk
+                   ((λ (a : ℕ) (_F : nat.below a) (a_1 : ℕ),
+                       (λ (a a_1 : ℕ) (_F : nat.below a_1),
+                          nat.cases_on a_1 (λ (_F : nat.below 0), a)
+                            (λ (a_1 : ℕ) (_F : nat.below (nat.succ a_1)), nat.succ (pprod.fst (pprod.fst _F) a))
+                            _F)
+                         a_1
+                         a
+                         _F)
+                      (nat.succ a)
+                      (pprod.mk ih_1 punit.star))
+                   (pprod.mk ih_1 punit.star))
+              (pprod.fst
+                 (pprod.fst
+                    (pprod.mk
+                       (nat.rec
+                          (pprod.mk
+                             ((λ (a : ℕ) (_F : nat.below a) (a_1 : ℕ),
+                                 (λ (a a_1 : ℕ) (_F : nat.below a_1),
+                                    nat.cases_on a_1 (λ (_F : nat.below 0), a)
+                                      (λ (a_1 : ℕ) (_F : nat.below (nat.succ a_1)),
+                                         nat.succ (pprod.fst (pprod.fst _F) a))
+                                      _F)
+                                   a_1
+                                   a
+                                   _F)
+                                0
+                                punit.star)
+                             punit.star)
+                          (λ (a : ℕ) (ih_1 : pprod ((λ (a : ℕ), ℕ → ℕ) a) (nat.below a)),
+                             pprod.mk
+                               ((λ (a : ℕ) (_F : nat.below a) (a_1 : ℕ),
+                                   (λ (a a_1 : ℕ) (_F : nat.below a_1),
+                                      nat.cases_on a_1 (λ (_F : nat.below 0), a)
+                                        (λ (a_1 : ℕ) (_F : nat.below (nat.succ a_1)),
+                                           nat.succ (pprod.fst (pprod.fst _F) a))
+                                        _F)
+                                     a_1
+                                     a
+                                     _F)
+                                  (nat.succ a)
+                                  (pprod.mk ih_1 punit.star))
+                               (pprod.mk ih_1 punit.star))
+                          0)
+                       punit.star))
+                 1))
+           punit.star))
      a)
 f a
 a + 2

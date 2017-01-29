@@ -1,6 +1,6 @@
 universe variables u
 
-inductive Vec (α : Type u) : nat → Type (max 1 u)
+inductive Vec (α : Type u) : nat → Type u
 | nil  : Vec 0
 | cons : ∀ {n}, α → Vec n → Vec (nat.succ n)
 

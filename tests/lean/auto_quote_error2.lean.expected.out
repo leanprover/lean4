@@ -11,7 +11,7 @@ a_2 : b = c
 a b c : ℕ,
 a_1 : a = b,
 a_2 : b = c
-⊢ Type ?
+⊢ Sort ?
 auto_quote_error2.lean:8:0: error: failed
 state:
 a b c : ℕ,
@@ -22,7 +22,7 @@ a_2 : b = c
 a b c : ℕ,
 a_1 : a = b,
 a_2 : b = c
-⊢ Type ?
+⊢ Sort ?
 hello world
 auto_quote_error2.lean:16:2: error: focus tactic failed, focused goal has not been solved
 state:

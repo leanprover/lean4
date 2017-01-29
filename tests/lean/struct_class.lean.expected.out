@@ -1,52 +1,52 @@
 decidable : Prop → Type
-has_add : Type u → Type (max 1 u)
-has_andthen : Type u → Type (max 1 u)
-has_append : Type u → Type (max 1 u)
-has_div : Type u → Type (max 1 u)
-has_dvd : Type u → Type (max 1 u)
-has_emptyc : Type u → Type (max 1 u)
-has_insert : Type u → (Type u → Type v) → Type (max 1 (imax u v))
-has_inter : Type u → Type (max 1 u)
-has_inv : Type u → Type (max 1 u)
-has_le : Type u → Type (max 1 u)
-has_lt : Type u → Type (max 1 u)
-has_mem : Type u → (Type u → Type v) → Type (max 1 u v)
-has_mod : Type u → Type (max 1 u)
-has_mul : Type u → Type (max 1 u)
-has_neg : Type u → Type (max 1 u)
-has_one : Type u → Type (max 1 u)
-has_sdiff : Type u → Type (max 1 u)
-has_sep : Type u → (Type u → Type v) → Type (max 1 (imax (max 1 u) v))
-has_sizeof : Type u → Type (max 1 u)
-has_ssubset : Type u → Type (max 1 u)
-has_sub : Type u → Type (max 1 u)
-has_subset : Type u → Type (max 1 u)
-has_union : Type u → Type (max 1 u)
-has_zero : Type u → Type (max 1 u)
-point : Type u_1 → Type u_2 → Type (max 1 u_1 u_2)
+has_add : Type u → Type u
+has_andthen : Type u → Type u
+has_append : Type u → Type u
+has_div : Type u → Type u
+has_dvd : Type u → Type u
+has_emptyc : Type u → Type u
+has_insert : Type u → (Type u → Type v) → Type (max u v)
+has_inter : Type u → Type u
+has_inv : Type u → Type u
+has_le : Type u → Type u
+has_lt : Type u → Type u
+has_mem : Type u → (Type u → Type v) → Type (max u v)
+has_mod : Type u → Type u
+has_mul : Type u → Type u
+has_neg : Type u → Type u
+has_one : Type u → Type u
+has_sdiff : Type u → Type u
+has_sep : Type u → (Type u → Type v) → Type (max u v)
+has_sizeof : Sort u → Sort (max 1 u)
+has_ssubset : Type u → Type u
+has_sub : Type u → Type u
+has_subset : Type u → Type u
+has_union : Type u → Type u
+has_zero : Type u → Type u
+point : Type u_1 → Type u_2 → Type (max u_1 u_2)
 decidable : Prop → Type
-has_add : Type u → Type (max 1 u)
-has_andthen : Type u → Type (max 1 u)
-has_append : Type u → Type (max 1 u)
-has_div : Type u → Type (max 1 u)
-has_dvd : Type u → Type (max 1 u)
-has_emptyc : Type u → Type (max 1 u)
-has_insert : Type u → (Type u → Type v) → Type (max 1 (imax u v))
-has_inter : Type u → Type (max 1 u)
-has_inv : Type u → Type (max 1 u)
-has_le : Type u → Type (max 1 u)
-has_lt : Type u → Type (max 1 u)
-has_mem : Type u → (Type u → Type v) → Type (max 1 u v)
-has_mod : Type u → Type (max 1 u)
-has_mul : Type u → Type (max 1 u)
-has_neg : Type u → Type (max 1 u)
-has_one : Type u → Type (max 1 u)
-has_sdiff : Type u → Type (max 1 u)
-has_sep : Type u → (Type u → Type v) → Type (max 1 (imax (max 1 u) v))
-has_sizeof : Type u → Type (max 1 u)
-has_ssubset : Type u → Type (max 1 u)
-has_sub : Type u → Type (max 1 u)
-has_subset : Type u → Type (max 1 u)
-has_union : Type u → Type (max 1 u)
-has_zero : Type u → Type (max 1 u)
-point : Type u_1 → Type u_2 → Type (max 1 u_1 u_2)
+has_add : Type u → Type u
+has_andthen : Type u → Type u
+has_append : Type u → Type u
+has_div : Type u → Type u
+has_dvd : Type u → Type u
+has_emptyc : Type u → Type u
+has_insert : Type u → (Type u → Type v) → Type (max u v)
+has_inter : Type u → Type u
+has_inv : Type u → Type u
+has_le : Type u → Type u
+has_lt : Type u → Type u
+has_mem : Type u → (Type u → Type v) → Type (max u v)
+has_mod : Type u → Type u
+has_mul : Type u → Type u
+has_neg : Type u → Type u
+has_one : Type u → Type u
+has_sdiff : Type u → Type u
+has_sep : Type u → (Type u → Type v) → Type (max u v)
+has_sizeof : Sort u → Sort (max 1 u)
+has_ssubset : Type u → Type u
+has_sub : Type u → Type u
+has_subset : Type u → Type u
+has_union : Type u → Type u
+has_zero : Type u → Type u
+point : Type u_1 → Type u_2 → Type (max u_1 u_2)

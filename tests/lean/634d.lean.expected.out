@@ -1,6 +1,6 @@
-A : Type l → Type l
+A : Sort l → Sort l
 _root_.A : Type → Type
-A : Type l → Type l
+A : Sort l → Sort l
 _root_.A.{1} : Type → Type
 P : B → B
 _root_.P : Π {n : ℕ}, ℕ → ℕ

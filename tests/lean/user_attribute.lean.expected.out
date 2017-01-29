@@ -1,11 +1,11 @@
 eq.refl
 @[foo, refl]
-constructor eq.refl : ∀ {α : Type u} (a : α), a = a
+constructor eq.refl : ∀ {α : Sort u} (a : α), a = a
 [eq.refl]
 ---
 eq.refl
 @[foo, foo.baz, refl]
-constructor eq.refl : ∀ {α : Type u} (a : α), a = a
+constructor eq.refl : ∀ {α : Sort u} (a : α), a = a
 [eq.refl]
 user_attribute.lean:24:0: error: an attribute named [reducible] has already been registered
 state:

@@ -1,7 +1,7 @@
 {"message":"file invalidated","response":"ok","seq_num":0}
 {"record":{"source":{"column":0,"file":"/library/init/meta/attribute.lean","line":1}},"response":"ok","seq_num":2}
 {"record":{"doc":"reducible"},"response":"ok","seq_num":5}
-{"record":{"full-id":"bool.tt","source":{"column":10,"file":"/library/init/core.lean","line":168},"type":"bool"},"response":"ok","seq_num":7}
+{"record":{"full-id":"bool.tt","source":{"column":10,"file":"/library/init/core.lean","line":178},"type":"bool"},"response":"ok","seq_num":7}
 {"record":{"doc":"(trace) enable/disable tracing for the given module and submodules"},"response":"ok","seq_num":10}
-{"record":{"full-id":"list.cons","source":{"column":10,"file":"/library/init/core.lean","line":195},"type":"Π {T : Type}, T → list T → list T"},"response":"ok","seq_num":13}
-{"record":{"full-id":"append","source":{"column":4,"file":"/library/init/core.lean","line":257},"type":"Π {α : Type} [_inst_1 : has_append α], α → α → α"},"response":"ok","seq_num":16}
+{"record":{"full-id":"list.cons","source":{"column":10,"file":"/library/init/core.lean","line":209},"type":"Π {T : Type}, T → list T → list T"},"response":"ok","seq_num":13}
+{"record":{"full-id":"append","source":{"column":4,"file":"/library/init/core.lean","line":271},"type":"Π {α : Type} [_inst_1 : has_append α], α → α → α"},"response":"ok","seq_num":16}

@@ -1,9 +1,9 @@
 prelude set_option pp.notation false
-definition Prop := Type.{0}
+definition Prop := Sort 0
 constant eq {A : Type} : A → A → Prop
 infixl `=`:50 := eq
 
-constant N : Type.{1}
+constant N : Type
 constant z : N
 constant o : N
 constant b : N
@@ -14,7 +14,7 @@ notation 1 := o
 check 1
 check 0
 
-constant G : Type.{1}
+constant G : Type
 constant gz : G
 constant a  : G
 

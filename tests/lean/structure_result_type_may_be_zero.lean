@@ -1,1 +1,1 @@
-record {uA uB} Fun (A : Type uA) (B : Type uB) : Type (imax uA uB) := (item : Π(a : A), B)
+record {uA uB} Fun (A : Sort uA) (B : Sort uB) : Sort (imax uA uB) := (item : Π(a : A), B)

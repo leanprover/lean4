@@ -1,15 +1,15 @@
-@bind.{1 1} list.{1} (@monad.to_pre_monad.{1 1} list.{1} list.monad.{1}) nat nat
-  (@list.cons.{1} nat (@one.{1} nat nat.has_one) (@list.nil.{1} nat))
-  (λ (a : nat), @return.{1 1} list.{1} list.monad.{1} nat a) :
-  list.{1} nat
-@bind.{1 1} list.{1} (@monad.to_pre_monad.{1 1} list.{1} list.monad.{1}) nat (prod.{1 1} nat nat)
-  (@list.cons.{1} nat (@one.{1} nat nat.has_one)
-     (@list.cons.{1} nat (@bit0.{1} nat nat.has_add (@one.{1} nat nat.has_one))
-        (@list.cons.{1} nat (@bit1.{1} nat nat.has_one nat.has_add (@one.{1} nat nat.has_one)) (@list.nil.{1} nat))))
+@bind.{0 0} list.{0} (@monad.to_pre_monad.{0 0} list.{0} list.monad.{0}) nat nat
+  (@list.cons.{0} nat (@one.{0} nat nat.has_one) (@list.nil.{0} nat))
+  (λ (a : nat), @return.{0 0} list.{0} list.monad.{0} nat a) :
+  list.{0} nat
+@bind.{0 0} list.{0} (@monad.to_pre_monad.{0 0} list.{0} list.monad.{0}) nat (prod.{0 0} nat nat)
+  (@list.cons.{0} nat (@one.{0} nat nat.has_one)
+     (@list.cons.{0} nat (@bit0.{0} nat nat.has_add (@one.{0} nat nat.has_one))
+        (@list.cons.{0} nat (@bit1.{0} nat nat.has_one nat.has_add (@one.{0} nat nat.has_one)) (@list.nil.{0} nat))))
   (λ (a : nat),
-     @bind.{1 1} list.{1} (@monad.to_pre_monad.{1 1} list.{1} list.monad.{1}) nat (prod.{1 1} nat nat)
-       (@list.cons.{1} nat (@bit1.{1} nat nat.has_one nat.has_add (@one.{1} nat nat.has_one))
-          (@list.cons.{1} nat (@bit0.{1} nat nat.has_add (@bit0.{1} nat nat.has_add (@one.{1} nat nat.has_one)))
-             (@list.nil.{1} nat)))
-       (λ (b : nat), @return.{1 1} list.{1} list.monad.{1} (prod.{1 1} nat nat) (@prod.mk.{1 1} nat nat a b))) :
-  list.{1} (prod.{1 1} nat nat)
+     @bind.{0 0} list.{0} (@monad.to_pre_monad.{0 0} list.{0} list.monad.{0}) nat (prod.{0 0} nat nat)
+       (@list.cons.{0} nat (@bit1.{0} nat nat.has_one nat.has_add (@one.{0} nat nat.has_one))
+          (@list.cons.{0} nat (@bit0.{0} nat nat.has_add (@bit0.{0} nat nat.has_add (@one.{0} nat nat.has_one)))
+             (@list.nil.{0} nat)))
+       (λ (b : nat), @return.{0 0} list.{0} list.monad.{0} (prod.{0 0} nat nat) (@prod.mk.{0 0} nat nat a b))) :
+  list.{0} (prod.{0 0} nat nat)

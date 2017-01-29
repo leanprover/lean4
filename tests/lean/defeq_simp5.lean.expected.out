@@ -1,2 +1,2 @@
-@eq.{1} (nat → nat → nat) (λ (x y : nat), @add.{1} nat (nat_has_add3 x) a b)
-  (λ (x y : nat), @add.{1} nat (nat_has_add3 y) a x)
+@eq.{1} (nat → nat → nat) (λ (x y : nat), @add.{0} nat (nat_has_add3 x) a b)
+  (λ (x y : nat), @add.{0} nat (nat_has_add3 y) a x)

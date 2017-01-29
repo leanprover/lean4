@@ -1,2 +1,2 @@
-vector.no_confusion_type : Type u_1 → vector ?M_1 ?M_2 → vector ?M_1 ?M_2 → Type u_1
+vector.no_confusion_type : Sort u_1 → vector ?M_1 ?M_2 → vector ?M_1 ?M_2 → Sort u_1
 (2 = 2 → a1 = a2 → v1 == v2 → P) → P

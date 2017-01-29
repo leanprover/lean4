@@ -5,9 +5,12 @@ elab12.lean:4:42: error: function expected at
 Additional information:
 elab12.lean:4:42: context: switched to simple application elaboration procedure because failed to use expected type to elaborate it, error message
   too many arguments
-elab12.lean:7:44: error: failed to synthesize type class instance for
-a : ℕ
-⊢ has_add (a = a)
+elab12.lean:7:44: error: invalid have-expression, expression
+  a + 0
+has type
+  ℕ
+but is expected to have type
+  a = a
 elab12.lean:11:2: error: function expected at
   H
 λ (a : ℕ), have H : a = a, from rfl, H : ∀ (a : ℕ), a = a

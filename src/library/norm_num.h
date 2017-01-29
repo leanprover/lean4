@@ -15,7 +15,7 @@ Author: Robert Y. Lewis
 namespace lean {
 
 class norm_num_context {
-    type_context & m_type_ctx;
+    type_context & m_ctx;
     levels m_lvls;
     pair<expr, expr> mk_norm_add(expr const &, expr const &);
     pair<expr, expr> mk_norm_add1(expr const &);
@@ -65,7 +65,7 @@ class norm_num_context {
     std::unordered_map<name, expr, name_hash> instances;
 
 public:
-    norm_num_context(type_context & type_ctx): m_type_ctx(type_ctx) {}
+    norm_num_context(type_context & ctx): m_ctx(ctx) {}
 
     bool is_numeral(expr const & e) const;
     bool is_neg_app(expr const &) const;

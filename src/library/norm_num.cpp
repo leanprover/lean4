@@ -3,7 +3,9 @@ Copyright (c) 2015 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Robert Y. Lewis
 */
+#include "library/trace.h"
 #include "library/norm_num.h"
+#include "library/util.h"
 #include "library/constants.h"
 
 namespace lean {
@@ -46,7 +48,7 @@ expr norm_num_context::mk_has_add(expr const & e) {
         return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
-    optional<expr> inst = m_type_ctx.mk_class_instance(t);
+    optional<expr> inst = m_ctx.mk_class_instance(t);
     if (inst) {
         instances[l_name] = *inst;
         return *inst;
@@ -61,7 +63,7 @@ expr norm_num_context::mk_has_mul(expr const & e) {
         return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
-    optional<expr> inst = m_type_ctx.mk_class_instance(t);
+    optional<expr> inst = m_ctx.mk_class_instance(t);
     if (inst) {
         instances[l_name] = *inst;
         return *inst;
@@ -76,7 +78,7 @@ expr norm_num_context::mk_has_one(expr const & e) {
         return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
-    optional<expr> inst = m_type_ctx.mk_class_instance(t);
+    optional<expr> inst = m_ctx.mk_class_instance(t);
     if (inst) {
         instances[l_name] = *inst;
         return *inst;
@@ -91,7 +93,7 @@ expr norm_num_context::mk_has_zero(expr const & e) {
         return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
-    optional<expr> inst = m_type_ctx.mk_class_instance(t);
+    optional<expr> inst = m_ctx.mk_class_instance(t);
     if (inst) {
         instances[l_name] = *inst;
         return *inst;
@@ -106,7 +108,7 @@ expr norm_num_context::mk_add_monoid(expr const & e) {
         return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
-    optional<expr> inst = m_type_ctx.mk_class_instance(t);
+    optional<expr> inst = m_ctx.mk_class_instance(t);
     if (inst) {
         instances[l_name] = *inst;
         return *inst;
@@ -121,7 +123,7 @@ expr norm_num_context::mk_monoid(expr const & e) {
         return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
-    optional<expr> inst = m_type_ctx.mk_class_instance(t);
+    optional<expr> inst = m_ctx.mk_class_instance(t);
     if (inst) {
         instances[l_name] = *inst;
         return *inst;
@@ -132,7 +134,7 @@ expr norm_num_context::mk_monoid(expr const & e) {
 
 expr norm_num_context::mk_field(expr const & e) {
     expr t = mk_app(mk_constant(get_field_name(), m_lvls), e);
-    optional<expr> inst = m_type_ctx.mk_class_instance(t);
+    optional<expr> inst = m_ctx.mk_class_instance(t);
     if (inst) {
         return *inst;
     } else {
@@ -146,7 +148,7 @@ expr norm_num_context::mk_add_comm(expr const & e) {
         return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
-    optional<expr> inst = m_type_ctx.mk_class_instance(t);
+    optional<expr> inst = m_ctx.mk_class_instance(t);
     if (inst) {
         instances[l_name] = *inst;
         return *inst;
@@ -161,7 +163,7 @@ expr norm_num_context::mk_add_group(expr const & e) {
         return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
-    optional<expr> inst = m_type_ctx.mk_class_instance(t);
+    optional<expr> inst = m_ctx.mk_class_instance(t);
     if (inst) {
         instances[l_name] = *inst;
         return *inst;
@@ -176,7 +178,7 @@ expr norm_num_context::mk_has_distrib(expr const & e) {
         return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
-    optional<expr> inst = m_type_ctx.mk_class_instance(t);
+    optional<expr> inst = m_ctx.mk_class_instance(t);
     if (inst) {
         instances[l_name] = *inst;
         return *inst;
@@ -191,7 +193,7 @@ expr norm_num_context::mk_mul_zero_class(expr const & e) {
         return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
-    optional<expr> inst = m_type_ctx.mk_class_instance(t);
+    optional<expr> inst = m_ctx.mk_class_instance(t);
     if (inst) {
         instances[l_name] = *inst;
         return *inst;
@@ -206,7 +208,7 @@ expr norm_num_context::mk_semiring(expr const & e) {
         return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
-    optional<expr> inst = m_type_ctx.mk_class_instance(t);
+    optional<expr> inst = m_ctx.mk_class_instance(t);
     if (inst) {
         instances[l_name] = *inst;
         return *inst;
@@ -221,7 +223,7 @@ expr norm_num_context::mk_has_neg(expr const & e) {
         return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
-    optional<expr> inst = m_type_ctx.mk_class_instance(t);
+    optional<expr> inst = m_ctx.mk_class_instance(t);
     if (inst) {
         instances[l_name] = *inst;
         return *inst;
@@ -236,7 +238,7 @@ expr norm_num_context::mk_has_sub(expr const & e) {
         return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
-    optional<expr> inst = m_type_ctx.mk_class_instance(t);
+    optional<expr> inst = m_ctx.mk_class_instance(t);
     if (inst) {
         instances[l_name] = *inst;
         return *inst;
@@ -251,7 +253,7 @@ expr norm_num_context::mk_has_div(expr const & e) {
         return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
-    optional<expr> inst = m_type_ctx.mk_class_instance(t);
+    optional<expr> inst = m_ctx.mk_class_instance(t);
     if (inst) {
         instances[l_name] = *inst;
         return *inst;
@@ -266,7 +268,7 @@ expr norm_num_context::mk_add_comm_group(expr const & e) {
         return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
-    optional<expr> inst = m_type_ctx.mk_class_instance(t);
+    optional<expr> inst = m_ctx.mk_class_instance(t);
     if (inst) {
         instances[l_name] = *inst;
         return *inst;
@@ -281,7 +283,7 @@ expr norm_num_context::mk_ring(expr const & e) {
         return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
-    optional<expr> inst = m_type_ctx.mk_class_instance(t);
+    optional<expr> inst = m_ctx.mk_class_instance(t);
     if (inst) {
         instances[l_name] = *inst;
         return *inst;
@@ -296,7 +298,7 @@ expr norm_num_context::mk_lin_ord_ring(expr const & e) {
         return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
-    optional<expr> inst = m_type_ctx.mk_class_instance(t);
+    optional<expr> inst = m_ctx.mk_class_instance(t);
     if (inst) {
         instances[l_name] = *inst;
         return *inst;
@@ -311,7 +313,7 @@ expr norm_num_context::mk_lin_ord_semiring(expr const & e) {
         return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
-    optional<expr> inst = m_type_ctx.mk_class_instance(t);
+    optional<expr> inst = m_ctx.mk_class_instance(t);
     if (inst) {
         instances[l_name] = *inst;
         return *inst;
@@ -326,7 +328,7 @@ expr norm_num_context::mk_wk_order(expr const & e) {
         return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
-    optional<expr> inst = m_type_ctx.mk_class_instance(t);
+    optional<expr> inst = m_ctx.mk_class_instance(t);
     if (inst) {
         instances[l_name] = *inst;
         return *inst;
@@ -818,12 +820,12 @@ pair<expr, expr> norm_num_context::mk_norm(expr const & e) {
     buffer<expr> args;
     expr f = get_app_args(e, args);
     if (!is_constant(f) || args.size() == 0) {
-        throw exception("malformed argument to mk_norm_expr");
+        throw exception("malformed argument to mk_norm");
     }
     m_lvls = const_levels(f);
     expr type = args[0];
     if (is_numeral(e)) {
-        expr prf = mk_app({mk_const(get_eq_refl_name()), type, e});
+        expr prf = mk_eq_refl(m_ctx, e);
         return pair<expr, expr>(e, prf);
     }
     mpq val = mpq_of_expr(e);
@@ -958,7 +960,7 @@ pair<expr, expr> norm_num_context::mk_norm(expr const & e) {
         return pair<expr, expr>(nval, rprf);
     } else if ((const_name(f) == get_zero_name() || const_name(f) == get_one_name())
                && args.size() == 2) {
-        return pair<expr, expr>(e, mk_app({mk_const(get_eq_refl_name()), args[0], e}));
+        return pair<expr, expr>(e, mk_eq_refl(m_ctx, e));
     } else {
         throw exception("mk_norm found unrecognized combo ");
     }

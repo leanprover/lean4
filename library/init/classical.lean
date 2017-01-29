@@ -12,49 +12,49 @@ universe variables u v
 /- the axiom -/
 
 -- In the presence of classical logic, we could prove this from a weaker statement:
--- axiom indefinite_description {a : Type u} {p : a->Prop} (h : ∃ x, p x) : {x : a, p x}
-axiom strong_indefinite_description {a : Type u} (p : a → Prop) (h : nonempty a) : { x : a // (∃ y : a, p y) → p x}
+-- axiom indefinite_description {a : Sort u} {p : a->Prop} (h : ∃ x, p x) : {x : a // p x}
+axiom strong_indefinite_description {a : Sort u} (p : a → Prop) (h : nonempty a) : { x : a // (∃ y : a, p y) → p x}
 
-theorem exists_true_of_nonempty {a : Type u} (h : nonempty a) : ∃ x : a, true :=
+theorem exists_true_of_nonempty {a : Sort u} (h : nonempty a) : ∃ x : a, true :=
 nonempty.elim h (take x, ⟨x, trivial⟩)
 
-noncomputable def inhabited_of_nonempty {a : Type u} (h : nonempty a) : inhabited a :=
+noncomputable def inhabited_of_nonempty {a : Sort u} (h : nonempty a) : inhabited a :=
 ⟨elt_of (strong_indefinite_description (λ a, true) h)⟩
 
-noncomputable def inhabited_of_exists {a : Type u} {p : a → Prop} (h : ∃ x, p x) : inhabited a :=
+noncomputable def inhabited_of_exists {a : Sort u} {p : a → Prop} (h : ∃ x, p x) : inhabited a :=
 inhabited_of_nonempty (exists.elim h (λ w hw, ⟨w⟩))
 
 /- the Hilbert epsilon function -/
 
-noncomputable def epsilon {a : Type u} [h : nonempty a] (p : a → Prop) : a :=
+noncomputable def epsilon {a : Sort u} [h : nonempty a] (p : a → Prop) : a :=
 elt_of (strong_indefinite_description p h)
 
-theorem epsilon_spec_aux {a : Type u} (h : nonempty a) (p : a → Prop) (hex : ∃ y, p y) :
+theorem epsilon_spec_aux {a : Sort u} (h : nonempty a) (p : a → Prop) (hex : ∃ y, p y) :
     p (@epsilon a h p) :=
 have aux : (∃ y, p y) → p (elt_of (strong_indefinite_description p h)), from has_property (strong_indefinite_description p h),
 aux hex
 
-theorem epsilon_spec {a : Type u} {p : a → Prop} (hex : ∃ y, p y) :
+theorem epsilon_spec {a : Sort u} {p : a → Prop} (hex : ∃ y, p y) :
     p (@epsilon a (nonempty_of_exists hex) p) :=
 epsilon_spec_aux (nonempty_of_exists hex) p hex
 
-theorem epsilon_singleton {a : Type u} (x : a) : @epsilon a ⟨x⟩ (λ y, y = x) = x :=
+theorem epsilon_singleton {a : Sort u} (x : a) : @epsilon a ⟨x⟩ (λ y, y = x) = x :=
 @epsilon_spec a (λ y, y = x) ⟨x, rfl⟩
 
-noncomputable def some {a : Type u} {p : a → Prop} (h : ∃ x, p x) : a :=
+noncomputable def some {a : Sort u} {p : a → Prop} (h : ∃ x, p x) : a :=
 @epsilon a (nonempty_of_exists h) p
 
-theorem some_spec {a : Type u} {p : a → Prop} (h : ∃ x, p x) : p (some h) :=
+theorem some_spec {a : Sort u} {p : a → Prop} (h : ∃ x, p x) : p (some h) :=
 epsilon_spec h
 
 /- the axiom of choice -/
 
-theorem axiom_of_choice {a : Type u} {b : a → Type v} {r : Π x, b x → Prop} (h : ∀ x, ∃ y, r x y) :
+theorem axiom_of_choice {a : Sort u} {b : a → Sort v} {r : Π x, b x → Prop} (h : ∀ x, ∃ y, r x y) :
   ∃ (f : Π x, b x), ∀ x, r x (f x) :=
 have h : ∀ x, r x (some (h x)), from take x, some_spec (h x),
 ⟨_, h⟩
 
-theorem skolem {a : Type u} {b : a → Type v} {p : Π x, b x → Prop} :
+theorem skolem {a : Sort u} {b : a → Sort v} {p : Π x, b x → Prop} :
   (∀ x, ∃ y, p x y) ↔ ∃ (f : Π x, b x) , (∀ x, p x (f x)) :=
 iff.intro
   (assume h : (∀ x, ∃ y, p x y), axiom_of_choice h)
@@ -172,13 +172,13 @@ noncomputable def prop_decidable (a : Prop) : decidable a :=
 arbitrary (decidable a)
 local attribute [instance] prop_decidable
 
-noncomputable def type_decidable_eq (a : Type u) : decidable_eq a :=
+noncomputable def type_decidable_eq (a : Sort u) : decidable_eq a :=
 λ x y, prop_decidable (x = y)
 
-noncomputable def type_decidable (a : Type u) : sum a (a → empty) :=
+noncomputable def type_decidable (a : Sort u) : psum a (a → false) :=
 match (prop_decidable (nonempty a)) with
-| (is_true hp) := sum.inl (@inhabited.default _ (inhabited_of_nonempty hp))
-| (is_false hn) := sum.inr (λ a, absurd (nonempty.intro a) hn)
+| (is_true hp)  := psum.inl (@inhabited.default _ (inhabited_of_nonempty hp))
+| (is_false hn) := psum.inr (λ a, absurd (nonempty.intro a) hn)
 end
 
 end classical

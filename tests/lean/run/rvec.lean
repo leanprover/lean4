@@ -1,7 +1,7 @@
 open nat
 universe variables u
 
-inductive rvec (α : Type u) : nat → Type _
+inductive rvec (α : Type u) : nat → Type u
 | nil {} : rvec 0
 | cons   : Π {n}, rvec n → α → rvec (succ n)
 

@@ -607,7 +607,7 @@ auto pretty_fn::pp_sort(expr const & e) -> result {
     } else if (optional<level> u1 = dec_level(u)) {
         return result(group(format("Type") + space() + nest(5, pp_child(*u1))));
     } else {
-        return result(group(format("PType") + space() + nest(5, pp_child(u))));
+        return result(group(format("Sort") + space() + nest(5, pp_child(u))));
     }
 }
 

@@ -1,5 +1,5 @@
 prelude
-definition Prop := PType.{0}
+definition Prop := Sort.{0}
 
 definition false : Prop := ∀ x : Prop, x
 check false

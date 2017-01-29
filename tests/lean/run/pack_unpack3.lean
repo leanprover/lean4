@@ -1,25 +1,25 @@
-inductive vec (A : Type*) : nat -> Type*
+inductive {u} vec (A : Type u) : nat -> Type u
 | vnil : vec 0
 | vcons : Pi (n : nat), A -> vec n -> vec (n+1)
 
-inductive tree (A : Type*)
+inductive {u} tree (A : Type u) : Type u
 | leaf : A -> tree
 | node : Pi (n : nat), vec (list (list tree)) n -> tree
 
 -- set_option trace.eqn_compiler true
 
-constant P {A : Type*} : tree A → Type
-constant mk1 {A : Type*} (a : A) : P (tree.leaf a)
-constant mk2 {A : Type*} (n : nat) (xs : vec (list (list (tree A))) n) : P (tree.node n xs)
+constant {u} P {A : Type u} : tree A → Type
+constant {u} mk1 {A : Type u} (a : A) : P (tree.leaf a)
+constant {u} mk2 {A : Type u} (n : nat) (xs : vec (list (list (tree A))) n) : P (tree.node n xs)
 
-noncomputable definition bla {A : Type*} : ∀ n : tree A, P n
+noncomputable definition {u} bla {A : Type u} : ∀ n : tree A, P n
 | (tree.leaf a) := mk1 a
 | (tree.node n xs) := mk2 n xs
 
 check bla._main.equations._eqn_1
 check bla._main.equations._eqn_2
 
-noncomputable definition foo {A : Type*} : nat → tree A → nat
+noncomputable definition {u} foo {A : Type u} : nat → tree A → nat
 | 0     _                                     := sorry
 | (n+1) (tree.leaf a)                         := 0
 | (n+1) (tree.node m xs)                      := foo n (tree.node m xs)

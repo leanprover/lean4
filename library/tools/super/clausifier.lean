@@ -11,7 +11,7 @@ universe variable u
 
 namespace super
 
-meta def try_option {a : Type (u + 1)} (tac : tactic a) : tactic (option a) :=
+meta def try_option {a : Type u} (tac : tactic a) : tactic (option a) :=
 lift some tac <|> return none
 
 private meta def normalize : expr → tactic expr | e := do
@@ -213,7 +213,7 @@ meta def inf_ex_r  (c : clause) : tactic (list clause) := do
 (qf, ctx) ← c^.open_constn c^.num_quants,
 skolemized ← on_first_right' qf $ λhexp,
   match hexp^.local_type with
-  | (app (app (const ``Exists [u]) d) p) := do
+  | (app (app (const ``Exists [_]) d) p) := do
     sk_sym_name_pp ← get_unused_name `sk (some 1),
     inh_lc ← mk_local' `w binder_info.implicit d,
     sk_sym ← mk_local_def sk_sym_name_pp (pis (ctx ++ [inh_lc]) d),

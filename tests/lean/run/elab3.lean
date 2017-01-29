@@ -1,3 +1,3 @@
 set_option pp.binder_types true
-axiom Sorry {A : PType*} : A
+axiom Sorry {A : Sort*} : A
 check (Sorry : ∀ a, a > 0)

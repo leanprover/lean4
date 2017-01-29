@@ -45,9 +45,9 @@ variable ltr : bool
 variable lt_in_termorder : bool
 variable congr_ax : name
 
-lemma {u v w} sup_ltr (F : Type u) (A : Type v) (a1 a2) (f : A → Type w) : (f a1 → F) → f a2 → a1 = a2 → F :=
+lemma {u v w} sup_ltr (F : Sort u) (A : Sort v) (a1 a2) (f : A → Sort w) : (f a1 → F) → f a2 → a1 = a2 → F :=
 take hnfa1 hfa2 heq, hnfa1 (@eq.rec A a2 f hfa2 a1 heq^.symm)
-lemma {u v w} sup_rtl (F : Type u) (A : Type v) (a1 a2) (f : A → Type w) : (f a1 → F) → f a2 → a2 = a1 → F :=
+lemma {u v w} sup_rtl (F : Sort u) (A : Sort v) (a1 a2) (f : A → Sort w) : (f a1 → F) → f a2 → a2 = a1 → F :=
 take hnfa1 hfa2 heq, hnfa1 (@eq.rec A a2 f hfa2 a1 heq)
 
 meta def is_eq_dir (e : expr) (ltr : bool) : option (expr × expr) :=

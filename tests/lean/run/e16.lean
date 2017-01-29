@@ -4,19 +4,19 @@ inductive nat : Type
 | succ : nat → nat
 namespace nat end nat open nat
 
-inductive list (A : Type*) : Type*
+inductive {u} list (A : Type u) : Type u
 | nil {} : list
 | cons   : A → list → list
 namespace list end list open list
 
 check nil
-check nil.{1}
-check @nil.{1} nat
+check nil.{0}
+check @nil.{0} nat
 check @nil nat
 
 check cons zero nil
 
-inductive vector (A : Type*) : nat → Type*
+inductive {u} vector (A : Type u) : nat → Type u
 | vnil {} : vector zero
 | vcons   : forall {n : nat}, A → vector n → vector (succ n)
 namespace vector end vector open vector

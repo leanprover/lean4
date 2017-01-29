@@ -1,5 +1,5 @@
 prelude
-definition bool : PType 1 := PType 0
+definition bool : Sort 1 := Sort 0
 definition and (p q : bool) : bool
 := ∀ c : bool, (p → q → c) →  c
 infixl `∧`:25 := and

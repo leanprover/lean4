@@ -1,4 +1,4 @@
-attribute [reducible] definition mk_arrow (A : Type*) (B : Type*) :=
+attribute [reducible] definition mk_arrow (A : Sort*) (B : Sort*) :=
 A → A → B
 
 inductive confuse (A : Type)

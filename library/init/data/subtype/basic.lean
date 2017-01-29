@@ -9,9 +9,6 @@ open decidable
 
 universe variables u
 
-structure subtype {α : Type u} (p : α → Prop) :=
-tag :: (elt_of : α) (has_property : p elt_of)
-
 namespace subtype
 
 def exists_of_subtype {α : Type u} {p : α → Prop} : { x // p x } → ∃ x, p x

@@ -35,28 +35,28 @@ end X4
 
 namespace X5
 print "nested-reflexive"
-inductive foo (A : Type*)
+inductive {u} foo (A : Type u) : Type u
 | mk : A -> (Pi (m : nat), vec foo m) -> foo
 
 end X5
 
 namespace X6
 print "locals + nested-reflexive locals in indices"
-inductive foo (A : Type*)
+inductive {u} foo (A : Type u) : Type u
 | mk : Pi (n : nat), A -> (Pi (m : nat), vec foo (n + m)) -> foo
 
 end X6
 
 namespace X7
 print "many different nestings"
-inductive foo (A : Type*)
+inductive {u} foo (A : Type u) : Type u
 | mk : Pi (n : nat), A -> list A -> prod A A -> (Pi (m : nat), vec foo (n + m)) -> vec foo n -> foo
 
 end X7
 
 namespace X8
 print "many different nestings, some sharing"
-inductive foo (A : Type*)
+inductive {u} foo (A : Type u) : Type u
 | mk₁ : Pi (n : nat), A -> (Pi (m : nat), vec (list foo) (n + m)) -> vec foo n -> foo
 | mk₂ : Pi (n : nat), A -> list A -> prod A A -> (Pi (m : nat), vec foo (n + m)) -> vec foo n -> foo
 
@@ -64,10 +64,10 @@ end X8
 
 namespace X9b
 print "mutual + nesting"
-mutual inductive foo, bar
-with foo : Type*
+mutual inductive {u} foo, bar
+with foo : Type u
 | mk : list (list foo) -> foo
-with bar : Type*
+with bar : Type u
 | mk : list foo -> bar
 
 end X9b
@@ -75,13 +75,13 @@ end X9b
 namespace X10
 print "many layers of nesting nested inductive types"
 
-inductive wrap (A : Type*)
+inductive wrap (A : Sort*)
 | mk : A -> wrap
 
-inductive box (A : Type*)
+inductive box (A : Sort*)
 | mk : A -> wrap box -> box
 
-inductive foo (A : Type*)
+inductive foo (A : Sort*)
 | mk : A -> box foo -> foo
 
 inductive bar
@@ -92,10 +92,10 @@ end X10
 namespace X11
 print "intro rule that introduces additional nesting"
 
-inductive wrap (A : Type*) : Type*
+inductive {u} wrap (A : Type u) : Type u
 | mk : list A -> wrap
 
-inductive foo
+inductive {u} foo : Type u
 | mk : wrap foo -> foo
 
 end X11
@@ -103,10 +103,10 @@ end X11
 namespace X12
 print "intro rule that introduces a lot of additional nesting"
 
-inductive wrap (A : Type*) : Type*
+inductive wrap (A : Sort*) : Sort*
 | mk : list (list A) -> wrap
 
-inductive box (A : Type*)
+inductive {u} box (A : Type u) : Type u
 | mk : A -> wrap box -> box
 
 end X12
@@ -116,12 +116,12 @@ print "with reducible definitions"
 
 attribute [reducible] definition list' := @list
 
-inductive wrap (A : Type*) : Type*
+inductive wrap (A : Sort*) : Sort*
 | mk : A -> list' A -> wrap
 
 attribute [reducible] definition wrap' := @wrap
 
-inductive foo (A : Type*)
+inductive {u} foo (A : Type u) : Type u
 | mk : A -> wrap' (list' foo) -> foo
 
 end X13

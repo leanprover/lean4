@@ -13,7 +13,7 @@ section
   variable A : Type.{l}
   variable Ha : decidable_eq A
   include Ha
-  variable E : Type₂
+  variable E : Type 1
   include E
    -- include Ha
 

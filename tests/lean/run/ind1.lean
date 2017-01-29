@@ -1,4 +1,4 @@
-inductive List (A : Type*) : Type*
+inductive List (A : Sort*) : Sort*
 | nil  : List
 | cons : A → List → List
 namespace List end List open List

@@ -1,7 +1,7 @@
 prelude
-definition Prop : PType.{1} := PType.{0}
+definition Prop : Sort.{1} := Sort.{0}
 section
-  parameter A : PType*
+  parameter A : Sort*
 
   definition Eq (a b : A) : Prop
   := ∀P : A → Prop, P a → P b

@@ -19,8 +19,8 @@ sorry
 def {t s} down {A : Type s} (a : M (ulift.{t} A)) : M A :=
 sorry
 
-prefix `↑`:10 := up.{2}
-prefix `↓`:10 := down.{2}
+prefix `↑`:10 := up.{1}
+prefix `↓`:10 := down.{1}
 
 def ex : M unit :=
 ↓do

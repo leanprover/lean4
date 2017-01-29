@@ -1,5 +1,5 @@
 prelude
-definition Prop : PType.{1} := PType.{0}
+definition Prop : Sort.{1} := Sort.{0}
 constant eq : forall {A : Type}, A → A → Prop
 constant N : Type
 constants a b c : N

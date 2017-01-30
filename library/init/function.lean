@@ -7,21 +7,22 @@ General operations on functions.
 -/
 prelude
 import init.data.prod init.funext init.logic
-notation f ` $ `:1 a:0 := f a
 universe variables u₁ u₂ u₃ u₄
-variables {α : Type u₁} {β : Type u₂} {φ : Type u₃} {δ : Type u₄} {ζ : Type u₁}
 
-@[inline, reducible] def function.comp (f : β → φ) (g : α → β) : α → φ :=
+namespace function
+notation f ` $ `:1 a:0 := f a
+
+variables {α : Sort u₁} {β : Sort u₂} {φ : Sort u₃} {δ : Sort u₄} {ζ : Sort u₁}
+
+@[inline, reducible] def comp (f : β → φ) (g : α → β) : α → φ :=
 λ x, f (g x)
 
-@[inline, reducible] def function.dcomp {β : α → Type u₂} {φ : Π {x : α}, β x → Type u₃}
+@[inline, reducible] def dcomp {β : α → Sort u₂} {φ : Π {x : α}, β x → Sort u₃}
   (f : Π {x : α} (y : β x), φ y) (g : Π x, β x) : Π x, φ (g x) :=
 λ x, f (g x)
 
 infixr  ` ∘ `      := function.comp
 infixr  ` ∘' `:80  := function.dcomp
-
-namespace function
 
 @[reducible] def comp_right (f : β → β → β) (g : α → β) : β → α → β :=
 λ b a, f b (g a)
@@ -36,26 +37,14 @@ namespace function
   : α → β → ζ :=
 λ x y, op (f x y) (g x y)
 
-@[reducible] def const (β : Type u₂) (a : α) : β → α :=
+@[reducible] def const (β : Sort u₂) (a : α) : β → α :=
 λ x, a
 
-@[reducible] def swap {φ : α → β → Type u₃} (f : Π x y, φ x y) : Π y x, φ x y :=
+@[reducible] def swap {φ : α → β → Sort u₃} (f : Π x y, φ x y) : Π y x, φ x y :=
 λ y x, f x y
 
-@[reducible] def app {β : α → Type u₂} (f : Π x, β x) (x : α) : β x :=
+@[reducible] def app {β : α → Sort u₂} (f : Π x, β x) (x : α) : β x :=
 f x
-
-@[reducible] def curry : (α × β → φ) → α → β → φ :=
-λ f a b, f (a, b)
-
-@[reducible] def uncurry : (α → β → φ) → α × β → φ :=
-λ f ⟨a, b⟩, f a b
-
-lemma curry_uncurry (f : α → β → φ) : curry (uncurry f) = f :=
-rfl
-
-lemma uncurry_curry (f : α × β → φ) : uncurry (curry f) = f :=
-funext (λ ⟨a, b⟩, rfl)
 
 infixl  ` on `:1         := on_fun
 notation f ` -[` op `]- ` g  := combine f op g
@@ -91,16 +80,10 @@ lemma bijective_comp {g : β → φ} {f : α → β} : bijective g → bijective
 -- g is a left inverse to f
 def left_inverse (g : β → α) (f : α → β) : Prop := ∀ x, g (f x) = x
 
-def id_of_left_inverse {g : β → α} {f : α → β} : left_inverse g f → g ∘ f = id :=
-assume h, funext h
-
 def has_left_inverse (f : α → β) : Prop := ∃ finv : β → α, left_inverse finv f
 
 -- g is a right inverse to f
 def right_inverse (g : β → α) (f : α → β) : Prop := left_inverse f g
-
-def id_of_right_inverse {g : β → α} {f : α → β} : right_inverse g f → f ∘ g = id :=
-assume h, funext h
 
 def has_right_inverse (f : α → β) : Prop := ∃ finv : β → α, right_inverse finv f
 
@@ -137,5 +120,28 @@ lemma injective_id : injective (@id α) := take a₁ a₂ h, h
 lemma surjective_id : surjective (@id α) := take a, ⟨a, rfl⟩
 
 lemma bijective_id : bijective (@id α) := ⟨injective_id, surjective_id⟩
+
+end function
+
+namespace function
+variables {α : Type u₁} {β : Type u₂} {φ : Type u₃}
+
+@[reducible] def curry : (α × β → φ) → α → β → φ :=
+λ f a b, f (a, b)
+
+@[reducible] def uncurry : (α → β → φ) → α × β → φ :=
+λ f ⟨a, b⟩, f a b
+
+lemma curry_uncurry (f : α → β → φ) : curry (uncurry f) = f :=
+rfl
+
+lemma uncurry_curry (f : α × β → φ) : uncurry (curry f) = f :=
+funext (λ ⟨a, b⟩, rfl)
+
+def id_of_left_inverse {g : β → α} {f : α → β} : left_inverse g f → g ∘ f = id :=
+assume h, funext h
+
+def id_of_right_inverse {g : β → α} {f : α → β} : right_inverse g f → f ∘ g = id :=
+assume h, funext h
 
 end function

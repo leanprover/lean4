@@ -982,7 +982,7 @@ lemma let_eq {α : Sort v} {β : Sort u} {a₁ a₂ : α} {b₁ b₂ : α → β
 λ h₁ h₂, eq.rec_on h₁ (h₂ a₁)
 
 section relation
-variables {α : Type u} {β : Type v} (r : β → β → Prop)
+variables {α : Sort u} {β : Sort v} (r : β → β → Prop)
 local infix `≺`:50 := r
 
 def reflexive := ∀ x, x ≺ x

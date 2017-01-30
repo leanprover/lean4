@@ -4,7 +4,7 @@ check (⟨trivial, trivial⟩ : true ∧ true)
 
 example : true := sorry
 
-check (⟨1, sorry⟩ : Σ x : nat, x > 0)
+check (⟨1, sorry⟩ : Σ' x : nat, x > 0)
 
 open tactic
 

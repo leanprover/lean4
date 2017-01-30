@@ -146,7 +146,7 @@ or.inl ha
 def or.intro_right (a : Prop) {b : Prop} (hb : b) : or a b :=
 or.inr hb
 
-structure sigma {α : Type u} (β : α → Sort v) :=
+structure sigma {α : Type u} (β : α → Type v) :=
 mk :: (fst : α) (snd : β fst)
 
 structure psigma {α : Sort u} (β : α → Sort v) :=

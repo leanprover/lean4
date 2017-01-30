@@ -32,3 +32,7 @@ do g ← f,
 
 infixl ` >>= `:2 := bind
 infixl ` >> `:2  := pre_monad.and_then
+
+/- Identical to pre_monad.and_then, but it is not inlined. -/
+def pre_monad.seq {a b : Type u} {m : Type u → Type v} [pre_monad m] (x : m a) (y : m b) : m b :=
+do x, y

@@ -345,6 +345,7 @@ name const & get_pexpr_name();
 name const & get_pexpr_subst_name();
 name const & get_pre_monad_bind_name();
 name const & get_pre_monad_and_then_name();
+name const & get_pre_monad_seq_name();
 name const & get_put_str_name();
 name const & get_put_nat_name();
 name const & get_to_pexpr_name();

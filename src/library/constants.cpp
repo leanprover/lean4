@@ -343,6 +343,7 @@ name const * g_pexpr = nullptr;
 name const * g_pexpr_subst = nullptr;
 name const * g_pre_monad_bind = nullptr;
 name const * g_pre_monad_and_then = nullptr;
+name const * g_pre_monad_seq = nullptr;
 name const * g_put_str = nullptr;
 name const * g_put_nat = nullptr;
 name const * g_to_pexpr = nullptr;
@@ -818,6 +819,7 @@ void initialize_constants() {
     g_pexpr_subst = new name{"pexpr", "subst"};
     g_pre_monad_bind = new name{"pre_monad", "bind"};
     g_pre_monad_and_then = new name{"pre_monad", "and_then"};
+    g_pre_monad_seq = new name{"pre_monad", "seq"};
     g_put_str = new name{"put_str"};
     g_put_nat = new name{"put_nat"};
     g_to_pexpr = new name{"to_pexpr"};
@@ -1294,6 +1296,7 @@ void finalize_constants() {
     delete g_pexpr_subst;
     delete g_pre_monad_bind;
     delete g_pre_monad_and_then;
+    delete g_pre_monad_seq;
     delete g_put_str;
     delete g_put_nat;
     delete g_to_pexpr;
@@ -1769,6 +1772,7 @@ name const & get_pexpr_name() { return *g_pexpr; }
 name const & get_pexpr_subst_name() { return *g_pexpr_subst; }
 name const & get_pre_monad_bind_name() { return *g_pre_monad_bind; }
 name const & get_pre_monad_and_then_name() { return *g_pre_monad_and_then; }
+name const & get_pre_monad_seq_name() { return *g_pre_monad_seq; }
 name const & get_put_str_name() { return *g_put_str; }
 name const & get_put_nat_name() { return *g_put_nat; }
 name const & get_to_pexpr_name() { return *g_to_pexpr; }

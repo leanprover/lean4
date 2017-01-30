@@ -338,6 +338,7 @@ pexpr
 pexpr.subst
 pre_monad.bind
 pre_monad.and_then
+pre_monad.seq
 put_str
 put_nat
 to_pexpr

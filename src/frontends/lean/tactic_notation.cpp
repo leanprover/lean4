@@ -94,7 +94,23 @@ static expr mk_tactic_solve1(parser & p, expr tac, pos_info const & pos, name co
 }
 
 static expr concat(parser & p, expr const & r, expr tac, pos_info const & pos) {
-    return p.save_pos(mk_app(mk_constant(get_pre_monad_and_then_name()), r, tac), pos);
+    return p.save_pos(mk_app(mk_constant(get_pre_monad_seq_name()), r, tac), pos);
+}
+
+static expr concat(parser & p, buffer<expr> const & args, unsigned start, unsigned end, pos_info const & pos) {
+    lean_assert(start < end);
+    lean_assert(end <= args.size());
+    if (end == start+1)
+        return args[start];
+    unsigned mid = (start + end)/2;
+    expr left  = concat(p, args, start, mid, pos);
+    expr right = concat(p, args, mid, end, pos);
+    return concat(p, left, right, pos);
+}
+
+static expr concat(parser & p, buffer<expr> const & args, pos_info const & pos) {
+    lean_assert(!args.empty());
+    return concat(p, args, 0, args.size(), pos);
 }
 
 static optional<name> is_auto_quote_tactic(parser & p, name const & tac_class) {
@@ -456,7 +472,8 @@ static expr parse_begin_end_block(parser & p, pos_info const & start_pos, name c
         p.check_token_next(get_comma_tk(), "invalid begin [...] with cfg, ... end block, ',' expected");
     }
     tac_class = new_tac_class;
-    expr r = mk_tactic_save_info(p, start_pos, tac_class);
+    buffer<expr> to_concat;
+    to_concat.push_back(mk_tactic_save_info(p, start_pos, tac_class));
     try {
         while (!p.curr_is_token(end_token)) {
             auto pos = p.pos();
@@ -467,7 +484,7 @@ static expr parse_begin_end_block(parser & p, pos_info const & start_pos, name c
                     p.curr_is_token(get_lcurly_tk())) {
                     name const & end_tk = p.curr_is_token(get_begin_tk()) ? get_end_tk() : get_rcurly_tk();
                     expr info_tac = mk_tactic_save_info(p, pos, tac_class);
-                    r = concat(p, r, info_tac, start_pos);
+                    to_concat.push_back(info_tac);
                     next_tac = parse_begin_end_block(p, pos, end_tk, tac_class, use_rstep);
                     auto block_pos = p.pos_of(next_tac);
                     next_tac = mk_tactic_solve1(p, next_tac, block_pos, tac_class, use_rstep);
@@ -479,9 +496,9 @@ static expr parse_begin_end_block(parser & p, pos_info const & start_pos, name c
                 } else {
                     next_tac = parse_tactic(p, tac_class, use_rstep);
                 }
-                r = concat(p, r, next_tac, start_pos);
+                to_concat.push_back(next_tac);
                 if (!p.curr_is_token(end_token)) {
-                    r = concat(p, r, mk_tactic_save_info(p, {p.pos().first, p.pos().second+1}, tac_class), start_pos);
+                    to_concat.push_back(mk_tactic_save_info(p, {p.pos().first, p.pos().second+1}, tac_class));
                     info_tweak(p);
                     p.check_token_next(get_comma_tk(), "invalid 'begin-end' expression, ',' expected");
                 }
@@ -496,6 +513,7 @@ static expr parse_begin_end_block(parser & p, pos_info const & start_pos, name c
         throw;
     }
     auto end_pos = p.pos();
+    expr r = concat(p, to_concat, start_pos);
     r = concat(p, r, mk_tactic_save_info(p, end_pos, tac_class), end_pos);
     try {
         p.next();

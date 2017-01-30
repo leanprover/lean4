@@ -28,6 +28,7 @@ Author: Leonardo de Moura
 #include "library/aliases.h"
 #include "library/annotation.h"
 #include "library/explicit.h"
+#include "library/unfold_macros.h"
 #include "library/protected.h"
 #include "library/private.h"
 #include "library/class.h"
@@ -889,8 +890,10 @@ struct structure_cmd_fn {
                         args.push_back(local);
                 }
                 name decl_name  = name(m_name + local_pp_name(field.first), "_default");
-                expr decl_type  = Pi(args, mlocal_type(field.first));
-                expr decl_value = Fun(args, mk_explicit(*field.second));
+                /* TODO(Leo): add helper function for adding definition.
+                   It should unfold_untrusted_macros */
+                expr decl_type  = unfold_untrusted_macros(m_env, Pi(args, mlocal_type(field.first)));
+                expr decl_value = unfold_untrusted_macros(m_env, Fun(args, *field.second));
                 name_set used_univs;
                 used_univs = collect_univ_params(decl_value, used_univs);
                 used_univs = collect_univ_params(decl_type, used_univs);

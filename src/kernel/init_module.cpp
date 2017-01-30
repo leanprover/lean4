@@ -10,9 +10,11 @@ Author: Leonardo de Moura
 #include "kernel/formatter.h"
 #include "kernel/level.h"
 #include "kernel/declaration.h"
+#include "kernel/error_msgs.h"
 
 namespace lean {
 void initialize_kernel_module() {
+    initialize_error_msgs();
     initialize_level();
     initialize_expr();
     initialize_declaration();
@@ -27,5 +29,6 @@ void finalize_kernel_module() {
     finalize_declaration();
     finalize_expr();
     finalize_level();
+    finalize_error_msgs();
 }
 }

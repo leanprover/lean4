@@ -101,6 +101,7 @@ private:
     format pp(expr const & e);
     format pp_overload(pp_fn const & pp_fn, expr const & fn);
     format pp_overloads(pp_fn const & pp_fn, buffer<expr> const & fns);
+    std::tuple<pp_fn, format, format> pp_until_different(expr const & e1, expr const & e2);
 
     expr whnf(expr const & e) { return m_ctx.whnf(e); }
     expr try_to_pi(expr const & e) { return m_ctx.try_to_pi(e); }

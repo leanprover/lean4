@@ -2270,7 +2270,6 @@ task_result<bool> parser::parse_commands() {
     protected_call([&]() {
         // We disable hash-consing while parsing to make sure the pos-info are correct.
         scoped_expr_caching disable(false);
-        scoped_set_distinguishing_pp_options set(get_distinguishing_pp_options());
         scope_pos_info_provider scope1(*this);
         scope_message_context scope_parser_msgs("_parser", m_old_buckets_from_snapshot);
         try {

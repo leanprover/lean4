@@ -3,6 +3,6 @@ bad_inaccessible2.lean:31:2: error: type mismatch at application
 term
   cons b vb
 has type
-  vec .?m_2 (n + 1)
+  vec .?m_1 (n + 1)
 but is expected to have type
-  vec A .(.?m_1 + 1)
+  vec A .(.?m_2 + 1)

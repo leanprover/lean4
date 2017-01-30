@@ -1,0 +1,6 @@
+refine_error.lean:5:1: error: type mismatch, expression
+  @pax ℤ int.has_zero
+has type
+  @p ℤ int.has_zero 0
+but is expected to have type
+  @p ℕ nat.has_zero 0

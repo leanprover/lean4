@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/sexpr/option_declarations.h"
+#include "kernel/error_msgs.h"
 #include "library/pp_options.h"
 
 #ifndef LEAN_DEFAULT_PP_MAX_DEPTH
@@ -204,6 +205,8 @@ void initialize_pp_options() {
     options all = universes_true + implicit_true + proofs_true + coercions_true + notation_false + full_names_true + binder_types_true;
     g_distinguishing_pp_options = new list<options>({implicit_true, full_names_true, coercions_true, implicit_coercions,
                 implicit_notation, universes_true, all});
+
+    set_distinguishing_pp_options(*g_distinguishing_pp_options);
 }
 
 void finalize_pp_options() {
@@ -269,6 +272,4 @@ bool     get_pp_binder_types(options const & opts)      { return opts.get_bool(*
 bool     get_pp_hide_comp_irrel(options const & opts)   { return opts.get_bool(*g_pp_hide_comp_irrel, LEAN_DEFAULT_PP_HIDE_COMP_IRRELEVANT); }
 bool     get_pp_delayed_abstraction(options const & opts) { return opts.get_bool(*g_pp_delayed_abstraction, LEAN_DEFAULT_PP_DELAYED_ABSTRACTION); }
 bool     get_pp_all(options const & opts)               { return opts.get_bool(*g_pp_all, LEAN_DEFAULT_PP_ALL); }
-
-list<options> const & get_distinguishing_pp_options() { return *g_distinguishing_pp_options; }
 }

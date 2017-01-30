@@ -44,7 +44,6 @@ bool     get_pp_binder_types(options const & opts);
 bool     get_pp_hide_comp_irrel(options const & opts);
 bool     get_pp_delayed_abstraction(options const & opts);
 bool     get_pp_all(options const & opts);
-list<options> const & get_distinguishing_pp_options();
 
 void initialize_pp_options();
 void finalize_pp_options();

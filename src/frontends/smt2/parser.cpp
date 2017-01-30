@@ -692,7 +692,6 @@ public:
     // Entry point
     bool operator()() {
         scoped_expr_caching disable(false);
-        scoped_set_distinguishing_pp_options set(get_distinguishing_pp_options());
 
         auto mod_ldr = mk_olean_loader();
         optional<unsigned> k;

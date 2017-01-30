@@ -1,11 +1,11 @@
 elab_error_msgs.lean:2:0: error: type mismatch at application
-  and.rec (λ (ha : ?m_1) (hb : delayed[?m_2]) (hb : delayed[?m_4]), ha)
+  and.rec (λ (ha : ?m_1) (hb : delayed[?m_2]) (hb : delayed[?m_3]), ha)
 term
-  λ (ha : ?m_1) (hb : delayed[?m_2]) (hb : delayed[?m_4]), ha
+  λ (ha : ?m_1) (hb : delayed[?m_2]) (hb : delayed[?m_3]), ha
 has type
-  Π (ha : ?m_1) (hb : delayed[?m_2]) (hb_1 : delayed[?m_4]), delayed[?m_1]
+  Π (ha : ?m_1) (hb : delayed[?m_2]) (hb_1 : delayed[?m_3]), delayed[?m_1]
 but is expected to have type
-  ?m_1 → ?m_2 → ?m_3
+  ?m_1 → ?m_2 → ?m_4
 Additional information:
 elab_error_msgs.lean:2:0: context: 'eliminator' elaboration was not used for 'and.rec' because it is not fully applied, #2 explicit arguments expected
 elab_error_msgs.lean:9:0: error: type mismatch at application
@@ -15,6 +15,6 @@ term
 has type
   true
 but is expected to have type
-  ?m_2 ?m_3 ?m_3
+  ?m_1 ?m_2 ?m_2
 Additional information:
 elab_error_msgs.lean:9:0: context: 'eliminator' elaboration is not used for 'bogus_elim' because a (reliable) way to synthesize 'a', which occurs in the resulting type, was not found

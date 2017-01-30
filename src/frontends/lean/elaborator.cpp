@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "util/flet.h"
 #include "util/thread.h"
 #include "kernel/find_fn.h"
+#include "kernel/error_msgs.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/replace_fn.h"
 #include "kernel/instantiate.h"
@@ -141,6 +142,23 @@ format elaborator::pp_indent(expr const & e) {
 format elaborator::pp(expr const & e) {
     auto fn = mk_pp_ctx();
     return fn(e);
+}
+
+auto elaborator::pp_until_different(expr const & e1, expr const & e2) -> std::tuple<pp_fn, format, format> {
+    flet<options> save_opts(m_opts, m_opts);
+    expr n_e1    = erase_binder_info(e1);
+    expr n_e2    = erase_binder_info(e2);
+    pp_fn fn     = mk_pp_ctx();
+    list<options> extra = get_distinguishing_pp_options();
+    while (true) {
+        format r1 = pp_indent(fn, n_e1);
+        format r2 = pp_indent(fn, n_e2);
+        if (!format_pp_eq(r1, r2, m_opts) || !extra)
+            return std::make_tuple(fn, pp_indent(fn, e1), pp_indent(fn, e2));
+        m_opts    = join(head(extra), m_opts);
+        fn        = mk_pp_ctx();
+        extra     = tail(extra);
+    }
 }
 
 format elaborator::pp_overload(pp_fn const & pp_fn, expr const & fn) {
@@ -565,11 +583,12 @@ expr elaborator::enforce_type(expr const & e, expr const & expected_type, char c
     if (auto r = ensure_has_type(e, e_type, expected_type, ref)) {
         return *r;
     } else {
+        auto pp_data = pp_until_different(e_type, expected_type);
+        auto pp_fn   = std::get<0>(pp_data);
         format msg = format(header);
-        auto pp_fn = mk_pp_ctx();
         msg += format(", expression") + pp_indent(pp_fn, e);
-        msg += line() + format("has type") + pp_indent(pp_fn, e_type);
-        msg += line() + format("but is expected to have type") + pp_indent(pp_fn, expected_type);
+        msg += line() + format("has type") + std::get<1>(pp_data);
+        msg += line() + format("but is expected to have type") + std::get<2>(pp_data);
         throw elaborator_exception(ref, msg);
     }
 }
@@ -669,10 +688,11 @@ expr elaborator::visit_typed_expr(expr const & e) {
     if (auto r = ensure_has_type(new_val, new_val_type, new_type, ref))
         return *r;
 
-    auto pp_fn = mk_pp_ctx();
+    auto pp_data = pp_until_different(new_val_type, new_type);
+    auto pp_fn   = std::get<0>(pp_data);
     throw elaborator_exception(ref,
-                               format("invalid type ascription, expression has type") + pp_indent(pp_fn, new_val_type) +
-                               line() + format("but is expected to have type") + pp_indent(pp_fn, new_type));
+                               format("invalid type ascription, expression has type") + std::get<1>(pp_data) +
+                               line() + format("but is expected to have type") + std::get<2>(pp_data));
 }
 
 level elaborator::dec_level(level const & l, expr const & ref) {
@@ -817,26 +837,28 @@ void elaborator::validate_overloads(buffer<expr> const & fns, expr const & ref) 
 
 format elaborator::mk_app_type_mismatch_error(expr const & t, expr const & arg, expr const & arg_type,
                                               expr const & expected_type) {
-    auto pp_fn = mk_pp_ctx();
-    format msg = format("type mismatch at application");
+    auto pp_data = pp_until_different(arg_type, expected_type);
+    auto pp_fn   = std::get<0>(pp_data);
+    format msg   = format("type mismatch at application");
     msg += pp_indent(pp_fn, t);
     msg += line() + format("term");
     msg += pp_indent(pp_fn, arg);
     msg += line() + format("has type");
-    msg += pp_indent(pp_fn, arg_type);
+    msg += std::get<1>(pp_data);
     msg += line() + format("but is expected to have type");
-    msg += pp_indent(pp_fn, expected_type);
+    msg += std::get<2>(pp_data);
     return msg;
 }
 
 format elaborator::mk_app_arg_mismatch_error(expr const & t, expr const & arg, expr const & expected_arg) {
-    auto pp_fn = mk_pp_ctx();
+    auto pp_data = pp_until_different(arg, expected_arg);
+    auto pp_fn   = std::get<0>(pp_data);
     format msg = format("unexpected argument at application");
     msg += pp_indent(pp_fn, t);
     msg += line() + format("given argument");
-    msg += pp_indent(pp_fn, arg);
+    msg += std::get<1>(pp_data);
     msg += line() + format("expected argument");
-    msg += pp_indent(pp_fn, expected_arg);
+    msg += std::get<2>(pp_data);
     return msg;
 }
 
@@ -988,13 +1010,14 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
                 expr new_arg_type = instantiate_mvars(infer_type(new_args[i]));
                 expr new_arg      = visit(*arg, some_expr(new_arg_type));
                 if (!is_def_eq(new_args[i], new_arg)) {
-                    auto pp_fn = mk_pp_ctx();
+                    auto pp_data = pp_until_different(infer_type(new_arg), new_arg_type);
+                    auto pp_fn   = std::get<0>(pp_data);
                     throw elaborator_exception(ref, format("\"eliminator\" elaborator type mismatch, term") +
                                                pp_indent(pp_fn, new_arg) +
                                                line() + format("has type") +
-                                               pp_indent(pp_fn, infer_type(new_arg)) +
+                                               std::get<1>(pp_data) +
                                                line() + format("but is expected to have type") +
-                                               pp_indent(pp_fn, new_arg_type));
+                                               std::get<2>(pp_data));
                 } else {
                     new_args[i] = new_arg;
                 }
@@ -1089,12 +1112,13 @@ void elaborator::first_pass(expr const & fn, buffer<expr> const & args,
     lean_assert(args.size() == info.new_args_size.size());
     lean_assert(args.size() == info.new_instances_size.size());
     if (!is_def_eq(expected_type, type)) {
-        auto pp_fn = mk_pp_ctx();
+        auto pp_data = pp_until_different(type, expected_type);
+        auto pp_fn   = std::get<0>(pp_data);
         expr e = mk_app(fn, info.new_args);
         throw elaborator_exception(ref, format("type mismatch") + pp_indent(pp_fn, e) +
-                                   line() + format("has type") + pp_indent(pp_fn, type) +
+                                   line() + format("has type") + std::get<1>(pp_data) +
                                    line() + format("but is expected to have type") +
-                                   pp_indent(pp_fn, expected_type));
+                                   std::get<2>(pp_data));
     }
 }
 
@@ -1351,11 +1375,12 @@ expr elaborator::visit_overloaded_app_core(buffer<expr> const & fns, buffer<expr
                 if (ensure_has_type(c, c_type, *expected_type, ref)) {
                     candidates.emplace_back(c, snapshot(*this));
                 } else {
-                    auto pp_fn = mk_pp_ctx();
+                    auto pp_data = pp_until_different(c_type, *expected_type);
+                    auto pp_fn   = std::get<0>(pp_data);
                     throw elaborator_exception(ref, format("invalid overload, expression") + pp_indent(pp_fn, c) +
-                                               line() + format("has type") + pp_indent(pp_fn, c_type) +
+                                               line() + format("has type") + std::get<1>(pp_data) +
                                                line() + format("but is expected to have type") +
-                                               pp_indent(pp_fn, *expected_type));
+                                               std::get<2>(pp_data));
                 }
             } else {
                 candidates.emplace_back(c, snapshot(*this));
@@ -2860,11 +2885,12 @@ expr_pair elaborator::elaborate_with_type(expr const & e, expr const & e_type) {
     if (auto r = ensure_has_type(new_e, inferred_type, new_e_type, ref)) {
         new_e = *r;
     } else {
-        auto pp_fn = mk_pp_ctx();
+        auto pp_data = pp_until_different(inferred_type, new_e_type);
+        auto pp_fn   = std::get<0>(pp_data);
         throw elaborator_exception(ref,
                                    format("type mismatch, expression") + pp_indent(pp_fn, new_e) +
-                                   line() + format("has type") + pp_indent(pp_fn, inferred_type) +
-                                   line() + format("but is expected to have type") + pp_indent(pp_fn, new_e_type));
+                                   line() + format("has type") + std::get<1>(pp_data) +
+                                   line() + format("but is expected to have type") + std::get<2>(pp_data));
     }
     return mk_pair(new_e, new_e_type);
 }

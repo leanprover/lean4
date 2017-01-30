@@ -21,15 +21,17 @@ format pp_function_expected(formatter const & fmt, expr const & e) {
     return compose(format("function expected at"), pp_indent_expr(fmt, e));
 }
 
-MK_THREAD_LOCAL_GET_DEF(list<options>, get_distinguishing_pp_options)
+static list<options> * g_distinguishing_pp_options = nullptr;
 
-list<options> set_distinguishing_pp_options(list<options> const & opts) {
-    list<options> r = get_distinguishing_pp_options();
-    get_distinguishing_pp_options() = opts;
-    return r;
+void set_distinguishing_pp_options(list<options> const & opts) {
+    *g_distinguishing_pp_options = opts;
 }
 
-static expr erase_binder_info(expr const & e) {
+list<options> const & get_distinguishing_pp_options() {
+    return *g_distinguishing_pp_options;
+}
+
+expr erase_binder_info(expr const & e) {
     return replace(e, [](expr const & e) {
             if (is_local(e) || is_metavar(e)) {
                 return some_expr(e);
@@ -60,7 +62,7 @@ static std::tuple<format, format> pp_until_different(formatter const & fmt, expr
 }
 
 std::tuple<format, format> pp_until_different(formatter const & fmt, expr const & e1, expr const & e2) {
-    return pp_until_different(fmt, e1, e2, get_distinguishing_pp_options());
+    return pp_until_different(fmt, e1, e2, *g_distinguishing_pp_options);
 }
 
 format pp_app_type_mismatch(formatter const & _fmt, expr const & app, expr const & fn_type, expr const & arg, expr const & given_type, bool as_error) {
@@ -139,7 +141,7 @@ static format pp_until_meta_visible(formatter const & fmt, expr const & e, list<
 }
 
 format pp_until_meta_visible(formatter const & fmt, expr const & e) {
-    return pp_until_meta_visible(fmt, e, get_distinguishing_pp_options());
+    return pp_until_meta_visible(fmt, e, *g_distinguishing_pp_options);
 }
 
 format pp_decl_has_metavars(formatter const & fmt, name const & n, expr const & e, bool is_type) {
@@ -156,5 +158,12 @@ format pp_decl_has_metavars(formatter const & fmt, name const & n, expr const & 
         r += line() + format("remark: set 'formatter.hide_full_terms' to false to see the complete term");
     r += pp_until_meta_visible(fmt, e);
     return r;
+}
+
+void initialize_error_msgs() {
+    g_distinguishing_pp_options = new list<options>();
+}
+void finalize_error_msgs() {
+    delete g_distinguishing_pp_options;
 }
 }

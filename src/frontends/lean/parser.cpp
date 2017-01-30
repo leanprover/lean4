@@ -166,6 +166,7 @@ parser::parser(environment const & env, io_state const & ios,
     m_imports_parsed(false),
     m_snapshot_vector(sv) {
     m_next_inst_idx = 1;
+    m_ignore_noncomputable = false;
     if (s) {
         m_env                = s->m_env;
         m_ios.set_options(s->m_options);
@@ -176,10 +177,10 @@ parser::parser(environment const & env, io_state const & ios,
         m_variables          = s->m_vars;
         m_include_vars       = s->m_include_vars;
         m_imports_parsed     = s->m_imports_parsed;
+        m_ignore_noncomputable = s->m_noncomputable_theory;
         m_parser_scope_stack = s->m_parser_scope_stack;
         m_next_inst_idx      = s->m_next_inst_idx;
     }
-    m_ignore_noncomputable = false;
     m_profile     = ios.get_options().get_bool("profiler", false);
     m_in_quote = false;
     m_in_pattern = false;
@@ -2385,7 +2386,7 @@ void parser::save_snapshot(scope_message_context & smc, pos_info p) {
         m_snapshot_vector->push_back(std::make_shared<snapshot>(
                 m_env, smc.get_sub_buckets(), m_local_level_decls, m_local_decls,
                 m_level_variables, m_variables, m_include_vars,
-                m_ios.get_options(), m_imports_parsed, m_parser_scope_stack, m_next_inst_idx, p,
+                m_ios.get_options(), m_imports_parsed, m_ignore_noncomputable, m_parser_scope_stack, m_next_inst_idx, p,
                 m_required_successes));
     }
 }

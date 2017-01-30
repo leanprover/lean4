@@ -7,9 +7,21 @@ Author: Gabriel Ebner
 #pragma once
 #include "kernel/environment.h"
 #include <iostream>
+#include <unordered_map>
 
 namespace lean {
 
-void import_from_text(std::istream & in, environment & env);
+enum class lowlevel_notation_kind {
+    Prefix, Postfix, Infix,
+};
+struct lowlevel_notation_info {
+    lowlevel_notation_kind m_kind;
+    std::string m_token;
+    unsigned m_prec;
+};
+
+using lowlevel_notations = std::unordered_map<name, lowlevel_notation_info, name_hash>;
+
+void import_from_text(std::istream & in, environment & env, lowlevel_notations & notations);
 
 }

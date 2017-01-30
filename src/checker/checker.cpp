@@ -67,13 +67,14 @@ int main(int argc, char ** argv) {
 
         unsigned trust_lvl = 0;
         auto env = mk_environment(trust_lvl);
-        import_from_text(in, env);
+        lowlevel_notations notations;
+        import_from_text(in, env, notations);
 
         env.for_each_declaration([&] (declaration const & d) {
             if (d.is_axiom()) {
                 std::cout << compose_many(
                         {format("axiom"), space(), simple_pp(d.get_name()), space(), format(":"), space(),
-                         simple_pp(env, d.get_type()), line()});
+                         simple_pp(env, d.get_type(), notations), line()});
             }
         });
 
@@ -82,7 +83,7 @@ int main(int argc, char ** argv) {
             auto d = env.get(n);
             std::cout << compose_many(
                     {format("theorem"), space(), simple_pp(d.get_name()), space(), format(":"), space(),
-                     simple_pp(env, d.get_type()), line()});
+                     simple_pp(env, d.get_type(), notations), line()});
         }
 
         unsigned num_decls = 0;

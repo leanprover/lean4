@@ -228,3 +228,15 @@ Quotient declaration
 
 The declaration of the quotient type and its computational rule is exported as
 `#QUOT`.
+
+Notation
+--------
+
+The export contains information about prefix, postfix, and infix notation,
+where the head symbol is a constant.
+These are indicated using the `#PREFIX`, `#POSTFIX`, and `#INFIX` commands.
+They all follow the same syntax:
+
+```
+#PREFIX <name_idx> <precedence> <token>
+```

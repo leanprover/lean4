@@ -39,9 +39,11 @@ static format pp_name(name n) {
 
 struct simple_pp_fn {
     type_checker m_tc;
+    lowlevel_notations m_notations;
     unsigned m_indent = 0;
 
-    simple_pp_fn(environment const & env) : m_tc(env) {}
+    simple_pp_fn(environment const & env, lowlevel_notations const & notations) :
+            m_tc(env), m_notations(notations) {}
 
     static constexpr unsigned MAX_PRIO = 1024;
     struct result {
@@ -130,15 +132,45 @@ struct simple_pp_fn {
         }
     }
 
-    result pp_app(expr const & e) {
-        auto fn = get_app_fn(e);
-        format fmt = pp(fn).maybe_paren();
-        buffer<expr> args; get_app_args(e, args);
-        for (auto & arg : args) {
-            if (!is_implicit(fn)) {
-                fmt = compose_many({fmt, space(), pp(arg).maybe_paren()});
+    expr get_explicit_args(expr e, buffer<expr> & args) {
+        while (is_app(e)) {
+            if (!is_implicit(app_fn(e))) {
+                args.push_back(app_arg(e));
             }
-            fn = mk_app(fn, arg);
+            e = app_fn(e);
+        }
+        std::reverse(args.begin(), args.end());
+        return e;
+    }
+
+    result pp_app(expr const & e) {
+        buffer<expr> args;
+        auto fn = get_explicit_args(e, args);
+
+        if (is_constant(fn)) {
+            auto it = m_notations.find(const_name(fn));
+            if (it != m_notations.end()) {
+                format fmt;
+                auto prec = it->second.m_prec;
+                if (it->second.m_kind == lowlevel_notation_kind::Postfix && args.size() == 1) {
+                    fmt = compose_many({pp(args[0]).maybe_paren(prec), format(it->second.m_token)});
+                }
+                if (it->second.m_kind == lowlevel_notation_kind::Prefix && args.size() == 1) {
+                    fmt = compose_many({format(it->second.m_token), pp(args[0]).maybe_paren(prec)});
+                }
+                if (it->second.m_kind == lowlevel_notation_kind::Infix && args.size() == 2) {
+                    fmt = compose_many({pp(args[0]).maybe_paren(prec),
+                                        format(it->second.m_token),
+                                        pp(args[1]).maybe_paren(prec)});
+                }
+                if (!fmt.is_nil_fmt())
+                    return result(group(fmt), it->second.m_prec-1);
+            }
+        }
+
+        format fmt = pp(fn).maybe_paren();
+        for (auto & arg : args) {
+            fmt = compose_many({fmt, space(), pp(arg).maybe_paren()});
         }
         return result(group(fmt), MAX_PRIO-1);
     }
@@ -269,8 +301,8 @@ format simple_pp(name const & n) {
     return pp_name(n);
 }
 
-format simple_pp(environment const & env, expr const & e) {
-    simple_pp_fn fn(env);
+format simple_pp(environment const & env, expr const & e, lowlevel_notations const & notations) {
+    simple_pp_fn fn(env, notations);
     fn.mark_used_const_names(e);
     return fn.pp(e);
 }

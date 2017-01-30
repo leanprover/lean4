@@ -357,6 +357,15 @@ list<notation_entry> get_notation_entries(environment const & env, head_index co
         return list<notation_entry>();
 }
 
+std::vector<notation_entry> get_notation_entries(environment const &env) {
+    std::vector<notation_entry> entries;
+    notation_ext::get_state(env).m_inv_map.for_each_entry(
+            [&] (head_index const &, notation_entry const & entry) {
+                entries.emplace_back(entry);
+            });
+    return entries;
+}
+
 struct cmd_ext : public environment_extension {
     cmd_table m_cmds;
     cmd_ext() {

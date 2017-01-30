@@ -18,7 +18,6 @@ Quotient types for kernels with proof irrelevance.
 
 namespace lean {
 static name * g_quotient_extension = nullptr;
-static name * g_propext        = nullptr;
 static name * g_quotient       = nullptr;
 static name * g_quotient_lift  = nullptr;
 static name * g_quotient_ind   = nullptr;
@@ -211,12 +210,11 @@ bool has_quotient(environment const & env) {
 }
 
 std::vector<name> quotient_required_decls() {
-    return {"eq", *g_propext};
+    return {"eq"};
 }
 
 void initialize_quotient_module() {
     g_quotient_extension = new name("quotient_extension");
-    g_propext            = new name{"propext"};
     g_quotient           = new name{"quot"};
     g_quotient_lift      = new name{"quot", "lift"};
     g_quotient_ind       = new name{"quot", "ind"};
@@ -226,7 +224,6 @@ void initialize_quotient_module() {
 
 void finalize_quotient_module() {
     delete g_ext;
-    delete g_propext;
     delete g_quotient_extension;
     delete g_quotient;
     delete g_quotient_lift;

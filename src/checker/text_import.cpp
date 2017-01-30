@@ -21,6 +21,8 @@ struct text_importer {
     std::unordered_map<unsigned, name> m_name;
     std::unordered_map<unsigned, level> m_level;
 
+    lowlevel_notations m_notations;
+
     environment m_env;
 
     text_importer(environment const & env) : m_env(env) {
@@ -78,6 +80,20 @@ struct text_importer {
         m_env = m_env.add(check(m_env, mk_axiom(m_name.at(name_idx), ls, m_expr.at(type_idx))));
     }
 
+    void handle_notation(std::istream & in, lowlevel_notation_kind kind) {
+        unsigned name_idx, prec;
+        in >> name_idx >> prec;
+
+        std::string token;
+        std::getline(in, token);
+        if (!token.empty() && token.front())
+            token.erase(token.begin());
+        if (!token.empty() && token.back() == '\n')
+            token.erase(token.end() - 1);
+
+        m_notations[m_name.at(name_idx)] = { kind, token, prec };
+    }
+
     binder_info read_binder_info(std::string const & tok) {
         if (tok == "#BI") {
             return mk_implicit_binder_info();
@@ -106,6 +122,12 @@ struct text_importer {
             handle_ax(in);
         } else if (cmd == "#QUOT") {
             m_env = declare_quotient(m_env);
+        } else if (cmd == "#PREFIX") {
+            handle_notation(in, lowlevel_notation_kind::Prefix);
+        } else if (cmd == "#POSTFIX") {
+            handle_notation(in, lowlevel_notation_kind::Postfix);
+        } else if (cmd == "#INFIX") {
+            handle_notation(in, lowlevel_notation_kind::Infix);
         } else if (std::istringstream(cmd) >> idx) {
             std::string kind;
             in >> kind;
@@ -162,7 +184,7 @@ struct text_importer {
     }
 };
 
-void import_from_text(std::istream & in, environment & env) {
+void import_from_text(std::istream & in, environment & env, lowlevel_notations & notations) {
     text_importer importer(env);
 
     std::string line;
@@ -179,6 +201,7 @@ void import_from_text(std::istream & in, environment & env) {
     }
 
     env = importer.m_env;
+    notations = std::move(importer.m_notations);
 }
 
 }

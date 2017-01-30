@@ -90,6 +90,8 @@ list<expr> get_mpz_notation(environment const & env, mpz const & n);
 */
 list<notation_entry> get_notation_entries(environment const & env, head_index const & idx);
 
+std::vector<notation_entry> get_notation_entries(environment const & env);
+
 void initialize_parser_config();
 void finalize_parser_config();
 }

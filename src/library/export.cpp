@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <unordered_map>
+#include "frontends/lean/parser_config.h"
 #include "kernel/quotient/quotient.h"
 #include "kernel/expr_maps.h"
 #include "kernel/for_each_fn.h"
@@ -304,6 +305,39 @@ class exporter {
         m_out << "#QUOT\n";
     }
 
+    void export_notation(notation_entry const & entry) {
+        if (entry.parse_only()) return;
+        if (length(entry.get_transitions()) != 1) return;
+        auto & t = head(entry.get_transitions());
+
+        buffer<expr> args;
+        auto & fn = get_app_rev_args(entry.get_expr(), args);
+
+        char const * type = nullptr;
+        if (args.size() == 1 && args[0] == mk_var(0)) {
+            if (entry.is_nud()) {
+                type = "#PREFIX";
+            } else {
+                type = "#POSTFIX";
+            }
+        } else if (!entry.is_nud() && args.size() == 2 && args[0] == mk_var(0) && args[1] == mk_var(1)) {
+            type = "#INFIX";
+        }
+
+        if (type && is_constant(fn)) {
+            auto fni = export_name(const_name(fn));
+            auto prec_opt = get_expr_precedence(get_token_table(m_env), t.get_token().get_string());
+            auto prec = prec_opt ? *prec_opt : 0;
+            m_out << type << " " << fni << " " << prec << " " << t.get_pp_token().get_string() << "\n";
+        }
+    }
+
+    void export_notation() {
+        for (auto & entry : get_notation_entries(m_env)) {
+            export_notation(entry);
+        }
+    }
+
 public:
     exporter(std::ostream & out, environment const & env) : m_out(out), m_env(env) {}
 
@@ -314,6 +348,7 @@ public:
         if (has_quotient(m_env))
             export_quotient();
         export_declarations();
+        export_notation();
     }
 };
 

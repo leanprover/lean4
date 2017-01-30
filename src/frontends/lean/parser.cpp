@@ -1009,11 +1009,15 @@ bool parser::parse_binder_collection(buffer<pair<pos_info, name>> const & names,
     return true;
 }
 
+static expr mk_opt_param(expr const & t, expr const & val) {
+    return copy_tag(val, mk_app(copy_tag(val, mk_constant(get_opt_param_name())), t, val));
+}
+
 /**
    \brief Parse <tt>ID ... ID ':' expr</tt>, where the expression
    represents the type of the identifiers.
 */
-void parser::parse_binder_block(buffer<expr> & r, binder_info const & bi, unsigned rbp) {
+void parser::parse_binder_block(buffer<expr> & r, binder_info const & bi, unsigned rbp, bool allow_default) {
     buffer<pair<pos_info, name>> names;
     while (curr_is_identifier() || curr_is_token(get_placeholder_tk())) {
         auto p = pos();
@@ -1030,6 +1034,15 @@ void parser::parse_binder_block(buffer<expr> & r, binder_info const & bi, unsign
     if (curr_is_token(get_colon_tk())) {
         next();
         type = parse_expr(rbp);
+        if (allow_default && curr_is_token(get_assign_tk())) {
+            next();
+            expr val = parse_expr(rbp);
+            type = mk_opt_param(*type, val);
+        }
+    } else if (allow_default && curr_is_token(get_assign_tk())) {
+        next();
+        expr val = parse_expr(rbp);
+        type = mk_opt_param(copy_tag(val, mk_expr_placeholder()), val);
     } else if (parse_binder_collection(names, bi, r)) {
         return;
     }
@@ -1077,12 +1090,19 @@ void parser::parse_inst_implicit_decl(buffer<expr> & r) {
 }
 
 void parser::parse_binders_core(buffer<expr> & r, buffer<notation_entry> * nentries,
-                                bool & last_block_delimited, unsigned rbp, bool simple_only) {
+                                bool & last_block_delimited, unsigned rbp, bool simple_only,
+                                bool allow_default) {
     while (true) {
         if (curr_is_identifier() || curr_is_token(get_placeholder_tk())) {
-            parse_binder_block(r, binder_info(), rbp);
+            /* We only allow the default parameter value syntax for declarations with
+               surrounded by () */
+            bool new_allow_default = false;
+            parse_binder_block(r, binder_info(), rbp, new_allow_default);
             last_block_delimited = false;
         } else {
+            /* We only allow the default parameter value syntax for declarations with
+               surrounded by () */
+            bool new_allow_default = allow_default && curr_is_token(get_lparen_tk());
             optional<binder_info> bi = parse_optional_binder_info(simple_only);
             if (bi) {
                 rbp = 0;
@@ -1091,7 +1111,7 @@ void parser::parse_binders_core(buffer<expr> & r, buffer<notation_entry> * nentr
                     parse_inst_implicit_decl(r);
                 } else {
                     if (simple_only || !parse_local_notation_decl(nentries))
-                        parse_binder_block(r, *bi, rbp);
+                        parse_binder_block(r, *bi, rbp, new_allow_default);
                 }
                 parse_close_binder_info(bi);
             } else {
@@ -1103,11 +1123,11 @@ void parser::parse_binders_core(buffer<expr> & r, buffer<notation_entry> * nentr
 
 local_environment parser::parse_binders(buffer<expr> & r, buffer<notation_entry> * nentries,
                                         bool & last_block_delimited, bool allow_empty, unsigned rbp,
-                                        bool simple_only) {
+                                        bool simple_only, bool allow_default) {
     flet<environment>      save1(m_env, m_env); // save environment
     flet<local_expr_decls> save2(m_local_decls, m_local_decls);
     unsigned old_sz = r.size();
-    parse_binders_core(r, nentries, last_block_delimited, rbp, simple_only);
+    parse_binders_core(r, nentries, last_block_delimited, rbp, simple_only, allow_default);
     if (!allow_empty && old_sz == r.size())
         throw_invalid_open_binder(pos());
     return local_environment(m_env);

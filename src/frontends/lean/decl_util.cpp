@@ -43,7 +43,7 @@ bool parse_univ_params(parser & p, buffer<name> & lp_names) {
 }
 
 expr parse_single_header(parser & p, buffer<name> & lp_names, buffer<expr> & params,
-                         bool is_example, bool is_instance) {
+                         bool is_example, bool is_instance, bool allow_default) {
     lean_assert(!is_example || !is_instance);
     auto c_pos  = p.pos();
     name c_name;
@@ -56,7 +56,7 @@ expr parse_single_header(parser & p, buffer<name> & lp_names, buffer<expr> & par
             c_name = p.check_decl_id_next("invalid declaration, identifier expected");
     }
     declaration_name_scope scope(c_name);
-    p.parse_optional_binders(params);
+    p.parse_optional_binders(params, allow_default);
     for (expr const & param : params)
         p.add_local(param);
     expr type;
@@ -85,7 +85,8 @@ expr parse_single_header(parser & p, buffer<name> & lp_names, buffer<expr> & par
     return p.save_pos(mk_local(c_name, type), c_pos);
 }
 
-void parse_mutual_header(parser & p, buffer<name> & lp_names, buffer<expr> & cs, buffer<expr> & params) {
+void parse_mutual_header(parser & p, buffer<name> & lp_names, buffer<expr> & cs, buffer<expr> & params,
+                         bool allow_default) {
     parse_univ_params(p, lp_names);
     while (true) {
         auto c_pos  = p.pos();
@@ -95,7 +96,7 @@ void parse_mutual_header(parser & p, buffer<name> & lp_names, buffer<expr> & cs,
             break;
         p.next();
     }
-    p.parse_optional_binders(params);
+    p.parse_optional_binders(params, allow_default);
     for (expr const & param : params)
         p.add_local(param);
     for (expr const & c : cs)

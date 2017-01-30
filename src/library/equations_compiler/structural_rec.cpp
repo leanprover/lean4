@@ -817,7 +817,8 @@ struct structural_rec_fn {
                                 new_args.push_back(I_args[I_next_idx]);
                                 I_next_idx++;
                             } else {
-                                new_args.push_back(args[b_next_idx]);
+                                expr new_arg = visit(args[b_next_idx]);
+                                new_args.push_back(new_arg);
                                 b_next_idx++;
                             }
                         }

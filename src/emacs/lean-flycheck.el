@@ -17,6 +17,39 @@
    (flycheck-mode (flycheck-mode -1))
    (t             (flycheck-mode  1))))
 
+(cl-defun lean-flycheck-parse-task (checker buffer cur-file-name
+                                            &key pos_line pos_col desc file_name &allow-other-keys)
+  (if (equal cur-file-name file_name)
+      (flycheck-error-new-at pos_line (1+ pos_col)
+                             'info
+                             (format "still running: %s" desc)
+                             :filename file_name
+                             :checker checker :buffer buffer)
+    (flycheck-error-new-at 1 1
+                           'info
+                           (format "still running: %s" desc)
+                           :filename cur-file-name
+                           :checker checker :buffer buffer)))
+
+(defun lean-flycheck-mk-task-msgs (checker buffer sess)
+  (if (and sess (lean-server-session-tasks sess)
+           (plist-get (lean-server-session-tasks sess) :is_running))
+      (let* ((cur-fn (buffer-file-name))
+             (tasks (lean-server-session-tasks sess))
+             (cur-task (plist-get tasks :cur_task))
+             (tasks-for-cur-file (remove-if-not (lambda (task) (equal cur-fn (plist-get task :file_name)))
+                                                (plist-get tasks :tasks)))
+             (display-tasks))
+        ;; do not display tasks for current file when highlighting is enabled
+        (when (not lean-server-show-pending-tasks)
+          (setq display-tasks tasks-for-cur-file))
+        ;; show current task when not in current file
+        (when (and cur-task
+                   (not (equal cur-fn (plist-get cur-task :file_name))))
+          (setq display-tasks (cons cur-task display-task)))
+        (mapcar (lambda (task) (apply #'lean-flycheck-parse-task checker buffer cur-fn task))
+                display-tasks))))
+
 (cl-defun lean-flycheck-parse-error (checker buffer &key pos_line pos_col severity text file_name &allow-other-keys)
   (flycheck-error-new-at pos_line (1+ pos_col)
                          (pcase severity
@@ -33,9 +66,11 @@
         (buffer (current-buffer)))
     (funcall callback 'finished
              (if lean-server-session
-                 (mapcar (lambda (msg) (apply #'lean-flycheck-parse-error checker buffer msg))
-                         (remove-if-not (lambda (msg) (equal cur-fn (plist-get msg :file_name)))
-                                        (lean-server-session-messages lean-server-session)))))))
+                 (append
+                  (lean-flycheck-mk-task-msgs checker buffer lean-server-session)
+                  (mapcar (lambda (msg) (apply #'lean-flycheck-parse-error checker buffer msg))
+                          (remove-if-not (lambda (msg) (equal cur-fn (plist-get msg :file_name)))
+                                         (lean-server-session-messages lean-server-session))))))))
 
 (defun lean-flycheck-init ()
   "Initialize lean-flychek checker"

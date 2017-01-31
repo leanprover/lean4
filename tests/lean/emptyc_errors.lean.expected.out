@@ -2,10 +2,10 @@ emptyc_errors.lean:4:52: error: don't know how to synthesize placeholder
 context:
 A : Type u,
 x : A
-⊢ Type u → Type ?
+⊢ has_mem A ?m_1
 emptyc_errors.lean:4:52: error: don't know how to synthesize placeholder
 context:
 A : Type u,
 x : A
-⊢ Type u → Type ?
+⊢ has_mem A ?m_1
 emptyc_errors.lean:4:52: error: elaborator failed

@@ -39,7 +39,7 @@ instance : has_emptyc (set α) :=
 protected def insert (a : α) (s : set α) : set α :=
 {b | b = a ∨ b ∈ s}
 
-instance : has_insert α set :=
+instance : has_insert α (set α) :=
 ⟨set.insert⟩
 
 protected def union (s₁ s₂ : set α) : set α :=

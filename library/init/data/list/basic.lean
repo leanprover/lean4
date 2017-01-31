@@ -51,7 +51,7 @@ instance : has_emptyc (list α) :=
 protected def insert [decidable_eq α] (a : α) (l : list α) : list α :=
 if a ∈ l then l else concat l a
 
-instance [decidable_eq α] : has_insert α list :=
+instance [decidable_eq α] : has_insert α (list α) :=
 ⟨list.insert⟩
 
 protected def union [decidable_eq α] : list α → list α → list α

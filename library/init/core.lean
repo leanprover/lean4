@@ -252,7 +252,7 @@ class has_ssubset  (α : Type u) := (ssubset : α → α → Prop)
    used to implement polymorphic notation for collections.
    Example: {a, b, c}. -/
 class has_emptyc   (α : Type u) := (emptyc : α)
-class has_insert   (α : Type u) (γ : Type u → Type v) := (insert : α → γ α → γ α)
+class has_insert   (α : out_param (Type u)) (γ : Type v) := (insert : α → γ → γ)
 /- Type class used to implement the notation { a ∈ c | p a } -/
 class has_sep (α : Type u) (γ : Type u → Type v) :=
 (sep : (α → Prop) → γ α → γ α)
@@ -291,14 +291,14 @@ def bit1 {α : Type u} [s₁ : has_one α] [s₂ : has_add α] (a : α) : α := 
 
 attribute [pattern] zero one bit0 bit1 add neg
 
-def insert {α : Type u} {γ : Type u → Type v} [has_insert α γ] : α → γ α → γ α :=
+def insert {α : Type u} {γ : Type v} [has_insert α γ] : α → γ → γ :=
 has_insert.insert
 
 /- The empty collection -/
 def emptyc {α : Type u} [has_emptyc α] : α :=
 has_emptyc.emptyc α
 
-def singleton {α : Type u} {γ : Type u → Type v} [has_emptyc (γ α)] [has_insert α γ] (a : α) : γ α :=
+def singleton {α : Type u} {γ : Type v} [has_emptyc γ] [has_insert α γ] (a : α) : γ :=
 insert a emptyc
 
 def sep {α : Type u} {γ : Type u → Type v} [has_sep α γ] : (α → Prop) → γ α → γ α :=

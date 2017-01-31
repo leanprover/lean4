@@ -45,7 +45,7 @@ acc.rec_on (apply hwf a) (λ x₁ ac₁ ih, h x₁ ih)
 lemma induction {C : α → Prop} (a : α) (h : ∀ x, (∀ y, y ≺ x → C y) → C x) : C a :=
 recursion a h
 
-variable {C : α → Type v}
+variable {C : α → Sort v}
 variable F : Π x, (Π y, y ≺ x → C y) → C x
 
 def fix_F (x : α) (a : acc r x) : C x :=
@@ -56,7 +56,7 @@ lemma fix_F_eq (x : α) (r : acc r x) :
 acc.drec (λ x r ih, rfl) r
 end
 
-variables {α : Type u} {C : α → Type v} {r : α → α → Prop}
+variables {α : Type u} {C : α → Sort v} {r : α → α → Prop}
 
 -- Well-founded fixpoint
 def fix (hwf : well_founded r) (F : Π x, (Π y, r y x → C y) → C x) (x : α) : C x :=

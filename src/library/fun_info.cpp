@@ -11,6 +11,8 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/expr_maps.h"
 #include "library/trace.h"
+#include "library/util.h"
+#include "library/constants.h"
 #include "library/expr_unsigned_map.h"
 #include "library/fun_info.h"
 #include "library/cache_helper.h"
@@ -61,7 +63,10 @@ void clear_fun_info_cache() {
     get_fich().clear();
 }
 
-static list<unsigned> collect_deps(expr const & type, buffer<expr> const & locals) {
+/* Return the list of dependencies for the given type.
+   If it depends on local i, then it also sets pinfos[i].set_has_fwd_deps();
+ */
+static list<unsigned> collect_deps(expr const & type, buffer<expr> const & locals, buffer<param_info> & pinfos) {
     buffer<unsigned> deps;
     for_each(type, [&](expr const & e, unsigned) {
             if (is_local(e)) {
@@ -69,8 +74,10 @@ static list<unsigned> collect_deps(expr const & type, buffer<expr> const & local
                 for (idx = 0; idx < locals.size(); idx++)
                     if (locals[idx] == e)
                         break;
-                if (idx < locals.size() && std::find(deps.begin(), deps.end(), idx) == deps.end())
+                if (idx < locals.size() && std::find(deps.begin(), deps.end(), idx) == deps.end()) {
                     deps.push_back(idx);
+                    pinfos[idx].set_has_fwd_deps();
+                }
             }
             return has_local(e); // continue the search only if e has locals
         });
@@ -78,32 +85,28 @@ static list<unsigned> collect_deps(expr const & type, buffer<expr> const & local
     return to_list(deps);
 }
 
-/* Store parameter info for fn in \c pinfos and return the dependencies of the resulting type
-   (if compute_resulting_deps == true). */
+/* Store parameter info for fn in \c pinfos and return the dependencies of the resulting type. */
 static list<unsigned> get_core(type_context & ctx,
                                expr const & fn, buffer<param_info> & pinfos,
-                               unsigned max_args, bool compute_resulting_deps) {
+                               unsigned max_args) {
     expr type = ctx.relaxed_try_to_pi(ctx.infer(fn));
     type_context::tmp_locals locals(ctx);
     unsigned i = 0;
     while (is_pi(type)) {
         if (i == max_args)
             break;
-        expr local      = locals.push_local_from_binding(type);
-        expr local_type = ctx.infer(local);
+        expr local_type = consume_opt_param(binding_domain(type));
+        expr local      = locals.push_local(binding_name(type), local_type, binding_info(type));
         expr new_type   = ctx.relaxed_try_to_pi(instantiate(binding_body(type), local));
         bool is_prop    = ctx.is_prop(local_type);
-        bool is_dep     = !closed(binding_body(type));
+        bool is_dep     = false; /* it is set by collect_deps */
         pinfos.emplace_back(binding_info(type).is_implicit(),
                             binding_info(type).is_inst_implicit(),
-                            is_prop, is_dep, collect_deps(local_type, locals.as_buffer()));
+                            is_prop, is_dep, collect_deps(local_type, locals.as_buffer(), pinfos));
         type = new_type;
         i++;
     }
-    if (compute_resulting_deps)
-        return collect_deps(type, locals.as_buffer());
-    else
-        return list<unsigned>();
+    return collect_deps(type, locals.as_buffer(), pinfos);
 }
 
 fun_info get_fun_info(type_context & ctx, expr const & e) {
@@ -112,7 +115,7 @@ fun_info get_fun_info(type_context & ctx, expr const & e) {
     if (it != cache.m_cache_get.end())
         return it->second;
     buffer<param_info> pinfos;
-    auto result_deps = get_core(ctx, e, pinfos, std::numeric_limits<unsigned>::max(), true);
+    auto result_deps = get_core(ctx, e, pinfos, std::numeric_limits<unsigned>::max());
     fun_info r(pinfos.size(), to_list(pinfos), result_deps);
     cache.m_cache_get.insert(mk_pair(e, r));
     return r;
@@ -125,7 +128,7 @@ fun_info get_fun_info(type_context & ctx, expr const & e, unsigned nargs) {
     if (it != cache.m_cache_get_nargs.end())
         return it->second;
     buffer<param_info> pinfos;
-    auto result_deps = get_core(ctx, e, pinfos, nargs, true);
+    auto result_deps = get_core(ctx, e, pinfos, nargs);
     fun_info r(pinfos.size(), to_list(pinfos), result_deps);
     cache.m_cache_get_nargs.insert(mk_pair(key, r));
     return r;

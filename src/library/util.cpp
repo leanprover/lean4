@@ -69,6 +69,15 @@ bool is_app_of(expr const & t, name const & f_name, unsigned nargs) {
     return is_constant(fn) && const_name(fn) == f_name && get_app_num_args(t) == nargs;
 }
 
+expr consume_opt_param(expr const & type) {
+    if (is_app_of(type, get_opt_param_name(), 2)) {
+        /* make sure (opt_param 'a value) does not affect results */
+        return app_arg(app_fn(type));
+    } else {
+        return type;
+    }
+}
+
 optional<expr> unfold_term(environment const & env, expr const & e) {
     expr const & f = get_app_fn(e);
     if (!is_constant(f))

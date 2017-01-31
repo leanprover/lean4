@@ -123,11 +123,13 @@ struct congr_lemma_manager {
             return mk_eq_refl(m_ctx, g);
         lean_assert(kinds[i] == congr_arg_kind::Eq);
         lean_assert(eqs[i]);
-        expr pr = mk_congr_arg(m_ctx, g, *eqs[i]);
+        bool skip_arrow_test = true;
+        expr pr = mk_congr_arg(m_ctx, g, *eqs[i], skip_arrow_test);
         i++;
         for (; i < kinds.size(); i++) {
             if (kinds[i] == congr_arg_kind::Eq) {
-                pr = ::lean::mk_congr(m_ctx, pr, *eqs[i]);
+                bool skip_arrow_test = true;
+                pr = ::lean::mk_congr(m_ctx, pr, *eqs[i], skip_arrow_test);
             } else {
                 lean_assert(kinds[i] == congr_arg_kind::Fixed);
                 pr = mk_congr_fun(m_ctx, pr, lhss[i]);
@@ -162,13 +164,13 @@ struct congr_lemma_manager {
     }
 
     void trace_too_many_arguments(expr const & fn, unsigned nargs) {
-        lean_trace("congruence_manager", tout() << "failed to generate lemma for (" << fn << ") with " << nargs
+        lean_trace("congr_lemma", tout() << "failed to generate lemma for (" << fn << ") with " << nargs
                    << " arguments, too many arguments\n";);
     }
 
     void trace_app_builder_failure(expr const & fn) {
-        lean_trace("congruence_manager", tout() << "failed to generate lemma for (" << fn << "), "
-                   << " failed to build proof (enable 'trace.app_builder' for details\n";);
+        lean_trace("congr_lemma", tout() << "failed to generate lemma for (" << fn << "), "
+                   << " failed to build proof (enable 'trace.app_builder' for details)\n";);
     }
 
     /** \brief Create a congruence lemma that is useful for the simplifier.
@@ -525,7 +527,9 @@ struct congr_lemma_manager {
                 expr rhs = locals.push_local(binding_name(fn_type_rhs).append_after("'"), binding_domain(fn_type_rhs));
                 rhss.push_back(rhs); hyps.push_back(rhs);
                 expr eq_type;
-                if (binding_domain(fn_type_lhs) == binding_domain(fn_type_rhs)) {
+                expr domain_lhs = consume_opt_param(binding_domain(fn_type_lhs));
+                expr domain_rhs = consume_opt_param(binding_domain(fn_type_rhs));
+                if (domain_lhs == domain_rhs) {
                     eq_type = mk_eq(m_ctx, lhs, rhs);
                     kinds.push_back(congr_arg_kind::Eq);
                 } else {
@@ -752,5 +756,11 @@ optional<congr_lemma> mk_rel_iff_congr(type_context & ctx, expr const & R) {
 
 optional<congr_lemma> mk_rel_eq_congr(type_context & ctx, expr const & R) {
     return congr_lemma_manager(ctx).mk_rel_eq_congr(R);
+}
+
+void initialize_congr_lemma() {
+    register_trace_class("congr_lemma");
+}
+void finalize_congr_lemma() {
 }
 }

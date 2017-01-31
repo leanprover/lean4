@@ -50,6 +50,7 @@ Author: Leonardo de Moura
 #include "library/comp_val.h"
 #include "library/documentation.h"
 #include "library/defeq_canonizer.h"
+#include "library/congr_lemma.h"
 #include "library/check.h"
 
 namespace lean {
@@ -112,9 +113,11 @@ void initialize_library_module() {
     initialize_documentation();
     initialize_defeq_canonizer();
     initialize_check();
+    initialize_congr_lemma();
 }
 
 void finalize_library_module() {
+    finalize_congr_lemma();
     finalize_check();
     finalize_defeq_canonizer();
     finalize_documentation();

@@ -24,6 +24,7 @@ public:
     bool is_inst_implicit() const { return m_inst_implicit; }
     bool is_prop() const { return m_prop; }
     bool has_fwd_deps() const { return m_has_fwd_deps; }
+    void set_has_fwd_deps() { m_has_fwd_deps = true; }
 };
 
 /** \brief Function information produced by get_fun_info procedures. */

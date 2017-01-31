@@ -123,9 +123,9 @@ expr mk_eq_drec(type_context & ctx, expr const & C, expr const & H1, expr const 
 expr mk_eq_of_heq(type_context & ctx, expr const & H);
 expr mk_heq_of_eq(type_context & ctx, expr const & H);
 
-expr mk_congr_arg(type_context & ctx, expr const & f, expr const & H);
+expr mk_congr_arg(type_context & ctx, expr const & f, expr const & H, bool skip_arrow_test = false);
 expr mk_congr_fun(type_context & ctx, expr const & H, expr const & a);
-expr mk_congr(type_context & ctx, expr const & H1, expr const & H2);
+expr mk_congr(type_context & ctx, expr const & H1, expr const & H2, bool skip_arrow_test = false);
 
 expr mk_funext(type_context & ctx, expr const & lam_pf);
 

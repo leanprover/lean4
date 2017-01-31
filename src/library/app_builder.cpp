@@ -30,7 +30,8 @@ static void trace_failure(name const & n, char const * msg) {
                trace_fun(n); tout() << ", " << msg << "\n";);
 }
 
-#define lean_app_builder_trace(code) lean_trace("app_builder", scope_trace_env _scope1(m_ctx.env(), m_ctx); code)
+#define lean_app_builder_trace_core(ctx, code) lean_trace("app_builder", scope_trace_env _scope1(ctx.env(), ctx); code)
+#define lean_app_builder_trace(code) lean_app_builder_trace_core(m_ctx, code)
 
 static unsigned get_nargs(unsigned mask_sz, bool const * mask) {
     unsigned nargs = 0;
@@ -127,6 +128,16 @@ MK_THREAD_LOCAL_GET_DEF(app_builder_cache_helper, get_abch);
 app_builder_cache & get_app_builder_cache_for(type_context const & ctx) {
     return get_abch().get_cache_for(ctx);
 }
+
+level get_level(type_context & ctx, expr const & A) {
+    expr Type = ctx.relaxed_whnf(ctx.infer(A));
+    if (!is_sort(Type)) {
+        lean_app_builder_trace_core(ctx, tout() << "failed to infer universe level for type " << A << "\n";);
+        throw app_builder_exception();
+    }
+    return sort_level(Type);
+}
+
 
 /** \brief Helper for creating simple applications where some arguments are inferred using
     type inference.
@@ -304,12 +315,7 @@ public:
     app_builder(type_context & ctx):m_ctx(ctx), m_cache(get_app_builder_cache_for(ctx)) {}
 
     level get_level(expr const & A) {
-        expr Type = m_ctx.relaxed_whnf(m_ctx.infer(A));
-        if (!is_sort(Type)) {
-            lean_app_builder_trace(tout() << "failed to infer universe level for type " << A << "\n";);
-            throw app_builder_exception();
-        }
-        return sort_level(Type);
+        return ::lean::get_level(m_ctx, A);
     }
 
     expr mk_app(name const & c, unsigned nargs, expr const * args) {
@@ -757,7 +763,7 @@ public:
         return ::lean::mk_app(mk_constant(get_false_rec_name(), {c_lvl}), c, H);
     }
 
-    expr mk_congr_arg(expr const & f, expr const & H) {
+    expr mk_congr_arg(expr const & f, expr const & H, bool skip_arrow_test) {
         expr eq = m_ctx.relaxed_whnf(m_ctx.infer(H));
         expr pi = m_ctx.relaxed_whnf(m_ctx.infer(f));
         expr A, B, lhs, rhs;
@@ -765,7 +771,7 @@ public:
             lean_app_builder_trace(tout() << "failed to build congr_arg, equality expected:\n" << eq << "\n";);
             throw app_builder_exception();
         }
-        if (!is_arrow(pi)) {
+        if (!skip_arrow_test && !is_arrow(pi)) {
             lean_app_builder_trace(tout() << "failed to build congr_arg, non-dependent function expected:\n" << pi << "\n";);
             throw app_builder_exception();
         }
@@ -817,10 +823,6 @@ public:
         return ::lean::mk_app(mk_constant(get_not_of_eq_false_name()), lhs, H);
     }
 };
-
-level get_level(type_context & ctx, expr const & A) {
-    return app_builder(ctx).get_level(A);
-}
 
 expr mk_app(type_context & ctx, name const & c, unsigned nargs, expr const * args, optional<transparency_mode> const & md) {
     if (md) {
@@ -930,18 +932,77 @@ expr mk_heq_of_eq(type_context & ctx, expr const & H) {
     return app_builder(ctx).mk_heq_of_eq(H);
 }
 
-expr mk_congr_arg(type_context & ctx, expr const & f, expr const & H) {
-    return app_builder(ctx).mk_congr_arg(f, H);
+expr mk_congr_arg(type_context & ctx, expr const & f, expr const & H, bool skip_arrow_test) {
+    expr eq = ctx.relaxed_whnf(ctx.infer(H));
+    expr pi = ctx.relaxed_whnf(ctx.infer(f));
+    expr A, B, lhs, rhs;
+    if (!is_eq(eq, A, lhs, rhs)) {
+        lean_app_builder_trace_core(ctx, tout() << "failed to build congr_arg, equality expected:\n" << eq << "\n";);
+        throw app_builder_exception();
+    }
+    if (!is_arrow(pi)) {
+        if (!skip_arrow_test || !is_pi(pi)) {
+            lean_app_builder_trace_core(ctx, tout() << "failed to build congr_arg, non-dependent function expected:\n" << pi << "\n";);
+            throw app_builder_exception();
+        } else {
+            B = instantiate(binding_body(pi), lhs);
+        }
+    } else {
+        B = binding_body(pi);
+    }
+    level lvl_1  = get_level(ctx, A);
+    level lvl_2  = get_level(ctx, B);
+    return mk_app({mk_constant(get_congr_arg_name(), {lvl_1, lvl_2}), A, B, lhs, rhs, f, H});
 }
 
 expr mk_congr_fun(type_context & ctx, expr const & H, expr const & a) {
-    // TODO(Leo): efficient version
-    return mk_app(ctx, get_congr_fun_name(), {H, a});
+    expr eq = ctx.relaxed_whnf(ctx.infer(H));
+    expr pi, lhs, rhs;
+    if (!is_eq(eq, pi, lhs, rhs)) {
+        lean_app_builder_trace_core(ctx, tout() << "failed to build congr_fun, equality expected:\n" << eq << "\n";);
+        throw app_builder_exception();
+    }
+    pi = ctx.relaxed_whnf(pi);
+    if (!is_pi(pi)) {
+        lean_app_builder_trace_core(ctx, tout() << "failed to build congr_fun, function expected:\n" << pi << "\n";);
+        throw app_builder_exception();
+    }
+    expr A       = binding_domain(pi);
+    expr B       = mk_lambda(binding_name(pi), binding_domain(pi), binding_body(pi), binding_info(pi));
+    level lvl_1  = get_level(ctx, A);
+    level lvl_2  = get_level(ctx, mk_app(B, a));
+    return mk_app({mk_constant(get_congr_fun_name(), {lvl_1, lvl_2}), A, B, lhs, rhs, H, a});
 }
 
-expr mk_congr(type_context & ctx, expr const & H1, expr const & H2) {
-    // TODO(Leo): efficient version
-    return mk_app(ctx, get_congr_name(), {H1, H2});
+expr mk_congr(type_context & ctx, expr const & H1, expr const & H2, bool skip_arrow_test) {
+    expr eq1 = ctx.relaxed_whnf(ctx.infer(H1));
+    expr eq2 = ctx.relaxed_whnf(ctx.infer(H2));
+    expr pi, lhs1, rhs1;
+    if (!is_eq(eq1, pi, lhs1, rhs1)) {
+        lean_app_builder_trace_core(ctx, tout() << "failed to build congr, equality expected:\n" << eq1 << "\n";);
+        throw app_builder_exception();
+    }
+    expr lhs2, rhs2;
+    if (!is_eq(eq2, lhs2, rhs2)) {
+        lean_app_builder_trace_core(ctx, tout() << "failed to build congr, equality expected:\n" << eq2 << "\n";);
+        throw app_builder_exception();
+    }
+    pi = ctx.relaxed_whnf(pi);
+    expr A, B;
+    if (!is_arrow(pi)) {
+        if (!skip_arrow_test || !is_pi(pi)) {
+            lean_app_builder_trace_core(ctx, tout() << "failed to build congr, non-dependent function expected:\n" << pi << "\n";);
+            throw app_builder_exception();
+        } else {
+            B = instantiate(binding_body(pi), lhs1);
+        }
+    } else {
+        B = binding_body(pi);
+    }
+    A            = binding_domain(pi);
+    level lvl_1  = get_level(ctx, A);
+    level lvl_2  = get_level(ctx, B);
+    return mk_app({mk_constant(get_congr_name(), {lvl_1, lvl_2}), A, B, lhs1, rhs1, lhs2, rhs2, H1, H2});
 }
 
 expr mk_funext(type_context & ctx, expr const & lam_pf) {

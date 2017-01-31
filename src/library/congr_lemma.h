@@ -61,4 +61,7 @@ optional<congr_lemma> mk_rel_iff_congr(type_context & ctx, expr const & R);
 
     R a1 a2 -> R b1 b2 -> (R a1 b1) = (R a2 b2) */
 optional<congr_lemma> mk_rel_eq_congr(type_context & ctx, expr const & R);
+
+void initialize_congr_lemma();
+void finalize_congr_lemma();
 }

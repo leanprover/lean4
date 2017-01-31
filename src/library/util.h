@@ -29,6 +29,9 @@ bool is_app_of(expr const & t, name const & f_name);
 /** \brief Return true iff t is a constant named f_name or an application of the form (f_name a_1 ... a_nargs) */
 bool is_app_of(expr const & t, name const & f_name, unsigned nargs);
 
+/** \brief If type is of the form (opt_param A v), return A. Otherwise, return type. */
+expr consume_opt_param(expr const & type);
+
 /** \brief Unfold constant \c e or constant application (i.e., \c e is of the form (f ....),
     where \c f is a constant */
 optional<expr> unfold_term(environment const & env, expr const & e);

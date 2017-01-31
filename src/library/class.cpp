@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "util/fresh_name.h"
 #include "kernel/instantiate.h"
 #include "library/scoped_ext.h"
+#include "library/constants.h"
 #include "library/kernel_serializer.h"
 #include "library/reducible.h"
 #include "library/aliases.h"
@@ -262,6 +263,10 @@ bool is_anonymous_inst_name(name const & n) {
     return strncmp(n.get_string(),
                    g_anonymous_inst_name_prefix->get_string(),
                    strlen(g_anonymous_inst_name_prefix->get_string())) == 0;
+}
+
+bool is_class_out_param(expr const & e) {
+    return is_app_of(e, get_out_param_name(), 1);
 }
 
 void initialize_class() {

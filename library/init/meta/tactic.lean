@@ -713,7 +713,7 @@ apply_core semireducible tt tt tt
 
 /- Try to solve the main goal using type class resolution. -/
 meta def apply_instance : tactic unit :=
-do tgt ← target,
+do tgt ← target >>= instantiate_mvars,
    b   ← is_class tgt,
    if b then mk_instance tgt >>= exact
    else fail "apply_instance tactic fail, target is not a type class"

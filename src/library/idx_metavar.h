@@ -30,6 +30,7 @@ unsigned to_meta_idx(expr const & e);
 /** \brief Return true iff \c e contains idx metavariables or universe metavariables */
 bool has_idx_metavar(expr const & e);
 bool has_idx_expr_metavar(expr const & e);
+bool has_idx_metauniv(level const & l);
 
 void initialize_idx_metavar();
 void finalize_idx_metavar();

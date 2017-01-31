@@ -79,9 +79,12 @@ reserve infixl `; `:1
 
 universe variables u v
 
-/- gadget for optional parameter support -/
+/- Gadget for optional parameter support. -/
 @[reducible] def opt_param (α : Sort u) (default : α) : Sort u :=
 α
+
+/- Gadget for marking output parameters in type classes. -/
+@[reducible] def out_param (α : Sort u) : Sort u := α
 
 inductive punit : Sort u
 | star : punit

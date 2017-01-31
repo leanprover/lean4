@@ -502,7 +502,8 @@ vm_obj tactic_mk_instance(vm_obj const & e, vm_obj const & s0) {
     try {
         check_closed("mk_instance", to_expr(e));
         if (auto r = ctx.mk_class_instance(to_expr(e))) {
-            return mk_tactic_success(to_obj(*r), s);
+            tactic_state new_s = set_mctx(s, ctx.mctx());
+            return mk_tactic_success(to_obj(*r), new_s);
         } else {
             auto thunk = [=]() {
                 format m("tactic.mk_instance failed to generate instance for");

@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "kernel/expr.h"
 namespace lean {
+typedef pair<level, level> level_pair;
 typedef pair<expr, expr> expr_pair;
 /** \brief Functional object for hashing expression pairs. */
 struct expr_pair_hash {

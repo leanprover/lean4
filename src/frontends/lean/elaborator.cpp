@@ -23,6 +23,7 @@ Author: Leonardo de Moura
 #include "library/scope_pos_info_provider.h"
 #include "library/choice.h"
 #include "library/string.h"
+#include "library/class.h"
 #include "library/sorry.h"
 #include "library/quote.h"
 #include "library/util.h"
@@ -214,8 +215,32 @@ expr elaborator::mk_instance_core(expr const & C, expr const & ref) {
     return mk_instance_core(m_ctx.lctx(), C, ref);
 }
 
+/* We say a type class (Pi X, (C a_1 ... a_n)), where X may be empty, is
+   ready to synthesize if it does not contain metavariables,
+   or if the a_i's that contain metavariables are marked as output params. */
+bool elaborator::ready_to_synthesize(expr inst_type) {
+    if (!has_expr_metavar(inst_type))
+        return true;
+    while (is_pi(inst_type))
+        inst_type = binding_body(inst_type);
+    buffer<expr> C_args;
+    expr const & C = get_app_args(inst_type, C_args);
+    if (!is_constant(C))
+        return false;
+    expr it = m_ctx.infer(C);
+    for (expr const & C_arg : C_args) {
+        if (!is_pi(it))
+            return false; /* failed */
+        expr const & d = binding_domain(it);
+        if (has_expr_metavar(C_arg) && !is_class_out_param(d))
+            return false;
+        it = binding_body(it);
+    }
+    return true;
+}
+
 expr elaborator::mk_instance(expr const & C, expr const & ref) {
-    if (has_expr_metavar(C)) {
+    if (!ready_to_synthesize(C)) {
         expr inst = mk_metavar(C, ref);
         m_instances = cons(inst, m_instances);
         return inst;
@@ -2518,7 +2543,7 @@ void elaborator::synthesize_numeral_types() {
 }
 
 bool elaborator::synthesize_type_class_instance_core(expr const & mvar, expr const & inferred_inst, expr const & inst_type) {
-    if (has_expr_metavar(inst_type))
+    if (!ready_to_synthesize(inst_type))
         return false;
     metavar_decl mdecl = *m_ctx.mctx().get_metavar_decl(mvar);
     expr ref = mvar;
@@ -2547,7 +2572,7 @@ void elaborator::synthesize_type_class_instances_step() {
     for (expr const & mvar : m_instances) {
         expr inst      = instantiate_mvars(mvar);
         expr inst_type = instantiate_mvars(infer_type(inst));
-        if (has_expr_metavar(inst_type)) {
+        if (!ready_to_synthesize(inst_type)) {
             to_keep.push_back(mvar);
         } else {
             to_process.emplace_back(mvar, inst, inst_type);

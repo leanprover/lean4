@@ -329,6 +329,7 @@ name const & get_or_neg_resolve_right_name();
 name const & get_or_rec_name();
 name const & get_or_resolve_left_name();
 name const & get_or_resolve_right_name();
+name const & get_out_param_name();
 name const & get_punit_name();
 name const & get_punit_star_name();
 name const & get_pos_num_name();

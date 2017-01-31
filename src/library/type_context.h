@@ -275,6 +275,22 @@ class type_context : public abstract_type_context {
        that cannot be solved precisely are ignored. This step is approximate, and it is
        useful to skip it until we have additional information. */
     bool                       m_full_postponed{true};
+    /* When m_assign_regular_uvars_in_tmp_mode is true, then in tmp_mode
+       the unifier will assign regular universe metavariables.
+
+       We *only* use this flag during type class resolution.
+
+       It has been added for two reasons:
+
+       1- We know have output params in type class, then when assigning
+          the output param, we will also probably have to assign the associated
+          metavariable.
+
+       2- A recurrent problem we have is that a type class resolution fails
+          because it cannot assign a universe metavariable even when there
+          are no output parameters.
+    */
+    bool                       m_assign_regular_uvars_in_tmp_mode{false};
 
     std::function<bool(expr const & e)> const * m_unfold_pred; // NOLINT
 
@@ -633,6 +649,7 @@ private:
     optional<name> constant_is_class(expr const & e);
     optional<name> is_full_class(expr type);
     lbool is_quick_class(expr const & type, name & result);
+    expr preprocess_class(expr const & type, buffer<expr_pair> & replacements);
 
 public:
     /* Helper class for creating pushing local declarations into the local context m_lctx */

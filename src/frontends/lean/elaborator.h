@@ -236,6 +236,7 @@ private:
     void invoke_atomic_tactic(expr const & mvar, expr const & tactic);
     void invoke_tactic(expr const & mvar, expr const & tac);
 
+    bool ready_to_synthesize(expr inst_type);
     bool synthesize_type_class_instance_core(expr const & mvar, expr const & inferred_inst, expr const & inst_type);
     bool try_synthesize_type_class_instance(expr const & mvar);
     void synthesize_numeral_types();

@@ -327,6 +327,7 @@ name const * g_or_neg_resolve_right = nullptr;
 name const * g_or_rec = nullptr;
 name const * g_or_resolve_left = nullptr;
 name const * g_or_resolve_right = nullptr;
+name const * g_out_param = nullptr;
 name const * g_punit = nullptr;
 name const * g_punit_star = nullptr;
 name const * g_pos_num = nullptr;
@@ -803,6 +804,7 @@ void initialize_constants() {
     g_or_rec = new name{"or", "rec"};
     g_or_resolve_left = new name{"or", "resolve_left"};
     g_or_resolve_right = new name{"or", "resolve_right"};
+    g_out_param = new name{"out_param"};
     g_punit = new name{"punit"};
     g_punit_star = new name{"punit", "star"};
     g_pos_num = new name{"pos_num"};
@@ -1280,6 +1282,7 @@ void finalize_constants() {
     delete g_or_rec;
     delete g_or_resolve_left;
     delete g_or_resolve_right;
+    delete g_out_param;
     delete g_punit;
     delete g_punit_star;
     delete g_pos_num;
@@ -1756,6 +1759,7 @@ name const & get_or_neg_resolve_right_name() { return *g_or_neg_resolve_right; }
 name const & get_or_rec_name() { return *g_or_rec; }
 name const & get_or_resolve_left_name() { return *g_or_resolve_left; }
 name const & get_or_resolve_right_name() { return *g_or_resolve_right; }
+name const & get_out_param_name() { return *g_out_param; }
 name const & get_punit_name() { return *g_punit; }
 name const & get_punit_star_name() { return *g_punit_star; }
 name const & get_pos_num_name() { return *g_pos_num; }

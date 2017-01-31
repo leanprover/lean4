@@ -180,7 +180,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
   if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     # In OSX, clang requires "-stdlib=libc++" to support C++11
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-    set(LEAN_EXTRA_LINKER_FLAGS "-stdlib=libc++")
+    set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} -stdlib=libc++")
   endif ()
 elseif (EMSCRIPTEN)
     message(STATUS "Emscripten is detected: Make sure the wraped compiler supports C++11")

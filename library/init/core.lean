@@ -254,8 +254,8 @@ class has_ssubset  (α : Type u) := (ssubset : α → α → Prop)
 class has_emptyc   (α : Type u) := (emptyc : α)
 class has_insert   (α : out_param (Type u)) (γ : Type v) := (insert : α → γ → γ)
 /- Type class used to implement the notation { a ∈ c | p a } -/
-class has_sep (α : Type u) (γ : Type u → Type v) :=
-(sep : (α → Prop) → γ α → γ α)
+class has_sep (α : out_param (Type u)) (γ : Type v) :=
+(sep : (α → Prop) → γ → γ)
 /- Type class for set-like membership -/
 class has_mem (α : out_param (Type u)) (γ : Type v) := (mem : α → γ → Prop)
 
@@ -301,7 +301,7 @@ has_emptyc.emptyc α
 def singleton {α : Type u} {γ : Type v} [has_emptyc γ] [has_insert α γ] (a : α) : γ :=
 insert a emptyc
 
-def sep {α : Type u} {γ : Type u → Type v} [has_sep α γ] : (α → Prop) → γ α → γ α :=
+def sep {α : Type u} {γ : Type v} [has_sep α γ] : (α → Prop) → γ → γ :=
 has_sep.sep
 
 def mem {α : Type u} {γ : Type v} [has_mem α γ] : α → γ → Prop :=

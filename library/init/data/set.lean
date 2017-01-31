@@ -30,7 +30,7 @@ instance : has_subset (set α) :=
 protected def sep (p : α → Prop) (s : set α) : set α :=
 {a | a ∈ s ∧ p a}
 
-instance : has_sep α set :=
+instance : has_sep α (set α) :=
 ⟨set.sep⟩
 
 instance : has_emptyc (set α) :=

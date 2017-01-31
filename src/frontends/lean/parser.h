@@ -11,10 +11,11 @@ Author: Leonardo de Moura
 #include "util/flet.h"
 #include "util/name_map.h"
 #include "util/exception.h"
+#include "util/task_queue.h"
 #include "kernel/environment.h"
 #include "kernel/expr_maps.h"
+#include "library/util.h"
 #include "library/module.h"
-#include "util/task_queue.h"
 #include "library/abstract_parser.h"
 #include "library/io_state.h"
 #include "library/io_state_stream.h"
@@ -224,10 +225,32 @@ class parser : public abstract_parser {
     expr parse_binder_core(binder_info const & bi, unsigned rbp);
     bool parse_binder_collection(buffer<pair<pos_info, name>> const & names, binder_info const & bi, buffer<expr> & r);
     void parse_binder_block(buffer<expr> & r, binder_info const & bi, unsigned rbp, bool allow_default);
-    void parse_binders_core(buffer<expr> & r, buffer<notation_entry> * nentries, bool & last_block_delimited, unsigned rbp,
-                            bool simple_only, bool allow_default);
-    local_environment parse_binders(buffer<expr> & r, buffer<notation_entry> * nentries, bool & last_block_delimited,
-                                    bool allow_empty, unsigned rbp, bool simple_only, bool allow_default);
+    struct parse_binders_config {
+        /* (input) If m_allow_empty is true, then parse_binders will succeed even if not binder is parsed. */
+        bool     m_allow_empty{false};
+        /* (input) right binding power */
+        unsigned m_rbp{0};
+        /* (input) If m_simple_only, then binder modifiers '{', '[' and '⦃' are not allowed. */
+        bool     m_simple_only{false};
+        /* (input) If true, it will allow binders of the form (x : T := v), and they will be converted
+           into (x : opt_param T v) */
+        bool     m_allow_default{false};
+        /* (input and output)
+          If m_infer_kind != nullptr, then a sequence of binders can be prefixed with '{}' or '()'
+          Moreover, *m_infer_kind will be updated with
+
+          - implicit_infer_kind::None if prefix is '()'
+          - implicit_infer_kind::RelaxedImplicit if prefix is '{}'
+          - implicit_infer_kind::Implicit, otherwise. */
+        implicit_infer_kind * m_infer_kind{nullptr};
+        /* (output) It is set to true if the last binder is surrounded
+           with some kind of bracket (e.g., '()', '{}', '[]'). */
+        bool     m_last_block_delimited{false};
+        /* (output) If m_nentries != nullptr, then local notation declarations are stored here */
+        buffer<notation_entry> * m_nentries{nullptr};
+    };
+    void parse_binders_core(buffer<expr> & r, parse_binders_config & cfg);
+    local_environment parse_binders(buffer<expr> & r, parse_binders_config & cfg);
     bool parse_local_notation_decl(buffer<notation_entry> * entries);
 
     pair<optional<name>, expr> parse_id_tk_expr(name const & tk, unsigned rbp);
@@ -372,27 +395,49 @@ public:
     level parse_level(unsigned rbp = 0);
 
     expr parse_binder(unsigned rbp);
+
     local_environment parse_binders(buffer<expr> & r, bool & last_block_delimited) {
-        unsigned rbp = 0; bool allow_empty = false; bool simple_only = false; bool allow_default = false;
-        return parse_binders(r, nullptr, last_block_delimited, allow_empty, rbp, simple_only, allow_default);
+        parse_binders_config cfg;
+        auto new_env = parse_binders(r, cfg);
+        last_block_delimited = cfg.m_last_block_delimited;
+        return new_env;
     }
+
     local_environment parse_binders(buffer<expr> & r, unsigned rbp) {
-        bool tmp; bool allow_empty = false; bool simple_only = false; bool allow_default = false;
-        return parse_binders(r, nullptr, tmp, allow_empty, rbp, simple_only, allow_default);
+        parse_binders_config cfg;
+        cfg.m_rbp = rbp;
+        return parse_binders(r, cfg);
     }
+
     void parse_simple_binders(buffer<expr> & r, unsigned rbp) {
-        bool tmp; bool allow_empty = false; bool simple_only = true; bool allow_default = false;
-        parse_binders(r, nullptr, tmp, allow_empty, rbp, simple_only, allow_default);
+        parse_binders_config cfg;
+        cfg.m_simple_only = true;
+        cfg.m_rbp         = rbp;
+        parse_binders(r, cfg);
     }
+
     local_environment parse_optional_binders(buffer<expr> & r, bool allow_default = false) {
-        bool tmp; bool allow_empty = true; unsigned rbp = 0; bool simple_only = false;
-        return parse_binders(r, nullptr, tmp, allow_empty, rbp, simple_only, allow_default);
+        parse_binders_config cfg;
+        cfg.m_allow_empty   = true;
+        cfg.m_allow_default = allow_default;
+        return parse_binders(r, cfg);
     }
+
+    local_environment parse_optional_binders(buffer<expr> & r, implicit_infer_kind & kind) {
+        parse_binders_config cfg;
+        cfg.m_allow_empty   = true;
+        cfg.m_infer_kind    = &kind;
+        return parse_binders(r, cfg);
+    }
+
     local_environment parse_binders(buffer<expr> & r, buffer<notation_entry> & nentries) {
-        bool tmp; bool allow_empty = false; unsigned rbp = 0; bool simple_only = false; bool allow_default = false;
-        return parse_binders(r, &nentries, tmp, allow_empty, rbp, simple_only, allow_default);
+        parse_binders_config cfg;
+        cfg.m_nentries = &nentries;
+        return parse_binders(r, cfg);
     }
+
     optional<binder_info> parse_optional_binder_info(bool simple_only = false);
+
     binder_info parse_binder_info(bool simple_only = false);
     void parse_close_binder_info(optional<binder_info> const & bi);
     void parse_close_binder_info(binder_info const & bi) { return parse_close_binder_info(optional<binder_info>(bi)); }

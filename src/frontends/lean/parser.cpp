@@ -1090,28 +1090,43 @@ void parser::parse_inst_implicit_decl(buffer<expr> & r) {
     r.push_back(local);
 }
 
-void parser::parse_binders_core(buffer<expr> & r, buffer<notation_entry> * nentries,
-                                bool & last_block_delimited, unsigned rbp, bool simple_only,
-                                bool allow_default) {
+void parser::parse_binders_core(buffer<expr> & r, parse_binders_config & cfg) {
+    bool first = true;
     while (true) {
         if (curr_is_identifier() || curr_is_token(get_placeholder_tk())) {
             /* We only allow the default parameter value syntax for declarations with
                surrounded by () */
             bool new_allow_default = false;
-            parse_binder_block(r, binder_info(), rbp, new_allow_default);
-            last_block_delimited = false;
+            parse_binder_block(r, binder_info(), cfg.m_rbp, new_allow_default);
+            cfg.m_last_block_delimited = false;
         } else {
             /* We only allow the default parameter value syntax for declarations with
                surrounded by () */
-            bool new_allow_default = allow_default && curr_is_token(get_lparen_tk());
-            optional<binder_info> bi = parse_optional_binder_info(simple_only);
+            bool new_allow_default = cfg.m_allow_default && curr_is_token(get_lparen_tk());
+            optional<binder_info> bi = parse_optional_binder_info(cfg.m_simple_only);
             if (bi) {
-                rbp = 0;
-                last_block_delimited = true;
+                if (first && cfg.m_infer_kind != nullptr) {
+                    /* Parse {} or () prefix */
+                    if (bi->is_implicit() && curr_is_token(get_rcurly_tk())) {
+                        next();
+                        *cfg.m_infer_kind = implicit_infer_kind::RelaxedImplicit;
+                        first             = false;
+                        continue;
+                    } else if (is_explicit(*bi) && curr_is_token(get_rparen_tk())) {
+                        next();
+                        *cfg.m_infer_kind = implicit_infer_kind::None;
+                        first             = false;
+                        continue;
+                    } else {
+                        *cfg.m_infer_kind = implicit_infer_kind::Implicit;
+                    }
+                }
+                unsigned rbp = 0;
+                cfg.m_last_block_delimited = true;
                 if (bi->is_inst_implicit()) {
                     parse_inst_implicit_decl(r);
                 } else {
-                    if (simple_only || !parse_local_notation_decl(nentries))
+                    if (cfg.m_simple_only || !parse_local_notation_decl(cfg.m_nentries))
                         parse_binder_block(r, *bi, rbp, new_allow_default);
                 }
                 parse_close_binder_info(bi);
@@ -1119,17 +1134,16 @@ void parser::parse_binders_core(buffer<expr> & r, buffer<notation_entry> * nentr
                 return;
             }
         }
+        first = false;
     }
 }
 
-local_environment parser::parse_binders(buffer<expr> & r, buffer<notation_entry> * nentries,
-                                        bool & last_block_delimited, bool allow_empty, unsigned rbp,
-                                        bool simple_only, bool allow_default) {
+local_environment parser::parse_binders(buffer<expr> & r, parse_binders_config & cfg) {
     flet<environment>      save1(m_env, m_env); // save environment
     flet<local_expr_decls> save2(m_local_decls, m_local_decls);
     unsigned old_sz = r.size();
-    parse_binders_core(r, nentries, last_block_delimited, rbp, simple_only, allow_default);
-    if (!allow_empty && old_sz == r.size())
+    parse_binders_core(r, cfg);
+    if (!cfg.m_allow_empty && old_sz == r.size())
         throw_invalid_open_binder(pos());
     return local_environment(m_env);
 }

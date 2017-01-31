@@ -28,12 +28,5 @@ environment add_alias(parser & p, environment env, name const & id, name const &
 environment add_alias(parser & p, environment env, bool composite,
                       name const & full_id, levels const & ctx_levels, buffer<expr> const & ctx_params);
 
-/**
-   \brief Parse implicit parameter inference modifiers.
-
-    Return implicit_infer_kind::None if next tokens are `(` `)`
-    Return implicit_infer_kind::RelaxedImplicit if next tokens are `{` `}`
-    Return implicit_infer_kind::Implicit, otherwise.
-*/
 implicit_infer_kind parse_implicit_infer_modifier(parser & p);
 }

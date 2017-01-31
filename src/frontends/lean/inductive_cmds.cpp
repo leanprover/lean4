@@ -262,7 +262,13 @@ class inductive_cmd_fn {
                 name ir_name = mlocal_name(ind) + m_p.check_atomic_id_next("invalid introduction rule, atomic identifier expected");
                 if (prepend_ns)
                     ir_name = get_namespace(m_env) + ir_name;
-                m_implicit_infer_map.insert(ir_name, parse_implicit_infer_modifier(m_p));
+                parser::local_scope S(m_p);
+                buffer<expr> params;
+                implicit_infer_kind kind = implicit_infer_kind::Implicit;
+                m_p.parse_optional_binders(params, kind);
+                m_implicit_infer_map.insert(ir_name, kind);
+                for (expr const & param : params)
+                    m_p.add_local(param);
                 expr ir_type;
                 if (has_params || m_p.curr_is_token(get_colon_tk())) {
                     m_p.check_token_next(get_colon_tk(), "invalid introduction rule, ':' expected");
@@ -270,6 +276,7 @@ class inductive_cmd_fn {
                 } else {
                     ir_type = ind;
                 }
+                ir_type = Pi(params, ir_type, m_p);
                 intro_rules.push_back(mk_local(ir_name, ir_type));
                 lean_trace(name({"inductive", "parse"}), tout() << ir_name << " : " << ir_type << "\n";);
                 if (!m_p.curr_is_token(get_bar_tk()) && !m_p.curr_is_token(get_comma_tk()))

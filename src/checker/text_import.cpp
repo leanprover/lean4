@@ -68,9 +68,13 @@ struct text_importer {
         unsigned name_idx, type_idx, val_idx;
         in >> name_idx >> type_idx >> val_idx;
         auto ls = read_level_params(in);
-        m_env = m_env.add(check(m_env, mk_definition(m_env,
-                m_name.at(name_idx), ls, m_expr.at(type_idx), m_expr.at(val_idx),
-                true, true), true));
+
+        auto decl =
+            type_checker(m_env).is_prop(m_expr.at(type_idx)) ?
+                mk_theorem(m_name.at(name_idx), ls, m_expr.at(type_idx), m_expr.at(val_idx)) :
+                mk_definition(m_env, m_name.at(name_idx), ls, m_expr.at(type_idx), m_expr.at(val_idx), true, true);
+
+        m_env = m_env.add(check(m_env, decl, true));
     }
 
     void handle_ax(std::istream & in) {

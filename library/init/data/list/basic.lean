@@ -29,7 +29,7 @@ protected def mem : α → list α → Prop
 | a []       := false
 | a (b :: l) := a = b ∨ mem a l
 
-instance : has_mem α list :=
+instance : has_mem α (list α) :=
 ⟨list.mem⟩
 
 instance decidable_mem [decidable_eq α] (a : α) : ∀ (l : list α), decidable (a ∈ l)

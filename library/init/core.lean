@@ -257,7 +257,7 @@ class has_insert   (α : Type u) (γ : Type u → Type v) := (insert : α → γ
 class has_sep (α : Type u) (γ : Type u → Type v) :=
 (sep : (α → Prop) → γ α → γ α)
 /- Type class for set-like membership -/
-class has_mem (α : Type u) (γ : Type u → Type v) := (mem : α → γ α → Prop)
+class has_mem (α : out_param (Type u)) (γ : Type v) := (mem : α → γ → Prop)
 
 def zero     {α : Type u} [has_zero α]     : α            := has_zero.zero α
 def one      {α : Type u} [has_one α]      : α            := has_one.one α
@@ -304,7 +304,7 @@ insert a emptyc
 def sep {α : Type u} {γ : Type u → Type v} [has_sep α γ] : (α → Prop) → γ α → γ α :=
 has_sep.sep
 
-def mem {α : Type u} {γ : Type u → Type v} [has_mem α γ] : α → γ α → Prop :=
+def mem {α : Type u} {γ : Type v} [has_mem α γ] : α → γ → Prop :=
 has_mem.mem
 
 /- num, pos_num instances -/

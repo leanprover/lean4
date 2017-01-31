@@ -18,7 +18,7 @@ variables {α : Type u} {β : Type v}
 protected def mem (a : α) (s : set α) :=
 s a
 
-instance : has_mem α set :=
+instance : has_mem α (set α) :=
 ⟨set.mem⟩
 
 protected def subset (s₁ s₂ : set α) :=

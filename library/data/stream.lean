@@ -77,7 +77,7 @@ rfl
 
 protected def mem (a : α) (s : stream α) := any (λ b, a = b) s
 
-instance : has_mem α stream :=
+instance : has_mem α (stream α) :=
 ⟨stream.mem⟩
 
 lemma mem_cons (a : α) (s : stream α) : a ∈ (a::s) :=

@@ -97,8 +97,10 @@ struct simple_pp_fn {
             return format("Prop");
         } else if (sort_level(e) == mk_level_one()) {
             return format("Type");
+        } else if (is_succ(sort_level(e))) {
+            return compose_many({format("Type"), space(), pp_level(succ_of(sort_level(e))).maybe_paren()});
         } else {
-            return compose_many({format("Type"), space(), pp_level(sort_level(e)).maybe_paren()});
+            return compose_many({format("Sort"), space(), pp_level(sort_level(e)).maybe_paren()});
         }
     }
 

@@ -5,9 +5,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Gabriel Ebner
 */
 #pragma once
-#include "kernel/environment.h"
 #include <iostream>
 #include <unordered_map>
+#include <string>
+#include "kernel/environment.h"
 
 namespace lean {
 

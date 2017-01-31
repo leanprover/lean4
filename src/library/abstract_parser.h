@@ -5,8 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sebastian Ullrich
 */
 #pragma once
-#include "kernel/pos_info_provider.h"
 #include <string>
+#include "kernel/pos_info_provider.h"
 
 namespace lean {
 /** \brief Exception used to track parsing erros, it does not leak outside of this class. */

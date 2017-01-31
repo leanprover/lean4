@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <string>
+#include <vector>
 #include "kernel/environment.h"
 #include "frontends/lean/token_table.h"
 #include "frontends/lean/parse_table.h"

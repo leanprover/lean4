@@ -245,7 +245,8 @@ static environment variable_cmd_core(parser & p, variable_kind k, decl_modifiers
             } else {
                 buffer<expr> ps;
                 unsigned rbp = 0;
-                auto lenv = p.parse_binders(ps, rbp);
+                bool allow_default = true;
+                auto lenv = p.parse_binders(ps, rbp, allow_default);
                 p.check_token_next(get_colon_tk(), "invalid declaration, ':' expected");
                 type = p.parse_scoped_expr(ps, lenv);
                 type = Pi(ps, type, p);

@@ -403,9 +403,10 @@ public:
         return new_env;
     }
 
-    local_environment parse_binders(buffer<expr> & r, unsigned rbp) {
+    local_environment parse_binders(buffer<expr> & r, unsigned rbp, bool allow_default = false) {
         parse_binders_config cfg;
-        cfg.m_rbp = rbp;
+        cfg.m_rbp           = rbp;
+        cfg.m_allow_default = allow_default;
         return parse_binders(r, cfg);
     }
 

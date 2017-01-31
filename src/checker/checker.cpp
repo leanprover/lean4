@@ -13,6 +13,7 @@ Author: Gabriel Ebner
 #include "kernel/quotient/quotient.h"
 #include "kernel/inductive/inductive.h"
 #include "kernel/standard_kernel.h"
+#include "kernel/for_each_fn.h"
 #include "checker/text_import.h"
 #include "checker/simple_pp.h"
 
@@ -21,6 +22,54 @@ Author: Gabriel Ebner
 #endif
 
 using namespace lean;  // NOLINT
+
+struct checker_print_fn {
+    std::ostream & m_out;
+    environment m_env;
+    lowlevel_notations m_notations;
+    std::unordered_set<name, name_hash> m_already_printed;
+
+    checker_print_fn(std::ostream & out, environment const & env, lowlevel_notations const & nots) :
+        m_out(out), m_env(env), m_notations(nots) {}
+
+    format pp(expr const & e) {
+        return simple_pp(m_env, e, m_notations);
+    }
+
+    void print_decl(declaration const & d) {
+        format fn = compose_many({simple_pp(d.get_name()), space(), format(":"), space(), pp(d.get_type())});
+
+        if (d.is_definition() && !d.is_theorem()) {
+            m_out << compose_many({format("def"), space(), fn, space(), format(":="), line(), pp(d.get_value()), line()});
+        } else {
+            format cmd(d.is_theorem() ? "theorem" : (d.is_axiom() ? "axiom" : "constant"));
+            m_out << compose_many({cmd, space(), fn, line()});
+        }
+    }
+
+    void print_axioms(declaration const & decl) {
+        print_axioms(decl.get_type());
+        if (decl.is_definition()) print_axioms(decl.get_value());
+    }
+
+    void print_axioms(expr const & ex) {
+        for_each(ex, [&] (expr const & e, unsigned) {
+            if (is_constant(e) && !m_already_printed.count(const_name(e))) {
+                auto decl = m_env.get(const_name(e));
+                m_already_printed.insert(decl.get_name());
+                print_axioms(decl);
+                if (decl.is_constant_assumption() && !m_env.is_builtin(decl.get_name()))
+                    print_decl(decl);
+            }
+            return true;
+        });
+    }
+
+    void handle_cmdline_args(buffer<name> const & ns) {
+        for (auto & n : ns) print_axioms(m_env.get(n));
+        for (auto & n : ns) print_decl(m_env.get(n));
+    }
+};
 
 int main(int argc, char ** argv) {
 #if defined(LEAN_EMSCRIPTEN)
@@ -70,21 +119,11 @@ int main(int argc, char ** argv) {
         lowlevel_notations notations;
         import_from_text(in, env, notations);
 
-        env.for_each_declaration([&] (declaration const & d) {
-            if (d.is_axiom()) {
-                std::cout << compose_many(
-                        {format("axiom"), space(), simple_pp(d.get_name()), space(), format(":"), space(),
-                         simple_pp(env, d.get_type(), notations), line()});
-            }
-        });
+        buffer<name> to_print;
+        for (int i = 2; i < argc; i++)
+            to_print.push_back(string_to_name(argv[i]));
 
-        for (int i = 2; i < argc; i++) {
-            name n = string_to_name(argv[i]);
-            auto d = env.get(n);
-            std::cout << compose_many(
-                    {format("theorem"), space(), simple_pp(d.get_name()), space(), format(":"), space(),
-                     simple_pp(env, d.get_type(), notations), line()});
-        }
+        checker_print_fn(std::cout, env, notations).handle_cmdline_args(to_print);
 
         unsigned num_decls = 0;
         env.for_each_declaration([&] (declaration const &) { num_decls++; });

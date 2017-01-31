@@ -11,7 +11,7 @@ constant propext {a b : Prop} : (a ↔ b) → a = b
 /- Additional congruence lemmas. -/
 universe variables u v
 
-lemma forall_congr_eq {a : Type u} {p q : a → Prop} (h : ∀ x, p x = q x) : (∀ x, p x) = ∀ x, q x :=
+lemma forall_congr_eq {a : Sort u} {p q : a → Prop} (h : ∀ x, p x = q x) : (∀ x, p x) = ∀ x, q x :=
 propext (forall_congr (λ a, (h a)^.to_iff))
 
 lemma imp_congr_eq {a b c d : Prop} (h₁ : a = c) (h₂ : b = d) : (a → b) = (c → d) :=

@@ -596,6 +596,11 @@ static expr parse_quoted_expr(parser & p, unsigned, expr const *, pos_info const
         throw parser_error("invalid nested quoted expression", pos);
     parser::quote_scope scope(p, true);
     expr e = p.parse_expr();
+    if (p.curr_is_token(get_colon_tk())) {
+        p.next();
+        expr t = p.parse_expr();
+        e = mk_typed_expr_distrib_choice(p, t, e, pos);
+    }
     p.check_token_next(get_rparen_tk(), "invalid quoted expression, `)` expected");
     return p.save_pos(mk_quote(e), pos);
 }

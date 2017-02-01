@@ -86,12 +86,12 @@ do e ← tactic.to_expr_strict q,
 
 meta def assertv (h : ident) (c : colon_tk) (q₁ : qexpr0) (a : assign_tk) (q₂ : qexpr0) : smt_tactic unit :=
 do t ← tactic.to_expr_strict q₁,
-   v ← tactic.to_expr_strict `((%%q₂ : %%t)),
+   v ← tactic.to_expr_strict `(%%q₂ : %%t),
    smt_tactic.assertv h t v
 
 meta def definev (h : ident) (c : colon_tk) (q₁ : qexpr0) (a : assign_tk) (q₂ : qexpr0) : smt_tactic unit :=
 do t ← tactic.to_expr_strict q₁,
-   v ← tactic.to_expr_strict `((%%q₂ : %%t)),
+   v ← tactic.to_expr_strict `(%%q₂ : %%t),
    smt_tactic.definev h t v
 
 meta def note (h : ident) (a : assign_tk) (q : qexpr0) : smt_tactic unit :=

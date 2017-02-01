@@ -804,7 +804,7 @@ meta def generalizes : list expr → tactic unit
 
 meta def refine (e : pexpr) : tactic unit :=
 do tgt : expr ← target,
-   to_expr `((%%e : %%tgt)) >>= exact
+   to_expr `(%%e : %%tgt) >>= exact
 
 /- (solve_aux type tac) synthesize an element of 'type' using tactic 'tac' -/
 meta def solve_aux {α : Type} (type : expr) (tac : tactic α) : tactic (α × expr) :=
@@ -844,7 +844,7 @@ meta def name.to_expr : name → tactic expr
 | (name.mk_numeral i n) := do is ← i^.to_expr, en ← name.to_expr n, to_expr `(name.mk_string %%is %%en)
 
 meta def list_name.to_expr : list name → tactic expr
-| []     := to_expr `(([] : list name))
+| []     := to_expr `([] : list name)
 | (h::t) := do eh ← h^.to_expr, et ← list_name.to_expr t, to_expr `(%%eh :: %%et)
 
 notation [parsing_only] `command`:max := tactic unit

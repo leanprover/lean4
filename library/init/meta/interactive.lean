@@ -194,7 +194,7 @@ term of the goal. Let `T` be our goal, let `p` be a term of type `U` then
 -/
 meta def exact (q : qexpr0) : tactic unit :=
 do tgt : expr ← target,
-   to_expr_strict `((%%q : %%tgt)) >>= tactic.exact
+   to_expr_strict `(%%q : %%tgt) >>= tactic.exact
 
 private meta def get_locals : list name → tactic (list expr)
 | []      := return []
@@ -356,12 +356,12 @@ This tactic applies to any goal. `assertv h : T := p` adds a new hypothesis of n
 -/
 meta def assertv (h : ident) (c : colon_tk) (q₁ : qexpr0) (a : assign_tk) (q₂ : qexpr0) : tactic unit :=
 do t ← to_expr_strict q₁,
-   v ← to_expr_strict `((%%q₂ : %%t)),
+   v ← to_expr_strict `(%%q₂ : %%t),
    tactic.assertv h t v
 
 meta def definev (h : ident) (c : colon_tk) (q₁ : qexpr0) (a : assign_tk) (q₂ : qexpr0) : tactic unit :=
 do t ← to_expr_strict q₁,
-   v ← to_expr_strict `((%%q₂ : %%t)),
+   v ← to_expr_strict `(%%q₂ : %%t),
    tactic.definev h t v
 
 meta def note (h : ident) (a : assign_tk) (q : qexpr0) : tactic unit :=

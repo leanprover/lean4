@@ -13,8 +13,8 @@ namespace lean {
 vm_obj generalize(transparency_mode m, expr const & e, name const & id, tactic_state const & s) {
     optional<metavar_decl> g = s.get_main_goal_decl();
     if (!g) return mk_no_goals_exception(s);
-    expr target = g->get_type();
     type_context ctx = mk_type_context_for(s, m);
+    expr target = ctx.instantiate_mvars(g->get_type());
     expr target_abst = kabstract(ctx, target, e);
     if (closed(target_abst))
         return mk_tactic_exception("generalize tactic failed, failed to find expression in the targed", s);

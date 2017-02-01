@@ -86,13 +86,10 @@ meta instance : has_to_format subsingleton_info :=
 has_to_format.mk subsingleton_info_to_format
 
 namespace tactic
-meta constant get_fun_info_core   : transparency → expr → tactic fun_info
-/- (get_fun_info fn n) return information assuming the function has only n arguments.
-   The tactic fail if n > length (params (get_fun_info fn)) -/
-meta constant get_fun_info_n_core : transparency → expr → nat → tactic fun_info
 
-meta constant get_subsingleton_info_core : transparency → expr → tactic (list subsingleton_info)
-meta constant get_subsingleton_info_n_core : transparency → expr → nat → tactic (list subsingleton_info)
+/-- If nargs is not none, then return information assuming the function has only nargs arguments. -/
+meta constant get_fun_info (f : expr) (nargs : option nat := none) (md := semireducible) : tactic fun_info
+meta constant get_subsingleton_info (f : expr) (nargs : option nat := none) (md := semireducible) : tactic (list subsingleton_info)
 
 /- (get_spec_subsingleton_info t) return subsingleton parameter
    information for the function application t of the form
@@ -109,24 +106,7 @@ meta constant get_subsingleton_info_n_core : transparency → expr → nat → t
 
     The second argument is marked as subsingleton only because the resulting information
     is taking into account the first argument. -/
-meta constant get_spec_subsingleton_info_core : transparency → expr → tactic (list subsingleton_info)
-meta constant get_spec_prefix_size_core : transparency → expr → nat → tactic nat
+meta constant get_spec_subsingleton_info (t : expr) (md := semireducible) : tactic (list subsingleton_info)
+meta constant get_spec_prefix_size (t : expr) (nargs : nat) (md := semireducible) : tactic nat
 
-meta def get_fun_info : expr → tactic fun_info :=
-get_fun_info_core semireducible
-
-meta def get_fun_info_n : expr → nat → tactic fun_info :=
-get_fun_info_n_core semireducible
-
-meta def get_subsingleton_info : expr → tactic (list subsingleton_info) :=
-get_subsingleton_info_core semireducible
-
-meta def get_subsingleton_info_n : expr → nat → tactic (list subsingleton_info) :=
-get_subsingleton_info_n_core semireducible
-
-meta def get_spec_subsingleton_info : expr → tactic (list subsingleton_info) :=
-get_spec_subsingleton_info_core semireducible
-
-meta def get_spec_prefix_size : expr → nat → tactic nat :=
-get_spec_prefix_size_core semireducible
 end tactic

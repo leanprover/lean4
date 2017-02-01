@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_list.h"
 #include "library/vm/vm_expr.h"
 #include "library/vm/vm_nat.h"
+#include "library/vm/vm_option.h"
 #include "library/tactic/tactic_state.h"
 
 namespace lean {
@@ -59,42 +60,36 @@ static vm_obj mk_result(list<ss_param_info> const & info, vm_obj const & s) {
     return mk_tactic_success(to_obj(info), to_tactic_state(s));
 }
 
-vm_obj tactic_get_fun_info(vm_obj const & m, vm_obj const & fn, vm_obj const & s) {
+vm_obj tactic_get_fun_info(vm_obj const & fn, vm_obj const & n, vm_obj const & m, vm_obj const & s) {
     TRY;
     type_context ctx = mk_type_context_for(s, m);
-    return mk_result(get_fun_info(ctx, to_expr(fn)), s);
+    if (is_none(n)) {
+        return mk_result(get_fun_info(ctx, to_expr(fn)), s);
+    } else {
+        return mk_result(get_fun_info(ctx, to_expr(fn), force_to_unsigned(get_some_value(n), 0)), s);
+    }
     CATCH;
 }
 
-vm_obj tactic_get_fun_info_n(vm_obj const & m, vm_obj const & fn, vm_obj const & n, vm_obj const & s) {
+vm_obj tactic_get_subsingleton_info(vm_obj const & fn, vm_obj const & n, vm_obj const & m, vm_obj const & s) {
     TRY;
     type_context ctx = mk_type_context_for(s, m);
-    return mk_result(get_fun_info(ctx, to_expr(fn), force_to_unsigned(n, 0)), s);
+    if (is_none(n)) {
+        return mk_result(get_subsingleton_info(ctx, to_expr(fn)), s);
+    } else {
+        return mk_result(get_subsingleton_info(ctx, to_expr(fn), force_to_unsigned(get_some_value(n), 0)), s);
+    }
     CATCH;
 }
 
-vm_obj tactic_get_subsingleton_info(vm_obj const & m, vm_obj const & fn, vm_obj const & s) {
-    TRY;
-    type_context ctx = mk_type_context_for(s, m);
-    return mk_result(get_subsingleton_info(ctx, to_expr(fn)), s);
-    CATCH;
-}
-
-vm_obj tactic_get_subsingleton_info_n(vm_obj const & m, vm_obj const & fn, vm_obj const & n, vm_obj const & s) {
-    TRY;
-    type_context ctx = mk_type_context_for(s, m);
-    return mk_result(get_subsingleton_info(ctx, to_expr(fn), force_to_unsigned(n, 0)), s);
-    CATCH;
-}
-
-vm_obj tactic_get_spec_subsingleton_info(vm_obj const & m, vm_obj const & app, vm_obj const & s) {
+vm_obj tactic_get_spec_subsingleton_info(vm_obj const & app, vm_obj const & m, vm_obj const & s) {
     TRY;
     type_context ctx = mk_type_context_for(s, m);
     return mk_result(get_specialized_subsingleton_info(ctx, to_expr(app)), s);
     CATCH;
 }
 
-vm_obj tactic_get_spec_prefix_size(vm_obj const & m, vm_obj const & fn, vm_obj const & n, vm_obj const & s) {
+vm_obj tactic_get_spec_prefix_size(vm_obj const & fn, vm_obj const & n, vm_obj const & m, vm_obj const & s) {
     TRY;
     type_context ctx = mk_type_context_for(s, m);
     return mk_tactic_success(mk_vm_nat(get_specialization_prefix_size(ctx, to_expr(fn), force_to_unsigned(n, 0))),
@@ -103,12 +98,10 @@ vm_obj tactic_get_spec_prefix_size(vm_obj const & m, vm_obj const & fn, vm_obj c
 }
 
 void initialize_fun_info_tactics() {
-    DECLARE_VM_BUILTIN(name({"tactic", "get_fun_info_core"}),               tactic_get_fun_info);
-    DECLARE_VM_BUILTIN(name({"tactic", "get_fun_info_n_core"}),             tactic_get_fun_info_n);
-    DECLARE_VM_BUILTIN(name({"tactic", "get_subsingleton_info_core"}),      tactic_get_subsingleton_info);
-    DECLARE_VM_BUILTIN(name({"tactic", "get_subsingleton_info_n_core"}),    tactic_get_subsingleton_info_n);
-    DECLARE_VM_BUILTIN(name({"tactic", "get_spec_subsingleton_info_core"}), tactic_get_spec_subsingleton_info);
-    DECLARE_VM_BUILTIN(name({"tactic", "get_spec_prefix_size_core"}),       tactic_get_spec_prefix_size);
+    DECLARE_VM_BUILTIN(name({"tactic", "get_fun_info"}),               tactic_get_fun_info);
+    DECLARE_VM_BUILTIN(name({"tactic", "get_subsingleton_info"}),      tactic_get_subsingleton_info);
+    DECLARE_VM_BUILTIN(name({"tactic", "get_spec_subsingleton_info"}), tactic_get_spec_subsingleton_info);
+    DECLARE_VM_BUILTIN(name({"tactic", "get_spec_prefix_size"}),       tactic_get_spec_prefix_size);
 }
 
 void finalize_fun_info_tactics() {

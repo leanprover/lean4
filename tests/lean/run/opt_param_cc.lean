@@ -17,9 +17,9 @@ end
 
 open tactic
 
-run_command mk_const `f >>= get_fun_info >>= trace
-run_command mk_const `eq >>= get_fun_info >>= trace
-run_command mk_const `id >>= get_fun_info >>= trace
+run_command do c ← mk_const `f, get_fun_info c >>= trace
+run_command do c ← mk_const `eq, get_fun_info c >>= trace
+run_command do c ← mk_const `id, get_fun_info c >>= trace
 
 set_option trace.congr_lemma true
 set_option trace.app_builder true

@@ -12,4 +12,5 @@ constant f : C → C
 constant g : D → D
 
 check f a
+
 check g a

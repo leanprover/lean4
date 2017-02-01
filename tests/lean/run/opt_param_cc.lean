@@ -24,4 +24,4 @@ run_command mk_const `id >>= get_fun_info >>= trace
 set_option trace.congr_lemma true
 set_option trace.app_builder true
 
-run_command mk_const `f >>= mk_congr_lemma_simp >>= (λ l, trace l^.type)
+run_command do h ← mk_const `f, l ← mk_congr_lemma_simp h, trace l^.type

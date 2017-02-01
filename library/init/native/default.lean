@@ -56,7 +56,7 @@ meta def lift {A} (action : state ir_compiler_state A) : ir_compiler A :=
 meta def trace_ir (s : string) : ir_compiler unit := do
   (conf, map, counter) ← lift $ state.read,
   if config.debug conf
-  then trace s (fun u, return ())
+  then trace s (return ())
   else return ()
 
 -- An `exotic` monad combinator that accumulates errors.
@@ -520,7 +520,7 @@ meta def replace_main (n : name) : name :=
      else n
 
 meta def trace_expr (e : expr) : ir_compiler unit :=
-  trace ("trace_expr: " ++ to_string e) (fun u, return ())
+  trace ("trace_expr: " ++ to_string e) (return ())
 
 meta def compile_defn (decl_name : name) (e : expr) : ir_compiler format :=
   let arity := get_arity e in do

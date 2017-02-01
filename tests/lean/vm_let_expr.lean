@@ -1,5 +1,5 @@
 meta def mk_value (n : nat) : nat :=
-trace "mk_value" (λ _, 2 * n)
+trace "mk_value" (2 * n)
 
 meta def mk_fn (sz : nat) : nat → nat :=
 let n := mk_value sz in

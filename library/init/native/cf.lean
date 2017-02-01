@@ -38,7 +38,7 @@ meta def when_debug (action : cf_monad unit) : cf_monad unit := do
 -- the error behavior here seems bad if you replace the unit
 -- with `u`
 meta def trace_cf (s : string) : cf_monad unit :=
-  when_debug (trace s (fun u, return ()))
+  when_debug (trace s (return ()))
 
 meta def fresh_name : cf_monad name := do
   (config, count) ← state.read,

@@ -1,5 +1,5 @@
 meta def basic_monitor : vm_monitor nat :=
-{ init := 0, step := λ s, return (trace ("step " ++ s^.to_string)  (λ u, s+1)) >> failure }
+{ init := 0, step := λ s, return (trace ("step " ++ s^.to_string)  (s+1)) >> failure }
 
 run_command vm_monitor.register `basic_monitor
 
@@ -9,4 +9,4 @@ def f : nat → nat
 | 0     := 0
 | (a+1) := f a
 
-vm_eval trace "a" (λ u, f 4)
+vm_eval trace "a" (f 4)

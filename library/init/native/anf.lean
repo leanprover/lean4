@@ -29,7 +29,7 @@ open native
   state anf_state
 
 meta def trace_anf (s : string) : anf_monad unit :=
-  trace s (fun u, return u)
+  trace s (return ())
 
 private meta def let_bind (n : name) (ty : expr) (e : expr) : anf_monad unit := do
   scopes ← state.read,

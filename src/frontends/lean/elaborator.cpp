@@ -1079,6 +1079,21 @@ static optional<expr> is_optional_param(expr const & e) {
     }
 }
 
+static optional<expr> is_thunk(expr const & e) {
+    if (is_app_of(e, get_thunk_name(), 1)) {
+        return some_expr(app_arg(e));
+    } else {
+        return none_expr();
+    }
+}
+
+static expr mk_thunk_if_needed(expr const & e, optional<expr> const & is_thunk) {
+    if (is_thunk)
+        return mk_lambda("_", mk_constant(get_unit_name()), e);
+    else
+        return e;
+}
+
 /* Check if fn args resulting type matches the expected type, and fill
    first_pass_info & info with information collected in this first pass.
    Return true iff the types match.
@@ -1161,8 +1176,13 @@ expr elaborator::second_pass(expr const & fn, buffer<expr> const & args,
             if (!try_synthesize_type_class_instance(mvar))
                 m_instances = cons(mvar, m_instances);
         }
-        expr ref_arg      = get_ref_for_child(args[i], ref);
-        expr new_arg      = visit(args[i], some_expr(info.args_expected_types[i]));
+        expr ref_arg       = get_ref_for_child(args[i], ref);
+        expr expected_type = info.args_expected_types[i];
+        optional<expr> thunk_of = is_thunk(expected_type);
+        if (thunk_of)
+            expected_type = *thunk_of;
+        expr new_arg      = visit(args[i], some_expr(expected_type));
+        new_arg           = mk_thunk_if_needed(new_arg, thunk_of);
         expr new_arg_type = infer_type(new_arg);
         optional<expr> new_new_arg = ensure_has_type(new_arg, new_arg_type, info.args_expected_types[i], ref_arg);
         if (!new_new_arg) {
@@ -1230,17 +1250,21 @@ expr elaborator::visit_base_app_simple(expr const & _fn, arg_mask amask, buffer<
                 if (m_in_pattern)
                     new_arg = copy_tag(ref, mk_inaccessible(new_arg));
             } else if (i < args.size()) {
+                expr expected_type = d;
+                optional<expr> thunk_of = is_thunk(d);
+                if (thunk_of) expected_type = *thunk_of;
                 // explicit argument
                 expr ref_arg = get_ref_for_child(args[i], ref);
                 if (args_already_visited) {
-                    new_arg = args[i];
+                    new_arg = mk_thunk_if_needed(args[i], thunk_of);
                 } else if (bi.is_inst_implicit() && is_placeholder(args[i])) {
                     lean_assert(amask != arg_mask::Default);
                     /* If '@' or '@@' have been used, and the argument is '_', then
                        we use type class resolution. */
                     new_arg = mk_instance(d, ref);
                 } else {
-                    new_arg = visit(args[i], some_expr(d));
+                    new_arg = visit(args[i], some_expr(expected_type));
+                    new_arg = mk_thunk_if_needed(new_arg, thunk_of);
                 }
                 expr new_arg_type = infer_type(new_arg);
                 if (optional<expr> new_new_arg = ensure_has_type(new_arg, new_arg_type, d, ref_arg)) {

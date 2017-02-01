@@ -36,4 +36,4 @@ def f : nat → nat
 | 0     := 0
 | (a+1) := f a
 
-vm_eval trace "a" (λ u, f 4)
+vm_eval trace "a" (f 4)

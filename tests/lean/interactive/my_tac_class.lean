@@ -16,7 +16,7 @@ meta def step {α : Type} (t : mytac α) : mytac unit :=
 t >> return ()
 
 meta def rstep {α : Type} (line : nat) (col : nat) (t : mytac α) : mytac unit :=
-λ v s, tactic_result.cases_on (@scope_trace _ line col (λ _, t v s))
+λ v s, tactic_result.cases_on (@scope_trace _ line col (t v s))
   (λ ⟨a, v⟩ new_s, tactic_result.success ((), v) new_s)
   (λ msg_thunk e new_s,
     let msg := msg_thunk () ++ format.line ++ to_fmt "value: " ++ to_fmt v ++ format.line ++ to_fmt "state:" ++ format.line ++ new_s^.to_format in

@@ -457,6 +457,7 @@ name const & get_interactive_types_qexpr_list_or_qexpr0_with_pos_name();
 name const & get_interactive_types_colon_tk_name();
 name const & get_interactive_types_assign_tk_name();
 name const & get_interactive_types_comma_tk_name();
+name const & get_thunk_name();
 name const & get_to_fmt_name();
 name const & get_to_int_name();
 name const & get_to_string_name();

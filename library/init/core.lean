@@ -79,11 +79,11 @@ reserve infixl `; `:1
 
 universe variables u v
 
-/- Gadget for optional parameter support. -/
+/-- Gadget for optional parameter support. -/
 @[reducible] def opt_param (α : Sort u) (default : α) : Sort u :=
 α
 
-/- Gadget for marking output parameters in type classes. -/
+/-- Gadget for marking output parameters in type classes. -/
 @[reducible] def out_param (α : Sort u) : Sort u := α
 
 inductive punit : Sort u
@@ -91,6 +91,18 @@ inductive punit : Sort u
 
 inductive unit : Type
 | star : unit
+
+/--
+Gadget for defining thunks, thunk parameters have special treatment.
+Example: given
+      def f (s : string) (t : thunk nat) : nat
+an application
+     f "hello" 10
+ is converted into
+     f "hello" (λ _, 10)
+-/
+@[reducible] def thunk (α : Type u) : Type u :=
+unit → α
 
 inductive true : Prop
 | intro : true

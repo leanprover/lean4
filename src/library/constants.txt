@@ -450,6 +450,7 @@ interactive.types.qexpr_list_or_qexpr0_with_pos
 interactive.types.colon_tk
 interactive.types.assign_tk
 interactive.types.comma_tk
+thunk
 to_fmt
 to_int
 to_string

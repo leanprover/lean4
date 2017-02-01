@@ -132,8 +132,16 @@
          (json-false :json-false)
          (json-req (json-encode req))
          (cur-buf (current-buffer))
-         (wrapped-cb (and cb (lambda (res) (with-current-buffer cur-buf (apply cb :allow-other-keys t res)))))
-         (wrapped-err-cb (and error-cb (lambda (res) (with-current-buffer cur-buf (apply error-cb :allow-other-keys t res))))))
+         (wrapped-cb (and cb
+                          (lambda (res)
+                            (and cur-buf
+                                 (with-current-buffer cur-buf
+                                   (apply cb :allow-other-keys t res))))))
+         (wrapped-err-cb (and error-cb
+                              (lambda (res)
+                                (and cur-buf
+                                     (with-current-buffer cur-buf
+                                       (apply error-cb :allow-other-keys t res)))))))
     (setf (lean-server-session-seq-num sess) (1+ seq-num))
     (if (or cb error-cb)
         (setf (lean-server-session-callbacks sess)

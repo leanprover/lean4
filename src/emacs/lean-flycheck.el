@@ -117,19 +117,15 @@
 
 (defun lean-next-error--handler ()
   (when (lean-info-buffer-active lean-next-error-buffer-name)
-    (let* ((errors (sort (flycheck-overlay-errors-in (line-beginning-position) (line-end-position))
-                         #'flycheck-error-<)))
-
-      ;; prefer error of current position, if any
-      (-if-let (e (get-char-property (point) 'flycheck-error))
-          (setq errors (list e)))
-
-      ;; fall back to next error
-      (if (null errors)
-          (-if-let* ((pos (flycheck-next-error-pos 1))
-                     (e (get-char-property pos 'flycheck-error)))
-              (setq errors (list e))))
-
+    (let ((errors (or
+                   ;; prefer error of current position, if any
+                   (flycheck-overlay-errors-at (point))
+                   ;; try errors in current line next
+                   (sort (flycheck-overlay-errors-in (line-beginning-position) (line-end-position))
+                         #'flycheck-error-<)
+                   ;; fall back to next error position
+                   (-if-let* ((pos (flycheck-next-error-pos 1)))
+                       (flycheck-overlay-errors-at pos)))))
       (lean-with-info-output-to-buffer lean-next-error-buffer-name
        (dolist (e errors)
          (princ (format "%d:%d: " (flycheck-error-line e) (flycheck-error-column e)))

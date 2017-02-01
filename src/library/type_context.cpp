@@ -358,6 +358,19 @@ void type_context::pop_local() {
     m_lctx.pop_local_decl();
 }
 
+
+static local_decl get_local_with_smallest_idx(local_context const & lctx, buffer<expr> const & ls) {
+    lean_assert(!ls.empty());
+    lean_assert(std::all_of(ls.begin(), ls.end(), [&](expr const & l) { return (bool)lctx.get_local_decl(l); })); // NOLINT
+    local_decl r = *lctx.get_local_decl(ls[0]);
+    for (unsigned i = 1; i < ls.size(); i++) {
+        local_decl curr = *lctx.get_local_decl(ls[i]);
+        if (curr.get_idx() < r.get_idx())
+            r     = curr;
+    }
+    return r;
+}
+
 pair<local_context, expr> type_context::revert_core(buffer<expr> & to_revert, local_context const & ctx,
                                                     expr const & type) {
     DEBUG_CODE({
@@ -375,7 +388,7 @@ pair<local_context, expr> type_context::revert_core(buffer<expr> & to_revert, lo
     if (num == 0) {
         return mk_pair(ctx, type);
     }
-    local_decl d0  = *ctx.get_local_decl(to_revert[0]);
+    local_decl d0     = get_local_with_smallest_idx(ctx, to_revert);
     unsigned next_idx = 1;
     unsigned init_sz  = to_revert.size();
     ctx.for_each_after(d0, [&](local_decl const & d) {

@@ -62,10 +62,10 @@ protected meta def return {α} (a : α) : lazy_tactic α :=
 λ s, lazy_list.singleton (a, s)
 
 protected meta def map {α β} (f : α → β) : lazy_tactic α → lazy_tactic β
-| t s := (t s)^.for (λ p, (f p.1, p.2))
+| t s := (t s)^.for (λ ⟨a, new_s⟩, (f a, new_s))
 
 protected meta def bind {α β} : lazy_tactic α → (α → lazy_tactic β) → lazy_tactic β :=
-λ t₁ t₂ s, join (map (λ p : α × tactic_state, t₂ p.1 p.2) (t₁ s))
+λ t₁ t₂ s, join (for (t₁ s) (λ ⟨a, new_s⟩, t₂ a new_s))
 
 protected meta def orelse {α} (t₁ t₂ : lazy_tactic α) : lazy_tactic α :=
 λ s, append (t₁ s) (t₂ s)

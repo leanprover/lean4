@@ -1211,8 +1211,14 @@ expr elaborator::second_pass(expr const & fn, buffer<expr> const & args,
 }
 
 bool elaborator::is_with_expected_candidate(expr const & fn) {
-    if (!is_constant(fn)) return false;
-    return get_elaborator_strategy(m_env, const_name(fn)) == elaborator_strategy::WithExpectedType;
+    /* When processing expressions such as (l^.for f), we first resolve the field notation obtaining
+           (list.for l)
+       Then, when processing ((list.for l) f), we still want to use the expected type.
+       So, we should retrieve the constant list.for using get_app_fn.
+    */
+    expr _fn = get_app_fn(fn);
+    if (!is_constant(_fn)) return false;
+    return get_elaborator_strategy(m_env, const_name(_fn)) == elaborator_strategy::WithExpectedType;
 }
 
 expr elaborator::visit_base_app_simple(expr const & _fn, arg_mask amask, buffer<expr> const & args,

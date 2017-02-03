@@ -5,7 +5,7 @@ section
 
   definition Eq (a b : A) : Prop
   := ∀P : A → Prop, P a → P b
-
+  @[elab_simple]
   theorem subst (P : A → Prop) (a b : A) (H1 : Eq a b) (H2 : P a) : P b
   := H1 P H2
 

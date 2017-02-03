@@ -513,6 +513,8 @@ public:
         }
     };
 
+    level mk_fresh_univ_metavar();
+
 private:
     void init_core(transparency_mode m);
     optional<expr> unfold_definition_core(expr const & e);
@@ -608,6 +610,7 @@ private:
     optional<declaration> is_delta(expr const & e);
     enum class reduction_status { Continue, DefUnknown, DefEqual, DefDiff };
 
+    bool solve_u_eq_max_u_v(level const & lhs, level const & rhs);
     lbool is_def_eq_core(level const & l1, level const & l2, bool partial);
     lbool partial_is_def_eq(level const & l1, level const & l2);
     bool full_is_def_eq(level const & l1, level const & l2);

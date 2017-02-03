@@ -1250,6 +1250,13 @@ void type_context::assign(expr const & m, expr const & v) {
         m_mctx.assign(m, v);
 }
 
+level type_context::mk_fresh_univ_metavar() {
+    if (in_tmp_mode())
+        return mk_tmp_univ_mvar();
+    else
+        return mk_univ_metavar_decl();
+}
+
 level type_context::instantiate_mvars(level const & l) {
     return ::lean::instantiate_mvars(*this, l);
 }
@@ -1307,6 +1314,56 @@ static bool is_max_like(level const & l) {
     return is_max(l) || is_imax(l);
 }
 
+/** \brief Return true iff \c rhs is of the form <tt> max(l_1 ... m ... l_k) </tt>,
+    such that l_i's do not contain m.
+    If the result is true, then all l_i's are stored in rest. */
+static bool generalized_check_meta(level const & m, level const & rhs, bool & found_m, buffer<level> & rest) {
+    lean_assert(is_meta(m));
+    if (is_max(rhs)) {
+        return
+            generalized_check_meta(m, max_lhs(rhs), found_m, rest) &&
+            generalized_check_meta(m, max_rhs(rhs), found_m, rest);
+    } else if (m == rhs) {
+        found_m = true;
+        return true;
+    } else if (occurs(m, rhs)) {
+        return false;
+    } else {
+        rest.push_back(rhs);
+        return true;
+    }
+}
+
+/* Return true iff rhs is of the form max(lhs, v)
+
+   Remark a constraint of the form ?u =?= max ?u v is solved by
+   creating a fresh metavariable ?w and assigning
+            ?u := max v ?w
+*/
+bool type_context::solve_u_eq_max_u_v(level const & lhs, level const & rhs) {
+    lean_assert(is_meta(lhs));
+    lean_assert(occurs(lhs, rhs));
+    buffer<level> rest;
+    bool found_lhs = false;
+    if (generalized_check_meta(lhs, rhs, found_lhs, rest)) {
+        lean_assert(found_lhs);
+        // rhs is of the form max(rest, lhs)
+        // Solution is lhs := max(rest, ?u) where ?u is fresh metavariable
+        level r = mk_fresh_univ_metavar();
+        rest.push_back(r);
+        unsigned i = rest.size();
+        while (i > 0) {
+            --i;
+            r = mk_max(rest[i], r);
+        }
+        r = normalize(r);
+        assign(lhs, r);
+        return true;
+    } else {
+        return false;
+    }
+}
+
 lbool type_context::is_def_eq_core(level const & l1, level const & l2, bool partial) {
     if (is_equivalent(l1, l2))
         return l_true;
@@ -1327,6 +1384,8 @@ lbool type_context::is_def_eq_core(level const & l1, level const & l2, bool part
         if (!occurs(l1, l2)) {
             assign(l1, l2);
             return l_true;
+        } else if (solve_u_eq_max_u_v(l1, l2)) {
+            return l_true;
         }
     }
 
@@ -1334,6 +1393,8 @@ lbool type_context::is_def_eq_core(level const & l1, level const & l2, bool part
         lean_assert(!is_assigned(l2));
         if (!occurs(l2, l1)) {
             assign(l2, l1);
+            return l_true;
+        } else if (solve_u_eq_max_u_v(l2, l1)) {
             return l_true;
         }
     }

@@ -65,6 +65,7 @@ matrix:
      env:
        CMAKE_CXX_COMPILER=clang++-3.4
        CMAKE_BUILD_TYPE=Debug
+       LEAN_EXTRA_MAKE_OPTS=-t0
        TCMALLOC=ON
 
    - os: linux
@@ -107,6 +108,7 @@ script:
           -DTCMALLOC=$TCMALLOC
           -DMULTI_THREAD=$MULTI_THREAD
           -DSTATIC=$STATIC
+          -DLEAN_EXTRA_MAKE_OPTS=$LEAN_EXTRA_MAKE_OPTS
           ../src
   - make -j2
   - cpack

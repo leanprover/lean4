@@ -50,7 +50,6 @@ bool is_path_sep(char c) { return c == g_path_sep; }
 #elif defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
 // Windows version
 static char g_path_sep     = ';';
-static char g_path_alt_sep = ':';
 static char g_sep          = '\\';
 static char g_bad_sep      = '/';
 std::string get_exe_location() {
@@ -60,7 +59,7 @@ std::string get_exe_location() {
     std::wstring pathstr(path);
     return std::string(pathstr.begin(), pathstr.end());
 }
-bool is_path_sep(char c) { return c == g_path_sep || c == g_path_alt_sep; }
+bool is_path_sep(char c) { return c == g_path_sep; }
 #elif defined(__APPLE__)
 // OSX version
 #include <mach-o/dyld.h>

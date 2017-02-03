@@ -8,7 +8,7 @@ import init.meta.tactic init.function
 
 namespace tactic
 
-private meta def get_constructors_for (e : expr) : tactic (list name) :=
+meta def get_constructors_for (e : expr) : tactic (list name) :=
 do env ← get_env,
    I   ← return $ expr.const_name (expr.get_app_fn e),
    when (environment.is_inductive env I = ff) (fail "constructor tactic failed, target is not an inductive datatype"),

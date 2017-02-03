@@ -1178,7 +1178,8 @@ expr elaborator::second_pass(expr const & fn, buffer<expr> const & args,
         }
         expr ref_arg       = get_ref_for_child(args[i], ref);
         expr expected_type = info.args_expected_types[i];
-        optional<expr> thunk_of = is_thunk(expected_type);
+        optional<expr> thunk_of;
+        if (!m_in_pattern) thunk_of = is_thunk(expected_type);
         if (thunk_of)
             expected_type = *thunk_of;
         expr new_arg      = visit(args[i], some_expr(expected_type));
@@ -1251,7 +1252,8 @@ expr elaborator::visit_base_app_simple(expr const & _fn, arg_mask amask, buffer<
                     new_arg = copy_tag(ref, mk_inaccessible(new_arg));
             } else if (i < args.size()) {
                 expr expected_type = d;
-                optional<expr> thunk_of = is_thunk(d);
+                optional<expr> thunk_of;
+                if (!m_in_pattern) thunk_of = is_thunk(d);
                 if (thunk_of) expected_type = *thunk_of;
                 // explicit argument
                 expr ref_arg = get_ref_for_child(args[i], ref);

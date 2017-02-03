@@ -46,7 +46,7 @@
         ;; show current task when not in current file
         (when (and cur-task
                    (not (equal cur-fn (plist-get cur-task :file_name))))
-          (setq display-tasks (cons cur-task display-task)))
+          (setq display-tasks (cons cur-task display-tasks)))
         (mapcar (lambda (task) (apply #'lean-flycheck-parse-task checker buffer cur-fn task))
                 display-tasks))))
 

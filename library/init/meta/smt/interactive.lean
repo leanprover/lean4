@@ -137,8 +137,7 @@ do
   e ← resolve_name n,
   match e with
   | expr.const n _           := (add_ematch_lemma_from_decl_core md lhs_lemma n >> tactic.save_const_type_info n ref) <|> report_invalid_em_lemma n
-  | expr.local_const _ _ _ _ := (add_ematch_lemma_core md lhs_lemma e >> try (tactic.save_type_info e ref)) <|> report_invalid_em_lemma n
-  | _                        := tactic.report_resolve_name_failure e n
+  | _                        := (add_ematch_lemma_core md lhs_lemma e >> try (tactic.save_type_info e ref)) <|> report_invalid_em_lemma n
   end
 
 
@@ -185,11 +184,10 @@ do
     (do hs₁ ← mk_ematch_eqn_lemmas_for_core md n, tactic.save_const_type_info n ref, return $ hs^.merge hs₁)
     <|>
     report_invalid_em_lemma n
-  | expr.local_const _ _ _ _ :=
+  | _ :=
     (do h ← hinst_lemma.mk_core md e lhs_lemma, try (tactic.save_type_info e ref), return $ hs^.add h)
     <|>
     report_invalid_em_lemma n
-  | _                        := tactic.report_resolve_name_failure e n
   end
 
 private meta def add_hinst_lemma_from_pexpr (md : transparency) (lhs_lemma : bool) (p : pexpr) (hs : hinst_lemmas) : smt_tactic hinst_lemmas :=

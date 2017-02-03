@@ -222,8 +222,7 @@ do {
   e ← resolve_name n,
   match e with
   | expr.const n _           := mk_const n -- create metavars for universe levels
-  | expr.local_const _ _ _ _ := return e
-  | _                        := report_resolve_name_failure e n
+  | _                        := return e
   end
 }
 
@@ -440,11 +439,10 @@ do
     (do eqns ← get_eqn_lemmas_for tt n, guard (eqns^.length > 0), save_const_type_info n ref, add_simps s eqns)
     <|>
     report_invalid_simp_lemma n
-  | expr.local_const _ _ _ _ :=
+  | _ :=
     (do b ← is_valid_simp_lemma reducible e, guard b, try (save_type_info e ref), s^.add e)
     <|>
     report_invalid_simp_lemma n
-  | _                        := report_resolve_name_failure e n
   end
 
 private meta def simp_lemmas.add_pexpr (s : simp_lemmas) (p : pexpr) : tactic simp_lemmas :=

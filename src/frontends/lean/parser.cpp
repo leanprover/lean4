@@ -158,7 +158,7 @@ parser::parser(environment const & env, io_state const & ios,
                std::istream & strm, std::string const & file_name,
                bool use_exceptions,
                std::shared_ptr<snapshot const> const & s, snapshot_vector * sv):
-    m_env(env), m_ios(ios), m_verbose(true),
+    m_env(env), m_ios(ios),
     m_use_exceptions(use_exceptions),
     m_import_fn(import_fn),
     m_file_name(file_name),
@@ -264,7 +264,6 @@ void parser::declare_sorry_if_used() {
 }
 
 void parser::updt_options() {
-    m_verbose        = get_verbose(m_ios.get_options());
     m_show_errors    = get_parser_show_errors(m_ios.get_options());
 }
 

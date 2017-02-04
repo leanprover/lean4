@@ -125,7 +125,6 @@ enum class id_behavior {
 class parser : public abstract_parser {
     environment             m_env;
     io_state                m_ios;
-    bool                    m_verbose;
     bool                    m_use_exceptions;
     bool                    m_show_errors;
     module_loader           m_import_fn;

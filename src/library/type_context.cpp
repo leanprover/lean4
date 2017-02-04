@@ -227,8 +227,20 @@ bool type_context::is_cached_failure(expr const & t, expr const & s) {
 void type_context::init_local_instances() {
     m_local_instances = list<pair<name, expr>>();
     m_lctx.for_each([&](local_decl const & decl) {
-            if (auto cls_name = is_class(decl.get_type())) {
-                m_local_instances = cons(mk_pair(*cls_name, decl.mk_ref()), m_local_instances);
+            /* Do not use auxiliary declarations introduced by equation compiler.
+               This can happen when using meta definitions.
+               Example:
+
+               class has_false (α : Type) :=
+               (f : false)
+
+               meta def nat_has_false : has_false ℕ :=
+               by apply_instance
+            */
+            if (!decl.get_info().is_rec()) {
+                if (auto cls_name = is_class(decl.get_type())) {
+                    m_local_instances = cons(mk_pair(*cls_name, decl.mk_ref()), m_local_instances);
+                }
             }
         });
 }

@@ -192,6 +192,23 @@ meta def list_to_tactic_format {α : Type u} [has_to_tactic_format α] : list α
 meta instance {α : Type u} [has_to_tactic_format α] : has_to_tactic_format (list α) :=
 ⟨list_to_tactic_format⟩
 
+
+meta def pair_to_tactic_format_aux {α : Type u} {β : Type v} [has_to_tactic_format α] [has_to_tactic_format β] :
+         α × β → tactic format
+| (a, b) := do 
+  fa ← pp a, fb ← pp b, 
+  return $ to_fmt "(" ++ fa ++ ", " ++ fb ++ ")"
+
+meta instance (α : Type u) (β : Type v) [has_to_tactic_format α] [has_to_tactic_format β] :
+ has_to_tactic_format (α × β) := ⟨pair_to_tactic_format_aux⟩
+
+meta def option_to_tactic_format {α : Type u} [has_to_tactic_format α] : option α → tactic format
+| (some a) := do fa ← pp a, return (to_fmt "(some " ++ fa ++ ")")
+| none     := return "none"
+
+meta instance {α : Type u} [has_to_tactic_format α] : has_to_tactic_format (option α) := 
+⟨option_to_tactic_format⟩
+
 meta instance has_to_format_to_has_to_tactic_format (α : Type) [has_to_format α] : has_to_tactic_format α :=
 ⟨(λ x, return x) ∘ to_fmt⟩
 

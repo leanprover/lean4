@@ -117,7 +117,8 @@
 
 (defun lean-next-error--handler ()
   (when (lean-info-buffer-active lean-next-error-buffer-name)
-    (let ((errors (or
+    (let ((deactivate-mark) ; keep transient mark
+          (errors (or
                    ;; prefer error of current position, if any
                    (flycheck-overlay-errors-at (point))
                    ;; try errors in current line next

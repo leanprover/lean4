@@ -10,12 +10,16 @@ Author: Leonardo de Moura
 #include <memory>
 #include "library/abstract_parser.h"
 #include "frontends/lean/scanner.h"
+#include "frontends/lean/parser_config.h"
+#include "frontends/lean/parse_table.h"
 #include "frontends/lean/local_decls.h"
 #include "frontends/lean/local_level_decls.h"
 #include "frontends/lean/local_context_adapter.h"
 #include "frontends/lean/parser_pos_provider.h"
 
 namespace lean {
+typedef environment local_environment;
+
 enum class id_behavior {
     /* Default: just generate an error when an undefined identifier is found */
     ErrorIfUndef,
@@ -132,14 +136,104 @@ private:
     unsigned                      m_complete:1;
     unsigned                      m_id_behavior:2;
 
+    void throw_parser_exception(char const * msg, pos_info p);
+    void throw_nested_exception(throwable const & ex, pos_info p);
+
+    void sync_command();
+    void protected_call(std::function<void()> && f, std::function<void()> && sync);
+
+    tag get_tag(expr e);
+    expr copy_with_new_pos(expr const & e, pos_info p);
+
+    parse_table const & nud() const { return get_nud_table(env()); }
+    parse_table const & led() const { return get_led_table(env()); }
+
+    unsigned curr_level_lbp() const;
+    level parse_max_imax(bool is_max);
+    level parse_level_id();
+    level parse_level_nud();
+    level parse_level_led(level left);
+
+    void parse_doc_block();
+    void parse_mod_doc_block();
+    void check_no_doc_string();
+    void reset_doc_string();
+
+    void process_imports();
+    void parse_command();
+    task_result<bool> parse_commands();
+    void process_postponed(buffer<expr> const & args, bool is_left, buffer<notation::action_kind> const & kinds,
+                           buffer<list<expr>> const & nargs, buffer<expr> const & ps, buffer<pair<unsigned, pos_info>> const & scoped_info,
+                           list<notation::action> const & postponed, pos_info const & p, buffer<expr> & new_args);
+    expr parse_notation(parse_table t, expr * left);
+    expr parse_nud_notation();
+    expr parse_led_notation(expr left);
+    expr parse_inaccessible();
+    expr parse_placeholder();
+    expr parse_anonymous_var_pattern();
+    expr parse_nud();
+    bool curr_starts_expr();
+    expr parse_numeral_expr(bool user_notation = true);
+    expr parse_decimal_expr();
+    expr parse_string_expr();
+    expr parse_char_expr();
+    expr parse_inst_implicit_decl();
+    void parse_inst_implicit_decl(buffer<expr> & r);
+    expr parse_binder_core(binder_info const & bi, unsigned rbp);
+    bool parse_binder_collection(buffer<pair<pos_info, name>> const & names, binder_info const & bi, buffer<expr> & r);
+    void parse_binder_block(buffer<expr> & r, binder_info const & bi, unsigned rbp, bool allow_default);
+    struct parse_binders_config {
+        /* (input) If m_allow_empty is true, then parse_binders will succeed even if not binder is parsed. */
+        bool     m_allow_empty{false};
+        /* (input) right binding power */
+        unsigned m_rbp{0};
+        /* (input) If m_simple_only, then binder modifiers '{', '[' and '⦃' are not allowed. */
+        bool     m_simple_only{false};
+        /* (input) If true, it will allow binders of the form (x : T := v), and they will be converted
+           into (x : opt_param T v) */
+        bool     m_allow_default{false};
+        /* (input and output)
+          If m_infer_kind != nullptr, then a sequence of binders can be prefixed with '{}' or '()'
+          Moreover, *m_infer_kind will be updated with
+
+          - implicit_infer_kind::None if prefix is '()'
+          - implicit_infer_kind::RelaxedImplicit if prefix is '{}'
+          - implicit_infer_kind::Implicit, otherwise. */
+        implicit_infer_kind * m_infer_kind{nullptr};
+        /* (output) It is set to true if the last binder is surrounded
+           with some kind of bracket (e.g., '()', '{}', '[]'). */
+        bool     m_last_block_delimited{false};
+        /* (output) If m_nentries != nullptr, then local notation declarations are stored here */
+        buffer<notation_entry> * m_nentries{nullptr};
+    };
+    void parse_binders_core(buffer<expr> & r, parse_binders_config & cfg);
+    local_environment parse_binders(buffer<expr> & r, parse_binders_config & cfg);
+    bool parse_local_notation_decl(buffer<notation_entry> * entries);
+
+    pair<optional<name>, expr> parse_id_tk_expr(name const & tk, unsigned rbp);
+
+#if 0
+    friend environment section_cmd(parser_state & p);
+    friend environment context_cmd(parser_state & p);
+    friend environment namespace_cmd(parser_state & p);
+    friend environment end_scoped_cmd(parser_state & p);
+#endif
+
+    scope mk_scope(optional<options> const & opts = optional<options>());
+    void restore_scope(scope const & s);
+
+    bool has_local_scopes() const { return !is_nil(m_context->m_scope_stack); }
+    void push_local_scope(bool save_options = true);
+    void pop_local_scope();
+
+    void ensure_exclusive_context();
+
 public:
     parser_state(environment const & env, io_state const & ios, header_ptr const & h,
                  bool use_exceptions = false, std::shared_ptr<snapshot const> const & s = {});
     virtual ~parser_state() {}
 
     environment const & env() const { return m_context->m_env; }
-
-    virtual char const * get_file_name() const override { return m_header->m_file_name.c_str(); }
 
     std::vector<token> const & get_token_vector() const { return m_header->m_token_vector; }
 
@@ -160,8 +254,6 @@ public:
     expr update_pos(expr e, pos_info p);
     pos_info pos_of(expr const & e, pos_info default_pos) const;
     pos_info pos_of(expr const & e) const { return pos_of(e, pos()); }
-    tag get_tag(expr e);
-    expr copy_with_new_pos(expr const & e, pos_info p);
 
     /** \brief Return true iff the current token is an identifier */
     bool curr_is_identifier() const { return curr() == token_kind::Identifier; }
@@ -211,6 +303,202 @@ public:
     void check_break_before(break_at_pos_exception::token_context ctxt = break_at_pos_exception::token_context::none);
 
     name mk_anonymous_inst_name();
+
+    bool parse_local_notation_decl() { return parse_local_notation_decl(nullptr); }
+
+    level parse_level(unsigned rbp = 0);
+
+    expr parse_binder(unsigned rbp);
+
+    local_environment parse_binders(buffer<expr> & r, bool & last_block_delimited) {
+        parse_binders_config cfg;
+        auto new_env = parse_binders(r, cfg);
+        last_block_delimited = cfg.m_last_block_delimited;
+        return new_env;
+    }
+
+    local_environment parse_binders(buffer<expr> & r, unsigned rbp, bool allow_default = false) {
+        parse_binders_config cfg;
+        cfg.m_rbp           = rbp;
+        cfg.m_allow_default = allow_default;
+        return parse_binders(r, cfg);
+    }
+
+    void parse_simple_binders(buffer<expr> & r, unsigned rbp) {
+        parse_binders_config cfg;
+        cfg.m_simple_only = true;
+        cfg.m_rbp         = rbp;
+        parse_binders(r, cfg);
+    }
+
+    local_environment parse_optional_binders(buffer<expr> & r, bool allow_default = false) {
+        parse_binders_config cfg;
+        cfg.m_allow_empty   = true;
+        cfg.m_allow_default = allow_default;
+        return parse_binders(r, cfg);
+    }
+
+    local_environment parse_optional_binders(buffer<expr> & r, implicit_infer_kind & kind) {
+        parse_binders_config cfg;
+        cfg.m_allow_empty   = true;
+        cfg.m_infer_kind    = &kind;
+        return parse_binders(r, cfg);
+    }
+
+    local_environment parse_binders(buffer<expr> & r, buffer<notation_entry> & nentries) {
+        parse_binders_config cfg;
+        cfg.m_nentries = &nentries;
+        return parse_binders(r, cfg);
+    }
+
+    optional<binder_info> parse_optional_binder_info(bool simple_only = false);
+
+    binder_info parse_binder_info(bool simple_only = false);
+    void parse_close_binder_info(optional<binder_info> const & bi);
+    void parse_close_binder_info(binder_info const & bi) { return parse_close_binder_info(optional<binder_info>(bi)); }
+
+    /** \brief Convert an identifier into an expression (constant or local constant) based on the current scope */
+    expr id_to_expr(name const & id, pos_info const & p, bool resolve_only = false);
+
+    expr parse_expr(unsigned rbp = 0);
+    /** \brief Parse an (optionally) qualified expression.
+        If the input is of the form <id> : <expr>, then return the pair (some(id), expr).
+        Otherwise, parse the next expression and return (none, expr). */
+    pair<optional<name>, expr> parse_qualified_expr(unsigned rbp = 0);
+    /** \brief If the input is of the form <id> := <expr>, then return the pair (some(id), expr).
+        Otherwise, parse the next expression and return (none, expr). */
+    pair<optional<name>, expr> parse_optional_assignment(unsigned rbp = 0);
+
+    /** \brief Parse a pattern or expression */
+    expr parse_pattern_or_expr(unsigned rbp = 0);
+    /** \brief Convert an expression parsed using parse_pattern_or_expr into a pattern.
+        The new local constants declared by the pattern are stored at new_locals.
+
+        If skip_main_fn == true, then in the top-level application (f ...), the function f
+        is not processed. */
+    expr patexpr_to_pattern(expr const & pat_or_expr, bool skip_main_fn, buffer<expr> & new_locals);
+    /** \brief Convert an expression parsed using parse_pattern_or_expr into a regular term. */
+    expr patexpr_to_expr(expr const & pat_or_expr);
+    expr parse_pattern(buffer<expr> & new_locals, unsigned rbp = 0) {
+        return patexpr_to_pattern(parse_pattern_or_expr(rbp), false, new_locals);
+    }
+    /* \brief Set pattern mode, and invoke fn. The new locals are stored in new_locals */
+    expr parse_pattern(std::function<expr(parser_state &)> const & fn, buffer<expr> & new_locals);
+
+    expr parse_id();
+
+    expr parse_led(expr left);
+    expr parse_scoped_expr(unsigned num_params, expr const * ps, local_environment const & lenv, unsigned rbp = 0);
+    expr parse_scoped_expr(buffer<expr> const & ps, local_environment const & lenv, unsigned rbp = 0) {
+        return parse_scoped_expr(ps.size(), ps.data(), lenv, rbp);
+    }
+    expr parse_scoped_expr(unsigned num_params, expr const * ps, unsigned rbp = 0) {
+        return parse_scoped_expr(num_params, ps, local_environment(m_context->m_env), rbp);
+    }
+    expr parse_scoped_expr(buffer<expr> const & ps, unsigned rbp = 0) { return parse_scoped_expr(ps.size(), ps.data(), rbp); }
+    expr parse_expr_with_env(local_environment const & lenv, unsigned rbp = 0);
+
+    expr parse_tactic(unsigned rbp = 0);
+
+    struct local_scope {
+        parser_state & m_p;
+        environment    m_env;
+        local_scope(parser_state & p, bool save_options = false);
+        local_scope(parser_state & p, environment const & env);
+        local_scope(parser_state & p, optional<environment> const & env);
+        ~local_scope();
+    };
+
+    struct quote_scope {
+        parser_state & m_p;
+        id_behavior    m_id_behavior;
+        bool           m_in_quote;
+        bool           m_saved_in_pattern;
+        quote_scope(parser_state & p, bool q);
+        ~quote_scope();
+    };
+
+    bool in_quote() const { return m_in_quote; }
+
+    void clear_expr_locals();
+    bool has_locals() const { return !m_context->m_local_decls.empty() || !m_context->m_local_level_decls.empty(); }
+    void add_local_level(name const & n, level const & l, bool is_variable = false);
+    void add_local_expr(name const & n, expr const & p, bool is_variable = false);
+    environment add_local_ref(environment const & env, name const & n, expr const & ref);
+    void add_variable(name const & n, expr const & p);
+    void add_parameter(name const & n, expr const & p);
+    void add_local(expr const & p) { return add_local_expr(local_pp_name(p), p); }
+    bool has_params() const { return m_has_params; }
+    bool is_local_decl(expr const & l) const { return is_local(l) && m_context->m_local_decls.contains(local_pp_name(l)); }
+    bool is_local_level_variable(name const & n) const { return m_context->m_level_variables.contains(n); }
+    bool is_local_variable(name const & n) const { return m_context->m_variables.contains(n); }
+    bool is_local_variable(expr const & e) const { return is_local_variable(local_pp_name(e)); }
+    /** \brief Update binder information for the section parameter n, return true if success, and false if n is not a section parameter. */
+    bool update_local_binder_info(name const & n, binder_info const & bi);
+    void include_variable(name const & n) {
+        ensure_exclusive_context();
+        m_context->m_include_vars.insert(n);
+    }
+    void omit_variable(name const & n) {
+        ensure_exclusive_context();
+        m_context->m_include_vars.erase(n);
+    }
+    bool is_include_variable(name const & n) const { return m_context->m_include_vars.contains(n); }
+    void get_include_variables(buffer<expr> & vars) const;
+    /** \brief Position of the local level declaration named \c n in the sequence of local level decls. */
+    unsigned get_local_level_index(name const & n) const { return m_context->m_local_level_decls.find_idx(n); }
+    bool is_local_level(name const & n) const { return m_context->m_local_level_decls.contains(n); }
+    /** \brief Position of the local declaration named \c n in the sequence of local decls. */
+    unsigned get_local_index(name const & n) const;
+    unsigned get_local_index(expr const & e) const { return get_local_index(local_pp_name(e)); }
+    /** \brief Return the local parameter named \c n */
+    expr const * get_local(name const & n) const { return m_context->m_local_decls.find(n); }
+    /** \brief Return local declarations as a list of local constants. */
+    list<expr> locals_to_context() const;
+    /** \brief Return all local declarations and aliases */
+    list<pair<name, expr>> const & get_local_entries() const { return m_context->m_local_decls.get_entries(); }
+    /** \brief By default, when the parser finds a unknown identifier, it signs an error.
+        These scope objects temporarily change this behavior. In any scope where this object
+        is declared, the parse creates a constant/local even when the identifier is unknown.
+        This behavior is useful when we are trying to parse mutually recursive declarations and
+        tactics.
+    */
+    struct undef_id_to_local_scope : public flet<id_behavior> { undef_id_to_local_scope(parser_state &); };
+    struct error_if_undef_scope : public flet<id_behavior> { error_if_undef_scope(parser_state & p); };
+    struct all_id_local_scope : public flet<id_behavior> { all_id_local_scope(parser_state & p); };
+
+    list<expr> get_undef_ids() const { return m_context->m_undef_ids; }
+
+private:
+    pair<expr, level_param_names> elaborate(name const & decl_name, metavar_context & mctx, local_context_adapter const & adapter,
+                                            expr const & e, bool check_unassigned = true);
+
+public:
+    local_context_adapter mk_local_context_adapter() { return local_context_adapter(m_context->m_local_decls); }
+    pair<expr, level_param_names> elaborate(name const & decl_name, metavar_context & mctx, expr const & e, bool check_unassigned = true);
+    pair<expr, level_param_names> elaborate(name const & decl_name, metavar_context & mctx, list<expr> const & lctx, expr const & e, bool check_unassigned);
+    pair<expr, level_param_names> elaborate(name const & decl_name, list<expr> const & ctx, expr const & e);
+    pair<expr, level_param_names> elaborate_type(name const & decl_name, list<expr> const & lctx, expr const & e);
+    /* Elaborate \c e as a type using the given metavariable context, and using m_local_decls as the local context */
+    pair<expr, level_param_names> elaborate_type(name const & decl_name, metavar_context & mctx, expr const & e);
+
+    expr mk_sorry(pos_info const & p);
+    bool used_sorry() const { return m_used_sorry; }
+    void declare_sorry_if_used();
+
+    void require_success(generic_task_result const & t) {
+        ensure_exclusive_context();
+        m_context->m_required_successes = cons(t, m_context->m_required_successes);
+    }
+
+    /** return true iff profiling is enabled */
+    bool profiling() const;
+
+public:
+    /* pos_info_provider API */
+    virtual optional<pos_info> get_pos_info(expr const & e) const override;
+    virtual pos_info get_some_pos() const override;
+    virtual char const * get_file_name() const override { return m_header->m_file_name.c_str(); }
 };
 
 typedef parser_state::scope parser_scope;

@@ -48,6 +48,11 @@ parser_state::parser_state(environment const & env, io_state const & ios, header
     }
 }
 
+void parser_state::ensure_exclusive_context() {
+    if (m_context.unique()) return;
+    m_context = std::make_shared<context>(*m_context);
+}
+
 token const * parser_state::lookahead(int delta) const {
     int idx = static_cast<int>(m_tv_cmd_idx) + delta;
     if (idx >= 0 && idx < static_cast<int>(get_token_vector().size()))
@@ -100,6 +105,16 @@ name parser_state::mk_anonymous_inst_name() {
     name n = ::lean::mk_anonymous_inst_name(m_next_inst_idx);
     m_next_inst_idx++;
     return n;
+}
+
+optional<pos_info> parser_state::get_pos_info(expr const & /* e */) const {
+    /* TODO(Leo): */
+    return optional<pos_info>();
+}
+
+pos_info parser_state::get_some_pos() const {
+    /* TODO(Leo): */
+    return pos_info(0,0);
 }
 
 expr parser_state::save_pos(expr e, pos_info p) {

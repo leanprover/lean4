@@ -39,6 +39,9 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_PARSER_CHECKPOINT_HAVE true
 #endif
 
+/* Temporary hack for parser_state refactoring */
+#define parser_state parser
+
 namespace lean {
 static name * g_parser_checkpoint_have = nullptr;
 
@@ -54,12 +57,12 @@ bool is_sort_wo_universe(expr const & e) {
     return is_annotation(e, *g_no_universe_annotation);
 }
 
-expr mk_sort_wo_universe(parser & p, pos_info const & pos, bool is_type) {
+expr mk_sort_wo_universe(parser_state & p, pos_info const & pos, bool is_type) {
     expr r = p.save_pos(mk_sort(is_type ? mk_level_one() : mk_level_zero()), pos);
     return p.save_pos(mk_annotation(*g_no_universe_annotation, r), pos);
 }
 
-static expr parse_Type(parser & p, unsigned, expr const *, pos_info const & pos) {
+static expr parse_Type(parser_state & p, unsigned, expr const *, pos_info const & pos) {
     if (p.curr_is_token(get_llevel_curly_tk())) {
         p.next();
         level l = mk_succ(p.parse_level());
@@ -70,7 +73,7 @@ static expr parse_Type(parser & p, unsigned, expr const *, pos_info const & pos)
     }
 }
 
-static expr parse_Sort(parser & p, unsigned, expr const *, pos_info const & pos) {
+static expr parse_Sort(parser_state & p, unsigned, expr const *, pos_info const & pos) {
     if (p.curr_is_token(get_llevel_curly_tk())) {
         p.next();
         level l = p.parse_level();
@@ -81,18 +84,18 @@ static expr parse_Sort(parser & p, unsigned, expr const *, pos_info const & pos)
     }
 }
 
-static expr parse_Type_star(parser & p, unsigned, expr const *, pos_info const & pos) {
+static expr parse_Type_star(parser_state & p, unsigned, expr const *, pos_info const & pos) {
     return p.save_pos(mk_sort(mk_succ(mk_level_placeholder())), pos);
 }
 
-static expr parse_Sort_star(parser & p, unsigned, expr const *, pos_info const & pos) {
+static expr parse_Sort_star(parser_state & p, unsigned, expr const *, pos_info const & pos) {
     return p.save_pos(mk_sort(mk_level_placeholder()), pos);
 }
 
 static name * g_let_match_name = nullptr;
 
-static expr parse_let(parser & p, pos_info const & pos);
-static expr parse_let_body(parser & p, pos_info const & pos) {
+static expr parse_let(parser_state & p, pos_info const & pos);
+static expr parse_let_body(parser_state & p, pos_info const & pos) {
     if (p.curr_is_token(get_comma_tk())) {
         p.next();
         return parse_let(p, pos);
@@ -106,7 +109,7 @@ static expr parse_let_body(parser & p, pos_info const & pos) {
 
 // Distribute mk_typed_expr over choice expression.
 // see issue #768
-static expr mk_typed_expr_distrib_choice(parser & p, expr const & type, expr const & value, pos_info const & pos) {
+static expr mk_typed_expr_distrib_choice(parser_state & p, expr const & type, expr const & value, pos_info const & pos) {
     if (is_choice(value)) {
         buffer<expr> new_choices;
         for (unsigned i = 0; i < get_num_choices(value); i++) {
@@ -118,8 +121,8 @@ static expr mk_typed_expr_distrib_choice(parser & p, expr const & type, expr con
     }
 }
 
-static expr parse_let(parser & p, pos_info const & pos) {
-    parser::local_scope scope1(p);
+static expr parse_let(parser_state & p, pos_info const & pos) {
+    parser_state::local_scope scope1(p);
     if (p.parse_local_notation_decl()) {
         return parse_let_body(p, pos);
     } else if (p.curr_is_identifier()) {
@@ -137,7 +140,7 @@ static expr parse_let(parser & p, pos_info const & pos) {
             p.check_token_next(get_assign_tk(), "invalid declaration, ':=' expected");
             value = p.parse_expr();
         } else {
-            parser::local_scope scope2(p);
+            parser_state::local_scope scope2(p);
             buffer<expr> ps;
             unsigned rbp = 0;
             auto lenv = p.parse_binders(ps, rbp);
@@ -173,17 +176,17 @@ static expr parse_let(parser & p, pos_info const & pos) {
     }
 }
 
-static expr parse_let_expr(parser & p, unsigned, expr const *, pos_info const & pos) {
+static expr parse_let_expr(parser_state & p, unsigned, expr const *, pos_info const & pos) {
     return parse_let(p, pos);
 }
 
-static expr parse_unit(parser & p, unsigned, expr const *, pos_info const & pos) {
+static expr parse_unit(parser_state & p, unsigned, expr const *, pos_info const & pos) {
     return p.save_pos(mk_constant(get_unit_star_name()), pos);
 }
 
-static expr parse_proof(parser & p);
+static expr parse_proof(parser_state & p);
 
-static expr parse_proof(parser & p) {
+static expr parse_proof(parser_state & p) {
     if (p.curr_is_token(get_from_tk())) {
         // parse: 'from' expr
         p.next();
@@ -202,7 +205,7 @@ static expr parse_proof(parser & p) {
     }
 }
 
-static expr parse_have_core(parser & p, pos_info const & pos, optional<expr> const & prev_local) {
+static expr parse_have_core(parser_state & p, pos_info const & pos, optional<expr> const & prev_local) {
     auto id_pos       = p.pos();
     name id;
     expr prop;
@@ -228,7 +231,7 @@ static expr parse_have_core(parser & p, pos_info const & pos, optional<expr> con
     expr proof;
     p.check_token_next(get_comma_tk(), "invalid 'have' declaration, ',' expected");
     if (prev_local) {
-        parser::local_scope scope(p);
+        parser_state::local_scope scope(p);
         p.add_local(*prev_local);
         auto proof_pos = p.pos();
         proof = parse_proof(p);
@@ -238,7 +241,7 @@ static expr parse_have_core(parser & p, pos_info const & pos, optional<expr> con
         proof = parse_proof(p);
     }
     p.check_token_next(get_comma_tk(), "invalid 'have' declaration, ',' expected");
-    parser::local_scope scope(p);
+    parser_state::local_scope scope(p);
     expr l = p.save_pos(mk_local(id, prop), pos);
     p.add_local(l);
     expr body;
@@ -257,11 +260,11 @@ static expr parse_have_core(parser & p, pos_info const & pos, optional<expr> con
     return p.mk_app(r, proof, pos);
 }
 
-static expr parse_have(parser & p, unsigned, expr const *, pos_info const & pos) {
+static expr parse_have(parser_state & p, unsigned, expr const *, pos_info const & pos) {
     return parse_have_core(p, pos, none_expr());
 }
 
-static expr parse_suppose(parser & p, unsigned, expr const *, pos_info const & pos) {
+static expr parse_suppose(parser_state & p, unsigned, expr const *, pos_info const & pos) {
     auto id_pos = p.pos();
     name id;
     expr prop;
@@ -285,14 +288,14 @@ static expr parse_suppose(parser & p, unsigned, expr const *, pos_info const & p
         prop  = p.parse_expr();
     }
     p.check_token_next(get_comma_tk(), "invalid 'suppose', ',' expected");
-    parser::local_scope scope(p);
+    parser_state::local_scope scope(p);
     expr l = p.save_pos(mk_local(id, prop), id_pos);
     p.add_local(l);
     expr body = p.parse_expr();
     return p.save_pos(Fun(l, body, p), pos);
 }
 
-static expr parse_show(parser & p, unsigned, expr const *, pos_info const & pos) {
+static expr parse_show(parser_state & p, unsigned, expr const *, pos_info const & pos) {
     expr prop  = p.parse_expr();
     p.check_token_next(get_comma_tk(), "invalid 'show' declaration, ',' expected");
     expr proof = parse_proof(p);
@@ -301,7 +304,7 @@ static expr parse_show(parser & p, unsigned, expr const *, pos_info const & pos)
     return p.save_pos(mk_show_annotation(r), pos);
 }
 
-static expr parse_suffices(parser & p, unsigned, expr const *, pos_info const & pos) {
+static expr parse_suffices(parser_state & p, unsigned, expr const *, pos_info const & pos) {
     auto prop_pos = p.pos();
     name id;
     expr from;
@@ -328,7 +331,7 @@ static expr parse_suffices(parser & p, unsigned, expr const *, pos_info const & 
     p.check_token_next(get_comma_tk(), "invalid 'suffices' declaration, ',' expected");
     expr body;
     {
-        parser::local_scope scope(p);
+        parser_state::local_scope scope(p);
         p.add_local(local);
         body = parse_proof(p);
     }
@@ -342,7 +345,7 @@ static expr parse_suffices(parser & p, unsigned, expr const *, pos_info const & 
 static expr * g_not  = nullptr;
 static unsigned g_then_else_prec = 0;
 
-static expr parse_ite(parser & p, expr const & c, pos_info const & pos) {
+static expr parse_ite(parser_state & p, expr const & c, pos_info const & pos) {
     if (!p.env().find(get_ite_name()))
         throw parser_error("invalid use of 'if-then-else' expression, environment does not contain 'ite' definition", pos);
     p.check_token_next(get_then_tk(), "invalid 'if-then-else' expression, 'then' expected");
@@ -352,11 +355,11 @@ static expr parse_ite(parser & p, expr const & c, pos_info const & pos) {
     return p.save_pos(mk_app(mk_constant(get_ite_name()), c, t, e), pos);
 }
 
-static expr parse_dite(parser & p, name const & H_name, expr const & c, pos_info const & pos) {
+static expr parse_dite(parser_state & p, name const & H_name, expr const & c, pos_info const & pos) {
     p.check_token_next(get_then_tk(), "invalid 'if-then-else' expression, 'then' expected");
     expr t, e;
     {
-        parser::local_scope scope(p);
+        parser_state::local_scope scope(p);
         expr H = mk_local(H_name, c);
         p.add_local(H);
         auto pos = p.pos();
@@ -364,7 +367,7 @@ static expr parse_dite(parser & p, name const & H_name, expr const & c, pos_info
     }
     p.check_token_next(get_else_tk(), "invalid 'if-then-else' expression, 'else' expected");
     {
-        parser::local_scope scope(p);
+        parser_state::local_scope scope(p);
         expr H = mk_local(H_name, mk_app(*g_not, c));
         p.add_local(H);
         auto pos = p.pos();
@@ -373,7 +376,7 @@ static expr parse_dite(parser & p, name const & H_name, expr const & c, pos_info
     return p.save_pos(mk_app(p.save_pos(mk_constant(get_dite_name()), pos), c, t, e), pos);
 }
 
-static expr parse_if_then_else(parser & p, unsigned, expr const *, pos_info const & pos) {
+static expr parse_if_then_else(parser_state & p, unsigned, expr const *, pos_info const & pos) {
     pair<optional<name>, expr> ie = p.parse_qualified_expr();
     if (ie.first)
         return parse_dite(p, *ie.first, ie.second, pos);
@@ -381,11 +384,11 @@ static expr parse_if_then_else(parser & p, unsigned, expr const *, pos_info cons
         return parse_ite(p, ie.second, pos);
 }
 
-static expr parse_calc_expr(parser & p, unsigned, expr const *, pos_info const &) {
+static expr parse_calc_expr(parser_state & p, unsigned, expr const *, pos_info const &) {
     return parse_calc(p);
 }
 
-static expr parse_explicit_core(parser & p, pos_info const & pos, bool partial) {
+static expr parse_explicit_core(parser_state & p, pos_info const & pos, bool partial) {
     if (!p.curr_is_identifier())
         throw parser_error(sstream() << "invalid '" << (partial ? "@@" : "@") << "', identifier expected", p.pos());
     expr fn = p.parse_id();
@@ -413,33 +416,33 @@ static expr parse_explicit_core(parser & p, pos_info const & pos, bool partial) 
         return p.save_pos(mk_explicit(fn), pos);
 }
 
-static expr parse_explicit_expr(parser & p, unsigned, expr const *, pos_info const & pos) {
+static expr parse_explicit_expr(parser_state & p, unsigned, expr const *, pos_info const & pos) {
     return parse_explicit_core(p, pos, false);
 }
 
-static expr parse_partial_explicit_expr(parser & p, unsigned, expr const *, pos_info const & pos) {
+static expr parse_partial_explicit_expr(parser_state & p, unsigned, expr const *, pos_info const & pos) {
     return parse_explicit_core(p, pos, true);
 }
 
-static expr parse_sorry(parser & p, unsigned, expr const *, pos_info const & pos) {
+static expr parse_sorry(parser_state & p, unsigned, expr const *, pos_info const & pos) {
     return p.mk_sorry(pos);
 }
 
-static expr parse_rparen(parser & /* p */, unsigned, expr const * args, pos_info const & /* pos */) {
+static expr parse_rparen(parser_state & /* p */, unsigned, expr const * args, pos_info const & /* pos */) {
     return args[0];
 }
 
-static expr parse_typed_expr(parser & p, unsigned, expr const * args, pos_info const & pos) {
+static expr parse_typed_expr(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
     return mk_typed_expr_distrib_choice(p, args[1], args[0], pos);
 }
 
-static expr parse_pattern(parser & p, unsigned, expr const * args, pos_info const & pos) {
+static expr parse_pattern(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
     return p.save_pos(mk_pattern_hint(args[0]), pos);
 }
 
 static name * g_do_match_name = nullptr;
 
-static expr fix_do_action_lhs(parser & p, expr const & lhs, expr const & type, pos_info const & lhs_pos,
+static expr fix_do_action_lhs(parser_state & p, expr const & lhs, expr const & type, pos_info const & lhs_pos,
                               buffer<expr> & new_locals) {
     // Hack
     if (is_constant(lhs) || is_local(lhs)) {
@@ -458,7 +461,7 @@ static expr fix_do_action_lhs(parser & p, expr const & lhs, expr const & type, p
     }
 }
 
-static std::tuple<optional<expr>, expr, expr, optional<expr>> parse_do_action(parser & p, buffer<expr> & new_locals) {
+static std::tuple<optional<expr>, expr, expr, optional<expr>> parse_do_action(parser_state & p, buffer<expr> & new_locals) {
     auto lhs_pos = p.pos();
     optional<expr> lhs;
     if (p.in_quote())
@@ -501,8 +504,8 @@ static expr mk_bind_fn() {
     return mk_no_info(mk_constant(get_bind_name()));
 }
 
-static expr parse_do(parser & p, unsigned, expr const *, pos_info const &) {
-    parser::local_scope scope(p);
+static expr parse_do(parser_state & p, unsigned, expr const *, pos_info const &) {
+    parser_state::local_scope scope(p);
     buffer<expr>               es;
     buffer<pos_info>           ps;
     buffer<optional<expr>>     lhss;
@@ -591,10 +594,10 @@ static expr parse_do(parser & p, unsigned, expr const *, pos_info const &) {
     return r;
 }
 
-static expr parse_quoted_expr(parser & p, unsigned, expr const *, pos_info const & pos) {
+static expr parse_quoted_expr(parser_state & p, unsigned, expr const *, pos_info const & pos) {
     if (p.in_quote())
         throw parser_error("invalid nested quoted expression", pos);
-    parser::quote_scope scope(p, true);
+    parser_state::quote_scope scope(p, true);
     expr e = p.parse_expr();
     if (p.curr_is_token(get_colon_tk())) {
         p.next();
@@ -605,15 +608,15 @@ static expr parse_quoted_expr(parser & p, unsigned, expr const *, pos_info const
     return p.save_pos(mk_quote(e), pos);
 }
 
-static expr parse_antiquote_expr(parser & p, unsigned, expr const *, pos_info const & pos) {
+static expr parse_antiquote_expr(parser_state & p, unsigned, expr const *, pos_info const & pos) {
     if (!p.in_quote())
         throw parser_error("invalid antiquotation, occurs outside of quoted expressions", pos);
-    parser::quote_scope scope(p, false);
+    parser_state::quote_scope scope(p, false);
     expr e = p.parse_expr(get_max_prec());
     return p.save_pos(mk_antiquote(e), pos);
 }
 
-static expr parse_quoted_name(parser & p, unsigned, expr const *, pos_info const & pos) {
+static expr parse_quoted_name(parser_state & p, unsigned, expr const *, pos_info const & pos) {
     bool resolve = false;
     name id;
     if (p.curr_is_token(get_placeholder_tk())) {
@@ -668,7 +671,7 @@ expr const & get_anonymous_constructor_arg(expr const & e) {
     return get_annotation_arg(e);
 }
 
-static expr parse_constructor_core(parser & p, pos_info const & pos) {
+static expr parse_constructor_core(parser_state & p, pos_info const & pos) {
     buffer<expr> args;
     while (!p.curr_is_token(get_rangle_tk())) {
         args.push_back(p.parse_expr());
@@ -683,19 +686,19 @@ static expr parse_constructor_core(parser & p, pos_info const & pos) {
     return p.save_pos(mk_anonymous_constructor(p.save_pos(mk_app(fn, args), pos)), pos);
 }
 
-static expr parse_constructor(parser & p, unsigned, expr const *, pos_info const & pos) {
+static expr parse_constructor(parser_state & p, unsigned, expr const *, pos_info const & pos) {
     return parse_constructor_core(p, pos);
 }
 
-static expr parse_lambda_core(parser & p, pos_info const & pos);
+static expr parse_lambda_core(parser_state & p, pos_info const & pos);
 
-static expr parse_lambda_binder(parser & p, pos_info const & pos) {
-    parser::local_scope scope1(p);
+static expr parse_lambda_binder(parser_state & p, pos_info const & pos) {
+    parser_state::local_scope scope1(p);
     buffer<expr> locals;
     auto new_env = p.parse_binders(locals, 0);
     for (expr const & local : locals)
         p.add_local(local);
-    parser::local_scope scope2(p, new_env);
+    parser_state::local_scope scope2(p, new_env);
     expr body;
     if (p.curr_is_token(get_comma_tk())) {
         p.next();
@@ -711,13 +714,13 @@ static expr parse_lambda_binder(parser & p, pos_info const & pos) {
 
 static name * g_lambda_match_name = nullptr;
 
-static expr parse_lambda_constructor(parser & p, pos_info const & ini_pos) {
+static expr parse_lambda_constructor(parser_state & p, pos_info const & ini_pos) {
     lean_assert(p.curr_is_token(get_langle_tk()));
-    parser::local_scope scope(p);
+    parser_state::local_scope scope(p);
     auto pos = p.pos();
     p.next();
     buffer<expr> locals;
-    expr pattern = p.parse_pattern([&](parser & p) { return parse_constructor_core(p, pos); }, locals);
+    expr pattern = p.parse_pattern([&](parser_state & p) { return parse_constructor_core(p, pos); }, locals);
     for (expr const & local : locals)
         p.add_local(local);
     expr body;
@@ -736,7 +739,7 @@ static expr parse_lambda_constructor(parser & p, pos_info const & ini_pos) {
     return p.rec_save_pos(Fun(x, mk_app(mk_equations(h, 1, &eqn), x), use_cache), pos);
 }
 
-static expr parse_lambda_core(parser & p, pos_info const & pos) {
+static expr parse_lambda_core(parser_state & p, pos_info const & pos) {
     if (p.curr_is_token(get_langle_tk())) {
         return parse_lambda_constructor(p, pos);
     } else {
@@ -744,7 +747,7 @@ static expr parse_lambda_core(parser & p, pos_info const & pos) {
     }
 }
 
-static expr parse_lambda(parser & p, unsigned, expr const *, pos_info const & pos) {
+static expr parse_lambda(parser_state & p, unsigned, expr const *, pos_info const & pos) {
     return parse_lambda_core(p, pos);
 }
 
@@ -843,7 +846,7 @@ optional<pos_info> get_field_notation_field_pos(expr const & e) {
     return static_cast<field_notation_macro_cell const*>(macro_def(e).raw())->get_field_pos();
 }
 
-static expr parse_proj(parser & p, unsigned, expr const * args, pos_info const & pos) {
+static expr parse_proj(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
     try {
         p.check_break_at_pos(break_at_pos_exception::token_context::expr);
         if (p.curr_is_numeral()) {
@@ -879,31 +882,31 @@ static expr parse_proj(parser & p, unsigned, expr const * args, pos_info const &
     }
 }
 
-static expr parse_proj1(parser & p, unsigned, expr const * args, pos_info const & pos) {
+static expr parse_proj1(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
     return p.save_pos(mk_proj_notation(args[0], 1), pos);
 }
-static expr parse_proj2(parser & p, unsigned, expr const * args, pos_info const & pos) {
+static expr parse_proj2(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
     return p.save_pos(mk_proj_notation(args[0], 2), pos);
 }
-static expr parse_proj3(parser & p, unsigned, expr const * args, pos_info const & pos) {
+static expr parse_proj3(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
     return p.save_pos(mk_proj_notation(args[0], 3), pos);
 }
-static expr parse_proj4(parser & p, unsigned, expr const * args, pos_info const & pos) {
+static expr parse_proj4(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
     return p.save_pos(mk_proj_notation(args[0], 4), pos);
 }
-static expr parse_proj5(parser & p, unsigned, expr const * args, pos_info const & pos) {
+static expr parse_proj5(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
     return p.save_pos(mk_proj_notation(args[0], 5), pos);
 }
-static expr parse_proj6(parser & p, unsigned, expr const * args, pos_info const & pos) {
+static expr parse_proj6(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
     return p.save_pos(mk_proj_notation(args[0], 6), pos);
 }
-static expr parse_proj7(parser & p, unsigned, expr const * args, pos_info const & pos) {
+static expr parse_proj7(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
     return p.save_pos(mk_proj_notation(args[0], 7), pos);
 }
-static expr parse_proj8(parser & p, unsigned, expr const * args, pos_info const & pos) {
+static expr parse_proj8(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
     return p.save_pos(mk_proj_notation(args[0], 8), pos);
 }
-static expr parse_proj9(parser & p, unsigned, expr const * args, pos_info const & pos) {
+static expr parse_proj9(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
     return p.save_pos(mk_proj_notation(args[0], 9), pos);
 }
 

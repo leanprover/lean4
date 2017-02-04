@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include <string>
 #include <memory>
+#include "library/abstract_parser.h"
 #include "frontends/lean/scanner.h"
 #include "frontends/lean/local_decls.h"
 #include "frontends/lean/local_level_decls.h"
@@ -36,7 +37,29 @@ enum class id_behavior {
 
 class snapshot;
 
-class parser_state {
+class break_at_pos_exception : public std::exception {
+public:
+    enum class token_context { none, expr, notation, option, import, interactive_tactic, attribute, namespc, field };
+    struct token_info {
+        pos_info      m_pos;
+        name          m_token;
+
+        token_context m_context;
+        name          m_tac_class;
+        name          m_struct; /* for field completion */
+    };
+
+    token_info m_token_info;
+    optional<pos_info>   m_goal_pos;
+
+    break_at_pos_exception(pos_info const & token_pos, name token = "",
+                           token_context ctxt = break_at_pos_exception::token_context::none, name tac_class = {}):
+        m_token_info(token_info {token_pos, token, ctxt, tac_class, name()}) {}
+
+    void report_goal_pos(pos_info goal_pos);
+};
+
+class parser_state : public abstract_parser {
 public:
     friend class parser;
 
@@ -112,23 +135,82 @@ private:
 public:
     parser_state(environment const & env, io_state const & ios, header_ptr const & h,
                  bool use_exceptions = false, std::shared_ptr<snapshot const> const & s = {});
+    virtual ~parser_state() {}
 
-    std::string const & get_file_name() const { return m_header->m_file_name; }
+    environment const & env() const { return m_context->m_env; }
 
-    std::vector<token> const & get_token_vector() const {
-        return m_header->m_token_vector;
-    }
+    virtual char const * get_file_name() const override { return m_header->m_file_name.c_str(); }
 
-    token const * lookahead(int delta) const;
+    std::vector<token> const & get_token_vector() const { return m_header->m_token_vector; }
 
     token const & curr_token() const { return get_token_vector()[m_tv_curr_idx]; }
     token_kind curr() const { return curr_token().kind(); }
     void next() { if (curr() != token_kind::Eof) m_tv_curr_idx++; }
 
+    token const * lookahead(int delta) const;
+
     mpq const & get_num_val() const { return curr_token().get_num_val(); }
     name const & get_name_val() const { return curr_token().get_name_val(); }
     std::string const & get_str_val() const { return curr_token().get_str_val(); }
     token_info const & get_token_info() const { return curr_token().get_token_info(); }
+
+    pos_info pos() const { return curr_token().get_pos(); }
+    expr save_pos(expr e, pos_info p);
+    expr rec_save_pos(expr const & e, pos_info p);
+    expr update_pos(expr e, pos_info p);
+    pos_info pos_of(expr const & e, pos_info default_pos) const;
+    pos_info pos_of(expr const & e) const { return pos_of(e, pos()); }
+    tag get_tag(expr e);
+    expr copy_with_new_pos(expr const & e, pos_info p);
+
+    /** \brief Return true iff the current token is an identifier */
+    bool curr_is_identifier() const { return curr() == token_kind::Identifier; }
+    /** \brief Return true iff the current token is a numeral */
+    virtual bool curr_is_numeral() const final override { return curr() == token_kind::Numeral; }
+    bool curr_is_decimal() const { return curr() == token_kind::Decimal; }
+    /** \brief Return true iff the current token is a string */
+    bool curr_is_string() const { return curr() == token_kind::String; }
+    /** \brief Return true iff the current token is a keyword */
+    bool curr_is_keyword() const { return curr() == token_kind::Keyword; }
+    /** \brief Return true iff the current token is a keyword */
+    bool curr_is_command() const { return curr() == token_kind::CommandKeyword; }
+    /** \brief Return true iff the current token is EOF */
+    bool curr_is_eof() const { return curr() == token_kind::Eof; }
+    /** \brief Return true iff the current token is a keyword */
+    bool curr_is_quoted_symbol() const { return curr() == token_kind::QuotedSymbol; }
+    /** \brief Return true iff the current token is a keyword named \c tk or an identifier named \c tk */
+    bool curr_is_token_or_id(name const & tk) const;
+    /** \brief Return true iff the current token is a command, EOF, period or script block */
+    bool curr_is_command_like() const;
+    /** \brief Read the next token if the current one is not End-of-file. */
+    /** \brief Return true iff the current token is a keyword (or command keyword) named \c tk */
+    bool curr_is_token(name const & tk) const;
+    /** \brief Check current token, and move to next characther, throw exception if current token is not \c tk. */
+    void check_token_next(name const & tk, char const * msg);
+    void check_token_or_id_next(name const & tk, char const * msg);
+    /** \brief Check if the current token is an identifier, if it is return it and move to next token,
+        otherwise throw an exception. */
+    name check_id_next(char const * msg, break_at_pos_exception::token_context ctxt =
+                       break_at_pos_exception::token_context::none);
+    /** \brief Similar to check_id_next, but also ensures the identifier is *not* an internal/reserved name. */
+    name check_decl_id_next(char const * msg, break_at_pos_exception::token_context ctxt =
+                            break_at_pos_exception::token_context::none);
+    /** \brief Check if the current token is an atomic identifier, if it is, return it and move to next token,
+        otherwise throw an exception. */
+    name check_atomic_id_next(char const * msg);
+    name check_atomic_decl_id_next(char const * msg);
+    list<name> to_constants(name const & id, char const * msg, pos_info const & p) const;
+    name to_constant(name const & id, char const * msg, pos_info const & p);
+    /** \brief Check if the current token is a constant, if it is, return it and move to next token, otherwise throw an exception. */
+    name check_constant_next(char const * msg);
+
+
+    void check_break_at_pos(break_at_pos_exception::token_context ctxt = break_at_pos_exception::token_context::none);
+    /** \brief Throw \c break_at_pos_exception with empty token and given context if \c m_break_at_pos is before current
+        position. */
+    void check_break_before(break_at_pos_exception::token_context ctxt = break_at_pos_exception::token_context::none);
+
+    name mk_anonymous_inst_name();
 };
 
 typedef parser_state::scope parser_scope;
@@ -160,5 +242,4 @@ struct snapshot {
 };
 
 typedef std::vector<std::shared_ptr<snapshot const>> snapshot_vector;
-
 }

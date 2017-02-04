@@ -6,6 +6,7 @@ Author: Sebastian Ullrich
 */
 #pragma once
 #include <string>
+#include "util/name_map.h"
 #include "kernel/pos_info_provider.h"
 
 namespace lean {

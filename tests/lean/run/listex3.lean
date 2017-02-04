@@ -9,22 +9,21 @@ open expr tactic
 
 declare_trace search_mem_list
 
-meta def mk_mem_list_rec : unit → tactic unit
-| u :=
+meta def mk_mem_list_rec : tactic unit :=
 when_tracing `search_mem_list (do t ← target, f ← pp t, trace (to_fmt "search " ++ f))
 >> (assumption
     <|>
-    (`[apply in_left] >> mk_mem_list_rec u)
+    (`[apply in_left] >> mk_mem_list_rec)
     <|>
-    (`[apply in_right] >> mk_mem_list_rec u)
+    (`[apply in_right] >> mk_mem_list_rec)
     <|>
     (`[apply in_head])
     <|>
-    (`[apply in_tail] >> mk_mem_list_rec u))
+    (`[apply in_tail] >> mk_mem_list_rec))
 >> now
 
 meta def mk_mem_list : tactic unit :=
-solve1 (mk_mem_list_rec ())
+solve1 mk_mem_list_rec
 
 set_option trace.search_mem_list true
 

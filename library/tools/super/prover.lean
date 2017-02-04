@@ -120,6 +120,6 @@ meta def super (extra_clause_names : types.raw_ident_list)
                (extra_lemma_names : types.with_ident_list) : tactic unit := do
 with_lemmas extra_clause_names,
 extra_lemmas ← monad.for extra_lemma_names mk_const,
-super extra_lemmas
+_root_.super extra_lemmas
 
 end tactic.interactive

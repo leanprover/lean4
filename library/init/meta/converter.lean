@@ -80,7 +80,7 @@ meta instance : alternative conv :=
   orelse  := @conv.orelse }
 
 meta def whnf_core (m : transparency) : conv unit :=
-λ r e, do n ← whnf_core m e, return ⟨(), n, none⟩
+λ r e, do n ← tactic.whnf_core m e, return ⟨(), n, none⟩
 
 meta def whnf : conv unit :=
 conv.whnf_core reducible

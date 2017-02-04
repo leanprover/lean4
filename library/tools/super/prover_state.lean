@@ -145,7 +145,7 @@ meta instance (α : Type) : has_coe (tactic α) (prover α) :=
 ⟨monad.monad_lift⟩
 
 meta def fail {α β : Type} [has_to_format β] (msg : β) : prover α :=
-fail msg
+tactic.fail msg
 
 meta def orelse (A : Type) (p1 p2 : prover A) : prover A :=
 take state, p1 state <|> p2 state

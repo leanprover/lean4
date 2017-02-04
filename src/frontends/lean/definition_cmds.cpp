@@ -170,7 +170,7 @@ environment mutual_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
 }
 
 static expr_pair parse_definition(parser & p, buffer<name> & lp_names, buffer<expr> & params,
-                                  bool is_example, bool is_instance) {
+                                  bool is_example, bool is_instance, bool is_meta) {
     parser::local_scope scope1(p);
     auto header_pos = p.pos();
     bool allow_default = true;
@@ -179,7 +179,19 @@ static expr_pair parse_definition(parser & p, buffer<name> & lp_names, buffer<ex
     expr val;
     if (p.curr_is_token(get_assign_tk())) {
         p.next();
-        val = p.parse_expr();
+        if (is_meta) {
+            declaration_name_scope scope2("_main");
+            fn = mk_local(mlocal_name(fn), local_pp_name(fn), mlocal_type(fn), mk_rec_info(true));
+            p.add_local(fn);
+            val = p.parse_expr();
+            /* add fake equation */
+            expr eqn = mk_equation(fn, val);
+            buffer<expr> eqns;
+            eqns.push_back(eqn);
+            val = mk_equations(p, fn, scope2.get_name(), eqns, {}, header_pos);
+        } else {
+            val = p.parse_expr();
+        }
     } else if (p.curr_is_token(get_bar_tk()) || p.curr_is_token(get_period_tk())) {
         declaration_name_scope scope2("_main");
         fn = mk_local(mlocal_name(fn), local_pp_name(fn), mlocal_type(fn), mk_rec_info(true));
@@ -772,7 +784,7 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
     bool is_rfl      = false;
     if (is_instance)
         attrs.set_attribute(p.env(), "instance");
-    std::tie(fn, val) = parse_definition(p, lp_names, params, is_example, is_instance);
+    std::tie(fn, val) = parse_definition(p, lp_names, params, is_example, is_instance, modifiers.m_is_meta);
     p.declare_sorry_if_used();
 
     // skip elaboration of definitions during reparsing

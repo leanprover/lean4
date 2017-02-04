@@ -8,7 +8,10 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/exception.h"
 #include "util/utf8.h"
+#include "library/type_context.h"
+#include "library/message_builder.h"
 #include "frontends/lean/scanner.h"
+#include "frontends/lean/tokens.h"
 #include "frontends/lean/parser_config.h"
 
 namespace lean {
@@ -161,7 +164,7 @@ char scanner::read_quoted_char(char const * error_msg) {
     }
 }
 
-scanner::token_kind scanner::read_string() {
+token_kind scanner::read_string() {
     lean_assert(curr() == '\"');
     next();
     m_buffer.clear();
@@ -655,8 +658,135 @@ scanner::scanner(std::istream & strm, char const * strm_name, pos_info const & s
         next();
 }
 
-std::ostream & operator<<(std::ostream & out, scanner::token_kind k) {
+std::ostream & operator<<(std::ostream & out, token_kind k) {
     out << static_cast<unsigned>(k);
     return out;
+}
+
+token::token(pos_info const & p):m_kind(token_kind::Eof), m_pos(p) {}
+token::token(token_kind k, pos_info const & p, token_info const & info):
+    m_kind(k), m_pos(p), m_info(new token_info(info)) {
+    lean_assert(m_kind == token_kind::Keyword || m_kind == token_kind::CommandKeyword);
+}
+token::token(token_kind k, pos_info const & p, name const & v):
+    m_kind(k), m_pos(p), m_name_val(new name(v)) {
+    lean_assert(m_kind == token_kind::QuotedSymbol || m_kind == token_kind::Identifier);
+}
+token::token(token_kind k, pos_info const & p, mpq const & v):
+    m_kind(k), m_pos(p), m_num_val(new mpq (v)) {
+    lean_assert(m_kind == token_kind::Decimal || m_kind == token_kind::Numeral);
+}
+
+token::token(token_kind k, pos_info const & p, std::string const & v):
+    m_kind(k), m_pos(p), m_str_val(new std::string(v)) {
+    lean_assert(m_kind == token_kind::String || m_kind == token_kind::Char ||
+                m_kind == token_kind::DocBlock || m_kind == token_kind::ModDocBlock);
+}
+
+void token::dealloc() {
+    switch (kind()) {
+    case token_kind::Eof:
+        return;
+    case token_kind::Keyword: case token_kind::CommandKeyword:
+        if (m_info != nullptr) delete m_info;
+        return;
+    case token_kind::Identifier: case token_kind::QuotedSymbol:
+        if (m_name_val != nullptr) delete m_name_val;
+        return;
+    case token_kind::Numeral: case token_kind::Decimal:
+        if (m_num_val != nullptr) delete m_num_val;
+        return;
+    case token_kind::String: case token_kind::Char:
+    case token_kind::DocBlock: case token_kind::ModDocBlock:
+        if (m_str_val != nullptr) delete m_str_val;
+        return;
+    }
+}
+
+void token::copy(token const & tk) {
+    m_kind = tk.m_kind;
+    m_pos  = tk.m_pos;
+    switch (tk.kind()) {
+    case token_kind::Eof:
+        return;
+    case token_kind::Keyword: case token_kind::CommandKeyword:
+        m_info = new token_info(*tk.m_info);
+        return;
+    case token_kind::Identifier: case token_kind::QuotedSymbol:
+        m_name_val = new name(*tk.m_name_val);
+        return;
+    case token_kind::Numeral: case token_kind::Decimal:
+        m_num_val = new mpq(*tk.m_num_val);
+        return;
+    case token_kind::String: case token_kind::Char:
+    case token_kind::DocBlock: case token_kind::ModDocBlock:
+        m_str_val = new std::string(*tk.m_str_val);
+        return;
+    }
+}
+
+void token::steal(token && tk) {
+    m_kind = tk.m_kind;
+    m_pos  = tk.m_pos;
+    switch (tk.kind()) {
+    case token_kind::Eof:
+        return;
+    case token_kind::Keyword: case token_kind::CommandKeyword:
+        m_info    = tk.m_info;
+        tk.m_info = nullptr;
+        return;
+    case token_kind::Identifier: case token_kind::QuotedSymbol:
+        m_name_val    = tk.m_name_val;
+        tk.m_name_val = nullptr;
+        return;
+    case token_kind::Numeral: case token_kind::Decimal:
+        m_num_val    = tk.m_num_val;
+        tk.m_num_val = nullptr;
+        return;
+    case token_kind::String: case token_kind::Char:
+    case token_kind::DocBlock: case token_kind::ModDocBlock:
+        m_str_val    = tk.m_str_val;
+        tk.m_str_val = nullptr;
+        return;
+    }
+}
+
+token read_tokens(environment & env, io_state const & ios, scanner & s, buffer<token> & tk, bool use_exceptions) {
+    while (true) {
+        try {
+            token_kind k = s.scan(env);
+            switch (k) {
+            case token_kind::Eof:
+                return token(s.get_pos_info());
+            case token_kind::Keyword:
+                tk.push_back(token(k, s.get_pos_info(), s.get_token_info()));
+                break;
+            case token_kind::CommandKeyword:
+                if (s.get_token_info().value() == get_end_tk())
+                    tk.push_back(token(k, s.get_pos_info(), s.get_token_info()));
+                else
+                    return token(k, s.get_pos_info(), s.get_token_info());
+                break;
+            case token_kind::Identifier: case token_kind::QuotedSymbol:
+                tk.push_back(token(k, s.get_pos_info(), s.get_name_val()));
+                break;
+            case token_kind::Numeral: case token_kind::Decimal:
+                tk.push_back(token(k, s.get_pos_info(), s.get_num_val()));
+                break;
+            case token_kind::String: case token_kind::Char:
+            case token_kind::DocBlock: case token_kind::ModDocBlock:
+                tk.push_back(token(k, s.get_pos_info(), s.get_str_val()));
+                break;
+            }
+        } catch (throwable & ex) {
+            if (use_exceptions) {
+                throw;
+            } else {
+                message_builder builder(env, ios, s.get_stream_name(), s.get_pos_info(), ERROR);
+                builder.set_exception(ex);
+                builder.report();
+            }
+        }
+    }
 }
 }

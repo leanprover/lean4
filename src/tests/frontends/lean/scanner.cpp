@@ -14,7 +14,7 @@ Author: Leonardo de Moura
 #include "init/init.h"
 using namespace lean;
 
-#define tk scanner::token_kind
+#define tk token_kind
 
 static void scan(char const * str, environment const & env = environment()) {
     std::istringstream in(str);

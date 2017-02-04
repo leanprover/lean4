@@ -12,9 +12,13 @@ Author: Leonardo de Moura
 #include "util/flet.h"
 #include "util/numerics/mpq.h"
 #include "kernel/environment.h"
+#include "library/io_state.h"
 #include "frontends/lean/token_table.h"
 
 namespace lean {
+enum class token_kind {Keyword, CommandKeyword, Identifier, Numeral, Decimal,
+        String, Char, QuotedSymbol,
+        DocBlock, ModDocBlock, Eof};
 /**
     \brief Scanner. The behavior of the scanner is controlled using a token set.
 
@@ -23,10 +27,6 @@ namespace lean {
     accepted if they are in the token set.
 */
 class scanner {
-public:
-    enum class token_kind {Keyword, CommandKeyword, Identifier, Numeral, Decimal,
-                           String, Char, QuotedSymbol,
-                           DocBlock, ModDocBlock, Eof};
 protected:
     token_table const * m_tokens;
     std::istream &      m_stream;
@@ -104,8 +104,81 @@ public:
         in_notation_ctx(scanner & s):m_in_notation(s.m_in_notation, true) {}
     };
 };
-std::ostream & operator<<(std::ostream & out, scanner::token_kind k);
+std::ostream & operator<<(std::ostream & out, token_kind k);
 bool is_id_rest(char const * begin, char const * end);
+
+class token {
+    token_kind  m_kind;
+    pos_info    m_pos;
+    union {
+        token_info *  m_info;     /* Keyword, CommandKeyword */
+        name *        m_name_val; /* QuotedSymbol, Identifier */
+        mpq *         m_num_val;  /* Decimal, Numeral */
+        std::string * m_str_val;  /* String, Char, DocBlock, ModDocBlock */
+    };
+
+    void dealloc();
+    void copy(token const & tk);
+    void steal(token && tk);
+
+public:
+    token(pos_info const & p); /*  EOF */
+    token(token_kind k, pos_info const & p, token_info const & info);
+    token(token_kind k, pos_info const & p, name const & v);
+    token(token_kind k, pos_info const & p, mpq const & v);
+    token(token_kind k, pos_info const & p, std::string const & v);
+    token(token const & tk) { copy(tk); }
+    token(token && tk) { steal(std::move(tk)); }
+    ~token() { dealloc(); }
+
+    token const & operator=(token const & tk) {
+        if (this != &tk) {
+            dealloc();
+            copy(tk);
+        }
+        return *this;
+    }
+
+    token const & operator=(token && tk) {
+        if (this != &tk) {
+            dealloc();
+            steal(std::move(tk));
+        }
+        return *this;
+    }
+
+    token_kind kind() const { return m_kind; }
+
+    unsigned get_line() const { return m_pos.first; }
+    unsigned get_col() const { return m_pos.second; }
+    pos_info const & get_pos() const { return m_pos; }
+
+    token_info const & get_token_info() const {
+        lean_assert(m_kind == token_kind::Keyword || m_kind == token_kind::CommandKeyword);
+        return *m_info;
+    }
+
+    name const & get_name_val() const {
+        lean_assert(m_kind == token_kind::QuotedSymbol || m_kind == token_kind::Identifier);
+        return *m_name_val;
+    }
+
+    mpq const & get_num_val() const {
+        lean_assert(m_kind == token_kind::Decimal || m_kind == token_kind::Numeral);
+        return *m_num_val;
+    }
+
+    std::string const & get_str_val() const {
+        lean_assert(m_kind == token_kind::String || m_kind == token_kind::Char ||
+                    m_kind == token_kind::DocBlock || m_kind == token_kind::ModDocBlock);
+        return *m_str_val;
+    }
+};
+
+/* Consume tokens from s until EOF, or a command token different from 'end', and return this token.
+   The other consumed tokens are pushed into tk. */
+token read_tokens(environment & env, io_state const & ios, scanner & s, buffer<token> & tk, bool use_exceptions);
+
 void initialize_scanner();
 void finalize_scanner();
 }

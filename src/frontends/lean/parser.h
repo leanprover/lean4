@@ -131,7 +131,7 @@ class parser : public abstract_parser {
     module_loader           m_import_fn;
     std::string             m_file_name;
     scanner                 m_scanner;
-    scanner::token_kind     m_curr;
+    token_kind              m_curr;
     local_level_decls       m_local_level_decls;
     local_expr_decls        m_local_decls;
     bool                    m_has_params; // true context context contains parameters
@@ -335,28 +335,28 @@ public:
     /** \brief Read the next token. */
     void scan();
     /** \brief Return the current token */
-    scanner::token_kind curr() const { return m_curr; }
+    token_kind curr() const { return m_curr; }
     /** \brief Return true iff the current token is an identifier */
-    bool curr_is_identifier() const { return curr() == scanner::token_kind::Identifier; }
+    bool curr_is_identifier() const { return curr() == token_kind::Identifier; }
     /** \brief Return true iff the current token is a numeral */
-    virtual bool curr_is_numeral() const final override { return curr() == scanner::token_kind::Numeral; }
-    bool curr_is_decimal() const { return curr() == scanner::token_kind::Decimal; }
+    virtual bool curr_is_numeral() const final override { return curr() == token_kind::Numeral; }
+    bool curr_is_decimal() const { return curr() == token_kind::Decimal; }
     /** \brief Return true iff the current token is a string */
-    bool curr_is_string() const { return curr() == scanner::token_kind::String; }
+    bool curr_is_string() const { return curr() == token_kind::String; }
     /** \brief Return true iff the current token is a keyword */
-    bool curr_is_keyword() const { return curr() == scanner::token_kind::Keyword; }
+    bool curr_is_keyword() const { return curr() == token_kind::Keyword; }
     /** \brief Return true iff the current token is a keyword */
-    bool curr_is_command() const { return curr() == scanner::token_kind::CommandKeyword; }
+    bool curr_is_command() const { return curr() == token_kind::CommandKeyword; }
     /** \brief Return true iff the current token is EOF */
-    bool curr_is_eof() const { return curr() == scanner::token_kind::Eof; }
+    bool curr_is_eof() const { return curr() == token_kind::Eof; }
     /** \brief Return true iff the current token is a keyword */
-    bool curr_is_quoted_symbol() const { return curr() == scanner::token_kind::QuotedSymbol; }
+    bool curr_is_quoted_symbol() const { return curr() == token_kind::QuotedSymbol; }
     /** \brief Return true iff the current token is a keyword named \c tk or an identifier named \c tk */
     bool curr_is_token_or_id(name const & tk) const;
     /** \brief Return true iff the current token is a command, EOF, period or script block */
     bool curr_is_command_like() const;
     /** \brief Read the next token if the current one is not End-of-file. */
-    virtual void next() override final { if (m_curr != scanner::token_kind::Eof) scan(); }
+    virtual void next() override final { if (m_curr != token_kind::Eof) scan(); }
     /** \brief Return true iff the current token is a keyword (or command keyword) named \c tk */
     virtual bool curr_is_token(name const & tk) const override final;
     /** \brief Check current token, and move to next characther, throw exception if current token is not \c tk. */

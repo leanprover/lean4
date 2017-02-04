@@ -49,27 +49,27 @@ bool display_deps(environment const & env, std::ostream & out, std::ostream & er
     };
 
     while (true) {
-        scanner::token_kind t = scanner::token_kind::Identifier;
+        token_kind t = token_kind::Identifier;
         try {
             t = s.scan(env);
         } catch (exception &) {
             continue;
         }
-        if (t == scanner::token_kind::Eof) {
+        if (t == token_kind::Eof) {
             if (!is_prelude)
                 display_dep(optional<unsigned>(), name("init"));
             return ok;
-        } else if (t == scanner::token_kind::CommandKeyword && s.get_token_info().value() == prelude) {
+        } else if (t == token_kind::CommandKeyword && s.get_token_info().value() == prelude) {
             is_prelude = true;
-        } else if (t == scanner::token_kind::CommandKeyword && s.get_token_info().value() == import) {
+        } else if (t == token_kind::CommandKeyword && s.get_token_info().value() == import) {
             k = optional<unsigned>();
             import_prefix = true;
-        } else if (import_prefix && t == scanner::token_kind::Keyword && s.get_token_info().value() == period) {
+        } else if (import_prefix && t == token_kind::Keyword && s.get_token_info().value() == period) {
             if (!k)
                 k = 0;
             else
                 k = *k + 1;
-        } else if ((import_prefix || import_args) && t == scanner::token_kind::Identifier) {
+        } else if ((import_prefix || import_args) && t == token_kind::Identifier) {
             display_dep(k, s.get_name_val());
             k = optional<unsigned>();
         } else {

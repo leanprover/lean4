@@ -190,7 +190,7 @@ parser::parser(environment const & env, io_state const & ios,
     m_used_sorry   = false;
     updt_options();
     m_next_tag_idx  = 0;
-    m_curr = scanner::token_kind::Identifier;
+    m_curr = token_kind::Identifier;
     protected_call([&]() { scan(); },
                    [&]() { sync_command(); });
 }
@@ -308,7 +308,7 @@ void parser::protected_call(std::function<void()> && f, std::function<void()> &&
 
 void parser::sync_command() {
     // Keep consuming tokens until we find a Command or End-of-file
-    while (curr() != scanner::token_kind::CommandKeyword && curr() != scanner::token_kind::Eof)
+    while (curr() != token_kind::CommandKeyword && curr() != token_kind::Eof)
         next();
 }
 
@@ -397,14 +397,14 @@ pos_info parser::pos_of(expr const & e, pos_info default_pos) const {
 
 bool parser::curr_is_token(name const & tk) const {
     return
-        (curr() == scanner::token_kind::Keyword || curr() == scanner::token_kind::CommandKeyword) &&
+        (curr() == token_kind::Keyword || curr() == token_kind::CommandKeyword) &&
         get_token_info().value() == tk;
 }
 
 bool parser::curr_is_token_or_id(name const & tk) const {
-    if (curr() == scanner::token_kind::Keyword || curr() == scanner::token_kind::CommandKeyword)
+    if (curr() == token_kind::Keyword || curr() == token_kind::CommandKeyword)
         return get_token_info().value() == tk;
-    else if (curr() == scanner::token_kind::Identifier)
+    else if (curr() == token_kind::Identifier)
         return get_name_val() == tk;
     else
         return false;
@@ -696,7 +696,7 @@ unsigned parser::parse_small_nat() {
 }
 
 double parser::parse_double() {
-    if (curr() != scanner::token_kind::Decimal)
+    if (curr() != token_kind::Decimal)
         throw parser_error("decimal value expected", pos());
     double r =get_num_val().get_double();
     next();
@@ -1306,7 +1306,7 @@ static pair<notation::transition, parse_table> const * get_non_skip(list<pair<no
 }
 
 expr parser::parse_notation(parse_table t, expr * left) {
-    lean_assert(curr() == scanner::token_kind::Keyword);
+    lean_assert(curr() == token_kind::Keyword);
     auto p = pos();
     auto first_token = get_token_info().value();
     auto check_break = [&]() {
@@ -1334,7 +1334,7 @@ expr parser::parse_notation(parse_table t, expr * left) {
     if (left)
         args.push_back(*left);
     while (true) {
-        if (curr() != scanner::token_kind::Keyword)
+        if (curr() != token_kind::Keyword)
             break;
         auto r = t.find(get_token_info().value());
         if (!r)
@@ -1954,18 +1954,18 @@ expr parser::parse_char_expr() {
 
 expr parser::parse_nud() {
     switch (curr()) {
-    case scanner::token_kind::Keyword:
+    case token_kind::Keyword:
         if (m_in_pattern && curr_is_token(get_period_tk()))
             return parse_inaccessible();
         else if (curr_is_token(get_placeholder_tk()))
             return parse_placeholder();
         else
             return parse_nud_notation();
-    case scanner::token_kind::Identifier:  return parse_id();
-    case scanner::token_kind::Numeral:     return parse_numeral_expr();
-    case scanner::token_kind::Decimal:     return parse_decimal_expr();
-    case scanner::token_kind::String:      return parse_string_expr();
-    case scanner::token_kind::Char:        return parse_char_expr();
+    case token_kind::Identifier:  return parse_id();
+    case token_kind::Numeral:     return parse_numeral_expr();
+    case token_kind::Decimal:     return parse_decimal_expr();
+    case token_kind::String:      return parse_string_expr();
+    case token_kind::Char:        return parse_char_expr();
     default: throw parser_error("invalid expression, unexpected token", pos());
     }
 }
@@ -1973,12 +1973,12 @@ expr parser::parse_nud() {
 // Return true if the current token can be the beginning of an expression
 bool parser::curr_starts_expr() {
     switch (curr()) {
-    case scanner::token_kind::Keyword:
+    case token_kind::Keyword:
         return !is_nil(nud().find(get_token_info().value()));
-    case scanner::token_kind::Identifier:
-    case scanner::token_kind::Numeral:
-    case scanner::token_kind::Decimal:
-    case scanner::token_kind::String:
+    case token_kind::Identifier:
+    case token_kind::Numeral:
+    case token_kind::Decimal:
+    case token_kind::String:
     default:
         return false;
     }
@@ -1995,7 +1995,7 @@ expr parser::parse_led(expr left) {
         return copy_tag(left, update_sort(left, l));
     } else {
         switch (curr()) {
-        case scanner::token_kind::Keyword: return parse_led_notation(left);
+        case token_kind::Keyword: return parse_led_notation(left);
         default: return mk_app(left, parse_expr(get_max_prec()), pos_of(left));
         }
     }
@@ -2003,18 +2003,18 @@ expr parser::parse_led(expr left) {
 
 unsigned parser::curr_lbp() const {
     switch (curr()) {
-    case scanner::token_kind::Keyword:
+    case token_kind::Keyword:
         if (m_in_pattern && curr_is_token(get_period_tk()))
             return get_max_prec();
         else
             return get_token_info().expr_precedence();
-    case scanner::token_kind::CommandKeyword: case scanner::token_kind::Eof:
-    case scanner::token_kind::QuotedSymbol:   case scanner::token_kind::DocBlock:
-    case scanner::token_kind::ModDocBlock:
+    case token_kind::CommandKeyword: case token_kind::Eof:
+    case token_kind::QuotedSymbol:   case token_kind::DocBlock:
+    case token_kind::ModDocBlock:
         return 0;
-    case scanner::token_kind::Identifier:     case scanner::token_kind::Numeral:
-    case scanner::token_kind::Decimal:        case scanner::token_kind::String:
-    case scanner::token_kind::Char:
+    case token_kind::Identifier:     case token_kind::Numeral:
+    case token_kind::Decimal:        case token_kind::String:
+    case token_kind::Char:
         return get_max_prec();
     }
     lean_unreachable(); // LCOV_EXCL_LINE
@@ -2101,7 +2101,7 @@ static bool support_docummentation(name const & n) {
 }
 
 void parser::parse_command() {
-    lean_assert(curr() == scanner::token_kind::CommandKeyword);
+    lean_assert(curr() == token_kind::CommandKeyword);
     m_last_cmd_pos = pos();
     name cmd_name = get_token_info().value();
     m_cmd_token = get_token_info().token();
@@ -2327,25 +2327,25 @@ task_result<bool> parser::parse_commands() {
                 protected_call([&]() {
                                    check_interrupted();
                                    switch (curr()) {
-                                       case scanner::token_kind::CommandKeyword:
+                                       case token_kind::CommandKeyword:
                                            if (curr_is_token(get_end_tk())) {
                                                check_no_doc_string();
                                            }
                                            parse_command();
                                            break;
-                                       case scanner::token_kind::DocBlock:
+                                       case token_kind::DocBlock:
                                            check_no_doc_string();
                                            parse_doc_block();
                                            break;
-                                       case scanner::token_kind::ModDocBlock:
+                                       case token_kind::ModDocBlock:
                                            check_no_doc_string();
                                            parse_mod_doc_block();
                                            break;
-                                       case scanner::token_kind::Eof:
+                                       case token_kind::Eof:
                                            check_no_doc_string();
                                            done = true;
                                            break;
-                                       case scanner::token_kind::Keyword:
+                                       case token_kind::Keyword:
                                            check_no_doc_string();
                                            if (curr_is_token(get_period_tk())) {
                                                next();
@@ -2381,12 +2381,12 @@ task_result<bool> parser::parse_commands() {
 
 bool parser::curr_is_command_like() const {
     switch (curr()) {
-    case scanner::token_kind::CommandKeyword:
-    case scanner::token_kind::Eof:
-    case scanner::token_kind::DocBlock:
-    case scanner::token_kind::ModDocBlock:
+    case token_kind::CommandKeyword:
+    case token_kind::Eof:
+    case token_kind::DocBlock:
+    case token_kind::ModDocBlock:
         return true;
-    case scanner::token_kind::Keyword:
+    case token_kind::Keyword:
         return curr_is_token(get_period_tk());
     default:
         return false;

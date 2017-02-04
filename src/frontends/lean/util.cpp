@@ -34,7 +34,7 @@ Author: Leonardo de Moura
 namespace lean {
 void consume_until_end_or_command(parser & p) {
     while (!p.curr_is_command() && !p.curr_is_eof() && !p.curr_is_token(get_period_tk())) {
-        if (p.curr() == scanner::token_kind::Eof)
+        if (p.curr() == token_kind::Eof)
             return;
         p.next();
     }
@@ -44,7 +44,7 @@ void consume_until_end_or_command(parser & p) {
 
 void check_command_period_docstring_or_eof(parser const & p) {
     if (!p.curr_is_command() && !p.curr_is_eof() && !p.curr_is_token(get_period_tk()) &&
-        p.curr() != scanner::token_kind::DocBlock && p.curr() != scanner::token_kind::ModDocBlock)
+        p.curr() != token_kind::DocBlock && p.curr() != token_kind::ModDocBlock)
         throw parser_error("unexpected token, '.', command, or end-of-file expected", p.pos());
 }
 

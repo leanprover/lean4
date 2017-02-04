@@ -495,7 +495,7 @@ environment print_cmd(parser & p) {
     auto out = p.mk_message(p.cmd_pos(), INFORMATION);
     out.set_caption("print result");
     auto env = p.env();
-    if (p.curr() == scanner::token_kind::String) {
+    if (p.curr() == token_kind::String) {
         out << p.get_str_val() << endl;
         p.next();
     } else if (p.curr_is_token_or_id(get_raw_tk())) {

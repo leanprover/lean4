@@ -21,7 +21,7 @@ Author: Leonardo de Moura
 #include "library/io_state_stream.h"
 #include "library/message_builder.h"
 #include "library/tactic/tactic_state.h"
-#include "frontends/lean/scanner.h"
+#include "frontends/lean/parser_state.h"
 #include "frontends/lean/local_decls.h"
 #include "frontends/lean/local_level_decls.h"
 #include "frontends/lean/parser_config.h"

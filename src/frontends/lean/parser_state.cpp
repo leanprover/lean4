@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <limits>
 #include "util/utf8.h"
 #include "util/sstream.h"
 #include "kernel/for_each_fn.h"
@@ -114,7 +115,7 @@ optional<pos_info> parser_state::get_pos_info(expr const & /* e */) const {
 
 pos_info parser_state::get_some_pos() const {
     /* TODO(Leo): */
-    return pos_info(0,0);
+    return pos_info(0, 0);
 }
 
 expr parser_state::save_pos(expr e, pos_info p) {

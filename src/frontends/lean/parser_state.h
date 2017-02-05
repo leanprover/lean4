@@ -39,7 +39,7 @@ enum class id_behavior {
        global constants may be shadowed by the local context at tactic execution time. */
     AssumeLocalIfUndef};
 
-class snapshot;
+struct snapshot;
 
 class break_at_pos_exception : public std::exception {
 public:
@@ -239,7 +239,7 @@ public:
 
     token const & curr_token() const { return get_token_vector()[m_tv_curr_idx]; }
     token_kind curr() const { return curr_token().kind(); }
-    void next() { if (curr() != token_kind::Eof) m_tv_curr_idx++; }
+    void next() override { if (curr() != token_kind::Eof) m_tv_curr_idx++; }
 
     token const * lookahead(int delta) const;
 
@@ -248,7 +248,7 @@ public:
     std::string const & get_str_val() const { return curr_token().get_str_val(); }
     token_info const & get_token_info() const { return curr_token().get_token_info(); }
 
-    pos_info pos() const { return curr_token().get_pos(); }
+    pos_info pos() const override { return curr_token().get_pos(); }
     expr save_pos(expr e, pos_info p);
     expr rec_save_pos(expr const & e, pos_info p);
     expr update_pos(expr e, pos_info p);
@@ -276,7 +276,7 @@ public:
     bool curr_is_command_like() const;
     /** \brief Read the next token if the current one is not End-of-file. */
     /** \brief Return true iff the current token is a keyword (or command keyword) named \c tk */
-    bool curr_is_token(name const & tk) const;
+    bool curr_is_token(name const & tk) const override;
     /** \brief Check current token, and move to next characther, throw exception if current token is not \c tk. */
     void check_token_next(name const & tk, char const * msg);
     void check_token_or_id_next(name const & tk, char const * msg);

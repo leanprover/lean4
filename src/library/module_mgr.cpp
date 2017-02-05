@@ -179,6 +179,7 @@ public:
         if (auto res = m_mod->m_result.peek()) {
             for (auto & mdf : res->m_loaded_module->m_modifications)
                 mdf->get_task_dependencies(deps);
+            deps.push_back(res->m_loaded_module->m_uses_sorry);
             deps.push_back(res->m_parsed_ok);
             deps.push_back(res->m_proofs_are_correct);
         }
@@ -256,7 +257,7 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
             mod->m_version = m_current_period;
             mod->m_trans_mtime = mod->m_mtime = mtime;
 
-            for (auto & d : parsed_olean.first) {
+            for (auto & d : parsed_olean.m_imports) {
                 auto d_id = resolve(id, d);
                 build_module(d_id, true, module_stack);
 
@@ -272,8 +273,9 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
 
             auto deps = mod->m_deps;
             res.m_loaded_module = cache_preimported_env(
-                    { id, parsed_olean.first,
-                      parse_olean_modifications(parsed_olean.second, id), {} },
+                    { id, parsed_olean.m_imports,
+                      parse_olean_modifications(parsed_olean.m_serialized_modifications, id),
+                      mk_pure_task_result(parsed_olean.m_uses_sorry, ""), {} },
                     m_initial_env, [=] { return mk_loader(id, deps); });
 
             res.m_parsed_ok = mk_pure_task_result(true, "olean parse success");

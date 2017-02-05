@@ -207,6 +207,7 @@ void write_module(loaded_module const & mod, std::ostream & out) {
     unsigned h    = hash(r.size(), [&](unsigned i) { return r[i]; });
     s2 << g_olean_header << LEAN_VERSION_MAJOR << LEAN_VERSION_MINOR << LEAN_VERSION_PATCH;
     s2 << h;
+    s2 << static_cast<bool>(mod.m_uses_sorry.get());
     // store imported files
     s2 << static_cast<unsigned>(mod.m_imports.size());
     for (auto m : mod.m_imports)
@@ -215,6 +216,48 @@ void write_module(loaded_module const & mod, std::ostream & out) {
     s2.write_unsigned(r.size());
     for (unsigned i = 0; i < r.size(); i++)
         s2.write_char(r[i]);
+}
+
+struct search_sorry_task : public task<bool> {
+    std::vector<task_result<expr>> m_exprs;
+
+    search_sorry_task(std::vector<task_result<expr>> const & exprs) : m_exprs(exprs) {}
+
+    void description(std::ostream & out) const override {
+        out << "Checking whether the module " << get_module_id() << " contains sorry";
+    }
+
+    std::vector<generic_task_result> get_dependencies() {
+        std::vector<generic_task_result> deps;
+        for (auto & dep : m_exprs) deps.push_back(dep);
+        return deps;
+    }
+
+    bool is_tiny() const override { return true; }
+
+    bool execute() override {
+        for (auto & e : m_exprs) {
+            if (has_sorry(e.get())) return true;
+        }
+        return false;
+    }
+};
+
+static task_result<bool> has_sorry(modification_list const & mods) {
+    std::vector<task_result<expr>> introduced_exprs;
+    for (auto & mod : mods) mod->get_introduced_exprs(introduced_exprs);
+
+    std::vector<task_result<expr>> delayed_exprs;
+    for (auto & e : introduced_exprs) {
+        if (auto e_ = e.peek()) {
+            if (has_sorry(*e_))
+                return mk_pure_task_result(true, "");
+        } else {
+            delayed_exprs.push_back(std::move(e));
+        }
+    }
+
+    return get_global_task_queue()->mk_lazy_task<search_sorry_task>(std::move(delayed_exprs));
 }
 
 loaded_module export_module(environment const & env, std::string const & mod_name) {
@@ -228,6 +271,8 @@ loaded_module export_module(environment const & env, std::string const & mod_nam
     for (auto & w : ext.m_modifications)
         out.m_modifications.push_back(w);
     std::reverse(out.m_modifications.begin(), out.m_modifications.end());
+
+    out.m_uses_sorry = has_sorry(out.m_modifications);
 
     return out;
 }
@@ -310,6 +355,15 @@ struct decl_modification : public modification {
         return std::make_shared<decl_modification>(std::move(decl), trust_lvl);
     }
 
+    void get_introduced_exprs(std::vector<task_result<expr>> & es) const override {
+        es.push_back(mk_pure_task_result(m_decl.get_type(), ""));
+        if (m_decl.is_theorem()) {
+            es.push_back(m_decl.get_value_task());
+        } else if (m_decl.is_definition()) {
+            es.push_back(mk_pure_task_result(m_decl.get_value(), ""));
+        }
+    }
+
     void get_task_dependencies(std::vector<generic_task_result> & deps) const override {
         if (m_decl.is_theorem())
             deps.push_back(m_decl.get_value_task());
@@ -333,6 +387,12 @@ struct inductive_modification : public modification {
 
     static std::shared_ptr<modification const> deserialize(deserializer & d) {
         return std::make_shared<inductive_modification>(read_certified_inductive_decl(d));
+    }
+
+    void get_introduced_exprs(std::vector<task_result<expr>> & es) const override {
+        es.push_back(mk_pure_task_result(m_decl.get_decl().m_type, ""));
+        for (auto & i : m_decl.get_decl().m_intro_rules)
+            es.push_back(mk_pure_task_result(i, ""));
     }
 };
 
@@ -451,11 +511,12 @@ environment add_inductive(environment                       env,
 }
 } // end of namespace module
 
-std::pair<std::vector<module_name>, std::vector<char>> parse_olean(std::istream & in, std::string const & file_name, bool check_hash) {
+olean_data parse_olean(std::istream & in, std::string const & file_name, bool check_hash) {
     unsigned major, minor, patch, claimed_hash;
     unsigned code_size;
     std::vector<module_name> imports;
     std::vector<char> code;
+    bool uses_sorry;
 
     deserializer d1(in, optional<std::string>(file_name));
     std::string header;
@@ -464,6 +525,8 @@ std::pair<std::vector<module_name>, std::vector<char>> parse_olean(std::istream 
         throw exception(sstream() << "file '" << file_name << "' does not seem to be a valid object Lean file, invalid header");
     d1 >> major >> minor >> patch >> claimed_hash;
     // Enforce version?
+
+    d1 >> uses_sorry;
 
     unsigned num_imports  = d1.read_unsigned();
     for (unsigned i = 0; i < num_imports; i++) {
@@ -483,7 +546,7 @@ std::pair<std::vector<module_name>, std::vector<char>> parse_olean(std::istream 
             throw exception(sstream() << "file '" << file_name << "' has been corrupted, checksum mismatch");
     }
 
-    return { imports, code };
+    return { imports, code, uses_sorry };
 }
 
 static void import_module(environment & env, std::string const & module_file_name, module_name const & ref,
@@ -627,8 +690,10 @@ module_loader mk_olean_loader() {
         auto fn = find_file(base_dir, ref.m_relative, ref.m_name, ".olean");
         std::ifstream in(fn, std::ios_base::binary);
         auto parsed = parse_olean(in, fn, check_hash);
-        auto modifs = parse_olean_modifications(parsed.second, fn);
-        return std::make_shared<loaded_module>(loaded_module { fn, parsed.first, modifs, {} });
+        auto modifs = parse_olean_modifications(parsed.m_serialized_modifications, fn);
+        return std::make_shared<loaded_module>(
+                loaded_module { fn, parsed.m_imports, modifs,
+                                mk_pure_task_result(parsed.m_uses_sorry, ""), {} });
     };
 }
 

@@ -34,6 +34,7 @@ struct loaded_module {
     std::string m_module_name;
     std::vector<module_name> m_imports;
     modification_list m_modifications;
+    task_result<bool> m_uses_sorry;
 
     task_result<environment> m_env;
 };
@@ -86,9 +87,13 @@ std::shared_ptr<loaded_module const> cache_preimported_env(
         loaded_module &&, environment const & initial_env,
         std::function<module_loader()> const & mk_mod_ldr);
 
-std::pair<std::vector<module_name>, std::vector<char>> parse_olean(
-        std::istream & in, std::string const & file_name, bool check_hash = true);
-modification_list parse_olean_modifications(std::vector<char> const & olean_code, std::string const & file_name);
+struct olean_data {
+    std::vector<module_name> m_imports;
+    std::vector<char> m_serialized_modifications;
+    bool m_uses_sorry;
+};
+olean_data parse_olean(std::istream & in, std::string const & file_name, bool check_hash = true);
+modification_list parse_olean_modifications(std::vector<char> const & serialized_modifications, std::string const & file_name);
 void import_module(modification_list const & modifications, std::string const & file_name, environment & env);
 
 struct modification {
@@ -98,6 +103,9 @@ public:
     virtual void perform(environment &) const = 0;
     virtual void serialize(serializer &) const = 0;
     virtual void get_task_dependencies(std::vector<generic_task_result> &) const {}
+
+    // Used to check for sorrys.
+    virtual void get_introduced_exprs(std::vector<task_result<expr>> &) const {}
 };
 
 #define LEAN_MODIFICATION(k) \

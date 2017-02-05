@@ -2204,31 +2204,29 @@ void parser::parse_imports(unsigned & fingerprint, std::vector<module_name> & im
     }
 }
 
-struct sorry_imports_task : public task<unit> {
-    environment m_env;
+struct sorry_import_task : public task<unit> {
+    module_id m_imported_module_id;
+    task_result<bool> m_has_sorry;
     pos_info m_pos;
-    std::vector<generic_task_result> m_delayed_proofs;
 
-    sorry_imports_task(environment const & env, pos_info const & import_cmd_pos) : m_env(env), m_pos(import_cmd_pos) {
-        env.for_each_declaration([&] (declaration const & decl) {
-            if (decl.is_theorem()) m_delayed_proofs.push_back(decl.get_value_task());
-        });
-    }
+    sorry_import_task(loaded_module const & mod, pos_info const & pos) :
+            m_imported_module_id(mod.m_module_name), m_has_sorry(mod.m_uses_sorry), m_pos(pos) {}
 
     void description(std::ostream & out) const override {
-        out << "Checking whether imported files use sorry";
+        out << "Checking whether import " << m_imported_module_id << " uses sorry";
     }
 
     std::vector<generic_task_result> get_dependencies() override {
-        return m_delayed_proofs;
+        return {m_has_sorry};
     }
 
     bool is_tiny() const override { return true; }
     bool do_priority_inversion() const override { return false; }
 
     unit execute() override {
-        if (has_sorry(m_env))
-            report_message(message(get_module_id(), m_pos, WARNING, "imported file uses 'sorry'"));
+        if (m_has_sorry.get())
+            report_message(message(get_module_id(), m_pos, WARNING,
+                                   (sstream() << "imported file '" << m_imported_module_id << "' uses sorry").str()));
         return {};
     }
 };
@@ -2245,7 +2243,13 @@ void parser::process_imports() {
     }
 
     buffer<import_error> import_errors;
-    m_env = import_modules(m_env, m_file_name, imports, m_import_fn, import_errors);
+    module_loader sorry_checking_import_fn =
+            [&] (std::string const & mod_id, module_name const & import) {
+                auto mod = m_import_fn(mod_id, import);
+                get_global_task_queue()->submit<sorry_import_task>(*mod, m_last_cmd_pos);
+                return mod;
+            };
+    m_env = import_modules(m_env, m_file_name, imports, sorry_checking_import_fn, import_errors);
 
     if (!import_errors.empty()) {
         m_found_errors = true;
@@ -2266,7 +2270,6 @@ void parser::process_imports() {
     m_env = update_fingerprint(m_env, fingerprint);
     m_env = activate_export_decls(m_env, {}); // explicitly activate exports in root namespace
     m_env = replay_export_decls_core(m_env, m_ios);
-    get_global_task_queue()->submit<sorry_imports_task>(m_env, m_last_cmd_pos);
     m_imports_parsed = true;
 
     if (exception_during_scanning) std::rethrow_exception(exception_during_scanning);

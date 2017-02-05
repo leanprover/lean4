@@ -6,7 +6,8 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include <iostream>
-#include <library/locals.h>
+#include "library/locals.h"
+#include "library/sorry.h"
 #include "kernel/expr.h"
 #include "kernel/free_vars.h"
 #include "kernel/instantiate.h"
@@ -418,6 +419,15 @@ vm_obj expr_is_choice_macro(vm_obj const & e) {
     return mk_vm_bool(is_choice(to_expr(e)));
 }
 
+vm_obj expr_mk_sorry(vm_obj const & t) {
+    return to_obj(mk_sorry(to_expr(t)));
+}
+
+vm_obj expr_is_sorry(vm_obj const & e_) {
+    auto & e = to_expr(e_);
+    return to_obj(is_sorry(e) ? some(sorry_type(e)) : none_expr());
+}
+
 void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name({"expr", "var"}),              expr_var);
     DECLARE_VM_BUILTIN(name({"expr", "sort"}),             expr_sort);
@@ -463,6 +473,9 @@ void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name("mk_int_val_ne_proof"),        vm_mk_int_val_ne_proof);
 
     DECLARE_VM_BUILTIN(name("expr", "is_choice_macro"),    expr_is_choice_macro);
+
+    DECLARE_VM_BUILTIN(name("expr", "mk_sorry"), expr_mk_sorry);
+    DECLARE_VM_BUILTIN(name("expr", "is_sorry"), expr_is_sorry);
 
     // Not sure if we should expose these or what?
     DECLARE_VM_BUILTIN(name({"expr", "is_internal_cnstr"}), expr_is_internal_cnstr);

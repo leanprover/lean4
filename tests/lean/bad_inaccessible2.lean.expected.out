@@ -1,3 +1,5 @@
+bad_inaccessible2.lean:29:11: warning: declaration 'map_head' uses sorry
+bad_inaccessible2.lean:29:11: warning: declaration 'map_head.equations._eqn_1' uses sorry
 bad_inaccessible2.lean:31:2: error: type mismatch at application
   map_head (cons a va) (cons b vb)
 term

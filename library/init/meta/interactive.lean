@@ -321,6 +321,9 @@ do e ← to_expr p,
 meta def trivial : tactic unit :=
 tactic.triv <|> tactic.reflexivity <|> tactic.contradiction <|> fail "trivial tactic failed"
 
+/-- Closes the main goal using sorry. -/
+meta def admit : tactic unit := tactic.admit
+
 /--
 This tactic applies to any goal. The contradiction tactic attempts to find in the current local context an hypothesis that is equivalent to
 an empty inductive type (e.g. `false`), a hypothesis of the form `c_1 ... = c_2 ...` where `c_1` and `c_2` are distinct constructors,

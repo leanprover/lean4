@@ -264,7 +264,6 @@ level mk_result_level(buffer<level> const & r_lvls) {
 
 std::tuple<expr, level_param_names> parse_local_expr(parser & p, name const & decl_name, metavar_context & mctx, bool relaxed) {
     expr e = p.parse_expr();
-    p.declare_sorry_if_used();
     bool check_unassigend = !relaxed;
     expr new_e; level_param_names ls;
     std::tie(new_e, ls) = p.elaborate(decl_name, mctx, e, check_unassigend);

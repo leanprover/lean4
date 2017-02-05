@@ -23,10 +23,6 @@ option(JEMALLOC           "JEMALLOC"           OFF)
 # When OFF we disable JSON support to support older compilers
 option(JSON               "JSON"               ON)
 
-# IGNORE_SORRY is a tempory option (hack). It allows us to build
-# a version of Lean that does not report when 'sorry' is used.
-# This is useful for suppressing warning messages in the nightly builds.
-option(IGNORE_SORRY       "IGNORE_SORRY"      OFF)
 # When cross-compiling, we do not compile the standard library since
 # the executable will not work on the host machine
 option(CROSS_COMPILE      "CROSS_COMPILE"     OFF)
@@ -146,11 +142,6 @@ endif()
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   # The following options is needed to generate a shared library
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-endif()
-
-if (IGNORE_SORRY)
-  message(STATUS "IGNORE_SORRY is ON, Lean will not report when 'sorry' is used directly or indirectly")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D LEAN_IGNORE_SORRY")
 endif()
 
 # SPLIT_STACK

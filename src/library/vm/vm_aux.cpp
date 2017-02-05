@@ -32,7 +32,7 @@ vm_obj vm_trace_call_stack(vm_obj const &, vm_obj const & fn) {
     return invoke(fn, mk_vm_unit());
 }
 
-vm_obj vm_sorry(vm_obj const &) {
+vm_obj vm_sorry() {
     auto & s = get_vm_state();
     throw exception(sstream() << s.call_stack_fn(s.call_stack_size() - 1)
                               << ": trying to evaluate sorry");

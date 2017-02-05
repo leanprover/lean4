@@ -58,7 +58,6 @@ class parser : public abstract_parser {
     unsigned                m_next_tag_idx;
     unsigned                m_next_inst_idx;
     bool                    m_found_errors;
-    bool                    m_used_sorry;
     pos_info_table          m_pos_table;
     // By default, when the parser finds a unknown identifier, it signs an error.
     // When the following flag is true, it creates a constant.
@@ -478,12 +477,12 @@ public:
     pair<expr, level_param_names> elaborate_type(name const & decl_name, metavar_context & mctx, expr const & e);
 
     expr mk_sorry(pos_info const & p);
-    bool used_sorry() const { return m_used_sorry; }
-    void declare_sorry_if_used();
 
     void require_success(generic_task_result const & t) {
         m_required_successes = cons(t, m_required_successes);
     }
+
+    void set_error() { m_found_errors = true; }
 
     /** return true iff profiling is enabled */
     bool profiling() const { return m_profile; }

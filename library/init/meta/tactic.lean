@@ -763,6 +763,16 @@ do u ← mk_meta_univ,
    t ← mk_meta_var (expr.sort u),
    mk_meta_var t
 
+/-- Makes a sorry macro with a meta-variable as its type. -/
+meta def mk_sorry : tactic expr := do
+u ← mk_meta_univ,
+t ← mk_meta_var (expr.sort u),
+return $ expr.mk_sorry t
+
+/-- Closes the main goal using sorry. -/
+meta def admit : tactic unit :=
+target >>= exact ∘ expr.mk_sorry
+
 meta def mk_local' (pp_name : name) (bi : binder_info) (type : expr) : tactic expr := do
 uniq_name ← mk_fresh_name,
 return $ expr.local_const uniq_name pp_name bi type

@@ -2,10 +2,14 @@ eqn_hole.lean:3:7: error: don't know how to synthesize placeholder
 context:
 f : ℕ → ℕ
 ⊢ ℕ
+eqn_hole.lean:2:11: warning: declaration 'f' uses sorry
+eqn_hole.lean:2:11: warning: declaration 'f.equations._eqn_1' uses sorry
 eqn_hole.lean:3:7: error: elaborator failed
 eqn_hole.lean:8:13: error: don't know how to synthesize placeholder
 context:
 g : ℕ → ℕ,
 n : ℕ
 ⊢ ℕ
+eqn_hole.lean:6:11: warning: declaration 'g' uses sorry
+eqn_hole.lean:6:11: warning: declaration 'g.equations._eqn_1' uses sorry
 eqn_hole.lean:8:13: error: elaborator failed

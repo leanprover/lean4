@@ -1,7 +1,7 @@
 open tactic
 
 set_option pp.binder_types true
-noncomputable definition foo (A : Type) : A → A :=
+definition foo (A : Type) : A → A :=
 sorry
 
 example (a : nat) (H : foo unit () = ()) : true :=

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "library/sorry.h"
 #include "library/noncomputable.h"
 #include "util/fresh_name.h"
 #include "util/sstream.h"
@@ -294,6 +295,8 @@ class vm_compiler_fn {
             compile(get_annotation_arg(e), bpz, m);
         } else if (is_quote(e)) {
             emit(mk_pexpr_instr(get_quote_expr(e)));
+        } else if (is_sorry(e)) {
+            compile_global(*get_vm_decl(m_env, "sorry"), 0, nullptr, bpz, m);
         } else {
             throw exception(sstream() << "code generation failed, unexpected kind of macro has been found: '"
                             << macro_def(e).get_name() << "'");

@@ -2446,6 +2446,8 @@ expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_typ
         /* If the as_atomic macro is not the the function in a function application, then we need to consume
            implicit arguments. */
         return visit_base_app_core(new_e, arg_mask::Default, buffer<expr>(), true, expected_type, e);
+    } else if (is_sorry(e)) {
+        return copy_tag(e, expected_type ? mk_sorry(*expected_type) : mk_sorry(mk_type_metavar(e)));
     } else if (is_structure_instance(e)) {
         return visit_structure_instance(e, expected_type);
     } else if (is_annotation(e)) {
@@ -3184,9 +3186,6 @@ static expr resolve_local_name(environment const & env, local_context const & lc
             return copy_tag(src, mk_constant(new_id));
         }
     }
-
-    if (id == "sorry")
-        return copy_tag(src, mk_constant(id));
 
     optional<expr> r;
     // globals

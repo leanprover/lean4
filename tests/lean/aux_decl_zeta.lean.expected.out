@@ -1,3 +1,5 @@
+aux_decl_zeta.lean:5:11: warning: declaration 'f' uses sorry
+aux_decl_zeta.lean:5:11: warning: declaration 'f.equations._eqn_1' uses sorry
 aux_decl_zeta.lean:11:48: error: equation compiler failed to create auxiliary declaration 'f._match_1', auxiliary declaration has references to let-declarations (possible solution: use 'set_option eqn_compiler.zeta true')
 nested exception message:
 type mismatch at application

@@ -8,17 +8,17 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 
 namespace lean {
-/** \brief Return true iff the given environment has <tt>sorry.{l} : Pi {A : Type.{l}}, A</tt> */
+/** \brief Return true iff the given environment contains a sorry macro. */
 bool has_sorry(environment const & env);
+bool has_sorry(expr const &);
+bool has_sorry(declaration const &);
 
-/** \brief Declare <tt>sorry.{l} : Pi {A : Type.{l}}, A</tt> in the given environment if it doesn't already contain it.
-    Throw an exception if the environment already contains a declaration named \c sorry. */
-environment declare_sorry(environment const & env);
-
-/** \brief Return the constant \c sorry */
-expr mk_sorry();
-/** \brief Return true iff \c e is a sorry expression */
+/** \brief Returns the sorry macro with the specified type. */
+expr mk_sorry(expr const & ty);
+/** \brief Return true iff \c e is a sorry macro. */
 bool is_sorry(expr const & e);
+/** \brief Type of the sorry macro. */
+expr const & sorry_type(expr const & sry);
 void initialize_sorry();
 void finalize_sorry();
 }

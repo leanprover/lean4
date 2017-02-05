@@ -1,5 +1,1 @@
-noncomp.lean:5:11: error: don't know how to synthesize placeholder
-context:
-x : ℕ
-⊢ Sort ?
-noncomp.lean:5:0: error: definition 'f' is noncomputable, it depends on 'n'
+noncomp.lean:5:11: error: definition 'f' is noncomputable, it depends on 'n'

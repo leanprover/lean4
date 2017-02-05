@@ -1,1 +1,2 @@
 λ (x : A), f x
+quot_bug.lean:8:8: warning: declaration '_example' uses sorry

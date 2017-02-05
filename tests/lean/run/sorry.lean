@@ -1,4 +1,4 @@
-noncomputable definition b : Prop :=
+definition b : Prop :=
 sorry
 
 theorem tst : true = false :=

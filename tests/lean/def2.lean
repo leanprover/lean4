@@ -6,5 +6,5 @@ val
 noncomputable definition foo2 : nat :=
 val
 
-noncomputable definition bla : nat :=
+definition bla : nat :=
 2

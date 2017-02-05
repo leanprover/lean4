@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <limits>
 #include <string>
 #include <util/utf8.h>
+#include "library/sorry.h"
 #include "util/flet.h"
 #include "util/fresh_name.h"
 #include "kernel/replace_fn.h"
@@ -1021,6 +1022,8 @@ auto pretty_fn::pp_macro(expr const & e) -> result {
         return pp(get_annotation_arg(e));
     } else if (is_rec_fn_macro(e)) {
         return format("[") + format(get_rec_fn_name(e)) + format("]");
+    } else if (is_sorry(e)) {
+        return format("sorry");
     } else {
         return pp_macro_default(e);
     }

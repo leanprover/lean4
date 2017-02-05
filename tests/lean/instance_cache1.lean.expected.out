@@ -3,6 +3,8 @@ A : Type ?,
 a : A,
 this : has_add A
 ⊢ has_add A
+instance_cache1.lean:5:11: warning: declaration 'f2' uses sorry
+instance_cache1.lean:5:11: warning: declaration 'f2.equations._eqn_1' uses sorry
 instance_cache1.lean:6:7: error: failed to synthesize type class instance for
 A : Type ?,
 a : A,

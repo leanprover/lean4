@@ -187,7 +187,6 @@ parser::parser(environment const & env, io_state const & ios,
     m_has_params = false;
     m_id_behavior  = id_behavior::ErrorIfUndef;
     m_found_errors = false;
-    m_used_sorry   = false;
     updt_options();
     m_next_tag_idx  = 0;
     m_curr = token_kind::Identifier;
@@ -244,23 +243,7 @@ void parser::scan() {
 }
 
 expr parser::mk_sorry(pos_info const & p) {
-    m_used_sorry = true;
-    m_ignore_noncomputable = true;
-    /* Remark: we should not declare 'sorry' here because we may be inside of a scope. */
-    {
-#ifndef LEAN_IGNORE_SORRY
-        // TODO(Leo): remove the #ifdef.
-        // The compilation option LEAN_IGNORE_SORRY is a temporary hack for the nightly builds
-        // We use it to avoid a buch of warnings on cdash.
-        (mk_message(p, WARNING) << "using 'sorry'").report();
-#endif
-    }
-    return save_pos(::lean::mk_sorry(), p);
-}
-
-void parser::declare_sorry_if_used() {
-    if (m_used_sorry)
-        m_env = declare_sorry(m_env);
+    return save_pos(::lean::mk_sorry(mk_Prop()), p);
 }
 
 void parser::updt_options() {
@@ -2221,6 +2204,35 @@ void parser::parse_imports(unsigned & fingerprint, std::vector<module_name> & im
     }
 }
 
+struct sorry_imports_task : public task<unit> {
+    environment m_env;
+    pos_info m_pos;
+    std::vector<generic_task_result> m_delayed_proofs;
+
+    sorry_imports_task(environment const & env, pos_info const & import_cmd_pos) : m_env(env), m_pos(import_cmd_pos) {
+        env.for_each_declaration([&] (declaration const & decl) {
+            if (decl.is_theorem()) m_delayed_proofs.push_back(decl.get_value_task());
+        });
+    }
+
+    void description(std::ostream & out) const override {
+        out << "Checking whether imported files use sorry";
+    }
+
+    std::vector<generic_task_result> get_dependencies() override {
+        return m_delayed_proofs;
+    }
+
+    bool is_tiny() const override { return true; }
+    bool do_priority_inversion() const override { return false; }
+
+    unit execute() override {
+        if (has_sorry(m_env))
+            report_message(message(get_module_id(), m_pos, WARNING, "imported file uses 'sorry'"));
+        return {};
+    }
+};
+
 void parser::process_imports() {
     unsigned fingerprint = 0;
     std::vector<module_name> imports;
@@ -2254,14 +2266,7 @@ void parser::process_imports() {
     m_env = update_fingerprint(m_env, fingerprint);
     m_env = activate_export_decls(m_env, {}); // explicitly activate exports in root namespace
     m_env = replay_export_decls_core(m_env, m_ios);
-    if (has_sorry(m_env)) {
-#ifndef LEAN_IGNORE_SORRY
-        // TODO(Leo): remove the #ifdef.
-        // The compilation option LEAN_IGNORE_SORRY is a temporary hack for the nightly builds
-        // We use it to avoid a buch of warnings on cdash.
-        (mk_message(m_last_cmd_pos, WARNING) << "imported file uses 'sorry'").report();
-#endif
-    }
+    get_global_task_queue()->submit<sorry_imports_task>(m_env, m_last_cmd_pos);
     m_imports_parsed = true;
 
     if (exception_during_scanning) std::rethrow_exception(exception_during_scanning);

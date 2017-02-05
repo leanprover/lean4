@@ -19,7 +19,7 @@ noncomputable definition {u} bla {A : Type u} : ∀ n : tree A, P n
 check bla._main.equations._eqn_1
 check bla._main.equations._eqn_2
 
-noncomputable definition {u} foo {A : Type u} : nat → tree A → nat
+definition {u} foo {A : Type u} : nat → tree A → nat
 | 0     _                                     := sorry
 | (n+1) (tree.leaf a)                         := 0
 | (n+1) (tree.node m xs)                      := foo n (tree.node m xs)

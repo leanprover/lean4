@@ -321,19 +321,22 @@ static certified_declaration check(parser & p, environment const & env, name con
     }
 }
 
-static void check_noncomputable(bool ignore_noncomputable, environment const & env, name const & c_name, name const & c_real_name, bool is_noncomputable,
+static bool check_noncomputable(bool ignore_noncomputable, environment const & env, name const & c_name, name const & c_real_name, bool is_noncomputable,
                                 std::string const & file_name, pos_info const & pos) {
     if (ignore_noncomputable)
-        return;
+        return true;
     if (!is_noncomputable && is_marked_noncomputable(env, c_real_name)) {
         auto reason = get_noncomputable_reason(env, c_real_name);
         lean_assert(reason);
-        throw exception(sstream() << "definition '" << c_name << "' is noncomputable, it depends on '" << *reason << "'");
+        report_message(message(file_name, pos, ERROR,
+                               (sstream() << "definition '" << c_name << "' is noncomputable, it depends on '" << *reason << "'").str()));
+        return false;
     }
     if (is_noncomputable && !is_marked_noncomputable(env, c_real_name)) {
         report_message(message(file_name, pos, WARNING,
                                (sstream() << "definition '" << c_name << "' was incorrectly marked as noncomputable").str()));
     }
+    return true;
 }
 
 static environment compile_decl(parser & p, environment const & env,
@@ -383,7 +386,8 @@ declare_definition(parser & p, environment const & env, def_cmd_kind kind, buffe
         p.require_success(cdef.get_declaration().get_value_task());
     new_env           = module::add(new_env, cdef);
 
-    check_noncomputable(p.ignore_noncomputable(), new_env, c_name, c_real_name, modifiers.m_is_noncomputable, p.get_file_name(), pos);
+    if (!check_noncomputable(p.ignore_noncomputable(), new_env, c_name, c_real_name, modifiers.m_is_noncomputable, p.get_file_name(), pos))
+        p.set_error();
 
     if (modifiers.m_is_protected)
         new_env = add_protected(new_env, c_real_name);
@@ -756,8 +760,10 @@ public:
             auto cdef = check(new_env, def);
             new_env = module::add(new_env, cdef);
 
-            check_noncomputable(false, new_env, decl_name, def.get_name(), m_modifiers.m_is_noncomputable,
-                                m_pos_provider.get_file_name(), m_pos_provider.get_some_pos());
+            if (!check_noncomputable(false, new_env, decl_name, def.get_name(), m_modifiers.m_is_noncomputable,
+                                m_pos_provider.get_file_name(), m_pos_provider.get_some_pos())) {
+                throw std::exception(); // set parser to failed.
+            }
         } catch (exception & ex) {
             message_builder error_msg(&m_pos_provider, tc, m_decl_env, get_global_ios(),
                                       m_pos_provider.get_file_name(), m_pos_provider.get_some_pos(),
@@ -789,7 +795,6 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
     if (is_instance)
         attrs.set_attribute(p.env(), "instance");
     std::tie(fn, val) = parse_definition(p, lp_names, params, is_example, is_instance, modifiers.m_is_meta);
-    p.declare_sorry_if_used();
 
     // skip elaboration of definitions during reparsing
     if (p.get_break_at_pos())
@@ -865,11 +870,9 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
     } catch (throwable & ex1) {
         /* Try again using 'sorry' */
         expr sorry = p.mk_sorry(header_pos);
-        p.declare_sorry_if_used();
         elab.set_env(p.env());
         environment new_env;
         try {
-            modifiers.m_is_noncomputable = false;
             new_env = process(sorry);
         } catch (throwable & ex2) {
             /* Throw original error */

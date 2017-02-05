@@ -392,7 +392,6 @@ smt.array
 smt.select
 smt.store
 smt.prove
-sorry
 store
 string
 string.empty

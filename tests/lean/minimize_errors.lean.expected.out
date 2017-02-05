@@ -1,3 +1,5 @@
+minimize_errors.lean:1:4: warning: declaration 'f' uses sorry
+minimize_errors.lean:1:4: warning: declaration 'f.equations._eqn_1' uses sorry
 minimize_errors.lean:2:0: error: type mismatch, expression
   λ (a : ℕ), a
 has type
@@ -6,7 +8,7 @@ but is expected to have type
   ℕ → ℕ → ℕ
 f : ℕ → ℕ → ℕ
 g : ℕ → ℕ → ℕ
-noncomputable def g : ℕ → ℕ → ℕ :=
+def g : ℕ → ℕ → ℕ :=
 f
-noncomputable def h : ℕ → ℕ → ℕ :=
+def h : ℕ → ℕ → ℕ :=
 h._main

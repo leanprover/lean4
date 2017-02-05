@@ -296,10 +296,6 @@ struct decl_modification : public modification {
             decl = unfold_untrusted_macros(env, decl);
         }
 
-        if (decl.get_name() == get_sorry_name() && has_sorry(env)) {
-            // ignore double sorrys
-            return;
-        }
         // TODO(gabriel): this might be a bit more unsafe here than before
         env = import_helper::add_unchecked(env, decl);
     }
@@ -388,6 +384,37 @@ environment update_module_defs(environment const & env, declaration const & d) {
     }
 }
 
+struct add_decl_sorry_check : public task<unit> {
+    declaration m_decl;
+    pos_info m_pos;
+
+    add_decl_sorry_check(declaration const & decl, pos_info const & pos) :
+            m_decl(decl), m_pos(pos) {}
+
+    void description(std::ostream & out) const override {
+        out << "Checking added declaration " << m_decl.get_name() << " for use of sorry";
+    }
+
+    std::vector<generic_task_result> get_dependencies() override {
+        if (m_decl.is_theorem()) {
+            return {m_decl.get_value_task()};
+        } else {
+            return {};
+        }
+    }
+
+    bool is_tiny() const override { return true; }
+    task_kind get_kind() const override { return task_kind::elab; }
+
+    unit execute() override {
+        if (has_sorry(m_decl)) {
+            report_message(message(get_module_id(), m_pos, WARNING,
+                                   (sstream() << "declaration '" << m_decl.get_name() << "' uses sorry").str()));
+        }
+        return {};
+    }
+};
+
 environment add(environment const & env, certified_declaration const & d) {
     environment new_env = env.add(d);
     declaration _d = d.get_declaration();
@@ -395,6 +422,7 @@ environment add(environment const & env, certified_declaration const & d) {
         new_env = mark_noncomputable(new_env, _d.get_name());
     new_env = update_module_defs(new_env, _d);
     new_env = add(new_env, std::make_shared<decl_modification>(_d, env.trust_lvl()));
+    get_global_task_queue()->submit<add_decl_sorry_check>(_d, pos_info {g_curr_line, g_curr_column});
     return add_decl_pos_info(new_env, _d.get_name());
 }
 

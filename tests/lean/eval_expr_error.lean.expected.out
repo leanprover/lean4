@@ -1,3 +1,4 @@
+eval_expr_error.lean:3:9: warning: declaration 'tst1' uses sorry
 eval_expr_error.lean:5:8: error: invalid eval_expr, type must be a closed expression
 eval_expr_error.lean:8:0: error: invalid eval_expr, type mismatch
 state:

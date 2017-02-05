@@ -19,7 +19,7 @@ noncomputable definition bla {A : Type*} : ∀ n : tree A, P n
 check bla._main.equations._eqn_1
 check bla._main.equations._eqn_2
 
-noncomputable definition foo {A : Type*} : nat → tree A → nat
+definition foo {A : Type*} : nat → tree A → nat
 | 0     _                   := sorry
 | (n+1) (tree.leaf a)       := 0
 | (n+1) (tree.node [])      := foo n (tree.node [])

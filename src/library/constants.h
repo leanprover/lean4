@@ -399,7 +399,6 @@ name const & get_smt_array_name();
 name const & get_smt_select_name();
 name const & get_smt_store_name();
 name const & get_smt_prove_name();
-name const & get_sorry_name();
 name const & get_store_name();
 name const & get_string_name();
 name const & get_string_empty_name();

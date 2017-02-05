@@ -43,6 +43,9 @@ unsigned get_pp_goal_max_hyps(options const & opts);
 bool     get_pp_binder_types(options const & opts);
 bool     get_pp_hide_comp_irrel(options const & opts);
 bool     get_pp_delayed_abstraction(options const & opts);
+bool     get_pp_structure_instances(options const & opts);
+bool     get_pp_structure_instances_qualifier(options const & opts);
+bool     get_pp_structure_projections(options const & opts);
 bool     get_pp_all(options const & opts);
 
 void initialize_pp_options();

@@ -96,6 +96,18 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_PP_ALL false
 #endif
 
+#ifndef LEAN_DEFAULT_PP_STRUCTURE_INSTANCES
+#define LEAN_DEFAULT_PP_STRUCTURE_INSTANCES true
+#endif
+
+#ifndef LEAN_DEFAULT_PP_STRUCTURE_INSTANCES_QUALIFIER
+#define LEAN_DEFAULT_PP_STRUCTURE_INSTANCES_QUALIFIER false
+#endif
+
+#ifndef LEAN_DEFAULT_PP_STRUCTURE_PROJECTIONS
+#define LEAN_DEFAULT_PP_STRUCTURE_PROJECTIONS true
+#endif
+
 
 namespace lean {
 static name * g_pp_max_depth         = nullptr;
@@ -119,6 +131,9 @@ static name * g_pp_goal_max_hyps     = nullptr;
 static name * g_pp_binder_types      = nullptr;
 static name * g_pp_hide_comp_irrel   = nullptr;
 static name * g_pp_delayed_abstraction = nullptr;
+static name * g_pp_structure_instances = nullptr;
+static name * g_pp_structure_instances_qualifier = nullptr;
+static name * g_pp_structure_projections    = nullptr;
 static name * g_pp_all               = nullptr;
 static list<options> * g_distinguishing_pp_options = nullptr;
 
@@ -145,6 +160,9 @@ void initialize_pp_options() {
     g_pp_delayed_abstraction  = new name{"pp", "delayed_abstraction"};
     g_pp_goal_compact      = new name{"pp", "goal", "compact"};
     g_pp_goal_max_hyps     = new name{"pp", "goal", "max_hypotheses"};
+    g_pp_structure_instances = new name{"pp", "structure_instances"};
+    g_pp_structure_instances_qualifier = new name{"pp", "structure_instances_qualifier"};
+    g_pp_structure_projections = new name{"pp", "structure_projections"};
 
     register_unsigned_option(*g_pp_max_depth, LEAN_DEFAULT_PP_MAX_DEPTH,
                              "(pretty printer) maximum expression depth, after that it will use ellipsis");
@@ -190,6 +208,14 @@ void initialize_pp_options() {
                          "(pretty printer) display types of lambda and Pi parameters");
     register_bool_option(*g_pp_delayed_abstraction, LEAN_DEFAULT_PP_DELAYED_ABSTRACTION,
                          "(pretty printer) display the location of delayed-abstractions (for debugging purposes)");
+    register_bool_option(*g_pp_structure_instances, LEAN_DEFAULT_PP_STRUCTURE_INSTANCES,
+                         "(pretty printer) display structure instances using the '{ field_name := field_value, ... }' notation");
+    register_bool_option(*g_pp_structure_instances_qualifier, LEAN_DEFAULT_PP_STRUCTURE_INSTANCES_QUALIFIER,
+                         "(pretty printer) include qualifier 'struct_name .' "
+                         "when displaying structure instances using the '{ struct_name . field_name := field_value, ... }' notation, "
+                         "this option is ignored when pp.structure_instances is false");
+    register_bool_option(*g_pp_structure_projections, LEAN_DEFAULT_PP_STRUCTURE_PROJECTIONS,
+                         "(pretty printer) display structure projections using the '^.' notation");
     register_bool_option(*g_pp_all, LEAN_DEFAULT_PP_ALL,
                          "(pretty printer) display coercions, implicit parameters, proof terms, fully qualified names, universes, "
                          "and disable beta reduction and notation during pretty printing");
@@ -230,6 +256,9 @@ void finalize_pp_options() {
     delete g_pp_goal_max_hyps;
     delete g_pp_binder_types;
     delete g_pp_hide_comp_irrel;
+    delete g_pp_structure_instances;
+    delete g_pp_structure_instances_qualifier;
+    delete g_pp_structure_projections;
     delete g_pp_all;
     delete g_pp_delayed_abstraction;
     delete g_distinguishing_pp_options;
@@ -271,5 +300,8 @@ unsigned get_pp_goal_max_hyps(options const & opts)     { return opts.get_unsign
 bool     get_pp_binder_types(options const & opts)      { return opts.get_bool(*g_pp_binder_types, LEAN_DEFAULT_PP_BINDER_TYPES); }
 bool     get_pp_hide_comp_irrel(options const & opts)   { return opts.get_bool(*g_pp_hide_comp_irrel, LEAN_DEFAULT_PP_HIDE_COMP_IRRELEVANT); }
 bool     get_pp_delayed_abstraction(options const & opts) { return opts.get_bool(*g_pp_delayed_abstraction, LEAN_DEFAULT_PP_DELAYED_ABSTRACTION); }
+bool     get_pp_structure_instances(options const & opts) { return opts.get_bool(*g_pp_structure_instances, LEAN_DEFAULT_PP_STRUCTURE_INSTANCES); }
+bool     get_pp_structure_instances_qualifier(options const & opts) { return opts.get_bool(*g_pp_structure_instances_qualifier, LEAN_DEFAULT_PP_STRUCTURE_INSTANCES_QUALIFIER); }
+bool     get_pp_structure_projections(options const & opts) { return opts.get_bool(*g_pp_structure_projections, LEAN_DEFAULT_PP_STRUCTURE_PROJECTIONS); }
 bool     get_pp_all(options const & opts)               { return opts.get_bool(*g_pp_all, LEAN_DEFAULT_PP_ALL); }
 }

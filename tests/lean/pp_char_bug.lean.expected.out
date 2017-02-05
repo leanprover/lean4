@@ -1,5 +1,5 @@
-fin.mk 2 (of_as_true trivial) : fin 5
-fin.mk 1 (of_as_true trivial) : fin 3
+{val := 2, is_lt := of_as_true trivial} : fin 5
+{val := 1, is_lt := of_as_true trivial} : fin 3
 #"a" : char
 to_string #"a" : string
 "#\"a\""

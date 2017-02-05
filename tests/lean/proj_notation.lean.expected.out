@@ -1,14 +1,14 @@
-myprod.fst p : ℕ
-myprod.fst p : ℕ
-myprod.snd p : ℕ
-myprod.snd p : ℕ
-myprod.fst p : ℕ
-myprod.fst p : ℕ
-myprod.snd p : ℕ
-myprod.snd p : ℕ
-f (myprod.fst p) : ℕ
-myprod.fst p + myprod.snd p : ℕ
-λ (c : car), position.x (car.pos c) : car → ℕ
+p^.fst : ℕ
+p^.fst : ℕ
+p^.snd : ℕ
+p^.snd : ℕ
+p^.fst : ℕ
+p^.fst : ℕ
+p^.snd : ℕ
+p^.snd : ℕ
+f (p^.fst) : ℕ
+p^.fst + p^.snd : ℕ
+λ (c : car), (c^.pos)^.x : car → ℕ
 proj_notation.lean:34:18: error: invalid '~>' notation, 'fst' is not a valid "field" because environment does not contain 'car.fst'
   c
 which has type
@@ -22,6 +22,6 @@ proj_notation.lean:40:18: error: invalid projection, structure expected
   n
 has type
   ℕ
-myprod.fst p : ℕ
-myprod.snd p : ℕ
-λ (c : car), position.y (car.pos c) : car → ℕ
+p^.fst : ℕ
+p^.snd : ℕ
+λ (c : car), (c^.pos)^.y : car → ℕ

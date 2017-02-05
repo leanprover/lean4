@@ -1,1 +1,1 @@
-λ (a b : ↥g), Group.mul g a b : ↥g → ↥g → Group.carrier g
+λ (a b : ↥g), g^.mul a b : ↥g → ↥g → g^.carrier

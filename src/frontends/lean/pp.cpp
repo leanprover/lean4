@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "library/annotation.h"
 #include "library/aliases.h"
+#include "library/class.h"
 #include "library/scoped_ext.h"
 #include "library/expr_pair.h"
 #include "library/placeholder.h"
@@ -46,6 +47,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/util.h"
 #include "frontends/lean/token_table.h"
 #include "frontends/lean/builtin_exprs.h"
+#include "frontends/lean/structure_cmd.h"
 #include "frontends/lean/parser_config.h"
 #include "frontends/lean/scanner.h"
 
@@ -327,6 +329,9 @@ void pretty_fn::set_options_core(options const & _o) {
     m_delayed_abstraction  = get_pp_delayed_abstraction(o);
     m_hide_full_terms   = get_formatter_hide_full_terms(o);
     m_num_nat_coe       = m_numerals;
+    m_structure_instances = get_pp_structure_instances(o);
+    m_structure_instances_qualifier = get_pp_structure_instances_qualifier(o);
+    m_structure_projections         = get_pp_structure_projections(o);
 }
 
 void pretty_fn::set_options(options const & o) {
@@ -735,10 +740,78 @@ bool pretty_fn::has_implicit_args(expr const & f) {
     }
 }
 
+static bool is_structure_instance(environment const & env, expr const & e, bool implicit) {
+    expr const & fn = get_app_fn(e);
+    if (!is_constant(fn)) return false;
+    name const & mk_name = const_name(fn);
+    if (!inductive::is_intro_rule(env, mk_name)) return false;
+    name const & S       = mk_name.get_prefix();
+    if (!is_structure(env, S)) return false;
+    /* If implicit arguments is true, and the structure has parameters, we should not
+       pretty print using { ... }, because we will not be able to see the parameters. */
+    if (implicit && *inductive::get_num_params(env, S) > 0) return false;
+    /* check whether it is a partially applied constructor application */
+    if (get_app_num_args(e) != get_arity(env.get(mk_name).get_type())) return false;
+    return true;
+}
+
+auto pretty_fn::pp_structure_instance(expr const & e) -> result {
+    lean_assert(is_structure_instance(m_env, e, m_implict));
+    buffer<expr> args;
+    expr const & mk = get_app_args(e, args);
+    name const & S  = const_name(mk).get_prefix();
+    unsigned num_params = *inductive::get_num_params(m_env, S);
+    buffer<name> fields;
+    get_structure_fields(m_env, S, fields);
+    lean_assert(args.size() == num_params + fields.size());
+    format r;
+    if (m_structure_instances_qualifier)
+        r += format(S) + space() + format(".");
+    for (unsigned i = 0; i < fields.size(); i++) {
+        if (i > 0 || m_structure_instances_qualifier) r += line();
+        name fname          = fields[i];
+        fname               = fname.replace_prefix(S, name());
+        unsigned field_size = fname.utf8_size();
+        format fval_fmt     = pp(args[i + num_params]).fmt();
+        if (i < fields.size() - 1) fval_fmt += comma();
+        r                  += format(fname) + space() + *g_assign_fmt + space() + nest(field_size + 4, fval_fmt);
+    }
+    r = group(nest(1, format("{") + r + format("}")));
+    return result(r);
+}
+
+static bool is_field_notation_candidate(environment const & env, expr const & e, bool implicit) {
+    expr const & f = get_app_fn(e);
+    if (!is_constant(f)) return false;
+    projection_info const * info = get_projection_info(env, const_name(f));
+    if (!info) return false; /* it is not a projection */
+    if (get_app_num_args(e) != info->m_nparams + 1) return false;
+    /* If implicit arguments is true, and the structure has parameters, we should not
+       pretty print using the ^. notation because we will not be able to see the parameters. */
+    if (implicit && info->m_nparams) return false;
+    name const & S = const_name(f).get_prefix();
+    /* We should not use ^. with type classes since the structure is implicit. */
+    if (is_class(env, S)) return false;
+    return true;
+}
+
+auto pretty_fn::pp_field_notation(expr const & e) -> result {
+    lean_assert(is_field_notation_candidate(m_env, e, m_implict));
+    buffer<expr> args;
+    expr const & f   = get_app_args(e, args);
+    bool ignore_hide = true;
+    format s_fmt     = pp_child(args.back(), max_bp(), ignore_hide).fmt();
+    return result(max_bp()-1, s_fmt + format("^.") + format(const_name(f).get_string()));
+}
+
 auto pretty_fn::pp_app(expr const & e) -> result {
     if (auto r = pp_local_ref(e))
         return *r;
     expr const & fn = app_fn(e);
+    if (m_structure_instances && is_structure_instance(m_env, e, m_implict))
+        return pp_structure_instance(e);
+    if (m_structure_projections && is_field_notation_candidate(m_env, e, m_implict))
+        return pp_field_notation(e);
     // If the application contains a metavariable, then we want to
     // show the function, otherwise it would be hard to understand the
     // context where the metavariable occurs. This is hack to implement

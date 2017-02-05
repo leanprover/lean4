@@ -1,6 +1,6 @@
 {x : ℕ | x > 0} : set ℕ
 {x : ℕ | x > 0} : set ℕ
-{p : ℕ × ℕ | prod.fst p > prod.snd p} : set (ℕ × ℕ)
+{p : ℕ × ℕ | p^.fst > p^.snd} : set (ℕ × ℕ)
 {x | x > 0} : set ℕ
 {x | x > 0} : set ℕ
-{p | prod.fst p > prod.snd p} : set (ℕ × ℕ)
+{p | p^.fst > p^.snd} : set (ℕ × ℕ)

@@ -1,7 +1,7 @@
 bad_error4.lean:4:11: warning: declaration 'bar' uses sorry
 bad_error4.lean:4:11: warning: declaration 'bar.equations._eqn_1' uses sorry
 bad_error4.lean:5:0: error: type mismatch at application
-  foo.mk (λ (a : unit) (b : delayed[?m_1]), delayed[?m_3])
+  {f := λ (a : unit) (b : delayed[?m_1]), delayed[?m_3]}
 term
   λ (a : unit) (b : delayed[?m_1]), delayed[?m_3]
 has type

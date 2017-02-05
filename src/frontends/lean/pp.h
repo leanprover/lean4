@@ -75,6 +75,9 @@ private:
     bool                    m_preterm;
     bool                    m_binder_types;
     bool                    m_delayed_abstraction;
+    bool                    m_structure_instances;
+    bool                    m_structure_instances_qualifier;
+    bool                    m_structure_projections;
 
     name mk_metavar_name(name const & m, optional<name> const & prefix = optional<name>());
     name mk_metavar_name(name const & m, name const & prefix) {
@@ -125,6 +128,8 @@ private:
     result pp_local(expr const & e);
     result pp_app(expr const & e);
     result pp_lambda(expr const & e);
+    result pp_structure_instance(expr const & e);
+    result pp_field_notation(expr const & e);
     result pp_pi(expr const & e);
     result pp_have(expr const & e);
     result pp_show(expr const & e);

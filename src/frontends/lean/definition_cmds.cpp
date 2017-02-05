@@ -321,7 +321,8 @@ static certified_declaration check(parser & p, environment const & env, name con
     }
 }
 
-static void check_noncomputable(bool ignore_noncomputable, environment const & env, name const & c_name, name const & c_real_name, bool is_noncomputable) {
+static void check_noncomputable(bool ignore_noncomputable, environment const & env, name const & c_name, name const & c_real_name, bool is_noncomputable,
+                                std::string const & file_name, pos_info const & pos) {
     if (ignore_noncomputable)
         return;
     if (!is_noncomputable && is_marked_noncomputable(env, c_real_name)) {
@@ -330,7 +331,8 @@ static void check_noncomputable(bool ignore_noncomputable, environment const & e
         throw exception(sstream() << "definition '" << c_name << "' is noncomputable, it depends on '" << *reason << "'");
     }
     if (is_noncomputable && !is_marked_noncomputable(env, c_real_name)) {
-        throw exception(sstream() << "definition '" << c_name << "' was incorrectly marked as noncomputable");
+        report_message(message(file_name, pos, WARNING,
+                               (sstream() << "definition '" << c_name << "' was incorrectly marked as noncomputable").str()));
     }
 }
 
@@ -381,7 +383,7 @@ declare_definition(parser & p, environment const & env, def_cmd_kind kind, buffe
         p.require_success(cdef.get_declaration().get_value_task());
     new_env           = module::add(new_env, cdef);
 
-    check_noncomputable(p.ignore_noncomputable(), new_env, c_name, c_real_name, modifiers.m_is_noncomputable);
+    check_noncomputable(p.ignore_noncomputable(), new_env, c_name, c_real_name, modifiers.m_is_noncomputable, p.get_file_name(), pos);
 
     if (modifiers.m_is_protected)
         new_env = add_protected(new_env, c_real_name);
@@ -733,8 +735,10 @@ public:
         scope_pos_info_provider scope3(m_pos_provider);
         auto_reporting_info_manager_scope scope4(get_module_id(), m_use_info_manager);
 
+        name decl_name = "_example";
+
         try {
-            elaborator elab(m_decl_env, m_opts, "example", m_mctx, m_lctx);
+            elaborator elab(m_decl_env, m_opts, decl_name, m_mctx, m_lctx);
 
             expr val, type;
             std::tie(val, type) = elab.elaborate_with_type(m_val, mlocal_type(m_fn));
@@ -748,12 +752,12 @@ public:
             bool use_conv_opt = true;
             bool is_trusted  = !m_modifiers.m_is_meta;
             auto new_env = elab.env();
-            auto def = mk_definition(new_env, mk_tagged_fresh_name("example"),
-                                              to_list(univ_params_buf), type, val, use_conv_opt, is_trusted);
+            auto def = mk_definition(new_env, decl_name, to_list(univ_params_buf), type, val, use_conv_opt, is_trusted);
             auto cdef = check(new_env, def);
             new_env = module::add(new_env, cdef);
 
-            check_noncomputable(false, new_env, "example", def.get_name(), m_modifiers.m_is_noncomputable);
+            check_noncomputable(false, new_env, decl_name, def.get_name(), m_modifiers.m_is_noncomputable,
+                                m_pos_provider.get_file_name(), m_pos_provider.get_some_pos());
         } catch (exception & ex) {
             message_builder error_msg(&m_pos_provider, tc, m_decl_env, get_global_ios(),
                                       m_pos_provider.get_file_name(), m_pos_provider.get_some_pos(),
@@ -863,9 +867,9 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
         expr sorry = p.mk_sorry(header_pos);
         p.declare_sorry_if_used();
         elab.set_env(p.env());
-        modifiers.m_is_noncomputable = true;
         environment new_env;
         try {
+            modifiers.m_is_noncomputable = false;
             new_env = process(sorry);
         } catch (throwable & ex2) {
             /* Throw original error */

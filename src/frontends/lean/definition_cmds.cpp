@@ -157,7 +157,8 @@ environment mutual_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
     buffer<expr> fns, params;
     declaration_info_scope scope(p, kind, modifiers);
     expr val = parse_mutual_definition(p, lp_names, fns, params);
-    elaborator elab(p.env(), p.get_options(), local_pp_name(fns[0]), metavar_context(), local_context());
+    bool recover_from_errors = true;
+    elaborator elab(p.env(), p.get_options(), local_pp_name(fns[0]), metavar_context(), local_context(), recover_from_errors);
     buffer<expr> new_params;
     elaborate_params(elab, params, new_params);
     val = replace_locals_preserving_pos_info(val, params, new_params);
@@ -669,7 +670,8 @@ public:
         auto_reporting_info_manager_scope scope4(get_module_id(), m_use_info_manager);
 
         try {
-            elaborator elab(m_decl_env, m_opts, local_pp_name(m_fn), m_mctx, m_lctx);
+            bool recover_from_errors = true;
+            elaborator elab(m_decl_env, m_opts, local_pp_name(m_fn), m_mctx, m_lctx, recover_from_errors);
             expr val, type;
             std::tie(val, type) = elaborate_proof(elab);
             if (is_equations_result(val))
@@ -678,6 +680,7 @@ public:
             finalize_theorem_proof(elab, params, val, m_finfo);
             if (m_is_rfl_lemma && !is_rfl_lemma(m_final_type, val))
                 throw exception("not a rfl-lemma, even though marked as rfl");
+            if (elab.has_errors()) throw std::exception();
             return inline_new_defs(m_decl_env, elab.env(), local_pp_name(m_fn), val);
         } catch (exception & ex) {
             /* Remark: we need the catch to be able to produce correct line information */
@@ -742,7 +745,8 @@ public:
         name decl_name = "_example";
 
         try {
-            elaborator elab(m_decl_env, m_opts, decl_name, m_mctx, m_lctx);
+            bool recover_from_errors = true;
+            elaborator elab(m_decl_env, m_opts, decl_name, m_mctx, m_lctx, recover_from_errors);
 
             expr val, type;
             std::tie(val, type) = elab.elaborate_with_type(m_val, mlocal_type(m_fn));
@@ -758,8 +762,8 @@ public:
             auto new_env = elab.env();
             auto def = mk_definition(new_env, decl_name, to_list(univ_params_buf), type, val, use_conv_opt, is_trusted);
             auto cdef = check(new_env, def);
+            if (elab.has_errors()) throw std::exception();
             new_env = module::add(new_env, cdef);
-
             if (!check_noncomputable(false, new_env, decl_name, def.get_name(), m_modifiers.m_is_noncomputable,
                                 m_pos_provider.get_file_name(), m_pos_provider.get_some_pos())) {
                 throw std::exception(); // set parser to failed.
@@ -800,7 +804,8 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
     if (p.get_break_at_pos())
         return p.env();
 
-    elaborator elab(p.env(), p.get_options(), local_pp_name(fn), metavar_context(), local_context());
+    bool recover_from_errors = true;
+    elaborator elab(p.env(), p.get_options(), local_pp_name(fn), metavar_context(), local_context(), recover_from_errors);
     buffer<expr> new_params;
     elaborate_params(elab, params, new_params);
     elab.set_instance_fingerprint();
@@ -835,6 +840,7 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
                     new_params, fn, val,
                     elab.mctx(), elab.lctx(),
                     p.get_parser_pos_provider(header_pos)));
+            if (elab.has_errors()) p.set_error();
             return p.env();
         } else {
             std::tie(val, type) = elaborate_definition(p, elab, kind, fn, val, header_pos);
@@ -851,6 +857,7 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
             opt_val = optional<expr>(val);
             env_n = declare_definition(p, elab.env(), kind, lp_names, c_name, type, opt_val, {}, modifiers, attrs, doc_string, header_pos);
         }
+        if (elab.has_errors()) p.set_error();
         environment new_env = env_n.first;
         name c_real_name    = env_n.second;
         if (is_rfl) new_env = mark_rfl_lemma(new_env, c_real_name);
@@ -865,22 +872,7 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
         return new_env;
     };
 
-    try {
-        return process(val);
-    } catch (throwable & ex1) {
-        /* Try again using 'sorry' */
-        expr sorry = p.mk_sorry(header_pos);
-        elab.set_env(p.env());
-        environment new_env;
-        try {
-            new_env = process(sorry);
-        } catch (throwable & ex2) {
-            /* Throw original error */
-            ex1.rethrow();
-        }
-        std::shared_ptr<throwable> ex_ptr(ex1.clone());
-        throw update_environment_exception(new_env, ex_ptr);
-    }
+    return process(val);
 }
 
 environment definition_cmd_core(parser & p, def_cmd_kind kind, decl_modifiers const & modifiers, decl_attributes attrs) {

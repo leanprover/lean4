@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "frontends/lean/elaborator.h"
 #include <string>
 #include "util/flet.h"
 #include "util/thread.h"
@@ -52,7 +53,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/brackets.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/prenum.h"
-#include "frontends/lean/elaborator.h"
 #include "frontends/lean/tactic_evaluator.h"
 #include "frontends/lean/structure_cmd.h"
 #include "frontends/lean/structure_instance.h"
@@ -115,9 +115,10 @@ elaborator_strategy get_elaborator_strategy(environment const & env, name const 
 #define trace_elab_debug(CODE) lean_trace("elaborator_debug", scope_trace_env _scope(m_env, m_ctx); CODE)
 
 elaborator::elaborator(environment const & env, options const & opts, name const & decl_name,
-                       metavar_context const & mctx, local_context const & lctx):
+                       metavar_context const & mctx, local_context const & lctx, bool recover_from_errors):
     m_env(env), m_opts(opts), m_decl_name(decl_name),
     m_ctx(env, opts, mctx, lctx, get_tcm(), transparency_mode::Semireducible),
+    m_recover_from_errors(recover_from_errors),
     m_uses_infom(get_global_info_manager() != nullptr) {
 }
 
@@ -180,6 +181,53 @@ format elaborator::pp_overloads(pp_fn const & pp_fn, buffer<expr> const & fns) {
     return paren(r);
 }
 
+bool elaborator::try_report(std::exception const & ex) {
+    return try_report(ex, none_expr());
+}
+
+bool elaborator::try_report(std::exception const & ex, optional<expr> const & ref) {
+    if (!m_recover_from_errors) return false;
+
+    auto pip = get_pos_info_provider();
+    if (!pip) return false;
+
+    auto tc = std::make_shared<type_context>(m_env, m_opts, m_ctx.mctx(), m_ctx.lctx());
+    message_builder out(pip, tc, m_env, get_global_ios(), pip->get_file_name(),
+                        ref ? pip->get_pos_info_or_some(*ref) : pip->get_some_pos(), ERROR);
+    out.set_exception(ex);
+    out.report();
+    m_has_errors = true;
+    return true;
+}
+
+void elaborator::report_or_throw(elaborator_exception const & ex) {
+    if (!try_report(ex))
+        throw elaborator_exception(ex);
+}
+
+expr elaborator::mk_sorry(optional<expr> const & expected_type, expr const & ref) {
+    auto sorry_type = expected_type ? *expected_type : mk_type_metavar(ref);
+    return copy_tag(ref, mk_sorry(sorry_type));
+}
+
+expr elaborator::recoverable_error(optional<expr> const & expected_type, expr const & ref, elaborator_exception const & ex) {
+    report_or_throw(ex);
+    return mk_sorry(expected_type, ref);
+}
+
+template <class Fn>
+expr elaborator::recover_expr_from_exception(optional<expr> const & expected_type, expr const & ref, Fn && fn) {
+    try {
+        return fn();
+    } catch (std::exception & ex) {
+        if (!try_report(ex, some_expr(ref))) {
+            throw;
+        } else {
+            return mk_sorry(expected_type, ref);
+        }
+    }
+}
+
 level elaborator::mk_univ_metavar() {
     return m_ctx.mk_univ_metavar_decl();
 }
@@ -203,13 +251,15 @@ expr elaborator::mk_type_metavar(expr const & ref) {
 expr elaborator::mk_instance_core(local_context const & lctx, expr const & C, expr const & ref) {
     scope_traces_as_messages traces_as_messages(get_pos_info_provider(), ref);
 
+    // TODO(gabriel): cache failures so that we do not report errors twice
     optional<expr> inst = m_ctx.mk_class_instance_at(lctx, C);
     if (!inst) {
         metavar_context mctx   = m_ctx.mctx();
         local_context new_lctx = lctx.instantiate_mvars(mctx);
         new_lctx = erase_inaccessible_annotations(new_lctx);
         tactic_state s = ::lean::mk_tactic_state_for(m_env, m_opts, m_decl_name, mctx, new_lctx, C);
-        throw elaborator_exception(ref, format("failed to synthesize type class instance for") + line() + s.pp());
+        return recoverable_error(some_expr(C), ref, elaborator_exception(
+                ref, format("failed to synthesize type class instance for") + line() + s.pp()));
     }
     return *inst;
 }
@@ -601,6 +651,7 @@ bool elaborator::is_def_eq(expr const & e1, expr const & e2) {
 
 bool elaborator::try_is_def_eq(expr const & e1, expr const & e2) {
     snapshot S(*this);
+    flet<bool> dont_recover(m_recover_from_errors, false);
     try {
         return is_def_eq(e1, e2);
     } catch (exception &) {
@@ -628,7 +679,7 @@ expr elaborator::enforce_type(expr const & e, expr const & expected_type, char c
         msg += format(", expression") + pp_indent(pp_fn, e);
         msg += line() + format("has type") + std::get<1>(pp_data);
         msg += line() + format("but is expected to have type") + std::get<2>(pp_data);
-        throw elaborator_exception(ref, msg);
+        return recoverable_error(some_expr(expected_type), ref, elaborator_exception(ref, msg));
     }
 }
 
@@ -702,7 +753,9 @@ expr elaborator::ensure_type(expr const & e, expr const & ref) {
     }
 
     auto pp_fn = mk_pp_ctx();
-    throw elaborator_exception(ref, format("type expected at") + pp_indent(pp_fn, e));
+    report_or_throw(elaborator_exception(ref, format("type expected at") + pp_indent(pp_fn, e)));
+    // only create the metavar if can actually recover from the error
+    return mk_sorry(some_expr(mk_sort(mk_univ_metavar())), ref);
 }
 
 static expr get_ref_for_child(expr const & arg, expr const & ref) {
@@ -729,9 +782,9 @@ expr elaborator::visit_typed_expr(expr const & e) {
 
     auto pp_data = pp_until_different(new_val_type, new_type);
     auto pp_fn   = std::get<0>(pp_data);
-    throw elaborator_exception(ref,
+    return recoverable_error(some_expr(new_type), ref, elaborator_exception(ref,
                                format("invalid type ascription, expression has type") + std::get<1>(pp_data) +
-                               line() + format("but is expected to have type") + std::get<2>(pp_data));
+                               line() + format("but is expected to have type") + std::get<2>(pp_data)));
 }
 
 level elaborator::dec_level(level const & l, expr const & ref) {
@@ -760,7 +813,7 @@ expr elaborator::visit_prenum(expr const & e, optional<expr> const & expected_ty
     level A_lvl = get_level(A, ref);
     levels ls(dec_level(A_lvl, ref));
     if (v.is_neg())
-        throw elaborator_exception(ref, "invalid pre-numeral, it must be a non-negative value");
+        return recoverable_error(some_expr(A), ref, elaborator_exception(ref, "invalid pre-numeral, it must be a non-negative value"));
     if (v.is_zero()) {
         expr has_zero_A = mk_app(mk_constant(get_has_zero_name(), ls), A, e_tag);
         expr S          = mk_instance(has_zero_A, ref);
@@ -812,7 +865,7 @@ expr elaborator::visit_const_core(expr const & e) {
         format msg("incorrect number of universe levels parameters for '");
         msg += format(const_name(e)) + format("', #") + format(num_univ_params);
         msg += format(" expected, #") + format(ls.size()) + format("provided");
-        throw elaborator_exception(e, msg);
+        return recoverable_error({}, e, elaborator_exception(e, msg));
     }
     // "fill" with meta universe parameters
     for (unsigned i = ls.size(); i < num_univ_params; i++)
@@ -869,7 +922,7 @@ void elaborator::validate_overloads(buffer<expr> const & fns, expr const & ref) 
                           "but this kind of constant cannot be overloaded "
                           "(solution: use fully qualified names) ");
             msg += pp_overloads(pp_fn, fns);
-            return throw elaborator_exception(ref, msg);
+            throw elaborator_exception(ref, msg);
         }
     }
 }
@@ -899,18 +952,6 @@ format elaborator::mk_app_arg_mismatch_error(expr const & t, expr const & arg, e
     msg += line() + format("expected argument");
     msg += std::get<2>(pp_data);
     return msg;
-}
-
-format elaborator::mk_too_many_args_error(expr const & fn_type) {
-    auto pp_fn = mk_pp_ctx();
-    return
-        format("invalid function application, too many arguments, function type:") +
-        pp_indent(pp_fn, fn_type);
-}
-
-void elaborator::throw_app_type_mismatch(expr const & t, expr const & arg, expr const & arg_type, expr const & expected_type,
-                                         expr const & ref) {
-    throw elaborator_exception(ref, mk_app_type_mismatch_error(t, arg, arg_type, expected_type));
 }
 
 expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<expr> const & args,
@@ -1067,6 +1108,7 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
         trace_elab_debug(tout() << "elaborated recursor:\n  " << r << "\n";);
         return r;
     } catch (elaborator_exception & ex) {
+        // TODO(gabriel): the additional information is not added in error-recovery mode
         throw nested_elaborator_exception(ref, ex, format("the inferred motive for the eliminator-like application is") +
                                           pp_indent(motive));
     }
@@ -1192,29 +1234,31 @@ expr elaborator::second_pass(expr const & fn, buffer<expr> const & args,
         }
         expr ref_arg       = get_ref_for_child(args[i], ref);
         expr expected_type = info.args_expected_types[i];
-        optional<expr> thunk_of;
-        if (!m_in_pattern) thunk_of = is_thunk(expected_type);
-        if (thunk_of)
-            expected_type = *thunk_of;
-        expr new_arg      = visit(args[i], some_expr(expected_type));
-        new_arg           = mk_thunk_if_needed(new_arg, thunk_of);
-        expr new_arg_type = infer_type(new_arg);
-        optional<expr> new_new_arg = ensure_has_type(new_arg, new_arg_type, info.args_expected_types[i], ref_arg);
-        if (!new_new_arg) {
-            info.new_args.shrink(info.new_args_size[i]);
-            info.new_args.push_back(new_arg);
-            format msg = mk_app_type_mismatch_error(mk_app(fn, info.new_args.size(), info.new_args.data()),
-                                                    new_arg, new_arg_type, info.args_expected_types[i]);
-            throw elaborator_exception(ref, msg);
-        }
-        if (!is_def_eq(info.args_mvars[i], *new_new_arg)) {
-            info.new_args.shrink(info.new_args_size[i]);
-            info.new_args.push_back(new_arg);
-            format msg = mk_app_arg_mismatch_error(mk_app(fn, info.new_args.size(), info.new_args.data()),
-                                                   new_arg, info.args_mvars[i]);
-            throw elaborator_exception(ref, msg);
-        }
-        info.new_args[info.new_args_size[i]] = *new_new_arg;
+        info.new_args[info.new_args_size[i]] = recover_expr_from_exception(some_expr(expected_type), ref_arg, [&] {
+            optional<expr> thunk_of;
+            if (!m_in_pattern) thunk_of = is_thunk(expected_type);
+            if (thunk_of)
+                expected_type = *thunk_of;
+            expr new_arg = visit(args[i], some_expr(expected_type));
+            new_arg = mk_thunk_if_needed(new_arg, thunk_of);
+            expr new_arg_type = infer_type(new_arg);
+            optional<expr> new_new_arg = ensure_has_type(new_arg, new_arg_type, info.args_expected_types[i], ref_arg);
+            if (!new_new_arg) {
+                info.new_args.shrink(info.new_args_size[i]);
+                info.new_args.push_back(new_arg);
+                format msg = mk_app_type_mismatch_error(mk_app(fn, info.new_args.size(), info.new_args.data()),
+                                                        new_arg, new_arg_type, info.args_expected_types[i]);
+                throw elaborator_exception(ref, msg);
+            }
+            if (!is_def_eq(info.args_mvars[i], *new_new_arg)) {
+                info.new_args.shrink(info.new_args_size[i]);
+                info.new_args.push_back(new_arg);
+                format msg = mk_app_arg_mismatch_error(mk_app(fn, info.new_args.size(), info.new_args.data()),
+                                                       new_arg, info.args_mvars[i]);
+                throw elaborator_exception(ref, msg);
+            }
+            return *new_new_arg;
+        });
     }
     for (; j < info.new_instances.size(); j++) {
         expr const & mvar = info.new_instances[j];
@@ -1379,6 +1423,7 @@ expr elaborator::visit_base_app_core(expr const & fn, arg_mask amask, buffer<exp
            (list name), and we have to solve (list name) =?= (list ?m)
         */
         type_context::full_postponed_scope scope(m_ctx, false);
+        flet<bool> dont_recover(m_recover_from_errors, false);
         first_pass(fn, args, *expected_type, ref, info);
     } catch (elaborator_exception & ex1) {
         C.restore(*this);
@@ -1416,11 +1461,6 @@ format elaborator::mk_no_overload_applicable_msg(buffer<expr> const & fns, buffe
     return r;
 }
 
-void elaborator::throw_no_overload_applicable(buffer<expr> const & fns, buffer<elaborator_exception> const & error_msgs,
-                                              expr const & ref) {
-    throw elaborator_exception(ref, mk_no_overload_applicable_msg(fns, error_msgs));
-}
-
 expr elaborator::visit_overloaded_app_core(buffer<expr> const & fns, buffer<expr> const & args,
                                            optional<expr> const & expected_type, expr const & ref) {
     buffer<expr> new_args;
@@ -1434,6 +1474,7 @@ expr elaborator::visit_overloaded_app_core(buffer<expr> const & fns, buffer<expr
     buffer<elaborator_exception> error_msgs;
     for (expr const & fn : fns) {
         try {
+            flet<bool> dont_recover(m_recover_from_errors, false);
             // Restore state
             S.restore(*this);
             bool has_args = !args.empty();
@@ -1467,7 +1508,7 @@ expr elaborator::visit_overloaded_app_core(buffer<expr> const & fns, buffer<expr
     if (candidates.empty()) {
         S.restore(*this);
 
-        throw_no_overload_applicable(fns, error_msgs, ref);
+        throw elaborator_exception(ref, mk_no_overload_applicable_msg(fns, error_msgs));
     } else if (candidates.size() > 1) {
         S.restore(*this);
 
@@ -2473,7 +2514,7 @@ expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_typ
            implicit arguments. */
         return visit_base_app_core(new_e, arg_mask::Default, buffer<expr>(), true, expected_type, e);
     } else if (is_sorry(e)) {
-        return copy_tag(e, expected_type ? mk_sorry(*expected_type) : mk_sorry(mk_type_metavar(e)));
+        return mk_sorry(expected_type, e);
     } else if (is_structure_instance(e)) {
         return visit_structure_instance(e, expected_type);
     } else if (is_annotation(e)) {
@@ -2684,34 +2725,45 @@ expr elaborator::visit(expr const & e, optional<expr> const & expected_type) {
     flet<unsigned> inc_depth(m_depth, m_depth+1);
     trace_elab_detail(tout() << "[" << m_depth << "] visiting\n" << e << "\n";
                       if (expected_type) tout() << "expected type:\n" << instantiate_mvars(*expected_type) << "\n";);
-    if (is_placeholder(e)) {
-        return visit_placeholder(e, expected_type);
-    } else if (is_have_expr(e)) {
-        return copy_tag(e, visit_have_expr(e, expected_type));
-    } else if (is_suffices_annotation(e)) {
-        return copy_tag(e, visit_suffices_expr(e, expected_type));
-    } else if (is_no_info(e)) {
-        flet<bool> set(m_no_info, true);
-        return visit(get_annotation_arg(e), expected_type);
-    } else if (is_emptyc_or_emptys(e)) {
-        return visit_emptyc_or_emptys(e, expected_type);
-    } else if (is_sort_wo_universe(e)) {
-        return visit(get_annotation_arg(e), expected_type);
-    } else {
-        switch (e.kind()) {
-        case expr_kind::Var:        lean_unreachable();  // LCOV_EXCL_LINE
-        case expr_kind::Meta:       return e;
-        case expr_kind::Sort:       return copy_tag(e, visit_sort(e));
-        case expr_kind::Local:      return copy_tag(e, visit_local(e, expected_type));
-        case expr_kind::Constant:   return copy_tag(e, visit_constant(e, expected_type));
-        case expr_kind::Macro:      return copy_tag(e, visit_macro(e, expected_type, false));
-        case expr_kind::Lambda:     return copy_tag(e, visit_lambda(e, expected_type));
-        case expr_kind::Pi:         return copy_tag(e, visit_pi(e));
-        case expr_kind::App:        return copy_tag(e, visit_app(e, expected_type));
-        case expr_kind::Let:        return copy_tag(e, visit_let(e, expected_type));
+    return recover_expr_from_exception(expected_type, e, [&] {
+        if (is_placeholder(e)) {
+            return visit_placeholder(e, expected_type);
+        } else if (is_have_expr(e)) {
+            return copy_tag(e, visit_have_expr(e, expected_type));
+        } else if (is_suffices_annotation(e)) {
+            return copy_tag(e, visit_suffices_expr(e, expected_type));
+        } else if (is_no_info(e)) {
+            flet<bool> set(m_no_info, true);
+            return visit(get_annotation_arg(e), expected_type);
+        } else if (is_emptyc_or_emptys(e)) {
+            return visit_emptyc_or_emptys(e, expected_type);
+        } else if (is_sort_wo_universe(e)) {
+            return visit(get_annotation_arg(e), expected_type);
+        } else {
+            switch (e.kind()) {
+                case expr_kind::Var: lean_unreachable();  // LCOV_EXCL_LINE
+                case expr_kind::Meta:
+                    return e;
+                case expr_kind::Sort:
+                    return copy_tag(e, visit_sort(e));
+                case expr_kind::Local:
+                    return copy_tag(e, visit_local(e, expected_type));
+                case expr_kind::Constant:
+                    return copy_tag(e, visit_constant(e, expected_type));
+                case expr_kind::Macro:
+                    return copy_tag(e, visit_macro(e, expected_type, false));
+                case expr_kind::Lambda:
+                    return copy_tag(e, visit_lambda(e, expected_type));
+                case expr_kind::Pi:
+                    return copy_tag(e, visit_pi(e));
+                case expr_kind::App:
+                    return copy_tag(e, visit_app(e, expected_type));
+                case expr_kind::Let:
+                    return copy_tag(e, visit_let(e, expected_type));
+            }
+            lean_unreachable(); // LCOV_EXCL_LINE
         }
-        lean_unreachable(); // LCOV_EXCL_LINE
-    }
+    });
 }
 
 expr elaborator::get_default_numeral_type() {
@@ -2723,7 +2775,7 @@ void elaborator::synthesize_numeral_types() {
     for (expr const & A : m_numeral_types) {
         if (is_metavar(instantiate_mvars(A))) {
             if (!assign_mvar(A, get_default_numeral_type()))
-                throw elaborator_exception(A, "invalid numeral, failed to force numeral to be a nat");
+                report_or_throw(elaborator_exception(A, "invalid numeral, failed to force numeral to be a nat"));
         }
     }
     m_numeral_types = list<expr>();
@@ -2797,18 +2849,29 @@ tactic_state elaborator::mk_tactic_state_for(expr const & mvar) {
 
 void elaborator::invoke_tactic(expr const & mvar, expr const & tactic) {
     expr const & ref     = mvar;
+    expr type            = m_ctx.mctx().get_metavar_decl(mvar)->get_type();
     tactic_state s       = mk_tactic_state_for(mvar);
-    tactic_state new_s   = tactic_evaluator(m_ctx, m_opts)(s, tactic, ref);
 
-    metavar_context mctx = new_s.mctx();
-    expr val             = mctx.instantiate_mvars(new_s.main());
-    if (has_expr_metavar(val)) {
-        throw_unsolved_tactic_state(new_s, "tactic failed, result contains meta-variables", ref);
+    try {
+        tactic_state new_s = tactic_evaluator(m_ctx, m_opts)(s, tactic, ref);
+
+        metavar_context mctx = new_s.mctx();
+        expr val = mctx.instantiate_mvars(new_s.main());
+        if (has_expr_metavar(val)) {
+            val = recoverable_error(some_expr(type), ref,
+                                    unsolved_tactic_state(new_s, "tactic failed, result contains meta-variables", ref));
+        }
+        mctx.assign(mvar, val);
+        m_env = new_s.env();
+        m_ctx.set_env(m_env);
+        m_ctx.set_mctx(mctx);
+    } catch (std::exception & ex) {
+        if (try_report(ex, some_expr(ref))) {
+            m_ctx.assign(mvar, mk_sorry(some_expr(type), ref));
+        } else {
+            throw;
+        }
     }
-    mctx.assign(mvar, val);
-    m_env = new_s.env();
-    m_ctx.set_env(m_env);
-    m_ctx.set_mctx(mctx);
 }
 
 void elaborator::synthesize_using_tactics() {
@@ -2900,20 +2963,32 @@ void elaborator::report_error(tactic_state const & s, char const * state_header,
                         pip->get_pos_info_or_some(ref), ERROR);
     out << msg << "\n" << state_header << "\n" << mk_pair(s.pp(), m_opts);
     out.report();
+    m_has_errors = true;
 }
 
-void elaborator::ensure_no_unassigned_metavars(expr const & e) {
+void elaborator::ensure_no_unassigned_metavars(expr & e) {
+    // TODO(gabriel): this needs to change e
     if (!has_expr_metavar(e)) return;
-    metavar_context mctx = m_ctx.mctx();
     for_each(e, [&](expr const & e, unsigned) {
             if (!has_expr_metavar(e)) return false;
-            if (is_metavar_decl_ref(e) && !mctx.is_assigned(e)) {
+            if (is_metavar_decl_ref(e) && !m_ctx.is_assigned(e)) {
                 tactic_state s = mk_tactic_state_for(e);
                 report_error(s, "context:", "don't know how to synthesize placeholder", e);
-                throw elaborator_exception(e, "elaborator failed");
+
+                if (m_recover_from_errors) {
+                    auto ty = m_ctx.mctx().get_metavar_decl(e)->get_type();
+                    m_ctx.assign(e, copy_tag(e, mk_sorry(ty)));
+                    ensure_no_unassigned_metavars(ty);
+
+                    auto val = instantiate_mvars(e);
+                    ensure_no_unassigned_metavars(val);
+                } else {
+                    throw elaborator_exception(e, "elaborator failed");
+                }
             }
             return true;
         });
+    e = instantiate_mvars(e);
 }
 
 elaborator::snapshot::snapshot(elaborator const & e) {
@@ -3089,7 +3164,7 @@ expr_pair elaborator::elaborate_with_type(expr const & e, expr const & e_type) {
     {
         expr Type  = visit(copy_tag(e_type, mk_sort(mk_level_placeholder())), none_expr());
         new_e_type = visit(e_type, some_expr(Type));
-        ensure_type(new_e_type, e_type);
+        new_e_type = ensure_type(new_e_type, e_type);
         new_e      = visit(e,      some_expr(new_e_type));
         synthesize();
     }
@@ -3099,10 +3174,10 @@ expr_pair elaborator::elaborate_with_type(expr const & e, expr const & e_type) {
     } else {
         auto pp_data = pp_until_different(inferred_type, new_e_type);
         auto pp_fn   = std::get<0>(pp_data);
-        throw elaborator_exception(ref,
+        new_e = recoverable_error(some_expr(new_e_type), ref, elaborator_exception(ref,
                                    format("type mismatch, expression") + pp_indent(pp_fn, new_e) +
                                    line() + format("has type") + std::get<1>(pp_data) +
-                                   line() + format("but is expected to have type") + std::get<2>(pp_data));
+                                   line() + format("but is expected to have type") + std::get<2>(pp_data)));
     }
     return mk_pair(new_e, new_e_type);
 }
@@ -3166,7 +3241,8 @@ pair<expr, level_param_names>
 elaborate(environment & env, options const & opts, name const & decl_name,
           metavar_context & mctx, local_context const & lctx, expr const & e,
           bool check_unassigned) {
-    elaborator elab(env, opts, decl_name, mctx, lctx);
+    bool recover_from_errors = true;
+    elaborator elab(env, opts, decl_name, mctx, lctx, recover_from_errors);
     expr r = elab.elaborate(e);
     auto p = elab.finalize(r, check_unassigned, true);
     mctx = elab.mctx();

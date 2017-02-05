@@ -398,7 +398,7 @@ private:
     bool parse_commands() {
         scan();
 
-        // TODO(dhs): for now we will not recover from any errors
+        // TODO(dhs): for now we will not recoverable_error from any errors
         while (true) {
             switch (curr_kind()) {
             case scanner::token_kind::LEFT_PAREN:

@@ -19,9 +19,17 @@ Author: Leonardo de Moura
 #include "frontends/lean/tactic_notation.h"
 
 namespace lean {
-[[noreturn]] void throw_unsolved_tactic_state(tactic_state const & ts, format const & fmt, expr const & ref) {
+elaborator_exception unsolved_tactic_state(tactic_state const & ts, format const & fmt, expr const & ref) {
     format msg = fmt + line() + format("state:") + line() + ts.pp();
-    throw elaborator_exception(ref, msg);
+    return elaborator_exception(ref, msg);
+}
+
+elaborator_exception unsolved_tactic_state(tactic_state const & ts, char const * msg, expr const & ref) {
+    return unsolved_tactic_state(ts, format(msg), ref);
+}
+
+[[noreturn]] void throw_unsolved_tactic_state(tactic_state const & ts, format const & fmt, expr const & ref) {
+    throw unsolved_tactic_state(ts, fmt, ref);
 }
 
 [[noreturn]] void throw_unsolved_tactic_state(tactic_state const & ts, char const * msg, expr const & ref) {

@@ -360,7 +360,7 @@ bool print_id_info(parser & p, message_builder & out, name const & id, bool show
             try {
                 if (show_value)
                     print_definition(env, out, c, pos);
-            } catch (exception & ex) {
+            } catch (std::exception & ex) {
                 out << "[incorrect proof]\n";
                 bool use_pos = false;
                 out.set_exception(ex, use_pos);

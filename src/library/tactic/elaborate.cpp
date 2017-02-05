@@ -26,7 +26,8 @@ vm_obj tactic_to_expr_core(vm_obj const & relaxed, vm_obj const & qe, vm_obj con
     try {
         environment env = s.env();
         auto e = to_expr(qe);
-        elaborator elab(env, s.get_options(), s.decl_name(), mctx, g->get_context());
+        bool recover_from_errors = false;
+        elaborator elab(env, s.get_options(), s.decl_name(), mctx, g->get_context(), recover_from_errors);
         expr r = elab.elaborate(resolve_names(env, g->get_context(), e));
         if (!to_bool(relaxed))
             elab.ensure_no_unassigned_metavars(r);

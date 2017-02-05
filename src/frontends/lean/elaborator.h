@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "library/tactic/elaborate.h"
 #include "frontends/lean/elaborator_exception.h"
 #include "frontends/lean/info_manager.h"
+#include "library/sorry.h"
 
 namespace lean {
 enum class elaborator_strategy {
@@ -39,6 +40,8 @@ private:
     name              m_decl_name;
     type_context      m_ctx;
     info_manager      m_info;
+    bool              m_recover_from_errors;
+    bool              m_has_errors = false;
 
     list<expr>        m_instances;
     list<expr>        m_numeral_types;
@@ -147,6 +150,14 @@ private:
         return mk_coercion_to_fn_sort(false, e, e_type, ref);
     }
 
+    bool try_report(std::exception const & ex);
+    bool try_report(std::exception const & ex, optional<expr> const & ref);
+    void report_or_throw(elaborator_exception const & ex);
+    expr mk_sorry(expr const & type) { return ::lean::mk_sorry(type); }
+    expr mk_sorry(optional<expr> const & expected_type, expr const & ref);
+    expr recoverable_error(optional<expr> const & expected_type, expr const & ref, elaborator_exception const & ex);
+    template <class Fn> expr recover_expr_from_exception(optional<expr> const & expected_type, expr const & ref, Fn &&);
+
     expr ensure_type(expr const & e, expr const & ref);
     expr ensure_function(expr const & e, expr const & ref);
     optional<expr> ensure_has_type(expr const & e, expr const & e_type, expr const & type, expr const & ref);
@@ -162,7 +173,6 @@ private:
     expr visit_scope_trace(expr const & e, optional<expr> const & expected_type);
     expr visit_typed_expr(expr const & e);
     level dec_level(level const & l, expr const & ref);
-    expr visit_prenum_core(expr const & e, optional<expr> const & expected_type);
     expr visit_prenum(expr const & e, optional<expr> const & expected_type);
     expr visit_placeholder(expr const & e, optional<expr> const & expected_type);
     expr visit_have_expr(expr const & e, optional<expr> const & expected_type);
@@ -173,15 +183,10 @@ private:
 
     expr visit_sort(expr const & e);
     expr visit_const_core(expr const & e);
-    expr ensure_function(expr const & e);
     void save_identifier_info(expr const & f, optional<pos_info> pos = {});
     expr visit_function(expr const & fn, bool has_args, expr const & ref);
     format mk_app_type_mismatch_error(expr const & t, expr const & arg, expr const & arg_type, expr const & expected_type);
     format mk_app_arg_mismatch_error(expr const & t, expr const & arg, expr const & expected_arg);
-    format mk_too_many_args_error(expr const & fn_type);
-    [[ noreturn ]]
-    void throw_app_type_mismatch(expr const & t, expr const & arg, expr const & arg_type, expr const & expected_type,
-                                 expr const & ref);
 
     bool is_with_expected_candidate(expr const & fn);
     struct first_pass_info;
@@ -196,9 +201,6 @@ private:
                         optional<expr> const & expected_type, expr const & ref);
     void validate_overloads(buffer<expr> const & fns, expr const & ref);
     format mk_no_overload_applicable_msg(buffer<expr> const & fns, buffer<elaborator_exception> const & error_msgs);
-    [[ noreturn ]]
-    void throw_no_overload_applicable(buffer<expr> const & fns, buffer<elaborator_exception> const & error_msgs,
-                                      expr const & ref);
     expr visit_overload_candidate(expr const & fn, buffer<expr> const & args,
                                   optional<expr> const & expected_type, expr const & ref);
     expr visit_overloaded_app_with_expected(buffer<expr> const & fns, buffer<expr> const & args,
@@ -231,12 +233,7 @@ private:
     expr visit_structure_instance(expr const & e, optional<expr> const & expected_type);
     expr visit(expr const & e, optional<expr> const & expected_type);
 
-    void add_tactic_state_info(tactic_state const & s, expr const & ref);
     tactic_state mk_tactic_state_for(expr const & mvar);
-    tactic_state execute_tactic(expr const & tactic, tactic_state const & s, expr const & ref);
-    tactic_state execute_begin_end_tactics(buffer<expr> const & tactics, tactic_state const & s, expr const & ref);
-    void invoke_begin_end_tactics(expr const & mvar, buffer<expr> const & tactics);
-    void invoke_atomic_tactic(expr const & mvar, expr const & tactic);
     void invoke_tactic(expr const & mvar, expr const & tac);
 
     bool ready_to_synthesize(expr inst_type);
@@ -256,7 +253,9 @@ private:
     void finalize_core(sanitize_param_names_fn & S, buffer<expr> & es,
                        bool check_unassigned, bool to_simple_metavar, bool collect_local_ctx);
 public:
-    elaborator(environment const & env, options const & opts, name const & decl_name, metavar_context const & mctx, local_context const & lctx);
+    elaborator(environment const & env, options const & opts, name const & decl_name,
+               metavar_context const & mctx, local_context const & lctx,
+               bool recover_from_errors);
     ~elaborator();
     metavar_context const & mctx() const { return m_ctx.mctx(); }
     local_context const & lctx() const { return m_ctx.lctx(); }
@@ -272,7 +271,7 @@ public:
     expr_pair elaborate_with_type(expr const & e, expr const & e_type);
     void report_error(tactic_state const & s, char const * state_header,
                       char const * msg, expr const & ref);
-    void ensure_no_unassigned_metavars(expr const & e);
+    void ensure_no_unassigned_metavars(expr & e);
     /**
        \brief Finalize all expressions in \c es.
        es is input and output, all expr fragments at once.
@@ -309,6 +308,8 @@ public:
         m_env = env;
         m_ctx.set_env(m_env);
     }
+
+    bool has_errors() const { return m_has_errors; }
 };
 
 pair<expr, level_param_names> elaborate(environment & env, options const & opts, name const & decl_name,

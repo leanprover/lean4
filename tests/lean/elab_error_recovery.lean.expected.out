@@ -1,0 +1,58 @@
+elab_error_recovery.lean:4:10: error: type mismatch at application
+  1 + ""
+term
+  ""
+has type
+  string
+but is expected to have type
+  ℕ
+elab_error_recovery.lean:8:13: error: failed to synthesize type class instance for
+half_baked : ℕ → ℕ
+⊢ has_mem ℕ ℕ
+elab_error_recovery.lean:8:8: error: failed to synthesize type class instance for
+half_baked : ℕ → ℕ
+⊢ decidable (2 ∈ 3)
+elab_error_recovery.lean:10:11: error: undefined
+elab_error_recovery.lean:12:14: error: invalid type ascription, expression has type
+  list ?m_1
+but is expected to have type
+  ℕ
+state:
+half_baked : ℕ → ℕ,
+_x : ℕ
+⊢ ℕ
+elab_error_recovery.lean:12:23: error: failed
+state:
+half_baked : ℕ → ℕ,
+_x : ℕ
+⊢ ℕ
+elab_error_recovery.lean:6:8: error: don't know how to synthesize placeholder
+context:
+half_baked : ℕ → ℕ
+⊢ ℕ
+elab_error_recovery.lean:8:29: error: don't know how to synthesize placeholder
+context:
+half_baked : ℕ → ℕ
+⊢ ℕ
+elab_error_recovery.lean:1:4: warning: declaration 'half_baked._main' uses sorry
+elab_error_recovery.lean:1:4: warning: declaration 'half_baked._main.equations._eqn_1' uses sorry
+elab_error_recovery.lean:1:4: warning: declaration 'half_baked._main.equations._eqn_2' uses sorry
+elab_error_recovery.lean:1:4: warning: declaration 'half_baked._main.equations._eqn_3' uses sorry
+elab_error_recovery.lean:1:4: warning: declaration 'half_baked._main.equations._eqn_4' uses sorry
+elab_error_recovery.lean:1:4: warning: declaration 'half_baked._main.equations._eqn_5' uses sorry
+elab_error_recovery.lean:1:4: warning: declaration 'half_baked._main.equations._eqn_6' uses sorry
+elab_error_recovery.lean:1:4: warning: declaration 'half_baked.equations._eqn_2' uses sorry
+elab_error_recovery.lean:1:4: warning: declaration 'half_baked.equations._eqn_3' uses sorry
+elab_error_recovery.lean:1:4: warning: declaration 'half_baked.equations._eqn_4' uses sorry
+elab_error_recovery.lean:1:4: warning: declaration 'half_baked.equations._eqn_5' uses sorry
+elab_error_recovery.lean:1:4: warning: declaration 'half_baked.equations._eqn_6' uses sorry
+def half_baked._main : ℕ → ℕ :=
+λ (a : ℕ),
+  ite (a = 3) 2
+    (ite (a = 0) (1 + sorry) (ite (a = 5) (sorry + 4) (ite (a = 42) (ite (2 ∈ 3) 3 sorry) (ite (a = 7) sorry sorry))))
+2
+nat.succ (nat.succ (nat.succ (nat.succ sorry)))
+2
+elab_error_recovery.lean:21:12: error: type expected at
+  0
+∀ (x : sorry), x = x : Prop

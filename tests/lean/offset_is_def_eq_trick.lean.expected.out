@@ -1,1 +1,1 @@
-head.equations._eqn_1 : ∀ {α : Type u_1} (n : ℕ) (h : α) (t : Vec .α .n), head (Vec.cons h t) = h
+head.equations._eqn_1 : ∀ {α : Type u_1} (n : ℕ) (h : α) (t : Vec α n), head (Vec.cons h t) = h

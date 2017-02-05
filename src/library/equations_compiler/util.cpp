@@ -310,7 +310,7 @@ static environment add_equation_lemma(environment const & env, options const & o
     name new_c;
     std::tie(new_env, new_c) = mk_def_name(env, is_private, c);
     expr r;
-    expr new_type  = type;
+    expr new_type  = erase_inaccessible_annotations(type);
     expr new_value = value;
     bool zeta      = get_eqn_compiler_zeta(opts);
     if (zeta) {

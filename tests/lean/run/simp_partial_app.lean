@@ -12,9 +12,7 @@ begin
   simp [list.for, flip],
   check_target `(list.map nat.succ a = [2, 3]),
   subst a,
-  simp [list.map],
-  check_target `([nat.succ 1, nat.succ 2] = [2, 3]),
-  reflexivity
+  simp [list.map]
 end
 
 constant f {α : Type} [has_zero α] (a b : α) : a ≠ 0 → b ≠ 0 → α

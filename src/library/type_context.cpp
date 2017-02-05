@@ -2717,22 +2717,65 @@ optional<unsigned> type_context::to_small_num(expr const & e) {
 
 /* If \c t is of the form (s + k) where k is a numeral, then return k. Otherwise, return none. */
 optional<unsigned> type_context::is_offset_term (expr const & t) {
-    if (!is_app_of(t, get_add_name(), 4)) return optional<unsigned>();
-    expr const & k = app_arg(t);
-    return to_small_num(k);
+    if (is_app_of(t, get_add_name(), 4) &&
+        /* We do not consider (s + k) to be an offset term when add is marked as irreducible */
+        m_cache->is_transparent(transparency_mode::Semireducible, get_add_name())) {
+        expr const & k = app_arg(t);
+        return to_small_num(k);
+    } else {
+        unsigned k = 0;
+        expr it = t;
+        while (is_app_of(it, get_nat_succ_name(), 1)) {
+            k++;
+            it = app_arg(it);
+        }
+        if (k > 0 && k <= m_cache->m_nat_offset_cnstr_threshold)
+            return optional<unsigned>(k);
+        else
+            return optional<unsigned>();
+    }
 }
 
 /* Return true iff t is of the form (t' + k) where k is a numeral */
 static expr get_offset_term(expr const & t) {
-    lean_assert(is_app_of(t, get_add_name(), 4));
-    return app_arg(app_fn(t));
+    if (is_app_of(t, get_add_name(), 4)) {
+        return app_arg(app_fn(t));
+    } else {
+        lean_assert(is_app_of(t, get_nat_succ_name(), 1));
+        expr it = t;
+        while (is_app_of(it, get_nat_succ_name(), 1)) {
+            it = app_arg(it);
+        }
+        return it;
+    }
 }
 
 /* Return true iff t is of the form (@add _ nat_has_add a b)
    \pre is_offset_term(t) */
-static bool uses_nat_has_add_instance(expr const & t) {
-    lean_assert(is_app_of(t, get_add_name(), 4));
-    return is_constant(app_arg(app_fn(app_fn(t))), get_nat_has_add_name());
+static bool uses_nat_has_add_instance_or_succ(expr const & t) {
+    if (is_app_of(t, get_nat_succ_name(), 1)) {
+        return true;
+    } else {
+        lean_assert(is_app_of(t, get_add_name(), 4));
+        return is_constant(app_arg(app_fn(app_fn(t))), get_nat_has_add_name());
+    }
+}
+
+/* Given an offset term t, update its offset. There are two cases
+   1) t is of the form (s + k')    ==> result is (s + k)
+   2) t is of the form (succ^k' s) ==> result is (succ^k s) */
+static expr update_offset(expr const & t, unsigned k) {
+    lean_assert(k > 0);
+    if (is_app_of(t, get_nat_succ_name(), 1)) {
+        expr r = get_offset_term(t);
+        expr succ = mk_constant(get_nat_succ_name());
+        for (unsigned i = 0; i < k; i++)
+            r = mk_app(succ, r);
+        return r;
+    } else {
+        lean_assert(is_app_of(t, get_add_name(), 4));
+        return mk_app(app_fn(app_fn(t)), get_offset_term(t), to_nat_expr(mpz(k)));
+    }
 }
 
 /* Solve unification constraints of the form
@@ -2746,18 +2789,16 @@ lbool type_context::try_offset_eq_offset(expr const & t, expr const & s) {
     optional<unsigned> k2 = is_offset_term(s);
     if (!k2) return l_undef;
 
-    if (!uses_nat_has_add_instance(t) || !uses_nat_has_add_instance(s))
+    if (!uses_nat_has_add_instance_or_succ(t) || !uses_nat_has_add_instance_or_succ(s))
         return l_undef;
 
     if (*k1 == *k2) {
         return to_lbool(is_def_eq_core(get_offset_term(t), get_offset_term(s)));
     } else if (*k1 > *k2) {
-        return to_lbool(is_def_eq_core(mk_app(app_fn(app_fn(t)), get_offset_term(t), to_nat_expr(mpz(*k1 - *k2))),
-                                       get_offset_term(s)));
+        return to_lbool(is_def_eq_core(update_offset(t, *k1 - *k2), get_offset_term(s)));
     } else {
         lean_assert(*k2 > *k1);
-        return to_lbool(is_def_eq_core(get_offset_term(t),
-                                       mk_app(app_fn(app_fn(s)), get_offset_term(s), to_nat_expr(mpz(*k2 - *k1)))));
+        return to_lbool(is_def_eq_core(get_offset_term(t), update_offset(s, *k2 - *k1)));
     }
 }
 
@@ -2772,7 +2813,7 @@ lbool type_context::try_offset_eq_numeral(expr const & t, expr const & s) {
     optional<unsigned> k2 = to_small_num(s);
     if (!k2) return l_undef;
 
-    if (!uses_nat_has_add_instance(t))
+    if (!uses_nat_has_add_instance_or_succ(t))
         return l_undef;
 
     if (*k2 >= *k1) {

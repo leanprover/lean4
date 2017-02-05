@@ -14,7 +14,6 @@ namespace lean {
 
 class tactic_evaluator {
     type_context &  m_ctx;
-    info_manager &  m_info;
     options const & m_opts;
 
     environment compile_tactic(name const & tactic_name, expr const & tactic);
@@ -23,7 +22,7 @@ class tactic_evaluator {
     tactic_state execute_tactic(expr const & tactic, tactic_state const & s, expr const & ref);
     tactic_state execute_atomic(tactic_state const & s, expr const & tactic, expr const & ref);
 public:
-    tactic_evaluator(type_context & ctx, info_manager & info, options const & opts);
+    tactic_evaluator(type_context & ctx, options const & opts);
 
     tactic_state operator()(tactic_state const & s, expr const & tactic, expr const & ref);
 };

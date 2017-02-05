@@ -100,7 +100,7 @@ tactic_state tactic_evaluator::operator()(tactic_state const & s, expr const & t
     return execute_atomic(s, tactic, ref);
 }
 
-tactic_evaluator::tactic_evaluator(type_context & ctx, info_manager & info, options const & opts):
-    m_ctx(ctx), m_info(info), m_opts(opts) {
+tactic_evaluator::tactic_evaluator(type_context & ctx, options const & opts):
+    m_ctx(ctx), m_opts(opts) {
 }
 }

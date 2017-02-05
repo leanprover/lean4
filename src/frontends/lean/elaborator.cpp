@@ -2772,7 +2772,7 @@ tactic_state elaborator::mk_tactic_state_for(expr const & mvar) {
 void elaborator::invoke_tactic(expr const & mvar, expr const & tactic) {
     expr const & ref     = mvar;
     tactic_state s       = mk_tactic_state_for(mvar);
-    tactic_state new_s   = tactic_evaluator(m_ctx, m_info, m_opts)(s, tactic, ref);
+    tactic_state new_s   = tactic_evaluator(m_ctx, m_opts)(s, tactic, ref);
 
     metavar_context mctx = new_s.mctx();
     expr val             = mctx.instantiate_mvars(new_s.main());

@@ -20,19 +20,24 @@ if [[ "$OSTYPE" == "msys" ]]; then
     ff=$(echo $ff  | sed 's|^/\([a-z]\)/|\1:/|' | sed 's|/|\\\\|g')
 fi
 
+DIFF=diff
+if diff --color --help >/dev/null 2>&1; then
+  DIFF="diff --color";
+fi
+
 echo "-- testing $f"
 "$LEAN" -Dpp.colors=false -Dpp.unicode=true -j0 "$ff" &> "$f.produced.out"
 sed 's|does\\not\\exist|does/not/exist|' "$f.produced.out" | sed "/warning: imported file uses 'sorry'/d" | sed "/warning: using 'sorry'/d" | sed "/failed to elaborate theorem/d" | sed "s|^$ff|$f|" > "$f.produced.out.tmp"
 mv "$f.produced.out.tmp" "$f.produced.out"
 if test -f "$f.expected.out"; then
-    if diff --ignore-all-space -I "executing external script" "$f.produced.out" "$f.expected.out"; then
+    if $DIFF -u --ignore-all-space -I "executing external script" "$f.expected.out" "$f.produced.out"; then
         echo "-- checked"
         exit 0
     else
         echo "ERROR: file $f.produced.out does not match $f.expected.out"
         if [ $INTERACTIVE == "yes" ]; then
             meld "$f.produced.out" "$f.expected.out"
-            if diff -I "executing external script" "$f.produced.out" "$f.expected.out"; then
+            if diff -I "executing external script" "$f.expected.out" "$f.produced.out"; then
                 echo "-- mismatch was fixed"
             fi
         fi

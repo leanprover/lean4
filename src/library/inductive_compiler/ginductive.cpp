@@ -99,6 +99,7 @@ struct ginductive_env_ext : public environment_extension {
             for (name const & ir : intro_rules[ind_idx]) {
                 m_ir_to_ind.insert(ir, ind);
             }
+            ind_idx++;
         }
     }
 

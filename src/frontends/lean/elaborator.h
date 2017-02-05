@@ -27,6 +27,7 @@ class elaborator {
 public:
     class checkpoint;
 private:
+    friend class validate_equation_lhs_fn;
     typedef std::vector<pair<expr, expr>> to_check_sorts;
     enum class arg_mask {
         AllExplicit /* @ annotation */,

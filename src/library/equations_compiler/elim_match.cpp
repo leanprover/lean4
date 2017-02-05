@@ -286,12 +286,7 @@ struct elim_match_fn {
     bool is_value(type_context & ctx, expr const & e) {
         try {
         if (!m_use_ite) return false;
-        if (to_char(ctx, e) || to_string(e)) return true;
-        if (is_signed_num(e)) {
-            expr type = ctx.infer(e);
-            if (ctx.is_def_eq(type, mk_nat_type()) || ctx.is_def_eq(type, mk_int_type()))
-                return true;
-        }
+        if (is_nat_int_char_string_value(ctx, e)) return true;
         if (optional<name> I_name = is_constructor(e)) return is_nontrivial_enum(*I_name);
         return false;
         } catch (exception &) {

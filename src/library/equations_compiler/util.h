@@ -99,6 +99,9 @@ environment mk_simple_equation_lemma_for(environment const & env, options const 
 
 name mk_equation_name(name const & f_name, unsigned eqn_idx);
 
+/* Return true iff e is a nat, int, char or string value. */
+bool is_nat_int_char_string_value(type_context & ctx, expr const & e);
+
 void initialize_eqn_compiler_util();
 void finalize_eqn_compiler_util();
 }

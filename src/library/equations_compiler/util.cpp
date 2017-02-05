@@ -575,6 +575,16 @@ environment mk_simple_equation_lemma_for(environment const & env, options const 
     return add_equation_lemma(env, opts, metavar_context(), ctx.lctx(), is_private, eqn_name, eqn_type, eqn_proof);
 }
 
+bool is_nat_int_char_string_value(type_context & ctx, expr const & e) {
+    if (to_char(ctx, e) || to_string(e)) return true;
+    if (is_signed_num(e)) {
+        expr type = ctx.infer(e);
+        if (ctx.is_def_eq(type, mk_nat_type()) || ctx.is_def_eq(type, mk_int_type()))
+            return true;
+    }
+    return false;
+}
+
 void initialize_eqn_compiler_util() {
     register_trace_class("eqn_compiler");
     register_trace_class(name{"debug", "eqn_compiler"});

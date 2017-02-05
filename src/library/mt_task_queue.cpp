@@ -232,6 +232,7 @@ void mt_task_queue::submit_core(generic_task_result const & t) {
         m_waiting.insert(t);
         notify_queue_changed();
     }
+    lean_assert(unwrap(t)->m_state.load() >= task_result_state::QUEUED);
 }
 
 void mt_task_queue::bump_prio(generic_task_result const & t, task_priority const & new_prio) {
@@ -268,14 +269,15 @@ bool mt_task_queue::check_deps(generic_task_result const & t) {
     try {
         deps = unwrap(t)->m_task->get_dependencies();
     } catch (...) {}
-    if (unwrap(t)->m_task->do_priority_inversion()) {
-        for (auto & dep : deps) {
-            if (dep) {
-                submit_core(dep);
-                bump_prio(dep, get_prio(t));
-            }
+
+    auto do_prio_inv = unwrap(t)->m_task->do_priority_inversion();
+    for (auto & dep : deps) {
+        if (dep) {
+            submit_core(dep);
+            if (do_prio_inv) bump_prio(dep, get_prio(t));
         }
     }
+
     for (auto & dep : deps) {
         if (!dep) continue;
         switch (unwrap(dep)->m_state.load()) {

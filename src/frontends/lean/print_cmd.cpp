@@ -6,7 +6,8 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include <string>
-#include <library/trace.h>
+#include "library/trace.h"
+#include "library/sorry.h"
 #include "util/sstream.h"
 #include "util/sexpr/option_declarations.h"
 #include "kernel/for_each_fn.h"
@@ -39,8 +40,9 @@ struct print_axioms_deps {
     io_state_stream m_ios;
     name_set        m_visited;
     bool            m_use_axioms;
+    bool            m_used_sorry;
     print_axioms_deps(environment const & env, io_state_stream const & ios):
-        m_env(env), m_ios(ios), m_use_axioms(false) {}
+        m_env(env), m_ios(ios), m_use_axioms(false), m_used_sorry(false) {}
 
     void visit(name const & n) {
         if (m_visited.contains(n))
@@ -58,6 +60,10 @@ struct print_axioms_deps {
 
     void visit(expr const & e) {
         for_each(e, [&](expr const & e, unsigned) {
+                if (is_sorry(e) && !m_used_sorry) {
+                    m_used_sorry = true;
+                    m_ios << "[sorry]" << "\n";
+                }
                 if (is_constant(e))
                     visit(const_name(e));
                 return true;

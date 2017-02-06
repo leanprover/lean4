@@ -16,10 +16,10 @@ open expr environment list
 /- Retrieve the name of the type we are building a decidable equality proof for. -/
 private meta def get_dec_eq_type_name : tactic name :=
 do {
-  (pi x1 i1 d1 (pi x2 i2 d2 b)) ← target >>= whnf | failed,
-  (const n ls) ← return (get_app_fn b) | failed,
+  (pi x1 i1 d1 (pi x2 i2 d2 b)) ← target >>= whnf,
+  (const n ls) ← return (get_app_fn b),
   when (n ≠ `decidable) failed,
-  (const I ls) ← return (get_app_fn d1) | failed,
+  (const I ls) ← return (get_app_fn d1),
   return I }
 <|>
 fail "mk_dec_eq_instance tactic failed, target type is expected to be of the form (decidable_eq ...)"
@@ -113,11 +113,11 @@ do I_name ← get_dec_eq_type_name,
 
 meta def mk_dec_eq_instance : tactic unit :=
 do env ← get_env,
-   (pi x1 i1 d1 (pi x2 i2 d2 b)) ← target >>= whnf | failed,
-   (const I_name ls) ← return (get_app_fn d1) | failed,
+   (pi x1 i1 d1 (pi x2 i2 d2 b)) ← target >>= whnf,
+   (const I_name ls) ← return (get_app_fn d1),
    when (is_ginductive env I_name ∧ ¬ is_inductive env I_name) $
       do { d1' ← whnf d1,
-           (app I_basic_const I_idx) ← return d1' | failed,
+           (app I_basic_const I_idx) ← return d1',
            I_idx_type ← infer_type I_idx,
            new_goal ← to_expr `(∀ (_idx : %%I_idx_type), decidable_eq (%%I_basic_const _idx)),
            assert `_basic_dec_eq new_goal,

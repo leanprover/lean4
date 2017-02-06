@@ -239,7 +239,7 @@ do (ss, ts) ← get_goals,
 
 /- LCF-style AND_THEN tactic. It applies tac1, and if succeed applies tac2 to each subgoal produced by tac1 -/
 meta def seq (tac1 : smt_tactic unit) (tac2 : smt_tactic unit) : smt_tactic unit :=
-do (s::ss, t::ts) ← get_goals | failed,
+do (s::ss, t::ts) ← get_goals,
    set_goals [s] [t],
    tac1, all_goals tac2,
    (new_ss, new_ts) ← get_goals,

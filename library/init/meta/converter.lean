@@ -175,7 +175,7 @@ meta def match_expr (p : pexpr) : conv unit :=
 meta def funext (c : conv unit) : conv unit :=
 λ r lhs, do
   guard (r = `eq),
-  (expr.lam n bi d b) ← return lhs | failed,
+  (expr.lam n bi d b) ← return lhs,
   aux_type ← return $ (expr.pi n bi d (expr.const `true [])),
   (result, _) ← solve_aux aux_type $ do {
     x ← intro1,
@@ -193,7 +193,7 @@ meta def funext (c : conv unit) : conv unit :=
 meta def congr_core (c_f c_a : conv unit) : conv unit :=
 λ r lhs, do
   guard (r = `eq),
-  (expr.app f a) ← return lhs | failed,
+  (expr.app f a) ← return lhs,
   f_type ← infer_type f >>= tactic.whnf,
   guard (f_type^.is_arrow),
   ⟨(), new_f, of⟩ ← try c_f r f,

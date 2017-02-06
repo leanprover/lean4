@@ -15,9 +15,9 @@ open expr environment list
 /- Retrieve the name of the type we are building an inhabitant instance for. -/
 private meta def get_inhabited_type_name : tactic name :=
 do {
-  (app (const n ls) t) ← target >>= whnf | failed,
+  (app (const n ls) t) ← target >>= whnf,
   when (n ≠ `inhabited) failed,
-  (const I ls) ← return (get_app_fn t) | failed,
+  (const I ls) ← return (get_app_fn t),
   return I }
 <|>
 fail "mk_inhabited_instance tactic failed, target type is expected to be of the form (inhabited ...)"

@@ -296,7 +296,7 @@ erewrite
 
 private meta def get_type_name (e : expr) : tactic name :=
 do e_type ← infer_type e >>= whnf,
-   (const I ls) ← return $ get_app_fn e_type | failed,
+   (const I ls) ← return $ get_app_fn e_type,
    return I
 
 meta def induction (p : qexpr0) (rec_name : using_ident) (ids : with_ident_list) : tactic unit :=

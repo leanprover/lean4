@@ -139,14 +139,14 @@ target >>= dunfold_occs_core reducible default_max_steps (occurrences.pos occs) 
 
 meta def dunfold_core_at (occs : occurrences) (cs : list name) (h : expr) : tactic unit :=
 do num_reverted ← revert h,
-   (expr.pi n bi d b : expr) ← target | failed,
+   (expr.pi n bi d b : expr) ← target,
    new_d : expr ← dunfold_occs_core reducible default_max_steps occs cs d,
    change $ expr.pi n bi new_d b,
    intron num_reverted
 
 meta def dunfold_at (cs : list name) (h : expr) : tactic unit :=
 do num_reverted ← revert h,
-   (expr.pi n bi d b : expr) ← target | failed,
+   (expr.pi n bi d b : expr) ← target,
    new_d : expr ← dunfold_core reducible default_max_steps cs d,
    change $ expr.pi n bi new_d b,
    intron num_reverted
@@ -166,7 +166,7 @@ cs^.any (λ c,
 meta def delta_core (cfg : delta_config) (cs : list name) (e : expr) : tactic expr :=
 let unfold (u : unit) (e : expr) : tactic (unit × expr × bool) := do
   guard (is_delta_target e cs),
-  (expr.const f_name f_lvls) ← return $ e^.get_app_fn | failed,
+  (expr.const f_name f_lvls) ← return $ e^.get_app_fn,
   env   ← get_env,
   decl  ← returnex $ env^.get f_name,
   new_f ← returnopt $ decl^.instantiate_value_univ_params f_lvls,
@@ -180,7 +180,7 @@ target >>= delta_core {} cs >>= change
 
 meta def delta_at (cs : list name) (h : expr) : tactic unit :=
 do num_reverted ← revert h,
-   (expr.pi n bi d b : expr) ← target | failed,
+   (expr.pi n bi d b : expr) ← target,
    new_d : expr ← delta_core {} cs d,
    change $ expr.pi n bi new_d b,
    intron num_reverted
@@ -263,7 +263,7 @@ simp_lemmas.mk_default >>= dsimp_core
 
 meta def dsimp_at_core (s : simp_lemmas) (h : expr) : tactic unit :=
 do num_reverted : ℕ ← revert h,
-   (expr.pi n bi d b : expr) ← target | failed,
+   (expr.pi n bi d b : expr) ← target,
    h_simp ← s^.dsimplify d,
    change $ expr.pi n bi h_simp b,
    intron num_reverted

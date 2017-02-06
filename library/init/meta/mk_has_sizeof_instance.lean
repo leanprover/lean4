@@ -14,9 +14,9 @@ open expr environment list
 /- Retrieve the name of the type we are building a has_sizeof instance for. -/
 private meta def get_has_sizeof_type_name : tactic name :=
 do {
-  (app (const n ls) t) ← target >>= whnf | failed,
+  (app (const n ls) t) ← target >>= whnf,
   when (n ≠ `has_sizeof) failed,
-  (const I ls) ← return (get_app_fn t) | failed,
+  (const I ls) ← return (get_app_fn t),
   return I }
 <|>
 fail "mk_has_sizeof_instance tactic failed, target type is expected to be of the form (has_sizeof ...)"

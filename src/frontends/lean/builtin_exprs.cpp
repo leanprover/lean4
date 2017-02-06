@@ -445,7 +445,7 @@ static name * g_do_match_name = nullptr;
 static expr fix_do_action_lhs(parser_state & p, expr const & lhs, expr const & type, pos_info const & lhs_pos,
                               buffer<expr> & new_locals) {
     // Hack
-    if (is_constant(lhs) || is_local(lhs)) {
+    if ((is_constant(lhs) && !inductive::is_intro_rule(p.env(), const_name(lhs))) || is_local(lhs)) {
         expr new_lhs;
         if (is_constant(lhs)) {
             new_lhs = mk_local(name(const_name(lhs).get_string()), type);

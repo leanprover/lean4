@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.function init.data.option.basic init.util
-import init.category.combinators init.category.monad init.category.alternative
+import init.category.combinators init.category.monad init.category.alternative init.category.monad_fail
 import init.data.nat.div init.meta.exceptional init.meta.format init.meta.environment
 import init.meta.pexpr init.data.to_string init.data.string.basic
 meta constant tactic_state : Type
@@ -86,6 +86,9 @@ meta def tactic.fail {α : Type u} {β : Type v} [has_to_format β] (msg : β) :
 
 meta def tactic.failed {α : Type u} : tactic α :=
 tactic.fail "failed"
+
+meta instance : monad_fail tactic :=
+{ tactic.monad with fail := λ α s, tactic.fail (to_fmt s) }
 
 meta instance : alternative tactic :=
 ⟨@tactic_fmap, (λ α a s, success a s), (@fapp _ _), @tactic.failed, @tactic_orelse⟩

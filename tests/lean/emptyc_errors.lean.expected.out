@@ -3,9 +3,19 @@ context:
 A : Type u,
 x : A
 ⊢ has_mem A ?m_1
-emptyc_errors.lean:4:52: error: don't know how to synthesize placeholder
+emptyc_errors.lean:4:54: error: don't know how to synthesize placeholder
 context:
 A : Type u,
 x : A
-⊢ has_mem A ?m_1
-emptyc_errors.lean:4:52: error: elaborator failed
+⊢ Type ?
+emptyc_errors.lean:4:54: error: don't know how to synthesize placeholder
+context:
+A : Type u,
+x : A
+⊢ has_emptyc sorry
+emptyc_errors.lean:5:0: error: type mismatch, expression
+  λ (h : x ∈ ∅), h
+has type
+  x ∈ ∅ → x ∈ ∅
+but is expected to have type
+  x ∉ ∅

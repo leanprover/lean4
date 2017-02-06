@@ -1,5 +1,3 @@
-bad_error4.lean:4:11: warning: declaration 'bar' uses sorry
-bad_error4.lean:4:11: warning: declaration 'bar.equations._eqn_1' uses sorry
 bad_error4.lean:5:0: error: type mismatch at application
   {f := λ (a : unit) (b : delayed[?m_1]), delayed[?m_3]}
 term
@@ -8,3 +6,5 @@ has type
   Π (a : unit) (b : delayed[?m_1]), delayed[?m_2]
 but is expected to have type
   unit → unit
+bad_error4.lean:4:11: warning: declaration 'bar' uses sorry
+bad_error4.lean:4:11: warning: declaration 'bar.equations._eqn_1' uses sorry

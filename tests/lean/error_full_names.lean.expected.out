@@ -1,5 +1,8 @@
 error_full_names.lean:4:6: error: failed to synthesize type class instance for
 ⊢ has_zero nat
+error_full_names.lean:4:8: error: failed to synthesize type class instance for
+⊢ has_add nat
+0 + nat.zero : nat
 error_full_names.lean:8:6: error: type mismatch at application
   nat.succ nat.zero
 term
@@ -8,3 +11,4 @@ has type
   nat
 but is expected to have type
   ℕ
+sorry : ?M_1

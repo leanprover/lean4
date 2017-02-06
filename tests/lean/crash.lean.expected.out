@@ -1,10 +1,20 @@
-crash.lean:6:11: error: don't know how to synthesize placeholder
-context:
-P : Prop
-⊢ Sort ?
 crash.lean:9:17: error: invalid have-expression, expression
   H
 has type
   P
 but is expected to have type
   ¬P
+crash.lean:10:12: error: don't know how to synthesize placeholder
+context:
+P : Prop,
+H : P,
+H' : ¬P
+⊢ Sort ?
+crash.lean:10:12: error: don't know how to synthesize placeholder
+context:
+P : Prop,
+H : P,
+H' : ¬P
+⊢ sorry
+crash.lean:6:11: warning: declaration 'crash' uses sorry
+crash.lean:6:11: warning: declaration 'crash.equations._eqn_1' uses sorry

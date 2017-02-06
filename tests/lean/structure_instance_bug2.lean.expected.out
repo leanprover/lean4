@@ -1,3 +1,3 @@
+structure_instance_bug2.lean:4:0: error: invalid structure instance, 'default_smt_pre_config' is not the name of a structure type
 structure_instance_bug2.lean:3:4: warning: declaration 'my_pre_config1' uses sorry
 structure_instance_bug2.lean:3:4: warning: declaration 'my_pre_config1.equations._eqn_1' uses sorry
-structure_instance_bug2.lean:4:0: error: invalid structure instance, 'default_smt_pre_config' is not the name of a structure type

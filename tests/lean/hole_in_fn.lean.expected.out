@@ -4,4 +4,3 @@ n : ℕ
 ⊢ ℕ
 hole_in_fn.lean:5:11: warning: declaration 'f' uses sorry
 hole_in_fn.lean:5:11: warning: declaration 'f.equations._eqn_1' uses sorry
-hole_in_fn.lean:6:13: error: elaborator failed

@@ -1,5 +1,3 @@
-bad_inaccessible2.lean:29:11: warning: declaration 'map_head' uses sorry
-bad_inaccessible2.lean:29:11: warning: declaration 'map_head.equations._eqn_1' uses sorry
 bad_inaccessible2.lean:31:2: error: type mismatch at application
   map_head (cons a va) (cons b vb)
 term
@@ -8,3 +6,6 @@ has type
   vec .?m_1 (n + 1)
 but is expected to have type
   vec A .(.?m_2 + 1)
+bad_inaccessible2.lean:31:46: error: ill-formed match/equations expression
+bad_inaccessible2.lean:29:11: warning: declaration 'map_head' uses sorry
+bad_inaccessible2.lean:29:11: warning: declaration 'map_head.equations._eqn_1' uses sorry

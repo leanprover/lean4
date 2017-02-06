@@ -4,3 +4,17 @@ given argument
   n
 expected argument
   m
+bad_error1.lean:4:22: error: unexpected argument at application
+  nat.bit1_ne_bit0 sorry m
+given argument
+  m
+expected argument
+  n
+bad_error1.lean:4:13: error: type mismatch at application
+  ne.symm (nat.bit1_ne_bit0 sorry sorry)
+term
+  nat.bit1_ne_bit0 sorry sorry
+has type
+  bit1 sorry ≠ bit0 sorry
+but is expected to have type
+  bit1 m ≠ bit0 n

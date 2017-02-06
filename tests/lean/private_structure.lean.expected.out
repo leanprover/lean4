@@ -20,4 +20,5 @@ private_structure.lean:32:6: error: unknown identifier 'point.y'
 def foo.bla : Type :=
 point
 private_structure.lean:37:7: error: invalid constructor ⟨...⟩, type is a private inductive datatype
+sorry : foo.bla
 foo.mk : foo.bla

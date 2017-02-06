@@ -18,3 +18,15 @@ state:
 foo : ?m_1,
 trivial : ?m_2
 ⊢ ?m_3
+1293.lean:13:8: error: don't know how to synthesize placeholder
+context:
+⊢ Sort ?
+1293.lean:13:12: error: don't know how to synthesize placeholder
+context:
+foo : sorry
+⊢ Sort ?
+1293.lean:13:8: error: don't know how to synthesize placeholder
+context:
+foo : sorry,
+trivial : sorry
+⊢ Sort ?

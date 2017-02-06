@@ -3,4 +3,6 @@
 elab1.lean:13:6: error: invalid '@', function is overloaded, use fully qualified names (overloads: boo.subst, foo.subst)
 elab1.lean:15:6: error: invalid '@@', function is overloaded, use fully qualified names (overloads: boo.subst, foo.subst)
 elab1.lean:19:6: error: invalid overloaded application, elaborator has special support for 'eq.subst' (it is handled as an "eliminator"), but this kind of constant cannot be overloaded (solution: use fully qualified names) (overloads: eq.subst, boo.subst, foo.subst)
+sorry : ?M_1
 elab1.lean:25:6: error: invalid 'eq.subst' application, elaborator has special support for this kind of application (it is handled as an "eliminator"), but the expected type must be known
+sorry : ?M_1

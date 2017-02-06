@@ -1,15 +1,25 @@
 error_pos.lean:1:39: error: type expected at
   B
+error_pos.lean:1:8: warning: declaration '_example' uses sorry
 error_pos.lean:4:43: error: type expected at
   B
 error_pos.lean:9:39: error: type expected at
   B
+λ (A : Type) (B : A → Type) (b : sorry), true : Π (A : Type), (A → Type) → sorry → Prop
 error_pos.lean:11:35: error: type expected at
   B
+λ (A : Type) (B : A → Type), sorry → true : Π (A : Type), (A → Type) → Prop
 error_pos.lean:13:42: error: type expected at
   B
+λ (A : Type) (B : A → Type) (b : sorry), b : Π (A : Type), (A → Type) → sorry → sorry
 error_pos.lean:15:105: error: invalid let-expression, expression
   a₁
+has type
+  B
+but is expected to have type
+  A
+error_pos.lean:15:133: error: invalid let-expression, expression
+  a₂
 has type
   B
 but is expected to have type

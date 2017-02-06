@@ -1,4 +1,14 @@
 bad_error3.lean:1:33: error: type expected at
   p 0
+bad_error3.lean:3:0: error: tactic failed, there are unsolved goals
+state:
+p : ℕ → ℕ → Prop
+⊢ sorry
 bad_error3.lean:5:32: error: type expected at
   p 0
+bad_error3.lean:7:0: error: tactic failed, there are unsolved goals
+state:
+p : ℕ → ℕ → Prop
+⊢ sorry
+bad_error3.lean:5:4: warning: declaration 'ex' uses sorry
+bad_error3.lean:5:4: warning: declaration 'ex.equations._eqn_1' uses sorry

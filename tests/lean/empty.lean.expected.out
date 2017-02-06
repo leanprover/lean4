@@ -1,5 +1,4 @@
-empty.lean:6:25: warning: declaration 'v2' uses sorry
-empty.lean:6:25: warning: definition 'v2' was incorrectly marked as noncomputable
-empty.lean:6:25: warning: declaration 'v2.equations._eqn_1' uses sorry
 empty.lean:6:39: error: failed to synthesize type class instance for
 ⊢ nonempty Empty
+empty.lean:6:25: warning: declaration 'v2' uses sorry
+empty.lean:6:25: warning: declaration 'v2.equations._eqn_1' uses sorry

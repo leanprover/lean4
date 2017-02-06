@@ -1,5 +1,5 @@
-cls_err.lean:12:13: warning: declaration 'tst' uses sorry
-cls_err.lean:12:13: warning: declaration 'tst.equations._eqn_1' uses sorry
 cls_err.lean:13:2: error: failed to synthesize type class instance for
 A : Type u
 ⊢ H A
+cls_err.lean:12:13: warning: declaration 'tst' uses sorry
+cls_err.lean:12:13: warning: declaration 'tst.equations._eqn_1' uses sorry

@@ -195,8 +195,8 @@ meta instance {α : Type u} [has_to_tactic_format α] : has_to_tactic_format (li
 
 meta def pair_to_tactic_format_aux {α : Type u} {β : Type v} [has_to_tactic_format α] [has_to_tactic_format β] :
          α × β → tactic format
-| (a, b) := do 
-  fa ← pp a, fb ← pp b, 
+| (a, b) := do
+  fa ← pp a, fb ← pp b,
   return $ to_fmt "(" ++ fa ++ ", " ++ fb ++ ")"
 
 meta instance (α : Type u) (β : Type v) [has_to_tactic_format α] [has_to_tactic_format β] :
@@ -206,7 +206,7 @@ meta def option_to_tactic_format {α : Type u} [has_to_tactic_format α] : optio
 | (some a) := do fa ← pp a, return (to_fmt "(some " ++ fa ++ ")")
 | none     := return "none"
 
-meta instance {α : Type u} [has_to_tactic_format α] : has_to_tactic_format (option α) := 
+meta instance {α : Type u} [has_to_tactic_format α] : has_to_tactic_format (option α) :=
 ⟨option_to_tactic_format⟩
 
 meta instance has_to_format_to_has_to_tactic_format (α : Type) [has_to_format α] : has_to_tactic_format α :=
@@ -402,6 +402,17 @@ meta constant add_decl : declaration → tactic unit
 /- (doc_string env d k) return the doc string for d (if available) -/
 meta constant doc_string : name → tactic string
 meta constant add_doc_string : name → string → tactic unit
+/--
+Create an auxiliary definition with name `c` where `type` and `value` may contain local constants and
+meta-variables. This function collects all dependencies (universe parameters, universe metavariables,
+local constants (aka hypotheses) and metavariables).
+It updates the environment in the tactic_state, and returns an expression of the form
+
+          (c.{l_1 ... l_n} a_1 ... a_m)
+
+where l_i's and a_j's are the collected dependencies.
+-/
+meta constant add_aux_decl (c : name) (type : expr) (val : expr) (is_lemma : bool) : tactic expr
 meta constant module_doc_strings : tactic (list (option name × string))
 /- (set_basic_attribute_core attr_name c_name persistent prio) set attribute attr_name for constant c_name with the given priority.
    If the priority is none, then use default -/
@@ -832,6 +843,35 @@ meta def generalizes : list expr → tactic unit
 meta def refine (e : pexpr) : tactic unit :=
 do tgt : expr ← target,
    to_expr `(%%e : %%tgt) >>= exact
+
+private meta def get_undeclared_const (env : environment) (base : name) : ℕ → name | i :=
+let n := base <.> ("_aux_" ++ to_string i) in
+if ¬env^.contains n then n
+else get_undeclared_const (i+1)
+
+meta def new_aux_decl_name : tactic name := do
+env ← get_env, n ← decl_name,
+return $ get_undeclared_const env n 1
+
+private meta def mk_aux_decl_name : option name → tactic name
+| none          := new_aux_decl_name
+| (some suffix) := do p ← decl_name, return $ p ++ suffix
+
+meta def abstract (tac : tactic unit) (suffix : option name := none) : tactic unit :=
+do fail_if_no_goals,
+   gs ← get_goals,
+   type ← target,
+   is_lemma ← is_prop type,
+   m ← mk_meta_var type,
+   set_goals [m],
+   tac,
+   n ← num_goals,
+   when (n ≠ 0) (fail "abstract tactic failed, there are unsolved goals"),
+   set_goals gs,
+   val ← instantiate_mvars m,
+   c   ← mk_aux_decl_name suffix,
+   e   ← add_aux_decl c type val is_lemma,
+   exact e
 
 /- (solve_aux type tac) synthesize an element of 'type' using tactic 'tac' -/
 meta def solve_aux {α : Type} (type : expr) (tac : tactic α) : tactic (α × expr) :=

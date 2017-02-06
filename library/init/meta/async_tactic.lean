@@ -24,15 +24,6 @@ s ← read, return $ task.delay $ λ _,
     undefined_core $ to_string $ fmt () ++ format.line ++ to_fmt s'
   end
 
-private meta def get_undeclared_const (env : environment) (base : name) : ℕ → name | i :=
-let n := base <.> ("_aux_" ++ to_string i) in
-if ¬env^.contains n then n
-else get_undeclared_const (i+1)
-
-meta def new_aux_decl_name : tactic name := do
-env ← get_env, n ← decl_name,
-return $ get_undeclared_const env n 1
-
 meta def prove_goal_async (tac : tactic unit) : tactic unit := do
 ctx ← local_context, revert_lst ctx,
 tgt ← target, tgt ← instantiate_mvars tgt,

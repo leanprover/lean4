@@ -11,7 +11,7 @@
   '("import" "prelude" "protected" "private" "noncomputable" "definition" "meta" "renaming"
     "hiding" "exposing" "parameter" "parameters" "begin" "conjecture" "constant" "constants"
     "hypothesis" "lemma" "corollary" "variable" "variables" "premise" "premises" "theory"
-    "print" "theorem" "proposition" "example" "abstract"
+    "print" "theorem" "proposition" "example"
     "open" "as" "export" "override" "axiom" "axioms" "inductive" "with" "without"
     "structure" "record" "universe" "universes"
     "alias" "help" "precedence" "reserve" "declare_trace" "add_key_equivalence"

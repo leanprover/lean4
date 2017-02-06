@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/documentation.h"
 #include "library/scoped_ext.h"
+#include "library/aux_definition.h"
 #include "library/unfold_macros.h"
 #include "library/vm/vm_environment.h"
 #include "library/vm/vm_exceptional.h"
@@ -778,6 +779,21 @@ format tactic_state::pp() const {
     }
 }
 
+vm_obj tactic_add_aux_decl(vm_obj const & n, vm_obj const & type, vm_obj const & val, vm_obj const & lemma, vm_obj const & _s) {
+    tactic_state const & s   = to_tactic_state(_s);
+    optional<metavar_decl> g = s.get_main_goal_decl();
+    if (!g) return mk_no_goals_exception(s);
+    try {
+        pair<environment, expr> r =
+            to_bool(lemma) ?
+              mk_aux_lemma(s.env(), s.mctx(), g->get_context(), to_name(n), to_expr(type), to_expr(val))
+            : mk_aux_definition(s.env(), s.mctx(), g->get_context(), to_name(n), to_expr(type), to_expr(val));
+        return mk_tactic_success(to_obj(r.second), set_env(s, r.first));
+    } catch (exception & ex) {
+        return mk_tactic_exception(ex, s);
+    }
+}
+
 void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic_state", "env"}),            tactic_state_env);
     DECLARE_VM_BUILTIN(name({"tactic_state", "format_expr"}),    tactic_state_format_expr);
@@ -816,6 +832,7 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic", "module_doc_strings"}),   tactic_module_doc_strings);
     DECLARE_VM_BUILTIN(name({"tactic", "open_namespaces"}),      tactic_open_namespaces);
     DECLARE_VM_BUILTIN(name({"tactic", "decl_name"}),            tactic_decl_name);
+    DECLARE_VM_BUILTIN(name({"tactic", "add_aux_decl"}),         tactic_add_aux_decl);
     g_pp_instantiate_goal_mvars = new name{"pp", "instantiate_goal_mvars"};
     register_bool_option(*g_pp_instantiate_goal_mvars, LEAN_DEFAULT_PP_INSTANTIATE_GOAL_MVARS,
                          "(pretty printer) instantiate assigned metavariables before pretty printing goals");

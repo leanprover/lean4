@@ -2452,7 +2452,7 @@ bool type_context::is_productive(expr const & e) {
         return true;
     name const & n = const_name(f);
     if (n == get_pprod_fst_name()) {
-        /* We use prod.fst when compiling recursive equations and brec_on.
+        /* We use pprod.fst when compiling recursive equations with brec_on.
            So, we should check whether the main argument of the projection
            is productive */
         buffer<expr> args;

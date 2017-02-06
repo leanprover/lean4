@@ -88,4 +88,23 @@ section accum
     ⟨ res.1, res.2, by simp_using_hs ⟩
 
 end accum
+
+protected lemma eq {n : ℕ} : ∀ (a1 a2 : vector α n), to_list a1 = to_list a2 → a1 = a2
+| ⟨x, h1⟩ ⟨.x, h2⟩ rfl := rfl
+
+@[simp] lemma to_list_nil : to_list [] = @list.nil α :=
+rfl
+
+@[simp] lemma to_list_cons (a : α) (v : vector α n) : to_list (a :: v) = a :: to_list v :=
+begin cases v, reflexivity end
+
+@[simp] lemma to_list_append {n m : nat} (v : vector α n) (w : vector α m) : to_list (append v w) = to_list v ++ to_list w :=
+begin cases v, cases w, reflexivity end
+
+@[simp] lemma to_list_dropn {n m : ℕ} (v : vector α m) : to_list (dropn n v) = list.dropn n (to_list v) :=
+begin cases v, reflexivity end
+
+@[simp] lemma to_list_taken {n m : ℕ} (v : vector α m) : to_list (taken n v) = list.taken n (to_list v) :=
+begin cases v, reflexivity end
+
 end vector

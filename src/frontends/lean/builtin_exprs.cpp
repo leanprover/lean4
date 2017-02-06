@@ -475,9 +475,9 @@ static std::tuple<optional<expr>, expr, expr, optional<expr>> parse_do_action(pa
         type = p.parse_expr();
         lhs  = fix_do_action_lhs(p, *lhs, type, lhs_pos, new_locals);
         if (!is_local(*lhs)) {
-            throw parser_error("invalid 'do' notation, unexpected ':' the left hand side is not an identifier", lhs_pos);
+            throw parser_error("invalid 'do' block, unexpected ':' the left hand side is a pattern", lhs_pos);
         }
-        p.check_token_next(get_larrow_tk(), "invalid 'do' notation, '←' expected");
+        p.check_token_next(get_larrow_tk(), "invalid 'do' block, '←' expected");
         curr = p.parse_expr();
     } else if (p.curr_is_token(get_larrow_tk())) {
         p.next();
@@ -538,13 +538,13 @@ static expr parse_do(parser_state & p, unsigned, expr const *, pos_info const &)
             else_cases.push_back(else_case);
         } else {
             if (lhs) {
-                throw parser_error("invalid 'do' expression, unnecessary binder", lhs_pos);
+                throw parser_error("the last statement in a 'do' block must be an expression", lhs_pos);
             }
             break;
         }
     }
     if (has_braces) {
-        p.check_token_next(get_rcurly_tk(), "invalid 'do' expression, '}' expected");
+        p.check_token_next(get_rcurly_tk(), "invalid 'do' block, '}' expected");
     }
     lean_assert(!es.empty());
     lean_assert(es.size() == lhss.size() + 1);

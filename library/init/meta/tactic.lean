@@ -452,10 +452,13 @@ get_goals >>= set_goals
 meta def step {α : Type u} (t : tactic α) : tactic unit :=
 t >>[tactic] cleanup
 
+meta def istep {α : Type u} (line : nat) (col : nat) (t : tactic α) : tactic unit :=
+λ s, @scope_trace _ line col ((t >>[tactic] cleanup) s)
+
 /- Auxiliary definition used to implement begin ... end blocks.
    It is similar to step, but it reports an error at the given line/col if the tactic t fails. -/
 meta def rstep {α : Type u} (line : nat) (col : nat) (t : tactic α) : tactic unit :=
-λ s, tactic_result.cases_on (@scope_trace _ line col ((t >>[tactic] cleanup) s))
+λ s, tactic_result.cases_on (istep line col t s)
   (λ a new_s, tactic_result.success () new_s)
   (λ msg_thunk e new_s,
     let msg := msg_thunk () ++ format.line ++ to_fmt "state:" ++ format.line ++ new_s^.to_format in

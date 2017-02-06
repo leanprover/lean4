@@ -106,6 +106,15 @@ itactic: parse a nested "interactive" tactic. That is, parse
 meta def itactic : Type :=
 tactic unit
 
+/-
+irtactic: parse a nested "interactive" tactic. That is, parse
+  `(` tactic `)`
+It is similar to itactic, but the interactive mode will report errors
+when any of the nested tactics fail. This is good for tactics such as asynch and abstact.
+-/
+meta def irtactic : Type :=
+tactic unit
+
 /--
 This tactic applies to a goal that is either a Pi/forall or starts with a let binder.
 
@@ -341,7 +350,7 @@ tactic.try
 meta def solve1 : itactic → tactic unit :=
 tactic.solve1
 
-meta def abstract (id : opt_ident) (tac : itactic) : tactic unit :=
+meta def abstract (id : opt_ident) (tac : irtactic) : tactic unit :=
 tactic.abstract tac id
 
 /--

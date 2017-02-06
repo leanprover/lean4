@@ -1005,6 +1005,27 @@ bool get_constructor_rec_args(environment const & env, expr const & e, buffer<pa
     return true;
 }
 
+static expr * g_bool = nullptr;
+static expr * g_bool_tt = nullptr;
+static expr * g_bool_ff = nullptr;
+
+void initialize_bool() {
+    g_bool = new expr(mk_constant(get_bool_name()));
+    g_bool_ff = new expr(mk_constant(get_bool_ff_name()));
+    g_bool_tt = new expr(mk_constant(get_bool_tt_name()));
+}
+
+void finalize_bool() {
+    delete g_bool;
+    delete g_bool_ff;
+    delete g_bool_tt;
+}
+
+expr mk_bool() { return *g_bool; }
+expr mk_bool_tt() { return *g_bool_tt; }
+expr mk_bool_ff() { return *g_bool_tt; }
+expr to_bool_expr(bool b) { return b ? mk_bool_tt() : mk_bool_ff(); }
+
 void initialize_library_util() {
     g_true           = new expr(mk_constant(get_true_name()));
     g_true_intro     = new expr(mk_constant(get_true_intro_name()));
@@ -1015,9 +1036,11 @@ void initialize_library_util() {
     initialize_nat();
     initialize_int();
     initialize_char();
+    initialize_bool();
 }
 
 void finalize_library_util() {
+    finalize_bool();
     finalize_int();
     finalize_nat();
     finalize_char();

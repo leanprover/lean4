@@ -34,7 +34,7 @@ public:
         return {};
     }
 
-    virtual void write(serializer & s) const {
+    virtual void write(serializer & s) const override {
         s.write_string(*g_sorry_opcode);
     }
 };

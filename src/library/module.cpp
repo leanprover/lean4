@@ -227,7 +227,7 @@ struct search_sorry_task : public task<bool> {
         out << "Checking whether the module " << get_module_id() << " contains sorry";
     }
 
-    std::vector<generic_task_result> get_dependencies() {
+    std::vector<generic_task_result> get_dependencies() override {
         std::vector<generic_task_result> deps;
         for (auto & dep : m_exprs) deps.push_back(dep);
         return deps;

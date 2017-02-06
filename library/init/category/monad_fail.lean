@@ -10,3 +10,6 @@ universe variables u v
 
 class monad_fail (m : Type u → Type v) extends monad m :=
 (fail : Π {a}, string → m a)
+
+def match_failed {α : Type u} {m : Type u → Type v} [monad_fail m] : m α :=
+monad_fail.fail m "match failed"

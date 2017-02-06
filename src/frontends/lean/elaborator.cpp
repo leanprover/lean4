@@ -506,6 +506,17 @@ bool elaborator::is_monad(expr const & e) {
     }
 }
 
+bool elaborator::is_monad_fail(expr const & e) {
+    try {
+        expr m = mk_app(m_ctx, get_monad_fail_name(), e);
+        return static_cast<bool>(m_ctx.mk_class_instance(m));
+    } catch (app_builder_exception &) {
+        return false;
+    } catch (class_exception &) {
+        return false;
+    }
+}
+
 /*
    When lifting monads in do-notation and/or bind, it is very common to have coercion problems such as
 
@@ -1949,6 +1960,16 @@ static void check_equations_arity(buffer<expr> const & eqns) {
     }
 }
 
+bool elaborator::keep_do_failure_eq(expr const & first_eq) {
+    expr type = binding_domain(first_eq);
+    if (!is_pi(type))
+        return false;
+    type = binding_body(type);
+    if (!closed(type))
+        return false;
+    return is_app(type) && is_monad_fail(app_fn(type));
+}
+
 expr elaborator::visit_equations(expr const & e) {
     expr const & ref = e;
     buffer<expr> eqs;
@@ -1976,15 +1997,20 @@ expr elaborator::visit_equations(expr const & e) {
         fun_to_telescope(eq, fns_locals, optional<binder_info>());
         list<expr> locals = to_list(fns_locals.begin() + num_fns, fns_locals.end());
         if (first_eq) {
-            // Replace first num_fns domains of eq with the ones in first_eq.
-            // This is a trick/hack to ensure the fns in each equation have
-            // the same elaborated type.
-            new_eq   = copy_tag(eq, visit(copy_domain(num_fns, *first_eq, eq), none_expr()));
+            if (is_do_failure_eq(eq) && !keep_do_failure_eq(*first_eq)) {
+                /* skip equation since it doesn't implement the monad_fail interface */
+            } else {
+                /* Replace first num_fns domains of eq with the ones in first_eq.
+                   This is a trick/hack to ensure the fns in each equation have
+                   the same elaborated type. */
+                new_eq   = copy_tag(eq, visit(copy_domain(num_fns, *first_eq, eq), none_expr()));
+                new_eqs.push_back(new_eq);
+            }
         } else {
             new_eq   = copy_tag(eq, visit(eq, none_expr()));
             first_eq = new_eq;
+            new_eqs.push_back(new_eq);
         }
-        new_eqs.push_back(new_eq);
     }
     check_equations_arity(new_eqs);
     synthesize();
@@ -2180,7 +2206,7 @@ expr elaborator::visit_equation(expr const & eq) {
     expr new_rhs      = visit(rhs, some_expr(new_lhs_type));
     new_rhs = enforce_type(new_rhs, new_lhs_type, "equation type mismatch", eq);
     validate_equation_lhs_fn(*this, lhs).validate(instantiate_mvars(new_lhs));
-    return copy_tag(eq, mk_equation(new_lhs, new_rhs));
+    return copy_tag(eq, mk_equation(new_lhs, new_rhs, ignore_equation_if_unused(eq)));
 }
 
 expr elaborator::visit_inaccessible(expr const & e, optional<expr> const & expected_type) {

@@ -19,6 +19,8 @@ name const & get_field_notation_field_name(expr const & e);
 unsigned get_field_notation_field_idx(expr const & e);
 optional<pos_info> get_field_notation_field_pos(expr const & e);
 
+bool is_do_failure_eq(expr const & e);
+
 parse_table get_builtin_nud_table();
 parse_table get_builtin_led_table();
 void initialize_builtin_exprs();

@@ -1,0 +1,13 @@
+do_match_fail.lean:8:2: error: match failed
+state:
+p q : Prop,
+a : p,
+a_1 : q
+⊢ p
+do_match_fail.lean:9:0: error: failed
+state:
+p q : Prop,
+a : p,
+a_1 : q
+⊢ p
+do_match_fail.lean:20:3: error: invalid non-exhaustive set of equations (use 'set_option trace.eqn_compiler.elim_match true' for additional details)

@@ -194,11 +194,13 @@ map.insert
 map.lookup
 map.select
 map.store
+match_failed
 mod
 monad
 monad.map
 monad.bind
 monad.ret
+monad_fail
 monoid
 mul
 mul_one

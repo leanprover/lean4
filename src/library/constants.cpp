@@ -199,11 +199,13 @@ name const * g_map_insert = nullptr;
 name const * g_map_lookup = nullptr;
 name const * g_map_select = nullptr;
 name const * g_map_store = nullptr;
+name const * g_match_failed = nullptr;
 name const * g_mod = nullptr;
 name const * g_monad = nullptr;
 name const * g_monad_map = nullptr;
 name const * g_monad_bind = nullptr;
 name const * g_monad_ret = nullptr;
+name const * g_monad_fail = nullptr;
 name const * g_monoid = nullptr;
 name const * g_mul = nullptr;
 name const * g_mul_one = nullptr;
@@ -676,11 +678,13 @@ void initialize_constants() {
     g_map_lookup = new name{"map", "lookup"};
     g_map_select = new name{"map", "select"};
     g_map_store = new name{"map", "store"};
+    g_match_failed = new name{"match_failed"};
     g_mod = new name{"mod"};
     g_monad = new name{"monad"};
     g_monad_map = new name{"monad", "map"};
     g_monad_bind = new name{"monad", "bind"};
     g_monad_ret = new name{"monad", "ret"};
+    g_monad_fail = new name{"monad_fail"};
     g_monoid = new name{"monoid"};
     g_mul = new name{"mul"};
     g_mul_one = new name{"mul_one"};
@@ -1154,11 +1158,13 @@ void finalize_constants() {
     delete g_map_lookup;
     delete g_map_select;
     delete g_map_store;
+    delete g_match_failed;
     delete g_mod;
     delete g_monad;
     delete g_monad_map;
     delete g_monad_bind;
     delete g_monad_ret;
+    delete g_monad_fail;
     delete g_monoid;
     delete g_mul;
     delete g_mul_one;
@@ -1631,11 +1637,13 @@ name const & get_map_insert_name() { return *g_map_insert; }
 name const & get_map_lookup_name() { return *g_map_lookup; }
 name const & get_map_select_name() { return *g_map_select; }
 name const & get_map_store_name() { return *g_map_store; }
+name const & get_match_failed_name() { return *g_match_failed; }
 name const & get_mod_name() { return *g_mod; }
 name const & get_monad_name() { return *g_monad; }
 name const & get_monad_map_name() { return *g_monad_map; }
 name const & get_monad_bind_name() { return *g_monad_bind; }
 name const & get_monad_ret_name() { return *g_monad_ret; }
+name const & get_monad_fail_name() { return *g_monad_fail; }
 name const & get_monoid_name() { return *g_monoid; }
 name const & get_mul_name() { return *g_mul; }
 name const & get_mul_one_name() { return *g_mul_one; }

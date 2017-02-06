@@ -504,6 +504,21 @@ static expr mk_bind_fn() {
     return mk_no_info(mk_constant(get_bind_name()));
 }
 
+static name * g_do_failure_eq = nullptr;
+
+/* Mark for automatic failure equation when pattern matching in do-expressions. */
+expr mark_do_failure_eq(expr const & e) {
+    return mk_annotation(*g_do_failure_eq, e);
+}
+
+bool is_do_failure_eq(expr const & e) {
+    auto it = e;
+    while (is_lambda(it))
+        it = binding_body(it);
+    if (!is_equation(it)) return false;
+    return is_annotation(equation_rhs(it), *g_do_failure_eq);
+}
+
 static expr parse_do(parser_state & p, unsigned, expr const *, pos_info const &) {
     parser_state::local_scope scope(p);
     buffer<expr>               es;
@@ -567,14 +582,23 @@ static expr parse_do(parser_state & p, unsigned, expr const *, pos_info const &)
                 to_buffer(lhss_locals[i], locals);
                 buffer<expr> eqs;
                 eqs.push_back(Fun(fn, Fun(locals, p.save_pos(mk_equation(p.rec_save_pos(mk_app(fn, *lhs), pos), r), pos), p), p));
-                if (optional<expr> else_case = else_cases[i]) {
-                    // add case
-                    //    _ := else_case
-                    expr x = mk_local(mk_fresh_name(), "_x", mk_expr_placeholder(), binder_info());
-                    eqs.push_back(Fun(fn, Fun(x, p.save_pos(mk_equation(p.rec_save_pos(mk_app(fn, x), pos),
-                                                                        *else_case),
-                                                            pos), p), p));
+                expr else_case;
+                bool ignore_if_unused;
+                if (optional<expr> r = else_cases[i]) {
+                    else_case        = *r;
+                    ignore_if_unused = false;
+                } else {
+                    else_case        = p.save_pos(mark_do_failure_eq(p.save_pos(mk_constant(get_match_failed_name()), pos)), pos);
+                    ignore_if_unused = true;
                 }
+                // add case
+                //    _ := else_case
+                expr x = mk_local(mk_fresh_name(), "_x", mk_expr_placeholder(), binder_info());
+                expr else_eq = Fun(fn, Fun(x, p.save_pos(mk_equation(p.rec_save_pos(mk_app(fn, x), pos),
+                                                                     else_case,
+                                                                     ignore_if_unused),
+                                                         pos), p), p);
+                eqs.push_back(else_eq);
                 equations_header h = mk_equations_header(match_scope.get_name());
                 expr eqns  = p.save_pos(mk_equations(h, eqs.size(), eqs.data()), pos);
                 expr local = mk_local("p", mk_expr_placeholder());
@@ -941,6 +965,9 @@ void initialize_builtin_exprs() {
     g_no_universe_annotation = new name("no_univ");
     register_annotation(*g_no_universe_annotation);
 
+    g_do_failure_eq     = new name("do_failure_eq");
+    register_annotation(*g_do_failure_eq);
+
     g_not               = new expr(mk_constant(get_not_name()));
     g_nud_table         = new parse_table();
     *g_nud_table        = init_nud_table();
@@ -973,6 +1000,7 @@ void initialize_builtin_exprs() {
 }
 
 void finalize_builtin_exprs() {
+    delete g_do_failure_eq;
     delete g_led_table;
     delete g_nud_table;
     delete g_not;

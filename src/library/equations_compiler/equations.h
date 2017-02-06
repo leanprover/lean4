@@ -13,9 +13,13 @@ class io_state;
 bool is_equation(expr const & e);
 expr const & equation_lhs(expr const & e);
 expr const & equation_rhs(expr const & e);
-expr mk_equation(expr const & lhs, expr const & rhs);
+expr mk_equation(expr const & lhs, expr const & rhs, bool ignore_if_unused = false);
 /** \brief Return true if e is of the form <tt>fun a_1 ... a_n, equation</tt> */
 bool is_lambda_equation(expr const & e);
+
+/** \brief Return true iff e is an equation created with ignore_if_unused flag set to true.
+    \pre is_equation(e) */
+bool ignore_equation_if_unused(expr const & e);
 
 /** \brief Placeholder to indicate no equations were provided (e.g., to a match-with expression) */
 expr mk_no_equation();

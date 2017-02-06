@@ -43,7 +43,6 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_EQN_COMPILER_MAX_STEPS 128
 #endif
 
-
 namespace lean {
 static name * g_eqn_compiler_ite       = nullptr;
 static name * g_eqn_compiler_max_steps = nullptr;
@@ -362,6 +361,8 @@ struct elim_match_fn {
         }
         lean_assert(is_equation(it));
         equation E;
+        bool ignore_if_unused = ignore_equation_if_unused(it);
+        m_used_eqns.push_back(ignore_if_unused);
         E.m_vars = to_list(locals);
         E.m_lctx = ctx.lctx();
         E.m_rhs  = instantiate_rev(equation_rhs(it), locals);
@@ -394,7 +395,6 @@ struct elim_match_fn {
                 lean_assert(eqns.size() == 1);
                 return list<equation>();
             }
-            m_used_eqns.push_back(false);
             idx++;
         }
         return to_list(R);

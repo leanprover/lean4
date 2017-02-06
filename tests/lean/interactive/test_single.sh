@@ -10,17 +10,22 @@ else
     INTERACTIVE=$3
 fi
 
+DIFF=diff
+if diff --color --help >/dev/null 2>&1; then
+  DIFF="diff --color";
+fi
+
 ./run_single.sh $1 $f > "$f.produced.out"
 
 if test -f "$f.expected.out"; then
-    if diff --ignore-all-space "$f.produced.out" "$f.expected.out"; then
+    if $DIFF -u --ignore-all-space "$f.expected.out" "$f.produced.out"; then
         echo "-- checked"
         exit 0
     else
         echo "ERROR: file $f.produced.out does not match $f.expected.out"
         if [ $INTERACTIVE == "yes" ]; then
             meld "$f.produced.out" "$f.expected.out"
-            if diff --ignore-all-space "$f.produced.out" "$f.expected.out"; then
+            if $DIFF --ignore-all-space "$f.expected.out" "$f.produced.out"; then
                 echo "-- mismatch was fixed"
             fi
         fi

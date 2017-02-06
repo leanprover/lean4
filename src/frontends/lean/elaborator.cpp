@@ -2725,7 +2725,7 @@ expr elaborator::visit(expr const & e, optional<expr> const & expected_type) {
     flet<unsigned> inc_depth(m_depth, m_depth+1);
     trace_elab_detail(tout() << "[" << m_depth << "] visiting\n" << e << "\n";
                       if (expected_type) tout() << "expected type:\n" << instantiate_mvars(*expected_type) << "\n";);
-    return recover_expr_from_exception(expected_type, e, [&] {
+    return recover_expr_from_exception(expected_type, e, [&] () -> expr {
         if (is_placeholder(e)) {
             return visit_placeholder(e, expected_type);
         } else if (is_have_expr(e)) {

@@ -97,6 +97,7 @@
          (cmd `(,(lean-get-executable lean-executable-name)
                 "--server"
                 ,(format "-M%i" lean-memory-limit)
+                ,(format "-T%i" lean-timeout-limit)
                 ,@lean-extra-arguments
                 ,(format "*%s*" project-dir)))
          (proc (if (fboundp 'make-process)

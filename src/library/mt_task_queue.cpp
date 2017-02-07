@@ -147,6 +147,7 @@ void mt_task_queue::spawn_worker() {
             unwrap(t)->m_state = task_result_state::EXECUTING;
             bool is_ok;
             reset_interrupt();
+            reset_heartbeat();
             {
                 flet<generic_task_result> _(this_worker->m_current_task, t);
                 scoped_current_task scope_cur_task(&t);
@@ -156,6 +157,7 @@ void mt_task_queue::spawn_worker() {
                 lock.lock();
             }
             reset_interrupt();
+            reset_heartbeat();
 
             unwrap(t)->m_state = is_ok ? task_result_state::FINISHED : task_result_state::FAILED;
             get_data(t).m_has_finished.notify_all();

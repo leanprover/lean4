@@ -95,6 +95,7 @@ public:
 bool get_verbose(options const & opts);
 name const & get_verbose_opt_name();
 name const & get_max_memory_opt_name();
+name const & get_timeout_opt_name();
 
 inline options read_options(deserializer & d) { return options(read_sexpr(d)); }
 inline deserializer & operator>>(deserializer & d, options & o) { o = read_options(d); return d; }

@@ -4,12 +4,34 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <limits>
 #include "util/thread.h"
 #include "util/interrupt.h"
 #include "util/exception.h"
 #include "util/memory.h"
 
 namespace lean {
+static size_t g_max_hearbeat = 0;
+
+LEAN_THREAD_VALUE(size_t, g_heartbeat, 0);
+
+void inc_heartbeat() { g_heartbeat++; }
+
+void reset_heartbeat() { g_heartbeat = 0; }
+
+void set_max_heartbeat(size_t max) {
+    g_max_hearbeat = max;
+}
+
+void set_max_heartbeat_thousands(unsigned max) {
+    g_max_hearbeat = static_cast<size_t>(max) * 1000;
+}
+
+static void check_heartbeat(char const * component_name) {
+    if (g_max_hearbeat > 0 && g_heartbeat > g_max_hearbeat)
+        throw heartbeat_exception(component_name);
+}
+
 MK_THREAD_LOCAL_GET(atomic_bool, get_g_interrupt, false);
 
 void request_interrupt() {
@@ -32,9 +54,11 @@ void check_interrupted() {
 }
 
 void check_system(char const * component_name) {
+    inc_heartbeat();
     check_stack(component_name);
     check_memory(component_name);
     check_interrupted();
+    check_heartbeat(component_name);
 }
 
 void sleep_for(unsigned ms, unsigned step_ms) {

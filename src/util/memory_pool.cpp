@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <vector>
+#include "util/interrupt.h"
 #include "util/thread.h"
 #include "util/memory_pool.h"
 
@@ -18,6 +19,7 @@ memory_pool::~memory_pool() {
 }
 
 void * memory_pool::allocate() {
+    inc_heartbeat();
     if (m_free_list != nullptr) {
         void * r = m_free_list;
         m_free_list = *(reinterpret_cast<void **>(r));

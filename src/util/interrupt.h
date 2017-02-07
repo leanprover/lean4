@@ -11,6 +11,18 @@ Author: Leonardo de Moura
 #include "util/exception.h"
 
 namespace lean {
+/** \brief Increment thread local counter for approximating elapsed time. */
+void inc_heartbeat();
+
+/** \brief Reset thread local counter for approximating elapsed time. */
+void reset_heartbeat();
+
+/** \brief Threshold on the number of hearbeats. check_system will throw
+    an exception if a thread exceeds the limit. The default is unlimited.
+    The limit is checked in the check_system API. */
+void set_max_heartbeat(size_t max);
+void set_max_heartbeat_thousands(unsigned max);
+
 atomic_bool * get_interrupt_flag();
 
 /**
@@ -33,7 +45,7 @@ bool interrupt_requested();
 void check_interrupted();
 
 /**
-   \brief Check system resources: stack, memory, interrupt flag.
+   \brief Check system resources: stack, memory, hearbeat, interrupt flag.
 */
 void check_system(char const * component_name);
 

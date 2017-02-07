@@ -53,4 +53,12 @@ char const * memory_exception::what() const noexcept {
     buffer = s.str();
     return buffer.c_str();
 }
+
+char const * heartbeat_exception::what() const noexcept {
+    std::string & buffer = get_g_buffer();
+    std::ostringstream s;
+    s << "(deterministic) timeout detected at '" << m_component_name << "' (potential solution: increase timeout threshold)";
+    buffer = s.str();
+    return buffer.c_str();
+}
 }

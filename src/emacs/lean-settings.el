@@ -44,6 +44,11 @@
   :group 'lean
   :type 'number)
 
+(defcustom lean-timeout-limit 100000
+  "Deterministic timeout limit (it is approximately the maximum number of memory allocations in thousands)"
+  :group 'lean
+  :type 'number)
+
 (defcustom lean-extra-arguments nil
   "Extra command-line arguments to the lean process"
   :group 'lean

@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <vector>
 #include "util/memory.h"
+#include "util/interrupt.h"
 #include "util/small_object_allocator.h"
 
 namespace lean {
@@ -76,6 +77,7 @@ void small_object_allocator::deallocate(size_t size, void * p) {
 
 void * small_object_allocator::allocate(size_t size) {
     if (size == 0) return 0;
+    inc_heartbeat();
 #if LEAN_DEBUG
     // Valgrind friendly
     return new char[size];

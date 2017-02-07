@@ -18,17 +18,21 @@ Author: Leonardo de Moura
 namespace lean {
 static name * g_verbose    = nullptr;
 static name * g_max_memory = nullptr;
+static name * g_timeout    = nullptr;
 
 void initialize_options() {
     g_verbose    = new name("verbose");
     g_max_memory = new name("max_memory");
+    g_timeout    = new name("timeout");
     register_bool_option(*g_verbose, LEAN_DEFAULT_VERBOSE, "disable/enable verbose messages");
     register_unsigned_option(*g_max_memory, LEAN_DEFAULT_MAX_MEMORY, "maximum amount of memory available for Lean in megabytes");
+    register_unsigned_option(*g_timeout, 0, "the (deterministic) timeout is measured as the maximum of memory allocations (in thousands) per task, the default is unbounded");
 }
 
 void finalize_options() {
     delete g_verbose;
     delete g_max_memory;
+    delete g_timeout;
 }
 
 name const & get_verbose_opt_name() {
@@ -37,6 +41,10 @@ name const & get_verbose_opt_name() {
 
 name const & get_max_memory_opt_name() {
     return *g_max_memory;
+}
+
+name const & get_timeout_opt_name() {
+    return *g_timeout;
 }
 
 bool get_verbose(options const & opts) {

@@ -65,6 +65,12 @@ using namespace lean; // NOLINT
 #ifndef LEAN_DEFAULT_MAX_MEMORY
 #define LEAN_DEFAULT_MAX_MEMORY 0
 #endif
+#ifndef LEAN_DEFAULT_MAX_HEARTBEAT
+#define LEAN_DEFAULT_MAX_HEARTBEAT 1024*1024
+#endif
+#ifndef LEAN_SERVER_DEFAULT_MAX_HEARTBEAT
+#define LEAN_SERVER_DEFAULT_MAX_HEARTBEAT 100000
+#endif
 
 static void display_header(std::ostream & out) {
     out << "Lean (version " << LEAN_VERSION_MAJOR << "."
@@ -82,37 +88,39 @@ static void display_header(std::ostream & out) {
 static void display_help(std::ostream & out) {
     display_header(out);
     std::cout << "Input format:\n";
-    std::cout << "  --smt2            interpret files as SMT-Lib2 files\n";
+    std::cout << "  --smt2             interpret files as SMT-Lib2 files\n";
     std::cout << "Miscellaneous:\n";
-    std::cout << "  --help -h         display this message\n";
-    std::cout << "  --version -v      display version number\n";
-    std::cout << "  --githash         display the git commit hash number used to build this binary\n";
-    std::cout << "  --path            display the path used for finding Lean libraries and extensions\n";
-    std::cout << "  --doc=file -r     generate module documentation based on module doc strings\n";
-    std::cout << "  --make            create olean files\n";
-    std::cout << "  --recursive       recursively find *.lean files in directory arguments\n";
-    std::cout << "  --trust=num -t    trust level (default: max) 0 means do not trust any macro,\n"
-              << "                    and type check all imported modules\n";
-    std::cout << "  --quiet -q        do not print verbose messages\n";
-    std::cout << "  --memory=num -M   maximum amount of memory that should be used by Lean\n";
-    std::cout << "                    (in megabytes)\n";
+    std::cout << "  --help -h          display this message\n";
+    std::cout << "  --version -v       display version number\n";
+    std::cout << "  --githash          display the git commit hash number used to build this binary\n";
+    std::cout << "  --path             display the path used for finding Lean libraries and extensions\n";
+    std::cout << "  --doc=file -r      generate module documentation based on module doc strings\n";
+    std::cout << "  --make             create olean files\n";
+    std::cout << "  --recursive        recursively find *.lean files in directory arguments\n";
+    std::cout << "  --trust=num -t     trust level (default: max) 0 means do not trust any macro,\n"
+              << "                     and type check all imported modules\n";
+    std::cout << "  --quiet -q         do not print verbose messages\n";
+    std::cout << "  --memory=num -M    maximum amount of memory that should be used by Lean\n";
+    std::cout << "                     (in megabytes)\n";
+    std::cout << "  --timeout=num -T   maximum number of memory allocations per task\n";
+    std::cout << "                     this is a deterministic way of interrupting long running tasks\n";
 #if defined(LEAN_MULTI_THREAD)
-    std::cout << "  --threads=num -j  number of threads used to process lean files\n";
-    std::cout << "  --tstack=num -s   thread stack size in Kb\n";
+    std::cout << "  --threads=num -j   number of threads used to process lean files\n";
+    std::cout << "  --tstack=num -s    thread stack size in Kb\n";
 #endif
-    std::cout << "  --deps            just print dependencies of a Lean input\n";
+    std::cout << "  --deps             just print dependencies of a Lean input\n";
 #if defined(LEAN_JSON)
-    std::cout << "  --json            print JSON-formatted structured error messages\n";
-    std::cout << "  --server          start lean in server mode\n";
-    std::cout << "  --server=file     start lean in server mode, redirecting standard input from the specified file (for debugging)\n";
+    std::cout << "  --json             print JSON-formatted structured error messages\n";
+    std::cout << "  --server           start lean in server mode\n";
+    std::cout << "  --server=file      start lean in server mode, redirecting standard input from the specified file (for debugging)\n";
 #endif
-    std::cout << "  --profile         display elaboration/type checking time for each definition/theorem\n";
+    std::cout << "  --profile          display elaboration/type checking time for each definition/theorem\n";
     DEBUG_CODE(
-    std::cout << "  --debug=tag       enable assertions with the given tag\n";
+    std::cout << "  --debug=tag        enable assertions with the given tag\n";
         )
-    std::cout << "  -D name=value     set a configuration option (see set_option command)\n";
+    std::cout << "  -D name=value      set a configuration option (see set_option command)\n";
     std::cout << "Exporting data:\n";
-    std::cout << "  --export=file -E  export final environment as textual low-level file\n";
+    std::cout << "  --export=file -E   export final environment as textual low-level file\n";
 }
 
 static struct option g_long_options[] = {
@@ -131,6 +139,7 @@ static struct option g_long_options[] = {
     {"quiet",        no_argument,       0, 'q'},
     {"deps",         no_argument,       0, 'd'},
     {"compile",      optional_argument, 0, 'C'},
+    {"timeout",      optional_argument, 0, 'T'},
 #if defined(LEAN_JSON)
     {"json",         no_argument,       0, 'J'},
     {"server",       optional_argument, 0, 'S'},
@@ -146,7 +155,7 @@ static struct option g_long_options[] = {
 };
 
 static char const * g_opt_str =
-    "PdD:qpgvht:012E:A:B:j:012rM:012"
+    "PdD:qpgvht:012E:A:B:j:012rM:012T:012"
 #if defined(LEAN_MULTI_THREAD)
     "s:012"
 #endif
@@ -326,6 +335,9 @@ int main(int argc, char ** argv) {
         case 'M':
             opts = opts.update(get_max_memory_opt_name(), atoi(optarg));
             break;
+        case 'T':
+            opts = opts.update(get_timeout_opt_name(), atoi(optarg));
+            break;
         case 't':
             trust_lvl = atoi(optarg);
             break;
@@ -373,8 +385,13 @@ int main(int argc, char ** argv) {
     }
 
     if (auto max_memory = opts.get_unsigned(get_max_memory_opt_name(),
-            opts.get_bool("server") ? LEAN_SERVER_DEFAULT_MAX_MEMORY : LEAN_DEFAULT_MAX_MEMORY)) {
+                                            opts.get_bool("server") ? LEAN_SERVER_DEFAULT_MAX_MEMORY : LEAN_DEFAULT_MAX_MEMORY)) {
         set_max_memory_megabyte(max_memory);
+    }
+
+    if (auto timeout = opts.get_unsigned(get_timeout_opt_name(),
+                                         opts.get_bool("server") ? LEAN_SERVER_DEFAULT_MAX_HEARTBEAT : LEAN_DEFAULT_MAX_HEARTBEAT)) {
+        set_max_heartbeat_thousands(timeout);
     }
 
     environment env = mk_environment(trust_lvl);

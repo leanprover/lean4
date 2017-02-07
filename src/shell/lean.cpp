@@ -59,6 +59,13 @@ Author: Leonardo de Moura
 
 using namespace lean; // NOLINT
 
+#ifndef LEAN_SERVER_DEFAULT_MAX_MEMORY
+#define LEAN_SERVER_DEFAULT_MAX_MEMORY 1024
+#endif
+#ifndef LEAN_DEFAULT_MAX_MEMORY
+#define LEAN_DEFAULT_MAX_MEMORY 0
+#endif
+
 static void display_header(std::ostream & out) {
     out << "Lean (version " << LEAN_VERSION_MAJOR << "."
         << LEAN_VERSION_MINOR << "." << LEAN_VERSION_PATCH;
@@ -317,8 +324,7 @@ int main(int argc, char ** argv) {
             doc = optarg;
             break;
         case 'M':
-            lean::set_max_memory_megabyte(atoi(optarg));
-            opts = opts.update(lean::get_max_memory_opt_name(), atoi(optarg));
+            opts = opts.update(get_max_memory_opt_name(), atoi(optarg));
             break;
         case 't':
             trust_lvl = atoi(optarg);
@@ -364,6 +370,11 @@ int main(int argc, char ** argv) {
             display_help(std::cerr);
             return 1;
         }
+    }
+
+    if (auto max_memory = opts.get_unsigned(get_max_memory_opt_name(),
+            opts.get_bool("server") ? LEAN_SERVER_DEFAULT_MAX_MEMORY : LEAN_DEFAULT_MAX_MEMORY)) {
+        set_max_memory_megabyte(max_memory);
     }
 
     environment env = mk_environment(trust_lvl);

@@ -15,11 +15,6 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_VERBOSE true
 #endif
 
-#ifndef LEAN_DEFAULT_MAX_MEMORY
-#define LEAN_DEFAULT_MAX_MEMORY 512 // 512Mb
-#endif
-
-
 namespace lean {
 static name * g_verbose    = nullptr;
 static name * g_max_memory = nullptr;
@@ -46,10 +41,6 @@ name const & get_max_memory_opt_name() {
 
 bool get_verbose(options const & opts) {
     return opts.get_bool(*g_verbose, LEAN_DEFAULT_VERBOSE);
-}
-
-unsigned get_max_memory(options const & opts) {
-    return opts.get_unsigned(*g_max_memory, LEAN_DEFAULT_MAX_MEMORY);
 }
 
 std::ostream & operator<<(std::ostream & out, option_kind k) {

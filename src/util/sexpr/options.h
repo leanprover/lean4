@@ -93,7 +93,6 @@ public:
     friend bool operator==(options const & a, options const & b) { return a.m_value == b.m_value; }
 };
 bool get_verbose(options const & opts);
-unsigned get_max_memory(options const & opts);
 name const & get_verbose_opt_name();
 name const & get_max_memory_opt_name();
 

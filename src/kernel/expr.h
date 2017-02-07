@@ -213,7 +213,7 @@ class binder_info {
     /** \brief if m_inst_implicit is true, binder argument is an implicit argument, and should be
         inferred by class-instance resolution. */
     unsigned m_inst_implicit:1;
-    /** \brief Auxiliary internal attribute used to mark local constants represeting recursive functions
+    /** \brief Auxiliary internal attribute used to mark local constants representing recursive functions
         in recursive equations */
     unsigned m_rec:1;
 public:

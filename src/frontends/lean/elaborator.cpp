@@ -1244,16 +1244,18 @@ expr elaborator::second_pass(expr const & fn, buffer<expr> const & args,
             expr new_arg_type = infer_type(new_arg);
             optional<expr> new_new_arg = ensure_has_type(new_arg, new_arg_type, info.args_expected_types[i], ref_arg);
             if (!new_new_arg) {
-                info.new_args.shrink(info.new_args_size[i]);
-                info.new_args.push_back(new_arg);
-                format msg = mk_app_type_mismatch_error(mk_app(fn, info.new_args.size(), info.new_args.data()),
+                buffer<expr> tmp_args;
+                tmp_args.append(info.new_args_size[i], info.new_args.data());
+                tmp_args.push_back(new_arg);
+                format msg = mk_app_type_mismatch_error(mk_app(fn, tmp_args),
                                                         new_arg, new_arg_type, info.args_expected_types[i]);
                 throw elaborator_exception(ref, msg);
             }
             if (!is_def_eq(info.args_mvars[i], *new_new_arg)) {
-                info.new_args.shrink(info.new_args_size[i]);
-                info.new_args.push_back(new_arg);
-                format msg = mk_app_arg_mismatch_error(mk_app(fn, info.new_args.size(), info.new_args.data()),
+                buffer<expr> tmp_args;
+                tmp_args.append(info.new_args_size[i], info.new_args.data());
+                tmp_args.push_back(new_arg);
+                format msg = mk_app_arg_mismatch_error(mk_app(fn, tmp_args),
                                                        new_arg, info.args_mvars[i]);
                 throw elaborator_exception(ref, msg);
             }

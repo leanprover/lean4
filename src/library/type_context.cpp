@@ -37,7 +37,7 @@ Author: Leonardo de Moura
 #endif
 
 #ifndef LEAN_DEFAULT_NAT_OFFSET_CNSTR_THRESHOLD
-#define LEAN_DEFAULT_NAT_OFFSET_CNSTR_THRESHOLD 256
+#define LEAN_DEFAULT_NAT_OFFSET_CNSTR_THRESHOLD 1024
 #endif
 
 namespace lean {
@@ -2688,9 +2688,9 @@ optional<unsigned> type_context::to_small_num(expr const & e) {
     unsigned r;
     if (is_constant(e, get_nat_zero_name())) {
         r = 0;
-    } else if (is_app_of(e, get_zero_name(), 2) && is_constant(app_arg(e), get_nat_has_zero_name())) {
+    } else if (is_app_of(e, get_zero_name(), 2)) {
         r = 0;
-    } else if (is_app_of(e, get_one_name(), 2) && is_constant(app_arg(e), get_nat_has_one_name())) {
+    } else if (is_app_of(e, get_one_name(), 2)) {
         r = 1;
     } else if (auto a = is_bit0(e)) {
         if (auto r1 = to_small_num(*a))
@@ -2707,6 +2707,18 @@ optional<unsigned> type_context::to_small_num(expr const & e) {
             r = *r1 + 1;
         else
             return optional<unsigned>();
+    } else if (is_app_of(e, get_add_name(), 4)) {
+        auto r1 = to_small_num(app_arg(app_fn(e)));
+        if (!r1) return optional<unsigned>();
+        auto r2 = to_small_num(app_arg(e));
+        if (!r2) return optional<unsigned>();
+        r = *r1 + *r2;
+    } else if (is_app_of(e, get_sub_name(), 4)) {
+        auto r1 = to_small_num(app_arg(app_fn(e)));
+        if (!r1) return optional<unsigned>();
+        auto r2 = to_small_num(app_arg(e));
+        if (!r2) return optional<unsigned>();
+        r = *r2 > *r1 ? 0 : *r1 - *r2;
     } else {
         return optional<unsigned>();
     }
@@ -2752,12 +2764,21 @@ static expr get_offset_term(expr const & t) {
 
 /* Return true iff t is of the form (@add _ nat_has_add a b)
    \pre is_offset_term(t) */
-static bool uses_nat_has_add_instance_or_succ(expr const & t) {
+static bool uses_nat_has_add_instance_or_succ(type_context & ctx, expr const & t) {
     if (is_app_of(t, get_nat_succ_name(), 1)) {
         return true;
+    } else if (is_app_of(t, get_add_name(), 4)) {
+        expr inst = app_arg(app_fn(app_fn(t)));
+        if (is_constant(inst, get_nat_has_add_name()))
+            return true;
+        if (is_metavar(inst)) {
+            inst = ctx.instantiate_mvars(inst);
+            return is_constant(inst, get_nat_has_add_name());
+        } else {
+            return false;
+        }
     } else {
-        lean_assert(is_app_of(t, get_add_name(), 4));
-        return is_constant(app_arg(app_fn(app_fn(t))), get_nat_has_add_name());
+        return false;
     }
 }
 
@@ -2789,7 +2810,7 @@ lbool type_context::try_offset_eq_offset(expr const & t, expr const & s) {
     optional<unsigned> k2 = is_offset_term(s);
     if (!k2) return l_undef;
 
-    if (!uses_nat_has_add_instance_or_succ(t) || !uses_nat_has_add_instance_or_succ(s))
+    if (!uses_nat_has_add_instance_or_succ(*this, t) && !uses_nat_has_add_instance_or_succ(*this, s))
         return l_undef;
 
     if (*k1 == *k2) {
@@ -2813,7 +2834,7 @@ lbool type_context::try_offset_eq_numeral(expr const & t, expr const & s) {
     optional<unsigned> k2 = to_small_num(s);
     if (!k2) return l_undef;
 
-    if (!uses_nat_has_add_instance_or_succ(t))
+    if (!uses_nat_has_add_instance_or_succ(*this, t))
         return l_undef;
 
     if (*k2 >= *k1) {
@@ -2834,10 +2855,8 @@ lbool type_context::try_numeral_eq_numeral(expr const & t, expr const & s) {
     if (!k1) return l_undef;
     optional<unsigned> k2 = to_small_num(s);
     if (!k2) return l_undef;
-
-    if (is_nat_type(whnf(infer(t))))
+    if (!is_nat_type(whnf(infer(t))))
         return l_undef;
-
     return to_lbool(*k1 == *k2);
 }
 

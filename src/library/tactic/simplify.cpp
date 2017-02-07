@@ -524,6 +524,17 @@ simp_result simplify_core_fn::rewrite_core(expr const & e, simp_lemma const & sl
 
     expr new_lhs = tmp_ctx.instantiate_mvars(sl.get_lhs());
     expr new_rhs = tmp_ctx.instantiate_mvars(sl.get_rhs());
+
+    if (new_rhs == e) {
+        /* TODO(Leo): remove after we have arithmetic normalizer.
+           The unifier at type context has support for offset equalities.
+           So, it can match
+                  ?x + 0 =?= t + 1
+           by assigning
+                  ?x := t + 1 */
+        return simp_result(e);
+    }
+
     if (sl.is_permutation()) {
         if (!is_lt(new_rhs, new_lhs, false)) {
             lean_simp_trace(tmp_ctx, name({"simplify", "perm"}),

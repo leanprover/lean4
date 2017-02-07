@@ -52,7 +52,7 @@ expr metavar_context::mk_metavar_decl(local_context const & ctx, expr const & ty
     return mk_meta_ref(n);
 }
 
-optional<metavar_decl> metavar_context::get_metavar_decl(expr const & e) const {
+optional<metavar_decl> metavar_context::find_metavar_decl(expr const & e) const {
     lean_assert(is_metavar_decl_ref(e));
     if (auto r = m_decls.find(mlocal_name(e)))
         return optional<metavar_decl>(*r);
@@ -60,14 +60,25 @@ optional<metavar_decl> metavar_context::get_metavar_decl(expr const & e) const {
         return optional<metavar_decl>();
 }
 
-optional<local_decl> metavar_context::get_local_decl(expr const & mvar, name const & n) const {
-    auto mdecl = get_metavar_decl(mvar);
+metavar_decl const & metavar_context::get_metavar_decl(expr const & e) const {
+    if (auto r = m_decls.find(mlocal_name(e)))
+        return *r;
+    else
+        throw exception("unknown metavariable");
+}
+
+optional<local_decl> metavar_context::find_local_decl(expr const & mvar, name const & n) const {
+    auto mdecl = find_metavar_decl(mvar);
     if (!mdecl) return optional<local_decl>();
-    return mdecl->get_context().get_local_decl(n);
+    return mdecl->get_context().find_local_decl(n);
+}
+
+local_decl metavar_context::get_local_decl(expr const & mvar, name const & n) const {
+    return get_metavar_decl(mvar).get_context().get_local_decl(n);
 }
 
 expr metavar_context::get_local(expr const & mvar, name const & n) const {
-    return get_local_decl(mvar, n)->mk_ref();
+    return get_local_decl(mvar, n).mk_ref();
 }
 
 void metavar_context::assign(level const & u, level const & l) {
@@ -129,7 +140,7 @@ expr metavar_context::instantiate_mvars(expr const & e) {
 }
 
 void metavar_context::instantiate_mvars_at_type_of(expr const & m) {
-    metavar_decl d = *get_metavar_decl(m);
+    metavar_decl d = get_metavar_decl(m);
     expr type      = d.get_type();
     expr new_type  = instantiate_mvars(type);
     if (new_type != type) {
@@ -144,7 +155,7 @@ static bool well_formed_metavar_occs(expr const & e, C const & ds, metavar_conte
             if (!ok) return false;
             if (!has_expr_metavar(e)) return false;
             if (is_metavar_decl_ref(e)) {
-                if (auto d = ctx.get_metavar_decl(e)) {
+                if (auto d = ctx.find_metavar_decl(e)) {
                     if (!d->get_context().is_subset_of(ds)) {
                         /* invalid metavariable context */
                         ok = false;

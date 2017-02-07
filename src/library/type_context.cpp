@@ -188,7 +188,7 @@ type_context::tmp_locals::~tmp_locals() {
 
 bool type_context::tmp_locals::all_let_decls() const {
     for (expr const & l : m_locals) {
-        if (optional<local_decl> d = m_ctx.m_lctx.get_local_decl(l)) {
+        if (optional<local_decl> d = m_ctx.m_lctx.find_local_decl(l)) {
             if (!d->get_value())
                 return false;
         } else {
@@ -361,8 +361,8 @@ expr type_context::push_let(name const & ppn, expr const & type, expr const & va
 
 void type_context::pop_local() {
     if (!m_cache->m_instance_fingerprint && m_local_instances) {
-        local_decl decl = *m_lctx.get_last_local_decl();
-        if (decl.get_name() == mlocal_name(head(m_local_instances).second)) {
+        optional<local_decl> decl = m_lctx.find_last_local_decl();
+        if (decl && decl->get_name() == mlocal_name(head(m_local_instances).second)) {
             m_local_instances = tail(m_local_instances);
             flush_instance_cache();
         }
@@ -373,10 +373,10 @@ void type_context::pop_local() {
 
 static local_decl get_local_with_smallest_idx(local_context const & lctx, buffer<expr> const & ls) {
     lean_assert(!ls.empty());
-    lean_assert(std::all_of(ls.begin(), ls.end(), [&](expr const & l) { return (bool)lctx.get_local_decl(l); })); // NOLINT
-    local_decl r = *lctx.get_local_decl(ls[0]);
+    lean_assert(std::all_of(ls.begin(), ls.end(), [&](expr const & l) { return (bool)lctx.find_local_decl(l); })); // NOLINT
+    local_decl r = lctx.get_local_decl(ls[0]);
     for (unsigned i = 1; i < ls.size(); i++) {
-        local_decl curr = *lctx.get_local_decl(ls[i]);
+        local_decl curr = lctx.get_local_decl(ls[i]);
         if (curr.get_idx() < r.get_idx())
             r     = curr;
     }
@@ -388,10 +388,10 @@ pair<local_context, expr> type_context::revert_core(buffer<expr> & to_revert, lo
     DEBUG_CODE({
             for (unsigned i = 0; i < to_revert.size(); i++) {
                 lean_assert(is_local_decl_ref(to_revert[i]));
-                optional<local_decl> decl = ctx.get_local_decl(to_revert[i]);
+                optional<local_decl> decl = ctx.find_local_decl(to_revert[i]);
                 lean_assert(decl);
                 if (i > 1) {
-                    optional<local_decl> prev_decl = ctx.get_local_decl(to_revert[i-1]);
+                    optional<local_decl> prev_decl = ctx.find_local_decl(to_revert[i-1]);
                     lean_assert(prev_decl && prev_decl->get_idx() < decl->get_idx());
                 }
             }
@@ -439,7 +439,7 @@ pair<local_context, expr> type_context::revert_core(buffer<expr> & to_revert, lo
 
 expr type_context::revert_core(buffer<expr> & to_revert, expr const & mvar) {
     lean_assert(is_metavar_decl_ref(mvar));
-    metavar_decl const & d = *m_mctx.get_metavar_decl(mvar);
+    metavar_decl const & d = m_mctx.get_metavar_decl(mvar);
     auto p = revert_core(to_revert, d.get_context(), d.get_type());
     /* Remark: we use copy_tag to make sure any position information
        associated wtih mvar is inherited by the new meta-variable. */
@@ -449,12 +449,12 @@ expr type_context::revert_core(buffer<expr> & to_revert, expr const & mvar) {
 expr type_context::revert(buffer<expr> & to_revert, expr const & mvar) {
     lean_assert(is_metavar_decl_ref(mvar));
     lean_assert(std::all_of(to_revert.begin(), to_revert.end(), [&](expr const & l) {
-                return static_cast<bool>(m_mctx.get_metavar_decl(mvar)->get_context().get_local_decl(l)); }));
-    local_context lctx = m_mctx.get_metavar_decl(mvar)->get_context();
+                return static_cast<bool>(m_mctx.find_metavar_decl(mvar)->get_context().find_local_decl(l)); }));
+    local_context lctx = m_mctx.get_metavar_decl(mvar).get_context();
     expr new_mvar = revert_core(to_revert, mvar);
     expr r = new_mvar;
     for (expr const & a : to_revert) {
-        if (!lctx.get_local_decl(a)->get_value()) {
+        if (!lctx.get_local_decl(a).get_value()) {
             // 'a' is not a let-decl
             r = mk_app(r, a);
         }
@@ -483,7 +483,7 @@ expr type_context::mk_binding(bool is_pi, local_context const & lctx, unsigned n
     buffer<expr>           types;
     buffer<optional<expr>> values;
     for (unsigned i = 0; i < num_locals; i++) {
-        local_decl const & decl = *lctx.get_local_decl(locals[i]);
+        local_decl decl = lctx.get_local_decl(locals[i]);
         decls.push_back(decl);
         types.push_back(abstract_locals(instantiate_mvars(decl.get_type()), i, locals));
         if (auto v = decl.get_value())
@@ -678,7 +678,7 @@ expr type_context::whnf_core(expr const & e) {
         return e;
     case expr_kind::Local:
         if (use_zeta() && is_local_decl_ref(e)) {
-            if (auto d = m_lctx.get_local_decl(e)) {
+            if (auto d = m_lctx.find_local_decl(e)) {
                 if (auto v = d->get_value()) {
                     /* zeta-reduction */
                     return whnf_core(*v);
@@ -892,7 +892,7 @@ expr type_context::infer_core(expr const & e) {
 expr type_context::infer_local(expr const & e) {
     lean_assert(is_local(e));
     if (is_local_decl_ref(e)) {
-        auto d = m_lctx.get_local_decl(e);
+        optional<local_decl> d = m_lctx.find_local_decl(e);
         if (!d) {
             throw generic_exception(e, [=](formatter const & fmt) {
                     return format("infer type failed, unknown variable") + pp_indent_expr(fmt, e);
@@ -915,7 +915,7 @@ static void throw_unknown_metavar(expr const & e) {
 
 expr type_context::infer_metavar(expr const & e) {
     if (is_metavar_decl_ref(e)) {
-        auto d = m_mctx.get_metavar_decl(e);
+        auto d = m_mctx.find_metavar_decl(e);
         if (!d) throw_unknown_metavar(e);
         return d->get_type();
     } else {
@@ -952,7 +952,7 @@ expr type_context::infer_macro(expr const & e) {
         buffer<name> ns;
         buffer<expr> es;
         get_delayed_abstraction_info(e, ns, es);
-        auto d = m_mctx.get_metavar_decl(mvar);
+        auto d = m_mctx.find_metavar_decl(mvar);
         if (!d) throw_unknown_metavar(mvar);
         return push_delayed_abstraction(d->get_type(), ns, es);
     }
@@ -1576,7 +1576,7 @@ bool type_context::approximate() {
 expr type_context::try_zeta(expr const & e) {
     if (!is_local_decl_ref(e))
         return e;
-    if (auto d = m_lctx.get_local_decl(e)) {
+    if (auto d = m_lctx.find_local_decl(e)) {
         if (auto v = d->get_value())
             return *v;
     }
@@ -1586,7 +1586,7 @@ expr type_context::try_zeta(expr const & e) {
 expr type_context::expand_let_decls(expr const & e) {
     return replace(e, [&](expr const & e, unsigned) {
             if (is_local_decl_ref(e)) {
-                if (auto d = m_lctx.get_local_decl(e)) {
+                if (auto d = m_lctx.find_local_decl(e)) {
                     if (auto v = d->get_value())
                         return some_expr(*v);
                 }
@@ -1759,13 +1759,13 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
                The code is slightly different for tmp mode because the metavariables
                do not store their local context. */
             if (in_tmp_mode()) {
-                if (m_tmp_mvar_lctx.get_local_decl(arg)) {
+                if (m_tmp_mvar_lctx.find_local_decl(arg)) {
                     /* m is of the form (?M@C ... l ...) where l is a local constant in C */
                     if (!approximate())
                         return false;
                 }
             } else {
-                if (mvar_decl->get_context().get_local_decl(arg)) {
+                if (mvar_decl->get_context().find_local_decl(arg)) {
                     /* m is of the form (?M@C ... l ...) where l is a local constant in C. */
                     if (!approximate())
                         return false;
@@ -1938,13 +1938,13 @@ struct check_assignment_fn : public replace_visitor {
 
         bool in_ctx;
         if (m_ctx.in_tmp_mode()) {
-            in_ctx = static_cast<bool>(m_ctx.m_tmp_mvar_lctx.get_local_decl(e));
+            in_ctx = static_cast<bool>(m_ctx.m_tmp_mvar_lctx.find_local_decl(e));
         } else {
-            in_ctx = static_cast<bool>(m_mvar_decl->get_context().get_local_decl(e));
+            in_ctx = static_cast<bool>(m_mvar_decl->get_context().find_local_decl(e));
         }
 
         if (!in_ctx) {
-            if (auto decl = m_ctx.m_lctx.get_local_decl(e)) {
+            if (auto decl = m_ctx.m_lctx.find_local_decl(e)) {
                 if (auto v = decl->get_value()) {
                     /* expand let-decl value */
                     return visit(*v);
@@ -1967,7 +1967,7 @@ struct check_assignment_fn : public replace_visitor {
     bool is_subset_of(local_context const & ctx1, local_context const & ctx2, buffer<name> const & delayed_locals) {
         return !ctx1.find_if([&](local_decl const & d1) { // NOLINT
                 name const & n1 = d1.get_name();
-                if (ctx2.get_local_decl(n1)) return false;
+                if (ctx2.find_local_decl(n1)) return false;
                 bool is_delayed = std::find(delayed_locals.begin(), delayed_locals.end(), n1) != delayed_locals.end();
                 return !is_delayed;
             });
@@ -1997,7 +1997,7 @@ struct check_assignment_fn : public replace_visitor {
 
         /* unassigned metavariable in regular mode */
 
-        optional<metavar_decl> e_decl = m_ctx.m_mctx.get_metavar_decl(e);
+        optional<metavar_decl> e_decl = m_ctx.m_mctx.find_metavar_decl(e);
         if (!e_decl) {
             lean_trace(name({"type_context", "is_def_eq_detail"}),
                        scope_trace_env scope(m_ctx.env(), m_ctx);
@@ -2159,7 +2159,7 @@ bool type_context::mk_nested_instance(expr const & m, expr const & m_type) {
            share the same local_context */
         inst = mk_class_instance(m_type);
     } else {
-        optional<metavar_decl> mdecl = m_mctx.get_metavar_decl(m);
+        optional<metavar_decl> mdecl = m_mctx.find_metavar_decl(m);
         if (!mdecl) return false;
         inst = mk_class_instance_at(mdecl->get_context(), m_type);
     }
@@ -2367,7 +2367,7 @@ expr type_context::elim_delayed_abstraction(expr const & e) {
     lean_assert(hns.size() == vs.size());
     expr mvar = get_delayed_abstraction_expr(f);
     lean_assert(is_metavar(mvar));
-    local_context lctx = m_mctx.get_metavar_decl(mvar)->get_context();
+    local_context lctx = m_mctx.get_metavar_decl(mvar).get_context();
     buffer<expr> to_revert;
     buffer<expr> replacements;
     unsigned i = hns.size();
@@ -2375,7 +2375,7 @@ expr type_context::elim_delayed_abstraction(expr const & e) {
         --i;
         name const & hn = hns[i];
         expr const & v  = vs[i];
-        if (optional<local_decl> h = lctx.get_local_decl(hn)) {
+        if (optional<local_decl> h = lctx.find_local_decl(hn)) {
             to_revert.push_back(h->mk_ref());
             replacements.push_back(v);
         } else {
@@ -2429,8 +2429,8 @@ lbool type_context::quick_is_def_eq(expr const & e1, expr const & e2) {
         } else if (in_tmp_mode()) {
             return to_lbool(process_assignment(e1, e2));
         } else {
-            optional<metavar_decl> m1_decl = m_mctx.get_metavar_decl(f1);
-            optional<metavar_decl> m2_decl = m_mctx.get_metavar_decl(f2);
+            optional<metavar_decl> m1_decl = m_mctx.find_metavar_decl(f1);
+            optional<metavar_decl> m2_decl = m_mctx.find_metavar_decl(f2);
             if (m1_decl && m2_decl) {
                 if (m2_decl->get_context().is_subset_of(m1_decl->get_context())) {
                     if (!is_app(e1) || is_app(e2)) {

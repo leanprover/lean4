@@ -1302,7 +1302,7 @@ class add_nested_inductive_decl_fn {
                                         goal, H, rec_name, ns, &subgoal_hypotheses, &subgoal_substitutions);
 
         for_each2(subgoals, subgoal_hypotheses, [&](expr const & m, list<expr> const & Hs) {
-                metavar_decl d = *mctx.get_metavar_decl(m);
+                metavar_decl d = mctx.get_metavar_decl(m);
                 expr pf = prove_by_simp(d.get_context(), d.get_type(), Hs, use_sizeof);
                 mctx.assign(m, pf);
             });

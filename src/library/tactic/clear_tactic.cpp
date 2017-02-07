@@ -12,10 +12,10 @@ namespace lean {
 expr clear(metavar_context & mctx, expr const & mvar, expr const & H) {
     lean_assert(is_metavar(mvar));
     lean_assert(is_local(H));
-    optional<metavar_decl> g   = mctx.get_metavar_decl(mvar);
+    optional<metavar_decl> g   = mctx.find_metavar_decl(mvar);
     if (!g) throw exception("clear tactic failed, there are no goals to be solved");
     local_context lctx         = g->get_context();
-    optional<local_decl> d     = lctx.get_local_decl(H);
+    optional<local_decl> d     = lctx.find_local_decl(H);
     if (!d)
         throw exception(sstream() << "clear tactic failed, unknown '" << local_pp_name(H) << "' hypothesis");
     if (depends_on(g->get_type(), mctx, 1, &H))
@@ -29,7 +29,7 @@ expr clear(metavar_context & mctx, expr const & mvar, expr const & H) {
 }
 
 expr clear_rec_core(metavar_context & mctx, expr const & mvar) {
-    optional<metavar_decl> g   = mctx.get_metavar_decl(mvar);
+    optional<metavar_decl> g   = mctx.find_metavar_decl(mvar);
     lean_assert(g);
     local_context lctx         = g->get_context();
     if (optional<local_decl> d = lctx.find_if([](local_decl const & d) { return d.get_info().is_rec(); })) {
@@ -67,7 +67,7 @@ vm_obj clear_internal(name const & n, tactic_state const & s) {
      if (!g) return mk_no_goals_exception(s);
      metavar_context mctx       = s.mctx();
      local_context lctx         = g->get_context();
-     optional<local_decl> d     = lctx.get_local_decl(n);
+     optional<local_decl> d     = lctx.find_local_decl(n);
      if (!d)
          return mk_tactic_exception(sstream() << "clear tactic failed, unknown '" << n << "' hypothesis", s);
      return clear(d->mk_ref(), s);

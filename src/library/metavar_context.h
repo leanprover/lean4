@@ -35,17 +35,21 @@ public:
     level mk_univ_metavar_decl();
     expr mk_metavar_decl(local_context const & ctx, expr const & type);
 
-    optional<metavar_decl> get_metavar_decl(expr const & mvar) const;
+    optional<metavar_decl> find_metavar_decl(expr const & mvar) const;
+
+    metavar_decl const & get_metavar_decl(expr const & mvar) const;
 
     /** \brief Return the local_decl for `n` in the local context for the metavariable `mvar`
         \pre is_metavar(mvar) */
-    optional<local_decl> get_local_decl(expr const & mvar, name const & n) const;
+    optional<local_decl> find_local_decl(expr const & mvar, name const & n) const;
+
+    local_decl get_local_decl(expr const & mvar, name const & n) const;
 
     /** \brief Return the local_decl_ref for `n` in the local context for the metavariable `mvar`
 
         \pre is_metavar(mvar)
-        \pre get_metavar_decl(mvar)
-        \pre get_metavar_decl(mvar)->get_context().get_local_decl(n) */
+        \pre find_metavar_decl(mvar)
+        \pre find_metavar_decl(mvar)->get_context().get_local_decl(n) */
     expr get_local(expr const & mvar, name const & n) const;
 
     bool is_assigned(level const & l) const {

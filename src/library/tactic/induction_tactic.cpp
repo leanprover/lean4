@@ -95,7 +95,7 @@ list<expr> induction(environment const & env, options const & opts, transparency
     lean_assert(is_metavar(mvar));
     lean_assert(is_local(H));
     lean_assert((ilist == nullptr) == (slist == nullptr));
-    optional<metavar_decl> g = mctx.get_metavar_decl(mvar);
+    optional<metavar_decl> g = mctx.find_metavar_decl(mvar);
     lean_assert(g);
 
     recursor_info rec_info = get_recursor_info(env, rec_name);
@@ -155,13 +155,13 @@ list<expr> induction(environment const & env, options const & opts, transparency
         throw exception("induction tactic failed, failed to reintroduce major premise");
     hsubstitution base_subst; /* substitutions for all branches */
     if (slist) {
-        local_context lctx = mctx.get_metavar_decl(*mvar2)->get_context();
+        local_context lctx = mctx.get_metavar_decl(*mvar2).get_context();
         /* store old index name -> new index name */
         for (unsigned i = 0; i < indices.size(); i++) {
             base_subst.insert(mlocal_name(indices[i]), lctx.get_local(indices_H[i]));
         }
     }
-    optional<metavar_decl> g2 = mctx.get_metavar_decl(*mvar2);
+    optional<metavar_decl> g2 = mctx.find_metavar_decl(*mvar2);
     lean_assert(g2);
     type_context ctx2   = mk_type_context_for(env, opts, mctx, g2->get_context(), m);
     local_context lctx2 = g2->get_context();
@@ -169,7 +169,7 @@ list<expr> induction(environment const & env, options const & opts, transparency
     for (unsigned i = 0; i < indices_H.size() - 1; i++)
         indices.push_back(lctx2.get_local(indices_H[i]));
     level g_lvl         = get_level(ctx2, g2->get_type());
-    local_decl H2_decl  = *lctx2.get_last_local_decl();
+    local_decl H2_decl  = lctx2.get_last_local_decl();
     expr H2             = H2_decl.mk_ref();
     expr H2_type        = ctx2.relaxed_whnf(H2_decl.get_type());
     buffer<expr> H2_type_args;
@@ -272,7 +272,7 @@ list<expr> induction(environment const & env, options const & opts, transparency
                 set_intron(aux_M, ctx2, new_M, nparams, ns, param_names);
                 /* Introduce hypothesis that had to be reverted because they depended on indices and/or major premise. */
                 set_intron(aux_M, ctx2, aux_M, nextra, extra_names);
-                local_context aux_M_lctx = ctx2.mctx().get_metavar_decl(aux_M)->get_context();
+                local_context aux_M_lctx = ctx2.mctx().get_metavar_decl(aux_M).get_context();
                 if (ilist) {
                     /* Save name of constructor parameters that have been introduced for new goal. */
                     buffer<expr> params;

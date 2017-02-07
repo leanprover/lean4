@@ -23,8 +23,8 @@ Author: Leonardo de Moura
 namespace lean {
 /* For debugging purposes, make sure H is in the local context for mvar */
 bool check_hypothesis_in_context(metavar_context const & mctx, expr const & mvar, name const & H) {
-    local_context lctx = mctx.get_metavar_decl(mvar)->get_context();
-    if (!lctx.get_local_decl(H)) {
+    local_context lctx = mctx.get_metavar_decl(mvar).get_context();
+    if (!lctx.find_local_decl(H)) {
         lean_unreachable();
         return false;
     }
@@ -37,8 +37,8 @@ expr subst(environment const & env, options const & opts, transparency_mode cons
 #define lean_subst_trace_state(MVAR, MSG) lean_trace(name({"tactic", "subst"}), tactic_state S = mk_tactic_state_for_metavar(env, opts, "subst", mctx, MVAR); type_context TMP_CTX = mk_type_context_for(S, m); scope_trace_env _scope1(env, TMP_CTX); tout() << MSG << S.pp_core() << "\n";)
 
     lean_subst_trace_state(mvar, "initial:\n");
-    lean_assert(mctx.get_metavar_decl(mvar));
-    metavar_decl g      = *mctx.get_metavar_decl(mvar);
+    lean_assert(mctx.find_metavar_decl(mvar));
+    metavar_decl g      = mctx.get_metavar_decl(mvar);
     type_context ctx    = mk_type_context_for(env, opts, mctx, g.get_context(), m);
     expr H_type         = ctx.infer(H);
     expr lhs, rhs;
@@ -56,7 +56,7 @@ expr subst(environment const & env, options const & opts, transparency_mode cons
     optional<expr> mvar2 = intron(env, opts, mctx, mvar1, 2, lhsH2);
     if (!mvar2) throw exception("subst tactic failed, unexpected failure during intro");
     lean_subst_trace_state(*mvar2, "after intro2:\n");
-    metavar_decl g2     = *mctx.get_metavar_decl(*mvar2);
+    metavar_decl g2     = mctx.get_metavar_decl(*mvar2);
     local_context lctx  = g2.get_context();
     expr type           = g2.get_type();
     lhs                 = lctx.get_local(lhsH2[0]);
@@ -89,7 +89,7 @@ expr subst(environment const & env, options const & opts, transparency_mode cons
     if (!mvar6) throw exception("subst tactic failed, unexpected failure when re-introducing dependencies");
     lean_assert(new_Hnames.size() == to_revert.size() - 2);
     if (subst) {
-        local_context lctx = mctx.get_metavar_decl(*mvar6)->get_context();
+        local_context lctx = mctx.get_metavar_decl(*mvar6).get_context();
         hsubstitution new_subst;
         for (unsigned i = 0; i < to_revert.size() - 2; i++) {
             lean_assert(check_hypothesis_in_context(mctx, mvar, mlocal_name(to_revert[i+2])));
@@ -122,7 +122,7 @@ vm_obj tactic_subst(expr const & l, tactic_state const & s) {
     local_context lctx         = g->get_context();
     if (!is_local(l))
         return mk_tactic_exception(sstream() << "subst tactic failed, given expression is not a local constant", s);
-    optional<local_decl> d     = lctx.get_local_decl(l);
+    optional<local_decl> d     = lctx.find_local_decl(l);
     if (!d)
         return mk_tactic_exception(sstream() << "subst tactic failed, unknown '" << local_pp_name(l) << "' hypothesis", s);
     expr const & type = d->get_type();

@@ -63,7 +63,7 @@ optional<expr> tactic_state::get_main_goal() const {
 
 optional<metavar_decl> tactic_state::get_main_goal_decl() const {
     if (empty(goals())) return optional<metavar_decl>();
-    return mctx().get_metavar_decl(head(goals()));
+    return mctx().find_metavar_decl(head(goals()));
 }
 
 tactic_state mk_tactic_state_for(environment const & env, options const & o, name const & decl_name,
@@ -159,7 +159,7 @@ format tactic_state::pp_expr(formatter_factory const & fmtf, expr const & e) con
 format tactic_state::pp_goal(formatter_factory const & fmtf, expr const & g) const {
     options opts               = get_options().update_if_undef(get_pp_purify_locals_name(), false);
     bool inst_mvars            = get_pp_instantiate_goal_mvars(opts);
-    metavar_decl decl          = *mctx().get_metavar_decl(g);
+    metavar_decl decl          = mctx().get_metavar_decl(g);
     local_context lctx         = decl.get_context();
     metavar_context mctx_tmp   = mctx();
     type_context ctx(env(), get_options(), mctx_tmp, lctx, transparency_mode::All);
@@ -204,7 +204,7 @@ format tactic_state::pp_expr(expr const & e) const {
 
 format tactic_state::pp_goal(expr const & g) const {
     lean_assert(is_metavar(g));
-    lean_assert(mctx().get_metavar_decl(g));
+    lean_assert(mctx().find_metavar_decl(g));
     formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
     return pp_goal(fmtf, g);
 }
@@ -372,7 +372,7 @@ vm_obj tactic_format_result(vm_obj const & o) {
     tactic_state const & s = to_tactic_state(o);
     metavar_context mctx = s.mctx();
     expr r = mctx.instantiate_mvars(s.main());
-    metavar_decl main_decl = *mctx.get_metavar_decl(s.main());
+    metavar_decl main_decl = mctx.get_metavar_decl(s.main());
     type_context ctx(s.env(), s.get_options(), mctx, main_decl.get_context(), transparency_mode::All);
     formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
     formatter fmt = fmtf(s.env(), s.get_options(), ctx);
@@ -478,7 +478,7 @@ vm_obj tactic_zeta(vm_obj const & e0, vm_obj const & s0) {
         optional<metavar_decl> mdecl = s.get_main_goal_decl();
         if (!mdecl) return mk_tactic_success(e0, s);
         local_context lctx = mdecl->get_context();
-        optional<local_decl> ldecl = lctx.get_local_decl(e);
+        optional<local_decl> ldecl = lctx.find_local_decl(e);
         if (!ldecl || !ldecl->get_value()) return mk_tactic_success(e0, s);
         return mk_tactic_success(to_obj(*ldecl->get_value()), s);
     } catch (exception & ex) {
@@ -556,7 +556,7 @@ vm_obj tactic_get_local(vm_obj const & n, vm_obj const & s0) {
     optional<metavar_decl> g = s.get_main_goal_decl();
     if (!g) return mk_no_goals_exception(s);
     local_context lctx       = g->get_context();
-    optional<local_decl> d   = lctx.get_local_decl_from_user_name(to_name(n));
+    optional<local_decl> d   = lctx.find_local_decl_from_user_name(to_name(n));
     if (!d) return mk_tactic_exception(sstream() << "get_local tactic failed, unknown '" << to_name(n) << "' local", s);
     return mk_tactic_success(to_obj(d->mk_ref()), s);
 }
@@ -609,7 +609,7 @@ vm_obj set_goals(list<expr> const & gs, tactic_state const & s) {
     buffer<expr> new_gs;
     metavar_context const & mctx = s.mctx();
     for (expr const & g : gs) {
-        if (!mctx.get_metavar_decl(g)) {
+        if (!mctx.find_metavar_decl(g)) {
             return mk_tactic_exception("invalid set_goals tactic, expressions must be meta-variables "
                                        "that have been declared in the current tactic_state", s);
         }

@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 expr revert(environment const & env, options const & opts, metavar_context & mctx, expr const & mvar, buffer<expr> & locals) {
-    optional<metavar_decl> g   = mctx.get_metavar_decl(mvar);
+    optional<metavar_decl> g   = mctx.find_metavar_decl(mvar);
     lean_assert(g);
     type_context ctx           = mk_type_context_for(env, opts, mctx, g->get_context(), transparency_mode::All);
     expr val                   = ctx.revert(locals, mvar);
@@ -32,7 +32,7 @@ vm_obj revert(list<expr> const & ls, tactic_state const & s) {
     local_context lctx         = g->get_context();
     buffer<expr> locals;
     for (expr const & l : ls) {
-        if (lctx.get_local_decl(l)) {
+        if (lctx.find_local_decl(l)) {
             locals.push_back(l);
         } else {
             return mk_tactic_exception(sstream() << "revert tactic failed, unknown '"

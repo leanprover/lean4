@@ -33,7 +33,7 @@ static void remove_redundant_goals(metavar_context & mctx, buffer<expr> & metas)
         bool found = false;
         for (unsigned j = 0; j < metas.size(); j++) {
             if (j != i) {
-                if (occurs(metas[i], mctx.get_metavar_decl(metas[j])->get_type())) {
+                if (occurs(metas[i], mctx.get_metavar_decl(metas[j]).get_type())) {
                     found = true;
                     break;
                 }

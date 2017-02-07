@@ -122,8 +122,12 @@ public:
 
     /** \brief Return the local declarations for the given reference.
         \pre is_local_decl_ref(e) */
-    optional<local_decl> get_local_decl(expr const & e) const;
-    optional<local_decl> get_local_decl(name const & n) const;
+    optional<local_decl> find_local_decl(expr const & e) const;
+    optional<local_decl> find_local_decl(name const & n) const;
+
+    local_decl const & get_local_decl(expr const & e) const;
+    local_decl const & get_local_decl(name const & n) const;
+
     /** \brief Traverse local declarations based on the order they were created */
     void for_each(std::function<void(local_decl const &)> const & fn) const;
     optional<local_decl> find_if(std::function<bool(local_decl const &)> const & pred) const; // NOLINT
@@ -131,9 +135,10 @@ public:
 
     /** \brief Return the most recently added local_decl \c d s.t. d.get_pp_name() == n
         \remark This method is used to implement tactics such as 'revert'. */
-    optional<local_decl> get_local_decl_from_user_name(name const & n) const;
+    optional<local_decl> find_local_decl_from_user_name(name const & n) const;
 
-    optional<local_decl> get_last_local_decl() const;
+    optional<local_decl> find_last_local_decl() const;
+    local_decl get_last_local_decl() const;
 
     /** Return a local_decl_ref associated with the given name.
 

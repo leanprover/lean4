@@ -27,7 +27,7 @@ static name mk_aux_name(list<name> & given_names, name const & default_name) {
 optional<expr> intron(environment const & env, options const & opts, metavar_context & mctx,
                       expr const & mvar, unsigned n, list<name> & given_names, buffer<name> & new_Hns) {
     lean_assert(is_metavar(mvar));
-    optional<metavar_decl> g = mctx.get_metavar_decl(mvar);
+    optional<metavar_decl> g = mctx.find_metavar_decl(mvar);
     if (!g) return none_expr();
     type_context ctx         = mk_type_context_for(env, opts, mctx, g->get_context());
     expr type            = g->get_type();
@@ -60,14 +60,14 @@ optional<expr> intron(environment const & env, options const & opts, metavar_con
     unsigned i   = new_Hs.size();
     while (i > 0) {
         --i;
-        optional<local_decl> d = ctx.lctx().get_local_decl(new_Hs[i]);
-        expr type = d->get_type();
+        local_decl d = ctx.lctx().get_local_decl(new_Hs[i]);
+        expr type = d.get_type();
         type      = abstract_locals(type, i, new_Hs.data());
-        if (auto letval = d->get_value()) {
+        if (auto letval = d.get_value()) {
             letval    = abstract_locals(*letval, i, new_Hs.data());
-            new_val   = mk_let(d->get_pp_name(), type, *letval, new_val);
+            new_val   = mk_let(d.get_pp_name(), type, *letval, new_val);
         } else {
-            new_val   = mk_lambda(d->get_pp_name(), type, new_val, d->get_info());
+            new_val   = mk_lambda(d.get_pp_name(), type, new_val, d.get_info());
         }
     }
     lean_assert(!ctx.mctx().is_assigned(new_M));

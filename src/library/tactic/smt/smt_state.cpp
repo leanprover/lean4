@@ -277,7 +277,7 @@ static name mk_intro_name(type_context & ctx, name const & bname, bool use_unuse
 static expr intros(environment const & env, options const & opts, metavar_context & mctx, expr const & mvar,
                    defeq_can_state & dcs, smt_goal & s_goal, bool use_unused_names,
                    optional<unsigned> const & num, list<name> ids) {
-    optional<metavar_decl> decl = mctx.get_metavar_decl(mvar);
+    optional<metavar_decl> decl = mctx.find_metavar_decl(mvar);
     lean_assert(decl);
     type_context ctx(env, opts, mctx, decl->get_context(), transparency_mode::Semireducible);
     smt S(ctx, dcs, s_goal);
@@ -334,14 +334,14 @@ static expr intros(environment const & env, options const & opts, metavar_contex
     unsigned i   = new_Hs.size();
     while (i > 0) {
         --i;
-        optional<local_decl> d = ctx.lctx().get_local_decl(new_Hs[i]);
-        expr type = d->get_type();
+        local_decl d = ctx.lctx().get_local_decl(new_Hs[i]);
+        expr type = d.get_type();
         type      = abstract_locals(type, i, new_Hs.data());
-        if (auto letval = d->get_value()) {
+        if (auto letval = d.get_value()) {
             letval    = abstract_locals(*letval, i, new_Hs.data());
-            new_val   = mk_let(d->get_pp_name(), type, *letval, new_val);
+            new_val   = mk_let(d.get_pp_name(), type, *letval, new_val);
         } else {
-            new_val   = mk_lambda(d->get_pp_name(), type, new_val, d->get_info());
+            new_val   = mk_lambda(d.get_pp_name(), type, new_val, d.get_info());
         }
     }
     lean_assert(!ctx.mctx().is_assigned(new_M));
@@ -464,8 +464,8 @@ vm_obj smt_state_mk(vm_obj const & cfg, vm_obj const & s) {
 bool same_hyps(metavar_context const & mctx, expr const & mvar1, expr const & mvar2) {
     lean_assert(is_metavar(mvar1));
     lean_assert(is_metavar(mvar2));
-    optional<metavar_decl> d1 = mctx.get_metavar_decl(mvar1);
-    optional<metavar_decl> d2 = mctx.get_metavar_decl(mvar2);
+    optional<metavar_decl> d1 = mctx.find_metavar_decl(mvar1);
+    optional<metavar_decl> d2 = mctx.find_metavar_decl(mvar2);
     return d1 && d2 && equal_locals(d1->get_context(), d2->get_context());
 }
 
@@ -656,7 +656,7 @@ format smt_state_to_format_core(vm_obj const & ss, tactic_state const & ts) {
     bool unicode         = get_pp_unicode(ts.get_options());
     format turnstile     = unicode ? format("\u22A2") /* ⊢ */ : format("|-");
     for (expr const & g : tail(ts.goals())) {
-        metavar_decl d = *mctx.get_metavar_decl(g);
+        metavar_decl d = mctx.get_metavar_decl(g);
         type_context ctx(ts.env(), ts.get_options(), mctx, d.get_context(), transparency_mode::Semireducible);
         formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
         formatter fmt                  = fmtf(ts.env(), ts.get_options(), ctx);

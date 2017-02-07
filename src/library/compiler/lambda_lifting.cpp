@@ -62,7 +62,7 @@ class lambda_lifting_fn : public compiler_step_visitor {
         local_context const & lctx = ctx().lctx();
         for_each(e, [&](expr const & e, unsigned) {
                 if (is_local_decl_ref(e)) {
-                    local_decl d = *lctx.get_local_decl(e);
+                    local_decl d = lctx.get_local_decl(e);
                     r.insert(d.get_idx(), d);
                 }
                 return true;

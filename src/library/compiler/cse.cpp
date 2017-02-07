@@ -205,7 +205,7 @@ class cse_fn : public compiler_step_visitor {
         };
 
         for (expr const & local : locals.as_buffer()) {
-            local_decl decl = *lctx.get_local_decl(local);
+            local_decl decl = lctx.get_local_decl(local);
             if (decl.get_value()) {
                 /* let-entry */
                 expr new_v = process(*decl.get_value(), none_expr());

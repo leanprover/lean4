@@ -88,7 +88,7 @@ expr mk_binding(local_context const & lctx, binding_type btype, unsigned num_loc
     buffer<expr>           types;
     buffer<optional<expr>> values;
     for (unsigned i = 0; i < num_locals; i++) {
-        local_decl const & decl = *lctx.get_local_decl(locals[i]);
+        local_decl const & decl = *lctx.find_local_decl(locals[i]);
         decls.push_back(decl);
         types.push_back(::lean::abstract_locals(decl.get_type(), i, locals));
         if (auto v = decl.get_value())
@@ -289,7 +289,7 @@ private:
         case scanner::token_kind::SYMBOL:
             sym = curr_symbol();
             next();
-            l = lctx().get_local_decl_from_user_name(sym);
+            l = lctx().find_local_decl_from_user_name(sym);
             if (l)
                 return l->mk_ref();
             else

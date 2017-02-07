@@ -123,7 +123,7 @@ struct elim_match_fn {
     }
 
     local_context get_local_context(expr const & mvar) {
-        return m_mctx.get_metavar_decl(mvar)->get_context();
+        return m_mctx.get_metavar_decl(mvar).get_context();
     }
 
     local_context get_local_context(problem const & P) {
@@ -134,7 +134,7 @@ struct elim_match_fn {
        in `e` are defined in `lctx` */
     bool check_locals_decl_at(expr const & e, local_context const & lctx) {
         for_each(e, [&](expr const & e, unsigned) {
-                if (is_local(e) && !lctx.get_local_decl(e)) {
+                if (is_local(e) && !lctx.find_local_decl(e)) {
                     lean_unreachable();
                 }
                 return true;
@@ -147,7 +147,7 @@ struct elim_match_fn {
         lean_assert(length(eqn.m_patterns) == length(P.m_var_stack));
         local_context const & lctx = get_local_context(P);
         eqn.m_subst.for_each([&](name const & n, expr const & e) {
-                if (!eqn.m_lctx.get_local_decl(n)) {
+                if (!eqn.m_lctx.find_local_decl(n)) {
                     lean_unreachable();
                 }
                 if (!check_locals_decl_at(e, lctx)) {
@@ -425,7 +425,7 @@ struct elim_match_fn {
         local_context goal_lctx = get_local_context(*goal);
         buffer<expr> vars;
         for (name const & n : var_names)
-            vars.push_back(goal_lctx.get_local_decl(n)->mk_ref());
+            vars.push_back(goal_lctx.get_local_decl(n).mk_ref());
         P.m_var_stack  = to_list(vars);
         P.m_equations  = mk_equations(lctx, eqns);
         return mk_pair(P, mvar);

@@ -161,7 +161,7 @@ struct pull_nested_rec_fn : public replace_visitor {
 
     void collect_locals_core(expr const & e, name_set & found, buffer<expr> & R) {
         for_each(e, [&](expr const & e, unsigned) {
-                if (is_local(e) && !base_lctx().get_local_decl(e) && !found.contains(mlocal_name(e))) {
+                if (is_local(e) && !base_lctx().find_local_decl(e) && !found.contains(mlocal_name(e))) {
                     found.insert(mlocal_name(e));
                     R.push_back(e);
                 }
@@ -174,10 +174,10 @@ struct pull_nested_rec_fn : public replace_visitor {
         collect_locals_core(e, found, R);
         for (unsigned i = 0; i < R.size(); i++) {
             expr const & x = R[i];
-            collect_locals_core(lctx().get_local_decl(x)->get_type(), found, R);
+            collect_locals_core(lctx().get_local_decl(x).get_type(), found, R);
         }
         std::sort(R.begin(), R.end(), [&](expr const & x1, expr const & x2) {
-                return lctx().get_local_decl(x1)->get_idx() < lctx().get_local_decl(x2)->get_idx();
+                return lctx().get_local_decl(x1).get_idx() < lctx().get_local_decl(x2).get_idx();
             });
     }
 
@@ -199,7 +199,7 @@ struct pull_nested_rec_fn : public replace_visitor {
     virtual expr visit_app(expr const & e) override {
         buffer<expr> args;
         expr const & fn = get_app_args(e, args);
-        if (is_local(fn) && local_info(fn).is_rec() && base_lctx().get_local_decl(fn)) {
+        if (is_local(fn) && local_info(fn).is_rec() && base_lctx().find_local_decl(fn)) {
             buffer<expr> local_deps;
             collect_locals(e, local_deps);
             type_context ctx = mk_type_context(lctx());
@@ -212,7 +212,7 @@ struct pull_nested_rec_fn : public replace_visitor {
             m_new_values.push_back(val);
             expr r           = g;
             for (expr const & d : local_deps) {
-                if (!lctx().get_local_decl(d)->get_value())
+                if (!lctx().get_local_decl(d).get_value())
                     r = mk_app(r, d);
             }
             return r;

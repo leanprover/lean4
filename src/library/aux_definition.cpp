@@ -110,7 +110,7 @@ struct mk_aux_definition_fn {
         }
         local_context const & lctx = m_ctx.lctx();
         std::sort(m_params.begin(), m_params.end(), [&](expr const & l1, expr const & l2) {
-                return lctx.get_local_decl(l1)->get_idx() < lctx.get_local_decl(l2)->get_idx();
+                return lctx.get_local_decl(l1).get_idx() < lctx.get_local_decl(l2).get_idx();
             });
         for (unsigned i = 0; i < m_params.size(); i++) {
             expr x         = m_params[i];

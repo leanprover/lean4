@@ -797,7 +797,7 @@ void congruence_closure::internalize_core(expr const & e, optional<expr> const &
         case expr_kind::Local:
             mk_entry(e, false, gen);
             if (is_local_decl_ref(e)) {
-                if (auto d = m_ctx.lctx().get_local_decl(e)) {
+                if (auto d = m_ctx.lctx().find_local_decl(e)) {
                     if (auto v = d->get_value()) {
                         push_refl_eq(e, *v);
                     }

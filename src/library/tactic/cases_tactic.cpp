@@ -47,7 +47,7 @@ struct cases_tactic_fn {
     }
 
     type_context mk_type_context_for(expr const & mvar) {
-        return mk_type_context_for(*m_mctx.get_metavar_decl(mvar));
+        return mk_type_context_for(m_mctx.get_metavar_decl(mvar));
     }
 
     [[ noreturn ]] void throw_ill_formed_datatype() {
@@ -74,9 +74,9 @@ struct cases_tactic_fn {
 
     /* For debugging purposes, check whether all hypotheses in Hs are in the local context for mvar */
     bool check_hypotheses_in_context(expr const & mvar, list<optional<name>> const & Hs) {
-        local_context lctx = m_mctx.get_metavar_decl(mvar)->get_context();
+        local_context lctx = m_mctx.get_metavar_decl(mvar).get_context();
         for (optional<name> const & H : Hs) {
-            if (H && !lctx.get_local_decl(*H)) {
+            if (H && !lctx.find_local_decl(*H)) {
                 lean_unreachable();
                 return false;
             }
@@ -134,7 +134,7 @@ struct cases_tactic_fn {
                 return false;
         }
         local_context lctx          = g.get_context();
-        optional<local_decl> h_decl = lctx.get_local_decl(h);
+        optional<local_decl> h_decl = lctx.find_local_decl(h);
         lean_assert(h_decl);
         bool ok = true;
         lctx.for_each_after(*h_decl, [&](local_decl const & h1) {
@@ -178,7 +178,7 @@ struct cases_tactic_fn {
 
         The original goal is solved if we can solve the produced goal. */
     expr generalize_indices(expr const & mvar, expr const & h, buffer<name> & new_indices_H, unsigned & num_eqs) {
-        metavar_decl g     = *m_mctx.get_metavar_decl(mvar);
+        metavar_decl g     = m_mctx.get_metavar_decl(mvar);
         type_context ctx   = mk_type_context_for(g);
         expr h_type        = ctx.relaxed_whnf(ctx.infer(h));
         buffer<expr> I_args;
@@ -284,7 +284,7 @@ struct cases_tactic_fn {
         }
         expr A, B, lhs, rhs;
         lean_cases_trace(mvar, tout() << "unifying equalities [" << num_eqs << "]\n" << pp_goal(mvar) << "\n";);
-        metavar_decl g       = *m_mctx.get_metavar_decl(mvar);
+        metavar_decl g       = m_mctx.get_metavar_decl(mvar);
         local_context lctx   = g.get_context();
         /* Normalize next equation lhs and rhs if needed */
         expr target          = g.get_type();
@@ -305,8 +305,8 @@ struct cases_tactic_fn {
         /* Introduce next equality */
         optional<expr> mvar1 = intron(m_env, m_opts, m_mctx, mvar, 1);
         if (!mvar1) throw_exception(mvar, "cases tactic failed, unexpected failure when introducing auxiliary equatilies");
-        metavar_decl g1      = *m_mctx.get_metavar_decl(*mvar1);
-        local_decl H_decl    = *g1.get_context().get_last_local_decl();
+        metavar_decl g1      = m_mctx.get_metavar_decl(*mvar1);
+        local_decl H_decl    = g1.get_context().get_last_local_decl();
         expr H_type          = H_decl.get_type();
         expr H               = H_decl.mk_ref();
         type_context ctx     = mk_type_context_for(*mvar1);
@@ -434,7 +434,7 @@ struct cases_tactic_fn {
                                             intros_list * ilist, hsubstitution_list * slist) {
         lean_assert((ilist != nullptr) == (slist != nullptr));
         lean_assert(is_metavar(mvar));
-        lean_assert(m_mctx.get_metavar_decl(mvar));
+        lean_assert(m_mctx.find_metavar_decl(mvar));
         if (!is_local(H))
             throw exception("cases tactic failed, argumen must be a hypothesis");
         if (!is_cases_applicable(mvar, H))
@@ -442,7 +442,7 @@ struct cases_tactic_fn {
         buffer<name> cnames;
         get_intro_rule_names(m_env, m_I_decl.get_name(), cnames);
         list<name> cname_list = to_list(cnames);
-        metavar_decl g = *m_mctx.get_metavar_decl(mvar);
+        metavar_decl g = m_mctx.get_metavar_decl(mvar);
         /* Remark: if ilist/rlist are provided, then we force dependent pattern matching
            even when indices are independent. */
         if (has_indep_indices(g, H) && (!slist || m_nindices == 0)) {
@@ -456,7 +456,7 @@ struct cases_tactic_fn {
             unsigned num_eqs; /* number of equations that need to be processed */
             expr mvar1 = generalize_indices(mvar, H, aux_indices_H, num_eqs);
             lean_cases_trace(mvar1, tout() << "after generalize_indices:\n" << pp_goal(mvar1) << "\n";);
-            expr H1    = m_mctx.get_metavar_decl(mvar1)->get_context().get_last_local_decl()->mk_ref();
+            expr H1    = m_mctx.get_metavar_decl(mvar1).get_context().get_last_local_decl().mk_ref();
             intros_list tmp_ilist;
             hsubstitution_list tmp_slist;
             list<expr> new_goals1 = induction(m_env, m_opts, m_mode, m_mctx, mvar1, H1, m_cases_on_decl.get_name(),

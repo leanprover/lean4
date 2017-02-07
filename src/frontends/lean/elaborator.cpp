@@ -2784,7 +2784,7 @@ void elaborator::synthesize_numeral_types() {
 bool elaborator::synthesize_type_class_instance_core(expr const & mvar, expr const & inferred_inst, expr const & inst_type) {
     if (!ready_to_synthesize(inst_type))
         return false;
-    metavar_decl mdecl = *m_ctx.mctx().get_metavar_decl(mvar);
+    metavar_decl mdecl = m_ctx.mctx().get_metavar_decl(mvar);
     expr ref = mvar;
     expr synthesized_inst = mk_instance_core(mdecl.get_context(), inst_type, ref);
     if (!is_def_eq(inferred_inst, synthesized_inst)) {
@@ -2838,7 +2838,7 @@ void elaborator::synthesize_type_class_instances() {
 
 tactic_state elaborator::mk_tactic_state_for(expr const & mvar) {
     metavar_context mctx = m_ctx.mctx();
-    metavar_decl mdecl   = *mctx.get_metavar_decl(mvar);
+    metavar_decl mdecl   = mctx.get_metavar_decl(mvar);
     local_context lctx   = mdecl.get_context().instantiate_mvars(mctx);
     lctx                 = erase_inaccessible_annotations(lctx);
     expr type            = mctx.instantiate_mvars(mdecl.get_type());
@@ -2849,7 +2849,7 @@ tactic_state elaborator::mk_tactic_state_for(expr const & mvar) {
 
 void elaborator::invoke_tactic(expr const & mvar, expr const & tactic) {
     expr const & ref     = mvar;
-    expr type            = m_ctx.mctx().get_metavar_decl(mvar)->get_type();
+    expr type            = m_ctx.mctx().get_metavar_decl(mvar).get_type();
     tactic_state s       = mk_tactic_state_for(mvar);
 
     try {
@@ -2976,7 +2976,7 @@ void elaborator::ensure_no_unassigned_metavars(expr & e) {
                 report_error(s, "context:", "don't know how to synthesize placeholder", e);
 
                 if (m_recover_from_errors) {
-                    auto ty = m_ctx.mctx().get_metavar_decl(e)->get_type();
+                    auto ty = m_ctx.mctx().get_metavar_decl(e).get_type();
                     m_ctx.assign(e, copy_tag(e, mk_sorry(ty)));
                     ensure_no_unassigned_metavars(ty);
 
@@ -3129,7 +3129,7 @@ static expr replace_with_simple_metavars(metavar_context mctx, name_map<expr> & 
             if (!is_metavar(e)) return none_expr();
             if (auto r = cache.find(mlocal_name(e))) {
                 return some_expr(*r);
-            } else if (auto decl = mctx.get_metavar_decl(e)) {
+            } else if (auto decl = mctx.find_metavar_decl(e)) {
                 expr new_type = replace_with_simple_metavars(mctx, cache, mctx.instantiate_mvars(decl->get_type()));
                 expr new_mvar = mk_metavar(mlocal_name(e), new_type);
                 cache.insert(mlocal_name(e), new_mvar);
@@ -3254,7 +3254,7 @@ elaborate(environment & env, options const & opts, name const & decl_name,
 static expr resolve_local_name(environment const & env, local_context const & lctx, name const & id,
                                expr const & src) {
     /* check local context */
-    if (auto decl = lctx.get_local_decl_from_user_name(id)) {
+    if (auto decl = lctx.find_local_decl_from_user_name(id)) {
         return copy_tag(src, decl->mk_ref());
     }
 
@@ -3263,7 +3263,7 @@ static expr resolve_local_name(environment const & env, local_context const & lc
         /* ref may contain local references that have new names at lctx. */
         return copy_tag(src, replace(*ref, [&](expr const & e, unsigned) {
                     if (is_local(e)) {
-                        if (auto decl = lctx.get_local_decl_from_user_name(local_pp_name(e))) {
+                        if (auto decl = lctx.find_local_decl_from_user_name(local_pp_name(e))) {
                             return some_expr(decl->mk_ref());
                         }
                     }

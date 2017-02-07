@@ -94,13 +94,16 @@
          ; emacs truncates lines with >4096 bytes:
          ; https://debbugs.gnu.org/cgi/bugreport.cgi?bug=24531
          (process-connection-type nil)
+         (cmd `(,(lean-get-executable lean-executable-name)
+                "--server"
+                ,(format "-M%i" lean-memory-limit)
+                ,@lean-extra-arguments
+                ,(format "*%s*" project-dir)))
          (proc (if (fboundp 'make-process)
                    (make-process ;; emacs >= 25 lets us redirect stderr
                     :name "lean-server"
                     :buffer (format " *lean-server (%s)*" project-dir)
-                    :command `(,(lean-get-executable lean-executable-name)
-                               "--server"
-                               ,(format "*%s*" project-dir))
+                    :command cmd
                     :coding 'utf-8
                     :noquery t
                     :sentinel #'lean-server-handle-signal
@@ -108,11 +111,9 @@
                              :name "lean-server stderr"
                              :buffer (format "*lean-server stderr (%s)*" project-dir)
                              :noquery t))
-                 (start-file-process "lean-server"
-                                     (format " *lean-server (%s)*" (buffer-name))
-                                     (lean-get-executable lean-executable-name)
-                                     "--server"
-                                     (format "*%s*" (buffer-name)))))
+                 (apply #'start-file-process "lean-server"
+                        (format " *lean-server (%s)*" (buffer-name))
+                        cmd)))
          (sess (make-lean-server-session
                 :project-dir project-dir
                 :process proc

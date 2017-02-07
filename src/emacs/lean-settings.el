@@ -39,6 +39,16 @@
   :group 'lean
   :type 'string)
 
+(defcustom lean-memory-limit 1024
+  "Memory limit for lean process in megabytes"
+  :group 'lean
+  :type 'number)
+
+(defcustom lean-extra-arguments nil
+  "Extra command-line arguments to the lean process"
+  :group 'lean
+  :type '(list string))
+
 (defcustom lean-company-use t
   "Use company mode for lean."
   :group 'lean

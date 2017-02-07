@@ -353,6 +353,12 @@ tactic.solve1
 meta def abstract (id : opt_ident) (tac : irtactic) : tactic unit :=
 tactic.abstract tac id
 
+meta def all_goals : itactic → tactic unit :=
+tactic.all_goals
+
+meta def any_goals : itactic → tactic unit :=
+tactic.any_goals
+
 /--
 This tactic applies to any goal. `assert h : T` adds a new hypothesis of name `h` and type `T` to the current goal and opens a new subgoal with target `T`.
 The new subgoal becomes the main goal.

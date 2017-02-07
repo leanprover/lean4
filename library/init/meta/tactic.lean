@@ -108,13 +108,16 @@ end
 namespace tactic
 variables {α : Type u}
 
-meta def try (t : tactic α) : tactic unit :=
+meta def try_core (t : tactic α) : tactic bool :=
 λ s, tactic_result.cases_on (t s)
- (λ a, success ())
- (λ e ref s', success () s)
+ (λ a, success tt)
+ (λ e ref s', success ff s)
 
 meta def skip : tactic unit :=
 success ()
+
+meta def try (t : tactic α) : tactic unit :=
+try_core t >> skip
 
 meta def fail_if_success {α : Type u} (t : tactic α) : tactic unit :=
 λ s, tactic_result.cases_on (t s)
@@ -695,18 +698,32 @@ first $ map solve1 ts
 meta def focus (ts : list (tactic unit)) : tactic unit :=
 do gs ← get_goals, focus_aux ts gs []
 
-private meta def all_goals_core : tactic unit → list expr → list expr → tactic unit
-| tac []        ac := set_goals ac
-| tac (g :: gs) ac :=
+private meta def all_goals_core (tac : tactic unit) : list expr → list expr → tactic unit
+| []        ac := set_goals ac
+| (g :: gs) ac :=
   do set_goals [g],
      tac,
      new_gs ← get_goals,
-     all_goals_core tac gs (ac ++ new_gs)
+     all_goals_core gs (ac ++ new_gs)
 
 /- Apply the given tactic to all goals. -/
 meta def all_goals (tac : tactic unit) : tactic unit :=
 do gs ← get_goals,
    all_goals_core tac gs []
+
+private meta def any_goals_core (tac : tactic unit) : list expr → list expr → bool → tactic unit
+| []        ac progress := guard progress >> set_goals ac
+| (g :: gs) ac progress :=
+  do set_goals [g],
+     succeeded ← try_core tac,
+     new_gs    ← get_goals,
+     any_goals_core gs (ac ++ new_gs) (succeeded || progress)
+
+/- Apply the given tactic to any goal where it succeeds. The tactic succeeds only if
+   tac succeeds for at least one goal. -/
+meta def any_goals (tac : tactic unit) : tactic unit :=
+do gs ← get_goals,
+   any_goals_core tac gs [] ff
 
 /- LCF-style AND_THEN tactic. It applies tac1, and if succeed applies tac2 to each subgoal produced by tac1 -/
 meta def seq (tac1 : tactic unit) (tac2 : tactic unit) : tactic unit :=

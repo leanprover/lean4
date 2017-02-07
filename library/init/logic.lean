@@ -379,6 +379,9 @@ assume h, h ▸ trivial
 lemma true_eq_false_of_false : false → (true = false) :=
 false.elim
 
+lemma eq_comm {α : Sort u} {a b : α} : a = b ↔ b = a :=
+⟨eq.symm, eq.symm⟩
+
 /- and simp rules -/
 lemma and.imp (hac : a → c) (hbd : b → d) : a ∧ b → c ∧ d :=
 assume ⟨ha, hb⟩, ⟨hac ha, hbd hb⟩

@@ -668,6 +668,15 @@ theorem sub_eq_zero_of_le {n m : ℕ} (h : n ≤ m) : n - m = 0 :=
 exists.elim (nat.le.dest h)
   (take k, assume hk : n + k = m, by rw [-hk, sub_self_add])
 
+protected theorem le_of_sub_eq_zero : ∀{n m : ℕ}, n - m = 0 → n ≤ m
+| n 0 H := begin rw [nat.sub_zero] at H, simp [H] end
+| 0 (m+1) H := zero_le _
+| (n+1) (m+1) H := add_le_add_right
+  (le_of_sub_eq_zero begin simp [nat.add_sub_add_right] at H, exact H end) _
+
+protected theorem sub_eq_zero_iff_le {n m : ℕ} : n - m = 0 ↔ n ≤ m :=
+⟨nat.le_of_sub_eq_zero, nat.sub_eq_zero_of_le⟩
+
 theorem succ_sub {m n : ℕ} (h : m ≥ n) : succ m - n  = succ (m - n) :=
 exists.elim (nat.le.dest h)
   (take k, assume hk : n + k = m,
@@ -689,6 +698,14 @@ protected theorem add_sub_assoc {m k : ℕ} (h : k ≤ m) (n : ℕ) : n + m - k 
 exists.elim (nat.le.dest h)
   (take l, assume hl : k + l = m,
     by rw [-hl, nat.add_sub_cancel_left, add_comm k, -add_assoc, nat.add_sub_cancel])
+
+protected lemma sub_eq_iff_eq_add {a b c : ℕ} (ab : b ≤ a) : a - b = c ↔ a = c + b :=
+⟨take c_eq, begin rw [c_eq^.symm, nat.sub_add_cancel ab] end,
+  take a_eq, begin rw [a_eq, nat.add_sub_cancel] end⟩
+
+protected lemma lt_of_sub_eq_succ {m n l : ℕ} (H : m - n = nat.succ l) : n < m :=
+lt_of_not_ge
+  (take (H' : n ≥ m), begin simp [nat.sub_eq_zero_of_le H'] at H, contradiction end)
 
 @[simp] lemma min_zero_left (a : ℕ) : min 0 a = 0 :=
 min_eq_left (zero_le a)

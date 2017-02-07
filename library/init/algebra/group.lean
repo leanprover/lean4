@@ -56,6 +56,12 @@ left_cancel_semigroup.mul_left_cancel a b c
 lemma mul_right_cancel [right_cancel_semigroup α] {a b c : α} : a * b = c * b → a = c :=
 right_cancel_semigroup.mul_right_cancel a b c
 
+lemma mul_left_cancel_iff [left_cancel_semigroup α] {a b c : α} : a * b = a * c ↔ b = c :=
+⟨mul_left_cancel, congr_arg _⟩
+
+lemma mul_right_cancel_iff [right_cancel_semigroup α] {a b c : α} : b * a = c * a ↔ b = c :=
+⟨mul_right_cancel, congr_arg _⟩
+
 @[simp] lemma one_mul [monoid α] : ∀ a : α, 1 * a = a :=
 monoid.one_mul
 
@@ -247,6 +253,8 @@ meta def multiplicative_to_additive_pairs : list (name × name) :=
    (`mul_left_inv, `add_left_neg),
    (`mul_left_cancel, `add_left_cancel),
    (`mul_right_cancel, `add_right_cancel),
+   (`mul_left_cancel_iff, `add_left_cancel_iff),
+   (`mul_right_cancel_iff, `add_right_cancel_iff),
    (`inv_mul_cancel_left, `neg_add_cancel_left),
    (`inv_mul_cancel_right, `neg_add_cancel_right),
    (`eq_inv_mul_of_mul_eq, `eq_neg_add_of_add_eq),

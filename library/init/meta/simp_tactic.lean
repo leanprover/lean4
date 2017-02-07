@@ -212,7 +212,7 @@ meta constant ext_simplify_core
   /- Tactic for dischaging hypothesis in conditional rewriting rules.
      The argument 'α' is the current user state. -/
   (prove : α → tactic α)
-  /- (pre a r s p e) is invoked before visiting the children of subterm 'e',
+  /- (pre a S r s p e) is invoked before visiting the children of subterm 'e',
      'r' is the simplification relation being used, 's' is the updated set of lemmas if 'contextual' is tt,
      'p' is the "parent" expression (if there is one).
      if it succeeds the result is (new_a, new_e, new_pr, flag) where
@@ -353,6 +353,21 @@ meta def join_user_simp_lemmas : list name → tactic simp_lemmas
 /- Normalize numerical expression, returns a pair (n, pr) where n is the resultant numeral,
    and pr is a proof that the input argument is equal to n. -/
 meta constant norm_num : expr → tactic (expr × expr)
+
+meta def simplify_top_down (pre : expr → tactic (expr × expr)) (e : expr) (cfg : simplify_config := {}) : tactic (expr × expr) :=
+do (_, new_e, pr) ← ext_simplify_core () cfg simp_lemmas.mk (λ _, failed)
+                          (λ _ S r p e, do (new_e, pr) ← pre e, return ((), new_e, some pr, tt))
+                          (λ _ _ _ _ _, failed)
+                          `eq e,
+   return (new_e, pr)
+
+meta def simp_top_down (pre : expr → tactic (expr × expr)) (cfg : simplify_config := {}) : tactic unit :=
+do t                 ← target,
+   (new_target, heq) ← simplify_top_down pre t cfg,
+   assert `htarget new_target, swap,
+   ht ← get_local `htarget,
+   mk_eq_mpr heq ht >>= exact
+
 end tactic
 
 export tactic (mk_simp_attr)

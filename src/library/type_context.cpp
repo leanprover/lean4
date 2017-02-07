@@ -2222,18 +2222,73 @@ bool type_context::is_def_eq_args(expr const & e1, expr const & e2) {
         return false;
     fun_info finfo = get_fun_info(*this, fn, args1.size());
     unsigned i = 0;
+    /*
+       Try to solve unification constraint
+         (f a_1 ... a_n) =?= (f b_1 ... b_n)
+       by solving
+            a_i =?= b_i
+
+       We add i to postponed, if a_i or b_i is a numeral and
+       the i-th argument of f has forward dependencies.
+
+       The goal is to be able to handle unification constraints
+       coming from fixed size vector problems.
+
+       In this kind of problem, we have constraints such as
+
+       @to_list ?α (?m - ?n) (@dropn ?α ?m ?n ?v) =?= @to_list bool 6 (@dropn bool 8 2 v)
+
+       In the first pass, we have the constraint
+
+                ?m - ?n =?= 6
+
+       which cannot be solved. However, after we unify the next argument, we have
+
+                ?m := 8  and ?n := 2
+
+       and the constraint above becomes
+
+               8 - 2 =?= 6
+
+       which can be solved.
+    */
+    buffer<unsigned> postponed;
+    bool progress = false;
     for (param_info const & pinfo : finfo.get_params_info()) {
         if (pinfo.is_inst_implicit()) {
             args1[i] = complete_instance(args1[i]);
             args2[i] = complete_instance(args2[i]);
         }
-        if (!is_def_eq_core(args1[i], args2[i]))
+        if (is_def_eq_core(args1[i], args2[i])) {
+            progress = true;
+        } else if (pinfo.has_fwd_deps() && (to_small_num(args1[i]) || to_small_num(args2[i]))) {
+            postponed.push_back(i);
+        } else {
             return false;
+        }
         i++;
     }
     for (; i < args1.size(); i++) {
-        if (!is_def_eq_core(args1[i], args2[i]))
+        if (is_def_eq_core(args1[i], args2[i])) {
+            progress = true;
+        } else {
             return false;
+        }
+    }
+    while (true) {
+        if (postponed.empty()) return true;
+        if (!progress) return false;
+        progress = false;
+        unsigned j = 0;
+        for (unsigned i = 0; i < postponed.size(); i++) {
+            if (is_def_eq_core(instantiate_mvars(args1[postponed[i]]), instantiate_mvars(args2[postponed[i]]))) {
+                progress = true;
+            } else {
+                postponed[j] = postponed[i];
+                j++;
+            }
+        }
+        postponed.shrink(j);
     }
     return true;
 }

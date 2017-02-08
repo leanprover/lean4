@@ -59,6 +59,7 @@ name const & get_empty_rec_name();
 name const & get_emptyc_name();
 name const & get_Exists_name();
 name const & get_eq_name();
+name const & get_eq_cases_on_name();
 name const & get_eq_drec_name();
 name const & get_eq_elim_inv_inv_name();
 name const & get_eq_intro_name();

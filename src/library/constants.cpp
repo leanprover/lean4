@@ -57,6 +57,7 @@ name const * g_empty_rec = nullptr;
 name const * g_emptyc = nullptr;
 name const * g_Exists = nullptr;
 name const * g_eq = nullptr;
+name const * g_eq_cases_on = nullptr;
 name const * g_eq_drec = nullptr;
 name const * g_eq_elim_inv_inv = nullptr;
 name const * g_eq_intro = nullptr;
@@ -536,6 +537,7 @@ void initialize_constants() {
     g_emptyc = new name{"emptyc"};
     g_Exists = new name{"Exists"};
     g_eq = new name{"eq"};
+    g_eq_cases_on = new name{"eq", "cases_on"};
     g_eq_drec = new name{"eq", "drec"};
     g_eq_elim_inv_inv = new name{"eq", "elim_inv_inv"};
     g_eq_intro = new name{"eq", "intro"};
@@ -1016,6 +1018,7 @@ void finalize_constants() {
     delete g_emptyc;
     delete g_Exists;
     delete g_eq;
+    delete g_eq_cases_on;
     delete g_eq_drec;
     delete g_eq_elim_inv_inv;
     delete g_eq_intro;
@@ -1495,6 +1498,7 @@ name const & get_empty_rec_name() { return *g_empty_rec; }
 name const & get_emptyc_name() { return *g_emptyc; }
 name const & get_Exists_name() { return *g_Exists; }
 name const & get_eq_name() { return *g_eq; }
+name const & get_eq_cases_on_name() { return *g_eq_cases_on; }
 name const & get_eq_drec_name() { return *g_eq_drec; }
 name const & get_eq_elim_inv_inv_name() { return *g_eq_elim_inv_inv; }
 name const & get_eq_intro_name() { return *g_eq_intro; }

@@ -40,7 +40,7 @@ namespace lean {
 class expand_aux_fn : public compiler_step_visitor {
     enum class recursor_kind { Aux, CasesOn, NotRecursor };
     /* We only expand auxiliary recursors and user-defined recursors.
-       However, we don't unfold recursors of the form C.cases_on. */
+       However, we don't unfold recursors of the form C.cases_on if C != eq. */
     recursor_kind get_recursor_app_kind(expr const & e) const {
         if (!is_app(e))
             return recursor_kind::NotRecursor;
@@ -48,7 +48,7 @@ class expand_aux_fn : public compiler_step_visitor {
         if (!is_constant(fn))
             return recursor_kind::NotRecursor;
         name const & n = const_name(fn);
-        if (is_cases_on_recursor(env(), n)) {
+        if (is_cases_on_recursor(env(), n) && n != get_eq_cases_on_name()) {
             return recursor_kind::CasesOn;
         } else if (::lean::is_aux_recursor(env(), n) || is_user_defined_recursor(env(), n)) {
             return recursor_kind::Aux;

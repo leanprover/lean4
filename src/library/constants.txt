@@ -52,6 +52,7 @@ empty.rec
 emptyc
 Exists
 eq
+eq.cases_on
 eq.drec
 eq.elim_inv_inv
 eq.intro

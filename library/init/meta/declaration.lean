@@ -54,71 +54,77 @@ meta inductive declaration
 /- axiom : name → list universe parameters, type (remark: axioms are always trusted) -/
 | ax   : name → list name → expr → declaration
 
+open declaration
+
 meta def mk_definition (n : name) (ls : list name) (v : expr) (e : expr) : declaration :=
-declaration.defn n ls v e (reducibility_hints.regular 1 tt) tt
+defn n ls v e (reducibility_hints.regular 1 tt) tt
 
-meta def declaration.to_name : declaration → name
-| (declaration.defn n ls t v h tr) := n
-| (declaration.thm n ls t v) := n
-| (declaration.cnst n ls t tr) := n
-| (declaration.ax n ls t) := n
+namespace declaration
 
-meta def declaration.univ_params : declaration → list name
-| (declaration.defn n ls t v h tr) := ls
-| (declaration.thm n ls t v) := ls
-| (declaration.cnst n ls t tr) := ls
-| (declaration.ax n ls t) := ls
+meta def to_name : declaration → name
+| (defn n _ _ _ _ _) := n
+| (thm n _ _ _)      := n
+| (cnst n _ _ _)     := n
+| (ax n _ _)         := n
 
-meta def declaration.type : declaration → expr
-| (declaration.defn n ls t v h tr) := t
-| (declaration.thm n ls t v) := t
-| (declaration.cnst n ls t tr) := t
-| (declaration.ax n ls t) := t
+meta def univ_params : declaration → list name
+| (defn _ ls _ _ _ _) := ls
+| (thm _ ls _ _)      := ls
+| (cnst _ ls _ _)     := ls
+| (ax _ ls _)         := ls
 
-meta def declaration.value : declaration → expr
-| (declaration.defn n ls t v h tr) := v
-| (declaration.thm n ls t v) := v^.get
-| _ := default expr
+meta def type : declaration → expr
+| (defn _ _ t _ _ _) := t
+| (thm _ _ t _)      := t
+| (cnst _ _ t _)     := t
+| (ax _ _ t)         := t
 
-meta def declaration.value_task : declaration → task expr
-| (declaration.defn n ls t v h tr) := task.pure v
-| (declaration.thm n ls t v) := v
-| _ := task.pure (default expr)
+meta def value : declaration → expr
+| (defn _ _ _ v _ _) := v
+| (thm _ _ _ v)      := v^.get
+| _                  := default expr
 
-meta def declaration.update_type : declaration → expr → declaration
-| (declaration.defn n ls t v h tr) new_t := declaration.defn n ls new_t v h tr
-| (declaration.thm n ls t v)       new_t := declaration.thm n ls new_t v
-| (declaration.cnst n ls t tr)     new_t := declaration.cnst n ls new_t tr
-| (declaration.ax n ls t)          new_t := declaration.ax n ls new_t
+meta def value_task : declaration → task expr
+| (defn _ _ _ v _ _) := task.pure v
+| (thm _ _ _ v)      := v
+| _                  := task.pure (default expr)
 
-meta def declaration.update_name : declaration → name → declaration
-| (declaration.defn n ls t v h tr) new_n := declaration.defn new_n ls t v h tr
-| (declaration.thm n ls t v)       new_n := declaration.thm new_n ls t v
-| (declaration.cnst n ls t tr)     new_n := declaration.cnst new_n ls t tr
-| (declaration.ax n ls t)          new_n := declaration.ax new_n ls t
+meta def update_type : declaration → expr → declaration
+| (defn n ls t v h tr) new_t := defn n ls new_t v h tr
+| (thm n ls t v)       new_t := thm n ls new_t v
+| (cnst n ls t tr)     new_t := cnst n ls new_t tr
+| (ax n ls t)          new_t := ax n ls new_t
 
-meta def declaration.update_value : declaration → expr → declaration
-| (declaration.defn n ls t v h tr) new_v := declaration.defn n ls t new_v h tr
-| (declaration.thm n ls t v)       new_v := declaration.thm n ls t (task.pure new_v)
-| d                                new_v := d
+meta def update_name : declaration → name → declaration
+| (defn n ls t v h tr) new_n := defn new_n ls t v h tr
+| (thm n ls t v)       new_n := thm new_n ls t v
+| (cnst n ls t tr)     new_n := cnst new_n ls t tr
+| (ax n ls t)          new_n := ax new_n ls t
 
-meta def declaration.update_value_task : declaration → task expr → declaration
-| (declaration.defn n ls t v h tr) new_v := declaration.defn n ls t new_v^.get h tr
-| (declaration.thm n ls t v)       new_v := declaration.thm n ls t new_v
-| d                                new_v := d
+meta def update_value : declaration → expr → declaration
+| (defn n ls t v h tr) new_v := defn n ls t new_v h tr
+| (thm n ls t v)       new_v := thm n ls t (task.pure new_v)
+| d                    new_v := d
 
-meta def declaration.map_value : declaration → (expr → expr) → declaration
-| (declaration.defn n ls t v h tr) f := declaration.defn n ls t (f v) h tr
-| (declaration.thm n ls t v)       f := declaration.thm n ls t (task.map f v)
-| d                                f := d
+meta def update_value_task : declaration → task expr → declaration
+| (defn n ls t v h tr) new_v := defn n ls t new_v^.get h tr
+| (thm n ls t v)       new_v := thm n ls t new_v
+| d                    new_v := d
 
-meta def declaration.to_definition : declaration → declaration
-| (declaration.cnst n ls t tr) := declaration.defn n ls t (default expr) reducibility_hints.abbrev tr
-| (declaration.ax n ls t)      := declaration.thm n ls t (task.pure (default expr))
-| d                            := d
+meta def map_value : declaration → (expr → expr) → declaration
+| (defn n ls t v h tr) f := defn n ls t (f v) h tr
+| (thm n ls t v)       f := thm n ls t (task.map f v)
+| d                    f := d
+
+meta def to_definition : declaration → declaration
+| (cnst n ls t tr) := defn n ls t (default expr) reducibility_hints.abbrev tr
+| (ax n ls t)      := thm n ls t (task.pure (default expr))
+| d                := d
 
 /- Instantiate a universe polymorphic declaration type with the given universes. -/
-meta constant declaration.instantiate_type_univ_params : declaration → list level → option expr
+meta constant instantiate_type_univ_params : declaration → list level → option expr
 
 /- Instantiate a universe polymorphic declaration value with the given universes. -/
-meta constant declaration.instantiate_value_univ_params : declaration → list level → option expr
+meta constant instantiate_value_univ_params : declaration → list level → option expr
+
+end declaration

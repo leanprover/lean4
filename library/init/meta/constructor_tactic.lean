@@ -10,9 +10,9 @@ namespace tactic
 
 meta def get_constructors_for (e : expr) : tactic (list name) :=
 do env ← get_env,
-   I   ← return $ expr.const_name (expr.get_app_fn e),
-   when (environment.is_inductive env I = ff) (fail "constructor tactic failed, target is not an inductive datatype"),
-   return $ environment.constructors_of env I
+   I   ← return e^.get_app_fn^.const_name,
+   when (¬env^.is_inductive I) (fail "constructor tactic failed, target is not an inductive datatype"),
+   return $ env^.constructors_of I
 
 private meta def try_constructors : list name → tactic unit
 | []      := fail "constructor tactic failed, none of the constructors is applicable"
@@ -33,7 +33,7 @@ do tgt ← target,
 
 meta def constructor_idx (idx : nat) : tactic unit :=
 do cs     ← target >>= get_constructors_for,
-   some c ← return $ list.nth cs (idx - 1) | fail "constructor_idx tactic failed, target is an inductive datatype, but it does not have sufficient constructors",
+   some c ← return $ cs^.nth (idx - 1) | fail "constructor_idx tactic failed, target is an inductive datatype, but it does not have sufficient constructors",
    mk_const c >>= apply
 
 meta def split : tactic unit :=
@@ -48,7 +48,7 @@ private meta def apply_num_metavars : expr → expr → nat → tactic expr
   pi m bi d b ← whnf ftype,
   a          ← mk_meta_var d,
   new_f      ← return $ f a,
-  new_ftype  ← return $ expr.instantiate_var b a,
+  new_ftype  ← return $ b^.instantiate_var a,
   apply_num_metavars new_f new_ftype n
 
 meta def existsi (e : expr) : tactic unit :=

@@ -14,10 +14,10 @@ private meta def contra_p_not_p : list expr → list expr → tactic unit
 | []         Hs := failed
 | (H1 :: Rs) Hs :=
   do t ← infer_type H1 >>= whnf,
-     (do a ← match_not t,
-         H2 ← find_same_type a Hs,
+     (do a   ← match_not t,
+         H2  ← find_same_type a Hs,
          tgt ← target,
-         pr ← mk_app `absurd [tgt, H2, H1],
+         pr  ← mk_app `absurd [tgt, H2, H1],
          exact pr)
      <|> contra_p_not_p Rs Hs
 

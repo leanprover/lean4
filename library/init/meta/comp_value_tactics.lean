@@ -21,47 +21,47 @@ do t ← target,
    guard (is_app t),
    type ← infer_type t^.app_arg,
    (do is_def_eq type (const `nat []),
-       (do (a, b) ← returnopt (is_ne t),
-           pr     ← returnopt (mk_nat_val_ne_proof a b),
+       (do (a, b) ← is_ne t,
+           pr     ← mk_nat_val_ne_proof a b,
            exact pr)
        <|>
-       (do (a, b) ← returnopt (is_lt t),
-           pr     ← returnopt (mk_nat_val_lt_proof a b),
+       (do (a, b) ← is_lt t,
+           pr     ← mk_nat_val_lt_proof a b,
            exact pr)
        <|>
-       (do (a, b) ← returnopt (is_gt t),
-           pr     ← returnopt (mk_nat_val_lt_proof b a),
+       (do (a, b) ← is_gt t,
+           pr     ← mk_nat_val_lt_proof b a,
            exact pr)
        <|>
-       (do (a, b) ← returnopt (is_le t),
-           pr     ← returnopt (mk_nat_val_le_proof a b),
+       (do (a, b) ← is_le t,
+           pr     ← mk_nat_val_le_proof a b,
            exact pr)
        <|>
-       (do (a, b) ← returnopt (is_ge t),
-           pr     ← returnopt (mk_nat_val_le_proof b a),
+       (do (a, b) ← is_ge t,
+           pr     ← mk_nat_val_le_proof b a,
            exact pr))
    <|>
    (do is_def_eq type (const `char []),
-       (a, b) ← returnopt (is_ne t),
-       pr     ← returnopt (mk_char_val_ne_proof a b),
+       (a, b) ← is_ne t,
+       pr     ← mk_char_val_ne_proof a b,
        exact pr)
    <|>
    (do is_def_eq type (const `string []),
-       (a, b) ← returnopt (is_ne t),
-       pr     ← returnopt (mk_string_val_ne_proof a b),
+       (a, b) ← is_ne t,
+       pr     ← mk_string_val_ne_proof a b,
        exact pr)
    <|>
    (do is_def_eq type (const `int []),
-       (a, b) ← returnopt (is_ne t),
-       pr     ← returnopt (mk_int_val_ne_proof a b),
+       (a, b) ← is_ne t,
+       pr     ← mk_int_val_ne_proof a b,
        exact pr)
    <|>
    (do type   ← whnf type,
        guard (is_napp_of type `fin 1),
-       (a, b) ← returnopt (is_ne t),
-       pr     ← returnopt (mk_fin_val_ne_proof a b),
+       (a, b) ← is_ne t,
+       pr     ← mk_fin_val_ne_proof a b,
        exact pr)
    <|>
-   (do (a, b) ← returnopt (is_eq t),
+   (do (a, b) ← is_eq t,
         unify a b, to_expr `(eq.refl %%a) >>= exact)
 end tactic

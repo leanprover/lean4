@@ -36,9 +36,9 @@ match o₁, o₂ with
 | _,       none    := return o₁
 | some p₁, some p₂ := do
   env ← get_env,
-  match (environment.trans_for env r) with
-  | (some trans) := do pr ← mk_app trans [p₁, p₂], return $ some pr
-  | none         := fail $ "converter failed, relation '" ++ r^.to_string ++ "' is not transitive"
+  match env^.trans_for r with
+  | some trans := do pr ← mk_app trans [p₁, p₂], return $ some pr
+  | none       := fail $ "converter failed, relation '" ++ r^.to_string ++ "' is not transitive"
   end
 end
 

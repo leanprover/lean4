@@ -150,17 +150,14 @@ meta def repeat_exactly : nat → tactic unit → tactic unit
 meta def repeat : tactic unit → tactic unit :=
 repeat_at_most 100000
 
-meta def returnex {α : Type} (e : exceptional α) : tactic α :=
-λ s, match e with
-| exceptional.success a      := success a s
-| exceptional.exception .α f := exception (some (λ u, f options.mk)) none s -- TODO(Leo): extract options from environment
-end
-
 meta def returnopt (e : option α) : tactic α :=
 λ s, match e with
 | (some a) := success a s
 | none     := mk_exception "failed" none s
 end
+
+meta instance opt_to_tac : has_coe (option α) (tactic α) :=
+⟨returnopt⟩
 
 /- Decorate t's exceptions with msg -/
 meta def decorate_ex (msg : format) (t : tactic α) : tactic α :=
@@ -177,6 +174,32 @@ meta def decorate_ex (msg : format) (t : tactic α) : tactic α :=
 
 @[inline] meta def read : tactic tactic_state :=
 λ s, success s s
+
+meta def get_options : tactic options :=
+do s ← read, return s^.get_options
+
+meta def set_options (o : options) : tactic unit :=
+do s ← read, write (s^.set_options o)
+
+meta def save_options {α : Type} (t : tactic α) : tactic α :=
+do o ← get_options,
+   a ← t,
+   set_options o,
+   return a
+
+meta def returnex {α : Type} (e : exceptional α) : tactic α :=
+λ s, match e with
+| exceptional.success a      := success a s
+| exceptional.exception .α f :=
+  match get_options s with
+  | success opt _   := exception (some (λ u, f opt)) none s
+  | exception _ _ _ := exception (some (λ u, f options.mk)) none s
+  end
+end
+
+meta instance ex_to_tac {α : Type} : has_coe (exceptional α) (tactic α) :=
+⟨returnex⟩
+
 end tactic
 
 meta def tactic_format_expr (e : expr) : tactic format :=
@@ -209,7 +232,6 @@ meta def list_to_tactic_format {α : Type u} [has_to_tactic_format α] : list α
 meta instance {α : Type u} [has_to_tactic_format α] : has_to_tactic_format (list α) :=
 ⟨list_to_tactic_format⟩
 
-
 meta def pair_to_tactic_format_aux {α : Type u} {β : Type v} [has_to_tactic_format α] [has_to_tactic_format β] :
          α × β → tactic format
 | (a, b) := do
@@ -238,7 +260,7 @@ do s ← read,
 
 meta def get_decl (n : name) : tactic declaration :=
 do s ← read,
-   returnex $ environment.get (env s) n
+   (env s)^.get n
 
 meta def trace {α : Type u} [has_to_tactic_format α] (a : α) : tactic unit :=
 do fmt ← pp a,
@@ -250,18 +272,6 @@ take state, _root_.trace_call_stack (success () state)
 meta def trace_state : tactic unit :=
 do s ← read,
    trace $ to_fmt s
-
-meta def get_options : tactic options :=
-do s ← read, return s^.get_options
-
-meta def set_options (o : options) : tactic unit :=
-do s ← read, write (s^.set_options o)
-
-meta def save_options {α : Type} (t : tactic α) : tactic α :=
-do o ← get_options,
-   a ← t,
-   set_options o,
-   return a
 
 inductive transparency
 | all | semireducible | reducible | none
@@ -492,7 +502,7 @@ do t ← infer_type e,
 /-- Return true iff n is the name of declaration that is a proposition. -/
 meta def is_prop_decl (n : name) : tactic bool :=
 do env ← get_env,
-   d   ← returnex $ env^.get n,
+   d   ← env^.get n,
    t   ← return $ d^.type,
    is_prop t
 
@@ -516,19 +526,13 @@ do t ← target,
 meta def intro1 : tactic expr :=
 intro `_
 
-/- Remark: the unit argument is a trick to allow us to write a recursive definition.
-   Lean3 only allows recursive functions when "equations" are used. -/
-meta def intros_core : unit → tactic (list expr)
-| u  :=
-   do t ← target,
-   match t with
-   | (expr.pi   n bi d b) := do H ← intro1, Hs ← intros_core u, return (H :: Hs)
-   | (expr.elet n t v b) := do H ← intro1, Hs ← intros_core u, return (H :: Hs)
-   | e                   := return []
-   end
-
 meta def intros : tactic (list expr) :=
-intros_core ()
+do t ← target,
+match t with
+| expr.pi   _ _ _ _ := do H ← intro1, Hs ← intros, return (H :: Hs)
+| expr.elet _ _ _ _ := do H ← intro1, Hs ← intros, return (H :: Hs)
+| _                 := return []
+end
 
 meta def intro_lst : list name → tactic (list expr)
 | []      := return []
@@ -795,8 +799,8 @@ meta def mk_num_meta_univs : nat → tactic (list level)
 /- Return (expr.const c [l_1, ..., l_n]) where l_i's are fresh universe meta-variables. -/
 meta def mk_const (c : name) : tactic expr :=
 do env  ← get_env,
-   decl ← returnex (environment.get env c),
-   num  ← return (length (declaration.univ_params decl)),
+   decl ← env^.get c,
+   num  ← return decl^.univ_params^.length,
    ls   ← mk_num_meta_univs num,
    return (expr.const c ls)
 

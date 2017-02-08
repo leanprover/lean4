@@ -230,35 +230,35 @@ then some (app_arg (app_fn (app_fn (app_fn e))),
 else none
 
 meta def is_pi : expr → bool
-| (pi n bi d b) := tt
-| e             := ff
+| (pi _ _ _ _) := tt
+| e            := ff
 
 meta def is_arrow : expr → bool
-| (pi n bi d b) := bnot (has_var b)
-| e             := ff
+| (pi _ _ _ b) := bnot (has_var b)
+| e            := ff
 
 meta def is_let : expr → bool
-| (elet n t v b) := tt
+| (elet _ _ _ _) := tt
 | e              := ff
 
 meta def binding_name : expr → name
-| (pi n m d b)  := n
-| (lam n m d b) := n
+| (pi n _ _ _)  := n
+| (lam n _ _ _) := n
 | e             := name.anonymous
 
 meta def binding_info : expr → binder_info
-| (pi n bi d b)  := bi
-| (lam n bi d b) := bi
+| (pi _ bi _ _)  := bi
+| (lam _ bi _ _) := bi
 | e              := binder_info.default
 
 meta def binding_domain : expr → expr
-| (pi n bi d b)  := d
-| (lam n bi d b) := d
+| (pi _ _ d _)  := d
+| (lam _ _ d _) := d
 | e             := e
 
 meta def binding_body : expr → expr
-| (pi n bi d b)  := b
-| (lam n bi d b) := b
+| (pi _ _ _ b)  := b
+| (lam _ _ _ b) := b
 | e             := e
 
 meta def prop : expr := expr.sort level.zero

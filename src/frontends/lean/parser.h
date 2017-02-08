@@ -74,8 +74,6 @@ class parser : public abstract_parser {
     // curr command token
     name                   m_cmd_token;
 
-    buffer<expr>           m_undef_ids;
-
     // profiling
     bool                   m_profile;
 
@@ -457,11 +455,6 @@ public:
     struct undef_id_to_local_scope : public flet<id_behavior> { undef_id_to_local_scope(parser &); };
     struct error_if_undef_scope : public flet<id_behavior> { error_if_undef_scope(parser & p); };
     struct all_id_local_scope : public flet<id_behavior> { all_id_local_scope(parser & p); };
-
-    /** \brief Return the size of the stack of undefined local constants */
-    unsigned get_num_undef_ids() const { return m_undef_ids.size(); }
-    /** \brief Return the i-th undefined local constants */
-    expr const & get_undef_id(unsigned i) const { return m_undef_ids[i]; }
 
 private:
     pair<expr, level_param_names> elaborate(name const & decl_name, metavar_context & mctx, local_context_adapter const & adapter,

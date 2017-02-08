@@ -73,16 +73,15 @@ public:
         name_set                   m_level_variables;
         name_set                   m_variables;
         name_set                   m_include_vars;
-        unsigned                   m_num_undef_ids;
         unsigned                   m_next_inst_idx;
         bool                       m_has_params;
         local_level_decls          m_local_level_decls;
         local_expr_decls           m_local_decls;
         scope(optional<options> const & o, name_set const & lvs, name_set const & vs, name_set const & ivs,
-              unsigned num_undef_ids, unsigned next_inst_idx, bool has_params,
+              unsigned next_inst_idx, bool has_params,
               local_level_decls const & lld, local_expr_decls const & led):
             m_options(o), m_level_variables(lvs), m_variables(vs), m_include_vars(ivs),
-            m_num_undef_ids(num_undef_ids), m_next_inst_idx(next_inst_idx), m_has_params(has_params),
+            m_next_inst_idx(next_inst_idx), m_has_params(has_params),
             m_local_level_decls(lld), m_local_decls(led) {}
     };
 
@@ -106,7 +105,6 @@ public:
         name_set                  m_include_vars; // subset of m_local_decls that is marked as include
         scope_stack               m_scope_stack;
         scope_stack               m_quote_stack;
-        list<expr>                m_undef_ids;
         /* Tasks that need to be successful (no exception) for parsing to succeed. */
         list<generic_task_result> m_required_successes;
         context(environment const & env, io_state const & ios):m_env(env), m_ios(ios) {}
@@ -228,6 +226,8 @@ private:
 
     void ensure_exclusive_context();
 
+    token const * get_last_cmd_tk() const;
+
 public:
     parser_state(environment const & env, io_state const & ios, header_ptr const & h,
                  bool use_exceptions = false, std::shared_ptr<snapshot const> const & s = {});
@@ -236,6 +236,7 @@ public:
     environment const & env() const { return m_context->m_env; }
 
     std::vector<token> const & get_token_vector() const { return m_header->m_token_vector; }
+    token const & get_token(unsigned i) const { return m_header->m_token_vector[i]; }
 
     token const & curr_token() const { return get_token_vector()[m_tv_curr_idx]; }
     token_kind curr() const { return curr_token().kind(); }
@@ -296,11 +297,14 @@ public:
     /** \brief Check if the current token is a constant, if it is, return it and move to next token, otherwise throw an exception. */
     name check_constant_next(char const * msg);
 
-
     void check_break_at_pos(break_at_pos_exception::token_context ctxt = break_at_pos_exception::token_context::none);
     /** \brief Throw \c break_at_pos_exception with empty token and given context if \c m_break_at_pos is before current
         position. */
     void check_break_before(break_at_pos_exception::token_context ctxt = break_at_pos_exception::token_context::none);
+
+    expr mk_app(expr fn, expr arg, pos_info const & p);
+    expr mk_app(expr fn, buffer<expr> const & args, pos_info const & p);
+    expr mk_app(std::initializer_list<expr> const & args, pos_info const & p);
 
     name mk_anonymous_inst_name();
 
@@ -466,8 +470,6 @@ public:
     struct undef_id_to_local_scope : public flet<id_behavior> { undef_id_to_local_scope(parser_state &); };
     struct error_if_undef_scope : public flet<id_behavior> { error_if_undef_scope(parser_state & p); };
     struct all_id_local_scope : public flet<id_behavior> { all_id_local_scope(parser_state & p); };
-
-    list<expr> get_undef_ids() const { return m_context->m_undef_ids; }
 
 private:
     pair<expr, level_param_names> elaborate(name const & decl_name, metavar_context & mctx, local_context_adapter const & adapter,

@@ -483,7 +483,7 @@ expr parser::mk_app(std::initializer_list<expr> const & args, pos_info const & p
 
 parser_scope parser::mk_parser_scope(optional<options> const & opts) {
     return parser_scope(opts, m_level_variables, m_variables, m_include_vars,
-                        m_undef_ids.size(), m_next_inst_idx, m_has_params,
+                        m_next_inst_idx, m_has_params,
                         m_local_level_decls, m_local_decls);
 }
 
@@ -512,7 +512,6 @@ void parser::pop_local_scope() {
     lean_assert(m_parser_scope_stack);
     auto s = head(m_parser_scope_stack);
     restore_parser_scope(s);
-    m_undef_ids.shrink(s.m_num_undef_ids);
     m_parser_scope_stack = tail(m_parser_scope_stack);
 }
 
@@ -1813,8 +1812,6 @@ expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only) 
     if (!r) {
         if (m_id_behavior == id_behavior::AssumeLocalIfUndef) {
             expr local = mk_local(id, save_pos(mk_expr_placeholder(), p));
-            if (!resolve_only)
-                m_undef_ids.push_back(local);
             r = save_pos(local, p);
         }
     }

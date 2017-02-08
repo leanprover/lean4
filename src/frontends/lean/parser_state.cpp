@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "library/class.h"
 #include "library/deep_copy.h"
+#include "library/quote.h"
 #include "frontends/lean/parser_state.h"
 #include "frontends/lean/tokens.h"
 
@@ -108,14 +109,34 @@ name parser_state::mk_anonymous_inst_name() {
     return n;
 }
 
-optional<pos_info> parser_state::get_pos_info(expr const & /* e */) const {
-    /* TODO(Leo): */
-    return optional<pos_info>();
+optional<pos_info> parser_state::get_pos_info(expr const & e) const {
+    tag t = e.get_tag();
+    if (t == nulltag)
+        return optional<pos_info>();
+    if (auto it = m_pos_table.find(t))
+        return optional<pos_info>(*it);
+    else
+        return optional<pos_info>();
+}
+
+token const * parser_state::get_last_cmd_tk() const {
+    unsigned i = m_tv_cmd_idx;
+    while (true) {
+        token const & tk = get_token(i);
+        if (tk.kind() == token_kind::CommandKeyword &&
+            tk.get_token_info().token() != get_end_tk()) {
+            return &tk;
+        }
+        if (i == 0) return nullptr;
+        i--;
+    }
 }
 
 pos_info parser_state::get_some_pos() const {
-    /* TODO(Leo): */
-    return pos_info(0, 0);
+    if (token const * tk = get_last_cmd_tk())
+        return tk->get_pos();
+    else
+        return get_token(0).get_pos();
 }
 
 expr parser_state::save_pos(expr e, pos_info p) {
@@ -149,16 +170,24 @@ expr parser_state::rec_save_pos(expr const & e, pos_info p) {
 expr parser_state::copy_with_new_pos(expr const & e, pos_info p) {
     switch (e.kind()) {
     case expr_kind::Sort: case expr_kind::Constant: case expr_kind::Meta:
-    case expr_kind::Local: case expr_kind::Var:
+    case expr_kind::Var:  case expr_kind::Local:
         return save_pos(copy(e), p);
     case expr_kind::App:
         return save_pos(::lean::mk_app(copy_with_new_pos(app_fn(e), p),
                                        copy_with_new_pos(app_arg(e), p)),
                         p);
-    case expr_kind::Lambda: case expr_kind::Pi:
-        return save_pos(update_binding(e,
-                                       copy_with_new_pos(binding_domain(e), p),
-                                       copy_with_new_pos(binding_body(e), p)),
+    case expr_kind::Lambda:
+        return save_pos(::lean::mk_lambda(binding_name(e),
+                                          copy_with_new_pos(binding_domain(e), p),
+                                          copy_with_new_pos(binding_body(e), p),
+                                          binding_info(e)),
+
+                        p);
+    case expr_kind::Pi:
+        return save_pos(::lean::mk_pi(binding_name(e),
+                                      copy_with_new_pos(binding_domain(e), p),
+                                      copy_with_new_pos(binding_body(e), p),
+                                      binding_info(e)),
                         p);
     case expr_kind::Let:
         return save_pos(::lean::mk_let(let_name(e),
@@ -166,12 +195,16 @@ expr parser_state::copy_with_new_pos(expr const & e, pos_info p) {
                                        copy_with_new_pos(let_value(e), p),
                                        copy_with_new_pos(let_body(e), p)),
                         p);
-    case expr_kind::Macro: {
-        buffer<expr> args;
-        for (unsigned i = 0; i < macro_num_args(e); i++)
-            args.push_back(copy_with_new_pos(macro_arg(e, i), p));
-        return save_pos(::lean::mk_macro(macro_def(e), args.size(), args.data()), p);
-    }}
+    case expr_kind::Macro:
+        if (is_quote(e)) {
+            return save_pos(mk_quote_core(copy_with_new_pos(get_quote_expr(e), p)), p);
+        } else {
+            buffer<expr> args;
+            for (unsigned i = 0; i < macro_num_args(e); i++)
+                args.push_back(copy_with_new_pos(macro_arg(e, i), p));
+            return save_pos(::lean::mk_macro(macro_def(e), args.size(), args.data()), p);
+        }
+    }
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
@@ -254,4 +287,60 @@ name parser_state::check_atomic_decl_id_next(char const * msg) {
     return id;
 }
 
+expr parser_state::mk_app(expr fn, expr arg, pos_info const & p) {
+    return save_pos(::lean::mk_app(fn, arg), p);
+}
+
+expr parser_state::mk_app(expr fn, buffer<expr> const & args, pos_info const & p) {
+    expr r = fn;
+    for (expr const & arg : args) {
+        r = mk_app(r, arg, p);
+    }
+    return r;
+}
+
+expr parser_state::mk_app(std::initializer_list<expr> const & args, pos_info const & p) {
+    lean_assert(args.size() >= 2);
+    auto it = args.begin();
+    expr r = *it;
+    it++;
+    for (; it != args.end(); it++)
+        r = mk_app(r, *it, p);
+    return r;
+}
+
+parser_state::scope parser_state::mk_scope(optional<options> const & opts) {
+    return scope(opts, m_context->m_level_variables, m_context->m_variables, m_context->m_include_vars,
+                 m_next_inst_idx, m_has_params, m_context->m_local_level_decls, m_context->m_local_decls);
+}
+
+void parser_state::restore_scope(scope const & s) {
+    ensure_exclusive_context();
+    if (s.m_options) {
+        m_context->m_ios.set_options(*s.m_options);
+    }
+    m_context->m_local_level_decls  = s.m_local_level_decls;
+    m_context->m_local_decls        = s.m_local_decls;
+    m_context->m_level_variables    = s.m_level_variables;
+    m_context->m_variables          = s.m_variables;
+    m_context->m_include_vars       = s.m_include_vars;
+    m_has_params                    = s.m_has_params;
+    m_next_inst_idx                 = s.m_next_inst_idx;
+}
+
+void parser_state::push_local_scope(bool save_options) {
+    ensure_exclusive_context();
+    optional<options> opts;
+    if (save_options)
+        opts = m_context->m_ios.get_options();
+    m_context->m_scope_stack = cons(mk_scope(opts), m_context->m_scope_stack);
+}
+
+void parser_state::pop_local_scope() {
+    lean_assert(m_context->m_scope_stack);
+    ensure_exclusive_context();
+    auto s = head(m_context->m_scope_stack);
+    restore_scope(s);
+    m_context->m_scope_stack = tail(m_context->m_scope_stack);
+}
 }

@@ -21,14 +21,14 @@ private meta def injection_intro : expr → list name → tactic unit
   h ← intro hname,
   ht ← infer_type h,
   -- Clear new hypothesis if it is of the form (a = a)
-  @try unit $ do {
+  try $ do {
     (lhs, rhs) ← match_eq ht,
     unify lhs rhs,
     clear h },
   -- If new hypothesis is of the form (@heq A a B b) where
   -- A and B can be unified then convert it into (a = b) using
   -- the eq_of_heq lemma
-  @try unit $ do {
+  try $ do {
     (A, lhs, B, rhs) ← match_heq ht,
     unify A B,
     heq ← mk_app `eq [lhs, rhs],

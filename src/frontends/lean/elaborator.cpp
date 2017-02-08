@@ -1944,11 +1944,14 @@ expr elaborator::visit_convoy(expr const & e, optional<expr> const & expected_ty
         }
     }
     new_fn_type = instantiate_mvars(new_fn_type);
+#if 0
+    /* The following check is too restrictive in do blocks. */
     if (has_expr_metavar(new_fn_type)) {
         auto pp_fn = mk_pp_ctx();
         throw elaborator_exception(ref, format("invalid match/convoy expression, type contains meta-variables") +
                                    pp_indent(pp_fn, new_fn_type));
     }
+#endif
     trace_elab(tout() << "match/convoy function type: " << new_fn_type << "\n";);
     expr new_eqns = visit_equations(update_equations_fn_type(eqns, new_fn_type));
     expr fn       = get_equations_result(new_eqns, 0);

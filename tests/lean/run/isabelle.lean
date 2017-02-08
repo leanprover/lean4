@@ -2,46 +2,8 @@
 Isabelle style tactics.
 This test is based on a file created by Gabriel Ebner.
 -/
-universe variables u v
-
-inductive lazy_list (α : Type u) : Type u
-| nil {} : lazy_list
-| cons   : α → thunk (lazy_list) → lazy_list
-
-namespace lazy_list
-variables {α : Type u} {β : Type v}
-
-def singleton : α → lazy_list α
-| a := cons a nil
-
-def of_list : list α → lazy_list α
-| []     := nil
-| (h::t) := cons h (of_list t)
-
-def append : lazy_list α → thunk (lazy_list α) → lazy_list α
-| nil        l  := l ()
-| (cons h t) l  := cons h (append (t ()) (l ()))
-
-def map (f : α → β) : lazy_list α → lazy_list β
-| nil        := nil
-| (cons h t) := cons (f h) (map (t ()))
-
-def join : lazy_list (lazy_list α) → lazy_list α
-| nil        := nil
-| (cons h t) := append h (join (t ()))
-
-def for (l : lazy_list α) (f : α → β) : lazy_list β :=
-map f l
-
-def approx : nat → lazy_list α → list α
-| 0     l          := []
-| _     nil        := []
-| (a+1) (cons h t) := h :: approx a (t ())
-
-meta def above : nat → lazy_list nat
-| i     := cons i (above (i+1))
-
-end lazy_list
+import data.lazy_list
+universe variables u
 
 meta def lazy_tactic (α : Type u) :=
 tactic_state → lazy_list (α × tactic_state)

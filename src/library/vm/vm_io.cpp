@@ -12,9 +12,13 @@ Author: Leonardo de Moura
 #include "library/vm/vm_string.h"
 
 namespace lean {
+vm_obj mk_io_result(vm_obj const & r) {
+    return mk_vm_pair(r, mk_vm_unit());
+}
+
 vm_obj put_str(vm_obj const & str, vm_obj const &) {
     get_global_ios().get_regular_stream() << to_string(str);
-    return mk_vm_unit();
+    return mk_io_result(mk_vm_unit());
 }
 
 vm_obj put_nat(vm_obj const & n, vm_obj const &) {
@@ -22,7 +26,7 @@ vm_obj put_nat(vm_obj const & n, vm_obj const &) {
         get_global_ios().get_regular_stream() << cidx(n);
     else
         get_global_ios().get_regular_stream() << to_mpz(n);
-    return mk_vm_unit();
+    return mk_io_result(mk_vm_unit());
 }
 
 vm_obj get_line(vm_obj const &) {
@@ -30,15 +34,14 @@ vm_obj get_line(vm_obj const &) {
         throw exception("get_line: cannot read from stdin in server mode");
     std::string str;
     std::getline(std::cin, str);
-    return to_obj(str);
+    return mk_io_result(to_obj(str));
 }
 
-vm_obj forever (vm_obj const & action, vm_obj const &) {
+vm_obj forever(vm_obj const & action, vm_obj const &) {
     while (true) {
         invoke(action, mk_vm_simple(0));
     }
-
-    return mk_vm_simple(0);
+    return mk_io_result(mk_vm_simple(0));
 }
 
 void initialize_vm_io() {

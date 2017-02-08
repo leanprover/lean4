@@ -316,28 +316,15 @@ class erase_irrelevant_fn : public compiler_step_visitor {
 
                 fun S, let p := v S
                        in b (fst p) (snd p)
-
-              However, the State is a fiction. It is a unit at runtime.
-              The IO a is a really just a thunk.
-
-                IO a := unit -> a
-
-              So, in this version, we have a simpler (monad.bind v b)
-
-               bind v b :=
-               fun s, let a := v s in
-                      b a a
-
-              We use (b a a) instead of (b a unit), and (v s) instead of (v unit)
-              to make sure the let-declaration is not erased by the elim_unused_lets step.
-              For (b a a), this hack is ok because the second argument is not used during runtime.
             */
             expr v    = visit(args[4]);
             expr u    = mk_neutral_expr();
-            expr vu   = mk_app(v, mk_var(0));
+            expr vS   = mk_app(v, mk_var(0)); /* v S */
             expr b    = visit(args[5]);
-            expr bau  = beta_reduce(mk_app(b, mk_var(0), mk_var(0)));
-            expr let  = mk_let("a", u, vu, bau);
+            expr fstp = mk_app(mk_constant(get_pprod_fst_name()), u, u, mk_var(0));
+            expr sndp = mk_app(mk_constant(get_pprod_snd_name()), u, u, mk_var(0));
+            expr bfs  = beta_reduce(mk_app(b, fstp, sndp));
+            expr let  = mk_let("p", u, vS, bfs);
             return mk_lambda("S", u, let);
         } else {
             return compiler_step_visitor::visit_app(e);
@@ -347,14 +334,15 @@ class erase_irrelevant_fn : public compiler_step_visitor {
     expr visit_monad_return(expr const & e, buffer<expr> const & args) {
         if (args.size() == 4 && is_builtin_state_monad(args[1])) {
             /* IO monad return
-               return v := fun s, v
+               return v := fun s, (v, s)
 
                Remark: we do not return the state explicility.
             */
             expr u = mk_neutral_expr();
             expr s = mk_var(0);
             expr v = visit(args[3]);
-            return mk_lambda("S", u, v);
+            expr p = mk_app(mk_constant(get_pprod_mk_name()), u, u, v, s);
+            return mk_lambda("S", u, p);
         } else {
             return compiler_step_visitor::visit_app(e);
         }

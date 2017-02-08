@@ -8,10 +8,14 @@ Author: Leonardo de Moura
 #include "util/utf8.h"
 #include "util/sstream.h"
 #include "kernel/for_each_fn.h"
+#include "kernel/error_msgs.h"
 #include "library/class.h"
+#include "library/explicit.h"
 #include "library/deep_copy.h"
 #include "library/quote.h"
+#include "library/aliases.h"
 #include "frontends/lean/parser_state.h"
+#include "frontends/lean/util.h"
 #include "frontends/lean/tokens.h"
 
 namespace lean {
@@ -342,5 +346,139 @@ void parser_state::pop_local_scope() {
     auto s = head(m_context->m_scope_stack);
     restore_scope(s);
     m_context->m_scope_stack = tail(m_context->m_scope_stack);
+}
+
+void parser_state::clear_expr_locals() {
+    ensure_exclusive_context();
+    m_context->m_local_decls = local_expr_decls();
+}
+
+void parser_state::add_local_level(name const & n, level const & l, bool is_variable) {
+    ensure_exclusive_context();
+    if (env().is_universe(n))
+        throw exception(sstream() << "invalid universe declaration, '" << n << "' shadows a global universe");
+    if (m_context->m_local_level_decls.contains(n))
+        throw exception(sstream() << "invalid universe declaration, '" << n << "' shadows a local universe");
+    m_context->m_local_level_decls.insert(n, l);
+    if (is_variable) {
+        lean_assert(is_param(l));
+        m_context->m_level_variables.insert(n);
+    }
+}
+
+void parser_state::add_local_expr(name const & n, expr const & p, bool is_variable) {
+    ensure_exclusive_context();
+    m_context->m_local_decls.insert(n, p);
+    if (is_variable) {
+        lean_assert(is_local(p));
+        m_context->m_variables.insert(local_pp_name(p));
+    }
+}
+
+environment parser_state::add_local_ref(environment const & env, name const & n, expr const & ref) {
+    add_local_expr(n, ref, false);
+    if (is_as_atomic(ref)) {
+        buffer<expr> args;
+        expr f = get_app_args(get_as_atomic_arg(ref), args);
+        if (is_explicit(f))
+            f = get_explicit_arg(f);
+        if (is_constant(f)) {
+            return ::lean::add_local_ref(env, const_name(f), ref);
+        } else {
+            return env;
+        }
+    } else if (is_constant(ref) && const_levels(ref)) {
+        return ::lean::add_local_ref(env, const_name(ref), ref);
+    } else {
+        return env;
+    }
+}
+
+static void check_no_metavars(name const & n, expr const & e) {
+    lean_assert(is_local(e));
+    if (has_metavar(e)) {
+        throw generic_exception(none_expr(), [=](formatter const & fmt) {
+                format r("failed to add declaration '");
+                r += format(n);
+                r += format("' to local context, type has metavariables");
+                r += pp_until_meta_visible(fmt, mlocal_type(e));
+                return r;
+            });
+    }
+}
+
+void parser_state::add_variable(name const & n, expr const & v) {
+    lean_assert(is_local(v));
+    check_no_metavars(n, v);
+    add_local_expr(n, v, true);
+}
+
+void parser_state::add_parameter(name const & n, expr const & p) {
+    lean_assert(is_local(p));
+    check_no_metavars(n, p);
+    add_local_expr(n, p, false);
+    m_has_params = true;
+}
+
+bool parser_state::update_local_binder_info(name const & n, binder_info const & bi) {
+    auto it = get_local(n);
+    if (!it || !is_local(*it)) return false;
+
+    buffer<pair<name, expr>> entries;
+    to_buffer(m_context->m_local_decls.get_entries(), entries);
+    std::reverse(entries.begin(), entries.end());
+    unsigned idx = m_context->m_local_decls.find_idx(n);
+    lean_assert(idx > 0);
+    lean_assert_eq(entries[idx-1].second, *it);
+
+    buffer<expr> old_locals;
+    buffer<expr> new_locals;
+    old_locals.push_back(*it);
+    expr new_l = update_local(*it, bi);
+    entries[idx-1].second = new_l;
+    new_locals.push_back(new_l);
+
+    for (unsigned i = idx; i < entries.size(); i++) {
+        expr const & curr_e = entries[i].second;
+        expr r = is_local(curr_e) ? mlocal_type(curr_e) : curr_e;
+        if (std::any_of(old_locals.begin(), old_locals.end(), [&](expr const & l) { return depends_on(r, l); })) {
+            r  = replace_locals(r, old_locals, new_locals);
+            if (is_local(curr_e)) {
+                expr new_e = update_mlocal(curr_e, r);
+                entries[i].second = new_e;
+                old_locals.push_back(curr_e);
+                new_locals.push_back(new_e);
+            } else {
+                entries[i].second = r;
+            }
+        }
+    }
+    auto new_entries = m_context->m_local_decls.get_entries();
+    unsigned sz_to_updt = entries.size() - idx + 1;
+    for (unsigned i = 0; i < sz_to_updt; i++)
+        new_entries = tail(new_entries); // remove entries that will be updated
+    for (unsigned i = idx-1; i < entries.size(); i++)
+        new_entries = cons(entries[i], new_entries);
+    ensure_exclusive_context();
+    m_context->m_local_decls.update_entries(new_entries);
+    return true;
+}
+
+unsigned parser_state::get_local_index(name const & n) const {
+    return m_context->m_local_decls.find_idx(n);
+}
+
+void parser_state::get_include_variables(buffer<expr> & vars) const {
+    m_context->m_include_vars.for_each([&](name const & n) {
+            vars.push_back(*get_local(n));
+        });
+}
+
+list<expr> parser_state::locals_to_context() const {
+    return map_filter<expr>(m_context->m_local_decls.get_entries(),
+                            [](pair<name, expr> const & p, expr & out) {
+                                out = p.second;
+                                return is_local(p.second);
+                            });
 }
 }

@@ -5,7 +5,6 @@ has type
 but is expected to have type
   ℕ → ℕ → ℕ
 minimize_errors.lean:1:4: warning: declaration 'f' uses sorry
-minimize_errors.lean:1:4: warning: declaration 'f.equations._eqn_1' uses sorry
 f : ℕ → ℕ → ℕ
 g : ℕ → ℕ → ℕ
 def g : ℕ → ℕ → ℕ :=

@@ -498,6 +498,8 @@ public:
         in_notation_ctx(parser & p):m_ctx(p.m_scanner) {}
     };
 
+    bool in_notation() const { return m_scanner.in_notation(); }
+
 public:
     /* pos_info_provider API */
     virtual optional<pos_info> get_pos_info(expr const & e) const override;

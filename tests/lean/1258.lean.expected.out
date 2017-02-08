@@ -6,10 +6,3 @@ foo : ∀ (ns : list ℕ), P xs ns,
 n : ℕ,
 ns : list ℕ
 ⊢ P xs (n :: ns)
-1258.lean:4:54: error: failed
-state:
-xs : list ℕ,
-foo : ∀ (ns : list ℕ), P xs ns,
-n : ℕ,
-ns : list ℕ
-⊢ P xs (n :: ns)

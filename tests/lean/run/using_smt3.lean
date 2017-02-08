@@ -7,8 +7,8 @@ open tactic_result
 
 meta def fail_if_success {α : Type} (t : smt_tactic α) : smt_tactic unit :=
 λ ss ts, match t ss ts with
-| success _ _                         := failed ts
-| exception .(α × smt_state) _ _ _ := success ((), ss) ts
+| success _ _     := failed ts
+| exception _ _ _ := success ((), ss) ts
 end
 
 def my_smt_config : smt_config :=

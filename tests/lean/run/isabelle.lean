@@ -52,7 +52,7 @@ open lazy_list
 meta def of_tactic {α : Type u} (t : tactic α) : lazy_tactic α :=
 λ s, match t s with
 | tactic_result.success a new_s    := lazy_list.singleton (a, new_s)
-| tactic_result.exception .α f e s := lazy_list.nil
+| tactic_result.exception f e s := lazy_list.nil
 end
 
 meta instance {α : Type} : has_coe (tactic α) (lazy_tactic α) :=

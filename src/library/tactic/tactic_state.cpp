@@ -273,8 +273,8 @@ optional<tactic_state> is_tactic_success(vm_obj const & o) {
 }
 
 optional<tactic_exception_info> is_tactic_exception(vm_state & S, vm_obj const & ex) {
-    if (is_constructor(ex) && cidx(ex) == 1) {
-        vm_obj fmt = S.invoke(cfield(ex, 0), mk_vm_unit());
+    if (is_constructor(ex) && cidx(ex) == 1 && !is_none(cfield(ex, 0))) {
+        vm_obj fmt = S.invoke(get_some_value(cfield(ex, 0)), mk_vm_unit());
         optional<expr> ref;
         if (!is_none(cfield(ex, 1)))
             ref = to_expr(get_some_value(cfield(ex, 1)));
@@ -282,6 +282,10 @@ optional<tactic_exception_info> is_tactic_exception(vm_state & S, vm_obj const &
     } else {
         return optional<tactic_exception_info>();
     }
+}
+
+bool is_tactic_silent_exception(vm_obj const & ex) {
+    return is_constructor(ex) && cidx(ex) == 1 && is_none(cfield(ex, 0));
 }
 
 vm_obj mk_tactic_result(vm_obj const & a, vm_obj const & s) {
@@ -316,11 +320,11 @@ vm_obj mk_tactic_success(tactic_state const & s) {
 }
 
 vm_obj mk_tactic_exception(vm_obj const & fn, tactic_state const & s) {
-    return mk_vm_constructor(1, fn, mk_vm_none(), to_obj(s));
+    return mk_vm_constructor(1, mk_vm_some(fn), mk_vm_none(), to_obj(s));
 }
 
 vm_obj mk_tactic_exception(vm_obj const & fn, vm_obj const & ref, tactic_state const & s) {
-    return mk_vm_constructor(1, fn, ref, to_obj(s));
+    return mk_vm_constructor(1, mk_vm_some(fn), ref, to_obj(s));
 }
 
 vm_obj mk_tactic_exception(throwable const & ex, tactic_state const & s) {

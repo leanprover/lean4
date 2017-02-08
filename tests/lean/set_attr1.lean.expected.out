@@ -3,4 +3,3 @@ state:
 n : ℕ
 ⊢ f n = n + 1
 set_attr1.lean:13:11: warning: declaration 'ex2' uses sorry
-set_attr1.lean:13:11: warning: declaration 'ex2.equations._eqn_1' uses sorry

@@ -60,6 +60,8 @@ static expr mk_tactic_step(parser & p, expr tac, pos_info const & pos, name cons
 }
 
 static expr mk_tactic_rstep(parser & p, expr tac, pos_info const & pos, name const & tac_class, bool report_error) {
+    if (p.in_notation())
+        return mk_tactic_step(p, tac, pos, tac_class);
     if (tac.get_tag() == nulltag)
         tac = p.save_pos(tac, pos);
     name c;
@@ -570,8 +572,8 @@ expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {
     p.clear_expr_locals();
     auto tac_pos = p.pos();
     try {
-        bool use_rstep    = false;
-        bool report_error = false;
+        bool use_rstep    = true;
+        bool report_error = true;
         expr tac  = parse_tactic(p, get_tactic_name(), use_rstep, report_error);
         expr type = mk_tactic_unit(get_tactic_name());
         expr r    = p.save_pos(mk_typed_expr(type, tac), tac_pos);

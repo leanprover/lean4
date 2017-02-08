@@ -17,4 +17,3 @@ H : P,
 H' : ¬P
 ⊢ sorry
 crash.lean:6:11: warning: declaration 'crash' uses sorry
-crash.lean:6:11: warning: declaration 'crash.equations._eqn_1' uses sorry

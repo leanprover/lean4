@@ -9,26 +9,29 @@ import init.meta.interactive
 
 namespace tactic
 
+private meta def report {α} (s : tactic_state) : option (unit → format) → α
+| (some fmt) := undefined_core $ to_string $ fmt () ++ format.line ++ to_fmt s
+| none       := undefined_core "silent failure"
+
+
 private meta def run_or_fail {α} (s : tactic_state) (tac : tactic α) : α :=
 match tac s with
 | (tactic_result.success a s) := a
-| (tactic_result.exception .α fmt _ s') :=
-  undefined_core $ to_string $ fmt () ++ format.line ++ to_fmt s'
+| (tactic_result.exception fmt _ s') := report s' fmt
 end
 
 meta def run_async {α : Type} (tac : tactic α) : tactic (task α) := do
 s ← read, return $ task.delay $ λ _,
   match tac s with
   | (tactic_result.success a s) := a
-  | (tactic_result.exception .α fmt _ s') :=
-    undefined_core $ to_string $ fmt () ++ format.line ++ to_fmt s'
+  | (tactic_result.exception fmt _ s') := report s' fmt
   end
 
 meta def prove_goal_async (tac : tactic unit) : tactic unit := do
 ctx ← local_context, revert_lst ctx,
 tgt ← target, tgt ← instantiate_mvars tgt,
 env ← get_env, tgt ← return $ env^.unfold_untrusted_macros tgt,
-when tgt^.has_meta_var (fail $ "goal contains metavariables"),
+when tgt^.has_meta_var (fail "goal contains metavariables"),
 params ← return tgt^.collect_univ_params,
 lemma_name ← new_aux_decl_name,
 proof ← run_async (do

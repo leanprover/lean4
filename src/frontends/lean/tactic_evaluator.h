@@ -21,11 +21,11 @@ class tactic_evaluator {
     environment compile_tactic(name const & tactic_name, expr const & tactic);
     vm_obj invoke_tactic(vm_state & S, name const & tactic_name, std::initializer_list<vm_obj> const & args);
 
-    tactic_state execute_tactic(expr const & tactic, tactic_state const & s, expr const & ref);
-    tactic_state execute_atomic(tactic_state const & s, expr const & tactic, expr const & ref);
+    optional<tactic_state> execute_tactic(expr const & tactic, tactic_state const & s, expr const & ref);
+    optional<tactic_state> execute_atomic(tactic_state const & s, expr const & tactic, expr const & ref);
 public:
     tactic_evaluator(type_context & ctx, options const & opts);
 
-    tactic_state operator()(tactic_state const & s, expr const & tactic, expr const & ref);
+    optional<tactic_state> operator()(tactic_state const & s, expr const & tactic, expr const & ref);
 };
 }

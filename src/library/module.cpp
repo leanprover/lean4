@@ -466,10 +466,29 @@ struct add_decl_sorry_check : public task<unit> {
     bool is_tiny() const override { return true; }
     task_kind get_kind() const override { return task_kind::elab; }
 
+    optional<name> should_report_sorry(name const & n) {
+        if (n.is_anonymous())
+            return optional<name>();
+        if (!is_internal_name(n))
+            return optional<name>(n);
+        if (!n.is_string() || n.is_atomic())
+            return optional<name>();
+        if (strcmp(n.get_string(), "_main") == 0)
+            return should_report_sorry(n.get_prefix());
+        if (strncmp(n.get_string(), "_match", 6) == 0) {
+            // TODO(Leo): we may report the same function multiple times,
+            // if it contains many nested match-expressions containing sorry.
+            return should_report_sorry(n.get_prefix());
+        }
+        return optional<name>();
+    }
+
     unit execute() override {
         if (has_sorry(m_decl)) {
-            report_message(message(get_module_id(), m_pos, WARNING,
-                                   (sstream() << "declaration '" << m_decl.get_name() << "' uses sorry").str()));
+            if (optional<name> n = should_report_sorry(m_decl.get_name())) {
+                report_message(message(get_module_id(), m_pos, WARNING,
+                                       (sstream() << "declaration '" << *n << "' uses sorry").str()));
+            }
         }
         return {};
     }

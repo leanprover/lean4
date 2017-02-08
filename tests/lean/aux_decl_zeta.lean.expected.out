@@ -8,6 +8,4 @@ has type
   vec ℕ n
 but is expected to have type
   vec ℕ 10
-aux_decl_zeta.lean:5:11: warning: declaration 'f._main' uses sorry
-aux_decl_zeta.lean:5:11: warning: declaration 'f._main.equations._eqn_1' uses sorry
-aux_decl_zeta.lean:5:11: warning: declaration 'f.equations._eqn_1' uses sorry
+aux_decl_zeta.lean:5:11: warning: declaration 'f' uses sorry

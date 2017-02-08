@@ -82,29 +82,31 @@ static void process_failure(vm_state & S, vm_obj const & r, expr const & ref) {
         else
             throw_unsolved_tactic_state(s1, fmt, ref);
     }
+    /* Do nothing if it is a silent failure */
+    lean_assert(is_tactic_silent_exception(r));
 }
 
-tactic_state tactic_evaluator::execute_tactic(expr const & tactic, tactic_state const & s, expr const & ref) {
+optional<tactic_state> tactic_evaluator::execute_tactic(expr const & tactic, tactic_state const & s, expr const & ref) {
     name tactic_name("_tactic");
     environment new_env = compile_tactic(tactic_name, tactic);
     vm_state S(new_env, m_opts);
     vm_obj r = invoke_tactic(S, tactic_name, {to_obj(s)});
 
     if (optional<tactic_state> new_s = is_tactic_success(r)) {
-        return *new_s;
+        return new_s;
     }
     process_failure(S, r, ref);
-    lean_unreachable();
+    return optional<tactic_state>();
 }
 
-tactic_state tactic_evaluator::execute_atomic(tactic_state const & s, expr const & tactic, expr const & ref) {
-    tactic_state new_s = execute_tactic(tactic, s, ref);
-    if (new_s.goals())
-        throw_unsolved_tactic_state(new_s, "tactic failed, there are unsolved goals", ref);
+optional<tactic_state> tactic_evaluator::execute_atomic(tactic_state const & s, expr const & tactic, expr const & ref) {
+    optional<tactic_state> new_s = execute_tactic(tactic, s, ref);
+    if (new_s && new_s->goals())
+        throw_unsolved_tactic_state(*new_s, "tactic failed, there are unsolved goals", ref);
     return new_s;
 }
 
-tactic_state tactic_evaluator::operator()(tactic_state const & s, expr const & tactic, expr const & ref) {
+optional<tactic_state> tactic_evaluator::operator()(tactic_state const & s, expr const & tactic, expr const & ref) {
     return execute_atomic(s, tactic, ref);
 }
 

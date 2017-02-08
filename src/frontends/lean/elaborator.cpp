@@ -2858,18 +2858,21 @@ void elaborator::invoke_tactic(expr const & mvar, expr const & tactic) {
     tactic_state s       = mk_tactic_state_for(mvar);
 
     try {
-        tactic_state new_s = tactic_evaluator(m_ctx, m_opts)(s, tactic, ref);
-
-        metavar_context mctx = new_s.mctx();
-        expr val = mctx.instantiate_mvars(new_s.main());
-        if (has_expr_metavar(val)) {
-            val = recoverable_error(some_expr(type), ref,
-                                    unsolved_tactic_state(new_s, "tactic failed, result contains meta-variables", ref));
+        if (optional<tactic_state> new_s = tactic_evaluator(m_ctx, m_opts)(s, tactic, ref)) {
+            metavar_context mctx = new_s->mctx();
+            expr val = mctx.instantiate_mvars(new_s->main());
+            if (has_expr_metavar(val)) {
+                val = recoverable_error(some_expr(type), ref,
+                                        unsolved_tactic_state(*new_s, "tactic failed, result contains meta-variables", ref));
+            }
+            mctx.assign(mvar, val);
+            m_env = new_s->env();
+            m_ctx.set_env(m_env);
+            m_ctx.set_mctx(mctx);
+        } else {
+            m_ctx.assign(mvar, mk_sorry(some_expr(type), ref));
+            m_has_errors = true;
         }
-        mctx.assign(mvar, val);
-        m_env = new_s.env();
-        m_ctx.set_env(m_env);
-        m_ctx.set_mctx(mctx);
     } catch (std::exception & ex) {
         if (try_report(ex, some_expr(ref))) {
             m_ctx.assign(mvar, mk_sorry(some_expr(type), ref));

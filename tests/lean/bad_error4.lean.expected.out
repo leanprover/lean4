@@ -7,4 +7,3 @@ has type
 but is expected to have type
   unit → unit
 bad_error4.lean:4:11: warning: declaration 'bar' uses sorry
-bad_error4.lean:4:11: warning: declaration 'bar.equations._eqn_1' uses sorry

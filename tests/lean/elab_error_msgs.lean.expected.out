@@ -9,7 +9,6 @@ but is expected to have type
 Additional information:
 elab_error_msgs.lean:2:0: context: 'eliminator' elaboration was not used for 'and.rec' because it is not fully applied, #2 explicit arguments expected
 elab_error_msgs.lean:5:4: warning: declaration 'bogus_elim' uses sorry
-elab_error_msgs.lean:5:4: warning: declaration 'bogus_elim.equations._eqn_1' uses sorry
 elab_error_msgs.lean:9:0: error: type mismatch at application
   bogus_elim trivial
 term

@@ -11,4 +11,3 @@ state:
 p : ℕ → ℕ → Prop
 ⊢ sorry
 bad_error3.lean:5:4: warning: declaration 'ex' uses sorry
-bad_error3.lean:5:4: warning: declaration 'ex.equations._eqn_1' uses sorry

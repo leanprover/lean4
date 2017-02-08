@@ -11,6 +11,7 @@ namespace lean {
 expr mk_quote(expr const & e);
 bool is_quote(expr const & e);
 expr const & get_quote_expr(expr const & e);
+expr mk_quote_core(expr const & e);
 
 expr mk_antiquote(expr const & e);
 bool is_antiquote(expr const & e);

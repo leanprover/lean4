@@ -1,6 +1,5 @@
 error_pos.lean:1:39: error: type expected at
   B
-error_pos.lean:1:8: warning: declaration '_example' uses sorry
 error_pos.lean:4:43: error: type expected at
   B
 error_pos.lean:9:39: error: type expected at

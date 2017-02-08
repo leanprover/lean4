@@ -8,11 +8,3 @@ f₁ : α₁ → α₁,
 f₂ : Π ⦃a : α₁⦄, α₂ a → α₂ (f₁ a),
 eq₁ : f₁ = id
 ⊢ map f₁ f₂ = id
-1277.lean:9:0: error: failed
-state:
-α₁ : Type,
-α₂ : α₁ → Type,
-f₁ : α₁ → α₁,
-f₂ : Π ⦃a : α₁⦄, α₂ a → α₂ (f₁ a),
-eq₁ : f₁ = id
-⊢ map f₁ f₂ = id

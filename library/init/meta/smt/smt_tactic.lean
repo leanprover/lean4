@@ -76,7 +76,7 @@ meta def smt_tactic_orelse {α : Type} (t₁ t₂ : smt_tactic α) : smt_tactic 
   tactic_result.success
   (λ e₁ ref₁ s', tactic_result.cases_on (t₂ ss ts)
      tactic_result.success
-     (tactic_result.exception (α × smt_state)))
+     tactic_result.exception)
 
 meta instance : monad_fail smt_tactic :=
 { smt_tactic.monad with fail := λ α s, (tactic.fail (to_fmt s) : smt_tactic α) }

@@ -7,13 +7,3 @@ _match : (∃ (k_1 : ℕ), k + n + k_1 = k + m) → n ≤ m,
 w : ℕ,
 hw : (λ (k_1 : ℕ), k + n + k_1 = k + m) w
 ⊢ n + w = m
-bad_error2.lean:10:4: error: failed
-state:
-k n m : ℕ,
-h : k + n ≤ k + m,
-_match : (∃ (k_1 : ℕ), k + n + k_1 = k + m) → n ≤ m,
-w : ℕ,
-hw : (λ (k_1 : ℕ), k + n + k_1 = k + m) w
-⊢ n + w = m
-bad_error2.lean:3:8: warning: declaration 'this._match_1' uses sorry
-bad_error2.lean:3:8: warning: declaration 'this._match_1.equations._eqn_1' uses sorry

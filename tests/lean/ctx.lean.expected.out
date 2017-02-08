@@ -7,4 +7,3 @@ h : A = B,
 p1 p2 : A × B
 ⊢ ℕ
 ctx.lean:2:11: warning: declaration 'foo' uses sorry
-ctx.lean:2:11: warning: declaration 'foo.equations._eqn_1' uses sorry

@@ -1,5 +1,4 @@
 hole_issue2.lean:12:25: warning: declaration 'count' uses sorry
-hole_issue2.lean:12:25: warning: declaration 'count.equations._eqn_1' uses sorry
 hole_issue2.lean:22:74: error: don't know how to synthesize placeholder
 context:
 A : Type,
@@ -11,8 +10,7 @@ h : ⟦l₁⟧ ⊆ ⟦l₂⟧,
 w : A,
 hw : ¬list.count w l₁ ≤ list.count w l₂
 ⊢ false
-hole_issue2.lean:18:25: warning: declaration 'decidable_subbag_1._match_1' uses sorry
-hole_issue2.lean:18:25: warning: declaration 'decidable_subbag_1._match_1.equations._eqn_1' uses sorry
+hole_issue2.lean:18:25: warning: declaration 'decidable_subbag_1' uses sorry
 hole_issue2.lean:29:65: error: don't know how to synthesize placeholder
 context:
 A : Type,
@@ -22,8 +20,7 @@ _match : Π (b : bool), subcount l₁ l₂ = b → decidable (⟦l₁⟧ ⊆ ⟦
 H : subcount l₁ l₂ = ff,
 h : ⟦l₁⟧ ⊆ ⟦l₂⟧
 ⊢ ∀ (a : A), ¬list.count a l₁ ≤ list.count a l₂ → false
-hole_issue2.lean:25:25: warning: declaration 'decidable_subbag_2._match_1' uses sorry
-hole_issue2.lean:25:25: warning: declaration 'decidable_subbag_2._match_1.equations._eqn_1' uses sorry
+hole_issue2.lean:25:25: warning: declaration 'decidable_subbag_2' uses sorry
 hole_issue2.lean:36:28: error: don't know how to synthesize placeholder
 context:
 A : Type,
@@ -33,5 +30,4 @@ _match : Π (b : bool), subcount l₁ l₂ = b → decidable (⟦l₁⟧ ⊆ ⟦
 H : subcount l₁ l₂ = ff,
 h : ⟦l₁⟧ ⊆ ⟦l₂⟧
 ⊢ false
-hole_issue2.lean:32:25: warning: declaration 'decidable_subbag_3._match_1' uses sorry
-hole_issue2.lean:32:25: warning: declaration 'decidable_subbag_3._match_1.equations._eqn_1' uses sorry
+hole_issue2.lean:32:25: warning: declaration 'decidable_subbag_3' uses sorry

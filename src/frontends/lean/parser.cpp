@@ -24,6 +24,7 @@ Author: Leonardo de Moura
 #include "library/module_mgr.h"
 #include "library/export_decl.h"
 #include "library/trace.h"
+#include "library/quote.h"
 #include "library/class.h"
 #include "library/exception.h"
 #include "library/aliases.h"
@@ -341,16 +342,24 @@ expr parser::rec_save_pos(expr const & e, pos_info p) {
 expr parser::copy_with_new_pos(expr const & e, pos_info p) {
     switch (e.kind()) {
     case expr_kind::Sort: case expr_kind::Constant: case expr_kind::Meta:
-    case expr_kind::Local: case expr_kind::Var:
+    case expr_kind::Var:  case expr_kind::Local:
         return save_pos(copy(e), p);
     case expr_kind::App:
         return save_pos(::lean::mk_app(copy_with_new_pos(app_fn(e), p),
                                        copy_with_new_pos(app_arg(e), p)),
                         p);
-    case expr_kind::Lambda: case expr_kind::Pi:
-        return save_pos(update_binding(e,
-                                       copy_with_new_pos(binding_domain(e), p),
-                                       copy_with_new_pos(binding_body(e), p)),
+    case expr_kind::Lambda:
+        return save_pos(::lean::mk_lambda(binding_name(e),
+                                          copy_with_new_pos(binding_domain(e), p),
+                                          copy_with_new_pos(binding_body(e), p),
+                                          binding_info(e)),
+
+                        p);
+    case expr_kind::Pi:
+        return save_pos(::lean::mk_pi(binding_name(e),
+                                      copy_with_new_pos(binding_domain(e), p),
+                                      copy_with_new_pos(binding_body(e), p),
+                                      binding_info(e)),
                         p);
     case expr_kind::Let:
         return save_pos(::lean::mk_let(let_name(e),
@@ -358,12 +367,16 @@ expr parser::copy_with_new_pos(expr const & e, pos_info p) {
                                        copy_with_new_pos(let_value(e), p),
                                        copy_with_new_pos(let_body(e), p)),
                         p);
-    case expr_kind::Macro: {
-        buffer<expr> args;
-        for (unsigned i = 0; i < macro_num_args(e); i++)
-            args.push_back(copy_with_new_pos(macro_arg(e, i), p));
-        return save_pos(::lean::mk_macro(macro_def(e), args.size(), args.data()), p);
-    }}
+    case expr_kind::Macro:
+        if (is_quote(e)) {
+            return save_pos(mk_quote_core(copy_with_new_pos(get_quote_expr(e), p)), p);
+        } else {
+            buffer<expr> args;
+            for (unsigned i = 0; i < macro_num_args(e); i++)
+                args.push_back(copy_with_new_pos(macro_arg(e, i), p));
+            return save_pos(::lean::mk_macro(macro_def(e), args.size(), args.data()), p);
+        }
+    }
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 

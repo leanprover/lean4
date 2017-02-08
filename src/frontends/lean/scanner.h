@@ -103,6 +103,8 @@ public:
     public:
         in_notation_ctx(scanner & s):m_in_notation(s.m_in_notation, true) {}
     };
+
+    bool in_notation() const { return m_in_notation; }
 };
 std::ostream & operator<<(std::ostream & out, token_kind k);
 bool is_id_rest(char const * begin, char const * end);

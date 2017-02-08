@@ -1,3 +1,2 @@
 structure_instance_bug.lean:11:0: error: invalid structure value {...}, field 'B' is implicit and must not be provided
 structure_instance_bug.lean:10:11: warning: declaration 'foo3' uses sorry
-structure_instance_bug.lean:10:11: warning: declaration 'foo3.equations._eqn_1' uses sorry

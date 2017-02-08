@@ -4,15 +4,3 @@ a b c : ℕ,
 a_1 : a = b,
 a_2 : c = b
 ⊢ a = c
-nested_errors.lean:7:2: error: failed
-state:
-a b c : ℕ,
-a_1 : a = b,
-a_2 : c = b
-⊢ a = c
-nested_errors.lean:8:0: error: failed
-state:
-a b c : ℕ,
-a_1 : a = b,
-a_2 : c = b
-⊢ a = c

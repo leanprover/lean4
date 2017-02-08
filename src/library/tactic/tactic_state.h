@@ -155,6 +155,7 @@ typedef std::tuple<format, optional<expr>, tactic_state> tactic_exception_info;
 /* If ex is (base_tactic_result.exception fn), then return (fn ()).
    The vm_state S is used to execute (fn ()). */
 optional<tactic_exception_info> is_tactic_exception(vm_state & S, vm_obj const & ex);
+bool is_tactic_silent_exception(vm_obj const & ex);
 
 type_context mk_type_context_for(tactic_state const & s, transparency_mode m = transparency_mode::Semireducible);
 type_context mk_type_context_for(tactic_state const & s, local_context const & lctx, transparency_mode m = transparency_mode::Semireducible);

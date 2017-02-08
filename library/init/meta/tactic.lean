@@ -27,8 +27,8 @@ meta instance : has_to_format tactic_state :=
 ⟨tactic_state.to_format⟩
 
 meta inductive tactic_result (α : Type u)
-| success   : α → tactic_state → tactic_result
-| exception : (unit → format) → option expr → tactic_state → tactic_result
+| success      : α → tactic_state → tactic_result
+| exception {} : option (unit → format) → option expr → tactic_state → tactic_result
 
 open tactic_result
 
@@ -37,8 +37,9 @@ variables {α : Type u}
 variables [has_to_string α]
 
 meta def tactic_result_to_string : tactic_result α → string
-| (success a s)          := to_string a
-| (exception .α t ref s) := "Exception: " ++ to_string (t ())
+| (success a s)              := to_string a
+| (exception (some t) ref s) := "Exception: " ++ to_string (t ())
+| (exception none ref s)     := "[silent exception]"
 
 meta instance : has_to_string (tactic_result α) :=
 ⟨tactic_result_to_string⟩
@@ -54,12 +55,12 @@ variables {α : Type u} {β : Type v}
 @[inline] meta def tactic_fmap (f : α → β) (t : tactic α) : tactic β :=
 λ s, tactic_result.cases_on (t s)
   (λ a s', success (f a) s')
-  (λ e s', exception β e s')
+  (λ e s', exception e s')
 
 @[inline] meta def tactic_bind (t₁ : tactic α) (t₂ : α → tactic β) : tactic β :=
 λ s,  tactic_result.cases_on (t₁ s)
   (λ a s', t₂ a s')
-  (λ e s', exception β e s')
+  (λ e s', exception e s')
 
 @[inline] meta def tactic_return (a : α) : tactic α :=
 λ s, success a s
@@ -69,7 +70,7 @@ meta def tactic_orelse {α : Type u} (t₁ t₂ : tactic α) : tactic α :=
   success
   (λ e₁ ref₁ s', tactic_result.cases_on (t₂ s)
      success
-     (exception α))
+     exception)
 
 @[inline] meta def tactic_seq (t₁ : tactic α) (t₂ : tactic β) : tactic β :=
 tactic_bind t₁ (λ a, t₂)
@@ -81,8 +82,14 @@ end
 meta instance : monad tactic :=
 {map := @tactic_fmap, ret := @tactic_return, bind := @tactic_bind}
 
+meta def tactic.mk_exception {α : Type u} {β : Type v} [has_to_format β] (msg : β) (ref : option expr) (s : tactic_state) : tactic_result α :=
+exception (some (λ _, to_fmt msg)) none s
+
 meta def tactic.fail {α : Type u} {β : Type v} [has_to_format β] (msg : β) : tactic α :=
-λ s, exception α (λ u, to_fmt msg) none s
+λ s, tactic.mk_exception msg none s
+
+meta def tactic.silent_fail {α : Type u} : tactic α :=
+λ s, exception none none s
 
 meta def tactic.failed {α : Type u} : tactic α :=
 tactic.fail "failed"
@@ -95,14 +102,14 @@ meta instance : alternative tactic :=
 
 meta def {u₁ u₂} tactic.up {α : Type u₂} (t : tactic α) : tactic (ulift.{u₁} α) :=
 λ s, match t s with
-| success a s'         := success (ulift.up a) s'
-| exception .α t ref s := exception (ulift α) t ref s
+| success a s'      := success (ulift.up a) s'
+| exception t ref s := exception t ref s
 end
 
 meta def {u₁ u₂} tactic.down {α : Type u₂} (t : tactic (ulift.{u₁} α)) : tactic α :=
 λ s, match t s with
 | success (ulift.up a) s' := success a s'
-| exception .(ulift α) t ref s := exception α t ref s
+| exception t ref s       := exception t ref s
 end
 
 namespace tactic
@@ -121,7 +128,7 @@ try_core t >> skip
 
 meta def fail_if_success {α : Type u} (t : tactic α) : tactic unit :=
 λ s, tactic_result.cases_on (t s)
- (λ a s, exception _ (λ _, to_fmt "fail_if_success combinator failed, given tactic succeeded") none s)
+ (λ a s, mk_exception "fail_if_success combinator failed, given tactic succeeded" none s)
  (λ e ref s', success () s)
 
 open list
@@ -145,21 +152,25 @@ repeat_at_most 100000
 
 meta def returnex {α : Type} (e : exceptional α) : tactic α :=
 λ s, match e with
-| (exceptional.success a)       := tactic_result.success a s
-| (exceptional.exception .α f) := tactic_result.exception α (λ u, f options.mk) none s -- TODO(Leo): extract options from environment
+| exceptional.success a      := success a s
+| exceptional.exception .α f := exception (some (λ u, f options.mk)) none s -- TODO(Leo): extract options from environment
 end
 
 meta def returnopt (e : option α) : tactic α :=
 λ s, match e with
-| (some a) := tactic_result.success a s
-| none     := tactic_result.exception α (λ u, to_fmt "failed") none s
+| (some a) := success a s
+| none     := mk_exception "failed" none s
 end
 
 /- Decorate t's exceptions with msg -/
 meta def decorate_ex (msg : format) (t : tactic α) : tactic α :=
 λ s, tactic_result.cases_on (t s)
   success
-  (λ e, exception α (λ u, msg ++ format.nest 2 (format.line ++ e u)))
+  (λ opt_thunk,
+     match opt_thunk with
+     | some e := exception (some (λ u, msg ++ format.nest 2 (format.line ++ e u)))
+     | none   := exception none
+     end)
 
 @[inline] meta def write (s' : tactic_state) : tactic unit :=
 λ s, success () s'
@@ -461,14 +472,18 @@ t >>[tactic] cleanup
 meta def istep {α : Type u} (line : nat) (col : nat) (t : tactic α) : tactic unit :=
 λ s, @scope_trace _ line col ((t >>[tactic] cleanup) s)
 
+meta def report_exception {α : Type} (line col : nat) : option (unit → format) → tactic α
+| (some msg_thunk) := λ s,
+  let msg := msg_thunk () ++ format.line ++ to_fmt "state:" ++ format.line ++ s^.to_format in
+  (tactic.report_error line col msg >> silent_fail) s
+| none := silent_fail
+
 /- Auxiliary definition used to implement begin ... end blocks.
    It is similar to step, but it reports an error at the given line/col if the tactic t fails. -/
 meta def rstep {α : Type u} (line : nat) (col : nat) (t : tactic α) : tactic unit :=
 λ s, tactic_result.cases_on (istep line col t s)
   (λ a new_s, tactic_result.success () new_s)
-  (λ msg_thunk e new_s,
-    let msg := msg_thunk () ++ format.line ++ to_fmt "state:" ++ format.line ++ new_s^.to_format in
-        (tactic.report_error line col msg >> tactic.failed) new_s)
+  (λ msg_thunk e, report_exception line col msg_thunk)
 
 meta def is_prop (e : expr) : tactic bool :=
 do t ← infer_type e,

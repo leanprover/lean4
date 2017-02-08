@@ -130,6 +130,10 @@ lemma pred_le : ∀ (n : ℕ), pred n ≤ n
 | 0        := less_than_or_equal.refl 0
 | (succ a) := less_than_or_equal.step (less_than_or_equal.refl a)
 
+lemma pred_lt : ∀ {n : ℕ}, n ≠ 0 → pred n < n
+| 0        h := absurd rfl h
+| (succ a) h := lt_succ_of_le (less_than_or_equal.refl _)
+
 lemma sub_le (a b : ℕ) : a - b ≤ a :=
 nat.rec_on b (nat.le_refl (a - 0)) (λ b₁, nat.le_trans (pred_le (a - b₁)))
 

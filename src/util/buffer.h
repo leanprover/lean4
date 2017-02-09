@@ -151,7 +151,7 @@ public:
     void erase(unsigned idx) {
         lean_assert(idx < size());
         for (unsigned i = idx+1; i < size(); i++)
-            m_buffer[i-1] = m_buffer[i];
+            m_buffer[i-1] = std::move(m_buffer[i]);
         pop_back();
     }
 

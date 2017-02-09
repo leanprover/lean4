@@ -2220,73 +2220,18 @@ bool type_context::is_def_eq_args(expr const & e1, expr const & e2) {
         return false;
     fun_info finfo = get_fun_info(*this, fn, args1.size());
     unsigned i = 0;
-    /*
-       Try to solve unification constraint
-         (f a_1 ... a_n) =?= (f b_1 ... b_n)
-       by solving
-            a_i =?= b_i
-
-       We add i to postponed, if a_i or b_i is a numeral and
-       the i-th argument of f has forward dependencies.
-
-       The goal is to be able to handle unification constraints
-       coming from fixed size vector problems.
-
-       In this kind of problem, we have constraints such as
-
-       @to_list ?α (?m - ?n) (@dropn ?α ?m ?n ?v) =?= @to_list bool 6 (@dropn bool 8 2 v)
-
-       In the first pass, we have the constraint
-
-                ?m - ?n =?= 6
-
-       which cannot be solved. However, after we unify the next argument, we have
-
-                ?m := 8  and ?n := 2
-
-       and the constraint above becomes
-
-               8 - 2 =?= 6
-
-       which can be solved.
-    */
-    buffer<unsigned> postponed;
-    bool progress = false;
     for (param_info const & pinfo : finfo.get_params_info()) {
         if (pinfo.is_inst_implicit()) {
             args1[i] = complete_instance(args1[i]);
             args2[i] = complete_instance(args2[i]);
         }
-        if (is_def_eq_core(args1[i], args2[i])) {
-            progress = true;
-        } else if (pinfo.has_fwd_deps() && (to_small_num(args1[i]) || to_small_num(args2[i]))) {
-            postponed.push_back(i);
-        } else {
+        if (!is_def_eq_core(args1[i], args2[i]))
             return false;
-        }
         i++;
     }
     for (; i < args1.size(); i++) {
-        if (is_def_eq_core(args1[i], args2[i])) {
-            progress = true;
-        } else {
+        if (!is_def_eq_core(args1[i], args2[i]))
             return false;
-        }
-    }
-    while (true) {
-        if (postponed.empty()) return true;
-        if (!progress) return false;
-        progress = false;
-        unsigned j = 0;
-        for (unsigned i = 0; i < postponed.size(); i++) {
-            if (is_def_eq_core(instantiate_mvars(args1[postponed[i]]), instantiate_mvars(args2[postponed[i]]))) {
-                progress = true;
-            } else {
-                postponed[j] = postponed[i];
-                j++;
-            }
-        }
-        postponed.shrink(j);
     }
     return true;
 }
@@ -3675,34 +3620,34 @@ expr type_context::eta_expand(expr const & e) {
     return locals.mk_lambda(r);
 }
 
-tmp_type_context::tmp_type_context(type_context & tctx, unsigned num_umeta, unsigned num_emeta): m_tctx(tctx) {
+tmp_type_context::tmp_type_context(type_context & ctx, unsigned num_umeta, unsigned num_emeta): m_ctx(ctx) {
     m_tmp_uassignment.resize(num_umeta, none_level());
     m_tmp_eassignment.resize(num_emeta, none_expr());
 }
 
 bool tmp_type_context::is_def_eq(expr const & e1, expr const & e2) {
-    type_context::tmp_mode_scope_with_buffers tmp_scope(m_tctx, m_tmp_uassignment, m_tmp_eassignment);
-    return m_tctx.is_def_eq(e1, e2);
+    type_context::tmp_mode_scope_with_buffers tmp_scope(m_ctx, m_tmp_uassignment, m_tmp_eassignment);
+    return m_ctx.is_def_eq(e1, e2);
 }
 
 expr tmp_type_context::infer(expr const & e) {
-    type_context::tmp_mode_scope_with_buffers tmp_scope(m_tctx, m_tmp_uassignment, m_tmp_eassignment);
-    return m_tctx.infer(e);
+    type_context::tmp_mode_scope_with_buffers tmp_scope(m_ctx, m_tmp_uassignment, m_tmp_eassignment);
+    return m_ctx.infer(e);
 }
 
 expr tmp_type_context::whnf(expr const & e) {
-    type_context::tmp_mode_scope_with_buffers tmp_scope(m_tctx, m_tmp_uassignment, m_tmp_eassignment);
-    return m_tctx.whnf(e);
+    type_context::tmp_mode_scope_with_buffers tmp_scope(m_ctx, m_tmp_uassignment, m_tmp_eassignment);
+    return m_ctx.whnf(e);
 }
 
 level tmp_type_context::mk_tmp_univ_mvar() {
-    type_context::tmp_mode_scope_with_buffers tmp_scope(m_tctx, m_tmp_uassignment, m_tmp_eassignment);
-    return m_tctx.mk_tmp_univ_mvar();
+    type_context::tmp_mode_scope_with_buffers tmp_scope(m_ctx, m_tmp_uassignment, m_tmp_eassignment);
+    return m_ctx.mk_tmp_univ_mvar();
 }
 
 expr tmp_type_context::mk_tmp_mvar(expr const & type) {
-    type_context::tmp_mode_scope_with_buffers tmp_scope(m_tctx, m_tmp_uassignment, m_tmp_eassignment);
-    return m_tctx.mk_tmp_mvar(type);
+    type_context::tmp_mode_scope_with_buffers tmp_scope(m_ctx, m_tmp_uassignment, m_tmp_eassignment);
+    return m_ctx.mk_tmp_mvar(type);
 }
 
 bool tmp_type_context::is_uassigned(unsigned i) const {
@@ -3720,48 +3665,48 @@ void tmp_type_context::clear_eassignment() {
 }
 
 expr tmp_type_context::instantiate_mvars(expr const & e) {
-    type_context::tmp_mode_scope_with_buffers tmp_scope(m_tctx, m_tmp_uassignment, m_tmp_eassignment);
-    return m_tctx.instantiate_mvars(e);
+    type_context::tmp_mode_scope_with_buffers tmp_scope(m_ctx, m_tmp_uassignment, m_tmp_eassignment);
+    return m_ctx.instantiate_mvars(e);
 }
 
 void tmp_type_context::assign(expr const & m, expr const & v) {
-    type_context::tmp_mode_scope_with_buffers tmp_scope(m_tctx, m_tmp_uassignment, m_tmp_eassignment);
-    m_tctx.assign(m, v);
+    type_context::tmp_mode_scope_with_buffers tmp_scope(m_ctx, m_tmp_uassignment, m_tmp_eassignment);
+    m_ctx.assign(m, v);
 }
 
 expr tmp_type_context::mk_lambda(buffer<expr> const & locals, expr const & e) {
-    type_context::tmp_mode_scope_with_buffers tmp_scope(m_tctx, m_tmp_uassignment, m_tmp_eassignment);
-    return m_tctx.mk_lambda(locals, e);
+    type_context::tmp_mode_scope_with_buffers tmp_scope(m_ctx, m_tmp_uassignment, m_tmp_eassignment);
+    return m_ctx.mk_lambda(locals, e);
 }
 
 expr tmp_type_context::mk_pi(buffer<expr> const & locals, expr const & e) {
-    type_context::tmp_mode_scope_with_buffers tmp_scope(m_tctx, m_tmp_uassignment, m_tmp_eassignment);
-    return m_tctx.mk_pi(locals, e);
+    type_context::tmp_mode_scope_with_buffers tmp_scope(m_ctx, m_tmp_uassignment, m_tmp_eassignment);
+    return m_ctx.mk_pi(locals, e);
 }
 
 expr tmp_type_context::mk_lambda(expr const & local, expr const & e) {
-    type_context::tmp_mode_scope_with_buffers tmp_scope(m_tctx, m_tmp_uassignment, m_tmp_eassignment);
-    return m_tctx.mk_lambda(local, e);
+    type_context::tmp_mode_scope_with_buffers tmp_scope(m_ctx, m_tmp_uassignment, m_tmp_eassignment);
+    return m_ctx.mk_lambda(local, e);
 }
 
 expr tmp_type_context::mk_pi(expr const & local, expr const & e) {
-    type_context::tmp_mode_scope_with_buffers tmp_scope(m_tctx, m_tmp_uassignment, m_tmp_eassignment);
-    return m_tctx.mk_pi(local, e);
+    type_context::tmp_mode_scope_with_buffers tmp_scope(m_ctx, m_tmp_uassignment, m_tmp_eassignment);
+    return m_ctx.mk_pi(local, e);
 }
 
 expr tmp_type_context::mk_lambda(std::initializer_list<expr> const & locals, expr const & e) {
-    type_context::tmp_mode_scope_with_buffers tmp_scope(m_tctx, m_tmp_uassignment, m_tmp_eassignment);
-    return m_tctx.mk_lambda(locals, e);
+    type_context::tmp_mode_scope_with_buffers tmp_scope(m_ctx, m_tmp_uassignment, m_tmp_eassignment);
+    return m_ctx.mk_lambda(locals, e);
 }
 
 expr tmp_type_context::mk_pi(std::initializer_list<expr> const & locals, expr const & e) {
-    type_context::tmp_mode_scope_with_buffers tmp_scope(m_tctx, m_tmp_uassignment, m_tmp_eassignment);
-    return m_tctx.mk_pi(locals, e);
+    type_context::tmp_mode_scope_with_buffers tmp_scope(m_ctx, m_tmp_uassignment, m_tmp_eassignment);
+    return m_ctx.mk_pi(locals, e);
 }
 
 bool tmp_type_context::is_prop(expr const & e) {
-    type_context::tmp_mode_scope_with_buffers tmp_scope(m_tctx, m_tmp_uassignment, m_tmp_eassignment);
-    return m_tctx.is_prop(e);
+    type_context::tmp_mode_scope_with_buffers tmp_scope(m_ctx, m_tmp_uassignment, m_tmp_eassignment);
+    return m_ctx.is_prop(e);
 }
 
 /** \brief Helper class for pretty printing terms that contain local_decl_ref's and metavar_decl_ref's */

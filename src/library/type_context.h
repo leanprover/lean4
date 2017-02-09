@@ -418,6 +418,9 @@ public:
 
     expr eta_expand(expr const & e);
 
+    /* Try to assign metavariables occuring in e using type class resolution */
+    expr complete_instance(expr const & e);
+
     struct transparency_scope : public flet<transparency_mode> {
         transparency_scope(type_context & ctx, transparency_mode m):
             flet<transparency_mode>(ctx.m_transparency_mode, m) {
@@ -618,7 +621,6 @@ private:
     bool is_def_eq_core_core(expr const & t, expr const & s);
     bool is_def_eq_core(expr const & t, expr const & s);
     bool is_def_eq_binding(expr e1, expr e2);
-    expr complete_instance(expr const & e);
     expr try_to_unstuck_using_complete_instance(expr const & e);
     bool is_def_eq_args(expr const & e1, expr const & e2);
     bool is_def_eq_eta(expr const & e1, expr const & e2);
@@ -703,15 +705,15 @@ public:
 };
 
 class tmp_type_context : public abstract_type_context {
-    type_context & m_tctx;
+    type_context & m_ctx;
     buffer<optional<level>> m_tmp_uassignment;
     buffer<optional<expr>> m_tmp_eassignment;
 
 public:
-    tmp_type_context(type_context & tctx, unsigned num_umeta = 0, unsigned num_emeta = 0);
-    type_context & tctx() const { return m_tctx; }
+    tmp_type_context(type_context & ctx, unsigned num_umeta = 0, unsigned num_emeta = 0);
+    type_context & ctx() const { return m_ctx; }
 
-    virtual environment const & env() const override { return m_tctx.env(); }
+    virtual environment const & env() const override { return m_ctx.env(); }
     virtual expr infer(expr const & e) override;
     virtual expr whnf(expr const & e) override;
     virtual bool is_def_eq(expr const & e1, expr const & e2) override;

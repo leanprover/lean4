@@ -51,6 +51,9 @@ protected:
     bool                      m_lift_eq;
     bool                      m_canonize_instances;
     bool                      m_canonize_proofs;
+    /* The following option should be removed as soon as we
+       refactor the inductive compiler. */
+    bool                      m_use_matcher{true};
 
     simp_result join(simp_result const & r1, simp_result const & r2);
     void inc_num_steps();
@@ -100,6 +103,8 @@ protected:
 
     simp_result simplify(expr const & e);
 
+    bool match(tmp_type_context & ctx, simp_lemma const & sl, expr const & t);
+
 public:
     simplify_core_fn(type_context & ctx, defeq_canonizer::state & dcs, simp_lemmas const & slss,
                      unsigned max_steps, bool contextual, bool lift_eq,
@@ -107,6 +112,8 @@ public:
 
     environment const & env() const;
     simp_result operator()(name const & rel, expr const & e);
+
+    void set_use_matcher(bool flag) { m_use_matcher = flag; }
 
     optional<expr> prove_by_simp(name const & rel, expr const & e);
 };

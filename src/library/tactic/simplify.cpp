@@ -497,14 +497,79 @@ simp_result simplify_core_fn::rewrite(expr const & e) {
     return simp_result(e);
 }
 
+struct match_fn {
+    tmp_type_context & m_ctx;
+    name const &       m_id;
+    buffer<std::tuple<expr, expr, bool>>  m_postponed;
+
+    match_fn(tmp_type_context & ctx, name const & id):m_ctx(ctx), m_id(id) {}
+
+    bool match(expr const & p, expr const & t) {
+        if (m_ctx.ctx().is_mvar(p))
+            if (auto v = m_ctx.ctx().get_assignment(p))
+                return match(*v, t);
+        if (is_app(p) && is_app(t)) {
+            expr const & fn = get_app_fn(p);
+            if (m_ctx.is_def_eq(fn, get_app_fn(t))) {
+                buffer<expr> p_args;
+                buffer<expr> t_args;
+                get_app_args(p, p_args);
+                get_app_args(t, t_args);
+                fun_info finfo = get_fun_info(m_ctx.ctx(), fn);
+                if (p_args.size() != t_args.size())
+                    return false;
+                auto it = finfo.get_params_info();
+                for (unsigned i = 0; i < p_args.size(); i++) {
+                    if (it && head(it).is_inst_implicit()) {
+                        m_postponed.emplace_back(p_args[i], t_args[i], true);
+                    } else if (it && head(it).is_implicit()) {
+                        m_postponed.emplace_back(p_args[i], t_args[i], false);
+                    } else if (!match(p_args[i], t_args[i])) {
+                        return false;
+                    }
+                    if (it) it = tail(it);
+                }
+                return true;
+            }
+        }
+        return m_ctx.is_def_eq(p, t);
+    }
+
+    bool operator()(expr const & p, expr const & t) {
+        if (!match(p, t)) return false;
+
+        for (auto const & e : m_postponed) {
+            expr p1, t1; bool implicit;
+            std::tie(p1, t1, implicit) = e;
+            p1 = m_ctx.instantiate_mvars(p1);
+            if (implicit)
+                p1 = m_ctx.ctx().complete_instance(p1);
+            if (!match(p1, t1)) {
+                lean_trace(name({"simplify", "implicit_failure"}), scope_trace_env scope(m_ctx.env(), m_ctx.ctx());
+                           tout() << "fail to match '" << m_id << "':\n";
+                           tout() << p << "\n=?=\n" << t << "\nbecause the following implicit match\n";
+                           tout() << p1 << "\n=?=\n" << t1 << "\n";);
+                return false;
+            }
+        }
+        return true;
+    }
+};
+
+bool simplify_core_fn::match(tmp_type_context & ctx, simp_lemma const & sl, expr const & t) {
+    if (m_use_matcher)
+        return match_fn(ctx, sl.get_id())(sl.get_lhs(), t);
+    else
+        return ctx.is_def_eq(t, sl.get_lhs());
+}
+
 simp_result simplify_core_fn::rewrite_core(expr const & e, simp_lemma const & sl) {
     tmp_type_context tmp_ctx(m_ctx, sl.get_num_umeta(), sl.get_num_emeta());
-    if (!tmp_ctx.is_def_eq(e, sl.get_lhs())) {
+
+    if (!match(tmp_ctx, sl, e)) {
         lean_trace_d(name({"debug", "simplify", "try_rewrite"}),
-                     tout() << "fail to unify '" << sl.get_id()
-                     << "':\n------------------------------------------------\n"
-                     << e << "\n=?=\n" << sl.get_lhs()
-                     << "\n------------------------------------------------\n";);
+                     tout() << "fail to unify '" << sl.get_id() << "':\n"
+                     << e << "\n=?=\n" << sl.get_lhs() << "\n--------------\n";);
         return simp_result(e);
     }
 
@@ -1158,6 +1223,7 @@ vm_obj tactic_ext_simplify_core(unsigned DEBUG_CODE(num), vm_obj const * args) {
 void initialize_simplify() {
     register_trace_class("simplify");
     register_trace_class(name({"simplify", "failure"}));
+    register_trace_class(name({"simplify", "implicit_failure"}));
     register_trace_class(name({"simplify", "context"}));
     register_trace_class(name({"simplify", "canonize"}));
     register_trace_class(name({"simplify", "congruence"}));

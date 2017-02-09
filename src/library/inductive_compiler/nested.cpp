@@ -1269,6 +1269,7 @@ class add_nested_inductive_decl_fn {
         defeq_can_state dcs;
         simplify_fn simplifier(tctx, dcs, all_lemmas, max_steps, contextual, lift_eq,
                                canonize_instances, canonize_proofs, use_axioms);
+        simplifier.set_use_matcher(false); // hack
         auto thm_pr = simplifier.prove_by_simp(get_eq_name(), thm);
         if (!thm_pr) {
             formatter_factory const & fmtf = get_global_ios().get_formatter_factory();

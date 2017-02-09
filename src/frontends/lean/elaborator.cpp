@@ -1135,6 +1135,14 @@ static optional<expr> is_optional_param(expr const & e) {
     }
 }
 
+static optional<expr_pair> is_auto_param(expr const & e) {
+    if (is_app_of(e, get_auto_param_name(), 2)) {
+        return optional<expr_pair>(app_arg(app_fn(e)), app_arg(e));
+    } else {
+        return optional<expr_pair>();
+    }
+}
+
 static optional<expr> is_thunk(expr const & e) {
     if (is_app_of(e, get_thunk_name(), 1)) {
         return some_expr(app_arg(e));
@@ -1148,6 +1156,33 @@ static expr mk_thunk_if_needed(expr const & e, optional<expr> const & is_thunk) 
         return mk_lambda("_", mk_constant(get_unit_name()), e);
     else
         return e;
+}
+
+static optional<name> name_lit_to_name(expr const & name_lit) {
+    if (is_constant(name_lit, get_name_anonymous_name()))
+        return optional<name>(name());
+    if (is_app_of(name_lit, get_name_mk_string_name(), 2)) {
+        if (auto str = to_string(app_arg(app_fn(name_lit))))
+        if (auto p   = name_lit_to_name(app_arg(name_lit)))
+            return optional<name>(name(*p, str->c_str()));
+    }
+    return optional<name>();
+}
+
+expr elaborator::mk_auto_param(expr const & name_lit, expr const & expected_type, expr const & ref) {
+    auto c = name_lit_to_name(name_lit);
+    if (!c)
+        throw elaborator_exception(ref, format("invalid auto_param, name literal expected for identifying tactic") +
+                                   pp_indent(name_lit));
+    auto d = m_env.find(*c);
+    if (!d)
+        throw elaborator_exception(ref, sstream() << "invalid auto_param, unknown tactic '" << *c << "'");
+    if (!m_ctx.is_def_eq(d->get_type(), mk_tactic_unit()))
+        throw elaborator_exception(ref, format("invalid auto_param, invalid tactic '") + format(*c) +
+                                   format("' type should be (tactic unit)") +
+                                   pp_indent(d->get_type()));
+    expr t = copy_tag(ref, mk_by(copy_tag(ref, mk_constant(*c))));
+    return visit(t, some_expr(expected_type));
 }
 
 /* Check if fn args resulting type matches the expected type, and fill
@@ -1168,7 +1203,7 @@ void elaborator::first_pass(expr const & fn, buffer<expr> const & args,
     while (is_pi(type)) {
         binder_info const & bi = binding_info(type);
         expr const & d = binding_domain(type);
-        if (bi.is_strict_implicit() && i == args.size() && !is_optional_param(d))
+        if (bi.is_strict_implicit() && i == args.size() && !is_optional_param(d) && !is_auto_param(d))
             break;
         expr new_arg;
         if (!is_explicit(bi)) {
@@ -1190,6 +1225,8 @@ void elaborator::first_pass(expr const & fn, buffer<expr> const & args,
             info.new_instances_size.push_back(info.new_instances.size());
         } else if (auto def_value = is_optional_param(d)) {
             new_arg = *def_value;
+        } else if (auto p = is_auto_param(d)) {
+            new_arg = mk_auto_param(p->second, p->first, ref);
         } else {
             break;
         }
@@ -1304,7 +1341,7 @@ expr elaborator::visit_base_app_simple(expr const & _fn, arg_mask amask, buffer<
             binder_info const & bi = binding_info(type);
             expr const & d = binding_domain(type);
             expr new_arg;
-            if (amask == arg_mask::Default && bi.is_strict_implicit() && i == args.size() && !is_optional_param(d))
+            if (amask == arg_mask::Default && bi.is_strict_implicit() && i == args.size() && !is_optional_param(d) && !is_auto_param(d))
                 break;
             if ((amask == arg_mask::Default && !is_explicit(bi)) ||
                 (amask == arg_mask::InstHoExplicit && !is_explicit(bi) && !bi.is_inst_implicit() && !is_pi(d))) {
@@ -1346,6 +1383,8 @@ expr elaborator::visit_base_app_simple(expr const & _fn, arg_mask amask, buffer<
                 i++;
             } else if (auto def_value = is_optional_param(d)) {
                 new_arg = *def_value;
+            } else if (auto p = is_auto_param(d)) {
+                new_arg = mk_auto_param(p->second, p->first, ref);
             } else {
                 break;
             }

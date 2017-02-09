@@ -252,6 +252,8 @@ private:
 
     void finalize_core(sanitize_param_names_fn & S, buffer<expr> & es,
                        bool check_unassigned, bool to_simple_metavar, bool collect_local_ctx);
+
+    expr mk_auto_param(expr const & name_lit, expr const & expected_type, expr const & ref);
 public:
     elaborator(environment const & env, options const & opts, name const & decl_name,
                metavar_context const & mctx, local_context const & lctx,

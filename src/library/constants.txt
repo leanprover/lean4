@@ -10,6 +10,7 @@ and
 and.elim_left
 and.elim_right
 and.intro
+auto_param
 bit0
 bit1
 bool

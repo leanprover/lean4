@@ -17,6 +17,7 @@ name const & get_and_name();
 name const & get_and_elim_left_name();
 name const & get_and_elim_right_name();
 name const & get_and_intro_name();
+name const & get_auto_param_name();
 name const & get_bit0_name();
 name const & get_bit1_name();
 name const & get_bool_name();

@@ -15,6 +15,7 @@ name const * g_and = nullptr;
 name const * g_and_elim_left = nullptr;
 name const * g_and_elim_right = nullptr;
 name const * g_and_intro = nullptr;
+name const * g_auto_param = nullptr;
 name const * g_bit0 = nullptr;
 name const * g_bit1 = nullptr;
 name const * g_bool = nullptr;
@@ -495,6 +496,7 @@ void initialize_constants() {
     g_and_elim_left = new name{"and", "elim_left"};
     g_and_elim_right = new name{"and", "elim_right"};
     g_and_intro = new name{"and", "intro"};
+    g_auto_param = new name{"auto_param"};
     g_bit0 = new name{"bit0"};
     g_bit1 = new name{"bit1"};
     g_bool = new name{"bool"};
@@ -976,6 +978,7 @@ void finalize_constants() {
     delete g_and_elim_left;
     delete g_and_elim_right;
     delete g_and_intro;
+    delete g_auto_param;
     delete g_bit0;
     delete g_bit1;
     delete g_bool;
@@ -1456,6 +1459,7 @@ name const & get_and_name() { return *g_and; }
 name const & get_and_elim_left_name() { return *g_and_elim_left; }
 name const & get_and_elim_right_name() { return *g_and_elim_right; }
 name const & get_and_intro_name() { return *g_and_intro; }
+name const & get_auto_param_name() { return *g_auto_param; }
 name const & get_bit0_name() { return *g_bit0; }
 name const & get_bit1_name() { return *g_bit1; }
 name const & get_bool_name() { return *g_bool; }

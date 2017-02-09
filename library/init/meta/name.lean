@@ -12,6 +12,13 @@ inductive name
 | mk_string  : string → name → name
 | mk_numeral : unsigned → name → name
 
+/-- Gadget for automatic parameter support. This is similar to the opt_param gadget, but it uses
+    the tactic declaration names tac_name to synthesize the argument.
+    Like opt_param, this gadget only affects elaboration.
+    For example, the tactic will *not* be invoked during type class resolution. -/
+@[reducible] def {u} auto_param (α : Sort u) (tac_name : name) : Sort u :=
+α
+
 instance : inhabited name :=
 ⟨name.anonymous⟩
 

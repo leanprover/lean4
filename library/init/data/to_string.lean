@@ -8,7 +8,7 @@ import init.data.string.basic init.data.bool.basic init.data.subtype.basic
 import init.data.unsigned init.data.prod init.data.sum.basic init.data.nat.div
 open sum subtype nat
 
-universe variables u v
+universes u v
 
 class has_to_string (α : Type u) :=
 (to_string : α → string)

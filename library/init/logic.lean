@@ -6,7 +6,7 @@ Authors: Leonardo de Moura, Jeremy Avigad, Floris van Doorn
 prelude
 import init.core
 
-universe variables u v w
+universes u v w
 
 @[reducible] def id {α : Sort u} (a : α) : α := a
 

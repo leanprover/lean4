@@ -7,7 +7,7 @@ Monad combinators, as in Haskell's Control.Monad.
 -/
 prelude
 import init.category.monad init.data.list.basic
-universe variables u v w
+universes u v w
 
 namespace monad
 def mapm {m : Type u → Type v} [monad m] {α : Type w} {β : Type u} (f : α → m β) : list α → m (list β)

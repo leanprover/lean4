@@ -8,7 +8,7 @@ Extensional equality for functions, and a proof of function extensionality from 
 prelude
 import init.data.quot init.logic
 
-universe variables u v
+universes u v
 
 namespace function
 variables {α : Type u} {β : α → Type v}

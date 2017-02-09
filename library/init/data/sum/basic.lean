@@ -10,7 +10,7 @@ import init.logic
 
 notation α ⊕ β := sum α β
 
-universe variables u v
+universes u v
 
 variables {α : Type u} {β : Type v}
 

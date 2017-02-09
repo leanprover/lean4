@@ -36,8 +36,8 @@ static unsigned next_placeholder_id() {
     g_placeholder_id++;
     return r;
 }
-level mk_level_placeholder() { return mk_global_univ(name(*g_placeholder_name, next_placeholder_id())); }
-level mk_level_one_placeholder() { return mk_global_univ(*g_placeholder_one_name); }
+level mk_level_placeholder() { return mk_param_univ(name(*g_placeholder_name, next_placeholder_id())); }
+level mk_level_one_placeholder() { return mk_param_univ(*g_placeholder_one_name); }
 static name const & to_prefix(expr_placeholder_kind k) {
     switch (k) {
     case expr_placeholder_kind::Implicit:       return *g_implicit_placeholder_name;
@@ -65,8 +65,8 @@ static bool is_strict_placeholder(name const & n) {
 static bool is_explicit_placeholder(name const & n) {
     return !n.is_atomic() && n.get_prefix() == *g_explicit_placeholder_name;
 }
-bool is_placeholder(level const & e) { return is_global(e) && is_placeholder(global_id(e)); }
-bool is_one_placeholder(level const & e) { return is_global(e) && global_id(e) == *g_placeholder_one_name; }
+bool is_placeholder(level const & e) { return is_param(e) && is_placeholder(param_id(e)); }
+bool is_one_placeholder(level const & e) { return is_param(e) && param_id(e) == *g_placeholder_one_name; }
 
 bool is_placeholder(expr const & e) {
     return (is_constant(e) && is_placeholder(const_name(e))) || (is_local(e) && is_placeholder(mlocal_name(e)));

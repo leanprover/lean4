@@ -1,7 +1,7 @@
 --
 set_option pp.universes true
 
-universe u
+universe variable u
 variable A : Type.{u}
 
 definition id1 (a : A) : A := a

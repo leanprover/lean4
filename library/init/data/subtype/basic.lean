@@ -7,7 +7,7 @@ prelude
 import init.logic
 open decidable
 
-universe variables u
+universes u
 
 namespace subtype
 

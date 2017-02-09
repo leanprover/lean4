@@ -8,7 +8,7 @@ The development is modeled after Isabelle's library.
 -/
 prelude
 import init.algebra.ring
-universe variables u
+universe u
 
 /- Make sure instances defined in this file have lower priority than the ones
    defined for concrete structures -/

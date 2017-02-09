@@ -30,6 +30,7 @@ Author: Leonardo de Moura
 #include "library/reducible.h"
 #include "library/typed_expr.h"
 #include "library/documentation.h"
+#include "library/placeholder.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_string.h"
 #include "library/compiler/vm_compiler.h"
@@ -134,7 +135,7 @@ static environment redeclare_aliases(environment env, parser & p,
     name_set popped_levels;
     local_level_decls level_decls = p.get_local_level_decls();
     old_level_decls.for_each([&](name const & n, level const & l) {
-            if (is_param(l) && !level_decls.contains(n))
+            if (is_param(l) && !is_placeholder(l) && !level_decls.contains(n))
                 popped_levels.insert(param_id(l));
         });
     for (auto const & entry : to_redeclare) {

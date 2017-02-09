@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.meta.expr
-universe variables u
+universe u
 
 /- Quoted expressions. They can be converted into expressions by using a tactic. -/
 meta constant pexpr : Type

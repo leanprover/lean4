@@ -3,9 +3,8 @@ Copyright (c) 2014 Jeremy Avigad. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Jeremy Avigad, Leonardo de Moura
 -/
-
 namespace set
-universe variable u
+universes u
 variable {α : Type u}
 
 lemma ext {a b : set α} (h : ∀ x, x ∈ a ↔ x ∈ b) : a = b :=

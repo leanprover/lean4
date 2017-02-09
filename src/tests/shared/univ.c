@@ -19,7 +19,7 @@ void check_core(int v, unsigned l) {
 
 int main() {
     lean_exception ex;
-    lean_name a, l, U, pp, pp_unicode, rn;
+    lean_name a, l, pp, pp_unicode, rn;
     lean_options o1, o2;
     lean_univ zero, one, p1, g1, m1, u, n, i, ru;
     lean_list_name ln1, ln2;
@@ -29,7 +29,6 @@ int main() {
 
     check(lean_name_mk_anonymous(&a, &ex));
     check(lean_name_mk_str(a, "l_1", &l, &ex));
-    check(lean_name_mk_str(a, "U", &U, &ex));
     check(lean_name_mk_str(a, "pp", &pp, &ex));
     check(lean_name_mk_str(pp, "unicode", &pp_unicode, &ex));
 
@@ -39,7 +38,6 @@ int main() {
     check(lean_univ_mk_zero(&zero, &ex));
     check(lean_univ_mk_succ(zero, &one, &ex));
     check(lean_univ_mk_param(l, &p1, &ex));
-    check(lean_univ_mk_global(U, &g1, &ex));
     check(lean_univ_mk_max(p1, one, &m1, &ex));
     check(lean_univ_mk_succ(m1, &u, &ex));
 
@@ -67,7 +65,6 @@ int main() {
     check(lean_univ_get_kind(one) == LEAN_UNIV_SUCC);
     check(lean_univ_get_kind(n) == LEAN_UNIV_MAX);
 
-    check(lean_univ_get_name(g1, &rn, &ex) && lean_name_eq(rn, U));
 
     check(lean_univ_get_max_lhs(m1, &ru, &ex) && lean_univ_eq(ru, p1, &r, &ex) && r);
     lean_univ_del(ru);
@@ -78,7 +75,6 @@ int main() {
 
     lean_name_del(a);
     lean_name_del(l);
-    lean_name_del(U);
     lean_name_del(pp);
     lean_name_del(pp_unicode);
     lean_name_del(rn);

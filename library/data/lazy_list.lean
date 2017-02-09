@@ -3,7 +3,7 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
-universe variables u v w
+universes u v w
 
 inductive lazy_list (α : Type u) : Type u
 | nil {} : lazy_list

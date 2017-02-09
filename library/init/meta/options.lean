@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.meta.name
-universe variables u
+universe u
 meta constant options                   : Type
 meta constant options.size              : options → nat
 meta constant options.mk                : options

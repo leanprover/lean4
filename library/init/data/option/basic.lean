@@ -7,7 +7,7 @@ prelude
 import init.logic init.category
 open decidable
 
-universe variables u v
+universes u v
 
 namespace option
 

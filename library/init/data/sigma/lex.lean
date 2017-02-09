@@ -5,7 +5,7 @@ Author: Leonardo de Moura
 -/
 prelude
 import init.data.sigma.basic init.meta
-universe variables u v
+universes u v
 namespace sigma
 section
   variables {α : Type u} {β : α → Type v}

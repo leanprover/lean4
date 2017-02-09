@@ -8,7 +8,7 @@ import init.meta.simp_tactic
 import init.meta.smt.congruence_closure
 import init.meta.smt.ematch
 
-universe variables u
+universe u
 
 run_command mk_simp_attr `pre_smt
 run_command mk_hinst_lemma_attr_set `ematch [] [`ematch_lhs]

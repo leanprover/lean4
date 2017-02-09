@@ -6,7 +6,7 @@ Authors: Jeremy Avigad, Leonardo de Moura
 prelude
 import init.algebra.ordered_field
 
-universe variables u
+universe u
 
 definition min {α : Type u} [decidable_linear_order α] (a b : α) : α := if a ≤ b then a else b
 definition max {α : Type u} [decidable_linear_order α] (a b : α) : α := if a ≤ b then b else a

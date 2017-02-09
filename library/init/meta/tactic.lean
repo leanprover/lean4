@@ -10,7 +10,7 @@ import init.data.nat.div init.meta.exceptional init.meta.format init.meta.enviro
 import init.meta.pexpr init.data.to_string init.data.string.basic
 meta constant tactic_state : Type
 
-universe variables u v
+universes u v
 
 namespace tactic_state
 meta constant env         : tactic_state → environment

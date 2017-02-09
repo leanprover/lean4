@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.logic
-universe variables u
+universe u
 
 class is_associative (α : Type u) (op : α → α → α) :=
 (assoc : ∀ a b c, op (op a b) c = op a (op b c))

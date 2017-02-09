@@ -9,7 +9,7 @@ prelude
 /- We import propext here, otherwise we would need a quot.lift for propositions. -/
 import init.data.sigma.basic init.logic init.propext init.data.setoid
 
-universe variables u v
+universes u v
 
 -- iff can now be used to do substitutions in a calculation
 attribute [subst]
@@ -144,7 +144,7 @@ quot.hrec_on q f c
 end
 
 section
-universe variables u_a u_b u_c
+universes u_a u_b u_c
 variables {α : Type u_a} {β : Type u_b} {φ : Type u_c}
 variables [s₁ : setoid α] [s₂ : setoid β]
 include s₁ s₂
@@ -214,7 +214,7 @@ end exact
 
 
 section
-universe variables u_a u_b u_c
+universes u_a u_b u_c
 variables {α : Type u_a} {β : Type u_b}
 variables [s₁ : setoid α] [s₂ : setoid β]
 include s₁ s₂

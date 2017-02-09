@@ -5,7 +5,7 @@ Author: Leonardo de Moura, Jeremy Avigad
 -/
 prelude
 import init.logic
-universe variables u v
+universes u v
 
 instance {α : Type u} {β : Type v} [inhabited α] [inhabited β] : inhabited (prod α β) :=
 ⟨(default α, default β)⟩

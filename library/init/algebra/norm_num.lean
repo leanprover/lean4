@@ -7,7 +7,7 @@ prelude
 import init.algebra.field init.algebra.ordered_ring
 
 namespace norm_num
-universe variable u
+universe u
 variable {α : Type u}
 
 def add1 [has_add α] [has_one α] (a : α) : α :=

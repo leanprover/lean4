@@ -7,7 +7,7 @@ import .clause .clause_ops
 import .prover_state .misc_preprocessing
 open expr list tactic monad decidable
 
-universe variable u
+universe u
 
 namespace super
 

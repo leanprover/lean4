@@ -6,7 +6,7 @@ Author: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn
 prelude
 import init.data.list.basic init.function init.meta
 
-universe variables u v
+universes u v
 variables {α : Type u} {β : Type v}
 
 namespace list

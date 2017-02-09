@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.logic
-universe variables u
+universes u
 class setoid (α : Type u) :=
 (r : α → α → Prop) (iseqv : equivalence r)
 

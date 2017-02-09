@@ -1,7 +1,7 @@
 open tactic
 
-universe l
-constants (A : Type.{l}) (rel : A → A → Prop)
+
+constants (A : Type) (rel : A → A → Prop)
           (rel.refl : ∀ a, rel a a)
           (rel.symm : ∀ a b, rel a b → rel b a)
           (rel.trans : ∀ a b c, rel a b → rel b c → rel a c)

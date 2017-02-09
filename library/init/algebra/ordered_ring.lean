@@ -10,7 +10,7 @@ import init.algebra.ordered_group init.algebra.ring
    defined for concrete structures -/
 set_option default_priority 100
 
-universe variable u
+universe u
 
 class ordered_semiring (α : Type u)
   extends semiring α, ordered_cancel_comm_monoid α :=

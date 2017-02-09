@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import init.logic init.category.functor
 
-universe variables u v
+universes u v
 def set (α : Type u) := α → Prop
 
 def set_of {α : Type u} (p : α → Prop) : set α :=

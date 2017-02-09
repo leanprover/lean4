@@ -77,7 +77,7 @@ reserve infixl ` ++ `:65
 reserve infixr ` :: `:67
 reserve infixl `; `:1
 
-universe variables u v
+universes u v
 
 /-- Gadget for optional parameter support. -/
 @[reducible] def opt_param (α : Sort u) (default : α) : Sort u :=
@@ -603,7 +603,7 @@ lemma nat_add_zero (n : nat) : n + 0 = n := rfl
 
 /- Combinator calculus -/
 namespace combinator
-universe variables u₁ u₂ u₃
+universes u₁ u₂ u₃
 def I {α : Type u₁} (a : α) := a
 def K {α : Type u₁} {β : Type u₂} (a : α) (b : β) := a
 def S {α : Type u₁} {β : Type u₂} {γ : Type u₃} (x : α → β → γ) (y : α → β) (z : α) := x z (y z)

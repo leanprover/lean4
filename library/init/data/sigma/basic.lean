@@ -9,7 +9,7 @@ import init.logic init.wf
 notation `Σ` binders `, ` r:(scoped p, sigma p) := r
 notation `Σ'` binders `, ` r:(scoped p, psigma p) := r
 
-universe variables u v
+universes u v
 
 lemma ex_of_psig {α : Type u} {p : α → Prop} : (Σ' x, p x) → ∃ x, p x
 | ⟨x, hx⟩ := ⟨x, hx⟩

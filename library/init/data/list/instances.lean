@@ -8,7 +8,7 @@ import init.category.monad init.category.alternative init.data.list.basic
 import init.meta.mk_dec_eq_instance
 open list
 
-universe variables u v
+universes u v
 
 @[inline] def list.bind {α : Type u} {β : Type v} (a : list α) (b : α → list β) : list β :=
 join (map b a)

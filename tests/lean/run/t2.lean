@@ -1,5 +1,5 @@
-universe l
-universe u
+universe variable l
+universe variable u
 print raw Type
 print raw Type.{1}
 print raw Type.{2}

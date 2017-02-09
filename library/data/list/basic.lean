@@ -7,7 +7,7 @@ Basic properties of lists.
 -/
 import init.data.list.basic
 
-universe variables u v w
+universes u v w
 
 namespace list
 

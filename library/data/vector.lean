@@ -8,7 +8,7 @@ It is implemented as a subtype.
 -/
 import data.list
 
-universe variables u v w
+universes u v w
 
 def vector (α : Type u) (n : ℕ) := { l : list α // l^.length = n }
 

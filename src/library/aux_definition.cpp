@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/replace_fn.h"
 #include "library/locals.h"
+#include "library/placeholder.h"
 #include "library/module.h"
 #include "library/trace.h"
 #include "library/aux_definition.h"
@@ -47,6 +48,7 @@ struct mk_aux_definition_fn {
                         return some_level(new_r);
                     }
                 } else if (is_param(l)) {
+                    lean_assert(!is_placeholder(l));
                     name const & id = param_id(l);
                     if (!m_found_univ_params.contains(id)) {
                         m_found_univ_params.insert(id);

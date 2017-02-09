@@ -5,7 +5,7 @@ Authors: Luke Nelson and Jared Roesch
 -/
 prelude
 import init.core
-universe variables u v
+universes u v
 
 class functor (f : Type u → Type v) : Type (max u+1 v) :=
 (map : Π {a b : Type u}, (a → b) → f a → f b)

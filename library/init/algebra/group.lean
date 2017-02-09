@@ -10,7 +10,7 @@ import init.logic init.algebra.ac init.meta init.meta.decl_cmds
    defined for concrete structures -/
 set_option default_priority 100
 
-universe variable u
+universe u
 variables {α : Type u}
 
 class semigroup (α : Type u) extends has_mul α :=

@@ -5,7 +5,7 @@ Author: Leonardo de Moura
 -/
 prelude
 import init.logic init.category.applicative
-universe variables u v
+universes u v
 
 class alternative (f : Type u → Type v) extends applicative f : Type (max u+1 v) :=
 (failure : Π {a : Type u}, f a)

@@ -3062,7 +3062,7 @@ struct sanitize_param_names_fn : public replace_visitor {
     level sanitize(level const & l) {
         name p("u");
         return replace(l, [&](level const & l) -> optional<level> {
-                if (is_param(l)) {
+                if (is_param(l) && !is_placeholder(l)) {
                     name const & n = param_id(l);
                     if (is_tagged_by(n, *g_level_prefix)) {
                         if (auto new_l = m_R.find(n)) {

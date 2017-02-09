@@ -8,7 +8,7 @@ import init.data.subtype.basic init.funext
 open subtype
 
 namespace classical
-universe variables u v
+universes u v
 /- the axiom -/
 
 -- In the presence of classical logic, we could prove this from a weaker statement:

@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import init.meta.options
 
-universe variables u v
+universes u v
 
 inductive format.color
 | red | green | orange | blue | pink | cyan | grey

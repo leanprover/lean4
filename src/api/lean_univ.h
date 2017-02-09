@@ -29,7 +29,6 @@ typedef enum {
     LEAN_UNIV_MAX,
     LEAN_UNIV_IMAX,
     LEAN_UNIV_PARAM,
-    LEAN_UNIV_GLOBAL,
     LEAN_UNIV_META
 } lean_univ_kind;
 
@@ -43,8 +42,6 @@ lean_bool lean_univ_mk_max(lean_univ u1, lean_univ u2, lean_univ * r, lean_excep
 lean_bool lean_univ_mk_imax(lean_univ u1, lean_univ u2, lean_univ * r, lean_exception * ex);
 /** \brief Create a universe parameter with the given name. */
 lean_bool lean_univ_mk_param(lean_name n, lean_univ * r, lean_exception * ex);
-/** \brief Create a reference to a global universe with the given name. */
-lean_bool lean_univ_mk_global(lean_name n, lean_univ * r, lean_exception * ex);
 /** \brief Create a universe meta-variable with the given name. */
 lean_bool lean_univ_mk_meta(lean_name n, lean_univ * r, lean_exception * ex);
 
@@ -70,7 +67,7 @@ lean_bool lean_univ_lt(lean_univ u1, lean_univ u2, lean_bool * b, lean_exception
     the hashcodes associated with \c u1 and \c u2. */
 lean_bool lean_univ_quick_lt(lean_univ u1, lean_univ u2, lean_bool * b, lean_exception * ex);
 /** \brief If \c r contains \c lean_true, then forall assignments \c A that assigns all parameters,
-    globals and metavariables occuring in \c u1 and \c u2, we have that the
+    and metavariables occuring in \c u1 and \c u2, we have that the
     universe level u1[A] is bigger or equal to u2[A]. */
 lean_bool lean_univ_geq(lean_univ u1, lean_univ u2, lean_bool * r, lean_exception * ex);
 
@@ -88,7 +85,6 @@ lean_bool lean_univ_get_max_lhs(lean_univ u, lean_univ * r, lean_exception * ex)
 lean_bool lean_univ_get_max_rhs(lean_univ u, lean_univ * r, lean_exception * ex);
 /** \brief Store the name of the given universe in \c r.
     \pre lean_univ_get_kind(u) == LEAN_UNIV_PARAM ||
-         lean_univ_get_kind(u) == LEAN_UNIV_GLOBAL ||
          lean_univ_get_kind(u) == LEAN_UNIV_META
     \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_univ_get_name(lean_univ u, lean_name * r, lean_exception * ex);

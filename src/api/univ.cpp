@@ -57,13 +57,6 @@ lean_bool lean_univ_mk_param(lean_name n, lean_univ * r, lean_exception * ex) {
     LEAN_CATCH;
 }
 
-lean_bool lean_univ_mk_global(lean_name n, lean_univ * r, lean_exception * ex) {
-    LEAN_TRY;
-    check_nonnull(n);
-    *r = of_level(new level(mk_global_univ(to_name_ref(n))));
-    LEAN_CATCH;
-}
-
 lean_bool lean_univ_mk_meta(lean_name n, lean_univ * r, lean_exception * ex) {
     LEAN_TRY;
     check_nonnull(n);
@@ -103,8 +96,8 @@ lean_univ_kind lean_univ_get_kind(lean_univ u) {
     case level_kind::Max:      return LEAN_UNIV_MAX;
     case level_kind::IMax:     return LEAN_UNIV_IMAX;
     case level_kind::Param:    return LEAN_UNIV_PARAM;
-    case level_kind::Global:   return LEAN_UNIV_GLOBAL;
     case level_kind::Meta:     return LEAN_UNIV_META;
+    case level_kind::Global:   break; // TODO(Leo): delete
     }
     lean_unreachable();
 }
@@ -179,8 +172,6 @@ lean_bool lean_univ_get_name(lean_univ u, lean_name * r, lean_exception * ex) {
     check_nonnull(u);
     if (lean_univ_get_kind(u) == LEAN_UNIV_PARAM)
         *r = of_name(new name(param_id(to_level_ref(u))));
-    else if (lean_univ_get_kind(u) == LEAN_UNIV_GLOBAL)
-        *r = of_name(new name(global_id(to_level_ref(u))));
     else if (lean_univ_get_kind(u) == LEAN_UNIV_META)
         *r = of_name(new name(meta_id(to_level_ref(u))));
     else

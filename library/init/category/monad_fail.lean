@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import init.category.monad init.data.string.basic
 
-universe variables u v
+universes u v
 
 class monad_fail (m : Type u → Type v) extends monad m :=
 (fail : Π {a}, string → m a)

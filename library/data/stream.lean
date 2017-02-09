@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 open nat function option
-universe variables u v w
+universes u v w
 
 def stream (α : Type u) := nat → α
 

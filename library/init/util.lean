@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.data.string.basic
-universe variables u
+universes u
 
 /- This function has a native implementation that tracks time. -/
 def timeit {α : Type u} (s : string) (f : thunk α) : α :=

@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/find_fn.h"
+#include "library/placeholder.h"
 #include "library/locals.h"
 
 namespace lean {
@@ -17,7 +18,7 @@ void collect_univ_params_core(level const & l, name_set & r) {
     for_each(l, [&](level const & l) {
             if (!has_param(l))
                 return false;
-            if (is_param(l))
+            if (is_param(l) && !is_placeholder(l))
                 r.insert(param_id(l));
             return true;
         });

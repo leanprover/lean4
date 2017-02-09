@@ -489,8 +489,7 @@ public:
     inductive_cmd_fn(parser & p, decl_attributes const & attrs, bool is_trusted):
         m_p(p), m_env(p.env()), m_attrs(attrs),
         m_is_trusted(is_trusted), m_ctx(p.env()) {
-        m_env = m_env.add_universe(tmp_global_univ_name());
-        m_u = mk_global_univ(tmp_global_univ_name());
+        m_u = mk_param_univ(tmp_global_univ_name());
         check_attrs(m_attrs);
         m_doc_string = p.get_doc_string();
     }

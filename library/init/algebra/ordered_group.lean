@@ -10,7 +10,7 @@ import init.algebra.order init.algebra.group
    defined for concrete structures -/
 set_option default_priority 100
 
-universe variable u
+universe u
 
 class ordered_cancel_comm_monoid (α : Type u)
       extends add_comm_monoid α, add_left_cancel_semigroup α,

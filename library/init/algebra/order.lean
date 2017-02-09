@@ -9,7 +9,7 @@ import init.logic
    defined for concrete structures -/
 set_option default_priority 100
 
-universe variable u
+universe u
 variables {α : Type u}
 
 class weak_order (α : Type u) extends has_le α :=

@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 prelude
 import init.meta.mk_dec_eq_instance init.data.subtype.basic
 open tactic subtype
-universe variables u
+universes u
 
 instance {α : Type u} {p : α → Prop} [decidable_eq α] : decidable_eq {x : α // p x} :=
 by mk_dec_eq_instance

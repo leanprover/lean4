@@ -5,7 +5,7 @@ Author: Leonardo de Moura
 -/
 prelude
 import init.category.functor
-universe variables u v
+universes u v
 
 class applicative (f : Type u → Type v) extends functor f : Type (max u+1 v):=
 (pure : Π {a : Type u}, a → f a)

@@ -76,7 +76,7 @@ lemma false_of_a_eq_not_a {a : Prop} (h : a = not a) : false :=
 have not a, from λ ha, absurd ha (eq.mp h ha),
 absurd (eq.mpr h this) this
 
-universe variables u
+universes u
 
 lemma if_eq_of_eq_true {c : Prop} [d : decidable c] {α : Sort u} (t e : α) (h : c = true) : (@ite c d α t e) = t :=
 if_pos (of_eq_true h)

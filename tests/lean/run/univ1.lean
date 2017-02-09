@@ -7,7 +7,7 @@ axiom iso1 : ∀x, foldd (unfoldd x) = x
 end S1
 
 namespace S2
-universe u
+universe variables u
 axiom I : Type.{u}
 definition F (X : Type*) : Type* := (X → Prop) → Prop
 axiom unfoldd : I → F I

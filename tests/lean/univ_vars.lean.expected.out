@@ -1,4 +1,4 @@
-id1 : Π (A : Type u), A → A
+id1.{u_1} : Π (A : Type u_1), A → A
 id2 : Π (B : Type), B → B
 id3.{u_1} : Π (C : Type u_1), C → C
 foo.{u_1} : Π (A₁ A₂ : Type u_1), A₁ → A₂ → Prop

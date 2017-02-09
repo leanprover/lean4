@@ -10,7 +10,7 @@ open decidable list
 notation h :: t  := cons h t
 notation `[` l:(foldr `, ` (h t, cons h t) nil `]`) := l
 
-universe variables u v w
+universes u v w
 
 instance (α : Type u) : inhabited (list α) :=
 ⟨list.nil⟩

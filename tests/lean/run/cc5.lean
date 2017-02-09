@@ -1,8 +1,7 @@
-universes l1 l2 l3 l4 l5 l6
-constants (A : Type l1) (B : A → Type l2) (C : ∀ (a : A) (ba : B a), Type l3)
-          (D : ∀ (a : A) (ba : B a) (cba : C a ba), Type l4)
-          (E : ∀ (a : A) (ba : B a) (cba : C a ba) (dcba : D a ba cba), Type l5)
-          (F : ∀ (a : A) (ba : B a) (cba : C a ba) (dcba : D a ba cba) (edcba : E a ba cba dcba), Type l6)
+constants (A : Type) (B : A → Type) (C : ∀ (a : A) (ba : B a), Type)
+          (D : ∀ (a : A) (ba : B a) (cba : C a ba), Type)
+          (E : ∀ (a : A) (ba : B a) (cba : C a ba) (dcba : D a ba cba), Type)
+          (F : ∀ (a : A) (ba : B a) (cba : C a ba) (dcba : D a ba cba) (edcba : E a ba cba dcba), Type)
           (C_ss : ∀ a ba, subsingleton (C a ba))
           (a1 a2 a3 : A)
           (mk_B1 mk_B2 : ∀ a, B a)

@@ -10,7 +10,7 @@ import init.algebra.group
    defined for concrete structures -/
 set_option default_priority 100
 
-universe variable u
+universe u
 
 class distrib (α : Type u) extends has_mul α, has_add α :=
 (left_distrib : ∀ a b c : α, a * (b + c) = (a * b) + (a * c))

@@ -119,7 +119,7 @@ void remove_local_vars(parser const & p, buffer<expr> & locals) {
 
 levels remove_local_vars(parser const & p, levels const & ls) {
     return filter(ls, [&](level const & l) {
-            return !is_param(l) || !p.is_local_level_variable(param_id(l));
+            return is_placeholder(l) || !is_param(l) || !p.is_local_level_variable(param_id(l));
         });
 }
 

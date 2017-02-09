@@ -7,7 +7,7 @@ General operations on functions.
 -/
 prelude
 import init.data.prod init.funext init.logic
-universe variables u₁ u₂ u₃ u₄
+universes u₁ u₂ u₃ u₄
 
 namespace function
 notation f ` $ `:1 a:0 := f a

@@ -5,7 +5,7 @@ Authors: Luke Nelson and Jared Roesch
 -/
 prelude
 import init.category.applicative
-universe variables u v
+universes u v
 
 class pre_monad (m : Type u → Type v) :=
 (bind : Π {a b : Type u}, m a → (a → m b) → m b)

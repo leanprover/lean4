@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 prelude
 import init.data.nat.basic init.data.prod
 
-universe variables u v
+universes u v
 
 inductive acc {α : Type u} (r : α → α → Prop) : α → Prop
 | intro : ∀ x, (∀ y, r y x → acc y) → acc x

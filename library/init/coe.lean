@@ -25,7 +25,7 @@ a type to a sort.
 -/
 prelude
 import init.data.list.basic init.data.subtype.basic init.data.prod
-universe variables u v
+universes u v
 
 class has_lift (a : Sort u) (b : Sort v) :=
 (lift : a → b)
@@ -81,7 +81,7 @@ notation `⇑`:max x:max := coe_fn x
 
 notation `↥`:max x:max := coe_sort x
 
-universe variables u₁ u₂ u₃
+universes u₁ u₂ u₃
 
 /- Transitive closure for has_lift, has_coe, has_coe_to_fun -/
 
@@ -154,7 +154,7 @@ instance coe_subtype {a : Type u} {p : a → Prop} : has_coe {x // p x} a :=
 
 /- basic lifts -/
 
-universe variables ua ua₁ ua₂ ub ub₁ ub₂
+universes ua ua₁ ua₂ ub ub₁ ub₂
 
 /- Remark: we cant use [has_lift_t a₂ a₁] since it will produce non-termination whenever a type class resolution
    problem does not have a solution. -/

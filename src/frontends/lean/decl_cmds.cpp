@@ -43,11 +43,7 @@ static environment declare_universe(parser & p, environment env, name const & n,
     } else if (in_section(env)) {
         p.add_local_level(n, mk_param_univ(n), false);
     } else {
-        name const & ns = get_namespace(env);
-        name full_n  = ns + n;
-        env = module::add_universe(env, full_n);
-        if (!ns.is_anonymous())
-            env = add_level_alias(env, n, full_n);
+        p.add_local_level(n, mk_param_univ(n), true);
     }
     return env;
 }

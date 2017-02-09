@@ -41,7 +41,7 @@ def name.update_prefix : name → name → name
 | (mk_string s p)  new_p := mk_string s new_p
 | (mk_numeral s p) new_p := mk_numeral s new_p
 
-definition name.to_string_with_sep (sep : string) : name → string
+def name.to_string_with_sep (sep : string) : name → string
 | anonymous                := "[anonymous]"
 | (mk_string s anonymous)  := s
 | (mk_numeral v anonymous) := to_string v
@@ -54,10 +54,10 @@ private def name.components' : name -> list name
 | (mk_numeral v n)         := mk_numeral v anonymous :: name.components' n
 
 def name.components (n : name) : list name :=
-  list.reverse (name.components' n)
+(name.components' n)^.reverse
 
-definition name.to_string : name → string :=
-  name.to_string_with_sep "."
+def name.to_string : name → string :=
+name.to_string_with_sep "."
 
 instance : has_to_string name :=
 ⟨name.to_string⟩

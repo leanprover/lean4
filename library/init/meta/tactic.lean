@@ -707,7 +707,7 @@ meta def solve (ts : list (tactic unit)) : tactic unit :=
 first $ map solve1 ts
 
  private meta def focus_aux : list (tactic unit) → list expr → list expr → tactic unit
-| []       gs      rs := set_goals $ gs ++ rs
+| []       gs      rs := set_goals $ rs ++ gs
 | (t::ts)  (g::gs) rs := do
   set_goals [g], t, rs' ← get_goals,
   focus_aux ts gs (rs ++ rs')

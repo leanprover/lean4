@@ -17,6 +17,7 @@ Author: Daniel Selsam, Leonardo de Moura
 #include "kernel/find_fn.h"
 #include "kernel/instantiate.h"
 #include "library/trace.h"
+#include "library/pp_options.h"
 #include "library/constants.h"
 #include "library/normalize.h"
 #include "library/expr_lt.h"
@@ -63,6 +64,7 @@ Author: Daniel Selsam, Leonardo de Moura
 
 namespace lean {
 #define lean_simp_trace(CTX, N, CODE) lean_trace(N, scope_trace_env _scope1(CTX.env(), CTX); CODE)
+#define lean_simp_trace_d(CTX, N, CODE) lean_trace_d(N, scope_trace_env _scope1(CTX.env(), CTX); CODE)
 
 /* -----------------------------------
    Core simplification procedure.
@@ -124,14 +126,15 @@ bool simplify_core_fn::instantiate_emetas(tmp_type_context & tmp_ctx, unsigned n
                 } else {
                     lean_simp_trace(tmp_ctx, name({"simplify", "failure"}),
                                     tout() << "failed to prove: " << mvar << " : " << mvar_type << "\n";);
+                    failed = true;
+                    return;
                 }
+            } else {
+                lean_simp_trace(tmp_ctx, name({"simplify", "failure"}),
+                                tout() << "failed to assign: " << mvar << " : " << mvar_type << "\n";);
+                failed = true;
+                return;
             }
-
-            lean_simp_trace(tmp_ctx, name({"simplify", "failure"}),
-                            tout() << "failed to assign: " << mvar << " : " << mvar_type << "\n";);
-
-            failed = true;
-            return;
         });
     return !failed;
 }
@@ -488,8 +491,9 @@ simp_result simplify_core_fn::rewrite(expr const & e) {
     for (simp_lemma const & lemma : *srs) {
         simp_result r = rewrite(e, lemma);
         if (!is_eqp(r.get_new(), e)) {
-            lean_trace_d(name({"simplify", "rewrite"}), tout() << "[" << lemma.get_id() << "]: " << e
-                         << " ==> " << r.get_new() << "\n";);
+            lean_simp_trace_d(m_ctx, name({"simplify", "rewrite"}),
+                              tout() << "[" << lemma.get_id() << "]: "
+                              << e << " ==> " << r.get_new() << "\n";);
             return r;
         }
     }
@@ -545,10 +549,10 @@ struct match_fn {
             if (implicit)
                 p1 = m_ctx.ctx().complete_instance(p1);
             if (!match(p1, t1)) {
-                lean_trace(name({"simplify", "implicit_failure"}), scope_trace_env scope(m_ctx.env(), m_ctx.ctx());
-                           tout() << "fail to match '" << m_id << "':\n";
-                           tout() << p << "\n=?=\n" << t << "\nbecause the following implicit match\n";
-                           tout() << p1 << "\n=?=\n" << t1 << "\n";);
+                lean_simp_trace_d(m_ctx.ctx(), name({"simplify", "failure"}),
+                                  tout() << "fail to match '" << m_id << "':\n";
+                                  tout() << p << "\n=?=\n" << t << "\nbecause the following implicit match\n";
+                                  tout() << p1 << "\n=?=\n" << t1 << "\n";);
                 return false;
             }
         }
@@ -563,26 +567,45 @@ bool simplify_core_fn::match(tmp_type_context & ctx, simp_lemma const & sl, expr
         return ctx.is_def_eq(t, sl.get_lhs());
 }
 
+/* If both e and sl.get_lhs() are of the form (f ...),
+   then we only trace the failure if the number of arguments is the same.
+
+   This is simple filter to minimize the number of rewriting failures. */
+static bool should_trace_failure(expr const & e, simp_lemma const & sl) {
+    expr const & p = sl.get_lhs();
+    expr const & fn = get_app_fn(p);
+    if (!is_constant(fn)) return true;
+    expr const & e_fn = get_app_fn(e);
+    if (!is_constant(e_fn) || const_name(fn) != const_name(e_fn)) return true;
+    return get_app_num_args(e) == get_app_num_args(p);
+}
+
 simp_result simplify_core_fn::rewrite_core(expr const & e, simp_lemma const & sl) {
     tmp_type_context tmp_ctx(m_ctx, sl.get_num_umeta(), sl.get_num_emeta());
 
     if (!match(tmp_ctx, sl, e)) {
-        lean_trace_d(name({"debug", "simplify", "try_rewrite"}),
-                     tout() << "fail to unify '" << sl.get_id() << "':\n"
-                     << e << "\n=?=\n" << sl.get_lhs() << "\n--------------\n";);
+        if (lean_is_trace_enabled(name({"simplify", "rewrite_failure"})) &&
+            should_trace_failure(e, sl)) {
+            lean_simp_trace_d(m_ctx, name({"simplify", "rewrite_failure"}),
+                              tout() << "fail to match '" << sl.get_id() << "':\n"
+                              << e << "\n=?=\n" << sl.get_lhs() << "\n--------------\n";);
+        }
         return simp_result(e);
     }
 
     if (!instantiate_emetas(tmp_ctx, sl.get_num_emeta(), sl.get_emetas(), sl.get_instances())) {
-        lean_trace_d(name({"debug", "simplify", "try_rewrite"}), tout() << "fail to instantiate emetas: " <<
-                     sl.get_id() << "\n" << e << "\n";);
+        lean_simp_trace_d(m_ctx, name({"simplify", "failure"}),
+                          lean_trace_init_bool(name({"simplify", "failure"}), get_pp_implicit_name(), true);
+                          tout() << "fail to instantiate emetas: '" << sl.get_id() << "' at\n"
+                          << e << "\npartially instantiated lemma:\n" << tmp_ctx.instantiate_mvars(sl.get_proof()) << "\n";);
         return simp_result(e);
     }
 
     for (unsigned i = 0; i < sl.get_num_umeta(); i++) {
         if (!tmp_ctx.is_uassigned(i)) {
-            lean_trace_d(name({"debug", "simplify", "try_rewrite"}), tout() << "fail to instantiate umetas: " <<
-                         sl.get_id() << "\n";);
+            lean_simp_trace_d(m_ctx, name({"simplify", "failure"}),
+                              lean_trace_init_bool(name({"simplify", "failure"}), get_pp_universes_name(), true);
+                              tout() << "fail to instantiate umetas: '" << sl.get_id() << "'\n";);
             return simp_result(e);
         }
     }
@@ -1223,13 +1246,12 @@ vm_obj tactic_ext_simplify_core(unsigned DEBUG_CODE(num), vm_obj const * args) {
 void initialize_simplify() {
     register_trace_class("simplify");
     register_trace_class(name({"simplify", "failure"}));
-    register_trace_class(name({"simplify", "implicit_failure"}));
+    register_trace_class(name({"simplify", "rewrite_failure"}));
     register_trace_class(name({"simplify", "context"}));
     register_trace_class(name({"simplify", "canonize"}));
     register_trace_class(name({"simplify", "congruence"}));
     register_trace_class(name({"simplify", "rewrite"}));
     register_trace_class(name({"simplify", "perm"}));
-    register_trace_class(name({"debug", "simplify", "try_rewrite"}));
     register_trace_class(name({"debug", "simplify", "try_congruence"}));
 
     DECLARE_VM_BUILTIN(name({"tactic", "simplify_core"}), tactic_simplify_core);

@@ -12,6 +12,7 @@ Authors: Gabriel Ebner, Leonardo de Moura, Sebastian Ullrich
 #include <clocale>
 #include "util/lean_path.h"
 #include "util/sexpr/option_declarations.h"
+#include "util/timer.h"
 #include "util/utf8.h"
 #include "library/mt_task_queue.h"
 #include "library/st_task_queue.h"
@@ -64,8 +65,13 @@ class server::msg_buf : public versioned_msg_buf {
 
     std::unordered_set<name, name_hash> m_nonempty_buckets;
 
+    bool m_full_refresh_scheduled = false;
+    std::unique_ptr<single_timer> m_timer;
+
 public:
-    msg_buf(server * srv) : m_srv(srv) {}
+    msg_buf(server * srv, bool use_timer) : m_srv(srv) {
+        if (use_timer) m_timer.reset(new single_timer);
+    }
 
     void on_cleared(name const & bucket) override {
         if (m_nonempty_buckets.count(bucket)) {
@@ -73,13 +79,25 @@ public:
             for (auto & b : get_nonempty_buckets_core()) m_nonempty_buckets.insert(b);
 
             // We need to remove a message, so let's send everything again
+#if defined(LEAN_MULTI_THREAD)
+            if (m_timer) {
+                m_full_refresh_scheduled = true;
+                m_timer->set(chrono::steady_clock::now() + chrono::milliseconds(200), [&] {
+                        auto lock = get_lock();
+                        m_full_refresh_scheduled = false;
+                        m_srv->send_msg(all_messages_msg{get_messages_core()});
+                    }, false);
+                return;
+            }
+#endif
             m_srv->send_msg(all_messages_msg{get_messages_core()});
         }
     }
 
     void on_reported(name const & bucket, message const & msg) override {
         m_nonempty_buckets.insert(bucket);
-        m_srv->send_msg(msg_reported_msg{msg});
+        if (!m_full_refresh_scheduled)
+            m_srv->send_msg(msg_reported_msg{msg});
     }
 };
 
@@ -129,7 +147,7 @@ server::server(unsigned num_threads, environment const & initial_env, io_state c
     m_ios.set_regular_channel(std::make_shared<stderr_channel>());
     m_ios.set_diagnostic_channel(std::make_shared<stderr_channel>());
 
-    m_msg_buf.reset(new msg_buf(this));
+    m_msg_buf.reset(new msg_buf(this, num_threads > 0));
 
     scope_global_ios scoped_ios(m_ios);
     scoped_message_buffer scope_msg_buf(m_msg_buf.get());

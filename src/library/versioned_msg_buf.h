@@ -36,6 +36,8 @@ protected:
     std::vector<message> get_messages_core();
     std::vector<name> get_nonempty_buckets_core();
 
+    unique_lock<mutex> get_lock() { return unique_lock<mutex>(m_mutex); }
+
 public:
     versioned_msg_buf() {}
 

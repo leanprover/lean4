@@ -312,7 +312,8 @@ do e ← i_to_expr p,
    match rec_name with
    | some n := induction_core semireducible e n ids
    | none   := do I ← get_type_name e, induction_core semireducible e (I <.> "rec") ids
-   end
+   end,
+   return ()
 
 meta def cases (p : qexpr0) (ids : with_ident_list) : tactic unit :=
 do e ← i_to_expr p,

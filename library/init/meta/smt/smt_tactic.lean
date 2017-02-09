@@ -361,7 +361,7 @@ meta def add_lemmas_from_facts : smt_tactic unit :=
 get_facts >>= add_lemmas_from_facts_core
 
 meta def induction (e : expr) (rec : name) (ids : list name) : smt_tactic unit :=
-slift (tactic.induction e rec ids)
+slift (tactic.induction e rec ids >> return ()) -- pass on the information?
 
 end smt_tactic
 

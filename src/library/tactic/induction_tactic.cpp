@@ -320,10 +320,25 @@ vm_obj induction_tactic_core(transparency_mode const & m, expr const & H, name c
     try {
         metavar_context mctx = s.mctx();
         list<name> tmp_ns = ns;
+        list<list<expr>> hyps;
+        hsubstitution_list substs;
         list<expr> new_goals = induction(s.env(), s.get_options(), m, mctx, head(s.goals()), H, rec_name, tmp_ns,
-                                         nullptr, nullptr);
+                                         &hyps, &substs);
         tactic_state new_s   = set_mctx_goals(s, mctx, append(new_goals, tail(s.goals())));
-        return mk_tactic_success(new_s);
+
+        buffer<vm_obj> info;
+        while (!is_nil(hyps)) {
+            vm_obj hyps_obj = to_obj(head(hyps));
+            buffer<vm_obj> substs_objs;
+            head(substs).for_each([&](name const & from, expr const & to) {
+                    substs_objs.push_back(mk_vm_pair(to_obj(from), to_obj(to)));
+                });
+
+            info.push_back(mk_vm_pair(hyps_obj, to_obj(substs_objs)));
+            hyps = tail(hyps);
+            substs = tail(substs);
+        }
+        return mk_tactic_success(to_obj(info), new_s);
     } catch (exception & ex) {
         return mk_tactic_exception(ex, s);
     }

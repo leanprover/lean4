@@ -32,6 +32,8 @@ vm_obj to_obj(list<name> const & ls) { return list_to_obj(ls); }
 vm_obj to_obj(list<level> const & ls) { return list_to_obj(ls); }
 vm_obj to_obj(list<expr> const & ls) { return list_to_obj(ls); }
 
+vm_obj to_obj(list<list<expr>> const & ls) { return list_to_obj(ls); }
+
 vm_obj to_obj(buffer<name> const & ls) { return to_obj(to_list(ls)); }
 vm_obj to_obj(buffer<level> const & ls) { return to_obj(to_list(ls)); }
 vm_obj to_obj(buffer<expr> const & ls) { return to_obj(to_list(ls)); }
@@ -104,6 +106,13 @@ unsigned list_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
 
 vm_obj to_obj(list<unsigned> const & ls) {
     return to_vm_list(ls, [&](unsigned n) { return mk_vm_nat(n); });
+}
+
+vm_obj to_obj(buffer<vm_obj> const & ls) {
+    vm_obj obj = mk_vm_nil();
+    for (unsigned i = ls.size(); i > 0; i--)
+        obj = mk_vm_cons(ls[i - 1], obj);
+    return obj;
 }
 
 void initialize_vm_list() {

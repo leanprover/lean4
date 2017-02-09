@@ -413,8 +413,13 @@ meta constant abstract_hash : expr → tactic nat
 meta constant abstract_weight : expr → tactic nat
 meta constant abstract_eq     : expr → expr → tactic bool
 /- (induction_core m H rec ns) induction on H using recursor rec, names for the new hypotheses
-   are retrieved from ns. If ns does not have sufficient names, then use the internal binder names in the recursor. -/
-meta constant induction_core : transparency → expr → name → list name → tactic unit
+   are retrieved from ns. If ns does not have sufficient names, then use the internal binder names
+   in the recursor.
+   It returns for each new goal a list of new hypotheses and a list of substitutions for hypotheses
+   depending on H. The substitutions map internal names to their replacement terms. If the
+   replacement is again a hypothesis the user name stays the same. The internal names are only valid
+   in the original goal, not in the type context of the new goal. -/
+meta constant induction_core : transparency → expr → name → list name → tactic (list (list expr × list (name × expr)))
 /- (cases_core m H ns) apply cases_on recursor, names for the new hypotheses are retrieved from ns.
    H must be a local constant -/
 meta constant cases_core     : transparency → expr → list name → tactic unit
@@ -866,7 +871,7 @@ cases_core semireducible H []
 meta def cases_using : expr → list name → tactic unit :=
 cases_core semireducible
 
-meta def induction : expr → name → list name → tactic unit :=
+meta def induction : expr → name → list name → tactic (list (list expr × list (name × expr))) :=
 induction_core semireducible
 
 meta def destruct (e : expr) : tactic unit :=

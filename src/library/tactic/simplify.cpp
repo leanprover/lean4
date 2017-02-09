@@ -498,8 +498,8 @@ simp_result simplify_core_fn::rewrite(expr const & e) {
 }
 
 struct match_fn {
-    tmp_type_context & m_ctx;
-    name const &       m_id;
+    tmp_type_context &                    m_ctx;
+    name const &                          m_id;
     buffer<std::tuple<expr, expr, bool>>  m_postponed;
 
     match_fn(tmp_type_context & ctx, name const & id):m_ctx(ctx), m_id(id) {}
@@ -538,9 +538,9 @@ struct match_fn {
     bool operator()(expr const & p, expr const & t) {
         if (!match(p, t)) return false;
 
-        for (auto const & e : m_postponed) {
+        for (unsigned i = 0; i < m_postponed.size(); i++) {
             expr p1, t1; bool implicit;
-            std::tie(p1, t1, implicit) = e;
+            std::tie(p1, t1, implicit) = m_postponed[i];
             p1 = m_ctx.instantiate_mvars(p1);
             if (implicit)
                 p1 = m_ctx.ctx().complete_instance(p1);
@@ -575,7 +575,7 @@ simp_result simplify_core_fn::rewrite_core(expr const & e, simp_lemma const & sl
 
     if (!instantiate_emetas(tmp_ctx, sl.get_num_emeta(), sl.get_emetas(), sl.get_instances())) {
         lean_trace_d(name({"debug", "simplify", "try_rewrite"}), tout() << "fail to instantiate emetas: " <<
-                     sl.get_id() << "\n";);
+                     sl.get_id() << "\n" << e << "\n";);
         return simp_result(e);
     }
 

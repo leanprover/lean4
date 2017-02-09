@@ -3334,7 +3334,7 @@ vm_obj tactic_resolve_local_name(vm_obj const & vm_id, vm_obj const & vm_s) {
 
 expr resolve_names(environment const & env, local_context const & lctx, expr const & e) {
     auto fn = [&](expr const & e) {
-        if (is_placeholder(e) || is_by(e) || is_as_is(e)) {
+        if (is_placeholder(e) || is_by(e) || is_as_is(e) || is_emptyc_or_emptys(e)) {
             return some_expr(e); // ignore placeholders, nested tactics and as_is terms
         } else if (is_constant(e)) {
             if (!is_nil(const_levels(e))) {

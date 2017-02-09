@@ -57,14 +57,13 @@ The following commands are used to create universe terms in the export file.
 <uidx'> #UM  <uidx_1> <uidx_2>
 <uidx'> #UIM <uidx_1> <uidx_2>
 <uidx'> #UP  <nidx>
-<uidx'> #UG  <nidx>
 ```
 
 In the commands above, `uidx`, `uidx_1` and `uidx_2` denote the unique identifier of existing universe terms,
 `nidx` the unique identifier of existing hierarchical names, and `nidx'` is the identifier for the universe
 term being defined. The command `#US` defines the _successor_ universe for `uidx`, the `#UM` the maximum universe for `uidx_1` and `uidx_2`,
 and `#UIM` is the "impredicative" maximum. It is defined as zero if `uidx_2` evaluates to zero, and `#UM` otherwise.
-The command `#UP` defines the universe parameter with name `nidx`, and `#UG` the global universe with name `nidx`.
+The command `#UP` defines the universe parameter with name `nidx`.
 Here is the sequence of commands for creating the universe term `imax (max 2 l1) l2`.
 ```
 1 #NS 0 l1
@@ -140,15 +139,6 @@ We annotate some commands with comments of the form `-- ...` to make the example
 8 #EA 6 7        -- vector.{1} nat
 9 #EA 8 5        -- vector.{1} nat (nat.succ (nat.succ (nat.succ nat.zero)))
 ```
-
-Global universe level declaration
----------------------------------
-
-The command
-```
-#UNI <nidx>
-```
-declares a global universe with name `nidx`.
 
 Definitions and Axioms
 ----------------------

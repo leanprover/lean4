@@ -168,13 +168,7 @@ optional<expr> get_local_ref(environment const & env, name const & n) {
         return none_expr();
 }
 
-static void check_no_shadow(environment const & env, name const & a) {
-    if (env.is_universe(a))
-        throw exception(sstream() << "universe level alias '" << a << "' shadows existing global universe level");
-}
-
 environment add_level_alias(environment const & env, name const & a, name const & l) {
-    check_no_shadow(env, a);
     aliases_ext ext = get_extension(env);
     ext.add_level_alias(a, l);
     return update(env, ext);
@@ -204,16 +198,6 @@ environment add_aliases(environment const & env, name const & prefix, name const
                 if (!(is_protected(env, d.get_name()) && a.is_atomic()) &&
                     !(a.is_anonymous()))
                     ext.add_expr_alias(a, d.get_name(), overwrite);
-            }
-        });
-    env.for_each_universe([&](name const & u) {
-            if (is_prefix_of(prefix, u) && !is_exception(u, prefix, num_exceptions, exceptions)) {
-                name a = u.replace_prefix(prefix, new_prefix);
-                if (env.is_universe(a))
-                    throw exception(sstream() << "universe level alias '" << a << "' shadows existing global universe level");
-                if (!(is_protected(env, u) && a.is_atomic()) &&
-                    !a.is_anonymous())
-                    ext.add_level_alias(a, u);
             }
         });
     return update(env, ext);

@@ -28,9 +28,6 @@ lean_bool lean_env_mk_std(unsigned t, lean_env * r, lean_exception * ex);
 /** Trust all macros implemented in Lean, and do no retype-check imported modules */
 #define LEAN_TRUST_HIGH 100000
 
-/** \brief Add a new global universe with name \c u.
-    \remark exceptions: LEAN_KERNEL_EXCEPTION */
-lean_bool lean_env_add_univ(lean_env e, lean_name u, lean_env * r, lean_exception * ex);
 /** \brief Create a new environment by adding the given certified declaration \c d to the environment \c e.
     \remark exceptions: LEAN_KERNEL_EXCEPTION */
 lean_bool lean_env_add(lean_env e, lean_cert_decl d, lean_env * r, lean_exception * ex);
@@ -47,8 +44,6 @@ void lean_env_del(lean_env e);
 /** \brief Return the trust level of the given environment */
 unsigned lean_env_trust_level(lean_env e);
 
-/** \brief Return true iff \c e contains a global universe with name \c n. */
-lean_bool lean_env_contains_univ(lean_env e, lean_name n);
 /** \brief Return true iff \c e contains a declaration with name \c n. */
 lean_bool lean_env_contains_decl(lean_env e, lean_name n);
 /** \brief Store in \c d the declaration with name \c n in \c e.
@@ -65,9 +60,6 @@ lean_bool lean_env_forget(lean_env e, lean_env * r, lean_exception * ex);
 /** \brief Execute \c f for each declaration in \c env.
     \remark Every declaration passed to \c f must be disposed using \c lean_decl_del. */
 lean_bool lean_env_for_each_decl(lean_env e, void (*f)(lean_decl), lean_exception * ex);
-/** \brief Execute \c f for each global universe in \c env.
-    \remark Every name passed to \c f must be disposed using \c lean_name_del. */
-lean_bool lean_env_for_each_univ(lean_env e, void (*f)(lean_name), lean_exception * ex);
 /*@}*/
 /*@}*/
 

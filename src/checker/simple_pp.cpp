@@ -82,7 +82,6 @@ struct simple_pp_fn {
                                             pp_level(imax_lhs(l)).maybe_paren(1),
                                             pp_level(imax_rhs(l)).maybe_paren(1)}), 0);
             case level_kind::Param: return pp_name(param_id(l));
-            case level_kind::Global: return pp_name(global_id(l));
             case level_kind::Meta: return pp_meta(meta_id(l));
         }
         lean_unreachable();

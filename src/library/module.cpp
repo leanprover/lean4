@@ -296,27 +296,6 @@ struct import_helper {
     }
 };
 
-struct glvl_modification : public modification {
-    LEAN_MODIFICATION("glvl")
-
-    name m_name;
-
-    glvl_modification() {}
-    glvl_modification(name const & name) : m_name(name) {}
-
-    void perform(environment & env) const override {
-        env = env.add_universe(m_name);
-    }
-
-    void serialize(serializer & s) const override {
-        s << m_name;
-    }
-
-    static std::shared_ptr<modification const> deserialize(deserializer & d) {
-        return std::make_shared<glvl_modification>(read_name(d));
-    }
-};
-
 struct decl_modification : public modification {
     LEAN_MODIFICATION("decl")
 
@@ -423,12 +402,6 @@ environment add_and_perform(environment const & env, std::shared_ptr<modificatio
     module_ext ext = get_extension(new_env);
     ext.m_modifications = cons(modf, ext.m_modifications);
     return update(new_env, ext);
-}
-
-environment add_universe(environment const & env, name const & l) {
-    module_ext ext = get_extension(env);
-    ext.m_module_univs = cons(l, ext.m_module_univs);
-    return add_and_perform(update(env, ext), std::make_shared<glvl_modification>(l));
 }
 
 environment update_module_defs(environment const & env, declaration const & d) {
@@ -725,7 +698,6 @@ module_loader mk_dummy_loader() {
 void initialize_module() {
     g_ext            = new module_ext_reg();
     g_object_readers = new object_readers();
-    glvl_modification::init();
     decl_modification::init();
     inductive_modification::init();
     quot_modification::init();
@@ -737,7 +709,6 @@ void finalize_module() {
     pos_info_mod::finalize();
     inductive_modification::finalize();
     decl_modification::finalize();
-    glvl_modification::finalize();
     delete g_object_readers;
     delete g_ext;
 }

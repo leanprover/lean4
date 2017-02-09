@@ -97,7 +97,6 @@ lean_univ_kind lean_univ_get_kind(lean_univ u) {
     case level_kind::IMax:     return LEAN_UNIV_IMAX;
     case level_kind::Param:    return LEAN_UNIV_PARAM;
     case level_kind::Meta:     return LEAN_UNIV_META;
-    case level_kind::Global:   break; // TODO(Leo): delete
     }
     lean_unreachable();
 }

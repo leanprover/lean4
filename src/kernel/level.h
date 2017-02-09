@@ -30,12 +30,11 @@ struct level_cell;
                     Their definitions "mirror" the typing rules for Pi and Sigma.
 
    - Param(n)     : A parameter. In Lean, we have universe polymorphic definitions.
-   - Global(n)    : A global level.
    - Meta(n)      : Placeholder. It is the equivalent of a metavariable for universe levels.
                     The elaborator is responsible for replacing Meta with level expressions
                     that do not contain Meta.
 */
-enum class level_kind { Zero, Succ, Max, IMax, Param, Global, Meta };
+enum class level_kind { Zero, Succ, Max, IMax, Param, Meta };
 
 /**
    \brief Universe level.
@@ -90,7 +89,6 @@ level mk_max(level const & l1, level const & l2);
 level mk_imax(level const & l1, level const & l2);
 level mk_succ(level const & l);
 level mk_param_univ(name const & n);
-level mk_global_univ(name const & n);
 level mk_meta_univ(name const & n);
 
 /** \brief Convert (succ^k l) into (l, k). If l is not a succ, then return (l, 0) */
@@ -100,7 +98,6 @@ inline unsigned hash(level const & l) { return l.hash(); }
 inline level_kind kind(level const & l) { return l.kind(); }
 inline bool is_zero(level const & l)   { return kind(l) == level_kind::Zero; }
 inline bool is_param(level const & l)  { return kind(l) == level_kind::Param; }
-inline bool is_global(level const & l) { return kind(l) == level_kind::Global; }
 inline bool is_meta(level const & l)   { return kind(l) == level_kind::Meta; }
 inline bool is_succ(level const & l)   { return kind(l) == level_kind::Succ; }
 inline bool is_max(level const & l)    { return kind(l) == level_kind::Max; }
@@ -115,7 +112,6 @@ level const & imax_lhs(level const & l);
 level const & imax_rhs(level const & l);
 level const & succ_of(level const & l);
 name const & param_id(level const & l);
-name const & global_id(level const & l);
 name const & meta_id(level const & l);
 name const & level_id(level const & l);
 /**
@@ -131,8 +127,6 @@ bool is_explicit(level const & l);
 unsigned to_explicit(level const & l);
 /** \brief Return true iff \c l contains placeholder (aka meta parameters). */
 bool has_meta(level const & l);
-/** \brief Return true iff \c l contains globals */
-bool has_global(level const & l);
 /** \brief Return true iff \c l contains parameters */
 bool has_param(level const & l);
 
@@ -160,7 +154,7 @@ bool is_equivalent(level const & lhs, level const & rhs);
 level normalize(level const & l);
 
 /**
-   \brief If the result is true, then forall assignments \c A that assigns all parameters, globals and metavariables occuring
+   \brief If the result is true, then forall assignments \c A that assigns all parameters and metavariables occuring
    in \c l1 and \l2, we have that the universe level l1[A] is bigger or equal to l2[A].
 
    \remark This function assumes l1 and l2 are normalized
@@ -173,7 +167,6 @@ bool is_geq(level const & l1, level const & l2);
 typedef list<level> levels;
 
 bool has_meta(levels const & ls);
-bool has_global(levels const & ls);
 bool has_param(levels const & ls);
 
 /** \brief An arbitrary (monotonic) total order on universe level terms. */
@@ -206,9 +199,6 @@ bool occurs(level const & u, level const & l);
 
 typedef list<name> level_param_names;
 
-/** \brief If \c l contains a global that is not in \c env, then return it. Otherwise, return none. */
-optional<name> get_undef_global(level const & l, environment const & env);
-
 /** \brief If \c l contains a parameter that is not in \c ps, then return it. Otherwise, return none. */
 optional<name> get_undef_param(level const & l, level_param_names const & ps);
 
@@ -222,7 +212,7 @@ level instantiate(level const & l, level_param_names const & ps, levels const & 
 std::ostream & operator<<(std::ostream & out, level const & l);
 
 /**
-   \brief If the result is true, then forall assignments \c A that assigns all parameters, globals and metavariables occuring
+   \brief If the result is true, then forall assignments \c A that assigns all parameters and metavariables occuring
    in \c l, l[A] != zero.
 */
 bool is_not_zero(level const & l);

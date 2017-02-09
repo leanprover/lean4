@@ -24,7 +24,6 @@ public:
                 switch (k) {
                 case level_kind::Zero:     break;
                 case level_kind::Param:    s << param_id(l);   break;
-                case level_kind::Global:   s << global_id(l);  break;
                 case level_kind::Meta:     s << meta_id(l);    break;
                 case level_kind::Max:      write(max_lhs(l));  write(max_rhs(l)); break;
                 case level_kind::IMax:     write(imax_lhs(l)); write(imax_rhs(l)); break;
@@ -46,8 +45,6 @@ public:
                     return mk_level_zero();
                 case level_kind::Param:
                     return mk_param_univ(read_name(d));
-                case level_kind::Global:
-                    return mk_global_univ(read_name(d));
                 case level_kind::Meta:
                     return mk_meta_univ(read_name(d));
                 case level_kind::Max: {

@@ -66,8 +66,6 @@ expr type_checker::ensure_pi_core(expr e, expr const & s) {
 }
 
 void type_checker::check_level(level const & l, expr const & s) {
-    if (auto n1 = get_undef_global(l, m_env))
-        throw_kernel_exception(m_env, sstream() << "invalid reference to undefined global universe level '" << *n1 << "'", s);
     if (m_params) {
         if (auto n2 = get_undef_param(l, *m_params))
             throw_kernel_exception(m_env, sstream() << "invalid reference to undefined universe level parameter '"

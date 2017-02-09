@@ -132,9 +132,6 @@ namespace module {
 environment add(environment const & env, std::shared_ptr<modification const> const & modif);
 environment add_and_perform(environment const & env, std::shared_ptr<modification const> const & modif);
 
-/** \brief Add the global universe declaration to the environment, and mark it to be exported. */
-environment add_universe(environment const & env, name const & l);
-
 /** \brief Add the given declaration to the environment, and mark it to be exported. */
 environment add(environment const & env, certified_declaration const & d);
 

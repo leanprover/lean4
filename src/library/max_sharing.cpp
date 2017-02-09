@@ -29,7 +29,7 @@ struct max_sharing_fn::imp {
         level res;
         switch (l.kind()) {
         case level_kind::Zero:   case level_kind::Param:
-        case level_kind::Global: case level_kind::Meta:
+        case level_kind::Meta:
             res = l;
             break;
         case level_kind::Succ:

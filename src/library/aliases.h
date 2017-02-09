@@ -40,10 +40,6 @@ optional<name> get_level_alias(environment const & env, name const & n);
    \brief Create an alias for each declaration named <tt>prefix.rest</tt>.
    The alias for <tt>prefix.rest</tt> is <tt>new_prefix.rest</tt>.
 
-   The command will also create aliases for universe level declarations.
-   However, an error is thrown if the universe level shadows existing aliases and/or declarations.
-   We don't have "choice" construct for universe levels.
-
    \remark \c new_prefix may be the anonymous name.
 */
 environment add_aliases(environment const & env, name const & prefix, name const & new_prefix,

@@ -19,14 +19,6 @@ lean_bool lean_env_mk_std(unsigned t, lean_env * r, lean_exception * ex) {
     LEAN_CATCH;
 }
 
-lean_bool lean_env_add_univ(lean_env e, lean_name u, lean_env * r, lean_exception * ex) {
-    LEAN_TRY;
-    check_nonnull(e);
-    check_nonnull(u);
-    *r = of_env(new environment(module::add_universe(to_env_ref(e), to_name_ref(u))));
-    LEAN_CATCH;
-}
-
 lean_bool lean_env_add(lean_env e, lean_cert_decl d, lean_env * r, lean_exception * ex) {
     LEAN_TRY;
     check_nonnull(e);
@@ -49,10 +41,6 @@ void lean_env_del(lean_env e) {
 
 unsigned lean_env_trust_level(lean_env e) {
     return e ? to_env_ref(e).trust_lvl() : 0;
-}
-
-lean_bool lean_env_contains_univ(lean_env e, lean_name n) {
-    return e && n && to_env_ref(e).is_universe(to_name_ref(n));
 }
 
 lean_bool lean_env_contains_decl(lean_env e, lean_name n) {
@@ -83,16 +71,6 @@ lean_bool lean_env_for_each_decl(lean_env e, void (*f)(lean_decl), lean_exceptio
     check_nonnull(e);
     to_env_ref(e).for_each_declaration([&](declaration const & d) {
             f(of_decl(new declaration(d)));
-        });
-    return lean_true;
-    LEAN_CATCH;
-}
-
-lean_bool lean_env_for_each_univ(lean_env e, void (*f)(lean_name), lean_exception * ex) {
-    LEAN_TRY;
-    check_nonnull(e);
-    to_env_ref(e).for_each_universe([&](name const & u) {
-            f(of_name(new name(u)));
         });
     return lean_true;
     LEAN_CATCH;

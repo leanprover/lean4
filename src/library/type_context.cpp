@@ -1455,8 +1455,6 @@ lbool type_context::is_def_eq_core(level const & l1, level const & l2, bool part
     case level_kind::Succ:
         return is_def_eq_core(succ_of(l1), succ_of(l2), partial);
     case level_kind::Param:
-    case level_kind::Global:
-        return l_false;
     case level_kind::Meta:
         /* This can happen, for example, when we are in tmp_mode, but l1 and l2 are not tmp universe metavariables. */
         return l_false;

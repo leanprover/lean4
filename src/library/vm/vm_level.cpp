@@ -58,10 +58,6 @@ vm_obj level_param(vm_obj const & n) {
     return to_obj(mk_param_univ(to_name(n)));
 }
 
-vm_obj level_global(vm_obj const & n) {
-    return to_obj(mk_global_univ(to_name(n)));
-}
-
 vm_obj level_mvar(vm_obj const & n) {
     return to_obj(mk_meta_univ(to_name(n)));
 }
@@ -84,9 +80,6 @@ unsigned level_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
         break;
     case level_kind::Param:
         data.push_back(to_obj(param_id(l)));
-        break;
-    case level_kind::Global:
-        data.push_back(to_obj(global_id(l)));
         break;
     case level_kind::Meta:
         data.push_back(to_obj(meta_id(l)));
@@ -159,7 +152,6 @@ void initialize_vm_level() {
     DECLARE_VM_BUILTIN(name({"level", "max"}),              level_max);
     DECLARE_VM_BUILTIN(name({"level", "imax"}),             level_imax);
     DECLARE_VM_BUILTIN(name({"level", "param"}),            level_param);
-    DECLARE_VM_BUILTIN(name({"level", "global"}),           level_global);
     DECLARE_VM_BUILTIN(name({"level", "mvar"}),             level_mvar);
     DECLARE_VM_BUILTIN(name({"level", "has_decidable_eq"}), level_has_decidable_eq);
     DECLARE_VM_BUILTIN(name({"level", "lt"}),               level_lt);

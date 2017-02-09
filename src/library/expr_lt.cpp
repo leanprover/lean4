@@ -78,8 +78,6 @@ bool is_lt_no_level_params(level const & a, level const & b) {
         lean_unreachable(); // LCOV_EXCL_LINE
     case level_kind::Param:
         return false;
-    case level_kind::Global:
-        return global_id(a) < global_id(b);
     case level_kind::Meta:
         return meta_id(a) < meta_id(b);
     case level_kind::Max:

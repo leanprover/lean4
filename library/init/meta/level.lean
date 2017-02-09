@@ -13,7 +13,6 @@ inductive level
 | max    : level → level → level
 | imax   : level → level → level
 | param  : name → level
-| global : name → level
 | mvar   : name → level
 
 instance : inhabited level :=

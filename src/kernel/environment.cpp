@@ -68,8 +68,8 @@ bool environment_id::is_descendant(environment_id const & id) const {
     return false;
 }
 
-environment::environment(header const & h, environment_id const & ancestor, declarations const & d, name_set const & g, extensions const & exts):
-    m_header(h), m_id(environment_id::mk_descendant(ancestor)), m_declarations(d), m_global_levels(g), m_extensions(exts) {}
+environment::environment(header const & h, environment_id const & ancestor, declarations const & d, extensions const & exts):
+    m_header(h), m_id(environment_id::mk_descendant(ancestor)), m_declarations(d), m_extensions(exts) {}
 
 environment::environment(unsigned trust_lvl):
     environment(trust_lvl, mk_id_normalizer_extension())
@@ -104,24 +104,7 @@ environment environment::add(certified_declaration const & d) const {
     name const & n = d.get_declaration().get_name();
     if (find(n))
         throw_already_declared(*this, n);
-    return environment(m_header, m_id, insert(m_declarations, n, d.get_declaration()), m_global_levels, m_extensions);
-}
-
-environment environment::add_universe(name const & n) const {
-    if (m_global_levels.contains(n))
-        throw_kernel_exception(*this,
-                               "invalid global universe level declaration, environment already contains a universe level with the given name");
-    return environment(m_header, m_id, m_declarations, insert(m_global_levels, n), m_extensions);
-}
-
-environment environment::remove_universe(name const & n) const {
-    if (!m_global_levels.contains(n))
-        throw_kernel_exception(*this, "no universe of the given name");
-    return environment(m_header, m_id, m_declarations, erase(m_global_levels, n), m_extensions);
-}
-
-bool environment::is_universe(name const & n) const {
-    return m_global_levels.contains(n);
+    return environment(m_header, m_id, insert(m_declarations, n, d.get_declaration()), m_extensions);
 }
 
 environment environment::replace(certified_declaration const & t) const {
@@ -139,11 +122,11 @@ environment environment::replace(certified_declaration const & t) const {
         throw_kernel_exception(*this, "invalid replacement of axiom with theorem, the 'replace' operation can only be used when the axiom and theorem have the same type");
     if (ax->get_univ_params() != t.get_declaration().get_univ_params())
         throw_kernel_exception(*this, "invalid replacement of axiom with theorem, the 'replace' operation can only be used when the axiom and theorem have the same universe parameters");
-    return environment(m_header, m_id, insert(m_declarations, n, t.get_declaration()), m_global_levels, m_extensions);
+    return environment(m_header, m_id, insert(m_declarations, n, t.get_declaration()), m_extensions);
 }
 
 environment environment::forget() const {
-    return environment(m_header, environment_id(), m_declarations, m_global_levels, m_extensions);
+    return environment(m_header, environment_id(), m_declarations, m_extensions);
 }
 
 class extension_manager {
@@ -201,15 +184,11 @@ environment environment::update(unsigned id, std::shared_ptr<environment_extensi
     if (id >= new_exts->size())
         new_exts->resize(id+1);
     (*new_exts)[id] = ext;
-    return environment(m_header, m_id, m_declarations, m_global_levels, new_exts);
+    return environment(m_header, m_id, m_declarations, new_exts);
 }
 
 void environment::for_each_declaration(std::function<void(declaration const & d)> const & f) const {
     m_declarations.for_each([&](name const &, declaration const & d) { return f(d); });
-}
-
-void environment::for_each_universe(std::function<void(name const & n)> const & f) const {
-    m_global_levels.for_each([&](name const & n) { return f(n); });
 }
 
 class environment_check_task : public task<bool> {

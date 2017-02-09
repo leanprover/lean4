@@ -341,7 +341,7 @@ void pretty_fn::set_options(options const & o) {
 }
 
 format pretty_fn::pp_child(level const & l) {
-    if (is_explicit(l) || is_param(l) || is_meta(l) || is_global(l)) {
+    if (is_explicit(l) || is_param(l) || is_meta(l)) {
         return pp_level(l);
     } else {
         return paren(pp_level(l));
@@ -388,8 +388,6 @@ format pretty_fn::pp_level(level const & l) {
             lean_unreachable(); // LCOV_EXCL_LINE
         case level_kind::Param:
             return format(param_id(l));
-        case level_kind::Global:
-            return format(global_id(l));
         case level_kind::Meta:
             return pp_meta(l);
         case level_kind::Succ: {

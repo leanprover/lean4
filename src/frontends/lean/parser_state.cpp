@@ -355,8 +355,6 @@ void parser_state::clear_expr_locals() {
 
 void parser_state::add_local_level(name const & n, level const & l, bool is_variable) {
     ensure_exclusive_context();
-    if (env().is_universe(n))
-        throw exception(sstream() << "invalid universe declaration, '" << n << "' shadows a global universe");
     if (m_context->m_local_level_decls.contains(n))
         throw exception(sstream() << "invalid universe declaration, '" << n << "' shadows a local universe");
     m_context->m_local_level_decls.insert(n, l);

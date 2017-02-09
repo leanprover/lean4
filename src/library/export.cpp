@@ -83,11 +83,6 @@ class exporter {
             i = static_cast<unsigned>(m_level2idx.size());
             m_out << i << " #UP " << n << "\n";
             break;
-        case level_kind::Global:
-            n = export_name(global_id(l));
-            i = static_cast<unsigned>(m_level2idx.size());
-            m_out << i << " #UG " << n << "\n";
-            break;
         case level_kind::Meta:
             throw exception("invalid 'export', universe meta-variables cannot be exported");
         }
@@ -288,13 +283,6 @@ class exporter {
             });
     }
 
-    void export_global_universes() {
-        m_env.for_each_universe([&](name const & u) {
-                unsigned n = export_name(u);
-                m_out << "#UNI " << n << "\n";
-            });
-    }
-
     void export_quotient() {
         if (m_quotient_exported) return;
         m_quotient_exported = true;
@@ -344,7 +332,6 @@ public:
     void operator()() {
         m_name2idx[{}] = 0;
         m_level2idx[{}] = 0;
-        export_global_universes();
         if (has_quotient(m_env))
             export_quotient();
         export_declarations();

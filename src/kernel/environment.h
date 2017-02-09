@@ -102,10 +102,9 @@ class environment {
     header         m_header;
     environment_id m_id;
     declarations   m_declarations;
-    name_set       m_global_levels;
     extensions     m_extensions;
 
-    environment(header const & h, environment_id const & id, declarations const & d, name_set const & global_levels, extensions const & ext);
+    environment(header const & h, environment_id const & id, declarations const & d, extensions const & ext);
 
 public:
     environment(unsigned trust_lvl = 0);
@@ -133,21 +132,6 @@ public:
 
     /** \brief Return declaration with name \c n. Throws and exception if declaration does not exist in this environment. */
     declaration get(name const & n) const;
-
-    /**
-        \brief Add a new global universe level with name \c n
-        This method throws an exception if the environment already contains a level named \c n.
-    */
-    environment add_universe(name const & n) const;
-
-    /**
-        \brief Remove global universe level with name \c n
-        This method throws an exception if the environment does not contain a level named \c n.
-    */
-    environment remove_universe(name const & n) const;
-
-    /** \brief Return true iff the environment has a universe level named \c n. */
-    bool is_universe(name const & n) const;
 
     /**
        \brief Extends the current environment with the given (certified) declaration
@@ -194,14 +178,10 @@ public:
     /** \brief Apply the function \c f to each declaration */
     void for_each_declaration(std::function<void(declaration const & d)> const & f) const;
 
-    /** \brief Apply the function \c f to each universe */
-    void for_each_universe(std::function<void(name const & u)> const & f) const;
-
     /** \brief Return true iff declarations and extensions of e1 and e2 are pointer equal */
     friend bool is_eqp(environment const & e1, environment const & e2) {
         return
             is_eqp(e1.m_declarations, e2.m_declarations) &&
-            is_eqp(e1.m_global_levels, e2.m_global_levels) &&
             e1.m_extensions.get() == e2.m_extensions.get();
     }
 

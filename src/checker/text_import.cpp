@@ -154,9 +154,6 @@ struct text_importer {
             } else if (kind == "#UP") {
                 unsigned i1; in >> i1;
                 m_level[idx] = mk_param_univ(m_name.at(i1));
-            } else if (kind == "#UG") {
-                unsigned i1; in >> i1;
-                m_level[idx] = mk_global_univ(m_name.at(i1));
             } else if (kind == "#EV") {
                 unsigned v; in >> v;
                 m_expr[idx] = mk_var(v);

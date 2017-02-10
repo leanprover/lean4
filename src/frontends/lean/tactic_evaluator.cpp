@@ -14,7 +14,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_list.h"
 #include "library/compiler/vm_compiler.h"
 #include "library/tactic/smt/smt_state.h"
-#include "frontends/lean/elaborator_exception.h"
+#include "library/tactic/elaborator_exception.h"
 #include "frontends/lean/tactic_evaluator.h"
 #include "frontends/lean/tactic_notation.h"
 
@@ -34,15 +34,6 @@ elaborator_exception unsolved_tactic_state(tactic_state const & ts, char const *
 
 [[noreturn]] void throw_unsolved_tactic_state(tactic_state const & ts, char const * msg, expr const & ref) {
     throw_unsolved_tactic_state(ts, format(msg), ref);
-}
-
-[[noreturn]] void throw_unsolved_smt_tactic_state(vm_obj const & ss, tactic_state const & ts, format const & fmt, expr const & ref) {
-    format msg = fmt + line() + format("state:") + line() + smt_state_pp(ss, ts);
-    throw elaborator_exception(ref, msg);
-}
-
-[[noreturn]] void throw_unsolved_smt_tactic_state(vm_obj const & ss, tactic_state const & ts, char const * msg, expr const & ref) {
-    throw_unsolved_smt_tactic_state(ss, ts, format(msg), ref);
 }
 
 /* Compile tactic into bytecode */

@@ -32,9 +32,3 @@ a b c : ℕ,
 h1 : a = b,
 h2 : b = c
 ⊢ b = c
-auto_quote_error2.lean:37:4: error: elaborator failed
-state:
-a b c : ℕ,
-h1 : a = b,
-h2 : b = c
-⊢ a = c

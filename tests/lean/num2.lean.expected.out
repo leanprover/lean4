@@ -3,7 +3,7 @@ z : N
 eq a gz : Prop
 num2.lean:24:7: error: failed to synthesize type class instance for
 ⊢ has_zero G
-num2.lean:24:6: error: invalid type ascription, expression has type
+num2.lean:24:7: error: invalid type ascription, expression has type
   N
 but is expected to have type
   G

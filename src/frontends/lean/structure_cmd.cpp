@@ -47,7 +47,7 @@ Author: Leonardo de Moura
 #include "library/constructions/projection.h"
 #include "library/constructions/no_confusion.h"
 #include "library/inductive_compiler/add_decl.h"
-#include "frontends/lean/elaborator_exception.h"
+#include "library/tactic/elaborator_exception.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/decl_util.h"

@@ -323,6 +323,10 @@ vm_obj mk_tactic_exception(vm_obj const & fn, tactic_state const & s) {
     return mk_vm_constructor(1, mk_vm_some(fn), mk_vm_none(), to_obj(s));
 }
 
+vm_obj mk_tactic_silent_exception(tactic_state const & s) {
+    return mk_vm_constructor(1, mk_vm_none(), mk_vm_none(), to_obj(s));
+}
+
 vm_obj mk_tactic_exception(vm_obj const & fn, vm_obj const & ref, tactic_state const & s) {
     return mk_vm_constructor(1, mk_vm_some(fn), ref, to_obj(s));
 }

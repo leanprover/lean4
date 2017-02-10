@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "library/scope_pos_info_provider.h"
-#include "frontends/lean/elaborator_exception.h"
+#include "library/tactic/elaborator_exception.h"
 
 namespace lean {
 throwable * elaborator_exception::clone() const {

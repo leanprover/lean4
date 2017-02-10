@@ -768,8 +768,8 @@ static expr get_ref_for_child(expr const & arg, expr const & ref) {
 }
 
 expr elaborator::visit_typed_expr(expr const & e) {
-    expr ref          = e;
     expr val          = get_typed_expr_expr(e);
+    expr ref          = val;
     expr type         = get_typed_expr_type(e);
     expr new_type;
     expr ref_type     = get_ref_for_child(type, e);
@@ -3020,9 +3020,8 @@ void elaborator::ensure_no_unassigned_metavars(expr & e) {
             if (!has_expr_metavar(e)) return false;
             if (is_metavar_decl_ref(e) && !m_ctx.is_assigned(e)) {
                 tactic_state s = mk_tactic_state_for(e);
-                report_error(s, "context:", "don't know how to synthesize placeholder", e);
-
                 if (m_recover_from_errors) {
+                    report_error(s, "context:", "don't know how to synthesize placeholder", e);
                     auto ty = m_ctx.mctx().get_metavar_decl(e).get_type();
                     m_ctx.assign(e, copy_tag(e, mk_sorry(ty)));
                     ensure_no_unassigned_metavars(ty);
@@ -3030,7 +3029,7 @@ void elaborator::ensure_no_unassigned_metavars(expr & e) {
                     auto val = instantiate_mvars(e);
                     ensure_no_unassigned_metavars(val);
                 } else {
-                    throw elaborator_exception(e, "elaborator failed");
+                    throw failed_to_synthesize_placeholder_exception(e, s);
                 }
             }
             return true;

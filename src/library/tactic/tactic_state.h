@@ -142,6 +142,7 @@ vm_obj mk_tactic_exception(format const & fmt, tactic_state const & s);
 vm_obj mk_tactic_exception(sstream const & strm, tactic_state const & s);
 vm_obj mk_tactic_exception(char const * msg, tactic_state const & s);
 vm_obj mk_tactic_exception(std::function<format()> const & thunk, tactic_state const & s);
+vm_obj mk_tactic_silent_exception(tactic_state const & s);
 vm_obj mk_no_goals_exception(tactic_state const & s);
 
 format pp_expr(tactic_state const & s, expr const & e);

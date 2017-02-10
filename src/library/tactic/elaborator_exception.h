@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "util/sstream.h"
 #include "library/io_state.h"
+#include "library/tactic/tactic_state.h"
 
 namespace lean {
 class elaborator_exception : public formatted_exception {
@@ -17,6 +18,20 @@ public:
     elaborator_exception(expr const & e, char const * msg):formatted_exception(e, format(msg)) {}
     virtual throwable * clone() const override;
     virtual void rethrow() const override { throw *this; }
+};
+
+class failed_to_synthesize_placeholder_exception : public elaborator_exception {
+    tactic_state m_state;
+public:
+    failed_to_synthesize_placeholder_exception(expr const & e, tactic_state const & s):
+        elaborator_exception(e, "don't know how to synthesize placeholder"),
+        m_state(s) {}
+    virtual throwable * clone() const override {
+        return new failed_to_synthesize_placeholder_exception(*m_expr, m_state);
+    }
+    virtual void rethrow() const override { throw *this; }
+    expr const & get_mvar() const { return *m_expr; }
+    tactic_state const & get_tactic_state() const { return m_state; }
 };
 
 class nested_elaborator_exception : public elaborator_exception {

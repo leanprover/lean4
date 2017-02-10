@@ -35,17 +35,7 @@ Author: Leonardo de Moura
 #include "library/compiler/vm_compiler.h"
 #include "library/tactic/tactic_state.h"
 
-#ifndef LEAN_DEFAULT_PP_INSTANTIATE_GOAL_MVARS
-#define LEAN_DEFAULT_PP_INSTANTIATE_GOAL_MVARS true
-#endif
-
 namespace lean {
-static name * g_pp_instantiate_goal_mvars = nullptr;
-
-unsigned get_pp_instantiate_goal_mvars(options const & o) {
-    return o.get_unsigned(*g_pp_instantiate_goal_mvars, LEAN_DEFAULT_PP_INSTANTIATE_GOAL_MVARS);
-}
-
 void tactic_state_cell::dealloc() {
     delete this;
 }
@@ -158,7 +148,7 @@ format tactic_state::pp_expr(formatter_factory const & fmtf, expr const & e) con
 
 format tactic_state::pp_goal(formatter_factory const & fmtf, expr const & g) const {
     options opts               = get_options().update_if_undef(get_pp_purify_locals_name(), false);
-    bool inst_mvars            = get_pp_instantiate_goal_mvars(opts);
+    bool inst_mvars            = get_pp_instantiate_mvars(opts);
     metavar_decl decl          = mctx().get_metavar_decl(g);
     local_context lctx         = decl.get_context();
     metavar_context mctx_tmp   = mctx();
@@ -252,7 +242,11 @@ vm_obj tactic_state_to_format(vm_obj const & s) {
 }
 
 format pp_expr(tactic_state const & s, expr const & e) {
-    return s.pp_expr(e);
+    expr new_e      = e;
+    bool inst_mvars = get_pp_instantiate_mvars(s.get_options());
+    if (inst_mvars)
+        new_e       = metavar_context(s.mctx()).instantiate_mvars(e);
+    return s.pp_expr(new_e);
 }
 
 format pp_indented_expr(tactic_state const & s, expr const & e) {
@@ -841,12 +835,8 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic", "open_namespaces"}),      tactic_open_namespaces);
     DECLARE_VM_BUILTIN(name({"tactic", "decl_name"}),            tactic_decl_name);
     DECLARE_VM_BUILTIN(name({"tactic", "add_aux_decl"}),         tactic_add_aux_decl);
-    g_pp_instantiate_goal_mvars = new name{"pp", "instantiate_goal_mvars"};
-    register_bool_option(*g_pp_instantiate_goal_mvars, LEAN_DEFAULT_PP_INSTANTIATE_GOAL_MVARS,
-                         "(pretty printer) instantiate assigned metavariables before pretty printing goals");
 }
 
 void finalize_tactic_state() {
-    delete g_pp_instantiate_goal_mvars;
 }
 }

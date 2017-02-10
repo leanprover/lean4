@@ -609,7 +609,7 @@ static format pp_equivalences(type_context & ctx, cc_state const & ccs, formatte
 format smt_goal_to_format(smt_goal sg, tactic_state const & ts) {
     lean_assert(ts.goals());
     options opts               = ts.get_options().update_if_undef(get_pp_purify_locals_name(), false);
-    bool inst_mvars            = get_pp_instantiate_goal_mvars(opts);
+    bool inst_mvars            = get_pp_instantiate_mvars(opts);
     bool unicode               = get_pp_unicode(opts);
     unsigned indent            = get_pp_indent(opts);
     metavar_decl decl          = *ts.get_main_goal_decl();

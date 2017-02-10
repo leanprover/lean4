@@ -108,6 +108,9 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_PP_STRUCTURE_PROJECTIONS true
 #endif
 
+#ifndef LEAN_DEFAULT_PP_INSTANTIATE_MVARS
+#define LEAN_DEFAULT_PP_INSTANTIATE_MVARS true
+#endif
 
 namespace lean {
 static name * g_pp_max_depth         = nullptr;
@@ -134,6 +137,7 @@ static name * g_pp_delayed_abstraction = nullptr;
 static name * g_pp_structure_instances = nullptr;
 static name * g_pp_structure_instances_qualifier = nullptr;
 static name * g_pp_structure_projections    = nullptr;
+static name * g_pp_instantiate_mvars = nullptr;
 static name * g_pp_all               = nullptr;
 static list<options> * g_distinguishing_pp_options = nullptr;
 
@@ -163,6 +167,7 @@ void initialize_pp_options() {
     g_pp_structure_instances = new name{"pp", "structure_instances"};
     g_pp_structure_instances_qualifier = new name{"pp", "structure_instances_qualifier"};
     g_pp_structure_projections = new name{"pp", "structure_projections"};
+    g_pp_instantiate_mvars = new name{"pp", "instantiate_mvars"};
 
     register_unsigned_option(*g_pp_max_depth, LEAN_DEFAULT_PP_MAX_DEPTH,
                              "(pretty printer) maximum expression depth, after that it will use ellipsis");
@@ -219,6 +224,9 @@ void initialize_pp_options() {
     register_bool_option(*g_pp_all, LEAN_DEFAULT_PP_ALL,
                          "(pretty printer) display coercions, implicit parameters, proof terms, fully qualified names, universes, "
                          "and disable beta reduction and notation during pretty printing");
+    register_bool_option(*g_pp_instantiate_mvars, LEAN_DEFAULT_PP_INSTANTIATE_MVARS,
+                         "(pretty printer) instantiate assigned metavariables before pretty printing terms and goals");
+
     options universes_true(*g_pp_universes, true);
     options full_names_true(*g_pp_full_names, true);
     options implicit_true(*g_pp_implicit, true);
@@ -261,6 +269,7 @@ void finalize_pp_options() {
     delete g_pp_structure_projections;
     delete g_pp_all;
     delete g_pp_delayed_abstraction;
+    delete g_pp_instantiate_mvars;
     delete g_distinguishing_pp_options;
 }
 
@@ -303,5 +312,6 @@ bool     get_pp_delayed_abstraction(options const & opts) { return opts.get_bool
 bool     get_pp_structure_instances(options const & opts) { return opts.get_bool(*g_pp_structure_instances, LEAN_DEFAULT_PP_STRUCTURE_INSTANCES); }
 bool     get_pp_structure_instances_qualifier(options const & opts) { return opts.get_bool(*g_pp_structure_instances_qualifier, LEAN_DEFAULT_PP_STRUCTURE_INSTANCES_QUALIFIER); }
 bool     get_pp_structure_projections(options const & opts) { return opts.get_bool(*g_pp_structure_projections, LEAN_DEFAULT_PP_STRUCTURE_PROJECTIONS); }
+bool     get_pp_instantiate_mvars(options const & o)    { return o.get_bool(*g_pp_instantiate_mvars, LEAN_DEFAULT_PP_INSTANTIATE_MVARS); }
 bool     get_pp_all(options const & opts)               { return opts.get_bool(*g_pp_all, LEAN_DEFAULT_PP_ALL); }
 }

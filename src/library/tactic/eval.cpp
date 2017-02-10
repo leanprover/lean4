@@ -12,8 +12,10 @@ Author: Leonardo de Moura
 #include "library/tactic/tactic_state.h"
 
 namespace lean {
-static vm_obj eval(expr const & A, expr const & a, tactic_state const & s) {
+static vm_obj eval(expr const & A, expr a, tactic_state const & s) {
     LEAN_TACTIC_TRY;
+    metavar_context mctx = s.mctx();
+    a = mctx.instantiate_mvars(a);
     if (has_local(a) || !closed(a))
         return mk_tactic_exception("invalid eval_expr, expression must be closed", s);
     if (is_constant(a)) {

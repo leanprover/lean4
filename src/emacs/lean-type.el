@@ -81,8 +81,10 @@
                                   overload-str))))
       (when proofstate
         (setq str proofstate))
-      (when (and doc (not str))
-        (setq str doc))
+      (when doc
+        (setq str (concat str
+                          (format "\n%s"
+                                  (propertize doc 'face 'font-lock-comment-face)))))
       str)))
 
 (defun lean-eldoc-documentation-function-cont (info-record &optional add-to-kill-ring)

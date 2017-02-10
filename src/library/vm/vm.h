@@ -622,6 +622,7 @@ class vm_state {
     struct debugger_state;
     typedef std::unique_ptr<debugger_state> debugger_state_ptr;
     debugger_state_ptr          m_debugger_state_ptr;
+    bool                        m_was_updated{false}; /* set to true if update_env is invoked */
 
     void debugger_init();
     void debugger_step();
@@ -665,6 +666,7 @@ public:
     environment const & env() const { return m_env; }
 
     void update_env(environment const & env);
+    bool env_was_updated() const { return m_was_updated; }
 
     options const & get_options() const { return m_options; }
 

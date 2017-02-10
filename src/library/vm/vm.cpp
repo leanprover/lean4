@@ -1407,6 +1407,7 @@ void vm_state::update_env(environment const & env) {
     auto ext      = get_extension(env);
     m_decl_map    = ext.m_decls;
     m_decl_vector.resize(get_vm_index_bound());
+    m_was_updated = true;
     lean_assert(is_eqp(m_builtin_cases_map, ext.m_cases));
 }
 

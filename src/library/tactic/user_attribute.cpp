@@ -140,6 +140,7 @@ vm_obj attribute_fingerprint(vm_obj const & vm_n, vm_obj const & vm_s) {
 /* Caching */
 struct user_attr_cache {
     struct entry {
+        environment    m_env;
         unsigned       m_fingerprint;
         list<unsigned> m_dep_fingerprints;
         vm_obj         m_val;
@@ -173,7 +174,8 @@ vm_obj caching_user_attribute_get_cache(vm_obj const &, vm_obj const & vm_attr, 
     auto it = cache.m_cache.find(attr.get_name());
     if (it != cache.m_cache.end()) {
         if (it->second.m_fingerprint == attr.get_fingerprint(env) &&
-            check_dep_fingerprints(env, deps, it->second.m_dep_fingerprints)) {
+            check_dep_fingerprints(env, deps, it->second.m_dep_fingerprints) &&
+            env.is_descendant(it->second.m_env)) {
             return mk_tactic_success(it->second.m_val, s);
         }
         lean_trace("user_attributes_cache", tout() << "cached result for [" << attr.get_name() << "] "
@@ -186,8 +188,9 @@ vm_obj caching_user_attribute_get_cache(vm_obj const &, vm_obj const & vm_attr, 
     attr.get_instances(env, instances);
     tactic_state s0 = mk_tactic_state_for(env, options(), {}, local_context(), mk_true());
     vm_obj result = invoke(cache_handler, to_obj(to_list(instances)), to_obj(s0));
-    if (is_tactic_success(result)) {
+    if (is_tactic_success(result) && !get_vm_state().env_was_updated()) {
         user_attr_cache::entry entry;
+        entry.m_env         = env;
         entry.m_fingerprint = attr.get_fingerprint(env);
         entry.m_dep_fingerprints = map2<unsigned>(deps, [&](name const & n) {
                 return get_attribute(env, n).get_fingerprint(env);

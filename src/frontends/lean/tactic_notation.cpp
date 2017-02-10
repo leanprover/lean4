@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "kernel/abstract.h"
+#include "kernel/for_each_fn.h"
 #include "library/annotation.h"
 #include "library/constants.h"
 #include "library/quote.h"
@@ -584,14 +585,41 @@ expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {
     }
 }
 
+/*
+Consider the following example:
+
+  meta def apply_zero_add (a : pexpr) : tactic unit :=
+  `[apply zero_add %%a] -- We don't want the error to be reported here when 'a' does not have the expected type.
+
+  example (a : nat) : 0 + a = a :=
+  begin
+    apply_zero_add `(tt), -- Error should be here
+  end
+
+We address the issue above by erasing position information from quoted terms nested in 'e'.
+*/
+static void erase_quoted_terms_pos_info(parser & p, expr const & e) {
+    for_each(e, [&](expr const & e, unsigned) {
+            if (is_quote(e)) {
+                for_each(get_quote_expr(e), [&](expr const & e, unsigned) {
+                        p.erase_pos(e);
+                        return true;
+                    });
+            }
+            return true;
+        });
+}
+
 expr parse_auto_quote_tactic_block(parser & p, unsigned, expr const *, pos_info const & pos) {
     name const & tac_class = get_tactic_name();
     bool use_rstep    = false;
     bool report_error = false;
     expr r = parse_tactic(p, tac_class, use_rstep, report_error);
+    erase_quoted_terms_pos_info(p, r);
     while (p.curr_is_token(get_comma_tk())) {
         p.next();
         expr next = parse_tactic(p, tac_class, use_rstep, report_error);
+        erase_quoted_terms_pos_info(p, next);
         r = p.mk_app({p.save_pos(mk_constant(get_pre_monad_and_then_name()), pos), r, next}, pos);
     }
     p.check_token_next(get_rbracket_tk(), "invalid auto-quote tactic block, ']' expected");

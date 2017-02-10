@@ -225,6 +225,7 @@ public:
     expr save_pos(expr e, pos_info p);
     expr rec_save_pos(expr const & e, pos_info p);
     expr update_pos(expr e, pos_info p);
+    void erase_pos(expr const & e);
     pos_info pos_of(expr const & e, pos_info default_pos) const;
     pos_info pos_of(expr const & e) const { return pos_of(e, pos()); }
     pos_info cmd_pos() const { return m_last_cmd_pos; }

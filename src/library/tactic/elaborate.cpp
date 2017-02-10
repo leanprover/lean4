@@ -28,9 +28,11 @@ static bool report_failure(elaborator_exception const & ex, expr const & mvar, c
     if (!ref) return false;
     optional<metavar_decl> d = s.mctx().find_metavar_decl(mvar);
     if (!d) return false;
+    optional<pos_info> pos = pip->get_pos_info(*ref);
+    if (!pos) return false;
     auto tc = std::make_shared<type_context>(s.env(), s.get_options(), s.mctx(), d->get_context());
     message_builder out(pip, tc, s.env(), get_global_ios(), pip->get_file_name(),
-                        pip->get_pos_info_or_some(*ref), ERROR);
+                        *pos, ERROR);
     out.set_exception(ex);
     out << line() + format(header) + line() + s.pp();
     out.report();

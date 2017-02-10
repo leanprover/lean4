@@ -4,3 +4,9 @@ a : ℕ
 state:
 a : ℕ
 ⊢ 0 + a = a
+quote_error_pos.lean:16:2: error: failed to synthesize type class instance for
+a : ℕ
+⊢ add_monoid bool
+state:
+a : ℕ
+⊢ 0 + a = a

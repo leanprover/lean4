@@ -318,6 +318,11 @@ expr parser::save_pos(expr e, pos_info p) {
     return e;
 }
 
+void parser::erase_pos(expr const & e) {
+    auto t = get_tag(e);
+    m_pos_table.erase(t);
+}
+
 expr parser::update_pos(expr e, pos_info p) {
     auto t = get_tag(e);
     m_pos_table.insert(t, p);

@@ -299,6 +299,8 @@ norm_num.pos_bit0_helper
 norm_num.pos_bit1_helper
 norm_num.pos_mul_neg_helper
 norm_num.sub_eq_add_neg_helper
+norm_num.sub_nat_zero_helper
+norm_num.sub_nat_pos_helper
 norm_num.subst_into_div
 norm_num.subst_into_prod
 norm_num.subst_into_subtr

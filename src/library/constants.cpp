@@ -304,6 +304,8 @@ name const * g_norm_num_pos_bit0_helper = nullptr;
 name const * g_norm_num_pos_bit1_helper = nullptr;
 name const * g_norm_num_pos_mul_neg_helper = nullptr;
 name const * g_norm_num_sub_eq_add_neg_helper = nullptr;
+name const * g_norm_num_sub_nat_zero_helper = nullptr;
+name const * g_norm_num_sub_nat_pos_helper = nullptr;
 name const * g_norm_num_subst_into_div = nullptr;
 name const * g_norm_num_subst_into_prod = nullptr;
 name const * g_norm_num_subst_into_subtr = nullptr;
@@ -787,6 +789,8 @@ void initialize_constants() {
     g_norm_num_pos_bit1_helper = new name{"norm_num", "pos_bit1_helper"};
     g_norm_num_pos_mul_neg_helper = new name{"norm_num", "pos_mul_neg_helper"};
     g_norm_num_sub_eq_add_neg_helper = new name{"norm_num", "sub_eq_add_neg_helper"};
+    g_norm_num_sub_nat_zero_helper = new name{"norm_num", "sub_nat_zero_helper"};
+    g_norm_num_sub_nat_pos_helper = new name{"norm_num", "sub_nat_pos_helper"};
     g_norm_num_subst_into_div = new name{"norm_num", "subst_into_div"};
     g_norm_num_subst_into_prod = new name{"norm_num", "subst_into_prod"};
     g_norm_num_subst_into_subtr = new name{"norm_num", "subst_into_subtr"};
@@ -1271,6 +1275,8 @@ void finalize_constants() {
     delete g_norm_num_pos_bit1_helper;
     delete g_norm_num_pos_mul_neg_helper;
     delete g_norm_num_sub_eq_add_neg_helper;
+    delete g_norm_num_sub_nat_zero_helper;
+    delete g_norm_num_sub_nat_pos_helper;
     delete g_norm_num_subst_into_div;
     delete g_norm_num_subst_into_prod;
     delete g_norm_num_subst_into_subtr;
@@ -1754,6 +1760,8 @@ name const & get_norm_num_pos_bit0_helper_name() { return *g_norm_num_pos_bit0_h
 name const & get_norm_num_pos_bit1_helper_name() { return *g_norm_num_pos_bit1_helper; }
 name const & get_norm_num_pos_mul_neg_helper_name() { return *g_norm_num_pos_mul_neg_helper; }
 name const & get_norm_num_sub_eq_add_neg_helper_name() { return *g_norm_num_sub_eq_add_neg_helper; }
+name const & get_norm_num_sub_nat_zero_helper_name() { return *g_norm_num_sub_nat_zero_helper; }
+name const & get_norm_num_sub_nat_pos_helper_name() { return *g_norm_num_sub_nat_pos_helper; }
 name const & get_norm_num_subst_into_div_name() { return *g_norm_num_subst_into_div; }
 name const & get_norm_num_subst_into_prod_name() { return *g_norm_num_subst_into_prod; }
 name const & get_norm_num_subst_into_subtr_name() { return *g_norm_num_subst_into_subtr; }

@@ -306,6 +306,8 @@ name const & get_norm_num_pos_bit0_helper_name();
 name const & get_norm_num_pos_bit1_helper_name();
 name const & get_norm_num_pos_mul_neg_helper_name();
 name const & get_norm_num_sub_eq_add_neg_helper_name();
+name const & get_norm_num_sub_nat_zero_helper_name();
+name const & get_norm_num_sub_nat_pos_helper_name();
 name const & get_norm_num_subst_into_div_name();
 name const & get_norm_num_subst_into_prod_name();
 name const & get_norm_num_subst_into_subtr_name();

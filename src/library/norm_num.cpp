@@ -7,6 +7,7 @@ Author: Robert Y. Lewis
 #include "library/norm_num.h"
 #include "library/util.h"
 #include "library/constants.h"
+#include "library/comp_val.h"
 
 namespace lean {
 static bool is_numeral_aux(expr const & e, bool is_first) {
@@ -816,6 +817,33 @@ expr norm_num_context::mk_norm_mul_div(expr & s_lhs, expr & s_rhs, expr & rhs) {
                 rhs, den_ne_zero, prf.second});
 }
 
+  pair<expr,expr> norm_num_context::mk_norm_nat_sub(expr & s_lhs, expr & s_rhs, expr & type) {
+    auto norm_lhs = mk_norm(s_lhs);
+    auto norm_rhs = mk_norm(s_rhs);
+    mpq vall = mpq_of_expr(norm_lhs.first);
+    mpq valr = mpq_of_expr(norm_rhs.first);
+    if (valr > vall) {
+      auto lt_pr = mk_nat_val_lt_proof(norm_lhs.first, norm_rhs.first);
+      if (*lt_pr) {
+	expr zeropr = mk_app({mk_constant(get_norm_num_sub_nat_zero_helper_name(),{}),
+	      s_lhs, s_rhs, norm_lhs.first, norm_rhs.first, norm_lhs.second, norm_rhs.second, *lt_pr});
+	return pair<expr,expr>(mk_app({mk_const(get_zero_name()), type, mk_has_zero(type)}), zeropr);
+      } else {
+	throw (exception("mk_norm_nat_sub failed to make lt proof"));
+      }
+    } else {
+      expr e = from_mpq(vall-valr, type);
+      auto seq_pr = mk_norm(mk_add(type, e, norm_rhs.first));
+      expr rpr = mk_app({mk_constant(get_norm_num_sub_nat_pos_helper_name(),{}),
+	    s_lhs, s_rhs, norm_lhs.first, norm_rhs.first, e, norm_lhs.second, norm_rhs.second, seq_pr.second});
+      return pair<expr,expr>(seq_pr.first, rpr);
+    }
+  }
+
+  bool is_nat_const(expr const & e) {
+    return is_constant(e) && const_name(e)==get_nat_name();
+  }
+
 pair<expr, expr> norm_num_context::mk_norm(expr const & e) {
     buffer<expr> args;
     expr f = get_app_args(e, args);
@@ -827,6 +855,10 @@ pair<expr, expr> norm_num_context::mk_norm(expr const & e) {
     if (is_numeral(e)) {
         expr prf = mk_eq_refl(m_ctx, e);
         return pair<expr, expr>(e, prf);
+    }
+    // short-circuit in the case of nat subtraction
+    if (const_name(f) == get_sub_name() && is_nat_const(args[0])) {
+      return mk_norm_nat_sub(args[2], args[3], args[0]);
     }
     mpq val = mpq_of_expr(e);
     expr nval; // e = nval
@@ -866,7 +898,7 @@ pair<expr, expr> norm_num_context::mk_norm(expr const & e) {
         expr sum = mk_add(args[0], args[2], mk_neg(args[0], args[3]));
         auto anprf = mk_norm(sum);
         expr rprf = mk_app({mk_const(get_norm_num_subst_into_subtr_name()), type, mk_add_group(type), args[2],
-                    args[3], anprf.first, anprf.second});
+	    args[3], anprf.first, anprf.second});
         return pair<expr, expr>(nval, rprf);
     } else if (const_name(f) == get_neg_name()  && args.size() == 3) {
         auto prf = mk_norm(args[2]);

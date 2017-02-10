@@ -5,6 +5,7 @@ Authors: Robert Lewis and Leonardo de Moura
 -/
 prelude
 import init.algebra.field init.algebra.ordered_ring
+import init.data.nat.lemmas
 
 namespace norm_num
 universe u
@@ -260,5 +261,16 @@ lemma nonzero_of_pos_helper [linear_ordered_semiring α] (a : α) (h : a > 0) : 
 
 lemma nonzero_of_neg_helper [linear_ordered_ring α] (a : α) (h : a ≠ 0) : -a ≠ 0 :=
 begin intro ha, apply h, apply neg_inj, rwa neg_zero end
+
+lemma sub_nat_zero_helper {a b c d: ℕ} (hac : a = c) (hbd : b = d) (hcd : c < d) : a - b = 0 := 
+begin
+ simp_using_hs, apply nat.sub_eq_zero_of_le, apply le_of_lt, assumption
+end
+
+lemma sub_nat_pos_helper {a b c d e : ℕ} (hac : a = c) (hbd : b = d) (hced : e + d = c) : 
+  a - b = e :=
+begin
+simp_using_hs, rw [-hced, nat.add_sub_cancel]
+end
 
 end norm_num

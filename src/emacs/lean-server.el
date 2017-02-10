@@ -39,8 +39,7 @@
      (lean-server-notify-messages-changed sess))
     ("current_tasks"
      (setf (lean-server-session-tasks sess) res)
-     (force-mode-line-update)
-     (lean-server-notify-messages-changed sess))
+     (lean-server-notify-tasks-changed sess))
     ("error"
      (message "error: %s" (plist-get res :message))
      ; TODO(gabriel): maybe even add the error as a message
@@ -238,32 +237,39 @@
   "Toggles highlighting of pending tasks"
   (interactive)
   (setq lean-server-show-pending-tasks (not lean-server-show-pending-tasks))
-  (dolist (buf (buffer-list))
-    (with-current-buffer buf
-      (when lean-server-session
-        (lean-server-update-task-overlays)))))
+  (lean-server-notify-tasks-changed))
+
+(defvar-local lean-server-flycheck-delay-timer nil)
 
 (defun lean-server-show-messages (&optional buf)
   (with-current-buffer (or buf (current-buffer))
-    (lean-server-update-task-overlays)
-    (flycheck-buffer)))
+    (save-match-data
+      (when (and (not (memq lean-server-flycheck-delay-timer timer-list))
+                 (or (eq buf flycheck-error-list-source-buffer)
+                     (get-buffer-window buf)))
+        (setq lean-server-flycheck-delay-timer
+              (run-at-time "200 milliseconds" nil
+                           (lambda (buf)
+                             (with-current-buffer buf
+                               (flycheck-buffer)))
+                           (current-buffer)))))))
+
+(defun lean-server-show-tasks (&optional buf)
+  (with-current-buffer (or buf (current-buffer))
+    (lean-server-update-task-overlays)))
 
 (defun lean-server-notify-messages-changed (sess)
   (dolist (buf (buffer-list))
     (with-current-buffer buf
       (when (eq sess lean-server-session)
-        (if (lean-server-session-running-p lean-server-session)
-            (when ;; skip if timer already active
-                (and (not (memq lean-server-flycheck-delay-timer timer-list))
-                     (or (eq buf flycheck-error-list-source-buffer)
-                         (get-buffer-window buf)))
-              (save-match-data
-                (setq lean-server-flycheck-delay-timer
-                      (run-at-time "200 milliseconds" nil #'lean-server-show-messages buf))))
-          (when lean-server-flycheck-delay-timer
-            (cancel-timer lean-server-flycheck-delay-timer)
-            (setq lean-server-flycheck-delay-timer nil))
-          (lean-server-show-messages))))))
+        (lean-server-show-messages)))))
+
+(defun lean-server-notify-tasks-changed (sess)
+  (force-mode-line-update)
+  (dolist (buf (buffer-list))
+    (with-current-buffer buf
+      (when (eq sess lean-server-session)
+        (lean-server-show-tasks)))))
 
 (defun lean-server-stop ()
   "Stops the lean server associated with the current buffer"

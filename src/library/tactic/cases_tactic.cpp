@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/app_builder.h"
 #include "library/trace.h"
 #include "library/vm/vm_list.h"
+#include "library/vm/vm_name.h"
 #include "library/vm/vm_expr.h"
 #include "library/tactic/cases_tactic.h"
 #include "library/tactic/intro_tactic.h"
@@ -490,9 +491,23 @@ vm_obj tactic_cases_core(vm_obj const & m, vm_obj const & H, vm_obj const & ns, 
         if (!s.goals()) return mk_no_goals_exception(s);
         list<name> ids       = to_list_name(ns);
         metavar_context mctx = s.mctx();
-        list<expr> new_goals = cases(s.env(), s.get_options(), to_transparency_mode(m), mctx, head(s.goals()),
-                                     to_expr(H), ids, nullptr, nullptr).first;
-        return mk_tactic_success(set_mctx_goals(s, mctx, append(new_goals, tail(s.goals()))));
+        list<list<expr>> hyps;
+        hsubstitution_list substs;
+        pair<list<expr>, list<name>> info = cases(s.env(), s.get_options(), to_transparency_mode(m), mctx,
+                                                  head(s.goals()), to_expr(H), ids, &hyps, &substs);
+        list<name> constrs = info.second;
+        buffer<vm_obj> info_objs;
+        while (!is_nil(hyps)) {
+            buffer<vm_obj> substs_objs;
+            head(substs).for_each([&](name const & from, expr const & to) {
+                    substs_objs.push_back(mk_vm_pair(to_obj(from), to_obj(to)));
+                });
+            info_objs.push_back(mk_vm_pair(to_obj(head(constrs)), mk_vm_pair(to_obj(head(hyps)), to_obj(substs_objs))));
+            hyps    = tail(hyps);
+            substs  = tail(substs);
+            constrs = tail(constrs);
+        }
+        return mk_tactic_success(to_obj(info_objs), set_mctx_goals(s, mctx, append(info.first, tail(s.goals()))));
     } catch (cases_tactic_exception & ex) {
         return mk_tactic_exception(ex.what(), ex.m_state);
     } catch (exception & ex) {

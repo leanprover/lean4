@@ -317,7 +317,7 @@ do e ← i_to_expr p,
 
 meta def cases (p : qexpr0) (ids : with_ident_list) : tactic unit :=
 do e ← i_to_expr p,
-   if e^.is_local_constant then
+   (if e^.is_local_constant then
      cases_core semireducible e ids
    else do
      x ← mk_fresh_name,
@@ -327,7 +327,8 @@ do e ← i_to_expr p,
            get_local x >>= tactic.revert,
            return ()),
      h ← tactic.intro1,
-     cases_core semireducible h ids
+     cases_core semireducible h ids),
+   return ()
 
 meta def destruct (p : qexpr0) : tactic unit :=
 i_to_expr p >>= tactic.destruct

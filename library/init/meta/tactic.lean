@@ -421,8 +421,12 @@ meta constant abstract_eq     : expr → expr → tactic bool
    in the original goal, not in the type context of the new goal. -/
 meta constant induction_core : transparency → expr → name → list name → tactic (list (list expr × list (name × expr)))
 /- (cases_core m H ns) apply cases_on recursor, names for the new hypotheses are retrieved from ns.
-   H must be a local constant -/
-meta constant cases_core     : transparency → expr → list name → tactic unit
+   H must be a local constant.
+   It returns for each new goal the name of the constructor, a list of new hypotheses, and a list of
+   substitutions for hypotheses depending on H. The number of new goals may be smaller than the
+   number of constructors. Some goals may be discarded when the indices to not match.
+   See `induction_core` for information on the list of substitutions. -/
+meta constant cases_core     : transparency → expr → list name → tactic (list (name × list expr × list (name × expr)))
 /- (destruct_core m e) similar to cases tactic, but does not revert/intro/clear hypotheses. -/
 meta constant destruct_core    : transparency → expr → tactic unit
 /- (generalize_core m e n) -/
@@ -865,10 +869,10 @@ do tgt : expr ← target,
    fail "tactic by_contradiction failed, target is not a negation nor a decidable proposition (remark: when 'local attribute classical.prop_decidable [instance]' is used all propositions are decidable)",
    intro H
 
-meta def cases (H : expr) : tactic unit :=
+meta def cases (H : expr) : tactic (list (name × list expr × list (name × expr))) :=
 cases_core semireducible H []
 
-meta def cases_using : expr → list name → tactic unit :=
+meta def cases_using : expr → list name → tactic (list (name × list expr × list (name × expr))) :=
 cases_core semireducible
 
 meta def induction : expr → name → list name → tactic (list (list expr × list (name × expr))) :=

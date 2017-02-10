@@ -364,10 +364,10 @@ meta constant mk_eq_mpr      : expr → expr → tactic expr
    The tactic fails if the given expression is not a local constant. -/
 meta constant subst         : expr → tactic unit
 meta constant exact_core    : transparency → expr → tactic unit
-/- Elaborate the given quoted expression with respect to the current main goal.
-   If the boolean argument is tt, then metavariables are tolerated and
-   become new goals. -/
-meta constant to_expr_core  : bool → pexpr → tactic expr
+/-- Elaborate the given quoted expression with respect to the current main goal.
+    If `allow_mvars` is tt, then metavariables are tolerated and become new goals.
+    If `report_errors` is ff, then errors are reported using position information from q. -/
+meta constant to_expr (q : pexpr) (allow_mvars := tt) (report_errors := ff) : tactic expr
 /- Return true if the given expression is a type class. -/
 meta constant is_class      : expr → tactic bool
 /- Try to create an instance of the given type class. -/
@@ -544,11 +544,8 @@ mk_app_core semireducible
 meta def mk_mapp : name → list (option expr) → tactic expr :=
 mk_mapp_core semireducible
 
-meta def to_expr : pexpr → tactic expr :=
-to_expr_core tt
-
-meta def to_expr_strict : pexpr → tactic expr :=
-to_expr_core ff
+meta def to_expr_strict (q : pexpr) (report_errors := ff) : tactic expr :=
+to_expr q report_errors
 
 meta def revert (l : expr) : tactic nat :=
 revert_lst [l]
@@ -882,9 +879,9 @@ meta def generalizes : list expr → tactic unit
 | []      := skip
 | (e::es) := generalize e `x >> generalizes es
 
-meta def refine (e : pexpr) : tactic unit :=
+meta def refine (e : pexpr) (report_errors := ff) : tactic unit :=
 do tgt : expr ← target,
-   to_expr `(%%e : %%tgt) >>= exact
+   to_expr `(%%e : %%tgt) tt report_errors >>= exact
 
 private meta def get_undeclared_const (env : environment) (base : name) : ℕ → name | i :=
 let n := base <.> ("_aux_" ++ to_string i) in

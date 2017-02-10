@@ -96,6 +96,14 @@ if e^.is_choice_macro
 then fail ("failed to resolve name '" ++ to_string n ++ "', it is overloaded")
 else fail ("failed to resolve name '" ++ to_string n ++ "', unexpected result")
 
+/- allows metavars and report errors -/
+meta def i_to_expr (q : pexpr) : tactic expr :=
+to_expr q tt tt
+
+/- doesn't allows metavars and report errors -/
+meta def i_to_expr_strict (q : pexpr) : tactic expr :=
+to_expr q ff tt
+
 namespace interactive
 open interactive.types expr
 
@@ -154,14 +162,14 @@ The tactic `apply` uses higher-order pattern matching, type class resolution, an
 first-order unification with dependent types.
 -/
 meta def apply (q : qexpr0) : tactic unit :=
-to_expr q >>= tactic.apply
+i_to_expr q >>= tactic.apply
 
 /--
 Similar to the `apply` tactic, but it also creates subgoals for dependent premises
 that have not been fixed by type inference or type class resolution.
 -/
 meta def fapply (q : qexpr0) : tactic unit :=
-to_expr q >>= tactic.fapply
+i_to_expr q >>= tactic.fapply
 
 /--
 This tactic tries to close the main goal `... |- U` using type class resolution.
@@ -178,8 +186,8 @@ Note that some holes may be implicit.
 The type of holes must be either synthesized by the system or declared by
 an explicit type ascription like (e.g., `(_ : nat → Prop)`).
 -/
-meta def refine : qexpr0 → tactic unit :=
-tactic.refine
+meta def refine (q : qexpr0) : tactic unit :=
+tactic.refine q tt
 
 /--
 This tactic looks in the local context for an hypothesis which type is equal to the goal target.
@@ -194,7 +202,7 @@ providing that `U` is well-formed with respect to the main goal local context,
 and `T` and `U` are definitionally equal.
 -/
 meta def change (q : qexpr0) : tactic unit :=
-to_expr q >>= tactic.change
+i_to_expr q >>= tactic.change
 
 /--
 This tactic applies to any goal. It gives directly the exact proof
@@ -203,7 +211,7 @@ term of the goal. Let `T` be our goal, let `p` be a term of type `U` then
 -/
 meta def exact (q : qexpr0) : tactic unit :=
 do tgt : expr ← target,
-   to_expr_strict `(%%q : %%tgt) >>= tactic.exact
+   i_to_expr_strict `(%%q : %%tgt) >>= tactic.exact
 
 private meta def get_locals : list name → tactic (list expr)
 | []      := return []
@@ -244,7 +252,7 @@ let e := pexpr.to_raw_expr p in
 match e with
 | (const c [])          := do new_e ← resolve_name' c, save_type_info new_e e, return new_e
 | (local_const c _ _ _) := do new_e ← resolve_name' c, save_type_info new_e e, return new_e
-| _                     := to_expr p
+| _                     := i_to_expr p
 end
 
 private meta def to_symm_expr_list : list (pexpr × pos) → tactic (list (bool × expr × pos))
@@ -300,14 +308,14 @@ do e_type ← infer_type e >>= whnf,
    return I
 
 meta def induction (p : qexpr0) (rec_name : using_ident) (ids : with_ident_list) : tactic unit :=
-do e ← to_expr p,
+do e ← i_to_expr p,
    match rec_name with
    | some n := induction_core semireducible e n ids
    | none   := do I ← get_type_name e, induction_core semireducible e (I <.> "rec") ids
    end
 
 meta def cases (p : qexpr0) (ids : with_ident_list) : tactic unit :=
-do e ← to_expr p,
+do e ← i_to_expr p,
    if e^.is_local_constant then
      cases_core semireducible e ids
    else do
@@ -321,10 +329,10 @@ do e ← to_expr p,
      cases_core semireducible h ids
 
 meta def destruct (p : qexpr0) : tactic unit :=
-to_expr p >>= tactic.destruct
+i_to_expr p >>= tactic.destruct
 
 meta def generalize (p : qexpr) (x : ident) : tactic unit :=
-do e ← to_expr p,
+do e ← i_to_expr p,
    tactic.generalize e x
 
 meta def trivial : tactic unit :=
@@ -367,32 +375,32 @@ This tactic applies to any goal. `assert h : T` adds a new hypothesis of name `h
 The new subgoal becomes the main goal.
 -/
 meta def assert (h : ident) (c : colon_tk) (q : qexpr0) : tactic unit :=
-do e ← to_expr_strict q,
+do e ← i_to_expr_strict q,
    tactic.assert h e
 
 meta def define (h : ident) (c : colon_tk) (q : qexpr0) : tactic unit :=
-do e ← to_expr_strict q,
+do e ← i_to_expr_strict q,
    tactic.define h e
 
 /--
 This tactic applies to any goal. `assertv h : T := p` adds a new hypothesis of name `h` and type `T` to the current goal if `p` a term of type `T`.
 -/
 meta def assertv (h : ident) (c : colon_tk) (q₁ : qexpr0) (a : assign_tk) (q₂ : qexpr0) : tactic unit :=
-do t ← to_expr_strict q₁,
-   v ← to_expr_strict `(%%q₂ : %%t),
+do t ← i_to_expr_strict q₁,
+   v ← i_to_expr_strict `(%%q₂ : %%t),
    tactic.assertv h t v
 
 meta def definev (h : ident) (c : colon_tk) (q₁ : qexpr0) (a : assign_tk) (q₂ : qexpr0) : tactic unit :=
-do t ← to_expr_strict q₁,
-   v ← to_expr_strict `(%%q₂ : %%t),
+do t ← i_to_expr_strict q₁,
+   v ← i_to_expr_strict `(%%q₂ : %%t),
    tactic.definev h t v
 
 meta def note (h : ident) (a : assign_tk) (q : qexpr0) : tactic unit :=
-do p ← to_expr_strict q,
+do p ← i_to_expr_strict q,
    tactic.note h p
 
 meta def pose (h : ident) (a : assign_tk) (q : qexpr0) : tactic unit :=
-do p ← to_expr_strict q,
+do p ← i_to_expr_strict q,
    tactic.pose h p
 
 /--
@@ -408,7 +416,7 @@ meta def trace {α : Type} [has_to_tactic_format α] (a : α) : tactic unit :=
 tactic.trace a
 
 meta def existsi (e : qexpr0) : tactic unit :=
-to_expr e >>= tactic.existsi
+i_to_expr e >>= tactic.existsi
 
 /--
 This tactic applies to a goal such that its conclusion is an inductive type (say `I`).
@@ -444,7 +452,7 @@ to the main goal. The tactic `injection h with h₁ h₂` uses the names `h₁` 
 hypotheses.
 -/
 meta def injection (q : qexpr0) (hs : with_ident_list) : tactic unit :=
-do e ← to_expr q, tactic.injection_with e hs
+do e ← i_to_expr q, tactic.injection_with e hs
 
 private meta def add_simps : simp_lemmas → list name → tactic simp_lemmas
 | s []      := return s
@@ -474,7 +482,7 @@ let e := pexpr.to_raw_expr p in
 match e with
 | (const c [])          := simp_lemmas.resolve_and_add s c e
 | (local_const c _ _ _) := simp_lemmas.resolve_and_add s c e
-| _                     := do new_e ← to_expr p, s^.add new_e
+| _                     := do new_e ← i_to_expr p, s^.add new_e
 end
 
 private meta def simp_lemmas.append_pexprs : simp_lemmas → list pexpr → tactic simp_lemmas
@@ -586,7 +594,7 @@ meta def cc : tactic unit :=
 tactic.cc
 
 meta def subst (q : qexpr0) : tactic unit :=
-to_expr q >>= tactic.subst >> try (reflexivity_core reducible)
+i_to_expr q >>= tactic.subst >> try (reflexivity_core reducible)
 
 meta def clear : raw_ident_list → tactic unit :=
 tactic.clear_lst

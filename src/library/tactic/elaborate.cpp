@@ -37,7 +37,7 @@ static bool report_failure(elaborator_exception const & ex, expr const & mvar, c
     return true;
 }
 
-vm_obj tactic_to_expr_core(vm_obj const & relaxed, vm_obj const & qe, vm_obj const & _s) {
+vm_obj tactic_to_expr_core(vm_obj const & qe, vm_obj const & relaxed, vm_obj const & report_errors, vm_obj const & _s) {
     tactic_state const & s = to_tactic_state(_s);
     optional<metavar_decl> g = s.get_main_goal_decl();
     if (!g) return mk_no_goals_exception(s);
@@ -72,12 +72,12 @@ vm_obj tactic_to_expr_core(vm_obj const & relaxed, vm_obj const & qe, vm_obj con
             return mk_tactic_success(to_obj(r), set_env_mctx(s, env, mctx));
         }
     } catch (failed_to_synthesize_placeholder_exception & ex) {
-        if (report_failure(ex, ex.get_mvar(), "context:", ex.get_tactic_state()))
+        if (to_bool(report_errors) && report_failure(ex, ex.get_mvar(), "context:", ex.get_tactic_state()))
             return mk_tactic_silent_exception(s);
         else
             return mk_tactic_exception(ex, s);
     } catch (elaborator_exception & ex) {
-        if (report_failure(ex, *s.get_main_goal(), "state:", s))
+        if (to_bool(report_errors) && report_failure(ex, *s.get_main_goal(), "state:", s))
             return mk_tactic_silent_exception(s);
         else
             return mk_tactic_exception(ex, s);
@@ -89,7 +89,7 @@ vm_obj tactic_to_expr_core(vm_obj const & relaxed, vm_obj const & qe, vm_obj con
 void initialize_elaborate() {
     g_by_name           = new name("by");
     register_annotation(*g_by_name);
-    DECLARE_VM_BUILTIN(name({"tactic", "to_expr_core"}), tactic_to_expr_core);
+    DECLARE_VM_BUILTIN(name({"tactic", "to_expr"}), tactic_to_expr_core);
 }
 
 void finalize_elaborate() {

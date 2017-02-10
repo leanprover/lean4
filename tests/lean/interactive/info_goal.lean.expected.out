@@ -1,5 +1,5 @@
 {"message":"file invalidated","response":"ok","seq_num":0}
-{"record":{"doc":"This tactic applies to any goal. It gives directly the exact proof\nterm of the goal. Let `T` be our goal, let `p` be a term of type `U` then\n`exact p` succeeds iff `T` and `U` are definitionally equal.","full-id":"tactic.interactive.exact","source":{"column":9,"file":"/library/init/meta/interactive.lean","line":204},"state":"⊢ ℕ → ℕ","type":"interactive.types.qexpr0 → tactic unit"},"response":"ok","seq_num":4}
+{"record":{"doc":"This tactic applies to any goal. It gives directly the exact proof\nterm of the goal. Let `T` be our goal, let `p` be a term of type `U` then\n`exact p` succeeds iff `T` and `U` are definitionally equal.","full-id":"tactic.interactive.exact","source":{"column":9,"file":"/library/init/meta/interactive.lean","line":212},"state":"⊢ ℕ → ℕ","type":"interactive.types.qexpr0 → tactic unit"},"response":"ok","seq_num":4}
 {"record":{"state":"no goals"},"response":"ok","seq_num":6}
 {"record":{"state":"no goals"},"response":"ok","seq_num":8}
 {"record":{"state":"⊢ ℕ → ℕ"},"response":"ok","seq_num":11}

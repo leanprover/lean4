@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "kernel/instantiate.h"
 #include "library/util.h"
+#include "library/vm/vm_list.h"
 #include "library/vm/vm_expr.h"
 #include "library/tactic/tactic_state.h"
 
@@ -49,7 +50,7 @@ static void remove_redundant_goals(metavar_context & mctx, buffer<expr> & metas)
 
 /* If out_error_obj is not nullptr, we store an the error message there when result is none */
 optional<tactic_state> apply_core(type_context & ctx, bool add_all, bool use_instances, vm_obj * out_error_obj,
-                                  expr e, tactic_state const & s) {
+                                  expr e, list<expr> * all_metas, tactic_state const & s) {
     optional<metavar_decl> g = s.get_main_goal_decl();
     lean_assert(g);
     local_context lctx   = g->get_context();
@@ -137,12 +138,13 @@ optional<tactic_state> apply_core(type_context & ctx, bool add_all, bool use_ins
     /* Assign, and create new tactic_state */
     e = mctx.instantiate_mvars(e);
     mctx.assign(head(s.goals()), e);
+    if (all_metas) *all_metas = to_list(metas);
     return some_tactic_state(set_mctx_goals(s, mctx,
                                             to_list(new_goals.begin(), new_goals.end(), tail(s.goals()))));
 }
 
 optional<tactic_state> apply(type_context & ctx, bool add_all, bool use_instances, expr const & e, tactic_state const & s) {
-    return apply_core(ctx, add_all, use_instances, nullptr, e, s);
+    return apply_core(ctx, add_all, use_instances, nullptr, e, nullptr, s);
 }
 
 vm_obj apply_core(transparency_mode md, bool approx, bool add_all, bool use_instances, expr e, tactic_state const & s) {
@@ -152,10 +154,11 @@ vm_obj apply_core(transparency_mode md, bool approx, bool add_all, bool use_inst
     type_context::approximate_scope _(ctx, approx);
     try {
         vm_obj error_obj;
-        optional<tactic_state> new_s = apply_core(ctx, add_all, use_instances, &error_obj, e, s);
+        list<expr> all_metas;
+        optional<tactic_state> new_s = apply_core(ctx, add_all, use_instances, &error_obj, e, &all_metas, s);
         if (!new_s)
             return error_obj;
-        return mk_tactic_success(*new_s);
+        return mk_tactic_success(to_obj(all_metas), *new_s);
     } catch(exception & ex) {
         return mk_tactic_exception(ex, s);
     }

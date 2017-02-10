@@ -73,29 +73,34 @@ public:
         if (use_timer) m_timer.reset(new single_timer);
     }
 
+    void schedule_refresh() {
+#if defined(LEAN_MULTI_THREAD)
+        if (m_timer) {
+            m_full_refresh_scheduled = true;
+            m_timer->set(chrono::steady_clock::now() + chrono::milliseconds(100), [&] {
+                    auto lock = get_lock();
+                    m_full_refresh_scheduled = false;
+                    m_srv->send_msg(all_messages_msg{get_messages_core()});
+                }, false);
+        }
+#endif
+    }
+
     void on_cleared(name const & bucket) override {
         if (m_nonempty_buckets.count(bucket)) {
             m_nonempty_buckets.clear();
             for (auto & b : get_nonempty_buckets_core()) m_nonempty_buckets.insert(b);
 
             // We need to remove a message, so let's send everything again
-#if defined(LEAN_MULTI_THREAD)
-            if (m_timer) {
-                m_full_refresh_scheduled = true;
-                m_timer->set(chrono::steady_clock::now() + chrono::milliseconds(200), [&] {
-                        auto lock = get_lock();
-                        m_full_refresh_scheduled = false;
-                        m_srv->send_msg(all_messages_msg{get_messages_core()});
-                    }, false);
-                return;
-            }
-#endif
-            m_srv->send_msg(all_messages_msg{get_messages_core()});
+            schedule_refresh();
+            if (!m_full_refresh_scheduled)
+                m_srv->send_msg(all_messages_msg{get_messages_core()});
         }
     }
 
     void on_reported(name const & bucket, message const & msg) override {
         m_nonempty_buckets.insert(bucket);
+        schedule_refresh();
         if (!m_full_refresh_scheduled)
             m_srv->send_msg(msg_reported_msg{msg});
     }

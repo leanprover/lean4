@@ -45,6 +45,7 @@ Author: Leonardo de Moura
 #include "library/compiler/rec_fn_macro.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/util.h"
+#include "frontends/lean/prenum.h"
 #include "frontends/lean/token_table.h"
 #include "frontends/lean/builtin_exprs.h"
 #include "frontends/lean/structure_cmd.h"
@@ -1057,6 +1058,9 @@ auto pretty_fn::pp_equations(expr const & e) -> optional<result> {
 auto pretty_fn::pp_macro_default(expr const & e) -> result {
     // TODO(Leo): have macro annotations
     // fix macro<->pp interface
+    if (is_prenum(e)) {
+        return format(prenum_value(e).to_string());
+    }
     format r = compose(format("["), format(macro_def(e).get_name()));
     for (unsigned i = 0; i < macro_num_args(e); i++)
         r += nest(m_indent, compose(line(), pp_child(macro_arg(e, i), max_bp()).fmt()));

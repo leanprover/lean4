@@ -14,6 +14,7 @@ name const & get_placeholder_tk();
 name const & get_colon_tk();
 name const & get_semicolon_tk();
 name const & get_dcolon_tk();
+name const & get_orelse_tk();
 name const & get_lparen_tk();
 name const & get_rparen_tk();
 name const & get_llevel_curly_tk();

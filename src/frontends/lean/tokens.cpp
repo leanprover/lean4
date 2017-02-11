@@ -12,6 +12,7 @@ static name const * g_placeholder_tk = nullptr;
 static name const * g_colon_tk = nullptr;
 static name const * g_semicolon_tk = nullptr;
 static name const * g_dcolon_tk = nullptr;
+static name const * g_orelse_tk = nullptr;
 static name const * g_lparen_tk = nullptr;
 static name const * g_rparen_tk = nullptr;
 static name const * g_llevel_curly_tk = nullptr;
@@ -134,6 +135,7 @@ void initialize_tokens() {
     g_colon_tk = new name{":"};
     g_semicolon_tk = new name{";"};
     g_dcolon_tk = new name{"::"};
+    g_orelse_tk = new name{"<|>"};
     g_lparen_tk = new name{"("};
     g_rparen_tk = new name{")"};
     g_llevel_curly_tk = new name{".{"};
@@ -257,6 +259,7 @@ void finalize_tokens() {
     delete g_colon_tk;
     delete g_semicolon_tk;
     delete g_dcolon_tk;
+    delete g_orelse_tk;
     delete g_lparen_tk;
     delete g_rparen_tk;
     delete g_llevel_curly_tk;
@@ -379,6 +382,7 @@ name const & get_placeholder_tk() { return *g_placeholder_tk; }
 name const & get_colon_tk() { return *g_colon_tk; }
 name const & get_semicolon_tk() { return *g_semicolon_tk; }
 name const & get_dcolon_tk() { return *g_dcolon_tk; }
+name const & get_orelse_tk() { return *g_orelse_tk; }
 name const & get_lparen_tk() { return *g_lparen_tk; }
 name const & get_rparen_tk() { return *g_rparen_tk; }
 name const & get_llevel_curly_tk() { return *g_llevel_curly_tk; }

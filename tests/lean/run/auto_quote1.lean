@@ -1,19 +1,17 @@
 example (a b c : nat) : a = b → b = c → c = a :=
-begin
+by {
   intros,
   apply eq.symm,
   apply eq.trans,
   assumption,
   assumption
-end
+}
 
 example (a b c : nat) : a = b → b = c → c = a :=
-begin
-  intro h1,
-  intro h2,
-  refine eq.symm (eq.trans h1 _),
-  exact h2
-end
+by intros; apply eq.symm; apply eq.trans; repeat {assumption}
+
+example (p q r : Prop) : p → q → r → p ∧ q ∧ r ∧ p ∧ q :=
+by intros; repeat {assumption <|> constructor}
 
 example (a b c : nat) : a = b → b = c → c = a :=
 begin

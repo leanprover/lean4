@@ -15,6 +15,7 @@ name const * g_and = nullptr;
 name const * g_and_elim_left = nullptr;
 name const * g_and_elim_right = nullptr;
 name const * g_and_intro = nullptr;
+name const * g_andthen = nullptr;
 name const * g_auto_param = nullptr;
 name const * g_bit0 = nullptr;
 name const * g_bit1 = nullptr;
@@ -331,6 +332,7 @@ name const * g_or_neg_resolve_right = nullptr;
 name const * g_or_rec = nullptr;
 name const * g_or_resolve_left = nullptr;
 name const * g_or_resolve_right = nullptr;
+name const * g_orelse = nullptr;
 name const * g_out_param = nullptr;
 name const * g_punit = nullptr;
 name const * g_punit_star = nullptr;
@@ -496,6 +498,7 @@ void initialize_constants() {
     g_and_elim_left = new name{"and", "elim_left"};
     g_and_elim_right = new name{"and", "elim_right"};
     g_and_intro = new name{"and", "intro"};
+    g_andthen = new name{"andthen"};
     g_auto_param = new name{"auto_param"};
     g_bit0 = new name{"bit0"};
     g_bit1 = new name{"bit1"};
@@ -812,6 +815,7 @@ void initialize_constants() {
     g_or_rec = new name{"or", "rec"};
     g_or_resolve_left = new name{"or", "resolve_left"};
     g_or_resolve_right = new name{"or", "resolve_right"};
+    g_orelse = new name{"orelse"};
     g_out_param = new name{"out_param"};
     g_punit = new name{"punit"};
     g_punit_star = new name{"punit", "star"};
@@ -978,6 +982,7 @@ void finalize_constants() {
     delete g_and_elim_left;
     delete g_and_elim_right;
     delete g_and_intro;
+    delete g_andthen;
     delete g_auto_param;
     delete g_bit0;
     delete g_bit1;
@@ -1294,6 +1299,7 @@ void finalize_constants() {
     delete g_or_rec;
     delete g_or_resolve_left;
     delete g_or_resolve_right;
+    delete g_orelse;
     delete g_out_param;
     delete g_punit;
     delete g_punit_star;
@@ -1459,6 +1465,7 @@ name const & get_and_name() { return *g_and; }
 name const & get_and_elim_left_name() { return *g_and_elim_left; }
 name const & get_and_elim_right_name() { return *g_and_elim_right; }
 name const & get_and_intro_name() { return *g_and_intro; }
+name const & get_andthen_name() { return *g_andthen; }
 name const & get_auto_param_name() { return *g_auto_param; }
 name const & get_bit0_name() { return *g_bit0; }
 name const & get_bit1_name() { return *g_bit1; }
@@ -1775,6 +1782,7 @@ name const & get_or_neg_resolve_right_name() { return *g_or_neg_resolve_right; }
 name const & get_or_rec_name() { return *g_or_rec; }
 name const & get_or_resolve_left_name() { return *g_or_resolve_left; }
 name const & get_or_resolve_right_name() { return *g_or_resolve_right; }
+name const & get_orelse_name() { return *g_orelse; }
 name const & get_out_param_name() { return *g_out_param; }
 name const & get_punit_name() { return *g_punit; }
 name const & get_punit_star_name() { return *g_punit_star; }

@@ -38,8 +38,9 @@
            (plist-get res :msgs))
      (lean-server-notify-messages-changed sess))
     ("current_tasks"
-     (setf (lean-server-session-tasks sess) res)
-     (lean-server-notify-tasks-changed sess))
+     (let ((old-tasks (lean-server-session-tasks sess)))
+       (setf (lean-server-session-tasks sess) res)
+       (lean-server-notify-tasks-changed sess old-tasks)))
     ("error"
      (message "error: %s" (plist-get res :message))
      ; TODO(gabriel): maybe even add the error as a message
@@ -264,8 +265,12 @@
       (when (eq sess lean-server-session)
         (lean-server-show-messages)))))
 
-(defun lean-server-notify-tasks-changed (sess)
+(defun lean-server-notify-tasks-changed (sess old-tasks)
   (force-mode-line-update)
+  (when (or (plist-get old-tasks :tasks)
+            (plist-get (lean-server-session-tasks sess) :tasks))
+    ; update task flycheck messages only if the task list is non-empty
+    (lean-server-notify-messages-changed sess))
   (dolist (buf (buffer-list))
     (with-current-buffer buf
       (when (eq sess lean-server-session)

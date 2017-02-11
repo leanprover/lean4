@@ -21,7 +21,7 @@ int main() {
     lean_exception ex;
     lean_name a, l, pp, pp_unicode, rn;
     lean_options o1, o2;
-    lean_univ zero, one, p1, g1, m1, u, n, i, ru;
+    lean_univ zero, one, p1, m1, u, n, i, ru;
     lean_list_name ln1, ln2;
     lean_list_univ lu1, lu2;
     char const * s1;
@@ -85,7 +85,6 @@ int main() {
     lean_univ_del(zero);
     lean_univ_del(one);
     lean_univ_del(p1);
-    lean_univ_del(g1);
     lean_univ_del(m1);
     lean_univ_del(u);
     lean_univ_del(n);

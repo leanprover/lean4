@@ -175,6 +175,7 @@ class ts_vm_obj {
     static void steal_ptr(vm_obj & o) { o.steal_ptr(); }
     std::shared_ptr<data>          m_data;
 public:
+    ts_vm_obj() = default;
     ts_vm_obj(vm_obj const & o);
     vm_obj to_vm_obj() const;
 };

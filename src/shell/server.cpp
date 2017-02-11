@@ -9,7 +9,8 @@ Authors: Gabriel Ebner, Leonardo de Moura, Sebastian Ullrich
 #include <string>
 #include <vector>
 #include <algorithm>
-#include "util/lean_path.h"
+#include <clocale>
+#include <library/library_task_builder.h>
 #include "util/sexpr/option_declarations.h"
 #include "util/timer.h"
 #include "library/mt_task_queue.h"
@@ -48,17 +49,35 @@ struct all_messages_msg {
     }
 };
 
-class server::msg_buf : public versioned_msg_buf {
+class server::message_handler {
     server * m_srv;
+    log_tree * m_lt;
 
-    std::unordered_set<name, name_hash> m_nonempty_buckets;
-
+    mutex m_mutex;
+    std::unordered_set<std::string> m_dirty_files;
     bool m_full_refresh_scheduled = false;
     std::unique_ptr<single_timer> m_timer;
 
 public:
-    msg_buf(server * srv, bool use_timer) : m_srv(srv) {
+    message_handler(server * srv, log_tree * lt, bool use_timer) : m_srv(srv), m_lt(lt) {
         if (use_timer) m_timer.reset(new single_timer);
+    }
+
+    static void get_messages(log_tree::node const & n, std::vector<message> & msgs) {
+        for (auto & e : n.get_entries()) {
+            if (auto msg = dynamic_cast<message const *>(e.get())) {
+                msgs.push_back(*msg);
+            }
+        }
+        n.get_children().for_each([&] (name const &, log_tree::node const & c) {
+            get_messages(c, msgs);
+        });
+    }
+
+    std::vector<message> get_messages_core() {
+        std::vector<message> msgs;
+        get_messages(m_lt->get_root(), msgs);
+        return msgs;
     }
 
     void schedule_refresh() {
@@ -66,31 +85,38 @@ public:
         if (m_timer) {
             m_full_refresh_scheduled = true;
             m_timer->set(chrono::steady_clock::now() + chrono::milliseconds(100), [&] {
-                    auto lock = get_lock();
-                    m_full_refresh_scheduled = false;
+                    {
+                        unique_lock<mutex> lock(m_mutex);
+                        m_full_refresh_scheduled = false;
+                        m_dirty_files.clear();
+                    }
                     m_srv->send_msg(all_messages_msg{get_messages_core()});
                 }, false);
         }
 #endif
     }
 
-    void on_cleared(name const & bucket) override {
-        if (m_nonempty_buckets.count(bucket)) {
-            m_nonempty_buckets.clear();
-            for (auto & b : get_nonempty_buckets_core()) m_nonempty_buckets.insert(b);
+    void on_event(std::vector<log_tree::event> const & events) {
+        unique_lock<mutex> lock(m_mutex);
+        for (auto & e : events) {
+            switch (e.m_kind) {
+                case log_tree::event::EntryAdded:
+                case log_tree::event::EntryRemoved:
+                    if (auto msg = dynamic_cast<message const *>(e.m_entry.get())) {
+                        m_dirty_files.insert(msg->get_file_name());
+                    }
+                    break;
 
-            // We need to remove a message, so let's send everything again
-            schedule_refresh();
-            if (!m_full_refresh_scheduled)
-                m_srv->send_msg(all_messages_msg{get_messages_core()});
+                default: break;
+            }
         }
-    }
-
-    void on_reported(name const & bucket, message const & msg) override {
-        m_nonempty_buckets.insert(bucket);
-        schedule_refresh();
-        if (!m_full_refresh_scheduled)
-            m_srv->send_msg(msg_reported_msg{msg});
+        if (!m_dirty_files.empty()) {
+            schedule_refresh();
+            if (!m_full_refresh_scheduled) {
+                m_dirty_files.clear();
+                m_srv->send_msg(all_messages_msg{get_messages_core()});
+            }
+        }
     }
 };
 
@@ -108,31 +134,98 @@ struct current_tasks_msg {
         return j;
     }
 
-    json json_of_task(generic_task const * t) {
+    static json json_of_task(log_tree::node const & t) {
         json j;
-        j["file_name"] = t->get_module_id();
-        auto pos = t->get_pos();
+        j["file_name"] = t.get_location().m_file_name;
+        auto pos = t.get_location().m_range.m_begin;
         j["pos_line"] = pos.first;
         j["pos_col"] = pos.second;
-        auto end_pos = t->get_end_pos();
+        auto end_pos = t.get_location().m_range.m_end;
         j["end_pos_line"] = end_pos.first;
         j["end_pos_col"] = end_pos.second;
-        j["desc"] = t->description();
+        j["desc"] = t.get_description();
         return j;
     }
+};
 
-#if defined(LEAN_MULTI_THREAD)
-    current_tasks_msg(mt_tq_status const & st, std::unordered_set<std::string> const & visible_files) {
-        m_is_running = st.size() > 0;
-        st.for_each([&] (generic_task const * t) {
-            if (!t->is_tiny() && visible_files.count(t->get_module_id())) {
-                auto j = json_of_task(t);
-                if (!m_cur_task) m_cur_task = {j};
-                m_tasks.push_back(j);
-            }
+class server::tasks_handler {
+    server * m_srv;
+    log_tree * m_lt;
+
+    mutex m_mutex;
+    std::unique_ptr<single_timer> m_timer;
+
+public:
+    tasks_handler(server * srv, log_tree * lt, bool use_timer) : m_srv(srv), m_lt(lt) {
+        if (use_timer) m_timer.reset(new single_timer);
+    }
+
+    void mk_tasks_msg(log_tree::node const & n, current_tasks_msg & msg) {
+        if (n.get_producer()) {
+            msg.m_is_running = true;
+            msg.m_tasks.push_back(current_tasks_msg::json_of_task(n));
+            return;
+        }
+        n.get_children().for_each([&] (name const &, log_tree::node const & c) {
+            mk_tasks_msg(c, msg);
         });
     }
+
+    void submit_core(log_tree::node const & n) {
+        // TODO(gabriel): priorities & ROI
+//        if (n.get_producer() && m_srv->m_visible_files.count(n.get_location().m_file_name)) {
+        if (auto prod = n.get_producer()) {
+            taskq().submit(prod);
+        }
+    }
+
+    void resubmit_core(log_tree::node const & n) {
+        submit_core(n);
+        n.get_children().for_each([&] (name const &, log_tree::node const & c) {
+            resubmit_core(c);
+        });
+    }
+    void resubmit_core() {
+        resubmit_core(m_srv->m_lt.get_root());
+    }
+
+    current_tasks_msg mk_tasks_msg() {
+        current_tasks_msg msg;
+        mk_tasks_msg(m_lt->get_root(), msg);
+        return msg;
+    }
+
+    void schedule_refresh() {
+#if defined(LEAN_MULTI_THREAD)
+        if (m_timer) {
+            m_timer->set(chrono::steady_clock::now() + chrono::milliseconds(200), [&] {
+                m_srv->send_msg(mk_tasks_msg());
+            }, false);
+        }
 #endif
+    }
+
+    void on_event(std::vector<log_tree::event> const & events) {
+        bool need_refresh = false;
+        for (auto & e : events) {
+            switch (e.m_kind) {
+                case log_tree::event::ProducerSet:
+                    submit_core(e.m_node);
+                    need_refresh = true;
+                    break;
+                case log_tree::event::Finished:
+                    need_refresh = true;
+                    break;
+
+                default:
+                    break;
+            }
+        }
+        if (need_refresh) {
+            unique_lock<mutex> lock(m_mutex);
+            schedule_refresh();
+        }
+    }
 };
 
 server::server(unsigned num_threads, environment const & initial_env, io_state const & ios) :
@@ -140,34 +233,35 @@ server::server(unsigned num_threads, environment const & initial_env, io_state c
     m_ios.set_regular_channel(std::make_shared<stderr_channel>());
     m_ios.set_diagnostic_channel(std::make_shared<stderr_channel>());
 
-    m_msg_buf.reset(new msg_buf(this, num_threads > 0));
+    m_msg_handler.reset(new message_handler(this, &m_lt, num_threads > 0));
+    m_tasks_handler.reset(new tasks_handler(this, &m_lt, num_threads > 0));
+
+    m_lt.add_listener([&] (std::vector<log_tree::event> const & evs) {
+        m_msg_handler->on_event(evs);
+        m_tasks_handler->on_event(evs);
+    });
 
     scope_global_ios scoped_ios(m_ios);
-    scoped_message_buffer scope_msg_buf(m_msg_buf.get());
 #if defined(LEAN_MULTI_THREAD)
     if (num_threads == 0) {
-        m_tq.reset(new st_task_queue());
+        m_tq.reset(new st_task_queue);
     } else {
-        auto tq = new mt_task_queue(num_threads);
-        m_tq.reset(tq);
-        tq->set_monitor_interval(chrono::milliseconds(300));
-        tq->set_status_callback([this] (mt_tq_status const & st) {
-            unique_lock<mutex> _(m_visible_files_mutex);
-            send_msg(current_tasks_msg(st, m_visible_files));
-        });
+        m_tq.reset(new mt_task_queue(num_threads));
     }
 #else
     m_tq.reset(new st_task_queue());
 #endif
 
-    scope_global_task_queue scope_tq(m_tq.get());
-    m_mod_mgr.reset(new module_mgr(this, m_msg_buf.get(), m_initial_env, m_ios));
+    set_task_queue(m_tq.get());
+    m_mod_mgr.reset(new module_mgr(this, m_lt.get_root(), m_initial_env, m_ios));
     m_mod_mgr->set_use_snapshots(true);
     m_mod_mgr->set_save_olean(false);
 }
 
 server::~server() {
-    m_tq->cancel_if([] (generic_task *) { return true; }); // NOLINT
+    m_mod_mgr->cancel_all();
+    cancel(m_bg_task_ctok);
+    m_tq->evacuate();
 }
 
 struct server::cmd_req {
@@ -211,9 +305,7 @@ struct unrelated_error_msg {
 };
 
 void server::run() {
-    scope_global_task_queue scope_tq(m_tq.get());
     scope_global_ios scoped_ios(m_ios);
-    scoped_message_buffer scope_msg_buf(m_msg_buf.get());
 
     /* Leo: we use std::setlocale to make sure decimal period is displayed as ".".
        We added this hack because the json library code used for ensuring this property
@@ -275,16 +367,14 @@ server::cmd_res server::handle_sync(server::cmd_req const & req) {
 
     auto mtime = time(nullptr);
 
-#if defined(LEAN_MULTI_THREAD)
     {
-        unique_lock<mutex> _(m_visible_files_mutex);
+        unique_lock<mutex> l(m_visible_files_mutex);
         if (m_visible_files.count(new_file_name) == 0) {
             m_visible_files.insert(new_file_name);
-            if (auto tq = dynamic_cast<mt_task_queue *>(m_tq.get()))
-                tq->reprioritize(mk_interactive_prioritizer(m_visible_files));
+            l.unlock();
+            m_tasks_handler->resubmit_core();
         }
     }
-#endif
 
     bool needs_invalidation = !m_open_files.count(new_file_name);
 
@@ -309,8 +399,8 @@ server::cmd_res server::handle_sync(server::cmd_req const & req) {
 
 std::shared_ptr<snapshot const> get_closest_snapshot(std::shared_ptr<module_info const> const & mod_info, pos_info p) {
     auto ret = std::shared_ptr<snapshot const>();
-    if (auto res = mod_info->m_result.peek()) {
-        auto snapshots = mod_info.get()->m_result.get().m_snapshots;
+    if (auto res = peek(mod_info->m_result)) {
+        auto snapshots = res->m_snapshots;
         if (snapshots.size()) {
             ret = snapshots.front();
             for (auto &snap : snapshots) {
@@ -327,11 +417,10 @@ void parse_breaking_at_pos(module_id const & mod_id, std::shared_ptr<module_info
     std::istringstream in(*mod_info->m_lean_contents);
     if (auto snap = get_closest_snapshot(mod_info, pos)) {
         snapshot s = *snap;
-        s.m_sub_buckets.clear(); // HACK
 
         // ignore messages from reparsing
-        null_message_buffer null_msg_buf;
-        scoped_message_buffer scope(&null_msg_buf);
+        log_tree null;
+        scope_log_tree scope_lt(null.get_root());
 
         bool use_exceptions = true;
         parser p(s.m_env, get_global_ios(), mk_dummy_loader(), in, mod_id,
@@ -342,128 +431,113 @@ void parse_breaking_at_pos(module_id const & mod_id, std::shared_ptr<module_info
     }
 }
 
-class server::auto_complete_task : public task<unit> {
-    server * m_server;
-    unsigned m_seq_num;
-    std::shared_ptr<module_info const> m_mod_info;
-    bool     m_skip_completions;
+json server::autocomplete(std::shared_ptr<module_info const> const & mod_info, bool skip_completions,
+                          pos_info const & pos0) {
+    auto pos = pos0;
+    if (pos.second == 0)
+        pos.first--;
+    pos.second--;
+    json j;
 
-public:
-    auto_complete_task(server * server, unsigned seq_num, std::shared_ptr<module_info const> const & mod_info,
-                       bool skip_completions) :
-        m_server(server), m_seq_num(seq_num), m_mod_info(mod_info), m_skip_completions(skip_completions) {}
-
-    // TODO(gabriel): find cleaner way to give it high prio
-    task_kind get_kind() const override { return task_kind::parse; }
-
-    virtual bool is_tiny() const override { return true; }
-
-    void description(std::ostream & out) const override {
-        out << "generating auto-completion at (" << get_pos().first << ", " << get_pos().second << ")";
-    }
-
-    std::vector<generic_task_result> get_dependencies() override {
-        return {m_mod_info->m_result};
-    }
-
-    // TODO(gabriel): handle cancellation
-
-    unit execute() override {
+    if (auto snap = get_closest_snapshot(mod_info, pos)) {
         try {
-            pos_info pos = get_pos();
-            if (pos.second == 0)
-                pos.first--;
-            pos.second--;
-            json j;
-
-            if (auto snap = get_closest_snapshot(m_mod_info, pos)) {
-                try {
-                    parse_breaking_at_pos(get_module_id(), m_mod_info, pos, true);
-                } catch (break_at_pos_exception & e) {
-                    report_completions(snap->m_env, snap->m_options, get_pos(), m_skip_completions, m_mod_info->m_mod.c_str(),
-                                       e, j);
-                } catch (throwable & ex) {}
-            }
-
-            m_server->send_msg(cmd_res(m_seq_num, j));
-        } catch (throwable & ex) {
-            m_server->send_msg(cmd_res(m_seq_num, std::string(ex.what())));
-        }
-        return {};
+            parse_breaking_at_pos(mod_info->m_mod, mod_info, pos, true);
+        } catch (break_at_pos_exception & e) {
+            report_completions(snap->m_env, snap->m_options, pos, skip_completions, mod_info->m_mod.c_str(),
+                               e, j);
+        } catch (throwable & ex) {}
     }
-};
+    return j;
+}
 
 void server::handle_complete(cmd_req const & req) {
+    cancel(m_bg_task_ctok);
+    m_bg_task_ctok = mk_cancellation_token();
+
     std::string fn = req.m_payload.at("file_name");
     pos_info pos = {req.m_payload.at("line"), req.m_payload.at("column")};
     bool skip_completions = false;
     if (req.m_payload.count("skip_completions"))
         skip_completions = req.m_payload.at("skip_completions");
 
-    scope_message_context scope_msg_ctx(message_bucket_id { "_server", 0 });
-    scoped_task_context scope_task_ctx(fn, pos);
-
     auto mod_info = m_mod_mgr->get_module(fn);
 
-    get_global_task_queue()->submit<auto_complete_task>(this, req.m_seq_num, mod_info, skip_completions);
+    auto complete_gen_task =
+        task_builder<json>([=] { return autocomplete(mod_info, skip_completions, pos); })
+        .set_cancellation_token(m_bg_task_ctok)
+//        .wrap(library_scopes())
+        .build();
+
+    taskq().submit(task_builder<unit>([this, req, complete_gen_task] {
+        try {
+            send_msg(cmd_res(req.m_seq_num, get(complete_gen_task)));
+        } catch (throwable & ex) {
+            send_msg(cmd_res(req.m_seq_num, std::string(ex.what())));
+        }
+        return unit{};
+    }).depends_on(complete_gen_task).ignore_dependency_errors().build());
 }
 
-class server::info_task : public task<unit> {
-    server * m_server;
-    unsigned m_seq_num;
-    std::shared_ptr<module_info const> m_mod_info;
-
-public:
-    info_task(server * server, unsigned seq_num, std::shared_ptr<module_info const> const & mod_info):
-            m_server(server), m_seq_num(seq_num), m_mod_info(mod_info) {}
-
-    // TODO(gabriel): find cleaner way to give it high prio
-    task_kind get_kind() const override { return task_kind::parse; }
-
-    virtual bool is_tiny() const override { return true; }
-
-    void description(std::ostream & out) const override {
-        out << "info at (" << get_pos().first << ", " << get_pos().second << ")";
-    }
-
-    // TODO(gabriel): handle cancellation
-
-    unit execute() override {
-        try {
-            pos_info pos = get_pos();
-            json j;
-            try {
-                parse_breaking_at_pos(get_module_id(), m_mod_info, pos);
-            } catch (break_at_pos_exception & e) {
-                auto opts = m_server->m_ios.get_options();
-                auto env = m_server->m_initial_env;
-                if (auto snap = get_closest_snapshot(m_mod_info, e.m_token_info.m_pos)) {
-                    env = snap->m_env;
-                    opts = snap->m_options;
-                }
-                report_info(env, opts, m_server->m_ios, *m_mod_info, m_server->m_msg_buf->get_info_managers(), e, j);
-            } catch (throwable & ex) {}
-
-            m_server->send_msg(cmd_res(m_seq_num, j));
-        } catch (throwable & ex) {
-            m_server->send_msg(cmd_res(m_seq_num, std::string(ex.what())));
+static void get_info_managers(log_tree::node const & n, std::vector<info_manager> & infoms) {
+    for (auto & e : n.get_entries()) {
+        if (auto infom = dynamic_cast<info_manager const *>(e.get())) {
+            infoms.push_back(*infom);
         }
-        return {};
     }
-};
+    n.get_children().for_each([&] (name const &, log_tree::node const & c) {
+        get_info_managers(c, infoms);
+    });
+}
+
+std::vector<info_manager> get_info_managers(log_tree const & t) {
+    std::vector<info_manager> infoms;
+    get_info_managers(t.get_root(), infoms);
+    return infoms;
+}
+
+json server::info(std::shared_ptr<module_info const> const & mod_info, pos_info const & pos) {
+    json j;
+    try {
+        parse_breaking_at_pos(mod_info->m_mod, mod_info, pos);
+    } catch (break_at_pos_exception & e) {
+        auto opts = m_ios.get_options();
+        auto env = m_initial_env;
+        if (auto snap = get_closest_snapshot(mod_info, e.m_token_info.m_pos)) {
+            env = snap->m_env;
+            opts = snap->m_options;
+        }
+        report_info(env, opts, m_ios, *mod_info, get_info_managers(m_lt), e, j);
+    } catch (throwable & ex) {}
+
+    return j;
+}
 
 void server::handle_info(server::cmd_req const & req) {
-    m_info_result.cancel();
+    cancel(m_bg_task_ctok);
+    m_bg_task_ctok = mk_cancellation_token();
 
     std::string fn = req.m_payload.at("file_name");
     pos_info pos = {req.m_payload.at("line"), req.m_payload.at("column")};
 
-    scope_message_context scope_msg_ctx(message_bucket_id { "_server", 0 });
-    scoped_task_context scope_task_ctx(fn, pos);
-
     auto mod_info = m_mod_mgr->get_module(fn);
 
-    m_info_result = {get_global_task_queue()->submit<info_task>(this, req.m_seq_num, mod_info)};
+    auto info_gen_task = task_builder<json>([=] {
+        return info(mod_info, pos);
+    }).depends_on(mk_deep_dependency(
+        mod_info->m_result, [] (buffer<gtask> & deps, module_info::parse_result const & res) {
+            deps.push_back(res.m_loaded_module->m_env);
+    })).set_cancellation_token(m_bg_task_ctok)
+//       .wrap(library_scopes())
+       .build();
+
+    taskq().submit(task_builder<unit>([this, req, info_gen_task] {
+        try {
+            send_msg(cmd_res(req.m_seq_num, get(info_gen_task)));
+        } catch (throwable & ex) {
+            send_msg(cmd_res(req.m_seq_num, std::string(ex.what())));
+        }
+        return unit{};
+    }).depends_on(info_gen_task).ignore_dependency_errors().build());
 }
 
 std::tuple<std::string, module_src, time_t> server::load_module(module_id const & id, bool can_use_olean) {
@@ -486,43 +560,6 @@ void initialize_server() {
 
 void finalize_server() {
 }
-
-#if defined(LEAN_MULTI_THREAD)
-mt_tq_prioritizer mk_interactive_prioritizer(std::unordered_set<module_id> const & roi) {
-    const unsigned
-        ROI_PARSING_PRIO = 10,
-        ROI_PRINT_PRIO = 11,
-        ROI_ELAB_PRIO = 13,
-        DEFAULT_PRIO = 20,
-        PARSING_PRIO = 20,
-        PRINT_PRIO = 21,
-        ELAB_PRIO = 23;
-
-    return[=] (generic_task * t) {
-        task_priority p;
-        p.m_prio = DEFAULT_PRIO;
-
-        bool in_roi = roi.count(t->get_module_id()) > 0;
-
-        if (!in_roi)
-            p.m_not_before = { chrono::steady_clock::now() + chrono::seconds(10) };
-
-        switch (t->get_kind()) {
-            case task_kind::parse:
-                p.m_prio = in_roi ? ROI_PARSING_PRIO : PARSING_PRIO;
-                break;
-            case task_kind::elab:
-                p.m_prio = in_roi ? ROI_ELAB_PRIO : ELAB_PRIO;
-                break;
-            case task_kind::print:
-                p.m_prio = in_roi ? ROI_PRINT_PRIO : PRINT_PRIO;
-                break;
-        }
-
-        return p;
-    };
-}
-#endif
 
 }
 #endif

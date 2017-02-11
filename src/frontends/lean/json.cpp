@@ -113,8 +113,8 @@ json json_of_name(name const & n0) {
     return j;
 }
 
-void json_message_stream::report(message_bucket_id const &, message const & msg) {
-    m_out << json_of_message(msg) << std::endl;
+void print_json(std::ostream & out, message const & msg) {
+    out << json_of_message(msg) << std::endl;
 }
 
 }

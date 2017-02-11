@@ -7,7 +7,6 @@ Author: Gabriel Ebner
 #include <string>
 #include "library/message_builder.h"
 #include "library/type_context.h"
-#include "library/message_buffer.h"
 
 namespace lean {
 

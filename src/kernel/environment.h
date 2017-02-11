@@ -190,7 +190,7 @@ public:
     }
 
     /** \brief Returns a task that returns true iff all proofs are correct.  May throw an exception otherwise. */
-    task_result<bool> is_correct() const;
+    task<bool> is_correct() const;
 };
 
 void initialize_environment();

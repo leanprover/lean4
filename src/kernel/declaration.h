@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include <string>
 #include <limits>
 #include "util/rc.h"
-#include "util/task_queue.h"
+#include "util/task.h"
 #include "kernel/expr.h"
 
 namespace lean {
@@ -76,7 +76,7 @@ class declaration {
         expr               m_type;
         bool               m_theorem;
         optional<expr>     m_value;        // if none, then declaration is actually a postulate
-        task_result<expr>  m_proof;
+        task<expr>         m_proof;
         reducibility_hints m_hints;
         /* Definitions are trusted by default, and nested macros are expanded when kernel is instantiated with
            trust level 0. When this flag is false, then we do not expand nested macros. We say the
@@ -92,7 +92,7 @@ class declaration {
              reducibility_hints const & h, bool trusted):
             m_rc(1), m_name(n), m_params(params), m_type(t), m_theorem(false),
             m_value(v), m_hints(h), m_trusted(trusted) {}
-        cell(name const & n, level_param_names const & params, expr const & t, task_result<expr> const & v):
+        cell(name const & n, level_param_names const & params, expr const & t, task<expr> const & v):
             m_rc(1), m_name(n), m_params(params), m_type(t), m_theorem(true),
             m_proof(v), m_hints(reducibility_hints::mk_opaque()), m_trusted(true) {}
     };
@@ -132,7 +132,7 @@ public:
     unsigned get_num_univ_params() const;
     expr const & get_type() const;
 
-    task_result<expr> const & get_value_task() const;
+    task<expr> const & get_value_task() const;
     expr const & get_value() const;
 
     reducibility_hints const & get_hints() const;
@@ -141,7 +141,7 @@ public:
                                      reducibility_hints const & hints, bool trusted);
     friend declaration mk_definition(environment const & env, name const & n, level_param_names const & params, expr const & t,
                                      expr const & v, bool use_conv_opt, bool trusted);
-    friend declaration mk_theorem(name const &, level_param_names const &, expr const &, task_result<expr> const &);
+    friend declaration mk_theorem(name const &, level_param_names const &, expr const &, task<expr> const &);
     friend declaration mk_axiom(name const & n, level_param_names const & params, expr const & t);
     friend declaration mk_constant_assumption(name const & n, level_param_names const & params, expr const & t, bool trusted);
 };
@@ -155,7 +155,7 @@ declaration mk_definition(name const & n, level_param_names const & params, expr
 declaration mk_definition(environment const & env, name const & n, level_param_names const & params, expr const & t, expr const & v,
                           bool use_conv_opt = true, bool trusted = true);
 declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v);
-declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, task_result<expr> const & v);
+declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, task<expr> const & v);
 declaration mk_axiom(name const & n, level_param_names const & params, expr const & t);
 declaration mk_constant_assumption(name const & n, level_param_names const & params, expr const & t, bool trusted = true);
 

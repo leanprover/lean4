@@ -33,23 +33,16 @@ void check_heartbeat() {
         throw heartbeat_exception();
 }
 
-MK_THREAD_LOCAL_GET(atomic_bool, get_g_interrupt, false);
+LEAN_THREAD_VALUE(atomic_bool *, g_interrupt_flag, nullptr);
 
-void request_interrupt() {
-    get_g_interrupt().store(true);
-}
+scoped_interrupt_flag::scoped_interrupt_flag(atomic_bool * flag) : flet(g_interrupt_flag, flag) {}
 
-void reset_interrupt() {
-    get_g_interrupt().store(false);
-}
-
-bool interrupt_requested() {
-    return get_g_interrupt().load();
+static bool interrupt_requested() {
+    return g_interrupt_flag && g_interrupt_flag->load();
 }
 
 void check_interrupted() {
     if (interrupt_requested() && !std::uncaught_exception()) {
-        reset_interrupt();
         throw interrupted();
     }
 }
@@ -75,38 +68,16 @@ void sleep_for(unsigned ms, unsigned step_ms) {
     check_interrupted();
 }
 
-atomic_bool * get_interrupt_flag() {
-    return &get_g_interrupt();
-}
-
-atomic_bool * interruptible_thread::get_flag_addr() {
-    return &get_g_interrupt();
-}
-
 bool interruptible_thread::interrupted() const {
-    atomic_bool * f = m_flag_addr.load();
-    if (f == nullptr)
-        return false;
-    return f->load();
+    return m_flag.load();
 }
 
-void interruptible_thread::request_interrupt(unsigned try_ms) {
-    while (true) {
-        atomic_bool * f = m_flag_addr.load();
-        if (f != nullptr) {
-            f->store(true);
-            return;
-        }
-        this_thread::sleep_for(chrono::milliseconds(try_ms));
-        check_interrupted();
-    }
+void interruptible_thread::request_interrupt() {
+    m_flag.store(true);
 }
 
 void interruptible_thread::join() {
     m_thread.join();
 }
 
-bool interruptible_thread::joinable() {
-    return m_thread.joinable();
-}
 }

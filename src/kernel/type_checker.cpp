@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <utility>
 #include <vector>
-#include "util/task_queue.h"
+#include "util/task.h"
 #include "util/interrupt.h"
 #include "util/lbool.h"
 #include "util/flet.h"
@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 #include "kernel/kernel_exception.h"
 #include "kernel/abstract.h"
 #include "kernel/replace_fn.h"
+#include "util/task_builder.h"
 
 namespace lean {
 static expr * g_dont_care = nullptr;
@@ -740,35 +741,6 @@ static void check_definition(environment const & env, declaration const & d, typ
     }
 }
 
-class proof_checking_task : public task<expr> {
-    environment m_env;
-    declaration m_decl;
-public:
-    proof_checking_task(environment const & env, declaration const & d) :
-            m_env(env), m_decl(d) {
-        lean_assert(d.is_theorem());
-    }
-
-    virtual bool is_tiny() const override { return true; }
-
-    void description(std::ostream & out) const override {
-        out << "type-checking " << m_decl.get_name();
-    }
-
-    std::vector<generic_task_result> get_dependencies() override {
-        return { m_decl.get_value_task() };
-    }
-
-    expr execute() override {
-        scoped_expr_caching disable(false);
-        bool memoize = true;
-        bool trusted_only = m_decl.is_trusted();
-        type_checker checker(m_env, memoize, trusted_only);
-        check_definition(m_env, m_decl, checker);
-        return m_decl.get_value();
-    }
-};
-
 certified_declaration check(environment const & env, declaration const & d, bool immediately) {
     check_no_mlocal(env, d.get_name(), d.get_type(), true);
     check_name(env, d.get_name());
@@ -778,8 +750,16 @@ certified_declaration check(environment const & env, declaration const & d, bool
     expr sort = checker.check(d.get_type(), d.get_univ_params());
     checker.ensure_sort(sort, d.get_type());
     if (d.is_definition()) {
-        if (!immediately && env.trust_lvl() != 0 && d.is_theorem() && get_global_task_queue()) {
-            auto checked_proof = get_global_task_queue()->submit<proof_checking_task>(env, d);
+        if (!immediately && env.trust_lvl() != 0 && d.is_theorem()) {
+            // TODO(gabriel): cancellation
+            auto checked_proof =
+                    map<expr>(d.get_value_task(),
+                              [d, env, memoize, trusted_only] (expr const & val) -> expr {
+                                  scoped_expr_caching disable(false);
+                                  type_checker checker(env, memoize, trusted_only);
+                                  check_definition(env, d, checker);
+                                  return val;
+                              }).build();
             return certified_declaration(env.get_id(),
                                          mk_theorem(d.get_name(), d.get_univ_params(), d.get_type(), checked_proof));
         }

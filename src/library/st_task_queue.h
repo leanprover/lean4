@@ -5,28 +5,20 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Gabriel Ebner
 */
 #pragma once
-#include "util/task_queue.h"
+#include "util/task.h"
 
 namespace lean {
 
 class st_task_queue : public task_queue {
-    progress_cb m_progress_cb;
-
-    void prepare_task(generic_task_result const &result) override;
-
 public:
-    st_task_queue();
+    void wait_for_finish(gtask const &) override;
+    void fail_and_dispose(gtask const &) override;
 
-    optional<generic_task_result> get_current_task() override;
-    bool empty() override;
+    void submit(gtask const &) override;
+
+    void evacuate() override;
+
     void join() override;
-    void wait(generic_task_result const & t) override;
-    void cancel(generic_task_result const & t) override;
-    void submit(generic_task_result const &) override;
-
-    void cancel_if(std::function<bool(generic_task *)> const & pred) override; // NOLINT
-
-    void set_progress_callback(progress_cb const &) override;
 };
 
 }

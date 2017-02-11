@@ -1,0 +1,221 @@
+#include "log_tree.h"
+
+namespace lean {
+
+void log_tree::notify_core(std::vector<log_tree::event> const & events) {
+    if (events.empty()) return;
+    for (auto & l : m_listeners)
+        l(events);
+}
+
+void log_tree::add_listener(log_tree::listener const & l) {
+    unique_lock<mutex> lock(m_mutex);
+    m_listeners.push_back(l);
+}
+
+log_tree::log_tree() {
+    auto cell = new node_cell;
+    cell->m_tree = this;
+    m_root = node(cell);
+}
+
+log_tree::~log_tree() {
+    std::vector<event> evs;
+    m_root.detach_core(evs);
+    m_root = node();
+}
+
+void log_tree::print_to(std::ostream & out) const {
+    get_root().print_to(out, 0);
+}
+
+void log_tree::print() const {
+    print_to(std::cerr);
+};
+
+void log_tree::node::detach_core(std::vector<log_tree::event> & events) const {
+    if (m_ptr->m_detached) return;
+    m_ptr->m_detached = true;
+    m_ptr->m_children.for_each([&] (name const &, node const & c) { c.detach_core(events); });
+    for (auto & e : m_ptr->m_entries) events.push_back({ event::EntryRemoved, m_ptr, e });
+    if (m_ptr->m_producer) events.push_back({event::Finished, m_ptr, {}});
+}
+
+void log_tree::node::notify(std::vector<log_tree::event> const & events, unique_lock<mutex> & l) const {
+    if (!m_ptr->m_detached) {
+        l.unlock();
+        m_ptr->m_tree->notify_core(events);
+    }
+}
+
+log_tree::node log_tree::node::clone_core() const {
+    auto copy = node(new node_cell);
+    copy.m_ptr->m_children = m_ptr->m_children;
+    m_ptr->m_children.clear();
+    copy.m_ptr->m_tree = m_ptr->m_tree;
+    copy.m_ptr->m_detached = m_ptr->m_detached;
+    copy.m_ptr->m_entries = m_ptr->m_entries;
+    m_ptr->m_detached = true;
+    return std::move(copy);
+}
+
+void log_tree::node::clear_entries() const {
+    auto l = lock();
+
+    std::vector<event> events;
+    for (auto & e : m_ptr->m_entries) {
+        events.push_back({event::EntryRemoved, *this, std::move(e)});
+    }
+    m_ptr->m_entries.clear();
+
+    notify(events, l);
+}
+
+void log_tree::node::add(log_entry const & entry) const {
+    auto l = lock();
+    m_ptr->m_entries.push_back(entry);
+    notify({{event::EntryAdded, *this, entry}}, l);
+}
+
+log_tree::node log_tree::node::mk_child(name n, std::string const & description, location const & loc,
+                                        bool overwrite) {
+    auto l = lock();
+    std::vector<event> events;
+
+    if (!overwrite && (n.is_anonymous() || m_ptr->m_used_names.contains(n))) {
+        for (unsigned i = 0;; i++) {
+            name n_(n, i);
+            if (!m_ptr->m_used_names.contains(n_)) {
+                n = n_;
+                break;
+            }
+        }
+    }
+    m_ptr->m_used_names.insert(n);
+
+    node child;
+    if (auto existing = m_ptr->m_children.find(n)) {
+        child = existing->clone_core();
+        existing->detach_core(events);
+    } else {
+        child = node(new node_cell);
+        child.m_ptr->m_tree = m_ptr->m_tree;
+        child.m_ptr->m_detached = m_ptr->m_detached;
+    }
+    child.m_ptr->m_description = description;
+    child.m_ptr->m_location = loc;
+    m_ptr->m_children.insert(n, child);
+
+    notify(events, l);
+    return child;
+}
+
+void log_tree::node::set_producer(gtask const & prod) {
+    auto l = lock();
+    m_ptr->m_producer = prod;
+    notify({{event::ProducerSet, *this, {}}}, l);
+}
+
+void log_tree::node::finish() const {
+    auto l = lock();
+    std::vector<event> events;
+    m_ptr->m_producer.reset();
+
+    buffer<pair<name, node>> to_delete;
+    m_ptr->m_children.for_each([&] (name const & n, node const & c) {
+        if (!m_ptr->m_used_names.contains(n))
+            to_delete.emplace_back(n, c);
+    });
+
+    for (auto & c : to_delete) {
+        m_ptr->m_children.erase(c.first);
+        c.second.detach_core(events);
+    }
+
+    events.push_back({event::Finished, *this, {}});
+    notify(events, l);
+}
+
+std::vector<log_entry> log_tree::node::get_entries() const {
+    auto l = lock();
+    return m_ptr->m_entries;
+}
+
+name_map<lean::log_tree::node> log_tree::node::get_children() const {
+    auto l = lock();
+    return m_ptr->m_children;
+}
+
+void log_tree::node::reuse(name const & n) const {
+    auto l = lock();
+    m_ptr->m_used_names.insert(n);
+}
+
+name_set log_tree::node::get_used_names() const {
+    auto l = lock();
+    return m_ptr->m_used_names;
+}
+
+gtask log_tree::node::get_producer() const {
+    auto l = lock();
+    return m_ptr->m_producer;
+}
+
+void log_tree::node::print() const {
+    print_to(std::cerr, 0);
+}
+
+void log_tree::node::print_to(std::ostream & out, unsigned indent) const {
+    auto l = lock();
+    auto begin = m_ptr->m_location.m_range.m_begin, end = m_ptr->m_location.m_range.m_end;
+    out << m_ptr->m_location.m_file_name
+        << ": " << begin.first << ":" << begin.second << " -- " << end.first << ":" << end.second << ": "
+        << m_ptr->m_description << " ("
+        << m_ptr->m_entries.size()
+        << " entries, producer = "
+        << std::hex << reinterpret_cast<uintptr_t>(m_ptr->m_producer.get()) << std::dec
+        << ")" << std::endl;
+
+    auto children = m_ptr->m_children;
+    auto used_names = m_ptr->m_used_names;
+    l.unlock();
+
+    indent += 2;
+    children.for_each([&] (name const & n, log_tree::node const & c) {
+        for (unsigned i = 0; i < indent; i++) out << ' ';
+        out << n;
+        if (!used_names.contains(n))
+            out << " (unused)";
+        out << ": ";
+        c.print_to(out, indent);
+    });
+}
+
+LEAN_THREAD_PTR(log_tree::node, g_log_tree);
+scope_log_tree_core::scope_log_tree_core(log_tree::node * lt) : flet<log_tree::node *>(g_log_tree, lt) {}
+
+log_tree::node & logtree() {
+    if (g_log_tree) {
+        return *g_log_tree;
+    } else {
+        throw exception("no log tree in scope");
+    }
+}
+
+scope_log_tree::scope_log_tree(log_tree::node const & lt) : m_node(lt), m_scope(&m_node) {
+    m_node.clear_entries();
+}
+
+scope_log_tree::~scope_log_tree() {
+    logtree().finish();
+}
+
+scope_log_tree::scope_log_tree(std::string const & desc, pos_range const & pos) :
+        scope_log_tree(logtree().mk_child({}, desc, {logtree().get_location().m_file_name, pos})) {}
+
+scope_log_tree::scope_log_tree(std::string const & desc) :
+        scope_log_tree(logtree().mk_child({}, desc, logtree().get_location())) {}
+
+scope_log_tree::scope_log_tree() : scope_log_tree(std::string()) {}
+
+}

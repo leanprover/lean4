@@ -227,7 +227,7 @@
   (when lean-server-show-pending-tasks
     (let ((tasks (if lean-server-session (lean-server-session-tasks lean-server-session)))
           (cur-fn (buffer-file-name)))
-      (dolist (task tasks)
+      (dolist (task (plist-get tasks :tasks))
         (if (equal (plist-get task :file_name) cur-fn)
             (let* ((reg (lean-server-task-region task))
                    (ov (make-overlay (car reg) (cdr reg))))
@@ -267,8 +267,9 @@
 
 (defun lean-server-notify-tasks-changed (sess old-tasks)
   (force-mode-line-update)
-  (when (or (plist-get old-tasks :tasks)
-            (plist-get (lean-server-session-tasks sess) :tasks))
+  (when (and (not lean-server-show-pending-tasks)
+             (or (plist-get old-tasks :tasks)
+                 (plist-get (lean-server-session-tasks sess) :tasks)))
     ; update task flycheck messages only if the task list is non-empty
     (lean-server-notify-messages-changed sess))
   (dolist (buf (buffer-list))

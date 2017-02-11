@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include <string>
 #include <utility>
 #include <vector>
+#include <util/timer.h>
 #include "util/realpath.h"
 #include "util/stackinfo.h"
 #include "util/macros.h"
@@ -215,10 +216,14 @@ public:
     }
 };
 
-class progress_message_stream : public stream_message_buffer {
+class progress_message_stream {
     mutex m_mutex;
     bool m_showing_task = false;
     std::ostream & m_out;
+    bool m_use_json;
+
+    bool m_show_progress;
+    std::unique_ptr<single_timer> m_timer;
 
     void clear_shown_task() {
         if (m_showing_task) {
@@ -228,21 +233,70 @@ class progress_message_stream : public stream_message_buffer {
     }
 
 public:
-    progress_message_stream(std::ostream & out) :
-            stream_message_buffer(out), m_out(out) {}
+    progress_message_stream(std::ostream & out, bool use_json, bool show_progress) :
+            m_out(out), m_use_json(use_json), m_show_progress(show_progress) {
+#if defined(LEAN_MULTI_THREAD)
+        if (show_progress) {
+            m_timer.reset(new single_timer);
+        }
+#endif
+    }
 
     ~progress_message_stream() {
+        m_timer.reset();
         clear_shown_task();
     }
 
-    void report(message_bucket_id const & bucket, message const & msg) override {
+    void on_event(std::vector<log_tree::event> const & events) {
         unique_lock<mutex> lock(m_mutex);
-        clear_shown_task();
-        stream_message_buffer::report(bucket, msg);
+        log_tree::event const * cur_task = nullptr;
+        for (auto & e : events) {
+            switch (e.m_kind) {
+                case log_tree::event::EntryAdded:
+                case log_tree::event::EntryRemoved:
+                    if (auto msg = dynamic_cast<message const *>(e.m_entry.get())) {
+                        clear_shown_task();
+                        if (m_use_json) {
+#if defined(LEAN_JSON)
+                            print_json(m_out, *msg);
+#endif
+                        } else {
+                            m_out << *msg;
+                        }
+                    }
+                    break;
+                case log_tree::event::ProducerSet:
+                    taskq().submit(e.m_node.get_producer());
+                    break;
+                case log_tree::event::Finished:
+                    if (e.m_node.get_description().size())
+                        cur_task = &e;
+                    break;
+            }
+        }
+        if (m_show_progress && cur_task) {
+            std::ostringstream fmt;
+            fmt << cur_task->m_node.get_location().m_file_name << ": " << cur_task->m_node.get_description();
+            auto fmt_str = fmt.str();
+#if defined(LEAN_MULTI_THREAD)
+            if (m_timer) {
+                m_timer->set(chrono::steady_clock::now() + chrono::milliseconds(100),
+                    [=] { show_current_task(fmt_str); }, false);
+            } else {
+                show_current_task_core(fmt_str);
+            }
+#else
+            show_current_task_core(fmt_str);
+#endif
+        }
     }
 
     void show_current_task(std::string const & desc) {
         unique_lock<mutex> lock(m_mutex);
+        show_current_task_core(desc);
+    }
+    void show_current_task_core(std::string const & desc) {
+        if (m_use_json) return;
         clear_shown_task();
 #if defined(LEAN_EMSCRIPTEN)
         m_out << desc << std::endl;
@@ -419,18 +473,13 @@ int main(int argc, char ** argv) {
     }
 #endif
 
-    std::shared_ptr<message_buffer> msg_buf =
-            std::make_shared<progress_message_stream>(std::cout);
-#if defined(LEAN_JSON)
-    if (json_output) {
-        msg_buf = std::make_shared<json_message_stream>(std::cout);
-        ios.set_regular_channel(ios.get_diagnostic_channel_ptr());
-    }
-#endif
+    progress_message_stream msg_stream(std::cout, json_output, make_mode);
+    if (json_output) ios.set_regular_channel(ios.get_diagnostic_channel_ptr());
+
+    log_tree lt;
+    lt.add_listener([&] (std::vector<log_tree::event> const & evs) { msg_stream.on_event(evs); });
 
     scope_global_ios scope_ios(ios);
-    scoped_message_buffer scope_msg_buf(msg_buf.get());
-    scope_message_context scope_msg_ctx(message_bucket_id { "_global", 1 });
 
     if (smt2) {
         // Note: the smt2 flag may override other flags
@@ -483,14 +532,15 @@ int main(int argc, char ** argv) {
 #else
         tq = std::make_shared<st_task_queue>();
 #endif
-        scope_global_task_queue scope(tq.get());
+        set_task_queue(tq.get());
 
         if (make_mode) {
-            if (auto prog_msg_buf = std::dynamic_pointer_cast<progress_message_stream>(msg_buf))
-                tq->set_progress_callback([=](generic_task * t) {
-                    if (t && !t->is_tiny())
-                        prog_msg_buf->show_current_task(t->description());
-                });
+            // TODO(gabriel)
+//            if (auto prog_msg_buf = std::dynamic_pointer_cast<progress_message_stream>(message_handler))
+//                tq->set_progress_callback([=](generic_task * t) {
+//                    if (t && !t->is_tiny())
+//                        prog_msg_buf->show_current_task(t->description());
+//                });
         }
 
         fs_module_vfs vfs;
@@ -499,7 +549,7 @@ int main(int argc, char ** argv) {
                 vfs.m_modules_to_load_from_source.insert(mod_id);
         }
 
-        module_mgr mod_mgr(&vfs, msg_buf.get(), env, ios);
+        module_mgr mod_mgr(&vfs, lt.get_root(), env, ios);
         mod_mgr.set_save_olean(make_mode);
 
         bool ok = true;
@@ -525,14 +575,16 @@ int main(int argc, char ** argv) {
             mods.push_back({mod, mod_info});
         }
 
+        // TODO(gabriel)
         tq->join();
 
         for (auto & mod : mods) {
             try {
-                auto res = mod.second->m_result.get();
+                auto res = get(mod.second->m_result);
                 ok = ok && res.is_ok();
             } catch (...) {
                 ok = false;
+                throw;
                 // exception has already been reported
             }
         }
@@ -540,7 +592,7 @@ int main(int argc, char ** argv) {
         // Options appear to be empty, pretty sure I'm making a mistake here.
         if (compile && !mods.empty()) {
             auto final_env = mods.front().second->get_produced_env();
-            auto final_opts = mods.front().second->m_result.get().m_opts;
+            auto final_opts = get(mods.front().second->m_result).m_opts;
             type_context tc(final_env, final_opts);
             lean::scope_trace_env scope2(final_env, final_opts, tc);
             lean::native::scope_config scoped_native_config(

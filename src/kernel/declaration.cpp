@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "kernel/declaration.h"
 #include "kernel/environment.h"
 #include "kernel/for_each_fn.h"
+#include "util/task_builder.h"
 
 namespace lean {
 int compare(reducibility_hints const & h1, reducibility_hints const & h2) {
@@ -59,14 +60,14 @@ level_param_names const & declaration::get_univ_params() const { return m_ptr->m
 unsigned declaration::get_num_univ_params() const { return length(get_univ_params()); }
 expr const & declaration::get_type() const { return m_ptr->m_type; }
 
-task_result<expr> const & declaration::get_value_task() const {
+task<expr> const & declaration::get_value_task() const {
     lean_assert(is_theorem());
     return m_ptr->m_proof;
 }
 expr const & declaration::get_value() const {
     lean_assert(is_definition());
     if (m_ptr->m_proof) {
-        return m_ptr->m_proof.get();
+        return get(m_ptr->m_proof);
     } else {
         return *(m_ptr->m_value);
     }
@@ -95,11 +96,11 @@ declaration mk_definition(environment const & env, name const & n, level_param_n
     unsigned h = get_max_height(env, v);
     return mk_definition(n, params, t, v, reducibility_hints::mk_regular(h+1, use_self_opt), trusted);
 }
-declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, task_result<expr> const & v) {
+declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, task<expr> const & v) {
     return declaration(new declaration::cell(n, params, t, v));
 }
 declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v) {
-    return mk_theorem(n, params, t, mk_pure_task_result(v, {}));
+    return mk_theorem(n, params, t, mk_pure_task(v));
 }
 declaration mk_axiom(name const & n, level_param_names const & params, expr const & t) {
     return declaration(new declaration::cell(n, params, t, true, true));

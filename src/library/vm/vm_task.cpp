@@ -16,47 +16,17 @@ Author: Gabriel Ebner
 #include "library/vm/vm.h"
 #include "library/vm/vm_string.h"
 #include "library/vm/vm_expr.h"
-#include "util/task_queue.h"
+#include "library/library_task_builder.h"
 
 namespace lean {
 
-template <class A, class B, class Fn>
-class map_task : public task<B> {
-    Fn m_fn;
-    task_result<A> m_in;
-
-public:
-    map_task(Fn const & fn, task_result<A> const & in) :
-            m_fn(fn), m_in(in) {}
-
-    void description(std::ostream & out) const override {
-        out << "mapping";
-    }
-
-    bool is_tiny() const override { return true; }
-
-    std::vector<generic_task_result> get_dependencies() override {
-        return {m_in};
-    }
-
-    B execute() override {
-        return m_fn(m_in.get());
-    }
-};
-
-template <class B, class A, class Fn>
-static task_result<B> mk_map_task(task_result<A> const & in, Fn const & fn) {
-    return get_global_task_queue()->mk_lazy_task<map_task<A, B, Fn>>(fn, in);
-};
-
 struct vm_task : public vm_external {
-    task_result<ts_vm_obj> m_val;
-    vm_task(task_result<ts_vm_obj> const & v) : m_val(v) {}
+    task<ts_vm_obj> m_val;
+    vm_task(task<ts_vm_obj> const & v) : m_val(v) {}
     virtual ~vm_task() {}
     virtual void dealloc() override { this->~vm_task(); get_vm_allocator().deallocate(sizeof(vm_task), this); }
     virtual vm_external * ts_clone(vm_clone_fn const &) override {
-        /* A possible workaround is to use get() here and wait for the task to be done. */
-        throw exception("vm_task object cannot be copied to thread safe storage");
+        return new vm_task(m_val);
     }
     virtual vm_external * clone(vm_clone_fn const &) override {
         lean_unreachable();
@@ -67,98 +37,60 @@ bool is_task(vm_obj const & o) {
     return is_external(o) && dynamic_cast<vm_task *>(to_external(o));
 }
 
-task_result<ts_vm_obj> const & to_task(vm_obj const & o) {
+task<ts_vm_obj> const & to_task(vm_obj const & o) {
     lean_vm_check(dynamic_cast<vm_task *>(to_external(o)));
     return static_cast<vm_task*>(to_external(o))->m_val;
 }
 
-vm_obj to_obj(task_result<ts_vm_obj> const & n) {
+vm_obj to_obj(task<ts_vm_obj> const & n) {
     return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_task))) vm_task(n));
 }
 
-vm_obj to_obj(task_result<expr> const & n) {
-    return to_obj(mk_map_task<ts_vm_obj>(n, [] (expr const & e) { return ts_vm_obj(to_obj(e)); }));
+vm_obj to_obj(task<expr> const & n) {
+    return to_obj(map<ts_vm_obj>(n, [] (expr const & e) { return ts_vm_obj(to_obj(e)); }).does_not_require_own_thread().build());
 }
 
-task_result<expr> to_expr_task(vm_obj const & o) {
-    return mk_map_task<expr>(to_task(o), [] (ts_vm_obj const & o) { return to_expr(o.to_vm_obj()); });
+task<expr> to_expr_task(vm_obj const & o) {
+    return map<expr>(to_task(o), [] (ts_vm_obj const & o) { return to_expr(o.to_vm_obj()); }).does_not_require_own_thread().build();
 }
 
 vm_obj vm_task_get(vm_obj const &, vm_obj const & t) {
-    return to_task(t).get().to_vm_obj();
+    return get(to_task(t)).to_vm_obj();
 }
 
 vm_obj vm_task_pure(vm_obj const &, vm_obj const & t) {
-    return to_obj(mk_pure_task_result(ts_vm_obj(t), "task.pure"));
+    return to_obj(mk_pure_task(ts_vm_obj(t)));
 }
-
-struct vm_map_task : public task<ts_vm_obj> {
-    environment m_env;
-    options m_opts;
-    bool m_use_infom;
-    ts_vm_obj m_fn;
-    task_result<ts_vm_obj> m_arg;
-
-public:
-    vm_map_task(environment const & env, options const & opts, bool use_infom,
-                 ts_vm_obj const & fn, task_result<ts_vm_obj> const & arg) :
-            m_env(env), m_opts(opts), m_use_infom(use_infom), m_fn(fn), m_arg(arg) {}
-
-    void description(std::ostream & out) const override {
-        out << "task.map";
-    }
-
-    std::vector<generic_task_result> get_dependencies() override {
-        return {m_arg};
-    }
-
-    ts_vm_obj execute() override {
-        // Tracing
-        type_context tc(m_env);
-        scope_trace_env scope_trace(m_env, m_opts, tc);
-
-        // Info manager
-        auto_reporting_info_manager_scope scope_infom(get_module_id(), m_use_infom);
-
-        vm_state state(m_env, m_opts);
-        scope_vm_state scope_vm(state);
-        return ts_vm_obj(state.invoke(m_fn.to_vm_obj(), m_arg.get().to_vm_obj()));
-    }
-};
-
-struct vm_flatten_task : public task<ts_vm_obj> {
-    task_result<ts_vm_obj> m_task;
-
-public:
-    vm_flatten_task(task_result<ts_vm_obj> const & t) : m_task(t) {}
-
-    void description(std::ostream & out) const override {
-        out << "task.flatten";
-    }
-
-    bool is_tiny() const override { return true; }
-
-    std::vector<generic_task_result> get_dependencies() override {
-        std::vector<generic_task_result> deps = { m_task };
-        if (auto res = m_task.peek())
-            deps.push_back(to_task(res->to_vm_obj()));
-        return deps;
-    }
-
-    ts_vm_obj execute() override {
-        return to_task(m_task.get().to_vm_obj()).get();
-    }
-};
 
 vm_obj vm_task_map(vm_obj const &, vm_obj const &, vm_obj const & fn, vm_obj const & t) {
-    return to_obj(get_global_task_queue()->submit<vm_map_task>(
-            get_vm_state().env(), get_vm_state().get_options(),
-            get_global_info_manager() != nullptr,
-            ts_vm_obj(fn), to_task(t)));
+    auto env = get_vm_state().env();
+    auto opts = get_vm_state().get_options();
+    auto has_infom = get_global_info_manager() != nullptr;
+    auto ts_fn = ts_vm_obj(fn);
+    return to_obj(add_library_task(map<ts_vm_obj>(to_task(t), [env, opts, has_infom, ts_fn] (ts_vm_obj const & arg) {
+        // Tracing
+        type_context tc(env);
+        scope_trace_env scope_trace(env, opts, tc);
+
+        // Info manager
+        auto file_name = logtree().get_location().m_file_name; // TODO(gabriel)
+        auto_reporting_info_manager_scope scope_infom(file_name, has_infom);
+
+        vm_state state(env, opts);
+        scope_vm_state scope_vm(state);
+        return ts_vm_obj(state.invoke(ts_fn.to_vm_obj(), arg.to_vm_obj()));
+    }), false));
 }
 
-vm_obj vm_task_flatten(vm_obj const &, vm_obj const & t) {
-    return to_obj(get_global_task_queue()->submit<vm_flatten_task>(to_task(t)));
+vm_obj vm_task_flatten(vm_obj const &, vm_obj const & o) {
+    auto t = to_task(o);
+    return to_obj(task_builder<ts_vm_obj>([t] {
+        return get(to_task(get(t).to_vm_obj()));
+    }).depends_on_fn([t] (buffer<gtask> & deps) {
+        deps.push_back(t);
+        if (auto res = peek(t))
+            deps.push_back(to_task(res->to_vm_obj()));
+    }).does_not_require_own_thread().build());
 }
 
 void initialize_vm_task() {

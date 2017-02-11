@@ -14,7 +14,7 @@ Author: Leonardo de Moura
 #include "kernel/pos_info_provider.h"
 #include "kernel/inductive/inductive.h"
 #include "library/io_state.h"
-#include "util/task_queue.h"
+#include "util/task.h"
 
 namespace lean {
 class corrupted_file_exception : public exception {
@@ -34,9 +34,9 @@ struct loaded_module {
     std::string m_module_name;
     std::vector<module_name> m_imports;
     modification_list m_modifications;
-    task_result<bool> m_uses_sorry;
+    task<bool> m_uses_sorry;
 
-    task_result<environment> m_env;
+    task<environment> m_env;
 };
 using module_loader = std::function<std::shared_ptr<loaded_module const> (std::string const &, module_name const &)>;
 module_loader mk_olean_loader();
@@ -57,6 +57,8 @@ environment
 import_modules(environment const & env,
                std::string const & current_mod, std::vector<module_name> const & ref,
                module_loader const & mod_ldr);
+
+using module_id = std::string;
 
 struct import_error {
     module_id m_mod;
@@ -102,10 +104,10 @@ public:
     virtual const char * get_key() const = 0;
     virtual void perform(environment &) const = 0;
     virtual void serialize(serializer &) const = 0;
-    virtual void get_task_dependencies(std::vector<generic_task_result> &) const {}
+    virtual void get_task_dependencies(buffer<gtask> &) const {}
 
     // Used to check for sorrys.
-    virtual void get_introduced_exprs(std::vector<task_result<expr>> &) const {}
+    virtual void get_introduced_exprs(std::vector<task<expr>> &) const {}
 };
 
 #define LEAN_MODIFICATION(k) \

@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <string>
 #include <limits>
 #include <vector>
+#include "library/library_task_builder.h"
 #include "util/utf8.h"
 #include "util/interrupt.h"
 #include "util/sstream.h"
@@ -167,13 +168,15 @@ parser::parser(environment const & env, io_state const & ios,
     m_file_name(file_name),
     m_scanner(strm, m_file_name.c_str(), s ? s->m_pos : pos_info(1, 0)),
     m_imports_parsed(false),
-    m_snapshot_vector(sv) {
+    m_snapshot_vector(sv),
+    m_cancellation_token(global_cancellation_token()) {
     m_next_inst_idx = 1;
     m_ignore_noncomputable = false;
     if (s) {
         m_env                = s->m_env;
         m_ios.set_options(s->m_options);
-        m_old_buckets_from_snapshot = s->m_sub_buckets;
+        s->m_sub_buckets.for_each([] (name const & n) { logtree().reuse(n); });
+        m_cancellation_token = s->m_cancellation_token;
         m_local_level_decls  = s->m_lds;
         m_local_decls        = s->m_eds;
         m_level_variables    = s->m_lvars;
@@ -2240,33 +2243,6 @@ void parser::parse_imports(unsigned & fingerprint, std::vector<module_name> & im
     }
 }
 
-struct sorry_import_task : public task<unit> {
-    module_id m_imported_module_id;
-    task_result<bool> m_has_sorry;
-    pos_info m_pos;
-
-    sorry_import_task(loaded_module const & mod, pos_info const & pos) :
-            m_imported_module_id(mod.m_module_name), m_has_sorry(mod.m_uses_sorry), m_pos(pos) {}
-
-    void description(std::ostream & out) const override {
-        out << "Checking whether import " << m_imported_module_id << " uses sorry";
-    }
-
-    std::vector<generic_task_result> get_dependencies() override {
-        return {m_has_sorry};
-    }
-
-    bool is_tiny() const override { return true; }
-    bool do_priority_inversion() const override { return false; }
-
-    unit execute() override {
-        if (m_has_sorry.get())
-            report_message(message(get_module_id(), m_pos, WARNING,
-                                   (sstream() << "imported file '" << m_imported_module_id << "' uses sorry").str()));
-        return {};
-    }
-};
-
 void parser::process_imports() {
     unsigned fingerprint = 0;
     std::vector<module_name> imports;
@@ -2282,7 +2258,17 @@ void parser::process_imports() {
     module_loader sorry_checking_import_fn =
             [&] (std::string const & mod_id, module_name const & import) {
                 auto mod = m_import_fn(mod_id, import);
-                get_global_task_queue()->submit<sorry_import_task>(*mod, m_last_cmd_pos);
+
+                auto pos = m_last_cmd_pos;
+                auto mod_name = mod->m_module_name;
+                auto fn = m_file_name;
+                add_library_task(map<unit>(mod->m_uses_sorry, [pos, mod_name, fn] (bool uses_sorry) {
+                    if (uses_sorry)
+                        report_message(message(fn, pos, WARNING,
+                                               (sstream() << "imported file '" << mod_name << "' uses sorry").str()));
+                    return unit {};
+                }));
+
                 return mod;
             };
     m_env = import_modules(m_env, m_file_name, imports, sorry_checking_import_fn, import_errors);
@@ -2317,54 +2303,28 @@ void parser::get_imports(std::vector<module_name> & imports) {
     parse_imports(fingerprint, imports);
 }
 
-struct combine_parse_success_task : public task<bool> {
-    list<generic_task_result> m_required_successes;
-
-    combine_parse_success_task(list<generic_task_result> const & required_successes) :
-            task(), m_required_successes(required_successes) {}
-
-    void description(std::ostream & out) const override {
-        out << "Checking parse success (" << get_module_id() << ")";
-    }
-
-    std::vector<generic_task_result> get_dependencies() override {
-        std::vector<generic_task_result> deps;
-        for (auto & d : m_required_successes)
-            deps.push_back(d);
-        return deps;
-    }
-
-    bool is_tiny() const override { return true; }
-
-    bool do_priority_inversion() const override { return false; }
-
-    bool execute() override {
-        for (auto & d : m_required_successes) get_global_task_queue()->wait(d);
-        return true;
-    }
-};
-
-task_result<bool> parser::parse_commands() {
+task<bool> parser::parse_commands() {
     protected_call([&]() {
         // We disable hash-consing while parsing to make sure the pos-info are correct.
         scoped_expr_caching disable(false);
         scope_pos_info_provider scope1(*this);
-        scope_message_context scope_parser_msgs("_parser", m_old_buckets_from_snapshot);
         try {
             bool done = false;
             // Only parse imports when we are at the beginning.
             if (!m_imports_parsed) {
                 // initial snapshot strictly before actual input
-                save_snapshot(scope_parser_msgs, {0, 0});
-                scope_message_context scope_msg_ctx("imports");
+                save_snapshot({0, 0});
+                scope_cancellation_token scope_ctok(m_cancellation_token);
+                scope_log_tree lt("imports");
                 // TODO(gabriel): separate flag for snapshots/infos?
                 auto_reporting_info_manager_scope scope_infom(m_file_name, m_snapshot_vector != nullptr);
                 protected_call([&]() { process_imports(); }, [&]() { sync_command(); });
             }
             while (!done) {
-                save_snapshot(scope_parser_msgs);
-                scoped_task_context scope_task_ctx(get_current_module(), pos());
-                scope_message_context scope_msg_ctx;
+                save_snapshot();
+                scope_cancellation_token scope_ctok(m_cancellation_token);
+//                scoped_task_context scope_task_ctx(get_current_module(), pos());
+                scope_log_tree lt({}, {pos(), logtree().get_location().m_range.m_end});
                 // TODO(gabriel): separate flag for snapshots/infos?
                 auto_reporting_info_manager_scope scope_infom(m_file_name, m_snapshot_vector != nullptr);
                 protected_call([&]() {
@@ -2400,7 +2360,8 @@ task_result<bool> parser::parse_commands() {
                                },
                                [&]() { sync_command(); });
             }
-            scope_message_context scope_msg_ctx("end");
+            {
+            scope_log_tree lt;
             if (has_open_scopes(m_env)) {
                 m_found_errors = true;
                 if (!m_use_exceptions && m_show_errors)
@@ -2408,17 +2369,27 @@ task_result<bool> parser::parse_commands() {
                 else if (m_use_exceptions)
                     throw_parser_exception("invalid end of module, expecting 'end'", pos());
             }
-            save_snapshot(scope_parser_msgs);
+            }
+            save_snapshot();
         } catch (interrupt_parser) {
             while (has_open_scopes(m_env))
                 m_env = pop_scope_core(m_env, m_ios);
         }
     }, [](){});
 
+    scope_log_tree lt;
+    scope_cancellation_token scope_ctok(m_cancellation_token);
     if (m_found_errors) {
-        return mk_pure_task_result(false, "parse success");
+        return mk_pure_task(false);
     } else {
-        return get_global_task_queue()->submit<combine_parse_success_task>(m_required_successes);
+        auto req_succ = m_required_successes;
+        return task_builder<bool>([req_succ] {
+            for (auto t : req_succ)
+                taskq().wait_for_success(t);
+            return true;
+        }).depends_on(req_succ)
+          .does_not_require_own_thread()
+          .build();
     }
 }
 
@@ -2436,7 +2407,7 @@ bool parser::curr_is_command_like() const {
     }
 }
 
-void parser::save_snapshot(scope_message_context & smc, pos_info p) {
+void parser::save_snapshot(pos_info p) {
 #ifdef LEAN_NO_SNAPSHOT
     return;
 #endif
@@ -2444,11 +2415,12 @@ void parser::save_snapshot(scope_message_context & smc, pos_info p) {
         return;
     if (m_snapshot_vector->empty() || m_snapshot_vector->back()->m_pos != p) {
         m_snapshot_vector->push_back(std::make_shared<snapshot>(
-                m_env, smc.get_sub_buckets(), m_local_level_decls, m_local_decls,
+                m_env, logtree().get_used_names(), m_local_level_decls, m_local_decls,
                 m_level_variables, m_variables, m_include_vars,
                 m_ios.get_options(), m_imports_parsed, m_ignore_noncomputable, m_parser_scope_stack, m_next_inst_idx, p,
-                m_required_successes));
+                m_required_successes, m_cancellation_token));
     }
+    m_cancellation_token = mk_cancellation_token(m_cancellation_token);
 }
 
 optional<pos_info> parser::get_pos_info(expr const & e) const {
@@ -2478,15 +2450,16 @@ message_builder parser::mk_message(message_severity severity) {
 }
 
 bool parse_commands(environment & env, io_state & ios, char const * fname) {
-    st_task_queue tq;
-    scope_global_task_queue scope(&tq);
+//    st_task_queue tq;
+//    scope_global_task_queue scope(&tq);
     fs_module_vfs vfs;
     vfs.m_modules_to_load_from_source.insert(std::string(fname));
-    module_mgr mod_mgr(&vfs, &get_global_message_buffer(), env, ios);
+    log_tree lt;
+    module_mgr mod_mgr(&vfs, lt.get_root(), env, ios);
 
     auto mod = mod_mgr.get_module(fname);
     env = mod->get_produced_env();
-    return mod->m_result.get().is_ok();
+    return get(mod->m_result).is_ok();
 }
 
 void initialize_parser() {

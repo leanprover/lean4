@@ -8,10 +8,11 @@ Author: Leonardo de Moura
 #include <string>
 #include <utility>
 #include <vector>
+#include <util/cancellable.h>
 #include "util/flet.h"
 #include "util/name_map.h"
 #include "util/exception.h"
-#include "util/task_queue.h"
+#include "util/task.h"
 #include "kernel/environment.h"
 #include "kernel/expr_maps.h"
 #include "library/util.h"
@@ -66,7 +67,7 @@ class parser : public abstract_parser {
 
     // info support
     snapshot_vector *       m_snapshot_vector;
-    name_set                m_old_buckets_from_snapshot;
+    cancellation_token      m_cancellation_token;
     optional<pos_info>      m_break_at_pos;
     // auto completing
     bool                    m_complete{false};
@@ -85,7 +86,7 @@ class parser : public abstract_parser {
     optional<std::string>  m_doc_string;
 
     // Tasks that need to be successful (no exception) for parsing to succeed
-    list<generic_task_result> m_required_successes;
+    list<gtask> m_required_successes;
 
     void throw_parser_exception(char const * msg, pos_info p);
     void throw_nested_exception(throwable const & ex);
@@ -108,7 +109,7 @@ class parser : public abstract_parser {
 
     void process_imports();
     void parse_command();
-    task_result<bool> parse_commands();
+    task<bool> parse_commands();
     void process_postponed(buffer<expr> const & args, bool is_left, buffer<notation::action_kind> const & kinds,
                            buffer<list<expr>> const & nargs, buffer<expr> const & ps, buffer<pair<unsigned, pos_info>> const & scoped_info,
                            list<notation::action> const & postponed, pos_info const & p, buffer<expr> & new_args);
@@ -171,8 +172,8 @@ class parser : public abstract_parser {
     void push_local_scope(bool save_options = true);
     void pop_local_scope();
 
-    void save_snapshot(scope_message_context &, pos_info);
-    void save_snapshot(scope_message_context & smc) { save_snapshot(smc, m_scanner.get_pos_info()); }
+    void save_snapshot(pos_info);
+    void save_snapshot() { save_snapshot(m_scanner.get_pos_info()); }
 
 public:
     parser(environment const & env, io_state const & ios,
@@ -479,7 +480,7 @@ public:
 
     expr mk_sorry(pos_info const & p);
 
-    void require_success(generic_task_result const & t) {
+    void require_success(gtask const & t) {
         m_required_successes = cons(t, m_required_successes);
     }
 
@@ -489,7 +490,7 @@ public:
     bool profiling() const { return m_profile; }
 
     /** parse all commands in the input stream */
-    task_result<bool> operator()() { return parse_commands(); }
+    task<bool> operator()() { return parse_commands(); }
 
     void get_imports(std::vector<module_name> &);
 

@@ -22,7 +22,6 @@ Author: Sebastian Ullrich
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_pos_info.h"
 #include "library/vm/interaction_state.h"
-#include "util/task_queue.h"
 
 namespace lean {
 

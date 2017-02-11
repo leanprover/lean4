@@ -29,11 +29,8 @@ Author: Leonardo de Moura
 #include "library/kernel_serializer.h"
 #include "library/unfold_macros.h"
 #include "library/module_mgr.h"
+#include "library/library_task_builder.h"
 #include "version.h"
-
-#ifndef LEAN_ASYNCH_IMPORT_THEOREM
-#define LEAN_ASYNCH_IMPORT_THEOREM false
-#endif
 
 namespace lean {
 corrupted_file_exception::corrupted_file_exception(std::string const & fname):
@@ -207,7 +204,7 @@ void write_module(loaded_module const & mod, std::ostream & out) {
     unsigned h    = hash(r.size(), [&](unsigned i) { return r[i]; });
     s2 << g_olean_header << LEAN_VERSION_MAJOR << LEAN_VERSION_MINOR << LEAN_VERSION_PATCH;
     s2 << h;
-    s2 << static_cast<bool>(mod.m_uses_sorry.get());
+    s2 << static_cast<bool>(get(mod.m_uses_sorry));
     // store imported files
     s2 << static_cast<unsigned>(mod.m_imports.size());
     for (auto m : mod.m_imports)
@@ -218,46 +215,17 @@ void write_module(loaded_module const & mod, std::ostream & out) {
         s2.write_char(r[i]);
 }
 
-struct search_sorry_task : public task<bool> {
-    std::vector<task_result<expr>> m_exprs;
-
-    search_sorry_task(std::vector<task_result<expr>> const & exprs) : m_exprs(exprs) {}
-
-    void description(std::ostream & out) const override {
-        out << "Checking whether the module " << get_module_id() << " contains sorry";
-    }
-
-    std::vector<generic_task_result> get_dependencies() override {
-        std::vector<generic_task_result> deps;
-        for (auto & dep : m_exprs) deps.push_back(dep);
-        return deps;
-    }
-
-    bool is_tiny() const override { return true; }
-
-    bool execute() override {
-        for (auto & e : m_exprs) {
-            if (has_sorry(e.get())) return true;
-        }
-        return false;
-    }
-};
-
-static task_result<bool> has_sorry(modification_list const & mods) {
-    std::vector<task_result<expr>> introduced_exprs;
+static task<bool> has_sorry(modification_list const & mods) {
+    std::vector<task<expr>> introduced_exprs;
     for (auto & mod : mods) mod->get_introduced_exprs(introduced_exprs);
 
-    std::vector<task_result<expr>> delayed_exprs;
-    for (auto & e : introduced_exprs) {
-        if (auto e_ = e.peek()) {
-            if (has_sorry(*e_))
-                return mk_pure_task_result(true, "");
-        } else {
-            delayed_exprs.push_back(std::move(e));
-        }
-    }
-
-    return get_global_task_queue()->mk_lazy_task<search_sorry_task>(std::move(delayed_exprs));
+    return map<bool>(traverse(introduced_exprs),
+                     [] (std::vector<expr> const & es) {
+                         for (auto & e : es) {
+                             if (has_sorry(e)) return true;
+                         }
+                         return false;
+                     }).build();
 }
 
 loaded_module export_module(environment const & env, std::string const & mod_name) {
@@ -334,16 +302,16 @@ struct decl_modification : public modification {
         return std::make_shared<decl_modification>(std::move(decl), trust_lvl);
     }
 
-    void get_introduced_exprs(std::vector<task_result<expr>> & es) const override {
-        es.push_back(mk_pure_task_result(m_decl.get_type(), ""));
+    void get_introduced_exprs(std::vector<task<expr>> & es) const override {
+        es.push_back(mk_pure_task(m_decl.get_type()));
         if (m_decl.is_theorem()) {
             es.push_back(m_decl.get_value_task());
         } else if (m_decl.is_definition()) {
-            es.push_back(mk_pure_task_result(m_decl.get_value(), ""));
+            es.push_back(mk_pure_task(m_decl.get_value()));
         }
     }
 
-    void get_task_dependencies(std::vector<generic_task_result> & deps) const override {
+    void get_task_dependencies(buffer<gtask> & deps) const override {
         if (m_decl.is_theorem())
             deps.push_back(m_decl.get_value_task());
     }
@@ -368,10 +336,10 @@ struct inductive_modification : public modification {
         return std::make_shared<inductive_modification>(read_certified_inductive_decl(d));
     }
 
-    void get_introduced_exprs(std::vector<task_result<expr>> & es) const override {
-        es.push_back(mk_pure_task_result(m_decl.get_decl().m_type, ""));
+    void get_introduced_exprs(std::vector<task<expr>> & es) const override {
+        es.push_back(mk_pure_task(m_decl.get_decl().m_type));
         for (auto & i : m_decl.get_decl().m_intro_rules)
-            es.push_back(mk_pure_task_result(i, ""));
+            es.push_back(mk_pure_task(i));
     }
 };
 
@@ -417,57 +385,24 @@ environment update_module_defs(environment const & env, declaration const & d) {
     }
 }
 
-struct add_decl_sorry_check : public task<unit> {
-    declaration m_decl;
-    pos_info m_pos;
-
-    add_decl_sorry_check(declaration const & decl, pos_info const & pos) :
-            m_decl(decl), m_pos(pos) {}
-
-    void description(std::ostream & out) const override {
-        out << "Checking added declaration " << m_decl.get_name() << " for use of sorry";
-    }
-
-    std::vector<generic_task_result> get_dependencies() override {
-        if (m_decl.is_theorem()) {
-            return {m_decl.get_value_task()};
-        } else {
-            return {};
-        }
-    }
-
-    bool is_tiny() const override { return true; }
-    task_kind get_kind() const override { return task_kind::elab; }
-
-    optional<name> should_report_sorry(name const & n) {
-        if (n.is_anonymous())
-            return optional<name>();
-        if (!is_internal_name(n))
-            return optional<name>(n);
-        if (!n.is_string())
-            return optional<name>();
-        if (strcmp(n.get_string(), "_example") == 0)
-            return optional<name>(n);
-        if (strcmp(n.get_string(), "_main") == 0)
-            return should_report_sorry(n.get_prefix());
-        if (strncmp(n.get_string(), "_match", 6) == 0) {
-            // TODO(Leo): we may report the same function multiple times,
-            // if it contains many nested match-expressions containing sorry.
-            return should_report_sorry(n.get_prefix());
-        }
+static optional<name> should_report_sorry(name const & n) {
+    if (n.is_anonymous())
         return optional<name>();
+    if (!is_internal_name(n))
+        return optional<name>(n);
+    if (!n.is_string() || n.is_atomic())
+        return optional<name>();
+    if (strcmp(n.get_string(), "_example") == 0)
+        return optional<name>(n);
+    if (strcmp(n.get_string(), "_main") == 0)
+        return should_report_sorry(n.get_prefix());
+    if (strncmp(n.get_string(), "_match", 6) == 0) {
+        // TODO(Leo): we may report the same function multiple times,
+        // if it contains many nested match-expressions containing sorry.
+        return should_report_sorry(n.get_prefix());
     }
-
-    unit execute() override {
-        if (has_sorry(m_decl)) {
-            if (optional<name> n = should_report_sorry(m_decl.get_name())) {
-                report_message(message(get_module_id(), m_pos, WARNING,
-                                       (sstream() << "declaration '" << *n << "' uses sorry").str()));
-            }
-        }
-        return {};
-    }
-};
+    return optional<name>();
+}
 
 environment add(environment const & env, certified_declaration const & d) {
     environment new_env = env.add(d);
@@ -476,7 +411,17 @@ environment add(environment const & env, certified_declaration const & d) {
         new_env = mark_noncomputable(new_env, _d.get_name());
     new_env = update_module_defs(new_env, _d);
     new_env = add(new_env, std::make_shared<decl_modification>(_d, env.trust_lvl()));
-    get_global_task_queue()->submit<add_decl_sorry_check>(_d, pos_info {g_curr_line, g_curr_column});
+    pos_info pos { g_curr_line, g_curr_column };
+    add_library_task(task_builder<unit>([_d, pos] {
+        if (has_sorry(_d)) {
+            if (optional<name> n = should_report_sorry(_d.get_name())) {
+                auto file_name = "<dummy>"; // TODO(gabriel)
+                report_message(message(file_name, pos, WARNING,
+                                       (sstream() << "declaration '" << *n << "' uses sorry").str()));
+            }
+        }
+        return unit {};
+    }).depends_on(_d.is_theorem() ? _d.get_value_task() : nullptr));
     return add_decl_pos_info(new_env, _d.get_name());
 }
 
@@ -552,7 +497,7 @@ static void import_module(environment & env, std::string const & module_file_nam
         if (ext0.m_imported.contains(res->m_module_name)) return;
 
         if (ext0.m_imported.empty() && res->m_env) {
-            env = res->m_env.get();
+            env = get(res->m_env);
         } else {
             for (auto &dep : res->m_imports) {
                 import_module(env, res->m_module_name, dep, mod_ldr, import_errors);
@@ -600,43 +545,18 @@ static environment mk_preimported_module(environment const & initial_env, loaded
     return env;
 }
 
-struct preimport_task : public task<environment> {
-    std::weak_ptr<loaded_module> m_lm;
-    environment m_env0;
-    std::function<module_loader()> m_mk_mod_ldr;
-
-public:
-    preimport_task(std::weak_ptr<loaded_module> const & lm,
-        environment const & env0, std::function<module_loader()> mk_mod_ldr) :
-            m_lm(lm), m_env0(env0), m_mk_mod_ldr(mk_mod_ldr) {}
-
-    void description(std::ostream & out) const override {
-        out << "precompiling import ";
-        if (auto lm = m_lm.lock()) {
-            out << lm->m_module_name;
-        } else {
-            out << "<deallocated>";
-        }
-    }
-
-    std::vector<generic_task_result> get_dependencies() override {
-        return {};
-    }
-
-    environment execute() override {
-        if (auto lm = m_lm.lock()) {
-            return mk_preimported_module(m_env0, *lm, m_mk_mod_ldr());
-        } else {
-            throw exception("loaded_module got deallocated before preimporting");
-        }
-    }
-};
-
 std::shared_ptr<loaded_module const> cache_preimported_env(
         loaded_module && lm_ref, environment const & env0,
         std::function<module_loader()> const & mk_mod_ldr) {
     auto lm = std::make_shared<loaded_module>(lm_ref);
-    lm->m_env = get_global_task_queue()->mk_lazy_task<preimport_task>(lm, env0, mk_mod_ldr);
+    std::weak_ptr<loaded_module> wlm = lm;
+    lm->m_env = task_builder<environment>([env0, wlm, mk_mod_ldr] {
+        if (auto lm = wlm.lock()) {
+            return mk_preimported_module(env0, *lm, mk_mod_ldr());
+        } else {
+            throw exception("loaded_module got deallocated before preimporting");
+        }
+    }).build();
     return lm;
 }
 
@@ -687,7 +607,7 @@ module_loader mk_olean_loader() {
         auto modifs = parse_olean_modifications(parsed.m_serialized_modifications, fn);
         return std::make_shared<loaded_module>(
                 loaded_module { fn, parsed.m_imports, modifs,
-                                mk_pure_task_result(parsed.m_uses_sorry, ""), {} });
+                                mk_pure_task<bool>(parsed.m_uses_sorry), {} });
     };
 }
 

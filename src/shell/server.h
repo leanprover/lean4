@@ -9,16 +9,14 @@ Authors: Gabriel Ebner, Sebastian Ullrich
 #include "kernel/pos_info_provider.h"
 #include "kernel/environment.h"
 #include "library/io_state.h"
-#include "library/versioned_msg_buf.h"
 #include "library/module_mgr.h"
 #include "frontends/lean/json.h"
 #include "library/mt_task_queue.h"
+#include "util/cancellable.h"
 
 namespace lean {
 
-#if defined(LEAN_MULTI_THREAD)
-mt_tq_prioritizer mk_interactive_prioritizer(std::unordered_set<module_id> const & roi);
-#endif
+unsigned get_auto_completion_max_results(options const &);
 
 class server : public module_vfs {
     options m_opts;
@@ -35,14 +33,19 @@ class server : public module_vfs {
     std::unordered_set<std::string> m_visible_files;
 
     mutex m_out_mutex;
-    class msg_buf;
-    std::unique_ptr<msg_buf> m_msg_buf;
+
+    log_tree m_lt;
+
+    class message_handler;
+    std::unique_ptr<message_handler> m_msg_handler;
+    class tasks_handler;
+    std::unique_ptr<tasks_handler> m_tasks_handler;
 
     std::unique_ptr<module_mgr> m_mod_mgr;
     std::unique_ptr<task_queue> m_tq;
     fs_module_vfs m_fs_vfs;
 
-    task_result<unit> m_info_result;
+    cancellation_token m_bg_task_ctok;
 
     template <class Msg>
     void send_msg(Msg const &);
@@ -57,6 +60,9 @@ class server : public module_vfs {
     class info_task;
     void handle_info(cmd_req const & req);
 
+    json autocomplete(std::shared_ptr<module_info const> const & mod_info, bool skip_completions, pos_info const & pos);
+    json info(std::shared_ptr<module_info const> const & mod_info, pos_info const & pos);
+
 public:
     server(unsigned num_threads, environment const & intial_env, io_state const & ios);
     ~server();
@@ -65,6 +71,8 @@ public:
 
     void run();
     void handle_request(json const & req);
+
+    log_tree & get_log_tree() { return m_lt; }
 };
 
 void initialize_server();

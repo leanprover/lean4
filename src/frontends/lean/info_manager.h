@@ -69,7 +69,7 @@ public:
 
 typedef rb_map<unsigned, list<info_data>, unsigned_cmp> line_info_data_set;
 
-class info_manager {
+class info_manager : public log_entry_cell {
     std::string m_file_name;
     rb_map<unsigned, line_info_data_set, unsigned_cmp> m_line_data;
 
@@ -105,18 +105,18 @@ public:
 };
 
 class auto_reporting_info_manager_scope {
-    optional<info_manager> m_infom;
+    std::shared_ptr<info_manager> m_infom;
     scoped_info_manager m_infom_scope;
 
 public:
     auto_reporting_info_manager_scope(std::string const & file_name, bool enabled) :
-            m_infom(enabled ? optional<info_manager>(info_manager(file_name)) : optional<info_manager>()),
+            m_infom(enabled ? std::make_shared<info_manager>(file_name) : nullptr),
             m_infom_scope(enabled ? &*m_infom : nullptr) {}
 
     ~auto_reporting_info_manager_scope() {
         if (m_infom && !m_infom->empty()) {
             try {
-                report_info_manager(*m_infom);
+                logtree().add(m_infom);
             } catch (...) {}
         }
     }

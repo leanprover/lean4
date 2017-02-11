@@ -13,15 +13,15 @@ Author: Gabriel Ebner
 #include "util/file_lock.h"
 #include "library/module_mgr.h"
 #include "library/module.h"
-#include "library/versioned_msg_buf.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/parser.h"
+#include "library_task_builder.h"
 
 namespace lean {
 
 bool module_info::parse_result::is_ok() const {
     try {
-        return m_parsed_ok.get() && m_proofs_are_correct.get();
+        return get(m_parsed_ok) && get(m_proofs_are_correct);
     } catch (...) {
         return false;
     }
@@ -66,11 +66,11 @@ static module_loader mk_loader(module_id const & cur_mod, std::vector<module_inf
         }
     }
 
-    return[deps_per_mod_ptr] (std::string const & current_module, module_name const & import) {
+    return[deps_per_mod_ptr] (std::string const & current_module, module_name const & import) -> std::shared_ptr<loaded_module const> {
         try {
             for (auto & d : deps_per_mod_ptr->at(current_module)) {
                 if (d.m_import_name.m_name == import.m_name && d.m_import_name.m_relative == import.m_relative) {
-                    return d.m_mod_info->m_result.get().m_loaded_module;
+                    return get(d.m_mod_info->m_result).m_loaded_module;
                 }
             }
         } catch (std::out_of_range) {
@@ -93,119 +93,65 @@ static pos_info find_end_pos(std::string const & src) {
     return {line_no, static_cast<unsigned>(utf8_strlen(line.c_str()))};
 }
 
-class parse_lean_task : public task<module_info::parse_result> {
-    environment m_initial_env;
-    std::string m_contents;
-    snapshot_vector m_snapshots;
-    bool m_use_snapshots;
-    std::vector<module_info::dependency> m_deps;
-    pos_info m_end_pos;
+static module_info::parse_result parse_lean(
+        std::string const & file_name, std::string const & contents,
+        environment const & initial_env,
+        snapshot_vector snapshots, bool use_snapshots,
+        std::vector<module_info::dependency> const & deps) {
+    auto import_fn = mk_loader(file_name, deps);
 
-public:
-    parse_lean_task(std::string const & contents, environment const & initial_env,
-                    snapshot_vector const & snapshots, bool use_snapshots,
-                    std::vector<module_info::dependency> const & deps) :
-        m_initial_env(initial_env), m_contents(contents),
-        m_snapshots(snapshots), m_use_snapshots(use_snapshots),
-        m_deps(deps), m_end_pos(find_end_pos(contents)) {}
-    task_kind get_kind() const override { return task_kind::parse; }
+    bool use_exceptions = false;
+    std::istringstream in(contents);
+    parser p(initial_env, get_global_ios(), import_fn, in, file_name,
+             use_exceptions,
+             (snapshots.empty() || !use_snapshots) ? std::shared_ptr<snapshot>() : snapshots.back(),
+             use_snapshots ? &snapshots : nullptr);
+    auto parsed_ok = p();
 
-    pos_info get_end_pos() const override { return m_end_pos; }
+    module_info::parse_result mod;
 
-    void description(std::ostream & out) const override {
-        out << "parsing " << get_module_id();
-    }
+    mod.m_snapshots = std::move(snapshots);
 
-    std::vector<generic_task_result> get_dependencies() override {
-        std::vector<generic_task_result> deps;
-        for (auto & d : m_deps)
-            if (d.m_mod_info)
-                deps.push_back(d.m_mod_info->m_result);
-        if (!m_deps.empty()) {
-            // also add the preimported environment of the first dependency
-            if (auto & mod_info = m_deps.front().m_mod_info) {
-                if (auto res = mod_info->m_result.peek()) {
-                    deps.push_back(res->m_loaded_module->m_env);
-                }
-            }
-        }
-        return deps;
-    }
+    mod.m_loaded_module = cache_preimported_env(
+            export_module(p.env(), file_name),
+            initial_env, [=] { return import_fn; });
 
-    module_info::parse_result execute() override {
-        auto import_fn = mk_loader(get_module_id(), m_deps);
+    mod.m_opts = p.ios().get_options();
 
-        bool use_exceptions = false;
-        std::istringstream in(m_contents);
-        parser p(m_initial_env, get_global_ios(), import_fn, in, get_module_id(),
-                 use_exceptions,
-                 (m_snapshots.empty() || !m_use_snapshots) ? std::shared_ptr<snapshot>() : m_snapshots.back(),
-                 m_use_snapshots ? &m_snapshots : nullptr);
-        auto parsed_ok = p();
+    mod.m_parsed_ok = parsed_ok;
+    mod.m_proofs_are_correct = p.env().is_correct();
 
-        module_info::parse_result mod;
+    return mod;
+}
 
-        mod.m_snapshots = std::move(m_snapshots);
+static gtask compile_olean(std::shared_ptr<module_info const> const & mod) {
+    gtask mod_dep = mk_deep_dependency(mod->m_result, [] (buffer<gtask> & deps, module_info::parse_result const & res) {
+        for (auto & mdf : res.m_loaded_module->m_modifications)
+            mdf->get_task_dependencies(deps);
+        deps.push_back(res.m_loaded_module->m_uses_sorry);
+        deps.push_back(res.m_parsed_ok);
+        deps.push_back(res.m_proofs_are_correct);
+    });
 
-        mod.m_loaded_module = cache_preimported_env(
-                export_module(p.env(), get_module_id()),
-                m_initial_env, [=] { return import_fn; });
+    std::vector<gtask> olean_deps;
+    for (auto & dep : mod->m_deps)
+        olean_deps.push_back(dep.m_mod_info->m_olean_task);
 
-        mod.m_opts = p.ios().get_options();
-
-        mod.m_parsed_ok = parsed_ok;
-        mod.m_proofs_are_correct = p.env().is_correct();
-
-        return mod;
-    }
-};
-
-class olean_compilation_task : public task<unit> {
-    std::shared_ptr<module_info const> m_mod;
-
-public:
-    olean_compilation_task(std::shared_ptr<module_info const> const & mod) : m_mod(mod) {}
-    task_kind get_kind() const override { return task_kind::parse; }
-
-    std::vector<generic_task_result> get_dependencies() override {
-        std::vector<generic_task_result> deps;
-
-        // Write the olean files in the correct order, so that they have the right mtime.
-        for (auto & d : m_mod->m_deps)
-            if (d.m_mod_info)
-                deps.push_back(d.m_mod_info->m_olean_task);
-
-        deps.push_back(m_mod->m_result);
-        if (auto res = m_mod->m_result.peek()) {
-            for (auto & mdf : res->m_loaded_module->m_modifications)
-                mdf->get_task_dependencies(deps);
-            deps.push_back(res->m_loaded_module->m_uses_sorry);
-            deps.push_back(res->m_parsed_ok);
-            deps.push_back(res->m_proofs_are_correct);
-        }
-
-        return deps;
-    }
-
-    void description(std::ostream & out) const override {
-        out << "saving object code for " << get_module_id();
-    }
-
-    unit execute() override {
-        if (m_mod->m_source != module_src::LEAN)
+    return add_library_task(task_builder<unit>([mod] {
+        if (mod->m_source != module_src::LEAN)
             throw exception("cannot build olean from olean");
-        auto res = m_mod->m_result.get();
+        auto res = get(mod->m_result);
 
         if (!res.is_ok())
             throw exception("not creating olean file because of errors");
 
-        auto olean_fn = olean_of_lean(m_mod->m_mod);
+        auto olean_fn = olean_of_lean(mod->m_mod);
         exclusive_file_lock output_lock(olean_fn);
         std::ofstream out(olean_fn, std::ios_base::binary);
         write_module(*res.m_loaded_module, out);
-        return {};
-    }
-};
+        return unit();
+    }).depends_on(mod_dep).depends_on(olean_deps), std::string("saving olean"));
+}
 
 // TODO(gabriel): adapt to vfs
 static module_id resolve(module_id const & module_file_name, module_name const & ref) {
@@ -222,10 +168,7 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
         if (!existing_mod->m_out_of_date) return;
 
     scope_global_ios scope_ios(m_ios);
-    scoped_message_buffer scoped_msg_buf(m_msg_buf);
-    scoped_task_context scope_task_ctx(id, {1, 0});
-    message_bucket_id bucket_id { id, m_current_period };
-    scope_message_context scope_msg_ctx(bucket_id);
+    scope_log_tree lt(m_lt.mk_child(id, {}, { id, {{1, 0}, {static_cast<unsigned>(-1), 0}} }, true));
     scope_traces_as_messages scope_trace_msgs(id, {1, 0});
 
     try {
@@ -254,7 +197,6 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
 
             mod->m_mod = id;
             mod->m_source = module_src::OLEAN;
-            mod->m_version = m_current_period;
             mod->m_trans_mtime = mod->m_mtime = mtime;
 
             for (auto & d : parsed_olean.m_imports) {
@@ -275,39 +217,35 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
             res.m_loaded_module = cache_preimported_env(
                     { id, parsed_olean.m_imports,
                       parse_olean_modifications(parsed_olean.m_serialized_modifications, id),
-                      mk_pure_task_result(parsed_olean.m_uses_sorry, ""), {} },
+                      mk_pure_task<bool>(parsed_olean.m_uses_sorry), {} },
                     m_initial_env, [=] { return mk_loader(id, deps); });
 
-            res.m_parsed_ok = mk_pure_task_result(true, "olean parse success");
-            res.m_proofs_are_correct = mk_pure_task_result(true, "");
-            mod->m_result = mk_pure_task_result(res, "Loading " + olean_fn);
+            res.m_parsed_ok = mk_pure_task(true);
+            res.m_proofs_are_correct = mk_pure_task(true);
+            mod->m_result = mk_pure_task<module_info::parse_result>(res);
 
-            get_global_task_queue()->cancel_if(
-                    [=] (generic_task * t) {
-                        return t->get_version() < m_current_period && t->get_module_id() == id;
-                    });
+            if (auto & old_mod = m_modules[id])
+                cancel(old_mod->m_cancel);
             m_modules[id] = mod;
         } else if (src == module_src::LEAN) {
             std::istringstream in(contents);
 
-            auto bucket_name = "_build_module";
+            scope_log_tree lt2(lt.get().mk_child({}, {}, { id, {{1,0}, find_end_pos(contents)} }));
 
             snapshot_vector snapshots;
             if (m_use_snapshots) {
                 if (get_snapshots_or_unchanged_module(id, contents, mtime, snapshots)) {
                     m_modules[id]->m_out_of_date = false;
-                    scope_msg_ctx.new_sub_bucket(bucket_name);
                     return;
                 }
             }
-            auto task_pos = snapshots.empty() ? pos_info {1, 0} : snapshots.back()->m_pos;
-            scoped_task_context scope_task_ctx2(id, task_pos);
-
-            scope_message_context scope_msg_ctx2(bucket_name);
 
             auto imports = get_direct_imports(id, contents);
 
             auto mod = std::make_shared<module_info>();
+            mod->m_cancel = mk_cancellation_token(
+                    snapshots.empty() ? nullptr : snapshots.back()->m_cancellation_token);
+            scope_cancellation_token scope_cancel(mod->m_cancel);
             mod->m_mod = id;
             mod->m_source = module_src::LEAN;
             mod->m_trans_mtime = mod->m_mtime = mtime;
@@ -330,19 +268,34 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
                 mod->m_lean_contents = optional<std::string>(contents);
                 mod->m_still_valid_snapshots = snapshots;
             }
-            mod->m_version = m_current_period;
 
-            mod->m_result = get_global_task_queue()->submit<parse_lean_task>(
-                    contents, m_initial_env,
-                    snapshots, m_use_snapshots,
-                    mod->m_deps);
+            std::vector<gtask> deps;
+            for (auto & d : mod->m_deps)
+                if (d.m_mod_info)
+                    deps.push_back(d.m_mod_info->m_result);
+            if (!mod->m_deps.empty()) {
+                // also add the preimported environment of the first dependency
+                if (auto & mod_info = mod->m_deps.front().m_mod_info) {
+                    deps.push_back(mk_deep_dependency(mod_info->m_result,
+                            [] (buffer<gtask> & ds, module_info::parse_result const & res) {
+                                ds.push_back(res.m_loaded_module->m_env);
+                            }));
+                }
+            }
+
+            auto initial_env = m_initial_env;
+            auto use_snapshots = m_use_snapshots;
+            auto mod_deps = mod->m_deps;
+            mod->m_result = add_library_task(task_builder<module_info::parse_result>(
+                    [=] { return parse_lean(id, contents, initial_env, snapshots, use_snapshots, mod_deps); })
+                    .depends_on(deps), std::string("parsing"));
 
             if (m_save_olean)
-                mod->m_olean_task = get_global_task_queue()->submit<olean_compilation_task>(mod);
+                mod->m_olean_task = compile_olean(mod);
 
-            get_global_task_queue()->cancel_if([=] (generic_task * t) {
-                return t->get_version() < m_current_period && t->get_module_id() == id && t->get_pos() >= task_pos;
-            });
+            if (auto & old_mod = m_modules[id]) {
+                cancel(old_mod->m_result); // TODO(gabriel): remove after parser refactoring
+            }
             m_modules[id] = mod;
         } else {
             throw exception("unknown module source");
@@ -364,7 +317,6 @@ std::shared_ptr<module_info const> module_mgr::get_module(module_id const & id) 
 
 void module_mgr::invalidate(module_id const & id) {
     unique_lock<mutex> lock(m_mutex);
-    m_current_period++;
 
     if (auto & mod = m_modules[id]) {
         buffer<module_id> to_rebuild;
@@ -392,7 +344,7 @@ static optional<pos_info> get_first_diff_pos(std::string const & a, std::string 
 }
 
 snapshot_vector module_mgr::get_snapshots(module_id const & id) {
-    return get_module(id)->m_result.get().m_snapshots;
+    return get(get_module(id)->m_result).m_snapshots;
 }
 
 bool
@@ -415,7 +367,7 @@ module_mgr::get_snapshots_or_unchanged_module(module_id const &id, std::string c
     if (*mod->m_lean_contents == contents) return true;
 
     if (mod->m_result) {
-        if (auto parse_res = mod->m_result.peek())
+        if (auto parse_res = peek(mod->m_result))
             mod->m_still_valid_snapshots = parse_res->m_snapshots;
     }
     if (mod->m_still_valid_snapshots.empty()) return false;
@@ -427,6 +379,7 @@ module_mgr::get_snapshots_or_unchanged_module(module_id const &id, std::string c
             it++;
         if (it != snaps.begin())
             it--;
+        if (it != snaps.end()) cancel((*it)->m_cancellation_token); // TODO(gabriel): move somewhere better
         snaps.erase(it, snaps.end());
         vector = snaps;
         return false;
@@ -438,7 +391,7 @@ module_mgr::get_snapshots_or_unchanged_module(module_id const &id, std::string c
 std::vector<module_name> module_mgr::get_direct_imports(module_id const & id, std::string const & contents) {
     std::vector<module_name> imports;
     try {
-        scope_message_context scope("dependencies");
+        scope_log_tree lt;
         std::istringstream in(contents);
         bool use_exceptions = true;
         parser p(get_initial_env(), m_ios, nullptr, in, id, use_exceptions);
@@ -446,6 +399,14 @@ std::vector<module_name> module_mgr::get_direct_imports(module_id const & id, st
     } catch (...) {}
 
     return imports;
+}
+
+void module_mgr::cancel_all() {
+    for (auto & m : m_modules) {
+        if (auto mod = m.second) {
+            cancel(mod->m_cancel);
+        }
+    }
 }
 
 std::tuple<std::string, module_src, time_t> fs_module_vfs::load_module(module_id const & id, bool can_use_olean) {

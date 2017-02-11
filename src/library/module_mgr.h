@@ -9,10 +9,10 @@ Author: Gabriel Ebner
 #include <utility>
 #include <vector>
 #include <unordered_map>
+#include "util/unit.h"
 #include "util/name.h"
 #include "kernel/environment.h"
-#include "util/task_queue.h"
-#include "library/message_buffer.h"
+#include "util/task.h"
 #include "library/io_state.h"
 #include "library/trace.h"
 #include "frontends/lean/parser.h"
@@ -23,8 +23,6 @@ enum class module_src {
     OLEAN,
     LEAN,
 };
-
-struct unit {};
 
 struct module_info {
     bool m_out_of_date = false;
@@ -42,13 +40,11 @@ struct module_info {
 
     optional<std::string> m_lean_contents;
 
-    period m_version = 0;
-
     struct parse_result {
         options               m_opts;
 
-        task_result<bool> m_parsed_ok;
-        task_result<bool> m_proofs_are_correct;
+        task<bool> m_parsed_ok;
+        task<bool> m_proofs_are_correct;
         bool is_ok() const;
 
         std::shared_ptr<loaded_module const> m_loaded_module;
@@ -56,13 +52,15 @@ struct module_info {
         snapshot_vector m_snapshots;
     };
 
-    task_result<parse_result> m_result;
+    task<parse_result> m_result;
     snapshot_vector m_still_valid_snapshots;
 
-    task_result<unit> m_olean_task;
+    gtask m_olean_task;
+
+    cancellation_token m_cancel;
 
     environment const & get_produced_env() const {
-        return m_result.get().m_loaded_module->m_env.get();
+        return get(get(m_result).m_loaded_module->m_env);
     }
 };
 
@@ -81,15 +79,13 @@ public:
 };
 
 class module_mgr {
-    period m_current_period = 1;
-
     bool m_use_snapshots = false;
     bool m_save_olean = false;
 
     environment m_initial_env;
     io_state m_ios;
     module_vfs * m_vfs;
-    message_buffer * m_msg_buf;
+    log_tree::node m_lt;
 
     mutex m_mutex;
     std::unordered_map<module_id, std::shared_ptr<module_info>> m_modules;
@@ -101,14 +97,16 @@ class module_mgr {
             module_id const & id, std::string const & contents, time_t mtime, snapshot_vector &vector);
 
 public:
-    module_mgr(module_vfs * vfs, message_buffer * msg_buf, environment const & initial_env, io_state const & ios) :
-            m_initial_env(initial_env), m_ios(ios), m_vfs(vfs), m_msg_buf(msg_buf) {}
+    module_mgr(module_vfs * vfs, log_tree::node const & lt, environment const & initial_env, io_state const & ios) :
+            m_initial_env(initial_env), m_ios(ios), m_vfs(vfs), m_lt(lt) {}
 
     void invalidate(module_id const & id);
 
     std::shared_ptr<module_info const> get_module(module_id const &);
 
     snapshot_vector get_snapshots(module_id const & id);
+
+    void cancel_all();
 
     void set_use_snapshots(bool use_snapshots) { m_use_snapshots = use_snapshots; }
     bool get_use_snapshots() const { return m_use_snapshots; }

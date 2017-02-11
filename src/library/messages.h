@@ -6,6 +6,7 @@ Author: Gabriel Ebner
 */
 #pragma once
 #include <string>
+#include "util/log_tree.h"
 #include "util/message_definitions.h"
 #include "util/parser_exception.h"
 
@@ -13,7 +14,7 @@ namespace lean {
 
 enum message_severity { INFORMATION, WARNING, ERROR };
 
-class message {
+class message : public log_entry_cell {
     std::string      m_file_name;
     pos_info         m_pos;
     message_severity m_severity;
@@ -37,5 +38,8 @@ public:
     std::string get_caption() const { return m_caption; }
     std::string get_text() const { return m_text; }
 };
+
+std::ostream & operator<<(std::ostream &, message const &);
+void report_message(message const &);
 
 }

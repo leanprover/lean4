@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include "library/io_state.h"
 #include "library/trace.h"
 #include "library/messages.h"
-#include "library/message_buffer.h"
 
 namespace lean {
 static name_set *            g_trace_classes = nullptr;

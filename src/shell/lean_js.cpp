@@ -25,19 +25,15 @@ private:
 
     st_task_queue m_tq;
 
-    json_message_stream m_msg_buf;
 public:
     emscripten_shell(): m_env(mk_environment(LEAN_BELIEVER_TRUST_LEVEL + 1)),
                         m_ios(options({"trace", "as_messages"}, true),
                               mk_pretty_formatter_factory()),
-                        m_server(0, m_env, m_ios),
-                        m_msg_buf(std::cout) { }
+                        m_server(0, m_env, m_ios) {}
 
     int process_request(std::string msg) {
-        scope_global_task_queue scope_tq(&m_tq);
         scope_global_ios scoped_ios(m_ios);
-        scoped_message_buffer scope_msg_buf(&m_msg_buf);
-        scope_message_context msg_ctx(message_bucket_id { "lean.js", 0 });
+        scope_log_tree lt(m_server.get_log_tree().get_root().mk_child("_server", {}, {}, {}, true));
         try {
             m_server.handle_request(json::parse(msg));
             return 0;

@@ -13,14 +13,13 @@ namespace lean {
 
 typedef pair<unsigned, unsigned> pos_info; //!< Line and column information
 
-typedef uint64 period;
+struct pos_range {
+    pos_info m_begin, m_end;
+};
 
-struct message_bucket_id {
-    message_bucket_id() {}
-    message_bucket_id(name const & bucket, period version) : m_bucket(bucket), m_version(version) {}
-
-    name m_bucket;
-    period m_version = 0;
+struct location {
+    std::string m_file_name;
+    pos_range m_range;
 };
 
 }

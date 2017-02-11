@@ -6,7 +6,7 @@ Author: Gabriel Ebner
 */
 #ifdef LEAN_JSON
 #pragma once
-#include "library/message_buffer.h"
+#include "library/messages.h"
 #include "kernel/environment.h"
 #include "util/json.hpp"
 
@@ -24,13 +24,7 @@ void add_source_info(environment const & env, name const & d, json & record);
 json serialize_decl(name const & short_name, name const & long_name, environment const & env, options const & o);
 json serialize_decl(name const & d, environment const & env, options const & o);
 
-class json_message_stream : public message_buffer {
-    std::ostream & m_out;
-public:
-    json_message_stream(std::ostream & out) : m_out(out) {}
-    ~json_message_stream() {}
-    void report(message_bucket_id const &, message const & msg) override;
-};
+void print_json(std::ostream &, message const & msg);
 
 }
 #endif

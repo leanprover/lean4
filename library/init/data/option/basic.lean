@@ -23,6 +23,10 @@ def is_some {α : Type u} : option α → bool
 | (some _) := tt
 | none     := ff
 
+def is_none {α : Type u} : option α → bool
+| (some _) := ff
+| none     := tt
+
 end option
 
 instance (α : Type u) : inhabited (option α) :=

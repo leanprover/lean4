@@ -931,6 +931,12 @@ do m ← mk_meta_var type,
    set_goals gs,
    return (a, m)
 
+/-- Return tt iff 'd' is a declaration in one of the current open namespaces -/
+meta def in_open_namespaces (d : name) : tactic bool :=
+do ns  ← open_namespaces,
+   env ← get_env,
+   return $ ns^.any (λ n, n^.is_prefix_of d) && env^.contains d
+
 end tactic
 
 open tactic

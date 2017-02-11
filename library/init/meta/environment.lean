@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.meta.declaration init.meta.exceptional
+import init.meta.declaration init.meta.exceptional init.data.option.basic
 
 meta constant environment : Type
 
@@ -93,6 +93,11 @@ match (refl_for env (const_name (get_app_fn e))) with
     else none
 | none   := none
 end
+
+/-- Return true if 'n' has been declared in the current file -/
+meta def in_current_file (env : environment) (n : name) : bool :=
+(env^.decl_olean n)^.is_none && env^.contains n
+
 end environment
 
 meta instance : has_to_string environment :=

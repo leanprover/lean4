@@ -184,7 +184,7 @@ private:
 
     expr visit_sort(expr const & e);
     expr visit_const_core(expr const & e);
-    void save_identifier_info(expr const & f, optional<pos_info> pos = {});
+    void save_identifier_info(expr const & f);
     expr visit_function(expr const & fn, bool has_args, expr const & ref);
     format mk_app_type_mismatch_error(expr const & t, expr const & arg, expr const & arg_type, expr const & expected_type);
     format mk_app_arg_mismatch_error(expr const & t, expr const & arg, expr const & expected_arg);

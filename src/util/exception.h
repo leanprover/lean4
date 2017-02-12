@@ -87,11 +87,10 @@ public:
 };
 
 class heartbeat_exception : public throwable {
-    std::string m_component_name;
 public:
-    heartbeat_exception(char const * component_name):m_component_name(component_name) {}
+    heartbeat_exception() {}
     virtual char const * what() const noexcept;
-    virtual throwable * clone() const { return new heartbeat_exception(m_component_name.c_str()); }
+    virtual throwable * clone() const { return new heartbeat_exception(); }
     virtual void rethrow() const { throw *this; }
 };
 }

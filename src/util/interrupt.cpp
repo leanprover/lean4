@@ -27,9 +27,10 @@ void set_max_heartbeat_thousands(unsigned max) { g_max_heartbeat = static_cast<s
 scope_heartbeat::scope_heartbeat(size_t max):flet<size_t>(g_heartbeat, max) {}
 scope_max_heartbeat::scope_max_heartbeat(size_t max):flet<size_t>(g_max_heartbeat, max) {}
 
-static void check_heartbeat(char const * component_name) {
+void check_heartbeat() {
+    inc_heartbeat();
     if (g_max_heartbeat > 0 && g_heartbeat > g_max_heartbeat)
-        throw heartbeat_exception(component_name);
+        throw heartbeat_exception();
 }
 
 MK_THREAD_LOCAL_GET(atomic_bool, get_g_interrupt, false);
@@ -54,11 +55,10 @@ void check_interrupted() {
 }
 
 void check_system(char const * component_name) {
-    inc_heartbeat();
     check_stack(component_name);
     check_memory(component_name);
     check_interrupted();
-    check_heartbeat(component_name);
+    check_heartbeat();
 }
 
 void sleep_for(unsigned ms, unsigned step_ms) {

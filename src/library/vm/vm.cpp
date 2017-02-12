@@ -3111,6 +3111,7 @@ void vm_state::run() {
         }
         case opcode::InvokeGlobal: {
             check_interrupted();
+            check_heartbeat();
             check_memory("vm");
             /**
                Instruction: ginvoke fn
@@ -3145,6 +3146,7 @@ void vm_state::run() {
         }
         case opcode::InvokeBuiltin: {
             check_interrupted();
+            check_heartbeat();
             check_memory("vm");
             /**
                Instruction: builtin fn
@@ -3166,6 +3168,7 @@ void vm_state::run() {
         }
         case opcode::InvokeCFun: {
             check_interrupted();
+            check_heartbeat();
             check_memory("vm");
             /**
                Instruction: cfun fn

@@ -40,7 +40,7 @@ public:
     scope_max_heartbeat(size_t max);
 };
 
-void init_thread_max_heartbeat();
+void check_heartbeat();
 
 atomic_bool * get_interrupt_flag();
 

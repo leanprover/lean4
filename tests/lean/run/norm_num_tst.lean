@@ -8,7 +8,21 @@ do t ← target,
    is_def_eq new_lhs new_rhs,
    `[exact eq.trans %%pr1 (eq.symm %%pr2)]
 
+-- nat examples
+
 example : 10 + 2 = 1 + 11 := by eval_num_tac
+
+example : 10 - 1 = 9 := by eval_num_tac
+example : 12 - 5 = 3 + 4 := by eval_num_tac
+example : 5 - 20 = 0 := by eval_num_tac
+example : 0 - 2 = 0 := by eval_num_tac
+example : 4 - (5 - 10) = 2 + (3 - 1) := by eval_num_tac
+example : 0 - 0 = 0 := by eval_num_tac
+example : 100 - 100 = 0 := by eval_num_tac
+example : 5 * (2 - 3) = 0 := by eval_num_tac
+example : 10 - 5 * 5 + (7 - 3) * 6 = 27 - 3 := by eval_num_tac
+
+-- ordered field examples
 
 variable {α : Type}
 variable [linear_ordered_field α]

@@ -28,6 +28,10 @@ static bool is_numeral_aux(expr const & e, bool is_first) {
     return false;
 }
 
+bool norm_num_context::is_nat_const(expr const & e) const {
+    return is_constant(e) && const_name(e) == get_nat_name();
+}
+
 bool norm_num_context::is_numeral(expr const & e) const {
     return is_numeral_aux(e, true);
 }
@@ -206,7 +210,7 @@ expr norm_num_context::mk_mul_zero_class(expr const & e) {
 expr norm_num_context::mk_semiring(expr const & e) {
     auto l_name = get_semiring_name();
     if (instances.find(l_name) != instances.end()) {
-        return instances[l_name];
+       return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
     optional<expr> inst = m_ctx.mk_class_instance(t);
@@ -236,7 +240,7 @@ expr norm_num_context::mk_has_neg(expr const & e) {
 expr norm_num_context::mk_has_sub(expr const & e) {
     auto l_name = get_has_sub_name();
     if (instances.find(l_name) != instances.end()) {
-        return instances[l_name];
+       return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
     optional<expr> inst = m_ctx.mk_class_instance(t);
@@ -504,15 +508,28 @@ mpq norm_num_context:: mpq_of_expr(expr const & e){
     } else if (const_name(f) == get_mul_name() && args.size() == 4) {
         return mpq_of_expr(args[2]) * mpq_of_expr(args[3]);
     } else if (const_name(f) == get_sub_name() && args.size() == 4) {
-        return mpq_of_expr(args[2]) - mpq_of_expr(args[3]);
+        mpq lhs = mpq_of_expr(args[2]), rhs = mpq_of_expr(args[3]);
+        if (is_nat_const(args[0]) && rhs > lhs) {
+            return mpq(0);
+        } else {
+            return lhs - rhs;
+        }
     } else if (const_name(f) == get_div_name() && args.size() == 4) {
-        mpq num = mpq_of_expr(args[2]), den = mpq_of_expr(args[3]);
-        if (den != 0)
-            return mpq_of_expr(args[2]) / mpq_of_expr(args[3]);
-        else
-            throw exception("divide by 0");
+        if (is_nat_const(args[0])) {
+            throw exception("norm_num does not support nat division");
+        } else {
+            mpq num = mpq_of_expr(args[2]), den = mpq_of_expr(args[3]);
+            if (den != 0)
+                return mpq_of_expr(args[2]) / mpq_of_expr(args[3]);
+            else
+                throw exception("divide by 0");
+        }
     } else if (const_name(f) == get_neg_name() && args.size() == 3) {
-        return neg(mpq_of_expr(args[2]));
+        if (is_nat_const(args[0])) {
+            throw exception("norm_num does not support negative nats");
+        } else {
+            return neg(mpq_of_expr(args[2]));
+        }
     } else {
         auto v = to_mpq(e);
         if (v) {
@@ -835,12 +852,8 @@ expr_pair norm_num_context::mk_norm_nat_sub(expr & s_lhs, expr & s_rhs, expr & t
       auto seq_pr = mk_norm(mk_add(type, e, norm_rhs.first));
       expr rpr = mk_app({mk_constant(get_norm_num_sub_nat_pos_helper_name()),
             s_lhs, s_rhs, norm_lhs.first, norm_rhs.first, e, norm_lhs.second, norm_rhs.second, seq_pr.second});
-      return expr_pair(seq_pr.first, rpr);
+      return expr_pair(e, rpr);
     }
-}
-
-bool is_nat_const(expr const & e) {
-    return is_constant(e) && const_name(e) == get_nat_name();
 }
 
 pair<expr, expr> norm_num_context::mk_norm(expr const & e) {
@@ -854,10 +867,6 @@ pair<expr, expr> norm_num_context::mk_norm(expr const & e) {
     if (is_numeral(e)) {
         expr prf = mk_eq_refl(m_ctx, e);
         return pair<expr, expr>(e, prf);
-    }
-    // short-circuit in the case of nat subtraction
-    if (const_name(f) == get_sub_name() && is_nat_const(args[0])) {
-      return mk_norm_nat_sub(args[2], args[3], args[0]);
     }
     mpq val = mpq_of_expr(e);
     expr nval; // e = nval
@@ -894,6 +903,9 @@ pair<expr, expr> norm_num_context::mk_norm(expr const & e) {
         return pair<expr, expr>(nval, rprf);
 
     } else if (const_name(f) == get_sub_name() && args.size() == 4) {
+        if (is_nat_const(args[0])) {
+            return mk_norm_nat_sub(args[2], args[3], args[0]);
+        }
         expr sum = mk_add(args[0], args[2], mk_neg(args[0], args[3]));
         auto anprf = mk_norm(sum);
         expr rprf = mk_app({mk_const(get_norm_num_subst_into_subtr_name()), type, mk_add_group(type), args[2],

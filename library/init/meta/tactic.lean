@@ -115,26 +115,21 @@ end
 namespace tactic
 variables {α : Type u}
 
-meta def try_core (t : tactic α) : tactic bool :=
+meta def try_core (t : tactic α) : tactic (option α) :=
 λ s, tactic_result.cases_on (t s)
- (λ a, success tt)
- (λ e ref s', success ff s)
+ (λ a, success (some a))
+ (λ e ref s', success none s)
 
 meta def skip : tactic unit :=
 success ()
 
 meta def try (t : tactic α) : tactic unit :=
-try_core t >> skip
+try_core t >>[tactic] skip
 
 meta def fail_if_success {α : Type u} (t : tactic α) : tactic unit :=
 λ s, tactic_result.cases_on (t s)
  (λ a s, mk_exception "fail_if_success combinator failed, given tactic succeeded" none s)
  (λ e ref s', success () s)
-
-open list
-meta def foreach : list α → (α → tactic unit) → tactic unit
-| []      fn := skip
-| (e::es) fn := do fn e, foreach es fn
 
 open nat
 /- (repeat_at_most n t): repeat the given tactic at most n times or until t fails -/
@@ -743,7 +738,7 @@ private meta def any_goals_core (tac : tactic unit) : list expr → list expr �
   do set_goals [g],
      succeeded ← try_core tac,
      new_gs    ← get_goals,
-     any_goals_core gs (ac ++ new_gs) (succeeded || progress)
+     any_goals_core gs (ac ++ new_gs) (succeeded^.is_some || progress)
 
 /- Apply the given tactic to any goal where it succeeds. The tactic succeeds only if
    tac succeeds for at least one goal. -/
@@ -972,6 +967,22 @@ meta def list_name.to_expr : list name → tactic expr
 notation [parsing_only] `command`:max := tactic unit
 
 open tactic
+
+namespace list
+
+meta def for_each {α} : list α → (α → tactic unit) → tactic unit
+| []      fn := skip
+| (e::es) fn := do fn e, for_each es fn
+
+meta def any_of {α β} : list α → (α → tactic β) → tactic β
+| []      fn := failed
+| (e::es) fn := do opt_b ← try_core (fn e),
+                   match opt_b with
+                   | some b := return b
+                   | none   := any_of es fn
+                   end
+end list
+
 /-
   Define id_locked using meta-programming because we don't have
   syntax for setting reducibility_hints.

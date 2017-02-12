@@ -6,14 +6,15 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include <iostream>
-#include "library/locals.h"
-#include "library/sorry.h"
 #include "kernel/expr.h"
 #include "kernel/free_vars.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/replace_fn.h"
+#include "library/locals.h"
+#include "library/sorry.h"
+#include "library/util.h"
 #include "library/expr_lt.h"
 #include "library/deep_copy.h"
 #include "library/comp_val.h"
@@ -428,6 +429,10 @@ vm_obj expr_is_sorry(vm_obj const & e_) {
     return to_obj(is_sorry(e) ? some(sorry_type(e)) : none_expr());
 }
 
+vm_obj expr_occurs(vm_obj const & e1, vm_obj const & e2) {
+    return mk_vm_bool(occurs(to_expr(e1), to_expr(e2)));
+}
+
 void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name({"expr", "var"}),              expr_var);
     DECLARE_VM_BUILTIN(name({"expr", "sort"}),             expr_sort);
@@ -461,6 +466,7 @@ void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name({"expr", "lower_vars"}),       expr_lower_vars);
     DECLARE_VM_BUILTIN(name({"expr", "hash"}),             expr_hash);
     DECLARE_VM_BUILTIN(name({"expr", "copy_pos_info"}),    expr_copy_pos_info);
+    DECLARE_VM_BUILTIN(name({"expr", "occurs"}),           expr_occurs);
     DECLARE_VM_BUILTIN(name({"expr", "collect_univ_params"}), expr_collect_univ_params);
     DECLARE_VM_CASES_BUILTIN(name({"expr", "cases_on"}),   expr_cases_on);
 

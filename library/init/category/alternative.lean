@@ -21,3 +21,9 @@ infixr ` <|> `:2 := orelse
 
 @[inline] def guard {f : Type → Type v} [alternative f] (p : Prop) [decidable p] : f unit :=
 if p then pure () else failure
+
+/- Later we define a coercion from bool to Prop, but this version will still be useful.
+   Given (t : tactic bool), we can write t >>= guardb -/
+@[inline] def guardb {f : Type → Type v} [alternative f] : bool → f unit
+| tt := pure ()
+| ff := failure

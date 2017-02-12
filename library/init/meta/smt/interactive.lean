@@ -32,7 +32,7 @@ meta def execute (tac : smt_tactic unit) : tactic unit :=
 using_smt tac
 
 meta def execute_with (cfg : smt_config) (tac : smt_tactic unit) : tactic unit :=
-using_smt_core cfg tac
+using_smt tac cfg
 
 namespace interactive
 open interactive.types

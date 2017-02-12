@@ -367,10 +367,7 @@ end smt_tactic
 
 open smt_tactic
 
-meta def using_smt_core (cfg : smt_config) (t : smt_tactic unit) : tactic unit :=
+meta def using_smt {α} (t : smt_tactic α) (cfg : smt_config := {}) : tactic α :=
 do ss ← smt_state.mk cfg,
-   (t >> repeat close) ss,
-   return ()
-
-meta def using_smt : smt_tactic unit → tactic unit :=
-using_smt_core {}
+   (a, _) ← (do a ← t, repeat close, return a) ss,
+   return a

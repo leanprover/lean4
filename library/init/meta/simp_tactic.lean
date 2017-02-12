@@ -233,11 +233,14 @@ meta def simplify (cfg : simplify_config) (S : simp_lemmas) (e : expr) : tactic 
 do e_type       ← infer_type e >>= whnf,
    simplify_core cfg S `eq e
 
-meta def simplify_goal_core (cfg : simplify_config) (S : simp_lemmas) : tactic unit :=
-do (new_target, heq) ← target >>= simplify cfg S,
-   assert `htarget new_target, swap,
+meta def replace_target (new_target : expr) (pr : expr) : tactic unit :=
+do assert `htarget new_target, swap,
    ht ← get_local `htarget,
-   mk_eq_mpr heq ht >>= exact
+   mk_eq_mpr pr ht >>= exact
+
+meta def simplify_goal_core (cfg : simplify_config) (S : simp_lemmas) : tactic unit :=
+do (new_target, pr) ← target >>= simplify cfg S,
+   replace_target new_target pr
 
 meta def simplify_goal (S : simp_lemmas) : tactic unit :=
 simplify_goal_core {} S
@@ -356,17 +359,27 @@ meta constant norm_num : expr → tactic (expr × expr)
 
 meta def simplify_top_down (pre : expr → tactic (expr × expr)) (e : expr) (cfg : simplify_config := {}) : tactic (expr × expr) :=
 do (_, new_e, pr) ← ext_simplify_core () cfg simp_lemmas.mk (λ _, failed)
-                          (λ _ S r p e, do (new_e, pr) ← pre e, return ((), new_e, some pr, tt))
+                          (λ _ _ _ _ e, do (new_e, pr) ← pre e, guard (¬ new_e =ₐ e), return ((), new_e, some pr, tt))
                           (λ _ _ _ _ _, failed)
                           `eq e,
    return (new_e, pr)
 
 meta def simp_top_down (pre : expr → tactic (expr × expr)) (cfg : simplify_config := {}) : tactic unit :=
 do t                 ← target,
-   (new_target, heq) ← simplify_top_down pre t cfg,
-   assert `htarget new_target, swap,
-   ht ← get_local `htarget,
-   mk_eq_mpr heq ht >>= exact
+   (new_target, pr) ← simplify_top_down pre t cfg,
+   replace_target new_target pr
+
+meta def simplify_bottom_up (post : expr → tactic (expr × expr)) (e : expr) (cfg : simplify_config := {}) : tactic (expr × expr) :=
+do (_, new_e, pr) ← ext_simplify_core () cfg simp_lemmas.mk (λ _, failed)
+                          (λ _ _ _ _ _, failed)
+                          (λ _ _ _ _ e, do (new_e, pr) ← post e, guard (¬ new_e =ₐ e), return ((), new_e, some pr, tt))
+                          `eq e,
+   return (new_e, pr)
+
+meta def simp_bottom_up (post : expr → tactic (expr × expr)) (cfg : simplify_config := {}) : tactic unit :=
+do t                 ← target,
+   (new_target, pr) ← simplify_bottom_up post t cfg,
+   replace_target new_target pr
 
 end tactic
 

@@ -719,6 +719,14 @@ first $ map solve1 ts
 meta def focus (ts : list (tactic unit)) : tactic unit :=
 do gs ← get_goals, focus_aux ts gs []
 
+meta def focus1 {α} (tac : tactic α) : tactic α :=
+do g::gs ← get_goals,
+   set_goals [g],
+   a ← tac,
+   gs' ← get_goals,
+   set_goals (gs' ++ gs),
+   return a
+
 private meta def all_goals_core (tac : tactic unit) : list expr → list expr → tactic unit
 | []        ac := set_goals ac
 | (g :: gs) ac :=

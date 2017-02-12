@@ -817,32 +817,31 @@ expr norm_num_context::mk_norm_mul_div(expr & s_lhs, expr & s_rhs, expr & rhs) {
                 rhs, den_ne_zero, prf.second});
 }
 
-  pair<expr,expr> norm_num_context::mk_norm_nat_sub(expr & s_lhs, expr & s_rhs, expr & type) {
+expr_pair norm_num_context::mk_norm_nat_sub(expr & s_lhs, expr & s_rhs, expr & type) {
     auto norm_lhs = mk_norm(s_lhs);
     auto norm_rhs = mk_norm(s_rhs);
     mpq vall = mpq_of_expr(norm_lhs.first);
     mpq valr = mpq_of_expr(norm_rhs.first);
     if (valr > vall) {
-      auto lt_pr = mk_nat_val_lt_proof(norm_lhs.first, norm_rhs.first);
-      if (*lt_pr) {
-	expr zeropr = mk_app({mk_constant(get_norm_num_sub_nat_zero_helper_name(),{}),
-	      s_lhs, s_rhs, norm_lhs.first, norm_rhs.first, norm_lhs.second, norm_rhs.second, *lt_pr});
-	return pair<expr,expr>(mk_app({mk_const(get_zero_name()), type, mk_has_zero(type)}), zeropr);
+      if (auto lt_pr = mk_nat_val_lt_proof(norm_lhs.first, norm_rhs.first)) {
+        expr zeropr = mk_app({mk_constant(get_norm_num_sub_nat_zero_helper_name()),
+              s_lhs, s_rhs, norm_lhs.first, norm_rhs.first, norm_lhs.second, norm_rhs.second, *lt_pr});
+        return expr_pair(mk_app({mk_const(get_zero_name()), type, mk_has_zero(type)}), zeropr);
       } else {
-	throw (exception("mk_norm_nat_sub failed to make lt proof"));
+        throw exception("mk_norm_nat_sub failed to make lt proof");
       }
     } else {
       expr e = from_mpq(vall-valr, type);
       auto seq_pr = mk_norm(mk_add(type, e, norm_rhs.first));
-      expr rpr = mk_app({mk_constant(get_norm_num_sub_nat_pos_helper_name(),{}),
-	    s_lhs, s_rhs, norm_lhs.first, norm_rhs.first, e, norm_lhs.second, norm_rhs.second, seq_pr.second});
-      return pair<expr,expr>(seq_pr.first, rpr);
+      expr rpr = mk_app({mk_constant(get_norm_num_sub_nat_pos_helper_name()),
+            s_lhs, s_rhs, norm_lhs.first, norm_rhs.first, e, norm_lhs.second, norm_rhs.second, seq_pr.second});
+      return expr_pair(seq_pr.first, rpr);
     }
-  }
+}
 
-  bool is_nat_const(expr const & e) {
-    return is_constant(e) && const_name(e)==get_nat_name();
-  }
+bool is_nat_const(expr const & e) {
+    return is_constant(e) && const_name(e) == get_nat_name();
+}
 
 pair<expr, expr> norm_num_context::mk_norm(expr const & e) {
     buffer<expr> args;
@@ -898,8 +897,8 @@ pair<expr, expr> norm_num_context::mk_norm(expr const & e) {
         expr sum = mk_add(args[0], args[2], mk_neg(args[0], args[3]));
         auto anprf = mk_norm(sum);
         expr rprf = mk_app({mk_const(get_norm_num_subst_into_subtr_name()), type, mk_add_group(type), args[2],
-	    args[3], anprf.first, anprf.second});
-        return pair<expr, expr>(nval, rprf);
+            args[3], anprf.first, anprf.second});
+        return expr_pair(nval, rprf);
     } else if (const_name(f) == get_neg_name()  && args.size() == 3) {
         auto prf = mk_norm(args[2]);
         lean_assert(mpq_of_expr(prf.first) == neg(val));

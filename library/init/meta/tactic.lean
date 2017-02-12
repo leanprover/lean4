@@ -474,10 +474,6 @@ meta constant save_info_thunk : nat → nat → (unit → format) → tactic uni
 meta constant report_error : nat → nat → format → tactic unit
 /- Return list of currently opened namespace -/
 meta constant open_namespaces : tactic (list name)
-/-- Execute tac for 'max' "heartbeats". The heartbeat is approx. the maximum number of
-    memory allocations (in thousands) performed by 'tac'. This is a deterministic way of interrupting
-    long running tactics. -/
-meta constant try_for {α} (max : nat) (tac : tactic α) : tactic α
 open list nat
 
 /- Remark: set_goals will erase any solved goal -/
@@ -943,6 +939,16 @@ meta def in_open_namespaces (d : name) : tactic bool :=
 do ns  ← open_namespaces,
    env ← get_env,
    return $ ns^.any (λ n, n^.is_prefix_of d) && env^.contains d
+
+/-- Execute tac for 'max' "heartbeats". The heartbeat is approx. the maximum number of
+    memory allocations (in thousands) performed by 'tac'. This is a deterministic way of interrupting
+    long running tactics. -/
+meta def try_for {α} (max : nat) (tac : tactic α) : tactic α :=
+λ s,
+match _root_.try_for max (tac s) with
+| some r := r
+| none   := mk_exception "try_for tactic failed, timeout" none s
+end
 
 end tactic
 

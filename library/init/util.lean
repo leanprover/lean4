@@ -24,6 +24,14 @@ f ()
 def scope_trace {α : Type u} {line col: nat} (f : thunk α) : α :=
 f ()
 
+/--
+  This function has a native implementation where
+  the thunk is interrupted if it takes more than 'max' "heartbeats" to compute it.
+  The heartbeat is approx. the maximum number of memory allocations (in thousands) performed by 'f ()'.
+  This is a deterministic way of interrupting long running tasks. -/
+meta def try_for {α : Type u} (max : nat) (f : thunk α) : option α :=
+some (f ())
+
 meta constant undefined_core {α : Type u} (message : string) : α
 
 meta def undefined {α : Type u} : α := undefined_core "undefined"

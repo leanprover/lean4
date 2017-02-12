@@ -796,17 +796,6 @@ vm_obj tactic_add_aux_decl(vm_obj const & n, vm_obj const & type, vm_obj const &
     }
 }
 
-vm_obj tactic_try_for(vm_obj const &, vm_obj const & n, vm_obj const & tac, vm_obj const & s) {
-    size_t max  = static_cast<size_t>(force_to_unsigned(n))*1000;
-    scope_heartbeat     scope1(0);
-    scope_max_heartbeat scope2(max);
-    if (auto r = get_vm_state().try_invoke_catch(tac, 1, &s)) {
-        return *r;
-    } else {
-        return mk_tactic_exception("try_for failed, timeout", to_tactic_state(s));
-    }
-}
-
 void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic_state", "env"}),            tactic_state_env);
     DECLARE_VM_BUILTIN(name({"tactic_state", "format_expr"}),    tactic_state_format_expr);
@@ -845,7 +834,6 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic", "module_doc_strings"}),   tactic_module_doc_strings);
     DECLARE_VM_BUILTIN(name({"tactic", "open_namespaces"}),      tactic_open_namespaces);
     DECLARE_VM_BUILTIN(name({"tactic", "decl_name"}),            tactic_decl_name);
-    DECLARE_VM_BUILTIN(name({"tactic", "try_for"}),              tactic_try_for);
     DECLARE_VM_BUILTIN(name({"tactic", "add_aux_decl"}),         tactic_add_aux_decl);
 }
 

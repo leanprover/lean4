@@ -371,3 +371,6 @@ meta def using_smt {α} (t : smt_tactic α) (cfg : smt_config := {}) : tactic α
 do ss ← smt_state.mk cfg,
    (a, _) ← (do a ← t, repeat close, return a) ss,
    return a
+
+meta def using_smt_with {α} (cfg : smt_config) (t : smt_tactic α) : tactic α :=
+using_smt t cfg

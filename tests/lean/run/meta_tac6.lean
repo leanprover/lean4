@@ -9,7 +9,7 @@ by do
     n : nat ← num_goals,
     ctx : list expr ← local_context,
     trace "Context: ",
-    foreach ctx (λ e,
+    for_each ctx (λ e,
       do t ← infer_type e,
          fmt₁ ← pp e,
          fmt₂ ← pp t,

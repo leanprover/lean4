@@ -15,4 +15,4 @@ def my_smt_config : smt_config :=
 { pre_cfg := { zeta := tt } }
 
 lemma ex2 : let x := 1 in ∀ y, x = y → y = 1 :=
-by using_smt_core my_smt_config $ smt_tactic.intros >> fail_if_success (get_local `x) >> return ()
+by using_smt_with my_smt_config $ smt_tactic.intros >> fail_if_success (get_local `x) >> return ()

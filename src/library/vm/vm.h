@@ -755,6 +755,9 @@ public:
                   vm_obj const & a5, vm_obj const & a6, vm_obj const & a7, vm_obj const & a8);
     vm_obj invoke(vm_obj const & fn, unsigned nargs, vm_obj const * args);
 
+    /** \brief Similar to invoke, but catches exceptions and put VM in a consistent state, and return none. */
+    optional<vm_obj> try_invoke_catch(vm_obj const & fn, unsigned nargs, vm_obj const * args);
+
     /** \brief Invoke fn_idx with nargs arguments and return the result */
     vm_obj invoke(unsigned fn_idx, unsigned nargs, vm_obj const * as);
     vm_obj invoke(unsigned fn_idx, std::initializer_list<vm_obj> const & as) {

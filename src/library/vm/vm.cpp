@@ -2041,6 +2041,41 @@ vm_obj vm_state::invoke(vm_obj const & fn, unsigned nargs, vm_obj const * args) 
     }
 }
 
+optional<vm_obj> vm_state::try_invoke_catch(vm_obj const & fn, unsigned nargs, vm_obj const * args) {
+    auto     code           = m_code;
+    unsigned fn_idx         = m_fn_idx;
+    unsigned pc             = m_pc;
+    unsigned bp             = m_bp;
+    unsigned next_frame_idx = m_next_frame_idx;
+    unsigned stack_sz       = m_stack.size();
+    unsigned stack_info_sz  = m_stack_info.size();
+    unsigned call_stack_sz;
+    if (m_profiling) {
+        unique_lock<mutex> lk(m_call_stack_mtx);
+        call_stack_sz       = m_call_stack.size();
+    } else {
+        call_stack_sz       = m_call_stack.size();
+    }
+    try {
+        return optional<vm_obj>(invoke(fn, nargs, args));
+    } catch (throwable const & ex) {
+        m_code           = code;
+        m_fn_idx         = fn_idx;
+        m_pc             = pc;
+        m_bp             = bp;
+        m_next_frame_idx = next_frame_idx;
+        m_stack.resize(stack_sz);
+        m_stack_info.resize(stack_info_sz);
+        if (m_profiling) {
+            unique_lock<mutex> lk(m_call_stack_mtx);
+            while (m_call_stack.size() > call_stack_sz) m_call_stack.pop_back();
+        } else {
+            while (m_call_stack.size() > call_stack_sz) m_call_stack.pop_back();
+        }
+        return optional<vm_obj>();
+    }
+}
+
 vm_obj native_invoke(vm_obj const & fn, vm_obj const & a1);
 vm_obj native_invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2);
 vm_obj native_invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj const & a3);

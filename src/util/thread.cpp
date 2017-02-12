@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include <windows.h>
 #endif
 #include "util/thread.h"
+#include "util/interrupt.h"
 #include "util/exception.h"
 
 #ifndef LEAN_DEFAULT_THREAD_STACK_SIZE
@@ -30,6 +31,10 @@ size_t lthread::get_thread_stack_size() {
     return m_thread_stack_size;
 }
 
+static std::function<void(void)> mk_thread_proc(std::function<void(void)> const & p, unsigned max) {
+    return [=]() { set_max_heartbeat(max); p(); }; // NOLINT
+}
+
 #if defined(LEAN_WINDOWS)
 /* Windows version */
 struct lthread::imp {
@@ -42,7 +47,7 @@ struct lthread::imp {
     }
 
     imp(std::function<void(void)> const & p):
-        m_proc(p) {
+        m_proc(mk_thread_proc(p, get_max_heartbeat())) {
         m_thread = CreateThread(nullptr, m_thread_stack_size,
                                 _main, &m_proc, 0, nullptr);
         if (m_thread == NULL) {
@@ -69,7 +74,7 @@ struct lthread::imp {
     }
 
     imp(std::function<void(void)> const & p):
-        m_proc(p) {
+        m_proc(mk_thread_proc(p, get_max_heartbeat())) {
         pthread_attr_init(&m_attr);
         if (pthread_attr_setstacksize(&m_attr, m_thread_stack_size)) {
             throw exception("failed to set thread stack size");
@@ -78,6 +83,7 @@ struct lthread::imp {
             throw exception("failed to create thread");
         }
     }
+
     ~imp() {
         pthread_attr_destroy(&m_attr);
     }

@@ -11,24 +11,24 @@ Author: Leonardo de Moura
 #include "util/memory.h"
 
 namespace lean {
-static size_t g_max_hearbeat = 0;
-
+LEAN_THREAD_VALUE(size_t, g_max_heartbeat, 0);
 LEAN_THREAD_VALUE(size_t, g_heartbeat, 0);
 
 void inc_heartbeat() { g_heartbeat++; }
 
 void reset_heartbeat() { g_heartbeat = 0; }
 
-void set_max_heartbeat(size_t max) {
-    g_max_hearbeat = max;
-}
+void set_max_heartbeat(size_t max) { g_max_heartbeat = max; }
 
-void set_max_heartbeat_thousands(unsigned max) {
-    g_max_hearbeat = static_cast<size_t>(max) * 1000;
-}
+size_t get_max_heartbeat() { return g_max_heartbeat; }
+
+void set_max_heartbeat_thousands(unsigned max) { g_max_heartbeat = static_cast<size_t>(max) * 1000; }
+
+scope_heartbeat::scope_heartbeat(size_t max):flet<size_t>(g_heartbeat, max) {}
+scope_max_heartbeat::scope_max_heartbeat(size_t max):flet<size_t>(g_max_heartbeat, max) {}
 
 static void check_heartbeat(char const * component_name) {
-    if (g_max_hearbeat > 0 && g_heartbeat > g_max_hearbeat)
+    if (g_max_heartbeat > 0 && g_heartbeat > g_max_heartbeat)
         throw heartbeat_exception(component_name);
 }
 

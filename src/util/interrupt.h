@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <utility>
+#include "util/flet.h"
 #include "util/thread.h"
 #include "util/stackinfo.h"
 #include "util/exception.h"
@@ -17,11 +18,29 @@ void inc_heartbeat();
 /** \brief Reset thread local counter for approximating elapsed time. */
 void reset_heartbeat();
 
+/* Update the current heartbeat */
+class scope_heartbeat : flet<size_t> {
+public:
+    scope_heartbeat(size_t curr);
+};
+
 /** \brief Threshold on the number of hearbeats. check_system will throw
     an exception if a thread exceeds the limit. The default is unlimited.
-    The limit is checked in the check_system API. */
+    The limit is checked in the check_system API.
+
+    This is a thread local value. The class lthread uses the
+    maximum of the parent thread. */
 void set_max_heartbeat(size_t max);
 void set_max_heartbeat_thousands(unsigned max);
+size_t get_max_heartbeat();
+
+/* Update the thread local max heartbeat */
+class scope_max_heartbeat : flet<size_t> {
+public:
+    scope_max_heartbeat(size_t max);
+};
+
+void init_thread_max_heartbeat();
 
 atomic_bool * get_interrupt_flag();
 

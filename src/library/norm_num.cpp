@@ -49,13 +49,9 @@ Takes A : Type, and tries to synthesize has_add A.
 */
 expr norm_num_context::mk_has_add(expr const & e) {
     auto l_name = get_has_add_name();
-    if (instances.find(l_name) != instances.end()) {
-        return instances[l_name];
-    }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
     optional<expr> inst = m_ctx.mk_class_instance(t);
     if (inst) {
-        instances[l_name] = *inst;
         return *inst;
     } else {
         throw exception("failed to synthesize has_add instance");
@@ -64,13 +60,9 @@ expr norm_num_context::mk_has_add(expr const & e) {
 
 expr norm_num_context::mk_has_mul(expr const & e) {
     auto l_name = get_has_mul_name();
-    if (instances.find(l_name) != instances.end()) {
-        return instances[l_name];
-    }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
     optional<expr> inst = m_ctx.mk_class_instance(t);
     if (inst) {
-        instances[l_name] = *inst;
         return *inst;
     } else {
         throw exception("failed to synthesize has_mul instance");
@@ -79,13 +71,9 @@ expr norm_num_context::mk_has_mul(expr const & e) {
 
 expr norm_num_context::mk_has_one(expr const & e) {
     auto l_name = get_has_one_name();
-    if (instances.find(l_name) != instances.end()) {
-        return instances[l_name];
-    }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
     optional<expr> inst = m_ctx.mk_class_instance(t);
     if (inst) {
-        instances[l_name] = *inst;
         return *inst;
     } else {
         throw exception("failed to synthesize has_one instance");
@@ -94,13 +82,9 @@ expr norm_num_context::mk_has_one(expr const & e) {
 
 expr norm_num_context::mk_has_zero(expr const & e) {
     auto l_name = get_has_zero_name();
-    if (instances.find(l_name) != instances.end()) {
-        return instances[l_name];
-    }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
     optional<expr> inst = m_ctx.mk_class_instance(t);
     if (inst) {
-        instances[l_name] = *inst;
         return *inst;
     } else {
         throw exception("failed to synthesize has_one instance");
@@ -109,13 +93,9 @@ expr norm_num_context::mk_has_zero(expr const & e) {
 
 expr norm_num_context::mk_add_monoid(expr const & e) {
     auto l_name = get_add_monoid_name();
-    if (instances.find(l_name) != instances.end()) {
-        return instances[l_name];
-    }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
     optional<expr> inst = m_ctx.mk_class_instance(t);
     if (inst) {
-        instances[l_name] = *inst;
         return *inst;
     } else {
         throw exception("failed to synthesize add_monoid instance");
@@ -124,13 +104,9 @@ expr norm_num_context::mk_add_monoid(expr const & e) {
 
 expr norm_num_context::mk_monoid(expr const & e) {
     auto l_name = get_monoid_name();
-    if (instances.find(l_name) != instances.end()) {
-        return instances[l_name];
-    }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
     optional<expr> inst = m_ctx.mk_class_instance(t);
     if (inst) {
-        instances[l_name] = *inst;
         return *inst;
     } else {
         throw exception("failed to synthesize monoid instance");
@@ -149,13 +125,9 @@ expr norm_num_context::mk_field(expr const & e) {
 
 expr norm_num_context::mk_add_comm(expr const & e) {
     auto l_name = get_add_comm_semigroup_name();
-    if (instances.find(l_name) != instances.end()) {
-        return instances[l_name];
-    }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
     optional<expr> inst = m_ctx.mk_class_instance(t);
     if (inst) {
-        instances[l_name] = *inst;
         return *inst;
     } else {
         throw exception("failed to synthesize add_comm_semigroup instance");
@@ -164,13 +136,9 @@ expr norm_num_context::mk_add_comm(expr const & e) {
 
 expr norm_num_context::mk_add_group(expr const & e) {
     auto l_name = get_add_group_name();
-    if (instances.find(l_name) != instances.end()) {
-        return instances[l_name];
-    }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
     optional<expr> inst = m_ctx.mk_class_instance(t);
     if (inst) {
-        instances[l_name] = *inst;
         return *inst;
     } else {
         throw exception("failed to synthesize add_comm_semigroup instance");
@@ -179,13 +147,9 @@ expr norm_num_context::mk_add_group(expr const & e) {
 
 expr norm_num_context::mk_has_distrib(expr const & e) {
     auto l_name = get_distrib_name();
-    if (instances.find(l_name) != instances.end()) {
-        return instances[l_name];
-    }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
     optional<expr> inst = m_ctx.mk_class_instance(t);
     if (inst) {
-        instances[l_name] = *inst;
         return *inst;
     } else {
         throw exception("failed to synthesize has_distrib instance");
@@ -194,13 +158,9 @@ expr norm_num_context::mk_has_distrib(expr const & e) {
 
 expr norm_num_context::mk_mul_zero_class(expr const & e) {
     auto l_name = get_mul_zero_class_name();
-    if (instances.find(l_name) != instances.end()) {
-        return instances[l_name];
-    }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
     optional<expr> inst = m_ctx.mk_class_instance(t);
     if (inst) {
-        instances[l_name] = *inst;
         return *inst;
     } else {
         throw exception("failed to synthesize mul_zero instance");
@@ -209,13 +169,9 @@ expr norm_num_context::mk_mul_zero_class(expr const & e) {
 
 expr norm_num_context::mk_semiring(expr const & e) {
     auto l_name = get_semiring_name();
-    if (instances.find(l_name) != instances.end()) {
-       return instances[l_name];
-    }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
     optional<expr> inst = m_ctx.mk_class_instance(t);
     if (inst) {
-        instances[l_name] = *inst;
         return *inst;
     } else {
         throw exception("failed to synthesize semiring instance");
@@ -224,13 +180,9 @@ expr norm_num_context::mk_semiring(expr const & e) {
 
 expr norm_num_context::mk_has_neg(expr const & e) {
     auto l_name = get_has_neg_name();
-    if (instances.find(l_name) != instances.end()) {
-        return instances[l_name];
-    }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
     optional<expr> inst = m_ctx.mk_class_instance(t);
     if (inst) {
-        instances[l_name] = *inst;
         return *inst;
     } else {
         throw exception("failed to synthesize has_neg instance");
@@ -239,13 +191,9 @@ expr norm_num_context::mk_has_neg(expr const & e) {
 
 expr norm_num_context::mk_has_sub(expr const & e) {
     auto l_name = get_has_sub_name();
-    if (instances.find(l_name) != instances.end()) {
-       return instances[l_name];
-    }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
     optional<expr> inst = m_ctx.mk_class_instance(t);
     if (inst) {
-        instances[l_name] = *inst;
         return *inst;
     } else {
         throw exception("failed to synthesize has_sub instance");
@@ -254,13 +202,9 @@ expr norm_num_context::mk_has_sub(expr const & e) {
 
 expr norm_num_context::mk_has_div(expr const & e) {
     auto l_name = get_has_div_name();
-    if (instances.find(l_name) != instances.end()) {
-        return instances[l_name];
-    }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
     optional<expr> inst = m_ctx.mk_class_instance(t);
     if (inst) {
-        instances[l_name] = *inst;
         return *inst;
     } else {
         throw exception("failed to synthesize has_div instance");
@@ -269,13 +213,9 @@ expr norm_num_context::mk_has_div(expr const & e) {
 
 expr norm_num_context::mk_add_comm_group(expr const & e) {
     auto l_name = get_add_comm_group_name();
-    if (instances.find(l_name) != instances.end()) {
-        return instances[l_name];
-    }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
     optional<expr> inst = m_ctx.mk_class_instance(t);
     if (inst) {
-        instances[l_name] = *inst;
         return *inst;
     } else {
         throw exception("failed to synthesize add_comm_group instance");
@@ -284,13 +224,9 @@ expr norm_num_context::mk_add_comm_group(expr const & e) {
 
 expr norm_num_context::mk_ring(expr const & e) {
     auto l_name = get_ring_name();
-    if (instances.find(l_name) != instances.end()) {
-        return instances[l_name];
-    }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
     optional<expr> inst = m_ctx.mk_class_instance(t);
     if (inst) {
-        instances[l_name] = *inst;
         return *inst;
     } else {
         throw exception("failed to synthesize ring instance");
@@ -299,13 +235,9 @@ expr norm_num_context::mk_ring(expr const & e) {
 
 expr norm_num_context::mk_lin_ord_ring(expr const & e) {
     auto l_name = get_linear_ordered_ring_name();
-    if (instances.find(l_name) != instances.end()) {
-        return instances[l_name];
-    }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
     optional<expr> inst = m_ctx.mk_class_instance(t);
     if (inst) {
-        instances[l_name] = *inst;
         return *inst;
     } else {
         throw exception("failed to synthesize lin_ord_ring instance");
@@ -314,13 +246,9 @@ expr norm_num_context::mk_lin_ord_ring(expr const & e) {
 
 expr norm_num_context::mk_lin_ord_semiring(expr const & e) {
     auto l_name = get_linear_ordered_semiring_name();
-    if (instances.find(l_name) != instances.end()) {
-        return instances[l_name];
-    }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
     optional<expr> inst = m_ctx.mk_class_instance(t);
     if (inst) {
-        instances[l_name] = *inst;
         return *inst;
     } else {
         throw exception("failed to synthesize lin_ord_semiring instance");
@@ -329,13 +257,9 @@ expr norm_num_context::mk_lin_ord_semiring(expr const & e) {
 
 expr norm_num_context::mk_wk_order(expr const & e) {
     auto l_name = get_weak_order_name();
-    if (instances.find(l_name) != instances.end()) {
-        return instances[l_name];
-    }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
     optional<expr> inst = m_ctx.mk_class_instance(t);
     if (inst) {
-        instances[l_name] = *inst;
         return *inst;
     } else {
         throw exception("failed to synthesize weak_order instance");

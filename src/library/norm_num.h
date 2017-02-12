@@ -63,7 +63,6 @@ class norm_num_context {
     expr_pair mk_norm_nat_sub(expr &, expr &, expr &);
     expr mk_nonzero_prf(expr const & e);
     pair<expr, expr> get_type_and_arg_of_neg(expr &);
-    std::unordered_map<name, expr, name_hash> instances;
 
 public:
     norm_num_context(type_context & ctx): m_ctx(ctx) {}

@@ -29,8 +29,7 @@ bool is_format(vm_obj const & o) {
 }
 
 format const & to_format(vm_obj const & o) {
-    lean_assert(is_external(o));
-    lean_assert(dynamic_cast<vm_format*>(to_external(o)));
+    lean_vm_check(dynamic_cast<vm_format*>(to_external(o)));
     return static_cast<vm_format*>(to_external(o))->m_val;
 }
 
@@ -125,8 +124,7 @@ struct vm_format_thunk : public vm_external {
 };
 
 std::function<format()> const & to_format_thunk(vm_obj const & o) {
-    lean_assert(is_external(o));
-    lean_assert(dynamic_cast<vm_format_thunk*>(to_external(o)));
+    lean_vm_check(dynamic_cast<vm_format_thunk*>(to_external(o)));
     return static_cast<vm_format_thunk*>(to_external(o))->m_val;
 }
 

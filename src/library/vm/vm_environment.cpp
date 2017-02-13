@@ -18,7 +18,6 @@ Author: Leonardo de Moura
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_option.h"
 #include "library/vm/vm_string.h"
-#include "library/vm/vm_level.h"
 #include "library/vm/vm_expr.h"
 #include "library/vm/vm_declaration.h"
 #include "library/vm/vm_exceptional.h"
@@ -39,8 +38,7 @@ bool is_env(vm_obj const & o) {
 }
 
 environment const & to_env(vm_obj const & o) {
-    lean_assert(is_external(o));
-    lean_assert(dynamic_cast<vm_environment*>(to_external(o)));
+    lean_vm_check(dynamic_cast<vm_environment*>(to_external(o)));
     return static_cast<vm_environment*>(to_external(o))->m_val;
 }
 

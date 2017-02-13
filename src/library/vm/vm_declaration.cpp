@@ -52,8 +52,7 @@ bool is_declaration(vm_obj const & o) {
 }
 
 declaration const & to_declaration(vm_obj const & o) {
-    lean_assert(is_external(o));
-    lean_assert(dynamic_cast<vm_declaration*>(to_external(o)));
+    lean_vm_check(dynamic_cast<vm_declaration*>(to_external(o)));
     return static_cast<vm_declaration*>(to_external(o))->m_val;
 }
 

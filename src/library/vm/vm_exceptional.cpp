@@ -21,8 +21,7 @@ struct vm_throwable : public vm_external {
 };
 
 throwable * to_throwable(vm_obj const & o) {
-    lean_assert(is_external(o));
-    lean_assert(dynamic_cast<vm_throwable*>(to_external(o)));
+    lean_vm_check(dynamic_cast<vm_throwable*>(to_external(o)));
     return static_cast<vm_throwable*>(to_external(o))->m_val;
 }
 

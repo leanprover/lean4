@@ -21,14 +21,13 @@ struct vm_options : public vm_external {
     virtual vm_external * clone(vm_clone_fn const &) override { return new (get_vm_allocator().allocate(sizeof(vm_options))) vm_options(m_val); }
 };
 
-options const & to_options(vm_obj const & o) {
-    lean_assert(is_external(o));
-    lean_assert(dynamic_cast<vm_options*>(to_external(o)));
-    return static_cast<vm_options*>(to_external(o))->m_val;
-}
-
 bool is_options(vm_obj const & o) {
     return is_external(o) && dynamic_cast<vm_options*>(to_external(o));
+}
+
+options const & to_options(vm_obj const & o) {
+    lean_vm_check(dynamic_cast<vm_options*>(to_external(o)));
+    return static_cast<vm_options*>(to_external(o))->m_val;
 }
 
 vm_obj to_obj(options const & n) {

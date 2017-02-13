@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_format.h"
 #include "library/vm/vm_options.h"
-#include "library/vm/vm_list.h"
 
 namespace lean {
 struct vm_level : public vm_external {
@@ -29,8 +28,7 @@ bool is_level(vm_obj const & o) {
 }
 
 level const & to_level(vm_obj const & o) {
-    lean_assert(is_external(o));
-    lean_assert(dynamic_cast<vm_level*>(to_external(o)));
+    lean_vm_check(dynamic_cast<vm_level*>(to_external(o)));
     return static_cast<vm_level*>(to_external(o))->m_val;
 }
 

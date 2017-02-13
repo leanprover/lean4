@@ -45,8 +45,7 @@ list<A> to_list_ ## A(vm_obj const & o) {                               \
     } else if (is_constructor(o)) {                                     \
         return list<A>(ToA(cfield(o, 0)), to_list_ ## A(cfield(o, 1))); \
     } else {                                                            \
-        lean_assert(is_external(o));                                    \
-        lean_assert(dynamic_cast<vm_list<A>*>(to_external(o)));         \
+        lean_vm_check(dynamic_cast<vm_list<A>*>(to_external(o)));       \
         return static_cast<vm_list<A>*>(to_external(o))->m_val;         \
     }                                                                   \
 }
@@ -63,8 +62,7 @@ void to_buffer_ ## A(vm_obj const & o, buffer<A> & r) {                 \
         r.push_back(ToA(cfield(o, 0)));                                 \
         to_buffer_ ## A(cfield(o, 1), r);                               \
     } else {                                                            \
-        lean_assert(is_external(o));                                    \
-        lean_assert(dynamic_cast<vm_list<A>*>(to_external(o)));         \
+        lean_vm_check(dynamic_cast<vm_list<A>*>(to_external(o)));       \
         to_buffer(static_cast<vm_list<A>*>(to_external(o))->m_val, r);  \
     }                                                                   \
 }
@@ -91,7 +89,6 @@ unsigned list_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
         data.append(csize(o), cfields(o));
         return 1;
     } else {
-        lean_assert(is_external(o));
         if (auto l = dynamic_cast<vm_list<name>*>(to_external(o))) {
             return list_cases_on_core(l->m_val, data);
         } else if (auto l = dynamic_cast<vm_list<expr>*>(to_external(o))) {

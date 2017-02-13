@@ -44,8 +44,7 @@ struct vm_macro_definition : public vm_external {
 };
 
 macro_definition const & to_macro_definition(vm_obj const & o) {
-    lean_assert(is_external(o));
-    lean_assert(dynamic_cast<vm_macro_definition*>(to_external(o)));
+    lean_vm_check(dynamic_cast<vm_macro_definition*>(to_external(o)));
     return static_cast<vm_macro_definition*>(to_external(o))->m_val;
 }
 
@@ -67,8 +66,7 @@ bool is_expr(vm_obj const & o) {
 }
 
 expr const & to_expr(vm_obj const & o) {
-    lean_assert(is_external(o));
-    lean_assert(dynamic_cast<vm_expr*>(to_external(o)));
+    lean_vm_check(dynamic_cast<vm_expr*>(to_external(o)));
     return static_cast<vm_expr*>(to_external(o))->m_val;
 }
 

@@ -73,8 +73,7 @@ vm_external * vm_rb_map_ts_copy::clone(vm_clone_fn const & fn) {
 }
 
 vm_obj_map const & to_map(vm_obj const & o) {
-    lean_assert(is_external(o));
-    lean_assert(dynamic_cast<vm_rb_map*>(to_external(o)));
+    lean_vm_check(dynamic_cast<vm_rb_map*>(to_external(o)));
     return static_cast<vm_rb_map*>(to_external(o))->m_map;
 }
 

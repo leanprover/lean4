@@ -399,7 +399,7 @@ ts_vm_obj::data::~data() {
     for (vm_obj_cell * cell : m_objs) {
         switch (cell->kind()) {
         case vm_obj_kind::Simple:
-            lean_assert(false);
+            lean_unreachable();
             break;
         case vm_obj_kind::Constructor:
         case vm_obj_kind::Closure:
@@ -2791,7 +2791,7 @@ void vm_state::run() {
             */
             unsigned num = instr.get_num();
             unsigned sz  = m_stack.size();
-            lean_assert(sz > num);
+            lean_vm_check(sz > num);
             swap(m_stack[sz - num - 1], m_stack[sz - 1]);
             m_stack.resize(sz - num);
             if (m_debugging) shrink_stack_info();
@@ -2941,6 +2941,7 @@ void vm_state::run() {
                     goto main_loop;
                 }
             } else {
+                lean_vm_check(is_composite(top));
                 mpz const & val = to_mpz(top);
                 if (val == 0) {
                     stack_pop_back();
@@ -3094,9 +3095,9 @@ void vm_state::run() {
                 vm_decl d         = get_decl(fn_idx);
                 unsigned csz      = csize(closure);
                 unsigned arity    = d.get_arity();
-                lean_assert(csz < arity);
+                lean_vm_check(csz < arity);
                 unsigned nargs    = csz + 1;
-                lean_assert(nargs <= arity);
+                lean_vm_check(nargs <= arity);
                 /* Keep consuming 'apply' instructions while nargs < arity */
                 while (nargs < arity && m_code[m_pc+1].op() == opcode::Apply) {
                     nargs++;
@@ -3502,6 +3503,10 @@ environment load_external_fn(environment & env, name const & extern_n) {
         std::cout << e.what() << std::endl;
         throw e;
     }
+}
+
+[[noreturn]] void vm_check_failed(char const *fn, unsigned line, char const *msg) {
+    throw exception(sstream() << "VM check failed at " << fn << ":" << line << ": " << msg);
 }
 
 class vm_index_manager {

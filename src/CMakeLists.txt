@@ -18,6 +18,7 @@ enable_testing()
 option(MULTI_THREAD       "MULTI_THREAD"       ON)
 option(STATIC             "STATIC"             OFF)
 option(SPLIT_STACK        "SPLIT_STACK"        OFF)
+option(VM_UNCHECKED       "VM_UNCHECKED"       OFF)
 option(TCMALLOC           "TCMALLOC"           OFF)
 option(JEMALLOC           "JEMALLOC"           OFF)
 # When OFF we disable JSON support to support older compilers
@@ -98,6 +99,10 @@ if(NOT MULTI_THREAD)
   set(AUTO_THREAD_FINALIZATION OFF)
 else()
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_MULTI_THREAD")
+endif()
+
+if(VM_UNCHECKED)
+  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_VM_UNCHECKED")
 endif()
 
 if(AUTO_THREAD_FINALIZATION)

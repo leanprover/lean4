@@ -68,7 +68,7 @@ bool is_task(vm_obj const & o) {
 }
 
 task_result<ts_vm_obj> const & to_task(vm_obj const & o) {
-    lean_assert(is_task(o));
+    lean_vm_check(dynamic_cast<vm_task *>(to_external(o)));
     return static_cast<vm_task*>(to_external(o))->m_val;
 }
 

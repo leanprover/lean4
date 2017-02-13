@@ -30,7 +30,7 @@ class vm_obj_cell {
 protected:
     friend class vm_obj;
     unsigned    m_rc;
-    vm_obj_kind m_kind;
+    const vm_obj_kind m_kind;
     void inc_ref() { m_rc++; }
     bool dec_ref_core() {
         lean_assert(m_rc > 0);
@@ -49,6 +49,21 @@ public:
 #define LEAN_VM_IS_PTR(obj) ((reinterpret_cast<size_t>(obj) & 1) == 0)
 #define LEAN_VM_BOX(num)    (reinterpret_cast<vm_obj_cell*>((num << 1) | 1))
 #define LEAN_VM_UNBOX(obj)  (reinterpret_cast<size_t>(obj) >> 1)
+
+#if defined(__GNUC__) || defined(__clang__)
+#define LEAN_UNLIKELY(x) (__builtin_expect((x), 0))
+#define LEAN_ALWAYS_INLINE __attribute__((always_inline))
+#else
+#define LEAN_UNLIKELY(x) (x)
+#define LEAN_ALWAYS_INLINE
+#endif
+
+[[noreturn]] void vm_check_failed(char const * fn, unsigned line, char const * msg);
+#if defined(LEAN_VM_UNCHECKED)
+#define lean_vm_check(cond) lean_assert(cond)
+#else
+#define lean_vm_check(cond) { if (LEAN_UNLIKELY(!(cond))) vm_check_failed(__FILE__, __LINE__, #cond); }
+#endif
 
 void display(std::ostream & out, vm_obj const & o);
 
@@ -262,26 +277,26 @@ inline bool is_external(vm_obj_cell const * o) { return kind(o) == vm_obj_kind::
 
 // =======================================
 // Casting
-inline vm_composite * to_composite(vm_obj_cell * o) { lean_assert(is_composite(o)); return static_cast<vm_composite*>(o); }
-inline vm_mpz * to_mpz_core(vm_obj_cell * o) { lean_assert(is_mpz(o)); return static_cast<vm_mpz*>(o); }
-inline mpz const & to_mpz(vm_obj_cell * o) { return to_mpz_core(o)->get_value(); }
-inline vm_external * to_external(vm_obj_cell * o) { lean_assert(is_external(o)); return static_cast<vm_external*>(o); }
-inline vm_native_closure * to_native_closure(vm_obj_cell * o) { lean_assert(is_native_closure(o)); return static_cast<vm_native_closure*>(o); }
+LEAN_ALWAYS_INLINE inline vm_composite * to_composite(vm_obj_cell * o) { lean_vm_check(is_composite(o)); return static_cast<vm_composite*>(o); }
+LEAN_ALWAYS_INLINE inline vm_mpz * to_mpz_core(vm_obj_cell * o) { lean_vm_check(is_mpz(o)); return static_cast<vm_mpz*>(o); }
+LEAN_ALWAYS_INLINE inline mpz const & to_mpz(vm_obj_cell * o) { return to_mpz_core(o)->get_value(); }
+LEAN_ALWAYS_INLINE inline vm_external * to_external(vm_obj_cell * o) { lean_vm_check(is_external(o)); return static_cast<vm_external*>(o); }
+LEAN_ALWAYS_INLINE inline vm_native_closure * to_native_closure(vm_obj_cell * o) { lean_vm_check(is_native_closure(o)); return static_cast<vm_native_closure*>(o); }
 // =======================================
 
 // =======================================
 // Accessors
-inline unsigned cidx(vm_obj const & o) {
-    lean_assert(is_simple(o) || is_constructor(o));
+LEAN_ALWAYS_INLINE inline unsigned cidx(vm_obj const & o) {
+    lean_vm_check(is_simple(o) || is_constructor(o));
     return LEAN_VM_IS_PTR(o.raw()) ? to_composite(o.raw())->idx() : static_cast<unsigned>(LEAN_VM_UNBOX(o.raw()));
 }
-inline unsigned csize(vm_obj const & o) { lean_assert(is_composite(o)); return to_composite(o)->size(); }
-inline unsigned cfn_idx(vm_obj const & o) { lean_assert(is_closure(o)); return to_composite(o)->idx(); }
-inline vm_obj const * cfields(vm_obj const & o) {
-    lean_assert(is_composite(o)); return to_composite(o)->fields();
+LEAN_ALWAYS_INLINE inline unsigned csize(vm_obj const & o) { lean_vm_check(is_composite(o)); return to_composite(o)->size(); }
+LEAN_ALWAYS_INLINE inline unsigned cfn_idx(vm_obj const & o) { lean_vm_check(is_closure(o)); return to_composite(o)->idx(); }
+LEAN_ALWAYS_INLINE inline vm_obj const * cfields(vm_obj const & o) {
+    lean_vm_check(is_composite(o)); return to_composite(o)->fields();
 }
-inline vm_obj const & cfield(vm_obj const & o, unsigned i) { lean_assert(i < csize(o)); return cfields(o)[i]; }
-inline bool to_bool(vm_obj const & o) { return cidx(o) != 0; }
+LEAN_ALWAYS_INLINE inline vm_obj const & cfield(vm_obj const & o, unsigned i) { lean_vm_check(i < csize(o)); return cfields(o)[i]; }
+LEAN_ALWAYS_INLINE inline bool to_bool(vm_obj const & o) { return cidx(o) != 0; }
 // =======================================
 
 #define LEAN_MAX_SMALL_NAT (1u << 31)
@@ -412,13 +427,13 @@ public:
 
     unsigned get_cases2_pc(unsigned i) const {
         lean_assert(m_op == opcode::Cases2 || m_op == opcode::NatCases);
-        lean_assert(i < 2);
+        lean_vm_check(i < 2);
         return m_pc[i];
     }
 
     void set_cases2_pc(unsigned i, unsigned pc) {
         lean_assert(m_op == opcode::Cases2 || m_op == opcode::NatCases);
-        lean_assert(i < 2);
+        lean_vm_check(i < 2);
         m_pc[i] = pc;
     }
 
@@ -434,13 +449,13 @@ public:
 
     unsigned get_casesn_pc(unsigned i) const {
         lean_assert(m_op == opcode::CasesN || m_op == opcode::BuiltinCases);
-        lean_assert(i < get_casesn_size());
+        lean_vm_check(i < get_casesn_size());
         return m_npcs[i+1];
     }
 
     void set_casesn_pc(unsigned i, unsigned pc) const {
         lean_assert(m_op == opcode::CasesN || m_op == opcode::BuiltinCases);
-        lean_assert(i < get_casesn_size());
+        lean_vm_check(i < get_casesn_size());
         m_npcs[i+1] = pc;
     }
 

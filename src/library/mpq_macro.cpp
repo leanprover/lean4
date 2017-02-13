@@ -13,19 +13,19 @@ Author: Daniel Selsam
 #include "library/constants.h"
 #include "library/kernel_serializer.h"
 #include "library/type_context.h"
-#include "library/arith_instance_manager.h"
+#include "library/arith_instance.h"
 
 namespace lean {
 
 struct mpq2expr_fn {
-    arith_instance_info_ref m_info;
+    arith_instance & m_ainst;
 
-    mpq2expr_fn(arith_instance_info_ref info): m_info(info) {}
+    mpq2expr_fn(arith_instance & ainst): m_ainst(ainst) {}
 
     expr operator()(mpq const & q) {
         mpz numer = q.get_numerator();
         if (numer.is_zero())
-            return m_info->get_zero();
+            return m_ainst.mk_zero();
 
         mpz denom = q.get_denominator();
         lean_assert(denom > 0);
@@ -40,11 +40,11 @@ struct mpq2expr_fn {
         if (denom == 1) {
             e = pos_mpz_to_expr(numer);
         } else {
-            e = mk_app(m_info->get_div(), pos_mpz_to_expr(numer), pos_mpz_to_expr(denom));
+            e = mk_app(m_ainst.mk_div(), pos_mpz_to_expr(numer), pos_mpz_to_expr(denom));
         }
 
         if (flip_sign) {
-            return mk_app(m_info->get_neg(), e);
+            return mk_app(m_ainst.mk_neg(), e);
         } else {
             return e;
         }
@@ -53,11 +53,11 @@ struct mpq2expr_fn {
     expr pos_mpz_to_expr(mpz const & n) {
         lean_assert(n > 0);
         if (n == 1)
-            return m_info->get_one();
+            return m_ainst.mk_one();
         if (n % mpz(2) == 1)
-            return mk_app(m_info->get_bit1(), pos_mpz_to_expr(n/2));
+            return mk_app(m_ainst.mk_bit1(), pos_mpz_to_expr(n/2));
         else
-            return mk_app(m_info->get_bit0(), pos_mpz_to_expr(n/2));
+            return mk_app(m_ainst.mk_bit0(), pos_mpz_to_expr(n/2));
     }
 };
 
@@ -86,20 +86,14 @@ public:
         return macro_arg(m, 0);
     }
 
-    virtual optional<expr> expand(expr const & m, abstract_type_context &) const {
+    virtual optional<expr> expand(expr const & m, abstract_type_context & actx) const {
         check_macro(m);
-        expr ty = macro_arg(m, 0);
-        concrete_arith_type cty;
-        if (ty == mk_constant(get_nat_name()))
-            cty = concrete_arith_type::NAT;
-        else if (ty == mk_constant(get_int_name()))
-            cty = concrete_arith_type::INT;
-        else if (ty == mk_constant(get_real_name()))
-            cty = concrete_arith_type::REAL;
-        else
+        expr type = macro_arg(m, 0);
+        if (has_local(type) || has_metavar(type))
             throw exception(sstream() << "trying to expand invalid 'mpq' macro");
-
-        return some_expr(mpq2expr_fn(get_arith_instance_info_for(cty))(get_mpq()));
+        type_context ctx(actx.env());
+        arith_instance ainst(ctx, type);
+        return some_expr(mpq2expr_fn(ainst)(m_q));
     }
 
     virtual void write(serializer & s) const {

@@ -99,6 +99,7 @@ name const * g_gt = nullptr;
 name const * g_has_add = nullptr;
 name const * g_has_div = nullptr;
 name const * g_has_mul = nullptr;
+name const * g_has_inv = nullptr;
 name const * g_has_le = nullptr;
 name const * g_has_lt = nullptr;
 name const * g_has_neg = nullptr;
@@ -171,6 +172,7 @@ name const * g_int_ne_neg_of_pos = nullptr;
 name const * g_int_neg_ne_zero_of_ne = nullptr;
 name const * g_int_zero_ne_neg_of_ne = nullptr;
 name const * g_int_decidable_linear_ordered_comm_group = nullptr;
+name const * g_inv = nullptr;
 name const * g_io = nullptr;
 name const * g_io_functor = nullptr;
 name const * g_io_monad = nullptr;
@@ -584,6 +586,7 @@ void initialize_constants() {
     g_has_add = new name{"has_add"};
     g_has_div = new name{"has_div"};
     g_has_mul = new name{"has_mul"};
+    g_has_inv = new name{"has_inv"};
     g_has_le = new name{"has_le"};
     g_has_lt = new name{"has_lt"};
     g_has_neg = new name{"has_neg"};
@@ -656,6 +659,7 @@ void initialize_constants() {
     g_int_neg_ne_zero_of_ne = new name{"int", "neg_ne_zero_of_ne"};
     g_int_zero_ne_neg_of_ne = new name{"int", "zero_ne_neg_of_ne"};
     g_int_decidable_linear_ordered_comm_group = new name{"int_decidable_linear_ordered_comm_group"};
+    g_inv = new name{"inv"};
     g_io = new name{"io"};
     g_io_functor = new name{"io", "functor"};
     g_io_monad = new name{"io", "monad"};
@@ -1070,6 +1074,7 @@ void finalize_constants() {
     delete g_has_add;
     delete g_has_div;
     delete g_has_mul;
+    delete g_has_inv;
     delete g_has_le;
     delete g_has_lt;
     delete g_has_neg;
@@ -1142,6 +1147,7 @@ void finalize_constants() {
     delete g_int_neg_ne_zero_of_ne;
     delete g_int_zero_ne_neg_of_ne;
     delete g_int_decidable_linear_ordered_comm_group;
+    delete g_inv;
     delete g_io;
     delete g_io_functor;
     delete g_io_monad;
@@ -1555,6 +1561,7 @@ name const & get_gt_name() { return *g_gt; }
 name const & get_has_add_name() { return *g_has_add; }
 name const & get_has_div_name() { return *g_has_div; }
 name const & get_has_mul_name() { return *g_has_mul; }
+name const & get_has_inv_name() { return *g_has_inv; }
 name const & get_has_le_name() { return *g_has_le; }
 name const & get_has_lt_name() { return *g_has_lt; }
 name const & get_has_neg_name() { return *g_has_neg; }
@@ -1627,6 +1634,7 @@ name const & get_int_ne_neg_of_pos_name() { return *g_int_ne_neg_of_pos; }
 name const & get_int_neg_ne_zero_of_ne_name() { return *g_int_neg_ne_zero_of_ne; }
 name const & get_int_zero_ne_neg_of_ne_name() { return *g_int_zero_ne_neg_of_ne; }
 name const & get_int_decidable_linear_ordered_comm_group_name() { return *g_int_decidable_linear_ordered_comm_group; }
+name const & get_inv_name() { return *g_inv; }
 name const & get_io_name() { return *g_io; }
 name const & get_io_functor_name() { return *g_io_functor; }
 name const & get_io_monad_name() { return *g_io_monad; }

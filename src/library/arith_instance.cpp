@@ -21,7 +21,11 @@ arith_instance::arith_instance(type_context & ctx, expr const & type, level cons
 
 arith_instance::arith_instance(type_context & ctx, expr const & type):
     m_ctx(&ctx) {
-    if (optional<level> lvl = dec_level(get_level(ctx, type)))
+    set_type(type);
+}
+
+void arith_instance::set_type(expr const & type) {
+    if (optional<level> lvl = dec_level(get_level(*m_ctx, type)))
         m_info = mk_arith_instance_info(type, *lvl);
     else
         throw exception("failed to infer universe level");
@@ -30,9 +34,9 @@ arith_instance::arith_instance(type_context & ctx, expr const & type):
 expr arith_instance::mk_op(name const & op, name const & s, optional<expr> & r) {
     if (r) return *r;
     if (m_ctx) {
-        expr inst_type = mk_app(mk_constant(s, {m_info->m_level}), m_info->m_type);
+        expr inst_type = mk_app(mk_constant(s, m_info->m_levels), m_info->m_type);
         if (auto inst = m_ctx->mk_class_instance(inst_type)) {
-            r = mk_app(mk_constant(op, {m_info->m_level}), m_info->m_type, *inst);
+            r = mk_app(mk_constant(op, m_info->m_levels), m_info->m_type, *inst);
             return *r;
         }
     }
@@ -42,7 +46,7 @@ expr arith_instance::mk_op(name const & op, name const & s, optional<expr> & r) 
 expr arith_instance::mk_structure(name const & s, optional<expr> & r) {
     if (r) return *r;
     if (m_ctx) {
-        expr inst_type = mk_app(mk_constant(s, {m_info->m_level}), m_info->m_type);
+        expr inst_type = mk_app(mk_constant(s, m_info->m_levels), m_info->m_type);
         if (auto inst = m_ctx->mk_class_instance(inst_type)) {
             r = *inst;
             return *r;
@@ -53,7 +57,7 @@ expr arith_instance::mk_structure(name const & s, optional<expr> & r) {
 
 expr arith_instance::mk_bit1() {
     if (!m_info->m_bit1)
-        m_info->m_bit1 = mk_app(mk_constant(get_bit1_name(), {m_info->m_level}), m_info->m_type, mk_has_one(), mk_has_add());
+        m_info->m_bit1 = mk_app(mk_constant(get_bit1_name(), m_info->m_levels), m_info->m_type, mk_has_one(), mk_has_add());
     return *m_info->m_bit1;
 }
 
@@ -83,4 +87,39 @@ expr arith_instance::mk_linear_ordered_semiring() { return mk_structure(get_line
 expr arith_instance::mk_ring() { return mk_structure(get_ring_name(), m_info->m_ring); }
 expr arith_instance::mk_linear_ordered_ring() { return mk_structure(get_linear_ordered_ring_name(), m_info->m_linear_ordered_ring); }
 expr arith_instance::mk_field() { return mk_structure(get_field_name(), m_info->m_field); }
+
+expr arith_instance::mk_pos_num(mpz const & n) {
+    lean_assert(n > 0);
+    if (n == 1)
+        return mk_one();
+    else if (n % mpz(2) == 1)
+        return mk_app(mk_bit1(), mk_pos_num(n/2));
+    else
+        return mk_app(mk_bit0(), mk_pos_num(n/2));
+}
+
+expr arith_instance::mk_num(mpz const & n) {
+    if (n < 0) {
+        return mk_app(mk_neg(), mk_pos_num(0 - n));
+    } else if (n == 0) {
+        return mk_zero();
+    } else {
+        return mk_pos_num(n);
+    }
+}
+
+expr arith_instance::mk_num(mpq const & q) {
+    mpz numer = q.get_numerator();
+    mpz denom = q.get_denominator();
+    lean_assert(denom >= 0);
+    if (denom == 1 || numer == 0) {
+        return mk_num(numer);
+    } else if (numer > 0) {
+        return mk_app(mk_div(), mk_num(numer), mk_num(denom));
+    } else {
+        return mk_app(mk_neg(), mk_app(mk_div(), mk_num(neg(numer)), mk_num(denom)));
+    }
+}
+
+
 }

@@ -16,51 +16,6 @@ Author: Daniel Selsam
 #include "library/arith_instance.h"
 
 namespace lean {
-
-struct mpq2expr_fn {
-    arith_instance & m_ainst;
-
-    mpq2expr_fn(arith_instance & ainst): m_ainst(ainst) {}
-
-    expr operator()(mpq const & q) {
-        mpz numer = q.get_numerator();
-        if (numer.is_zero())
-            return m_ainst.mk_zero();
-
-        mpz denom = q.get_denominator();
-        lean_assert(denom > 0);
-
-        bool flip_sign = false;
-        if (numer.is_neg()) {
-            numer.neg();
-            flip_sign = true;
-        }
-
-        expr e;
-        if (denom == 1) {
-            e = pos_mpz_to_expr(numer);
-        } else {
-            e = mk_app(m_ainst.mk_div(), pos_mpz_to_expr(numer), pos_mpz_to_expr(denom));
-        }
-
-        if (flip_sign) {
-            return mk_app(m_ainst.mk_neg(), e);
-        } else {
-            return e;
-        }
-    }
-
-    expr pos_mpz_to_expr(mpz const & n) {
-        lean_assert(n > 0);
-        if (n == 1)
-            return m_ainst.mk_one();
-        if (n % mpz(2) == 1)
-            return mk_app(m_ainst.mk_bit1(), pos_mpz_to_expr(n/2));
-        else
-            return mk_app(m_ainst.mk_bit0(), pos_mpz_to_expr(n/2));
-    }
-};
-
 static name * g_mpq_macro_name    = nullptr;
 static std::string * g_mpq_opcode = nullptr;
 
@@ -93,7 +48,7 @@ public:
             throw exception(sstream() << "trying to expand invalid 'mpq' macro");
         type_context ctx(actx.env());
         arith_instance ainst(ctx, type);
-        return some_expr(mpq2expr_fn(ainst)(m_q));
+        return some_expr(ainst.mk_num(m_q));
     }
 
     virtual void write(serializer & s) const {

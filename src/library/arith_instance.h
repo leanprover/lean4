@@ -5,13 +5,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include "util/numerics/mpq.h"
 #include "library/type_context.h"
 
 namespace lean {
 class arith_instance_info {
     friend class arith_instance;
-    expr  m_type;
-    level m_level;
+    expr   m_type;
+    levels m_levels;
 
     /* Partial applications */
     optional<expr> m_zero, m_one;
@@ -30,7 +31,7 @@ class arith_instance_info {
     optional<expr> m_ring, m_linear_ordered_ring;
     optional<expr> m_field;
 public:
-    arith_instance_info(expr const & type, level const & lvl):m_type(type), m_level(lvl) {}
+    arith_instance_info(expr const & type, level const & lvl):m_type(type), m_levels(lvl) {}
 };
 
 typedef std::shared_ptr<arith_instance_info> arith_instance_info_ptr;
@@ -43,11 +44,20 @@ class arith_instance {
     expr mk_structure(name const & s, optional<expr> & r);
     expr mk_op(name const & op, name const & s, optional<expr> & r);
 
+    expr mk_pos_num(mpz const & n);
+
 public:
     arith_instance(type_context & ctx, arith_instance_info_ptr const & info):m_ctx(&ctx), m_info(info) {}
     arith_instance(type_context & ctx, expr const & type, level const & level);
     arith_instance(type_context & ctx, expr const & type);
     arith_instance(arith_instance_info_ptr const & info):m_ctx(nullptr), m_info(info) {}
+    arith_instance(type_context & ctx):m_ctx(&ctx) {}
+
+    void set_info(arith_instance_info_ptr const & info) { m_info = info; }
+    void set_type(expr const & type);
+
+    expr const & get_type() const { return m_info->m_type; }
+    levels const & get_levels() const { return m_info->m_levels; }
 
     expr mk_zero();
     expr mk_one();
@@ -87,5 +97,8 @@ public:
     expr mk_ring();
     expr mk_linear_ordered_ring();
     expr mk_field();
+
+    expr mk_num(mpz const & n);
+    expr mk_num(mpq const & n);
 };
 };

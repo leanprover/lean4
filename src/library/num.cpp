@@ -57,16 +57,19 @@ bool is_numeral_const_name(name const & n) {
 }
 
 static bool is_num(expr const & e, bool first) {
-    if (is_zero(e))
-        return first;
-    else if (is_one(e))
-        return true;
-    else if (auto a = is_bit0(e))
-        return is_num(*a, false);
-    else if (auto a = is_bit1(e))
-        return is_num(*a, false);
-    else
-        return false;
+    buffer<expr> args;
+    expr const & f = get_app_args(e, args);
+    if (!is_constant(f))
+      return false;
+    if (const_name(f) == get_one_name())
+        return args.size() == 2;
+    else if (const_name(f) == get_zero_name())
+        return first && args.size() == 2;
+    else if (const_name(f) == get_bit0_name())
+        return args.size() == 3 && is_num(args[2], false);
+    else if (const_name(f) == get_bit1_name())
+        return args.size() == 4 && is_num(args[3], false);
+    return false;
 }
 
 bool is_num(expr const & e) {

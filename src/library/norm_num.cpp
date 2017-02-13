@@ -10,30 +10,12 @@ Author: Robert Y. Lewis
 #include "library/comp_val.h"
 
 namespace lean {
-static bool is_numeral_aux(expr const & e, bool is_first) {
-    buffer<expr> args;
-    expr const & f = get_app_args(e, args);
-    if (!is_constant(f)) {
-      return false;
-    }
-    if (const_name(f) == get_one_name()) {
-        return args.size() == 2;
-    } else if (const_name(f) == get_zero_name()) {
-        return is_first && args.size() == 2;
-    } else if (const_name(f) == get_bit0_name()) {
-        return args.size() == 3 && is_numeral_aux(args[2], false);
-    } else if (const_name(f) == get_bit1_name()) {
-        return args.size() == 4 && is_numeral_aux(args[3], false);
-    }
-    return false;
+bool norm_num_context::is_numeral(expr const & e) const {
+    return is_num(e);
 }
 
 bool norm_num_context::is_nat_const(expr const & e) const {
     return is_constant(e) && const_name(e) == get_nat_name();
-}
-
-bool norm_num_context::is_numeral(expr const & e) const {
-    return is_numeral_aux(e, true);
 }
 
 bool norm_num_context::is_neg_app(expr const & e) const {

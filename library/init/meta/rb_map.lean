@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Jeremy Avigad
 -/
 prelude
-import init.data.ordering init.function init.meta.name init.meta.format
+import init.data.ordering init.function init.meta.name init.meta.format init.meta.expr
 
 meta constant {u₁ u₂} rb_map : Type u₁ → Type u₂ → Type (max u₁ u₂)
 
@@ -52,25 +52,26 @@ fold m (mk _ _) $ λa b m', if f b then insert m' a b else m'
 
 end rb_map
 
-attribute [reducible]
-meta def nat_map (data : Type) := rb_map nat data
+@[reducible] meta def nat_map (data : Type) := rb_map nat data
 namespace nat_map
-  export rb_map (hiding mk)
+export rb_map (hiding mk)
 
-  attribute [inline]
-  meta def mk (data : Type) : nat_map data :=
-  rb_map.mk nat data
+meta def mk (data : Type) : nat_map data := rb_map.mk nat data
 end nat_map
 
-attribute [reducible]
-meta def name_map (data : Type) := rb_map name data
+@[reducible] meta def name_map (data : Type) := rb_map name data
 namespace name_map
-  export rb_map (hiding mk)
+export rb_map (hiding mk)
 
-  attribute [inline]
-  meta def mk (data : Type) : name_map data :=
-  rb_map.mk name data
+meta def mk (data : Type) : name_map data := rb_map.mk name data
 end name_map
+
+@[reducible] meta def expr_map (data : Type) := rb_map expr data
+namespace expr_map
+export rb_map (hiding mk)
+
+meta def mk (data : Type) : expr_map data := rb_map.mk expr data
+end expr_map
 
 open rb_map prod
 section

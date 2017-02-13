@@ -357,30 +357,29 @@ meta def join_user_simp_lemmas : list name → tactic simp_lemmas
    and pr is a proof that the input argument is equal to n. -/
 meta constant norm_num : expr → tactic (expr × expr)
 
-meta def simplify_top_down (pre : expr → tactic (expr × expr)) (e : expr) (cfg : simplify_config := {}) : tactic (expr × expr) :=
-do (_, new_e, pr) ← ext_simplify_core () cfg simp_lemmas.mk (λ _, failed)
-                          (λ _ _ _ _ e, do (new_e, pr) ← pre e, guard (¬ new_e =ₐ e), return ((), new_e, some pr, tt))
-                          (λ _ _ _ _ _, failed)
-                          `eq e,
-   return (new_e, pr)
+meta def simplify_top_down {α} (a : α) (pre : α → expr → tactic (α × expr × expr)) (e : expr) (cfg : simplify_config := {}) : tactic (α × expr × expr) :=
+ext_simplify_core a cfg simp_lemmas.mk (λ _, failed)
+  (λ a _ _ _ e, do (new_a, new_e, pr) ← pre a e, guard (¬ new_e =ₐ e), return (new_a, new_e, some pr, tt))
+  (λ _ _ _ _ _, failed)
+  `eq e
 
-meta def simp_top_down (pre : expr → tactic (expr × expr)) (cfg : simplify_config := {}) : tactic unit :=
-do t                 ← target,
-   (new_target, pr) ← simplify_top_down pre t cfg,
-   replace_target new_target pr
+meta def simp_top_down {α} (a : α) (pre : α → expr → tactic (α × expr × expr)) (cfg : simplify_config := {}) : tactic α :=
+do t                       ← target,
+   (new_a, new_target, pr) ← simplify_top_down a pre t cfg,
+   replace_target new_target pr,
+   return new_a
 
-meta def simplify_bottom_up (post : expr → tactic (expr × expr)) (e : expr) (cfg : simplify_config := {}) : tactic (expr × expr) :=
-do (_, new_e, pr) ← ext_simplify_core () cfg simp_lemmas.mk (λ _, failed)
-                          (λ _ _ _ _ _, failed)
-                          (λ _ _ _ _ e, do (new_e, pr) ← post e, guard (¬ new_e =ₐ e), return ((), new_e, some pr, tt))
-                          `eq e,
-   return (new_e, pr)
+meta def simplify_bottom_up {α} (a : α) (post : α → expr → tactic (α × expr × expr)) (e : expr) (cfg : simplify_config := {}) : tactic (α × expr × expr) :=
+ext_simplify_core a cfg simp_lemmas.mk (λ _, failed)
+  (λ _ _ _ _ _, failed)
+  (λ a _ _ _ e, do (new_a, new_e, pr) ← post a e, guard (¬ new_e =ₐ e), return (new_a, new_e, some pr, tt))
+  `eq e
 
-meta def simp_bottom_up (post : expr → tactic (expr × expr)) (cfg : simplify_config := {}) : tactic unit :=
-do t                 ← target,
-   (new_target, pr) ← simplify_bottom_up post t cfg,
-   replace_target new_target pr
-
+meta def simp_bottom_up {α} (a : α) (post : α → expr → tactic (α × expr × expr)) (cfg : simplify_config := {}) : tactic α :=
+do t                       ← target,
+   (new_a, new_target, pr) ← simplify_bottom_up a post t cfg,
+   replace_target new_target pr,
+   return new_a
 end tactic
 
 export tactic (mk_simp_attr)

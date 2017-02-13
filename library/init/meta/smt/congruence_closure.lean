@@ -73,6 +73,16 @@ to_bool (s^.next e = e)
 meta def eqc_size (s : cc_state) (e : expr) : nat :=
 (s^.eqc_of e)^.length
 
+meta def fold_eqc_core {α} (s : cc_state) (f : α → expr → α) (first : expr) : expr → α → α
+| c a :=
+  let new_a := f a c,
+      next  := s^.next c in
+  if next =ₐ first then new_a
+  else fold_eqc_core next new_a
+
+meta def fold_eqc {α} (s : cc_state) (e : expr) (a : α) (f : α → expr → α) : α :=
+fold_eqc_core s f e e a
+
 end cc_state
 
 open tactic

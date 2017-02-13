@@ -19,7 +19,7 @@ void check_core(int v, unsigned l) {
 
 int main() {
     lean_exception ex;
-    lean_name a, l, pp, pp_unicode, rn;
+    lean_name a, l, pp, pp_unicode;
     lean_options o1, o2;
     lean_univ zero, one, p1, m1, u, n, i, ru;
     lean_list_name ln1, ln2;
@@ -77,7 +77,6 @@ int main() {
     lean_name_del(l);
     lean_name_del(pp);
     lean_name_del(pp_unicode);
-    lean_name_del(rn);
 
     lean_options_del(o1);
     lean_options_del(o2);

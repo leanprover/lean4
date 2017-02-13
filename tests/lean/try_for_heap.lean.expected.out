@@ -1,4 +1,4 @@
-try_for_heap.lean:44:3: error: try_for failed, timeout
+try_for_heap.lean:44:3: error: try_for tactic failed, timeout
 state:
 h₁ h₂ : heap,
 x₁ x₂ x₃ x₄ : ptr,

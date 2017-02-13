@@ -59,6 +59,8 @@ public:
     expr const & get_type() const { return m_info->m_type; }
     levels const & get_levels() const { return m_info->m_levels; }
 
+    bool is_nat();
+
     expr mk_zero();
     expr mk_one();
     expr mk_add();
@@ -100,5 +102,7 @@ public:
 
     expr mk_num(mpz const & n);
     expr mk_num(mpq const & n);
+
+    optional<mpq> eval(expr const & e);
 };
 };

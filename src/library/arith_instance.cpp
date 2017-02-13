@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/constants.h"
 #include "library/arith_instance.h"
+#include "library/num.h"
 
 namespace lean {
 // TODO(Leo): pre compute arith_instance_info for nat, int and real
@@ -121,5 +122,47 @@ expr arith_instance::mk_num(mpq const & q) {
     }
 }
 
+bool arith_instance::is_nat() {
+    return is_constant(m_info->m_type, get_nat_name());
+}
 
+optional<mpq> arith_instance::eval(expr const & e) {
+    buffer<expr> args;
+    expr f = get_app_args(e, args);
+    if (!is_constant(f)) {
+        throw exception("cannot find num of nonconstant");
+    } else if (const_name(f) == get_add_name() && args.size() == 4) {
+        if (auto r1 = eval(args[2]))
+        if (auto r2 = eval(args[3]))
+            return optional<mpq>(*r1 + *r2);
+    } else if (const_name(f) == get_mul_name() && args.size() == 4) {
+        if (auto r1 = eval(args[2]))
+        if (auto r2 = eval(args[3]))
+            return optional<mpq>(*r1 * *r2);
+    } else if (const_name(f) == get_sub_name() && args.size() == 4) {
+        if (auto r1 = eval(args[2]))
+        if (auto r2 = eval(args[3]))  {
+            if (is_nat() && *r2 > *r1)
+                return optional<mpq>(0);
+            else
+                return optional<mpq>(*r1 - *r2);
+        }
+    } else if (const_name(f) == get_div_name() && args.size() == 4) {
+        if (auto r1 = eval(args[2]))
+        if (auto r2 = eval(args[3]))  {
+            if (is_nat())
+                return optional<mpq>(); // not supported yet
+            else if (*r2 == 0)
+                return optional<mpq>(); // division by zero, add support for x/0 = 0
+            else
+                return optional<mpq>(*r1 / *r2);
+        }
+    } else if (const_name(f) == get_neg_name() && args.size() == 3) {
+        if (auto r1 = eval(args[2]))
+            return optional<mpq>(neg(*r1));
+    } else if (auto r = to_num(e)) {
+        return optional<mpq>(*r);
+    }
+    return optional<mpq>();
+}
 }

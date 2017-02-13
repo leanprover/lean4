@@ -198,66 +198,11 @@ optional<mpq> norm_num_context::to_mpq(expr const & e) {
     }
 }
 
-mpq norm_num_context:: mpq_of_expr(expr const & e) {
-    buffer<expr> args;
-    expr f = get_app_args(e, args);
-    if (!is_constant(f)) {
-        throw exception("cannot find num of nonconstant");
-    } else if (const_name(f) == get_add_name() && args.size() == 4) {
-        return mpq_of_expr(args[2]) + mpq_of_expr(args[3]);
-    } else if (const_name(f) == get_mul_name() && args.size() == 4) {
-        return mpq_of_expr(args[2]) * mpq_of_expr(args[3]);
-    } else if (const_name(f) == get_sub_name() && args.size() == 4) {
-        mpq lhs = mpq_of_expr(args[2]), rhs = mpq_of_expr(args[3]);
-        if (is_nat_const(args[0]) && rhs > lhs) {
-            return mpq(0);
-        } else {
-            return lhs - rhs;
-        }
-    } else if (const_name(f) == get_div_name() && args.size() == 4) {
-        if (is_nat_const(args[0])) {
-            throw exception("norm_num does not support nat division");
-        } else {
-            mpq num = mpq_of_expr(args[2]), den = mpq_of_expr(args[3]);
-            if (den != 0)
-                return mpq_of_expr(args[2]) / mpq_of_expr(args[3]);
-            else
-                throw exception("divide by 0");
-        }
-    } else if (const_name(f) == get_neg_name() && args.size() == 3) {
-        if (is_nat_const(args[0])) {
-            throw exception("norm_num does not support negative nats");
-        } else {
-            return neg(mpq_of_expr(args[2]));
-        }
-    } else {
-        auto v = to_mpq(e);
-        if (v) {
-            return *v;
-        } else {
-            throw exception("expression in mpq_of_expr is malfomed");
-        }
-    }
-}
-
-mpz norm_num_context::num_of_expr(expr const & e) {
-    buffer<expr> args;
-    expr f = get_app_args(e, args);
-    if (!is_constant(f)) {
-        throw exception("cannot find num of nonconstant");
-    } else if (auto v = to_num(e)) {
-        return *v;
-    } else if (const_name(f) == get_add_name() && args.size() == 4) {
-        return num_of_expr(args[2]) + num_of_expr(args[3]);
-    } else if (const_name(f) == get_mul_name() && args.size() == 4) {
-        return num_of_expr(args[2]) * num_of_expr(args[3]);
-    } else if (const_name(f) == get_sub_name() && args.size() == 4) {
-        return num_of_expr(args[2]) - num_of_expr(args[3]);
-    } else if (const_name(f) == get_neg_name() && args.size() == 3) {
-        return neg(num_of_expr(args[2]));
-    } else {
-        throw exception("expression in num_of_expr is malfomed");
-    }
+mpq norm_num_context::mpq_of_expr(expr const & e) {
+    if (auto r = m_ainst.eval(e))
+        return *r;
+    else
+        throw exception("failed to evaluate arithmetic expression");
 }
 
 pair<expr, expr> norm_num_context::get_type_and_arg_of_neg(expr const & e) {

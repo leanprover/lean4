@@ -78,7 +78,6 @@ class norm_num_context {
     bool is_neg_app(expr const &) const;
     bool is_div(expr const &) const;
     bool is_nat_const(expr const &) const;
-    mpz num_of_expr(expr const & e);
     mpq mpq_of_expr(expr const & e);
     optional<mpq> to_mpq(expr const & e);
     expr mk_norm_eq(expr const &, expr const &);

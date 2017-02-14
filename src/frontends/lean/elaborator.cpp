@@ -3298,7 +3298,7 @@ elaborate(environment & env, options const & opts, name const & decl_name,
 
 // Auxiliary procedure for #translate
 static expr resolve_local_name(environment const & env, local_context const & lctx, name const & id,
-                               expr const & src) {
+                               expr const & src, bool ignore_aliases) {
     /* check local context */
     if (auto decl = lctx.find_local_decl_from_user_name(id)) {
         return copy_tag(src, decl->mk_ref());
@@ -3339,16 +3339,19 @@ static expr resolve_local_name(environment const & env, local_context const & lc
     // globals
     if (env.find(id))
         r = copy_tag(src, mk_constant(id));
-    // aliases
-    list<name> as = get_expr_aliases(env, id);
-    if (!is_nil(as)) {
-        buffer<expr> new_as;
-        if (r)
-            new_as.push_back(*r);
-        for (auto const & a : as) {
-            new_as.push_back(copy_tag(src, mk_constant(a)));
+
+    if (!ignore_aliases) {
+        // aliases
+        list<name> as = get_expr_aliases(env, id);
+        if (!is_nil(as)) {
+            buffer<expr> new_as;
+            if (r)
+                new_as.push_back(*r);
+            for (auto const & a : as) {
+                new_as.push_back(copy_tag(src, mk_constant(a)));
+            }
+            r = copy_tag(src, mk_choice(new_as.size(), new_as.data()));
         }
-        r = copy_tag(src, mk_choice(new_as.size(), new_as.data()));
     }
 
     if (!r)
@@ -3364,32 +3367,78 @@ vm_obj tactic_resolve_local_name(vm_obj const & vm_id, vm_obj const & vm_s) {
         optional<metavar_decl> g = s.get_main_goal_decl();
         if (!g) return mk_no_goals_exception(s);
         expr src; // dummy
-        return mk_tactic_success(to_obj(resolve_local_name(s.env(), g->get_context(), id, src)), s);
+        bool ignore_aliases = false;
+        return mk_tactic_success(to_obj(resolve_local_name(s.env(), g->get_context(), id, src, ignore_aliases)), s);
     } catch (exception & ex) {
         return mk_tactic_exception(ex, s);
     }
 }
 
-expr resolve_names(environment const & env, local_context const & lctx, expr const & e) {
-    auto fn = [&](expr const & e) {
-        if (is_placeholder(e) || is_by(e) || is_as_is(e) || is_emptyc_or_emptys(e)) {
-            return some_expr(e); // ignore placeholders, nested tactics and as_is terms
-        } else if (is_constant(e)) {
-            if (!is_nil(const_levels(e))) {
-                /* universe level were provided, so the constant was already resolved at parsing time */
-                return some_expr(e);
-            } else {
-                expr new_e = copy_tag(e, resolve_local_name(env, lctx, const_name(e), e));
-                return some_expr(new_e);
-            }
-        } else if (is_local(e)) {
-            expr new_e = copy_tag(e, resolve_local_name(env, lctx, local_pp_name(e), e));
-            return some_expr(new_e);
+struct resolve_names_fn : public replace_visitor {
+    environment const & m_env;
+    local_context const & m_lctx;
+
+    resolve_names_fn(environment const & env, local_context const & lctx):
+        m_env(env), m_lctx(lctx) {}
+
+    expr visit_constant(expr const & e, bool ignore_aliases) {
+        if (!is_nil(const_levels(e))) {
+            /* universe level were provided, so the constant was already resolved at parsing time */
+            return e;
         } else {
-            return none_expr();
+            return copy_tag(e, resolve_local_name(m_env, m_lctx, const_name(e), e, ignore_aliases));
         }
-    };
-    return replace(e, fn);
+    }
+
+    virtual expr visit_constant(expr const & e) override {
+        return visit_constant(e, false);
+    }
+
+    expr visit_local(expr const & e, bool ignore_aliases) {
+        return copy_tag(e, resolve_local_name(m_env, m_lctx, local_pp_name(e), e, ignore_aliases));
+    }
+
+    virtual expr visit_local(expr const & e) override {
+        return visit_local(e, false);
+    }
+
+    void push_new_arg(buffer<expr> & new_args, expr const & arg) {
+        if (is_choice(arg)) {
+            for (unsigned i = 0; i < get_num_choices(arg); i++)
+                push_new_arg(new_args, get_choice(arg, i));
+        } else if (std::find(new_args.begin(), new_args.end(), arg) == new_args.end()) {
+            new_args.push_back(arg);
+        }
+    }
+
+    expr visit_choice(expr const & e) {
+        buffer<expr> new_args;
+        bool ignore_aliases = true;
+        for (unsigned i = 0; i < get_num_choices(e); i++) {
+            expr const & arg = get_choice(e, i);
+            if (is_constant(arg))
+                push_new_arg(new_args, visit_constant(arg, ignore_aliases));
+            else if (is_local(arg))
+                push_new_arg(new_args, visit_local(arg, ignore_aliases));
+            else
+                new_args.push_back(visit(arg));
+        }
+        return mk_choice(new_args.size(), new_args.data());
+    }
+
+    virtual expr visit(expr const & e) override {
+        if (is_placeholder(e) || is_by(e) || is_as_is(e) || is_emptyc_or_emptys(e)) {
+            return e;
+        } else if (is_choice(e)) {
+            return visit_choice(e);
+        } else {
+            return replace_visitor::visit(e);
+        }
+    }
+};
+
+expr resolve_names(environment const & env, local_context const & lctx, expr const & e) {
+    return resolve_names_fn(env, lctx)(e);
 }
 
 static vm_obj tactic_save_type_info(vm_obj const & _e, vm_obj const & ref, vm_obj const & _s) {

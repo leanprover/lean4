@@ -26,9 +26,9 @@ theorem vappend_assoc :
 by do
      intros,
      v <- get_local `v1,
-     induction_core semireducible v (`vector.rec_on) [],
+     induction v (`vector.rec_on) [],
      v2 ← get_local `v2,
-     cases_using v2 [`m, `h2, `t2],
+     cases v2 [`m, `h2, `t2],
      trace_state, trace "------",
      -- unfold only the first occurrence (i.e., the one of the form (vappend nil nil)
      dunfold_occs_of [1] `vappend,

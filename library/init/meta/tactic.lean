@@ -303,9 +303,10 @@ meta constant beta          : expr → tactic expr
 meta constant zeta          : expr → tactic expr
 /- (head) eta reduction -/
 meta constant eta           : expr → tactic expr
-meta constant unify_core    : transparency → expr → expr → tactic unit
-/- is_def_eq_core is similar to unify_core, but it treats metavariables as constants. -/
-meta constant is_def_eq_core : transparency → expr → expr → tactic unit
+/-- Succeeds if `t` and `s` can be unified using the given transparency setting. -/
+meta constant unify (t s : expr) (md := semireducible) : tactic unit
+/- Similar to `unify`, but it treats metavariables as constants. -/
+meta constant is_def_eq (t s : expr) (md := semireducible) : tactic unit
 /- Infer the type of the given expression.
    Remark: transparency does not affect type inference -/
 meta constant infer_type    : expr → tactic expr
@@ -316,28 +317,40 @@ meta constant resolve_name  : name → tactic expr
 /- Return the hypothesis in the main goal. Fail if tactic_state does not have any goal left. -/
 meta constant local_context : tactic (list expr)
 meta constant get_unused_name : name → option nat → tactic name
-/-  Helper tactic for creating simple applications where some arguments are inferred using
+/--  Helper tactic for creating simple applications where some arguments are inferred using
     type inference.
 
     Example, given
+    ```
         rel.{l_1 l_2} : Pi (α : Type.{l_1}) (β : α -> Type.{l_2}), (Pi x : α, β x) -> (Pi x : α, β x) -> , Prop
         nat     : Type
         real    : Type
         vec.{l} : Pi (α : Type l) (n : nat), Type.{l1}
         f g     : Pi (n : nat), vec real n
+    ```
     then
-        mk_app_core semireducible "rel" [f, g]
+    ```
+    mk_app_core semireducible "rel" [f, g]
+    ```
     returns the application
-        rel.{1 2} nat (fun n : nat, vec real n) f g -/
-meta constant mk_app_core   : transparency → name → list expr → tactic expr
-/- Similar to mk_app, but allows to specify which arguments are explicit/implicit.
-   Example, given
-     a b : nat
-   then
-     mk_mapp_core semireducible "ite" [some (a > b), none, none, some a, some b]
+    ```
+    rel.{1 2} nat (fun n : nat, vec real n) f g
+    ```
+
+    The unification constraints due to type inference are solved using the transparency `md`.
+-/
+meta constant mk_app (fn : name) (args : list expr) (md := semireducible) : tactic expr
+/-- Similar to `mk_app`, but allows to specify which arguments are explicit/implicit.
+   Example, given `(a b : nat)` then
+   ```
+   mk_mapp "ite" [some (a > b), none, none, some a, some b]
+   ```
    returns the application
-     @ite.{1} (a > b) (nat.decidable_gt a b) nat a b -/
-meta constant mk_mapp_core  : transparency → name → list (option expr) → tactic expr
+   ```
+   @ite.{1} (a > b) (nat.decidable_gt a b) nat a b
+   ```
+-/
+meta constant mk_mapp (fn : name) (args : list (option expr)) (md := semireducible) : tactic expr
 /-- (mk_congr_arg h₁ h₂) is a more efficient version of (mk_app `congr_arg [h₁, h₂]) -/
 meta constant mk_congr_arg  : expr → expr → tactic expr
 /-- (mk_congr_fun h₁ h₂) is a more efficient version of (mk_app `congr_fun [h₁, h₂]) -/
@@ -382,13 +395,19 @@ meta constant definev_core  : name → expr → expr → tactic unit
 meta constant rotate_left   : nat → tactic unit
 meta constant get_goals     : tactic (list expr)
 meta constant set_goals     : list expr → tactic unit
-/- (apply_core t approx all insts e), apply the expression e to the main goal,
-   the unification is performed using the given transparency mode.
-   If approx is tt, then fallback to first-order unification, and approximate context during unification.
-   If all is tt, then all unassigned meta-variables are added as new goals.
-   If insts is tt, then use type class resolution to instantiate unassigned meta-variables.
-   It returns a list of all introduced meta variables, even the assigned ones. -/
-meta constant apply_core    : transparency → bool → bool → bool → expr → tactic (list expr)
+/-- Configuration options for the `apply` tactic. -/
+structure apply_cfg :=
+(md            := semireducible)
+(approx        := tt)
+(all           := ff)
+(use_instances := tt)
+/-- Apply the expression `e` to the main goal,
+    the unification is performed using the transparency mode in `cfg`.
+    If cfg^.approx is `tt`, then fallback to first-order unification, and approximate context during unification.
+    If cfg^.all is `tt`, then all unassigned meta-variables are added as new goals.
+    If cfg^.use_instances is `tt`, then use type class resolution to instantiate unassigned meta-variables.
+    It returns a list of all introduced meta variables, even the assigned ones. -/
+meta constant apply_core (e : expr) (cfg : apply_cfg := {}) : tactic (list expr)
 /- Create a fresh meta universe variable. -/
 meta constant mk_meta_univ  : tactic level
 /- Create a fresh meta-variable with the given type.
@@ -408,25 +427,26 @@ meta constant abstract_hash : expr → tactic nat
    and proofs. -/
 meta constant abstract_weight : expr → tactic nat
 meta constant abstract_eq     : expr → expr → tactic bool
-/- (induction_core m H rec ns) induction on H using recursor rec, names for the new hypotheses
-   are retrieved from ns. If ns does not have sufficient names, then use the internal binder names
+/- Induction on `h` using recursor `rec`, names for the new hypotheses
+   are retrieved from `ns`. If `ns` does not have sufficient names, then use the internal binder names
    in the recursor.
    It returns for each new goal a list of new hypotheses and a list of substitutions for hypotheses
-   depending on H. The substitutions map internal names to their replacement terms. If the
+   depending on `h`. The substitutions map internal names to their replacement terms. If the
    replacement is again a hypothesis the user name stays the same. The internal names are only valid
    in the original goal, not in the type context of the new goal. -/
-meta constant induction_core : transparency → expr → name → list name → tactic (list (list expr × list (name × expr)))
-/- (cases_core m H ns) apply cases_on recursor, names for the new hypotheses are retrieved from ns.
-   H must be a local constant.
-   It returns for each new goal the name of the constructor, a list of new hypotheses, and a list of
-   substitutions for hypotheses depending on H. The number of new goals may be smaller than the
+meta constant induction (h : expr) (rec : name) (ns : list name := []) (md := semireducible) : tactic (list (list expr × list (name × expr)))
+/- Apply `cases_on` recursor, names for the new hypotheses are retrieved from `ns`.
+   `h` must be a local constant. It returns for each new goal the name of the constructor, a list of new hypotheses, and a list of
+   substitutions for hypotheses depending on `h`. The number of new goals may be smaller than the
    number of constructors. Some goals may be discarded when the indices to not match.
-   See `induction_core` for information on the list of substitutions. -/
-meta constant cases_core     : transparency → expr → list name → tactic (list (name × list expr × list (name × expr)))
-/- (destruct_core m e) similar to cases tactic, but does not revert/intro/clear hypotheses. -/
-meta constant destruct_core    : transparency → expr → tactic unit
-/- (generalize_core m e n) -/
-meta constant generalize_core : transparency → expr → name → tactic unit
+   See `induction` for information on the list of substitutions.
+
+   The `cases` tactic is implemented using this one, and it relaxes the restriction of `h`. -/
+meta constant cases_core (h : expr) (ns : list name := []) (md := semireducible) : tactic (list (name × list expr × list (name × expr)))
+/- Similar to cases tactic, but does not revert/intro/clear hypotheses. -/
+meta constant destruct (e : expr) (md := semireducible) : tactic unit
+/- Generalizes the target with respect to `e`.  -/
+meta constant generalize (e : expr) (n : name := `_x) (md := semireducible) : tactic unit
 /- instantiate assigned metavariables in the given expression -/
 meta constant instantiate_mvars : expr → tactic expr
 /- Add the given declaration to the environment -/
@@ -446,24 +466,21 @@ where l_i's and a_j's are the collected dependencies.
 -/
 meta constant add_aux_decl (c : name) (type : expr) (val : expr) (is_lemma : bool) : tactic expr
 meta constant module_doc_strings : tactic (list (option name × string))
-/- (set_basic_attribute_core attr_name c_name persistent prio) set attribute attr_name for constant c_name with the given priority.
+/- Set attribute `attr_name` for constant `c_name` with the given priority.
    If the priority is none, then use default -/
-meta constant set_basic_attribute_core : name → name → bool → option nat → tactic unit
+meta constant set_basic_attribute (attr_name : name) (c_name : name) (persistent := ff) (prio : option nat := none) : tactic unit
 /- (unset_attribute attr_name c_name) -/
 meta constant unset_attribute : name → name → tactic unit
 /- (has_attribute attr_name c_name) succeeds if the declaration `decl_name`
    has the attribute `attr_name`. The result is the priority. -/
 meta constant has_attribute : name → name → tactic nat
 
-meta def set_basic_attribute : name → name → bool → tactic unit :=
-λ a n p, set_basic_attribute_core a n p none
-
 /- (copy_attribute attr_name c_name d_name) copy attribute `attr_name` from
    `src` to `tgt` if it is defined for `src` -/
 meta def copy_attribute (attr_name : name) (src : name) (p : bool) (tgt : name) : tactic unit :=
 try $ do
   prio ← has_attribute attr_name src,
-  set_basic_attribute_core attr_name tgt p (some prio)
+  set_basic_attribute attr_name tgt p (some prio)
 
 /-- Name of the declaration currently being elaborated. -/
 meta constant decl_name : tactic name
@@ -472,11 +489,11 @@ meta constant decl_name : tactic name
 meta constant save_type_info : expr → expr → tactic unit
 meta constant save_info_thunk : nat → nat → (unit → format) → tactic unit
 meta constant report_error : nat → nat → format → tactic unit
-/- Return list of currently opened namespace -/
+/-- Return list of currently open namespaces -/
 meta constant open_namespaces : tactic (list name)
 open list nat
 
-/- Remark: set_goals will erase any solved goal -/
+/-- Remark: set_goals will erase any solved goal -/
 meta def cleanup : tactic unit :=
 get_goals >>= set_goals
 
@@ -543,12 +560,6 @@ meta def intro_lst : list name → tactic (list expr)
 | []      := return []
 | (n::ns) := do H ← intro n, Hs ← intro_lst ns, return (H :: Hs)
 
-meta def mk_app : name → list expr → tactic expr :=
-mk_app_core semireducible
-
-meta def mk_mapp : name → list (option expr) → tactic expr :=
-mk_mapp_core semireducible
-
 meta def to_expr_strict (q : pexpr) (report_errors := ff) : tactic expr :=
 to_expr q report_errors
 
@@ -558,12 +569,6 @@ revert_lst [l]
 meta def clear_lst : list name → tactic unit
 | []      := skip
 | (n::ns) := do H ← get_local n, clear H, clear_lst ns
-
-meta def unify : expr → expr → tactic unit :=
-unify_core semireducible
-
-meta def is_def_eq : expr → expr → tactic unit :=
-is_def_eq_core semireducible
 
 meta def match_not (e : expr) : tactic expr :=
 match (expr.is_not e) with
@@ -786,10 +791,10 @@ do n ← num_goals,
    when (n ≠ 0) (fail "now tactic failed, there are unsolved goals")
 
 meta def apply (e : expr) : tactic unit :=
-do apply_core semireducible tt ff tt e, return ()
+apply_core e >> return ()
 
 meta def fapply (e : expr) : tactic unit :=
-do apply_core semireducible tt tt tt e, return ()
+apply_core e {all := tt} >> return ()
 
 /- Try to solve the main goal using type class resolution. -/
 meta def apply_instance : tactic unit :=
@@ -873,20 +878,9 @@ do tgt : expr ← target,
    fail "tactic by_contradiction failed, target is not a negation nor a decidable proposition (remark: when 'local attribute classical.prop_decidable [instance]' is used all propositions are decidable)",
    intro H
 
-meta def cases (H : expr) : tactic (list (name × list expr × list (name × expr))) :=
-cases_core semireducible H []
-
-meta def cases_using : expr → list name → tactic (list (name × list expr × list (name × expr))) :=
-cases_core semireducible
-
-meta def induction : expr → name → list name → tactic (list (list expr × list (name × expr))) :=
-induction_core semireducible
-
-meta def destruct (e : expr) : tactic unit :=
-destruct_core semireducible e
-
-meta def generalize : expr → name → tactic unit :=
-generalize_core semireducible
+meta def cases (h : expr) (ns : list name := []) (md := semireducible) : tactic (list (name × list expr × list (name × expr))) :=
+/- TODO(Leo): handle case where `h` is not a local. -/
+cases_core h ns md
 
 meta def generalizes : list expr → tactic unit
 | []      := skip

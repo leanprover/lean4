@@ -226,7 +226,7 @@ skolemized ← on_first_right' qf $ λhexp,
     existsi (lambdas (ctx ++ [inh_lc]) eps),
     eps_spec ← mk_mapp ``classical.epsilon_spec [some d, some p],
     exact (lambdas (ctx ++ [inh_lc]) eps_spec),
-    sk_ax_local ← get_local sk_ax_name, cases_using sk_ax_local [sk_sym_name_pp, sk_ax_name],
+    sk_ax_local ← get_local sk_ax_name, cases sk_ax_local [sk_sym_name_pp, sk_ax_name],
     sk_ax' ← get_local sk_ax_name,
     return [([inh_lc], app_of_list sk_ax' (ctx ++ [inh_lc, hexp]))]
   | _ := failed

@@ -200,7 +200,7 @@ end clause
 
 meta def unify_lit (l1 l2 : clause.literal) : tactic unit :=
 if clause.literal.is_pos l1 = clause.literal.is_pos l2 then
-  unify_core transparency.none (clause.literal.formula l1) (clause.literal.formula l2)
+  unify (clause.literal.formula l1) (clause.literal.formula l2) transparency.none
 else
   fail "cannot unify literals"
 

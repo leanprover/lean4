@@ -20,10 +20,10 @@ rfl
 example {A : Type*} {n : nat} (v w : vec A (n+1)) : head v = head w → tail v = tail w → v = w :=
 by do
   v ← get_local `v,
-  cases_using v [`n', `hv, `tv],
+  cases v [`n', `hv, `tv],
   trace_state,
   w ← get_local `w,
-  cases_using w [`n', `hw, `tw],
+  cases w [`n', `hw, `tw],
   trace_state,
   dsimp,
   trace_state,
@@ -38,7 +38,7 @@ example (n : nat) : n ≠ 0 → succ (pred n) = n :=
 by do
   H ← intro `H,
   n ← get_local `n,
-  cases_using n [`n'],
+  cases n [`n'],
   trace_state,
   contradiction,
   reflexivity

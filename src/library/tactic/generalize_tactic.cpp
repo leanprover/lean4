@@ -26,12 +26,12 @@ vm_obj generalize(transparency_mode m, expr const & e, name const & id, tactic_s
     return mk_tactic_success(set_mctx_goals(s, mctx, cons(mvar, tail(s.goals()))));
 }
 
-vm_obj tactic_generalize(vm_obj const & m, vm_obj const & e, vm_obj const & n, vm_obj const & s) {
+vm_obj tactic_generalize(vm_obj const & e, vm_obj const & n, vm_obj const & m, vm_obj const & s) {
     return generalize(to_transparency_mode(m), to_expr(e), to_name(n), to_tactic_state(s));
 }
 
 void initialize_generalize_tactic() {
-    DECLARE_VM_BUILTIN(name({"tactic", "generalize_core"}),   tactic_generalize);
+    DECLARE_VM_BUILTIN(name({"tactic", "generalize"}),   tactic_generalize);
 }
 
 void finalize_generalize_tactic() {

@@ -67,12 +67,11 @@ do I_name ← get_has_sizeof_type_name,
    -- Use brec_on if type is recursive.
    -- We store the functional in the variable F.
    if is_recursive env I_name
-   then intro `_v >>= (λ x, induction_core semireducible x (I_name <.> "brec_on") [v_name, F_name] >> return ())
+   then intro `_v >>= (λ x, induction x (I_name <.> "brec_on") [v_name, F_name] >> return ())
    else intro v_name >> return (),
    arg_names : list (list name) ← mk_constructors_arg_names I_name `_p,
-   get_local v_name >>= λ v, cases_using v (join arg_names),
+   get_local v_name >>= λ v, cases v (join arg_names),
    for_each_has_sizeof_goal use_default I_name F_name arg_names
-
 
 meta def mk_has_sizeof_instance : tactic unit :=
 mk_has_sizeof_instance_core ff

@@ -282,8 +282,8 @@ private meta def rw_hyps : transparency → list (bool × expr × pos) → list 
 private meta def rw_core (m : transparency) (hs : qexpr_list_or_qexpr0_with_pos) (loc : location) : tactic unit :=
 do hlist ← to_symm_expr_list hs,
    match loc with
-   | [] := rw_goal m hlist >> try (reflexivity_core reducible)
-   | hs := rw_hyps m hlist hs >> try (reflexivity_core reducible)
+   | [] := rw_goal m hlist >> try (reflexivity reducible)
+   | hs := rw_hyps m hlist hs >> try (reflexivity reducible)
    end
 
 meta def rewrite : qexpr_list_or_qexpr0_with_pos → location → tactic unit :=
@@ -310,15 +310,16 @@ do e_type ← infer_type e >>= whnf,
 meta def induction (p : qexpr0) (rec_name : using_ident) (ids : with_ident_list) : tactic unit :=
 do e ← i_to_expr p,
    match rec_name with
-   | some n := induction_core semireducible e n ids
-   | none   := do I ← get_type_name e, induction_core semireducible e (I <.> "rec") ids
+   | some n := tactic.induction e n ids
+   | none   := do I ← get_type_name e, tactic.induction e (I <.> "rec") ids
    end,
    return ()
 
 meta def cases (p : qexpr0) (ids : with_ident_list) : tactic unit :=
+/- TODO(Leo): move this to tactic.lean -/
 do e ← i_to_expr p,
    (if e^.is_local_constant then
-     cases_core semireducible e ids
+     cases_core e ids
    else do
      x ← mk_fresh_name,
      tactic.generalize e x <|>
@@ -327,11 +328,11 @@ do e ← i_to_expr p,
            get_local x >>= tactic.revert,
            return ()),
      h ← tactic.intro1,
-     cases_core semireducible h ids),
+     cases_core h ids),
    return ()
 
 meta def destruct (p : qexpr0) : tactic unit :=
-i_to_expr p >>= tactic.destruct
+do e ← i_to_expr p, tactic.destruct e
 
 meta def generalize (p : qexpr) (x : ident) : tactic unit :=
 do e ← i_to_expr p,
@@ -522,7 +523,7 @@ do s ← mk_simp_set attr_names hs ids,
    | [] := simp_goal cfg s
    | _  := simp_hyps cfg s loc
    end,
-   try tactic.triv, try (tactic.reflexivity_core reducible)
+   try tactic.triv, try (tactic.reflexivity reducible)
 
 /--
 This tactic uses lemmas and hypotheses to simplify the main goal target or non-dependent hypotheses.
@@ -596,7 +597,7 @@ meta def cc : tactic unit :=
 tactic.cc
 
 meta def subst (q : qexpr0) : tactic unit :=
-i_to_expr q >>= tactic.subst >> try (reflexivity_core reducible)
+i_to_expr q >>= tactic.subst >> try (tactic.reflexivity reducible)
 
 meta def clear : raw_ident_list → tactic unit :=
 tactic.clear_lst

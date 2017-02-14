@@ -205,7 +205,7 @@ vm_obj caching_user_attribute_get_cache(vm_obj const &, vm_obj const & vm_attr, 
     LEAN_TACTIC_CATCH(s);
 }
 
-vm_obj set_basic_attribute_core(vm_obj const & vm_attr_n, vm_obj const & vm_n, vm_obj const & p, vm_obj const & vm_prio, vm_obj const & vm_s) {
+vm_obj set_basic_attribute(vm_obj const & vm_attr_n, vm_obj const & vm_n, vm_obj const & p, vm_obj const & vm_prio, vm_obj const & vm_s) {
     name const & attr_n    = to_name(vm_attr_n);
     name const & n         = to_name(vm_n);
     unsigned prio;
@@ -258,7 +258,7 @@ void initialize_user_attribute() {
     DECLARE_VM_BUILTIN(name({"attribute", "register"}),                 attribute_register);
     DECLARE_VM_BUILTIN(name({"attribute", "fingerprint"}),              attribute_fingerprint);
     DECLARE_VM_BUILTIN(name({"caching_user_attribute", "get_cache"}),   caching_user_attribute_get_cache);
-    DECLARE_VM_BUILTIN(name({"tactic",    "set_basic_attribute_core"}), set_basic_attribute_core);
+    DECLARE_VM_BUILTIN(name({"tactic",    "set_basic_attribute"}),      set_basic_attribute);
     DECLARE_VM_BUILTIN(name({"tactic",    "unset_attribute"}),          unset_attribute);
     DECLARE_VM_BUILTIN(name({"tactic",    "has_attribute"}),            has_attribute);
 

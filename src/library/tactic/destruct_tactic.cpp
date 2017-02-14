@@ -154,7 +154,7 @@ tactic_state destruct(transparency_mode md, expr const & e, tactic_state const &
     return set_mctx_goals(s, mctx, to_list(new_goals.begin(), new_goals.end(), gs));
 }
 
-vm_obj tactic_destruct_core(vm_obj const & md, vm_obj const & e, vm_obj const & _s) {
+vm_obj tactic_destruct(vm_obj const & e, vm_obj const & md, vm_obj const & _s) {
     tactic_state const & s   = to_tactic_state(_s);
     try {
         if (!s.goals()) return mk_no_goals_exception(s);
@@ -166,7 +166,7 @@ vm_obj tactic_destruct_core(vm_obj const & md, vm_obj const & e, vm_obj const & 
 }
 
 void initialize_destruct_tactic() {
-    DECLARE_VM_BUILTIN(name({"tactic", "destruct_core"}), tactic_destruct_core);
+    DECLARE_VM_BUILTIN(name({"tactic", "destruct"}), tactic_destruct);
 }
 
 void finalize_destruct_tactic() {

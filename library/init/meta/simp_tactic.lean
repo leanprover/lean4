@@ -247,7 +247,7 @@ simplify_goal_core {} S
 
 meta def simp : tactic unit :=
 do S ← simp_lemmas.mk_default,
-simplify_goal S >> try triv >> try (reflexivity_core reducible)
+simplify_goal S >> try triv >> try (reflexivity reducible)
 
 meta def simp_using (hs : list expr) : tactic unit :=
 do S ← simp_lemmas.mk_default,
@@ -256,7 +256,7 @@ simplify_goal S >> try triv
 
 meta def ctx_simp : tactic unit :=
 do S ← simp_lemmas.mk_default,
-simplify_goal_core {contextual := tt} S >> try triv >> try (reflexivity_core reducible)
+simplify_goal_core {contextual := tt} S >> try triv >> try (reflexivity reducible)
 
 meta def dsimp_core (s : simp_lemmas) : tactic unit :=
 target >>= s^.dsimplify >>= change

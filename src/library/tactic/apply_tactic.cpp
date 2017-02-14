@@ -164,7 +164,18 @@ vm_obj apply_core(transparency_mode md, bool approx, bool add_all, bool use_inst
     }
 }
 
-vm_obj tactic_apply_core(vm_obj const & md, vm_obj const & approx, vm_obj const & all, vm_obj const & insts, vm_obj const & e, vm_obj const & s) {
+vm_obj tactic_apply_core(vm_obj const & e, vm_obj const & cfg, vm_obj const & s) {
+/*
+    structure apply_cfg :=
+    (md            := semireducible)
+    (approx        := tt)
+    (all           := ff)
+    (use_instances := tt)
+*/
+    vm_obj const & md     = cfield(cfg, 0);
+    vm_obj const & approx = cfield(cfg, 1);
+    vm_obj const & all    = cfield(cfg, 2);
+    vm_obj const & insts  = cfield(cfg, 3);
     return apply_core(static_cast<transparency_mode>(cidx(md)), to_bool(approx), to_bool(all), to_bool(insts), to_expr(e), to_tactic_state(s));
 }
 

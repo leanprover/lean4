@@ -66,7 +66,7 @@ eq_type ← infer_type rwr_from,
 atom_at_pos ← return $ get_position atom pos,
 atom_at_pos_type ← infer_type atom_at_pos,
 unify eq_type atom_at_pos_type,
-unify_core transparency.none rwr_from atom_at_pos,
+unify rwr_from atom_at_pos transparency.none,
 rwr_from' ← instantiate_mvars atom_at_pos,
 rwr_to' ← instantiate_mvars rwr_to,
 if lt_in_termorder

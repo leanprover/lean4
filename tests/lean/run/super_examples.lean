@@ -72,6 +72,7 @@ example (i) (p q : i → i → Prop) (a b c d : i) :
 by super
 
 -- This example from Davis-Putnam actually requires a non-empty domain
+
 example (i) [nonempty i] (f g : i → i → Prop) :
   ∃x y, ∀z, (f x y → f y z ∧ f z z) ∧ (f x y ∧ g x y → g x z ∧ g z z) :=
 by super

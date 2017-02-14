@@ -344,12 +344,12 @@ vm_obj induction_tactic_core(transparency_mode const & m, expr const & H, name c
     }
 }
 
-vm_obj tactic_induction_core(vm_obj const & m, vm_obj const & H, vm_obj const & rec, vm_obj const & ns, vm_obj const & s) {
+vm_obj tactic_induction(vm_obj const & H, vm_obj const & rec, vm_obj const & ns, vm_obj const & m, vm_obj const & s) {
     return induction_tactic_core(to_transparency_mode(m), to_expr(H), to_name(rec), to_list_name(ns), to_tactic_state(s));
 }
 
 void initialize_induction_tactic() {
-    DECLARE_VM_BUILTIN(name({"tactic", "induction_core"}), tactic_induction_core);
+    DECLARE_VM_BUILTIN(name({"tactic", "induction"}), tactic_induction);
 }
 
 void finalize_induction_tactic() {

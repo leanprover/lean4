@@ -520,7 +520,7 @@ vm_obj tactic_mk_instance(vm_obj const & e, vm_obj const & s0) {
     }
 }
 
-vm_obj tactic_unify_core(vm_obj const & t, vm_obj const & e1, vm_obj const & e2, vm_obj const & s0) {
+vm_obj tactic_unify(vm_obj const & e1, vm_obj const & e2, vm_obj const & t, vm_obj const & s0) {
     tactic_state const & s = to_tactic_state(s0);
     type_context ctx       = mk_type_context_for(s, to_transparency_mode(t));
     try {
@@ -536,7 +536,7 @@ vm_obj tactic_unify_core(vm_obj const & t, vm_obj const & e1, vm_obj const & e2,
     }
 }
 
-vm_obj tactic_is_def_eq_core(vm_obj const & t, vm_obj const & e1, vm_obj const & e2, vm_obj const & s0) {
+vm_obj tactic_is_def_eq(vm_obj const & e1, vm_obj const & e2, vm_obj const & t, vm_obj const & s0) {
     tactic_state const & s = to_tactic_state(s0);
     type_context ctx       = mk_type_context_for(s, to_transparency_mode(t));
     type_context::tmp_mode_scope scope(ctx);
@@ -807,14 +807,14 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic", "format_result"}),        tactic_format_result);
     DECLARE_VM_BUILTIN(name({"tactic", "infer_type"}),           tactic_infer_type);
     DECLARE_VM_BUILTIN(name({"tactic", "whnf_core"}),            tactic_whnf_core);
-    DECLARE_VM_BUILTIN(name({"tactic", "is_def_eq_core"}),       tactic_is_def_eq_core);
+    DECLARE_VM_BUILTIN(name({"tactic", "is_def_eq"}),            tactic_is_def_eq);
     DECLARE_VM_BUILTIN(name({"tactic", "eta_expand"}),           tactic_eta_expand);
     DECLARE_VM_BUILTIN(name({"tactic", "eta"}),                  tactic_eta);
     DECLARE_VM_BUILTIN(name({"tactic", "beta"}),                 tactic_beta);
     DECLARE_VM_BUILTIN(name({"tactic", "zeta"}),                 tactic_zeta);
     DECLARE_VM_BUILTIN(name({"tactic", "is_class"}),             tactic_is_class);
     DECLARE_VM_BUILTIN(name({"tactic", "mk_instance"}),          tactic_mk_instance);
-    DECLARE_VM_BUILTIN(name({"tactic", "unify_core"}),           tactic_unify_core);
+    DECLARE_VM_BUILTIN(name({"tactic", "unify"}),                tactic_unify);
     DECLARE_VM_BUILTIN(name({"tactic", "get_local"}),            tactic_get_local);
     DECLARE_VM_BUILTIN(name({"tactic", "local_context"}),        tactic_local_context);
     DECLARE_VM_BUILTIN(name({"tactic", "get_unused_name"}),      tactic_get_unused_name);

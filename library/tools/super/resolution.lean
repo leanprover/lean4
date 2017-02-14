@@ -19,7 +19,7 @@ meta def try_resolve : tactic clause := do
 qf1 ← c1^.open_metan c1^.num_quants,
 qf2 ← c2^.open_metan c2^.num_quants,
 -- FIXME: using default transparency unifies m*n with (x*y*z)*w here ???
-unify_core transparency.reducible (qf1.1^.get_lit i1)^.formula (qf2.1^.get_lit i2)^.formula,
+unify (qf1.1^.get_lit i1)^.formula (qf2.1^.get_lit i2)^.formula transparency.reducible,
 qf1i ← qf1.1^.inst_mvars,
 guard $ clause.is_maximal gt qf1i i1,
 op1 ← qf1.1^.open_constn i1,

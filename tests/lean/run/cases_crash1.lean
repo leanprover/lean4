@@ -8,5 +8,5 @@ noncomputable definition Enum_dec_eq : decidable_eq Enum :=
 by do a ← intro `a, cases a,
       b ← intro `b, cases b,
       right >> reflexivity,
-      try (left >> intro  `H >>= cases),
+      try (do left, h ← intro `H, cases h),
       repeat $ intros >> mk_const `Sorry >>= apply

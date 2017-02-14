@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 #include "library/tactic/app_builder_tactics.h"
 
 namespace lean {
-vm_obj tactic_mk_app_core(vm_obj const & tmode, vm_obj const & c, vm_obj const & as, vm_obj const & _s) {
+vm_obj tactic_mk_app(vm_obj const & c, vm_obj const & as, vm_obj const & tmode, vm_obj const & _s) {
     tactic_state const & s = to_tactic_state(_s);
     try {
         type_context ctx       = mk_type_context_for(s, to_transparency_mode(tmode));
@@ -69,7 +69,7 @@ vm_obj tactic_mk_eq_mp(vm_obj const & h1, vm_obj const & h2, vm_obj const & _s) 
     MK_APP(mk_eq_mp(ctx, to_expr(h1), to_expr(h2)));
 }
 
-vm_obj tactic_mk_mapp_core(vm_obj const & tmode, vm_obj const & c, vm_obj const & as, vm_obj const & _s) {
+vm_obj tactic_mk_mapp(vm_obj const & c, vm_obj const & as, vm_obj const & tmode, vm_obj const & _s) {
     tactic_state const & s = to_tactic_state(_s);
     try {
         type_context ctx       = mk_type_context_for(s, to_transparency_mode(tmode));
@@ -94,8 +94,8 @@ vm_obj tactic_mk_mapp_core(vm_obj const & tmode, vm_obj const & c, vm_obj const 
 }
 
 void initialize_app_builder_tactics() {
-    DECLARE_VM_BUILTIN(name({"tactic", "mk_app_core"}),   tactic_mk_app_core);
-    DECLARE_VM_BUILTIN(name({"tactic", "mk_mapp_core"}),  tactic_mk_mapp_core);
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_app"}),        tactic_mk_app);
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_mapp"}),       tactic_mk_mapp);
     DECLARE_VM_BUILTIN(name({"tactic", "mk_congr_arg"}),  tactic_mk_congr_arg);
     DECLARE_VM_BUILTIN(name({"tactic", "mk_congr_fun"}),  tactic_mk_congr_fun);
     DECLARE_VM_BUILTIN(name({"tactic", "mk_congr"}),      tactic_mk_congr);

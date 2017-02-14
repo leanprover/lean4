@@ -9,26 +9,23 @@ import init.meta.tactic init.function
 namespace tactic
 open expr
 
-private meta def relation_tactic (t : transparency) (op_for : environment → name → option name) (tac_name : string) : tactic unit :=
+private meta def relation_tactic (md : transparency) (op_for : environment → name → option name) (tac_name : string) : tactic unit :=
 do tgt ← target,
    env ← get_env,
    r   ← return $ get_app_fn tgt,
    match (op_for env (const_name r)) with
-   | (some refl) := mk_const refl >>= apply_core t tt ff tt >> return ()
+   | (some refl) := do r ← mk_const refl, apply_core r {md := md} >> return ()
    | none        := fail $ tac_name ++ " tactic failed, target is not a relation application with the expected property."
    end
 
-meta def reflexivity_core (t : transparency) : tactic unit :=
-relation_tactic t environment.refl_for "reflexivity"
+meta def reflexivity (md := semireducible) : tactic unit :=
+relation_tactic md environment.refl_for "reflexivity"
 
-meta def reflexivity : tactic unit :=
-reflexivity_core semireducible
+meta def symmetry (md := semireducible) : tactic unit :=
+relation_tactic md environment.symm_for "symmetry"
 
-meta def symmetry : tactic unit :=
-relation_tactic semireducible environment.symm_for "symmetry"
-
-meta def transitivity : tactic unit :=
-relation_tactic semireducible environment.trans_for "transitivity"
+meta def transitivity (md := semireducible) : tactic unit :=
+relation_tactic md environment.trans_for "transitivity"
 
 meta def relation_lhs_rhs : expr → tactic (name × expr × expr) :=
 λ e, do

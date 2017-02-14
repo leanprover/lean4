@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "library/check.h"
+#include "library/trace.h"
 #include "library/vm/vm_expr.h"
 #include "library/vm/vm_name.h"
 #include "library/tactic/tactic_state.h"
@@ -20,6 +22,11 @@ vm_obj generalize(transparency_mode m, expr const & e, name const & id, tactic_s
         return mk_tactic_exception("generalize tactic failed, failed to find expression in the target", s);
     expr e_type   = ctx.infer(e);
     expr new_type = mk_pi(id, e_type, target_abst);
+    try {
+        check(ctx, new_type);
+    } catch (exception & ex) {
+        return mk_tactic_exception(nested_exception("generalize tactic failed, result is not type correct", ex), s);
+    }
     metavar_context mctx = ctx.mctx();
     expr mvar     = mctx.mk_metavar_decl(g->get_context(), new_type);
     mctx.assign(head(s.goals()), mk_app(mvar, e));

@@ -178,7 +178,9 @@ server::server(unsigned num_threads, environment const & initial_env, io_state c
     m_mod_mgr->set_save_olean(false);
 }
 
-server::~server() {}
+server::~server() {
+    m_tq->cancel_if([] (generic_task *) { return true; });
+}
 
 struct server::cmd_req {
     unsigned m_seq_num = static_cast<unsigned>(-1);

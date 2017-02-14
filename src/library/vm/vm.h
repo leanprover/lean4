@@ -668,6 +668,21 @@ public:
     void update_env(environment const & env);
     bool env_was_updated() const { return m_was_updated; }
 
+    /* Auxiliary object for temporarily resetting env_was_updated flag. */
+    class reset_env_was_updated_flag {
+        vm_state & m_state;
+        bool       m_old_value;
+    public:
+        reset_env_was_updated_flag(vm_state & s):
+            m_state(s),
+            m_old_value(s.m_was_updated) {
+            s.m_was_updated = false;
+        }
+        ~reset_env_was_updated_flag() {
+            m_state.m_was_updated = m_old_value || m_state.m_was_updated;
+        }
+    };
+
     options const & get_options() const { return m_options; }
 
     /** \brief Push object into the data stack */

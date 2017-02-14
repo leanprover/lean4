@@ -187,9 +187,15 @@ vm_obj caching_user_attribute_get_cache(vm_obj const &, vm_obj const & vm_attr, 
     buffer<name> instances;
     attr.get_instances(env, instances);
     tactic_state s0 = mk_tactic_state_for(env, options(), {}, local_context(), mk_true());
-    vm_obj result = invoke(cache_handler, to_obj(to_list(instances)), to_obj(s0));
+    vm_obj result;
+    bool was_updated;
+    {
+        vm_state::reset_env_was_updated_flag scope(get_vm_state());
+        result = invoke(cache_handler, to_obj(to_list(instances)), to_obj(s0));
+        was_updated = get_vm_state().env_was_updated();
+    }
     if (is_tactic_success(result)) {
-        if (!get_vm_state().env_was_updated()) {
+        if (!was_updated) {
             user_attr_cache::entry entry;
             entry.m_env         = env;
             entry.m_fingerprint = attr.get_fingerprint(env);

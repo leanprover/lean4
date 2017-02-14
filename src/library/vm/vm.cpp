@@ -2692,6 +2692,18 @@ void vm_state::invoke_global(vm_decl const & d) {
 #endif
 }
 
+void vm_state::invoke_cfun(vm_decl const & d) {
+    if (m_profiling) {
+        unique_lock<mutex> lk(m_call_stack_mtx);
+        push_frame_core(0, 0, d.get_idx());
+    }
+    invoke_fn(d.get_cfn(), d.get_arity());
+    if (m_profiling) {
+        unique_lock<mutex> lk(m_call_stack_mtx);
+        m_call_stack.pop_back();
+    }
+}
+
 void vm_state::invoke(vm_decl const & d) {
     switch (d.kind()) {
     case vm_decl_kind::Bytecode:

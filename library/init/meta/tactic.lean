@@ -491,6 +491,16 @@ meta constant save_info_thunk : nat → nat → (unit → format) → tactic uni
 meta constant report_error : nat → nat → format → tactic unit
 /-- Return list of currently open namespaces -/
 meta constant open_namespaces : tactic (list name)
+/-- Return tt iff `t` "occurs" in `e`. The occurrence checking is performed using
+    keyed matching with the given transparency setting.
+
+    We say `t` occurs in `e` by keyed matching iff there is a subterm `s`
+    s.t. `t` and `s` have the same head, and `is_def_eq t s md`
+
+    The main idea is to minimize the number of `is_def_eq` checks
+    performed. -/
+meta constant kdepends_on (e t : expr) (md := reducible) : tactic bool
+
 open list nat
 
 /-- Remark: set_goals will erase any solved goal -/

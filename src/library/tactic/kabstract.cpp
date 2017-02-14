@@ -7,10 +7,13 @@ Author: Leonardo de Moura
 #include <utility>
 #include <string>
 #include "kernel/replace_fn.h"
+#include "kernel/for_each_fn.h"
 #include "library/module.h"
 #include "library/head_map.h"
 #include "library/type_context.h"
+#include "library/vm/vm_expr.h"
 #include "library/tactic/occurrences.h"
+#include "library/tactic/tactic_state.h"
 
 namespace lean {
 struct key_equivalence_ext : public environment_extension {
@@ -155,13 +158,14 @@ expr kabstract(type_context & ctx, expr const & e, expr const & t, occurrences c
     head_index idx1(t);
     key_equivalence_ext const & ext = get_extension(ctx.env());
     unsigned i = 1;
+    unsigned t_nargs = get_app_num_args(t);
     return replace(e, [&](expr const & s, unsigned offset) {
             if (closed(s)) {
                 head_index idx2(s);
                 if (idx1.kind() == idx2.kind() &&
                     ext.is_eqv(idx1.get_name(), idx2.get_name()) &&
                     /* fail if same function application and different number of arguments */
-                    (idx1.get_name() != idx2.get_name() || get_app_num_args(t) == get_app_num_args(s)) &&
+                    (idx1.get_name() != idx2.get_name() || t_nargs == get_app_num_args(s)) &&
                     ctx.is_def_eq(t, s)) {
                     if (occs.contains(i)) {
                         i++;
@@ -175,9 +179,41 @@ expr kabstract(type_context & ctx, expr const & e, expr const & t, occurrences c
         });
 }
 
+bool kdepends_on(type_context & ctx, expr const & e, expr const & t) {
+    bool found = false;
+    head_index idx1(t);
+    key_equivalence_ext const & ext = get_extension(ctx.env());
+    unsigned t_nargs = get_app_num_args(t);
+    for_each(e, [&](expr const & s, unsigned) {
+            if (found) return false;
+            if (closed(s)) {
+                head_index idx2(s);
+                if (idx1.kind() == idx2.kind() &&
+                    ext.is_eqv(idx1.get_name(), idx2.get_name()) &&
+                    /* fail if same function application and different number of arguments */
+                    (idx1.get_name() != idx2.get_name() || t_nargs == get_app_num_args(s)) &&
+                    ctx.is_def_eq(t, s)) {
+                    found = true; return false;
+                }
+            }
+            return true;
+        });
+    return found;
+}
+
+vm_obj tactic_kdepends_on(vm_obj const & e, vm_obj const & t, vm_obj const & md, vm_obj const & s) {
+    try {
+        type_context ctx = mk_type_context_for(s, md);
+        return mk_tactic_success(mk_vm_bool(kdepends_on(ctx, to_expr(e), to_expr(t))), to_tactic_state(s));
+    } catch (exception & ex) {
+        return mk_tactic_exception(ex, to_tactic_state(s));
+    }
+}
+
 void initialize_kabstract() {
     g_ext           = new key_equivalence_ext_reg();
     key_equivalence_modification::init();
+    DECLARE_VM_BUILTIN(name({"tactic", "kdepends_on"}), tactic_kdepends_on);
 }
 
 void finalize_kabstract() {

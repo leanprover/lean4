@@ -8,10 +8,12 @@ Author: Gabriel Ebner
 
 #if defined(LEAN_MULTI_THREAD)
 namespace lean {
-
 constexpr chrono::steady_clock::duration accuracy = chrono::milliseconds(10);
 
-single_timer::single_timer() : m_thread(std::bind(&single_timer::worker, this)) {}
+single_timer::single_timer():
+    m_shutting_down(false),
+    m_thread(std::bind(&single_timer::worker, this)) {}
+
 single_timer::~single_timer() {
     {
         unique_lock<mutex> lock(m_mutex);
@@ -55,6 +57,5 @@ void single_timer::reset() {
     m_cb = nullptr;
     m_timer_changed.notify_one();
 }
-
 }
 #endif

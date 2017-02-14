@@ -188,17 +188,24 @@ vm_obj caching_user_attribute_get_cache(vm_obj const &, vm_obj const & vm_attr, 
     attr.get_instances(env, instances);
     tactic_state s0 = mk_tactic_state_for(env, options(), {}, local_context(), mk_true());
     vm_obj result = invoke(cache_handler, to_obj(to_list(instances)), to_obj(s0));
-    if (is_tactic_success(result) && !get_vm_state().env_was_updated()) {
-        user_attr_cache::entry entry;
-        entry.m_env         = env;
-        entry.m_fingerprint = attr.get_fingerprint(env);
-        entry.m_dep_fingerprints = map2<unsigned>(deps, [&](name const & n) {
-                return get_attribute(env, n).get_fingerprint(env);
-            });
-        entry.m_val = cfield(result, 0);
-        cache.m_cache.erase(attr.get_name());
-        cache.m_cache.insert(mk_pair(attr.get_name(), entry));
-        return mk_tactic_success(entry.m_val, s);
+    if (is_tactic_success(result)) {
+        if (!get_vm_state().env_was_updated()) {
+            user_attr_cache::entry entry;
+            entry.m_env         = env;
+            entry.m_fingerprint = attr.get_fingerprint(env);
+            entry.m_dep_fingerprints = map2<unsigned>(deps, [&](name const & n) {
+                    return get_attribute(env, n).get_fingerprint(env);
+                });
+            entry.m_val = cfield(result, 0);
+            cache.m_cache.erase(attr.get_name());
+            cache.m_cache.insert(mk_pair(attr.get_name(), entry));
+            return mk_tactic_success(entry.m_val, s);
+        } else {
+            lean_trace("user_attributes_cache", tout() << "did not cache result for [" << attr.get_name() << "] "
+                       "because VM environment has been updated with temporary declarations\n";);
+            vm_obj r = cfield(result, 0);
+            return mk_tactic_success(r, s);
+        }
     } else {
         return result;
     }

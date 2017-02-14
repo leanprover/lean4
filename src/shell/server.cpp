@@ -265,20 +265,20 @@ void server::handle_request(server::cmd_req const & req) {
     std::string command = req.m_cmd_name;
 
     if (command == "sync") {
-        return send_msg(handle_sync(req));
+        send_msg(handle_sync(req));
     } else if (command == "complete") {
-        return handle_complete(req);
+        handle_complete(req);
     } else if (command == "info") {
-        return handle_info(req);
+        handle_info(req);
     } else if (command == "sleep") {
         chrono::milliseconds small_delay(1000);
         this_thread::sleep_for(small_delay);
     } else if (command == "long_sleep") {
         chrono::milliseconds small_delay(10000);
         this_thread::sleep_for(small_delay);
+    } else {
+        send_msg(cmd_res(req.m_seq_num, std::string("unknown command")));
     }
-
-    send_msg(cmd_res(req.m_seq_num, std::string("unknown command")));
 }
 
 server::cmd_res server::handle_sync(server::cmd_req const & req) {

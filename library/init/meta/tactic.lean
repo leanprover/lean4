@@ -888,13 +888,51 @@ do tgt : expr ← target,
    fail "tactic by_contradiction failed, target is not a negation nor a decidable proposition (remark: when 'local attribute classical.prop_decidable [instance]' is used all propositions are decidable)",
    intro H
 
-meta def cases (h : expr) (ns : list name := []) (md := semireducible) : tactic (list (name × list expr × list (name × expr))) :=
-/- TODO(Leo): handle case where `h` is not a local. -/
-cases_core h ns md
-
-meta def generalizes : list expr → tactic unit
+private meta def generalizes_aux (md : transparency) : list expr → tactic unit
 | []      := skip
-| (e::es) := generalize e `x >> generalizes es
+| (e::es) := generalize e `x md >> generalizes_aux es
+
+meta def generalizes (es : list expr) (md := semireducible) : tactic unit :=
+generalizes_aux md es
+
+private meta def kdependencies_core (e : expr) (md : transparency) : list expr → list expr → tactic (list expr)
+| []      r := return r
+| (h::hs) r :=
+  do type ← infer_type h,
+     d ← kdepends_on type e md,
+     if d then kdependencies_core hs (h::r)
+     else kdependencies_core hs r
+
+/-- Return all hypotheses that depends on `e`
+    The dependency test is performed using `kdepends_on` with the given transparency setting. -/
+meta def kdependencies (e : expr) (md := reducible) : tactic (list expr) :=
+do ctx ← local_context, kdependencies_core e md ctx []
+
+/-- Revert all hypotheses that depend on `e` -/
+meta def revert_kdependencies (e : expr) (md := reducible) : tactic nat :=
+kdependencies e md >>= revert_lst
+
+meta def revert_kdeps := revert_kdependencies
+
+/-- Similar to `cases_core`, but `e` doesn't need to be a hypothesis.
+    Remark, it reverts dependencies using `revert_kdeps`.
+
+    Two different transparency modes are used `md` and `dmd`.
+    The mode `md` is used with `cases_core` and `dmd` with `generalize` and `revert_kdeps`. -/
+meta def cases (e : expr) (ids : list name := []) (md := semireducible) (dmd := semireducible) : tactic unit :=
+if e^.is_local_constant then
+  cases_core e ids md >> return ()
+else do
+  x ← mk_fresh_name,
+  n ← revert_kdependencies e dmd,
+  (tactic.generalize e x dmd)
+  <|>
+  (do t ← infer_type e,
+      tactic.assertv x t e,
+      get_local x >>= tactic.revert,
+      return ()),
+  h ← tactic.intro1,
+  (step (cases_core h ids md); intron n)
 
 meta def refine (e : pexpr) (report_errors := ff) : tactic unit :=
 do tgt : expr ← target,

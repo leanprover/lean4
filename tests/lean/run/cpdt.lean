@@ -47,4 +47,4 @@ lemma rewr : ∀ a b c d : nat, b * c = d → a * b * c = a * d :=
 by intros; simp_using_hs
 
 theorem reassoc_correct (e) : exp_eval (reassoc e) = exp_eval e :=
-by induction e; simp; try {revert ih_2; cases (reassoc e2); dsimp; intros; simp_using_hs}
+by induction e; simp; try {cases (reassoc e2); dsimp at ih_2; dsimp; simp_using_hs}

@@ -122,13 +122,12 @@ lemma aval_asimp_const₃ : ∀ (a : aexp) (s : state), aval (asimp_const a) s =
 | (val n) s := rfl
 | (var x) s := rfl
 | (plus a₁ a₂) s :=
-  let h₁ := aval_asimp_const₃ a₁ s,
-      h₂ := aval_asimp_const₃ a₂ s
-  in begin
+  begin
+   note h₁ := aval_asimp_const₃ a₁ s,
+   note h₂ := aval_asimp_const₃ a₂ s,
    unfold asimp_const aval,
    rewrite [-h₁, -h₂],
-   cases (asimp_const a₁),
-   repeat {cases (asimp_const a₂), repeat {reflexivity}}
+   cases (asimp_const a₁); cases (asimp_const a₂); repeat {reflexivity}
   end
 
 end imp

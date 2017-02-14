@@ -316,20 +316,8 @@ do e ← i_to_expr p,
    return ()
 
 meta def cases (p : qexpr0) (ids : with_ident_list) : tactic unit :=
-/- TODO(Leo): move this to tactic.lean -/
 do e ← i_to_expr p,
-   (if e^.is_local_constant then
-     cases_core e ids
-   else do
-     x ← mk_fresh_name,
-     tactic.generalize e x <|>
-       (do t ← infer_type e,
-           tactic.assertv x t e,
-           get_local x >>= tactic.revert,
-           return ()),
-     h ← tactic.intro1,
-     cases_core h ids),
-   return ()
+   tactic.cases e ids
 
 meta def destruct (p : qexpr0) : tactic unit :=
 do e ← i_to_expr p, tactic.destruct e

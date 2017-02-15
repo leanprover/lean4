@@ -3505,8 +3505,9 @@ environment load_external_fn(environment & env, name const & extern_n) {
     }
 }
 
-[[noreturn]] void vm_check_failed(char const *fn, unsigned line, char const *msg) {
-    throw exception(sstream() << "VM check failed at " << fn << ":" << line << ": " << msg);
+[[noreturn]] void vm_check_failed(char const * condition) {
+    throw exception(sstream() << "vm check failed: " << condition
+                              << " (possibly due to incorrect axioms, or sorry)");
 }
 
 class vm_index_manager {

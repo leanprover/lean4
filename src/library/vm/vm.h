@@ -58,11 +58,11 @@ public:
 #define LEAN_ALWAYS_INLINE
 #endif
 
-[[noreturn]] void vm_check_failed(char const * fn, unsigned line, char const * msg);
+[[noreturn]] void vm_check_failed(char const * condition);
 #if defined(LEAN_VM_UNCHECKED)
 #define lean_vm_check(cond) lean_assert(cond)
 #else
-#define lean_vm_check(cond) { if (LEAN_UNLIKELY(!(cond))) vm_check_failed(__FILE__, __LINE__, #cond); }
+#define lean_vm_check(cond) { if (LEAN_UNLIKELY(!(cond))) vm_check_failed(#cond); }
 #endif
 
 void display(std::ostream & out, vm_obj const & o);

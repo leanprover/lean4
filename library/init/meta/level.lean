@@ -58,5 +58,5 @@ meta def level.has_param : level → name → bool
 | (level.succ l)     n  := level.has_param l n
 | (level.max l₁ l₂)  n  := level.has_param l₁ n || level.has_param l₂ n
 | (level.imax l₁ l₂) n  := level.has_param l₁ n || level.has_param l₂ n
-| (level.param n₁)   n  := to_bool (n₁ = n)
+| (level.param n₁)   n  := n₁ = n
 | l                  n  := ff

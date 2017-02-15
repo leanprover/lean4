@@ -133,6 +133,7 @@ private:
     level replace_univ_placeholder(level const & l);
 
     void trace_coercion_failure(expr const & e_type, expr const & type, expr const & ref, char const * error_msg);
+    optional<expr> mk_Prop_to_bool_coercion(expr const & e, expr const & ref);
     optional<expr> mk_coercion_core(expr const & e, expr const & e_type, expr const & type, expr const & ref);
     bool is_monad(expr const & e);
     bool is_monad_fail(expr const & e);

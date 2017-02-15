@@ -48,6 +48,7 @@ name const * g_cyclic_numerals = nullptr;
 name const * g_cyclic_numerals_bound = nullptr;
 name const * g_decidable = nullptr;
 name const * g_decidable_by_contradiction = nullptr;
+name const * g_decidable_to_bool = nullptr;
 name const * g_discrete_field = nullptr;
 name const * g_distinct = nullptr;
 name const * g_distrib = nullptr;
@@ -535,6 +536,7 @@ void initialize_constants() {
     g_cyclic_numerals_bound = new name{"cyclic_numerals", "bound"};
     g_decidable = new name{"decidable"};
     g_decidable_by_contradiction = new name{"decidable", "by_contradiction"};
+    g_decidable_to_bool = new name{"decidable", "to_bool"};
     g_discrete_field = new name{"discrete_field"};
     g_distinct = new name{"distinct"};
     g_distrib = new name{"distrib"};
@@ -1023,6 +1025,7 @@ void finalize_constants() {
     delete g_cyclic_numerals_bound;
     delete g_decidable;
     delete g_decidable_by_contradiction;
+    delete g_decidable_to_bool;
     delete g_discrete_field;
     delete g_distinct;
     delete g_distrib;
@@ -1510,6 +1513,7 @@ name const & get_cyclic_numerals_name() { return *g_cyclic_numerals; }
 name const & get_cyclic_numerals_bound_name() { return *g_cyclic_numerals_bound; }
 name const & get_decidable_name() { return *g_decidable; }
 name const & get_decidable_by_contradiction_name() { return *g_decidable_by_contradiction; }
+name const & get_decidable_to_bool_name() { return *g_decidable_to_bool; }
 name const & get_discrete_field_name() { return *g_discrete_field; }
 name const & get_distinct_name() { return *g_distinct; }
 name const & get_distrib_name() { return *g_distrib; }

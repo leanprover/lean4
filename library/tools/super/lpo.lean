@@ -19,7 +19,7 @@ def majo {T} (gt : T → T → bool) (s : T) : list T → bool
 
 meta def alpha (lpo : expr → expr → bool) : list expr → expr → bool
 | [] _ := ff
-| (s::ss) t := to_bool (s = t) || lpo s t || alpha ss t
+| (s::ss) t := (s = t) || lpo s t || alpha ss t
 
 meta def lex_ma (lpo : expr → expr → bool) (s t : expr) : list expr → list expr → bool
 | (si::ss) (ti::ts) :=
@@ -36,7 +36,7 @@ else alpha lpo (get_app_args s) t
 meta def prec_gt_of_name_list (ns : list name) : expr → expr → bool :=
 let nis := rb_map.of_list ns^.zip_with_index in
 λs t, match (nis^.find (name_of_funsym s), nis^.find (name_of_funsym t)) with
-| (some si, some ti) := to_bool (si > ti)
+| (some si, some ti) := si > ti
 | _ := ff
 end
 

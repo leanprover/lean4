@@ -14,7 +14,7 @@ import init.native.internal
 import init.native.builtin
 
 meta def is_nat_cases_on (n : name) : bool :=
-  decidable.to_bool $ `nat.cases_on = n
+`nat.cases_on = n
 
 meta def is_cases_on (head : expr) : bool :=
   if is_nat_cases_on (expr.const_name head)

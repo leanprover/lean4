@@ -32,7 +32,7 @@ group ∘ cbrace $
   when ii "inst_implicit" +++
   when p  "prop" +++
   when d  "has_fwd_deps" +++
-  when (to_bool (length ds > 0)) (to_fmt "back_deps := " ++ to_fmt ds)
+  when (length ds > 0) (to_fmt "back_deps := " ++ to_fmt ds)
 
 meta instance : has_to_format param_info :=
 has_to_format.mk param_info.to_format

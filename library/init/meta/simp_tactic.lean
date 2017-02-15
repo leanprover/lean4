@@ -160,7 +160,7 @@ cs^.any (λ c,
   if e^.is_app_of c then tt   /- Exact match -/
   else let f := e^.get_app_fn in
        /- f is an auxiliary constant generated when compiling c -/
-       f^.is_constant && f^.const_name^.is_internal && to_bool (f^.const_name^.get_prefix = c))
+       f^.is_constant && f^.const_name^.is_internal && (f^.const_name^.get_prefix = c))
 
 /- Delta reduce the given constant names -/
 meta def delta_core (cfg : delta_config) (cs : list name) (e : expr) : tactic expr :=

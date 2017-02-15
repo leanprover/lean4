@@ -68,7 +68,7 @@ meta def eqc_of (s : cc_state) (e : expr) : list expr :=
 s^.eqc_of_core e e []
 
 meta def in_singlenton_eqc (s : cc_state) (e : expr) : bool :=
-to_bool (s^.next e = e)
+s^.next e = e
 
 meta def eqc_size (s : cc_state) (e : expr) : nat :=
 (s^.eqc_of e)^.length

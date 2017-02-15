@@ -43,6 +43,7 @@ cyclic_numerals
 cyclic_numerals.bound
 decidable
 decidable.by_contradiction
+decidable.to_bool
 discrete_field
 distinct
 distrib

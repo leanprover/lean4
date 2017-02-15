@@ -206,7 +206,7 @@ meta def in_active_bps (s : state) : vm bool :=
 do sz ← vm.call_stack_size,
    match s^.active_bps with
    | []          := return ff
-   | (csz, _)::_ := return $ to_bool (sz = csz)
+   | (csz, _)::_ := return (sz = csz)
    end
 
 meta def run_transition (s : state) : vm state :=

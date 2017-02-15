@@ -183,14 +183,14 @@ meta def local_type : expr → expr
 | e := e
 
 meta def is_constant_of : expr → name → bool
-| (const n₁ ls) n₂ := to_bool (n₁ = n₂)
+| (const n₁ ls) n₂ := n₁ = n₂
 | e             n  := ff
 
 meta def is_app_of (e : expr) (n : name) : bool :=
 is_constant_of (get_app_fn e) n
 
 meta def is_napp_of (e : expr) (c : name) (n : nat) : bool :=
-to_bool (is_app_of e c ∧ get_app_num_args e = n)
+is_app_of e c ∧ get_app_num_args e = n
 
 meta def is_false (e : expr) : bool :=
 is_constant_of e `false

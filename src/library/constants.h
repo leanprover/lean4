@@ -50,6 +50,7 @@ name const & get_cyclic_numerals_name();
 name const & get_cyclic_numerals_bound_name();
 name const & get_decidable_name();
 name const & get_decidable_by_contradiction_name();
+name const & get_decidable_to_bool_name();
 name const & get_discrete_field_name();
 name const & get_distinct_name();
 name const & get_distrib_name();

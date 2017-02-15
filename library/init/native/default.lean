@@ -208,7 +208,7 @@ let fst' := list.map assert_name fst,
   ])
 
 meta def is_return (n : name) : bool :=
-decidable.to_bool $ `native_compiler.return = n
+`native_compiler.return = n
 
 meta def compile_call (head : name) (arity : nat) (args : list ir.expr) : ir_compiler ir.expr := do
   trace_ir $ "compile_call: " ++ (to_string head),

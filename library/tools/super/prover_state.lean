@@ -419,7 +419,7 @@ meta def empty (local_false : expr) : prover_state :=
 
 meta def initial (local_false : expr) (clauses : list clause) : tactic prover_state := do
 after_setup ← for' clauses (λc,
-  let in_sos := decidable.to_bool $ ((contained_lconsts c^.proof)^.erase local_false^.local_uniq_name)^.size = 0 in
+  let in_sos := ((contained_lconsts c^.proof)^.erase local_false^.local_uniq_name)^.size = 0 in
   do mk_derived c { priority := score.prio.immediate, in_sos := in_sos,
                     age := 0, cost := 0 } >>= add_inferred
 ) $ empty local_false,

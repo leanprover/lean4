@@ -510,8 +510,17 @@ void elaborator::trace_coercion_failure(expr const & e_type, expr const & type, 
         });
 }
 
+optional<expr> elaborator::mk_Prop_to_bool_coercion(expr const & e, expr const & ref) {
+    expr dec    = mk_app(mk_constant(get_decidable_name()), e);
+    expr inst   = mk_instance(dec, ref);
+    expr r      = mk_app(mk_constant(get_decidable_to_bool_name()), e, inst);
+    return some_expr(r);
+}
+
 optional<expr> elaborator::mk_coercion_core(expr const & e, expr const & e_type, expr const & type, expr const & ref) {
-    if (!has_expr_metavar(e_type) && !has_expr_metavar(type)) {
+    if (e_type == mk_Prop() && m_ctx.is_def_eq(type, mk_bool())) {
+        return mk_Prop_to_bool_coercion(e, ref);
+    } else if (!has_expr_metavar(e_type) && !has_expr_metavar(type)) {
         expr has_coe_t;
         try {
             has_coe_t = mk_app(m_ctx, get_has_coe_t_name(), e_type, type);

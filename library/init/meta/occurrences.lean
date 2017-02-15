@@ -27,8 +27,8 @@ open occurrences
 
 def occurrences.contains : occurrences → nat → bool
 | all                  p := tt
-| (occurrences.pos ps) p := to_bool (p ∈ ps)
-| (occurrences.neg ps) p := to_bool (p ∉ ps)
+| (occurrences.pos ps) p := p ∈ ps
+| (occurrences.neg ps) p := p ∉ ps
 
 instance : inhabited occurrences :=
 ⟨all⟩

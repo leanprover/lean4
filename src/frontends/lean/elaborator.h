@@ -254,6 +254,8 @@ private:
                        bool check_unassigned, bool to_simple_metavar, bool collect_local_ctx);
 
     expr mk_auto_param(expr const & name_lit, expr const & expected_type, expr const & ref);
+    optional<expr> process_optional_and_auto_params(expr type, expr const & ref, buffer<expr> & eta_args, buffer<expr> & new_args);
+
 public:
     elaborator(environment const & env, options const & opts, name const & decl_name,
                metavar_context const & mctx, local_context const & lctx,

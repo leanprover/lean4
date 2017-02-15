@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "kernel/find_fn.h"
 #include "kernel/error_msgs.h"
 #include "kernel/for_each_fn.h"
+#include "kernel/abstract.h"
 #include "kernel/replace_fn.h"
 #include "kernel/instantiate.h"
 #include "kernel/inductive/inductive.h"
@@ -1125,6 +1126,9 @@ struct elaborator::first_pass_info {
     /* new_instances_size[i] contains the size of new_instances before (and after) args_mvars[i]
        was pushed. */
     buffer<unsigned> new_instances_size;
+    /* Store arguments that need to be abstracted when we apply eta expansion for function applications
+       containing optional and auto parameters. */
+    buffer<expr>     eta_args;
 };
 
 static optional<expr> is_optional_param(expr const & e) {
@@ -1185,6 +1189,45 @@ expr elaborator::mk_auto_param(expr const & name_lit, expr const & expected_type
     return visit(t, some_expr(expected_type));
 }
 
+
+optional<expr> elaborator::process_optional_and_auto_params(expr type, expr const & ref, buffer<expr> & eta_args, buffer<expr> & new_args) {
+    unsigned sz1 = eta_args.size();
+    unsigned sz2 = new_args.size();
+    optional<expr> result_type;
+    while (true) {
+        expr it = whnf(type);
+        if (!is_pi(it))
+            break;
+        type = it;
+        expr const & d = binding_domain(type);
+        expr new_arg;
+        bool found = false;
+        if (auto def_value = is_optional_param(d)) {
+            found   = true;
+            new_arg = *def_value;
+        } else if (auto p = is_auto_param(d)) {
+            found   = true;
+            new_arg = mk_auto_param(p->second, p->first, ref);
+        } else {
+            new_arg = mk_local(mk_fresh_name(), binding_name(type), d, binding_info(type));
+            eta_args.push_back(new_arg);
+        }
+        new_args.push_back(new_arg);
+        type = instantiate(binding_body(type), new_arg);
+        if (found) {
+            result_type = type;
+            sz1 = eta_args.size();
+            sz2 = new_args.size();
+        }
+    }
+    eta_args.shrink(sz1);
+    new_args.shrink(sz2);
+    if (result_type)
+        return some_expr(Pi(eta_args, *result_type));
+    else
+        return result_type;
+}
+
 /* Check if fn args resulting type matches the expected type, and fill
    first_pass_info & info with information collected in this first pass.
    Return true iff the types match.
@@ -1203,7 +1246,7 @@ void elaborator::first_pass(expr const & fn, buffer<expr> const & args,
     while (is_pi(type)) {
         binder_info const & bi = binding_info(type);
         expr const & d = binding_domain(type);
-        if (bi.is_strict_implicit() && i == args.size() && !is_optional_param(d) && !is_auto_param(d))
+        if (bi.is_strict_implicit() && i == args.size())
             break;
         expr new_arg;
         if (!is_explicit(bi)) {
@@ -1223,10 +1266,6 @@ void elaborator::first_pass(expr const & fn, buffer<expr> const & args,
             info.args_mvars.push_back(new_arg);
             info.new_args_size.push_back(info.new_args.size());
             info.new_instances_size.push_back(info.new_instances.size());
-        } else if (auto def_value = is_optional_param(d)) {
-            new_arg = *def_value;
-        } else if (auto p = is_auto_param(d)) {
-            new_arg = mk_auto_param(p->second, p->first, ref);
         } else {
             break;
         }
@@ -1236,6 +1275,8 @@ void elaborator::first_pass(expr const & fn, buffer<expr> const & args,
         type             = whnf(type_before_whnf);
     }
     type = type_before_whnf;
+    if (optional<expr> new_type = process_optional_and_auto_params(type, ref, info.eta_args, info.new_args))
+        type = *new_type;
     if (i != args.size()) {
         /* failed to consume all explicit arguments, use base elaboration for applications */
         throw elaborator_exception(ref, "too many arguments");
@@ -1304,7 +1345,7 @@ expr elaborator::second_pass(expr const & fn, buffer<expr> const & args,
         if (!try_synthesize_type_class_instance(mvar))
             m_instances = cons(mvar, m_instances);
     }
-    return mk_app(fn, info.new_args.size(), info.new_args.data());
+    return Fun(info.eta_args, mk_app(fn, info.new_args.size(), info.new_args.data()));
 }
 
 bool elaborator::is_with_expected_candidate(expr const & fn) {
@@ -1341,7 +1382,7 @@ expr elaborator::visit_base_app_simple(expr const & _fn, arg_mask amask, buffer<
             binder_info const & bi = binding_info(type);
             expr const & d = binding_domain(type);
             expr new_arg;
-            if (amask == arg_mask::Default && bi.is_strict_implicit() && i == args.size() && !is_optional_param(d) && !is_auto_param(d))
+            if (amask == arg_mask::Default && bi.is_strict_implicit() && i == args.size())
                 break;
             if ((amask == arg_mask::Default && !is_explicit(bi)) ||
                 (amask == arg_mask::InstHoExplicit && !is_explicit(bi) && !bi.is_inst_implicit() && !is_pi(d))) {
@@ -1381,10 +1422,6 @@ expr elaborator::visit_base_app_simple(expr const & _fn, arg_mask amask, buffer<
                     throw elaborator_exception(ref, msg);
                 }
                 i++;
-            } else if (auto def_value = is_optional_param(d)) {
-                new_arg = *def_value;
-            } else if (auto p = is_auto_param(d)) {
-                new_arg = mk_auto_param(p->second, p->first, ref);
             } else {
                 break;
             }
@@ -1403,12 +1440,15 @@ expr elaborator::visit_base_app_simple(expr const & _fn, arg_mask amask, buffer<
             break;
         }
     }
+    type = instantiate_mvars(type_before_whnf);
 
-    type = type_before_whnf;
+    buffer<expr> eta_args;
+    if (optional<expr> new_type = process_optional_and_auto_params(type, ref, eta_args, new_args))
+        type = *new_type;
 
-    expr r = mk_app(fn, new_args.size(), new_args.data());
+    expr r = Fun(eta_args, mk_app(fn, new_args.size(), new_args.data()));
     if (expected_type) {
-        if (auto new_r = ensure_has_type(r, instantiate_mvars(type), *expected_type, ref)) {
+        if (auto new_r = ensure_has_type(r, type, *expected_type, ref)) {
             return *new_r;
         } else {
             /* We do not generate the error here because we can produce a better one from

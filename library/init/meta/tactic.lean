@@ -912,7 +912,8 @@ do ctx ← local_context, kdependencies_core e md ctx []
 meta def revert_kdependencies (e : expr) (md := reducible) : tactic nat :=
 kdependencies e md >>= revert_lst
 
-meta def revert_kdeps := revert_kdependencies
+meta def revert_kdeps (e : expr) (md := reducible) :=
+revert_kdependencies e md
 
 /-- Similar to `cases_core`, but `e` doesn't need to be a hypothesis.
     Remark, it reverts dependencies using `revert_kdeps`.

@@ -320,7 +320,7 @@ do e ← i_to_expr p,
    tactic.cases e ids
 
 meta def destruct (p : qexpr0) : tactic unit :=
-do e ← i_to_expr p, tactic.destruct e
+i_to_expr p >>= tactic.destruct
 
 meta def generalize (p : qexpr) (x : ident) : tactic unit :=
 do e ← i_to_expr p,

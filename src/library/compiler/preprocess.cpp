@@ -141,8 +141,8 @@ expr fix_tactic_eval_expr(expr const & e) {
             if (is_app(e) && is_constant(get_app_fn(e), get_tactic_eval_expr_name())) {
                 buffer<expr> args;
                 get_app_args(e, args);
-                if (args.size() != 3)
-                    throw exception("invalid tactic.eval_expr application, it must have 3 arguments");
+                if (args.size() < 2)
+                    throw exception("invalid tactic.eval_expr application, it must have at least 2 arguments");
                 if (!closed(args[0]) || has_local(args[0]))
                     throw exception("invalid tactic.eval_expr application, type must be a closed term");
                 args[1] = mk_quote(args[0]);

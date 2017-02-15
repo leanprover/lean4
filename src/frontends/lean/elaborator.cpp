@@ -1852,7 +1852,7 @@ expr elaborator::visit_app(expr const & e, optional<expr> const & expected_type)
     expr const & fn = get_app_args(e, args);
     if (is_equations(fn)) {
         return visit_convoy(e, expected_type);
-    } else if (is_constant(fn, get_tactic_eval_expr_name()) && args.size() == 2) {
+    } else if (is_constant(fn, get_tactic_eval_expr_name())) {
         buffer<expr> new_args;
         expr ref_arg = get_ref_for_child(args[0], ref);
         expr A = ensure_type(visit(args[0], none_expr()), ref_arg);
@@ -1861,7 +1861,10 @@ expr elaborator::visit_app(expr const & e, optional<expr> const & expected_type)
         new_args.push_back(mk_as_is(A));
         /* Remark: the code generator will replace the following argument */
         new_args.push_back(copy_tag(e, mk_quote(mk_Prop())));
-        new_args.push_back(args[1]);
+        if (args.size() > 1) {
+            lean_assert(args.size() == 2);
+            new_args.push_back(args[1]);
+        }
         return visit(copy_tag(e, mk_app(mk_explicit(fn), new_args)), expected_type);
     } else {
         return visit_app_core(fn, args, expected_type, e);

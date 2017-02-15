@@ -13,7 +13,7 @@ static void to_string(vm_obj const & o, std::string & s) {
     check_system("to_string");
     if (!is_simple(o)) {
         to_string(cfield(o, 1), s);
-        s += static_cast<char>(cidx(cfield(o, 0)));
+        s += static_cast<unsigned char>(cidx(cfield(o, 0)));
     }
 }
 
@@ -26,7 +26,7 @@ std::string to_string(vm_obj const & o) {
 vm_obj to_obj(std::string const & str) {
     vm_obj r = mk_vm_simple(0);
     for (unsigned i = 0; i < str.size(); i++) {
-        vm_obj args[2] = { mk_vm_simple(str[i]), r };
+        vm_obj args[2] = { mk_vm_simple(static_cast<unsigned char>(str[i])), r };
         r = mk_vm_constructor(1, 2, args);
     }
     return r;

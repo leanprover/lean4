@@ -179,7 +179,7 @@ server::server(unsigned num_threads, environment const & initial_env, io_state c
 }
 
 server::~server() {
-    m_tq->cancel_if([] (generic_task *) { return true; });
+    m_tq->cancel_if([] (generic_task *) { return true; }); // NOLINT
 }
 
 struct server::cmd_req {

@@ -3290,8 +3290,6 @@ vm_state::profiler::profiler(vm_state & s, options const & opts):
     m_freq_ms(get_profiler_freq(opts)),
     m_thread_ptr(get_profiler(opts) ?
         new interruptible_thread([&]() {
-                lean_assert(!m_state.m_profiling);
-                m_state.m_profiling = true;
                 chrono::milliseconds d(m_freq_ms);
                 bool first = true;
                 auto start = chrono::steady_clock::now();
@@ -3320,7 +3318,8 @@ vm_state::profiler::profiler(vm_state & s, options const & opts):
     m_freq_ms(0),
     m_thread_ptr(nullptr)
 #endif
-        {
+{
+    m_state.m_profiling = get_profiler(opts);
 }
 
 void vm_state::profiler::stop() {

@@ -1,4 +1,5 @@
-@pre_monad.and_then.{0 0} unit unit tactic.{0} (@monad.to_pre_monad.{0 0} tactic.{0} tactic.monad.{0})
+@pre_monad.and_then.{0 0} unit unit tactic.{0}
+  (@monad.to_pre_monad.{0 0} tactic.{0} (@interaction_monad.monad.{0} tactic_state))
   tactic.trace_state
   tactic.trace_state :
   tactic.{0} unit

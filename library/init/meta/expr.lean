@@ -9,6 +9,15 @@ import init.meta.level
 inductive binder_info
 | default | implicit | strict_implicit | inst_implicit | other
 
+instance : has_to_string binder_info :=
+⟨λ bi, match bi with
+| binder_info.default := "default"
+| binder_info.implicit := "implicit"
+| binder_info.strict_implicit := "strict_implicit"
+| binder_info.inst_implicit := "inst_implicit"
+| binder_info.other := "other"
+end⟩
+
 meta constant macro_def : Type
 
 /- Reflect a C++ expr object. The VM replaces it with the C++ implementation. -/
@@ -32,6 +41,9 @@ meta constant expr.macro_def_name (d : macro_def) : name
 meta def expr.mk_var (n : nat) : expr :=
 expr.var (unsigned.of_nat n)
 
+meta constant expr.mk_quote_macro : expr → expr
+meta constant expr.mk_prenum_macro : nat → expr
+meta constant expr.mk_string_macro : string → expr
 /- Choice macros are used to implement overloading. -/
 meta constant expr.is_choice_macro : expr → bool
 
@@ -43,7 +55,7 @@ attribute [instance] expr.has_decidable_eq
 meta constant expr.alpha_eqv : expr → expr → bool
 notation a ` =ₐ `:50 b:50 := expr.alpha_eqv a b = bool.tt
 
-meta constant expr.to_string : expr → string
+protected meta constant expr.to_string : expr → string
 
 meta instance : has_to_string expr :=
 has_to_string.mk expr.to_string
@@ -289,5 +301,28 @@ meta def pis : list expr → expr → expr
 | (local_const uniq pp info t :: es) f :=
   pi pp info t (abstract_local (pis es f) uniq)
 | _ f := f
+
+open format
+
+private meta def p := λ xs, paren (format.join (list.intersperse " " xs))
+
+private meta def macro_args_to_list_aux (n : unsigned) (args : fin (unsigned.to_nat n) → expr) : Π (i : nat), i ≤ n^.to_nat → list expr
+| 0     _ := []
+| (i+1) h := args ⟨i, h⟩ :: macro_args_to_list_aux i (nat.le_trans (nat.le_succ _) h)
+
+meta def macro_args_to_list (n : unsigned) (args : fin (unsigned.to_nat n) → expr) : list expr :=
+macro_args_to_list_aux n args n^.to_nat (nat.le_refl _)
+
+meta def to_raw_fmt : expr → format
+| (var n) := p ["var", to_fmt n^.to_nat]
+| (sort l) := p ["sort", to_fmt l]
+| (const n ls) := p ["const", to_fmt n, to_fmt ls]
+| (mvar n t)   := p ["mvar", to_fmt n, to_raw_fmt t]
+| (local_const n m bi t) := p ["local_const", to_fmt n, to_fmt m, to_raw_fmt t]
+| (app e f) := p ["app", to_raw_fmt e, to_raw_fmt f]
+| (lam n bi e t) := p ["lam", to_fmt n, to_string bi, to_raw_fmt e, to_raw_fmt t]
+| (pi n bi e t) := p ["pi", to_fmt n, to_string bi, to_raw_fmt e, to_raw_fmt t]
+| (elet n g e f) := p ["elet", to_fmt n, to_raw_fmt g, to_raw_fmt e, to_raw_fmt f]
+| (macro d n args) := sbracket (format.join (list.intersperse " " ("macro" :: to_fmt (macro_def_name d) :: list.map to_raw_fmt (macro_args_to_list n args))))
 
 end expr

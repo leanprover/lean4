@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/type_context.h"
 #include "library/defeq_canonizer.h"
 #include "library/vm/vm.h"
+#include "library/vm/interaction_state.h"
 
 namespace lean {
 typedef defeq_canonizer::state defeq_can_state;
@@ -120,6 +121,9 @@ tactic_state set_mctx_lctx_dcs(tactic_state const & s, metavar_context const & m
 template<typename T> tactic_state update_option_if_undef(tactic_state const & s, name const & n, T v) {
     return set_options(s, s.get_options().update_if_undef(n, v));
 }
+
+template class interaction_monad<tactic_state>;
+typedef interaction_monad<tactic_state> tactic;
 
 bool is_tactic_state(vm_obj const & o);
 tactic_state const & to_tactic_state(vm_obj const & o);

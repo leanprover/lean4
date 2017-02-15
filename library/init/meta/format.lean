@@ -60,6 +60,9 @@ meta def format.when {α : Type u} [has_to_format α] : bool → α → format
 | tt a := to_fmt a
 | ff a := nil
 
+meta def format.join (xs : list format) : format :=
+foldl compose (of_string "") xs
+
 meta instance : has_to_format options :=
 ⟨λ o, format.of_options o⟩
 
@@ -78,14 +81,9 @@ meta instance : has_to_format nat :=
 meta instance : has_to_format char :=
 ⟨λ c : char, format.of_string [c]⟩
 
-meta def list.to_format_aux {α : Type u} [has_to_format α] : bool → list α → format
-| b  []      := to_fmt ""
-| tt (x::xs) := to_fmt x ++ list.to_format_aux ff xs
-| ff (x::xs) := to_fmt "," ++ line ++ to_fmt x ++ list.to_format_aux ff xs
-
 meta def list.to_format {α : Type u} [has_to_format α] : list α → format
-| []      := to_fmt "[]"
-| (x::xs) := to_fmt "[" ++ group (nest 1 (list.to_format_aux tt (x::xs))) ++ to_fmt "]"
+| [] := to_fmt "[]"
+| xs := to_fmt "[" ++ group (nest 1 $ format.join $ list.intersperse ("," ++ line) $ xs^.for to_fmt) ++ to_fmt "]"
 
 meta instance {α : Type u} [has_to_format α] : has_to_format (list α) :=
 ⟨list.to_format⟩

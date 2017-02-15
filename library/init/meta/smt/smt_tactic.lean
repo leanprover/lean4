@@ -72,11 +72,11 @@ meta instance (α : Type) : has_coe (tactic α) (smt_tactic α) :=
 ⟨monad.monad_lift⟩
 
 meta def smt_tactic_orelse {α : Type} (t₁ t₂ : smt_tactic α) : smt_tactic α :=
-λ ss ts, tactic_result.cases_on (t₁ ss ts)
-  tactic_result.success
-  (λ e₁ ref₁ s', tactic_result.cases_on (t₂ ss ts)
-     tactic_result.success
-     tactic_result.exception)
+λ ss ts, result.cases_on (t₁ ss ts)
+  result.success
+  (λ e₁ ref₁ s', result.cases_on (t₂ ss ts)
+     result.success
+     result.exception)
 
 meta instance : monad_fail smt_tactic :=
 { smt_tactic.monad with fail := λ α s, (tactic.fail (to_fmt s) : smt_tactic α) }
@@ -152,9 +152,9 @@ meta def fail {α : Type} {β : Type u} [has_to_format β] (msg : β) : tactic �
 tactic.fail msg
 
 meta def try {α : Type} (t : smt_tactic α) : smt_tactic unit :=
-λ ss ts, tactic_result.cases_on (t ss ts)
- (λ ⟨a, new_ss⟩, tactic_result.success ((), new_ss))
- (λ e ref s', tactic_result.success ((), ss) ts)
+λ ss ts, result.cases_on (t ss ts)
+ (λ ⟨a, new_ss⟩, result.success ((), new_ss))
+ (λ e ref s', result.success ((), ss) ts)
 
 /- (repeat_at_most n t): repeat the given tactic at most n times or until t fails -/
 meta def repeat_at_most : nat → smt_tactic unit → smt_tactic unit
@@ -180,7 +180,7 @@ do s₁ ← state_t.read,
    return (s₁, s₂)
 
 protected meta def write : smt_state × tactic_state → smt_tactic unit :=
-λ ⟨ss, ts⟩ _ _, tactic_result.success ((), ss) ts
+λ ⟨ss, ts⟩ _ _, result.success ((), ss) ts
 
 private meta def mk_smt_goals_for (cfg : smt_config) : list expr → list smt_goal → list expr
                                   → tactic (list smt_goal × list expr)

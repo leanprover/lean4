@@ -2944,7 +2944,8 @@ void elaborator::invoke_tactic(expr const & mvar, expr const & tactic) {
     tactic_state s       = mk_tactic_state_for(mvar);
 
     try {
-        if (optional<tactic_state> new_s = tactic_evaluator(m_ctx, m_opts)(s, tactic, ref)) {
+        vm_obj r = tactic_evaluator(m_ctx, m_opts, ref)(tactic, s);
+        if (auto new_s = is_tactic_success(r)) {
             metavar_context mctx = new_s->mctx();
             expr val = mctx.instantiate_mvars(new_s->main());
             if (has_expr_metavar(val)) {

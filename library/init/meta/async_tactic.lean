@@ -16,15 +16,15 @@ private meta def report {α} (s : tactic_state) : option (unit → format) → �
 
 private meta def run_or_fail {α} (s : tactic_state) (tac : tactic α) : α :=
 match tac s with
-| (tactic_result.success a s) := a
-| (tactic_result.exception fmt _ s') := report s' fmt
+| (result.success a s) := a
+| (result.exception fmt _ s') := report s' fmt
 end
 
 meta def run_async {α : Type} (tac : tactic α) : tactic (task α) := do
 s ← read, return $ task.delay $ λ _,
   match tac s with
-  | (tactic_result.success a s) := a
-  | (tactic_result.exception fmt _ s') := report s' fmt
+  | (result.success a s) := a
+  | (result.exception fmt _ s') := report s' fmt
   end
 
 meta def prove_goal_async (tac : tactic unit) : tactic unit := do

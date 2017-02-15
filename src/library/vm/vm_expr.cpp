@@ -6,6 +6,9 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include <iostream>
+#include <library/quote.h>
+#include <frontends/lean/prenum.h>
+#include <library/string.h>
 #include "kernel/expr.h"
 #include "kernel/free_vars.h"
 #include "kernel/instantiate.h"
@@ -418,6 +421,18 @@ vm_obj expr_is_choice_macro(vm_obj const & e) {
     return mk_vm_bool(is_choice(to_expr(e)));
 }
 
+vm_obj expr_mk_quote_macro(vm_obj const & e) {
+    return to_obj(mk_quote(to_expr(e)));
+}
+
+vm_obj expr_mk_prenum_macro(vm_obj const & n) {
+    return to_obj(mk_prenum(is_simple(n) ? mpz{cidx(n)} : to_mpz(n)));
+}
+
+vm_obj expr_mk_string_macro(vm_obj const & s) {
+    return to_obj(from_string(to_string(s)));
+}
+
 vm_obj expr_mk_sorry(vm_obj const & t) {
     return to_obj(mk_sorry(to_expr(t)));
 }
@@ -477,6 +492,9 @@ void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name("mk_int_val_ne_proof"),        vm_mk_int_val_ne_proof);
 
     DECLARE_VM_BUILTIN(name("expr", "is_choice_macro"),    expr_is_choice_macro);
+    DECLARE_VM_BUILTIN(name("expr", "mk_quote_macro"),     expr_mk_quote_macro);
+    DECLARE_VM_BUILTIN(name("expr", "mk_prenum_macro"),    expr_mk_prenum_macro);
+    DECLARE_VM_BUILTIN(name("expr", "mk_string_macro"),    expr_mk_string_macro);
 
     DECLARE_VM_BUILTIN(name("expr", "mk_sorry"), expr_mk_sorry);
     DECLARE_VM_BUILTIN(name("expr", "is_sorry"), expr_is_sorry);

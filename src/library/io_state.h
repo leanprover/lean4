@@ -60,9 +60,9 @@ class formatted_exception : public exception {
 protected:
     optional<expr> m_expr;
     format         m_fmt;
-    formatted_exception(optional<expr> const & e, format const & fmt):m_expr(e), m_fmt(fmt) {}
 public:
     explicit formatted_exception(format const & fmt):m_fmt(fmt) {}
+    formatted_exception(optional<expr> const & e, format const & fmt):m_expr(e), m_fmt(fmt) {}
     formatted_exception(expr const & e, format const & fmt):m_expr(e), m_fmt(fmt) {}
     virtual ~formatted_exception() noexcept {}
     virtual char const * what() const noexcept;

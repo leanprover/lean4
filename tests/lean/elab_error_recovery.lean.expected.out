@@ -16,7 +16,7 @@ elab_error_recovery.lean:10:11: error: don't know how to synthesize placeholder
 context:
 half_baked : ℕ → ℕ
 ⊢ Type ?
-elab_error_recovery.lean:10:11: error: failed to add declaration '_tactic' to environment, value has metavariables
+elab_error_recovery.lean:10:11: error: failed to add declaration '_interaction' to environment, value has metavariables
 remark: set 'formatter.hide_full_terms' to false to see the complete term
   …
 elab_error_recovery.lean:12:20: error: invalid type ascription, expression has type

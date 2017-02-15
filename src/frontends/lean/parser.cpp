@@ -109,19 +109,17 @@ parser::local_scope::~local_scope() {
     m_p.m_env = m_env;
 }
 
-parser::quote_scope::quote_scope(parser & p, bool q):
-    m_p(p), m_id_behavior(m_p.m_id_behavior), m_in_quote(q),
+parser::quote_scope::quote_scope(parser & p, bool q, id_behavior i):
+    m_p(p), m_id_behavior(m_p.m_id_behavior), m_old_in_quote(m_p.m_in_quote), m_in_quote(q),
     m_saved_in_pattern(p.m_in_pattern) {
     m_p.m_in_pattern = false;
-    if (q) {
-        lean_assert(!m_p.m_in_quote);
-        m_p.m_id_behavior = id_behavior::AssumeLocalIfNotLocal;
+    if (m_in_quote && !m_old_in_quote) {
+        m_p.m_id_behavior = i;
         m_p.m_in_quote = true;
         m_p.push_local_scope(false);
         m_p.m_quote_stack = cons(m_p.mk_parser_scope(), m_p.m_quote_stack);
         m_p.clear_expr_locals();
-    } else {
-        lean_assert(m_p.m_in_quote);
+    } else if (!m_in_quote && m_old_in_quote) {
         lean_assert(m_p.m_quote_stack);
         m_p.m_id_behavior = id_behavior::ErrorIfUndef;
         m_p.push_local_scope(false);
@@ -132,12 +130,12 @@ parser::quote_scope::quote_scope(parser & p, bool q):
 
 parser::quote_scope::~quote_scope() {
     m_p.m_in_pattern = m_saved_in_pattern;
-    if (m_in_quote) {
+    if (m_in_quote && !m_old_in_quote) {
         lean_assert(m_p.m_in_quote);
         m_p.m_in_quote = false;
         m_p.pop_local_scope();
         m_p.m_quote_stack = tail(m_p.m_quote_stack);
-    } else {
+    } else if (!m_in_quote && m_old_in_quote) {
         lean_assert(!m_p.m_in_quote);
         m_p.m_in_quote = true;
         m_p.pop_local_scope();
@@ -2069,10 +2067,6 @@ expr parser::parse_scoped_expr(unsigned num_ps, expr const * ps, local_environme
 expr parser::parse_expr_with_env(local_environment const & lenv, unsigned rbp) {
     flet<environment> set_env(m_env, lenv);
     return parse_expr(rbp);
-}
-
-expr parser::parse_tactic(unsigned) {
-    lean_unreachable();
 }
 
 /** \brief Helper class for creating type context only if needed */

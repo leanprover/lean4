@@ -24,8 +24,8 @@ meta def istep {α : Type} (line : nat) (col : nat) (tac : smt_tactic α) : smt_
 λ ss ts, @scope_trace _ line col ((tac >> solve_goals) ss ts)
 
 meta def rstep {α : Type} (line : nat) (col : nat) (tac : smt_tactic α) : smt_tactic unit :=
-λ ss ts, tactic_result.cases_on (istep line col tac ss ts)
-  (λ ⟨a, new_ss⟩ new_ts, tactic_result.success ((), new_ss) new_ts)
+λ ss ts, result.cases_on (istep line col tac ss ts)
+  (λ ⟨a, new_ss⟩ new_ts, result.success ((), new_ss) new_ts)
   (λ msg_thunk e, tactic.report_exception line col msg_thunk)
 
 meta def execute (tac : smt_tactic unit) : tactic unit :=
@@ -35,6 +35,8 @@ meta def execute_with (cfg : smt_config) (tac : smt_tactic unit) : tactic unit :
 using_smt tac cfg
 
 namespace interactive
+open lean.parser
+open interactive -- ?
 open interactive.types
 
 meta def itactic : Type :=
@@ -43,7 +45,7 @@ smt_tactic unit
 meta def irtactic : Type :=
 smt_tactic unit
 
-meta def intros : raw_ident_list → smt_tactic unit
+meta def intros : parse raw_ident_list → smt_tactic unit
 | [] := smt_tactic.intros
 | hs := smt_tactic.intro_lst hs
 
@@ -65,48 +67,48 @@ smt_tactic.close
 meta def ematch : smt_tactic unit :=
 smt_tactic.ematch
 
-meta def apply (q : qexpr0) : smt_tactic unit :=
+meta def apply (q : parse qexpr0) : smt_tactic unit :=
 tactic.interactive.apply q
 
-meta def fapply (q : qexpr0) : smt_tactic unit :=
+meta def fapply (q : parse qexpr0) : smt_tactic unit :=
 tactic.interactive.fapply q
 
 meta def apply_instance : smt_tactic unit :=
 tactic.apply_instance
 
-meta def change (q : qexpr0) : smt_tactic unit :=
+meta def change (q : parse qexpr0) : smt_tactic unit :=
 tactic.interactive.change q
 
-meta def exact (q : qexpr0) : smt_tactic unit :=
+meta def exact (q : parse qexpr0) : smt_tactic unit :=
 tactic.interactive.exact q
 
-meta def assert (h : ident) (c : colon_tk) (q : qexpr0) : smt_tactic unit :=
+meta def assert (h : parse ident) (c : parse colon_tk) (q : parse qexpr0) : smt_tactic unit :=
 do e ← tactic.to_expr_strict q,
    smt_tactic.assert h e
 
-meta def define (h : ident) (c : colon_tk) (q : qexpr0) : smt_tactic unit :=
+meta def define (h : parse ident) (c : parse colon_tk) (q : parse qexpr0) : smt_tactic unit :=
 do e ← tactic.to_expr_strict q,
    smt_tactic.define h e
 
-meta def assertv (h : ident) (c : colon_tk) (q₁ : qexpr0) (a : assign_tk) (q₂ : qexpr0) : smt_tactic unit :=
+meta def assertv (h : parse ident) (c : parse colon_tk) (q₁ : parse qexpr0) (a : parse assign_tk) (q₂ : parse qexpr0) : smt_tactic unit :=
 do t ← tactic.to_expr_strict q₁,
    v ← tactic.to_expr_strict `(%%q₂ : %%t),
    smt_tactic.assertv h t v
 
-meta def definev (h : ident) (c : colon_tk) (q₁ : qexpr0) (a : assign_tk) (q₂ : qexpr0) : smt_tactic unit :=
+meta def definev (h : parse ident) (c : parse colon_tk) (q₁ : parse qexpr0) (a : parse assign_tk) (q₂ : parse qexpr0) : smt_tactic unit :=
 do t ← tactic.to_expr_strict q₁,
    v ← tactic.to_expr_strict `(%%q₂ : %%t),
    smt_tactic.definev h t v
 
-meta def note (h : ident) (a : assign_tk) (q : qexpr0) : smt_tactic unit :=
+meta def note (h : parse ident) (a : parse assign_tk) (q : parse qexpr0) : smt_tactic unit :=
 do p ← tactic.to_expr_strict q,
    smt_tactic.note h p
 
-meta def pose (h : ident) (a : assign_tk) (q : qexpr0) : smt_tactic unit :=
+meta def pose (h : parse ident) (a : parse assign_tk) (q : parse qexpr0) : smt_tactic unit :=
 do p ← tactic.to_expr_strict q,
    smt_tactic.pose h p
 
-meta def add_fact (q : qexpr0) : smt_tactic unit :=
+meta def add_fact (q : parse qexpr0) : smt_tactic unit :=
 do h ← tactic.get_unused_name `h none,
    p ← tactic.to_expr_strict q,
    smt_tactic.note h p
@@ -117,11 +119,11 @@ smt_tactic.trace_state
 meta def trace {α : Type} [has_to_tactic_format α] (a : α) : smt_tactic unit :=
 tactic.trace a
 
-meta def destruct (q : qexpr0) : smt_tactic unit :=
+meta def destruct (q : parse qexpr0) : smt_tactic unit :=
 do p ← tactic.to_expr_strict q,
    smt_tactic.destruct p
 
-meta def by_cases (q : qexpr0) : smt_tactic unit :=
+meta def by_cases (q : parse qexpr0) : smt_tactic unit :=
 do p ← tactic.to_expr_strict q,
    smt_tactic.by_cases p
 
@@ -157,10 +159,10 @@ private meta def add_lemma_pexprs (md : transparency) (lhs_lemma : bool) : list 
 | []      := return ()
 | (p::ps) := add_lemma_pexpr md lhs_lemma p >> add_lemma_pexprs ps
 
-meta def add_lemma (l : qexpr_list_or_qexpr0) : smt_tactic unit :=
+meta def add_lemma (l : parse qexpr_list_or_qexpr0) : smt_tactic unit :=
 add_lemma_pexprs reducible ff l
 
-meta def add_lhs_lemma (l : qexpr_list_or_qexpr0) : smt_tactic unit :=
+meta def add_lhs_lemma (l : parse qexpr_list_or_qexpr0) : smt_tactic unit :=
 add_lemma_pexprs reducible tt l
 
 private meta def add_eqn_lemmas_for_core (md : transparency) : list name → smt_tactic unit
@@ -172,10 +174,10 @@ private meta def add_eqn_lemmas_for_core (md : transparency) : list name → smt
   | _                        := fail $ "'" ++ to_string c ++ "' is not a constant"
   end
 
-meta def add_eqn_lemmas_for (ids : raw_ident_list) : smt_tactic unit :=
+meta def add_eqn_lemmas_for (ids : parse raw_ident_list) : smt_tactic unit :=
 add_eqn_lemmas_for_core reducible ids
 
-meta def add_eqn_lemmas (ids : raw_ident_list) : smt_tactic unit :=
+meta def add_eqn_lemmas (ids : parse raw_ident_list) : smt_tactic unit :=
 add_eqn_lemmas_for ids
 
 private meta def add_hinst_lemma_from_name (md : transparency) (lhs_lemma : bool) (n : name) (hs : hinst_lemmas) (ref : expr) : smt_tactic hinst_lemmas :=
@@ -206,7 +208,7 @@ private meta def add_hinst_lemmas_from_pexprs (md : transparency) (lhs_lemma : b
 | []      hs := return hs
 | (p::ps) hs := do hs₁ ← add_hinst_lemma_from_pexpr md lhs_lemma p hs, add_hinst_lemmas_from_pexprs ps hs₁
 
-meta def ematch_using (l : qexpr_list_or_qexpr0) : smt_tactic unit :=
+meta def ematch_using (l : parse qexpr_list_or_qexpr0) : smt_tactic unit :=
 do hs ← add_hinst_lemmas_from_pexprs reducible ff l hinst_lemmas.mk,
    smt_tactic.ematch_using hs
 
@@ -222,21 +224,21 @@ smt_tactic.repeat t
 meta def all_goals (t : itactic) : smt_tactic unit :=
 smt_tactic.all_goals t
 
-meta def induction (p : qexpr0) (rec_name : using_ident) (ids : with_ident_list) : smt_tactic unit :=
+meta def induction (p : parse qexpr0) (rec_name : parse using_ident) (ids : parse with_ident_list) : smt_tactic unit :=
 slift (tactic.interactive.induction p rec_name ids)
 
 /-- Simplify the target type of the main goal. -/
-meta def simp (hs : opt_qexpr_list) (attr_names : with_ident_list) (ids : without_ident_list) : smt_tactic unit :=
+meta def simp (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list) (ids : parse without_ident_list) : smt_tactic unit :=
 tactic.interactive.simp hs attr_names ids []
 
-meta def ctx_simp (hs : opt_qexpr_list) (attr_names : with_ident_list) (ids : without_ident_list) : smt_tactic unit :=
+meta def ctx_simp (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list) (ids : parse without_ident_list) : smt_tactic unit :=
 tactic.interactive.ctx_simp hs attr_names ids []
 
 /-- Simplify the target type of the main goal using simplification lemmas and the current set of hypotheses. -/
-meta def simp_using_hs (hs : opt_qexpr_list) (attr_names : with_ident_list) (ids : without_ident_list) : smt_tactic unit :=
+meta def simp_using_hs (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list) (ids : parse without_ident_list) : smt_tactic unit :=
 tactic.interactive.simp_using_hs hs attr_names ids
 
-meta def dsimp (es : opt_qexpr_list) (attr_names : with_ident_list) (ids : without_ident_list) : smt_tactic unit :=
+meta def dsimp (es : parse opt_qexpr_list) (attr_names : parse with_ident_list) (ids : parse without_ident_list) : smt_tactic unit :=
 tactic.interactive.dsimp es attr_names ids []
 
 /-- Keep applying heuristic instantiation until the current goal is solved, or it fails. -/
@@ -244,7 +246,7 @@ meta def eblast : smt_tactic unit :=
 smt_tactic.eblast
 
 /-- Keep applying heuristic instantiation using the given lemmas until the current goal is solved, or it fails. -/
-meta def eblast_using (l : qexpr_list_or_qexpr0) : smt_tactic unit :=
+meta def eblast_using (l : parse qexpr_list_or_qexpr0) : smt_tactic unit :=
 do hs ← add_hinst_lemmas_from_pexprs reducible ff l hinst_lemmas.mk,
    smt_tactic.repeat (smt_tactic.ematch_using hs >> smt_tactic.try smt_tactic.close)
 

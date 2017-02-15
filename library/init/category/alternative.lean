@@ -11,10 +11,13 @@ class alternative (f : Type u → Type v) extends applicative f : Type (max u+1 
 (failure : Π {a : Type u}, f a)
 (orelse  : Π {a : Type u}, f a → f a → f a)
 
-@[inline] def failure {f : Type u → Type v} [alternative f] {a : Type u} : f a :=
+section
+variables {f : Type u → Type v} [alternative f] {a : Type u}
+
+@[inline] def failure : f a :=
 alternative.failure f
 
-@[inline] def orelse {f : Type u → Type v} [alternative f] {a : Type u} : f a → f a → f a :=
+@[inline] def orelse : f a → f a → f a :=
 alternative.orelse
 
 infixr ` <|> `:2 := orelse
@@ -27,3 +30,8 @@ if p then pure () else failure
 @[inline] def guardb {f : Type → Type v} [alternative f] : bool → f unit
 | tt := pure ()
 | ff := failure
+
+@[inline] def optional (x : f a) : f (option a) :=
+some <$> x <|> pure none
+
+end

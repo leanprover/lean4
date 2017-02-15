@@ -110,14 +110,14 @@ end
 namespace tactic.interactive
 open interactive
 
-meta def with_lemmas (ls : types.raw_ident_list) : tactic unit := monad.for' ls $ λl, do
+meta def with_lemmas (ls : parse types.raw_ident_list) : tactic unit := monad.for' ls $ λl, do
 p ← mk_const l,
 t ← infer_type p,
 n ← get_unused_name p^.get_app_fn^.const_name none,
 tactic.assertv n t p
 
-meta def super (extra_clause_names : types.raw_ident_list)
-               (extra_lemma_names : types.with_ident_list) : tactic unit := do
+meta def super (extra_clause_names : parse types.raw_ident_list)
+               (extra_lemma_names : parse types.with_ident_list) : tactic unit := do
 with_lemmas extra_clause_names,
 extra_lemmas ← monad.for extra_lemma_names mk_const,
 _root_.super extra_lemmas

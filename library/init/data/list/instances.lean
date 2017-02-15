@@ -10,15 +10,6 @@ open list
 
 universes u v
 
-@[inline] def list.bind {α : Type u} {β : Type v} (a : list α) (b : α → list β) : list β :=
-join (map b a)
-
-@[inline] def list.ret {α : Type u} (a : α) : list α :=
-[a]
-
-instance : monad list :=
-{map := @map, ret := @list.ret, bind := @list.bind}
-
 instance : alternative list :=
 ⟨@map, @list.ret, @fapp _ _, @nil, @list.append⟩
 

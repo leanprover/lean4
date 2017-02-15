@@ -6,6 +6,8 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "library/tactic/tactic_state.h"
+#include "library/tactic/elaborator_exception.h"
+#include "library/vm/interaction_state.h"
 #include "frontends/lean/info_manager.h"
 
 namespace lean {
@@ -14,18 +16,14 @@ elaborator_exception unsolved_tactic_state(tactic_state const & ts, char const *
 [[noreturn]] void throw_unsolved_tactic_state(tactic_state const & ts, format const & fmt, expr const & ref);
 [[noreturn]] void throw_unsolved_tactic_state(tactic_state const & ts, char const * msg, expr const & ref);
 
-class tactic_evaluator {
-    type_context &  m_ctx;
-    options const & m_opts;
-
-    environment compile_tactic(name const & tactic_name, expr const & tactic);
-    vm_obj invoke_tactic(vm_state & S, name const & tactic_name, std::initializer_list<vm_obj> const & args);
-
-    optional<tactic_state> execute_tactic(expr const & tactic, tactic_state const & s, expr const & ref);
-    optional<tactic_state> execute_atomic(tactic_state const & s, expr const & tactic, expr const & ref);
+class tactic_evaluator : public tactic::evaluator {
+private:
+    expr m_ref;
+protected:
+    virtual void process_failure(vm_state & S, vm_obj const & r) override;
 public:
-    tactic_evaluator(type_context & ctx, options const & opts);
-
-    optional<tactic_state> operator()(tactic_state const & s, expr const & tactic, expr const & ref);
+    tactic_evaluator(type_context & ctx, options const & opts, expr const & ref):
+            tactic::evaluator(ctx, opts), m_ref(ref) {}
+    virtual vm_obj operator()(expr const & tactic, tactic_state const & s) override;
 };
 }

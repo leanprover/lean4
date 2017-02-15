@@ -81,7 +81,7 @@ void init_token_table(token_table & t) {
         {{"fun", 0}, {"Pi", 0}, {"let", 0}, {"in", 0}, {"at", 0},
          {"have", 0}, {"suppose", 0}, {"show", 0}, {"suffices", 0}, {"obtain", 0},
          {"do", 0}, {"if", 0}, {"then", 0}, {"else", 0}, {"by", 0}, {"hiding", 0}, {"replacing", 0}, {"renaming", 0},
-         {"from", 0}, {"(", g_max_prec}, {"`(", g_max_prec}, {"`[", g_max_prec}, {"`", g_max_prec},
+         {"from", 0}, {"(", g_max_prec}, {"`(", g_max_prec}, {"``(", g_max_prec}, {"`[", g_max_prec}, {"`", g_max_prec},
          {"%%", g_max_prec}, {"()", g_max_prec}, {")", 0}, {"'", 0},
          {"{", g_max_prec}, {"}", 0}, {"_", g_max_prec},
          {"[", g_max_prec}, {"]", 0}, {"⦃", g_max_prec}, {"⦄", 0}, {".{", 0},

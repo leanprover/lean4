@@ -199,28 +199,16 @@ format tactic_state::pp_goal(expr const & g) const {
     return pp_goal(fmtf, g);
 }
 
-struct vm_tactic_state : public vm_external {
-    tactic_state m_val;
-    vm_tactic_state(tactic_state const & v):m_val(v) {}
-    virtual ~vm_tactic_state() {}
-    virtual void dealloc() override {
-        this->~vm_tactic_state(); get_vm_allocator().deallocate(sizeof(vm_tactic_state), this);
-    }
-    virtual vm_external * ts_clone(vm_clone_fn const &) override { return new vm_tactic_state(m_val); }
-    virtual vm_external * clone(vm_clone_fn const &) override { return new (get_vm_allocator().allocate(sizeof(vm_tactic_state))) vm_tactic_state(m_val); }
-};
-
 bool is_tactic_state(vm_obj const & o) {
-    return is_external(o) && dynamic_cast<vm_tactic_state*>(to_external(o));
+    return tactic::is_State(o);
 }
 
 tactic_state const & to_tactic_state(vm_obj const & o) {
-    lean_vm_check(dynamic_cast<vm_tactic_state*>(to_external(o)));
-    return static_cast<vm_tactic_state*>(to_external(o))->m_val;
+    return tactic::to_State(o);
 }
 
 vm_obj to_obj(tactic_state const & s) {
-    return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_tactic_state))) vm_tactic_state(s));
+    return tactic::to_obj(s);
 }
 
 transparency_mode to_transparency_mode(vm_obj const & o) {

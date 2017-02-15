@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.logic init.data.nat.basic
+import init.logic init.data.nat.basic init.category.monad
 open decidable list
 
 notation h :: t  := cons h t
@@ -179,4 +179,20 @@ def iota : ℕ → list ℕ :=
 def sum [has_add α] [has_zero α] : list α → α :=
 foldl add zero
 
+def intersperse (sep : α) : list α → list α
+| []      := []
+| [x]     := [x]
+| (x::xs) := x::sep::intersperse xs
+
+def intercalate (sep : list α) (xs : list (list α)) : list α :=
+join (intersperse sep xs)
+
+@[inline] def bind {α : Type u} {β : Type v} (a : list α) (b : α → list β) : list β :=
+join (map b a)
+
+@[inline] def ret {α : Type u} (a : α) : list α :=
+[a]
 end list
+
+instance : monad list :=
+{map := @list.map, ret := @list.ret, bind := @list.bind}

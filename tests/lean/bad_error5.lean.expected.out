@@ -2,7 +2,7 @@ bad_error5.lean:13:10: error: don't know how to synthesize placeholder
 context:
 c : S
 ⊢ Type ?
-bad_error5.lean:13:10: error: failed to add declaration '_tactic' to environment, value has metavariables
+bad_error5.lean:13:10: error: failed to add declaration '_interaction' to environment, value has metavariables
 remark: set 'formatter.hide_full_terms' to false to see the complete term
   …
 bad_error5.lean:9:11: warning: declaration 'V' uses sorry

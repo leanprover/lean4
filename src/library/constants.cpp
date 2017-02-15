@@ -173,6 +173,7 @@ name const * g_int_ne_neg_of_pos = nullptr;
 name const * g_int_neg_ne_zero_of_ne = nullptr;
 name const * g_int_zero_ne_neg_of_ne = nullptr;
 name const * g_int_decidable_linear_ordered_comm_group = nullptr;
+name const * g_interactive_parse = nullptr;
 name const * g_inv = nullptr;
 name const * g_io = nullptr;
 name const * g_io_functor = nullptr;
@@ -447,24 +448,6 @@ name const * g_tactic_triv = nullptr;
 name const * g_tactic_interactive = nullptr;
 name const * g_tactic_interactive_exact = nullptr;
 name const * g_trivial = nullptr;
-name const * g_interactive_types_ident = nullptr;
-name const * g_interactive_types_opt_ident = nullptr;
-name const * g_interactive_types_using_ident = nullptr;
-name const * g_interactive_types_ident_list = nullptr;
-name const * g_interactive_types_raw_ident_list = nullptr;
-name const * g_interactive_types_with_ident_list = nullptr;
-name const * g_interactive_types_without_ident_list = nullptr;
-name const * g_interactive_types_location = nullptr;
-name const * g_interactive_types_qexpr = nullptr;
-name const * g_interactive_types_qexpr0 = nullptr;
-name const * g_interactive_types_qexpr_list = nullptr;
-name const * g_interactive_types_qexpr_list_with_pos = nullptr;
-name const * g_interactive_types_opt_qexpr_list = nullptr;
-name const * g_interactive_types_qexpr_list_or_qexpr0 = nullptr;
-name const * g_interactive_types_qexpr_list_or_qexpr0_with_pos = nullptr;
-name const * g_interactive_types_colon_tk = nullptr;
-name const * g_interactive_types_assign_tk = nullptr;
-name const * g_interactive_types_comma_tk = nullptr;
 name const * g_thunk = nullptr;
 name const * g_to_fmt = nullptr;
 name const * g_to_int = nullptr;
@@ -661,6 +644,7 @@ void initialize_constants() {
     g_int_neg_ne_zero_of_ne = new name{"int", "neg_ne_zero_of_ne"};
     g_int_zero_ne_neg_of_ne = new name{"int", "zero_ne_neg_of_ne"};
     g_int_decidable_linear_ordered_comm_group = new name{"int_decidable_linear_ordered_comm_group"};
+    g_interactive_parse = new name{"interactive", "parse"};
     g_inv = new name{"inv"};
     g_io = new name{"io"};
     g_io_functor = new name{"io", "functor"};
@@ -935,24 +919,6 @@ void initialize_constants() {
     g_tactic_interactive = new name{"tactic", "interactive"};
     g_tactic_interactive_exact = new name{"tactic", "interactive", "exact"};
     g_trivial = new name{"trivial"};
-    g_interactive_types_ident = new name{"interactive", "types", "ident"};
-    g_interactive_types_opt_ident = new name{"interactive", "types", "opt_ident"};
-    g_interactive_types_using_ident = new name{"interactive", "types", "using_ident"};
-    g_interactive_types_ident_list = new name{"interactive", "types", "ident_list"};
-    g_interactive_types_raw_ident_list = new name{"interactive", "types", "raw_ident_list"};
-    g_interactive_types_with_ident_list = new name{"interactive", "types", "with_ident_list"};
-    g_interactive_types_without_ident_list = new name{"interactive", "types", "without_ident_list"};
-    g_interactive_types_location = new name{"interactive", "types", "location"};
-    g_interactive_types_qexpr = new name{"interactive", "types", "qexpr"};
-    g_interactive_types_qexpr0 = new name{"interactive", "types", "qexpr0"};
-    g_interactive_types_qexpr_list = new name{"interactive", "types", "qexpr_list"};
-    g_interactive_types_qexpr_list_with_pos = new name{"interactive", "types", "qexpr_list_with_pos"};
-    g_interactive_types_opt_qexpr_list = new name{"interactive", "types", "opt_qexpr_list"};
-    g_interactive_types_qexpr_list_or_qexpr0 = new name{"interactive", "types", "qexpr_list_or_qexpr0"};
-    g_interactive_types_qexpr_list_or_qexpr0_with_pos = new name{"interactive", "types", "qexpr_list_or_qexpr0_with_pos"};
-    g_interactive_types_colon_tk = new name{"interactive", "types", "colon_tk"};
-    g_interactive_types_assign_tk = new name{"interactive", "types", "assign_tk"};
-    g_interactive_types_comma_tk = new name{"interactive", "types", "comma_tk"};
     g_thunk = new name{"thunk"};
     g_to_fmt = new name{"to_fmt"};
     g_to_int = new name{"to_int"};
@@ -1150,6 +1116,7 @@ void finalize_constants() {
     delete g_int_neg_ne_zero_of_ne;
     delete g_int_zero_ne_neg_of_ne;
     delete g_int_decidable_linear_ordered_comm_group;
+    delete g_interactive_parse;
     delete g_inv;
     delete g_io;
     delete g_io_functor;
@@ -1424,24 +1391,6 @@ void finalize_constants() {
     delete g_tactic_interactive;
     delete g_tactic_interactive_exact;
     delete g_trivial;
-    delete g_interactive_types_ident;
-    delete g_interactive_types_opt_ident;
-    delete g_interactive_types_using_ident;
-    delete g_interactive_types_ident_list;
-    delete g_interactive_types_raw_ident_list;
-    delete g_interactive_types_with_ident_list;
-    delete g_interactive_types_without_ident_list;
-    delete g_interactive_types_location;
-    delete g_interactive_types_qexpr;
-    delete g_interactive_types_qexpr0;
-    delete g_interactive_types_qexpr_list;
-    delete g_interactive_types_qexpr_list_with_pos;
-    delete g_interactive_types_opt_qexpr_list;
-    delete g_interactive_types_qexpr_list_or_qexpr0;
-    delete g_interactive_types_qexpr_list_or_qexpr0_with_pos;
-    delete g_interactive_types_colon_tk;
-    delete g_interactive_types_assign_tk;
-    delete g_interactive_types_comma_tk;
     delete g_thunk;
     delete g_to_fmt;
     delete g_to_int;
@@ -1638,6 +1587,7 @@ name const & get_int_ne_neg_of_pos_name() { return *g_int_ne_neg_of_pos; }
 name const & get_int_neg_ne_zero_of_ne_name() { return *g_int_neg_ne_zero_of_ne; }
 name const & get_int_zero_ne_neg_of_ne_name() { return *g_int_zero_ne_neg_of_ne; }
 name const & get_int_decidable_linear_ordered_comm_group_name() { return *g_int_decidable_linear_ordered_comm_group; }
+name const & get_interactive_parse_name() { return *g_interactive_parse; }
 name const & get_inv_name() { return *g_inv; }
 name const & get_io_name() { return *g_io; }
 name const & get_io_functor_name() { return *g_io_functor; }
@@ -1912,24 +1862,6 @@ name const & get_tactic_triv_name() { return *g_tactic_triv; }
 name const & get_tactic_interactive_name() { return *g_tactic_interactive; }
 name const & get_tactic_interactive_exact_name() { return *g_tactic_interactive_exact; }
 name const & get_trivial_name() { return *g_trivial; }
-name const & get_interactive_types_ident_name() { return *g_interactive_types_ident; }
-name const & get_interactive_types_opt_ident_name() { return *g_interactive_types_opt_ident; }
-name const & get_interactive_types_using_ident_name() { return *g_interactive_types_using_ident; }
-name const & get_interactive_types_ident_list_name() { return *g_interactive_types_ident_list; }
-name const & get_interactive_types_raw_ident_list_name() { return *g_interactive_types_raw_ident_list; }
-name const & get_interactive_types_with_ident_list_name() { return *g_interactive_types_with_ident_list; }
-name const & get_interactive_types_without_ident_list_name() { return *g_interactive_types_without_ident_list; }
-name const & get_interactive_types_location_name() { return *g_interactive_types_location; }
-name const & get_interactive_types_qexpr_name() { return *g_interactive_types_qexpr; }
-name const & get_interactive_types_qexpr0_name() { return *g_interactive_types_qexpr0; }
-name const & get_interactive_types_qexpr_list_name() { return *g_interactive_types_qexpr_list; }
-name const & get_interactive_types_qexpr_list_with_pos_name() { return *g_interactive_types_qexpr_list_with_pos; }
-name const & get_interactive_types_opt_qexpr_list_name() { return *g_interactive_types_opt_qexpr_list; }
-name const & get_interactive_types_qexpr_list_or_qexpr0_name() { return *g_interactive_types_qexpr_list_or_qexpr0; }
-name const & get_interactive_types_qexpr_list_or_qexpr0_with_pos_name() { return *g_interactive_types_qexpr_list_or_qexpr0_with_pos; }
-name const & get_interactive_types_colon_tk_name() { return *g_interactive_types_colon_tk; }
-name const & get_interactive_types_assign_tk_name() { return *g_interactive_types_assign_tk; }
-name const & get_interactive_types_comma_tk_name() { return *g_interactive_types_comma_tk; }
 name const & get_thunk_name() { return *g_thunk; }
 name const & get_to_fmt_name() { return *g_to_fmt; }
 name const & get_to_int_name() { return *g_to_int; }

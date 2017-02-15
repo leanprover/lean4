@@ -618,10 +618,24 @@ static expr parse_do(parser_state & p, unsigned, expr const *, pos_info const &)
     return r;
 }
 
-static expr parse_quoted_expr(parser_state & p, unsigned, expr const *, pos_info const & pos) {
+static expr parse_lazy_quoted_expr(parser_state & p, unsigned, expr const *, pos_info const & pos) {
     if (p.in_quote())
         throw parser_error("invalid nested quoted expression", pos);
     parser_state::quote_scope scope(p, true);
+    expr e = p.parse_expr();
+    if (p.curr_is_token(get_colon_tk())) {
+        p.next();
+        expr t = p.parse_expr();
+        e = mk_typed_expr_distrib_choice(p, t, e, pos);
+    }
+    p.check_token_next(get_rparen_tk(), "invalid quoted expression, `)` expected");
+    return p.save_pos(mk_quote(e), pos);
+}
+
+static expr parse_quoted_expr(parser_state & p, unsigned, expr const *, pos_info const & pos) {
+    if (p.in_quote())
+        throw parser_error("invalid nested quoted expression", pos);
+    parser_state::quote_scope scope(p, true, id_behavior::ErrorIfUndef);
     expr e = p.parse_expr();
     if (p.curr_is_token(get_colon_tk())) {
         p.next();
@@ -791,7 +805,8 @@ parse_table init_nud_table() {
     r = r.add({transition("(", Expr), transition(":", Expr), transition(")", mk_ext_action(parse_typed_expr))}, x0);
     r = r.add({transition("⟨", mk_ext_action(parse_constructor))}, x0);
     r = r.add({transition("{", mk_ext_action(parse_curly_bracket))}, x0);
-    r = r.add({transition("`(", mk_ext_action(parse_quoted_expr))}, x0);
+    r = r.add({transition("`(", mk_ext_action(parse_lazy_quoted_expr))}, x0);
+    r = r.add({transition("``(", mk_ext_action(parse_quoted_expr))}, x0);
     r = r.add({transition("`[", mk_ext_action(parse_auto_quote_tactic_block))}, x0);
     r = r.add({transition("`", mk_ext_action(parse_quoted_name))}, x0);
     r = r.add({transition("%%", mk_ext_action(parse_antiquote_expr))}, x0);

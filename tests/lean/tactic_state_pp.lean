@@ -16,8 +16,8 @@ do t     ← target,
 
 meta def pp_state (s : tactic_state) : format :=
 match pp_state_core s with
-| tactic_result.success r _     := r
-| tactic_result.exception _ _ _ := "failed to pretty print"
+| result.success r _     := r
+| result.exception _ _ _ := "failed to pretty print"
 end
 
 meta instance i2 : has_to_format tactic_state :=

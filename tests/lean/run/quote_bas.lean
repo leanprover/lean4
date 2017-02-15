@@ -1,5 +1,7 @@
 universes u v w
 
+namespace quote_bas
+
 inductive Expr (V : Type u)
 | One {}            : Expr
 | Var (v : V)       : Expr
@@ -75,3 +77,5 @@ instance quote_mul {V : Type u} (v : Env V) n {V' : Type v} (v' : Env V') m {V''
                    Quote v (n * m) (merge v' v'') :=
 { quote      := Mult (map_var sum_assoc (map_var inl (quote n))) (map_var sum_assoc (quote m)),
   eval_quote := by simp }
+
+end quote_bas

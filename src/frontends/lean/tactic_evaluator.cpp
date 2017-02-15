@@ -36,33 +36,7 @@ elaborator_exception unsolved_tactic_state(tactic_state const & ts, char const *
     throw_unsolved_tactic_state(ts, format(msg), ref);
 }
 
-/* Compile tactic into bytecode */
-environment tactic_evaluator::compile_tactic(name const & tactic_name, expr const & tactic) {
-    pos_info_provider * provider = get_pos_info_provider();
-    expr tactic_type     = m_ctx.infer(tactic);
-    environment new_env  = m_ctx.env();
-    bool use_conv_opt    = true;
-    bool is_trusted      = false;
-    auto cd = check(new_env, mk_definition(new_env, tactic_name, {}, tactic_type, tactic, use_conv_opt, is_trusted));
-    new_env = new_env.add(cd);
-    if (auto pos = provider->get_pos_info(tactic))
-        new_env = add_transient_decl_pos_info(new_env, tactic_name, *pos);
-    try {
-        return vm_compile(new_env, new_env.get(tactic_name));
-    } catch (exception & ex) {
-        throw elaborator_exception(tactic, ex.what());
-    }
-}
-
-vm_obj tactic_evaluator::invoke_tactic(vm_state & S, name const & tactic_name, std::initializer_list<vm_obj> const & args) {
-    vm_state::profiler prof(S, m_opts);
-    vm_obj r = S.invoke(tactic_name, args);
-    if (prof.enabled())
-        prof.get_snapshots().display(get_global_ios().get_regular_stream());
-    return r;
-}
-
-static void process_failure(vm_state & S, vm_obj const & r, expr const & ref) {
+void tactic_evaluator::process_failure(vm_state & S, vm_obj const & r) {
     pos_info_provider * provider = get_pos_info_provider();
     if (optional<tactic_exception_info> ex = is_tactic_exception(S, r)) {
         format fmt          = std::get<0>(*ex);
@@ -71,37 +45,17 @@ static void process_failure(vm_state & S, vm_obj const & r, expr const & ref) {
         if (ref1 && provider && provider->get_pos_info(*ref1))
             throw elaborator_exception(*ref1, fmt);
         else
-            throw_unsolved_tactic_state(s1, fmt, ref);
+            throw_unsolved_tactic_state(s1, fmt, m_ref);
     }
     /* Do nothing if it is a silent failure */
     lean_assert(is_tactic_silent_exception(r));
 }
 
-optional<tactic_state> tactic_evaluator::execute_tactic(expr const & tactic, tactic_state const & s, expr const & ref) {
-    name tactic_name("_tactic");
-    environment new_env = compile_tactic(tactic_name, tactic);
-    vm_state S(new_env, m_opts);
-    vm_obj r = invoke_tactic(S, tactic_name, {to_obj(s)});
-
-    if (optional<tactic_state> new_s = is_tactic_success(r)) {
-        return new_s;
-    }
-    process_failure(S, r, ref);
-    return optional<tactic_state>();
-}
-
-optional<tactic_state> tactic_evaluator::execute_atomic(tactic_state const & s, expr const & tactic, expr const & ref) {
-    optional<tactic_state> new_s = execute_tactic(tactic, s, ref);
-    if (new_s && new_s->goals())
-        throw_unsolved_tactic_state(*new_s, "tactic failed, there are unsolved goals", ref);
-    return new_s;
-}
-
-optional<tactic_state> tactic_evaluator::operator()(tactic_state const & s, expr const & tactic, expr const & ref) {
-    return execute_atomic(s, tactic, ref);
-}
-
-tactic_evaluator::tactic_evaluator(type_context & ctx, options const & opts):
-    m_ctx(ctx), m_opts(opts) {
+vm_obj tactic_evaluator::operator()(expr const & tactic, tactic_state const & s) {
+    vm_obj r = tactic::evaluator::operator()(tactic, s);
+    if (auto s = is_tactic_success(r))
+        if (s->goals())
+            throw_unsolved_tactic_state(*s, "tactic failed, there are unsolved goals", m_ref);
+    return r;
 }
 }

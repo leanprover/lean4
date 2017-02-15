@@ -393,8 +393,6 @@ public:
     expr parse_scoped_expr(buffer<expr> const & ps, unsigned rbp = 0) { return parse_scoped_expr(ps.size(), ps.data(), rbp); }
     expr parse_expr_with_env(local_environment const & lenv, unsigned rbp = 0);
 
-    expr parse_tactic(unsigned rbp = 0);
-
     void parse_imports(unsigned & fingerprint, std::vector<module_name> &);
 
     struct local_scope {
@@ -408,9 +406,10 @@ public:
     struct quote_scope {
         parser &    m_p;
         id_behavior m_id_behavior;
+        bool        m_old_in_quote;
         bool        m_in_quote;
         bool        m_saved_in_pattern;
-        quote_scope(parser & p, bool q);
+        quote_scope(parser & p, bool q, id_behavior i = id_behavior::AssumeLocalIfNotLocal);
         ~quote_scope();
     };
 

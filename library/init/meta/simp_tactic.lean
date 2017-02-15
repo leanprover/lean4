@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.meta.tactic init.meta.attribute init.meta.constructor_tactic
-import init.meta.relation_tactics init.meta.occurrences
+import init.meta.relation_tactics init.meta.occurrences init.meta.quote
 
 open tactic
 

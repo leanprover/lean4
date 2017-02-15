@@ -294,7 +294,8 @@ meta constant rename        : name → name → tactic unit
 /- Clear the given local constant. The tactic fails if the given expression is not a local constant. -/
 meta constant clear         : expr → tactic unit
 meta constant revert_lst    : list expr → tactic nat
-meta constant whnf_core     : transparency → expr → tactic expr
+/-- Return `e` in weak head normal form with respect to the given transparency setting. -/
+meta constant whnf (e : expr) (md := semireducible) : tactic expr
 /- (head) eta expand the given expression -/
 meta constant eta_expand    : expr → tactic expr
 /- (head) beta reduction -/
@@ -543,11 +544,8 @@ do env ← get_env,
 meta def is_proof (e : expr) : tactic bool :=
 infer_type e >>= is_prop
 
-meta def whnf : expr → tactic expr :=
-whnf_core semireducible
-
-meta def whnf_no_delta : expr → tactic expr :=
-whnf_core transparency.none
+meta def whnf_no_delta (e : expr) : tactic expr :=
+whnf e transparency.none
 
 meta def whnf_target : tactic unit :=
 target >>= whnf >>= change

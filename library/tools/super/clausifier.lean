@@ -15,7 +15,7 @@ meta def try_option {a : Type u} (tac : tactic a) : tactic (option a) :=
 lift some tac <|> return none
 
 private meta def normalize : expr → tactic expr | e := do
-e' ← whnf_core transparency.reducible e,
+e' ← whnf e reducible,
 args' ← monad.for e'^.get_app_args normalize,
 return $ app_of_list e'^.get_app_fn args'
 
@@ -217,7 +217,7 @@ skolemized ← on_first_right' qf $ λhexp,
     sk_sym_name_pp ← get_unused_name `sk (some 1),
     inh_lc ← mk_local' `w binder_info.implicit d,
     sk_sym ← mk_local_def sk_sym_name_pp (pis (ctx ++ [inh_lc]) d),
-    sk_p ← whnf_core transparency.none $ app p (app_of_list sk_sym (ctx ++ [inh_lc])),
+    sk_p ← whnf_no_delta $ app p (app_of_list sk_sym (ctx ++ [inh_lc])),
     sk_ax ← mk_mapp ``Exists [some (local_type sk_sym),
       some (lambdas [sk_sym] (pis (ctx ++ [inh_lc]) (imp hexp^.local_type sk_p)))],
     sk_ax_name ← get_unused_name `sk_axiom (some 1), assert sk_ax_name sk_ax,

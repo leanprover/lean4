@@ -79,11 +79,8 @@ meta instance : alternative conv :=
   failure := @conv.fail,
   orelse  := @conv.orelse }
 
-meta def whnf_core (m : transparency) : conv unit :=
-λ r e, do n ← tactic.whnf_core m e, return ⟨(), n, none⟩
-
-meta def whnf : conv unit :=
-conv.whnf_core reducible
+meta def whnf (md : transparency := reducible) : conv unit :=
+λ r e, do n ← tactic.whnf e md, return ⟨(), n, none⟩
 
 meta def dsimp : conv unit :=
 λ r e, do s ← simp_lemmas.mk_default, n ← s^.dsimplify e, return ⟨(), n, none⟩

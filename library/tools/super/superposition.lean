@@ -84,7 +84,7 @@ atom_univ ← infer_univ atom,
 op1 ← qf1.1^.open_constn i1,
 op2 ← qf2.1^.open_constn c2^.num_lits,
 hi2 ← (op2.2^.nth i2)^.to_monad,
-new_atom ← whnf_core transparency.none $ app abs_rwr_ctx rwr_to',
+new_atom ← whnf_no_delta $ app abs_rwr_ctx rwr_to',
 new_hi2 ← return $ local_const hi2^.local_uniq_name `H binder_info.default new_atom,
 new_fin_prf ←
   return $ app_of_list (const congr_ax [lf_univ, univ, atom_univ]) [c1^.local_false, eq_type, rwr_from, rwr_to,

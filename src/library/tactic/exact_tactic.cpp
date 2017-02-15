@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 
-vm_obj exact_core(transparency_mode const & m, expr const & e, tactic_state const & s) {
+vm_obj exact(expr const & e, transparency_mode const & m, tactic_state const & s) {
     try {
         optional<metavar_decl> g = s.get_main_goal_decl();
         if (!g) return mk_no_goals_exception(s);
@@ -35,12 +35,12 @@ vm_obj exact_core(transparency_mode const & m, expr const & e, tactic_state cons
     }
 }
 
-vm_obj tactic_exact_core(vm_obj const & m, vm_obj const & e, vm_obj const & s) {
-    return exact_core(to_transparency_mode(m), to_expr(e), to_tactic_state(s));
+vm_obj tactic_exact(vm_obj const & e, vm_obj const & m, vm_obj const & s) {
+    return exact(to_expr(e), to_transparency_mode(m), to_tactic_state(s));
 }
 
 void initialize_exact_tactic() {
-    DECLARE_VM_BUILTIN(name({"tactic", "exact_core"}), tactic_exact_core);
+    DECLARE_VM_BUILTIN(name({"tactic", "exact"}), tactic_exact);
 }
 
 void finalize_exact_tactic() {

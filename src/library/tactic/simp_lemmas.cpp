@@ -1249,8 +1249,7 @@ bool is_simp_lemmas(vm_obj const & o) {
 }
 
 simp_lemmas const & to_simp_lemmas(vm_obj const & o) {
-    lean_assert(is_external(o));
-    lean_assert(dynamic_cast<vm_simp_lemmas*>(to_external(o)));
+    lean_vm_check(dynamic_cast<vm_simp_lemmas*>(to_external(o)));
     return static_cast<vm_simp_lemmas*>(to_external(o))->m_val;
 }
 

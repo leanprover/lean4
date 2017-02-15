@@ -692,8 +692,7 @@ struct vm_hinst_lemma : public vm_external {
 };
 
 hinst_lemma const & to_hinst_lemma(vm_obj const & o) {
-    lean_assert(is_external(o));
-    lean_assert(dynamic_cast<vm_hinst_lemma*>(to_external(o)));
+    lean_vm_check(dynamic_cast<vm_hinst_lemma*>(to_external(o)));
     return static_cast<vm_hinst_lemma*>(to_external(o))->m_val;
 }
 
@@ -738,8 +737,7 @@ struct vm_hinst_lemmas : public vm_external {
 };
 
 hinst_lemmas const & to_hinst_lemmas(vm_obj const & o) {
-    lean_assert(is_external(o));
-    lean_assert(dynamic_cast<vm_hinst_lemmas*>(to_external(o)));
+    lean_vm_check(dynamic_cast<vm_hinst_lemmas*>(to_external(o)));
     return static_cast<vm_hinst_lemmas*>(to_external(o))->m_val;
 }
 

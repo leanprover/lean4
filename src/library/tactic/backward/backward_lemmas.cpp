@@ -140,8 +140,7 @@ struct vm_backward_lemmas : public vm_external {
 };
 
 backward_lemma_index const & to_backward_lemmas(vm_obj const & o) {
-    lean_assert(is_external(o));
-    lean_assert(dynamic_cast<vm_backward_lemmas*>(to_external(o)));
+    lean_vm_check(dynamic_cast<vm_backward_lemmas*>(to_external(o)));
     return static_cast<vm_backward_lemmas*>(to_external(o))->m_val;
 }
 

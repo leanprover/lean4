@@ -129,8 +129,7 @@ bool is_smt_goal(vm_obj const & o) {
 }
 
 smt_goal const & to_smt_goal(vm_obj const & o) {
-    lean_assert(is_external(o));
-    lean_assert(dynamic_cast<vm_smt_goal*>(to_external(o)));
+    lean_vm_check(dynamic_cast<vm_smt_goal*>(to_external(o)));
     return static_cast<vm_smt_goal*>(to_external(o))->m_val;
 }
 

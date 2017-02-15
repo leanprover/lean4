@@ -1055,8 +1055,7 @@ struct vm_ematch_state : public vm_external {
 };
 
 ematch_state const & to_ematch_state(vm_obj const & o) {
-    lean_assert(is_external(o));
-    lean_assert(dynamic_cast<vm_ematch_state*>(to_external(o)));
+    lean_vm_check(dynamic_cast<vm_ematch_state*>(to_external(o)));
     return static_cast<vm_ematch_state*>(to_external(o))->m_val;
 }
 

@@ -37,8 +37,7 @@ bool is_cc_state(vm_obj const & o) {
 }
 
 congruence_closure::state const & to_cc_state(vm_obj const & o) {
-    lean_assert(is_external(o));
-    lean_assert(dynamic_cast<vm_cc_state*>(to_external(o)));
+    lean_vm_check(dynamic_cast<vm_cc_state*>(to_external(o)));
     return static_cast<vm_cc_state*>(to_external(o))->m_val;
 }
 

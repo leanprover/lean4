@@ -181,8 +181,7 @@ struct vm_vm_decl : public vm_external {
 };
 
 vm_decl const & to_vm_decl(vm_obj const & o) {
-    lean_assert(is_external(o));
-    lean_assert(dynamic_cast<vm_vm_decl*>(to_external(o)));
+    lean_vm_check(dynamic_cast<vm_vm_decl*>(to_external(o)));
     return static_cast<vm_vm_decl*>(to_external(o))->m_val;
 }
 

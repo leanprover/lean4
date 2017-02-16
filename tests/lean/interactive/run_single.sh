@@ -28,9 +28,4 @@ if [[ "$f" == *.lean ]]; then
 fi
 OUTPUT="$(echo "$INPUT" | "$LEAN" -j0 -D pp.unicode=true --server)"
 # make paths system-independent
-if [[ "$OSTYPE" == "msys" ]]; then
-    echo "$OUTPUT" | grep -v '"response":"current_tasks"' | sed "s|$ROOT_PATH_NORMALIZED||g" | sed 's|\\\\|/|g'
-else
-    OUTPUT=${OUTPUT//$ROOT_PATH_NORMALIZED/}
-    echo "$OUTPUT"
-fi
+echo "$OUTPUT" | grep -v '"response":"current_tasks"' | sed "s|$ROOT_PATH_NORMALIZED||g" | sed 's|\\\\|/|g' | sed 's/\("source":\){[^}]*}/\1/'

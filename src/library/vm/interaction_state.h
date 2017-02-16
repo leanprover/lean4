@@ -81,15 +81,17 @@ struct interaction_monad {
         return is_constructor(o) && cidx(o) == 0;
     }
 
-    typedef std::tuple<format, optional<expr>, State> exception_info;
+    typedef std::tuple<format, optional<pos>, State> exception_info;
 
     static optional<exception_info> is_exception(vm_state & S, vm_obj const & ex) {
         if (is_constructor(ex) && cidx(ex) == 1 && !is_none(cfield(ex, 0))) {
             vm_obj fmt = S.invoke(get_some_value(cfield(ex, 0)), mk_vm_unit());
-            optional<expr> ref;
-            if (!is_none(cfield(ex, 1)))
-                ref = to_expr(get_some_value(cfield(ex, 1)));
-            return optional<exception_info>(to_format(fmt), ref, to_State(cfield(ex, 2)));
+            optional<pos> pos;
+            if (!is_none(cfield(ex, 1))) {
+                auto vm_pos = get_some_value(cfield(ex, 1));
+                pos = {to_unsigned(cfield(vm_pos, 0)), to_unsigned(cfield(vm_pos, 1))};
+            }
+            return optional<exception_info>(to_format(fmt), pos, to_State(cfield(ex, 2)));
         } else {
             return optional<exception_info>();
         }
@@ -138,19 +140,24 @@ struct interaction_monad {
         return mk_vm_constructor(1, mk_vm_none(), mk_vm_none(), to_obj(s));
     }
 
-    static vm_obj mk_exception(vm_obj const & fn, vm_obj const & ref, State const & s) {
-        return mk_vm_constructor(1, mk_vm_some(fn), ref, to_obj(s));
+    static vm_obj mk_exception(vm_obj const & fn, vm_obj const & pos, State const & s) {
+        return mk_vm_constructor(1, mk_vm_some(fn), pos, to_obj(s));
     }
 
     static vm_obj mk_exception(throwable const & ex, State const & s) {
         vm_obj _ex = lean::to_obj(ex);
         vm_obj fn = mk_vm_closure(get_throwable_to_format_fun_idx(), 1, &_ex);
+        optional<pos_info> pos;
         optional<expr> ref;
         if (auto kex = dynamic_cast<ext_exception const *>(&ex))
             ref = kex->get_main_expr();
         else if (auto fex = dynamic_cast<formatted_exception const *>(&ex))
             ref = fex->get_main_expr();
-        vm_obj _ref = ref ? mk_vm_some(lean::to_obj(*ref)) : mk_vm_none();
+        if (*res)
+            pos = get_pos_info_provider()->get_pos_info(*ref);
+        if (auto pex = dynamic_cast<parser_error const *>(&ex))
+            pos = pex->m_pos;
+        vm_obj _pos = pos ? mk_vm_some(mk_vm_pair(mk_vm_nat(pos->first), mk_vm_nat(pos->second))) : mk_vm_none();
         return mk_exception(fn, _ref, s);
     }
 

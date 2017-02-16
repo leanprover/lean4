@@ -9,8 +9,6 @@ import init.meta.pexpr init.meta.interaction_monad
 
 namespace lean
 
-@[reducible] def pos := nat × nat
-
 -- TODO: make inspectable (and pure)
 meta constant parser_state : Type
 meta constant parser_state.cur_pos : parser_state → pos

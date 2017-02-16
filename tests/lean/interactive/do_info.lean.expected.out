@@ -1,7 +1,7 @@
 {"msg":{"caption":"trace output","file_name":"f","pos_col":3,"pos_line":4,"severity":"information","text":"a b c : ℕ,\nh : a = b,\na_1 : c = b\n⊢ a = ?m_1\n\na b c : ℕ,\nh : a = b,\na_1 : c = b\n⊢ ?m_1 = c\n"},"response":"additional_message"}
 {"message":"file invalidated","response":"ok","seq_num":0}
-{"record":{"full-id":"tactic.intro","source":{"column":9,"file":"/library/init/meta/tactic.lean","line":553},"state":"a b c : ℕ\n⊢ a = b → c = b → a = c","type":"name → tactic expr"},"response":"ok","seq_num":6}
-{"record":{"full-id":"tactic.transitivity","source":{"column":9,"file":"/library/init/meta/relation_tactics.lean","line":27},"state":"a b c : ℕ\n⊢ a = b → c = b → a = c","type":"opt_param tactic.transparency tactic.transparency.semireducible → tactic unit"},"response":"ok","seq_num":9}
-{"record":{"full-id":"tactic.assumption","source":{"column":9,"file":"/library/init/meta/tactic.lean","line":636},"state":"a b c : ℕ\n⊢ a = b → c = b → a = c","type":"tactic unit"},"response":"ok","seq_num":12}
-{"record":{"full-id":"tactic.symmetry","source":{"column":9,"file":"/library/init/meta/relation_tactics.lean","line":24},"state":"a b c : ℕ\n⊢ a = b → c = b → a = c","type":"opt_param tactic.transparency tactic.transparency.semireducible → tactic unit"},"response":"ok","seq_num":14}
-{"record":{"full-id":"tactic.assumption","source":{"column":9,"file":"/library/init/meta/tactic.lean","line":636},"state":"a b c : ℕ\n⊢ a = b → c = b → a = c","type":"tactic unit"},"response":"ok","seq_num":16}
+{"record":{"full-id":"tactic.intro","source":,"state":"a b c : ℕ\n⊢ a = b → c = b → a = c","type":"name → tactic expr"},"response":"ok","seq_num":6}
+{"record":{"full-id":"tactic.transitivity","source":,"state":"a b c : ℕ\n⊢ a = b → c = b → a = c","type":"opt_param tactic.transparency tactic.transparency.semireducible → tactic unit"},"response":"ok","seq_num":9}
+{"record":{"full-id":"tactic.assumption","source":,"state":"a b c : ℕ\n⊢ a = b → c = b → a = c","type":"tactic unit"},"response":"ok","seq_num":12}
+{"record":{"full-id":"tactic.symmetry","source":,"state":"a b c : ℕ\n⊢ a = b → c = b → a = c","type":"opt_param tactic.transparency tactic.transparency.semireducible → tactic unit"},"response":"ok","seq_num":14}
+{"record":{"full-id":"tactic.assumption","source":,"state":"a b c : ℕ\n⊢ a = b → c = b → a = c","type":"tactic unit"},"response":"ok","seq_num":16}

@@ -31,6 +31,6 @@ section
   variables [is_associative α op]
   variables [is_commutative α op]
 
-  def ex (a b c d e : α) (f : α → α → α) : op b a = op d d → op b c = op e e → f (op a (op b c)) (op (op a b) c) = f (op (op c d) d) (op e (op a e)) :=
+  lemma ex (a b c d e : α) (f : α → α → α) : op b a = op d d → op b c = op e e → f (op a (op b c)) (op (op a b) c) = f (op (op c d) d) (op e (op a e)) :=
   by cc
 end

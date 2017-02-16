@@ -379,7 +379,7 @@ public:
         the given predicate to decide whether a constant should be unfolded or not.
 
         Remark: cache is not used. */
-    expr whnf_transparency_pred(expr const & e, std::function<bool(name const &)> const & pred);
+    expr whnf_transparency_pred(expr const & e, std::function<bool(name const &)> const & pred); // NOLINT
 
     /** \brief Put \c e in whnf, it is a Pi, then return whnf, otherwise return e */
     expr try_to_pi(expr const & e);

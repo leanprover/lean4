@@ -800,7 +800,7 @@ expr type_context::whnf_head_pred(expr const & e, std::function<bool(expr const 
     }
 }
 
-expr type_context::whnf_transparency_pred(expr const & e, std::function<bool(name const &)> const & pred) {
+expr type_context::whnf_transparency_pred(expr const & e, std::function<bool(name const &)> const & pred) { // NOLINT
     flet<std::function<bool(name const &)> const *>set_trans_pred(m_transparency_pred, &pred); // NOLINT
     return whnf(e);
 }

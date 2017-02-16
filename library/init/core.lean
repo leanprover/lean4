@@ -382,6 +382,10 @@ namespace nat
   | a  zero     := a
   | a  (succ b) := succ (add a b)
 
+  /- We mark the following definitions as pattern to make sure they can be used in recursive equations,
+     and reduced by the equation compiler. -/
+  attribute [pattern] nat.add nat.add._main
+
   def of_pos_num : pos_num → nat
   | pos_num.one      := succ zero
   | (pos_num.bit0 a) := let r := of_pos_num a in nat.add r r

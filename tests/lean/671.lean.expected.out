@@ -1,2 +1,3 @@
+@[pattern]
 protected def nat.add : ℕ → ℕ → ℕ :=
 nat.add._main

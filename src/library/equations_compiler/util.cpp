@@ -480,7 +480,7 @@ static optional<expr_pair> prove_eq_rec_invertible(type_context & ctx, expr cons
     return optional<expr_pair>(mk_pair(h_a, pr));
 }
 
-static expr prove_eqn_lemma_core(type_context & ctx, buffer<expr> const & Hs, expr const & lhs, expr const & rhs) {
+static expr prove_eqn_lemma_core(type_context & ctx, buffer<expr> const & Hs, expr const & lhs, expr const & rhs, bool root) {
     buffer<expr> ite_args;
     expr new_lhs = whnf_ite(ctx, lhs);
     if (is_ite_eq(new_lhs, ite_args)) {
@@ -492,7 +492,7 @@ static expr prove_eqn_lemma_core(type_context & ctx, buffer<expr> const & Hs, ex
             expr A        = ite_args[2];
             level A_lvl   = get_level(ctx, A);
             expr H1       = mk_app(mk_constant(get_if_neg_name(), {A_lvl}), {c, ite_args[1], *H, A, ite_args[3], lhs_else});
-            expr H2       = prove_eqn_lemma_core(ctx, Hs, lhs_else, rhs);
+            expr H2       = prove_eqn_lemma_core(ctx, Hs, lhs_else, rhs, false);
             return mk_app(mk_constant(get_eq_trans_name(), {A_lvl}), {A, lhs, lhs_else, rhs, H1, H2});
         } else if (quick_is_def_eq_when_values(ctx, c_lhs, c_rhs)) {
             expr H = mk_eq_refl(ctx, c_lhs);
@@ -500,7 +500,7 @@ static expr prove_eqn_lemma_core(type_context & ctx, buffer<expr> const & Hs, ex
             expr A        = ite_args[2];
             level A_lvl   = get_level(ctx, A);
             expr H1       = mk_app(mk_constant(get_if_pos_name(), {A_lvl}), {c, ite_args[1], H, A, lhs_then, ite_args[4]});
-            expr H2       = prove_eqn_lemma_core(ctx, Hs, lhs_then, rhs);
+            expr H2       = prove_eqn_lemma_core(ctx, Hs, lhs_then, rhs, false);
             expr eq_trans = mk_constant(get_eq_trans_name(), {A_lvl});
             return mk_app(eq_trans, {A, lhs, lhs_then, rhs, H1, H2});
         } else if (compare_values(c_lhs, c_rhs) == l_false) {
@@ -509,7 +509,7 @@ static expr prove_eqn_lemma_core(type_context & ctx, buffer<expr> const & Hs, ex
                 expr A        = ite_args[2];
                 level A_lvl   = get_level(ctx, A);
                 expr H1       = mk_app(mk_constant(get_if_neg_name(), {A_lvl}), {c, ite_args[1], *H, A, ite_args[3], lhs_else});
-                expr H2       = prove_eqn_lemma_core(ctx, Hs, lhs_else, rhs);
+                expr H2       = prove_eqn_lemma_core(ctx, Hs, lhs_else, rhs, false);
                 return mk_app(mk_constant(get_eq_trans_name(), {A_lvl}), {A, lhs, lhs_else, rhs, H1, H2});
             }
         }
@@ -518,12 +518,18 @@ static expr prove_eqn_lemma_core(type_context & ctx, buffer<expr> const & Hs, ex
     if (optional<expr_pair> p = prove_eq_rec_invertible(ctx, new_lhs)) {
         expr new_new_lhs = p->first;
         expr H1          = p->second;
-        expr H2          = prove_eqn_lemma_core(ctx, Hs, new_new_lhs, rhs);
+        expr H2          = prove_eqn_lemma_core(ctx, Hs, new_new_lhs, rhs, false);
         return mk_eq_trans(ctx, H1, H2);
     }
 
-    if (ctx.is_def_eq(lhs, rhs)) {
-        return mk_eq_refl(ctx, rhs);
+    expr lhs_body = lhs;
+    if (root) {
+        if (auto b = unfold_term(ctx.env(), lhs))
+            lhs_body = *b;
+    }
+
+    if (ctx.is_def_eq(lhs_body, rhs)) {
+        return mk_eq_refl(ctx, lhs_body);
     }
 
     throw exception("equation compiler failed to prove equation lemma (workaround: "
@@ -531,7 +537,7 @@ static expr prove_eqn_lemma_core(type_context & ctx, buffer<expr> const & Hs, ex
 }
 
 static expr prove_eqn_lemma(type_context & ctx, buffer<expr> const & Hs, expr const & lhs, expr const & rhs) {
-    expr body = prove_eqn_lemma_core(ctx, Hs, lhs, rhs);
+    expr body = prove_eqn_lemma_core(ctx, Hs, lhs, rhs, true);
     return ctx.mk_lambda(Hs, body);
 }
 

@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/locals.h"
 #include "library/util.h"
+#include "library/pattern_attribute.h"
 #include "library/app_builder.h"
 #include "library/replace_visitor_with_tc.h"
 #include "library/equations_compiler/equations.h"
@@ -76,6 +77,15 @@ struct structural_rec_fn {
             return is_constant(e) && inductive::is_intro_rule(m_ctx.env(), const_name(e));
         }
 
+        expr whnf(expr const & e) {
+            /* We only unfold patterns and reducible definitions */
+            return m_ctx.whnf_transparency_pred(e, [&](name const & n) {
+                    return
+                        has_pattern_attribute(m_ctx.env(), n) ||
+                        is_reducible(m_ctx.env(), n);
+                });
+        }
+
         /** \brief Return true iff \c s is structurally smaller than \c t OR equal to \c t */
         bool is_le(expr const & s, expr const & t) {
             return m_ctx.is_def_eq(s, t) || is_lt(s, t);
@@ -83,8 +93,8 @@ struct structural_rec_fn {
 
         /** Return true iff \c s is structurally smaller than \c t */
         bool is_lt(expr s, expr t) {
-            s = m_ctx.whnf(s);
-            t = m_ctx.whnf(t);
+            s = whnf(s);
+            t = whnf(t);
             if (is_app(s)) {
                 expr const & s_fn = get_app_fn(s);
                 if (!is_constructor(s_fn))

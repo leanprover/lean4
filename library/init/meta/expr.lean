@@ -83,8 +83,9 @@ meta def expr.abstract : expr → expr → expr
 | e (expr.local_const n m bi t) := e^.abstract_local n
 | e _                           := e
 
-meta constant expr.instantiate_var  : expr → expr → expr
-meta constant expr.instantiate_vars : expr → list expr → expr
+meta constant expr.instantiate_univ_params : expr → list (name × level) → expr
+meta constant expr.instantiate_var         : expr → expr → expr
+meta constant expr.instantiate_vars        : expr → list expr → expr
 
 meta constant expr.has_var       : expr → bool
 meta constant expr.has_var_idx   : expr → nat → bool

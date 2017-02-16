@@ -258,6 +258,18 @@ vm_obj expr_replace(vm_obj const & e, vm_obj const & fn) {
     return to_obj(r);
 }
 
+vm_obj expr_instantiate_univ_params(vm_obj const & e, vm_obj const & nls) {
+  list<name> names = to_list<name>(nls, [](vm_obj const & p) {
+    lean_assert(csize(p) == 2);
+    return to_name(cfield(p, 0));
+  } );
+  list<level> levels = to_list<level>(nls, [](vm_obj const & p) {
+    lean_assert(csize(p) == 2);
+    return to_level(cfield(p, 1));
+  } );
+  return to_obj(instantiate_univ_params(to_expr(e), names, levels));
+}
+
 vm_obj expr_instantiate_var(vm_obj const & e, vm_obj const & v) {
     return to_obj(instantiate(to_expr(e), to_expr(v)));
 }
@@ -452,6 +464,7 @@ void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name({"expr", "lex_lt"}),           expr_lex_lt);
     DECLARE_VM_BUILTIN(name({"expr", "fold"}),             expr_fold);
     DECLARE_VM_BUILTIN(name({"expr", "replace"}),          expr_replace);
+    DECLARE_VM_BUILTIN(name({"expr", "instantiate_univ_params"}), expr_instantiate_univ_params);
     DECLARE_VM_BUILTIN(name({"expr", "instantiate_var"}),  expr_instantiate_var);
     DECLARE_VM_BUILTIN(name({"expr", "instantiate_vars"}), expr_instantiate_vars);
     DECLARE_VM_BUILTIN(name({"expr", "abstract_local"}),   expr_abstract_local);

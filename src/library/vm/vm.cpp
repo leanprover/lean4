@@ -3322,7 +3322,9 @@ vm_state::profiler::profiler(vm_state & s, options const & opts):
     m_thread_ptr(nullptr)
 #endif
 {
+#if defined(LEAN_MULTI_THREAD)
     m_state.m_profiling = get_profiler(opts);
+#endif
 }
 
 void vm_state::profiler::stop() {

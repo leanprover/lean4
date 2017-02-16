@@ -275,6 +275,7 @@ void type_context::init_core(transparency_mode m) {
     m_tmp_uassignment             = nullptr;
     m_tmp_eassignment             = nullptr;
     m_unfold_pred                 = nullptr;
+    m_transparency_pred           = nullptr;
     m_approximate                 = false;
     if (auto instance_fingerprint = m_lctx.get_instance_fingerprint()) {
         if (m_cache->m_instance_fingerprint == instance_fingerprint) {
@@ -560,7 +561,15 @@ expr type_context::mk_pi(std::initializer_list<expr> const & locals, expr const 
    -------------------- */
 
 optional<declaration> type_context::is_transparent(transparency_mode m, name const & n) {
-    return m_cache->is_transparent(m, n);
+    if (m_transparency_pred) {
+        if ((*m_transparency_pred)(n)) {
+            return env().find(n);
+        } else {
+            return optional<declaration>();
+        }
+    } else {
+        return m_cache->is_transparent(m, n);
+    }
 }
 
 optional<declaration> type_context::is_transparent(name const & n) {
@@ -756,9 +765,11 @@ expr type_context::whnf(expr const & e) {
         break;
     }
     auto & cache = m_cache->m_whnf_cache[static_cast<unsigned>(m_transparency_mode)];
-    auto it = cache.find(e);
-    if (it != cache.end())
-        return it->second;
+    if (m_transparency_pred) {
+        auto it = cache.find(e);
+        if (it != cache.end())
+            return it->second;
+    }
     reset_used_assignment reset(*this);
     unsigned postponed_sz = m_postponed.size();
     expr t = e;
@@ -767,8 +778,10 @@ expr type_context::whnf(expr const & e) {
         if (auto next_t = unfold_definition(t1)) {
             t = *next_t;
         } else {
-            if (!m_used_assignment && !is_stuck(t1) && postponed_sz == m_postponed.size())
+            if (!m_used_assignment && !m_transparency_pred && !is_stuck(t1) &&
+                postponed_sz == m_postponed.size()) {
                 cache.insert(mk_pair(e, t1));
+            }
             return t1;
         }
     }
@@ -785,6 +798,11 @@ expr type_context::whnf_head_pred(expr const & e, std::function<bool(expr const 
             return t1;
         }
     }
+}
+
+expr type_context::whnf_transparency_pred(expr const & e, std::function<bool(name const &)> const & pred) {
+    flet<std::function<bool(name const &)> const *>set_trans_pred(m_transparency_pred, &pred); // NOLINT
+    return whnf(e);
 }
 
 expr type_context::relaxed_whnf(expr const & e) {

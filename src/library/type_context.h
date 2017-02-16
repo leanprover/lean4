@@ -293,6 +293,7 @@ class type_context : public abstract_type_context {
     bool                       m_assign_regular_uvars_in_tmp_mode{false};
 
     std::function<bool(expr const & e)> const * m_unfold_pred; // NOLINT
+    std::function<bool(name const & e)> const * m_transparency_pred; // NOLINT
 
     static bool is_equiv_cache_target(expr const & e1, expr const & e2) {
         return !has_metavar(e1) && !has_metavar(e2) && (get_weight(e1) > 1 || get_weight(e2) > 1);
@@ -373,6 +374,12 @@ public:
     optional<expr> reduce_aux_recursor(expr const & e);
     optional<expr> reduce_projection(expr const & e);
     optional<expr> norm_ext(expr const & e) { return env().norm_ext()(e, *this); }
+
+    /** Similar to whnf, but ignores transparency annotations, and use
+        the given predicate to decide whether a constant should be unfolded or not.
+
+        Remark: cache is not used. */
+    expr whnf_transparency_pred(expr const & e, std::function<bool(name const &)> const & pred);
 
     /** \brief Put \c e in whnf, it is a Pi, then return whnf, otherwise return e */
     expr try_to_pi(expr const & e);

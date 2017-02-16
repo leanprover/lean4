@@ -196,11 +196,35 @@ class preprocess_fn {
     }
 #endif
 
+    /* If type of d is a proposition, we don't need to compile it.
+       We can just generate (fun args, neutral_expr)
+
+       This procedure returns true if type of d is a proposition,
+       and store the dummy code above in */
+    bool compile_lemma(declaration const & d, buffer<procedure> & procs) {
+        type_context ctx(m_env, transparency_mode::All);
+        expr type = d.get_type();
+        if (!ctx.is_prop(type)) return false;
+        type_context::tmp_locals locals(ctx);
+        while (true) {
+            type = ctx.relaxed_whnf(type);
+            if (!is_pi(type))
+                break;
+            expr local = locals.push_local_from_binding(type);
+            type       = instantiate(binding_body(type), local);
+        }
+        expr r = locals.mk_lambda(mk_neutral_expr());
+        procs.emplace_back(d.get_name(), optional<pos_info>(), r);
+        return true;
+    }
+
 public:
     preprocess_fn(environment const & env):
         m_env(env) {}
 
     void operator()(declaration const & d, buffer<procedure> & procs) {
+        if (compile_lemma(d, procs))
+            return;
         expr v = d.get_value();
         lean_trace(name({"compiler", "input"}), tout() << "\n" << v << "\n";);
         v = fix_tactic_eval_expr(v);

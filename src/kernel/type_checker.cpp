@@ -423,20 +423,6 @@ expr type_checker::whnf(expr const & e) {
     }
 }
 
-expr type_checker::whnf_pred(expr const & e, std::function<bool(expr const &)> const & pred) { // NOLINT
-    expr t = e;
-    while (true) {
-        expr t1 = whnf_core(t);
-        if (!pred(t1))
-            return t1;
-        if (auto next_t = unfold_definition(t1)) {
-            t = *next_t;
-        } else {
-            return t1;
-        }
-    }
-}
-
 /** \brief Given lambda/Pi expressions \c t and \c s, return true iff \c t is def eq to \c s.
 
         t and s are definitionally equal

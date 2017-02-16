@@ -760,6 +760,7 @@ public:
     }
 
     expr execute() override {
+        scoped_expr_caching disable(false);
         bool memoize = true;
         bool trusted_only = m_decl.is_trusted();
         type_checker checker(m_env, memoize, trusted_only);

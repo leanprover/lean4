@@ -14,13 +14,13 @@ meta class has_quote (α : Type) :=
 @[inline] meta def quote {α : Type} [has_quote α] : α → pexpr :=
 has_quote.quote
 
-meta instance : has_quote nat := ⟨pexpr.of_raw_expr ∘ expr.mk_prenum_macro⟩
+meta instance : has_quote nat := ⟨pexpr.mk_prenum_macro⟩
+@[priority std.priority.default + 1]
+meta instance : has_quote string := ⟨pexpr.mk_string_macro⟩
+meta instance : has_quote pexpr := ⟨pexpr.mk_quote_macro⟩
 
 meta instance : has_quote char :=
 ⟨λ ⟨n, pr⟩, ``(char.of_nat %%(quote n))⟩
-
-@[priority std.priority.default + 1]
-meta instance : has_quote string := ⟨pexpr.of_raw_expr ∘ expr.mk_string_macro⟩
 
 meta instance : has_quote unsigned :=
 ⟨λ ⟨n, pr⟩, ``(unsigned.of_nat %%(quote n))⟩
@@ -31,9 +31,6 @@ meta def name.quote : name → pexpr
 | (name.mk_numeral i n) := ``(name.mk_numeral %%(quote i) %%(name.quote n))
 
 meta instance : has_quote name := ⟨name.quote⟩
-
---meta instance : has_quote expr  := ⟨expr.mk_quote_macro⟩
-meta instance : has_quote pexpr := ⟨pexpr.of_raw_expr ∘ expr.mk_quote_macro ∘ pexpr.to_raw_expr⟩
 
 private meta def list.quote {α : Type} [has_quote α] : list α → pexpr
 | []     := ``([])

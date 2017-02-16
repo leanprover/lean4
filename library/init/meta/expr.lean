@@ -41,9 +41,6 @@ meta constant expr.macro_def_name (d : macro_def) : name
 meta def expr.mk_var (n : nat) : expr :=
 expr.var (unsigned.of_nat n)
 
-meta constant expr.mk_quote_macro : expr → expr
-meta constant expr.mk_prenum_macro : nat → expr
-meta constant expr.mk_string_macro : string → expr
 /- Choice macros are used to implement overloading. -/
 meta constant expr.is_choice_macro : expr → bool
 

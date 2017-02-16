@@ -13,28 +13,28 @@ namespace lean {
 // Builtin nat operations
 
 vm_obj mk_vm_nat(unsigned n) {
-    if (n < LEAN_MAX_SMALL_NAT)
+    if (LEAN_LIKELY(n < LEAN_MAX_SMALL_NAT))
         return mk_vm_simple(n);
     else
         return mk_vm_mpz(mpz(n));
 }
 
 vm_obj mk_vm_nat(mpz const & n) {
-    if (n < LEAN_MAX_SMALL_NAT)
+    if (LEAN_LIKELY(n < LEAN_MAX_SMALL_NAT))
         return mk_vm_simple(n.get_unsigned_int());
     else
         return mk_vm_mpz(n);
 }
 
 unsigned to_unsigned(vm_obj const & o) {
-    if (is_simple(o))
+    if (LEAN_LIKELY(is_simple(o)))
         return cidx(o);
     else
         return to_mpz(o).get_unsigned_int();
 }
 
 optional<unsigned> try_to_unsigned(vm_obj const & o) {
-    if (is_simple(o)) {
+    if (LEAN_LIKELY(is_simple(o))) {
         return optional<unsigned>(cidx(o));
     } else {
         mpz const & v = to_mpz(o);
@@ -76,7 +76,7 @@ static mpz const & to_mpz2(vm_obj const & o) {
 }
 
 vm_obj nat_succ(vm_obj const & a) {
-    if (is_simple(a)) {
+    if (LEAN_LIKELY(is_simple(a))) {
         return mk_vm_nat(cidx(a) + 1);
     } else {
         return mk_vm_mpz(to_mpz1(a) + 1);
@@ -84,7 +84,7 @@ vm_obj nat_succ(vm_obj const & a) {
 }
 
 vm_obj nat_add(vm_obj const & a1, vm_obj const & a2) {
-    if (is_simple(a1) && is_simple(a2)) {
+    if (LEAN_LIKELY(is_simple(a1) && is_simple(a2))) {
         return mk_vm_nat(cidx(a1) + cidx(a2));
     } else {
         return mk_vm_mpz(to_mpz1(a1) + to_mpz2(a2));
@@ -92,9 +92,9 @@ vm_obj nat_add(vm_obj const & a1, vm_obj const & a2) {
 }
 
 vm_obj nat_mul(vm_obj const & a1, vm_obj const & a2) {
-    if (is_simple(a1) && is_simple(a2)) {
+    if (LEAN_LIKELY(is_simple(a1) && is_simple(a2))) {
         unsigned long long r = static_cast<unsigned long long>(cidx(a1)) * static_cast<unsigned long long>(cidx(a2));
-        if (r < LEAN_MAX_SMALL_NAT) {
+        if (LEAN_LIKELY(r < LEAN_MAX_SMALL_NAT)) {
             return mk_vm_simple(r);
         }
     }
@@ -102,7 +102,7 @@ vm_obj nat_mul(vm_obj const & a1, vm_obj const & a2) {
 }
 
 vm_obj nat_sub(vm_obj const & a1, vm_obj const & a2) {
-    if (is_simple(a1) && is_simple(a2)) {
+    if (LEAN_LIKELY(is_simple(a1) && is_simple(a2))) {
         unsigned v1 = cidx(a1);
         unsigned v2 = cidx(a2);
         if (v2 > v1)
@@ -120,7 +120,7 @@ vm_obj nat_sub(vm_obj const & a1, vm_obj const & a2) {
 }
 
 vm_obj nat_div(vm_obj const & a1, vm_obj const & a2) {
-    if (is_simple(a1) && is_simple(a2)) {
+    if (LEAN_LIKELY(is_simple(a1) && is_simple(a2))) {
         unsigned v1 = cidx(a1);
         unsigned v2 = cidx(a2);
         if (v2 == 0)
@@ -138,7 +138,7 @@ vm_obj nat_div(vm_obj const & a1, vm_obj const & a2) {
 }
 
 vm_obj nat_mod(vm_obj const & a1, vm_obj const & a2) {
-    if (is_simple(a1) && is_simple(a2)) {
+    if (LEAN_LIKELY(is_simple(a1) && is_simple(a2))) {
         unsigned v1 = cidx(a1);
         unsigned v2 = cidx(a2);
         if (v2 == 0)
@@ -162,7 +162,7 @@ vm_obj nat_gcd(vm_obj const & a1, vm_obj const & a2) {
 }
 
 vm_obj nat_decidable_eq(vm_obj const & a1, vm_obj const & a2) {
-    if (is_simple(a1) && is_simple(a2)) {
+    if (LEAN_LIKELY(is_simple(a1) && is_simple(a2))) {
         return mk_vm_bool(cidx(a1) == cidx(a2));
     } else {
         return mk_vm_bool(to_mpz1(a1) == to_mpz2(a2));
@@ -170,7 +170,7 @@ vm_obj nat_decidable_eq(vm_obj const & a1, vm_obj const & a2) {
 }
 
 vm_obj nat_decidable_le(vm_obj const & a1, vm_obj const & a2) {
-    if (is_simple(a1) && is_simple(a2)) {
+    if (LEAN_LIKELY(is_simple(a1) && is_simple(a2))) {
         return mk_vm_bool(cidx(a1) <= cidx(a2));
     } else {
         return mk_vm_bool(to_mpz1(a1) <= to_mpz2(a2));
@@ -178,7 +178,7 @@ vm_obj nat_decidable_le(vm_obj const & a1, vm_obj const & a2) {
 }
 
 vm_obj nat_decidable_lt(vm_obj const & a1, vm_obj const & a2) {
-    if (is_simple(a1) && is_simple(a2)) {
+    if (LEAN_LIKELY(is_simple(a1) && is_simple(a2))) {
         return mk_vm_bool(cidx(a1) < cidx(a2));
     } else {
         return mk_vm_bool(to_mpz1(a1) < to_mpz2(a2));

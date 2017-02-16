@@ -109,8 +109,8 @@ script:
           -DMULTI_THREAD=$MULTI_THREAD
           -DSTATIC=$STATIC
           -DLEAN_EXTRA_MAKE_OPTS=$LEAN_EXTRA_MAKE_OPTS
-          ../src
-  - make -j2
+          ../src || exit
+  - make -j2 || exit
   - cpack
   # TODO(gabriel): add smaller test subset for debug and emscripten builds
   - if [[ $CMAKE_BUILD_TYPE == Release ]]; then

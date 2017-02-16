@@ -399,7 +399,10 @@ ts_vm_obj::data::~data() {
     for (vm_obj_cell * cell : m_objs) {
         switch (cell->kind()) {
         case vm_obj_kind::Simple:
-            lean_unreachable();
+            /* We should not use lean_unreachable, since it throws an exception, and
+               some compiler complain about code that may throw exceptions in destructors.
+            */
+            lean_assert(false);
             break;
         case vm_obj_kind::Constructor:
         case vm_obj_kind::Closure:

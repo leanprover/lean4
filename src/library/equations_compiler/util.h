@@ -102,6 +102,14 @@ name mk_equation_name(name const & f_name, unsigned eqn_idx);
 /* Return true iff e is a nat, int, char or string value. */
 bool is_nat_int_char_string_value(type_context & ctx, expr const & e);
 
+/* Given a variable (x : I A idx), where (I A idx) is an inductive datatype,
+   for each constructor c of (I A idx), this function invokes fn(t, new_vars) where t is of the form (c A ...),
+   where new_vars are fresh variables and are arguments of (c A ...)
+   which have not been fixed by typing constraints. Moreover, fn is only invoked if
+   the type of (c A ...) matches (I A idx). */
+void for_each_compatible_constructor(type_context & ctx, expr const & var,
+                                     std::function<void(expr const &, buffer<expr> &)> const & fn);
+
 void initialize_eqn_compiler_util();
 void finalize_eqn_compiler_util();
 }

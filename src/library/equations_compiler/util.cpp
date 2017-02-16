@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 #include "library/app_builder.h"
 #include "library/private.h"
+#include "library/idx_metavar.h"
 #include "library/constants.h"
 #include "library/annotation.h"
 #include "library/inverse.h"
@@ -589,6 +590,90 @@ bool is_nat_int_char_string_value(type_context & ctx, expr const & e) {
             return true;
     }
     return false;
+}
+
+static bool is_inductive(environment const & env, expr const & e) {
+    /* Add support for ginductive */
+    return is_constant(e) && inductive::is_inductive_decl(env, const_name(e));
+}
+
+/* Normalize until head is an inductive datatype */
+static expr whnf_inductive(type_context & ctx, expr const & e) {
+    return ctx.whnf_head_pred(e, [&](expr const & e) {
+            return !is_inductive(ctx.env(), get_app_fn(e));
+        });
+}
+
+static void get_constructors_of(environment const & env, name const & n, buffer<name> & result) {
+    /* Add support for ginductive */
+    return get_intro_rule_names(env, n, result);
+}
+
+/* Given a variable (x : I A idx), where (I A idx) is an inductive datatype,
+   for each constructor c of (I A idx), this function invokes fn(t, new_vars) where t is of the form (c A ...),
+   where new_vars are fresh variables and are arguments of (c A ...)
+   which have not been fixed by typing constraints. Moreover, fn is only invoked if
+   the type of (c A ...) matches (I A idx). */
+void for_each_compatible_constructor(type_context & ctx, expr const & var,
+                                     std::function<void(expr const &, buffer<expr> &)> const & fn) {
+    lean_assert(is_local(var));
+    expr var_type = whnf_inductive(ctx, ctx.infer(var));
+    buffer<expr> I_args;
+    expr const & I      = get_app_args(var_type, I_args);
+    name const & I_name = const_name(I);
+    levels const & I_ls = const_levels(I);
+    unsigned nparams    = *inductive::get_num_params(ctx.env(), I_name);
+    buffer<expr> I_params;
+    I_params.append(nparams, I_args.data());
+    buffer<name> constructor_names;
+    get_constructors_of(ctx.env(), I_name, constructor_names);
+    for (name const & c_name : constructor_names) {
+        buffer<expr> c_vars;
+        buffer<name> c_var_names;
+        buffer<expr> new_c_vars;
+        expr c  = mk_app(mk_constant(c_name, I_ls), I_params);
+        expr it = whnf_inductive(ctx, ctx.infer(c));
+        {
+            type_context::tmp_mode_scope scope(ctx);
+            while (is_pi(it)) {
+                expr new_arg = ctx.mk_tmp_mvar(binding_domain(it));
+                c_vars.push_back(new_arg);
+                c_var_names.push_back(binding_name(it));
+                c  = mk_app(c, new_arg);
+                it = whnf_inductive(ctx, instantiate(binding_body(it), new_arg));
+            }
+            if (!ctx.is_def_eq(var_type, it)) {
+                /* TODO(Leo): do we need this trace?
+                trace_match(
+                    auto pp = mk_pp_ctx(ctx.lctx());
+                    tout() << "constructor '" << c_name << "' not being considered at complete transition because type\n" << pp(it)
+                    << "\ndoes not match\n" << pp(var_type) << "\n";);
+                */
+                continue;
+            }
+            lean_assert(c_vars.size() == c_var_names.size());
+            for (unsigned i = 0; i < c_vars.size(); i++) {
+                expr & c_var = c_vars[i];
+                c_var = ctx.instantiate_mvars(c_var);
+                if (is_idx_metavar(c_var)) {
+                    expr new_c_var = ctx.push_local(c_var_names[i], ctx.instantiate_mvars(ctx.infer(c_var)));
+                    new_c_vars.push_back(new_c_var);
+                    ctx.assign(c_var, new_c_var);
+                    c_var = new_c_var;
+                } else if (has_idx_metavar(c_var)) {
+                    /* TODO(Leo): do we need this trace?
+                    trace_match(
+                        auto pp = mk_pp_ctx(ctx.lctx());
+                        tout() << "constructor '" << c_name << "' not being considered because at complete transition because " <<
+                        "failed to synthesize arguments\n" << pp(ctx.instantiate_mvars(c)) << "\n";);
+                    */
+                    continue;
+                }
+            }
+            c = ctx.instantiate_mvars(c);
+        }
+        fn(c, new_c_vars);
+    }
 }
 
 void initialize_eqn_compiler_util() {

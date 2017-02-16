@@ -869,57 +869,8 @@ struct elim_match_fn {
             expr const & pattern = head(eqn.m_patterns);
             if (is_local(pattern)) {
                 type_context ctx  = mk_type_context(eqn.m_lctx);
-                expr pattern_type = whnf_inductive(ctx, ctx.infer(pattern));
-                buffer<expr> I_args;
-                expr const & I      = get_app_args(pattern_type, I_args);
-                name const & I_name = const_name(I);
-                levels const & I_ls = const_levels(I);
-                unsigned nparams    = get_inductive_num_params(I_name);
-                buffer<expr> I_params;
-                I_params.append(nparams, I_args.data());
-                buffer<name> constructor_names;
-                get_constructors_of(I_name, constructor_names);
-                for (name const & c_name : constructor_names) {
-                    buffer<expr> c_vars;
-                    buffer<name> c_var_names;
-                    buffer<expr> new_c_vars;
-                    expr c  = mk_app(mk_constant(c_name, I_ls), I_params);
-                    expr it = whnf_inductive(ctx, ctx.infer(c));
-                    {
-                        type_context::tmp_mode_scope scope(ctx);
-                        while (is_pi(it)) {
-                            expr new_arg = ctx.mk_tmp_mvar(binding_domain(it));
-                            c_vars.push_back(new_arg);
-                            c_var_names.push_back(binding_name(it));
-                            c  = mk_app(c, new_arg);
-                            it = whnf_inductive(ctx, instantiate(binding_body(it), new_arg));
-                        }
-                        if (!ctx.is_def_eq(pattern_type, it)) {
-                            trace_match(
-                                auto pp = mk_pp_ctx(ctx.lctx());
-                                tout() << "constructor '" << c_name << "' not being considered at complete transition because type\n" << pp(it)
-                                << "\ndoes not match\n" << pp(pattern_type) << "\n";);
-                            continue;
-                        }
-                        lean_assert(c_vars.size() == c_var_names.size());
-                        for (unsigned i = 0; i < c_vars.size(); i++) {
-                            expr & c_var = c_vars[i];
-                            c_var = ctx.instantiate_mvars(c_var);
-                            if (is_idx_metavar(c_var)) {
-                                expr new_c_var = ctx.push_local(c_var_names[i], ctx.instantiate_mvars(ctx.infer(c_var)));
-                                new_c_vars.push_back(new_c_var);
-                                ctx.assign(c_var, new_c_var);
-                                c_var = new_c_var;
-                            } else if (has_idx_metavar(c_var)) {
-                                trace_match(
-                                    auto pp = mk_pp_ctx(ctx.lctx());
-                                    tout() << "constructor '" << c_name << "' not being considered because at complete transition because " <<
-                                    "failed to synthesize arguments\n" << pp(ctx.instantiate_mvars(c)) << "\n";);
-                                continue;
-                            }
-                        }
-                        c = ctx.instantiate_mvars(c);
-                    }
+                for_each_compatible_constructor(ctx, pattern,
+                    [&](expr const & c, buffer<expr> const & new_c_vars) {
                     expr var = pattern;
                     /* We are replacing `var` with `c` */
                     buffer<expr> from;
@@ -950,10 +901,10 @@ struct elim_match_fn {
                             return replace_locals(arg, from, to); });
                     new_eqn.m_rhs      = replace_locals(eqn.m_rhs, from, to);
                     new_eqn.m_patterns =
-                        cons(c, map(tail(eqn.m_patterns), [&](expr const & p) {
-                                    return replace_locals(p, from, to); }));
+                    cons(c, map(tail(eqn.m_patterns), [&](expr const & p) {
+                                return replace_locals(p, from, to); }));
                     new_eqns.push_back(new_eqn);
-                }
+                });
             } else {
                 new_eqns.push_back(eqn);
             }

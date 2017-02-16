@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 #include "library/app_builder.h"
 #include "library/private.h"
+#include "library/locals.h"
 #include "library/idx_metavar.h"
 #include "library/constants.h"
 #include "library/annotation.h"
@@ -673,6 +674,37 @@ void for_each_compatible_constructor(type_context & ctx, expr const & var,
             c = ctx.instantiate_mvars(c);
         }
         fn(c, new_c_vars);
+    }
+}
+
+/* Given the telescope vars [x_1, ..., x_i, ..., x_n] and var := x_i,
+   and t is a term containing variables t_vars := {y_1, ..., y_k} disjoint from {x_1, ..., x_n},
+   Return [x_1, ..., x_{i-1}, y_1, ..., y_k, T(x_{i+1}), ..., T(x_n)},
+   where T(x_j) updates the type of x_j (j > i) by replacing x_i with t.
+
+   \remark The set of variables in t is a subset of {x_1, ..., x_{i-1}} union {y_1, ..., y_k}
+*/
+void update_telescope(type_context & ctx, buffer<expr> const & vars, expr const & var,
+                      expr const & t, buffer<expr> const & t_vars, buffer<expr> & new_vars,
+                      buffer<expr> & from, buffer<expr> & to) {
+    /* We are replacing `var` with `c` */
+    for (expr const & curr : vars) {
+        if (curr == var) {
+            from.push_back(var);
+            to.push_back(t);
+            new_vars.append(t_vars);
+        } else {
+            expr curr_type     = ctx.infer(curr);
+            expr new_curr_type = replace_locals(curr_type, from, to);
+            if (curr_type == new_curr_type) {
+                new_vars.push_back(curr);
+            } else {
+                expr new_curr = ctx.push_local(local_pp_name(curr), new_curr_type);
+                from.push_back(curr);
+                to.push_back(new_curr);
+                new_vars.push_back(new_curr);
+            }
+        }
     }
 }
 

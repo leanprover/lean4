@@ -503,26 +503,100 @@ struct structural_rec_fn {
         }
     };
 
+    /* Return true if we need to complete equations by expanding the recursive argument.
+
+       For example, suppose we have, where the recursive argument is the second
+
+       def f : nat → nat → nat
+       | (x+1) (y+1) := f (x+10) y
+       | _     _     := 1
+
+       this function returns true because
+       1) We need to perform case analysis in the first argument (first equation),
+          (flag has_case_analysis_before in the followin procedure); and
+       2) W have an equation (second) where the recursive argument is a variable
+          (flag incomplete).
+    */
+    bool must_complete_rec_arg(type_context & ctx, unpack_eqns const & ues) {
+        if (m_arg_pos == 0) return false;
+        buffer<expr> const & eqns = ues.get_eqns_of(0);
+        bool has_case_analysis_before = false;
+        bool incomplete = false;
+        for (expr const & eqn : eqns) {
+            unpack_eqn ue(ctx, eqn);
+            buffer<expr> lhs_args;
+            get_app_args(ue.lhs(), lhs_args);
+
+            if (!has_case_analysis_before) {
+                for (unsigned i = 0; i < m_arg_pos; i++) {
+                    if (!is_local(lhs_args[i]) && !is_inaccessible(lhs_args[i])) {
+                        has_case_analysis_before = true;
+                        break;
+                    }
+                }
+            }
+
+            if (is_local(lhs_args[m_arg_pos]))
+                incomplete = true;
+
+            if (has_case_analysis_before && incomplete)
+                return true;
+        }
+        return false;
+    }
+
     void update_eqs(type_context & ctx, unpack_eqns & ues, expr const & fn, expr const & new_fn) {
         /* C is a temporary "abstract" motive, we use it to access the "brec_on dictionary".
            The "brec_on dictionary is an element of type below, and it is the last argument of the new function. */
         expr C = mk_local(mk_fresh_name(), "_C", m_motive_type, binder_info());
         buffer<expr> & eqns = ues.get_eqns_of(0);
-        for (expr & eqn : eqns) {
+        buffer<expr> new_eqns;
+        bool complete = must_complete_rec_arg(ctx, ues);
+        for (expr const & eqn : eqns) {
             unpack_eqn ue(ctx, eqn);
             expr lhs = ue.lhs();
             expr rhs = ue.rhs();
             buffer<expr> lhs_args;
             get_app_args(lhs, lhs_args);
-            expr new_lhs = mk_app(new_fn, lhs_args);
-            expr type    = ctx.whnf(ctx.infer(new_lhs));
-            lean_assert(is_pi(type));
-            expr F       = ue.add_var(binding_name(type), binding_domain(type));
-            new_lhs      = mk_app(new_lhs, F);
-            ue.lhs()     = new_lhs;
-            ue.rhs()     = elim_rec_apps_fn(ctx, fn, m_arg_pos, m_indices_pos, F, C)(rhs);
-            eqn          = ue.repack();
+            if (complete && is_local(lhs_args[m_arg_pos])) {
+                expr var = lhs_args[m_arg_pos];
+                for_each_compatible_constructor(ctx, var,
+                [&](expr const & c, buffer<expr> const & new_c_vars) {
+                   buffer<expr> new_vars;
+                   buffer<expr> from;
+                   buffer<expr> to;
+                   update_telescope(ctx, ue.get_vars(), var, c, new_c_vars,
+                                    new_vars, from, to);
+                   buffer<expr> new_lhs_args(lhs_args);
+                   new_lhs_args[m_arg_pos] = c;
+                   for (unsigned i = m_arg_pos + 1; i < new_lhs_args.size(); i++)
+                       new_lhs_args[i] = replace_locals(new_lhs_args[i], from, to);
+                   expr new_lhs = mk_app(new_fn, new_lhs_args);
+                   expr type    = ctx.whnf(ctx.infer(new_lhs));
+                   lean_assert(is_pi(type));
+                   type_context::tmp_locals extra(ctx);
+                   expr F       = extra.push_local(binding_name(type), binding_domain(type));
+                   new_vars.push_back(F);
+                   new_lhs      = mk_app(new_lhs, F);
+                   /* The lhs was a variable, so we don't need to update the rhs using elim_rec_apps_fn.
+                      Reason: the rhs should not contain recursive equations.
+                      But, we need to update the locals. */
+                   expr new_rhs = replace_locals(ue.rhs(), from, to);
+                   expr new_eqn = copy_tag(ue.get_nested_src(), mk_equation(new_lhs, new_rhs));
+                   new_eqns.push_back(copy_tag(eqn, ctx.mk_lambda(new_vars, new_eqn)));
+                });
+            } else {
+                expr new_lhs = mk_app(new_fn, lhs_args);
+                expr type    = ctx.whnf(ctx.infer(new_lhs));
+                lean_assert(is_pi(type));
+                expr F       = ue.add_var(binding_name(type), binding_domain(type));
+                new_lhs      = mk_app(new_lhs, F);
+                ue.lhs()     = new_lhs;
+                ue.rhs()     = elim_rec_apps_fn(ctx, fn, m_arg_pos, m_indices_pos, F, C)(rhs);
+                new_eqns.push_back(ue.repack());
+            }
         }
+        eqns = new_eqns;
     }
 
     optional<expr> elim_recursion(expr const & e) {

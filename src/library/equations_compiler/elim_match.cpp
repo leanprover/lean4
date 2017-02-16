@@ -873,27 +873,11 @@ struct elim_match_fn {
                     [&](expr const & c, buffer<expr> const & new_c_vars) {
                     expr var = pattern;
                     /* We are replacing `var` with `c` */
+                    buffer<expr> vars; to_buffer(eqn.m_vars, vars);
+                    buffer<expr> new_vars;
                     buffer<expr> from;
                     buffer<expr> to;
-                    buffer<expr> new_vars;
-                    for (expr const & curr : eqn.m_vars) {
-                        if (curr == var) {
-                            from.push_back(var);
-                            to.push_back(c);
-                            new_vars.append(new_c_vars);
-                        } else {
-                            expr curr_type     = ctx.infer(curr);
-                            expr new_curr_type = replace_locals(curr_type, from, to);
-                            if (curr_type == new_curr_type) {
-                                new_vars.push_back(curr);
-                            } else {
-                                expr new_curr = ctx.push_local(local_pp_name(curr), new_curr_type);
-                                from.push_back(curr);
-                                to.push_back(new_curr);
-                                new_vars.push_back(new_curr);
-                            }
-                        }
-                    }
+                    update_telescope(ctx, vars, var, c, new_c_vars, new_vars, from, to);
                     equation new_eqn   = eqn;
                     new_eqn.m_lctx     = ctx.lctx();
                     new_eqn.m_vars     = to_list(new_vars);

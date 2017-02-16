@@ -62,9 +62,10 @@ class unpack_eqn {
 public:
     unpack_eqn(type_context & ctx, expr const & eqn);
     expr add_var(name const & n, expr const & type);
-    buffer<expr> const & get_vars() { return m_vars; }
+    buffer<expr> & get_vars() { return m_vars; }
     expr & lhs() { return m_lhs; }
     expr & rhs() { return m_rhs; }
+    expr const & get_nested_src() const { return m_nested_src; }
     expr repack();
 };
 
@@ -109,6 +110,22 @@ bool is_nat_int_char_string_value(type_context & ctx, expr const & e);
    the type of (c A ...) matches (I A idx). */
 void for_each_compatible_constructor(type_context & ctx, expr const & var,
                                      std::function<void(expr const &, buffer<expr> &)> const & fn);
+
+/* Given the telescope vars [x_1, ..., x_i, ..., x_n] and var := x_i,
+   and t is a term containing variables t_vars := {y_1, ..., y_k} disjoint from {x_1, ..., x_n},
+   Return [x_1, ..., x_{i-1}, y_1, ..., y_k, T(x_{i+1}), ..., T(x_n)},
+   where T(x_j) updates the type of x_j (j > i) by replacing x_i with t.
+
+   \remark The set of variables in t is a subset of {x_1, ..., x_{i-1}} union {y_1, ..., y_k}
+
+   The output parameters from/to contain the replacement
+   [x_i, ... x_n] => [t, T(x_{i+1}), ..., T(x_n)]
+
+   The replacement will suppress entries x_j => T(x_j) if T(x_j) is equal to x_j.
+*/
+void update_telescope(type_context & ctx, buffer<expr> const & vars, expr const & var,
+                      expr const & t, buffer<expr> const & t_vars,  buffer<expr> & new_vars,
+                      buffer<expr> & from, buffer<expr> & to);
 
 void initialize_eqn_compiler_util();
 void finalize_eqn_compiler_util();

@@ -184,7 +184,7 @@ environment add_instance_core(environment const & env, name const & n, unsigned 
     class_state S = class_ext::get_state(env);
     type_context::tmp_locals locals(ctx);
     while (true) {
-        type = ctx.whnf_pred(type, [&](expr const & e) {
+        type = ctx.whnf_head_pred(type, [&](expr const & e) {
                 expr const & fn = get_app_fn(e);
                 return !is_constant(fn) || !S.m_instances.contains(const_name(fn)); });
         if (!is_pi(type))

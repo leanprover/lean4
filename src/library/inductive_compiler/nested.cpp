@@ -211,7 +211,7 @@ class add_nested_inductive_decl_fn {
 
     // Helpers
     expr safe_whnf(type_context & tctx, expr const & e) {
-        expr r = tctx.whnf_pred(e, [&](expr const & t) {
+        expr r = tctx.whnf_head_pred(e, [&](expr const & t) {
                 expr fn = get_app_fn(t);
                 if (!is_constant(fn))
                     return true;

@@ -110,7 +110,7 @@ class expand_aux_fn : public compiler_step_visitor {
                     return visit(copy_tag(e, expr(*r)));
                 }
             }
-            expr new_e = copy_tag(e, ctx().whnf_pred(e, [&](expr const &) { return false; }));
+            expr new_e = copy_tag(e, ctx().whnf_head_pred(e, [&](expr const &) { return false; }));
             if (is_eqp(new_e, e))
                 return compiler_step_visitor::visit_app(new_e);
             else
@@ -119,7 +119,7 @@ class expand_aux_fn : public compiler_step_visitor {
         case recursor_kind::CasesOn:
             return visit_cases_on(e);
         case recursor_kind::Aux:
-            return compiler_step_visitor::visit(copy_tag(e, ctx().whnf_pred(e, [&](expr const & e) { return is_aux_recursor(e); })));
+            return compiler_step_visitor::visit(copy_tag(e, ctx().whnf_head_pred(e, [&](expr const & e) { return is_aux_recursor(e); })));
         }
         lean_unreachable();
     }

@@ -329,7 +329,7 @@ static environment add_equation_lemma(environment const & env, options const & o
 }
 
 static expr whnf_ite(type_context & ctx, expr const & e) {
-    return ctx.whnf_pred(e, [&](expr const & e) {
+    return ctx.whnf_head_pred(e, [&](expr const & e) {
             expr const & fn = get_app_fn(e);
             return !is_constant(fn, get_ite_name());
         });

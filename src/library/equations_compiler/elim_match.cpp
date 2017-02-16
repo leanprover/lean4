@@ -327,7 +327,7 @@ struct elim_match_fn {
         if (is_inaccessible(e)) {
             return e;
         } else {
-            return ctx.whnf_pred(e, [&](expr const & e) {
+            return ctx.whnf_head_pred(e, [&](expr const & e) {
                     return !is_constructor_app(e) && !is_value(ctx, e) && !is_transport_app(e);
                 });
         }
@@ -335,14 +335,14 @@ struct elim_match_fn {
 
     /* Normalize until head is constructor */
     expr whnf_constructor(type_context & ctx, expr const & e) {
-        return ctx.whnf_pred(e, [&](expr const & e) {
+        return ctx.whnf_head_pred(e, [&](expr const & e) {
                 return !is_constructor_app(e);
             });
     }
 
     /* Normalize until head is an inductive datatype */
     expr whnf_inductive(type_context & ctx, expr const & e) {
-        return ctx.whnf_pred(e, [&](expr const & e) {
+        return ctx.whnf_head_pred(e, [&](expr const & e) {
                 return !is_inductive_app(e);
             });
     }

@@ -80,7 +80,7 @@ static void throw_invalid_major_premise_type(unsigned arg_idx, expr const & H_ty
 
 static expr whnf_until(type_context & ctx, name const & n, expr const & e) {
     type_context::transparency_scope scope(ctx, transparency_mode::All);
-    return ctx.whnf_pred(e, [&](expr const & t) {
+    return ctx.whnf_head_pred(e, [&](expr const & t) {
             expr fn = get_app_fn(t);
             if (is_constant(fn) && const_name(fn) == n)
                 return false;

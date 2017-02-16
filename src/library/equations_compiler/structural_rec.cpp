@@ -553,7 +553,7 @@ struct structural_rec_fn {
     expr whnf_upto_below(type_context & ctx, name const & I_name, expr const & below_type) {
         name below_name(I_name, "below");
         name ibelow_name(I_name, "ibelow");
-        return ctx.whnf_pred(below_type, [&](expr const & e) {
+        return ctx.whnf_head_pred(below_type, [&](expr const & e) {
                 expr const & fn = get_app_fn(e);
                 return !is_constant(fn) || (const_name(fn) != below_name && const_name(fn) != ibelow_name);
             });

@@ -114,13 +114,13 @@ optional<tactic_state> intron(unsigned n, tactic_state const & s) {
 }
 
 vm_obj tactic_intron(vm_obj const & num, vm_obj const & s) {
-    optional<metavar_decl> g = to_tactic_state(s).get_main_goal_decl();
-    if (!g) return mk_no_goals_exception(to_tactic_state(s));
+    optional<metavar_decl> g = tactic::to_state(s).get_main_goal_decl();
+    if (!g) return mk_no_goals_exception(tactic::to_state(s));
     buffer<name> new_Hs;
-    if (auto new_s = intron(force_to_unsigned(num, 0), to_tactic_state(s), new_Hs))
-        return mk_tactic_success(*new_s);
+    if (auto new_s = intron(force_to_unsigned(num, 0), tactic::to_state(s), new_Hs))
+        return tactic::mk_success(*new_s);
     else
-        return mk_tactic_exception("intron tactic failed, insufficient binders", to_tactic_state(s));
+        return tactic::mk_exception("intron tactic failed, insufficient binders", tactic::to_state(s));
 }
 
 vm_obj intro(name const & n, tactic_state const & s) {
@@ -131,7 +131,7 @@ vm_obj intro(name const & n, tactic_state const & s) {
     if (!is_pi(type) && !is_let(type)) {
         type             = ctx.whnf(type);
         if (!is_pi(type))
-            return mk_tactic_exception("intro tactic failed, Pi/let expression expected", s);
+            return tactic::mk_exception("intro tactic failed, Pi/let expression expected", s);
     }
     local_context lctx   = g->get_context();
     metavar_context mctx = ctx.mctx();
@@ -143,7 +143,7 @@ vm_obj intro(name const & n, tactic_state const & s) {
         expr new_val         = mk_lambda(n1, binding_domain(type), mk_delayed_abstraction(new_M, mlocal_name(H)));
         mctx.assign(head(s.goals()), new_val);
         list<expr> new_gs(new_M, tail(s.goals()));
-        return mk_tactic_success(to_obj(H), set_mctx_goals(s, mctx, new_gs));
+        return tactic::mk_success(to_obj(H), set_mctx_goals(s, mctx, new_gs));
     } else {
         lean_assert(is_let(type));
         name n1              = n == "_" ? lctx.get_unused_name(let_name(type)) : n;
@@ -153,12 +153,12 @@ vm_obj intro(name const & n, tactic_state const & s) {
         expr new_val         = mk_let(n1, let_type(type), let_value(type), mk_delayed_abstraction(new_M, mlocal_name(H)));
         mctx.assign(head(s.goals()), new_val);
         list<expr> new_gs(new_M, tail(s.goals()));
-        return mk_tactic_success(to_obj(H), set_mctx_goals(s, mctx, new_gs));
+        return tactic::mk_success(to_obj(H), set_mctx_goals(s, mctx, new_gs));
     }
 }
 
 vm_obj tactic_intro(vm_obj const & n, vm_obj const & s) {
-    return intro(to_name(n), to_tactic_state(s));
+    return intro(to_name(n), tactic::to_state(s));
 }
 
 void initialize_intro_tactic() {

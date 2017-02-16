@@ -79,7 +79,7 @@ vm_obj cc_state_mk_core(vm_obj const & cfg) {
 }
 
 vm_obj cc_state_mk_using_hs_core(vm_obj const & cfg, vm_obj const & _s) {
-    tactic_state const & s   = to_tactic_state(_s);
+    tactic_state const & s   = tactic::to_state(_s);
     optional<metavar_decl> g = s.get_main_goal_decl();
     if (!g) return mk_no_goals_exception(s);
     try {
@@ -94,28 +94,28 @@ vm_obj cc_state_mk_using_hs_core(vm_obj const & cfg, vm_obj const & _s) {
                 }
             });
         tactic_state new_s = set_dcs(s, dcs);
-        return mk_tactic_success(to_obj(r), new_s);
+        return tactic::mk_success(to_obj(r), new_s);
     } catch (exception & ex) {
-        return mk_tactic_exception(ex, s);
+        return tactic::mk_exception(ex, s);
     }
 }
 
 vm_obj cc_state_pp_core(vm_obj const & ccs, vm_obj const & nonsingleton, vm_obj const & _s) {
-    tactic_state const & s   = to_tactic_state(_s);
+    tactic_state const & s   = tactic::to_state(_s);
     type_context ctx         = mk_type_context_for(s);
     formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
     formatter fmt            = fmtf(s.env(), s.get_options(), ctx);
     format r                 = to_cc_state(ccs).pp_eqcs(fmt, to_bool(nonsingleton));
-    return mk_tactic_success(to_obj(r), s);
+    return tactic::mk_success(to_obj(r), s);
 }
 
 vm_obj cc_state_pp_eqc(vm_obj const & ccs, vm_obj const & e, vm_obj const & _s) {
-    tactic_state const & s   = to_tactic_state(_s);
+    tactic_state const & s   = tactic::to_state(_s);
     type_context ctx         = mk_type_context_for(s);
     formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
     formatter fmt            = fmtf(s.env(), s.get_options(), ctx);
     format r                 = to_cc_state(ccs).pp_eqc(fmt, to_expr(e));
-    return mk_tactic_success(to_obj(r), s);
+    return tactic::mk_success(to_obj(r), s);
 }
 
 vm_obj cc_state_next(vm_obj const & ccs, vm_obj const & e) {
@@ -155,7 +155,7 @@ vm_obj cc_state_inc_gmt(vm_obj const & ccs) {
 }
 
 #define cc_state_proc(CODE)                                     \
-    tactic_state const & s   = to_tactic_state(_s);             \
+    tactic_state const & s   = tactic::to_state(_s);             \
     try {                                                       \
         type_context ctx            = mk_type_context_for(s);   \
         congruence_closure::state S = to_cc_state(ccs);         \
@@ -163,16 +163,16 @@ vm_obj cc_state_inc_gmt(vm_obj const & ccs) {
         congruence_closure cc(ctx, S, dcs);                     \
         CODE                                                    \
     } catch (exception & ex) {                                  \
-        return mk_tactic_exception(ex, s);                      \
+        return tactic::mk_exception(ex, s);                      \
     }
 
-#define cc_state_updt_proc(CODE) cc_state_proc({ CODE; return mk_tactic_success(to_obj(S), set_dcs(s, dcs)); })
+#define cc_state_updt_proc(CODE) cc_state_proc({ CODE; return tactic::mk_success(to_obj(S), set_dcs(s, dcs)); })
 
 vm_obj cc_state_add(vm_obj const & ccs, vm_obj const & H, vm_obj const & _s) {
     cc_state_updt_proc({
             expr type                   = ctx.infer(to_expr(H));
             if (ctx.is_prop(type))
-                return mk_tactic_exception("cc_state.add failed, given expression is not a proof term", s);
+                return tactic::mk_exception("cc_state.add failed, given expression is not a proof term", s);
             cc.add(type, to_expr(H), 0);
     });
 }
@@ -186,23 +186,23 @@ vm_obj cc_state_internalize(vm_obj const & ccs, vm_obj const & e, vm_obj const &
 vm_obj cc_state_is_eqv(vm_obj const & ccs, vm_obj const & e1, vm_obj const & e2, vm_obj const & _s) {
     cc_state_proc({
             bool r = cc.is_eqv(to_expr(e1), to_expr(e2));
-            return mk_tactic_success(mk_vm_bool(r), s);
+            return tactic::mk_success(mk_vm_bool(r), s);
         });
 }
 
 vm_obj cc_state_is_not_eqv(vm_obj const & ccs, vm_obj const & e1, vm_obj const & e2, vm_obj const & _s) {
     cc_state_proc({
             bool r = cc.is_not_eqv(to_expr(e1), to_expr(e2));
-            return mk_tactic_success(mk_vm_bool(r), s);
+            return tactic::mk_success(mk_vm_bool(r), s);
         });
 }
 
 vm_obj cc_state_eqv_proof(vm_obj const & ccs, vm_obj const & e1, vm_obj const & e2, vm_obj const & _s) {
     cc_state_proc({
             if (optional<expr> r = cc.get_proof(to_expr(e1), to_expr(e2))) {
-                return mk_tactic_success(to_obj(*r), s);
+                return tactic::mk_success(to_obj(*r), s);
             } else {
-                return mk_tactic_exception("cc_state.eqv_proof failed to build proof", s);
+                return tactic::mk_exception("cc_state.eqv_proof failed to build proof", s);
             }
         });
 }
@@ -210,9 +210,9 @@ vm_obj cc_state_eqv_proof(vm_obj const & ccs, vm_obj const & e1, vm_obj const & 
 vm_obj cc_state_proof_for(vm_obj const & ccs, vm_obj const & e, vm_obj const & _s) {
     cc_state_proc({
             if (optional<expr> r = cc.get_eq_proof(to_expr(e), mk_true())) {
-                return mk_tactic_success(to_obj(mk_of_eq_true(cc.ctx(), *r)), s);
+                return tactic::mk_success(to_obj(mk_of_eq_true(cc.ctx(), *r)), s);
             } else {
-                return mk_tactic_exception("cc_state.get_proof_for failed to build proof", s);
+                return tactic::mk_exception("cc_state.get_proof_for failed to build proof", s);
             }
         });
 }
@@ -220,9 +220,9 @@ vm_obj cc_state_proof_for(vm_obj const & ccs, vm_obj const & e, vm_obj const & _
 vm_obj cc_state_refutation_for(vm_obj const & ccs, vm_obj const & e, vm_obj const & _s) {
     cc_state_proc({
             if (optional<expr> r = cc.get_eq_proof(to_expr(e), mk_false())) {
-                return mk_tactic_success(to_obj(mk_not_of_eq_false(cc.ctx(), *r)), s);
+                return tactic::mk_success(to_obj(mk_not_of_eq_false(cc.ctx(), *r)), s);
             } else {
-                return mk_tactic_exception("cc_state.get_refutation_for failed to build proof", s);
+                return tactic::mk_exception("cc_state.get_refutation_for failed to build proof", s);
             }
         });
 }
@@ -230,9 +230,9 @@ vm_obj cc_state_refutation_for(vm_obj const & ccs, vm_obj const & e, vm_obj cons
 vm_obj cc_state_proof_for_false(vm_obj const & ccs, vm_obj const & _s) {
     cc_state_proc({
             if (auto pr = cc.get_inconsistency_proof()) {
-                return mk_tactic_success(to_obj(*pr), s);
+                return tactic::mk_success(to_obj(*pr), s);
             } else {
-                return mk_tactic_exception("cc_state.false_proof failed, state is not inconsistent", s);
+                return tactic::mk_exception("cc_state.false_proof failed, state is not inconsistent", s);
             }
         });
 }

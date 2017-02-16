@@ -204,9 +204,9 @@ bool kdepends_on(type_context & ctx, expr const & e, expr const & t) {
 vm_obj tactic_kdepends_on(vm_obj const & e, vm_obj const & t, vm_obj const & md, vm_obj const & s) {
     try {
         type_context ctx = mk_type_context_for(s, md);
-        return mk_tactic_success(mk_vm_bool(kdepends_on(ctx, to_expr(e), to_expr(t))), to_tactic_state(s));
+        return tactic::mk_success(mk_vm_bool(kdepends_on(ctx, to_expr(e), to_expr(t))), tactic::to_state(s));
     } catch (exception & ex) {
-        return mk_tactic_exception(ex, to_tactic_state(s));
+        return tactic::mk_exception(ex, tactic::to_state(s));
     }
 }
 

@@ -41,13 +41,13 @@ vm_obj run_parser(parser & p, expr const & spec) {
 }
 
 vm_obj vm_parser_state_cur_pos(vm_obj const & o) {
-    auto const & s = lean_parser::to_State(o);
+    auto const & s = lean_parser::to_state(o);
     auto pos = s.m_p->pos();
     return mk_vm_pair(mk_vm_nat(pos.first), mk_vm_nat(pos.second));
 }
 
 vm_obj vm_parser_ident(vm_obj const & o) {
-    auto const & s = lean_parser::to_State(o);
+    auto const & s = lean_parser::to_state(o);
     TRY;
         name ident = s.m_p->check_id_next("identifier expected");
         return lean_parser::mk_success(to_obj(ident), s);
@@ -55,7 +55,7 @@ vm_obj vm_parser_ident(vm_obj const & o) {
 }
 
 vm_obj vm_parser_tk(vm_obj const & vm_tk, vm_obj const & o) {
-    auto const & s = lean_parser::to_State(o);
+    auto const & s = lean_parser::to_state(o);
     TRY;
         name tk = to_string(vm_tk);
         if (!s.m_p->curr_is_token(tk))
@@ -66,7 +66,7 @@ vm_obj vm_parser_tk(vm_obj const & vm_tk, vm_obj const & o) {
 }
 
 vm_obj vm_parser_qexpr(vm_obj const & vm_rbp, vm_obj const & o) {
-    auto const & s = lean_parser::to_State(o);
+    auto const & s = lean_parser::to_state(o);
     TRY;
         auto rbp = to_unsigned(vm_rbp);
         parser::quote_scope scope(*s.m_p, true);

@@ -662,13 +662,13 @@ expr mk_perm_ac_macro(abstract_type_context & ctx, expr const & assoc, expr cons
 }
 
 #define TRY   LEAN_TACTIC_TRY
-#define CATCH LEAN_TACTIC_CATCH(to_tactic_state(s))
+#define CATCH LEAN_TACTIC_CATCH(tactic::to_state(s))
 
 vm_obj tactic_flat_assoc(vm_obj const & op, vm_obj const & assoc, vm_obj const & e, vm_obj const & s) {
     TRY;
     type_context ctx   = mk_type_context_for(s);
     pair<expr, expr> p = flat_assoc_fn(ctx, to_expr(op), to_expr(assoc)).flat(to_expr(e));
-    return mk_tactic_success(mk_vm_pair(to_obj(p.first), to_obj(p.second)), to_tactic_state(s));
+    return tactic::mk_success(mk_vm_pair(to_obj(p.first), to_obj(p.second)), tactic::to_state(s));
     CATCH;
 }
 
@@ -676,7 +676,7 @@ vm_obj tactic_perm_ac(vm_obj const & op, vm_obj const & assoc, vm_obj const & co
     TRY;
     type_context ctx   = mk_type_context_for(s);
     expr H = perm_ac_fn(ctx, to_expr(op), to_expr(assoc), to_expr(comm)).perm(to_expr(e1), to_expr(e2));
-    return mk_tactic_success(to_obj(H), to_tactic_state(s));
+    return tactic::mk_success(to_obj(H), tactic::to_state(s));
     CATCH;
 }
 

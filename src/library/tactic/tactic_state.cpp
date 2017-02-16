@@ -199,14 +199,6 @@ format tactic_state::pp_goal(expr const & g) const {
     return pp_goal(fmtf, g);
 }
 
-bool is_tactic_state(vm_obj const & o) {
-    return tactic::is_State(o);
-}
-
-tactic_state const & to_tactic_state(vm_obj const & o) {
-    return tactic::to_State(o);
-}
-
 vm_obj to_obj(tactic_state const & s) {
     return tactic::to_obj(s);
 }
@@ -221,11 +213,11 @@ vm_obj to_obj(transparency_mode m) {
 
 
 vm_obj tactic_state_env(vm_obj const & s) {
-    return to_obj(to_tactic_state(s).env());
+    return to_obj(tactic::to_state(s).env());
 }
 
 vm_obj tactic_state_to_format(vm_obj const & s) {
-    return to_obj(to_tactic_state(s).pp_core());
+    return to_obj(tactic::to_state(s).pp_core());
 }
 
 format pp_expr(tactic_state const & s, expr const & e) {
@@ -242,129 +234,36 @@ format pp_indented_expr(tactic_state const & s, expr const & e) {
 }
 
 vm_obj tactic_state_format_expr(vm_obj const & s, vm_obj const & e) {
-    return to_obj(pp_expr(to_tactic_state(s), to_expr(e)));
-}
-
-optional<tactic_state> is_tactic_success(vm_obj const & o) {
-    if (is_constructor(o) && cidx(o) == 0) {
-        return optional<tactic_state>(to_tactic_state(cfield(o, 1)));
-    } else {
-        return optional<tactic_state>();
-    }
-}
-
-optional<tactic_exception_info> is_tactic_exception(vm_state & S, vm_obj const & ex) {
-    if (is_constructor(ex) && cidx(ex) == 1 && !is_none(cfield(ex, 0))) {
-        vm_obj fmt = S.invoke(get_some_value(cfield(ex, 0)), mk_vm_unit());
-        optional<expr> ref;
-        if (!is_none(cfield(ex, 1)))
-            ref = to_expr(get_some_value(cfield(ex, 1)));
-        return optional<tactic_exception_info>(to_format(fmt), ref, to_tactic_state(cfield(ex, 2)));
-    } else {
-        return optional<tactic_exception_info>();
-    }
-}
-
-bool is_tactic_silent_exception(vm_obj const & ex) {
-    return is_constructor(ex) && cidx(ex) == 1 && is_none(cfield(ex, 0));
-}
-
-vm_obj mk_tactic_result(vm_obj const & a, vm_obj const & s) {
-    lean_assert(is_tactic_state(s));
-    return mk_vm_constructor(0, a, s);
-}
-
-bool is_tactic_result_exception(vm_obj const & r) {
-    return is_constructor(r) && cidx(r) == 1;
-}
-
-bool is_tactic_result_success(vm_obj const & r) {
-    return is_constructor(r) && cidx(r) == 0;
-}
-
-vm_obj get_tactic_result_value(vm_obj const & r) {
-    lean_assert(is_tactic_result_success(r));
-    return cfield(r, 0);
-}
-
-vm_obj get_tactic_result_state(vm_obj const & r) {
-    lean_assert(is_tactic_result_success(r));
-    return cfield(r, 1);
-}
-
-vm_obj mk_tactic_success(vm_obj const & a, tactic_state const & s) {
-    return mk_vm_constructor(0, a, to_obj(s));
-}
-
-vm_obj mk_tactic_success(tactic_state const & s) {
-    return mk_tactic_success(mk_vm_unit(), s);
-}
-
-vm_obj mk_tactic_exception(vm_obj const & fn, tactic_state const & s) {
-    return mk_vm_constructor(1, mk_vm_some(fn), mk_vm_none(), to_obj(s));
-}
-
-vm_obj mk_tactic_silent_exception(tactic_state const & s) {
-    return mk_vm_constructor(1, mk_vm_none(), mk_vm_none(), to_obj(s));
-}
-
-vm_obj mk_tactic_exception(vm_obj const & fn, vm_obj const & ref, tactic_state const & s) {
-    return mk_vm_constructor(1, mk_vm_some(fn), ref, to_obj(s));
-}
-
-vm_obj mk_tactic_exception(throwable const & ex, tactic_state const & s) {
-    return tactic::mk_exception(ex, s);
-}
-
-vm_obj mk_tactic_exception(format const & fmt, tactic_state const & s) {
-    vm_state const & S = get_vm_state();
-    if (optional<vm_decl> K = S.get_decl(get_combinator_K_name())) {
-        return mk_tactic_exception(mk_vm_closure(K->get_idx(), to_obj(fmt), mk_vm_unit(), mk_vm_unit()), s);
-    } else {
-        throw exception("failed to create tactic exceptional result, combinator.K is not in the environment, "
-                        "this can happen when users are hacking the init folder");
-    }
-}
-
-vm_obj mk_tactic_exception(char const * msg, tactic_state const & s) {
-    return mk_tactic_exception(format(msg), s);
-}
-
-vm_obj mk_tactic_exception(sstream const & strm, tactic_state const & s) {
-    return mk_tactic_exception(strm.str().c_str(), s);
-}
-
-vm_obj mk_tactic_exception(std::function<format()> const & thunk, tactic_state const & s) {
-    return mk_tactic_exception(mk_vm_format_thunk(thunk), s);
+    return to_obj(pp_expr(tactic::to_state(s), to_expr(e)));
 }
 
 vm_obj mk_no_goals_exception(tactic_state const & s) {
-    return mk_tactic_exception("tactic failed, there are no goals to be solved", s);
+    return tactic::mk_exception("tactic failed, there are no goals to be solved", s);
 }
 
 vm_obj tactic_result(vm_obj const & o) {
-    tactic_state const & s = to_tactic_state(o);
+    tactic_state const & s = tactic::to_state(o);
     metavar_context mctx = s.mctx();
     expr r = mctx.instantiate_mvars(s.main());
-    return mk_tactic_success(to_obj(r), set_mctx(s, mctx));
+    return tactic::mk_success(to_obj(r), set_mctx(s, mctx));
 }
 
 vm_obj tactic_format_result(vm_obj const & o) {
-    tactic_state const & s = to_tactic_state(o);
+    tactic_state const & s = tactic::to_state(o);
     metavar_context mctx = s.mctx();
     expr r = mctx.instantiate_mvars(s.main());
     metavar_decl main_decl = mctx.get_metavar_decl(s.main());
     type_context ctx(s.env(), s.get_options(), mctx, main_decl.get_context(), transparency_mode::All);
     formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
     formatter fmt = fmtf(s.env(), s.get_options(), ctx);
-    return mk_tactic_success(to_obj(fmt(r)), s);
+    return tactic::mk_success(to_obj(fmt(r)), s);
 }
 
 vm_obj tactic_target(vm_obj const & o) {
-    tactic_state const & s = to_tactic_state(o);
+    tactic_state const & s = tactic::to_state(o);
     optional<metavar_decl> g = s.get_main_goal_decl();
     if (!g) return mk_no_goals_exception(s);
-    return mk_tactic_success(to_obj(g->get_type()), s);
+    return tactic::mk_success(to_obj(g->get_type()), s);
 }
 
 MK_THREAD_LOCAL_GET_DEF(type_context_cache_manager, get_tcm);
@@ -385,11 +284,11 @@ type_context mk_type_context_for(tactic_state const & s, transparency_mode m) {
 }
 
 type_context mk_type_context_for(vm_obj const & s) {
-    return mk_type_context_for(to_tactic_state(s));
+    return mk_type_context_for(tactic::to_state(s));
 }
 
 type_context mk_type_context_for(vm_obj const & s, vm_obj const & m) {
-    return mk_type_context_for(to_tactic_state(s), to_transparency_mode(m));
+    return mk_type_context_for(tactic::to_state(s), to_transparency_mode(m));
 }
 
 static void check_closed(char const * tac_name, expr const & e) {
@@ -400,123 +299,123 @@ static void check_closed(char const * tac_name, expr const & e) {
 }
 
 vm_obj tactic_infer_type(vm_obj const & e, vm_obj const & s0) {
-    tactic_state const & s = to_tactic_state(s0);
+    tactic_state const & s = tactic::to_state(s0);
     type_context ctx       = mk_type_context_for(s);
     try {
         check_closed("infer_type", to_expr(e));
-        return mk_tactic_success(to_obj(ctx.infer(to_expr(e))), s);
+        return tactic::mk_success(to_obj(ctx.infer(to_expr(e))), s);
     } catch (exception & ex) {
-        return mk_tactic_exception(ex, s);
+        return tactic::mk_exception(ex, s);
     }
 }
 
 vm_obj tactic_whnf(vm_obj const & e, vm_obj const & t, vm_obj const & s0) {
-    tactic_state const & s = to_tactic_state(s0);
+    tactic_state const & s = tactic::to_state(s0);
     type_context ctx       = mk_type_context_for(s, to_transparency_mode(t));
     try {
         check_closed("whnf", to_expr(e));
-        return mk_tactic_success(to_obj(ctx.whnf(to_expr(e))), s);
+        return tactic::mk_success(to_obj(ctx.whnf(to_expr(e))), s);
     } catch (exception & ex) {
-        return mk_tactic_exception(ex, s);
+        return tactic::mk_exception(ex, s);
     }
 }
 
 vm_obj tactic_eta_expand(vm_obj const & e, vm_obj const & s0) {
-    tactic_state const & s = to_tactic_state(s0);
+    tactic_state const & s = tactic::to_state(s0);
     type_context ctx       = mk_type_context_for(s);
     try {
         check_closed("eta_expand", to_expr(e));
-        return mk_tactic_success(to_obj(ctx.eta_expand(to_expr(e))), s);
+        return tactic::mk_success(to_obj(ctx.eta_expand(to_expr(e))), s);
     } catch (exception & ex) {
-        return mk_tactic_exception(ex, s);
+        return tactic::mk_exception(ex, s);
     }
 }
 
 vm_obj tactic_eta(vm_obj const & e, vm_obj const & s0) {
-    tactic_state const & s = to_tactic_state(s0);
+    tactic_state const & s = tactic::to_state(s0);
     try {
-        return mk_tactic_success(to_obj(try_eta(to_expr(e))), s);
+        return tactic::mk_success(to_obj(try_eta(to_expr(e))), s);
     } catch (exception & ex) {
-        return mk_tactic_exception(ex, s);
+        return tactic::mk_exception(ex, s);
     }
 }
 
 vm_obj tactic_beta(vm_obj const & e, vm_obj const & s0) {
-    tactic_state const & s = to_tactic_state(s0);
+    tactic_state const & s = tactic::to_state(s0);
     try {
-        return mk_tactic_success(to_obj(annotated_head_beta_reduce(to_expr(e))), s);
+        return tactic::mk_success(to_obj(annotated_head_beta_reduce(to_expr(e))), s);
     } catch (exception & ex) {
-        return mk_tactic_exception(ex, s);
+        return tactic::mk_exception(ex, s);
     }
 }
 
 vm_obj tactic_zeta(vm_obj const & e0, vm_obj const & s0) {
-    tactic_state const & s = to_tactic_state(s0);
+    tactic_state const & s = tactic::to_state(s0);
     try {
         expr const & e = to_expr(e0);
         check_closed("zeta", e);
-        if (!is_local(e)) return mk_tactic_success(e0, s);
+        if (!is_local(e)) return tactic::mk_success(e0, s);
         optional<metavar_decl> mdecl = s.get_main_goal_decl();
-        if (!mdecl) return mk_tactic_success(e0, s);
+        if (!mdecl) return tactic::mk_success(e0, s);
         local_context lctx = mdecl->get_context();
         optional<local_decl> ldecl = lctx.find_local_decl(e);
-        if (!ldecl || !ldecl->get_value()) return mk_tactic_success(e0, s);
-        return mk_tactic_success(to_obj(*ldecl->get_value()), s);
+        if (!ldecl || !ldecl->get_value()) return tactic::mk_success(e0, s);
+        return tactic::mk_success(to_obj(*ldecl->get_value()), s);
     } catch (exception & ex) {
-        return mk_tactic_exception(ex, s);
+        return tactic::mk_exception(ex, s);
     }
 }
 
 vm_obj tactic_is_class(vm_obj const & e, vm_obj const & s0) {
-    tactic_state const & s = to_tactic_state(s0);
+    tactic_state const & s = tactic::to_state(s0);
     type_context ctx       = mk_type_context_for(s);
     try {
         check_closed("is_class", to_expr(e));
-        return mk_tactic_success(mk_vm_bool(static_cast<bool>(ctx.is_class(to_expr(e)))), s);
+        return tactic::mk_success(mk_vm_bool(static_cast<bool>(ctx.is_class(to_expr(e)))), s);
     } catch (exception & ex) {
-        return mk_tactic_exception(ex, s);
+        return tactic::mk_exception(ex, s);
     }
 }
 
 vm_obj tactic_mk_instance(vm_obj const & e, vm_obj const & s0) {
-    tactic_state const & s = to_tactic_state(s0);
+    tactic_state const & s = tactic::to_state(s0);
     type_context ctx       = mk_type_context_for(s);
     try {
         check_closed("mk_instance", to_expr(e));
         if (auto r = ctx.mk_class_instance(to_expr(e))) {
             tactic_state new_s = set_mctx(s, ctx.mctx());
-            return mk_tactic_success(to_obj(*r), new_s);
+            return tactic::mk_success(to_obj(*r), new_s);
         } else {
             auto thunk = [=]() {
                 format m("tactic.mk_instance failed to generate instance for");
                 m += pp_indented_expr(s, to_expr(e));
                 return m;
             };
-            return mk_tactic_exception(thunk, s);
+            return tactic::mk_exception(thunk, s);
         }
     } catch (exception & ex) {
-        return mk_tactic_exception(ex, s);
+        return tactic::mk_exception(ex, s);
     }
 }
 
 vm_obj tactic_unify(vm_obj const & e1, vm_obj const & e2, vm_obj const & t, vm_obj const & s0) {
-    tactic_state const & s = to_tactic_state(s0);
+    tactic_state const & s = tactic::to_state(s0);
     type_context ctx       = mk_type_context_for(s, to_transparency_mode(t));
     try {
         check_closed("unify", to_expr(e1));
         check_closed("unify", to_expr(e2));
         bool r = ctx.is_def_eq(to_expr(e1), to_expr(e2));
         if (r)
-            return mk_tactic_success(set_mctx(s, ctx.mctx()));
+            return tactic::mk_success(set_mctx(s, ctx.mctx()));
         else
-            return mk_tactic_exception("unify tactic failed", s);
+            return tactic::mk_exception("unify tactic failed", s);
     } catch (exception & ex) {
-        return mk_tactic_exception(ex, s);
+        return tactic::mk_exception(ex, s);
     }
 }
 
 vm_obj tactic_is_def_eq(vm_obj const & e1, vm_obj const & e2, vm_obj const & t, vm_obj const & s0) {
-    tactic_state const & s = to_tactic_state(s0);
+    tactic_state const & s = tactic::to_state(s0);
     type_context ctx       = mk_type_context_for(s, to_transparency_mode(t));
     type_context::tmp_mode_scope scope(ctx);
     try {
@@ -524,36 +423,36 @@ vm_obj tactic_is_def_eq(vm_obj const & e1, vm_obj const & e2, vm_obj const & t, 
         check_closed("is_def_eq", to_expr(e2));
         bool r = ctx.is_def_eq(to_expr(e1), to_expr(e2));
         if (r)
-            return mk_tactic_success(s);
+            return tactic::mk_success(s);
         else
-            return mk_tactic_exception("is_def_eq failed", s);
+            return tactic::mk_exception("is_def_eq failed", s);
     } catch (exception & ex) {
-        return mk_tactic_exception(ex, s);
+        return tactic::mk_exception(ex, s);
     }
 }
 
 vm_obj tactic_get_local(vm_obj const & n, vm_obj const & s0) {
-    tactic_state const & s   = to_tactic_state(s0);
+    tactic_state const & s   = tactic::to_state(s0);
     optional<metavar_decl> g = s.get_main_goal_decl();
     if (!g) return mk_no_goals_exception(s);
     local_context lctx       = g->get_context();
     optional<local_decl> d   = lctx.find_local_decl_from_user_name(to_name(n));
-    if (!d) return mk_tactic_exception(sstream() << "get_local tactic failed, unknown '" << to_name(n) << "' local", s);
-    return mk_tactic_success(to_obj(d->mk_ref()), s);
+    if (!d) return tactic::mk_exception(sstream() << "get_local tactic failed, unknown '" << to_name(n) << "' local", s);
+    return tactic::mk_success(to_obj(d->mk_ref()), s);
 }
 
 vm_obj tactic_local_context(vm_obj const & s0) {
-    tactic_state const & s   = to_tactic_state(s0);
+    tactic_state const & s   = tactic::to_state(s0);
     optional<metavar_decl> g = s.get_main_goal_decl();
     if (!g) return mk_no_goals_exception(s);
     local_context lctx       = g->get_context();
     buffer<expr> r;
     lctx.for_each([&](local_decl const & d) { r.push_back(d.mk_ref()); });
-    return mk_tactic_success(to_obj(to_list(r)), s);
+    return tactic::mk_success(to_obj(to_list(r)), s);
 }
 
 vm_obj tactic_get_unused_name(vm_obj const & n, vm_obj const & vm_i, vm_obj const & s0) {
-    tactic_state const & s   = to_tactic_state(s0);
+    tactic_state const & s   = tactic::to_state(s0);
     optional<metavar_decl> g = s.get_main_goal_decl();
     if (!g) return mk_no_goals_exception(s);
     name unused_name;
@@ -563,7 +462,7 @@ vm_obj tactic_get_unused_name(vm_obj const & n, vm_obj const & vm_i, vm_obj cons
         unsigned i  = force_to_unsigned(get_some_value(vm_i), 0);
         unused_name = g->get_context().get_unused_name(to_name(n), i);
     }
-    return mk_tactic_success(to_obj(unused_name), s);
+    return tactic::mk_success(to_obj(unused_name), s);
 }
 
 vm_obj rotate_left(unsigned n, tactic_state const & s) {
@@ -571,19 +470,19 @@ vm_obj rotate_left(unsigned n, tactic_state const & s) {
     to_buffer(s.goals(), gs);
     unsigned sz = gs.size();
     if (sz == 0)
-        return mk_tactic_success(s);
+        return tactic::mk_success(s);
     n = n%sz;
     std::rotate(gs.begin(), gs.begin() + n, gs.end());
-    return mk_tactic_success(set_goals(s, to_list(gs)));
+    return tactic::mk_success(set_goals(s, to_list(gs)));
 }
 
 vm_obj tactic_rotate_left(vm_obj const & n, vm_obj const & s) {
-    return rotate_left(force_to_unsigned(n, 0), to_tactic_state(s));
+    return rotate_left(force_to_unsigned(n, 0), tactic::to_state(s));
 }
 
 vm_obj tactic_get_goals(vm_obj const & s0) {
-    tactic_state const & s   = to_tactic_state(s0);
-    return mk_tactic_success(to_obj(s.goals()), s);
+    tactic_state const & s   = tactic::to_state(s0);
+    return tactic::mk_success(to_obj(s.goals()), s);
 }
 
 vm_obj set_goals(list<expr> const & gs, tactic_state const & s) {
@@ -591,70 +490,70 @@ vm_obj set_goals(list<expr> const & gs, tactic_state const & s) {
     metavar_context const & mctx = s.mctx();
     for (expr const & g : gs) {
         if (!mctx.find_metavar_decl(g)) {
-            return mk_tactic_exception("invalid set_goals tactic, expressions must be meta-variables "
+            return tactic::mk_exception("invalid set_goals tactic, expressions must be meta-variables "
                                        "that have been declared in the current tactic_state", s);
         }
         if (!mctx.is_assigned(g))
             new_gs.push_back(g);
     }
-    return mk_tactic_success(set_goals(s, to_list(new_gs)));
+    return tactic::mk_success(set_goals(s, to_list(new_gs)));
 }
 
 vm_obj tactic_set_goals(vm_obj const & gs, vm_obj const & s) {
-    return set_goals(to_list_expr(gs), to_tactic_state(s));
+    return set_goals(to_list_expr(gs), tactic::to_state(s));
 }
 
 vm_obj tactic_mk_meta_univ(vm_obj const & s) {
-    metavar_context mctx = to_tactic_state(s).mctx();
+    metavar_context mctx = tactic::to_state(s).mctx();
     level u = mctx.mk_univ_metavar_decl();
-    return mk_tactic_success(to_obj(u), set_mctx(to_tactic_state(s), mctx));
+    return tactic::mk_success(to_obj(u), set_mctx(tactic::to_state(s), mctx));
 }
 
 vm_obj tactic_mk_meta_var(vm_obj const & t, vm_obj const & s0) {
-    tactic_state const & s   = to_tactic_state(s0);
+    tactic_state const & s   = tactic::to_state(s0);
     metavar_context mctx     = s.mctx();
     local_context lctx;
     if (optional<metavar_decl> g = s.get_main_goal_decl()) {
         lctx = g->get_context();
     }
     expr m = mctx.mk_metavar_decl(lctx, to_expr(t));
-    return mk_tactic_success(to_obj(m), set_mctx(s, mctx));
+    return tactic::mk_success(to_obj(m), set_mctx(s, mctx));
 }
 
 vm_obj tactic_get_univ_assignment(vm_obj const & u, vm_obj const & s0) {
-    tactic_state const & s   = to_tactic_state(s0);
+    tactic_state const & s   = tactic::to_state(s0);
     metavar_context mctx     = s.mctx();
     if (!is_meta(to_level(u))) {
-        return mk_tactic_exception("get_univ_assignment tactic failed, argument is not an universe metavariable", s);
+        return tactic::mk_exception("get_univ_assignment tactic failed, argument is not an universe metavariable", s);
     } else if (auto r = mctx.get_assignment(to_level(u))) {
-        return mk_tactic_success(to_obj(*r), s);
+        return tactic::mk_success(to_obj(*r), s);
     } else {
-        return mk_tactic_exception("get_univ_assignment tactic failed, universe metavariable is not assigned", s);
+        return tactic::mk_exception("get_univ_assignment tactic failed, universe metavariable is not assigned", s);
     }
 }
 
 vm_obj tactic_get_assignment(vm_obj const & e, vm_obj const & s0) {
-    tactic_state const & s   = to_tactic_state(s0);
+    tactic_state const & s   = tactic::to_state(s0);
     metavar_context mctx     = s.mctx();
     if (!is_metavar(to_expr(e))) {
-        return mk_tactic_exception("get_assignment tactic failed, argument is not an universe metavariable", s);
+        return tactic::mk_exception("get_assignment tactic failed, argument is not an universe metavariable", s);
     } else if (auto r = mctx.get_assignment(to_expr(e))) {
-        return mk_tactic_success(to_obj(*r), s);
+        return tactic::mk_success(to_obj(*r), s);
     } else {
-        return mk_tactic_exception("get_assignment tactic failed, metavariable is not assigned", s);
+        return tactic::mk_exception("get_assignment tactic failed, metavariable is not assigned", s);
     }
 }
 
 vm_obj tactic_state_get_options(vm_obj const & s) {
-    return to_obj(to_tactic_state(s).get_options());
+    return to_obj(tactic::to_state(s).get_options());
 }
 
 vm_obj tactic_state_set_options(vm_obj const & s, vm_obj const & o) {
-    return to_obj(set_options(to_tactic_state(s), to_options(o)));
+    return to_obj(set_options(tactic::to_state(s), to_options(o)));
 }
 
 vm_obj tactic_mk_fresh_name(vm_obj const & s) {
-    return mk_tactic_success(to_obj(mk_fresh_name()), to_tactic_state(s));
+    return tactic::mk_success(to_obj(mk_fresh_name()), tactic::to_state(s));
 }
 
 vm_obj tactic_is_trace_enabled_for(vm_obj const & n) {
@@ -662,54 +561,54 @@ vm_obj tactic_is_trace_enabled_for(vm_obj const & n) {
 }
 
 vm_obj tactic_instantiate_mvars(vm_obj const & e, vm_obj const & _s) {
-    tactic_state const & s = to_tactic_state(_s);
+    tactic_state const & s = tactic::to_state(_s);
     metavar_context mctx = s.mctx();
     expr r = mctx.instantiate_mvars(to_expr(e));
-    return mk_tactic_success(to_obj(r), set_mctx(s, mctx));
+    return tactic::mk_success(to_obj(r), set_mctx(s, mctx));
 }
 
 vm_obj tactic_add_decl(vm_obj const & _d, vm_obj const & _s) {
-    tactic_state const & s  = to_tactic_state(_s);
+    tactic_state const & s  = tactic::to_state(_s);
     try {
         declaration d       = to_declaration(_d);
         environment new_env = module::add(s.env(), check(s.env(), d));
         new_env = vm_compile(new_env, d);
-        return mk_tactic_success(set_env(s, new_env));
+        return tactic::mk_success(set_env(s, new_env));
     } catch (throwable & ex) {
-        return mk_tactic_exception(ex, s);
+        return tactic::mk_exception(ex, s);
     }
 }
 
 vm_obj tactic_open_namespaces(vm_obj const & s) {
-    environment env = to_tactic_state(s).env();
+    environment env = tactic::to_state(s).env();
     buffer<name> b;
     to_buffer(get_namespaces(env), b);
     get_opened_namespaces(env).to_buffer(b);
-    return mk_tactic_success(to_obj(b), to_tactic_state(s));
+    return tactic::mk_success(to_obj(b), tactic::to_state(s));
 }
 
 vm_obj tactic_doc_string(vm_obj const & n, vm_obj const & _s) {
-    tactic_state const & s  = to_tactic_state(_s);
+    tactic_state const & s  = tactic::to_state(_s);
     if (optional<std::string> doc = get_doc_string(s.env(), to_name(n))) {
-        return mk_tactic_success(to_obj(*doc), s);
+        return tactic::mk_success(to_obj(*doc), s);
     } else {
-        return mk_tactic_exception(sstream() << "no doc string for '" << to_name(n) << "'", s);
+        return tactic::mk_exception(sstream() << "no doc string for '" << to_name(n) << "'", s);
     }
 }
 
 vm_obj tactic_add_doc_string(vm_obj const & n, vm_obj const & doc, vm_obj const & _s) {
-    tactic_state const & s  = to_tactic_state(_s);
+    tactic_state const & s  = tactic::to_state(_s);
     try {
         environment new_env = add_doc_string(s.env(), to_name(n), to_string(doc));
-        return mk_tactic_success(set_env(s, new_env));
+        return tactic::mk_success(set_env(s, new_env));
     } catch (throwable & ex) {
-        return mk_tactic_exception(ex, s);
+        return tactic::mk_exception(ex, s);
     }
 }
 
 /* meta constant module_doc_strings : tactic (list (option name × string)) */
 vm_obj tactic_module_doc_strings(vm_obj const & _s) {
-    tactic_state const & s  = to_tactic_state(_s);
+    tactic_state const & s  = tactic::to_state(_s);
     buffer<doc_entry> entries;
     get_module_doc_strings(s.env(), entries);
     unsigned i = entries.size();
@@ -725,12 +624,12 @@ vm_obj tactic_module_doc_strings(vm_obj const & _s) {
         vm_obj e   = mk_vm_pair(decl_name, doc);
         r          = mk_vm_constructor(1, e, r);
     }
-    return mk_tactic_success(r, s);
+    return tactic::mk_success(r, s);
 }
 
 vm_obj tactic_decl_name(vm_obj const & _s) {
-    auto & s = to_tactic_state(_s);
-    return mk_tactic_success(to_obj(s.decl_name()), s);
+    auto & s = tactic::to_state(_s);
+    return tactic::mk_success(to_obj(s.decl_name()), s);
 }
 
 format tactic_state::pp() const {
@@ -761,7 +660,7 @@ format tactic_state::pp() const {
 }
 
 vm_obj tactic_add_aux_decl(vm_obj const & n, vm_obj const & type, vm_obj const & val, vm_obj const & lemma, vm_obj const & _s) {
-    tactic_state const & s   = to_tactic_state(_s);
+    tactic_state const & s   = tactic::to_state(_s);
     optional<metavar_decl> g = s.get_main_goal_decl();
     if (!g) return mk_no_goals_exception(s);
     try {
@@ -769,9 +668,9 @@ vm_obj tactic_add_aux_decl(vm_obj const & n, vm_obj const & type, vm_obj const &
             to_bool(lemma) ?
               mk_aux_lemma(s.env(), s.mctx(), g->get_context(), to_name(n), to_expr(type), to_expr(val))
             : mk_aux_definition(s.env(), s.mctx(), g->get_context(), to_name(n), to_expr(type), to_expr(val));
-        return mk_tactic_success(to_obj(r.second), set_env(s, r.first));
+        return tactic::mk_success(to_obj(r.second), set_env(s, r.first));
     } catch (exception & ex) {
-        return mk_tactic_exception(ex, s);
+        return tactic::mk_exception(ex, s);
     }
 }
 

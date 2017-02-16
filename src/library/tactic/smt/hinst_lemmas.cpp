@@ -704,26 +704,26 @@ vm_obj hinst_lemma_mk_core(vm_obj const & m, vm_obj const & lemma, vm_obj const 
     LEAN_TACTIC_TRY;
     type_context ctx        = mk_type_context_for(s);
     hinst_lemma h           = mk_hinst_lemma(ctx, to_transparency_mode(m), to_expr(lemma), to_bool(simp));
-    return mk_tactic_success(to_obj(h), to_tactic_state(s));
-    LEAN_TACTIC_CATCH(to_tactic_state(s));
+    return tactic::mk_success(to_obj(h), tactic::to_state(s));
+    LEAN_TACTIC_CATCH(tactic::to_state(s));
 }
 
 vm_obj hinst_lemma_mk_from_decl_core(vm_obj const & m, vm_obj const & lemma_name, vm_obj const & simp, vm_obj const & s) {
     LEAN_TACTIC_TRY;
     type_context ctx        = mk_type_context_for(s);
     hinst_lemma h           = mk_hinst_lemma(ctx, to_transparency_mode(m), to_name(lemma_name), to_bool(simp));
-    return mk_tactic_success(to_obj(h), to_tactic_state(s));
-    LEAN_TACTIC_CATCH(to_tactic_state(s));
+    return tactic::mk_success(to_obj(h), tactic::to_state(s));
+    LEAN_TACTIC_CATCH(tactic::to_state(s));
 }
 
 vm_obj hinst_lemma_pp(vm_obj const & h, vm_obj const & _s) {
-    tactic_state const & s = to_tactic_state(_s);
+    tactic_state const & s = tactic::to_state(_s);
     LEAN_TACTIC_TRY;
     formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
     type_context ctx = mk_type_context_for(s);
     formatter fmt = fmtf(s.env(), s.get_options(), ctx);
     format r = pp_hinst_lemma(fmt, to_hinst_lemma(h));
-    return mk_tactic_success(to_obj(r), s);
+    return tactic::mk_success(to_obj(r), s);
     LEAN_TACTIC_CATCH(s);
 }
 

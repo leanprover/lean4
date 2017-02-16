@@ -110,9 +110,9 @@ vm_obj tactic_subst_core(name const & n, bool symm, tactic_state const & s) {
         expr mvar = head(s.goals());
         expr H    = mctx.get_local(mvar, n);
         expr new_mvar = subst(s.env(), s.get_options(), transparency_mode::Semireducible, mctx, mvar, H, symm, nullptr);
-        return mk_tactic_success(set_mctx_goals(s, mctx, cons(new_mvar, tail(s.goals()))));
+        return tactic::mk_success(set_mctx_goals(s, mctx, cons(new_mvar, tail(s.goals()))));
     } catch (exception & ex) {
-        return mk_tactic_exception(ex, s);
+        return tactic::mk_exception(ex, s);
     }
 }
 
@@ -121,10 +121,10 @@ vm_obj tactic_subst(expr const & l, tactic_state const & s) {
     if (!g) return mk_no_goals_exception(s);
     local_context lctx         = g->get_context();
     if (!is_local(l))
-        return mk_tactic_exception(sstream() << "subst tactic failed, given expression is not a local constant", s);
+        return tactic::mk_exception(sstream() << "subst tactic failed, given expression is not a local constant", s);
     optional<local_decl> d     = lctx.find_local_decl(l);
     if (!d)
-        return mk_tactic_exception(sstream() << "subst tactic failed, unknown '" << local_pp_name(l) << "' hypothesis", s);
+        return tactic::mk_exception(sstream() << "subst tactic failed, unknown '" << local_pp_name(l) << "' hypothesis", s);
     expr const & type = d->get_type();
     expr lhs, rhs;
     if (is_eq(type, lhs, rhs)) {
@@ -133,7 +133,7 @@ vm_obj tactic_subst(expr const & l, tactic_state const & s) {
         } else if (is_local(lhs) && !depends_on(rhs, lhs)) {
             return tactic_subst_core(d->get_name(), false, s);
         } else {
-            return mk_tactic_exception(sstream() << "subst tactic failed, hypothesis '"
+            return tactic::mk_exception(sstream() << "subst tactic failed, hypothesis '"
                                        << local_pp_name(l) << "' is not of the form (x = t) or (t = x)", s);
         }
     } else {
@@ -155,14 +155,14 @@ vm_obj tactic_subst(expr const & l, tactic_state const & s) {
         if (found) {
             return r;
         } else {
-            return mk_tactic_exception(sstream() << "subst tactic failed, hypothesis '"
+            return tactic::mk_exception(sstream() << "subst tactic failed, hypothesis '"
                                        << local_pp_name(l) << "' is not a variable nor an equation of the form (x = t) or (t = x)", s);
         }
     }
 }
 
 vm_obj tactic_subst(vm_obj const & e, vm_obj const & s) {
-    return tactic_subst(to_expr(e), to_tactic_state(s));
+    return tactic_subst(to_expr(e), tactic::to_state(s));
 }
 
 void initialize_subst_tactic() {

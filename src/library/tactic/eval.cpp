@@ -17,13 +17,13 @@ static vm_obj eval(expr const & A, expr a, tactic_state const & s) {
     metavar_context mctx = s.mctx();
     a = mctx.instantiate_mvars(a);
     if (has_local(a) || !closed(a))
-        return mk_tactic_exception("invalid eval_expr, expression must be closed", s);
+        return tactic::mk_exception("invalid eval_expr, expression must be closed", s);
     if (is_constant(a)) {
         type_context ctx = mk_type_context_for(s);
         if (!ctx.is_def_eq(A, ctx.infer(a)))
-            return mk_tactic_exception("invalid eval_expr, type mismatch", s);
+            return tactic::mk_exception("invalid eval_expr, type mismatch", s);
         vm_obj r = get_vm_state().get_constant(const_name(a));
-        return mk_tactic_success(r, s);
+        return tactic::mk_success(r, s);
     } else {
         vm_state & S = get_vm_state();
         environment aux_env = S.env();
@@ -33,13 +33,13 @@ static vm_obj eval(expr const & A, expr a, tactic_state const & s) {
         aux_env = vm_compile(aux_env, aux_env.get(eval_aux_name));
         S.update_env(aux_env);
         vm_obj r = S.get_constant(eval_aux_name);
-        return mk_tactic_success(r, s);
+        return tactic::mk_success(r, s);
     }
     LEAN_TACTIC_CATCH(s);
 }
 
 static vm_obj tactic_eval_expr(vm_obj const &, vm_obj const & A, vm_obj const & a, vm_obj const & s) {
-    return eval(to_expr(A), to_expr(a), to_tactic_state(s));
+    return eval(to_expr(A), to_expr(a), tactic::to_state(s));
 }
 
 void initialize_eval() {

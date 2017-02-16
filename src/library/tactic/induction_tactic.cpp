@@ -316,7 +316,7 @@ list<expr> induction(environment const & env, options const & opts, transparency
 vm_obj induction_tactic_core(transparency_mode const & m, expr const & H, name const & rec_name, list<name> const & ns,
                              tactic_state const & s) {
     if (!s.goals()) return mk_no_goals_exception(s);
-    if (!is_local(H)) return mk_tactic_exception("induction tactic failed, argument is not a hypothesis", s);
+    if (!is_local(H)) return tactic::mk_exception("induction tactic failed, argument is not a hypothesis", s);
     try {
         metavar_context mctx = s.mctx();
         list<name> tmp_ns = ns;
@@ -338,14 +338,14 @@ vm_obj induction_tactic_core(transparency_mode const & m, expr const & H, name c
             hyps = tail(hyps);
             substs = tail(substs);
         }
-        return mk_tactic_success(to_obj(info), new_s);
+        return tactic::mk_success(to_obj(info), new_s);
     } catch (exception & ex) {
-        return mk_tactic_exception(ex, s);
+        return tactic::mk_exception(ex, s);
     }
 }
 
 vm_obj tactic_induction(vm_obj const & H, vm_obj const & rec, vm_obj const & ns, vm_obj const & m, vm_obj const & s) {
-    return induction_tactic_core(to_transparency_mode(m), to_expr(H), to_name(rec), to_list_name(ns), to_tactic_state(s));
+    return induction_tactic_core(to_transparency_mode(m), to_expr(H), to_name(rec), to_list_name(ns), tactic::to_state(s));
 }
 
 void initialize_induction_tactic() {

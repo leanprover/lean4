@@ -150,20 +150,20 @@ vm_obj to_obj(backward_lemma_index const & idx) {
 
 vm_obj tactic_mk_backward_lemmas(vm_obj const & m, vm_obj const & s) {
     type_context ctx = mk_type_context_for(s, m);
-    return mk_tactic_success(to_obj(backward_lemma_index(ctx)), to_tactic_state(s));
+    return tactic::mk_success(to_obj(backward_lemma_index(ctx)), tactic::to_state(s));
 }
 
 vm_obj tactic_backward_lemmas_insert(vm_obj const & m, vm_obj const & lemmas, vm_obj const & lemma, vm_obj const & s) {
     type_context ctx = mk_type_context_for(s, m);
     backward_lemma_index new_lemmas = to_backward_lemmas(lemmas);
     new_lemmas.insert(ctx, to_expr(lemma));
-    return mk_tactic_success(to_obj(new_lemmas), to_tactic_state(s));
+    return tactic::mk_success(to_obj(new_lemmas), tactic::to_state(s));
 }
 
 vm_obj tactic_backward_lemmas_find(vm_obj const & lemmas, vm_obj const & h, vm_obj const & s) {
     list<expr> r = map2<expr>(to_backward_lemmas(lemmas).find(head_index(to_expr(h))),
                               [](backward_lemma const & lemma) -> expr { return lemma.to_bare_expr(); });
-    return mk_tactic_success(to_obj(r), to_tactic_state(s));
+    return tactic::mk_success(to_obj(r), tactic::to_state(s));
 }
 
 void initialize_backward_lemmas() {

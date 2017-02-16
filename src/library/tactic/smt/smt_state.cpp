@@ -138,7 +138,7 @@ vm_obj to_obj(smt_goal const & s) {
 }
 
 vm_obj tactic_result_to_smt_tactic_result(vm_obj const & r, vm_obj const & ss) {
-    return mk_tactic_result(mk_vm_pair(get_tactic_result_value(r), ss), get_tactic_result_state(r));
+    return tactic::mk_result(mk_vm_pair(tactic::get_result_value(r), ss), tactic::get_result_state(r));
 }
 
 vm_obj mk_smt_tactic_success(vm_obj const & a, vm_obj const & ss, vm_obj const & ts) {
@@ -241,7 +241,7 @@ static vm_obj preprocess(tactic_state s, smt_pre_config const & cfg) {
         metavar_context mctx = ctx.mctx();
         mctx.assign(head(s.goals()), h);
         tactic_state new_s   = set_mctx_goals_dcs(s, mctx, cons(new_M, tail(s.goals())), dcs);
-        return mk_tactic_success(new_s);
+        return tactic::mk_success(new_s);
     }
 }
 
@@ -384,8 +384,8 @@ vm_obj mk_smt_state(tactic_state s, smt_config const & cfg) {
     smt_goal new_goal(cfg);
 
     vm_obj r = preprocess(s, cfg.m_pre_config);
-    if (is_tactic_result_exception(r)) return r;
-    s = to_tactic_state(get_tactic_result_state(r));
+    if (tactic::is_result_exception(r)) return r;
+    s = tactic::to_state(tactic::get_result_state(r));
 
     metavar_context mctx = s.mctx();
     bool use_unused_names = true;
@@ -397,16 +397,16 @@ vm_obj mk_smt_state(tactic_state s, smt_config const & cfg) {
     s = set_mctx_goals_dcs(s, mctx, cons(new_M, tail(s.goals())), dcs);
     s = add_em_facts(s, new_goal);
 
-    return mk_tactic_success(mk_vm_cons(to_obj(new_goal), mk_vm_nil()), s);
+    return tactic::mk_success(mk_vm_cons(to_obj(new_goal), mk_vm_nil()), s);
 }
 
 static hinst_lemmas get_hinst_lemmas(name const & attr_name, tactic_state const & s) {
     auto & S      = get_vm_state();
     vm_obj attr   = S.get_constant(attr_name);
     vm_obj r      = caching_user_attribute_get_cache(mk_vm_unit(), attr, to_obj(s));
-    if (is_tactic_result_exception(r))
+    if (tactic::is_result_exception(r))
         throw exception(sstream() << "failed to initialize sm_state, failed to retrieve attribute '" << attr_name << "'");
-    vm_obj lemmas = get_tactic_result_value(r);
+    vm_obj lemmas = tactic::get_result_value(r);
     if (!is_hinst_lemmas(lemmas))
         throw exception(sstream() << "failed to initialize smt_state, attribute '" << attr_name << "' is not a hinst_lemmas");
     return to_hinst_lemmas(lemmas);
@@ -416,9 +416,9 @@ static simp_lemmas get_simp_lemmas(name const & attr_name, tactic_state const & 
     auto & S      = get_vm_state();
     vm_obj attr   = S.get_constant(attr_name);
     vm_obj r      = caching_user_attribute_get_cache(mk_vm_unit(), attr, to_obj(s));
-    if (is_tactic_result_exception(r))
+    if (tactic::is_result_exception(r))
         throw exception(sstream() << "failed to initialize sm_state, failed to retrieve attribute '" << attr_name << "'");
-    vm_obj lemmas = get_tactic_result_value(r);
+    vm_obj lemmas = tactic::get_result_value(r);
     if (!is_simp_lemmas(lemmas))
         throw exception(sstream() << "failed to initialize smt_state, attribute '" << attr_name << "' is not a simp_lemmas");
     return to_simp_lemmas(lemmas);
@@ -456,8 +456,8 @@ static smt_config to_smt_config(vm_obj const & cfg, tactic_state const & s) {
 
 vm_obj smt_state_mk(vm_obj const & cfg, vm_obj const & s) {
     LEAN_TACTIC_TRY;
-    return mk_smt_state(to_tactic_state(s), to_smt_config(cfg, to_tactic_state(s)));
-    LEAN_TACTIC_CATCH(to_tactic_state(s));
+    return mk_smt_state(tactic::to_state(s), to_smt_config(cfg, tactic::to_state(s)));
+    LEAN_TACTIC_CATCH(tactic::to_state(s));
 }
 
 bool same_hyps(metavar_context const & mctx, expr const & mvar1, expr const & mvar2) {
@@ -470,7 +470,7 @@ bool same_hyps(metavar_context const & mctx, expr const & mvar1, expr const & mv
 
 vm_obj tactic_to_smt_tactic(vm_obj const &, vm_obj const & tac, vm_obj const & ss, vm_obj const & ts) {
     vm_obj r1 = invoke(tac, ts);
-    if (is_tactic_result_exception(r1)) {
+    if (tactic::is_result_exception(r1)) {
         /* Tactic failed */
         return r1;
     }
@@ -493,13 +493,13 @@ vm_obj tactic_to_smt_tactic(vm_obj const &, vm_obj const & tac, vm_obj const & s
           (s_1, ..., s_1, s_2, ..., s_k)
            n copies of s_1
     */
-    vm_obj new_ts = get_tactic_result_state(r1);
-    if (is_eqp(to_tactic_state(ts), to_tactic_state(new_ts))) {
+    vm_obj new_ts = tactic::get_result_state(r1);
+    if (is_eqp(tactic::to_state(ts), tactic::to_state(new_ts))) {
         /* The tactic_state was not modified */
         return tactic_result_to_smt_tactic_result(r1, ss);
     }
-    list<expr> goals          = to_tactic_state(ts).goals();
-    list<expr> new_goals      = to_tactic_state(new_ts).goals();
+    list<expr> goals          = tactic::to_state(ts).goals();
+    list<expr> new_goals      = tactic::to_state(new_ts).goals();
     if (goals == new_goals) {
         /* Set of goals did not change. */
         return tactic_result_to_smt_tactic_result(r1, ss);
@@ -509,7 +509,7 @@ vm_obj tactic_to_smt_tactic(vm_obj const &, vm_obj const & tac, vm_obj const & s
         return tactic_result_to_smt_tactic_result(r1, mk_vm_nil());
     }
     if (!goals) {
-        return mk_tactic_exception("failed to lift tactic to smt_tactic, there were no goals to be solved", to_tactic_state(ts));
+        return tactic::mk_exception("failed to lift tactic to smt_tactic, there were no goals to be solved", tactic::to_state(ts));
     }
     if (new_goals == tail(goals)) {
         /* Main goal was solved */
@@ -517,7 +517,7 @@ vm_obj tactic_to_smt_tactic(vm_obj const &, vm_obj const & tac, vm_obj const & s
         vm_obj new_ss = tail(ss);
         return tactic_result_to_smt_tactic_result(r1, new_ss);
     }
-    metavar_context const & mctx = to_tactic_state(new_ts).mctx();
+    metavar_context const & mctx = tactic::to_state(new_ts).mctx();
     if (tail(new_goals) == tail(goals) && same_hyps(mctx, head(new_goals), head(goals))) {
         /* The set of hypotheses in the main goal did not change */
         return tactic_result_to_smt_tactic_result(r1, ss);
@@ -525,8 +525,8 @@ vm_obj tactic_to_smt_tactic(vm_obj const &, vm_obj const & tac, vm_obj const & s
     vm_obj new_ss = ss;
     while (true) {
         if (!same_hyps(mctx, head(new_goals), head(goals))) {
-            return mk_tactic_exception("failed to lift tactic to smt_tactic, set of hypotheses has been modified, at least one of the used tactics has to be lifted manually",
-                                       to_tactic_state(ts));
+            return tactic::mk_exception("failed to lift tactic to smt_tactic, set of hypotheses has been modified, at least one of the used tactics has to be lifted manually",
+                                       tactic::to_state(ts));
         }
         if (tail(new_goals) == tail(goals)) {
             return tactic_result_to_smt_tactic_result(r1, new_ss);
@@ -537,8 +537,8 @@ vm_obj tactic_to_smt_tactic(vm_obj const &, vm_obj const & tac, vm_obj const & s
         /* Move to next */
         new_goals = tail(new_goals);
         if (!new_goals) {
-            return mk_tactic_exception("failed to lift tactic to smt_tactic, only tactics that modify a prefix of the list of goals can be automatically lifted",
-                                       to_tactic_state(ts));
+            return tactic::mk_exception("failed to lift tactic to smt_tactic, only tactics that modify a prefix of the list of goals can be automatically lifted",
+                                       tactic::to_state(ts));
         }
     }
 }
@@ -670,17 +670,17 @@ format smt_state_pp(vm_obj const & ss, tactic_state const & ts) {
 
 vm_obj smt_state_to_format(vm_obj const & ss, vm_obj const & ts) {
     LEAN_TACTIC_TRY;
-    return to_obj(smt_state_to_format_core(ss, to_tactic_state(ts)));
-    LEAN_TACTIC_CATCH(to_tactic_state(ts));
+    return to_obj(smt_state_to_format_core(ss, tactic::to_state(ts)));
+    LEAN_TACTIC_CATCH(tactic::to_state(ts));
 }
 
 vm_obj mk_smt_state_empty_exception(tactic_state const & ts) {
-    return mk_tactic_exception("tactic failed, smt_state is empty", ts);
+    return tactic::mk_exception("tactic failed, smt_state is empty", ts);
 }
 
 vm_obj mk_smt_state_empty_exception(vm_obj const & ts) {
-    lean_assert(is_tactic_state(ts));
-    return mk_smt_state_empty_exception(to_tactic_state(ts));
+    lean_assert(tactic::is_state(ts));
+    return mk_smt_state_empty_exception(tactic::to_state(ts));
 }
 
 vm_obj exact_core(expr const & e, vm_obj const & ss, tactic_state const & ts) {
@@ -694,7 +694,7 @@ vm_obj exact_core(expr const & e, vm_obj const & ss, tactic_state const & ts) {
 }
 
 vm_obj smt_tactic_close(vm_obj const & ss, vm_obj const & _ts) {
-    tactic_state const & ts = to_tactic_state(_ts);
+    tactic_state const & ts = tactic::to_state(_ts);
     LEAN_TACTIC_TRY;
     if (is_nil(ss))
         return mk_smt_state_empty_exception(ts);
@@ -723,7 +723,7 @@ vm_obj smt_tactic_close(vm_obj const & ss, vm_obj const & _ts) {
         return exact_core(*pr, ss, ts);
     }
     LEAN_TACTIC_CATCH(ts);
-    return mk_tactic_exception("smt_tactic.close failed", ts);
+    return tactic::mk_exception("smt_tactic.close failed", ts);
 }
 
 vm_obj smt_tactic_intros_core(list<name> const & ids, optional<unsigned> const & num, vm_obj const & ss, tactic_state ts) {
@@ -734,8 +734,8 @@ vm_obj smt_tactic_intros_core(list<name> const & ids, optional<unsigned> const &
     smt_goal new_sgoal   = to_smt_goal(head(ss));
 
     vm_obj r = preprocess(ts, new_sgoal.get_pre_config());
-    if (is_tactic_result_exception(r)) return r;
-    ts = to_tactic_state(get_tactic_result_state(r));
+    if (tactic::is_result_exception(r)) return r;
+    ts = tactic::to_state(tactic::get_result_state(r));
 
     metavar_context mctx = ts.mctx();
     defeq_can_state dcs  = ts.dcs();
@@ -749,20 +749,20 @@ vm_obj smt_tactic_intros_core(list<name> const & ids, optional<unsigned> const &
 }
 
 vm_obj smt_tactic_intros(vm_obj const & ss, vm_obj const & ts) {
-    return smt_tactic_intros_core(list<name>(), optional<unsigned>(), ss, to_tactic_state(ts));
+    return smt_tactic_intros_core(list<name>(), optional<unsigned>(), ss, tactic::to_state(ts));
 }
 
 vm_obj smt_tactic_intron(vm_obj const & n, vm_obj const & ss, vm_obj const & ts) {
-    return smt_tactic_intros_core(list<name>(), optional<unsigned>(force_to_unsigned(n)), ss, to_tactic_state(ts));
+    return smt_tactic_intros_core(list<name>(), optional<unsigned>(force_to_unsigned(n)), ss, tactic::to_state(ts));
 }
 
 vm_obj smt_tactic_intro_lst(vm_obj const & _ids, vm_obj const & ss, vm_obj const & ts) {
     list<name> const & ids = to_list_name(_ids);
-    return smt_tactic_intros_core(list<name>(ids), optional<unsigned>(length(ids)), ss, to_tactic_state(ts));
+    return smt_tactic_intros_core(list<name>(ids), optional<unsigned>(length(ids)), ss, tactic::to_state(ts));
 }
 
 vm_obj smt_tactic_intros_core(vm_obj const & _ids, vm_obj const & ss, vm_obj const & _ts) {
-    tactic_state ts = to_tactic_state(_ts);
+    tactic_state ts = tactic::to_state(_ts);
     if (is_nil(ss))
         return mk_smt_state_empty_exception(ts);
     LEAN_TACTIC_TRY;
@@ -770,8 +770,8 @@ vm_obj smt_tactic_intros_core(vm_obj const & _ids, vm_obj const & ss, vm_obj con
     smt_goal new_sgoal   = to_smt_goal(head(ss));
 
     vm_obj r = preprocess(ts, new_sgoal.get_pre_config());
-    if (is_tactic_result_exception(r)) return r;
-    ts = to_tactic_state(get_tactic_result_state(r));
+    if (tactic::is_result_exception(r)) return r;
+    ts = tactic::to_state(tactic::get_result_state(r));
 
     metavar_context mctx = ts.mctx();
     defeq_can_state dcs  = ts.dcs();
@@ -797,7 +797,7 @@ vm_obj smt_state_classical(vm_obj const & ss) {
 }
 
 vm_obj smt_tactic_ematch_core(vm_obj const & pred, vm_obj const & ss, vm_obj const & _ts) {
-    tactic_state ts = to_tactic_state(_ts);
+    tactic_state ts = tactic::to_state(_ts);
     if (is_nil(ss)) return mk_smt_state_empty_exception(ts);
     lean_assert(ts.goals());
     LEAN_TACTIC_TRY;
@@ -810,7 +810,7 @@ vm_obj smt_tactic_ematch_core(vm_obj const & pred, vm_obj const & ss, vm_obj con
     buffer<new_instance> new_instances;
     S.ematch(new_instances);
     if (new_instances.empty())
-        return mk_tactic_exception("ematch failed, no new instance was produced", ts);
+        return tactic::mk_exception("ematch failed, no new instance was produced", ts);
     for (new_instance const & p : new_instances) {
         expr type   = p.m_instance;
         expr proof  = p.m_proof;
@@ -830,7 +830,7 @@ vm_obj smt_tactic_ematch_core(vm_obj const & pred, vm_obj const & ss, vm_obj con
 }
 
 vm_obj smt_tactic_mk_ematch_eqn_lemmas_for_core(vm_obj const & md, vm_obj const & decl_name, vm_obj const & ss, vm_obj const & _ts) {
-    tactic_state ts = to_tactic_state(_ts);
+    tactic_state ts = tactic::to_state(_ts);
     if (is_nil(ss)) return mk_smt_state_empty_exception(ts);
     lean_assert(ts.goals());
     LEAN_TACTIC_TRY;
@@ -838,7 +838,7 @@ vm_obj smt_tactic_mk_ematch_eqn_lemmas_for_core(vm_obj const & md, vm_obj const 
     buffer<name> eqns;
     get_ext_eqn_lemmas_for(ts.env(), to_name(decl_name), eqns);
     if (eqns.empty())
-        return mk_tactic_exception(sstream() << "tactic failed, '" << to_name(decl_name) << "' does not have equation lemmas", ts);
+        return tactic::mk_exception(sstream() << "tactic failed, '" << to_name(decl_name) << "' does not have equation lemmas", ts);
     hinst_lemmas hs;
     for (name const & eqn : eqns) {
         declaration eqn_decl = ctx.env().get(eqn);
@@ -861,7 +861,7 @@ vm_obj smt_tactic_to_em_state(vm_obj const & ss, vm_obj const & ts) {
 }
 
 vm_obj smt_tactic_preprocess(vm_obj const & e, vm_obj const & ss, vm_obj const & _ts) {
-    tactic_state ts = to_tactic_state(_ts);
+    tactic_state ts = tactic::to_state(_ts);
     if (is_nil(ss)) return mk_smt_state_empty_exception(ts);
     lean_assert(ts.goals());
     LEAN_TACTIC_TRY;
@@ -876,7 +876,7 @@ vm_obj smt_tactic_preprocess(vm_obj const & e, vm_obj const & ss, vm_obj const &
 }
 
 vm_obj smt_tactic_get_lemmas(vm_obj const & ss, vm_obj const & _ts) {
-    tactic_state ts = to_tactic_state(_ts);
+    tactic_state ts = tactic::to_state(_ts);
     if (is_nil(ss)) return mk_smt_state_empty_exception(ts);
     smt_goal g      = to_smt_goal(head(ss));
     hinst_lemmas s  = g.get_em_state().get_lemmas();
@@ -886,7 +886,7 @@ vm_obj smt_tactic_get_lemmas(vm_obj const & ss, vm_obj const & _ts) {
 }
 
 vm_obj smt_tactic_set_lemmas(vm_obj const & lemmas, vm_obj const & ss, vm_obj const & _ts) {
-    tactic_state ts     = to_tactic_state(_ts);
+    tactic_state ts     = tactic::to_state(_ts);
     if (is_nil(ss)) return mk_smt_state_empty_exception(ts);
     smt_goal g          = to_smt_goal(head(ss));
     g.set_lemmas(to_hinst_lemmas(lemmas));
@@ -895,7 +895,7 @@ vm_obj smt_tactic_set_lemmas(vm_obj const & lemmas, vm_obj const & ss, vm_obj co
 }
 
 vm_obj smt_tactic_add_lemmas(vm_obj const & lemmas, vm_obj const & ss, vm_obj const & _ts) {
-    tactic_state ts     = to_tactic_state(_ts);
+    tactic_state ts     = tactic::to_state(_ts);
     if (is_nil(ss)) return mk_smt_state_empty_exception(ts);
     type_context ctx    = mk_type_context_for(ts);
     defeq_can_state dcs = ts.dcs();
@@ -915,7 +915,7 @@ vm_obj smt_tactic_add_lemmas(vm_obj const & lemmas, vm_obj const & ss, vm_obj co
 }
 
 vm_obj smt_tactic_ematch_using(vm_obj const & hs, vm_obj const & ss, vm_obj const & _ts) {
-    tactic_state ts = to_tactic_state(_ts);
+    tactic_state ts = tactic::to_state(_ts);
     if (is_nil(ss)) return mk_smt_state_empty_exception(ts);
     lean_assert(ts.goals());
     LEAN_TACTIC_TRY;
@@ -935,7 +935,7 @@ vm_obj smt_tactic_ematch_using(vm_obj const & hs, vm_obj const & ss, vm_obj cons
             }
         });
     if (!added_facts && new_instances.empty())
-        return mk_tactic_exception("ematch_using failed, no instance was produced", ts);
+        return tactic::mk_exception("ematch_using failed, no instance was produced", ts);
     for (new_instance const & p : new_instances) {
         expr type   = p.m_instance;
         expr proof  = p.m_proof;

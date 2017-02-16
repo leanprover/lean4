@@ -14,15 +14,15 @@ vm_obj rename(name const & from, name const & to, tactic_state const & s) {
     metavar_context mctx       = s.mctx();
     local_context lctx         = g->get_context();
     if (!lctx.rename_user_name(from, to)) {
-        return mk_tactic_exception(sstream() << "rename tactic failed, unknown '" << from << "' hypothesis", s);
+        return tactic::mk_exception(sstream() << "rename tactic failed, unknown '" << from << "' hypothesis", s);
     }
     expr new_g                 = mctx.mk_metavar_decl(lctx, g->get_type());
     mctx.assign(head(s.goals()), new_g);
-    return mk_tactic_success(set_mctx_goals(s, mctx, cons(new_g, tail(s.goals()))));
+    return tactic::mk_success(set_mctx_goals(s, mctx, cons(new_g, tail(s.goals()))));
 }
 
 vm_obj tactic_rename(vm_obj const & from, vm_obj const & to, vm_obj const & s) {
-    return rename(to_name(from), to_name(to), to_tactic_state(s));
+    return rename(to_name(from), to_name(to), tactic::to_state(s));
 }
 
 void initialize_rename_tactic() {

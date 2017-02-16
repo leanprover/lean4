@@ -29,10 +29,10 @@ Author: Leonardo de Moura
 
 namespace lean {
 vm_obj _vm_monitor_register(vm_obj const & vm_n, vm_obj const & vm_s) {
-    auto const & s = to_tactic_state(vm_s);
+    auto const & s = tactic::to_state(vm_s);
     auto const & n = to_name(vm_n);
     LEAN_TACTIC_TRY;
-    return mk_tactic_success(set_env(s, vm_monitor_register(s.env(), n)));
+    return tactic::mk_success(set_env(s, vm_monitor_register(s.env(), n)));
     LEAN_TACTIC_CATCH(s);
 }
 
@@ -69,7 +69,7 @@ vm_obj _vm_obj_kind(vm_obj const & o) {
         else if (is_expr(o)) return mk_vm_simple(7);
         else if (is_declaration(o)) return mk_vm_simple(8);
         else if (is_env(o)) return mk_vm_simple(9);
-        else if (is_tactic_state(o)) return mk_vm_simple(10);
+        else if (tactic::is_state(o)) return mk_vm_simple(10);
         else if (is_format(o)) return mk_vm_simple(11);
         else if (is_options(o)) return mk_vm_simple(12);
         else return mk_vm_simple(13);
@@ -158,7 +158,7 @@ vm_obj vm_obj_to_environment(vm_obj const & o) {
 }
 
 vm_obj vm_obj_to_tactic_state(vm_obj const & o) {
-    if (is_tactic_state(o))
+    if (tactic::is_state(o))
         return o;
     else
         return to_obj(mk_tactic_state_for(environment(), options(), {}, local_context(), mk_Prop()));
@@ -318,8 +318,8 @@ vm_obj vm_pp_stack_obj(vm_obj const & i, vm_obj const & /*s*/) {
         } catch (exception &) {
             r = default_format(vm, idx);
         }
-    } else if (is_tactic_state(o)) {
-        r = to_tactic_state(o).pp_core();
+    } else if (tactic::is_state(o)) {
+        r = tactic::to_state(o).pp_core();
     } else if (is_env(o)) {
         r = format("[environment]");
     } else {

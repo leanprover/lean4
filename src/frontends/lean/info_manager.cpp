@@ -154,11 +154,11 @@ info_manager * get_global_info_manager() {
 vm_obj tactic_save_info_thunk(vm_obj const & line, vm_obj const & col, vm_obj const & thunk, vm_obj const & s) {
     try {
         if (g_info_m) {
-            g_info_m->add_vm_obj_format_info(force_to_unsigned(line), force_to_unsigned(col), to_tactic_state(s).env(), thunk);
+            g_info_m->add_vm_obj_format_info(force_to_unsigned(line), force_to_unsigned(col), tactic::to_state(s).env(), thunk);
         }
-        return mk_tactic_success(to_tactic_state(s));
+        return tactic::mk_success(tactic::to_state(s));
     } catch (exception & ex) {
-        return mk_tactic_exception(ex, to_tactic_state(s));
+        return tactic::mk_exception(ex, tactic::to_state(s));
     }
 }
 

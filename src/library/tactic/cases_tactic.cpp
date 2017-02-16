@@ -486,7 +486,7 @@ cases(environment const & env, options const & opts, transparency_mode const & m
 }
 
 vm_obj tactic_cases_core(vm_obj const & H, vm_obj const & ns, vm_obj const & m, vm_obj const & _s) {
-    tactic_state const & s   = to_tactic_state(_s);
+    tactic_state const & s   = tactic::to_state(_s);
     try {
         if (!s.goals()) return mk_no_goals_exception(s);
         list<name> ids       = to_list_name(ns);
@@ -507,11 +507,11 @@ vm_obj tactic_cases_core(vm_obj const & H, vm_obj const & ns, vm_obj const & m, 
             substs  = tail(substs);
             constrs = tail(constrs);
         }
-        return mk_tactic_success(to_obj(info_objs), set_mctx_goals(s, mctx, append(info.first, tail(s.goals()))));
+        return tactic::mk_success(to_obj(info_objs), set_mctx_goals(s, mctx, append(info.first, tail(s.goals()))));
     } catch (cases_tactic_exception & ex) {
-        return mk_tactic_exception(ex.what(), ex.m_state);
+        return tactic::mk_exception(ex.what(), ex.m_state);
     } catch (exception & ex) {
-        return mk_tactic_exception(ex, s);
+        return tactic::mk_exception(ex, s);
     }
 }
 

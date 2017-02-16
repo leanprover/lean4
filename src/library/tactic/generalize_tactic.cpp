@@ -19,22 +19,22 @@ vm_obj generalize(transparency_mode m, expr const & e, name const & id, tactic_s
     expr target = ctx.instantiate_mvars(g->get_type());
     expr target_abst = kabstract(ctx, target, e);
     if (closed(target_abst))
-        return mk_tactic_exception("generalize tactic failed, failed to find expression in the target", s);
+        return tactic::mk_exception("generalize tactic failed, failed to find expression in the target", s);
     expr e_type   = ctx.infer(e);
     expr new_type = mk_pi(id, e_type, target_abst);
     try {
         check(ctx, new_type);
     } catch (exception & ex) {
-        return mk_tactic_exception(nested_exception("generalize tactic failed, result is not type correct", ex), s);
+        return tactic::mk_exception(nested_exception("generalize tactic failed, result is not type correct", ex), s);
     }
     metavar_context mctx = ctx.mctx();
     expr mvar     = mctx.mk_metavar_decl(g->get_context(), new_type);
     mctx.assign(head(s.goals()), mk_app(mvar, e));
-    return mk_tactic_success(set_mctx_goals(s, mctx, cons(mvar, tail(s.goals()))));
+    return tactic::mk_success(set_mctx_goals(s, mctx, cons(mvar, tail(s.goals()))));
 }
 
 vm_obj tactic_generalize(vm_obj const & e, vm_obj const & n, vm_obj const & m, vm_obj const & s) {
-    return generalize(to_transparency_mode(m), to_expr(e), to_name(n), to_tactic_state(s));
+    return generalize(to_transparency_mode(m), to_expr(e), to_name(n), tactic::to_state(s));
 }
 
 void initialize_generalize_tactic() {

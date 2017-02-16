@@ -20,7 +20,7 @@ vm_obj assert_define_core(bool is_assert, name const & n, expr const & t, tactic
         if (is_assert) msg += format("assert"); else msg += format("define");
         msg += format(" tactic, expression is not a type");
         msg += pp_indented_expr(s, t);
-        return mk_tactic_exception(msg, s);
+        return tactic::mk_exception(msg, s);
     }
     local_context lctx   = g->get_context();
     metavar_context mctx = ctx.mctx();
@@ -37,15 +37,15 @@ vm_obj assert_define_core(bool is_assert, name const & n, expr const & t, tactic
     }
     mctx.assign(head(s.goals()), new_val);
     list<expr> new_gs    = cons(new_M_1, cons(new_M_2, tail(s.goals())));
-    return mk_tactic_success(set_mctx_goals(s, mctx, new_gs));
+    return tactic::mk_success(set_mctx_goals(s, mctx, new_gs));
 }
 
 vm_obj tactic_assert_core(vm_obj const & n, vm_obj const & t, vm_obj const & s) {
-    return assert_define_core(true, to_name(n), to_expr(t), to_tactic_state(s));
+    return assert_define_core(true, to_name(n), to_expr(t), tactic::to_state(s));
 }
 
 vm_obj tactic_define_core(vm_obj const & n, vm_obj const & t, vm_obj const & s) {
-    return assert_define_core(false, to_name(n), to_expr(t), to_tactic_state(s));
+    return assert_define_core(false, to_name(n), to_expr(t), tactic::to_state(s));
 }
 
 vm_obj assertv_definev_core(bool is_assert, name const & n, expr const & t, expr const & v, tactic_state const & s) {
@@ -63,7 +63,7 @@ vm_obj assertv_definev_core(bool is_assert, name const & n, expr const & t, expr
             msg += pp_indented_expr(s, t);
             return msg;
         };
-        return mk_tactic_exception(thunk, s);
+        return tactic::mk_exception(thunk, s);
     }
     local_context lctx   = g->get_context();
     metavar_context mctx = ctx.mctx();
@@ -79,20 +79,20 @@ vm_obj assertv_definev_core(bool is_assert, name const & n, expr const & t, expr
     }
     mctx.assign(head(s.goals()), new_val);
     list<expr> new_gs    = cons(new_M, tail(s.goals()));
-    return mk_tactic_success(set_mctx_goals(s, mctx, new_gs));
+    return tactic::mk_success(set_mctx_goals(s, mctx, new_gs));
 }
 
 vm_obj tactic_assertv_core(vm_obj const & n, vm_obj const & e, vm_obj const & pr, vm_obj const & s) {
-    return assertv_definev_core(true, to_name(n), to_expr(e), to_expr(pr), to_tactic_state(s));
+    return assertv_definev_core(true, to_name(n), to_expr(e), to_expr(pr), tactic::to_state(s));
 }
 
 vm_obj tactic_definev_core(vm_obj const & n, vm_obj const & e, vm_obj const & pr, vm_obj const & s) {
-    return assertv_definev_core(false, to_name(n), to_expr(e), to_expr(pr), to_tactic_state(s));
+    return assertv_definev_core(false, to_name(n), to_expr(e), to_expr(pr), tactic::to_state(s));
 }
 
 vm_obj assertv_definev(bool is_assert, name const & n, expr const & t, expr const & v, tactic_state const & s) {
     vm_obj r = assertv_definev_core(is_assert, n, t, v, s);
-    if (optional<tactic_state> const & s2 = is_tactic_success(r)) {
+    if (optional<tactic_state> const & s2 = tactic::is_success(r)) {
         return intro(n, *s2);
     } else {
         return r;

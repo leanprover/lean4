@@ -14,26 +14,26 @@ Author: Leonardo de Moura
 
 namespace lean {
 vm_obj tactic_mk_app(vm_obj const & c, vm_obj const & as, vm_obj const & tmode, vm_obj const & _s) {
-    tactic_state const & s = to_tactic_state(_s);
+    tactic_state const & s = tactic::to_state(_s);
     try {
         type_context ctx       = mk_type_context_for(s, to_transparency_mode(tmode));
         buffer<expr> args;
         to_buffer_expr(as, args);
         expr r                 = mk_app(ctx, to_name(c), args.size(), args.data());
-        return mk_tactic_success(to_obj(r), s);
+        return tactic::mk_success(to_obj(r), s);
     } catch (exception & ex) {
-        return mk_tactic_exception(ex, s);
+        return tactic::mk_exception(ex, s);
     }
 }
 
 #define MK_APP(CODE) {                                                  \
-    tactic_state const & s = to_tactic_state(_s);                       \
+    tactic_state const & s = tactic::to_state(_s);                       \
     try {                                                               \
         type_context ctx       = mk_type_context_for(s);                \
         expr r = CODE;                                                  \
-        return mk_tactic_success(to_obj(r), s);                         \
+        return tactic::mk_success(to_obj(r), s);                         \
     } catch (exception & ex) {                                          \
-        return mk_tactic_exception(ex, s);                              \
+        return tactic::mk_exception(ex, s);                              \
     }                                                                   \
 }
 
@@ -70,7 +70,7 @@ vm_obj tactic_mk_eq_mp(vm_obj const & h1, vm_obj const & h2, vm_obj const & _s) 
 }
 
 vm_obj tactic_mk_mapp(vm_obj const & c, vm_obj const & as, vm_obj const & tmode, vm_obj const & _s) {
-    tactic_state const & s = to_tactic_state(_s);
+    tactic_state const & s = tactic::to_state(_s);
     try {
         type_context ctx       = mk_type_context_for(s, to_transparency_mode(tmode));
         buffer<bool> mask;
@@ -87,9 +87,9 @@ vm_obj tactic_mk_mapp(vm_obj const & c, vm_obj const & as, vm_obj const & tmode,
             it = tail(it);
         }
         expr r = mk_app(ctx, to_name(c), mask.size(), mask.data(), args.data());
-        return mk_tactic_success(to_obj(r), s);
+        return tactic::mk_success(to_obj(r), s);
     } catch (exception & ex) {
-        return mk_tactic_exception(ex, s);
+        return tactic::mk_exception(ex, s);
     }
 }
 

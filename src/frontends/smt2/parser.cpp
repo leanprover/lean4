@@ -483,7 +483,7 @@ private:
         vm_state state(env(), ios().get_options());
         scope_vm_state scope(state);
         vm_obj result = state.invoke(get_smt_prove_name(), s);
-        if (optional<tactic_state> s_new = is_tactic_success(result)) {
+        if (optional<tactic_state> s_new = tactic::is_success(result)) {
             mctx = s_new->mctx();
             expr proof = mctx.instantiate_mvars(goal_mvar);
             if (has_expr_metavar(proof)) {

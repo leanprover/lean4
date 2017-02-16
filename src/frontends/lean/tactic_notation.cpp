@@ -526,7 +526,7 @@ expr parse_auto_quote_tactic_block(parser & p, unsigned, expr const *, pos_info 
 }
 
 vm_obj tactic_report_error(vm_obj const & line, vm_obj const & col, vm_obj const & fmt, vm_obj const & _s) {
-    tactic_state s = to_tactic_state(_s);
+    tactic_state s = tactic::to_state(_s);
     pos_info pos(force_to_unsigned(line), force_to_unsigned(col));
     pos_info_provider * pip = get_pos_info_provider();
     if (pip) {
@@ -535,7 +535,7 @@ vm_obj tactic_report_error(vm_obj const & line, vm_obj const & col, vm_obj const
         out << mk_pair(to_format(fmt), s.get_options());
         out.report();
     }
-    return mk_tactic_success(s);
+    return tactic::mk_success(s);
 }
 
 void initialize_tactic_notation() {

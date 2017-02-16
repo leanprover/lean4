@@ -109,32 +109,32 @@ struct user_attr_modification : public modification {
 
 /* VM builtins */
 vm_obj attribute_get_instances(vm_obj const & vm_n, vm_obj const & vm_s) {
-    auto const & s = to_tactic_state(vm_s);
+    auto const & s = tactic::to_state(vm_s);
     auto const & n = to_name(vm_n);
     buffer<name> b;
     LEAN_TACTIC_TRY;
     get_attribute(s.env(), n).get_instances(s.env(), b);
     LEAN_TACTIC_CATCH(s);
-    return mk_tactic_success(to_obj(b), s);
+    return tactic::mk_success(to_obj(b), s);
 }
 
 vm_obj attribute_register(vm_obj const & vm_n, vm_obj const & vm_s) {
-    auto const & s = to_tactic_state(vm_s);
+    auto const & s = tactic::to_state(vm_s);
     auto const & n = to_name(vm_n);
     LEAN_TACTIC_TRY;
     auto env = module::add_and_perform(s.env(), std::make_shared<user_attr_modification>(n));
-    return mk_tactic_success(set_env(s, env));
+    return tactic::mk_success(set_env(s, env));
     LEAN_TACTIC_CATCH(s);
 }
 
 vm_obj attribute_fingerprint(vm_obj const & vm_n, vm_obj const & vm_s) {
-    auto const & s = to_tactic_state(vm_s);
+    auto const & s = tactic::to_state(vm_s);
     auto const & n = to_name(vm_n);
     unsigned h;
     LEAN_TACTIC_TRY;
     h = get_attribute(s.env(), n).get_fingerprint(s.env());
     LEAN_TACTIC_CATCH(s);
-    return mk_tactic_success(mk_vm_nat(h), s);
+    return tactic::mk_success(mk_vm_nat(h), s);
 }
 
 /* Caching */
@@ -163,7 +163,7 @@ static bool check_dep_fingerprints(environment const & env, list<name> const & d
 }
 
 vm_obj caching_user_attribute_get_cache(vm_obj const &, vm_obj const & vm_attr, vm_obj const & vm_s) {
-    tactic_state const & s       = to_tactic_state(vm_s);
+    tactic_state const & s       = tactic::to_state(vm_s);
     name const & n               = to_name(cfield(vm_attr, 0));
     vm_obj const & cache_handler = cfield(vm_attr, 2);
     list<name> const & deps      = to_list_name(cfield(vm_attr, 3));
@@ -176,7 +176,7 @@ vm_obj caching_user_attribute_get_cache(vm_obj const &, vm_obj const & vm_attr, 
         if (it->second.m_fingerprint == attr.get_fingerprint(env) &&
             check_dep_fingerprints(env, deps, it->second.m_dep_fingerprints) &&
             env.is_descendant(it->second.m_env)) {
-            return mk_tactic_success(it->second.m_val, s);
+            return tactic::mk_success(it->second.m_val, s);
         }
         lean_trace("user_attributes_cache", tout() << "cached result for [" << attr.get_name() << "] "
                    << "has been found, but cache fingerprint does not match\n";);
@@ -194,7 +194,7 @@ vm_obj caching_user_attribute_get_cache(vm_obj const &, vm_obj const & vm_attr, 
         result = invoke(cache_handler, to_obj(to_list(instances)), to_obj(s0));
         was_updated = get_vm_state().env_was_updated();
     }
-    if (is_tactic_success(result)) {
+    if (tactic::is_success(result)) {
         if (!was_updated) {
             user_attr_cache::entry entry;
             entry.m_env         = env;
@@ -205,12 +205,12 @@ vm_obj caching_user_attribute_get_cache(vm_obj const &, vm_obj const & vm_attr, 
             entry.m_val = cfield(result, 0);
             cache.m_cache.erase(attr.get_name());
             cache.m_cache.insert(mk_pair(attr.get_name(), entry));
-            return mk_tactic_success(entry.m_val, s);
+            return tactic::mk_success(entry.m_val, s);
         } else {
             lean_trace("user_attributes_cache", tout() << "did not cache result for [" << attr.get_name() << "] "
                        "because VM environment has been updated with temporary declarations\n";);
             vm_obj r = cfield(result, 0);
-            return mk_tactic_success(r, s);
+            return tactic::mk_success(r, s);
         }
     } else {
         return result;
@@ -226,15 +226,15 @@ vm_obj set_basic_attribute(vm_obj const & vm_attr_n, vm_obj const & vm_n, vm_obj
         prio = LEAN_DEFAULT_PRIORITY;
     else
         prio = force_to_unsigned(get_some_value(vm_prio), std::numeric_limits<unsigned>::max());
-    tactic_state const & s = to_tactic_state(vm_s);
+    tactic_state const & s = tactic::to_state(vm_s);
     LEAN_TACTIC_TRY;
     attribute const & attr = get_attribute(s.env(), attr_n);
     if (basic_attribute const * basic_attr = dynamic_cast<basic_attribute const *>(&attr)) {
         bool persistent     = to_bool(p);
         environment new_env = basic_attr->set(s.env(), get_global_ios(), n, prio, persistent);
-        return mk_tactic_success(set_env(s, new_env));
+        return tactic::mk_success(set_env(s, new_env));
     } else {
-        return mk_tactic_exception(sstream() << "set_basic_attribute tactic failed, '" << attr_n << "' is not a basic attribute", s);
+        return tactic::mk_exception(sstream() << "set_basic_attribute tactic failed, '" << attr_n << "' is not a basic attribute", s);
     }
     LEAN_TACTIC_CATCH(s);
 }
@@ -242,26 +242,26 @@ vm_obj set_basic_attribute(vm_obj const & vm_attr_n, vm_obj const & vm_n, vm_obj
 vm_obj unset_attribute(vm_obj const & vm_attr_n, vm_obj const & vm_n, vm_obj const & vm_s) {
     name const & attr_n    = to_name(vm_attr_n);
     name const & n         = to_name(vm_n);
-    tactic_state const & s = to_tactic_state(vm_s);
+    tactic_state const & s = tactic::to_state(vm_s);
     LEAN_TACTIC_TRY;
     attribute const & attr = get_attribute(s.env(), attr_n);
     bool persistent        = false;
     environment new_env    = attr.unset(s.env(), get_global_ios(), n, persistent);
-    return mk_tactic_success(set_env(s, new_env));
+    return tactic::mk_success(set_env(s, new_env));
     LEAN_TACTIC_CATCH(s);
 }
 
 vm_obj has_attribute(vm_obj const & vm_attr_n, vm_obj const & vm_n, vm_obj const & vm_s) {
     name const & attr_n    = to_name(vm_attr_n);
     name const & n         = to_name(vm_n);
-    tactic_state const & s = to_tactic_state(vm_s);
+    tactic_state const & s = tactic::to_state(vm_s);
     LEAN_TACTIC_TRY;
     attribute const & attr = get_attribute(s.env(), attr_n);
     if (attr.is_instance(s.env(), n)) {
         unsigned prio          = attr.get_prio(s.env(), n);
-        return mk_tactic_success(mk_vm_nat(prio), s);
+        return tactic::mk_success(mk_vm_nat(prio), s);
     } else {
-        return mk_tactic_exception(sstream() << "'" << n << "' is not tagged with attribute '" << attr_n << "'", s);
+        return tactic::mk_exception(sstream() << "'" << n << "' is not tagged with attribute '" << attr_n << "'", s);
     }
     LEAN_TACTIC_CATCH(s);
 }

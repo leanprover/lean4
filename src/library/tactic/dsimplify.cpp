@@ -270,7 +270,7 @@ class tactic_dsimplify_fn : public dsimplify_core_fn {
     optional<pair<expr, bool>> invoke_fn(vm_obj const & fn, expr const & e) {
         m_s = set_mctx_lctx_dcs(m_s, m_ctx.mctx(), m_ctx.lctx(), m_defeq_canonizer.get_state());
         vm_obj r = invoke(fn, m_a, to_obj(e), to_obj(m_s));
-        if (optional<tactic_state> new_s = is_tactic_success(r)) {
+        if (optional<tactic_state> new_s = tactic::is_success(r)) {
             m_s = *new_s;
             m_ctx.set_mctx(m_s.mctx());
             m_defeq_canonizer.set_state(m_s.dcs());
@@ -309,7 +309,7 @@ public:
 vm_obj tactic_dsimplify_core(vm_obj const &, vm_obj const & a,
                              vm_obj const & max_steps, vm_obj const & visit_instances,
                              vm_obj const & pre, vm_obj const & post, vm_obj const & e, vm_obj const & _s) {
-    tactic_state const & s = to_tactic_state(_s);
+    tactic_state const & s = tactic::to_state(_s);
     try {
         type_context ctx = mk_type_context_for(s, transparency_mode::Reducible);
         defeq_can_state dcs = s.dcs();
@@ -317,15 +317,15 @@ vm_obj tactic_dsimplify_core(vm_obj const &, vm_obj const & a,
                               to_bool(visit_instances), a, pre, post, s);
         expr new_e = F(to_expr(e));
         tactic_state new_s = set_mctx_dcs(s, F.mctx(), dcs);
-        return mk_tactic_success(mk_vm_pair(F.get_a(), to_obj(new_e)), new_s);
+        return tactic::mk_success(mk_vm_pair(F.get_a(), to_obj(new_e)), new_s);
     } catch (exception & ex) {
-        return mk_tactic_exception(ex, s);
+        return tactic::mk_exception(ex, s);
     }
 }
 
 vm_obj simp_lemmas_dsimplify_core(vm_obj const & max_steps, vm_obj const & visit_instances, vm_obj const & lemmas,
                                   vm_obj const & e, vm_obj const & _s) {
-    tactic_state const & s = to_tactic_state(_s);
+    tactic_state const & s = tactic::to_state(_s);
     try {
         type_context ctx    = mk_type_context_for(s, transparency_mode::Reducible);
         defeq_can_state dcs = s.dcs();
@@ -337,9 +337,9 @@ vm_obj simp_lemmas_dsimplify_core(vm_obj const & max_steps, vm_obj const & visit
                        to_bool(visit_instances), dlemmas, use_eta);
         expr new_e = F(to_expr(e));
         tactic_state new_s = set_mctx_dcs(s, F.mctx(), dcs);
-        return mk_tactic_success(to_obj(new_e), new_s);
+        return tactic::mk_success(to_obj(new_e), new_s);
     } catch (exception & ex) {
-        return mk_tactic_exception(ex, s);
+        return tactic::mk_exception(ex, s);
     }
 }
 

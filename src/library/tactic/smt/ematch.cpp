@@ -1084,8 +1084,8 @@ vm_obj ematch_state_internalize(vm_obj const & ems, vm_obj const & e, vm_obj con
     ematch_state S   = to_ematch_state(ems);
     type_context ctx = mk_type_context_for(s);
     S.internalize(ctx, to_expr(e));
-    return mk_tactic_success(to_obj(S), to_tactic_state(s));
-    LEAN_TACTIC_CATCH(to_tactic_state(s));
+    return tactic::mk_success(to_obj(S), tactic::to_state(s));
+    LEAN_TACTIC_CATCH(tactic::to_state(s));
 }
 
 vm_obj mk_ematch_result(buffer<new_instance> const & new_inst_buffer, congruence_closure::state const & ccs,
@@ -1100,7 +1100,7 @@ vm_obj mk_ematch_result(buffer<new_instance> const & new_inst_buffer, congruence
 }
 
 vm_obj ematch_core(vm_obj const & md, vm_obj const & _ccs, vm_obj const & _ems, vm_obj const & hlemma, vm_obj const & t, vm_obj const & _s) {
-    tactic_state const & s = to_tactic_state(_s);
+    tactic_state const & s = tactic::to_state(_s);
     LEAN_TACTIC_TRY;
     type_context ctx    = mk_type_context_for(_s, md);
     ematch_state ems    = to_ematch_state(_ems);
@@ -1111,12 +1111,12 @@ vm_obj ematch_core(vm_obj const & md, vm_obj const & _ccs, vm_obj const & _ems, 
     ematch(ctx, ems, cc, to_hinst_lemma(hlemma), to_expr(t), new_inst_buffer);
     vm_obj r = mk_ematch_result(new_inst_buffer, ccs, ems);
     tactic_state new_s = set_dcs(s, dcs);
-    return mk_tactic_success(r, new_s);
+    return tactic::mk_success(r, new_s);
     LEAN_TACTIC_CATCH(s);
 }
 
 vm_obj ematch_all_core(vm_obj const & md, vm_obj const & _ccs, vm_obj const & _ems, vm_obj const & hlemma, vm_obj const & filter, vm_obj const & _s) {
-    tactic_state const & s = to_tactic_state(_s);
+    tactic_state const & s = tactic::to_state(_s);
     LEAN_TACTIC_TRY;
     type_context ctx    = mk_type_context_for(_s, md);
     ematch_state ems    = to_ematch_state(_ems);
@@ -1127,7 +1127,7 @@ vm_obj ematch_all_core(vm_obj const & md, vm_obj const & _ccs, vm_obj const & _e
     ematch(ctx, ems, cc, to_hinst_lemma(hlemma), to_bool(filter), new_inst_buffer);
     vm_obj r = mk_ematch_result(new_inst_buffer, ccs, ems);
     tactic_state new_s = set_dcs(s, dcs);
-    return mk_tactic_success(r, new_s);
+    return tactic::mk_success(r, new_s);
     LEAN_TACTIC_CATCH(s);
 }
 

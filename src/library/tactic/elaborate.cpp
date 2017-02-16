@@ -37,7 +37,7 @@ static bool report_failure(elaborator_exception const & ex, expr const & mvar, c
 }
 
 vm_obj tactic_to_expr_core(vm_obj const & qe, vm_obj const & relaxed, vm_obj const & report_errors, vm_obj const & _s) {
-    tactic_state const & s = to_tactic_state(_s);
+    tactic_state const & s = tactic::to_state(_s);
     optional<metavar_decl> g = s.get_main_goal_decl();
     if (!g) return mk_no_goals_exception(s);
     metavar_context mctx = s.mctx();
@@ -66,22 +66,22 @@ vm_obj tactic_to_expr_core(vm_obj const & qe, vm_obj const & relaxed, vm_obj con
                     return true;
                 });
             list<expr> new_gs = cons(head(s.goals()), to_list(new_goals.begin(), new_goals.end(), tail(s.goals())));
-            return mk_tactic_success(to_obj(r), set_env_mctx_goals(s, env, mctx, new_gs));
+            return tactic::mk_success(to_obj(r), set_env_mctx_goals(s, env, mctx, new_gs));
         } else {
-            return mk_tactic_success(to_obj(r), set_env_mctx(s, env, mctx));
+            return tactic::mk_success(to_obj(r), set_env_mctx(s, env, mctx));
         }
     } catch (failed_to_synthesize_placeholder_exception & ex) {
         if (to_bool(report_errors) && report_failure(ex, ex.get_mvar(), "context:", ex.get_tactic_state()))
-            return mk_tactic_silent_exception(s);
+            return tactic::mk_silent_exception(s);
         else
-            return mk_tactic_exception(ex, s);
+            return tactic::mk_exception(ex, s);
     } catch (elaborator_exception & ex) {
         if (to_bool(report_errors) && report_failure(ex, *s.get_main_goal(), "state:", s))
-            return mk_tactic_silent_exception(s);
+            return tactic::mk_silent_exception(s);
         else
-            return mk_tactic_exception(ex, s);
+            return tactic::mk_exception(ex, s);
     } catch (exception & ex) {
-        return mk_tactic_exception(ex, s);
+        return tactic::mk_exception(ex, s);
     }
 }
 

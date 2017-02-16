@@ -1093,7 +1093,7 @@ class vm_simplify_fn : public simplify_ext_core_fn {
         m_s = set_mctx_lctx_dcs(m_s, m_ctx.mctx(), m_ctx.lctx(), m_defeq_canonizer.get_state());
         vm_obj r = invoke(fn, m_a, to_obj(m_slss), to_obj(m_rel), to_obj(parent), to_obj(e), to_obj(m_s));
         /* r : tactic_state (A × expr × option expr × bool) */
-        if (optional<tactic_state> new_s = is_tactic_success(r)) {
+        if (optional<tactic_state> new_s = tactic::is_success(r)) {
             m_s = *new_s;
             m_ctx.set_mctx(m_s.mctx());
             m_defeq_canonizer.set_state(m_s.dcs());
@@ -1125,7 +1125,7 @@ class vm_simplify_fn : public simplify_ext_core_fn {
     virtual optional<expr> prove(expr const & e) override {
         auto s = mk_tactic_state_for(m_ctx.env(), m_ctx.get_options(), m_s.decl_name(), m_ctx.lctx(), e);
         vm_obj r_obj           = invoke(m_prove, m_a, to_obj(s));
-        optional<tactic_state> s_new = is_tactic_success(r_obj);
+        optional<tactic_state> s_new = tactic::is_success(r_obj);
         if (!s_new || s_new->goals()) return none_expr();
         metavar_context mctx   = s_new->mctx();
         expr result            = mctx.instantiate_mvars(s_new->main());
@@ -1180,7 +1180,7 @@ meta constant simplify_core
   expr → tactic (expr × expr)
 */
 vm_obj tactic_simplify_core(vm_obj const & c, vm_obj const & slss, vm_obj const & rel, vm_obj const & e, vm_obj const & _s) {
-    tactic_state const & s   = to_tactic_state(_s);
+    tactic_state const & s   = tactic::to_state(_s);
     try {
         unsigned max_steps; bool contextual, lift_eq, canonize_instances, canonize_proofs, use_axioms;
         get_simplify_config(c, max_steps, contextual, lift_eq, canonize_instances, canonize_proofs, use_axioms);
@@ -1192,12 +1192,12 @@ vm_obj tactic_simplify_core(vm_obj const & c, vm_obj const & slss, vm_obj const 
         if (result.get_new() != to_expr(e)) {
             result = finalize(ctx, to_name(rel), result);
             tactic_state new_s = set_dcs(s, dcs);
-            return mk_tactic_success(mk_vm_pair(to_obj(result.get_new()), to_obj(result.get_proof())), new_s);
+            return tactic::mk_success(mk_vm_pair(to_obj(result.get_new()), to_obj(result.get_proof())), new_s);
         } else {
-            return mk_tactic_exception("simplify tactic failed to simplify", s);
+            return tactic::mk_exception("simplify tactic failed to simplify", s);
         }
     } catch (exception & e) {
-        return mk_tactic_exception(e, s);
+        return tactic::mk_exception(e, s);
     }
 }
 
@@ -1216,12 +1216,12 @@ static vm_obj ext_simplify_core(vm_obj const & a, vm_obj const & c, simp_lemmas 
             vm_obj const & a   = p.first;
             simp_result result = finalize(ctx, r, p.second);
             tactic_state new_s = set_dcs(s, dcs);
-            return mk_tactic_success(mk_vm_pair(a, mk_vm_pair(to_obj(result.get_new()), to_obj(result.get_proof()))), new_s);
+            return tactic::mk_success(mk_vm_pair(a, mk_vm_pair(to_obj(result.get_new()), to_obj(result.get_proof()))), new_s);
         } else {
-            return mk_tactic_exception("simplify tactic failed to simplify", s);
+            return tactic::mk_exception("simplify tactic failed to simplify", s);
         }
     } catch (exception & e) {
-        return mk_tactic_exception(e, s);
+        return tactic::mk_exception(e, s);
     }
 }
 
@@ -1240,7 +1240,7 @@ meta constant ext_simplify_core
 vm_obj tactic_ext_simplify_core(unsigned DEBUG_CODE(num), vm_obj const * args) {
     lean_assert(num == 10);
     return ext_simplify_core(args[1], args[2], to_simp_lemmas(args[3]), args[4], args[5], args[6],
-                             to_name(args[7]), to_expr(args[8]), to_tactic_state(args[9]));
+                             to_name(args[7]), to_expr(args[8]), tactic::to_state(args[9]));
 }
 
 void initialize_simplify() {

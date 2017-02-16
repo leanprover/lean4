@@ -125,42 +125,15 @@ template<typename T> tactic_state update_option_if_undef(tactic_state const & s,
 template class interaction_monad<tactic_state>;
 typedef interaction_monad<tactic_state> tactic;
 
-bool is_tactic_state(vm_obj const & o);
-tactic_state const & to_tactic_state(vm_obj const & o);
 vm_obj to_obj(tactic_state const & s);
 
 transparency_mode to_transparency_mode(vm_obj const & o);
 vm_obj to_obj(transparency_mode m);
 
-bool is_tactic_result_exception(vm_obj const & r);
-bool is_tactic_result_success(vm_obj const & r);
-vm_obj get_tactic_result_value(vm_obj const & r);
-vm_obj get_tactic_result_state(vm_obj const & r);
-vm_obj mk_tactic_result(vm_obj const & a, vm_obj const & s);
-
-vm_obj mk_tactic_success(vm_obj const & a, tactic_state const & s);
-vm_obj mk_tactic_success(tactic_state const & s);
-vm_obj mk_tactic_exception(vm_obj const & fn, tactic_state const & s);
-vm_obj mk_tactic_exception(throwable const & ex, tactic_state const & s);
-vm_obj mk_tactic_exception(format const & fmt, tactic_state const & s);
-vm_obj mk_tactic_exception(sstream const & strm, tactic_state const & s);
-vm_obj mk_tactic_exception(char const * msg, tactic_state const & s);
-vm_obj mk_tactic_exception(std::function<format()> const & thunk, tactic_state const & s);
-vm_obj mk_tactic_silent_exception(tactic_state const & s);
 vm_obj mk_no_goals_exception(tactic_state const & s);
 
 format pp_expr(tactic_state const & s, expr const & e);
 format pp_indented_expr(tactic_state const & s, expr const & e);
-
-/* If r is (base_tactic_result.success a s), then return s */
-optional<tactic_state> is_tactic_success(vm_obj const & r);
-
-typedef std::tuple<format, optional<expr>, tactic_state> tactic_exception_info;
-
-/* If ex is (base_tactic_result.exception fn), then return (fn ()).
-   The vm_state S is used to execute (fn ()). */
-optional<tactic_exception_info> is_tactic_exception(vm_state & S, vm_obj const & ex);
-bool is_tactic_silent_exception(vm_obj const & ex);
 
 type_context mk_type_context_for(tactic_state const & s, transparency_mode m = transparency_mode::Semireducible);
 type_context mk_type_context_for(tactic_state const & s, local_context const & lctx, transparency_mode m = transparency_mode::Semireducible);
@@ -176,7 +149,7 @@ type_context mk_type_context_for(vm_obj const & s, vm_obj const & m);
 })
 
 #define LEAN_TACTIC_TRY try {
-#define LEAN_TACTIC_CATCH(S) } catch (exception const & ex) { return mk_tactic_exception(ex, S); }
+#define LEAN_TACTIC_CATCH(S) } catch (exception const & ex) { return tactic::mk_exception(ex, S); }
 
 void initialize_tactic_state();
 void finalize_tactic_state();

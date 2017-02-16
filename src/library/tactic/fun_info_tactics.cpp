@@ -50,14 +50,14 @@ vm_obj to_obj(list<ss_param_info> const & ls) {
 }
 
 #define TRY   LEAN_TACTIC_TRY
-#define CATCH LEAN_TACTIC_CATCH(to_tactic_state(s))
+#define CATCH LEAN_TACTIC_CATCH(tactic::to_state(s))
 
 static vm_obj mk_result(fun_info const & info, vm_obj const & s) {
-    return mk_tactic_success(to_obj(info), to_tactic_state(s));
+    return tactic::mk_success(to_obj(info), tactic::to_state(s));
 }
 
 static vm_obj mk_result(list<ss_param_info> const & info, vm_obj const & s) {
-    return mk_tactic_success(to_obj(info), to_tactic_state(s));
+    return tactic::mk_success(to_obj(info), tactic::to_state(s));
 }
 
 vm_obj tactic_get_fun_info(vm_obj const & fn, vm_obj const & n, vm_obj const & m, vm_obj const & s) {
@@ -92,8 +92,8 @@ vm_obj tactic_get_spec_subsingleton_info(vm_obj const & app, vm_obj const & m, v
 vm_obj tactic_get_spec_prefix_size(vm_obj const & fn, vm_obj const & n, vm_obj const & m, vm_obj const & s) {
     TRY;
     type_context ctx = mk_type_context_for(s, m);
-    return mk_tactic_success(mk_vm_nat(get_specialization_prefix_size(ctx, to_expr(fn), force_to_unsigned(n, 0))),
-                             to_tactic_state(s));
+    return tactic::mk_success(mk_vm_nat(get_specialization_prefix_size(ctx, to_expr(fn), force_to_unsigned(n, 0))),
+                             tactic::to_state(s));
     CATCH;
 }
 

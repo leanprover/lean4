@@ -134,11 +134,11 @@ void get_ext_eqn_lemmas_for(environment const & env, name const & cname, buffer<
 vm_obj tactic_get_eqn_lemmas_for(vm_obj const & all, vm_obj const & n, vm_obj const & s) {
     buffer<name> result;
     if (to_bool(all)) {
-        get_ext_eqn_lemmas_for(to_tactic_state(s).env(), to_name(n), result);
+        get_ext_eqn_lemmas_for(tactic::to_state(s).env(), to_name(n), result);
     } else {
-        get_eqn_lemmas_for(to_tactic_state(s).env(), to_name(n), result);
+        get_eqn_lemmas_for(tactic::to_state(s).env(), to_name(n), result);
     }
-    return mk_tactic_success(to_obj(result), to_tactic_state(s));
+    return tactic::mk_success(to_obj(result), tactic::to_state(s));
 }
 
 bool has_eqn_lemmas(environment const & env, name const & cname) {

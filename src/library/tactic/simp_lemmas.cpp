@@ -1259,10 +1259,10 @@ vm_obj to_obj(simp_lemmas const & idx) {
 
 vm_obj simp_lemmas_mk_default_core(vm_obj const & m, vm_obj const & s) {
     LEAN_TACTIC_TRY;
-    environment const & env = to_tactic_state(s).env();
+    environment const & env = tactic::to_state(s).env();
     simp_lemmas r = get_default_simp_lemmas(env, to_transparency_mode(m));
-    return mk_tactic_success(to_obj(r), to_tactic_state(s));
-    LEAN_TACTIC_CATCH(to_tactic_state(s));
+    return tactic::mk_success(to_obj(r), tactic::to_state(s));
+    LEAN_TACTIC_CATCH(tactic::to_state(s));
 }
 
 vm_obj simp_lemmas_add_core(vm_obj const & m, vm_obj const & lemmas, vm_obj const & lemma, vm_obj const & s) {
@@ -1279,24 +1279,24 @@ vm_obj simp_lemmas_add_core(vm_obj const & m, vm_obj const & lemmas, vm_obj cons
     // TODO(dhs): accept priority as an argument
     // Reason for postponing: better plumbing of numerals through the vm
     simp_lemmas new_lemmas = add(tctx, to_simp_lemmas(lemmas), id, tctx.infer(e), e, LEAN_DEFAULT_PRIORITY);
-    return mk_tactic_success(to_obj(new_lemmas), to_tactic_state(s));
-    LEAN_TACTIC_CATCH(to_tactic_state(s));
+    return tactic::mk_success(to_obj(new_lemmas), tactic::to_state(s));
+    LEAN_TACTIC_CATCH(tactic::to_state(s));
 }
 
 vm_obj simp_lemmas_add_simp(vm_obj const & m, vm_obj const & lemmas, vm_obj const & lemma_name, vm_obj const & s) {
     LEAN_TACTIC_TRY;
     type_context ctx = mk_type_context_for(s, m);
     simp_lemmas new_lemmas = add(ctx, to_simp_lemmas(lemmas), to_name(lemma_name), LEAN_DEFAULT_PRIORITY);
-    return mk_tactic_success(to_obj(new_lemmas), to_tactic_state(s));
-    LEAN_TACTIC_CATCH(to_tactic_state(s));
+    return tactic::mk_success(to_obj(new_lemmas), tactic::to_state(s));
+    LEAN_TACTIC_CATCH(tactic::to_state(s));
 }
 
 vm_obj simp_lemmas_add_congr(vm_obj const & m, vm_obj const & lemmas, vm_obj const & lemma_name, vm_obj const & s) {
     LEAN_TACTIC_TRY;
     type_context ctx = mk_type_context_for(s, m);
     simp_lemmas new_lemmas = add_congr(ctx, to_simp_lemmas(lemmas), to_name(lemma_name), LEAN_DEFAULT_PRIORITY);
-    return mk_tactic_success(to_obj(new_lemmas), to_tactic_state(s));
-    LEAN_TACTIC_CATCH(to_tactic_state(s));
+    return tactic::mk_success(to_obj(new_lemmas), tactic::to_state(s));
+    LEAN_TACTIC_CATCH(tactic::to_state(s));
 }
 
 vm_obj simp_lemmas_mk() {
@@ -1319,7 +1319,7 @@ vm_obj simp_lemmas_erase(vm_obj const & lemmas, vm_obj const & lemma_list) {
 static optional<expr> prove(type_context & ctx, vm_obj const & prove_fn, expr const & e, tactic_state s) {
     s                      = mk_tactic_state_for(s.env(), s.get_options(), s.decl_name(), ctx.lctx(), e);
     vm_obj r_obj           = invoke(prove_fn, to_obj(s));
-    optional<tactic_state> s_new = is_tactic_success(r_obj);
+    optional<tactic_state> s_new = tactic::is_success(r_obj);
     if (!s_new || s_new->goals()) return none_expr();
     metavar_context mctx   = s_new->mctx();
     expr result            = mctx.instantiate_mvars(s_new->main());
@@ -1417,10 +1417,10 @@ vm_obj simp_lemmas_rewrite_core(transparency_mode const & m, simp_lemmas const &
                                 name const & R, expr const & e, tactic_state const & s) {
     LEAN_TACTIC_TRY;
     simp_lemmas_for const * sr = sls.find(R);
-    if (!sr) return mk_tactic_exception("failed to apply simp_lemmas, no lemmas for the given relation", s);
+    if (!sr) return tactic::mk_exception("failed to apply simp_lemmas, no lemmas for the given relation", s);
 
     list<simp_lemma> const * srs = sr->find(e);
-    if (!srs) return mk_tactic_exception("failed to apply simp_lemmas, no simp lemma", s);
+    if (!srs) return tactic::mk_exception("failed to apply simp_lemmas, no simp lemma", s);
 
     type_context ctx = mk_type_context_for(s, m);
 
@@ -1431,26 +1431,26 @@ vm_obj simp_lemmas_rewrite_core(transparency_mode const & m, simp_lemmas const &
                        tout() << "[" << lemma.get_id() << "]: " << e << " ==> " << r.get_new() << "\n";);
             vm_obj new_e  = to_obj(r.get_new());
             vm_obj new_pr = to_obj(r.get_proof());
-            return mk_tactic_success(mk_vm_pair(new_e, new_pr), s);
+            return tactic::mk_success(mk_vm_pair(new_e, new_pr), s);
         }
     }
-    return mk_tactic_exception("failed to apply simp_lemmas, no simp lemma", s);
+    return tactic::mk_exception("failed to apply simp_lemmas, no simp lemma", s);
     LEAN_TACTIC_CATCH(s);
 }
 
 vm_obj simp_lemmas_rewrite(vm_obj const & m, vm_obj const & sls, vm_obj const & prove_fn,
                            vm_obj const & R, vm_obj const & e, vm_obj const & s) {
     return simp_lemmas_rewrite_core(to_transparency_mode(m), to_simp_lemmas(sls), prove_fn,
-                                    to_name(R), to_expr(e), to_tactic_state(s));
+                                    to_name(R), to_expr(e), tactic::to_state(s));
 }
 
 vm_obj simp_lemmas_drewrite_core(transparency_mode const & m, simp_lemmas const & sls, expr const & e, tactic_state const & s) {
     LEAN_TACTIC_TRY;
     simp_lemmas_for const * sr = sls.find(get_eq_name());
-    if (!sr) return mk_tactic_exception("failed to apply simp_lemmas, no lemmas for 'eq' relation", s);
+    if (!sr) return tactic::mk_exception("failed to apply simp_lemmas, no lemmas for 'eq' relation", s);
 
     list<simp_lemma> const * srs = sr->find(e);
-    if (!srs) return mk_tactic_exception("failed to apply simp_lemmas, no simp lemma", s);
+    if (!srs) return tactic::mk_exception("failed to apply simp_lemmas, no simp lemma", s);
 
     type_context ctx = mk_type_context_for(s, m);
 
@@ -1458,15 +1458,15 @@ vm_obj simp_lemmas_drewrite_core(transparency_mode const & m, simp_lemmas const 
         if (lemma.is_refl()) {
             expr new_e = refl_lemma_rewrite(ctx, e, lemma);
             if (new_e != e)
-                return mk_tactic_success(to_obj(new_e), s);
+                return tactic::mk_success(to_obj(new_e), s);
         }
     }
-    return mk_tactic_exception("failed to apply simp_lemmas, no simp lemma", s);
+    return tactic::mk_exception("failed to apply simp_lemmas, no simp lemma", s);
     LEAN_TACTIC_CATCH(s);
 }
 
 vm_obj simp_lemmas_drewrite(vm_obj const & m, vm_obj const & sls, vm_obj const & e, vm_obj const & s) {
-    return simp_lemmas_drewrite_core(to_transparency_mode(m), to_simp_lemmas(sls), to_expr(e), to_tactic_state(s));
+    return simp_lemmas_drewrite_core(to_transparency_mode(m), to_simp_lemmas(sls), to_expr(e), tactic::to_state(s));
 }
 
 static bool is_valid_simp_lemma_cnst_core(transparency_mode const & m, name const & cname, tactic_state const & s) {
@@ -1484,8 +1484,8 @@ static bool is_valid_simp_lemma_cnst_core(transparency_mode const & m, name cons
 }
 
 vm_obj is_valid_simp_lemma_cnst(vm_obj const & m, vm_obj const & n, vm_obj const & s) {
-    return mk_tactic_success(mk_vm_bool(is_valid_simp_lemma_cnst_core(to_transparency_mode(m), to_name(n), to_tactic_state(s))),
-                             to_tactic_state(s));
+    return tactic::mk_success(mk_vm_bool(is_valid_simp_lemma_cnst_core(to_transparency_mode(m), to_name(n), tactic::to_state(s))),
+                             tactic::to_state(s));
 }
 
 static bool is_valid_simp_lemma_core(transparency_mode const & m, expr const & e, tactic_state const & s) {
@@ -1499,8 +1499,8 @@ static bool is_valid_simp_lemma_core(transparency_mode const & m, expr const & e
 }
 
 vm_obj is_valid_simp_lemma(vm_obj const & m, vm_obj const & e, vm_obj const & s) {
-    return mk_tactic_success(mk_vm_bool(is_valid_simp_lemma_core(to_transparency_mode(m), to_expr(e), to_tactic_state(s))),
-                             to_tactic_state(s));
+    return tactic::mk_success(mk_vm_bool(is_valid_simp_lemma_core(to_transparency_mode(m), to_expr(e), tactic::to_state(s))),
+                             tactic::to_state(s));
 }
 
 static name * g_refl_lemma_attr = nullptr;
@@ -1515,11 +1515,11 @@ environment mark_rfl_lemma(environment const & env, name const & cname) {
 
 vm_obj simp_lemmas_pp(vm_obj const & S, vm_obj const & _s) {
     formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
-    tactic_state const & s = to_tactic_state(_s);
+    tactic_state const & s = tactic::to_state(_s);
     type_context ctx = mk_type_context_for(s);
     formatter fmt = fmtf(s.env(), s.get_options(), ctx);
     format r = to_simp_lemmas(S).pp(fmt);
-    return mk_tactic_success(to_obj(r), s);
+    return tactic::mk_success(to_obj(r), s);
 }
 
 void initialize_simp_lemmas() {

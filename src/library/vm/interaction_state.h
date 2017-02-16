@@ -64,11 +64,11 @@ struct interaction_monad {
         }
     };
 
-    static bool is_State(vm_obj const & o) {
+    static bool is_state(vm_obj const & o) {
         return is_external(o) && dynamic_cast<vm_State *>(to_external(o));
     }
 
-    static State const & to_State(vm_obj const & o) {
+    static State const & to_state(vm_obj const & o) {
         lean_vm_check(dynamic_cast<vm_State*>(to_external(o)));
         return static_cast<vm_State *>(to_external(o))->m_val;
     }
@@ -77,32 +77,12 @@ struct interaction_monad {
         return mk_vm_external(new(get_vm_allocator().allocate(sizeof(vm_State))) vm_State(s));
     }
 
-    static bool is_success(vm_obj const & o) {
-        return is_constructor(o) && cidx(o) == 0;
-    }
-
-    typedef std::tuple<format, optional<pos_info>, State> exception_info;
-
-    static optional<exception_info> is_exception(vm_state & S, vm_obj const & ex) {
-        if (is_constructor(ex) && cidx(ex) == 1 && !is_none(cfield(ex, 0))) {
-            vm_obj fmt = S.invoke(get_some_value(cfield(ex, 0)), mk_vm_unit());
-            optional<pos_info> pos;
-            if (!is_none(cfield(ex, 1))) {
-                auto vm_pos = get_some_value(cfield(ex, 1));
-                pos = some(mk_pair(to_unsigned(cfield(vm_pos, 0)), to_unsigned(cfield(vm_pos, 1))));
-            }
-            return optional<exception_info>(to_format(fmt), pos, to_State(cfield(ex, 2)));
-        } else {
-            return optional<exception_info>();
-        }
-    }
-
     static bool is_silent_exception(vm_obj const & ex) {
         return is_constructor(ex) && cidx(ex) == 1 && is_none(cfield(ex, 0));
     }
 
     static vm_obj mk_result(vm_obj const & a, vm_obj const & s) {
-        lean_assert(is_State(s));
+        lean_assert(is_state(s));
         return mk_vm_constructor(0, a, s);
     }
 
@@ -181,6 +161,31 @@ struct interaction_monad {
             format fmt = std::get<0>(*ex);
             optional<pos_info> pos = std::get<1>(*ex);
             throw formatted_exception(pos, fmt);
+        }
+    }
+
+    /* If r is (interaction_monad.result.success a s), then return s */
+    static optional<State> is_success(vm_obj const & r) {
+        if (is_result_success(r))
+            return some(to_state(cfield(r, 1)));
+        return {};
+    }
+
+    typedef std::tuple<format, optional<pos_info>, State> exception_info;
+
+    /* If ex is (interaction_monad.result.exception (some fn) _ _), then return (fn ()).
+       The vm_state S is used to execute (fn ()). */
+    static optional<exception_info> is_exception(vm_state & S, vm_obj const & ex) {
+        if (is_result_exception(ex) && !is_none(cfield(ex, 0))) {
+            vm_obj fmt = S.invoke(get_some_value(cfield(ex, 0)), mk_vm_unit());
+            optional<pos_info> p;
+            if (!is_none(cfield(ex, 1))) {
+                auto vm_p = get_some_value(cfield(ex, 1));
+                p = some(mk_pair(to_unsigned(cfield(vm_p, 0)), to_unsigned(cfield(vm_p, 1))));
+            }
+            return optional<exception_info>(to_format(fmt), p, to_state(cfield(ex, 2)));
+        } else {
+            return {};
         }
     }
 

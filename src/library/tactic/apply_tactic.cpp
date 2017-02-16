@@ -84,7 +84,7 @@ optional<tactic_state> apply_core(type_context & ctx, bool add_all, bool use_ins
                 msg += pp_indented_expr(s, e_type);
                 return msg;
             };
-            *out_error_obj = mk_tactic_exception(thunk, s);
+            *out_error_obj = tactic::mk_exception(thunk, s);
         }
         return none_tactic_state();
     }
@@ -106,7 +106,7 @@ optional<tactic_state> apply_core(type_context & ctx, bool add_all, bool use_ins
                         msg += space() + format("argument");
                         return msg;
                     };
-                    *out_error_obj = mk_tactic_exception(thunk, s);
+                    *out_error_obj = tactic::mk_exception(thunk, s);
                 }
                 return none_tactic_state();
             }
@@ -118,7 +118,7 @@ optional<tactic_state> apply_core(type_context & ctx, bool add_all, bool use_ins
                         msg += space() + format("argument");
                         return msg;
                     };
-                    *out_error_obj = mk_tactic_exception(thunk, s);
+                    *out_error_obj = tactic::mk_exception(thunk, s);
                 }
                 return none_tactic_state();
             }
@@ -158,9 +158,9 @@ vm_obj apply_core(transparency_mode md, bool approx, bool add_all, bool use_inst
         optional<tactic_state> new_s = apply_core(ctx, add_all, use_instances, &error_obj, e, &all_metas, s);
         if (!new_s)
             return error_obj;
-        return mk_tactic_success(to_obj(all_metas), *new_s);
+        return tactic::mk_success(to_obj(all_metas), *new_s);
     } catch(exception & ex) {
-        return mk_tactic_exception(ex, s);
+        return tactic::mk_exception(ex, s);
     }
 }
 
@@ -176,7 +176,7 @@ vm_obj tactic_apply_core(vm_obj const & e, vm_obj const & cfg, vm_obj const & s)
     vm_obj const & approx = cfield(cfg, 1);
     vm_obj const & all    = cfield(cfg, 2);
     vm_obj const & insts  = cfield(cfg, 3);
-    return apply_core(static_cast<transparency_mode>(cidx(md)), to_bool(approx), to_bool(all), to_bool(insts), to_expr(e), to_tactic_state(s));
+    return apply_core(static_cast<transparency_mode>(cidx(md)), to_bool(approx), to_bool(all), to_bool(insts), to_expr(e), tactic::to_state(s));
 }
 
 void initialize_apply_tactic() {

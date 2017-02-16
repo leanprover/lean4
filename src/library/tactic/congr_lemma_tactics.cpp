@@ -30,15 +30,15 @@ vm_obj to_obj(congr_lemma const & c) {
 
 static vm_obj mk_result(optional<congr_lemma> const & l, vm_obj const & s) {
     if (l)
-        return mk_tactic_success(to_obj(*l), to_tactic_state(s));
+        return tactic::mk_success(to_obj(*l), tactic::to_state(s));
     else
-        return mk_tactic_exception("failed to generate congruence lemma, "
+        return tactic::mk_exception("failed to generate congruence lemma, "
                                    "use 'set_option trace.congr_lemma true' to obtain additional information",
-                                   to_tactic_state(s));
+                                   tactic::to_state(s));
 }
 
 #define TRY   LEAN_TACTIC_TRY
-#define CATCH LEAN_TACTIC_CATCH(to_tactic_state(s))
+#define CATCH LEAN_TACTIC_CATCH(tactic::to_state(s))
 
 vm_obj tactic_mk_congr_lemma_simp(vm_obj const & fn, vm_obj const & nargs, vm_obj const & m, vm_obj const & s) {
     TRY;

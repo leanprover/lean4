@@ -122,15 +122,15 @@ struct mk_pattern_fn {
 };
 
 #define TRY   LEAN_TACTIC_TRY
-#define CATCH LEAN_TACTIC_CATCH(to_tactic_state(s))
+#define CATCH LEAN_TACTIC_CATCH(tactic::to_state(s))
 
 /*
 meta_constant mk_pattern : list level → list expr → expr → list expr → tactic pattern
 */
 vm_obj tactic_mk_pattern(vm_obj const & ls, vm_obj const & es, vm_obj const & t, vm_obj const & os, vm_obj const & s) {
     TRY;
-    vm_obj pattern = mk_pattern_fn(to_tactic_state(s)).mk(to_list_level(ls), to_list_expr(es), to_expr(t), to_list_expr(os));
-    return mk_tactic_success(pattern, to_tactic_state(s));
+    vm_obj pattern = mk_pattern_fn(tactic::to_state(s)).mk(to_list_level(ls), to_list_expr(es), to_expr(t), to_list_expr(os));
+    return tactic::mk_success(pattern, tactic::to_state(s));
     CATCH;
 }
 
@@ -146,19 +146,19 @@ vm_obj tactic_match_pattern_core(vm_obj const & m, vm_obj const & p, vm_obj cons
     if (ctx.is_def_eq(t, to_expr(e))) {
         for (unsigned i = 0; i < nuvars; i++) {
             if (!ctx.get_tmp_uvar_assignment(i))
-                return mk_tactic_exception(sstream() << "match_pattern failed, universe meta-variable #" << i << " has not been assigned.", to_tactic_state(s));
+                return tactic::mk_exception(sstream() << "match_pattern failed, universe meta-variable #" << i << " has not been assigned.", tactic::to_state(s));
         }
         for (unsigned i = 0; i < nmvars; i++) {
             if (!ctx.get_tmp_mvar_assignment(i))
-                return mk_tactic_exception(sstream() << "match_pattern failed, meta-variable #" << i << " has not been assigned.", to_tactic_state(s));
+                return tactic::mk_exception(sstream() << "match_pattern failed, meta-variable #" << i << " has not been assigned.", tactic::to_state(s));
         }
         buffer<expr> inst_os;
         for (expr const & o : os) {
             inst_os.push_back(ctx.instantiate_mvars(o));
         }
-        return mk_tactic_success(to_obj(to_list(inst_os)), to_tactic_state(s));
+        return tactic::mk_success(to_obj(to_list(inst_os)), tactic::to_state(s));
     } else {
-        return mk_tactic_exception("match_pattern failed", to_tactic_state(s));
+        return tactic::mk_exception("match_pattern failed", tactic::to_state(s));
     }
     CATCH;
 }

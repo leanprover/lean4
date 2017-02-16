@@ -155,13 +155,13 @@ tactic_state destruct(transparency_mode md, expr const & e, tactic_state const &
 }
 
 vm_obj tactic_destruct(vm_obj const & e, vm_obj const & md, vm_obj const & _s) {
-    tactic_state const & s   = to_tactic_state(_s);
+    tactic_state const & s   = tactic::to_state(_s);
     try {
         if (!s.goals()) return mk_no_goals_exception(s);
         tactic_state new_s = destruct(to_transparency_mode(md), to_expr(e), s);
-        return mk_tactic_success(new_s);
+        return tactic::mk_success(new_s);
     } catch (exception & ex) {
-        return mk_tactic_exception(ex, s);
+        return tactic::mk_exception(ex, s);
     }
 }
 

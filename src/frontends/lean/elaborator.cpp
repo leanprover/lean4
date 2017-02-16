@@ -2945,7 +2945,7 @@ void elaborator::invoke_tactic(expr const & mvar, expr const & tactic) {
 
     try {
         vm_obj r = tactic_evaluator(m_ctx, m_opts, ref)(tactic, s);
-        if (auto new_s = is_tactic_success(r)) {
+        if (auto new_s = tactic::is_success(r)) {
             metavar_context mctx = new_s->mctx();
             expr val = mctx.instantiate_mvars(new_s->main());
             if (has_expr_metavar(val)) {
@@ -3410,15 +3410,15 @@ static expr resolve_local_name(environment const & env, local_context const & lc
 
 vm_obj tactic_resolve_local_name(vm_obj const & vm_id, vm_obj const & vm_s) {
     name const & id        = to_name(vm_id);
-    tactic_state const & s = to_tactic_state(vm_s);
+    tactic_state const & s = tactic::to_state(vm_s);
     try {
         optional<metavar_decl> g = s.get_main_goal_decl();
         if (!g) return mk_no_goals_exception(s);
         expr src; // dummy
         bool ignore_aliases = false;
-        return mk_tactic_success(to_obj(resolve_local_name(s.env(), g->get_context(), id, src, ignore_aliases)), s);
+        return tactic::mk_success(to_obj(resolve_local_name(s.env(), g->get_context(), id, src, ignore_aliases)), s);
     } catch (exception & ex) {
-        return mk_tactic_exception(ex, s);
+        return tactic::mk_exception(ex, s);
     }
 }
 
@@ -3491,10 +3491,10 @@ expr resolve_names(environment const & env, local_context const & lctx, expr con
 
 static vm_obj tactic_save_type_info(vm_obj const & _e, vm_obj const & ref, vm_obj const & _s) {
     expr const & e = to_expr(_e);
-    tactic_state const & s = to_tactic_state(_s);
-    if (!get_global_info_manager() || !get_pos_info_provider()) return mk_tactic_success(s);
+    tactic_state const & s = tactic::to_state(_s);
+    if (!get_global_info_manager() || !get_pos_info_provider()) return tactic::mk_success(s);
     auto pos = get_pos_info_provider()->get_pos_info(to_expr(ref));
-    if (!pos) return mk_tactic_success(s);
+    if (!pos) return tactic::mk_success(s);
     type_context ctx = mk_type_context_for(s);
     try {
         expr type = ctx.infer(e);
@@ -3504,9 +3504,9 @@ static vm_obj tactic_save_type_info(vm_obj const & _e, vm_obj const & ref, vm_ob
         else if (is_local(e))
             get_global_info_manager()->add_identifier_info(pos->first, pos->second, local_pp_name(e));
     } catch (exception & ex) {
-        return mk_tactic_exception(ex, s);
+        return tactic::mk_exception(ex, s);
     }
-    return mk_tactic_success(s);
+    return tactic::mk_success(s);
 }
 
 void initialize_elaborator() {

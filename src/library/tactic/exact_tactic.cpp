@@ -25,18 +25,18 @@ vm_obj exact(expr const & e, transparency_mode const & m, tactic_state const & s
                 r += nest(indent, line() + pp_expr(s, g->get_type()));
                 return r;
             };
-            return mk_tactic_exception(thunk, s);
+            return tactic::mk_exception(thunk, s);
         }
         auto mctx = ctx.mctx();
         mctx.assign(head(s.goals()), e);
-        return mk_tactic_success(set_mctx_goals(s, mctx, tail(s.goals())));
+        return tactic::mk_success(set_mctx_goals(s, mctx, tail(s.goals())));
     } catch (exception & ex) {
-        return mk_tactic_exception(ex, s);
+        return tactic::mk_exception(ex, s);
     }
 }
 
 vm_obj tactic_exact(vm_obj const & e, vm_obj const & m, vm_obj const & s) {
-    return exact(to_expr(e), to_transparency_mode(m), to_tactic_state(s));
+    return exact(to_expr(e), to_transparency_mode(m), tactic::to_state(s));
 }
 
 void initialize_exact_tactic() {

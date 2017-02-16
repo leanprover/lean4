@@ -35,16 +35,16 @@ vm_obj revert(list<expr> const & ls, tactic_state const & s) {
         if (lctx.find_local_decl(l)) {
             locals.push_back(l);
         } else {
-            return mk_tactic_exception(sstream() << "revert tactic failed, unknown '"
+            return tactic::mk_exception(sstream() << "revert tactic failed, unknown '"
                                        << local_pp_name(l) << "' hypothesis", s);
         }
     }
     tactic_state new_s = revert(locals, s);
-    return mk_tactic_success(mk_vm_nat(locals.size()), new_s);
+    return tactic::mk_success(mk_vm_nat(locals.size()), new_s);
 }
 
 vm_obj tactic_revert_lst(vm_obj const & ns, vm_obj const & s) {
-    return revert(to_list_expr(ns), to_tactic_state(s));
+    return revert(to_list_expr(ns), tactic::to_state(s));
 }
 
 void initialize_revert_tactic() {

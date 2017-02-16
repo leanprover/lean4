@@ -69,7 +69,7 @@ struct back_chaining_fn {
 
     lbool invoke_pre_tactic() {
         vm_obj r = invoke_tactic(m_pre_tactic);
-        if (optional<tactic_state> new_s = is_tactic_success(r)) {
+        if (optional<tactic_state> new_s = tactic::is_success(r)) {
             if (new_s->goals()) {
                 return l_undef;
             } else {
@@ -85,7 +85,7 @@ struct back_chaining_fn {
 
     bool invoke_leaf_tactic() {
         vm_obj r = invoke_tactic(m_leaf_tactic);
-        if (optional<tactic_state> new_s = is_tactic_success(r)) {
+        if (optional<tactic_state> new_s = tactic::is_success(r)) {
             m_state = set_goals(*new_s, tail(m_state.goals()));
             return true;
         } else {
@@ -166,9 +166,9 @@ struct back_chaining_fn {
         m_state = set_goals(m_initial_state, to_list(head(goals)));
         if (run()) {
             tactic_state final_state = set_goals(m_state, tail(goals));
-            return mk_tactic_success(final_state);
+            return tactic::mk_success(final_state);
         } else {
-            return mk_tactic_exception("back_chaining failed, use command 'set_option trace.tactic.back_chaining true' to obtain more details", m_initial_state);
+            return tactic::mk_exception("back_chaining failed, use command 'set_option trace.tactic.back_chaining true' to obtain more details", m_initial_state);
         }
     }
 };
@@ -185,7 +185,7 @@ vm_obj tactic_backward_chaining(vm_obj const & md, vm_obj const & use_instances,
                                 vm_obj const & lemmas, vm_obj const & s) {
     return back_chaining(to_transparency_mode(md), to_bool(use_instances),
                          force_to_unsigned(max_depth),
-                         pre_tactics, leaf_tactic, to_backward_lemmas(lemmas), to_tactic_state(s));
+                         pre_tactics, leaf_tactic, to_backward_lemmas(lemmas), tactic::to_state(s));
 }
 
 void initialize_backward_chaining() {

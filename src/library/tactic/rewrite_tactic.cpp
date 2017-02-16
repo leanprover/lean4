@@ -49,9 +49,9 @@ vm_obj rewrite(transparency_mode const & m, bool approx, bool use_instances, occ
     }
     H_type = annotated_head_beta_reduce(H_type);
     if (!is_eq(H_type, A, lhs, rhs))
-        return mk_tactic_exception("rewrite tactic failed, lemma is not an equality nor a iff", s);
+        return tactic::mk_exception("rewrite tactic failed, lemma is not an equality nor a iff", s);
     if (is_metavar(lhs))
-        return mk_tactic_exception("rewrite tactic failed, lemma lhs is a metavariable", s);
+        return tactic::mk_exception("rewrite tactic failed, lemma lhs is a metavariable", s);
     if (!target)
         symm = !symm;
     if (symm) {
@@ -73,7 +73,7 @@ vm_obj rewrite(transparency_mode const & m, bool approx, bool use_instances, occ
             msg += pp_indented_expr(new_s, pattern);
             return msg;
         };
-        return mk_tactic_exception(thunk, new_s);
+        return tactic::mk_exception(thunk, new_s);
     }
     /* Synthesize type class instances */
     if (use_instances) {
@@ -86,11 +86,11 @@ vm_obj rewrite(transparency_mode const & m, bool approx, bool use_instances, occ
             expr meta_type      = ctx.instantiate_mvars(ctx.infer(meta));
             optional<expr> inst = ctx.mk_class_instance(meta_type);
             if (!inst) {
-                return mk_tactic_exception(sstream() << "rewrite tactic failed, failed to synthesize type class instance for #"
+                return tactic::mk_exception(sstream() << "rewrite tactic failed, failed to synthesize type class instance for #"
                                            << (i+1) << " argument", s);
             }
             if (!ctx.is_def_eq(meta, *inst)) {
-                return mk_tactic_exception(sstream() << "rewrite tactic failed, failed to assign type class instance for #"
+                return tactic::mk_exception(sstream() << "rewrite tactic failed, failed to assign type class instance for #"
                                            << (i+1) << " argument", s);
             }
         }
@@ -116,38 +116,38 @@ vm_obj rewrite(transparency_mode const & m, bool approx, bool use_instances, occ
         name Hname      = is_local(*target) ? local_pp_name(*target) : name("H");
         tactic_state s1 = set_mctx_goals(s, ctx.mctx(), cons(head(s.goals()), append(to_list(unassigned_mvars), tail(s.goals()))));
         vm_obj r2       = assertv_definev(true, Hname, new_e, prf, s1);
-        if (optional<tactic_state> const & s2 = is_tactic_success(r2)) {
+        if (optional<tactic_state> const & s2 = tactic::is_success(r2)) {
             if (is_local(*target)) {
                 /* Try to clear target */
                 vm_obj r3   = clear_internal(mlocal_name(*target), *s2);
-                if (is_tactic_success(r3))
+                if (tactic::is_success(r3))
                     return r3;
             }
             return r2;
         } else {
-            return mk_tactic_exception(sstream() << "rewrite tactic failed, failed to create new hypothesis", s);
+            return tactic::mk_exception(sstream() << "rewrite tactic failed, failed to create new hypothesis", s);
         }
     } else {
         expr new_mvar = ctx.mk_metavar_decl(ctx.lctx(), new_e);
         expr prf      = mk_eq_rec(ctx, motive, new_mvar, H);
         ctx.assign(head(s.goals()), prf);
-        return mk_tactic_success(set_mctx_goals(s, ctx.mctx(), cons(new_mvar, append(to_list(unassigned_mvars), tail(s.goals())))));
+        return tactic::mk_success(set_mctx_goals(s, ctx.mctx(), cons(new_mvar, append(to_list(unassigned_mvars), tail(s.goals())))));
     }
 }
 
 vm_obj tactic_rewrite(vm_obj const & m, vm_obj const & approx, vm_obj const & use_instances, vm_obj const & occs, vm_obj const & symm, vm_obj const & H, vm_obj const & s) {
     LEAN_TACTIC_TRY;
     return rewrite(to_transparency_mode(m), to_bool(approx), to_bool(use_instances),
-                   to_occurrences(occs), to_bool(symm), to_expr(H), none_expr(), to_tactic_state(s));
-    LEAN_TACTIC_CATCH(to_tactic_state(s));
+                   to_occurrences(occs), to_bool(symm), to_expr(H), none_expr(), tactic::to_state(s));
+    LEAN_TACTIC_CATCH(tactic::to_state(s));
 }
 
 vm_obj tactic_rewrite_at(vm_obj const & m, vm_obj const & approx, vm_obj const & use_instances,
                          vm_obj const & occs, vm_obj const & symm, vm_obj const & H1, vm_obj const & H2, vm_obj const & s) {
     LEAN_TACTIC_TRY;
     return rewrite(to_transparency_mode(m), to_bool(approx), to_bool(use_instances), to_occurrences(occs),
-                   to_bool(symm), to_expr(H1), some_expr(to_expr(H2)), to_tactic_state(s));
-    LEAN_TACTIC_CATCH(to_tactic_state(s));
+                   to_bool(symm), to_expr(H1), some_expr(to_expr(H2)), tactic::to_state(s));
+    LEAN_TACTIC_CATCH(tactic::to_state(s));
 }
 
 void initialize_rewrite_tactic() {

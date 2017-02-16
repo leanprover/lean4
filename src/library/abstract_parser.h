@@ -7,14 +7,16 @@ Author: Sebastian Ullrich
 #pragma once
 #include <string>
 #include "util/name_map.h"
+#include "util/exception_with_pos.h"
 #include "kernel/pos_info_provider.h"
 
 namespace lean {
 /** \brief Exception used to track parsing erros, it does not leak outside of this class. */
-struct parser_error : public exception {
+struct parser_error : public exception_with_pos {
     pos_info m_pos;
-    parser_error(char const * msg, pos_info const & p):exception(msg), m_pos(p) {}
-    parser_error(sstream const & msg, pos_info const & p):exception(msg), m_pos(p) {}
+    parser_error(char const * msg, pos_info const & p):exception_with_pos(msg), m_pos(p) {}
+    parser_error(sstream const & msg, pos_info const & p):exception_with_pos(msg), m_pos(p) {}
+    virtual optional<pos_info> get_pos() const override { return some(m_pos); }
     std::string const & get_msg() const { return m_msg; }
     virtual throwable * clone() const { return new parser_error(m_msg.c_str(), m_pos); }
     virtual void rethrow() const { throw *this; }

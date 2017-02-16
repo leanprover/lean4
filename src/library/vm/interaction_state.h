@@ -11,7 +11,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include "library/metavar_context.h"
 #include "library/type_context.h"
 #include "library/defeq_canonizer.h"
-#include "library/scope_pos_info_provider.h"
+#include "kernel/scope_pos_info_provider.h"
 #include "util/fresh_name.h"
 #include "util/sexpr/option_declarations.h"
 #include "kernel/type_checker.h"
@@ -81,15 +81,15 @@ struct interaction_monad {
         return is_constructor(o) && cidx(o) == 0;
     }
 
-    typedef std::tuple<format, optional<pos>, State> exception_info;
+    typedef std::tuple<format, optional<pos_info>, State> exception_info;
 
     static optional<exception_info> is_exception(vm_state & S, vm_obj const & ex) {
         if (is_constructor(ex) && cidx(ex) == 1 && !is_none(cfield(ex, 0))) {
             vm_obj fmt = S.invoke(get_some_value(cfield(ex, 0)), mk_vm_unit());
-            optional<pos> pos;
+            optional<pos_info> pos;
             if (!is_none(cfield(ex, 1))) {
                 auto vm_pos = get_some_value(cfield(ex, 1));
-                pos = {to_unsigned(cfield(vm_pos, 0)), to_unsigned(cfield(vm_pos, 1))};
+                pos = some(mk_pair(to_unsigned(cfield(vm_pos, 0)), to_unsigned(cfield(vm_pos, 1))));
             }
             return optional<exception_info>(to_format(fmt), pos, to_State(cfield(ex, 2)));
         } else {
@@ -148,17 +148,10 @@ struct interaction_monad {
         vm_obj _ex = lean::to_obj(ex);
         vm_obj fn = mk_vm_closure(get_throwable_to_format_fun_idx(), 1, &_ex);
         optional<pos_info> pos;
-        optional<expr> ref;
-        if (auto kex = dynamic_cast<ext_exception const *>(&ex))
-            ref = kex->get_main_expr();
-        else if (auto fex = dynamic_cast<formatted_exception const *>(&ex))
-            ref = fex->get_main_expr();
-        if (*res)
-            pos = get_pos_info_provider()->get_pos_info(*ref);
-        if (auto pex = dynamic_cast<parser_error const *>(&ex))
-            pos = pex->m_pos;
+        if (auto kex = dynamic_cast<exception_with_pos const *>(&ex))
+            pos = kex->get_pos();
         vm_obj _pos = pos ? mk_vm_some(mk_vm_pair(mk_vm_nat(pos->first), mk_vm_nat(pos->second))) : mk_vm_none();
-        return mk_exception(fn, _ref, s);
+        return mk_exception(fn, _pos, s);
     }
 
     static vm_obj mk_exception(format const & fmt, State const & s) {
@@ -186,8 +179,8 @@ struct interaction_monad {
     static void report_exception(vm_state & S, vm_obj const & r) {
         if (optional<exception_info> ex = is_exception(S, r)) {
             format fmt = std::get<0>(*ex);
-            optional<expr> ref1 = std::get<1>(*ex);
-            throw formatted_exception(ref1, fmt);
+            optional<pos_info> pos = std::get<1>(*ex);
+            throw formatted_exception(pos, fmt);
         }
     }
 
@@ -218,7 +211,7 @@ struct interaction_monad {
             try {
                 return vm_compile(new_env, new_env.get(interaction_name));
             } catch (exception & ex) {
-                throw formatted_exception(interaction, format(ex.what()));
+                throw formatted_exception(some(interaction), format(ex.what()));
             }
         }
 

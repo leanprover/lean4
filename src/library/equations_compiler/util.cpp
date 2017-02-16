@@ -23,7 +23,7 @@ Author: Leonardo de Moura
 #include "library/replace_visitor.h"
 #include "library/aux_definition.h"
 #include "library/comp_val.h"
-#include "library/scope_pos_info_provider.h"
+#include "kernel/scope_pos_info_provider.h"
 #include "library/compiler/vm_compiler.h"
 #include "library/tactic/eqn_lemmas.h"
 #include "library/equations_compiler/equations.h"

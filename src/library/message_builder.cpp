@@ -35,17 +35,14 @@ message message_builder::build() {
 }
 
 message_builder & message_builder::set_exception(std::exception const & ex, bool use_pos) {
-    if (auto ext_ex = dynamic_cast<ext_exception const *>(&ex)) {
-        if (use_pos && m_pos_info_provider && ext_ex->get_main_expr()) {
-            if (auto main_pos = m_pos_info_provider->get_pos_info(*ext_ex->get_main_expr()))
-                m_pos = *main_pos;
+    if (auto pos_ex = dynamic_cast<exception_with_pos const *>(&ex)) {
+        if (use_pos && pos_ex->get_pos()) {
+            m_pos = *pos_ex->get_pos();
         }
+    }
+    if (auto ext_ex = dynamic_cast<ext_exception const *>(&ex)) {
         *this << *ext_ex;
     } else if (auto f_ex = dynamic_cast<formatted_exception const *>(&ex)) {
-        if (use_pos && m_pos_info_provider && f_ex->get_main_expr()) {
-            if (auto main_pos = m_pos_info_provider->get_pos_info(*f_ex->get_main_expr()))
-                m_pos = *main_pos;
-        }
         *this << f_ex->pp();
     } else {
         *this << ex.what();

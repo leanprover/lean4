@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include "util/sstream.h"
-#include "library/scope_pos_info_provider.h"
+#include "kernel/scope_pos_info_provider.h"
 
 namespace lean {
 LEAN_THREAD_PTR(pos_info_provider, g_p);
@@ -16,6 +16,12 @@ scope_pos_info_provider::~scope_pos_info_provider() { g_p = m_old_p; }
 
 pos_info_provider * get_pos_info_provider() {
     return g_p;
+}
+optional<pos_info> get_pos_info(expr const & e) {
+    return get_pos_info_provider() ? get_pos_info_provider()->get_pos_info(e) : optional<pos_info>();
+}
+optional<pos_info> get_pos_info(optional<expr> const & e) {
+    return e ? get_pos_info(*e) : optional<pos_info>();
 }
 
 std::string pos_string_for(expr const & e) {

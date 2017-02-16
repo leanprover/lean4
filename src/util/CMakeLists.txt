@@ -5,4 +5,5 @@ add_library(util OBJECT debug.cpp name.cpp name_set.cpp fresh_name.cpp
   bitap_fuzzy_search.cpp init_module.cpp thread.cpp memory_pool.cpp
   utf8.cpp name_map.cpp list_fn.cpp null_ostream.cpp file_lock.cpp
   task_queue.cpp timer.cpp
-  small_object_allocator.cpp subscripted_name_set.cpp process.cpp)
+  small_object_allocator.cpp subscripted_name_set.cpp process.cpp
+  parser_exception.cpp)

@@ -4,21 +4,21 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "library/scope_pos_info_provider.h"
+#include "kernel/scope_pos_info_provider.h"
 #include "library/tactic/elaborator_exception.h"
 
 namespace lean {
 throwable * elaborator_exception::clone() const {
-    return new elaborator_exception(m_expr, m_fmt);
+    return new elaborator_exception(m_pos, m_fmt);
 }
 
 throwable * nested_elaborator_exception::clone() const {
-    return new nested_elaborator_exception(m_expr, m_fmt, m_exception);
+    return new nested_elaborator_exception(m_pos, m_fmt, m_exception);
 }
 
-optional<expr> nested_elaborator_exception::get_main_expr() const {
-    if (auto r = m_exception->get_main_expr()) return r;
-    else return m_expr;
+optional<pos_info> nested_elaborator_exception::get_pos() const {
+    if (auto r = m_exception->get_pos()) return r;
+    else return m_pos;
 }
 
 format nested_elaborator_exception::pp() const {
@@ -27,16 +27,15 @@ format nested_elaborator_exception::pp() const {
         r += line() + format("Additional information:");
     }
     pos_info_provider * pip = get_pos_info_provider();
-    if (pip && m_expr) {
-        if (auto p = pip->get_pos_info(*m_expr)) {
-            r += line() + format(pip->get_file_name()) +
-                colon() + format(p->first) + colon() + format(p->second) + colon() + space() + format("context: ") + m_fmt;
-        } else {
-            r += line() + format("context: ") + m_fmt;
+    r += line();
+    if (pip) {
+        r += format(pip->get_file_name()) + colon();
+        if (m_pos) {
+            r += format(m_pos->first) + colon() + format(m_pos->second) + colon();
         }
-    } else {
-        r += line() + format("context: ") + m_fmt;
+        r += space();
     }
+    r += format("context: ") + m_fmt;
     return r;
 }
 }

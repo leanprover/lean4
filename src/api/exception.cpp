@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "kernel/kernel_exception.h"
 #include "kernel/type_checker.h"
 #include "library/print.h"
+#include "util/parser_exception.h"
 #include "api/exception.h"
 #include "api/string.h"
 using namespace lean; // NOLINT

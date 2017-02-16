@@ -6,7 +6,7 @@ Author: Daniel Selsam
 */
 #include <cctype>
 #include <string>
-#include "util/exception.h"
+#include "util/parser_exception.h"
 #include "util/utf8.h"
 #include "frontends/smt2/scanner.h"
 
@@ -23,11 +23,10 @@ static unsigned char to_uchar(char c) { return static_cast<unsigned char>(c); }
 static scanner::char_kind get_kind(char c) { return g_char_to_kind[to_uchar(c)]; }
 
 [[ noreturn ]] void scanner::throw_exception(char const * msg) {
-    unsigned line = m_cline;
-    unsigned pos  = m_cpos;
+    auto pos = get_pos_info();
     while (curr() != EOF && !std::isspace(curr()))
         next();
-    throw parser_exception(msg, m_stream_name.c_str(), line, pos);
+    throw parser_exception(msg, m_stream_name.c_str(), pos);
 }
 
 [[ noreturn ]] void scanner::throw_exception(std::string const & msg) { throw_exception(msg.c_str()); }

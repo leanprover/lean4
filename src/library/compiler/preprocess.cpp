@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/replace_fn.h"
 #include "kernel/instantiate.h"
 #include "kernel/for_each_fn.h"
-#include "library/scope_pos_info_provider.h"
+#include "kernel/scope_pos_info_provider.h"
 #include "library/trace.h"
 #include "library/projection.h"
 #include "library/constants.h"

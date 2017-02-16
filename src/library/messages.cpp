@@ -10,7 +10,7 @@ Author: Gabriel Ebner
 namespace lean {
 
 message::message(parser_exception const & ex) :
-        message(ex.get_file_name(), pos_info(ex.get_line(), ex.get_pos()),
+        message(ex.get_file_name(), *ex.get_pos(),
                 ERROR, ex.get_msg()) {}
 
 }

@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include <iostream>
 #include "util/sexpr/format.h"
 #include "library/trace.h"
-#include "library/scope_pos_info_provider.h"
+#include "kernel/scope_pos_info_provider.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_io.h"
 #include "library/vm/vm_nat.h"

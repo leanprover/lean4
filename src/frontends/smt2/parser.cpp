@@ -32,7 +32,7 @@ Author: Daniel Selsam
 #include "library/module.h"
 #include "library/trace.h"
 #include "library/mpq_macro.h"
-#include "library/scope_pos_info_provider.h"
+#include "kernel/scope_pos_info_provider.h"
 #include "library/tactic/tactic_state.h"
 #include "frontends/smt2/scanner.h"
 #include "frontends/smt2/elaborator.h"
@@ -154,7 +154,7 @@ private:
     std::string const & get_stream_name() const { return m_scanner.get_stream_name(); }
 
     [[ noreturn ]] void throw_parser_exception(char const * msg, pos_info p) {
-        throw parser_exception(msg, get_stream_name().c_str(), p.first, p.second);
+        throw parser_exception(msg, get_stream_name().c_str(), p);
     }
 
     [[ noreturn ]] void throw_parser_exception(std::string const & msg) { throw_parser_exception(msg.c_str(), m_scanner.get_pos_info()); }

@@ -5,9 +5,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+
 #include "util/output_channel.h"
 #include "util/sexpr/options.h"
+#include "util/exception_with_pos.h"
 #include "kernel/expr.h"
+#include "kernel/scope_pos_info_provider.h"
 
 namespace lean {
 /**
@@ -56,19 +59,19 @@ io_state const & get_global_ios();
 
 /** \brief Formatted exceptions where the format object must be eagerly constructed.
     This is slightly different from ext_exception where the format object is built on demand. */
-class formatted_exception : public exception {
+class formatted_exception : public exception_with_pos {
 protected:
-    optional<expr> m_expr;
-    format         m_fmt;
+    optional<pos_info> m_pos;
+    format             m_fmt;
 public:
     explicit formatted_exception(format const & fmt):m_fmt(fmt) {}
-    formatted_exception(optional<expr> const & e, format const & fmt):m_expr(e), m_fmt(fmt) {}
-    formatted_exception(expr const & e, format const & fmt):m_expr(e), m_fmt(fmt) {}
-    virtual ~formatted_exception() noexcept {}
-    virtual char const * what() const noexcept;
-    virtual throwable * clone() const { return new formatted_exception(m_expr, m_fmt); }
-    virtual void rethrow() const { throw *this; }
-    virtual optional<expr> get_main_expr() const { return m_expr; }
+    formatted_exception(optional<pos_info> const & p, format const & fmt):m_pos(p), m_fmt(fmt) {}
+    formatted_exception(optional<expr> const & e, format const & fmt):formatted_exception(get_pos_info(e), fmt) {}
+    formatted_exception(expr const & e, format const & fmt):formatted_exception(some(e), fmt) {}
+    virtual char const * what() const noexcept override;
+    virtual throwable * clone() const override { return new formatted_exception(m_pos, m_fmt); }
+    virtual void rethrow() const override { throw *this; }
+    virtual optional<pos_info> get_pos() const override { return m_pos; }
     virtual format pp() const { return m_fmt; }
 };
 

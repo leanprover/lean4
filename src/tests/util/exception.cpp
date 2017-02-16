@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include <string>
 #include <functional>
 #include "util/test.h"
-#include "util/exception.h"
+#include "util/parser_exception.h"
 #include "util/sstream.h"
 #include "util/init_module.h"
 using namespace lean;
@@ -22,7 +22,7 @@ static void tst1() {
 
 static void tst2() {
     try {
-        throw parser_exception(std::string("foo"), "[string]", 10, 100);
+        throw parser_exception(std::string("foo"), "[string]", {10, 100});
     } catch (parser_exception & ex) {
         lean_assert(std::string("[string]:10:100: error: foo") == ex.what());
     }
@@ -30,7 +30,7 @@ static void tst2() {
 
 static void tst3() {
     try {
-        throw parser_exception(sstream() << "msg " << 10 << " " << 20, "[stream]", 10, 100);
+        throw parser_exception(sstream() << "msg " << 10 << " " << 20, "[stream]", {10, 100});
     } catch (parser_exception & ex) {
         lean_assert(std::string("[stream]:10:100: error: msg 10 20") == ex.what());
     }

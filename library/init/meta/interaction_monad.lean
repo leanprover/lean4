@@ -11,7 +11,7 @@ import init.meta.pexpr init.data.to_string init.data.string.basic
 
 universes u v
 
-@[reducible] def pos := unsigned × unsigned
+@[reducible] def pos := nat × nat
 
 meta inductive interaction_monad.result (state : Type) (α : Type u)
 | success      : α → state → interaction_monad.result

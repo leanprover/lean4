@@ -112,11 +112,10 @@ void scanner::check_not_eof(char const * error_msg) {
 }
 
 [[ noreturn ]] void scanner::throw_exception(char const * msg) {
-    unsigned line = m_sline;
-    unsigned pos  = m_upos;
+    pos_info pos = {m_sline, m_upos};
     while (curr() != EOF && !std::isspace(curr()))
         next();
-    throw parser_exception(msg, m_stream_name.c_str(), line, pos);
+    throw parser_exception(msg, m_stream_name.c_str(), pos);
 }
 
 static char const * g_end_error_str_msg = "unexpected end of string";

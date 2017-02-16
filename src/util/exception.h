@@ -39,27 +39,6 @@ public:
     virtual void rethrow() const { throw *this; }
 };
 
-/** \brief Exception produced by a Lean parser. */
-class parser_exception : public exception {
-protected:
-    std::string m_fname;
-    unsigned    m_line;
-    unsigned    m_pos;
-public:
-    parser_exception(char const * msg, char const * fname, unsigned l, unsigned p);
-    parser_exception(std::string const & msg, char const * fname, unsigned l, unsigned p);
-    parser_exception(sstream const & strm, char const * fname, unsigned l, unsigned p);
-    virtual ~parser_exception() noexcept;
-    virtual char const * what() const noexcept;
-    unsigned get_line() const { return m_line; }
-    unsigned get_pos() const { return m_pos; }
-    std::string const & get_file_name() const { return m_fname; }
-    std::string const & get_msg() const { return m_msg; }
-    virtual throwable * clone() const { return new parser_exception(m_msg, m_fname.c_str(), m_line, m_pos); }
-    virtual void rethrow() const { throw *this; }
-    parser_exception update_line(unsigned line_delta) const { return parser_exception(m_msg, m_fname.c_str(), m_line + line_delta, m_pos); }
-};
-
 /** \brief Exception used to sign that a computation was interrupted */
 class interrupted {
 public:

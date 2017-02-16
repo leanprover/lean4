@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/inductive/inductive.h"
 #include "library/normalize.h"
 #include "library/util.h"
-#include "library/scope_pos_info_provider.h"
+#include "kernel/scope_pos_info_provider.h"
 #include "library/module.h"
 #include "library/vm/vm.h"
 #include "library/compiler/util.h"

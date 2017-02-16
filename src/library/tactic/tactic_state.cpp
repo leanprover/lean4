@@ -313,15 +313,7 @@ vm_obj mk_tactic_exception(vm_obj const & fn, vm_obj const & ref, tactic_state c
 }
 
 vm_obj mk_tactic_exception(throwable const & ex, tactic_state const & s) {
-    vm_obj _ex = to_obj(ex);
-    vm_obj fn  = mk_vm_closure(get_throwable_to_format_fun_idx(), 1, &_ex);
-    optional<expr> ref;
-    if (auto kex = dynamic_cast<ext_exception const *>(&ex))
-        ref = kex->get_main_expr();
-    else if (auto fex = dynamic_cast<formatted_exception const *>(&ex))
-        ref = fex->get_main_expr();
-    vm_obj _ref = ref ? mk_vm_some(to_obj(*ref)) : mk_vm_none();
-    return mk_tactic_exception(fn, _ref, s);
+    return tactic::mk_exception(ex, s);
 }
 
 vm_obj mk_tactic_exception(format const & fmt, tactic_state const & s) {

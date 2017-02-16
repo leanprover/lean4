@@ -47,7 +47,7 @@ Author: Leonardo de Moura
 #include "library/documentation.h"
 #include "library/pp_options.h"
 #include "library/noncomputable.h"
-#include "library/scope_pos_info_provider.h"
+#include "kernel/scope_pos_info_provider.h"
 #include "library/type_context.h"
 #include "library/pattern_attribute.h"
 #include "library/equations_compiler/equations.h"
@@ -250,12 +250,11 @@ void parser::updt_options() {
 }
 
 void parser::throw_parser_exception(char const * msg, pos_info p) {
-    throw parser_exception(msg, get_stream_name().c_str(), p.first, p.second);
+    throw parser_exception(msg, get_stream_name().c_str(), p);
 }
 
-void parser::throw_nested_exception(throwable const & ex, pos_info p) {
-    throw parser_nested_exception(std::shared_ptr<throwable>(ex.clone()),
-                                  std::make_shared<parser_pos_provider>(m_pos_table, get_stream_name(), p));
+void parser::throw_nested_exception(throwable const & ex) {
+    throw parser_nested_exception(std::shared_ptr<throwable>(ex.clone()));
 }
 
 #define CATCH(ShowError, ThrowError)                    \
@@ -272,18 +271,15 @@ void parser::protected_call(std::function<void()> && f, std::function<void()> &&
             m_env = ex.get_env();
             ex.get_exception().rethrow();
         }
-    } catch (break_at_pos_exception) {
+    } catch (break_at_pos_exception &) {
         throw;
     } catch (parser_exception & ex) {
         CATCH(report_message(ex), throw);
-    } catch (parser_error & ex) {
-        CATCH((mk_message(ex.m_pos, ERROR) << ex.get_msg()).report(),
-              throw_parser_exception(ex.what(), ex.m_pos));
     } catch (interrupted) {
         throw;
     } catch (throwable & ex) {
         CATCH(mk_message(m_last_cmd_pos, ERROR).set_exception(ex).report(),
-              throw_nested_exception(ex, m_last_cmd_pos));
+              throw_nested_exception(ex));
     }
 }
 
@@ -2272,7 +2268,7 @@ void parser::process_imports() {
                 std::rethrow_exception(e.m_ex);
             } catch (throwable & t) {
                 parser_exception error((sstream() << "invalid import: " << e.m_import.m_name << "\n" << t.what()).str(),
-                                       m_file_name.c_str(), m_last_cmd_pos.first, m_last_cmd_pos.second);
+                                       m_file_name.c_str(), m_last_cmd_pos);
                 if (!m_use_exceptions && m_show_errors)
                     report_message(error);
                 if (m_use_exceptions)

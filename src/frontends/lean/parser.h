@@ -88,7 +88,7 @@ class parser : public abstract_parser {
     list<generic_task_result> m_required_successes;
 
     void throw_parser_exception(char const * msg, pos_info p);
-    void throw_nested_exception(throwable const & ex, pos_info p);
+    void throw_nested_exception(throwable const & ex);
 
     void sync_command();
     void protected_call(std::function<void()> && f, std::function<void()> && sync);

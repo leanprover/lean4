@@ -16,13 +16,13 @@ static pp_fn mk_pp_fn(char const * msg) {
 generic_exception::generic_exception(optional<expr> const & m, char const * msg):
     generic_exception(msg, m, mk_pp_fn(msg)) {}
 
-optional<expr> nested_exception::get_main_expr() const {
-    if (m_main_expr)
-        return m_main_expr;
+optional<pos_info> nested_exception::get_pos() const {
+    if (m_pos)
+        return m_pos;
     else if (ext_exception * ex = dynamic_cast<ext_exception *>(m_exception.get()))
-        return ex->get_main_expr();
+        return ex->get_pos();
     else
-        return none_expr();
+        return {};
 }
 
 format nested_exception::pp(formatter const & fmt) const {
@@ -37,6 +37,6 @@ format nested_exception::pp(formatter const & fmt) const {
 }
 
 throwable * nested_exception::clone() const {
-    return new nested_exception(m_main_expr, m_pp_fn, *m_exception);
+    return new nested_exception(m_pos, m_pp_fn, *m_exception);
 }
 }

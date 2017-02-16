@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 #include "library/annotation.h"
 #include "library/util.h"
 #include "library/constants.h"
-#include "library/scope_pos_info_provider.h"
+#include "kernel/scope_pos_info_provider.h"
 #include "library/vm/vm_list.h"
 #include "library/compiler/vm_compiler.h"
 #include "library/tactic/smt/smt_state.h"

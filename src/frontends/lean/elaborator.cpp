@@ -22,7 +22,7 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/placeholder.h"
 #include "library/explicit.h"
-#include "library/scope_pos_info_provider.h"
+#include "kernel/scope_pos_info_provider.h"
 #include "library/choice.h"
 #include "library/string.h"
 #include "library/class.h"
@@ -2421,7 +2421,7 @@ expr elaborator::visit_field(expr const & e, optional<expr> const & expected_typ
         try {
             full_fname = field_to_decl(e, s, new_s_type);
         } catch (elaborator_exception & ex2) {
-            throw nested_elaborator_exception(ex2.get_main_expr(), ex1, ex2.pp());
+            throw nested_elaborator_exception(ex2.get_pos(), ex1, ex2.pp());
         }
     }
     expr proj  = copy_tag(e, mk_constant(full_fname));

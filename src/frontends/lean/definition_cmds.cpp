@@ -24,7 +24,7 @@ Author: Leonardo de Moura
 #include "library/noncomputable.h"
 #include "library/module.h"
 #include "library/documentation.h"
-#include "library/scope_pos_info_provider.h"
+#include "kernel/scope_pos_info_provider.h"
 #include "library/replace_visitor.h"
 #include "library/equations_compiler/util.h"
 #include "library/equations_compiler/equations.h"

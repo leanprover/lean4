@@ -7,7 +7,7 @@ Author: Gabriel Ebner
 #pragma once
 #include <string>
 #include "util/message_definitions.h"
-#include "util/exception.h"
+#include "util/parser_exception.h"
 
 namespace lean {
 

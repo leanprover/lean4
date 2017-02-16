@@ -601,7 +601,7 @@ static expr parse_do(parser_state & p, unsigned, expr const *, pos_info const &)
                 eqs.push_back(else_eq);
                 equations_header h = mk_equations_header(match_scope.get_name());
                 expr eqns  = p.save_pos(mk_equations(h, eqs.size(), eqs.data()), pos);
-                expr local = mk_local("p", mk_expr_placeholder());
+                expr local = mk_local("_p", mk_expr_placeholder());
                 expr match = p.mk_app(eqns, local, pos);
                 r = p.rec_save_pos(mk_app(p.save_pos(mk_bind_fn(), ps[i]),
                                           es[i],
@@ -611,7 +611,7 @@ static expr parse_do(parser_state & p, unsigned, expr const *, pos_info const &)
         } else {
             r = p.rec_save_pos(mk_app(p.save_pos(mk_bind_fn(), ps[i]),
                                       es[i],
-                                      p.save_pos(mk_lambda("x", mk_expr_placeholder(), r), p.pos_of(r))),
+                                      p.save_pos(mk_lambda("_x", mk_expr_placeholder(), r), p.pos_of(r))),
                                ps[i]);
         }
     }

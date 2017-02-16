@@ -11,8 +11,8 @@ by do
   H ← get_local `H >>= infer_type,
   (lhs, rhs) ← match_eq H,
   nat_add : expr ← mk_const `nat.add,
-  p : pattern    ← mk_pattern [] [a, b] (app2 nat_add a b) [app2 nat_add b a, a, b],
-  trace (pattern.output p),
+  p : pattern    ← mk_pattern [] [a, b] (app2 nat_add a b) [] [app2 nat_add b a, a, b],
+  trace (pattern.moutput p),
   [v₁, v₂, v₃] ← match_pattern p lhs | failed,
   trace v₁, trace v₂, trace v₃,
   constructor

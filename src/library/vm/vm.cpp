@@ -102,6 +102,11 @@ vm_obj mk_vm_constructor(unsigned cidx, vm_obj const & o1, vm_obj const & o2, vm
     return mk_vm_constructor(cidx, 4, args);
 }
 
+vm_obj mk_vm_constructor(unsigned cidx, vm_obj const & o1, vm_obj const & o2, vm_obj const & o3, vm_obj const & o4, vm_obj const & o5) {
+    vm_obj args[5] = {o1, o2, o3, o4, o5};
+    return mk_vm_constructor(cidx, 5, args);
+}
+
 vm_obj mk_vm_closure(unsigned fn_idx, unsigned sz, vm_obj const * data) {
     return mk_vm_composite(vm_obj_kind::Closure, fn_idx, sz, data);
 }

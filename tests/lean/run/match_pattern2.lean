@@ -18,7 +18,7 @@ do env ← get_env,
    ls  : list level   ← return $ map level.param (declaration.univ_params d),
    (some type)        ← return $ declaration.instantiate_type_univ_params d ls | failed,
    (es, lhs, rhs)     ← pattern_telescope type [],
-   p   : pattern      ← mk_pattern ls es lhs [rhs, app_of_list (expr.const n ls) es],
+   p   : pattern      ← mk_pattern ls es lhs [] [rhs, app_of_list (expr.const n ls) es],
    return p
 
 open nat

@@ -17,18 +17,19 @@ Author: Leonardo de Moura
 namespace lean {
 /*
 structure pattern :=
-(target : expr) (output : list expr) (nuvars : nat) (nmvars : nat)
+(target : expr) (uoutput : list level) (output : list expr) (nuvars : nat) (nmvars : nat)
 */
-vm_obj mk_pattern(expr const & target, list<expr> const & os, unsigned nuvars, unsigned nmvars) {
-    return mk_vm_constructor(0, to_obj(target), to_obj(os), mk_vm_nat(nuvars), mk_vm_nat(nmvars));
+vm_obj mk_pattern(expr const & target, list<level> const & uos, list<expr> const & os, unsigned nuvars, unsigned nmvars) {
+    return mk_vm_constructor(0, to_obj(target), to_obj(uos), to_obj(os), mk_vm_nat(nuvars), mk_vm_nat(nmvars));
 }
 
-void get_pattern_fields(vm_obj const & p, expr & target, list<expr> & os, unsigned & nuvars, unsigned & nmvars) {
-    lean_assert(csize(p) == 4);
+void get_pattern_fields(vm_obj const & p, expr & target, list<level> & uos, list<expr> & os, unsigned & nuvars, unsigned & nmvars) {
+    lean_assert(csize(p) == 5);
     target = to_expr(cfield(p, 0));
-    os     = to_list_expr(cfield(p, 1));
-    nuvars = force_to_unsigned(cfield(p, 2), 0);
-    nmvars = force_to_unsigned(cfield(p, 3), 0);
+    uos    = to_list_level(cfield(p, 1));
+    os     = to_list_expr(cfield(p, 2));
+    nuvars = force_to_unsigned(cfield(p, 3), 0);
+    nmvars = force_to_unsigned(cfield(p, 4), 0);
 }
 
 struct mk_pattern_fn {
@@ -110,14 +111,15 @@ struct mk_pattern_fn {
         }
     }
 
-    vm_obj mk(list<level> const & ls, list<expr> const & es, expr const & t, list<expr> const & os) {
+  vm_obj mk(list<level> const & ls, list<expr> const & es, expr const & t, list<level> const & ous, list<expr> const & os) {
         mk_level_uvars(ls);
         mk_expr_mvars(es);
         expr target = convert(t);
         check_levels(ls);
         check_exprs(es);
         list<expr> output = map(os, [&](expr const & e) { return convert(e); });
-        return mk_pattern(target, output, length(ls), length(es));
+        list<level> uoutput = map(ous, [&](level const & e) { return convert(e); });
+        return mk_pattern(target, uoutput, output, length(ls), length(es));
     }
 };
 
@@ -127,9 +129,9 @@ struct mk_pattern_fn {
 /*
 meta_constant mk_pattern : list level → list expr → expr → list expr → tactic pattern
 */
-vm_obj tactic_mk_pattern(vm_obj const & ls, vm_obj const & es, vm_obj const & t, vm_obj const & os, vm_obj const & s) {
+vm_obj tactic_mk_pattern(vm_obj const & ls, vm_obj const & es, vm_obj const & t, vm_obj const & ous, vm_obj const & os, vm_obj const & s) {
     TRY;
-    vm_obj pattern = mk_pattern_fn(tactic::to_state(s)).mk(to_list_level(ls), to_list_expr(es), to_expr(t), to_list_expr(os));
+    vm_obj pattern = mk_pattern_fn(tactic::to_state(s)).mk(to_list_level(ls), to_list_expr(es), to_expr(t), to_list_level(ous), to_list_expr(os));
     return tactic::mk_success(pattern, tactic::to_state(s));
     CATCH;
 }
@@ -139,8 +141,8 @@ meta_constant match_pattern_core : transparency → pattern → expr → tactic 
 */
 vm_obj tactic_match_pattern_core(vm_obj const & m, vm_obj const & p, vm_obj const & e, vm_obj const & s) {
     TRY;
-    expr t; list<expr> os; unsigned nuvars, nmvars;
-    get_pattern_fields(p, t, os, nuvars, nmvars);
+    expr t; list<level> uos; list<expr> os; unsigned nuvars, nmvars;
+    get_pattern_fields(p, t, uos, os, nuvars, nmvars);
     type_context ctx = mk_type_context_for(s, m);
     type_context::tmp_mode_scope scope(ctx, nuvars, nmvars);
     if (ctx.is_def_eq(t, to_expr(e))) {
@@ -156,7 +158,11 @@ vm_obj tactic_match_pattern_core(vm_obj const & m, vm_obj const & p, vm_obj cons
         for (expr const & o : os) {
             inst_os.push_back(ctx.instantiate_mvars(o));
         }
-        return tactic::mk_success(to_obj(to_list(inst_os)), tactic::to_state(s));
+        buffer<level> inst_uos;
+        for (level const & uo : uos) {
+            inst_uos.push_back(ctx.instantiate_mvars(uo));
+        }
+        return tactic::mk_success(mk_vm_pair(to_obj(to_list(inst_uos)), to_obj(to_list(inst_os))), tactic::to_state(s));
     } else {
         return tactic::mk_exception("match_pattern failed", tactic::to_state(s));
     }

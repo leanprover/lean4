@@ -2944,7 +2944,7 @@ void vm_state::run() {
                     goto main_loop;
                 }
             } else {
-                lean_vm_check(is_composite(top));
+                /* to_mpz checks lean_vm_check(is_mpz(top)) */
                 mpz const & val = to_mpz(top);
                 if (val == 0) {
                     stack_pop_back();

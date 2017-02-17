@@ -18,8 +18,8 @@ struct parser_error : public exception_with_pos {
     parser_error(sstream const & msg, pos_info const & p):exception_with_pos(msg), m_pos(p) {}
     virtual optional<pos_info> get_pos() const override { return some(m_pos); }
     std::string const & get_msg() const { return m_msg; }
-    virtual throwable * clone() const { return new parser_error(m_msg.c_str(), m_pos); }
-    virtual void rethrow() const { throw *this; }
+    virtual throwable * clone() const override { return new parser_error(m_msg.c_str(), m_pos); }
+    virtual void rethrow() const override { throw *this; }
 };
 
 /** \brief Base class for frontend parsers with basic functions */

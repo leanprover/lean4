@@ -21,7 +21,7 @@ public:
     virtual ~ext_exception() noexcept {}
     virtual optional<pos_info> get_pos() const override { return {}; }
     virtual format pp(formatter const &) const { return format(what()); }
-    virtual throwable * clone() const { return new ext_exception(m_msg.c_str()); }
-    virtual void rethrow() const { throw *this; }
+    virtual throwable * clone() const override { return new ext_exception(m_msg.c_str()); }
+    virtual void rethrow() const override { throw *this; }
 };
 }

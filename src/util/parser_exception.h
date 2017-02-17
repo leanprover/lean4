@@ -21,11 +21,11 @@ public:
             exception_with_pos(msg), m_fname(fname), m_pos(pos) {}
     parser_exception(sstream const & strm, char const * fname, pos_info pos):
             exception_with_pos(strm), m_fname(fname), m_pos(pos) {}
-    virtual char const * what() const noexcept;
+    virtual char const * what() const noexcept override;
     virtual optional<pos_info> get_pos() const override { return some(m_pos); }
     std::string const & get_file_name() const { return m_fname; }
     std::string const & get_msg() const { return m_msg; }
-    virtual throwable * clone() const { return new parser_exception(m_msg, m_fname.c_str(), m_pos); }
-    virtual void rethrow() const { throw *this; }
+    virtual throwable * clone() const override { return new parser_exception(m_msg, m_fname.c_str(), m_pos); }
+    virtual void rethrow() const override { throw *this; }
 };
 }

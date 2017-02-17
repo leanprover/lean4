@@ -31,6 +31,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/util.h"
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/structure_cmd.h"
+#include "frontends/lean/info_manager.h"
 
 // TODO(gabriel): make print command async
 
@@ -386,6 +387,15 @@ bool print_id_info(parser & p, message_builder & out, name const & id, bool show
         }
         // print_patterns(p, c);
     }
+
+    // add to info_manager when not overloaded
+    if (auto c = head_opt(cs))
+        if (!tail(cs))
+            if (auto infom = get_global_info_manager()) {
+                infom->add_identifier_info(pos.first, pos.second, *c);
+                infom->add_type_info(pos.first, pos.second, p.env().get(*c).get_type());
+            }
+
     if (found) return true;
 
     // variables and parameters

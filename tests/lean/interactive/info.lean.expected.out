@@ -1,3 +1,4 @@
+{"msg":{"caption":"print result","file_name":"f","pos_col":0,"pos_line":18,"severity":"information","text":"@[reducible]\ndef id : Π {α : Sort u}, α → α :=\nλ {α : Sort u} (a : α), a"},"response":"additional_message"}
 {"message":"file invalidated","response":"ok","seq_num":0}
 {"record":{"source":},"response":"ok","seq_num":2}
 {"record":{"doc":"reducible"},"response":"ok","seq_num":5}
@@ -5,3 +6,4 @@
 {"record":{"doc":"(trace) enable/disable tracing for the given module and submodules"},"response":"ok","seq_num":10}
 {"record":{"full-id":"list.cons","source":,"type":"Π {T : Type}, T → list T → list T"},"response":"ok","seq_num":13}
 {"record":{"full-id":"append","source":,"type":"Π {α : Type} [_inst_1 : has_append α], α → α → α"},"response":"ok","seq_num":16}
+{"record":{"full-id":"id","source":,"type":"Π {α : Sort u}, α → α"},"response":"ok","seq_num":19}

@@ -14,3 +14,6 @@ example := [tt]
 
 example := [tt]++[]
              --^ "command": "info"
+
+print id
+     --^ "command": "info"

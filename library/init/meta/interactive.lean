@@ -64,14 +64,6 @@ namespace types
 
             and produce a list of quoted expressions
 
-   - qexpr_list_with_pos
-   - qexpr_list_or_qexpr0_with_pos : parse
-           `[` (expr (`,` expr)*)? `]`
-            or
-            expr
-
-            and produce a list of quoted expressions with position information
-
 -/
 
 variables {α β : Type}
@@ -81,8 +73,6 @@ local notation p ` ?: `:100 d := (λ o, option.get_or_else o d) <$> p?
 local postfix * := many
 
 meta def list_of (p : parser α) := tk "[" *> sep_by "," p <* tk "]"
-
-/- legacy definitions. remove some? -/
 
 /- Remark: rbp for '<|>' is 2, ';' is 1, and ',' is 0
    qexpr0 shoud use rbp 2.
@@ -95,13 +85,9 @@ meta def raw_ident_list := ident*
 meta def with_ident_list := (tk "with" *> ident*) ?: []
 meta def without_ident_list := (tk "without" *> ident*) ?: []
 meta def location := (tk "at" *> ident*) ?: []
-meta def qexpr_list := list_of qexpr0
-meta def qexpr_with_pos (rbp : nat := nat.of_num std.prec.max) : parser (pexpr × pos) :=
-(λ p e, (e,p)) <$> cur_pos <*> qexpr rbp
-meta def qexpr_list_with_pos := list_of (qexpr_with_pos 0)
+meta def qexpr_list := list_of (qexpr 0)
 meta def opt_qexpr_list := qexpr_list ?: []
 meta def qexpr_list_or_qexpr0 := qexpr_list <|> return <$> qexpr0
-meta def qexpr_list_or_qexpr0_with_pos := list_of (qexpr_with_pos 0) <|> (λ x, [x]) <$> qexpr_with_pos 0
 meta def assign_tk := tk ":="
 meta def colon_tk := tk ":"
 end types
@@ -272,51 +258,57 @@ match e with
 | _                     := i_to_expr p
 end
 
-private meta def to_symm_expr_list : list (pexpr × pos) → tactic (list (bool × expr × pos))
-| []             := return []
-| ((p, pos)::ps) :=
+private meta def maybe_save_info : option pos → tactic unit
+| (some p) := save_info p.1 p.2
+| none     := skip
+
+private meta def symm_expr := bool × expr × option pos
+
+private meta def to_symm_expr_list : list pexpr → tactic (list symm_expr)
+| []      := return []
+| (p::ps) :=
   match is_neg p with
-  | some a :=  do r ← to_expr' a, rs ← to_symm_expr_list ps, return ((tt, r, pos) :: rs)
-  | none   :=  do r ← to_expr' p, rs ← to_symm_expr_list ps, return ((ff, r, pos) :: rs)
+  | some a :=  do r ← to_expr' a, rs ← to_symm_expr_list ps, return ((tt, r, pexpr.pos p) :: rs)
+  | none   :=  do r ← to_expr' p, rs ← to_symm_expr_list ps, return ((ff, r, pexpr.pos p) :: rs)
   end
 
-private meta def rw_goal : transparency → list (bool × expr × pos) → tactic unit
+private meta def rw_goal : transparency → list symm_expr → tactic unit
 | m []                   := return ()
-| m ((symm, e, pos)::es) := save_info pos.1 pos.2 >> rewrite_core m tt tt occurrences.all symm e >> rw_goal m es
+| m ((symm, e, pos)::es) := maybe_save_info pos >> rewrite_core m tt tt occurrences.all symm e >> rw_goal m es
 
-private meta def rw_hyp : transparency → list (bool × expr × pos) → name → tactic unit
+private meta def rw_hyp : transparency → list symm_expr → name → tactic unit
 | m []              hname := return ()
 | m ((symm, e, pos)::es) hname :=
   do h ← get_local hname,
-     save_info pos.1 pos.2,
+     maybe_save_info pos,
      rewrite_at_core m tt tt occurrences.all symm e h,
      rw_hyp m es hname
 
-private meta def rw_hyps : transparency → list (bool × expr × pos) → list name → tactic unit
+private meta def rw_hyps : transparency → list symm_expr → list name → tactic unit
 | m es  []      := return ()
 | m es  (h::hs) := rw_hyp m es h >> rw_hyps m es hs
 
-private meta def rw_core (m : transparency) (hs : parse qexpr_list_or_qexpr0_with_pos) (loc : parse location) : tactic unit :=
+private meta def rw_core (m : transparency) (hs : parse qexpr_list_or_qexpr0) (loc : parse location) : tactic unit :=
 do hlist ← to_symm_expr_list hs,
    match loc with
    | [] := rw_goal m hlist >> try (reflexivity reducible)
    | hs := rw_hyps m hlist hs >> try (reflexivity reducible)
    end
 
-meta def rewrite : parse qexpr_list_or_qexpr0_with_pos → parse location → tactic unit :=
+meta def rewrite : parse qexpr_list_or_qexpr0 → parse location → tactic unit :=
 rw_core reducible
 
-meta def rw : parse qexpr_list_or_qexpr0_with_pos → parse location → tactic unit :=
+meta def rw : parse qexpr_list_or_qexpr0 → parse location → tactic unit :=
 rewrite
 
 /- rewrite followed by assumption -/
-meta def rwa (q : parse qexpr_list_or_qexpr0_with_pos) (l : parse location) : tactic unit :=
+meta def rwa (q : parse qexpr_list_or_qexpr0) (l : parse location) : tactic unit :=
 rewrite q l >> try assumption
 
-meta def erewrite : parse qexpr_list_or_qexpr0_with_pos → parse location → tactic unit :=
+meta def erewrite : parse qexpr_list_or_qexpr0 → parse location → tactic unit :=
 rw_core semireducible
 
-meta def erw : parse qexpr_list_or_qexpr0_with_pos → parse location → tactic unit :=
+meta def erw : parse qexpr_list_or_qexpr0 → parse location → tactic unit :=
 erewrite
 
 private meta def get_type_name (e : expr) : tactic name :=

@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "kernel/instantiate.h"
+#include "kernel/scope_pos_info_provider.h"
 #include "library/placeholder.h"
 #include "library/explicit.h"
 #include "library/vm/vm.h"
@@ -13,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/quote.h"
 #include "frontends/lean/prenum.h"
 #include "library/string.h"
+#include "library/vm/vm_option.h"
 
 namespace lean {
 vm_obj pexpr_subst(vm_obj const & _e1, vm_obj const & _e2) {
@@ -47,6 +49,12 @@ vm_obj pexpr_mk_placeholder() {
     return to_obj(mk_expr_placeholder());
 }
 
+vm_obj pexpr_pos(vm_obj const & e) {
+    if (auto p = get_pos_info(to_expr(e)))
+        return mk_vm_some(mk_vm_pair(mk_vm_nat(p->first), mk_vm_nat(p->second)));
+    return mk_vm_none();
+}
+
 vm_obj pexpr_mk_quote_macro(vm_obj const & e) {
     return to_obj(mk_quote(to_expr(e)));
 }
@@ -67,9 +75,11 @@ void initialize_vm_pexpr() {
     DECLARE_VM_BUILTIN(name({"pexpr", "to_raw_expr"}),    pexpr_to_raw_expr);
     DECLARE_VM_BUILTIN(name({"pexpr", "mk_placeholder"}), pexpr_mk_placeholder);
 
-    DECLARE_VM_BUILTIN(name("pexpr", "mk_quote_macro"),     pexpr_mk_quote_macro);
-    DECLARE_VM_BUILTIN(name("pexpr", "mk_prenum_macro"),    pexpr_mk_prenum_macro);
-    DECLARE_VM_BUILTIN(name("pexpr", "mk_string_macro"),    pexpr_mk_string_macro);
+    DECLARE_VM_BUILTIN(name("pexpr", "pos"),              pexpr_pos);
+
+    DECLARE_VM_BUILTIN(name("pexpr", "mk_quote_macro"),   pexpr_mk_quote_macro);
+    DECLARE_VM_BUILTIN(name("pexpr", "mk_prenum_macro"),  pexpr_mk_prenum_macro);
+    DECLARE_VM_BUILTIN(name("pexpr", "mk_string_macro"),  pexpr_mk_string_macro);
 }
 
 void finalize_vm_pexpr() {

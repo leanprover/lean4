@@ -535,14 +535,14 @@ public:
 
                 for (auto & infom : m_server->m_msg_buf->get_info_managers()) {
                     if (infom.get_file_name() == get_module_id()) {
-                        infom.get_info_record(env, opts, m_server->m_ios, e.m_token_info.m_pos.first,
-                                              e.m_token_info.m_pos.second, record);
                         if (e.m_goal_pos) {
                             infom.get_info_record(env, opts, m_server->m_ios, e.m_goal_pos->first,
                                                   e.m_goal_pos->second, record, [](info_data const & d) {
                                         return dynamic_cast<vm_obj_format_info const *>(d.raw());
                                     });
                         }
+                        infom.get_info_record(env, opts, m_server->m_ios, e.m_token_info.m_pos.first,
+                                              e.m_token_info.m_pos.second, record);
                     }
                 }
 

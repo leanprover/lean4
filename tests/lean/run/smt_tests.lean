@@ -75,7 +75,7 @@ end
 lemma ex7 (a b : nat) : a = 0 → b = a → b = 0 :=
 begin [smt]
   intros,
-  try { trace "hello", smt_tactic.failed },
+  try { trace "hello", @smt_tactic.failed unit },
 end
 
 set_option trace.smt true

@@ -145,7 +145,7 @@ do hs ← mk_ematch_eqn_lemmas_for_core md n,
 meta def ematch : smt_tactic unit :=
 ematch_core (λ _, tt)
 
-meta def failed : smt_tactic unit :=
+meta def failed {α} : smt_tactic α :=
 tactic.failed
 
 meta def fail {α : Type} {β : Type u} [has_to_format β] (msg : β) : tactic α :=
@@ -179,6 +179,9 @@ do s₁ ← state_t.read,
    s₂ ← tactic.read,
    return (s₁, s₂)
 
+protected meta def write : smt_state × tactic_state → smt_tactic unit :=
+λ ⟨ss, ts⟩ _ _, tactic_result.success ((), ss) ts
+
 private meta def mk_smt_goals_for (cfg : smt_config) : list expr → list smt_goal → list expr
                                   → tactic (list smt_goal × list expr)
 | []        sr tr := return (sr^.reverse, tr^.reverse)
@@ -210,9 +213,15 @@ do (s₁, s₂) ← smt_tactic.read,
 meta def trace {α : Type} [has_to_tactic_format α] (a : α) : smt_tactic unit :=
 tactic.trace a
 
+meta def to_expr (q : pexpr) (allow_mvars := tt) (report_errors := ff) : smt_tactic expr :=
+tactic.to_expr q allow_mvars report_errors
+
 meta def classical : smt_tactic bool :=
 do s ← state_t.read,
    return s^.classical
+
+meta def num_goals : smt_tactic nat :=
+λ ss, return (ss^.length, ss)
 
 /- Low level primitives for managing set of goals -/
 meta def get_goals : smt_tactic (list smt_goal × list expr) :=
@@ -245,18 +254,33 @@ do (s::ss, t::ts) ← get_goals,
    (new_ss, new_ts) ← get_goals,
    set_goals (new_ss ++ ss) (new_ts ++ ts)
 
+meta instance : has_andthen (smt_tactic unit) :=
+⟨seq⟩
+
+meta def focus1 {α} (tac : smt_tactic α) : smt_tactic α :=
+do (s::ss, t::ts) ← get_goals,
+   match ss with
+   | []  := tac
+   | _   := do
+     set_goals [s] [t],
+     a ← tac,
+     (ss', ts') ← get_goals,
+     set_goals (ss' ++ ss) (ts' ++ ts),
+     return a
+   end
+
 meta def solve1 (tac : smt_tactic unit) : smt_tactic unit :=
 do (ss, gs) ← get_goals,
    match ss, gs with
-   | [],     _    := fail "focus tactic failed, there isn't any goal left to focus"
-   | _,     []    := fail "focus tactic failed, there isn't any smt goal left to focus"
+   | [],     _    := fail "solve1 tactic failed, there isn't any goal left to focus"
+   | _,     []    := fail "solve1 tactic failed, there isn't any smt goal left to focus"
    | s::ss, g::gs :=
      do set_goals [s] [g],
         tac,
         (ss', gs') ← get_goals,
         match ss', gs' with
         | [], [] := set_goals ss gs
-        | _,  _  := fail "focus tactic failed, focused goal has not been solved"
+        | _,  _  := fail "solve1 tactic failed, focused goal has not been solved"
         end
    end
 
@@ -362,6 +386,12 @@ get_facts >>= add_lemmas_from_facts_core
 
 meta def induction (e : expr) (rec : name) (ids : list name) : smt_tactic unit :=
 slift (tactic.induction e rec ids >> return ()) -- pass on the information?
+
+meta def when (c : Prop) [decidable c] (tac : smt_tactic unit) : smt_tactic unit :=
+if c then tac else skip
+
+meta def when_tracing (n : name) (tac : smt_tactic unit) : smt_tactic unit :=
+when (is_trace_enabled_for n = tt) tac
 
 end smt_tactic
 

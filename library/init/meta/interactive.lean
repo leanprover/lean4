@@ -11,85 +11,32 @@ import init.meta.lean.parser init.meta.quote
 open lean
 open lean.parser
 
+local postfix ?:9001 := optional
+local postfix *:9001 := many
+local notation p ` ?: `:100 d := (λ o, option.get_or_else o d) <$> p?
+
 namespace interactive
+/-- (parse p) as the parameter type of an interactive tactic will instruct the Lean parser
+    to run `p` when parsing the parameter and to pass the parsed value as an argument
+    to the tactic. -/
 @[reducible] meta def parse {α : Type} [has_quote α] (p : parser α) : Type := α
 
 namespace types
-/- The parser treats constants in the tactic.interactive namespace specially.
-   The following argument types have special parser support when interactive tactics
-   are used inside `begin ... end` blocks.
-
-   - opt_ident : parse (identifier)?
-
-   - using_ident
-
-   - raw_ident_list : parse identifier* and produce a list of quoted identifiers.
-
-         Example:
-           a b c
-         produces
-           [`a, `b, `c]
-
-   - with_ident_list : parse
-                 (`with` identifier+)?
-                 and produce a list of quoted identifiers
-
-   - assign_tk : parse the token `:=` and produce the unit ()
-   - colon_tk : parse the token `:` and produce the unit ()
-   - comma_tk : parse the token `,` and produce the unit ()
-
-   - location : parse
-             (`at` identifier+)?
-             and produce a list of quoted identifiers
-
-   - qexpr : parse an expression e and produce the quoted expression `e
-
-   - qexpr_list : parse
-           `[` (expr (`,` expr)*)? `]`
-
-            and produce a list of quoted expressions.
-
-   - opt_qexpr_list : parse
-           (`[` (expr (`,` expr)*)? `]`)?
-
-           and produce a list of quoted expressions.
-
-   - qexpr0 : parse an expression e using 0 as the right-binding-power,
-              and produce the quoted expression `e
-
-   - qexpr_list_or_qexpr0 : parse
-           `[` (expr (`,` expr)*)? `]`
-            or
-            expr
-
-            and produce a list of quoted expressions
-
--/
-
 variables {α β : Type}
-
-local postfix ?:100 := optional
-local notation p ` ?: `:100 d := (λ o, option.get_or_else o d) <$> p?
-local postfix * := many
 
 meta def list_of (p : parser α) := tk "[" *> sep_by "," p <* tk "]"
 
-/- Remark: rbp for '<|>' is 2, ';' is 1, and ',' is 0
-   qexpr0 shoud use rbp 2.
-
-   TODO(Leo): rename qexpr0 to something else -/
-meta def qexpr0 := qexpr 2
-meta def opt_ident := ident?
+/-- A 'tactic expression', which uses right-binding power 2 so that it is terminated by
+    '<|>' (rbp 2), ';' (rbp 1), and ',' (rbp 0). It should be used for any (potentially)
+    trailing expression parameters. -/
+meta def texpr := qexpr 2
 meta def using_ident := (tk "using" *> ident)?
-meta def raw_ident_list := ident*
 meta def with_ident_list := (tk "with" *> ident*) ?: []
 meta def without_ident_list := (tk "without" *> ident*) ?: []
 meta def location := (tk "at" *> ident*) ?: []
 meta def qexpr_list := list_of (qexpr 0)
 meta def opt_qexpr_list := qexpr_list ?: []
-meta def qexpr_list_or_qexpr0 := qexpr_list <|> return <$> qexpr0
-meta def assign_tk := tk ":="
-meta def colon_tk := tk ":"
+meta def qexpr_list_or_texpr := qexpr_list <|> return <$> texpr
 end types
 end interactive
 
@@ -136,7 +83,7 @@ If the goal is an arrow `T → U`, then it puts in the local context either `h:T
 If the goal is neither a Pi/forall nor starting with a let definition,
 the tactic `intro` applies the tactic `whnf` until the tactic `intro` can be applied or the goal is not `head-reducible`.
 -/
-meta def intro : parse opt_ident → tactic unit
+meta def intro : parse ident? → tactic unit
 | none     := intro1 >> skip
 | (some h) := tactic.intro h >> skip
 
@@ -144,7 +91,7 @@ meta def intro : parse opt_ident → tactic unit
 Similar to `intro` tactic. The tactic `intros` will keep introducing new hypotheses until the goal target is not a Pi/forall or let binder.
 The variant `intros h_1 ... h_n` introduces `n` new hypotheses using the given identifiers to name them.
 -/
-meta def intros : parse raw_ident_list → tactic unit
+meta def intros : parse ident* → tactic unit
 | [] := tactic.intros >> skip
 | hs := intro_lst hs >> skip
 
@@ -164,14 +111,14 @@ that have not been fixed by type inference or type class resolution.
 The tactic `apply` uses higher-order pattern matching, type class resolution, and
 first-order unification with dependent types.
 -/
-meta def apply (q : parse qexpr0) : tactic unit :=
+meta def apply (q : parse texpr) : tactic unit :=
 i_to_expr q >>= tactic.apply
 
 /--
 Similar to the `apply` tactic, but it also creates subgoals for dependent premises
 that have not been fixed by type inference or type class resolution.
 -/
-meta def fapply (q : parse qexpr0) : tactic unit :=
+meta def fapply (q : parse texpr) : tactic unit :=
 i_to_expr q >>= tactic.fapply
 
 /--
@@ -189,7 +136,7 @@ Note that some holes may be implicit.
 The type of holes must be either synthesized by the system or declared by
 an explicit type ascription like (e.g., `(_ : nat → Prop)`).
 -/
-meta def refine (q : parse qexpr0) : tactic unit :=
+meta def refine (q : parse texpr) : tactic unit :=
 tactic.refine q tt
 
 /--
@@ -204,7 +151,7 @@ This tactic applies to any goal. `change U` replaces the main goal target `T` wi
 providing that `U` is well-formed with respect to the main goal local context,
 and `T` and `U` are definitionally equal.
 -/
-meta def change (q : parse qexpr0) : tactic unit :=
+meta def change (q : parse texpr) : tactic unit :=
 i_to_expr q >>= tactic.change
 
 /--
@@ -212,7 +159,7 @@ This tactic applies to any goal. It gives directly the exact proof
 term of the goal. Let `T` be our goal, let `p` be a term of type `U` then
 `exact p` succeeds iff `T` and `U` are definitionally equal.
 -/
-meta def exact (q : parse qexpr0) : tactic unit :=
+meta def exact (q : parse texpr) : tactic unit :=
 do tgt : expr ← target,
    i_to_expr_strict `(%%q : %%tgt) >>= tactic.exact
 
@@ -225,7 +172,7 @@ private meta def get_locals : list name → tactic (list expr)
 It moves the hypotheses and its dependencies to the goal target.
 This tactic is the inverse of `intro`.
 -/
-meta def revert (ids : parse raw_ident_list) : tactic unit :=
+meta def revert (ids : parse ident*) : tactic unit :=
 do hs ← get_locals ids, revert_lst hs, skip
 
 /- Return (some a) iff p is of the form (- a) -/
@@ -288,27 +235,27 @@ private meta def rw_hyps : transparency → list symm_expr → list name → tac
 | m es  []      := return ()
 | m es  (h::hs) := rw_hyp m es h >> rw_hyps m es hs
 
-private meta def rw_core (m : transparency) (hs : parse qexpr_list_or_qexpr0) (loc : parse location) : tactic unit :=
+private meta def rw_core (m : transparency) (hs : parse qexpr_list_or_texpr) (loc : parse location) : tactic unit :=
 do hlist ← to_symm_expr_list hs,
    match loc with
    | [] := rw_goal m hlist >> try (reflexivity reducible)
    | hs := rw_hyps m hlist hs >> try (reflexivity reducible)
    end
 
-meta def rewrite : parse qexpr_list_or_qexpr0 → parse location → tactic unit :=
+meta def rewrite : parse qexpr_list_or_texpr → parse location → tactic unit :=
 rw_core reducible
 
-meta def rw : parse qexpr_list_or_qexpr0 → parse location → tactic unit :=
+meta def rw : parse qexpr_list_or_texpr → parse location → tactic unit :=
 rewrite
 
 /- rewrite followed by assumption -/
-meta def rwa (q : parse qexpr_list_or_qexpr0) (l : parse location) : tactic unit :=
+meta def rwa (q : parse qexpr_list_or_texpr) (l : parse location) : tactic unit :=
 rewrite q l >> try assumption
 
-meta def erewrite : parse qexpr_list_or_qexpr0 → parse location → tactic unit :=
+meta def erewrite : parse qexpr_list_or_texpr → parse location → tactic unit :=
 rw_core semireducible
 
-meta def erw : parse qexpr_list_or_qexpr0 → parse location → tactic unit :=
+meta def erw : parse qexpr_list_or_texpr → parse location → tactic unit :=
 erewrite
 
 private meta def get_type_name (e : expr) : tactic name :=
@@ -316,7 +263,7 @@ do e_type ← infer_type e >>= whnf,
    (const I ls) ← return $ get_app_fn e_type,
    return I
 
-meta def induction (p : parse qexpr0) (rec_name : parse using_ident) (ids : parse with_ident_list) : tactic unit :=
+meta def induction (p : parse texpr) (rec_name : parse using_ident) (ids : parse with_ident_list) : tactic unit :=
 do e ← i_to_expr p,
    match rec_name with
    | some n := tactic.induction e n ids
@@ -324,11 +271,11 @@ do e ← i_to_expr p,
    end,
    return ()
 
-meta def cases (p : parse qexpr0) (ids : parse with_ident_list) : tactic unit :=
+meta def cases (p : parse texpr) (ids : parse with_ident_list) : tactic unit :=
 do e ← i_to_expr p,
    tactic.cases e ids
 
-meta def destruct (p : parse qexpr0) : tactic unit :=
+meta def destruct (p : parse texpr) : tactic unit :=
 i_to_expr p >>= tactic.destruct
 
 meta def generalize (p : parse qexpr) (x : parse ident) : tactic unit :=
@@ -358,7 +305,7 @@ tactic.try
 meta def solve1 : itactic → tactic unit :=
 tactic.solve1
 
-meta def abstract (id : parse opt_ident) (tac : irtactic) : tactic unit :=
+meta def abstract (id : parse ident? ) (tac : irtactic) : tactic unit :=
 tactic.abstract tac id
 
 meta def all_goals : itactic → tactic unit :=
@@ -374,32 +321,32 @@ tactic.focus [tac]
 This tactic applies to any goal. `assert h : T` adds a new hypothesis of name `h` and type `T` to the current goal and opens a new subgoal with target `T`.
 The new subgoal becomes the main goal.
 -/
-meta def assert (h : parse ident) (c : parse colon_tk) (q : parse qexpr0) : tactic unit :=
+meta def assert (h : parse ident) (q : parse $ tk ":" *> texpr) : tactic unit :=
 do e ← i_to_expr_strict q,
    tactic.assert h e
 
-meta def define (h : parse ident) (c : parse colon_tk) (q : parse qexpr0) : tactic unit :=
+meta def define (h : parse ident) (q : parse $ tk ":" *> texpr) : tactic unit :=
 do e ← i_to_expr_strict q,
    tactic.define h e
 
 /--
 This tactic applies to any goal. `assertv h : T := p` adds a new hypothesis of name `h` and type `T` to the current goal if `p` a term of type `T`.
 -/
-meta def assertv (h : parse ident) (c : parse colon_tk) (q₁ : parse qexpr0) (a : parse assign_tk) (q₂ : parse qexpr0) : tactic unit :=
+meta def assertv (h : parse ident) (q₁ : parse $ tk ":" *> texpr) (q₂ : parse $ tk ":=" *> texpr) : tactic unit :=
 do t ← i_to_expr_strict q₁,
    v ← i_to_expr_strict `(%%q₂ : %%t),
    tactic.assertv h t v
 
-meta def definev (h : parse ident) (c : parse colon_tk) (q₁ : parse qexpr0) (a : parse assign_tk) (q₂ : parse qexpr0) : tactic unit :=
+meta def definev (h : parse ident) (q₁ : parse $ tk ":" *> texpr) (q₂ : parse $ tk ":=" *> texpr) : tactic unit :=
 do t ← i_to_expr_strict q₁,
    v ← i_to_expr_strict `(%%q₂ : %%t),
    tactic.definev h t v
 
-meta def note (h : parse ident) (a : parse assign_tk) (q : parse qexpr0) : tactic unit :=
+meta def note (h : parse ident) (q : parse $ tk ":=" *> texpr) : tactic unit :=
 do p ← i_to_expr_strict q,
    tactic.note h p
 
-meta def pose (h : parse ident) (a : parse assign_tk) (q : parse qexpr0) : tactic unit :=
+meta def pose (h : parse ident) (q : parse $ tk ":=" *> texpr) : tactic unit :=
 do p ← i_to_expr_strict q,
    tactic.pose h p
 
@@ -415,7 +362,7 @@ tactic.trace_state
 meta def trace {α : Type} [has_to_tactic_format α] (a : α) : tactic unit :=
 tactic.trace a
 
-meta def existsi (e : parse qexpr0) : tactic unit :=
+meta def existsi (e : parse texpr) : tactic unit :=
 i_to_expr e >>= tactic.existsi
 
 /--
@@ -451,7 +398,7 @@ Given `h : a::b = c::d`, the tactic `injection h` adds to new hypothesis with ty
 to the main goal. The tactic `injection h with h₁ h₂` uses the names `h₁` an `h₂` to name the new
 hypotheses.
 -/
-meta def injection (q : parse qexpr0) (hs : parse with_ident_list) : tactic unit :=
+meta def injection (q : parse texpr) (hs : parse with_ident_list) : tactic unit :=
 do e ← i_to_expr q, tactic.injection_with e hs
 
 private meta def add_simps : simp_lemmas → list name → tactic simp_lemmas
@@ -593,10 +540,10 @@ tactic.ac_refl
 meta def cc : tactic unit :=
 tactic.cc
 
-meta def subst (q : parse qexpr0) : tactic unit :=
+meta def subst (q : parse texpr) : tactic unit :=
 i_to_expr q >>= tactic.subst >> try (tactic.reflexivity reducible)
 
-meta def clear : parse raw_ident_list → tactic unit :=
+meta def clear : parse ident* → tactic unit :=
 tactic.clear_lst
 
 private meta def to_qualified_name_core : name → list name → tactic name
@@ -622,12 +569,12 @@ private meta def dunfold_hyps : list name → list name → tactic unit
 | cs []      := skip
 | cs (h::hs) := get_local h >>= dunfold_at cs >> dunfold_hyps cs hs
 
-meta def dunfold : parse raw_ident_list → parse location → tactic unit
+meta def dunfold : parse ident* → parse location → tactic unit
 | cs [] := do new_cs ← to_qualified_names cs, tactic.dunfold new_cs
 | cs hs := do new_cs ← to_qualified_names cs, dunfold_hyps new_cs hs
 
 /- TODO(Leo): add support for non-refl lemmas -/
-meta def unfold : parse raw_ident_list → parse location → tactic unit :=
+meta def unfold : parse ident* → parse location → tactic unit :=
 dunfold
 
 private meta def dunfold_hyps_occs : name → occurrences → list name → tactic unit
@@ -646,7 +593,7 @@ private meta def delta_hyps : list name → list name → tactic unit
 | cs []      := skip
 | cs (h::hs) := get_local h >>= delta_at cs >> dunfold_hyps cs hs
 
-meta def delta : parse raw_ident_list → parse location → tactic unit
+meta def delta : parse ident* → parse location → tactic unit
 | cs [] := do new_cs ← to_qualified_names cs, tactic.delta new_cs
 | cs hs := do new_cs ← to_qualified_names cs, delta_hyps new_cs hs
 

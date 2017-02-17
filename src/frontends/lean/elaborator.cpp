@@ -2426,8 +2426,11 @@ expr elaborator::visit_field(expr const & e, optional<expr> const & expected_typ
     expr proj  = copy_tag(e, mk_constant(full_fname));
     expr new_e = copy_tag(e, mk_app(proj, copy_tag(e, mk_as_is(s))));
     expr r = visit(new_e, expected_type);
-    if (auto pos = get_field_notation_field_pos(e))
-        save_identifier_info(app_fn(r), pos);
+    if (is_app(r)) {
+        /* r may be a sorry macro due to error recovery*/
+        if (auto pos = get_field_notation_field_pos(e))
+            save_identifier_info(app_fn(r), pos);
+    }
     return r;
 }
 

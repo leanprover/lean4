@@ -32,7 +32,7 @@ Key Bindings and Commands
 | Key                | Function                                                                        |
 |--------------------|---------------------------------------------------------------------------------|
 | <kbd>M-.</kbd>     | jump to definition in source file (`lean-find-definition`)                      |
-| <kbd>TAB</kbd>     | tab complete identifier, option, filename, etc. (`lean-tab-indent-or-complete`) |
+| <kbd>S-SPC</kbd>   | auto complete identifiers, options, imports, etc. (`company-complete`)          |
 | <kbd>C-c C-k</kbd> | shows the keystroke needed to input the symbol under the cursor                 |
 | <kbd>C-c C-x</kbd> | execute lean in stand-alone mode (`lean-std-exe`)                               |
 | <kbd>C-c C-g</kbd> | toggle showing current tactic proof goal (`lean-toggle-show-goal`)              |

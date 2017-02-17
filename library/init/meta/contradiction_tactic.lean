@@ -71,7 +71,8 @@ private meta def contra_constructor_eq : list expr → tactic unit
      end
 
 meta def contradiction : tactic unit :=
-do ctx ← local_context,
+do try intro1,
+   ctx ← local_context,
    (contra_false ctx <|>
     contra_not_a_refl_rel_a ctx <|>
     contra_p_not_p ctx ctx <|>

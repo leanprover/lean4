@@ -369,8 +369,10 @@ meta constant abstract_eq     : expr → expr → tactic bool
    It returns for each new goal a list of new hypotheses and a list of substitutions for hypotheses
    depending on `h`. The substitutions map internal names to their replacement terms. If the
    replacement is again a hypothesis the user name stays the same. The internal names are only valid
-   in the original goal, not in the type context of the new goal. -/
-meta constant induction (h : expr) (rec : name) (ns : list name := []) (md := semireducible) : tactic (list (list expr × list (name × expr)))
+   in the original goal, not in the type context of the new goal.
+
+   If `rec` is none, then the type of `h` is inferred, if it is of the form `C ...`, tactic uses `C.rec` -/
+meta constant induction (h : expr) (ns : list name := []) (rec : option name := none) (md := semireducible) : tactic (list (list expr × list (name × expr)))
 /- Apply `cases_on` recursor, names for the new hypotheses are retrieved from `ns`.
    `h` must be a local constant. It returns for each new goal the name of the constructor, a list of new hypotheses, and a list of
    substitutions for hypotheses depending on `h`. The number of new goals may be smaller than the

@@ -26,7 +26,7 @@ theorem vappend_assoc :
 by do
      intros,
      v <- get_local `v1,
-     induction v (`vector.rec_on) [],
+     induction v,
      v2 ← get_local `v2,
      cases v2 [`m, `h2, `t2],
      trace_state, trace "------",

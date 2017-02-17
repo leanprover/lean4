@@ -6,7 +6,7 @@ do get_local Hname >>= rewrite_core reducible tt tt occurrences.all ff,
 
 example (l : list nat) : list.append l [] = l :=
 by do
-  get_local `l >>= λ H, induction H `list.rec_on [`h, `t, `iH],
+  get_local `l >>= λ H, induction H [`h, `t, `iH],
   --
   dunfold [`list.append],
   trace_state,

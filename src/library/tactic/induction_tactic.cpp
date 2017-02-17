@@ -344,8 +344,26 @@ vm_obj induction_tactic_core(transparency_mode const & m, expr const & H, name c
     }
 }
 
-vm_obj tactic_induction(vm_obj const & H, vm_obj const & rec, vm_obj const & ns, vm_obj const & m, vm_obj const & s) {
-    return induction_tactic_core(to_transparency_mode(m), to_expr(H), to_name(rec), to_list_name(ns), tactic::to_state(s));
+vm_obj tactic_induction(vm_obj const & H, vm_obj const & ns, vm_obj const & rec, vm_obj const & m, vm_obj const & s) {
+    if (is_none(rec)) {
+        try {
+            type_context ctx = mk_type_context_for(s, m);
+            expr type = ctx.infer(to_expr(H));
+            expr C    = get_app_fn(type);
+            if (is_constant(C)) {
+                name C_rec(const_name(C), "rec");
+                return induction_tactic_core(to_transparency_mode(m), to_expr(H), C_rec, to_list_name(ns), tactic::to_state(s));
+            } else {
+                return tactic::mk_exception("induction tactic failed, inductive datatype expected",
+                                            tactic::to_state(s));
+            }
+        } catch (exception & ex) {
+            return tactic::mk_exception(ex, tactic::to_state(s));
+        }
+    } else {
+        return induction_tactic_core(to_transparency_mode(m), to_expr(H),
+                                     to_name(get_some_value(rec)), to_list_name(ns), tactic::to_state(s));
+    }
 }
 
 void initialize_induction_tactic() {

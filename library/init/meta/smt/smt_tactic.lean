@@ -384,8 +384,8 @@ meta def add_lemmas_from_facts_core : list expr → smt_tactic unit
 meta def add_lemmas_from_facts : smt_tactic unit :=
 get_facts >>= add_lemmas_from_facts_core
 
-meta def induction (e : expr) (rec : name) (ids : list name) : smt_tactic unit :=
-slift (tactic.induction e rec ids >> return ()) -- pass on the information?
+meta def induction (e : expr) (ids : list name := []) (rec : option name := none) : smt_tactic unit :=
+slift (tactic.induction e ids rec >> return ()) -- pass on the information?
 
 meta def when (c : Prop) [decidable c] (tac : smt_tactic unit) : smt_tactic unit :=
 if c then tac else skip

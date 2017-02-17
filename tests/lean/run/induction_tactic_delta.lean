@@ -11,5 +11,5 @@ definition foo'.rec := @foo.rec
 
 example : Pi (x : foo'), x = x :=
 by do x ← intro `x,
-      induction x `foo'.rec [],
+      induction x,
       reflexivity

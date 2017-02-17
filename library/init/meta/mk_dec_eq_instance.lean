@@ -104,7 +104,7 @@ do I_name ← get_dec_eq_type_name,
    -- Use brec_on if type is recursive.
    -- We store the functional in the variable F.
    if is_recursive env I_name
-   then intro1 >>= (λ x, induction x (I_name <.> "brec_on") (idx_names ++ [v_name, F_name]) >> return ())
+   then intro1 >>= (λ x, induction x (idx_names ++ [v_name, F_name]) (some $ I_name <.> "brec_on") >> return ())
    else intro v_name >> return (),
    -- Apply cases to first element of type (I ...)
    get_local v_name >>= cases,

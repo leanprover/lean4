@@ -186,7 +186,7 @@ static expr_pair parse_definition(parser & p, buffer<name> & lp_names, buffer<ex
             p.add_local(fn);
             val = p.parse_expr();
             /* add fake equation */
-            expr eqn = mk_equation(fn, val);
+            expr eqn = copy_tag(val, mk_equation(fn, val));
             buffer<expr> eqns;
             eqns.push_back(eqn);
             val = mk_equations(p, fn, scope2.get_name(), eqns, {}, header_pos);

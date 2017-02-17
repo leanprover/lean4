@@ -36,7 +36,7 @@ on_right_at' c i $ λhyp,
     pr ← mk_app (lhs^.get_app_fn^.const_name^.get_prefix <.> "no_confusion") [false_, lhs, rhs, hyp],
     -- FIXME: change to local false ^^
     ty ← infer_type pr, ty ← whnf ty,
-    pr ← to_expr `(@eq.mpr _ %%ty rfl %%pr), -- FIXME
+    pr ← to_expr ``(@eq.mpr _ %%ty rfl %%pr), -- FIXME
     return [([], pr)]
   | _ := failed
   end

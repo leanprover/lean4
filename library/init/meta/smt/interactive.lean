@@ -94,12 +94,12 @@ do e ← tactic.to_expr_strict q,
 
 meta def assertv (h : parse ident) (q₁ : parse $ tk ":" *> texpr) (q₂ : parse $ tk ":=" *> texpr) : smt_tactic unit :=
 do t ← tactic.to_expr_strict q₁,
-   v ← tactic.to_expr_strict `(%%q₂ : %%t),
+   v ← tactic.to_expr_strict ``(%%q₂ : %%t),
    smt_tactic.assertv h t v
 
 meta def definev (h : parse ident) (q₁ : parse $ tk ":" *> texpr) (q₂ : parse $ tk ":=" *> texpr) : smt_tactic unit :=
 do t ← tactic.to_expr_strict q₁,
-   v ← tactic.to_expr_strict `(%%q₂ : %%t),
+   v ← tactic.to_expr_strict ``(%%q₂ : %%t),
    smt_tactic.definev h t v
 
 meta def note (h : parse ident) (q : parse $ tk ":=" *> texpr) : smt_tactic unit :=

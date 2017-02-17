@@ -118,7 +118,8 @@ parser::quote_scope::quote_scope(parser & p, bool q, id_behavior i):
         m_p.m_in_quote = true;
         m_p.push_local_scope(false);
         m_p.m_quote_stack = cons(m_p.mk_parser_scope(), m_p.m_quote_stack);
-        m_p.clear_expr_locals();
+        if (i != id_behavior::ErrorIfUndef)
+            m_p.clear_expr_locals();
     } else if (!m_in_quote && m_old_in_quote) {
         lean_assert(m_p.m_quote_stack);
         m_p.m_id_behavior = id_behavior::ErrorIfUndef;
@@ -1717,9 +1718,14 @@ expr parser::patexpr_to_pattern(expr const & pat_or_expr, bool skip_main_fn, buf
 }
 
 expr parser::parse_pattern_or_expr(unsigned rbp) {
-    all_id_local_scope scope(*this);
     flet<bool> set_in_pattern(m_in_pattern, true);
-    return parse_expr(rbp);
+    if (m_id_behavior != id_behavior::AssumeLocalIfNotLocal) {
+        all_id_local_scope scope(*this);
+        return parse_expr(rbp);
+    } else {
+        // keep AssumeLocalIfNotLocal in quotes
+        return parse_expr(rbp);
+    }
 }
 
 expr parser::parse_pattern(std::function<expr(parser &)> const & fn, buffer<expr> & new_locals) {

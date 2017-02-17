@@ -463,11 +463,7 @@ static expr fix_do_action_lhs(parser_state & p, expr const & lhs, expr const & t
 
 static std::tuple<optional<expr>, expr, expr, optional<expr>> parse_do_action(parser_state & p, buffer<expr> & new_locals) {
     auto lhs_pos = p.pos();
-    optional<expr> lhs;
-    if (p.in_quote())
-        lhs = p.parse_expr();
-    else
-        lhs = p.parse_pattern_or_expr();
+    optional<expr> lhs = some(p.parse_pattern_or_expr());
     expr type, curr;
     optional<expr> else_case;
     if (p.curr_is_token(get_colon_tk())) {

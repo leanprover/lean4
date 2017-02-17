@@ -869,7 +869,7 @@ else do
 
 meta def refine (e : pexpr) (report_errors := ff) : tactic unit :=
 do tgt : expr ← target,
-   to_expr `(%%e : %%tgt) tt report_errors >>= exact
+   to_expr ``(%%e : %%tgt) tt report_errors >>= exact
 
 private meta def get_undeclared_const (env : environment) (base : name) : ℕ → name | i :=
 let n := base <.> ("_aux_" ++ to_string i) in
@@ -957,8 +957,8 @@ end list
 run_command do
  l  ← return $ level.param `l,
  Ty ← return $ expr.sort l,
- type ← to_expr `(Π (α : %%Ty), α → α),
- val  ← to_expr `(λ (α : %%Ty) (a : α), a),
+ type ← to_expr ``(Π (α : %%Ty), α → α),
+ val  ← to_expr ``(λ (α : %%Ty) (a : α), a),
  add_decl (declaration.defn `id_locked [`l] type val reducibility_hints.opaque tt)
 
 lemma id_locked_eq {α : Type u} (a : α) : id_locked α a = a :=

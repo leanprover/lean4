@@ -36,15 +36,14 @@ section
               @sigma.lex.rec_on α β r s (λ p₁ p₂, p₂.1 = xa → p₂.2 == xb → acc (lex r s) p₁)
                                 p (sigma.mk xa xb) lt
                 (λ (a₁ : α) (b₁ : β a₁) (a₂ : α) (b₂ : β a₂) (h : r a₁ a₂) (eq₂ : a₂ = xa) (eq₃ : b₂ == xb),
-                  by do
-                     get_local `eq₂ >>= subst,
-                     to_expr `(iha a₁ h b₁) >>= exact)
+                  begin subst eq₂, exact iha a₁ h b₁ end)
                 (λ (a : α) (b₁ b₂ : β a) (h : s a b₁ b₂) (eq₂ : a = xa) (eq₃ : b₂ == xb),
-                  by do
-                    get_local `eq₂ >>= subst,
-                    to_expr `(eq_of_heq eq₃) >>= note `new_eq₃,
-                    get_local `new_eq₃ >>= subst,
-                    to_expr `(ihb b₁ h) >>= exact),
+                  begin
+                    subst eq₂,
+                    note new_eq₃ := eq_of_heq eq₃,
+                    subst new_eq₃,
+                    exact ihb b₁ h
+                  end),
             aux rfl (heq.refl xb))))
 
   -- The lexicographical order of well founded relations is well-founded

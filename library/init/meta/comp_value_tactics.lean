@@ -63,5 +63,5 @@ do t ← target,
        exact pr)
    <|>
    (do (a, b) ← is_eq t,
-        unify a b, to_expr `(eq.refl %%a) >>= exact)
+        unify a b, to_expr ``(eq.refl %%a) >>= exact)
 end tactic

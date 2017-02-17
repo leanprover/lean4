@@ -292,9 +292,12 @@ private meta def collect_simps : list expr → tactic (list expr)
 meta def collect_ctx_simps : tactic (list expr) :=
 local_context >>= collect_simps
 
-/- Simplify target using all hypotheses in the local context. -/
+/-- Simplify target using all hypotheses in the local context. -/
 meta def simp_using_hs : tactic unit :=
 collect_ctx_simps >>= simp_using
+
+meta def simph :=
+simp_using_hs
 
 meta def simp_core_at (extra_lemmas : list expr) (h : expr) : tactic unit :=
 do when (expr.is_local_constant h = ff) (fail "tactic simp_at failed, the given expression is not a hypothesis"),

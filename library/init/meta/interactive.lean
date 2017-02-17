@@ -498,6 +498,9 @@ meta def simp_using_hs (hs : parse opt_qexpr_list) (attr_names : parse with_iden
 do ctx ← collect_ctx_simps,
    simp_core {} ctx hs attr_names ids []
 
+meta def simph (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list) (ids : parse without_ident_list) : tactic unit :=
+simp_using_hs hs attr_names ids
+
 private meta def dsimp_hyps (s : simp_lemmas) : list name → tactic unit
 | []      := skip
 | (h::hs) := get_local h >>= dsimp_at_core s

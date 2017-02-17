@@ -1,0 +1,11 @@
+assertion1.lean:37:21: error: type mismatch at application
+  MonoidalCategory.tensorObjects C
+term
+  C
+has type
+  MonoidalCategory
+but is expected to have type
+  ?m_1^.Obj
+assertion1.lean:37:21: error: function expected at
+  sorry
+assertion1.lean:35:11: warning: declaration 'tensor_on_left' uses sorry

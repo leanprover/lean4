@@ -22,6 +22,9 @@ bool is_do_failure_eq(expr const & e);
 
 parse_table get_builtin_nud_table();
 parse_table get_builtin_led_table();
+
+bool is_infix_function(expr const & e);
+
 void initialize_builtin_exprs();
 void finalize_builtin_exprs();
 }

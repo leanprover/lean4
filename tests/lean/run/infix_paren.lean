@@ -9,3 +9,24 @@ rfl
 
 example : foldl (*) 2 [3, 4, 1] = 24 :=
 rfl
+
+check (+) 1 2
+
+example : (+) 1 2 = 3 :=
+rfl
+
+example : (*) 3 4 = 12 :=
+rfl
+
+example : (++) [1,2] [3,4] = [1,2,3,4] :=
+rfl
+
+example : (++) [1,2] [3,4] = [1,2] ++ [3,4] :=
+rfl
+
+/-
+(-) is rejected since we have prefix notation for -
+
+We cannot write (::) since we use (: t :) for annotating patterns for ematching.
+We have to write ( :: )
+-/

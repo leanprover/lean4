@@ -1850,7 +1850,11 @@ expr elaborator::visit_app(expr const & e, optional<expr> const & expected_type)
     expr const & ref = e;
     buffer<expr> args;
     expr const & fn = get_app_args(e, args);
-    if (is_equations(fn)) {
+    if (is_infix_function(fn)) {
+        expr infix_fn = get_annotation_arg(fn);
+        lean_assert(is_lambda(infix_fn));
+        return visit(head_beta_reduce(copy_tag(e, mk_app(infix_fn, args))), expected_type);
+    } else if (is_equations(fn)) {
         return visit_convoy(e, expected_type);
     } else if (is_constant(fn, get_tactic_eval_expr_name())) {
         buffer<expr> new_args;

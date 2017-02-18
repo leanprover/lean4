@@ -781,6 +781,16 @@ static void consume_rparen(parser_state & p) {
     p.check_token_next(get_rparen_tk(), "invalid expression, `)` expected");
 }
 
+static name * g_infix_function = nullptr;
+
+bool is_infix_function(expr const & e) {
+    return is_annotation(e, *g_infix_function);
+}
+
+expr mk_infix_function(expr const & e) {
+    return mk_annotation(*g_infix_function, e);
+}
+
 /* Check whether notation such as (<) (+ 10) is applicable.
    Like Haskell,
      (<) is notation for (fun x y, x < y)
@@ -825,7 +835,7 @@ static expr parse_infix_paren(parser_state & p, list<notation::accepting> const 
     buffer<expr> cs;
     for (notation::accepting const & acc : accs) {
         expr r = p.copy_with_new_pos(acc.get_expr(), pos);
-        r = Fun(vars, instantiate_rev(r, 2, args), p);
+        r = p.save_pos(mk_infix_function(Fun(vars, instantiate_rev(r, 2, args), p)), pos);
         cs.push_back(r);
     }
     return p.save_pos(mk_choice(cs.size(), cs.data()), pos);
@@ -1051,6 +1061,9 @@ void initialize_builtin_exprs() {
     g_do_failure_eq     = new name("do_failure_eq");
     register_annotation(*g_do_failure_eq);
 
+    g_infix_function    = new name("infix_fn");
+    register_annotation(*g_infix_function);
+
     g_not               = new expr(mk_constant(get_not_name()));
     g_nud_table         = new parse_table();
     *g_nud_table        = init_nud_table();
@@ -1084,6 +1097,7 @@ void initialize_builtin_exprs() {
 
 void finalize_builtin_exprs() {
     delete g_do_failure_eq;
+    delete g_infix_function;
     delete g_led_table;
     delete g_nud_table;
     delete g_not;

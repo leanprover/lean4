@@ -716,10 +716,6 @@ do g::gs ← get_goals,
 meta instance : has_andthen (tactic unit) :=
 ⟨seq⟩
 
-/- Applies tac if c holds -/
-meta def when (c : Prop) [decidable c] (tac : tactic unit) : tactic unit :=
-if c then tac else skip
-
 meta constant is_trace_enabled_for : name → bool
 
 /- Execute tac only if option trace.n is set to true. -/

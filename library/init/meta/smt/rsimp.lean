@@ -103,7 +103,7 @@ do t           ← target,
    try (replace_target new_t pr)
 
 meta def rsimplify_at (ccs : cc_state) (h : expr) (m : option repr_map := none) : tactic unit :=
-do tactic.when (expr.is_local_constant h = ff) (tactic.fail "tactic rsimplify_at failed, the given expression is not a hypothesis"),
+do when (expr.is_local_constant h = ff) (tactic.fail "tactic rsimplify_at failed, the given expression is not a hypothesis"),
    htype            ← infer_type h,
    (new_htype, heq) ← rsimplify ccs htype m,
    try $ do assert (expr.local_pp_name h) new_htype,

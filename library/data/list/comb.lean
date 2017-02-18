@@ -15,41 +15,6 @@ open nat
 
 variables {α : Type u} {β : Type v} {φ : Type w}
 
-/- map₂ -/
-
-definition map₂ {α : Type u} {β : Type v} {φ : Type w} (f : α → β → φ) : list α → list β → list φ
-| [] l := []
-| l [] := []
-| (a::s) (b::t) := f a b :: map₂ s t
-
-@[simp]
-theorem map₂_nil_1 {α : Type u} {β : Type v} {φ : Type w} (f : α → β → φ)
-   : Π y, map₂ f nil y = nil
-| [] := eq.refl nil
-| (b::t) := eq.refl nil
-
-@[simp]
-theorem map₂_nil_2 {α : Type u} {β : Type v} {φ : Type w} (f : α → β → φ)
-   : Π (x : list α), map₂ f x nil = nil
-| [] := eq.refl nil
-| (b::t) := eq.refl nil
-
-@[simp]
-theorem length_map₂ {α : Type u} {β : Type v} {φ : Type w} (f : α → β → φ)
-  : Π x y, length (map₂ f x y) = min (length x) (length y)
-| [] y :=
-   calc length (map₂ f nil y) = 0 : congr_arg length (map₂_nil_1 f y)
-           ... = min 0 (length y) : eq.symm (nat.zero_min (length y))
-| x [] :=
-   calc length (map₂ f x nil) = 0 : congr_arg length (map₂_nil_2 f x)
-           ... = min (length x) 0 : eq.symm (nat.min_zero (length x))
-| (a::x) (b::y) :=
-   calc succ (length (map₂ f x y))
-             = succ (min (length x) (length y))
-               : congr_arg succ (length_map₂ x y)
-         ... = min (succ (length x)) (succ (length y))
-               : eq.symm (min_succ_succ (length x) (length y))
-
 section map_accumr
 variable {σ : Type}
 

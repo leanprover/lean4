@@ -115,6 +115,11 @@ def map (f : α → β) : list α → list β
 def for : list α → (α → β) → list β :=
 flip map
 
+def map₂ (f : α → β → γ) : list α → list β → list γ
+| []      _       := []
+| _       []      := []
+| (x::xs) (y::ys) := f x y :: map₂ xs ys
+
 def join : list (list α) → list α
 | []        := []
 | (l :: ls) := append l (join ls)
@@ -122,6 +127,10 @@ def join : list (list α) → list α
 def filter (p : α → Prop) [decidable_pred p] : list α → list α
 | []     := []
 | (a::l) := if p a then a :: filter l else filter l
+
+definition find [decidable_eq α] : α → list α → nat
+| a []       := 0
+| a (b :: l) := if a = b then 0 else succ (find a l)
 
 def dropn : ℕ → list α → list α
 | 0 a := a
@@ -178,6 +187,11 @@ def iota : ℕ → list ℕ :=
 
 def sum [has_add α] [has_zero α] : list α → α :=
 foldl add zero
+
+definition last : Π l : list α, l ≠ [] → α
+| []          h := absurd rfl h
+| [a]         h := a
+| (a₁::a₂::l) h := last (a₂::l) (λ h, list.no_confusion h)
 
 def intersperse (sep : α) : list α → list α
 | []      := []

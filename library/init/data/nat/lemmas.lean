@@ -690,10 +690,10 @@ exists.elim (nat.le.dest h)
   (take l, assume hl : k + l = m,
     by rw [-hl, nat.add_sub_cancel_left, add_comm k, -add_assoc, nat.add_sub_cancel])
 
-lemma min_zero_left (a : ℕ) : min 0 a = 0 :=
+@[simp] lemma min_zero_left (a : ℕ) : min 0 a = 0 :=
 min_eq_left (zero_le a)
 
-lemma min_zero_right (a : ℕ) : min a 0 = 0 :=
+@[simp] lemma min_zero_right (a : ℕ) : min a 0 = 0 :=
 min_eq_right (zero_le a)
 
 theorem zero_min (a : ℕ) : min 0 a = 0 :=

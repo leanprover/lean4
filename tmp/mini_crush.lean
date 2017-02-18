@@ -37,15 +37,20 @@ meta def best_core {α} (ts : α → smt_tactic unit) : list α → option (α �
 | []      (some (v, _, s)) := restore s >> return v
 | (v::vs) b                := do
   r ← try_and_save (ts v),
-  best_core vs (merge b (updt r v))
+  match r with
+  | some (_, 0, s) := restore s >> return v /- done -/
+  | _              := best_core vs (merge b (updt r v))
+  end
 
 meta def best {α} (vs : list α) (ts : α → smt_tactic unit) : smt_tactic α :=
 best_core ts vs none
 
 open tactic (pp)
 
+def nrounds := 5
+
 meta def close_easy : smt_tactic unit :=
-all_goals (repeat_at_most 5 (ematch >> try close))
+all_goals (repeat_at_most nrounds (ematch >> try close))
 
 meta def destruct_and_close (e  : expr) : smt_tactic unit :=
 destruct e >> close_easy
@@ -60,13 +65,51 @@ do e ← best es $ λ e,
      tactic.trace (to_fmt "destructed: " ++ p)),
    return e
 
+meta def induction_and_close (e : expr) : smt_tactic unit :=
+smt_tactic.induction e >> close_easy
+
+meta def induction_best (es : list expr) : smt_tactic expr :=
+best es induction_and_close
+
+meta def expr_set := expr_map unit
+meta def expr_set.mk := expr_map.mk unit
+meta def expr_set.insert (S : expr_set) (e : expr) : expr_set :=
+rb_map.insert S e ()
+
+open expr tactic
+
+meta def is_inductive (e : expr) : tactic bool :=
+do type ← infer_type e,
+   C    ← return type^.get_app_fn,
+   env  ← get_env,
+   return $ C^.is_constant && env^.is_inductive C^.const_name
+
+open monad
+
+meta def collect_inductive_aux : expr_set → expr → tactic expr_set
+| S e :=
+  if S^.contains e then return S
+  else do
+    new_S ← cond (is_inductive e) (return $ S^.insert e) (return S),
+    if e^.is_app
+    then fold_explicit_args e new_S collect_inductive_aux
+    else return new_S
+
+meta def collect_inductive : expr → tactic expr_set :=
+collect_inductive_aux expr_set.mk
+
+meta def collect_inductive_as_list : tactic (list expr) :=
+do S ← target >>= collect_inductive, return $ S^.to_list^.for prod.fst
+
 end mini_crush
 
 /- Testing -/
-open smt_tactic mini_crush
+open smt_tactic mini_crush tactic
 
 lemma nil_append {α} (a : list α) : [] ++ a = a :=
-rfl
+begin [smt]
+  collect_inductive_as_list >>= induction_best
+end
 
 attribute [ematch_lhs] nil_append
 

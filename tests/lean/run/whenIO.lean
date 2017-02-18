@@ -1,7 +1,7 @@
 import system.io
 
-definition when (b : bool) (a : io unit) : io unit :=
+definition iowhen (b : bool) (a : io unit) : io unit :=
 if b = tt then a else return ()
 
-vm_eval when tt (put_str "hello\n")
-vm_eval when ff (put_str "error\n")
+vm_eval iowhen tt (put_str "hello\n")
+vm_eval iowhen ff (put_str "error\n")

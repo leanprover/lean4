@@ -10,6 +10,8 @@ do e ← to_expr p, guard (t = e)
 meta def check_target (p : pexpr) : tactic unit :=
 do t ← target, check_expr p t
 
+local attribute [-simp] map head
+
 example (a b c : nat) : head (map f [1, 2, 3]) = 20 :=
 begin
   dsimp [map],

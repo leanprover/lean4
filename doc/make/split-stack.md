@@ -48,20 +48,6 @@ Then, build and install using
 
 We should have the file `libgmp.a` at `$HOME/tools/split-stack/lib`.
 
-Compiling MPFR using split-stacks
-----------------------------------
-
-Download MPFR from [http://www.mpfr.org/](http://www.mpfr.org/); uncompress the mpfr tar-ball at `$HOME/tools`; and configure it using
-
-      ./configure CFLAGS=-fsplit-stack --prefix=$HOME/tools/split-stack --with-gmp-include=$HOME/tools/split-stack/include --with-gmp-lib=$HOME/tools/split-stack/lib --enable-static
-
-Make sure MPFR does not produce any warning/error message. Then, build and install using:
-
-      make
-      make install
-
-We should have the file `libmpfr.a` at `$HOME/tools/split-stack/lib`.
-
 Compiling Lean using split-stacks
 --------------------------------
 
@@ -71,7 +57,7 @@ Go to the Lean directory, and create the folder `build/release`
 
 Configure Lean using
 
-      cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_CXX_COMPILER=g++ -D TCMALLOC=OFF -D GMP_INCLUDE_DIR=$HOME/tools/split-stack/include -D GMP_LIBRARIES=$HOME/tools/split-stack/lib/libgmp.a -D MPFR_LIBRARIES=$HOME/tools/split-stack/lib/libmpfr.a ../../src
+      cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_CXX_COMPILER=g++ -D TCMALLOC=OFF -D GMP_INCLUDE_DIR=$HOME/tools/split-stack/include -D GMP_LIBRARIES=$HOME/tools/split-stack/lib/libgmp.a ../../src
 
 Remark: if you have ninja build tool installed in your system, you can also provide `-G Ninja`
 

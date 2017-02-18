@@ -33,12 +33,11 @@ following to use `g++`.
     cmake -DCMAKE_CXX_COMPILER=g++ ...
 
 
-Required Packages: CMake, GMP, MPFR
+Required Packages: CMake, GMP
 ---------------------
 
     brew install cmake
     brew install gmp
-    brew install mpfr
 
 
 Optional Packages: tcmalloc and ninja

@@ -19,7 +19,7 @@ It has a package management system, [pacman][pacman], which is used in Arch Linu
 Here are the commands to install all dependencies needed to compile Lean on your machine.
 
 ```bash
-pacman -S mingw-w64-x86_64-gcc mingw-w64-x86_64-mpfr mingw-w64-x86_64-ninja mingw-w64-x86_64-cmake git
+pacman -S mingw-w64-x86_64-gcc mingw-w64-x86_64-ninja mingw-w64-x86_64-cmake git
 ```
 
 ## Build Lean

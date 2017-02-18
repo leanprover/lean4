@@ -197,29 +197,12 @@ if (EMSCRIPTEN)
             BUILD_COMMAND emmake make -j4
             INSTALL_COMMAND make install
     )
-    set(mpfr_install_prefix ${CMAKE_CURRENT_BINARY_DIR}/mpfr-root)
-    ExternalProject_Add(
-            mpfr
-            DEPENDS gmp
-            URL http://www.mpfr.org/mpfr-current/mpfr-3.1.5.tar.bz2
-            URL_HASH SHA256=ca498c1c7a74dd37a576f353312d1e68d490978de4395fa28f1cbd46a364e658
-            BUILD_IN_SOURCE 1
-            CONFIGURE_COMMAND emconfigure ./configure "CFLAGS=${CFLAGS_EMSCRIPTEN}" --prefix=${mpfr_install_prefix} --with-gmp-include=${gmp_install_prefix}/include --with-gmp-lib=${gmp_install_prefix}/lib
-            BUILD_COMMAND emmake make -j4
-            INSTALL_COMMAND make install
-    )
-
     add_library(lean_external_deps INTERFACE)
-    target_link_libraries(lean_external_deps INTERFACE ${gmp_install_prefix}/lib/libgmp.so ${mpfr_install_prefix}/lib/libmpfr.so)
-    include_directories(lean_external_deps INTERFACE ${gmp_install_prefix}/include ${mpfr_install_prefix}/include)
-    add_dependencies(lean_external_deps gmp mpfr)
+    target_link_libraries(lean_external_deps INTERFACE ${gmp_install_prefix}/lib/libgmp.so)
+    include_directories(lean_external_deps INTERFACE ${gmp_install_prefix}/include)
+    add_dependencies(lean_external_deps gmp)
     set(EXTRA_LIBS lean_external_deps)
 else()
-    # MPFR
-    find_package(MPFR 3.1.0 REQUIRED)
-    include_directories(${MPFR_INCLUDES})
-    set(EXTRA_LIBS ${EXTRA_LIBS} ${MPFR_LIBRARIES})
-
     # GMP
     find_package(GMP 5.0.5 REQUIRED)
     include_directories(${GMP_INCLUDE_DIR})
@@ -323,8 +306,6 @@ add_subdirectory(util/numerics)
 set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:numerics>)
 add_subdirectory(util/sexpr)
 set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:sexpr>)
-add_subdirectory(util/interval)
-set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:interval>)
 add_subdirectory(util/lp)
 set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:lp>)
 add_subdirectory(kernel)
@@ -394,7 +375,6 @@ endfunction()
 
 add_subdirectory(tests/util)
 add_subdirectory(tests/util/numerics)
-add_subdirectory(tests/util/interval)
 add_subdirectory(tests/kernel)
 add_subdirectory(tests/library)
 add_subdirectory(tests/frontends/lean)
@@ -488,7 +468,7 @@ endif()
 if(STATIC)
   SET(CPACK_DEBIAN_PACKAGE_DEPENDS "")
 else()
-  SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libstdc++-4.8-dev,libgmp-dev,libmpfr-dev")
+  SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libstdc++-4.8-dev,libgmp-dev")
 endif()
 SET(CPACK_DEBIAN_PACKAGE_DESCRIPTION "Lean Theorem Prover")
 SET(CPACK_DEBIAN_PACKAGE_SECTION "devel")

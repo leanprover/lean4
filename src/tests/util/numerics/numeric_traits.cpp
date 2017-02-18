@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include "util/numerics/mpbq.h"
 #include "util/numerics/double.h"
 #include "util/numerics/float.h"
-#include "util/numerics/mpfp.h"
 using namespace lean;
 
 template<typename T>
@@ -31,9 +30,6 @@ static void tst1() {
     tst_num(mpq(0));
     tst_num(mpz(3));
     tst_num(mpz(0));
-    tst_num(mpfp(2.0));
-    tst_num(mpfp(0.0));
-    tst_num(mpfp(0.0, 512));
     tst_num(mpbq(3));
     tst_num(1.0);
     tst_num(static_cast<float>(1.0));

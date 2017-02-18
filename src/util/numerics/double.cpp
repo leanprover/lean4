@@ -10,15 +10,6 @@ Author: Soonho Kong
 #include "util/numerics/double.h"
 
 namespace lean {
-MK_THREAD_LOCAL_GET_DEF(mpfr_rnd_t, get_g_rnd);
-void set_double_rnd(bool plus_inf) {
-    get_g_rnd() = plus_inf ? MPFR_RNDU : MPFR_RNDD;
-}
-
-mpfr_rnd_t get_double_rnd() {
-    return get_g_rnd();
-}
-
 void double_power(double & v, unsigned k) { v = std::pow(v, k); }
 void double_abs(double & v)   { v = std::abs(v); }
 void double_ceil(double & v)  { v = std::ceil(v); }
@@ -26,4 +17,8 @@ void double_floor(double & v) { v = std::floor(v); }
 
 double numeric_traits<double>::g_zero = 0.0;
 double numeric_traits<double>::g_one = 1.0;
+
+double numeric_traits<double>::log(double d) {
+    return std::log(d);
+}
 };

@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #pragma once
 
 namespace lean {
-
 /**
    \brief Template specializations define traits for native and lean
    numeric types.
@@ -18,5 +17,4 @@ class numeric_traits {
 };
 
 void set_processor_rounding(bool plus_inf);
-
 }

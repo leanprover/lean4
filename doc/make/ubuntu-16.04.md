@@ -3,7 +3,7 @@ Installing Lean on Ubuntu 16.04
 
 ### Basic packages
 
-    sudo apt-get install git libgmp-dev libmpfr-dev cmake
+    sudo apt-get install git libgmp-dev cmake
 
 ### Optional packages
 

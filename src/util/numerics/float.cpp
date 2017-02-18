@@ -10,15 +10,6 @@ Author: Soonho Kong
 #include "util/numerics/float.h"
 
 namespace lean {
-MK_THREAD_LOCAL_GET_DEF(mpfr_rnd_t, get_g_rnd);
-void set_float_rnd(bool plus_inf) {
-    get_g_rnd() = plus_inf ? MPFR_RNDU : MPFR_RNDD;
-}
-
-mpfr_rnd_t get_float_rnd() {
-    return get_g_rnd();
-}
-
 void float_power(float & v, unsigned k) { v = std::pow(v, k); }
 void float_abs(float & v)   { v = std::abs(v); }
 void float_ceil(float & v)  { v = std::ceil(v); }

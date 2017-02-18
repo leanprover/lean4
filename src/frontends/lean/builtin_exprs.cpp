@@ -781,7 +781,59 @@ static void consume_rparen(parser_state & p) {
     p.check_token_next(get_rparen_tk(), "invalid expression, `)` expected");
 }
 
+/* Check whether notation such as (<) (+ 10) is applicable.
+   Like Haskell,
+     (<) is notation for (fun x y, x < y)
+     (+ 10) is notation for (fun x, x + 10)
+
+   This kind of notation is applicable when
+   1- The current token is a keyword.
+   2- There is no entry for this token in the nud table
+   3- There is an entry for this token in the led table,
+      and exactly one Expr transition to an accepting state.
+
+   If the notation is applicable, this function returns the accepting list.
+*/
+static list<notation::accepting> is_infix_paren_notation(parser_state & p) {
+    if (p.curr_is_keyword() &&
+        !p.nud().find(p.get_token_info().value())) {
+        list<pair<transition, parse_table>> ts = p.led().find(p.get_token_info().value());
+        if (ts && !tail(ts) && head(ts).second.is_accepting()) {
+            notation::action const & act = head(ts).first.get_action();
+            if (act.kind() == notation::action_kind::Expr) {
+                return head(ts).second.is_accepting();
+            }
+        }
+    }
+    return list<notation::accepting>();
+}
+
+static expr parse_infix_paren(parser_state & p, list<notation::accepting> const & accs, pos_info const & pos) {
+    expr args[2];
+    buffer<expr> vars;
+    args[0] = mk_local(mk_fresh_name(), "_x", mk_expr_placeholder(), binder_info());
+    vars.push_back(args[0]);
+    p.next();
+    if (p.curr_is_token(get_rparen_tk())) {
+        p.next();
+        args[1] = mk_local(mk_fresh_name(), "_y", mk_expr_placeholder(), binder_info());
+        vars.push_back(args[1]);
+    } else {
+        args[1] = p.parse_expr();
+        consume_rparen(p);
+    }
+    buffer<expr> cs;
+    for (notation::accepting const & acc : accs) {
+        expr r = p.copy_with_new_pos(acc.get_expr(), pos);
+        r = Fun(vars, instantiate_rev(r, 2, args), p);
+        cs.push_back(r);
+    }
+    return p.save_pos(mk_choice(cs.size(), cs.data()), pos);
+}
+
 static expr parse_lparen(parser_state & p, unsigned, expr const *, pos_info const & pos) {
+    if (auto accs = is_infix_paren_notation(p))
+        return parse_infix_paren(p, accs, pos);
     expr e = p.parse_expr();
     if (p.curr_is_token(get_comma_tk())) {
         buffer<expr> args;

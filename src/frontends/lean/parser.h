@@ -94,10 +94,6 @@ class parser : public abstract_parser {
     void protected_call(std::function<void()> && f, std::function<void()> && sync);
 
     tag get_tag(expr e);
-    expr copy_with_new_pos(expr const & e, pos_info p);
-
-    parse_table const & nud() const { return get_nud_table(env()); }
-    parse_table const & led() const { return get_led_table(env()); }
 
     unsigned curr_level_lbp() const;
     level parse_max_imax(bool is_max);
@@ -240,6 +236,10 @@ public:
     expr mk_app(expr fn, expr arg, pos_info const & p);
     expr mk_app(expr fn, buffer<expr> const & args, pos_info const & p);
     expr mk_app(std::initializer_list<expr> const & args, pos_info const & p);
+
+    parse_table const & nud() const { return get_nud_table(env()); }
+    parse_table const & led() const { return get_led_table(env()); }
+    expr copy_with_new_pos(expr const & e, pos_info p);
 
     /** \brief Read the next token. */
     void scan();

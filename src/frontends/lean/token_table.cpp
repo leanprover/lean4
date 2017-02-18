@@ -90,7 +90,7 @@ void init_token_table(token_table & t) {
          {"⊢", 0}, {"⟨", g_max_prec}, {"⟩", 0}, {"^", 0}, {"↑", 0}, {"▸", 0},
          {"//", 0}, {"|", 0}, {"!", g_max_prec}, {"?", 0},  {"with", 0}, {"without", 0}, {"...", 0}, {",", 0},
          {".", 0}, {":", 0}, {"::", 0}, {"calc", 0}, {"as", 0}, {":=", 0}, {"--", 0}, {"#", g_max_prec},
-         {"(*", 0}, {"/-", 0}, {"/--", 0}, {"/-!", 0}, {"begin", g_max_prec}, {"using", 0},
+         {"/-", 0}, {"/--", 0}, {"/-!", 0}, {"begin", g_max_prec}, {"using", 0},
          {"@@", g_max_prec}, {"@", g_max_prec},
          {"sorry", g_max_prec}, {"+", g_plus_prec}, {"->", g_arrow_prec}, {"<-", 0},
          {"?(", g_max_prec}, {"⌞", g_max_prec}, {"⌟", 0}, {"match", 0},

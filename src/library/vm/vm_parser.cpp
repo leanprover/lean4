@@ -29,7 +29,7 @@ struct lean_parser_state {
     parser * m_p;
 };
 
-template class interaction_monad<lean_parser_state>;
+template struct interaction_monad<lean_parser_state>;
 typedef interaction_monad<lean_parser_state> lean_parser;
 
 #define TRY try {

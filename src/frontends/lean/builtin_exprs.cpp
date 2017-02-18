@@ -428,14 +428,6 @@ static expr parse_sorry(parser_state & p, unsigned, expr const *, pos_info const
     return p.mk_sorry(pos);
 }
 
-static expr parse_rparen(parser_state & /* p */, unsigned, expr const * args, pos_info const & /* pos */) {
-    return args[0];
-}
-
-static expr parse_typed_expr(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
-    return mk_typed_expr_distrib_choice(p, args[1], args[0], pos);
-}
-
 static expr parse_pattern(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
     return p.save_pos(mk_pattern_hint(args[0]), pos);
 }
@@ -785,6 +777,39 @@ static expr parse_lambda(parser_state & p, unsigned, expr const *, pos_info cons
     return parse_lambda_core(p, pos);
 }
 
+static void consume_rparen(parser_state & p) {
+    p.check_token_next(get_rparen_tk(), "invalid expression, `)` expected");
+}
+
+static expr parse_lparen(parser_state & p, unsigned, expr const *, pos_info const & pos) {
+    expr e = p.parse_expr();
+    if (p.curr_is_token(get_comma_tk())) {
+        buffer<expr> args;
+        args.push_back(e);
+        while (p.curr_is_token(get_comma_tk())) {
+            p.next();
+            args.push_back(p.parse_expr());
+        }
+        consume_rparen(p);
+        expr r = args.back();
+        unsigned i = args.size() - 1;
+        while (i > 0) {
+            --i;
+            r = p.save_pos(mk_app(p.save_pos(mk_constant(get_prod_mk_name()), pos),
+                                  args[i], r), pos);
+        }
+        return r;
+    } else if (p.curr_is_token(get_colon_tk())) {
+        p.next();
+        expr t = p.parse_expr();
+        consume_rparen(p);
+        return mk_typed_expr_distrib_choice(p, t, e, pos);
+    } else {
+        consume_rparen(p);
+        return e;
+    }
+}
+
 parse_table init_nud_table() {
     action Expr(mk_expr_action());
     action Skip(mk_skip_action());
@@ -797,8 +822,7 @@ parse_table init_nud_table() {
     r = r.add({transition("show", mk_ext_action(parse_show))}, x0);
     r = r.add({transition("suffices", mk_ext_action(parse_suffices))}, x0);
     r = r.add({transition("if", mk_ext_action(parse_if_then_else))}, x0);
-    r = r.add({transition("(", Expr), transition(")", mk_ext_action(parse_rparen))}, x0);
-    r = r.add({transition("(", Expr), transition(":", Expr), transition(")", mk_ext_action(parse_typed_expr))}, x0);
+    r = r.add({transition("(", mk_ext_action(parse_lparen))}, x0);
     r = r.add({transition("⟨", mk_ext_action(parse_constructor))}, x0);
     r = r.add({transition("{", mk_ext_action(parse_curly_bracket))}, x0);
     r = r.add({transition("`(", mk_ext_action(parse_lazy_quoted_expr))}, x0);

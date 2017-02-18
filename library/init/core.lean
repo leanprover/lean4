@@ -455,7 +455,6 @@ infix \        := sdiff
 
 notation α × β := prod α β
 -- notation for n-ary tuples
-notation `(` h `, ` t:(foldr `, ` (e r, prod.mk e r)) `)` := prod.mk h t
 
 /- eq basic support -/
 

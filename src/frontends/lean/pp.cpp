@@ -1636,6 +1636,19 @@ auto pretty_fn::pp_sep(expr const & e) -> result {
     return result(r);
 }
 
+auto pretty_fn::pp_prod(expr const & e) -> result {
+    format r = pp(app_arg(app_fn(e))).fmt();
+    auto it = app_arg(e);
+    while (is_app_of(it, get_prod_mk_name(), 4)) {
+        r += comma() + line();
+        r += pp(app_arg(app_fn(it))).fmt();
+        it = app_arg(it);
+    }
+    r += comma() + line();
+    r += pp(it).fmt();
+    return result(paren(group(r)));
+}
+
 auto pretty_fn::pp(expr const & e, bool ignore_hide) -> result {
     check_system("pretty printer");
     if ((m_depth >= m_max_depth ||
@@ -1672,6 +1685,8 @@ auto pretty_fn::pp(expr const & e, bool ignore_hide) -> result {
         buffer<expr> elems;
         if (is_explicit_collection(e, elems))
             return pp_explicit_collection(elems);
+        if (is_app_of(e, get_prod_mk_name(), 4))
+            return pp_prod(e);
     }
 
     if (is_placeholder(e))  return result(*g_placeholder_fmt);

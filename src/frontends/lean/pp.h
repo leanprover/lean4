@@ -141,6 +141,7 @@ private:
     result pp_delayed_abstraction(expr const & e);
     result pp_let(expr e);
     result pp_num(mpz const & n);
+    result pp_prod(expr const & e);
     result pp_proof_type(expr const & t);
     void set_options_core(options const & o);
 

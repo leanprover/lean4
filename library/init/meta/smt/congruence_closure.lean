@@ -83,6 +83,8 @@ meta def fold_eqc_core {α} (s : cc_state) (f : α → expr → α) (first : exp
 meta def fold_eqc {α} (s : cc_state) (e : expr) (a : α) (f : α → expr → α) : α :=
 fold_eqc_core s f e e a
 
+meta def mfold_eqc {α} {m : Type → Type} [monad m] (s : cc_state) (e : expr) (a : α) (f : α → expr → m α) : m α :=
+fold_eqc s e (return a) (λ act e, do a ← act, f a e)
 end cc_state
 
 open tactic

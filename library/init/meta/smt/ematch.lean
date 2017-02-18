@@ -54,23 +54,24 @@ meta instance : has_to_tactic_format hinst_lemmas :=
 
 open tactic
 
-meta def to_hinst_lemmas_core (m : transparency) : bool → list name → hinst_lemmas → tactic hinst_lemmas
+private meta def add_lemma (m : transparency) (ignore_errors : bool) (as_simp : bool) (h : name) (hs : hinst_lemmas) : tactic hinst_lemmas :=
+if ignore_errors then (do h ← hinst_lemma.mk_from_decl_core m h as_simp, return $ hs^.add h) <|> return hs
+else (do h ← hinst_lemma.mk_from_decl_core m h as_simp, return $ hs^.add h)
+
+meta def to_hinst_lemmas_core (m : transparency) (ignore_errors : bool) : bool → list name → hinst_lemmas → tactic hinst_lemmas
 | as_simp []      hs := return hs
 | as_simp (n::ns) hs :=
-  let add_core n := do
-    h ← hinst_lemma.mk_from_decl_core m n as_simp,
-    new_hs ← return $ hs^.add h,
-    to_hinst_lemmas_core as_simp ns new_hs
+  let add n := add_lemma m ignore_errors as_simp n hs >>= to_hinst_lemmas_core as_simp ns
   in do
   /- First check if n is the name of a function with equational lemmas associated with it -/
   eqns   ← tactic.get_eqn_lemmas_for tt n,
   match eqns with
   | []  := do
     /- n is not the name of a function definition or it does not have equational lemmas, then check if it is a lemma -/
-    add_core n
+    add n
   | _   := do
     p ← is_prop_decl n,
-    if p then add_core n /- n is a proposition -/
+    if p then add n /- n is a proposition -/
     else do
       /- Add equational lemmas to resulting hinst_lemmas -/
       new_hs ← to_hinst_lemmas_core tt eqns hs,
@@ -83,7 +84,7 @@ do t ← to_expr `(caching_user_attribute hinst_lemmas),
    b ← if as_simp then to_expr `(tt) else to_expr `(ff),
    v ← to_expr `({ name     := %%a,
                    descr    := "hinst_lemma attribute",
-                   mk_cache := λ ns, to_hinst_lemmas_core reducible %%b ns hinst_lemmas.mk,
+                   mk_cache := λ ns, to_hinst_lemmas_core reducible ff %%b ns hinst_lemmas.mk,
                    dependencies := [`reducibility] } : caching_user_attribute hinst_lemmas),
    add_decl (declaration.defn attr_name [] t v reducibility_hints.abbrev ff),
    attribute.register attr_name
@@ -99,11 +100,11 @@ meta def mk_hinst_lemma_attrs_core (as_simp : bool) : list name → command
        <|> fail ("failed to create hinst_lemma attribute '" ++ n^.to_string ++ "', declaration already exists and has different type.")),
       mk_hinst_lemma_attrs_core ns)
 
-meta def merge_hinst_lemma_attrs (m : transparency) (as_simp : bool) : list name → hinst_lemmas → tactic hinst_lemmas
+meta def merge_hinst_lemma_attrs (m : transparency) (ignore_errors as_simp : bool) : list name → hinst_lemmas → tactic hinst_lemmas
 | []            hs := return hs
 | (attr::attrs) hs := do
   ns     ← attribute.get_instances attr,
-  new_hs ← to_hinst_lemmas_core m as_simp ns hs,
+  new_hs ← to_hinst_lemmas_core m ignore_errors as_simp ns hs,
   merge_hinst_lemma_attrs attrs new_hs
 
 /--
@@ -118,17 +119,17 @@ do mk_hinst_lemma_attrs_core ff attr_names,
    mk_hinst_lemma_attrs_core tt simp_attr_names,
    t  ← to_expr `(caching_user_attribute hinst_lemmas),
    a  ← attr_name^.to_expr,
-   l1 : expr ← list_name.to_expr attr_names,
-   l2 : expr ← list_name.to_expr simp_attr_names,
+   l1 ← list_name.to_expr attr_names,
+   l2 ← list_name.to_expr simp_attr_names,
    v ← to_expr `({ name     := %%a,
                    descr    := "hinst_lemma attribute set",
                    mk_cache := λ ns,
                       let aux1 : list name := %%l1,
                           aux2 : list name := %%l2 in
                       do {
-                      hs₁ ← to_hinst_lemmas_core reducible ff ns hinst_lemmas.mk,
-                      hs₂ ← merge_hinst_lemma_attrs reducible ff aux1 hs₁,
-                      merge_hinst_lemma_attrs reducible tt aux2 hs₂},
+                      hs₁ ← to_hinst_lemmas_core reducible ff ff ns hinst_lemmas.mk,
+                      hs₂ ← merge_hinst_lemma_attrs reducible ff ff aux1 hs₁,
+                      merge_hinst_lemma_attrs reducible ff tt aux2 hs₂},
                     dependencies := [`reducibility] ++ %%l1 ++ %%l2 } : caching_user_attribute hinst_lemmas),
    add_decl (declaration.defn attr_name [] t v reducibility_hints.abbrev ff),
    attribute.register attr_name

@@ -7,3 +7,4 @@ prelude
 import init.meta.smt.congruence_closure init.cc_lemmas
 import init.meta.smt.ematch
 import init.meta.smt.smt_tactic init.meta.smt.interactive
+import init.meta.smt.rsimp

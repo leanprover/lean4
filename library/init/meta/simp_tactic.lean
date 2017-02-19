@@ -294,6 +294,48 @@ do es ← collect_ctx_simps, simp_using es cfg
 meta def simph (cfg : simplify_config := {}) :=
 simp_using_hs cfg
 
+meta def intro1_aux : bool → list name → tactic expr
+| ff _       := intro1
+| tt (n::ns) := intro n
+| _  _       := failed
+
+meta def simp_intro_aux (cfg : simplify_config) (updt : bool) : simp_lemmas → bool → list name → tactic unit
+| S tt     [] := return ()
+| S use_ns ns := do
+  t ← target,
+  if t^.is_napp_of `not 1 then
+    intro1_aux use_ns ns >> simp_intro_aux S use_ns ns^.tail
+  else if t^.is_arrow then do
+    d ← return t^.binding_domain,
+    (new_d, h_d_eq_new_d) ← simplify S d cfg,
+    h_d ← intro1_aux use_ns ns,
+    h_new_d ← mk_eq_mp h_d_eq_new_d h_d,
+    assertv_core h_d^.local_pp_name new_d h_new_d,
+    h_new   ← intro1,
+    new_S ← if updt && is_equation new_d then S^.add h_new else return S,
+    clear h_d,
+    simp_intro_aux new_S use_ns ns
+  else if t^.is_pi || t^.is_let then
+    intro1_aux use_ns ns >> simp_intro_aux S use_ns ns^.tail
+  else do
+    new_t ← whnf t reducible,
+    if new_t^.is_pi then change new_t >> simp_intro_aux S use_ns ns
+    else return ()
+
+meta def simp_intros_using (s : simp_lemmas) (cfg : simplify_config := {}) : tactic unit :=
+simp_intro_aux cfg ff s ff []
+
+meta def simph_intros_using (s : simp_lemmas) (cfg : simplify_config := {}) : tactic unit :=
+do s ← collect_ctx_simps >>= s^.append,
+   simp_intro_aux cfg tt s ff []
+
+meta def simp_intro_lst_using (ns : list name) (s : simp_lemmas) (cfg : simplify_config := {}) : tactic unit :=
+simp_intro_aux cfg ff s tt ns
+
+meta def simph_intro_lst_using (ns : list name) (s : simp_lemmas) (cfg : simplify_config := {}) : tactic unit :=
+do s ← collect_ctx_simps >>= s^.append,
+   simp_intro_aux cfg tt s tt ns
+
 meta def simp_at (h : expr) (extra_lemmas : list expr := []) (cfg : simplify_config := {}) : tactic unit :=
 do when (expr.is_local_constant h = ff) (fail "tactic simp_at failed, the given expression is not a hypothesis"),
    htype ← infer_type h,

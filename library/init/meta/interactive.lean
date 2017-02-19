@@ -497,6 +497,25 @@ meta def simph (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list) 
                (cfg : simplify_config := {}) : tactic unit :=
 simp_using_hs hs attr_names ids cfg
 
+meta def simp_intros (ids : parse ident*) (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list)
+                     (wo_ids : parse without_ident_list) (cfg : simplify_config := {}) : tactic unit :=
+do s ← mk_simp_set attr_names hs wo_ids,
+   match ids with
+   | [] := simp_intros_using s cfg
+   | ns := simp_intro_lst_using ns s cfg
+   end,
+   try triv >> try (reflexivity reducible)
+
+meta def simph_intros (ids : parse ident*) (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list)
+                     (wo_ids : parse without_ident_list) (cfg : simplify_config := {}) : tactic unit :=
+do s ← mk_simp_set attr_names hs wo_ids,
+   match ids with
+   | [] := simph_intros_using s cfg
+   | ns := simph_intro_lst_using ns s cfg
+   end,
+   try triv >> try (reflexivity reducible)
+
+
 private meta def dsimp_hyps (s : simp_lemmas) : list name → tactic unit
 | []      := skip
 | (h::hs) := get_local h >>= dsimp_at_core s

@@ -142,6 +142,11 @@ meta def rb_set (key) := rb_map key unit
 meta def mk_rb_set {key} [has_ordering key] : rb_set key :=
 mk_rb_map
 
+open format
+
+private meta def format_key {key} [has_to_format key] (k : key) (first : bool) : format :=
+(if first then to_fmt "" else to_fmt "," ++ line) ++ to_fmt k
+
 namespace rb_set
 meta def insert {key} (s : rb_set key) (k : key) : rb_set key :=
 s^.insert k ()
@@ -161,19 +166,28 @@ s^.fold a (λ k _ a, fn k a)
 meta def to_list {key : Type} (s : rb_set key) : list key :=
 s^.fold [] list.cons
 
-open format
-
-private meta def format_key {key} [has_to_format key] (k : key) (first : bool) : format :=
-(if first then to_fmt "" else to_fmt "," ++ line) ++ to_fmt k
-
 meta instance {key} [has_to_format key] : has_to_format (rb_set key) :=
 ⟨λ m, group $ to_fmt "{" ++ nest 1 (fst (fold m (to_fmt "", tt) (λ k p, (fst p ++ format_key k (snd p), ff)))) ++
               to_fmt "}"⟩
 end rb_set
 
-@[reducible] meta def name_set := rb_set name
 @[reducible] meta def expr_set := rb_set expr
-meta def mk_name_set : name_set := mk_rb_set
 meta def mk_expr_set : expr_set := mk_rb_set
 
-vm_eval to_fmt $ (mk_name_set^.insert `a)^.insert `b
+meta constant name_set : Type
+meta constant mk_name_set : name_set
+
+namespace name_set
+meta constant insert         : name_set → name → name_set
+meta constant erase          : name_set → name → name_set
+meta constant contains       : name_set → name → bool
+meta constant size           : name_set → nat
+meta constant fold {α :Type} : name_set → α → (name → α → α) → α
+
+meta instance : has_to_format name_set :=
+⟨λ m, group $ to_fmt "{" ++ nest 1 (fst (fold m (to_fmt "", tt) (λ k p, (fst p ++ format_key k (snd p), ff)))) ++
+              to_fmt "}"⟩
+
+meta def of_list (l : list name) : name_set :=
+list.foldl name_set.insert mk_name_set l
+end name_set

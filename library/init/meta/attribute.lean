@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
 prelude
-import init.meta.tactic
+import init.meta.tactic init.meta.rb_map init.meta.quote
 
 meta constant attribute.get_instances : name → tactic (list name)
 meta constant attribute.fingerprint : name → tactic nat
@@ -22,3 +22,14 @@ meta structure caching_user_attribute (α : Type) extends user_attribute :=
 (dependencies : list _root_.name)
 
 meta constant caching_user_attribute.get_cache : Π {α : Type}, caching_user_attribute α → tactic α
+
+open tactic
+
+meta def mk_name_set_attr (attr_name : name) : command :=
+do t ← to_expr ``(caching_user_attribute name_set),
+   v ← to_expr ``({name     := %%(quote attr_name),
+                   descr    := "name_set attribute",
+                   mk_cache := name_set.of_list,
+                   dependencies := [] } : caching_user_attribute name_set),
+   add_decl (declaration.defn attr_name [] t v reducibility_hints.abbrev ff),
+   attribute.register attr_name

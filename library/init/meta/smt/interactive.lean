@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.meta.smt.smt_tactic init.meta.interactive
+import init.meta.smt.rsimp
 
 namespace smt_tactic
 meta def save_info (line : nat) (col : nat) : smt_tactic unit :=
@@ -244,6 +245,12 @@ simp_using_hs hs attr_names ids cfg
 
 meta def dsimp (es : parse opt_qexpr_list) (attr_names : parse with_ident_list) (ids : parse without_ident_list) : smt_tactic unit :=
 tactic.interactive.dsimp es attr_names ids []
+
+meta def rsimp : smt_tactic unit :=
+do ccs ← to_cc_state, rsimp.rsimplify_goal ccs
+
+meta def add_simp_lemmas : smt_tactic unit :=
+get_hinst_lemmas_for_attr `rsimp_attr >>= add_lemmas
 
 /-- Keep applying heuristic instantiation until the current goal is solved, or it fails. -/
 meta def eblast : smt_tactic unit :=

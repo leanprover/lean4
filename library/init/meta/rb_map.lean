@@ -184,6 +184,9 @@ meta constant contains       : name_set → name → bool
 meta constant size           : name_set → nat
 meta constant fold {α :Type} : name_set → α → (name → α → α) → α
 
+meta def to_list (s : name_set) : list name :=
+s^.fold [] list.cons
+
 meta instance : has_to_format name_set :=
 ⟨λ m, group $ to_fmt "{" ++ nest 1 (fst (fold m (to_fmt "", tt) (λ k p, (fst p ++ format_key k (snd p), ff)))) ++
               to_fmt "}"⟩

@@ -230,7 +230,7 @@ meta constant ext_simplify_core
   (r : name) :
   expr → tactic (α × expr × expr)
 
-meta def simplify (cfg : simplify_config) (S : simp_lemmas) (e : expr) : tactic (expr × expr) :=
+meta def simplify (S : simp_lemmas) (e : expr) (cfg : simplify_config := {}) : tactic (expr × expr) :=
 do e_type       ← infer_type e >>= whnf,
    simplify_core cfg S `eq e
 
@@ -239,25 +239,19 @@ do assert `htarget new_target, swap,
    ht ← get_local `htarget,
    mk_eq_mpr pr ht >>= exact
 
-meta def simplify_goal_core (cfg : simplify_config) (S : simp_lemmas) : tactic unit :=
-do (new_target, pr) ← target >>= simplify cfg S,
-   replace_target new_target pr
+meta def simplify_goal (S : simp_lemmas) (cfg : simplify_config := {}) : tactic unit :=
+do t ← target,
+   (new_t, pr) ← simplify S t cfg,
+   replace_target new_t pr
 
-meta def simplify_goal (S : simp_lemmas) : tactic unit :=
-simplify_goal_core {} S
-
-meta def simp : tactic unit :=
+meta def simp (cfg : simplify_config := {}) : tactic unit :=
 do S ← simp_lemmas.mk_default,
-simplify_goal S >> try triv >> try (reflexivity reducible)
+simplify_goal S cfg >> try triv >> try (reflexivity reducible)
 
-meta def simp_using (hs : list expr) : tactic unit :=
+meta def simp_using (hs : list expr) (cfg : simplify_config := {}) : tactic unit :=
 do S ← simp_lemmas.mk_default,
    S ← S^.append hs,
-simplify_goal S >> try triv
-
-meta def ctx_simp : tactic unit :=
-do S ← simp_lemmas.mk_default,
-simplify_goal_core {contextual := tt} S >> try triv >> try (reflexivity reducible)
+simplify_goal S cfg >> try triv
 
 meta def dsimp_core (s : simp_lemmas) : tactic unit :=
 target >>= s^.dsimplify >>= change
@@ -294,31 +288,28 @@ meta def collect_ctx_simps : tactic (list expr) :=
 local_context >>= collect_simps
 
 /-- Simplify target using all hypotheses in the local context. -/
-meta def simp_using_hs : tactic unit :=
-collect_ctx_simps >>= simp_using
+meta def simp_using_hs (cfg : simplify_config := {}) : tactic unit :=
+do es ← collect_ctx_simps, simp_using es cfg
 
-meta def simph :=
-simp_using_hs
+meta def simph (cfg : simplify_config := {}) :=
+simp_using_hs cfg
 
-meta def simp_core_at (extra_lemmas : list expr) (h : expr) : tactic unit :=
+meta def simp_at (h : expr) (extra_lemmas : list expr := []) (cfg : simplify_config := {}) : tactic unit :=
 do when (expr.is_local_constant h = ff) (fail "tactic simp_at failed, the given expression is not a hypothesis"),
    htype ← infer_type h,
    S     ← simp_lemmas.mk_default,
    S     ← S^.append extra_lemmas,
-   (new_htype, heq) ← simplify {} S htype,
+   (new_htype, heq) ← simplify S htype cfg,
    assert (expr.local_pp_name h) new_htype,
    mk_eq_mp heq h >>= exact,
    try $ clear h
 
-meta def simp_at : expr → tactic unit :=
-simp_core_at []
-
-meta def simp_at_using (hs : list expr) : expr → tactic unit :=
-simp_core_at hs
-
-meta def simp_at_using_hs (h : expr) : tactic unit :=
+meta def simp_at_using_hs (h : expr) (extra_lemmas : list expr := []) (cfg : simplify_config := {}) : tactic unit :=
 do hs ← collect_ctx_simps,
-   simp_core_at (list.filter (ne h) hs) h
+   simp_at h (list.filter (≠ h) hs ++ extra_lemmas) cfg
+
+meta def simph_at (h : expr) (extra_lemmas : list expr := []) (cfg : simplify_config := {}) : tactic unit :=
+simp_at_using_hs h extra_lemmas cfg
 
 meta def mk_eq_simp_ext (simp_ext : expr → tactic (expr × expr)) : tactic unit :=
 do (lhs, rhs)     ← target >>= match_eq,

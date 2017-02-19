@@ -15,7 +15,7 @@ exact ass
 
 meta def simplify_capturing_assumptions (type : expr) : tactic (expr × expr × list expr) := do
 S ← simp_lemmas.mk_default,
-(type', heq) ← simplify {} S type,
+(type', heq) ← simplify S type,
 hyps ← return $ contained_lconsts type,
 hyps' ← return $ contained_lconsts_list [type', heq],
 add_hyps ← return $ list.filter (λn : expr, ¬hyps^.contains n^.local_uniq_name) hyps'^.values,

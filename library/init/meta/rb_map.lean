@@ -52,12 +52,18 @@ fold m (mk _ _) $ λa b m', if f b then insert m' a b else m'
 
 end rb_map
 
+meta def mk_rb_map {key data : Type} [has_ordering key] : rb_map key data :=
+rb_map.mk key data
+
 @[reducible] meta def nat_map (data : Type) := rb_map nat data
 namespace nat_map
 export rb_map (hiding mk)
 
 meta def mk (data : Type) : nat_map data := rb_map.mk nat data
 end nat_map
+
+meta def mk_nat_map {data : Type} : nat_map data :=
+nat_map.mk data
 
 @[reducible] meta def name_map (data : Type) := rb_map name data
 namespace name_map
@@ -66,12 +72,18 @@ export rb_map (hiding mk)
 meta def mk (data : Type) : name_map data := rb_map.mk name data
 end name_map
 
+meta def mk_name_map {data : Type} : name_map data :=
+name_map.mk data
+
 @[reducible] meta def expr_map (data : Type) := rb_map expr data
 namespace expr_map
 export rb_map (hiding mk)
 
 meta def mk (data : Type) : expr_map data := rb_map.mk expr data
 end expr_map
+
+meta def mk_expr_map {data : Type} : expr_map data :=
+expr_map.mk data
 
 open rb_map prod
 section
@@ -125,3 +137,43 @@ match (rb_map.find rbl k) with
 end
 
 end rb_lmap
+
+meta def rb_set (key) := rb_map key unit
+meta def mk_rb_set {key} [has_ordering key] : rb_set key :=
+mk_rb_map
+
+namespace rb_set
+meta def insert {key} (s : rb_set key) (k : key) : rb_set key :=
+s^.insert k ()
+
+meta def erase {key} (s : rb_set key) (k : key) : rb_set key :=
+s^.erase k
+
+meta def contains {key} (s : rb_set key) (k : key) : bool :=
+s^.contains k
+
+meta def size {key} (s : rb_set key) : nat :=
+s^.size
+
+meta def fold {key α : Type} (s : rb_set key) (a : α) (fn : key → α → α) : α :=
+s^.fold a (λ k _ a, fn k a)
+
+meta def to_list {key : Type} (s : rb_set key) : list key :=
+s^.fold [] list.cons
+
+open format
+
+private meta def format_key {key} [has_to_format key] (k : key) (first : bool) : format :=
+(if first then to_fmt "" else to_fmt "," ++ line) ++ to_fmt k
+
+meta instance {key} [has_to_format key] : has_to_format (rb_set key) :=
+⟨λ m, group $ to_fmt "{" ++ nest 1 (fst (fold m (to_fmt "", tt) (λ k p, (fst p ++ format_key k (snd p), ff)))) ++
+              to_fmt "}"⟩
+end rb_set
+
+@[reducible] meta def name_set := rb_set name
+@[reducible] meta def expr_set := rb_set expr
+meta def mk_name_set : name_set := mk_rb_set
+meta def mk_expr_set : expr_set := mk_rb_set
+
+vm_eval to_fmt $ (mk_name_set^.insert `a)^.insert `b

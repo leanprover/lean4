@@ -12,6 +12,32 @@ Author: Daniel Selsam, Leonardo de Moura
 #include "library/tactic/simp_result.h"
 
 namespace lean {
+
+/*
+structure simplify_config :=
+(max_steps : nat)
+(contextual : bool)
+(lift_eq : bool)
+(canonize_instances : bool)
+(canonize_proofs : bool)
+(use_axioms : bool)
+(zeta : bool)
+*/
+struct simplify_config {
+    unsigned                  m_max_steps;
+    bool                      m_contextual;
+    bool                      m_lift_eq;
+    bool                      m_canonize_instances;
+    bool                      m_canonize_proofs;
+    bool                      m_use_axioms;
+    bool                      m_zeta;
+    /* The following option should be removed as soon as we
+       refactor the inductive compiler. */
+    bool                      m_use_matcher{true};
+    simplify_config();
+    simplify_config(vm_obj const & o);
+};
+
 /* Core simplification procedure. It performs the following tasks:
    1- Manages the cache;
    2- Applies congruence lemmas;
@@ -46,19 +72,14 @@ protected:
     bool                      m_need_restart{false};
 
     /* Options */
-    unsigned                  m_max_steps;
-    bool                      m_contextual;
-    bool                      m_lift_eq;
-    bool                      m_canonize_instances;
-    bool                      m_canonize_proofs;
-    /* The following option should be removed as soon as we
-       refactor the inductive compiler. */
-    bool                      m_use_matcher{true};
+    simplify_config           m_cfg;
 
     simp_result join(simp_result const & r1, simp_result const & r2);
     void inc_num_steps();
     bool is_dependent_fn(expr const & f);
-    bool should_defeq_canonize() const { return m_canonize_instances || m_canonize_proofs; }
+    bool should_defeq_canonize() const {
+        return m_cfg.m_canonize_instances || m_cfg.m_canonize_proofs;
+    }
     bool instantiate_emetas(tmp_type_context & tmp_tctx, unsigned num_emeta,
                             list<expr> const & emetas, list<bool> const & instances);
     simp_result lift_from_eq(simp_result const & r_eq);
@@ -107,13 +128,10 @@ protected:
 
 public:
     simplify_core_fn(type_context & ctx, defeq_canonizer::state & dcs, simp_lemmas const & slss,
-                     unsigned max_steps, bool contextual, bool lift_eq,
-                     bool canonize_instances, bool canonize_proofs);
+                     simplify_config const & cfg);
 
     environment const & env() const;
     simp_result operator()(name const & rel, expr const & e);
-
-    void set_use_matcher(bool flag) { m_use_matcher = flag; }
 
     optional<expr> prove_by_simp(name const & rel, expr const & e);
 };
@@ -122,7 +140,6 @@ public:
    extensionality and propositional extensionality. */
 class simplify_ext_core_fn : public simplify_core_fn {
 protected:
-    bool m_use_axioms;
     simp_result forall_congr(expr const & e);
     simp_result imp_congr(expr const & e);
     virtual simp_result visit_lambda(expr const & e) override;
@@ -130,8 +147,7 @@ protected:
     virtual simp_result visit_let(expr const & e) override;
 public:
     simplify_ext_core_fn(type_context & ctx, defeq_canonizer::state & dcs, simp_lemmas const & slss,
-                         unsigned max_steps, bool contextual, bool lift_eq,
-                         bool canonize_instances, bool canonize_proofs, bool use_axioms);
+                         simplify_config const & cfg);
 };
 
 /* Default (bottom-up) simplifier: reduce projections, apply simplification lemmas,
@@ -143,10 +159,8 @@ protected:
     virtual optional<expr> prove(expr const & e) override;
 public:
     simplify_fn(type_context & ctx, defeq_canonizer::state & dcs, simp_lemmas const & slss,
-                unsigned max_steps, bool contextual, bool lift_eq,
-                bool canonize_instances, bool canonize_proofs, bool use_axioms):
-        simplify_ext_core_fn(ctx, dcs, slss, max_steps, contextual, lift_eq,
-                             canonize_instances, canonize_proofs, use_axioms) {}
+                simplify_config const & cfg):
+        simplify_ext_core_fn(ctx, dcs, slss, cfg) {}
 };
 
 void initialize_simplify();

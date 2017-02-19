@@ -3,6 +3,7 @@ declare_trace mini_crush
 namespace mini_crush
 open smt_tactic tactic
 
+/- Collect relevant functions -/
 meta def is_auto_construction : name → bool
 | (name.mk_string "brec_on" p)      := tt
 | (name.mk_string "cases_on" p)     := tt
@@ -35,6 +36,24 @@ meta def collect_revelant_fns : tactic name_set :=
 do ctx ← local_context,
    s₁  ← mfoldl (λ s e, infer_type e >>= collect_revelant_fns_aux s) mk_name_set ctx,
    target >>= collect_revelant_fns_aux s₁
+
+/- repeat simp & intro -/
+
+meta def simph_and_intro_aux : simp_lemmas → tactic unit
+| S := do
+  t ← target,
+
+
+return ()
+
+meta def simph_and_intro : tactic unit :=
+do S ← simp_lemmas.mk_default,
+   S ← collect_ctx_simps >>= S^.append,
+   simph_and_intro_aux S
+
+
+meta def collect_ctx_simps : tactic (list expr) :=
+
 
 meta def size (e : expr) : nat :=
 e^.fold 1 (λ e _ n, n+1)

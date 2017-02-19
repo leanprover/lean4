@@ -192,6 +192,7 @@ structure simplify_config :=
 (canonize_instances : bool := tt)
 (canonize_proofs : bool    := ff)
 (use_axioms : bool         := tt)
+(zeta : bool               := tt)
 
 meta constant simplify_core
   (c : simplify_config)

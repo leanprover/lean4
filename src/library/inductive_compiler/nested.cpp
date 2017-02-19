@@ -1260,16 +1260,17 @@ class add_nested_inductive_decl_fn {
             all_lemmas = add(tctx_whnf, all_lemmas, mlocal_name(H), H_type, H, LEAN_DEFAULT_PRIORITY);
         }
         lean_trace(name({"inductive_compiler", "nested", "simp", "start"}), tout() << thm << "\n";);
-        unsigned max_steps      = 1000000;
-        bool contextual         = false;
-        bool lift_eq            = false;
-        bool canonize_instances = false;
-        bool canonize_proofs    = false;
-        bool use_axioms         = false;
+        simplify_config cfg;
+        cfg.m_max_steps          = 1000000;
+        cfg.m_contextual         = false;
+        cfg.m_lift_eq            = false;
+        cfg.m_canonize_instances = false;
+        cfg.m_canonize_proofs    = false;
+        cfg.m_use_axioms         = false;
+        cfg.m_zeta               = false;
+        cfg.m_use_matcher        = false;
         defeq_can_state dcs;
-        simplify_fn simplifier(tctx, dcs, all_lemmas, max_steps, contextual, lift_eq,
-                               canonize_instances, canonize_proofs, use_axioms);
-        simplifier.set_use_matcher(false); // hack
+        simplify_fn simplifier(tctx, dcs, all_lemmas, cfg);
         auto thm_pr = simplifier.prove_by_simp(get_eq_name(), thm);
         if (!thm_pr) {
             formatter_factory const & fmtf = get_global_ios().get_formatter_factory();

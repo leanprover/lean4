@@ -45,4 +45,4 @@ begin
 end
 open tactic
 example (a b : nat) : a = b → h 0 a = b :=
-by ctx_simp without bla
+by simp without bla {contextual := tt}

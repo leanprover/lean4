@@ -229,16 +229,18 @@ smt_tactic.all_goals t
 meta def induction (p : parse texpr) (rec_name : parse using_ident) (ids : parse with_ident_list) : smt_tactic unit :=
 slift (tactic.interactive.induction p rec_name ids)
 
-/-- Simplify the target type of the main goal. -/
-meta def simp (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list) (ids : parse without_ident_list) : smt_tactic unit :=
-tactic.interactive.simp hs attr_names ids []
+open tactic
 
-meta def ctx_simp (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list) (ids : parse without_ident_list) : smt_tactic unit :=
-tactic.interactive.ctx_simp hs attr_names ids []
+/-- Simplify the target type of the main goal. -/
+meta def simp (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list) (ids : parse without_ident_list) (cfg : simplify_config := {}) : smt_tactic unit :=
+tactic.interactive.simp hs attr_names ids [] cfg
 
 /-- Simplify the target type of the main goal using simplification lemmas and the current set of hypotheses. -/
-meta def simp_using_hs (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list) (ids : parse without_ident_list) : smt_tactic unit :=
-tactic.interactive.simp_using_hs hs attr_names ids
+meta def simp_using_hs (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list) (ids : parse without_ident_list) (cfg : simplify_config := {}) : smt_tactic unit :=
+tactic.interactive.simp_using_hs hs attr_names ids cfg
+
+meta def simph (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list) (ids : parse without_ident_list) (cfg : simplify_config := {}) : smt_tactic unit :=
+simp_using_hs hs attr_names ids cfg
 
 meta def dsimp (es : parse opt_qexpr_list) (attr_names : parse with_ident_list) (ids : parse without_ident_list) : smt_tactic unit :=
 tactic.interactive.dsimp es attr_names ids []

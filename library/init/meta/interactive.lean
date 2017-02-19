@@ -481,25 +481,21 @@ It has many variants.
 
 - `simp with attr` simplifies the main goal target using the lemmas tagged with the attribute `[attr]`.
 -/
-meta def simp (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list) (ids : parse without_ident_list) (loc : parse location) : tactic unit :=
-simp_core {} [] hs attr_names ids loc
-
-/--
-Similar to the `simp` tactic, but uses contextual simplification. For example, when simplifying `t = s → p`,
-the equation `t = s` is automatically added to the set of simplification rules when simplifying `p`.
--/
-meta def ctx_simp (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list) (ids : parse without_ident_list) (loc : parse location) : tactic unit :=
-simp_core {contextual := tt} [] hs attr_names ids loc
+meta def simp (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list) (ids : parse without_ident_list) (loc : parse location)
+              (cfg : simplify_config := {}) : tactic unit :=
+simp_core cfg [] hs attr_names ids loc
 
 /--
 Similar to the `simp` tactic, but adds all applicable hypotheses as simplification rules.
 -/
-meta def simp_using_hs (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list) (ids : parse without_ident_list) : tactic unit :=
+meta def simp_using_hs (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list) (ids : parse without_ident_list)
+                       (cfg : simplify_config := {}) : tactic unit :=
 do ctx ← collect_ctx_simps,
-   simp_core {} ctx hs attr_names ids []
+   simp_core cfg ctx hs attr_names ids []
 
-meta def simph (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list) (ids : parse without_ident_list) : tactic unit :=
-simp_using_hs hs attr_names ids
+meta def simph (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list) (ids : parse without_ident_list)
+               (cfg : simplify_config := {}) : tactic unit :=
+simp_using_hs hs attr_names ids cfg
 
 private meta def dsimp_hyps (s : simp_lemmas) : list name → tactic unit
 | []      := skip
@@ -579,12 +575,12 @@ private meta def dunfold_hyps_occs : name → occurrences → list name → tact
 | c occs []  := skip
 | c occs (h::hs) := get_local h >>= dunfold_core_at occs [c] >> dunfold_hyps_occs c occs hs
 
-meta def dunfold_occs : parse ident → list nat → parse location → tactic unit
-| c ps [] := do new_c ← to_qualified_name c, tactic.dunfold_occs_of ps new_c
-| c ps hs := do new_c ← to_qualified_name c, dunfold_hyps_occs new_c (occurrences.pos ps) hs
+meta def dunfold_occs : parse ident → parse location → list nat → tactic unit
+| c [] ps := do new_c ← to_qualified_name c, tactic.dunfold_occs_of ps new_c
+| c hs ps := do new_c ← to_qualified_name c, dunfold_hyps_occs new_c (occurrences.pos ps) hs
 
 /- TODO(Leo): add support for non-refl lemmas -/
-meta def unfold_occs : parse ident → list nat → parse location → tactic unit :=
+meta def unfold_occs : parse ident → parse location → list nat → tactic unit :=
 dunfold_occs
 
 private meta def delta_hyps : list name → list name → tactic unit

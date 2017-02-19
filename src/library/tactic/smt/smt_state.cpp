@@ -209,15 +209,15 @@ static dsimplify_fn mk_dsimp(type_context & ctx, defeq_can_state & dcs, smt_pre_
 }
 
 static simplify_fn mk_simp(type_context & ctx, defeq_can_state & dcs, smt_pre_config const & cfg) {
-    unsigned max_steps       = cfg.m_max_steps;
-    bool contextual          = false;
-    bool lift_eq             = true;
-    bool canonize_instances  = true;
-    bool canonize_proofs     = false;
-    bool use_axioms          = true;
-    return simplify_fn(ctx, dcs, cfg.m_simp_lemmas, max_steps,
-                       contextual, lift_eq, canonize_instances,
-                       canonize_proofs, use_axioms);
+    simplify_config scfg;
+    scfg.m_max_steps          = cfg.m_max_steps;
+    scfg.m_contextual         = false;
+    scfg.m_lift_eq            = true;
+    scfg.m_canonize_instances = true;
+    scfg.m_canonize_proofs    = false;
+    scfg.m_use_axioms         = true;
+    scfg.m_zeta               = cfg.m_zeta;
+    return simplify_fn(ctx, dcs, cfg.m_simp_lemmas, scfg);
 }
 
 static simp_result preprocess(type_context & ctx, defeq_can_state & dcs, smt_pre_config const & cfg, expr const & e) {

@@ -55,16 +55,30 @@ Author: Daniel Selsam, Leonardo de Moura
 #ifndef LEAN_DEFAULT_SIMPLIFY_LIFT_EQ
 #define LEAN_DEFAULT_SIMPLIFY_LIFT_EQ true
 #endif
-#ifndef LEAN_DEFAULT_SIMPLIFY_DEFEQ_CANONIZE_INSTANCES_FIXED_POINT
-#define LEAN_DEFAULT_SIMPLIFY_DEFEQ_CANONIZE_INSTANCES_FIXED_POINT false
-#endif
-#ifndef LEAN_DEFAULT_SIMPLIFY_DEFEQ_CANONIZE_PROOFS_FIXED_POINT
-#define LEAN_DEFAULT_SIMPLIFY_DEFEQ_CANONIZE_PROOFS_FIXED_POINT false
-#endif
 
 namespace lean {
 #define lean_simp_trace(CTX, N, CODE) lean_trace(N, scope_trace_env _scope1(CTX.env(), CTX); CODE)
 #define lean_simp_trace_d(CTX, N, CODE) lean_trace_d(N, scope_trace_env _scope1(CTX.env(), CTX); CODE)
+
+simplify_config::simplify_config():
+    m_max_steps(LEAN_DEFAULT_SIMPLIFY_MAX_STEPS),
+    m_contextual(LEAN_DEFAULT_SIMPLIFY_CONTEXTUAL),
+    m_lift_eq(LEAN_DEFAULT_SIMPLIFY_LIFT_EQ),
+    m_canonize_instances(true),
+    m_canonize_proofs(false),
+    m_use_axioms(false),
+    m_zeta(false) {
+}
+
+simplify_config::simplify_config(vm_obj const & obj) {
+    m_max_steps          = force_to_unsigned(cfield(obj, 0));
+    m_contextual         = to_bool(cfield(obj, 1));
+    m_lift_eq            = to_bool(cfield(obj, 2));
+    m_canonize_instances = to_bool(cfield(obj, 3));
+    m_canonize_proofs    = to_bool(cfield(obj, 4));
+    m_use_axioms         = to_bool(cfield(obj, 5));
+    m_zeta               = to_bool(cfield(obj, 6));
+}
 
 /* -----------------------------------
    Core simplification procedure.
@@ -76,7 +90,7 @@ simp_result simplify_core_fn::join(simp_result const & r1, simp_result const & r
 
 void simplify_core_fn::inc_num_steps() {
     m_num_steps++;
-    if (m_num_steps > m_max_steps)
+    if (m_num_steps > m_cfg.m_max_steps)
         throw exception("simplify failed, maximum number of steps exceeded");
 }
 
@@ -200,7 +214,8 @@ expr simplify_core_fn::defeq_canonize_args_step(expr const & e) {
     for (param_info const & pinfo : info.get_params_info()) {
         lean_assert(i < args.size());
         expr new_a;
-        if ((m_canonize_instances && pinfo.is_inst_implicit()) || (m_canonize_proofs && pinfo.is_prop())) {
+        if ((m_cfg.m_canonize_instances && pinfo.is_inst_implicit()) ||
+            (m_cfg.m_canonize_proofs && pinfo.is_prop())) {
             new_a = m_defeq_canonizer.canonize(args[i], m_need_restart);
             lean_simp_trace(m_ctx, name({"simplify", "canonize"}),
                             tout() << "\n" << args[i] << "\n==>\n" << new_a << "\n";);
@@ -265,11 +280,11 @@ simp_result simplify_core_fn::try_user_congr(expr const & e, simp_lemma const & 
         lean_verify(is_simp_relation(tmp_ctx.env(), m_type, h_rel, h_lhs, h_rhs) && is_constant(h_rel));
         {
             relations.push_back(const_name(h_rel));
-            flet<simp_lemmas> set_slss(m_slss, m_contextual ? add_to_slss(m_slss, local_factory.as_buffer()) : m_slss);
+            flet<simp_lemmas> set_slss(m_slss, m_cfg.m_contextual ? add_to_slss(m_slss, local_factory.as_buffer()) : m_slss);
 
             h_lhs = tmp_ctx.instantiate_mvars(h_lhs);
 
-            if (m_contextual || m_rel != const_name(h_rel)) {
+            if (m_cfg.m_contextual || m_rel != const_name(h_rel)) {
                 flet<name> set_name(m_rel, const_name(h_rel));
                 freset<simplify_cache> reset_cache(m_cache);
                 congr_hyp_results.emplace_back(visit(h_lhs, some_expr(e)));
@@ -561,7 +576,7 @@ struct match_fn {
 };
 
 bool simplify_core_fn::match(tmp_type_context & ctx, simp_lemma const & sl, expr const & t) {
-    if (m_use_matcher)
+    if (m_cfg.m_use_matcher)
         return match_fn(ctx, sl.get_id())(sl.get_lhs(), t);
     else
         return ctx.is_def_eq(t, sl.get_lhs());
@@ -743,7 +758,7 @@ simp_result simplify_core_fn::visit(expr const & e, optional<expr> const & paren
         }
     }
 
-    if (m_lift_eq && m_rel != get_eq_name()) {
+    if (m_cfg.m_lift_eq && m_rel != get_eq_name()) {
         simp_result eq_result;
         {
             flet<name> use_eq(m_rel, get_eq_name());
@@ -819,7 +834,10 @@ simp_result simplify_core_fn::visit_pi(expr const & e) {
 }
 
 simp_result simplify_core_fn::visit_let(expr const & e) {
-    return simp_result(e);
+    if (m_cfg.m_zeta)
+        return visit(instantiate(let_body(e), let_value(e)), none_expr());
+    else
+        return simp_result(e);
 }
 
 simp_result simplify_core_fn::visit_macro(expr const & e) {
@@ -835,10 +853,8 @@ optional<pair<simp_result, bool>> simplify_core_fn::post(expr const &, optional<
 }
 
 simplify_core_fn::simplify_core_fn(type_context & ctx, defeq_canonizer::state & dcs, simp_lemmas const & slss,
-                                   unsigned max_steps, bool contextual, bool lift_eq,
-                                   bool canonize_instances, bool canonize_proofs):
-    m_ctx(ctx), m_defeq_canonizer(m_ctx, dcs), m_slss(slss), m_max_steps(max_steps), m_contextual(contextual),
-    m_lift_eq(lift_eq), m_canonize_instances(canonize_instances), m_canonize_proofs(canonize_proofs) {
+                                   simplify_config const & cfg):
+    m_ctx(ctx), m_defeq_canonizer(m_ctx, dcs), m_slss(slss), m_cfg(cfg) {
 }
 
 simp_result simplify_core_fn::simplify(expr const & e) {
@@ -899,15 +915,12 @@ optional<expr> simplify_core_fn::prove_by_simp(name const & rel, expr const & e)
    ------------------------------------ */
 
 simplify_ext_core_fn::simplify_ext_core_fn(type_context & ctx, defeq_can_state & dcs, simp_lemmas const & slss,
-                                           unsigned max_steps, bool contextual, bool lift_eq,
-                                           bool canonize_instances, bool canonize_proofs,
-                                           bool use_axioms):
-    simplify_core_fn(ctx, dcs, slss, max_steps, contextual, lift_eq, canonize_instances, canonize_proofs),
-    m_use_axioms (use_axioms) {
+                                           simplify_config const & cfg):
+    simplify_core_fn(ctx, dcs, slss, cfg) {
 }
 
 simp_result simplify_ext_core_fn::visit_lambda(expr const & e) {
-    if (m_rel != get_eq_name() || !m_use_axioms) return simp_result(e);
+    if (m_rel != get_eq_name() || !m_cfg.m_use_axioms) return simp_result(e);
     type_context::tmp_locals locals(m_ctx);
     expr it = e;
     while (is_lambda(it)) {
@@ -997,7 +1010,7 @@ simp_result simplify_ext_core_fn::imp_congr(expr const & e) {
     expr const & a  = binding_domain(e);
     expr const & b  = binding_body(e);
     simp_result r_a = visit(a, some_expr(e));
-    if (m_contextual) {
+    if (m_cfg.m_contextual) {
         type_context::tmp_locals locals(m_ctx);
         expr h = locals.push_local("_h", r_a.get_new());
         flet<simp_lemmas> set_slss(m_slss, add_to_slss(m_slss, locals.as_buffer()));
@@ -1031,7 +1044,7 @@ simp_result simplify_ext_core_fn::imp_congr(expr const & e) {
 }
 
 simp_result simplify_ext_core_fn::visit_pi(expr const & e) {
-    if ((m_rel == get_eq_name() && m_use_axioms) || m_rel == get_iff_name()) {
+    if ((m_rel == get_eq_name() && m_cfg.m_use_axioms) || m_rel == get_iff_name()) {
         if (m_ctx.is_prop(e)) {
             if (!m_ctx.is_prop(binding_domain(e)))
                 return forall_congr(e);
@@ -1043,9 +1056,9 @@ simp_result simplify_ext_core_fn::visit_pi(expr const & e) {
 }
 
 simp_result simplify_ext_core_fn::visit_let(expr const & e) {
-    /* TODO(Leo): we need to implement efficient code for checking whether the abstraction of
+    /* TODO(Leo): when m_zeta is false, we need to implement efficient code for checking whether the abstraction of
        a let-body is type correct or not */
-    return simp_result(e);
+    return simplify_core_fn::visit_let(e);
 }
 
 static optional<pair<simp_result, bool>> to_ext_result(simp_result const & r) {
@@ -1067,7 +1080,7 @@ optional<pair<simp_result, bool>> simplify_fn::post(expr const & e, optional<exp
     simp_result r = rewrite(e);
     if (r.get_new() != e) {
         return to_ext_result(r);
-    } else if (!m_use_axioms) {
+    } else if (!m_cfg.m_use_axioms) {
         return no_ext_result();
     } else {
         r = propext_rewrite(e);
@@ -1136,13 +1149,9 @@ class vm_simplify_fn : public simplify_ext_core_fn {
     }
 
 public:
-    vm_simplify_fn(type_context & ctx, defeq_can_state & dcs, simp_lemmas const & slss,
-                   unsigned max_steps, bool contextual, bool lift_eq,
-                   bool canonize_instances, bool canonize_proofs, bool use_axioms,
-                   vm_obj const & prove, vm_obj const & pre, vm_obj const & post,
-                   tactic_state const & s):
-        simplify_ext_core_fn(ctx, dcs, slss, max_steps, contextual, lift_eq,
-                             canonize_instances, canonize_proofs, use_axioms),
+    vm_simplify_fn(type_context & ctx, defeq_can_state & dcs, simp_lemmas const & slss, simplify_config const & cfg,
+                   vm_obj const & prove, vm_obj const & pre, vm_obj const & post, tactic_state const & s):
+        simplify_ext_core_fn(ctx, dcs, slss, cfg),
         m_prove(prove), m_pre(pre), m_post(post),
         m_s(s) {}
 
@@ -1154,25 +1163,6 @@ public:
 };
 
 /*
-structure simplify_config :=
-(max_steps : nat)
-(contextual : bool)
-(lift_eq : bool)
-(canonize_instances : bool)
-(canonize_proofs : bool)
-(use_axioms : bool)
-*/
-void get_simplify_config(vm_obj const & obj, unsigned & max_steps, bool & contextual, bool & lift_eq,
-                         bool & canonize_instances, bool & canonize_proofs, bool & use_axioms) {
-    max_steps          = force_to_unsigned(cfield(obj, 0), std::numeric_limits<unsigned>::max());
-    contextual         = to_bool(cfield(obj, 1));
-    lift_eq            = to_bool(cfield(obj, 2));
-    canonize_instances = to_bool(cfield(obj, 3));
-    canonize_proofs    = to_bool(cfield(obj, 4));
-    use_axioms         = to_bool(cfield(obj, 5));
-}
-
-/*
 meta constant simplify_core
   (c : simplify_config)
   (s : simp_lemmas)
@@ -1182,12 +1172,10 @@ meta constant simplify_core
 vm_obj tactic_simplify_core(vm_obj const & c, vm_obj const & slss, vm_obj const & rel, vm_obj const & e, vm_obj const & _s) {
     tactic_state const & s   = tactic::to_state(_s);
     try {
-        unsigned max_steps; bool contextual, lift_eq, canonize_instances, canonize_proofs, use_axioms;
-        get_simplify_config(c, max_steps, contextual, lift_eq, canonize_instances, canonize_proofs, use_axioms);
+        simplify_config cfg(c);
         type_context ctx     = mk_type_context_for(s, transparency_mode::Reducible);
         defeq_can_state dcs  = s.dcs();
-        simplify_fn simp(ctx, dcs, to_simp_lemmas(slss), max_steps, contextual, lift_eq,
-                         canonize_instances, canonize_proofs, use_axioms);
+        simplify_fn simp(ctx, dcs, to_simp_lemmas(slss), cfg);
         simp_result result   = simp(to_name(rel), to_expr(e));
         if (result.get_new() != to_expr(e)) {
             result = finalize(ctx, to_name(rel), result);
@@ -1205,12 +1193,10 @@ static vm_obj ext_simplify_core(vm_obj const & a, vm_obj const & c, simp_lemmas 
                                 vm_obj const & pre, vm_obj const & post, name const & r, expr const & e,
                                 tactic_state const & s) {
     try {
-        unsigned max_steps; bool contextual, lift_eq, canonize_instances, canonize_proofs, use_axioms;
-        get_simplify_config(c, max_steps, contextual, lift_eq, canonize_instances, canonize_proofs, use_axioms);
+        simplify_config cfg(c);
         type_context ctx     = mk_type_context_for(s, transparency_mode::Reducible);
         defeq_can_state dcs  = s.dcs();
-        vm_simplify_fn simp(ctx, dcs, slss, max_steps, contextual, lift_eq, canonize_instances, canonize_proofs,
-                            use_axioms, prove, pre, post, s);
+        vm_simplify_fn simp(ctx, dcs, slss, cfg, prove, pre, post, s);
         pair<vm_obj, simp_result> p = simp(a, r, e);
         if (p.second.get_new() != e) {
             vm_obj const & a   = p.first;

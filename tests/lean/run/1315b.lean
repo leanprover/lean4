@@ -63,6 +63,6 @@ begin
   induction n with n',
   {intro, reflexivity},
   {intro,
-   simp [test], dsimp, simp [ih_1],
+   simp [test] {zeta := ff}, dsimp, simp [ih_1],
    simp [nat.bit1_eq_succ_bit0, test]}
 end

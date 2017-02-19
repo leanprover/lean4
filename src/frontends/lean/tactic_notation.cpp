@@ -173,10 +173,13 @@ static expr parse_auto_quote_tactic(parser & p, name const & decl_name, name con
             } else if (is_constant(arg_type, irtactic)) {
                 args.push_back(parse_nested_auto_quote_tactic(p, tac_class, use_rstep, report_error));
             } else {
-                args.push_back(p.parse_expr(get_max_prec()));
+                break;
             }
         }
         type = binding_body(type);
+    }
+    while (p.curr_lbp() >= get_max_prec()) {
+        args.push_back(p.parse_expr(get_max_prec()));
     }
     expr r = p.mk_app(p.save_pos(mk_constant(decl_name), pos), args, pos);
     return mk_tactic_step(p, r, pos, tac_class, use_rstep, report_error);

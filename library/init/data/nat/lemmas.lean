@@ -41,7 +41,7 @@ protected lemma add_left_comm : ∀ (n m k : ℕ), n + (m + k) = m + (n + k) :=
 left_comm nat.add nat.add_comm nat.add_assoc
 
 protected lemma add_left_cancel : ∀ {n m k : ℕ}, n + m = n + k → m = k
-| 0        m k := by ctx_simp [nat.zero_add]
+| 0        m k := by simp [nat.zero_add] {contextual := tt}
 | (succ n) m k := λ h,
   have n+m = n+k, begin simp [succ_add] at h, injection h, assumption end,
   add_left_cancel this
@@ -64,7 +64,7 @@ protected lemma zero_ne_one : 0 ≠ (1 : ℕ) :=
 assume h, nat.no_confusion h
 
 lemma eq_zero_of_add_eq_zero_right : ∀ {n m : ℕ}, n + m = 0 → n = 0
-| 0     m := by ctx_simp [nat.zero_add]
+| 0     m := by simp [nat.zero_add] {contextual := tt}
 | (n+1) m := λ h,
   begin
     exfalso,

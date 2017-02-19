@@ -7,5 +7,5 @@ sorry
 
 print [congr] default
 
-example (A : Type) (a b c : A) : (a = b) → (a = c) → a = b := by ctx_simp
-example (A : Type) (a b c : A) : (a = c) → (a = b) → a = b := by ctx_simp
+example (A : Type) (a b c : A) : (a = b) → (a = c) → a = b := by simp {contextual := tt}
+example (A : Type) (a b c : A) : (a = c) → (a = b) → a = b := by simp {contextual := tt}

@@ -14,6 +14,7 @@
   (when (or (called-interactively-p 'any) print-msg)
     (message "lean: turn on debug mode"))
   (get-buffer-create lean-debug-buffer-name)
+  (buffer-disable-undo lean-debug-buffer-name)
   (display-buffer lean-debug-buffer-name 'display-buffer-reuse-window
                   '((reusable-frames . t)))
   (setq lean-debug-mode t))

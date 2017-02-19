@@ -20,9 +20,7 @@ def times (k : nat) : exp → exp
 attribute [simp] exp_eval times mul_add
 
 theorem eval_times (k e) : exp_eval (times k e) = k * exp_eval e :=
-by induction e; simp_using_hs
-
-/- CPDT: induction e; crush. -/
+by induction e; simph
 
 def reassoc : exp → exp
 | (Const n)    := (Const n)
@@ -43,8 +41,5 @@ def reassoc : exp → exp
 
 attribute [simp] reassoc
 
-lemma rewr : ∀ a b c d : nat, b * c = d → a * b * c = a * d :=
-by intros; simp_using_hs
-
 theorem reassoc_correct (e) : exp_eval (reassoc e) = exp_eval e :=
-by induction e; simp; try {cases (reassoc e2); dsimp at ih_2; dsimp; simp_using_hs}
+by induction e; simph; try {cases (reassoc e2); rsimp}

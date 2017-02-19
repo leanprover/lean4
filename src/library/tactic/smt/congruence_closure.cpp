@@ -18,6 +18,8 @@ Author: Leonardo de Moura
 #include "library/app_builder.h"
 #include "library/projection.h"
 #include "library/constructions/constructor.h"
+#include "library/vm/vm_option.h"
+#include "library/vm/vm_list.h"
 #include "library/tactic/smt/util.h"
 #include "library/tactic/smt/congruence_closure.h"
 
@@ -223,6 +225,28 @@ bool congruence_closure::state::in_heterogeneous_eqc(expr const & e) const {
         return n->m_heq_proofs;
     else
         return false;
+}
+
+/*
+structure cc_config :=
+(ignore_instances : bool)
+(ac               : bool)
+(ho_fns           : option (list name))
+(em               : bool)
+ */
+vm_obj congruence_closure::state::mk_vm_cc_config() const {
+    vm_obj ho_fns;
+    if (get_config().m_all_ho) {
+        ho_fns = mk_vm_none();
+    } else {
+        buffer<name> fns;
+        m_ho_fns.to_buffer(fns);
+        ho_fns = mk_vm_some(to_obj(fns));
+    }
+    vm_obj ignore_instances = mk_vm_bool(get_config().m_ignore_instances);
+    vm_obj ac               = mk_vm_bool(get_config().m_ac);
+    vm_obj em               = mk_vm_bool(get_config().m_em);
+    return mk_vm_constructor(0, ignore_instances, ac, ho_fns, em);
 }
 
 /** \brief Return true iff the given function application are congruent

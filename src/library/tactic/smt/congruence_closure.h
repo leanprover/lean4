@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "library/congr_lemma.h"
 #include "library/relation_manager.h"
 #include "library/defeq_canonizer.h"
+#include "library/vm/vm.h"
 #include "library/tactic/simp_result.h"
 #include "library/tactic/smt/theory_ac.h"
 
@@ -175,6 +176,7 @@ public:
         unsigned get_gmt() const { return m_gmt; }
         void inc_gmt() { m_gmt++; }
         config const & get_config() const { return m_config; }
+        vm_obj mk_vm_cc_config() const;
     };
 
 private:

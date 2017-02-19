@@ -44,6 +44,8 @@ public:
     hinst_lemmas const & get_new_lemmas() const { return m_new_lemmas; }
     void add_lemma(hinst_lemma const & lemma) { m_new_lemmas.insert(lemma); }
     void set_lemmas(hinst_lemmas const & lemmas) { m_lemmas.clear(); m_new_lemmas = lemmas; }
+    ematch_config const & get_config() const { return m_config; }
+    vm_obj mk_vm_ematch_config() const;
 };
 
 struct new_instance {

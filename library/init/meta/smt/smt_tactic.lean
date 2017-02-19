@@ -119,7 +119,7 @@ meta constant ematch_using                    : hinst_lemmas → smt_tactic unit
 meta constant mk_ematch_eqn_lemmas_for_core   : transparency → name → smt_tactic hinst_lemmas
 meta constant to_cc_state                     : smt_tactic cc_state
 meta constant to_em_state                     : smt_tactic ematch_state
-meta constant get_config                      : smt_tactic cc_config
+meta constant get_config                      : smt_tactic smt_config
 /--
   Preprocess the given term using the same simplifications rules used when
   we introduce a new hypothesis. The result is pair containing the resulting
@@ -191,20 +191,22 @@ private meta def mk_smt_goals_for (cfg : smt_config) : list expr → list smt_go
   [new_tg] ← get_goals | tactic.failed,
   mk_smt_goals_for tgs (new_sg::sr) (new_tg::tr)
 
+/- See slift -/
+meta def slift_aux {α : Type} (t : tactic α) (cfg : smt_config) : smt_tactic α :=
+λ ss, do
+   _::sgs  ← return ss | fail "slift tactic failed, there no smt goals to be solved",
+   tg::tgs ← tactic.get_goals | tactic.failed,
+   tactic.set_goals [tg], a ← t,
+   new_tgs ← tactic.get_goals,
+   (new_sgs, new_tgs) ← mk_smt_goals_for cfg new_tgs [] [],
+   tactic.set_goals (new_tgs ++ tgs),
+   return (a, new_sgs ++ sgs)
+
 /--
   This lift operation will restart the SMT state.
-  It is useful for using tactics that change the set of hypotheses.
--/
+  It is useful for using tactics that change the set of hypotheses. -/
 meta def slift {α : Type} (t : tactic α) : smt_tactic α :=
-λ ss, do
-  _::sgs  ← return ss | fail "slift tactic failed, there no smt goals to be solved",
-  cfg     ← return {smt_config .}, -- TODO(Leo): use get_config
-  tg::tgs ← tactic.get_goals | tactic.failed,
-  tactic.set_goals [tg], a ← t,
-  new_tgs ← tactic.get_goals,
-  (new_sgs, new_tgs) ← mk_smt_goals_for cfg new_tgs [] [],
-  tactic.set_goals (new_tgs ++ tgs),
-  return (a, new_sgs ++ sgs)
+get_config >>= slift_aux t
 
 meta def trace_state : smt_tactic unit :=
 do (s₁, s₂) ← smt_tactic.read,

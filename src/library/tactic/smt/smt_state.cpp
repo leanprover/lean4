@@ -31,10 +31,14 @@ Author: Leonardo de Moura
 #include "library/tactic/smt/smt_state.h"
 
 namespace lean {
+smt_goal::smt_goal(smt_config_ref const & cfg):
+    m_cc_state(cfg->m_ho_fns, cfg->m_cc_config),
+    m_em_state(cfg->m_em_config, cfg->m_em_lemmas),
+    m_cfg(cfg) {
+}
+
 smt_goal::smt_goal(smt_config const & cfg):
-    m_cc_state(cfg.m_ho_fns, cfg.m_cc_config),
-    m_em_state(cfg.m_em_config, cfg.m_em_lemmas),
-    m_pre_config(cfg.m_pre_config) {
+    smt_goal(std::make_shared<smt_config>(cfg)) {
 }
 
 smt::smt(type_context & ctx, defeq_can_state & dcs, smt_goal & g):
@@ -108,8 +112,8 @@ void smt::ematch_using(hinst_lemma const & lemma, buffer<new_instance> & result)
 static dsimplify_fn mk_dsimp(type_context & ctx, defeq_can_state & dcs, smt_pre_config const & cfg);
 
 expr smt::normalize(expr const & e) {
-    type_context::zeta_scope _1(m_ctx, m_goal.m_pre_config.m_zeta);
-    dsimplify_fn dsimp       = mk_dsimp(m_ctx, m_dcs, m_goal.m_pre_config);
+    type_context::zeta_scope _1(m_ctx, m_goal.get_pre_config().m_zeta);
+    dsimplify_fn dsimp       = mk_dsimp(m_ctx, m_dcs, m_goal.get_pre_config());
     return dsimp(e);
 }
 
@@ -432,7 +436,8 @@ structure smt_pre_config :=
 */
 static smt_pre_config to_smt_pre_config(vm_obj const & cfg, tactic_state const & s) {
     smt_pre_config r;
-    r.m_simp_lemmas   = get_simp_lemmas(to_name(cfield(cfg, 0)), s);
+    r.m_simp_attr     = to_name(cfield(cfg, 0));
+    r.m_simp_lemmas   = get_simp_lemmas(r.m_simp_attr, s);
     r.m_max_steps     = force_to_unsigned(cfield(cfg, 1));
     r.m_zeta          = to_bool(cfield(cfg, 2));
     return r;
@@ -450,7 +455,8 @@ static smt_config to_smt_config(vm_obj const & cfg, tactic_state const & s) {
     std::tie(r.m_ho_fns, r.m_cc_config) = to_ho_fns_cc_config(cfield(cfg, 0));
     r.m_em_config                       = to_ematch_config(cfield(cfg, 1));
     r.m_pre_config                      = to_smt_pre_config(cfield(cfg, 2), s);
-    r.m_em_lemmas                       = get_hinst_lemmas(to_name(cfield(cfg, 3)), s);
+    r.m_em_attr                         = to_name(cfield(cfg, 3));
+    r.m_em_lemmas                       = get_hinst_lemmas(r.m_em_attr, s);
     return r;
 }
 
@@ -951,6 +957,34 @@ vm_obj smt_tactic_ematch_using(vm_obj const & hs, vm_obj const & ss, vm_obj cons
     LEAN_TACTIC_CATCH(ts);
 }
 
+/*
+structure smt_pre_config :=
+(simp_attr : name := `pre_smt)
+(max_steps : nat  := 1000000)
+(zeta      : bool := ff)
+
+structure smt_config :=
+(cc_cfg        : cc_config      := {})
+(em_cfg        : ematch_config  := {})
+(pre_cfg       : smt_pre_config := {})
+(em_attr       : name           := `ematch)
+*/
+vm_obj smt_tactic_get_config(vm_obj const & ss, vm_obj const & ts) {
+    if (is_nil(ss)) return mk_smt_state_empty_exception(ts);
+    smt_goal g = to_smt_goal(head(ss));
+    smt_config const & cfg = g.get_config();
+    smt_pre_config const & pre = g.get_pre_config();
+
+    vm_obj cc_cfg  = g.get_cc_state().mk_vm_cc_config();
+    vm_obj em_cfg  = g.get_em_state().mk_vm_ematch_config();
+    vm_obj pre_cfg = mk_vm_constructor(0, to_obj(pre.m_simp_attr), mk_vm_nat(pre.m_max_steps), mk_vm_bool(pre.m_zeta));
+    vm_obj em_attr = to_obj(cfg.m_em_attr);
+
+    vm_obj r = mk_vm_constructor(0, cc_cfg, em_cfg, pre_cfg, em_attr);
+
+    return mk_smt_tactic_success(r, ss, ts);
+}
+
 void initialize_smt_state() {
     register_trace_class("smt");
     register_trace_class(name({"smt", "fact"}));
@@ -969,6 +1003,7 @@ void initialize_smt_state() {
     DECLARE_VM_BUILTIN(name({"smt_tactic", "ematch_using"}),                     smt_tactic_ematch_using);
     DECLARE_VM_BUILTIN(name({"smt_tactic", "to_cc_state"}),                      smt_tactic_to_cc_state);
     DECLARE_VM_BUILTIN(name({"smt_tactic", "to_em_state"}),                      smt_tactic_to_em_state);
+    DECLARE_VM_BUILTIN(name({"smt_tactic", "get_config"}),                       smt_tactic_get_config);
     DECLARE_VM_BUILTIN(name({"smt_tactic", "preprocess"}),                       smt_tactic_preprocess);
     DECLARE_VM_BUILTIN(name({"smt_tactic", "get_lemmas"}),                       smt_tactic_get_lemmas);
     DECLARE_VM_BUILTIN(name({"smt_tactic", "set_lemmas"}),                       smt_tactic_set_lemmas);

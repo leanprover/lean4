@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "library/annotation.h"
 #include "library/util.h"
 #include "library/replace_visitor.h"
+#include "library/vm/vm.h"
 #include "library/tactic/smt/congruence_closure.h"
 
 namespace lean {

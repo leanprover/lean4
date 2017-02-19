@@ -15,6 +15,7 @@ namespace lean {
 class smt;
 
 struct smt_pre_config {
+    name        m_simp_attr;
     simp_lemmas m_simp_lemmas;
     unsigned    m_max_steps;
     bool        m_zeta;
@@ -25,19 +26,25 @@ struct smt_config {
     cc_config      m_cc_config;
     ematch_config  m_em_config;
     smt_pre_config m_pre_config;
+    name           m_em_attr;
     hinst_lemmas   m_em_lemmas;
 };
+
+typedef std::shared_ptr<smt_config> smt_config_ref;
 
 class smt_goal {
     friend class smt;
     cc_state       m_cc_state;
     ematch_state   m_em_state;
-    smt_pre_config m_pre_config;
+    smt_config_ref m_cfg;
 public:
+    smt_goal(smt_config_ref const & cfg);
     smt_goal(smt_config const & cfg);
     cc_state const & get_cc_state() const { return m_cc_state; }
     ematch_state const & get_em_state() const { return m_em_state; }
-    smt_pre_config const & get_pre_config() const { return m_pre_config; }
+    smt_pre_config const & get_pre_config() const { return m_cfg->m_pre_config; }
+    smt_config const & get_config() const { return *m_cfg; }
+
     void add_lemma(hinst_lemma const & lemma) { m_em_state.add_lemma(lemma); }
     void set_lemmas(hinst_lemmas const & lemmas) { m_em_state.set_lemmas(lemmas); }
 };

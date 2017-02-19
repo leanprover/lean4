@@ -2410,24 +2410,29 @@ name elaborator::field_to_decl(expr const & e, expr const & s, expr const & s_ty
     }
 }
 
-expr elaborator::visit_field(expr const & e, optional<expr> const & expected_type) {
-    lean_assert(is_field_notation(e));
-    expr s      = visit(macro_arg(e, 0), none_expr());
-    expr s_type = head_beta_reduce(instantiate_mvars(infer_type(s)));
-    name full_fname;
+name elaborator::find_field_fn(expr const & e, expr const & s, expr const & s_type) {
     try {
-        full_fname = field_to_decl(e, s, s_type);
+        return field_to_decl(e, s, s_type);
     } catch (elaborator_exception & ex1) {
-        /* Try again using whnf */
-        expr new_s_type = whnf(s_type);
+        expr new_s_type = s_type;
+        if (auto d = unfold_term(env(), new_s_type))
+            new_s_type = *d;
+        new_s_type = m_ctx.whnf_head_pred(new_s_type, [](expr const &) { return false; });
         if (new_s_type == s_type)
             throw;
         try {
-            full_fname = field_to_decl(e, s, new_s_type);
+            return find_field_fn(e, s, new_s_type);
         } catch (elaborator_exception & ex2) {
             throw nested_elaborator_exception(ex2.get_pos(), ex1, ex2.pp());
         }
     }
+}
+
+expr elaborator::visit_field(expr const & e, optional<expr> const & expected_type) {
+    lean_assert(is_field_notation(e));
+    expr s      = visit(macro_arg(e, 0), none_expr());
+    expr s_type = head_beta_reduce(instantiate_mvars(infer_type(s)));
+    name full_fname = find_field_fn(e, s, s_type);
     expr proj  = copy_tag(e, mk_constant(full_fname));
     expr new_e = copy_tag(e, mk_app(proj, copy_tag(e, mk_as_is(s))));
     return visit(new_e, expected_type);

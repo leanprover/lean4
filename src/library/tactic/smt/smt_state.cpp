@@ -209,7 +209,7 @@ static dsimplify_fn mk_dsimp(type_context & ctx, defeq_can_state & dcs, smt_pre_
 }
 
 static simplify_fn mk_simp(type_context & ctx, defeq_can_state & dcs, smt_pre_config const & cfg) {
-    simplify_config scfg;
+    simp_config scfg;
     scfg.m_max_steps          = cfg.m_max_steps;
     scfg.m_contextual         = false;
     scfg.m_lift_eq            = true;

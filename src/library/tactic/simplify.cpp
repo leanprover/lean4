@@ -60,7 +60,7 @@ namespace lean {
 #define lean_simp_trace(CTX, N, CODE) lean_trace(N, scope_trace_env _scope1(CTX.env(), CTX); CODE)
 #define lean_simp_trace_d(CTX, N, CODE) lean_trace_d(N, scope_trace_env _scope1(CTX.env(), CTX); CODE)
 
-simplify_config::simplify_config():
+simp_config::simp_config():
     m_max_steps(LEAN_DEFAULT_SIMPLIFY_MAX_STEPS),
     m_contextual(LEAN_DEFAULT_SIMPLIFY_CONTEXTUAL),
     m_lift_eq(LEAN_DEFAULT_SIMPLIFY_LIFT_EQ),
@@ -70,7 +70,7 @@ simplify_config::simplify_config():
     m_zeta(false) {
 }
 
-simplify_config::simplify_config(vm_obj const & obj) {
+simp_config::simp_config(vm_obj const & obj) {
     m_max_steps          = force_to_unsigned(cfield(obj, 0));
     m_contextual         = to_bool(cfield(obj, 1));
     m_lift_eq            = to_bool(cfield(obj, 2));
@@ -853,7 +853,7 @@ optional<pair<simp_result, bool>> simplify_core_fn::post(expr const &, optional<
 }
 
 simplify_core_fn::simplify_core_fn(type_context & ctx, defeq_canonizer::state & dcs, simp_lemmas const & slss,
-                                   simplify_config const & cfg):
+                                   simp_config const & cfg):
     m_ctx(ctx), m_defeq_canonizer(m_ctx, dcs), m_slss(slss), m_cfg(cfg) {
 }
 
@@ -915,7 +915,7 @@ optional<expr> simplify_core_fn::prove_by_simp(name const & rel, expr const & e)
    ------------------------------------ */
 
 simplify_ext_core_fn::simplify_ext_core_fn(type_context & ctx, defeq_can_state & dcs, simp_lemmas const & slss,
-                                           simplify_config const & cfg):
+                                           simp_config const & cfg):
     simplify_core_fn(ctx, dcs, slss, cfg) {
 }
 
@@ -1149,7 +1149,7 @@ class vm_simplify_fn : public simplify_ext_core_fn {
     }
 
 public:
-    vm_simplify_fn(type_context & ctx, defeq_can_state & dcs, simp_lemmas const & slss, simplify_config const & cfg,
+    vm_simplify_fn(type_context & ctx, defeq_can_state & dcs, simp_lemmas const & slss, simp_config const & cfg,
                    vm_obj const & prove, vm_obj const & pre, vm_obj const & post, tactic_state const & s):
         simplify_ext_core_fn(ctx, dcs, slss, cfg),
         m_prove(prove), m_pre(pre), m_post(post),
@@ -1164,7 +1164,7 @@ public:
 
 /*
 meta constant simplify_core
-  (c : simplify_config)
+  (c : simp_config)
   (s : simp_lemmas)
   (r : name) :
   expr → tactic (expr × expr)
@@ -1172,7 +1172,7 @@ meta constant simplify_core
 vm_obj tactic_simplify_core(vm_obj const & c, vm_obj const & slss, vm_obj const & rel, vm_obj const & e, vm_obj const & _s) {
     tactic_state const & s   = tactic::to_state(_s);
     try {
-        simplify_config cfg(c);
+        simp_config cfg(c);
         type_context ctx     = mk_type_context_for(s, transparency_mode::Reducible);
         defeq_can_state dcs  = s.dcs();
         simplify_fn simp(ctx, dcs, to_simp_lemmas(slss), cfg);
@@ -1193,7 +1193,7 @@ static vm_obj ext_simplify_core(vm_obj const & a, vm_obj const & c, simp_lemmas 
                                 vm_obj const & pre, vm_obj const & post, name const & r, expr const & e,
                                 tactic_state const & s) {
     try {
-        simplify_config cfg(c);
+        simp_config cfg(c);
         type_context ctx     = mk_type_context_for(s, transparency_mode::Reducible);
         defeq_can_state dcs  = s.dcs();
         vm_simplify_fn simp(ctx, dcs, slss, cfg, prove, pre, post, s);
@@ -1215,7 +1215,7 @@ static vm_obj ext_simplify_core(vm_obj const & a, vm_obj const & c, simp_lemmas 
 meta constant ext_simplify_core
   {A : Type}
   (a : A)
-  (c : simplify_config)
+  (c : simp_config)
   (l : simp_lemmas)
   (prove : A → tactic A)
   (pre : A → name → simp_lemmas → option expr → expr → tactic (A × expr × option expr × bool))

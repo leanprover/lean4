@@ -14,7 +14,7 @@ Author: Daniel Selsam, Leonardo de Moura
 namespace lean {
 
 /*
-structure simplify_config :=
+structure simp_config :=
 (max_steps : nat)
 (contextual : bool)
 (lift_eq : bool)
@@ -23,7 +23,7 @@ structure simplify_config :=
 (use_axioms : bool)
 (zeta : bool)
 */
-struct simplify_config {
+struct simp_config {
     unsigned                  m_max_steps;
     bool                      m_contextual;
     bool                      m_lift_eq;
@@ -34,8 +34,8 @@ struct simplify_config {
     /* The following option should be removed as soon as we
        refactor the inductive compiler. */
     bool                      m_use_matcher{true};
-    simplify_config();
-    simplify_config(vm_obj const & o);
+    simp_config();
+    simp_config(vm_obj const & o);
 };
 
 /* Core simplification procedure. It performs the following tasks:
@@ -72,7 +72,7 @@ protected:
     bool                      m_need_restart{false};
 
     /* Options */
-    simplify_config           m_cfg;
+    simp_config           m_cfg;
 
     simp_result join(simp_result const & r1, simp_result const & r2);
     void inc_num_steps();
@@ -128,7 +128,7 @@ protected:
 
 public:
     simplify_core_fn(type_context & ctx, defeq_canonizer::state & dcs, simp_lemmas const & slss,
-                     simplify_config const & cfg);
+                     simp_config const & cfg);
 
     environment const & env() const;
     simp_result operator()(name const & rel, expr const & e);
@@ -147,7 +147,7 @@ protected:
     virtual simp_result visit_let(expr const & e) override;
 public:
     simplify_ext_core_fn(type_context & ctx, defeq_canonizer::state & dcs, simp_lemmas const & slss,
-                         simplify_config const & cfg);
+                         simp_config const & cfg);
 };
 
 /* Default (bottom-up) simplifier: reduce projections, apply simplification lemmas,
@@ -159,7 +159,7 @@ protected:
     virtual optional<expr> prove(expr const & e) override;
 public:
     simplify_fn(type_context & ctx, defeq_canonizer::state & dcs, simp_lemmas const & slss,
-                simplify_config const & cfg):
+                simp_config const & cfg):
         simplify_ext_core_fn(ctx, dcs, slss, cfg) {}
 };
 

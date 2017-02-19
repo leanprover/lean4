@@ -436,14 +436,14 @@ do s₀ ← join_user_simp_lemmas attr_names,
    s₁ ← simp_lemmas.append_pexprs s₀ hs,
    return $ simp_lemmas.erase s₁ ex
 
-private meta def simp_goal (cfg : simplify_config) : simp_lemmas → tactic unit
+private meta def simp_goal (cfg : simp_config) : simp_lemmas → tactic unit
 | s := do
    (new_target, Heq) ← target >>= simplify_core cfg s `eq,
    tactic.assert `Htarget new_target, swap,
    Ht ← get_local `Htarget,
    mk_eq_mpr Heq Ht >>= tactic.exact
 
-private meta def simp_hyp (cfg : simplify_config) (s : simp_lemmas) (h_name : name) : tactic unit :=
+private meta def simp_hyp (cfg : simp_config) (s : simp_lemmas) (h_name : name) : tactic unit :=
 do h     ← get_local h_name,
    htype ← infer_type h,
    (new_htype, eqpr) ← simplify_core cfg s `eq htype,
@@ -451,11 +451,11 @@ do h     ← get_local h_name,
    mk_eq_mp eqpr h >>= tactic.exact,
    try $ tactic.clear h
 
-private meta def simp_hyps (cfg : simplify_config) : simp_lemmas → list name → tactic unit
+private meta def simp_hyps (cfg : simp_config) : simp_lemmas → list name → tactic unit
 | s []      := skip
 | s (h::hs) := simp_hyp cfg s h >> simp_hyps s hs
 
-private meta def simp_core (cfg : simplify_config) (ctx : list expr) (hs : list pexpr) (attr_names : list name) (ids : list name) (loc : list name) : tactic unit :=
+private meta def simp_core (cfg : simp_config) (ctx : list expr) (hs : list pexpr) (attr_names : list name) (ids : list name) (loc : list name) : tactic unit :=
 do s ← mk_simp_set attr_names hs ids,
    s ← s^.append ctx,
    match loc : _ → tactic unit with
@@ -482,23 +482,23 @@ It has many variants.
 - `simp with attr` simplifies the main goal target using the lemmas tagged with the attribute `[attr]`.
 -/
 meta def simp (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list) (ids : parse without_ident_list) (loc : parse location)
-              (cfg : simplify_config := {}) : tactic unit :=
+              (cfg : simp_config := {}) : tactic unit :=
 simp_core cfg [] hs attr_names ids loc
 
 /--
 Similar to the `simp` tactic, but adds all applicable hypotheses as simplification rules.
 -/
 meta def simp_using_hs (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list) (ids : parse without_ident_list)
-                       (cfg : simplify_config := {}) : tactic unit :=
+                       (cfg : simp_config := {}) : tactic unit :=
 do ctx ← collect_ctx_simps,
    simp_core cfg ctx hs attr_names ids []
 
 meta def simph (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list) (ids : parse without_ident_list)
-               (cfg : simplify_config := {}) : tactic unit :=
+               (cfg : simp_config := {}) : tactic unit :=
 simp_using_hs hs attr_names ids cfg
 
 meta def simp_intros (ids : parse ident*) (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list)
-                     (wo_ids : parse without_ident_list) (cfg : simplify_config := {}) : tactic unit :=
+                     (wo_ids : parse without_ident_list) (cfg : simp_config := {}) : tactic unit :=
 do s ← mk_simp_set attr_names hs wo_ids,
    match ids with
    | [] := simp_intros_using s cfg
@@ -507,7 +507,7 @@ do s ← mk_simp_set attr_names hs wo_ids,
    try triv >> try (reflexivity reducible)
 
 meta def simph_intros (ids : parse ident*) (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list)
-                     (wo_ids : parse without_ident_list) (cfg : simplify_config := {}) : tactic unit :=
+                     (wo_ids : parse without_ident_list) (cfg : simp_config := {}) : tactic unit :=
 do s ← mk_simp_set attr_names hs wo_ids,
    match ids with
    | [] := simph_intros_using s cfg

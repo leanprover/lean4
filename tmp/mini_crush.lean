@@ -39,17 +39,6 @@ do ctx ← local_context,
 
 /- repeat simp & intro -/
 
-meta def simph_and_intro_aux : simp_lemmas → tactic unit
-| S := do
-  t ← target,
-
-
-return ()
-
-meta def simph_and_intro : tactic unit :=
-do S ← simp_lemmas.mk_default,
-   S ← collect_ctx_simps >>= S^.append,
-   simph_and_intro_aux S
 
 
 meta def collect_ctx_simps : tactic (list expr) :=

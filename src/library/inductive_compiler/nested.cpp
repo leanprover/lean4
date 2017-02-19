@@ -1260,7 +1260,7 @@ class add_nested_inductive_decl_fn {
             all_lemmas = add(tctx_whnf, all_lemmas, mlocal_name(H), H_type, H, LEAN_DEFAULT_PRIORITY);
         }
         lean_trace(name({"inductive_compiler", "nested", "simp", "start"}), tout() << thm << "\n";);
-        simplify_config cfg;
+        simp_config cfg;
         cfg.m_max_steps          = 1000000;
         cfg.m_contextual         = false;
         cfg.m_lift_eq            = false;

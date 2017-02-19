@@ -168,7 +168,6 @@ meta instance (α : Type u) (β : Type v) [has_to_tactic_format α] [has_to_tact
  has_to_tactic_format (α × β) :=
 ⟨λ ⟨a, b⟩, to_fmt <$> (prod.mk <$> pp a <*> pp b)⟩
 
-
 meta def option_to_tactic_format {α : Type u} [has_to_tactic_format α] : option α → tactic format
 | (some a) := do fa ← pp a, return (to_fmt "(some " ++ fa ++ ")")
 | none     := return "none"

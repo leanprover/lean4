@@ -48,6 +48,9 @@ ite c t (pure ())
 def mcond {m : Type → Type} [monad m] {α : Type} (mbool : m bool) (tm fm : m α) : m α :=
 do b ← mbool, cond b tm fm
 
+def mwhen {m : Type → Type} [monad m] (c : m bool) (t : m unit) : m unit :=
+mcond c t (return ())
+
 namespace monad
 def mapm   := @mmap
 def mapm'  := @mmap'

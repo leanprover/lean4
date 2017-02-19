@@ -323,4 +323,7 @@ meta def to_raw_fmt : expr → format
 | (elet n g e f) := p ["elet", to_fmt n, to_raw_fmt g, to_raw_fmt e, to_raw_fmt f]
 | (macro d n args) := sbracket (format.join (list.intersperse " " ("macro" :: to_fmt (macro_def_name d) :: list.map to_raw_fmt (macro_args_to_list n args))))
 
+meta def mfold {α : Type} {m : Type → Type} [monad m] (e : expr) (a : α) (fn : expr → nat → α → m α) : m α :=
+fold e (return a) (λ e n a, a >>= fn e n)
+
 end expr

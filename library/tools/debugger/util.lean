@@ -44,10 +44,10 @@ return "[current file]"
 
 meta def pos_info (fn : name) : vm string :=
 do {
-  d                ← vm.get_decl fn,
-  some (line, col) ← return (vm_decl.pos d) | failure,
-  file             ← get_file fn,
-  return (file ++ ":" ++ line^.to_string ++ ":" ++ col^.to_string)
+  d      ← vm.get_decl fn,
+  some p ← return (vm_decl.pos d) | failure,
+  file   ← get_file fn,
+  return (file ++ ":" ++ p^.line^.to_string ++ ":" ++ p^.column^.to_string)
 }
 <|>
 return "<position not available>"

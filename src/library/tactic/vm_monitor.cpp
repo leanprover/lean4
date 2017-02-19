@@ -24,6 +24,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_environment.h"
 #include "library/vm/vm_format.h"
 #include "library/vm/vm_list.h"
+#include "library/vm/vm_pos_info.h"
 #include "library/compiler/vm_compiler.h"
 #include "library/tactic/tactic_state.h"
 
@@ -216,7 +217,7 @@ vm_obj vm_decl_arity(vm_obj const & d) {
 
 vm_obj vm_decl_pos(vm_obj const & d) {
     if (optional<pos_info> pos = to_vm_decl(d).get_pos_info())
-        return mk_vm_some(mk_vm_pair(mk_vm_nat(pos->first), mk_vm_nat(pos->second)));
+        return mk_vm_some(to_obj(*pos));
     else
         return mk_vm_none();
 }

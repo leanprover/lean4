@@ -23,6 +23,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_declaration.h"
 #include "library/vm/vm_exceptional.h"
 #include "library/vm/vm_list.h"
+#include "library/vm/vm_pos_info.h"
 
 namespace lean {
 struct vm_environment : public vm_external {
@@ -203,9 +204,9 @@ vm_obj environment_decl_olean(vm_obj const & env, vm_obj const & n) {
     }
 }
 
-vm_obj environment_decl_pos_info(vm_obj const & env, vm_obj const & n) {
+vm_obj environment_decl_pos(vm_obj const & env, vm_obj const & n) {
     if (optional<pos_info> pos = get_decl_pos_info(to_env(env), to_name(n))) {
-        return mk_vm_some(mk_vm_pair(mk_vm_nat(pos->first), mk_vm_nat(pos->second)));
+        return mk_vm_some(to_obj(*pos));
     } else {
         return mk_vm_none();
     }
@@ -260,7 +261,7 @@ void initialize_vm_environment() {
     DECLARE_VM_BUILTIN(name({"environment", "symm_for"}),              environment_symm_for);
     DECLARE_VM_BUILTIN(name({"environment", "trans_for"}),             environment_trans_for);
     DECLARE_VM_BUILTIN(name({"environment", "decl_olean"}),            environment_decl_olean);
-    DECLARE_VM_BUILTIN(name({"environment", "decl_pos_info"}),         environment_decl_pos_info);
+    DECLARE_VM_BUILTIN(name({"environment", "decl_pos"}),              environment_decl_pos);
     DECLARE_VM_BUILTIN(name({"environment", "unfold_untrusted_macros"}), environment_unfold_untrusted_macros);
 }
 

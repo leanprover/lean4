@@ -11,10 +11,11 @@ Author: Leonardo de Moura
 #include "library/vm/vm.h"
 #include "library/vm/vm_expr.h"
 #include "library/vm/vm_string.h"
+#include "library/vm/vm_option.h"
+#include "library/vm/vm_pos_info.h"
 #include "library/quote.h"
 #include "frontends/lean/prenum.h"
 #include "library/string.h"
-#include "library/vm/vm_option.h"
 
 namespace lean {
 vm_obj pexpr_subst(vm_obj const & _e1, vm_obj const & _e2) {
@@ -51,7 +52,7 @@ vm_obj pexpr_mk_placeholder() {
 
 vm_obj pexpr_pos(vm_obj const & e) {
     if (auto p = get_pos_info(to_expr(e)))
-        return mk_vm_some(mk_vm_pair(mk_vm_nat(p->first), mk_vm_nat(p->second)));
+        return mk_vm_some(to_obj(*p));
     return mk_vm_none();
 }
 

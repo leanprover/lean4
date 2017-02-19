@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_format.h"
 #include "library/vm/vm_list.h"
+#include "library/vm/vm_pos_info.h"
 #include "library/tactic/tactic_state.h"
 #include "frontends/lean/json.h"
 #include "frontends/lean/info_manager.h"
@@ -151,10 +152,11 @@ info_manager * get_global_info_manager() {
     return g_info_m;
 }
 
-vm_obj tactic_save_info_thunk(vm_obj const & line, vm_obj const & col, vm_obj const & thunk, vm_obj const & s) {
+vm_obj tactic_save_info_thunk(vm_obj const & pos, vm_obj const & thunk, vm_obj const & s) {
     try {
         if (g_info_m) {
-            g_info_m->add_vm_obj_format_info(force_to_unsigned(line), force_to_unsigned(col), tactic::to_state(s).env(), thunk);
+            auto _pos = to_pos_info(pos);
+            g_info_m->add_vm_obj_format_info(_pos.first, _pos.second, tactic::to_state(s).env(), thunk);
         }
         return tactic::mk_success(tactic::to_state(s));
     } catch (exception & ex) {

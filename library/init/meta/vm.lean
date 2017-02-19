@@ -59,8 +59,8 @@ meta constant to_name   : vm_decl → name
 meta constant idx       : vm_decl → nat
 /- Number of arguments needed to execute the given VM declaration. -/
 meta constant arity     : vm_decl → nat
-/- Return (line, column) if available -/
-meta constant pos       : vm_decl → option (nat × nat)
+/- Return source position if available -/
+meta constant pos       : vm_decl → option pos
 /- Return .olean file where the given VM declaration was imported from. -/
 meta constant olean     : vm_decl → option string
 /- Return names .olean file where the given VM declaration was imported from. -/

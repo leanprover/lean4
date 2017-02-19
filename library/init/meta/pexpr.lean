@@ -7,8 +7,6 @@ prelude
 import init.meta.expr
 universe u
 
-@[reducible] def pos := nat × nat
-
 /- Quoted expressions. They can be converted into expressions by using a tactic. -/
 meta constant pexpr : Type
 protected meta constant pexpr.of_expr  : expr → pexpr

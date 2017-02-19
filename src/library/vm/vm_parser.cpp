@@ -20,6 +20,7 @@ Author: Sebastian Ullrich
 #include "library/vm/vm_string.h"
 #include "library/vm/vm_expr.h"
 #include "library/vm/vm_nat.h"
+#include "library/vm/vm_pos_info.h"
 #include "library/vm/interaction_state.h"
 #include "util/task_queue.h"
 
@@ -42,8 +43,7 @@ vm_obj run_parser(parser & p, expr const & spec) {
 
 vm_obj vm_parser_state_cur_pos(vm_obj const & o) {
     auto const & s = lean_parser::to_state(o);
-    auto pos = s.m_p->pos();
-    return mk_vm_pair(mk_vm_nat(pos.first), mk_vm_nat(pos.second));
+    return to_obj(s.m_p->pos());
 }
 
 vm_obj vm_parser_ident(vm_obj const & o) {
@@ -76,10 +76,10 @@ vm_obj vm_parser_qexpr(vm_obj const & vm_rbp, vm_obj const & o) {
 }
 
 void initialize_vm_parser() {
-    DECLARE_VM_BUILTIN(name({"lean", "parser_state", "cur_pos"}),  vm_parser_state_cur_pos);
-    DECLARE_VM_BUILTIN(name({"lean", "parser", "ident"}),  vm_parser_ident);
-    DECLARE_VM_BUILTIN(name({"lean", "parser", "tk"}), vm_parser_tk);
-    DECLARE_VM_BUILTIN(name({"lean", "parser", "qexpr"}),  vm_parser_qexpr);
+    DECLARE_VM_BUILTIN(name({"lean", "parser_state", "cur_pos"}), vm_parser_state_cur_pos);
+    DECLARE_VM_BUILTIN(name({"lean", "parser", "ident"}),         vm_parser_ident);
+    DECLARE_VM_BUILTIN(name({"lean", "parser", "tk"}),            vm_parser_tk);
+    DECLARE_VM_BUILTIN(name({"lean", "parser", "qexpr"}),         vm_parser_qexpr);
 }
 
 void finalize_vm_parser() {

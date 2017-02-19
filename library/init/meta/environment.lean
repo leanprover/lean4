@@ -78,8 +78,8 @@ meta constant trans_for : environment → name → option name
 /- (decl_olean env d) returns the name of the .olean file where d was defined.
    The result is none if d was not defined in an imported file. -/
 meta constant decl_olean : environment → name → option string
-/- (decl_pos_info env d) returns the line and column number where d was defined. -/
-meta constant decl_pos_info : environment → name → option (nat × nat)
+/- (decl_pos env d) returns the source location of d if available. -/
+meta constant decl_pos_info : environment → name → option pos
 open expr
 
 meta constant unfold_untrusted_macros : environment → expr → expr

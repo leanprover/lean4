@@ -26,6 +26,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/tactic_evaluator.h"
 #include "frontends/lean/elaborator.h"
 #include "frontends/lean/pp.h"
+#include "frontends/lean/builtin_exprs.h"
 
 /* The auto quotation currently supports two classes of tactics: tactic and smt_tactic.
    To add a new class Tac, we have to
@@ -93,7 +94,10 @@ static expr mk_tactic_save_info(parser & p, pos_info const & pos, name const & t
     if (!p.env().find(save_info_name))
         throw parser_error(sstream() << "invalid tactic class '" << tac_class << "', '" <<
                            tac_class << ".save_info' has not been defined", pos);
-    return p.save_pos(mk_app(mk_constant(save_info_name), mk_prenum(mpz(pos.first)), mk_prenum(mpz(pos.second))), pos);
+    auto pos_e = mk_anonymous_constructor(mk_app(mk_expr_placeholder(),
+                                                 mk_prenum(mpz(pos.first)),
+                                                 mk_prenum(mpz(pos.second))));
+    return p.save_pos(mk_app(mk_constant(save_info_name), pos_e), pos);
 }
 
 static expr mk_tactic_solve1(parser & p, expr tac, pos_info const & pos, name const & tac_class, bool use_rstep, bool report_error) {

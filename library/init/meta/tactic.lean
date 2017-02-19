@@ -424,7 +424,7 @@ meta constant decl_name : tactic name
 
 /- (save_type_info e ref) save (typeof e) at position associated with ref -/
 meta constant save_type_info : expr → expr → tactic unit
-meta constant save_info_thunk : nat → nat → (unit → format) → tactic unit
+meta constant save_info_thunk : pos → (unit → format) → tactic unit
 meta constant report_error : nat → nat → format → tactic unit
 /-- Return list of currently open namespaces -/
 meta constant open_namespaces : tactic (list name)
@@ -577,9 +577,9 @@ do { ctx ← local_context,
      exact H }
 <|> fail "assumption tactic failed"
 
-meta def save_info (line : nat) (col : nat) : tactic unit :=
+meta def save_info (p : pos) : tactic unit :=
 do s ← read,
-   tactic.save_info_thunk line col (λ _, tactic_state.to_format s)
+   tactic.save_info_thunk p (λ _, tactic_state.to_format s)
 
 notation `‹` p `›` := show p, by assumption
 

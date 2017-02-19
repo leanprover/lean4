@@ -13,7 +13,6 @@ open lean.parser
 
 local postfix ?:9001 := optional
 local postfix *:9001 := many
-local notation p ` ?: `:100 d := (λ o, option.get_or_else o d) <$> p?
 
 namespace interactive
 /-- (parse p) as the parameter type of an interactive tactic will instruct the Lean parser
@@ -31,11 +30,11 @@ meta def list_of (p : parser α) := tk "[" *> sep_by "," p <* tk "]"
     trailing expression parameters. -/
 meta def texpr := qexpr 2
 meta def using_ident := (tk "using" *> ident)?
-meta def with_ident_list := (tk "with" *> ident*) ?: []
-meta def without_ident_list := (tk "without" *> ident*) ?: []
-meta def location := (tk "at" *> ident*) ?: []
+meta def with_ident_list := (tk "with" *> ident*) <|> return []
+meta def without_ident_list := (tk "without" *> ident*) <|> return []
+meta def location := (tk "at" *> ident*) <|> return []
 meta def qexpr_list := list_of (qexpr 0)
-meta def opt_qexpr_list := qexpr_list ?: []
+meta def opt_qexpr_list := qexpr_list <|> return []
 meta def qexpr_list_or_texpr := qexpr_list <|> return <$> texpr
 end types
 end interactive
@@ -206,7 +205,7 @@ match e with
 end
 
 private meta def maybe_save_info : option pos → tactic unit
-| (some p) := save_info p.1 p.2
+| (some p) := save_info p
 | none     := skip
 
 private meta def symm_expr := bool × expr × option pos

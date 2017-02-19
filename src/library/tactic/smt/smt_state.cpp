@@ -277,6 +277,16 @@ static name mk_intro_name(type_context & ctx, name const & bname, bool use_unuse
     }
 }
 
+/* This try_to_pi version only unfolds the head symbol if it is a not-application or a reducible constant. */
+static expr convervative_try_to_pi(type_context & ctx, expr const & e) {
+    expr new_e = ctx.whnf_head_pred(e, [&](expr const & t) {
+            if (is_not(t)) return true;
+            expr const & fn = get_app_fn(e);
+            return is_constant(fn) && is_reducible(ctx.env(), const_name(fn));
+        });
+    return is_pi(new_e) ? new_e : e;
+}
+
 static expr intros(environment const & env, options const & opts, metavar_context & mctx, expr const & mvar,
                    defeq_can_state & dcs, smt_goal & s_goal, bool use_unused_names,
                    optional<unsigned> const & num, list<name> ids) {
@@ -300,7 +310,11 @@ static expr intros(environment const & env, options const & opts, metavar_contex
         if (!is_pi(target) && !is_let(target)) {
             target = instantiate_rev(target, to_inst.size(), to_inst.data());
             to_inst.clear();
-            target = ctx.relaxed_try_to_pi(target);
+            if (!num) {
+                target = convervative_try_to_pi(ctx, target);
+            } else {
+                target = ctx.relaxed_try_to_pi(target);
+            }
         }
         if (is_pi(target)) {
             expr type = dsimp(instantiate_rev(binding_domain(target), to_inst.size(), to_inst.data()));

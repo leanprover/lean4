@@ -29,7 +29,13 @@ meta def mk_name_set_attr (attr_name : name) : command :=
 do t ← to_expr ``(caching_user_attribute name_set),
    v ← to_expr ``({name     := %%(quote attr_name),
                    descr    := "name_set attribute",
-                   mk_cache := name_set.of_list,
+                   mk_cache := λ ns, return $ name_set.of_list ns,
                    dependencies := [] } : caching_user_attribute name_set),
    add_decl (declaration.defn attr_name [] t v reducibility_hints.abbrev ff),
    attribute.register attr_name
+
+meta def get_name_set_for_attr (attr_name : name) : tactic name_set :=
+do
+  cnst   ← return (expr.const attr_name []),
+  attr   ← eval_expr (caching_user_attribute name_set) cnst,
+  caching_user_attribute.get_cache attr

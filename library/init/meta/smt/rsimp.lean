@@ -8,22 +8,53 @@ import init.meta.smt.smt_tactic init.meta.fun_info init.meta.rb_map
 
 open tactic
 
-meta def mk_hinst_lemma_attr_from_simp_attr (attr_decl_name attr_name : name) (simp_attr_name : name) : command :=
+private meta def add_lemma (m : transparency) (h : name) (hs : hinst_lemmas) : tactic hinst_lemmas :=
+(do h ← hinst_lemma.mk_from_decl_core m h tt, return $ hs^.add h) <|> return hs
+
+private meta def to_hinst_lemmas (m : transparency) (ex : name_set) : list name → hinst_lemmas → tactic hinst_lemmas
+| []      hs := return hs
+| (n::ns) hs :=
+  if ex^.contains n then to_hinst_lemmas ns hs else
+  let add n := add_lemma m n hs >>= to_hinst_lemmas ns
+  in do eqns   ← tactic.get_eqn_lemmas_for tt n,
+  match eqns with
+  | []  := add n
+  | _   := mcond (is_prop_decl n) (add n) (to_hinst_lemmas eqns hs >>= to_hinst_lemmas ns)
+  end
+
+/-- Create a rsimp attribute named `attr_name`, the attribute declaration is named `attr_decl_name`.
+    The cached hinst_lemmas structure is built using the lemmas marked with simp attribute `simp_attr_name`,
+    but *not* marked with `ex_attr_name`.
+
+    We say `ex_attr_name` is the "exception set". It is useful for excluding lemmas in `simp_attr_name`
+    which are not good or redundant for ematching. -/
+meta def mk_hinst_lemma_attr_from_simp_attr (attr_decl_name attr_name : name) (simp_attr_name : name) (ex_attr_name : name) : command :=
 do t  ← to_expr `(caching_user_attribute hinst_lemmas),
    v  ← to_expr `({ name     := %%(quote attr_name),
                     descr    := "hinst_lemma attribute derived from '" ++ to_string %%(quote simp_attr_name) ++ "'",
                     mk_cache := λ ns,
                     let aux := %%(quote simp_attr_name) in
+                    let ex_attr := %%(quote ex_attr_name) in
                     do {
-                      hs   ← to_hinst_lemmas_core reducible tt tt ns hinst_lemmas.mk,
+                      hs   ← to_hinst_lemmas reducible mk_name_set ns hinst_lemmas.mk,
                       ss   ← attribute.get_instances aux,
-                      to_hinst_lemmas_core reducible tt tt ss hs
+                      ex   ← get_name_set_for_attr ex_attr,
+                      to_hinst_lemmas reducible ex ss hs
                     },
                     dependencies := [`reducibility, %%(quote simp_attr_name)]} : caching_user_attribute hinst_lemmas),
    add_decl (declaration.defn attr_decl_name [] t v reducibility_hints.abbrev ff),
    attribute.register attr_decl_name
 
-run_command mk_hinst_lemma_attr_from_simp_attr `rsimp_attr `rsimp `simp
+run_command mk_name_set_attr `no_rsimp
+run_command mk_hinst_lemma_attr_from_simp_attr `rsimp_attr `rsimp `simp `no_rsimp
+
+/- The following lemmas are not needed by rsimp, and they actually hurt performance since they generate a lot of
+   instances. -/
+attribute [no_rsimp]
+  id.def ne.def not_true not_false_iff ne_self_iff_false eq_self_iff_true heq_self_iff_true iff_not_self not_iff_self
+  true_iff_false false_iff_true and.comm and.assoc and.left_comm and_true true_and and_false false_and not_and_self and_not_self
+  and_self or.comm or.assoc or.left_comm or_true true_or or_false false_or or_self iff_true true_iff iff_false false_iff
+  iff_self implies_true_iff false_implies_iff if_t_t if_true if_false
 
 namespace rsimp
 

@@ -405,7 +405,7 @@ struct mk_hinst_lemma_fn {
         m_candidates = candidate_set();
         if (m_simp) {
             expr lhs, rhs;
-            if (is_eq(a, lhs, rhs) || is_heq(a, lhs, rhs)) {
+            if (is_eq(a, lhs, rhs) || is_heq(a, lhs, rhs) || is_iff(a, lhs, rhs)) {
                 m_candidates.insert(candidate(normalize(lhs)));
             }
         } else {

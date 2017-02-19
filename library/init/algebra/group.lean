@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jeremy Avigad, Leonardo de Moura
 -/
 prelude
-import init.logic init.algebra.ac init.meta init.meta.decl_cmds
+import init.logic init.algebra.ac init.meta init.meta.decl_cmds init.meta.smt.rsimp
 
 /- Make sure instances defined in this file have lower priority than the ones
    defined for concrete structures -/
@@ -401,3 +401,8 @@ by simp
 
 lemma neg_neg_sub_neg [add_comm_group α] (a b : α) : - (-a - -b) = a - b :=
 by simp
+
+/- The following lemmas generate too many instances for rsimp -/
+attribute [no_rsimp]
+  mul_assoc mul_comm mul_left_comm
+  add_assoc add_comm add_left_comm

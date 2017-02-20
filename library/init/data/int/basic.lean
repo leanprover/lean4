@@ -6,7 +6,7 @@ Authors: Jeremy Avigad
 The integers, with addition, multiplication, and subtraction.
 -/
 prelude
-import init.data.nat.lemmas init.relator
+import init.data.nat.lemmas init.meta.transfer
 open nat
 
 /- the type, coercions, and notation -/
@@ -299,132 +299,28 @@ protected lemma rel_mul : (rel_int_nat_nat ⇒ (rel_int_nat_nat ⇒ rel_int_nat_
    int is a ring
 -/
 
-/- addition -/
-
-protected lemma add_comm (a b : ℤ) : a + b = b + a :=
-begin
-  cases (int.left_total_rel_int_nat_nat a) with a' ha,
-  cases (int.left_total_rel_int_nat_nat b) with b' hb,
-  apply (int.rel_eq (int.rel_add ha hb) (int.rel_add hb ha))^.mpr,
-  simp
-end
-
-protected lemma add_zero (a : ℤ) : a + 0 = a :=
-begin
-  cases (int.left_total_rel_int_nat_nat a) with a' ha,
-  apply (int.rel_eq (int.rel_add ha int.rel_zero) ha)^.mpr,
-  simp
-end
-
-protected lemma zero_add (a : ℤ) : 0 + a = a :=
-begin
-  cases (int.left_total_rel_int_nat_nat a) with a' ha,
-  apply (int.rel_eq (int.rel_add int.rel_zero ha) ha)^.mpr,
-  simp
-end
-
-protected lemma add_assoc (a b c : ℤ) : a + b + c = a + (b + c) :=
-begin
-  cases (int.left_total_rel_int_nat_nat a) with a' ha,
-  cases (int.left_total_rel_int_nat_nat b) with b' hb,
-  cases (int.left_total_rel_int_nat_nat c) with c' hc,
-  apply (int.rel_eq (int.rel_add (int.rel_add ha hb) hc) (int.rel_add ha (int.rel_add hb hc)))^.mpr,
-  simp
-end
-
-/- negation -/
-
-protected lemma add_left_neg (a : ℤ) : -a + a = 0 :=
-begin
-  cases (int.left_total_rel_int_nat_nat a) with a' ha,
-  apply (int.rel_eq (int.rel_add (int.rel_neg ha) ha) int.rel_zero)^.mpr,
-  simp
-end
-
-/- multiplication -/
-
-protected lemma mul_comm (a b : ℤ) : a * b = b * a :=
-begin
-  cases (int.left_total_rel_int_nat_nat a) with a' ha,
-  cases (int.left_total_rel_int_nat_nat b) with b' hb,
-  apply (int.rel_eq (int.rel_mul ha hb) (int.rel_mul hb ha))^.mpr,
-  simp
-end
-
-protected lemma mul_assoc (a b c : ℤ) : a * b * c = a * (b * c) :=
-begin
-  cases (int.left_total_rel_int_nat_nat a) with a' ha,
-  cases (int.left_total_rel_int_nat_nat b) with b' hb,
-  cases (int.left_total_rel_int_nat_nat c) with c' hc,
-  apply (int.rel_eq (int.rel_mul (int.rel_mul ha hb) hc) (int.rel_mul ha (int.rel_mul hb hc)))^.mpr,
-  simp [mul_add, add_mul]
-end
-
-protected lemma mul_one (a : ℤ) : a * 1 = a :=
-begin
-  cases (int.left_total_rel_int_nat_nat a) with a' ha,
-  apply (int.rel_eq (int.rel_mul ha int.rel_one) ha)^.mpr,
-  simp
-end
-
-protected lemma one_mul (a : ℤ) : 1 * a = a :=
-begin
-  cases (int.left_total_rel_int_nat_nat a) with a' ha,
-  apply (int.rel_eq (int.rel_mul int.rel_one ha) ha)^.mpr,
-  simp
-end
-
-protected lemma mul_zero (a : ℤ) : a * 0 = 0 :=
-begin
-  cases (int.left_total_rel_int_nat_nat a) with a' ha,
-  apply (int.rel_eq (int.rel_mul ha int.rel_zero) int.rel_zero)^.mpr,
-  simp
-end
-
-protected lemma zero_mul (a : ℤ) : 0 * a = 0 :=
-begin
-  cases (int.left_total_rel_int_nat_nat a) with a' ha,
-  apply (int.rel_eq (int.rel_mul int.rel_zero ha) int.rel_zero)^.mpr,
-  simp
-end
-
-protected lemma distrib_left (a b c : ℤ) : a * (b + c) = a * b + a * c :=
-begin
-  cases (int.left_total_rel_int_nat_nat a) with a' ha,
-  cases (int.left_total_rel_int_nat_nat b) with b' hb,
-  cases (int.left_total_rel_int_nat_nat c) with c' hc,
-  apply (int.rel_eq (int.rel_mul ha (int.rel_add hb hc))
-    (int.rel_add (int.rel_mul ha hb) (int.rel_mul ha hc)))^.mpr,
-  simp [mul_add, add_mul]
-end
-
-protected lemma distrib_right (a b c : ℤ) : (a + b) * c = a * c + b * c :=
-begin
-  cases (int.left_total_rel_int_nat_nat a) with a' ha,
-  cases (int.left_total_rel_int_nat_nat b) with b' hb,
-  cases (int.left_total_rel_int_nat_nat c) with c' hc,
-  apply (int.rel_eq (int.rel_mul (int.rel_add ha hb) hc)
-    (int.rel_add (int.rel_mul ha hc) (int.rel_mul hb hc)))^.mpr,
-  simp [mul_add, add_mul]
-end
+protected meta def transfer : tactic unit := do
+  transfer.transfer [`relator.rel_forall_of_total, `relator.rel_not,
+    `int.rel_eq, `int.rel_zero, `int.rel_one,
+    `int.rel_add, `int.rel_neg, `int.rel_mul]
 
 instance : comm_ring int :=
 { add            := int.add,
-  add_assoc      := int.add_assoc,
+  add_assoc      := begin int.transfer, simp, intros, trivial end,
   zero           := int.zero,
-  zero_add       := int.zero_add,
-  add_zero       := int.add_zero,
+  zero_add       := begin int.transfer, simp, intros, trivial end,
+  add_zero       := begin int.transfer, simp, intros, trivial end,
   neg            := int.neg,
-  add_left_neg   := int.add_left_neg,
-  add_comm       := int.add_comm,
+  add_left_neg   := begin int.transfer, simp, intros, trivial end,
+  add_comm       := begin int.transfer, simp, intros, trivial end,
   mul            := int.mul,
-  mul_assoc      := int.mul_assoc,
+  mul_assoc      := begin int.transfer, simp [add_mul, mul_add], intros, trivial end,
   one            := int.one,
-  one_mul        := int.one_mul,
-  mul_one        := int.mul_one,
-  left_distrib   := int.distrib_left,
-  right_distrib  := int.distrib_right,
-  mul_comm       := int.mul_comm }
+  one_mul        := begin int.transfer, simp, intros, trivial end,
+  mul_one        := begin int.transfer, simp, intros, trivial end,
+  left_distrib   := begin int.transfer, simp [add_mul, mul_add], intros, trivial end,
+  right_distrib  := begin int.transfer, simp [add_mul, mul_add], intros, trivial end,
+  mul_comm       := begin int.transfer, simp, intros, trivial end }
 
 /- Extra instances to short-circuit type class resolution -/
 instance : has_sub int            := by apply_instance
@@ -443,7 +339,7 @@ instance : distrib int            := by apply_instance
 
 protected lemma zero_ne_one : (0 : int) ≠ 1 :=
 begin
-  apply (relator.rel_not (int.rel_eq int.rel_zero int.rel_one))^.mpr,
+  int.transfer,
   apply nat.zero_ne_one
 end
 

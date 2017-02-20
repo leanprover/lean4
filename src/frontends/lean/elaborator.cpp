@@ -2058,10 +2058,11 @@ expr elaborator::visit_convoy(expr const & e, optional<expr> const & expected_ty
 static expr copy_domain(unsigned num, expr const & source, expr const & target) {
     if (num == 0) {
         return target;
-    } else {
-        lean_assert(is_binding(source) && is_binding(target));
+    } else if (is_binding(source) && is_binding(target)) {
         return update_binding(source, mk_as_is(binding_domain(source)),
                               copy_domain(num-1, binding_body(source), binding_body(target)));
+    } else {
+        return target;
     }
 }
 

@@ -20,3 +20,11 @@ instance {α : Type u} {β : Type v} [h₁ : decidable_eq α] [h₂ : decidable_
     end
   | (is_false n₁) := is_false (assume h, prod.no_confusion h (λ e₁' e₂', absurd e₁' n₁))
   end
+
+namespace prod
+
+def {u₁ u₂ v₁ v₂} map {α₁ : Type u₁} {α₂ : Type u₂} {β₁ : Type v₁} {β₂ : Type v₂}
+  (f : α₁ → α₂) (g : β₁ → β₂) : α₁ × β₁ → α₂ × β₂
+| (a, b) := (f a, g b)
+
+end prod

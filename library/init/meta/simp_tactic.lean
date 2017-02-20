@@ -300,7 +300,7 @@ meta def intro1_aux : bool → list name → tactic expr
 | _  _       := failed
 
 meta def simp_intro_aux (cfg : simp_config) (updt : bool) : simp_lemmas → bool → list name → tactic unit
-| S tt     [] := return ()
+| S tt     [] := try (simplify_goal S cfg)
 | S use_ns ns := do
   t ← target,
   if t^.is_napp_of `not 1 then
@@ -320,7 +320,7 @@ meta def simp_intro_aux (cfg : simp_config) (updt : bool) : simp_lemmas → bool
   else do
     new_t ← whnf t reducible,
     if new_t^.is_pi then change new_t >> simp_intro_aux S use_ns ns
-    else return ()
+    else (try (simplify_goal S cfg) >> mcond (expr.is_pi <$> target) (simp_intro_aux S use_ns ns) (return ()))
 
 meta def simp_intros_using (s : simp_lemmas) (cfg : simp_config := {}) : tactic unit :=
 simp_intro_aux cfg ff s ff []

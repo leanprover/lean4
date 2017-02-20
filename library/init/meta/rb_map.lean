@@ -50,6 +50,9 @@ map f m
 meta def filter {A B} [has_ordering A] (m : rb_map A B) (f : B → Prop) [decidable_pred f] :=
 fold m (mk _ _) $ λa b m', if f b then insert m' a b else m'
 
+meta def mfold {key data α :Type} {m : Type → Type} [monad m] (mp : rb_map key data) (a : α) (fn : key → data → α → m α) : m α :=
+mp^.fold (return a) (λ k d act, act >>= fn k d)
+
 end rb_map
 
 meta def mk_rb_map {key data : Type} [has_ordering key] : rb_map key data :=
@@ -163,6 +166,9 @@ s^.size
 meta def fold {key α : Type} (s : rb_set key) (a : α) (fn : key → α → α) : α :=
 s^.fold a (λ k _ a, fn k a)
 
+meta def mfold {key α :Type} {m : Type → Type} [monad m] (s : rb_set key) (a : α) (fn : key → α → m α) : m α :=
+s^.fold (return a) (λ k act, act >>= fn k)
+
 meta def to_list {key : Type} (s : rb_set key) : list key :=
 s^.fold [] list.cons
 
@@ -193,4 +199,8 @@ meta instance : has_to_format name_set :=
 
 meta def of_list (l : list name) : name_set :=
 list.foldl name_set.insert mk_name_set l
+
+meta def mfold {α :Type} {m : Type → Type} [monad m] (ns : name_set) (a : α) (fn : name → α → m α) : m α :=
+ns^.fold (return a) (λ k act, act >>= fn k)
+
 end name_set

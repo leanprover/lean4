@@ -323,6 +323,8 @@ struct structure_cmd_fn {
     */
     expr update_locals(expr new_tmp, buffer<expr> & locals) {
         for (unsigned i = 0; i < locals.size(); i++) {
+            if (!is_binding(new_tmp))
+                throw exception("structure command elaboration was interrupted due to nested errors");
             expr new_local = mk_local(mlocal_name(locals[i]), binding_name(new_tmp), binding_domain(new_tmp),
                                       binding_info(new_tmp));
             locals[i]      = new_local;

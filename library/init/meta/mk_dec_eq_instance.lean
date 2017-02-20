@@ -125,6 +125,9 @@ do env ← get_env,
            return () },
    mk_dec_eq_instance_core
 
+meta instance binder_info.has_decidable_eq : decidable_eq binder_info :=
+by mk_dec_eq_instance
+
 end tactic
 
 /- instances of types in dependent files -/

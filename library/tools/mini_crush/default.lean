@@ -93,30 +93,53 @@ meta def try_induction_aux (cont : expr → tactic unit) : list expr → tactic 
 meta def try_induction (cont : expr → tactic unit) : tactic unit :=
 focus1 $ collect_inductive_hyps >>= try_induction_aux cont
 
+meta def report {α : Type} [has_to_tactic_format α] (a : α) : tactic unit :=
+when_tracing `mini_crush $ trace a
+
 meta def report_failure (s : name) (e : option expr := none) : tactic unit :=
 when_tracing `mini_crush $
   match e with
   | none   := trace ("FAILED '" ++ to_string s ++ "' at")
-  | some e := (do p ← pp e, trace (to_fmt "FAILED '" ++ to_fmt s ++ "' processing " ++ p ++ to_fmt " at")) <|> trace ("FAILED '" ++ to_string s ++ "' at")
+  | some e := (do p ← pp e, trace (to_fmt "FAILED '" ++ to_fmt s ++ "' processing '" ++ p ++ to_fmt "' at")) <|> trace ("FAILED '" ++ to_string s ++ "' at")
   end
-  >> trace_state >> trace "--------------" >> failed
+  >> trace_state >> trace "--------------"
 
-meta def close_or_fail (s : name) (e : expr) : tactic unit :=
+meta def close_or_fail (s : name) (e : option expr) : tactic unit :=
     now
 <|> triv           <|> reflexivity reducible <|> contradiction
 <|> (rsimp >> now) <|> try_for 1000 reflexivity
-<|> report_failure s (some e)
+<|> (report_failure s e >> failed)
 
-meta def strategy_1 (cfg : simp_config := {}) (n : name := "strategy 1") : tactic unit :=
-do s ← simp_lemmas.mk_default >>= add_relevant_eqns,
-   try_induction (λ e, simph_intros_using s cfg >> close_or_fail n e)
+meta def simple (s : simp_lemmas) (cfg : simp_config) (s_name : name) (h : option expr) : tactic unit :=
+simph_intros_using s cfg >> close_or_fail s_name h
 
-meta def strategy_2 (cfg : simp_config := {}) : tactic unit :=
-intros >> strategy_1 cfg "strategy 2"
+meta def mk_simp_lemmas (s : option simp_lemmas := none) : tactic simp_lemmas :=
+match s with
+| some s := return s
+| none   := simp_lemmas.mk_default >>= add_relevant_eqns
+end
+
+meta def strategy_1 (cfg : simp_config := {}) (s : option simp_lemmas := none) (s_name : name := "strategy 1") : tactic unit :=
+do s ← mk_simp_lemmas s,
+   try_induction (λ h, simple s cfg s_name (some h))
+
+meta def strategy_2_aux (cfg : simp_config) : simp_lemmas → tactic unit
+| s :=
+  do s ← simp_intro_aux cfg tt s tt [`_], -- Introduce next hypothesis
+     h ← list.ilast <$> local_context,
+     try $ solve1 (mwhen (is_inductive h) $ induction' h; simple s cfg "strategy 2" (some h)),
+     now <|> strategy_2_aux s
+
+meta def strategy_2 (cfg : simp_config := {}) (s : option simp_lemmas := none) : tactic unit :=
+do s ← mk_simp_lemmas s,
+   strategy_2_aux cfg s
 
 end mini_crush
 
-meta def mini_crush :=
-mini_crush.strategy_1
+open tactic mini_crush
+
+meta def mini_crush (cfg : simp_config := {}) :=
+do s ← mk_simp_lemmas,
+strategy_1 cfg (some s)
 <|>
-mini_crush.strategy_2
+strategy_2 cfg (some s)

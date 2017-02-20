@@ -58,11 +58,11 @@ def compile : exp → prog
 
 /- This example needs a few facts from the list library. -/
 
-@[simp] theorem compile_correct' :
+@[simp] lemma compile_correct' :
   ∀ e p s, prog_denote (compile e ++ p) s = prog_denote p (exp_denote e :: s) :=
-by intro; mini_crush
+by mini_crush
 
-@[simp] theorem compile_correct : ∀ e, prog_denote (compile e) nil = some (exp_denote e :: nil) :=
+@[simp] lemma compile_correct : ∀ e, prog_denote (compile e) nil = some (exp_denote e :: nil) :=
 by mini_crush
 
 inductive type : Type
@@ -154,8 +154,8 @@ by mini_crush
 
 @[simp] lemma tcompile_correct' : ∀ t (e : texp t) ts (s : vstack ts),
   tprog_denote (tcompile e ts) s = (texp_denote e, s) :=
-by intros t e; mini_crush
+by mini_crush
 
-theorem tcompile_correct :
+lemma tcompile_correct :
   ∀ t (e : texp t), tprog_denote (tcompile e nil) () = (texp_denote e, ()) :=
 by mini_crush

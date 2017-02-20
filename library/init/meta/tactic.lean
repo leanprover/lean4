@@ -440,6 +440,9 @@ meta constant kdepends_on (e t : expr) (md := reducible) : tactic bool
 
 open list nat
 
+meta def induction' (h : expr) (ns : list name := []) (rec : option name := none) (md := semireducible) : tactic unit :=
+induction h ns rec md >> return ()
+
 /-- Remark: set_goals will erase any solved goal -/
 meta def cleanup : tactic unit :=
 get_goals >>= set_goals

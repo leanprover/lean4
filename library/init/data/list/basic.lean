@@ -128,7 +128,7 @@ def filter (p : α → Prop) [decidable_pred p] : list α → list α
 | []     := []
 | (a::l) := if p a then a :: filter l else filter l
 
-definition find [decidable_eq α] : α → list α → nat
+def find [decidable_eq α] : α → list α → nat
 | a []       := 0
 | a (b :: l) := if a = b then 0 else succ (find a l)
 
@@ -142,18 +142,18 @@ def taken : ℕ → list α → list α
 | (succ n) [] := []
 | (succ n) (x :: r) := x :: taken n r
 
-definition foldl (f : α → β → α) : α → list β → α
+def foldl (f : α → β → α) : α → list β → α
 | a []       := a
 | a (b :: l) := foldl (f a b) l
 
-definition foldr (f : α → β → β) : β → list α → β
+def foldr (f : α → β → β) : β → list α → β
 | b []       := b
 | b (a :: l) := f a (foldr b l)
 
-definition any (l : list α) (p : α → bool) : bool :=
+def any (l : list α) (p : α → bool) : bool :=
 foldr (λ a r, p a || r) ff l
 
-definition all (l : list α) (p : α → bool) : bool :=
+def all (l : list α) (p : α → bool) : bool :=
 foldr (λ a r, p a && r) tt l
 
 def bor  (l : list bool) : bool := any l id
@@ -188,10 +188,16 @@ def iota : ℕ → list ℕ :=
 def sum [has_add α] [has_zero α] : list α → α :=
 foldl add zero
 
-definition last : Π l : list α, l ≠ [] → α
-| []          h := absurd rfl h
-| [a]         h := a
-| (a₁::a₂::l) h := last (a₂::l) (λ h, list.no_confusion h)
+def last : Π l : list α, l ≠ [] → α
+| []        h := absurd rfl h
+| [a]       h := a
+| (a::b::l) h := last (b::l) (λ h, list.no_confusion h)
+
+def ilast [inhabited α] : list α → α
+| []        := arbitrary α
+| [a]       := a
+| [a, b]    := b
+| (a::b::l) := ilast l
 
 def intersperse (sep : α) : list α → list α
 | []      := []

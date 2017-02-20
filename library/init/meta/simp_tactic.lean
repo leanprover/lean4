@@ -299,8 +299,8 @@ meta def intro1_aux : bool → list name → tactic expr
 | tt (n::ns) := intro n
 | _  _       := failed
 
-meta def simp_intro_aux (cfg : simp_config) (updt : bool) : simp_lemmas → bool → list name → tactic unit
-| S tt     [] := try (simplify_goal S cfg)
+meta def simp_intro_aux (cfg : simp_config) (updt : bool) : simp_lemmas → bool → list name → tactic simp_lemmas
+| S tt     [] := try (simplify_goal S cfg) >> return S
 | S use_ns ns := do
   t ← target,
   if t^.is_napp_of `not 1 then
@@ -320,19 +320,25 @@ meta def simp_intro_aux (cfg : simp_config) (updt : bool) : simp_lemmas → bool
   else do
     new_t ← whnf t reducible,
     if new_t^.is_pi then change new_t >> simp_intro_aux S use_ns ns
-    else (try (simplify_goal S cfg) >> mcond (expr.is_pi <$> target) (simp_intro_aux S use_ns ns) (return ()))
+    else
+      try (simplify_goal S cfg) >>
+      mcond (expr.is_pi <$> target)
+        (simp_intro_aux S use_ns ns)
+        (if use_ns ∧ ¬ns^.empty then failed else return S)
 
 meta def simp_intros_using (s : simp_lemmas) (cfg : simp_config := {}) : tactic unit :=
-simp_intro_aux cfg ff s ff []
+step $ simp_intro_aux cfg ff s ff []
 
 meta def simph_intros_using (s : simp_lemmas) (cfg : simp_config := {}) : tactic unit :=
+step $
 do s ← collect_ctx_simps >>= s^.append,
    simp_intro_aux cfg tt s ff []
 
 meta def simp_intro_lst_using (ns : list name) (s : simp_lemmas) (cfg : simp_config := {}) : tactic unit :=
-simp_intro_aux cfg ff s tt ns
+step $ simp_intro_aux cfg ff s tt ns
 
 meta def simph_intro_lst_using (ns : list name) (s : simp_lemmas) (cfg : simp_config := {}) : tactic unit :=
+step $
 do s ← collect_ctx_simps >>= s^.append,
    simp_intro_aux cfg tt s tt ns
 

@@ -189,6 +189,12 @@ def iota_core : ℕ → list ℕ → list ℕ
 def iota : ℕ → list ℕ :=
 λ n, iota_core n []
 
+def enum_from : ℕ → list α → list (ℕ × α)
+| n [] := nil
+| n (x :: xs) := (n, x) :: enum_from (n + 1) xs
+
+def enum : list α → list (ℕ × α) := enum_from 0
+
 def sum [has_add α] [has_zero α] : list α → α :=
 foldl add zero
 

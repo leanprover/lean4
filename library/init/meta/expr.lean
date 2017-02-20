@@ -133,6 +133,12 @@ meta constant mk_sorry (type : expr) : expr
 /-- Checks whether e is sorry, and returns its type. -/
 meta constant is_sorry (e : expr) : option expr
 
+meta def instantiate_local (n : name) (s : expr) (e : expr) : expr :=
+instantiate_var (abstract_local e n) s
+
+meta def instantiate_locals (s : list (name × expr)) (e : expr) : expr :=
+instantiate_vars (abstract_locals e (list.reverse (list.map prod.fst s))) (list.map prod.snd s)
+
 meta def is_var : expr → bool
 | (var _) := tt
 | _       := ff

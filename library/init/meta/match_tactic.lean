@@ -103,4 +103,13 @@ do ctx ← local_context,
    new_p ← pexpr_to_pattern p,
    match_hypothesis_core new_p ctx
 
+meta instance : has_to_tactic_format pattern :=
+⟨λp, do
+  t ← pp p^.target,
+  mo ← pp p^.moutput,
+  uo ← pp p^.uoutput,
+  u ← pp p^.nuvars,
+  m ← pp p^.nmvars,
+  return $ to_fmt "pattern.mk (" ++ t ++ ") " ++ uo ++ " " ++ mo ++ " " ++ u ++ " " ++ m ++ "" ⟩
+
 end tactic

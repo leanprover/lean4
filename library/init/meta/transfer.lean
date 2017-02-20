@@ -9,7 +9,33 @@ import init.meta.tactic init.meta.match_tactic init.relator init.meta.mk_dec_eq_
 namespace transfer
 open tactic expr list monad
 
--- FIXME: add trace statements
+/- Transfer rules are of the shape:
+
+  rel_t : {u} Πx, R t₁ t₂
+
+where `u` is a list of universe parameters, `x` is a list of dependent variables, and `R` is a
+relation.  Then this rule will translate `t₁` (depending on `u` and `x`) into `t₂`.  `u` and `x`
+will be called parameters. When `R` is a relation on functions lifted from `S` and `R` the variables
+bound by `S` are called arguments. `R` is generally constructed using `⇒` (i.e. `relator.lift_fun`).
+
+As example:
+
+  rel_eq : (R ⇒ R ⇒ iff) eq t
+
+transfer will match this rule when it sees:
+
+  (@eq α a b)      and transfer it to    (t a b)
+
+Here `α` is a parameter and `a` and `b` are arguments.
+
+
+TODO: add trace statements
+
+TODO: currently the used relation must be fixed by the matched rule or through type class
+  inference. Maybe we want to replace this by type inference similar to Isabelle's transfer.
+
+-/
+
 
 private meta structure rel_data :=
 (in_type : expr)
@@ -58,7 +84,6 @@ private meta def mark_occurences (e : expr) : list expr → list (expr × bool)
   (h, occurs h e || any xs (λ⟨e, oc⟩, oc && occurs h e)) :: xs
 
 private meta def analyse_rule (pr : expr) : tactic rule_data := do
-  -- FIXME(johoelzl): take care of eta contracted terms
   t ← infer_type pr,
   (params, app (app r f) g) ← mk_local_pis t,
   (arg_rels, R) ← get_lift_fun r,
@@ -118,7 +143,7 @@ meta def compute_transfer : list rule_data → list expr → expr → tactic (ex
     level_map  ← monad.for rd^.uparams (λl, prod.mk l <$> mk_meta_univ),
     inst_univ  ← return $ (λe, instantiate_univ_params e (level_map ++ zip rd^.uargs l)),
     (ps, args) ← return $ split_params_args (list.map (prod.map inst_univ id) rd^.params) m,
-    (ps, ms)   ← param_substitutions ctxt ps, /- checks type class parameters -/
+    (ps, ms)   ← param_substitutions ctxt ps, /- this checks type class parameters -/
     return (instantiate_locals ps ∘ inst_univ, ps, args, ms, rd))),
 
   (bs, hs, mss) ← monad.for (zip rd^.args args) (λ⟨⟨_, d⟩, e⟩, do

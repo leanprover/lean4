@@ -81,20 +81,42 @@ meta def collect_inductive_from_target : tactic (list expr) :=
 do S ← target >>= collect_inductive,
    return $ list.qsort (λ e₁ e₂, size e₁ < size e₂) $ S^.to_list
 
+meta def collect_inductive_hyps : tactic (list expr) :=
+local_context >>= mfoldl (λ r h, mcond (is_inductive h) (return $ h::r) (return r)) []
+
 /- Induction -/
 
-meta def try_induction_aux (cont : tactic unit) : list expr → tactic unit
+meta def try_induction_aux (cont : expr → tactic unit) : list expr → tactic unit
 | []      := failed
-| (e::es) := (step (induction e); cont; now) <|> try_induction_aux es
+| (e::es) := (step (induction e); cont e; now) <|> try_induction_aux es
 
-meta def try_induction (cont : tactic unit) : tactic unit :=
-focus1 $ collect_inductive_from_target >>= mfilter (λ e, return $ e^.is_local_constant) >>= try_induction_aux cont
+meta def try_induction (cont : expr → tactic unit) : tactic unit :=
+focus1 $ collect_inductive_hyps >>= try_induction_aux cont
 
-meta def strategy_1 (cfg : simp_config := {}) : tactic unit :=
+meta def report_failure (s : name) (e : option expr := none) : tactic unit :=
+when_tracing `mini_crush $
+  match e with
+  | none   := trace ("FAILED '" ++ to_string s ++ "' at")
+  | some e := (do p ← pp e, trace (to_fmt "FAILED '" ++ to_fmt s ++ "' processing " ++ p ++ to_fmt " at")) <|> trace ("FAILED '" ++ to_string s ++ "' at")
+  end
+  >> trace_state >> trace "--------------" >> failed
+
+meta def close_or_fail (s : name) (e : expr) : tactic unit :=
+    now
+<|> triv           <|> reflexivity reducible <|> contradiction
+<|> (rsimp >> now) <|> try_for 1000 reflexivity
+<|> report_failure s (some e)
+
+meta def strategy_1 (cfg : simp_config := {}) (n : name := "strategy 1") : tactic unit :=
 do s ← simp_lemmas.mk_default >>= add_relevant_eqns,
-   try_induction (simph_intros_using s cfg >> (now <|> triv <|> reflexivity reducible <|> contradiction <|> rsimp <|> try_for 1000 reflexivity))
+   try_induction (λ e, simph_intros_using s cfg >> close_or_fail n e)
+
+meta def strategy_2 (cfg : simp_config := {}) : tactic unit :=
+intros >> strategy_1 cfg "strategy 2"
 
 end mini_crush
 
 meta def mini_crush :=
 mini_crush.strategy_1
+<|>
+mini_crush.strategy_2

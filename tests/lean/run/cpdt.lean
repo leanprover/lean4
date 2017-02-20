@@ -1,3 +1,4 @@
+import tools.mini_crush
 /- "Proving in the Large" chapter of CPDT -/
 
 inductive exp : Type
@@ -19,8 +20,8 @@ def times (k : nat) : exp → exp
 
 attribute [simp] exp_eval times mul_add
 
-theorem eval_times (k e) : exp_eval (times k e) = k * exp_eval e :=
-by induction e; simph
+theorem eval_times : ∀ (k e), exp_eval (times k e) = k * exp_eval e :=
+by mini_crush
 
 def reassoc : exp → exp
 | (Const n)    := (Const n)

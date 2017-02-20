@@ -528,7 +528,7 @@ int main(int argc, char ** argv) {
             try {
                 auto res = mod.second->m_result.get();
                 ok = ok && res.is_ok();
-            } catch (exception & ex) {
+            } catch (...) {
                 ok = false;
                 // exception has already been reported
             }

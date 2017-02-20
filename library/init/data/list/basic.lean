@@ -167,6 +167,10 @@ def zip_with (f : α → β → γ) : list α → list β → list γ
 def zip : list α → list β → list (prod α β) :=
 zip_with prod.mk
 
+def unzip : list (α × β) → list α × list β
+| []            := ([], [])
+| ((a, b) :: t) := match unzip t with (al, bl) := (a::al, b::bl) end
+
 def repeat (a : α) : ℕ → list α
 | 0 := []
 | (succ n) := a :: repeat n

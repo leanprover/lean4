@@ -18,9 +18,9 @@ def times (k : nat) : exp → exp
 | (Plus e1 e2) := Plus (times e1) (times e2)
 | (Mult e1 e2) := Mult (times e1) e2
 
-attribute [simp] exp_eval times mul_add
+attribute [simp] mul_add
 
-theorem eval_times : ∀ (k e), exp_eval (times k e) = k * exp_eval e :=
+@[simp] theorem eval_times : ∀ (k e), exp_eval (times k e) = k * exp_eval e :=
 by mini_crush
 
 def reassoc : exp → exp
@@ -39,8 +39,6 @@ def reassoc : exp → exp
   | (Mult e21 e22) := Mult (Mult e1' e21) e22
   | _              := Mult e1' e2'
   end
-
-attribute [simp] reassoc
 
 theorem reassoc_correct (e) : exp_eval (reassoc e) = exp_eval e :=
 by mini_crush

@@ -55,6 +55,10 @@ meta def add_relevant_eqns (s : simp_lemmas) : tactic simp_lemmas :=
 do fns ← collect_revelant_fns,
    fns^.mfold s (λ fn s, get_eqn_lemmas_for tt fn >>= mfoldl simp_lemmas.add_simp s)
 
+meta def add_relevant_eqns_h (hs : hinst_lemmas) : tactic hinst_lemmas :=
+do fns ← collect_revelant_fns,
+   fns^.mfold hs (λ fn hs, get_eqn_lemmas_for tt fn >>= mfoldl (λ hs d, hs^.add <$> hinst_lemma.mk_from_decl d) hs)
+
 /- Collect terms that are inductive datatypes -/
 
 meta def is_inductive (e : expr) : tactic bool :=
@@ -107,17 +111,17 @@ when_tracing `mini_crush $
   >> trace_state >> trace "--------------"
 
 /- Simple tactic -/
-meta def close_aux : tactic unit :=
+meta def close_aux (hs : hinst_lemmas) : tactic unit :=
     triv           <|> reflexivity reducible <|> contradiction
-<|> (rsimp >> now) <|> try_for 1000 reflexivity
+<|> try_for 100 (rsimp ({} : rsimp.config) hs >> now) <|> try_for 100 reflexivity
 
-meta def close (s : name) (e : option expr) : tactic unit :=
+meta def close (hs : hinst_lemmas) (s : name) (e : option expr) : tactic unit :=
     now
-<|> close_aux
+<|> close_aux hs
 <|> report_failure s e >> failed
 
-meta def simple (s : simp_lemmas) (cfg : simp_config) (s_name : name) (h : option expr) : tactic unit :=
-simph_intros_using s cfg >> close s_name h
+meta def simple (s : simp_lemmas) (hs : hinst_lemmas) (cfg : simp_config) (s_name : name) (h : option expr) : tactic unit :=
+simph_intros_using s cfg >> close hs s_name h
 
 /- Best first search -/
 
@@ -166,19 +170,19 @@ try_all_aux ts vs []
 
 /- Destruct and simplify -/
 
-meta def try_cases (s : simp_lemmas) (cfg : simp_config) (s_name : name) : tactic (list (unit × snapshot)) :=
+meta def try_cases (s : simp_lemmas) (hs : hinst_lemmas) (cfg : simp_config) (s_name : name) : tactic (list (unit × snapshot)) :=
 do es ← collect_inductive_from_target,
    rs ← try_all (λ e, do
      when_tracing `mini_crush (do p ← pp e, trace (to_fmt "Splitting on '" ++ p ++ to_fmt "'")),
-     cases e; simph_intros_using s cfg; try close_aux) es,
+     cases e; simph_intros_using s cfg; try (close_aux hs)) es,
    rs ← return $ flip list.qsort rs (λ ⟨e₁, _, n₁, _⟩ ⟨e₂, _, n₂, _⟩, if n₁ ≠ n₂ then n₁ < n₂ else size e₁ < size e₂),
    return $ rs^.for (λ ⟨_, _, _, s⟩, ((), s))
 
 
-meta def search_cases (max_depth : nat) (s : simp_lemmas) (cfg : simp_config) (s_name : name) : tactic unit :=
+meta def search_cases (max_depth : nat) (s : simp_lemmas) (hs : hinst_lemmas) (cfg : simp_config) (s_name : name) : tactic unit :=
 search max_depth (λ d _, do
   when_tracing `mini_crush (trace ("Depth #" ++ to_string d)),
-  try_cases s cfg s_name) 0 ()
+  try_cases s hs cfg s_name) 0 ()
 
 /- Strategies -/
 
@@ -188,33 +192,43 @@ match s with
 | none   := simp_lemmas.mk_default >>= add_relevant_eqns
 end
 
-meta def strategy_1 (cfg : simp_config := {}) (s : option simp_lemmas := none) (s_name : name := "strategy 1") : tactic unit :=
-do s ← mk_simp_lemmas s,
-   try_induction (λ h, simple s cfg s_name (some h))
+meta def mk_hinst_lemmas (s : option hinst_lemmas := none) : tactic hinst_lemmas :=
+match s with
+| some s := return s
+| none   := add_relevant_eqns_h hinst_lemmas.mk
+end
 
-meta def strategy_2_aux (cfg : simp_config) : simp_lemmas → tactic unit
+meta def strategy_1 (cfg : simp_config := {}) (s : option simp_lemmas := none) (hs : option hinst_lemmas := none) (s_name : name := "strategy 1") : tactic unit :=
+do s  ← mk_simp_lemmas s,
+   hs ← mk_hinst_lemmas hs,
+   try_induction (λ h, simple s hs cfg s_name (some h))
+
+meta def strategy_2_aux (cfg : simp_config) (hs : hinst_lemmas) : simp_lemmas → tactic unit
 | s :=
   do s ← simp_intro_aux cfg tt s tt [`_], -- Introduce next hypothesis
      h ← list.ilast <$> local_context,
-     try $ solve1 (mwhen (is_inductive h) $ induction' h; simple s cfg "strategy 2" (some h)),
+     try $ solve1 (mwhen (is_inductive h) $ induction' h; simple s hs cfg "strategy 2" (some h)),
      now <|> strategy_2_aux s
 
-meta def strategy_2 (cfg : simp_config := {}) (s : option simp_lemmas := none) : tactic unit :=
+meta def strategy_2 (cfg : simp_config := {}) (s : option simp_lemmas := none) (hs : option hinst_lemmas := none) : tactic unit :=
 do s ← mk_simp_lemmas s,
-   strategy_2_aux cfg s
+   hs ← mk_hinst_lemmas hs,
+   strategy_2_aux cfg hs s
 
-meta def strategy_3 (cfg : simp_config := {}) (max_depth : nat := 1) (s : option simp_lemmas := none) : tactic unit :=
+meta def strategy_3 (cfg : simp_config := {}) (max_depth : nat := 1) (s : option simp_lemmas := none) (hs : option hinst_lemmas := none) : tactic unit :=
 do s ← mk_simp_lemmas s,
-   try_induction (λ h, try (simph_intros_using s cfg); try close_aux; (now <|> search_cases max_depth s cfg "strategy 3"))
+   hs ← mk_hinst_lemmas hs,
+   try_induction (λ h, try (simph_intros_using s cfg); try (close_aux hs); (now <|> search_cases max_depth s hs cfg "strategy 3"))
 
 end mini_crush
 
 open tactic mini_crush
 
 meta def mini_crush (cfg : simp_config := {}) (max_depth : nat := 1) :=
-do s ← mk_simp_lemmas,
-strategy_1 cfg (some s)
+do s  ← mk_simp_lemmas,
+   hs ← mk_hinst_lemmas,
+strategy_1 cfg (some s) (some hs)
 <|>
-strategy_2 cfg (some s)
+strategy_2 cfg (some s) (some hs)
 <|>
-strategy_3 cfg max_depth (some s)
+strategy_3 cfg max_depth (some s) (some hs)

@@ -93,6 +93,10 @@ def remove_nth : list α → ℕ → list α
 | (x::xs) 0     := xs
 | (x::xs) (i+1) := x :: remove_nth xs i
 
+def remove_all [decidable_eq α] : list α → list α → list α
+| (x :: xs) ys := (if x ∈ ys then remove_all xs ys else x :: remove_all xs ys)
+| [] ys := []
+
 def head [inhabited α] : list α → α
 | []       := default α
 | (a :: l) := a

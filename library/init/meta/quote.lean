@@ -48,9 +48,3 @@ meta instance : has_quote unit := ⟨λ _, ``(unit.star)⟩
 
 meta instance {α β : Type} [has_quote α] [has_quote β] : has_quote (α × β) :=
 ⟨λ ⟨x, y⟩, ``((%%(quote x), %%(quote y)))⟩
-
-meta def nat.to_expr : nat → tactic expr := λ n, to_expr $ quote n
-meta def char.to_expr : char → tactic expr := λ n, to_expr $ quote n
-meta def unsigned.to_expr : unsigned → tactic expr := λ n, to_expr $ quote n
-meta def name.to_expr : name → tactic expr := λ n, to_expr $ quote n
-meta def list_name.to_expr : list name → tactic expr := λ n, to_expr $ quote n

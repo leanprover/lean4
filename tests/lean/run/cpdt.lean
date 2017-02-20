@@ -43,4 +43,4 @@ def reassoc : exp → exp
 attribute [simp] reassoc
 
 theorem reassoc_correct (e) : exp_eval (reassoc e) = exp_eval e :=
-by induction e; simph; try {cases (reassoc e2); rsimp}
+by mini_crush

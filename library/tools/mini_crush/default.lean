@@ -93,6 +93,8 @@ meta def try_induction_aux (cont : expr → tactic unit) : list expr → tactic 
 meta def try_induction (cont : expr → tactic unit) : tactic unit :=
 focus1 $ collect_inductive_hyps >>= try_induction_aux cont
 
+/- Trace messages -/
+
 meta def report {α : Type} [has_to_tactic_format α] (a : α) : tactic unit :=
 when_tracing `mini_crush $ trace a
 
@@ -104,14 +106,81 @@ when_tracing `mini_crush $
   end
   >> trace_state >> trace "--------------"
 
-meta def close_or_fail (s : name) (e : option expr) : tactic unit :=
-    now
-<|> triv           <|> reflexivity reducible <|> contradiction
+/- Simple tactic -/
+meta def close_aux : tactic unit :=
+    triv           <|> reflexivity reducible <|> contradiction
 <|> (rsimp >> now) <|> try_for 1000 reflexivity
-<|> (report_failure s e >> failed)
+
+meta def close (s : name) (e : option expr) : tactic unit :=
+    now
+<|> close_aux
+<|> report_failure s e >> failed
 
 meta def simple (s : simp_lemmas) (cfg : simp_config) (s_name : name) (h : option expr) : tactic unit :=
-simph_intros_using s cfg >> close_or_fail s_name h
+simph_intros_using s cfg >> close s_name h
+
+/- Best first search -/
+
+meta def snapshot := tactic_state
+
+meta def save : tactic snapshot :=
+tactic.read
+
+meta def restore : snapshot → tactic unit :=
+tactic.write
+
+meta def try_snapshots {α} (cont : α → tactic unit) : list (α × snapshot) → tactic unit
+| []           := failed
+| ((a, s)::ss) := (restore s >> cont a >> now) <|> try_snapshots ss
+
+meta def search {α} (max_depth : nat) (act : nat → α → tactic (list (α × snapshot))) : nat → α → tactic unit
+| n s := do
+  now
+  <|>
+  if n > max_depth then when_tracing `mini_crush (trace "max depth reached" >> trace_state) >> failed
+  else all_goals $ try intros >> act n s >>= try_snapshots (search (n+1))
+
+meta def try_and_save {α} (t : tactic α) : tactic (option (α × nat × snapshot)) :=
+do {
+  s     ← save,
+  a     ← t,
+  new_s ← save,
+  n     ← num_goals,
+  restore s,
+  return (a, n, new_s)
+} <|> return none
+
+meta def try_all_aux {α β : Type} (ts : α → tactic β) : list α → list (α × β × nat × snapshot) → tactic (list (α × β × nat × snapshot))
+| []      [] := failed
+| []      rs := return rs^.reverse
+| (v::vs) rs := do
+  r ← try_and_save (ts v),
+  match r with
+  | some (b, 0, s) := return [(v, b, 0, s)]
+  | some (b, n, s) := try_all_aux vs ((v, b, n, s)::rs)
+  | none           := try_all_aux vs rs
+  end
+
+meta def try_all {α β : Type} (ts : α → tactic β) (vs : list α) : tactic (list (α × β × nat × snapshot)) :=
+try_all_aux ts vs []
+
+/- Destruct and simplify -/
+
+meta def try_cases (s : simp_lemmas) (cfg : simp_config) (s_name : name) : tactic (list (unit × snapshot)) :=
+do es ← collect_inductive_from_target,
+   rs ← try_all (λ e, do
+     when_tracing `mini_crush (do p ← pp e, trace (to_fmt "Splitting on '" ++ p ++ to_fmt "'")),
+     cases e; simph_intros_using s cfg; try close_aux) es,
+   rs ← return $ flip list.qsort rs (λ ⟨e₁, _, n₁, _⟩ ⟨e₂, _, n₂, _⟩, if n₁ ≠ n₂ then n₁ < n₂ else size e₁ < size e₂),
+   return $ rs^.for (λ ⟨_, _, _, s⟩, ((), s))
+
+
+meta def search_cases (max_depth : nat) (s : simp_lemmas) (cfg : simp_config) (s_name : name) : tactic unit :=
+search max_depth (λ d _, do
+  when_tracing `mini_crush (trace ("Depth #" ++ to_string d)),
+  try_cases s cfg s_name) 0 ()
+
+/- Strategies -/
 
 meta def mk_simp_lemmas (s : option simp_lemmas := none) : tactic simp_lemmas :=
 match s with
@@ -134,12 +203,18 @@ meta def strategy_2 (cfg : simp_config := {}) (s : option simp_lemmas := none) :
 do s ← mk_simp_lemmas s,
    strategy_2_aux cfg s
 
+meta def strategy_3 (cfg : simp_config := {}) (max_depth : nat := 1) (s : option simp_lemmas := none) : tactic unit :=
+do s ← mk_simp_lemmas s,
+   try_induction (λ h, try (simph_intros_using s cfg); try close_aux; (now <|> search_cases max_depth s cfg "strategy 3"))
+
 end mini_crush
 
 open tactic mini_crush
 
-meta def mini_crush (cfg : simp_config := {}) :=
+meta def mini_crush (cfg : simp_config := {}) (max_depth : nat := 1) :=
 do s ← mk_simp_lemmas,
 strategy_1 cfg (some s)
 <|>
 strategy_2 cfg (some s)
+<|>
+strategy_3 cfg max_depth (some s)

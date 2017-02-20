@@ -627,7 +627,7 @@ order for the change to take effect."
   ;; Musical symbols.
 
   ("note" . ,(lean-input-to-string-list "♩♪♫♬"))
-  ("b"    . ("♭"))
+  ("flat" . ("♭"))
   ("#"    . ("♯"))
 
   ;; Other punctuation and symbols.

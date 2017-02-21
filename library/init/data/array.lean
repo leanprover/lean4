@@ -40,17 +40,27 @@ lemma pop_back_idx {j n} : j < n → j < n + 1 :=
 def pop_back (a : array α (n+1)) : array α n :=
 {data := λ ⟨j, h⟩, a^.read ⟨j, pop_back_idx h⟩}
 
-lemma foreach_lt {a b c : nat} : a + c < b → a < b :=
+lemma lt_aux_1 {a b c : nat} : a + c < b → a < b :=
 λ h, lt_of_le_of_lt (nat.le_add_right a c) h
+
+lemma lt_aux_2 {n} : n > 0 → n - 1 < n :=
+assume h,
+  have h₁ : 1 > 0, from dec_trivial,
+nat.sub_lt h h₁
+
+lemma lt_aux_3 {n i} : i + 1 < n → n - 2 - i < n  :=
+assume h,
+have n > 0,     from lt.trans (nat.zero_lt_succ i) h,
+have n - 2 < n, from nat.sub_lt this (dec_trivial),
+lt_of_le_of_lt (nat.sub_le _ _) this
 
 def foreach_aux (f : fin n → α → α) : Π (i : nat), i < n → array α n → array α n
 | 0     h a :=
-  let z : fin n := ⟨0, h⟩ in
-  a^.write z (f z (a^.read z))
+  let i : fin n := ⟨n - 1, lt_aux_2 h⟩ in
+  a^.write i (f i (a^.read i))
 | (j+1) h a :=
-  let i : fin n := ⟨j+1, h⟩ in
-  have h' : j < n, from foreach_lt h,
-  foreach_aux j h' (a^.write i (f i (a^.read i)))
+  let i : fin n := ⟨n - 2 - j, lt_aux_3 h⟩ in
+  foreach_aux j (lt_aux_1 h) (a^.write i (f i (a^.read i)))
 
 def foreach : Π {n}, array α n → (fin n → α → α) → array α n
 | 0     a f:= a
@@ -62,32 +72,43 @@ foreach a (λ _, f)
 def map₂ {α} {n} (f : α → α → α) (a b : array α n) : array α n :=
 foreach b (λ i, f (a^.read i))
 
-lemma fold_lt₁ {n} : n > 0 → n - 1 < n :=
-assume h,
-  have h₁ : 1 > 0, from dec_trivial,
-nat.sub_lt h h₁
+def iterate_aux (f : fin n → α → β → β) : Π (i : nat), i < n → array α n → β → β
+| 0     h a b :=
+  let i : fin n := ⟨n - 1, lt_aux_2 h⟩ in
+  f i (a^.read i) b
+| (j+1) h a b :=
+  let i : fin n := ⟨n - 2 - j, lt_aux_3 h⟩ in
+  iterate_aux j (lt_aux_1 h) a (f i (a^.read i) b)
 
-lemma fold_lt₂ {n i} : i + 1 < n → n - 2 - i < n  :=
-assume h,
-  have h₁ : 2 > 0,             from dec_trivial,
-  have h₂ : n > 0,             from lt.trans (nat.zero_lt_succ i) h,
-  have h₃ : n - 2 < n,         from nat.sub_lt h₂ h₁,
-  have h₄ : n - 2 - i ≤ n - 2, from nat.sub_le _ _,
-lt_of_le_of_lt h₄ h₃
-
-def fold_aux (f : α → β → β) : Π (i : nat), i < n → array α n → β → β
-| 0     h a b := f (a^.read ⟨n - 1, fold_lt₁ h⟩) b
-| (i+1) h a b := fold_aux i (foreach_lt h) a (f (a^.read ⟨n - 2 - i, fold_lt₂ h⟩) b)
-
-def fold : Π {n}, array α n → β → (α → β → β) → β
+def iterate : Π {n}, array α n → β → (fin n → α → β → β) → β
 | 0     a b fn := b
-| (n+1) a b fn := fold_aux fn n (nat.lt_succ_self _) a b
+| (n+1) a b fn := iterate_aux fn n (nat.lt_succ_self _) a b
 
-protected def to_string [has_to_string α] (a : array α n) : string :=
-let p : string × bool := a^.fold ("", tt) (λ v ⟨r, first⟩, (r ++ if first then to_string v else ", " ++ to_string v, ff))
-in "[" ++ p.1 ++ "]"
+def foldl {n} (a : array α n) (b : β) (f : α → β → β) : β :=
+iterate a b (λ _, f)
+
+def rev_iterate_aux (f : fin n → α → β → β) : Π (i : nat), i < n → array α n → β → β
+| 0 h a b :=
+  let z : fin n := ⟨0, h⟩ in
+  f z (a^.read z) b
+| (j+1) h a b :=
+  let i : fin n := ⟨j+1, h⟩ in
+  rev_iterate_aux j (lt_aux_1 h) a (f i (a^.read i) b)
+
+def rev_iterate : Π {n : nat}, array α n → β → (fin n → α → β → β) → β
+| 0     a b fn := b
+| (n+1) a b fn := rev_iterate_aux fn n (nat.lt_succ_self _) a b
+
+def to_list (a : array α n) : list α :=
+a^.rev_iterate [] (λ _ v l, v :: l)
 
 instance [has_to_string α] : has_to_string (array α n) :=
-⟨array.to_string⟩
+⟨to_string ∘ to_list⟩
+
+meta instance [has_to_format α] : has_to_format (array α n) :=
+⟨to_fmt ∘ to_list⟩
+
+meta instance [has_to_tactic_format α] : has_to_tactic_format (array α n) :=
+⟨tactic.pp ∘ to_list⟩
 
 end array

@@ -25,10 +25,10 @@ meta def rstep {α : Type} (line : nat) (col : nat) (t : mytac α) : mytac unit 
 meta def execute (tac : mytac unit) : tactic unit :=
 tac (name_map.mk nat) >> return ()
 
-meta def save_info (line col : nat) : mytac unit :=
+meta def save_info (p : pos) : mytac unit :=
 do v ← state_t.read,
    s ← tactic.read,
-   tactic.save_info_thunk line col
+   tactic.save_info_thunk p
       (λ _, to_fmt "Custom state: " ++ to_fmt v ++ format.line ++
                 tactic_state.to_format s)
 

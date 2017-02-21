@@ -1,5 +1,5 @@
 open tactic
-
+meta def nat.to_expr (n : nat) : tactic expr := to_expr (quote n)
 run_command attribute.fingerprint `reducible >>= trace
 
 definition ex0 : nat :=

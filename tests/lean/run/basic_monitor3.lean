@@ -9,10 +9,10 @@ return (to_fmt "<curr file>")
 
 meta def pos_info (fn : name) : vm format :=
 do {
-  d                ← vm.get_decl fn,
-  some (line, col) ← return (vm_decl.pos d) | failure,
+  d        ← vm.get_decl fn,
+  some pos ← return (vm_decl.pos d) | failure,
   file             ← get_file fn,
-  return (file ++ ":" ++ line ++ ":" ++ col)
+  return (file ++ ":" ++ pos.1 ++ ":" ++ pos.2)
 }
 <|>
 return (to_fmt "<position not available>")

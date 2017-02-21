@@ -5,9 +5,9 @@ def g : nat → nat :=
 
 meta def show_pos (n : name) : command :=
 do env   ← get_env,
-   pos   ← returnopt (env^.decl_pos_info n),
+   pos   ← returnopt (env^.decl_pos n),
    olean ← returnopt (env^.decl_olean n) <|> return "current file",
-   trace $ to_string n ++ " was defined at " ++ olean ++ " : " ++ to_string pos
+   trace $ to_string n ++ " was defined at " ++ olean ++ " : " ++ to_string pos.1 ++ ":" ++ to_string pos.2
 
 run_command show_pos `add
 run_command show_pos `nat.succ

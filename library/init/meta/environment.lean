@@ -79,7 +79,7 @@ meta constant trans_for : environment → name → option name
    The result is none if d was not defined in an imported file. -/
 meta constant decl_olean : environment → name → option string
 /- (decl_pos env d) returns the source location of d if available. -/
-meta constant decl_pos_info : environment → name → option pos
+meta constant decl_pos : environment → name → option pos
 open expr
 
 meta constant unfold_untrusted_macros : environment → expr → expr

@@ -1,5 +1,5 @@
 open tactic
-
+meta def list_name.to_expr (n : list name) : tactic expr := to_expr (quote n)
 meta def my_attr : caching_user_attribute (name → bool) :=
 { name         := "my_attr",
   descr        := "my attr",

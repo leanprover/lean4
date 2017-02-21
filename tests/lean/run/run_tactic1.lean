@@ -15,7 +15,7 @@ meta definition mk_defs : nat → command
 | 0     := skip
 | (n+1) := do
    N ← to_expr `(nat),
-   v ← n^.to_expr,
+   v ← to_expr (quote n),
    add_decl (declaration.defn (name.append_after `val n) [] N v reducibility_hints.opaque tt),
    mk_defs n
 

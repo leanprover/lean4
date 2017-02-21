@@ -318,5 +318,9 @@ public:
     void pop_back() {
         m_cell = pop_back(m_cell);
     }
+
+    unsigned get_rc() const {
+        return m_cell->m_rc;
+    }
 };
 }

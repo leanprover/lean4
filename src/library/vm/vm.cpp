@@ -1482,43 +1482,51 @@ void vm_state::invoke_fn(vm_cfunction fn, unsigned arity) {
         break;
     case 1: {
         vm_obj a1 = S[sz-1];
+        m_stack.resize(sz - 1);
         r = reinterpret_cast<vm_cfunction_1>(fn)(a1);
         break;
     }
     case 2: {
         vm_obj a1 = S[sz - 1], a2 = S[sz - 2];
+        m_stack.resize(sz - 2);
         r = reinterpret_cast<vm_cfunction_2>(fn)(a1, a2);
         break;
     }
     case 3: {
         vm_obj a1 = S[sz - 1], a2 = S[sz - 2], a3 = S[sz - 3];
+        m_stack.resize(sz - 3);
         r = reinterpret_cast<vm_cfunction_3>(fn)(a1, a2, a3);
         break;
     }
     case 4: {
         vm_obj a1 = S[sz - 1], a2 = S[sz - 2], a3 = S[sz - 3], a4 = S[sz - 4];
+        m_stack.resize(sz - 4);
         r = reinterpret_cast<vm_cfunction_4>(fn)(a1, a2, a3, a4);
         break;
     }
     case 5: {
         vm_obj a1 = S[sz - 1], a2 = S[sz - 2], a3 = S[sz - 3], a4 = S[sz - 4], a5 = S[sz - 5];
+        m_stack.resize(sz - 5);
         r = reinterpret_cast<vm_cfunction_5>(fn)(a1, a2, a3, a4, a5);
         break;
     }
     case 6: {
         vm_obj a1 = S[sz - 1], a2 = S[sz - 2], a3 = S[sz - 3], a4 = S[sz - 4], a5 = S[sz - 5], a6 = S[sz - 6];
+        m_stack.resize(sz - 6);
         r = reinterpret_cast<vm_cfunction_6>(fn)(a1, a2, a3, a4, a5, a6);
         break;
     }
     case 7: {
         vm_obj a1 = S[sz - 1], a2 = S[sz - 2], a3 = S[sz - 3], a4 = S[sz - 4], a5 = S[sz - 5], a6 = S[sz - 6];
         vm_obj a7 = S[sz - 7];
+        m_stack.resize(sz - 7);
         r = reinterpret_cast<vm_cfunction_7>(fn)(a1, a2, a3, a4, a5, a6, a7);
         break;
     }
     case 8: {
         vm_obj a1 = S[sz - 1], a2 = S[sz - 2], a3 = S[sz - 3], a4 = S[sz - 4], a5 = S[sz - 5], a6 = S[sz - 6];
         vm_obj a7 = S[sz - 7], a8 = S[sz - 8];
+        m_stack.resize(sz - 8);
         r = reinterpret_cast<vm_cfunction_8>(fn)(a1, a2, a3, a4, a5, a6, a7, a8);
         break;
     }
@@ -1530,10 +1538,10 @@ void vm_state::invoke_fn(vm_cfunction fn, unsigned arity) {
             args.push_back(m_stack[i]);
         }
         lean_assert(args.size() == arity);
+        m_stack.resize(sz - arity);
         r = reinterpret_cast<vm_cfunction_N>(fn)(args.size(), args.data());
         break;
     }}
-    m_stack.resize(sz - arity);
     m_stack.push_back(r);
     if (m_debugging) shrink_stack_info();
     m_pc++;

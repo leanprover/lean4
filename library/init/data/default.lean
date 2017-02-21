@@ -5,4 +5,4 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.data.basic init.data.sigma init.data.nat init.data.char init.data.string
-import init.data.list init.data.sum init.data.subtype init.data.int
+import init.data.list init.data.sum init.data.subtype init.data.int init.data.array

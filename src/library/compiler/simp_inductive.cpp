@@ -169,7 +169,7 @@ class simp_inductive_fn : public compiler_step_visitor {
             get_constructor_info(cnames[i], rel_fields);
             auto p = visit_minor_premise(args[i+1], rel_fields);
             expr new_minor = p.first;
-            if (i == 0 && has_trivial_structure(I_name, rel_fields)) {
+            if (i == 0 && !is_builtin && has_trivial_structure(I_name, rel_fields)) {
                 /* Optimization for an inductive datatype that has a single constructor with only one relevant field */
                 return beta_reduce(mk_app(new_minor, args[0]));
             }
@@ -193,26 +193,30 @@ class simp_inductive_fn : public compiler_step_visitor {
     }
 
     expr visit_constructor(name const & fn, buffer<expr> const & args) {
-        bool is_builtin  = is_vm_builtin_function(fn);
-        name I_name      = *inductive::is_intro_rule(env(), fn);
-        unsigned nparams = *inductive::get_num_params(env(), I_name);
-        unsigned cidx    = get_constructor_idx(env(), fn);
-        buffer<bool> rel_fields;
-        get_constructor_info(fn, rel_fields);
-        lean_assert(args.size() == nparams + rel_fields.size());
-        buffer<expr> new_args;
-        for (unsigned i = 0; i < rel_fields.size(); i++) {
-            if (rel_fields[i]) {
-                new_args.push_back(visit(args[nparams + i]));
-            }
-        }
-        if (has_trivial_structure(I_name, rel_fields)) {
-            lean_assert(new_args.size() == 1);
-            return new_args[0];
-        } else if (is_builtin) {
+        if (is_vm_builtin_function(fn)) {
+            buffer<expr> new_args;
+            for (expr const & arg : args)
+                new_args.push_back(visit(arg));
             return mk_app(mk_constant(fn), new_args);
         } else {
-            return mk_app(mk_cnstr(cidx), new_args);
+            name I_name      = *inductive::is_intro_rule(env(), fn);
+            unsigned nparams = *inductive::get_num_params(env(), I_name);
+            unsigned cidx    = get_constructor_idx(env(), fn);
+            buffer<bool> rel_fields;
+            get_constructor_info(fn, rel_fields);
+            lean_assert(args.size() == nparams + rel_fields.size());
+            buffer<expr> new_args;
+            for (unsigned i = 0; i < rel_fields.size(); i++) {
+                if (rel_fields[i]) {
+                    new_args.push_back(visit(args[nparams + i]));
+                }
+            }
+            if (has_trivial_structure(I_name, rel_fields)) {
+                lean_assert(new_args.size() == 1);
+                return new_args[0];
+            } else {
+                return mk_app(mk_cnstr(cidx), new_args);
+            }
         }
     }
 

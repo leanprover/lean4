@@ -23,6 +23,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_environment.h"
 #include "library/vm/vm_task.h"
 #include "library/vm/vm_parser.h"
+#include "library/vm/vm_array.h"
 
 namespace lean {
 void initialize_vm_core_module() {
@@ -45,8 +46,10 @@ void initialize_vm_core_module() {
     initialize_vm_declaration();
     initialize_vm_environment();
     initialize_vm_parser();
+    initialize_vm_array();
 }
 void finalize_vm_core_module() {
+    finalize_vm_array();
     finalize_vm_parser();
     finalize_vm_environment();
     finalize_vm_declaration();
@@ -73,6 +76,7 @@ void initialize_vm_module() {
     initialize_vm_expr_builtin_idxs();
     initialize_vm_exceptional_builtin_idxs();
     initialize_vm_format_builtin_idxs();
+    initialize_vm_array_builtin_idxs();
 }
 void finalize_vm_module() {
     finalize_vm();

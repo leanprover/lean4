@@ -58,7 +58,7 @@ def option_orelse {α : Type u} : option α → option α → option α
 | none     (some a)  := some a
 | none     none      := none
 
-instance {α : Type u} : alternative option :=
+instance : alternative option :=
 alternative.mk @option_fmap @some (@fapp _ _) @none @option_orelse
 
 def option_t (m : Type u → Type v) [monad m] (α : Type u) : Type v :=

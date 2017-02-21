@@ -155,10 +155,6 @@ bool has_pprod_decls(environment const & env) {
     return has_constructor(env, get_pprod_mk_name(), get_pprod_name(), 4);
 }
 
-bool has_lift_decls(environment const & env) {
-    return has_constructor(env, get_lift_up_name(), get_lift_name(), 2);
-}
-
 /* n is considered to be recursive if it is an inductive datatype and
    1) It has a constructor that takes n as an argument
    2) It is part of a mutually recursive declaration, and some constructor

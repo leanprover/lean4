@@ -65,6 +65,10 @@ name_set get_opened_namespaces(environment const & env) {
     return get_extension(env).m_opened_namespaces;
 }
 
+bool is_namespace(environment const & env, name const & n) {
+    return get_extension(env).m_namespace_set.contains(n);
+}
+
 optional<name> to_valid_namespace_name(environment const & env, name const & n) {
     scope_mng_ext const & ext = get_extension(env);
     if (ext.m_namespace_set.contains(n))

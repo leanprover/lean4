@@ -36,6 +36,7 @@ def main(argv=None):
     basename, ext = os.path.splitext(infile)
     cppfile       = basename + ".cpp"
     hfile         = basename + ".h"
+    tst_file      = "../../tests/lean/run/check_" + basename + ".lean"
     constants     = []
     with open(infile, 'r') as f:
         for line in f:
@@ -82,6 +83,14 @@ def main(argv=None):
             f.write('name const & get_%s_name() { return *g_%s; }\n' % (c[0], c[0]))
         # end namespace
         f.write('}\n')
+    with open(tst_file, 'w') as f:
+        f.write('-- DO NOT EDIT, automatically generated file, generator scripts/gen_constants_cpp.py\n')
+        f.write("import smt system.io\n")
+        f.write("open tactic\n");
+        f.write("meta def script_check_id (n : name) : tactic unit :=\n");
+        f.write("do env ← get_env, (env^.get n >> return ()) <|> (guard $ env^.is_namespace n) <|> (attribute.get_instances n >> return ()) <|> fail (\"identifier '\" ++ to_string n ++ \"' is not a constant, namespace nor attribute\")\n");
+        for c in constants:
+            f.write("run_command script_check_id `%s\n" % c[1])
     print("done")
     return 0
 

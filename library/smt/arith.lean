@@ -1,17 +1,21 @@
--- TODO(Leo): remove after we port reals to new stdlib
--- Arithmetic
+-- TODO(Leo): remove after we port reals to new stdlib and add int.has_div and int.has_mod
+constants (int.has_div : has_div int)
+constants (int.has_mod : has_mod int)
+
+attribute [instance] int.has_div int.has_mod
+
 constants (real : Type)
 
-constants (real_has_zero : has_zero real)
-constants (real_has_one : has_one real)
-constants (real_has_add : has_add real)
-constants (real_has_mul : has_mul real)
-constants (real_has_sub : has_sub real)
-constants (real_has_neg : has_neg real)
-constants (real_has_div : has_div real)
-constants (real_has_lt : has_lt real)
-constants (real_has_le : has_le real)
+constants (real.has_zero : has_zero real)
+constants (real.has_one : has_one real)
+constants (real.has_add : has_add real)
+constants (real.has_mul : has_mul real)
+constants (real.has_sub : has_sub real)
+constants (real.has_neg : has_neg real)
+constants (real.has_div : has_div real)
+constants (real.has_lt : has_lt real)
+constants (real.has_le : has_le real)
 
-attribute [instance] real_has_zero real_has_one real_has_add real_has_mul real_has_sub real_has_neg real_has_div real_has_le real_has_lt
+attribute [instance] real.has_zero real.has_one real.has_add real.has_mul real.has_sub real.has_neg real.has_div real.has_le real.has_lt
 
 constants (real.of_int : int → real) (real.to_int : real → int) (real.is_int : real → Prop)

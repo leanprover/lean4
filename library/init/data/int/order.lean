@@ -193,7 +193,7 @@ iff.mpr
   (int.lt_iff_le_and_ne _ _)
   (and.intro hac (assume heq, int.not_le_of_gt begin rw heq, exact hbc end hab))
 
-instance : linear_ordered_ring int :=
+instance : decidable_linear_ordered_comm_ring int :=
 { int.comm_ring with
   le              := int.le,
   le_refl         := int.le_refl,
@@ -211,7 +211,13 @@ instance : linear_ordered_ring int :=
   mul_pos         := @int.mul_pos,
   le_iff_lt_or_eq := int.le_iff_lt_or_eq,
   le_total        := int.le_total,
-  zero_lt_one     := int.zero_lt_one }
+  zero_lt_one     := int.zero_lt_one,
+  decidable_eq    := int.decidable_eq,
+  decidable_le    := int.decidable_le,
+  decidable_lt    := int.decidable_lt }
+
+instance : decidable_linear_ordered_comm_group int :=
+by apply_instance
 
 end int
 

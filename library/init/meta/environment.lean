@@ -35,6 +35,8 @@ match env^.get d with
 | exceptional.success _      := tt
 | exceptional.exception ._ _ := ff
 end
+/- Return tt iff the given name is a namespace -/
+meta constant is_namespace    : environment → name → bool
 /- Add a new inductive datatype to the environment
    name, universe parameters, number of parameters, type, constructors (name and type), is_meta -/
 meta constant add_inductive   : environment → name → list name → nat → expr → list (name × expr) → bool →

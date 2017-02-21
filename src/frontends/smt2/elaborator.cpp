@@ -110,7 +110,6 @@ static expr mk_chainable_app(buffer<expr> const & args) {
 // TODO(dhs): use a macro for this? It scales quadratically.
 // At this stage in elaboration: ["@distinct A", arg1, ... ,argN]
 static expr mk_distinct_app(buffer<expr> const & args) {
-    lean_assert(is_constant(app_fn(args[0])) && const_name(app_fn(args[0])) == get_distinct_name());
     unsigned num_args = args.size() - 1;
     if (num_args == 1)
         return mk_constant(get_true_name());
@@ -158,9 +157,8 @@ private:
     }
 
     expr elaborate_distinct(buffer<expr> & args) {
-        lean_assert(is_constant(args[0]) && const_name(args[0]) == get_distinct_name());
         expr ty = m_tctx.infer(args[1]);
-        args[0] = mk_app(mk_constant(get_distinct_name(), {l1()}), ty);
+        args[0] = mk_app(mk_constant(get_ne_name(), {l1()}), ty);
         return mk_distinct_app(args);
     }
 
@@ -182,7 +180,6 @@ private:
     }
 
     expr elaborate_select(buffer<expr> & args) {
-        lean_assert(is_constant(args[0]) && const_name(args[0]) == get_select_name());
         expr ty = m_tctx.infer(args[1]);
         buffer<expr> array_args;
         expr array = get_app_args(ty, array_args);
@@ -192,7 +189,6 @@ private:
     }
 
     expr elaborate_store(buffer<expr> & args) {
-        lean_assert(is_constant(args[0]) && const_name(args[0]) == get_store_name());
         expr ty = m_tctx.infer(args[1]);
         buffer<expr> array_args;
         expr array = get_app_args(ty, array_args);

@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/inductive/inductive.h"
 #include "kernel/standard_kernel.h"
 #include "library/module.h"
+#include "library/scoped_ext.h"
 #include "library/projection.h"
 #include "library/util.h"
 #include "library/relation_manager.h"
@@ -210,6 +211,10 @@ vm_obj environment_decl_pos_info(vm_obj const & env, vm_obj const & n) {
     }
 }
 
+vm_obj environment_is_namespace(vm_obj const & env, vm_obj const & n) {
+    return mk_vm_bool(is_namespace(to_env(env), to_name(n)));
+}
+
 /*
 structure projection_info :=
 (cname : name)
@@ -247,6 +252,7 @@ void initialize_vm_environment() {
     DECLARE_VM_BUILTIN(name({"environment", "inductive_num_params"}),  environment_inductive_num_params);
     DECLARE_VM_BUILTIN(name({"environment", "inductive_num_indices"}), environment_inductive_num_indices);
     DECLARE_VM_BUILTIN(name({"environment", "inductive_dep_elim"}),    environment_inductive_dep_elim);
+    DECLARE_VM_BUILTIN(name({"environment", "is_namespace"}),          environment_is_namespace);
     DECLARE_VM_BUILTIN(name({"environment", "is_ginductive"}),         environment_is_ginductive);
     DECLARE_VM_BUILTIN(name({"environment", "is_projection"}),         environment_is_projection);
     DECLARE_VM_BUILTIN(name({"environment", "relation_info"}),         environment_relation_info);

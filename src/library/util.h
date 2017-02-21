@@ -48,7 +48,6 @@ bool has_punit_decls(environment const & env);
 bool has_pprod_decls(environment const & env);
 bool has_eq_decls(environment const & env);
 bool has_heq_decls(environment const & env);
-bool has_lift_decls(environment const & env);
 
 /** \brief Return true iff \c n is the name of a recursive datatype in \c env.
     That is, it must be an inductive datatype AND contain a recursive constructor.

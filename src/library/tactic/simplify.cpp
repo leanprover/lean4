@@ -186,7 +186,7 @@ expr simplify_core_fn::remove_unnecessary_casts(expr const & e) {
                 buffer<expr> cast_args;
                 expr f_cast = get_app_args(args[i], cast_args);
                 name n_f = const_name(f_cast);
-                if (n_f == get_eq_rec_name() || n_f == get_eq_drec_name() || n_f == get_eq_nrec_name()) {
+                if (n_f == get_eq_rec_name() || n_f == get_eq_drec_name()) {
                     lean_assert(cast_args.size() == 6);
                     expr major_premise = cast_args[5];
                     expr f_major_premise = get_app_fn(major_premise);

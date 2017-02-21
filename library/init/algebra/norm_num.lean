@@ -73,14 +73,6 @@ begin apply neg_add_eq_of_eq_add, rw h end
 lemma pos_add_neg_helper [add_comm_group α] (a b c : α) (h : b + a = c) : a + b = c :=
 by rw [-h, add_comm a b]
 
-lemma sub_eq_add_neg_helper [add_comm_group α] (t₁ t₂ e w₁ w₂: α) (h₁ : t₁ = w₁)
-        (h₂ : t₂ = w₂) (h₃ : w₁ + -w₂ = e) : t₁ - t₂ = e :=
-by rw [h₁, h₂, sub_eq_add_neg, h₃]
-
-lemma pos_add_pos_helper [add_comm_group α] (a b c d₁ d₂ : α) (h₁ : a = d₁) (h₂ : b = d₂)
-        (h₃ : d₁ + d₂ = c) : a + b = c :=
-by rw [h₁, h₂, h₃]
-
 lemma subst_into_subtr [add_group α] (l r t : α) (h : l + -r = t) : l - r = t :=
 by simp [h]
 
@@ -262,12 +254,12 @@ lemma nonzero_of_pos_helper [linear_ordered_semiring α] (a : α) (h : a > 0) : 
 lemma nonzero_of_neg_helper [linear_ordered_ring α] (a : α) (h : a ≠ 0) : -a ≠ 0 :=
 begin intro ha, apply h, apply neg_inj, rwa neg_zero end
 
-lemma sub_nat_zero_helper {a b c d: ℕ} (hac : a = c) (hbd : b = d) (hcd : c < d) : a - b = 0 := 
+lemma sub_nat_zero_helper {a b c d: ℕ} (hac : a = c) (hbd : b = d) (hcd : c < d) : a - b = 0 :=
 begin
  simp_using_hs, apply nat.sub_eq_zero_of_le, apply le_of_lt, assumption
 end
 
-lemma sub_nat_pos_helper {a b c d e : ℕ} (hac : a = c) (hbd : b = d) (hced : e + d = c) : 
+lemma sub_nat_pos_helper {a b c d e : ℕ} (hac : a = c) (hbd : b = d) (hced : e + d = c) :
   a - b = e :=
 begin
 simp_using_hs, rw [-hced, nat.add_sub_cancel]

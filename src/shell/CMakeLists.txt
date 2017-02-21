@@ -113,7 +113,7 @@ FOREACH(T ${LEANTESTS})
   endif()
 ENDFOREACH(T)
 
-# # SMT2 TESTS
+# SMT2 TESTS
 # file(GLOB SMT2TESTS "${LEAN_SOURCE_DIR}/../tests/lean/smt2/*.smt2")
 # FOREACH(T ${SMT2TESTS})
 #   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
@@ -145,13 +145,13 @@ FOREACH(T ${LEANRUNTESTS})
 ENDFOREACH(T)
 
 # SMT2 RUN TESTS
-# file(GLOB SMT2RUNTESTS "${LEAN_SOURCE_DIR}/../tests/lean/smt2/run/*.smt2")
-# FOREACH(T ${SMT2RUNTESTS})
-#   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-#   add_test(NAME "smt2runtest_${T_NAME}"
-#            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/smt2/run/"
-#            COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
-# ENDFOREACH(T)
+file(GLOB SMT2RUNTESTS "${LEAN_SOURCE_DIR}/../tests/lean/smt2/run/*.smt2")
+FOREACH(T ${SMT2RUNTESTS})
+  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+  add_test(NAME "smt2runtest_${T_NAME}"
+           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/smt2/run/"
+           COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
+ENDFOREACH(T)
 
 
 # LEAN TESTS using --trust=0

@@ -4,9 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 namespace smt
-def array (α β : Type) := α → β
+universes u v
+def array (α : Type u) (β : Type v) := α → β
 
-variables {α β : Type}
+variables {α : Type u} {β : Type v}
 open tactic
 
 def select (a : array α β) (i : α) : β :=

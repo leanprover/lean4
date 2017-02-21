@@ -16,10 +16,10 @@ array.cases_on w (λ f, f)
 vm_eval f ⟨9, dec_trivial⟩
 vm_eval f ⟨2, dec_trivial⟩
 
-vm_eval (((mk_array 1 1)^.push_back 2)^.push_back 3)^.fold 0 (+)
+vm_eval (((mk_array 1 1)^.push_back 2)^.push_back 3)^.foldl 0 (+)
 
 def array_sum {n} (a : array nat n) : nat :=
-a^.fold 0 (+)
+a^.foldl 0 (+)
 
 vm_eval array_sum (mk_array 10 1)
 

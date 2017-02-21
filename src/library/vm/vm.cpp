@@ -503,6 +503,7 @@ static void display_builtin_cases(std::ostream & out, unsigned cases_idx) {
 void vm_instr::display(std::ostream & out) const {
     switch (m_op) {
     case opcode::Push:          out << "push " << m_idx; break;
+    case opcode::Move:          out << "move " << m_idx; break;
     case opcode::Ret:           out << "ret"; break;
     case opcode::Drop:          out << "drop " << m_num; break;
     case opcode::Goto:          out << "goto " << m_pc[0]; break;
@@ -594,6 +595,12 @@ void vm_instr::set_pc(unsigned i, unsigned pc) {
 
 vm_instr mk_push_instr(unsigned idx) {
     vm_instr r(opcode::Push);
+    r.m_idx = idx;
+    return r;
+};
+
+vm_instr mk_move_instr(unsigned idx) {
+    vm_instr r(opcode::Move);
     r.m_idx = idx;
     return r;
 };
@@ -751,7 +758,7 @@ void vm_instr::copy_args(vm_instr const & i) {
         m_fn_idx = i.m_fn_idx;
         m_nargs  = i.m_nargs;
         break;
-    case opcode::Push: case opcode::Proj:
+    case opcode::Push: case opcode::Move: case opcode::Proj:
         m_idx  = i.m_idx;
         break;
     case opcode::Drop:
@@ -857,7 +864,7 @@ void vm_instr::serialize(serializer & s, std::function<name(unsigned)> const & i
     case opcode::Closure:
         s << idx2name(m_fn_idx) << m_nargs;
         break;
-    case opcode::Push: case opcode::Proj:
+    case opcode::Push: case opcode::Move: case opcode::Proj:
         s << m_idx;
         break;
     case opcode::Drop:
@@ -926,6 +933,8 @@ static vm_instr read_vm_instr(deserializer & d) {
         return mk_closure_instr(idx, d.read_unsigned());
     case opcode::Push:
         return mk_push_instr(d.read_unsigned());
+    case opcode::Move:
+        return mk_move_instr(d.read_unsigned());
     case opcode::Proj:
         return mk_proj_instr(d.read_unsigned());
     case opcode::Drop:
@@ -2765,7 +2774,7 @@ void vm_state::run() {
     m_pc = 0;
     while (true) {
       main_loop:
-        if (m_debugging) {
+        if (LEAN_UNLIKELY(m_debugging)) {
             debugger_step();
         }
         vm_instr const & instr = m_code[m_pc];
@@ -2789,11 +2798,33 @@ void vm_state::run() {
                a_i  ==>           a_i
                ...                ...
                v                  v
-               a_i
+                                  a_i
             */
             m_stack.push_back(m_stack[m_bp + instr.get_idx()]);
             m_pc++;
             goto main_loop;
+        case opcode::Move:
+            /* Instruction: move i
+
+               stack before,      after
+               ...                ...
+               bp :  a_0          bp :  a_0
+               ...                ...
+               a_i  ==>           #0
+               ...                ...
+               v                  v
+                                  a_i
+            */
+            if (LEAN_UNLIKELY(m_debugging)) {
+                m_stack.push_back(m_stack[m_bp + instr.get_idx()]);
+                m_pc++;
+                goto main_loop;
+            } else {
+                m_stack.push_back(mk_vm_unit());
+                swap(m_stack.back(), m_stack[m_bp + instr.get_idx()]);
+                m_pc++;
+                goto main_loop;
+            }
         case opcode::Drop: {
             /* Instruction: drop n
 

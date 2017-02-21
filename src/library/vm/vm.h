@@ -317,7 +317,7 @@ typedef pair<name, optional<expr>> vm_local_info;
 
 /** \brief VM instruction opcode */
 enum class opcode {
-    Push, Ret, Drop, Goto,
+    Push, Move, Ret, Drop, Goto,
     SConstructor, Constructor, Num,
     Destruct, Cases2, CasesN, NatCases, BuiltinCases, Proj,
     Apply, InvokeGlobal, InvokeBuiltin, InvokeCFun,
@@ -332,7 +332,7 @@ class vm_instr {
             unsigned m_fn_idx;  /* InvokeGlobal, InvokeBuiltin, InvokeCFun and Closure. */
             unsigned m_nargs;   /* Closure */
         };
-        /* Push, Proj */
+        /* Push, Move, Proj */
         unsigned m_idx;
         /* Drop */
         unsigned m_num;
@@ -362,6 +362,7 @@ class vm_instr {
     };
     /* Apply, Ret, Destruct and Unreachable do not have arguments */
     friend vm_instr mk_push_instr(unsigned idx);
+    friend vm_instr mk_move_instr(unsigned idx);
     friend vm_instr mk_drop_instr(unsigned n);
     friend vm_instr mk_proj_instr(unsigned n);
     friend vm_instr mk_goto_instr(unsigned pc);
@@ -409,7 +410,7 @@ public:
     }
 
     unsigned get_idx() const {
-        lean_assert(m_op == opcode::Push || m_op == opcode::Proj);
+        lean_assert(m_op == opcode::Push || m_op == opcode::Move || m_op == opcode::Proj);
         return m_idx;
     }
 
@@ -502,6 +503,7 @@ public:
 };
 
 vm_instr mk_push_instr(unsigned idx);
+vm_instr mk_move_instr(unsigned idx);
 vm_instr mk_drop_instr(unsigned n);
 vm_instr mk_proj_instr(unsigned n);
 vm_instr mk_goto_instr(unsigned pc);

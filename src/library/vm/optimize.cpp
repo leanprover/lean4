@@ -79,8 +79,75 @@ static void compress_goto_ret(buffer<vm_instr> & code) {
     }
 }
 
+typedef rb_tree<unsigned, unsigned_cmp> live_var_set;
+
+class live_vars_fn {
+    buffer<vm_instr> const &       m_code;
+    buffer<optional<live_var_set>> m_result;
+
+    live_var_set collect(unsigned pc) {
+        if (pc >= m_code.size()) return live_var_set();
+        if (auto s = m_result[pc]) return *s; /* already processed */
+        auto const & instr = m_code[pc];
+        live_var_set s;
+        switch (instr.op()) {
+        case opcode::Ret: case opcode::Unreachable:
+            break;
+        case opcode::Goto:
+            s = collect(instr.get_goto_pc());
+            break;
+        case opcode::Drop: case opcode::SConstructor:
+        case opcode::Constructor: case opcode::Num:
+        case opcode::Destruct: case opcode::Proj:
+        case opcode::Apply: case opcode::InvokeGlobal:
+        case opcode::InvokeBuiltin: case opcode::InvokeCFun:
+        case opcode::Closure: case opcode::Pexpr: case opcode::LocalInfo:
+            s = collect(pc+1);
+            break;
+        case opcode::Push: case opcode::Move:
+            s = collect(pc+1);
+            s.insert(instr.get_idx());
+            break;
+        case opcode::Cases2: case opcode::NatCases:
+            s = collect(instr.get_cases2_pc(0));
+            s.merge(collect(instr.get_cases2_pc(1)));
+            break;
+        case opcode::CasesN: case opcode::BuiltinCases:
+            s = collect(instr.get_casesn_pc(0));
+            for (unsigned i = 1; i < instr.get_casesn_size(); i++)
+                s.merge(collect(instr.get_casesn_pc(i)));
+            break;
+        }
+        m_result[pc] = optional<live_var_set>(s);
+        return s;
+    }
+public:
+    live_vars_fn(buffer<vm_instr> const & c):m_code(c) {
+        m_result.resize(c.size());
+    }
+
+    buffer<optional<live_var_set>> const & operator()() {
+        collect(0);
+        return m_result;
+    }
+};
+
+void convert_push_to_move(buffer<vm_instr> & code) {
+    live_vars_fn fn(code);
+    buffer<optional<live_var_set>> live_vars_buffer = fn();
+    for (unsigned pc = 0; pc < code.size(); pc++) {
+        vm_instr & instr = code[pc];
+        if (instr.op() == opcode::Push &&
+            live_vars_buffer[pc+1] &&
+            !live_vars_buffer[pc+1]->contains(instr.get_idx())) {
+            instr = mk_move_instr(instr.get_idx());
+        }
+    }
+}
+
 void optimize(environment const &, buffer<vm_instr> & code) {
     compress_goto_ret(code);
     compress_drop_drop(code);
+    convert_push_to_move(code);
 }
 }

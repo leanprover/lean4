@@ -398,25 +398,6 @@ int main(int argc, char ** argv) {
 
     io_state ios(opts, lean::mk_pretty_formatter_factory());
 
-    if (smt2) {
-        // Note: the smt2 flag may override other flags
-        bool ok = true;
-        for (int i = optind; i < argc; i++) {
-            try {
-                if (doc) throw lean::exception("leandoc does not support .smt2 files");
-                ok = ::lean::smt2::parse_commands(env, ios, argv[i]);
-            } catch (lean::exception & ex) {
-                ok = false;
-                type_context tc(env, ios.get_options());
-                simple_pos_info_provider pp(argv[i]);
-                lean::message_builder(&pp, std::make_shared<type_context>(env, ios.get_options()),
-                                      env, ios, argv[i], pos_info(1, 1), lean::ERROR)
-                        .set_exception(ex).report();
-            }
-        }
-        return ok ? 0 : 1;
-    }
-
 #if defined(LEAN_JSON)
     if (opts.get_bool("server")) {
         /* Disable assertion violation dialog:
@@ -446,6 +427,25 @@ int main(int argc, char ** argv) {
     scope_global_ios scope_ios(ios);
     scoped_message_buffer scope_msg_buf(msg_buf.get());
     scope_message_context scope_msg_ctx(message_bucket_id { "_global", 1 });
+
+    if (smt2) {
+        // Note: the smt2 flag may override other flags
+        bool ok = true;
+        for (int i = optind; i < argc; i++) {
+            try {
+                if (doc) throw lean::exception("leandoc does not support .smt2 files");
+                ok = ::lean::smt2::parse_commands(env, ios, argv[i]);
+            } catch (lean::exception & ex) {
+                ok = false;
+                type_context tc(env, ios.get_options());
+                simple_pos_info_provider pp(argv[i]);
+                lean::message_builder(&pp, std::make_shared<type_context>(env, ios.get_options()),
+                                      env, ios, argv[i], pos_info(1, 1), lean::ERROR)
+                        .set_exception(ex).report();
+            }
+        }
+        return ok ? 0 : 1;
+    }
 
     try {
         std::vector<std::string> args(argv + optind, argv + argc);

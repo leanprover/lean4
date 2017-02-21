@@ -1,3 +1,4 @@
+namespace hide
 constant array : Type
 constant read : array → nat → nat
 constant write : array → nat → nat → array
@@ -16,3 +17,5 @@ read a5 4 = read a1 4
 begin [smt]
   intros, eblast
 end
+
+end hide

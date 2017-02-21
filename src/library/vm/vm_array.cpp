@@ -74,37 +74,37 @@ vm_obj array_read(vm_obj const &, vm_obj const &, vm_obj const & a, vm_obj const
 vm_obj array_write(vm_obj const &, vm_obj const &, vm_obj const & a, vm_obj const & i, vm_obj const & v) {
     /* TODO(Leo): handle case where n is too big */
     unsigned idx = force_to_unsigned(i);
-    lean_vm_check(idx < to_array(a).size());
+    parray<vm_obj> const & p = to_array(a);
+    lean_vm_check(idx < p.size());
     if (a.raw()->get_rc() == 1) {
-        parray<vm_obj> & new_a = const_cast<parray<vm_obj> &>(to_array(a));
-        new_a.set(idx, v);
-        return to_obj(new_a);
+        const_cast<parray<vm_obj> &>(p).set(idx, v);
+        return a;
     } else {
-        parray<vm_obj> new_a = to_array(a);
+        parray<vm_obj> new_a = p;
         new_a.set(idx, v);
         return to_obj(new_a);
     }
 }
 
 vm_obj array_push_back(vm_obj const &, vm_obj const &, vm_obj const & a, vm_obj const & v) {
+    parray<vm_obj> const & p = to_array(a);
     if (a.raw()->get_rc() == 1) {
-        parray<vm_obj> & new_a = const_cast<parray<vm_obj> &>(to_array(a));
-        new_a.push_back(v);
-        return to_obj(new_a);
+        const_cast<parray<vm_obj> &>(p).push_back(v);
+        return a;
     } else {
-        parray<vm_obj> new_a = to_array(a);
+        parray<vm_obj> new_a = p;
         new_a.push_back(v);
         return to_obj(new_a);
     }
 }
 
 vm_obj array_pop_back(vm_obj const &, vm_obj const &, vm_obj const & a) {
+    parray<vm_obj> const & p = to_array(a);
     if (a.raw()->get_rc() == 1) {
-        parray<vm_obj> & new_a = const_cast<parray<vm_obj> &>(to_array(a));
-        new_a.pop_back();
-        return to_obj(new_a);
+        const_cast<parray<vm_obj> &>(p).pop_back();
+        return a;
     } else {
-        parray<vm_obj> new_a = to_array(a);
+        parray<vm_obj> new_a = p;
         new_a.pop_back();
         return to_obj(new_a);
     }

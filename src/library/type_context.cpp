@@ -3437,8 +3437,10 @@ struct instance_synthesizer {
     }
 
     void cache_result(expr const & type, optional<expr> const & inst) {
+#ifndef LEAN_NO_TYPE_CLASS_CACHE
         if (!has_expr_metavar(type))
             m_ctx.m_cache->m_instance_cache.insert(mk_pair(type, inst));
+#endif
     }
 
     optional<expr> ensure_no_meta(optional<expr> r) {
@@ -3468,6 +3470,7 @@ struct instance_synthesizer {
     optional<expr> mk_class_instance_core(expr const & type) {
         /* We do not cache results when multiple instances have to be generated. */
         if (!has_expr_metavar(type)) {
+#ifndef LEAN_NO_TYPE_CLASS_CACHE
             auto it = m_ctx.m_cache->m_instance_cache.find(type);
             if (it != m_ctx.m_cache->m_instance_cache.end()) {
                 /* instance/failure is already cached */
@@ -3478,6 +3481,7 @@ struct instance_synthesizer {
                                tout() << "cached failure for " << type << "\n";);
                 return it->second;
             }
+#endif
         }
         m_state          = state();
         m_main_mvar      = m_ctx.mk_tmp_mvar(type);

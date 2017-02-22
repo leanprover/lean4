@@ -127,6 +127,35 @@ vm_obj array_mk(vm_obj const &, vm_obj const & n, vm_obj const & fn) {
     return to_obj(a);
 }
 
+vm_obj array_foreach(vm_obj const &, vm_obj const & n, vm_obj const & a, vm_obj const & fn) {
+    /* TODO(Leo): handle case where n is too big */
+    unsigned _n = force_to_unsigned(n);
+    parray<vm_obj> const & p = to_array(a);
+    if (a.raw()->get_rc() == 1) {
+        parray<vm_obj> & _p = const_cast<parray<vm_obj> &>(p);
+        for (unsigned i = 0; i < _n; i++)
+            _p.set(i, invoke(fn, mk_vm_nat(i), _p[i]));
+        return a;
+    } else {
+        parray<vm_obj> new_a;
+        for (unsigned i = 0; i < _n; i++) {
+            new_a.push_back(invoke(fn, mk_vm_nat(i), p[i]));
+        }
+        return to_obj(new_a);
+    }
+}
+
+vm_obj array_iterate(vm_obj const &, vm_obj const &, vm_obj const & n,
+                     vm_obj const & a, vm_obj const & b, vm_obj const & fn) {
+    /* TODO(Leo): handle case where n is too big */
+    unsigned _n = force_to_unsigned(n);
+    parray<vm_obj> const & p = to_array(a);
+    vm_obj r = b;
+    for (unsigned i = 0; i < _n; i++)
+        r = invoke(fn, mk_vm_nat(i), p[i], r);
+    return r;
+}
+
 static unsigned g_array_read_idx = -1;
 
 unsigned array_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
@@ -143,6 +172,8 @@ void initialize_vm_array() {
     DECLARE_VM_BUILTIN(name({"array", "write"}),            array_write);
     DECLARE_VM_BUILTIN(name({"array", "push_back"}),        array_push_back);
     DECLARE_VM_BUILTIN(name({"array", "pop_back"}),         array_pop_back);
+    DECLARE_VM_BUILTIN(name({"array", "foreach"}),          array_foreach);
+    DECLARE_VM_BUILTIN(name({"array", "iterate"}),          array_iterate);
     DECLARE_VM_CASES_BUILTIN(name({"array", "cases_on"}),   array_cases_on);
 }
 

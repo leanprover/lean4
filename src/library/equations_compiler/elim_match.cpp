@@ -284,10 +284,11 @@ struct elim_match_fn {
 
     bool is_value(type_context & ctx, expr const & e) {
         try {
-        if (!m_use_ite) return false;
-        if (is_nat_int_char_string_value(ctx, e)) return true;
-        if (optional<name> I_name = is_constructor(e)) return is_nontrivial_enum(*I_name);
-        return false;
+            if (!m_use_ite) return false;
+            if (is_nat_int_char_string_value(ctx, e)) return true;
+            // TODO(Leo, Sebastian): decide whether we ever want to have this behavior back
+            // if (optional<name> I_name = is_constructor(e)) return is_nontrivial_enum(*I_name);
+            return false;
         } catch (exception &) {
             lean_unreachable();
         }
@@ -493,6 +494,7 @@ struct elim_match_fn {
        constructor.
 
        If value_is_contructor == true, then a value is assumed to be a constructor.
+       Conversely, if value_is_contructor == false, then a value is never assumed to be a constructor.
        We use is_complete_transition(P, true) if is_value_transition(P) fail because
        there are dependent variables. */
     bool is_complete_transition(problem const & P, bool value_is_contructor) {
@@ -502,17 +504,14 @@ struct elim_match_fn {
                 expr const & p = head(eqn.m_patterns);
                 if (is_local(p)) {
                     has_variable = true; return true;
-                } else if (is_constructor_app(p)) {
-                    has_constructor = true; return true;
-                } else {
-                    type_context ctx = mk_type_context(eqn.m_lctx);
-                    if (is_value(ctx, p)) {
-                        if (value_is_contructor) has_constructor = true;
-                        return true;
-                    } else {
-                        return false;
-                    }
                 }
+                type_context ctx = mk_type_context(eqn.m_lctx);
+                bool is_val = is_value(ctx, p);
+                if ((is_constructor_app(p) && (value_is_contructor || !is_val)) ||
+                    (value_is_contructor && is_val)) {
+                    has_constructor = true; return true;
+                }
+                return false;
             });
         return r && has_variable && has_constructor;
     }

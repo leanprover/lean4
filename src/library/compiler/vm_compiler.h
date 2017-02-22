@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 
 namespace lean {
-environment vm_compile(environment const & env, declaration const & d);
+environment vm_compile(environment const & env, declaration const & d, bool optimize_bytecode = true);
 void initialize_vm_compiler();
 void finalize_vm_compiler();
 }

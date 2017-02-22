@@ -86,6 +86,7 @@ class live_vars_fn {
     buffer<optional<live_var_set>> m_result;
 
     live_var_set collect(unsigned pc) {
+        check_system("live variable analysis");
         if (pc >= m_code.size()) return live_var_set();
         if (auto s = m_result[pc]) return *s; /* already processed */
         auto const & instr = m_code[pc];

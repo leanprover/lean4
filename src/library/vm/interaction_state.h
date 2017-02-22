@@ -214,7 +214,8 @@ struct interaction_monad {
             if (auto pos = provider->get_pos_info(interaction))
                 new_env = add_transient_decl_pos_info(new_env, interaction_name, *pos);
             try {
-                return vm_compile(new_env, new_env.get(interaction_name));
+                bool optimize_bytecode = false;
+                return vm_compile(new_env, new_env.get(interaction_name), optimize_bytecode);
             } catch (exception & ex) {
                 throw formatted_exception(some(interaction), format(ex.what()));
             }

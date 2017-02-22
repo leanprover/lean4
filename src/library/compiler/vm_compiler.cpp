@@ -374,7 +374,7 @@ buffer<name> extern_names(environment const & env, buffer<procedure> const & pro
     return extern_ns;
 }
 
-static environment vm_compile(environment const & env, buffer<procedure> const & procs) {
+static environment vm_compile(environment const & env, buffer<procedure> const & procs, bool optimize_bytecode) {
     environment new_env = env;
     for (auto const & p : procs) {
         new_env = reserve_vm_index(new_env, p.m_name, p.m_code);
@@ -394,21 +394,23 @@ static environment vm_compile(environment const & env, buffer<procedure> const &
         std::tie(arity, args_info) = gen(p.m_code);
         lean_trace(name({"compiler", "code_gen"}), tout() << " " << p.m_name << " " << arity << "\n";
                    display_vm_code(tout().get_stream(), code.size(), code.data()););
-        optimize(new_env, code);
-        lean_trace(name({"compiler", "optimize_bytecode"}), tout() << " " << p.m_name << " " << arity << "\n";
-                   display_vm_code(tout().get_stream(), code.size(), code.data()););
+        if (optimize_bytecode) {
+            optimize(new_env, code);
+            lean_trace(name({"compiler", "optimize_bytecode"}), tout() << " " << p.m_name << " " << arity << "\n";
+                       display_vm_code(tout().get_stream(), code.size(), code.data()););
+        }
         new_env = update_vm_code(new_env, p.m_name, code.size(), code.data(), args_info, p.m_pos);
     }
     return new_env;
 }
 
-environment vm_compile(environment const & env, declaration const & d) {
+environment vm_compile(environment const & env, declaration const & d, bool optimize_bytecode) {
     if (!d.is_definition() || d.is_theorem() || is_noncomputable(env, d.get_name()) || is_vm_builtin_function(d.get_name()))
         return env;
 
     buffer<procedure> procs;
     preprocess(env, d, procs);
-    return vm_compile(env, procs);
+    return vm_compile(env, procs, optimize_bytecode);
 }
 
 void initialize_vm_compiler() {

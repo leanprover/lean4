@@ -20,8 +20,10 @@ bool has_free_var(expr const & e, unsigned i) {
             unsigned n_i = i + offset;
             if (n_i < i)
                 return false; // overflow, vidx can't be >= max unsigned
+#ifndef LEAN_NO_FREE_VAR_RANGE_OPT
             if (n_i >= get_free_var_range(e))
                 return false; // expression e does not contain free variables with idx >= n_i
+#endif
             if (is_var(e)) {
                 unsigned vidx = var_idx(e);
                 if (vidx == n_i)
@@ -33,15 +35,21 @@ bool has_free_var(expr const & e, unsigned i) {
 }
 
 expr lower_free_vars(expr const & e, unsigned s, unsigned d) {
-    if (d == 0 || s >= get_free_var_range(e))
+    if (d == 0
+#ifndef LEAN_NO_FREE_VAR_RANGE_OPT
+        || s >= get_free_var_range(e)
+#endif
+        )
         return e;
     lean_assert(s >= d);
     return replace(e, [=](expr const & e, unsigned offset) -> optional<expr> {
             unsigned s1 = s + offset;
             if (s1 < s)
                 return some_expr(e); // overflow, vidx can't be >= max unsigned
+#ifndef LEAN_NO_FREE_VAR_RANGE_OPT
             if (s1 >= get_free_var_range(e))
                 return some_expr(e); // expression e does not contain free variables with idx >= s1
+#endif
             if (is_var(e) && var_idx(e) >= s1) {
                 lean_assert(var_idx(e) >= offset + d);
                 return some_expr(mk_var(var_idx(e) - d));
@@ -59,8 +67,10 @@ expr lift_free_vars(expr const & e, unsigned s, unsigned d) {
             unsigned s1 = s + offset;
             if (s1 < s)
                 return some_expr(e); // overflow, vidx can't be >= max unsigned
+#ifndef LEAN_NO_FREE_VAR_RANGE_OPT
             if (s1 >= get_free_var_range(e))
                 return some_expr(e); // expression e does not contain free variables with idx >= s1
+#endif
             if (is_var(e) && var_idx(e) >= s + offset) {
                 unsigned new_idx = var_idx(e) + d;
                 if (new_idx < var_idx(e))

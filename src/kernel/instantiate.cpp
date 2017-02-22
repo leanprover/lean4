@@ -78,7 +78,11 @@ struct instantiate_easy_fn {
 };
 
 expr instantiate(expr const & a, unsigned s, unsigned n, expr const * subst) {
-    if (s >= get_free_var_range(a) || n == 0)
+    if (
+#ifndef LEAN_NO_FREE_VAR_RANGE_OPT
+        s >= get_free_var_range(a) ||
+#endif
+        n == 0)
         return a;
     if (s == 0)
         if (auto r = instantiate_easy_fn<false>(n, subst)(a, true))
@@ -87,8 +91,10 @@ expr instantiate(expr const & a, unsigned s, unsigned n, expr const * subst) {
             unsigned s1 = s + offset;
             if (s1 < s)
                 return some_expr(m); // overflow, vidx can't be >= max unsigned
+#ifndef LEAN_NO_FREE_VAR_RANGE_OPT
             if (s1 >= get_free_var_range(m))
                 return some_expr(m); // expression m does not contain free variables with idx >= s1
+#endif
             if (is_var(m)) {
                 unsigned vidx = var_idx(m);
                 if (vidx >= s1) {
@@ -115,8 +121,10 @@ expr instantiate_rev(expr const & a, unsigned n, expr const * subst) {
     if (auto r = instantiate_easy_fn<true>(n, subst)(a, true))
         return *r;
     return replace(a, [=](expr const & m, unsigned offset) -> optional<expr> {
+#ifndef LEAN_NO_FREE_VAR_RANGE_OPT
             if (offset >= get_free_var_range(m))
                 return some_expr(m); // expression m does not contain free variables with idx >= offset
+#endif
             if (is_var(m)) {
                 unsigned vidx = var_idx(m);
                 if (vidx >= offset) {

@@ -216,7 +216,6 @@ meta def is_false : expr → bool
 | ``(false) := tt
 | _         := ff
 
-set_option eqn_compiler.max_steps 256
 meta def is_not : expr → option expr
 | ``(not %%a)     := some a
 | ``(%%a → false) := some a
@@ -247,7 +246,6 @@ is_bin_arith_app e `le
 meta def is_ge (e : expr) : option (expr × expr) :=
 is_bin_arith_app e `ge
 
-set_option eqn_compiler.max_steps 512
 meta def is_heq : expr → option (expr × expr × expr × expr)
 | ``(@heq %%α %%a %%β %%b) := some (α, a, β, b)
 | _                        := none

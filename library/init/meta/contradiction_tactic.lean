@@ -50,7 +50,6 @@ private meta def contra_not_a_refl_rel_a : list expr → tactic unit
      <|>
      contra_not_a_refl_rel_a Hs
 
-set_option eqn_compiler.max_steps 256
 private meta def contra_constructor_eq : list expr → tactic unit
 | []        := failed
 | (H :: Hs) :=

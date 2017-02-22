@@ -75,8 +75,6 @@ meta def close_constn : clause → list expr → clause
 | c [] := c
 | c (b::bs') := close_const (close_constn c bs') b
 
-set_option eqn_compiler.max_steps 500
-
 private meta def parse_clause (local_false : expr) : expr → expr → tactic clause
 | proof (pi n bi d b) := do
   lc_n ← mk_fresh_name,

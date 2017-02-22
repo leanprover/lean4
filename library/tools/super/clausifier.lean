@@ -33,8 +33,6 @@ on_first_right c $ λha, do
   hna ← mk_local_def `hna (imp a' c^.local_false),
   return [([hna], app hna ha)]
 
-set_option eqn_compiler.max_steps 500
-
 meta def inf_false_l (c : clause) : tactic (list clause) :=
 first $ do i ← list.range c^.num_lits,
   if c^.get_lit i = clause.literal.left false_

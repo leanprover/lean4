@@ -40,7 +40,7 @@ Author: Leonardo de Moura
 #endif
 
 #ifndef LEAN_DEFAULT_EQN_COMPILER_MAX_STEPS
-#define LEAN_DEFAULT_EQN_COMPILER_MAX_STEPS 128
+#define LEAN_DEFAULT_EQN_COMPILER_MAX_STEPS 2048
 #endif
 
 namespace lean {

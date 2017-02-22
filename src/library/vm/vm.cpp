@@ -3009,8 +3009,8 @@ void vm_state::run() {
                 ...                        ...
                 v                 ==>      v
                 (#i a_1 ... a_n)           a_1
-                ...
-                a_n
+                                           ...
+                                           a_n
 
                 m_pc := pc_i
             */

@@ -109,11 +109,14 @@ parser::local_scope::~local_scope() {
     m_p.m_env = m_env;
 }
 
+LEAN_THREAD_VALUE(id_behavior, g_outer_id_behavior, id_behavior::ErrorIfUndef);
+
 parser::quote_scope::quote_scope(parser & p, bool q, id_behavior i):
     m_p(p), m_id_behavior(m_p.m_id_behavior), m_old_in_quote(m_p.m_in_quote), m_in_quote(q),
     m_saved_in_pattern(p.m_in_pattern) {
     m_p.m_in_pattern = false;
     if (m_in_quote && !m_old_in_quote) {
+        g_outer_id_behavior = m_p.m_id_behavior;
         m_p.m_id_behavior = i;
         m_p.m_in_quote = true;
         m_p.push_local_scope(false);
@@ -122,7 +125,7 @@ parser::quote_scope::quote_scope(parser & p, bool q, id_behavior i):
             m_p.clear_expr_locals();
     } else if (!m_in_quote && m_old_in_quote) {
         lean_assert(m_p.m_quote_stack);
-        m_p.m_id_behavior = id_behavior::ErrorIfUndef;
+        m_p.m_id_behavior = g_outer_id_behavior;
         m_p.push_local_scope(false);
         m_p.m_in_quote = false;
         m_p.restore_parser_scope(head(m_p.m_quote_stack));
@@ -1712,9 +1715,95 @@ struct to_pattern_fn {
     }
 };
 
+static expr quote(unsigned u) {
+    return mk_app(mk_constant(get_char_of_nat_name()), mk_prenum(mpz(u)));
+}
+
+static expr quote(char const * str) {
+    return from_string(str);
+}
+
+static expr quote(name const & n) {
+    switch (n.kind()) {
+        case name_kind::ANONYMOUS:
+            return mk_constant({"name", "anonymous"});
+        case name_kind::NUMERAL:
+            return mk_app(mk_constant({"name", "mk_numeral"}), quote(n.get_numeral()), quote(n.get_prefix()));
+        case name_kind::STRING:
+            return mk_app(mk_constant({"name", "mk_string"}), quote(n.get_string()), quote(n.get_prefix()));
+    }
+    lean_unreachable();
+}
+
+static expr quote(expr const & e) {
+    switch (e.kind()) {
+        case expr_kind::Var:
+            return mk_app(mk_constant({"expr", "var"}), quote(var_idx(e)));
+        case expr_kind::Sort:
+            return mk_app(mk_constant({"expr", "sort"}), /* level */ mk_expr_placeholder());
+        case expr_kind::Constant:
+            return mk_app(mk_constant({"expr", "const"}), quote(const_name(e)), /* levels */ mk_expr_placeholder());
+        case expr_kind::Meta:
+            lean_unreachable();
+        case expr_kind::Local:
+            // pattern variable
+            return update_mlocal(e, mk_constant("expr"));
+        case expr_kind::App:
+            return mk_app(mk_constant({"expr", "app"}), quote(app_fn(e)), quote(app_arg(e)));
+        case expr_kind::Lambda:
+            return mk_app(mk_constant({"expr", "lam"}), quote(binding_name(e)), /* binding info */ mk_expr_placeholder(),
+                          quote(binding_domain(e)), quote(binding_body(e)));
+        case expr_kind::Pi:
+            return mk_app(mk_constant({"expr", "pi"}), quote(binding_name(e)), /* binding info */ mk_expr_placeholder(),
+                          quote(binding_domain(e)), quote(binding_body(e)));
+        case expr_kind::Let:
+            return mk_app(mk_constant({"expr", "let"}), quote(let_name(e)), quote(let_type(e)), quote(let_value(e)),
+                          quote(let_body(e)));
+        case expr_kind::Macro:
+            if (is_typed_expr(e))
+                return mk_typed_expr(quote(get_typed_expr_expr(e)), quote(get_typed_expr_type(e)));
+            throw parser_error("invalid quotation pattern, macros are not supported",
+                               get_pos_info_provider()->get_pos_info_or_some(e));
+    }
+    lean_unreachable();
+}
+
+static expr preprocess_quote_pattern(parser const & p, expr e) {
+    buffer<expr> aqs;
+    while (is_app_of(e, get_pexpr_subst_name())) {
+        expr arg1 = app_arg(app_fn(e));
+        expr arg2 = app_arg(e);
+        lean_assert(is_app_of(arg2, get_to_pexpr_name()));
+        aqs.push_back(app_arg(arg2));
+        e = arg1;
+    }
+    e = get_quote_expr(e);
+
+    metavar_context ctx;
+    local_context lctx;
+    elaborator elab(p.env(), p.get_options(), "_quotation_pattern", ctx, lctx, false);
+    e = elab.elaborate(e);
+
+    for (int i = aqs.size() - 1; i >= 0; i--) {
+        if (!is_local(aqs[i]))
+            throw parser_error("invalid quotation pattern, antiquotation must be a single variable", p.pos_of(aqs[i]));
+        e = instantiate(binding_body(e), aqs[i]);
+    }
+    return quote(e);
+}
+
 expr parser::patexpr_to_pattern(expr const & pat_or_expr, bool skip_main_fn, buffer<expr> & new_locals) {
     undef_id_to_local_scope scope(*this);
-    return to_pattern_fn(*this, new_locals)(pat_or_expr, skip_main_fn);
+    auto e = replace(pat_or_expr, [&](expr const & e) {
+        if (is_quote(e)) {
+            return some(preprocess_quote_pattern(*this, e));
+        } else if (is_app_of(e, get_pexpr_subst_name())) {
+            return some(preprocess_quote_pattern(*this, e));
+        } else {
+            return none_expr();
+        }
+    });
+    return to_pattern_fn(*this, new_locals)(e, skip_main_fn);
 }
 
 expr parser::parse_pattern_or_expr(unsigned rbp) {

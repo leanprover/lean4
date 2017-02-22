@@ -127,3 +127,7 @@ do env ← get_env,
    mk_dec_eq_instance_core
 
 end tactic
+
+/- instances of types in dependent files -/
+instance : decidable_eq ordering :=
+by tactic.mk_dec_eq_instance

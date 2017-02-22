@@ -101,7 +101,7 @@ environment mk_simple_equation_lemma_for(environment const & env, options const 
 name mk_equation_name(name const & f_name, unsigned eqn_idx);
 
 /* Return true iff e is a nat, int, char or string value. */
-bool is_nat_int_char_string_value(type_context & ctx, expr const & e);
+bool is_nat_int_char_string_name_value(type_context & ctx, expr const & e);
 
 /* Given a variable (x : I A idx), where (I A idx) is an inductive datatype,
    for each constructor c of (I A idx), this function invokes fn(t, new_vars) where t is of the form (c A ...),

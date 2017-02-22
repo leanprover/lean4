@@ -33,10 +33,11 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv[1:]
     infile        = argv[0]
-    basename, ext = os.path.splitext(infile)
-    cppfile       = basename + ".cpp"
-    hfile         = basename + ".h"
-    tst_file      = "../../tests/lean/run/check_" + basename + ".lean"
+    basedir, name = os.path.split(infile)
+    basename, ext = os.path.splitext(name)
+    cppfile       = os.path.join(basedir, basename + ".cpp")
+    hfile         = os.path.join(basedir, basename + ".h")
+    tst_file      = os.path.join(basedir, "../../tests/lean/run/check_" + basename + ".lean")
     constants     = []
     with open(infile, 'r') as f:
         for line in f:

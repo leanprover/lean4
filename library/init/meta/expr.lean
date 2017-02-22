@@ -212,23 +212,23 @@ is_constant_of (get_app_fn e) n
 meta def is_napp_of (e : expr) (c : name) (n : nat) : bool :=
 is_app_of e c ∧ get_app_num_args e = n
 
-meta def is_false (e : expr) : bool :=
-is_constant_of e `false
+meta def is_false : expr → bool
+| ``(false) := tt
+| _         := ff
 
+set_option eqn_compiler.max_steps 256
 meta def is_not : expr → option expr
-| (app f a)     := if is_constant_of f `not then some a else none
-| (pi n bi a b) := if is_false b then some a else none
-| e             := none
+| ``(not %%a)     := some a
+| ``(%%a → false) := some a
+| e               := none
 
-meta def is_eq (e : expr) : option (expr × expr) :=
-if is_napp_of e `eq 3
-then some (app_arg (app_fn e), app_arg e)
-else none
+meta def is_eq : expr → option (expr × expr)
+| ``((%%a: %%α) = %%b) := some (a, b)
+| _                    := none
 
-meta def is_ne (e : expr) : option (expr × expr) :=
-if is_napp_of e `ne 3
-then some (app_arg (app_fn e), app_arg e)
-else none
+meta def is_ne : expr → option (expr × expr)
+| ``((%%a: %%α) ≠ %%b) := some (a, b)
+| _                    := none
 
 meta def is_bin_arith_app (e : expr) (op : name) : option (expr × expr) :=
 if is_napp_of e op 4
@@ -247,13 +247,10 @@ is_bin_arith_app e `le
 meta def is_ge (e : expr) : option (expr × expr) :=
 is_bin_arith_app e `ge
 
-meta def is_heq (e : expr) : option (expr × expr × expr × expr) :=
-if is_napp_of e `heq 4
-then some (app_arg (app_fn (app_fn (app_fn e))),
-           app_arg (app_fn (app_fn e)),
-           app_arg (app_fn e),
-           app_arg e)
-else none
+set_option eqn_compiler.max_steps 512
+meta def is_heq : expr → option (expr × expr × expr × expr)
+| ``(@heq %%α %%a %%β %%b) := some (α, a, β, b)
+| _                        := none
 
 meta def is_pi : expr → bool
 | (pi _ _ _ _) := tt

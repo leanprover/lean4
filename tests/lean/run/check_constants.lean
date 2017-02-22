@@ -179,6 +179,7 @@ run_command script_check_id `mul_one
 run_command script_check_id `mul_zero
 run_command script_check_id `mul_zero_class
 run_command script_check_id `name.anonymous
+run_command script_check_id `name.mk_numeral
 run_command script_check_id `name.mk_string
 run_command script_check_id `nat
 run_command script_check_id `nat.of_num

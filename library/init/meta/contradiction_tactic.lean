@@ -50,12 +50,13 @@ private meta def contra_not_a_refl_rel_a : list expr → tactic unit
      <|>
      contra_not_a_refl_rel_a Hs
 
+set_option eqn_compiler.max_steps 256
 private meta def contra_constructor_eq : list expr → tactic unit
 | []        := failed
 | (H :: Hs) :=
   do t ← infer_type H >>= whnf,
-     match (is_eq t) with
-     | (some (lhs_0, rhs_0)) :=
+     match t with
+     | ``((%%lhs_0 : %%α) = %%rhs_0) :=
        do env ← get_env,
           lhs ← whnf lhs_0,
           rhs ← whnf rhs_0,
@@ -67,7 +68,7 @@ private meta def contra_constructor_eq : list expr → tactic unit
                   pr ← mk_app (I_name <.> "no_confusion") [tgt, lhs, rhs, H],
                   exact pr
           else contra_constructor_eq Hs
-     | none := contra_constructor_eq Hs
+     | _ := contra_constructor_eq Hs
      end
 
 meta def contradiction : tactic unit :=

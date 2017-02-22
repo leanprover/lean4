@@ -583,8 +583,20 @@ environment mk_simple_equation_lemma_for(environment const & env, options const 
     return add_equation_lemma(env, opts, metavar_context(), ctx.lctx(), is_private, eqn_name, eqn_type, eqn_proof);
 }
 
-bool is_nat_int_char_string_value(type_context & ctx, expr const & e) {
-    if (to_char(ctx, e) || to_string(e)) return true;
+bool is_name_value(expr const & e) {
+    if (is_constant(e, get_name_anonymous_name()))
+        return true;
+    buffer<expr> args;
+    expr const & fn = get_app_args(e, args);
+    if (is_constant(fn, get_name_mk_string_name()) && args.size() == 2)
+        return is_string_value(args[0]) && is_name_value(args[1]);
+    if (is_constant(fn, get_name_mk_numeral_name()) && args.size() == 2)
+        return is_num(args[0]) && is_name_value(args[1]);
+    return false;
+}
+
+bool is_nat_int_char_string_name_value(type_context & ctx, expr const & e) {
+    if (is_char_value(ctx, e) || is_string_value(e) || is_name_value(e)) return true;
     if (is_signed_num(e)) {
         expr type = ctx.infer(e);
         if (ctx.is_def_eq(type, mk_nat_type()) || ctx.is_def_eq(type, mk_int_type()))

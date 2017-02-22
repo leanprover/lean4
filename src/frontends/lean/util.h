@@ -106,7 +106,9 @@ pair<name, option_kind> parse_option_name(parser & p, char const * error_msg);
 /** Create (tactic unit) type */
 expr mk_tactic_unit();
 
-expr quote_name(name const & n);
+expr quote(unsigned u);
+expr quote(char const * str);
+expr quote(name const & n);
 
 expr mk_no_info(expr const & e);
 bool is_no_info(expr const & e);

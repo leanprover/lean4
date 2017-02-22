@@ -682,7 +682,7 @@ static expr parse_quoted_name(parser_state & p, unsigned, expr const *, pos_info
         }
     }
     lean_assert(id.is_string());
-    expr e  = quote_name(id);
+    expr e  = quote(id);
     return p.rec_save_pos(e, pos);
 }
 

@@ -11,3 +11,6 @@ by do
    trace t2,
    r ← mk_app (`eq.refl) [a],
    exact r
+
+private def f := unit
+check ``f

@@ -31,6 +31,8 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser.h"
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/decl_util.h" // TODO(Leo): remove
+#include "frontends/lean/prenum.h"
+
 namespace lean {
 void consume_until_end_or_command(parser & p) {
     while (!p.curr_is_command() && !p.curr_is_eof() && !p.curr_is_token(get_period_tk())) {
@@ -341,16 +343,24 @@ expr mk_tactic_unit() {
     return mk_app(mk_constant(get_tactic_name(), {mk_level_zero()}), mk_constant(get_unit_name()));
 }
 
-expr quote_name(name const & n) {
-    if (n.is_anonymous()) {
-        return mk_constant(get_name_anonymous_name());
-    } else if (n.is_string()) {
-        expr prefix = quote_name(n.get_prefix());
-        expr str    = from_string(n.get_string());
-        return mk_app(mk_constant(get_name_mk_string_name()), str, prefix);
-    } else {
-        lean_unreachable();
+expr quote(unsigned u) {
+    return mk_app(mk_constant(get_char_of_nat_name()), mk_prenum(mpz(u)));
+}
+
+expr quote(char const * str) {
+    return from_string(str);
+}
+
+expr quote(name const & n) {
+    switch (n.kind()) {
+        case name_kind::ANONYMOUS:
+            return mk_constant(get_name_anonymous_name());
+        case name_kind::NUMERAL:
+            return mk_app(mk_constant(get_name_mk_numeral_name()), quote(n.get_numeral()), quote(n.get_prefix()));
+        case name_kind::STRING:
+            return mk_app(mk_constant(get_name_mk_string_name()), quote(n.get_string()), quote(n.get_prefix()));
     }
+    lean_unreachable();
 }
 
 static name * g_no_info = nullptr;

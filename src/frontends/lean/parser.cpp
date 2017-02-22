@@ -1000,7 +1000,7 @@ static expr mk_opt_param(expr const & t, expr const & val) {
 }
 
 static expr mk_auto_param(expr const & t, name const & tac_name) {
-    return copy_tag(t, mk_app(copy_tag(t, mk_constant(get_auto_param_name())), t, quote_name(tac_name)));
+    return copy_tag(t, mk_app(copy_tag(t, mk_constant(get_auto_param_name())), t, quote(tac_name)));
 }
 
 static bool is_tactic_unit(environment const & env, expr const & c) {
@@ -1714,26 +1714,6 @@ struct to_pattern_fn {
         return r;
     }
 };
-
-static expr quote(unsigned u) {
-    return mk_app(mk_constant(get_char_of_nat_name()), mk_prenum(mpz(u)));
-}
-
-static expr quote(char const * str) {
-    return from_string(str);
-}
-
-static expr quote(name const & n) {
-    switch (n.kind()) {
-        case name_kind::ANONYMOUS:
-            return mk_constant({"name", "anonymous"});
-        case name_kind::NUMERAL:
-            return mk_app(mk_constant({"name", "mk_numeral"}), quote(n.get_numeral()), quote(n.get_prefix()));
-        case name_kind::STRING:
-            return mk_app(mk_constant({"name", "mk_string"}), quote(n.get_string()), quote(n.get_prefix()));
-    }
-    lean_unreachable();
-}
 
 static expr quote(expr const & e) {
     switch (e.kind()) {

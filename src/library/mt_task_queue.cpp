@@ -223,6 +223,7 @@ void mt_task_queue::bump_prio(gtask const & t, unsigned new_prio) {
 }
 
 bool mt_task_queue::check_deps(gtask const & t) {
+    check_stack("mt_task_queue::check_deps");
     lean_assert(get_data(t));
 
     buffer<gtask> deps;

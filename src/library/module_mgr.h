@@ -43,10 +43,6 @@ struct module_info {
     struct parse_result {
         options               m_opts;
 
-        task<bool> m_parsed_ok;
-        task<bool> m_proofs_are_correct;
-        bool is_ok() const;
-
         std::shared_ptr<loaded_module const> m_loaded_module;
 
         snapshot_vector m_snapshots;
@@ -58,6 +54,7 @@ struct module_info {
     gtask m_olean_task;
 
     cancellation_token m_cancel;
+    log_tree::node m_lt;
 
     environment const & get_produced_env() const {
         return get(get(m_result).m_loaded_module->m_env);

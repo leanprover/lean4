@@ -29,7 +29,7 @@ struct decl_modifiers {
     This object is used to propagate relevant flags to
     nested definitions. */
 class declaration_info_scope {
-    declaration_info_scope(name const & ns, bool found_errors, def_cmd_kind kind, decl_modifiers const & modifiers);
+    declaration_info_scope(name const & ns, def_cmd_kind kind, decl_modifiers const & modifiers);
 public:
     declaration_info_scope(parser const & p, def_cmd_kind kind, decl_modifiers const & modifiers);
     ~declaration_info_scope();

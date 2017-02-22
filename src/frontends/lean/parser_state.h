@@ -523,15 +523,14 @@ struct snapshot {
     parser_scope_stack m_parser_scope_stack;
     unsigned           m_next_inst_idx;
     pos_info           m_pos;
-    list<gtask>        m_required_successes;
     cancellation_token m_cancellation_token;
     snapshot(environment const & env, name_set const & sub_buckets, local_level_decls const & lds,
              local_expr_decls const & eds, name_set const & lvars, name_set const & vars,
              name_set const & includes, options const & opts, bool imports_parsed, bool noncomputable_theory, parser_scope_stack const & pss,
-             unsigned next_inst_idx, pos_info const & pos, list<gtask> const & required_successes, cancellation_token const & ctok):
+             unsigned next_inst_idx, pos_info const & pos, cancellation_token const & ctok):
         m_env(env), m_sub_buckets(sub_buckets), m_lds(lds), m_eds(eds), m_lvars(lvars), m_vars(vars), m_include_vars(includes),
         m_options(opts), m_imports_parsed(imports_parsed), m_noncomputable_theory(noncomputable_theory), m_parser_scope_stack(pss), m_next_inst_idx(next_inst_idx), m_pos(pos),
-        m_required_successes(required_successes), m_cancellation_token(ctok) {}
+        m_cancellation_token(ctok) {}
 };
 
 typedef std::vector<std::shared_ptr<snapshot const>> snapshot_vector;

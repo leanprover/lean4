@@ -19,14 +19,6 @@ Author: Gabriel Ebner
 
 namespace lean {
 
-bool module_info::parse_result::is_ok() const {
-    try {
-        return get(m_parsed_ok) && get(m_proofs_are_correct);
-    } catch (...) {
-        return false;
-    }
-}
-
 void module_mgr::mark_out_of_date(module_id const & id, buffer<module_id> & to_rebuild) {
     for (auto & mod : m_modules) {
         if (!mod.second || mod.second->m_out_of_date) continue;
@@ -106,7 +98,7 @@ static module_info::parse_result parse_lean(
              use_exceptions,
              (snapshots.empty() || !use_snapshots) ? std::shared_ptr<snapshot>() : snapshots.back(),
              use_snapshots ? &snapshots : nullptr);
-    auto parsed_ok = p();
+    p();
 
     module_info::parse_result mod;
 
@@ -118,39 +110,35 @@ static module_info::parse_result parse_lean(
 
     mod.m_opts = p.ios().get_options();
 
-    mod.m_parsed_ok = parsed_ok;
-    mod.m_proofs_are_correct = p.env().is_correct();
-
     return mod;
 }
 
-static gtask compile_olean(std::shared_ptr<module_info const> const & mod) {
+static gtask compile_olean(std::shared_ptr<module_info const> const & mod, log_tree::node const & parsing_lt) {
+    auto errs = has_errors(parsing_lt);
+
     gtask mod_dep = mk_deep_dependency(mod->m_result, [] (buffer<gtask> & deps, module_info::parse_result const & res) {
         for (auto & mdf : res.m_loaded_module->m_modifications)
             mdf->get_task_dependencies(deps);
         deps.push_back(res.m_loaded_module->m_uses_sorry);
-        deps.push_back(res.m_parsed_ok);
-        deps.push_back(res.m_proofs_are_correct);
     });
 
     std::vector<gtask> olean_deps;
     for (auto & dep : mod->m_deps)
         olean_deps.push_back(dep.m_mod_info->m_olean_task);
 
-    return add_library_task(task_builder<unit>([mod] {
+    return add_library_task(task_builder<unit>([mod, errs] {
         if (mod->m_source != module_src::LEAN)
             throw exception("cannot build olean from olean");
         auto res = get(mod->m_result);
 
-        if (!res.is_ok())
-            throw exception("not creating olean file because of errors");
+        if (get(errs)) throw exception("not creating olean file because of errors");
 
         auto olean_fn = olean_of_lean(mod->m_mod);
         exclusive_file_lock output_lock(olean_fn);
         std::ofstream out(olean_fn, std::ios_base::binary);
         write_module(*res.m_loaded_module, out);
         return unit();
-    }).depends_on(mod_dep).depends_on(olean_deps), std::string("saving olean"));
+    }).depends_on(mod_dep).depends_on(olean_deps).depends_on(errs), std::string("saving olean"));
 }
 
 // TODO(gabriel): adapt to vfs
@@ -196,6 +184,7 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
             auto mod = std::make_shared<module_info>();
 
             mod->m_mod = id;
+            mod->m_lt = lt.get();
             mod->m_source = module_src::OLEAN;
             mod->m_trans_mtime = mod->m_mtime = mtime;
 
@@ -220,8 +209,6 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
                       mk_pure_task<bool>(parsed_olean.m_uses_sorry), {} },
                     m_initial_env, [=] { return mk_loader(id, deps); });
 
-            res.m_parsed_ok = mk_pure_task(true);
-            res.m_proofs_are_correct = mk_pure_task(true);
             mod->m_result = mk_pure_task<module_info::parse_result>(res);
 
             if (auto & old_mod = m_modules[id])
@@ -243,6 +230,7 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
             auto imports = get_direct_imports(id, contents);
 
             auto mod = std::make_shared<module_info>();
+            mod->m_lt = lt.get();
             mod->m_cancel = mk_cancellation_token(
                     snapshots.empty() ? nullptr : snapshots.back()->m_cancellation_token);
             scope_cancellation_token scope_cancel(mod->m_cancel);
@@ -290,8 +278,10 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
                     [=] { return parse_lean(id, contents, initial_env, snapshots, use_snapshots, mod_deps); })
                     .depends_on(deps), std::string("parsing"));
 
-            if (m_save_olean)
-                mod->m_olean_task = compile_olean(mod);
+            if (m_save_olean) {
+                scope_log_tree_core lt3(&lt.get());
+                mod->m_olean_task = compile_olean(mod, lt2.get());
+            }
 
             if (auto & old_mod = m_modules[id]) {
                 cancel(old_mod->m_result); // TODO(gabriel): remove after parser refactoring

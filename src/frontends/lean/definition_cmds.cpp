@@ -346,8 +346,6 @@ static environment compile_decl(parser & p, environment const & env,
     try {
         return vm_compile(env, env.get(c_real_name));
     } catch (exception & ex) {
-        if (p.found_errors())
-            return env;
         // FIXME(gabriel): use position from exception
         auto out = p.mk_message(pos, WARNING);
         out << "failed to generate bytecode for '" << c_name << "'\n";
@@ -384,12 +382,9 @@ declare_definition(parser & p, environment const & env, def_cmd_kind kind, buffe
         mk_theorem(c_real_name, to_list(lp_names), type, *val) :
         mk_definition(new_env, c_real_name, to_list(lp_names), type, *val, use_conv_opt, is_trusted));
     auto cdef         = check(p, new_env, c_name, def, pos);
-    if (cdef.get_declaration().is_theorem())
-        p.require_success(cdef.get_declaration().get_value_task());
     new_env           = module::add(new_env, cdef);
 
-    if (!check_noncomputable(p.ignore_noncomputable(), new_env, c_name, c_real_name, modifiers.m_is_noncomputable, p.get_file_name(), pos))
-        p.set_error();
+    check_noncomputable(p.ignore_noncomputable(), new_env, c_name, c_real_name, modifiers.m_is_noncomputable, p.get_file_name(), pos);
 
     if (modifiers.m_is_protected)
         new_env = add_protected(new_env, c_real_name);
@@ -646,7 +641,6 @@ static expr elaborate_proof(
         finalize_theorem_proof(elab, params, val, finfo);
         if (is_rfl_lemma && !lean::is_rfl_lemma(final_type, val))
             throw exception("not a rfl-lemma, even though marked as rfl");
-        if (elab.has_errors()) throw std::exception();
         return inline_new_defs(decl_env, elab.env(), local_pp_name(fn), val);
     } catch (exception & ex) {
         /* Remark: we need the catch to be able to produce correct line information */
@@ -692,12 +686,9 @@ static void check_example(environment const & decl_env, options const & opts,
         auto new_env = elab.env();
         auto def = mk_definition(new_env, decl_name, to_list(univ_params_buf), type, val, use_conv_opt, is_trusted);
         auto cdef = check(new_env, def);
-        if (elab.has_errors()) throw std::exception();
         new_env = module::add(new_env, cdef);
-        if (!check_noncomputable(false, new_env, decl_name, def.get_name(), modifiers.m_is_noncomputable,
-                                 pos_provider.get_file_name(), pos_provider.get_some_pos())) {
-            throw std::exception(); // set parser to failed.
-        }
+        check_noncomputable(false, new_env, decl_name, def.get_name(), modifiers.m_is_noncomputable,
+                                 pos_provider.get_file_name(), pos_provider.get_some_pos());
     } catch (exception & ex) {
         message_builder error_msg(tc, decl_env, get_global_ios(),
                                   pos_provider.get_file_name(), pos_provider.get_some_pos(),
@@ -771,7 +762,6 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
                                        new_fn, val ,thm_finfo, is_rfl, type,
                                        mctx, lctx, pos_provider, use_info_manager, file_name);
             }));
-            p.require_success(proof);
             env_n = declare_definition(p, elab.env(), kind, lp_names, c_name, type, opt_val, proof, modifiers, attrs,
                                        doc_string, header_pos);
         } else if (kind == Example) {
@@ -784,12 +774,11 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
             auto pos_provider = p.get_parser_pos_provider(header_pos);
             bool use_info_manager = get_global_info_manager() != nullptr;
             std::string file_name = p.get_file_name();
-            p.require_success(add_library_task<unit>([=] {
-                check_example(env, opts,  modifiers, lp_name_list, new_params_list, fn, val, mctx, lctx,
+            add_library_task<unit>([=] {
+                check_example(env, opts, modifiers, lp_name_list, new_params_list, fn, val, mctx, lctx,
                               pos_provider, use_info_manager, file_name);
                 return unit();
-            }));
-            if (elab.has_errors()) p.set_error();
+            });
             return p.env();
         } else {
             std::tie(val, type) = elaborate_definition(p, elab, kind, fn, val, header_pos);
@@ -806,7 +795,6 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
             opt_val = optional<expr>(val);
             env_n = declare_definition(p, elab.env(), kind, lp_names, c_name, type, opt_val, {}, modifiers, attrs, doc_string, header_pos);
         }
-        if (elab.has_errors()) p.set_error();
         environment new_env = env_n.first;
         name c_real_name    = env_n.second;
         if (is_rfl) new_env = mark_rfl_lemma(new_env, c_real_name);

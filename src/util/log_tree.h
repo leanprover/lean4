@@ -83,6 +83,8 @@ public:
         name_set get_used_names() const;
         gtask get_producer() const;
 
+        gtask wait_for_finish() const;
+
         void print_to(std::ostream &, unsigned) const;
         void print() const;
 

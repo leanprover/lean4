@@ -1,4 +1,5 @@
-#include "log_tree.h"
+#include "util/log_tree.h"
+#include "util/task_builder.h"
 
 namespace lean {
 
@@ -189,6 +190,18 @@ void log_tree::node::print_to(std::ostream & out, unsigned indent) const {
         out << ": ";
         c.print_to(out, indent);
     });
+}
+
+static void gather_producers(buffer<gtask> & deps, log_tree::node const & n) {
+    if (auto prod = n.get_producer()) deps.push_back(prod);
+    n.get_children().for_each([&] (name const &, log_tree::node const & c) {
+       gather_producers(deps, c);
+    });
+}
+
+gtask log_tree::node::wait_for_finish() const {
+    auto t = *this;
+    return mk_dependency_task([t] (buffer<gtask> & deps) { gather_producers(deps, t); });
 }
 
 LEAN_THREAD_PTR(log_tree::node, g_log_tree);

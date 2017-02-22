@@ -490,8 +490,6 @@ class inductive_cmd_fn {
         m_u_param_offset = m_u_meta_assignment_offset.second;
 
         m_env = elab.env();
-        m_ctx = type_context(m_env);
-        if (elab.has_errors()) m_p.set_error();
 
         new_params.clear();
         new_inds.clear();

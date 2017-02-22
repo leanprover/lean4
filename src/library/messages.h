@@ -42,4 +42,6 @@ public:
 std::ostream & operator<<(std::ostream &, message const &);
 void report_message(message const &);
 
+task<bool> has_errors(log_tree::node const &);
+
 }

@@ -58,7 +58,6 @@ class parser : public abstract_parser {
     pos_info                m_last_cmd_pos;
     unsigned                m_next_tag_idx;
     unsigned                m_next_inst_idx;
-    bool                    m_found_errors;
     pos_info_table          m_pos_table;
     // By default, when the parser finds a unknown identifier, it signs an error.
     // When the following flag is true, it creates a constant.
@@ -85,9 +84,6 @@ class parser : public abstract_parser {
     // Docgen
     optional<std::string>  m_doc_string;
 
-    // Tasks that need to be successful (no exception) for parsing to succeed
-    list<gtask> m_required_successes;
-
     void throw_parser_exception(char const * msg, pos_info p);
     void throw_nested_exception(throwable const & ex);
 
@@ -109,7 +105,7 @@ class parser : public abstract_parser {
 
     void process_imports();
     void parse_command();
-    task<bool> parse_commands();
+    void parse_commands();
     void process_postponed(buffer<expr> const & args, bool is_left, buffer<notation::action_kind> const & kinds,
                            buffer<list<expr>> const & nargs, buffer<expr> const & ps, buffer<pair<unsigned, pos_info>> const & scoped_info,
                            list<notation::action> const & postponed, pos_info const & p, buffer<expr> & new_args);
@@ -200,8 +196,6 @@ public:
 
     bool ignore_noncomputable() const { return m_ignore_noncomputable; }
     void set_ignore_noncomputable() { m_ignore_noncomputable = true; }
-
-    bool found_errors() const { return m_found_errors; }
 
     bool in_pattern() const { return m_in_pattern; }
 
@@ -480,17 +474,11 @@ public:
 
     expr mk_sorry(pos_info const & p);
 
-    void require_success(gtask const & t) {
-        m_required_successes = cons(t, m_required_successes);
-    }
-
-    void set_error() { m_found_errors = true; }
-
     /** return true iff profiling is enabled */
     bool profiling() const { return m_profile; }
 
     /** parse all commands in the input stream */
-    task<bool> operator()() { return parse_commands(); }
+    void operator()() { return parse_commands(); }
 
     void get_imports(std::vector<module_name> &);
 

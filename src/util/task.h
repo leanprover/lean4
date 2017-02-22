@@ -78,7 +78,9 @@ public:
         m_data.reset(new gtask_data(imp, flags));
     }
 
-    void cancel(std::shared_ptr<cancellable> const &self) override;
+    void cancel(std::shared_ptr<cancellable> const & self) override;
+
+    bool peek_is_finished() const { return m_state.load() > task_state::Running; }
 
     virtual ~gtask_cell() {}
 };

@@ -415,8 +415,7 @@ environment add(environment const & env, certified_declaration const & d) {
     add_library_task(task_builder<unit>([_d, pos] {
         if (has_sorry(_d)) {
             if (optional<name> n = should_report_sorry(_d.get_name())) {
-                auto file_name = "<dummy>"; // TODO(gabriel)
-                report_message(message(file_name, pos, WARNING,
+                report_message(message(logtree().get_location().m_file_name, pos, WARNING,
                                        (sstream() << "declaration '" << *n << "' uses sorry").str()));
             }
         }

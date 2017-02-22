@@ -357,7 +357,6 @@ environment add_alias(environment const & env, bool is_protected, name const & c
 
 struct definition_info {
     name     m_prefix;
-    bool     m_prev_errors{false};
     bool     m_is_private{false};
     bool     m_is_meta{false};
     bool     m_is_noncomputable{false};
@@ -368,11 +367,10 @@ struct definition_info {
 
 MK_THREAD_LOCAL_GET_DEF(definition_info, get_definition_info);
 
-declaration_info_scope::declaration_info_scope(name const & ns, bool prev_errors, def_cmd_kind kind, decl_modifiers const & modifiers) {
+declaration_info_scope::declaration_info_scope(name const & ns, def_cmd_kind kind, decl_modifiers const & modifiers) {
     definition_info & info = get_definition_info();
     lean_assert(info.m_prefix.is_anonymous());
     info.m_prefix           = modifiers.m_is_private ? name() : ns;
-    info.m_prev_errors      = prev_errors;
     info.m_is_private       = modifiers.m_is_private;
     info.m_is_meta          = modifiers.m_is_meta;
     info.m_is_noncomputable = modifiers.m_is_noncomputable;
@@ -382,7 +380,7 @@ declaration_info_scope::declaration_info_scope(name const & ns, bool prev_errors
 }
 
 declaration_info_scope::declaration_info_scope(parser const & p, def_cmd_kind kind, decl_modifiers const & modifiers):
-    declaration_info_scope(get_namespace(p.env()), p.found_errors(), kind, modifiers) {}
+    declaration_info_scope(get_namespace(p.env()), kind, modifiers) {}
 
 declaration_info_scope::~declaration_info_scope() {
     definition_info & info = get_definition_info();
@@ -402,7 +400,6 @@ equations_header mk_equations_header(list<name> const & ns) {
     h.m_is_noncomputable = get_definition_info().m_is_noncomputable;
     h.m_is_lemma         = get_definition_info().m_is_lemma;
     h.m_aux_lemmas       = get_definition_info().m_aux_lemmas;
-    h.m_prev_errors      = get_definition_info().m_prev_errors;
     return h;
 }
 

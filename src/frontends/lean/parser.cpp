@@ -192,7 +192,6 @@ parser::parser(environment const & env, io_state const & ios,
     m_in_pattern = false;
     m_has_params = false;
     m_id_behavior  = id_behavior::ErrorIfUndef;
-    m_found_errors = false;
     updt_options();
     m_next_tag_idx  = 0;
     m_curr = token_kind::Identifier;
@@ -267,7 +266,6 @@ void parser::throw_nested_exception(throwable const & ex) {
 }
 
 #define CATCH(ShowError, ThrowError)                    \
-m_found_errors = true;                                  \
 if (!m_use_exceptions && m_show_errors) { ShowError ; } \
 sync();                                                 \
 if (m_use_exceptions) { ThrowError ; }
@@ -2274,7 +2272,6 @@ void parser::process_imports() {
     m_env = import_modules(m_env, m_file_name, imports, sorry_checking_import_fn, import_errors);
 
     if (!import_errors.empty()) {
-        m_found_errors = true;
         for (auto & e : import_errors) {
             try {
                 std::rethrow_exception(e.m_ex);
@@ -2303,7 +2300,7 @@ void parser::get_imports(std::vector<module_name> & imports) {
     parse_imports(fingerprint, imports);
 }
 
-task<bool> parser::parse_commands() {
+void parser::parse_commands() {
     protected_call([&]() {
         // We disable hash-consing while parsing to make sure the pos-info are correct.
         scoped_expr_caching disable(false);
@@ -2363,7 +2360,6 @@ task<bool> parser::parse_commands() {
             {
             scope_log_tree lt;
             if (has_open_scopes(m_env)) {
-                m_found_errors = true;
                 if (!m_use_exceptions && m_show_errors)
                     (mk_message(ERROR) << "invalid end of module, expecting 'end'").report();
                 else if (m_use_exceptions)
@@ -2376,21 +2372,6 @@ task<bool> parser::parse_commands() {
                 m_env = pop_scope_core(m_env, m_ios);
         }
     }, [](){});
-
-    scope_log_tree lt;
-    scope_cancellation_token scope_ctok(m_cancellation_token);
-    if (m_found_errors) {
-        return mk_pure_task(false);
-    } else {
-        auto req_succ = m_required_successes;
-        return task_builder<bool>([req_succ] {
-            for (auto t : req_succ)
-                taskq().wait_for_success(t);
-            return true;
-        }).depends_on(req_succ)
-          .does_not_require_own_thread()
-          .build();
-    }
 }
 
 bool parser::curr_is_command_like() const {
@@ -2418,7 +2399,7 @@ void parser::save_snapshot(pos_info p) {
                 m_env, logtree().get_used_names(), m_local_level_decls, m_local_decls,
                 m_level_variables, m_variables, m_include_vars,
                 m_ios.get_options(), m_imports_parsed, m_ignore_noncomputable, m_parser_scope_stack, m_next_inst_idx, p,
-                m_required_successes, m_cancellation_token));
+                m_cancellation_token));
     }
     m_cancellation_token = mk_cancellation_token(m_cancellation_token);
 }
@@ -2459,7 +2440,7 @@ bool parse_commands(environment & env, io_state & ios, char const * fname) {
 
     auto mod = mod_mgr.get_module(fname);
     env = mod->get_produced_env();
-    return get(mod->m_result).is_ok();
+    return true; // TODO(gabriel): reuse logic from lean.cpp
 }
 
 void initialize_parser() {

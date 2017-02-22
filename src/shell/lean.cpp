@@ -478,6 +478,8 @@ int main(int argc, char ** argv) {
 
     log_tree lt;
     lt.add_listener([&] (std::vector<log_tree::event> const & evs) { msg_stream.on_event(evs); });
+    auto lt_root = lt.get_root();
+    scope_log_tree_core scope_lt(&lt_root);
 
     scope_global_ios scope_ios(ios);
 
@@ -534,15 +536,6 @@ int main(int argc, char ** argv) {
 #endif
         set_task_queue(tq.get());
 
-        if (make_mode) {
-            // TODO(gabriel)
-//            if (auto prog_msg_buf = std::dynamic_pointer_cast<progress_message_stream>(message_handler))
-//                tq->set_progress_callback([=](generic_task * t) {
-//                    if (t && !t->is_tiny())
-//                        prog_msg_buf->show_current_task(t->description());
-//                });
-        }
-
         fs_module_vfs vfs;
         if (!recursive) {
             for (auto & mod_id : module_args)
@@ -575,16 +568,13 @@ int main(int argc, char ** argv) {
             mods.push_back({mod, mod_info});
         }
 
-        // TODO(gabriel)
-        tq->join();
+        taskq().wait_for_finish(lt.get_root().wait_for_finish());
 
         for (auto & mod : mods) {
             try {
                 auto res = get(mod.second->m_result);
-                ok = ok && res.is_ok();
             } catch (...) {
                 ok = false;
-                throw;
                 // exception has already been reported
             }
         }
@@ -620,7 +610,8 @@ int main(int argc, char ** argv) {
             std::ofstream out(*doc);
             gen_doc(env, opts, out);
         }
-        return ok ? 0 : 1;
+
+        return (ok && !get(has_errors(lt.get_root()))) ? 0 : 1;
     } catch (lean::throwable & ex) {
         lean::message_builder(env, ios, "<unknown>", lean::pos_info(1, 1), lean::ERROR).set_exception(ex).report();
     } catch (std::bad_alloc & ex) {

@@ -2418,7 +2418,7 @@ name elaborator::find_field_fn(expr const & e, expr const & s, expr const & s_ty
         expr new_s_type = s_type;
         if (auto d = unfold_term(env(), new_s_type))
             new_s_type = *d;
-        new_s_type = m_ctx.whnf_head_pred(new_s_type, [](expr const &) { return false; });
+        new_s_type = m_ctx.whnf_head_pred(new_s_type, [](expr const & e) { return is_macro(e); });
         if (new_s_type == s_type)
             throw;
         try {

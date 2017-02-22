@@ -282,7 +282,7 @@ static expr convervative_try_to_pi(type_context & ctx, expr const & e) {
     expr new_e = ctx.whnf_head_pred(e, [&](expr const & t) {
             if (is_not(t)) return true;
             expr const & fn = get_app_fn(e);
-            return is_constant(fn) && is_reducible(ctx.env(), const_name(fn));
+            return (is_constant(fn) && is_reducible(ctx.env(), const_name(fn))) || (is_macro(e));
         });
     return is_pi(new_e) ? new_e : e;
 }

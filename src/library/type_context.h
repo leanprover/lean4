@@ -131,7 +131,6 @@ class type_context_cache {
     void init(local_context const & lctx);
     bool is_transparent(transparency_mode m, declaration const & d);
     optional<declaration> is_transparent(transparency_mode m, name const & n);
-    bool should_unfold_macro(expr const & e);
     bool is_aux_recursor(name const & n);
 public:
     /** When use_bi == true, the cache for inferred types take binder information into account.

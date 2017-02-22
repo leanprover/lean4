@@ -100,11 +100,6 @@ optional<declaration> type_context_cache::is_transparent(transparency_mode m, na
     return r;
 }
 
-bool type_context_cache::should_unfold_macro(expr const &) {
-    // TODO(Leo): add predicate
-    return true;
-}
-
 bool type_context_cache::is_aux_recursor(name const & n) {
     auto it = m_aux_recursor_cache.find(n);
     if (it != m_aux_recursor_cache.end())
@@ -650,10 +645,13 @@ bool type_context::should_unfold_macro(expr const & e) {
     /* If m_transparency_mode is set to ALL, then we unfold all
        macros. In this way, we make sure type inference does not fail.
        We also unfold macros when reducing inside of is_def_eq. */
-    return
-        m_transparency_mode == transparency_mode::All ||
-        m_in_is_def_eq ||
-        m_cache->should_unfold_macro(e);
+    if (m_transparency_mode == transparency_mode::All || m_in_is_def_eq) {
+        return true;
+    } else if (m_unfold_pred) {
+        return (*m_unfold_pred)(e);
+    } else {
+        return true;
+    }
 }
 
 optional<expr> type_context::expand_macro(expr const & e) {
@@ -765,7 +763,7 @@ expr type_context::whnf(expr const & e) {
         break;
     }
     auto & cache = m_cache->m_whnf_cache[static_cast<unsigned>(m_transparency_mode)];
-    if (m_transparency_pred) {
+    if (!m_transparency_pred && !m_unfold_pred) {
         auto it = cache.find(e);
         if (it != cache.end())
             return it->second;
@@ -778,8 +776,8 @@ expr type_context::whnf(expr const & e) {
         if (auto next_t = unfold_definition(t1)) {
             t = *next_t;
         } else {
-            if (!m_used_assignment && !m_transparency_pred && !is_stuck(t1) &&
-                postponed_sz == m_postponed.size()) {
+            if (!m_used_assignment && !is_stuck(t1) &&
+                postponed_sz == m_postponed.size() && !m_transparency_pred && !m_unfold_pred) {
                 cache.insert(mk_pair(e, t1));
             }
             return t1;

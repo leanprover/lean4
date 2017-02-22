@@ -49,6 +49,27 @@ struct all_messages_msg {
     }
 };
 
+bool region_of_interest::intersects(log_tree::node const & n) const {
+    if (m_files.empty()) return true;
+    if (n.get_location().m_file_name.empty()) return true;
+    auto & l = n.get_location();
+    if (auto f = m_files.find(l.m_file_name)) {
+        return std::max(f->m_begin_line, l.m_range.m_begin.first)
+            <= std::min(f->m_end_line, l.m_range.m_end.first);
+    } else {
+        return false;
+    }
+}
+
+bool region_of_interest::intersects(message const & msg) const {
+    if (m_files.empty()) return true;
+    if (auto f = m_files.find(msg.get_file_name())) {
+        return f->m_begin_line <= msg.get_pos().first && msg.get_pos().first <= f->m_end_line;
+    } else {
+        return false;
+    }
+}
+
 class server::message_handler {
     server * m_srv;
     log_tree * m_lt;
@@ -63,20 +84,22 @@ public:
         if (use_timer) m_timer.reset(new single_timer);
     }
 
-    static void get_messages(log_tree::node const & n, std::vector<message> & msgs) {
+    static void get_messages(log_tree::node const & n, std::vector<message> & msgs, region_of_interest const & roi) {
+        if (!roi.intersects(n)) return;
         for (auto & e : n.get_entries()) {
             if (auto msg = dynamic_cast<message const *>(e.get())) {
-                msgs.push_back(*msg);
+                if (roi.intersects(*msg))
+                    msgs.push_back(*msg);
             }
         }
         n.get_children().for_each([&] (name const &, log_tree::node const & c) {
-            get_messages(c, msgs);
+            get_messages(c, msgs, roi);
         });
     }
 
-    std::vector<message> get_messages_core() {
+    std::vector<message> get_messages_core(region_of_interest const & roi) {
         std::vector<message> msgs;
-        get_messages(m_lt->get_root(), msgs);
+        get_messages(m_lt->get_root(), msgs, roi);
         return msgs;
     }
 
@@ -85,25 +108,33 @@ public:
         if (m_timer) {
             m_full_refresh_scheduled = true;
             m_timer->set(chrono::steady_clock::now() + chrono::milliseconds(100), [&] {
-                    {
-                        unique_lock<mutex> lock(m_mutex);
-                        m_full_refresh_scheduled = false;
-                        m_dirty_files.clear();
-                    }
-                    m_srv->send_msg(all_messages_msg{get_messages_core()});
+                    unique_lock<mutex> lock(m_mutex);
+                    m_full_refresh_scheduled = false;
+                    m_dirty_files.clear();
+                    auto roi = m_srv->get_roi();
+                    lock.unlock();
+
+                    m_srv->send_msg(all_messages_msg{get_messages_core(roi)});
                 }, false);
         }
 #endif
+        if (!m_full_refresh_scheduled) {
+            m_dirty_files.clear();
+            m_srv->send_msg(all_messages_msg{get_messages_core(m_srv->get_roi())});
+        }
     }
 
     void on_event(std::vector<log_tree::event> const & events) {
         unique_lock<mutex> lock(m_mutex);
+        auto roi = m_srv->get_roi();
         for (auto & e : events) {
             switch (e.m_kind) {
                 case log_tree::event::EntryAdded:
                 case log_tree::event::EntryRemoved:
                     if (auto msg = dynamic_cast<message const *>(e.m_entry.get())) {
-                        m_dirty_files.insert(msg->get_file_name());
+                        if (roi.intersects(*msg)) {
+                            m_dirty_files.insert(msg->get_file_name());
+                        }
                     }
                     break;
 
@@ -112,11 +143,12 @@ public:
         }
         if (!m_dirty_files.empty()) {
             schedule_refresh();
-            if (!m_full_refresh_scheduled) {
-                m_dirty_files.clear();
-                m_srv->send_msg(all_messages_msg{get_messages_core()});
-            }
         }
+    }
+
+    void on_new_roi() {
+        unique_lock<mutex> lock(m_mutex);
+        schedule_refresh();
     }
 };
 
@@ -160,38 +192,39 @@ public:
         if (use_timer) m_timer.reset(new single_timer);
     }
 
-    void mk_tasks_msg(log_tree::node const & n, current_tasks_msg & msg) {
+    void mk_tasks_msg(log_tree::node const & n, current_tasks_msg & msg, region_of_interest const & roi) {
+        if (!roi.intersects(n)) return;
         if (n.get_producer()) {
             msg.m_is_running = true;
             msg.m_tasks.push_back(current_tasks_msg::json_of_task(n));
             return;
         }
         n.get_children().for_each([&] (name const &, log_tree::node const & c) {
-            mk_tasks_msg(c, msg);
+            mk_tasks_msg(c, msg, roi);
         });
     }
 
     void submit_core(log_tree::node const & n) {
-        // TODO(gabriel): priorities & ROI
-//        if (n.get_producer() && m_srv->m_visible_files.count(n.get_location().m_file_name)) {
+        // TODO(gabriel): priorities
         if (auto prod = n.get_producer()) {
             taskq().submit(prod);
         }
     }
 
-    void resubmit_core(log_tree::node const & n) {
+    void resubmit_core(log_tree::node const & n, region_of_interest const & roi) {
+        if (!roi.intersects(n)) return;
         submit_core(n);
         n.get_children().for_each([&] (name const &, log_tree::node const & c) {
-            resubmit_core(c);
+            resubmit_core(c, roi);
         });
     }
     void resubmit_core() {
-        resubmit_core(m_srv->m_lt.get_root());
+        resubmit_core(m_srv->m_lt.get_root(), m_srv->get_roi());
     }
 
     current_tasks_msg mk_tasks_msg() {
         current_tasks_msg msg;
-        mk_tasks_msg(m_lt->get_root(), msg);
+        mk_tasks_msg(m_lt->get_root(), msg, m_srv->get_roi());
         return msg;
     }
 
@@ -206,15 +239,21 @@ public:
     }
 
     void on_event(std::vector<log_tree::event> const & events) {
+        optional<region_of_interest> roi;
         bool need_refresh = false;
         for (auto & e : events) {
             switch (e.m_kind) {
                 case log_tree::event::ProducerSet:
-                    submit_core(e.m_node);
-                    need_refresh = true;
+                    if (!roi) roi = m_srv->get_roi();
+                    if (roi->intersects(e.m_node)) {
+                        submit_core(e.m_node);
+                        need_refresh = true;
+                    }
                     break;
                 case log_tree::event::Finished:
-                    need_refresh = true;
+                    if (!roi) roi = m_srv->get_roi();
+                    if (roi->intersects(e.m_node))
+                        need_refresh = true;
                     break;
 
                 default:
@@ -225,6 +264,12 @@ public:
             unique_lock<mutex> lock(m_mutex);
             schedule_refresh();
         }
+    }
+
+    void on_new_roi() {
+        resubmit_core();
+        unique_lock<mutex> lock(m_mutex);
+        schedule_refresh();
     }
 };
 
@@ -336,7 +381,7 @@ void server::handle_request(json const & jreq) {
         req.m_cmd_name = jreq.at("command");
         req.m_payload = jreq;
         handle_request(req);
-    } catch (throwable & ex) {
+    } catch (std::exception & ex) {
         send_msg(cmd_res(req.m_seq_num, std::string(ex.what())));
     }
 }
@@ -350,6 +395,8 @@ void server::handle_request(server::cmd_req const & req) {
         handle_complete(req);
     } else if (command == "info") {
         handle_info(req);
+    } else if (command == "roi") {
+        send_msg(handle_roi(req));
     } else if (command == "sleep") {
         chrono::milliseconds small_delay(1000);
         this_thread::sleep_for(small_delay);
@@ -367,15 +414,6 @@ server::cmd_res server::handle_sync(server::cmd_req const & req) {
 
     auto mtime = time(nullptr);
 
-    {
-        unique_lock<mutex> l(m_visible_files_mutex);
-        if (m_visible_files.count(new_file_name) == 0) {
-            m_visible_files.insert(new_file_name);
-            l.unlock();
-            m_tasks_handler->resubmit_core();
-        }
-    }
-
     bool needs_invalidation = !m_open_files.count(new_file_name);
 
     auto & ef = m_open_files[new_file_name];
@@ -388,7 +426,6 @@ server::cmd_res server::handle_sync(server::cmd_req const & req) {
     json res;
     if (needs_invalidation) {
         m_mod_mgr->invalidate(new_file_name);
-        try { m_mod_mgr->get_module(new_file_name); } catch (...) {}
         res["message"] = "file invalidated";
     } else {
         res["message"] = "file unchanged";
@@ -553,6 +590,32 @@ void server::send_msg(Msg const & m) {
     json j = m.to_json_response();
     unique_lock<mutex> _(m_out_mutex);
     std::cout << j << std::endl;
+}
+
+region_of_interest server::get_roi() {
+    unique_lock<mutex> _(m_roi_mutex);
+    return m_roi;
+}
+
+server::cmd_res server::handle_roi(server::cmd_req const & req) {
+    region_of_interest new_roi;
+    for (auto & f : req.m_payload.at("files")) {
+        std::string fn = f.at("file_name");
+        unsigned begin_line = f.at("begin_line");
+        unsigned end_line = f.at("end_line");
+        new_roi.m_files.insert(fn, line_range {begin_line, end_line});
+    }
+    new_roi.m_files.for_each([&] (std::string const & fn, line_range const &) {
+        try { m_mod_mgr->get_module(fn); } catch (...) {}
+    });
+    {
+        unique_lock<mutex> _(m_roi_mutex);
+        m_roi = new_roi;
+    }
+    m_tasks_handler->on_new_roi();
+    m_msg_handler->on_new_roi();
+
+    return cmd_res(req.m_seq_num, json());
 }
 
 void initialize_server() {

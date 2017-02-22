@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include <vector>
 #include <library/library_task_builder.h>
 #include "library/sorry.h"
-#include "library/module_mgr.h"
 #include "util/timeit.h"
 #include "kernel/type_checker.h"
 #include "kernel/declaration.h"

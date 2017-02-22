@@ -9,12 +9,14 @@
 (require 'json)
 (require 'lean-debug)
 (require 'lean-project)
+(require 'dash)
 
 (defstruct lean-server-session
   project-dir      ; the project directory of this lean server
   process          ; process object of lean --server
   seq-num          ; sequence number
   callbacks        ; alist of (seq_num . (success_cb . error_cb))
+  current-roi      ; alist of (file_name . (begin_line . end_line))
   tasks            ; last deserialized current_tasks message
   messages)        ; list of messages in deserialized json
 
@@ -119,6 +121,7 @@
                 :project-dir project-dir
                 :process proc
                 :seq-num 0
+                :current-roi nil
                 :callbacks nil
                 :messages nil)))
     (set-process-filter proc (lambda (proc string) (lean-server-filter sess string)))
@@ -319,6 +322,7 @@
 (defun lean-server-sync (&optional buf)
   "Synchronizes the state of BUF (or the current buffer, if nil) with the lean server"
   (with-current-buffer (or buf (current-buffer))
+    (lean-server-sync-roi)
     (lean-server-send-command
      'sync (list :file_name (buffer-file-name)
                  :content (buffer-string)))))
@@ -330,5 +334,42 @@
     (when lean-server-sync-timer (cancel-timer lean-server-sync-timer))
     (setq lean-server-sync-timer
           (run-at-time "200 milliseconds" nil #'lean-server-sync (current-buffer)))))
+
+(defun lean-server-compute-roi (sess)
+  (-mapcat (lambda (buf)
+             (with-current-buffer buf
+               (when (and (get-buffer-window) (eq lean-server-session sess))
+                 (let ((min-pt (-min (--map (window-start it) (get-buffer-window-list))))
+                       (max-pt (-max (--map (window-end it t) (get-buffer-window-list)))))
+                   `((,(buffer-file-name)
+                      ,(max 1 (- (line-number-at-pos min-pt) 5)) .
+                      ,(+ (line-number-at-pos max-pt) 5)))))))
+           (buffer-list)))
+
+(defun lean-server-session-send-roi (sess roi)
+  (setf (lean-server-session-current-roi sess) roi)
+  (lean-server-send-command
+   'roi (list :files (--map (list (cons :file_name (car it))
+                                  (cons :begin_line (cadr it))
+                                  (cons :end_line (cddr it)))
+                            roi))))
+
+(defun lean-server-roi-subset-p (as bs)
+  (--all? (let ((b (alist-get (car it) bs)))
+            (and b
+                 (<= (car b) (cadr it))
+                 (<= (cddr it) (cdr b))))
+          as))
+
+(defun lean-server-sync-roi ()
+  (let ((old-roi (lean-server-session-current-roi lean-server-session))
+        (new-roi (lean-server-compute-roi lean-server-session)))
+    (when (not (lean-server-roi-subset-p new-roi old-roi))
+      (lean-server-session-send-roi lean-server-session new-roi))))
+
+(defun lean-server-window-scroll-function-hook (wnd new-start-pos)
+  (let ((buf (window-buffer wnd)))
+    (with-current-buffer buf
+      (when lean-server-session (lean-server-sync-roi)))))
 
 (provide 'lean-server)

@@ -19,14 +19,13 @@ Author: Gabriel Ebner
 
 namespace lean {
 
-void module_mgr::mark_out_of_date(module_id const & id, buffer<module_id> & to_rebuild) {
+void module_mgr::mark_out_of_date(module_id const & id) {
     for (auto & mod : m_modules) {
         if (!mod.second || mod.second->m_out_of_date) continue;
         for (auto & dep : mod.second->m_deps) {
             if (dep.m_id == id) {
                 mod.second->m_out_of_date = true;
-                to_rebuild.push_back(mod.first);
-                mark_out_of_date(mod.first, to_rebuild);
+                mark_out_of_date(mod.first);
                 break;
             }
         }
@@ -217,15 +216,12 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
         } else if (src == module_src::LEAN) {
             std::istringstream in(contents);
 
-            scope_log_tree lt2(lt.get().mk_child({}, {}, { id, {{1,0}, find_end_pos(contents)} }));
-
             snapshot_vector snapshots;
             if (m_use_snapshots) {
-                if (get_snapshots_or_unchanged_module(id, contents, mtime, snapshots)) {
-                    m_modules[id]->m_out_of_date = false;
-                    return;
-                }
+                get_snapshots_core(id, contents, mtime, snapshots);
             }
+
+            scope_log_tree lt2(lt.get().mk_child({}, {}, { id, {{1,0}, find_end_pos(contents)} }));
 
             auto imports = get_direct_imports(id, contents);
 
@@ -308,14 +304,20 @@ std::shared_ptr<module_info const> module_mgr::get_module(module_id const & id) 
 void module_mgr::invalidate(module_id const & id) {
     unique_lock<mutex> lock(m_mutex);
 
-    if (auto & mod = m_modules[id]) {
-        buffer<module_id> to_rebuild;
+    if (auto & mod = m_modules[id])
         mod->m_out_of_date = true;
-        to_rebuild.push_back(id);
-        mark_out_of_date(id, to_rebuild);
+    mark_out_of_date(id);
 
-        for (auto & i : to_rebuild)
-            try { build_module(i, true, {}); } catch (...) {}
+    buffer<module_id> to_rebuild;
+    to_rebuild.push_back(id);
+    for (auto & mod : m_modules) {
+        if (mod.second && mod.second->m_out_of_date)
+            to_rebuild.push_back(mod.first);
+    }
+    for (auto & i : to_rebuild) {
+        try {
+            build_module(i, true, {});
+        } catch (...) {}
     }
 }
 
@@ -337,30 +339,29 @@ snapshot_vector module_mgr::get_snapshots(module_id const & id) {
     return get(get_module(id)->m_result).m_snapshots;
 }
 
-bool
-module_mgr::get_snapshots_or_unchanged_module(module_id const &id, std::string const &contents, time_t /* mtime */,
-                                              snapshot_vector &vector) {
+void module_mgr::get_snapshots_core(module_id const &id, std::string const &contents, time_t /* mtime */,
+                                    snapshot_vector &vector) {
     auto & mod = m_modules[id];
-    if (!mod) return false;
-    if (mod->m_source != module_src::LEAN) return false;
+    if (!mod) return;
+    if (mod->m_source != module_src::LEAN) return;
 
     for (auto d : mod->m_deps) {
         if (!d.m_mod_info && !m_modules[d.m_id]) continue;
         if (d.m_mod_info && m_modules[d.m_id] && m_modules[d.m_id] == d.m_mod_info) continue;
 
+        if (!mod->m_still_valid_snapshots.empty())
+            cancel(mod->m_still_valid_snapshots.front()->m_cancellation_token);
         mod->m_still_valid_snapshots.clear();
-        return false;
+        return;
     }
 
-    if (!mod->m_lean_contents) return false;
-
-    if (*mod->m_lean_contents == contents) return true;
+    if (!mod->m_lean_contents) return;
 
     if (mod->m_result) {
         if (auto parse_res = peek(mod->m_result))
             mod->m_still_valid_snapshots = parse_res->m_snapshots;
     }
-    if (mod->m_still_valid_snapshots.empty()) return false;
+    if (mod->m_still_valid_snapshots.empty()) return;
 
     if (auto diff_pos = get_first_diff_pos(contents, *mod->m_lean_contents)) {
         auto & snaps = mod->m_still_valid_snapshots;
@@ -372,9 +373,6 @@ module_mgr::get_snapshots_or_unchanged_module(module_id const &id, std::string c
         if (it != snaps.end()) cancel((*it)->m_cancellation_token); // TODO(gabriel): move somewhere better
         snaps.erase(it, snaps.end());
         vector = snaps;
-        return false;
-    } else {
-        return true;
     }
 }
 

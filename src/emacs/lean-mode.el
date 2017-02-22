@@ -131,6 +131,7 @@
     ;; (kill-buffer-hook                    . lean-server-stop)
     (after-change-functions              . lean-server-change-hook)
     (focus-in-hook                       . lean-server-show-messages)
+    (window-scroll-functions             . lean-server-window-scroll-function-hook)
     ;; Handle events that may start automatic syntax checks
     (before-save-hook                    . lean-whitespace-cleanup)
     ;; info windows

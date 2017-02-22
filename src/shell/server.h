@@ -18,6 +18,25 @@ namespace lean {
 
 unsigned get_auto_completion_max_results(options const &);
 
+struct line_range {
+    unsigned m_begin_line = 0, m_end_line = 0;
+    line_range() = default;
+    line_range(unsigned begin_line, unsigned end_line) : m_begin_line(begin_line), m_end_line(end_line) {}
+};
+
+struct string_cmp {
+    int operator()(std::string const & s1, std::string const & s2) const {
+        return s1.compare(s2);
+    }
+};
+
+struct region_of_interest {
+    rb_map<std::string, line_range, string_cmp> m_files;
+
+    bool intersects(log_tree::node const & n) const;
+    bool intersects(message const & msg) const;
+};
+
 class server : public module_vfs {
     options m_opts;
     environment m_initial_env;
@@ -29,8 +48,8 @@ class server : public module_vfs {
     };
     std::unordered_map<std::string, editor_file> m_open_files;
 
-    mutex m_visible_files_mutex;
-    std::unordered_set<std::string> m_visible_files;
+    mutex m_roi_mutex;
+    region_of_interest m_roi;
 
     mutex m_out_mutex;
 
@@ -59,6 +78,7 @@ class server : public module_vfs {
     void handle_complete(cmd_req const & req);
     class info_task;
     void handle_info(cmd_req const & req);
+    cmd_res handle_roi(cmd_req const & req);
 
     json autocomplete(std::shared_ptr<module_info const> const & mod_info, bool skip_completions, pos_info const & pos);
     json info(std::shared_ptr<module_info const> const & mod_info, pos_info const & pos);
@@ -73,6 +93,8 @@ public:
     void handle_request(json const & req);
 
     log_tree & get_log_tree() { return m_lt; }
+
+    region_of_interest get_roi();
 };
 
 void initialize_server();

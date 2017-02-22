@@ -40,6 +40,7 @@ option(FREE_VAR_RANGE_OPT  "FREE_VAR_RANGE_OPT"   ON)
 option(HAS_LOCAL_OPT       "HAS_LOCAL_OPT"        ON)
 option(ABSTRACTION_CACHE   "ABSTRACTION_CACHE"    ON)
 option(TYPE_CLASS_CACHE    "TYPE_CLASS_CACHE"     ON)
+option(TYPE_INFER_CACHE    "TYPE_INFER_CACHE"     ON)
 
 # emacs site-lisp dir
 set(EMACS_LISP_DIR        "share/emacs/site-lisp/lean" CACHE STRING "emacs site-lisp dir")
@@ -62,6 +63,10 @@ endif()
 
 if (NOT("${TYPE_CLASS_CACHE}" MATCHES "ON"))
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_NO_TYPE_CLASS_CACHE")
+endif()
+
+if (NOT("${TYPE_INFER_CACHE}" MATCHES "ON"))
+  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_NO_TYPE_INFER_CACHE")
 endif()
 
 message(STATUS "Lean emacs-mode will be installed at "

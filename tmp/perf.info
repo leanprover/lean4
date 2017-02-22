@@ -1,0 +1,26 @@
+NO FREE VAR OPT                                          base
+
+../../library/init/algebra/ordered_field.lean  2.64      2.00
+../../library/init/algebra/ordered_group.lean  1.76      1.55
+../../library/init/data/list/lemmas.lean       1.18      1.16
+
+
+NO HAS LOCAL
+
+../../library/init/algebra/ordered_field.lean  2.00      2.00
+../../library/init/algebra/ordered_group.lean  1.55      1.55
+../../library/init/data/list/lemmas.lean       1.18      1.16
+
+NO TYPE CLASS CACHE
+
+../../library/init/algebra/ordered_field.lean  2.20         2.00
+../../library/init/algebra/ordered_group.lean  1.58         1.55
+../../library/init/data/list/lemmas.lean       1.22         1.16
+../../perf/bench30.lean                        1.08 (0.62)  0.74 (0.30 elab)  (over 2300 type class resolution problems)
+
+NO TYPE INFERENCE CACHE
+
+../../library/init/algebra/ordered_field.lean  2.14         2.00
+../../library/init/algebra/ordered_group.lean  1.57         1.55
+../../library/init/data/list/lemmas.lean       1.17         1.16
+../../perf/bench30.lean                        1.30 (0.83)  0.74 (0.30 elab)  (over 2300 type class resolution problems)

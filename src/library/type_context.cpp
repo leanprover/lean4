@@ -859,11 +859,13 @@ expr type_context::infer_core(expr const & e) {
     lean_assert(!is_var(e));
     lean_assert(closed(e));
 
+#ifndef LEAN_NO_TYPE_INFER_CACHE
     auto & cache = m_cache->m_infer_cache;
     unsigned postponed_sz = m_postponed.size();
     auto it = cache.find(e);
     if (it != cache.end())
         return it->second;
+#endif
 
     reset_used_assignment reset(*this);
 
@@ -900,8 +902,10 @@ expr type_context::infer_core(expr const & e) {
         break;
     }
 
+#ifndef LEAN_NO_TYPE_INFER_CACHE
     if (!m_used_assignment && postponed_sz == m_postponed.size())
         cache.insert(mk_pair(e, r));
+#endif
     return r;
 }
 

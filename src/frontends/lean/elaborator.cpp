@@ -116,11 +116,12 @@ elaborator_strategy get_elaborator_strategy(environment const & env, name const 
 #define trace_elab_debug(CODE) lean_trace("elaborator_debug", scope_trace_env _scope(m_env, m_ctx); CODE)
 
 elaborator::elaborator(environment const & env, options const & opts, name const & decl_name,
-                       metavar_context const & mctx, local_context const & lctx, bool recover_from_errors):
+                       metavar_context const & mctx, local_context const & lctx, bool recover_from_errors,
+                       bool in_pattern):
     m_env(env), m_opts(opts), m_decl_name(decl_name),
     m_ctx(env, opts, mctx, lctx, get_tcm(), transparency_mode::Semireducible),
     m_recover_from_errors(recover_from_errors),
-    m_uses_infom(get_global_info_manager() != nullptr) {
+    m_uses_infom(get_global_info_manager() != nullptr), m_in_pattern(in_pattern) {
 }
 
 elaborator::~elaborator() {

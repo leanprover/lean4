@@ -1762,8 +1762,10 @@ static expr quote(expr const & e) {
         case expr_kind::Macro:
             if (is_typed_expr(e))
                 return mk_typed_expr(quote(get_typed_expr_expr(e)), quote(get_typed_expr_type(e)));
-            throw parser_error("invalid quotation pattern, macros are not supported",
-                               get_pos_info_provider()->get_pos_info_or_some(e));
+            if (is_inaccessible(e))
+                return mk_expr_placeholder();
+            throw generic_exception(e, sstream() << "invalid quotation pattern, unsupported macro '"
+                                                 << macro_def(e).get_name() << "'");
     }
     lean_unreachable();
 }
@@ -1781,8 +1783,9 @@ static expr preprocess_quote_pattern(parser const & p, expr e) {
 
     metavar_context ctx;
     local_context lctx;
-    elaborator elab(p.env(), p.get_options(), "_quotation_pattern", ctx, lctx, false);
+    elaborator elab(p.env(), p.get_options(), "_quotation_pattern", ctx, lctx, false, true);
     e = elab.elaborate(e);
+    e = elab.finalize(e, true, true).first;
 
     for (int i = aqs.size() - 1; i >= 0; i--) {
         if (!is_local(aqs[i]))

@@ -31,11 +31,15 @@ expr abstract(expr const & e, expr const & s, unsigned i) { return abstract(e, i
 
 expr abstract_locals(expr const & e, unsigned n, expr const * subst) {
     lean_assert(std::all_of(subst, subst+n, [](expr const & e) { return closed(e) && is_local(e); }));
+#ifndef LEAN_NO_HAS_LOCAL_OPT
     if (!has_local(e))
         return e;
+#endif
     return replace(e, [=](expr const & m, unsigned offset) -> optional<expr> {
+#ifndef LEAN_NO_HAS_LOCAL_OPT
             if (!has_local(m))
                 return some_expr(m); // expression m does not contain local constants
+#endif
             if (is_local(m)) {
                 unsigned i = n;
                 while (i > 0) {
@@ -68,6 +72,9 @@ public:
     void abstract(unsigned num, expr const * locals, bool use_cache) {
         m_locals.resize(num, none_expr());
         m_abstract_types.resize(num, none_expr());
+#ifdef LEAN_NO_ABSTRACT_CACHE
+        use_cache = false;
+#endif
         bool matching = use_cache;
         for (unsigned i = 0; i < num; i++) {
             if (!(matching && m_locals[i] && *m_locals[i] == locals[i])) {

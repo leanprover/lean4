@@ -13,11 +13,5 @@ LEAN=$MY_PATH/../bin/lean
 LIB=$MY_PATH/../library
 for f in `find $LIB -name '*.lean'`; do
   rf=`$REALPATH $f`
-  $TIME --format="$rf %e" $LEAN $rf > /dev/null
-done
-
-LIB=$MY_PATH/../hott
-for f in `find $LIB -name '*.hlean'`; do
-  rf=`$REALPATH $f`
-  $TIME --format="$rf %e" $LEAN $rf > /dev/null
+  $TIME --format="$rf %e" $LEAN -j 0 $rf > /dev/null
 done

@@ -26,14 +26,20 @@ option(JSON               "JSON"               ON)
 
 # When cross-compiling, we do not compile the standard library since
 # the executable will not work on the host machine
-option(CROSS_COMPILE      "CROSS_COMPILE"     OFF)
+option(CROSS_COMPILE      "CROSS_COMPILE"      OFF)
 # Include MSYS2 required DLLs and binaries in the binary distribution package
 option(INCLUDE_MSYS2_DLLS "INCLUDE_MSYS2_DLLS" OFF)
 # When ON we include githash in the version string
-option(USE_GITHASH        "GIT_HASH"          ON)
+option(USE_GITHASH        "GIT_HASH"           ON)
 # When ON thread storage is automatically finalized, it assumes platform support pthreads.
 # This option is important when using Lean as library that is invoked from a different programming language (e.g., Haskell).
 option(AUTO_THREAD_FINALIZATION "AUTO_THREAD_FINALIZATION" ON)
+
+# FLAGS for disabling optimizations
+option(FREE_VAR_RANGE_OPT  "FREE_VAR_RANGE_OPT"   ON)
+option(HAS_LOCAL_OPT       "HAS_LOCAL_OPT"        ON)
+option(ABSTRACTION_CACHE   "ABSTRACTION_CACHE"    ON)
+
 
 # emacs site-lisp dir
 set(EMACS_LISP_DIR        "share/emacs/site-lisp/lean" CACHE STRING "emacs site-lisp dir")
@@ -41,6 +47,18 @@ set(EMACS_LISP_DIR        "share/emacs/site-lisp/lean" CACHE STRING "emacs site-
 set(LIBRARY_DIR           "lib/lean"                   CACHE STRING "library dir")
 set(LEAN_EXT_INCLUDE_DIR  "include/lean_ext"           CACHE STRING "include dir for building Lean extensions")
 set(LEAN_EXTRA_MAKE_OPTS  ""                           CACHE STRING "extra options to lean --make")
+
+if (NOT("${FREE_VAR_RANGE_OPT}" MATCHES "ON"))
+  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_NO_FREE_VAR_RANGE_OPT")
+endif()
+
+if (NOT("${HAS_LOCAL_OPT}" MATCHES "ON"))
+  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_NO_HAS_LOCAL_OPT")
+endif()
+
+if (NOT("${ABSTRACTION_CACHE}" MATCHES "ON"))
+  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_NO_ABSTRACT_CACHE")
+endif()
 
 message(STATUS "Lean emacs-mode will be installed at "
   "${CMAKE_INSTALL_PREFIX}/${EMACS_LISP_DIR}")

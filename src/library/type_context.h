@@ -564,7 +564,7 @@ public:
     void assign(level const & u, level const & l);
     void assign(expr const & m, expr const & v);
     level instantiate_mvars(level const & l);
-    expr instantiate_mvars(expr const & e);
+    expr instantiate_mvars(expr const & e, bool postpone_push_delayed = false);
     /** \brief Instantiate the assigned meta-variables in the type of \c m
         \pre get_metavar_decl(m) is not none */
     void instantiate_mvars_at_type_of(expr const & m) {

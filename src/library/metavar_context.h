@@ -66,7 +66,7 @@ public:
     void assign(expr const & e, expr const & v);
 
     level instantiate_mvars(level const & l);
-    expr instantiate_mvars(expr const & e);
+    expr instantiate_mvars(expr const & e, bool postpone_push_delayed = false);
 
     bool has_assigned(level const & l) const;
     bool has_assigned(levels const & ls) const;

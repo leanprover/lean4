@@ -1293,8 +1293,8 @@ level type_context::instantiate_mvars(level const & l) {
     return ::lean::instantiate_mvars(*this, l);
 }
 
-expr type_context::instantiate_mvars(expr const & e) {
-    return ::lean::instantiate_mvars(*this, e);
+expr type_context::instantiate_mvars(expr const & e, bool postpone_push_delayed) {
+    return ::lean::instantiate_mvars(*this, e, postpone_push_delayed);
 }
 
 /* -----------------------------------

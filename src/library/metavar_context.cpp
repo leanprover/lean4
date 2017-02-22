@@ -134,9 +134,9 @@ level metavar_context::instantiate_mvars(level const & l) {
     return ::lean::instantiate_mvars(impl, l);
 }
 
-expr metavar_context::instantiate_mvars(expr const & e) {
+expr metavar_context::instantiate_mvars(expr const & e, bool postpone_push_delayed) {
     interface_impl impl(*this);
-    return ::lean::instantiate_mvars(impl, e);
+    return ::lean::instantiate_mvars(impl, e, postpone_push_delayed);
 }
 
 void metavar_context::instantiate_mvars_at_type_of(expr const & m) {

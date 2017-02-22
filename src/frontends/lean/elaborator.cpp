@@ -2957,7 +2957,8 @@ void elaborator::invoke_tactic(expr const & mvar, expr const & tactic) {
         vm_obj r = tactic_evaluator(m_ctx, m_opts, ref)(tactic, s);
         if (auto new_s = tactic::is_success(r)) {
             metavar_context mctx = new_s->mctx();
-            expr val = mctx.instantiate_mvars(new_s->main());
+            bool postpone_push_delayed = true;
+            expr val = mctx.instantiate_mvars(new_s->main(), postpone_push_delayed);
             if (has_expr_metavar(val)) {
                 val = recoverable_error(some_expr(type), ref,
                                         unsolved_tactic_state(*new_s, "tactic failed, result contains meta-variables", ref));

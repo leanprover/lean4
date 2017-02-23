@@ -68,18 +68,20 @@ vm_obj vm_task_map(vm_obj const &, vm_obj const &, vm_obj const & fn, vm_obj con
     auto has_infom = get_global_info_manager() != nullptr;
     auto ts_fn = ts_vm_obj(fn);
     return to_obj(add_library_task(map<ts_vm_obj>(to_task(t), [env, opts, has_infom, ts_fn] (ts_vm_obj const & arg) {
+        auto file_name = logtree().get_location().m_file_name;
+
         // Tracing
         type_context tc(env);
         scope_trace_env scope_trace(env, opts, tc);
+        scope_traces_as_messages scope_traces_as_msg(file_name, logtree().get_location().m_range.m_begin);
 
         // Info manager
-        auto file_name = logtree().get_location().m_file_name; // TODO(gabriel)
         auto_reporting_info_manager_scope scope_infom(file_name, has_infom);
 
         vm_state state(env, opts);
         scope_vm_state scope_vm(state);
         return ts_vm_obj(state.invoke(ts_fn.to_vm_obj(), arg.to_vm_obj()));
-    }), false));
+    })));
 }
 
 vm_obj vm_task_flatten(vm_obj const &, vm_obj const & o) {

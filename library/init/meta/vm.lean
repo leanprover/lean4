@@ -16,7 +16,7 @@ inductive vm_obj_kind
 | options | other
 
 instance vm_obj_kind_dec_eq : decidable_eq vm_obj_kind :=
-    by tactic.mk_dec_eq_instance
+by tactic.mk_dec_eq_instance
 
 namespace vm_obj
 meta constant kind            : vm_obj → vm_obj_kind

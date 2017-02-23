@@ -248,13 +248,12 @@ public:
     }
 
     void on_event(std::vector<log_tree::event> const & events) {
-        unique_lock<mutex> lock(m_mutex);
         log_tree::event const * cur_task = nullptr;
         for (auto & e : events) {
             switch (e.m_kind) {
                 case log_tree::event::EntryAdded:
-                case log_tree::event::EntryRemoved:
                     if (auto msg = dynamic_cast<message const *>(e.m_entry.get())) {
+                        unique_lock<mutex> lock(m_mutex);
                         clear_shown_task();
                         if (m_use_json) {
 #if defined(LEAN_JSON)
@@ -265,6 +264,7 @@ public:
                         }
                     }
                     break;
+                case log_tree::event::EntryRemoved: break;
                 case log_tree::event::ProducerSet:
                     taskq().submit(e.m_node.get_producer());
                     break;
@@ -283,6 +283,7 @@ public:
                 m_timer->set(chrono::steady_clock::now() + chrono::milliseconds(100),
                     [=] { show_current_task(fmt_str); }, false);
             } else {
+                unique_lock<mutex> lock(m_mutex);
                 show_current_task_core(fmt_str);
             }
 #else

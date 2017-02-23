@@ -57,11 +57,10 @@ meta def {u v} many {f : Type u → Type v} [monad f] [alternative f] {a : Type 
            return $ y::ys) <|> pure list.nil
 
 local postfix ?:100 := optional
-local notation p ` ?: `:100 d := (λ o, option.get_or_else o d) <$> p?
 local postfix * := many
 
 meta def sep_by {α : Type} : string → parser α → parser (list α)
-| s p := (list.cons <$> p <*> (tk s *> p)*) ?: []
+| s p := (list.cons <$> p <*> (tk s *> p)*) <|> return []
 
 end parser
 end lean

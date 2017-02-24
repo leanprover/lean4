@@ -28,7 +28,6 @@ Requirements
 - [CMake](http://www.cmake.org)
 - [GMP (GNU multiprecision library)](http://gmplib.org/)
 - [MPFR (GNU MPFR Library)](http://www.mpfr.org/)
-- (optional) [gperftools](https://code.google.com/p/gperftools/) (There is currently an issue with gperftools on macOS Sierra. For now, either don't install it, or pass the flag `-DTCMALLOC=OFF` to CMake when building to not use it.)
 
 Build Instructions
 ------------------

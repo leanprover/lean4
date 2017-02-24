@@ -13,6 +13,8 @@
 
 [![Issue Stats](http://issuestats.com/github/leanprover/lean/badge/pr)](http://issuestats.com/github/leanprover/lean)
 
+[![Join the chat at https://gitter.im/leanprover_public/Lobby](https://badges.gitter.im/leanprover_public/Lobby.svg)](https://gitter.im/leanprover_public/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 About
 -----
 

@@ -15,13 +15,17 @@ opened ← clause.open_constn c i,
 return $ clause.close_constn (clause.inst opened.1 e) opened.2
 
 private meta def try_factor' (c : clause) (i j : nat) : tactic clause := do
-qf ← clause.open_metan c c^.num_quants,
-unify_lit (qf.1^.get_lit i) (qf.1^.get_lit j),
-qfi ← clause.inst_mvars qf.1,
-guard $ clause.is_maximal gt qfi i,
-at_j ← clause.open_constn qf.1 j,
-hyp_i ← option.to_monad (list.nth at_j.2 i),
-clause.meta_closure qf.2 $ (at_j.1^.inst hyp_i)^.close_constn at_j.2
+-- instantiate universal quantifiers using meta-variables
+(qf, mvars) ← c^.open_metan c^.num_quants,
+-- unify the two literals
+unify_lit (qf^.get_lit i) (qf^.get_lit j),
+-- check maximality condition
+qfi ← qf^.inst_mvars, guard $ clause.is_maximal gt qfi i,
+-- construct proof
+(at_j, cs) ← qf^.open_constn j, hyp_i ← cs^.nth i,
+let qf' := (at_j^.inst hyp_i)^.close_constn cs,
+-- instantiate meta-variables and replace remaining meta-variables by quantifiers
+clause.meta_closure mvars qf'
 
 meta def try_factor (c : clause) (i j : nat) : tactic clause :=
 if i > j then try_factor' gt c j i else try_factor' gt c i j

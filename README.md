@@ -33,28 +33,12 @@ Requirements
 - [MPFR (GNU MPFR Library)](http://www.mpfr.org/)
 - (optional) [gperftools](https://code.google.com/p/gperftools/) (There is currently an issue with gperftools on macOS Sierra. For now, either don't install it, or pass the flag `-DTCMALLOC=OFF` to CMake when building to not use it.)
 
-Installing required packages at
---------------------------------
-
-_Windows_
-
-- [MSys2](doc/make/msys2.md)
-
-_Linux_
-
-- [Ubuntu 16.04](doc/make/ubuntu-16.04.md)
-
-_OS X_
-
-- [OS X 10.9](doc/make/osx-10.9.md)
-
 Build Instructions
 ------------------
 
-- [CMake + Make](doc/make/cmake_make.md)
-- [CMake + Ninja](doc/make/cmake_ninja.md)
-- [Faster builds with ccache](doc/make/ccache.md)
-
+- [Linux (Ubuntu)](doc/make/ubuntu-16.04.md)
+- [Windows (msys2)](doc/make/msys2.md)
+- [macOS](doc/make/osx-10.9.md)
 
 Miscellaneous
 -------------

@@ -12,7 +12,6 @@ addons:
     packages: &default_packages
       - cmake
       - libgmp-dev
-      - libmpfr-dev
       - libgoogle-perftools-dev
       - g++-4.9
       - clang-3.4
@@ -91,8 +90,7 @@ before_install:
   - if [[ $TRAVIS_OS_NAME == osx ]]; then
       brew update &&
       brew install gcc &&
-      brew install gmp &&
-      brew install mpfr;
+      brew install gmp;
     fi
 
 script:

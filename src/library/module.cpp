@@ -444,8 +444,10 @@ struct add_decl_sorry_check : public task<unit> {
             return optional<name>();
         if (!is_internal_name(n))
             return optional<name>(n);
-        if (!n.is_string() || n.is_atomic())
+        if (!n.is_string())
             return optional<name>();
+        if (strcmp(n.get_string(), "_example") == 0)
+            return optional<name>(n);
         if (strcmp(n.get_string(), "_main") == 0)
             return should_report_sorry(n.get_prefix());
         if (strncmp(n.get_string(), "_match", 6) == 0) {

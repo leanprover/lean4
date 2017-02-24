@@ -7,3 +7,4 @@ _match : (∃ (k_1 : ℕ), k + n + k_1 = k + m) → n ≤ m,
 w : ℕ,
 hw : (λ (k_1 : ℕ), k + n + k_1 = k + m) w
 ⊢ n + w = m
+bad_error2.lean:3:8: warning: declaration '_example' uses sorry

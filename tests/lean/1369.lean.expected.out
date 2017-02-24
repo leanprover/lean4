@@ -1,4 +1,7 @@
+1369.lean:15:8: warning: declaration '_example' uses sorry
 17 ≤ 555555
 ⊢ 17 ≤ 555555
+1369.lean:21:8: warning: declaration '_example' uses sorry
 ?m_1 ≤ 555555
 ⊢ ?m_1 ≤ 555555
+1369.lean:33:8: warning: declaration '_example' uses sorry

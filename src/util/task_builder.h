@@ -74,12 +74,6 @@ public:
         return std::move(*this);
     }
 
-    task_builder<Res> ignore_dependency_errors() {
-        lean_assert(m_imp);
-        m_flags.m_propagate_errors_from_dependencies = false;
-        return std::move(*this);
-    }
-
     task_builder<Res> does_not_require_own_thread() {
         lean_assert(m_imp);
         m_flags.m_needs_separate_thread = false;

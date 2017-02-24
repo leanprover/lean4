@@ -413,16 +413,25 @@ environment add(environment const & env, certified_declaration const & d) {
         new_env = mark_noncomputable(new_env, _d.get_name());
     new_env = update_module_defs(new_env, _d);
     new_env = add(new_env, std::make_shared<decl_modification>(_d, env.trust_lvl()));
-    pos_info pos { g_curr_line, g_curr_column };
-    add_library_task(task_builder<unit>([_d, pos] {
+
+    if (_d.is_theorem()) {
+        // report errors from kernel type-checker
+        add_library_task(task_builder<unit>([_d] { _d.get_value(); return unit(); })
+            .wrap(exception_reporter())
+            .depends_on(_d.is_theorem() ? _d.get_value_task() : nullptr));
+    }
+
+    add_library_task(task_builder<unit>([_d] {
         if (has_sorry(_d)) {
             if (optional<name> n = should_report_sorry(_d.get_name())) {
-                report_message(message(logtree().get_location().m_file_name, pos, WARNING,
+                report_message(message(logtree().get_location().m_file_name,
+                                       logtree().get_location().m_range.m_begin, WARNING,
                                        (sstream() << "declaration '" << *n << "' uses sorry").str()));
             }
         }
         return unit {};
     }).depends_on(_d.is_theorem() ? _d.get_value_task() : nullptr));
+
     return add_decl_pos_info(new_env, _d.get_name());
 }
 

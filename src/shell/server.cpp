@@ -502,7 +502,6 @@ void server::handle_complete(cmd_req const & req) {
     auto complete_gen_task =
         task_builder<json>([=] { return autocomplete(mod_info, skip_completions, pos); })
         .set_cancellation_token(m_bg_task_ctok)
-//        .wrap(library_scopes())
         .build();
 
     taskq().submit(task_builder<unit>([this, req, complete_gen_task] {
@@ -512,7 +511,7 @@ void server::handle_complete(cmd_req const & req) {
             send_msg(cmd_res(req.m_seq_num, std::string(ex.what())));
         }
         return unit{};
-    }).depends_on(complete_gen_task).ignore_dependency_errors().build());
+    }).depends_on(complete_gen_task).build());
 }
 
 static void get_info_managers(log_tree::node const & n, std::vector<info_manager> & infoms) {
@@ -564,7 +563,6 @@ void server::handle_info(server::cmd_req const & req) {
         mod_info->m_result, [] (buffer<gtask> & deps, module_info::parse_result const & res) {
             deps.push_back(res.m_loaded_module->m_env);
     })).set_cancellation_token(m_bg_task_ctok)
-//       .wrap(library_scopes())
        .build();
 
     taskq().submit(task_builder<unit>([this, req, info_gen_task] {
@@ -574,7 +572,7 @@ void server::handle_info(server::cmd_req const & req) {
             send_msg(cmd_res(req.m_seq_num, std::string(ex.what())));
         }
         return unit{};
-    }).depends_on(info_gen_task).ignore_dependency_errors().build());
+    }).depends_on(info_gen_task).build());
 }
 
 std::tuple<std::string, module_src, time_t> server::load_module(module_id const & id, bool can_use_olean) {

@@ -167,6 +167,8 @@ void log_tree::node::print() const {
 }
 
 void log_tree::node::print_to(std::ostream & out, unsigned indent) const {
+    indent += 2;
+
     auto l = lock();
     auto begin = m_ptr->m_location.m_range.m_begin, end = m_ptr->m_location.m_range.m_end;
     out << m_ptr->m_location.m_file_name
@@ -177,11 +179,27 @@ void log_tree::node::print_to(std::ostream & out, unsigned indent) const {
         << std::hex << reinterpret_cast<uintptr_t>(m_ptr->m_producer.get()) << std::dec
         << ")" << std::endl;
 
+    if (auto prod = m_ptr->m_producer) {
+        if (auto ex = prod->peek_exception()) {
+            for (unsigned i = 0; i < indent; i++) out << ' ';
+            out << "producer threw exception: ";
+            try {
+                std::rethrow_exception(ex);
+            } catch (std::exception & ex) {
+                out << ex.what();
+            } catch (cancellation_exception) {
+                out << "<cancelled>";
+            } catch (...) {
+                out << "<unknown exception>";
+            }
+            out << "\n";
+        }
+    }
+
     auto children = m_ptr->m_children;
     auto used_names = m_ptr->m_used_names;
     l.unlock();
 
-    indent += 2;
     children.for_each([&] (name const & n, log_tree::node const & c) {
         for (unsigned i = 0; i < indent; i++) out << ' ';
         out << n;

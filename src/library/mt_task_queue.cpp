@@ -110,57 +110,34 @@ void mt_task_queue::spawn_worker() {
 }
 
 void mt_task_queue::handle_finished(gtask const & t) {
+    lean_assert(get_state(t).load() > task_state::Running);
+    lean_assert(get_data(t));
+    lean_assert(get_data(t)->m_sched_info);
+
+    m_waiting.erase(t);
     get_sched_info(t).m_has_finished.notify_all();
 
-    if (get_state(t).load() == task_state::Success) {
-        for (auto & rdep : get_sched_info(t).m_reverse_deps) {
-            switch (get_state(rdep).load()) {
-                case task_state::Waiting:
-                    if (check_deps(rdep)) {
-                        m_waiting.erase(rdep);
-                        if (get_state(rdep).load() < task_state::Running) {
-                            lean_assert(get_data(rdep));
-                            if (get_data(rdep)->m_flags.m_needs_execution) {
-                                enqueue(rdep);
-                            } else {
-                                get_state(rdep) = task_state::Success;
-                                handle_finished(rdep);
-                            }
+    for (auto & rdep : get_sched_info(t).m_reverse_deps) {
+        switch (get_state(rdep).load()) {
+            case task_state::Waiting: case task_state::Queued:
+                if (check_deps(rdep)) {
+                    m_waiting.erase(rdep);
+                    if (get_state(rdep).load() < task_state::Running) {
+                        lean_assert(get_data(rdep));
+                        if (get_data(rdep)->m_flags.m_needs_execution) {
+                            enqueue(rdep);
+                        } else {
+                            get_state(rdep) = task_state::Success;
+                            handle_finished(rdep);
                         }
                     }
-                    break;
-                case task_state::Failed: case task_state::Queued:
-                    // TODO(gabriel): why???
-                    m_waiting.erase(rdep);
-                    break;
-                default:
-                lean_unreachable();
-            }
-        }
-    } else {
-        propagate_failure(t);
-    }
-
-    clear(t);
-}
-
-void mt_task_queue::propagate_failure(gtask const & t) {
-    lean_assert(get_state(t).load() == task_state::Failed);
-    m_waiting.erase(t);
-
-    if (get_data(t) && get_data(t)->m_sched_info) {
-        get_sched_info(t).m_has_finished.notify_all();
-
-        for (auto & rdep : get_sched_info(t).m_reverse_deps) {
-            if (get_data(rdep) && !get_data(rdep)->m_flags.m_propagate_errors_from_dependencies)
-                continue;
-            switch (get_state(rdep).load()) {
-                case task_state::Waiting: case task_state::Queued:
-                    fail(rdep, t);
-                    propagate_failure(rdep);
-                    break;
-                default: break;
-            }
+                }
+                break;
+            case task_state::Failed:
+                // TODO(gabriel): removed failed tasks from reverse dependency lists?
+                m_waiting.erase(rdep);
+                break;
+            default: lean_unreachable();
         }
     }
 
@@ -250,11 +227,6 @@ bool mt_task_queue::check_deps(gtask const & t) {
             case task_state::Success:
                 break;
             case task_state::Failed:
-                if (get_data(t)->m_flags.m_propagate_errors_from_dependencies) {
-                    fail(t, dep);
-                    propagate_failure(t);
-                    return true;
-                }
                 break;
             default: lean_unreachable();
         }
@@ -268,7 +240,6 @@ void mt_task_queue::wait_for_finish(gtask const & t) {
     submit_core(t, get_default_prio());
     while (get_state(t).load() <= task_state::Running) {
         if (g_current_task) {
-            // std::cerr << "waiting: " << g_current_task->description() <<  " -> " << t.description() << std::endl;
             scoped_add<int> inc_required(m_required_workers, +1);
             if (m_sleeping_workers == 0) {
                 spawn_worker();
@@ -293,7 +264,7 @@ void mt_task_queue::cancel_core(gtask const & t) {
             m_waiting.erase(t);
         case task_state::Created: case task_state::Queued:
             fail(t, std::make_exception_ptr(cancellation_exception()));
-            propagate_failure(t);
+            handle_finished(t);
             return;
         default: return;
     }

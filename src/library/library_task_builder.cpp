@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Gabriel Ebner
 */
 #include "library/library_task_builder.h"
+#include "library/message_builder.h"
 
 namespace lean {
 
@@ -28,6 +29,27 @@ struct library_scopes_imp : public delegating_task_imp {
 std::unique_ptr<gtask_imp> library_scopes::operator()(std::unique_ptr<gtask_imp> && base) {
     return std::unique_ptr<gtask_imp>(new library_scopes_imp(
             std::forward<std::unique_ptr<gtask_imp>>(base), m_lt));
+}
+
+struct exception_reporter_imp : public delegating_task_imp {
+    exception_reporter_imp(std::unique_ptr<gtask_imp> && base) :
+        delegating_task_imp(std::forward<std::unique_ptr<gtask_imp>>(base)) {}
+
+    void execute(void * result) override {
+        try {
+            delegating_task_imp::execute(result);
+        } catch (std::exception & ex) {
+            report_message(message(logtree().get_location().m_file_name,
+                                   logtree().get_location().m_range.m_begin,
+                                   ERROR, ex.what()));
+            throw;
+        }
+    }
+};
+
+std::unique_ptr<gtask_imp> exception_reporter::operator()(std::unique_ptr<gtask_imp> && base) {
+    return std::unique_ptr<gtask_imp>(new exception_reporter_imp(
+            std::forward<std::unique_ptr<gtask_imp>>(base)));
 }
 
 }

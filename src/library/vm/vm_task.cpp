@@ -81,7 +81,7 @@ vm_obj vm_task_map(vm_obj const &, vm_obj const &, vm_obj const & fn, vm_obj con
         vm_state state(env, opts);
         scope_vm_state scope_vm(state);
         return ts_vm_obj(state.invoke(ts_fn.to_vm_obj(), arg.to_vm_obj()));
-    })));
+    }).wrap(exception_reporter())));
 }
 
 vm_obj vm_task_flatten(vm_obj const &, vm_obj const & o) {

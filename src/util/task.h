@@ -25,7 +25,6 @@ struct scheduling_info {
 
 struct task_flags {
     bool m_do_priority_inversion = true;
-    bool m_propagate_errors_from_dependencies = true;
     bool m_needs_separate_thread = true;
     bool m_needs_execution = true;
 };
@@ -81,6 +80,7 @@ public:
     void cancel(std::shared_ptr<cancellable> const & self) override;
 
     bool peek_is_finished() const { return m_state.load() > task_state::Running; }
+    std::exception_ptr peek_exception() const;
 
     virtual ~gtask_cell() {}
 };

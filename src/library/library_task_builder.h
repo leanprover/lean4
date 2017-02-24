@@ -20,6 +20,10 @@ struct library_scopes {
     std::unique_ptr<gtask_imp> operator()(std::unique_ptr<gtask_imp> &&);
 };
 
+struct exception_reporter {
+    std::unique_ptr<gtask_imp> operator()(std::unique_ptr<gtask_imp> &&);
+};
+
 template <class Res>
 task<Res> add_library_task(task_builder<Res> && builder, std::string const & description, bool add_producer = true) {
     auto lt = logtree().mk_child({}, description, logtree().get_location());

@@ -19,6 +19,14 @@ void gtask_cell::cancel(std::shared_ptr<cancellable> const & self) {
     }
 }
 
+std::exception_ptr gtask_cell::peek_exception() const {
+    if (m_state.load() == task_state::Failed) {
+        return m_exception;
+    } else {
+        return {};
+    }
+}
+
 void task_queue::wait_for_success(gtask const & t) {
     while (true) {
         switch (t->m_state.load()) {
@@ -42,11 +50,7 @@ void task_queue::execute(gtask const & t) {
         {
             buffer<gtask> deps;
             t->m_data->m_imp->get_dependencies(deps);
-            if (t->m_data->m_flags.m_propagate_errors_from_dependencies) {
-                for (auto & dep : deps) if (dep) wait_for_success(dep);
-            } else {
-                for (auto & dep : deps) if (dep) wait_for_finish(dep);
-            }
+            for (auto & dep : deps) if (dep) wait_for_finish(dep);
         }
 
         t->execute();

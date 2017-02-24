@@ -615,8 +615,8 @@ static expr elaborate_proof(
     auto_reporting_info_manager_scope scope4(file_name, use_info_manager);
 
     try {
-        bool recover_froerrors = true;
-        elaborator elab(decl_env, opts, local_pp_name(fn), mctx, lctx, recover_froerrors);
+        bool recover_from_errors = true;
+        elaborator elab(decl_env, opts, local_pp_name(fn), mctx, lctx, recover_from_errors);
 
         expr val, type;
         // TODO(Leo): create an aux function for retrieving this info
@@ -648,7 +648,7 @@ static expr elaborate_proof(
                                   ERROR);
         error_msg.set_exception(ex);
         error_msg.report();
-        throw ex;
+        return mk_sorry(final_type);
     }
 }
 
@@ -668,8 +668,8 @@ static void check_example(environment const & decl_env, options const & opts,
     name decl_name = "_example";
 
     try {
-        bool recover_froerrors = true;
-        elaborator elab(decl_env, opts, decl_name, mctx, lctx, recover_froerrors);
+        bool recover_from_errors = true;
+        elaborator elab(decl_env, opts, decl_name, mctx, lctx, recover_from_errors);
 
         expr val, type;
         std::tie(val, type) = elab.elaborate_with_type(val0, mlocal_type(fn));

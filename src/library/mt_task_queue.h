@@ -41,7 +41,6 @@ class mt_task_queue : public task_queue {
     void enqueue(gtask const &);
 
     bool check_deps(gtask const &);
-    void propagate_failure(gtask const &);
     void submit_core(gtask const &, unsigned);
     void bump_prio(gtask const &, unsigned);
     void cancel_core(gtask const &);

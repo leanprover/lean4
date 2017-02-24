@@ -388,6 +388,8 @@ environment update_module_defs(environment const & env, declaration const & d) {
 static optional<name> should_report_sorry(name const & n) {
     if (n.is_anonymous())
         return optional<name>();
+    if (n == name{"_example"})
+        return optional<name>(n);
     if (!is_internal_name(n))
         return optional<name>(n);
     if (!n.is_string() || n.is_atomic())

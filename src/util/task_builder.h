@@ -68,12 +68,6 @@ public:
             m_imp(new base_task_imp<Fn>(std::forward<Fn>(fn))),
             m_cancel_tok(global_cancellation_token()) {}
 
-    task_builder<Res> disable_priority_inversion() {
-        lean_assert(m_imp);
-        m_flags.m_do_priority_inversion = false;
-        return std::move(*this);
-    }
-
     task_builder<Res> does_not_require_own_thread() {
         lean_assert(m_imp);
         m_flags.m_needs_separate_thread = false;

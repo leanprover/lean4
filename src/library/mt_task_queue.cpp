@@ -215,12 +215,11 @@ bool mt_task_queue::check_deps(gtask const & t) {
         get_data(t)->m_imp->get_dependencies(deps);
     } catch (...) {}
 
-    auto do_prio_inv = get_data(t)->m_flags.m_do_priority_inversion;
     auto prio = get_prio(t);
     for (auto & dep : deps) {
         if (dep) {
             submit_core(dep, prio);
-            if (do_prio_inv) bump_prio(dep, prio);
+            bump_prio(dep, prio);
         }
     }
 

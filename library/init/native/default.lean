@@ -92,15 +92,14 @@ private meta def take_arguments' : expr → list name → (list name × expr)
 
 meta def fresh_name : ir_compiler name := do
   (conf, map, counter) ← lift state.read,
-  let fresh := name.mk_numeral (unsigned.of_nat counter) `native._ir_compiler_
-  in do
-    lift $ state.write (conf, map, counter + 1),
-    return fresh
+  let fresh := name.mk_numeral (unsigned.of_nat counter) `native._ir_compiler_,
+  lift $ state.write (conf, map, counter + 1),
+  return fresh
 
 meta def take_arguments (e : expr) : ir_compiler (list name × expr) :=
 let (arg_names, body) := take_arguments' e [] in do
   fresh_names ← monad.mapm (fun x, fresh_name) arg_names,
-  let locals := list.map mk_local fresh_names in
+  let locals := list.map mk_local fresh_names,
   return $ (fresh_names, expr.instantiate_vars body (list.reverse locals))
 
 -- meta def lift_state {A} (action : state arity_map A) : ir_compiler A :=
@@ -507,7 +506,7 @@ meta def compile_expr_to_ir_stmt : expr → ir_compiler ir.stmt
 
 meta def compile_defn_to_ir (decl_name : name) (args : list name) (body : expr) : ir_compiler ir.defn := do
   body' ← compile_expr_to_ir_stmt body,
-  let params := (zip args (repeat (list.length args) (ir.ty.ref ir.ty.object))) in
+  let params := (zip args (repeat (list.length args) (ir.ty.ref ir.ty.object))),
   pure (ir.defn.mk decl_name params ir.ty.object body')
 
 def unwrap_or_else {T R : Type} : ir_result T → (T → R) → (error → R) → R
@@ -531,8 +530,8 @@ meta def compile_defn (decl_name : name) (e : expr) : ir_compiler format :=
 meta def compile' : list (name × expr) → list (ir_compiler format)
 | [] := []
 | ((n, e) :: rest) := do
-  let decl := (fun d, d ++ format.line ++ format.line) <$> compile_defn n e
-  in decl :: (compile' rest)
+  let decl := (fun d, d ++ format.line ++ format.line) <$> compile_defn n e,
+  decl :: (compile' rest)
 
 meta def format_error : error → format
 | (error.string s) := to_fmt s
@@ -548,10 +547,11 @@ meta def emit_declare_vm_builtins : list (name × expr) → ir_compiler (list ir
   tail ← emit_declare_vm_builtins es,
   fresh ← fresh_name,
   let cpp_name := in_lean_ns `name,
-    single_binding := ir.stmt.seq [
+  let single_binding := ir.stmt.seq [
     ir.stmt.letb fresh (ir.ty.name cpp_name) vm_name ir.stmt.nop,
     ir.stmt.e $ ir.expr.assign `env (ir.expr.call `add_native [`env, fresh, replace_main n])
- ] in return $ single_binding :: tail
+ ],
+  return $ single_binding :: tail
 
 meta def emit_main (procs : list (name × expr)) : ir_compiler ir.defn := do
   builtins ← emit_declare_vm_builtins procs,

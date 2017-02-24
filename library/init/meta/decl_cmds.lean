@@ -38,15 +38,15 @@ e^.replace (λ e d,
 meta def copy_decl_updating_type (replacements : name_map name) (src_decl_name : name) (new_decl_name : name) : command :=
 do env  ← get_env,
    decl ← env^.get src_decl_name,
-   decl ← return $ decl^.update_name $ new_decl_name,
-   decl ← return $ decl^.update_type $ apply_replacement replacements decl^.type,
-   decl ← return $ decl^.update_value $ expr.const src_decl_name (decl^.univ_params^.for level.param),
+   let decl := decl^.update_name $ new_decl_name,
+   let decl := decl^.update_type $ apply_replacement replacements decl^.type,
+   let decl := decl^.update_value $ expr.const src_decl_name (decl^.univ_params^.for level.param),
    add_decl decl
 
 meta def copy_decl_using (replacements : name_map name) (src_decl_name : name) (new_decl_name : name) : command :=
-do env  ← get_env,
-   decl ← env^.get src_decl_name,
-   decl ← return $ decl^.update_name $ new_decl_name,
-   decl ← return $ decl^.update_type $ apply_replacement replacements decl^.type,
-   decl ← return $ decl^.map_value $ apply_replacement replacements,
+do env      ← get_env,
+   decl     ← env^.get src_decl_name,
+   let decl := decl^.update_name $ new_decl_name,
+   let decl := decl^.update_type $ apply_replacement replacements decl^.type,
+   let decl := decl^.map_value $ apply_replacement replacements,
    add_decl decl

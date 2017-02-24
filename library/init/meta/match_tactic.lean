@@ -43,12 +43,12 @@ open expr
    where x_1 ... x_n are metavariables -/
 private meta def to_pattern_core : expr → tactic (expr × list expr)
 | (lam n bi d b) := do
-   id      ← mk_fresh_name,
-   x       ← return $ local_const id n bi d,
-   new_b   ← return $ instantiate_var b x,
+   id         ← mk_fresh_name,
+   let x     := local_const id n bi d,
+   let new_b := instantiate_var b x,
    (p, xs) ← to_pattern_core new_b,
    return (p, x::xs)
-| e             := return (e, [])
+| e              := return (e, [])
 
 /- Given a pre-term of the form (λ x_1 ... x_n, t[x_1, ..., x_n]), converts it
    into the pattern t[?x_1, ..., ?x_n] -/

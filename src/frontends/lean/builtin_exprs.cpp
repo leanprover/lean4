@@ -94,16 +94,32 @@ static expr parse_Sort_star(parser_state & p, unsigned, expr const *, pos_info c
 
 static name * g_let_match_name = nullptr;
 
-static expr parse_let(parser_state & p, pos_info const & pos);
-static expr parse_let_body(parser_state & p, pos_info const & pos) {
-    if (p.curr_is_token(get_comma_tk())) {
-        p.next();
-        return parse_let(p, pos);
-    } else if (p.curr_is_token(get_in_tk())) {
-        p.next();
-        return p.parse_expr();
+static expr parse_let(parser_state & p, pos_info const & pos, bool in_do_block);
+static expr parse_do(parser_state & p, bool has_braces);
+static expr parse_let_body(parser_state & p, pos_info const & pos, bool in_do_block) {
+    if (in_do_block) {
+        if (p.curr_is_token(get_in_tk())) {
+            p.next();
+            return p.parse_expr();
+        } else {
+            p.check_token_next(get_comma_tk(), "invalid 'do' block 'let' declaration, ',' or 'in' expected");
+            if (p.curr_is_token(get_let_tk())) {
+                p.next();
+                return parse_let(p, pos, in_do_block);
+            } else {
+                return parse_do(p, false);
+            }
+        }
     } else {
-        throw parser_error("invalid let declaration, 'in' or ',' expected", p.pos());
+        if (p.curr_is_token(get_comma_tk())) {
+            p.next();
+            return parse_let(p, pos, in_do_block);
+        } else if (p.curr_is_token(get_in_tk())) {
+            p.next();
+            return p.parse_expr();
+        } else {
+            throw parser_error("invalid let declaration, 'in' or ',' expected", p.pos());
+        }
     }
 }
 
@@ -121,10 +137,10 @@ static expr mk_typed_expr_distrib_choice(parser_state & p, expr const & type, ex
     }
 }
 
-static expr parse_let(parser_state & p, pos_info const & pos) {
+static expr parse_let(parser_state & p, pos_info const & pos, bool in_do_block) {
     parser_state::local_scope scope1(p);
-    if (p.parse_local_notation_decl()) {
-        return parse_let_body(p, pos);
+    if (!in_do_block && p.parse_local_notation_decl()) {
+        return parse_let_body(p, pos, in_do_block);
     } else if (p.curr_is_identifier()) {
         auto id_pos     = p.pos();
         name id         = p.check_atomic_id_next("invalid let declaration, atomic identifier expected");
@@ -157,7 +173,7 @@ static expr parse_let(parser_state & p, pos_info const & pos) {
         }
         expr x = p.save_pos(mk_local(id, type), id_pos);
         p.add_local_expr(id, x);
-        expr b = parse_let_body(p, pos);
+        expr b = parse_let_body(p, pos, in_do_block);
         return p.save_pos(mk_let(id, type, value, abstract_local(b, x)), pos);
     } else {
         buffer<expr> new_locals;
@@ -166,7 +182,7 @@ static expr parse_let(parser_state & p, pos_info const & pos) {
         expr value = p.parse_expr();
         for (expr const & l : new_locals)
             p.add_local(l);
-        expr body  = parse_let_body(p, pos);
+        expr body  = parse_let_body(p, pos, in_do_block);
         match_definition_scope match_scope;
         expr fn = p.save_pos(mk_local(mk_fresh_name(), *g_let_match_name, mk_expr_placeholder(), binder_info()), pos);
         expr eqn = Fun(fn, Fun(new_locals, p.save_pos(mk_equation(p.rec_save_pos(mk_app(fn, lhs), pos), body), pos), p), p);
@@ -177,7 +193,194 @@ static expr parse_let(parser_state & p, pos_info const & pos) {
 }
 
 static expr parse_let_expr(parser_state & p, unsigned, expr const *, pos_info const & pos) {
-    return parse_let(p, pos);
+    bool in_do_block = false;
+    return parse_let(p, pos, in_do_block);
+}
+
+static name * g_do_match_name = nullptr;
+
+static expr fix_do_action_lhs(parser_state & p, expr const & lhs, expr const & type, pos_info const & lhs_pos,
+                              buffer<expr> & new_locals) {
+    // Hack
+    if ((is_constant(lhs) && !inductive::is_intro_rule(p.env(), const_name(lhs))) || is_local(lhs)) {
+        expr new_lhs;
+        if (is_constant(lhs)) {
+            new_lhs = mk_local(name(const_name(lhs).get_string()), type);
+        } else {
+            new_lhs = mk_local(local_pp_name(lhs), type);
+        }
+        new_lhs = p.save_pos(new_lhs, lhs_pos);
+        new_locals.clear();
+        new_locals.push_back(new_lhs);
+        return new_lhs;
+    } else {
+        return lhs;
+    }
+}
+
+static std::tuple<optional<expr>, expr, expr, optional<expr>> parse_do_action(parser_state & p, buffer<expr> & new_locals) {
+    auto lhs_pos = p.pos();
+    optional<expr> lhs = some(p.parse_pattern_or_expr());
+    expr type, curr;
+    optional<expr> else_case;
+    if (p.curr_is_token(get_colon_tk())) {
+        p.next();
+        type = p.parse_expr();
+        lhs  = fix_do_action_lhs(p, *lhs, type, lhs_pos, new_locals);
+        if (!is_local(*lhs)) {
+            throw parser_error("invalid 'do' block, unexpected ':' the left hand side is a pattern", lhs_pos);
+        }
+        p.check_token_next(get_larrow_tk(), "invalid 'do' block, '←' expected");
+        curr = p.parse_expr();
+    } else if (p.curr_is_token(get_larrow_tk())) {
+        p.next();
+        type = p.save_pos(mk_expr_placeholder(), lhs_pos);
+        lhs  = fix_do_action_lhs(p, *lhs, type, lhs_pos, new_locals);
+        if (!is_local(*lhs)) {
+            bool skip_main_fn = false;
+            lhs = p.patexpr_to_pattern(*lhs, skip_main_fn, new_locals);
+        }
+        curr = p.parse_expr();
+        if (p.curr_is_token(get_bar_tk())) {
+            p.next();
+            else_case = p.parse_expr();
+        }
+    } else {
+        curr = p.patexpr_to_expr(*lhs);
+        type = p.save_pos(mk_expr_placeholder(), lhs_pos);
+        lhs  = none_expr();
+    }
+    return std::make_tuple(lhs, type, curr, else_case);
+}
+
+static expr mk_bind_fn() {
+    return mk_no_info(mk_constant(get_bind_name()));
+}
+
+static name * g_do_failure_eq = nullptr;
+
+/* Mark for automatic failure equation when pattern matching in do-expressions. */
+expr mark_do_failure_eq(expr const & e) {
+    return mk_annotation(*g_do_failure_eq, e);
+}
+
+bool is_do_failure_eq(expr const & e) {
+    auto it = e;
+    while (is_lambda(it))
+        it = binding_body(it);
+    if (!is_equation(it)) return false;
+    return is_annotation(equation_rhs(it), *g_do_failure_eq);
+}
+
+static expr parse_do(parser_state & p, bool has_braces) {
+    parser_state::local_scope scope(p);
+    buffer<expr>               es;
+    buffer<pos_info>           ps;
+    buffer<optional<expr>>     lhss;
+    buffer<optional<expr>>     else_cases;
+    buffer<list<expr>>         lhss_locals;
+    while (true) {
+        if (p.curr_is_token(get_let_tk())) {
+            auto pos = p.pos();
+            p.next();
+            bool in_do_block = true;
+            es.push_back(parse_let(p, pos, in_do_block));
+            break;
+        } else {
+            auto lhs_pos = p.pos();
+            ps.push_back(lhs_pos);
+            buffer<expr> new_locals;
+            optional<expr> lhs, else_case;
+            expr type, curr;
+            std::tie(lhs, type, curr, else_case) = parse_do_action(p, new_locals);
+            es.push_back(curr);
+            if (p.curr_is_token(get_comma_tk())) {
+                p.next();
+                for (expr const & l : new_locals)
+                    p.add_local(l);
+                if (lhs && !is_local(*lhs)) {
+                    // if lhs is a pattern, we need to save the locals to create the match
+                    lhss_locals.push_back(to_list(new_locals));
+                } else {
+                    lhss_locals.push_back(list<expr>());
+                }
+                lhss.push_back(lhs);
+                else_cases.push_back(else_case);
+            } else {
+                if (lhs) {
+                    throw parser_error("the last statement in a 'do' block must be an expression", lhs_pos);
+                }
+                break;
+            }
+        }
+    }
+    if (has_braces) {
+        p.check_token_next(get_rcurly_tk(), "invalid 'do' block, '}' expected");
+    }
+    lean_assert(!es.empty());
+    lean_assert(es.size() == lhss.size() + 1);
+    if (es.size() == 1)
+        return es[0];
+    unsigned i = es.size();
+    --i;
+    expr r = es[i];
+    while (i > 0) {
+        --i;
+        if (auto lhs = lhss[i]) {
+            if (is_local(*lhs)) {
+                r = p.rec_save_pos(mk_app(p.save_pos(mk_bind_fn(), ps[i]), es[i], Fun(*lhs, r, p)), ps[i]);
+            } else {
+                // must introduce a "fake" match
+                auto pos   = ps[i];
+                match_definition_scope match_scope;
+                expr fn = p.save_pos(mk_local(mk_fresh_name(), *g_do_match_name, mk_expr_placeholder(), binder_info()), pos);
+                buffer<expr> locals;
+                to_buffer(lhss_locals[i], locals);
+                buffer<expr> eqs;
+                eqs.push_back(Fun(fn, Fun(locals, p.save_pos(mk_equation(p.rec_save_pos(mk_app(fn, *lhs), pos), r), pos), p), p));
+                expr else_case;
+                bool ignore_if_unused;
+                if (optional<expr> r = else_cases[i]) {
+                    else_case        = *r;
+                    ignore_if_unused = false;
+                } else {
+                    else_case        = p.save_pos(mark_do_failure_eq(p.save_pos(mk_constant(get_match_failed_name()), pos)), pos);
+                    ignore_if_unused = true;
+                }
+                // add case
+                //    _ := else_case
+                expr x = mk_local(mk_fresh_name(), "_x", mk_expr_placeholder(), binder_info());
+                expr else_eq = Fun(fn, Fun(x, p.save_pos(mk_equation(p.rec_save_pos(mk_app(fn, x), pos),
+                                                                     else_case,
+                                                                     ignore_if_unused),
+                                                         pos), p), p);
+                eqs.push_back(else_eq);
+                equations_header h = mk_equations_header(match_scope.get_name());
+                expr eqns  = p.save_pos(mk_equations(h, eqs.size(), eqs.data()), pos);
+                expr local = mk_local("_p", mk_expr_placeholder());
+                expr match = p.mk_app(eqns, local, pos);
+                r = p.rec_save_pos(mk_app(p.save_pos(mk_bind_fn(), ps[i]),
+                                          es[i],
+                                          p.save_pos(Fun(local, match, p), pos)),
+                                   pos);
+            }
+        } else {
+            r = p.rec_save_pos(mk_app(p.save_pos(mk_bind_fn(), ps[i]),
+                                      es[i],
+                                      p.save_pos(mk_lambda("_x", mk_expr_placeholder(), r), p.pos_of(r))),
+                               ps[i]);
+        }
+    }
+    return r;
+}
+
+static expr parse_do_expr(parser_state & p, unsigned, expr const *, pos_info const &) {
+    bool has_braces = false;
+    if (p.curr_is_token(get_lcurly_tk())) {
+        has_braces = true;
+        p.next();
+    }
+    return parse_do(p, has_braces);
 }
 
 static expr parse_unit(parser_state & p, unsigned, expr const *, pos_info const & pos) {
@@ -430,180 +633,6 @@ static expr parse_sorry(parser_state & p, unsigned, expr const *, pos_info const
 
 static expr parse_pattern(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
     return p.save_pos(mk_pattern_hint(args[0]), pos);
-}
-
-static name * g_do_match_name = nullptr;
-
-static expr fix_do_action_lhs(parser_state & p, expr const & lhs, expr const & type, pos_info const & lhs_pos,
-                              buffer<expr> & new_locals) {
-    // Hack
-    if ((is_constant(lhs) && !inductive::is_intro_rule(p.env(), const_name(lhs))) || is_local(lhs)) {
-        expr new_lhs;
-        if (is_constant(lhs)) {
-            new_lhs = mk_local(name(const_name(lhs).get_string()), type);
-        } else {
-            new_lhs = mk_local(local_pp_name(lhs), type);
-        }
-        new_lhs = p.save_pos(new_lhs, lhs_pos);
-        new_locals.clear();
-        new_locals.push_back(new_lhs);
-        return new_lhs;
-    } else {
-        return lhs;
-    }
-}
-
-static std::tuple<optional<expr>, expr, expr, optional<expr>> parse_do_action(parser_state & p, buffer<expr> & new_locals) {
-    auto lhs_pos = p.pos();
-    optional<expr> lhs = some(p.parse_pattern_or_expr());
-    expr type, curr;
-    optional<expr> else_case;
-    if (p.curr_is_token(get_colon_tk())) {
-        p.next();
-        type = p.parse_expr();
-        lhs  = fix_do_action_lhs(p, *lhs, type, lhs_pos, new_locals);
-        if (!is_local(*lhs)) {
-            throw parser_error("invalid 'do' block, unexpected ':' the left hand side is a pattern", lhs_pos);
-        }
-        p.check_token_next(get_larrow_tk(), "invalid 'do' block, '←' expected");
-        curr = p.parse_expr();
-    } else if (p.curr_is_token(get_larrow_tk())) {
-        p.next();
-        type = p.save_pos(mk_expr_placeholder(), lhs_pos);
-        lhs  = fix_do_action_lhs(p, *lhs, type, lhs_pos, new_locals);
-        if (!is_local(*lhs)) {
-            bool skip_main_fn = false;
-            lhs = p.patexpr_to_pattern(*lhs, skip_main_fn, new_locals);
-        }
-        curr = p.parse_expr();
-        if (p.curr_is_token(get_bar_tk())) {
-            p.next();
-            else_case = p.parse_expr();
-        }
-    } else {
-        curr = p.patexpr_to_expr(*lhs);
-        type = p.save_pos(mk_expr_placeholder(), lhs_pos);
-        lhs  = none_expr();
-    }
-    return std::make_tuple(lhs, type, curr, else_case);
-}
-
-static expr mk_bind_fn() {
-    return mk_no_info(mk_constant(get_bind_name()));
-}
-
-static name * g_do_failure_eq = nullptr;
-
-/* Mark for automatic failure equation when pattern matching in do-expressions. */
-expr mark_do_failure_eq(expr const & e) {
-    return mk_annotation(*g_do_failure_eq, e);
-}
-
-bool is_do_failure_eq(expr const & e) {
-    auto it = e;
-    while (is_lambda(it))
-        it = binding_body(it);
-    if (!is_equation(it)) return false;
-    return is_annotation(equation_rhs(it), *g_do_failure_eq);
-}
-
-static expr parse_do(parser_state & p, unsigned, expr const *, pos_info const &) {
-    parser_state::local_scope scope(p);
-    buffer<expr>               es;
-    buffer<pos_info>           ps;
-    buffer<optional<expr>>     lhss;
-    buffer<optional<expr>>     else_cases;
-    buffer<list<expr>>         lhss_locals;
-    bool has_braces = false;
-    if (p.curr_is_token(get_lcurly_tk())) {
-        has_braces = true;
-        p.next();
-    }
-    while (true) {
-        auto lhs_pos = p.pos();
-        ps.push_back(lhs_pos);
-        buffer<expr> new_locals;
-        optional<expr> lhs, else_case;
-        expr type, curr;
-        std::tie(lhs, type, curr, else_case) = parse_do_action(p, new_locals);
-        es.push_back(curr);
-        if (p.curr_is_token(get_comma_tk())) {
-            p.next();
-            for (expr const & l : new_locals)
-                p.add_local(l);
-            if (lhs && !is_local(*lhs)) {
-                // if lhs is a pattern, we need to save the locals to create the match
-                lhss_locals.push_back(to_list(new_locals));
-            } else {
-                lhss_locals.push_back(list<expr>());
-            }
-            lhss.push_back(lhs);
-            else_cases.push_back(else_case);
-        } else {
-            if (lhs) {
-                throw parser_error("the last statement in a 'do' block must be an expression", lhs_pos);
-            }
-            break;
-        }
-    }
-    if (has_braces) {
-        p.check_token_next(get_rcurly_tk(), "invalid 'do' block, '}' expected");
-    }
-    lean_assert(!es.empty());
-    lean_assert(es.size() == lhss.size() + 1);
-    if (es.size() == 1)
-        return es[0];
-    unsigned i = es.size();
-    --i;
-    expr r = es[i];
-    while (i > 0) {
-        --i;
-        if (auto lhs = lhss[i]) {
-            if (is_local(*lhs)) {
-                r = p.rec_save_pos(mk_app(p.save_pos(mk_bind_fn(), ps[i]), es[i], Fun(*lhs, r, p)), ps[i]);
-            } else {
-                // must introduce a "fake" match
-                auto pos   = ps[i];
-                match_definition_scope match_scope;
-                expr fn = p.save_pos(mk_local(mk_fresh_name(), *g_do_match_name, mk_expr_placeholder(), binder_info()), pos);
-                buffer<expr> locals;
-                to_buffer(lhss_locals[i], locals);
-                buffer<expr> eqs;
-                eqs.push_back(Fun(fn, Fun(locals, p.save_pos(mk_equation(p.rec_save_pos(mk_app(fn, *lhs), pos), r), pos), p), p));
-                expr else_case;
-                bool ignore_if_unused;
-                if (optional<expr> r = else_cases[i]) {
-                    else_case        = *r;
-                    ignore_if_unused = false;
-                } else {
-                    else_case        = p.save_pos(mark_do_failure_eq(p.save_pos(mk_constant(get_match_failed_name()), pos)), pos);
-                    ignore_if_unused = true;
-                }
-                // add case
-                //    _ := else_case
-                expr x = mk_local(mk_fresh_name(), "_x", mk_expr_placeholder(), binder_info());
-                expr else_eq = Fun(fn, Fun(x, p.save_pos(mk_equation(p.rec_save_pos(mk_app(fn, x), pos),
-                                                                     else_case,
-                                                                     ignore_if_unused),
-                                                         pos), p), p);
-                eqs.push_back(else_eq);
-                equations_header h = mk_equations_header(match_scope.get_name());
-                expr eqns  = p.save_pos(mk_equations(h, eqs.size(), eqs.data()), pos);
-                expr local = mk_local("_p", mk_expr_placeholder());
-                expr match = p.mk_app(eqns, local, pos);
-                r = p.rec_save_pos(mk_app(p.save_pos(mk_bind_fn(), ps[i]),
-                                          es[i],
-                                          p.save_pos(Fun(local, match, p), pos)),
-                                   pos);
-            }
-        } else {
-            r = p.rec_save_pos(mk_app(p.save_pos(mk_bind_fn(), ps[i]),
-                                      es[i],
-                                      p.save_pos(mk_lambda("_x", mk_expr_placeholder(), r), p.pos_of(r))),
-                               ps[i]);
-        }
-    }
-    return r;
 }
 
 static expr parse_lazy_quoted_expr(parser_state & p, unsigned, expr const *, pos_info const & pos) {
@@ -907,7 +936,7 @@ parse_table init_nud_table() {
     r = r.add({transition("begin", mk_ext_action_core(parse_begin_end))}, x0);
     r = r.add({transition("sorry", mk_ext_action(parse_sorry))}, x0);
     r = r.add({transition("match", mk_ext_action(parse_match))}, x0);
-    r = r.add({transition("do", mk_ext_action(parse_do))}, x0);
+    r = r.add({transition("do", mk_ext_action(parse_do_expr))}, x0);
     return r;
 }
 

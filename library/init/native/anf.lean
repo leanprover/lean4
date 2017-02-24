@@ -112,13 +112,13 @@ private meta def anf' : expr → anf_monad expr
   let_bind fresh ty val',
   anf' (expr.instantiate_vars body [mk_local fresh])
 | (expr.app f arg) := do
-  let fn := expr.get_app_fn (expr.app f arg),
-      args := expr.get_app_args (expr.app f arg)
-   in match app_kind fn with
-   | cases := anf_cases_on fn args anf'
-   | constructor := anf_constructor fn args anf'
-   | other := anf_call fn args anf'
-   end
+  let fn   := expr.get_app_fn (expr.app f arg),
+  let args := expr.get_app_args (expr.app f arg),
+  match app_kind fn with
+  | cases := anf_cases_on fn args anf'
+  | constructor := anf_constructor fn args anf'
+  | other := anf_call fn args anf'
+  end
 | e := return e
 
 private meta def init_state : anf_state :=

@@ -74,6 +74,7 @@ static name const * g_extends_tk = nullptr;
 static name const * g_as_tk = nullptr;
 static name const * g_whnf_tk = nullptr;
 static name const * g_in_tk = nullptr;
+static name const * g_let_tk = nullptr;
 static name const * g_assign_tk = nullptr;
 static name const * g_from_tk = nullptr;
 static name const * g_then_tk = nullptr;
@@ -197,6 +198,7 @@ void initialize_tokens() {
     g_as_tk = new name{"as"};
     g_whnf_tk = new name{"[whnf]"};
     g_in_tk = new name{"in"};
+    g_let_tk = new name{"let"};
     g_assign_tk = new name{":="};
     g_from_tk = new name{"from"};
     g_then_tk = new name{"then"};
@@ -321,6 +323,7 @@ void finalize_tokens() {
     delete g_as_tk;
     delete g_whnf_tk;
     delete g_in_tk;
+    delete g_let_tk;
     delete g_assign_tk;
     delete g_from_tk;
     delete g_then_tk;
@@ -444,6 +447,7 @@ name const & get_extends_tk() { return *g_extends_tk; }
 name const & get_as_tk() { return *g_as_tk; }
 name const & get_whnf_tk() { return *g_whnf_tk; }
 name const & get_in_tk() { return *g_in_tk; }
+name const & get_let_tk() { return *g_let_tk; }
 name const & get_assign_tk() { return *g_assign_tk; }
 name const & get_from_tk() { return *g_from_tk; }
 name const & get_then_tk() { return *g_then_tk; }

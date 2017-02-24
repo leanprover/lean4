@@ -38,9 +38,9 @@ private meta def try_constructors : nat → nat → tactic unit
 
 meta def mk_inhabited_instance : tactic unit :=
 do
-  I ← get_inhabited_type_name,
-  env ← get_env,
-  n : nat ← return $ length (constructors_of env I),
+  I      ← get_inhabited_type_name,
+  env    ← get_env,
+  let n  := length (constructors_of env I),
   when (n = 0) (fail $ "mk_inhabited_instance failed, type '" ++ to_string I ++ "' does not have constructors"),
   constructor,
   (try_constructors n n)

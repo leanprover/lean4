@@ -759,7 +759,7 @@ meta def mk_num_meta_univs : nat → tactic (list level)
 meta def mk_const (c : name) : tactic expr :=
 do env  ← get_env,
    decl ← env^.get c,
-   num  ← return decl^.univ_params^.length,
+   let num := decl^.univ_params^.length,
    ls   ← mk_num_meta_univs num,
    return (expr.const c ls)
 
@@ -795,7 +795,7 @@ mk_local' pp_name binder_info.default type
 private meta def get_pi_arity_aux : expr → tactic nat
 | (expr.pi n bi d b) :=
   do m     ← mk_fresh_name,
-     l     ← return (expr.local_const m n bi d),
+     let l := expr.local_const m n bi d,
      new_b ← whnf (expr.instantiate_var b l),
      r     ← get_pi_arity_aux new_b,
      return (r + 1)
@@ -957,8 +957,8 @@ end list
   Remark: id_locked is used in the builtin implementation of tactic.change
 -/
 run_command do
- l  ← return $ level.param `l,
- Ty ← return $ expr.sort l,
+ let l  := level.param `l,
+ let Ty := expr.sort l,
  type ← to_expr ``(Π (α : %%Ty), α → α),
  val  ← to_expr ``(λ (α : %%Ty) (a : α), a),
  add_decl (declaration.defn `id_locked [`l] type val reducibility_hints.opaque tt)

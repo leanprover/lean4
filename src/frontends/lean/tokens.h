@@ -76,6 +76,7 @@ name const & get_extends_tk();
 name const & get_as_tk();
 name const & get_whnf_tk();
 name const & get_in_tk();
+name const & get_let_tk();
 name const & get_assign_tk();
 name const & get_from_tk();
 name const & get_then_tk();

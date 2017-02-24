@@ -64,11 +64,11 @@ meta def cf' : expr → cf_monad expr
   expr.elet n ty val <$> (cf' body)
 | (expr.app f arg) := do
   trace_cf "processing app",
-  let fn := expr.get_app_fn (expr.app f arg),
-      args := expr.get_app_args (expr.app f arg)
-   in if is_cases_on fn
-   then cf_cases_on fn args cf'
-   else return (mk_call (expr.const `native_compiler.return []) [(expr.app f arg)])
+  let fn   := expr.get_app_fn (expr.app f arg),
+  let args := expr.get_app_args (expr.app f arg),
+  if is_cases_on fn
+  then cf_cases_on fn args cf'
+  else return (mk_call (expr.const `native_compiler.return []) [(expr.app f arg)])
 | e := return $ expr.app (expr.const `native_compiler.return []) e
 
 meta def init_state : config → cf_state :=

@@ -55,13 +55,13 @@ do
   (unify lhs rhs >> right >> reflexivity)
   <|>
   do {
-    lhs_list : list expr ← return $ get_app_args lhs,
-    rhs_list : list expr ← return $ get_app_args rhs,
+    let lhs_list := get_app_args lhs,
+    let rhs_list := get_app_args rhs,
     when (length lhs_list ≠ length rhs_list) (fail "mk_dec_eq_instance failed, constructor applications have different number of arguments"),
     (lhs_arg,  rhs_arg) ← find_next_target lhs_list rhs_list,
     rec ← is_type_app_of lhs_arg I_name,
     inst ← if rec then do {
-      inst_fn : expr ← mk_brec_on_rec_value F_name num_rec,
+      inst_fn ← mk_brec_on_rec_value F_name num_rec,
       return $ app inst_fn rhs_arg }
     else do {
       mk_dec_eq_for lhs_arg rhs_arg
@@ -84,8 +84,8 @@ left >> intron 1 >> contradiction
 private meta def dec_eq_case_2 (I_name : name) (F_name : name) : tactic unit :=
 do
   (lhs, rhs)       ← get_lhs_rhs,
-  lhs_fn : expr    ← return $ get_app_fn lhs,
-  rhs_fn : expr    ← return $ get_app_fn rhs,
+  let lhs_fn      := get_app_fn lhs,
+  let rhs_fn      := get_app_fn rhs,
   if lhs_fn = rhs_fn
   then dec_eq_same_constructor I_name F_name 0
   else dec_eq_diff_constructor
@@ -96,11 +96,10 @@ intro `w >>= cases >> all_goals (dec_eq_case_2 I_name F_name)
 meta def mk_dec_eq_instance_core : tactic unit :=
 do I_name ← get_dec_eq_type_name,
    env ← get_env,
-   v_name ← return `_v,
-   F_name ← return `_F,
-   num_indices ← return $ inductive_num_indices env I_name,
-   idx_names ← return $ list.map (λ (p : name × nat), mk_num_name p~>fst p~>snd) (list.zip (list.repeat `idx num_indices) (list.iota num_indices)),
-
+   let v_name := `_v,
+   let F_name := `_F,
+   let num_indices := inductive_num_indices env I_name,
+   let idx_names   := list.map (λ (p : name × nat), mk_num_name p~>fst p~>snd) (list.zip (list.repeat `idx num_indices) (list.iota num_indices)),
    -- Use brec_on if type is recursive.
    -- We store the functional in the variable F.
    if is_recursive env I_name

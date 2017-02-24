@@ -366,7 +366,7 @@ match red with
 | none := return ()
 | some red := do
 let reasons := parents^.for (λp, p^.assertions),
-    assertion := red^.assertions in
+let assertion := red^.assertions,
 if reasons^.for_all $ λr, r^.subset_of assertion then do
   state_t.modify $ λst, { st with active := st^.active^.erase id }
 else do

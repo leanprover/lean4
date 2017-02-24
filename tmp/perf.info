@@ -23,4 +23,4 @@ NO TYPE INFERENCE CACHE
 ../../library/init/algebra/ordered_field.lean  2.14         2.00
 ../../library/init/algebra/ordered_group.lean  1.57         1.55
 ../../library/init/data/list/lemmas.lean       1.17         1.16
-../../perf/bench30.lean                        1.30 (0.83)  0.74 (0.30 elab)  (over 2300 type class resolution problems)
+../../perf/bench30.lean                        1.30 (0.83)  0.74 (0.30 elab)  (over 100000 type inferences) 0.02 QED time

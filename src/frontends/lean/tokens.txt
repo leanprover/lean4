@@ -69,6 +69,7 @@ extends      extends
 as           as
 whnf         [whnf]
 in           in
+let          let
 assign       :=
 from         from
 then         then

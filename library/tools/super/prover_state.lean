@@ -77,6 +77,9 @@ c_fmt ++ " <- " ++ ass_fmt ++
 meta def clause_with_assertions (ac : derived_clause) : clause :=
 ac^.c^.close_constn ac^.assertions
 
+meta def update_proof (dc : derived_clause) (p : expr) : derived_clause :=
+{ dc with c := { (dc^.c) with proof := p } }
+
 end derived_clause
 
 meta structure locked_clause :=
@@ -287,7 +290,7 @@ c' ← return $ c^.c^.close_constn c^.assertions,
 assertv hyp_name c'^.type c'^.proof,
 proof' ← get_local hyp_name,
 type ← infer_type proof', -- FIXME: otherwise ""
-return { c with c := { (c^.c : clause) with proof := app_of_list proof' c^.assertions } }
+return $ c^.update_proof $ app_of_list proof' c^.assertions
 
 meta def register_as_passive (c : derived_clause) : prover unit := do
 c ← intern_clause c,

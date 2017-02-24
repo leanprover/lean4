@@ -8,11 +8,6 @@ Author: Gabriel Ebner
 
 namespace lean {
 
-gtask mk_gtask(std::unique_ptr<gtask_imp> && imp, task_flags flags) {
-    flags.m_needs_execution = false;
-    return std::make_shared<gtask_cell>(gtask_cell::called_from_friend(), imp.release(), flags);
-}
-
 void gtask_cell::cancel(std::shared_ptr<cancellable> const & self) {
     if (auto self_task = std::dynamic_pointer_cast<gtask_cell>(self)) {
         taskq().fail_and_dispose(self_task);

@@ -26,7 +26,7 @@ struct scheduling_info {
 struct task_flags {
     bool m_do_priority_inversion = true;
     bool m_needs_separate_thread = true;
-    bool m_needs_execution = true;
+    bool m_eager_execution = false;
 };
 
 using task_dep_fn = std::function<void(buffer<gtask>&)>;
@@ -59,7 +59,6 @@ enum class task_state {
 class gtask_cell : public cancellable {
     friend class task_queue;
     template <class Res> friend class task_cell;
-    friend gtask mk_gtask(std::unique_ptr<gtask_imp> &&, task_flags);
     template <class Res> friend task<Res> mk_task(std::unique_ptr<gtask_imp> &&, task_flags);
 
     virtual void execute() {};
@@ -70,13 +69,13 @@ class gtask_cell : public cancellable {
     std::unique_ptr<gtask_data> m_data;
     std::exception_ptr          m_exception;
 
-    struct called_from_friend {};
-
-public:
-    gtask_cell(called_from_friend, gtask_imp * imp, task_flags flags) : m_state(task_state::Created) {
+    gtask_cell(gtask_imp * imp, task_flags flags) : m_state(task_state::Created) {
         m_data.reset(new gtask_data(imp, flags));
     }
 
+    struct called_from_friend {};
+
+public:
     void cancel(std::shared_ptr<cancellable> const & self) override;
 
     bool peek_is_finished() const { return m_state.load() > task_state::Running; }
@@ -84,8 +83,6 @@ public:
 
     virtual ~gtask_cell() {}
 };
-
-gtask mk_gtask(std::unique_ptr<gtask_imp> && imp, task_flags flags);
 
 template <class Res>
 class task_cell : public gtask_cell {
@@ -99,7 +96,7 @@ class task_cell : public gtask_cell {
     }
 
 public:
-    task_cell(called_from_friend cap, gtask_imp * imp, task_flags flags) : gtask_cell(cap, imp, flags) {}
+    task_cell(called_from_friend, gtask_imp * imp, task_flags flags) : gtask_cell(imp, flags) {}
 
     task_cell(Res const & res) : gtask_cell(task_state::Success), m_result(res) {}
     task_cell(Res && res) : gtask_cell(task_state::Success), m_result(res) {}
@@ -116,7 +113,6 @@ public:
 
 template <class Res>
 task<Res> mk_task(std::unique_ptr<gtask_imp> && imp, task_flags flags) {
-    flags.m_needs_execution = true;
     return std::make_shared<task_cell<Res>>(gtask_cell::called_from_friend(), imp.release(), flags);
 }
 

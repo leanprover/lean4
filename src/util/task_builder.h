@@ -130,7 +130,10 @@ public:
         });
     }
 
-    gtask build_dep_task() { return mk_gtask(std::move(m_imp), m_flags); }
+    gtask build_dep_task() {
+        m_flags.m_eager_execution = true;
+        return mk_task<unit>(std::move(m_imp), m_flags);
+    }
 
     task<Res> build() {
         auto ctok = mk_cancellation_token(m_cancel_tok);

@@ -124,11 +124,12 @@ void mt_task_queue::handle_finished(gtask const & t) {
                     m_waiting.erase(rdep);
                     if (get_state(rdep).load() < task_state::Running) {
                         lean_assert(get_data(rdep));
-                        if (get_data(rdep)->m_flags.m_needs_execution) {
-                            enqueue(rdep);
-                        } else {
-                            get_state(rdep) = task_state::Success;
+                        if (get_data(rdep)->m_flags.m_eager_execution) {
+                            get_state(rdep) = task_state::Running;
+                            execute(rdep);
                             handle_finished(rdep);
+                        } else {
+                            enqueue(rdep);
                         }
                     }
                 }
@@ -155,8 +156,14 @@ void mt_task_queue::submit_core(gtask const & t, unsigned prio) {
         case task_state::Created:
             get_data(t)->m_sched_info.reset(new mt_sched_info(prio));
             if (check_deps(t)) {
-                if (get_state(t).load() < task_state::Running)
-                    enqueue(t);
+                if (get_state(t).load() < task_state::Running) {
+                    if (get_data(t)->m_flags.m_eager_execution) {
+                        execute(t);
+                        handle_finished(t);
+                    } else {
+                        enqueue(t);
+                    }
+                }
             } else {
                 get_state(t) = task_state::Waiting;
                 m_waiting.insert(t);

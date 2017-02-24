@@ -385,25 +385,30 @@ environment update_module_defs(environment const & env, declaration const & d) {
     }
 }
 
-static optional<name> should_report_sorry(name const & n) {
-    if (n.is_anonymous())
-        return optional<name>();
-    if (n == name{"_example"})
-        return optional<name>(n);
-    if (!is_internal_name(n))
-        return optional<name>(n);
-    if (!n.is_string() || n.is_atomic())
-        return optional<name>();
-    if (strcmp(n.get_string(), "_example") == 0)
-        return optional<name>(n);
-    if (strcmp(n.get_string(), "_main") == 0)
-        return should_report_sorry(n.get_prefix());
-    if (strncmp(n.get_string(), "_match", 6) == 0) {
-        // TODO(Leo): we may report the same function multiple times,
-        // if it contains many nested match-expressions containing sorry.
-        return should_report_sorry(n.get_prefix());
-    }
-    return optional<name>();
+static name sorry_decl_name(name const & n) {
+    if (n.is_string() && n.get_string()[0] == '_')
+        return sorry_decl_name(n.get_prefix());
+    return n;
+}
+
+struct sorry_warning_tag : public log_entry_cell {};
+static bool is_sorry_warning_or_error(log_entry const & e) {
+    return is_error_message(e) || dynamic_cast<sorry_warning_tag const *>(e.get()) != nullptr;
+}
+
+static task<bool> error_already_reported() {
+    for (auto & e : logtree().get_entries())
+        if (is_sorry_warning_or_error(e))
+            return mk_pure_task(true);
+
+    std::vector<task<bool>> children;
+    logtree().get_children().for_each([&] (name const &, log_tree::node const & c) {
+        children.push_back(c.has_entry(is_sorry_warning_or_error));
+    });
+    return map<bool>(traverse(children), [] (std::vector<bool> const & errs) {
+        for (auto err : errs) if (err) return true;
+        return false;
+    }).build();
 }
 
 environment add(environment const & env, certified_declaration const & d) {
@@ -421,13 +426,12 @@ environment add(environment const & env, certified_declaration const & d) {
             .depends_on(_d.is_theorem() ? _d.get_value_task() : nullptr));
     }
 
-    add_library_task(task_builder<unit>([_d] {
-        if (has_sorry(_d)) {
-            if (optional<name> n = should_report_sorry(_d.get_name())) {
-                report_message(message(logtree().get_location().m_file_name,
-                                       logtree().get_location().m_range.m_begin, WARNING,
-                                       (sstream() << "declaration '" << *n << "' uses sorry").str()));
-            }
+    add_library_task(map<unit>(error_already_reported(), [_d] (bool already_reported) {
+        if (!already_reported && has_sorry(_d)) {
+            report_message(message(logtree().get_location().m_file_name,
+                                   logtree().get_location().m_range.m_begin, WARNING,
+                                   (sstream() << "declaration '" << sorry_decl_name(_d.get_name()) << "' uses sorry").str()));
+            logtree().add(std::make_shared<sorry_warning_tag>());
         }
         return unit {};
     }).depends_on(_d.is_theorem() ? _d.get_value_task() : nullptr));

@@ -34,25 +34,15 @@ void report_message(message const & msg) {
     logtree().add(std::make_shared<message>(msg));
 }
 
-static bool has_errors_sync(log_tree::node const & n) {
-    for (auto & e : n.get_entries()) {
-        if (auto msg = dynamic_cast<message const *>(e.get())) {
-            if (msg->get_severity() >= message_severity::ERROR) {
-                return true;
-            }
-        }
-    }
-    bool err = false;
-    n.get_children().for_each([&] (name const &, log_tree::node const & c) {
-        if (!err) err = has_errors_sync(c);
-    });
-    return err;
+task<bool> has_errors(log_tree::node const & n) {
+    return n.has_entry(is_error_message);
 }
 
-task<bool> has_errors(log_tree::node const & n) {
-    return task_builder<bool>([=] { return has_errors_sync(n); })
-            .depends_on(n.wait_for_finish())
-            .build();
+bool is_error_message(log_entry const & e) {
+    if (auto msg = dynamic_cast<message const *>(e.get())) {
+        return msg->is_error();
+    }
+    return false;
 }
 
 }

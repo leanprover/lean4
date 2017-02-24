@@ -85,6 +85,10 @@ public:
 
         gtask wait_for_finish() const;
 
+        void for_each(std::function<bool(node const & n)> const &) const;
+        bool has_entry_now(std::function<bool(log_entry const &)> const &) const;
+        task<bool> has_entry(std::function<bool(log_entry const &)> const &) const;
+
         void print_to(std::ostream &, unsigned) const;
         void print() const;
 
@@ -114,6 +118,8 @@ public:
     void print() const;
 
     void add_listener(listener const & l);
+
+    void for_each(std::function<bool(node const & n)> const &) const;
 };
 
 log_tree::node & logtree();

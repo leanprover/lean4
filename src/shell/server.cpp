@@ -84,22 +84,21 @@ public:
         if (use_timer) m_timer.reset(new single_timer);
     }
 
-    static void get_messages(log_tree::node const & n, std::vector<message> & msgs, region_of_interest const & roi) {
-        if (!roi.intersects(n)) return;
-        for (auto & e : n.get_entries()) {
-            if (auto msg = dynamic_cast<message const *>(e.get())) {
-                if (roi.intersects(*msg))
-                    msgs.push_back(*msg);
-            }
-        }
-        n.get_children().for_each([&] (name const &, log_tree::node const & c) {
-            get_messages(c, msgs, roi);
-        });
-    }
-
     std::vector<message> get_messages_core(region_of_interest const & roi) {
         std::vector<message> msgs;
-        get_messages(m_lt->get_root(), msgs, roi);
+        m_lt->get_root().for_each([&] (log_tree::node const & n) {
+            if (roi.intersects(n)) {
+                for (auto & e : n.get_entries()) {
+                    if (auto msg = dynamic_cast<message const *>(e.get())) {
+                        if (roi.intersects(*msg))
+                            msgs.push_back(*msg);
+                    }
+                }
+                return true;
+            } else {
+                return false;
+            }
+        });
         return msgs;
     }
 
@@ -192,18 +191,6 @@ public:
         if (use_timer) m_timer.reset(new single_timer);
     }
 
-    void mk_tasks_msg(log_tree::node const & n, current_tasks_msg & msg, region_of_interest const & roi) {
-        if (!roi.intersects(n)) return;
-        if (n.get_producer()) {
-            msg.m_is_running = true;
-            msg.m_tasks.push_back(current_tasks_msg::json_of_task(n));
-            return;
-        }
-        n.get_children().for_each([&] (name const &, log_tree::node const & c) {
-            mk_tasks_msg(c, msg, roi);
-        });
-    }
-
     void submit_core(log_tree::node const & n) {
         // TODO(gabriel): priorities
         if (auto prod = n.get_producer()) {
@@ -211,20 +198,34 @@ public:
         }
     }
 
-    void resubmit_core(log_tree::node const & n, region_of_interest const & roi) {
-        if (!roi.intersects(n)) return;
-        submit_core(n);
-        n.get_children().for_each([&] (name const &, log_tree::node const & c) {
-            resubmit_core(c, roi);
-        });
-    }
     void resubmit_core() {
-        resubmit_core(m_srv->m_lt.get_root(), m_srv->get_roi());
+        auto roi = m_srv->get_roi();
+        m_srv->m_lt.for_each([&] (log_tree::node const & n) {
+            if (roi.intersects(n)) {
+                submit_core(n);
+                return true;
+            } else {
+                return false;
+            }
+        });
     }
 
     current_tasks_msg mk_tasks_msg() {
         current_tasks_msg msg;
-        mk_tasks_msg(m_lt->get_root(), msg, m_srv->get_roi());
+        auto roi = m_srv->get_roi();
+        m_lt->for_each([&] (log_tree::node const & n) {
+            if (roi.intersects(n)) {
+                if (n.get_producer()) {
+                    msg.m_is_running = true;
+                    msg.m_tasks.push_back(current_tasks_msg::json_of_task(n));
+                    return false;
+                } else {
+                    return true;
+                }
+            } else {
+                return false;
+            }
+        });
         return msg;
     }
 
@@ -515,13 +516,13 @@ void server::handle_complete(cmd_req const & req) {
 }
 
 static void get_info_managers(log_tree::node const & n, std::vector<info_manager> & infoms) {
-    for (auto & e : n.get_entries()) {
-        if (auto infom = dynamic_cast<info_manager const *>(e.get())) {
-            infoms.push_back(*infom);
+    n.for_each([&] (log_tree::node const & c) {
+        for (auto & e : c.get_entries()) {
+            if (auto infom = dynamic_cast<info_manager const *>(e.get())) {
+                infoms.push_back(*infom);
+            }
         }
-    }
-    n.get_children().for_each([&] (name const &, log_tree::node const & c) {
-        get_info_managers(c, infoms);
+        return true;
     });
 }
 

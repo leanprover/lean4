@@ -37,11 +37,14 @@ public:
     message_severity get_severity() const { return m_severity; }
     std::string get_caption() const { return m_caption; }
     std::string get_text() const { return m_text; }
+
+    bool is_error() const { return m_severity >= ERROR; }
 };
 
 std::ostream & operator<<(std::ostream &, message const &);
 void report_message(message const &);
 
+bool is_error_message(log_entry const &);
 task<bool> has_errors(log_tree::node const &);
 
 }

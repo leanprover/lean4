@@ -32,6 +32,18 @@ void log_tree::print_to(std::ostream & out) const {
 
 void log_tree::print() const {
     print_to(std::cerr);
+}
+
+void log_tree::node::for_each(std::function<bool(log_tree::node const &)> const & fn) const {
+    if (fn(*this)) {
+        get_children().for_each([&] (name const &, log_tree::node const & c) {
+            c.for_each(fn);
+        });
+    }
+};
+
+void log_tree::for_each(std::function<bool(log_tree::node const &)> const & fn) const {
+    m_root.for_each(fn);
 };
 
 void log_tree::node::detach_core(std::vector<log_tree::event> & events) const {
@@ -220,6 +232,22 @@ static void gather_producers(buffer<gtask> & deps, log_tree::node const & n) {
 gtask log_tree::node::wait_for_finish() const {
     auto t = *this;
     return mk_dependency_task([t] (buffer<gtask> & deps) { gather_producers(deps, t); });
+}
+
+bool log_tree::node::has_entry_now(std::function<bool(log_entry const &)> const & fn) const {
+    for (auto & e : get_entries()) {
+        if (fn(e)) return true;
+    }
+    bool res = false;
+    get_children().for_each([&] (name const &, node const & c) {
+        res = res || c.has_entry_now(fn);
+    });
+    return res;
+}
+
+task<bool> log_tree::node::has_entry(std::function<bool(log_entry const &)> const & fn) const {
+    auto t = *this;
+    return task_builder<bool>([t, fn] { return t.has_entry_now(fn); }).depends_on(wait_for_finish()).build();
 }
 
 LEAN_THREAD_PTR(log_tree::node, g_log_tree);

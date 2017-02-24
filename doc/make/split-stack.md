@@ -11,7 +11,7 @@ the program.
 In principle, it is possible to build a program that uses split-stacks
 with libraries that do not. However, it did not work in our experiments.
 To be able to compile Lean with split-stacks, we also have to compile
-GMP, MPFR using split-stacks.
+GMP using split-stacks.
 
 We also had to use the [gold linker](<http://en.wikipedia.org/wiki/Gold_(linker)>).
 
@@ -23,7 +23,7 @@ can install it by executing
 
     sudo apt-get install binutils-gold
 
-Before we compiled GMP, MPFR, and Lean, we created an alias
+Before we compiled GMP and Lean, we created an alias
 
     alias ld=ld.gold
 

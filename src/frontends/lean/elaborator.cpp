@@ -2813,6 +2813,8 @@ expr elaborator::visit_emptyc_or_emptys(expr const & e, optional<expr> const & e
     } else {
         synthesize_type_class_instances();
         expr new_expected_type = instantiate_mvars(*expected_type);
+        if (is_optional_param(new_expected_type))
+            new_expected_type = app_arg(app_fn(new_expected_type));
         expr S = get_app_fn(new_expected_type);
         if (is_constant(S) && is_structure(m_env, const_name(S))) {
             expr empty_struct = copy_tag(e, mk_structure_instance(name(), buffer<name>(), buffer<expr>()));

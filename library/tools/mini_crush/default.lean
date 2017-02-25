@@ -113,7 +113,7 @@ when_tracing `mini_crush $
 /- Simple tactic -/
 meta def close_aux (hs : hinst_lemmas) : tactic unit :=
     triv           <|> reflexivity reducible <|> contradiction
-<|> try_for 100 (rsimp ({} : rsimp.config) hs >> now) <|> try_for 100 reflexivity
+<|> try_for 100 (rsimp {} hs >> now) <|> try_for 100 reflexivity
 
 meta def close (hs : hinst_lemmas) (s : name) (e : option expr) : tactic unit :=
     now

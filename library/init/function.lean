@@ -46,7 +46,7 @@ infixr  ` ∘' `:80  := function.dcomp
 @[reducible] def app {β : α → Sort u₂} (f : Π x, β x) (x : α) : β x :=
 f x
 
-infixl  ` on `:1         := on_fun
+infixl  ` on `:2         := on_fun
 notation f ` -[` op `]- ` g  := combine f op g
 
 lemma left_id (f : α → β) : id ∘ f = f := rfl

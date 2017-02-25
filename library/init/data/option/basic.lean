@@ -27,6 +27,17 @@ def is_none {α : Type u} : option α → bool
 | (some _) := ff
 | none     := tt
 
+def rhoare {α : Type u} : bool → α → option α
+| tt a := none
+| ff a := some a
+
+def lhoare {α : Type u} : α → option α → α
+| a none     := a
+| _ (some b) := b
+
+infixr `|>`:1 := rhoare
+infixr `<|`:1 := lhoare
+
 end option
 
 instance (α : Type u) : inhabited (option α) :=

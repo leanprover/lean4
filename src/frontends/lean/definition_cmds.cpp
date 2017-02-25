@@ -741,6 +741,7 @@ public:
         scope_trace_env scope2(m_decl_env, m_opts, *tc);
         scope_pos_info_provider scope3(m_pos_provider);
         auto_reporting_info_manager_scope scope4(get_module_id(), m_use_info_manager);
+        module::scope_pos_info scope_pos(m_pos_provider.get_some_pos());
 
         name decl_name = "_example";
 

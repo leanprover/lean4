@@ -32,7 +32,7 @@ meta constant macro_def : Type
 
 /- Reflect a C++ expr object. The VM replaces it with the C++ implementation. -/
 meta inductive expr
-| var         : unsigned → expr
+| var         : nat → expr
 | sort        : level → expr
 | const       : name → list level → expr
 | mvar        : name → expr → expr
@@ -41,7 +41,7 @@ meta inductive expr
 | lam         : name → binder_info → expr → expr → expr
 | pi          : name → binder_info → expr → expr → expr
 | elet        : name → expr → expr → expr → expr
-| macro       : macro_def → ∀ n : unsigned, (fin (unsigned.to_nat n) → expr) → expr
+| macro       : macro_def → ∀ n, (fin n → expr) → expr
 
 meta instance : inhabited expr :=
 ⟨expr.sort level.zero⟩
@@ -49,7 +49,7 @@ meta instance : inhabited expr :=
 meta constant expr.mk_macro (d : macro_def) : list expr → expr
 meta constant expr.macro_def_name (d : macro_def) : name
 meta def expr.mk_var (n : nat) : expr :=
-expr.var (unsigned.of_nat n)
+expr.var n
 
 /- Choice macros are used to implement overloading. -/
 meta constant expr.is_choice_macro : expr → bool
@@ -309,15 +309,15 @@ open format
 
 private meta def p := λ xs, paren (format.join (list.intersperse " " xs))
 
-private meta def macro_args_to_list_aux (n : unsigned) (args : fin (unsigned.to_nat n) → expr) : Π (i : nat), i ≤ n^.to_nat → list expr
+private meta def macro_args_to_list_aux (n : nat) (args : fin n → expr) : Π (i : nat), i ≤ n → list expr
 | 0     _ := []
 | (i+1) h := args ⟨i, h⟩ :: macro_args_to_list_aux i (nat.le_trans (nat.le_succ _) h)
 
-meta def macro_args_to_list (n : unsigned) (args : fin (unsigned.to_nat n) → expr) : list expr :=
-macro_args_to_list_aux n args n^.to_nat (nat.le_refl _)
+meta def macro_args_to_list (n : nat) (args : fin n → expr) : list expr :=
+macro_args_to_list_aux n args n (nat.le_refl _)
 
 meta def to_raw_fmt : expr → format
-| (var n) := p ["var", to_fmt n^.to_nat]
+| (var n) := p ["var", to_fmt n]
 | (sort l) := p ["sort", to_fmt l]
 | (const n ls) := p ["const", to_fmt n, to_fmt ls]
 | (mvar n t)   := p ["mvar", to_fmt n, to_raw_fmt t]

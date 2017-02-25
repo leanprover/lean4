@@ -1,4 +1,3 @@
-import tools.mini_crush
 /- "Proving in the Large" chapter of CPDT -/
 
 inductive exp : Type
@@ -8,20 +7,15 @@ inductive exp : Type
 
 open exp
 
-def exp_eval : exp → nat
+def eeval : exp → nat
 | (Const n)    := n
-| (Plus e1 e2) := exp_eval e1 + exp_eval e2
-| (Mult e1 e2) := exp_eval e1 * exp_eval e2
+| (Plus e1 e2) := eeval e1 + eeval e2
+| (Mult e1 e2) := eeval e1 * eeval e2
 
 def times (k : nat) : exp → exp
 | (Const n)    := Const (k * n)
 | (Plus e1 e2) := Plus (times e1) (times e2)
 | (Mult e1 e2) := Mult (times e1) e2
-
-attribute [simp] mul_add
-
-@[simp] theorem eval_times : ∀ (k e), exp_eval (times k e) = k * exp_eval e :=
-by mini_crush
 
 def reassoc : exp → exp
 | (Const n)    := (Const n)
@@ -40,5 +34,10 @@ def reassoc : exp → exp
   | _              := Mult e1' e2'
   end
 
-theorem reassoc_correct (e) : exp_eval (reassoc e) = exp_eval e :=
-by mini_crush
+attribute [simp] mul_add times reassoc eeval
+
+theorem eeval_times (k e) : eeval (times k e) = k * eeval e :=
+by induction e; simph
+
+theorem reassoc_correct (e) : eeval (reassoc e) = eeval e :=
+by induction e; simph; cases (reassoc e2); rsimp

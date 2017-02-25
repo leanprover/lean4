@@ -25,14 +25,16 @@ meta constant caching_user_attribute.get_cache : Π {α : Type}, caching_user_at
 
 open tactic
 
+meta def register_attribute := attribute.register
+
 meta def mk_name_set_attr (attr_name : name) : command :=
 do t ← to_expr ``(caching_user_attribute name_set),
    v ← to_expr ``({name     := %%(quote attr_name),
                    descr    := "name_set attribute",
-                   mk_cache := λ ns, return $ name_set.of_list ns,
+                   mk_cache := λ ns, return (name_set.of_list ns),
                    dependencies := [] } : caching_user_attribute name_set),
-   add_decl (declaration.defn attr_name [] t v reducibility_hints.abbrev ff),
-   attribute.register attr_name
+   add_meta_definition attr_name [] t v,
+   register_attribute attr_name
 
 meta def get_name_set_for_attr (attr_name : name) : tactic name_set :=
 do

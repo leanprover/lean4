@@ -930,6 +930,9 @@ match _root_.try_for max (tac s) with
 | none   := mk_exception "try_for tactic failed, timeout" none s
 end
 
+meta def add_meta_definition (n : name) (lvls : list name) (type value : expr) : tactic unit :=
+add_decl (declaration.defn n lvls type value reducibility_hints.abbrev ff)
+
 end tactic
 
 notation [parsing_only] `command`:max := tactic unit

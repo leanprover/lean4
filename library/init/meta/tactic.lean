@@ -769,6 +769,10 @@ do env  ← get_env,
    ls   ← mk_num_meta_univs num,
    return (expr.const c ls)
 
+/-- Apply the constant `c` -/
+meta def applyc (c : name) : tactic unit :=
+mk_const c >>= apply
+
 meta def save_const_type_info (n : name) (ref : expr) : tactic unit :=
 try (do c ← mk_const n, save_type_info c ref)
 

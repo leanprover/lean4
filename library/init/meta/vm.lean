@@ -130,8 +130,8 @@ do fmt ← return $ to_fmt a,
 
 end vm
 
-meta structure vm_monitor (s : Type) :=
-(init : s) (step : s → vm s)
+meta structure vm_monitor (α : Type) :=
+(init : α) (step : α → vm α)
 
 /- Registers a new virtual machine monitor. The argument must be the name of a definition of type
    `vm_monitor S`. The command will override the last monitor.

@@ -8,22 +8,6 @@ Author: Gabriel Ebner
 
 namespace lean {
 
-void test() {
-    task<int> a, b;
-
-    task<int> c = task_builder<int>([] () { return 5; }).build();
-
-    task<int> d = map<int>(a, [] (int x) { return x + 1; }).build();
-    task<int> e = map<int>(a, [] (int x) { return x + 1; }).build();
-    auto f = map<unsigned>(a, [] (int x) { return x + 1; }).build();
-
-    task<std::pair<task<unsigned>, task<char>>> g;
-    auto h = mk_deep_dependency(g, [] (buffer<gtask> & deps, std::pair<task<unsigned>, task<char>> const & val) {
-        deps.push_back(val.first);
-        deps.push_back(val.second);
-    });
-}
-
 struct cancellable_task_imp : public delegating_task_imp {
     cancellation_token m_ctok;
 

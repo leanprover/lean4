@@ -1,14 +1,21 @@
+/*
+Copyright (c) 2017 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Author: Gabriel Ebner
+*/
 #pragma once
 #include <vector>
 #include <functional>
 #include <memory>
+#include <string>
 #include "util/thread.h"
 #include "util/int64.h"
-#include "name_map.h"
-#include "task.h"
-#include "message_definitions.h"
-#include "name_set.h"
-#include "flet.h"
+#include "util/name_map.h"
+#include "util/task.h"
+#include "util/message_definitions.h"
+#include "util/name_set.h"
+#include "util/flet.h"
 
 namespace lean {
 
@@ -85,9 +92,9 @@ public:
 
         gtask wait_for_finish() const;
 
-        void for_each(std::function<bool(node const & n)> const &) const;
-        bool has_entry_now(std::function<bool(log_entry const &)> const &) const;
-        task<bool> has_entry(std::function<bool(log_entry const &)> const &) const;
+        void for_each(std::function<bool(node const & n)> const &) const; // NOLINT
+        bool has_entry_now(std::function<bool(log_entry const &)> const &) const; // NOLINT
+        task<bool> has_entry(std::function<bool(log_entry const &)> const &) const; // NOLINT
 
         void print_to(std::ostream &, unsigned) const;
         void print() const;
@@ -119,7 +126,7 @@ public:
 
     void add_listener(listener const & l);
 
-    void for_each(std::function<bool(node const & n)> const &) const;
+    void for_each(std::function<bool(node const & n)> const &) const; // NOLINT
 };
 
 log_tree::node & logtree();

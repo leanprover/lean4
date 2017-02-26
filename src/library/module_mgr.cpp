@@ -15,7 +15,7 @@ Author: Gabriel Ebner
 #include "library/module.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/parser.h"
-#include "library_task_builder.h"
+#include "library/library_task_builder.h"
 
 namespace lean {
 
@@ -221,7 +221,7 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
                 get_snapshots_core(id, contents, mtime, snapshots);
             }
 
-            scope_log_tree lt2(lt.get().mk_child({}, {}, { id, {{1,0}, find_end_pos(contents)} }));
+            scope_log_tree lt2(lt.get().mk_child({}, {}, { id, {{1, 0}, find_end_pos(contents)} }));
 
             auto imports = get_direct_imports(id, contents);
 

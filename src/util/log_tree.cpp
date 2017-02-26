@@ -1,5 +1,13 @@
+/*
+Copyright (c) 2017 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Author: Gabriel Ebner
+*/
 #include "util/log_tree.h"
 #include "util/task_builder.h"
+#include <vector>
+#include <string>
 
 namespace lean {
 
@@ -34,7 +42,7 @@ void log_tree::print() const {
     print_to(std::cerr);
 }
 
-void log_tree::node::for_each(std::function<bool(log_tree::node const &)> const & fn) const {
+void log_tree::node::for_each(std::function<bool(log_tree::node const &)> const & fn) const { // NOLINT
     if (fn(*this)) {
         get_children().for_each([&] (name const &, log_tree::node const & c) {
             c.for_each(fn);
@@ -42,7 +50,7 @@ void log_tree::node::for_each(std::function<bool(log_tree::node const &)> const 
     }
 };
 
-void log_tree::for_each(std::function<bool(log_tree::node const &)> const & fn) const {
+void log_tree::for_each(std::function<bool(log_tree::node const &)> const & fn) const { // NOLINT
     m_root.for_each(fn);
 };
 
@@ -234,7 +242,7 @@ gtask log_tree::node::wait_for_finish() const {
     return mk_dependency_task([t] (buffer<gtask> & deps) { gather_producers(deps, t); });
 }
 
-bool log_tree::node::has_entry_now(std::function<bool(log_entry const &)> const & fn) const {
+bool log_tree::node::has_entry_now(std::function<bool(log_entry const &)> const & fn) const { // NOLINT
     for (auto & e : get_entries()) {
         if (fn(e)) return true;
     }
@@ -245,7 +253,7 @@ bool log_tree::node::has_entry_now(std::function<bool(log_entry const &)> const 
     return res;
 }
 
-task<bool> log_tree::node::has_entry(std::function<bool(log_entry const &)> const & fn) const {
+task<bool> log_tree::node::has_entry(std::function<bool(log_entry const &)> const & fn) const { // NOLINT
     auto t = *this;
     return task_builder<bool>([t, fn] { return t.has_entry_now(fn); }).depends_on(wait_for_finish()).build();
 }

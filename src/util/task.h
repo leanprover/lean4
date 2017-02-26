@@ -147,7 +147,7 @@ public:
     virtual void submit(gtask const &) = 0;
 };
 
-void set_task_queue(task_queue *);
+void set_task_queue(task_queue *); // NOLINT
 task_queue & taskq();
 
 template <class Res>

@@ -9,6 +9,7 @@ Author: Gabriel Ebner
 #include "util/log_tree.h"
 #include "util/cancellable.h"
 #include "library/io_state.h"
+#include <string>
 
 namespace lean {
 

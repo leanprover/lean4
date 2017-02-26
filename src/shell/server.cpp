@@ -10,7 +10,8 @@ Authors: Gabriel Ebner, Leonardo de Moura, Sebastian Ullrich
 #include <vector>
 #include <algorithm>
 #include <clocale>
-#include <library/library_task_builder.h>
+#include "library/library_task_builder.h"
+#include "util/lean_path.h"
 #include "util/sexpr/option_declarations.h"
 #include "util/timer.h"
 #include "library/mt_task_queue.h"

@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "util/thread.h"
 #include "util/stackinfo.h"
 #include "util/exception.h"
-#include "flet.h"
 
 namespace lean {
 /** \brief Increment thread local counter for approximating elapsed time. */
@@ -44,7 +43,7 @@ public:
 void check_heartbeat();
 
 struct scoped_interrupt_flag : flet<atomic_bool *> {
-    scoped_interrupt_flag(atomic_bool *);
+    scoped_interrupt_flag(atomic_bool *); // NOLINT
 };
 
 /**

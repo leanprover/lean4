@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include <vector>
-#include <library/library_task_builder.h>
+#include "library/library_task_builder.h"
 #include "library/sorry.h"
 #include "util/timeit.h"
 #include "kernel/type_checker.h"
@@ -758,7 +758,7 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
             std::string file_name = p.get_file_name();
             auto proof = add_library_task(task_builder<expr>([=] {
                 return elaborate_proof(decl_env, opts, header_pos, new_params_list,
-                                       new_fn, val ,thm_finfo, is_rfl, type,
+                                       new_fn, val, thm_finfo, is_rfl, type,
                                        mctx, lctx, pos_provider, use_info_manager, file_name);
             }));
             env_n = declare_definition(p, elab.env(), kind, lp_names, c_name, type, opt_val, proof, modifiers, attrs,

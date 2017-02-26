@@ -8,6 +8,7 @@ Author: Gabriel Ebner
 #include <utility>
 #include "util/name.h"
 #include "util/int64.h"
+#include <string>
 
 namespace lean {
 

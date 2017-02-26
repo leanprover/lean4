@@ -8,7 +8,7 @@ Author: Gabriel Ebner
 
 #include <vector>
 #include "util/thread.h"
-#include "flet.h"
+#include "util/flet.h"
 
 namespace lean {
 

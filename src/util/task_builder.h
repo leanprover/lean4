@@ -68,42 +68,35 @@ public:
             m_imp(new base_task_imp<Fn>(std::forward<Fn>(fn))),
             m_cancel_tok(global_cancellation_token()) {}
 
-    task_builder<Res> does_not_require_own_thread() {
-        lean_assert(m_imp);
-        m_flags.m_needs_separate_thread = false;
+    task_builder<Res> execute_eagerly() {
+        m_flags.m_eager_execution = true;
         return std::move(*this);
     }
 
     template <class Wrapper>
     task_builder<Res> wrap(Wrapper && wrapper) {
-        lean_assert(m_imp);
         m_imp = wrapper(std::move(m_imp));
         lean_assert(m_imp);
         return std::move(*this);
     }
 
     task_builder<Res> set_cancellation_token(cancellation_token const & ctok) {
-        lean_assert(m_imp);
         m_cancel_tok = ctok;
         return std::move(*this);
     }
 
     template <class Fn>
     task_builder<Res> depends_on_fn(Fn && fn) {
-        lean_assert(m_imp);
         m_imp.reset(new depends_on_fn_wrapper<Fn>(std::move(m_imp), std::forward<Fn>(fn)));
-        lean_assert(m_imp);
         return std::move(*this);
     }
 
     task_builder<Res> depends_on(gtask const & t) {
-        lean_assert(m_imp);
         return depends_on_fn([t] (buffer<gtask> & deps) { deps.push_back(t); });
     }
 
     template <class Task>
     task_builder<Res> depends_on(std::vector<Task> && ts) {
-        lean_assert(m_imp);
         return depends_on_fn([ts] (buffer<gtask> & deps) {
             for (auto & t : ts) deps.push_back(t);
         });
@@ -111,30 +104,30 @@ public:
 
     template <class Task>
     task_builder<Res> depends_on(std::vector<Task> const & ts) {
-        lean_assert(m_imp);
         std::vector<Task> ts_ = ts;
         return depends_on(std::move(ts_));
     }
 
     template <class Task>
     task_builder<Res> depends_on(list<Task> const & ts) {
-        lean_assert(m_imp);
         return depends_on_fn([ts] (buffer<gtask> & deps) {
             for (auto & t : ts) deps.push_back(t);
         });
     }
 
+    task<Res> build_without_cancellation() {
+        return mk_task<Res>(std::move(m_imp), m_flags);
+    }
+
     gtask build_dep_task() {
-        m_flags.m_eager_execution = true;
-        return mk_task<unit>(std::move(m_imp), m_flags);
+        return execute_eagerly().build_without_cancellation();
     }
 
     task<Res> build() {
         auto ctok = mk_cancellation_token(m_cancel_tok);
-        auto cancellable = wrap(cancellation_support(ctok));
-        auto task = mk_task<Res>(std::move(cancellable.m_imp), cancellable.m_flags);
+        auto task = wrap(cancellation_support(ctok)).build_without_cancellation();
         ctok->add_child(task);
-        return task;
+        return std::move(task);
     }
 };
 
@@ -151,7 +144,7 @@ task<std::vector<Res>> traverse(std::vector<task<Res>> const & ts) {
         return std::move(vs);
     }).depends_on_fn([ts](buffer<gtask> & deps) {
         for (auto &t : ts) deps.push_back(t);
-    }).does_not_require_own_thread().build();
+    }).execute_eagerly().build();
 }
 
 template <class Res>
@@ -162,7 +155,7 @@ task<list<Res>> reverse_traverse(list<task<Res>> const & ts) {
         return std::move(vs);
     }).depends_on_fn([ts](buffer<gtask> & deps) {
         for (auto & t : ts) deps.push_back(t);
-    }).does_not_require_own_thread().build();
+    }).execute_eagerly().build();
 }
 
 template <class Fn>

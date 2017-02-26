@@ -47,11 +47,11 @@ vm_obj to_obj(task<ts_vm_obj> const & n) {
 }
 
 vm_obj to_obj(task<expr> const & n) {
-    return to_obj(map<ts_vm_obj>(n, [] (expr const & e) { return ts_vm_obj(to_obj(e)); }).does_not_require_own_thread().build());
+    return to_obj(map<ts_vm_obj>(n, [] (expr const & e) { return ts_vm_obj(to_obj(e)); }).execute_eagerly().build());
 }
 
 task<expr> to_expr_task(vm_obj const & o) {
-    return map<expr>(to_task(o), [] (ts_vm_obj const & o) { return to_expr(o.to_vm_obj()); }).does_not_require_own_thread().build();
+    return map<expr>(to_task(o), [] (ts_vm_obj const & o) { return to_expr(o.to_vm_obj()); }).execute_eagerly().build();
 }
 
 vm_obj vm_task_get(vm_obj const &, vm_obj const & t) {
@@ -92,7 +92,7 @@ vm_obj vm_task_flatten(vm_obj const &, vm_obj const & o) {
         deps.push_back(t);
         if (auto res = peek(t))
             deps.push_back(to_task(res->to_vm_obj()));
-    }).does_not_require_own_thread().build());
+    }).execute_eagerly().build());
 }
 
 void initialize_vm_task() {

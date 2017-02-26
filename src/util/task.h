@@ -24,7 +24,6 @@ struct scheduling_info {
 };
 
 struct task_flags {
-    bool m_needs_separate_thread = true;
     bool m_eager_execution = false;
 };
 

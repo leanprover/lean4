@@ -138,7 +138,9 @@ static struct option g_long_options[] = {
     {"threads",      required_argument, 0, 'j'},
     {"quiet",        no_argument,       0, 'q'},
     {"deps",         no_argument,       0, 'd'},
+#if defined(LEAN_USE_ALPHA)
     {"compile",      optional_argument, 0, 'C'},
+#endif
     {"timeout",      optional_argument, 0, 'T'},
 #if defined(LEAN_JSON)
     {"json",         no_argument,       0, 'J'},
@@ -326,9 +328,11 @@ int main(int argc, char ** argv) {
         case 'n':
             native_output         = optarg;
             break;
+#if defined(LEAN_USE_ALPHA)
         case 'C':
             compile = true;
             break;
+#endif
         case 'r':
             doc = optarg;
             break;

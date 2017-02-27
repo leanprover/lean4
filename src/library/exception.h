@@ -71,7 +71,7 @@ public:
     nested_exception_without_pos(char const * msg, throwable const & ex):
         nested_exception(msg, ex) {}
     virtual optional<pos_info> get_pos() const override { return optional<pos_info>(); }
-    virtual throwable * clone() const { return new nested_exception_without_pos(m_pp_fn, *m_exception); }
+    virtual throwable * clone() const override { return new nested_exception_without_pos(m_pp_fn, *m_exception); }
     virtual void rethrow() const override { throw *this; }
 };
 

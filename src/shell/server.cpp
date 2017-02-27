@@ -51,7 +51,7 @@ struct all_messages_msg {
 };
 
 bool region_of_interest::intersects(log_tree::node const & n) const {
-    if (m_files.empty()) return true;
+    if (!m_enabled) return true;
     if (n.get_location().m_file_name.empty()) return true;
     auto & l = n.get_location();
     if (auto f = m_files.find(l.m_file_name)) {
@@ -63,7 +63,7 @@ bool region_of_interest::intersects(log_tree::node const & n) const {
 }
 
 bool region_of_interest::intersects(message const & msg) const {
-    if (m_files.empty()) return true;
+    if (!m_enabled) return true;
     if (auto f = m_files.find(msg.get_file_name())) {
         return f->m_begin_line <= msg.get_pos().first && msg.get_pos().first <= f->m_end_line;
     } else {
@@ -87,7 +87,7 @@ public:
 
     std::vector<message> get_messages_core(region_of_interest const & roi) {
         std::vector<message> msgs;
-        m_lt->get_root().for_each([&] (log_tree::node const & n) {
+        m_lt->for_each([&] (log_tree::node const & n) {
             if (roi.intersects(n)) {
                 for (auto & e : n.get_entries()) {
                     if (auto msg = dynamic_cast<message const *>(e.get())) {
@@ -599,6 +599,7 @@ region_of_interest server::get_roi() {
 
 server::cmd_res server::handle_roi(server::cmd_req const & req) {
     region_of_interest new_roi;
+    new_roi.m_enabled = true;
     for (auto & f : req.m_payload.at("files")) {
         std::string fn = f.at("file_name");
         unsigned begin_line = f.at("begin_line");

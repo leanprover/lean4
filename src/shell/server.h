@@ -31,6 +31,7 @@ struct string_cmp {
 };
 
 struct region_of_interest {
+    bool m_enabled = false;
     rb_map<std::string, line_range, string_cmp> m_files;
 
     bool intersects(log_tree::node const & n) const;

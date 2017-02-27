@@ -110,10 +110,11 @@
 (defun lean-eldoc-documentation-function (&optional add-to-kill-ring)
   "Show information of lean expression at point if any"
   (interactive)
-  (lean-get-info-record-at-point
-   (lambda (info-record)
-     (when info-record
-       (lean-eldoc-documentation-function-cont info-record add-to-kill-ring)))))
+  (when (not (eq lean-server-check-mode 'nothing)) ; TODO(gabriel): revisit once info no longer reparses the file
+    (lean-get-info-record-at-point
+     (lambda (info-record)
+       (when info-record
+         (lean-eldoc-documentation-function-cont info-record add-to-kill-ring))))))
 
 (defun lean-show-type ()
   "Show information of lean-expression at point if any."
@@ -124,7 +125,9 @@
 
 (defun lean-show-goal--handler ()
   (let ((deactivate-mark)) ; keep transient mark
-    (when (lean-info-buffer-active lean-show-goal-buffer-name)
+    (when (and (not (eq lean-server-check-mode 'nothing))
+               ; TODO(gabriel): revisit ^^ once info no longer reparses the file
+               (lean-info-buffer-active lean-show-goal-buffer-name))
       (lean-get-info-record-at-point
        (lambda (info-record)
          (lean-with-info-output-to-buffer

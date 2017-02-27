@@ -91,6 +91,10 @@
 (defvar lean-mode-map (make-sparse-keymap)
   "Keymap used in Lean mode")
 
+(defun lean-mk-check-menu-option (text sym)
+  `[,text (progn (setq lean-server-check-mode ',sym) (lean-server-sync-roi))
+         :style radio :selected (eq lean-server-check-mode ',sym)])
+
 (easy-menu-define lean-mode-menu lean-mode-map
   "Menu for the Lean major mode"
   `("Lean"
@@ -108,9 +112,11 @@
     "-----------------"
     ["Restart lean process" lean-server-restart               t]
     "-----------------"
+    ,(lean-mk-check-menu-option "Check nothing" 'nothing)
+    ,(lean-mk-check-menu-option "Check visible lines" 'visible-lines)
+    ,(lean-mk-check-menu-option "Check visible files" 'visible-files)
+    "-----------------"
     ("Configuration"
-     ["Use flycheck (on-the-fly syntax check)"
-      lean-toggle-flycheck-mode :active t :style toggle :selected flycheck-mode]
      ["Show type at point"
       lean-toggle-eldoc-mode :active t :style toggle :selected eldoc-mode])
     "-----------------"

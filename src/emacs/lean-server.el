@@ -121,7 +121,7 @@
                 :project-dir project-dir
                 :process proc
                 :seq-num 0
-                :current-roi nil
+                :current-roi 'not-yet-sent
                 :callbacks nil
                 :messages nil)))
     (set-process-filter proc (lambda (proc string) (lean-server-filter sess string)))
@@ -292,6 +292,8 @@
     (setq lean-server-session (lean-server-session-get
                                (or (lean-project-find-root)
                                    (file-name-directory (buffer-file-name)))))
+    (lean-server-show-tasks)
+    (lean-server-show-messages)
     (lean-server-sync)))
 
 (defun lean-server-restart ()
@@ -336,15 +338,25 @@
           (run-at-time "200 milliseconds" nil #'lean-server-sync (current-buffer)))))
 
 (defun lean-server-compute-roi (sess)
-  (-mapcat (lambda (buf)
-             (with-current-buffer buf
-               (when (and (get-buffer-window) (eq lean-server-session sess))
-                 (let ((min-pt (-min (--map (window-start it) (get-buffer-window-list))))
-                       (max-pt (-max (--map (window-end it t) (get-buffer-window-list)))))
+  (pcase lean-server-check-mode
+    ('visible-lines
+     (-mapcat (lambda (buf)
+                (with-current-buffer buf
+                  (when (and (get-buffer-window) (eq lean-server-session sess))
+                    (let ((min-pt (-min (--map (window-start it) (get-buffer-window-list))))
+                          (max-pt (-max (--map (window-end it t) (get-buffer-window-list)))))
+                      `((,(buffer-file-name)
+                         ,(max 1 (- (line-number-at-pos min-pt) 5)) .
+                         ,(+ (line-number-at-pos max-pt) 5)))))))
+              (buffer-list)))
+    ('visible-files
+     (--mapcat (with-current-buffer it
+                 (when (and (get-buffer-window) (eq lean-server-session sess))
                    `((,(buffer-file-name)
-                      ,(max 1 (- (line-number-at-pos min-pt) 5)) .
-                      ,(+ (line-number-at-pos max-pt) 5)))))))
-           (buffer-list)))
+                      ,(line-number-at-pos (point-min)) .
+                      ,(line-number-at-pos (point-max))))))
+               (buffer-list)))
+    (_ nil)))
 
 (defun lean-server-session-send-roi (sess roi)
   (setf (lean-server-session-current-roi sess) roi)
@@ -361,15 +373,24 @@
                  (<= (cddr it) (cdr b))))
           as))
 
+(defun lean-server-roi-extend (roi delta)
+  (--map `(,(car it) ,(- (cadr it) delta) . ,(+ (cddr it) delta)) roi))
+
+(defun lean-server-roi-ok (old-roi new-roi)
+  (and (lean-server-roi-subset-p new-roi old-roi)
+       (lean-server-roi-subset-p old-roi (lean-server-roi-extend new-roi 10))))
+
 (defun lean-server-sync-roi ()
-  (let ((old-roi (lean-server-session-current-roi lean-server-session))
-        (new-roi (lean-server-compute-roi lean-server-session)))
-    (when (not (lean-server-roi-subset-p new-roi old-roi))
-      (lean-server-session-send-roi lean-server-session new-roi))))
+  (when lean-server-session
+    (let ((old-roi (lean-server-session-current-roi lean-server-session))
+          (new-roi (lean-server-compute-roi lean-server-session)))
+      (when (or (eq old-roi 'not-yet-sent) (not (lean-server-roi-ok old-roi new-roi)))
+        (lean-server-session-send-roi lean-server-session new-roi)))))
 
 (defun lean-server-window-scroll-function-hook (wnd new-start-pos)
   (let ((buf (window-buffer wnd)))
     (with-current-buffer buf
-      (when lean-server-session (lean-server-sync-roi)))))
+      (lean-server-ensure-alive)
+      (lean-server-sync-roi))))
 
 (provide 'lean-server)

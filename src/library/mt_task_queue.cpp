@@ -112,7 +112,9 @@ void mt_task_queue::spawn_worker() {
 void mt_task_queue::handle_finished(gtask const & t) {
     lean_assert(get_state(t).load() > task_state::Running);
     lean_assert(get_data(t));
-    lean_assert(get_data(t)->m_sched_info);
+
+    if (!get_data(t)->m_sched_info)
+        return;  // task has never been submitted
 
     m_waiting.erase(t);
     get_sched_info(t).m_has_finished.notify_all();

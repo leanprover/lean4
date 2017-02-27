@@ -1,0 +1,8 @@
+type_error_at_eval_expr.lean:3:0: error: eval_expr failed due to type error
+nested exception message:
+type mismatch at definition '_eval_expr.13.424', has type
+  list ℕ
+but is expected to have type
+  ℕ
+state:
+⊢ true

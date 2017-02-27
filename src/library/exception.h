@@ -39,6 +39,7 @@ public:
 };
 
 class nested_exception : public generic_exception {
+protected:
     std::shared_ptr<throwable>          m_exception;
 public:
     nested_exception(optional<pos_info> const & p, pp_fn const & fn, throwable const & ex):
@@ -58,6 +59,19 @@ public:
     virtual optional<pos_info> get_pos() const override;
     virtual format pp(formatter const & fmt) const override;
     virtual throwable * clone() const override;
+    virtual void rethrow() const override { throw *this; }
+};
+
+/* Similar to nested_exception but get_pos returns none
+   even if nested exception has position information. */
+class nested_exception_without_pos : public nested_exception {
+    nested_exception_without_pos(pp_fn const & fn, throwable const & ex):
+        nested_exception(none_expr(), fn, ex) {}
+public:
+    nested_exception_without_pos(char const * msg, throwable const & ex):
+        nested_exception(msg, ex) {}
+    virtual optional<pos_info> get_pos() const override { return optional<pos_info>(); }
+    virtual throwable * clone() const { return new nested_exception_without_pos(m_pp_fn, *m_exception); }
     virtual void rethrow() const override { throw *this; }
 };
 

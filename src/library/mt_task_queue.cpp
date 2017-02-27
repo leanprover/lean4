@@ -160,6 +160,7 @@ void mt_task_queue::submit_core(gtask const & t, unsigned prio) {
             if (check_deps(t)) {
                 if (get_state(t).load() < task_state::Running) {
                     if (get_data(t)->m_flags.m_eager_execution) {
+                        get_state(t) = task_state::Running;
                         execute(t);
                         handle_finished(t);
                     } else {

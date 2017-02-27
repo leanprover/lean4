@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "library/user_recursors.h"
 #include "library/util.h"
 #include "library/quote.h"
+#include "library/noncomputable.h"
 #include "library/module.h"
 #include "library/vm/vm.h"
 #include "library/compiler/util.h"
@@ -73,6 +74,15 @@ class expand_aux_fn : public compiler_step_visitor {
         return compiler_step_visitor::visit_app(e);
     }
 
+    // Throw an exception is 'e' is the application of a noncomputable function
+    void check_computable(expr const & e) {
+        expr const & fn = get_app_fn(e);
+        if (is_constant(fn) && is_noncomputable(env(), const_name(fn))) {
+            throw exception(sstream() << "failed to generate bytecode, expression depends on noncomputable definition '"
+                            << const_name(fn) << "'\n");
+        }
+    }
+
     virtual expr visit_constant(expr const & e) override {
         type_context::nozeta_scope scope(ctx());
         name const & n = const_name(e);
@@ -83,6 +93,7 @@ class expand_aux_fn : public compiler_step_visitor {
             is_projection(env(), n) || is_no_confusion(env(), n))
             return e;
         if (!is_vm_function(env(), n)) {
+            check_computable(e);
             if (auto r = unfold_term(env(), e)) {
                 return visit(*r);
             }
@@ -106,6 +117,7 @@ class expand_aux_fn : public compiler_step_visitor {
         switch (get_recursor_app_kind(e)) {
         case recursor_kind::NotRecursor: {
             if (is_not_vm_function(e) && !ctx().is_proof(e)) {
+                check_computable(e);
                 if (auto r = unfold_term(env(), e)) {
                     return visit(copy_tag(e, expr(*r)));
                 }

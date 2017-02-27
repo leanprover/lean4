@@ -30,7 +30,11 @@ static vm_obj eval(expr const & A, expr a, tactic_state const & s) {
         name eval_aux_name = mk_tagged_fresh_name("_eval_expr");
         auto cd = check(aux_env, mk_definition(aux_env, eval_aux_name, {}, A, a, true, false));
         aux_env = aux_env.add(cd);
-        aux_env = vm_compile(aux_env, aux_env.get(eval_aux_name));
+        try {
+            aux_env = vm_compile(aux_env, aux_env.get(eval_aux_name));
+        } catch (exception & ex) {
+            return tactic::mk_exception(nested_exception("eval_expr failed to compile given expression into bytecode", ex), s);
+        }
         S.update_env(aux_env);
         vm_obj r = S.get_constant(eval_aux_name);
         return tactic::mk_success(r, s);

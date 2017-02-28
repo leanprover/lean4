@@ -35,7 +35,7 @@ option(USE_GITHASH        "GIT_HASH"           ON)
 # This option is important when using Lean as library that is invoked from a different programming language (e.g., Haskell).
 option(AUTO_THREAD_FINALIZATION "AUTO_THREAD_FINALIZATION" ON)
 
-# FLAGS for disabling optimizations
+# FLAGS for disabling optimizations and debugging
 option(FREE_VAR_RANGE_OPT  "FREE_VAR_RANGE_OPT"   ON)
 option(HAS_LOCAL_OPT       "HAS_LOCAL_OPT"        ON)
 option(ABSTRACTION_CACHE   "ABSTRACTION_CACHE"    ON)
@@ -45,6 +45,8 @@ option(ALPHA               "ALPHA FEATURES"       OFF)
 option(TRACK_CUSTOM_ALLOCATORS "TRACK_CUSTOM_ALLOCATORS" OFF)
 option(TRACK_LIVE_EXPRS    "TRACK_LIVE_EXPRS" OFF)
 option(CUSTOM_ALLOCATORS   "CUSTOM_ALLOCATORS" ON)
+option(SAVE_SNAPSHOT       "SAVE_SNAPSHOT" ON)
+option(SAVE_INFO           "SAVE_INFO" ON)
 
 # emacs site-lisp dir
 set(EMACS_LISP_DIR        "share/emacs/site-lisp/lean" CACHE STRING "emacs site-lisp dir")
@@ -87,6 +89,14 @@ endif()
 
 if (NOT("${CUSTOM_ALLOCATORS}" MATCHES "ON"))
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_NO_CUSTOM_ALLOCATORS")
+endif()
+
+if (NOT("${SAVE_SNAPSHOT}" MATCHES "ON"))
+  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_NO_SNAPSHOT")
+endif()
+
+if (NOT("${SAVE_INFO}" MATCHES "ON"))
+  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_NO_INFO")
 endif()
 
 message(STATUS "Lean emacs-mode will be installed at "

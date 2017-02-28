@@ -78,6 +78,9 @@ info_data mk_identifier_info(name const & full_id) { return info_data(new identi
 info_data mk_vm_obj_format_info(environment const & env, vm_obj const & thunk) { return info_data(new vm_obj_format_info(env, thunk)); }
 
 void info_manager::add_info(unsigned l, unsigned c, info_data data) {
+#ifdef LEAN_NO_INFO
+    return;
+#endif
     line_info_data_set line_set = m_line_data[l];
     line_set.insert(c, cons<info_data>(data, line_set[c]));
     m_line_data.insert(l, line_set);
@@ -99,6 +102,9 @@ void info_manager::instantiate_mvars(metavar_context const & mctx) {
 }
 
 void info_manager::merge(info_manager const & info) {
+#ifdef LEAN_NO_INFO
+    return;
+#endif
     info.m_line_data.for_each([&](unsigned line, line_info_data_set const & set) {
             set.for_each([&](unsigned col, list<info_data> const & data) {
                     buffer<info_data> b;
@@ -113,14 +119,23 @@ void info_manager::merge(info_manager const & info) {
 }
 
 void info_manager::add_type_info(unsigned l, unsigned c, expr const & e) {
+#ifdef LEAN_NO_INFO
+    return;
+#endif
     add_info(l, c, mk_type_info(e));
 }
 
 void info_manager::add_identifier_info(unsigned l, unsigned c, name const & full_id) {
+#ifdef LEAN_NO_INFO
+    return;
+#endif
     add_info(l, c, mk_identifier_info(full_id));
 }
 
 void info_manager::add_vm_obj_format_info(unsigned l, unsigned c, environment const & env, vm_obj const & thunk) {
+#ifdef LEAN_NO_INFO
+    return;
+#endif
     add_info(l, c, mk_vm_obj_format_info(env, thunk));
 }
 

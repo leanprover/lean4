@@ -2489,6 +2489,9 @@ bool parser::curr_is_command_like() const {
 }
 
 void parser::save_snapshot(scope_message_context & smc, pos_info p) {
+#ifdef LEAN_NO_SNAPSHOT
+    return;
+#endif
     if (!m_snapshot_vector)
         return;
     if (m_snapshot_vector->empty() || m_snapshot_vector->back()->m_pos != p) {

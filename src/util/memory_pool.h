@@ -17,8 +17,12 @@ public:
     ~memory_pool();
     void * allocate();
     void recycle(void * ptr) {
+#ifdef LEAN_NO_CUSTOM_ALLOCATORS
+        free(ptr);
+#else
         *(reinterpret_cast<void**>(ptr)) = m_free_list;
         m_free_list = ptr;
+#endif
     }
 };
 

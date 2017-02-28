@@ -44,6 +44,7 @@ option(TYPE_INFER_CACHE    "TYPE_INFER_CACHE"     ON)
 option(ALPHA               "ALPHA FEATURES"       OFF)
 option(TRACK_CUSTOM_ALLOCATORS "TRACK_CUSTOM_ALLOCATORS" OFF)
 option(TRACK_LIVE_EXPRS    "TRACK_LIVE_EXPRS" OFF)
+option(CUSTOM_ALLOCATORS   "CUSTOM_ALLOCATORS" ON)
 
 # emacs site-lisp dir
 set(EMACS_LISP_DIR        "share/emacs/site-lisp/lean" CACHE STRING "emacs site-lisp dir")
@@ -82,6 +83,10 @@ endif()
 
 if ("${TRACK_LIVE_EXPRS}" MATCHES "ON")
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_TRACK_LIVE_EXPRS")
+endif()
+
+if (NOT("${CUSTOM_ALLOCATORS}" MATCHES "ON"))
+  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_NO_CUSTOM_ALLOCATORS")
 endif()
 
 message(STATUS "Lean emacs-mode will be installed at "

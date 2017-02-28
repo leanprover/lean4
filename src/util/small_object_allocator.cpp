@@ -56,7 +56,7 @@ void small_object_allocator::reset() {
 
 void small_object_allocator::deallocate(size_t size, void * p) {
     if (size == 0) return;
-#if LEAN_DEBUG
+#if LEAN_DEBUG || defined(LEAN_NO_CUSTOM_ALLOCATORS)
     // Valgrind friendly
     delete[] static_cast<char*>(p);
     return;
@@ -80,16 +80,13 @@ void small_object_allocator::deallocate(size_t size, void * p) {
 void * small_object_allocator::allocate(size_t size) {
     if (size == 0) return 0;
     inc_heartbeat();
-#if LEAN_DEBUG
+#if LEAN_DEBUG || defined(LEAN_NO_CUSTOM_ALLOCATORS)
     // Valgrind friendly
     return new char[size];
 #endif
     m_alloc_size += size;
     if (size >= SMALL_OBJ_SIZE - (1 << PTR_ALIGNMENT))
         return malloc(size);
-#ifdef LEAN_DEBUG
-    size_t osize = size;
-#endif
     unsigned slot_id = static_cast<unsigned>(size >> PTR_ALIGNMENT);
     if ((size & MASK) != 0)
         slot_id++;
@@ -102,7 +99,6 @@ void * small_object_allocator::allocate(size_t size) {
     }
     chunk * c = m_chunks[slot_id];
     size = slot_id << PTR_ALIGNMENT;
-    lean_assert(size >= osize);
     if (c != 0) {
         char * new_curr = c->m_curr + size;
         if (new_curr < c->m_data + CHUNK_SIZE) {

@@ -8,7 +8,6 @@ but is expected to have type
   ℕ
 state:
 ⊢ ℕ
-exact_error_pos.lean:4:4: warning: declaration 'ex1' uses sorry
 exact_error_pos.lean:15:14: error: type mismatch at application
   f 0 tt
 term
@@ -19,4 +18,3 @@ but is expected to have type
   ℕ
 state:
 ⊢ ℕ
-exact_error_pos.lean:12:4: warning: declaration 'ex₂' uses sorry

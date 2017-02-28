@@ -5,4 +5,4 @@ new_ax
 (a, a)
 1299.lean:13:8: error: invalid theorem 'd2', theorems should not depend on axioms introduced using tactics (solution: mark theorem as a definition)
 theorem d2 : true = true :=
-[incorrect proof]
+sorry

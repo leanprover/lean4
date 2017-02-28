@@ -10,4 +10,3 @@ bad_error3.lean:7:0: error: tactic failed, there are unsolved goals
 state:
 p : ℕ → ℕ → Prop
 ⊢ sorry
-bad_error3.lean:5:4: warning: declaration 'ex' uses sorry

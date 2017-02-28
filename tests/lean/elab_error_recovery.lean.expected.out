@@ -35,7 +35,6 @@ elab_error_recovery.lean:8:29: error: don't know how to synthesize placeholder
 context:
 half_baked : ℕ → ℕ
 ⊢ ℕ
-elab_error_recovery.lean:1:4: warning: declaration 'half_baked' uses sorry
 def half_baked._main : ℕ → ℕ :=
 λ (a : ℕ),
   ite (a = 3) 2

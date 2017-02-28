@@ -4,4 +4,3 @@ has type
   Π (a : unit) (b : delayed[?m_1]), delayed[?m_2]
 but is expected to have type
   unit → unit
-bad_error4.lean:4:11: warning: declaration 'bar' uses sorry

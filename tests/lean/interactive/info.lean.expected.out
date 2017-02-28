@@ -1,4 +1,4 @@
-{"msg":{"caption":"print result","file_name":"f","pos_col":0,"pos_line":18,"severity":"information","text":"@[inline]\ndef id : Π {α : Sort u}, α → α :=\nλ {α : Sort u} (a : α), a"},"response":"additional_message"}
+{"msgs":[{"caption":"print result","file_name":"f","pos_col":0,"pos_line":18,"severity":"information","text":"@[reducible]\ndef id : Π {α : Sort u}, α → α :=\nλ {α : Sort u} (a : α), a"}],"response":"all_messages"}
 {"message":"file invalidated","response":"ok","seq_num":0}
 {"record":{"source":},"response":"ok","seq_num":2}
 {"record":{"doc":"reducible"},"response":"ok","seq_num":5}

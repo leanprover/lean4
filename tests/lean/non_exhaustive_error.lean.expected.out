@@ -1,2 +1,1 @@
 non_exhaustive_error.lean:2:11: error: invalid non-exhaustive set of equations (use 'set_option trace.eqn_compiler.elim_match true' for additional details)
-non_exhaustive_error.lean:2:11: warning: declaration 'f' uses sorry

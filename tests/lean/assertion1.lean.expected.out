@@ -1,2 +1,1 @@
 assertion1.lean:37:21: error: invalid '^.' notation, function 'MonoidalCategory.tensorObjects' does not have explicit argument with type (MonoidalCategory ...)
-assertion1.lean:35:11: warning: declaration 'tensor_on_left' uses sorry

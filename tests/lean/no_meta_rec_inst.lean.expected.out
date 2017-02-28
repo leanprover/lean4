@@ -3,4 +3,3 @@ no_meta_rec_inst.lean:5:3: error: tactic.mk_instance failed to generate instance
 state:
 n_has_false : has_false ℕ
 ⊢ has_false ℕ
-no_meta_rec_inst.lean:4:9: warning: declaration 'n_has_false' uses sorry

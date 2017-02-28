@@ -4,7 +4,6 @@ has type
   ℕ → ℕ
 but is expected to have type
   ℕ → ℕ → ℕ
-minimize_errors.lean:1:4: warning: declaration 'f' uses sorry
 f : ℕ → ℕ → ℕ
 g : ℕ → ℕ → ℕ
 def g : ℕ → ℕ → ℕ :=

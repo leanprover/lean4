@@ -3,11 +3,9 @@ context:
 f : ℕ → ℕ
 ⊢ ℕ
 eqn_hole.lean:2:11: error: invalid non-exhaustive set of equations (use 'set_option trace.eqn_compiler.elim_match true' for additional details)
-eqn_hole.lean:2:11: warning: declaration 'f' uses sorry
 eqn_hole.lean:8:13: error: don't know how to synthesize placeholder
 context:
 g : ℕ → ℕ,
 n : ℕ
 ⊢ ℕ
 eqn_hole.lean:6:11: error: support for well-founded recursion has not been implemented yet, use 'set_option trace.eqn_compiler true' for additional information
-eqn_hole.lean:6:11: warning: declaration 'g' uses sorry

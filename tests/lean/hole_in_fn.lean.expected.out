@@ -2,4 +2,3 @@ hole_in_fn.lean:6:13: error: don't know how to synthesize placeholder
 context:
 n : ℕ
 ⊢ ℕ
-hole_in_fn.lean:5:11: warning: declaration 'f' uses sorry

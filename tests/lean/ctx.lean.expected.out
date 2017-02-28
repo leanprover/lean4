@@ -6,4 +6,3 @@ b1 b2 b3 : bool,
 h : A = B,
 p1 p2 : A × B
 ⊢ ℕ
-ctx.lean:2:11: warning: declaration 'foo' uses sorry

@@ -1,2 +1,2 @@
 λ (x : A), f x
-quot_bug.lean:8:8: warning: declaration '_example' uses sorry
+quot_bug.lean:8:0: warning: declaration '[anonymous]' uses sorry

@@ -5,7 +5,6 @@ A : Type,
 tst1 : tactic unit,
 a : expr
 ⊢ Type
-eval_expr_error.lean:3:9: warning: declaration 'tst1' uses sorry
 eval_expr_error.lean:8:0: error: invalid eval_expr, type mismatch
 state:
 ⊢ true

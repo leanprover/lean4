@@ -7,4 +7,3 @@ has type
 but is expected to have type
   vec A .(.?m_2 + 1)
 bad_inaccessible2.lean:31:46: error: ill-formed match/equations expression
-bad_inaccessible2.lean:29:11: warning: declaration 'map_head' uses sorry

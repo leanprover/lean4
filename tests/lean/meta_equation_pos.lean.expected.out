@@ -4,5 +4,4 @@ has type
   bool
 but is expected to have type
   ℕ
-meta_equation_pos.lean:1:9: warning: declaration 'f' uses sorry
 ℕ : Type

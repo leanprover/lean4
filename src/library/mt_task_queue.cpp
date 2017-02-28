@@ -61,7 +61,7 @@ void mt_task_queue::notify_queue_changed() {
 constexpr chrono::milliseconds g_worker_max_idle_time = chrono::milliseconds(1000);
 
 void mt_task_queue::spawn_worker() {
-    lean_assert(!m_shutting_down);
+    lean_always_assert(!m_shutting_down);
     auto this_worker = std::make_shared<worker_info>();
     m_workers.push_back(this_worker);
     m_required_workers--;
@@ -120,8 +120,8 @@ void mt_task_queue::spawn_worker() {
 }
 
 void mt_task_queue::handle_finished(gtask const & t) {
-    lean_assert(get_state(t).load() > task_state::Running);
-    lean_assert(get_data(t));
+    lean_always_assert(get_state(t).load() > task_state::Running);
+    lean_always_assert(get_data(t));
 
     if (!get_data(t)->m_sched_info)
         return;  // task has never been submitted
@@ -135,7 +135,7 @@ void mt_task_queue::handle_finished(gtask const & t) {
                 if (check_deps(rdep)) {
                     m_waiting.erase(rdep);
                     if (get_state(rdep).load() < task_state::Running) {
-                        lean_assert(get_data(rdep));
+                        lean_always_assert(get_data(rdep));
                         if (get_data(rdep)->m_flags.m_eager_execution) {
                             get_state(rdep) = task_state::Running;
                             execute(rdep);
@@ -189,7 +189,7 @@ void mt_task_queue::submit_core(gtask const & t, unsigned prio) {
         case task_state::Running: case task_state::Failed: case task_state::Success:
             break;
     }
-    lean_assert(get_state(t).load() >= task_state::Waiting);
+    lean_always_assert(get_state(t).load() >= task_state::Waiting);
 }
 
 void mt_task_queue::bump_prio(gtask const & t, unsigned new_prio) {
@@ -199,7 +199,7 @@ void mt_task_queue::bump_prio(gtask const & t, unsigned new_prio) {
                 auto prio = get_prio(t);
                 auto &q = m_queue[prio];
                 auto it = std::find(q.begin(), q.end(), t);
-                lean_assert(it != q.end());
+                lean_always_assert(it != q.end());
                 q.erase(it);
                 if (q.empty()) m_queue.erase(prio);
 
@@ -222,7 +222,7 @@ void mt_task_queue::bump_prio(gtask const & t, unsigned new_prio) {
 
 bool mt_task_queue::check_deps(gtask const & t) {
     check_stack("mt_task_queue::check_deps");
-    lean_assert(get_data(t));
+    lean_always_assert(get_data(t));
 
     buffer<gtask> deps;
     try {
@@ -241,7 +241,7 @@ bool mt_task_queue::check_deps(gtask const & t) {
         if (!dep) continue;
         switch (get_state(dep).load()) {
             case task_state::Waiting: case task_state::Queued: case task_state::Running:
-                lean_assert(get_imp(dep));
+                lean_always_assert(get_imp(dep));
                 get_sched_info(dep).m_reverse_deps.push_back(t);
                 return false;
             case task_state::Success:
@@ -301,10 +301,10 @@ void mt_task_queue::join() {
 }
 
 gtask mt_task_queue::dequeue() {
-    lean_assert(!m_queue.empty());
+    lean_always_assert(!m_queue.empty());
     auto it = m_queue.begin();
     auto & highest_prio = it->second;
-    lean_assert(!highest_prio.empty());
+    lean_always_assert(!highest_prio.empty());
     auto result = std::move(highest_prio.front());
     highest_prio.pop_front();
     if (highest_prio.empty()) {
@@ -314,8 +314,8 @@ gtask mt_task_queue::dequeue() {
 }
 
 void mt_task_queue::enqueue(gtask const & t) {
-    lean_assert(get_state(t).load() < task_state::Running);
-    lean_assert(get_imp(t));
+    lean_always_assert(get_state(t).load() < task_state::Running);
+    lean_always_assert(get_imp(t));
     get_state(t) = task_state::Queued;
     m_queue[get_prio(t)].push_back(t);
     if (m_required_workers > 0) {

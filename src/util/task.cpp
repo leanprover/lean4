@@ -36,10 +36,10 @@ void task_queue::wait_for_success(gtask const & t) {
 }
 
 void task_queue::execute(gtask const & t) {
-    lean_assert(t);
-    lean_assert(t->m_state.load() == task_state::Running);
-    lean_assert(t->m_data);
-    lean_assert(t->m_data->m_imp);
+    lean_always_assert(t);
+    lean_always_assert(t->m_state.load() == task_state::Running);
+    lean_always_assert(t->m_data);
+    lean_always_assert(t->m_data->m_imp);
 
     try {
         {
@@ -57,14 +57,14 @@ void task_queue::execute(gtask const & t) {
 }
 
 void task_queue::fail(gtask const & t, std::exception_ptr const & ex) {
-    lean_assert(t->m_state.load() < task_state::Running);
+    lean_always_assert(t->m_state.load() < task_state::Running);
 
     t->m_exception = ex;
     t->m_state = task_state::Failed;
 }
 
 void task_queue::fail(gtask const & t, gtask const & failed) {
-    lean_assert(failed->m_state.load() == task_state::Failed);
+    lean_always_assert(failed->m_state.load() == task_state::Failed);
 
     fail(t, failed->m_exception);
 }

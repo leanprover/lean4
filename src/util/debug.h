@@ -84,6 +84,7 @@ Author: Leonardo de Moura
 
 #define lean_assert(COND, ARGS...) DEBUG_CODE({if (!(COND)) { lean::notify_assertion_violation(__FILE__, __LINE__, #COND); LEAN_DISPLAY(ARGS); lean::invoke_debugger(); }})
 #define lean_cond_assert(TAG, COND, ARGS...) DEBUG_CODE({if (lean::is_debug_enabled(TAG) && !(COND)) { lean::notify_assertion_violation(__FILE__, __LINE__, #COND); LEAN_DISPLAY(ARGS); lean::invoke_debugger(); }})
+#define lean_always_assert(COND, ARGS...) { if (!(COND)) { lean::notify_assertion_violation(__FILE__, __LINE__, #COND); LEAN_DISPLAY(ARGS); lean_unreachable(); } }
 
 #define lean_assert_eq(A, B) lean_assert(A == B, A, B)
 #define lean_assert_ne(A, B) lean_assert(A != B, A, B)

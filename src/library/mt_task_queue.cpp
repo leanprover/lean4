@@ -310,7 +310,7 @@ gtask mt_task_queue::dequeue() {
     if (highest_prio.empty()) {
         m_queue.erase(it);
     }
-    return std::move(result);
+    return result;
 }
 
 void mt_task_queue::enqueue(gtask const & t) {

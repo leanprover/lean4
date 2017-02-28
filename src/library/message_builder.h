@@ -9,6 +9,7 @@ Author: Gabriel Ebner
 #include "util/exception.h"
 #include "library/io_state_stream.h"
 #include "library/messages.h"
+#include "library/type_context.h"
 
 namespace lean {
 

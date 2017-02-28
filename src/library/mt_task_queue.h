@@ -72,7 +72,7 @@ public:
     void fail_and_dispose(gtask const &t) override;
 
     void submit(gtask const & t, unsigned prio);
-    void submit(gtask const & t);
+    void submit(gtask const & t) override;
 
     void evacuate() override;
 

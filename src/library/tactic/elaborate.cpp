@@ -28,7 +28,7 @@ static bool report_failure(elaborator_exception const & ex, expr const & mvar, c
     if (!d) return false;
     if (!ex.get_pos()) return false;
     auto tc = std::make_shared<type_context>(s.env(), s.get_options(), s.mctx(), d->get_context());
-    message_builder out(tc, s.env(), get_global_ios(), pip->get_file_name(),
+    message_builder out(s.env(), get_global_ios(), pip->get_file_name(),
                         *ex.get_pos(), ERROR);
     out.set_exception(ex);
     out << line() + format(header) + line() + s.pp();

@@ -183,29 +183,30 @@ void mt_task_queue::submit_core(gtask const & t, unsigned prio) {
 }
 
 void mt_task_queue::bump_prio(gtask const & t, unsigned new_prio) {
-    if (get_data(t) && new_prio < get_prio(t)) {
-        switch (get_state(t).load()) {
-        case task_state::Queued: {
-            auto prio = get_prio(t);
-            auto &q = m_queue[prio];
-            auto it = std::find(q.begin(), q.end(), t);
-            lean_assert(it != q.end());
-            q.erase(it);
-            if (q.empty()) m_queue.erase(prio);
+    switch (get_state(t).load()) {
+        case task_state::Queued:
+            if (new_prio < get_prio(t)) {
+                auto prio = get_prio(t);
+                auto &q = m_queue[prio];
+                auto it = std::find(q.begin(), q.end(), t);
+                lean_assert(it != q.end());
+                q.erase(it);
+                if (q.empty()) m_queue.erase(prio);
 
-            get_prio(t) = std::min(get_prio(t), new_prio);
-            check_deps(t);
-            enqueue(t);
+                get_prio(t) = std::min(get_prio(t), new_prio);
+                check_deps(t);
+                enqueue(t);
+            }
             break;
-        }
         case task_state::Waiting:
-            get_prio(t) = std::min(get_prio(t), new_prio);
-            check_deps(t);
+            if (new_prio < get_prio(t)) {
+                get_prio(t) = std::min(get_prio(t), new_prio);
+                check_deps(t);
+            }
             break;
         case task_state::Running: case task_state::Failed: case task_state::Success:
             break;
         default: lean_unreachable();
-        }
     }
 }
 

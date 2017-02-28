@@ -1711,49 +1711,88 @@ class add_nested_inductive_decl_fn {
         }
     };
 
-    /////////////////////////////////////////////////
-    ///// Stage 8: sizeof lemmas for nested ind /////
-    /////////////////////////////////////////////////
-
-    void define_nested_sizeof_lemmas() {
+    void define_nested_cases_on() {
         for (unsigned ind_idx = 0; ind_idx < m_nested_decl.get_num_inds(); ++ind_idx) {
-            name sizeof_name = mk_sizeof_name(mlocal_name(m_nested_decl.get_ind(ind_idx)));
-            for (unsigned ir_idx = 0; ir_idx < m_nested_decl.get_num_intro_rules(ind_idx); ++ir_idx) {
-                type_context tctx_synth(m_env, m_tctx.get_options(), m_synth_lctx);
+            expr const & nested_ind = m_nested_decl.get_ind(ind_idx);
+            expr const & inner_ind = m_inner_decl.get_ind(ind_idx);
 
-                expr c_nested_ir = m_nested_decl.get_c_ir_params(ind_idx, ir_idx);
-                expr ir_ty = tctx_synth.infer(c_nested_ir);
+            declaration d = m_env.get(inductive::get_elim_name(mlocal_name(inner_ind)));
+            level_param_names lp_names = d.get_univ_params();
+            levels lvls = param_names_to_levels(lp_names);
 
-                buffer<expr> locals;
-                while (is_pi(ir_ty)) {
-                    expr local = mk_local_for(ir_ty);
-                    locals.push_back(local);
-                    ir_ty = safe_whnf(tctx_synth, instantiate(binding_body(ir_ty), local));
-                }
-                buffer<expr> fully_packed_args;
-                get_app_args(tctx_synth.relaxed_whnf(mk_app(c_nested_ir, locals)), fully_packed_args);
+            expr inner_cases_on = mk_app(mk_constant(name(mlocal_name(inner_ind), "cases_on"), lvls), m_nested_decl.get_params());
+            expr inner_cases_on_type = m_tctx.infer(inner_cases_on);
 
-                expr rhs = mk_nat_one();
-                for (expr const & rhs_arg : fully_packed_args) {
-                    rhs = mk_nat_add(rhs, mk_app(tctx_synth, get_sizeof_name(), rhs_arg));
-                }
-
-                expr lhs = mk_app(tctx_synth, sizeof_name, {mk_app(c_nested_ir, locals)});
-                expr dsimp_rule_type = Pi(m_nested_decl.get_params(), tctx_synth.mk_pi(m_param_insts, Pi(locals, mk_eq(tctx_synth, lhs, rhs))));
-                expr dsimp_rule_val = Fun(m_nested_decl.get_params(), tctx_synth.mk_lambda(m_param_insts, Fun(locals, mk_eq_refl(tctx_synth, lhs))));
-                name dsimp_rule_name = mk_sizeof_spec_name(mlocal_name(m_nested_decl.get_intro_rule(ind_idx, ir_idx)));
-
-                lean_trace(name({"inductive_compiler", "nested", "sizeof"}), tout() << "[rfl]: " << dsimp_rule_type << "\n";);
-
-                define_theorem(dsimp_rule_name, dsimp_rule_type, dsimp_rule_val);
-                m_env = mark_rfl_lemma(m_env, dsimp_rule_name);
-                m_env = add_eqn_lemma(m_env, dsimp_rule_name);
-                m_env = add_protected(m_env, dsimp_rule_name);
-                m_tctx.set_env(m_env);
-            }
+            expr outer_cases_on_type = Pi(m_nested_decl.get_params(), unpack_type(inner_cases_on_type));
+            expr outer_cases_on_val = Fun(m_nested_decl.get_params(), build_nested_cases_on(ind_idx, inner_cases_on, unpack_type(inner_cases_on_type)));
+            define(name(mlocal_name(nested_ind), "cases_on"), outer_cases_on_type, outer_cases_on_val, lp_names);
         }
     }
 
+    expr build_nested_cases_on(unsigned ind_idx, expr const & inner_cases_on, expr const & outer_cases_on_type) {
+        expr C;
+        buffer<expr> indices;
+        expr major_premise;
+        buffer<expr> minor_premises;
+        expr goal = introduce_locals_for_nested_cases_on(ind_idx, outer_cases_on_type, C, indices, major_premise, minor_premises);
+
+        // Only the minor premises need to change
+        lean_assert(m_nested_decl.get_num_intro_rules(ind_idx) == minor_premises.size());
+        buffer<expr> inner_minor_premises;
+        for (unsigned ir_idx = 0; ir_idx < minor_premises.size(); ++ir_idx) {
+            expr const & minor_premise = minor_premises[ir_idx];
+            expr ty = safe_whnf(m_tctx, pack_type(mlocal_type(minor_premise)));
+
+            buffer<expr> inner_minor_premise_args;
+            buffer<expr> inner_minor_premise_rec_args;
+            while (is_pi(ty)) {
+                expr arg = mk_local_for(ty);
+                if (get_app_fn(mlocal_type(arg)) != pack_type(C)) {
+                    lean_assert(inner_minor_premise_rec_args.empty());
+                    inner_minor_premise_args.push_back(arg);
+                } else {
+                    inner_minor_premise_rec_args.push_back(arg);
+                }
+                ty = safe_whnf(m_tctx, instantiate(binding_body(ty), arg));
+            }
+            inner_minor_premises.push_back(build_nested_minor_premise_fn(*this, ind_idx, ir_idx, minor_premise, inner_minor_premise_args,
+                                                                         inner_minor_premise_rec_args, ty)());
+        }
+
+        return Fun(C,
+                   Fun(indices,
+                       Fun(major_premise,
+                           Fun(minor_premises,
+                               mk_app(mk_app(mk_app(mk_app(inner_cases_on, C), indices), major_premise), inner_minor_premises)))));
+    }
+
+    expr introduce_locals_for_nested_cases_on(unsigned ind_idx, expr const & outer_cases_on_type,
+                                              expr & C, buffer<expr> & indices, expr & major_premise,
+                                              buffer<expr> & minor_premises) {
+        expr ty = safe_whnf(m_tctx, outer_cases_on_type);
+
+        C = mk_local_for(ty, "C");
+        ty = safe_whnf(m_tctx, instantiate(binding_body(ty), C));
+
+        while (true) {
+            expr l = mk_local_for(ty);
+            ty = safe_whnf(m_tctx, instantiate(binding_body(ty), l));
+            if (m_nested_decl.is_ind_app(mlocal_type(l), ind_idx)) {
+                major_premise = l;
+                break;
+            } else {
+                indices.push_back(l);
+            }
+        }
+
+        for (unsigned ir_idx = 0; ir_idx < m_nested_decl.get_num_intro_rules(ind_idx); ++ir_idx) {
+            expr minor_premise = mk_local_for(ty);
+            minor_premises.push_back(minor_premise);
+            ty = safe_whnf(m_tctx, instantiate(binding_body(ty), minor_premise));
+        }
+
+        return ty;
+    }
 public:
     add_nested_inductive_decl_fn(environment const & env, options const & opts,
                                  name_map<implicit_infer_kind> const & implicit_infer_map,
@@ -1783,6 +1822,7 @@ public:
         build_primitive_pack_unpack();
         define_nested_irs();
         define_nested_recursors();
+        define_nested_cases_on();
 
         return optional<environment>(m_env);
     }

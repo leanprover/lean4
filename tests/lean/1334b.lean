@@ -18,3 +18,9 @@ def list_of : term → list term
 check list_of.equations._eqn_1
 check list_of.equations._eqn_2
 check list_of.equations._eqn_3
+
+example (a : nat) (ls : list term) : term.var a = term.app ls → false :=
+by contradiction
+
+example (a : nat) (s : string) : ¬ term.var a = term.cnst s :=
+by contradiction

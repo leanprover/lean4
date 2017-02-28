@@ -512,7 +512,7 @@ class add_mutual_inductive_decl_fn {
         return Fun(index, construct_inner_C_core(C, index, 0, ind_idx));
     }
 
-    expr introduce_locals_for_rec_args(unsigned ind_idx, expr & C, buffer<expr> & minor_premises, buffer<expr> & indices, expr & major_premise) {
+    expr introduce_locals_for_rec_args(unsigned ind_idx, expr & C, buffer<expr> & minor_premises, buffer<expr> & indices, expr & major_premise, bool cases_on) {
         expr const & ind = m_mut_decl.get_ind(ind_idx);
         {
             buffer<expr> C_args;
@@ -545,7 +545,7 @@ class add_mutual_inductive_decl_fn {
                 }
 
                 buffer<expr> inner_indices;
-                if (m_mut_decl.is_ind_app(ir_arg, ind_idx, inner_indices)) {
+                if (!cases_on && m_mut_decl.is_ind_app(ir_arg, ind_idx, inner_indices)) {
                     expr rec_arg_type = Pi(ir_arg_args, mk_app(mk_app(C, inner_indices), mk_app(minor_premise_arg, ir_arg_args)));
                     expr rec_arg = mk_local_pp("x", rec_arg_type);
                     rec_args.push_back(rec_arg);
@@ -584,7 +584,7 @@ class add_mutual_inductive_decl_fn {
         expr C;
         buffer<expr> minor_premises, indices;
         expr major_premise;
-        expr rec_type = introduce_locals_for_rec_args(ind_idx, C, minor_premises, indices, major_premise);
+        expr rec_type = introduce_locals_for_rec_args(ind_idx, C, minor_premises, indices, major_premise, false);
 
         expr inner_C = construct_inner_C(C, ind_idx);
         lean_trace(name({"inductive_compiler", "mutual", "rec"}), tout() << "inner C: " << inner_C << "\n";);
@@ -656,6 +656,80 @@ class add_mutual_inductive_decl_fn {
         m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, get_dep_recursor(m_env, mlocal_name(ind)), rec_lp_names, rec_type, rec_val, true)));
     }
 
+    void define_cases_on(name const & rec_name, level_param_names const & rec_lp_names, unsigned ind_idx) {
+        expr const & ind = m_mut_decl.get_ind(ind_idx);
+
+        expr C;
+        buffer<expr> minor_premises, indices;
+        expr major_premise;
+        expr cases_on_type = introduce_locals_for_rec_args(ind_idx, C, minor_premises, indices, major_premise, true);
+
+        expr inner_C = construct_inner_C(C, ind_idx);
+        lean_trace(name({"inductive_compiler", "mutual", "cases_on"}), tout() << "inner C: " << inner_C << "\n";);
+
+        buffer<expr> inner_minor_premises;
+        for (unsigned i = 0; i < m_mut_decl.get_inds().size(); ++i) {
+            buffer<expr> const & irs = m_mut_decl.get_intro_rules(i);
+            for (unsigned ir_idx = 0; ir_idx < irs.size(); ++ir_idx) {
+                expr const & ir = irs[ir_idx];
+                buffer<expr> locals;
+                buffer<expr> rec_args;
+                buffer<expr> return_args;
+                expr ir_type = mlocal_type(ir);
+                while (is_pi(ir_type)) {
+                    expr l = mk_local_for(ir_type);
+                    locals.push_back(l);
+
+                    buffer<expr> ir_arg_args;
+                    expr ir_arg = binding_domain(ir_type);
+
+                    while (is_pi(ir_arg)) {
+                        expr ir_arg_arg = mk_local_for(ir_arg);
+                        ir_arg_args.push_back(ir_arg_arg);
+                        ir_arg = instantiate(binding_body(ir_arg), ir_arg_arg);
+                    }
+
+                    buffer<expr> inner_indices;
+                    if (m_mut_decl.is_ind_app(ir_arg, inner_indices)) {
+                        bool this_ind_app = m_mut_decl.is_ind_app(ir_arg, ind_idx);
+                        expr C_term = mk_app(mk_app(C, inner_indices), mk_app(l, ir_arg_args));
+                        expr rec_arg_type = Pi(ir_arg_args, this_ind_app ? C_term : punit());
+                        expr l2 = mk_local_pp("x", rec_arg_type);
+                        rec_args.push_back(l2);
+                    }
+                    ir_type = m_tctx.whnf(instantiate(binding_body(ir_type), l));
+                    return_args.push_back(l);
+                }
+                locals.append(rec_args);
+                expr return_value;
+                if (i == ind_idx) {
+                    return_value = mk_app(minor_premises[ir_idx], return_args);
+                } else {
+                    return_value = punit_star();
+                }
+                expr inner_minor_premise = Fun(locals, return_value);
+                lean_trace(name({"inductive_compiler", "mutual", "cases_on"}), tout() << "inner minor premise: " << inner_minor_premise << "\n";);
+                inner_minor_premises.push_back(inner_minor_premise);
+            }
+        }
+
+        expr inner_index = mk_app(m_putters[ind_idx], mk_app(m_makers[ind_idx], indices));
+        lean_trace(name({"inductive_compiler", "mutual", "cases_on"}), tout() << "inner index: " << inner_index << "\n";);
+        expr inner_major_premise = major_premise;
+        expr cases_on_val = mk_app(mk_app(mk_app(mk_app(mk_app(mk_constant(rec_name, param_names_to_levels(rec_lp_names)), m_mut_decl.get_params()), inner_C),
+                                            inner_minor_premises), inner_index), inner_major_premise);
+
+        cases_on_type = Pi(m_mut_decl.get_params(), Pi(C, Pi(indices, Pi(major_premise, Pi(minor_premises, cases_on_type)))));
+        cases_on_val  = Fun(m_mut_decl.get_params(), Fun(C, Fun(indices, Fun(major_premise, Fun(minor_premises, cases_on_val)))));
+
+        lean_trace(name({"inductive_compiler", "mutual", "cases_on"}), tout() << "cases_on type: " << cases_on_type << "\n";);
+        lean_trace(name({"inductive_compiler", "mutual", "cases_on"}), tout() << "cases_on val: " << cases_on_val << "\n";);
+
+        lean_assert(!has_local(cases_on_type));
+        lean_assert(!has_local(cases_on_val));
+        m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, name(mlocal_name(ind), "cases_on"), rec_lp_names, cases_on_type, cases_on_val, true)));
+    }
+
     void define_recursors() {
         name rec_name          = get_dep_recursor(m_env, mlocal_name(m_basic_decl.get_ind(0)));
         declaration rec_decl   = m_env.get(rec_name);
@@ -669,8 +743,10 @@ class add_mutual_inductive_decl_fn {
 
         for (unsigned i = 0; i < m_mut_decl.get_inds().size(); ++i) {
             define_recursor(rec_name, rec_lp_names, i);
+            define_cases_on(rec_name, rec_lp_names, i);
         }
     }
+
 public:
     add_mutual_inductive_decl_fn(environment const & env, options const & opts,
                                  name_map<implicit_infer_kind> const & implicit_infer_map, ginductive_decl const & mut_decl,

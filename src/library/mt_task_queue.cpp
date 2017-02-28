@@ -31,22 +31,19 @@ struct scoped_add {
     }
 };
 
-mt_task_queue::mt_task_queue(unsigned num_workers) : m_required_workers(num_workers) {
-    for (unsigned i = 0; i < num_workers; i++)
-        spawn_worker();
-}
+mt_task_queue::mt_task_queue(unsigned num_workers) : m_required_workers(num_workers) {}
 
 mt_task_queue::~mt_task_queue() {
-    {
-        unique_lock<mutex> lock(m_mutex);
-        m_queue_changed.wait(lock, [=] { return empty_core(); });
-        m_shutting_down = true;
-        m_queue_added.notify_all();
-        m_queue_changed.notify_all();
-        m_wake_up_worker.notify_all();
-        m_shut_down_cv.notify_all();
-    }
-    for (auto & w : m_workers) w->m_thread->join();
+    unique_lock<mutex> lock(m_mutex);
+    m_queue_changed.wait(lock, [=] { return empty_core(); });
+    m_shutting_down = true;
+    m_queue_added.notify_all();
+    m_queue_changed.notify_all();
+    m_wake_up_worker.notify_all();
+    m_shut_down_cv.notify_all();
+    auto workers = m_workers;
+    lock.unlock();
+    for (auto & w : workers) w->m_thread->join();
 }
 
 bool mt_task_queue::empty_core() {
@@ -61,29 +58,39 @@ void mt_task_queue::notify_queue_changed() {
     m_queue_changed.notify_all();
 }
 
+constexpr chrono::milliseconds g_worker_max_idle_time = chrono::milliseconds(1000);
+
 void mt_task_queue::spawn_worker() {
     lean_assert(!m_shutting_down);
     auto this_worker = std::make_shared<worker_info>();
+    m_workers.push_back(this_worker);
+    m_required_workers--;
     this_worker->m_thread.reset(new lthread([=]() {
         save_stack_info(false);
 
         unique_lock<mutex> lock(m_mutex);
-        scoped_add<int> dec_required(m_required_workers, -1);
+        m_required_workers++; scoped_add<int> dec_required(m_required_workers, -1);
         while (true) {
             if (m_shutting_down) {
-                run_thread_finalizers();
-                run_post_thread_finalizers();
-                return;
+                break;
             }
             if (m_required_workers < 0) {
                 scoped_add<int> inc_required(m_required_workers, +1);
                 scoped_add<unsigned> inc_sleeping(m_sleeping_workers, +1);
-                m_wake_up_worker.wait(lock);
-                continue;
+                if (m_wake_up_worker.wait_for(lock, g_worker_max_idle_time,
+                                              [&] { return m_required_workers >= 1; })) {
+                    continue;
+                } else {
+                    break;
+                }
             }
             if (m_queue.empty()) {
-                m_queue_added.wait(lock);
-                continue;
+                if (m_queue_added.wait_for(lock, g_worker_max_idle_time,
+                                           [&] { return !m_queue.empty(); })) {
+                    continue;
+                } else {
+                    break;
+                }
             }
 
             auto t = dequeue();
@@ -105,8 +112,11 @@ void mt_task_queue::spawn_worker() {
 
             notify_queue_changed();
         }
+
+        run_thread_finalizers();
+        run_post_thread_finalizers();
+        m_workers.erase(std::find(m_workers.begin(), m_workers.end(), this_worker));
     }));
-    m_workers.push_back(this_worker);
 }
 
 void mt_task_queue::handle_finished(gtask const & t) {
@@ -308,7 +318,11 @@ void mt_task_queue::enqueue(gtask const & t) {
     lean_assert(get_imp(t));
     get_state(t) = task_state::Queued;
     m_queue[get_prio(t)].push_back(t);
-    m_queue_added.notify_one();
+    if (m_required_workers > 0) {
+        spawn_worker();
+    } else {
+        m_queue_added.notify_one();
+    }
     notify_queue_changed();
 }
 

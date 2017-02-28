@@ -416,13 +416,15 @@ server::cmd_res server::handle_sync(server::cmd_req const & req) {
 
     auto mtime = time(nullptr);
 
-    bool needs_invalidation = !m_open_files.count(new_file_name);
+    bool needs_invalidation = true;
 
     auto & ef = m_open_files[new_file_name];
     if (ef.m_content != new_content) {
         ef.m_content = new_content;
         ef.m_mtime = mtime;
         needs_invalidation = true;
+    } else {
+        needs_invalidation = false;
     }
 
     json res;

@@ -601,7 +601,7 @@ struct elim_match_fn {
         for (equation const & eqn : P.m_equations) {
             equation new_eqn   = eqn;
             new_eqn.m_patterns = tail(eqn.m_patterns);
-            if (is_var_transition) {
+            if (is_var_transition || is_local(head(eqn.m_patterns))) {
                 new_eqn.m_subst  = add_subst(eqn.m_subst, head(eqn.m_patterns), head(P.m_var_stack));
             }
             new_eqns.push_back(new_eqn);

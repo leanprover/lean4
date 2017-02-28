@@ -339,7 +339,7 @@ expr_macro::~expr_macro() {}
 
 // =======================================
 // Constructors
-LEAN_THREAD_VALUE(bool, g_expr_cache_enabled, true);
+LEAN_THREAD_VALUE(bool, g_expr_cache_enabled, false);
 typedef typename std::unordered_set<expr, expr_hash, is_bi_equal_proc> expr_cache;
 MK_THREAD_LOCAL_GET_DEF(expr_cache, get_expr_cache);
 inline expr cache(expr const & e) {

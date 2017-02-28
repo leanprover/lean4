@@ -67,6 +67,7 @@ struct lthread::imp {
     std::function<void(void)> m_proc;
     pthread_attr_t            m_attr;
     pthread_t                 m_thread;
+    bool                      m_joined = false;
 
     static void * _main(void * p) {
         (*reinterpret_cast<std::function<void(void)>*>(p))();
@@ -86,9 +87,11 @@ struct lthread::imp {
 
     ~imp() {
         pthread_attr_destroy(&m_attr);
+        if (!m_joined) pthread_detach(m_thread);
     }
 
     void join() {
+        m_joined = true;
         if (pthread_join(m_thread, nullptr)) {
             throw exception("failed to join thread");
         }

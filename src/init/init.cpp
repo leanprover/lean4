@@ -77,7 +77,13 @@ initializer::initializer() {
 }
 
 initializer::~initializer() {
+#ifdef LEAN_TRACK_CUSTOM_ALLOCATORS
+    std::cout << "memory deallocated by memory_pool and small_object_allocator (before finalization): " << get_memory_deallocated() << "\n";
+#endif
     finalize();
     delete_thread_finalizer_manager();
+#ifdef LEAN_TRACK_CUSTOM_ALLOCATORS
+    std::cout << "memory deallocated by memory_pool and small_object_allocator (after finalization): " << get_memory_deallocated() << "\n";
+#endif
 }
 }

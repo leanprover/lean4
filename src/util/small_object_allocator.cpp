@@ -27,6 +27,7 @@ small_object_allocator::~small_object_allocator() {
         while (c) {
             chunk * next = c->m_next;
             delete c;
+            lean_report_memory_deallocated(sizeof(chunk));
             c = next;
         }
     }
@@ -44,6 +45,7 @@ void small_object_allocator::reset() {
         while (c) {
             chunk * next = c->m_next;
             delete c;
+            lean_report_memory_deallocated(sizeof(chunk));
             c = next;
         }
         m_chunks[i] = 0;
@@ -193,6 +195,7 @@ void small_object_allocator::consolidate() {
             }
             if (num_free_in_chunk == num_objs_per_chunk) {
                 delete curr_chunk;
+                lean_report_memory_deallocated(sizeof(chunk));
             } else {
                 curr_chunk->m_next = last_chunk;
                 last_chunk = curr_chunk;

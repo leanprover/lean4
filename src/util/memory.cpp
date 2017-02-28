@@ -118,4 +118,14 @@ void check_memory(char const * component_name) {
 size_t get_allocated_memory() {
     return get_current_rss();
 }
+
+static atomic<size_t> g_memory_deallocated(0);
+
+void report_memory_deallocated(size_t s) {
+    atomic_fetch_add_explicit(&g_memory_deallocated, s, memory_order_release);
+}
+
+size_t get_memory_deallocated() {
+    return g_memory_deallocated;
+}
 }

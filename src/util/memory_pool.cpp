@@ -15,6 +15,7 @@ memory_pool::~memory_pool() {
         void * r = m_free_list;
         m_free_list = *(reinterpret_cast<void **>(r));
         free(r);
+        lean_report_memory_deallocated(m_size);
     }
 }
 

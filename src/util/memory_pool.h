@@ -7,21 +7,29 @@ Author: Leonardo de Moura
 #pragma once
 #include "util/memory.h"
 
+#define LEAN_FREE_LIST_MAX_SIZE 8192
+
 namespace lean {
 /** \brief Auxiliary object for "recycling" allocated memory of fixed size */
 class memory_pool {
     unsigned m_size;
+    unsigned m_free_list_size;
     void *   m_free_list;
 public:
-    memory_pool(unsigned size):m_size(size), m_free_list(nullptr) {}
+    memory_pool(unsigned size):m_size(size), m_free_list_size(0), m_free_list(nullptr) {}
     ~memory_pool();
     void * allocate();
     void recycle(void * ptr) {
 #ifdef LEAN_NO_CUSTOM_ALLOCATORS
         free(ptr);
 #else
-        *(reinterpret_cast<void**>(ptr)) = m_free_list;
-        m_free_list = ptr;
+        if (m_free_list_size > LEAN_FREE_LIST_MAX_SIZE) {
+            free(ptr);
+        } else {
+            *(reinterpret_cast<void**>(ptr)) = m_free_list;
+            m_free_list = ptr;
+            m_free_list_size++;
+        }
 #endif
     }
 };

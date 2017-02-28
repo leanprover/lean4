@@ -24,6 +24,7 @@ void * memory_pool::allocate() {
     if (m_free_list != nullptr) {
         void * r = m_free_list;
         m_free_list = *(reinterpret_cast<void **>(r));
+        m_free_list_size--;
         return r;
     } else {
         return malloc(m_size);

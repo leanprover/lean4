@@ -80,10 +80,16 @@ initializer::~initializer() {
 #ifdef LEAN_TRACK_CUSTOM_ALLOCATORS
     std::cout << "memory deallocated by memory_pool and small_object_allocator (before finalization): " << get_memory_deallocated() << "\n";
 #endif
+#ifdef LEAN_TRACK_LIVE_EXPRS
+    std::cout << "number of live expressions (before finalization): " << get_num_live_exprs() << "\n";
+#endif
     finalize();
     delete_thread_finalizer_manager();
 #ifdef LEAN_TRACK_CUSTOM_ALLOCATORS
     std::cout << "memory deallocated by memory_pool and small_object_allocator (after finalization): " << get_memory_deallocated() << "\n";
+#endif
+#ifdef LEAN_TRACK_LIVE_EXPRS
+    std::cout << "number of live expressions (after finalization): " << get_num_live_exprs() << "\n";
 #endif
 }
 }

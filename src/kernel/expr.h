@@ -663,6 +663,10 @@ expr infer_implicit(expr const & t, bool strict);
 std::ostream & operator<<(std::ostream & out, expr_kind const & k);
 std::ostream & operator<<(std::ostream & out, expr const & e);
 
+#ifdef LEAN_TRACK_LIVE_EXPRS
+unsigned get_num_live_exprs();
+#endif
+
 void initialize_expr();
 void finalize_expr();
 }

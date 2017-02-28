@@ -55,6 +55,13 @@ unsigned hash_levels(levels const & ls) {
 
 LEAN_THREAD_VALUE(unsigned, g_hash_alloc_counter, 0);
 
+#ifdef LEAN_TRACK_LIVE_EXPRS
+static atomic<unsigned> g_num_live_exprs(0);
+unsigned get_num_live_exprs() {
+    return g_num_live_exprs;
+}
+#endif
+
 expr_cell::expr_cell(expr_kind k, unsigned h, bool has_expr_mv, bool has_univ_mv,
                      bool has_local, bool has_param_univ, tag g):
     m_flags(0),
@@ -74,6 +81,9 @@ expr_cell::expr_cell(expr_kind k, unsigned h, bool has_expr_mv, bool has_univ_mv
     //    - the hash is not diverse enough
     m_hash_alloc = g_hash_alloc_counter;
     g_hash_alloc_counter++;
+    #ifdef LEAN_TRACK_LIVE_EXPRS
+    atomic_fetch_add_explicit(&g_num_live_exprs, 1u, memory_order_release);
+    #endif
 }
 
 void expr_cell::dec_ref(expr & e, buffer<expr_cell*> & todelete) {
@@ -405,6 +415,9 @@ void expr_cell::dealloc() {
         while (!todo.empty()) {
             expr_cell * it = todo.back();
             todo.pop_back();
+            #ifdef LEAN_TRACK_LIVE_EXPRS
+            atomic_fetch_sub_explicit(&g_num_live_exprs, 1u, memory_order_release);
+            #endif
             lean_assert(it->get_rc() == 0);
             switch (it->kind()) {
             case expr_kind::Var:        static_cast<expr_var*>(it)->dealloc(); break;

@@ -62,14 +62,15 @@ constexpr chrono::milliseconds g_worker_max_idle_time = chrono::milliseconds(100
 
 void mt_task_queue::spawn_worker() {
     lean_always_assert(!m_shutting_down);
-    auto this_worker = std::make_shared<worker_info>();
-    m_workers.push_back(this_worker);
+    auto this_worker_strong = std::make_shared<worker_info>();
+    m_workers.push_back(this_worker_strong);
     m_required_workers--;
-    this_worker->m_thread.reset(new lthread([=]() {
+    std::weak_ptr<worker_info> this_worker_weak = this_worker_strong;
+    this_worker_strong->m_thread.reset(new lthread([=]() {
+        auto this_worker = this_worker_weak.lock();
         save_stack_info(false);
 
         unique_lock<mutex> lock(m_mutex);
-        m_required_workers++; scoped_add<int> dec_required(m_required_workers, -1);
         while (true) {
             if (m_shutting_down) {
                 break;
@@ -116,6 +117,7 @@ void mt_task_queue::spawn_worker() {
         run_thread_finalizers();
         run_post_thread_finalizers();
         m_workers.erase(std::find(m_workers.begin(), m_workers.end(), this_worker));
+        m_required_workers++;
     }));
 }
 

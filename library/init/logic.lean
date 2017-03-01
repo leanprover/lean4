@@ -56,11 +56,6 @@ rfl
 
 @[simp] lemma id.def {α : Sort u} (a : α) : id a = a := rfl
 
--- Remark: we provide the universe levels explicitly to make sure `eq.drec` has the same type of `eq.rec` in the hoTT library
-attribute [elab_as_eliminator]
-protected lemma {u₁ u₂} eq.drec {α : Sort u₂} {a : α} {φ : Π (x : α), a = x → Sort u₁} (h₁ : φ a (eq.refl a)) {b : α} (h₂ : a = b) : φ b h₂ :=
-eq.rec (λ h₂ : a = a, show φ a h₂, from h₁) h₂ h₂
-
 attribute [elab_as_eliminator]
 protected lemma drec_on {α : Sort u} {a : α} {φ : Π (x : α), a = x → Sort v} {b : α} (h₂ : a = b) (h₁ : φ a (eq.refl a)) : φ b h₂ :=
 eq.drec h₁ h₂

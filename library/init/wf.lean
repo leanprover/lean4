@@ -17,13 +17,6 @@ variables {α : Type u} {r : α → α → Prop}
 def inv {x y : α} (h₁ : acc r x) (h₂ : r y x) : acc r y :=
 acc.rec_on h₁ (λ x₁ ac₁ ih h₂, ac₁ y h₂) h₂
 
--- dependent elimination for acc
-attribute [recursor]
-protected def drec
-    {C : Π (a : α), acc r a → Sort v}
-    (h₁ : Π (x : α) (acx : Π (y : α), r y x → acc r y), (Π (y : α) (ryx : r y x), C y (acx y ryx)) → C x (acc.intro x acx))
-    {a : α} (h₂ : acc r a) : C a h₂ :=
-acc.rec (λ x acx ih h₂, h₁ x acx (λ y ryx, ih y ryx (acx y ryx))) h₂ h₂
 end acc
 
 inductive well_founded {α : Type u} (r : α → α → Prop) : Prop

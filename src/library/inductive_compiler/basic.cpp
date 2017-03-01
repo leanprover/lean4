@@ -14,6 +14,7 @@ Author: Daniel Selsam
 #include "library/inductive_compiler/compiler.h"
 #include "library/inductive_compiler/basic.h"
 #include "library/inductive_compiler/util.h"
+#include "library/constructions/drec.h"
 #include "library/constructions/rec_on.h"
 #include "library/constructions/induction_on.h"
 #include "library/constructions/cases_on.h"
@@ -82,6 +83,9 @@ class add_basic_inductive_decl_fn {
         bool gen_brec_on      = get_inductive_brec_on(m_opts);
         bool gen_cases_on     = get_inductive_cases_on(m_opts);
         bool gen_no_confusion = get_inductive_no_confusion(m_opts);
+
+        if (is_inductive_predicate(m_env, ind_name))
+            m_env = mk_drec(m_env, ind_name);
 
         if (gen_rec_on)
             m_env = mk_rec_on(m_env, ind_name);

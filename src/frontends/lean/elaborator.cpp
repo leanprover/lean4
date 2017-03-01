@@ -363,9 +363,18 @@ bool elaborator::is_elim_elab_candidate(name const & fn) {
     return get_elaborator_strategy(m_env, fn) == elaborator_strategy::AsEliminator;
 }
 
+/* Temporary hack for get_elim_info_for_builtin.
+   It doesn't work for drec recursors for inductive predicates.
+   TODO(Leo): fix it. */
+static bool is_basic_aux_recursor(environment const & env, name const & n) {
+    if (!is_aux_recursor(env, n))
+        return false;
+    return strcmp(n.get_string(), "drec") != 0;
+}
+
 /** See comment at elim_info */
 auto elaborator::get_elim_info_for_builtin(name const & fn) -> elim_info {
-    lean_assert(is_aux_recursor(m_env, fn) || inductive::is_elim_rule(m_env, fn));
+    lean_assert(is_basic_aux_recursor(m_env, fn) || inductive::is_elim_rule(m_env, fn));
     /* Remark: this is not just an optimization. The code at use_elim_elab_core
        only works for dependent elimination. */
     lean_assert(!fn.is_atomic());
@@ -402,7 +411,7 @@ auto elaborator::get_elim_info_for_builtin(name const & fn) -> elim_info {
 auto elaborator::use_elim_elab_core(name const & fn) -> optional<elim_info> {
     if (!is_elim_elab_candidate(fn))
         return optional<elim_info>();
-    if (is_aux_recursor(m_env, fn) || inductive::is_elim_rule(m_env, fn)) {
+    if (is_basic_aux_recursor(m_env, fn) || inductive::is_elim_rule(m_env, fn)) {
         return optional<elim_info>(get_elim_info_for_builtin(fn));
     }
     type_context::tmp_locals locals(m_ctx);

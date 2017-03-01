@@ -138,10 +138,12 @@ struct mk_drec_fn {
                     buffer<expr> new_C_args;
                     get_app_args(ih_type, new_C_args);
                     expr new_C_pre   = mk_app(motive, new_C_args);
-                    expr new_C       = mk_app(new_C_pre, mk_app(recursive_param, ih_params));
-                    expr new_ih_type = Pi(ih_params, new_C);
-                    expr new_ih      = update_mlocal(local, new_ih_type);
-                    new_minor_params.push_back(new_ih);
+                    if (kind != drec_kind::DCasesOn) {
+                        expr new_C       = mk_app(new_C_pre, mk_app(recursive_param, ih_params));
+                        expr new_ih_type = Pi(ih_params, new_C);
+                        expr new_ih      = update_mlocal(local, new_ih_type);
+                        new_minor_params.push_back(new_ih);
+                    }
                     expr h_type = mlocal_type(recursive_param);
                     while (is_pi(h_type))
                         h_type = binding_body(h_type);
@@ -150,7 +152,10 @@ struct mk_drec_fn {
                     expr app_ih_type = Pi(ih_params, Pi(h, mk_app(new_C_pre, h)));
                     expr app_ih      = update_mlocal(local, app_ih_type);
                     app_params.push_back(app_ih);
-                    app_args.push_back(Fun(ih_params, mk_app(mk_app(app_ih, ih_params), mk_app(recursive_param, ih_params))));
+                    if (kind != drec_kind::DCasesOn) {
+                        app_args.push_back(Fun(ih_params, mk_app(mk_app(app_ih, ih_params),
+                                                                 mk_app(recursive_param, ih_params))));
+                    }
                 }
                 j++;
                 minor_type      = instantiate(binding_body(minor_type), local);
@@ -233,6 +238,7 @@ environment mk_drec(environment const & env, name const & I) {
         throw exception(sstream() << "error in 'drec' generation, '" << I << "' is not an inductive predicate");
     environment new_env = mk_drec_fn(env, I, drec_kind::DRec)();
     new_env             = mk_drec_fn(new_env, I, drec_kind::DRecOn)();
+    new_env             = mk_drec_fn(new_env, I, drec_kind::DCasesOn)();
     return new_env;
 }
 }

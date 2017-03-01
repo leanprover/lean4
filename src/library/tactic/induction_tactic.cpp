@@ -348,7 +348,8 @@ vm_obj tactic_induction(vm_obj const & H, vm_obj const & ns, vm_obj const & rec,
     if (is_none(rec)) {
         try {
             type_context ctx = mk_type_context_for(s, m);
-            expr type = ctx.infer(to_expr(H));
+            /* Remark: should we support the inductive compiler */
+            expr type = ctx.relaxed_whnf(ctx.infer(to_expr(H)));
             expr C    = get_app_fn(type);
             if (is_constant(C)) {
                 name C_rec(const_name(C), "rec");

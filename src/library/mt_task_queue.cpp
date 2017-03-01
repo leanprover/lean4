@@ -40,10 +40,7 @@ mt_task_queue::~mt_task_queue() {
     m_queue_added.notify_all();
     m_queue_changed.notify_all();
     m_wake_up_worker.notify_all();
-    m_shut_down_cv.notify_all();
-    auto workers = m_workers;
-    lock.unlock();
-    for (auto & w : workers) w->m_thread->join();
+    m_shut_down_cv.wait(lock, [=] { return m_workers.empty(); });
 }
 
 bool mt_task_queue::empty_core() {
@@ -62,12 +59,10 @@ constexpr chrono::milliseconds g_worker_max_idle_time = chrono::milliseconds(100
 
 void mt_task_queue::spawn_worker() {
     lean_always_assert(!m_shutting_down);
-    auto this_worker_strong = std::make_shared<worker_info>();
-    m_workers.push_back(this_worker_strong);
+    auto this_worker = std::make_shared<worker_info>();
+    m_workers.push_back(this_worker);
     m_required_workers--;
-    std::weak_ptr<worker_info> this_worker_weak = this_worker_strong;
-    this_worker_strong->m_thread.reset(new lthread([=]() {
-        auto this_worker = this_worker_weak.lock();
+    this_worker->m_thread.reset(new lthread([this, this_worker]() {
         save_stack_info(false);
 
         unique_lock<mutex> lock(m_mutex);
@@ -79,7 +74,7 @@ void mt_task_queue::spawn_worker() {
                 scoped_add<int> inc_required(m_required_workers, +1);
                 scoped_add<unsigned> inc_sleeping(m_sleeping_workers, +1);
                 if (m_wake_up_worker.wait_for(lock, g_worker_max_idle_time,
-                                              [&] { return m_required_workers >= 1; })) {
+                                              [&] { return m_required_workers >= 1 || m_shutting_down; })) {
                     continue;
                 } else {
                     break;
@@ -87,7 +82,7 @@ void mt_task_queue::spawn_worker() {
             }
             if (m_queue.empty()) {
                 if (m_queue_added.wait_for(lock, g_worker_max_idle_time,
-                                           [&] { return !m_queue.empty(); })) {
+                                           [&] { return !m_queue.empty() || m_shutting_down; })) {
                     continue;
                 } else {
                     break;
@@ -114,10 +109,15 @@ void mt_task_queue::spawn_worker() {
             notify_queue_changed();
         }
 
+        // We need to run the finalizers while the lock is held,
+        // otherwise we risk a race condition at the end of the program.
+        // We would finalize in the thread, while we call the finalize() function.
         run_thread_finalizers();
         run_post_thread_finalizers();
+
         m_workers.erase(std::find(m_workers.begin(), m_workers.end(), this_worker));
         m_required_workers++;
+        m_shut_down_cv.notify_all();
     }));
 }
 

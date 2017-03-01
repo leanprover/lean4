@@ -20,6 +20,20 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
+
+using runnable = std::function<void()>;
+
+static void thread_main(void * p) {
+    std::unique_ptr<runnable> f;
+    f.reset(reinterpret_cast<runnable *>(p));
+
+    (*f)();
+    f.reset();
+
+    run_thread_finalizers();
+    run_post_thread_finalizers();
+}
+
 #if defined(LEAN_MULTI_THREAD)
 size_t lthread::m_thread_stack_size = LEAN_DEFAULT_THREAD_STACK_SIZE;
 
@@ -31,7 +45,7 @@ size_t lthread::get_thread_stack_size() {
     return m_thread_stack_size;
 }
 
-static std::function<void(void)> mk_thread_proc(std::function<void(void)> const & p, unsigned max) {
+static runnable mk_thread_proc(runnable const & p, size_t max) {
     return [=]() { set_max_heartbeat(max); p(); }; // NOLINT
 }
 
@@ -42,14 +56,14 @@ struct lthread::imp {
     HANDLE                    m_thread;
 
     static DWORD WINAPI _main(void * p) {
-        (*reinterpret_cast<std::function<void(void)>*>(p))();
+        thread_main(p);
         return 0;
     }
 
-    imp(std::function<void(void)> const & p):
-        m_proc(mk_thread_proc(p, get_max_heartbeat())) {
+    imp(runnable const & p) {
+        runnable * f = new std::function<void()>(mk_thread_proc(p, get_max_heartbeat()));
         m_thread = CreateThread(nullptr, m_thread_stack_size,
-                                _main, &m_proc, 0, nullptr);
+                                _main, f, 0, nullptr);
         if (m_thread == NULL) {
             throw exception("failed to create thread");
         }
@@ -64,23 +78,22 @@ struct lthread::imp {
 #else
 /* OSX/Linux version based on pthreads */
 struct lthread::imp {
-    std::function<void(void)> m_proc;
     pthread_attr_t            m_attr;
     pthread_t                 m_thread;
     bool                      m_joined = false;
 
     static void * _main(void * p) {
-        (*reinterpret_cast<std::function<void(void)>*>(p))();
+        thread_main(p);
         return nullptr;
     }
 
-    imp(std::function<void(void)> const & p):
-        m_proc(mk_thread_proc(p, get_max_heartbeat())) {
+    imp(runnable const & p) {
         pthread_attr_init(&m_attr);
         if (pthread_attr_setstacksize(&m_attr, m_thread_stack_size)) {
             throw exception("failed to set thread stack size");
         }
-        if (pthread_create(&m_thread, &m_attr, _main, &m_proc)) {
+        runnable * f = new std::function<void()>(mk_thread_proc(p, get_max_heartbeat()));
+        if (pthread_create(&m_thread, &m_attr, _main, f)) {
             throw exception("failed to create thread");
         }
     }
@@ -206,9 +219,13 @@ void register_post_thread_finalizer(thread_finalizer fn, void * p) {
 }
 
 void run_thread_finalizers() {
+    if (auto p = g_thread_finalizers_mgr->get_pair())
+        run_thread_finalizers_core(p->first);
 }
 
 void run_post_thread_finalizers() {
+    if (auto p = g_thread_finalizers_mgr->get_pair())
+        run_thread_finalizers_core(p->second);
 }
 
 void initialize_thread() {

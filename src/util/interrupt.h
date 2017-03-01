@@ -76,8 +76,6 @@ public:
                 save_stack_info(false);
                 scoped_interrupt_flag scope_int_flag(&m_flag);
                 fun();
-                run_thread_finalizers();
-                run_post_thread_finalizers();
             })
         {}
 

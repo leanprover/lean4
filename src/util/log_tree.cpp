@@ -167,6 +167,27 @@ name_map<lean::log_tree::node> log_tree::node::get_children() const {
     return m_ptr->m_children;
 }
 
+void log_tree::node::remove_child(name const & n) const {
+    auto l = lock();
+    if (auto c = m_ptr->m_children.find(n)) {
+        m_ptr->m_children.erase(n);
+        std::vector<event> events;
+        c->detach_core(events);
+        notify(events, l);
+    }
+}
+
+name_map<log_tree::node> log_tree::node::get_used_children() const {
+    auto l = lock();
+    name_map<node> used_children;
+    m_ptr->m_used_names.for_each([&] (name const & n) {
+        if (auto c = m_ptr->m_children.find(n)) {
+            used_children.insert(n, *c);
+        }
+    });
+    return used_children;
+}
+
 void log_tree::node::reuse(name const & n) const {
     auto l = lock();
     m_ptr->m_used_names.insert(n);

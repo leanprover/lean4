@@ -79,6 +79,9 @@ public:
         std::vector<log_entry> get_entries() const;
         name_map<node> get_children() const;
 
+        name_map<node> get_used_children() const;
+        void remove_child(name const &) const;
+
         node mk_child(name n, std::string const & description, location const & loc, bool overwrite = false);
         void reuse(name const & n) const;
 

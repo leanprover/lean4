@@ -402,7 +402,7 @@ static task<bool> error_already_reported() {
             return mk_pure_task(true);
 
     std::vector<task<bool>> children;
-    logtree().get_children().for_each([&] (name const &, log_tree::node const & c) {
+    logtree().get_used_children().for_each([&] (name const &, log_tree::node const & c) {
         children.push_back(c.has_entry(is_sorry_warning_or_error));
     });
     return map<bool>(traverse(children), [] (std::vector<bool> const & errs) {

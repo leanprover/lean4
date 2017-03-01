@@ -438,7 +438,7 @@ server::cmd_res server::handle_sync(server::cmd_req const & req) {
     return { req.m_seq_num, res };
 }
 
-std::shared_ptr<snapshot const> get_closest_snapshot(std::shared_ptr<module_info const> const & mod_info, pos_info p) {
+std::shared_ptr<snapshot> get_closest_snapshot(std::shared_ptr<module_info const> const & mod_info, pos_info p) {
     auto ret = std::shared_ptr<snapshot const>();
     if (auto res = peek(mod_info->m_result)) {
         auto snapshots = res->m_snapshots;
@@ -450,22 +450,26 @@ std::shared_ptr<snapshot const> get_closest_snapshot(std::shared_ptr<module_info
             }
         }
     }
-    return ret;
+    if (ret) {
+        auto copy = std::make_shared<snapshot>(*ret);
+        copy->m_cancellation_token = nullptr;
+        return copy;
+    } else {
+        return nullptr;
+    }
 }
 
 void parse_breaking_at_pos(module_id const & mod_id, std::shared_ptr<module_info const> mod_info, pos_info pos,
                            bool complete = false) {
     std::istringstream in(*mod_info->m_lean_contents);
     if (auto snap = get_closest_snapshot(mod_info, pos)) {
-        snapshot s = *snap;
-
         // ignore messages from reparsing
         log_tree null;
         scope_log_tree scope_lt(null.get_root());
 
         bool use_exceptions = true;
-        parser p(s.m_env, get_global_ios(), mk_dummy_loader(), in, mod_id,
-                 use_exceptions, std::make_shared<snapshot>(s), nullptr);
+        parser p(snap->m_env, get_global_ios(), mk_dummy_loader(), in, mod_id,
+                 use_exceptions, snap, nullptr);
         p.set_break_at_pos(pos);
         p.set_complete(complete);
         p();

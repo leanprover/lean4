@@ -56,10 +56,6 @@ rfl
 
 @[simp] lemma id.def {α : Sort u} (a : α) : id a = a := rfl
 
-attribute [elab_as_eliminator]
-protected lemma drec_on {α : Sort u} {a : α} {φ : Π (x : α), a = x → Sort v} {b : α} (h₂ : a = b) (h₁ : φ a (eq.refl a)) : φ b h₂ :=
-eq.drec h₁ h₂
-
 lemma eq.mp {α β : Sort u} : (α = β) → α → β :=
 eq.rec_on
 

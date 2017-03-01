@@ -1368,6 +1368,31 @@ vm_state::vm_state(environment const & env, options const & opts):
 vm_state::~vm_state() {
 }
 
+vm_decl const & vm_state::get_decl(unsigned idx) const {
+    lean_assert(idx < m_decl_vector.size());
+    vm_decl const & d = m_decl_vector[idx];
+    if (d) return d;
+    if (auto d_ = m_decl_map.find(idx)) {
+        const_cast<vm_state *>(this)->m_decl_vector[idx] = *d_;
+    } else {
+        lean_unreachable();
+    }
+    return m_decl_vector[idx];
+}
+
+vm_cases_function const & vm_state::get_builtin_cases(unsigned idx) const {
+    lean_assert(idx < m_builtin_cases_vector.size());
+    vm_cases_function const & fn = m_builtin_cases_vector[idx];
+    if (fn != nullptr) return fn;
+    if (auto fn_ = m_builtin_cases_map.find(idx)) {
+        const_cast<vm_state *>(this)->m_builtin_cases_vector[idx] = *fn_;
+    } else {
+        lean_unreachable();
+    }
+    return m_builtin_cases_vector[idx];
+}
+
+
 struct vm_state::debugger_state {
     vm_state m_vm;
     vm_obj   m_state;
@@ -3316,7 +3341,6 @@ optional<name> vm_state::curr_fn() const {
     else
         return optional<name>(m_decl_map.find(m_fn_idx)->get_name());
 }
-
 #if defined(LEAN_MULTI_THREAD)
 static name * g_profiler      = nullptr;
 static name * g_profiler_freq = nullptr;

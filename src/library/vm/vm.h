@@ -668,21 +668,9 @@ class vm_state {
     void execute(vm_instr const * code);
     vm_obj invoke_closure(vm_obj const & fn, unsigned nargs);
 
-    vm_decl const & get_decl(unsigned idx) const {
-        lean_assert(idx < m_decl_vector.size());
-        vm_decl const & d = m_decl_vector[idx];
-        if (d) return d;
-        const_cast<vm_state*>(this)->m_decl_vector[idx] = *m_decl_map.find(idx);
-        return m_decl_vector[idx];
-    }
+    vm_decl const & get_decl(unsigned idx) const;
 
-    vm_cases_function const & get_builtin_cases(unsigned idx) const {
-        lean_assert(idx < m_builtin_cases_vector.size());
-        vm_cases_function const & fn = m_builtin_cases_vector[idx];
-        if (fn != nullptr) return fn;
-        const_cast<vm_state*>(this)->m_builtin_cases_vector[idx] = *m_builtin_cases_map.find(idx);
-        return m_builtin_cases_vector[idx];
-    }
+    vm_cases_function const & get_builtin_cases(unsigned idx) const;
 
 public:
     vm_state(environment const & env, options const & opts);

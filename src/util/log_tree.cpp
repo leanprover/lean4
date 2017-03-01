@@ -60,6 +60,7 @@ void log_tree::node::detach_core(std::vector<log_tree::event> & events) const {
     m_ptr->m_children.for_each([&] (name const &, node const & c) { c.detach_core(events); });
     for (auto & e : m_ptr->m_entries) events.push_back({ event::EntryRemoved, m_ptr, e });
     if (m_ptr->m_producer) events.push_back({event::Finished, m_ptr, {}});
+    m_ptr->m_producer = nullptr;
 }
 
 void log_tree::node::notify(std::vector<log_tree::event> const & events, unique_lock<mutex> & l) const {
@@ -133,6 +134,7 @@ log_tree::node log_tree::node::mk_child(name n, std::string const & description,
 
 void log_tree::node::set_producer(gtask const & prod) {
     auto l = lock();
+    if (m_ptr->m_detached) return;
     m_ptr->m_producer = prod;
     notify({{event::ProducerSet, *this, {}}}, l);
 }

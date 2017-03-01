@@ -251,25 +251,28 @@ void log_tree::node::print_to(std::ostream & out, unsigned indent) const {
     });
 }
 
-static void gather_producers(buffer<gtask> & deps, log_tree::node const & n) {
-    if (auto prod = n.get_producer()) deps.push_back(prod);
-    n.get_children().for_each([&] (name const &, log_tree::node const & c) {
-       gather_producers(deps, c);
+gtask log_tree::node::wait_for_finish() const {
+    auto t = *this;
+    return mk_dependency_task([t] (buffer<gtask> & deps) {
+        t.for_each([&] (node const & n) {
+            if (auto prod = n.get_producer())
+                deps.push_back(prod);
+            return true;
+        });
     });
 }
 
-gtask log_tree::node::wait_for_finish() const {
-    auto t = *this;
-    return mk_dependency_task([t] (buffer<gtask> & deps) { gather_producers(deps, t); });
-}
-
 bool log_tree::node::has_entry_now(std::function<bool(log_entry const &)> const & fn) const { // NOLINT
-    for (auto & e : get_entries()) {
-        if (fn(e)) return true;
-    }
     bool res = false;
-    get_children().for_each([&] (name const &, node const & c) {
-        res = res || c.has_entry_now(fn);
+    for_each([&] (node const & n) {
+        if (res) return false;
+        for (auto & e : n.get_entries()) {
+            if (fn(e)) {
+                res = true;
+                break;
+            }
+        }
+        return !res;
     });
     return res;
 }

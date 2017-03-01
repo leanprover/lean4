@@ -41,4 +41,15 @@ meta def relation_lhs_rhs : expr → tactic (name × expr × expr) :=
 meta def target_lhs_rhs : tactic (name × expr × expr) :=
 target >>= relation_lhs_rhs
 
+meta def subst_vars_aux : list expr → tactic unit
+| []      := failed
+| (h::hs) := do
+  o ← try_core (subst h),
+  if o^.is_none then subst_vars_aux hs
+  else return ()
+
+/-- Try to apply subst exhaustively -/
+meta def subst_vars : tactic unit :=
+repeat (local_context >>= subst_vars_aux) >> try (reflexivity reducible)
+
 end tactic

@@ -9,20 +9,97 @@ open subtype
 
 namespace classical
 universes u v
-/- the axiom -/
 
--- In the presence of classical logic, we could prove this from a weaker statement:
--- axiom indefinite_description {a : Sort u} {p : a->Prop} (h : ∃ x, p x) : {x : a // p x}
-axiom strong_indefinite_description {a : Sort u} (p : a → Prop) (h : nonempty a) : { x : a // (∃ y : a, p y) → p x}
+/- the axiom -/
+axiom indefinite_description {α : Sort u} (p : α → Prop) : (∃ x, p x) → {x // p x}
+
+/- Diaconescu's theorem: using function extensionality and propositional extensionality,
+   we can get excluded middle from this. -/
+section diaconescu
+parameter  p : Prop
+
+private def U (x : Prop) : Prop := x = true ∨ p
+private def V (x : Prop) : Prop := x = false ∨ p
+
+private lemma exU : ∃ x, U x := ⟨true, or.inl rfl⟩
+private lemma exV : ∃ x, V x := ⟨false, or.inl rfl⟩
+
+private noncomputable def u := elt_of (indefinite_description U exU)
+private noncomputable def v := elt_of (indefinite_description V exV)
+
+private lemma u_def : U u := has_property (indefinite_description U exU)
+private lemma v_def : V v := has_property (indefinite_description V exV)
+
+private lemma not_uv_or_p : ¬(u = v) ∨ p :=
+or.elim u_def
+  (assume hut : u = true,
+    or.elim v_def
+      (assume hvf : v = false,
+        have hne : ¬(u = v), from eq.symm hvf ▸ eq.symm hut ▸ true_ne_false,
+        or.inl hne)
+      (assume hp : p, or.inr hp))
+  (assume hp : p, or.inr hp)
+
+private lemma p_implies_uv : p → u = v :=
+assume hp : p,
+have hpred : U = V, from
+  funext (take x : Prop,
+    have hl : (x = true ∨ p) → (x = false ∨ p), from
+      assume a, or.inr hp,
+    have hr : (x = false ∨ p) → (x = true ∨ p), from
+      assume a, or.inr hp,
+    show (x = true ∨ p) = (x = false ∨ p), from
+      propext (iff.intro hl hr)),
+have h₀ : ∀ exU exV,
+    elt_of (indefinite_description U exU) = elt_of (indefinite_description V exV),
+  from hpred ▸ λ exU exV, rfl,
+show u = v, from h₀ _ _
+
+theorem em : p ∨ ¬p :=
+have h : ¬(u = v) → ¬p, from mt p_implies_uv,
+  or.elim not_uv_or_p
+    (assume hne : ¬(u = v), or.inr (h hne))
+    (assume hp : p, or.inl hp)
+end diaconescu
 
 theorem exists_true_of_nonempty {a : Sort u} (h : nonempty a) : ∃ x : a, true :=
 nonempty.elim h (take x, ⟨x, trivial⟩)
 
 noncomputable def inhabited_of_nonempty {a : Sort u} (h : nonempty a) : inhabited a :=
-⟨elt_of (strong_indefinite_description (λ a, true) h)⟩
+⟨elt_of (indefinite_description _ (exists_true_of_nonempty h))⟩
 
-noncomputable def inhabited_of_exists {a : Sort u} {p : a → Prop} (h : ∃ x, p x) : inhabited a :=
+noncomputable def inhabited_of_exists {a : Sort u} {p : a → Prop} (h : ∃ x, p x) :
+  inhabited a :=
 inhabited_of_nonempty (exists.elim h (λ w hw, ⟨w⟩))
+
+/- all propositions are decidable -/
+noncomputable def decidable_inhabited (a : Prop) : inhabited (decidable a) :=
+inhabited_of_nonempty
+  (or.elim (em a)
+    (assume ha, ⟨is_true ha⟩)
+    (assume hna, ⟨is_false hna⟩))
+local attribute [instance] decidable_inhabited
+
+noncomputable def prop_decidable (a : Prop) : decidable a :=
+arbitrary (decidable a)
+local attribute [instance] prop_decidable
+
+noncomputable def type_decidable_eq (a : Sort u) : decidable_eq a :=
+λ x y, prop_decidable (x = y)
+
+noncomputable def type_decidable (a : Sort u) : psum a (a → false) :=
+match (prop_decidable (nonempty a)) with
+| (is_true hp)  := psum.inl (@inhabited.default _ (inhabited_of_nonempty hp))
+| (is_false hn) := psum.inr (λ a, absurd (nonempty.intro a) hn)
+end
+
+noncomputable theorem strong_indefinite_description {a : Sort u} (p : a → Prop)
+  (h : nonempty a) : { x : a // (∃ y : a, p y) → p x} :=
+match (prop_decidable (∃ x : a, p x)) with
+| (is_true hp)  := let xp := indefinite_description _ hp in
+                   tag (elt_of xp) (λ h', has_property xp)
+| (is_false hn) := tag (@inhabited.default _ (inhabited_of_nonempty h)) (λ h, absurd h hn)
+end
 
 /- the Hilbert epsilon function -/
 
@@ -61,54 +138,6 @@ iff.intro
   (assume h : (∃ (f : Π x, b x), (∀ x, p x (f x))),
     take x, exists.elim h (λ (fw : ∀ x, b x) (hw : ∀ x, p x (fw x)),
       ⟨fw x, hw x⟩))
-/-
-Prove excluded middle using hilbert's choice
-The proof follows Diaconescu proof that shows that the axiom of choice implies the excluded middle.
--/
-section diaconescu
-parameter  p : Prop
-
-private def U (x : Prop) : Prop := x = true ∨ p
-private def V (x : Prop) : Prop := x = false ∨ p
-
-private noncomputable def u := epsilon U
-private noncomputable def v := epsilon V
-
-private lemma u_def : U u :=
-epsilon_spec ⟨true, or.inl rfl⟩
-
-private lemma v_def : V v :=
-epsilon_spec ⟨false, or.inl rfl⟩
-
-private lemma not_uv_or_p : ¬(u = v) ∨ p :=
-or.elim u_def
-  (assume hut : u = true,
-    or.elim v_def
-      (assume hvf : v = false,
-        have hne : ¬(u = v), from eq.symm hvf ▸ eq.symm hut ▸ true_ne_false,
-        or.inl hne)
-      (assume hp : p, or.inr hp))
-  (assume hp : p, or.inr hp)
-
-private lemma p_implies_uv : p → u = v :=
-assume hp : p,
-have hpred : U = V, from
-  funext (take x : Prop,
-    have hl : (x = true ∨ p) → (x = false ∨ p), from
-      assume a, or.inr hp,
-    have hr : (x = false ∨ p) → (x = true ∨ p), from
-      assume a, or.inr hp,
-    show (x = true ∨ p) = (x = false ∨ p), from
-      propext (iff.intro hl hr)),
-have h' : epsilon U = epsilon V, from hpred ▸ rfl,
-show u = v, from h'
-
-theorem em : p ∨ ¬p :=
-have h : ¬(u = v) → ¬p, from mt p_implies_uv,
-  or.elim not_uv_or_p
-    (assume hne : ¬(u = v), or.inr (h hne))
-    (assume hp : p, or.inl hp)
-end diaconescu
 
 theorem prop_complete (a : Prop) : a = true ∨ a = false :=
 or.elim (em a)
@@ -159,26 +188,5 @@ lemma eq_true {a : Prop} : (a = true) = a :=
 have (a ↔ true) = a, from propext (iff_true a),
 eq.subst (@iff_eq_eq a true) this
 end aux
-
-/- αll propositions are decidable -/
-noncomputable def decidable_inhabited (a : Prop) : inhabited (decidable a) :=
-inhabited_of_nonempty
-  (or.elim (em a)
-    (assume ha, ⟨is_true ha⟩)
-    (assume hna, ⟨is_false hna⟩))
-local attribute [instance] decidable_inhabited
-
-noncomputable def prop_decidable (a : Prop) : decidable a :=
-arbitrary (decidable a)
-local attribute [instance] prop_decidable
-
-noncomputable def type_decidable_eq (a : Sort u) : decidable_eq a :=
-λ x y, prop_decidable (x = y)
-
-noncomputable def type_decidable (a : Sort u) : psum a (a → false) :=
-match (prop_decidable (nonempty a)) with
-| (is_true hp)  := psum.inl (@inhabited.default _ (inhabited_of_nonempty hp))
-| (is_false hn) := psum.inr (λ a, absurd (nonempty.intro a) hn)
-end
 
 end classical

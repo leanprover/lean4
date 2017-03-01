@@ -18,8 +18,8 @@ single_timer::~single_timer() {
     {
         unique_lock<mutex> lock(m_mutex);
         m_shutting_down = true;
+        m_timer_changed.notify_one();
     }
-    m_timer_changed.notify_one();
     m_thread.join();
 }
 

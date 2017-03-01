@@ -9,6 +9,7 @@ Author: Gabriel Ebner
 #include <vector>
 #include "util/thread.h"
 #include "util/flet.h"
+#include "interrupt.h"
 
 namespace lean {
 
@@ -36,6 +37,8 @@ public:
     void gc();
 
     void cancel(std::shared_ptr<cancellable> const & self) override;
+
+    atomic_bool * get_cancellation_flag() { return &m_cancelled; }
 };
 
 cancellation_token mk_cancellation_token(cancellation_token const & parent);
@@ -44,7 +47,7 @@ inline cancellation_token mk_cancellation_token() { return mk_cancellation_token
 inline void cancel(std::shared_ptr<cancellable> const & c) { if (c) c->cancel(c); }
 inline void cancelw(std::weak_ptr<cancellable> const & wc) { if (auto c = wc.lock()) cancel(c); }
 
-struct scope_cancellation_token : flet<cancellation_token const *> {
+struct scope_cancellation_token : flet<cancellation_token const *>, scoped_interrupt_flag {
     scope_cancellation_token(cancellation_token const *);
     scope_cancellation_token(cancellation_token & t) : scope_cancellation_token(&t) {}
 };

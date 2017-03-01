@@ -77,7 +77,6 @@ log_tree::node log_tree::node::clone_core() const {
     copy.m_ptr->m_tree = m_ptr->m_tree;
     copy.m_ptr->m_detached = m_ptr->m_detached;
     copy.m_ptr->m_entries = m_ptr->m_entries;
-    m_ptr->m_detached = true;
     return copy;
 }
 

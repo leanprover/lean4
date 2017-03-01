@@ -283,6 +283,7 @@ void finalize_equations() {
     delete g_equations_opcode;
     delete g_equations_result;
     delete g_equation;
+    delete g_equation_ignore_if_unused;
     delete g_no_equation;
     delete g_equations_result_name;
     delete g_equations_name;

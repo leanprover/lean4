@@ -798,6 +798,7 @@ void initialize_hinst_lemmas() {
 }
 
 void finalize_hinst_lemmas() {
+    delete g_pattern_hint;
     delete g_no_inst_pattern_attr;
     delete g_hinst_lemma_max_steps;
 }

@@ -96,7 +96,6 @@
          (process-connection-type nil)
          (cmd `(,(lean-get-executable lean-executable-name)
                 "--server"
-                "-j2"
                 ,(format "-M%i" lean-memory-limit)
                 ,(format "-T%i" lean-timeout-limit)
                 ,@lean-extra-arguments

@@ -43,6 +43,19 @@ mt_task_queue::~mt_task_queue() {
     m_shut_down_cv.wait(lock, [=] { return m_workers.empty(); });
 }
 
+
+template <class Fn>
+void mt_task_queue::mt_sched_info::wait(unique_lock<mutex> & lock, Fn && fn) {
+    if (!m_has_finished)
+        m_has_finished = std::make_shared<condition_variable>();
+    auto has_finished = m_has_finished;
+    has_finished->wait(lock, fn);
+}
+
+void mt_task_queue::mt_sched_info::notify() {
+    if (m_has_finished) m_has_finished->notify_all();
+}
+
 bool mt_task_queue::empty_core() {
     for (auto & w : m_workers) {
         if (w->m_current_task)
@@ -129,7 +142,7 @@ void mt_task_queue::handle_finished(gtask const & t) {
         return;  // task has never been submitted
 
     m_waiting.erase(t);
-    get_sched_info(t).m_has_finished.notify_all();
+    get_sched_info(t).notify();
 
     for (auto & rdep : get_sched_info(t).m_reverse_deps) {
         switch (get_state(rdep).load()) {
@@ -260,18 +273,20 @@ void mt_task_queue::wait_for_finish(gtask const & t) {
     if (!t || get_state(t).load() > task_state::Running) return;
     unique_lock<mutex> lock(m_mutex);
     submit_core(t, get_default_prio());
-    while (get_state(t).load() <= task_state::Running) {
+    if (get_state(t).load() <= task_state::Running) {
+        int additionally_required_workers = 0;
         if (g_current_task) {
-            scoped_add<int> inc_required(m_required_workers, +1);
+            additionally_required_workers++;
             if (m_sleeping_workers == 0) {
                 spawn_worker();
             } else {
                 m_wake_up_worker.notify_one();
             }
-            get_sched_info(t).m_has_finished.wait(lock);
-        } else {
-            get_sched_info(t).m_has_finished.wait(lock);
         }
+        scoped_add<int> inc_required(m_required_workers, additionally_required_workers);
+        get_sched_info(t).wait(lock, [&] {
+            return get_state(t).load() > task_state::Running;
+        });
     }
     switch (get_state(t).load()) {
         case task_state::Failed: case task_state::Success: return;

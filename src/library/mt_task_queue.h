@@ -51,9 +51,12 @@ class mt_task_queue : public task_queue {
     struct mt_sched_info : public scheduling_info {
         unsigned m_prio;
         std::vector<gtask> m_reverse_deps;
-        condition_variable m_has_finished;
+        std::shared_ptr<condition_variable> m_has_finished;
 
         mt_sched_info(unsigned prio) : m_prio(prio) {}
+
+        template <class Fn> void wait(unique_lock<mutex> &, Fn &&);
+        void notify();
     };
     mt_sched_info & get_sched_info(gtask const & t) {
         return static_cast<mt_sched_info &>(*get_data(t)->m_sched_info);

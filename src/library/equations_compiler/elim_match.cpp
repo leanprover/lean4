@@ -31,6 +31,7 @@ Author: Leonardo de Moura
 #include "library/tactic/clear_tactic.h"
 #include "library/tactic/cases_tactic.h"
 #include "library/tactic/intro_tactic.h"
+#include "library/inductive_compiler/ginductive.h"
 #include "library/equations_compiler/equations.h"
 #include "library/equations_compiler/util.h"
 #include "library/equations_compiler/elim_match.h"
@@ -234,16 +235,25 @@ struct elim_match_fn {
         return r;
     }
 
-    optional<name> is_constructor(name const & n) const { return inductive::is_intro_rule(m_env, n); }
+    optional<name> is_constructor(name const & n) const {
+        return is_ginductive_intro_rule(m_env, n);
+    }
     optional<name> is_constructor(expr const & e) const {
         if (!is_constant(e)) return optional<name>();
         return is_constructor(const_name(e));
     }
-    optional<name> is_constructor_app(expr const & e) const { return is_constructor(get_app_fn(e)); }
+    optional<name> is_constructor_app(expr const & e) const {
+        return is_constructor(get_app_fn(e));
+    }
 
-    bool is_inductive(name const & n) const { return static_cast<bool>(inductive::is_inductive_decl(m_env, n)); }
+    bool is_inductive(name const & n) const { return static_cast<bool>(is_ginductive(m_env, n)); }
     bool is_inductive(expr const & e) const { return is_constant(e) && is_inductive(const_name(e)); }
     bool is_inductive_app(expr const & e) const { return is_inductive(get_app_fn(e)); }
+
+    void get_constructors_of(name const & n, buffer<name> & c_names) const {
+        lean_assert(is_inductive(n));
+        to_buffer(get_ginductive_intro_rules(m_env, n), c_names);
+    }
 
     /* Return true iff `e` is of the form (I.below ...) or (I.ibelow ...) where `I` is an inductive datatype.
        Move to a different module? */
@@ -307,21 +317,8 @@ struct elim_match_fn {
             inv_info->m_arity == info->m_inv_arity;
     }
 
-    unsigned get_inductive_num_params(name const & n) const { return *inductive::get_num_params(m_env, n); }
+    unsigned get_inductive_num_params(name const & n) const { return get_ginductive_num_params(m_env, n); }
     unsigned get_inductive_num_params(expr const & I) const { return get_inductive_num_params(const_name(I)); }
-
-    void get_constructors_of(name const & n, buffer<name> & c_names) const {
-        lean_assert(is_inductive(n));
-        get_intro_rule_names(m_env, n, c_names);
-    }
-
-    /* Return the number of constructor parameters.
-       That is, the fixed parameters used in the inductive declaration. */
-    unsigned get_constructor_num_params(expr const & n) const {
-        lean_assert(is_constructor(n));
-        name I_name = *inductive::is_intro_rule(m_env, const_name(n));
-        return get_inductive_num_params(I_name);
-    }
 
     /* Normalize until head is constructor or value */
     expr whnf_pattern(type_context & ctx, expr const & e) {
@@ -626,7 +623,8 @@ struct elim_match_fn {
         for (equation const & eqn : eqns) {
             lean_assert(eqn.m_patterns);
             type_context ctx = mk_type_context(eqn.m_lctx);
-            expr pattern     = whnf_constructor(ctx, head(eqn.m_patterns));
+            /* We use ctx.relaxed_whnf to make sure we expose the kernel constructor */
+            expr pattern     = ctx.relaxed_whnf(head(eqn.m_patterns));
             if (!is_constructor_app(pattern)) {
                 throw_error("equation compiler failed, pattern is not a constructor "
                             "(use 'set_option trace.eqn_compiler.elim_match true' for additional details)");
@@ -684,7 +682,7 @@ struct elim_match_fn {
         lean_assert(is_constructor_transition(P));
         type_context ctx   = mk_type_context(P);
         expr x             = head(P.m_var_stack);
-        expr x_type        = whnf_inductive(ctx, ctx.infer(x));
+        expr x_type        = ctx.relaxed_whnf(whnf_inductive(ctx, ctx.infer(x)));
         lean_assert(is_inductive_app(x_type));
         name I_name        = const_name(get_app_fn(x_type));
         unsigned I_nparams = get_inductive_num_params(I_name);

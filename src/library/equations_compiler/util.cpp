@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/find_fn.h"
 #include "kernel/inductive/inductive.h"
+#include "kernel/scope_pos_info_provider.h"
 #include "library/util.h"
 #include "library/trace.h"
 #include "library/app_builder.h"
@@ -23,9 +24,9 @@ Author: Leonardo de Moura
 #include "library/replace_visitor.h"
 #include "library/aux_definition.h"
 #include "library/comp_val.h"
-#include "kernel/scope_pos_info_provider.h"
 #include "library/compiler/vm_compiler.h"
 #include "library/tactic/eqn_lemmas.h"
+#include "library/inductive_compiler/ginductive.h"
 #include "library/equations_compiler/equations.h"
 #include "library/equations_compiler/util.h"
 
@@ -606,8 +607,7 @@ bool is_nat_int_char_string_name_value(type_context & ctx, expr const & e) {
 }
 
 static bool is_inductive(environment const & env, expr const & e) {
-    /* Add support for ginductive */
-    return is_constant(e) && inductive::is_inductive_decl(env, const_name(e));
+    return is_constant(e) && is_ginductive(env, const_name(e));
 }
 
 /* Normalize until head is an inductive datatype */
@@ -618,8 +618,7 @@ static expr whnf_inductive(type_context & ctx, expr const & e) {
 }
 
 static void get_constructors_of(environment const & env, name const & n, buffer<name> & result) {
-    /* Add support for ginductive */
-    return get_intro_rule_names(env, n, result);
+    to_buffer(get_ginductive_intro_rules(env, n), result);
 }
 
 /* Given a variable (x : I A idx), where (I A idx) is an inductive datatype,
@@ -635,7 +634,7 @@ void for_each_compatible_constructor(type_context & ctx, expr const & var,
     expr const & I      = get_app_args(var_type, I_args);
     name const & I_name = const_name(I);
     levels const & I_ls = const_levels(I);
-    unsigned nparams    = *inductive::get_num_params(ctx.env(), I_name);
+    unsigned nparams    = get_ginductive_num_params(ctx.env(), I_name);
     buffer<expr> I_params;
     I_params.append(nparams, I_args.data());
     buffer<name> constructor_names;

@@ -26,6 +26,7 @@ Author: Daniel Selsam
 #include "library/trace.h"
 #include "library/type_context.h"
 #include "library/inverse.h"
+#include "library/util.h"
 #include "library/protected.h"
 #include "library/attribute_manager.h"
 #include "library/pattern_attribute.h"
@@ -265,8 +266,8 @@ class add_nested_inductive_decl_fn {
     }
 
     void check_elim_to_type() {
-        declaration d_nest = m_env.get(inductive::get_elim_name(const_name(get_app_fn(m_nested_occ))));
-        declaration d_inner = m_env.get(inductive::get_elim_name(mk_inner_name(const_name(get_app_fn(m_nested_occ)))));
+        declaration d_nest = m_env.get(get_dep_recursor(m_env, const_name(get_app_fn(m_nested_occ))));
+        declaration d_inner = m_env.get(get_dep_recursor(m_env, mk_inner_name(const_name(get_app_fn(m_nested_occ)))));
         bool nest_elim_to_type = d_nest.get_num_univ_params() > length(const_levels(get_app_fn(m_nested_occ)));
         bool inner_elim_to_type = d_inner.get_num_univ_params() > m_inner_decl.get_lp_names().size();
         // Note: this exception may not be needed once the kernel is updated so that all inductive types that may or may not live in Prop must
@@ -846,7 +847,7 @@ class add_nested_inductive_decl_fn {
         // Elim levels
         list<level> elim_levels = const_levels(fn);
         {
-            declaration d = m_env.get(inductive::get_elim_name(const_name(fn)));
+            declaration d = m_env.get(get_dep_recursor(m_env, const_name(fn)));
             if (length(elim_levels) < d.get_num_univ_params()) {
                 lean_assert(length(elim_levels) + 1 == d.get_num_univ_params());
                 level unpacked_level = get_level(m_tctx, mk_app(start, indices));
@@ -997,12 +998,12 @@ class add_nested_inductive_decl_fn {
 
         expr nested_pack_ty = Pi(m_nested_decl.get_params(), Pi(indices, mk_arrow(mk_app(start, indices), mk_app(end, indices))));
         expr nested_pack_val = Fun(m_nested_decl.get_params(),
-                                      mk_app(mk_app(mk_app(mk_constant(inductive::get_elim_name(const_name(fn)), elim_levels),
+                                      mk_app(mk_app(mk_app(mk_constant(get_dep_recursor(m_env, const_name(fn)), elim_levels),
                                                            unpacked_params), pack_C), pack_minor_premises));
 
         expr nested_unpack_ty = Pi(m_nested_decl.get_params(), Pi(indices, mk_arrow(mk_app(end, indices), mk_app(start, indices))));
         expr nested_unpack_val = Fun(m_nested_decl.get_params(),
-                                     mk_app(mk_app(mk_app(mk_constant(inductive::get_elim_name(const_name(fn)), elim_levels),
+                                     mk_app(mk_app(mk_app(mk_constant(get_dep_recursor(m_env, const_name(fn)), elim_levels),
                                                           packed_params), unpack_C), unpack_minor_premises));
 
         define(mk_nested_name(fn_type::PACK, nest_idx), nested_pack_ty, nested_pack_val);
@@ -1178,12 +1179,12 @@ class add_nested_inductive_decl_fn {
 
         expr primitive_pack_ty = Pi(m_nested_decl.get_params(), Pi(indices, mk_arrow(mk_app(m_nested_occ, indices), mk_app(m_replacement, indices))));
         expr primitive_pack_val = Fun(m_nested_decl.get_params(),
-                                      mk_app(mk_app(mk_app(mk_constant(inductive::get_elim_name(const_name(nest_fn)), pack_elim_levels),
+                                      mk_app(mk_app(mk_app(mk_constant(get_dep_recursor(m_env, const_name(nest_fn)), pack_elim_levels),
                                                            nest_params), pack_C), pack_minor_premises));
 
         expr primitive_unpack_ty = Pi(m_nested_decl.get_params(), Pi(indices, mk_arrow(mk_app(m_replacement, indices), mk_app(m_nested_occ, indices))));
         expr primitive_unpack_val = Fun(m_nested_decl.get_params(),
-                                        mk_app(mk_app(mk_app(mk_constant(inductive::get_elim_name(get_replacement_name()), unpack_elim_levels),
+                                        mk_app(mk_app(mk_app(mk_constant(get_dep_recursor(m_env, get_replacement_name()), unpack_elim_levels),
                                                              m_nested_decl.get_params()), unpack_C), unpack_minor_premises));
 
         define(mk_primitive_name(fn_type::PACK), primitive_pack_ty, primitive_pack_val);
@@ -1389,7 +1390,7 @@ class add_nested_inductive_decl_fn {
     void prove_primitive_pack_unpack(buffer<expr> const & index_locals) {
         name n = mk_primitive_name(fn_type::PACK_UNPACK);
         expr x_packed = mk_local_pp("x_packed", mk_app(m_replacement, index_locals));
-        name rec_name = inductive::get_elim_name(mlocal_name(m_inner_decl.get_inds().back()));
+        name rec_name = get_dep_recursor(m_env, mlocal_name(m_inner_decl.get_inds().back()));
         expr lhs = mk_app(mk_app(m_primitive_pack, index_locals), mk_app(mk_app(m_primitive_unpack, index_locals), x_packed));
         expr goal = mk_eq(m_tctx, lhs, x_packed);
         expr primitive_pack_unpack_type = Pi(m_nested_decl.get_params(), Pi(index_locals, Pi(x_packed, goal)));
@@ -1401,7 +1402,7 @@ class add_nested_inductive_decl_fn {
     void prove_primitive_unpack_pack(buffer<expr> const & index_locals) {
         name n = mk_primitive_name(fn_type::UNPACK_PACK);
         expr x_unpacked = mk_local_pp("x_unpacked", mk_app(m_nested_occ, index_locals));
-        name rec_name = inductive::get_elim_name(const_name(get_app_fn(m_nested_occ)));
+        name rec_name = get_dep_recursor(m_env, const_name(get_app_fn(m_nested_occ)));
         expr lhs = mk_app(mk_app(m_primitive_unpack, index_locals), mk_app(mk_app(m_primitive_pack, index_locals), x_unpacked));
         expr goal = mk_eq(m_tctx, lhs, x_unpacked);
         expr primitive_unpack_pack_type = Pi(m_nested_decl.get_params(), Pi(index_locals, Pi(x_unpacked, goal)));
@@ -1419,7 +1420,7 @@ class add_nested_inductive_decl_fn {
         expr rhs = mk_app(tctx_synth, get_sizeof_name(), x_unpacked);
         expr goal = mk_eq(tctx_synth, lhs, rhs);
         expr primitive_sizeof_pack_type = Pi(m_nested_decl.get_params(), tctx_synth.mk_pi(m_param_insts, Pi(index_locals, Pi(x_unpacked, goal))));
-        name rec_name = inductive::get_elim_name(const_name(get_app_fn(m_nested_occ)));
+        name rec_name = get_dep_recursor(m_env, const_name(get_app_fn(m_nested_occ)));
         expr primitive_sizeof_pack_val = prove_by_induction_simp(rec_name, primitive_sizeof_pack_type, true);
         define_theorem(n, primitive_sizeof_pack_type, primitive_sizeof_pack_val);
         tctx_synth.set_env(m_env);
@@ -1429,7 +1430,7 @@ class add_nested_inductive_decl_fn {
     void prove_nested_pack_unpack(expr const & start, expr const & end, expr const & nested_pack, expr const & nested_unpack, buffer<expr> const & index_locals, unsigned nest_idx) {
         name n = mk_nested_name(fn_type::PACK_UNPACK, nest_idx);
         expr x_packed = mk_local_pp("x_packed", mk_app(end, index_locals));
-        name rec_name = inductive::get_elim_name(const_name(get_app_fn(start)));
+        name rec_name = get_dep_recursor(m_env, const_name(get_app_fn(start)));
         expr lhs = mk_app(mk_app(nested_pack, index_locals), mk_app(mk_app(nested_unpack, index_locals), x_packed));
         expr goal = mk_eq(m_tctx, lhs, x_packed);
         expr nested_pack_unpack_type = Pi(m_nested_decl.get_params(), Pi(index_locals, Pi(x_packed, goal)));
@@ -1441,7 +1442,7 @@ class add_nested_inductive_decl_fn {
     void prove_nested_unpack_pack(expr const & start, expr const & /* end */, expr const & nested_pack, expr const & nested_unpack, buffer<expr> const & index_locals, unsigned nest_idx) {
         name n = mk_nested_name(fn_type::UNPACK_PACK, nest_idx);
         expr x_unpacked = mk_local_pp("x_unpacked", mk_app(start, index_locals));
-        name rec_name = inductive::get_elim_name(const_name(get_app_fn(start)));
+        name rec_name = get_dep_recursor(m_env, const_name(get_app_fn(start)));
         expr lhs = mk_app(mk_app(nested_unpack, index_locals), mk_app(mk_app(nested_pack, index_locals), x_unpacked));
         expr goal = mk_eq(m_tctx, lhs, x_unpacked);
         expr nested_unpack_pack_type = Pi(m_nested_decl.get_params(), Pi(index_locals, Pi(x_unpacked, goal)));
@@ -1459,7 +1460,7 @@ class add_nested_inductive_decl_fn {
         expr rhs = mk_app(tctx_synth, get_sizeof_name(), x_unpacked);
         expr goal = mk_eq(tctx_synth, lhs, rhs);
         expr nested_sizeof_pack_type = Pi(m_nested_decl.get_params(), tctx_synth.mk_pi(m_param_insts, Pi(index_locals, Pi(x_unpacked, goal))));
-        name rec_name = inductive::get_elim_name(const_name(get_app_fn(start)));
+        name rec_name = get_dep_recursor(m_env, const_name(get_app_fn(start)));
         expr nested_sizeof_pack_val = prove_by_induction_simp(rec_name, nested_sizeof_pack_type, true);
         define_theorem(n, nested_sizeof_pack_type, nested_sizeof_pack_val);
         tctx_synth.set_env(m_env);
@@ -1558,16 +1559,16 @@ class add_nested_inductive_decl_fn {
             expr const & nested_ind = m_nested_decl.get_ind(ind_idx);
             expr const & inner_ind = m_inner_decl.get_ind(ind_idx);
 
-            declaration d = m_env.get(inductive::get_elim_name(mlocal_name(inner_ind)));
+            declaration d = m_env.get(get_dep_recursor(m_env, mlocal_name(inner_ind)));
             level_param_names lp_names = d.get_univ_params();
             levels lvls = param_names_to_levels(lp_names);
 
-            expr inner_recursor = mk_app(mk_constant(inductive::get_elim_name(mlocal_name(inner_ind)), lvls), m_nested_decl.get_params());
+            expr inner_recursor = mk_app(mk_constant(get_dep_recursor(m_env, mlocal_name(inner_ind)), lvls), m_nested_decl.get_params());
             expr inner_recursor_type = m_tctx.infer(inner_recursor);
 
             expr outer_recursor_type = Pi(m_nested_decl.get_params(), unpack_type(inner_recursor_type));
             expr outer_recursor_val = Fun(m_nested_decl.get_params(), build_nested_recursor(ind_idx, inner_recursor, unpack_type(inner_recursor_type)));
-            define(inductive::get_elim_name(mlocal_name(nested_ind)), outer_recursor_type, outer_recursor_val, lp_names);
+            define(get_dep_recursor(m_env, mlocal_name(nested_ind)), outer_recursor_type, outer_recursor_val, lp_names);
         }
     }
 

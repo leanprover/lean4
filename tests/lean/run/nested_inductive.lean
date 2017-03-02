@@ -133,3 +133,34 @@ inductive Foo : bool -> Type
 | mk : list (Foo ff) -> Foo tt
 
 end X14
+
+namespace X15
+print "nested inductive propositions eliminating to Prop"
+
+universe variable l
+inductive plist (A : Sort l) : Sort l
+| nil : plist
+| cons : A → plist → plist
+
+inductive foo (A : Type l) : ℕ → Prop
+| mk : A → plist (plist (foo 0)) → or (foo 1) (foo 2) → foo 1
+
+end X15
+
+namespace X16
+print "multiply nested inductive propositions"
+
+universe variable l
+inductive wrap (A : Sort l) : Sort l
+| mk : A -> wrap
+
+inductive box (A : Prop) : Prop
+| mk : A -> wrap box -> box
+
+inductive foo (A : Sort*) : Prop
+| mk : A -> box foo -> foo
+
+inductive bar : Prop
+| mk : foo bar -> bar
+
+end X16

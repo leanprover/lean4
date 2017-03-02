@@ -17,6 +17,7 @@ Author: Daniel Selsam
 #include "library/module.h"
 #include "library/trace.h"
 #include "library/protected.h"
+#include "library/util.h"
 #include "library/type_context.h"
 #include "library/attribute_manager.h"
 #include "library/pattern_attribute.h"
@@ -652,11 +653,11 @@ class add_mutual_inductive_decl_fn {
 
         lean_assert(!has_local(rec_type));
         lean_assert(!has_local(rec_val));
-        m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, inductive::get_elim_name(mlocal_name(ind)), rec_lp_names, rec_type, rec_val, true)));
+        m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, get_dep_recursor(m_env, mlocal_name(ind)), rec_lp_names, rec_type, rec_val, true)));
     }
 
     void define_recursors() {
-        name rec_name          = inductive::get_elim_name(mlocal_name(m_basic_decl.get_ind(0)));
+        name rec_name          = get_dep_recursor(m_env, mlocal_name(m_basic_decl.get_ind(0)));
         declaration rec_decl   = m_env.get(rec_name);
 
         level_param_names rec_lp_names = rec_decl.get_univ_params();
@@ -694,9 +695,6 @@ public:
         } catch (exception & ex) {
             throw nested_exception(sstream() << "mutually inductive types compiled to invalid basic inductive type", ex);
         }
-
-        if (!inductive::has_dep_elim(m_env, mlocal_name(m_basic_decl.get_ind(0))))
-            throw exception("mutually inductive types must compile to basic inductive type with dependent elimination");
 
         define_ind_types();
         define_intro_rules();

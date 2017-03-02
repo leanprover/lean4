@@ -46,7 +46,7 @@ class LeanExprPrinter:
 
 
     def __init__(self, val):
-        self.kind = val['m_ptr']['m_kind']
+        self.kind = int(val['m_ptr']['m_kind'])
         subtype = gdb.lookup_type(LeanExprPrinter.expr_kinds[self.kind][0])
         self.val = val['m_ptr'].cast(subtype.pointer()).dereference()
 

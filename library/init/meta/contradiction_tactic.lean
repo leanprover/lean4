@@ -34,7 +34,7 @@ private meta def contra_false : list expr → tactic unit
 private meta def contra_not_a_refl_rel_a : list expr → tactic unit
 | []        := failed
 | (H :: Hs) :=
-  do t ← infer_type H >>= beta,
+  do t ← infer_type H >>= head_beta,
      (do (lhs, rhs) ← match_ne t,
          unify lhs rhs,
          tgt ← target,

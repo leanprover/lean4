@@ -320,18 +320,18 @@ vm_obj tactic_whnf(vm_obj const & e, vm_obj const & t, vm_obj const & s0) {
     }
 }
 
-vm_obj tactic_eta_expand(vm_obj const & e, vm_obj const & s0) {
+vm_obj tactic_head_eta_expand(vm_obj const & e, vm_obj const & s0) {
     tactic_state const & s = tactic::to_state(s0);
     type_context ctx       = mk_type_context_for(s);
     try {
-        check_closed("eta_expand", to_expr(e));
+        check_closed("head_eta_expand", to_expr(e));
         return tactic::mk_success(to_obj(ctx.eta_expand(to_expr(e))), s);
     } catch (exception & ex) {
         return tactic::mk_exception(ex, s);
     }
 }
 
-vm_obj tactic_eta(vm_obj const & e, vm_obj const & s0) {
+vm_obj tactic_head_eta(vm_obj const & e, vm_obj const & s0) {
     tactic_state const & s = tactic::to_state(s0);
     try {
         return tactic::mk_success(to_obj(try_eta(to_expr(e))), s);
@@ -340,10 +340,27 @@ vm_obj tactic_eta(vm_obj const & e, vm_obj const & s0) {
     }
 }
 
-vm_obj tactic_beta(vm_obj const & e, vm_obj const & s0) {
+vm_obj tactic_head_beta(vm_obj const & e, vm_obj const & s0) {
     tactic_state const & s = tactic::to_state(s0);
     try {
         return tactic::mk_success(to_obj(annotated_head_beta_reduce(to_expr(e))), s);
+    } catch (exception & ex) {
+        return tactic::mk_exception(ex, s);
+    }
+}
+
+vm_obj tactic_head_zeta(vm_obj const & e0, vm_obj const & s0) {
+    tactic_state const & s = tactic::to_state(s0);
+    try {
+        expr const & e = to_expr(e0);
+        check_closed("head_zeta", e);
+        if (!is_local(e)) return tactic::mk_success(e0, s);
+        optional<metavar_decl> mdecl = s.get_main_goal_decl();
+        if (!mdecl) return tactic::mk_success(e0, s);
+        local_context lctx = mdecl->get_context();
+        optional<local_decl> ldecl = lctx.find_local_decl(e);
+        if (!ldecl || !ldecl->get_value()) return tactic::mk_success(e0, s);
+        return tactic::mk_success(to_obj(*ldecl->get_value()), s);
     } catch (exception & ex) {
         return tactic::mk_exception(ex, s);
     }
@@ -354,13 +371,10 @@ vm_obj tactic_zeta(vm_obj const & e0, vm_obj const & s0) {
     try {
         expr const & e = to_expr(e0);
         check_closed("zeta", e);
-        if (!is_local(e)) return tactic::mk_success(e0, s);
         optional<metavar_decl> mdecl = s.get_main_goal_decl();
         if (!mdecl) return tactic::mk_success(e0, s);
         local_context lctx = mdecl->get_context();
-        optional<local_decl> ldecl = lctx.find_local_decl(e);
-        if (!ldecl || !ldecl->get_value()) return tactic::mk_success(e0, s);
-        return tactic::mk_success(to_obj(*ldecl->get_value()), s);
+        return tactic::mk_success(to_obj(zeta_expand(lctx, e)), s);
     } catch (exception & ex) {
         return tactic::mk_exception(ex, s);
     }
@@ -686,9 +700,10 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic", "infer_type"}),           tactic_infer_type);
     DECLARE_VM_BUILTIN(name({"tactic", "whnf"}),                 tactic_whnf);
     DECLARE_VM_BUILTIN(name({"tactic", "is_def_eq"}),            tactic_is_def_eq);
-    DECLARE_VM_BUILTIN(name({"tactic", "eta_expand"}),           tactic_eta_expand);
-    DECLARE_VM_BUILTIN(name({"tactic", "eta"}),                  tactic_eta);
-    DECLARE_VM_BUILTIN(name({"tactic", "beta"}),                 tactic_beta);
+    DECLARE_VM_BUILTIN(name({"tactic", "head_eta_expand"}),      tactic_head_eta_expand);
+    DECLARE_VM_BUILTIN(name({"tactic", "head_eta"}),             tactic_head_eta);
+    DECLARE_VM_BUILTIN(name({"tactic", "head_beta"}),            tactic_head_beta);
+    DECLARE_VM_BUILTIN(name({"tactic", "head_zeta"}),            tactic_head_zeta);
     DECLARE_VM_BUILTIN(name({"tactic", "zeta"}),                 tactic_zeta);
     DECLARE_VM_BUILTIN(name({"tactic", "is_class"}),             tactic_is_class);
     DECLARE_VM_BUILTIN(name({"tactic", "mk_instance"}),          tactic_mk_instance);

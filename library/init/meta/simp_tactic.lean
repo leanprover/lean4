@@ -170,7 +170,7 @@ let unfold (u : unit) (e : expr) : tactic (unit × expr × bool) := do
   env   ← get_env,
   decl  ← env^.get f_name,
   new_f ← decl^.instantiate_value_univ_params f_lvls,
-  new_e ← beta (expr.mk_app new_f e^.get_app_args),
+  new_e ← head_beta (expr.mk_app new_f e^.get_app_args),
   return (u, new_e, tt)
 in do (c, new_e) ← dsimplify_core () cfg^.max_steps cfg^.visit_instances (λ c e, failed) unfold e,
       return new_e

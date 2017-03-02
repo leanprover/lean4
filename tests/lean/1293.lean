@@ -4,7 +4,7 @@ example : true := by whnf (var 0) >> return ()
 
 example : true := by whnf (app (var 0) (var 0)) >> return ()
 
-example : true := by zeta (var 0) >> return ()
+example : true := by head_zeta (var 0) >> return ()
 
 example : true := by unify (var 0) (var 0) >> return ()
 

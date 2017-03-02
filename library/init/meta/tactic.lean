@@ -235,13 +235,15 @@ meta constant revert_lst    : list expr → tactic nat
 /-- Return `e` in weak head normal form with respect to the given transparency setting. -/
 meta constant whnf (e : expr) (md := semireducible) : tactic expr
 /- (head) eta expand the given expression -/
-meta constant eta_expand    : expr → tactic expr
+meta constant head_eta_expand : expr → tactic expr
 /- (head) beta reduction -/
-meta constant beta          : expr → tactic expr
+meta constant head_beta       : expr → tactic expr
 /- (head) zeta reduction -/
-meta constant zeta          : expr → tactic expr
+meta constant head_zeta       : expr → tactic expr
+/- zeta reduction -/
+meta constant zeta            : expr → tactic expr
 /- (head) eta reduction -/
-meta constant eta           : expr → tactic expr
+meta constant head_eta        : expr → tactic expr
 /-- Succeeds if `t` and `s` can be unified using the given transparency setting. -/
 meta constant unify (t s : expr) (md := semireducible) : tactic unit
 /- Similar to `unify`, but it treats metavariables as constants. -/

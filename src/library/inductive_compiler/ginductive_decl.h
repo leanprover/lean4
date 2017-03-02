@@ -28,7 +28,6 @@ public:
         m_nest_depth(nest_depth), m_lp_names(lp_names), m_params(params), m_inds(inds), m_intro_rules(intro_rules) {}
 
     void set_sizeof_lemmas(simp_lemmas const & sizeof_lemmas) {
-        lean_assert(!m_sizeof_lemmas);
         m_sizeof_lemmas = optional<simp_lemmas>(sizeof_lemmas);
     }
 

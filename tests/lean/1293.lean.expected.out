@@ -4,7 +4,7 @@ state:
 1293.lean:5:21: error: tactic 'whnf' failed, given expression should not contain de-Bruijn variables, they should be replaced with local constants before using this tactic
 state:
 ⊢ true
-1293.lean:7:21: error: tactic 'zeta' failed, given expression should not contain de-Bruijn variables, they should be replaced with local constants before using this tactic
+1293.lean:7:21: error: tactic 'head_zeta' failed, given expression should not contain de-Bruijn variables, they should be replaced with local constants before using this tactic
 state:
 ⊢ true
 1293.lean:9:21: error: tactic 'unify' failed, given expression should not contain de-Bruijn variables, they should be replaced with local constants before using this tactic

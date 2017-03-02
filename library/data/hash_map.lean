@@ -16,10 +16,11 @@ structure hash_map (α : Type u) [decidable_eq α] (β : α → Type v) :=
 
 def mk_hash_map {α : Type u} [decidable_eq α] {β : α → Type v} (hash_fn : α → nat) (nbuckets := 8) : hash_map α β :=
 let n := if nbuckets = 0 then 8 else nbuckets in
-{hash_fn := hash_fn, size := 0, nbuckets := n,
- -- TODO(Leo): abstract doesn't work in the followin line
- nz_buckets := by {dsimp, cases nbuckets, {simp, tactic.comp_val}, simp [if_pos, nat.succ_ne_zero], apply nat.zero_lt_succ},
- buckets := mk_array n [] }
+{hash_fn    := hash_fn,
+ size       := 0,
+ nbuckets   := n,
+ nz_buckets := by abstract {dsimp, cases nbuckets, {simp, tactic.comp_val}, simp [if_pos, nat.succ_ne_zero], apply nat.zero_lt_succ},
+ buckets    := mk_array n [] }
 
 namespace hash_map
 variables {α : Type u} {β : α → Type v} {δ : Type w}

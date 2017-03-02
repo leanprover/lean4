@@ -160,7 +160,8 @@ struct mk_drec_fn {
                 j++;
                 minor_type      = instantiate(binding_body(minor_type), local);
             }
-            lean_assert(new_minor_params.size() == num_fields + recursive_params.size());
+            lean_assert(new_minor_params.size() == num_fields +
+                        (kind == drec_kind::DCasesOn ? 0 : recursive_params.size()));
             buffer<expr> new_C_args;
             get_app_args(minor_type, new_C_args);
             expr constructor_app = mk_app(mk_app(mk_constant(ir_name, I_lvls), num_params, rec_params.data()),

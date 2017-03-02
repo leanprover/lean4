@@ -25,6 +25,7 @@ Author: Daniel Selsam
 #include "library/inductive_compiler/basic.h"
 #include "library/inductive_compiler/mutual.h"
 #include "library/inductive_compiler/util.h"
+#include "library/tactic/eqn_lemmas.h"
 
 namespace lean {
 
@@ -300,7 +301,6 @@ class add_mutual_inductive_decl_fn {
     }
 
     void define_sizeofs() {
-        unsigned num_params = m_mut_decl.get_num_params();
         name basic_sizeof_name = mk_has_sizeof_name(mlocal_name(m_basic_decl.get_ind(0)));
         optional<declaration> opt_d = m_env.find(basic_sizeof_name);
         if (!opt_d) return;
@@ -350,65 +350,11 @@ class add_mutual_inductive_decl_fn {
             lean_assert(!has_local(has_sizeof_type));
             lean_assert(!has_local(has_sizeof_val));
             m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, has_sizeof_name, to_list(m_mut_decl.get_lp_names()), has_sizeof_type, has_sizeof_val, true)));
+            m_env = set_reducible(m_env, has_sizeof_name, reducible_status::Reducible, true);
             m_env = add_instance(m_env, has_sizeof_name, LEAN_DEFAULT_PRIORITY, true);
             m_env = add_protected(m_env, has_sizeof_name);
             m_tctx.set_env(m_env);
             tctx_synth.set_env(m_env);
-        }
-
-        for (unsigned ind_idx = 0; ind_idx < m_mut_decl.get_inds().size(); ++ind_idx) {
-            expr const & ind = m_mut_decl.get_ind(ind_idx);
-            name has_sizeof_name = mk_has_sizeof_name(mlocal_name(ind));
-            expr c_has_sizeof = mk_app(mk_app(mk_constant(has_sizeof_name, m_mut_decl.get_levels()), m_mut_decl.get_params()), param_insts);
-            expr c_ind = mk_app(mk_constant(mlocal_name(ind), m_mut_decl.get_levels()), m_mut_decl.get_params());
-
-            for (expr const & ir : m_mut_decl.get_intro_rules(ind_idx)) {
-                expr c_ir = mk_app(mk_constant(mlocal_name(ir), m_mut_decl.get_levels()), m_mut_decl.get_params());
-                expr ir_ty = tctx_synth.whnf(m_tctx.infer(c_ir));
-
-                expr rhs = mk_nat_one();
-                buffer<expr> locals;
-
-                while (is_pi(ir_ty)) {
-                    expr local = mk_local_for(ir_ty);
-                    locals.push_back(local);
-                    expr arg_ty = binding_domain(ir_ty);
-
-                    buffer<expr> arg_args;
-                    if (auto ind_app = is_recursive_arg(mlocal_name(ind), arg_ty, arg_args)) {
-                        if (arg_args.empty()) {
-                            buffer<expr> ind_app_args;
-                            get_app_args(*ind_app, ind_app_args);
-                            expr new_val = mk_app(mk_constant(get_sizeof_name(), {get_datatype_level(mlocal_type(ind))}),
-                                                  {mk_app(c_ind, ind_app_args.size() - num_params, ind_app_args.data() + num_params),
-                                                          mk_app(c_has_sizeof, ind_app_args.size() - num_params, ind_app_args.data() + num_params),
-                                                          local});
-                            rhs = mk_nat_add(rhs, new_val);
-                        }
-                    } else {
-                        level l = get_level(m_tctx, arg_ty);
-                        rhs = mk_nat_add(rhs, mk_app(tctx_synth, get_sizeof_name(), local));
-                    }
-                    ir_ty = m_tctx.whnf(instantiate(binding_body(ir_ty), local));
-                }
-
-                expr lhs = mk_app(tctx_synth, get_sizeof_name(), {mk_app(c_ir, locals)});
-                expr dsimp_rule_type = Pi(m_mut_decl.get_params(), m_tctx.mk_pi(param_insts, Pi(locals, mk_eq(m_tctx, lhs, rhs))));
-                expr dsimp_rule_val = Fun(m_mut_decl.get_params(), m_tctx.mk_lambda(param_insts, Fun(locals, mk_eq_refl(m_tctx, lhs))));
-                name dsimp_rule_name = mk_sizeof_spec_name(mlocal_name(ir));
-
-                assert_def_eq(m_env, tctx_synth.infer(dsimp_rule_val), dsimp_rule_type);
-
-                lean_trace(name({"inductive_compiler", "mutual", "sizeof"}), tout()
-                           << dsimp_rule_name << " : " << dsimp_rule_type << " :=\n  "<< dsimp_rule_val << "\n";);
-
-                m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, dsimp_rule_name, to_list(m_mut_decl.get_lp_names()), dsimp_rule_type, dsimp_rule_val, true)));
-                m_env = set_simp_sizeof(m_env, dsimp_rule_name);
-                m_env = add_protected(m_env, dsimp_rule_name);
-
-                tctx_synth.set_env(m_env);
-                m_tctx.set_env(m_env);
-            }
         }
     }
 
@@ -763,7 +709,7 @@ public:
 
 environment add_mutual_inductive_decl(environment const & env, options const & opts,
                                       name_map<implicit_infer_kind> const & implicit_infer_map,
-                                      ginductive_decl const & mut_decl, bool is_trusted) {
+                                      ginductive_decl & mut_decl, bool is_trusted) {
     return add_mutual_inductive_decl_fn(env, opts, implicit_infer_map, mut_decl, is_trusted)();
 }
 

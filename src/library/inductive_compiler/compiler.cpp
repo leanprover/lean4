@@ -19,7 +19,7 @@ Author: Daniel Selsam
 namespace lean {
 environment add_inner_inductive_declaration(environment const & env, options const & opts,
                                             name_map<implicit_infer_kind> implicit_infer_map,
-                                            ginductive_decl const & decl, bool is_trusted) {
+                                            ginductive_decl & decl, bool is_trusted) {
     lean_assert(decl.get_inds().size() == decl.get_intro_rules().size());
     if (optional<environment> new_env = add_nested_inductive_decl(env, opts, implicit_infer_map, decl, is_trusted)) {
         return register_ginductive_decl(*new_env, decl, ginductive_kind::NESTED);

@@ -39,6 +39,7 @@ Author: Daniel Selsam
 #include "library/tactic/induction_tactic.h"
 #include "library/tactic/simp_result.h"
 #include "library/tactic/simplify.h"
+#include "library/tactic/eqn_lemmas.h"
 
 /**
 Notes:
@@ -79,7 +80,8 @@ class add_nested_inductive_decl_fn {
     environment                   m_env;
     options                       m_opts;
     name_map<implicit_infer_kind> m_implicit_infer_map;
-    ginductive_decl const &       m_nested_decl;
+    // Note(dhs): m_nested_decl is morally const, but we make it non-const to passing around sizeof_lemmas
+    ginductive_decl &             m_nested_decl;
     bool                          m_is_trusted;
     ginductive_decl               m_inner_decl;
 
@@ -94,8 +96,6 @@ class add_nested_inductive_decl_fn {
     expr                          m_primitive_unpack;
 
     bool                          m_elim_to_type;
-
-    simp_lemmas                   m_sizeof_lemmas; // currently cached at thread-local but may not always be
 
     buffer<buffer<buffer<optional<unsigned> > > > m_pack_arity; // [ind_idx][ir_idx][ir_arg_idx]
 
@@ -210,6 +210,32 @@ class add_nested_inductive_decl_fn {
     name mk_spec_name(name const & base, name const & ir_name) { return base + ir_name + "spec"; }
 
     // Helpers
+    static bool is_sizeof_app(expr const & e) {
+        expr fn = get_app_fn(e);
+        return is_constant(fn) && const_name(fn).is_string() && const_name(fn).get_string() == std::string("sizeof");
+    }
+
+    static optional<expr> unfold_sizeof(type_context & tctx, expr const & e) {
+        buffer<expr> args;
+        expr fn = get_app_args(e, args);
+
+        // If we see a sizeof _ <inst> _, replace with the _.sizeof function
+        if (args.size() == 3 && is_constant(fn) && const_name(fn) == get_sizeof_name()) {
+            // Note(dhs): *.sizeof is irreducible, and *.sizeof_inst is reducible
+            // Here we want to reduce only sizeof_inst to expose the basic *.sizeof application.
+            type_context::transparency_scope scope(tctx, transparency_mode::Reducible);
+            expr e_sizeof = app_arg(tctx.whnf(args[1]));
+            if (is_sizeof_app(e_sizeof)) {
+                expr new_e = mk_app(app_arg(tctx.whnf(args[1])), args[2]);
+                assert_def_eq(tctx.env(), e, new_e);
+                lean_trace(name({"inductive_compiler", "nested", "sizeof"}),
+                           tout() << "[unfold sizeof]: " << e << " ==> " << new_e << "\n";);
+                return some_expr(new_e);
+            }
+        }
+        return none_expr();
+    }
+
     expr safe_whnf(type_context & tctx, expr const & e) {
         expr r = tctx.whnf_head_pred(e, [&](expr const & t) {
                 expr fn = get_app_fn(t);
@@ -635,15 +661,28 @@ class add_nested_inductive_decl_fn {
     ///// Stage 5: define nested has_sizeofs /////
     /////////////////////////////////////////////
 
+    expr unpack_sizeof(expr const & _e) {
+        return replace(_e, [&](expr const & e) {
+                for (unsigned ind_idx = 0; ind_idx < m_nested_decl.get_num_inds(); ++ind_idx) {
+                    if (is_constant(e) && const_name(e) == mk_sizeof_name(mlocal_name(m_inner_decl.get_ind(ind_idx))))
+                        return some_expr(mk_constant(mk_sizeof_name(mlocal_name(m_nested_decl.get_ind(ind_idx))), const_levels(e)));
+                }
+                return none_expr();
+            });
+    }
+
     void define_nested_has_sizeofs() {
         initialize_synth_lctx();
         for (unsigned ind_idx = 0; ind_idx < m_nested_decl.get_num_inds(); ++ind_idx) {
             expr const & ind = m_nested_decl.get_ind(ind_idx);
-            name inner_sizeof_name = mk_has_sizeof_name(mlocal_name(m_inner_decl.get_ind(ind_idx)));
-            optional<declaration> opt_d = m_env.find(inner_sizeof_name);
+            name inner_has_sizeof_name = mk_has_sizeof_name(mlocal_name(m_inner_decl.get_ind(ind_idx)));
+            optional<declaration> opt_d = m_env.find(inner_has_sizeof_name);
             if (!opt_d) return;
             define(mk_has_sizeof_name(mlocal_name(ind)), unpack_constants(opt_d->get_type()), unpack_constants(opt_d->get_value()));
-            m_env = add_instance(m_env, mk_has_sizeof_name(mlocal_name(ind)), LEAN_DEFAULT_PRIORITY, true);
+            name has_sizeof_name = mk_has_sizeof_name(mlocal_name(ind));
+            m_env = set_reducible(m_env, has_sizeof_name, reducible_status::Reducible, true);
+            m_env = add_instance(m_env, has_sizeof_name, LEAN_DEFAULT_PRIORITY, true);
+            m_env = add_protected(m_env, has_sizeof_name);
             m_tctx.set_env(m_env);
         }
     }
@@ -1251,10 +1290,41 @@ class add_nested_inductive_decl_fn {
         return simp_result(h_a, pr);
     }
 
+    class sizeof_simplify_fn : public simplify_fn {
+    protected:
+        virtual optional<pair<simp_result, bool>> post(expr const & e, optional<expr> const & parent) override {
+            if (optional<expr> r = unfold_sizeof(m_ctx, e))
+                return optional<pair<simp_result, bool> >(mk_pair(simp_result(*r), true));
+
+            // If we see a _.sizeof application,
+            if (is_sizeof_app(e)) {
+                expr fn = get_app_fn(e);
+                buffer<simp_lemma> lemmas;
+                bool refl_only = true;
+                get_eqn_lemmas_for(m_ctx.env(), const_name(fn), refl_only, lemmas);
+                for (simp_lemma const & sl : lemmas) {
+                    expr result = refl_lemma_rewrite(m_ctx, e, sl);
+                    if (result != e) {
+                        lean_trace(name({"inductive_compiler", "nested", "simp", "sizeof"}), tout() << "[sizeof rfls]: "
+                                   << e << " ==> " << annotated_head_beta_reduce(result) << "\n";);
+                        return optional<pair<simp_result, bool> >(mk_pair(simp_result(annotated_head_beta_reduce(result)), true));
+                    }
+                }
+            }
+            return simplify_fn::post(e, parent);
+        }
+    public:
+        sizeof_simplify_fn(type_context & ctx, defeq_canonizer::state & dcs, simp_lemmas const & slss, simp_config const & cfg):
+        simplify_fn(ctx, dcs, slss, cfg) {}
+    };
+
     expr prove_by_simp(local_context const & lctx, expr const & thm, list<expr> Hs, bool use_sizeof) {
-        type_context tctx(m_env, m_tctx.get_options(), lctx, transparency_mode::Semireducible);
-        type_context tctx_whnf(m_env, m_tctx.get_options(), lctx, transparency_mode::None);
-        simp_lemmas all_lemmas = use_sizeof ? join(m_sizeof_lemmas, m_lemmas) : m_lemmas;
+        environment env = set_reducible(m_env, get_sizeof_name(), reducible_status::Irreducible, false);
+        env = set_reducible(env, get_add_name(), reducible_status::Irreducible, false);
+
+        type_context tctx(env, m_tctx.get_options(), lctx, transparency_mode::Semireducible);
+        type_context tctx_whnf(env, m_tctx.get_options(), lctx, transparency_mode::None);
+        simp_lemmas all_lemmas = use_sizeof ? join(m_lemmas, m_nested_decl.get_sizeof_lemmas()) : m_lemmas;
         for (expr const & H : Hs) {
             expr H_type = tctx_whnf.infer(H);
             all_lemmas = add(tctx_whnf, all_lemmas, mlocal_name(H), H_type, H, LEAN_DEFAULT_PRIORITY);
@@ -1270,7 +1340,7 @@ class add_nested_inductive_decl_fn {
         cfg.m_zeta               = false;
         cfg.m_use_matcher        = false;
         defeq_can_state dcs;
-        simplify_fn simplifier(tctx, dcs, all_lemmas, cfg);
+        sizeof_simplify_fn simplifier(tctx, dcs, all_lemmas, cfg);
         auto thm_pr = simplifier.prove_by_simp(get_eq_name(), thm);
         if (!thm_pr) {
             formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
@@ -1284,6 +1354,8 @@ class add_nested_inductive_decl_fn {
     }
 
     expr prove_by_induction_simp(name const & rec_name, expr const & thm, bool use_sizeof) {
+        lean_trace(name({"inductive_compiler", "nested", "prove"}), tout() << "[goal]: " << thm << "\n";);
+
         expr ty = thm;
         metavar_context mctx;
 
@@ -1343,7 +1415,7 @@ class add_nested_inductive_decl_fn {
         type_context tctx_synth(m_env, m_tctx.get_options(), m_synth_lctx, transparency_mode::Semireducible);
 
         expr x_unpacked = mk_local_pp("x_unpacked", mk_app(m_nested_occ, index_locals));
-        expr lhs = mk_app(tctx_synth, get_sizeof_name(), mk_app(mk_app(m_primitive_pack, index_locals), x_unpacked));
+        expr lhs = *unfold_sizeof(tctx_synth, mk_app(tctx_synth, get_sizeof_name(), mk_app(mk_app(m_primitive_pack, index_locals), x_unpacked)));
         expr rhs = mk_app(tctx_synth, get_sizeof_name(), x_unpacked);
         expr goal = mk_eq(tctx_synth, lhs, rhs);
         expr primitive_sizeof_pack_type = Pi(m_nested_decl.get_params(), tctx_synth.mk_pi(m_param_insts, Pi(index_locals, Pi(x_unpacked, goal))));
@@ -1383,7 +1455,7 @@ class add_nested_inductive_decl_fn {
         type_context tctx_synth(m_env, m_tctx.get_options(), m_synth_lctx);
 
         expr x_unpacked = mk_local_pp("x_unpacked", mk_app(start, index_locals));
-        expr lhs = mk_app(tctx_synth, get_sizeof_name(), mk_app(mk_app(nested_pack, index_locals), x_unpacked));
+        expr lhs = *unfold_sizeof(tctx_synth, mk_app(tctx_synth, get_sizeof_name(), mk_app(mk_app(nested_pack, index_locals), x_unpacked)));
         expr rhs = mk_app(tctx_synth, get_sizeof_name(), x_unpacked);
         expr goal = mk_eq(tctx_synth, lhs, rhs);
         expr nested_sizeof_pack_type = Pi(m_nested_decl.get_params(), tctx_synth.mk_pi(m_param_insts, Pi(index_locals, Pi(x_unpacked, goal))));
@@ -1453,7 +1525,7 @@ class add_nested_inductive_decl_fn {
         type_context tctx_synth(m_env, m_tctx.get_options(), m_synth_lctx, transparency_mode::Semireducible);
 
         expr x_unpacked = mk_local_pp("x_unpacked", arg_ty);
-        expr lhs = mk_app(tctx_synth, get_sizeof_name(), mk_app(pi_pack, x_unpacked));
+        expr lhs = *unfold_sizeof(tctx_synth, mk_app(tctx_synth, get_sizeof_name(), mk_app(pi_pack, x_unpacked)));
         expr rhs = mk_app(tctx_synth, get_sizeof_name(), x_unpacked);
         expr goal = mk_eq(tctx_synth, lhs, rhs);
         expr pi_unpack_pack_type = Pi(m_nested_decl.get_params(), tctx_synth.mk_pi(m_param_insts, Pi(ldeps, Pi(x_unpacked, goal))));
@@ -1473,6 +1545,7 @@ class add_nested_inductive_decl_fn {
         }
         define_theorem(n, pi_unpack_pack_type, pi_unpack_pack_val);
         m_env = set_simp_sizeof(m_env, n);
+        m_nested_decl.set_sizeof_lemmas(add(m_tctx, m_nested_decl.get_sizeof_lemmas(), n, LEAN_DEFAULT_PRIORITY));
         m_tctx.set_env(m_env);
     }
 
@@ -1643,6 +1716,7 @@ class add_nested_inductive_decl_fn {
 
     void define_nested_sizeof_lemmas() {
         for (unsigned ind_idx = 0; ind_idx < m_nested_decl.get_num_inds(); ++ind_idx) {
+            name sizeof_name = mk_sizeof_name(mlocal_name(m_nested_decl.get_ind(ind_idx)));
             for (unsigned ir_idx = 0; ir_idx < m_nested_decl.get_num_intro_rules(ind_idx); ++ir_idx) {
                 type_context tctx_synth(m_env, m_tctx.get_options(), m_synth_lctx);
 
@@ -1663,13 +1737,16 @@ class add_nested_inductive_decl_fn {
                     rhs = mk_nat_add(rhs, mk_app(tctx_synth, get_sizeof_name(), rhs_arg));
                 }
 
-                expr lhs = mk_app(tctx_synth, get_sizeof_name(), {mk_app(c_nested_ir, locals)});
+                expr lhs = mk_app(tctx_synth, sizeof_name, {mk_app(c_nested_ir, locals)});
                 expr dsimp_rule_type = Pi(m_nested_decl.get_params(), tctx_synth.mk_pi(m_param_insts, Pi(locals, mk_eq(tctx_synth, lhs, rhs))));
                 expr dsimp_rule_val = Fun(m_nested_decl.get_params(), tctx_synth.mk_lambda(m_param_insts, Fun(locals, mk_eq_refl(tctx_synth, lhs))));
                 name dsimp_rule_name = mk_sizeof_spec_name(mlocal_name(m_nested_decl.get_intro_rule(ind_idx, ir_idx)));
 
+                lean_trace(name({"inductive_compiler", "nested", "sizeof"}), tout() << "[rfl]: " << dsimp_rule_type << "\n";);
+
                 define_theorem(dsimp_rule_name, dsimp_rule_type, dsimp_rule_val);
-                m_env = set_simp_sizeof(m_env, dsimp_rule_name);
+                m_env = mark_rfl_lemma(m_env, dsimp_rule_name);
+                m_env = add_eqn_lemma(m_env, dsimp_rule_name);
                 m_env = add_protected(m_env, dsimp_rule_name);
                 m_tctx.set_env(m_env);
             }
@@ -1679,7 +1756,7 @@ class add_nested_inductive_decl_fn {
 public:
     add_nested_inductive_decl_fn(environment const & env, options const & opts,
                                  name_map<implicit_infer_kind> const & implicit_infer_map,
-                                 ginductive_decl const & nested_decl, bool is_trusted):
+                                 ginductive_decl & nested_decl, bool is_trusted):
         m_env(env), m_opts(opts), m_implicit_infer_map(implicit_infer_map),
         m_nested_decl(nested_decl), m_is_trusted(is_trusted),
         m_inner_decl(m_nested_decl.get_nest_depth() + 1, m_nested_decl.get_lp_names(), m_nested_decl.get_params()),
@@ -1689,22 +1766,22 @@ public:
         if (!find_nested_occ())
             return optional<environment>();
 
-        if (is_reducible(m_env, get_sizeof_name())) {
-            throw exception("compiling nested inductive types requires that sizeof is not reducible");
-        }
-
         construct_inner_decl();
         add_inner_decl();
-        check_elim_to_type();
-        m_sizeof_lemmas = get_sizeof_simp_lemmas(m_tctx.env(), m_tctx.mode());
 
+        if (m_inner_decl.has_sizeof_lemmas()) {
+            m_nested_decl.set_sizeof_lemmas(m_inner_decl.get_sizeof_lemmas());
+        } else {
+            m_nested_decl.set_sizeof_lemmas(get_sizeof_simp_lemmas(m_tctx.env(), m_tctx.mode()));
+        }
+
+        check_elim_to_type();
         define_nested_inds();
 
         define_nested_has_sizeofs();
         build_primitive_pack_unpack();
         define_nested_irs();
         define_nested_recursors();
-        define_nested_sizeof_lemmas();
 
         return optional<environment>(m_env);
     }
@@ -1712,7 +1789,7 @@ public:
 
 optional<environment> add_nested_inductive_decl(environment const & env, options const & opts,
                                                 name_map<implicit_infer_kind> const & implicit_infer_map,
-                                                ginductive_decl const & decl, bool is_trusted) {
+                                                ginductive_decl & decl, bool is_trusted) {
     return add_nested_inductive_decl_fn(env, opts, implicit_infer_map, decl, is_trusted)();
 }
 
@@ -1728,11 +1805,16 @@ void initialize_inductive_compiler_nested() {
     register_trace_class(name({"inductive_compiler", "nested", "inner", "ind"}));
     register_trace_class(name({"inductive_compiler", "nested", "inner", "ir"}));
 
+    register_trace_class(name({"inductive_compiler", "nested", "sizeof"}));
+    register_trace_class(name({"inductive_compiler", "nested", "prove"}));
+
     register_trace_class(name({"inductive_compiler", "nested", "define"}));
     register_trace_class(name({"inductive_compiler", "nested", "define", "success"}));
     register_trace_class(name({"inductive_compiler", "nested", "define", "failure"}));
 
+    register_trace_class(name({"inductive_compiler", "nested", "simp"}));
     register_trace_class(name({"inductive_compiler", "nested", "simp", "start"}));
+    register_trace_class(name({"inductive_compiler", "nested", "simp", "sizeof"}));
     register_trace_class(name({"inductive_compiler", "nested", "simp", "failure"}));
 
     g_nest_prefix = new name("_nest");

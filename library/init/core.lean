@@ -488,31 +488,23 @@ From now on, the inductive compiler will automatically generate sizeof instances
 -/
 
 /- Every type `α` has a default has_sizeof instance that just returns 0 for every element of `α` -/
-instance default_has_sizeof (α : Sort u) : has_sizeof α :=
-⟨λ a, nat.zero⟩
+protected def default.sizeof (α : Sort u) : α → nat
+| a := 0
 
-/- TODO(Leo): the [simp.sizeof] annotations are not really necessary.
-   What we need is a robust way of unfolding sizeof definitions. -/
-attribute [simp.sizeof]
-lemma default_has_sizeof_eq (α : Sort u) (a : α) : @sizeof α (default_has_sizeof α) a = 0 :=
-rfl
+instance default_has_sizeof (α : Sort u) : has_sizeof α :=
+⟨default.sizeof α⟩
+
+protected def nat.sizeof : nat → nat
+| n := n
 
 instance : has_sizeof nat :=
-⟨λ a, a⟩
-
-attribute [simp.sizeof]
-lemma sizeof_nat_eq (a : nat) : sizeof a = a :=
-rfl
+⟨nat.sizeof⟩
 
 protected def prod.sizeof {α : Type u} {β : Type v} [has_sizeof α] [has_sizeof β] : (prod α β) → nat
 | ⟨a, b⟩ := 1 + sizeof a + sizeof b
 
 instance (α : Type u) (β : Type v) [has_sizeof α] [has_sizeof β] : has_sizeof (prod α β) :=
 ⟨prod.sizeof⟩
-
-attribute [simp.sizeof]
-lemma sizeof_prod_eq {α : Type u} {β : Type v} [has_sizeof α] [has_sizeof β] (a : α) (b : β) : sizeof (prod.mk a b) = 1 + sizeof a + sizeof b :=
-rfl
 
 protected def sum.sizeof {α : Type u} {β : Type v} [has_sizeof α] [has_sizeof β] : (sum α β) → nat
 | (sum.inl a) := 1 + sizeof a
@@ -521,55 +513,38 @@ protected def sum.sizeof {α : Type u} {β : Type v} [has_sizeof α] [has_sizeof
 instance (α : Type u) (β : Type v) [has_sizeof α] [has_sizeof β] : has_sizeof (sum α β) :=
 ⟨sum.sizeof⟩
 
-attribute [simp.sizeof]
-lemma sizeof_sum_eq_left {α : Type u} {β : Type v} [has_sizeof α] [has_sizeof β] (a : α) : sizeof (@sum.inl α β a) = 1 + sizeof a :=
-rfl
-
-attribute [simp.sizeof]
-lemma sizeof_sum_eq_right {α : Type u} {β : Type v} [has_sizeof α] [has_sizeof β] (b : β) : sizeof (@sum.inr α β b) = 1 + sizeof b :=
-rfl
-
 protected def sigma.sizeof {α : Type u} {β : α → Type v} [has_sizeof α] [∀ a, has_sizeof (β a)] : sigma β → nat
 | ⟨a, b⟩ := 1 + sizeof a + sizeof b
 
 instance (α : Type u) (β : α → Type v) [has_sizeof α] [∀ a, has_sizeof (β a)] : has_sizeof (sigma β) :=
 ⟨sigma.sizeof⟩
 
-attribute [simp.sizeof]
-lemma sizeof_sigma_eq {α : Type u} {β : α → Type v} [has_sizeof α] [∀ a, has_sizeof (β a)] (a : α) (b : β a) : sizeof (@sigma.mk α β a b) = 1 + sizeof a + sizeof b :=
-rfl
+protected def unit.sizeof : unit → nat
+| u := 1
 
-instance : has_sizeof unit := ⟨λ u, 1⟩
+instance : has_sizeof unit := ⟨unit.sizeof⟩
 
-attribute [simp.sizeof]
-lemma sizeof_unit_eq (u : unit) : sizeof u = 1 :=
-rfl
+protected def punit.sizeof : punit → nat
+| u := 1
 
-instance : has_sizeof punit := ⟨λ u, 1⟩
+instance : has_sizeof punit := ⟨punit.sizeof⟩
 
-attribute [simp.sizeof]
-lemma sizeof_punit_eq (u : punit) : sizeof u = 1 :=
-rfl
+protected def bool.sizeof : bool → nat
+| b := 1
 
-instance : has_sizeof bool := ⟨λ u, 1⟩
+instance : has_sizeof bool := ⟨bool.sizeof⟩
 
-attribute [simp.sizeof]
-lemma sizeof_bool_eq (b : bool) : sizeof b = 1 :=
-rfl
+protected def pos_num.sizeof : pos_num → nat
+| p := nat.of_pos_num p
 
 instance : has_sizeof pos_num :=
-⟨nat.of_pos_num⟩
+⟨pos_num.sizeof⟩
 
-attribute [simp.sizeof]
-lemma sizeof_pos_num_eq (p : pos_num) : sizeof p = nat.of_pos_num p :=
-rfl
+protected def num.sizeof : num → nat
+| n := nat.of_num n
 
 instance : has_sizeof num :=
-⟨nat.of_num⟩
-
-attribute [simp.sizeof]
-lemma sizeof_num_eq (n : num) : sizeof n = nat.of_num n :=
-rfl
+⟨num.sizeof⟩
 
 protected def option.sizeof {α : Type u} [has_sizeof α] : option α → nat
 | none     := 1
@@ -578,14 +553,6 @@ protected def option.sizeof {α : Type u} [has_sizeof α] : option α → nat
 instance (α : Type u) [has_sizeof α] : has_sizeof (option α) :=
 ⟨option.sizeof⟩
 
-attribute [simp.sizeof]
-lemma sizeof_option_none_eq (α : Type u) [has_sizeof α] : sizeof (@none α) = 1 :=
-rfl
-
-attribute [simp.sizeof]
-lemma sizeof_option_some_eq {α : Type u} [has_sizeof α] (a : α) : sizeof (some a) = 1 + sizeof a :=
-rfl
-
 protected def list.sizeof {α : Type u} [has_sizeof α] : list α → nat
 | list.nil        := 1
 | (list.cons a l) := 1 + sizeof a + list.sizeof l
@@ -593,15 +560,6 @@ protected def list.sizeof {α : Type u} [has_sizeof α] : list α → nat
 instance (α : Type u) [has_sizeof α] : has_sizeof (list α) :=
 ⟨list.sizeof⟩
 
-attribute [simp.sizeof]
-lemma sizeof_list_nil_eq (α : Type u) [has_sizeof α] : sizeof (@list.nil α) = 1 :=
-rfl
-
-attribute [simp.sizeof]
-lemma sizeof_list_cons_eq {α : Type u} [has_sizeof α] (a : α) (l : list α) : sizeof (list.cons a l) = 1 + sizeof a + sizeof l :=
-rfl
-
-attribute [simp.sizeof]
 lemma nat_add_zero (n : nat) : n + 0 = n := rfl
 
 /- Combinator calculus -/

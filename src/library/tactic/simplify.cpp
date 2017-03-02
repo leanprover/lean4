@@ -907,6 +907,7 @@ optional<expr> simplify_core_fn::prove_by_simp(name const & rel, expr const & e)
             return some_expr(mk_true_intro());
         }
     }
+    lean_simp_trace(m_ctx, name({"simplify", "failure"}), tout() << "proof stuck at: " << r.get_new() << "\n";);
     return none_expr();
 }
 

@@ -13,7 +13,7 @@ Author: Daniel Selsam
 namespace lean {
 environment add_inner_inductive_declaration(environment const & env, options const & opts,
                                             name_map<implicit_infer_kind> implicit_infer_map,
-                                            ginductive_decl const & decl, bool is_trusted);
+                                            ginductive_decl & decl, bool is_trusted);
 
 void initialize_inductive_compiler();
 void finalize_inductive_compiler();

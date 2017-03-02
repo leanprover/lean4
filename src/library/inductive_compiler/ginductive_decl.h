@@ -7,6 +7,7 @@ Author: Daniel Selsam
 #pragma once
 #include "kernel/environment.h"
 #include "kernel/find_fn.h"
+#include "library/tactic/simp_lemmas.h"
 
 namespace lean {
 
@@ -16,6 +17,8 @@ class ginductive_decl {
     buffer<expr> m_params;
     buffer<expr> m_inds;
     buffer<buffer<expr> > m_intro_rules;
+
+    optional<simp_lemmas> m_sizeof_lemmas;
 public:
     ginductive_decl() {}
     ginductive_decl(unsigned nest_depth, buffer<name> const & lp_names, buffer<expr> const & params):
@@ -23,6 +26,14 @@ public:
     ginductive_decl(unsigned nest_depth, buffer<name> const & lp_names, buffer<expr> const & params,
                     buffer<expr> const & inds, buffer<buffer<expr> > const & intro_rules):
         m_nest_depth(nest_depth), m_lp_names(lp_names), m_params(params), m_inds(inds), m_intro_rules(intro_rules) {}
+
+    void set_sizeof_lemmas(simp_lemmas const & sizeof_lemmas) {
+        lean_assert(!m_sizeof_lemmas);
+        m_sizeof_lemmas = optional<simp_lemmas>(sizeof_lemmas);
+    }
+
+    bool has_sizeof_lemmas() const { return static_cast<bool>(m_sizeof_lemmas); }
+    simp_lemmas get_sizeof_lemmas() const { return *m_sizeof_lemmas; }
 
     unsigned get_nest_depth() const { return m_nest_depth; }
     bool is_mutual() const { return m_inds.size() > 1; }

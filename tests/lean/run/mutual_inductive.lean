@@ -12,8 +12,6 @@ check @foo.rec
 check @bar.rec
 check @foo.has_sizeof_inst
 check @bar.has_sizeof_inst
-check @foo.mk.sizeof_spec
-check @bar.mk.sizeof_spec
 end X1
 
 namespace X2
@@ -30,8 +28,6 @@ check @foo.rec
 check @bar.rec
 check @foo.has_sizeof_inst
 check @bar.has_sizeof_inst
-check @foo.mk.sizeof_spec
-check @bar.mk.sizeof_spec
 end X2
 
 namespace X3
@@ -48,8 +44,6 @@ check @foo.rec
 check @bar.rec
 check @foo.has_sizeof_inst
 check @bar.has_sizeof_inst
-check @foo.mk.sizeof_spec
-check @bar.mk.sizeof_spec
 end X3
 
 namespace X4
@@ -71,9 +65,6 @@ check @rig.rec
 check @foo.has_sizeof_inst
 check @bar.has_sizeof_inst
 check @rig.has_sizeof_inst
-check @foo.mk.sizeof_spec
-check @bar.mk.sizeof_spec
-check @rig.mk.sizeof_spec
 end X4
 
 namespace X5
@@ -95,10 +86,6 @@ check @rig.rec
 check @foo.has_sizeof_inst
 check @bar.has_sizeof_inst
 check @rig.has_sizeof_inst
-check @foo.mk.sizeof_spec
-check @bar.mk.sizeof_spec
-check @rig.mk.sizeof_spec
-check @rig.put.sizeof_spec
 end X5
 
 namespace X6

@@ -23,7 +23,7 @@ A B C : source^.Obj,
 f : source^.Hom A B,
 g : source^.Hom B C
 ⊢ source^.Obj
-1279.lean:8:10: warning: declaration 'Functor.has_sizeof_inst' uses sorry
+1279.lean:8:10: warning: declaration 'Functor.sizeof' uses sorry
 1279.lean:8:10: warning: declaration 'Functor.mk.sizeof_spec' uses sorry
 1279.lean:8:10: warning: declaration 'Functor.functoriality' uses sorry
 1279.lean:8:10: warning: declaration 'Functor.rec_on' uses sorry

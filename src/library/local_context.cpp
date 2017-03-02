@@ -187,7 +187,7 @@ local_decl const & local_context::get_local_decl(name const & n) const {
     if (local_decl const * r = m_name2local_decl.find(n))
         return *r;
     else
-        throw exception("unknow local constant");
+        throw exception(sstream() << "unknown local constant: " << n);
 }
 
 local_decl const & local_context::get_local_decl(expr const & e) const {

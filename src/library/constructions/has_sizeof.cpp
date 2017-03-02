@@ -24,9 +24,11 @@ Author: Daniel Selsam
 #include "library/module.h"
 #include "library/constants.h"
 #include "library/tactic/simp_lemmas.h"
+#include "library/tactic/eqn_lemmas.h"
 #include "library/constructions/has_sizeof.h"
 
 namespace lean {
+
 static name * g_simp_sizeof = nullptr;
 static simp_lemmas_token g_simp_sizeof_tk;
 
@@ -40,6 +42,10 @@ environment set_simp_sizeof(environment const & env, name const & n) {
 
 name mk_has_sizeof_name(name const & ind_name) {
     return ind_name + "has_sizeof_inst";
+}
+
+name mk_sizeof_name(name const & ind_name) {
+    return ind_name + "sizeof";
 }
 
 name mk_sizeof_spec_name(name const & ir_name) {
@@ -188,7 +194,8 @@ class mk_has_sizeof_fn {
             minor_premises.push_back(Fun(locals, Fun(ih_locals, result)));
         }
 
-        expr recursor_application =
+        name sizeof_name = mk_sizeof_name(m_ind_name);
+        expr sizeof_val =
             mk_app(
                 mk_app(
                     mk_app(
@@ -197,6 +204,31 @@ class mk_has_sizeof_fn {
                         motive),
                     minor_premises),
                 indices);
+        sizeof_val = m_tctx.mk_lambda(indices, sizeof_val);
+        buffer<expr> used_param_insts;
+        for (expr const & param_inst : param_insts) {
+            if (find(sizeof_val, [&](expr const & e, unsigned) { return e == param_inst; })) {
+                used_param_insts.push_back(param_inst);
+            }
+        }
+        sizeof_val = m_tctx.mk_lambda(params, m_tctx.mk_lambda(used_param_insts, sizeof_val));
+
+        expr sizeof_type = mk_constant(get_nat_name());
+        {
+            expr x = mk_local_pp("x", mk_app(c_ind, indices));
+            sizeof_type = m_tctx.mk_pi(indices, Pi(x, mk_constant(get_nat_name())));
+            sizeof_type = m_tctx.mk_pi(params, m_tctx.mk_pi(used_param_insts, sizeof_type));
+        }
+
+        lean_trace(name({"constructions", "has_sizeof"}), tout()
+                   << "[sizeof]: " << sizeof_name << " : " << sizeof_type << "\n"
+                   << sizeof_val << "\n";);
+
+        m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, sizeof_name, lp_names, sizeof_type, sizeof_val, true)));
+        m_env = set_reducible(m_env, sizeof_name, reducible_status::Irreducible, true);
+        m_env = add_protected(m_env, sizeof_name);
+
+        expr c_sizeof = mk_app(mk_app(mk_constant(sizeof_name, lvls), params), used_param_insts);
 
         expr has_sizeof_type = m_tctx.mk_pi(indices,
                                             mk_app(mk_constant(get_has_sizeof_name(), {get_datatype_level(ind_type)}),
@@ -206,9 +238,9 @@ class mk_has_sizeof_fn {
                                                mk_app(
                                                    mk_app(mk_constant(get_has_sizeof_mk_name(), {get_datatype_level(ind_type)}),
                                                           mk_app(c_ind, indices)),
-                                                   recursor_application));
+                                                   mk_app(c_sizeof, indices)));
 
-        buffer<expr> used_param_insts;
+        used_param_insts.clear();
         for (expr const & param_inst : param_insts) {
             if (find(has_sizeof_val, [&](expr const & e, unsigned) { return e == param_inst; })) {
                 used_param_insts.push_back(param_inst);
@@ -219,7 +251,7 @@ class mk_has_sizeof_fn {
         has_sizeof_val = m_tctx.mk_lambda(params, m_tctx.mk_lambda(used_param_insts, has_sizeof_val));
 
         lean_trace(name({"constructions", "has_sizeof"}), tout()
-                   << has_sizeof_name << " : " << has_sizeof_type << "\n"
+                   << "[has_sizeof]: " << has_sizeof_name << " : " << has_sizeof_type << "\n"
                    << has_sizeof_val << "\n";);
 
         m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, has_sizeof_name, lp_names, has_sizeof_type, has_sizeof_val, true)));
@@ -253,10 +285,7 @@ class mk_has_sizeof_fn {
                     if (arg_args.empty()) {
                         buffer<expr> ind_app_args;
                         get_app_args(*ind_app, ind_app_args);
-                        expr new_val = mk_app(mk_constant(get_sizeof_name(), {get_datatype_level(ind_type)}),
-                                              {mk_app(c_ind, ind_app_args.size() - num_params, ind_app_args.data() + num_params),
-                                                      mk_app(c_has_sizeof, ind_app_args.size() - num_params, ind_app_args.data() + num_params),
-                                                      local});
+                        expr new_val = mk_app(mk_app(c_sizeof, ind_app_args.size() - num_params, ind_app_args.data() + num_params), local);
                         rhs = mk_nat_add(rhs, new_val);
                     }
                 } else if (auto inst = mk_has_sizeof(arg_ty)) {
@@ -266,7 +295,10 @@ class mk_has_sizeof_fn {
                 ir_ty = m_tctx.relaxed_whnf(instantiate(binding_body(ir_ty), local));
             }
 
-            expr lhs = mk_app(m_tctx, get_sizeof_name(), {mk_app(c_ir, locals)});
+            buffer<expr> args;
+            get_app_args(ir_ty, args);
+
+            expr lhs = mk_app(mk_app(c_sizeof, indices.size(), args.data() + args.size() - indices.size()), mk_app(c_ir, locals));
             expr dsimp_rule_type = m_tctx.mk_pi(params, m_tctx.mk_pi(used_param_insts, Pi(locals, mk_eq(m_tctx, lhs, rhs))));
             expr dsimp_rule_val = m_tctx.mk_lambda(params, m_tctx.mk_lambda(used_param_insts, Fun(locals, mk_eq_refl(m_tctx, lhs))));
             name dsimp_rule_name = mk_sizeof_spec_name(inductive::intro_rule_name(ir));
@@ -276,7 +308,8 @@ class mk_has_sizeof_fn {
                        << dsimp_rule_val << "\n";);
 
             m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, dsimp_rule_name, lp_names, dsimp_rule_type, dsimp_rule_val, true)));
-            m_env = set_simp_sizeof(m_env, dsimp_rule_name);
+            m_env = mark_rfl_lemma(m_env, dsimp_rule_name);
+            m_env = add_eqn_lemma(m_env, dsimp_rule_name);
             m_env = add_protected(m_env, dsimp_rule_name);
             m_tctx.set_env(m_env);
         }
@@ -302,8 +335,8 @@ simp_lemmas get_sizeof_simp_lemmas(environment const & env, transparency_mode m)
 }
 
 void initialize_has_sizeof() {
-    g_simp_sizeof    = new name{"simp", "sizeof"};
-    g_simp_sizeof_tk = register_simp_attribute("ssizeof", {*g_simp_sizeof}, {});
+    g_simp_sizeof    = new name{"_simp", "sizeof"};
+    g_simp_sizeof_tk = register_simp_attribute(*g_simp_sizeof, {*g_simp_sizeof}, {});
     register_trace_class(name({"constructions", "has_sizeof"}));
 }
 

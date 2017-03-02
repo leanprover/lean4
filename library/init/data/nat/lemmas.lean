@@ -753,4 +753,45 @@ nat.strong_induction_on a $ λ n,
   | (n+1) := λ h₁, hi n (λ m h₂, h₁ _ (lt_succ_of_le h₂))
   end
 
+/- mod -/
+lemma mod_zero (a : nat) : a % 0 = a :=
+begin
+  rw mod_def,
+  assert h : ¬ (0 < 0 ∧ 0 ≤ a),
+  simp [lt_irrefl],
+  simp [dif_neg, h]
+end
+
+lemma mod_eq_of_lt {a b : nat} (h : a < b) : a % b = a :=
+begin
+  rw mod_def,
+  assert h' : ¬(0 < b ∧ b ≤ a),
+  simp [not_le_of_gt h],
+  simp [dif_neg, h']
+end
+
+lemma zero_mod (b : nat) : 0 % b = 0 :=
+begin
+  rw mod_def,
+  assert h : ¬(0 < b ∧ b ≤ 0),
+  {intro hn, cases hn with l r, exact absurd (lt_of_lt_of_le l r) (lt_irrefl 0)},
+  simp [dif_neg, h]
+end
+
+lemma mod_eq_sub_mod {a b : nat} (h₁ : b > 0) (h₂ : a ≥ b) : a % b = (a - b) % b :=
+by rw [mod_def, dif_pos (and.intro h₁ h₂)]
+
+lemma mod_lt (x : nat) {y : nat} (h : y > 0) : x % y < y :=
+begin
+  induction x using nat.case_strong_induction_on with x ih,
+  {rw zero_mod, assumption},
+  {apply or.elim (decidable.em (succ x < y)),
+    {intro h₁, rwa [mod_eq_of_lt h₁]},
+    {intro h₁,
+      assert h₁ : succ x % y = (succ x - y) % y, {exact mod_eq_sub_mod h (le_of_not_gt h₁)},
+      assert this : succ x - y ≤ x, {exact le_of_lt_succ (sub_lt (succ_pos x) h)},
+      assert h₂ : (succ x - y) % y < y, {exact ih _ this},
+      rwa -h₁ at h₂}}
+end
+
 end nat

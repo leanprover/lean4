@@ -11,18 +11,25 @@ array (list (Σ a, β a)) n
 structure hash_map (α : Type u) [decidable_eq α] (β : α → Type v) :=
 (hash_fn : α → nat)
 (size nbuckets : nat)
+(nz_buckets : nbuckets > 0)
 (buckets : bucket_array α β nbuckets)
 
 def mk_hash_map {α : Type u} [decidable_eq α] {β : α → Type v} (hash_fn : α → nat) (nbuckets := 8) : hash_map α β :=
-{ hash_fn := hash_fn, size := 0, nbuckets := nbuckets,
-  buckets := mk_array nbuckets [] }
+let n := if nbuckets = 0 then 8 else nbuckets in
+{hash_fn := hash_fn, size := 0, nbuckets := n,
+ -- TODO(Leo): abstract doesn't work in the followin line
+ nz_buckets := by {dsimp, cases nbuckets, {simp, tactic.comp_val}, simp [if_pos, nat.succ_ne_zero], apply nat.zero_lt_succ},
+ buckets := mk_array n [] }
 
 namespace hash_map
 variables {α : Type u} {β : α → Type v} {δ : Type w}
 
-def reinsert_aux (hash_fn : α → nat) {n : nat} (data : bucket_array α β n) (a : α) (b : β a) : bucket_array α β n :=
-let bidx := hash_fn a % n in
-data^.write' bidx (⟨a, b⟩ :: data^.read' bidx)
+def mk_idx {n : nat} (h : n > 0) (i : nat) : fin n :=
+⟨i % n, nat.mod_lt _ h⟩
+
+def reinsert_aux (hash_fn : α → nat) {n : nat} (h : n > 0) (data : bucket_array α β n) (a : α) (b : β a) : bucket_array α β n :=
+let bidx := mk_idx h (hash_fn a) in
+data^.write bidx (⟨a, b⟩ :: data^.read bidx)
 
 def fold_buckets {n : nat} (data : bucket_array α β n) (d : δ) (f : δ → Π a, β a → δ) : δ :=
 data^.foldl d (λ b d, list.foldl (λ r (p : Σ a, β a), f r p.1 p.2) d b)
@@ -39,8 +46,8 @@ def contains_aux (a : α) (l : list (Σ a, β a)) : bool :=
 
 def find (m : hash_map α β) (a : α) : option (β a) :=
 match m with
-| ⟨hash_fn, _, nbuckets, buckets⟩ :=
-  find_aux a (buckets^.read' (hash_fn a % nbuckets))
+| ⟨hash_fn, _, nbuckets, nz, buckets⟩ :=
+  find_aux a (buckets^.read (mk_idx nz (hash_fn a)))
 end
 
 def contains (m : hash_map α β) (a : α) : bool :=
@@ -59,28 +66,29 @@ def erase_aux (a : α) : list (Σ a, β a) → list (Σ a, β a)
 
 def insert (m : hash_map α β) (a : α) (b : β a) : hash_map α β :=
 match m with
-| ⟨hash_fn, size, nbuckets, buckets⟩ :=
-  let bidx           := hash_fn a % nbuckets in
-  let bkt            := buckets^.read' bidx in
+| ⟨hash_fn, size, nbuckets, nz, buckets⟩ :=
+  let bidx := mk_idx nz (hash_fn a) in
+  let bkt  := buckets^.read bidx in
   if contains_aux a bkt
-  then ⟨hash_fn, size, nbuckets, buckets^.write' bidx (replace_aux a b bkt)⟩
+  then ⟨hash_fn, size, nbuckets, nz, buckets^.write bidx (replace_aux a b bkt)⟩
   else let size'    := size + 1 in
-       let buckets' := buckets^.write' bidx (⟨a, b⟩::bkt) in
+       let buckets' := buckets^.write bidx (⟨a, b⟩::bkt) in
        if size' <= nbuckets
-       then ⟨hash_fn, size', nbuckets, buckets'⟩
+       then ⟨hash_fn, size', nbuckets, nz, buckets'⟩
        else let nbuckets' := nbuckets * 2 in
-            ⟨hash_fn, size', nbuckets',
+            let nz' : nbuckets' > 0 := mul_pos nz dec_trivial in
+            ⟨hash_fn, size', nbuckets', nz',
             fold_buckets buckets' (mk_array nbuckets' []) $
-               λ r a b, reinsert_aux hash_fn r a b⟩
+               λ r a b, reinsert_aux hash_fn nz' r a b⟩
 end
 
 def erase (m : hash_map α β) (a : α) : hash_map α β :=
 match m with
-| ⟨hash_fn, size, nbuckets, buckets⟩ :=
-  let bidx           := hash_fn a % nbuckets in
-  let bkt            := buckets^.read' bidx in
+| ⟨hash_fn, size, nbuckets, nz, buckets⟩ :=
+  let bidx : fin nbuckets := ⟨hash_fn a % nbuckets, nat.mod_lt _ nz⟩ in
+  let bkt                 := buckets^.read bidx in
   if contains_aux a bkt
-  then ⟨hash_fn, size - 1, nbuckets, buckets^.write' bidx $ erase_aux a bkt⟩
+  then ⟨hash_fn, size - 1, nbuckets, nz, buckets^.write bidx $ erase_aux a bkt⟩
   else m
 end
 

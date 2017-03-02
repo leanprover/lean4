@@ -143,7 +143,7 @@ expr to_telescope(type_checker & ctx, expr type, buffer<expr> & telescope,
 
 /** \brief Return the universe where inductive datatype resides
     \pre \c ind_type is of the form <tt>Pi (a_1 : A_1) (a_2 : A_2[a_1]) ..., Type.{lvl}</tt> */
-level get_datatype_level(expr ind_type);
+level get_datatype_level(environment const & env, expr const & ind_type);
 
 /** \brief Update the result sort of the given type */
 expr update_result_sort(expr t, level const & l);

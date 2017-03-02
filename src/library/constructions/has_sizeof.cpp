@@ -231,12 +231,12 @@ class mk_has_sizeof_fn {
         expr c_sizeof = mk_app(mk_app(mk_constant(sizeof_name, lvls), params), used_param_insts);
 
         expr has_sizeof_type = m_tctx.mk_pi(indices,
-                                            mk_app(mk_constant(get_has_sizeof_name(), {get_datatype_level(ind_type)}),
+                                            mk_app(mk_constant(get_has_sizeof_name(), {get_datatype_level(m_env, ind_type)}),
                                                    mk_app(c_ind, indices)));
 
         expr has_sizeof_val = m_tctx.mk_lambda(indices,
                                                mk_app(
-                                                   mk_app(mk_constant(get_has_sizeof_mk_name(), {get_datatype_level(ind_type)}),
+                                                   mk_app(mk_constant(get_has_sizeof_mk_name(), {get_datatype_level(m_env, ind_type)}),
                                                           mk_app(c_ind, indices)),
                                                    mk_app(c_sizeof, indices)));
 

@@ -199,11 +199,22 @@ bool is_reflexive_datatype(abstract_type_context & tc, name const & n) {
     return false;
 }
 
-level get_datatype_level(expr ind_type) {
-    while (is_pi(ind_type))
-        ind_type = binding_body(ind_type);
-    lean_assert(is_sort(ind_type));
-    return sort_level(ind_type);
+level get_datatype_level(environment const & env, expr const & ind_type) {
+    expr it = ind_type;
+    while (is_pi(it))
+        it = binding_body(it);
+    if (is_sort(it)) {
+        return sort_level(it);
+    } else {
+        type_checker ctx(env);
+        buffer<expr> telescope;
+        expr it = ctx.whnf(to_telescope(ctx, ind_type, telescope));
+        if (is_sort(it)) {
+            return sort_level(it);
+        } else {
+            throw exception("invalid inductive datatype type");
+        }
+    }
 }
 
 expr update_result_sort(expr t, level const & l) {
@@ -219,7 +230,7 @@ expr update_result_sort(expr t, level const & l) {
 bool is_inductive_predicate(environment const & env, name const & n) {
     if (!inductive::is_inductive_decl(env, n))
         return false; // n is not inductive datatype
-    return is_zero(get_datatype_level(env.get(n).get_type()));
+    return is_zero(get_datatype_level(env, env.get(n).get_type()));
 }
 
 bool can_elim_to_type(environment const & env, name const & n) {

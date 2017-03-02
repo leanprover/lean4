@@ -428,11 +428,11 @@ class add_nested_inductive_decl_fn {
                 throw exception(sstream() << "nested occurrence '" << m_nested_occ << "' contains variables that are not parameters");
 
             level nested_occ_result_level = get_level(m_tctx, *outer_app);
-            if (!m_tctx.is_def_eq(nested_occ_result_level, m_nested_decl.get_result_level()))
+            if (!m_tctx.is_def_eq(nested_occ_result_level, m_nested_decl.get_result_level(m_env)))
                 throw exception(sstream() << "nested occurrence '" << m_nested_occ
                                 << "' lives in universe '" << nested_occ_result_level << "' but must live in the same universe "
                                 << "as the inductive types being declared, which is '"
-                                << m_nested_decl.get_result_level() << "'");
+                                << m_nested_decl.get_result_level(m_env) << "'");
 
             m_replacement = m_nested_decl.mk_const_params(mk_inner_name(const_name(outer_fn)));
 
@@ -622,7 +622,7 @@ class add_nested_inductive_decl_fn {
             throw exception(sstream() << "cannot nest occurrence inside mutually inductive type '" << mimic_name << "'");
 
         expr c_mimic_ind = mk_app(mk_constant(mimic_name, const_levels(nested_occ_fn)), nested_occ_params);
-        expr mimic_ind_type = update_result_sort(m_tctx.infer(c_mimic_ind), m_nested_decl.get_result_level());
+        expr mimic_ind_type = update_result_sort(m_tctx.infer(c_mimic_ind), m_nested_decl.get_result_level(m_env));
         expr mimic_ind = mk_local(mk_inner_name(mimic_name), mimic_ind_type);
         m_inner_decl.get_inds().push_back(mimic_ind);
 
@@ -1055,8 +1055,8 @@ class add_nested_inductive_decl_fn {
             pack_elim_levels = const_levels(nest_fn);
             unpack_elim_levels = m_inner_decl.get_levels();
             if (m_elim_to_type) {
-                pack_elim_levels = list<level>(m_nested_decl.get_result_level(), pack_elim_levels);
-                unpack_elim_levels = list<level>(m_nested_decl.get_result_level(), unpack_elim_levels);
+                pack_elim_levels = list<level>(m_nested_decl.get_result_level(m_env), pack_elim_levels);
+                unpack_elim_levels = list<level>(m_nested_decl.get_result_level(m_env), unpack_elim_levels);
             }
         }
 

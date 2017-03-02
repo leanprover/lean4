@@ -352,7 +352,7 @@ vm_obj tactic_induction(vm_obj const & H, vm_obj const & ns, vm_obj const & rec,
             expr type = ctx.relaxed_whnf(ctx.infer(to_expr(H)));
             expr C    = get_app_fn(type);
             if (is_constant(C)) {
-                name C_rec(const_name(C), "rec");
+                name C_rec = get_dep_recursor(ctx.env(), const_name(C));
                 return induction_tactic_core(to_transparency_mode(m), to_expr(H), C_rec, to_list_name(ns), tactic::to_state(s));
             } else {
                 return tactic::mk_exception("induction tactic failed, inductive datatype expected",

@@ -295,6 +295,15 @@ enum class implicit_infer_kind { Implicit, RelaxedImplicit, None };
     specified by \c k. */
 expr infer_implicit_params(expr const & type, unsigned nparams, implicit_infer_kind k);
 
+
+/** Given an inductive datatype named \c n, return a recursor for \c n that supports dependent elimination
+    even if \c n is an inductive predicate. */
+name get_dep_recursor(environment const & env, name const & n);
+
+/** Given an inductive datatype named \c n, return a cases_on recursor \c n that supports dependent elimination
+    even if \c n is an inductive predicate. */
+name get_dep_cases_on(environment const & env, name const & n);
+
 void initialize_library_util();
 void finalize_library_util();
 }

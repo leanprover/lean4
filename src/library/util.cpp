@@ -1022,6 +1022,20 @@ expr mk_bool_tt() { return *g_bool_tt; }
 expr mk_bool_ff() { return *g_bool_tt; }
 expr to_bool_expr(bool b) { return b ? mk_bool_tt() : mk_bool_ff(); }
 
+name get_dep_recursor(environment const & env, name const & n) {
+    if (is_inductive_predicate(env, n))
+        return name(n, "drec");
+    else
+        return name(n, "rec");
+}
+
+name get_dep_cases_on(environment const & env, name const & n) {
+    if (is_inductive_predicate(env, n))
+        return name(n, "dcases_on");
+    else
+        return name(n, "cases_on");
+}
+
 void initialize_library_util() {
     g_true           = new expr(mk_constant(get_true_name()));
     g_true_intro     = new expr(mk_constant(get_true_intro_name()));

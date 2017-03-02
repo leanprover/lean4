@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Jeremy Avigad
 -/
 prelude
-import init.data.nat.basic init.meta init.algebra.functions
+import init.data.nat.basic init.data.nat.div init.meta init.algebra.functions
 
 namespace nat
 attribute [pre_smt] nat_zero_eq_zero
@@ -730,5 +730,27 @@ lemma pred_inj : ∀ {a b : nat}, a > 0 → b > 0 → nat.pred a = nat.pred b �
 
 /- TODO(Leo): sub + inequalities -/
 
+protected def {u} strong_rec_on {p : nat → Sort u} (n : nat) (h : ∀ n, (∀ m, m < n → p m) → p n) : p n :=
+suffices ∀ n m, m < n → p m, from this (succ n) n (lt_succ_self _),
+begin
+  intros n, induction n with n ih,
+    {intros m h₁, exact absurd h₁ (not_lt_zero _)},
+    {intros m h₁,
+      apply or.by_cases (lt_or_eq_of_le (le_of_lt_succ h₁)),
+        {intros, apply ih, assumption},
+        {intros, subst m, apply h _ ih}}
+end
+
+protected lemma strong_induction_on {p : nat → Prop} (n : nat) (h : ∀ n, (∀ m, m < n → p m) → p n) : p n :=
+nat.strong_rec_on n h
+
+protected lemma case_strong_induction_on {p : nat → Prop} (a : nat)
+  (hz : p 0)
+  (hi : ∀ n, (∀ m, m ≤ n → p m) → p (succ n)) : p a :=
+nat.strong_induction_on a $ λ n,
+  match n with
+  | 0     := λ _, hz
+  | (n+1) := λ h₁, hi n (λ m h₂, h₁ _ (lt_succ_of_le h₂))
+  end
 
 end nat

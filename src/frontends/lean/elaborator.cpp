@@ -2643,7 +2643,7 @@ expr elaborate_quote(expr e, environment const &env, options const &opts, bool i
         }
         return none_expr();
     });
-    e = Fun(locals, e);
+    e = copy_tag(e, Fun(locals, e));
 
     metavar_context ctx;
     local_context lctx;
@@ -2651,12 +2651,16 @@ expr elaborate_quote(expr e, environment const &env, options const &opts, bool i
     e = elab.elaborate(e);
     e = elab.finalize(e, true, true).first;
 
+    expr body = e;
+    for (unsigned i = 0; i < aqs.size(); i++)
+        body = binding_body(body);
+
     if (in_pattern) {
-        for (unsigned i = 0; i < aqs.size(); i++)
-            e = binding_body(e);
-        e = instantiate_rev(e, aqs.size(), aqs.data());
+        e = instantiate_rev(body, aqs.size(), aqs.data());
         e = quote(e);
     } else {
+        if (has_param_univ(body))
+            throw elaborator_exception(e, "invalid quotation, contains universe parameter");
         e = mk_quote_core(e, true);
         expr subst = mk_constant(get_expr_subst_name());
         for (expr aq : aqs)

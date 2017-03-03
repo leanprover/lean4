@@ -29,6 +29,46 @@ unsigned get_ginductive_num_params(environment const & env, name const & ind_nam
 /* \brief Returns the names of all types that are mutually inductive with \e ind_name */
 list<name> get_ginductive_mut_ind_names(environment const & env, name const & ind_name);
 
+/* \brief Returns the offset of a simulated introduction rule.
+
+Example:
+
+inductive foo
+| mk1 : list foo -> foo
+| mk2 : foo
+
+0. foo.basic.foo_mk1
+1. foo.basic.foo_mk2
+2. foo.basic.list_nil  ==> list.nil
+3. foo.basic.list_cons  ==> list.cons
+
+ir_to_simulated_ir_offset("list.nil") = 0
+ir_to_simulated_ir_offset("list.cons") = 0
+ir_to_simulated_ir_offset("foo.basic.foo_mk1") = 0
+ir_to_simulated_ir_offset("foo.basic.foo_mk2") = 0
+ir_to_simulated_ir_offset("foo.basic.list_nil") = 2
+ir_to_simulated_ir_offset("foo.basic.list_cons") = 2
+*/
+unsigned ir_to_simulated_ir_offset(environment const & env, name basic_ir_name);
+
+/* \brief Returns the range, i.e. (start, number), of the simulated inductive name corresponding to the idxs.
+Example:
+
+inductive foo
+| mk1 : list foo -> foo
+| mk2 : foo
+
+0. foo.basic.foo_mk1
+1. foo.basic.foo_mk2
+2. foo.basic.list_nil  ==> list.nil
+3. foo.basic.list_cons  ==> list.cons
+
+ind_indices_to_ir_range("list", {}) = (0, 2)
+ind_indices_to_ir_range("foo.basic", {sum.inl ()}) = (0, 2)
+ind_indices_to_ir_range("foo.basic", {sum.inr ()}) = (2, 2)
+*/
+pair<unsigned, unsigned> ind_indices_to_ir_range(environment const & env, name const & basic_ind_name, buffer<expr> const & idxs);
+
 /* \brief Returns the names of all mutual ginductive types */
 list<name> get_ginductive_all_mutual_inds(environment const & env);
 

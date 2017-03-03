@@ -13,28 +13,44 @@ namespace lean {
 
 class ginductive_decl {
     unsigned m_nest_depth{0};
+    bool m_from_mutual;
     buffer<name> m_lp_names;
     buffer<expr> m_params;
     buffer<expr> m_inds;
     buffer<buffer<expr> > m_intro_rules;
 
+    buffer<unsigned>                  m_ir_offsets; // # total intro rules @ basic
+    buffer<pair<unsigned, unsigned> > m_idx_to_ir_range; // # total inds @ mutual
+
     optional<simp_lemmas> m_sizeof_lemmas;
 public:
     ginductive_decl() {}
-    ginductive_decl(unsigned nest_depth, buffer<name> const & lp_names, buffer<expr> const & params):
-        m_nest_depth(nest_depth), m_lp_names(lp_names), m_params(params) {}
+
+    ginductive_decl(unsigned nest_depth, buffer<name> const & lp_names, buffer<expr> const & params, buffer<unsigned> const & ir_offsets):
+        m_nest_depth(nest_depth), m_from_mutual(true), m_lp_names(lp_names), m_params(params), m_ir_offsets(ir_offsets) {}
+
     ginductive_decl(unsigned nest_depth, buffer<name> const & lp_names, buffer<expr> const & params,
                     buffer<expr> const & inds, buffer<buffer<expr> > const & intro_rules):
-        m_nest_depth(nest_depth), m_lp_names(lp_names), m_params(params), m_inds(inds), m_intro_rules(intro_rules) {}
+        m_nest_depth(nest_depth), m_from_mutual(false), m_lp_names(lp_names), m_params(params), m_inds(inds), m_intro_rules(intro_rules) {
+        for (unsigned ind_idx = 0; ind_idx < inds.size(); ++ind_idx) {
+            for (unsigned ir_idx = 0; ir_idx < intro_rules[ind_idx].size(); ++ir_idx) {
+                m_ir_offsets.emplace_back(0);
+            }
+        }
+    }
 
     void set_sizeof_lemmas(simp_lemmas const & sizeof_lemmas) {
         m_sizeof_lemmas = optional<simp_lemmas>(sizeof_lemmas);
     }
 
+    bool is_from_mutual() const { return m_from_mutual; }
+
     bool has_sizeof_lemmas() const { return static_cast<bool>(m_sizeof_lemmas); }
     simp_lemmas get_sizeof_lemmas() const { return *m_sizeof_lemmas; }
 
     unsigned get_nest_depth() const { return m_nest_depth; }
+    bool from_mutual() const { return m_from_mutual; }
+
     bool is_mutual() const { return m_inds.size() > 1; }
     unsigned get_num_params() const { return m_params.size(); }
     unsigned get_num_inds() const { return m_inds.size(); }
@@ -55,6 +71,12 @@ public:
     buffer<expr> & get_params() { return m_params; }
     buffer<expr> & get_inds() { return m_inds; }
     buffer<buffer<expr> > & get_intro_rules() { return m_intro_rules; }
+
+    buffer<unsigned> const & get_ir_offsets() const { return m_ir_offsets; }
+    buffer<unsigned> & get_ir_offsets() { return m_ir_offsets; }
+
+    buffer<pair<unsigned, unsigned> > const & get_idx_to_ir_range() const { return m_idx_to_ir_range; }
+    buffer<pair<unsigned, unsigned> > & get_idx_to_ir_range() { return m_idx_to_ir_range; }
 
     expr mk_const(name const & n) const { return mk_constant(n, get_levels()); }
     expr mk_const_params(name const & n) const { return mk_app(mk_const(n), m_params); }

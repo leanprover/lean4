@@ -177,6 +177,16 @@ class add_mutual_inductive_decl_fn {
         m_basic_prefix = prefix;
     }
 
+    void compute_idx_to_ir_range() {
+        unsigned offset = 0;
+        for (unsigned ind_idx = 0; ind_idx < m_mut_decl.get_num_inds(); ++ind_idx) {
+            unsigned num_irs = m_mut_decl.get_num_intro_rules(ind_idx);
+            m_basic_decl.get_idx_to_ir_range().emplace_back(mk_pair(offset, num_irs));
+            lean_trace(name({"inductive_compiler", "mutual", "range"}), tout() << ind_idx << " ==> (" << offset << ", " << num_irs << ")\n";);
+            offset += num_irs;
+        }
+    }
+
     void compute_new_ind() {
         expr ind = mk_local(m_basic_ind_name, mk_arrow(m_full_index_type, get_ind_result_type(m_tctx, m_mut_decl.get_ind(0))));
         lean_trace(name({"inductive_compiler", "mutual", "basic_ind"}), tout() << mlocal_name(ind) << " : " << mlocal_type(ind) << "\n";);
@@ -753,7 +763,7 @@ public:
                                  bool is_trusted):
         m_env(env), m_opts(opts), m_implicit_infer_map(implicit_infer_map),
         m_mut_decl(mut_decl), m_is_trusted(is_trusted),
-        m_basic_decl(m_mut_decl.get_nest_depth() + 1, m_mut_decl.get_lp_names(), m_mut_decl.get_params()),
+        m_basic_decl(m_mut_decl.get_nest_depth() + 1, m_mut_decl.get_lp_names(), m_mut_decl.get_params(), m_mut_decl.get_ir_offsets()),
         m_tctx(env, opts) {}
 
     environment operator()() {
@@ -765,6 +775,8 @@ public:
 
         compute_new_ind();
         compute_new_intro_rules();
+
+        compute_idx_to_ir_range();
 
         try {
             m_env = add_inner_inductive_declaration(m_env, m_opts, m_implicit_infer_map, m_basic_decl, m_is_trusted);
@@ -799,6 +811,7 @@ void initialize_inductive_compiler_mutual() {
     register_trace_class(name({"inductive_compiler", "mutual", "new_inds"}));
     register_trace_class(name({"inductive_compiler", "mutual", "rec"}));
     register_trace_class(name({"inductive_compiler", "mutual", "sizeof"}));
+    register_trace_class(name({"inductive_compiler", "mutual", "range"}));
 
     g_mutual_suffix = new name("_mut_");
 }

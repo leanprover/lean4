@@ -597,6 +597,7 @@ class add_nested_inductive_decl_fn {
     expr unpack_type(expr const & e) { return unpack_constants(unpack_nested_occs(e)); }
 
     void construct_inner_decl() {
+        unsigned offset = 0;
         // Construct inner inds for each of the nested inds
         for (unsigned ind_idx = 0; ind_idx < m_nested_decl.get_num_inds(); ++ind_idx) {
             expr const & ind = m_nested_decl.get_ind(ind_idx);
@@ -608,11 +609,12 @@ class add_nested_inductive_decl_fn {
 
             m_inner_decl.get_intro_rules().emplace_back();
             for (expr const & ir : m_nested_decl.get_intro_rules(ind_idx)) {
+                offset++;
                 expr inner_ir = mk_local(mk_inner_name(mlocal_name(ir)), pack_type(mlocal_type(ir)));
                 m_inner_decl.get_intro_rules().back().push_back(inner_ir);
 
-            lean_trace(name({"inductive_compiler", "nested", "inner", "ir"}),
-                       tout() << mlocal_name(inner_ir) << " : " << mlocal_type(inner_ir) << "\n";);
+                lean_trace(name({"inductive_compiler", "nested", "inner", "ir"}),
+                           tout() << mlocal_name(inner_ir) << " : " << mlocal_type(inner_ir) << "\n";);
             }
         }
 
@@ -636,8 +638,11 @@ class add_nested_inductive_decl_fn {
             expr c_mimic_ir = mk_app(mk_constant(ir, const_levels(nested_occ_fn)), nested_occ_params);
             expr mimic_ir = mk_local(mk_inner_name(ir), pack_type(m_tctx.infer(c_mimic_ir)));
             m_inner_decl.get_intro_rules().back().push_back(mimic_ir);
+            m_inner_decl.get_ir_offsets().emplace_back(offset);
             lean_trace(name({"inductive_compiler", "nested", "mimic", "ir"}),
                        tout() << mlocal_name(mimic_ir) << " : " << mlocal_type(mimic_ir) << "\n";);
+            lean_trace(name({"inductive_compiler", "nested", "mimic", "ir", "offset"}),
+                       tout() << mlocal_name(mimic_ir) << " ==> " << offset << "\n";);
         }
     }
 
@@ -1799,7 +1804,7 @@ public:
                                  ginductive_decl & nested_decl, bool is_trusted):
         m_env(env), m_opts(opts), m_implicit_infer_map(implicit_infer_map),
         m_nested_decl(nested_decl), m_is_trusted(is_trusted),
-        m_inner_decl(m_nested_decl.get_nest_depth() + 1, m_nested_decl.get_lp_names(), m_nested_decl.get_params()),
+        m_inner_decl(m_nested_decl.get_nest_depth() + 1, m_nested_decl.get_lp_names(), m_nested_decl.get_params(), m_nested_decl.get_ir_offsets()),
         m_tctx(env, opts, transparency_mode::Semireducible) { }
 
     optional<environment> operator()() {
@@ -1841,6 +1846,7 @@ void initialize_inductive_compiler_nested() {
     register_trace_class(name({"inductive_compiler", "nested", "mimic"}));
     register_trace_class(name({"inductive_compiler", "nested", "mimic", "ind"}));
     register_trace_class(name({"inductive_compiler", "nested", "mimic", "ir"}));
+    register_trace_class(name({"inductive_compiler", "nested", "mimic", "ir", "offset"}));
 
     register_trace_class(name({"inductive_compiler", "nested", "inner"}));
     register_trace_class(name({"inductive_compiler", "nested", "inner", "ind"}));

@@ -7,18 +7,42 @@ Author: Daniel Selsam
 #include <utility>
 #include <string>
 #include "util/serializer.h"
+#include "util/list_fn.h"
 #include "kernel/environment.h"
 #include "library/inductive_compiler/ginductive.h"
 #include "library/module.h"
+#include "library/constants.h"
 #include "library/kernel_serializer.h"
 
 namespace lean {
 
+static unsigned compute_idx_number(expr const & e) {
+    buffer<expr> args;
+    unsigned idx = 0;
+    expr it = e;
+    while (true) {
+        args.clear();
+        expr fn = get_app_args(it, args);
+        if (is_constant(fn) && const_name(fn) == get_psum_inl_name()) {
+            return idx;
+        } else if (is_constant(fn) && const_name(fn) == get_psum_inr_name()) {
+            idx++;
+            it = args[2];
+        } else {
+            return idx;
+        }
+    }
+    lean_unreachable();
+}
+
 struct ginductive_entry {
     ginductive_kind m_kind;
+    bool       m_from_mutual;
     unsigned   m_num_params;
     list<name> m_inds;
     list<list<name> > m_intro_rules;
+    list<unsigned> m_ir_offsets;
+    list<pair<unsigned, unsigned> > m_idx_to_ir_range;
 };
 
 inline serializer & operator<<(serializer & s, ginductive_kind k) {
@@ -45,16 +69,22 @@ inline deserializer & operator>>(deserializer & d, ginductive_entry & entry);
 
 serializer & operator<<(serializer & s, ginductive_entry const & entry) {
     s << entry.m_kind;
+    s << entry.m_from_mutual;
     s << entry.m_num_params;
     write_list<name>(s, entry.m_inds);
     for (list<name> const & irs : reverse(entry.m_intro_rules))
         write_list<name>(s, irs);
+
+    write_list<unsigned>(s, entry.m_ir_offsets);
+    write_list<pair<unsigned, unsigned> >(s, entry.m_idx_to_ir_range);
+
     return s;
 }
 
 ginductive_entry read_ginductive_entry(deserializer & d) {
     ginductive_entry entry;
     d >> entry.m_kind;
+    d >> entry.m_from_mutual;
     d >> entry.m_num_params;
     entry.m_inds    = read_list<name>(d, read_name);
 
@@ -62,6 +92,9 @@ ginductive_entry read_ginductive_entry(deserializer & d) {
     for (unsigned i = 0; i < num_inds; ++i) {
         entry.m_intro_rules = list<list<name> >(read_list<name>(d, read_name), entry.m_intro_rules);
     }
+
+    entry.m_ir_offsets = read_list<unsigned>(d);
+    entry.m_idx_to_ir_range = read_list<pair<unsigned, unsigned> >(d);
     return entry;
 }
 
@@ -79,26 +112,43 @@ struct ginductive_env_ext : public environment_extension {
     name_map<unsigned>        m_num_params;
     name_map<name>            m_ir_to_ind;
 
+    name_set                                   m_from_mutual;
+    name_map<unsigned>                         m_ir_to_simulated_ir_offset;
+    name_map<list<pair<unsigned, unsigned> > > m_ind_to_ir_ranges;
+
     ginductive_env_ext() {}
 
     void register_ginductive_entry(ginductive_entry const & entry) {
         buffer<list<name> > intro_rules;
         to_buffer(entry.m_intro_rules, intro_rules);
 
+        buffer<unsigned> ir_offsets;
+        to_buffer(entry.m_ir_offsets, ir_offsets);
+
         unsigned ind_idx = 0;
+        unsigned acc_ir_idx = 0;
         for (name const & ind : entry.m_inds) {
             switch (entry.m_kind) {
             case ginductive_kind::BASIC: break;
             case ginductive_kind::MUTUAL: m_all_mutual_inds = list<name>(ind, m_all_mutual_inds); break;
             case ginductive_kind::NESTED: m_all_nested_inds = list<name>(ind, m_all_nested_inds); break;
             }
+
+            if (entry.m_from_mutual)
+                m_from_mutual.insert(ind);
+
             m_ind_to_irs.insert(ind, intro_rules[ind_idx]);
             m_ind_to_mut_inds.insert(ind, entry.m_inds);
             m_ind_to_kind.insert(ind, entry.m_kind);
             m_num_params.insert(ind, entry.m_num_params);
             for (name const & ir : intro_rules[ind_idx]) {
                 m_ir_to_ind.insert(ir, ind);
+                m_ir_to_simulated_ir_offset.insert(ir, ir_offsets[acc_ir_idx]);
+                acc_ir_idx++;
             }
+
+            m_ind_to_ir_ranges.insert(ind, entry.m_idx_to_ir_range);
+
             ind_idx++;
         }
     }
@@ -135,6 +185,24 @@ struct ginductive_env_ext : public environment_extension {
         list<name> const * mut_ind_names = m_ind_to_mut_inds.find(ind_name);
         lean_assert(mut_ind_names);
         return *mut_ind_names;
+    }
+
+    unsigned ir_to_simulated_ir_offset(name basic_ir_name) const {
+        unsigned const * offset = m_ir_to_simulated_ir_offset.find(basic_ir_name);
+        lean_assert(assert);
+        return *offset;
+    }
+
+    pair<unsigned, unsigned> ind_indices_to_ir_range(name const & basic_ind_name, buffer<expr> const & idxs) const {
+        if (!m_from_mutual.contains(basic_ind_name))
+            return mk_pair(0, length(get_intro_rules(basic_ind_name)));
+
+        lean_assert(idxs.size == 1);
+        unsigned idx_number = compute_idx_number(idxs[0]);
+
+        list<pair<unsigned, unsigned> > const * ranges = m_ind_to_ir_ranges.find(basic_ind_name);
+        lean_assert(ranges);
+        return get_ith(*ranges, idx_number);
     }
 
     list<name> get_all_nested_inds() const {
@@ -227,6 +295,14 @@ unsigned get_ginductive_num_params(environment const & env, name const & ind_nam
 
 list<name> get_ginductive_mut_ind_names(environment const & env, name const & ind_name) {
     return get_extension(env).get_mut_ind_names(ind_name);
+}
+
+unsigned ir_to_simulated_ir_offset(environment const & env, name basic_ir_name) {
+    return get_extension(env).ir_to_simulated_ir_offset(basic_ir_name);
+}
+
+pair<unsigned, unsigned> ind_indices_to_ir_range(environment const & env, name const & basic_ind_name, buffer<expr> const & idxs) {
+    return get_extension(env).ind_indices_to_ir_range(basic_ind_name, idxs);
 }
 
 list<name> get_ginductive_all_mutual_inds(environment const & env) {

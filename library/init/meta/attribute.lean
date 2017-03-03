@@ -28,7 +28,7 @@ open tactic
 meta def register_attribute := attribute.register
 
 meta def mk_name_set_attr (attr_name : name) : command :=
-do t ← to_expr ``(caching_user_attribute name_set),
+do let t := ```(caching_user_attribute name_set),
    v ← to_expr ``({name     := %%(quote attr_name),
                    descr    := "name_set attribute",
                    mk_cache := λ ns, return (name_set.of_list ns),

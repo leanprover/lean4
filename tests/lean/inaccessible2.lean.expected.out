@@ -5,7 +5,7 @@ but is expected to be
   f a
 inaccessible2.lean:4:11: warning: declaration 'inv_1' uses sorry
 inaccessible2.lean:8:10: error: invalid pattern, must be an application, constant, variable, type ascription or inaccessible term
-inaccessible2.lean:11:11: error: invalid pattern, must be an application, constant, variable, type ascription or inaccessible term
+inaccessible2.lean:11:39: error: invalid expression, `)` expected
 inaccessible2.lean:14:9: error: invalid pattern, in a constructor application, the parameters of the inductive datatype must be marked as inaccessible
 inaccessible2.lean:14:20: error: ill-formed match/equations expression
 inaccessible2.lean:13:11: warning: declaration 'symm' uses sorry

@@ -63,6 +63,8 @@ run_command script_check_id `eq_rec_heq
 run_command script_check_id `eq_true_intro
 run_command script_check_id `eq_false_intro
 run_command script_check_id `eq_self_iff_true
+run_command script_check_id `expr
+run_command script_check_id `expr.subst
 run_command script_check_id `format
 run_command script_check_id `false
 run_command script_check_id `false_of_true_iff_false

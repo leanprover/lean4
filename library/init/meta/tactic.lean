@@ -477,7 +477,7 @@ meta def rstep {α : Type u} (line : nat) (col : nat) (t : tactic α) : tactic u
 
 meta def is_prop (e : expr) : tactic bool :=
 do t ← infer_type e,
-   return (t = expr.prop)
+   return (t = ```(Prop))
 
 /-- Return true iff n is the name of declaration that is a proposition. -/
 meta def is_prop_decl (n : name) : tactic bool :=

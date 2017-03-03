@@ -54,7 +54,7 @@ if needs_sat_run then do
   | none := do
     model ← flip monad.lift state_t.read (λst, st^.current_model),
       when (is_trace_enabled_for `super) (do
-      pp_model ← pp (model^.to_list^.for (λlit, if lit.2 = tt then lit.1 else not_ lit.1)),
+      pp_model ← pp (model^.to_list^.for (λlit, if lit.2 = tt then lit.1 else ```(not %%lit.1))),
       trace $ to_fmt "sat model: " ++ pp_model),
     run_prover_loop i
   end

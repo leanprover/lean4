@@ -197,6 +197,8 @@ public:
 
     bool found_errors() const { return m_found_errors; }
 
+    bool in_pattern() const { return m_in_pattern; }
+
     name mk_anonymous_inst_name();
 
     unsigned curr_lbp() const;

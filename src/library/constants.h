@@ -65,6 +65,8 @@ name const & get_eq_rec_heq_name();
 name const & get_eq_true_intro_name();
 name const & get_eq_false_intro_name();
 name const & get_eq_self_iff_true_name();
+name const & get_expr_name();
+name const & get_expr_subst_name();
 name const & get_format_name();
 name const & get_false_name();
 name const & get_false_of_true_iff_false_name();

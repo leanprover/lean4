@@ -327,6 +327,10 @@ pair<expr, level_param_names> elaborate(environment & env, options const & opts,
     Throw exception is \c ctx does not contain the local constant. */
 expr resolve_names(environment const & env, local_context const & lctx, expr const & e);
 
+/** Elaborate the content of an quote macro. If \c in_pattern is true, return a reflected expression tree,
+    else return a new quote macro surrounded by \c expr.subst calls for antiquotations. */
+expr elaborate_quote(expr e, environment const &env, options const &opts, bool in_pattern);
+
 void initialize_elaborator();
 void finalize_elaborator();
 }

@@ -18,16 +18,6 @@ Author: Leonardo de Moura
 #include "library/string.h"
 
 namespace lean {
-vm_obj pexpr_subst(vm_obj const & _e1, vm_obj const & _e2) {
-    expr const & e1 = to_expr(_e1);
-    expr const & e2 = to_expr(_e2);
-    if (is_lambda(e1)) {
-        return to_obj(instantiate(binding_body(e1), e2));
-    } else {
-        return to_obj(e1);
-    }
-}
-
 vm_obj pexpr_of_expr(vm_obj const & e) {
     return to_obj(mk_as_is(to_expr(e)));
 }
@@ -57,7 +47,7 @@ vm_obj pexpr_pos(vm_obj const & e) {
 }
 
 vm_obj pexpr_mk_quote_macro(vm_obj const & e) {
-    return to_obj(mk_quote(to_expr(e)));
+    return to_obj(mk_pexpr_quote(to_expr(e)));
 }
 
 vm_obj pexpr_mk_prenum_macro(vm_obj const & n) {
@@ -69,7 +59,7 @@ vm_obj pexpr_mk_string_macro(vm_obj const & s) {
 }
 
 void initialize_vm_pexpr() {
-    DECLARE_VM_BUILTIN(name({"pexpr", "subst"}),          pexpr_subst);
+    DECLARE_VM_BUILTIN(name({"pexpr", "subst"}),          expr_subst);
     DECLARE_VM_BUILTIN(name({"pexpr", "of_expr"}),        pexpr_of_expr);
     DECLARE_VM_BUILTIN(name({"pexpr", "to_string"}),      pexpr_to_string);
     DECLARE_VM_BUILTIN(name({"pexpr", "of_raw_expr"}),    pexpr_of_raw_expr);

@@ -35,7 +35,7 @@ on_first_right c $ λha, do
 
 meta def inf_false_l (c : clause) : tactic (list clause) :=
 first $ do i ← list.range c^.num_lits,
-  if c^.get_lit i = clause.literal.left false_
+  if c^.get_lit i = clause.literal.left ```(false)
   then [return []]
   else []
 
@@ -67,7 +67,7 @@ meta def inf_not_l (c : clause) : tactic (list clause) :=
 on_first_left c $ λtype,
   match type with
   | app (const ``not []) a := do
-    hna ← mk_local_def `h (imp a false_),
+    hna ← mk_local_def `h ```(%%a → false),
     return [([hna], hna)]
   | _ := failed
   end
@@ -76,7 +76,7 @@ meta def inf_not_r (c : clause) : tactic (list clause) :=
 on_first_right c $ λhna,
   match hna^.local_type with
   | app (const ``not []) a := do
-    hnna ← mk_local_def `h (imp (imp a false_) c^.local_false),
+    hnna ← mk_local_def `h ```((%%a → false) → %%c^.local_false),
     return [([hnna], app hnna hna)]
   | _ := failed
   end

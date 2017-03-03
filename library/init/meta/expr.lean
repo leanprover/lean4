@@ -97,6 +97,8 @@ meta constant expr.instantiate_univ_params : expr → list (name × level) → e
 meta constant expr.instantiate_var         : expr → expr → expr
 meta constant expr.instantiate_vars        : expr → list expr → expr
 
+meta constant expr.subst                   : expr → expr → expr
+
 meta constant expr.has_var       : expr → bool
 meta constant expr.has_var_idx   : expr → nat → bool
 meta constant expr.has_local     : expr → bool
@@ -213,21 +215,21 @@ meta def is_napp_of (e : expr) (c : name) (n : nat) : bool :=
 is_app_of e c ∧ get_app_num_args e = n
 
 meta def is_false : expr → bool
-| ``(false) := tt
+| ```(false) := tt
 | _         := ff
 
 meta def is_not : expr → option expr
-| ``(not %%a)     := some a
-| ``(%%a → false) := some a
-| e               := none
+| ```(not %%a)     := some a
+| ```(%%a → false) := some a
+| e                := none
 
 meta def is_eq : expr → option (expr × expr)
-| ``((%%a: %%α) = %%b) := some (a, b)
-| _                    := none
+| ```((%%a : %%_) = %%b) := some (a, b)
+| _                     := none
 
 meta def is_ne : expr → option (expr × expr)
-| ``((%%a: %%α) ≠ %%b) := some (a, b)
-| _                    := none
+| ```((%%a : %%_) ≠ %%b) := some (a, b)
+| _                     := none
 
 meta def is_bin_arith_app (e : expr) (op : name) : option (expr × expr) :=
 if is_napp_of e op 4
@@ -247,8 +249,8 @@ meta def is_ge (e : expr) : option (expr × expr) :=
 is_bin_arith_app e `ge
 
 meta def is_heq : expr → option (expr × expr × expr × expr)
-| ``(@heq %%α %%a %%β %%b) := some (α, a, β, b)
-| _                        := none
+| ```(@heq %%α %%a %%β %%b) := some (α, a, β, b)
+| _                         := none
 
 meta def is_pi : expr → bool
 | (pi _ _ _ _) := tt
@@ -282,18 +284,8 @@ meta def binding_body : expr → expr
 | (lam _ _ _ b) := b
 | e             := e
 
-meta def prop : expr := expr.sort level.zero
-
 meta def imp (a b : expr) : expr :=
-pi `a binder_info.default a b
-
-meta def and_ (a b : expr) : expr :=
-app (app (const ``and []) a) b
-
-meta def not_ (a : expr) : expr :=
-app (const ``not []) a
-
-meta def false_ : expr := const ``false []
+```(%%a → %%b)
 
 meta def lambdas : list expr → expr → expr
 | (local_const uniq pp info t :: es) f :=

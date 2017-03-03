@@ -58,6 +58,8 @@ eq_rec_heq
 eq_true_intro
 eq_false_intro
 eq_self_iff_true
+expr
+expr.subst
 format
 false
 false_of_true_iff_false

@@ -34,6 +34,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/decl_util.h"
 #include "frontends/lean/brackets.h"
 #include "frontends/lean/tactic_notation.h"
+#include "frontends/lean/elaborator.h"
 
 #ifndef LEAN_DEFAULT_PARSER_CHECKPOINT_HAVE
 #define LEAN_DEFAULT_PARSER_CHECKPOINT_HAVE true
@@ -635,7 +636,7 @@ static expr parse_pattern(parser_state & p, unsigned, expr const * args, pos_inf
     return p.save_pos(mk_pattern_hint(args[0]), pos);
 }
 
-static expr parse_lazy_quoted_expr(parser_state & p, unsigned, expr const *, pos_info const & pos) {
+static expr parse_lazy_quoted_pexpr(parser_state & p, unsigned, expr const *, pos_info const & pos) {
     if (p.in_quote())
         throw parser_error("invalid nested quoted expression", pos);
     parser_state::quote_scope scope(p, true);
@@ -646,10 +647,10 @@ static expr parse_lazy_quoted_expr(parser_state & p, unsigned, expr const *, pos
         e = mk_typed_expr_distrib_choice(p, t, e, pos);
     }
     p.check_token_next(get_rparen_tk(), "invalid quoted expression, `)` expected");
-    return p.save_pos(mk_quote(e), pos);
+    return p.save_pos(mk_pexpr_quote(e), pos);
 }
 
-static expr parse_quoted_expr(parser_state & p, unsigned, expr const *, pos_info const & pos) {
+static expr parse_quoted_pexpr(parser_state & p, unsigned, expr const *, pos_info const & pos) {
     if (p.in_quote())
         throw parser_error("invalid nested quoted expression", pos);
     parser_state::quote_scope scope(p, true, id_behavior::ErrorIfUndef);
@@ -660,7 +661,29 @@ static expr parse_quoted_expr(parser_state & p, unsigned, expr const *, pos_info
         e = mk_typed_expr_distrib_choice(p, t, e, pos);
     }
     p.check_token_next(get_rparen_tk(), "invalid quoted expression, `)` expected");
-    return p.save_pos(mk_quote(e), pos);
+    return p.save_pos(mk_pexpr_quote(e), pos);
+}
+
+static expr parse_quoted_expr(parser_state & p, unsigned, expr const *, pos_info const & pos) {
+    if (p.in_quote())
+        throw parser_error("invalid nested quoted expression", pos);
+    expr e;
+    {
+        parser_state::quote_scope scope(p, true, id_behavior::ErrorIfUndef);
+        e = p.parse_expr();
+        if (p.curr_is_token(get_colon_tk())) {
+            p.next();
+            expr t = p.parse_expr();
+            e = mk_typed_expr_distrib_choice(p, t, e, pos);
+        }
+        p.check_token_next(get_rparen_tk(), "invalid quoted expression, `)` expected");
+    }
+    e = mk_quote_core(e, true);
+    if (!p.in_pattern()) {
+        e = elaborate_quote(e, p.env(), p.get_options(), /* in_pattern */ false);
+        // note: when `p.in_pattern()`, quote will be elaborated in `parser::patexpr_to_{pattern,expr}`
+    }
+    return p.save_pos(e, pos);
 }
 
 static expr parse_antiquote_expr(parser_state & p, unsigned, expr const *, pos_info const & pos) {
@@ -916,8 +939,9 @@ parse_table init_nud_table() {
     r = r.add({transition("(", mk_ext_action(parse_lparen))}, x0);
     r = r.add({transition("⟨", mk_ext_action(parse_constructor))}, x0);
     r = r.add({transition("{", mk_ext_action(parse_curly_bracket))}, x0);
-    r = r.add({transition("`(", mk_ext_action(parse_lazy_quoted_expr))}, x0);
-    r = r.add({transition("``(", mk_ext_action(parse_quoted_expr))}, x0);
+    r = r.add({transition("`(", mk_ext_action(parse_lazy_quoted_pexpr))}, x0);
+    r = r.add({transition("``(", mk_ext_action(parse_quoted_pexpr))}, x0);
+    r = r.add({transition("```(", mk_ext_action(parse_quoted_expr))}, x0);
     r = r.add({transition("`[", mk_ext_action(parse_auto_quote_tactic_block))}, x0);
     r = r.add({transition("`", mk_ext_action(parse_quoted_name))}, x0);
     r = r.add({transition("%%", mk_ext_action(parse_antiquote_expr))}, x0);

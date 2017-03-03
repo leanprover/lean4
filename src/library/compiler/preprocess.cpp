@@ -170,7 +170,7 @@ expr fix_tactic_eval_expr(expr const & e) {
                     throw exception("invalid tactic.eval_expr application, it must have at least 2 arguments");
                 if (!closed(args[0]) || has_local(args[0]))
                     throw exception("invalid tactic.eval_expr application, type must be a closed term");
-                args[1] = mk_quote(args[0]);
+                args[1] = mk_pexpr_quote(args[0]);
                 return some_expr(copy_tag(e, mk_app(get_app_fn(e), args)));
             }
             return none_expr();

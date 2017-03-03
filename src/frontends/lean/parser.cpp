@@ -372,7 +372,7 @@ expr parser::copy_with_new_pos(expr const & e, pos_info p) {
                         p);
     case expr_kind::Macro:
         if (is_quote(e)) {
-            return save_pos(mk_quote_core(copy_with_new_pos(get_quote_expr(e), p)), p);
+            return save_pos(mk_quote_core(copy_with_new_pos(get_quote_expr(e), p), is_expr_quote(e)), p);
         } else {
             buffer<expr> args;
             for (unsigned i = 0; i < macro_num_args(e); i++)
@@ -533,6 +533,16 @@ void parser::add_local_level(name const & n, level const & l, bool is_variable) 
 }
 
 void parser::add_local_expr(name const & n, expr const & p, bool is_variable) {
+    if (!m_in_quote) {
+        // HACK: Certainly not in a pattern. We need this information early in `builtin_exprs::parse_quoted_expr`.
+        // Without it, the quotation would be elaborated only in `patexpr_to_expr`, with the local not being
+        // in the context any more. For example, in
+        //
+        //   do foo (fun x, ```(%%x))
+        //
+        // the quotation would be elaborated only after parsing the full application of `foo`.
+        m_in_pattern = false;
+    }
     m_local_decls.insert(n, p);
     if (is_variable) {
         lean_assert(is_local(p));
@@ -1715,73 +1725,11 @@ struct to_pattern_fn {
     }
 };
 
-static expr quote(expr const & e) {
-    switch (e.kind()) {
-        case expr_kind::Var:
-            return mk_app(mk_constant({"expr", "var"}), quote(var_idx(e)));
-        case expr_kind::Sort:
-            return mk_app(mk_constant({"expr", "sort"}), /* level */ mk_expr_placeholder());
-        case expr_kind::Constant:
-            return mk_app(mk_constant({"expr", "const"}), quote(const_name(e)), /* levels */ mk_expr_placeholder());
-        case expr_kind::Meta:
-            lean_unreachable();
-        case expr_kind::Local:
-            // pattern variable
-            return update_mlocal(e, mk_constant("expr"));
-        case expr_kind::App:
-            return mk_app(mk_constant({"expr", "app"}), quote(app_fn(e)), quote(app_arg(e)));
-        case expr_kind::Lambda:
-            return mk_app(mk_constant({"expr", "lam"}), quote(binding_name(e)), /* binding info */ mk_expr_placeholder(),
-                          quote(binding_domain(e)), quote(binding_body(e)));
-        case expr_kind::Pi:
-            return mk_app(mk_constant({"expr", "pi"}), quote(binding_name(e)), /* binding info */ mk_expr_placeholder(),
-                          quote(binding_domain(e)), quote(binding_body(e)));
-        case expr_kind::Let:
-            return mk_app(mk_constant({"expr", "let"}), quote(let_name(e)), quote(let_type(e)), quote(let_value(e)),
-                          quote(let_body(e)));
-        case expr_kind::Macro:
-            if (is_typed_expr(e))
-                return mk_typed_expr(quote(get_typed_expr_expr(e)), quote(get_typed_expr_type(e)));
-            if (is_inaccessible(e))
-                return mk_expr_placeholder();
-            throw generic_exception(e, sstream() << "invalid quotation pattern, unsupported macro '"
-                                                 << macro_def(e).get_name() << "'");
-    }
-    lean_unreachable();
-}
-
-static expr preprocess_quote_pattern(parser const & p, expr e) {
-    buffer<expr> aqs;
-    while (is_app_of(e, get_pexpr_subst_name())) {
-        expr arg1 = app_arg(app_fn(e));
-        expr arg2 = app_arg(e);
-        lean_assert(is_app_of(arg2, get_to_pexpr_name()));
-        aqs.push_back(app_arg(arg2));
-        e = arg1;
-    }
-    e = get_quote_expr(e);
-
-    metavar_context ctx;
-    local_context lctx;
-    elaborator elab(p.env(), p.get_options(), "_quotation_pattern", ctx, lctx, false, true);
-    e = elab.elaborate(e);
-    e = elab.finalize(e, true, true).first;
-
-    for (int i = aqs.size() - 1; i >= 0; i--) {
-        if (!is_local(aqs[i]))
-            throw parser_error("invalid quotation pattern, antiquotation must be a single variable", p.pos_of(aqs[i]));
-        e = instantiate(binding_body(e), aqs[i]);
-    }
-    return quote(e);
-}
-
 expr parser::patexpr_to_pattern(expr const & pat_or_expr, bool skip_main_fn, buffer<expr> & new_locals) {
     undef_id_to_local_scope scope(*this);
     auto e = replace(pat_or_expr, [&](expr const & e) {
-        if (is_quote(e)) {
-            return some(preprocess_quote_pattern(*this, e));
-        } else if (is_app_of(e, get_pexpr_subst_name())) {
-            return some(preprocess_quote_pattern(*this, e));
+        if (is_expr_quote(e)) {
+            return some_expr(elaborate_quote(e, env(), get_options(), /* in_pattern */ true));
         } else {
             return none_expr();
         }
@@ -1809,15 +1757,23 @@ expr parser::parse_pattern(std::function<expr(parser &)> const & fn, buffer<expr
 
 expr parser::patexpr_to_expr(expr const & pat_or_expr) {
     error_if_undef_scope scope(*this);
-    return replace(pat_or_expr, [&](expr const & e, unsigned) {
-            if (is_local(e)) {
-                return some_expr(id_to_expr(local_pp_name(e), pos_of(e), true));
-            } else if (is_inaccessible(e) && is_placeholder(get_annotation_arg(e))) {
-                return some_expr(get_annotation_arg(e));
-            } else {
-                return none_expr();
-            }
-        });
+    // start with expr quotes, which may make more locals from inside antiquotations accessible
+    expr e = replace(pat_or_expr, [&](expr const & e, unsigned) {
+        if (is_expr_quote(e)) {
+            return some_expr(elaborate_quote(e, env(), get_options(), /* in_pattern */ false));
+        } else {
+            return none_expr();
+        }
+    });
+    return replace(e, [&](expr const & e, unsigned) {
+        if (is_local(e)) {
+            return some_expr(id_to_expr(local_pp_name(e), pos_of(e), true));
+        } else if (is_inaccessible(e) && is_placeholder(get_annotation_arg(e))) {
+            return some_expr(get_annotation_arg(e));
+        } else {
+            return none_expr();
+        }
+    });
 }
 
 static void check_no_levels(levels const & ls, pos_info const & p) {

@@ -545,7 +545,7 @@ void vm_instr::display(std::ostream & out) const {
         display_fn(out, m_fn_idx);
         out << " " << m_nargs;
         break;
-    case opcode::Pexpr:
+    case opcode::Expr:
         out << "pexpr " << *m_expr; break;
     case opcode::LocalInfo:
         out << "localinfo " << m_local_info->first << " @ " << m_local_idx; break;
@@ -648,8 +648,8 @@ vm_instr mk_num_instr(mpz const & v) {
     }
 }
 
-vm_instr mk_pexpr_instr(expr const & v) {
-    vm_instr r(opcode::Pexpr);
+vm_instr mk_expr_instr(expr const &v) {
+    vm_instr r(opcode::Expr);
     r.m_expr = new expr(v);
     return r;
 }
@@ -738,7 +738,7 @@ void vm_instr::release_memory() {
     case opcode::Num:
         delete m_mpz;
         break;
-    case opcode::Pexpr:
+    case opcode::Expr:
         delete m_expr;
         break;
     case opcode::LocalInfo:
@@ -788,7 +788,7 @@ void vm_instr::copy_args(vm_instr const & i) {
     case opcode::Num:
         m_mpz = new mpz(*i.m_mpz);
         break;
-    case opcode::Pexpr:
+    case opcode::Expr:
         m_expr = new expr(*i.m_expr);
         break;
     case opcode::LocalInfo:
@@ -894,7 +894,7 @@ void vm_instr::serialize(serializer & s, std::function<name(unsigned)> const & i
     case opcode::Num:
         s << *m_mpz;
         break;
-    case opcode::Pexpr:
+    case opcode::Expr:
         s << *m_expr;
         break;
     case opcode::LocalInfo:
@@ -965,8 +965,8 @@ static vm_instr read_vm_instr(deserializer & d) {
         return mk_constructor_instr(idx, d.read_unsigned());
     case opcode::Num:
         return mk_num_instr(read_mpz(d));
-    case opcode::Pexpr:
-        return mk_pexpr_instr(read_expr(d));
+    case opcode::Expr:
+        return mk_expr_instr(read_expr(d));
     case opcode::LocalInfo: {
         unsigned idx = d.read_unsigned();
         name n; optional<expr> t;
@@ -2912,7 +2912,7 @@ void vm_state::run() {
             m_stack.push_back(mk_vm_mpz(instr.get_mpz()));
             m_pc++;
             goto main_loop;
-        case opcode::Pexpr:
+        case opcode::Expr:
             /** Instruction: pexpr e
 
                 stack before,      after

@@ -63,6 +63,8 @@ name const * g_eq_rec_heq = nullptr;
 name const * g_eq_true_intro = nullptr;
 name const * g_eq_false_intro = nullptr;
 name const * g_eq_self_iff_true = nullptr;
+name const * g_expr = nullptr;
+name const * g_expr_subst = nullptr;
 name const * g_format = nullptr;
 name const * g_false = nullptr;
 name const * g_false_of_true_iff_false = nullptr;
@@ -435,6 +437,8 @@ void initialize_constants() {
     g_eq_true_intro = new name{"eq_true_intro"};
     g_eq_false_intro = new name{"eq_false_intro"};
     g_eq_self_iff_true = new name{"eq_self_iff_true"};
+    g_expr = new name{"expr"};
+    g_expr_subst = new name{"expr", "subst"};
     g_format = new name{"format"};
     g_false = new name{"false"};
     g_false_of_true_iff_false = new name{"false_of_true_iff_false"};
@@ -808,6 +812,8 @@ void finalize_constants() {
     delete g_eq_true_intro;
     delete g_eq_false_intro;
     delete g_eq_self_iff_true;
+    delete g_expr;
+    delete g_expr_subst;
     delete g_format;
     delete g_false;
     delete g_false_of_true_iff_false;
@@ -1180,6 +1186,8 @@ name const & get_eq_rec_heq_name() { return *g_eq_rec_heq; }
 name const & get_eq_true_intro_name() { return *g_eq_true_intro; }
 name const & get_eq_false_intro_name() { return *g_eq_false_intro; }
 name const & get_eq_self_iff_true_name() { return *g_eq_self_iff_true; }
+name const & get_expr_name() { return *g_expr; }
+name const & get_expr_subst_name() { return *g_expr_subst; }
 name const & get_format_name() { return *g_format; }
 name const & get_false_name() { return *g_false; }
 name const & get_false_of_true_iff_false_name() { return *g_false_of_true_iff_false; }

@@ -1072,7 +1072,7 @@ auto pretty_fn::pp_macro(expr const & e) -> result {
     if (is_explicit(e)) {
         return pp_explicit(e);
     } else if (is_quote(e)) {
-        return result(format("`(") + nest(2, pp(get_quote_expr(e)).fmt()) + format(")"));
+        return result(format(is_expr_quote(e) ? "```(" : "`(") + nest(2, pp(get_quote_expr(e)).fmt()) + format(")"));
     } else if (is_delayed_abstraction(e)) {
         return pp_delayed_abstraction(e);
     } else if (is_inaccessible(e)) {

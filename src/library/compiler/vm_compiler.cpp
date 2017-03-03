@@ -294,7 +294,7 @@ class vm_compiler_fn {
         } else if (is_annotation(e)) {
             compile(get_annotation_arg(e), bpz, m);
         } else if (is_quote(e)) {
-            emit(mk_pexpr_instr(get_quote_expr(e)));
+            emit(mk_expr_instr(get_quote_expr(e)));
         } else if (is_sorry(e)) {
             compile_global(*get_vm_decl(m_env, "sorry"), 0, nullptr, bpz, m);
         } else {

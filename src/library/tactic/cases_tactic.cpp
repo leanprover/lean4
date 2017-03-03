@@ -331,7 +331,13 @@ struct cases_tactic_fn {
             } else if (is_local(rhs) || is_local(lhs)) {
                 lean_cases_trace(mvar, tout() << "substitute\n";);
                 hsubstitution extra_subst;
-                bool symm  = !is_local(lhs) && is_local(rhs);
+                bool symm  =
+                    (!is_local(lhs) && is_local(rhs))
+                    ||
+                    (is_local(lhs) && is_local(rhs) &&
+                     ctx.lctx().get_local_decl(lhs).get_idx()
+                     <
+                     ctx.lctx().get_local_decl(rhs).get_idx());
                 expr mvar2 = ::lean::subst(m_env, m_opts, m_mode, m_mctx, *mvar1, H, symm,
                                            updating ? &extra_subst : nullptr);
                 new_intros = apply(new_intros, extra_subst);

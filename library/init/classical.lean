@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2015 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura, Jeremy Avigad
+Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro
 -/
 prelude
 import init.data.subtype.basic init.funext
@@ -11,7 +11,11 @@ namespace classical
 universes u v
 
 /- the axiom -/
-axiom indefinite_description {α : Sort u} (p : α → Prop) : (∃ x, p x) → {x // p x}
+axiom choice {α : Sort u} : nonempty α → α
+
+noncomputable theorem indefinite_description {α : Sort u} (p : α → Prop) :
+  (∃ x, p x) → {x // p x} :=
+λ h, choice (let ⟨x, px⟩ := h in ⟨⟨x, px⟩⟩)
 
 /- Diaconescu's theorem: using function extensionality and propositional extensionality,
    we can get excluded middle from this. -/

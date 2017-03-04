@@ -36,7 +36,6 @@ struct cases_tactic_fn {
     list<name> &                  m_ids;
 
     /* Inductive datatype information */
-    bool                          m_dep_elim;
     unsigned                      m_nparams;
     unsigned                      m_nindices;
     unsigned                      m_nminors;
@@ -63,7 +62,6 @@ struct cases_tactic_fn {
     #define lean_cases_trace(MVAR, CODE) lean_trace(name({"tactic", "cases"}), type_context TMP_CTX = mk_type_context_for(MVAR); scope_trace_env _scope1(m_env, TMP_CTX); CODE)
 
     void init_inductive_info(name const & n) {
-        m_dep_elim       = inductive::has_dep_elim(m_env, n);
         m_nindices       = *inductive::get_num_indices(m_env, n);
         m_nparams        = *inductive::get_num_params(m_env, n);
         // This tactic is bases on cases_on construction which only has
@@ -109,8 +107,7 @@ struct cases_tactic_fn {
     /** \brief We say h has independent indices IF
         1- it is *not* an indexed inductive family, OR
         2- it is an indexed inductive family, but all indices are distinct local constants,
-        and all hypotheses of g different from h and indices, do not depend on the indices.
-        3- if not m_dep_elim, then the conclusion does not depend on the indices. */
+        and all hypotheses of g different from h and indices, do not depend on the indices. */
     bool has_indep_indices(metavar_decl const & g, expr const & h) {
         lean_assert(is_local(h));
         if (m_nindices == 0)
@@ -128,11 +125,6 @@ struct cases_tactic_fn {
                 if (is_local(args[j]) && mlocal_name(args[j]) == mlocal_name(args[i]))
                     return false; // the indices must be distinct local constants
             }
-        }
-        if (!m_dep_elim) {
-            expr const & g_type = g.get_type();
-            if (depends_on(g_type, h))
-                return false;
         }
         local_context lctx          = g.get_context();
         optional<local_decl> h_decl = lctx.find_local_decl(h);
@@ -218,8 +210,7 @@ struct cases_tactic_fn {
         }
         name h_new_name = ctx.lctx().get_unused_name(local_pp_name(h));
         expr h_new      = ctx.push_local(h_new_name, h_new_type);
-        if (m_dep_elim)
-            add_eq(h, h_new);
+        add_eq(h, h_new);
         /* aux_type is  Pi (j' : J) (h' : I A j'), j == j' -> h == h' -> T */
         expr aux_type   = ctx.mk_pi(ts, ctx.mk_pi(h_new, ctx.mk_pi(eqs, g.get_type())));
         expr aux_mvar   = m_mctx.mk_metavar_decl(g.get_context(), aux_type);

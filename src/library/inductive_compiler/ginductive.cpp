@@ -15,7 +15,6 @@ Author: Daniel Selsam
 #include "library/kernel_serializer.h"
 
 namespace lean {
-
 static unsigned compute_idx_number(expr const & e) {
     buffer<expr> args;
     unsigned idx = 0;
@@ -27,7 +26,7 @@ static unsigned compute_idx_number(expr const & e) {
             return idx;
         } else if (is_constant(fn) && const_name(fn) == get_psum_inr_name()) {
             idx++;
-            lean_assert(args.size() == 2);
+            lean_assert(args.size() == 3);
             it = args[2];
         } else {
             return idx;

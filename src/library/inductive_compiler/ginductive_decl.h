@@ -24,8 +24,6 @@ class ginductive_decl {
 
     optional<simp_lemmas> m_sizeof_lemmas;
 public:
-    ginductive_decl() {}
-
     ginductive_decl(unsigned nest_depth, buffer<name> const & lp_names, buffer<expr> const & params, buffer<unsigned> const & ir_offsets):
         m_nest_depth(nest_depth), m_from_mutual(true), m_lp_names(lp_names), m_params(params), m_ir_offsets(ir_offsets) {}
 

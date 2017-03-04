@@ -27,6 +27,7 @@ static unsigned compute_idx_number(expr const & e) {
             return idx;
         } else if (is_constant(fn) && const_name(fn) == get_psum_inr_name()) {
             idx++;
+            lean_assert(args.size() == 2);
             it = args[2];
         } else {
             return idx;
@@ -257,6 +258,7 @@ struct ginductive_modification : public modification {
 environment register_ginductive_decl(environment const & env, ginductive_decl const & decl, ginductive_kind k) {
     ginductive_entry entry;
     entry.m_kind = k;
+    entry.m_from_mutual = decl.is_from_mutual();
     entry.m_num_params = decl.get_num_params();
 
     buffer<name> inds;
@@ -273,6 +275,9 @@ environment register_ginductive_decl(environment const & env, ginductive_decl co
         intro_rules.push_back(to_list(ir_names));
     }
     entry.m_intro_rules = to_list(intro_rules);
+
+    entry.m_ir_offsets = to_list(decl.get_ir_offsets());
+    entry.m_idx_to_ir_range = to_list(decl.get_idx_to_ir_range());
 
     return module::add_and_perform(env, std::make_shared<ginductive_modification>(entry));
 }

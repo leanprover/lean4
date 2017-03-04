@@ -189,7 +189,7 @@ struct ginductive_env_ext : public environment_extension {
 
     unsigned ir_to_simulated_ir_offset(name basic_ir_name) const {
         unsigned const * offset = m_ir_to_simulated_ir_offset.find(basic_ir_name);
-        lean_assert(assert);
+        lean_assert(offset);
         return *offset;
     }
 
@@ -197,7 +197,7 @@ struct ginductive_env_ext : public environment_extension {
         if (!m_from_mutual.contains(basic_ind_name))
             return mk_pair(0, length(get_intro_rules(basic_ind_name)));
 
-        lean_assert(idxs.size == 1);
+        lean_assert(idxs.size() == 1);
         unsigned idx_number = compute_idx_number(idxs[0]);
 
         list<pair<unsigned, unsigned> > const * ranges = m_ind_to_ir_ranges.find(basic_ind_name);

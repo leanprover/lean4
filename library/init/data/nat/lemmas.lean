@@ -794,4 +794,24 @@ begin
       rwa -h₁ at h₂}}
 end
 
+/- div & mod -/
+
+theorem mod_add_div (m k : ℕ)
+: m % k + k * (m / k) = m :=
+begin
+  apply nat.strong_induction_on m,
+  clear m,
+  intros m IH,
+  cases decidable.em (0 < k ∧ k ≤ m) with h h',
+  -- 0 < k ∧ k ≤ m
+  { assert h' : m - k < m,
+    { apply nat.sub_lt _ h^.left,
+      apply lt_of_lt_of_le h^.left h^.right },
+    rw [div_def,mod_def,dif_pos h,dif_pos h],
+    simp [left_distrib,IH _ h'],
+    rw [-nat.add_sub_assoc h^.right,nat.add_sub_cancel_left] },
+  -- ¬ (0 < k ∧ k ≤ m)
+  { rw [div_def,mod_def,dif_neg h',dif_neg h'], simp },
+end
+
 end nat

@@ -795,6 +795,9 @@ class add_nested_inductive_decl_fn {
         m_env = set_reducible(m_env, mk_pi_name(fn_type::PACK), reducible_status::Irreducible, true);
         m_env = set_reducible(m_env, mk_pi_name(fn_type::UNPACK), reducible_status::Irreducible, true);
 
+        m_nested_decl.get_packs().push_back(mk_pi_name(fn_type::PACK));
+        m_nested_decl.get_unpacks().push_back(mk_pi_name(fn_type::UNPACK));
+
         m_tctx.set_env(m_env);
 
         expr pi_pack = mk_app(m_nested_decl.mk_const_params(mk_pi_name(fn_type::PACK)), ldeps);

@@ -22,6 +22,9 @@ class ginductive_decl {
     buffer<unsigned>                  m_ir_offsets; // # total intro rules @ basic
     buffer<pair<unsigned, unsigned> > m_idx_to_ir_range; // # total inds @ mutual
 
+    buffer<name> m_packs;
+    buffer<name> m_unpacks;
+
     optional<simp_lemmas> m_sizeof_lemmas;
 public:
     ginductive_decl(unsigned nest_depth, buffer<name> const & lp_names, buffer<expr> const & params, buffer<unsigned> const & ir_offsets):
@@ -75,6 +78,11 @@ public:
 
     buffer<pair<unsigned, unsigned> > const & get_idx_to_ir_range() const { return m_idx_to_ir_range; }
     buffer<pair<unsigned, unsigned> > & get_idx_to_ir_range() { return m_idx_to_ir_range; }
+
+    buffer<name> const & get_packs() const { return m_packs; }
+    buffer<name> & get_packs() { return m_packs; }
+    buffer<name> const & get_unpacks() const { return m_unpacks; }
+    buffer<name> & get_unpacks() { return m_unpacks; }
 
     expr mk_const(name const & n) const { return mk_constant(n, get_levels()); }
     expr mk_const_params(name const & n) const { return mk_app(mk_const(n), m_params); }

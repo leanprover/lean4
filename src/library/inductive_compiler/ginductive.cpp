@@ -44,6 +44,8 @@ struct ginductive_entry {
     list<list<name> > m_intro_rules;
     list<unsigned> m_ir_offsets;
     list<pair<unsigned, unsigned> > m_idx_to_ir_range;
+    list<name> m_packs;
+    list<name> m_unpacks;
 };
 
 inline serializer & operator<<(serializer & s, ginductive_kind k) {
@@ -79,6 +81,9 @@ serializer & operator<<(serializer & s, ginductive_entry const & entry) {
     write_list<unsigned>(s, entry.m_ir_offsets);
     write_list<pair<unsigned, unsigned> >(s, entry.m_idx_to_ir_range);
 
+    write_list<name>(s, entry.m_packs);
+    write_list<name>(s, entry.m_unpacks);
+
     return s;
 }
 
@@ -96,6 +101,9 @@ ginductive_entry read_ginductive_entry(deserializer & d) {
 
     entry.m_ir_offsets = read_list<unsigned>(d);
     entry.m_idx_to_ir_range = read_list<pair<unsigned, unsigned> >(d);
+
+    entry.m_packs = read_list<name>(d, read_name);
+    entry.m_unpacks = read_list<name>(d, read_name);
     return entry;
 }
 
@@ -116,6 +124,9 @@ struct ginductive_env_ext : public environment_extension {
     name_set                                   m_from_mutual;
     name_map<unsigned>                         m_ir_to_simulated_ir_offset;
     name_map<list<pair<unsigned, unsigned> > > m_ind_to_ir_ranges;
+
+    name_set                                   m_packs;
+    name_set                                   m_unpacks;
 
     ginductive_env_ext() {}
 
@@ -152,6 +163,12 @@ struct ginductive_env_ext : public environment_extension {
 
             ind_idx++;
         }
+
+        for (name const & pack : entry.m_packs)
+            m_packs.insert(pack);
+
+        for (name const & unpack : entry.m_unpacks)
+            m_unpacks.insert(unpack);
     }
 
     optional<ginductive_kind> is_ginductive(name const & ind_name) const {
@@ -188,10 +205,18 @@ struct ginductive_env_ext : public environment_extension {
         return *mut_ind_names;
     }
 
-    unsigned ir_to_simulated_ir_offset(name basic_ir_name) const {
+    unsigned ir_to_simulated_ir_offset(name const & basic_ir_name) const {
         unsigned const * offset = m_ir_to_simulated_ir_offset.find(basic_ir_name);
         lean_assert(offset);
         return *offset;
+    }
+
+    bool is_pack(name const & n) const {
+        return m_packs.contains(n);
+    }
+
+    bool is_unpack(name const & n) const {
+        return m_unpacks.contains(n);
     }
 
     pair<unsigned, unsigned> ind_indices_to_ir_range(name const & basic_ind_name, buffer<expr> const & idxs) const {
@@ -275,6 +300,8 @@ environment register_ginductive_decl(environment const & env, ginductive_decl co
         intro_rules.push_back(to_list(ir_names));
     }
     entry.m_intro_rules = to_list(intro_rules);
+    entry.m_packs = to_list(decl.get_packs());
+    entry.m_unpacks = to_list(decl.get_unpacks());
 
     entry.m_ir_offsets = to_list(decl.get_ir_offsets());
     entry.m_idx_to_ir_range = to_list(decl.get_idx_to_ir_range());
@@ -308,6 +335,13 @@ unsigned ir_to_simulated_ir_offset(environment const & env, name basic_ir_name) 
 
 pair<unsigned, unsigned> ind_indices_to_ir_range(environment const & env, name const & basic_ind_name, buffer<expr> const & idxs) {
     return get_extension(env).ind_indices_to_ir_range(basic_ind_name, idxs);
+}
+
+bool is_ginductive_pack(environment const & env, name const & n) {
+    return get_extension(env).is_pack(n);
+}
+bool is_ginductive_unpack(environment const & env, name const & n) {
+    return get_extension(env).is_unpack(n);
 }
 
 list<name> get_ginductive_all_mutual_inds(environment const & env) {

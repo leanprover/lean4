@@ -69,6 +69,9 @@ ind_indices_to_ir_range("foo.basic", {sum.inr ()}) = (2, 2)
 */
 pair<unsigned, unsigned> ind_indices_to_ir_range(environment const & env, name const & basic_ind_name, buffer<expr> const & idxs);
 
+bool is_ginductive_pack(environment const & env, name const & n);
+bool is_ginductive_unpack(environment const & env, name const & n);
+
 /* \brief Returns the names of all mutual ginductive types */
 list<name> get_ginductive_all_mutual_inds(environment const & env);
 

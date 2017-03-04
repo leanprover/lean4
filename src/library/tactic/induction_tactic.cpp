@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_expr.h"
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_list.h"
+#include "library/inductive_compiler/ginductive.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/revert_tactic.h"
 #include "library/tactic/intro_tactic.h"
@@ -350,8 +351,7 @@ vm_obj tactic_induction(vm_obj const & H, vm_obj const & ns, vm_obj const & rec,
     if (is_none(rec)) {
         try {
             type_context ctx = mk_type_context_for(s, m);
-            /* Remark: should we support the inductive compiler */
-            expr type = ctx.relaxed_whnf(ctx.infer(to_expr(H)));
+            expr type = whnf_ginductive(ctx, ctx.infer(to_expr(H)));
             expr C    = get_app_fn(type);
             if (is_constant(C)) {
                 name C_rec = get_dep_recursor(ctx.env(), const_name(C));

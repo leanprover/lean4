@@ -29,6 +29,9 @@ unsigned get_ginductive_num_params(environment const & env, name const & ind_nam
 /* \brief Returns the names of all types that are mutually inductive with \e ind_name */
 list<name> get_ginductive_mut_ind_names(environment const & env, name const & ind_name);
 
+/* Return \c e until it is in weak head normal form OR the head is a ginductive datatype. */
+expr whnf_ginductive(type_context & ctx, expr const & e);
+
 /* \brief Returns the offset of a simulated introduction rule.
 
 Example:

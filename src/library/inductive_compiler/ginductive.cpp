@@ -15,6 +15,15 @@ Author: Daniel Selsam
 #include "library/kernel_serializer.h"
 
 namespace lean {
+expr whnf_ginductive(type_context & ctx, expr const & e) {
+    return ctx.whnf_head_pred(e, [&](expr const & e) {
+            if (is_macro(e)) return true;
+            expr const & fn = get_app_fn(e);
+            if (!is_constant(fn)) return true;
+            return !is_ginductive(ctx.env(), const_name(fn));
+        });
+}
+
 static unsigned compute_idx_number(expr const & e) {
     buffer<expr> args;
     unsigned idx = 0;

@@ -83,46 +83,54 @@ class expand_aux_fn : public compiler_step_visitor {
         }
     }
 
-    virtual expr visit_constant(expr const & e) override {
-        type_context::nozeta_scope scope(ctx());
-        name const & n = const_name(e);
-        declaration d   = env().get(n);
-        if (!d.is_definition() || d.is_theorem())
-            return e;
-        if (::lean::is_aux_recursor(env(), n) || is_user_defined_recursor(env(), n) ||
-            is_projection(env(), n) || is_no_confusion(env(), n))
-            return e;
-        if (!is_vm_function(env(), n)) {
-            check_computable(e);
-            if (auto r = unfold_term(env(), e)) {
-                return visit(*r);
-            }
-        }
-        return e;
-    }
-
     bool is_not_vm_function(expr const & e) {
         expr const & fn = get_app_fn(e);
         if (!is_constant(fn))
             return false;
         name const & n = const_name(fn);
         declaration d   = env().get(n);
-        if (!d.is_definition() || d.is_theorem() || is_projection(env(), n) || is_no_confusion(env(), n))
+        if (!d.is_definition() || d.is_theorem() || is_projection(env(), n) || is_no_confusion(env(), n) ||
+            ::lean::is_aux_recursor(env(), n) || is_user_defined_recursor(env(), n))
             return false;
         return !is_vm_function(env(), n);
+    }
+
+    bool is_pack_unpack(expr const & e) {
+        return ::lean::is_pack_unpack(m_env, e);
+    }
+
+    bool should_unfold(expr const & e) {
+        return is_not_vm_function(e) && !ctx().is_proof(e) && !is_pack_unpack(e);
+    }
+
+    expr unfold(expr const & e) {
+        check_computable(e);
+        if (auto r = unfold_term(env(), e)) {
+            return visit(*r);
+        } else {
+            throw exception(sstream() << "failed to generate bytecode, VM does not have code for '" << get_app_fn(e) << "'");
+        }
+    }
+
+    virtual expr visit_constant(expr const & e) override {
+        type_context::nozeta_scope scope(ctx());
+        if (should_unfold(e))
+            return visit(unfold(e));
+        else
+            return e;
     }
 
     virtual expr visit_app(expr const & e) override {
         type_context::nozeta_scope scope(ctx());
         switch (get_recursor_app_kind(e)) {
         case recursor_kind::NotRecursor: {
-            if (is_not_vm_function(e) && !ctx().is_proof(e)) {
-                check_computable(e);
-                if (auto r = unfold_term(env(), e)) {
-                    return visit(copy_tag(e, expr(*r)));
-                }
+            if (should_unfold(e))
+                return visit(unfold(e));
+            expr new_e;
+            {
+                type_context::transparency_scope scope(ctx(), transparency_mode::Reducible);
+                new_e = copy_tag(e, ctx().whnf_head_pred(e, [&](expr const & e) { return is_macro(e); }));
             }
-            expr new_e = copy_tag(e, ctx().whnf_head_pred(e, [&](expr const & e) { return is_macro(e); }));
             if (is_eqp(new_e, e))
                 return compiler_step_visitor::visit_app(new_e);
             else
@@ -131,7 +139,12 @@ class expand_aux_fn : public compiler_step_visitor {
         case recursor_kind::CasesOn:
             return visit_cases_on(e);
         case recursor_kind::Aux:
-            return compiler_step_visitor::visit(copy_tag(e, ctx().whnf_head_pred(e, [&](expr const & e) { return is_aux_recursor(e) || is_macro(e); })));
+            expr new_e;
+            {
+                type_context::transparency_scope scope(ctx(), transparency_mode::Reducible);
+                new_e = copy_tag(e, ctx().whnf_head_pred(e, [&](expr const & e) { return is_aux_recursor(e) || is_macro(e); }));
+            }
+            return compiler_step_visitor::visit(new_e);
         }
         lean_unreachable();
     }

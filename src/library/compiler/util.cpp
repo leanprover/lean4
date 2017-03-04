@@ -8,12 +8,21 @@ Author: Leonardo de Moura
 #include "kernel/find_fn.h"
 #include "kernel/type_checker.h"
 #include "kernel/inductive/inductive.h"
+#include "library/inverse.h"
 #include "library/aux_recursors.h"
 #include "library/util.h"
+#include "library/inductive_compiler/ginductive.h"
 #include "library/vm/vm.h"
 #include "library/type_context.h"
 
 namespace lean {
+bool is_pack_unpack(environment const & env, expr const & e) {
+    expr const & fn = get_app_fn(e);
+    if (!is_constant(fn)) return false;
+    name const & n  = const_name(fn);
+    return is_ginductive_pack(env, n) || is_ginductive_unpack(env, n);
+}
+
 name mk_fresh_name(environment const & env, name const & prefix, char const * suffix, unsigned & idx) {
     while (true) {
         name curr(prefix, suffix);

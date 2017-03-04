@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/normalize.h"
 #include "library/constants.h"
 #include "library/vm/vm.h"
+#include "library/inductive_compiler/ginductive.h"
 #include "library/compiler/util.h"
 #include "library/compiler/erase_irrelevant.h"
 #include "library/compiler/compiler_step_visitor.h"
@@ -163,6 +164,7 @@ class simp_inductive_fn : public compiler_step_visitor {
         args[0] = visit(args[0]);
         unsigned num_reachable = 0;
         optional<expr> reachable_case;
+        unsigned last_reachable_idx = 0;
         /* Process minor premises */
         for (unsigned i = 0; i < cnames.size(); i++) {
             buffer<bool> rel_fields;
@@ -176,7 +178,8 @@ class simp_inductive_fn : public compiler_step_visitor {
             args[i+1] = new_minor;
             if (!p.second) {
                 num_reachable++;
-                reachable_case = p.first;
+                last_reachable_idx = i+1;
+                reachable_case     = p.first;
             }
         }
 
@@ -188,7 +191,15 @@ class simp_inductive_fn : public compiler_step_visitor {
         } else if (is_builtin) {
             return mk_app(mk_constant(fn), args);
         } else {
-            return mk_app(mk_cases(cnames.size()), args);
+            if (last_reachable_idx != cnames.size()) {
+                /* Compress number of cases by removing the tail of unreachable cases */
+                buffer<expr> new_args;
+                new_args.append(last_reachable_idx+1, args.data());
+                new_args.append(args.size() - cnames.size() - 1, args.data() + cnames.size() + 1);
+                return mk_app(mk_cases(last_reachable_idx), new_args);
+            } else {
+                return mk_app(mk_cases(cnames.size()), args);
+            }
         }
     }
 
@@ -199,6 +210,9 @@ class simp_inductive_fn : public compiler_step_visitor {
                 new_args.push_back(visit(arg));
             return mk_app(mk_constant(fn), new_args);
         } else {
+            /* The following invariant should hold since erase_irrelevant rejected code
+               where it doesn't hold. */
+            lean_assert(ir_to_simulated_ir_offset(env(), fn) == 0);
             name I_name      = *inductive::is_intro_rule(env(), fn);
             unsigned nparams = *inductive::get_num_params(env(), I_name);
             unsigned cidx    = get_constructor_idx(env(), fn);

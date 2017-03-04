@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/projection.h"
 #include "library/aux_recursors.h"
+#include "library/inductive_compiler/ginductive.h"
 #include "library/compiler/util.h"
 #include "library/compiler/compiler_step_visitor.h"
 #include "library/compiler/comp_irrelevant.h"
@@ -20,13 +21,14 @@ Author: Leonardo de Moura
 namespace lean {
 class eta_expand_fn : public compiler_step_visitor {
     bool is_projection(name const & n) { return ::lean::is_projection(env(), n); }
-    bool is_constructor(name const & n) { return static_cast<bool>(inductive::is_intro_rule(env(), n)); }
+    bool is_constructor(name const & n) { return static_cast<bool>(is_ginductive_intro_rule(env(), n)); }
     bool is_cases_on(name const & n) { return is_cases_on_recursor(env(), n); }
     bool is_rec(name const & n) { return static_cast<bool>(inductive::is_elim_rule(env(), n)); }
     bool is_no_confusion(name const & n) { return ::lean::is_no_confusion(env(), n);  }
     bool is_quot_mk(name const & n) { return n == get_quot_mk_name(); }
     bool is_quot_lift(name const & n) { return n == get_quot_lift_name(); }
     bool is_subtype_elt_of(name const & n) { return n == get_subtype_elt_of_name(); }
+    bool is_pack_unpack(name const & n) { return is_ginductive_pack(env(), n) || is_ginductive_unpack(env(), n); }
 
     /* Return true if the type of e is of the form
           Pi (a_1 : A_1) ... (a_n : B_n), C
@@ -113,7 +115,8 @@ class eta_expand_fn : public compiler_step_visitor {
             is_rec(fn_name) || is_cases_on(fn_name) ||
             is_no_confusion(fn_name) ||
             is_quot_mk(fn_name) || is_quot_lift(fn_name) ||
-            is_subtype_elt_of(fn_name)) {
+            is_subtype_elt_of(fn_name) ||
+            is_pack_unpack(fn_name)) {
             if (revisit)
                 return visit(eta_expand(r));
             else

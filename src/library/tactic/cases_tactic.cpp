@@ -70,7 +70,7 @@ struct cases_tactic_fn {
         // minor premises for the introduction rules of this datatype.
         m_nminors        = *inductive::get_num_intro_rules(m_env, n);
         m_I_decl         = m_env.get(n);
-        m_cases_on_decl  = m_env.get({n, "cases_on"});
+        m_cases_on_decl  = m_env.get(get_dep_cases_on(m_env, n));
     }
 
     /* For debugging purposes, check whether all hypotheses in Hs are in the local context for mvar */

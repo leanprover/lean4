@@ -46,9 +46,11 @@ static void set_intron(expr & R, type_context & ctx, expr const & M, unsigned n,
 }
 
 static void set_clear(expr & R, type_context & ctx, expr const & M, expr const & H) {
-    metavar_context mctx = ctx.mctx();
-    R = clear(mctx, M, H);
-    ctx.set_mctx(mctx);
+    try {
+        metavar_context mctx = ctx.mctx();
+        R = clear(mctx, M, H);
+        ctx.set_mctx(mctx);
+    } catch (exception&) { /* ignore failure */ }
 }
 
 /* Helper function for computing the number of nested Pi-expressions.

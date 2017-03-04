@@ -44,9 +44,9 @@ variable F : Π x, (Π y, y ≺ x → C y) → C x
 def fix_F (x : α) (a : acc r x) : C x :=
 acc.rec_on a (λ x₁ ac₁ ih, F x₁ ih)
 
-lemma fix_F_eq (x : α) (r : acc r x) :
-  fix_F F x r = F x (λ (y : α) (p : y ≺ x), fix_F F y (acc.inv r p)) :=
-acc.drec (λ x r ih, rfl) r
+lemma fix_F_eq (x : α) (acx : acc r x) :
+  fix_F F x acx = F x (λ (y : α) (p : y ≺ x), fix_F F y (acc.inv acx p)) :=
+acc.drec (λ x r ih, rfl) acx
 end
 
 variables {α : Type u} {C : α → Sort v} {r : α → α → Prop}

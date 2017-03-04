@@ -15,7 +15,7 @@ def to_list {α} : bla α → list (foo α)
 
 lemma ex {α} (b : bla α) (h : cidx b = 2) : b = bla.mk₃ (to_list b) :=
 begin
-  induction b using bla.rec,
+  induction b,
   {simp [cidx] at h, exact absurd h (dec_trivial)},
   {simp [to_list]}
 end

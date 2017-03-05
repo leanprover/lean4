@@ -54,14 +54,15 @@ class LeanExprPrinter:
         return str(self.val.type)
 
     def children(self):
-        for f in LeanExprPrinter.expr_kinds[self.kind][1]:
+        kind, fields = LeanExprPrinter.expr_kinds[self.kind]
+        for f in fields:
             yield (f, self.val[f])
-        if self.kind == 'lean::expr_macro':
-            p = self.val.cast(gdb.lookup_type('char').pointer())
+        if kind == 'lean::expr_macro':
+            p = self.val.address.cast(gdb.lookup_type('char').pointer())
             p += gdb.lookup_type('lean::expr_macro').sizeof
             p = p.cast(gdb.lookup_type('lean::expr').pointer())
             for i in range(self.val['m_num_args']):
-                yield (p + i).dereference()
+                yield ('[%s]' % i, (p + i).dereference())
 
 class LeanListPrinter:
     """Print a lean::list object."""

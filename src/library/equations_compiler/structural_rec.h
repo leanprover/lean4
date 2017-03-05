@@ -7,12 +7,11 @@ Author: Leonardo de Moura
 #pragma once
 #include "library/type_context.h"
 namespace lean {
-/** \brief Try to eliminate "recursive calls" in the equations \c e by using brec_on's below.
-    If successful, a new set of (non-recursive) equations is produced. The new equations
-    have a new argument of type `I.below` and all "recursive calls" are replaced with it.
+/** \brief Try to eliminate "recursive calls" in the equations \c eqns by using brec_on's below.
+    If successful, elim_match is used to compile pattern matching.
 
     The procedure fails when:
-    1- \c e is defining more than one function
+    1- \c eqns is defining more than one function
     2- None of the arguments is a primitive inductive datatype with support for brec_on
        construction, where every recursive call is structurally smaller. */
 optional<expr> try_structural_rec(environment & env, options const & opts,

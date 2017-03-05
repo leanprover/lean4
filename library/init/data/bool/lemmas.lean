@@ -58,3 +58,33 @@ by cases b; simp
 
 @[simp] lemma bnot_bnot (b : bool) : bnot (bnot b) = b :=
 by cases b; simp
+
+@[simp] lemma tt_eq_ff_eq_false : ¬(tt = ff) :=
+by contradiction
+
+@[simp] lemma ff_eq_tt_eq_false : ¬(ff = tt) :=
+by contradiction
+
+@[simp] lemma eq_ff_eq_not_eq_tt (b : bool) : (¬(b = tt)) = (b = ff) :=
+by cases b; simp
+
+@[simp] lemma eq_tt_eq_not_eq_ff (b : bool) : (¬(b = ff)) = (b = tt) :=
+by cases b; simp
+
+@[simp] lemma band_eq_true_eq_eq_tt_and_eq_tt (a b : bool) : (a && b = tt) = (a = tt ∧ b = tt) :=
+by cases a; cases b; simp
+
+@[simp] lemma bor_eq_true_eq_eq_tt_or_eq_tt (a b : bool) : (a || b = tt) = (a = tt ∨ b = tt) :=
+by cases a; cases b; simp
+
+@[simp] lemma bnot_eq_true_eq_eq_ff (a : bool) : (bnot a = tt) = (a = ff) :=
+by cases a; simp
+
+@[simp] lemma band_eq_false_eq_eq_ff_or_eq_ff (a b : bool) : (a && b = ff) = (a = ff ∨ b = ff) :=
+by cases a; cases b; simp
+
+@[simp] lemma bor_eq_false_eq_eq_ff_and_eq_ff (a b : bool) : (a || b = ff) = (a = ff ∧ b = ff) :=
+by cases a; cases b; simp
+
+@[simp] lemma bnot_eq_ff_eq_eq_tt (a : bool) : (bnot a = ff) = (a = tt) :=
+by cases a; simp

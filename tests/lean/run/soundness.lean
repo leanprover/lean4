@@ -84,10 +84,6 @@ namespace PropF
 
   open Nc
 
-  -- Remark ⌞t⌟ indicates we should not pattern match on t.
-  -- In the following lemma, we only need to pattern match on Γ ⊢ A,
-  -- by pattern matching on A, we would be creating 10*6 cases instead of 10.
-
   lemma weakening2 : ∀ {Γ A Δ}, Γ ⊢ A → Γ ⊆ Δ → Δ ⊢ A
   | .Γ .A       Δ (Nax Γ A Hin)          Hs := Nax _ _ (Hs Hin)
   | .Γ .(A ⇒ B) Δ (ImpI Γ A B H)         Hs := ImpI _ _ _ (weakening2 H (cons_subset_cons A Hs))

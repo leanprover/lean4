@@ -301,9 +301,9 @@ assume p1 p2, not.intro (assume Pain, absurd (eq_or_mem_of_mem_cons Pain) (not_o
 lemma ne_and_not_mem_of_not_mem_cons {a y : α} {l : list α} : a ∉ y::l → a ≠ y ∧ a ∉ l :=
 assume p, and.intro (ne_of_not_mem_cons p) (not_mem_of_not_mem_cons p)
 
--- TODO(Jeremy): move this to data/list/set.lean
+/- sublists -/
 
-definition sublist (l₁ l₂ : list α) := ∀ ⦃a : α⦄, a ∈ l₁ → a ∈ l₂
+def sublist (l₁ l₂ : list α) := ∀ ⦃a : α⦄, a ∈ l₁ → a ∈ l₂
 
 instance : has_subset (list α) := ⟨sublist⟩
 

@@ -117,3 +117,6 @@ instance {m : Type u → Type v} [monad m] : alternative (option_t m) :=
  seq     := @fapp (option_t m) (@option_t.monad m _),
  failure := @option_t_fail m _,
  orelse  := @option_t_orelse m _}
+
+def option_t.lift {m : Type u → Type v} [monad m] {α : Type u} (a : m α) : option_t m α :=
+(some <$> a : m (option α))

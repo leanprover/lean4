@@ -659,7 +659,7 @@ struct structure_cmd_fn {
                 if (as_is) {
                     type  = mk_as_is(type);
                 }
-                r = mk_let(local_pp_name(decl.first), type, value, r);
+                r = mk_let(local_pp_name(decl.first), type, value, abstract_local(r, decl.first));
             } else if (as_is) {
                 r = Pi_as_is(decl.first, r);
             } else {

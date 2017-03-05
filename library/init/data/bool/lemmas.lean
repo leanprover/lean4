@@ -88,3 +88,9 @@ by cases a; cases b; simp
 
 @[simp] lemma bnot_eq_ff_eq_eq_tt (a : bool) : (bnot a = ff) = (a = tt) :=
 by cases a; simp
+
+@[simp] lemma coe_ff : ↑ff = false :=
+show (ff = tt) = false, by simp
+
+@[simp] lemma coe_tt : ↑tt = true :=
+show (tt = tt) = true, by simp

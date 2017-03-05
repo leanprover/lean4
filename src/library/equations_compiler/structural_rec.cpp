@@ -338,7 +338,7 @@ struct structural_rec_fn {
         unsigned arity = ues.get_arity_of(0);
         expr rec_arg;
         buffer<expr> other_args;
-        buffer<expr> idx_args;
+        buffer<expr> pre_idx_args;
         for (unsigned i = 0; i < arity; i++) {
             fn_type = ctx.whnf(fn_type);
             if (!is_pi(fn_type)) throw_ill_formed_eqns();
@@ -346,12 +346,15 @@ struct structural_rec_fn {
             if (i == m_arg_pos) {
                 rec_arg = arg;
             } else if (std::find(m_indices_pos.begin(), m_indices_pos.end(), i) != m_indices_pos.end()) {
-                idx_args.push_back(arg);
+                pre_idx_args.push_back(arg);
             } else {
                 other_args.push_back(arg);
             }
             fn_type  = instantiate(binding_body(fn_type), arg);
         }
+        buffer<expr> idx_args;
+        for (unsigned i : m_indices_pos)
+            idx_args.push_back(pre_idx_args[i]);
         buffer<expr> I_params;
         expr I = get_app_args(ctx.relaxed_whnf(ctx.infer(rec_arg)), I_params);
         unsigned nindices = m_indices_pos.size();

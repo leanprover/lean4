@@ -14,6 +14,7 @@ instance : has_add unsigned  := ⟨fin.add⟩
 instance : has_sub unsigned  := ⟨fin.sub⟩
 instance : has_mul unsigned  := ⟨fin.mul⟩
 instance : has_mod unsigned  := ⟨fin.mod⟩
+instance : has_div unsigned  := ⟨fin.div⟩
 instance : has_lt unsigned   := ⟨fin.lt⟩
 instance : has_le unsigned   := ⟨fin.le⟩
 end unsigned

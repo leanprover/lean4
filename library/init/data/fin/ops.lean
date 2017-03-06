@@ -43,6 +43,12 @@ end
 protected def mod : fin n → fin n → fin n
 | ⟨a, h₁⟩ ⟨b, h₂⟩ := ⟨a % b, modlt h₁ h₂⟩
 
+private lemma divlt {a b n : nat} (h : a < n) : a / b < n :=
+lt_of_le_of_lt (nat.div_le_self a b) h
+
+protected def div : fin n → fin n → fin n
+| ⟨a, h⟩ ⟨b, _⟩ := ⟨a / b, divlt h⟩
+
 protected def lt : fin n → fin n → Prop
 | ⟨a, _⟩ ⟨b, _⟩ := a < b
 
@@ -55,6 +61,7 @@ instance : has_add (fin n)         := ⟨fin.add⟩
 instance : has_sub (fin n)         := ⟨fin.sub⟩
 instance : has_mul (fin n)         := ⟨fin.mul⟩
 instance : has_mod (fin n)         := ⟨fin.mod⟩
+instance : has_div (fin n)         := ⟨fin.div⟩
 instance : has_lt (fin n)          := ⟨fin.lt⟩
 instance : has_le (fin n)          := ⟨fin.le⟩
 

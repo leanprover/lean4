@@ -836,4 +836,21 @@ by simp [mod_one] at this; assumption
 protected lemma div_zero (n : ℕ) : n / 0 = 0 :=
 begin rw [div_def], simp [lt_irrefl] end
 
+protected lemma div_le_of_le_mul {m n : ℕ} : ∀ {k}, m ≤ k * n → m / k ≤ n
+| 0        h := by simp [nat.div_zero]; apply zero_le
+| (succ k) h :=
+  suffices succ k * (m / succ k) ≤ succ k * n, from le_of_mul_le_mul_left this (zero_lt_succ _),
+  calc
+    succ k * (m / succ k) ≤ m % succ k + succ k * (m / succ k) : le_add_left _ _
+                      ... = m                                  : by rw mod_add_div
+                      ... ≤ succ k * n                         : h
+
+protected lemma div_le_self : ∀ (m n : ℕ), m / n ≤ m
+| m 0        := by simp [nat.div_zero]; apply zero_le
+| m (succ n) :=
+  have m ≤ succ n * m, from calc
+    m  = 1 * m      : by simp
+   ... ≤ succ n * m : mul_le_mul_right _ (succ_le_succ (zero_le _)),
+  nat.div_le_of_le_mul this
+
 end nat

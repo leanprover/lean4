@@ -691,10 +691,11 @@ struct elim_match_fn {
         list<expr> new_goals;
         list<name> new_goal_cnames;
         try {
+            bool unfold_ginductive = true;
             list<name> ids;
             std::tie(new_goals, new_goal_cnames) =
                 cases(m_env, m_opts, transparency_mode::Semireducible, m_mctx,
-                      P.m_goal, x, ids, &ilist, &slist);
+                      P.m_goal, x, ids, &ilist, &slist, unfold_ginductive);
             lean_assert(length(new_goals) == length(new_goal_cnames));
             lean_assert(length(new_goals) == length(ilist));
             lean_assert(length(new_goals) == length(slist));

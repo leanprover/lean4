@@ -56,10 +56,10 @@ rfl
 
 @[simp] lemma id.def {α : Sort u} (a : α) : id a = a := rfl
 
-lemma eq.mp {α β : Sort u} : (α = β) → α → β :=
+@[inline] def eq.mp {α β : Sort u} : (α = β) → α → β :=
 eq.rec_on
 
-lemma eq.mpr {α β : Sort u} : (α = β) → β → α :=
+@[inline] def eq.mpr {α β : Sort u} : (α = β) → β → α :=
 λ h₁ h₂, eq.rec_on (eq.symm h₁) h₂
 
 lemma eq.substr {α : Sort u} {p : α → Prop} {a b : α} (h₁ : b = a) : p a → p b :=

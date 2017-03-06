@@ -112,7 +112,6 @@ private:
     bool is_def_eq(expr const & e1, expr const & e2);
     bool try_is_def_eq(expr const & e1, expr const & e2);
     bool assign_mvar(expr const & e1, expr const & e2) { lean_assert(is_metavar(e1)); return is_def_eq(e1, e2); }
-    expr instantiate_mvars(expr const & e);
     bool is_uvar_assigned(level const & l) const { return m_ctx.is_assigned(l); }
     bool is_mvar_assigned(expr const & e) const { return m_ctx.is_assigned(e); }
 
@@ -271,6 +270,7 @@ public:
     expr mk_pi(buffer<expr> const & params, expr const & type) { return m_ctx.mk_pi(params, type); }
     expr mk_lambda(buffer<expr> const & params, expr const & type) { return m_ctx.mk_lambda(params, type); }
     expr infer_type(expr const & e) { return m_ctx.infer(e); }
+    expr instantiate_mvars(expr const & e);
     void set_instance_fingerprint() { m_ctx.set_instance_fingerprint(); }
     expr elaborate(expr const & e);
     expr elaborate_type(expr const & e);

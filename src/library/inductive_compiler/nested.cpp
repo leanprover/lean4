@@ -628,6 +628,7 @@ class add_nested_inductive_decl_fn {
         expr mimic_ind_type = update_result_sort(m_tctx.infer(c_mimic_ind), m_nested_decl.get_result_level(m_env));
         expr mimic_ind = mk_local(mk_inner_name(mimic_name), mimic_ind_type);
         m_inner_decl.get_inds().push_back(mimic_ind);
+        m_inner_decl.get_num_indices().push_back(get_num_indices(m_env, mimic_ind));
 
         lean_trace(name({"inductive_compiler", "nested", "mimic", "ind"}),
                    tout() << mlocal_name(mimic_ind) << " : " << mlocal_type(mimic_ind) << "\n";);
@@ -1807,7 +1808,8 @@ public:
                                  ginductive_decl & nested_decl, bool is_trusted):
         m_env(env), m_opts(opts), m_implicit_infer_map(implicit_infer_map),
         m_nested_decl(nested_decl), m_is_trusted(is_trusted),
-        m_inner_decl(m_nested_decl.get_nest_depth() + 1, m_nested_decl.get_lp_names(), m_nested_decl.get_params(), m_nested_decl.get_ir_offsets()),
+        m_inner_decl(m_nested_decl.get_nest_depth() + 1, m_nested_decl.get_lp_names(), m_nested_decl.get_params(),
+                     m_nested_decl.get_num_indices(), m_nested_decl.get_ir_offsets()),
         m_tctx(env, opts, transparency_mode::Semireducible) { }
 
     optional<environment> operator()() {

@@ -8,6 +8,7 @@ Author: Daniel Selsam
 #include "kernel/environment.h"
 #include "kernel/find_fn.h"
 #include "library/tactic/simp_lemmas.h"
+#include "library/inductive_compiler/util.h"
 
 namespace lean {
 
@@ -18,6 +19,7 @@ class ginductive_decl {
     buffer<expr> m_params;
     buffer<expr> m_inds;
     buffer<buffer<expr> > m_intro_rules;
+    buffer<unsigned> m_num_indices;
 
     buffer<unsigned>                  m_ir_offsets; // # total intro rules @ basic
     buffer<pair<unsigned, unsigned> > m_idx_to_ir_range; // # total inds @ mutual
@@ -27,13 +29,23 @@ class ginductive_decl {
 
     optional<simp_lemmas> m_sizeof_lemmas;
 public:
-    ginductive_decl(unsigned nest_depth, buffer<name> const & lp_names, buffer<expr> const & params, buffer<unsigned> const & ir_offsets):
-        m_nest_depth(nest_depth), m_from_mutual(true), m_lp_names(lp_names), m_params(params), m_ir_offsets(ir_offsets) {}
-
     ginductive_decl(unsigned nest_depth, buffer<name> const & lp_names, buffer<expr> const & params,
+                    buffer<unsigned> const & num_indices, buffer<unsigned> const & ir_offsets):
+        m_nest_depth(nest_depth), m_from_mutual(true), m_lp_names(lp_names), m_params(params), m_num_indices(num_indices), m_ir_offsets(ir_offsets) {}
+
+    ginductive_decl(unsigned nest_depth, buffer<name> const & lp_names, buffer<expr> const & params, buffer<unsigned> const & ir_offsets):
+        m_nest_depth(nest_depth), m_from_mutual(true), m_lp_names(lp_names), m_params(params), m_ir_offsets(ir_offsets) {
+        m_num_indices.emplace_back(1);
+    }
+
+    ginductive_decl(environment const & env, unsigned nest_depth, buffer<name> const & lp_names, buffer<expr> const & params,
                     buffer<expr> const & inds, buffer<buffer<expr> > const & intro_rules):
         m_nest_depth(nest_depth), m_from_mutual(false), m_lp_names(lp_names), m_params(params), m_inds(inds), m_intro_rules(intro_rules) {
+        // Two things to do:
+        // 1. initialize num_indices
+        // 2. initialize ir_offsets
         for (unsigned ind_idx = 0; ind_idx < inds.size(); ++ind_idx) {
+            m_num_indices.emplace_back(::lean::get_num_indices(env, inds[ind_idx]));
             for (unsigned ir_idx = 0; ir_idx < intro_rules[ind_idx].size(); ++ir_idx) {
                 m_ir_offsets.emplace_back(0);
             }
@@ -72,6 +84,9 @@ public:
     buffer<expr> & get_params() { return m_params; }
     buffer<expr> & get_inds() { return m_inds; }
     buffer<buffer<expr> > & get_intro_rules() { return m_intro_rules; }
+
+    buffer<unsigned> const & get_num_indices() const { return m_num_indices; }
+    buffer<unsigned> & get_num_indices() { return m_num_indices; }
 
     buffer<unsigned> const & get_ir_offsets() const { return m_ir_offsets; }
     buffer<unsigned> & get_ir_offsets() { return m_ir_offsets; }

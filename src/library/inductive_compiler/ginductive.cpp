@@ -48,6 +48,7 @@ struct ginductive_entry {
     ginductive_kind m_kind;
     bool       m_from_mutual;
     unsigned   m_num_params;
+    list<unsigned> m_num_indices;
     list<name> m_inds;
     list<list<name> > m_intro_rules;
     list<unsigned> m_ir_offsets;
@@ -82,6 +83,7 @@ serializer & operator<<(serializer & s, ginductive_entry const & entry) {
     s << entry.m_kind;
     s << entry.m_from_mutual;
     s << entry.m_num_params;
+    write_list<unsigned>(s, entry.m_num_indices);
     write_list<name>(s, entry.m_inds);
     for (list<name> const & irs : reverse(entry.m_intro_rules))
         write_list<name>(s, irs);
@@ -100,6 +102,7 @@ ginductive_entry read_ginductive_entry(deserializer & d) {
     d >> entry.m_kind;
     d >> entry.m_from_mutual;
     d >> entry.m_num_params;
+    entry.m_num_indices = read_list<unsigned>(d);
     entry.m_inds    = read_list<name>(d, read_name);
 
     unsigned num_inds = length(entry.m_inds);
@@ -127,6 +130,7 @@ struct ginductive_env_ext : public environment_extension {
     name_map<list<name> >     m_ind_to_mut_inds;
     name_map<ginductive_kind> m_ind_to_kind;
     name_map<unsigned>        m_num_params;
+    name_map<unsigned>        m_num_indices;
     name_map<name>            m_ir_to_ind;
 
     name_set                                   m_from_mutual;
@@ -139,6 +143,9 @@ struct ginductive_env_ext : public environment_extension {
     ginductive_env_ext() {}
 
     void register_ginductive_entry(ginductive_entry const & entry) {
+        buffer<unsigned> num_indices;
+        to_buffer(entry.m_num_indices, num_indices);
+
         buffer<list<name> > intro_rules;
         to_buffer(entry.m_intro_rules, intro_rules);
 
@@ -161,6 +168,7 @@ struct ginductive_env_ext : public environment_extension {
             m_ind_to_mut_inds.insert(ind, entry.m_inds);
             m_ind_to_kind.insert(ind, entry.m_kind);
             m_num_params.insert(ind, entry.m_num_params);
+            m_num_indices.insert(ind, num_indices[ind_idx]);
             for (name const & ir : intro_rules[ind_idx]) {
                 m_ir_to_ind.insert(ir, ind);
                 m_ir_to_simulated_ir_offset.insert(ir, ir_offsets[acc_ir_idx]);
@@ -205,6 +213,12 @@ struct ginductive_env_ext : public environment_extension {
         unsigned const * num_params = m_num_params.find(ind_name);
         lean_assert(num_params);
         return *num_params;
+    }
+
+    unsigned get_num_indices(name const & ind_name) const {
+        unsigned const * num_indices = m_num_indices.find(ind_name);
+        lean_assert(num_indices);
+        return *num_indices;
     }
 
     list<name> get_mut_ind_names(name const & ind_name) const {
@@ -293,6 +307,7 @@ environment register_ginductive_decl(environment const & env, ginductive_decl co
     entry.m_kind = k;
     entry.m_from_mutual = decl.is_from_mutual();
     entry.m_num_params = decl.get_num_params();
+    entry.m_num_indices = to_list(decl.get_num_indices());
 
     buffer<name> inds;
     for (expr const & ind : decl.get_inds()) {
@@ -331,6 +346,10 @@ optional<name> is_ginductive_intro_rule(environment const & env, name const & ir
 
 unsigned get_ginductive_num_params(environment const & env, name const & ind_name) {
     return get_extension(env).get_num_params(ind_name);
+}
+
+unsigned get_ginductive_num_indices(environment const & env, name const & ind_name) {
+    return get_extension(env).get_num_indices(ind_name);
 }
 
 list<name> get_ginductive_mut_ind_names(environment const & env, name const & ind_name) {

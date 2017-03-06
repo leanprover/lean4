@@ -26,6 +26,9 @@ optional<name> is_ginductive_intro_rule(environment const & env, name const & ir
 /* \brief Returns the number of parameters for the given inductive type \e ind_name. */
 unsigned get_ginductive_num_params(environment const & env, name const & ind_name);
 
+/* \brief Returns the number of indices for the given inductive type \e ind_name. */
+unsigned get_ginductive_num_indices(environment const & env, name const & ind_name);
+
 /* \brief Returns the names of all types that are mutually inductive with \e ind_name */
 list<name> get_ginductive_mut_ind_names(environment const & env, name const & ind_name);
 

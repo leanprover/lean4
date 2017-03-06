@@ -16,12 +16,12 @@ environment add_inductive_declaration(environment const & old_env, options const
                                       buffer<name> const & lp_names, buffer<expr> const & params,
                                       buffer<expr> const & inds, buffer<buffer<expr> > const & intro_rules,
                                       bool is_trusted) {
-    ginductive_decl decl(0, lp_names, params, inds, intro_rules);
+    ginductive_decl decl(old_env, 0, lp_names, params, inds, intro_rules);
     environment env = add_inner_inductive_declaration(old_env, opts, implicit_infer_map, decl, is_trusted);
     return env;
 }
 
-environment add_structure_declaration_aux(environment const & env, options const &,
+environment add_structure_declaration_aux(environment const & old_env, options const &,
                                           buffer<name> const & lp_names, buffer<expr> const & params,
                                           expr const & ind, expr const & intro_rule) {
     buffer<expr> inds;
@@ -31,13 +31,13 @@ environment add_structure_declaration_aux(environment const & env, options const
     intro_rules.emplace_back();
     intro_rules.back().push_back(intro_rule);
 
-    ginductive_decl decl(0, lp_names, params, inds, intro_rules);
+    ginductive_decl decl(old_env, 0, lp_names, params, inds, intro_rules);
 
-    environment new_env = env;
+    environment env = old_env;
     if (mlocal_name(ind) != get_has_sizeof_name())
-        new_env = mk_has_sizeof(new_env, mlocal_name(ind));
+        env = mk_has_sizeof(env, mlocal_name(ind));
 
-    return register_ginductive_decl(new_env, decl, ginductive_kind::BASIC);
+    return register_ginductive_decl(env, decl, ginductive_kind::BASIC);
 }
 
 }

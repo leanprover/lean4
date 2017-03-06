@@ -14,7 +14,7 @@ namespace lean {
 
 class ginductive_decl {
     unsigned m_nest_depth{0};
-    bool m_from_mutual;
+    bool m_is_inner;
     buffer<name> m_lp_names;
     buffer<expr> m_params;
     buffer<expr> m_inds;
@@ -31,16 +31,16 @@ class ginductive_decl {
 public:
     ginductive_decl(unsigned nest_depth, buffer<name> const & lp_names, buffer<expr> const & params,
                     buffer<unsigned> const & num_indices, buffer<unsigned> const & ir_offsets):
-        m_nest_depth(nest_depth), m_from_mutual(true), m_lp_names(lp_names), m_params(params), m_num_indices(num_indices), m_ir_offsets(ir_offsets) {}
+        m_nest_depth(nest_depth), m_is_inner(true), m_lp_names(lp_names), m_params(params), m_num_indices(num_indices), m_ir_offsets(ir_offsets) {}
 
     ginductive_decl(unsigned nest_depth, buffer<name> const & lp_names, buffer<expr> const & params, buffer<unsigned> const & ir_offsets):
-        m_nest_depth(nest_depth), m_from_mutual(true), m_lp_names(lp_names), m_params(params), m_ir_offsets(ir_offsets) {
+        m_nest_depth(nest_depth), m_is_inner(true), m_lp_names(lp_names), m_params(params), m_ir_offsets(ir_offsets) {
         m_num_indices.emplace_back(1);
     }
 
     ginductive_decl(environment const & env, unsigned nest_depth, buffer<name> const & lp_names, buffer<expr> const & params,
                     buffer<expr> const & inds, buffer<buffer<expr> > const & intro_rules):
-        m_nest_depth(nest_depth), m_from_mutual(false), m_lp_names(lp_names), m_params(params), m_inds(inds), m_intro_rules(intro_rules) {
+        m_nest_depth(nest_depth), m_is_inner(false), m_lp_names(lp_names), m_params(params), m_inds(inds), m_intro_rules(intro_rules) {
         // Two things to do:
         // 1. initialize num_indices
         // 2. initialize ir_offsets
@@ -56,13 +56,11 @@ public:
         m_sizeof_lemmas = optional<simp_lemmas>(sizeof_lemmas);
     }
 
-    bool is_from_mutual() const { return m_from_mutual; }
-
     bool has_sizeof_lemmas() const { return static_cast<bool>(m_sizeof_lemmas); }
     simp_lemmas get_sizeof_lemmas() const { return *m_sizeof_lemmas; }
 
     unsigned get_nest_depth() const { return m_nest_depth; }
-    bool from_mutual() const { return m_from_mutual; }
+    bool is_inner() const { return m_is_inner; }
 
     bool is_mutual() const { return m_inds.size() > 1; }
     unsigned get_num_params() const { return m_params.size(); }

@@ -46,7 +46,7 @@ static unsigned compute_idx_number(expr const & e) {
 
 struct ginductive_entry {
     ginductive_kind m_kind;
-    bool       m_from_mutual;
+    bool       m_is_inner;
     unsigned   m_num_params;
     list<unsigned> m_num_indices;
     list<name> m_inds;
@@ -81,7 +81,7 @@ inline deserializer & operator>>(deserializer & d, ginductive_entry & entry);
 
 serializer & operator<<(serializer & s, ginductive_entry const & entry) {
     s << entry.m_kind;
-    s << entry.m_from_mutual;
+    s << entry.m_is_inner;
     s << entry.m_num_params;
     write_list<unsigned>(s, entry.m_num_indices);
     write_list<name>(s, entry.m_inds);
@@ -100,7 +100,7 @@ serializer & operator<<(serializer & s, ginductive_entry const & entry) {
 ginductive_entry read_ginductive_entry(deserializer & d) {
     ginductive_entry entry;
     d >> entry.m_kind;
-    d >> entry.m_from_mutual;
+    d >> entry.m_is_inner;
     d >> entry.m_num_params;
     entry.m_num_indices = read_list<unsigned>(d);
     entry.m_inds    = read_list<name>(d, read_name);
@@ -133,7 +133,8 @@ struct ginductive_env_ext : public environment_extension {
     name_map<unsigned>        m_num_indices;
     name_map<name>            m_ir_to_ind;
 
-    name_set                                   m_from_mutual;
+    name_set                                   m_inner_inds;
+    name_set                                   m_inner_irs;
     name_map<unsigned>                         m_ir_to_simulated_ir_offset;
     name_map<list<pair<unsigned, unsigned> > > m_ind_to_ir_ranges;
 
@@ -161,9 +162,9 @@ struct ginductive_env_ext : public environment_extension {
             case ginductive_kind::NESTED: m_all_nested_inds = list<name>(ind, m_all_nested_inds); break;
             }
 
-            if (entry.m_from_mutual)
-                m_from_mutual.insert(ind);
-
+            if (entry.m_is_inner) {
+                m_inner_inds.insert(ind);
+            }
             m_ind_to_irs.insert(ind, intro_rules[ind_idx]);
             m_ind_to_mut_inds.insert(ind, entry.m_inds);
             m_ind_to_kind.insert(ind, entry.m_kind);
@@ -173,10 +174,12 @@ struct ginductive_env_ext : public environment_extension {
                 m_ir_to_ind.insert(ir, ind);
                 m_ir_to_simulated_ir_offset.insert(ir, ir_offsets[acc_ir_idx]);
                 acc_ir_idx++;
+                if (entry.m_is_inner) {
+                    m_inner_irs.insert(ir);
+                }
             }
 
             m_ind_to_ir_ranges.insert(ind, entry.m_idx_to_ir_range);
-
             ind_idx++;
         }
 
@@ -233,6 +236,14 @@ struct ginductive_env_ext : public environment_extension {
         return *offset;
     }
 
+    bool is_inner_ind(name const & ind_name) const {
+        return m_inner_inds.contains(ind_name);
+    }
+
+    bool is_inner_ir(name const & ir_name) const {
+        return m_inner_irs.contains(ir_name);
+    }
+
     bool is_pack(name const & n) const {
         return m_packs.contains(n);
     }
@@ -242,7 +253,7 @@ struct ginductive_env_ext : public environment_extension {
     }
 
     pair<unsigned, unsigned> ind_indices_to_ir_range(name const & basic_ind_name, buffer<expr> const & idxs) const {
-        if (!m_from_mutual.contains(basic_ind_name))
+        if (!m_inner_inds.contains(basic_ind_name))
             return mk_pair(0, length(get_intro_rules(basic_ind_name)));
 
         lean_assert(idxs.size() == 1);
@@ -305,7 +316,7 @@ struct ginductive_modification : public modification {
 environment register_ginductive_decl(environment const & env, ginductive_decl const & decl, ginductive_kind k) {
     ginductive_entry entry;
     entry.m_kind = k;
-    entry.m_from_mutual = decl.is_from_mutual();
+    entry.m_is_inner = decl.is_inner();
     entry.m_num_params = decl.get_num_params();
     entry.m_num_indices = to_list(decl.get_num_indices());
 
@@ -362,6 +373,14 @@ unsigned ir_to_simulated_ir_offset(environment const & env, name basic_ir_name) 
 
 pair<unsigned, unsigned> ind_indices_to_ir_range(environment const & env, name const & basic_ind_name, buffer<expr> const & idxs) {
     return get_extension(env).ind_indices_to_ir_range(basic_ind_name, idxs);
+}
+
+bool is_ginductive_inner_ind(environment const & env, name const & ind_name) {
+    return get_extension(env).is_inner_ind(ind_name);
+}
+
+bool is_ginductive_inner_ir(environment const & env, name const & ir_name) {
+    return get_extension(env).is_inner_ir(ir_name);
 }
 
 bool is_ginductive_pack(environment const & env, name const & n) {

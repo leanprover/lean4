@@ -75,6 +75,12 @@ ind_indices_to_ir_range("foo.basic", {sum.inr ()}) = (2, 2)
 */
 pair<unsigned, unsigned> ind_indices_to_ir_range(environment const & env, name const & basic_ind_name, buffer<expr> const & idxs);
 
+/* \brief A ginductive type is "inner" if it was not entered directly by the user. */
+bool is_ginductive_inner_ind(environment const & env, name const & ind_name);
+
+/* \brief A ginductive introduction rule is "inner" if it introduces an "inner" ginductive tye. */
+bool is_ginductive_inner_ir(environment const & env, name const & ir_name);
+
 bool is_ginductive_pack(environment const & env, name const & n);
 bool is_ginductive_unpack(environment const & env, name const & n);
 

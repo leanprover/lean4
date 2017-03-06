@@ -912,7 +912,7 @@ lemma dif_ctx_simp_congr {α : Sort u} {b c : Prop} [dec_b : decidable b]
 @dif_ctx_congr α b c dec_b (decidable_of_decidable_of_iff dec_b h_c) x u y v h_c h_t h_e
 
 -- Remark: dite and ite are "defally equal" when we ignore the proofs.
-lemma dite_ite_eq (c : Prop) [h : decidable c] {α : Sort u} (t : α) (e : α) : dite c (λ h, t) (λ h, e) = ite c t e :=
+lemma dif_eq_if (c : Prop) [h : decidable c] {α : Sort u} (t : α) (e : α) : dite c (λ h, t) (λ h, e) = ite c t e :=
 match h with
 | (is_true hc)   := rfl
 | (is_false hnc) := rfl

@@ -754,12 +754,15 @@ nat.strong_induction_on a $ λ n,
   end
 
 /- mod -/
+lemma mod_def (x y : nat) : mod x y = if 0 < y ∧ y ≤ x then mod (x - y) y else x :=
+by note h := mod_def_aux x y; rwa [dif_eq_if] at h
+
 lemma mod_zero (a : nat) : a % 0 = a :=
 begin
   rw mod_def,
   assert h : ¬ (0 < 0 ∧ 0 ≤ a),
   simp [lt_irrefl],
-  simp [dif_neg, h]
+  simp [if_neg, h]
 end
 
 lemma mod_eq_of_lt {a b : nat} (h : a < b) : a % b = a :=
@@ -767,7 +770,7 @@ begin
   rw mod_def,
   assert h' : ¬(0 < b ∧ b ≤ a),
   simp [not_le_of_gt h],
-  simp [dif_neg, h']
+  simp [if_neg, h']
 end
 
 lemma zero_mod (b : nat) : 0 % b = 0 :=
@@ -775,11 +778,11 @@ begin
   rw mod_def,
   assert h : ¬(0 < b ∧ b ≤ 0),
   {intro hn, cases hn with l r, exact absurd (lt_of_lt_of_le l r) (lt_irrefl 0)},
-  simp [dif_neg, h]
+  simp [if_neg, h]
 end
 
 lemma mod_eq_sub_mod {a b : nat} (h₁ : b > 0) (h₂ : a ≥ b) : a % b = (a - b) % b :=
-by rw [mod_def, dif_pos (and.intro h₁ h₂)]
+by rw [mod_def, if_pos (and.intro h₁ h₂)]
 
 lemma mod_lt (x : nat) {y : nat} (h : y > 0) : x % y < y :=
 begin
@@ -794,9 +797,19 @@ begin
       rwa -h₁ at h₂}}
 end
 
-/- div & mod -/
+lemma eq_zero_of_le_zero : ∀ {n : nat}, n ≤ 0 → n = 0
+| 0     h := rfl
+| (n+1) h := absurd (zero_lt_succ n) (not_lt_of_ge h)
 
-theorem mod_add_div (m k : ℕ)
+lemma mod_one (n : ℕ) : n % 1 = 0 :=
+have n % 1 < 1, from (mod_lt n) (succ_pos 0),
+eq_zero_of_le_zero (le_of_lt_succ this)
+
+/- div & mod -/
+lemma div_def (x y : nat) : div x y = if 0 < y ∧ y ≤ x then div (x - y) y + 1 else 0 :=
+by note h := div_def_aux x y; rwa dif_eq_if at h
+
+lemma mod_add_div (m k : ℕ)
 : m % k + k * (m / k) = m :=
 begin
   apply nat.strong_induction_on m,
@@ -807,11 +820,20 @@ begin
   { assert h' : m - k < m,
     { apply nat.sub_lt _ h^.left,
       apply lt_of_lt_of_le h^.left h^.right },
-    rw [div_def,mod_def,dif_pos h,dif_pos h],
+    rw [div_def, mod_def, if_pos h, if_pos h],
     simp [left_distrib,IH _ h'],
     rw [-nat.add_sub_assoc h^.right,nat.add_sub_cancel_left] },
   -- ¬ (0 < k ∧ k ≤ m)
-  { rw [div_def,mod_def,dif_neg h',dif_neg h'], simp },
+  { rw [div_def, mod_def, if_neg h', if_neg h'], simp },
 end
+
+/- div -/
+
+protected lemma div_one (n : ℕ) : n / 1 = n :=
+have n % 1 + 1 * (n / 1) = n, from mod_add_div _ _,
+by simp [mod_one] at this; assumption
+
+protected lemma div_zero (n : ℕ) : n / 0 = 0 :=
+begin rw [div_def], simp [lt_irrefl] end
 
 end nat

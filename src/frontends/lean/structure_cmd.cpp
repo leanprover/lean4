@@ -803,6 +803,10 @@ struct structure_cmd_fn {
         return Pi(m_params, m_type, m_p);
     }
 
+    expr mk_structure_type_no_params() {
+        return m_type;
+    }
+
     expr mk_intro_type() {
         levels ls = param_names_to_levels(to_list(m_level_names.begin(), m_level_names.end()));
         expr r    = mk_app(mk_constant(m_name, ls), m_params);
@@ -810,6 +814,15 @@ struct structure_cmd_fn {
         for (field_decl const & decl : m_fields) field_wo_defaults.push_back(decl.first);
         r         = Pi(m_params, Pi(field_wo_defaults, r, m_p), m_p);
         return infer_implicit_params(r, m_params.size(), m_mk_infer);
+    }
+
+    expr mk_intro_type_no_params() {
+        levels ls = param_names_to_levels(to_list(m_level_names.begin(), m_level_names.end()));
+        expr r    = mk_app(mk_constant(m_name, ls), m_params);
+        buffer<expr> field_wo_defaults;
+        for (field_decl const & decl : m_fields) field_wo_defaults.push_back(decl.first);
+        r         = Pi(field_wo_defaults, r, m_p);
+        return r;
     }
 
     void add_alias(name const & given, name const & n) {
@@ -849,9 +862,10 @@ struct structure_cmd_fn {
         add_alias(m_mk);
         add_rec_alias(rec_name);
         m_env = m_attrs.apply(m_env, m_p.ios(), m_name);
+
         m_env = add_structure_declaration_aux(m_env, m_p.get_options(), m_level_names, m_params,
-                                              mk_local(m_name, mk_structure_type()),
-                                              mk_local(m_mk, mk_intro_type()));
+                                              mk_local(m_name, mk_structure_type_no_params()),
+                                              mk_local(m_mk, mk_intro_type_no_params()));
     }
 
     void declare_projections() {

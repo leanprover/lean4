@@ -27,7 +27,8 @@ implicit_infer_kind get_implicit_infer_kind(name_map<implicit_infer_kind> const 
 unsigned get_num_indices(environment const & env, expr const & ind) {
     unsigned num_indices = 0;
     type_context tctx(env);
-    expr ind_type = tctx.relaxed_whnf(tctx.infer(ind));
+    lean_assert(is_local(ind));
+    expr ind_type = tctx.relaxed_whnf(mlocal_type(ind));
     type_context::tmp_locals locals(tctx);
     while (is_pi(ind_type)) {
         ind_type = instantiate(binding_body(ind_type), locals.push_local_from_binding(ind_type));

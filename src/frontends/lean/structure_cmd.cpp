@@ -466,7 +466,7 @@ struct structure_cmd_fn {
         return ::lean::mk_field_default_value(m_env, full_field_name, [&](name const & fname) {
                 for (field_decl const & d : m_fields) {
                     if (local_pp_name(d.first) == fname)
-                        return some_expr(d.first);
+                        return some_expr(mk_explicit(d.first));
                 }
                 return none_expr();
             });

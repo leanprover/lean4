@@ -1279,9 +1279,60 @@ void elaborator::first_pass(expr const & fn, buffer<expr> const & args,
         } else if (i < args.size()) {
             // explicit argument
             expr const & arg_ref = args[i];
-            i++;
             info.args_expected_types.push_back(d);
-            new_arg      = mk_metavar(d, arg_ref);
+            if (is_as_is(args[i])) {
+                /* We check the type of as-is arguments eagerly, and
+                   we don't create a metavariable for them since they
+                   have already been elaborated.
+
+                   This is important when we are elaborating terms such as
+
+                   l^.map (λ ⟨a, b⟩, a + b)
+
+                   where (l : list (nat × nat))
+
+                   We elaborate l when we process l^.map, and convert it into
+
+                   list.map (λ ⟨a, b⟩, a + b) (as-is l)
+
+                   By checking the type of l here, we make sure that the
+                   domain of the function (λ ⟨a, b⟩, a + b) is known when
+                   we elaborate it.
+
+                   Note that if the user types
+
+                   list.map (λ ⟨a, b⟩, a + b) l
+                             --^ fails here
+
+                   It will fail because we elaborate from left to right, and
+                   we don't have the type of l.
+
+                   See discussion at #1403
+                */
+                new_arg = get_as_is_arg(args[i]);
+                optional<expr> thunk_of;
+                if (!m_in_pattern) thunk_of = is_thunk(d);
+                expr arg_expected_type;
+                if (thunk_of)
+                    arg_expected_type = *thunk_of;
+                else
+                    arg_expected_type = d;
+                new_arg = mk_thunk_if_needed(new_arg, thunk_of);
+                expr new_arg_type = infer_type(new_arg);
+                optional<expr> new_new_arg = ensure_has_type(new_arg, new_arg_type, arg_expected_type, arg_ref);
+                if (!new_new_arg) {
+                    buffer<expr> tmp_args;
+                    tmp_args.append(info.new_args);
+                    tmp_args.push_back(new_arg);
+                    format msg = mk_app_type_mismatch_error(mk_app(fn, tmp_args),
+                                                            new_arg, new_arg_type, arg_expected_type);
+                    throw elaborator_exception(ref, msg);
+                }
+                new_arg = *new_new_arg;
+            } else {
+                new_arg = mk_metavar(d, arg_ref);
+            }
+            i++;
             info.args_mvars.push_back(new_arg);
             info.new_args_size.push_back(info.new_args.size());
             info.new_instances_size.push_back(info.new_instances.size());
@@ -1332,31 +1383,35 @@ expr elaborator::second_pass(expr const & fn, buffer<expr> const & args,
         expr ref_arg       = get_ref_for_child(args[i], ref);
         expr expected_type = info.args_expected_types[i];
         info.new_args[info.new_args_size[i]] = recover_expr_from_exception(some_expr(expected_type), ref_arg, [&] {
-            optional<expr> thunk_of;
-            if (!m_in_pattern) thunk_of = is_thunk(expected_type);
-            if (thunk_of)
-                expected_type = *thunk_of;
-            expr new_arg = visit(args[i], some_expr(expected_type));
-            new_arg = mk_thunk_if_needed(new_arg, thunk_of);
-            expr new_arg_type = infer_type(new_arg);
-            optional<expr> new_new_arg = ensure_has_type(new_arg, new_arg_type, info.args_expected_types[i], ref_arg);
-            if (!new_new_arg) {
-                buffer<expr> tmp_args;
-                tmp_args.append(info.new_args_size[i], info.new_args.data());
-                tmp_args.push_back(new_arg);
-                format msg = mk_app_type_mismatch_error(mk_app(fn, tmp_args),
-                                                        new_arg, new_arg_type, info.args_expected_types[i]);
-                throw elaborator_exception(ref, msg);
+            if (is_metavar(info.args_mvars[i])) {
+                optional<expr> thunk_of;
+                if (!m_in_pattern) thunk_of = is_thunk(expected_type);
+                if (thunk_of)
+                    expected_type = *thunk_of;
+                expr new_arg = visit(args[i], some_expr(expected_type));
+                new_arg = mk_thunk_if_needed(new_arg, thunk_of);
+                expr new_arg_type = infer_type(new_arg);
+                optional<expr> new_new_arg = ensure_has_type(new_arg, new_arg_type, info.args_expected_types[i], ref_arg);
+                if (!new_new_arg) {
+                    buffer<expr> tmp_args;
+                    tmp_args.append(info.new_args_size[i], info.new_args.data());
+                    tmp_args.push_back(new_arg);
+                    format msg = mk_app_type_mismatch_error(mk_app(fn, tmp_args),
+                                                            new_arg, new_arg_type, info.args_expected_types[i]);
+                    throw elaborator_exception(ref, msg);
+                }
+                if (!is_def_eq(info.args_mvars[i], *new_new_arg)) {
+                    buffer<expr> tmp_args;
+                    tmp_args.append(info.new_args_size[i], info.new_args.data());
+                    tmp_args.push_back(new_arg);
+                    format msg = mk_app_arg_mismatch_error(mk_app(fn, tmp_args),
+                                                           new_arg, info.args_mvars[i]);
+                    throw elaborator_exception(ref, msg);
+                }
+                return *new_new_arg;
+            } else {
+                return info.args_mvars[i];
             }
-            if (!is_def_eq(info.args_mvars[i], *new_new_arg)) {
-                buffer<expr> tmp_args;
-                tmp_args.append(info.new_args_size[i], info.new_args.data());
-                tmp_args.push_back(new_arg);
-                format msg = mk_app_arg_mismatch_error(mk_app(fn, tmp_args),
-                                                       new_arg, info.args_mvars[i]);
-                throw elaborator_exception(ref, msg);
-            }
-            return *new_new_arg;
         });
     }
     for (; j < info.new_instances.size(); j++) {

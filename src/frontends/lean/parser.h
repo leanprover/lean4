@@ -222,6 +222,7 @@ public:
     virtual pos_info pos() const override final { return pos_info(m_scanner.get_line(), m_scanner.get_pos()); }
     expr save_pos(expr e, pos_info p);
     expr rec_save_pos(expr const & e, pos_info p);
+    expr rec_save_pos(expr const & e, optional<pos_info> p) { return p ? rec_save_pos(e, *p) : e; }
     expr update_pos(expr e, pos_info p);
     void erase_pos(expr const & e);
     pos_info pos_of(expr const & e, pos_info default_pos) const;

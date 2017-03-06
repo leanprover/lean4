@@ -17,7 +17,7 @@ meta def on_left_at {m} [monad m] (c : clause) (i : ℕ)
 op ← c^.open_constn (c^.num_quants + i),
 @guard tactic _ (op.1^.get_lit 0)^.is_neg _,
 new_hyps ← f (op.1^.get_lit 0)^.formula,
-return $ new_hyps^.for (λnew_hyp,
+return $ new_hyps^.map (λnew_hyp,
   (op.1^.inst new_hyp.2)^.close_constn (op.2 ++ new_hyp.1))
 
 meta def on_left_at_dn {m} [monad m] [alternative m] (c : clause) (i : ℕ)
@@ -30,7 +30,7 @@ lci ← (op.2^.nth i)^.to_monad,
 @guard tactic _ (qf.1^.get_lit i)^.is_neg _,
 h ← mk_local_def `h $ imp (qf.1^.get_lit i)^.formula c^.local_false,
 new_hyps ← f h,
-return $ new_hyps^.for $ λnew_hyp,
+return $ new_hyps^.map $ λnew_hyp,
   (((clause.mk 0 0 new_hyp.2 c^.local_false c^.local_false)^.close_const h)^.inst
                (op.1^.close_const lci)^.proof)^.close_constn
   (qf.2 ++ op.2^.remove_nth i ++ new_hyp.1)
@@ -43,7 +43,7 @@ op ← c^.open_constn (c^.num_quants + i),
 @guard tactic _ ((op.1^.get_lit 0)^.is_pos) _,
 h ← mk_local_def `h (op.1^.get_lit 0)^.formula,
 new_hyps ← f h,
-return $ new_hyps^.for (λnew_hyp,
+return $ new_hyps^.map (λnew_hyp,
   (op.1^.inst (lambdas [h] new_hyp.2))^.close_constn (op.2 ++ new_hyp.1))
 
 meta def on_right_at' {m} [monad m] (c : clause) (i : ℕ)

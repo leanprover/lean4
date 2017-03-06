@@ -49,7 +49,7 @@ meta def clause_weight (c : derived_clause) : nat :=
 meta def find_minimal_by (passive : rb_map clause_id derived_clause)
                          {A} [has_ordering A]
                          (f : derived_clause → A) : clause_id :=
-match rb_map.min $ rb_map.of_list $ passive^.values^.for $ λc, (f c, c^.id) with
+match rb_map.min $ rb_map.of_list $ passive^.values^.map $ λc, (f c, c^.id) with
 | some id := id
 | none := nat.zero
 end

@@ -229,7 +229,7 @@ skolemized ← on_first_right' qf $ λhexp,
     return [([inh_lc], app_of_list sk_ax' (ctx ++ [inh_lc, hexp]))]
   | _ := failed
   end,
-return $ skolemized^.for (λs, s^.close_constn ctx)
+return $ skolemized^.map (λs, s^.close_constn ctx)
 
 meta def first_some {a : Type} : list (tactic (option a)) → tactic (option a)
 | [] := return none
@@ -239,7 +239,7 @@ private meta def get_clauses_core' (rules : list (clause → tactic (list clause
      : list clause → tactic (list clause) | cs :=
 lift list.join $ do
 for cs $ λc, do first $
-rules^.for (λr, r c >>= get_clauses_core') ++ [return [c]]
+rules^.map (λr, r c >>= get_clauses_core') ++ [return [c]]
 
 meta def get_clauses_core (rules : list (clause → tactic (list clause))) (initial : list clause)
      : tactic (list clause) := do

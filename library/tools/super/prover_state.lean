@@ -65,7 +65,7 @@ meta instance : has_to_tactic_format derived_clause :=
 ⟨λc, do
 prf_fmt ← pp c^.c^.proof,
 c_fmt ← pp c^.c,
-ass_fmt ← pp (c^.assertions^.for (λa, a^.local_type)),
+ass_fmt ← pp (c^.assertions^.map (λa, a^.local_type)),
 return $
 to_string c^.sc ++ " " ++
 prf_fmt ++ " " ++
@@ -91,7 +91,7 @@ namespace locked_clause
 meta instance : has_to_tactic_format locked_clause :=
 ⟨λc, do
 c_fmt ← pp c^.dc,
-reasons_fmt ← pp (c^.reasons^.for (λr, r^.for (λa, a^.local_type))),
+reasons_fmt ← pp (c^.reasons^.map (λr, r^.for (λa, a^.local_type))),
 return $ c_fmt ++ " (locked in case of: " ++ reasons_fmt ++ ")"
 ⟩
 
@@ -256,7 +256,7 @@ end
 meta def add_sat_clause (c : clause) (suggested_ev : score) : prover unit := do
 c ← c^.distinct,
 already_added ← flip monad.lift state_t.read $ λst, decidable.to_bool $
-                     c^.type ∈ st^.sat_solver^.clauses^.for (λd, d^.type),
+                     c^.type ∈ st^.sat_solver^.clauses^.map (λd, d^.type),
 if already_added then return () else do
 for c^.get_lits $ λl, mk_sat_var l^.formula l^.is_neg suggested_ev,
 in_sat_solver $ cdcl.mk_clause c,
@@ -368,7 +368,7 @@ red ← flip monad.lift state_t.read (λst, st^.active^.find id),
 match red with
 | none := return ()
 | some red := do
-let reasons := parents^.for (λp, p^.assertions),
+let reasons := parents^.map (λp, p^.assertions),
 let assertion := red^.assertions,
 if reasons^.for_all $ λr, r^.subset_of assertion then do
   state_t.modify $ λst, { st with active := st^.active^.erase id }

@@ -277,12 +277,12 @@ meta def multiplicative_to_additive_pairs : list (name × name) :=
 /- Transport multiplicative to additive -/
 meta def transport_multiplicative_to_additive : command :=
 let dict := rb_map.of_list multiplicative_to_additive_pairs in
-list.foldl (λ t (p : name × name), do
+multiplicative_to_additive_pairs^.foldl (λ t ⟨src, tgt⟩, do
   env ← get_env,
-  if (env^.get p.2)^.to_bool = ff
-  then t >> transport_with_dict dict p.1 p.2
+  if (env^.get tgt)^.to_bool = ff
+  then t >> transport_with_dict dict src tgt
   else t)
-skip multiplicative_to_additive_pairs
+skip
 
 run_command transport_multiplicative_to_additive
 

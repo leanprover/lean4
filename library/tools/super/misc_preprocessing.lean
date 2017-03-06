@@ -22,7 +22,7 @@ meta def remove_duplicates : list derived_clause → list derived_clause
 | [] := []
 | (c :: cs) :=
   let (same_type, other_type) := partition (λc' : derived_clause, c'^.c^.type = c^.c^.type) cs in
-  { c with sc := foldl score.min c^.sc (same_type^.for $ λc, c^.sc) } :: remove_duplicates other_type
+  { c with sc := foldl score.min c^.sc (same_type^.map $ λc, c^.sc) } :: remove_duplicates other_type
 
 meta def remove_duplicates_pre : prover unit :=
 preprocessing_rule $ λnew,

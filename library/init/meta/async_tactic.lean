@@ -44,7 +44,7 @@ proof ← run_async (do
   when proof^.has_meta_var $ fail "async proof failed: contains metavariables",
   return proof),
 add_decl $ declaration.thm lemma_name params tgt proof,
-exact (expr.const lemma_name (params^.for level.param))
+exact (expr.const lemma_name (params^.map level.param))
 
 namespace interactive
 open interactive.types

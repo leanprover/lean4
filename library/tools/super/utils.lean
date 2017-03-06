@@ -132,7 +132,7 @@ meta def contained_lconsts (e : expr) : rb_map name expr :=
 contained_lconsts' e (rb_map.mk name expr)
 
 meta def contained_lconsts_list (es : list expr) : rb_map name expr :=
-list.foldl (λlcs e, contained_lconsts' e lcs) (rb_map.mk name expr) es
+es^.foldl (λlcs e, contained_lconsts' e lcs) (rb_map.mk name expr)
 
 namespace tactic
 

@@ -40,7 +40,7 @@ do env  ← get_env,
    decl ← env^.get src_decl_name,
    let decl := decl^.update_name $ new_decl_name,
    let decl := decl^.update_type $ apply_replacement replacements decl^.type,
-   let decl := decl^.update_value $ expr.const src_decl_name (decl^.univ_params^.for level.param),
+   let decl := decl^.update_value $ expr.const src_decl_name (decl^.univ_params^.map level.param),
    add_decl decl
 
 meta def copy_decl_using (replacements : name_map name) (src_decl_name : name) (new_decl_name : name) : command :=

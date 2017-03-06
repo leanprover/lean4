@@ -33,7 +33,7 @@ let bidx := mk_idx h (hash_fn a) in
 data^.write bidx (⟨a, b⟩ :: data^.read bidx)
 
 def fold_buckets {n : nat} (data : bucket_array α β n) (d : δ) (f : δ → Π a, β a → δ) : δ :=
-data^.foldl d (λ b d, list.foldl (λ r (p : Σ a, β a), f r p.1 p.2) d b)
+data^.foldl d (λ b d, b^.foldl (λ r (p : Σ a, β a), f r p.1 p.2) d)
 
 variable [decidable_eq α]
 

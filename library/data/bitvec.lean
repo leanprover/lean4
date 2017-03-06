@@ -101,7 +101,7 @@ section arith
 
   protected def mul (x y : bitvec n) : bitvec n :=
   let f := λ r b, cond b (r + r + y) (r + r) in
-  list.foldl f 0 (to_list x)
+  (to_list x)^.foldl f 0
 
   instance : has_mul (bitvec n)  := ⟨bitvec.mul⟩
 end arith
@@ -145,7 +145,7 @@ section conversion
   | n (int.neg_succ_of_nat m) := tt :: not (bitvec.of_nat n m)
 
   def bits_to_nat (v : list bool) : nat :=
-  list.foldl (λ r b, r + r + cond b 1 0) 0 v
+  v^.foldl (λ r b, r + r + cond b 1 0) 0
 
   protected def to_nat {n : nat} (v : bitvec n) : nat :=
   bits_to_nat (to_list v)
@@ -161,7 +161,7 @@ end conversion
 
 private def to_string {n : nat} : bitvec n → string
 | ⟨bs, p⟩ :=
-  "0b" ++ (bs^.reverse^.for (λ b, if b then #"1" else #"0"))
+  "0b" ++ (bs^.reverse^.map (λ b, if b then #"1" else #"0"))
 
 instance (n : nat) : has_to_string (bitvec n) :=
 ⟨to_string⟩

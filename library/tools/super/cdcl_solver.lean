@@ -396,7 +396,7 @@ match st^.conflict with
     theory_conflict ← theory_solver,
     match theory_conflict with
     | some conflict := do set_conflict conflict, run' ()
-    | none := return $ result.sat (st^.vars^.for (λvar_st, var_st^.phase))
+    | none := return $ result.sat (st^.vars^.map (λvar_st, var_st^.phase))
     end
   | some unassigned :=
     match st^.vars^.find unassigned with
@@ -414,7 +414,7 @@ return res.1
 
 meta def theory_solver_of_tactic (th_solver : tactic unit) : cdcl.solver (option cdcl.proof_term) :=
 do s ← state_t.read, ↑do
-hyps ← return $ s^.trail^.for (λe, e^.hyp),
+hyps ← return $ s^.trail^.map (λe, e^.hyp),
 subgoal ← mk_meta_var s^.local_false,
 goals ← get_goals,
 set_goals [subgoal],

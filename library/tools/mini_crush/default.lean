@@ -176,7 +176,7 @@ do es ← collect_inductive_from_target,
      when_tracing `mini_crush (do p ← pp e, trace (to_fmt "Splitting on '" ++ p ++ to_fmt "'")),
      cases e; simph_intros_using s cfg; try (close_aux hs)) es,
    rs ← return $ flip list.qsort rs (λ ⟨e₁, _, n₁, _⟩ ⟨e₂, _, n₂, _⟩, if n₁ ≠ n₂ then n₁ < n₂ else size e₁ < size e₂),
-   return $ rs^.for (λ ⟨_, _, _, s⟩, ((), s))
+   return $ rs^.map (λ ⟨_, _, _, s⟩, ((), s))
 
 
 meta def search_cases (max_depth : nat) (s : simp_lemmas) (hs : hinst_lemmas) (cfg : simp_config) (s_name : name) : tactic unit :=

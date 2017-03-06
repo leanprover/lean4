@@ -133,8 +133,10 @@ struct print_expr_fn {
             out() << "Prop";
         } else if (is_one(sort_level(a))) {
             out() << "Type";
+        } else if (is_succ(sort_level(a))) {
+            out() << "Type.{" << succ_of(sort_level(a)) << "}";
         } else {
-            out() << "Type.{" << sort_level(a) << "}";
+            out() << "Sort.{" << sort_level(a) << "}";
         }
     }
 

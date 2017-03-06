@@ -9,7 +9,7 @@ p^.snd : ℕ
 f (p^.fst) : ℕ
 p^.fst + p^.snd : ℕ
 λ (c : car), (c^.pos)^.x : car → ℕ
-proj_notation.lean:34:18: error: invalid '~>' notation, 'fst' is not a valid "field" because environment does not contain 'car.fst'
+proj_notation.lean:34:18: error: invalid '^.' notation, 'fst' is not a valid "field" because environment does not contain 'car.fst'
   c
 which has type
   car

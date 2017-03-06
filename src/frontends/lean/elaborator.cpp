@@ -908,6 +908,8 @@ expr elaborator::visit_function(expr const & fn, bool has_args, expr const & ref
     if (is_placeholder(fn)) {
         throw elaborator_exception(ref, "placeholders '_' cannot be used where a function is expected");
     }
+    if (is_field_notation(fn))
+        throw elaborator_exception(ref, "invalid occurrence of '^.' notation");
     expr r;
     switch (fn.kind()) {
     case expr_kind::Var:
@@ -1795,6 +1797,37 @@ expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<exp
         }
         validate_overloads(fns, ref);
         return visit_overloaded_app(fns, args, expected_type, ref);
+    } else if (is_field_notation(fn) && amask == arg_mask::Default) {
+        expr s           = visit(macro_arg(fn, 0), none_expr());
+        expr s_type      = head_beta_reduce(instantiate_mvars(infer_type(s)));
+        name full_fname  = find_field_fn(fn, s, s_type);
+        expr proj        = copy_tag(fn, mk_constant(full_fname));
+        name struct_name = full_fname.get_prefix();
+        expr proj_type   = m_env.get(full_fname).get_type();
+        buffer<expr> new_args;
+        unsigned i       = 0;
+        while (is_pi(proj_type)) {
+            if (is_explicit(binding_info(proj_type))) {
+                if (is_app_of(binding_domain(proj_type), struct_name)) {
+                    /* found s location */
+                    new_args.push_back(copy_tag(fn, mk_as_is(s)));
+                    for (; i < args.size(); i++)
+                        new_args.push_back(args[i]);
+                    expr new_proj = visit(proj, none_expr());
+                    return visit_base_app(new_proj, amask, new_args, expected_type, ref);
+                } else {
+                    if (i >= args.size()) {
+                        throw elaborator_exception(ref, sstream() << "invalid '^.' notation, insufficient number of arguments for '"
+                                                   << full_fname << "'");
+                    }
+                    new_args.push_back(args[i]);
+                    i++;
+                }
+            }
+            proj_type = binding_body(proj_type);
+        }
+        throw elaborator_exception(ref, sstream() << "invalid '^.' notation, function '" << full_fname << "' does not have explicit argument with type ("
+                                   << struct_name << " ...)");
     } else {
         expr new_fn = visit_function(fn, has_args, ref);
         /* Check if we should use a custom elaboration procedure for this application. */
@@ -2379,7 +2412,7 @@ name elaborator::field_to_decl(expr const & e, expr const & s, expr const & s_ty
     expr I      = get_app_fn(s_type);
     if (!is_constant(I)) {
         auto pp_fn = mk_pp_ctx();
-        throw elaborator_exception(e, format("invalid '~>' notation, type is not of the form (C ...) where C is a constant") +
+        throw elaborator_exception(e, format("invalid '^.' notation, type is not of the form (C ...) where C is a constant") +
                                    pp_indent(pp_fn, s) +
                                    line() + format("has type") +
                                    pp_indent(pp_fn, s_type));
@@ -2410,7 +2443,7 @@ name elaborator::field_to_decl(expr const & e, expr const & s, expr const & s_ty
         name full_fname = const_name(I) + fname;
         if (!m_env.find(full_fname)) {
             auto pp_fn = mk_pp_ctx();
-            throw elaborator_exception(e, format("invalid '~>' notation, '") + format(fname) + format("'") +
+            throw elaborator_exception(e, format("invalid '^.' notation, '") + format(fname) + format("'") +
                                        format(" is not a valid \"field\" because environment does not contain ") +
                                        format("'") + format(full_fname) + format("'") +
                                        pp_indent(pp_fn, s) +

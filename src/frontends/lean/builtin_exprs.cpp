@@ -967,7 +967,7 @@ parse_table init_nud_table() {
 static name * g_field_notation_name          = nullptr;
 static std::string * g_field_notation_opcode = nullptr;
 
-[[ noreturn ]] static void throw_pn_ex() { throw exception("unexpected occurrence of '~>' notation expression"); }
+[[ noreturn ]] static void throw_pn_ex() { throw exception("unexpected occurrence of '^.' notation expression"); }
 
 class field_notation_macro_cell : public macro_definition_cell {
     name     m_field;
@@ -1023,7 +1023,7 @@ static expr parse_proj(parser_state & p, unsigned, expr const * args, pos_info c
                 throw parser_error("invalid projection, index must be greater than 0", num_pos);
             return p.save_pos(mk_proj_notation(args[0], fidx), pos);
         } else {
-            name field = p.check_id_next("invalid '~>' notation, identifier or numeral expected");
+            name field = p.check_id_next("invalid '^.' notation, identifier or numeral expected");
             return p.save_pos(mk_proj_notation(args[0], field), pos);
         }
     } catch (break_at_pos_exception & ex) {

@@ -26,7 +26,7 @@ def mk_str_name (n : name) (s : string) : name :=
 name.mk_string s n
 
 def mk_num_name (n : name) (v : nat) : name :=
-name.mk_numeral (unsigned.of_nat v) n
+name.mk_numeral (unsigned.of_nat' v) n
 
 def mk_simple_name (s : string) : name :=
 mk_str_name name.anonymous s

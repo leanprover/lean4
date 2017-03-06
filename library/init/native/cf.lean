@@ -43,7 +43,7 @@ meta def trace_cf (s : string) : cf_monad unit :=
 meta def fresh_name : cf_monad name := do
   (config, count) ← state.read,
   -- need to replace this with unique prefix as per our earlier conversation
-  n ← pure $ name.mk_numeral (unsigned.of_nat count) `_anf_,
+  n ← pure $ name.mk_numeral (unsigned.of_nat' count) `_anf_,
   state.write (config, count + 1),
   return n
 

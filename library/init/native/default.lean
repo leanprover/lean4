@@ -92,7 +92,7 @@ private meta def take_arguments' : expr → list name → (list name × expr)
 
 meta def fresh_name : ir_compiler name := do
   (conf, map, counter) ← lift state.read,
-  let fresh := name.mk_numeral (unsigned.of_nat counter) `native._ir_compiler_,
+  let fresh := name.mk_numeral (unsigned.of_nat' counter) `native._ir_compiler_,
   lift $ state.write (conf, map, counter + 1),
   return fresh
 

@@ -61,7 +61,7 @@ private meta def enter_scope (action : anf_monad expr) : anf_monad expr := do
 private meta def fresh_name : anf_monad name := do
   (ss, count) ← state.read,
   -- need to replace this with unique prefix as per our earlier conversation
-  n ← pure $ name.mk_numeral (unsigned.of_nat count) `_anf_,
+  n ← pure $ name.mk_numeral (unsigned.of_nat' count) `_anf_,
   state.write (ss, count + 1),
   return n
 

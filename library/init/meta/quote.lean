@@ -23,7 +23,7 @@ meta instance : has_quote char :=
 ⟨λ ⟨n, pr⟩, ``(char.of_nat %%(quote n))⟩
 
 meta instance : has_quote unsigned :=
-⟨λ ⟨n, pr⟩, ``(unsigned.of_nat %%(quote n))⟩
+⟨λ ⟨n, pr⟩, ``(unsigned.of_nat' %%(quote n))⟩
 
 meta def name.quote : name → pexpr
 | name.anonymous        := ``(name.anonymous)

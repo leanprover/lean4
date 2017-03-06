@@ -9,7 +9,6 @@ import init.data.fin.basic
 open nat
 def unsigned_sz : nat := succ 4294967295
 
-attribute [reducible]
 def unsigned := fin unsigned_sz
 
 namespace unsigned
@@ -17,18 +16,14 @@ namespace unsigned
 private lemma zero_lt_unsigned_sz : 0 < unsigned_sz :=
 zero_lt_succ _
 
-def of_nat (n : nat) : unsigned :=
+/- Later, we define of_nat using mod, the following version is used to define the metaprogramming system. -/
+protected def of_nat' (n : nat) : unsigned :=
 if h : n < unsigned_sz then fin.mk n h else fin.mk 0 zero_lt_unsigned_sz
 
 def to_nat (c : unsigned) : nat :=
 fin.val c
 
-def succ (i : unsigned) :=
-of_nat i^.to_nat^.succ
-
 end unsigned
-
-instance : has_zero unsigned := ⟨unsigned.of_nat 0⟩
 
 instance : decidable_eq unsigned :=
 have decidable_eq (fin unsigned_sz), from fin.decidable_eq _,

@@ -895,7 +895,8 @@ struct structure_cmd_fn {
                 /* TODO(Leo): add helper function for adding definition.
                    It should unfold_untrusted_macros */
                 expr decl_type  = unfold_untrusted_macros(m_env, Pi(args, mlocal_type(field.first)));
-                expr decl_value = unfold_untrusted_macros(m_env, Fun(args, *field.second));
+                expr val        = mk_app(m_ctx, get_id_name(), *field.second);
+                expr decl_value = unfold_untrusted_macros(m_env, Fun(args, val));
                 name_set used_univs;
                 used_univs = collect_univ_params(decl_value, used_univs);
                 used_univs = collect_univ_params(decl_type, used_univs);

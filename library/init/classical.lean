@@ -17,6 +17,12 @@ noncomputable theorem indefinite_description {α : Sort u} (p : α → Prop) :
   (∃ x, p x) → {x // p x} :=
 λ h, choice (let ⟨x, px⟩ := h in ⟨⟨x, px⟩⟩)
 
+noncomputable def some {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : α :=
+elt_of (indefinite_description p h)
+
+theorem some_spec {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : p (some h) :=
+has_property (indefinite_description p h)
+
 /- Diaconescu's theorem: using function extensionality and propositional extensionality,
    we can get excluded middle from this. -/
 section diaconescu
@@ -28,11 +34,11 @@ private def V (x : Prop) : Prop := x = false ∨ p
 private lemma exU : ∃ x, U x := ⟨true, or.inl rfl⟩
 private lemma exV : ∃ x, V x := ⟨false, or.inl rfl⟩
 
-private noncomputable def u := elt_of (indefinite_description U exU)
-private noncomputable def v := elt_of (indefinite_description V exV)
+private noncomputable def u := some exU
+private noncomputable def v := some exV
 
-private lemma u_def : U u := has_property (indefinite_description U exU)
-private lemma v_def : V v := has_property (indefinite_description V exV)
+private lemma u_def : U u := some_spec exU
+private lemma v_def : V v := some_spec exV
 
 private lemma not_uv_or_p : ¬(u = v) ∨ p :=
 or.elim u_def
@@ -55,7 +61,7 @@ have hpred : U = V, from
     show (x = true ∨ p) = (x = false ∨ p), from
       propext (iff.intro hl hr)),
 have h₀ : ∀ exU exV,
-    elt_of (indefinite_description U exU) = elt_of (indefinite_description V exV),
+    @some _ U exU = @some _ V exV,
   from hpred ▸ λ exU exV, rfl,
 show u = v, from h₀ _ _
 
@@ -66,14 +72,14 @@ have h : ¬(u = v) → ¬p, from mt p_implies_uv,
     (assume hp : p, or.inl hp)
 end diaconescu
 
-theorem exists_true_of_nonempty {a : Sort u} (h : nonempty a) : ∃ x : a, true :=
+theorem exists_true_of_nonempty {α : Sort u} (h : nonempty α) : ∃ x : α, true :=
 nonempty.elim h (take x, ⟨x, trivial⟩)
 
-noncomputable def inhabited_of_nonempty {a : Sort u} (h : nonempty a) : inhabited a :=
+noncomputable def inhabited_of_nonempty {α : Sort u} (h : nonempty α) : inhabited α :=
 ⟨elt_of (indefinite_description _ (exists_true_of_nonempty h))⟩
 
-noncomputable def inhabited_of_exists {a : Sort u} {p : a → Prop} (h : ∃ x, p x) :
-  inhabited a :=
+noncomputable def inhabited_of_exists {α : Sort u} {p : α → Prop} (h : ∃ x, p x) :
+  inhabited α :=
 inhabited_of_nonempty (exists.elim h (λ w hw, ⟨w⟩))
 
 /- all propositions are decidable -/
@@ -88,18 +94,18 @@ noncomputable def prop_decidable (a : Prop) : decidable a :=
 arbitrary (decidable a)
 local attribute [instance] prop_decidable
 
-noncomputable def type_decidable_eq (a : Sort u) : decidable_eq a :=
+noncomputable def type_decidable_eq (α : Sort u) : decidable_eq α :=
 λ x y, prop_decidable (x = y)
 
-noncomputable def type_decidable (a : Sort u) : psum a (a → false) :=
-match (prop_decidable (nonempty a)) with
+noncomputable def type_decidable (α : Sort u) : psum α (α → false) :=
+match (prop_decidable (nonempty α)) with
 | (is_true hp)  := psum.inl (@inhabited.default _ (inhabited_of_nonempty hp))
 | (is_false hn) := psum.inr (λ a, absurd (nonempty.intro a) hn)
 end
 
-noncomputable theorem strong_indefinite_description {a : Sort u} (p : a → Prop)
-  (h : nonempty a) : { x : a // (∃ y : a, p y) → p x} :=
-match (prop_decidable (∃ x : a, p x)) with
+noncomputable theorem strong_indefinite_description {α : Sort u} (p : α → Prop)
+  (h : nonempty α) : { x : α // (∃ y : α, p y) → p x} :=
+match (prop_decidable (∃ x : α, p x)) with
 | (is_true hp)  := let xp := indefinite_description _ hp in
                    tag (elt_of xp) (λ h', has_property xp)
 | (is_false hn) := tag (@inhabited.default _ (inhabited_of_nonempty h)) (λ h, absurd h hn)
@@ -107,35 +113,29 @@ end
 
 /- the Hilbert epsilon function -/
 
-noncomputable def epsilon {a : Sort u} [h : nonempty a] (p : a → Prop) : a :=
+noncomputable def epsilon {α : Sort u} [h : nonempty α] (p : α → Prop) : α :=
 elt_of (strong_indefinite_description p h)
 
-theorem epsilon_spec_aux {a : Sort u} (h : nonempty a) (p : a → Prop) (hex : ∃ y, p y) :
-    p (@epsilon a h p) :=
+theorem epsilon_spec_aux {α : Sort u} (h : nonempty α) (p : α → Prop) (hex : ∃ y, p y) :
+    p (@epsilon α h p) :=
 have aux : (∃ y, p y) → p (elt_of (strong_indefinite_description p h)), from has_property (strong_indefinite_description p h),
 aux hex
 
-theorem epsilon_spec {a : Sort u} {p : a → Prop} (hex : ∃ y, p y) :
-    p (@epsilon a (nonempty_of_exists hex) p) :=
+theorem epsilon_spec {α : Sort u} {p : α → Prop} (hex : ∃ y, p y) :
+    p (@epsilon α (nonempty_of_exists hex) p) :=
 epsilon_spec_aux (nonempty_of_exists hex) p hex
 
-theorem epsilon_singleton {a : Sort u} (x : a) : @epsilon a ⟨x⟩ (λ y, y = x) = x :=
-@epsilon_spec a (λ y, y = x) ⟨x, rfl⟩
-
-noncomputable def some {a : Sort u} {p : a → Prop} (h : ∃ x, p x) : a :=
-@epsilon a (nonempty_of_exists h) p
-
-theorem some_spec {a : Sort u} {p : a → Prop} (h : ∃ x, p x) : p (some h) :=
-epsilon_spec h
+theorem epsilon_singleton {α : Sort u} (x : α) : @epsilon α ⟨x⟩ (λ y, y = x) = x :=
+@epsilon_spec α (λ y, y = x) ⟨x, rfl⟩
 
 /- the axiom of choice -/
 
-theorem axiom_of_choice {a : Sort u} {b : a → Sort v} {r : Π x, b x → Prop} (h : ∀ x, ∃ y, r x y) :
-  ∃ (f : Π x, b x), ∀ x, r x (f x) :=
+theorem axiom_of_choice {α : Sort u} {β : α → Sort v} {r : Π x, β x → Prop} (h : ∀ x, ∃ y, r x y) :
+  ∃ (f : Π x, β x), ∀ x, r x (f x) :=
 have h : ∀ x, r x (some (h x)), from take x, some_spec (h x),
 ⟨_, h⟩
 
-theorem skolem {a : Sort u} {b : a → Sort v} {p : Π x, b x → Prop} :
+theorem skolem {α : Sort u} {b : α → Sort v} {p : Π x, b x → Prop} :
   (∀ x, ∃ y, p x y) ↔ ∃ (f : Π x, b x) , (∀ x, p x (f x)) :=
 iff.intro
   (assume h : (∀ x, ∃ y, p x y), axiom_of_choice h)

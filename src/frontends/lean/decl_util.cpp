@@ -96,6 +96,9 @@ void parse_mutual_header(parser & p, buffer<name> & lp_names, buffer<expr> & cs,
             break;
         p.next();
     }
+    if (cs.size() < 2) {
+        throw parser_error("invalid mutual declaration, must provide more than one identifier (separated by commas)", p.pos());
+    }
     p.parse_optional_binders(params, allow_default);
     for (expr const & param : params)
         p.add_local(param);

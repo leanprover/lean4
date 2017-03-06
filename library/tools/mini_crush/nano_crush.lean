@@ -46,7 +46,7 @@ e^.mfold s $ λ t _ s,
 
 meta def collect_revelant_fns : tactic name_set :=
 do ctx ← local_context,
-   s₁  ← mfoldl (λ s e, infer_type e >>= collect_revelant_fns_aux s) mk_name_set ctx,
+   s₁  ← ctx^.mfoldl (λ s e, infer_type e >>= collect_revelant_fns_aux s) mk_name_set,
    target >>= collect_revelant_fns_aux s₁
 
 meta def add_relevant_eqns (hs : hinst_lemmas) : tactic hinst_lemmas :=

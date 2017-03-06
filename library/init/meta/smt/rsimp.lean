@@ -96,7 +96,7 @@ meta def repr_map := expr_map expr
 meta def mk_repr_map := expr_map.mk expr
 
 meta def to_repr_map (ccs : cc_state) : tactic repr_map :=
-mfoldl (λ S e, do r ← choose ccs e, return $ S^.insert e r) mk_repr_map ccs^.roots
+ccs^.roots^.mfoldl (λ S e, do r ← choose ccs e, return $ S^.insert e r) mk_repr_map
 
 meta def rsimplify (ccs : cc_state) (e : expr) (m : option repr_map := none) : tactic (expr × expr) :=
 do m ← match m with

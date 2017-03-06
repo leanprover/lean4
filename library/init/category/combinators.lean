@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2016 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Jeremy Avigad
+Authors: Jeremy Avigad, Leonardo de Moura
 
 Monad combinators, as in Haskell's Control.Monad.
 -/
@@ -9,19 +9,19 @@ prelude
 import init.category.monad init.data.list.basic
 universes u v w
 
-def mmap {m : Type u → Type v} [monad m] {α : Type w} {β : Type u} (f : α → m β) : list α → m (list β)
+def list.mmap {m : Type u → Type v} [monad m] {α : Type w} {β : Type u} (f : α → m β) : list α → m (list β)
 | []       := return []
-| (h :: t) := do h' ← f h, t' ← mmap t, return (h' :: t')
+| (h :: t) := do h' ← f h, t' ← list.mmap t, return (h' :: t')
 
-def mmap' {m : Type → Type v} [monad m] {α : Type u} {β : Type} (f : α → m β) : list α → m unit
+def list.mmap' {m : Type → Type v} [monad m] {α : Type u} {β : Type} (f : α → m β) : list α → m unit
 | []       := return ()
-| (h :: t) := f h >> mmap' t
+| (h :: t) := f h >> list.mmap' t
 
-def mfor {m : Type u → Type v} [monad m] {α : Type w} {β : Type u} (l : list α) (f : α → m β) : m (list β) :=
-mmap f l
+def list.mfor {m : Type u → Type v} [monad m] {α : Type w} {β : Type u} (l : list α) (f : α → m β) : m (list β) :=
+list.mmap f l
 
-def mfor' {m : Type → Type v} [monad m] {α : Type u} {β : Type} (l : list α) (f : α → m β) : m unit :=
-mmap' f l
+def list.mfor' {m : Type → Type v} [monad m] {α : Type u} {β : Type} (l : list α) (f : α → m β) : m unit :=
+list.mmap' f l
 
 infix ` =<< `:2 := λ u v, v >>= u
 
@@ -32,15 +32,15 @@ infix ` <=< `:2 := λ t s a, s a >>= t
 def mjoin {m : Type u → Type u} [monad m] {α : Type u} (a : m (m α)) : m α :=
 bind a id
 
-def mfilter {m : Type → Type v} [monad m] {α : Type} (f : α → m bool) : list α → m (list α)
+def list.mfilter {m : Type → Type v} [monad m] {α : Type} (f : α → m bool) : list α → m (list α)
 | []       := return []
-| (h :: t) := do b ← f h, t' ← mfilter t, cond b (return (h :: t')) (return t')
+| (h :: t) := do b ← f h, t' ← list.mfilter t, cond b (return (h :: t')) (return t')
 
-def mfoldl {m : Type u → Type v} [monad m] {s : Type u} {α : Type w} : (s → α → m s) → s → list α → m s
+def list.mfoldl {m : Type u → Type v} [monad m] {s : Type u} {α : Type w} : (s → α → m s) → s → list α → m s
 | f s [] := return s
 | f s (h :: r) := do
   s' ← f s h,
-  mfoldl f s' r
+  list.mfoldl f s' r
 
 def when {m : Type → Type} [monad m] (c : Prop) [h : decidable c] (t : m unit) : m unit :=
 ite c t (pure ())
@@ -50,6 +50,8 @@ do b ← mbool, cond b tm fm
 
 def mwhen {m : Type → Type} [monad m] (c : m bool) (t : m unit) : m unit :=
 mcond c t (return ())
+
+export list (mmap mmap' mfor mfor' mfilter mfoldl)
 
 namespace monad
 def mapm   := @mmap

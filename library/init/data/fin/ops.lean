@@ -71,4 +71,32 @@ instance decidable_lt : ∀ (a b : fin n), decidable (a < b)
 instance decidable_le : ∀ (a b : fin n), decidable (a ≤ b)
 | ⟨a, _⟩ ⟨b, _⟩ := by apply nat.decidable_le
 
+lemma add_def (a b : fin n) : (a + b)^.val = (a^.val + b^.val) % n :=
+show (fin.add a b)^.val = (a^.val + b^.val) % n, from
+by cases a; cases b; simp [fin.add]
+
+lemma mul_def (a b : fin n) : (a * b)^.val = (a^.val * b^.val) % n :=
+show (fin.mul a b)^.val = (a^.val * b^.val) % n, from
+by cases a; cases b; simp [fin.mul]
+
+lemma sub_def (a b : fin n) : (a - b)^.val = a^.val - b^.val :=
+show (fin.sub a b)^.val = a^.val - b^.val, from
+by cases a; cases b; simp [fin.sub]
+
+lemma mod_def (a b : fin n) : (a % b)^.val = a^.val % b^.val :=
+show (fin.mod a b)^.val = a^.val % b^.val, from
+by cases a; cases b; simp [fin.mod]
+
+lemma div_def (a b : fin n) : (a / b)^.val = a^.val / b^.val :=
+show (fin.div a b)^.val = a^.val / b^.val, from
+by cases a; cases b; simp [fin.div]
+
+lemma lt_def (a b : fin n) : (a < b) = (a^.val < b^.val) :=
+show (fin.lt a b) = (a^.val < b^.val), from
+by cases a; cases b; simp [fin.lt]
+
+lemma le_def (a b : fin n) : (a ≤ b) = (a^.val ≤ b^.val) :=
+show (fin.le a b) = (a^.val ≤ b^.val), from
+by cases a; cases b; simp [fin.le]
+
 end fin

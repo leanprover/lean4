@@ -12,8 +12,11 @@ Author: Leonardo de Moura
 #include "util/debug.h"
 #include "util/buffer.h"
 #include "util/thread.h"
+#include "library/trace.h"
 
 namespace lean {
+// TODO(Leo) add compilation flag for enabling this trace message
+#define lean_array_trace(CODE) lean_trace(name({"array", "update"}), CODE)
 
 template<typename T>
 class parray {
@@ -199,10 +202,12 @@ class parray {
         if (c->kind() != Root)
             reroot(c);
         if (c->m_rc == 1) {
+            lean_array_trace(tout() << "destructive write at #" << i << "\n";);
             lean_assert(i < c->size());
             c->m_values[i] = v;
             return c;
         } else {
+            lean_array_trace(tout() << "non-destructive write at #" << i << "\n";);
             cell * new_cell       = mk_cell();
             new_cell->m_values    = c->m_values;
             new_cell->m_size      = c->m_size;
@@ -228,9 +233,11 @@ class parray {
         if (c->kind() != Root)
             reroot(c);
         if (c->m_rc == 1) {
+            lean_array_trace(tout() << "destructive push_back\n";);
             push_back_core(c, v);
             return c;
         } else {
+            lean_array_trace(tout() << "non-destructive push_back\n";);
             cell * new_cell       = mk_cell();
             new_cell->m_values    = c->m_values;
             new_cell->m_size      = c->m_size;
@@ -254,9 +261,11 @@ class parray {
             reroot(c);
         lean_assert(c->m_size > 0);
         if (c->m_rc == 1) {
+            lean_array_trace(tout() << "destructive pop_back\n";);
             pop_back_core(c);
             return c;
         } else {
+            lean_array_trace(tout() << "non-destructive pop_back\n";);
             cell * new_cell       = mk_cell();
             new_cell->m_values    = c->m_values;
             new_cell->m_size      = c->m_size;
@@ -324,4 +333,6 @@ public:
         return m_cell->m_rc;
     }
 };
+void initialize_parray();
+void finalize_parray();
 }

@@ -2477,10 +2477,11 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
     get_intro_rule_names(m_env, S_name, c_names);
     lean_assert(c_names.size() == 1);
     expr c = copy_tag(e, mk_constant(c_names[0]));
-    expr c_type = m_env.get(c_names[0]).get_type();
-    unsigned i = 0;
     name_map<expr> field2value;
-    while (is_pi(c_type)) {
+
+    // first check for explicit, implicit and parent fields
+    expr c_type = m_env.get(c_names[0]).get_type();
+    for (unsigned i = 0; is_pi(c_type); c_type = binding_body(c_type), i++) {
         if (i < nparams) {
             if (is_explicit(binding_info(c_type))) {
                 throw elaborator_exception(e, sstream() << "invalid structure value {...}, structure parameter '" <<
@@ -2495,7 +2496,6 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
                     if (S_fname == fnames[j]) {
                         used[j] = true;
                         field2value.insert(S_fname, fvalues[j]);
-                        c = copy_tag(e, mk_app(c, fvalues[j]));
                         break;
                     }
                 }
@@ -2517,19 +2517,9 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
                         }
                         f = copy_tag(e, mk_as_is(f));
                         field2value.insert(S_fname, f);
-                        c = copy_tag(e, mk_app(c, f));
                     } else {
                         name full_S_fname = S_name + S_fname;
-                        if (optional<name> default_value_fn = has_default_value(m_env, full_S_fname)) {
-                            expr value = mk_field_default_value(m_env, full_S_fname, [&](name const & fname) {
-                                    if (auto v = field2value.find(fname))
-                                        return some_expr(*v);
-                                    else
-                                        return none_expr();
-                                });
-                            field2value.insert(S_fname, value);
-                            c = copy_tag(e, mk_app(c, value));
-                        } else {
+                        if (!has_default_value(m_env, full_S_fname)) {
                             throw elaborator_exception(e, sstream() << "invalid structure value { ... }, field '" <<
                                                        S_fname << "' was not provided");
                         }
@@ -2543,15 +2533,59 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
                 }
             }
         }
-        c_type = binding_body(c_type);
-        i++;
     }
+
     for (unsigned i = 0; i < fnames.size(); i++) {
         if (!used[i]) {
             throw elaborator_exception(e, sstream() << "invalid structure value { ... }, '" << fnames[i] << "'" <<
                                        " is not a field of structure '" << S_name << "'");
         }
     }
+
+    // now repeatedly try to insert defaulted fields
+    bool last_progress = true;
+    bool done = false;
+    while (!done) {
+        done = true;
+        bool progress = false;
+        c_type = m_env.get(c_names[0]).get_type();
+        for (unsigned i = 0; is_pi(c_type); c_type = binding_body(c_type), i++) {
+            if (is_explicit(binding_info(c_type)) && !src) {
+                name S_fname = binding_name(c_type);
+                if (!field2value.find(S_fname)) {
+                    name full_S_fname = S_name + S_fname;
+                    if (optional<name> default_value_fn = has_default_value(m_env, full_S_fname)) {
+                        try {
+                            expr value = mk_field_default_value(m_env, full_S_fname, [&](name const &fname) {
+                                if (auto v = field2value.find(fname))
+                                    return some_expr(*v);
+                                else
+                                    return none_expr();
+                            });
+                            field2value.insert(S_fname, value);
+                            progress = true;
+                        } catch (exception &) {
+                            done = false;
+                            if (!last_progress)
+                                throw;
+                        }
+                    }
+                }
+            }
+        }
+        last_progress = progress;
+    }
+
+    // finally apply fields to the constructor
+    c_type = m_env.get(c_names[0]).get_type();
+    for (unsigned i = 0; is_pi(c_type); c_type = binding_body(c_type), i++) {
+        if (is_explicit(binding_info(c_type))) {
+            name S_fname = binding_name(c_type);
+            lean_assert(field2value.find(S_fname));
+            c = copy_tag(e, mk_app(c, field2value[S_fname]));
+        }
+    }
+
     return visit(c, expected_type);
 }
 

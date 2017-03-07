@@ -7,13 +7,13 @@ Authors: Leonardo de Moura
 prelude
 import init.logic
 universes u
-class setoid (α : Type u) :=
+class setoid (α : Sort u) :=
 (r : α → α → Prop) (iseqv : equivalence r)
 
 namespace setoid
 infix ` ≈ ` := setoid.r
 
-variable {α : Type u}
+variable {α : Sort u}
 variable [s : setoid α]
 include s
 

@@ -168,7 +168,7 @@ def type_eq_of_heq (h : a == b) : α = β :=
 heq.rec_on h (eq.refl α)
 end
 
-lemma eq_rec_heq {α : Type u} {φ : α → Sort v} : ∀ {a a' : α} (h : a = a') (p : φ a), (eq.rec_on h p : φ a') == p
+lemma eq_rec_heq {α : Sort u} {φ : α → Sort v} : ∀ {a a' : α} (h : a = a') (p : φ a), (eq.rec_on h p : φ a') == p
 | a .a rfl p := heq.refl p
 
 lemma heq_of_eq_rec_left {α : Sort u} {φ : α → Sort v} : ∀ {a a' : α} {p₁ : φ a} {p₂ : φ a'} (e : a = a') (h₂ : (eq.rec_on e p₁ : φ a') = p₂), p₁ == p₂

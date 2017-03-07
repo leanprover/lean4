@@ -11,7 +11,7 @@ import init.data.quot init.logic
 universes u v
 
 namespace function
-variables {α : Type u} {β : α → Type v}
+variables {α : Sort u} {β : α → Sort v}
 
 protected def equiv (f₁ f₂ : Π x : α, β x) : Prop := ∀ x, f₁ x = f₂ x
 
@@ -25,19 +25,19 @@ protected theorem equiv.symm {f₁ f₂ : Π x: α, β x} : f₁ ~ f₂ → f₂
 protected theorem equiv.trans {f₁ f₂ f₃ : Π x: α, β x} : f₁ ~ f₂ → f₂ ~ f₃ → f₁ ~ f₃ :=
 λ h₁ h₂ x, eq.trans (h₁ x) (h₂ x)
 
-protected theorem equiv.is_equivalence (α : Type u) (β : α → Type v) : equivalence (@function.equiv α β) :=
+protected theorem equiv.is_equivalence (α : Sort u) (β : α → Sort v) : equivalence (@function.equiv α β) :=
 mk_equivalence (@function.equiv α β) (@equiv.refl α β) (@equiv.symm α β) (@equiv.trans α β)
 end function
 
 section
 open quotient
-variables {α : Type u} {β : α → Type v}
+variables {α : Sort u} {β : α → Sort v}
 
 @[instance]
-private def fun_setoid (α : Type u) (β : α → Type v) : setoid (Π x : α, β x) :=
+private def fun_setoid (α : Sort u) (β : α → Sort v) : setoid (Π x : α, β x) :=
 setoid.mk (@function.equiv α β) (function.equiv.is_equivalence α β)
 
-private def extfun (α : Type u) (β : α → Type v) : Type (max u v) :=
+private def extfun (α : Sort u) (β : α → Sort v) : Sort (imax u v) :=
 quotient (fun_setoid α β)
 
 private def fun_to_extfun (f : Π x : α, β x) : extfun α β :=
@@ -59,5 +59,5 @@ attribute [intro!] funext
 
 local infix `~` := function.equiv
 
-instance pi.subsingleton {α : Type u} {β : α → Type v} [∀ a, subsingleton (β a)] : subsingleton (Π a, β a) :=
+instance pi.subsingleton {α : Sort u} {β : α → Sort v} [∀ a, subsingleton (β a)] : subsingleton (Π a, β a) :=
 ⟨λ f₁ f₂, funext (λ a, subsingleton.elim (f₁ a) (f₂ a))⟩

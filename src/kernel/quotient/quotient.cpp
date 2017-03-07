@@ -75,22 +75,22 @@ environment declare_quotient(environment const & env) {
     environment new_env = env;
     name u_name("u");
     level u         = mk_param_univ(u_name);
-    expr Type_u     = mk_sort(u);
-    expr alpha      = mk_local("α", "α", Type_u, mk_implicit_binder_info());
+    expr Sort_u     = mk_sort(u);
+    expr alpha      = mk_local("α", "α", Sort_u, mk_implicit_binder_info());
     expr r          = mk_local("r", mk_arrow(alpha, mk_arrow(alpha, mk_Prop())));
-    /* constant {u} quot {α : Type u} (r : α → α → Prop) : Type u */
-    new_env = add_constant(new_env, *g_quotient, {u_name}, Pi(alpha, Pi(r, Type_u)));
+    /* constant {u} quot {α : Sort u} (r : α → α → Prop) : Sort u */
+    new_env = add_constant(new_env, *g_quotient, {u_name}, Pi(alpha, Pi(r, Sort_u)));
     expr quot_r     = mk_app(mk_constant(*g_quotient, {u}), alpha, r);
     expr a          = mk_local("a", alpha);
-    /* constant {u} quot.mk {α : Type u} (r : α → α → Prop) (a : α) : @quot.{u} α r */
+    /* constant {u} quot.mk {α : Sort u} (r : α → α → Prop) (a : α) : @quot.{u} α r */
     new_env = add_constant(new_env, *g_quotient_mk, {u_name},
                            Pi(alpha, Pi(r, Pi(a, quot_r))));
     /* make r implicit */
     r               = mk_local("r", "r", mk_arrow(alpha, mk_arrow(alpha, mk_Prop())), mk_implicit_binder_info());
     name v_name("v");
     level v         = mk_param_univ(v_name);
-    expr Type_v     = mk_sort(v);
-    expr beta       = mk_local("β", "β", Type_v, mk_implicit_binder_info());
+    expr Sort_v     = mk_sort(v);
+    expr beta       = mk_local("β", "β", Sort_v, mk_implicit_binder_info());
     expr f          = mk_local("f", mk_arrow(alpha, beta));
     expr b          = mk_local("b", alpha);
     expr r_a_b      = mk_app(r, a, b);
@@ -98,7 +98,7 @@ environment declare_quotient(environment const & env) {
     expr f_a_eq_f_b = mk_app(mk_constant("eq", {v}), beta, mk_app(f, a), mk_app(f, b));
     /* (∀ a b : α, r a b → f a = f b) */
     expr sanity     = Pi(a, Pi(b, mk_arrow(r_a_b, f_a_eq_f_b)));
-    /* constant {u v} quot.lift {α : Type u} {r : α → α → Prop} {β : Type v} (f : α → β)
+    /* constant {u v} quot.lift {α : Sort u} {r : α → α → Prop} {β : Sort v} (f : α → β)
                                 : (∀ a b : α, r a b → f a = f b) →  @quot.{u} α r → β */
     new_env = add_constant(new_env, *g_quotient_lift, {u_name, v_name},
                            Pi(alpha, Pi(r, Pi(beta, Pi(f, mk_arrow(sanity, mk_arrow(quot_r, beta)))))));
@@ -108,7 +108,7 @@ environment declare_quotient(environment const & env) {
     expr all_quot   = Pi(a, mk_app(beta, quot_mk_a));
     expr q          = mk_local("q", quot_r);
     expr beta_q     = mk_app(beta, q);
-    /* constant {u} quot.ind {α : Type u} {r : α → α → Prop} {β : @quot.{u} α r → Prop}
+    /* constant {u} quot.ind {α : Sort u} {r : α → α → Prop} {β : @quot.{u} α r → Prop}
                    : (∀ a : α, β (@quot.mk.{u} α r a)) → ∀ q : @quot.{u} α r, β q */
     new_env = add_constant(new_env, *g_quotient_ind, {u_name},
                            Pi(alpha, Pi(r, Pi(beta, mk_arrow(all_quot, Pi(q, beta_q))))));

@@ -102,15 +102,15 @@ void init_token_table(token_table & t) {
 
     char const * commands[] =
         {"theorem", "axiom", "axioms", "variable", "protected", "private",
-         "definition", "meta", "mutual", "example", "coercion", "noncomputable",
+         "definition", "meta", "mutual", "example", "noncomputable",
          "variables", "parameter", "parameters", "constant", "constants",
-         "evaluate", "check", "eval", "vm_eval", "using_well_founded", "[whnf]",
+         "check", "eval", "vm_eval", "using_well_founded", "[whnf]",
          "print", "end", "namespace", "section", "prelude", "help",
          "import", "inductive", "structure", "class", "universe", "universes", "local",
          "precedence", "reserve", "infixl", "infixr", "infix", "postfix", "prefix", "notation",
-         "exit", "set_option", "open", "export", "override", "@[",
+         "exit", "set_option", "open", "export", "@[",
          "attribute", "instance", "include", "omit", "init_quotient",
-         "init_hits", "declare_trace", "run_command", "add_key_equivalence",
+         "declare_trace", "run_command", "add_key_equivalence",
          "#compile", "#unify", nullptr};
 
     pair<char const *, char const *> aliases[] =

@@ -39,7 +39,7 @@ namespace interactive
 open lean.parser
 open interactive
 open interactive.types
-local postfix ?:9001 := optional
+local postfix `?`:9001 := optional
 local postfix *:9001 := many
 
 meta def itactic : Type :=

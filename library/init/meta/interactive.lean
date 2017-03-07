@@ -11,7 +11,7 @@ import init.meta.lean.parser init.meta.quote
 open lean
 open lean.parser
 
-local postfix ?:9001 := optional
+local postfix `?`:9001 := optional
 local postfix *:9001 := many
 
 namespace interactive

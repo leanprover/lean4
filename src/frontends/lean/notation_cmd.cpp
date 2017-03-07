@@ -90,7 +90,7 @@ using notation::mk_skip_action;
 using notation::transition;
 using notation::action;
 
-static char const * g_forbidden_tokens[] = {"!", "@", nullptr};
+static char const * g_forbidden_tokens[] = {"@", nullptr};
 
 void check_not_forbidden(char const * tk) {
     auto it = g_forbidden_tokens;

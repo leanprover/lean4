@@ -7,18 +7,24 @@ structure lens (α : Type u) (β : Type v) :=
 
 def lens.compose {α : Type u} {β : Type v} {σ : Type w} (t : lens β σ) (s : lens α β) : lens α σ :=
 { get    := t^.get ∘ s^.get,
-  set    := λ a d, s^.set a (t^.set (s^.get a) d),
-  modify := λ a f, s^.set a (t^.modify (s^.get a) f) }
+  modify := λ a f, s^.modify a $ λ b, t^.modify b f }
 
 infix `∙`:1 := lens.compose
 
 def fst {α β} : lens (α × β) α :=
 { get    := prod.fst,
-  modify := λ p f, (f p.1, p.2) }
+  modify := λ ⟨a, b⟩ f, (f a, b),
+  set    := λ ⟨a, b⟩ a', (a', b)}
 
 def snd {α β} : lens (α × β) β :=
 { get    := prod.snd,
-  modify := λ p f, (p.1, f p.2) }
+  modify := λ ⟨a, b⟩ f, (a, f b),
+  set    := λ ⟨a, b⟩ b', (a, b') }
+
+def idx {α} {n} (i : fin n) : lens (array α n) α :=
+{ get    := λ a,   a^.read i,
+  modify := λ a f, a^.write i $ f $ a^.read i,
+  set    := λ a b, a^.write i b }
 
 def modify_ith {α} : nat → list α → (α → α) → list α
 | _     []     f := []
@@ -32,7 +38,21 @@ def ith {α} [inhabited α] : nat → list α → α
 
 def nth {α} [inhabited α] (i : nat) : lens (list α) α :=
 { get    := ith i,
-  modify := modify_ith i}
+  modify := modify_ith i }
+
+set_option trace.array.update true
+
+def f (a : array nat 10 × array bool 5) : array nat 10 × array bool 5 :=
+(idx 2 ∙ snd)^.set ((idx 1 ∙ fst)^.set a 1) ff
+
+vm_eval f (mk_array 10 0, mk_array 5 tt)
+
+vm_eval (idx 2 ∙ snd)^.set ((idx 1 ∙ fst)^.set (mk_array 10 0, mk_array 5 tt) 1) ff
+
+vm_eval let p₀ := (mk_array 10 0, mk_array 5 tt),
+            p₁ := (idx 1 ∙ fst)^.set p₀ 1,
+            p₂ := (idx 2 ∙ snd)^.set p₁ ff in
+        p₂
 
 example : (fst ∙ nth 1)^.set [(1, 2), (3, 4), (0, 3)] 30 = [(1, 2), (30, 4), (0, 3)] :=
 rfl

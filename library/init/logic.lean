@@ -947,13 +947,26 @@ structure {r s} ulift (α : Type s) : Type (max s r) :=
 up :: (down : α)
 
 namespace ulift
-/- βijection between α and ulift.{v} α -/
+/- Bijection between α and ulift.{v} α -/
 lemma up_down {α : Type u} : ∀ (b : ulift.{v} α), up (down b) = b
 | (up a) := rfl
 
 lemma down_up {α : Type u} (a : α) : down (up.{v} a) = a :=
 rfl
 end ulift
+
+/- Universe lifting operation from Sort to Type -/
+structure plift (α : Sort u) : Type u :=
+up :: (down : α)
+
+namespace plift
+/- Bijection between α and slift α -/
+lemma up_down {α : Sort u} : ∀ (b : plift α), up (down b) = b
+| (up a) := rfl
+
+lemma down_up {α : Sort u} (a : α) : down (up a) = a :=
+rfl
+end plift
 
 /- Equalities for rewriting let-expressions -/
 lemma let_value_eq {α : Sort u} {β : Sort v} {a₁ a₂ : α} (b : α → β) :

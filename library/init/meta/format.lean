@@ -109,13 +109,13 @@ meta instance sum_has_to_format {α : Type u} {β : Type v} [has_to_format α] [
 open prod
 
 meta instance {α : Type u} {β : Type v} [has_to_format α] [has_to_format β] : has_to_format (prod α β) :=
-⟨λ p, group (nest 1 (to_fmt "(" ++ to_fmt p.1 ++ to_fmt "," ++ line ++ to_fmt p.2 ++ to_fmt ")"))⟩
+⟨λ ⟨a, b⟩, group (nest 1 (to_fmt "(" ++ to_fmt a ++ to_fmt "," ++ line ++ to_fmt b ++ to_fmt ")"))⟩
 
 open sigma
 
 meta instance {α : Type u} {β : α → Type v} [has_to_format α] [s : ∀ x, has_to_format (β x)]
                                           : has_to_format (sigma β) :=
-⟨λ p, group (nest 1 (to_fmt "⟨"  ++ to_fmt p.1 ++ to_fmt "," ++ line ++ to_fmt p.2 ++ to_fmt "⟩"))⟩
+⟨λ ⟨a, b⟩, group (nest 1 (to_fmt "⟨"  ++ to_fmt a ++ to_fmt "," ++ line ++ to_fmt b ++ to_fmt "⟩"))⟩
 
 open subtype
 

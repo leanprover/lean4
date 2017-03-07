@@ -45,10 +45,10 @@ instance {α : Type u} {β : Type v} [has_to_string α] [has_to_string β] : has
 ⟨λ s, match s with | (inl a) := "(inl " ++ to_string a ++ ")" | (inr b) := "(inr " ++ to_string b ++ ")" end⟩
 
 instance {α : Type u} {β : Type v} [has_to_string α] [has_to_string β] : has_to_string (α × β) :=
-⟨λ p, "(" ++ to_string p.1 ++ ", " ++ to_string p.2 ++ ")"⟩
+⟨λ ⟨a, b⟩, "(" ++ to_string a ++ ", " ++ to_string b ++ ")"⟩
 
 instance {α : Type u} {β : α → Type v} [has_to_string α] [s : ∀ x, has_to_string (β x)] : has_to_string (sigma β) :=
-⟨λ p, "⟨"  ++ to_string p.1 ++ ", " ++ to_string p.2 ++ "⟩"⟩
+⟨λ ⟨a, b⟩, "⟨"  ++ to_string a ++ ", " ++ to_string b ++ "⟩"⟩
 
 instance {α : Type u} {p : α → Prop} [has_to_string α] : has_to_string (subtype p) :=
 ⟨λ s, to_string (elt_of s)⟩
@@ -97,7 +97,6 @@ def string.quote : string → string
 
 instance : has_to_string string :=
 ⟨string.quote⟩
-
 
 instance (n : nat) : has_to_string (fin n) :=
 ⟨λ f, to_string (fin.val f)⟩

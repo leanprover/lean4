@@ -33,21 +33,21 @@ def to_list : dlist α → list α
 def empty : dlist α :=
 ⟨id, ♯⟩
 
-local notation a `:::`:max := list.cons a
+local notation a `::_`:max := list.cons a
 
 /-- Create dlist with a single element -/
 def singleton (x : α) : dlist α :=
-⟨x:::, ♯⟩
+⟨x::_, ♯⟩
 
 local attribute [simp] function.comp
 
 /-- `O(1)` Prepend a single element to a dlist -/
 def cons (x : α) : dlist α →  dlist α
-| ⟨xs, h⟩ := ⟨x::: ∘ xs, ♯⟩
+| ⟨xs, h⟩ := ⟨x::_ ∘ xs, ♯⟩
 
 /-- `O(1)` Append a single element to a dlist -/
 def concat (x : α) : dlist α → dlist α
-| ⟨xs, h⟩ := ⟨xs ∘ x:::, ♯⟩
+| ⟨xs, h⟩ := ⟨xs ∘ x::_, ♯⟩
 
 /-- `O(1)` Append dlists -/
 protected def append : dlist α → dlist α → dlist α

@@ -7,7 +7,8 @@ structure lens (α : Type u) (β : Type v) :=
 
 def lens.compose {α : Type u} {β : Type v} {σ : Type w} (t : lens β σ) (s : lens α β) : lens α σ :=
 { get    := t^.get ∘ s^.get,
-  modify := λ a f, s^.modify a $ λ b, t^.modify b f }
+  modify := λ a f, s^.modify a $ λ b, t^.modify b f,
+  set    := λ a v, s^.modify a $ λ b, t^.set b v }
 
 infix `∙`:1 := lens.compose
 

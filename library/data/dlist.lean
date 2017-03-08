@@ -85,4 +85,57 @@ by cases l; rsimp
 lemma to_list_concat (x : α) (l : dlist α) : to_list (concat x l) = to_list l ++ [x] :=
 by cases l; simp; rsimp
 
+section transfer
+
+protected def rel_dlist_list (d : dlist α) (l : list α) : Prop :=
+to_list d = l
+
+instance bi_total_rel_dlist_list : @relator.bi_total (dlist α) (list α) dlist.rel_dlist_list :=
+⟨take d, ⟨to_list d, rfl⟩, take l, ⟨of_list l, to_list_of_list l⟩⟩
+
+protected lemma rel_eq :
+  (dlist.rel_dlist_list ⇒ dlist.rel_dlist_list ⇒ iff) (@eq (dlist α)) eq
+| l₁ ._ rfl l₂ ._ rfl := ⟨congr_arg to_list,
+  suppose to_list l₁ = to_list l₂,
+  have of_list (to_list l₁) = of_list (to_list l₂), from congr_arg of_list this,
+  by simp [of_list_to_list] at this; assumption⟩
+
+protected lemma rel_empty : dlist.rel_dlist_list (@empty α) [] :=
+to_list_empty
+
+protected lemma rel_singleton : (@eq α ⇒ dlist.rel_dlist_list) (λx, singleton x) (λx, [x])
+| ._ x rfl := to_list_singleton x
+
+protected lemma rel_append :
+  (dlist.rel_dlist_list ⇒ dlist.rel_dlist_list ⇒ dlist.rel_dlist_list) (λ(x y : dlist α), x ++ y) (λx y, x ++ y)
+| l₁ ._ rfl l₂ ._ rfl := to_list_append l₁ l₂
+
+protected lemma rel_cons :
+  (@eq α ⇒ dlist.rel_dlist_list ⇒ dlist.rel_dlist_list) cons (λx y, x :: y)
+| x ._ rfl l ._ rfl := to_list_cons x l
+
+protected lemma rel_concat :
+  (@eq α ⇒ dlist.rel_dlist_list ⇒ dlist.rel_dlist_list) concat (λx y, y ++ [x])
+| x ._ rfl l ._ rfl := to_list_concat x l
+
+protected meta def transfer : tactic unit := do
+  transfer.transfer [`relator.rel_forall_of_total, `dlist.rel_eq, `dlist.rel_empty,
+    `dlist.rel_singleton, `dlist.rel_append, `dlist.rel_cons, `dlist.rel_concat]
+
+example : ∀(a b c : dlist α), a ++ (b ++ c) = (a ++ b) ++ c :=
+begin
+  dlist.transfer,
+  intros,
+  simp
+end
+
+example : ∀(a : α), singleton a ++ empty = singleton a :=
+begin
+  dlist.transfer,
+  intros,
+  simp
+end
+
+end transfer
+
 end dlist

@@ -67,4 +67,7 @@ take p q h r s l, imp_congr h l
 lemma rel_not : (iff ⇒ iff) not not :=
 take p q h, not_congr h
 
+instance bi_total_eq {α : Type u₁} : relator.bi_total (@eq α) :=
+⟨take a, ⟨a, rfl⟩, take a, ⟨a, rfl⟩⟩
+
 end relator

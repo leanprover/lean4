@@ -83,7 +83,7 @@ private meta def mark_occurences (e : expr) : list expr → list (expr × bool)
 | (h :: t) := let xs := mark_occurences t in
   (h, occurs h e || any xs (λ⟨e, oc⟩, oc && occurs h e)) :: xs
 
-private meta def analyse_rule (pr : expr) : tactic rule_data := do
+private meta def analyse_rule (u' : list name) (pr : expr) : tactic rule_data := do
   t ← infer_type pr,
   (params, app (app r f) g) ← mk_local_pis t,
   (arg_rels, R) ← get_lift_fun r,
@@ -93,8 +93,7 @@ private meta def analyse_rule (pr : expr) : tactic rule_data := do
   p       ← head_beta (app_of_list f a_vars),
   p_data  ← return $ mark_occurences (app R p) params,
   p_vars  ← return $ list.map prod.fst (list.filter (λx, ↑x.2) p_data),
-  u'      ← return $ collect_univ_params t,
-  u       ← return $ collect_univ_params (app R p),
+  u       ← return $ collect_univ_params (app R p) ∩ u',
   pat     ← mk_pattern (fmap level.param u) (p_vars ++ a_vars) (app R p) (fmap level.param u) (p_vars ++ a_vars),
   return $ rule_data.mk pr (list.remove_all u' u) p_data u args pat g
 
@@ -102,8 +101,8 @@ private meta def analyse_decls : list name → tactic (list rule_data) :=
   monad.mapm (λn, do
     d ← get_decl n,
     c ← return d^.univ_params^.length,
-    l ← monad.for (range c) (λ_, level.param <$> mk_fresh_name),
-    analyse_rule (const n l))
+    ls ← monad.for (range c) (λ_, mk_fresh_name),
+    analyse_rule ls (const n (ls^.map level.param)))
 
 private meta def split_params_args : list (expr × bool) → list expr → list (expr × option expr) × list expr
 | ((lc, tt) :: ps) (e :: es) := let (ps', es') := split_params_args ps es in ((lc, some e) :: ps', es')
@@ -154,7 +153,7 @@ meta def compute_transfer : list rule_data → list expr → expr → tactic (ex
       b ← mk_local_def (("b" ++ to_string n) : string) arg^.out_type,
       R ← mk_local_def (("R" ++ to_string n) : string) (arg^.relation a b),
       return ((a, b), (R, [a, b, R]))) >>= (return ∘ prod.map unzip unzip ∘ unzip),
-    rds'      ← monad.for R_vars analyse_rule,
+    rds'      ← monad.for R_vars (analyse_rule []),
 
     -- Transfer argument
     a           ← return $ i e,

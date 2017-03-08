@@ -229,4 +229,4 @@ join (map b a)
 end list
 
 instance : monad list :=
-{map := @list.map, ret := @list.ret, bind := @list.bind}
+{map := @list.map, pure := @list.ret, bind := @list.bind}

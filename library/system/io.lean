@@ -12,7 +12,7 @@ constant io.put_str          : string → io unit
 constant io.get_line         : io string
 
 instance : monad io :=
-{ ret  := @io.return,
+{ pure := @io.return,
   bind := @io.bind,
   map  := @io.map }
 

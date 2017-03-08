@@ -74,6 +74,6 @@ def image (f : α → β) (s : set α) : set β :=
 {b | ∃ a, a ∈ s ∧ f a = b}
 
 instance : functor set :=
-⟨@set.image⟩
+{map := @set.image}
 
 end set

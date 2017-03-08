@@ -16,6 +16,7 @@ name const * g_and_elim_left = nullptr;
 name const * g_and_elim_right = nullptr;
 name const * g_and_intro = nullptr;
 name const * g_andthen = nullptr;
+name const * g_applicative_pure = nullptr;
 name const * g_auto_param = nullptr;
 name const * g_bit0 = nullptr;
 name const * g_bit1 = nullptr;
@@ -176,7 +177,6 @@ name const * g_match_failed = nullptr;
 name const * g_mod = nullptr;
 name const * g_monad = nullptr;
 name const * g_monad_bind = nullptr;
-name const * g_monad_ret = nullptr;
 name const * g_monad_fail = nullptr;
 name const * g_monoid = nullptr;
 name const * g_mul = nullptr;
@@ -391,6 +391,7 @@ void initialize_constants() {
     g_and_elim_right = new name{"and", "elim_right"};
     g_and_intro = new name{"and", "intro"};
     g_andthen = new name{"andthen"};
+    g_applicative_pure = new name{"applicative", "pure"};
     g_auto_param = new name{"auto_param"};
     g_bit0 = new name{"bit0"};
     g_bit1 = new name{"bit1"};
@@ -551,7 +552,6 @@ void initialize_constants() {
     g_mod = new name{"mod"};
     g_monad = new name{"monad"};
     g_monad_bind = new name{"monad", "bind"};
-    g_monad_ret = new name{"monad", "ret"};
     g_monad_fail = new name{"monad_fail"};
     g_monoid = new name{"monoid"};
     g_mul = new name{"mul"};
@@ -767,6 +767,7 @@ void finalize_constants() {
     delete g_and_elim_right;
     delete g_and_intro;
     delete g_andthen;
+    delete g_applicative_pure;
     delete g_auto_param;
     delete g_bit0;
     delete g_bit1;
@@ -927,7 +928,6 @@ void finalize_constants() {
     delete g_mod;
     delete g_monad;
     delete g_monad_bind;
-    delete g_monad_ret;
     delete g_monad_fail;
     delete g_monoid;
     delete g_mul;
@@ -1142,6 +1142,7 @@ name const & get_and_elim_left_name() { return *g_and_elim_left; }
 name const & get_and_elim_right_name() { return *g_and_elim_right; }
 name const & get_and_intro_name() { return *g_and_intro; }
 name const & get_andthen_name() { return *g_andthen; }
+name const & get_applicative_pure_name() { return *g_applicative_pure; }
 name const & get_auto_param_name() { return *g_auto_param; }
 name const & get_bit0_name() { return *g_bit0; }
 name const & get_bit1_name() { return *g_bit1; }
@@ -1302,7 +1303,6 @@ name const & get_match_failed_name() { return *g_match_failed; }
 name const & get_mod_name() { return *g_mod; }
 name const & get_monad_name() { return *g_monad; }
 name const & get_monad_bind_name() { return *g_monad_bind; }
-name const & get_monad_ret_name() { return *g_monad_ret; }
 name const & get_monad_fail_name() { return *g_monad_fail; }
 name const & get_monoid_name() { return *g_monoid; }
 name const & get_mul_name() { return *g_mul; }

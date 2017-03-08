@@ -365,12 +365,12 @@ class erase_irrelevant_fn : public compiler_step_visitor {
         }
     }
 
-    expr visit_monad_return(expr const & e, buffer<expr> const & args) {
+    expr visit_applicative_pure(expr const & e, buffer<expr> const & args) {
         if (args.size() == 4 && is_builtin_state_monad(args[1])) {
             /* IO monad return
                return v := fun s, (v, s)
 
-               Remark: we do not return the state explicility.
+               Remark: we do not return the state explicitly.
             */
             expr u = mk_neutral_expr();
             expr s = mk_var(0);
@@ -420,8 +420,8 @@ class erase_irrelevant_fn : public compiler_step_visitor {
                 return visit_subtype_rec(args);
             } else if (n == get_monad_bind_name() || n == get_pre_monad_bind_name()) {
                 return visit_monad_bind(e, args);
-            } else if (n == get_monad_ret_name()) {
-                return visit_monad_return(e, args);
+            } else if (n == get_applicative_pure_name()) {
+                return visit_applicative_pure(e, args);
             } else if (is_cases_on_recursor(env(), n)) {
                 return visit_cases_on(fn, args);
             } else if (inductive::is_elim_rule(env(), n)) {

@@ -23,9 +23,6 @@ meta instance {α : Type} : has_coe (tactic α) (lazy_tactic α) :=
 protected meta def return {α} (a : α) : lazy_tactic α :=
 λ s, lazy_list.singleton (a, s)
 
-protected meta def map {α β} (f : α → β) : lazy_tactic α → lazy_tactic β
-| t s := (t s)^.for (λ ⟨a, new_s⟩, (f a, new_s))
-
 protected meta def bind {α β} : lazy_tactic α → (α → lazy_tactic β) → lazy_tactic β :=
 λ t₁ t₂ s, join (for (t₁ s) (λ ⟨a, new_s⟩, t₂ a new_s))
 
@@ -36,17 +33,13 @@ protected meta def failure {α} : lazy_tactic α :=
 λ s, nil
 
 meta instance : monad lazy_tactic :=
-{ ret  := @lazy_tactic.return,
-  bind := @lazy_tactic.bind,
-  map  := @lazy_tactic.map }
+{ pure := @lazy_tactic.return,
+  bind := @lazy_tactic.bind }
 
 meta instance : alternative lazy_tactic :=
-{ map     := @lazy_tactic.map,
-  pure    := @lazy_tactic.return,
-  seq     := @fapp _ _,
+{ lazy_tactic.monad with
   failure := @lazy_tactic.failure,
-  orelse  := @lazy_tactic.orelse
-}
+  orelse  := @lazy_tactic.orelse }
 
 meta def choose {α} (xs : list α) : lazy_tactic α :=
 λ s, of_list $ xs^.for (λ a, (a, s))

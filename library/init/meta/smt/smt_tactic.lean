@@ -82,11 +82,9 @@ meta instance : monad_fail smt_tactic :=
 { smt_tactic.monad with fail := λ α s, (tactic.fail (to_fmt s) : smt_tactic α) }
 
 meta instance : alternative smt_tactic :=
-{failure := λ α, @tactic.failed α,
- orelse  := @smt_tactic_orelse,
- pure    := @return _ _,
- seq     := @fapp _ _,
- map     := @fmap _ _}
+{ smt_tactic.monad with
+  failure := λ α, @tactic.failed α,
+  orelse  := @smt_tactic_orelse }
 
 namespace smt_tactic
 open tactic (transparency)

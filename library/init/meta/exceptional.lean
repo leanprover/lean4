@@ -37,11 +37,6 @@ protected meta def to_option : exceptional α → option α
 | (success a)      := some a
 | (exception .α _) := none
 
-@[inline] protected meta def fmap (f : α → β) (e : exceptional α) : exceptional β :=
-exceptional.cases_on e
-  (λ a, success (f a))
-  (λ f, exception β f)
-
 @[inline] protected meta def bind (e₁ : exceptional α) (e₂ : α → exceptional β) : exceptional β :=
 exceptional.cases_on e₁
   (λ a, e₂ a)
@@ -55,4 +50,4 @@ exception α (λ u, f)
 end exceptional
 
 meta instance : monad exceptional :=
-{map := @exceptional.fmap, ret := @exceptional.return, bind := @exceptional.bind}
+{pure := @exceptional.return, bind := @exceptional.bind}

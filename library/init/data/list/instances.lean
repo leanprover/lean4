@@ -11,7 +11,9 @@ open list
 universes u v
 
 instance : alternative list :=
-⟨@map, @list.ret, @fapp _ _, @nil, @list.append⟩
+{ list.monad with
+  failure := @nil,
+  orelse  := @list.append }
 
 instance {α : Type u} [decidable_eq α] : decidable_eq (list α) :=
 by tactic.mk_dec_eq_instance

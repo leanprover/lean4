@@ -63,7 +63,7 @@ meta def interaction_monad_orelse {α : Type u} (t₁ t₂ : m α) : m α :=
 interaction_monad_bind t₁ (λ a, t₂)
 
 meta instance interaction_monad.monad : monad m :=
-{map := @interaction_monad_fmap, ret := @interaction_monad_return, bind := @interaction_monad_bind}
+{map := @interaction_monad_fmap, pure := @interaction_monad_return, bind := @interaction_monad_bind}
 
 meta def interaction_monad.mk_exception {α : Type u} {β : Type v} [has_to_format β] (msg : β) (ref : option expr) (s : state) : result state α :=
 exception (some (λ _, to_fmt msg)) none s

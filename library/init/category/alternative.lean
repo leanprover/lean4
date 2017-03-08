@@ -8,16 +8,16 @@ import init.logic init.category.applicative
 universes u v
 
 class alternative (f : Type u → Type v) extends applicative f : Type (max u+1 v) :=
-(failure : Π {a : Type u}, f a)
-(orelse  : Π {a : Type u}, f a → f a → f a)
+(failure : Π {α : Type u}, f α)
+(orelse  : Π {α : Type u}, f α → f α → f α)
 
 section
-variables {f : Type u → Type v} [alternative f] {a : Type u}
+variables {f : Type u → Type v} [alternative f] {α : Type u}
 
-@[inline] def failure : f a :=
+@[inline] def failure : f α :=
 alternative.failure f
 
-@[inline] def orelse : f a → f a → f a :=
+@[inline] def orelse : f α → f α → f α :=
 alternative.orelse
 
 infixr ` <|> `:2 := orelse
@@ -31,7 +31,7 @@ if p then pure () else failure
 | tt := pure ()
 | ff := failure
 
-@[inline] def optional (x : f a) : f (option a) :=
+@[inline] def optional (x : f α) : f (option α) :=
 some <$> x <|> pure none
 
 end

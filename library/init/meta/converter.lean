@@ -69,13 +69,11 @@ protected meta def bind {α β : Type} (c₁ : conv α) (c₂ : α → conv β) 
 
 meta instance : monad conv :=
 { map  := @conv.map,
-  ret  := @conv.pure,
+  pure := @conv.pure,
   bind := @conv.bind }
 
 meta instance : alternative conv :=
-{ map     := @conv.map,
-  pure    := @conv.pure,
-  seq     := @conv.seq,
+{ conv.monad with
   failure := @conv.fail,
   orelse  := @conv.orelse }
 

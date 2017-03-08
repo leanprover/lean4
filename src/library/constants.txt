@@ -11,6 +11,7 @@ and.elim_left
 and.elim_right
 and.intro
 andthen
+applicative.pure
 auto_param
 bit0
 bit1
@@ -171,7 +172,6 @@ match_failed
 mod
 monad
 monad.bind
-monad.ret
 monad_fail
 monoid
 mul

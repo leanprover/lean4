@@ -12,9 +12,6 @@ def state (σ : Type) (α : Type) : Type :=
 section
 variables {σ : Type} {α β : Type}
 
-@[inline] def state_fmap (f : α → β) (a : state σ α) : state σ β :=
-λ s, match (a s) with (a', s') := (f a', s') end
-
 @[inline] def state_return (a : α) : state σ α :=
 λ s, (a, s)
 
@@ -22,9 +19,7 @@ variables {σ : Type} {α β : Type}
 λ s, match (a s) with (a', s') := b a' s' end
 
 instance (σ : Type) : monad (state σ) :=
-{ map := @state_fmap σ,
-  ret  := @state_return σ,
-  bind := @state_bind σ }
+{pure := @state_return σ, bind := @state_bind σ}
 end
 
 namespace state
@@ -44,11 +39,6 @@ section
   variable  [monad m]
   variables {α β : Type}
 
-  def state_t_fmap (f : α → β) (act : state_t σ m α) : state_t σ m β :=
-  λ s, show m (β × σ), from
-    do (a, new_s) ← act s,
-       return (f a, new_s)
-
   def state_t_return (a : α) : state_t σ m α :=
   λ s, show m (α × σ), from
     return (a, s)
@@ -60,9 +50,7 @@ section
 end
 
 instance (σ : Type) (m : Type → Type) [monad m] : monad (state_t σ m) :=
-{ map  := @state_t_fmap σ m _,
-  ret  := @state_t_return σ m _,
-  bind := @state_t_bind σ m _}
+{pure := @state_t_return σ m _, bind := @state_t_bind σ m _}
 
 section
   variable  {σ : Type}
@@ -79,9 +67,7 @@ section
 end
 
 instance (σ : Type) (m : Type → Type) [alternative m] [monad m] : alternative (state_t σ m) :=
-{ map     := @state_t_fmap σ m _,
-  pure    := @state_t_return σ m _,
-  seq     := @fapp _ _,
+{ state_t.monad σ m with
   failure := @state_t_failure σ m _ _,
   orelse  := @state_t_orelse σ m _ _ }
 

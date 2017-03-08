@@ -51,7 +51,9 @@ infixl ` >>=[tactic] `:2 := interaction_monad_bind
 infixl ` >>[tactic] `:2  := interaction_monad_seq
 
 meta instance : alternative tactic :=
-⟨@interaction_monad_fmap tactic_state, (λ α a s, success a s), (@fapp _ _), @interaction_monad.failed tactic_state, @interaction_monad_orelse tactic_state⟩
+{ interaction_monad.monad with
+  failure := @interaction_monad.failed _,
+  orelse  := @interaction_monad_orelse _ }
 
 meta def {u₁ u₂} tactic.up {α : Type u₂} (t : tactic α) : tactic (ulift.{u₁} α) :=
 λ s, match t s with

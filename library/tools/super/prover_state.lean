@@ -154,7 +154,7 @@ meta def orelse (A : Type) (p1 p2 : prover A) : prover A :=
 take state, p1 state <|> p2 state
 
 meta instance : alternative prover :=
-{ monad_is_applicative prover with
+{ prover.monad with
   failure := λα, fail "failed",
   orelse := orelse }
 

@@ -14,7 +14,7 @@ protected meta def {u v} bind {α : Type u} {β : Type v} (t : task α) (f : α 
 task.flatten (task.map f t)
 
 meta instance : monad task :=
-{ map := @task.map, bind := @task.bind, ret := @task.pure }
+{ map := @task.map, bind := @task.bind, pure := @task.pure }
 
 @[inline]
 meta def {u} delay {α : Type u} (f : unit → α) : task α :=

@@ -1,5 +1,5 @@
 import system.io
-
+open io
 vm_eval do pp (level.max (level.succ level.zero) (level.param `foo)), put_str "\n"
 
 vm_eval level.normalize (level.succ (level.max (level.max level.zero (level.succ level.zero)) (level.param `l₁)))

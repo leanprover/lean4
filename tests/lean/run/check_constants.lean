@@ -79,7 +79,6 @@ run_command script_check_id `forall_congr_eq
 run_command script_check_id `forall_not_of_not_exists
 run_command script_check_id `funext
 run_command script_check_id `ge
-run_command script_check_id `get_line
 run_command script_check_id `gt
 run_command script_check_id `has_add
 run_command script_check_id `has_div
@@ -152,8 +151,12 @@ run_command script_check_id `int.decidable_linear_ordered_comm_group
 run_command script_check_id `interactive.parse
 run_command script_check_id `inv
 run_command script_check_id `io
-run_command script_check_id `io.functor
+run_command script_check_id `io.map
+run_command script_check_id `io.bind
 run_command script_check_id `io.monad
+run_command script_check_id `io.return
+run_command script_check_id `io.put_str
+run_command script_check_id `io.get_line
 run_command script_check_id `is_associative
 run_command script_check_id `is_associative.assoc
 run_command script_check_id `is_commutative
@@ -296,8 +299,6 @@ run_command script_check_id `pexpr.subst
 run_command script_check_id `pre_monad.bind
 run_command script_check_id `pre_monad.and_then
 run_command script_check_id `pre_monad.seq
-run_command script_check_id `put_str
-run_command script_check_id `put_nat
 run_command script_check_id `to_pexpr
 run_command script_check_id `quot.mk
 run_command script_check_id `quot.lift

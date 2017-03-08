@@ -79,7 +79,6 @@ name const * g_forall_congr_eq = nullptr;
 name const * g_forall_not_of_not_exists = nullptr;
 name const * g_funext = nullptr;
 name const * g_ge = nullptr;
-name const * g_get_line = nullptr;
 name const * g_gt = nullptr;
 name const * g_has_add = nullptr;
 name const * g_has_div = nullptr;
@@ -152,8 +151,12 @@ name const * g_int_decidable_linear_ordered_comm_group = nullptr;
 name const * g_interactive_parse = nullptr;
 name const * g_inv = nullptr;
 name const * g_io = nullptr;
-name const * g_io_functor = nullptr;
+name const * g_io_map = nullptr;
+name const * g_io_bind = nullptr;
 name const * g_io_monad = nullptr;
+name const * g_io_return = nullptr;
+name const * g_io_put_str = nullptr;
+name const * g_io_get_line = nullptr;
 name const * g_is_associative = nullptr;
 name const * g_is_associative_assoc = nullptr;
 name const * g_is_commutative = nullptr;
@@ -296,8 +299,6 @@ name const * g_pexpr_subst = nullptr;
 name const * g_pre_monad_bind = nullptr;
 name const * g_pre_monad_and_then = nullptr;
 name const * g_pre_monad_seq = nullptr;
-name const * g_put_str = nullptr;
-name const * g_put_nat = nullptr;
 name const * g_to_pexpr = nullptr;
 name const * g_quot_mk = nullptr;
 name const * g_quot_lift = nullptr;
@@ -453,7 +454,6 @@ void initialize_constants() {
     g_forall_not_of_not_exists = new name{"forall_not_of_not_exists"};
     g_funext = new name{"funext"};
     g_ge = new name{"ge"};
-    g_get_line = new name{"get_line"};
     g_gt = new name{"gt"};
     g_has_add = new name{"has_add"};
     g_has_div = new name{"has_div"};
@@ -526,8 +526,12 @@ void initialize_constants() {
     g_interactive_parse = new name{"interactive", "parse"};
     g_inv = new name{"inv"};
     g_io = new name{"io"};
-    g_io_functor = new name{"io", "functor"};
+    g_io_map = new name{"io", "map"};
+    g_io_bind = new name{"io", "bind"};
     g_io_monad = new name{"io", "monad"};
+    g_io_return = new name{"io", "return"};
+    g_io_put_str = new name{"io", "put_str"};
+    g_io_get_line = new name{"io", "get_line"};
     g_is_associative = new name{"is_associative"};
     g_is_associative_assoc = new name{"is_associative", "assoc"};
     g_is_commutative = new name{"is_commutative"};
@@ -670,8 +674,6 @@ void initialize_constants() {
     g_pre_monad_bind = new name{"pre_monad", "bind"};
     g_pre_monad_and_then = new name{"pre_monad", "and_then"};
     g_pre_monad_seq = new name{"pre_monad", "seq"};
-    g_put_str = new name{"put_str"};
-    g_put_nat = new name{"put_nat"};
     g_to_pexpr = new name{"to_pexpr"};
     g_quot_mk = new name{"quot", "mk"};
     g_quot_lift = new name{"quot", "lift"};
@@ -828,7 +830,6 @@ void finalize_constants() {
     delete g_forall_not_of_not_exists;
     delete g_funext;
     delete g_ge;
-    delete g_get_line;
     delete g_gt;
     delete g_has_add;
     delete g_has_div;
@@ -901,8 +902,12 @@ void finalize_constants() {
     delete g_interactive_parse;
     delete g_inv;
     delete g_io;
-    delete g_io_functor;
+    delete g_io_map;
+    delete g_io_bind;
     delete g_io_monad;
+    delete g_io_return;
+    delete g_io_put_str;
+    delete g_io_get_line;
     delete g_is_associative;
     delete g_is_associative_assoc;
     delete g_is_commutative;
@@ -1045,8 +1050,6 @@ void finalize_constants() {
     delete g_pre_monad_bind;
     delete g_pre_monad_and_then;
     delete g_pre_monad_seq;
-    delete g_put_str;
-    delete g_put_nat;
     delete g_to_pexpr;
     delete g_quot_mk;
     delete g_quot_lift;
@@ -1202,7 +1205,6 @@ name const & get_forall_congr_eq_name() { return *g_forall_congr_eq; }
 name const & get_forall_not_of_not_exists_name() { return *g_forall_not_of_not_exists; }
 name const & get_funext_name() { return *g_funext; }
 name const & get_ge_name() { return *g_ge; }
-name const & get_get_line_name() { return *g_get_line; }
 name const & get_gt_name() { return *g_gt; }
 name const & get_has_add_name() { return *g_has_add; }
 name const & get_has_div_name() { return *g_has_div; }
@@ -1275,8 +1277,12 @@ name const & get_int_decidable_linear_ordered_comm_group_name() { return *g_int_
 name const & get_interactive_parse_name() { return *g_interactive_parse; }
 name const & get_inv_name() { return *g_inv; }
 name const & get_io_name() { return *g_io; }
-name const & get_io_functor_name() { return *g_io_functor; }
+name const & get_io_map_name() { return *g_io_map; }
+name const & get_io_bind_name() { return *g_io_bind; }
 name const & get_io_monad_name() { return *g_io_monad; }
+name const & get_io_return_name() { return *g_io_return; }
+name const & get_io_put_str_name() { return *g_io_put_str; }
+name const & get_io_get_line_name() { return *g_io_get_line; }
 name const & get_is_associative_name() { return *g_is_associative; }
 name const & get_is_associative_assoc_name() { return *g_is_associative_assoc; }
 name const & get_is_commutative_name() { return *g_is_commutative; }
@@ -1419,8 +1425,6 @@ name const & get_pexpr_subst_name() { return *g_pexpr_subst; }
 name const & get_pre_monad_bind_name() { return *g_pre_monad_bind; }
 name const & get_pre_monad_and_then_name() { return *g_pre_monad_and_then; }
 name const & get_pre_monad_seq_name() { return *g_pre_monad_seq; }
-name const & get_put_str_name() { return *g_put_str; }
-name const & get_put_nat_name() { return *g_put_nat; }
 name const & get_to_pexpr_name() { return *g_to_pexpr; }
 name const & get_quot_mk_name() { return *g_quot_mk; }
 name const & get_quot_lift_name() { return *g_quot_lift; }

@@ -1,6 +1,6 @@
 import system.io
-
-definition main : io unit :=
+open io
+def main : io unit :=
 do { l ← get_line,
      if l = "hello" then
        put_str "you have typed hello\n"

@@ -1,6 +1,6 @@
 import system.io
 open list
-
+open io
 -- set_option pp.all true
 
 definition main : io unit :=
@@ -17,7 +17,7 @@ print "************************"
 
 definition aux (n : nat) : io unit :=
   do put_str "========\nvalue: ",
-     put_nat n,
+     put n,
      put_str "\n========\n"
 
 vm_eval aux 20
@@ -43,9 +43,9 @@ print "************************"
 vm_eval
   do n ← return 10,
      put_str "value: ",
-     put_nat n,
+     put n,
      put_str "\n",
-     put_nat (n+2),
+     put (n+2),
      put_str "\n----------\n"
 
 print "************************"

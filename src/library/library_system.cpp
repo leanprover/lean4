@@ -11,10 +11,10 @@ namespace lean {
 bool is_system_builtin(name const & n) {
     return
         n == get_io_name() ||
-        n == get_io_functor_name() ||
-        n == get_io_monad_name() ||
-        n == get_put_str_name() ||
-        n == get_put_nat_name() ||
-        n == get_get_line_name();
+        n == get_io_bind_name() ||
+        n == get_io_return_name() ||
+        n == get_io_map_name() ||
+        n == get_io_put_str_name() ||
+        n == get_io_get_line_name();
 }
 }

@@ -1,5 +1,5 @@
 import system.io
-
+open io
 check #"a"
 
 vm_eval #"a"

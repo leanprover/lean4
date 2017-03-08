@@ -3,18 +3,26 @@ Copyright (c) 2016 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Luke Nelson, Jared Roesch and Leonardo de Moura
 -/
-constant {u} io : Type u → Type u
-constant io.functor : functor io
-constant io.monad   : monad io
+universe u
+constant io : Type u → Type u
+protected constant io.return : ∀ {α : Type u}, α → io α
+protected constant io.bind   : ∀ {α β : Type u}, io α → (α → io β) → io β
+protected constant io.map    : ∀ {α β : Type u}, (α → β) → io α → io β
+constant io.put_str          : string → io unit
+constant io.get_line         : io string
 
-attribute [instance] io.functor io.monad
+instance : monad io :=
+{ ret  := @io.return,
+  bind := @io.bind,
+  map  := @io.map }
 
-constant put_str  : string → io unit
-constant put_nat  : nat → io unit
-constant get_line : io string
+namespace io
+def put {α} [has_to_string α] (s : α) : io unit :=
+put_str ∘ to_string $ s
 
-def put_str_ln {A} [has_to_string A] (s : A) : io unit :=
-  put_str $ #"\n" :: (to_string s)
+def put_ln {α} [has_to_string α] (s : α) : io unit :=
+put s >> put_str "\n"
+end io
 
 meta constant format.print_using : format → options → io unit
 

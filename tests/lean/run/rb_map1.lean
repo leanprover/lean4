@@ -1,5 +1,5 @@
 import system.io
-
+open io
 section
 open nat_map
 

@@ -1,6 +1,6 @@
 import system.io
-
-definition iowhen (b : bool) (a : io unit) : io unit :=
+open io
+def iowhen (b : bool) (a : io unit) : io unit :=
 if b = tt then a else return ()
 
 vm_eval iowhen tt (put_str "hello\n")

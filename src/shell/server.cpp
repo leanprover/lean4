@@ -320,11 +320,16 @@ server::cmd_res server::handle_sync(server::cmd_req const & req) {
 }
 
 std::shared_ptr<snapshot const> get_closest_snapshot(std::shared_ptr<module_info const> const & mod_info, pos_info p) {
-    auto snapshots = mod_info.get()->m_result.get().m_snapshots;
-    auto ret = snapshots.size() ? snapshots.front() : std::shared_ptr<snapshot>();
-    for (auto & snap : snapshots) {
-        if (snap->m_pos < p)
-            ret = snap;
+    auto ret = std::shared_ptr<snapshot const>();
+    if (auto res = mod_info->m_result.peek()) {
+        auto snapshots = mod_info.get()->m_result.get().m_snapshots;
+        if (snapshots.size()) {
+            ret = snapshots.front();
+            for (auto &snap : snapshots) {
+                if (snap->m_pos < p)
+                    ret = snap;
+            }
+        }
     }
     return ret;
 }
@@ -477,15 +482,6 @@ public:
         out << "info at (" << get_pos().first << ", " << get_pos().second << ")";
     }
 
-    std::vector<generic_task_result> get_dependencies() override {
-        std::vector<generic_task_result> deps;
-        deps.push_back(m_mod_info->m_result);
-        if (auto mod = m_mod_info->m_result.peek()) {
-            deps.push_back(mod->m_loaded_module->m_env);
-        }
-        return deps;
-    }
-
     // TODO(gabriel): handle cancellation
 
     unit execute() override {
@@ -499,10 +495,9 @@ public:
 
                 auto opts = m_server->m_ios.get_options();
                 auto env = m_server->m_initial_env;
-                if (auto mod = m_mod_info->m_result.peek()) {
-                    if (mod->m_loaded_module->m_env)
-                        env = mod->m_loaded_module->m_env.get();
-                    if (!mod->m_snapshots.empty()) opts = mod->m_snapshots.back()->m_options;
+                if (auto snap = get_closest_snapshot(m_mod_info, e.m_token_info.m_pos)) {
+                    env = snap->m_env;
+                    opts = snap->m_options;
                 }
 
                 // info data not dependent on elaboration/info_manager

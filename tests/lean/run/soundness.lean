@@ -27,7 +27,7 @@ namespace PropF
   notation `#`:max P:max := Var P
   local notation A ∨ B   := Disj A B
   local notation A ∧ B   := Conj A B
-  infixr `⇒`:27          := Impl
+  local infixr `⇒`:27    := Impl
   notation `⊥`           := Bot
 
   def Neg A       := A ⇒ ⊥

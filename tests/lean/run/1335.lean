@@ -7,12 +7,12 @@ private lemma sub_nat_nat_elim (m n : ℕ) (P : ℕ → ℕ → ℤ → Prop)
   P m n (sub_nat_nat m n) :=
 sorry
 
-inductive rel_int_nat_nat : ℤ → ℕ × ℕ → Prop
-| pos : ∀m p, rel_int_nat_nat (of_nat p) (m + p, m)
-| neg : ∀m n, rel_int_nat_nat (neg_succ_of_nat n) (m, m + n)
+inductive rel_int_nat_nat__ : ℤ → ℕ × ℕ → Prop
+| pos : ∀m p, rel_int_nat_nat__ (of_nat p) (m + p, m)
+| neg : ∀m n, rel_int_nat_nat__ (neg_succ_of_nat n) (m, m + n)
 
-lemma rel_sub_nat_nat {a b : ℕ} : rel_int_nat_nat (sub_nat_nat a b) (a, b) :=
+lemma rel_sub_nat_nat__ {a b : ℕ} : rel_int_nat_nat__ (sub_nat_nat a b) (a, b) :=
 /- The next statement kills lean  -/
-sub_nat_nat_elim a b (λ(a b : ℕ) (i : ℤ), rel_int_nat_nat i (a, b)) sorry sorry
+sub_nat_nat_elim a b (λ(a b : ℕ) (i : ℤ), rel_int_nat_nat__ i (a, b)) sorry sorry
 
 end int

@@ -299,28 +299,33 @@ protected lemma rel_mul : (rel_int_nat_nat ⇒ (rel_int_nat_nat ⇒ rel_int_nat_
    int is a ring
 -/
 
-protected meta def transfer : tactic unit := do
+protected meta def transfer_core : tactic unit := do
   transfer.transfer [`relator.rel_forall_of_total, `relator.rel_not,
     `int.rel_eq, `int.rel_zero, `int.rel_one,
     `int.rel_add, `int.rel_neg, `int.rel_mul]
 
+
+protected meta def transfer (distrib := ff) : tactic unit :=
+if distrib then `[abstract {int.transfer_core, simp [add_mul, mul_add], intros, trivial}]
+else `[abstract {int.transfer_core, simp, intros, trivial}]
+
 instance : comm_ring int :=
 { add            := int.add,
-  add_assoc      := begin int.transfer, simp, intros, trivial end,
+  add_assoc      := by int.transfer,
   zero           := int.zero,
-  zero_add       := begin int.transfer, simp, intros, trivial end,
-  add_zero       := begin int.transfer, simp, intros, trivial end,
+  zero_add       := by int.transfer,
+  add_zero       := by int.transfer,
   neg            := int.neg,
-  add_left_neg   := begin int.transfer, simp, intros, trivial end,
-  add_comm       := begin int.transfer, simp, intros, trivial end,
+  add_left_neg   := by int.transfer,
+  add_comm       := by int.transfer,
   mul            := int.mul,
-  mul_assoc      := begin int.transfer, simp [add_mul, mul_add], intros, trivial end,
+  mul_assoc      := by int.transfer tt,
   one            := int.one,
-  one_mul        := begin int.transfer, simp, intros, trivial end,
-  mul_one        := begin int.transfer, simp, intros, trivial end,
-  left_distrib   := begin int.transfer, simp [add_mul, mul_add], intros, trivial end,
-  right_distrib  := begin int.transfer, simp [add_mul, mul_add], intros, trivial end,
-  mul_comm       := begin int.transfer, simp, intros, trivial end }
+  one_mul        := by int.transfer,
+  mul_one        := by int.transfer,
+  left_distrib   := by int.transfer tt,
+  right_distrib  := by int.transfer tt,
+  mul_comm       := by int.transfer}
 
 /- Extra instances to short-circuit type class resolution -/
 instance : has_sub int            := by apply_instance
@@ -338,9 +343,6 @@ instance : ring int               := by apply_instance
 instance : distrib int            := by apply_instance
 
 protected lemma zero_ne_one : (0 : int) ≠ 1 :=
-begin
-  int.transfer,
-  apply nat.zero_ne_one
-end
+by int.transfer
 
 end int

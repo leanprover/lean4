@@ -98,15 +98,44 @@ class erase_irrelevant_fn : public compiler_step_visitor {
             return *g_neutral_expr;
     }
 
-    expr erase_lambda_let_types(expr const & e) {
+    static bool is_irrelevant_lambda_let_body(expr e) {
+        while (true) {
+            if (is_lambda(e))
+                e = binding_body(e);
+            else if (is_let(e))
+                e = let_body(e);
+            else
+                return is_neutral_expr(e);
+        }
+    }
+
+    expr erase_lambda_let_types_when_relevant(expr const & e) {
         if (is_lambda(e)) {
             return copy_tag(e, mk_lambda(binding_name(e), erase_type(binding_domain(e)),
-                                         erase_lambda_let_types(binding_body(e))));
+                                         erase_lambda_let_types_when_relevant(binding_body(e))));
         } else if (is_let(e)) {
-            return mk_let(let_name(e), erase_type(let_type(e)), let_value(e), erase_lambda_let_types(let_body(e)));
+            return mk_let(let_name(e), erase_type(let_type(e)), let_value(e), erase_lambda_let_types_when_relevant(let_body(e)));
         } else {
             return e;
         }
+    }
+
+    expr erase_lambda_let_types_when_irrelevant(expr const & e) {
+        if (is_lambda(e)) {
+            return copy_tag(e, mk_lambda(binding_name(e), mk_neutral_expr(),
+                                         erase_lambda_let_types_when_irrelevant(binding_body(e))));
+        } else if (is_let(e)) {
+            return erase_lambda_let_types_when_irrelevant(let_body(e));
+        } else {
+            return e;
+        }
+    }
+
+    expr erase_lambda_let_types(expr const & e) {
+        if (is_irrelevant_lambda_let_body(e))
+            return erase_lambda_let_types_when_irrelevant(e);
+        else
+            return erase_lambda_let_types_when_relevant(e);
     }
 
     virtual expr visit_lambda(expr const & e) override {

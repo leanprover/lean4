@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/inductive/inductive.h"
 #include "library/app_builder.h"
+#include "library/trace.h"
 
 namespace lean {
 optional<expr> mk_constructor_eq_constructor_inconsistency_proof(type_context & ctx, expr const & e1, expr const & e2, expr const & h) {
@@ -66,7 +67,10 @@ optional<expr> mk_constructor_eq_constructor_implied_core(type_context & ctx, ex
         expr const & arg1 = e1_args[i];
         expr const & arg2 = e2_args[i];
         implied_pairs.emplace_back(arg1, arg2);
-        implied_eqs.push_back(mk_eq(ctx, arg1, arg2));
+        if (ctx.is_def_eq(ctx.infer(arg1), ctx.infer(arg2)))
+            implied_eqs.push_back(mk_eq(ctx, arg1, arg2));
+        else
+            implied_eqs.push_back(mk_heq(ctx, arg1, arg2));
     }
     /* Construct motive (eq_1 /\ ... /\ eq_n), where eq_i's are the implied equalities */
     if (implied_eqs.empty()) return none_expr();
@@ -91,10 +95,12 @@ optional<expr> mk_constructor_eq_constructor_implied_core(type_context & ctx, ex
            back into homogeneous. */
         if (!is_pi(it)) return none_expr();
         expr heq = locals.push_local_from_binding(it);
-        if (is_heq(binding_domain(it)))
+        expr A, B, lhs, rhs;
+        if (is_heq(binding_domain(it), A, lhs, B, rhs) && ctx.is_def_eq(A, B)) {
             eq_proofs.push_back(mk_eq_of_heq(ctx, heq));
-        else
+        } else {
             eq_proofs.push_back(heq);
+        }
         it = ctx.relaxed_whnf(instantiate(binding_body(it), heq));
     }
     expr body_pr = eq_proofs.back();

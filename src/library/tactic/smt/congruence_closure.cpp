@@ -1305,7 +1305,10 @@ void congruence_closure::propagate_constructor_eq(expr const & e1, expr const & 
         for (std::tuple<expr, expr, expr> const & t : implied_eqs) {
             expr lhs, rhs, H;
             std::tie(lhs, rhs, H) = t;
-            push_eq(lhs, rhs, H);
+            if (m_ctx.is_def_eq(m_ctx.infer(lhs), m_ctx.infer(rhs)))
+                push_eq(lhs, rhs, H);
+            else
+                push_heq(lhs, rhs, H);
         }
     } else {
         if (optional<expr> false_pr = mk_constructor_eq_constructor_inconsistency_proof(m_ctx, e1, e2, h)) {

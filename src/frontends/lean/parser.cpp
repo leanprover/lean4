@@ -1005,19 +1005,6 @@ bool parser::parse_binder_collection(buffer<pair<pos_info, name>> const & names,
     return true;
 }
 
-static expr mk_opt_param(expr const & t, expr const & val) {
-    return copy_tag(val, mk_app(copy_tag(val, mk_constant(get_opt_param_name())), t, val));
-}
-
-static expr mk_auto_param(expr const & t, name const & tac_name) {
-    return copy_tag(t, mk_app(copy_tag(t, mk_constant(get_auto_param_name())), t, quote(tac_name)));
-}
-
-static bool is_tactic_unit(environment const & env, expr const & c) {
-    type_checker tc(env);
-    return tc.is_def_eq(tc.infer(c), mk_tactic_unit());
-}
-
 /**
    \brief Parse <tt>ID ... ID ':' expr</tt>, where the expression
    represents the type of the identifiers.
@@ -1044,13 +1031,7 @@ void parser::parse_binder_block(buffer<expr> & r, binder_info const & bi, unsign
             expr val = parse_expr(rbp);
             type = mk_opt_param(*type, val);
         } else if (allow_default && curr_is_token(get_period_tk())) {
-            next();
-            auto p        = pos();
-            name tac_id   = check_decl_id_next("invalid auto_param, identifier expected");
-            expr tac_expr = id_to_expr(tac_id, p, true);
-            if (!is_tactic_unit(env(), tac_expr))
-                throw parser_error(sstream() << "invalid auto_param, '" << tac_id << "' must have type (tactic unit)", p);
-            type          = mk_auto_param(*type, const_name(tac_expr));
+            type = parse_auto_param(*this, *type);
         }
     } else if (allow_default && curr_is_token(get_assign_tk())) {
         next();

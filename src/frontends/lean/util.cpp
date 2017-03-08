@@ -369,6 +369,29 @@ name const & get_no_info() { return *g_no_info; }
 expr mk_no_info(expr const & e) { return mk_annotation(get_no_info(), e); }
 bool is_no_info(expr const & e) { return is_annotation(e, get_no_info()); }
 
+expr mk_opt_param(expr const & t, expr const & val) {
+    return copy_tag(val, mk_app(copy_tag(val, mk_constant(get_opt_param_name())), t, val));
+}
+
+expr mk_auto_param(expr const & t, name const & tac_name) {
+    return copy_tag(t, mk_app(copy_tag(t, mk_constant(get_auto_param_name())), t, quote(tac_name)));
+}
+
+static bool is_tactic_unit(environment const & env, expr const & c) {
+    type_checker tc(env);
+    return tc.is_def_eq(tc.infer(c), mk_tactic_unit());
+}
+
+expr parse_auto_param(parser & p, expr const & type) {
+    p.next();
+    auto pos      = p.pos();
+    name tac_id   = p.check_decl_id_next("invalid auto_param, identifier expected");
+    expr tac_expr = p.id_to_expr(tac_id, pos, true);
+    if (!is_tactic_unit(p.env(), tac_expr))
+        throw parser_error(sstream() << "invalid auto_param, '" << tac_id << "' must have type (tactic unit)", pos);
+    return mk_auto_param(type, const_name(tac_expr));
+}
+
 void initialize_frontend_lean_util() {
     g_no_info = new name("no_info");
     register_annotation(*g_no_info);

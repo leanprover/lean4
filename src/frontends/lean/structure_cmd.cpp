@@ -634,6 +634,8 @@ struct structure_cmd_fn {
             if (m_p.curr_is_token(get_assign_tk())) {
                 m_p.next();
                 default_value = m_p.parse_expr();
+            } else if (m_p.curr_is_token(get_period_tk())) {
+                type = parse_auto_param(m_p, type);
             }
         }
         if (default_value && !is_explicit(bi)) {

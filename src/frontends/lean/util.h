@@ -113,6 +113,10 @@ expr quote(name const & n);
 expr mk_no_info(expr const & e);
 bool is_no_info(expr const & e);
 
+expr mk_opt_param(expr const & t, expr const & val);
+expr mk_auto_param(expr const & t, name const & tac_name);
+expr parse_auto_param(parser & p, expr const & type);
+
 void initialize_frontend_lean_util();
 void finalize_frontend_lean_util();
 }

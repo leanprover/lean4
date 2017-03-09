@@ -14,11 +14,11 @@ Author: Leonardo de Moura
 #include "library/tactic/tactic_state.h"
 
 namespace lean {
-static name mk_aux_name(list<name> & given_names, name const & default_name) {
+static name mk_aux_name(local_context const & lctx, list<name> & given_names, name const & default_name) {
     if (given_names) {
         name r      = head(given_names);
         given_names = tail(given_names);
-        return r;
+        return r == "_" ? lctx.get_unused_name(default_name) : r;
     } else {
         return default_name;
     }
@@ -29,7 +29,7 @@ optional<expr> intron(environment const & env, options const & opts, metavar_con
     lean_assert(is_metavar(mvar));
     optional<metavar_decl> g = mctx.find_metavar_decl(mvar);
     if (!g) return none_expr();
-    type_context ctx         = mk_type_context_for(env, opts, mctx, g->get_context());
+    type_context ctx     = mk_type_context_for(env, opts, mctx, g->get_context());
     expr type            = g->get_type();
     type_context::tmp_locals new_locals(ctx);
     buffer<expr> new_Hs;
@@ -41,7 +41,7 @@ optional<expr> intron(environment const & env, options const & opts, metavar_con
         }
         lean_assert(is_pi(type) || is_let(type));
         if (is_pi(type)) {
-            expr H  = new_locals.push_local(mk_aux_name(given_names, binding_name(type)), annotated_head_beta_reduce(binding_domain(type)),
+            expr H  = new_locals.push_local(mk_aux_name(ctx.lctx(), given_names, binding_name(type)), annotated_head_beta_reduce(binding_domain(type)),
                                             binding_info(type));
             type    = instantiate(binding_body(type), H);
             new_Hs.push_back(H);
@@ -49,7 +49,7 @@ optional<expr> intron(environment const & env, options const & opts, metavar_con
 
         } else {
             lean_assert(is_let(type));
-            expr H  = new_locals.push_let(mk_aux_name(given_names, let_name(type)), annotated_head_beta_reduce(let_type(type)), let_value(type));
+            expr H  = new_locals.push_let(mk_aux_name(ctx.lctx(), given_names, let_name(type)), annotated_head_beta_reduce(let_type(type)), let_value(type));
             type    = instantiate(let_body(type), H);
             new_Hs.push_back(H);
             new_Hns.push_back(mlocal_name(H));

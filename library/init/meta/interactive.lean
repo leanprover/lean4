@@ -29,8 +29,10 @@ meta def list_of (p : parser α) := tk "[" *> sep_by "," p <* tk "]"
     '<|>' (rbp 2), ';' (rbp 1), and ',' (rbp 0). It should be used for any (potentially)
     trailing expression parameters. -/
 meta def texpr := qexpr 2
+/-- Parse an identifier or a '_' -/
+meta def ident_ : parser name := ident <|> tk "_" >> return `_
 meta def using_ident := (tk "using" *> ident)?
-meta def with_ident_list := (tk "with" *> ident*) <|> return []
+meta def with_ident_list := (tk "with" *> ident_*) <|> return []
 meta def without_ident_list := (tk "without" *> ident*) <|> return []
 meta def location := (tk "at" *> ident*) <|> return []
 meta def qexpr_list := list_of (qexpr 0)
@@ -82,7 +84,7 @@ If the goal is an arrow `T → U`, then it puts in the local context either `h:T
 If the goal is neither a Pi/forall nor starting with a let definition,
 the tactic `intro` applies the tactic `whnf` until the tactic `intro` can be applied or the goal is not `head-reducible`.
 -/
-meta def intro : parse ident? → tactic unit
+meta def intro : parse ident_? → tactic unit
 | none     := intro1 >> skip
 | (some h) := tactic.intro h >> skip
 
@@ -90,7 +92,7 @@ meta def intro : parse ident? → tactic unit
 Similar to `intro` tactic. The tactic `intros` will keep introducing new hypotheses until the goal target is not a Pi/forall or let binder.
 The variant `intros h_1 ... h_n` introduces `n` new hypotheses using the given identifiers to name them.
 -/
-meta def intros : parse ident* → tactic unit
+meta def intros : parse ident_* → tactic unit
 | [] := tactic.intros >> skip
 | hs := intro_lst hs >> skip
 
@@ -496,7 +498,7 @@ meta def simph (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list) 
                (cfg : simp_config := {}) : tactic unit :=
 simp_using_hs hs attr_names ids cfg
 
-meta def simp_intros (ids : parse ident*) (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list)
+meta def simp_intros (ids : parse ident_*) (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list)
                      (wo_ids : parse without_ident_list) (cfg : simp_config := {}) : tactic unit :=
 do s ← mk_simp_set attr_names hs wo_ids,
    match ids with
@@ -505,7 +507,7 @@ do s ← mk_simp_set attr_names hs wo_ids,
    end,
    try triv >> try (reflexivity reducible)
 
-meta def simph_intros (ids : parse ident*) (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list)
+meta def simph_intros (ids : parse ident_*) (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list)
                      (wo_ids : parse without_ident_list) (cfg : simp_config := {}) : tactic unit :=
 do s ← mk_simp_set attr_names hs wo_ids,
    match ids with

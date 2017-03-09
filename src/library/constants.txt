@@ -77,6 +77,9 @@ funext
 ge
 gt
 has_add
+has_bind.bind
+has_bind.and_then
+has_bind.seq
 has_div
 has_mul
 has_inv
@@ -291,9 +294,6 @@ pprod.snd
 propext
 pexpr
 pexpr.subst
-pre_monad.bind
-pre_monad.and_then
-pre_monad.seq
 to_pexpr
 quot.mk
 quot.lift

@@ -114,7 +114,7 @@ static expr mk_tactic_solve1(parser & p, expr tac, pos_info const & pos, name co
 }
 
 static expr concat(parser & p, expr const & tac1, expr const & tac2, pos_info const & pos) {
-    return p.save_pos(mk_app(mk_constant(get_pre_monad_seq_name()), tac1, tac2), pos);
+    return p.save_pos(mk_app(mk_constant(get_has_bind_seq_name()), tac1, tac2), pos);
 }
 
 static optional<name> is_auto_quote_tactic(parser & p, name const & tac_class) {
@@ -526,7 +526,7 @@ expr parse_auto_quote_tactic_block(parser & p, unsigned, expr const *, pos_info 
         p.next();
         expr next = parse_tactic(p, tac_class, use_rstep, report_error);
         erase_quoted_terms_pos_info(p, next);
-        r = p.mk_app({p.save_pos(mk_constant(get_pre_monad_and_then_name()), pos), r, next}, pos);
+        r = p.mk_app({p.save_pos(mk_constant(get_has_bind_and_then_name()), pos), r, next}, pos);
     }
     p.check_token_next(get_rbracket_tk(), "invalid auto-quote tactic block, ']' expected");
     return r;

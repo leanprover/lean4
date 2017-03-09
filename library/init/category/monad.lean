@@ -7,19 +7,19 @@ prelude
 import init.category.applicative
 universes u v
 
-class pre_monad (m : Type u → Type v) :=
+class has_bind (m : Type u → Type v) :=
 (bind : Π {α β : Type u}, m α → (α → m β) → m β)
 
-@[inline] def bind {m : Type u → Type v} [pre_monad m] {α β : Type u} : m α → (α → m β) → m β :=
-pre_monad.bind
+@[inline] def bind {m : Type u → Type v} [has_bind m] {α β : Type u} : m α → (α → m β) → m β :=
+has_bind.bind
 
-@[inline] def pre_monad.and_then {α β : Type u} {m : Type u → Type v} [pre_monad m] (x : m α) (y : m β) : m β :=
+@[inline] def has_bind.and_then {α β : Type u} {m : Type u → Type v} [has_bind m] (x : m α) (y : m β) : m β :=
 do x, y
 
 infixl ` >>= `:2 := bind
-infixl ` >> `:2  := pre_monad.and_then
+infixl ` >> `:2  := has_bind.and_then
 
-class monad (m : Type u → Type v) extends applicative m, pre_monad m : Type (max u+1 v) :=
+class monad (m : Type u → Type v) extends applicative m, has_bind m : Type (max u+1 v) :=
 (seq := λ α β f x, bind f $ λ f, bind x $ λ x, pure (f x))
 -- implied by `seq`, but a bit simpler
 (map := λ α β f x, bind x $ λ x, pure (f x))
@@ -27,6 +27,6 @@ class monad (m : Type u → Type v) extends applicative m, pre_monad m : Type (m
 def return {m : Type u → Type v} [monad m] {α : Type u} : α → m α :=
 pure
 
-/- Identical to pre_monad.and_then, but it is not inlined. -/
-def pre_monad.seq {α β : Type u} {m : Type u → Type v} [pre_monad m] (x : m α) (y : m β) : m β :=
+/- Identical to has_bind.and_then, but it is not inlined. -/
+def has_bind.seq {α β : Type u} {m : Type u → Type v} [has_bind m] (x : m α) (y : m β) : m β :=
 do x, y

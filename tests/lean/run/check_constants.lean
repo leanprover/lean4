@@ -82,6 +82,9 @@ run_cmd script_check_id `funext
 run_cmd script_check_id `ge
 run_cmd script_check_id `gt
 run_cmd script_check_id `has_add
+run_cmd script_check_id `has_bind.bind
+run_cmd script_check_id `has_bind.and_then
+run_cmd script_check_id `has_bind.seq
 run_cmd script_check_id `has_div
 run_cmd script_check_id `has_mul
 run_cmd script_check_id `has_inv
@@ -296,9 +299,6 @@ run_cmd script_check_id `pprod.snd
 run_cmd script_check_id `propext
 run_cmd script_check_id `pexpr
 run_cmd script_check_id `pexpr.subst
-run_cmd script_check_id `pre_monad.bind
-run_cmd script_check_id `pre_monad.and_then
-run_cmd script_check_id `pre_monad.seq
 run_cmd script_check_id `to_pexpr
 run_cmd script_check_id `quot.mk
 run_cmd script_check_id `quot.lift

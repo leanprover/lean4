@@ -82,6 +82,9 @@ name const * g_funext = nullptr;
 name const * g_ge = nullptr;
 name const * g_gt = nullptr;
 name const * g_has_add = nullptr;
+name const * g_has_bind_bind = nullptr;
+name const * g_has_bind_and_then = nullptr;
+name const * g_has_bind_seq = nullptr;
 name const * g_has_div = nullptr;
 name const * g_has_mul = nullptr;
 name const * g_has_inv = nullptr;
@@ -296,9 +299,6 @@ name const * g_pprod_snd = nullptr;
 name const * g_propext = nullptr;
 name const * g_pexpr = nullptr;
 name const * g_pexpr_subst = nullptr;
-name const * g_pre_monad_bind = nullptr;
-name const * g_pre_monad_and_then = nullptr;
-name const * g_pre_monad_seq = nullptr;
 name const * g_to_pexpr = nullptr;
 name const * g_quot_mk = nullptr;
 name const * g_quot_lift = nullptr;
@@ -457,6 +457,9 @@ void initialize_constants() {
     g_ge = new name{"ge"};
     g_gt = new name{"gt"};
     g_has_add = new name{"has_add"};
+    g_has_bind_bind = new name{"has_bind", "bind"};
+    g_has_bind_and_then = new name{"has_bind", "and_then"};
+    g_has_bind_seq = new name{"has_bind", "seq"};
     g_has_div = new name{"has_div"};
     g_has_mul = new name{"has_mul"};
     g_has_inv = new name{"has_inv"};
@@ -671,9 +674,6 @@ void initialize_constants() {
     g_propext = new name{"propext"};
     g_pexpr = new name{"pexpr"};
     g_pexpr_subst = new name{"pexpr", "subst"};
-    g_pre_monad_bind = new name{"pre_monad", "bind"};
-    g_pre_monad_and_then = new name{"pre_monad", "and_then"};
-    g_pre_monad_seq = new name{"pre_monad", "seq"};
     g_to_pexpr = new name{"to_pexpr"};
     g_quot_mk = new name{"quot", "mk"};
     g_quot_lift = new name{"quot", "lift"};
@@ -833,6 +833,9 @@ void finalize_constants() {
     delete g_ge;
     delete g_gt;
     delete g_has_add;
+    delete g_has_bind_bind;
+    delete g_has_bind_and_then;
+    delete g_has_bind_seq;
     delete g_has_div;
     delete g_has_mul;
     delete g_has_inv;
@@ -1047,9 +1050,6 @@ void finalize_constants() {
     delete g_propext;
     delete g_pexpr;
     delete g_pexpr_subst;
-    delete g_pre_monad_bind;
-    delete g_pre_monad_and_then;
-    delete g_pre_monad_seq;
     delete g_to_pexpr;
     delete g_quot_mk;
     delete g_quot_lift;
@@ -1208,6 +1208,9 @@ name const & get_funext_name() { return *g_funext; }
 name const & get_ge_name() { return *g_ge; }
 name const & get_gt_name() { return *g_gt; }
 name const & get_has_add_name() { return *g_has_add; }
+name const & get_has_bind_bind_name() { return *g_has_bind_bind; }
+name const & get_has_bind_and_then_name() { return *g_has_bind_and_then; }
+name const & get_has_bind_seq_name() { return *g_has_bind_seq; }
 name const & get_has_div_name() { return *g_has_div; }
 name const & get_has_mul_name() { return *g_has_mul; }
 name const & get_has_inv_name() { return *g_has_inv; }
@@ -1422,9 +1425,6 @@ name const & get_pprod_snd_name() { return *g_pprod_snd; }
 name const & get_propext_name() { return *g_propext; }
 name const & get_pexpr_name() { return *g_pexpr; }
 name const & get_pexpr_subst_name() { return *g_pexpr_subst; }
-name const & get_pre_monad_bind_name() { return *g_pre_monad_bind; }
-name const & get_pre_monad_and_then_name() { return *g_pre_monad_and_then; }
-name const & get_pre_monad_seq_name() { return *g_pre_monad_seq; }
 name const & get_to_pexpr_name() { return *g_to_pexpr; }
 name const & get_quot_mk_name() { return *g_quot_mk; }
 name const & get_quot_lift_name() { return *g_quot_lift; }

@@ -826,10 +826,12 @@ public:
 
 expr mk_app(type_context & ctx, name const & c, unsigned nargs, expr const * args, optional<transparency_mode> const & md) {
     if (md) {
-        type_context::transparency_scope _s(ctx, *md);
+        type_context::transparency_scope _s1(ctx, *md);
+        type_context::zeta_scope         _s2(ctx, true);
         return app_builder(ctx).mk_app(c, nargs, args);
     } else if (ctx.mode() == transparency_mode::Reducible || ctx.mode() == transparency_mode::None) {
-        type_context::transparency_scope _s(ctx, transparency_mode::Semireducible);
+        type_context::transparency_scope _s1(ctx, transparency_mode::Semireducible);
+        type_context::zeta_scope _s2(ctx, true);
         return app_builder(ctx).mk_app(c, nargs, args);
     } else {
         return app_builder(ctx).mk_app(c, nargs, args);

@@ -3193,13 +3193,16 @@ struct instance_synthesizer {
     buffer<choice>        m_choices;
     bool                  m_displayed_trace_header;
     transparency_mode     m_old_transparency_mode;
+    bool                  m_old_zeta;
 
     instance_synthesizer(type_context & ctx):
         m_ctx(ctx),
         m_displayed_trace_header(false),
-        m_old_transparency_mode(m_ctx.m_transparency_mode) {
+        m_old_transparency_mode(m_ctx.m_transparency_mode),
+        m_old_zeta(m_ctx.m_zeta) {
         lean_assert(m_ctx.in_tmp_mode());
         m_ctx.m_transparency_mode = transparency_mode::Reducible;
+        m_ctx.m_zeta              = true;
     }
 
     ~instance_synthesizer() {
@@ -3207,6 +3210,7 @@ struct instance_synthesizer {
             m_ctx.pop_scope();
         }
         m_ctx.m_transparency_mode = m_old_transparency_mode;
+        m_ctx.m_zeta              = m_old_zeta;
     }
 
     environment const & env() const { return m_ctx.env(); }

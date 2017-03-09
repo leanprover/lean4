@@ -20,7 +20,7 @@ end
 
 example : { k : ℕ // k ≤ 555555 } :=
 begin
-  refine subtype.tag _ _,
+  refine subtype.mk _ _,
   exact 17,
   target >>= trace,
   trace_state,
@@ -32,7 +32,7 @@ set_option pp.instantiate_mvars false
 
 example : { k : ℕ // k ≤ 555555 } :=
 begin
-  refine subtype.tag _ _,
+  refine subtype.mk _ _,
   exact 17,
   target >>= trace,
   trace_state,

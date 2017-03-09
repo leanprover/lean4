@@ -18,4 +18,4 @@ sorry
 check f ⟨0, zlt10⟩
 
 definition g (a : below 10) : nat :=
-subtype.elt_of a
+subtype.val a

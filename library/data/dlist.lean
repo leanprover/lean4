@@ -12,8 +12,8 @@ This structure supports `O(1)` `append` and `concat` operations on lists, making
 useful for append-heavy uses such as logging and pretty printing.
 -/
 structure dlist (α : Type u) :=
-(apply : list α → list α)
-(inv   : ∀ l, apply l = apply [] ++ l)
+(apply     : list α → list α)
+(invariant : ∀ l, apply l = apply [] ++ l)
 
 namespace dlist
 open function
@@ -65,7 +65,7 @@ lemma of_list_to_list (l : dlist α) : of_list (to_list l) = l :=
 begin
    cases l with xs,
    assert h : append (xs []) = xs,
-   {intros, apply funext, intros x, simp [inv x]},
+   {intros, apply funext, intros x, simp [invariant x]},
    simp [h]
 end
 

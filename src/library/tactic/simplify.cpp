@@ -563,12 +563,15 @@ struct match_fn {
             p1 = m_ctx.instantiate_mvars(p1);
             if (implicit)
                 p1 = m_ctx.ctx().complete_instance(p1);
-            if (!match(p1, t1)) {
-                lean_simp_trace_d(m_ctx.ctx(), name({"simplify", "failure"}),
-                                  tout() << "fail to match '" << m_id << "':\n";
-                                  tout() << p << "\n=?=\n" << t << "\nbecause the following implicit match\n";
-                                  tout() << p1 << "\n=?=\n" << t1 << "\n";);
-                return false;
+            {
+                type_context::transparency_scope _scope(m_ctx.ctx(), transparency_mode::Semireducible);
+                if (!match(p1, t1)) {
+                    lean_simp_trace_d(m_ctx.ctx(), name({"simplify", "failure"}),
+                                      tout() << "fail to match '" << m_id << "':\n";
+                                      tout() << p << "\n=?=\n" << t << "\nbecause the following implicit match\n";
+                                      tout() << p1 << "\n=?=\n" << t1 << "\n";);
+                    return false;
+                }
             }
         }
         return true;

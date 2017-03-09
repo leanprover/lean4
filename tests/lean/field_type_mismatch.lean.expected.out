@@ -1,0 +1,14 @@
+field_type_mismatch.lean:4:8: error: type mismatch at field 'add'
+  nat.succ
+has type
+  ℕ → ℕ
+but is expected to have type
+  ℕ → ℕ → ℕ
+field_type_mismatch.lean:3:9: warning: declaration 'test.has_add' uses sorry
+field_type_mismatch.lean:8:14: error: type mismatch at field 'mul_assoc'
+  trivial
+has type
+  true
+but is expected to have type
+  ∀ (a b c : ℕ), a * b * c = a * (b * c)
+field_type_mismatch.lean:6:9: warning: declaration 'test.semigroup' uses sorry

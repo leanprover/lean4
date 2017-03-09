@@ -189,6 +189,7 @@ private:
     format mk_app_arg_mismatch_error(expr const & t, expr const & arg, expr const & expected_arg);
 
     bool is_with_expected_candidate(expr const & fn);
+    std::tuple<expr, expr, optional<expr>> elaborate_arg(expr const & arg, expr const & expected_type, expr const & ref);
     struct first_pass_info;
     void first_pass(expr const & fn, buffer<expr> const & args, expr const & expected_type, expr const & ref,
                     first_pass_info & info);
@@ -231,6 +232,9 @@ private:
     name field_to_decl(expr const & e, expr const & s, expr const & s_type);
     name find_field_fn(expr const & e, expr const & s, expr const & s_type);
     expr visit_field(expr const & e, optional<expr> const & expected_type);
+    void assign_field_mvar(name const & S_fname, expr const & mvar,
+                           optional<expr> const & new_new_fval, expr const & new_fval, expr const & new_fval_type,
+                           expr const & expected_type, expr const & ref);
     expr visit_structure_instance(expr const & e, optional<expr> const & expected_type);
     expr visit(expr const & e, optional<expr> const & expected_type);
 

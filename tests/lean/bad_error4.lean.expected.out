@@ -1,6 +1,4 @@
-bad_error4.lean:5:0: error: type mismatch at application
-  {f := λ (a : unit) (b : delayed[?m_1]), delayed[?m_3]}
-term
+bad_error4.lean:5:7: error: type mismatch at field 'f'
   λ (a : unit) (b : delayed[?m_1]), delayed[?m_3]
 has type
   Π (a : unit) (b : delayed[?m_1]), delayed[?m_2]

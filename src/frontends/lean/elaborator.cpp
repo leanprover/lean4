@@ -1367,6 +1367,16 @@ void elaborator::first_pass(expr const & fn, buffer<expr> const & args,
     }
 }
 
+std::tuple<expr, expr, optional<expr>> elaborator::elaborate_arg(expr const & arg, expr const & expected_type, expr const & ref) {
+    optional<expr> thunk_of;
+    if (!m_in_pattern) thunk_of = is_thunk(expected_type);
+    expr aux_expected_type = thunk_of ? *thunk_of : expected_type;
+    expr new_arg = visit(arg, some_expr(aux_expected_type));
+    new_arg = mk_thunk_if_needed(new_arg, thunk_of);
+    expr new_arg_type = infer_type(new_arg);
+    return std::make_tuple(new_arg, new_arg_type, ensure_has_type(new_arg, new_arg_type, expected_type, ref));
+}
+
 /* Using the information colllected in the first-pass, visit the arguments args.
    And then, create resulting application */
 expr elaborator::second_pass(expr const & fn, buffer<expr> const & args,
@@ -1385,14 +1395,8 @@ expr elaborator::second_pass(expr const & fn, buffer<expr> const & args,
         expr expected_type = info.args_expected_types[i];
         info.new_args[info.new_args_size[i]] = recover_expr_from_exception(some_expr(expected_type), ref_arg, [&] {
             if (is_metavar(info.args_mvars[i])) {
-                optional<expr> thunk_of;
-                if (!m_in_pattern) thunk_of = is_thunk(expected_type);
-                if (thunk_of)
-                    expected_type = *thunk_of;
-                expr new_arg = visit(args[i], some_expr(expected_type));
-                new_arg = mk_thunk_if_needed(new_arg, thunk_of);
-                expr new_arg_type = infer_type(new_arg);
-                optional<expr> new_new_arg = ensure_has_type(new_arg, new_arg_type, info.args_expected_types[i], ref_arg);
+                expr new_arg; expr new_arg_type; optional<expr> new_new_arg;
+                std::tie(new_arg, new_arg_type, new_new_arg) = elaborate_arg(args[i], expected_type, ref_arg);
                 if (!new_new_arg) {
                     buffer<expr> tmp_args;
                     tmp_args.append(info.new_args_size[i], info.new_args.data());
@@ -2415,6 +2419,32 @@ expr elaborator::visit_field(expr const & e, optional<expr> const & expected_typ
     return visit(new_e, expected_type);
 }
 
+void elaborator::assign_field_mvar(name const & S_fname, expr const & mvar,
+                                   optional<expr> const & new_new_fval, expr const & new_fval, expr const & new_fval_type,
+                                   expr const & expected_type, expr const & ref) {
+    if (!new_new_fval) {
+        auto pp_data = pp_until_different(new_fval_type, expected_type);
+        auto pp_fn   = std::get<0>(pp_data);
+        format msg   = format("type mismatch at field '") + format(S_fname) + format("'");
+        msg += pp_indent(pp_fn, new_fval);
+        msg += line() + format("has type");
+        msg += std::get<1>(pp_data);
+        msg += line() + format("but is expected to have type");
+        msg += std::get<2>(pp_data);
+        throw elaborator_exception(ref, msg);
+    }
+    if (!is_def_eq(mvar, *new_new_fval)) {
+        auto pp_data = pp_until_different(instantiate_mvars(mvar), *new_new_fval);
+        auto pp_fn   = std::get<0>(pp_data);
+        format msg = format("unexpected field '") + format(S_fname) + format("'");
+        msg += line() + format("given field value");
+        msg += std::get<1>(pp_data);
+        msg += line() + format("expected field value");
+        msg += std::get<2>(pp_data);
+        throw elaborator_exception(ref, msg);
+    }
+}
+
 expr elaborator::visit_structure_instance(expr const & e, optional<expr> const & _expected_type) {
     name S_name;
     optional<expr> src;
@@ -2476,18 +2506,28 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
     buffer<name> c_names;
     get_intro_rule_names(m_env, S_name, c_names);
     lean_assert(c_names.size() == 1);
-    expr c = copy_tag(e, mk_constant(c_names[0]));
+    expr c = visit_const_core(copy_tag(e, mk_constant(c_names[0])));
     name_map<expr> field2value;
-
-    // first check for explicit, implicit and parent fields
-    expr c_type = m_env.get(c_names[0]).get_type();
-    for (unsigned i = 0; is_pi(c_type); c_type = binding_body(c_type), i++) {
+    name_map<expr> default2mvar;
+    expr const & ref = e;
+    expr c_type      = infer_type(c);
+    buffer<expr> c_args;
+    buffer<std::tuple<name, expr, expr>> to_elaborate;
+    /* First check for explicit, implicit, parent, auto_param fields.
+       We create metavariables for parameters.
+       For auto_param fields, we create metavariable and use the specifed tactic to synthesize the field.
+       We create metavariables for explicit fields and put them in the to_elaborate buffer, and
+       we only elaborate them after we propagate the expected type and the parent field type information. */
+    for (unsigned i = 0; is_pi(c_type); i++) {
+        expr c_arg;
+        expr d = binding_domain(c_type);
         if (i < nparams) {
             if (is_explicit(binding_info(c_type))) {
                 throw elaborator_exception(e, sstream() << "invalid structure value {...}, structure parameter '" <<
                                            binding_name(c_type) << "' is explicit in the structure constructor '" <<
                                            c_names[0] << "'");
             }
+            c_arg = mk_metavar(d, ref);
         } else {
             name S_fname = binding_name(c_type);
             if (is_explicit(binding_info(c_type))) {
@@ -2495,7 +2535,9 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
                 for (; j < fnames.size(); j++) {
                     if (S_fname == fnames[j]) {
                         used[j] = true;
-                        field2value.insert(S_fname, fvalues[j]);
+                        c_arg   = mk_metavar(d, ref);
+                        to_elaborate.emplace_back(S_fname, c_arg, fvalues[j]);
+                        field2value.insert(S_fname, c_arg);
                         break;
                     }
                 }
@@ -2508,18 +2550,34 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
                             f = copy_tag(e, mk_app(f, copy_tag(e, mk_expr_placeholder())));
                         f = copy_tag(e, mk_app(f, *src));
                         try {
-                            f = visit(f, none_expr());
+                            c_arg = visit(f, none_expr());
                         } catch (exception & ex) {
                             throw nested_exception(some_expr(e),
                                                    sstream() << "invalid structure update { src with ... }, field '"
                                                    << S_fname << "'"
                                                    << " was not provided, nor was it found in the source", ex);
                         }
-                        f = copy_tag(e, mk_as_is(f));
-                        field2value.insert(S_fname, f);
+                        expr c_arg_type = infer_type(c_arg);
+                        if (!is_def_eq(c_arg_type, d)) {
+                            auto pp_data = pp_until_different(c_arg_type, d);
+                            auto pp_fn   = std::get<0>(pp_data);
+                            format msg   = format("type mismatch at field '") + format(S_fname) + format("' from source");
+                            msg += pp_indent(pp_fn, c_arg);
+                            msg += line() + format("has type");
+                            msg += std::get<1>(pp_data);
+                            msg += line() + format("but is expected to have type");
+                            msg += std::get<2>(pp_data);
+                            throw elaborator_exception(ref, msg);
+                        }
+                        field2value.insert(S_fname, c_arg);
                     } else {
                         name full_S_fname = S_name + S_fname;
-                        if (!has_default_value(m_env, full_S_fname)) {
+                        if (has_default_value(m_env, full_S_fname)) {
+                            c_arg = mk_metavar(d, ref);
+                            default2mvar.insert(S_fname, c_arg);
+                        } else if (auto p = is_auto_param(d)) {
+                            c_arg = mk_auto_param(p->second, p->first, ref);
+                        } else {
                             throw elaborator_exception(e, sstream() << "invalid structure value { ... }, field '" <<
                                                        S_fname << "' was not provided");
                         }
@@ -2531,10 +2589,14 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
                     throw elaborator_exception(e, sstream() << "invalid structure value {...}, field '"
                                                << S_fname << "' is implicit and must not be provided");
                 }
+                c_arg = mk_metavar(d, ref);
             }
         }
+        c_args.push_back(c_arg);
+        c_type = instantiate(binding_body(c_type), c_arg);
     }
 
+    /* Check if there are alien fields. */
     for (unsigned i = 0; i < fnames.size(); i++) {
         if (!used[i]) {
             throw elaborator_exception(e, sstream() << "invalid structure value { ... }, '" << fnames[i] << "'" <<
@@ -2542,7 +2604,28 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
         }
     }
 
-    // now repeatedly try to insert defaulted fields
+    /* Check expected type */
+    if (expected_type && !is_def_eq(*expected_type, c_type)) {
+        auto pp_data = pp_until_different(c_type, *expected_type);
+        auto pp_fn   = std::get<0>(pp_data);
+        expr e = mk_app(c, c_args);
+        throw elaborator_exception(ref, format("type mismatch as structure instance ") + pp_indent(pp_fn, e) +
+                                   line() + format("has type") + std::get<1>(pp_data) +
+                                   line() + format("but is expected to have type") +
+                                   std::get<2>(pp_data));
+    }
+
+    /* Elaborate explicit arguments */
+    for (auto const & t : to_elaborate) {
+        name S_fname; expr mvar; expr fval;
+        std::tie(S_fname, mvar, fval) = t;
+        expr expected_type = instantiate_mvars(infer_type(mvar));
+        expr new_fval; expr new_fval_type; optional<expr> new_new_fval; expr ref_fval = fval;
+        std::tie(new_fval, new_fval_type, new_new_fval) = elaborate_arg(fval, expected_type, ref_fval);
+        assign_field_mvar(S_fname, mvar, new_new_fval, new_fval, new_fval_type, expected_type, ref_fval);
+    }
+
+    /* Now repeatedly try to insert defaulted fields */
     bool last_progress = true;
     bool done = false;
     while (!done) {
@@ -2556,13 +2639,18 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
                     name full_S_fname = S_name + S_fname;
                     if (optional<name> default_value_fn = has_default_value(m_env, full_S_fname)) {
                         try {
-                            expr value = mk_field_default_value(m_env, full_S_fname, [&](name const &fname) {
-                                if (auto v = field2value.find(fname))
-                                    return some_expr(*v);
-                                else
-                                    return none_expr();
-                            });
-                            field2value.insert(S_fname, value);
+                            expr fval = mk_field_default_value(m_env, full_S_fname, [&](name const &fname) {
+                                    if (auto v = field2value.find(fname))
+                                        return some_expr(mk_as_is(instantiate_mvars(*v)));
+                                    else
+                                        return none_expr();
+                                });
+                            expr mvar          = *default2mvar.find(S_fname);
+                            expr expected_type = instantiate_mvars(infer_type(mvar));
+                            expr new_fval; expr new_fval_type; optional<expr> new_new_fval;
+                            std::tie(new_fval, new_fval_type, new_new_fval) = elaborate_arg(fval, expected_type, ref);
+                            assign_field_mvar(S_fname, mvar, new_new_fval, new_fval, new_fval_type, expected_type, ref);
+                            field2value.insert(S_fname, *new_new_fval);
                             progress = true;
                         } catch (exception &) {
                             done = false;
@@ -2576,17 +2664,7 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
         last_progress = progress;
     }
 
-    // finally apply fields to the constructor
-    c_type = m_env.get(c_names[0]).get_type();
-    for (unsigned i = 0; is_pi(c_type); c_type = binding_body(c_type), i++) {
-        if (is_explicit(binding_info(c_type))) {
-            name S_fname = binding_name(c_type);
-            lean_assert(field2value.find(S_fname));
-            c = copy_tag(e, mk_app(c, field2value[S_fname]));
-        }
-    }
-
-    return visit(c, expected_type);
+    return mk_app(c, c_args);
 }
 
 static expr quote(expr const & e) {

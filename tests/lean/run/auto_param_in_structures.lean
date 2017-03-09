@@ -15,4 +15,13 @@ monoid.mk mul
 print m1
 print m2
 
+def m3 : monoid nat :=
+{op := add}
+
+def m4 : monoid nat :=
+{op := mul}
+
+print m3
+print m4
+
 end test

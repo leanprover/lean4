@@ -210,6 +210,8 @@ meta def multiplicative_to_additive_pairs : list (name × name) :=
   [/- map operations -/
    (`mul, `add), (`one, `zero), (`inv, `neg),
    (`has_mul, `has_add), (`has_one, `has_zero), (`has_inv, `has_neg),
+   /- map constructors -/
+   (`has_mul.mk, `has_add.mk), (`has_one, `has_zero.mk), (`has_inv, `has_neg.mk),
    /- map structures -/
    (`semigroup, `add_semigroup),
    (`monoid, `add_monoid),

@@ -33,15 +33,17 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv[1:]
     infile        = argv[0]
-    basedir, name = os.path.split(infile)
-    basename, ext = os.path.splitext(name)
-    cppfile       = os.path.join(basedir, basename + ".cpp")
-    hfile         = os.path.join(basedir, basename + ".h")
-    tst_file      = os.path.join(basedir, "../../tests/lean/run/check_" + basename + ".lean")
     constants     = []
     with open(infile, 'r') as f:
         for line in f:
             constants.append([to_c_const(line.strip()), line.strip()])
+
+    basedir, name = os.path.split(infile)
+    os.chdir(basedir)
+    basename, ext = os.path.splitext(name)
+    cppfile       = basename + ".cpp"
+    hfile         = basename + ".h"
+    tst_file      = "../../tests/lean/run/check_" + basename + ".lean"
     with open(hfile, 'w') as f:
         f.write('// Copyright (c) 2015 Microsoft Corporation. All rights reserved.\n')
         f.write('// Released under Apache 2.0 license as described in the file LICENSE.\n')

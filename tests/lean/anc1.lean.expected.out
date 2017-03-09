@@ -1,7 +1,7 @@
 (1, 2) : ℕ × ℕ
 and.intro trivial trivial : true ∧ true
 anc1.lean:5:8: warning: declaration '_example' uses sorry
-{fst := 1, snd := sorry} : Σ' (x : ℕ), x > 0
+⟨1, sorry⟩ : Σ' (x : ℕ), x > 0
 show true, from true.intro : true
 Exists.intro 1 (id_locked (1 ≠ 0) (λ (a : 1 = 0), nat.no_confusion a)) : ∃ (x : ℕ), 1 ≠ 0
 λ (A B C : Prop) (Ha : A) (Hb : B) (Hc : C), show B ∧ A, from and.intro Hb Ha :

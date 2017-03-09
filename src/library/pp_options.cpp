@@ -214,7 +214,8 @@ void initialize_pp_options() {
     register_bool_option(*g_pp_delayed_abstraction, LEAN_DEFAULT_PP_DELAYED_ABSTRACTION,
                          "(pretty printer) display the location of delayed-abstractions (for debugging purposes)");
     register_bool_option(*g_pp_structure_instances, LEAN_DEFAULT_PP_STRUCTURE_INSTANCES,
-                         "(pretty printer) display structure instances using the '{ field_name := field_value, ... }' notation");
+                         "(pretty printer) display structure instances using the '{ field_name := field_value, ... }' notation "
+                         "or '⟨field_value, ... ⟩' if structure is tagged with [pp_using_anonymous_constructor] attribute");
     register_bool_option(*g_pp_structure_instances_qualifier, LEAN_DEFAULT_PP_STRUCTURE_INSTANCES_QUALIFIER,
                          "(pretty printer) include qualifier 'struct_name .' "
                          "when displaying structure instances using the '{ struct_name . field_name := field_value, ... }' notation, "

@@ -118,6 +118,12 @@ static optional<unsigned> to_unsigned(expr const & e) {
     return g_nat_numeral_pp->to_unsigned(e);
 }
 
+static name * g_pp_using_anonymous_constructor = nullptr;
+
+bool pp_using_anonymous_constructor(environment const & env, name const & n) {
+    return has_attribute(env, *g_pp_using_anonymous_constructor, n);
+}
+
 void initialize_pp() {
     g_ellipsis_n_fmt  = new format(highlight(format("\u2026")));
     g_ellipsis_fmt    = new format(highlight(format("...")));
@@ -141,9 +147,23 @@ void initialize_pp() {
     g_partial_explicit_fmt    = new format(highlight_keyword(format("@@")));
     g_tmp_prefix      = new name(name::mk_internal_unique_name());
     g_nat_numeral_pp  = new nat_numeral_pp();
+
+    g_pp_using_anonymous_constructor = new name("pp_using_anonymous_constructor");
+
+    register_system_attribute(basic_attribute::with_check(
+                                  *g_pp_using_anonymous_constructor,
+                                  "if a structure S is marked with this attribute, then its constructor applications"
+                                  "are pretty printed using the anonymous constructor",
+                                  [](environment const & env, name const & d, bool) -> void {
+                                      if (!is_structure(env, d))
+                                          throw exception(
+                                              "invalid 'pp_using_anonymous_constructor' use, "
+                                              "only structures can be marked with this attribute");
+                                              }));
 }
 
 void finalize_pp() {
+    delete g_pp_using_anonymous_constructor;
     delete g_nat_numeral_pp;
     delete g_ellipsis_n_fmt;
     delete g_ellipsis_fmt;
@@ -760,23 +780,35 @@ auto pretty_fn::pp_structure_instance(expr const & e) -> result {
     expr const & mk = get_app_args(e, args);
     name const & S  = const_name(mk).get_prefix();
     unsigned num_params = *inductive::get_num_params(m_env, S);
-    buffer<name> fields;
-    get_structure_fields(m_env, S, fields);
-    lean_assert(args.size() == num_params + fields.size());
-    format r;
-    if (m_structure_instances_qualifier)
-        r += format(S) + space() + format(".");
-    for (unsigned i = 0; i < fields.size(); i++) {
-        if (i > 0 || m_structure_instances_qualifier) r += line();
-        name fname          = fields[i];
-        fname               = fname.replace_prefix(S, name());
-        unsigned field_size = fname.utf8_size();
-        format fval_fmt     = pp(args[i + num_params]).fmt();
-        if (i < fields.size() - 1) fval_fmt += comma();
-        r                  += format(fname) + space() + *g_assign_fmt + space() + nest(field_size + 4, fval_fmt);
+    if (pp_using_anonymous_constructor(m_env, S)) {
+        format r;
+        for (unsigned i = num_params; i < args.size(); i++) {
+            if (i > num_params) r += line();
+            format fval_fmt     = pp(args[i]).fmt();
+            if (i < args.size() - 1) fval_fmt += comma();
+            r += fval_fmt;
+        }
+        r = group(nest(1, format("⟨") + r + format("⟩")));
+        return result(r);
+    } else {
+        buffer<name> fields;
+        get_structure_fields(m_env, S, fields);
+        lean_assert(args.size() == num_params + fields.size());
+        format r;
+        if (m_structure_instances_qualifier)
+            r += format(S) + space() + format(".");
+        for (unsigned i = 0; i < fields.size(); i++) {
+            if (i > 0 || m_structure_instances_qualifier) r += line();
+            name fname          = fields[i];
+            fname               = fname.replace_prefix(S, name());
+            unsigned field_size = fname.utf8_size();
+            format fval_fmt     = pp(args[i + num_params]).fmt();
+            if (i < fields.size() - 1) fval_fmt += comma();
+            r                  += format(fname) + space() + *g_assign_fmt + space() + nest(field_size + 4, fval_fmt);
+        }
+        r = group(nest(1, format("{") + r + format("}")));
+        return result(r);
     }
-    r = group(nest(1, format("{") + r + format("}")));
-    return result(r);
 }
 
 static bool is_field_notation_candidate(environment const & env, expr const & e, bool implicit) {

@@ -198,6 +198,8 @@ inductive bool : Type
 structure subtype {α : Sort u} (p : α → Prop) :=
 (val : α) (property : p val)
 
+attribute [pp_using_anonymous_constructor] sigma psigma subtype pprod
+
 class inductive decidable (p : Prop)
 | is_false : ¬p → decidable
 | is_true :  p → decidable

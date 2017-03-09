@@ -7,7 +7,6 @@ has type
   ℕ
 but is expected to have type
   A
-sorry : ?M_1
 g : A → A
 def4.lean:17:9: error: type mismatch at application
   g 0
@@ -17,7 +16,6 @@ has type
   ℕ
 but is expected to have type
   A
-sorry : ?M_1
 f : Π (A : Type u_1), A → A
 f ℕ 0 : ℕ
 g 0 : ℕ

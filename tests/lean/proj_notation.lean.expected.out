@@ -13,18 +13,15 @@ proj_notation.lean:34:19: error: invalid '^.' notation, 'fst' is not a valid "fi
   c
 which has type
   car
-λ (c : car), sorry : Π (c : car), delayed[?M_1]
 proj_notation.lean:36:20: error: invalid projection, index must be greater than 0
 proj_notation.lean:38:19: error: invalid projection, structure has only 2 field(s)
   c
 which has type
   car
-λ (c : car), sorry : Π (c : car), delayed[?M_1]
 proj_notation.lean:40:19: error: invalid projection, structure expected
   n
 has type
   ℕ
-λ (n : ℕ), sorry : Π (n : ℕ), delayed[?M_1]
 p^.fst : ℕ
 p^.snd : ℕ
 λ (c : car), (c^.pos)^.y : car → ℕ

@@ -3,12 +3,10 @@ field_access.lean:5:8: error: invalid projection, structure expected
   l
 has type
   list ℕ
-sorry : ?M_1
 field_access.lean:7:13: error: invalid projection, structure has only 2 field(s)
   (1, 2)
 which has type
   ?m_1 × ?m_2
-sorry : ?M_1
 field_access.lean:10:1: error: invalid '^.' notation, 'forr' is not a valid "field" because environment does not contain 'list.forr'
   l
 which has type

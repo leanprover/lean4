@@ -1,11 +1,5 @@
 o : N
 z : N
 eq a gz : Prop
-num2.lean:24:8: error: failed to synthesize type class instance for
-⊢ has_zero G
-num2.lean:24:8: error: invalid type ascription, expression has type
-  N
-but is expected to have type
-  G
 eq gz a : Prop
 eq b z : Prop

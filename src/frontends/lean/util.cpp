@@ -344,7 +344,7 @@ expr mk_tactic_unit() {
 }
 
 expr quote(unsigned u) {
-    return mk_app(mk_constant(get_char_of_nat_name()), mk_prenum(mpz(u)));
+    return mk_prenum(mpz(u));
 }
 
 expr quote(char const * str) {

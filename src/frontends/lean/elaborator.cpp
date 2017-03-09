@@ -3528,7 +3528,7 @@ pair<expr, level_param_names>
 elaborate(environment & env, options const & opts, name const & decl_name,
           metavar_context & mctx, local_context const & lctx, expr const & e,
           bool check_unassigned) {
-    bool recover_from_errors = true;
+    bool recover_from_errors = false;
     elaborator elab(env, opts, decl_name, mctx, lctx, recover_from_errors);
     expr r = elab.elaborate(e);
     auto p = elab.finalize(r, check_unassigned, true);

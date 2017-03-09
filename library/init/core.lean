@@ -196,7 +196,7 @@ inductive bool : Type
 
 /- Remark: subtype must take a Sort instead of Type because of the axiom strong_indefinite_description. -/
 structure subtype {α : Sort u} (p : α → Prop) :=
-tag :: (elt_of : α) (has_property : p elt_of)
+(val : α) (property : p val)
 
 class inductive decidable (p : Prop)
 | is_false : ¬p → decidable

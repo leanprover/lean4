@@ -120,7 +120,7 @@ meta instance {α : Type u} {β : α → Type v} [has_to_format α] [s : ∀ x, 
 open subtype
 
 meta instance {α : Type u} {p : α → Prop} [has_to_format α] : has_to_format (subtype p) :=
-⟨λ s, to_fmt (elt_of s)⟩
+⟨λ s, to_fmt (val s)⟩
 
 meta def format.bracket : string → string → format → format
 | o c f := to_fmt o ++ nest (utf8_length o) f ++ to_fmt c

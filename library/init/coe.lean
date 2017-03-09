@@ -150,7 +150,7 @@ instance coe_decidable_eq (x : bool) : decidable (coe x) :=
 show decidable (x = tt), from bool.decidable_eq x tt
 
 instance coe_subtype {a : Type u} {p : a → Prop} : has_coe {x // p x} a :=
-⟨λ s, subtype.elt_of s⟩
+⟨subtype.val⟩
 
 /- basic lifts -/
 

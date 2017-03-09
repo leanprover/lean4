@@ -51,7 +51,7 @@ instance {α : Type u} {β : α → Type v} [has_to_string α] [s : ∀ x, has_t
 ⟨λ ⟨a, b⟩, "⟨"  ++ to_string a ++ ", " ++ to_string b ++ "⟩"⟩
 
 instance {α : Type u} {p : α → Prop} [has_to_string α] : has_to_string (subtype p) :=
-⟨λ s, to_string (elt_of s)⟩
+⟨λ s, to_string (val s)⟩
 
 /- Remark: the code generator replaces this definition with one that display natural numbers in decimal notation -/
 protected def nat.to_string : nat → string

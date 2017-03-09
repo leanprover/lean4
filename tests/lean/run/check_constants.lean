@@ -345,8 +345,8 @@ run_command script_check_id `subsingleton
 run_command script_check_id `subsingleton.elim
 run_command script_check_id `subsingleton.helim
 run_command script_check_id `subtype
-run_command script_check_id `subtype.tag
-run_command script_check_id `subtype.elt_of
+run_command script_check_id `subtype.mk
+run_command script_check_id `subtype.val
 run_command script_check_id `subtype.rec
 run_command script_check_id `psum
 run_command script_check_id `psum.cases_on

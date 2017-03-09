@@ -27,7 +27,7 @@ class eta_expand_fn : public compiler_step_visitor {
     bool is_no_confusion(name const & n) { return ::lean::is_no_confusion(env(), n);  }
     bool is_quot_mk(name const & n) { return n == get_quot_mk_name(); }
     bool is_quot_lift(name const & n) { return n == get_quot_lift_name(); }
-    bool is_subtype_elt_of(name const & n) { return n == get_subtype_elt_of_name(); }
+    bool is_subtype_val(name const & n) { return n == get_subtype_val_name(); }
     bool is_pack_unpack(name const & n) { return is_ginductive_pack(env(), n) || is_ginductive_unpack(env(), n); }
 
     /* Return true if the type of e is of the form
@@ -115,7 +115,7 @@ class eta_expand_fn : public compiler_step_visitor {
             is_rec(fn_name) || is_cases_on(fn_name) ||
             is_no_confusion(fn_name) ||
             is_quot_mk(fn_name) || is_quot_lift(fn_name) ||
-            is_subtype_elt_of(fn_name) ||
+            is_subtype_val(fn_name) ||
             is_pack_unpack(fn_name)) {
             if (revisit)
                 return visit(eta_expand(r));

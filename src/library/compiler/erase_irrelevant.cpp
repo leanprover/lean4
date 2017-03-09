@@ -284,8 +284,8 @@ class erase_irrelevant_fn : public compiler_step_visitor {
         return add_args(r, nparams + nindices + 5, args);
     }
 
-    /* Treat subtype.tag as the identity function */
-    expr visit_subtype_tag(buffer<expr> const & args) {
+    /* Treat subtype.mk as the identity function */
+    expr visit_subtype_mk(buffer<expr> const & args) {
         lean_assert(args.size() >= 4);
         expr r = visit(args[2]);
         return add_args(r, 4, args);
@@ -300,8 +300,8 @@ class erase_irrelevant_fn : public compiler_step_visitor {
         return add_args(r, 5, args);
     }
 
-    /* subtype.elt_of is also compiled as the identity function */
-    expr visit_subtype_elt_of(buffer<expr> const & args) {
+    /* subtype.val is also compiled as the identity function */
+    expr visit_subtype_val(buffer<expr> const & args) {
         lean_assert(args.size() >= 3);
         expr r = visit(args[2]);
         return add_args(r, 3, args);
@@ -428,10 +428,10 @@ class erase_irrelevant_fn : public compiler_step_visitor {
                 return visit_rec(fn, args);
             } else if (is_no_confusion(env(), n)) {
                 return visit_no_confusion(fn, args);
-            } else if (n == get_subtype_tag_name()) {
-                return visit_subtype_tag(args);
-            } else if (n == get_subtype_elt_of_name()) {
-                return visit_subtype_elt_of(args);
+            } else if (n == get_subtype_mk_name()) {
+                return visit_subtype_mk(args);
+            } else if (n == get_subtype_val_name()) {
+                return visit_subtype_val(args);
             } else if (is_ginductive_pack(env(), n) || is_ginductive_unpack(env(), n)) {
                 return visit_pack_unpack(fn, args);
             }

@@ -340,8 +340,8 @@ subsingleton
 subsingleton.elim
 subsingleton.helim
 subtype
-subtype.tag
-subtype.elt_of
+subtype.mk
+subtype.val
 subtype.rec
 psum
 psum.cases_on

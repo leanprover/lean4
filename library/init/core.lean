@@ -171,31 +171,23 @@ have ∀ (α' : Sort u) (a' : α') (h₁ : @heq α a α' a') (h₂ : α = α'), 
 show (eq.rec_on (eq.refl α) a : α) = a', from
   this α a' h (eq.refl α)
 
--- The following four lemmas could not be automatically generated when the
--- structures were declared, so we prove them manually here.
+/- The following four lemmas could not be automatically generated when the
+   structures were declared, so we prove them manually here. -/
 lemma prod.mk.inj {α : Type u} {β : Type v} {x₁ : α} {y₁ : β} {x₂ : α} {y₂ : β}
   : (x₁, y₁) = (x₂, y₂) → and (x₁ = x₂) (y₁ = y₂) :=
-assume (H_eq : (x₁, y₁) = (x₂, y₂)),
-have H_nc : (x₁ = x₂ → y₁ = y₂ → and (x₁ = x₂) (y₁ = y₂)) → and (x₁ = x₂) (y₁ = y₂), from
-  @prod.no_confusion _ _ (and (x₁ = x₂) (y₁ = y₂)) _ _ H_eq,
-H_nc (assume Hx Hy, and.intro Hx Hy)
+λ h, prod.no_confusion h (λ h₁ h₂, ⟨h₁, h₂⟩)
 
 lemma prod.mk.inj_arrow {α : Type u} {β : Type v} {x₁ : α} {y₁ : β} {x₂ : α} {y₂ : β}
   : (x₁, y₁) = (x₂, y₂) → Π ⦃P : Sort w⦄, (x₁ = x₂ → y₁ = y₂ → P) → P :=
-assume H_eq P,
-@prod.no_confusion _ _ P _ _ H_eq
+λ h₁ _ h₂, prod.no_confusion h₁ h₂
 
 lemma pprod.mk.inj {α : Sort u} {β : Sort v} {x₁ : α} {y₁ : β} {x₂ : α} {y₂ : β}
   : pprod.mk x₁ y₁ = pprod.mk x₂ y₂ → and (x₁ = x₂) (y₁ = y₂) :=
-assume (H_eq : pprod.mk x₁ y₁ = pprod.mk x₂ y₂),
-have H_nc : (x₁ = x₂ → y₁ = y₂ → and (x₁ = x₂) (y₁ = y₂)) → and (x₁ = x₂) (y₁ = y₂), from
-  @pprod.no_confusion _ _ (and (x₁ = x₂) (y₁ = y₂)) _ _ H_eq,
-H_nc (assume Hx Hy, and.intro Hx Hy)
+λ h, pprod.no_confusion h (λ h₁ h₂, ⟨h₁, h₂⟩)
 
 lemma pprod.mk.inj_arrow {α : Type u} {β : Type v} {x₁ : α} {y₁ : β} {x₂ : α} {y₂ : β}
   : (x₁, y₁) = (x₂, y₂) → Π ⦃P : Sort w⦄, (x₁ = x₂ → y₁ = y₂ → P) → P :=
-assume H_eq P,
-@prod.no_confusion _ _ P _ _ H_eq
+λ h₁ _ h₂, prod.no_confusion h₁ h₂
 
 inductive sum (α : Type u) (β : Type v)
 | inl {} : α → sum

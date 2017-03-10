@@ -10,12 +10,12 @@
 (defconst lean-keywords1
   '("import" "prelude" "protected" "private" "noncomputable" "definition" "meta" "renaming"
     "hiding" "exposing" "parameter" "parameters" "begin" "constant" "constants"
-    "lemma" "variable" "variables" "#print" "theorem" "example"
+    "lemma" "variable" "variables" "theorem" "example"
     "open" "as" "export" "override" "axiom" "axioms" "inductive" "with" "without"
     "structure" "universe" "universes"
-    "alias" "#help" "precedence" "reserve" "declare_trace" "add_key_equivalence"
+    "alias" "precedence" "reserve" "declare_trace" "add_key_equivalence"
     "match" "infix" "infixl" "infixr" "notation" "postfix" "prefix" "instance"
-    "#eval" "#reduce" "#check" "end" "this" "suppose"
+    "end" "this" "suppose"
     "using" "using_well_founded" "namespace" "section" "fields"
     "attribute" "local" "set_option" "extends" "include" "omit" "classes" "class"
     "instances" "coercions" "attributes" "raw" "replacing"
@@ -127,6 +127,8 @@
       (1 'font-lock-doc-face))
      (,(rx (group "@[" (zero-or-more (not (any "]"))) "]"))
       (1 'font-lock-doc-face))
+     (,(rx (group "#" (or "eval" "print" "reduce" "help" "check")))
+      (1 'font-lock-keyword-face))
      ;; mutal definitions "names"
      (,(rx word-start
            "mutual"

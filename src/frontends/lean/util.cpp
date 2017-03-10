@@ -33,7 +33,17 @@ Author: Leonardo de Moura
 #include "frontends/lean/decl_util.h" // TODO(Leo): remove
 #include "frontends/lean/prenum.h"
 
+#ifndef LEAN_DEFAULT_AUTO_PARAM_CHECK_EXISTS
+#define LEAN_DEFAULT_AUTO_PARAM_CHECK_EXISTS true
+#endif
+
 namespace lean {
+static name * g_auto_param_check_exists = nullptr;
+
+static bool get_auto_param_check_exists(options const & o) {
+    return o.get_bool(*g_auto_param_check_exists, LEAN_DEFAULT_AUTO_PARAM_CHECK_EXISTS);
+}
+
 void consume_until_end_or_command(parser & p) {
     while (!p.curr_is_command() && !p.curr_is_eof() && !p.curr_is_token(get_period_tk())) {
         if (p.curr() == token_kind::Eof)
@@ -386,10 +396,14 @@ expr parse_auto_param(parser & p, expr const & type) {
     p.next();
     auto pos      = p.pos();
     name tac_id   = p.check_decl_id_next("invalid auto_param, identifier expected");
-    expr tac_expr = p.id_to_expr(tac_id, pos, true);
-    if (!is_tactic_unit(p.env(), tac_expr))
-        throw parser_error(sstream() << "invalid auto_param, '" << tac_id << "' must have type (tactic unit)", pos);
-    return mk_auto_param(type, const_name(tac_expr));
+    if (get_auto_param_check_exists(p.get_options())) {
+        expr tac_expr = p.id_to_expr(tac_id, pos, true);
+        if (!is_tactic_unit(p.env(), tac_expr))
+            throw parser_error(sstream() << "invalid auto_param, '" << tac_id << "' must have type (tactic unit)", pos);
+        return mk_auto_param(type, const_name(tac_expr));
+    } else {
+        return mk_auto_param(type, tac_id);
+    }
 }
 
 static name * g_frozen_name = nullptr;
@@ -416,9 +430,13 @@ void initialize_frontend_lean_util() {
     register_annotation(*g_no_info);
     g_frozen_name = new name("frozen_name");
     register_annotation(*g_frozen_name);
+    g_auto_param_check_exists = new name({"auto_param", "check_exists"});
+    register_bool_option(*g_auto_param_check_exists, LEAN_DEFAULT_AUTO_PARAM_CHECK_EXISTS,
+                         "Eagerly check that a tactic declaration of the given name exists when declaring an auto param");
 }
 
 void finalize_frontend_lean_util() {
+    delete g_auto_param_check_exists;
     delete g_no_info;
     delete g_frozen_name;
 }

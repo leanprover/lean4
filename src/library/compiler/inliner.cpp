@@ -110,6 +110,12 @@ class inline_simple_definitions_fn : public compiler_step_visitor {
         return e;
     }
 
+    optional<expr> reduce_projection(expr const & e) {
+        /* When trying to reduce a projection, we should only unfold reducible constants. */
+        type_context::transparency_scope _(ctx(), transparency_mode::Reducible);
+        return ctx().reduce_projection(e);
+    }
+
     virtual expr visit_app(expr const & e) override {
         expr const & fn = get_app_fn(e);
         if (!is_constant(fn))
@@ -136,7 +142,7 @@ class inline_simple_definitions_fn : public compiler_step_visitor {
         }
 
         if (arity <= nargs) {
-            if (auto r = ctx().reduce_projection(e)) {
+            if (auto r = reduce_projection(e)) {
                 return visit(*r);
             }
         }

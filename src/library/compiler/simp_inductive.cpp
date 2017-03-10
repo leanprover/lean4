@@ -203,12 +203,16 @@ class simp_inductive_fn : public compiler_step_visitor {
         }
     }
 
+    expr visit_default(name const & fn, buffer<expr> const & args) {
+        buffer<expr> new_args;
+        for (expr const & arg : args)
+            new_args.push_back(visit(arg));
+        return mk_app(mk_constant(fn), new_args);
+    }
+
     expr visit_constructor(name const & fn, buffer<expr> const & args) {
         if (is_vm_builtin_function(fn)) {
-            buffer<expr> new_args;
-            for (expr const & arg : args)
-                new_args.push_back(visit(arg));
-            return mk_app(mk_constant(fn), new_args);
+            return visit_default(fn, args);
         } else {
             /* The following invariant should hold since erase_irrelevant rejected code
                where it doesn't hold. */
@@ -235,30 +239,34 @@ class simp_inductive_fn : public compiler_step_visitor {
     }
 
     expr visit_projection(name const & fn, buffer<expr> const & args) {
-        projection_info const & info = *get_projection_info(env(), fn);
-        expr major = visit(args[info.m_nparams]);
-        buffer<bool> rel_fields;
-        name I_name = *inductive::is_intro_rule(env(), info.m_constructor);
-        get_constructor_info(info.m_constructor, rel_fields);
-        lean_assert(info.m_i < rel_fields.size());
-        lean_assert(rel_fields[info.m_i]); /* We already erased irrelevant information */
-        /* Adjust projection index by ignoring irrelevant fields */
-        unsigned j = 0;
-        for (unsigned i = 0; i < info.m_i; i++) {
-            if (rel_fields[i])
-                j++;
-        }
-        expr r;
-        if (has_trivial_structure(I_name, rel_fields)) {
-            lean_assert(j == 0);
-            r = major;
+        if (is_vm_builtin_function(fn)) {
+            return visit_default(fn, args);
         } else {
-            r = mk_app(mk_proj(j), major);
+            projection_info const & info = *get_projection_info(env(), fn);
+            expr major = visit(args[info.m_nparams]);
+            buffer<bool> rel_fields;
+            name I_name = *inductive::is_intro_rule(env(), info.m_constructor);
+            get_constructor_info(info.m_constructor, rel_fields);
+            lean_assert(info.m_i < rel_fields.size());
+            lean_assert(rel_fields[info.m_i]); /* We already erased irrelevant information */
+            /* Adjust projection index by ignoring irrelevant fields */
+            unsigned j = 0;
+            for (unsigned i = 0; i < info.m_i; i++) {
+                if (rel_fields[i])
+                    j++;
+            }
+            expr r;
+            if (has_trivial_structure(I_name, rel_fields)) {
+                lean_assert(j == 0);
+                r = major;
+            } else {
+                r = mk_app(mk_proj(j), major);
+            }
+            /* Add additional arguments */
+            for (unsigned i = info.m_nparams + 1; i < args.size(); i++)
+                r = mk_app(r, visit(args[i]));
+            return r;
         }
-        /* Add additional arguments */
-        for (unsigned i = info.m_nparams + 1; i < args.size(); i++)
-            r = mk_app(r, visit(args[i]));
-        return r;
     }
 
     virtual expr visit_app(expr const & e) override {

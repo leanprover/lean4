@@ -23,4 +23,6 @@ a^.foldl 0 (+)
 
 #eval array_sum (mk_array 10 1)
 
-#eval (mk_array 10 1)^.data ⟨1, dec_trivial⟩
+#eval (mk_array 10 1)^.data ⟨1, dec_trivial⟩ + 20
+#eval (mk_array 10 1)^.data 2
+#eval (mk_array 10 3)^.data 2

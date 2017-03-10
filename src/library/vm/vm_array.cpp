@@ -168,6 +168,7 @@ unsigned array_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
 void initialize_vm_array() {
     DECLARE_VM_BUILTIN(name({"array", "mk"}),               array_mk);
     DECLARE_VM_BUILTIN(name({"mk_array"}),                  mk_array);
+    DECLARE_VM_BUILTIN(name({"array", "data"}),             array_read);
     DECLARE_VM_BUILTIN(name({"array", "read"}),             array_read);
     DECLARE_VM_BUILTIN(name({"array", "write"}),            array_write);
     DECLARE_VM_BUILTIN(name({"array", "push_back"}),        array_push_back);

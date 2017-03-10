@@ -5,8 +5,8 @@ definition f : string → nat → nat
 | "bye"         1 := 2
 | _             _ := 3
 
-vm_eval f "hello world" 1
-vm_eval f "hello world" 2
-vm_eval f "bye" 1
-vm_eval f "bye" 2
-vm_eval f "hello" 1
+#eval f "hello world" 1
+#eval f "hello world" 2
+#eval f "bye" 1
+#eval f "bye" 2
+#eval f "hello" 1

@@ -7,7 +7,7 @@ by do
   trace_state,
   contradiction
 
-print "-------"
+#print "-------"
 
 example (a b : nat) : ¬¬ a = b → a = b :=
 by do
@@ -16,7 +16,7 @@ by do
   trace_state,
   contradiction
 
-print "-------"
+#print "-------"
 
 example (p q : Prop) : ¬¬ p → p :=
 by do
@@ -24,7 +24,7 @@ by do
   by_contradiction `H, -- should fail
   trace_state
 
-print "-------"
+#print "-------"
 
 local attribute [instance] classical.prop_decidable -- Now all propositions are decidable
 

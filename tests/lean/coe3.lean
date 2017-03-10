@@ -11,6 +11,6 @@ constant a : A
 constant f : C → C
 constant g : D → D
 
-check f a
+#check f a
 
-check g a
+#check g a

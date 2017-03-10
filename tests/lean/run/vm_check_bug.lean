@@ -4,4 +4,4 @@ def f : nat → nat → nat
 | 0     (y+1) := 1
 | 0     0     := 1
 
-vm_eval f 1 1000
+#eval f 1 1000

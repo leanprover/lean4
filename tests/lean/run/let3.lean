@@ -29,10 +29,10 @@ One limitation is that the expexted type of the let-expression must be known.
 TODO(Leo): improve visit_convoy in the elaborator, and remove this restriction.
 -/
 
-vm_eval
+#eval
 (let (a, b, c) := p1 in a + b : nat) -- We have to provide the type.
 
-vm_eval
+#eval
 (let (a, b) := p1,
      (c, d) := b
  in c + d : nat)

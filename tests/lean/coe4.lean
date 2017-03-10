@@ -10,16 +10,16 @@ definition coe_functor_to_fn (A : Type u) : has_coe_to_fun (Functor A) :=
 
 constant f : Functor nat
 
-check f 0 1
+#check f 0 1
 
 set_option pp.coercions false
 
-check f 0 1
+#check f 0 1
 
 set_option pp.coercions true
 
-check f 0 1
+#check f 0 1
 
 set_option pp.all true
 
-check f 0 1
+#check f 0 1

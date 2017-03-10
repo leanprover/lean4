@@ -3,9 +3,9 @@ namespace list
   | nil  : list
   | cons : A → list → list
 
-  check list.{1}
-  check list.cons.{1}
-  check list.rec.{1 1}
+  #check list.{1}
+  #check list.cons.{1}
+  #check list.rec.{1 1}
 end list
 
-check list.list.{1}
+#check list.list.{1}

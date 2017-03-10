@@ -17,4 +17,4 @@ rfl
 
 example (n : nat) (b1 b2 : bool) (v1 v2 : bv n) : map2 f (cons n b1 v1) (cons n b2 v2) = cons n (f b1 b2) (map2 f v1 v2) :=
 rfl
-print map2
+#print map2

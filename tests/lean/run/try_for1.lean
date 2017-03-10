@@ -1,9 +1,9 @@
 meta def f : nat → nat
 | n := f (n + 1)
 
-vm_eval try_for 100 (f 10)
+#eval try_for 100 (f 10)
 
-vm_eval try_for 1000 (f 10)
+#eval try_for 1000 (f 10)
 
 meta def mk : nat → list nat
 | 0     := []

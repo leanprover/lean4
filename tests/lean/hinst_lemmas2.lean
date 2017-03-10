@@ -1,4 +1,4 @@
-run_command mk_hinst_lemma_attr_set `attr_main [`attr1, `attr2] [`sattr1, `sattr2]
+run_cmd mk_hinst_lemma_attr_set `attr_main [`attr1, `attr2] [`sattr1, `sattr2]
 
 constant f : nat → nat
 constant g : nat → nat → nat
@@ -20,4 +20,4 @@ attribute [attr2] gax4
 attribute [attr_main] gax5
 attribute [sattr1] gax6
 
-run_command get_hinst_lemmas_for_attr `attr_main >>= hinst_lemmas.pp >>= tactic.trace
+run_cmd get_hinst_lemmas_for_attr `attr_main >>= hinst_lemmas.pp >>= tactic.trace

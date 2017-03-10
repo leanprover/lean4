@@ -8,7 +8,7 @@ section
 
   postfix `+.2`:100 := add2
 
-  eval 3 +.2
+  #reduce 3 +.2
 end
 
 example : 3 +.2 = 5 :=

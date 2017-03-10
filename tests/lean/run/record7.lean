@@ -4,4 +4,4 @@ mk :: (x : A) (y : B)
 structure point2 (A : Type) (B : Type) extends point A B :=
 make
 
-print prefix point2
+#print prefix point2

@@ -19,6 +19,6 @@ theorem delta_aux : ¬ (δ (i delta))
          := assume H : δ (i delta),
             H (subst (symm (@retract delta (i delta))) H)
 
-check delta_aux.
+#check delta_aux.
 
 end

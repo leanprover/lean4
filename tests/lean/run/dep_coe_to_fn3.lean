@@ -8,7 +8,7 @@ instance F_to_fn : has_coe_to_fun Func :=
   coe := λ f a b, f^.fn a (f^.fn a b) }
 
 variables (f : Func) (a : f^.A) (b : f^.B a)
-check (f a b)
+#check (f a b)
 
 def f1 : Func :=
 { A  := nat,

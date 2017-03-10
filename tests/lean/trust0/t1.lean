@@ -1,2 +1,2 @@
 import standard
-print trust
+#print trust

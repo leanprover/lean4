@@ -17,11 +17,11 @@ end
 
 open tactic
 
-run_command do c ← mk_const `f, get_fun_info c >>= trace
-run_command do c ← mk_const `eq, get_fun_info c >>= trace
-run_command do c ← mk_const `id, get_fun_info c >>= trace
+run_cmd do c ← mk_const `f, get_fun_info c >>= trace
+run_cmd do c ← mk_const `eq, get_fun_info c >>= trace
+run_cmd do c ← mk_const `id, get_fun_info c >>= trace
 
 set_option trace.congr_lemma true
 set_option trace.app_builder true
 
-run_command do h ← mk_const `f, l ← mk_congr_lemma_simp h, trace l^.type
+run_cmd do h ← mk_const `f, l ← mk_congr_lemma_simp h, trace l^.type

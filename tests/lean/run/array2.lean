@@ -1,4 +1,4 @@
-check @array.mk
+#check @array.mk
 
 local infix ` << `:20 := array.push_back
 
@@ -8,11 +8,11 @@ def test1 :=
       v3 := (v2 << 5)^.write' 0 0 in
 (v1, v2, v3)
 
-vm_eval test1
+#eval test1
 
 def tst1 (n : nat) :=
 let v1 := (mk_array n 1),
     v2 := array.map (λ v, v + 1) v1 in
 v2^.read' 1
 
-vm_eval tst1 10
+#eval tst1 10

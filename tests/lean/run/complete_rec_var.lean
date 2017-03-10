@@ -2,7 +2,7 @@ def f : nat → nat → nat
 | (x+1) (y+1) := f (x+10) y
 | _     _     := 1
 
-vm_eval f 1 1000
+#eval f 1 1000
 
 example (x y) : f (x+1) (y+1) = f (x+10) y :=
 rfl

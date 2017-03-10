@@ -57,7 +57,7 @@ meta def basic_monitor : vm_monitor nat :=
 }
 
 
-run_command vm_monitor.register `basic_monitor
+run_cmd vm_monitor.register `basic_monitor
 
 set_option debugger true
 open tactic

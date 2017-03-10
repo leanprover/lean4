@@ -10,7 +10,7 @@ by do
   constructor
 
 set_option trace.foo.bla true
-print "------------"
+#print "------------"
 
 example : true :=
 by do

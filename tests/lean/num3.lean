@@ -10,6 +10,6 @@ constant a : N
 notation 0 := z
 notation 1 := o
 
-check a = 0
-check 2 = (1:num)
-check (2:num) = 1
+#check a = 0
+#check 2 = (1:num)
+#check (2:num) = 1

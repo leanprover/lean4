@@ -7,7 +7,7 @@ begin
   constructor; assumption
 end
 
-print "------------"
+#print "------------"
 
 example (p q r s: Prop): p ∧ q → r ∧ s → s ∧ q :=
 begin

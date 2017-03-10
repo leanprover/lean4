@@ -1,5 +1,5 @@
-run_command mk_simp_attr `boo
-run_command mk_simp_attr `bla
+run_cmd mk_simp_attr `boo
+run_cmd mk_simp_attr `bla
 
 constant f : nat → nat
 
@@ -11,12 +11,12 @@ sorry
 example : f 0 = 1 :=
 by simp with boo
 
-print "----"
+#print "----"
 
 example : f 2 = 1 :=
 by simp with boo
 
-print "----"
+#print "----"
 
 constant g : nat → nat
 
@@ -31,7 +31,7 @@ sorry
 example : f 2 = g 1 :=
 by simp with boo
 
-print "-------"
+#print "-------"
 
 example : f 2 = h (g 1) :=
 by simp with boo bla

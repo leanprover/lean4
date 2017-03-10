@@ -10,6 +10,6 @@ end N2
 open N1 N2
 constant N : Type.{1}
 constants a b : N
-check @N1.pr
-check @N2.pr N a b
-check pr a b
+#check @N1.pr
+#check @N2.pr N a b
+#check pr a b

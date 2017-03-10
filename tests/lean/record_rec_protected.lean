@@ -5,4 +5,4 @@ mk :: (x : A) (y : B)
 
 open point
 
-check rec     -- error, rec is protected
+#check rec     -- error, rec is protected

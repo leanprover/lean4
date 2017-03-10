@@ -12,6 +12,6 @@ section
   variable A : Type u
   variable S : inhabited A
   variable B : @bla A S
-  check B
-  check @foo A S
+  #check B
+  #check @foo A S
 end

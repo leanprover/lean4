@@ -3,7 +3,7 @@ axiom foo2 : ∀ (a b c : nat), b > a → b < c → a < c
 axiom foo3 : ∀ (a b c : nat), b > a → b < c + c → a < c + c
 
 
-run_command
+run_cmd
 do
   hs ← return $ hinst_lemmas.mk,
   h₁ ← hinst_lemma.mk_from_decl `foo1,

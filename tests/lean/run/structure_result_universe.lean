@@ -12,7 +12,7 @@ universe variable u
 structure foo4 (A : Type u) : Type (max u 1) :=
 (val : A)
 
-check foo1
-check foo2
-check foo3
-check foo4
+#check foo1
+#check foo2
+#check foo3
+#check foo4

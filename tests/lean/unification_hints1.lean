@@ -14,7 +14,7 @@ noncomputable definition toy_hint (x y : A) : unification_hint :=
   constraints := [] }
 
 #unify (g x y), (f z)
-print [unify]
+#print [unify]
 
 end toy
 
@@ -30,7 +30,7 @@ definition add_zero_hint (m n : ℕ) [has_add ℕ] [has_one ℕ] [has_zero ℕ] 
   constraints := [m ≟ n] }
 
 #unify (n + 1), (succ n)
-print [unify]
+#print [unify]
 
 end add
 
@@ -56,6 +56,6 @@ noncomputable definition Canonical_hint (C : Canonical) : unification_hint :=
 -- the default_type_context does not recognize the elaborator metavariables as metavariables,
 -- and so cannot perform the assignment.
 #unify (Canonical.carrier A_canonical), A
-print [unify]
+#print [unify]
 
 end canonical

@@ -4,4 +4,4 @@ definition f {A : Type} {B : Type} (f : A → B → Prop) ⦃C : Type⦄ {R : C 
 constant g : Prop → Prop → Prop
 constant H : true ∧ true
 
-check f g H
+#check f g H

@@ -7,9 +7,9 @@ structure bla (α β : Type) extends foo α β :=
 structure boo (α : Type) extends bla α α :=
 (d := f (f x))
 
-print bla.z._default
-print boo.z._default
-print boo.d._default
+#print bla.z._default
+#print boo.z._default
+#print boo.d._default
 
 lemma ex₁ : {boo . x := 10, f := nat.succ, y := 10}^.z = 11 :=
 rfl
@@ -21,7 +21,7 @@ structure cfg :=
 (x : nat  := 10)
 (y : bool := tt)
 
-check {cfg .}
+#check {cfg .}
 
 lemma ex₃ : {cfg .} = {x := 10, y := tt} :=
 rfl

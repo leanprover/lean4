@@ -23,6 +23,6 @@ section
   (if_neg h : (if p a then a :: filter l else filter l) = filter l) ▸ filter_cons a l
 end
 
-check @_root_.filter
-check @_root_.filter_cons_of_pos
-check @_root_.filter_cons_of_neg
+#check @_root_.filter
+#check @_root_.filter_cons_of_pos
+#check @_root_.filter_cons_of_neg

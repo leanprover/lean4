@@ -13,4 +13,4 @@ by do
    exact r
 
 private def f := unit
-check ``f
+#check ``f

@@ -5,4 +5,4 @@ end boo
 end foo
 
 open foo
-check boo.tst
+#check boo.tst

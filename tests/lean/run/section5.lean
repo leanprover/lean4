@@ -3,17 +3,17 @@ section foo
   variable a : A
   definition foo := a
 
-  check foo
+  #check foo
 
   structure [class] point :=
   (x : A) (y : A)
 end foo
 
-check foo
+#check foo
 
 attribute [instance]
 definition point_nat : point nat :=
 point.mk nat.zero nat.zero
 
-print classes
-check point
+#print classes
+#check point

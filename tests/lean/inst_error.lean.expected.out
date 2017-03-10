@@ -1,4 +1,4 @@
-inst_error.lean:1:38: error: failed to synthesize type class instance for
+inst_error.lean:1:39: error: failed to synthesize type class instance for
 A : Type,
 a b c : A
 ⊢ decidable (a = b ∧ a = c)

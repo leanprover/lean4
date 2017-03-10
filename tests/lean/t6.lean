@@ -6,6 +6,6 @@ section
   definition  refl : Prop := forall (a : A), R a a
   definition  symm : Prop := forall (a b : A), R a b -> R b a
 end
-check id.{2}
-check refl.{1}
-check symm.{1}
+#check id.{2}
+#check refl.{1}
+#check symm.{1}

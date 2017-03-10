@@ -20,4 +20,4 @@ theorem and_intro3 (p q : bool) (H1 : p) (H2 : q) : q ∧ p
 theorem and_intro4 (p q : bool) (H1 : p) (H2 : q) : p ∧ q
 := fun (c : bool) (H : p -> q -> c), H H1 H2
 
-check and_intro4
+#check and_intro4

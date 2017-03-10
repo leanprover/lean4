@@ -4,4 +4,4 @@ section bla
 end bla
 end foo
 
-check foo.tst
+#check foo.tst

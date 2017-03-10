@@ -1,13 +1,13 @@
-print prefix semigroup
+#print prefix semigroup
 
-print "======================="
+#print "======================="
 
 structure [class] has_two_muls (A : Type) extends has_mul A renaming mul→mul1,
                                           private has_mul A renaming mul→mul2
 
-print prefix has_two_muls
+#print prefix has_two_muls
 
-print "======================="
+#print "======================="
 
 structure [class] another_two_muls (A : Type) extends has_mul A renaming mul→mul1,
                                                       has_mul A renaming mul→mul2

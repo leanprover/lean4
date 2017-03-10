@@ -6,4 +6,4 @@ def main : io unit := do
   (x, y) ← return ((1 : nat), (2 : ℕ)),
   put_ln "t2"
 
-vm_eval main
+#eval main

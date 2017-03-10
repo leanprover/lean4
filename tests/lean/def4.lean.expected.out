@@ -1,5 +1,5 @@
 f : A → A
-def4.lean:9:8: error: type mismatch at application
+def4.lean:9:9: error: type mismatch at application
   f 0
 term
   0
@@ -9,7 +9,7 @@ but is expected to have type
   A
 sorry : ?M_1
 g : A → A
-def4.lean:17:8: error: type mismatch at application
+def4.lean:17:9: error: type mismatch at application
   g 0
 term
   0

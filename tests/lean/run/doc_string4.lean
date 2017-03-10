@@ -13,7 +13,7 @@ open tactic
 
 We encode x + 1 as
 ```
-check aexp.plus (aexp.var "x") (aexp.val 1)
+#check aexp.plus (aexp.var "x") (aexp.val 1)
 ```
 -/
 inductive aexp

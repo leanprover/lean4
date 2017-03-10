@@ -4,6 +4,6 @@ section
   local infixl `+++`:10 := f
 
   variables a b c : A
-  check f a b
-  check a +++ b
+  #check f a b
+  #check a +++ b
 end

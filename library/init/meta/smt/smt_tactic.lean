@@ -10,8 +10,8 @@ import init.meta.smt.ematch
 
 universe u
 
-run_command mk_simp_attr `pre_smt
-run_command mk_hinst_lemma_attr_set `ematch [] [`ematch_lhs]
+run_cmd mk_simp_attr `pre_smt
+run_cmd mk_hinst_lemma_attr_set `ematch [] [`ematch_lhs]
 
 /--
   Configuration for the smt tactic preprocessor. The preprocessor

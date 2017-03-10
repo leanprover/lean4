@@ -18,8 +18,8 @@ lift.induction_on a' (λ a, rfl)
 end lift
 
 set_option pp.universes true
-check nat
-check lift nat
+#check nat
+#check lift nat
 open lift
 definition one1 : lift nat := up 1
 end test

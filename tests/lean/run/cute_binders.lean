@@ -7,11 +7,11 @@ variables s : set nat
 variables p : nat → nat → Prop
 
 
--- check a ∈ s
+-- #check a ∈ s
 set_option pp.binder_types true
-check ∀ b c a ∈ s, a + b + c > 0
+#check ∀ b c a ∈ s, a + b + c > 0
 -- ∀ (b c a : ℕ), b ∈ s → c ∈ s → a ∈ s → a + b + c > 0 : Prop
-check ∀ a < 5, p a (a+1)
+#check ∀ a < 5, p a (a+1)
 -- ∀ (a : ℕ), a < 5 → p a (a + 1) : Prop
-check ∀ a b ∈ [2, 3], p a b
+#check ∀ a b ∈ [2, 3], p a b
 -- ∀ (a b : ℕ), a ∈ [2, 3] → b ∈ [2, 3] → p a b

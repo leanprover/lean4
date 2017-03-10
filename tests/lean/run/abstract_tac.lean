@@ -6,4 +6,4 @@ begin
   abstract { symmetry, assumption }
 end
 
-print ex
+#print ex

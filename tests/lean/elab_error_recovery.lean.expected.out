@@ -43,6 +43,6 @@ def half_baked._main : ℕ → ℕ :=
 2
 nat.succ (nat.succ (nat.succ (nat.succ sorry)))
 2
-elab_error_recovery.lean:21:12: error: type expected at
+elab_error_recovery.lean:21:13: error: type expected at
   0
 ∀ (x : sorry), x = x : Prop

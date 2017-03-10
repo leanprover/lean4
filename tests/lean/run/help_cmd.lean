@@ -1,5 +1,5 @@
-help options
+#help options
 
-help commands
+#help commands
 
-print options
+#print options

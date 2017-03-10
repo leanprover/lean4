@@ -1,1 +1,1 @@
-print axioms nat.add_assoc
+#print axioms nat.add_assoc

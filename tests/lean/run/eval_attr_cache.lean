@@ -11,7 +11,7 @@ meta def my_attr : caching_user_attribute (name → bool) :=
   dependencies := []
 }
 
-run_command attribute.register `my_attr
+run_cmd attribute.register `my_attr
 
 meta def my_tac : tactic unit :=
 do f ← caching_user_attribute.get_cache my_attr,
@@ -19,8 +19,8 @@ do f ← caching_user_attribute.get_cache my_attr,
    return ()
 
 @[my_attr] def bla := 10
-run_command my_tac
+run_cmd my_tac
 @[my_attr] def foo := 10 -- Cache was invalided
 
-run_command my_tac  -- Add closure to the cache containing auxiliary function created by eval_expr
-run_command my_tac  -- Cache should be flushed since the auxiliary function is gone
+run_cmd my_tac  -- Add closure to the cache containing auxiliary function created by eval_expr
+run_cmd my_tac  -- Cache should be flushed since the auxiliary function is gone

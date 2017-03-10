@@ -9,20 +9,19 @@
 
 (defconst lean-keywords1
   '("import" "prelude" "protected" "private" "noncomputable" "definition" "meta" "renaming"
-    "hiding" "exposing" "parameter" "parameters" "begin" "conjecture" "constant" "constants"
-    "hypothesis" "lemma" "corollary" "variable" "variables" "premise" "premises" "theory"
-    "print" "theorem" "proposition" "example"
+    "hiding" "exposing" "parameter" "parameters" "begin" "constant" "constants"
+    "lemma" "variable" "variables" "#print" "theorem" "example"
     "open" "as" "export" "override" "axiom" "axioms" "inductive" "with" "without"
-    "structure" "record" "universe" "universes"
-    "alias" "help" "precedence" "reserve" "declare_trace" "add_key_equivalence"
+    "structure" "universe" "universes"
+    "alias" "#help" "precedence" "reserve" "declare_trace" "add_key_equivalence"
     "match" "infix" "infixl" "infixr" "notation" "postfix" "prefix" "instance"
-    "eval" "vm_eval" "check" "end" "this" "suppose"
+    "#eval" "#reduce" "#check" "end" "this" "suppose"
     "using" "using_well_founded" "namespace" "section" "fields"
     "attribute" "local" "set_option" "extends" "include" "omit" "classes" "class"
     "instances" "coercions" "attributes" "raw" "replacing"
     "calc" "have" "show" "suffices" "by" "in" "at" "do" "let" "forall" "Pi" "fun"
     "exists" "if" "dif" "then" "else" "assume" "take" "obtain" "from" "aliases" "register_simp_ext"
-    "mutual" "def" "run_command")
+    "mutual" "def" "run_cmd")
   "lean keywords ending with 'word' (not symbol)")
 (defconst lean-keywords1-regexp
   (eval `(rx word-start (or ,@lean-keywords1) word-end)))

@@ -1,14 +1,14 @@
 structure point (A : Type) (B : Type) :=
 mk :: (x : A) (y : B)
 
-check point
-check @ point.rec
-check point.mk
-check point.x
-check point.y
-check point.rec_on
-check point.induction_on
-check point.destruct
+#check point
+#check @ point.rec
+#check point.mk
+#check point.x
+#check point.y
+#check point.rec_on
+#check point.induction_on
+#check point.destruct
 
 inductive color
 | red | green | blue
@@ -16,9 +16,9 @@ inductive color
 structure color_point (A : Type) (B : Type) extends point A B :=
 mk :: (c : color)
 
-check @color_point.rec_on
-check color_point.rec_on
-check color_point.to_point
+#check @color_point.rec_on
+#check color_point.rec_on
+#check color_point.to_point
 
 section
 variables a b : num

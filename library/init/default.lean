@@ -13,4 +13,4 @@ def debugger.attr : user_attribute :=
 { name  := `breakpoint,
   descr := "breakpoint for debugger" }
 
-run_command attribute.register `debugger.attr
+run_cmd attribute.register `debugger.attr

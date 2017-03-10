@@ -6,8 +6,8 @@ assumption <|> abstract (comp_val >> skip) <|> fail "my_tac failed to synthesize
 def f (x : nat) (h : x > 0 . my_tac) : nat :=
 nat.pred x
 
-check f 12
-check f 13
+#check f 12
+#check f 13
 
 lemma f_inj {x₁ x₂ : nat} {h₁ : x₁ > 0} {h₂ : x₂ > 0} : f x₁ = f x₂ → x₁ = x₂ :=
 begin
@@ -20,10 +20,10 @@ begin
   assumption
 end
 
-check @f_inj
+#check @f_inj
 
 lemma f_def {x : nat} (h : x > 0) : f x = nat.pred x :=
 rfl
 
 -- The following is an error
--- check λ x, f x
+-- #check λ x, f x

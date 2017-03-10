@@ -1,3 +1,3 @@
 --
 
-check eq.rec_on
+#check eq.rec_on

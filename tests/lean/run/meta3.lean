@@ -1,3 +1,3 @@
-check `foo.bla
+#check `foo.bla
 
-vm_eval mk_num_name (`foo.bla) 10
+#eval mk_num_name (`foo.bla) 10

@@ -10,4 +10,4 @@ definition case0 {C : Fin 0 → Type} : Π (f : Fin 0), C f
 .
 
 
-print definition case0
+#print definition case0

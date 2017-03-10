@@ -1,12 +1,12 @@
-elab11.lean:6:6: error: ambiguous overload, possible interpretations
+elab11.lean:6:7: error: ambiguous overload, possible interpretations
   bla.f 1
   boo.f 1
 Additional information:
-elab11.lean:6:6: context: switched to basic overload resolution where arguments are elaborated without any information about the expected type because expected type was not available
+elab11.lean:6:7: context: switched to basic overload resolution where arguments are elaborated without any information about the expected type because expected type was not available
 sorry : ?M_1
 bla.f 1 : ℕ
 boo.f 1 : bool
-elab11.lean:16:7: error: none of the overloads are applicable
+elab11.lean:16:8: error: none of the overloads are applicable
 error for bla.f
 invalid overload, expression
   f 1
@@ -23,7 +23,7 @@ has type
 but is expected to have type
   string
 Additional information:
-elab11.lean:16:7: context: switched to basic overload resolution where arguments are elaborated without any information about the expected type, because failed to elaborate all candidates using the expected type
+elab11.lean:16:8: context: switched to basic overload resolution where arguments are elaborated without any information about the expected type, because failed to elaborate all candidates using the expected type
   string
 this can happen because, for example, coercions were not considered in the process
 none of the overloads are applicable

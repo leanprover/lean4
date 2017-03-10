@@ -7,7 +7,7 @@ definition pred2subtype {A : Type u} : has_coe_to_sort (A → Prop) :=
 definition below (n : nat) : nat → Prop :=
 λ i, i < n
 
-check λ x : below 10, x
+#check λ x : below 10, x
 
 definition f : below 10 → nat
 | ⟨a, h⟩ := a
@@ -15,7 +15,7 @@ definition f : below 10 → nat
 lemma zlt10 : 0 < 10 :=
 sorry
 
-check f ⟨0, zlt10⟩
+#check f ⟨0, zlt10⟩
 
 definition g (a : below 10) : nat :=
 subtype.val a

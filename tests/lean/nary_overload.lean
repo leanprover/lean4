@@ -13,9 +13,9 @@ notation `[` l:(foldr `, ` (h t, lst.cons h t) lst.nil `]`) := l
 constant A : Type
 variables a b c : A
 
-check [a, b, c]
-check ([a, b, c] : vec A)
-check ([a, b, c] : lst A)
+#check [a, b, c]
+#check ([a, b, c] : vec A)
+#check ([a, b, c] : lst A)
 set_option pp.all true
-check ([a, b, c] : vec A)
-check ([a, b, c] : lst A)
+#check ([a, b, c] : vec A)
+#check ([a, b, c] : lst A)

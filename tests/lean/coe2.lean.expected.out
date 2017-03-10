@@ -3,7 +3,7 @@ sine x : real
 sine n : real
 sine i : real
 x + i : real
-coe2.lean:30:8: error: type mismatch at application
+coe2.lean:30:9: error: type mismatch at application
   i + x
 term
   x
@@ -14,7 +14,7 @@ but is expected to have type
 sorry : ?M_1
 i + x : real
 x + n : real
-coe2.lean:37:8: error: type mismatch at application
+coe2.lean:37:9: error: type mismatch at application
   n + x
 term
   x

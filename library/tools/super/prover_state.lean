@@ -381,7 +381,7 @@ meta def inference := derived_clause → prover unit
 meta structure inf_decl := (prio : ℕ) (inf : inference)
 meta def inf_attr : user_attribute :=
 ⟨ `super.inf, "inference for the super prover" ⟩
-run_command attribute.register `super.inf_attr
+run_cmd attribute.register `super.inf_attr
 
 meta def seq_inferences : list inference → inference
 | [] := λgiven, return ()

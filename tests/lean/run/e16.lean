@@ -9,20 +9,20 @@ inductive {u} list (A : Type u) : Type u
 | cons   : A → list → list
 namespace list end list open list
 
-check nil
-check nil.{0}
-check @nil.{0} nat
-check @nil nat
+#check nil
+#check nil.{0}
+#check @nil.{0} nat
+#check @nil nat
 
-check cons zero nil
+#check cons zero nil
 
 inductive {u} vector (A : Type u) : nat → Type u
 | vnil {} : vector zero
 | vcons   : forall {n : nat}, A → vector n → vector (succ n)
 namespace vector end vector open vector
 
-check vcons zero vnil
+#check vcons zero vnil
 constant n : nat
-check vcons n vnil
+#check vcons n vnil
 
-check vector.rec
+#check vector.rec

@@ -1,2 +1,2 @@
-check @zero
-check @zero nat
+#check @zero
+#check @zero nat

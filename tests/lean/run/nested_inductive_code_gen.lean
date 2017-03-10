@@ -20,4 +20,4 @@ def var_of : term → list term
 def tst : list term :=
 var_of (term.app [term.var 0, term.var 1, term.var 2, term.app [term.cnst "x"]])
 
-vm_eval tst
+#eval tst

@@ -7,16 +7,16 @@ end foo
 
 section
   open foo (renaming a->b x->y) (hiding c)
-  check b
-  check y
-  check c -- Error
+  #check b
+  #check y
+  #check c -- Error
 end
 
 section
   open foo (a x)
-  check a
-  check x
-  check c -- Error
+  #check a
+  #check x
+  #check c -- Error
 end
 
 section
@@ -25,9 +25,9 @@ end
 
 section
   open foo
-  check a
-  check c
-  check A
+  #check a
+  #check c
+  #check A
 end
 
 namespace foo
@@ -37,5 +37,5 @@ end foo
 
 section
   open foo
-  check a * c
+  #check a * c
 end

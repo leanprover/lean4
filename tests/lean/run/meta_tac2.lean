@@ -21,7 +21,7 @@ by do
     trace_result,
     return ()
 
-print "====================="
+#print "====================="
 
 example : ∀ (p : Prop), p → p → p :=
 by do
@@ -41,7 +41,7 @@ by do
     trace_result,
     return ()
 
-print "====================="
+#print "====================="
 
 example : ∀ (p : Prop), p → p → p :=
 by do

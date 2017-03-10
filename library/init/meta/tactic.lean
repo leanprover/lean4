@@ -979,7 +979,7 @@ end list
 
   Remark: id_locked is used in the builtin implementation of tactic.change
 -/
-run_command do
+run_cmd do
  let l  := level.param `l,
  let Ty := expr.sort l,
  type ← to_expr ``(Π (α : %%Ty), α → α),

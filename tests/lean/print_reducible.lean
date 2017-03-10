@@ -14,6 +14,6 @@ attribute [reducible]
 definition pr {A B : Type} (a : A) (b : B) := a
 definition pr2 {A B : Type} (a : A) (b : B) := a
 
-print [reducible]
-print "-----------"
-print [irreducible]
+#print [reducible]
+#print "-----------"
+#print [irreducible]

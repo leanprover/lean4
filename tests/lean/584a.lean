@@ -3,17 +3,17 @@ variables (A : Type u) [H : inhabited A] (x : A)
 include H
 
 definition foo := x
-check foo  -- A and x are explicit
+#check foo  -- A and x are explicit
 
 variables {A x}
 definition foo' := x
-check @foo' -- A is explicit, x is implicit
+#check @foo' -- A is explicit, x is implicit
 
 open nat
 
-check foo nat 10
+#check foo nat 10
 
 definition test : foo' = (10:nat) := rfl
 
 set_option pp.implicit true
-print test
+#print test

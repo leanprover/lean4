@@ -1,7 +1,7 @@
-print notation
+#print notation
 
-print notation ∧ ∨
+#print notation ∧ ∨
 
-print notation if
+#print notation if
 
-print notation %
+#print notation %

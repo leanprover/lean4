@@ -15,7 +15,7 @@ notation a * b | c * d:prev := s a b c d
 
 constants a b c d e : N
 
-check a * b
-check a * b | d
-check a * b * c
-check a * b | d * e
+#check a * b
+#check a * b | d
+#check a * b * c
+#check a * b | d * e

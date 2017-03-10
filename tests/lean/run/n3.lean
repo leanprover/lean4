@@ -16,8 +16,8 @@ notation A ≤ B:prev ≤ C:prev := A ≤ B ∧ B ≤ C
 notation A ≤ B:prev < C:prev := A ≤ B ∧ B < C
 notation A < B:prev ≤ C:prev := A < B ∧ B ≤ C
 constants a b c d e : N
-check a ≤ b ≤ f c + b ∧ a < b
-check a ≤ d
-check a < b ≤ c
-check a ≤ b < c
-check a < b
+#check a ≤ b ≤ f c + b ∧ a < b
+#check a ≤ d
+#check a < b ≤ c
+#check a ≤ b < c
+#check a < b

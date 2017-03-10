@@ -11,11 +11,11 @@ def half_baked : ℕ → ℕ
 -- nested elaboration errors
 | _  := begin exact [] end
 
-print half_baked._main
+#print half_baked._main
 
-eval    half_baked 3
-eval    half_baked 5
-vm_eval half_baked 3
+#reduce    half_baked 3
+#reduce    half_baked 5
+#eval half_baked 3
 
 -- type errors in binders
-check ∀ x : nat.zero, x = x
+#check ∀ x : nat.zero, x = x

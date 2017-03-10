@@ -7,7 +7,7 @@ section
   variables {a b : A}
   variable  H : a = b
   variables H1 H2 : b = a
-  check H1
-  check H
-  check H2
+  #check H1
+  #check H
+  #check H2
 end

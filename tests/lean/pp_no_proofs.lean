@@ -7,10 +7,10 @@ constants (P : ∀ {t:true}, ℕ → Prop) (P0 : @P trivial 0)
 
 noncomputable definition messy := f (Ps (Ps (Ps (Ps (Ps (Ps P0))))))
 
-eval messy
+#reduce messy
 set_option pp.proofs false
-eval messy
+#reduce messy
 set_option pp.implicit true
-eval messy
+#reduce messy
 set_option pp.proofs true
-eval messy
+#reduce messy

@@ -49,7 +49,7 @@ begin
   reflexivity
 end
 
-run_command mk_simp_attr `mysimp
+run_cmd mk_simp_attr `mysimp
 
 attribute [mysimp] f
 

@@ -12,6 +12,6 @@ variables (f : Π {T : Type} {a : T} {P : T → Prop}, P a → Π {b : T} {Q : T
 variables (T : Type) (a : T) (P : T → Prop) (pa : P a)
 variables (b : T) (Q : T → Prop) (qb : Q b)
 
-check @f T a P pa b Q qb -- Prop
-check f pa qb            -- Prop
+#check @f T a P pa b Q qb -- Prop
+#check f pa qb            -- Prop
 end

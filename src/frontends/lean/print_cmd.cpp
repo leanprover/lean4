@@ -80,7 +80,7 @@ struct print_axioms_deps {
 
 static void print_axioms(parser & p, message_builder & out) {
     if (p.curr_is_identifier()) {
-        name c = p.check_constant_next("invalid 'print axioms', constant expected");
+        name c = p.check_constant_next("invalid '#print axioms', constant expected");
         auto env = p.env();
         type_context tc(env, p.get_options());
         auto new_out = io_state_stream(env, p.ios(), tc, out.get_text_stream().get_channel());
@@ -100,7 +100,7 @@ static void print_axioms(parser & p, message_builder & out) {
 }
 
 static void print_prefix(parser & p, message_builder & out) {
-    name prefix = p.check_id_next("invalid 'print prefix' command, identifier expected");
+    name prefix = p.check_id_next("invalid '#print prefix' command, identifier expected");
     buffer<declaration> to_print;
     p.env().for_each_declaration([&](declaration const & d) {
             if (is_prefix_of(prefix, d.get_name())) {
@@ -118,7 +118,7 @@ static void print_prefix(parser & p, message_builder & out) {
 static void print_fields(parser const & p, message_builder & out, name const & S, pos_info const & pos) {
     environment const & env = p.env();
     if (!is_structure(env, S))
-        throw parser_error(sstream() << "invalid 'print fields' command, '" << S << "' is not a structure", pos);
+        throw parser_error(sstream() << "invalid '#print fields' command, '" << S << "' is not a structure", pos);
     buffer<name> field_names;
     get_structure_fields(env, S, field_names);
     for (name const & field_name : field_names) {
@@ -224,7 +224,7 @@ static name to_user_name(environment const & env, name const & n) {
 static void print_definition(environment const & env, message_builder & out, name const & n, pos_info const & pos) {
     declaration d = env.get(n);
     if (!d.is_definition())
-        throw parser_error(sstream() << "invalid 'print definition', '" << to_user_name(env, n) << "' is not a definition", pos);
+        throw parser_error(sstream() << "invalid '#print definition', '" << to_user_name(env, n) << "' is not a definition", pos);
     options opts        = out.get_text_stream().get_options();
     opts                = opts.update_if_undef(get_pp_beta_name(), false);
     out.get_text_stream().update_options(opts) << d.get_value() << endl;
@@ -282,12 +282,12 @@ static void print_inductive(parser const & p, message_builder & out, name const 
             }
         }
     } else {
-        throw parser_error(sstream() << "invalid 'print inductive', '" << n << "' is not an inductive declaration", pos);
+        throw parser_error(sstream() << "invalid '#print inductive', '" << n << "' is not an inductive declaration", pos);
     }
 }
 
 static void print_recursor_info(parser & p, message_builder & out) {
-    name c = p.check_constant_next("invalid 'print [recursor]', constant expected");
+    name c = p.check_constant_next("invalid '#print [recursor]', constant expected");
     recursor_info info = get_recursor_info(p.env(), c);
     out << "recursor information\n"
         << "  num. parameters:          " << info.get_num_params() << "\n"
@@ -461,13 +461,13 @@ static void print_unification_hints(parser & p, message_builder & out) {
 }
 
 static void print_simp_rules(parser & p, message_builder & out) {
-    name attr = p.check_id_next("invalid 'print [simp]' command, identifier expected");
+    name attr = p.check_id_next("invalid '#print [simp]' command, identifier expected");
     simp_lemmas slss = get_simp_lemmas(p.env(), transparency_mode::Reducible, attr);
     out << slss.pp_simp(out.get_formatter());
 }
 
 static void print_congr_rules(parser & p, message_builder & out) {
-    name attr = p.check_id_next("invalid 'print [congr]' command, identifier expected");
+    name attr = p.check_id_next("invalid '#print [congr]' command, identifier expected");
     simp_lemmas slss = get_simp_lemmas(p.env(), transparency_mode::Reducible, attr);
     out << slss.pp_congr(out.get_formatter());
 }
@@ -532,8 +532,8 @@ environment print_cmd(parser & p) {
     } else if (p.curr_is_token_or_id(get_definition_tk())) {
         p.next();
         auto pos = p.pos();
-        name id  = p.check_id_next("invalid 'print definition', constant expected");
-        list<name> cs = p.to_constants(id, "invalid 'print definition', constant expected", pos);
+        name id  = p.check_id_next("invalid '#print definition', constant expected");
+        list<name> cs = p.to_constants(id, "invalid '#print definition', constant expected", pos);
         bool first = true;
         for (name const & c : cs) {
             if (first)
@@ -548,12 +548,12 @@ environment print_cmd(parser & p) {
                 print_constant(p, out, "definition", d);
                 print_definition(env, out, c, pos);
             } else {
-                throw parser_error(sstream() << "invalid 'print definition', '" << to_user_name(p.env(), c) << "' is not a definition", pos);
+                throw parser_error(sstream() << "invalid '#print definition', '" << to_user_name(p.env(), c) << "' is not a definition", pos);
             }
         }
     } else if (p.curr_is_token_or_id(get_instances_tk())) {
         p.next();
-        name c = p.check_constant_next("invalid 'print instances', constant expected");
+        name c = p.check_constant_next("invalid '#print instances', constant expected");
         for (name const & i : get_class_instances(env, c)) {
             out << i << " : " << env.get(i).get_type() << endl;
         }
@@ -587,7 +587,7 @@ environment print_cmd(parser & p) {
     } else if (p.curr_is_token_or_id(get_fields_tk())) {
         p.next();
         auto pos = p.pos();
-        name S = p.check_constant_next("invalid 'print fields' command, constant expected");
+        name S = p.check_constant_next("invalid '#print fields' command, constant expected");
         print_fields(p, out, S, pos);
     } else if (p.curr_is_token_or_id(get_notation_tk())) {
         p.next();
@@ -595,13 +595,13 @@ environment print_cmd(parser & p) {
     } else if (p.curr_is_token_or_id(get_inductive_tk())) {
         p.next();
         auto pos = p.pos();
-        name c = p.check_constant_next("invalid 'print inductive', constant expected");
+        name c = p.check_constant_next("invalid '#print inductive', constant expected");
         print_inductive(p, out, c, pos);
     } else if (p.curr_is_token(get_lbracket_tk())) {
         p.next();
         auto pos = p.pos();
         auto name = p.check_id_next("invalid attribute declaration, identifier expected");
-        p.check_token_next(get_rbracket_tk(), "invalid 'print [<attr>]', ']' expected");
+        p.check_token_next(get_rbracket_tk(), "invalid '#print [<attr>]', ']' expected");
 
         if (name == "recursor") {
             print_recursor_info(p, out);
@@ -619,7 +619,7 @@ environment print_cmd(parser & p) {
         }
     } else if (print_polymorphic(p, out)) {
     } else {
-        throw parser_error("invalid print command", p.pos());
+        throw parser_error("invalid '#print' command", p.pos());
     }
     out.report();
     return p.env();

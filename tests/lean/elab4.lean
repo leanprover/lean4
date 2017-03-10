@@ -8,16 +8,16 @@ open boo foo bla
 
 set_option pp.full_names true
 
-check f 0 1 2
+#check f 0 1 2
 
-check f 0 1 2 3
+#check f 0 1 2 3
 
-check f 0 1
+#check f 0 1
 
-check f tt 2
+#check f tt 2
 
-check f tt ff tt
+#check f tt ff tt
 
-check f tt ff
+#check f tt ff
 
-check @foo.f _ _ 0 1
+#check @foo.f _ _ 0 1

@@ -6,7 +6,7 @@ def fib_aux : ℕ → ℕ × ℕ
 
 def fib n := (fib_aux n).2
 
-vm_eval fib 10000
+#eval fib 10000
 
 def fib_aux2 : ℕ → ℕ × ℕ
 | 0     := (0, 1)
@@ -14,4 +14,4 @@ def fib_aux2 : ℕ → ℕ × ℕ
 
 def fib2 n := (fib_aux2 n).2
 
-vm_eval fib2 10000
+#eval fib2 10000

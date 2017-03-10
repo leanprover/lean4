@@ -16,7 +16,7 @@ inductive ftree (A : Type) (B : Type) : Type
 | node  : (A → B → ftree) → (B → ftree) → ftree
 
 set_option pp.universes true
-check ftree
+#check ftree
 end implicit
 
 
@@ -27,5 +27,5 @@ inductive ftree (A : Type) (B : Type) : Type
 | leafb : B → ftree
 | node  : (List A → ftree) → (B → ftree) → ftree
 set_option pp.universes true
-check ftree
+#check ftree
 end implicit2

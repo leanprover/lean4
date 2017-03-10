@@ -294,7 +294,7 @@ multiplicative_to_additive_pairs^.foldl (λ t ⟨src, tgt⟩, do
   else t)
 skip
 
-run_command transport_multiplicative_to_additive
+run_cmd transport_multiplicative_to_additive
 
 instance add_semigroup_to_is_eq_associative [add_semigroup α] : is_associative α add :=
 ⟨add_assoc⟩

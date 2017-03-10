@@ -7,5 +7,5 @@ open foo
 
 namespace bla
   definition t := false
-  check foo.t   -- <<< must print foo.t : Prop instead of t : Prop
+  #check foo.t   -- <<< must print foo.t : Prop instead of t : Prop
 end bla

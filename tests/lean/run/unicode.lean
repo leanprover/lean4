@@ -1,8 +1,8 @@
 constant N : Type
 constant α : N
 constant β₁ : N
-check β₁
+#check β₁
 constant δ : N
-check δ
+#check δ
 constant δ₁₁ : N
-check δ₁₁
+#check δ₁₁

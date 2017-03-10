@@ -6,4 +6,4 @@ inductive confuse (A : Type)
 | leaf2 : num → confuse
 | node : mk_arrow A confuse → confuse
 
-check confuse.cases_on
+#check confuse.cases_on

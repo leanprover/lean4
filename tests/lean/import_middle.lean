@@ -1,5 +1,5 @@
 import data.set
 
-print "hello"
+#print "hello"
 
 import data.tuple

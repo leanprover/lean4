@@ -68,7 +68,7 @@ begin [mytac]
   assumption
 end
 
-print ex₁
+#print ex₁
 
 lemma ex₂ (p q : Prop) : p → q → p ∧ q :=
 begin [mytac]
@@ -82,4 +82,4 @@ begin [mytac]
   assumption
 end
 
-print ex₂
+#print ex₂

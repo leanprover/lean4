@@ -2,7 +2,7 @@ prelude
 definition Prop := Sort.{0}
 
 definition false : Prop := ∀ x : Prop, x
-check false
+#check false
 
 theorem false.elim (C : Prop) (H : false) : C
 := H C
@@ -10,7 +10,7 @@ theorem false.elim (C : Prop) (H : false) : C
 definition Eq {A : Type} (a b : A)
 := ∀ P : A → Prop, P a → P b
 
-check Eq
+#check Eq
 
 infix `=`:50 := Eq
 
@@ -38,34 +38,34 @@ inductive nat : Type
 | succ : nat → nat
 namespace nat end nat open nat
 
-print "using strict implicit arguments"
+#print "using strict implicit arguments"
 definition symmetric {A : Type} (R : A → A → Prop) := ∀ ⦃a b⦄, R a b → R b a
 
-check symmetric
+#check symmetric
 constant p : nat → nat → Prop
-check symmetric p
+#check symmetric p
 axiom H1 : symmetric p
 axiom H2 : p zero (succ zero)
-check H1
-check H1 H2
+#check H1
+#check H1 H2
 
-print "------------"
-print "using implicit arguments"
+#print "------------"
+#print "using implicit arguments"
 definition symmetric2 {A : Type} (R : A → A → Prop) := ∀ {a b}, R a b → R b a
-check symmetric2
-check symmetric2 p
+#check symmetric2
+#check symmetric2 p
 axiom H3 : symmetric2 p
 axiom H4 : p zero (succ zero)
-check H3
-check H3 H4
+#check H3
+#check H3 H4
 
-print "-----------------"
-print "using strict implicit arguments (ASCII notation)"
+#print "-----------------"
+#print "using strict implicit arguments (ASCII notation)"
 definition symmetric3 {A : Type} (R : A → A → Prop) := ∀ {{a b}}, R a b → R b a
 
-check symmetric3
-check symmetric3 p
+#check symmetric3
+#check symmetric3 p
 axiom H5 : symmetric3 p
 axiom H6 : p zero (succ zero)
-check H5
-check H5 H6
+#check H5
+#check H5 H6

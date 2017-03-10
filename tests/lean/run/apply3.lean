@@ -1,6 +1,6 @@
 open tactic
 
-print "------- fapply version ----------"
+#print "------- fapply version ----------"
 
 example (a : nat) : ∃ x : nat, x = a :=
 by do
@@ -11,7 +11,7 @@ by do
   a ← get_local `a,
   mk_app `eq.refl [a] >>= exact
 
-print "------- apply version ----------"
+#print "------- apply version ----------"
 
 example (a : nat) : ∃ x : nat, x = a :=
 by do

@@ -9,7 +9,7 @@ end foo
 
 open tactic
 
-run_command do
+run_cmd do
   trace "--------",
   doc_string `foo >>= trace,
   trace "--------",

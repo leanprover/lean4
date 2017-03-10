@@ -6,7 +6,7 @@ namespace nat
 end nat
 
 open nat
-check less.rec_on
+#check less.rec_on
 
 namespace foo1
 protected definition foo2.bar : nat := 10

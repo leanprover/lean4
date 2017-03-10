@@ -1,5 +1,5 @@
 set_option pp.colors true
 set_option pp.unicode false
-print options
+#print options
 set_option pp.unicode true
-print options
+#print options

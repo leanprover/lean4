@@ -8,4 +8,4 @@ inductive Vec (α : Type u) : nat → Type u
 def head {α} : Π {n}, Vec α (n+1) → α
 | n (Vec.cons h t) := h
 
-check @head.equations._eqn_1
+#check @head.equations._eqn_1

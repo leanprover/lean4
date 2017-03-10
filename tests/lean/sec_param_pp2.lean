@@ -8,10 +8,10 @@ section
 
    definition id2 := f a b
 
-   check id2
+   #check id2
    set_option pp.universes true
-   check id2
+   #check id2
  end
- check id2
+ #check id2
 end
-check id2
+#check id2

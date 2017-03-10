@@ -11,4 +11,4 @@ section
   definition foo := fun (H : A = B), cast H a = b
 end
 
-check foo
+#check foo

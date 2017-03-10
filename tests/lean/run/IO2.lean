@@ -10,4 +10,4 @@ definition foreach {A : Type} {B : Type} : list A → (A → io B) → io punit
 | []      f := return punit.star
 | (x::xs) f := do f x, foreach xs f
 
-vm_eval foreach [1,2,3,4,5] (λ i, do put_str "value: ", put i, put_str "\n")
+#eval foreach [1,2,3,4,5] (λ i, do put_str "value: ", put i, put_str "\n")

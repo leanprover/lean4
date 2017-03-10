@@ -5,4 +5,4 @@ def tst : io unit :=
 >> put_str "world\n"
 >> put_str "from Lean\n"
 
-vm_eval tst
+#eval tst

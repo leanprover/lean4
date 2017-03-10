@@ -1,1 +1,1 @@
-record_rec_protected.lean:8:6: error: unknown identifier 'rec'
+record_rec_protected.lean:8:7: error: unknown identifier 'rec'

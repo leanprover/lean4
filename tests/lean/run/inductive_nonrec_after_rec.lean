@@ -10,9 +10,9 @@ def tree.size {α : Type u} : tree α → nat
 | leaf := 0
 | (node l a r) := tree.size l + tree.size r + 1
 
-vm_eval tree.size (@leaf nat)
-vm_eval tree.size (tree.node leaf 1 leaf)
-vm_eval tree.size (tree.node (tree.node leaf 1 leaf) 2 leaf)
+#eval tree.size (@leaf nat)
+#eval tree.size (tree.node leaf 1 leaf)
+#eval tree.size (tree.node (tree.node leaf 1 leaf) 2 leaf)
 
 lemma ex1 : tree.size (tree.node (tree.node leaf 1 leaf) 2 leaf) = 2 :=
 rfl
@@ -27,7 +27,7 @@ def tree.elems_core {α : Type u} : tree α → list α → list α
 def tree.elems {α : Type u} (t : tree α) : list α :=
 (tree.elems_core t [])^.reverse
 
-vm_eval tree.elems (tree.node (tree.node (tree.node leaf 0 leaf) 1 leaf) 2 leaf)
+#eval tree.elems (tree.node (tree.node (tree.node leaf 0 leaf) 1 leaf) 2 leaf)
 
 lemma ex2 : tree.elems (tree.node (tree.node (tree.node leaf 0 leaf) 1 leaf) 2 leaf) = [0, 1, 2] :=
 rfl

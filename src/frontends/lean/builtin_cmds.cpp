@@ -179,14 +179,14 @@ environment check_cmd(parser & p) {
     return p.env();
 }
 
-environment eval_cmd(parser & p) {
+environment reduce_cmd(parser & p) {
     bool whnf   = false;
     if (p.curr_is_token(get_whnf_tk())) {
         p.next();
         whnf = true;
     }
     expr e; level_param_names ls;
-    std::tie(e, ls) = parse_local_expr(p, "_eval");
+    std::tie(e, ls) = parse_local_expr(p, "_reduce");
     expr r;
     if (whnf) {
         type_checker tc(p.env(), true, false);
@@ -197,7 +197,7 @@ environment eval_cmd(parser & p) {
         r = normalize(tc, e, eta);
     }
     auto out = p.mk_message(p.cmd_pos(), INFORMATION);
-    out.set_caption("eval result") << r;
+    out.set_caption("reduce result") << r;
     out.report();
     return p.env();
 }
@@ -420,11 +420,11 @@ static environment compile_expr(environment const & env, name const & n, level_p
     return vm_compile(new_env, new_env.get(n));
 }
 
-static void vm_eval_core(vm_state & s, name const & main, optional<vm_obj> const & initial_state) {
+static void eval_core(vm_state & s, name const & main, optional<vm_obj> const & initial_state) {
     if (initial_state) s.push(*initial_state); // push initial_state for IO/tactic monad.
     vm_decl d = *s.get_decl(main);
     if (!initial_state && d.get_arity() > 0)
-        throw exception("vm_eval result is a function");
+        throw exception("eval result is a function");
     s.invoke_fn(main);
     if (initial_state) {
         if (d.get_arity() == 0) {
@@ -435,12 +435,12 @@ static void vm_eval_core(vm_state & s, name const & main, optional<vm_obj> const
     }
 }
 
-static environment vm_eval_cmd(parser & p) {
+static environment eval_cmd(parser & p) {
     auto pos = p.pos();
     expr e; level_param_names ls;
     std::tie(e, ls) = parse_local_expr(p, "_eval");
     if (has_metavar(e))
-        throw parser_error("invalid vm_eval command, expression contains metavariables", pos);
+        throw parser_error("invalid eval command, expression contains metavariables", pos);
     type_context tc(p.env(), transparency_mode::All);
     expr type0 = tc.infer(e);
     expr type  = tc.whnf(type0);
@@ -465,14 +465,14 @@ static environment vm_eval_cmd(parser & p) {
     optional<vm_obj> initial_state;
     if (is_io) initial_state = mk_vm_simple(0);
     auto out = p.mk_message(p.cmd_pos(), INFORMATION);
-    out.set_caption("vm_eval result");
+    out.set_caption("eval result");
     vm_state::profiler prof(s, p.get_options());
     // TODO(gabriel): capture output
     if (p.profiling()) {
-        timeit timer(out.get_text_stream().get_stream(), "vm_eval time");
-        vm_eval_core(s, main, initial_state);
+        timeit timer(out.get_text_stream().get_stream(), "eval time");
+        eval_core(s, main, initial_state);
     } else {
-        vm_eval_core(s, main, initial_state);
+        eval_core(s, main, initial_state);
     }
     if (is_io) {
         // do not print anything
@@ -549,20 +549,20 @@ void init_cmd_table(cmd_table & r) {
                         open_cmd));
     add_cmd(r, cmd_info("export",            "create aliases for declarations", export_cmd));
     add_cmd(r, cmd_info("set_option",        "set configuration option", set_option_cmd));
-    add_cmd(r, cmd_info("exit",              "exit", exit_cmd));
-    add_cmd(r, cmd_info("print",             "print a string", print_cmd));
+    add_cmd(r, cmd_info("#exit",             "exit", exit_cmd));
+    add_cmd(r, cmd_info("#print",            "print a string or information about an indentifier", print_cmd));
     add_cmd(r, cmd_info("section",           "open a new section", section_cmd));
     add_cmd(r, cmd_info("namespace",         "open a new namespace", namespace_cmd));
     add_cmd(r, cmd_info("end",               "close the current namespace/section", end_scoped_cmd));
-    add_cmd(r, cmd_info("check",             "type check given expression, and display its type", check_cmd));
-    add_cmd(r, cmd_info("eval",              "evaluate given expression", eval_cmd));
-    add_cmd(r, cmd_info("vm_eval",           "VM evaluation", vm_eval_cmd));
+    add_cmd(r, cmd_info("#check",            "type check given expression, and display its type", check_cmd));
+    add_cmd(r, cmd_info("#reduce",           "reduce given expression", reduce_cmd));
+    add_cmd(r, cmd_info("#eval",             "evaluate given expression using VM", eval_cmd));
     add_cmd(r, cmd_info("local",             "define local attributes or notation", local_cmd));
-    add_cmd(r, cmd_info("help",              "brief description of available commands and options", help_cmd));
+    add_cmd(r, cmd_info("#help",             "brief description of available commands and options", help_cmd));
     add_cmd(r, cmd_info("init_quotient",     "initialize quotient type computational rules", init_quotient_cmd));
     add_cmd(r, cmd_info("declare_trace",     "declare a new trace class (for debugging Lean tactics)", declare_trace_cmd));
     add_cmd(r, cmd_info("add_key_equivalence", "register that to symbols are equivalence for key-matching", add_key_equivalence_cmd));
-    add_cmd(r, cmd_info("run_command",       "execute an user defined command at top-level", run_command_cmd));
+    add_cmd(r, cmd_info("run_cmd",           "execute an user defined command at top-level", run_command_cmd));
     add_cmd(r, cmd_info("import",            "import module(s)", import_cmd));
     add_cmd(r, cmd_info("#unify",            "(for debugging purposes)", unify_cmd));
     add_cmd(r, cmd_info("#compile",          "(for debugging purposes)", compile_cmd));

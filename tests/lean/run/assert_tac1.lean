@@ -9,7 +9,7 @@ by do
    x ← get_local `x,
    mk_app `eq.refl [x] >>= exact
 
-print tst1
+#print tst1
 
 definition tst2 (a : nat) : a = a :=
 by do
@@ -24,7 +24,7 @@ by do
    y ← get_local `y,
    mk_app `eq.refl [y] >>= exact
 
-print tst2
+#print tst2
 
 definition tst3 (a : nat) : a = a :=
 begin

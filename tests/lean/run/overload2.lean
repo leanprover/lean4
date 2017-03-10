@@ -17,8 +17,8 @@ end F2
 
 open F2 nat
 
-eval (1 : nat) + 1
-eval (1 : nat) + (1 : nat)
+#reduce (1 : nat) + 1
+#reduce (1 : nat) + (1 : nat)
 
 example :  true :=
 begin

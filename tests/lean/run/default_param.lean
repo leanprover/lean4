@@ -6,7 +6,7 @@ a + o
 example : f 1 = f 1 5 :=
 rfl
 
-check f 1
+#check f 1
 
 structure config :=
 (v1   := 10)
@@ -41,7 +41,7 @@ rfl
 def boo (a : nat) (b : opt_param nat a) (c : opt_param bool ff) (d : opt_param config {v2 := b, flag := c}) :=
 g a d
 
-check boo 2
+#check boo 2
 
 example : boo 2 = 4 :=
 rfl
@@ -58,7 +58,7 @@ set_option pp.all true
 meta def check_expr (p : pexpr) (t : expr) : tactic unit :=
 do e ← to_expr p, guard (t = e)
 
-run_command do
+run_cmd do
   e ← to_expr `(boo 2),
   check_expr `(boo 2 (2:nat) ff {v1 := config.v1._default, v2 := 2, flag := ff, ps := config.ps._default}) e,
   e ← to_expr `(f 1),

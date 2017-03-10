@@ -1,2 +1,2 @@
-protected.lean:9:6: error: unknown identifier 'C'
+protected.lean:9:7: error: unknown identifier 'C'
 D : Prop

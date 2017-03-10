@@ -1,8 +1,8 @@
-nary_overload.lean:16:6: error: ambiguous overload, possible interpretations
+nary_overload.lean:16:7: error: ambiguous overload, possible interpretations
   [a, b, c]
   [a, b, c]
 Additional information:
-nary_overload.lean:16:6: context: switched to basic overload resolution where arguments are elaborated without any information about the expected type because expected type was not available
+nary_overload.lean:16:7: context: switched to basic overload resolution where arguments are elaborated without any information about the expected type because expected type was not available
 sorry : ?M_1
 [a, b, c] : vec A
 [a, b, c] : lst A

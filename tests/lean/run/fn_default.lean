@@ -3,4 +3,4 @@ structure foo :=
 (baz : Π {n : ℕ}, ℕ := id)
 (bat : Π n : ℕ, ℕ := λ n, n)
 
-check {foo.}
+#check {foo.}

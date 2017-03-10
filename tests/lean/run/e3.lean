@@ -2,7 +2,7 @@ prelude
 definition Prop := Type.{0}
 
 definition false := ∀x : Prop, x
-check false
+#check false
 
 theorem false.elim (C : Prop) (H : false) : C
 := H C
@@ -10,7 +10,7 @@ theorem false.elim (C : Prop) (H : false) : C
 definition Eq {A : Type} (a b : A)
 := ∀ {P : A → Prop}, P a → P b
 
-check Eq
+#check Eq
 
 infix `=`:50 := Eq
 

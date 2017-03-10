@@ -13,7 +13,7 @@ definition ex : inhabited (nat × nat × bool) :=
 by apply_instance
 
 set_option pp.all true
-print ex
+#print ex
 
 set_option pp.all false
 
@@ -29,7 +29,7 @@ by do
   trace_state,
   reflexivity
 
-print "----------------"
+#print "----------------"
 set_option pp.all true
 
 example (a b : nat) : a = 0 → a = b :=

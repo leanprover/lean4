@@ -14,8 +14,8 @@ section
     inductive mypair
     | mk : A → B → mypair
 
-    print mypair.rec
-    check mypair.mk
+    #print mypair.rec
+    #check mypair.mk
 
     definition pr1' : mypair → A
     | (mypair.mk a b) := a
@@ -24,9 +24,9 @@ section
     | (mypair.mk a b) := b
 
   end
-  check mypair.rec
+  #check mypair.rec
   variable a : A
-  check foo num a 0
+  #check foo num a 0
 
   definition pr1 : mypair num → A
   | (mypair.mk a b) := a

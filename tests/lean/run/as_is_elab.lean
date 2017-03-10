@@ -2,9 +2,9 @@ open function
 
 variable x : list nat
 
-check x^.map (+1)
+#check x^.map (+1)
 
-check x^.foldl (+) 0
+#check x^.foldl (+) 0
 
 def f (l : list (nat × nat)) : list nat :=
 l^.map (λ ⟨a, b⟩, a + b)

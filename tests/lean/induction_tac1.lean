@@ -8,7 +8,7 @@ by do
   constructor_idx 2, assumption,
   constructor_idx 1, assumption
 
-print "-----"
+#print "-----"
 
 open nat
 example (n : ℕ) : n = 0 ∨ n = succ (pred n) :=
@@ -20,7 +20,7 @@ by do
   constructor_idx 2, reflexivity,
   return ()
 
-print "-----"
+#print "-----"
 
 example (n : ℕ) (H : n ≠ 0) : n > 0 → n = succ (pred n) :=
 by do

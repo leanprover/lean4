@@ -91,7 +91,7 @@ def main(argv=None):
         f.write("meta def script_check_id (n : name) : tactic unit :=\n");
         f.write("do env ← get_env, (env^.get n >> return ()) <|> (guard $ env^.is_namespace n) <|> (attribute.get_instances n >> return ()) <|> fail (\"identifier '\" ++ to_string n ++ \"' is not a constant, namespace nor attribute\")\n");
         for c in constants:
-            f.write("run_command script_check_id `%s\n" % c[1])
+            f.write("run_cmd script_check_id `%s\n" % c[1])
     for c in constants:
         cmd = ("cd .. && grep --silent --include=\"*.h\" --include=\"*.cpp\" --exclude=\".#*\" --exclude=\"constants.*\" -R \"get_%s_name\" *" % c[0])
         if os.system(cmd) != 0:

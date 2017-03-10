@@ -31,7 +31,7 @@ instance int_mul_monoid : is_monoid int int.mul 1 := sorry
 
 open tactic
 
-run_command do
+run_cmd do
   M ← to_expr `(is_monoid nat),
   m₁ ← mk_mvar,
   m₂ ← mk_mvar,
@@ -41,7 +41,7 @@ run_command do
   instantiate_mvars (M m₁ m₂) >>= trace
 
 
-run_command do
+run_cmd do
   M ← to_expr `(is_monoid nat nat.add),
   m₁ ← mk_mvar,
   i ← mk_instance (M m₁),
@@ -69,8 +69,8 @@ local infix ∈ := mem2
 instance (α : Type u) : has_mem2 α (list α) :=
 ⟨list.mem⟩
 
-check λ a (s : list nat), a ∈ s
+#check λ a (s : list nat), a ∈ s
 
 set_option pp.notation false
-check ∀ a ∈ [1, 2, 3], a > 0
+#check ∀ a ∈ [1, 2, 3], a > 0
 end

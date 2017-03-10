@@ -1,3 +1,3 @@
-print inductive nat
+#print inductive nat
 
-print inductive list
+#print inductive list

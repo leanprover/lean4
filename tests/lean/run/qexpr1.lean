@@ -1,6 +1,6 @@
 open tactic
 
-check
+#check
 λ (A : Type) (a b c d : A) (H1 : a = b) (H2 : c = b) (H3 : d = c),
 have Hac : a = c, by do {
  h  ← get_local `H2,

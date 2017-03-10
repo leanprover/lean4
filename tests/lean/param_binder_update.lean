@@ -10,8 +10,8 @@ section
   definition id₂ (a : A) := a
 end
 
-check @id
-check @id₂
+#check @id
+#check @id₂
 
 section
   parameters {A : Type*} {B : Type*}
@@ -30,16 +30,16 @@ section
 
   definition foo4 (a : A) (b : B) := a
 
-  check @foo1
-  check @foo2
-  check @foo3
-  check @foo4
+  #check @foo1
+  #check @foo2
+  #check @foo3
+  #check @foo4
 end
 
-check @foo1
-check @foo2
-check @foo3
-check @foo4
+#check @foo1
+#check @foo2
+#check @foo3
+#check @foo4
 
 section
   variables {A : Type*} {B : Type*}
@@ -58,10 +58,10 @@ section
 
   definition boo4 (a : A) (b : B) := a
 
-  check @boo1
-  check @boo2
-  check @boo3
-  check @boo4
+  #check @boo1
+  #check @boo2
+  #check @boo3
+  #check @boo4
 end
 
 section

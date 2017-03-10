@@ -1,10 +1,10 @@
-check list.map
+#check list.map
 
 variable l : list nat
 
-check l~>1 -- Error l is not a structure
+#check l~>1 -- Error l is not a structure
 
-check (1, 2)~>5 -- Error insufficient fields
+#check (1, 2)~>5 -- Error insufficient fields
 
 example (l : list nat) : list nat :=
 l~>forr (λ x, x + 1) -- Error there is no list.forr

@@ -17,9 +17,9 @@ section
   definition R6 := R
 end
 
-check @R
-check @R2
-check @R3
-check @R4
-check @R5
-check @R6
+#check @R
+#check @R2
+#check @R3
+#check @R4
+#check @R5
+#check @R6

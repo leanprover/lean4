@@ -4,17 +4,17 @@ namespace foo
 end foo
 
 open foo as bla (hiding pr1)
-check bla.id
+#check bla.id
 
 open foo as bla (renaming pr1→pr)
-check bla.pr
-print raw bla.id
+#check bla.pr
+#print raw bla.id
 
 open foo as boo (pr1)
-check boo.pr1
+#check boo.pr1
 
 open foo as boooo (renaming pr1→pr) (hiding id)
-check boooo.pr
+#check boooo.pr
 
 namespace foo
 namespace bla
@@ -23,4 +23,4 @@ end bla
 end foo
 
 open foo.bla as bb
-check bb.pr2
+#check bb.pr2

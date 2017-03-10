@@ -4,7 +4,7 @@ def f : int → nat
 | 3    := 2
 | _    := 4
 
-vm_eval f (-100)
-vm_eval f 0
-vm_eval f 3
-vm_eval f 5
+#eval f (-100)
+#eval f 0
+#eval f 3
+#eval f 5

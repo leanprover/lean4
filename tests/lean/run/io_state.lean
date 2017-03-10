@@ -14,4 +14,4 @@ do x ← read,
    put_ln y,
    put_str "end of program"
 
-vm_eval tst 5
+#eval tst 5

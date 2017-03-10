@@ -23,6 +23,6 @@ rfl
 
 set_option pp.implicit true
 
-check sizeof Prop
-check sizeof [tt, ff, tt]
-check λ (A : Type) (a b : A), sizeof [a, b]
+#check sizeof Prop
+#check sizeof [tt, ff, tt]
+#check λ (A : Type) (a b : A), sizeof [a, b]

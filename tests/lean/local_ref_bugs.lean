@@ -3,10 +3,10 @@ set_option pp.all true
 section
 parameter α : Type
 inductive foo : Type | a : α → foo | b
-check (foo.b : foo)
+#check (foo.b : foo)
 open foo
-check (foo.b : foo)
-check (b : foo)
+#check (foo.b : foo)
+#check (b : foo)
 
 open tactic
 include α
@@ -28,10 +28,10 @@ namespace bla
 section
 parameter α : Type
 inductive foo : Type | a : α → foo | b
-check (foo.b : foo)
+#check (foo.b : foo)
 open foo
-check (foo.b : foo)
-check (b : foo)
+#check (foo.b : foo)
+#check (b : foo)
 end
 end bla
 
@@ -39,9 +39,9 @@ namespace boo
 section
 parameter α : Type
 inductive foo : Type | a : α → foo | b
-check (foo.b : foo)
+#check (foo.b : foo)
 open foo (b)
-check (foo.b : foo)
-check (b : foo)
+#check (foo.b : foo)
+#check (b : foo)
 end
 end boo

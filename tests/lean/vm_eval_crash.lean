@@ -1,1 +1,1 @@
-vm_eval 10
+#eval 10

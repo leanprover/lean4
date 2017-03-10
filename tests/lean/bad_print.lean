@@ -1,7 +1,7 @@
 constant boo : nat
 
-print definition boo
+#print definition boo
 
-print 2
+#print 2
 
-print fields nat
+#print fields nat

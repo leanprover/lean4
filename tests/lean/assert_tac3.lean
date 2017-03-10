@@ -11,7 +11,7 @@ by do
    exact a,
    return ()
 
-print tst2
+#print tst2
 
 definition tst3 (a b : nat) : a = a :=
 by do

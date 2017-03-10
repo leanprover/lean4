@@ -9,7 +9,7 @@ section
  structure foo2 (b : B) :=
  (eqpr : b = b)
 
- check foo2
+ #check foo2
 
  definition tst : B → Type := foo2
 end

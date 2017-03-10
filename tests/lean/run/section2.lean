@@ -8,6 +8,6 @@ section foo
   variable A : Type
   definition id (a : A) := a
   variable a : nat
-  check n1.id _ a
+  #check n1.id _ a
 end foo
 end n1

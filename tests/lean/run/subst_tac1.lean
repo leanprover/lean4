@@ -8,7 +8,7 @@ by do intro `H1, intro `H2,
       trace_state,
       assumption
 
-print ex
+#print ex
 
 example (a b c : nat) (H : p c) : a = b → p a → p b :=
 by do intros,

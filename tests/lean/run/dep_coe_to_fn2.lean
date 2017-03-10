@@ -8,4 +8,4 @@ instance F_to_fn : has_coe_to_fun Func :=
   coe := λ f, f^.fn }
 
 variables (f : Func) (a : f^.A) (b : f^.B a)
-check (f a b)
+#check (f a b)

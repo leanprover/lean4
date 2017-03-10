@@ -13,7 +13,7 @@ by simp -- Succeeded as expected
 
 local attribute [-simp] fdef
 
-print fdef  -- we don't get the [simp] attribute when printing fdef
+#print fdef  -- we don't get the [simp] attribute when printing fdef
 
 example (n : nat) : f n = n + 1 :=
 by simp -- Failed as expected, since we removed [simp] attribute

@@ -8,7 +8,7 @@ begin [smt]
   ematch
 end
 
-print ex
+#print ex
 
 lemma ex2 (p q : nat → nat → Prop) (h : ∃ x, p x x ∧ q x x) : ∃ x, p x x :=
 begin [smt]

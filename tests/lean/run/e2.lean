@@ -1,3 +1,3 @@
 prelude
 definition Prop := Type.{0}
-check Prop
+#check Prop

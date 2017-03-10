@@ -11,5 +11,5 @@ by do
   rfl ← mk_const `rfl,
   apply rfl
 
-print "set_bool_option tactic does not affect other commands"
-check (0:nat) + 1
+#print "set_bool_option tactic does not affect other commands"
+#check (0:nat) + 1

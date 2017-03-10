@@ -5,8 +5,8 @@ def even : nat → bool
 | (succ 0)        := ff
 | (succ (succ n)) := even n
 
-vm_eval even 0
-vm_eval even 1
-vm_eval even 2
-vm_eval even 10000
-vm_eval even 10001
+#eval even 0
+#eval even 1
+#eval even 2
+#eval even 10000
+#eval even 10001

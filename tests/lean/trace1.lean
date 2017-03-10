@@ -8,7 +8,7 @@ by do
   constructor
 
 set_option trace.app_builder true
-print "------------"
+#print "------------"
 
 example : true :=
 by do

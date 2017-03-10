@@ -18,5 +18,5 @@ prelude section
   | mk : tst
 end
 
-check foo
-check tst
+#check foo
+#check tst

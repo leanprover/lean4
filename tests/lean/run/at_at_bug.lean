@@ -5,7 +5,7 @@ example (a b : nat) (p : nat → nat → Prop) (h₁ : p a b) (h₂ : a = b) : p
 set_option pp.all true
 
 variable my_has_add : has_add nat
-check @@add my_has_add 0 1
+#check @@add my_has_add 0 1
 
 local notation h1 `▸[` m `]` h2 := @@eq.subst m h1 h2
 

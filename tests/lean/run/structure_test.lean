@@ -20,9 +20,9 @@ section
   structure point3d_color (B C : Type*) (D : B → Type*) extends point (foo A) B, sigma D renaming fst→y snd→w :=
   mk :: (c : color) (H : x == y)
 
-  check point3d_color.c
+  #check point3d_color.c
 
-  check point3d_color.to_point
+  #check point3d_color.to_point
 end
 
 section

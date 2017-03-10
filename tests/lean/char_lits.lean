@@ -1,11 +1,11 @@
 import system.io
 open io
-check #"a"
+#check #"a"
 
-vm_eval #"a"
-vm_eval #"\n"
-vm_eval #"\\"
-vm_eval put_str (list.cons #"\\" "aaa")
-vm_eval put_str [#"\n"]
-vm_eval put_str [#"\n"]
-vm_eval put_str (list.cons #"\'" "aaa")
+#eval #"a"
+#eval #"\n"
+#eval #"\\"
+#eval put_str (list.cons #"\\" "aaa")
+#eval put_str [#"\n"]
+#eval put_str [#"\n"]
+#eval put_str (list.cons #"\'" "aaa")

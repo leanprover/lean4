@@ -52,7 +52,7 @@ do e ← to_expr p, guard (expr.alpha_eqv t e)
 meta def check_target (p : pexpr) : tactic unit :=
 do t ← target, check_expr p t
 
-run_command do
+run_cmd do
   t ← to_expr `(test._match_2) >>= infer_type,
   trace t,
   check_expr `(nat → nat) t

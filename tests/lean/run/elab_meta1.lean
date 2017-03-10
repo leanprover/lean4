@@ -7,5 +7,5 @@ meta definition g : nat × nat → nat
 | (a+1, b+1) := g (a/2 - 1, a + b)
 | (a+1, 0)   := 2*a
 
-vm_eval f 200
-vm_eval g (10, 20)
+#eval f 200
+#eval g (10, 20)

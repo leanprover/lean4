@@ -5,6 +5,6 @@ section
   definition f : A → A :=
   λ x, x
 
-  check f
+  #check f
 
 end

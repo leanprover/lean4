@@ -20,8 +20,8 @@ constants (x y z : A) (f g h : A → A)
 attribute [simp] H₁ H₂
 attribute [congr] Hf Hg Hh
 
-print [simp] default
-print [congr] default
+#print [simp] default
+#print [congr] default
 
 meta definition relsimp_core (e : expr) : tactic (expr × expr) :=
 do S         ← simp_lemmas.mk_default,

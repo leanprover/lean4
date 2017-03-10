@@ -1,5 +1,5 @@
 @eq N a z : Prop
-num3.lean:14:11: error: invalid type ascription, expression has type
+num3.lean:14:12: error: invalid type ascription, expression has type
   N
 but is expected to have type
   num

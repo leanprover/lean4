@@ -20,7 +20,7 @@ by do
   trace_state,
   assumption
 
-print "----------------"
+#print "----------------"
 
 example (a b : nat) : succ a = succ b → a = b :=
 by do

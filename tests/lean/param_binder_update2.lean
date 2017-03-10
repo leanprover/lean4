@@ -17,7 +17,7 @@ section
 
 end
 
-check @foo1
-check @foo2
-check @foo3
-check @foo4
+#check @foo1
+#check @foo2
+#check @foo3
+#check @foo4

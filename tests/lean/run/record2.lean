@@ -9,12 +9,12 @@ section
     structure point :=
     mk :: (x : A) (y : B)
 
-    check point
-    check point.mk
-    check point.x
+    #check point
+    #check point.mk
+    #check point.x
   end
 
-  check point
-  check point.mk
-  check point.x
+  #check point
+  #check point.mk
+  #check point.x
 end

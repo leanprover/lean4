@@ -5,4 +5,4 @@ return $ quote a
 
 open tactic
 
-run_command ex >>= to_expr >> return ()
+run_cmd ex >>= to_expr >> return ()

@@ -11,25 +11,25 @@ end boo
 
 open foo boo
 
-check ``f
+#check ``f
 
-check ``g
+#check ``g
 
 open nat
 
-check ``add
+#check ``add
 
-check ``gcd
+#check ``gcd
 
-check `f
-check `foo.f
+#check `f
+#check `foo.f
 
 namespace bla
 section
   parameter A : Type
   definition ID : A → A := λ x, x
 
-  check ``ID
+  #check ``ID
 
 end
 end bla

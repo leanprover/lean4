@@ -45,8 +45,8 @@ do let t := ```(caching_user_attribute hinst_lemmas),
    add_decl (declaration.defn attr_decl_name [] t v reducibility_hints.abbrev ff),
    attribute.register attr_decl_name
 
-run_command mk_name_set_attr `no_rsimp
-run_command mk_hinst_lemma_attr_from_simp_attr `rsimp_attr `rsimp `simp `no_rsimp
+run_cmd mk_name_set_attr `no_rsimp
+run_cmd mk_hinst_lemma_attr_from_simp_attr `rsimp_attr `rsimp `simp `no_rsimp
 
 /- The following lemmas are not needed by rsimp, and they actually hurt performance since they generate a lot of
    instances. -/

@@ -23,7 +23,7 @@ axiom H1 : a = b
 axiom H2 : b ≤ c
 axiom H3 : c ≤ d
 axiom H4 : d = e
-check calc a   = b : H1
+#check calc a   = b : H1
            ... ≤ c : H2
            ... ≤ d : H3
            ... = e : H4
@@ -34,10 +34,10 @@ axiom lt_trans (a b c : A) (H1 : a < b) (H2 : b < c) : a < c
 axiom le_lt_trans (a b c : A) (H1 : a ≤ b) (H2 : b < c) : a < c
 axiom lt_le_trans (a b c : A) (H1 : a < b) (H2 : b ≤ c) : a < c
 axiom H5 : c < d
--- check calc b  ≤ c : H2
+-- #check calc b  ≤ c : H2
 --          ... < d : H5 -- Error le_lt_trans was not registered yet
 attribute [trans] le_lt_trans
-check calc b  ≤ c : H2
+#check calc b  ≤ c : H2
           ... < d : H5
 
 constant le2 : A → A → bool

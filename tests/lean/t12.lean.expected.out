@@ -1,2 +1,2 @@
 λ (f g : N → N → N) (x y : N), f x (g x y) : (N → N → N) → (N → N → N) → N → N → N
-t12.lean:7:7: error: invalid expression
+t12.lean:7:8: error: invalid expression

@@ -14,10 +14,10 @@ open int nat
 constants a b : int
 
 
-check plus a b
+#check plus a b
 
 constant f : int → int → int
 constant g : nat → nat → int
 notation A `+`:65 B:65 := f A (g B B)
 constant n : nat
-check a + n
+#check a + n

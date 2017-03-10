@@ -1,8 +1,8 @@
 open tactic conv
 open tactic
 
-run_command mk_simp_attr `foo
-run_command mk_simp_attr `bla
+run_cmd mk_simp_attr `foo
+run_cmd mk_simp_attr `bla
 
 constant f : nat → nat → nat
 @[foo] lemma f_lemma : ∀ x, f x x = 0 :=
@@ -52,7 +52,7 @@ lemma ex3 (p q r : Prop) : (p ∧ true ∧ p) = p :=
 by conversion $
    bottom_up (apply_propext_simp_set `default)
 
-print "---------"
+#print "---------"
 
 lemma ex4 (a b c : nat) : g (g (g (f (f (g (g a)) (g (g a))) a))) = g (g (g (f (f a a) a))) :=
 by conversion $

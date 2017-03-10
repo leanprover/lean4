@@ -1,6 +1,6 @@
 f 0 1 : nat
 g "a" "b" : string
-over_notation.lean:11:9: error: none of the overloads are applicable
+over_notation.lean:11:10: error: none of the overloads are applicable
 error for g
 type mismatch at application
   g tt
@@ -21,7 +21,7 @@ has type
 but is expected to have type
   nat
 Additional information:
-over_notation.lean:11:9: context: switched to basic overload resolution where arguments are elaborated without any information about the expected type because expected type was not available
+over_notation.lean:11:10: context: switched to basic overload resolution where arguments are elaborated without any information about the expected type because expected type was not available
 sorry : ?M_1
 f 1 (f 2 (f 3 0)) : nat
 g "a" (g "b" (g "c" "")) : string

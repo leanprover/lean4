@@ -16,8 +16,8 @@ noncomputable definition bla {A : Type*} : ∀ n : tree A, P n
 | (tree.leaf a) := mk1 a
 | (tree.node l) := mk2 l
 
-check bla._main.equations._eqn_1
-check bla._main.equations._eqn_2
+#check bla._main.equations._eqn_1
+#check bla._main.equations._eqn_2
 
 definition foo {A : Type*} : nat → tree A → nat
 | 0     _                   := sorry
@@ -25,7 +25,7 @@ definition foo {A : Type*} : nat → tree A → nat
 | (n+1) (tree.node [])      := foo n (tree.node [])
 | (n+1) (tree.node (x::xs)) := foo n x
 
-check @foo._main.equations._eqn_1
-check @foo._main.equations._eqn_2
-check @foo._main.equations._eqn_3
-check @foo._main.equations._eqn_4
+#check @foo._main.equations._eqn_1
+#check @foo._main.equations._eqn_2
+#check @foo._main.equations._eqn_3
+#check @foo._main.equations._eqn_4

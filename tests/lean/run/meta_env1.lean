@@ -4,9 +4,9 @@ meta definition e := environment.mk_std 0
 
 definition hints := reducibility_hints.regular 10 tt
 
-vm_eval environment.trust_lvl e
+#eval environment.trust_lvl e
 
-vm_eval (environment.add e (declaration.defn `foo []
+#eval (environment.add e (declaration.defn `foo []
                                              (expr.sort (level.succ (level.zero)))
                                              (expr.sort (level.succ (level.zero)))
                                              hints tt) : exceptional environment)
@@ -16,10 +16,10 @@ meta definition e1 := (environment.add e (declaration.defn `foo []
                                             (expr.sort level.zero)
                                             hints tt) : exceptional environment)
 
-print "-----------"
+#print "-----------"
 open name
 
-vm_eval do
+#eval do
    e₁ ← environment.add e (declaration.defn `foo []
                                             (expr.sort (level.succ (level.zero)))
                                             (expr.sort level.zero)

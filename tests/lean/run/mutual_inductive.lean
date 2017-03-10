@@ -6,12 +6,12 @@ with foo : Type
 with bar : Type
 | mk : bar
 
-check @foo
-check @bar
-check @foo.rec
-check @bar.rec
-check @foo.has_sizeof_inst
-check @bar.has_sizeof_inst
+#check @foo
+#check @bar
+#check @foo.rec
+#check @bar.rec
+#check @foo.has_sizeof_inst
+#check @bar.has_sizeof_inst
 end X1
 
 namespace X2
@@ -22,12 +22,12 @@ with foo : Type
 with bar : Type
 | mk : foo -> bar
 
-check @foo
-check @bar
-check @foo.rec
-check @bar.rec
-check @foo.has_sizeof_inst
-check @bar.has_sizeof_inst
+#check @foo
+#check @bar
+#check @foo.rec
+#check @bar.rec
+#check @foo.has_sizeof_inst
+#check @bar.has_sizeof_inst
 end X2
 
 namespace X3
@@ -38,12 +38,12 @@ with foo : bool -> Type
 with bar : Type
 | mk : foo tt -> bar
 
-check @foo
-check @bar
-check @foo.rec
-check @bar.rec
-check @foo.has_sizeof_inst
-check @bar.has_sizeof_inst
+#check @foo
+#check @bar
+#check @foo.rec
+#check @bar.rec
+#check @foo.has_sizeof_inst
+#check @bar.has_sizeof_inst
 end X3
 
 namespace X4
@@ -56,15 +56,15 @@ with bar : bool -> Type
 with rig : Type
 | mk : foo tt tt -> bar tt -> rig
 
-check @foo
-check @bar
-check @rig
-check @foo.rec
-check @bar.rec
-check @rig.rec
-check @foo.has_sizeof_inst
-check @bar.has_sizeof_inst
-check @rig.has_sizeof_inst
+#check @foo
+#check @bar
+#check @rig
+#check @foo.rec
+#check @bar.rec
+#check @rig.rec
+#check @foo.has_sizeof_inst
+#check @bar.has_sizeof_inst
+#check @rig.has_sizeof_inst
 end X4
 
 namespace X5
@@ -77,15 +77,15 @@ with rig : Type
 | mk : A -> foo tt rfl -> bar tt ff tt -> rig
 | put : A -> foo tt rfl -> bar tt ff tt -> rig
 
-check @foo
-check @bar
-check @rig
-check @foo.rec
-check @bar.rec
-check @rig.rec
-check @foo.has_sizeof_inst
-check @bar.has_sizeof_inst
-check @rig.has_sizeof_inst
+#check @foo
+#check @bar
+#check @rig
+#check @foo.rec
+#check @bar.rec
+#check @rig.rec
+#check @foo.has_sizeof_inst
+#check @bar.has_sizeof_inst
+#check @rig.has_sizeof_inst
 end X5
 
 namespace X6
@@ -98,12 +98,12 @@ with bar : bool -> bool -> bool -> Type.{max l₁ l₂}
 with rig : Type.{max l₁ l₂}
 | mk : A -> B -> foo tt rfl -> bar tt ff tt -> rig
 
-check @foo
-check @bar
-check @rig
-check @foo.rec
-check @bar.rec
-check @rig.rec
+#check @foo
+#check @bar
+#check @rig
+#check @foo.rec
+#check @bar.rec
+#check @rig.rec
 end X6
 
 namespace X7
@@ -116,11 +116,11 @@ with bar : bool -> bool -> bool -> Type.{max l₁ l₂ l₃}
 with rig : Type.{max l₁ l₂ l₃}
 | mk : A -> B -> (Pi x : A, x = a -> foo tt rfl) -> bar tt ff tt -> rig
 
-check @foo
-check @bar
-check @rig
-check @foo.rec
-check @bar.rec
-check @rig.rec
+#check @foo
+#check @bar
+#check @rig
+#check @foo.rec
+#check @bar.rec
+#check @rig.rec
 
 end X7

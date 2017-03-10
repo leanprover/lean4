@@ -3,5 +3,5 @@ section
 
   definition foo3 (a : A) (b : B) := a
 
-  check foo3
+  #check foo3
 end

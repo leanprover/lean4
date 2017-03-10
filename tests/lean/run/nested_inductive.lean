@@ -6,56 +6,56 @@ inductive {u} vec (A : Type u) : nat -> Type u
 | vcons : Pi (n : nat), A -> vec n -> vec (n+1)
 
 namespace X1
-print "simple"
+#print "simple"
 inductive foo : Type
 | mk : list foo -> foo
 
 end X1
 
 namespace X2
-print "with param"
+#print "with param"
 inductive {u} foo (A : Type u) : Type u
 | mk : A -> list foo -> foo
 
 end X2
 
 namespace X3
-print "with indices"
+#print "with indices"
 inductive {u} foo (A B : Type u) : Type u
 | mk : A -> B -> vec foo 0 -> foo
 
 end X3
 
 namespace X4
-print "with locals in indices"
+#print "with locals in indices"
 inductive {u} foo (A : Type u) : Type u
 | mk : Pi (n : nat), A -> vec foo n -> foo
 
 end X4
 
 namespace X5
-print "nested-reflexive"
+#print "nested-reflexive"
 inductive {u} foo (A : Type u) : Type u
 | mk : A -> (Pi (m : nat), vec foo m) -> foo
 
 end X5
 
 namespace X6
-print "locals + nested-reflexive locals in indices"
+#print "locals + nested-reflexive locals in indices"
 inductive {u} foo (A : Type u) : Type u
 | mk : Pi (n : nat), A -> (Pi (m : nat), vec foo (n + m)) -> foo
 
 end X6
 
 namespace X7
-print "many different nestings"
+#print "many different nestings"
 inductive {u} foo (A : Type u) : Type u
 | mk : Pi (n : nat), A -> list A -> prod A A -> (Pi (m : nat), vec foo (n + m)) -> vec foo n -> foo
 
 end X7
 
 namespace X8
-print "many different nestings, some sharing"
+#print "many different nestings, some sharing"
 inductive {u} foo (A : Type u) : Type u
 | mk₁ : Pi (n : nat), A -> (Pi (m : nat), vec (list foo) (n + m)) -> vec foo n -> foo
 | mk₂ : Pi (n : nat), A -> list A -> prod A A -> (Pi (m : nat), vec foo (n + m)) -> vec foo n -> foo
@@ -63,7 +63,7 @@ inductive {u} foo (A : Type u) : Type u
 end X8
 
 namespace X9b
-print "mutual + nesting"
+#print "mutual + nesting"
 mutual inductive {u} foo, bar
 with foo : Type u
 | mk : list (list foo) -> foo
@@ -73,7 +73,7 @@ with bar : Type u
 end X9b
 
 namespace X10
-print "many layers of nesting nested inductive types"
+#print "many layers of nesting nested inductive types"
 
 inductive wrap (A : Sort*)
 | mk : A -> wrap
@@ -90,7 +90,7 @@ inductive bar
 end X10
 
 namespace X11
-print "intro rule that introduces additional nesting"
+#print "intro rule that introduces additional nesting"
 
 inductive {u} wrap (A : Type u) : Type u
 | mk : list A -> wrap
@@ -101,7 +101,7 @@ inductive {u} foo : Type u
 end X11
 
 namespace X12
-print "intro rule that introduces a lot of additional nesting"
+#print "intro rule that introduces a lot of additional nesting"
 
 inductive wrap (A : Sort*) : Sort*
 | mk : list (list A) -> wrap
@@ -112,7 +112,7 @@ inductive {u} box (A : Type u) : Type u
 end X12
 
 namespace X13
-print "with reducible definitions"
+#print "with reducible definitions"
 
 attribute [reducible] definition list' := @list
 
@@ -127,7 +127,7 @@ inductive {u} foo (A : Type u) : Type u
 end X13
 
 namespace X14
-print "with indices in original"
+#print "with indices in original"
 
 inductive Foo : bool -> Type
 | mk : list (Foo ff) -> Foo tt
@@ -135,7 +135,7 @@ inductive Foo : bool -> Type
 end X14
 
 namespace X15
-print "nested inductive propositions eliminating to Prop"
+#print "nested inductive propositions eliminating to Prop"
 
 universe variable l
 inductive plist (A : Sort l) : Sort l
@@ -148,7 +148,7 @@ inductive foo (A : Type l) : ℕ → Prop
 end X15
 
 namespace X16
-print "multiply nested inductive propositions"
+#print "multiply nested inductive propositions"
 
 universe variable l
 inductive wrap (A : Sort l) : Sort l

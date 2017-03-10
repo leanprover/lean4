@@ -23,4 +23,4 @@ C.mk (prod.mk (val Ha) (val Hb))
 noncomputable definition test : C (prod Prop Prop) :=
 by tactic.apply_instance
 
-eval test
+#reduce test

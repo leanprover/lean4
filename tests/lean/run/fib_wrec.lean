@@ -35,6 +35,6 @@ example : fib 6 = 13 :=
 rfl
 -/
 
-print "------------"
-eval fib 10
-vm_eval fib 10
+#print "------------"
+#reduce fib 10
+#eval fib 10

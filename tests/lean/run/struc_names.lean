@@ -6,7 +6,7 @@ namespace foo
   structure [class] structB extends structA :=
   mk :: (b : nat)
 
-  check @structA.a
-  check @structB.to_structA
+  #check @structA.a
+  #check @structB.to_structA
 
 end foo

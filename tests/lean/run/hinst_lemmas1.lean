@@ -1,4 +1,4 @@
-run_command
+run_cmd
 do
   tactic.trace "hinst_lemmas example:",
   hs ← return $ hinst_lemmas.mk,

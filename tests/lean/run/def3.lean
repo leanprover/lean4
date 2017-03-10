@@ -9,4 +9,4 @@ f (f a b) a
 
 set_option trace.compiler true
 
-vm_eval g (g (f 2 3) 2) 3
+#eval g (g (f 2 3) 2) 3

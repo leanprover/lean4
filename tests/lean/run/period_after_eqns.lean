@@ -3,4 +3,4 @@ def f : nat → nat
 | (a+1) := 1
 .
 
-check 10
+#check 10

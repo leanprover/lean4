@@ -1,6 +1,6 @@
 open tactic list
 
-check
+#check
 take c : name,
 (
 do {

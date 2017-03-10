@@ -1,4 +1,4 @@
-vm_eval
+#eval
 (do {
  a : nat ← [1, 2, 3, 4],
  b : nat ← [4, 5, 6],

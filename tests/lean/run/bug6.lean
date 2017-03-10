@@ -5,8 +5,8 @@ section
   := symm H
   variables x y : A
   variable H : x = y
-  check T H
-  check T
+  #check T H
+  #check T
 end
 
 section
@@ -15,6 +15,6 @@ section
   := symm H
   variables x y : A
   variable H : x = y
-  check T2 H
-  check T2
+  #check T2 H
+  #check T2
 end

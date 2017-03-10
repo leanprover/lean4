@@ -7,12 +7,12 @@ namespace foo
   constant f   : int → int
   constant a   : nat
   constant i   : int
-  check _root_.f a
-  check f i
+  #check _root_.f a
+  #check f i
 end foo
 
 open foo
 constants a : nat
 constants i : int
-check f foo.a
-check f foo.i
+#check f foo.a
+#check f foo.i

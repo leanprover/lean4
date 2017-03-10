@@ -1,4 +1,4 @@
-exit
+#exit
 
 open expr decidable tactic nat
 

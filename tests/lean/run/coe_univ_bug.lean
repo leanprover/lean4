@@ -17,4 +17,4 @@ instance coesubtype {A : Type u} {p : A → Prop} : has_coe (@coe_sort _ pred2su
 def g {n : nat} (v : below n) : nat :=
 v + 1
 
-print g
+#print g

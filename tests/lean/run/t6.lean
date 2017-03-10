@@ -4,7 +4,7 @@ precedence `++` : 100
 constant N : Type.{1}
 constant f : N → N → N
 constant a : N
-check
+#check
    let g x y         := f x y,
        infix +       := g,
        b : N         := a+a,

@@ -1,4 +1,4 @@
-check
+#check
   let f x y := x ∧ y,
       g x   := f x x,
       a     := g true

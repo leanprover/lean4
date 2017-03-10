@@ -1,5 +1,5 @@
 if p ∧ q then f x else y : N
-t10.lean:14:6: error: type mismatch at application
+t10.lean:14:7: error: type mismatch at application
   ite (p ∧ q) q
 term
   q

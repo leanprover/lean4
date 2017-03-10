@@ -7,7 +7,7 @@ constants a b c d : Prop
 axiom Ha : a
 axiom Hb : b
 axiom Hc : c
-check
+#check
   have a ∧ b, from and_intro a b Ha Hb,
   have b ∧ a, from and_intro b a Hb Ha,
   have H : a ∧ b, from and_intro a b Ha Hb,

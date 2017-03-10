@@ -10,11 +10,11 @@ namespace foo
   notation 0 := z
   notation 1 := o
 
-  check a = 0
+  #check a = 0
 end foo
 
-check (2:nat) = 1
-check foo.a = 1
+#check (2:nat) = 1
+#check foo.a = 1
 
 open foo
-check a = 1
+#check a = 1

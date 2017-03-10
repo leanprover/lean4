@@ -22,4 +22,4 @@ end foo
 -/
 
 open tactic
-run_command module_doc_strings >>= trace
+run_cmd module_doc_strings >>= trace

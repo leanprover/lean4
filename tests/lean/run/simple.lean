@@ -19,7 +19,7 @@ section
   := subst (λ x : A, Eq a x) b c H2 H1
 end
 
-check subst.{1}
-check refl.{1}
-check symm.{1}
-check trans.{1}
+#check subst.{1}
+#check refl.{1}
+#check symm.{1}
+#check trans.{1}

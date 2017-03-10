@@ -32,7 +32,7 @@ by do
   subst Heq1, subst Heq2,
   reflexivity
 
-print "-------"
+#print "-------"
 
 example (n : nat) : n ≠ 0 → succ (pred n) = n :=
 by do
@@ -43,4 +43,4 @@ by do
   contradiction,
   reflexivity
 
-print "---------"
+#print "---------"

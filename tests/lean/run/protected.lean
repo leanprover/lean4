@@ -4,5 +4,5 @@ namespace foo
 end foo
 
 open foo
-check foo.C
-check D
+#check foo.C
+#check D

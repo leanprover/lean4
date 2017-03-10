@@ -1,4 +1,4 @@
-exit
+#exit
 -- import data.nat.basic
 open nat
 

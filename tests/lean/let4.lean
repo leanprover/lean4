@@ -2,13 +2,13 @@
 
 constant f : num → num → num → num
 
-check
+#check
   let a : num := 10,
       b : num := 10,
       c : num := 10
   in f a b (f a 10 c)
 
-check
+#check
   let a : num := 10,
       b : num := let c : num := 10 in f a c (f a a (f 10 a c)),
       d : num := 10,

@@ -1,5 +1,5 @@
 boo.f 0 1 2 : ℕ
-elab4.lean:13:6: error: none of the overloads are applicable
+elab4.lean:13:7: error: none of the overloads are applicable
 error for bla.f
 failed to synthesize type class instance for
 ⊢ has_add bool
@@ -12,20 +12,20 @@ error for boo.f
 function expected at
   boo.f 0 1 2
 Additional information:
-elab4.lean:13:6: context: switched to basic overload resolution where arguments are elaborated without any information about the expected type because expected type was not available
+elab4.lean:13:7: context: switched to basic overload resolution where arguments are elaborated without any information about the expected type because expected type was not available
 sorry : ?M_1
-elab4.lean:15:6: error: ambiguous overload, possible interpretations
+elab4.lean:15:7: error: ambiguous overload, possible interpretations
   foo.f 0 1
   boo.f 0 1
 Additional information:
-elab4.lean:15:6: context: switched to basic overload resolution where arguments are elaborated without any information about the expected type because expected type was not available
+elab4.lean:15:7: context: switched to basic overload resolution where arguments are elaborated without any information about the expected type because expected type was not available
 sorry : ?M_1
 foo.f bool.tt 2 : bool
 bla.f bool.tt bool.ff bool.tt : bool → bool
-elab4.lean:21:6: error: ambiguous overload, possible interpretations
+elab4.lean:21:7: error: ambiguous overload, possible interpretations
   bla.f bool.tt bool.ff
   foo.f bool.tt bool.ff
 Additional information:
-elab4.lean:21:6: context: switched to basic overload resolution where arguments are elaborated without any information about the expected type because expected type was not available
+elab4.lean:21:7: context: switched to basic overload resolution where arguments are elaborated without any information about the expected type because expected type was not available
 sorry : ?M_1
 foo.f 0 1 : ℕ

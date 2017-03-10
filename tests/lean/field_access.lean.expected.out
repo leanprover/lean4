@@ -1,10 +1,10 @@
 list.map : (?M_1 → ?M_2) → list ?M_1 → list ?M_2
-field_access.lean:5:7: error: invalid projection, structure expected
+field_access.lean:5:8: error: invalid projection, structure expected
   l
 has type
   list ℕ
 sorry : ?M_1
-field_access.lean:7:12: error: invalid projection, structure has only 2 field(s)
+field_access.lean:7:13: error: invalid projection, structure has only 2 field(s)
   (1, 2)
 which has type
   ?m_1 × ?m_2

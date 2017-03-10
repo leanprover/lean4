@@ -22,8 +22,8 @@ section
   definition tst₃ := a
 end
 
-check @tst₁
-check @tst₂ -- A is implicit
-check @symm₂
-check @tst₃  -- A is explicit again
-check @foo
+#check @tst₁
+#check @tst₂ -- A is implicit
+#check @symm₂
+#check @tst₃  -- A is explicit again
+#check @foo

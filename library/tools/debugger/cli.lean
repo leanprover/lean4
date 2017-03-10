@@ -232,4 +232,4 @@ meta def monitor : vm_monitor state :=
 { init := init_state, step := step_fn }
 end debugger
 
-run_command vm_monitor.register `debugger.monitor
+run_cmd vm_monitor.register `debugger.monitor

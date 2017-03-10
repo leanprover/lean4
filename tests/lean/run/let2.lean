@@ -18,4 +18,4 @@ definition b :=
           a := a ∧ a in
        a
 
-check b
+#check b

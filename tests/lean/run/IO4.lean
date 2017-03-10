@@ -9,4 +9,4 @@ do { n ← return (10:nat),
      else
        put 2 }
 
-vm_eval main
+#eval main

@@ -1,7 +1,7 @@
 def fn (n : nat) : nat :=
 match n with
 
-exit
+#exit
 
 theorem thm : true := begin end
 

@@ -9,6 +9,11 @@ import init.meta.tactic init.function
 namespace tactic
 open nat tactic environment expr list
 
+private meta def at_end₂ (e₁ e₂ : expr) : ℕ → tactic (list (option expr))
+| 2 := return [some e₁, some e₂]
+| (n+3) := at_end₂ (n+2) >>= (λ xs, return (none :: xs))
+| _ := fail "at_end expected arity > 1"
+
 private meta def mk_intro_name : name → list name → name
 | n₁ (n₂ :: ns) := n₂
 | n  []         := if n = `a then `h else n
@@ -19,23 +24,8 @@ private meta def injection_intro : expr → list name → tactic unit
 | (pi n bi b d) ns := do
   hname ← return $ mk_intro_name n ns,
   h ← intro hname,
-  ht ← infer_type h,
-  -- Clear new hypothesis if it is of the form (a = a)
-  try $ do {
-    (lhs, rhs) ← match_eq ht,
-    unify lhs rhs,
-    clear h },
-  -- If new hypothesis is of the form (@heq A a B b) where
-  -- A and B can be unified then convert it into (a = b) using
-  -- the eq_of_heq lemma
-  try $ do {
-    (A, lhs, B, rhs) ← match_heq ht,
-    unify A B,
-    heq ← mk_app `eq [lhs, rhs],
-    pr  ← mk_app `eq_of_heq [h],
-    assertv hname heq pr,
-    clear h },
   injection_intro d (tail ns)
+
 | e  ns           := skip
 
 meta def injection_with (h : expr) (ns : list name) : tactic unit :=
@@ -43,13 +33,15 @@ do
   ht ← infer_type h,
   (lhs, rhs) ← match_eq ht,
   env ← get_env,
-  if is_constructor_app env lhs ∧
-     is_constructor_app env rhs ∧
-     const_name (get_app_fn lhs) = const_name (get_app_fn rhs)
+  n_f ← return (const_name (get_app_fn lhs)),
+  n_inj ← return (n_f <.> "inj_arrow"),
+  if n_f = const_name (get_app_fn rhs) ∧ env~>contains n_inj
   then do
-    tgt    ← target,
-    I_name ← return $ name.get_prefix (const_name (get_app_fn lhs)),
-    pr     ← mk_app (I_name <.> "no_confusion") [tgt, lhs, rhs, h],
+    c_inj  ← mk_const n_inj,
+    arity  ← get_arity c_inj,
+    tgt ← target,
+    args   ← at_end₂ h tgt (arity - 1),
+    pr     ← mk_mapp n_inj args,
     pr_type ← infer_type pr,
     pr_type ← whnf pr_type,
     apply pr,

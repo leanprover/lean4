@@ -18,7 +18,7 @@ namespace lean {
     \pre mctx.get_metavar_decl(mvar) != none
     \pre typeof(H) is an equality
     \pre symm == false ==> is_local(lhs(typeof(H)))
-    \pre symm == false ==> is_local(rhs(typeof(H))) */
+    \pre symm == true  ==> is_local(rhs(typeof(H))) */
 expr subst(environment const & env, options const & opts, transparency_mode const & m, metavar_context & mctx,
            expr const & mvar, expr const & H, bool symm, hsubstitution * substs);
 

@@ -19,6 +19,9 @@ bool is_internal_name(name const & n);
     of A is not a sort. */
 level get_level(abstract_type_context & ctx, expr const & A);
 
+/** brief Return a name that does not appear in `lp_names`. */
+name mk_fresh_lp_name(level_param_names const & lp_names);
+
 /** \brief Return true iff \c n occurs in \c m */
 bool occurs(expr const & n, expr const & m);
 /** \brief Return true iff there is a constant named \c n in \c m. */
@@ -48,6 +51,7 @@ bool has_punit_decls(environment const & env);
 bool has_pprod_decls(environment const & env);
 bool has_eq_decls(environment const & env);
 bool has_heq_decls(environment const & env);
+bool has_and_decls(environment const & env);
 
 /** \brief Return true iff \c n is the name of a recursive datatype in \c env.
     That is, it must be an inductive datatype AND contain a recursive constructor.

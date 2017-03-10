@@ -1,0 +1,5 @@
+inductive_sorry.lean:1:0: error: type of parameter 'A' contains 'sorry'
+inductive_sorry.lean:4:0: error: type of parameter 'foo' contains 'sorry'
+inductive_sorry.lean:7:0: error: constructor 'foo.mk' contains 'sorry'
+inductive_sorry.lean:10:0: error: type of parameter 'A' contains 'sorry'
+inductive_sorry.lean:12:0: error: field 'x' contains 'sorry'

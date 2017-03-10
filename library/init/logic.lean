@@ -137,12 +137,6 @@ attribute [refl] heq.refl
 section
 variables {α β φ : Sort u} {a a' : α} {b b' : β} {c : φ}
 
-lemma eq_of_heq (h : a == a') : a = a' :=
-have ∀ (α' : Sort u) (a' : α') (h₁ : @heq α a α' a') (h₂ : α = α'), (eq.rec_on h₂ a : α') = a', from
-  λ (α' : Sort u) (a' : α') (h₁ : @heq α a α' a'), heq.rec_on h₁ (λ h₂ : α = α, rfl),
-show (eq.rec_on (eq.refl α) a : α) = a', from
-  this α a' h (eq.refl α)
-
 lemma heq.elim {α : Sort u} {a : α} {p : α → Sort v} {b : α} (h₁ : a == b)
 : p a → p b := eq.rec_on (eq_of_heq h₁)
 

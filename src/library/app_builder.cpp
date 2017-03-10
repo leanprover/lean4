@@ -1179,7 +1179,7 @@ expr mk_eq_mp(type_context & ctx, expr const & h1, expr const & h2) {
 }
 
 expr mk_iff_mp(type_context & ctx, expr const & h1, expr const & h2) {
-    return mk_app(ctx, get_iff_mpr_name(), h1, h2);
+    return mk_app(ctx, get_iff_mp_name(), h1, h2);
 }
 
 void initialize_app_builder() {

@@ -229,6 +229,14 @@ meta def is_not : expr → option expr
 | ```(%%a → false) := some a
 | e                := none
 
+meta def is_and : expr → option (expr × expr)
+| ```(and %%α %%β) := some (α, β)
+| _                 := none
+
+meta def is_or : expr → option (expr × expr)
+| ```(or %%α %%β) := some (α, β)
+| _                 := none
+
 meta def is_eq : expr → option (expr × expr)
 | ```((%%a : %%_) = %%b) := some (a, b)
 | _                     := none

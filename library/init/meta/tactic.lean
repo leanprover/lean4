@@ -533,6 +533,18 @@ match (expr.is_not e) with
 | none     := fail "expression is not a negation"
 end
 
+meta def match_and (e : expr) : tactic (expr × expr) :=
+match (expr.is_and e) with
+| (some (α, β)) := return (α, β)
+| none     := fail "expression is not a conjunction"
+end
+
+meta def match_or (e : expr) : tactic (expr × expr) :=
+match (expr.is_or e) with
+| (some (α, β)) := return (α, β)
+| none     := fail "expression is not a disjunction"
+end
+
 meta def match_eq (e : expr) : tactic (expr × expr) :=
 match (expr.is_eq e) with
 | (some (lhs, rhs)) := return (lhs, rhs)

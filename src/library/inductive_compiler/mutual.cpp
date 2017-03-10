@@ -22,6 +22,7 @@ Author: Daniel Selsam
 #include "library/attribute_manager.h"
 #include "library/pattern_attribute.h"
 #include "library/constructions/has_sizeof.h"
+#include "library/constructions/injective.h"
 #include "library/inductive_compiler/compiler.h"
 #include "library/inductive_compiler/basic.h"
 #include "library/inductive_compiler/mutual.h"
@@ -366,6 +367,25 @@ class add_mutual_inductive_decl_fn {
             m_env = add_protected(m_env, has_sizeof_name);
             m_tctx.set_env(m_env);
             tctx_synth.set_env(m_env);
+        }
+    }
+
+    void define_injective() {
+        unsigned basic_ir_idx = 0;
+        for (unsigned ind_idx = 0; ind_idx < m_mut_decl.get_inds().size(); ++ind_idx) {
+            buffer<expr> const & irs = m_mut_decl.get_intro_rules(ind_idx);
+            for (expr const & ir : irs) {
+                if (!static_cast<bool>(m_env.find(mk_injective_name(mlocal_name(m_basic_decl.get_intro_rule(0, basic_ir_idx)))))) {
+                    return;
+                }
+                expr inj_and_type = mk_injective_type(m_env, mlocal_name(ir), Pi(m_mut_decl.get_params(), mlocal_type(ir)), m_mut_decl.get_num_params(), to_list(m_mut_decl.get_lp_names()));
+                expr inj_and_val = mk_constant(mk_injective_name(mlocal_name(m_basic_decl.get_intro_rule(0, basic_ir_idx))), m_mut_decl.get_levels());
+                lean_trace(name({"inductive_compiler", "mutual", "injective"}), tout() << mk_injective_name(mlocal_name(ir)) << " : " << inj_and_type << " :=\n  " << inj_and_val << "\n";);
+                m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, mk_injective_name(mlocal_name(ir)), to_list(m_mut_decl.get_lp_names()), inj_and_type, inj_and_val, true)));
+                m_env = mk_injective_arrow(m_env, mlocal_name(ir));
+                m_tctx.set_env(m_env);
+                basic_ir_idx++;
+            }
         }
     }
 
@@ -787,6 +807,7 @@ public:
         define_ind_types();
         define_intro_rules();
         define_sizeofs();
+        define_injective();
 
         define_recursors();
         return m_env;
@@ -812,6 +833,7 @@ void initialize_inductive_compiler_mutual() {
     register_trace_class(name({"inductive_compiler", "mutual", "rec"}));
     register_trace_class(name({"inductive_compiler", "mutual", "sizeof"}));
     register_trace_class(name({"inductive_compiler", "mutual", "range"}));
+    register_trace_class(name({"inductive_compiler", "mutual", "injective"}));
 
     g_mutual_suffix = new name("_mut_");
 }

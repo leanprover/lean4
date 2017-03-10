@@ -112,6 +112,7 @@ name const * g_if_pos = nullptr;
 name const * g_iff = nullptr;
 name const * g_iff_false_intro = nullptr;
 name const * g_iff_intro = nullptr;
+name const * g_iff_mp = nullptr;
 name const * g_iff_mpr = nullptr;
 name const * g_iff_refl = nullptr;
 name const * g_iff_symm = nullptr;
@@ -124,6 +125,8 @@ name const * g_imp_congr_ctx_eq = nullptr;
 name const * g_implies = nullptr;
 name const * g_implies_of_if_neg = nullptr;
 name const * g_implies_of_if_pos = nullptr;
+name const * g_inductive_compiler_tactic_prove_nested_inj = nullptr;
+name const * g_inductive_compiler_tactic_prove_pack_inj = nullptr;
 name const * g_insert = nullptr;
 name const * g_int = nullptr;
 name const * g_int_has_add = nullptr;
@@ -487,6 +490,7 @@ void initialize_constants() {
     g_iff = new name{"iff"};
     g_iff_false_intro = new name{"iff_false_intro"};
     g_iff_intro = new name{"iff", "intro"};
+    g_iff_mp = new name{"iff", "mp"};
     g_iff_mpr = new name{"iff", "mpr"};
     g_iff_refl = new name{"iff", "refl"};
     g_iff_symm = new name{"iff", "symm"};
@@ -499,6 +503,8 @@ void initialize_constants() {
     g_implies = new name{"implies"};
     g_implies_of_if_neg = new name{"implies_of_if_neg"};
     g_implies_of_if_pos = new name{"implies_of_if_pos"};
+    g_inductive_compiler_tactic_prove_nested_inj = new name{"inductive_compiler", "tactic", "prove_nested_inj"};
+    g_inductive_compiler_tactic_prove_pack_inj = new name{"inductive_compiler", "tactic", "prove_pack_inj"};
     g_insert = new name{"insert"};
     g_int = new name{"int"};
     g_int_has_add = new name{"int", "has_add"};
@@ -863,6 +869,7 @@ void finalize_constants() {
     delete g_iff;
     delete g_iff_false_intro;
     delete g_iff_intro;
+    delete g_iff_mp;
     delete g_iff_mpr;
     delete g_iff_refl;
     delete g_iff_symm;
@@ -875,6 +882,8 @@ void finalize_constants() {
     delete g_implies;
     delete g_implies_of_if_neg;
     delete g_implies_of_if_pos;
+    delete g_inductive_compiler_tactic_prove_nested_inj;
+    delete g_inductive_compiler_tactic_prove_pack_inj;
     delete g_insert;
     delete g_int;
     delete g_int_has_add;
@@ -1238,6 +1247,7 @@ name const & get_if_pos_name() { return *g_if_pos; }
 name const & get_iff_name() { return *g_iff; }
 name const & get_iff_false_intro_name() { return *g_iff_false_intro; }
 name const & get_iff_intro_name() { return *g_iff_intro; }
+name const & get_iff_mp_name() { return *g_iff_mp; }
 name const & get_iff_mpr_name() { return *g_iff_mpr; }
 name const & get_iff_refl_name() { return *g_iff_refl; }
 name const & get_iff_symm_name() { return *g_iff_symm; }
@@ -1250,6 +1260,8 @@ name const & get_imp_congr_ctx_eq_name() { return *g_imp_congr_ctx_eq; }
 name const & get_implies_name() { return *g_implies; }
 name const & get_implies_of_if_neg_name() { return *g_implies_of_if_neg; }
 name const & get_implies_of_if_pos_name() { return *g_implies_of_if_pos; }
+name const & get_inductive_compiler_tactic_prove_nested_inj_name() { return *g_inductive_compiler_tactic_prove_nested_inj; }
+name const & get_inductive_compiler_tactic_prove_pack_inj_name() { return *g_inductive_compiler_tactic_prove_pack_inj; }
 name const & get_insert_name() { return *g_insert; }
 name const & get_int_name() { return *g_int; }
 name const & get_int_has_add_name() { return *g_int_has_add; }

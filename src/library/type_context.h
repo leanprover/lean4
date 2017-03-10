@@ -363,6 +363,11 @@ public:
     virtual optional<expr> is_stuck(expr const &) override;
 
     virtual expr push_local(name const & pp_name, expr const & type, binder_info const & bi = binder_info()) override;
+    virtual expr push_local_from_binding(expr const & e) {
+        lean_assert(is_binding(e));
+        return push_local(binding_name(e), binding_domain(e), binding_info(e));
+    }
+
     virtual void pop_local() override;
     virtual expr abstract_locals(expr const & e, unsigned num_locals, expr const * locals) override;
 

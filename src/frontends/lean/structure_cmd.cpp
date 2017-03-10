@@ -28,6 +28,7 @@ Author: Leonardo de Moura
 #include "library/aliases.h"
 #include "library/annotation.h"
 #include "library/explicit.h"
+#include "library/sorry.h"
 #include "library/unfold_macros.h"
 #include "library/protected.h"
 #include "library/private.h"
@@ -46,6 +47,7 @@ Author: Leonardo de Moura
 #include "library/constructions/cases_on.h"
 #include "library/constructions/projection.h"
 #include "library/constructions/no_confusion.h"
+#include "library/constructions/injective.h"
 #include "library/inductive_compiler/add_decl.h"
 #include "library/tactic/elaborator_exception.h"
 #include "frontends/lean/parser.h"
@@ -56,7 +58,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/type_util.h"
 #include "frontends/lean/decl_attributes.h"
 #include "frontends/lean/inductive_cmds.h"
-
 
 #ifndef LEAN_DEFAULT_STRUCTURE_INTRO
 #define LEAN_DEFAULT_STRUCTURE_INTRO "mk"
@@ -163,6 +164,18 @@ struct structure_cmd_fn {
     void check_attrs(decl_attributes const & attrs, pos_info const & pos) const {
         if (!attrs.ok_for_inductive_type())
             throw parser_error("only attribute [class] accepted for structures", pos);
+    }
+
+    void check_for_sorry() {
+        for (expr const & param : m_params) {
+            if (has_sorry(param))
+                throw exception(sstream() << "type of parameter '" << mlocal_name(param) << "' contains 'sorry'");
+        }
+
+        for (field_decl const & fdecl : m_fields) {
+            if (has_sorry(fdecl.local))
+                throw exception(sstream() << "field '" << mlocal_name(fdecl.local) << "' contains 'sorry'");
+        }
     }
 
     /** \brief Parse structure name and (optional) universe parameters */
@@ -1063,7 +1076,7 @@ struct structure_cmd_fn {
         }
     }
 
-    void declare_no_confustion() {
+    void declare_no_confusion() {
         if (!has_eq_decls(m_env))
             return;
         if (!has_heq_decls(m_env))
@@ -1071,6 +1084,19 @@ struct structure_cmd_fn {
         m_env = mk_no_confusion(m_env, m_name);
         name no_confusion_name(m_name, "no_confusion");
         add_alias(no_confusion_name);
+    }
+
+    void declare_injective_lemmas() {
+        if (!has_eq_decls(m_env))
+            return;
+        if (!has_heq_decls(m_env))
+            return;
+        if (!has_and_decls(m_env))
+            return;
+
+        m_env = mk_injective_lemmas(m_env, m_name);
+        add_alias(mk_injective_name(m_name));
+        add_alias(mk_injective_arrow_name(m_name));
     }
 
     void add_doc_string() {
@@ -1103,6 +1129,7 @@ struct structure_cmd_fn {
             m_mk       = m_name + m_mk_short;
             process_empty_new_fields();
         }
+        check_for_sorry();
         infer_resultant_universe();
         set_ctx_locals();
         include_ctx_levels();
@@ -1114,7 +1141,8 @@ struct structure_cmd_fn {
         declare_coercions();
         add_doc_string();
         if (!m_inductive_predicate) {
-            declare_no_confustion();
+            declare_no_confusion();
+            declare_injective_lemmas();
         }
         return m_env;
     }

@@ -77,7 +77,7 @@ reserve infixl ` ++ `:65
 reserve infixr ` :: `:67
 reserve infixl `; `:1
 
-universes u v
+universes u v w
 
 /-- Gadget for optional parameter support. -/
 @[reducible] def opt_param (α : Sort u) (default : α) : Sort u :=
@@ -142,6 +142,60 @@ def and.elim_right {a b : Prop} (h : and a b) : b :=
 and.rec (λ ha hb, hb) h
 
 def and.right := @and.elim_right
+
+/- eq basic support -/
+
+infix = := eq
+
+attribute [refl] eq.refl
+
+@[pattern] def rfl {α : Sort u} {a : α} : a = a := eq.refl a
+
+@[elab_as_eliminator, subst]
+lemma eq.subst {α : Sort u} {P : α → Prop} {a b : α} (h₁ : a = b) (h₂ : P a) : P b :=
+eq.rec h₂ h₁
+
+notation h1 ▸ h2 := eq.subst h1 h2
+
+@[trans] lemma eq.trans {α : Sort u} {a b c : α} (h₁ : a = b) (h₂ : b = c) : a = c :=
+h₂ ▸ h₁
+
+@[symm] lemma eq.symm {α : Sort u} {a b : α} (h : a = b) : b = a :=
+h ▸ rfl
+
+infix == := heq
+
+lemma eq_of_heq {α : Sort u} {a a' : α} (h : a == a') : a = a' :=
+have ∀ (α' : Sort u) (a' : α') (h₁ : @heq α a α' a') (h₂ : α = α'), (eq.rec_on h₂ a : α') = a', from
+  λ (α' : Sort u) (a' : α') (h₁ : @heq α a α' a'), heq.rec_on h₁ (λ h₂ : α = α, rfl),
+show (eq.rec_on (eq.refl α) a : α) = a', from
+  this α a' h (eq.refl α)
+
+-- The following four lemmas could not be automatically generated when the
+-- structures were declared, so we prove them manually here.
+lemma prod.mk.inj {α : Type u} {β : Type v} {x₁ : α} {y₁ : β} {x₂ : α} {y₂ : β}
+  : (x₁, y₁) = (x₂, y₂) → and (x₁ = x₂) (y₁ = y₂) :=
+assume (H_eq : (x₁, y₁) = (x₂, y₂)),
+have H_nc : (x₁ = x₂ → y₁ = y₂ → and (x₁ = x₂) (y₁ = y₂)) → and (x₁ = x₂) (y₁ = y₂), from
+  @prod.no_confusion _ _ (and (x₁ = x₂) (y₁ = y₂)) _ _ H_eq,
+H_nc (assume Hx Hy, and.intro Hx Hy)
+
+lemma prod.mk.inj_arrow {α : Type u} {β : Type v} {x₁ : α} {y₁ : β} {x₂ : α} {y₂ : β}
+  : (x₁, y₁) = (x₂, y₂) → Π ⦃P : Sort w⦄, (x₁ = x₂ → y₁ = y₂ → P) → P :=
+assume H_eq P,
+@prod.no_confusion _ _ P _ _ H_eq
+
+lemma pprod.mk.inj {α : Sort u} {β : Sort v} {x₁ : α} {y₁ : β} {x₂ : α} {y₂ : β}
+  : pprod.mk x₁ y₁ = pprod.mk x₂ y₂ → and (x₁ = x₂) (y₁ = y₂) :=
+assume (H_eq : pprod.mk x₁ y₁ = pprod.mk x₂ y₂),
+have H_nc : (x₁ = x₂ → y₁ = y₂ → and (x₁ = x₂) (y₁ = y₂)) → and (x₁ = x₂) (y₁ = y₂), from
+  @pprod.no_confusion _ _ (and (x₁ = x₂) (y₁ = y₂)) _ _ H_eq,
+H_nc (assume Hx Hy, and.intro Hx Hy)
+
+lemma pprod.mk.inj_arrow {α : Type u} {β : Type v} {x₁ : α} {y₁ : β} {x₂ : α} {y₂ : β}
+  : (x₁, y₁) = (x₂, y₂) → Π ⦃P : Sort w⦄, (x₁ = x₂ → y₁ = y₂ → P) → P :=
+assume H_eq P,
+@prod.no_confusion _ _ P _ _ H_eq
 
 inductive sum (α : Type u) (β : Type v)
 | inl {} : α → sum
@@ -426,8 +480,6 @@ num.succ (num.succ (num.succ (num.succ (num.succ (num.succ (num.succ (num.succ (
 
 reserve postfix `⁻¹`:std.prec.max_plus  -- input with \sy or \-1 or \inv
 
-infix =        := eq
-infix ==       := heq
 infix ∈        := mem
 notation a ∉ s := ¬ mem a s
 infix +        := add
@@ -457,24 +509,6 @@ infix \        := sdiff
 
 notation α × β := prod α β
 -- notation for n-ary tuples
-
-/- eq basic support -/
-
-attribute [refl] eq.refl
-
-@[pattern] def rfl {α : Sort u} {a : α} : a = a := eq.refl a
-
-@[elab_as_eliminator, subst]
-lemma eq.subst {α : Sort u} {P : α → Prop} {a b : α} (h₁ : a = b) (h₂ : P a) : P b :=
-eq.rec h₂ h₁
-
-notation h1 ▸ h2 := eq.subst h1 h2
-
-@[trans] lemma eq.trans {α : Sort u} {a b c : α} (h₁ : a = b) (h₂ : b = c) : a = c :=
-h₂ ▸ h₁
-
-@[symm] lemma eq.symm {α : Sort u} {a b : α} (h : a = b) : b = a :=
-h ▸ rfl
 
 /- sizeof -/
 

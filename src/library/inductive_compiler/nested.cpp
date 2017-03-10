@@ -30,6 +30,7 @@ Author: Daniel Selsam
 #include "library/protected.h"
 #include "library/attribute_manager.h"
 #include "library/pattern_attribute.h"
+#include "library/constructions/injective.h"
 #include "library/tactic/simp_lemmas.h"
 #include "library/constructions/has_sizeof.h"
 #include "library/inductive_compiler/ginductive.h"
@@ -38,6 +39,7 @@ Author: Daniel Selsam
 #include "library/inductive_compiler/nested.h"
 #include "library/inductive_compiler/util.h"
 #include "library/tactic/induction_tactic.h"
+#include "library/tactic/subst_tactic.h"
 #include "library/tactic/simp_result.h"
 #include "library/tactic/simplify.h"
 #include "library/tactic/eqn_lemmas.h"
@@ -97,6 +99,7 @@ class add_nested_inductive_decl_fn {
     expr                          m_primitive_unpack;
 
     bool                          m_elim_to_type;
+    bool                          m_prove_inj;
 
     buffer<buffer<buffer<optional<unsigned> > > > m_pack_arity; // [ind_idx][ir_idx][ir_arg_idx]
 
@@ -104,6 +107,7 @@ class add_nested_inductive_decl_fn {
     bool                          m_in_define_nested_irs{false};
     unsigned                      m_curr_nest_idx{0};
     simp_lemmas                   m_lemmas;
+    simp_lemmas                   m_inj_lemmas;
 
     unsigned get_curr_ind_idx() { lean_assert(m_in_define_nested_irs); return m_pack_arity.size() - 1; }
     unsigned get_curr_ir_idx() { lean_assert(m_in_define_nested_irs); return m_pack_arity[get_curr_ind_idx()].size() - 1; }
@@ -277,6 +281,49 @@ class add_nested_inductive_decl_fn {
                             << "', either both must eliminate to Type or both must eliminate only to Prop");
 
         m_elim_to_type = nest_elim_to_type;
+    }
+
+    void check_prove_inj() {
+        for (unsigned ind_idx = 0; ind_idx < m_nested_decl.get_num_inds(); ++ind_idx) {
+            for (unsigned ir_idx = 0; ir_idx < m_nested_decl.get_num_intro_rules(ind_idx); ++ir_idx) {
+                m_prove_inj = static_cast<bool>(m_env.find(mk_injective_arrow_name(mlocal_name(m_inner_decl.get_intro_rule(ind_idx, ir_idx)))));
+                return;
+            }
+        }
+        m_prove_inj = false;
+    }
+
+    expr mk_pack_injective_type(name const & pack_name, optional<unsigned> pack_arity = optional<unsigned>()) {
+        type_context::tmp_locals locals(m_tctx);
+        buffer<expr> all_args;
+        expr full_ty = m_tctx.infer(mk_constant(pack_name, m_nested_decl.get_levels()));
+        expr ty = full_ty;
+        expr prev_ty;
+
+        unsigned arg_idx = 0;
+        while (is_pi(ty)) {
+            expr arg = locals.push_local_from_binding(ty);
+            all_args.push_back(arg);
+            prev_ty = ty;
+            ty = m_tctx.relaxed_whnf(instantiate(binding_body(ty), arg));
+            arg_idx++;
+            if (static_cast<bool>(pack_arity) && arg_idx == *pack_arity) {
+                break;
+            }
+        }
+        expr arg1 = all_args.back();
+        all_args.pop_back();
+        expr arg2 = locals.push_local_from_binding(prev_ty);
+
+        expr eq_lhs = mk_app(mk_app(mk_constant(pack_name, m_nested_decl.get_levels()), all_args), arg1);
+        expr eq_rhs = mk_app(mk_app(mk_constant(pack_name, m_nested_decl.get_levels()), all_args), arg2);
+
+        expr iff_lhs = mk_eq(m_tctx, eq_lhs, eq_rhs);
+        expr iff_rhs = mk_eq(m_tctx, arg1, arg2);
+        expr pack_inj_type = m_tctx.mk_pi(all_args, m_tctx.mk_pi(arg1, m_tctx.mk_pi(arg2, mk_iff(iff_lhs, iff_rhs))));
+        lean_trace(name({"inductive_compiler", "nested", "injective"}),
+                   tout() << "[pn_pack_injective_type]: " << full_ty << " ==> " << pack_inj_type << "\n";);
+        return pack_inj_type;
     }
 
     void define_theorem(name const & n, expr const & ty, expr const & val) {
@@ -806,7 +853,8 @@ class add_nested_inductive_decl_fn {
 
         prove_pi_pack_unpack(pi_pack, pi_unpack, ldeps, nested_pack_fn, nested_unpack_fn, arg_ty);
         prove_pi_unpack_pack(pi_pack, pi_unpack, ldeps, nested_pack_fn, nested_unpack_fn, arg_ty);
-        prove_pi_sizeof_pack(pi_pack, ldeps, nested_pack_fn, arg_ty);
+        prove_pi_pack_sizeof(pi_pack, ldeps, nested_pack_fn, arg_ty);
+        prove_pi_pack_injective(m_nested_decl.get_num_params() + ldeps.size() + 1);
 
         return optional<pair<expr, unsigned> >(pi_pack, m_nested_decl.get_num_params() + ldeps.size() + 1);
     }
@@ -1033,6 +1081,7 @@ class add_nested_inductive_decl_fn {
         prove_nested_pack_unpack(start, end, c_nested_pack, c_nested_unpack, indices, nest_idx);
         prove_nested_unpack_pack(start, end, c_nested_pack, c_nested_unpack, indices, nest_idx);
         prove_nested_pack_sizeof(start, end, c_nested_pack, indices, nest_idx);
+        prove_nested_pack_injective(nest_idx);
 
         return optional<expr_pair>(c_nested_pack, c_nested_unpack);
     }
@@ -1214,6 +1263,7 @@ class add_nested_inductive_decl_fn {
         prove_primitive_pack_unpack(indices);
         prove_primitive_unpack_pack(indices);
         prove_primitive_pack_sizeof(indices);
+        prove_primitive_pack_injective();
     }
 
     /////////////////////////////
@@ -1328,6 +1378,40 @@ class add_nested_inductive_decl_fn {
         simplify_fn(ctx, dcs, slss, cfg) {}
     };
 
+    simp_config get_simp_config() {
+        simp_config cfg;
+        cfg.m_max_steps          = 1000000;
+        cfg.m_contextual         = false;
+        cfg.m_lift_eq            = false;
+        cfg.m_canonize_instances = false;
+        cfg.m_canonize_proofs    = false;
+        cfg.m_use_axioms         = false;
+        cfg.m_zeta               = false;
+        cfg.m_use_matcher        = false;
+        return cfg;
+    }
+
+    expr prove_by_tactic(name const & lemma_name, expr const & goal_type, name const & tactic, buffer<vm_obj> const & rev_args) {
+        metavar_context mctx;
+        expr goal_mvar = mctx.mk_metavar_decl(local_context(), goal_type);
+        vm_obj tstate = to_obj(mk_tactic_state_for_metavar(m_env, m_opts, lemma_name, mctx, goal_mvar));
+        buffer<vm_obj> all_rev_args;
+        all_rev_args.push_back(tstate);
+        all_rev_args.append(rev_args);
+
+        vm_state S(m_env, m_opts);
+        vm_obj result = S.invoke(tactic, all_rev_args.size(), all_rev_args.begin());
+
+        if (optional<tactic_state> s_new = tactic::is_success(result)) {
+            lean_trace(name({"inductive_compiler", "nested", "prove"}), tout() << "[success]: " << lemma_name << "\n";);
+            mctx = s_new->mctx();
+            return mctx.instantiate_mvars(goal_mvar);
+        } else {
+            lean_trace(name({"inductive_compiler", "nested", "prove"}), tout() << "[failed]: " << lemma_name << "\n";);
+            throw exception(sstream() << "Failed to prove: '" << lemma_name << "'");
+        }
+    }
+
     expr prove_by_simp(local_context const & lctx, expr const & thm, list<expr> Hs, bool use_sizeof) {
         environment env = set_reducible(m_env, get_sizeof_name(), reducible_status::Irreducible, false);
         env = set_reducible(env, get_add_name(), reducible_status::Irreducible, false);
@@ -1340,15 +1424,7 @@ class add_nested_inductive_decl_fn {
             all_lemmas = add(tctx_whnf, all_lemmas, mlocal_name(H), H_type, H, LEAN_DEFAULT_PRIORITY);
         }
         lean_trace(name({"inductive_compiler", "nested", "simp", "start"}), tout() << thm << "\n";);
-        simp_config cfg;
-        cfg.m_max_steps          = 1000000;
-        cfg.m_contextual         = false;
-        cfg.m_lift_eq            = false;
-        cfg.m_canonize_instances = false;
-        cfg.m_canonize_proofs    = false;
-        cfg.m_use_axioms         = false;
-        cfg.m_zeta               = false;
-        cfg.m_use_matcher        = false;
+        simp_config cfg = get_simp_config();
         defeq_can_state dcs;
         sizeof_simplify_fn simplifier(tctx, dcs, all_lemmas, cfg);
         auto thm_pr = simplifier.prove_by_simp(get_eq_name(), thm);
@@ -1436,6 +1512,20 @@ class add_nested_inductive_decl_fn {
         m_lemmas = add(tctx_synth, m_lemmas, n, LEAN_DEFAULT_PRIORITY);
     }
 
+    void prove_primitive_pack_injective() {
+        if (!m_prove_inj) return;
+        name pack_name = mk_primitive_name(fn_type::PACK);
+        expr goal = mk_pack_injective_type(pack_name);
+        name lemma_name = mk_injective_name(pack_name);
+        buffer<vm_obj> args;
+        args.push_back(to_obj(mk_primitive_name(fn_type::UNPACK_PACK)));
+        args.push_back(to_obj(mk_primitive_name(fn_type::UNPACK)));
+        expr proof = prove_by_tactic(lemma_name, goal, get_inductive_compiler_tactic_prove_pack_inj_name(), args);
+        m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, lemma_name, to_list(m_nested_decl.get_lp_names()), goal, proof, true)));
+        m_tctx.set_env(m_env);
+        m_inj_lemmas = add(m_tctx, m_inj_lemmas, lemma_name, LEAN_DEFAULT_PRIORITY);
+    }
+
     void prove_nested_pack_unpack(expr const & start, expr const & end, expr const & nested_pack, expr const & nested_unpack, buffer<expr> const & index_locals, unsigned nest_idx) {
         name n = mk_nested_name(fn_type::PACK_UNPACK, nest_idx);
         expr x_packed = mk_local_pp("x_packed", mk_app(end, index_locals));
@@ -1474,6 +1564,20 @@ class add_nested_inductive_decl_fn {
         define_theorem(n, nested_sizeof_pack_type, nested_sizeof_pack_val);
         tctx_synth.set_env(m_env);
         m_lemmas = add(tctx_synth, m_lemmas, n, LEAN_DEFAULT_PRIORITY);
+    }
+
+    void prove_nested_pack_injective(unsigned nest_idx) {
+        if (!m_prove_inj) return;
+        name pack_name = mk_nested_name(fn_type::PACK, nest_idx);
+        expr goal = mk_pack_injective_type(pack_name);
+        name lemma_name = mk_injective_name(pack_name);
+        buffer<vm_obj> args;
+        args.push_back(to_obj(mk_nested_name(fn_type::UNPACK_PACK, nest_idx)));
+        args.push_back(to_obj(mk_nested_name(fn_type::UNPACK, nest_idx)));
+        expr proof = prove_by_tactic(lemma_name, goal, get_inductive_compiler_tactic_prove_pack_inj_name(), args);
+        m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, lemma_name, to_list(m_nested_decl.get_lp_names()), goal, proof, true)));
+        m_tctx.set_env(m_env);
+        m_inj_lemmas = add(m_tctx, m_inj_lemmas, lemma_name, LEAN_DEFAULT_PRIORITY);
     }
 
     expr prove_by_funext(expr const & goal, expr const & fn1, expr const & fn2) {
@@ -1530,7 +1634,7 @@ class add_nested_inductive_decl_fn {
         m_tctx.set_env(m_env);
     }
 
-    void prove_pi_sizeof_pack(expr const & pi_pack, buffer<expr> const & ldeps, expr const & nested_pack_fn, expr const & arg_ty) {
+    void prove_pi_pack_sizeof(expr const & pi_pack, buffer<expr> const & ldeps, expr const & nested_pack_fn, expr const & arg_ty) {
         name n = mk_pi_name(fn_type::SIZEOF_PACK);
         type_context tctx_synth(m_env, m_tctx.get_options(), m_synth_lctx, transparency_mode::Semireducible);
 
@@ -1557,6 +1661,20 @@ class add_nested_inductive_decl_fn {
         m_env = set_simp_sizeof(m_env, n);
         m_nested_decl.set_sizeof_lemmas(add(m_tctx, m_nested_decl.get_sizeof_lemmas(), n, LEAN_DEFAULT_PRIORITY));
         m_tctx.set_env(m_env);
+    }
+
+    void prove_pi_pack_injective(unsigned arity) {
+        if (!m_prove_inj) return;
+        name pack_name = mk_pi_name(fn_type::PACK);
+        expr goal = mk_pack_injective_type(pack_name, optional<unsigned>(arity));
+        name lemma_name = mk_injective_name(pack_name);
+        buffer<vm_obj> args;
+        args.push_back(to_obj(mk_pi_name(fn_type::UNPACK_PACK)));
+        args.push_back(to_obj(mk_pi_name(fn_type::UNPACK)));
+        expr proof = prove_by_tactic(lemma_name, goal, get_inductive_compiler_tactic_prove_pack_inj_name(), args);
+        m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, lemma_name, to_list(m_nested_decl.get_lp_names()), goal, proof, true)));
+        m_tctx.set_env(m_env);
+        m_inj_lemmas = add(m_tctx, m_inj_lemmas, lemma_name, LEAN_DEFAULT_PRIORITY);
     }
 
     ////////////////////////////////////////////
@@ -1802,6 +1920,30 @@ class add_nested_inductive_decl_fn {
 
         return ty;
     }
+
+    void define_nested_injectives() {
+        if (!m_prove_inj) return;
+        for (unsigned ind_idx = 0; ind_idx < m_nested_decl.get_num_inds(); ++ind_idx) {
+            for (unsigned ir_idx = 0; ir_idx < m_nested_decl.get_num_intro_rules(ind_idx); ++ir_idx) {
+                expr const & ir = m_nested_decl.get_intro_rule(ind_idx, ir_idx);
+                name inj_name = mk_injective_name(mlocal_name(ir));
+                expr inj_type = mk_injective_type(m_env, mlocal_name(ir), Pi(m_nested_decl.get_params(), mlocal_type(ir)),
+                                                      m_nested_decl.get_num_params(), to_list(m_nested_decl.get_lp_names()));
+
+                buffer<vm_obj> rev_args;
+                rev_args.push_back(to_obj(mk_injective_arrow_name(mlocal_name(m_inner_decl.get_intro_rule(ind_idx, ir_idx)))));
+                rev_args.push_back(to_obj(m_inj_lemmas));
+
+                expr inj_val = prove_by_tactic(inj_name, inj_type, get_inductive_compiler_tactic_prove_nested_inj_name(), rev_args);
+                m_env = module::add(m_env,
+                                    check(m_env,
+                                          mk_definition_inferring_trusted(m_env, inj_name, to_list(m_nested_decl.get_lp_names()), inj_type, inj_val, true)));
+                m_env = mk_injective_arrow(m_env, mlocal_name(ir));
+            }
+        }
+        m_tctx.set_env(m_env);
+    }
+
 public:
     add_nested_inductive_decl_fn(environment const & env, options const & opts,
                                  name_map<implicit_infer_kind> const & implicit_infer_map,
@@ -1826,6 +1968,7 @@ public:
         }
 
         check_elim_to_type();
+        check_prove_inj();
         define_nested_inds();
 
         define_nested_has_sizeofs();
@@ -1833,6 +1976,8 @@ public:
         define_nested_irs();
         define_nested_recursors();
         define_nested_cases_on();
+        define_nested_injectives();
+
 
         return optional<environment>(m_env);
     }
@@ -1859,6 +2004,7 @@ void initialize_inductive_compiler_nested() {
 
     register_trace_class(name({"inductive_compiler", "nested", "sizeof"}));
     register_trace_class(name({"inductive_compiler", "nested", "prove"}));
+    register_trace_class(name({"inductive_compiler", "nested", "injective"}));
 
     register_trace_class(name({"inductive_compiler", "nested", "define"}));
     register_trace_class(name({"inductive_compiler", "nested", "define", "success"}));

@@ -51,6 +51,16 @@ level get_level(abstract_type_context & ctx, expr const & A) {
     return sort_level(S);
 }
 
+name mk_fresh_lp_name(level_param_names const & lp_names) {
+    name l("l");
+    int i = 1;
+    while (std::find(lp_names.begin(), lp_names.end(), l) != lp_names.end()) {
+        l = name("l").append_after(i);
+        i++;
+    }
+    return l;
+}
+
 bool occurs(expr const & n, expr const & m) {
     return static_cast<bool>(find(m, [&](expr const & e, unsigned) { return n == e; }));
 }
@@ -153,6 +163,10 @@ bool has_heq_decls(environment const & env) {
 
 bool has_pprod_decls(environment const & env) {
     return has_constructor(env, get_pprod_mk_name(), get_pprod_name(), 4);
+}
+
+bool has_and_decls(environment const & env) {
+    return has_constructor(env, get_and_intro_name(), get_and_name(), 4);
 }
 
 /* n is considered to be recursive if it is an inductive datatype and

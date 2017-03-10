@@ -107,6 +107,7 @@ if_pos
 iff
 iff_false_intro
 iff.intro
+iff.mp
 iff.mpr
 iff.refl
 iff.symm
@@ -119,6 +120,8 @@ imp_congr_ctx_eq
 implies
 implies_of_if_neg
 implies_of_if_pos
+inductive_compiler.tactic.prove_nested_inj
+inductive_compiler.tactic.prove_pack_inj
 insert
 int
 int.has_add

@@ -112,6 +112,7 @@ run_cmd script_check_id `if_pos
 run_cmd script_check_id `iff
 run_cmd script_check_id `iff_false_intro
 run_cmd script_check_id `iff.intro
+run_cmd script_check_id `iff.mp
 run_cmd script_check_id `iff.mpr
 run_cmd script_check_id `iff.refl
 run_cmd script_check_id `iff.symm
@@ -124,6 +125,8 @@ run_cmd script_check_id `imp_congr_ctx_eq
 run_cmd script_check_id `implies
 run_cmd script_check_id `implies_of_if_neg
 run_cmd script_check_id `implies_of_if_pos
+run_cmd script_check_id `inductive_compiler.tactic.prove_nested_inj
+run_cmd script_check_id `inductive_compiler.tactic.prove_pack_inj
 run_cmd script_check_id `insert
 run_cmd script_check_id `int
 run_cmd script_check_id `int.has_add

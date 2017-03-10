@@ -18,10 +18,10 @@ end S2
 
 namespace S3
 section
-  hypothesis I : Type*
+  parameter I : Type*
   definition F (X : Type*) : Type* := (X → Prop) → Prop
-  hypothesis unfoldd : I → F I
-  hypothesis foldd   : F I → I
-  hypothesis iso1 : ∀x, foldd (unfoldd x) = x
+  parameter unfoldd : I → F I
+  parameter foldd   : F I → I
+  parameter iso1 : ∀x, foldd (unfoldd x) = x
 end
 end S3

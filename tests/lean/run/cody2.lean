@@ -3,13 +3,13 @@ definition subsets (P : Type) := P → Prop.
 
 section
 
-hypothesis A : Type.
+parameter A : Type.
 
-hypothesis r : A → subsets A.
+parameter r : A → subsets A.
 
-hypothesis i : subsets A → A.
+parameter i : subsets A → A.
 
-hypothesis retract {P : subsets A} {a : A} : r (i P) a = P a.
+parameter retract {P : subsets A} {a : A} : r (i P) a = P a.
 
 definition delta (a:A) : Prop := ¬ (r a a).
 

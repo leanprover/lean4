@@ -1,5 +1,5 @@
 variables A B : Prop
-premises (H₁ : A) (H₂ : A → B)
+variables(H₁ : A) (H₂ : A → B)
 
 example : B :=
 suffices A ∧ (A → B), from and.right this (and.left this),

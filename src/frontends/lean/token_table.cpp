@@ -95,7 +95,8 @@ void init_token_table(token_table & t) {
          {"@@", g_max_prec}, {"@", g_max_prec},
          {"sorry", g_max_prec}, {"+", g_plus_prec}, {"->", g_arrow_prec}, {"<-", 0},
          {"match", 0}, {"~>", g_max_prec+1},
-         {".1", g_max_prec+1}, {".2", g_max_prec+1}, {".3", g_max_prec+1}, {".4", g_max_prec+1}, {".5", g_max_prec+1}, {".6", g_max_prec+1},
+         {".1", g_max_prec+1}, {".2", g_max_prec+1}, {".3", g_max_prec+1},
+         {".4", g_max_prec+1}, {".5", g_max_prec+1}, {".6", g_max_prec+1},
          {".7", g_max_prec+1}, {".8", g_max_prec+1}, {".9", g_max_prec+1},
          {"renaming", 0}, {"extends", 0}, {nullptr, 0}};
 
@@ -117,9 +118,8 @@ void init_token_table(token_table & t) {
          {"∀", "Pi"}, {"Π", "Pi"}, {"(|", "⟨"}, {"|)", "⟩"}, {nullptr, nullptr}};
 
     pair<char const *, char const *> cmd_aliases[] =
-        {{"lemma", "theorem"}, {"def", "definition"}, {"proposition", "theorem"}, {"premise", "variable"}, {"premises", "variables"},
-         {"corollary", "theorem"}, {"hypothesis", "parameter"}, {"conjecture", "parameter"},
-         {"record", "structure"}, {nullptr, nullptr}};
+        {{"lemma", "theorem"}, {"def", "definition"},
+         {nullptr, nullptr}};
 
     auto it = builtin;
     while (it->first) {

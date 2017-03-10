@@ -30,7 +30,7 @@ section
 parameters {α : Type u} {r : α → α → Prop}
 local infix `≺`:50    := r
 
-hypothesis hwf : well_founded r
+parameter hwf : well_founded r
 
 lemma recursion {C : α → Sort v} (a : α) (h : Π x, (Π y, y ≺ x → C y) → C x) : C a :=
 acc.rec_on (apply hwf a) (λ x₁ ac₁ ih, h x₁ ih)

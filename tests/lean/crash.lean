@@ -1,7 +1,7 @@
 --
 
 section
-hypothesis P : Prop.
+parameter P : Prop.
 
 definition crash
          := assume H : P,

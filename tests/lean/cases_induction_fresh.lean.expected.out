@@ -1,0 +1,13 @@
+p q r s : Prop,
+a : p,
+a_1 : q,
+a_2 : r,
+a_3 : s
+⊢ s ∧ q
+------------
+p q r s : Prop,
+a : p,
+a_1 : q,
+a_2 : r,
+a_3 : s
+⊢ s ∧ q

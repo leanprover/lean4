@@ -58,13 +58,13 @@ meta def not_done : tactic unit := fail_if_success now
 lemma aval_asimp_const (a : aexp) (s : state) : aval (asimp_const a) s = aval a s :=
 begin [smt]
  induction a,
- all_goals {destruct (asimp_const a), all_goals {destruct (asimp_const a_1), eblast}}
+ all_goals {destruct (asimp_const a_1), all_goals {destruct (asimp_const a_2), eblast}}
 end
 
 lemma ex2 (a : aexp) (s : state) : aval (asimp_const a) s = aval a s :=
 begin [smt]
  induction a,
- all_goals {destruct (asimp_const a), all_goals {destruct (asimp_const a_1), eblast_using [asimp_const, aval]}}
+ all_goals {destruct (asimp_const a_1), all_goals {destruct (asimp_const a_2), eblast_using [asimp_const, aval]}}
 end
 
 end imp

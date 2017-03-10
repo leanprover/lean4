@@ -20,7 +20,7 @@ static name mk_aux_name(local_context const & lctx, list<name> & given_names, na
         given_names = tail(given_names);
         return r == "_" ? lctx.get_unused_name(default_name) : r;
     } else {
-        return default_name;
+        return lctx.get_unused_name(default_name);
     }
 }
 

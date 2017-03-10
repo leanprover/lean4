@@ -13,7 +13,10 @@ optional<tactic_state> intron(unsigned n, tactic_state const & s);
    The new hypotheses "user names" are generated using \c new_hs_names (when available).
    After execution, the buffer \c new_Hns stores the new interal names for the new hypotheses.
 
-   \remark new_hs_names is an input/output parameter. The procedure will "consume" n elements from the list. */
+   \remark new_hs_names is an input/output parameter. The procedure will "consume" n elements from the list.
+
+   \remark if new_hs_names doesn't have sufficient names, then the procedure
+   will create unused local context names using the binder names. */
 optional<expr> intron(environment const & env, options const & opts, metavar_context & mctx,
                       expr const & mvar, unsigned n, list<name> & new_hs_names, buffer<name> & new_Hns);
 optional<expr> intron(environment const & env, options const & opts, metavar_context & mctx,

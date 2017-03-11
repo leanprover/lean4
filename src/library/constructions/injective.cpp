@@ -172,7 +172,7 @@ expr prove_injective(environment const & env, expr const & inj_type, name const 
     return tctx.mk_lambda(args, mk_app(H_nc, tctx.mk_lambda(eqs, prove_conjuncts(tctx, ty, eqs_to_keep))));
 }
 
-expr prove_injective_arrow(environment const & env, expr const & inj_arrow_type, name const & inj_name) {
+expr prove_injective_arrow(environment const & env, expr const & inj_arrow_type, name const & inj_name, level_param_names const & inj_lp_names) {
     type_context tctx(env);
     expr ty = inj_arrow_type;
 
@@ -188,7 +188,7 @@ expr prove_injective_arrow(environment const & env, expr const & inj_arrow_type,
     expr H_P = args[args.size() - 2];
     expr H_arrow = args[args.size() - 1];
 
-    expr conjuncts = mk_app(tctx, inj_name, H_eq);
+    expr conjuncts = mk_app(mk_constant(inj_name, param_names_to_levels(inj_lp_names)), args.size() - 2, args.begin());
     expr pf = H_arrow;
     while (is_and(tctx.infer(conjuncts))) {
         pf = mk_app(pf, mk_and_elim_left(tctx, conjuncts));
@@ -231,7 +231,7 @@ environment mk_injective_arrow(environment const & env, name const & ir_name) {
 
     name inj_arrow_name = mk_injective_arrow_name(ir_name);
     expr inj_arrow_type = tctx.mk_pi(args, tctx.mk_pi(P, mk_arrow(antecedent, P)));
-    expr inj_arrow_val = prove_injective_arrow(env, inj_arrow_type, mk_injective_name(ir_name));
+    expr inj_arrow_val = prove_injective_arrow(env, inj_arrow_type, mk_injective_name(ir_name), d.get_univ_params());
     lean_trace(name({"constructions", "injective"}), tout() << inj_arrow_name << " : " << inj_arrow_type << "\n";);
     environment new_env = module::add(env, check(env, mk_definition_inferring_trusted(env, inj_arrow_name,
                                                                                       cons(P_lp_name, d.get_univ_params()), inj_arrow_type, inj_arrow_val, true)));

@@ -9,7 +9,7 @@ Author: Gabriel Ebner
 #include <vector>
 #include "util/thread.h"
 #include "util/flet.h"
-#include "interrupt.h"
+#include "util/interrupt.h"
 
 namespace lean {
 

@@ -567,11 +567,7 @@ void server::handle_info(server::cmd_req const & req) {
 
     auto info_gen_task = task_builder<json>([=] {
         return info(mod_info, pos);
-    }).depends_on(mk_deep_dependency(
-        mod_info->m_result, [] (buffer<gtask> & deps, module_info::parse_result const & res) {
-            deps.push_back(res.m_loaded_module->m_env);
-    })).set_cancellation_token(m_bg_task_ctok)
-       .build();
+    }).set_cancellation_token(m_bg_task_ctok).build();
 
     taskq().submit(task_builder<unit>([this, req, info_gen_task] {
         try {

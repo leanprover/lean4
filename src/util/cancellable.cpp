@@ -27,9 +27,13 @@ void cancellation_token_cell::cancel(std::shared_ptr<cancellable> const &) {
 
 void cancellation_token_cell::gc() {
     unique_lock<mutex> lock(m_mutex);
-    m_children.erase(std::remove_if(m_children.begin(), m_children.end(),
-                                    [] (std::weak_ptr<cancellable> const & c) { return c.expired(); }),
-                     m_children.end());
+    m_expired_children++;
+    if (m_expired_children > m_children.size()/2) {
+        m_children.erase(std::remove_if(m_children.begin(), m_children.end(),
+                                        [](std::weak_ptr<cancellable> const &c) { return c.expired(); }),
+                         m_children.end());
+        m_expired_children = 0;
+    }
 }
 
 void cancellation_token_cell::add_child(std::weak_ptr<cancellable> const & c) {

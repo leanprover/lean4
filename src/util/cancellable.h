@@ -25,6 +25,7 @@ class cancellation_token_cell : public cancellable {
     mutex m_mutex;
     atomic_bool m_cancelled;
     std::vector<std::weak_ptr<cancellable>> m_children;
+    unsigned m_expired_children = 0;
     cancellation_token m_parent;
 
     friend cancellation_token mk_cancellation_token(cancellation_token const &);

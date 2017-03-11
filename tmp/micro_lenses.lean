@@ -61,33 +61,42 @@ rfl
 example : (snd ∙ nth 1)^.get [(1, 2), (3, 4), (0, 3)] = 4 :=
 rfl
 
-def micro_lens (f : Type u → Type w) [applicative f] (α β : Type u) :=
-(β → f β) → α → β × f α
+def micro_lens (f : Type u → Type w) [functor f] (α β : Type u) :=
+(β → f β) → α → f α
 
-structure identity (α : Type u) :=
-(val : α)
+def micro_lens.compose {f : Type u → Type w} [functor f] {α β δ: Type u} (l₁ : micro_lens f β δ) (l₂ : micro_lens f α β) : micro_lens f α δ :=
+λ g a, l₂ (l₁ g) a
 
-instance : applicative identity :=
-{pure := λ _ a, ⟨a⟩,
- seq  := λ _ _ f a, ⟨f^.val a^.val⟩}
+instance : applicative id :=
+{pure := λ _ a, a,
+ seq  := λ _ _ f a, f a}
 
-def micro_lens.get {α β : Type u} (l : micro_lens identity α β) (a : α) : β :=
-(l (λ b, pure b) a).1
+def micro_lens.modify {α β : Type u} (l : micro_lens id α β) (a : α) (b : β → β) : α :=
+l b a
 
-def micro_lens.set {f : Type u → Type w} [applicative f] {α β : Type u} (l : micro_lens f α β) (a : α) (b : f β) : f α :=
-(l (λ _, b) a).2
+def micro_lens.set {α β : Type u} (l : micro_lens id α β) (a : α) (b : β) : α :=
+l (λ _, b) a
 
-def micro_lens.modify {f : Type u → Type w} [applicative f] {α β : Type u} (l : micro_lens f α β) (a : α) (b : β → f β) : f α :=
-(l b a).2
+def fconst (α : Type v) (β : Type u) : Type v :=
+α
 
-def micro_lens.compose {f : Type u → Type w} [applicative f] {α β δ: Type u} (l₁ : micro_lens f β δ) (l₂ : micro_lens f α β) : micro_lens f α δ :=
-λ g a,
-  let (b, r) := l₂ (λ b : β, (l₁ g b).2) a in
-  let     d  := (l₁ g b).1 in
-  (d, r)
+instance (α : Type v) : functor (fconst α) :=
+{map := λ (β δ : Type u) f a, a}
 
-def pi₁ {f : Type u → Type w} [applicative f] {α β : Type u} : micro_lens f (α × β) α :=
-λ g ⟨a, b⟩, (a, (λ x, (x, b)) <$> g a)
+def micro_lens.get {α β : Type u} (l : micro_lens (fconst β) α β) (a : α) : β :=
+l (λ b, b) a
 
-def pi₂ {f : Type u → Type w} [applicative f] {α β : Type u} : micro_lens f (α × β) β :=
-λ g ⟨a, b⟩, (b, (λ x, (a, x)) <$> g b)
+def pi₁ {f : Type u → Type w} [functor f] {α β : Type u} : micro_lens f (α × β) α :=
+λ g ⟨a, b⟩, (λ x, (x, b)) <$> g a
+
+def pi₂ {f : Type u → Type w} [functor f] {α β : Type u} : micro_lens f (α × β) β :=
+λ g ⟨a, b⟩, (λ x, (a, x)) <$> g b
+
+#eval micro_lens.get pi₁ (10, 20)
+#eval micro_lens.get pi₂ (10, 20)
+#eval micro_lens.set pi₂ (10, 20) 100
+#eval micro_lens.set (pi₁ ∘ pi₁) ((10, 20), 30) 1
+#eval micro_lens.set (pi₁ ∘ pi₂) ((10, 20), 30) 1
+#eval micro_lens.set pi₂ (((10, 20), 30) : (nat × nat) × nat) 1
+#eval micro_lens.get (pi₁ ∘ pi₂) ((10, 20), 30)
+#eval micro_lens.modify (pi₁ ∘ pi₂) ((10, 20), 30) (+1)

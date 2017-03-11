@@ -144,11 +144,59 @@ section conversion
   | n (int.of_nat m)          := ff :: bitvec.of_nat n m
   | n (int.neg_succ_of_nat m) := tt :: not (bitvec.of_nat n m)
 
+  def add_lsb (r : ℕ) (b : bool) := r + r + cond b 1 0
+
   def bits_to_nat (v : list bool) : nat :=
-  v^.foldl (λ r b, r + r + cond b 1 0) 0
+  v^.foldl add_lsb 0
 
   protected def to_nat {n : nat} (v : bitvec n) : nat :=
   bits_to_nat (to_list v)
+
+  lemma bits_to_nat_to_list {n : ℕ} (x : bitvec n)
+  : bitvec.to_nat x = bits_to_nat (vector.to_list x)  := rfl
+
+  theorem to_nat_append {m : ℕ} (xs : bitvec m) (b : bool)
+  : bitvec.to_nat (xs ++ₜ[b]) = bitvec.to_nat xs * 2 + bitvec.to_nat [b] :=
+  begin
+    cases xs with xs P,
+    simp [bits_to_nat_to_list], clear P,
+    unfold bits_to_nat list.foldl,
+      -- the next 4 lines generalize the accumulator of foldl
+    pose x := 0,
+    change _ = add_lsb x b + _,
+    generalize 0 y,
+    revert x, simp,
+    induction xs with x xs ; intro y,
+    { simp, unfold list.foldl add_lsb, simp [nat.mul_succ] },
+    { simp, unfold list.foldl, apply ih_1 }
+  end
+
+  theorem bits_to_nat_to_bool (n : ℕ)
+  : bitvec.to_nat [to_bool (n % 2 = 1)] = n % 2 :=
+  begin
+    simp [bits_to_nat_to_list],
+    unfold bits_to_nat add_lsb list.foldl cond,
+    simp [cond_to_bool_mod_two],
+  end
+
+  lemma of_nat_succ {k n : ℕ}
+  :  bitvec.of_nat (succ k) n = bitvec.of_nat k (n / 2) ++ₜ[to_bool (n % 2 = 1)] :=
+  rfl
+
+  theorem to_nat_of_nat {k n : ℕ}
+  : bitvec.to_nat (bitvec.of_nat k n) = n % 2^k :=
+  begin
+    revert n,
+    induction k with k ; intro n,
+    { unfold pow, simp [nat.mod_one], refl },
+    { assert h : 0 < 2, { apply le_succ },
+      rw [ of_nat_succ
+         , to_nat_append
+         , ih_1
+         , bits_to_nat_to_bool
+         , mod_pow_succ h],
+      ac_refl, }
+  end
 
   protected def to_int : Π {n : nat}, bitvec n → int
   | 0        _ := 0

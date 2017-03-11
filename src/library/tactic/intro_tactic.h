@@ -18,13 +18,16 @@ optional<tactic_state> intron(unsigned n, tactic_state const & s);
    \remark if new_hs_names doesn't have sufficient names, then the procedure
    will create unused local context names using the binder names. */
 optional<expr> intron(environment const & env, options const & opts, metavar_context & mctx,
-                      expr const & mvar, unsigned n, list<name> & new_hs_names, buffer<name> & new_Hns);
+                      expr const & mvar, unsigned n, list<name> & new_hs_names, buffer<name> & new_Hns,
+                      bool use_unused_names);
 optional<expr> intron(environment const & env, options const & opts, metavar_context & mctx,
-                      expr const & mvar, unsigned n, list<name> & new_hs_names);
+                      expr const & mvar, unsigned n, list<name> & new_hs_names,
+                      bool use_unused_names);
 optional<expr> intron(environment const & env, options const & opts, metavar_context & mctx,
-                      expr const & mvar, unsigned n, buffer<name> & new_Hns);
+                      expr const & mvar, unsigned n, buffer<name> & new_Hns,
+                      bool use_unused_names);
 optional<expr> intron(environment const & env, options const & opts, metavar_context & mctx,
-                      expr const & mvar, unsigned n);
+                      expr const & mvar, unsigned n, bool use_unused_names);
 
 vm_obj intro(name const & n, tactic_state const & s);
 

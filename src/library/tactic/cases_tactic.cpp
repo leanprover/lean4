@@ -229,7 +229,8 @@ struct cases_tactic_fn {
         /* assign mvar := aux_mvar indices h refls */
         m_mctx.assign(mvar, mk_app(mk_app(mk_app(aux_mvar, m_nindices, I_args.end() - m_nindices), h), refls));
         /* introduce indices j' and h' */
-        auto r = intron(m_env, m_opts, m_mctx, aux_mvar, m_nindices + 1, new_indices_H);
+        bool use_unused_names = false;
+        auto r = intron(m_env, m_opts, m_mctx, aux_mvar, m_nindices + 1, new_indices_H, use_unused_names);
         lean_assert(r);
         num_eqs = eqs.size();
         return *r;
@@ -307,7 +308,7 @@ struct cases_tactic_fn {
             }
         }
         /* Introduce next equality */
-        optional<expr> mvar1 = intron(m_env, m_opts, m_mctx, mvar, 1);
+        optional<expr> mvar1 = intron(m_env, m_opts, m_mctx, mvar, 1, false);
         if (!mvar1) throw_exception(mvar, "cases tactic failed, unexpected failure when introducing auxiliary equatilies");
         metavar_decl g1      = m_mctx.get_metavar_decl(*mvar1);
         local_decl H_decl    = g1.get_context().get_last_local_decl();

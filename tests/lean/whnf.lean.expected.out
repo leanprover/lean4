@@ -1,24 +1,24 @@
 succ
   ((⟨nat.rec
-       ⟨(λ (a_1 : ℕ) (_F : nat.below a_1) (a : ℕ),
+       ⟨(λ (a : ℕ) (_F : nat.below a) (a_1 : ℕ),
            (λ (a a_1 : ℕ) (_F : nat.below a_1),
               nat.cases_on a_1 (λ (_F : nat.below 0), a)
-                (λ (a_2 : ℕ) (_F : nat.below (succ a_2)), succ ((_F^.fst)^.fst a))
+                (λ (a_1 : ℕ) (_F : nat.below (succ a_1)), succ ((_F^.fst)^.fst a))
                 _F)
-             a
              a_1
+             a
              _F)
           0
           punit.star,
         punit.star⟩
        (λ (a : ℕ) (ih_1 : pprod ((λ (a : ℕ), ℕ → ℕ) a) (nat.below a)),
-          ⟨(λ (a_1 : ℕ) (_F : nat.below a_1) (a : ℕ),
+          ⟨(λ (a : ℕ) (_F : nat.below a) (a_1 : ℕ),
               (λ (a a_1 : ℕ) (_F : nat.below a_1),
                  nat.cases_on a_1 (λ (_F : nat.below 0), a)
-                   (λ (a_2 : ℕ) (_F : nat.below (succ a_2)), succ ((_F^.fst)^.fst a))
+                   (λ (a_1 : ℕ) (_F : nat.below (succ a_1)), succ ((_F^.fst)^.fst a))
                    _F)
-                a
                 a_1
+                a
                 _F)
              (succ a)
              ⟨ih_1, punit.star⟩,
@@ -29,25 +29,25 @@ succ
 3
 succ
   ((⟨nat.rec
-       ⟨(λ (a_1 : ℕ) (_F : nat.below a_1) (a : ℕ),
+       ⟨(λ (a : ℕ) (_F : nat.below a) (a_1 : ℕ),
            (λ (a a_1 : ℕ) (_F : nat.below a_1),
               nat.cases_on a_1 (λ (_F : nat.below 0), a)
-                (λ (a_2 : ℕ) (_F : nat.below (succ a_2)), succ ((_F^.fst)^.fst a))
+                (λ (a_1 : ℕ) (_F : nat.below (succ a_1)), succ ((_F^.fst)^.fst a))
                 _F)
-             a
              a_1
+             a
              _F)
           0
           punit.star,
         punit.star⟩
        (λ (a : ℕ) (ih_1 : pprod ((λ (a : ℕ), ℕ → ℕ) a) (nat.below a)),
-          ⟨(λ (a_1 : ℕ) (_F : nat.below a_1) (a : ℕ),
+          ⟨(λ (a : ℕ) (_F : nat.below a) (a_1 : ℕ),
               (λ (a a_1 : ℕ) (_F : nat.below a_1),
                  nat.cases_on a_1 (λ (_F : nat.below 0), a)
-                   (λ (a_2 : ℕ) (_F : nat.below (succ a_2)), succ ((_F^.fst)^.fst a))
+                   (λ (a_1 : ℕ) (_F : nat.below (succ a_1)), succ ((_F^.fst)^.fst a))
                    _F)
-                a
                 a_1
+                a
                 _F)
              (succ a)
              ⟨ih_1, punit.star⟩,

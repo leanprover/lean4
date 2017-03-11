@@ -27,12 +27,12 @@ namespace lean {
     throw exception(sstream() << "induction tactic failed, recursor '" << rec_info.get_name() << "' is ill-formed");
 }
 
-static void set_intron(expr & R, type_context & ctx, expr const & M, unsigned n, list<name> & ns, buffer<name> & new_names) {
+static void set_intron(expr & R, type_context & ctx, expr const & M, unsigned n, list<name> & ns, buffer<name> & new_names, bool use_unused_names) {
     if (n == 0) {
         R = M;
     } else {
         metavar_context mctx = ctx.mctx();
-        if (auto M1 = intron(ctx.env(), ctx.get_options(), mctx, M, n, ns, new_names)) {
+        if (auto M1 = intron(ctx.env(), ctx.get_options(), mctx, M, n, ns, new_names, use_unused_names)) {
             R = *M1;
             ctx.set_mctx(mctx);
         } else {
@@ -41,9 +41,9 @@ static void set_intron(expr & R, type_context & ctx, expr const & M, unsigned n,
     }
 }
 
-static void set_intron(expr & R, type_context & ctx, expr const & M, unsigned n, buffer<name> & new_names) {
+static void set_intron(expr & R, type_context & ctx, expr const & M, unsigned n, buffer<name> & new_names, bool use_unused_names) {
     list<name> tmp;
-    set_intron(R, ctx, M, n, tmp, new_names);
+    set_intron(R, ctx, M, n, tmp, new_names, use_unused_names);
 }
 
 static void set_clear(expr & R, type_context & ctx, expr const & M, expr const & H) {
@@ -153,7 +153,7 @@ list<expr> induction(environment const & env, options const & opts, transparency
     lean_assert(to_revert.size() >= indices.size() + 1);
     /* Re-introduce indices and major. */
     buffer<name> indices_H;
-    optional<expr> mvar2 = intron(env, opts, mctx, mvar1, indices.size() + 1, indices_H);
+    optional<expr> mvar2 = intron(env, opts, mctx, mvar1, indices.size() + 1, indices_H, false);
     if (!mvar2)
         throw exception("induction tactic failed, failed to reintroduce major premise");
     hsubstitution base_subst; /* substitutions for all branches */
@@ -272,9 +272,9 @@ list<expr> induction(environment const & env, options const & opts, transparency
                 expr aux_M;
                 buffer<name> param_names; buffer<name> extra_names;
                 /* Introduce constructor parameter for new goal associated with minor premise. */
-                set_intron(aux_M, ctx2, new_M, nparams, ns, param_names);
+                set_intron(aux_M, ctx2, new_M, nparams, ns, param_names, true);
                 /* Introduce hypothesis that had to be reverted because they depended on indices and/or major premise. */
-                set_intron(aux_M, ctx2, aux_M, nextra, extra_names);
+                set_intron(aux_M, ctx2, aux_M, nextra, extra_names, false);
                 local_context aux_M_lctx = ctx2.mctx().get_metavar_decl(aux_M).get_context();
                 if (ilist) {
                     /* Save name of constructor parameters that have been introduced for new goal. */

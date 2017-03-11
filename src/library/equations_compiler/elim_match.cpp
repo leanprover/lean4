@@ -416,8 +416,9 @@ struct elim_match_fn {
         expr mvar      = m_mctx.mk_metavar_decl(lctx, fn_type);
         unsigned arity = get_eqns_arity(lctx, e);
         buffer<name> var_names;
+        bool use_unused_names = false;
         optional<expr> goal = intron(m_env, m_opts, m_mctx, mvar,
-                                     arity, var_names);
+                                     arity, var_names, use_unused_names);
         if (!goal) throw_ill_formed_eqns();
         P.m_goal       = *goal;
         local_context goal_lctx = get_local_context(*goal);
@@ -1067,7 +1068,8 @@ struct elim_match_fn {
 
         /* Step 3 */
         buffer<name> new_H_names;
-        optional<expr> M_3 = intron(m_env, m_opts, m_mctx, M_2, to_revert.size(), new_H_names);
+        bool use_unused_names = false;
+        optional<expr> M_3 = intron(m_env, m_opts, m_mctx, M_2, to_revert.size(), new_H_names, use_unused_names);
         if (!M_3) {
             throw_error("equation compiler failed, when reintroducing reverted variables "
                         "(use 'set_option trace.eqn_compiler.elim_match true' "

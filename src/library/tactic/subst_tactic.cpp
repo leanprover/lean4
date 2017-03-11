@@ -53,7 +53,8 @@ expr subst(environment const & env, options const & opts, transparency_mode cons
     lean_subst_trace_state(mvar1, "after revert:\n");
     lean_assert(to_revert.size() >= 2);
     buffer<name> lhsH2;
-    optional<expr> mvar2 = intron(env, opts, mctx, mvar1, 2, lhsH2);
+    bool use_unused_names = false;
+    optional<expr> mvar2 = intron(env, opts, mctx, mvar1, 2, lhsH2, use_unused_names);
     if (!mvar2) throw exception("subst tactic failed, unexpected failure during intro");
     lean_subst_trace_state(*mvar2, "after intro2:\n");
     metavar_decl g2     = mctx.get_metavar_decl(*mvar2);
@@ -85,7 +86,8 @@ expr subst(environment const & env, options const & opts, transparency_mode cons
     expr mvar4   = clear(mctx, mvar3, H2);
     expr mvar5   = clear(mctx, mvar4, lhs);
     buffer<name> new_Hnames;
-    optional<expr> mvar6 = intron(env, opts, mctx, mvar5, to_revert.size() - 2, new_Hnames);
+    use_unused_names = false;
+    optional<expr> mvar6 = intron(env, opts, mctx, mvar5, to_revert.size() - 2, new_Hnames, use_unused_names);
     if (!mvar6) throw exception("subst tactic failed, unexpected failure when re-introducing dependencies");
     lean_assert(new_Hnames.size() == to_revert.size() - 2);
     if (subst) {

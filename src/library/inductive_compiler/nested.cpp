@@ -293,6 +293,14 @@ class add_nested_inductive_decl_fn {
         m_prove_inj = false;
     }
 
+    expr mk_eq_or_heq(expr const & e1, expr const & e2) {
+        if (m_tctx.is_def_eq(m_tctx.infer(e1), m_tctx.infer(e2))) {
+            return mk_eq(m_tctx, e1, e2);
+        } else {
+            return mk_heq(m_tctx, e1, e2);
+        }
+    }
+
     expr mk_pack_injective_type(name const & pack_name, optional<unsigned> pack_arity = optional<unsigned>()) {
         type_context::tmp_locals locals(m_tctx);
         buffer<expr> all_args;
@@ -300,29 +308,46 @@ class add_nested_inductive_decl_fn {
         expr ty = full_ty;
         expr prev_ty;
 
+        buffer<expr> params;
+        for (unsigned param_idx = 0; param_idx < m_nested_decl.get_num_params(); ++param_idx) {
+            expr param = locals.push_local_from_binding(ty);
+            params.push_back(param);
+            ty = m_tctx.relaxed_whnf(instantiate(binding_body(ty), param));
+        }
+
+        buffer<expr> args1, args2;
+
         unsigned arg_idx = 0;
-        while (is_pi(ty)) {
-            expr arg = locals.push_local_from_binding(ty);
-            all_args.push_back(arg);
-            prev_ty = ty;
-            ty = m_tctx.relaxed_whnf(instantiate(binding_body(ty), arg));
+        expr ty1 = ty;
+        expr ty2 = ty;
+        while (is_pi(ty1)) {
+            lean_assert(is_pi(ty2));
+            expr arg1 = locals.push_local_from_binding(ty1);
+            expr arg2 = locals.push_local_from_binding(ty2);
+            args1.push_back(arg1);
+            args2.push_back(arg2);
+            ty1 = m_tctx.relaxed_whnf(instantiate(binding_body(ty1), arg1));
+            ty2 = m_tctx.relaxed_whnf(instantiate(binding_body(ty2), arg2));
             arg_idx++;
-            if (static_cast<bool>(pack_arity) && arg_idx == *pack_arity) {
+            if (static_cast<bool>(pack_arity) && arg_idx + m_nested_decl.get_num_params() == *pack_arity) {
                 break;
             }
         }
-        expr arg1 = all_args.back();
-        all_args.pop_back();
-        expr arg2 = locals.push_local_from_binding(prev_ty);
 
-        expr eq_lhs = mk_app(mk_app(mk_constant(pack_name, m_nested_decl.get_levels()), all_args), arg1);
-        expr eq_rhs = mk_app(mk_app(mk_constant(pack_name, m_nested_decl.get_levels()), all_args), arg2);
+        buffer<expr> hyps;
+        for (unsigned arg_idx = 0; arg_idx < args1.size() - 1; ++arg_idx) {
+            hyps.push_back(locals.push_local(name("H_", arg_idx), mk_eq_or_heq(args1[arg_idx], args2[arg_idx])));
+        }
 
-        expr iff_lhs = mk_eq(m_tctx, eq_lhs, eq_rhs);
-        expr iff_rhs = mk_eq(m_tctx, arg1, arg2);
-        expr pack_inj_type = m_tctx.mk_pi(all_args, m_tctx.mk_pi(arg1, m_tctx.mk_pi(arg2, mk_iff(iff_lhs, iff_rhs))));
+        expr eq_lhs = mk_app(mk_app(mk_constant(pack_name, m_nested_decl.get_levels()), params), args1);
+        expr eq_rhs = mk_app(mk_app(mk_constant(pack_name, m_nested_decl.get_levels()), params), args2);
+
+        expr iff_lhs = mk_eq_or_heq(eq_lhs, eq_rhs);
+        expr iff_rhs = mk_eq_or_heq(args1.back(), args2.back());
+
+        expr pack_inj_type = m_tctx.mk_pi(params, m_tctx.mk_pi(args1, m_tctx.mk_pi(args2, m_tctx.mk_pi(hyps, mk_iff(iff_lhs, iff_rhs)))));
         lean_trace(name({"inductive_compiler", "nested", "injective"}),
-                   tout() << "[pn_pack_injective_type]: " << full_ty << " ==> " << pack_inj_type << "\n";);
+                   tout() << "[pack_injective_type]: " << full_ty << " ==> " << pack_inj_type << "\n";);
         return pack_inj_type;
     }
 

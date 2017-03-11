@@ -530,7 +530,7 @@ def tails (s : stream α) : stream (stream α) :=
 corec id tail (tail s)
 
 lemma tails_eq (s : stream α) : tails s = tail s :: tails (tail s) :=
-begin unfold tails, rw [corec_eq] end
+by unfold tails; rw [corec_eq]; reflexivity
 
 lemma nth_tails : ∀ (n : nat) (s : stream α), nth n (tails s) = drop n (tail s) :=
 begin

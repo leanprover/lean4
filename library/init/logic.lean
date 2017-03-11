@@ -8,7 +8,7 @@ import init.core
 
 universes u v w
 
-@[reducible] def id {α : Sort u} (a : α) : α := a
+@[inline] def id {α : Sort u} (a : α) : α := a
 
 def flip {α : Sort u} {β : Sort v} {φ : Sort w} (f : α → β → φ) : β → α → φ :=
 λ b a, f a b

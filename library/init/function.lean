@@ -10,8 +10,6 @@ import init.data.prod init.funext init.logic
 universes u₁ u₂ u₃ u₄
 
 namespace function
-notation f ` $ `:1 a:0 := f a
-
 variables {α : Sort u₁} {β : Sort u₂} {φ : Sort u₃} {δ : Sort u₄} {ζ : Sort u₁}
 
 @[inline, reducible] def comp (f : β → φ) (g : α → β) : α → φ :=
@@ -126,16 +124,16 @@ end function
 namespace function
 variables {α : Type u₁} {β : Type u₂} {φ : Type u₃}
 
-@[reducible] def curry : (α × β → φ) → α → β → φ :=
+@[inline] def curry : (α × β → φ) → α → β → φ :=
 λ f a b, f (a, b)
 
-@[reducible] def uncurry : (α → β → φ) → α × β → φ :=
+@[inline] def uncurry : (α → β → φ) → α × β → φ :=
 λ f ⟨a, b⟩, f a b
 
-lemma curry_uncurry (f : α → β → φ) : curry (uncurry f) = f :=
+@[simp] lemma curry_uncurry (f : α → β → φ) : curry (uncurry f) = f :=
 rfl
 
-lemma uncurry_curry (f : α × β → φ) : uncurry (curry f) = f :=
+@[simp] lemma uncurry_curry (f : α × β → φ) : uncurry (curry f) = f :=
 funext (λ ⟨a, b⟩, rfl)
 
 def id_of_left_inverse {g : β → α} {f : α → β} : left_inverse g f → g ∘ f = id :=

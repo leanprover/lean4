@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Jeremy Avigad
 -/
 prelude
-import init.data.nat.basic init.data.nat.div init.meta init.algebra.functions
+import init.data.nat.basic init.data.nat.div init.data.nat.pow init.meta init.algebra.functions
 
 namespace nat
 attribute [pre_smt] nat_zero_eq_zero
@@ -313,6 +313,15 @@ match le.dest h with
     apply nat.add_left_cancel hw
   end
 end
+
+protected lemma le_of_add_le_add_right {k n m : ℕ} : n + k ≤ m + k → n ≤ m :=
+begin
+  rw [nat.add_comm _ k,nat.add_comm _ k],
+  apply nat.le_of_add_le_add_left
+end
+
+protected lemma add_le_add_iff_le_right (k n m : ℕ) : n + k ≤ m + k ↔ n ≤ m :=
+  ⟨ nat.le_of_add_le_add_right , take h, nat.add_le_add_right h _ ⟩
 
 protected lemma lt_of_le_and_ne {m n : ℕ} (h1 : m ≤ n) : m ≠ n → m < n :=
 or.resolve_right (or.swap (nat.eq_or_lt_of_le h1))
@@ -626,9 +635,44 @@ protected theorem sub_sub : ∀ (n m k : ℕ), n - m - k = n - (m + k)
 theorem succ_sub_sub_succ (n m k : ℕ) : succ n - m - succ k = n - m - k :=
 by rw [nat.sub_sub, nat.sub_sub, add_succ, succ_sub_succ]
 
+theorem le_of_le_of_sub_le_sub_right {n m k : ℕ}
+  (h₀ : k ≤ m)
+  (h₁ : n - k ≤ m - k)
+: n ≤ m :=
+begin
+  revert k m,
+  induction n with n ; intros k m h₀ h₁,
+  { apply zero_le },
+  { cases k with k,
+    { apply h₁ },
+    cases m with m,
+    { cases not_succ_le_zero _ h₀ },
+    { simp [succ_sub_succ] at h₁,
+      apply succ_le_succ,
+      apply ih_1 _ h₁,
+      apply le_of_succ_le_succ h₀ }, }
+end
+
+protected theorem sub_le_sub_right_iff (n m k : ℕ)
+  (h : k ≤ m)
+: n - k ≤ m - k ↔ n ≤ m :=
+⟨ le_of_le_of_sub_le_sub_right h , assume h, nat.sub_le_sub_right h k ⟩
+
 theorem sub_self_add (n m : ℕ) : n - (n + m) = 0 :=
 show (n + 0) - (n + m) = 0, from
 by rw [nat.add_sub_add_left, nat.zero_sub]
+
+theorem add_le_to_le_sub (x : ℕ) {y k : ℕ}
+  (h : k ≤ y)
+: x + k ≤ y ↔ x ≤ y - k :=
+by rw [-nat.add_sub_cancel x k,nat.sub_le_sub_right_iff _ _ _ h,nat.add_sub_cancel]
+
+lemma sub_lt_of_pos_le (a b : ℕ) (h₀ : 0 < a) (h₁ : a ≤ b)
+: b - a < b :=
+begin
+  apply sub_lt _ h₀,
+  apply lt_of_lt_of_le h₀ h₁
+end
 
 protected theorem sub.right_comm (m n k : ℕ) : m - n - k = m - k - n :=
 by rw [nat.sub_sub, nat.sub_sub, add_comm]
@@ -822,6 +866,50 @@ lemma mod_one (n : ℕ) : n % 1 = 0 :=
 have n % 1 < 1, from (mod_lt n) (succ_pos 0),
 eq_zero_of_le_zero (le_of_lt_succ this)
 
+lemma mod_two_eq_zero_or_one (n : ℕ)
+: n % 2 = 0 ∨ n % 2 = 1 :=
+begin
+  assert h : ((n % 2 < 1) ∨ (n % 2 = 1)),
+  { apply lt_or_eq_of_le,
+    apply nat.le_of_succ_le_succ,
+    apply @nat.mod_lt n 2 (nat.le_succ _) },
+  cases h with h h,
+  { left,
+    apply nat.le_antisymm ,
+    { apply nat.le_of_succ_le_succ h },
+    { apply nat.zero_le } },
+  { right,
+    apply h }
+end
+
+lemma cond_to_bool_mod_two (x : ℕ) [d : decidable (x % 2 = 1)]
+: cond (@to_bool (x % 2 = 1) d) 1 0 = x % 2 :=
+begin
+  cases d with h h
+  ; unfold decidable.to_bool cond,
+  { cases mod_two_eq_zero_or_one x with h' h',
+    rw h', cases h h' },
+  { rw h },
+end
+
+lemma sub_mul_mod (x k n : ℕ)
+  (h₀ : 0 < n)
+  (h₁ : n*k ≤ x)
+: (x - n*k) % n = x % n :=
+begin
+  induction k with k,
+  { simp },
+  { assert h₂ : n * k ≤ x,
+    { rw [mul_succ] at h₁,
+      apply nat.le_trans _ h₁,
+      apply le_add_right _ n },
+    assert h₄ : x - n * k ≥ n,
+    { apply @nat.le_of_add_le_add_right (n*k),
+      rw [nat.sub_add_cancel h₂],
+      simp [mul_succ] at h₁, simp [h₁] },
+    rw [mul_succ,-nat.sub_sub,-mod_eq_sub_mod h₀ h₄,ih_1 h₂] }
+end
+
 /- div & mod -/
 lemma div_def (x y : nat) : div x y = if 0 < y ∧ y ≤ x then div (x - y) y + 1 else 0 :=
 by note h := div_def_aux x y; rwa dif_eq_if at h
@@ -869,5 +957,130 @@ protected lemma div_le_self : ∀ (m n : ℕ), m / n ≤ m
     m  = 1 * m      : by simp
    ... ≤ succ n * m : mul_le_mul_right _ (succ_le_succ (zero_le _)),
   nat.div_le_of_le_mul this
+
+lemma div_eq_sub_div {a b : nat} (h₁ : b > 0) (h₂ : a ≥ b)
+: a / b = (a - b) / b + 1 :=
+begin
+  rw [div_def a,if_pos],
+  split ; assumption
+end
+
+lemma sub_mul_div (x n p : ℕ)
+  (h₀ : 0 < n)
+  (h₁ : n*p ≤ x)
+: (x - n*p) / n = x / n - p :=
+begin
+  induction p with p,
+  { simp },
+  { assert h₂ : n*p ≤ x,
+    { transitivity,
+      { apply nat.mul_le_mul_left, apply le_succ },
+      { apply h₁ }  },
+    assert h₃ : x - n * p ≥ n,
+    { apply le_of_add_le_add_right,
+      rw [nat.sub_add_cancel h₂,add_comm],
+      rw [mul_succ] at h₁,
+      apply h₁ },
+    rw [sub_succ,-ih_1 h₂],
+    rw [@div_eq_sub_div (x - n*p) _ h₀ h₃],
+    simp [add_one_eq_succ,pred_succ,mul_succ,nat.sub_sub] }
+end
+
+lemma div_eq_of_lt {a b : ℕ} (h₀ : a < b)
+: a / b = 0 :=
+begin
+  rw [div_def a,if_neg],
+  intro h₁,
+  apply not_le_of_gt h₀ h₁^.right
+end
+
+-- this is a Galois connection
+--   f x ≤ y ↔ x ≤ g y
+-- with
+--   f x = x * k
+--   g y = y / k
+theorem le_div_iff_mul_le (x y : ℕ) {k : ℕ}
+  (Hk : k > 0)
+: x ≤ y / k ↔ x * k ≤ y :=
+begin
+  -- Hk is needed because, despite div being made total, y / 0 := 0
+  --     x * 0 ≤ y ↔ x ≤ y / 0
+  --   ↔ 0 ≤ y ↔ x ≤ 0
+  --   ↔ true ↔ x = 0
+  --   ↔ x = 0
+  revert x,
+  apply nat.strong_induction_on y _,
+  clear y,
+  intros y IH x,
+  cases lt_or_ge y k with h h,
+  -- base case: y < k
+  { rw [div_eq_of_lt h],
+    cases x with x,
+    { simp [zero_mul,zero_le_iff_true] },
+    { simp [succ_mul,succ_le_zero_iff_false],
+      apply not_le_of_gt,
+      apply lt_of_lt_of_le h,
+      apply le_add_right } },
+  -- step: k ≤ y
+  { rw [div_eq_sub_div Hk h],
+    cases x with x,
+    { simp [zero_mul,zero_le_iff_true] },
+    { assert Hlt : y - k < y,
+      { apply sub_lt_of_pos_le ; assumption },
+      rw [ -add_one_eq_succ
+         , nat.add_le_add_iff_le_right
+         , IH (y - k) Hlt x
+         , succ_mul,add_le_to_le_sub _ h] } }
+end
+
+theorem div_lt_iff_lt_mul (x y : ℕ) {k : ℕ}
+  (Hk : k > 0)
+: x / k < y ↔ x < y * k :=
+begin
+  simp [lt_iff_not_ge],
+  apply not_iff_not_of_iff,
+  apply le_div_iff_mul_le _ _ Hk
+end
+
+/- pow -/
+
+lemma pos_pow_of_pos {b : ℕ} : ∀ (n : ℕ) (h : 0 < b), 0 < b^n
+  | 0 _ := nat.le_refl _
+  | (succ n) h :=
+begin
+  rw -mul_zero 0,
+  apply mul_lt_mul (pos_pow_of_pos _ h) h,
+  apply nat.le_refl,
+  apply zero_le
+end
+
+/- mod / div / pow -/
+
+theorem mod_pow_succ {b : ℕ} (b_pos : b > 0) (w m : ℕ)
+: m % (b^succ w) = b * (m/b % b^w) + m % b :=
+begin
+  apply nat.strong_induction_on m,
+  clear m,
+  intros p IH,
+  cases lt_or_ge p (b^succ w) with h₁ h₁,
+  -- base case: p < b^succ w
+  { assert h₂ : p / b < b^w,
+    { apply (div_lt_iff_lt_mul p _ b_pos)^.mpr,
+      simp at h₁, simp [h₁] },
+    rw [mod_eq_of_lt h₁,mod_eq_of_lt h₂], simp [mod_add_div], },
+  -- step: p ≥ b^succ w
+  { assert h₄ : ∀ {x}, b^x > 0,
+    { intro x, apply pos_pow_of_pos _ b_pos },
+    assert h₂ : p - b^succ w < p,
+    { apply sub_lt_of_pos_le _ _ h₄ h₁ },
+    assert h₅ : b * b^w ≤ p,
+    { simp at h₁, simp [h₁] },
+    rw [mod_eq_sub_mod h₄ h₁,IH _ h₂,pow_succ],
+    apply congr, apply congr_arg,
+    { assert h₃ : p / b ≥ b^w,
+      { apply (le_div_iff_mul_le _ p b_pos)^.mpr, simp [h₅] },
+      simp [nat.sub_mul_div _ _ _ b_pos h₅,mod_eq_sub_mod h₄ h₃] },
+    { simp [nat.sub_mul_mod p (b^w) _ b_pos h₅] } }
+end
 
 end nat

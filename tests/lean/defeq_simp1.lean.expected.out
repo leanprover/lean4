@@ -1,2 +1,5 @@
-@eq.{1} nat (@add.{0} nat nat_has_add2 a b) (@add.{0} nat nat_has_add2 a b)
-@eq.{1} (nat → nat) (λ (x : nat), @add.{0} nat nat_has_add2 a b) (@add.{0} nat nat_has_add2 a)
+@eq.{1} nat (@add.{0} nat (@id.{1} (has_add.{0} nat) (@id.{1} (has_add.{0} nat) nat.has_add)) a b)
+  (@add.{0} nat nat_has_add2 a b)
+@eq.{1} (nat → nat)
+  (λ (x : nat), @add.{0} nat (@id.{1} (has_add.{0} nat) (@id.{1} (has_add.{0} nat) nat.has_add)) a b)
+  (@add.{0} nat nat_has_add2 a)

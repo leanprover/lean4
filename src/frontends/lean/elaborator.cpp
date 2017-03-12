@@ -2468,7 +2468,6 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
                                    S_name << "' is not the name of a structure type");
     lean_assert(fnames.size() == fvalues.size());
     name src_S_name;
-    bool src_S_name_is_class = false;
     unsigned src_S_nparams   = 0;
     if (src) {
         src = visit(*src, none_expr());
@@ -2485,7 +2484,6 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
         }
         src_S_name          = const_name(src_S);
         src_S_nparams       = *inductive::get_num_params(m_env, src_S_name);
-        src_S_name_is_class = is_class(env(), src_S_name);
     }
     if (S_name.is_anonymous()) {
         if (expected_type) {
@@ -2520,7 +2518,6 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
     expr c_type      = infer_type(c);
     buffer<expr> c_args;
     buffer<std::tuple<name, expr, expr>> to_elaborate;
-    type_context::tmp_locals let_decls(m_ctx);
     /* First check for explicit, implicit, parent, auto_param fields.
        We create metavariables for parameters.
        For auto_param fields, we create metavariable and use the specifed tactic to synthesize the field.
@@ -2576,16 +2573,6 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
                             msg += line() + format("but is expected to have type");
                             msg += std::get<2>(pp_data);
                             throw elaborator_exception(ref, msg);
-                        }
-                        if (!m_ctx.is_prop(c_arg_type) && !src_S_name_is_class) {
-                            /* The condition (!src_S_name_is_class) is a temporary workaround
-                               to address unification failures in the algebraic hierarchy.
-                               We need to investigate why the extra let-expressions are affecting the unifier.
-
-                               The condition (!m_ctx.is_prop(c_arg_type)) is an optimization.
-                               To solve the issue described at #1438, we don't need to create
-                               let-declarations for proofs since they will be erased. */
-                            c_arg = let_decls.push_let(name("_src").append_after(let_decls.size()+1), c_arg_type, c_arg);
                         }
                         field2value.insert(S_fname, c_arg);
                     } else {
@@ -2681,7 +2668,7 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
         }
         last_progress = progress;
     }
-    return let_decls.mk_lambda(mk_app(c, c_args));
+    return mk_app(c, c_args);
 }
 
 static expr quote(expr const & e) {

@@ -124,11 +124,7 @@ struct unification_hint_config {
     static void add_entry(environment const & env, io_state const &, state & s, entry const & e) {
         declaration decl = env.get(e.m_decl_name);
         s.validate_type(decl.get_type());
-        // Note: only definitions should be tagged as [unify], so if it is not a definition,
-        // there must have been an error when processing the definition. We return immediately
-        // so as not to hide the original error.
-        // TODO(dhs): the downside to this approach is that a [unify] tag on an actual axiom will be silently ignored.
-        if (decl.is_definition()) s.register_hint(e.m_decl_name, decl.get_value(), e.m_priority);
+        s.register_hint(e.m_decl_name, decl.get_value(), e.m_priority);
     }
     static const char * get_serialization_key() { return "UNIFICATION_HINT"; }
     static void  write_entry(serializer & s, entry const & e) {
@@ -148,6 +144,8 @@ typedef scoped_ext<unification_hint_config> unification_hint_ext;
 
 environment add_unification_hint(environment const & env, io_state const & ios, name const & decl_name, unsigned prio,
                                  bool persistent) {
+    if (!env.get(decl_name).is_definition())
+        throw exception(sstream() << "invalid unification hint, '" << decl_name << "' must be a definition");
     return unification_hint_ext::add_entry(env, ios, unification_hint_entry(decl_name, prio), persistent);
 }
 

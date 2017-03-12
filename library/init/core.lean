@@ -274,6 +274,9 @@ inductive list (T : Type u)
 | nil {} : list
 | cons   : T → list → list
 
+notation h :: t  := list.cons h t
+notation `[` l:(foldr `, ` (h t, list.cons h t) list.nil `]`) := l
+
 inductive nat
 | zero : nat
 | succ : nat → nat
@@ -598,3 +601,8 @@ def I {α : Type u₁} (a : α) := a
 def K {α : Type u₁} {β : Type u₂} (a : α) (b : β) := a
 def S {α : Type u₁} {β : Type u₂} {γ : Type u₃} (x : α → β → γ) (y : α → β) (z : α) := x z (y z)
 end combinator
+
+/- Basic unification hints -/
+@[unify] def add_succ_defeq_succ_add_hint (x y z : nat) : unification_hint :=
+{ pattern     := x + nat.succ y ≟ nat.succ z,
+  constraints := [z ≟ x + y] }

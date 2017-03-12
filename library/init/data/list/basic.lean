@@ -7,9 +7,6 @@ prelude
 import init.logic init.data.nat.basic init.category.monad
 open decidable list
 
-notation h :: t  := cons h t
-notation `[` l:(foldr `, ` (h t, cons h t) nil `]`) := l
-
 universes u v w
 
 instance (α : Type u) : inhabited (list α) :=

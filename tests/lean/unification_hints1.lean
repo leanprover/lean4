@@ -18,21 +18,6 @@ noncomputable definition toy_hint (x y : A) : unification_hint :=
 
 end toy
 
-namespace add
-constants (n : ℕ)
-attribute [irreducible] add
-
-#unify (n + 1), succ n
-
-@[unify]
-definition add_zero_hint (m n : ℕ) [has_add ℕ] [has_one ℕ] [has_zero ℕ] : unification_hint :=
-{ pattern     := m + 1 ≟ succ n,
-  constraints := [m ≟ n] }
-
-#unify (n + 1), (succ n)
-#print [unify]
-
-end add
 
 namespace canonical
 inductive Canonical

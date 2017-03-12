@@ -396,8 +396,11 @@ level replace_level_fn::apply(level const & l) {
     switch (l.kind()) {
     case level_kind::Succ:
         return update_succ(l, apply(succ_of(l)));
-    case level_kind::Max: case level_kind::IMax:
-        return update_max(l, apply(to_max_core(l).m_lhs), apply(to_max_core(l).m_rhs));
+    case level_kind::Max: case level_kind::IMax: {
+        level l1 = apply(to_max_core(l).m_lhs);
+        level l2 = apply(to_max_core(l).m_rhs);
+        return update_max(l, l1, l2);
+    }
     case level_kind::Zero: case level_kind::Param: case level_kind::Meta:
         return l;
     }
@@ -537,8 +540,9 @@ format pp(level l, bool unicode, unsigned indent) {
         case level_kind::Meta:
             return format("?") + format(meta_id(l));
         case level_kind::Succ: {
-            auto p = to_offset(l);
-            return pp_child(p.first, unicode, indent) + format("+") + format(p.second);
+            auto p    = to_offset(l);
+            auto fmt1 = pp_child(p.first, unicode, indent);
+            return fmt1 + format("+") + format(p.second);
         }
         case level_kind::Max: case level_kind::IMax: {
             format r = format(is_max(l) ? "max" : "imax");

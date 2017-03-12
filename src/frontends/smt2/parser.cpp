@@ -482,7 +482,11 @@ private:
 
         vm_state state(env(), ios().get_options());
         scope_vm_state scope(state);
+        type_context stctx(env(), ios().get_options(), mctx, lctx());
+        scope_trace_env scope_trace(m_env, stctx.get_options(), stctx);
+
         vm_obj result = state.invoke(get_smt_prove_name(), s);
+
         if (optional<tactic_state> s_new = tactic::is_success(result)) {
             mctx = s_new->mctx();
             expr proof = mctx.instantiate_mvars(goal_mvar);

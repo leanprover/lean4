@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "library/metavar_context.h"
 #include "library/expr_pair_maps.h"
 #include "library/exception.h"
+#include "library/unification_hint.h"
 
 namespace lean {
 class class_exception : public generic_exception {
@@ -169,8 +170,6 @@ public:
     void recycle(type_context_cache_ptr const & ptr);
 };
 
-class unification_hint;
-
 class type_context : public abstract_type_context {
     typedef type_context_cache_ptr cache_ptr;
     typedef type_context_cache_manager cache_manager;
@@ -290,6 +289,7 @@ class type_context : public abstract_type_context {
           are no output parameters.
     */
     bool                       m_assign_regular_uvars_in_tmp_mode{false};
+    unification_hints          m_uhints;
 
     std::function<bool(expr const & e)> const * m_unfold_pred; // NOLINT
     std::function<bool(name const & e)> const * m_transparency_pred; // NOLINT

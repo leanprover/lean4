@@ -33,7 +33,6 @@ m_num_vars: #4
 
 Note that once we have an assignment to all variables from matching, we must substitute the assignments in the constraints.
 */
-
 class unification_hint {
     expr m_lhs;
     expr m_rhs;
@@ -59,6 +58,7 @@ typedef priority_queue<unification_hint, unification_hint_cmp> unification_hint_
 typedef rb_map<name_pair, unification_hint_queue, name_pair_quick_cmp> unification_hints;
 
 unification_hints get_unification_hints(environment const & env);
+void get_unification_hints(unification_hints const & hints, name const & n1, name const & n2, buffer<unification_hint> & uhints);
 
 void get_unification_hints(environment const & env, name const & n1, name const & n2, buffer<unification_hint> & hints);
 

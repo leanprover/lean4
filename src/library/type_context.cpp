@@ -287,6 +287,7 @@ void type_context::init_core(transparency_mode m) {
         init_local_instances();
         flush_instance_cache();
     }
+    m_uhints = get_unification_hints(env());
     lean_assert(m_cache->m_instance_fingerprint == m_lctx.get_instance_fingerprint());
 }
 
@@ -332,6 +333,7 @@ void type_context::set_env(environment const & env) {
         m_cache->m_local_instances      = m_local_instances;
     }
     lean_assert(m_cache->m_instance_fingerprint == m_lctx.get_instance_fingerprint());
+    m_uhints = get_unification_hints(env);
 }
 
 void type_context::update_local_instances(expr const & new_local, expr const & new_type) {
@@ -3068,7 +3070,7 @@ bool type_context::try_unification_hints(expr const & e1, expr const & e2) {
     expr e2_fn = get_app_fn(e2);
     if (is_constant(e1_fn) && is_constant(e2_fn)) {
         buffer<unification_hint> hints;
-        get_unification_hints(env(), const_name(e1_fn), const_name(e2_fn), hints);
+        get_unification_hints(m_uhints, const_name(e1_fn), const_name(e2_fn), hints);
         for (unification_hint const & hint : hints) {
             lean_trace(name({"type_context", "unification_hint"}),
                        scope_trace_env scope(env(), *this);

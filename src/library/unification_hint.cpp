@@ -1,7 +1,7 @@
 /*
 Copyright (c) 2015 Daniel Selsam. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Author: Daniel Selsam
+Authors: Daniel Selsam, Leonardo de Moura
 */
 #include <string>
 #include "util/sexpr/format.h"
@@ -81,6 +81,11 @@ struct unification_hint_state {
             throw exception("invalid unification hint, the heads of both sides of pattern must be constants");
         }
 
+        if (quick_cmp(const_name(e_pattern_lhs_fn), const_name(e_pattern_rhs_fn)) > 0) {
+            swap(e_pattern_lhs_fn, e_pattern_rhs_fn);
+            swap(e_pattern_lhs, e_pattern_rhs);
+        }
+
         name_pair key = mk_pair(const_name(e_pattern_lhs_fn), const_name(e_pattern_rhs_fn));
 
         buffer<expr_pair> constraints;
@@ -150,14 +155,19 @@ unification_hints get_unification_hints(environment const & env) {
     return unification_hint_ext::get_state(env).m_hints;
 }
 
+void get_unification_hints(unification_hints const & hints, name const & n1, name const & n2, buffer<unification_hint> & uhints) {
+    if (quick_cmp(n1, n2) > 0) {
+        if (auto const * q_ptr = hints.find(mk_pair(n2, n1)))
+            q_ptr->to_buffer(uhints);
+    } else {
+        if (auto const * q_ptr = hints.find(mk_pair(n1, n2)))
+            q_ptr->to_buffer(uhints);
+    }
+}
+
 void get_unification_hints(environment const & env, name const & n1, name const & n2, buffer<unification_hint> & uhints) {
     unification_hints hints = unification_hint_ext::get_state(env).m_hints;
-    if (auto const & q_ptr = hints.find(mk_pair(n1, n2))) {
-        q_ptr->to_buffer(uhints);
-    }
-    if (auto const & q_ptr = hints.find(mk_pair(n2, n1))) {
-        q_ptr->to_buffer(uhints);
-    }
+    get_unification_hints(hints, n1, n2, uhints);
 }
 
 /* Pretty-printing */

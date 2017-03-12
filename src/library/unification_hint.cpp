@@ -6,6 +6,7 @@ Authors: Daniel Selsam, Leonardo de Moura
 #include <string>
 #include "util/sexpr/format.h"
 #include "kernel/expr.h"
+#include "kernel/instantiate.h"
 #include "kernel/error_msgs.h"
 #include "library/attribute_manager.h"
 #include "library/constants.h"
@@ -13,6 +14,7 @@ Authors: Daniel Selsam, Leonardo de Moura
 #include "library/util.h"
 #include "library/expr_lt.h"
 #include "library/scoped_ext.h"
+#include "library/type_context.h"
 
 namespace lean {
 
@@ -52,12 +54,16 @@ struct unification_hint_state {
         }
     }
 
-    void register_hint(name const & decl_name, expr const & value, unsigned priority) {
+    void register_hint(environment const & env, name const & decl_name, expr const & value, unsigned priority) {
         m_decl_names_to_prio.insert(decl_name, priority);
-
+        type_context _ctx(env, options(), transparency_mode::All);
+        tmp_type_context ctx(_ctx);
         expr e_hint = value;
         unsigned num_vars = 0;
+        buffer<expr> tmp_mvars;
         while (is_lambda(e_hint)) {
+            expr d = instantiate_rev(binding_domain(e_hint), tmp_mvars.size(), tmp_mvars.data());
+            tmp_mvars.push_back(ctx.mk_tmp_mvar(d));
             e_hint = binding_body(e_hint);
             num_vars++;
         }
@@ -89,6 +95,7 @@ struct unification_hint_state {
         name_pair key = mk_pair(const_name(e_pattern_lhs_fn), const_name(e_pattern_rhs_fn));
 
         buffer<expr_pair> constraints;
+        unsigned eqidx = 1;
         while (is_app_of(e_constraints, get_list_cons_name(), 3)) {
             // e_constraints := cons _ constraint rest
             expr e_constraint = app_arg(app_fn(e_constraints));
@@ -96,10 +103,21 @@ struct unification_hint_state {
             expr e_constraint_rhs = app_arg(e_constraint);
             constraints.push_back(mk_pair(e_constraint_lhs, e_constraint_rhs));
             e_constraints = app_arg(e_constraints);
+
+            if (!ctx.is_def_eq(instantiate_rev(e_constraint_lhs, tmp_mvars.size(), tmp_mvars.data()),
+                               instantiate_rev(e_constraint_rhs, tmp_mvars.size(), tmp_mvars.data()))) {
+                throw exception(sstream() << "invalid unification hint, failed to unify constraint #" << eqidx);
+            }
+            eqidx++;
         }
 
         if (!is_app_of(e_constraints, get_list_nil_name(), 1)) {
             throw exception("invalid unification hint, must provide list of constraints explicitly");
+        }
+
+        if (!ctx.is_def_eq(instantiate_rev(e_pattern_lhs, tmp_mvars.size(), tmp_mvars.data()),
+                           instantiate_rev(e_pattern_rhs, tmp_mvars.size(), tmp_mvars.data()))) {
+            throw exception("invalid unification hint, failed to unify pattern after unifying constraints");
         }
 
         unification_hint hint(e_pattern_lhs, e_pattern_rhs, to_list(constraints), num_vars);
@@ -124,7 +142,7 @@ struct unification_hint_config {
     static void add_entry(environment const & env, io_state const &, state & s, entry const & e) {
         declaration decl = env.get(e.m_decl_name);
         s.validate_type(decl.get_type());
-        s.register_hint(e.m_decl_name, decl.get_value(), e.m_priority);
+        s.register_hint(env, e.m_decl_name, decl.get_value(), e.m_priority);
     }
     static const char * get_serialization_key() { return "UNIFICATION_HINT"; }
     static void  write_entry(serializer & s, entry const & e) {

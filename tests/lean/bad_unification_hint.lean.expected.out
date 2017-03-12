@@ -1,0 +1,2 @@
+bad_unification_hint.lean:7:0: error: invalid unification hint, failed to unify pattern after unifying constraints
+bad_unification_hint.lean:12:0: error: invalid unification hint, failed to unify constraint #1

@@ -22,14 +22,14 @@ end toy
 
 namespace add
 constants (n : ℕ)
+@[unify] definition add_zero_hint (m n : ℕ) [has_add ℕ] [has_one ℕ] [has_zero ℕ] : unification_hint :=
+{ pattern     := m + 1 ≟ succ n,
+  constraints := [m ≟ n] }
+
 attribute  [irreducible] add
 
 open tactic
 
-@[unify]
-definition add_zero_hint (m n : ℕ) [has_add ℕ] [has_one ℕ] [has_zero ℕ] : unification_hint :=
-{ pattern     := m + 1 ≟ succ n,
-  constraints := [m ≟ n] }
 
 definition ex2 (H : n + 1 = 0) : succ n = 0 :=
 by assumption

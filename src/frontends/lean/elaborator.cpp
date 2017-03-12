@@ -59,11 +59,20 @@ Author: Leonardo de Moura
 #include "frontends/lean/equations_validator.h"
 #include "frontends/lean/elaborator.h"
 
+#ifndef LEAN_DEFAULT_ELABORATOR_COERCIONS
+#define LEAN_DEFAULT_ELABORATOR_COERCIONS true
+#endif
+
 namespace lean {
 MK_THREAD_LOCAL_GET(type_context_cache_manager, get_tcm, true /* use binder information at infer_cache */);
 
 static name * g_level_prefix = nullptr;
 static name * g_elab_strategy = nullptr;
+static name * g_elaborator_coercions = nullptr;
+
+bool get_elaborator_coercions(options const & opts) {
+    return opts.get_bool(*g_elaborator_coercions, LEAN_DEFAULT_ELABORATOR_COERCIONS);
+}
 
 struct elaborator_strategy_attribute_data : public attr_data {
     elaborator_strategy m_status;
@@ -123,6 +132,7 @@ elaborator::elaborator(environment const & env, options const & opts, name const
     m_ctx(env, opts, mctx, lctx, get_tcm(), transparency_mode::Semireducible),
     m_recover_from_errors(recover_from_errors),
     m_uses_infom(get_global_info_manager() != nullptr), m_in_pattern(in_pattern) {
+    m_coercions = get_elaborator_coercions(opts);
 }
 
 elaborator::~elaborator() {
@@ -648,6 +658,7 @@ optional<expr> elaborator::try_monad_coercion(expr const & e, expr const & e_typ
 }
 
 optional<expr> elaborator::mk_coercion(expr const & e, expr e_type, expr type, expr const & ref) {
+    if (!m_coercions) return none_expr();
     e_type = instantiate_mvars(e_type);
     type   = instantiate_mvars(type);
     if (!has_expr_metavar(e_type) && !has_expr_metavar(type)) {
@@ -721,6 +732,7 @@ void elaborator::trace_coercion_fn_sort_failure(bool is_fn, expr const & e_type,
 }
 
 optional<expr> elaborator::mk_coercion_to_fn_sort(bool is_fn, expr const & e, expr const & _e_type, expr const & ref) {
+    if (!m_coercions) return none_expr();
     expr e_type = instantiate_mvars(_e_type);
     if (!has_expr_metavar(e_type)) {
         try {
@@ -3734,10 +3746,15 @@ void initialize_elaborator() {
 
     DECLARE_VM_BUILTIN(name({"tactic", "save_type_info"}), tactic_save_type_info);
     DECLARE_VM_BUILTIN(name({"tactic", "resolve_name"}),   tactic_resolve_local_name);
+
+    g_elaborator_coercions          = new name{"elaborator", "coercions"};
+    register_bool_option(*g_elaborator_coercions, LEAN_DEFAULT_ELABORATOR_COERCIONS,
+                         "(elaborator) if true, the elaborator will automatically introduce coercions");
 }
 
 void finalize_elaborator() {
     delete g_level_prefix;
     delete g_elab_strategy;
+    delete g_elaborator_coercions;
 }
 }

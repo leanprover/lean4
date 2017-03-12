@@ -52,6 +52,7 @@ private:
     unsigned          m_depth{0};
 
     bool              m_uses_infom;
+    bool              m_coercions;
 
     struct snapshot {
         metavar_context        m_saved_mctx;

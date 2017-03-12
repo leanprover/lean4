@@ -336,7 +336,8 @@ class add_nested_inductive_decl_fn {
 
         buffer<expr> hyps;
         for (unsigned arg_idx = 0; arg_idx < args1.size() - 1; ++arg_idx) {
-            hyps.push_back(locals.push_local(name("H_", arg_idx), mk_eq_or_heq(args1[arg_idx], args2[arg_idx])));
+            if (!m_tctx.is_prop(m_tctx.infer(args1[arg_idx])))
+                hyps.push_back(locals.push_local(name("H_", arg_idx), mk_eq_or_heq(args1[arg_idx], args2[arg_idx])));
         }
 
         expr eq_lhs = mk_app(mk_app(mk_constant(pack_name, m_nested_decl.get_levels()), params), args1);

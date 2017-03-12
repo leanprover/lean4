@@ -67,7 +67,7 @@ expr mk_injective_type(environment const & env, name const & ir_name, expr const
 
     buffer<expr> eqs;
     for (unsigned arg_idx = 0; arg_idx < args1.size(); ++arg_idx) {
-        if (args1[arg_idx] != args2[arg_idx]) {
+        if (!tctx.is_prop(tctx.infer(args1[arg_idx])) && args1[arg_idx] != args2[arg_idx]) {
             if (tctx.is_def_eq(tctx.infer(args1[arg_idx]), tctx.infer(args2[arg_idx]))) {
                 eqs.push_back(mk_eq(tctx, args1[arg_idx], args2[arg_idx]));
             } else {

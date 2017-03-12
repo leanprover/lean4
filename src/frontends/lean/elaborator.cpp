@@ -1848,9 +1848,14 @@ expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<exp
 
     if (is_choice(fn)) {
         buffer<expr> fns;
-        if (amask != arg_mask::Default)
-            throw elaborator_exception(ref, "invalid explicit annotation, symbol is overloaded "
-                                       "(solution: use fully qualified names)");
+        if (amask != arg_mask::Default) {
+            format fmt = format("invalid explicit annotation because of overloading (possible solution: use fully qualified names) ");
+            for (unsigned i = 0; i < get_num_choices(fn); i++)
+                fns.push_back(get_choice(fn, i));
+            auto pp_fn = mk_pp_ctx();
+            fmt += pp_overloads(pp_fn, fns);
+            throw elaborator_exception(ref, fmt);
+        }
         for (unsigned i = 0; i < get_num_choices(fn); i++) {
             expr const & fn_i = get_choice(fn, i);
             fns.push_back(fn_i);

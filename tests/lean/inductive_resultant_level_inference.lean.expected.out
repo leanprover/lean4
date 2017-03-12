@@ -18,7 +18,7 @@ X5.foo.{u} : Sort u → Sort (max 1 u)
 X6.foo.{u} : Sort u → Type (u+2)
 
 7. ?U unifies with a max: error
-inductive_resultant_level_inference.lean:82:0: error: resultant level unifies with complex level 'max u_2 u_1', provide the universe levels explicitly
+inductive_resultant_level_inference.lean:82:0: error: resultant level unifies with complex level 'max u_1 u_2', provide the universe levels explicitly
 
 8. wrapping inductive returns element in different universe: error
 inductive_resultant_level_inference.lean:92:0: error: nested occurrence 'X8.bar.{(max 1 v)} foo' lives in universe 'succ (max 1 v)' but must live in resultant universe 'max 1 v'

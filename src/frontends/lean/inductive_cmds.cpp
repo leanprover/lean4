@@ -27,7 +27,6 @@ Authors: Daniel Selsam, Leonardo de Moura
 #include "library/explicit.h"
 #include "library/reducible.h"
 #include "library/class.h"
-#include "library/sorry.h"
 #include "library/trace.h"
 #include "library/app_builder.h"
 #include "library/type_context.h"
@@ -43,25 +42,6 @@ Authors: Daniel Selsam, Leonardo de Moura
 #include "frontends/lean/inductive_cmds.h"
 
 namespace lean {
-
-static void check_for_sorry(buffer<expr> const & params, buffer<expr> const & inds, buffer<buffer<expr> > const & intro_rules) {
-    for (expr const & param : params) {
-        if (has_sorry(param))
-            throw exception(sstream() << "type of parameter '" << mlocal_name(param) << "' contains 'sorry'");
-    }
-
-    for (expr const & ind : inds) {
-        if (has_sorry(ind))
-            throw exception(sstream() << "inductive type '" << mlocal_name(ind) << "' contains 'sorry'");
-    }
-
-    for (buffer<expr> const & irs : intro_rules) {
-        for (expr const & ir : irs) {
-            if (has_sorry(ir))
-                throw exception(sstream() << "constructor '" << mlocal_name(ir) << "' contains 'sorry'");
-        }
-    }
-}
 
 static level mk_succn(level const & l, unsigned offset) {
     level result = l;
@@ -684,7 +664,6 @@ public:
     }
 
     environment shared_inductive_cmd(buffer<expr> const & params, buffer<expr> const & inds, buffer<buffer<expr> > const & intro_rules) {
-        check_for_sorry(params, inds, intro_rules);
         buffer<expr> new_params;
         buffer<expr> new_inds;
         buffer<buffer<expr> > new_intro_rules;

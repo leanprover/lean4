@@ -134,27 +134,20 @@ expr prove_injective(environment const & env, expr const & inj_type, name const 
     if (tgt == mk_true())
         return tctx.mk_lambda(args, mk_true_intro());
 
-    unsigned num_params = *inductive::get_num_params(env, ind_name);
-    unsigned num_indices =  *inductive::get_num_indices(env, ind_name);
+    expr H_eq = args.back();
+    expr A, lhs, rhs;
+    lean_verify(is_eq(tctx.infer(H_eq), A, lhs, rhs));
 
     buffer<expr> nc_args;
-    buffer<bool> mask;
-    for (unsigned i = 0; i < num_params; ++i) {
-        nc_args.push_back(args[i]);
-        mask.push_back(true);
-    }
-    for (unsigned i = 0; i < num_indices; ++i) {
-        mask.push_back(false);
-    }
+    expr A_fn = get_app_args(A, nc_args);
+    lean_assert(is_constant(A_fn));
+
     nc_args.push_back(tgt);
-    mask.push_back(true);
+    nc_args.push_back(lhs);
+    nc_args.push_back(rhs);
+    nc_args.push_back(H_eq);
 
-    mask.push_back(false);
-    mask.push_back(false);
-    nc_args.push_back(args.back());
-    mask.push_back(true);
-
-    expr H_nc = mk_app(tctx, name(ind_name, "no_confusion"), num_params + num_indices + 4, &mask[0], &nc_args[0]);
+    expr H_nc = mk_app(mk_constant(name(ind_name, "no_confusion"), cons(mk_level_zero(), const_levels(A_fn))), nc_args);
 
     // (x1 = x2 -> xs1 == xs2 -> (x1 = x2 /\ xs1 = xs2)
     ty = binding_domain(tctx.relaxed_whnf(tctx.infer(H_nc)));

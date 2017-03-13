@@ -2595,11 +2595,9 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
                         field2value.insert(S_fname, c_arg);
                     } else {
                         name full_S_fname = S_name + S_fname;
-                        if (has_default_value(m_env, full_S_fname)) {
+                        if (has_default_value(m_env, full_S_fname) || is_auto_param(d)) {
                             c_arg = mk_metavar(d, ref);
                             default2mvar.insert(S_fname, c_arg);
-                        } else if (auto p = is_auto_param(d)) {
-                            c_arg = mk_auto_param(p->second, p->first, ref);
                         } else {
                             throw elaborator_exception(e, sstream() << "invalid structure value { ... }, field '" <<
                                                        S_fname << "' was not provided");
@@ -2610,7 +2608,7 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
                 /* Implicit field */
                 if (std::find(fnames.begin(), fnames.end(), S_fname) != fnames.end()) {
                     throw elaborator_exception(e, sstream() << "invalid structure value {...}, field '"
-                                               << S_fname << "' is implicit and must not be provided");
+                                                            << S_fname << "' is implicit and must not be provided");
                 }
                 c_arg = mk_metavar(d, ref);
             }
@@ -2623,27 +2621,32 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
     for (unsigned i = 0; i < fnames.size(); i++) {
         if (!used[i]) {
             throw elaborator_exception(e, sstream() << "invalid structure value { ... }, '" << fnames[i] << "'" <<
-                                       " is not a field of structure '" << S_name << "'");
+                                                    " is not a field of structure '" << S_name << "'");
         }
     }
 
     /* Check expected type */
     if (expected_type && !is_def_eq(*expected_type, c_type)) {
         auto pp_data = pp_until_different(c_type, *expected_type);
-        auto pp_fn   = std::get<0>(pp_data);
+        auto pp_fn = std::get<0>(pp_data);
         expr e = mk_app(c, c_args);
         throw elaborator_exception(ref, format("type mismatch as structure instance ") + pp_indent(pp_fn, e) +
-                                   line() + format("has type") + std::get<1>(pp_data) +
-                                   line() + format("but is expected to have type") +
-                                   std::get<2>(pp_data));
+                                        line() + format("has type") + std::get<1>(pp_data) +
+                                        line() + format("but is expected to have type") +
+                                        std::get<2>(pp_data));
     }
 
     /* Elaborate explicit arguments */
     for (auto const & t : to_elaborate) {
-        name S_fname; expr mvar; expr fval;
+        name S_fname;
+        expr mvar;
+        expr fval;
         std::tie(S_fname, mvar, fval) = t;
         expr expected_type = instantiate_mvars(infer_type(mvar));
-        expr new_fval; expr new_fval_type; optional<expr> new_new_fval; expr ref_fval = fval;
+        expr new_fval;
+        expr new_fval_type;
+        optional<expr> new_new_fval;
+        expr ref_fval = fval;
         std::tie(new_fval, new_fval_type, new_new_fval) = elaborate_arg(fval, expected_type, ref_fval);
         assign_field_mvar(S_fname, mvar, new_new_fval, new_fval, new_fval_type, expected_type, ref_fval);
     }
@@ -2662,15 +2665,17 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
                     name full_S_fname = S_name + S_fname;
                     if (optional<name> default_value_fn = has_default_value(m_env, full_S_fname)) {
                         try {
-                            expr fval = mk_field_default_value(m_env, full_S_fname, [&](name const &fname) {
-                                    if (auto v = field2value.find(fname))
-                                        return some_expr(mk_as_is(instantiate_mvars(*v)));
-                                    else
-                                        return none_expr();
-                                });
-                            expr mvar          = *default2mvar.find(S_fname);
+                            expr fval = mk_field_default_value(m_env, full_S_fname, [&](name const & fname) {
+                                if (auto v = field2value.find(fname))
+                                    return some_expr(mk_as_is(instantiate_mvars(*v)));
+                                else
+                                    return none_expr();
+                            });
+                            expr mvar = *default2mvar.find(S_fname);
                             expr expected_type = instantiate_mvars(infer_type(mvar));
-                            expr new_fval; expr new_fval_type; optional<expr> new_new_fval;
+                            expr new_fval;
+                            expr new_fval_type;
+                            optional<expr> new_new_fval;
                             std::tie(new_fval, new_fval_type, new_new_fval) = elaborate_arg(fval, expected_type, ref);
                             assign_field_mvar(S_fname, mvar, new_new_fval, new_fval, new_fval_type, expected_type, ref);
                             field2value.insert(S_fname, *new_new_fval);
@@ -2686,6 +2691,24 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
         }
         last_progress = progress;
     }
+
+    c_type = m_env.get(c_names[0]).get_type();
+    for (unsigned i = 0; is_pi(c_type); c_type = binding_body(c_type), i++) {
+        expr d = binding_domain(c_type);
+        if (is_explicit(binding_info(c_type)) && !src) {
+            name S_fname = binding_name(c_type);
+            if (!field2value.find(S_fname)) {
+                name full_S_fname = S_name + S_fname;
+                if (auto p = is_auto_param(d)) {
+                    expr mvar = *default2mvar.find(S_fname);
+                    expr expected_type = instantiate_mvars(infer_type(mvar));
+                    expr val = mk_auto_param(p->second, expected_type, ref);
+                    assign_field_mvar(S_fname, mvar, some_expr(val), val, expected_type, expected_type, ref);
+                }
+            }
+        }
+    }
+
     return mk_app(c, c_args);
 }
 

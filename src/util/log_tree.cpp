@@ -252,14 +252,45 @@ void log_tree::node::print_to(std::ostream & out, unsigned indent) const {
     });
 }
 
-gtask log_tree::node::wait_for_finish() const {
-    auto t = *this;
-    return mk_dependency_task([t] (buffer<gtask> & deps) {
-        t.for_each([&] (node const & n) {
-            if (auto prod = n.get_producer())
-                deps.push_back(prod);
-            return true;
+struct wait_for_finish_helper {
+    std::vector<log_tree::node> m_unfinished_roots;
+
+    void gather_unfinished(log_tree::node const & n) {
+        n.for_each([&] (log_tree::node const & n1) {
+            if (auto prod = n1.get_producer()) {
+                m_unfinished_roots.push_back(n1);
+                return false;
+            } else {
+                return true;
+            }
         });
+    }
+
+    void get_deps(buffer<gtask> & deps) const {
+        for (auto & root : m_unfinished_roots) {
+            root.for_each([&] (log_tree::node const & n) {
+                if (auto prod = n.get_producer()) deps.push_back(prod);
+                return true;
+            });
+        }
+    }
+
+    bool is_finished() const { return m_unfinished_roots.empty(); }
+
+    void check() {
+        auto old_unfinished_roots = std::move(m_unfinished_roots);
+        m_unfinished_roots.clear();
+        for (auto & n : old_unfinished_roots) gather_unfinished(n);
+    }
+};
+
+gtask log_tree::node::wait_for_finish() const {
+    auto helper = std::make_shared<wait_for_finish_helper>();
+    helper->gather_unfinished(*this);
+    if (helper->is_finished()) return mk_pure_task(unit());
+    return mk_dependency_task([helper] (buffer<gtask> & deps) {
+        helper->check();
+        helper->get_deps(deps);
     });
 }
 
@@ -279,8 +310,13 @@ bool log_tree::node::has_entry_now(std::function<bool(log_entry const &)> const 
 }
 
 task<bool> log_tree::node::has_entry(std::function<bool(log_entry const &)> const & fn) const { // NOLINT
-    auto t = *this;
-    return task_builder<bool>([t, fn] { return t.has_entry_now(fn); }).depends_on(wait_for_finish()).build();
+    auto finished = wait_for_finish();
+    if (finished->peek_is_finished()) {
+        return mk_pure_task<bool>(has_entry_now(fn));
+    } else {
+        auto t = *this;
+        return task_builder<bool>([t, fn] { return t.has_entry_now(fn); }).depends_on(finished).build();
+    }
 }
 
 LEAN_THREAD_PTR(log_tree::node, g_log_tree);

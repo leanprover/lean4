@@ -1,0 +1,10 @@
+m n : ℕ,
+i : F m
+⊢ F.raise (succ n) m i = F.suc (m + n) (F.raise n m i)
+unification_hints2.lean:7:8: warning: declaration '_example' uses sorry
+α : Type u,
+a b : α,
+l₁ l₂ : list α,
+i : G α l₂
+⊢ G.raise α (a :: l₁) l₂ i = G.cons α a (l₁ ++ l₂) (G.raise α l₁ l₂ i)
+unification_hints2.lean:24:8: warning: declaration '_example' uses sorry

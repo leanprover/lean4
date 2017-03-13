@@ -808,7 +808,18 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
         return new_env;
     };
 
-    return process(val);
+    try {
+        return process(val);
+    } catch (throwable & ex) {
+        // Even though we catch exceptions during elaboration, there can still be other exceptions,
+        // e.g. when adding a declaration to the environment.
+        try {
+            auto res = process(p.mk_sorry(header_pos));
+            p.mk_message(header_pos, ERROR).set_exception(ex).report();
+            return res;
+        } catch (...) {}
+        throw;
+    }
 }
 
 environment definition_cmd_core(parser & p, def_cmd_kind kind, decl_modifiers const & modifiers, decl_attributes attrs) {

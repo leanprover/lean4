@@ -4,8 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
 prelude
-import init.data.option.basic init.category.monad init.category.alternative
-import init.meta.pexpr init.meta.interaction_monad
+import init.meta.tactic
 
 namespace lean
 

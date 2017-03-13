@@ -4,13 +4,18 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Luke Nelson, Jared Roesch, Sebastian Ullrich
 -/
 prelude
-import init.core init.function
+import init.core init.function init.meta.name
 open function
 universes u v
+
+section
+set_option auto_param.check_exists false
 
 class functor (f : Type u → Type v) : Type (max u+1 v) :=
 (map : Π {α β : Type u}, (α → β) → f α → f β)
 (map_const : Π {α : Type u} (β : Type u), α → f β → f α := λ α β, map ∘ const β)
+(map_const_eq : ∀ {α β : Type u}, @map_const α β = map ∘ const β . control_laws_tac)
+end
 
 @[inline] def fmap {f : Type u → Type v} [functor f] {α β : Type u} : (α → β) → f α → f β :=
 functor.map

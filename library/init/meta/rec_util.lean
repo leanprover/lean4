@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 Helper tactic for showing that a type has decidable equality.
 -/
 prelude
-import init.meta.tactic
+import init.meta.tactic init.data.option.instances
 
 namespace tactic
 open expr

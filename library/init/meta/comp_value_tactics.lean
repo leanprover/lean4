@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.meta.tactic
+import init.meta.tactic init.data.option.instances
 
 meta constant mk_nat_val_ne_proof : expr → expr → option expr
 meta constant mk_nat_val_lt_proof : expr → expr → option expr

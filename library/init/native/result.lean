@@ -5,7 +5,7 @@ Authors: Jared Roesch
 -/
 prelude
 
-import init.category.monad
+import init.meta.tactic
 
 namespace native
 

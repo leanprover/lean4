@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.category.monad init.meta.format
+import init.category.monad init.meta.format init.util
 /-
 Remark: we use a function that produces a format object as the exception information.
 Motivation: the formatting object may be big, and we may create it on demand.
@@ -50,4 +50,5 @@ exception α (λ u, f)
 end exceptional
 
 meta instance : monad exceptional :=
-{pure := @exceptional.return, bind := @exceptional.bind}
+{pure := @exceptional.return, bind := @exceptional.bind,
+ map_const_eq := undefined, seq_left_eq := undefined, seq_right_eq := undefined}

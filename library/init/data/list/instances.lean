@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.category.monad init.category.alternative init.data.list.basic
 import init.meta.mk_dec_eq_instance
 open list
 

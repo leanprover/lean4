@@ -1,5 +1,5 @@
 prelude
-import init.category
+import init.logic
 
 meta constant {u} task : Type u → Type u
 
@@ -13,11 +13,8 @@ protected meta constant {u} flatten {α : Type u} : task (task α) → task α
 protected meta def {u v} bind {α : Type u} {β : Type v} (t : task α) (f : α → task β) : task β :=
 task.flatten (task.map f t)
 
-meta instance : monad task :=
-{ map := @task.map, bind := @task.bind, pure := @task.pure }
-
 @[inline]
 meta def {u} delay {α : Type u} (f : unit → α) : task α :=
-task.map f (return ())
+task.map f (task.pure ())
 
 end task

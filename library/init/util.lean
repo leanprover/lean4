@@ -32,6 +32,6 @@ f ()
 meta def try_for {α : Type u} (max : nat) (f : thunk α) : option α :=
 some (f ())
 
-meta constant undefined_core {α : Type u} (message : string) : α
+meta constant undefined_core {α : Sort u} (message : string) : α
 
-meta def undefined {α : Type u} : α := undefined_core "undefined"
+meta def undefined {α : Sort u} : α := undefined_core "undefined"

@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.logic init.data.nat.basic init.category.monad
+import init.logic init.data.nat.basic
 open decidable list
 
 universes u v w
@@ -224,6 +224,3 @@ join (map b a)
 @[inline] def ret {α : Type u} (a : α) : list α :=
 [a]
 end list
-
-instance : monad list :=
-{map := @list.map, pure := @list.ret, bind := @list.bind}

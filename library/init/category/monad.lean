@@ -20,9 +20,8 @@ infixl ` >>= `:2 := bind
 infixl ` >> `:2  := has_bind.and_then
 
 class monad (m : Type u → Type v) extends applicative m, has_bind m : Type (max u+1 v) :=
-(seq := λ α β f x, bind f $ λ f, bind x $ λ x, pure (f x))
--- implied by `seq`, but a bit simpler
 (map := λ α β f x, bind x $ λ x, pure (f x))
+(seq := λ α β f x, bind f $ λ f, map f x)
 
 def return {m : Type u → Type v} [monad m] {α : Type u} : α → m α :=
 pure

@@ -10,6 +10,7 @@ Author: Gabriel Ebner
 #include "util/list.h"
 #include "util/cancellable.h"
 #include <vector>
+#include <algorithm>
 #include <type_traits>
 
 namespace lean {
@@ -138,24 +139,52 @@ task_builder<Res> map(task<Arg> const & arg, Fn && fn) {
 
 template <class Res>
 task<std::vector<Res>> traverse(std::vector<task<Res>> const & ts) {
+    auto to_do = std::make_shared<std::vector<gtask>>();
+    for (gtask const & t : ts) {
+        if (!t->peek_is_finished()) {
+            to_do->push_back(t);
+        }
+    }
+
+    if (to_do->empty()) {
+        std::vector<Res> vs;
+        for (auto & t : ts) vs.push_back(get(t));
+        return mk_pure_task<std::vector<Res>>(vs);
+    }
+
     return task_builder<std::vector<Res>>([ts] {
         std::vector<Res> vs;
-        for (auto &t : ts) vs.push_back(get(t));
+        for (auto & t : ts) vs.push_back(get(t));
         return std::move(vs);
-    }).depends_on_fn([ts](buffer<gtask> & deps) {
-        for (auto &t : ts) deps.push_back(t);
+    }).depends_on_fn([to_do] (buffer<gtask> & deps) {
+        to_do->erase(std::remove_if(to_do->begin(), to_do->end(),
+                [] (gtask & t) { return t->peek_is_finished(); }),
+            to_do->end());
+        for (auto & t : *to_do) deps.push_back(t);
     }).execute_eagerly().build();
 }
 
-template <class Res>
-task<list<Res>> reverse_traverse(list<task<Res>> const & ts) {
-    return task_builder<list<Res>>([ts] {
-        list<Res> vs;
-        for (auto & t : ts) vs = cons(get(t), vs);
-        return std::move(vs);
-    }).depends_on_fn([ts](buffer<gtask> & deps) {
-        for (auto & t : ts) deps.push_back(t);
-    }).execute_eagerly().build();
+template <class Fn, class T>
+task<bool> any(std::vector<task<T>> const & ts, Fn && fn) {
+    std::vector<task<T>> unknown;
+    for (auto & t : ts) {
+        if (auto res = peek(t)) {
+            if (fn(*res))
+                return mk_pure_task(true);
+        } else {
+            unknown.push_back(t);
+        }
+    }
+    if (unknown.empty()) {
+        return mk_pure_task(false);
+    } else {
+        return map<bool>(traverse<T>(unknown), [=] (std::vector<T> ress) {
+           for (auto res : ress)
+               if (fn(res))
+                   return true;
+            return false;
+        }).execute_eagerly().build();
+    }
 }
 
 template <class Fn>

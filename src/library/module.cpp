@@ -218,14 +218,7 @@ void write_module(loaded_module const & mod, std::ostream & out) {
 static task<bool> has_sorry(modification_list const & mods) {
     std::vector<task<expr>> introduced_exprs;
     for (auto & mod : mods) mod->get_introduced_exprs(introduced_exprs);
-
-    return map<bool>(traverse(introduced_exprs),
-                     [] (std::vector<expr> const & es) {
-                         for (auto & e : es) {
-                             if (has_sorry(e)) return true;
-                         }
-                         return false;
-                     }).build();
+    return any(introduced_exprs, [] (expr const & e) { return has_sorry(e); });
 }
 
 loaded_module export_module(environment const & env, std::string const & mod_name) {
@@ -405,10 +398,7 @@ static task<bool> error_already_reported() {
     logtree().get_used_children().for_each([&] (name const &, log_tree::node const & c) {
         children.push_back(c.has_entry(is_sorry_warning_or_error));
     });
-    return map<bool>(traverse(children), [] (std::vector<bool> const & errs) {
-        for (auto err : errs) if (err) return true;
-        return false;
-    }).build();
+    return any(children, [] (bool already_reported) { return already_reported; });
 }
 
 environment add(environment const & env, certified_declaration const & d) {

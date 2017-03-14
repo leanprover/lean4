@@ -15,7 +15,8 @@ structure user_attribute :=
 
 /- Registers a new user-defined attribute. The argument must be the name of a definition of type
    `user_attribute` or a sub-structure. -/
-meta constant attribute.register : name → command
+meta def attribute.register (decl : name) : command :=
+tactic.set_basic_attribute ``user_attribute decl tt
 
 meta structure caching_user_attribute (α : Type) extends user_attribute :=
 (mk_cache     : list _root_.name → tactic α)

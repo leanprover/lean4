@@ -7,12 +7,6 @@ eq.refl
 @[foo, foo.baz, refl]
 constructor eq.refl : ∀ {α : Sort u} (a : α), a = a
 [eq.refl]
-user_attribute.lean:24:0: error: an attribute named [reducible] has already been registered
-state:
-⊢ true
-user_attribute.lean:29:0: error: invalid attribute.register argument, must be name of a definition of type user_attribute
-state:
-⊢ true
-user_attribute.lean:35:2: error: invalid attribute.register argument, must be name of a definition of type user_attribute
-state:
-⊢ true
+user_attribute.lean:22:0: error: an attribute named [reducible] has already been registered
+user_attribute.lean:27:0: error: invalid [user_attribute], must be applied to definition of type user_attribute
+user_attribute.lean:33:2: error: invalid [user_attribute], must be applied to definition of type user_attribute

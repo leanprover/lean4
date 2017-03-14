@@ -62,13 +62,13 @@ static environment update(environment const & env, user_attr_ext const & ext) {
 static environment add_user_attr(environment const & env, name const & d) {
     auto const & ty = env.get(d).get_type();
     if (!is_constant(ty, get_user_attribute_name()) && !is_constant(get_app_fn(ty), get_caching_user_attribute_name()))
-        throw exception("invalid attribute.register argument, must be name of a definition of type user_attribute");
+        throw exception("invalid [user_attribute], must be applied to definition of type user_attribute");
 
     vm_state vm(env, options());
     vm_obj o = vm.invoke(d, {});
     name const & n = to_name(cfield(o, 0));
     if (n.is_anonymous())
-        throw exception(sstream() << "invalid attribute.register, anonymous attribute names are not allowed");
+        throw exception(sstream() << "invalid user_attribute, anonymous attribute names are not allowed");
     if (is_attribute(env, n))
         throw exception(sstream() << "an attribute named [" << n << "] has already been registered");
     std::string descr = to_string(cfield(o, 1));
@@ -116,15 +116,6 @@ vm_obj attribute_get_instances(vm_obj const & vm_n, vm_obj const & vm_s) {
     get_attribute(s.env(), n).get_instances(s.env(), b);
     LEAN_TACTIC_CATCH(s);
     return tactic::mk_success(to_obj(b), s);
-}
-
-vm_obj attribute_register(vm_obj const & vm_n, vm_obj const & vm_s) {
-    auto const & s = tactic::to_state(vm_s);
-    auto const & n = to_name(vm_n);
-    LEAN_TACTIC_TRY;
-    auto env = module::add_and_perform(s.env(), std::make_shared<user_attr_modification>(n));
-    return tactic::mk_success(set_env(s, env));
-    LEAN_TACTIC_CATCH(s);
 }
 
 vm_obj attribute_fingerprint(vm_obj const & vm_n, vm_obj const & vm_s) {
@@ -268,7 +259,6 @@ vm_obj has_attribute(vm_obj const & vm_attr_n, vm_obj const & vm_n, vm_obj const
 
 void initialize_user_attribute() {
     DECLARE_VM_BUILTIN(name({"attribute", "get_instances"}),            attribute_get_instances);
-    DECLARE_VM_BUILTIN(name({"attribute", "register"}),                 attribute_register);
     DECLARE_VM_BUILTIN(name({"attribute", "fingerprint"}),              attribute_fingerprint);
     DECLARE_VM_BUILTIN(name({"caching_user_attribute", "get_cache"}),   caching_user_attribute_get_cache);
     DECLARE_VM_BUILTIN(name({"tactic",    "set_basic_attribute"}),      set_basic_attribute);
@@ -276,6 +266,13 @@ void initialize_user_attribute() {
     DECLARE_VM_BUILTIN(name({"tactic",    "has_attribute"}),            has_attribute);
 
     register_trace_class("user_attributes_cache");
+    register_system_attribute(basic_attribute(
+            "user_attribute", "register a definition of type `user_attribute` in the attribute manager",
+            [](environment const & env, io_state const &, name const & n, unsigned, bool persistent) {
+                if (!persistent)
+                    throw exception("illegal [user_attribute] application, cannot be used locally");
+                return module::add_and_perform(env, std::make_shared<user_attr_modification>(n));
+            }));
     g_ext = new user_attr_ext_reg();
     user_attr_modification::init();
     set_user_attribute_ext(std::unique_ptr<user_attribute_ext>(new actual_user_attribute_ext));

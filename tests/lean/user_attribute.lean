@@ -1,5 +1,5 @@
+@[user_attribute]
 definition foo_attr : user_attribute := { name := `foo, descr := "bar" }
-run_cmd attribute.register `foo_attr
 
 attribute [foo] eq.refl
 
@@ -9,9 +9,8 @@ run_cmd attribute.get_instances `foo >>= tactic.pp >>= tactic.trace
 #print "---"
 
 -- compound names
+@[user_attribute]
 definition foo_baz_attr : user_attribute := ⟨`foo.baz, "bar"⟩
-
-run_cmd attribute.register `foo_baz_attr
 
 attribute [foo.baz] eq.refl
 
@@ -20,17 +19,17 @@ attribute [foo.baz] eq.refl
 run_cmd attribute.get_instances `foo.baz >>= tactic.pp >>= tactic.trace
 
 -- can't redeclare attributes
+@[user_attribute]
 definition duplicate : user_attribute := ⟨`reducible, "bar"⟩
-run_cmd attribute.register `duplicate
 
 
 -- wrong type
+@[user_attribute]
 definition bar := "bar"
-run_cmd attribute.register `bar
 
 section
   variable x : string
 
+  @[user_attribute]
   definition baz_attr : user_attribute := ⟨`baz, x⟩
-  run_cmd attribute.register `baz_attr
 end

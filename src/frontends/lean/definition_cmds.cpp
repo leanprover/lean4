@@ -399,11 +399,12 @@ declare_definition(parser & p, environment const & env, def_cmd_kind kind, buffe
         new_env = ensure_decl_namespaces(new_env, c_real_name);
     }
 
-    new_env = attrs.apply(new_env, p.ios(), c_real_name);
     new_env = compile_decl(p, new_env, c_name, c_real_name, pos);
     if (doc_string) {
         new_env = add_doc_string(new_env, c_real_name, *doc_string);
     }
+    // note: some attribute handlers rely on the new definition being compiled already
+    new_env = attrs.apply(new_env, p.ios(), c_real_name);
     return mk_pair(new_env, c_real_name);
 }
 

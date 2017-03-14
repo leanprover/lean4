@@ -1,5 +1,6 @@
 open tactic
 meta def list_name.to_expr (n : list name) : tactic expr := to_expr (quote n)
+@[user_attribute]
 meta def my_attr : caching_user_attribute (name → bool) :=
 { name         := "my_attr",
   descr        := "my attr",
@@ -10,8 +11,6 @@ meta def my_attr : caching_user_attribute (name → bool) :=
   },
   dependencies := []
 }
-
-run_cmd attribute.register `my_attr
 
 meta def my_tac : tactic unit :=
 do f ← caching_user_attribute.get_cache my_attr,

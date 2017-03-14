@@ -30,8 +30,19 @@ std::ostream & operator<<(std::ostream & out, message const & msg) {
     return out;
 }
 
-void report_message(message const & msg) {
-    logtree().add(std::make_shared<message>(msg));
+void report_message(message const & msg0) {
+    auto & l = logtree();
+    auto & loc = logtree().get_location();
+
+    std::shared_ptr<message> msg;
+    if (loc.m_file_name.empty()) {
+        msg = std::make_shared<message>(msg0);
+    } else {
+        auto pos_ok = loc.m_range.m_begin <= msg0.get_pos() && msg0.get_pos() <= loc.m_range.m_end;
+        msg = std::make_shared<message>(loc.m_file_name, pos_ok ? msg0.get_pos() : loc.m_range.m_begin,
+            msg0.get_severity(), msg0.get_caption(), msg0.get_text());
+    }
+    l.add(msg);
 }
 
 task<bool> has_errors(log_tree::node const & n) {

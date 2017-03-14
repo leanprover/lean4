@@ -15,7 +15,27 @@ Author: Leonardo de Moura
 #define LEAN_CHECK_MEM_THRESHOLD 200
 #endif
 
-#if defined(LEAN_WINDOWS)
+#if defined(HAS_JEMALLOC)
+#include <jemalloc/jemalloc.h>
+
+namespace lean {
+
+size_t get_peak_rss() {
+    size_t allocated;
+    size_t sz = sizeof(size_t);
+    if (mallctl("stats.allocated", &allocated, &sz, NULL, 0) == 0) {
+        return allocated;
+    } else {
+        return 0;
+    }
+}
+
+size_t get_current_rss() {
+    return get_peak_rss();
+}
+
+}
+#elif defined(LEAN_WINDOWS)
 /* ----------------------------------------------------
    Windows version for get_peak_rss and get_current_rss
    --------------------------------------------------- */

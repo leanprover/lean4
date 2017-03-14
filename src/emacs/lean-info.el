@@ -36,13 +36,16 @@
        (setq standard-output buf)
        . ,body)))
 
+(defun lean-ensure-info-buffer (buffer)
+  (unless (get-buffer buffer)
+    (with-current-buffer (get-buffer-create buffer)
+      (buffer-disable-undo)
+      (lean-info-mode))))
+
 (defun lean-toggle-info-buffer (buffer)
   (-if-let (window (get-buffer-window buffer))
       (quit-window nil window)
-    (unless (get-buffer buffer)
-      (with-current-buffer (get-buffer-create buffer)
-        (buffer-disable-undo)
-        (lean-info-mode)))
+    (lean-ensure-info-buffer buffer)
     (display-buffer buffer)))
 
 (defun lean-info-buffer-active (buffer)

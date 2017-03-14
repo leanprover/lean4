@@ -150,6 +150,9 @@ enabled and disabled respectively.")
   ;; Flycheck
   (lean-flycheck-turn-on)
   (setq-local flycheck-disabled-checkers '())
+  ;; info buffers
+  (lean-ensure-info-buffer lean-next-error-buffer-name)
+  (lean-ensure-info-buffer lean-show-goal-buffer-name)
   ;; company-mode
   (when lean-company-use
     (company-lean-hook))

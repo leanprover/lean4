@@ -68,10 +68,6 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_PARSER_SHOW_ERRORS true
 #endif
 
-#ifndef LEAN_DEFAULT_PARSER_PARALLEL_IMPORT
-#define LEAN_DEFAULT_PARSER_PARALLEL_IMPORT false
-#endif
-
 namespace lean {
 
 void break_at_pos_exception::report_goal_pos(pos_info goal_pos) {
@@ -82,7 +78,6 @@ void break_at_pos_exception::report_goal_pos(pos_info goal_pos) {
 // ==========================================
 // Parser configuration options
 static name * g_parser_show_errors;
-static name * g_parser_parallel_import;
 
 bool get_parser_show_errors(options const & opts) {
     return opts.get_bool(*g_parser_show_errors, LEAN_DEFAULT_PARSER_SHOW_ERRORS);
@@ -2445,11 +2440,8 @@ bool parse_commands(environment & env, io_state & ios, char const * fname) {
 
 void initialize_parser() {
     g_parser_show_errors     = new name{"parser", "show_errors"};
-    g_parser_parallel_import = new name{"parser", "parallel_import"};
     register_bool_option(*g_parser_show_errors, LEAN_DEFAULT_PARSER_SHOW_ERRORS,
                          "(lean parser) display error messages in the regular output channel");
-    register_bool_option(*g_parser_parallel_import, LEAN_DEFAULT_PARSER_PARALLEL_IMPORT,
-                         "(lean parser) import modules in parallel");
     g_tmp_prefix = new name(name::mk_internal_unique_name());
     g_documentable_cmds = new name_set();
 
@@ -2470,7 +2462,6 @@ void initialize_parser() {
 void finalize_parser() {
     delete g_tmp_prefix;
     delete g_parser_show_errors;
-    delete g_parser_parallel_import;
     delete g_documentable_cmds;
 }
 }

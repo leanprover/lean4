@@ -2705,7 +2705,7 @@ static expr quote(expr const & e) {
             return mk_app(mk_constant({"expr", "pi"}), mk_expr_placeholder(), mk_expr_placeholder(),
                           quote(binding_domain(e)), quote(binding_body(e)));
         case expr_kind::Let:
-            return mk_app(mk_constant({"expr", "let"}), mk_expr_placeholder(), quote(let_type(e)),
+            return mk_app(mk_constant({"expr", "elet"}), mk_expr_placeholder(), quote(let_type(e)),
                           quote(let_value(e)), quote(let_body(e)));
         case expr_kind::Macro:
             if (is_antiquote(e))

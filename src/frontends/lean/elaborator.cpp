@@ -2699,13 +2699,13 @@ static expr quote(expr const & e) {
         case expr_kind::App:
             return mk_app(mk_constant({"expr", "app"}), quote(app_fn(e)), quote(app_arg(e)));
         case expr_kind::Lambda:
-            return mk_app(mk_constant({"expr", "lam"}), quote(binding_name(e)), mk_expr_placeholder(),
+            return mk_app(mk_constant({"expr", "lam"}), mk_expr_placeholder(), mk_expr_placeholder(),
                           quote(binding_domain(e)), quote(binding_body(e)));
         case expr_kind::Pi:
-            return mk_app(mk_constant({"expr", "pi"}), quote(binding_name(e)), mk_expr_placeholder(),
+            return mk_app(mk_constant({"expr", "pi"}), mk_expr_placeholder(), mk_expr_placeholder(),
                           quote(binding_domain(e)), quote(binding_body(e)));
         case expr_kind::Let:
-            return mk_app(mk_constant({"expr", "let"}), quote(let_name(e)), quote(let_type(e)),
+            return mk_app(mk_constant({"expr", "let"}), mk_expr_placeholder(), quote(let_type(e)),
                           quote(let_value(e)), quote(let_body(e)));
         case expr_kind::Macro:
             if (is_antiquote(e))

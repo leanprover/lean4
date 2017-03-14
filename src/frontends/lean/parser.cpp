@@ -114,7 +114,7 @@ LEAN_THREAD_VALUE(id_behavior, g_outer_id_behavior, id_behavior::ErrorIfUndef);
 parser::quote_scope::quote_scope(parser & p, bool q, id_behavior i):
     m_p(p), m_id_behavior(m_p.m_id_behavior), m_old_in_quote(m_p.m_in_quote), m_in_quote(q),
     m_saved_in_pattern(p.m_in_pattern) {
-    m_p.m_in_pattern = false;
+    // m_p.m_in_pattern = false;
     if (m_in_quote && !m_old_in_quote) {
         g_outer_id_behavior = m_p.m_id_behavior;
         m_p.m_id_behavior = i;

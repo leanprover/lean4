@@ -58,6 +58,73 @@ to_expr q ff tt
 namespace interactive
 open interactive interactive.types expr
 
+open format
+private meta def maybe_paren : list format → format
+| []  := ""
+| [f] := f
+| fs  := paren (join fs)
+
+private meta def unfold (e : expr) : tactic expr := do
+(expr.const f_name f_lvls) ← return e^.get_app_fn | pp e >>= fail,
+env   ← get_env,
+decl  ← env^.get f_name,
+new_f ← decl^.instantiate_value_univ_params f_lvls,
+head_beta (expr.mk_app new_f e^.get_app_args)
+
+private meta def parser_desc_aux : expr → tactic (list format)
+| ```(ident)  := return ["id"]
+| ```(qexpr) := return ["expr"]
+| ```(tk %%c) := return <$> to_fmt <$> eval_expr string c
+| ```(return ._) := return []
+| ```(._ <$> %%p) := parser_desc_aux p
+| ```(%%p₁ <*> %%p₂) := do
+  f₁ ← parser_desc_aux p₁,
+  f₂ ← parser_desc_aux p₂,
+  return $ f₁ ++ [" "] ++ f₂
+| ```(%%p₁ <* %%p₂) := do
+  f₁ ← parser_desc_aux p₁,
+  f₂ ← parser_desc_aux p₂,
+  return $ f₁ ++ [" "] ++ f₂
+| ```(%%p₁ *> %%p₂) := do
+  f₁ ← parser_desc_aux p₁,
+  f₂ ← parser_desc_aux p₂,
+  return $ f₁ ++ [" "] ++ f₂
+| ```(many %%p) := do
+  f ← parser_desc_aux p,
+  return [maybe_paren f ++ "*"]
+| ```(optional %%p) := do
+  f ← parser_desc_aux p,
+  return [maybe_paren f ++ "?"]
+| ```(sep_by %%sep %%p) := do
+  f ← parser_desc_aux p,
+  fs ← eval_expr string sep,
+  return [maybe_paren f ++ to_fmt fs, " ..."]
+| ```(%%p₁ <|> %%p₂) := do
+  f₁ ← parser_desc_aux p₁,
+  f₂ ← parser_desc_aux p₂,
+  return $ if list.empty f₁ then [maybe_paren f₂ ++ "?"] else
+    if list.empty f₂ then [maybe_paren f₁ ++ "?"] else
+    [maybe_paren f₁, " | ", maybe_paren f₂]
+| e          := do
+  e' ← unfold e,
+  if e ≠ e' then parser_desc_aux e'
+  else pp e >>= fail
+
+private meta def param_desc : expr → tactic format
+| ```(parse %%p) := join <$> parser_desc_aux p
+| ```(opt_param %%t ._) := (++ "?") <$> pp t
+| e := paren <$> pp e
+
+meta def interactive_desc_aux : expr → tactic (list format)
+| (expr.pi _ _ d b) := list.cons <$> param_desc d <*> interactive_desc_aux b
+| _ := return []
+
+meta def interactive_desc (n : name) : tactic format := do
+env ← get_env,
+decl ← env^.get n,
+f ← interactive_desc_aux decl^.type,
+return $ to_fmt n^.components^.ilast ++ " " ++ join (list.intersperse " " f)
+
 /-
 itactic: parse a nested "interactive" tactic. That is, parse
   `(` tactic `)`

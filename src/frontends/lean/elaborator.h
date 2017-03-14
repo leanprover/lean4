@@ -96,6 +96,7 @@ private:
     bool              m_no_info{false};
 
     bool              m_in_pattern{false};
+    bool              m_in_quote{false};
 
     expr get_default_numeral_type();
 
@@ -265,7 +266,7 @@ private:
 public:
     elaborator(environment const & env, options const & opts, name const & decl_name,
                metavar_context const & mctx, local_context const & lctx,
-               bool recover_from_errors = true, bool in_pattern = false);
+               bool recover_from_errors = true, bool in_pattern = false, bool in_quote = false);
     ~elaborator();
     metavar_context const & mctx() const { return m_ctx.mctx(); }
     local_context const & lctx() const { return m_ctx.lctx(); }

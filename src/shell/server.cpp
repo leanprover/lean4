@@ -7,21 +7,19 @@ Authors: Gabriel Ebner, Leonardo de Moura, Sebastian Ullrich
 #if defined(LEAN_JSON)
 #include <list>
 #include <string>
-#include <algorithm>
 #include <vector>
-#include <clocale>
+#include <algorithm>
 #include "util/lean_path.h"
 #include "util/sexpr/option_declarations.h"
 #include "util/timer.h"
-#include "util/utf8.h"
 #include "library/mt_task_queue.h"
 #include "library/st_task_queue.h"
 #include "library/attribute_manager.h"
 #include "library/tactic/tactic_state.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/info_manager.h"
+#include "frontends/lean/interactive.h"
 #include "shell/server.h"
-#include "shell/completion.h"
 
 #ifndef LEAN_DEFAULT_AUTO_COMPLETION_MAX_RESULTS
 #define LEAN_DEFAULT_AUTO_COMPLETION_MAX_RESULTS 100
@@ -392,52 +390,8 @@ public:
                 try {
                     parse_breaking_at_pos(get_module_id(), m_mod_info, pos, true);
                 } catch (break_at_pos_exception & e) {
-                    unsigned offset = get_pos().second - e.m_token_info.m_pos.second;
-                    std::string prefix = e.m_token_info.m_token.to_string();
-                    if (auto stop = utf8_char_pos(prefix.c_str(), offset))
-                        prefix = prefix.substr(0, *stop);
-                    switch (e.m_token_info.m_context) {
-                        case break_at_pos_exception::token_context::expr:
-                            // no empty prefix completion for declarations
-                            if (!prefix.size()) {
-                                m_server->send_msg(cmd_res(m_seq_num, j));
-                                return {};
-                            }
-                            if (!m_skip_completions)
-                                j["completions"] = get_decl_completions(prefix, snap->m_env, snap->m_options);
-                            break;
-                        case break_at_pos_exception::token_context::field:
-                            if (!m_skip_completions)
-                                j["completions"] = get_field_completions(e.m_token_info.m_struct, prefix, snap->m_env, snap->m_options);
-                            break;
-                        case break_at_pos_exception::token_context::option:
-                            if (!m_skip_completions)
-                                j["completions"] = get_option_completions(prefix, snap->m_options);
-                            break;
-                        case break_at_pos_exception::token_context::import:
-                            if (!m_skip_completions)
-                                j["completions"] = get_import_completions(prefix, dirname(m_mod_info->m_mod.c_str()),
-                                                                          snap->m_options);
-                            break;
-                        case break_at_pos_exception::token_context::interactive_tactic:
-                            if (!m_skip_completions)
-                                j["completions"] = get_interactive_tactic_completions(
-                                        prefix, e.m_token_info.m_tac_class, snap->m_env, snap->m_options);
-                            break;
-                        case break_at_pos_exception::token_context::attribute:
-                            if (!m_skip_completions)
-                                j["completions"] = get_attribute_completions(prefix, snap->m_env, snap->m_options);
-                            break;
-                        case break_at_pos_exception::token_context::namespc:
-                            if (!m_skip_completions)
-                                j["completions"] = get_namespace_completions(prefix, snap->m_env, snap->m_options);
-                            break;
-                        case break_at_pos_exception::token_context::none:
-                        case break_at_pos_exception::token_context::notation:
-                            m_server->send_msg(cmd_res(m_seq_num, j));
-                            return {};
-                    }
-                    j["prefix"] = prefix;
+                    report_completions(snap->m_env, snap->m_options, pos, m_skip_completions, m_mod_info->m_mod.c_str(),
+                                       e, j);
                 } catch (throwable & ex) {}
             }
 
@@ -491,58 +445,13 @@ public:
             try {
                 parse_breaking_at_pos(get_module_id(), m_mod_info, pos);
             } catch (break_at_pos_exception & e) {
-                json record;
-
                 auto opts = m_server->m_ios.get_options();
                 auto env = m_server->m_initial_env;
                 if (auto snap = get_closest_snapshot(m_mod_info, e.m_token_info.m_pos)) {
                     env = snap->m_env;
                     opts = snap->m_options;
                 }
-
-                // info data not dependent on elaboration/info_manager
-                auto const & tk = e.m_token_info.m_token;
-                if (tk.size()) {
-                    switch (e.m_token_info.m_context) {
-                        case break_at_pos_exception::token_context::attribute:
-                            record["doc"] = get_attribute(env, tk).get_description();
-                            add_source_info(env, tk, record);
-                            break;
-                        case break_at_pos_exception::token_context::import: {
-                            auto parsed = parse_import(tk.to_string());
-                            try {
-                                auto f = find_file(m_mod_info->m_mod, parsed.first, string_to_name(parsed.second),
-                                                   ".lean");
-                                record["source"]["file"] = f;
-                                record["source"]["line"] = 1;
-                                record["source"]["column"] = 0;
-                            } catch (file_not_found_exception) {}
-                            break;
-                        }
-                        case break_at_pos_exception::token_context::option:
-                            if (auto it = get_option_declarations().find(tk))
-                                record["doc"] = it->get_description();
-                            break;
-                        default:
-                            break;
-                    }
-                }
-
-                for (auto & infom : m_server->m_msg_buf->get_info_managers()) {
-                    if (infom.get_file_name() == get_module_id()) {
-                        if (e.m_goal_pos) {
-                            infom.get_info_record(env, opts, m_server->m_ios, e.m_goal_pos->first,
-                                                  e.m_goal_pos->second, record, [](info_data const & d) {
-                                        return dynamic_cast<vm_obj_format_info const *>(d.raw());
-                                    });
-                        }
-                        infom.get_info_record(env, opts, m_server->m_ios, e.m_token_info.m_pos.first,
-                                              e.m_token_info.m_pos.second, record);
-                    }
-                }
-
-                if (!record.is_null())
-                    j["record"] = record;
+                report_info(env, opts, m_server->m_ios, *m_mod_info, m_server->m_msg_buf->get_info_managers(), e, j);
             } catch (throwable & ex) {}
 
             m_server->send_msg(cmd_res(m_seq_num, j));

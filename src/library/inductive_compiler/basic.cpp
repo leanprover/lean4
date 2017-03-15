@@ -16,7 +16,6 @@ Author: Daniel Selsam
 #include "library/inductive_compiler/util.h"
 #include "library/constructions/drec.h"
 #include "library/constructions/rec_on.h"
-#include "library/constructions/induction_on.h"
 #include "library/constructions/cases_on.h"
 #include "library/constructions/brec_on.h"
 #include "library/constructions/no_confusion.h"
@@ -90,9 +89,6 @@ class add_basic_inductive_decl_fn {
 
         if (gen_rec_on)
             m_env = mk_rec_on(m_env, ind_name);
-
-        if (gen_rec_on)
-            m_env = mk_induction_on(m_env, ind_name);
 
         if (has_unit) {
             if (gen_cases_on)

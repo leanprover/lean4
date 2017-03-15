@@ -172,7 +172,7 @@ section
 
   -- The lexicographical order of well founded relations is well-founded
   def lex_wf (ha : well_founded ra) (hb : well_founded rb) : well_founded (lex ra rb) :=
-  ⟨λ p, destruct p (λ a b, lex_accessible (apply ha a) (well_founded.apply hb) b)⟩
+  ⟨λ p, cases_on p (λ a b, lex_accessible (apply ha a) (well_founded.apply hb) b)⟩
 
   -- relational product is a subrelation of the lex
   def rprod_sub_lex : ∀ a b, rprod ra rb a b → lex ra rb a b :=

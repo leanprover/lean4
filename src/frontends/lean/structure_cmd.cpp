@@ -42,7 +42,6 @@ Author: Leonardo de Moura
 #include "library/documentation.h"
 #include "library/compiler/vm_compiler.h"
 #include "library/constructions/rec_on.h"
-#include "library/constructions/induction_on.h"
 #include "library/constructions/cases_on.h"
 #include "library/constructions/projection.h"
 #include "library/constructions/no_confusion.h"
@@ -972,10 +971,6 @@ struct structure_cmd_fn {
         name rec_on_name(m_name, "rec_on");
         add_rec_alias(rec_on_name);
         m_env = add_aux_recursor(m_env, rec_on_name);
-        m_env = mk_induction_on(m_env, m_name);
-        name induction_on_name(m_name, "induction_on");
-        add_alias(induction_on_name);
-        add_rec_on_alias(name(m_name, "destruct"));
         name cases_on_name(m_name, "cases_on");
         add_rec_on_alias(cases_on_name);
         m_env = add_aux_recursor(m_env, cases_on_name);
@@ -1080,7 +1075,6 @@ struct structure_cmd_fn {
             return;
         if (!has_and_decls(m_env))
             return;
-
         m_env = mk_injective_lemmas(m_env, m_name);
         add_alias(mk_injective_name(m_name));
         add_alias(mk_injective_arrow_name(m_name));

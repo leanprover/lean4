@@ -234,7 +234,7 @@ lemma mem_or_mem_of_mem_append {a : α} : ∀ {s t : list α}, a ∈ s ++ t → 
   end
 
 lemma mem_append_of_mem_or_mem {a : α} {s t : list α} : a ∈ s ∨ a ∈ t → a ∈ s ++ t :=
-list.induction_on s
+list.rec_on s
   (take h, or.elim h false.elim id)
   (take b s,
     assume ih : a ∈ s ∨ a ∈ t → a ∈ s ++ t,
@@ -268,7 +268,7 @@ lemma length_pos_of_mem {a : α} : ∀ {l : list α}, a ∈ l → 0 < length l
 | (b::l) := suppose a ∈ b::l, nat.zero_lt_succ _
 
 lemma mem_split {a : α} {l : list α} : a ∈ l → ∃ s t : list α, l = s ++ (a::t) :=
-list.induction_on l
+list.rec_on l
   (suppose a ∈ [], begin simp at this, contradiction end)
   (take b l,
     assume ih : a ∈ l → ∃ s t : list α, l = s ++ (a::t),

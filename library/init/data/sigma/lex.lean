@@ -48,7 +48,7 @@ section
 
   -- The lexicographical order of well founded relations is well-founded
   def lex_wf (ha : well_founded r) (hb : ∀ x, well_founded (s x)) : well_founded (lex r s) :=
-  well_founded.intro (λ p, destruct p (λ a b, lex_accessible (well_founded.apply ha a) hb b))
+  well_founded.intro (λ p, cases_on p (λ a b, lex_accessible (well_founded.apply ha a) hb b))
 end
 
 section
@@ -59,7 +59,7 @@ section
 
   def lex_ndep_wf {r  : α → α → Prop} {s : β → β → Prop} (ha : well_founded r) (hb : well_founded s)
                   : well_founded (lex_ndep r s) :=
-  well_founded.intro (λ p, destruct p (λ a b, lex_accessible (well_founded.apply ha a) (λ x, hb) b))
+  well_founded.intro (λ p, cases_on p (λ a b, lex_accessible (well_founded.apply ha a) (λ x, hb) b))
 end
 
 section
@@ -100,7 +100,7 @@ section
             aux rfl rfl)))
 
   def rev_lex_wf (ha : well_founded r) (hb : well_founded s) : well_founded (rev_lex r s) :=
-  well_founded.intro (λ p, destruct p (λ a b, rev_lex_accessible (apply hb b) (well_founded.apply ha) a))
+  well_founded.intro (λ p, cases_on p (λ a b, rev_lex_accessible (apply hb b) (well_founded.apply ha) a))
 end
 
 section

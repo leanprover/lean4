@@ -390,7 +390,7 @@ public:
                 try {
                     parse_breaking_at_pos(get_module_id(), m_mod_info, pos, true);
                 } catch (break_at_pos_exception & e) {
-                    report_completions(snap->m_env, snap->m_options, pos, m_skip_completions, m_mod_info->m_mod.c_str(),
+                    report_completions(snap->m_env, snap->m_options, get_pos(), m_skip_completions, m_mod_info->m_mod.c_str(),
                                        e, j);
                 } catch (throwable & ex) {}
             }

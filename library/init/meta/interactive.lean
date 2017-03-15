@@ -30,7 +30,7 @@ meta def list_of (p : parser α) := tk "[" *> sep_by "," p <* tk "]"
     trailing expression parameters. -/
 meta def texpr := qexpr 2
 /-- Parse an identifier or a '_' -/
-meta def ident_ : parser name := ident <|> tk "_" >> return `_
+meta def ident_ : parser name := ident <|> tk "_" *> return `_
 meta def using_ident := (tk "using" *> ident)?
 meta def with_ident_list := (tk "with" *> ident_*) <|> return []
 meta def without_ident_list := (tk "without" *> ident*) <|> return []
@@ -39,40 +39,23 @@ meta def qexpr_list := list_of (qexpr 0)
 meta def opt_qexpr_list := qexpr_list <|> return []
 meta def qexpr_list_or_texpr := qexpr_list <|> return <$> texpr
 end types
-end interactive
 
-namespace tactic
-meta def report_resolve_name_failure {α : Type} (e : expr) (n : name) : tactic α :=
-if e^.is_choice_macro
-then fail ("failed to resolve name '" ++ to_string n ++ "', it is overloaded")
-else fail ("failed to resolve name '" ++ to_string n ++ "', unexpected result")
-
-/- allows metavars and report errors -/
-meta def i_to_expr (q : pexpr) : tactic expr :=
-to_expr q tt tt
-
-/- doesn't allows metavars and report errors -/
-meta def i_to_expr_strict (q : pexpr) : tactic expr :=
-to_expr q ff tt
-
-namespace interactive
-open interactive interactive.types expr
-
-open format
+open format tactic types
 private meta def maybe_paren : list format → format
 | []  := ""
 | [f] := f
 | fs  := paren (join fs)
 
-private meta def unfold (e : expr) : tactic expr := do
-(expr.const f_name f_lvls) ← return e^.get_app_fn | pp e >>= fail,
-env   ← get_env,
-decl  ← env^.get f_name,
-new_f ← decl^.instantiate_value_univ_params f_lvls,
-head_beta (expr.mk_app new_f e^.get_app_args)
+private meta def unfold (e : expr) : tactic expr :=
+do (expr.const f_name f_lvls) ← return e^.get_app_fn | failed,
+   env   ← get_env,
+   decl  ← env^.get f_name,
+   new_f ← decl^.instantiate_value_univ_params f_lvls,
+   head_beta (expr.mk_app new_f e^.get_app_args)
 
 private meta def parser_desc_aux : expr → tactic (list format)
 | ```(ident)  := return ["id"]
+| ```(ident_) := return ["id"]
 | ```(qexpr) := return ["expr"]
 | ```(tk %%c) := return <$> to_fmt <$> eval_expr string c
 | ```(return ._) := return []
@@ -106,9 +89,12 @@ private meta def parser_desc_aux : expr → tactic (list format)
     if list.empty f₂ then [maybe_paren f₁ ++ "?"] else
     [maybe_paren f₁, " | ", maybe_paren f₂]
 | e          := do
-  e' ← unfold e,
-  if e ≠ e' then parser_desc_aux e'
-  else pp e >>= fail
+  e' ← (do e' ← unfold e,
+        guard $ e' ≠ e,
+        return e') <|>
+       (do f ← pp e,
+        fail $ to_fmt "don't know how to pretty print " ++ f),
+  parser_desc_aux e'
 
 private meta def param_desc : expr → tactic format
 | ```(parse %%p) := join <$> parser_desc_aux p
@@ -119,10 +105,27 @@ meta def interactive_desc_aux : expr → tactic (list format)
 | (expr.pi _ _ d b) := list.cons <$> param_desc d <*> interactive_desc_aux b
 | _ := return []
 
-@[interactive.type_formatter]
-meta def interactive_desc (e : expr) : tactic format :=
+meta def desc (e : expr) : tactic format :=
 do f ← interactive_desc_aux e,
    return $ join $ list.intersperse " " f
+end interactive
+
+namespace tactic
+meta def report_resolve_name_failure {α : Type} (e : expr) (n : name) : tactic α :=
+if e^.is_choice_macro
+then fail ("failed to resolve name '" ++ to_string n ++ "', it is overloaded")
+else fail ("failed to resolve name '" ++ to_string n ++ "', unexpected result")
+
+/- allows metavars and report errors -/
+meta def i_to_expr (q : pexpr) : tactic expr :=
+to_expr q tt tt
+
+/- doesn't allows metavars and report errors -/
+meta def i_to_expr_strict (q : pexpr) : tactic expr :=
+to_expr q ff tt
+
+namespace interactive
+open interactive interactive.types expr
 
 /-
 itactic: parse a nested "interactive" tactic. That is, parse

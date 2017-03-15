@@ -289,9 +289,6 @@ std::vector<json> get_interactive_tactic_completions(std::string const & pattern
     filter_completions<name>(pattern, selected, completions, max_results, [&](name const & n) {
         return serialize_decl(n.get_string(), n, env, opts);
     });
-    // append regular completions
-    for (auto candidate : get_decl_completions(pattern, env, opts))
-        completions.push_back(candidate);
     return completions;
 }
 

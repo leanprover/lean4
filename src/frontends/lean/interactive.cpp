@@ -15,25 +15,28 @@ Author: Sebastian Ullrich
 #include "shell/completion.h"
 
 namespace lean {
-format interactive_format_type(environment const & env, options const & opts, expr const & e) {
-    buffer<name> instances;
-    get_system_attribute({"interactive", "type_formatter"}).get_instances(env, instances);
-    vm_state vm(env, options());
-    type_context tc(env);
+LEAN_THREAD_VALUE(break_at_pos_exception::token_context, g_context, break_at_pos_exception::token_context::none);
 
-    for (name const & inst : instances) {
+format interactive_format_type(environment const & env, options const & opts, expr const & e) {
+    type_context tc(env);
+    if (g_context == break_at_pos_exception::token_context::interactive_tactic) {
+        vm_state vm(env, options());
         tactic_state s(env, opts, "_interactive_format_type", {}, {}, mk_true(), {});
 
-        vm_obj r = vm.invoke(inst, {to_obj(s), to_obj(e)});
+        vm_obj r = vm.invoke({"interactive", "desc"}, {to_obj(s), to_obj(e)});
         if (tactic::is_result_success(r))
             return to_format(tactic::get_result_value(r));
+        else
+            return format("<error while executing bla:") + space() + std::get<0>(*tactic::is_exception(vm, r)) +
+                   format(">");
+    } else {
+        return mk_pretty_formatter_factory()(env, opts, tc)(e);
     }
-    auto fmter = mk_pretty_formatter_factory()(env, opts, tc);
-    return fmter(e);
 }
 
 void report_completions(environment const & env, options const & opts, pos_info const & pos, bool skip_completions,
                         char const * mod_path, break_at_pos_exception const & e, json & j) {
+    g_context = e.m_token_info.m_context;
     unsigned offset = pos.second - e.m_token_info.m_pos.second;
     std::string prefix = e.m_token_info.m_token.to_string();
     if (auto stop = utf8_char_pos(prefix.c_str(), offset))
@@ -60,9 +63,14 @@ void report_completions(environment const & env, options const & opts, pos_info 
                                                           opts);
             break;
         case break_at_pos_exception::token_context::interactive_tactic:
-            if (!skip_completions)
-                j["completions"] = get_interactive_tactic_completions(
-                        prefix, e.m_token_info.m_tac_class, env, opts);
+            if (!skip_completions) {
+                auto completions = get_interactive_tactic_completions(prefix, e.m_token_info.m_tac_class, env, opts);
+                // append regular completions
+                g_context = break_at_pos_exception::token_context::none;
+                for (auto candidate : get_decl_completions(prefix, env, opts))
+                    completions.push_back(candidate);
+                j["completions"] = completions;
+            }
             break;
         case break_at_pos_exception::token_context::attribute:
             if (!skip_completions)
@@ -81,6 +89,7 @@ void report_completions(environment const & env, options const & opts, pos_info 
 
 void report_info(environment const & env, options const & opts, io_state const & ios, module_info const & m_mod_info,
                  std::vector<info_manager> const & info_managers, break_at_pos_exception const & e, json & j) {
+    g_context = e.m_token_info.m_context;
     json record;
 
     // info data not dependent on elaboration/info_manager
@@ -129,19 +138,7 @@ void report_info(environment const & env, options const & opts, io_state const &
 }
 
 void initialize_interactive() {
-    register_system_attribute(basic_attribute::with_check(
-            {"interactive", "type_formatter"},
-            "register a definition of type `expr → tactic format` for interactive pretty printing",
-            [](environment const & env, name const & n, bool) {
-                auto const & ty = env.get(n).get_type();
-                if (!(is_pi(ty) && is_constant(binding_domain(ty), get_expr_name())
-                                && is_app_of(binding_body(ty), get_tactic_name(), 1)
-                                && is_constant(app_arg(binding_body(ty)), get_format_name())))
-                    throw exception("invalid [interactive.type_formatter], must be applied to definition of type "
-                                    "`expr → tactic format`");
-            }));
 }
-
 void finalize_interactive() {
 }
 }

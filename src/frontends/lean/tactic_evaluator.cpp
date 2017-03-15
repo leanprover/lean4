@@ -18,9 +18,12 @@ Author: Leonardo de Moura
 #include "frontends/lean/tactic_notation.h"
 
 namespace lean {
+static format mk_tactic_error_msg(tactic_state const & ts, format const & fmt) {
+    return fmt + line() + format("state:") + line() + ts.pp();
+}
+
 elaborator_exception unsolved_tactic_state(tactic_state const & ts, format const & fmt, expr const & ref) {
-    format msg = fmt + line() + format("state:") + line() + ts.pp();
-    return elaborator_exception(ref, msg);
+    return elaborator_exception(ref, mk_tactic_error_msg(ts, fmt));
 }
 
 elaborator_exception unsolved_tactic_state(tactic_state const & ts, char const * msg, expr const & ref) {
@@ -37,13 +40,12 @@ elaborator_exception unsolved_tactic_state(tactic_state const & ts, char const *
 
 void tactic_evaluator::process_failure(vm_state & S, vm_obj const & r) {
     if (optional<tactic::exception_info> ex = tactic::is_exception(S, r)) {
-        format fmt             = std::get<0>(*ex);
-        optional<pos_info> pos = std::get<1>(*ex);
-        tactic_state s1        = std::get<2>(*ex);
-        if (pos)
-            throw elaborator_exception(pos, fmt);
-        else
-            throw_unsolved_tactic_state(s1, fmt, m_ref);
+        auto msg = mk_tactic_error_msg(std::get<2>(*ex), std::get<0>(*ex));
+        if (optional<pos_info> pos = std::get<1>(*ex)) {
+            throw elaborator_exception(pos, msg);
+        } else {
+            throw elaborator_exception(m_ref, msg);
+        }
     }
     /* Do nothing if it is a silent failure */
     lean_assert(tactic::is_silent_exception(r));

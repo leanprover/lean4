@@ -435,7 +435,6 @@ meta constant decl_name : tactic name
 /- (save_type_info e ref) save (typeof e) at position associated with ref -/
 meta constant save_type_info : expr → expr → tactic unit
 meta constant save_info_thunk : pos → (unit → format) → tactic unit
-meta constant report_error : nat → nat → format → tactic unit
 /-- Return list of currently open namespaces -/
 meta constant open_namespaces : tactic (list name)
 /-- Return tt iff `t` "occurs" in `e`. The occurrence checking is performed using
@@ -461,21 +460,8 @@ get_goals >>= set_goals
 meta def step {α : Type u} (t : tactic α) : tactic unit :=
 t >>[tactic] cleanup
 
-meta def istep {α : Type u} (line : nat) (col : nat) (t : tactic α) : tactic unit :=
-λ s, @scope_trace _ line col ((t >>[tactic] cleanup) s)
-
-meta def report_exception {α : Type} (line col : nat) : option (unit → format) → tactic α
-| (some msg_thunk) := λ s,
-  let msg := msg_thunk () ++ format.line ++ to_fmt "state:" ++ format.line ++ s^.to_format in
-  (tactic.report_error line col msg >> silent_fail) s
-| none := silent_fail
-
-/- Auxiliary definition used to implement begin ... end blocks.
-   It is similar to step, but it reports an error at the given line/col if the tactic t fails. -/
-meta def rstep {α : Type u} (line : nat) (col : nat) (t : tactic α) : tactic unit :=
-λ s, result.cases_on (istep line col t s)
-  (λ a new_s, result.success () new_s)
-  (λ msg_thunk e, report_exception line col msg_thunk)
+meta def istep {α : Type u} (line col : ℕ) (t : tactic α) : tactic unit :=
+λ s, (@scope_trace _ line col (step t s))^.clamp_pos line col
 
 meta def is_prop (e : expr) : tactic bool :=
 do t ← infer_type e,

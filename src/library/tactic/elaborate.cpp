@@ -7,9 +7,7 @@ Author: Leonardo de Moura
 #include <frontends/lean/elaborator.h>
 #include "kernel/for_each_fn.h"
 #include "library/annotation.h"
-#include "kernel/scope_pos_info_provider.h"
 #include "library/message_builder.h"
-#include "library/vm/vm_expr.h"
 #include "library/tactic/elaborate.h"
 #include "library/tactic/elaborator_exception.h"
 #include "library/tactic/tactic_state.h"
@@ -21,22 +19,7 @@ expr mk_by(expr const & e) { return mk_annotation(*g_by_name, e); }
 bool is_by(expr const & e) { return is_annotation(e, *g_by_name); }
 expr const & get_by_arg(expr const & e) { lean_assert(is_by(e)); return get_annotation_arg(e); }
 
-static bool report_failure(elaborator_exception const & ex, expr const & mvar, char const * header, tactic_state const & s) {
-    auto pip = get_pos_info_provider();
-    if (!pip) return false;
-    optional<metavar_decl> d = s.mctx().find_metavar_decl(mvar);
-    if (!d) return false;
-    if (!ex.get_pos()) return false;
-    auto tc = std::make_shared<type_context>(s.env(), s.get_options(), s.mctx(), d->get_context());
-    message_builder out(s.env(), get_global_ios(), pip->get_file_name(),
-                        *ex.get_pos(), ERROR);
-    out.set_exception(ex);
-    out << line() + format(header) + line() + s.pp();
-    out.report();
-    return true;
-}
-
-vm_obj tactic_to_expr_core(vm_obj const & qe, vm_obj const & relaxed, vm_obj const & report_errors, vm_obj const & _s) {
+vm_obj tactic_to_expr_core(vm_obj const & qe, vm_obj const & relaxed, vm_obj const & _s) {
     tactic_state const & s = tactic::to_state(_s);
     optional<metavar_decl> g = s.get_main_goal_decl();
     if (!g) return mk_no_goals_exception(s);
@@ -71,15 +54,9 @@ vm_obj tactic_to_expr_core(vm_obj const & qe, vm_obj const & relaxed, vm_obj con
             return tactic::mk_success(to_obj(r), set_env_mctx(s, env, mctx));
         }
     } catch (failed_to_synthesize_placeholder_exception & ex) {
-        if (to_bool(report_errors) && report_failure(ex, ex.get_mvar(), "context:", ex.get_tactic_state()))
-            return tactic::mk_silent_exception(s);
-        else
-            return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(ex, ex.get_tactic_state());
     } catch (elaborator_exception & ex) {
-        if (to_bool(report_errors) && report_failure(ex, *s.get_main_goal(), "state:", s))
-            return tactic::mk_silent_exception(s);
-        else
-            return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(ex, s);
     } catch (exception & ex) {
         return tactic::mk_exception(ex, s);
     }

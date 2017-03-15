@@ -131,11 +131,11 @@ else fail ("failed to resolve name '" ++ to_string n ++ "', unexpected result")
 
 /- allows metavars and report errors -/
 meta def i_to_expr (q : pexpr) : tactic expr :=
-to_expr q tt tt
+to_expr q tt
 
 /- doesn't allows metavars and report errors -/
 meta def i_to_expr_strict (q : pexpr) : tactic expr :=
-to_expr q ff tt
+to_expr q ff
 
 namespace interactive
 open interactive interactive.types expr
@@ -220,7 +220,7 @@ The type of holes must be either synthesized by the system or declared by
 an explicit type ascription like (e.g., `(_ : nat → Prop)`).
 -/
 meta def refine (q : parse texpr) : tactic unit :=
-tactic.refine q tt
+tactic.refine q
 
 /--
 This tactic looks in the local context for an hypothesis which type is equal to the goal target.

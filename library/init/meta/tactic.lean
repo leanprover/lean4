@@ -320,7 +320,7 @@ meta constant exact (e : expr) (md := semireducible) : tactic unit
 /-- Elaborate the given quoted expression with respect to the current main goal.
     If `allow_mvars` is tt, then metavariables are tolerated and become new goals.
     If `report_errors` is ff, then errors are reported using position information from q. -/
-meta constant to_expr (q : pexpr) (allow_mvars := tt) (report_errors := ff) : tactic expr
+meta constant to_expr (q : pexpr) (allow_mvars := tt) : tactic expr
 /- Return true if the given expression is a type class. -/
 meta constant is_class      : expr → tactic bool
 /- Try to create an instance of the given type class. -/
@@ -503,8 +503,8 @@ meta def intro_lst : list name → tactic (list expr)
 | []      := return []
 | (n::ns) := do H ← intro n, Hs ← intro_lst ns, return (H :: Hs)
 
-meta def to_expr_strict (q : pexpr) (report_errors := ff) : tactic expr :=
-to_expr q report_errors
+meta def to_expr_strict (q : pexpr) : tactic expr :=
+to_expr q
 
 meta def revert (l : expr) : tactic nat :=
 revert_lst [l]
@@ -888,9 +888,9 @@ else do
   h ← tactic.intro1,
   (step (cases_core h ids md); intron n)
 
-meta def refine (e : pexpr) (report_errors := ff) : tactic unit :=
+meta def refine (e : pexpr) : tactic unit :=
 do tgt : expr ← target,
-   to_expr ``(%%e : %%tgt) tt report_errors >>= exact
+   to_expr ``(%%e : %%tgt) tt >>= exact
 
 private meta def get_undeclared_const (env : environment) (base : name) : ℕ → name | i :=
 let n := base <.> ("_aux_" ++ to_string i) in

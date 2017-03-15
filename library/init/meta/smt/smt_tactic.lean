@@ -213,8 +213,8 @@ do (s₁, s₂) ← smt_tactic.read,
 meta def trace {α : Type} [has_to_tactic_format α] (a : α) : smt_tactic unit :=
 tactic.trace a
 
-meta def to_expr (q : pexpr) (allow_mvars := tt) (report_errors := ff) : smt_tactic expr :=
-tactic.to_expr q allow_mvars report_errors
+meta def to_expr (q : pexpr) (allow_mvars := tt) : smt_tactic expr :=
+tactic.to_expr q allow_mvars
 
 meta def classical : smt_tactic bool :=
 do s ← state_t.read,

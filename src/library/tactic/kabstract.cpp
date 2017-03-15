@@ -176,7 +176,7 @@ expr kabstract(type_context & ctx, expr const & e, expr const & t, occurrences c
                 }
             }
             return none_expr();
-        });
+        }, occs.is_all());
 }
 
 bool kdepends_on(type_context & ctx, expr const & e, expr const & t) {

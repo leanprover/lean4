@@ -126,7 +126,7 @@ public:
 class lthread {
 public:
     lthread(std::function<void(void)> const & p) { p(); }
-    ~lthread();
+    ~lthread() {}
     void join() {}
     static void set_thread_stack_size(size_t) {}
     static size_t get_thread_stack_size() { return 0; }

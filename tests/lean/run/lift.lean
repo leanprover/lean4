@@ -13,7 +13,7 @@ rfl
 
 
 theorem up_down {A : Type} (a' : lift A) : up (down a') = a' :=
-lift.induction_on a' (λ a, rfl)
+lift.cases_on a' (λ a, rfl)
 
 end lift
 

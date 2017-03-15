@@ -1,13 +1,12 @@
 protected_test.lean:2:9: error: unknown identifier 'induction_on'
 protected_test.lean:3:9: error: unknown identifier 'rec_on'
-nat.induction_on : ∀ (n : ℕ), ?M_1 0 → (∀ (a : ℕ), ?M_1 a → ?M_1 (succ a)) → ?M_1 n
 less_than_or_equal.rec_on :
   less_than_or_equal ?M_1 ?M_3 →
   ?M_2 ?M_1 → (∀ {b : ℕ}, less_than_or_equal ?M_1 b → ?M_2 b → ?M_2 (succ b)) → ?M_2 ?M_3
 less_than_or_equal.rec_on :
   less_than_or_equal ?M_1 ?M_3 →
   ?M_2 ?M_1 → (∀ {b : ℕ}, less_than_or_equal ?M_1 b → ?M_2 b → ?M_2 (succ b)) → ?M_2 ?M_3
-protected_test.lean:8:11: error: unknown identifier 'rec_on'
+protected_test.lean:7:11: error: unknown identifier 'rec_on'
 less_than_or_equal.rec_on :
   less_than_or_equal ?M_1 ?M_3 →
   ?M_2 ?M_1 → (∀ {b : ℕ}, less_than_or_equal ?M_1 b → ?M_2 b → ?M_2 (succ b)) → ?M_2 ?M_3

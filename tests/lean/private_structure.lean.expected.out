@@ -4,20 +4,18 @@ point.mk : ℕ → ℕ → point
 point.rec : (Π (x y : ℕ), ?M_1 {x := x, y := y}) → Π (n : point), ?M_1 n
 point.rec_on : Π (n : point), (Π (x y : ℕ), ?M_1 {x := x, y := y}) → ?M_1 n
 point.cases_on : Π (n : point), (Π (x y : ℕ), ?M_1 {x := x, y := y}) → ?M_1 n
-point.induction_on : ∀ (n : point), (∀ (x y : ℕ), ?M_1 {x := x, y := y}) → ?M_1 n
 point.x : point → ℕ
 point.y : point → ℕ
 bla : Type
-private_structure.lean:24:7: error: unknown identifier 'point'
-private_structure.lean:25:7: error: unknown identifier 'point.mk'
-private_structure.lean:26:7: error: unknown identifier 'point.rec'
-private_structure.lean:27:7: error: unknown identifier 'point.rec_on'
-private_structure.lean:28:7: error: unknown identifier 'point.cases_on'
-private_structure.lean:29:7: error: unknown identifier 'point.induction_on'
-private_structure.lean:30:7: error: unknown identifier 'point.no_confusion'
-private_structure.lean:31:7: error: unknown identifier 'point.x'
-private_structure.lean:32:7: error: unknown identifier 'point.y'
+private_structure.lean:23:7: error: unknown identifier 'point'
+private_structure.lean:24:7: error: unknown identifier 'point.mk'
+private_structure.lean:25:7: error: unknown identifier 'point.rec'
+private_structure.lean:26:7: error: unknown identifier 'point.rec_on'
+private_structure.lean:27:7: error: unknown identifier 'point.cases_on'
+private_structure.lean:28:7: error: unknown identifier 'point.no_confusion'
+private_structure.lean:29:7: error: unknown identifier 'point.x'
+private_structure.lean:30:7: error: unknown identifier 'point.y'
 def foo.bla : Type :=
 point
-private_structure.lean:37:8: error: invalid constructor ⟨...⟩, type is a private inductive datatype
+private_structure.lean:35:8: error: invalid constructor ⟨...⟩, type is a private inductive datatype
 foo.mk : foo.bla

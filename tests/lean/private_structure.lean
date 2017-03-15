@@ -10,7 +10,6 @@ definition mk : bla := point.mk 10 10
 #check point.rec
 #check point.rec_on
 #check point.cases_on
-#check point.induction_on
 #check point.x
 #check point.y
 
@@ -26,7 +25,6 @@ open foo
 #check point.rec
 #check point.rec_on
 #check point.cases_on
-#check point.induction_on
 #check point.no_confusion
 #check point.x
 #check point.y

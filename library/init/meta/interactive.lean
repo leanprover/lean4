@@ -119,11 +119,10 @@ meta def interactive_desc_aux : expr → tactic (list format)
 | (expr.pi _ _ d b) := list.cons <$> param_desc d <*> interactive_desc_aux b
 | _ := return []
 
-meta def interactive_desc (n : name) : tactic format := do
-env ← get_env,
-decl ← env^.get n,
-f ← interactive_desc_aux decl^.type,
-return $ to_fmt n^.components^.ilast ++ " " ++ join (list.intersperse " " f)
+@[interactive.type_formatter]
+meta def interactive_desc (e : expr) : tactic format :=
+do f ← interactive_desc_aux e,
+   return $ join $ list.intersperse " " f
 
 /-
 itactic: parse a nested "interactive" tactic. That is, parse
@@ -262,7 +261,7 @@ do {
 }
 
 /- Version of to_expr that tries to bypass the elaborator if `p` is just a constant or local constant.
-   This is not an optimization, by skipping the elaborator we make sure that unwanted resolution is used.
+   This is not an optimization, by skipping the elaborator we make sure that no unwanted resolution is used.
    Example: the elaborator will force any unassigned ?A that must have be an instance of (has_one ?A) to nat.
    Remark: another benefit is that auxiliary temporary metavariables do not appear in error messages. -/
 private meta def to_expr' (p : pexpr) : tactic expr :=

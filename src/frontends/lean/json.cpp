@@ -15,6 +15,7 @@ Author: Gabriel Ebner
 #include "kernel/instantiate.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/util.h"
+#include "frontends/lean/interactive.h"
 
 namespace lean {
 
@@ -69,7 +70,7 @@ json serialize_decl(name const & short_name, name const & long_name, environment
     json completion;
     completion["text"] = short_name.to_string();
     std::ostringstream ss;
-    ss << mk_pair(flatten(fmter(type)), o);
+    ss << mk_pair(flatten(interactive_format_type(env, o, type)), o);
     completion["type"] = ss.str();
     add_source_info(env, long_name, completion);
     if (auto doc = get_doc_string(env, long_name))

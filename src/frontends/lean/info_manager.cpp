@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 #include "library/tactic/tactic_state.h"
 #include "frontends/lean/json.h"
 #include "frontends/lean/info_manager.h"
+#include "frontends/lean/interactive.h"
 
 namespace lean {
 class type_info_data : public info_data_cell {
@@ -38,7 +39,7 @@ public:
 #ifdef LEAN_JSON
     virtual void report(io_state_stream const & ios, json & record) const override {
         std::ostringstream ss;
-        ss << flatten(ios.get_formatter()(m_expr));
+        ss << flatten(interactive_format_type(ios.get_environment(), ios.get_options(), m_expr));
         record["type"] = ss.str();
     }
 #endif

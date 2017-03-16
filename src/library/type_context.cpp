@@ -2265,8 +2265,8 @@ bool type_context::is_def_eq_eta(expr const & e1, expr const & e2) {
 
 bool type_context::is_def_eq_proof_irrel(expr const & e1, expr const & e2) {
     expr e1_type = infer(e1);
-    if (is_prop(e1_type)) {
-        expr e2_type = infer(e2);
+    expr e2_type = infer(e2);
+    if (is_prop(e1_type) || is_prop(e2_type)) {
         scope s(*this);
         if (is_def_eq_core(e1_type, e2_type) && process_postponed(s)) {
             s.commit();

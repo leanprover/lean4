@@ -23,13 +23,14 @@
   (setq-local company-begin-commands '(self-insert-command)) ; start autocompletion only after typing
   (company-mode t))
 
-(cl-defun company-lean--make-candidate (prefix &key text type doc source &allow-other-keys)
+(cl-defun company-lean--make-candidate (prefix &key text type pretty doc source &allow-other-keys)
   (destructuring-bind (&key file line column) source
     (let ((source (cond
                    (file (cons file line))
                    (line (cons (current-buffer) (lean-pos-at-line-col line 0))))))
       (propertize text
                   'type   type
+                  'pretty pretty
                   'doc    doc
                   'source source
                   'prefix prefix))))
@@ -64,9 +65,10 @@
       (list :prefix prefix :candidates candidates))))
 
 (defun company-lean--annotation (candidate)
-  (let ((type (get-text-property 0 'type candidate)))
+  (let ((type (get-text-property 0 'type candidate))
+        (pretty (get-text-property 0 'pretty candidate)))
     (when type
-      (let* ((annotation-str (format " : %s" type))
+      (let* ((annotation-str (format (if pretty " %s" " : %s") type))
              (annotation-len (length annotation-str))
              (candidate-len  (length candidate))
              (entry-width    (+ candidate-len

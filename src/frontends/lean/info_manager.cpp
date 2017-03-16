@@ -38,9 +38,7 @@ public:
 
 #ifdef LEAN_JSON
     virtual void report(io_state_stream const & ios, json & record) const override {
-        std::ostringstream ss;
-        ss << flatten(interactive_format_type(ios.get_environment(), ios.get_options(), m_expr));
-        record["type"] = ss.str();
+        interactive_report_type(ios.get_environment(), ios.get_options(), m_expr, record);
     }
 #endif
 };

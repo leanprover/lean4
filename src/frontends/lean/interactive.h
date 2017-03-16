@@ -9,7 +9,7 @@ Author: Sebastian Ullrich
 #include "library/module_mgr.h"
 #include "frontends/lean/parser.h"
 namespace lean {
-format interactive_format_type(environment const & env, options const & opts, expr const & e);
+void interactive_report_type(environment const & env, options const & opts, expr const & e, json & j);
 void report_completions(environment const & env, options const & opts, pos_info const & pos, bool skip_completions,
                         char const * mod_path, break_at_pos_exception const & e, json & j);
 void report_info(environment const & env, options const & opts, io_state const & ios, module_info const & m_mod_info,

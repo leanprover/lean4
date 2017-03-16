@@ -17,21 +17,25 @@ Author: Sebastian Ullrich
 namespace lean {
 LEAN_THREAD_VALUE(break_at_pos_exception::token_context, g_context, break_at_pos_exception::token_context::none);
 
-format interactive_format_type(environment const & env, options const & opts, expr const & e) {
+void interactive_report_type(environment const & env, options const & opts, expr const & e, json & j) {
     type_context tc(env);
+    format f;
     if (g_context == break_at_pos_exception::token_context::interactive_tactic) {
         vm_state vm(env, options());
         tactic_state s(env, opts, "_interactive_format_type", {}, {}, mk_true(), {});
 
         vm_obj r = vm.invoke({"interactive", "desc"}, {to_obj(s), to_obj(e)});
         if (tactic::is_result_success(r))
-            return to_format(tactic::get_result_value(r));
+            f = to_format(tactic::get_result_value(r));
         else
-            return format("<error while executing bla:") + space() + std::get<0>(*tactic::is_exception(vm, r)) +
-                   format(">");
+            f = format("<error while executing bla:") + space() + std::get<0>(*tactic::is_exception(vm, r)) + format(">");
+        j["pretty"] = true;
     } else {
-        return mk_pretty_formatter_factory()(env, opts, tc)(e);
+        f = mk_pretty_formatter_factory()(env, opts, tc)(e);
     }
+    sstream ss;
+    ss << mk_pair(flatten(f), opts);
+    j["type"] = ss.str();
 }
 
 void report_completions(environment const & env, options const & opts, pos_info const & pos, bool skip_completions,
@@ -63,14 +67,8 @@ void report_completions(environment const & env, options const & opts, pos_info 
                                                           opts);
             break;
         case break_at_pos_exception::token_context::interactive_tactic:
-            if (!skip_completions) {
-                auto completions = get_interactive_tactic_completions(prefix, e.m_token_info.m_tac_class, env, opts);
-                // append regular completions
-                g_context = break_at_pos_exception::token_context::none;
-                for (auto candidate : get_decl_completions(prefix, env, opts))
-                    completions.push_back(candidate);
-                j["completions"] = completions;
-            }
+            if (!skip_completions)
+                j["completions"] = get_interactive_tactic_completions(prefix, e.m_token_info.m_tac_class, env, opts);
             break;
         case break_at_pos_exception::token_context::attribute:
             if (!skip_completions)

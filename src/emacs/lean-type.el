@@ -40,7 +40,7 @@
 
 (cl-defun lean-info-record-to-string (info-record)
   "Given typeinfo, overload, and sym-name, compose information as a string."
-  (destructuring-bind (&key type doc overloads synth coercion proofstate full-id symbol extra &allow-other-keys) info-record
+  (destructuring-bind (&key type pretty doc overloads synth coercion proofstate full-id symbol extra &allow-other-keys) info-record
     (let (name-str type-str coercion-str extra-str proofstate-str overload-str stale-str str)
       (setq name-str
             (cond
@@ -66,7 +66,7 @@
                                  (propertize expr 'face 'font-lock-variable-name-face)
                                  type))))))
       (when (and name-str type-str)
-        (setq str (format "%s : %s"
+        (setq str (format (if pretty "%s %s" "%s : %s")
                           (propertize name-str 'face 'font-lock-variable-name-face)
                           type-str)))
       (when (and str coercion-str)

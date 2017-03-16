@@ -187,6 +187,28 @@ class type_context : public abstract_type_context {
         scope_data(metavar_context const & mctx, unsigned usz, unsigned esz, unsigned tsz):
             m_mctx(mctx), m_tmp_uassignment_sz(usz), m_tmp_eassignment_sz(esz), m_tmp_trail_sz(tsz) {}
     };
+    friend class tmp_type_context;
+    /* This class supports temporary meta-variables "mode". In this "tmp" mode,
+       is_metavar_decl_ref and is_univ_metavar_decl_ref are treated as opaque constants,
+       and temporary metavariables (idx_metavar) are treated as metavariables,
+       and their assignment is stored at m_tmp_eassignment and m_tmp_uassignment.
+
+       m_tmp_eassignment and m_tmp_uassignment store assignment for temporary/idx metavars
+
+       These assignments are only used during type class resolution and matching operations.
+       They are references to stack allocated buffers provided by customers.
+       They are nullptr if type_context is not in tmp_mode. */
+    struct tmp_data {
+        tmp_uassignment & m_uassignment;
+        tmp_eassignment & m_eassignment;
+        /* m_tmp_mvar_local_context contains m_lctx when tmp mode is activated.
+           This is the context for all temporary meta-variables. */
+        local_context     m_mvar_lctx;
+        /* undo/trail stack for m_tmp_uassignment/m_tmp_eassignment */
+        tmp_trail         m_trail;
+        tmp_data(tmp_uassignment & uassignment, tmp_eassignment & eassignment, local_context const & lctx):
+            m_uassignment(uassignment), m_eassignment(eassignment), m_mvar_lctx(lctx) {}
+    };
     typedef buffer<scope_data> scopes;
     typedef list<pair<name, expr>> local_instances;
     metavar_context    m_mctx;
@@ -201,26 +223,9 @@ class type_context : public abstract_type_context {
     bool               m_in_is_def_eq;
     /* m_is_def_eq_depth is only used for tracing purposes */
     unsigned           m_is_def_eq_depth;
-    /* This class supports temporary meta-variables "mode". In this "tmp" mode,
-       is_metavar_decl_ref and is_univ_metavar_decl_ref are treated as opaque constants,
-       and temporary metavariables (idx_metavar) are treated as metavariables,
-       and their assignment is stored at m_tmp_eassignment and m_tmp_uassignment.
-
-       m_tmp_eassignment and m_tmp_uassignment store assignment for temporary/idx metavars
-
-       These assignments are only used during type class resolution and matching operations.
-       They are references to stack allocated buffers provided by customers.
-       They are nullptr if type_context is not in tmp_mode. */
-    tmp_eassignment *  m_tmp_eassignment;
-    tmp_uassignment *  m_tmp_uassignment;
-    /* m_tmp_mvar_local_context contains m_lctx when tmp mode is activated.
-       This is the context for all temporary meta-variables. */
-    local_context      m_tmp_mvar_lctx;
-    /* undo/trail stack for m_tmp_uassignment/m_tmp_eassignment */
-    tmp_trail          m_tmp_trail;
     /* Stack of backtracking point (aka scope) */
     scopes             m_scopes;
-
+    tmp_data *         m_tmp_data;
     /* If m_approximate == true, then enable approximate higher-order unification
        even if we are not in tmp_mode */
     bool               m_approximate;
@@ -469,36 +474,35 @@ public:
        Temporary assignment mode.
        It is used when performing type class resolution and matching.
        -------------------------- */
-private:
-    void set_tmp_mode(buffer<optional<level>> & tmp_uassignment, buffer<optional<expr>> & tmp_eassignment);
-    void reset_tmp_mode();
 public:
     struct tmp_mode_scope {
         type_context &          m_ctx;
         buffer<optional<level>> m_tmp_uassignment;
         buffer<optional<expr>>  m_tmp_eassignment;
-        tmp_mode_scope(type_context & ctx, unsigned next_uidx = 0, unsigned next_midx = 0):m_ctx(ctx) {
+        tmp_data *              m_old_data;
+        tmp_data                m_data;
+        tmp_mode_scope(type_context & ctx, unsigned next_uidx = 0, unsigned next_midx = 0):
+            m_ctx(ctx), m_old_data(ctx.m_tmp_data), m_data(m_tmp_uassignment, m_tmp_eassignment, ctx.lctx()) {
             m_tmp_uassignment.resize(next_uidx, none_level());
             m_tmp_eassignment.resize(next_midx, none_expr());
-            m_ctx.set_tmp_mode(m_tmp_uassignment, m_tmp_eassignment);
+            m_ctx.m_tmp_data = &m_data;
         }
         ~tmp_mode_scope() {
-            m_ctx.reset_tmp_mode();
+            m_ctx.m_tmp_data = m_old_data;
         }
     };
-    struct tmp_mode_scope_with_buffers {
+    struct tmp_mode_scope_with_data {
         type_context & m_ctx;
-        tmp_mode_scope_with_buffers(type_context & ctx,
-                                    buffer<optional<level>> & tmp_uassignment,
-                                    buffer<optional<expr>> & tmp_eassignment):
-            m_ctx(ctx) {
-            m_ctx.set_tmp_mode(tmp_uassignment, tmp_eassignment);
+        tmp_data *     m_old_data;
+        tmp_mode_scope_with_data(type_context & ctx, tmp_data & data):
+            m_ctx(ctx), m_old_data(ctx.m_tmp_data) {
+            m_ctx.m_tmp_data = &data;
         }
-        ~tmp_mode_scope_with_buffers() {
-            m_ctx.reset_tmp_mode();
+        ~tmp_mode_scope_with_data() {
+            m_ctx.m_tmp_data = m_old_data;
         }
     };
-    bool in_tmp_mode() const { return m_tmp_uassignment != nullptr; }
+    bool in_tmp_mode() const { return m_tmp_data != nullptr; }
     void ensure_num_tmp_mvars(unsigned num_uvars, unsigned num_mvars);
     optional<level> get_tmp_uvar_assignment(unsigned idx) const;
     optional<expr> get_tmp_mvar_assignment(unsigned idx) const;
@@ -716,10 +720,10 @@ public:
 };
 
 class tmp_type_context : public abstract_type_context {
-    type_context & m_ctx;
+    type_context &          m_ctx;
     buffer<optional<level>> m_tmp_uassignment;
-    buffer<optional<expr>> m_tmp_eassignment;
-
+    buffer<optional<expr>>  m_tmp_eassignment;
+    type_context::tmp_data  m_tmp_data;
 public:
     tmp_type_context(type_context & ctx, unsigned num_umeta = 0, unsigned num_emeta = 0);
     type_context & ctx() const { return m_ctx; }

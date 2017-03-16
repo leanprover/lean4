@@ -267,8 +267,7 @@ void type_context::init_core(transparency_mode m) {
     m_transparency_mode           = m;
     m_in_is_def_eq                = false;
     m_is_def_eq_depth             = 0;
-    m_tmp_uassignment             = nullptr;
-    m_tmp_eassignment             = nullptr;
+    m_tmp_data                    = nullptr;
     m_unfold_pred                 = nullptr;
     m_transparency_pred           = nullptr;
     m_approximate                 = false;
@@ -704,8 +703,8 @@ expr type_context::whnf_core(expr const & e) {
         } else if (is_idx_metavar(e)) {
             lean_assert(in_tmp_mode());
             unsigned idx = to_meta_idx(e);
-            if (idx < m_tmp_eassignment->size()) {
-                if (auto v = (*m_tmp_eassignment)[idx]) {
+            if (idx < m_tmp_data->m_eassignment.size()) {
+                if (auto v = m_tmp_data->m_eassignment[idx]) {
                     m_used_assignment = true;
                     return whnf_core(*v);
                 }
@@ -1120,39 +1119,24 @@ bool type_context::is_proof(expr const & e) {
 /* -------------------------------
    Temporary assignment mode support
    ------------------------------- */
-void type_context::set_tmp_mode(buffer<optional<level>> & tmp_uassignment, buffer<optional<expr>> & tmp_eassignment) {
-    lean_assert(!in_tmp_mode());
-    lean_assert(m_tmp_trail.empty());
-    m_tmp_mvar_lctx = m_lctx;
-    m_tmp_uassignment = &tmp_uassignment;
-    m_tmp_eassignment = &tmp_eassignment;
-}
-
-void type_context::reset_tmp_mode() {
-    lean_trace(name({"type_context", "tmp_vars"}), tout() << "clear tmp vars\n";);
-    m_tmp_trail.clear();
-    m_tmp_uassignment = nullptr;
-    m_tmp_eassignment = nullptr;
-}
-
 void type_context::ensure_num_tmp_mvars(unsigned num_uvars, unsigned num_mvars) {
     lean_assert(in_tmp_mode());
-    if (m_tmp_uassignment->size() < num_uvars)
-        m_tmp_uassignment->resize(num_uvars, none_level());
-    if (m_tmp_eassignment->size() < num_mvars)
-        m_tmp_eassignment->resize(num_mvars, none_expr());
+    if (m_tmp_data->m_uassignment.size() < num_uvars)
+        m_tmp_data->m_uassignment.resize(num_uvars, none_level());
+    if (m_tmp_data->m_eassignment.size() < num_mvars)
+        m_tmp_data->m_eassignment.resize(num_mvars, none_expr());
 }
 
 optional<level> type_context::get_tmp_uvar_assignment(unsigned idx) const {
     lean_assert(in_tmp_mode());
-    lean_assert(idx < m_tmp_uassignment->size());
-    return (*m_tmp_uassignment)[idx];
+    lean_assert(idx < m_tmp_data->m_uassignment.size());
+    return m_tmp_data->m_uassignment[idx];
 }
 
 optional<expr> type_context::get_tmp_mvar_assignment(unsigned idx) const {
     lean_assert(in_tmp_mode());
-    lean_assert(idx < m_tmp_eassignment->size());
-    return (*m_tmp_eassignment)[idx];
+    lean_assert(idx < m_tmp_data->m_eassignment.size());
+    return m_tmp_data->m_eassignment[idx];
 }
 
 optional<level> type_context::get_tmp_assignment(level const & l) const {
@@ -1168,44 +1152,44 @@ optional<expr> type_context::get_tmp_assignment(expr const & e) const {
 void type_context::assign_tmp(level const & u, level const & l) {
     lean_assert(in_tmp_mode());
     lean_assert(is_idx_metauniv(u));
-    lean_assert(to_meta_idx(u) < m_tmp_uassignment->size());
+    lean_assert(to_meta_idx(u) < m_tmp_data->m_uassignment.size());
     unsigned idx = to_meta_idx(u);
-    if (!m_scopes.empty() && !(*m_tmp_uassignment)[idx]) {
-        m_tmp_trail.emplace_back(tmp_trail_kind::Level, idx);
+    if (!m_scopes.empty() && !m_tmp_data->m_uassignment[idx]) {
+        m_tmp_data->m_trail.emplace_back(tmp_trail_kind::Level, idx);
     }
-    (*m_tmp_uassignment)[idx] = l;
+    m_tmp_data->m_uassignment[idx] = l;
 }
 
 void type_context::assign_tmp(expr const & m, expr const & v) {
     lean_assert(in_tmp_mode());
     lean_assert(is_idx_metavar(m));
-    lean_assert(to_meta_idx(m) < m_tmp_eassignment->size());
+    lean_assert(to_meta_idx(m) < m_tmp_data->m_eassignment.size());
     unsigned idx = to_meta_idx(m);
     lean_trace(name({"type_context", "tmp_vars"}),
                tout() << "assign ?x_" << idx << " := " << v << "\n";);
-    if (!m_scopes.empty() && !(*m_tmp_eassignment)[idx]) {
-        m_tmp_trail.emplace_back(tmp_trail_kind::Expr, idx);
+    if (!m_scopes.empty() && !m_tmp_data->m_eassignment[idx]) {
+        m_tmp_data->m_trail.emplace_back(tmp_trail_kind::Expr, idx);
     }
-    (*m_tmp_eassignment)[to_meta_idx(m)] = v;
+    m_tmp_data->m_eassignment[to_meta_idx(m)] = v;
 }
 
 level type_context::mk_tmp_univ_mvar() {
     lean_assert(in_tmp_mode());
-    unsigned idx = m_tmp_uassignment->size();
-    m_tmp_uassignment->push_back(none_level());
+    unsigned idx = m_tmp_data->m_uassignment.size();
+    m_tmp_data->m_uassignment.push_back(none_level());
     return mk_idx_metauniv(idx);
 }
 
 expr type_context::mk_tmp_mvar(expr const & type) {
     lean_assert(in_tmp_mode());
-    unsigned idx = m_tmp_eassignment->size();
-    m_tmp_eassignment->push_back(none_expr());
+    unsigned idx = m_tmp_data->m_eassignment.size();
+    m_tmp_data->m_eassignment.push_back(none_expr());
     return mk_idx_metavar(idx, type);
 }
 
 void type_context::clear_tmp_eassignment() {
     lean_assert(in_tmp_mode());
-    m_tmp_eassignment->clear();
+    m_tmp_data->m_eassignment.clear();
 }
 
 /* -----------------------------------
@@ -1302,7 +1286,7 @@ expr type_context::instantiate_mvars(expr const & e, bool postpone_push_delayed)
 
 void type_context::push_scope() {
     if (in_tmp_mode()) {
-        m_scopes.emplace_back(m_mctx, m_tmp_uassignment->size(), m_tmp_eassignment->size(), m_tmp_trail.size());
+        m_scopes.emplace_back(m_mctx, m_tmp_data->m_uassignment.size(), m_tmp_data->m_eassignment.size(), m_tmp_data->m_trail.size());
     } else {
         m_scopes.emplace_back(m_mctx, 0, 0, 0);
     }
@@ -1314,20 +1298,20 @@ void type_context::pop_scope() {
     m_mctx = s.m_mctx;
     if (in_tmp_mode()) {
         unsigned old_sz = s.m_tmp_trail_sz;
-        while (m_tmp_trail.size() > old_sz) {
-            auto const & t = m_tmp_trail.back();
+        while (m_tmp_data->m_trail.size() > old_sz) {
+            auto const & t = m_tmp_data->m_trail.back();
             if (t.first == tmp_trail_kind::Level) {
-                (*m_tmp_uassignment)[t.second] = none_level();
+                m_tmp_data->m_uassignment[t.second] = none_level();
             } else {
                 lean_trace(name({"type_context", "tmp_vars"}),
-                           tout() << "unassign ?x_" << t.second << " := " << *((*m_tmp_eassignment)[t.second]) << "\n";);
-                (*m_tmp_eassignment)[t.second] = none_expr();
+                           tout() << "unassign ?x_" << t.second << " := " << *(m_tmp_data->m_eassignment[t.second]) << "\n";);
+                m_tmp_data->m_eassignment[t.second] = none_expr();
             }
-            m_tmp_trail.pop_back();
+            m_tmp_data->m_trail.pop_back();
         }
-        lean_assert(old_sz == m_tmp_trail.size());
-        m_tmp_uassignment->shrink(s.m_tmp_uassignment_sz);
-        m_tmp_eassignment->shrink(s.m_tmp_eassignment_sz);
+        lean_assert(old_sz == m_tmp_data->m_trail.size());
+        m_tmp_data->m_uassignment.shrink(s.m_tmp_uassignment_sz);
+        m_tmp_data->m_eassignment.shrink(s.m_tmp_eassignment_sz);
     }
     m_scopes.pop_back();
 }
@@ -1776,7 +1760,7 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
                The code is slightly different for tmp mode because the metavariables
                do not store their local context. */
             if (in_tmp_mode()) {
-                if (m_tmp_mvar_lctx.find_local_decl(arg)) {
+                if (m_tmp_data->m_mvar_lctx.find_local_decl(arg)) {
                     /* m is of the form (?M@C ... l ...) where l is a local constant in C */
                     if (!approximate())
                         return false;
@@ -1955,7 +1939,7 @@ struct check_assignment_fn : public replace_visitor {
 
         bool in_ctx;
         if (m_ctx.in_tmp_mode()) {
-            in_ctx = static_cast<bool>(m_ctx.m_tmp_mvar_lctx.find_local_decl(e));
+            in_ctx = static_cast<bool>(m_ctx.m_tmp_data->m_mvar_lctx.find_local_decl(e));
         } else {
             in_ctx = static_cast<bool>(m_mvar_decl->get_context().find_local_decl(e));
         }
@@ -3215,12 +3199,12 @@ struct instance_synthesizer {
     environment const & env() const { return m_ctx.env(); }
 
     void push_scope() {
-        lean_trace(name({"type_context", "tmp_vars"}), tout() << "push_scope, trail_sz: " << m_ctx.m_tmp_trail.size() << "\n";);
+        lean_trace(name({"type_context", "tmp_vars"}), tout() << "push_scope, trail_sz: " << m_ctx.m_tmp_data->m_trail.size() << "\n";);
         m_ctx.push_scope();
     }
 
     void pop_scope() {
-        lean_trace(name({"type_context", "tmp_vars"}), tout() << "pop_scope, trail_sz: " << m_ctx.m_tmp_trail.size() << "\n";);
+        lean_trace(name({"type_context", "tmp_vars"}), tout() << "pop_scope, trail_sz: " << m_ctx.m_tmp_data->m_trail.size() << "\n";);
         m_ctx.pop_scope();
     }
 
@@ -3647,33 +3631,34 @@ expr type_context::eta_expand(expr const & e) {
     return locals.mk_lambda(r);
 }
 
-tmp_type_context::tmp_type_context(type_context & ctx, unsigned num_umeta, unsigned num_emeta): m_ctx(ctx) {
+tmp_type_context::tmp_type_context(type_context & ctx, unsigned num_umeta, unsigned num_emeta):
+    m_ctx(ctx), m_tmp_data(m_tmp_uassignment, m_tmp_eassignment, ctx.lctx()) {
     m_tmp_uassignment.resize(num_umeta, none_level());
     m_tmp_eassignment.resize(num_emeta, none_expr());
 }
 
 bool tmp_type_context::is_def_eq(expr const & e1, expr const & e2) {
-    type_context::tmp_mode_scope_with_buffers tmp_scope(m_ctx, m_tmp_uassignment, m_tmp_eassignment);
+    type_context::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
     return m_ctx.is_def_eq(e1, e2);
 }
 
 expr tmp_type_context::infer(expr const & e) {
-    type_context::tmp_mode_scope_with_buffers tmp_scope(m_ctx, m_tmp_uassignment, m_tmp_eassignment);
+    type_context::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
     return m_ctx.infer(e);
 }
 
 expr tmp_type_context::whnf(expr const & e) {
-    type_context::tmp_mode_scope_with_buffers tmp_scope(m_ctx, m_tmp_uassignment, m_tmp_eassignment);
+    type_context::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
     return m_ctx.whnf(e);
 }
 
 level tmp_type_context::mk_tmp_univ_mvar() {
-    type_context::tmp_mode_scope_with_buffers tmp_scope(m_ctx, m_tmp_uassignment, m_tmp_eassignment);
+    type_context::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
     return m_ctx.mk_tmp_univ_mvar();
 }
 
 expr tmp_type_context::mk_tmp_mvar(expr const & type) {
-    type_context::tmp_mode_scope_with_buffers tmp_scope(m_ctx, m_tmp_uassignment, m_tmp_eassignment);
+    type_context::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
     return m_ctx.mk_tmp_mvar(type);
 }
 
@@ -3692,47 +3677,47 @@ void tmp_type_context::clear_eassignment() {
 }
 
 expr tmp_type_context::instantiate_mvars(expr const & e) {
-    type_context::tmp_mode_scope_with_buffers tmp_scope(m_ctx, m_tmp_uassignment, m_tmp_eassignment);
+    type_context::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
     return m_ctx.instantiate_mvars(e);
 }
 
 void tmp_type_context::assign(expr const & m, expr const & v) {
-    type_context::tmp_mode_scope_with_buffers tmp_scope(m_ctx, m_tmp_uassignment, m_tmp_eassignment);
+    type_context::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
     m_ctx.assign(m, v);
 }
 
 expr tmp_type_context::mk_lambda(buffer<expr> const & locals, expr const & e) {
-    type_context::tmp_mode_scope_with_buffers tmp_scope(m_ctx, m_tmp_uassignment, m_tmp_eassignment);
+    type_context::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
     return m_ctx.mk_lambda(locals, e);
 }
 
 expr tmp_type_context::mk_pi(buffer<expr> const & locals, expr const & e) {
-    type_context::tmp_mode_scope_with_buffers tmp_scope(m_ctx, m_tmp_uassignment, m_tmp_eassignment);
+    type_context::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
     return m_ctx.mk_pi(locals, e);
 }
 
 expr tmp_type_context::mk_lambda(expr const & local, expr const & e) {
-    type_context::tmp_mode_scope_with_buffers tmp_scope(m_ctx, m_tmp_uassignment, m_tmp_eassignment);
+    type_context::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
     return m_ctx.mk_lambda(local, e);
 }
 
 expr tmp_type_context::mk_pi(expr const & local, expr const & e) {
-    type_context::tmp_mode_scope_with_buffers tmp_scope(m_ctx, m_tmp_uassignment, m_tmp_eassignment);
+    type_context::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
     return m_ctx.mk_pi(local, e);
 }
 
 expr tmp_type_context::mk_lambda(std::initializer_list<expr> const & locals, expr const & e) {
-    type_context::tmp_mode_scope_with_buffers tmp_scope(m_ctx, m_tmp_uassignment, m_tmp_eassignment);
+    type_context::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
     return m_ctx.mk_lambda(locals, e);
 }
 
 expr tmp_type_context::mk_pi(std::initializer_list<expr> const & locals, expr const & e) {
-    type_context::tmp_mode_scope_with_buffers tmp_scope(m_ctx, m_tmp_uassignment, m_tmp_eassignment);
+    type_context::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
     return m_ctx.mk_pi(locals, e);
 }
 
 bool tmp_type_context::is_prop(expr const & e) {
-    type_context::tmp_mode_scope_with_buffers tmp_scope(m_ctx, m_tmp_uassignment, m_tmp_eassignment);
+    type_context::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
     return m_ctx.is_prop(e);
 }
 

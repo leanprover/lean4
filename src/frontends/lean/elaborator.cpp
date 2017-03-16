@@ -40,6 +40,7 @@ Author: Leonardo de Moura
 #include "library/message_builder.h"
 #include "library/aliases.h"
 #include "library/inverse.h"
+#include "library/delayed_abstraction.h"
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_expr.h"
 #include "library/tactic/kabstract.h"
@@ -3417,18 +3418,42 @@ struct sanitize_param_names_fn : public replace_visitor {
 static expr replace_with_simple_metavars(metavar_context mctx, name_map<expr> & cache, expr const & e) {
     if (!has_expr_metavar(e)) return e;
     return replace(e, [&](expr const & e, unsigned) {
-            if (!is_metavar(e)) return none_expr();
-            if (auto r = cache.find(mlocal_name(e))) {
-                return some_expr(*r);
-            } else if (auto decl = mctx.find_metavar_decl(e)) {
-                expr new_type = replace_with_simple_metavars(mctx, cache, mctx.instantiate_mvars(decl->get_type()));
-                expr new_mvar = mk_metavar(mlocal_name(e), new_type);
-                cache.insert(mlocal_name(e), new_mvar);
-                return some_expr(new_mvar);
-            } else if (is_metavar_decl_ref(e)) {
-                throw exception("unexpected occurrence of internal elaboration metavariable");
+            if (is_delayed_abstraction(e)) {
+                expr new_e = push_delayed_abstraction(e);
+                if (e == new_e) {
+                    expr mvar = get_delayed_abstraction_expr(e);
+                    if (auto decl = mctx.find_metavar_decl(mvar)) {
+                        buffer<name> ns; buffer<expr> es;
+                        get_delayed_abstraction_info(e, ns, es);
+                        expr mvar_type = mctx.instantiate_mvars(decl->get_type());
+                        mvar_type      = push_delayed_abstraction(mvar_type, ns, es);
+                        expr new_type  = replace_with_simple_metavars(mctx, cache, mvar_type);
+                        expr new_mvar  = mk_metavar(mlocal_name(mvar), new_type);
+                        return some_expr(new_mvar);
+                    } else if (is_metavar_decl_ref(e)) {
+                        throw exception("unexpected occurrence of internal elaboration metavariable");
+                    } else {
+                        return none_expr();
+                    }
+                } else {
+                    return some_expr(replace_with_simple_metavars(mctx, cache, new_e));
+                }
+            } else if (is_metavar(e)) {
+                if (auto r = cache.find(mlocal_name(e))) {
+                    return some_expr(*r);
+                } else if (auto decl = mctx.find_metavar_decl(e)) {
+                    expr new_type = replace_with_simple_metavars(mctx, cache, mctx.instantiate_mvars(decl->get_type()));
+                    expr new_mvar = mk_metavar(mlocal_name(e), new_type);
+                    cache.insert(mlocal_name(e), new_mvar);
+                    return some_expr(new_mvar);
+                } else if (is_metavar_decl_ref(e)) {
+                    throw exception("unexpected occurrence of internal elaboration metavariable");
+                } else {
+                    return none_expr();
+                }
+            } else {
+                return none_expr();
             }
-            return none_expr();
         });
 }
 

@@ -369,7 +369,7 @@ expr norm_num_context::mk_nonneg_prf(expr const & e) {
         prf = mk_nonneg_prf(args[3]);
         return mk_app({mk_const(get_norm_num_nonneg_bit1_helper_name()), type, mk_lin_ord_semiring(), args[3], prf});
     } else if (is_one(e)) {
-        return mk_app({mk_const(get_zero_le_one_name()), type, mk_lin_ord_ring()});
+        return mk_app({mk_const(get_zero_le_one_name()), type, mk_lin_ord_semiring()});
     } else if (is_zero(e)) {
         return mk_app({mk_const(get_le_refl_name()), type, mk_wk_order(), mk_zero()});
     } else {

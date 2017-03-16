@@ -90,6 +90,9 @@ variable [linear_ordered_semiring α]
 lemma zero_lt_one : 0 < (1:α) :=
 linear_ordered_semiring.zero_lt_one α
 
+lemma zero_le_one : 0 ≤ (1:α) :=
+le_of_lt zero_lt_one
+
 lemma lt_of_mul_lt_mul_left {a b c : α} (h : c * a < c * b) (hc : c ≥ 0) : a < b :=
 lt_of_not_ge
   (assume h1 : b ≤ a,
@@ -274,10 +277,6 @@ lemma mul_self_nonneg (a : α) : a * a ≥ 0 :=
 or.elim (le_total 0 a)
   (assume h : a ≥ 0, mul_nonneg h h)
   (assume h : a ≤ 0, mul_nonneg_of_nonpos_of_nonpos h h)
-
-lemma zero_le_one : 0 ≤ (1:α) :=
-have 1 * 1 ≥ (0:α), from mul_self_nonneg (1:α),
-by rwa one_mul at this
 
 lemma pos_and_pos_or_neg_and_neg_of_mul_pos {a b : α} (hab : a * b > 0) :
     (a > 0 ∧ b > 0) ∨ (a < 0 ∧ b < 0) :=

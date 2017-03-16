@@ -23,7 +23,10 @@ namespace interactive
 namespace types
 variables {α β : Type}
 
-meta def list_of (p : parser α) := tk "[" *> sep_by "," p <* tk "]"
+-- optimized pretty printer
+meta def brackets (l r : string) (p : parser α) := tk l *> p <* tk r
+
+meta def list_of (p : parser α) := brackets "[" "]" $ sep_by "," p
 
 /-- A 'tactic expression', which uses right-binding power 2 so that it is terminated by
     '<|>' (rbp 2), ';' (rbp 1), and ',' (rbp 0). It should be used for any (potentially)
@@ -40,7 +43,7 @@ meta def opt_qexpr_list := qexpr_list <|> return []
 meta def qexpr_list_or_texpr := qexpr_list <|> return <$> texpr
 end types
 
-open format tactic types
+open expr format tactic types
 private meta def maybe_paren : list format → format
 | []  := ""
 | [f] := f
@@ -87,7 +90,13 @@ private meta def parser_desc_aux : expr → tactic (list format)
   f₂ ← parser_desc_aux p₂,
   return $ if list.empty f₁ then [maybe_paren f₂ ++ "?"] else
     if list.empty f₂ then [maybe_paren f₁ ++ "?"] else
-    [maybe_paren f₁, " | ", maybe_paren f₂]
+    [paren $ join $ f₁ ++ [to_fmt " | "] ++ f₂]
+| ```(brackets %%l %%r %%p) := do
+  f ← parser_desc_aux p,
+  l ← eval_expr string l,
+  r ← eval_expr string r,
+  -- much better than the naive [l, " ", f, " ", r]
+  return [to_fmt l ++ join f ++ to_fmt r]
 | e          := do
   e' ← (do e' ← unfold e,
         guard $ e' ≠ e,
@@ -99,7 +108,9 @@ private meta def parser_desc_aux : expr → tactic (list format)
 meta def param_desc : expr → tactic format
 | ```(parse %%p) := join <$> parser_desc_aux p
 | ```(opt_param %%t ._) := (++ "?") <$> pp t
-| e := paren <$> pp e
+| e := if is_constant e ∧ (const_name e)^.components^.ilast ∈ [`itactic, `irtactic]
+  then return $ to_fmt "{ tactic }"
+  else paren <$> pp e
 end interactive
 
 namespace tactic
@@ -121,14 +132,14 @@ open interactive interactive.types expr
 
 /-
 itactic: parse a nested "interactive" tactic. That is, parse
-  `(` tactic `)`
+  `{` tactic `}`
 -/
 meta def itactic : Type :=
 tactic unit
 
 /-
 irtactic: parse a nested "interactive" tactic. That is, parse
-  `(` tactic `)`
+  `{` tactic `}`
 It is similar to itactic, but the interactive mode will report errors
 when any of the nested tactics fail. This is good for tactics such as async and abstract.
 -/

@@ -239,7 +239,16 @@ struct parse_tactic_fn {
         expr r;
         auto pos = m_p.pos();
         if (auto dname = is_auto_quote_tactic(m_p, m_tac_class)) {
-            r = parse_auto_quote_tactic(m_p, *dname, m_tac_class, m_use_rstep, m_report_error);
+            try {
+                r = parse_auto_quote_tactic(m_p, *dname, m_tac_class, m_use_rstep, m_report_error);
+            } catch (break_at_pos_exception & e) {
+                if (!m_p.get_complete() && e.m_token_info.m_context == break_at_pos_exception::token_context::none) {
+                    e.m_token_info.m_pos = pos;
+                    e.m_token_info.m_context = break_at_pos_exception::token_context::interactive_tactic;
+                    e.m_token_info.m_tac_class = m_tac_class;
+                }
+                throw;
+            }
         } else if (is_curr_exact_shortcut(m_p)) {
             expr arg = parse_qexpr();
             r = m_p.mk_app(m_p.save_pos(mk_constant(m_tac_class + name({"interactive", "exact"})), pos), arg, pos);

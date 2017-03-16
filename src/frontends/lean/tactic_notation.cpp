@@ -117,9 +117,13 @@ static expr concat(parser & p, expr const & tac1, expr const & tac2, pos_info co
     return p.save_pos(mk_app(mk_constant(get_has_bind_seq_name()), tac1, tac2), pos);
 }
 
-static optional<name> is_auto_quote_tactic(parser & p, name const & tac_class) {
+name get_interactive_tactic_full_name(name const & tac_class, name const & tac) {
+    return name(tac_class, "interactive") + tac;
+}
+
+static optional<name> is_interactive_tactic(parser & p, name const & tac_class) {
     if (!p.curr_is_identifier()) return optional<name>();
-    name id = tac_class + name("interactive") + p.get_name_val();
+    name id = get_interactive_tactic_full_name(tac_class, p.get_name_val());
     if (p.env().find(id))
         return optional<name>(id);
     else
@@ -134,7 +138,7 @@ static void info_tweak(parser & p) {
 
 static expr parse_begin_end_block(parser & p, pos_info const & start_pos, name const & end_token, name tac_class, bool use_rstep, bool report_error);
 
-static expr parse_nested_auto_quote_tactic(parser & p, name const & tac_class, bool use_rstep, bool report_error) {
+static expr parse_nested_interactive_tactic(parser & p, name const & tac_class, bool use_rstep, bool report_error) {
     auto pos = p.pos();
     if (p.curr_is_token(get_lcurly_tk())) {
         return parse_begin_end_block(p, pos, get_rcurly_tk(), tac_class, use_rstep, report_error);
@@ -156,35 +160,43 @@ static expr parse_interactive_param(parser & p, expr const & ty, expr const & qu
     return to_expr(vm_res);
 }
 
-static expr parse_auto_quote_tactic(parser & p, name const & decl_name, name const & tac_class, bool use_rstep, bool report_error) {
+static expr parse_interactive_tactic(parser & p, name const & decl_name, name const & tac_class, bool use_rstep, bool report_error) {
     auto pos = p.pos();
-    p.next();
-    expr type    = p.env().get(decl_name).get_type();
-    name itactic(name(tac_class, "interactive"), "itactic");
-    name irtactic(name(tac_class, "interactive"), "irtactic");
+    expr type     = p.env().get(decl_name).get_type();
+    name itactic  = get_interactive_tactic_full_name(tac_class, "itactic");
+    name irtactic = get_interactive_tactic_full_name(tac_class, "irtactic");
     buffer<expr> args;
     try {
-        while (is_pi(type)) {
-            if (is_explicit(binding_info(type))) {
-                expr arg_type = binding_domain(type);
-                if (is_app_of(arg_type, get_interactive_parse_name())) {
-                    buffer<expr> arg_args;
-                    get_app_args(arg_type, arg_args);
-                    lean_assert(arg_args.size() == 3);
-                    args.push_back(parse_interactive_param(p, arg_args[0], arg_args[1], arg_args[2]));
-                } else if (is_constant(arg_type, itactic)) {
-                    bool report_error = false;
-                    args.push_back(parse_nested_auto_quote_tactic(p, tac_class, use_rstep, report_error));
-                } else if (is_constant(arg_type, irtactic)) {
-                    args.push_back(parse_nested_auto_quote_tactic(p, tac_class, use_rstep, report_error));
-                } else {
-                    break;
+        try {
+            p.next();
+            while (is_pi(type)) {
+                p.check_break_before();
+                if (is_explicit(binding_info(type))) {
+                    expr arg_type = binding_domain(type);
+                    if (is_app_of(arg_type, get_interactive_parse_name())) {
+                        buffer<expr> arg_args;
+                        get_app_args(arg_type, arg_args);
+                        lean_assert(arg_args.size() == 3);
+                        args.push_back(parse_interactive_param(p, arg_args[0], arg_args[1], arg_args[2]));
+                    } else if (is_constant(arg_type, itactic)) {
+                        bool report_error = false;
+                        args.push_back(parse_nested_interactive_tactic(p, tac_class, use_rstep, report_error));
+                    } else if (is_constant(arg_type, irtactic)) {
+                        args.push_back(parse_nested_interactive_tactic(p, tac_class, use_rstep, report_error));
+                    } else {
+                        break;
+                    }
                 }
+                type = binding_body(type);
             }
-            type = binding_body(type);
-        }
-        while (p.curr_lbp() >= get_max_prec()) {
-            args.push_back(p.parse_expr(get_max_prec()));
+            while (p.curr_lbp() >= get_max_prec()) {
+                p.check_break_before();
+                args.push_back(p.parse_expr(get_max_prec()));
+            }
+            p.check_break_before();
+        } catch (...) {
+            p.check_break_before();
+            throw;
         }
     } catch (break_at_pos_exception & e) {
         e.m_token_info.m_tac_param_idx = args.size();
@@ -237,26 +249,27 @@ struct parse_tactic_fn {
             if (m_p.curr_is_identifier())
                 m_p.check_break_at_pos();
         } catch (break_at_pos_exception & e) {
-            e.m_token_info.m_context = break_at_pos_exception::token_context::interactive_tactic;
+            e.m_token_info.m_context   = break_at_pos_exception::token_context::interactive_tactic;
             e.m_token_info.m_tac_class = m_tac_class;
             throw;
         }
         expr r;
         auto pos = m_p.pos();
-        if (auto dname = is_auto_quote_tactic(m_p, m_tac_class)) {
+        if (auto dname = is_interactive_tactic(m_p, m_tac_class)) {
             try {
-                r = parse_auto_quote_tactic(m_p, *dname, m_tac_class, m_use_rstep, m_report_error);
+                r = parse_interactive_tactic(m_p, *dname, m_tac_class, m_use_rstep, m_report_error);
             } catch (break_at_pos_exception & e) {
                 if (!m_p.get_complete() && e.m_token_info.m_context == break_at_pos_exception::token_context::none) {
-                    e.m_token_info.m_pos = pos;
-                    e.m_token_info.m_context = break_at_pos_exception::token_context::interactive_tactic;
+                    e.m_token_info.m_pos       = pos;
+                    e.m_token_info.m_token     = dname->get_string();
+                    e.m_token_info.m_context   = break_at_pos_exception::token_context::interactive_tactic;
                     e.m_token_info.m_tac_class = m_tac_class;
                 }
                 throw;
             }
         } else if (is_curr_exact_shortcut(m_p)) {
             expr arg = parse_qexpr();
-            r = m_p.mk_app(m_p.save_pos(mk_constant(m_tac_class + name({"interactive", "exact"})), pos), arg, pos);
+            r = m_p.mk_app(m_p.save_pos(mk_constant(get_interactive_tactic_full_name(m_tac_class, "exact")), pos), arg, pos);
             if (m_use_rstep) r = mk_tactic_rstep(m_p, r, pos, m_tac_class, m_report_error);
         } else {
             r = m_p.parse_expr();
@@ -530,7 +543,7 @@ static void erase_quoted_terms_pos_info(parser & p, expr const & e) {
         });
 }
 
-expr parse_auto_quote_tactic_block(parser & p, unsigned, expr const *, pos_info const & pos) {
+expr parse_interactive_tactic_block(parser & p, unsigned, expr const *, pos_info const & pos) {
     name const & tac_class = get_tactic_name();
     bool use_rstep    = false;
     bool report_error = false;

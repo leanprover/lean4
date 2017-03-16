@@ -964,7 +964,7 @@ parse_table init_nud_table() {
     r = r.add({transition("`(", mk_ext_action(parse_lazy_quoted_pexpr))}, x0);
     r = r.add({transition("``(", mk_ext_action(parse_quoted_pexpr))}, x0);
     r = r.add({transition("```(", mk_ext_action(parse_quoted_expr))}, x0);
-    r = r.add({transition("`[", mk_ext_action(parse_auto_quote_tactic_block))}, x0);
+    r = r.add({transition("`[", mk_ext_action(parse_interactive_tactic_block))}, x0);
     r = r.add({transition("`", mk_ext_action(parse_quoted_name))}, x0);
     r = r.add({transition("%%", mk_ext_action(parse_antiquote_expr))}, x0);
     r = r.add({transition("(:", Expr), transition(":)", mk_ext_action(parse_pattern))}, x0);

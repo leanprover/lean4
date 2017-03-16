@@ -424,7 +424,8 @@ void parser::check_token_or_id_next(name const & tk, char const * msg) {
 
 name parser::check_id_next(char const * msg, break_at_pos_exception::token_context ctxt) {
     // initiate empty completion even if following token is not an identifier
-    check_break_before(ctxt);
+    if (get_complete())
+        check_break_before(ctxt);
     if (!curr_is_identifier())
         throw parser_error(msg, pos());
     name r = get_name_val();

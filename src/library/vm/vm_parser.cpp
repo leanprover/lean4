@@ -34,7 +34,8 @@ template struct interaction_monad<lean_parser_state>;
 typedef interaction_monad<lean_parser_state> lean_parser;
 
 #define TRY try {
-#define CATCH } catch (exception const & ex) { return lean_parser::mk_exception(ex, s); }
+#define CATCH } catch (break_at_pos_exception const & ex) { throw; }\
+                catch (exception const & ex) { return lean_parser::mk_exception(ex, s); }
 
 vm_obj run_parser(parser & p, expr const & spec) {
     type_context ctx(p.env(), p.get_options());

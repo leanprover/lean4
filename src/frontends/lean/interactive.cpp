@@ -11,7 +11,9 @@ Author: Sebastian Ullrich
 #include "library/module_mgr.h"
 #include "library/versioned_msg_buf.h"
 #include "library/attribute_manager.h"
+#include "frontends/lean/interactive.h"
 #include "frontends/lean/pp.h"
+#include "frontends/lean/tactic_notation.h"
 #include "shell/completion.h"
 
 namespace lean {
@@ -96,6 +98,17 @@ void report_info(environment const & env, options const & opts, io_state const &
     g_context = e.m_token_info.m_context;
     json record;
 
+    if (e.m_token_info.m_context == break_at_pos_exception::token_context::interactive_tactic &&
+        e.m_token_info.m_token.size()) {
+        record = serialize_decl(e.m_token_info.m_token,
+                                get_interactive_tactic_full_name(e.m_token_info.m_tac_class, e.m_token_info.m_token),
+                                env, opts);
+        if (auto idx = e.m_token_info.m_tac_param_idx)
+            record["tactic_param_idx"] = *idx;
+        j["record"] = record;
+        return;
+    }
+
     // info data not dependent on elaboration/info_manager
     auto const & tk = e.m_token_info.m_token;
     if (tk.size()) {
@@ -122,11 +135,6 @@ void report_info(environment const & env, options const & opts, io_state const &
             default:
                 break;
         }
-    }
-
-    if (e.m_token_info.m_context == break_at_pos_exception::token_context::interactive_tactic) {
-        if (auto idx = e.m_token_info.m_tac_param_idx)
-            record["tactic_param_idx"] = *idx;
     }
 
     for (auto & infom : info_managers) {

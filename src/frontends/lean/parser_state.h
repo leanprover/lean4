@@ -58,8 +58,8 @@ public:
     optional<pos_info>   m_goal_pos;
 
     break_at_pos_exception(pos_info const & token_pos, name token = "",
-                           token_context ctxt = break_at_pos_exception::token_context::none, name tac_class = {}):
-        m_token_info(token_info {token_pos, token, ctxt, tac_class, {}, name()}) {}
+                           token_context ctxt = break_at_pos_exception::token_context::none):
+        m_token_info(token_info {token_pos, token, ctxt, {}, {}, {}}) {}
 
     void report_goal_pos(pos_info goal_pos);
 };

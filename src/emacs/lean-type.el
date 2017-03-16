@@ -40,14 +40,14 @@
 
 (cl-defun lean-info-record-to-string (info-record)
   "Given typeinfo, overload, and sym-name, compose information as a string."
-  (destructuring-bind (&key type tactic_params tactic_param_idx doc overloads synth coercion proofstate full-id symbol extra &allow-other-keys) info-record
+  (destructuring-bind (&key type tactic_params tactic_param_idx text doc overloads synth coercion proofstate full-id symbol extra &allow-other-keys) info-record
     (let (name-str type-str coercion-str extra-str proofstate-str overload-str stale-str str)
       (setq name-str
             (cond
              (synth synth)
              ((and full-id symbol)
               (format "[%s] %s" symbol full-id))
-             (t (or full-id symbol))))
+             (t (or full-id text symbol))))
       (when coercion
         (destructuring-bind (&key expr type) coercion
           (setq coercion-str

@@ -48,6 +48,7 @@ void initialize_vm_core_module() {
     initialize_vm_parser();
     initialize_vm_array();
 }
+
 void finalize_vm_core_module() {
     finalize_vm_array();
     finalize_vm_parser();

@@ -1,9 +1,10 @@
 /-
-Copyright (c) 2016 Microsoft Corporation. All rights reserved.
+Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Luke Nelson, Jared Roesch and Leonardo de Moura
 -/
 import data.buffer
+import system.process
 
 inductive io.error
 | other     : string → io.error
@@ -16,9 +17,8 @@ structure io.terminal (m : Type → Type → Type) :=
 inductive io.mode
 | read | write | read_write | append
 
-structure io.file_system (m : Type → Type → Type) :=
+structure io.file_system (handle : Type) (m : Type → Type → Type) :=
 /- Remark: in Haskell, they also provide  (Maybe TextEncoding) and  NewlineMode -/
-(handle         : Type)
 (read_file      : string → bool → m io.error char_buffer)
 (mk_file_handle : string → io.mode → bool → m io.error handle)
 (is_eof         : handle → m io.error bool)
@@ -36,8 +36,12 @@ class io.interface :=
 (monad    : Π e, monad (m e))
 (catch    : Π e₁ e₂ α, m e₁ α → (e₁ → m e₂ α) → m e₂ α)
 (fail     : Π e α, e → m e α)
+-- Primitive Types
+(handle   : Type)
+-- Interface Extensions
 (term     : io.terminal m)
-(fs       : io.file_system m)
+(fs       : io.file_system handle m)
+(process  : io.process io.error handle m)
 
 variable [io.interface]
 
@@ -74,7 +78,7 @@ def print_ln {α} [has_to_string α] (s : α) : io unit :=
 print s >> put_str "\n"
 
 def handle : Type :=
-interface.fs.handle
+interface.handle
 
 def mk_file_handle (s : string) (m : mode) (bin : bool := ff) : io handle :=
 interface.fs.mk_file_handle s m bin
@@ -137,4 +141,23 @@ format.print_using (to_fmt a) o
 meta definition pp {α : Type} [has_to_format α] (a : α) : io unit :=
 format.print (to_fmt a)
 
+/-- Run the external process named by `cmd`, supplied with the arguments `args`.
+
+    The process will run to completion with its output captured by a pipe, and
+    read into `string` which is then returned.
+-/
+def io.cmd [io.interface] (cmd : string) (args : list string) : io string :=
+do let proc : process := {
+    cmd := cmd,
+    args := args,
+    stdout := process.stdio.piped
+  },
+  child ← interface.process^.spawn proc,
+  let inh := child^.stdin,
+  let outh := child^.stdout,
+  let errh := child^.stderr,
+  buf ← io.fs.read outh 1024,
+  return buf^.to_string
+
+/-- Lift a monadic `io` action into the `tactic` monad. -/
 meta constant tactic.run_io {α : Type} : (Π ioi : io.interface, @io ioi α) → tactic α

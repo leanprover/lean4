@@ -699,6 +699,7 @@ vm_obj tactic_run_io(vm_obj const &, vm_obj const & a, vm_obj const & s) {
         return tactic::mk_exception(io_error_to_string(*e), tactic::to_state(s));
     }
 }
+
 void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic_state", "env"}),            tactic_state_env);
     DECLARE_VM_BUILTIN(name({"tactic_state", "format_expr"}),    tactic_state_format_expr);

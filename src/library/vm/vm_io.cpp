@@ -8,11 +8,14 @@ Author: Leonardo de Moura
 #include <cstdio>
 #include <iostream>
 #include "util/sstream.h"
+#include "library/handle.h"
 #include "library/io_state.h"
 #include "library/tactic/tactic_state.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_array.h"
 #include "library/vm/vm_string.h"
+#include "library/vm/vm_io.h"
+#include "library/process.h"
 
 namespace lean {
 vm_obj mk_io_result(vm_obj const & r) {
@@ -56,14 +59,6 @@ static vm_obj mk_terminal() {
     };
     return mk_vm_constructor(0, 2, fields);
 }
-
-struct handle {
-    FILE * m_handle;
-    handle(FILE * h):m_handle(h) {}
-    ~handle() { if (m_handle && m_handle != stdin && m_handle != stderr && m_handle != stdout) fclose(m_handle); }
-};
-
-typedef std::shared_ptr<handle> handle_ref;
 
 struct vm_handle : public vm_external {
     handle_ref m_handle;
@@ -116,42 +111,46 @@ static vm_obj mk_handle_has_been_closed_error() {
     return mk_io_failure("invalid io action, handle has been closed");
 }
 
-static bool has_been_closed(handle_ref const & href) {
-    return href->m_handle == nullptr;
-}
-
 static vm_obj fs_is_eof(vm_obj const & h, vm_obj const &) {
     handle_ref const & href = to_handle(h);
-    if (has_been_closed(href)) return mk_handle_has_been_closed_error();
-    bool r = feof(href->m_handle) != 0;
+    if (href->is_closed()) return mk_handle_has_been_closed_error();
+    bool r = feof(href->m_file) != 0;
     return mk_io_result(mk_vm_bool(r));
 }
 
 static vm_obj fs_flush(vm_obj const & h, vm_obj const &) {
     handle_ref const & href = to_handle(h);
-    if (has_been_closed(href)) return mk_handle_has_been_closed_error();
-    if (fflush(href->m_handle) == 0) {
+
+    if (href->is_closed()) {
+        return mk_handle_has_been_closed_error();
+    }
+
+    try {
+        href->flush();
         return mk_io_result(mk_vm_unit());
-    } else {
-        clearerr(href->m_handle);
+    } catch (handle_exception e) {
         return mk_io_failure("flush failed");
     }
 }
 
 static vm_obj fs_close(vm_obj const & h, vm_obj const &) {
     handle_ref const & href = to_handle(h);
-    if (has_been_closed(href)) return mk_handle_has_been_closed_error();
-    if (href->m_handle == stdin)
+
+    if (href->is_closed()) {
+        return mk_handle_has_been_closed_error();
+    }
+
+    if (href->is_stdin())
         return mk_io_failure("close failed, stdin cannot be closed");
-    if (href->m_handle == stdout)
+    if (href->is_stdout())
         return mk_io_failure("close failed, stdout cannot be closed");
-    if (href->m_handle == stderr)
+    if (href->is_stderr())
         return mk_io_failure("close failed, stderr cannot be closed");
-    if (fclose(href->m_handle) == 0) {
-        href->m_handle = nullptr;
+
+    try {
+        href->close();
         return mk_io_result(mk_vm_unit());
-    } else {
-        clearerr(href->m_handle);
+    } catch (handle_exception e) {
         return mk_io_failure("close failed");
     }
 }
@@ -162,13 +161,13 @@ static vm_obj mk_buffer(parray<vm_obj> const & a) {
 
 static vm_obj fs_read(vm_obj const & h, vm_obj const & n, vm_obj const &) {
     handle_ref const & href = to_handle(h);
-    if (has_been_closed(href)) return mk_handle_has_been_closed_error();
+    if (href->is_closed()) return mk_handle_has_been_closed_error();
     buffer<char> tmp;
     unsigned num = force_to_unsigned(n); /* TODO(Leo): handle size_t */
     tmp.resize(num, 0);
-    size_t sz = fread(tmp.data(), 1, num, href->m_handle);
-    if (ferror(href->m_handle)) {
-        clearerr(href->m_handle);
+    size_t sz = fread(tmp.data(), 1, num, href->m_file);
+    if (ferror(href->m_file)) {
+        clearerr(href->m_file);
         return mk_io_failure("read failed");
     }
     parray<vm_obj> r;
@@ -180,28 +179,38 @@ static vm_obj fs_read(vm_obj const & h, vm_obj const & n, vm_obj const &) {
 
 static vm_obj fs_write(vm_obj const & h, vm_obj const & b, vm_obj const &) {
     handle_ref const & href = to_handle(h);
-    if (has_been_closed(href)) return mk_handle_has_been_closed_error();
+
+    if (href->is_closed()) {
+        return mk_handle_has_been_closed_error();
+    }
+
     buffer<char> tmp;
     parray<vm_obj> const & a = to_array(cfield(b, 1));
     unsigned sz = a.size();
     for (unsigned i = 0; i < sz; i++) {
         tmp.push_back(static_cast<unsigned char>(cidx(a[i])));
     }
-    if (fwrite(tmp.data(), 1, sz, href->m_handle) != sz) {
-        clearerr(href->m_handle);
+
+    try {
+        href->write(tmp);
+        return mk_io_result(mk_vm_unit());
+    } catch (handle_exception e) {
         return mk_io_failure("write failed");
     }
-    return mk_io_result(mk_vm_unit());
 }
 
 static vm_obj fs_get_line(vm_obj const & h, vm_obj const &) {
     handle_ref const & href = to_handle(h);
-    if (has_been_closed(href)) return mk_handle_has_been_closed_error();
+
+    if (href->is_closed()) {
+        return mk_handle_has_been_closed_error();
+    }
+
     parray<vm_obj> r;
     while (true) {
-        int c = fgetc(href->m_handle);
-        if (ferror(href->m_handle)) {
-            clearerr(href->m_handle);
+        int c = fgetc(href->m_file);
+        if (ferror(href->m_file)) {
+            clearerr(href->m_file);
             return mk_io_failure("get_line failed");
         }
         if (c == EOF)
@@ -251,7 +260,6 @@ static vm_obj fs_stderr(vm_obj const &) {
 }
 
 /*
-(handle         : Type)
 (read_file      : string → bool → m io.error char_buffer)
 (mk_file_handle : string → io.mode → bool → m io.error handle)
 (is_eof         : handle → m io.error bool)
@@ -279,6 +287,71 @@ static vm_obj mk_fs() {
         mk_native_closure(fs_stderr)
     };
     return mk_vm_constructor(0, 11, fields);
+}
+
+stdio to_stdio(vm_obj const & o) {
+    switch (cidx(o)) {
+    case 0:
+        return stdio::PIPED;
+    case 1:
+        return stdio::INHERIT;
+    case 2:
+        return stdio::NUL;
+    default:
+        lean_unreachable()
+    }
+}
+
+/*
+structure process :=
+  (cmd : string)
+  /- Add an argument to pass to the process. -/
+  (args : list string)
+  /- Configuration for the process's stdin handle. -/
+  (stdin := stdio.inherit)
+  /- Configuration for the process's stdout handle. -/
+  (stdout := stdio.inherit)
+  /- Configuration for the process's stderr handle. -/
+  (stderr := stdio.inherit)
+*/
+static vm_obj io_process_spawn(vm_obj const & process_obj, vm_obj const &) {
+    std::string cmd = to_string(cfield(process_obj, 0));
+
+    list<std::string> args = to_list<std::string>(cfield(process_obj, 1), [&] (vm_obj const & o) -> std::string {
+        return to_string(o);
+    });
+    auto stdin_stdio = to_stdio(cfield(process_obj, 2));
+    auto stdout_stdio = to_stdio(cfield(process_obj, 3));
+    auto stderr_stdio = to_stdio(cfield(process_obj, 4));
+
+    lean::process proc(cmd);
+
+    for (auto arg : args) {
+        proc.arg(arg);
+    }
+
+    proc.set_stdin(stdin_stdio);
+    proc.set_stdout(stdout_stdio);
+    proc.set_stderr(stderr_stdio);
+
+    child ch = proc.spawn();
+
+    auto child_obj = mk_vm_constructor(0, {
+        to_obj(ch.m_stdin),
+        to_obj(ch.m_stdout),
+        to_obj(ch.m_stderr)
+    });
+
+    // Should add helper functions for building real io.result
+    return mk_io_result(child_obj);
+}
+
+/*
+structure io.process (Err : Type) (handle : Type) (m : Type → Type → Type) :=
+  (spawn        : process → m Err child)
+*/
+static vm_obj mk_process() {
+    return mk_native_closure(io_process_spawn);
 }
 
 static vm_obj io_return(vm_obj const &, vm_obj const & a, vm_obj const &) {
@@ -320,24 +393,29 @@ static vm_obj io_m(vm_obj const &, vm_obj const &) {
 }
 
 /*
-structure io.interface :=
+class io.interface :=
 (m        : Type → Type → Type)
 (monad    : Π e, monad (m e))
 (catch    : ∀ e₁ e₂ α, m e₁ α → (e₁ → m e₂ α) → m e₂ α)
 (fail     : ∀ e α, e → m e α)
+-- Primitive Types
+(handle   : Type)
+-- Interface Extensions
 (term     : io.terminal m)
-(fs       : io.file_system m)
+(fs       : io.file_system handle m)
+(process  : io.process io.error handle m)
 */
 vm_obj mk_io_interface() {
-    vm_obj fields[6] = {
+    vm_obj fields[7] = {
         mk_native_closure(io_m), /* TODO(Leo): delete after we improve code generator */
         mk_native_closure(io_monad),
         mk_native_closure(io_catch),
         mk_native_closure(io_fail),
         mk_terminal(),
-        mk_fs()
+        mk_fs(),
+        mk_process()
     };
-    return mk_vm_constructor(0, 6, fields);
+    return mk_vm_constructor(0, 7, fields);
 }
 
 optional<vm_obj> is_io_result(vm_obj const & o) {

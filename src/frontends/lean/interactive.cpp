@@ -19,20 +19,26 @@ LEAN_THREAD_VALUE(break_at_pos_exception::token_context, g_context, break_at_pos
 
 void interactive_report_type(environment const & env, options const & opts, expr const & e, json & j) {
     type_context tc(env);
-    format f;
     if (g_context == break_at_pos_exception::token_context::interactive_tactic) {
         vm_state vm(env, options());
-        tactic_state s(env, opts, "_interactive_format_type", {}, {}, mk_true(), {});
+        tactic_state s(env, opts, "_interactive_report_type", {}, {}, mk_true(), {});
+        std::vector<std::string> params;
 
-        vm_obj r = vm.invoke({"interactive", "desc"}, {to_obj(s), to_obj(e)});
-        if (tactic::is_result_success(r))
-            f = to_format(tactic::get_result_value(r));
-        else
-            f = format("<error while executing bla:") + space() + std::get<0>(*tactic::is_exception(vm, r)) + format(">");
-        j["pretty"] = true;
-    } else {
-        f = mk_pretty_formatter_factory()(env, opts, tc)(e);
+        for (expr d = e; is_pi(d); d = binding_body(d)) {
+            vm_obj r = vm.invoke(get_interactive_param_desc_name(), {to_obj(s), to_obj(binding_domain(d))});
+            format f;
+            if (tactic::is_result_success(r))
+                f = to_format(tactic::get_result_value(r));
+            else
+                f = format("<error while executing ") + format(get_interactive_param_desc_name()) + format(": ") +
+                    std::get<0>(*tactic::is_exception(vm, r)) + format(">");
+            sstream ss;
+            ss << mk_pair(flatten(f), opts);
+            params.push_back(ss.str());
+        }
+        j["tactic_params"] = params;
     }
+    format f = mk_pretty_formatter_factory()(env, opts, tc)(e);
     sstream ss;
     ss << mk_pair(flatten(f), opts);
     j["type"] = ss.str();
@@ -116,6 +122,11 @@ void report_info(environment const & env, options const & opts, io_state const &
             default:
                 break;
         }
+    }
+
+    if (e.m_token_info.m_context == break_at_pos_exception::token_context::interactive_tactic) {
+        if (auto idx = e.m_token_info.m_tac_param_idx)
+            record["tactic_param_idx"] = *idx;
     }
 
     for (auto & infom : info_managers) {

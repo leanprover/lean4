@@ -163,27 +163,32 @@ static expr parse_auto_quote_tactic(parser & p, name const & decl_name, name con
     name itactic(name(tac_class, "interactive"), "itactic");
     name irtactic(name(tac_class, "interactive"), "irtactic");
     buffer<expr> args;
-    while (is_pi(type)) {
-        if (is_explicit(binding_info(type))) {
-            expr arg_type = binding_domain(type);
-            if (is_app_of(arg_type, get_interactive_parse_name())) {
-                buffer<expr> arg_args;
-                get_app_args(arg_type, arg_args);
-                lean_assert(arg_args.size() == 3);
-                args.push_back(parse_interactive_param(p, arg_args[0], arg_args[1], arg_args[2]));
-            } else if (is_constant(arg_type, itactic)) {
-                bool report_error = false;
-                args.push_back(parse_nested_auto_quote_tactic(p, tac_class, use_rstep, report_error));
-            } else if (is_constant(arg_type, irtactic)) {
-                args.push_back(parse_nested_auto_quote_tactic(p, tac_class, use_rstep, report_error));
-            } else {
-                break;
+    try {
+        while (is_pi(type)) {
+            if (is_explicit(binding_info(type))) {
+                expr arg_type = binding_domain(type);
+                if (is_app_of(arg_type, get_interactive_parse_name())) {
+                    buffer<expr> arg_args;
+                    get_app_args(arg_type, arg_args);
+                    lean_assert(arg_args.size() == 3);
+                    args.push_back(parse_interactive_param(p, arg_args[0], arg_args[1], arg_args[2]));
+                } else if (is_constant(arg_type, itactic)) {
+                    bool report_error = false;
+                    args.push_back(parse_nested_auto_quote_tactic(p, tac_class, use_rstep, report_error));
+                } else if (is_constant(arg_type, irtactic)) {
+                    args.push_back(parse_nested_auto_quote_tactic(p, tac_class, use_rstep, report_error));
+                } else {
+                    break;
+                }
             }
+            type = binding_body(type);
         }
-        type = binding_body(type);
-    }
-    while (p.curr_lbp() >= get_max_prec()) {
-        args.push_back(p.parse_expr(get_max_prec()));
+        while (p.curr_lbp() >= get_max_prec()) {
+            args.push_back(p.parse_expr(get_max_prec()));
+        }
+    } catch (break_at_pos_exception & e) {
+        e.m_token_info.m_tac_param_idx = args.size();
+        throw;
     }
     expr r = p.mk_app(p.save_pos(mk_constant(decl_name), pos), args, pos);
     return mk_tactic_step(p, r, pos, tac_class, use_rstep, report_error);

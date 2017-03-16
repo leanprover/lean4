@@ -45,12 +45,13 @@ class break_at_pos_exception : public std::exception {
 public:
     enum class token_context { none, expr, notation, option, import, interactive_tactic, attribute, namespc, field };
     struct token_info {
-        pos_info      m_pos;
-        name          m_token;
+        pos_info           m_pos;
+        name               m_token;
 
-        token_context m_context;
-        name          m_tac_class;
-        name          m_struct; /* for field completion */
+        token_context      m_context;
+        name               m_tac_class;
+        optional<unsigned> m_tac_param_idx;
+        name               m_struct; /* for field completion */
     };
 
     token_info m_token_info;
@@ -58,7 +59,7 @@ public:
 
     break_at_pos_exception(pos_info const & token_pos, name token = "",
                            token_context ctxt = break_at_pos_exception::token_context::none, name tac_class = {}):
-        m_token_info(token_info {token_pos, token, ctxt, tac_class, name()}) {}
+        m_token_info(token_info {token_pos, token, ctxt, tac_class, {}, name()}) {}
 
     void report_goal_pos(pos_info goal_pos);
 };

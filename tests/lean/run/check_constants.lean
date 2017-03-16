@@ -155,6 +155,7 @@ run_cmd script_check_id `int.ne_neg_of_pos
 run_cmd script_check_id `int.neg_ne_zero_of_ne
 run_cmd script_check_id `int.zero_ne_neg_of_ne
 run_cmd script_check_id `int.decidable_linear_ordered_comm_group
+run_cmd script_check_id `interactive.param_desc
 run_cmd script_check_id `interactive.parse
 run_cmd script_check_id `inv
 run_cmd script_check_id `io

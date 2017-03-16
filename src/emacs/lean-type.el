@@ -40,7 +40,7 @@
 
 (cl-defun lean-info-record-to-string (info-record)
   "Given typeinfo, overload, and sym-name, compose information as a string."
-  (destructuring-bind (&key type pretty doc overloads synth coercion proofstate full-id symbol extra &allow-other-keys) info-record
+  (destructuring-bind (&key type tactic_params tactic_param_idx doc overloads synth coercion proofstate full-id symbol extra &allow-other-keys) info-record
     (let (name-str type-str coercion-str extra-str proofstate-str overload-str stale-str str)
       (setq name-str
             (cond
@@ -56,6 +56,13 @@
                         type))))
       (when type
         (setq type-str type))
+      (when tactic_params
+        (setq tactic_params (-map-indexed (lambda (i param)
+                                            (if (eq i tactic_param_idx)
+                                                (propertize param 'face 'eldoc-highlight-function-argument)
+                                              param)) tactic_params))
+        (setq type-str (mapconcat 'identity tactic_params " ")))
+
       (when overloads
         (setq overload-str (s-join ", " overloads)))
       (when extra
@@ -66,7 +73,7 @@
                                  (propertize expr 'face 'font-lock-variable-name-face)
                                  type))))))
       (when (and name-str type-str)
-        (setq str (format (if pretty "%s %s" "%s : %s")
+        (setq str (format (if tactic_params "%s %s" "%s : %s")
                           (propertize name-str 'face 'font-lock-variable-name-face)
                           type-str)))
       (when (and str coercion-str)
@@ -82,9 +89,13 @@
       (when proofstate
         (setq str proofstate))
       (when doc
-        (setq str (concat str
-                          (format "\n%s"
-                                  (propertize doc 'face 'font-lock-comment-face)))))
+        (let* ((lines (split-string doc "\n"))
+               (doc (if (cdr lines)
+                        (concat (car lines) " ⋯")
+                      (car lines))))
+          (setq str (concat str
+                            (format "\n%s"
+                                    (propertize doc 'face 'font-lock-comment-face))))))
       str)))
 
 (defun lean-eldoc-documentation-function-cont (info-record &optional add-to-kill-ring)

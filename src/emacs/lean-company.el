@@ -23,14 +23,14 @@
   (setq-local company-begin-commands '(self-insert-command)) ; start autocompletion only after typing
   (company-mode t))
 
-(cl-defun company-lean--make-candidate (prefix &key text type pretty doc source &allow-other-keys)
+(cl-defun company-lean--make-candidate (prefix &key text type (tactic_params 'empty) doc source &allow-other-keys)
   (destructuring-bind (&key file line column) source
     (let ((source (cond
                    (file (cons file line))
                    (line (cons (current-buffer) (lean-pos-at-line-col line 0))))))
       (propertize text
                   'type   type
-                  'pretty pretty
+                  'tactic_params tactic_params
                   'doc    doc
                   'source source
                   'prefix prefix))))
@@ -66,9 +66,11 @@
 
 (defun company-lean--annotation (candidate)
   (let ((type (get-text-property 0 'type candidate))
-        (pretty (get-text-property 0 'pretty candidate)))
+        (tactic_params (get-text-property 0 'tactic_params candidate)))
     (when type
-      (let* ((annotation-str (format (if pretty " %s" " : %s") type))
+      (let* ((annotation-str (if (not (eq tactic_params 'empty))
+                                 (format " %s" (mapconcat 'identity tactic_params " "))
+                               (format " : %s" type)))
              (annotation-len (length annotation-str))
              (candidate-len  (length candidate))
              (entry-width    (+ candidate-len
@@ -89,7 +91,7 @@
 (defun company-lean--match (arg)
   "Return the end of matched region"
   (let ((prefix (get-text-property 0 'prefix arg)))
-    (when (eq (s-index-of prefix arg) 0)
+    (when (and prefix (eq (s-index-of prefix arg) 0))
         (length prefix))))
 
 (defun company-lean--meta (arg)

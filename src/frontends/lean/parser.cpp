@@ -226,6 +226,8 @@ void parser::check_break_at_pos(break_at_pos_exception::token_context ctxt) {
 }
 
 void parser::check_break_before(break_at_pos_exception::token_context ctxt) {
+    if (!get_complete())
+        ctxt = break_at_pos_exception::token_context::none;
     if (m_break_at_pos && *m_break_at_pos < pos())
         throw break_at_pos_exception(*m_break_at_pos, "", ctxt);
 }

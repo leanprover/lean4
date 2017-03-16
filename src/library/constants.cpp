@@ -155,6 +155,7 @@ name const * g_int_ne_neg_of_pos = nullptr;
 name const * g_int_neg_ne_zero_of_ne = nullptr;
 name const * g_int_zero_ne_neg_of_ne = nullptr;
 name const * g_int_decidable_linear_ordered_comm_group = nullptr;
+name const * g_interactive_param_desc = nullptr;
 name const * g_interactive_parse = nullptr;
 name const * g_inv = nullptr;
 name const * g_io = nullptr;
@@ -533,6 +534,7 @@ void initialize_constants() {
     g_int_neg_ne_zero_of_ne = new name{"int", "neg_ne_zero_of_ne"};
     g_int_zero_ne_neg_of_ne = new name{"int", "zero_ne_neg_of_ne"};
     g_int_decidable_linear_ordered_comm_group = new name{"int", "decidable_linear_ordered_comm_group"};
+    g_interactive_param_desc = new name{"interactive", "param_desc"};
     g_interactive_parse = new name{"interactive", "parse"};
     g_inv = new name{"inv"};
     g_io = new name{"io"};
@@ -912,6 +914,7 @@ void finalize_constants() {
     delete g_int_neg_ne_zero_of_ne;
     delete g_int_zero_ne_neg_of_ne;
     delete g_int_decidable_linear_ordered_comm_group;
+    delete g_interactive_param_desc;
     delete g_interactive_parse;
     delete g_inv;
     delete g_io;
@@ -1290,6 +1293,7 @@ name const & get_int_ne_neg_of_pos_name() { return *g_int_ne_neg_of_pos; }
 name const & get_int_neg_ne_zero_of_ne_name() { return *g_int_neg_ne_zero_of_ne; }
 name const & get_int_zero_ne_neg_of_ne_name() { return *g_int_zero_ne_neg_of_ne; }
 name const & get_int_decidable_linear_ordered_comm_group_name() { return *g_int_decidable_linear_ordered_comm_group; }
+name const & get_interactive_param_desc_name() { return *g_interactive_param_desc; }
 name const & get_interactive_parse_name() { return *g_interactive_parse; }
 name const & get_inv_name() { return *g_inv; }
 name const & get_io_name() { return *g_io; }

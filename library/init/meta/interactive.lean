@@ -96,18 +96,10 @@ private meta def parser_desc_aux : expr → tactic (list format)
         fail $ to_fmt "don't know how to pretty print " ++ f),
   parser_desc_aux e'
 
-private meta def param_desc : expr → tactic format
+meta def param_desc : expr → tactic format
 | ```(parse %%p) := join <$> parser_desc_aux p
 | ```(opt_param %%t ._) := (++ "?") <$> pp t
 | e := paren <$> pp e
-
-meta def interactive_desc_aux : expr → tactic (list format)
-| (expr.pi _ _ d b) := list.cons <$> param_desc d <*> interactive_desc_aux b
-| _ := return []
-
-meta def desc (e : expr) : tactic format :=
-do f ← interactive_desc_aux e,
-   return $ join $ list.intersperse " " f
 end interactive
 
 namespace tactic

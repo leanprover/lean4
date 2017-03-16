@@ -858,9 +858,6 @@ expr type_context::infer(expr const & e) {
 }
 
 expr type_context::infer_core(expr const & e) {
-    lean_assert(!is_var(e));
-    lean_assert(closed(e));
-
 #ifndef LEAN_NO_TYPE_INFER_CACHE
     auto & cache = m_cache->m_infer_cache;
     unsigned postponed_sz = m_postponed.size();
@@ -880,7 +877,7 @@ expr type_context::infer_core(expr const & e) {
         r = infer_metavar(e);
         break;
     case expr_kind::Var:
-        lean_unreachable();  // LCOV_EXCL_LINE
+        throw exception("failed to infer type, unexpected bound variable occurrence");
     case expr_kind::Sort:
         r = mk_sort(mk_succ(sort_level(e)));
         break;

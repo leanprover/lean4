@@ -70,7 +70,15 @@ class rb_tree : private CMP {
         return *g_allocator;
     }
 
+    bool check_cmp_result(T const & v1, T const & v2) const {
+        int n1 = CMP::operator()(v1, v2);
+        int n2 = CMP::operator()(v2, v1);
+        lean_assert((n1 < 0  && n2 > 0) || (n1 == 0 && n2 == 0) || (n1 > 0  && n2 < 0));
+        return true;
+    }
+
     int cmp(T const & v1, T const & v2) const {
+        lean_cond_assert("rb_tree", check_cmp_result(v1, v2));
         return CMP::operator()(v1, v2);
     }
 
@@ -382,16 +390,19 @@ public:
     unsigned get_rc() const { return m_root ? m_root->get_rc() : 0; }
 
     void insert(T const & v) {
+        lean_cond_assert("rb_tree", check_invariant());
         m_root = set_black(insert(m_root.steal(), v));
         lean_cond_assert("rb_tree", check_invariant());
     }
 
     void erase_min() {
+        lean_cond_assert("rb_tree", check_invariant());
         m_root = set_black(erase_min(m_root.steal()));
         lean_cond_assert("rb_tree", check_invariant());
     }
 
     void erase_core(T const & v) {
+        lean_cond_assert("rb_tree", check_invariant());
         lean_assert(contains(v));
         m_root = set_black(erase(m_root.steal(), v));
         lean_cond_assert("rb_tree", check_invariant());

@@ -25,6 +25,43 @@ struct decl_modifiers {
     bool m_is_class{false};
 };
 
+/** \brief In Lean, declarations may contain nested definitions.
+    This object is used to propagate relevant flags to
+    nested definitions. */
+class declaration_info_scope {
+    declaration_info_scope(name const & ns, bool found_errors, def_cmd_kind kind, decl_modifiers const & modifiers);
+public:
+    declaration_info_scope(parser const & p, def_cmd_kind kind, decl_modifiers const & modifiers);
+    ~declaration_info_scope();
+    bool gen_aux_lemmas() const;
+};
+
+/** \brief Similar to declaration_info_scope, but it is used to update
+    naming prefix for nested definitions. */
+class declaration_name_scope {
+    name     m_name;
+    name     m_old_prefix;
+    unsigned m_old_next_match_idx;
+public:
+    declaration_name_scope(name const & n);
+    declaration_name_scope();
+    ~declaration_name_scope();
+    void set_name(name const & n);
+    name const & get_name() const { return m_name; }
+};
+
+/** \brief Auxiliary scope to compute the name for a nested match expression.
+    In Lean, we create auxiliary declarations for match expressions. */
+class match_definition_scope {
+    name m_name;
+public:
+    match_definition_scope();
+    name const & get_name() const { return m_name; }
+};
+
+/** \brief Return true if the current scope used match-expressions */
+bool used_match_idx();
+
 /** \brief Parse explict universe parameters of the form:
            {u_1 ... u_k}
 
@@ -41,7 +78,7 @@ bool parse_univ_params(parser & p, buffer<name> & lp_names);
     Both lp_names and params are added to the parser scope.
 
     \remark Caller is responsible for using: parser::local_scope scope2(p, env); */
-expr parse_single_header(parser & p, buffer<name> & lp_names, buffer<expr> & params,
+expr parse_single_header(parser & p, declaration_name_scope & s, buffer<name> & lp_names, buffer<expr> & params,
                          bool is_example = false, bool is_instance = false,
                          bool allow_default = false);
 /** \brief Parse the header of a mutually recursive declaration. It has the form
@@ -88,38 +125,6 @@ environment add_local_ref(parser & p, environment const & env, name const & c_na
 
 /** \brief Add alias for new declaration. */
 environment add_alias(environment const & env, bool is_protected, name const & c_name, name const & c_real_name);
-
-/** \brief In Lean, declarations may contain nested definitions.
-    This object is used to propagate relevant flags to
-    nested definitions. */
-class declaration_info_scope {
-    declaration_info_scope(name const & ns, bool found_errors, def_cmd_kind kind, decl_modifiers const & modifiers);
-public:
-    declaration_info_scope(parser const & p, def_cmd_kind kind, decl_modifiers const & modifiers);
-    ~declaration_info_scope();
-    bool gen_aux_lemmas() const;
-};
-
-/** \brief Similar to declaration_info_scope, but it is used to update
-    naming prefix for nested definitions. */
-class declaration_name_scope {
-    name     m_name;
-    name     m_old_prefix;
-    unsigned m_old_next_match_idx;
-public:
-    declaration_name_scope(name const & n);
-    ~declaration_name_scope();
-    name const & get_name() const { return m_name; }
-};
-
-/** \brief Auxiliary scope to compute the name for a nested match expression.
-    In Lean, we create auxiliary declarations for match expressions. */
-class match_definition_scope {
-    name m_name;
-public:
-    match_definition_scope();
-    name const & get_name() const { return m_name; }
-};
 
 /** \brief Create an equations header for the given function names.
     It uses the information set using declaration_info_scope */

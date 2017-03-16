@@ -42,20 +42,21 @@ bool parse_univ_params(parser & p, buffer<name> & lp_names) {
     }
 }
 
-expr parse_single_header(parser & p, buffer<name> & lp_names, buffer<expr> & params,
+expr parse_single_header(parser & p, declaration_name_scope & scope, buffer<name> & lp_names, buffer<expr> & params,
                          bool is_example, bool is_instance, bool allow_default) {
-    lean_assert(!is_example || !is_instance);
     auto c_pos  = p.pos();
     name c_name;
     if (is_example) {
         c_name = "_example";
+        scope.set_name(c_name);
     } else {
         if (!is_instance)
             parse_univ_params(p, lp_names);
-        if (!is_instance || p.curr_is_identifier())
+        if (!is_instance || p.curr_is_identifier()) {
             c_name = p.check_decl_id_next("invalid declaration, identifier expected");
+            scope.set_name(c_name);
+        }
     }
-    declaration_name_scope scope(c_name);
     p.parse_optional_binders(params, allow_default);
     for (expr const & param : params)
         p.add_local(param);
@@ -66,8 +67,9 @@ expr parse_single_header(parser & p, buffer<name> & lp_names, buffer<expr> & par
     } else {
         type = p.save_pos(mk_expr_placeholder(), c_pos);
     }
-
     if (is_instance && c_name.is_anonymous()) {
+        if (used_match_idx())
+            throw parser_error("invalid instance, pattern matching cannot be used in the type of anonymous instance declarations", c_pos);
         /* Try to synthesize name */
         expr it = type;
         while (is_pi(it)) it = binding_body(it);
@@ -75,8 +77,10 @@ expr parse_single_header(parser & p, buffer<name> & lp_names, buffer<expr> & par
         name ns = get_namespace(p.env());
         if (is_constant(C) && !ns.is_anonymous()) {
             c_name = const_name(C);
+            scope.set_name(c_name);
         } else if (is_constant(C) && is_app(it) && is_constant(get_app_fn(app_arg(it)))) {
             c_name = const_name(get_app_fn(app_arg(it))) + const_name(C);
+            scope.set_name(c_name);
         } else {
             throw parser_error("failed to synthesize instance name, name should be provided explicitly", c_pos);
         }
@@ -415,6 +419,24 @@ static name mk_decl_name(name const & prefix, name const & n) {
     } else {
         return prefix + n;
     }
+}
+
+bool used_match_idx() {
+    return get_definition_info().m_next_match_idx > 1;
+}
+
+declaration_name_scope::declaration_name_scope() {
+    definition_info & info = get_definition_info();
+    m_old_prefix          = info.m_prefix;
+    m_old_next_match_idx  = info.m_next_match_idx;
+    info.m_next_match_idx = 1;
+}
+
+void declaration_name_scope::set_name(name const & n) {
+    lean_assert(m_name.is_anonymous());
+    definition_info & info = get_definition_info();
+    info.m_prefix          = mk_decl_name(info.m_prefix, n);
+    m_name                = info.m_prefix;
 }
 
 declaration_name_scope::declaration_name_scope(name const & n) {

@@ -567,7 +567,8 @@ class inductive_cmd_fn {
         m_attrs.parse(m_p);
         check_attrs(m_attrs);
 
-        expr ind = parse_single_header(m_p, m_lp_names, params);
+        declaration_name_scope nscope;
+        expr ind = parse_single_header(m_p, nscope, m_lp_names, params);
         m_explicit_levels = !m_lp_names.empty();
 
         ind = mk_local(get_namespace(m_p.env()) + mlocal_name(ind), mlocal_name(ind), mlocal_type(ind), local_info(ind));

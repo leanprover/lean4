@@ -21,17 +21,7 @@ Authors: Gabriel Ebner, Leonardo de Moura, Sebastian Ullrich
 #include "frontends/lean/interactive.h"
 #include "shell/server.h"
 
-#ifndef LEAN_DEFAULT_AUTO_COMPLETION_MAX_RESULTS
-#define LEAN_DEFAULT_AUTO_COMPLETION_MAX_RESULTS 100
-#endif
-
 namespace lean {
-static name * g_auto_completion_max_results = nullptr;
-
-unsigned get_auto_completion_max_results(options const & o) {
-    return o.get_unsigned(*g_auto_completion_max_results, LEAN_DEFAULT_AUTO_COMPLETION_MAX_RESULTS);
-}
-
 struct msg_reported_msg {
     message m_msg;
 
@@ -492,13 +482,9 @@ void server::send_msg(Msg const & m) {
 }
 
 void initialize_server() {
-    g_auto_completion_max_results = new name{"auto_completion", "max_results"};
-    register_unsigned_option(*g_auto_completion_max_results, LEAN_DEFAULT_AUTO_COMPLETION_MAX_RESULTS,
-                             "(auto-completion) maximum number of results returned");
 }
 
 void finalize_server() {
-    delete g_auto_completion_max_results;
 }
 
 #if defined(LEAN_MULTI_THREAD)

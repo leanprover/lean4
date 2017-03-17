@@ -27,6 +27,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/info_manager.h"
 #include "frontends/lean/brackets.h"
 #include "frontends/lean/interactive.h"
+#include "frontends/lean/completion.h"
 
 namespace lean {
 void initialize_frontend_lean_module() {
@@ -53,8 +54,10 @@ void initialize_frontend_lean_module() {
     initialize_info_manager();
     initialize_brackets();
     initialize_interactive();
+    initialize_completion();
 }
 void finalize_frontend_lean_module() {
+    finalize_completion();
     finalize_interactive();
     finalize_brackets();
     finalize_info_manager();

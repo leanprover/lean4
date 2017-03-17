@@ -8,6 +8,7 @@ Authors: Gabriel Ebner, Leonardo de Moura, Sebastian Ullrich
 #include <algorithm>
 #include <string>
 #include <vector>
+#include <library/projection.h>
 #include "util/lean_path.h"
 #include "util/sexpr/option_declarations.h"
 #include "util/bitap_fuzzy_search.h"
@@ -16,11 +17,19 @@ Authors: Gabriel Ebner, Leonardo de Moura, Sebastian Ullrich
 #include "library/attribute_manager.h"
 #include "library/scoped_ext.h"
 #include "library/class.h"
+#include "frontends/lean/completion.h"
 #include "frontends/lean/util.h"
-#include "shell/server.h"
-#include "shell/completion.h"
+
+#ifndef LEAN_DEFAULT_AUTO_COMPLETION_MAX_RESULTS
+#define LEAN_DEFAULT_AUTO_COMPLETION_MAX_RESULTS 100
+#endif
 
 namespace lean {
+static name * g_auto_completion_max_results = nullptr;
+
+unsigned get_auto_completion_max_results(options const & o) {
+    return o.get_unsigned(*g_auto_completion_max_results, LEAN_DEFAULT_AUTO_COMPLETION_MAX_RESULTS);
+}
 
 #define LEAN_FUZZY_MAX_ERRORS          3
 #define LEAN_FUZZY_MAX_ERRORS_FACTOR   3
@@ -340,6 +349,16 @@ std::vector<json> get_namespace_completions(std::string const & pattern, environ
         return completion;
     });
     return completions;
+}
+
+void initialize_completion() {
+    g_auto_completion_max_results = new name{"auto_completion", "max_results"};
+    register_unsigned_option(*g_auto_completion_max_results, LEAN_DEFAULT_AUTO_COMPLETION_MAX_RESULTS,
+                             "(auto-completion) maximum number of results returned");
+}
+
+void finalize_completion() {
+    delete g_auto_completion_max_results;
 }
 }
 #endif

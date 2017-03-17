@@ -1,11 +1,11 @@
-add_executable(lean lean.cpp server.cpp completion.cpp leandoc.cpp)
+add_executable(lean lean.cpp server.cpp leandoc.cpp)
 target_link_libraries(lean leanstatic)
 install(TARGETS lean DESTINATION bin)
 
-add_executable(lean_js lean_js.cpp lean_js_main.cpp server.cpp completion.cpp leandoc.cpp)
+add_executable(lean_js lean_js.cpp lean_js_main.cpp server.cpp leandoc.cpp)
 target_link_libraries(lean_js leanstatic)
 
-add_library(shell_js OBJECT lean_js.cpp server.cpp completion.cpp leandoc.cpp)
+add_library(shell_js OBJECT lean_js.cpp server.cpp leandoc.cpp)
 
 if(${EMSCRIPTEN})
     file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/lean_with_path

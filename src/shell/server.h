@@ -20,8 +20,6 @@ namespace lean {
 mt_tq_prioritizer mk_interactive_prioritizer(std::unordered_set<module_id> const & roi);
 #endif
 
-unsigned get_auto_completion_max_results(options const &);
-
 class server : public module_vfs {
     options m_opts;
     environment m_initial_env;

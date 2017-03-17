@@ -79,35 +79,39 @@ public:
         static_assert(sizeof(vm_obj) == sizeof(void *), "unexpected class obj size"); // NOLINT
     }
     explicit vm_obj(unsigned cidx):m_data(LEAN_VM_BOX(cidx)) {}
-    explicit vm_obj(vm_obj_cell * c):m_data(c) { m_data->inc_ref(); lean_assert(LEAN_VM_IS_PTR(m_data)); }
-    vm_obj(vm_obj const & o):m_data(o.m_data) { if (LEAN_VM_IS_PTR(m_data)) m_data->inc_ref(); }
+    explicit vm_obj(vm_obj_cell * c):m_data(c) { m_data->inc_ref(); lean_assert(is_ptr()); }
+    vm_obj(vm_obj const & o):m_data(o.m_data) { if (is_ptr()) m_data->inc_ref(); }
     vm_obj(vm_obj && o):m_data(o.m_data) { o.m_data = LEAN_VM_BOX(0); }
-    ~vm_obj() { if (LEAN_VM_IS_PTR(m_data)) m_data->dec_ref(); }
+    ~vm_obj() { if (is_ptr()) m_data->dec_ref(); }
 
     friend void swap(vm_obj & a, vm_obj & b) { std::swap(a.m_data, b.m_data); }
 
     operator vm_obj_cell*() const { return m_data; }
 
     vm_obj & operator=(vm_obj const & s) {
-        if (LEAN_VM_IS_PTR(s.m_data))
+        if (s.is_ptr())
             s.m_data->inc_ref();
         vm_obj_cell * new_data = s.m_data;
-        if (LEAN_VM_IS_PTR(m_data))
+        if (is_ptr())
             m_data->dec_ref();
         m_data = new_data;
         return *this;
     }
 
     vm_obj & operator=(vm_obj && s) {
-        if (LEAN_VM_IS_PTR(m_data))
+        if (is_ptr())
             m_data->dec_ref();
         m_data   = s.m_data;
         s.m_data = LEAN_VM_BOX(0);
         return *this;
     }
 
+    inline bool is_ptr() const {
+        return LEAN_VM_IS_PTR(m_data);
+    }
+
     vm_obj_kind kind() const {
-        return LEAN_VM_IS_PTR(m_data) ? m_data->kind() : vm_obj_kind::Simple;
+        return is_ptr() ? m_data->kind() : vm_obj_kind::Simple;
     }
 
     vm_obj_cell * raw() const {
@@ -115,7 +119,7 @@ public:
     }
 
     vm_obj_cell * steal_ptr() {
-        lean_assert(LEAN_VM_IS_PTR(m_data)); vm_obj_cell * r = m_data; m_data = LEAN_VM_BOX(0); return r;
+        lean_assert(is_ptr()); vm_obj_cell * r = m_data; m_data = LEAN_VM_BOX(0); return r;
     }
 };
 

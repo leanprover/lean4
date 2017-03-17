@@ -46,8 +46,10 @@ struct vm_rb_map_ts_copy : public vm_external {
            vm_obj's nested in m_entries. */
         m_cmp.steal_ptr();
         for (auto & p : m_entries) {
-            p.first.steal_ptr();
-            p.second.steal_ptr();
+            if (p.first.is_ptr())
+                p.first.steal_ptr();
+            if (p.second.is_ptr())
+                p.second.steal_ptr();
         }
     }
     virtual void dealloc() override { lean_unreachable(); }

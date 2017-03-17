@@ -333,12 +333,12 @@ log_tree::node & logtree() {
     }
 }
 
-scope_log_tree::scope_log_tree(log_tree::node const & lt) : m_node(lt), m_scope(&m_node) {
-    m_node.clear_entries();
+scope_log_tree::scope_log_tree(log_tree::node const & lt) : m_node(lt), m_scope(m_node ? &m_node : nullptr) {
+    if (m_node) m_node.clear_entries();
 }
 
 scope_log_tree::~scope_log_tree() {
-    logtree().finish();
+    if (m_node) m_node.finish();
 }
 
 scope_log_tree::scope_log_tree(std::string const & desc, pos_range const & pos) :

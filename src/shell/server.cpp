@@ -516,6 +516,7 @@ void server::handle_complete(cmd_req const & req) {
 
     auto complete_gen_task =
         task_builder<json>([=] { return autocomplete(mod_info, skip_completions, pos); })
+        .wrap(library_scopes(log_tree::node()))
         .set_cancellation_token(m_bg_task_ctok)
         .build();
 
@@ -574,7 +575,8 @@ void server::handle_info(server::cmd_req const & req) {
 
     auto info_gen_task = task_builder<json>([=] {
         return info(mod_info, pos);
-    }).set_cancellation_token(m_bg_task_ctok).build();
+    }).wrap(library_scopes(log_tree::node()))
+      .set_cancellation_token(m_bg_task_ctok).build();
 
     taskq().submit(task_builder<unit>([this, req, info_gen_task] {
         try {

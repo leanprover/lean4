@@ -4,7 +4,7 @@ begin
   focus {  subst a
        --^ "command":"info"
          },
-     --^ "command":"info"
+       --^ "command":"info"
       assumption,
  --^ "command":"info"
     subst a

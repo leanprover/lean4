@@ -98,6 +98,7 @@ void report_info(environment const & env, options const & opts, io_state const &
     g_context = e.m_token_info.m_context;
     json record;
 
+    bool has_token_info = false;
     if (e.m_token_info.m_context == break_at_pos_exception::token_context::interactive_tactic &&
         e.m_token_info.m_token.size()) {
         record = serialize_decl(e.m_token_info.m_token,
@@ -105,8 +106,7 @@ void report_info(environment const & env, options const & opts, io_state const &
                                 env, opts);
         if (auto idx = e.m_token_info.m_tac_param_idx)
             record["tactic_param_idx"] = *idx;
-        j["record"] = record;
-        return;
+        has_token_info = true;
     }
 
     // info data not dependent on elaboration/info_manager
@@ -145,8 +145,9 @@ void report_info(environment const & env, options const & opts, io_state const &
                             return dynamic_cast<vm_obj_format_info const *>(d.raw());
                         });
             }
-            infom.get_info_record(env, opts, ios, e.m_token_info.m_pos.first,
-                                  e.m_token_info.m_pos.second, record);
+            if (!has_token_info)
+                infom.get_info_record(env, opts, ios, e.m_token_info.m_pos.first,
+                                      e.m_token_info.m_pos.second, record);
         }
     }
 

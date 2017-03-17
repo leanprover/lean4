@@ -194,6 +194,8 @@ static expr parse_interactive_tactic(parser & p, name const & decl_name, name co
                 args.push_back(p.parse_expr(get_max_prec()));
             }
             p.check_break_before();
+        } catch (break_at_pos_exception) {
+            throw;
         } catch (...) {
             p.check_break_before();
             throw;
@@ -259,7 +261,7 @@ struct parse_tactic_fn {
             try {
                 r = parse_interactive_tactic(m_p, *dname, m_tac_class, m_use_rstep, m_report_error);
             } catch (break_at_pos_exception & e) {
-                if (!m_p.get_complete() && e.m_token_info.m_context == break_at_pos_exception::token_context::none) {
+                if (!m_p.get_complete() && !e.m_token_info.m_token.size()) {
                     e.m_token_info.m_pos       = pos;
                     e.m_token_info.m_token     = dname->get_string();
                     e.m_token_info.m_context   = break_at_pos_exception::token_context::interactive_tactic;
@@ -448,7 +450,7 @@ struct parse_begin_end_block_fn {
                     }
                 } catch (break_at_pos_exception & ex) {
                     ex.report_goal_pos(pos);
-                    throw ex;
+                    throw;
                 }
             }
         } catch (exception & ex) {

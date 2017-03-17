@@ -1,3 +1,3 @@
 {"msg":{"caption":"trace output","file_name":"f","pos_col":2,"pos_line":58,"severity":"information","text":"test\n"},"response":"additional_message"}
 {"message":"file invalidated","response":"ok","seq_num":0}
-{"record":{"full-id":"mytac.interactive.assumption","source":,"state":"Custom state: 2\np q : Prop,\na : p,\na_1 : q\n⊢ p\n\np q : Prop,\na : p,\na_1 : q\n⊢ q","type":""},"response":"ok","seq_num":62}
+{"record":{"source":,"state":"Custom state: 2\np q : Prop,\na : p,\na_1 : q\n⊢ p\n\np q : Prop,\na : p,\na_1 : q\n⊢ q","tactic_params":[],"text":"assumption","type":"mytac unit"},"response":"ok","seq_num":62}

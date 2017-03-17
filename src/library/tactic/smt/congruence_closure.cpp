@@ -895,6 +895,22 @@ void congruence_closure::invert_trans(expr const & e) {
     invert_trans(e, false, none_expr(), none_expr());
 }
 
+bool congruence_closure::check_congr_keys() const {
+    flet<congruence_closure *> set_cc(g_cc, const_cast<congruence_closure*>(this));
+    buffer<congr_key> keys;
+    m_state.m_congruences.to_buffer(keys);
+    for (unsigned i = 0; i < keys.size(); i++) {
+        for (unsigned j = i + 1; j < keys.size(); j++) {
+            if (congr_key_cmp()(keys[i], keys[j]) >= 0) {
+                tout() << keys[i].m_expr << "\n";
+                tout() << keys[j].m_expr << "\n";
+                lean_unreachable();
+            }
+        }
+    }
+    return true;
+}
+
 void congruence_closure::remove_parents(expr const & e, buffer<expr> & parents_to_propagate) {
     auto ps = m_state.m_parents.find(e);
     if (!ps) return;
@@ -909,7 +925,9 @@ void congruence_closure::remove_parents(expr const & e, buffer<expr> & parents_t
                     m_state.m_symm_congruences.erase(k);
                 } else {
                     congr_key k = mk_congr_key(p);
+                    lean_cond_assert("cc", check_congr_keys());
                     m_state.m_congruences.erase(k);
+                    lean_cond_assert("cc", check_congr_keys());
                 }
             }
         });

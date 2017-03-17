@@ -272,6 +272,7 @@ private:
     void process_todo();
     void add_eqv_core(expr const & lhs, expr const & rhs, expr const & H, bool heq_proof);
     bool check_eqc(expr const & e) const;
+    bool check_congr_keys() const;
 
     friend ext_congr_lemma_cache_ptr const & get_cache_ptr(congruence_closure const & cc);
 public:

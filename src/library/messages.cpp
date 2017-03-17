@@ -26,7 +26,10 @@ std::ostream & operator<<(std::ostream & out, message const & msg) {
         if (!msg.get_caption().empty())
             out << msg.get_caption() << ":\n";
     }
-    out << msg.get_text() << "\n";
+    auto const & text = msg.get_text();
+    out << text;
+    if (!text.size() || text[text.size() - 1] != '\n')
+        out << "\n";
     return out;
 }
 

@@ -7,11 +7,11 @@ eq.refl
 @[foo, foo.baz, refl]
 constructor eq.refl : ∀ {α : Sort u} (a : α), a = a
 [eq.refl]
-user_attribute.lean:22:0: warning: declaration 'duplicate' uses sorry
 user_attribute.lean:22:0: error: an attribute named [reducible] has already been registered
+user_attribute.lean:22:0: warning: declaration 'duplicate' uses sorry
+user_attribute.lean:27:0: error: invalid [user_attribute], must be applied to definition of type user_attribute
 user_attribute.lean:28:11: error: don't know how to synthesize placeholder
 context:
 ⊢ Sort ?
-user_attribute.lean:27:0: error: invalid [user_attribute], must be applied to definition of type user_attribute
-user_attribute.lean:33:2: warning: declaration 'baz_attr' uses sorry
 user_attribute.lean:33:2: error: invalid [user_attribute], must be applied to definition of type user_attribute
+user_attribute.lean:33:2: warning: declaration 'baz_attr' uses sorry

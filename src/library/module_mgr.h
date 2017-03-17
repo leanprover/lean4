@@ -114,6 +114,7 @@ public:
     environment get_initial_env() const { return m_initial_env; }
     options get_options() const { return m_ios.get_options(); }
     io_state get_io_state() const { return m_ios; }
+    void set_log_tree(log_tree::node const & lt) { m_lt = lt; }
 };
 
 environment get_combined_environment(environment const & env0,

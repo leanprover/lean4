@@ -12,7 +12,8 @@ Author: Leonardo de Moura
 #include <string>
 #include <utility>
 #include <vector>
-#include <util/timer.h>
+#include "util/timer.h"
+#include "util/task_builder.h"
 #include "util/realpath.h"
 #include "util/stackinfo.h"
 #include "util/macros.h"
@@ -122,6 +123,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  -D name=value      set a configuration option (see set_option command)\n";
     std::cout << "Exporting data:\n";
     std::cout << "  --export=file -E   export final environment as textual low-level file\n";
+    std::cout << "  --test-suite       capture output and status code from each input file $f in $f.produced and $f.status, respectively\n";
 }
 
 static struct option g_long_options[] = {
@@ -139,6 +141,7 @@ static struct option g_long_options[] = {
     {"threads",      required_argument, 0, 'j'},
     {"quiet",        no_argument,       0, 'q'},
     {"deps",         no_argument,       0, 'd'},
+    {"test-suite",   no_argument,       0, 'e'},
 #if defined(LEAN_USE_ALPHA)
     {"compile",      optional_argument, 0, 'C'},
 #endif
@@ -158,7 +161,7 @@ static struct option g_long_options[] = {
 };
 
 static char const * g_opt_str =
-    "PdD:qpgvht:012E:A:B:j:012rM:012T:012"
+    "PdD:qpgvhet:012E:A:B:j:012rM:012T:012"
 #if defined(LEAN_MULTI_THREAD)
     "s:012"
 #endif
@@ -335,6 +338,7 @@ int main(int argc, char ** argv) {
     bool smt2               = false;
     bool compile            = false;
     bool only_deps          = false;
+    bool test_suite         = false;
     unsigned num_threads    = 0;
 #if defined(LEAN_MULTI_THREAD)
     num_threads = hardware_concurrency();
@@ -431,6 +435,10 @@ int main(int argc, char ** argv) {
         case 'E':
             export_txt = std::string(optarg);
             break;
+        case 'e':
+            test_suite = true;
+            opts = opts.update(lean::name{"trace", "as_messages"}, true);
+            break;
 #if defined(LEAN_DEBUG)
         case 'B':
             lean::enable_debug(optarg);
@@ -482,7 +490,8 @@ int main(int argc, char ** argv) {
     if (json_output) ios.set_regular_channel(ios.get_diagnostic_channel_ptr());
 
     log_tree lt;
-    lt.add_listener([&] (std::vector<log_tree::event> const & evs) { msg_stream.on_event(evs); });
+    if (!test_suite)
+        lt.add_listener([&] (std::vector<log_tree::event> const & evs) { msg_stream.on_event(evs); });
     auto lt_root = lt.get_root();
     scope_log_tree_core scope_lt(&lt_root);
 
@@ -567,27 +576,51 @@ int main(int argc, char ** argv) {
             return ok ? 0 : 1;
         }
 
-        std::vector<std::pair<module_id, std::shared_ptr<module_info const>>> mods;
+        struct input_mod {
+            module_id m_id;
+            std::shared_ptr<module_info const> m_mod_info;
+            log_tree::node m_lt_node;
+        };
+        std::vector<input_mod> mods;
         for (auto & mod : module_args) {
+            auto lt_node = lt_root.mk_child(mod, "", {}, log_tree::DefaultLevel, true);
+            scope_log_tree lt(lt_node);
+            mod_mgr.set_log_tree(lt_node);
             auto mod_info = mod_mgr.get_module(mod);
-            mods.push_back({mod, mod_info});
+            mods.push_back({mod, mod_info, lt_node});
         }
 
         taskq().wait_for_finish(lt.get_root().wait_for_finish());
 
         for (auto & mod : mods) {
+            if (test_suite) {
+                std::ofstream out(mod.m_id + ".test_suite.out");
+                mod.m_lt_node.for_each([&](log_tree::node const & n) {
+                    for (auto const & e : n.get_entries()) {
+                        if (auto msg = dynamic_cast<message const *>(e.get())) {
+                            out << *msg;
+                        }
+                    }
+                    return true;
+                });
+            }
+            bool mod_ok = true;
             try {
-                auto res = get(mod.second->m_result);
+                auto res = get(mod.m_mod_info->m_result);
             } catch (...) {
-                ok = false;
+                ok = mod_ok = false;
                 // exception has already been reported
+            }
+            if (test_suite) {
+                std::ofstream status(mod.m_id + ".status");
+                status << (mod_ok && !get(has_errors(mod.m_lt_node)) ? 0 : 1);
             }
         }
 
         // Options appear to be empty, pretty sure I'm making a mistake here.
         if (compile && !mods.empty()) {
-            auto final_env = mods.front().second->get_produced_env();
-            auto final_opts = get(mods.front().second->m_result).m_opts;
+            auto final_env = mods.front().m_mod_info->get_produced_env();
+            auto final_opts = get(mods.front().m_mod_info->m_result).m_opts;
             type_context tc(final_env, final_opts);
             lean::scope_trace_env scope2(final_env, final_opts, tc);
             lean::native::scope_config scoped_native_config(
@@ -602,7 +635,7 @@ int main(int argc, char ** argv) {
 
         if (export_txt && !mods.empty()) {
             buffer<std::shared_ptr<module_info const>> mod_infos;
-            for (auto & mod : mods) mod_infos.push_back(mod.second);
+            for (auto & mod : mods) mod_infos.push_back(mod.m_mod_info);
             auto combined_env = get_combined_environment(mod_mgr.get_initial_env(), mod_infos);
 
             exclusive_file_lock export_lock(*export_txt);
@@ -616,7 +649,7 @@ int main(int argc, char ** argv) {
             gen_doc(env, opts, out);
         }
 
-        return (ok && !get(has_errors(lt.get_root()))) ? 0 : 1;
+        return ((ok && !get(has_errors(lt.get_root()))) || test_suite) ? 0 : 1;
     } catch (lean::throwable & ex) {
         lean::message_builder(env, ios, "<unknown>", lean::pos_info(1, 1), lean::ERROR).set_exception(ex).report();
     } catch (std::bad_alloc & ex) {

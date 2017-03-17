@@ -269,7 +269,7 @@ static bool is_congruent(expr const & e1, expr const & e2) {
             return false;
         }
         type_context & ctx = g_cc->ctx();
-        if (ctx.is_def_eq(ctx.infer(f1), ctx.infer(f2))) {
+        if (g_cc->is_def_eq(ctx.infer(f1), ctx.infer(f2))) {
             /* f1 and f2 have the same type, then we can create a congruence proof for e1 == e2 */
             return true;
         }
@@ -289,7 +289,7 @@ static bool is_congruent(expr const & e1, expr const & e2) {
             return false;
         }
         type_context & ctx = g_cc->ctx();
-        if (ctx.is_def_eq(ctx.infer(f), ctx.infer(g))) {
+        if (g_cc->is_def_eq(ctx.infer(f), ctx.infer(g))) {
             /* Case 1: f and g have the same type, then we can create a congruence proof for f a == g b */
             return true;
         }
@@ -582,7 +582,7 @@ void congruence_closure::add_congruence_table(expr const & e) {
         m_state.m_entries.insert(e, new_entry);
         /* 2. Put new equivalence in the todo queue */
         /* TODO(Leo): check if the following line is a bottleneck */
-        bool heq_proof = !m_ctx.is_def_eq(m_ctx.infer(e), m_ctx.infer(old_k->m_expr));
+        bool heq_proof = !is_def_eq(m_ctx.infer(e), m_ctx.infer(old_k->m_expr));
         push_todo(e, old_k->m_expr, *g_congr_mark, heq_proof);
     } else {
         m_state.m_congruences.insert(k);
@@ -671,7 +671,7 @@ bool congruence_closure::is_interpreted_value(expr const & e) {
         return true;
     if (is_signed_num(e)) {
         expr type = m_ctx.infer(e);
-        return m_ctx.is_def_eq(type, mk_nat_type()) || m_ctx.is_def_eq(type, mk_int_type());
+        return is_def_eq(type, mk_nat_type()) || is_def_eq(type, mk_int_type());
     }
     return false;
 }
@@ -1002,10 +1002,10 @@ expr congruence_closure::mk_congr_proof_core(expr const & lhs, expr const & rhs,
             rhs_it = &app_fn(*rhs_it);
             if (*lhs_it == *rhs_it)
                 break;
-            if (m_ctx.is_def_eq(*lhs_it, *rhs_it))
+            if (is_def_eq(*lhs_it, *rhs_it))
                 break;
             if (is_eqv(*lhs_it, *rhs_it) &&
-                m_ctx.is_def_eq(m_ctx.infer(*lhs_it), m_ctx.infer(*rhs_it)))
+                is_def_eq(m_ctx.infer(*lhs_it), m_ctx.infer(*rhs_it)))
                 break;
         }
     }
@@ -1020,8 +1020,8 @@ expr congruence_closure::mk_congr_proof_core(expr const & lhs, expr const & rhs,
     lean_assert(lhs_args.size() == rhs_args.size());
     expr const & lhs_fn = *lhs_it;
     expr const & rhs_fn = *rhs_it;
-    lean_assert(is_eqv(lhs_fn, rhs_fn) || m_ctx.is_def_eq(lhs_fn, rhs_fn));
-    lean_assert(m_ctx.is_def_eq(m_ctx.infer(lhs_fn), m_ctx.infer(rhs_fn)));
+    lean_assert(is_eqv(lhs_fn, rhs_fn) || is_def_eq(lhs_fn, rhs_fn));
+    lean_assert(is_def_eq(m_ctx.infer(lhs_fn), m_ctx.infer(rhs_fn)));
     /* Create proof for
           (lhs_fn lhs_args[0] ... lhs_args[n-1]) = (lhs_fn rhs_args[0] ... rhs_args[n-1])
        where
@@ -1048,7 +1048,7 @@ expr congruence_closure::mk_congr_proof_core(expr const & lhs, expr const & rhs,
         r = mk_eq_of_heq(m_ctx, r);
     else if (!spec_lemma->m_heq_result && heq_proofs)
         r = mk_heq_of_eq(m_ctx, r);
-    if (m_ctx.is_def_eq(lhs_fn, rhs_fn))
+    if (is_def_eq(lhs_fn, rhs_fn))
         return r;
     /* Convert r into a proof of lhs = rhs using eq.rec and
        the proof that lhs_fn = rhs_fn */
@@ -1154,7 +1154,7 @@ expr congruence_closure::mk_proof(expr const & lhs, expr const & rhs, expr const
    The result is none if e1 and e2 are not in the same equivalence class. */
 optional<expr> congruence_closure::get_eq_proof_core(expr const & e1, expr const & e2, bool as_heq) const {
     if (has_expr_metavar(e1) || has_expr_metavar(e2)) return none_expr();
-    if (m_ctx.is_def_eq(e1, e2))
+    if (is_def_eq(e1, e2))
         return as_heq ? some_expr(mk_heq_refl(m_ctx, e1)) : some_expr(mk_eq_refl(m_ctx, e1));
     auto n1 = get_entry(e1);
     if (!n1) return none_expr();
@@ -1240,7 +1240,7 @@ optional<expr> congruence_closure::get_proof(expr const & e1, expr const & e2) c
     if (!n1) return none_expr();
     if (!has_heq_proofs(n1->m_root))
         return get_eq_proof(e1, e2);
-    else if (m_ctx.relaxed_is_def_eq(m_ctx.infer(e1), m_ctx.infer(e2)))
+    else if (relaxed_is_def_eq(m_ctx.infer(e1), m_ctx.infer(e2)))
         return get_eq_proof(e1, e2);
     else
         return get_heq_proof(e1, e2);
@@ -1252,7 +1252,7 @@ void congruence_closure::push_subsingleton_eq(expr const & a, expr const & b) {
     expr A = normalize(m_ctx.infer(a));
     expr B = normalize(m_ctx.infer(b));
     /* TODO(Leo): check if the following test is a performance bottleneck */
-    if (m_ctx.relaxed_is_def_eq(A, B)) {
+    if (relaxed_is_def_eq(A, B)) {
         /* TODO(Leo): to improve performance we can create the following proof lazily */
         expr proof     = mk_app(m_ctx, get_subsingleton_elim_name(), a, b);
         push_eq(a, b, proof);
@@ -1290,7 +1290,7 @@ void congruence_closure::propagate_constructor_eq(expr const & e1, expr const & 
     optional<name> c1 = is_constructor_app(env(), e1);
     optional<name> c2 = is_constructor_app(env(), e2);
     lean_assert(c1 && c2);
-    if (!m_ctx.is_def_eq(m_ctx.infer(e1), m_ctx.infer(e2))) {
+    if (!is_def_eq(m_ctx.infer(e1), m_ctx.infer(e2))) {
         /* The implications above only hold if the types are equal.
 
            TODO(Leo): if the types are different, we may still propagate by searching the equivalence
@@ -1305,7 +1305,7 @@ void congruence_closure::propagate_constructor_eq(expr const & e1, expr const & 
         for (std::tuple<expr, expr, expr> const & t : implied_eqs) {
             expr lhs, rhs, H;
             std::tie(lhs, rhs, H) = t;
-            if (m_ctx.is_def_eq(m_ctx.infer(lhs), m_ctx.infer(rhs)))
+            if (is_def_eq(m_ctx.infer(lhs), m_ctx.infer(rhs)))
                 push_eq(lhs, rhs, H);
             else
                 push_heq(lhs, rhs, H);
@@ -1334,7 +1334,7 @@ void congruence_closure::propagate_projection_constructor(expr const & p, expr c
     if (p_args.size() <= info->m_nparams) return;
     unsigned mkidx  = info->m_nparams;
     if (!is_eqv(p_args[mkidx], c)) return;
-    if (!m_ctx.relaxed_is_def_eq(m_ctx.infer(p_args[mkidx]), m_ctx.infer(c))) return;
+    if (!relaxed_is_def_eq(m_ctx.infer(p_args[mkidx]), m_ctx.infer(c))) return;
     /* Create new projection application using c (e.g., (x, y).1), and internalize it.
        The internalizer will add the new equality. */
     p_args[mkidx] = c;
@@ -1737,7 +1737,7 @@ void congruence_closure::propagate_beta(expr const & fn, buffer<expr> const & re
                                         buffer<expr> const & lambdas, buffer<expr> & new_lambda_apps) {
     for (expr const & lambda : lambdas) {
         lean_assert(is_lambda(lambda));
-        if (fn != lambda && m_ctx.relaxed_is_def_eq(m_ctx.infer(fn), m_ctx.infer(lambda))) {
+        if (fn != lambda && relaxed_is_def_eq(m_ctx.infer(fn), m_ctx.infer(lambda))) {
             expr new_app = mk_rev_app(lambda, rev_args);
             new_lambda_apps.push_back(new_app);
         }

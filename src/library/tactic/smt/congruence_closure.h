@@ -306,6 +306,14 @@ public:
     bool is_not_eqv(expr const & e1, expr const & e2) const;
     bool proved(expr const & e) const;
 
+    bool is_def_eq(expr const & e1, expr const & e2) const {
+        return m_ctx.nd_is_def_eq(e1, e2);
+    }
+
+    bool relaxed_is_def_eq(expr const & e1, expr const & e2) const {
+        return m_ctx.nd_relaxed_is_def_eq(e1, e2);
+    }
+
     expr get_root(expr const & e) const { return m_state.get_root(e); }
     expr get_next(expr const & e) const { return m_state.get_next(e); }
     bool is_congr_root(expr const & e) const { return m_state.is_congr_root(e); }

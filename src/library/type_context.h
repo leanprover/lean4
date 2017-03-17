@@ -187,7 +187,7 @@ class type_context : public abstract_type_context {
         scope_data(metavar_context const & mctx, unsigned usz, unsigned esz, unsigned tsz):
             m_mctx(mctx), m_tmp_uassignment_sz(usz), m_tmp_eassignment_sz(esz), m_tmp_trail_sz(tsz) {}
     };
-    friend class tmp_type_context;
+public:
     /* This class supports temporary meta-variables "mode". In this "tmp" mode,
        is_metavar_decl_ref and is_univ_metavar_decl_ref are treated as opaque constants,
        and temporary metavariables (idx_metavar) are treated as metavariables,
@@ -209,6 +209,7 @@ class type_context : public abstract_type_context {
         tmp_data(tmp_uassignment & uassignment, tmp_eassignment & eassignment, local_context const & lctx):
             m_uassignment(uassignment), m_eassignment(eassignment), m_mvar_lctx(lctx) {}
     };
+private:
     typedef buffer<scope_data> scopes;
     typedef list<pair<name, expr>> local_instances;
     metavar_context    m_mctx;
@@ -232,6 +233,10 @@ class type_context : public abstract_type_context {
 
     /* If m_zeta, then use zeta-reduction (i.e., expand let-expressions at whnf) */
     bool               m_zeta{true};
+
+    /* If m_update, then metavariables can be assigned by is_def_eq and similar methods.
+       This is used to implement nd_is_def_eq (non-destructive is_def_eq predicate. */
+    bool               m_update{true};
 
     /* Postponed universe constraints.
        We postpone universe constraints containing max/imax. Examples:
@@ -363,6 +368,24 @@ public:
 
     virtual expr relaxed_whnf(expr const & e) override;
     virtual bool relaxed_is_def_eq(expr const & e1, expr const & e2) override;
+
+    /** Non destructive is_def_eq (i.e., metavariables cannot be assigned) */
+    bool nd_is_def_eq(level const & l1, level const & l2) {
+        flet<bool> no_update(m_update, false);
+        return is_def_eq(l1, l2);
+    }
+
+    /** Non destructive is_def_eq (i.e., metavariables cannot be assigned) */
+    bool nd_is_def_eq(expr const & e1, expr const & e2) {
+        flet<bool> no_update(m_update, false);
+        return is_def_eq(e1, e2);
+    }
+
+    /** Non destructive relaxed_is_def_eq (i.e., metavariables cannot be assigned) */
+    bool nd_relaxed_is_def_eq(expr const & e1, expr const & e2) {
+        flet<bool> no_update(m_update, false);
+        return relaxed_is_def_eq(e1, e2);
+    }
 
     optional<expr> is_stuck_projection(expr const & e);
     virtual optional<expr> is_stuck(expr const &) override;

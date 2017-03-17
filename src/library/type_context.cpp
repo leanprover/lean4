@@ -1394,7 +1394,7 @@ lbool type_context::is_def_eq_core(level const & l1, level const & l2, bool part
     if (l1 != new_l1 || l2 != new_l2)
         return is_def_eq_core(new_l1, new_l2, partial);
 
-    if (is_mvar(l1)) {
+    if (m_update && is_mvar(l1)) {
         lean_assert(!is_assigned(l1));
         if (!occurs(l1, l2)) {
             assign(l1, l2);
@@ -1404,7 +1404,7 @@ lbool type_context::is_def_eq_core(level const & l1, level const & l2, bool part
         }
     }
 
-    if (is_mvar(l2)) {
+    if (m_update && is_mvar(l2)) {
         lean_assert(!is_assigned(l2));
         if (!occurs(l2, l1)) {
             assign(l2, l1);
@@ -1414,7 +1414,7 @@ lbool type_context::is_def_eq_core(level const & l1, level const & l2, bool part
         }
     }
 
-    if (m_assign_regular_uvars_in_tmp_mode && in_tmp_mode()) {
+    if (m_update && m_assign_regular_uvars_in_tmp_mode && in_tmp_mode()) {
         /* We may try to remove the conditions of the form !has_idx_metauniv(l) in the future.
            The idea is to perform the assignment even if they do not hold, and
            then when we leave tmp_mode check whether l was assigned or not.
@@ -2366,15 +2366,15 @@ lbool type_context::quick_is_def_eq(expr const & e1, expr const & e2) {
     if (is_mvar(f1)) {
         if (is_assigned(f1)) {
             return to_lbool(is_def_eq_core(instantiate_mvars(e1), e2));
-        } else if (!in_tmp_mode() && is_delayed_abstraction(f2)) {
+        } else if (m_update && !in_tmp_mode() && is_delayed_abstraction(f2)) {
             return to_lbool(is_def_eq_core(e1, elim_delayed_abstraction(e2)));
-        } else if (!is_mvar(f2)) {
+        } else if (m_update && !is_mvar(f2)) {
             return to_lbool(process_assignment(e1, e2));
         } else if (is_assigned(f2)) {
             return to_lbool(is_def_eq_core(e1, instantiate_mvars(e2)));
-        } else if (in_tmp_mode()) {
+        } else if (m_update && in_tmp_mode()) {
             return to_lbool(process_assignment(e1, e2));
-        } else {
+        } else if (m_update) {
             optional<metavar_decl> m1_decl = m_mctx.find_metavar_decl(f1);
             optional<metavar_decl> m2_decl = m_mctx.find_metavar_decl(f2);
             if (m1_decl && m2_decl) {
@@ -2402,20 +2402,24 @@ lbool type_context::quick_is_def_eq(expr const & e1, expr const & e2) {
             } else {
                 return l_false;
             }
+        } else {
+            return l_false;
         }
     }
 
     if (is_mvar(f2)) {
         if (is_assigned(f2)) {
             return to_lbool(is_def_eq_core(e1, instantiate_mvars(e2)));
-        } else if (!in_tmp_mode() && is_delayed_abstraction(f1)) {
+        } else if (m_update && !in_tmp_mode() && is_delayed_abstraction(f1)) {
             return to_lbool(is_def_eq_core(elim_delayed_abstraction(e1), e2));
-        } else {
+        } else if (m_update) {
             return to_lbool(process_assignment(e2, e1));
+        } else {
+            return l_false;
         }
     }
 
-    if (!in_tmp_mode()) {
+    if (m_update && !in_tmp_mode()) {
         if (is_delayed_abstraction(f1))
             return to_lbool(is_def_eq_core(elim_delayed_abstraction(e1), e2));
         if (is_delayed_abstraction(f2))

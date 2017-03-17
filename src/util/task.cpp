@@ -69,6 +69,10 @@ void task_queue::fail(gtask const & t, gtask const & failed) {
     fail(t, failed->m_exception);
 }
 
+void task_queue::submit(gtask const & t, unsigned) {
+    return submit(t);
+}
+
 static task_queue * g_taskq = nullptr;
 
 void set_task_queue(task_queue * q) {

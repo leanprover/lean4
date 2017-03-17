@@ -74,7 +74,7 @@ public:
     void wait_for_finish(gtask const & t) override;
     void fail_and_dispose(gtask const &t) override;
 
-    void submit(gtask const & t, unsigned prio);
+    void submit(gtask const & t, unsigned prio) override;
     void submit(gtask const & t) override;
 
     void evacuate() override;

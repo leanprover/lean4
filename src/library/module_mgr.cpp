@@ -155,7 +155,7 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
         if (!existing_mod->m_out_of_date) return;
 
     scope_global_ios scope_ios(m_ios);
-    scope_log_tree lt(m_lt.mk_child(id, {}, { id, {{1, 0}, {static_cast<unsigned>(-1), 0}} }, true));
+    scope_log_tree lt(m_lt.mk_child(id, {}, { id, {{1, 0}, {static_cast<unsigned>(-1), 0}} }, log_tree::DefaultLevel, true));
     scope_traces_as_messages scope_trace_msgs(id, {1, 0});
 
     try {

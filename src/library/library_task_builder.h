@@ -26,8 +26,9 @@ struct exception_reporter {
 };
 
 template <class Res>
-task<Res> add_library_task(task_builder<Res> && builder, std::string const & description, bool add_producer = true) {
-    auto lt = logtree().mk_child({}, description, logtree().get_location());
+task<Res> add_library_task(task_builder<Res> && builder, std::string const & description,
+                           bool add_producer = true, log_tree::detail_level lvl = log_tree::DefaultLevel) {
+    auto lt = logtree().mk_child({}, description, logtree().get_location(), lvl);
     auto task = builder.wrap(library_scopes(lt)).build();
     if (add_producer) lt.set_producer(task);
     return task;
@@ -39,8 +40,10 @@ task<Res> mk_library_task(task_builder<Res> && builder, std::string const & desc
 }
 
 template <class Res>
-task<Res> add_library_task(task_builder<Res> && builder, bool add_producer = true) {
-    return add_library_task(std::forward<task_builder<Res>>(builder), {}, add_producer);
+task<Res> add_library_task(task_builder<Res> && builder,
+                           log_tree::detail_level lvl = log_tree::DefaultLevel,
+                           bool add_producer = true) {
+    return add_library_task(std::forward<task_builder<Res>>(builder), {}, add_producer, lvl);
 }
 
 }

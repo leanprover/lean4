@@ -760,7 +760,7 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
                 return elaborate_proof(decl_env, opts, header_pos, new_params_list,
                                        new_fn, val, thm_finfo, is_rfl, type,
                                        mctx, lctx, pos_provider, use_info_manager, file_name);
-            }));
+            }), log_tree::ElaborationLevel);
             env_n = declare_definition(p, elab.env(), kind, lp_names, c_name, type, opt_val, proof, modifiers, attrs,
                                        doc_string, header_pos);
         } else if (kind == Example) {
@@ -777,7 +777,7 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
                 check_example(env, opts, modifiers, lp_name_list, new_params_list, fn, val, mctx, lctx,
                               pos_provider, use_info_manager, file_name);
                 return unit();
-            });
+            }, log_tree::ElaborationLevel);
             return p.env();
         } else {
             std::tie(val, type) = elaborate_definition(p, elab, kind, fn, val, header_pos);

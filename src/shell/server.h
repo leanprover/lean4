@@ -32,6 +32,7 @@ struct string_cmp {
 
 struct region_of_interest {
     bool m_enabled = false;
+    log_tree::detail_level m_max_level = log_tree::CrossModuleLintLevel-1;
     rb_map<std::string, line_range, string_cmp> m_files;
 
     bool intersects(log_tree::node const & n) const;
@@ -96,6 +97,9 @@ public:
     log_tree & get_log_tree() { return m_lt; }
 
     region_of_interest get_roi();
+
+    // debugging
+    void dump_log_tree();
 };
 
 void initialize_server();

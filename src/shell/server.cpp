@@ -52,6 +52,7 @@ struct all_messages_msg {
 
 bool region_of_interest::intersects(log_tree::node const & n) const {
     if (!m_enabled) return true;
+    if (n.get_detail_level() > m_max_level) return false;
     if (n.get_location().m_file_name.empty()) return true;
     auto & l = n.get_location();
     if (auto f = m_files.find(l.m_file_name)) {
@@ -193,9 +194,8 @@ public:
     }
 
     void submit_core(log_tree::node const & n) {
-        // TODO(gabriel): priorities
         if (auto prod = n.get_producer()) {
-            taskq().submit(prod);
+            taskq().submit(prod, n.get_detail_level());
         }
     }
 
@@ -351,7 +351,14 @@ struct unrelated_error_msg {
     }
 };
 
+server * g_server = nullptr;
+
+void server_dump_log_tree() { g_server->dump_log_tree(); }
+void server::dump_log_tree() { m_lt.print_to(std::cerr); }
+
 void server::run() {
+    flet<server *> _(g_server, this);
+
     scope_global_ios scoped_ios(m_ios);
 
     /* Leo: we use std::setlocale to make sure decimal period is displayed as ".".

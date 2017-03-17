@@ -99,7 +99,7 @@ void log_tree::node::add(log_entry const & entry) const {
 }
 
 log_tree::node log_tree::node::mk_child(name n, std::string const & description, location const & loc,
-                                        bool overwrite) {
+                                        detail_level lvl, bool overwrite) {
     auto l = lock();
     std::vector<event> events;
 
@@ -123,6 +123,7 @@ log_tree::node log_tree::node::mk_child(name n, std::string const & description,
         child.m_ptr->m_tree = m_ptr->m_tree;
         child.m_ptr->m_detached = m_ptr->m_detached;
     }
+    child.m_ptr->m_detail_level = std::max(m_ptr->m_detail_level, lvl);
     child.m_ptr->m_description = description;
     child.m_ptr->m_location = loc;
     m_ptr->m_children.insert(n, child);
@@ -217,7 +218,8 @@ void log_tree::node::print_to(std::ostream & out, unsigned indent) const {
         << ": " << begin.first << ":" << begin.second << " -- " << end.first << ":" << end.second << ": "
         << m_ptr->m_description << " ("
         << m_ptr->m_entries.size()
-        << " entries, producer = "
+        << " entries, detail level = "
+        << m_ptr->m_detail_level << ", producer = "
         << std::hex << reinterpret_cast<uintptr_t>(m_ptr->m_producer.get()) << std::dec
         << ")" << std::endl;
 

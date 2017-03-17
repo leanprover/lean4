@@ -31,6 +31,13 @@ public:
     struct event;
     using listener = std::function<void(std::vector<event> const &)>;
 
+    using detail_level = unsigned;
+    constexpr static detail_level
+        DefaultLevel = 100,
+        ElaborationLevel = 200,
+        CrossModuleLintLevel = 1000,
+        MaxLevel = std::numeric_limits<detail_level>::max();
+
     struct node_cell {
         MK_LEAN_RC()
         void dealloc() { delete this; }
@@ -46,6 +53,7 @@ public:
         location m_location;
         std::string m_description;
         gtask m_producer;
+        detail_level m_detail_level = DefaultLevel;
 
         node_cell() : m_rc(0) {}
     };
@@ -82,12 +90,14 @@ public:
         name_map<node> get_used_children() const;
         void remove_child(name const &) const;
 
-        node mk_child(name n, std::string const & description, location const & loc, bool overwrite = false);
+        node mk_child(name n, std::string const & description, location const & loc,
+                      detail_level lvl = DefaultLevel, bool overwrite = false);
         void reuse(name const & n) const;
 
         void finish() const;
 
         void set_producer(gtask const &);
+        detail_level get_detail_level() const { return m_ptr->m_detail_level; }
         location const & get_location() const { return m_ptr->m_location; }
         std::string const & get_description() const { return m_ptr->m_description; }
         name_set get_used_names() const;

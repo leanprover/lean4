@@ -145,6 +145,7 @@ public:
     virtual void join() = 0;
 
     virtual void submit(gtask const &) = 0;
+    virtual void submit(gtask const &, unsigned prio);
 };
 
 void set_task_queue(task_queue *); // NOLINT

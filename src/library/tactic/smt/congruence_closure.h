@@ -41,30 +41,6 @@ public:
 };
 
 class congruence_closure {
-    /* Key for the equality congruence table. */
-    struct congr_key {
-        expr      m_expr;
-        unsigned  m_hash;
-    };
-
-    struct congr_key_cmp {
-        int operator()(congr_key const & k1, congr_key const & k2) const;
-    };
-
-    /* Key for the equality congruence table for symmetric relations.
-
-       Remark: the same congruence table can be used to handle
-       commutative operations. */
-    struct symm_congr_key {
-        expr      m_expr;
-        unsigned  m_hash;
-        name      m_rel;
-    };
-
-    struct symm_congr_key_cmp {
-        int operator()(symm_congr_key const & k1, symm_congr_key const & k2) const;
-    };
-
     /* Equivalence class data associated with an expression 'e' */
     struct entry {
         expr           m_next;       // next element in the equivalence class.
@@ -114,8 +90,8 @@ class congruence_closure {
     typedef rb_expr_map<entry>                           entries;
     typedef rb_tree<parent_occ, parent_occ_cmp>          parent_occ_set;
     typedef rb_expr_map<parent_occ_set>                  parents;
-    typedef rb_tree<congr_key, congr_key_cmp>            congruences;
-    typedef rb_tree<symm_congr_key, symm_congr_key_cmp>  symm_congruences;
+    typedef unsigned_map<list<expr>>                     congruences;
+    typedef unsigned_map<list<pair<expr, name>>>         symm_congruences;
     typedef rb_expr_map<expr>                            subsingleton_reprs;
     typedef std::tuple<expr, expr, expr, bool>           todo_entry;
 
@@ -194,14 +170,15 @@ private:
     cc_normalizer *           m_normalizer;
     friend class theory_ac;
 
-    int compare_symm(expr lhs1, expr rhs1, expr lhs2, expr rhs2) const;
-    unsigned symm_hash(expr const & lhs, expr const & rhs) const;
+    bool compare_symm(expr lhs1, expr rhs1, expr lhs2, expr rhs2) const;
+    bool compare_symm(pair<expr, name> const & k1, pair<expr, name> const & k2) const;
+    unsigned mk_symm_hash(expr const & lhs, expr const & rhs) const;
     optional<name> is_binary_relation(expr const & e, expr & lhs, expr & rhs) const;
     optional<name> is_symm_relation(expr const & e, expr & lhs, expr & rhs) const;
     optional<name> is_refl_relation(expr const & e, expr & lhs, expr & rhs) const;
     bool is_symm_relation(expr const & e);
-    congr_key mk_congr_key(expr const & e) const;
-    symm_congr_key mk_symm_congr_key(expr const & e) const;
+    unsigned mk_congr_hash(expr const & e) const;
+    bool is_congruent(expr const & e1, expr const & e2) const;
     void set_fo(expr const & e);
     bool is_value(expr const & e);
     bool is_interpreted_value(expr const & e);
@@ -209,7 +186,7 @@ private:
     void apply_simple_eqvs(expr const & e);
     void add_occurrence(expr const & parent, expr const & child, bool symm_table);
     void add_congruence_table(expr const & e);
-    void check_eq_true(symm_congr_key const & k);
+    void check_eq_true(expr const & e);
     void add_symm_congruence_table(expr const & e);
     void mk_entry(expr const & e, bool interpreted, unsigned gen);
     void set_ac_var(expr const & e);

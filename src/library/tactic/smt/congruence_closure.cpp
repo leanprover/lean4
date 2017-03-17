@@ -24,10 +24,6 @@ Author: Leonardo de Moura
 #include "library/tactic/smt/congruence_closure.h"
 
 namespace lean {
-/* Small hack for not storing a pointer to the congruence_closure object
-   for congruence_closure::congr_key_cmp */
-LEAN_THREAD_PTR(congruence_closure, g_cc);
-
 struct ext_congr_lemma_key {
     expr     m_fn;
     unsigned m_nargs;
@@ -252,24 +248,23 @@ vm_obj congruence_closure::state::mk_vm_cc_config() const {
 /** \brief Return true iff the given function application are congruent
 
     See paper: Congruence Closure for Intensional Type Theory. */
-static bool is_congruent(expr const & e1, expr const & e2) {
+bool congruence_closure::is_congruent(expr const & e1, expr const & e2) const {
     lean_assert(is_app(e1) && is_app(e2));
-    if (g_cc->get_entry(e1)->m_fo) {
+    if (get_entry(e1)->m_fo) {
         buffer<expr> args1, args2;
         expr const & f1 = get_app_args(e1, args1);
         expr const & f2 = get_app_args(e2, args2);
         if (args1.size() != args2.size()) return false;
         for (unsigned i = 0; i < args1.size(); i++) {
-            if (g_cc->get_root(args1[i]) != g_cc->get_root(args2[i]))
+            if (get_root(args1[i]) != get_root(args2[i]))
                 return false;
         }
         if (f1 == f2) return true;
-        if (g_cc->get_root(f1) != g_cc->get_root(f2)) {
+        if (get_root(f1) != get_root(f2)) {
             /* f1 and f2 are not equivalent */
             return false;
         }
-        type_context & ctx = g_cc->ctx();
-        if (g_cc->is_def_eq(ctx.infer(f1), ctx.infer(f2))) {
+        if (is_def_eq(m_ctx.infer(f1), m_ctx.infer(f2))) {
             /* f1 and f2 have the same type, then we can create a congruence proof for e1 == e2 */
             return true;
         }
@@ -280,16 +275,15 @@ static bool is_congruent(expr const & e1, expr const & e2) {
         expr a = app_arg(e1);
         expr g = app_fn(e2);
         expr b = app_arg(e2);
-        if (g_cc->get_root(a) != g_cc->get_root(b)) {
+        if (get_root(a) != get_root(b)) {
             /* a and b are not equivalent */
             return false;
         }
-        if (g_cc->get_root(f) != g_cc->get_root(g)) {
+        if (get_root(f) != get_root(g)) {
             /* f and g are not equivalent */
             return false;
         }
-        type_context & ctx = g_cc->ctx();
-        if (g_cc->is_def_eq(ctx.infer(f), ctx.infer(g))) {
+        if (is_def_eq(m_ctx.infer(f), m_ctx.infer(g))) {
             /* Case 1: f and g have the same type, then we can create a congruence proof for f a == g b */
             return true;
         }
@@ -308,18 +302,10 @@ static bool is_congruent(expr const & e1, expr const & e2) {
     }
 }
 
-int congruence_closure::congr_key_cmp::operator()(congr_key const & k1, congr_key const & k2) const {
-    if (k1.m_hash != k2.m_hash)
-        return unsigned_cmp()(k1.m_hash, k2.m_hash);
-    if (is_congruent(k1.m_expr, k2.m_expr))
-        return 0;
-    return expr_quick_cmp()(k1.m_expr, k2.m_expr);
-}
-
 /* Auxiliary function for comparing (lhs1 ~ rhs1) and (lhs2 ~ rhs2),
    when ~ is symmetric/commutative.
-   It returns 0 (equal) for (a ~ b) (b ~ a) */
-int congruence_closure::compare_symm(expr lhs1, expr rhs1, expr lhs2, expr rhs2) const {
+   It returns true (equal) for (a ~ b) (b ~ a) */
+bool congruence_closure::compare_symm(expr lhs1, expr rhs1, expr lhs2, expr rhs2) const {
     lhs1 = get_root(lhs1);
     rhs1 = get_root(rhs1);
     lhs2 = get_root(lhs2);
@@ -328,14 +314,25 @@ int congruence_closure::compare_symm(expr lhs1, expr rhs1, expr lhs2, expr rhs2)
         std::swap(lhs1, rhs1);
     if (is_lt(lhs2, rhs2, true))
         std::swap(lhs2, rhs2);
-    if (lhs1 != lhs2)
-        return is_lt(lhs1, lhs2, true) ? -1 : 1;
-    if (rhs1 != rhs2)
-        return is_lt(rhs1, rhs2, true) ? -1 : 1;
-    return 0;
+    return lhs1 == lhs2 && rhs1 == rhs2;
 }
 
-unsigned congruence_closure::symm_hash(expr const & lhs, expr const & rhs) const {
+bool congruence_closure::compare_symm(pair<expr, name> const & k1, pair<expr, name> const & k2) const {
+    if (k1.second != k2.second)
+        return false;
+    expr const & e1 = k1.first;
+    expr const & e2 = k2.first;
+    if (k1.second == get_eq_name() || k1.second == get_iff_name()) {
+        return compare_symm(app_arg(app_fn(e1)), app_arg(e1), app_arg(app_fn(e2)), app_arg(e2));
+    } else {
+        expr lhs1, rhs1, lhs2, rhs2;
+        is_symm_relation(e1, lhs1, rhs1);
+        is_symm_relation(e2, lhs2, rhs2);
+        return compare_symm(lhs1, rhs1, lhs2, rhs2);
+    }
+}
+
+unsigned congruence_closure::mk_symm_hash(expr const & lhs, expr const & rhs) const {
     unsigned h1 = get_root(lhs).hash();
     unsigned h2 = get_root(rhs).hash();
     if (h1 > h2)
@@ -343,26 +340,24 @@ unsigned congruence_closure::symm_hash(expr const & lhs, expr const & rhs) const
     return (h1 << 16) | (h2 & 0xFFFF);
 }
 
-/* \brief Create a equality congruence table key. */
-auto congruence_closure::mk_congr_key(expr const & e) const -> congr_key {
+unsigned congruence_closure::mk_congr_hash(expr const & e) const {
     lean_assert(is_app(e));
-    congr_key k;
-    k.m_expr = e;
+    unsigned h;
     if (get_entry(e)->m_fo) {
         /* first-order case, where we do not consider all partial applications */
-        k.m_hash = get_root(app_arg(e)).hash();
+        h = get_root(app_arg(e)).hash();
         expr const * it = &(app_fn(e));
         while (is_app(*it)) {
-            k.m_hash = hash(k.m_hash, get_root(app_arg(*it)).hash());
+            h  = hash(h, get_root(app_arg(*it)).hash());
             it = &app_fn(*it);
         }
-        k.m_hash = hash(k.m_hash, get_root(*it).hash());
+        h = hash(h, get_root(*it).hash());
     } else {
         expr const & f = app_fn(e);
         expr const & a = app_arg(e);
-        k.m_hash = hash(get_root(f).hash(), get_root(a).hash());
+        h = hash(get_root(f).hash(), get_root(a).hash());
     }
-    return k;
+    return h;
 }
 
 optional<name> congruence_closure::is_binary_relation(expr const & e, expr & lhs, expr & rhs) const {
@@ -407,36 +402,6 @@ optional<name> congruence_closure::is_refl_relation(expr const & e, expr & lhs, 
 bool congruence_closure::is_symm_relation(expr const & e) {
     expr lhs, rhs;
     return static_cast<bool>(is_symm_relation(e, lhs, rhs));
-}
-
-/* \brief Create a symm congruence table key. */
-auto congruence_closure::mk_symm_congr_key(expr const & e) const -> symm_congr_key {
-    expr lhs, rhs;
-    if (auto rel = is_symm_relation(e, lhs, rhs)) {
-        symm_congr_key key;
-        key.m_expr = e;
-        key.m_hash = symm_hash(lhs, rhs);
-        key.m_rel  = *rel;
-        return key;
-    }
-    lean_unreachable();
-}
-
-int congruence_closure::symm_congr_key_cmp::operator()(symm_congr_key const & k1, symm_congr_key const & k2) const {
-    if (k1.m_hash != k2.m_hash)
-        return unsigned_cmp()(k1.m_hash, k2.m_hash);
-    if (k1.m_rel != k2.m_rel)
-        return name_quick_cmp()(k1.m_rel, k2.m_rel);
-    expr const & e1 = k1.m_expr;
-    expr const & e2 = k2.m_expr;
-    if (k1.m_rel == get_eq_name() || k1.m_rel == get_iff_name()) {
-        return g_cc->compare_symm(app_arg(app_fn(e1)), app_arg(e1), app_arg(app_fn(e2)), app_arg(e2));
-    } else {
-        expr lhs1, rhs1, lhs2, rhs2;
-        g_cc->is_symm_relation(e1, lhs1, rhs1);
-        g_cc->is_symm_relation(e2, lhs2, rhs2);
-        return g_cc->compare_symm(lhs1, rhs1, lhs2, rhs2);
-    }
 }
 
 void congruence_closure::push_todo(expr const & lhs, expr const & rhs, expr const & H, bool heq_proof) {
@@ -571,26 +536,31 @@ void congruence_closure::push_refl_eq(expr const & lhs, expr const & rhs) {
 
 void congruence_closure::add_congruence_table(expr const & e) {
     lean_assert(is_app(e));
-    congr_key k = mk_congr_key(e);
-    if (auto old_k = m_state.m_congruences.find(k)) {
-        /*
-          Found new equivalence: e ~ old_k->m_expr
-          1. Update m_cg_root field for e
-        */
-        entry new_entry     = *get_entry(e);
-        new_entry.m_cg_root = old_k->m_expr;
-        m_state.m_entries.insert(e, new_entry);
-        /* 2. Put new equivalence in the todo queue */
-        /* TODO(Leo): check if the following line is a bottleneck */
-        bool heq_proof = !is_def_eq(m_ctx.infer(e), m_ctx.infer(old_k->m_expr));
-        push_todo(e, old_k->m_expr, *g_congr_mark, heq_proof);
+    unsigned h = mk_congr_hash(e);
+    if (list<expr> const * es = m_state.m_congruences.find(h)) {
+        for (expr const & old_e : *es) {
+            if (is_congruent(e, old_e)) {
+                /*
+                  Found new equivalence: e ~ old_e
+                  1. Update m_cg_root field for e
+                */
+                entry new_entry     = *get_entry(e);
+                new_entry.m_cg_root = old_e;
+                m_state.m_entries.insert(e, new_entry);
+                /* 2. Put new equivalence in the todo queue */
+                /* TODO(Leo): check if the following line is a bottleneck */
+                bool heq_proof = !is_def_eq(m_ctx.infer(e), m_ctx.infer(old_e));
+                push_todo(e, old_e, *g_congr_mark, heq_proof);
+                return;
+            }
+        }
+        m_state.m_congruences.insert(h, cons(e, *es));
     } else {
-        m_state.m_congruences.insert(k);
+        m_state.m_congruences.insert(h, to_list(e));
     }
 }
 
-void congruence_closure::check_eq_true(symm_congr_key const & k) {
-    expr const & e = k.m_expr;
+void congruence_closure::check_eq_true(expr const & e) {
     expr lhs, rhs;
     if (!is_refl_relation(e, lhs, rhs))
         return;
@@ -605,21 +575,33 @@ void congruence_closure::check_eq_true(symm_congr_key const & k) {
 
 void congruence_closure::add_symm_congruence_table(expr const & e) {
     lean_assert(is_symm_relation(e));
-    symm_congr_key k = mk_symm_congr_key(e);
-    if (auto old_k = m_state.m_symm_congruences.find(k)) {
-        /*
-          Found new equivalence: e ~ old_k->m_expr
-          1. Update m_cg_root field for e
-        */
-        entry new_entry     = *get_entry(e);
-        new_entry.m_cg_root = old_k->m_expr;
-        m_state.m_entries.insert(e, new_entry);
-        /* 2. Put new equivalence in the TODO queue */
-        push_eq(e, old_k->m_expr, *g_congr_mark);
+    expr lhs, rhs;
+    auto rel = is_symm_relation(e, lhs, rhs);
+    lean_assert(rel);
+    unsigned h = mk_symm_hash(lhs, rhs);
+    pair<expr, name> new_p(e, *rel);
+    if (list<pair<expr, name>> const * ps = m_state.m_symm_congruences.find(h)) {
+        for (pair<expr, name> const & p : *ps) {
+            if (compare_symm(new_p, p)) {
+                /*
+                  Found new equivalence: e ~ p.first
+                  1. Update m_cg_root field for e
+                */
+                entry new_entry     = *get_entry(e);
+                new_entry.m_cg_root = p.first;
+                m_state.m_entries.insert(e, new_entry);
+                /* 2. Put new equivalence in the TODO queue */
+                push_eq(e, p.first, *g_congr_mark);
+                check_eq_true(e);
+                return;
+            }
+        }
+        m_state.m_symm_congruences.insert(h, cons(new_p, *ps));
+        check_eq_true(e);
     } else {
-        m_state.m_symm_congruences.insert(k);
+        m_state.m_symm_congruences.insert(h, to_list(new_p));
+        check_eq_true(e);
     }
-    check_eq_true(k);
 }
 
 congruence_closure::state::state(name_set const & ho_fns, config const & cfg):
@@ -895,22 +877,6 @@ void congruence_closure::invert_trans(expr const & e) {
     invert_trans(e, false, none_expr(), none_expr());
 }
 
-bool congruence_closure::check_congr_keys() const {
-    flet<congruence_closure *> set_cc(g_cc, const_cast<congruence_closure*>(this));
-    buffer<congr_key> keys;
-    m_state.m_congruences.to_buffer(keys);
-    for (unsigned i = 0; i < keys.size(); i++) {
-        for (unsigned j = i + 1; j < keys.size(); j++) {
-            if (congr_key_cmp()(keys[i], keys[j]) >= 0) {
-                tout() << keys[i].m_expr << "\n";
-                tout() << keys[j].m_expr << "\n";
-                lean_unreachable();
-            }
-        }
-    }
-    return true;
-}
-
 void congruence_closure::remove_parents(expr const & e, buffer<expr> & parents_to_propagate) {
     auto ps = m_state.m_parents.find(e);
     if (!ps) return;
@@ -921,13 +887,29 @@ void congruence_closure::remove_parents(expr const & e, buffer<expr> & parents_t
                 parents_to_propagate.push_back(p);
             if (is_app(p)) {
                 if (pocc.m_symm_table) {
-                    symm_congr_key k = mk_symm_congr_key(p);
-                    m_state.m_symm_congruences.erase(k);
+                    expr lhs, rhs;
+                    auto rel = is_symm_relation(p, lhs, rhs);
+                    lean_assert(rel);
+                    unsigned h = mk_symm_hash(lhs, rhs);
+                    if (list<pair<expr, name>> const * lst = m_state.m_symm_congruences.find(h)) {
+                        pair<expr, name> k(p, *rel);
+                        list<pair<expr, name>> new_lst = filter(*lst, [&](pair<expr, name> const & k2) {
+                                return !compare_symm(k, k2);
+                            });
+                        if (new_lst)
+                            m_state.m_symm_congruences.insert(h, new_lst);
+                        else
+                            m_state.m_symm_congruences.erase(h);
+                    }
                 } else {
-                    congr_key k = mk_congr_key(p);
-                    lean_cond_assert("cc", check_congr_keys());
-                    m_state.m_congruences.erase(k);
-                    lean_cond_assert("cc", check_congr_keys());
+                    unsigned h = mk_congr_hash(p);
+                    if (list<expr> const * es = m_state.m_congruences.find(h)) {
+                        list<expr> new_es = remove(*es, p);
+                        if (new_es)
+                            m_state.m_congruences.insert(h, new_es);
+                        else
+                            m_state.m_congruences.erase(h);
+                    }
                 }
             }
         });
@@ -2017,7 +1999,6 @@ void congruence_closure::add_eqv_core(expr const & lhs, expr const & rhs, expr c
 
 void congruence_closure::add(expr const & type, expr const & proof, unsigned gen) {
     if (m_state.m_inconsistent) return;
-    flet<congruence_closure *> set_cc(g_cc, this);
     m_todo.clear();
     expr p      = type;
     bool is_neg = is_not_or_ne(type, p);
@@ -2083,7 +2064,6 @@ bool congruence_closure::proved(expr const & e) const {
 }
 
 void congruence_closure::internalize(expr const & e, unsigned gen) {
-    flet<congruence_closure *> set_cc(g_cc, this);
     internalize_core(e, none_expr(), gen);
     process_todo();
 }

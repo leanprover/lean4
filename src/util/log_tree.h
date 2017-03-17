@@ -9,6 +9,7 @@ Author: Gabriel Ebner
 #include <functional>
 #include <memory>
 #include <string>
+#include <limits>
 #include "util/thread.h"
 #include "util/int64.h"
 #include "util/name_map.h"

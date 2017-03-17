@@ -8,6 +8,7 @@ Author: Gabriel Ebner
 #include "util/task_builder.h"
 #include <vector>
 #include <string>
+#include <algorithm>
 
 namespace lean {
 

@@ -98,7 +98,14 @@ class rb_tree : private CMP {
         return r;
     }
 
-    static node rotate_left(node && h) {
+/* The following few methods cannot be static in debug mode because of assertions. */
+#ifdef LEAN_DEBUG
+#define LEAN_STATIC
+#else
+#define LEAN_STATIC static
+#endif
+
+    LEAN_STATIC node rotate_left(node && h) {
         lean_assert(!h.is_shared());
         node x = ensure_unshared(h->m_right.steal());
         lean_assert(!h->m_right); // x stole the ownership of h->m_right
@@ -106,10 +113,13 @@ class rb_tree : private CMP {
         x->m_left  = h;
         x->m_red   = h->m_red;
         h->m_red   = true;
+        lean_cond_assert("rb_tree", cmp(x->m_value, h->m_value) > 0);
+        lean_cond_assert("rb_tree", !h->m_right.m_ptr || cmp(h->m_value, h->m_right->m_value) < 0);
+        lean_cond_assert("rb_tree", !h->m_left.m_ptr || cmp(x->m_value, h->m_left->m_value) > 0);
         return x;
     }
 
-    static node rotate_right(node && h) {
+    LEAN_STATIC node rotate_right(node && h) {
         lean_assert(!h.is_shared());
         node x = ensure_unshared(h->m_left.steal());
         lean_assert(!h->m_left); // x stole the ownership of h->m_left
@@ -117,10 +127,13 @@ class rb_tree : private CMP {
         x->m_right = h;
         x->m_red   = h->m_red;
         h->m_red   = true;
+        lean_cond_assert("rb_tree", cmp(x->m_value, h->m_value) < 0);
+        lean_cond_assert("rb_tree", !h->m_left.m_ptr || cmp(h->m_value, h->m_left->m_value) > 0);
+        lean_cond_assert("rb_tree", !h->m_right.m_ptr || cmp(x->m_value, h->m_right->m_value) < 0);
         return x;
     }
 
-    static node flip_colors(node && h) {
+    LEAN_STATIC node flip_colors(node && h) {
         lean_assert(!h.is_shared());
         h->m_red = !h->m_red;
         h->m_left  = ensure_unshared(h->m_left.steal());
@@ -130,7 +143,7 @@ class rb_tree : private CMP {
         return h;
     }
 
-    static node fixup(node && h) {
+    LEAN_STATIC node fixup(node && h) {
         lean_assert(!h.is_shared());
         if (h->m_right.is_red() && !h->m_left.is_red())
             h = rotate_left(h.steal());
@@ -157,7 +170,7 @@ class rb_tree : private CMP {
         return fixup(h.steal());
     }
 
-    static node move_red_left(node && h) {
+    LEAN_STATIC node move_red_left(node && h) {
         lean_assert(!h.is_shared());
         h = flip_colors(h.steal());
         if (h->m_right && h->m_right->m_left.is_red()) {
@@ -169,7 +182,7 @@ class rb_tree : private CMP {
         }
     }
 
-    static node move_red_right(node && h) {
+    LEAN_STATIC node move_red_right(node && h) {
         lean_assert(!h.is_shared());
         h = flip_colors(h.steal());
         if (h->m_left && h->m_left->m_left.is_red()) {
@@ -180,7 +193,7 @@ class rb_tree : private CMP {
         }
     }
 
-    static node erase_min(node && n) {
+    LEAN_STATIC node erase_min(node && n) {
         if (!n->m_left)
             return node();
         node h = ensure_unshared(n.steal());
@@ -189,6 +202,8 @@ class rb_tree : private CMP {
         h->m_left = erase_min(h->m_left.steal());
         return fixup(h.steal());
     }
+
+#undef LEAN_STATIC
 
     static T const * min(node const & n) {
         node_cell const * it = n.m_ptr;

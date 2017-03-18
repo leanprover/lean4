@@ -253,8 +253,12 @@ private meta def is_neg (p : pexpr) : option pexpr :=
 /- Remark: we use the low-level to_raw_expr and of_raw_expr to be able to
    pattern match pre-terms. This is a low-level trick (aka hack). -/
 match pexpr.to_raw_expr p with
-| (app (const c []) arg) := if c = `neg then some (pexpr.of_raw_expr arg) else none
-| _                      := none
+| (app fn arg) :=
+  match fn^.erase_annotations with
+  | (const `neg _) := some (pexpr.of_raw_expr arg)
+  | _              := none
+  end
+| _            := none
 end
 
 private meta def resolve_name' (n : name) : tactic expr :=

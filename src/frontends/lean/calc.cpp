@@ -55,7 +55,7 @@ static calc_pred decode_expr(expr const & e, pos_info const & pos) {
         throw parser_error("invalid 'calc' expression, overloaded expressions are not supported", pos);
     } else {
         buffer<expr> args;
-        expr const & fn = get_app_args(e, args);
+        expr const & fn = get_nested_annotation_arg(get_app_args(e, args));
         unsigned nargs  = args.size();
         if (!is_constant(fn) || nargs < 2) {
             throw parser_error("invalid 'calc' expression, expression must be a function application 'f a_1 ... a_k' "

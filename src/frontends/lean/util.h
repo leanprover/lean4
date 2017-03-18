@@ -117,6 +117,17 @@ expr mk_opt_param(expr const & t, expr const & val);
 expr mk_auto_param(expr const & t, name const & tac_name);
 expr parse_auto_param(parser & p, expr const & type);
 
+/* Add frozen annotation around constants and local constants occurring in \c e.
+   This annotation is used to prevent lean from resolving the names again
+   at tactic execution time. See resolve_names_fn at elaborator.cpp.
+
+   In notation declarations, names are resolved at notation declaration time.
+   Users do not expect them to be resolved again at tactic execution time.
+   See issue #1468. */
+expr freeze_names(expr const & e);
+/* Return true iff \c e is marked with a frozen_name annotation. */
+bool is_frozen_name(expr const & e);
+
 void initialize_frontend_lean_util();
 void finalize_frontend_lean_util();
 }

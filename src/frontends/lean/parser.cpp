@@ -1438,7 +1438,10 @@ expr parser::parse_notation(parse_table t, expr * left) {
         }
     }
     for (notation::accepting const & a : as) {
-        expr r = copy_with_new_pos(a.get_expr(), p);
+        expr a_expr = a.get_expr();
+        if (m_in_quote)
+            a_expr = freeze_names(a_expr);
+        expr r = copy_with_new_pos(a_expr, p);
         list<notation::action> const & postponed = a.get_postponed();
         if (postponed) {
             buffer<expr> new_args;

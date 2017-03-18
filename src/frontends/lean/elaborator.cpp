@@ -2808,6 +2808,8 @@ expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_typ
         return mk_sorry(expected_type, e);
     } else if (is_structure_instance(e)) {
         return visit_structure_instance(e, expected_type);
+    } else if (is_frozen_name(e)) {
+        return visit(get_annotation_arg(e), expected_type);
     } else if (is_annotation(e)) {
         expr r = visit(get_annotation_arg(e), expected_type);
         return update_macro(e, 1, &r);
@@ -3706,6 +3708,8 @@ struct resolve_names_fn : public replace_visitor {
             return e;
         } else if (is_choice(e)) {
             return visit_choice(e);
+        } else if (is_frozen_name(e)) {
+            return get_annotation_arg(e);
         } else {
             return replace_visitor::visit(e);
         }

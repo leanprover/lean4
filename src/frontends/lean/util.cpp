@@ -392,12 +392,34 @@ expr parse_auto_param(parser & p, expr const & type) {
     return mk_auto_param(type, const_name(tac_expr));
 }
 
+static name * g_frozen_name = nullptr;
+
+expr mk_frozen_name_annotation(expr const & e) {
+    return mk_annotation(*g_frozen_name, e);
+}
+
+bool is_frozen_name(expr const & e) {
+    return is_annotation(e, *g_frozen_name);
+}
+
+expr freeze_names(expr const & e) {
+    return replace(e, [&](expr const e, unsigned) {
+            if (is_local(e) || is_constant(e))
+                return some_expr(mk_frozen_name_annotation(e));
+            else
+                return none_expr();
+        });
+}
+
 void initialize_frontend_lean_util() {
     g_no_info = new name("no_info");
     register_annotation(*g_no_info);
+    g_frozen_name = new name("frozen_name");
+    register_annotation(*g_frozen_name);
 }
 
 void finalize_frontend_lean_util() {
     delete g_no_info;
+    delete g_frozen_name;
 }
 }

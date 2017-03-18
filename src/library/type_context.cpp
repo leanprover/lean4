@@ -408,7 +408,9 @@ pair<local_context, expr> type_context::revert_core(buffer<expr> & to_revert, lo
                     return;
                 }
             }
-            /* We may still need to revert d if it depends on locals already in reverted */
+            /* We may still need to revert d if it depends on locals already in reverted.
+               We don't need to follow the value of local definitions (x := v) here because
+               we are using for_each_after. */
             if (depends_on(d, m_mctx, to_revert)) {
                 if (d.get_info().is_rec()) {
                     /* We should not revert auxiliary declarations added by the equation compiler.

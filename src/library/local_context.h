@@ -59,11 +59,18 @@ public:
 bool is_local_decl_ref(expr const & e);
 
 class metavar_context;
-
+class local_context;
 bool depends_on(expr const & e, metavar_context const & mctx, unsigned num, expr const * locals);
 bool depends_on(local_decl const & d, metavar_context const & mctx,  unsigned num, expr const * locals);
 bool depends_on(expr const & e, metavar_context const & mctx,  buffer<expr> const & locals);
 bool depends_on(local_decl const & d, metavar_context const & mctx, buffer<expr> const & locals);
+
+/* Similar to depends_on(expr const & e, metavar_context const & mctx, unsigned num, expr const * locals), but it
+   will also visit the value v of local definitions (x : t := v) if x occurs in e (directly or indirectly). */
+bool depends_on(expr const & e, metavar_context const & mctx, local_context const & lctx, unsigned num, expr const * locals);
+inline bool depends_on(expr const & e, metavar_context const & mctx, local_context const & lctx, expr const & local) {
+    return depends_on(e, mctx, lctx, 1, &local);
+}
 
 /* Create an unieq local_decl name.
    This is a low-level function. The high-level methods

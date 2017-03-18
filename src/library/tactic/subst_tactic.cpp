@@ -121,6 +121,7 @@ vm_obj tactic_subst_core(name const & n, bool symm, tactic_state const & s) {
 vm_obj tactic_subst(expr const & l, tactic_state const & s) {
     optional<metavar_decl> g   = s.get_main_goal_decl();
     if (!g) return mk_no_goals_exception(s);
+    metavar_context mctx       = s.mctx();
     local_context lctx         = g->get_context();
     if (!is_local(l))
         return tactic::mk_exception(sstream() << "subst tactic failed, given expression is not a local constant", s);
@@ -130,9 +131,9 @@ vm_obj tactic_subst(expr const & l, tactic_state const & s) {
     expr const & type = d->get_type();
     expr lhs, rhs;
     if (is_eq(type, lhs, rhs)) {
-        if (is_local(rhs) && !depends_on(lhs, rhs)) {
+        if (is_local(rhs) && !depends_on(lhs, mctx, lctx, rhs)) {
             return tactic_subst_core(d->get_name(), true, s);
-        } else if (is_local(lhs) && !depends_on(rhs, lhs)) {
+        } else if (is_local(lhs) && !depends_on(rhs, mctx, lctx, lhs)) {
             return tactic_subst_core(d->get_name(), false, s);
         } else {
             return tactic::mk_exception(sstream() << "subst tactic failed, hypothesis '"
@@ -145,10 +146,10 @@ vm_obj tactic_subst(expr const & l, tactic_state const & s) {
                 if (found) return;
                 expr lhs, rhs;
                 if (is_eq(d2.get_type(), lhs, rhs)) {
-                    if (is_local(lhs) && mlocal_name(lhs) == d->get_name() && !depends_on(rhs, lhs)) {
+                    if (is_local(lhs) && mlocal_name(lhs) == d->get_name() && !depends_on(rhs, mctx, lctx, lhs)) {
                         found = true;
                         r     = tactic_subst_core(d2.get_name(), false, s);
-                    } else if (is_local(rhs) && mlocal_name(rhs) == d->get_name() && !depends_on(lhs, rhs)) {
+                    } else if (is_local(rhs) && mlocal_name(rhs) == d->get_name() && !depends_on(lhs, mctx, lctx, rhs)) {
                         found = true;
                         r     = tactic_subst_core(d2.get_name(), true, s);
                     }

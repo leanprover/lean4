@@ -58,58 +58,94 @@ expr local_decl::mk_ref() const {
     return mk_local_ref(m_ptr->m_name, m_ptr->m_pp_name, m_ptr->m_bi);
 }
 
-static bool depends_on_core(expr const & e, metavar_context const & mctx, unsigned num, expr const * locals,
-                            name_set & visited_mvars) {
-    lean_assert(std::all_of(locals, locals+num, is_local_decl_ref));
-    if (!has_local(e) && !has_expr_metavar(e))
-        return false;
-    bool found = false;
-    for_each(e, [&](expr const & e, unsigned) {
-            if (found) return false;
-            if (!has_local(e) && !has_expr_metavar(e)) return false;
-            if (is_local_decl_ref(e) &&
-                std::any_of(locals, locals+num,
-                            [&](expr const & l) { return mlocal_name(e) == mlocal_name(l); })) {
-                found = true;
-                return false;
-            }
-            if (is_metavar_decl_ref(e)) {
-                if (auto v = mctx.get_assignment(e)) {
-                    if (!visited_mvars.contains(mlocal_name(e))) {
-                        visited_mvars.insert(mlocal_name(e));
-                        if (depends_on_core(*v, mctx, num, locals, visited_mvars)) {
-                            found = true;
-                            return false;
+struct depends_on_fn {
+    metavar_context const & m_mctx;
+    local_context const *   m_lctx;
+    unsigned                m_num;
+    expr const *            m_locals;
+    name_set                m_visited_mvars;
+    name_set                m_visited_decls;
+
+    depends_on_fn(metavar_context const & mctx, local_context const & lctx, unsigned num, expr const * locals):
+        m_mctx(mctx), m_lctx(&lctx), m_num(num), m_locals(locals) {
+        lean_assert(std::all_of(locals, locals+num, is_local_decl_ref));
+    }
+
+    depends_on_fn(metavar_context const & mctx, unsigned num, expr const * locals):
+        m_mctx(mctx), m_lctx(nullptr), m_num(num), m_locals(locals) {
+        lean_assert(std::all_of(locals, locals+num, is_local_decl_ref));
+    }
+
+    bool visit(expr const & e) {
+        if (!has_local(e) && !has_expr_metavar(e))
+            return false;
+        bool found = false;
+        for_each(e, [&](expr const & e, unsigned) {
+                if (found) return false;
+                if (!has_local(e) && !has_expr_metavar(e)) return false;
+                if (is_local_decl_ref(e)) {
+                    if (std::any_of(m_locals, m_locals + m_num,
+                                    [&](expr const & l) { return mlocal_name(e) == mlocal_name(l); })) {
+                        found = true;
+                        return false;
+                    }
+                    if (m_lctx) {
+                        if (optional<local_decl> decl = m_lctx->find_local_decl(e)) {
+                            if (optional<expr> v = decl->get_value()) {
+                                if (!m_visited_decls.contains(decl->get_name())) {
+                                    m_visited_decls.insert(decl->get_name());
+                                    if (visit(*v)) {
+                                        found = true;
+                                        return false;
+                                    }
+                                }
+                            }
                         }
                     }
                 }
-            }
-            return true;
-        });
-    return found;
-}
+                if (is_metavar_decl_ref(e)) {
+                    if (auto v = m_mctx.get_assignment(e)) {
+                        if (!m_visited_mvars.contains(mlocal_name(e))) {
+                            m_visited_mvars.insert(mlocal_name(e));
+                            if (visit(*v)) {
+                                found = true;
+                                return false;
+                            }
+                        }
+                    }
+                }
+                return true;
+            });
+        return found;
+    }
+
+    bool operator()(expr const & e) { return visit(e); }
+};
 
 bool depends_on(expr const & e, metavar_context const & mctx, unsigned num, expr const * locals) {
-    name_set visited_mvars;
-    return depends_on_core(e, mctx, num, locals, visited_mvars);
+    return depends_on_fn(mctx, num, locals)(e);
 }
 
 bool depends_on(local_decl const & d, metavar_context const & mctx, unsigned num, expr const * locals) {
-    name_set visited_mvars;
-    if (depends_on_core(d.get_type(), mctx, num, locals, visited_mvars))
+    depends_on_fn fn(mctx, num, locals);
+    if (fn(d.get_type()))
         return true;
     if (auto v = d.get_value()) {
-        return depends_on_core(*v, mctx, num, locals, visited_mvars);
+        return fn(*v);
     }
     return false;
 }
 
 bool depends_on(expr const & e, metavar_context const & mctx, buffer<expr> const & locals) {
-    return depends_on(e, mctx, locals.size(), locals.data());
+    return depends_on_fn(mctx, locals.size(), locals.data())(e);
 }
 
 bool depends_on(local_decl const & d, metavar_context const & mctx, buffer<expr> const & locals) {
     return depends_on(d, mctx, locals.size(), locals.data());
+}
+
+bool depends_on(expr const & e, metavar_context const & mctx, local_context const & lctx, unsigned num, expr const * locals) {
+    return depends_on_fn(mctx, lctx, num, locals)(e);
 }
 
 void local_context::insert_user_name(local_decl const &d) {

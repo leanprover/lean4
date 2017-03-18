@@ -51,8 +51,19 @@ meta constant expr.macro_def_name (d : macro_def) : name
 meta def expr.mk_var (n : nat) : expr :=
 expr.var n
 
-/- Choice macros are used to implement overloading. -/
+/- Choice macros are used to implement overloading.
+   TODO(Leo): should we change it to pexpr? -/
 meta constant expr.is_choice_macro : expr → bool
+
+/- Expressions can be annotated using the annotation macro. -/
+meta constant expr.is_annotation : expr → option (name × expr)
+
+meta def expr.erase_annotations : expr → expr
+| e :=
+  match e^.is_annotation with
+  | some (_, a) := expr.erase_annotations a
+  | none        := e
+  end
 
 -- Compares expressions, including binder names.
 meta constant expr.has_decidable_eq : decidable_eq expr

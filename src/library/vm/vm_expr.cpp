@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "library/deep_copy.h"
 #include "library/comp_val.h"
 #include "library/choice.h"
+#include "library/annotation.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_name.h"
@@ -453,6 +454,15 @@ vm_obj expr_subst(vm_obj const & _e1, vm_obj const & _e2) {
     }
 }
 
+vm_obj expr_is_annotation(vm_obj const & _e) {
+    expr const & e = to_expr(_e);
+    if (is_annotation(e)) {
+        return mk_vm_some(mk_vm_pair(to_obj(get_annotation_kind(e)), to_obj(get_annotation_arg(e))));
+    } else {
+        return mk_vm_none();
+    }
+}
+
 void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name({"expr", "var"}),              expr_var);
     DECLARE_VM_BUILTIN(name({"expr", "sort"}),             expr_sort);
@@ -501,6 +511,7 @@ void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name("mk_int_val_ne_proof"),        vm_mk_int_val_ne_proof);
 
     DECLARE_VM_BUILTIN(name("expr", "is_choice_macro"),    expr_is_choice_macro);
+    DECLARE_VM_BUILTIN(name("expr", "is_annotation"),      expr_is_annotation);
 
     DECLARE_VM_BUILTIN(name("expr", "mk_sorry"), expr_mk_sorry);
     DECLARE_VM_BUILTIN(name("expr", "is_sorry"), expr_is_sorry);

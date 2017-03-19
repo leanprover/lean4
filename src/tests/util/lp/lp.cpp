@@ -2080,11 +2080,11 @@ void process_test_file(string test_dir, string test_file_name, argument_parser &
     }
 }
 int my_readdir(DIR *dirp, struct dirent *
-#ifndef LEAN_WINDOWS
+#if !defined(LEAN_WINDOWS) && !defined(__GLIBC__)
                entry
 #endif
                , struct dirent **result) {
-#ifdef LEAN_WINDOWS
+#if defined(LEAN_WINDOWS) || defined(__GLIBC__)
     *result = readdir(dirp); // NOLINT
     return *result != nullptr? 0 : 1;
 #else
@@ -2103,7 +2103,7 @@ std::vector<std::pair<std::string, int>> get_file_list_of_dir(std::string test_f
     struct dirent* result;
     int return_code;
     for (return_code = my_readdir(dir, &entry, &result);
-#ifndef LEAN_WINDOWS
+#if !defined(LEAN_WINDOWS) && !defined(__GLIBC__)
          result != nullptr &&
 #endif
          return_code == 0;

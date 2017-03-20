@@ -148,7 +148,6 @@ static expr parse_interactive_tactic(parser & p, name const & decl_name, name co
     auto pos = p.pos();
     expr type     = p.env().get(decl_name).get_type();
     name itactic  = get_interactive_tactic_full_name(tac_class, "itactic");
-    name irtactic = get_interactive_tactic_full_name(tac_class, "irtactic");
     buffer<expr> args;
     try {
         try {
@@ -163,8 +162,6 @@ static expr parse_interactive_tactic(parser & p, name const & decl_name, name co
                         lean_assert(arg_args.size() == 3);
                         args.push_back(parse_interactive_param(p, arg_args[0], arg_args[1], arg_args[2]));
                     } else if (is_constant(arg_type, itactic)) {
-                        args.push_back(parse_nested_interactive_tactic(p, tac_class, use_istep));
-                    } else if (is_constant(arg_type, irtactic)) {
                         args.push_back(parse_nested_interactive_tactic(p, tac_class, use_istep));
                     } else {
                         break;

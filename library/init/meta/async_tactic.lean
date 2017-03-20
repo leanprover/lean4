@@ -50,7 +50,7 @@ namespace interactive
 open interactive.types
 
 /-- Proves the first goal asynchronously as a separate lemma. -/
-meta def async (tac : irtactic) : tactic unit :=
+meta def async (tac : itactic) : tactic unit :=
 prove_goal_async tac
 
 end interactive

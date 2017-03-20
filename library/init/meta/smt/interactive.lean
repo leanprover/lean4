@@ -40,9 +40,6 @@ local postfix *:9001 := many
 meta def itactic : Type :=
 smt_tactic unit
 
-meta def irtactic : Type :=
-smt_tactic unit
-
 meta def intros : parse ident* → smt_tactic unit
 | [] := smt_tactic.intros
 | hs := smt_tactic.intro_lst hs

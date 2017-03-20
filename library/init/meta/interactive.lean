@@ -118,7 +118,7 @@ private meta def parser_desc_aux : expr → tactic (list format)
 meta def param_desc : expr → tactic format
 | ```(parse %%p) := join <$> parser_desc_aux p
 | ```(opt_param %%t ._) := (++ "?") <$> pp t
-| e := if is_constant e ∧ (const_name e)^.components^.ilast ∈ [`itactic, `irtactic]
+| e := if is_constant e ∧ (const_name e)^.components^.ilast = `itactic
   then return $ to_fmt "{ tactic }"
   else paren <$> pp e
 end interactive
@@ -145,15 +145,6 @@ itactic: parse a nested "interactive" tactic. That is, parse
   `{` tactic `}`
 -/
 meta def itactic : Type :=
-tactic unit
-
-/-
-irtactic: parse a nested "interactive" tactic. That is, parse
-  `{` tactic `}`
-It is similar to itactic, but the interactive mode will report errors
-when any of the nested tactics fail. This is good for tactics such as async and abstract.
--/
-meta def irtactic : Type :=
 tactic unit
 
 /--
@@ -382,7 +373,7 @@ tactic.try
 meta def solve1 : itactic → tactic unit :=
 tactic.solve1
 
-meta def abstract (id : parse ident? ) (tac : irtactic) : tactic unit :=
+meta def abstract (id : parse ident? ) (tac : itactic) : tactic unit :=
 tactic.abstract tac id
 
 meta def all_goals : itactic → tactic unit :=
@@ -391,7 +382,7 @@ tactic.all_goals
 meta def any_goals : itactic → tactic unit :=
 tactic.any_goals
 
-meta def focus (tac : irtactic) : tactic unit :=
+meta def focus (tac : itactic) : tactic unit :=
 tactic.focus [tac]
 
 /--

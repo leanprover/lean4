@@ -339,7 +339,7 @@
 
 (defun lean-server-compute-roi (sess)
   (pcase lean-server-check-mode
-    ('visible-lines
+    (`visible-lines
      (-mapcat (lambda (buf)
                 (with-current-buffer buf
                   (when (and (get-buffer-window) (eq lean-server-session sess))
@@ -349,7 +349,7 @@
                          ,(max 1 (- (line-number-at-pos min-pt) 5)) .
                          ,(+ (line-number-at-pos max-pt) 5)))))))
               (buffer-list)))
-    ('visible-files
+    (`visible-files
      (--mapcat (with-current-buffer it
                  (when (and (get-buffer-window) (eq lean-server-session sess))
                    `((,(buffer-file-name)

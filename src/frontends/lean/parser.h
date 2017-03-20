@@ -184,6 +184,11 @@ public:
 
     void set_break_at_pos(pos_info const & pos) { m_break_at_pos = some(pos); }
     optional<pos_info> const & get_break_at_pos() const { return m_break_at_pos; }
+    template <class T>
+    T without_break_at_pos(std::function<T()> const & f) {
+        flet<optional<pos_info>> l(m_break_at_pos, {});
+        return f();
+    }
     bool get_complete() { return m_complete; }
     void set_complete(bool complete) { m_complete = complete; }
     /** \brief Throw \c break_at_pos_exception with given context if \c m_break_at_pos is inside current token. */

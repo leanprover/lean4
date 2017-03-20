@@ -130,12 +130,6 @@ static optional<name> is_interactive_tactic(parser & p, name const & tac_class) 
         return optional<name>();
 }
 
-// small 'info' tweak: for `,`, report tactic state at following token instead
-static void info_tweak(parser & p) {
-    if (!p.get_complete() && p.get_break_at_pos() == some(p.pos()))
-        p.set_break_at_pos({p.pos().first, p.pos().second + 1});
-}
-
 static expr parse_begin_end_block(parser & p, pos_info const & start_pos, name const & end_token, name tac_class, bool use_rstep, bool report_error);
 
 static expr parse_nested_interactive_tactic(parser & p, name const & tac_class, bool use_rstep, bool report_error) {
@@ -416,7 +410,6 @@ struct parse_begin_end_block_fn {
 
     expr mk_save_info() {
         expr r = mk_tactic_save_info(m_p, {m_p.pos().first, m_p.pos().second+1}, m_tac_class);
-       info_tweak(m_p);
         return r;
     }
 
@@ -445,9 +438,11 @@ struct parse_begin_end_block_fn {
                 try {
                     to_concat.push_back(parse_tactic());
                     if (!m_p.curr_is_token(end_token)) {
-                        to_concat.push_back(mk_save_info());
-                        m_p.check_token_next(get_comma_tk(), "invalid 'begin-end' expression, ',' expected");
+                        m_p.without_break_at_pos<void>([&]() {
+                            m_p.check_token_next(get_comma_tk(), "invalid 'begin-end' expression, ',' expected");
+                        });
                     }
+                    to_concat.push_back(mk_save_info());
                 } catch (break_at_pos_exception & ex) {
                     ex.report_goal_pos(pos);
                     throw;

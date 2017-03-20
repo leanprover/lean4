@@ -130,12 +130,9 @@ do fmt ← return $ to_fmt a,
 
 end vm
 
+/-- A Lean VM monitor. Monitors are registered using the [vm_monitor] attribute.
+
+    If option 'debugger' is true, then the VM will initialize the vm_monitor state using the
+    'init' field, and will invoke the function 'step' before each instruction is invoked. -/
 meta structure vm_monitor (α : Type) :=
 (init : α) (step : α → vm α)
-
-/- Registers a new virtual machine monitor. The argument must be the name of a definition of type
-   `vm_monitor S`. The command will override the last monitor.
-
-   If option 'debugger' is true, then the VM will initialize the vm_monitor state using the
-   'init' field, and will invoke the function 'step' before each instruction is invoked. -/
-meta constant vm_monitor.register : name → command

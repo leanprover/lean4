@@ -228,8 +228,7 @@ do s ← prune_active_bps s,
    else if s^.md = mode.run  then do new_s ← run_transition s, updt_csz new_s
    else return s
 
+@[vm_monitor]
 meta def monitor : vm_monitor state :=
 { init := init_state, step := step_fn }
 end debugger
-
-run_cmd vm_monitor.register `debugger.monitor

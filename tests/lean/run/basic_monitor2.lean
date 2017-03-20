@@ -17,6 +17,7 @@ do {
 <|>
 return (to_fmt "<position not available>")
 
+@[vm_monitor]
 meta def basic_monitor : vm_monitor nat :=
 { init := 1000,
   step := λ sz, do
@@ -27,8 +28,6 @@ meta def basic_monitor : vm_monitor nat :=
       pos ← pos_info fn,
       vm.trace (to_fmt "[" ++ csz ++ "]: " ++ to_fmt fn ++ " @ " ++ pos),
       return csz }
-
-run_cmd vm_monitor.register `basic_monitor
 
 set_option debugger true
 

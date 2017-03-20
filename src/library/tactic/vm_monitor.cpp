@@ -29,14 +29,6 @@ Author: Leonardo de Moura
 #include "library/tactic/tactic_state.h"
 
 namespace lean {
-vm_obj _vm_monitor_register(vm_obj const & vm_n, vm_obj const & vm_s) {
-    auto const & s = tactic::to_state(vm_s);
-    auto const & n = to_name(vm_n);
-    LEAN_TACTIC_TRY;
-    return tactic::mk_success(set_env(s, vm_monitor_register(s.env(), n)));
-    LEAN_TACTIC_CATCH(s);
-}
-
 vm_obj vm_core_map(vm_obj const &, vm_obj const &, vm_obj const & fn, vm_obj const & a, vm_obj const & s) {
     vm_obj v = invoke(a, s);
     return invoke(fn, v);
@@ -440,7 +432,13 @@ vm_obj vm_pp_expr(vm_obj const & e, vm_obj const &) {
 }
 
 void initialize_vm_monitor() {
-    DECLARE_VM_BUILTIN(name({"vm_monitor", "register"}),     _vm_monitor_register);
+    register_system_attribute(basic_attribute(
+            "vm_monitor", "Registers a new virtual machine monitor. The annotated definition must be the of type "
+                    "`vm_monitor S`. The command will override the last monitor.",
+            [](environment const & env, io_state const &, name const & n, unsigned, bool persistent) {
+                return vm_monitor_register(env, n);
+            }));
+
     DECLARE_VM_BUILTIN(name({"vm_core", "map"}),             vm_core_map);
     DECLARE_VM_BUILTIN(name({"vm_core", "ret"}),             vm_core_ret);
     DECLARE_VM_BUILTIN(name({"vm_core", "bind"}),            vm_core_bind);

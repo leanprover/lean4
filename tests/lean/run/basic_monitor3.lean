@@ -39,6 +39,7 @@ meta def display_args : vm unit :=
 do bp ← vm.bp,
    display_args_aux bp
 
+@[vm_monitor]
 meta def basic_monitor : vm_monitor nat :=
 { init := 1000,
   step := λ sz, do
@@ -56,8 +57,6 @@ meta def basic_monitor : vm_monitor nat :=
       return csz -- curr_fn failed
 }
 
-
-run_cmd vm_monitor.register `basic_monitor
 
 set_option debugger true
 open tactic

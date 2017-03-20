@@ -495,7 +495,7 @@ json server::autocomplete(std::shared_ptr<module_info const> const & mod_info, b
         try {
             parse_breaking_at_pos(mod_info->m_mod, mod_info, pos, true);
         } catch (break_at_pos_exception & e) {
-            report_completions(snap->m_env, snap->m_options, pos, skip_completions, mod_info->m_mod.c_str(),
+            report_completions(snap->m_env, snap->m_options, pos0, skip_completions, mod_info->m_mod.c_str(),
                                e, j);
         } catch (throwable & ex) {}
     }

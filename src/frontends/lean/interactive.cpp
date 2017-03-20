@@ -14,7 +14,6 @@ Author: Sebastian Ullrich
 #include "frontends/lean/interactive.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/tactic_notation.h"
-#include "info_manager.h"
 
 namespace lean {
 LEAN_THREAD_VALUE(break_at_pos_exception::token_context, g_context, break_at_pos_exception::token_context::none);

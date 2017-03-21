@@ -715,6 +715,7 @@ static expr parse_quoted_name(parser_state & p, unsigned, expr const *, pos_info
         }
     }
     if (resolve) {
+        parser::error_if_undef_scope scope(p);
         bool resolve_only = true;
         expr e = p.id_to_expr(id, pos, resolve_only);
         if (is_constant(e)) {

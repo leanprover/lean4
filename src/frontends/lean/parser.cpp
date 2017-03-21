@@ -2241,11 +2241,14 @@ void parser::process_imports() {
     std::vector<module_name> imports;
 
     std::exception_ptr exception_during_scanning;
+    auto begin_pos = pos();
     try {
         parse_imports(fingerprint, imports);
     } catch (parser_exception) {
         exception_during_scanning = std::current_exception();
     }
+
+    scope_log_tree lt("importing", {begin_pos, pos()});
 
     buffer<import_error> import_errors;
     module_loader sorry_checking_import_fn =

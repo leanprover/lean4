@@ -6,6 +6,7 @@ Authors: Gabriel Ebner, Sebastian Ullrich
 */
 #pragma once
 #include <string>
+#include <vector>
 #include "kernel/pos_info_provider.h"
 #include "kernel/environment.h"
 #include "library/io_state.h"
@@ -24,19 +25,29 @@ struct line_range {
     line_range(unsigned begin_line, unsigned end_line) : m_begin_line(begin_line), m_end_line(end_line) {}
 };
 
-struct string_cmp {
-    int operator()(std::string const & s1, std::string const & s2) const {
-        return s1.compare(s2);
-    }
-};
-
 struct region_of_interest {
-    bool m_enabled = false;
-    log_tree::detail_level m_max_level = log_tree::CrossModuleLintLevel-1;
-    rb_map<std::string, line_range, string_cmp> m_files;
+    enum checking_mode {
+        Nothing = 0,
+        VisibleLines = 1,
+        VisibleFiles = 2,
+        OpenFiles = 3,
+        Everything = 4,
+    };
+    checking_mode m_check_mode = Everything;
 
-    bool intersects(log_tree::node const & n) const;
-    bool intersects(message const & msg) const;
+    // Maps each open file to its visible line ranges.
+    std::shared_ptr<std::unordered_map<std::string, std::vector<line_range>> const> m_open_files;
+
+    enum intersection_result {
+        NoIntersection = 0,
+        OpenFile = 1,
+        VisibleFile = 2,
+        InROI = 3,
+    };
+    intersection_result intersects(location const & loc) const;
+
+    bool should_report(location const & loc) const;
+    optional<unsigned> get_priority(log_tree::node const & n) const;
 };
 
 class server : public module_vfs {
@@ -97,9 +108,6 @@ public:
     log_tree & get_log_tree() { return m_lt; }
 
     region_of_interest get_roi();
-
-    // debugging
-    void dump_log_tree();
 };
 
 void initialize_server();

@@ -16,7 +16,7 @@
   process          ; process object of lean --server
   seq-num          ; sequence number
   callbacks        ; alist of (seq_num . (success_cb . error_cb))
-  current-roi      ; alist of (file_name . (begin_line . end_line))
+  current-roi      ; alist of (file_name (begin_line . end_line) ...)
   tasks            ; last deserialized current_tasks message
   messages)        ; list of messages in deserialized json
 
@@ -338,43 +338,36 @@
           (run-at-time "200 milliseconds" nil #'lean-server-sync (current-buffer)))))
 
 (defun lean-server-compute-roi (sess)
-  (pcase lean-server-check-mode
-    (`visible-lines
-     (-mapcat (lambda (buf)
-                (with-current-buffer buf
-                  (when (and (get-buffer-window) (eq lean-server-session sess))
-                    (let ((min-pt (-min (--map (window-start it) (get-buffer-window-list))))
-                          (max-pt (-max (--map (window-end it t) (get-buffer-window-list)))))
-                      `((,(buffer-file-name)
-                         ,(max 1 (- (line-number-at-pos min-pt) 5)) .
-                         ,(+ (line-number-at-pos max-pt) 5)))))))
-              (buffer-list)))
-    (`visible-files
-     (--mapcat (with-current-buffer it
-                 (when (and (get-buffer-window) (eq lean-server-session sess))
-                   `((,(buffer-file-name)
-                      ,(line-number-at-pos (point-min)) .
-                      ,(line-number-at-pos (point-max))))))
-               (buffer-list)))
-    (_ nil)))
+  (--mapcat (with-current-buffer it
+              (when (eq lean-server-session sess)
+                (list (cons (buffer-file-name)
+                            (--map (cons (line-number-at-pos (window-start it))
+                                         (line-number-at-pos (window-end it)))
+                                   (get-buffer-window-list))))))
+            (buffer-list)))
 
 (defun lean-server-session-send-roi (sess roi)
   (setf (lean-server-session-current-roi sess) roi)
   (lean-server-send-command
-   'roi (list :files (--map (list (cons :file_name (car it))
-                                  (cons :begin_line (cadr it))
-                                  (cons :end_line (cddr it)))
+   'roi (list :mode lean-server-check-mode
+              :files (--map (list (cons :file_name (car it))
+                                  (cons :ranges (--map (list (cons :begin_line (car it))
+                                                             (cons :end_line (cdr it)))
+                                                       (cdr it))))
                             roi))))
 
 (defun lean-server-roi-subset-p (as bs)
   (--all? (let ((b (alist-get (car it) bs)))
-            (and b
-                 (<= (car b) (cadr it))
-                 (<= (cddr it) (cdr b))))
+            (and b (-all? (lambda (ar) (--any? (and (<= (car it) (car ar))
+                                                    (<= (cdr ar) (cdr it)))
+                                               b))
+                          (cdr it))))
           as))
 
 (defun lean-server-roi-extend (roi delta)
-  (--map `(,(car it) ,(- (cadr it) delta) . ,(+ (cddr it) delta)) roi))
+  (--map `(,(car it) .
+           ,(--map `(,(max 1 (- (car it) delta)) . ,(+ (cdr it) delta)) (cdr it)))
+         roi))
 
 (defun lean-server-roi-ok (old-roi new-roi)
   (and (lean-server-roi-subset-p new-roi old-roi)
@@ -383,7 +376,7 @@
 (defun lean-server-sync-roi ()
   (when lean-server-session
     (let ((old-roi (lean-server-session-current-roi lean-server-session))
-          (new-roi (lean-server-compute-roi lean-server-session)))
+          (new-roi (lean-server-roi-extend (lean-server-compute-roi lean-server-session) 5)))
       (when (or (eq old-roi 'not-yet-sent) (not (lean-server-roi-ok old-roi new-roi)))
         (lean-server-session-send-roi lean-server-session new-roi)))))
 

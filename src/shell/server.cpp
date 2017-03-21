@@ -24,16 +24,6 @@ Authors: Gabriel Ebner, Leonardo de Moura, Sebastian Ullrich
 #include "shell/server.h"
 
 namespace lean {
-struct msg_reported_msg {
-    message m_msg;
-
-    json to_json_response() const {
-        json j;
-        j["response"] = "additional_message";
-        j["msg"] = json_of_message(m_msg);
-        return j;
-    }
-};
 
 struct all_messages_msg {
     std::vector<message> m_msgs;
@@ -50,25 +40,41 @@ struct all_messages_msg {
     }
 };
 
-bool region_of_interest::intersects(log_tree::node const & n) const {
-    if (!m_enabled) return true;
-    if (n.get_detail_level() > m_max_level) return false;
-    if (n.get_location().m_file_name.empty()) return true;
-    auto & l = n.get_location();
-    if (auto f = m_files.find(l.m_file_name)) {
-        return std::max(f->m_begin_line, l.m_range.m_begin.first)
-            <= std::min(f->m_end_line, l.m_range.m_end.first);
-    } else {
-        return false;
+region_of_interest::intersection_result region_of_interest::intersects(location const & loc) const {
+    if (loc.m_file_name.empty()) return InROI;
+    if (!m_open_files || !m_open_files->count(loc.m_file_name)) return NoIntersection;
+    auto & visible_lines = m_open_files->at(loc.m_file_name);
+    for (auto & lr : visible_lines) {
+        if (std::max(lr.m_begin_line, loc.m_range.m_begin.first)
+            <= std::min(lr.m_end_line, loc.m_range.m_end.first)) {
+            return InROI;
+        }
+    }
+    return visible_lines.empty() ? OpenFile : VisibleFile;
+}
+
+bool region_of_interest::should_report(location const & loc) const {
+    auto isect = intersects(loc);
+    switch (m_check_mode) {
+        case Nothing: return false;
+        case VisibleLines: return isect >= VisibleFile;
+        case VisibleFiles: return isect >= VisibleFile;
+        case OpenFiles: return isect >= OpenFile;
+        default: return true;
     }
 }
 
-bool region_of_interest::intersects(message const & msg) const {
-    if (!m_enabled) return true;
-    if (auto f = m_files.find(msg.get_file_name())) {
-        return f->m_begin_line <= msg.get_pos().first && msg.get_pos().first <= f->m_end_line;
-    } else {
-        return false;
+optional<unsigned> region_of_interest::get_priority(log_tree::node const & n) const {
+    auto isect = intersects(n.get_location());
+    optional<unsigned> yes(isect >= InROI ? n.get_detail_level() : n.get_detail_level() + log_tree::MaxLevel);
+    optional<unsigned> no;
+
+    switch (m_check_mode) {
+        case Nothing: return no;
+        case VisibleLines: return (isect >= InROI && n.get_detail_level() < log_tree::CrossModuleLintLevel) ? yes : no;
+        case VisibleFiles: return isect >= VisibleFile ? yes : no;
+        case OpenFiles: return isect >= OpenFile ? yes : no;
+        default: return yes;
     }
 }
 
@@ -89,10 +95,10 @@ public:
     std::vector<message> get_messages_core(region_of_interest const & roi) {
         std::vector<message> msgs;
         m_lt->for_each([&] (log_tree::node const & n) {
-            if (roi.intersects(n)) {
+            if (roi.should_report(n.get_location())) {
                 for (auto & e : n.get_entries()) {
                     if (auto msg = dynamic_cast<message const *>(e.get())) {
-                        if (roi.intersects(*msg))
+                        if (roi.should_report(msg->get_location()))
                             msgs.push_back(*msg);
                     }
                 }
@@ -133,7 +139,7 @@ public:
                 case log_tree::event::EntryAdded:
                 case log_tree::event::EntryRemoved:
                     if (auto msg = dynamic_cast<message const *>(e.m_entry.get())) {
-                        if (roi.intersects(*msg)) {
+                        if (roi.should_report(msg->get_location())) {
                             m_dirty_files.insert(msg->get_file_name());
                         }
                     }
@@ -193,17 +199,17 @@ public:
         if (use_timer) m_timer.reset(new single_timer);
     }
 
-    void submit_core(log_tree::node const & n) {
+    void submit_core(unsigned prio, log_tree::node const & n) {
         if (auto prod = n.get_producer()) {
-            taskq().submit(prod, n.get_detail_level());
+            taskq().submit(prod, prio);
         }
     }
 
     void resubmit_core() {
         auto roi = m_srv->get_roi();
         m_srv->m_lt.for_each([&] (log_tree::node const & n) {
-            if (roi.intersects(n)) {
-                submit_core(n);
+            if (auto prio = roi.get_priority(n)) {
+                submit_core(*prio, n);
                 return true;
             } else {
                 return false;
@@ -215,7 +221,7 @@ public:
         current_tasks_msg msg;
         auto roi = m_srv->get_roi();
         m_lt->for_each([&] (log_tree::node const & n) {
-            if (roi.intersects(n)) {
+            if (roi.should_report(n.get_location())) {
                 if (n.get_producer()) {
                     msg.m_is_running = true;
                     msg.m_tasks.push_back(current_tasks_msg::json_of_task(n));
@@ -247,14 +253,16 @@ public:
             switch (e.m_kind) {
                 case log_tree::event::ProducerSet:
                     if (!roi) roi = m_srv->get_roi();
-                    if (roi->intersects(e.m_node)) {
-                        submit_core(e.m_node);
+                    if (auto prio = roi->get_priority(e.m_node)) {
+                        submit_core(*prio, e.m_node);
+                        need_refresh = true;
+                    } else if (roi->should_report(e.m_node.get_location())) {
                         need_refresh = true;
                     }
                     break;
                 case log_tree::event::Finished:
                     if (!roi) roi = m_srv->get_roi();
-                    if (roi->intersects(e.m_node))
+                    if (roi->should_report(e.m_node.get_location()))
                         need_refresh = true;
                     break;
 
@@ -351,10 +359,21 @@ struct unrelated_error_msg {
     }
 };
 
+// Debugging functions for use in GDB.
 server * g_server = nullptr;
-
-void server_dump_log_tree() { g_server->dump_log_tree(); }
-void server::dump_log_tree() { m_lt.print_to(std::cerr); }
+void server_dump_log_tree() {
+    g_server->get_log_tree().print_to(std::cerr);
+}
+void server_print_roi() {
+    auto roi = g_server->get_roi();
+    std::cerr << "mode: " << roi.m_check_mode << std::endl;
+    for (auto & f : *roi.m_open_files) {
+        std::cerr << f.first << std::endl;
+        for (auto & lr : f.second) {
+            std::cerr << " " << lr.m_begin_line << "-" << lr.m_end_line << std::endl;
+        }
+    }
+}
 
 void server::run() {
     flet<server *> _(g_server, this);
@@ -608,18 +627,35 @@ region_of_interest server::get_roi() {
     return m_roi;
 }
 
+static region_of_interest::checking_mode parse_checking_mode(std::string const & j) {
+    if (j == "nothing") return region_of_interest::Nothing;
+    if (j == "visible-lines") return region_of_interest::VisibleLines;
+    if (j == "visible-files") return region_of_interest::VisibleFiles;
+    if (j == "open-files") return region_of_interest::OpenFiles;
+    throw exception(sstream() << "unknown checking mode: " << j);
+}
+
 server::cmd_res server::handle_roi(server::cmd_req const & req) {
     region_of_interest new_roi;
-    new_roi.m_enabled = true;
+    new_roi.m_check_mode = parse_checking_mode(req.m_payload.at("mode"));
+    auto open_files = std::make_shared<std::unordered_map<std::string, std::vector<line_range>>>();
+    new_roi.m_open_files = open_files;
+
     for (auto & f : req.m_payload.at("files")) {
         std::string fn = f.at("file_name");
-        unsigned begin_line = f.at("begin_line");
-        unsigned end_line = f.at("end_line");
-        new_roi.m_files.insert(fn, line_range {begin_line, end_line});
+        std::vector<line_range> ranges;
+        for (auto & r : f.at("ranges")) {
+            unsigned begin_line = r.at("begin_line");
+            unsigned end_line = r.at("end_line");
+            ranges.push_back({begin_line, end_line});
+        }
+        (*open_files)[fn] = ranges;
     }
-    new_roi.m_files.for_each([&] (std::string const & fn, line_range const &) {
-        try { m_mod_mgr->get_module(fn); } catch (...) {}
-    });
+
+    for (auto & f : *new_roi.m_open_files) {
+        try { m_mod_mgr->get_module(f.first); } catch (...) {}
+    }
+
     {
         unique_lock<mutex> _(m_roi_mutex);
         m_roi = new_roi;

@@ -37,6 +37,7 @@ public:
     message_severity get_severity() const { return m_severity; }
     std::string get_caption() const { return m_caption; }
     std::string get_text() const { return m_text; }
+    location get_location() const { return {m_file_name, {m_pos, m_pos}}; }
 
     bool is_error() const { return m_severity >= ERROR; }
 };

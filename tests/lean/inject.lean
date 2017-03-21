@@ -24,28 +24,16 @@ def to_nat : ∀ {n}, fi n → nat
 def fi' {n} (i : fi n) : Type :=
 fi (to_nat i)
 
-set_option trace.eqn_compiler true
-set_option trace.type_context.is_def_eq true
+/- We need the unification hint to be able to get sane equations when using fi' -/
+@[unify] def to_nat_hint (n m k : nat) (i : fi (succ n)) (j : fi n) : unification_hint :=
+{ pattern     := @to_nat (succ n) (@fs n j) ≟ succ m,
+  constraints := [m ≟ to_nat j] }
 
 def inject : ∀ {n} {i : fi n}, fi' i → fi n
 | ._ (@fs n i) f0     := f0
 | ._ (@fs n i) (fs j) := fs (inject j)
 
-#exit
-
-/- fi (to_nat (fs n i))  =?= fi (succ n) -/
-
 #check @inject.equations._eqn_1
 #check @inject.equations._eqn_2
-
-@[unify] def to_nat_hint (n m k : nat) (i : fi (succ n)) (j : fi n) : unification_hint :=
-{ pattern     := @to_nat (succ n) (@fs n j) ≟ succ m,
-  constraints := [m ≟ to_nat j] }
-
-def inject' : ∀ {n} {i : fi n}, fi' i → fi n
-| ._ (@fs n i) f0     := f0
-| ._ (@fs n i) (fs j) := fs (inject' j)
-
-
 
 end fi

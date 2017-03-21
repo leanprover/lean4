@@ -64,6 +64,9 @@ void get_unification_hints(environment const & env, name const & n1, name const 
 
 format pp_unification_hints(unification_hints const & hints, formatter const & fmt);
 
+class type_context;
+bool try_unification_hint(type_context & o, unification_hint const & hint, expr const & lhs, expr const & rhs);
+
 void initialize_unification_hint();
 void finalize_unification_hint();
 }

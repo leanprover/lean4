@@ -7,19 +7,20 @@ Authors: Daniel Selsam, Leonardo de Moura
 #include "util/sexpr/format.h"
 #include "kernel/expr.h"
 #include "kernel/instantiate.h"
+#include "kernel/replace_fn.h"
 #include "kernel/error_msgs.h"
 #include "library/attribute_manager.h"
 #include "library/constants.h"
 #include "library/unification_hint.h"
 #include "library/util.h"
+#include "library/trace.h"
 #include "library/expr_lt.h"
 #include "library/scoped_ext.h"
+#include "library/fun_info.h"
+#include "library/annotation.h"
 #include "library/type_context.h"
 
 namespace lean {
-
-/* Unification hints */
-
 unification_hint::unification_hint(expr const & lhs, expr const & rhs, list<expr_pair> const & constraints, unsigned num_vars):
     m_lhs(lhs), m_rhs(rhs), m_constraints(constraints), m_num_vars(num_vars) {}
 
@@ -39,8 +40,6 @@ int unification_hint_cmp::operator()(unification_hint const & uh1, unification_h
         return 0;
     }
 }
-
-/* Environment extension */
 
 struct unification_hint_state {
     unification_hints m_hints;
@@ -219,6 +218,154 @@ format pp_unification_hints(unification_hints const & hints, formatter const & f
                 });
         });
     return r;
+}
+
+class unification_hint_fn {
+    type_context &           m_owner;
+    unification_hint const & m_hint;
+    buffer<optional<expr>>   m_assignment;
+
+    expr apply_assignment(expr const & e) {
+        return replace(e, [=](expr const & m, unsigned offset) -> optional<expr> {
+                if (offset >= get_free_var_range(m))
+                    return some_expr(m); // expression m does not contain free variables with idx >= s1
+                if (is_var(m)) {
+                    unsigned vidx = var_idx(m);
+                    if (vidx >= offset) {
+                        unsigned h = offset + m_assignment.size();
+                        if (h < offset /* overflow, h is bigger than any vidx */ || vidx < h) {
+                            if (auto v = m_assignment[vidx - offset])
+                                return some_expr(*v);
+                        }
+                        return some_expr(m);
+                    }
+                }
+                return none_expr();
+            });
+    }
+
+    bool match_app(expr const & p, expr const & e) {
+        buffer<expr> p_args, e_args;
+        expr const & p_fn = get_app_args(p, p_args);
+        expr const & e_fn = get_app_args(e, e_args);
+        if (p_args.size() != e_args.size())
+            return false;
+        fun_info finfo = get_fun_info(m_owner, e_fn, e_args.size());
+        unsigned i = 0;
+        buffer<unsigned> postponed;
+        for (param_info const & pinfo : finfo.get_params_info()) {
+            if (!pinfo.is_implicit() && !pinfo.is_inst_implicit()) {
+                if (!match(p_args[i], e_args[i])) {
+                    return false;
+                }
+            } else {
+                postponed.push_back(i);
+            }
+            i++;
+        }
+        for (; i < p_args.size(); i++) {
+            if (!match(p_args[i], e_args[i])) {
+                return false;
+            }
+        }
+        if (!match(p_fn, e_fn))
+            return false;
+        for (unsigned i : postponed) {
+            expr new_p_arg = apply_assignment(p_args[i]);
+            if (closed(new_p_arg)) {
+                if (!m_owner.is_def_eq(new_p_arg, e_args[i])) {
+                    return false;
+                }
+            } else {
+                if (!match(new_p_arg, e_args[i]))
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    bool match(expr const & pattern, expr const & e) {
+        if (m_owner.is_mvar(e) && m_owner.is_assigned(e)) {
+            return match(pattern, m_owner.instantiate_mvars(e));
+        }
+        if (is_annotation(e)) {
+            return match(pattern, get_annotation_arg(e));
+        }
+        unsigned idx;
+        switch (pattern.kind()) {
+        case expr_kind::Var:
+            idx = var_idx(pattern);
+            if (!m_assignment[idx]) {
+                m_assignment[idx] = some_expr(e);
+                return true;
+            } else {
+                return m_owner.is_def_eq(*m_assignment[idx], e);
+            }
+        case expr_kind::Constant:
+            return
+                is_constant(e) &&
+                const_name(pattern) == const_name(e) &&
+                m_owner.is_def_eq(const_levels(pattern), const_levels(e));
+        case expr_kind::Sort:
+            return is_sort(e) && m_owner.is_def_eq(sort_level(pattern), sort_level(e));
+        case expr_kind::Pi:    case expr_kind::Lambda:
+        case expr_kind::Macro: case expr_kind::Let:
+            // Remark: we do not traverse inside of binders.
+            return pattern == e;
+        case expr_kind::App:
+            return
+                is_app(e) &&
+                match(app_fn(pattern), app_fn(e)) &&
+                match(app_arg(pattern), app_arg(e));
+        case expr_kind::Local: case expr_kind::Meta:
+            lean_unreachable();
+        }
+        lean_unreachable();
+    }
+
+public:
+    unification_hint_fn(type_context & o, unification_hint const & hint):
+        m_owner(o), m_hint(hint) {
+        m_assignment.resize(m_hint.get_num_vars());
+    }
+
+    bool operator()(expr const & lhs, expr const & rhs) {
+        if (!match(m_hint.get_lhs(), lhs)) {
+            lean_trace(name({"type_context", "unification_hint"}), tout() << "LHS does not match\n";);
+            return false;
+        } else if (!match(m_hint.get_rhs(), rhs)) {
+            lean_trace(name({"type_context", "unification_hint"}), tout() << "RHS does not match\n";);
+            return false;
+        } else {
+            auto instantiate_assignment_fn = [&](expr const & e, unsigned offset) {
+                if (is_var(e)) {
+                    unsigned idx = var_idx(e) + offset;
+                    if (idx < m_assignment.size() && m_assignment[idx])
+                        return m_assignment[idx];
+                }
+                return none_expr();
+            };
+            buffer<expr_pair> constraints;
+            to_buffer(m_hint.get_constraints(), constraints);
+            for (expr_pair const & p : constraints) {
+                expr new_lhs = replace(p.first, instantiate_assignment_fn);
+                expr new_rhs = replace(p.second, instantiate_assignment_fn);
+                bool success = m_owner.is_def_eq(new_lhs, new_rhs);
+                lean_trace(name({"type_context", "unification_hint"}),
+                           scope_trace_env scope(m_owner.env(), m_owner);
+                           tout() << new_lhs << " =?= " << new_rhs << "..."
+                           << (success ? "success" : "failed") << "\n";);
+                if (!success) return false;
+            }
+            lean_trace(name({"type_context", "unification_hint"}),
+                       tout() << "hint successfully applied\n";);
+            return true;
+        }
+    }
+};
+
+bool try_unification_hint(type_context & o, unification_hint const & hint, expr const & lhs, expr const & rhs) {
+    return unification_hint_fn(o, hint)(lhs, rhs);
 }
 
 void initialize_unification_hint() {

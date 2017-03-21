@@ -2963,88 +2963,9 @@ bool type_context::relaxed_is_def_eq(expr const & e1, expr const & e2) {
     return is_def_eq(e1, e2);
 }
 
-class unification_hint_fn {
-    type_context &           m_owner;
-    unification_hint const & m_hint;
-    buffer<optional<expr>>   m_assignment;
-
-    bool match(expr const & pattern, expr const & e) {
-        unsigned idx;
-        switch (pattern.kind()) {
-        case expr_kind::Var:
-            idx = var_idx(pattern);
-            if (!m_assignment[idx]) {
-                m_assignment[idx] = some_expr(e);
-                return true;
-            } else {
-                return m_owner.is_def_eq(*m_assignment[idx], e);
-            }
-        case expr_kind::Constant:
-            return
-                is_constant(e) &&
-                const_name(pattern) == const_name(e) &&
-                m_owner.is_def_eq(const_levels(pattern), const_levels(e));
-        case expr_kind::Sort:
-            return is_sort(e) && m_owner.is_def_eq(sort_level(pattern), sort_level(e));
-        case expr_kind::Pi:    case expr_kind::Lambda:
-        case expr_kind::Macro: case expr_kind::Let:
-            // Remark: we do not traverse inside of binders.
-            return pattern == e;
-        case expr_kind::App:
-            return
-                is_app(e) &&
-                match(app_fn(pattern), app_fn(e)) &&
-                match(app_arg(pattern), app_arg(e));
-        case expr_kind::Local: case expr_kind::Meta:
-            lean_unreachable();
-        }
-        lean_unreachable();
-    }
-
-public:
-    unification_hint_fn(type_context & o, unification_hint const & hint):
-        m_owner(o), m_hint(hint) {
-        m_assignment.resize(m_hint.get_num_vars());
-    }
-
-    bool operator()(expr const & lhs, expr const & rhs) {
-        if (!match(m_hint.get_lhs(), lhs)) {
-            lean_trace(name({"type_context", "unification_hint"}), tout() << "LHS does not match\n";);
-            return false;
-        } else if (!match(m_hint.get_rhs(), rhs)) {
-            lean_trace(name({"type_context", "unification_hint"}), tout() << "RHS does not match\n";);
-            return false;
-        } else {
-            auto instantiate_assignment_fn = [&](expr const & e, unsigned offset) {
-                if (is_var(e)) {
-                    unsigned idx = var_idx(e) + offset;
-                    if (idx < m_assignment.size() && m_assignment[idx])
-                        return m_assignment[idx];
-                }
-                return none_expr();
-            };
-            buffer<expr_pair> constraints;
-            to_buffer(m_hint.get_constraints(), constraints);
-            for (expr_pair const & p : constraints) {
-                expr new_lhs = replace(p.first, instantiate_assignment_fn);
-                expr new_rhs = replace(p.second, instantiate_assignment_fn);
-                bool success = m_owner.is_def_eq(new_lhs, new_rhs);
-                lean_trace(name({"type_context", "unification_hint"}),
-                           scope_trace_env scope(m_owner.env(), m_owner);
-                           tout() << new_lhs << " =?= " << new_rhs << "..."
-                           << (success ? "success" : "failed") << "\n";);
-                if (!success) return false;
-            }
-            lean_trace(name({"type_context", "unification_hint"}),
-                       tout() << "hint successfully applied\n";);
-            return true;
-        }
-    }
-};
-
 bool type_context::try_unification_hint(unification_hint const & hint, expr const & e1, expr const & e2) {
     scope s(*this);
-    if (unification_hint_fn(*this, hint)(e1, e2) && process_postponed(s)) {
+    if (::lean::try_unification_hint(*this, hint, e1, e2) && process_postponed(s)) {
         s.commit();
         return true;
     } else {

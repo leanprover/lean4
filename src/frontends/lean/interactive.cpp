@@ -23,7 +23,7 @@ void interactive_report_type(environment const & env, options const & opts, expr
     type_context tc(env);
     if (g_context == break_at_pos_exception::token_context::interactive_tactic) {
         vm_state vm(env, options());
-        tactic_state s(env, opts, "_interactive_report_type", {}, {}, mk_true(), {});
+        tactic_state s = mk_tactic_state_for(env, opts, "_interactive_report_type", local_context(), mk_true());
         std::vector<std::string> params;
 
         for (expr d = e; is_pi(d); d = binding_body(d)) {

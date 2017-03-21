@@ -14,6 +14,9 @@ meta class has_quote (α : Type) :=
 @[inline] meta def quote {α : Type} [has_quote α] : α → pexpr :=
 has_quote.quote
 
+meta instance : has_quote bool :=
+⟨λ b, if b then ``(true) else ``(false)⟩
+
 meta instance : has_quote nat := ⟨pexpr.mk_prenum_macro⟩
 @[priority std.priority.default + 1]
 meta instance : has_quote string := ⟨pexpr.mk_string_macro⟩

@@ -258,19 +258,6 @@ This tactic is the inverse of `intro`.
 meta def revert (ids : parse ident*) : tactic unit :=
 do hs ← get_locals ids, revert_lst hs, skip
 
-/- Return (some a) iff p is of the form (- a) -/
-private meta def is_neg (p : pexpr) : option pexpr :=
-/- Remark: we use the low-level to_raw_expr and of_raw_expr to be able to
-   pattern match pre-terms. This is a low-level trick (aka hack). -/
-match pexpr.to_raw_expr p with
-| (app fn arg) :=
-  match fn^.erase_annotations with
-  | (const `neg _) := some (pexpr.of_raw_expr arg)
-  | _              := none
-  end
-| _            := none
-end
-
 private meta def resolve_name' (n : name) : tactic expr :=
 do {
   e ← resolve_name n,
@@ -292,56 +279,50 @@ match e with
 | _                     := i_to_expr p
 end
 
-private meta def maybe_save_info : option pos → tactic unit
-| (some p) := save_info p
-| none     := skip
+meta structure rw_rule :=
+(pos  : pos)
+(symm : bool)
+(rule : pexpr)
 
-private meta def symm_expr := bool × expr × option pos
+meta instance rw_rule_has_quote : has_quote rw_rule :=
+⟨λ ⟨p, s, r⟩, ``(rw_rule.mk %%(quote p) %%(quote s) %%(quote r))⟩
 
-private meta def to_symm_expr_list : list pexpr → tactic (list symm_expr)
-| []      := return []
-| (p::ps) :=
-  match is_neg p with
-  | some a :=  do r ← to_expr' a, rs ← to_symm_expr_list ps, return ((tt, r, pexpr.pos p) :: rs)
-  | none   :=  do r ← to_expr' p, rs ← to_symm_expr_list ps, return ((ff, r, pexpr.pos p) :: rs)
-  end
+private meta def rw_goal (m : transparency) (rs : list rw_rule) : tactic unit :=
+rs^.mfor' $ λ r, save_info r^.pos >> to_expr' r^.rule >>= rewrite_core m tt tt occurrences.all r^.symm
 
-private meta def rw_goal : transparency → list symm_expr → tactic unit
-| m []                   := return ()
-| m ((symm, e, pos)::es) := maybe_save_info pos >> rewrite_core m tt tt occurrences.all symm e >> rw_goal m es
+private meta def rw_hyp (m : transparency) (rs : list rw_rule) (hname : name) : tactic unit :=
+rs^.mfor' $ λ r,
+do h ← get_local hname,
+    save_info r^.pos,
+    e ← to_expr' r^.rule,
+    rewrite_at_core m tt tt occurrences.all r^.symm e h
 
-private meta def rw_hyp : transparency → list symm_expr → name → tactic unit
-| m []              hname := return ()
-| m ((symm, e, pos)::es) hname :=
-  do h ← get_local hname,
-     maybe_save_info pos,
-     rewrite_at_core m tt tt occurrences.all symm e h,
-     rw_hyp m es hname
+private meta def rw_hyps (m : transparency) (rs : list rw_rule) (hs : list name) : tactic unit :=
+hs^.mfor' (rw_hyp m rs)
 
-private meta def rw_hyps : transparency → list symm_expr → list name → tactic unit
-| m es  []      := return ()
-| m es  (h::hs) := rw_hyp m es h >> rw_hyps m es hs
+meta def rw_rule_p (ep : parser pexpr) : parser rw_rule :=
+rw_rule.mk <$> cur_pos <*> (option.is_some <$> (tk "-")?) <*> ep
 
 meta structure rw_rules_t :=
-(rules : list pexpr)
+(rules   : list rw_rule)
 (end_pos : option pos)
 
-meta instance : has_quote rw_rules_t :=
-⟨λ ⟨rs, p⟩, ``(rw_rules_t %%(quote rs) %%(quote p))⟩
+meta instance rw_rules_t_has_quote : has_quote rw_rules_t :=
+⟨λ ⟨rs, p⟩, ``(rw_rules_t.mk %%(quote rs) %%(quote p))⟩
 
 -- accepts the same content as `qexpr_list_or_texpr`, but with correct goal info pos annotations
 meta def rw_rules : parser rw_rules_t :=
 (tk "[" *>
- rw_rules_t.mk <$> sep_by (skip_info (tk ",")) (set_goal_info_pos (qexpr 0))
+ rw_rules_t.mk <$> sep_by (skip_info (tk ",")) (set_goal_info_pos $ rw_rule_p (qexpr 0))
                <*> (some <$> cur_pos <* set_goal_info_pos (tk "]")))
-<|> rw_rules_t.mk <$> (return <$> texpr) <*> return none
+<|> rw_rules_t.mk <$> (return <$> rw_rule_p texpr) <*> return none
 
-private meta def rw_core (m : transparency) (r : parse rw_rules) (loc : parse location) : tactic unit :=
-do hlist ← to_symm_expr_list r^.rules,
-   match loc with
-   | [] := rw_goal m hlist
-   | hs := rw_hyps m hlist hs
-   end >> try (reflexivity reducible) >> maybe_save_info r^.end_pos
+private meta def rw_core (m : transparency) (rs : parse rw_rules) (loc : parse location) : tactic unit :=
+match loc with
+| [] := rw_goal m rs^.rules
+| hs := rw_hyps m rs^.rules hs
+end >> try (reflexivity reducible)
+    >> (returnopt rs^.end_pos >>= save_info <|> skip)
 
 meta def rewrite : parse rw_rules → parse location → tactic unit :=
 rw_core reducible

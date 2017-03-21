@@ -386,4 +386,28 @@
       (lean-server-ensure-alive)
       (lean-server-sync-roi))))
 
+(defun lean-set-check-mode (mode)
+  (setq lean-server-check-mode mode)
+  (lean-server-sync-roi))
+
+(defun lean-check-nothing ()
+  "Check nothing"
+  (interactive)
+  (lean-set-check-mode 'nothing))
+
+(defun lean-check-visible-lines ()
+  "Check visible lines"
+  (interactive)
+  (lean-set-check-mode 'visible-lines))
+
+(defun lean-check-visible-files ()
+  "Check visible files"
+  (interactive)
+  (lean-set-check-mode 'visible-files))
+
+(defun lean-check-open-files ()
+  "Check visible files"
+  (interactive)
+  (lean-set-check-mode 'open-files))
+
 (provide 'lean-server)

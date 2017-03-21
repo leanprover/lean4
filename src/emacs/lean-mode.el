@@ -92,7 +92,7 @@
   "Keymap used in Lean mode")
 
 (defun lean-mk-check-menu-option (text sym)
-  `[,text (progn (setq lean-server-check-mode ',sym) (lean-server-sync-roi))
+  `[,text (lean-set-check-mode ',sym)
          :style radio :selected (eq lean-server-check-mode ',sym)])
 
 (easy-menu-define lean-mode-menu lean-mode-map
@@ -115,6 +115,7 @@
     ,(lean-mk-check-menu-option "Check nothing" 'nothing)
     ,(lean-mk-check-menu-option "Check visible lines" 'visible-lines)
     ,(lean-mk-check-menu-option "Check visible files" 'visible-files)
+    ,(lean-mk-check-menu-option "Check open files" 'open-files)
     "-----------------"
     ("Configuration"
      ["Show type at point"

@@ -206,6 +206,11 @@ gtask log_tree::node::get_producer() const {
     return m_ptr->m_producer;
 }
 
+bool log_tree::node::is_detached() const {
+    auto l = lock();
+    return m_ptr->m_detached;
+}
+
 void log_tree::node::print() const {
     print_to(std::cerr, 0);
 }

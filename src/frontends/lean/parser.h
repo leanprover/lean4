@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include <string>
 #include <utility>
 #include <vector>
-#include <util/cancellable.h>
 #include "util/flet.h"
 #include "util/name_map.h"
 #include "util/exception.h"
@@ -51,6 +50,7 @@ class parser : public abstract_parser {
     name_set                m_variables; // subset of m_local_decls that is marked as variables
     name_set                m_include_vars; // subset of m_local_decls that is marked as include
     bool                    m_imports_parsed;
+    bool                    m_scanner_inited = false;
     parser_scope_stack      m_parser_scope_stack;
     parser_scope_stack      m_quote_stack;
     bool                    m_in_quote;
@@ -64,9 +64,6 @@ class parser : public abstract_parser {
     // This flag is when we are trying to parse mutually recursive declarations.
     id_behavior             m_id_behavior;
 
-    // info support
-    snapshot_vector *       m_snapshot_vector;
-    cancellation_token      m_cancellation_token;
     optional<pos_info>      m_break_at_pos;
     // auto completing
     bool                    m_complete{false};
@@ -85,10 +82,8 @@ class parser : public abstract_parser {
     optional<std::string>  m_doc_string;
 
     void throw_parser_exception(char const * msg, pos_info p);
-    void throw_nested_exception(throwable const & ex);
 
     void sync_command();
-    void protected_call(std::function<void()> && f, std::function<void()> && sync);
 
     tag get_tag(expr e);
 
@@ -105,7 +100,7 @@ class parser : public abstract_parser {
 
     void process_imports();
     void parse_command();
-    void parse_commands();
+    bool parse_command_like();
     void process_postponed(buffer<expr> const & args, bool is_left, buffer<notation::action_kind> const & kinds,
                            buffer<list<expr>> const & nargs, buffer<expr> const & ps, buffer<pair<unsigned, pos_info>> const & scoped_info,
                            list<notation::action> const & postponed, pos_info const & p, buffer<expr> & new_args);
@@ -157,7 +152,6 @@ class parser : public abstract_parser {
     pair<optional<name>, expr> parse_id_tk_expr(name const & tk, unsigned rbp);
 
     friend environment section_cmd(parser & p);
-    friend environment context_cmd(parser & p);
     friend environment namespace_cmd(parser & p);
     friend environment end_scoped_cmd(parser & p);
 
@@ -168,16 +162,18 @@ class parser : public abstract_parser {
     void push_local_scope(bool save_options = true);
     void pop_local_scope();
 
-    void save_snapshot(pos_info);
-    void save_snapshot() { save_snapshot(m_scanner.get_pos_info()); }
+    std::shared_ptr<snapshot> mk_snapshot();
+
+    friend class module_parser;
 
 public:
     parser(environment const & env, io_state const & ios,
            module_loader const & import_fn,
            std::istream & strm, std::string const & file_name,
-           bool use_exceptions = false,
-           std::shared_ptr<snapshot const> const & s = {}, snapshot_vector * sv = nullptr);
+           bool use_exceptions = false);
     ~parser();
+
+    void init_scanner();
 
     void set_break_at_pos(pos_info const & pos) { m_break_at_pos = some(pos); }
     optional<pos_info> const & get_break_at_pos() const { return m_break_at_pos; }
@@ -476,9 +472,6 @@ public:
 
     /** return true iff profiling is enabled */
     bool profiling() const { return m_profile; }
-
-    /** parse all commands in the input stream */
-    void operator()() { return parse_commands(); }
 
     void get_imports(std::vector<module_name> &);
 

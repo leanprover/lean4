@@ -10,6 +10,7 @@ Authors: Gabriel Ebner, Leonardo de Moura, Sebastian Ullrich
 #include <vector>
 #include <algorithm>
 #include <clocale>
+#include "frontends/lean/module_parser.h"
 #include "library/library_task_builder.h"
 #include "util/lean_path.h"
 #include "util/sexpr/option_declarations.h"
@@ -467,41 +468,39 @@ server::cmd_res server::handle_sync(server::cmd_req const & req) {
     return { req.m_seq_num, res };
 }
 
-std::shared_ptr<snapshot> get_closest_snapshot(std::shared_ptr<module_info const> const & mod_info, pos_info p) {
-    auto ret = std::shared_ptr<snapshot const>();
-    if (auto res = peek(mod_info->m_result)) {
-        auto snapshots = res->m_snapshots;
-        if (snapshots.size()) {
-            ret = snapshots.front();
-            for (auto &snap : snapshots) {
-                if (snap->m_pos < p)
-                    ret = snap;
+optional<module_parser_result> get_closest_snapshot(std::shared_ptr<module_info const> const & mod_info, pos_info p) {
+    auto res = mod_info->m_snapshots;
+
+    while (res && res->m_next) {
+        if (auto next = peek(res->m_next)) {
+            if (next->m_range.m_end < p) {
+                res = next;
+            } else {
+                break;
             }
+        } else {
+            break;
         }
     }
-    if (ret) {
-        auto copy = std::make_shared<snapshot>(*ret);
-        copy->m_cancellation_token = nullptr;
-        return copy;
-    } else {
-        return nullptr;
-    }
+
+    return res;
 }
 
 void parse_breaking_at_pos(module_id const & mod_id, std::shared_ptr<module_info const> mod_info, pos_info pos,
                            bool complete = false) {
-    std::istringstream in(*mod_info->m_lean_contents);
     if (auto snap = get_closest_snapshot(mod_info, pos)) {
         // ignore messages from reparsing
         log_tree null;
         scope_log_tree scope_lt(null.get_root());
+        snap->m_lt = logtree();
+        snap->m_cancel = global_cancellation_token();
 
-        bool use_exceptions = true;
-        parser p(snap->m_env, get_global_ios(), mk_dummy_loader(), in, mod_id,
-                 use_exceptions, snap, nullptr);
-        p.set_break_at_pos(pos);
-        p.set_complete(complete);
-        p();
+        auto p = std::make_shared<module_parser>(mod_id, *mod_info->m_lean_contents, environment(), mk_dummy_loader());
+        p->save_info(false);
+        p->use_separate_tasks(false);
+        p->break_at_pos(pos, complete);
+
+        p->resume(*snap, {});
     }
 }
 
@@ -517,7 +516,7 @@ json server::autocomplete(std::shared_ptr<module_info const> const & mod_info, b
         try {
             parse_breaking_at_pos(mod_info->m_mod, mod_info, pos, true);
         } catch (break_at_pos_exception & e) {
-            report_completions(snap->m_env, snap->m_options, pos0, skip_completions, mod_info->m_mod.c_str(),
+            report_completions(snap->m_snapshot_at_end->m_env, snap->m_snapshot_at_end->m_options, pos0, skip_completions, mod_info->m_mod.c_str(),
                                e, j);
         } catch (throwable & ex) {}
     }
@@ -577,8 +576,8 @@ json server::info(std::shared_ptr<module_info const> const & mod_info, pos_info 
         auto opts = m_ios.get_options();
         auto env = m_initial_env;
         if (auto snap = get_closest_snapshot(mod_info, e.m_token_info.m_pos)) {
-            env = snap->m_env;
-            opts = snap->m_options;
+            env = snap->m_snapshot_at_end->m_env;
+            opts = snap->m_snapshot_at_end->m_options;
         }
         report_info(env, opts, m_ios, *mod_info, get_info_managers(m_lt), e, j);
     } catch (throwable & ex) {}

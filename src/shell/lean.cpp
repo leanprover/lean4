@@ -466,6 +466,10 @@ int main(int argc, char ** argv) {
         std::unique_ptr<std::ifstream> file_in;
         if (server_in) {
             file_in.reset(new std::ifstream(*server_in));
+            if (!file_in->is_open()) {
+                std::cerr << "cannot open file " << *server_in << std::endl;
+                return 1;
+            }
             std::cin.rdbuf(file_in->rdbuf());
         }
 

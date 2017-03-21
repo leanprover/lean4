@@ -104,6 +104,8 @@ public:
         name_set get_used_names() const;
         gtask get_producer() const;
 
+        bool is_detached() const;
+
         gtask wait_for_finish() const;
 
         void for_each(std::function<bool(node const & n)> const &) const; // NOLINT

@@ -58,7 +58,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/util.h"
 #include "frontends/lean/notation_cmd.h"
 #include "frontends/lean/parser_pos_provider.h"
-#include "frontends/lean/update_environment_exception.h"
 #include "frontends/lean/builtin_cmds.h"
 #include "frontends/lean/prenum.h"
 #include "frontends/lean/elaborator.h"
@@ -155,33 +154,15 @@ static name * g_tmp_prefix = nullptr;
 parser::parser(environment const & env, io_state const & ios,
                module_loader const & import_fn,
                std::istream & strm, std::string const & file_name,
-               bool use_exceptions,
-               std::shared_ptr<snapshot const> const & s, snapshot_vector * sv):
+               bool use_exceptions) :
     m_env(env), m_ios(ios),
     m_use_exceptions(use_exceptions),
     m_import_fn(import_fn),
     m_file_name(file_name),
-    m_scanner(strm, m_file_name.c_str(), s ? s->m_pos : pos_info(1, 0)),
-    m_imports_parsed(false),
-    m_snapshot_vector(sv),
-    m_cancellation_token(global_cancellation_token()) {
+    m_scanner(strm, m_file_name.c_str()),
+    m_imports_parsed(false) {
     m_next_inst_idx = 1;
     m_ignore_noncomputable = false;
-    if (s) {
-        m_env                = s->m_env;
-        m_ios.set_options(s->m_options);
-        s->m_sub_buckets.for_each([] (name const & n) { logtree().reuse(n); });
-        m_cancellation_token = s->m_cancellation_token;
-        m_local_level_decls  = s->m_lds;
-        m_local_decls        = s->m_eds;
-        m_level_variables    = s->m_lvars;
-        m_variables          = s->m_vars;
-        m_include_vars       = s->m_include_vars;
-        m_imports_parsed     = s->m_imports_parsed;
-        m_ignore_noncomputable = s->m_noncomputable_theory;
-        m_parser_scope_stack = s->m_parser_scope_stack;
-        m_next_inst_idx      = s->m_next_inst_idx;
-    }
     m_profile     = ios.get_options().get_bool("profiler", false);
     m_in_quote = false;
     m_in_pattern = false;
@@ -190,8 +171,6 @@ parser::parser(environment const & env, io_state const & ios,
     updt_options();
     m_next_tag_idx  = 0;
     m_curr = token_kind::Identifier;
-    protected_call([&]() { scan(); },
-                   [&]() { sync_command(); });
 }
 
 parser::~parser() {
@@ -254,35 +233,6 @@ void parser::updt_options() {
 
 void parser::throw_parser_exception(char const * msg, pos_info p) {
     throw parser_exception(msg, get_stream_name().c_str(), p);
-}
-
-void parser::throw_nested_exception(throwable const & ex) {
-    throw parser_nested_exception(std::shared_ptr<throwable>(ex.clone()));
-}
-
-#define CATCH(ShowError, ThrowError)                    \
-if (!m_use_exceptions && m_show_errors) { ShowError ; } \
-sync();                                                 \
-if (m_use_exceptions) { ThrowError ; }
-
-void parser::protected_call(std::function<void()> && f, std::function<void()> && sync) {
-    try {
-        try {
-            f();
-        } catch (update_environment_exception & ex) {
-            m_env = ex.get_env();
-            ex.get_exception().rethrow();
-        }
-    } catch (break_at_pos_exception &) {
-        throw;
-    } catch (parser_exception & ex) {
-        CATCH(report_message(ex), throw);
-    } catch (interrupted) {
-        throw;
-    } catch (throwable & ex) {
-        CATCH(mk_message(m_last_cmd_pos, ERROR).set_exception(ex).report(),
-              throw_nested_exception(ex));
-    }
 }
 
 void parser::sync_command() {
@@ -2176,6 +2126,7 @@ void parser::reset_doc_string() {
 #endif
 
 void parser::parse_imports(unsigned & fingerprint, std::vector<module_name> & imports) {
+    init_scanner();
     m_last_cmd_pos = pos();
     bool prelude     = false;
     if (curr_is_token(get_prelude_tk())) {
@@ -2303,78 +2254,55 @@ void parser::get_imports(std::vector<module_name> & imports) {
     parse_imports(fingerprint, imports);
 }
 
-void parser::parse_commands() {
-    protected_call([&]() {
-        // We disable hash-consing while parsing to make sure the pos-info are correct.
-        scoped_expr_caching disable(false);
-        scope_pos_info_provider scope1(*this);
-        try {
-            bool done = false;
-            // Only parse imports when we are at the beginning.
-            if (!m_imports_parsed) {
-                // initial snapshot strictly before actual input
-                save_snapshot({0, 0});
-                scope_cancellation_token scope_ctok(m_cancellation_token);
-                scope_log_tree lt("imports");
-                // TODO(gabriel): separate flag for snapshots/infos?
-                auto_reporting_info_manager_scope scope_infom(m_file_name, m_snapshot_vector != nullptr);
-                protected_call([&]() { process_imports(); }, [&]() { sync_command(); });
+bool parser::parse_command_like() {
+    init_scanner();
+
+    // We disable hash-consing while parsing to make sure the pos-info are correct.
+    scoped_expr_caching disable(false);
+    scope_pos_info_provider scope1(*this);
+
+    check_interrupted();
+
+    if (!m_imports_parsed) {
+        process_imports();
+        return false;
+    }
+
+    switch (curr()) {
+        case token_kind::CommandKeyword:
+            if (curr_is_token(get_end_tk())) {
+                check_no_doc_string();
             }
-            while (!done) {
-                save_snapshot();
-                scope_cancellation_token scope_ctok(m_cancellation_token);
-//                scoped_task_context scope_task_ctx(get_current_module(), pos());
-                scope_log_tree lt({}, {pos(), logtree().get_location().m_range.m_end});
-                // TODO(gabriel): separate flag for snapshots/infos?
-                auto_reporting_info_manager_scope scope_infom(m_file_name, m_snapshot_vector != nullptr);
-                protected_call([&]() {
-                                   check_interrupted();
-                                   switch (curr()) {
-                                       case token_kind::CommandKeyword:
-                                           if (curr_is_token(get_end_tk())) {
-                                               check_no_doc_string();
-                                           }
-                                           parse_command();
-                                           break;
-                                       case token_kind::DocBlock:
-                                           check_no_doc_string();
-                                           parse_doc_block();
-                                           break;
-                                       case token_kind::ModDocBlock:
-                                           check_no_doc_string();
-                                           parse_mod_doc_block();
-                                           break;
-                                       case token_kind::Eof:
-                                           check_no_doc_string();
-                                           done = true;
-                                           break;
-                                       case token_kind::Keyword:
-                                           check_no_doc_string();
-                                           if (curr_is_token(get_period_tk())) {
-                                               next();
-                                               break;
-                                           }
-                                       default:
-                                           throw parser_error("command expected", pos());
-                                   }
-                               },
-                               [&]() { sync_command(); });
-            }
-            {
-            scope_log_tree lt;
+            parse_command();
+            break;
+        case token_kind::DocBlock:
+            check_no_doc_string();
+            parse_doc_block();
+            break;
+        case token_kind::ModDocBlock:
+            check_no_doc_string();
+            parse_mod_doc_block();
+            break;
+        case token_kind::Eof:
+            check_no_doc_string();
             if (has_open_scopes(m_env)) {
                 if (!m_use_exceptions && m_show_errors)
                     (mk_message(ERROR) << "invalid end of module, expecting 'end'").report();
                 else if (m_use_exceptions)
                     throw_parser_exception("invalid end of module, expecting 'end'", pos());
             }
+            return true;
+            break;
+        case token_kind::Keyword:
+            check_no_doc_string();
+            if (curr_is_token(get_period_tk())) {
+                next();
+                break;
             }
-            save_snapshot();
-        } catch (interrupt_parser) {
-            while (has_open_scopes(m_env))
-                m_env = pop_scope_core(m_env, m_ios);
-        }
-    }, [](){});
+        default:
+            throw parser_error("command expected", pos());
+    }
+    return false;
 }
 
 bool parser::curr_is_command_like() const {
@@ -2391,20 +2319,11 @@ bool parser::curr_is_command_like() const {
     }
 }
 
-void parser::save_snapshot(pos_info p) {
-#ifdef LEAN_NO_SNAPSHOT
-    return;
-#endif
-    if (!m_snapshot_vector)
-        return;
-    if (m_snapshot_vector->empty() || m_snapshot_vector->back()->m_pos != p) {
-        m_snapshot_vector->push_back(std::make_shared<snapshot>(
-                m_env, logtree().get_used_names(), m_local_level_decls, m_local_decls,
-                m_level_variables, m_variables, m_include_vars,
-                m_ios.get_options(), m_imports_parsed, m_ignore_noncomputable, m_parser_scope_stack, m_next_inst_idx, p,
-                m_cancellation_token));
-    }
-    m_cancellation_token = mk_cancellation_token(m_cancellation_token);
+std::shared_ptr<snapshot> parser::mk_snapshot() {
+    return std::make_shared<snapshot>(
+            m_env, m_local_level_decls, m_local_decls,
+            m_level_variables, m_variables, m_include_vars,
+            m_ios.get_options(), m_imports_parsed, m_ignore_noncomputable, m_parser_scope_stack, m_next_inst_idx, pos());
 }
 
 optional<pos_info> parser::get_pos_info(expr const & e) const {
@@ -2431,6 +2350,13 @@ message_builder parser::mk_message(pos_info const &p, message_severity severity)
 }
 message_builder parser::mk_message(message_severity severity) {
     return mk_message(pos(), severity);
+}
+
+void parser::init_scanner() {
+    if (!m_scanner_inited) {
+        m_curr = m_scanner.scan(m_env); // same code as scan(), but without break-at-pos checking
+        m_scanner_inited = true;
+    }
 }
 
 bool parse_commands(environment & env, io_state & ios, char const * fname) {

@@ -38,7 +38,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/decl_util.h"
 #include "frontends/lean/decl_attributes.h"
 #include "frontends/lean/definition_cmds.h"
-#include "frontends/lean/update_environment_exception.h"
 
 // We don't display profiling information for declarations that take less than 0.01 secs
 #ifndef LEAN_PROFILE_THRESHOLD

@@ -649,12 +649,16 @@ scanner::scanner(std::istream & strm, char const * strm_name):
     m_pos = 0;
 }
 
-scanner::scanner(std::istream & strm, char const * strm_name, pos_info const & skip_to_pos) :
+scanner::scanner(std::istream & strm, char const * strm_name, pos_info const & pos) :
         scanner(strm, strm_name) {
-    for (unsigned line_no = 1; line_no < skip_to_pos.first; line_no++)
+    skip_to_pos(pos);
+}
+
+void scanner::skip_to_pos(pos_info const & pos) {
+    for (unsigned line_no = 1; line_no < pos.first; line_no++)
         fetch_line();
     m_line = m_sline;
-    for (unsigned col_idx = 0; col_idx < skip_to_pos.second; col_idx++)
+    for (unsigned col_idx = 0; col_idx < pos.second; col_idx++)
         next();
 }
 

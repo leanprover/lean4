@@ -9,6 +9,7 @@ Author: Gabriel Ebner
 #include <utility>
 #include <vector>
 #include <unordered_map>
+#include "frontends/lean/module_parser.h"
 #include "util/unit.h"
 #include "util/name.h"
 #include "kernel/environment.h"
@@ -42,14 +43,11 @@ struct module_info {
 
     struct parse_result {
         options               m_opts;
-
         std::shared_ptr<loaded_module const> m_loaded_module;
-
-        snapshot_vector m_snapshots;
     };
-
     task<parse_result> m_result;
-    snapshot_vector m_still_valid_snapshots;
+
+    optional<module_parser_result> m_snapshots;
 
     gtask m_olean_task;
 
@@ -89,8 +87,13 @@ class module_mgr {
 
     void mark_out_of_date(module_id const & id);
     void build_module(module_id const & id, bool can_use_olean, name_set module_stack);
+
     std::vector<module_name> get_direct_imports(module_id const & id, std::string const & contents);
-    void get_snapshots_core(module_id const & id, std::string const & contents, time_t mtime, snapshot_vector & vector);
+    std::shared_ptr<module_info> build_lean(module_id const & id, std::string const & contents, time_t mtime, name_set const & module_stack);
+    std::pair<cancellation_token, module_parser_result>
+    build_lean_snapshots(std::shared_ptr<module_parser> const & mod_parser,
+                         std::shared_ptr<module_info> const & old_mod, std::vector<gtask> const & deps,
+                         std::string const & contents);
 
 public:
     module_mgr(module_vfs * vfs, log_tree::node const & lt, environment const & initial_env, io_state const & ios) :
@@ -99,8 +102,6 @@ public:
     void invalidate(module_id const & id);
 
     std::shared_ptr<module_info const> get_module(module_id const &);
-
-    snapshot_vector get_snapshots(module_id const & id);
 
     void cancel_all();
 

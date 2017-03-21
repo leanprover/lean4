@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
+#include "frontends/lean/module_parser.h"
 #include "frontends/lean/parser.h"
 #include "api/string.h"
 #include "api/exception.h"
@@ -31,15 +32,16 @@ lean_bool lean_parse_commands(lean_env env, lean_ios ios, char const * str, lean
     check_nonnull(env);
     check_nonnull(ios);
     check_nonnull(str);
-    std::istringstream in(str);
     char const * strname = "[string]";
     environment _env     = to_env_ref(env);
     io_state    _ios     = to_io_state_ref(ios);
-    bool use_exceptions  = true;
-    parser p(_env, _ios, mk_dummy_loader(), in, strname, use_exceptions);
-    p();
-    *new_env = of_env(new environment(p.env()));
-    *new_ios = of_io_state(new io_state(p.ios()));
+    //    bool use_exceptions  = true; TODO(gabriel)
+    auto p = std::make_shared<module_parser>(strname, str, _env, mk_dummy_loader());
+    p->use_separate_tasks(false);
+    auto res = p->parse({});
+    while (res.m_next) res = get(res.m_next);
+    *new_env = of_env(new environment(res.m_snapshot_at_end->m_env));
+    *new_ios = of_io_state(new io_state(_ios, res.m_snapshot_at_end->m_options));
     LEAN_CATCH;
 }
 

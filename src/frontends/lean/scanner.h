@@ -84,7 +84,9 @@ protected:
 
 public:
     scanner(std::istream & strm, char const * strm_name = nullptr);
-    scanner(std::istream & strm, char const * strm_name, pos_info const & skip_to_pos);
+    scanner(std::istream & strm, char const * strm_name, pos_info const & pos);
+
+    void skip_to_pos(pos_info const &);
 
     int get_line() const { return m_line; }
     int get_pos() const { return m_pos; }

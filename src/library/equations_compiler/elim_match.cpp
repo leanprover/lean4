@@ -555,6 +555,17 @@ struct elim_match_fn {
         return false;
     }
 
+    /** Return true iff the next pattern of all equations is an inaccessible term */
+    bool all_inaccessible(problem const & P) const {
+        for (equation const & eqn : P.m_equations) {
+            lean_assert(eqn.m_patterns);
+            expr const & p = head(eqn.m_patterns);
+            if (!is_inaccessible(p))
+                return false;
+        }
+        return true;
+    }
+
     /* Return true iff the next pattern in some of the equations is an inaccessible term. */
     bool is_inaccessible_transition(problem const & P) const {
         return some_inaccessible(P);
@@ -927,34 +938,50 @@ struct elim_match_fn {
     }
 
     list<lemma> process_non_variable(problem const & P) {
-        trace_match(tout() << "step: filter equations using constructor\n";);
-        type_context ctx   = mk_type_context(P);
         expr p = head(P.m_var_stack);
         lean_assert(!is_local(p));
-        p      = whnf_constructor(ctx, p);
-        if (!is_constructor_app(p)) {
-            throw_error("dependent pattern matching result is not a constructor application "
-                        "(use 'set_option trace.eqn_compiler.elim_match true' "
-                        "for additional details)");
+        type_context ctx = mk_type_context(P);
+        if (all_inaccessible(P)) {
+            trace_match(tout() << "step: skip inaccessible patterns\n";);
+            problem new_P;
+            new_P.m_fn_name   = P.m_fn_name;
+            new_P.m_goal      = P.m_goal;
+            new_P.m_var_stack = tail(P.m_var_stack);
+            buffer<equation> new_eqns;
+            for (equation const & eqn : P.m_equations) {
+                equation new_eqn   = eqn;
+                new_eqn.m_patterns = tail(eqn.m_patterns);
+                new_eqns.push_back(new_eqn);
+            }
+            new_P.m_equations = to_list(new_eqns);
+            return process(new_P);
+        } else {
+            trace_match(tout() << "step: filter equations using constructor\n";);
+            p      = whnf_constructor(ctx, p);
+            if (!is_constructor_app(p)) {
+                throw_error("dependent pattern matching result is not a constructor application "
+                            "(use 'set_option trace.eqn_compiler.elim_match true' "
+                            "for additional details)");
+            }
+            expr p_type         = whnf_inductive(ctx, ctx.infer(p));
+            lean_assert(is_inductive_app(p_type));
+            name I_name         = const_name(get_app_fn(p_type));
+            unsigned I_nparams  = get_inductive_num_params(I_name);
+            buffer<expr> C_args;
+            expr const & C      = get_app_args(p, C_args);
+            list<equation> eqns = normalize_next_pattern(P.m_equations);
+            problem new_P;
+            new_P.m_fn_name     = P.m_fn_name;
+            new_P.m_goal        = P.m_goal;
+            buffer<expr> new_var_stack;
+            for (unsigned i = I_nparams; i < C_args.size(); i++) {
+                new_var_stack.push_back(whnf_constructor(ctx, C_args[i]));
+            }
+            to_buffer(tail(P.m_var_stack), new_var_stack);
+            new_P.m_var_stack   = to_list(new_var_stack);
+            new_P.m_equations   = get_equations_for(const_name(C), I_nparams, hsubstitution(), eqns);
+            return process(new_P);
         }
-        expr p_type         = whnf_inductive(ctx, ctx.infer(p));
-        lean_assert(is_inductive_app(p_type));
-        name I_name         = const_name(get_app_fn(p_type));
-        unsigned I_nparams  = get_inductive_num_params(I_name);
-        buffer<expr> C_args;
-        expr const & C      = get_app_args(p, C_args);
-        list<equation> eqns = normalize_next_pattern(P.m_equations);
-        problem new_P;
-        new_P.m_fn_name     = P.m_fn_name;
-        new_P.m_goal        = P.m_goal;
-        buffer<expr> new_var_stack;
-        for (unsigned i = I_nparams; i < C_args.size(); i++) {
-            new_var_stack.push_back(whnf_constructor(ctx, C_args[i]));
-        }
-        to_buffer(tail(P.m_var_stack), new_var_stack);
-        new_P.m_var_stack   = to_list(new_var_stack);
-        new_P.m_equations   = get_equations_for(const_name(C), I_nparams, hsubstitution(), eqns);
-        return process(new_P);
     }
 
     /* Create (f ... x) with the given arity, where the other arguments are inferred using

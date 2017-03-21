@@ -28,7 +28,7 @@ namespace lean {
     since some of the goals are discarded.
 
     \remark If unfold_ginductive is true, then we perform cases_on on the basic inductive datatype produced
-    by the kernel. That is, we used relaxed_whnf to expand generalized inductive datatypes.
+    by the kernel. That is, we use relaxed_whnf to expand generalized inductive datatypes.
 */
 pair<list<expr>, list<name>>
 cases(environment const & env, options const & opts, transparency_mode const & m, metavar_context & mctx,

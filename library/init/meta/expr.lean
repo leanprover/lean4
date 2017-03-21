@@ -16,6 +16,9 @@ instance : decidable_eq pos
   else is_false (λ contra, pos.no_confusion contra (λ e₁ e₂, absurd e₂ h₂))
 else is_false (λ contra, pos.no_confusion contra (λ e₁ e₂, absurd e₁ h₁))
 
+meta instance : has_to_format pos :=
+⟨λ ⟨l, c⟩, "⟨" ++ l ++ ", " ++ c ++ "⟩"⟩
+
 inductive binder_info
 | default | implicit | strict_implicit | inst_implicit | other
 

@@ -3,5 +3,8 @@ by rw [h₁,
        --^ "command": "info"
        -h₂,
      --^ "command": "info"
-       -h₁]
+       -h₁
        --^ "command": "info"
+    --^ "command": "info"
+      ]
+    --^ "command": "info"

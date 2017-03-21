@@ -26,7 +26,7 @@ variables {α β : Type}
 -- optimized pretty printer
 meta def brackets (l r : string) (p : parser α) := tk l *> p <* tk r
 
-meta def list_of (p : parser α) := brackets "[" "]" $ sep_by "," p
+meta def list_of (p : parser α) := brackets "[" "]" $ sep_by (skip_info (tk ",")) p
 
 /-- A 'tactic expression', which uses right-binding power 2 so that it is terminated by
     '<|>' (rbp 2), ';' (rbp 1), and ',' (rbp 0). It should be used for any (potentially)
@@ -63,6 +63,8 @@ private meta def parser_desc_aux : expr → tactic (list format)
 | ```(tk %%c) := return <$> to_fmt <$> eval_expr string c
 | ```(return ._) := return []
 | ```(._ <$> %%p) := parser_desc_aux p
+| ```(skip_info %%p) := parser_desc_aux p
+| ```(set_goal_info_pos %%p) := parser_desc_aux p
 | ```(%%p₁ <*> %%p₂) := do
   f₁ ← parser_desc_aux p₁,
   f₂ ← parser_desc_aux p₂,
@@ -82,9 +84,9 @@ private meta def parser_desc_aux : expr → tactic (list format)
   f ← parser_desc_aux p,
   return [maybe_paren f ++ "?"]
 | ```(sep_by %%sep %%p) := do
-  f ← parser_desc_aux p,
-  fs ← eval_expr string sep,
-  return [maybe_paren f ++ to_fmt fs, " ..."]
+  f₁ ← parser_desc_aux sep,
+  f₂ ← parser_desc_aux p,
+  return [maybe_paren f₂ ++ join f₁, " ..."]
 | ```(%%p₁ <|> %%p₂) := do
   f₁ ← parser_desc_aux p₁,
   f₂ ← parser_desc_aux p₂,
@@ -312,27 +314,29 @@ private meta def rw_hyps : transparency → list symm_expr → list name → tac
 | m es  []      := return ()
 | m es  (h::hs) := rw_hyp m es h >> rw_hyps m es hs
 
-private meta def rw_core (m : transparency) (hs : parse qexpr_list_or_texpr) (loc : parse location) : tactic unit :=
+meta def rw_rules := list_of (set_goal_info_pos (qexpr 0)) <|> return <$> texpr
+
+private meta def rw_core (m : transparency) (hs : parse rw_rules) (loc : parse location) : tactic unit :=
 do hlist ← to_symm_expr_list hs,
    match loc with
    | [] := rw_goal m hlist >> try (reflexivity reducible)
    | hs := rw_hyps m hlist hs >> try (reflexivity reducible)
    end
 
-meta def rewrite : parse qexpr_list_or_texpr → parse location → tactic unit :=
+meta def rewrite : parse rw_rules → parse location → tactic unit :=
 rw_core reducible
 
-meta def rw : parse qexpr_list_or_texpr → parse location → tactic unit :=
+meta def rw : parse rw_rules → parse location → tactic unit :=
 rewrite
 
 /- rewrite followed by assumption -/
-meta def rwa (q : parse qexpr_list_or_texpr) (l : parse location) : tactic unit :=
+meta def rwa (q : parse rw_rules) (l : parse location) : tactic unit :=
 rewrite q l >> try assumption
 
-meta def erewrite : parse qexpr_list_or_texpr → parse location → tactic unit :=
+meta def erewrite : parse rw_rules → parse location → tactic unit :=
 rw_core semireducible
 
-meta def erw : parse qexpr_list_or_texpr → parse location → tactic unit :=
+meta def erw : parse rw_rules → parse location → tactic unit :=
 erewrite
 
 private meta def get_type_name (e : expr) : tactic name :=

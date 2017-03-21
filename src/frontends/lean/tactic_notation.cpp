@@ -255,7 +255,9 @@ struct parse_tactic_fn {
             try {
                 r = parse_interactive_tactic(m_p, *dname, m_tac_class, m_use_rstep, m_report_error);
             } catch (break_at_pos_exception & e) {
-                if (!m_p.get_complete() && !e.m_token_info.m_token.size()) {
+                if (!m_p.get_complete() &&
+                    (!e.m_token_info.m_token.size() ||
+                     e.m_token_info.m_context == break_at_pos_exception::token_context::none)) {
                     e.m_token_info.m_pos       = pos;
                     e.m_token_info.m_token     = dname->get_string();
                     e.m_token_info.m_context   = break_at_pos_exception::token_context::interactive_tactic;

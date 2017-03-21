@@ -98,18 +98,8 @@ void report_info(environment const & env, options const & opts, io_state const &
     g_context = e.m_token_info.m_context;
     json record;
 
-    bool has_token_info = false;
-    if (e.m_token_info.m_context == break_at_pos_exception::token_context::interactive_tactic &&
-        e.m_token_info.m_token.size()) {
-        record = serialize_decl(e.m_token_info.m_token,
-                                get_interactive_tactic_full_name(e.m_token_info.m_tac_class, e.m_token_info.m_token),
-                                env, opts);
-        if (auto idx = e.m_token_info.m_tac_param_idx)
-            record["tactic_param_idx"] = *idx;
-        has_token_info = true;
-    }
-
     // info data not dependent on elaboration/info_manager
+    bool has_token_info = false;
     auto const & tk = e.m_token_info.m_token;
     if (tk.size()) {
         switch (e.m_token_info.m_context) {
@@ -131,6 +121,14 @@ void report_info(environment const & env, options const & opts, io_state const &
             case break_at_pos_exception::token_context::option:
                 if (auto it = get_option_declarations().find(tk))
                     record["doc"] = it->get_description();
+                break;
+            case break_at_pos_exception::token_context::interactive_tactic:
+                record = serialize_decl(e.m_token_info.m_token,
+                                        get_interactive_tactic_full_name(e.m_token_info.m_tac_class, e.m_token_info.m_token),
+                                        env, opts);
+                if (auto idx = e.m_token_info.m_tac_param_idx)
+                    record["tactic_param_idx"] = *idx;
+                has_token_info = true;
                 break;
             default:
                 break;

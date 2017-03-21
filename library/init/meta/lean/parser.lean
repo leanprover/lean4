@@ -30,6 +30,11 @@ meta constant tk (tk : string) : parser unit
     may contain antiquotations (`%%e`). -/
 meta constant qexpr (rbp := nat.of_num std.prec.max) : parser pexpr
 
+/-- Do not report info from content parsed by `p`. -/
+meta constant skip_info {α : Type} (p : parser α) : parser α
+/-- Set goal info position of content parsed by `p` to current position. Nested calls take precedence. -/
+meta constant set_goal_info_pos {α : Type} (p : parser α) : parser α
+
 /-- Return the current parser position without consuming any input. -/
 meta def cur_pos : parser pos := λ s, success (parser_state.cur_pos s) s
 
@@ -61,8 +66,8 @@ meta def {u v} many {f : Type u → Type v} [monad f] [alternative f] {a : Type 
 local postfix `?`:100 := optional
 local postfix * := many
 
-meta def sep_by {α : Type} : string → parser α → parser (list α)
-| s p := (list.cons <$> p <*> (tk s *> p)*) <|> return []
+meta def sep_by {α : Type} : parser unit → parser α → parser (list α)
+| s p := (list.cons <$> p <*> (s *> p)*) <|> return []
 
 end parser
 end lean

@@ -1,14 +1,14 @@
 The Lean Standard Library
 =========================
+(This documentation is partially out-of-date.)
 
 The Lean standard library is contained in the following files and directories:
 
-* [init](init/init.md) : constants and theorems needed for low-level system operations
-* [logic](logic/logic.md) : logical constructs and axioms
-* [data](data/data.md) : concrete datatypes and type constructors
-* [algebra](algebra/algebra.md) : algebraic structures
-* [theories](theories/theories.md) : more domain-specific theories
-* [tools](tools/tools.md) : additional tools
+* [init](init/) : constants and theorems needed for low-level system operations
+* [init/logic.lean](init/logic.lean) : logical constructs and axioms
+* [init/data](init/data/) : concrete datatypes and type constructors
+* [init/algebra](init/algebra/) : algebraic structures
+* [tools](tools/) : additional tools
 
 The files in `init` are loaded by default, and hence do not need to be
 imported manually.  Other files can be imported individually, but the
@@ -47,6 +47,3 @@ sparingly. For example:
 You can use `print axioms foo` to see which axioms `foo` depends
 on. Many of the theories in the `theories` folder are unreservedly
 classical.
-
-See also the [hott library](../hott/hott.md), a library for homotopy
-type theory based on a predicative foundation.

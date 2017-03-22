@@ -19,6 +19,7 @@ deg.equations._eqn_1 : ∀ (n : ℕ) (j : fi (succ n)), @deg (succ n) (@f0 (succ
 deg.equations._eqn_2 : ∀ (n : ℕ) (i : fi (succ n)), @deg (succ n) (@fs (succ n) i) (@f0 n) = @f0 (succ n)
 deg.equations._eqn_3 :
   ∀ (n : ℕ) (i : fi (succ n)) (j : fi n), @deg (succ n) (@fs (succ n) i) (@fs n j) = @fs (succ n) (@deg n i j)
-deg'.equations._eqn_1 : ∀ (n : ℕ), @deg' (succ n) (@f0 (succ n)) (@f0 n) = @fs (succ n) (@f0 n)
-deg'.equations._eqn_2 : ∀ (n : ℕ) (j : fi n), @deg' (succ n) (@f0 (succ n)) (@fs n j) = @fs (succ n) (@fs n j)
-deg'.equations._eqn_3 : ∀ (n : ℕ) (i : fi (succ n)), @deg' (succ n) (@fs (succ n) i) (@f0 n) = @f0 (succ n)
+deg'.equations._eqn_1 : ∀ (n : ℕ) (j : fi (succ n)), @deg' (succ n) (@f0 (succ n)) j = @fs (succ n) j
+deg'.equations._eqn_2 : ∀ (n : ℕ) (i : fi (succ n)), @deg' (succ n) (@fs (succ n) i) (@f0 n) = @f0 (succ n)
+deg'.equations._eqn_3 :
+  ∀ (n : ℕ) (i : fi (succ n)) (j : fi n), @deg' (succ n) (@fs (succ n) i) (@fs n j) = @fs (succ n) (@deg' n i j)

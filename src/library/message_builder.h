@@ -14,7 +14,6 @@ namespace lean {
 
 /** Buider for a message object.  Automatically reports the message on destruction. */
 class message_builder {
-    pos_info_provider const *              m_pos_info_provider;
     std::shared_ptr<abstract_type_context> m_tc;
     std::string                            m_file_name;
     pos_info                               m_pos;
@@ -24,8 +23,7 @@ class message_builder {
     io_state_stream                        m_text_stream;
 
 public:
-    message_builder(pos_info_provider const * provider,
-                    std::shared_ptr<abstract_type_context> const & tc,
+    message_builder(std::shared_ptr<abstract_type_context> const & tc,
                     environment const & env, io_state const & ios,
                     std::string const & file_name, pos_info const & pos,
                     message_severity severity);

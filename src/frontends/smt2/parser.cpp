@@ -708,7 +708,7 @@ public:
             return ok;
         } catch (throwable const & ex) {
             ok = false;
-            ::lean::message_builder(this, std::make_shared<type_context>(m_env, m_ios.get_options(), m_lctx),
+            ::lean::message_builder(std::make_shared<type_context>(m_env, m_ios.get_options(), m_lctx),
                                     m_env, m_ios, get_file_name(), get_some_pos(), ERROR)
                     .set_exception(ex).report();
         }

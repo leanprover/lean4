@@ -206,7 +206,7 @@ bool elaborator::try_report(std::exception const & ex, optional<expr> const & re
     if (!pip) return false;
 
     auto tc = std::make_shared<type_context>(m_env, m_opts, m_ctx.mctx(), m_ctx.lctx());
-    message_builder out(pip, tc, m_env, get_global_ios(), pip->get_file_name(),
+    message_builder out(tc, m_env, get_global_ios(), pip->get_file_name(),
                         ref ? pip->get_pos_info_or_some(*ref) : pip->get_some_pos(), ERROR);
     out.set_exception(ex);
     out.report();
@@ -3259,7 +3259,7 @@ void elaborator::report_error(tactic_state const & s, char const * state_header,
     auto tc = std::make_shared<type_context>(m_env, m_opts, m_ctx.mctx(), m_ctx.lctx());
     auto pip = get_pos_info_provider();
     if (!pip) return;
-    message_builder out(pip, tc, m_env, get_global_ios(), pip->get_file_name(),
+    message_builder out(tc, m_env, get_global_ios(), pip->get_file_name(),
                         pip->get_pos_info_or_some(ref), ERROR);
     out << msg << "\n" << state_header << "\n" << mk_pair(s.pp(), m_opts);
     out.report();

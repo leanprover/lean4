@@ -11,20 +11,18 @@ Author: Gabriel Ebner
 
 namespace lean {
 
-message_builder::message_builder(pos_info_provider const * provider,
-                                 std::shared_ptr<abstract_type_context> const & tc,
+message_builder::message_builder(std::shared_ptr<abstract_type_context> const & tc,
                                  environment const & env, io_state const & ios,
                                  std::string const & file_name, const pos_info & pos,
                                  message_severity severity) :
-    m_pos_info_provider(provider), m_tc(tc),
-    m_file_name(file_name), m_pos(pos), m_severity(severity),
+    m_tc(tc), m_file_name(file_name), m_pos(pos), m_severity(severity),
     m_caption(), m_text(std::make_shared<string_output_channel>()),
     m_text_stream(env, ios.get_formatter_factory()(env, ios.get_options(), *tc), m_text) {}
 
 message_builder::message_builder(environment const & env, io_state const & ios,
                                  std::string const & file_name, pos_info const & pos,
                                  message_severity severity) :
-        message_builder(nullptr, std::make_shared<type_context>(env, ios.get_options()),
+        message_builder(std::make_shared<type_context>(env, ios.get_options()),
                         env, ios, file_name, pos, severity) {}
 
 message message_builder::build() {

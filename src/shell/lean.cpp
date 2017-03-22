@@ -442,8 +442,7 @@ int main(int argc, char ** argv) {
             } catch (lean::exception & ex) {
                 ok = false;
                 type_context tc(env, ios.get_options());
-                simple_pos_info_provider pp(argv[i]);
-                lean::message_builder(&pp, std::make_shared<type_context>(env, ios.get_options()),
+                lean::message_builder(std::make_shared<type_context>(env, ios.get_options()),
                                       env, ios, argv[i], pos_info(1, 1), lean::ERROR)
                         .set_exception(ex).report();
             }

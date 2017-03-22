@@ -685,7 +685,7 @@ public:
             return inline_new_defs(m_decl_env, elab.env(), local_pp_name(m_fn), val);
         } catch (exception & ex) {
             /* Remark: we need the catch to be able to produce correct line information */
-            message_builder error_msg(&m_pos_provider, tc, m_decl_env, get_global_ios(),
+            message_builder error_msg(tc, m_decl_env, get_global_ios(),
                                       m_pos_provider.get_file_name(), m_pos_provider.get_some_pos(),
                                       ERROR);
             error_msg.set_exception(ex);
@@ -771,7 +771,7 @@ public:
                 throw std::exception(); // set parser to failed.
             }
         } catch (exception & ex) {
-            message_builder error_msg(&m_pos_provider, tc, m_decl_env, get_global_ios(),
+            message_builder error_msg(tc, m_decl_env, get_global_ios(),
                                       m_pos_provider.get_file_name(), m_pos_provider.get_some_pos(),
                                       ERROR);
             error_msg.set_exception(ex);

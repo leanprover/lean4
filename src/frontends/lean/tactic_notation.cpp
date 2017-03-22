@@ -564,7 +564,7 @@ vm_obj tactic_report_error(vm_obj const & line, vm_obj const & col, vm_obj const
     pos_info_provider * pip = get_pos_info_provider();
     if (pip) {
         std::shared_ptr<abstract_type_context> tc = std::make_shared<type_context>(mk_type_context_for(s));
-        message_builder out(pip, tc, s.env(), get_global_ios(), pip->get_file_name(), pos, ERROR);
+        message_builder out(tc, s.env(), get_global_ios(), pip->get_file_name(), pos, ERROR);
         out << mk_pair(to_format(fmt), s.get_options());
         out.report();
     }

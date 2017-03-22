@@ -42,10 +42,17 @@ void task_queue::execute(gtask const & t) {
     lean_always_assert(t->m_data->m_imp);
 
     try {
-        {
+        bool did_wait = true;
+        while (did_wait) {
+            did_wait = false;
             buffer<gtask> deps;
             t->m_data->m_imp->get_dependencies(deps);
-            for (auto & dep : deps) if (dep) wait_for_finish(dep);
+            for (auto & dep : deps) {
+                if (dep && !dep->peek_is_finished()) {
+                    did_wait = true;
+                    wait_for_finish(dep);
+                }
+            }
         }
 
         t->execute();

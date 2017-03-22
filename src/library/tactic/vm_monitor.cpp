@@ -435,7 +435,8 @@ void initialize_vm_monitor() {
     register_system_attribute(basic_attribute(
             "vm_monitor", "Registers a new virtual machine monitor. The annotated definition must be the of type "
                     "`vm_monitor S`. The command will override the last monitor.",
-            [](environment const & env, io_state const &, name const & n, unsigned, bool persistent) {
+            [](environment const & env, io_state const &, name const & n, unsigned, bool /* persistent */) {
+                /* Remark: We are currently ignoring the 'local' (i.e., persistent == false) modifier */
                 return vm_monitor_register(env, n);
             }));
 

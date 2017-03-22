@@ -994,7 +994,6 @@ rfl
 meta def control_laws_tac := whnf_target >> intros >> to_expr ``(rfl) >>= exact
 
 meta instance : monad task :=
-{map := @task.map, bind := @task.bind, pure := @task.pure}
-
-instance : monad list :=
-{map := @list.map, pure := @list.ret, bind := @list.bind}
+{map := @task.map, bind := @task.bind, pure := @task.pure,
+ id_map := undefined, pure_bind := undefined, bind_assoc := undefined,
+ bind_pure_comp_eq_map := undefined}

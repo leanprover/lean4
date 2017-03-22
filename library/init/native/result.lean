@@ -5,7 +5,7 @@ Authors: Jared Roesch
 -/
 prelude
 
-import init.meta.tactic
+import init.meta.interactive
 
 namespace native
 
@@ -22,7 +22,10 @@ def result.and_then {E T U : Type} : result E T → (T → result E U) → resul
 | (result.ok t) f := f t
 
 instance result_monad (E : Type) : monad (result E) :=
-{pure := @result.ok E, bind := @result.and_then E}
+{pure := @result.ok E, bind := @result.and_then E,
+ id_map := by intros; cases x; dsimp [result.and_then]; apply rfl,
+ pure_bind := by intros; apply rfl,
+ bind_assoc := by intros; cases x; simp [result.and_then]}
 
 inductive resultT (M : Type → Type) (E : Type) (A : Type) : Type
 | run : M (result E A) → resultT
@@ -43,7 +46,30 @@ section resultT
   end)
 
   instance resultT_monad [m : monad M] (E : Type) : monad (resultT M E) :=
-  {pure := @resultT.pure M m E, bind := @resultT.and_then M m E}
+  {pure := @resultT.pure M m E, bind := @resultT.and_then M m E,
+   id_map := begin
+     intros, cases x,
+     dsimp [resultT.and_then],
+     assert h : @resultT.and_then._match_1 _ m E α _ resultT.pure = pure,
+     { apply funext, intro x,
+       cases x; simp [resultT.and_then._match_1, resultT.pure, resultT.and_then._match_2] },
+     { rw [h, @monad.bind_pure _ (result E α) _] },
+   end,
+   pure_bind := begin
+     intros,
+     dsimp [resultT.pure, resultT.and_then, return, pure, bind],
+     rw [monad.pure_bind], dsimp [resultT.and_then._match_1],
+     cases f x, dsimp [resultT.and_then._match_2], apply rfl,
+   end,
+   bind_assoc := begin
+     intros,
+     cases x, dsimp [resultT.and_then, bind],
+     apply congr_arg, rw [monad.bind_assoc],
+     apply congr_arg, apply funext, intro,
+     cases x with e a; dsimp [resultT.and_then._match_1, pure],
+     { rw [monad.pure_bind], apply rfl },
+     { cases f a, apply rfl },
+   end}
 end resultT
 
 end native

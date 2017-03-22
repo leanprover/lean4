@@ -33,8 +33,7 @@ protected meta def failure {α} : lazy_tactic α :=
 λ s, nil
 
 meta instance : monad lazy_tactic :=
-{ pure := @lazy_tactic.return,
-  bind := @lazy_tactic.bind }
+unsafe_monad_from_pure_bind @lazy_tactic.return @lazy_tactic.bind
 
 meta instance : alternative lazy_tactic :=
 { lazy_tactic.monad with

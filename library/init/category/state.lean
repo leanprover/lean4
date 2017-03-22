@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.meta.tactic
+import init.meta.interactive
 universes u v
 
 def state (σ α : Type u) : Type u :=
@@ -20,7 +20,18 @@ variables {σ α β : Type u}
 λ s, match (a s) with (a', s') := b a' s' end
 
 instance (σ : Type u) : monad (state σ) :=
-{pure := @state_return σ, bind := @state_bind σ}
+{pure := @state_return σ, bind := @state_bind σ,
+ id_map := begin
+   intros, apply funext, intro s,
+   dsimp [state_bind], cases x s,
+   apply rfl
+ end,
+ pure_bind := by intros; apply rfl,
+ bind_assoc := begin
+   intros, apply funext, intro s,
+   dsimp [state_bind], cases x s,
+   apply rfl
+ end}
 end
 
 namespace state
@@ -54,7 +65,27 @@ section
 end
 
 instance (σ : Type u) (m : Type u → Type v) [monad m] : monad (state_t σ m) :=
-{pure := @state_t_return σ m _, bind := @state_t_bind σ m _}
+{pure := @state_t_return σ m _, bind := @state_t_bind σ m _,
+ id_map := begin
+   intros, apply funext, intro,
+   dsimp [state_t_bind, state_t_return],
+   assert h : state_t_bind._match_1 (λ (x : α) (s : σ), @return m _ _ (x, s)) = pure,
+   { apply funext, intro s, cases s, apply rfl },
+   { rw h, apply @monad.bind_pure _ σ },
+ end,
+ pure_bind := begin
+   intros, apply funext, intro,
+   dsimp [state_t_bind, state_t_return],
+   dsimp [return, pure, bind], -- TODO: fix signature of `pure_bind`
+   rw [monad.pure_bind], apply rfl
+ end,
+ bind_assoc := begin
+   intros, apply funext, intro s,
+   dsimp [state_t_bind, state_t_return, bind],
+   rw [monad.bind_assoc],
+   apply congr_arg, apply funext, intro r,
+   cases r, apply rfl
+ end}
 
 section
   variable  {σ : Type u}

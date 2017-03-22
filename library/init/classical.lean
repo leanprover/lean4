@@ -175,22 +175,6 @@ cases_true_false (λ x, x = false ∨ x = true)
   (or.inr rfl)
   (or.inl rfl)
   a
-
-theorem iff.to_eq {a b : Prop} (h : a ↔ b) : a = b :=
-iff.elim (assume h1 h2, propext (iff.intro h1 h2)) h
-
-theorem iff_eq_eq {a b : Prop} : (a ↔ b) = (a = b) :=
-propext (iff.intro
-  (assume h, iff.to_eq h)
-  (assume h, h^.to_iff))
-
-lemma eq_false {a : Prop} : (a = false) = (¬ a) :=
-have (a ↔ false) = (¬ a), from propext (iff_false a),
-eq.subst (@iff_eq_eq a false) this
-
-lemma eq_true {a : Prop} : (a = true) = a :=
-have (a ↔ true) = a, from propext (iff_true a),
-eq.subst (@iff_eq_eq a true) this
 end aux
 
 end classical

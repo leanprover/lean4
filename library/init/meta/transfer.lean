@@ -5,6 +5,7 @@ Author: Johannes Hölzl (CMU)
 -/
 prelude
 import init.meta.tactic init.meta.match_tactic init.relator init.meta.mk_dec_eq_instance
+import init.data.list.instances
 
 namespace transfer
 open tactic expr list monad

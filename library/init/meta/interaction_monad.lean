@@ -69,7 +69,9 @@ interaction_monad_bind t₁ (λ a, t₂)
 
 meta instance interaction_monad.monad : monad m :=
 {map := @interaction_monad_fmap, pure := @interaction_monad_return, bind := @interaction_monad_bind,
- map_const_eq := undefined, seq_left_eq := undefined, seq_right_eq := undefined}
+ map_const_eq := undefined, seq_left_eq := undefined, seq_right_eq := undefined,
+ id_map := undefined, pure_bind := undefined, bind_assoc := undefined,
+ bind_pure_comp_eq_map := undefined, bind_map_eq_seq := undefined}
 
 meta def interaction_monad.mk_exception {α : Type u} {β : Type v} [has_to_format β] (msg : β) (ref : option expr) (s : state) : result state α :=
 exception (some (λ _, to_fmt msg)) none s

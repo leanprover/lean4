@@ -70,7 +70,9 @@ protected meta def bind {α β : Type} (c₁ : conv α) (c₂ : α → conv β) 
 meta instance : monad conv :=
 { map  := @conv.map,
   pure := @conv.pure,
-  bind := @conv.bind }
+  bind := @conv.bind,
+  id_map := undefined, pure_bind := undefined, bind_assoc := undefined,
+  bind_pure_comp_eq_map := undefined, bind_map_eq_seq := undefined }
 
 meta instance : alternative conv :=
 { conv.monad with

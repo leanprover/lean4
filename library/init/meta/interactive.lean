@@ -40,7 +40,7 @@ meta def without_ident_list := (tk "without" *> ident*) <|> return []
 meta def location := (tk "at" *> ident*) <|> return []
 meta def qexpr_list := list_of (qexpr 0)
 meta def opt_qexpr_list := qexpr_list <|> return []
-meta def qexpr_list_or_texpr := qexpr_list <|> return <$> texpr
+meta def qexpr_list_or_texpr := qexpr_list <|> list.ret <$> texpr
 end types
 
 /-- Use `desc` as the interactive description of `p`. -/
@@ -66,13 +66,13 @@ private meta def parser_desc_aux : expr → tactic (list format)
 | ```(ident)  := return ["id"]
 | ```(ident_) := return ["id"]
 | ```(qexpr) := return ["expr"]
-| ```(tk %%c) := return <$> to_fmt <$> eval_expr string c
+| ```(tk %%c) := list.ret <$> to_fmt <$> eval_expr string c
 | ```(cur_pos) := return []
 | ```(return ._) := return []
 | ```(._ <$> %%p) := parser_desc_aux p
 | ```(skip_info %%p) := parser_desc_aux p
 | ```(set_goal_info_pos %%p) := parser_desc_aux p
-| ```(with_desc %%desc %%p) := return <$> eval_expr format desc
+| ```(with_desc %%desc %%p) := list.ret <$> eval_expr format desc
 | ```(%%p₁ <*> %%p₂) := do
   f₁ ← parser_desc_aux p₁,
   f₂ ← parser_desc_aux p₂,
@@ -306,7 +306,7 @@ meta def rw_rules : parser rw_rules_t :=
 (tk "[" *>
  rw_rules_t.mk <$> sep_by (skip_info (tk ",")) (set_goal_info_pos $ rw_rule_p (qexpr 0))
                <*> (some <$> cur_pos <* set_goal_info_pos (tk "]")))
-<|> rw_rules_t.mk <$> (return <$> rw_rule_p texpr) <*> return none
+<|> rw_rules_t.mk <$> (list.ret <$> rw_rule_p texpr) <*> return none
 
 private meta def rw_core (m : transparency) (rs : parse rw_rules) (loc : parse location) : tactic unit :=
 match loc with

@@ -4,14 +4,49 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
+import init.data.list.lemmas
 import init.meta.mk_dec_eq_instance
 open list
 
 universes u v
 
+section
+variables {α : Type u} {β : Type v} (x : α) (xs ys : list α) (f : α → list β)
+
+private lemma cons_bind : list.bind (x :: xs) f = f x ++ list.bind xs f :=
+by dsimp [list.bind, join]; apply rfl
+
+private lemma append_bind : list.bind (xs ++ ys) f = list.bind xs f ++ list.bind ys f :=
+begin
+  induction xs with x xs ih,
+  { apply rfl },
+  { simp [cons_bind, ih] },
+end
+end
+
+instance : monad list :=
+{pure := @list.ret, bind := @list.bind,
+ id_map := begin
+   intros _ xs, induction xs with x xs ih,
+   { apply rfl },
+   { dsimp [list.bind, map, join, ret, append, list.append],
+     dsimp [list.bind, map, join, ret] at ih,
+     rw ih }
+ end,
+ pure_bind := begin
+   intros,
+   dsimp [list.bind, ret, map, join],
+   apply append_nil
+ end,
+ bind_assoc := begin
+   intros _ _ _ xs _ _, induction xs with x xs ih,
+   { apply rfl },
+   { simp [cons_bind, append_bind, ih] },
+ end}
+
 instance : alternative list :=
 { list.monad with
-  failure := @nil,
+  failure := @list.nil,
   orelse  := @list.append }
 
 instance {α : Type u} [decidable_eq α] : decidable_eq (list α) :=

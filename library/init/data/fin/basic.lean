@@ -10,6 +10,9 @@ structure fin (n : nat) := (val : nat) (is_lt : val < n)
 
 namespace fin
 
+def {u} elim0 {α : Type u} : fin 0 → α
+| ⟨_, h⟩ := absurd h (not_lt_zero _)
+
 variable {n : nat}
 
 lemma eq_of_veq : ∀ {i j : fin n}, (val i) = (val j) → i = j

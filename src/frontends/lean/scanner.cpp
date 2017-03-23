@@ -646,6 +646,7 @@ scanner::scanner(std::istream & strm, char const * strm_name):
     m_last_line = false;
     fetch_line();
     m_line = m_sline;
+    m_pos = 0;
 }
 
 scanner::scanner(std::istream & strm, char const * strm_name, pos_info const & skip_to_pos) :

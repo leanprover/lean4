@@ -206,10 +206,22 @@ static environment variable_cmd_core(parser & p, variable_kind k, decl_modifiers
                 p.next();
                 type = p.parse_expr();
             } else if (p.curr_is_token(get_rbracket_tk())) {
-                /* annotation update: variable [decA] */
-                p.parse_close_binder_info(bi);
-                update_local_binder_info(p, k, n, bi, pos);
-                return p.env();
+                /*
+                  annotation update: variable [decA]
+                  or
+                  parameter-less anonymous local instance : variable [io.interface]
+                */
+                auto it = p.get_local(n);
+                if (it && is_local(*it)) {
+                    // annotation update: variable [decA]
+                    p.parse_close_binder_info(bi);
+                    update_local_binder_info(p, k, n, bi, pos);
+                    return p.env();
+                } else {
+                    // parameter-less anonymous local instance : variable [io.interface]
+                    type = p.id_to_expr(n, n_pos);
+                    n    = p.mk_anonymous_inst_name();
+                }
             } else {
                 /* anonymous : variable [decidable A] */
                 expr left    = p.id_to_expr(n, n_pos);

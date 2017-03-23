@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm.h"
 namespace lean {
 vm_obj mk_io_result(vm_obj const & r);
-vm_obj run_io(vm_state & s, vm_obj const & io);
+vm_obj mk_io_interface();
 /* The io monad produces a result object, or an error.
    If `o` is a result, then we return the result value. */
 optional<vm_obj> is_io_result(vm_obj const & o);

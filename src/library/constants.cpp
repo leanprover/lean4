@@ -16,7 +16,6 @@ name const * g_and_elim_left = nullptr;
 name const * g_and_elim_right = nullptr;
 name const * g_and_intro = nullptr;
 name const * g_andthen = nullptr;
-name const * g_applicative_pure = nullptr;
 name const * g_auto_param = nullptr;
 name const * g_bit0 = nullptr;
 name const * g_bit1 = nullptr;
@@ -82,7 +81,6 @@ name const * g_funext = nullptr;
 name const * g_ge = nullptr;
 name const * g_gt = nullptr;
 name const * g_has_add = nullptr;
-name const * g_has_bind_bind = nullptr;
 name const * g_has_bind_and_then = nullptr;
 name const * g_has_bind_seq = nullptr;
 name const * g_has_div = nullptr;
@@ -159,6 +157,7 @@ name const * g_interactive_param_desc = nullptr;
 name const * g_interactive_parse = nullptr;
 name const * g_inv = nullptr;
 name const * g_io = nullptr;
+name const * g_io_interface = nullptr;
 name const * g_is_associative = nullptr;
 name const * g_is_associative_assoc = nullptr;
 name const * g_is_commutative = nullptr;
@@ -177,7 +176,6 @@ name const * g_lt = nullptr;
 name const * g_match_failed = nullptr;
 name const * g_mod = nullptr;
 name const * g_monad = nullptr;
-name const * g_monad_bind = nullptr;
 name const * g_monad_fail = nullptr;
 name const * g_monoid = nullptr;
 name const * g_mul = nullptr;
@@ -389,7 +387,6 @@ void initialize_constants() {
     g_and_elim_right = new name{"and", "elim_right"};
     g_and_intro = new name{"and", "intro"};
     g_andthen = new name{"andthen"};
-    g_applicative_pure = new name{"applicative", "pure"};
     g_auto_param = new name{"auto_param"};
     g_bit0 = new name{"bit0"};
     g_bit1 = new name{"bit1"};
@@ -455,7 +452,6 @@ void initialize_constants() {
     g_ge = new name{"ge"};
     g_gt = new name{"gt"};
     g_has_add = new name{"has_add"};
-    g_has_bind_bind = new name{"has_bind", "bind"};
     g_has_bind_and_then = new name{"has_bind", "and_then"};
     g_has_bind_seq = new name{"has_bind", "seq"};
     g_has_div = new name{"has_div"};
@@ -532,6 +528,7 @@ void initialize_constants() {
     g_interactive_parse = new name{"interactive", "parse"};
     g_inv = new name{"inv"};
     g_io = new name{"io"};
+    g_io_interface = new name{"io", "interface"};
     g_is_associative = new name{"is_associative"};
     g_is_associative_assoc = new name{"is_associative", "assoc"};
     g_is_commutative = new name{"is_commutative"};
@@ -550,7 +547,6 @@ void initialize_constants() {
     g_match_failed = new name{"match_failed"};
     g_mod = new name{"mod"};
     g_monad = new name{"monad"};
-    g_monad_bind = new name{"monad", "bind"};
     g_monad_fail = new name{"monad_fail"};
     g_monoid = new name{"monoid"};
     g_mul = new name{"mul"};
@@ -763,7 +759,6 @@ void finalize_constants() {
     delete g_and_elim_right;
     delete g_and_intro;
     delete g_andthen;
-    delete g_applicative_pure;
     delete g_auto_param;
     delete g_bit0;
     delete g_bit1;
@@ -829,7 +824,6 @@ void finalize_constants() {
     delete g_ge;
     delete g_gt;
     delete g_has_add;
-    delete g_has_bind_bind;
     delete g_has_bind_and_then;
     delete g_has_bind_seq;
     delete g_has_div;
@@ -906,6 +900,7 @@ void finalize_constants() {
     delete g_interactive_parse;
     delete g_inv;
     delete g_io;
+    delete g_io_interface;
     delete g_is_associative;
     delete g_is_associative_assoc;
     delete g_is_commutative;
@@ -924,7 +919,6 @@ void finalize_constants() {
     delete g_match_failed;
     delete g_mod;
     delete g_monad;
-    delete g_monad_bind;
     delete g_monad_fail;
     delete g_monoid;
     delete g_mul;
@@ -1136,7 +1130,6 @@ name const & get_and_elim_left_name() { return *g_and_elim_left; }
 name const & get_and_elim_right_name() { return *g_and_elim_right; }
 name const & get_and_intro_name() { return *g_and_intro; }
 name const & get_andthen_name() { return *g_andthen; }
-name const & get_applicative_pure_name() { return *g_applicative_pure; }
 name const & get_auto_param_name() { return *g_auto_param; }
 name const & get_bit0_name() { return *g_bit0; }
 name const & get_bit1_name() { return *g_bit1; }
@@ -1202,7 +1195,6 @@ name const & get_funext_name() { return *g_funext; }
 name const & get_ge_name() { return *g_ge; }
 name const & get_gt_name() { return *g_gt; }
 name const & get_has_add_name() { return *g_has_add; }
-name const & get_has_bind_bind_name() { return *g_has_bind_bind; }
 name const & get_has_bind_and_then_name() { return *g_has_bind_and_then; }
 name const & get_has_bind_seq_name() { return *g_has_bind_seq; }
 name const & get_has_div_name() { return *g_has_div; }
@@ -1279,6 +1271,7 @@ name const & get_interactive_param_desc_name() { return *g_interactive_param_des
 name const & get_interactive_parse_name() { return *g_interactive_parse; }
 name const & get_inv_name() { return *g_inv; }
 name const & get_io_name() { return *g_io; }
+name const & get_io_interface_name() { return *g_io_interface; }
 name const & get_is_associative_name() { return *g_is_associative; }
 name const & get_is_associative_assoc_name() { return *g_is_associative_assoc; }
 name const & get_is_commutative_name() { return *g_is_commutative; }
@@ -1297,7 +1290,6 @@ name const & get_lt_name() { return *g_lt; }
 name const & get_match_failed_name() { return *g_match_failed; }
 name const & get_mod_name() { return *g_mod; }
 name const & get_monad_name() { return *g_monad; }
-name const & get_monad_bind_name() { return *g_monad_bind; }
 name const & get_monad_fail_name() { return *g_monad_fail; }
 name const & get_monoid_name() { return *g_monoid; }
 name const & get_mul_name() { return *g_mul; }

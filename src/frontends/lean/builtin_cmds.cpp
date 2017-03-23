@@ -11,7 +11,9 @@ Author: Leonardo de Moura
 #include "util/sexpr/option_declarations.h"
 #include "kernel/type_checker.h"
 #include "kernel/replace_fn.h"
+#include "kernel/find_fn.h"
 #include "kernel/instantiate.h"
+#include "kernel/abstract.h"
 #include "library/scoped_ext.h"
 #include "library/trace.h"
 #include "library/aliases.h"
@@ -425,15 +427,29 @@ static void eval_core(vm_state & s, name const & main, bool is_io) {
     vm_decl d = *s.get_decl(main);
     if (!is_io && d.get_arity() > 0)
         throw exception("eval result is a function");
+    if (is_io) {
+        s.push(mk_vm_simple(0)); // "world state"
+        s.push(mk_io_interface());
+    }
     s.invoke_fn(main);
     if (is_io) {
-        vm_obj io = s.top();
-        vm_obj r = run_io(s, io);
+        if (d.get_arity() == 1) {
+            /* main returned a closure, it did not process initial_state yet.
+               So, we force the execution. */
+            s.apply();
+        }
+        vm_obj r = s.top();
         if (optional<vm_obj> error = is_io_error(r)) {
             std::string msg = io_error_to_string(*error);
             throw exception(msg);
         }
     }
+}
+
+static optional<expr> find_io_interface_local(expr const & e) {
+    return find(e, [&](expr const & e, unsigned) {
+            return is_local(e) && is_constant(mlocal_type(e), get_io_interface_name());
+        });
 }
 
 static environment eval_cmd(parser & p) {
@@ -447,6 +463,14 @@ static environment eval_cmd(parser & p) {
     expr type  = type0; // TODO(Leo): tc.whnf(type0);
     bool is_io = is_constant(get_app_fn(type), get_io_name());
     bool is_string = false;
+    if (optional<expr> io_interface = find_io_interface_local(e)) {
+        if (!is_io)
+            throw parser_error("invalid eval command, it depends on io.interface local variable, but it is not an io action", pos);
+        e    = Fun(*io_interface, e);
+        type = Pi(*io_interface, type);
+    } else if (is_io) {
+        throw parser_error("invalid eval command, failed to locate io.interface local variable", pos);
+    }
     if (!is_io) {
         /* Check if resultant type has an instance of has_to_string */
         try {

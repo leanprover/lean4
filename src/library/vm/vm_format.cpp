@@ -86,7 +86,7 @@ vm_obj format_to_string(vm_obj const & fmt, vm_obj const & opts) {
     return to_obj(out.str());
 }
 
-vm_obj format_print_using(vm_obj const & fmt, vm_obj const & opts, vm_obj const &, vm_obj const &) {
+vm_obj format_print_using(vm_obj const & /* io.interface */, vm_obj const & fmt, vm_obj const & opts, vm_obj const & /* state */) {
     std::cout << mk_pair(to_format(fmt), to_options(opts));
     return mk_io_result(mk_vm_unit());
 }

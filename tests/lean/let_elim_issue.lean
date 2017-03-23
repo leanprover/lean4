@@ -1,4 +1,5 @@
 import system.io
+variable [io.interface]
 open io
 def tst : io unit :=
    put_str "hello\n"

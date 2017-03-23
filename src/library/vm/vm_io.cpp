@@ -91,15 +91,16 @@ static vm_obj fs_get_line(vm_obj const &, vm_obj const &) {
 }
 
 /*
-(mk_file_handle : string → io.mode → bool → m io.error io.handle)
-(file_size      : io.handle → m io.error nat)
-(is_eof         : io.handle → m io.error bool)
-(look_ahead     : io.handle → m io.error char)
-(flush          : io.handle → m io.error unit)
-(close          : io.handle → m io.error unit)
-(read           : io.handle → nat → m io.error char_buffer)
-(write          : io.handle → char_buffer → m io.error unit)
-(get_line       : io.handle → m io.error char_buffer)
+(handle         : Type)
+(mk_file_handle : string → io.mode → bool → m io.error handle)
+(file_size      : handle → m io.error nat)
+(is_eof         : handle → m io.error bool)
+(look_ahead     : handle → m io.error char)
+(flush          : handle → m io.error unit)
+(close          : handle → m io.error unit)
+(read           : handle → nat → m io.error char_buffer)
+(write          : handle → char_buffer → m io.error unit)
+(get_line       : handle → m io.error char_buffer)
 */
 static vm_obj mk_fs() {
     vm_obj fields[9] = {
@@ -158,9 +159,9 @@ structure io.interface :=
 (term     : io.terminal m)
 (fs       : io.file_system m)
 */
-static vm_obj mk_io_interface() {
+vm_obj mk_io_interface() {
     vm_obj fields[7] = {
-        mk_native_closure(io_m),
+        mk_native_closure(io_m), /* TODO(Leo): delete after we improve code generator */
         mk_native_closure(io_return),
         mk_native_closure(io_bind),
         mk_native_closure(io_catch),
@@ -169,11 +170,6 @@ static vm_obj mk_io_interface() {
         mk_fs()
     };
     return mk_vm_constructor(0, 7, fields);
-}
-
-vm_obj run_io(vm_state & s, vm_obj const & io) {
-    scope_vm_state scope(s);
-    return invoke(io, mk_io_interface(), mk_vm_unit());
 }
 
 optional<vm_obj> is_io_result(vm_obj const & o) {

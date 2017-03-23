@@ -16,7 +16,6 @@ run_cmd script_check_id `and.elim_left
 run_cmd script_check_id `and.elim_right
 run_cmd script_check_id `and.intro
 run_cmd script_check_id `andthen
-run_cmd script_check_id `applicative.pure
 run_cmd script_check_id `auto_param
 run_cmd script_check_id `bit0
 run_cmd script_check_id `bit1
@@ -82,7 +81,6 @@ run_cmd script_check_id `funext
 run_cmd script_check_id `ge
 run_cmd script_check_id `gt
 run_cmd script_check_id `has_add
-run_cmd script_check_id `has_bind.bind
 run_cmd script_check_id `has_bind.and_then
 run_cmd script_check_id `has_bind.seq
 run_cmd script_check_id `has_div
@@ -159,6 +157,7 @@ run_cmd script_check_id `interactive.param_desc
 run_cmd script_check_id `interactive.parse
 run_cmd script_check_id `inv
 run_cmd script_check_id `io
+run_cmd script_check_id `io.interface
 run_cmd script_check_id `is_associative
 run_cmd script_check_id `is_associative.assoc
 run_cmd script_check_id `is_commutative
@@ -177,7 +176,6 @@ run_cmd script_check_id `lt
 run_cmd script_check_id `match_failed
 run_cmd script_check_id `mod
 run_cmd script_check_id `monad
-run_cmd script_check_id `monad.bind
 run_cmd script_check_id `monad_fail
 run_cmd script_check_id `monoid
 run_cmd script_check_id `mul

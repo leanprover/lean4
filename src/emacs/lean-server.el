@@ -216,12 +216,20 @@
           (cons beg (point)))))))
 
 (defface lean-server-task-face
-  '((((class color) (background light))
-     :background "navajo white")
-    (((class color) (background dark))
-     :background "salmon4")
-    (t :inverse-video t))
+  nil
   "Face to highlight pending Lean tasks."
+  :group 'lean)
+
+(define-fringe-bitmap 'lean-server-fringe-bitmap
+  (vector) 16 8)
+
+(defface lean-server-task-fringe-face
+  '((((class color) (background light))
+     :background "chocolate1")
+    (((class color) (background dark))
+     :background "navajo white")
+    (t :inverse-video t))
+  "Face to highlight the fringe of pending Lean tasks."
   :group 'lean)
 
 (defun lean-server-update-task-overlays ()
@@ -236,6 +244,9 @@
                    (ov (make-overlay (car reg) (cdr reg))))
               (setq lean-server-task-overlays (cons ov lean-server-task-overlays))
               (overlay-put ov 'face 'lean-server-task-face)
+              (overlay-put ov 'line-prefix
+                           (propertize " " 'display
+                                       '(left-fringe lean-server-fringe-bitmap lean-server-task-fringe-face)))
               (overlay-put ov 'help-echo (format "%s..." (plist-get task :desc)))))))))
 
 (defun lean-server-toggle-show-pending-tasks ()

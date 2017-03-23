@@ -88,7 +88,7 @@ false (nil)."
   :group 'lean
   :type 'boolean)
 
-(defcustom lean-server-show-pending-tasks nil
+(defcustom lean-server-show-pending-tasks t
   "Highlights pending tasks in the current buffer."
   :group 'lean
   :type 'boolean)

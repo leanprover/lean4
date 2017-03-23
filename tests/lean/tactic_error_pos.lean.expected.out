@@ -1,0 +1,68 @@
+tactic_error_pos.lean:3:9: error: invalid type ascription, expression has type
+  ?m_1 ∨ ?m_2
+but is expected to have type
+  p ∧ q
+state:
+p q : Prop,
+h1 : p,
+h2 : q
+⊢ p ∧ q
+tactic_error_pos.lean:9:19: error: don't know how to synthesize placeholder
+state:
+p q : Prop,
+h1 : p,
+h2 : q
+⊢ p
+tactic_error_pos.lean:15:29: error: don't know how to synthesize placeholder
+state:
+p q : Prop,
+h1 : p,
+h2 : q
+⊢ p
+tactic_error_pos.lean:23:0: error: tactic failed, there are unsolved goals
+state:
+p q : Prop,
+h1 : p,
+h2 : q
+⊢ p
+
+p q : Prop,
+h1 : p,
+h2 : q
+⊢ q
+tactic_error_pos.lean:29:0: error: tactic failed, there are unsolved goals
+state:
+p q : Prop,
+h1 : p,
+h2 : q
+⊢ p ∧ q
+tactic_error_pos.lean:35:0: error: tactic failed, there are unsolved goals
+state:
+p q : Prop,
+h1 : p,
+h2 : q
+⊢ p ∧ q
+tactic_error_pos.lean:43:2: error: invalid apply tactic, failed to unify
+  p ∧ q
+with
+  ?m_1 ∨ ?m_2
+state:
+p q : Prop,
+h1 : p,
+h2 : q
+⊢ p ∧ q
+
+p q : Prop,
+h1 : p,
+h2 : q
+⊢ Prop
+
+p q : Prop,
+h1 : p,
+h2 : q
+⊢ Prop
+
+p q : Prop,
+h1 : p,
+h2 : q
+⊢ ?m_1

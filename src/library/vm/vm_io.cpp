@@ -204,7 +204,7 @@ static vm_obj fs_get_line(vm_obj const & h, vm_obj const &) {
             clearerr(href->m_handle);
             return mk_io_failure("get_line failed");
         }
-        if(c == EOF)
+        if (c == EOF)
             break;
         r.push_back(mk_vm_simple(static_cast<unsigned char>(static_cast<char>(c))));
         if (c == '\n')
@@ -354,26 +354,15 @@ optional<vm_obj> is_io_error(vm_obj const & o) {
 inductive io.error
 | other     : string → io.error
 | sys       : nat → io.error
-| primitive : io.error_kind → io.error
 */
 std::string io_error_to_string(vm_obj const & o) {
     if (cidx(o) == 0) {
         return to_string(cfield(o, 0));
     } else if (cidx(o) == 1) {
         return (sstream() << "system error #" << to_unsigned(cfield(o, 0))).str();
-    } else {
-        /*
-          inductive io.error_kind
-          | not_found | permission_denied | connection_refused
-          | connection_reset | connection_aborted | not_connected
-          | addr_in_use | addr_not_available | broken_pipe
-          | already_exists | would_block | invalid_input
-          | invalid_data | timeout | write_zero | interrupted
-          | unexpected_eof
-        */
-        /* TODO(Leo): return string describing the errors above */
-        return (sstream() << "primitive error #" << to_unsigned(cfield(o, 0))).str();
     }
+    lean_vm_check(false);
+    lean_unreachable();
 }
 
 void initialize_vm_io() {

@@ -70,7 +70,7 @@ class rb_tree : private CMP {
         return *g_allocator;
     }
 
-    bool check_cmp_result(T const & v1, T const & v2) const {
+    bool check_cmp_result(T const & DEBUG_CODE(v1), T const & DEBUG_CODE(v2)) const {
         DEBUG_CODE(int n1 = CMP::operator()(v1, v2); int n2 = CMP::operator()(v2, v1););
         lean_assert((n1 < 0  && n2 > 0) || (n1 == 0 && n2 == 0) || (n1 > 0  && n2 < 0));
         return true;

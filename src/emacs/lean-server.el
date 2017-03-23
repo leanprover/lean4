@@ -342,7 +342,7 @@
               (when (eq lean-server-session sess)
                 (list (cons (buffer-file-name)
                             (--map (cons (line-number-at-pos (window-start it))
-                                         (line-number-at-pos (window-end it)))
+                                         (line-number-at-pos (window-end it t)))
                                    (get-buffer-window-list))))))
             (buffer-list)))
 

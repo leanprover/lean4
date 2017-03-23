@@ -125,7 +125,7 @@ log_tree::node log_tree::node::mk_child(name n, std::string const & description,
         child.m_ptr->m_detached = m_ptr->m_detached;
     }
     child.m_ptr->m_detail_level = std::max(m_ptr->m_detail_level, lvl);
-    child.m_ptr->m_description = description;
+    child.m_ptr->m_description = description.empty() ? m_ptr->m_description : description;
     child.m_ptr->m_location = loc;
     m_ptr->m_children.insert(n, child);
 

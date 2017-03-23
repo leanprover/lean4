@@ -245,14 +245,23 @@ void log_tree::node::print_to(std::ostream & out, unsigned indent) const {
     auto used_names = m_ptr->m_used_names;
     l.unlock();
 
-    children.for_each([&] (name const & n, log_tree::node const & c) {
+    auto print_child = [&] (name const & n, log_tree::node const & c) {
         for (unsigned i = 0; i < indent; i++) out << ' ';
         out << n;
         if (!used_names.contains(n))
             out << " (unused)";
         out << ": ";
         c.print_to(out, indent);
+    };
+
+    name next = "_next";
+    children.for_each([&] (name const & n, log_tree::node const & c) {
+        if (n != next) print_child(n, c);
     });
+    if (auto c = children.find(next)) {
+        flet<unsigned> _(indent, indent - 2);
+        print_child(next, *c);
+    }
 }
 
 struct wait_for_finish_helper {

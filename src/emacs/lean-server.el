@@ -270,9 +270,18 @@
                                (flycheck-buffer)))
                            (current-buffer)))))))
 
+(defvar-local lean-server-show-tasks-delay-timer nil)
+
 (defun lean-server-show-tasks (&optional buf)
   (with-current-buffer (or buf (current-buffer))
-    (lean-server-update-task-overlays)))
+    (save-match-data
+      (when (not (memq lean-server-show-tasks-delay-timer timer-list))
+        (setq lean-server-show-tasks-delay-timer
+              (run-at-time "100 milliseconds" nil
+                           (lambda (buf)
+                             (with-current-buffer buf
+                               (lean-server-update-task-overlays)))
+                           (current-buffer)))))))
 
 (defun lean-server-notify-messages-changed (sess)
   (dolist (buf (buffer-list))
@@ -388,9 +397,10 @@
 (defun lean-server-sync-roi ()
   (when lean-server-session
     (let ((old-roi (lean-server-session-current-roi lean-server-session))
-          (new-roi (lean-server-roi-extend (lean-server-compute-roi lean-server-session) 5)))
+          (new-roi (lean-server-compute-roi lean-server-session)))
       (when (or (eq old-roi 'not-yet-sent) (not (lean-server-roi-ok old-roi new-roi)))
-        (lean-server-session-send-roi lean-server-session new-roi)))))
+        (lean-server-session-send-roi lean-server-session
+                                      (lean-server-roi-extend new-roi 5))))))
 
 (defun lean-server-window-scroll-function-hook (wnd new-start-pos)
   (let ((buf (window-buffer wnd)))

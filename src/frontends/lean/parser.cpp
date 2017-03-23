@@ -2263,7 +2263,7 @@ void parser::process_imports() {
                         report_message(message(fn, pos, WARNING,
                                                (sstream() << "imported file '" << mod_name << "' uses sorry").str()));
                     return unit {};
-                }), log_tree::CrossModuleLintLevel);
+                }), "checking import for sorry", true, log_tree::CrossModuleLintLevel);
 
                 return mod;
             };

@@ -33,7 +33,7 @@ public:
 
     int process_request(std::string msg) {
         scope_global_ios scoped_ios(m_ios);
-        scope_log_tree lt(m_server.get_log_tree().get_root().mk_child("_server", {}, {}, log_tree::DefaultLevel, true));
+        scope_log_tree lt(m_server.get_log_tree().get_root().mk_child("_server", "", location(), log_tree::DefaultLevel, true));
         try {
             m_server.handle_request(json::parse(msg));
             return 0;

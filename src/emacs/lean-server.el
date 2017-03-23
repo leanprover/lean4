@@ -235,7 +235,8 @@
             (let* ((reg (lean-server-task-region task))
                    (ov (make-overlay (car reg) (cdr reg))))
               (setq lean-server-task-overlays (cons ov lean-server-task-overlays))
-              (overlay-put ov 'face 'lean-server-task-face)))))))
+              (overlay-put ov 'face 'lean-server-task-face)
+              (overlay-put ov 'help-echo (format "%s..." (plist-get task :desc)))))))))
 
 (defun lean-server-toggle-show-pending-tasks ()
   "Toggles highlighting of pending tasks"

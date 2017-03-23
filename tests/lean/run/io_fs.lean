@@ -3,13 +3,13 @@ open io
 variable [io.interface]
 
 def mk_test_file : io unit :=
-do h ← mk_file_handle "test.txt" io.mode.write,
+do h ← mk_file_handle "io_fs.txt" io.mode.write,
    fs.put_str_ln h "hello world",
    fs.put_str_ln h "hello world again",
    fs.close h
 
 def read_test_file : io string :=
-do b ← fs.read_file "test.txt",
+do b ← fs.read_file "io_fs.txt",
    return b^.to_string
 
 #eval do

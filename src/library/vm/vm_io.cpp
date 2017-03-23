@@ -60,7 +60,7 @@ static vm_obj mk_terminal() {
 struct handle {
     FILE * m_handle;
     handle(FILE * h):m_handle(h) {}
-    ~handle() { if (m_handle) fclose(m_handle); }
+    ~handle() { if (m_handle && m_handle != stdin && m_handle != stderr && m_handle != stdout) fclose(m_handle); }
 };
 
 typedef std::shared_ptr<handle> handle_ref;
@@ -141,6 +141,12 @@ static vm_obj fs_flush(vm_obj const & h, vm_obj const &) {
 static vm_obj fs_close(vm_obj const & h, vm_obj const &) {
     handle_ref const & href = to_handle(h);
     if (has_been_closed(href)) return mk_handle_has_been_closed_error();
+    if (href->m_handle == stdin)
+        return mk_io_failure("close failed, stdin cannot be closed");
+    if (href->m_handle == stdout)
+        return mk_io_failure("close failed, stdout cannot be closed");
+    if (href->m_handle == stderr)
+        return mk_io_failure("close failed, stderr cannot be closed");
     if (fclose(href->m_handle) == 0) {
         href->m_handle = nullptr;
         return mk_io_result(mk_vm_unit());
@@ -232,6 +238,18 @@ static vm_obj fs_read_file(vm_obj const & fname, vm_obj const & bin, vm_obj cons
     }
 }
 
+static vm_obj fs_stdin(vm_obj const &) {
+    return mk_io_result(to_obj(std::make_shared<handle>(stdin)));
+}
+
+static vm_obj fs_stdout(vm_obj const &) {
+    return mk_io_result(to_obj(std::make_shared<handle>(stdout)));
+}
+
+static vm_obj fs_stderr(vm_obj const &) {
+    return mk_io_result(to_obj(std::make_shared<handle>(stderr)));
+}
+
 /*
 (handle         : Type)
 (read_file      : string → bool → m io.error char_buffer)
@@ -242,9 +260,12 @@ static vm_obj fs_read_file(vm_obj const & fname, vm_obj const & bin, vm_obj cons
 (read           : handle → nat → m io.error char_buffer)
 (write          : handle → char_buffer → m io.error unit)
 (get_line       : handle → m io.error char_buffer)
+(stdin          : m io.error handle)
+(stdout         : m io.error handle)
+(stderr         : m io.error handle)
 */
 static vm_obj mk_fs() {
-    vm_obj fields[8] = {
+    vm_obj fields[11] = {
         mk_native_closure(fs_read_file),
         mk_native_closure(fs_mk_file_handle),
         mk_native_closure(fs_is_eof),
@@ -252,9 +273,12 @@ static vm_obj mk_fs() {
         mk_native_closure(fs_close),
         mk_native_closure(fs_read),
         mk_native_closure(fs_write),
-        mk_native_closure(fs_get_line)
+        mk_native_closure(fs_get_line),
+        mk_native_closure(fs_stdin),
+        mk_native_closure(fs_stdout),
+        mk_native_closure(fs_stderr)
     };
-    return mk_vm_constructor(0, 8, fields);
+    return mk_vm_constructor(0, 11, fields);
 }
 
 static vm_obj io_return(vm_obj const &, vm_obj const &, vm_obj const & a, vm_obj const &) {

@@ -27,6 +27,9 @@ structure io.file_system (m : Type → Type → Type) :=
 (read           : handle → nat → m io.error char_buffer)
 (write          : handle → char_buffer → m io.error unit)
 (get_line       : handle → m io.error char_buffer)
+(stdin          : m io.error handle)
+(stdout         : m io.error handle)
+(stderr         : m io.error handle)
 
 class io.interface :=
 (m        : Type → Type → Type)
@@ -78,6 +81,15 @@ interface.fs^.handle
 
 def mk_file_handle (s : string) (m : mode) (bin : bool := ff) : io handle :=
 interface.fs^.mk_file_handle s m bin
+
+def stdin : io handle :=
+interface.fs^.stdin
+
+def stderr : io handle :=
+interface.fs^.stderr
+
+def stdout : io handle :=
+interface.fs^.stdout
 
 namespace fs
 def is_eof : handle → io bool :=

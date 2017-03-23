@@ -5,18 +5,9 @@ Authors: Luke Nelson, Jared Roesch and Leonardo de Moura
 -/
 import data.buffer
 
-inductive io.error_kind
-| not_found | permission_denied | connection_refused
-| connection_reset | connection_aborted | not_connected
-| addr_in_use | addr_not_available | broken_pipe
-| already_exists | would_block | invalid_input
-| invalid_data | timeout | write_zero | interrupted
-| unexpected_eof
-
 inductive io.error
 | other     : string → io.error
 | sys       : nat → io.error
-| primitive : io.error_kind → io.error
 
 structure io.terminal (m : Type → Type → Type) :=
 (put_str     : string → m io.error unit)
@@ -28,10 +19,9 @@ inductive io.mode
 structure io.file_system (m : Type → Type → Type) :=
 /- Remark: in Haskell, they also provide  (Maybe TextEncoding) and  NewlineMode -/
 (handle         : Type)
+(read_file      : string → bool → m io.error char_buffer)
 (mk_file_handle : string → io.mode → bool → m io.error handle)
-(file_size      : handle → m io.error nat)
 (is_eof         : handle → m io.error bool)
-(look_ahead     : handle → m io.error char)
 (flush          : handle → m io.error unit)
 (close          : handle → m io.error unit)
 (read           : handle → nat → m io.error char_buffer)
@@ -59,13 +49,13 @@ instance io_core_is_monad (e : Type) : monad (io_core e) :=
 { pure := io.interface.return e,
   bind := io.interface.bind e }
 
-protected def io.fail (α : Type) (s : string) : io α :=
+protected def io.fail {α : Type} (s : string) : io α :=
 io.interface.fail io.error α (io.error.other s)
 
 instance : monad_fail io :=
 { pure := io.interface.return io.error,
   bind := io.interface.bind io.error,
-  fail := io.fail }
+  fail := @io.fail _ }
 
 namespace io
 def put_str : string → io unit :=
@@ -89,18 +79,9 @@ interface.fs^.handle
 def mk_file_handle (s : string) (m : mode) (bin : bool := ff) : io handle :=
 interface.fs^.mk_file_handle s m bin
 
-def pfail {α} (k : io.error_kind) : io α :=
-interface.fail io.error α (io.error.primitive k)
-
 namespace fs
-def size : handle → io nat :=
-interface.fs^.file_size
-
 def is_eof : handle → io bool :=
 interface.fs^.is_eof
-
-def look_ahead : handle → io char :=
-interface.fs^.look_ahead
 
 def flush : handle → io unit :=
 interface.fs^.flush
@@ -117,19 +98,23 @@ interface.fs^.write
 def get_char (h : handle) : io char :=
 do b ← read h 1,
    if h : b^.size = 1 then return $ b^.read ⟨0, h^.symm ▸ zero_lt_one⟩
-   else pfail error_kind.unexpected_eof
+   else io.fail "get_char failed"
 
 def get_line : handle → io char_buffer :=
 interface.fs^.get_line
 
 def put_char (h : handle) (c : char) : io unit :=
-do write h (mk_buffer^.push_back c)
-end fs
+write h (mk_buffer^.push_back c)
+
+def put_str (h : handle) (s : string) : io unit :=
+write h (mk_buffer^.append_string s)
+
+def put_str_ln (h : handle) (s : string) : io unit :=
+put_str h s >> put_str h "\n"
 
 def read_file (s : string) (bin := ff) : io char_buffer :=
-do h  ← mk_file_handle s mode.read bin,
-   sz ← fs.size h,
-   fs.read h sz
+interface.fs^.read_file s bin
+end fs
 end io
 
 meta constant format.print_using [io.interface] : format → options → io unit

@@ -5,10 +5,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
+#include <cstdio>
 #include <iostream>
+#include "util/sstream.h"
 #include "library/io_state.h"
 #include "library/tactic/tactic_state.h"
 #include "library/vm/vm.h"
+#include "library/vm/vm_array.h"
 #include "library/vm/vm_string.h"
 
 namespace lean {
@@ -22,6 +25,10 @@ vm_obj mk_io_failure(vm_obj const & e) {
 
 vm_obj mk_io_failure(std::string const & s) {
     return mk_io_failure(mk_vm_constructor(0, to_obj(s)));
+}
+
+vm_obj mk_io_failure(sstream const & s) {
+    return mk_io_failure(mk_vm_constructor(0, to_obj(s.str())));
 }
 
 static vm_obj io_put_str(vm_obj const & str, vm_obj const &) {
@@ -50,52 +57,186 @@ static vm_obj mk_terminal() {
     return mk_vm_constructor(0, 2, fields);
 }
 
-static vm_obj mk_not_implemented_yet() {
-    return mk_io_failure("not implemented yet");
+struct handle {
+    FILE * m_handle;
+    handle(FILE * h):m_handle(h) {}
+    ~handle() { if (m_handle) fclose(m_handle); }
+};
+
+typedef std::shared_ptr<handle> handle_ref;
+
+struct vm_handle : public vm_external {
+    handle_ref m_handle;
+    vm_handle(handle_ref const & h):m_handle(h) {}
+    virtual ~vm_handle() {}
+    virtual void dealloc() override { this->~vm_handle(); get_vm_allocator().deallocate(sizeof(vm_handle), this); }
+    virtual vm_external * clone(vm_clone_fn const &) override { throw exception("handle objects cannot be cloned"); }
+    virtual vm_external * ts_clone(vm_clone_fn const &) override { throw exception("handle objects cannot be cloned"); }
+};
+
+bool is_handle(vm_obj const & o) {
+    return is_external(o) && dynamic_cast<vm_handle*>(to_external(o));
 }
 
-static vm_obj fs_mk_file_handle(vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &) {
-    return mk_not_implemented_yet();
+handle_ref const & to_handle(vm_obj const & o) {
+    lean_vm_check(dynamic_cast<vm_handle*>(to_external(o)));
+    return static_cast<vm_handle*>(to_external(o))->m_handle;
 }
 
-static vm_obj fs_file_size(vm_obj const &, vm_obj const &) {
-    return mk_not_implemented_yet();
+vm_obj to_obj(handle_ref const & h) {
+    return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_handle))) vm_handle(h));
 }
 
-static vm_obj fs_is_eof(vm_obj const &, vm_obj const &) {
-    return mk_not_implemented_yet();
+/*
+inductive io.mode
+| read | write | read_write | append
+*/
+char const * to_c_io_mode(vm_obj const & mode, vm_obj const & bin) {
+    bool is_bin = to_bool(bin);
+    switch (cidx(mode)) {
+    case 0: return is_bin ? "rb" : "r";
+    case 1: return is_bin ? "wb" : "w";
+    case 2: return is_bin ? "r+b" : "r+";
+    case 3: return is_bin ? "ab" : "a";
+    }
+    lean_vm_check(false);
+    lean_unreachable();
 }
 
-static vm_obj fs_look_ahead(vm_obj const &, vm_obj const &) {
-    return mk_not_implemented_yet();
+/* (mk_file_handle : string → io.mode → bool → m io.error handle) */
+static vm_obj fs_mk_file_handle(vm_obj const & fname, vm_obj const & m, vm_obj const & bin, vm_obj const &) {
+    FILE * h = fopen(to_string(fname).c_str(), to_c_io_mode(m, bin));
+    if (h != nullptr)
+        return mk_io_result(to_obj(std::make_shared<handle>(h)));
+    else
+        return mk_io_failure(sstream() << "failed to open file '" << to_string(fname) << "'");
 }
 
-static vm_obj fs_flush(vm_obj const &, vm_obj const &) {
-    return mk_not_implemented_yet();
+static vm_obj mk_handle_has_been_closed_error() {
+    return mk_io_failure("invalid io action, handle has been closed");
 }
 
-static vm_obj fs_close(vm_obj const &, vm_obj const &) {
-    return mk_not_implemented_yet();
+static bool has_been_closed(handle_ref const & href) {
+    return href->m_handle == nullptr;
 }
 
-static vm_obj fs_read(vm_obj const &, vm_obj const &, vm_obj const &) {
-    return mk_not_implemented_yet();
+static vm_obj fs_is_eof(vm_obj const & h, vm_obj const &) {
+    handle_ref const & href = to_handle(h);
+    if (has_been_closed(href)) return mk_handle_has_been_closed_error();
+    bool r = feof(href->m_handle) != 0;
+    return mk_io_result(mk_vm_bool(r));
 }
 
-static vm_obj fs_write(vm_obj const &, vm_obj const &, vm_obj const &) {
-    return mk_not_implemented_yet();
+static vm_obj fs_flush(vm_obj const & h, vm_obj const &) {
+    handle_ref const & href = to_handle(h);
+    if (has_been_closed(href)) return mk_handle_has_been_closed_error();
+    if (fflush(href->m_handle) == 0) {
+        return mk_io_result(mk_vm_unit());
+    } else {
+        clearerr(href->m_handle);
+        return mk_io_failure("flush failed");
+    }
 }
 
-static vm_obj fs_get_line(vm_obj const &, vm_obj const &) {
-    return mk_not_implemented_yet();
+static vm_obj fs_close(vm_obj const & h, vm_obj const &) {
+    handle_ref const & href = to_handle(h);
+    if (has_been_closed(href)) return mk_handle_has_been_closed_error();
+    if (fclose(href->m_handle) == 0) {
+        href->m_handle = nullptr;
+        return mk_io_result(mk_vm_unit());
+    } else {
+        clearerr(href->m_handle);
+        return mk_io_failure("close failed");
+    }
+}
+
+static vm_obj mk_buffer(parray<vm_obj> const & a) {
+    return mk_vm_pair(mk_vm_nat(a.size()), to_obj(a));
+}
+
+static vm_obj fs_read(vm_obj const & h, vm_obj const & n, vm_obj const &) {
+    handle_ref const & href = to_handle(h);
+    if (has_been_closed(href)) return mk_handle_has_been_closed_error();
+    buffer<char> tmp;
+    unsigned num = force_to_unsigned(n); /* TODO(Leo): handle size_t */
+    tmp.resize(num, 0);
+    size_t sz = fread(tmp.data(), 1, num, href->m_handle);
+    if (ferror(href->m_handle)) {
+        clearerr(href->m_handle);
+        return mk_io_failure("read failed");
+    }
+    parray<vm_obj> r;
+    for (size_t i = 0; i < sz; i++) {
+        r.push_back(mk_vm_simple(static_cast<unsigned char>(tmp[i])));
+    }
+    return mk_io_result(mk_buffer(r));
+}
+
+static vm_obj fs_write(vm_obj const & h, vm_obj const & b, vm_obj const &) {
+    handle_ref const & href = to_handle(h);
+    if (has_been_closed(href)) return mk_handle_has_been_closed_error();
+    buffer<char> tmp;
+    parray<vm_obj> const & a = to_array(cfield(b, 1));
+    unsigned sz = a.size();
+    for (unsigned i = 0; i < sz; i++) {
+        tmp.push_back(static_cast<unsigned char>(cidx(a[i])));
+    }
+    if (fwrite(tmp.data(), 1, sz, href->m_handle) != sz) {
+        clearerr(href->m_handle);
+        return mk_io_failure("write failed");
+    }
+    return mk_io_result(mk_vm_unit());
+}
+
+static vm_obj fs_get_line(vm_obj const & h, vm_obj const &) {
+    handle_ref const & href = to_handle(h);
+    if (has_been_closed(href)) return mk_handle_has_been_closed_error();
+    parray<vm_obj> r;
+    while (true) {
+        int c = fgetc(href->m_handle);
+        if (ferror(href->m_handle)) {
+            clearerr(href->m_handle);
+            return mk_io_failure("get_line failed");
+        }
+        if(c == EOF)
+            break;
+        r.push_back(mk_vm_simple(static_cast<unsigned char>(static_cast<char>(c))));
+        if (c == '\n')
+            break;
+    }
+    return mk_io_result(mk_buffer(r));
+}
+
+static vm_obj fs_read_file(vm_obj const & fname, vm_obj const & bin, vm_obj const &) {
+    FILE * h = fopen(to_string(fname).c_str(), to_bool(bin) ? "rb" : "r");
+    if (h == nullptr)
+        return mk_io_failure(sstream() << "read_file '" << to_string(fname) << "' failed");
+#define BUFFER_SIZE 1024
+    buffer<char, BUFFER_SIZE> tmp;
+    tmp.resize(BUFFER_SIZE);
+    parray<vm_obj> r;
+    while (true) {
+        unsigned sz = fread(tmp.data(), 1, BUFFER_SIZE, h);
+        for (unsigned i = 0; i < sz; i++) {
+            r.push_back(mk_vm_simple(static_cast<unsigned char>(tmp[i])));
+        }
+        if (sz < BUFFER_SIZE) {
+            if (ferror(h)) {
+                clearerr(h);
+                fclose(h);
+                return mk_io_failure(sstream() << "read_file '" << to_string(fname) << "' failed");
+            }
+            fclose(h);
+            return mk_io_result(mk_buffer(r));
+        }
+    }
 }
 
 /*
 (handle         : Type)
+(read_file      : string → bool → m io.error char_buffer)
 (mk_file_handle : string → io.mode → bool → m io.error handle)
-(file_size      : handle → m io.error nat)
 (is_eof         : handle → m io.error bool)
-(look_ahead     : handle → m io.error char)
 (flush          : handle → m io.error unit)
 (close          : handle → m io.error unit)
 (read           : handle → nat → m io.error char_buffer)
@@ -103,18 +244,17 @@ static vm_obj fs_get_line(vm_obj const &, vm_obj const &) {
 (get_line       : handle → m io.error char_buffer)
 */
 static vm_obj mk_fs() {
-    vm_obj fields[9] = {
+    vm_obj fields[8] = {
+        mk_native_closure(fs_read_file),
         mk_native_closure(fs_mk_file_handle),
-        mk_native_closure(fs_file_size),
         mk_native_closure(fs_is_eof),
-        mk_native_closure(fs_look_ahead),
         mk_native_closure(fs_flush),
         mk_native_closure(fs_close),
         mk_native_closure(fs_read),
         mk_native_closure(fs_write),
         mk_native_closure(fs_get_line)
     };
-    return mk_vm_constructor(0, 9, fields);
+    return mk_vm_constructor(0, 8, fields);
 }
 
 static vm_obj io_return(vm_obj const &, vm_obj const &, vm_obj const & a, vm_obj const &) {

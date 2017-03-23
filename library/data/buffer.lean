@@ -47,6 +47,9 @@ def write' : buffer α → nat → α → buffer α
 def to_list (b : buffer α) : list α :=
 b^.to_array^.to_list
 
+protected def to_string (b : buffer α) : list α :=
+b^.to_array^.to_list^.reverse
+
 def append_list {α : Type u} : buffer α → list α → buffer α
 | b []      := b
 | b (v::vs) := append_list (b^.push_back v) vs

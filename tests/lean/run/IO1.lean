@@ -17,7 +17,7 @@ definition main : io unit :=
 
 definition aux (n : nat) : io unit :=
   do put_str "========\nvalue: ",
-     put n,
+     print n,
      put_str "\n========\n"
 
 #eval aux 20
@@ -43,9 +43,9 @@ definition execute : list (io unit) → io unit
 #eval
   do n ← return 10,
      put_str "value: ",
-     put n,
+     print n,
      put_str "\n",
-     put (n+2),
+     print (n+2),
      put_str "\n----------\n"
 
 #print "************************"

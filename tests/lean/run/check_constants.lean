@@ -159,12 +159,6 @@ run_cmd script_check_id `interactive.param_desc
 run_cmd script_check_id `interactive.parse
 run_cmd script_check_id `inv
 run_cmd script_check_id `io
-run_cmd script_check_id `io.map
-run_cmd script_check_id `io.bind
-run_cmd script_check_id `io.monad
-run_cmd script_check_id `io.return
-run_cmd script_check_id `io.put_str
-run_cmd script_check_id `io.get_line
 run_cmd script_check_id `is_associative
 run_cmd script_check_id `is_associative.assoc
 run_cmd script_check_id `is_commutative

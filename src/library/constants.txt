@@ -154,12 +154,6 @@ interactive.param_desc
 interactive.parse
 inv
 io
-io.map
-io.bind
-io.monad
-io.return
-io.put_str
-io.get_line
 is_associative
 is_associative.assoc
 is_commutative

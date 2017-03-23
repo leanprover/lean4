@@ -159,12 +159,6 @@ name const * g_interactive_param_desc = nullptr;
 name const * g_interactive_parse = nullptr;
 name const * g_inv = nullptr;
 name const * g_io = nullptr;
-name const * g_io_map = nullptr;
-name const * g_io_bind = nullptr;
-name const * g_io_monad = nullptr;
-name const * g_io_return = nullptr;
-name const * g_io_put_str = nullptr;
-name const * g_io_get_line = nullptr;
 name const * g_is_associative = nullptr;
 name const * g_is_associative_assoc = nullptr;
 name const * g_is_commutative = nullptr;
@@ -538,12 +532,6 @@ void initialize_constants() {
     g_interactive_parse = new name{"interactive", "parse"};
     g_inv = new name{"inv"};
     g_io = new name{"io"};
-    g_io_map = new name{"io", "map"};
-    g_io_bind = new name{"io", "bind"};
-    g_io_monad = new name{"io", "monad"};
-    g_io_return = new name{"io", "return"};
-    g_io_put_str = new name{"io", "put_str"};
-    g_io_get_line = new name{"io", "get_line"};
     g_is_associative = new name{"is_associative"};
     g_is_associative_assoc = new name{"is_associative", "assoc"};
     g_is_commutative = new name{"is_commutative"};
@@ -918,12 +906,6 @@ void finalize_constants() {
     delete g_interactive_parse;
     delete g_inv;
     delete g_io;
-    delete g_io_map;
-    delete g_io_bind;
-    delete g_io_monad;
-    delete g_io_return;
-    delete g_io_put_str;
-    delete g_io_get_line;
     delete g_is_associative;
     delete g_is_associative_assoc;
     delete g_is_commutative;
@@ -1297,12 +1279,6 @@ name const & get_interactive_param_desc_name() { return *g_interactive_param_des
 name const & get_interactive_parse_name() { return *g_interactive_parse; }
 name const & get_inv_name() { return *g_inv; }
 name const & get_io_name() { return *g_io; }
-name const & get_io_map_name() { return *g_io_map; }
-name const & get_io_bind_name() { return *g_io_bind; }
-name const & get_io_monad_name() { return *g_io_monad; }
-name const & get_io_return_name() { return *g_io_return; }
-name const & get_io_put_str_name() { return *g_io_put_str; }
-name const & get_io_get_line_name() { return *g_io_get_line; }
 name const & get_is_associative_name() { return *g_is_associative; }
 name const & get_is_associative_assoc_name() { return *g_is_associative_assoc; }
 name const & get_is_commutative_name() { return *g_is_commutative; }

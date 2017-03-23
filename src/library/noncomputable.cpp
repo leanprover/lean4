@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/util.h"
 #include "library/fingerprint.h"
-#include "library/library_system.h"
 
 namespace lean {
 struct noncomputable_ext : public environment_extension {
@@ -68,7 +67,7 @@ static bool is_noncomputable(type_checker & tc, noncomputable_ext const & ext, n
     } else if (d.is_axiom() && !tc.is_prop(d.get_type())) {
         return true;
     } else if (d.is_constant_assumption()) {
-        return !env.is_builtin(d.get_name()) && !is_system_builtin(d.get_name()) && !tc.is_prop(d.get_type());
+        return !env.is_builtin(d.get_name()) && !tc.is_prop(d.get_type());
     } else {
         return false;
     }

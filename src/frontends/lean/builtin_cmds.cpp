@@ -32,6 +32,7 @@ Author: Leonardo de Moura
 #include "library/documentation.h"
 #include "library/placeholder.h"
 #include "library/vm/vm.h"
+#include "library/vm/vm_io.h"
 #include "library/vm/vm_string.h"
 #include "library/compiler/vm_compiler.h"
 #include "library/tactic/kabstract.h"
@@ -420,17 +421,17 @@ static environment compile_expr(environment const & env, name const & n, level_p
     return vm_compile(new_env, new_env.get(n));
 }
 
-static void eval_core(vm_state & s, name const & main, optional<vm_obj> const & initial_state) {
-    if (initial_state) s.push(*initial_state); // push initial_state for IO/tactic monad.
+static void eval_core(vm_state & s, name const & main, bool is_io) {
     vm_decl d = *s.get_decl(main);
-    if (!initial_state && d.get_arity() > 0)
+    if (!is_io && d.get_arity() > 0)
         throw exception("eval result is a function");
     s.invoke_fn(main);
-    if (initial_state) {
-        if (d.get_arity() == 0) {
-            /* main returned a closure, it did not process initial_state yet.
-               So, we force the execution. */
-            s.apply();
+    if (is_io) {
+        vm_obj io = s.top();
+        vm_obj r = run_io(s, io);
+        if (optional<vm_obj> error = is_io_error(r)) {
+            std::string msg = io_error_to_string(*error);
+            throw exception(msg);
         }
     }
 }
@@ -443,7 +444,7 @@ static environment eval_cmd(parser & p) {
         throw parser_error("invalid eval command, expression contains metavariables", pos);
     type_context tc(p.env(), transparency_mode::All);
     expr type0 = tc.infer(e);
-    expr type  = tc.whnf(type0);
+    expr type  = type0; // TODO(Leo): tc.whnf(type0);
     bool is_io = is_constant(get_app_fn(type), get_io_name());
     bool is_string = false;
     if (!is_io) {
@@ -462,17 +463,15 @@ static environment eval_cmd(parser & p) {
     name main("_main");
     environment new_env = compile_expr(p.env(), main, ls, type, e, pos);
     vm_state s(new_env, p.get_options());
-    optional<vm_obj> initial_state;
-    if (is_io) initial_state = mk_vm_simple(0);
     auto out = p.mk_message(p.cmd_pos(), INFORMATION);
     out.set_caption("eval result");
     vm_state::profiler prof(s, p.get_options());
     // TODO(gabriel): capture output
     if (p.profiling()) {
         timeit timer(out.get_text_stream().get_stream(), "eval time");
-        eval_core(s, main, initial_state);
+        eval_core(s, main, is_io);
     } else {
-        eval_core(s, main, initial_state);
+        eval_core(s, main, is_io);
     }
     if (is_io) {
         // do not print anything

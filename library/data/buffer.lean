@@ -97,3 +97,5 @@ end buffer
 
 def list.to_buffer {α : Type u} (l : list α) : buffer α :=
 mk_buffer^.append_list l
+
+@[reducible] def char_buffer := buffer char

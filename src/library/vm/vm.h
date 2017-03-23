@@ -234,14 +234,14 @@ vm_obj mk_vm_constructor(unsigned cidx, vm_obj const &, vm_obj const &, vm_obj c
 vm_obj mk_native_closure(environment const & env, name const & n, unsigned sz, vm_obj const * args);
 vm_obj mk_native_closure(environment const & env, name const & n, std::initializer_list<vm_obj const> args);
 /* Native closures */
-vm_obj mk_native_closure(vm_cfunction_1 fn, unsigned num_args, vm_obj const * args);
-vm_obj mk_native_closure(vm_cfunction_2 fn, unsigned num_args, vm_obj const * args);
-vm_obj mk_native_closure(vm_cfunction_3 fn, unsigned num_args, vm_obj const * args);
-vm_obj mk_native_closure(vm_cfunction_4 fn, unsigned num_args, vm_obj const * args);
-vm_obj mk_native_closure(vm_cfunction_5 fn, unsigned num_args, vm_obj const * args);
-vm_obj mk_native_closure(vm_cfunction_6 fn, unsigned num_args, vm_obj const * args);
-vm_obj mk_native_closure(vm_cfunction_7 fn, unsigned num_args, vm_obj const * args);
-vm_obj mk_native_closure(vm_cfunction_8 fn, unsigned num_args, vm_obj const * args);
+vm_obj mk_native_closure(vm_cfunction_1 fn, unsigned num_args = 0, vm_obj const * args = nullptr);
+vm_obj mk_native_closure(vm_cfunction_2 fn, unsigned num_args = 0, vm_obj const * args = nullptr);
+vm_obj mk_native_closure(vm_cfunction_3 fn, unsigned num_args = 0, vm_obj const * args = nullptr);
+vm_obj mk_native_closure(vm_cfunction_4 fn, unsigned num_args = 0, vm_obj const * args = nullptr);
+vm_obj mk_native_closure(vm_cfunction_5 fn, unsigned num_args = 0, vm_obj const * args = nullptr);
+vm_obj mk_native_closure(vm_cfunction_6 fn, unsigned num_args = 0, vm_obj const * args = nullptr);
+vm_obj mk_native_closure(vm_cfunction_7 fn, unsigned num_args = 0, vm_obj const * args = nullptr);
+vm_obj mk_native_closure(vm_cfunction_8 fn, unsigned num_args = 0, vm_obj const * args = nullptr);
 vm_obj mk_native_closure(vm_cfunction_N fn, unsigned arity, unsigned num_args, vm_obj const * args);
 vm_obj mk_native_closure(vm_cfunction_1 fn, std::initializer_list<vm_obj> const & args);
 vm_obj mk_native_closure(vm_cfunction_2 fn, std::initializer_list<vm_obj> const & args);

@@ -336,52 +336,6 @@ class erase_irrelevant_fn : public compiler_step_visitor {
         return add_args(r, 3, args);
     }
 
-    static bool is_builtin_state_monad(expr const & e) {
-        return is_constant(e, get_io_monad_name());
-    }
-
-    expr visit_monad_bind(expr const & e, buffer<expr> const & args) {
-        if (args.size() == 6 && is_builtin_state_monad(args[1])) {
-            /* Remark: morally the IO and vm monads are of the form
-
-                IO a := State -> (a, State)
-
-              and the (monad.bind v b) is
-
-                fun S, let p := v S
-                       in b (fst p) (snd p)
-            */
-            expr v    = visit(args[4]);
-            expr u    = mk_neutral_expr();
-            expr vS   = mk_app(v, mk_var(0)); /* v S */
-            expr b    = visit(args[5]);
-            expr fstp = mk_app(mk_constant(get_pprod_fst_name()), u, u, mk_var(0));
-            expr sndp = mk_app(mk_constant(get_pprod_snd_name()), u, u, mk_var(0));
-            expr bfs  = beta_reduce(mk_app(b, fstp, sndp));
-            expr let  = mk_let("p", u, vS, bfs);
-            return mk_lambda("S", u, let);
-        } else {
-            return compiler_step_visitor::visit_app(e);
-        }
-    }
-
-    expr visit_applicative_pure(expr const & e, buffer<expr> const & args) {
-        if (args.size() == 4 && is_builtin_state_monad(args[1])) {
-            /* IO monad return
-               return v := fun s, (v, s)
-
-               Remark: we do not return the state explicitly.
-            */
-            expr u = mk_neutral_expr();
-            expr s = mk_var(0);
-            expr v = visit(args[3]);
-            expr p = mk_app(mk_constant(get_pprod_mk_name()), u, u, v, s);
-            return mk_lambda("S", u, p);
-        } else {
-            return compiler_step_visitor::visit_app(e);
-        }
-    }
-
     expr visit_pack_unpack(expr const & fn, buffer<expr> const & args) {
         optional<inverse_info> info = has_inverse(env(), const_name(fn));
         if (!info || info->m_arity > args.size()) {
@@ -418,10 +372,6 @@ class erase_irrelevant_fn : public compiler_step_visitor {
                 return visit_quot_mk(args);
             } else if (n == get_subtype_rec_name()) {
                 return visit_subtype_rec(args);
-            } else if (n == get_monad_bind_name() || n == get_has_bind_bind_name()) {
-                return visit_monad_bind(e, args);
-            } else if (n == get_applicative_pure_name()) {
-                return visit_applicative_pure(e, args);
             } else if (is_cases_on_recursor(env(), n)) {
                 return visit_cases_on(fn, args);
             } else if (inductive::is_elim_rule(env(), n)) {

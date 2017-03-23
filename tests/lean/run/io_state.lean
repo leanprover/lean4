@@ -1,6 +1,7 @@
 import system.io
 open io state_t
-
+-- TODO(Leo): make state_t universe polymorphic
+#exit
 @[reducible] def my_io := state_t nat io
 
 instance lift_io {α} : has_coe (io α) (my_io α) :=

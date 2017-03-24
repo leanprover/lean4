@@ -1540,8 +1540,11 @@ expr elaborator::visit_base_app_simple(expr const & _fn, arg_mask amask, buffer<
     type = instantiate_mvars(type_before_whnf);
 
     buffer<expr> eta_args;
-    if (optional<expr> new_type = process_optional_and_auto_params(type, ref, eta_args, new_args))
-        type = *new_type;
+    if (amask == arg_mask::Default) {
+        /* We ignore optional/auto params when `@` is used */
+        if (optional<expr> new_type = process_optional_and_auto_params(type, ref, eta_args, new_args))
+            type = *new_type;
+    }
 
     expr r = Fun(eta_args, mk_app(fn, new_args.size(), new_args.data()));
     if (expected_type) {

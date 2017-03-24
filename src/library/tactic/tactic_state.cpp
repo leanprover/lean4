@@ -32,6 +32,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_expr.h"
 #include "library/vm/vm_list.h"
 #include "library/vm/vm_option.h"
+#include "library/vm/vm_io.h"
 #include "library/compiler/vm_compiler.h"
 #include "library/tactic/tactic_state.h"
 
@@ -688,6 +689,16 @@ vm_obj tactic_add_aux_decl(vm_obj const & n, vm_obj const & type, vm_obj const &
     }
 }
 
+vm_obj tactic_run_io(vm_obj const &, vm_obj const & a, vm_obj const & s) {
+    vm_obj r = invoke(a, mk_io_interface(), mk_vm_unit());
+    if (optional<vm_obj> a = is_io_result(r)) {
+        return tactic::mk_success(*a, tactic::to_state(s));
+    } else {
+        optional<vm_obj> e = is_io_error(r);
+        lean_assert(e);
+        return tactic::mk_exception(io_error_to_string(*e), tactic::to_state(s));
+    }
+}
 void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic_state", "env"}),            tactic_state_env);
     DECLARE_VM_BUILTIN(name({"tactic_state", "format_expr"}),    tactic_state_format_expr);
@@ -728,6 +739,7 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic", "open_namespaces"}),      tactic_open_namespaces);
     DECLARE_VM_BUILTIN(name({"tactic", "decl_name"}),            tactic_decl_name);
     DECLARE_VM_BUILTIN(name({"tactic", "add_aux_decl"}),         tactic_add_aux_decl);
+    DECLARE_VM_BUILTIN(name({"tactic", "run_io"}),               tactic_run_io);
 }
 
 void finalize_tactic_state() {

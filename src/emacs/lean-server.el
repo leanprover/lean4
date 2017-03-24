@@ -399,11 +399,11 @@
   (and (lean-server-roi-subset-p new-roi old-roi)
        (lean-server-roi-subset-p old-roi (lean-server-roi-extend new-roi 10))))
 
-(defun lean-server-sync-roi ()
+(defun lean-server-sync-roi (&optional force)
   (when lean-server-session
     (let ((old-roi (lean-server-session-current-roi lean-server-session))
           (new-roi (lean-server-compute-roi lean-server-session)))
-      (when (or (eq old-roi 'not-yet-sent) (not (lean-server-roi-ok old-roi new-roi)))
+      (when (or force (eq old-roi 'not-yet-sent) (not (lean-server-roi-ok old-roi new-roi)))
         (lean-server-session-send-roi lean-server-session
                                       (lean-server-roi-extend new-roi 5))))))
 
@@ -415,7 +415,7 @@
 
 (defun lean-set-check-mode (mode)
   (setq lean-server-check-mode mode)
-  (lean-server-sync-roi))
+  (lean-server-sync-roi t))
 
 (defun lean-check-nothing ()
   "Check nothing"

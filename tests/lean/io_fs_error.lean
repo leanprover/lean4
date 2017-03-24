@@ -4,7 +4,7 @@ variable [io.interface]
 
 def tst1 : io unit :=
 do out ← stdout,
-   fs.put_str_ln out "hello",
+   -- fs.put_str_ln out "hello",
    fs.close out
 
 #eval tst1
@@ -12,7 +12,7 @@ do out ← stdout,
 
 def tst2 : io unit :=
 do out ← stderr,
-   fs.put_str_ln out "world",
+   -- fs.put_str_ln out "world",
    fs.close out
 
 #eval tst2

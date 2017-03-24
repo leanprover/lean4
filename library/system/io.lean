@@ -33,8 +33,7 @@ structure io.file_system (m : Type → Type → Type) :=
 
 class io.interface :=
 (m        : Type → Type → Type)
-(return   : Π e α, α → m e α)
-(bind     : Π e α β, m e α → (α → m e β) → m e β)
+(monad    : Π e, monad (m e))
 (catch    : Π e₁ e₂ α, m e₁ α → (e₁ → m e₂ α) → m e₂ α)
 (fail     : Π e α, e → m e α)
 (term     : io.terminal m)
@@ -49,15 +48,13 @@ io.interface.m e α
 io_core io.error α
 
 instance io_core_is_monad (e : Type) : monad (io_core e) :=
-{ pure := io.interface.return e,
-  bind := io.interface.bind e }
+io.interface.monad e
 
 protected def io.fail {α : Type} (s : string) : io α :=
 io.interface.fail io.error α (io.error.other s)
 
 instance : monad_fail io :=
-{ pure := io.interface.return io.error,
-  bind := io.interface.bind io.error,
+{ io_core_is_monad io.error with
   fail := @io.fail _ }
 
 namespace io

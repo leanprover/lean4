@@ -993,6 +993,12 @@ rfl
 
 meta def control_laws_tac := whnf_target >> intros >> to_expr ``(rfl) >>= exact
 
+meta def unsafe_monad_from_pure_bind {m : Type u → Type v}
+  (pure : Π {α : Type u}, α → m α)
+  (bind : Π {α β : Type u}, m α → (α → m β) → m β) : monad m :=
+{pure := @pure, bind := @bind,
+ id_map := undefined, pure_bind := undefined, bind_assoc := undefined}
+
 meta instance : monad task :=
 {map := @task.map, bind := @task.bind, pure := @task.pure,
  id_map := undefined, pure_bind := undefined, bind_assoc := undefined,

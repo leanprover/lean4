@@ -359,6 +359,7 @@ unification_hint.mk
 unit
 unit.cases_on
 unit.star
+unsafe_monad_from_pure_bind
 user_attribute
 vm_monitor
 weak_order

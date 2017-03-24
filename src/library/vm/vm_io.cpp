@@ -295,6 +295,11 @@ static vm_obj io_bind(vm_obj const & /* e */, vm_obj const & /* α */, vm_obj co
     }
 }
 
+static vm_obj io_monad(vm_obj const &, vm_obj const &) {
+    return get_vm_state().invoke(get_unsafe_monad_from_pure_bind_name(),
+                                 {mk_vm_simple(0), mk_native_closure(io_return), mk_native_closure(io_bind)});
+}
+
 static vm_obj io_catch(vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const & a, vm_obj const & b, vm_obj const &) {
     vm_obj r = invoke(a, mk_vm_unit());
     if (cidx(r) == 1) {
@@ -316,24 +321,22 @@ static vm_obj io_m(vm_obj const &, vm_obj const &) {
 /*
 structure io.interface :=
 (m        : Type → Type → Type)
-(return   : ∀ e α, α → m e α)
-(bind     : ∀ e α β, m e α → (α → m e β) → m e β)
+(monad    : Π e, monad (m e))
 (catch    : ∀ e₁ e₂ α, m e₁ α → (e₁ → m e₂ α) → m e₂ α)
 (fail     : ∀ e α, e → m e α)
 (term     : io.terminal m)
 (fs       : io.file_system m)
 */
 vm_obj mk_io_interface() {
-    vm_obj fields[7] = {
+    vm_obj fields[6] = {
         mk_native_closure(io_m), /* TODO(Leo): delete after we improve code generator */
-        mk_native_closure(io_return),
-        mk_native_closure(io_bind),
+        mk_native_closure(io_monad),
         mk_native_closure(io_catch),
         mk_native_closure(io_fail),
         mk_terminal(),
         mk_fs()
     };
-    return mk_vm_constructor(0, 7, fields);
+    return mk_vm_constructor(0, 6, fields);
 }
 
 optional<vm_obj> is_io_result(vm_obj const & o) {

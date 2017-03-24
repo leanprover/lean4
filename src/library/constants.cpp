@@ -364,6 +364,7 @@ name const * g_unification_hint_mk = nullptr;
 name const * g_unit = nullptr;
 name const * g_unit_cases_on = nullptr;
 name const * g_unit_star = nullptr;
+name const * g_unsafe_monad_from_pure_bind = nullptr;
 name const * g_user_attribute = nullptr;
 name const * g_vm_monitor = nullptr;
 name const * g_weak_order = nullptr;
@@ -735,6 +736,7 @@ void initialize_constants() {
     g_unit = new name{"unit"};
     g_unit_cases_on = new name{"unit", "cases_on"};
     g_unit_star = new name{"unit", "star"};
+    g_unsafe_monad_from_pure_bind = new name{"unsafe_monad_from_pure_bind"};
     g_user_attribute = new name{"user_attribute"};
     g_vm_monitor = new name{"vm_monitor"};
     g_weak_order = new name{"weak_order"};
@@ -1107,6 +1109,7 @@ void finalize_constants() {
     delete g_unit;
     delete g_unit_cases_on;
     delete g_unit_star;
+    delete g_unsafe_monad_from_pure_bind;
     delete g_user_attribute;
     delete g_vm_monitor;
     delete g_weak_order;
@@ -1478,6 +1481,7 @@ name const & get_unification_hint_mk_name() { return *g_unification_hint_mk; }
 name const & get_unit_name() { return *g_unit; }
 name const & get_unit_cases_on_name() { return *g_unit_cases_on; }
 name const & get_unit_star_name() { return *g_unit_star; }
+name const & get_unsafe_monad_from_pure_bind_name() { return *g_unsafe_monad_from_pure_bind; }
 name const & get_user_attribute_name() { return *g_user_attribute; }
 name const & get_vm_monitor_name() { return *g_vm_monitor; }
 name const & get_weak_order_name() { return *g_weak_order; }

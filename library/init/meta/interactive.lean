@@ -507,7 +507,9 @@ private meta def simp_lemmas.append_pexprs : simp_lemmas → list pexpr → tact
 private meta def mk_simp_set (attr_names : list name) (hs : list pexpr) (ex : list name) : tactic simp_lemmas :=
 do s₀ ← join_user_simp_lemmas attr_names,
    s₁ ← simp_lemmas.append_pexprs s₀ hs,
-   return $ simp_lemmas.erase s₁ ex
+   -- add equational lemmas, if any
+   ex ← ex^.mfor (λ n, list.cons n <$> get_eqn_lemmas_for tt n),
+   return $ simp_lemmas.erase s₁ $ ex^.join
 
 private meta def simp_goal (cfg : simp_config) : simp_lemmas → tactic unit
 | s := do

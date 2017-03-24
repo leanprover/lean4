@@ -950,6 +950,17 @@ end
 meta def add_meta_definition (n : name) (lvls : list name) (type value : expr) : tactic unit :=
 add_decl (declaration.defn n lvls type value reducibility_hints.abbrev ff)
 
+meta def apply_opt_param : tactic unit :=
+do ```(opt_param %%t %%v) ← target,
+   exact v
+
+meta def apply_auto_param : tactic unit :=
+do ```(auto_param %%type %%tac_name_expr) ← target,
+   change type,
+   tac_name ← eval_expr name tac_name_expr,
+   tac ← eval_expr (tactic unit) (expr.const tac_name []),
+   tac
+
 end tactic
 
 notation [parsing_only] `command`:max := tactic unit

@@ -685,5 +685,11 @@ meta def delta : parse ident* → parse location → tactic unit
 | cs [] := do new_cs ← to_qualified_names cs, tactic.delta new_cs
 | cs hs := do new_cs ← to_qualified_names cs, delta_hyps new_cs hs
 
+meta def apply_opt_param : tactic unit :=
+tactic.apply_opt_param
+
+meta def apply_auto_param : tactic unit :=
+tactic.apply_auto_param
+
 end interactive
 end tactic

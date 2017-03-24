@@ -238,7 +238,7 @@
   (when lean-server-show-pending-tasks
     (let* ((tasks (if lean-server-session (lean-server-session-tasks lean-server-session)))
            (cur-fn (buffer-file-name))
-           (roi (if lean-server-session (alist-get cur-fn (lean-server-session-current-roi lean-server-session)))))
+           (roi (if lean-server-session (cdr (assq cur-fn (lean-server-session-current-roi lean-server-session))))))
       (dolist (task (plist-get tasks :tasks))
         (if (and (equal (plist-get task :file_name) cur-fn)
                  (--any? (<= (max (car it) (plist-get task :pos_line))
@@ -383,7 +383,7 @@
                             roi))))
 
 (defun lean-server-roi-subset-p (as bs)
-  (--all? (let ((b (alist-get (car it) bs)))
+  (--all? (let ((b (cdr (assq (car it) bs))))
             (and b (-all? (lambda (ar) (--any? (and (<= (car it) (car ar))
                                                     (<= (cdr ar) (cdr it)))
                                                b))

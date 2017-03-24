@@ -27,8 +27,13 @@ a_1 : a = b,
 a_2 : b = c
 ⊢ a = ?m_1
 auto_quote_error2.lean:37:22: error: don't know how to synthesize placeholder
-state:
+context:
 a b c : ℕ,
 h1 : a = b,
 h2 : b = c
 ⊢ b = c
+state:
+a b c : ℕ,
+h1 : a = b,
+h2 : b = c
+⊢ a = c

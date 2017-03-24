@@ -8,17 +8,27 @@ h1 : p,
 h2 : q
 ⊢ p ∧ q
 tactic_error_pos.lean:9:19: error: don't know how to synthesize placeholder
-state:
+context:
 p q : Prop,
 h1 : p,
 h2 : q
 ⊢ p
+state:
+p q : Prop,
+h1 : p,
+h2 : q
+⊢ p ∧ q
 tactic_error_pos.lean:15:29: error: don't know how to synthesize placeholder
-state:
+context:
 p q : Prop,
 h1 : p,
 h2 : q
 ⊢ p
+state:
+p q : Prop,
+h1 : p,
+h2 : q
+⊢ p ∧ q
 tactic_error_pos.lean:23:0: error: tactic failed, there are unsolved goals
 state:
 p q : Prop,

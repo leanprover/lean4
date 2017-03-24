@@ -34,6 +34,7 @@ public:
     virtual void rethrow() const override { throw *this; }
     expr const & get_mvar() const { return m_mvar; }
     tactic_state const & get_tactic_state() const { return m_state; }
+    virtual format pp() const override;
 };
 
 class nested_elaborator_exception : public elaborator_exception {

@@ -53,8 +53,6 @@ vm_obj tactic_to_expr_core(vm_obj const & qe, vm_obj const & relaxed, vm_obj con
         } else {
             return tactic::mk_success(to_obj(r), set_env_mctx(s, env, mctx));
         }
-    } catch (failed_to_synthesize_placeholder_exception & ex) {
-        return tactic::mk_exception(ex, ex.get_tactic_state());
     } catch (elaborator_exception & ex) {
         return tactic::mk_exception(ex, s);
     } catch (exception & ex) {

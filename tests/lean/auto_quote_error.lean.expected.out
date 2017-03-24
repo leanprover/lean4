@@ -1,6 +1,11 @@
 auto_quote_error.lean:5:29: error: don't know how to synthesize placeholder
-state:
+context:
 a b c : ℕ,
 h1 : a = b,
 h2 : b = c
 ⊢ b = c
+state:
+a b c : ℕ,
+h1 : a = b,
+h2 : b = c
+⊢ c = a

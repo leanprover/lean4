@@ -12,6 +12,10 @@ throwable * elaborator_exception::clone() const {
     return new elaborator_exception(m_pos, m_fmt);
 }
 
+format failed_to_synthesize_placeholder_exception::pp() const {
+    return m_fmt + line() + format("context:") + line() + m_state.pp();
+}
+
 throwable * nested_elaborator_exception::clone() const {
     return new nested_elaborator_exception(m_pos, m_fmt, m_exception);
 }

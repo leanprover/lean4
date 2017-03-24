@@ -44,12 +44,15 @@ region_of_interest::intersection_result region_of_interest::intersects(location 
     if (loc.m_file_name.empty()) return InROI;
     if (!m_open_files || !m_open_files->count(loc.m_file_name)) return NoIntersection;
     auto & visible_lines = m_open_files->at(loc.m_file_name);
+    bool above_roi = false;
     for (auto & lr : visible_lines) {
         if (std::max(lr.m_begin_line, loc.m_range.m_begin.first)
             <= std::min(lr.m_end_line, loc.m_range.m_end.first)) {
             return InROI;
         }
+        if (loc.m_range.m_begin.first <= lr.m_end_line) above_roi = true;
     }
+    if (above_roi) return AboveROI;
     return visible_lines.empty() ? OpenFile : VisibleFile;
 }
 
@@ -57,8 +60,9 @@ bool region_of_interest::should_report(location const & loc) const {
     auto isect = intersects(loc);
     switch (m_check_mode) {
         case Nothing: return false;
-        case VisibleLines: return isect >= VisibleFile;
-        case VisibleFiles: return isect >= VisibleFile;
+        case VisibleLines: return isect >= InROI;
+        case VisibleLinesAndAbove: case VisibleFiles:
+            return isect >= VisibleFile;
         case OpenFiles: return isect >= OpenFile;
         default: return true;
     }
@@ -72,6 +76,7 @@ optional<unsigned> region_of_interest::get_priority(log_tree::node const & n) co
     switch (m_check_mode) {
         case Nothing: return no;
         case VisibleLines: return (isect >= InROI && n.get_detail_level() < log_tree::CrossModuleLintLevel) ? yes : no;
+        case VisibleLinesAndAbove: return isect >= AboveROI ? yes : no;
         case VisibleFiles: return isect >= VisibleFile ? yes : no;
         case OpenFiles: return isect >= OpenFile ? yes : no;
         default: return yes;
@@ -221,7 +226,7 @@ public:
         current_tasks_msg msg;
         auto roi = m_srv->get_roi();
         m_lt->for_each([&] (log_tree::node const & n) {
-            if (roi.should_report(n.get_location())) {
+            if (roi.get_priority(n)) {
                 if (n.get_producer()) {
                     msg.m_is_running = true;
                     msg.m_tasks.push_back(current_tasks_msg::json_of_task(n));
@@ -256,13 +261,11 @@ public:
                     if (auto prio = roi->get_priority(e.m_node)) {
                         submit_core(*prio, e.m_node);
                         need_refresh = true;
-                    } else if (roi->should_report(e.m_node.get_location())) {
-                        need_refresh = true;
                     }
                     break;
                 case log_tree::event::Finished:
                     if (!roi) roi = m_srv->get_roi();
-                    if (roi->should_report(e.m_node.get_location()))
+                    if (roi->get_priority(e.m_node))
                         need_refresh = true;
                     break;
 
@@ -630,6 +633,7 @@ region_of_interest server::get_roi() {
 static region_of_interest::checking_mode parse_checking_mode(std::string const & j) {
     if (j == "nothing") return region_of_interest::Nothing;
     if (j == "visible-lines") return region_of_interest::VisibleLines;
+    if (j == "visible-lines-and-above") return region_of_interest::VisibleLinesAndAbove;
     if (j == "visible-files") return region_of_interest::VisibleFiles;
     if (j == "open-files") return region_of_interest::OpenFiles;
     throw exception(sstream() << "unknown checking mode: " << j);

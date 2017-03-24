@@ -114,6 +114,7 @@
     "-----------------"
     ,(lean-mk-check-menu-option "Check nothing" 'nothing)
     ,(lean-mk-check-menu-option "Check visible lines" 'visible-lines)
+    ,(lean-mk-check-menu-option "Check visible lines and above" 'visible-lines-and-above)
     ,(lean-mk-check-menu-option "Check visible files" 'visible-files)
     ,(lean-mk-check-menu-option "Check open files" 'open-files)
     "-----------------"

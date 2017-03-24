@@ -427,6 +427,11 @@
   (interactive)
   (lean-set-check-mode 'visible-lines))
 
+(defun lean-check-visible-lines-and-above ()
+  "Check visible lines and above"
+  (interactive)
+  (lean-set-check-mode 'visible-lines-and-above))
+
 (defun lean-check-visible-files ()
   "Check visible files"
   (interactive)

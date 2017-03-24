@@ -29,9 +29,10 @@ struct region_of_interest {
     enum checking_mode {
         Nothing = 0,
         VisibleLines = 1,
-        VisibleFiles = 2,
-        OpenFiles = 3,
-        Everything = 4,
+        VisibleLinesAndAbove = 2,
+        VisibleFiles = 3,
+        OpenFiles = 4,
+        Everything = 5,
     };
     checking_mode m_check_mode = Everything;
 
@@ -42,7 +43,8 @@ struct region_of_interest {
         NoIntersection = 0,
         OpenFile = 1,
         VisibleFile = 2,
-        InROI = 3,
+        AboveROI = 3,
+        InROI = 4,
     };
     intersection_result intersects(location const & loc) const;
 

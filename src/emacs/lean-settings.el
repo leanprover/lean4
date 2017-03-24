@@ -93,11 +93,11 @@ false (nil)."
   :group 'lean
   :type 'boolean)
 
-(defcustom lean-server-check-mode 'visible-lines
+(defcustom lean-server-check-mode 'visible-lines-and-above
   "What parts of the open files the Lean server should check"
   :group 'lean
   :type 'symbol
-  :options '(nothing visible-lines visible-files))
+  :options '(nothing visible-lines visible-lines-and-above visible-files open-files))
 
 (defcustom lean-keybinding-std-exe1 (kbd "C-c C-x")
   "Lean Keybinding for std-exe #1"

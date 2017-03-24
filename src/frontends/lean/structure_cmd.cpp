@@ -672,7 +672,8 @@ struct structure_cmd_fn {
                 parse_field_block(binder_info());
             } else {
                 binder_info bi = m_p.parse_binder_info();
-                parse_field_block(bi);
+                if (!m_p.parse_local_notation_decl())
+                    parse_field_block(bi);
                 m_p.parse_close_binder_info(bi);
             }
         }

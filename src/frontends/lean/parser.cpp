@@ -2251,6 +2251,7 @@ void parser::process_imports() {
     scope_log_tree lt("importing", {begin_pos, pos()});
 
     buffer<import_error> import_errors;
+    std::unordered_set<std::string> already_checked;
     module_loader sorry_checking_import_fn =
             [&] (std::string const & mod_id, module_name const & import) {
                 auto mod = m_import_fn(mod_id, import);
@@ -2258,12 +2259,16 @@ void parser::process_imports() {
                 auto pos = m_last_cmd_pos;
                 auto mod_name = mod->m_module_name;
                 auto fn = m_file_name;
-                add_library_task(map<unit>(mod->m_uses_sorry, [pos, mod_name, fn] (bool uses_sorry) {
-                    if (uses_sorry)
-                        report_message(message(fn, pos, WARNING,
-                                               (sstream() << "imported file '" << mod_name << "' uses sorry").str()));
-                    return unit {};
-                }), "checking import for sorry", true, log_tree::CrossModuleLintLevel);
+                if (!already_checked.count(mod_name)) {
+                    add_library_task(map<unit>(mod->m_uses_sorry, [pos, mod_name, fn](bool uses_sorry) {
+                        if (uses_sorry)
+                            report_message(message(fn, pos, WARNING,
+                                                   (sstream() << "imported file '" << mod_name
+                                                              << "' uses sorry").str()));
+                        return unit {};
+                    }), "checking import for sorry", true, log_tree::CrossModuleLintLevel);
+                    already_checked.insert(mod_name);
+                }
 
                 return mod;
             };

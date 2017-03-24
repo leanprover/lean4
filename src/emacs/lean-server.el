@@ -257,7 +257,8 @@
   "Toggles highlighting of pending tasks"
   (interactive)
   (setq lean-server-show-pending-tasks (not lean-server-show-pending-tasks))
-  (lean-server-notify-tasks-changed))
+  (dolist (sess lean-server-sessions)
+    (lean-server-notify-tasks-changed sess nil)))
 
 (defvar-local lean-server-flycheck-delay-timer nil)
 

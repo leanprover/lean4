@@ -10,38 +10,39 @@ open list
 
 universes u v
 
+local attribute [simp] map join ret list.append append_nil
+
 section
 variables {α : Type u} {β : Type v} (x : α) (xs ys : list α) (f : α → list β)
 
+private lemma nil_bind : list.bind nil f = nil :=
+by simp [list.bind]
+
 private lemma cons_bind : list.bind (x :: xs) f = f x ++ list.bind xs f :=
-by dsimp [list.bind, join]; apply rfl
+by simp [list.bind]
 
 private lemma append_bind : list.bind (xs ++ ys) f = list.bind xs f ++ list.bind ys f :=
 begin
-  induction xs with x xs ih,
-  { apply rfl },
-  { simp [cons_bind, ih] },
+  induction xs,
+  { refl },
+  { simph [cons_bind] }
 end
 end
+
+local attribute [simp] nil_bind cons_bind append_bind
 
 instance : monad list :=
 {pure := @list.ret, bind := @list.bind,
  id_map := begin
    intros _ xs, induction xs with x xs ih,
-   { apply rfl },
-   { dsimp [list.bind, map, join, ret, append, list.append],
-     dsimp [list.bind, map, join, ret] at ih,
-     rw ih }
+   { refl },
+   { dsimp at ih, dsimp, simph }
  end,
- pure_bind := begin
-   intros,
-   dsimp [list.bind, ret, map, join],
-   apply append_nil
- end,
+ pure_bind := by simp_intros,
  bind_assoc := begin
-   intros _ _ _ xs _ _, induction xs with x xs ih,
-   { apply rfl },
-   { simp [cons_bind, append_bind, ih] },
+   intros _ _ _ xs _ _, induction xs,
+   { refl },
+   { simph }
  end}
 
 instance : alternative list :=

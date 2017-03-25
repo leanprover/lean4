@@ -29,7 +29,7 @@ class unfold_untrusted_macros_fn : public replace_visitor_with_tc {
         expr r = update_macro(e, new_args.size(), new_args.data());
         if (!m_trust_lvl || def.trust_level() >= *m_trust_lvl) {
             if (optional<expr> new_r = m_ctx.expand_macro(r)) {
-                return *new_r;
+                return visit(*new_r);
             } else {
                 throw generic_exception(e, "failed to expand macro");
             }

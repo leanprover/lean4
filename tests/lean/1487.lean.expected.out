@@ -1,0 +1,5 @@
+1487.lean:3:2: error: smt_tactic.close failed
+state:
+α : Sort ?,
+a b : α
+⊢ a = b

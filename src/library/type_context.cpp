@@ -3487,9 +3487,9 @@ static void instantiate_replacements(type_context & ctx, buffer<expr_pair> & rep
     }
 }
 
-optional<expr> type_context::mk_class_instance(expr const & type) {
+optional<expr> type_context::mk_class_instance(expr const & type, bool assign_regular_uvars) {
     scope S(*this);
-    flet<bool> set(m_assign_regular_uvars_in_tmp_mode, true);
+    flet<bool> set(m_assign_regular_uvars_in_tmp_mode, assign_regular_uvars);
     optional<expr> result;
     buffer<expr_pair> replacements;
     if (in_tmp_mode()) {
@@ -3528,7 +3528,15 @@ optional<expr> type_context::mk_subsingleton_instance(expr const & type) {
     }
     level lvl    = sort_level(Type);
     expr subsingleton = mk_app(mk_constant(get_subsingleton_name(), {lvl}), type);
-    auto r = mk_class_instance(subsingleton);
+    /* We disable universe metavariable assignment, because we don't want
+       to prove that is a subsingleton in this case. More specifically, we don't want
+       Given (A : Sort ?u) (a : A), we don't want to report that 'a' is a
+       subsingleton by assigning ?u := 0.
+
+       See issue #1487
+    */
+    bool assign_regular_uvars = false;
+    auto r = mk_class_instance(subsingleton, assign_regular_uvars);
     m_cache->m_subsingleton_cache.insert(mk_pair(type, r));
     return r;
 }

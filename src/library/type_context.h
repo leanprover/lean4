@@ -448,7 +448,7 @@ public:
     optional<expr> expand_macro(expr const & e);
 
     optional<name> is_class(expr const & type);
-    optional<expr> mk_class_instance(expr const & type);
+    optional<expr> mk_class_instance(expr const & type, bool assign_regular_uvars = true);
     optional<expr> mk_subsingleton_instance(expr const & type);
     /* Create type class instance in a different local context */
     optional<expr> mk_class_instance_at(local_context const & lctx, expr const & type);

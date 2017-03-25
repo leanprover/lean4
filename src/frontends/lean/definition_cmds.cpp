@@ -791,8 +791,14 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
                 val = get_equations_result(val, 0);
             }
             finalize_definition(elab, new_params, type, val, lp_names, modifiers.m_is_meta);
+            auto env = elab.env();
+            if (!type_checker(env).is_prop(type) && !modifiers.m_is_meta) {
+                /* We only abstract nested proofs if the type of the definition is not a proposition */
+                std::tie(env, type) = abstract_nested_proofs(env, c_name, type);
+                std::tie(env, val)  = abstract_nested_proofs(env, c_name, val);
+            }
             opt_val = optional<expr>(val);
-            env_n = declare_definition(p, elab.env(), kind, lp_names, c_name, type, opt_val, {}, modifiers, attrs, doc_string, header_pos);
+            env_n = declare_definition(p, env, kind, lp_names, c_name, type, opt_val, {}, modifiers, attrs, doc_string, header_pos);
         }
         environment new_env = env_n.first;
         name c_real_name    = env_n.second;

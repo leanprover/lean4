@@ -32,6 +32,9 @@ optional<name> hidden_to_user_name(environment const & env, name const & n);
 
 bool is_private(environment const & env, name const & n);
 
+/* Create a private name based on \c c and get_pos_info_provider(), and register it using \c add_private_name */
+pair<environment, name> mk_private_name(environment const & env, name const & c);
+
 void initialize_private();
 void finalize_private();
 }

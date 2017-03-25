@@ -254,13 +254,7 @@ local_context erase_inaccessible_annotations(local_context const & lctx) {
 
 static pair<environment, name> mk_def_name(environment const & env, bool is_private, name const & c) {
     if (is_private) {
-        unsigned h = 31;
-        if (auto pinfo = get_pos_info_provider()) {
-            h = hash(pinfo->get_some_pos().first, pinfo->get_some_pos().second);
-            char const * fname = pinfo->get_file_name();
-            h = hash_str(strlen(fname), fname, h);
-        }
-        return add_private_name(env, c, optional<unsigned>(h));
+        return mk_private_name(env, c);
     } else {
         return mk_pair(env, c);
     }
@@ -307,11 +301,35 @@ pair<environment, expr> mk_aux_definition(environment const & env, options const
     return mk_pair(new_env, r);
 }
 
+static pair<environment, expr> abstract_rhs_nested_proofs(environment const & env, metavar_context const & mctx, local_context const & lctx,
+                                                          name const & base_name, expr const & e) {
+    type_context ctx(env, options(), mctx, lctx, transparency_mode::Semireducible);
+    type_context::tmp_locals locals(ctx);
+    expr t = e;
+    while (is_pi(t)) {
+        expr d = instantiate_rev(binding_domain(t), locals.size(), locals.data());
+        locals.push_local(binding_name(t), d, binding_info(t));
+        t = binding_body(t);
+    }
+    t = instantiate_rev(t, locals.size(), locals.data());
+    expr lhs, rhs;
+    if (is_eq(t, lhs, rhs) && !ctx.is_proof(rhs)) {
+        pair<environment, expr> new_env_rhs = abstract_nested_proofs(env, mctx, ctx.lctx(), base_name, rhs);
+        if (rhs == new_env_rhs.second) {
+            return mk_pair(env, e);
+        } else {
+            return mk_pair(new_env_rhs.first, locals.mk_pi(mk_app(app_fn(t), new_env_rhs.second)));
+        }
+    } else {
+        return mk_pair(env, e);
+    }
+}
+
 static environment add_equation_lemma(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx,
-                                      bool is_private, name const & c, expr const & type, expr const & value) {
+                                      bool is_private, name const & f_name, name const & eqn_name, expr const & type, expr const & value) {
     environment new_env = env;
-    name new_c;
-    std::tie(new_env, new_c) = mk_def_name(env, is_private, c);
+    name new_eqn_name;
+    std::tie(new_env, new_eqn_name) = mk_def_name(env, is_private, eqn_name);
     expr r;
     expr new_type  = erase_inaccessible_annotations(type);
     expr new_value = value;
@@ -320,13 +338,19 @@ static environment add_equation_lemma(environment const & env, options const & o
         new_type   = zeta_expand(lctx, new_type);
         new_value  = zeta_expand(lctx, new_value);
     }
+    if (!is_private) {
+        /* We do not abstract for private equation lemmas because:
+           1- It is not clear how to name them.
+           2- Their scope is limited to the current file. */
+        std::tie(new_env, new_type) = abstract_rhs_nested_proofs(new_env, mctx, lctx, f_name, new_type);
+    }
     try {
-        std::tie(new_env, r) = mk_aux_definition(new_env, mctx, lctx, new_c, new_type, new_value);
+        std::tie(new_env, r) = mk_aux_definition(new_env, mctx, lctx, new_eqn_name, new_type, new_value);
         if (is_rfl_lemma(new_type, new_value))
-            new_env = mark_rfl_lemma(new_env, new_c);
-        new_env = add_eqn_lemma(new_env, new_c);
+            new_env = mark_rfl_lemma(new_env, new_eqn_name);
+        new_env = add_eqn_lemma(new_env, new_eqn_name);
     } catch (exception & ex) {
-        throw_mk_aux_definition_error(lctx, c, new_type, new_value, ex);
+        throw_mk_aux_definition_error(lctx, eqn_name, new_type, new_value, ex);
     }
     return new_env;
 }
@@ -556,7 +580,7 @@ environment mk_equation_lemma(environment const & env, options const & opts, met
     expr type     = ctx.mk_pi(Hs, mk_eq(ctx, lhs, rhs));
     expr proof    = prove_eqn_lemma(ctx, Hs, lhs, rhs);
     name eqn_name = mk_equation_name(f_name, eqn_idx);
-    return add_equation_lemma(env, opts, mctx, lctx, is_private, eqn_name, type, proof);
+    return add_equation_lemma(env, opts, mctx, lctx, is_private, f_name, eqn_name, type, proof);
 }
 
 environment mk_simple_equation_lemma_for(environment const & env, options const & opts, bool is_private, name const & c, unsigned arity) {
@@ -581,7 +605,7 @@ environment mk_simple_equation_lemma_for(environment const & env, options const 
     name eqn_name  = mk_equation_name(c, 1);
     expr eqn_type  = locals.mk_pi(mk_eq(ctx, lhs, value));
     expr eqn_proof = locals.mk_lambda(mk_eq_refl(ctx, lhs));
-    return add_equation_lemma(env, opts, metavar_context(), ctx.lctx(), is_private, eqn_name, eqn_type, eqn_proof);
+    return add_equation_lemma(env, opts, metavar_context(), ctx.lctx(), is_private, c, eqn_name, eqn_type, eqn_proof);
 }
 
 bool is_name_value(expr const & e) {

@@ -13,6 +13,8 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 #include "library/aux_definition.h"
 #include "library/unfold_macros.h"
+#include "library/replace_visitor_with_tc.h"
+
 namespace lean {
 struct mk_aux_definition_fn {
     type_context &  m_ctx;
@@ -128,7 +130,7 @@ struct mk_aux_definition_fn {
         lean_assert(!is_lemma || *is_meta == false);
         expr new_type  = collect(m_ctx.instantiate_mvars(type));
         expr new_value = collect(m_ctx.instantiate_mvars(value));
-        environment const & env = m_ctx.env();
+        environment env = m_ctx.env();
         buffer<expr> norm_params;
         collect_and_normalize_dependencies(norm_params);
         new_type  = replace_locals(new_type, m_params, norm_params);
@@ -192,5 +194,88 @@ pair<environment, expr> mk_aux_lemma(environment const & env, metavar_context co
     bool is_lemma = true;
     optional<bool> is_meta(false);
     return mk_aux_definition_fn(ctx)(c, type, value, is_lemma, is_meta);
+}
+
+struct abstract_nested_proofs_fn : public replace_visitor_with_tc {
+    name     m_base_name;
+    unsigned m_idx{1};
+
+    abstract_nested_proofs_fn(type_context & ctx, name const & b):
+        replace_visitor_with_tc(ctx),
+        m_base_name(b, "_proof") {
+    }
+
+    static bool is_atomic(expr const & e) {
+        return is_constant(e) || is_local(e);
+    }
+
+    name mk_name() {
+        environment env = m_ctx.env();
+        while (true) {
+            name curr = m_base_name.append_after(m_idx);
+            m_idx++;
+            if (!env.find(curr)) {
+                m_ctx.set_env(env);
+                return curr;
+            }
+        }
+    }
+
+    optional<expr> is_non_trivial_proof(expr const & e) {
+        if (is_atomic(e))
+            return none_expr();
+        if (is_pi(e) || is_sort(e))
+            return none_expr();
+        expr type = m_ctx.infer(e);
+        if (!m_ctx.is_prop(type))
+            return none_expr();
+        if (is_app(e)) {
+            buffer<expr> args;
+            expr const & fn = get_app_args(e, args);
+            if (!is_atomic(fn))
+                return some_expr(type);
+            for (expr const & arg : args) {
+                if (!is_atomic(arg))
+                    return some_expr(type);
+            }
+            return none_expr();
+        } else {
+            return some_expr(type);
+        }
+    }
+
+    virtual expr visit_mlocal(expr const & e) override {
+        return e;
+    }
+
+    virtual expr visit(expr const & e) override {
+        if (auto type = is_non_trivial_proof(e)) {
+            expr new_e = zeta_expand(m_ctx.lctx(), e);
+            if (e != new_e) {
+                *type = m_ctx.infer(new_e);
+            }
+            name n = mk_name();
+            auto new_env_new_e = mk_aux_lemma(m_ctx.env(), m_ctx.mctx(), m_ctx.lctx(), n, *type, new_e);
+            m_ctx.set_env(new_env_new_e.first);
+            return new_env_new_e.second;
+        } else {
+            return replace_visitor_with_tc::visit(e);
+        }
+    }
+
+    pair<environment, expr> operator()(expr const & e) {
+        expr new_e = replace_visitor_with_tc::operator()(e);
+        return mk_pair(m_ctx.env(), new_e);
+    }
+};
+
+pair<environment, expr> abstract_nested_proofs(environment const & env, metavar_context const & mctx, local_context const & lctx, name const & base_name, expr const & e) {
+    type_context ctx(env, options(), mctx, lctx, transparency_mode::Semireducible);
+    return abstract_nested_proofs_fn(ctx, base_name)(e);
+}
+
+pair<environment, expr> abstract_nested_proofs(environment const & env, name const & base_name, expr const & e) {
+    lean_assert(!has_metavar(e));
+    return abstract_nested_proofs(env, metavar_context(), local_context(), base_name, e);
 }
 }

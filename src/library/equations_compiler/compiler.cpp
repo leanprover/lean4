@@ -234,8 +234,10 @@ struct pull_nested_rec_fn : public replace_visitor {
 };
 
 expr compile_equations(environment & env, options const & opts, metavar_context & mctx, local_context const & lctx,
-                       expr const & eqns) {
-    if (!get_equations_header(eqns).m_is_meta && has_nested_rec(eqns)) {
+                       expr const & _eqns) {
+    expr eqns = _eqns;
+    equations_header const & header = get_equations_header(eqns);
+    if (!header.m_is_meta && has_nested_rec(eqns)) {
         return pull_nested_rec_fn(env, opts, mctx, lctx)(eqns);
     } else {
         return compile_equations_core(env, opts, mctx, lctx, eqns);

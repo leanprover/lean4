@@ -91,6 +91,16 @@ bool is_private(environment const & env, name const & n) {
     return static_cast<bool>(hidden_to_user_name(env, n));
 }
 
+pair<environment, name> mk_private_name(environment const & env, name const & c) {
+    unsigned h = 31;
+    if (auto pinfo = get_pos_info_provider()) {
+        h = hash(pinfo->get_some_pos().first, pinfo->get_some_pos().second);
+        char const * fname = pinfo->get_file_name();
+        h = hash_str(strlen(fname), fname, h);
+    }
+    return add_private_name(env, c, optional<unsigned>(h));
+}
+
 void initialize_private() {
     g_ext     = new private_ext_reg();
     g_private = new name("_private");

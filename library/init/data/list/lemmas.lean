@@ -159,7 +159,7 @@ by induction l; simph
 attribute [simp] last
 
 @[simp] lemma last_cons {a : α} {l : list α} : ∀ (h₁ : a :: l ≠ nil) (h₂ : l ≠ nil), last (a :: l) h₁ = last l h₂ :=
-by {induction l; intros, contradiction, simph}
+by {induction l; intros, contradiction, simph, reflexivity}
 
 @[simp] lemma last_append {a : α} (l : list α) (h : l ++ [a] ≠ []) : last (l ++ [a]) h = a :=
 begin

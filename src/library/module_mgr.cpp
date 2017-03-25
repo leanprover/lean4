@@ -268,18 +268,29 @@ module_mgr::build_lean(module_id const & id, std::string const & contents, time_
     return mod;
 }
 
-static optional<pos_info> get_first_diff_pos(std::string const & a, std::string const & b) {
-    std::istringstream in_a(a), in_b(b);
-    for (unsigned line = 1;; line++) {
-        if (in_a.eof() && in_b.eof()) return optional<pos_info>();
-        if (in_a.eof() || in_b.eof()) return optional<pos_info>(line, 0);
-
-        std::string line_a, line_b;
-        std::getline(in_a, line_a);
-        std::getline(in_b, line_b);
-        // TODO(gabriel): return column as well
-        if (line_a != line_b) return optional<pos_info>(line, 0);
+static optional<pos_info> get_first_diff_pos(std::string const & as, std::string const & bs) {
+    char const * a = as.c_str(), * b = bs.c_str();
+    int line = 1;
+    while (true) {
+        char const * ai = strchr(a, '\n');
+        char const * bi = strchr(b, '\n');
+        if (ai && bi) {
+            if (ai - a == bi - b &&
+                    ai[1] && bi[1] && // ignore final newlines, the scanner does not see them
+                    strncmp(a, b, ai - a) == 0) {
+                a = ai + 1;
+                b = bi + 1;
+                line++;
+            } else {
+                break;
+            }
+        } else if (strcmp(a, b) == 0) {
+            return optional<pos_info>();
+        } else {
+            break;
+        }
     }
+    return optional<pos_info>(line, 0);
 }
 
 std::pair<cancellation_token, module_parser_result>

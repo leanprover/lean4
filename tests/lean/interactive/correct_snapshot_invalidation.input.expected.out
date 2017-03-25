@@ -1,0 +1,14 @@
+{"message":"file invalidated","response":"ok","seq_num":0}
+{"message":"file invalidated","response":"ok","seq_num":1}
+{"msgs":[{"caption":"","file_name":"f","pos_col":0,"pos_line":3,"severity":"error","text":"unknown identifier 'd'"}],"response":"all_messages"}
+{"message":"file invalidated","response":"ok","seq_num":2}
+{"msgs":[{"caption":"","file_name":"f","pos_col":0,"pos_line":3,"severity":"error","text":"unknown identifier 'd'"}],"response":"all_messages"}
+{"msgs":[],"response":"all_messages"}
+{"msgs":[{"caption":"","file_name":"f","pos_col":3,"pos_line":3,"severity":"error","text":"invalid declaration, identifier expected"}],"response":"all_messages"}
+{"message":"file invalidated","response":"ok","seq_num":3}
+{"msgs":[{"caption":"","file_name":"f","pos_col":3,"pos_line":3,"severity":"error","text":"invalid declaration, identifier expected"}],"response":"all_messages"}
+{"msgs":[],"response":"all_messages"}
+{"message":"file invalidated","response":"ok","seq_num":4}
+{"message":"file invalidated","response":"ok","seq_num":5}
+{"message":"file invalidated","response":"ok","seq_num":6}
+{"message":"file invalidated","response":"ok","seq_num":7}

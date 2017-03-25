@@ -846,7 +846,8 @@ struct structure_cmd_fn {
         buffer<expr> field_wo_defaults;
         for (field_decl const & decl : m_fields) field_wo_defaults.push_back(decl.local);
         r         = Pi(m_params, Pi(field_wo_defaults, r, m_p), m_p);
-        return infer_implicit_params(r, m_params.size(), m_mk_infer);
+        r         = infer_implicit_params(r, m_params.size(), m_mk_infer);
+        return unfold_untrusted_macros(m_env, r);
     }
 
     expr mk_intro_type_no_params() {

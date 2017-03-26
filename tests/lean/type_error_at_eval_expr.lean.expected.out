@@ -1,6 +1,4 @@
-type_error_at_eval_expr.lean:3:0: error: eval_expr failed due to type error
-nested exception message:
-type mismatch at definition '_eval_expr.16.500', has type
+type_error_at_eval_expr.lean:3:0: error: type error at eval_expr, argument has type '
   list ℕ
 but is expected to have type
   ℕ

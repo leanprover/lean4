@@ -735,9 +735,7 @@ static void check_definition(environment const & env, declaration const & d, typ
     check_no_mlocal(env, d.get_name(), d.get_value(), false);
     expr val_type = checker.check(d.get_value(), d.get_univ_params());
     if (!checker.is_def_eq(val_type, d.get_type())) {
-        throw_kernel_exception(env, d.get_value(), [=](formatter const &fmt) {
-            return pp_def_type_mismatch(fmt, d.get_name(), d.get_type(), val_type, true);
-        });
+        throw definition_type_mismatch_exception(env, d, val_type);
     }
 }
 

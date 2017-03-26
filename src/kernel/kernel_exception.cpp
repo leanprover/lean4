@@ -9,9 +9,14 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "kernel/scope_pos_info_provider.h"
 #include "kernel/kernel_exception.h"
+#include "kernel/error_msgs.h"
 
 namespace lean {
 format kernel_exception::pp(formatter const &) const { return format(what()); }
+
+format definition_type_mismatch_exception::pp(formatter const & fmt) const {
+    return pp_def_type_mismatch(fmt, m_decl.get_name(), m_decl.get_type(), m_given_type, true);
+}
 
 class generic_kernel_exception : public kernel_exception {
 protected:

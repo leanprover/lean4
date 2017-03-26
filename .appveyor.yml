@@ -11,7 +11,7 @@ build_script:
   - C:\msys64\usr\bin\bash -lc "exec 0</dev/null && cd $APPVEYOR_BUILD_FOLDER/build && ninja && cpack"
 
 test_script:
-  - C:\msys64\usr\bin\bash -lc "exec 0</dev/null && cd $APPVEYOR_BUILD_FOLDER/build && ctest -j4"
+  - C:\msys64\usr\bin\bash -lc "exec 0</dev/null && cd $APPVEYOR_BUILD_FOLDER/build && ctest -j4 --output-on-failure"
 
 artifacts:
   - path: build\lean-3.1.1-windows.zip

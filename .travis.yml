@@ -112,9 +112,9 @@ script:
   - cpack
   # TODO(gabriel): add smaller test subset for debug and emscripten builds
   - if [[ $CMAKE_BUILD_TYPE == Release ]]; then
-      yes "A" | ctest -j2;
+      yes "A" | ctest -j2 --output-on-failure;
     else
-      yes "A" | ctest -j2 -I 100,600,10;
+      yes "A" | ctest -j2 -I 100,600,10 --output-on-failure;
     fi
   - if [[ $PACKAGE == TRUE ]]; then make package; fi
   - cd ..

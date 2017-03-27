@@ -13,12 +13,9 @@ a + 2
 
 open tactic
 
-meta def check_target (p : pexpr) : tactic unit :=
-do t ← target, e ← to_expr p, guard (expr.alpha_eqv t e)
-
 lemma flemma : f 0 = 2 :=
 begin
   delta f,
-  check_target `(0 + 2 = 2),
+  guard_target 0 + 2 = 2,
   reflexivity
 end

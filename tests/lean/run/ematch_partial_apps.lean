@@ -1,11 +1,5 @@
 open tactic
 
-meta def check_expr (p : pexpr) (t : expr) : tactic unit :=
-do e ← to_expr p, guard (expr.alpha_eqv t e)
-
-meta def check_target (p : pexpr) : tactic unit :=
-do t ← target, check_expr p t
-
 set_option trace.smt.ematch true
 
 example (a : list nat) (f : nat → nat) : a = [1, 2] → a^.for f = [f 1, f 2] :=

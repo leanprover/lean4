@@ -253,5 +253,11 @@ meta def eblast_using (l : parse qexpr_list_or_texpr) : smt_tactic unit :=
 do hs ← add_hinst_lemmas_from_pexprs reducible ff l hinst_lemmas.mk,
    smt_tactic.repeat (smt_tactic.ematch_using hs >> smt_tactic.try smt_tactic.close)
 
+meta def guard_expr_eq (t : expr) (p : parse $ tk ":=" *> texpr) : smt_tactic unit :=
+do e ← to_expr p, guard (expr.alpha_eqv t e)
+
+meta def guard_target (p : parse texpr) : smt_tactic unit :=
+do t ← target, guard_expr_eq t p
+
 end interactive
 end smt_tactic

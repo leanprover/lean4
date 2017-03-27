@@ -694,5 +694,11 @@ tactic.apply_auto_param
 meta def fail_if_success (tac : itactic) : tactic unit :=
 tactic.fail_if_success tac
 
+meta def guard_expr_eq (t : expr) (p : parse $ tk ":=" *> texpr) : tactic unit :=
+do e ← to_expr p, guard (alpha_eqv t e)
+
+meta def guard_target (p : parse texpr) : tactic unit :=
+do t ← target, guard_expr_eq t p
+
 end interactive
 end tactic

@@ -46,16 +46,10 @@ rfl
 
 open tactic
 
-meta def check_expr (p : pexpr) (t : expr) : tactic unit :=
-do e ← to_expr p, guard (expr.alpha_eqv t e)
-
-meta def check_target (p : pexpr) : tactic unit :=
-do t ← target, check_expr p t
-
 run_cmd do
   t ← to_expr `(test._match_2) >>= infer_type,
   trace t,
-  check_expr `(nat → nat) t
+  tactic.interactive.guard_expr_eq t `(nat → nat)
 
 example (k m n : ℕ) : test (succ k) (succ (succ n)) m = 3 :=
 begin

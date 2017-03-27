@@ -1066,10 +1066,10 @@ static expr parse_proj(parser_state & p, unsigned, expr const * args, pos_info c
             /* failed to elaborate or infer type */
             throw ex;
         }
-        expr fn       = get_app_fn(lhs_type);
+        expr fn = get_app_fn(lhs_type);
         if (is_constant(fn)) {
-            ex.m_token_info.m_struct  = const_name(fn);
             ex.m_token_info.m_context = break_at_pos_exception::token_context::field;
+            ex.m_token_info.m_struct  = const_name(fn);
         }
         throw;
     }

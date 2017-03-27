@@ -1,3 +1,6 @@
+{"msgs":[{"caption":"","file_name":"f","pos_col":40,"pos_line":13,"severity":"error","text":"invalid expression, `)` expected"}],"response":"all_messages"}
 {"message":"file invalidated","response":"ok","seq_num":0}
 {"record":{"full-id":"nat.to_string","source":,"type":"ℕ → string"},"response":"ok","seq_num":2}
 {"record":{"full-id":"list.all","source":,"type":"Π {α : Type}, list α → (α → bool) → bool"},"response":"ok","seq_num":4}
+{"record":{"full-id":"list.all","source":,"type":"Π {α : Type}, list α → (α → bool) → bool"},"response":"ok","seq_num":9}
+{"record":{"full-id":"list.all","source":,"type":"Π {α : Type u}, list α → (α → bool) → bool"},"response":"ok","seq_num":13}

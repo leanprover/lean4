@@ -129,7 +129,14 @@ void report_info(environment const & env, options const & opts, io_state const &
                     record["tactic_param_idx"] = *idx;
                 has_token_info = true;
                 break;
-            default:
+            case break_at_pos_exception::token_context::field: {
+                auto name = e.m_token_info.m_struct + e.m_token_info.m_token;
+                record["full-id"] = name.to_string();
+                add_source_info(env, name, record);
+                if (auto doc = get_doc_string(env, name))
+                    record["doc"] = *doc;
+                interactive_report_type(env, opts, env.get(name).get_type(), record);
+            } default:
                 break;
         }
     }

@@ -691,5 +691,8 @@ tactic.apply_opt_param
 meta def apply_auto_param : tactic unit :=
 tactic.apply_auto_param
 
+meta def fail_if_success (tac : itactic) : tactic unit :=
+tactic.fail_if_success tac
+
 end interactive
 end tactic

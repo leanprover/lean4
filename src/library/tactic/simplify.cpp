@@ -68,7 +68,8 @@ simp_config::simp_config():
     m_canonize_instances(true),
     m_canonize_proofs(false),
     m_use_axioms(false),
-    m_zeta(false) {
+    m_zeta(false),
+    m_beta(false) {
 }
 
 simp_config::simp_config(vm_obj const & obj) {
@@ -79,6 +80,7 @@ simp_config::simp_config(vm_obj const & obj) {
     m_canonize_proofs    = to_bool(cfield(obj, 4));
     m_use_axioms         = to_bool(cfield(obj, 5));
     m_zeta               = to_bool(cfield(obj, 6));
+    m_beta               = to_bool(cfield(obj, 7));
 }
 
 /* -----------------------------------
@@ -792,7 +794,10 @@ simp_result simplify_core_fn::visit_fn(expr const & e) {
 
 simp_result simplify_core_fn::visit_app(expr const & _e) {
     lean_assert(is_app(_e));
-    expr e = should_defeq_canonize() ? defeq_canonize_args_step(_e) : _e;
+    expr e = _e;
+    if (m_cfg.m_beta)
+        e = head_beta_reduce(e);
+    e = should_defeq_canonize() ? defeq_canonize_args_step(e) : e;
 
     // (1) Try user-defined congruences
     simp_result r_user = try_user_congrs(e);

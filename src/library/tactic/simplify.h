@@ -22,6 +22,7 @@ structure simp_config :=
 (canonize_proofs : bool)
 (use_axioms : bool)
 (zeta : bool)
+(beta : bool)
 */
 struct simp_config {
     unsigned                  m_max_steps;
@@ -31,6 +32,7 @@ struct simp_config {
     bool                      m_canonize_proofs;
     bool                      m_use_axioms;
     bool                      m_zeta;
+    bool                      m_beta;
     /* The following option should be removed as soon as we
        refactor the inductive compiler. */
     bool                      m_use_matcher{true};
@@ -72,7 +74,7 @@ protected:
     bool                      m_need_restart{false};
 
     /* Options */
-    simp_config           m_cfg;
+    simp_config               m_cfg;
 
     simp_result join(simp_result const & r1, simp_result const & r2);
     void inc_num_steps();

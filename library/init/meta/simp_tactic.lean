@@ -194,6 +194,7 @@ structure simp_config :=
 (canonize_proofs : bool    := ff)
 (use_axioms : bool         := tt)
 (zeta : bool               := tt)
+(beta : bool               := tt)
 
 meta constant simplify_core
   (c : simp_config)

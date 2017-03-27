@@ -304,10 +304,9 @@ protected meta def transfer_core : tactic unit := do
     `int.rel_eq, `int.rel_zero, `int.rel_one,
     `int.rel_add, `int.rel_neg, `int.rel_mul]
 
-
-protected meta def transfer (distrib := ff) : tactic unit :=
-if distrib then `[abstract {int.transfer_core, simp [add_mul, mul_add], intros, trivial}]
-else `[abstract {int.transfer_core, simp, intros, trivial}]
+protected meta def transfer (distrib := tt) : tactic unit :=
+if distrib then `[int.transfer_core, simp [add_mul, mul_add]]
+else `[int.transfer_core, simp]
 
 instance : comm_ring int :=
 { add            := int.add,
@@ -342,7 +341,7 @@ instance : semiring int           := by apply_instance
 instance : ring int               := by apply_instance
 instance : distrib int            := by apply_instance
 
-protected lemma zero_ne_one : (0 : int) ≠ 1 :=
-by int.transfer
+instance : zero_ne_one_class ℤ :=
+{ zero := 0, one := 1, zero_ne_one := by int.transfer }
 
 end int

@@ -63,6 +63,9 @@ assume h, nat.no_confusion h
 protected lemma zero_ne_one : 0 ≠ (1 : ℕ) :=
 assume h, nat.no_confusion h
 
+instance : zero_ne_one_class ℕ :=
+{ zero := 0, one := 1, zero_ne_one := nat.zero_ne_one }
+
 lemma eq_zero_of_add_eq_zero_right : ∀ {n m : ℕ}, n + m = 0 → n = 0
 | 0     m := by simp [nat.zero_add]
 | (n+1) m := λ h,

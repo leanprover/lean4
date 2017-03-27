@@ -517,7 +517,7 @@ iff_true_intro iff.rfl
     (iff_iff_implies_and_implies c d).symm)
 
 /- implies simp rule -/
-@[simp] lemma implies_true_iff (a : Prop) : (a → true) ↔ true :=
+@[simp] lemma implies_true_iff (α : Sort u) : (α → true) ↔ true :=
 iff.intro (λ h, trivial) (λ ha h, trivial)
 
 @[simp] lemma false_implies_iff (a : Prop) : (false → a) ↔ true :=

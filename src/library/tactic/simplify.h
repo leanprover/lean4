@@ -145,6 +145,7 @@ protected:
     virtual simp_result visit_lambda(expr const & e) override;
     virtual simp_result visit_pi(expr const & e) override;
     virtual simp_result visit_let(expr const & e) override;
+    virtual simp_result visit_macro(expr const & e) override;
 public:
     simplify_ext_core_fn(type_context & ctx, defeq_canonizer::state & dcs, simp_lemmas const & slss,
                          simp_config const & cfg);

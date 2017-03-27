@@ -17,6 +17,7 @@ Author: Daniel Selsam, Leonardo de Moura
 #include "kernel/find_fn.h"
 #include "kernel/instantiate.h"
 #include "library/trace.h"
+#include "library/annotation.h"
 #include "library/pp_options.h"
 #include "library/constants.h"
 #include "library/normalize.h"
@@ -726,8 +727,10 @@ simp_result simplify_core_fn::visit(expr const & e, optional<expr> const & paren
         case expr_kind::Meta:
         case expr_kind::Sort:
         case expr_kind::Constant:
-        case expr_kind::Macro:
             new_result = curr_result;
+            break;
+        case expr_kind::Macro:
+            new_result = join(curr_result, visit_macro(curr_result.get_new()));
             break;
         case expr_kind::Var:
             lean_unreachable();
@@ -1057,6 +1060,14 @@ simp_result simplify_ext_core_fn::visit_pi(expr const & e) {
         }
     }
     return simplify_core_fn::visit_pi(e);
+}
+
+simp_result simplify_ext_core_fn::visit_macro(expr const & e) {
+    if (is_annotation(e)) {
+        return visit(get_annotation_arg(e), none_expr());
+    } else {
+        return simplify_core_fn::visit_macro(e);
+    }
 }
 
 simp_result simplify_ext_core_fn::visit_let(expr const & e) {

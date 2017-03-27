@@ -1039,7 +1039,6 @@ unsigned get_field_notation_field_idx(expr const & e) {
 
 static expr parse_proj(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
     try {
-        p.check_break_at_pos(break_at_pos_exception::token_context::expr);
         if (p.curr_is_numeral()) {
             pos_info num_pos = p.pos();
             unsigned fidx = p.parse_small_nat();
@@ -1051,6 +1050,10 @@ static expr parse_proj(parser_state & p, unsigned, expr const * args, pos_info c
             return p.save_pos(mk_proj_notation(args[0], field), pos);
         }
     } catch (break_at_pos_exception & ex) {
+        if (!p.get_complete()) {
+            // info is stored at position of notation token
+            ex.m_token_info.m_pos = pos;
+        }
         expr lhs = args[0];
         expr lhs_type;
         try {
@@ -1061,16 +1064,12 @@ static expr parse_proj(parser_state & p, unsigned, expr const * args, pos_info c
             lhs_type = tc.infer(lhs);
         } catch (exception &) {
             /* failed to elaborate or infer type */
-            throw;
+            throw ex;
         }
         expr fn       = get_app_fn(lhs_type);
         if (is_constant(fn)) {
             ex.m_token_info.m_struct  = const_name(fn);
             ex.m_token_info.m_context = break_at_pos_exception::token_context::field;
-            if (!p.get_complete()) {
-                // info is stored at position of notation token
-                ex.m_token_info.m_pos = pos;
-            }
         }
         throw;
     }

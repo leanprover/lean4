@@ -314,19 +314,33 @@ struct inductive_modification : public modification {
     LEAN_MODIFICATION("ind")
 
     inductive::certified_inductive_decl m_decl;
+    unsigned m_trust_lvl = LEAN_BELIEVER_TRUST_LEVEL + 1;
 
-    inductive_modification(inductive::certified_inductive_decl const & decl) : m_decl(decl) {}
+
+    inductive_modification(inductive::certified_inductive_decl const & decl, unsigned trust_lvl) :
+            m_decl(decl), m_trust_lvl(trust_lvl) {}
 
     void perform(environment & env) const override {
-        env = m_decl.add(env);
+        if (m_trust_lvl > env.trust_lvl()) {
+            auto d = m_decl.get_decl();
+            d.m_intro_rules = map(d.m_intro_rules, [&](inductive::intro_rule const & r) {
+                return unfold_untrusted_macros(env, r);
+            });
+            env = add_inductive(env, d, m_decl.is_trusted()).first;
+        } else {
+            env = m_decl.add(env);
+        }
     }
 
     void serialize(serializer & s) const override {
-        s << m_decl;
+        s << m_decl << m_trust_lvl;
     }
 
     static std::shared_ptr<modification const> deserialize(deserializer & d) {
-        return std::make_shared<inductive_modification>(read_certified_inductive_decl(d));
+        auto decl = read_certified_inductive_decl(d);
+        unsigned trust_lvl;
+        d >> trust_lvl;
+        return std::make_shared<inductive_modification>(std::move(decl), trust_lvl);
     }
 
     void get_introduced_exprs(std::vector<task<expr>> & es) const override {
@@ -450,7 +464,7 @@ environment add_inductive(environment                       env,
     ext.m_module_decls = cons(decl.m_name, ext.m_module_decls);
     new_env = update(new_env, ext);
     new_env = add_decl_pos_info(new_env, decl.m_name);
-    return add(new_env, std::make_shared<inductive_modification>(cdecl));
+    return add(new_env, std::make_shared<inductive_modification>(cdecl, env.trust_lvl()));
 }
 } // end of namespace module
 

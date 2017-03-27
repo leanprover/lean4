@@ -76,13 +76,13 @@ info_data mk_type_info(expr const & e) { return info_data(new type_info_data(e))
 info_data mk_identifier_info(name const & full_id) { return info_data(new identifier_info_data(full_id)); }
 info_data mk_vm_obj_format_info(environment const & env, vm_obj const & thunk) { return info_data(new vm_obj_format_info(env, thunk)); }
 
-void info_manager::add_info(unsigned l, unsigned c, info_data data) {
+void info_manager::add_info(pos_info pos, info_data data) {
 #ifdef LEAN_NO_INFO
     return;
 #endif
-    line_info_data_set line_set = m_line_data[l];
-    line_set.insert(c, cons<info_data>(data, line_set[c]));
-    m_line_data.insert(l, line_set);
+    line_info_data_set line_set = m_line_data[pos.first];
+    line_set.insert(pos.second, cons<info_data>(data, line_set[pos.second]));
+    m_line_data.insert(pos.first, line_set);
 }
 
 line_info_data_set info_manager::get_line_info_set(unsigned l) const {
@@ -111,40 +111,45 @@ void info_manager::merge(info_manager const & info) {
                     unsigned i = b.size();
                     while (i > 0) {
                         --i;
-                        add_info(line, col, b[i]);
+                        add_info({line, col}, b[i]);
                     }
                 });
         });
 }
 
-void info_manager::add_type_info(unsigned l, unsigned c, expr const & e) {
+void info_manager::add_type_info(pos_info pos, expr const & e) {
 #ifdef LEAN_NO_INFO
     return;
 #endif
-    add_info(l, c, mk_type_info(e));
+    add_info(pos, mk_type_info(e));
 }
 
-void info_manager::add_identifier_info(unsigned l, unsigned c, name const & full_id) {
+void info_manager::add_identifier_info(pos_info pos, name const & full_id) {
 #ifdef LEAN_NO_INFO
     return;
 #endif
-    add_info(l, c, mk_identifier_info(full_id));
+    add_info(pos, mk_identifier_info(full_id));
 }
 
-void info_manager::add_vm_obj_format_info(unsigned l, unsigned c, environment const & env, vm_obj const & thunk) {
+void info_manager::add_const_info(environment const & env, pos_info pos, name const & full_id) {
+    add_identifier_info(pos, full_id);
+    add_type_info(pos, env.get(full_id).get_type());
+}
+
+void info_manager::add_vm_obj_format_info(pos_info pos, environment const & env, vm_obj const & thunk) {
 #ifdef LEAN_NO_INFO
     return;
 #endif
-    add_info(l, c, mk_vm_obj_format_info(env, thunk));
+    add_info(pos, mk_vm_obj_format_info(env, thunk));
 }
 
 #ifdef LEAN_JSON
-void info_manager::get_info_record(environment const & env, options const & o, io_state const & ios, unsigned line,
-                                   unsigned col, json & record, std::function<bool (info_data const &)> pred) const {
+void info_manager::get_info_record(environment const & env, options const & o, io_state const & ios, pos_info pos,
+                                   json & record, std::function<bool (info_data const &)> pred) const {
     type_context tc(env, o);
     io_state_stream out = regular(env, ios, tc).update_options(o);
-    get_line_info_set(line).for_each([&](unsigned c, list<info_data> const & ds) {
-        if (c == col) {
+    get_line_info_set(pos.first).for_each([&](unsigned c, list<info_data> const & ds) {
+        if (c == pos.second) {
             for (auto const & d : ds) {
                 if (!pred || pred(d))
                     d.report(out, record);
@@ -170,7 +175,7 @@ vm_obj tactic_save_info_thunk(vm_obj const & pos, vm_obj const & thunk, vm_obj c
     try {
         if (g_info_m) {
             auto _pos = to_pos_info(pos);
-            g_info_m->add_vm_obj_format_info(_pos.first, _pos.second, tactic::to_state(s).env(), thunk);
+            g_info_m->add_vm_obj_format_info(_pos, tactic::to_state(s).env(), thunk);
         }
         return tactic::mk_success(tactic::to_state(s));
     } catch (exception & ex) {

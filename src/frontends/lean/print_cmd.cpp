@@ -392,8 +392,7 @@ bool print_id_info(parser & p, message_builder & out, name const & id, bool show
     if (auto c = head_opt(cs))
         if (!tail(cs))
             if (auto infom = get_global_info_manager()) {
-                infom->add_identifier_info(pos.first, pos.second, *c);
-                infom->add_type_info(pos.first, pos.second, p.env().get(*c).get_type());
+                infom->add_const_info(p.env(), pos, *c);
             }
 
     if (found) return true;

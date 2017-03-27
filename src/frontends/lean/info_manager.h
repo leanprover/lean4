@@ -73,8 +73,8 @@ class info_manager : public log_entry_cell {
     std::string m_file_name;
     rb_map<unsigned, line_info_data_set, unsigned_cmp> m_line_data;
 
-    void add_info(unsigned l, unsigned c, info_data data);
     line_info_data_set get_line_info_set(unsigned l) const;
+    void add_info(pos_info pos, info_data data);
 public:
     info_manager() {}
     info_manager(std::string const & file_name) : m_file_name(file_name) {}
@@ -83,16 +83,18 @@ public:
 
     bool empty() const { return m_line_data.empty(); }
 
-    void add_type_info(unsigned l, unsigned c, expr const & e);
-    void add_identifier_info(unsigned l, unsigned c, name const & full_id);
-    void add_vm_obj_format_info(unsigned l, unsigned c, environment const & env, vm_obj const & thunk);
+    void add_type_info(pos_info pos, expr const & e);
+    void add_identifier_info(pos_info pos, name const & full_id);
+    /* Takes type info from global declaration with the given name. */
+    void add_const_info(environment const & env, pos_info pos, name const & full_id);
+    void add_vm_obj_format_info(pos_info pos, environment const & env, vm_obj const & thunk);
 
     void instantiate_mvars(metavar_context const & mctx);
     void merge(info_manager const & info);
 
 #ifdef LEAN_JSON
-    void get_info_record(environment const & env, options const & o, io_state const & ios, unsigned line,
-                         unsigned col, json & record, std::function<bool (info_data const &)> pred = {}) const;
+    void get_info_record(environment const & env, options const & o, io_state const & ios, pos_info pos,
+                         json & record, std::function<bool (info_data const &)> pred = {}) const;
 #endif
 };
 

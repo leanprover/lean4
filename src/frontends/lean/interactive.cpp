@@ -137,14 +137,12 @@ void report_info(environment const & env, options const & opts, io_state const &
     for (auto & infom : info_managers) {
         if (infom.get_file_name() == m_mod_info.m_mod) {
             if (e.m_goal_pos) {
-                infom.get_info_record(env, opts, ios, e.m_goal_pos->first,
-                                      e.m_goal_pos->second, record, [](info_data const & d) {
+                infom.get_info_record(env, opts, ios, *e.m_goal_pos, record, [](info_data const & d) {
                             return dynamic_cast<vm_obj_format_info const *>(d.raw());
                         });
             }
             if (!has_token_info)
-                infom.get_info_record(env, opts, ios, e.m_token_info.m_pos.first,
-                                      e.m_token_info.m_pos.second, record);
+                infom.get_info_record(env, opts, ios, e.m_token_info.m_pos, record);
         }
     }
 

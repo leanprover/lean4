@@ -1863,8 +1863,7 @@ expr parser::parse_id() {
     name id = check_id_next("", break_at_pos_exception::token_context::expr);
     expr e = id_to_expr(id, p);
     if (is_constant(e) && get_global_info_manager()) {
-        get_global_info_manager()->add_identifier_info(p.first, p.second, const_name(e));
-        get_global_info_manager()->add_type_info(p.first, p.second, m_env.get(const_name(e)).get_type());
+        get_global_info_manager()->add_const_info(m_env, p, const_name(e));
     }
     return e;
 }

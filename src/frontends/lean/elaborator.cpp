@@ -914,8 +914,8 @@ expr elaborator::visit_const_core(expr const & e) {
 void elaborator::save_identifier_info(expr const & f) {
     if (!m_no_info && m_uses_infom && get_pos_info_provider() && (is_constant(f) || is_local(f))) {
         if (auto p = get_pos_info_provider()->get_pos_info(f)) {
-            m_info.add_identifier_info(p->first, p->second, is_constant(f) ? const_name(f) : local_pp_name(f));
-            m_info.add_type_info(p->first, p->second, infer_type(f));
+            m_info.add_identifier_info(*p, is_constant(f) ? const_name(f) : local_pp_name(f));
+            m_info.add_type_info(*p, infer_type(f));
         }
     }
 }
@@ -3756,11 +3756,11 @@ static vm_obj tactic_save_type_info(vm_obj const & _e, vm_obj const & ref, vm_ob
     type_context ctx = mk_type_context_for(s);
     try {
         expr type = ctx.infer(e);
-        get_global_info_manager()->add_type_info(pos->first, pos->second, type);
+        get_global_info_manager()->add_type_info(*pos, type);
         if (is_constant(e))
-            get_global_info_manager()->add_identifier_info(pos->first, pos->second, const_name(e));
+            get_global_info_manager()->add_identifier_info(*pos, const_name(e));
         else if (is_local(e))
-            get_global_info_manager()->add_identifier_info(pos->first, pos->second, local_pp_name(e));
+            get_global_info_manager()->add_identifier_info(*pos, local_pp_name(e));
     } catch (exception & ex) {
         return tactic::mk_exception(ex, s);
     }

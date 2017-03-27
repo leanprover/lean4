@@ -75,8 +75,8 @@ have 0 = (1:α), from eq.symm (by rw [-(mul_one_div_cancel h), this, mul_zero]),
 absurd this zero_ne_one
 
 lemma one_inv_eq : 1⁻¹ = (1:α) :=
-suffices 1 * 1⁻¹ = (1:α), begin simp at this, assumption end,
-mul_inv_cancel (ne.symm (@zero_ne_one α _))
+calc 1⁻¹ = 1 * 1⁻¹ : by rw [one_mul]
+     ... = (1:α)   : by simp
 
 local attribute [simp] one_inv_eq
 

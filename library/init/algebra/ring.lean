@@ -41,8 +41,13 @@ mul_zero_class.mul_zero a
 class zero_ne_one_class (α : Type u) extends has_zero α, has_one α :=
 (zero_ne_one : 0 ≠ (1:α))
 
+@[simp]
 lemma zero_ne_one [s: zero_ne_one_class α] : 0 ≠ (1:α) :=
 @zero_ne_one_class.zero_ne_one α s
+
+@[simp]
+lemma one_ne_zero [s: zero_ne_one_class α] : (1:α) ≠ 0 :=
+take h, @zero_ne_one_class.zero_ne_one α s h^.symm
 
 /- semiring -/
 

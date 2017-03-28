@@ -579,15 +579,11 @@ int main(int argc, char ** argv) {
         struct input_mod {
             module_id m_id;
             std::shared_ptr<module_info const> m_mod_info;
-            log_tree::node m_lt_node;
         };
         std::vector<input_mod> mods;
         for (auto & mod : module_args) {
-            auto lt_node = lt_root.mk_child(mod, "", {}, log_tree::DefaultLevel, true);
-            scope_log_tree lt(lt_node);
-            mod_mgr.set_log_tree(lt_node);
             auto mod_info = mod_mgr.get_module(mod);
-            mods.push_back({mod, mod_info, lt_node});
+            mods.push_back({mod, mod_info});
         }
 
         taskq().wait_for_finish(lt.get_root().wait_for_finish());
@@ -595,7 +591,7 @@ int main(int argc, char ** argv) {
         for (auto & mod : mods) {
             if (test_suite) {
                 std::ofstream out(mod.m_id + ".test_suite.out");
-                mod.m_lt_node.for_each([&](log_tree::node const & n) {
+                mod.m_mod_info->m_lt.for_each([&](log_tree::node const & n) {
                     for (auto const & e : n.get_entries()) {
                         if (auto msg = dynamic_cast<message const *>(e.get())) {
                             out << *msg;
@@ -613,7 +609,7 @@ int main(int argc, char ** argv) {
             }
             if (test_suite) {
                 std::ofstream status(mod.m_id + ".status");
-                status << (mod_ok && !get(has_errors(mod.m_lt_node)) ? 0 : 1);
+                status << (mod_ok && !get(has_errors(mod.m_mod_info->m_lt)) ? 0 : 1);
             }
         }
 

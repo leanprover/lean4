@@ -383,8 +383,7 @@ declaration_info_scope::declaration_info_scope(parser const & p, def_cmd_kind ki
     declaration_info_scope(get_namespace(p.env()), kind, modifiers) {}
 
 declaration_info_scope::~declaration_info_scope() {
-    definition_info & info = get_definition_info();
-    info.m_prefix = name();
+    get_definition_info() = definition_info();
 }
 
 bool declaration_info_scope::gen_aux_lemmas() const {

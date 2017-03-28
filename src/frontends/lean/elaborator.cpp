@@ -3735,7 +3735,7 @@ struct resolve_names_fn : public replace_visitor {
     }
 
     virtual expr visit(expr const & e) override {
-        if (is_placeholder(e) || is_by(e) || is_as_is(e) || is_emptyc_or_emptys(e)) {
+        if (is_placeholder(e) || is_by(e) || is_as_is(e) || is_emptyc_or_emptys(e) || is_as_atomic(e)) {
             return e;
         } else if (is_choice(e)) {
             return visit_choice(e);

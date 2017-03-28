@@ -37,6 +37,5 @@ public:
 
     virtual unsigned parse_small_nat() = 0;
     virtual std::string parse_string_lit() = 0;
-    virtual name_map<std::string> parse_kv_pairs() = 0;
 };
 }

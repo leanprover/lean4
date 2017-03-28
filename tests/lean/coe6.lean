@@ -4,7 +4,7 @@ structure Group :=
 
 attribute [instance]
 definition Group_to_Type : has_coe_to_sort Group :=
-{ S := Type u, coe := λ g, g~>carrier }
+{ S := Type u, coe := λ g, g^.carrier }
 
 constant g : Group.{1}
 set_option pp.binder_types true

@@ -1110,7 +1110,7 @@ static expr parse_proj9(parser_state & p, unsigned, expr const * args, pos_info 
 parse_table init_led_table() {
     parse_table r(false);
     r = r.add({transition("->", mk_expr_action(get_arrow_prec()-1))},    mk_arrow(Var(1), Var(1)));
-    r = r.add({transition("~>", mk_ext_action(parse_proj))}, Var(0));
+    r = r.add({transition("^.", mk_ext_action(parse_proj))}, Var(0));
     r = r.add({transition(".1", mk_ext_action(parse_proj1))}, Var(0));
     r = r.add({transition(".2", mk_ext_action(parse_proj2))}, Var(0));
     r = r.add({transition(".3", mk_ext_action(parse_proj3))}, Var(0));

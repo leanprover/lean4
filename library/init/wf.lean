@@ -167,7 +167,7 @@ section
           @prod.lex.rec_on α β ra rb (λ p₁ p₂, fst p₂ = xa → snd p₂ = xb → acc (lex ra rb) p₁)
                            p (xa, xb) lt
             (λ a₁ b₁ a₂ b₂ h (eq₂ : a₂ = xa) (eq₃ : b₂ = xb), iha a₁ (eq.rec_on eq₂ h) b₁)
-            (λ a b₁ b₂ h (eq₂ : a = xa) (eq₃ : b₂ = xb), eq.rec_on eq₂~>symm (ihb b₁ (eq.rec_on eq₃ h))),
+            (λ a b₁ b₂ h (eq₂ : a = xa) (eq₃ : b₂ = xb), eq.rec_on eq₂^.symm (ihb b₁ (eq.rec_on eq₃ h))),
         aux rfl rfl)))
 
   -- The lexicographical order of well founded relations is well-founded

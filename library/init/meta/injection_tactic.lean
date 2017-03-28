@@ -35,7 +35,7 @@ do
   env ← get_env,
   n_f ← return (const_name (get_app_fn lhs)),
   n_inj ← return (n_f <.> "inj_arrow"),
-  if n_f = const_name (get_app_fn rhs) ∧ env~>contains n_inj
+  if n_f = const_name (get_app_fn rhs) ∧ env^.contains n_inj
   then do
     c_inj  ← mk_const n_inj,
     arity  ← get_arity c_inj,

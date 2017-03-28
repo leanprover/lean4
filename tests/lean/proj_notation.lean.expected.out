@@ -2,23 +2,19 @@ p^.fst : ℕ
 p^.fst : ℕ
 p^.snd : ℕ
 p^.snd : ℕ
-p^.fst : ℕ
-p^.fst : ℕ
-p^.snd : ℕ
-p^.snd : ℕ
 f (p^.fst) : ℕ
 p^.fst + p^.snd : ℕ
 λ (c : car), (c^.pos)^.x : car → ℕ
-proj_notation.lean:34:19: error: invalid '^.' notation, 'fst' is not a valid "field" because environment does not contain 'car.fst'
+proj_notation.lean:29:19: error: invalid '^.' notation, 'fst' is not a valid "field" because environment does not contain 'car.fst'
   c
 which has type
   car
-proj_notation.lean:36:20: error: invalid projection, index must be greater than 0
-proj_notation.lean:38:19: error: invalid projection, structure has only 2 field(s)
+proj_notation.lean:31:21: error: invalid projection, index must be greater than 0
+proj_notation.lean:33:19: error: invalid projection, structure has only 2 field(s)
   c
 which has type
   car
-proj_notation.lean:40:19: error: invalid projection, structure expected
+proj_notation.lean:35:19: error: invalid projection, structure expected
   n
 has type
   ℕ

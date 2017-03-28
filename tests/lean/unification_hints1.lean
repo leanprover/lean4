@@ -34,7 +34,7 @@ noncomputable definition A_canonical : Canonical := Canonical.mk A f
 
 @[unify]
 noncomputable definition Canonical_hint (C : Canonical) : unification_hint :=
-{ pattern     := C~>carrier ≟ A,
+{ pattern     := C^.carrier ≟ A,
   constraints := [C ≟ A_canonical] }
 
 -- TODO(dhs): we mark carrier as irreducible and prove A_canonical explicitly to work around the fact that

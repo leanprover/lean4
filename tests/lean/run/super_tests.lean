@@ -19,14 +19,14 @@ to_expr `(trivial) >>= apply
 
 example (i : Type) (p q : i → Prop) (H : ∀x y, p x → q y → false) : true := by do
 h ← get_local `H >>= clause.of_classical_proof,
-(op, lcs) ← h↣open_constn h↣num_binders,
-guard $ (get_components lcs)↣length = 2,
+(op, lcs) ← h^.open_constn h^.num_binders,
+guard $ (get_components lcs)^.length = 2,
 triv
 
 example (i : Type) (p : i → i → Prop) (H : ∀x y z, p x y → p y z → false) : true := by do
 h ← get_local `H >>= clause.of_classical_proof,
-(op, lcs) ← h↣open_constn h↣num_binders,
-guard $ (get_components lcs)↣length = 1,
+(op, lcs) ← h^.open_constn h^.num_binders,
+guard $ (get_components lcs)^.length = 1,
 triv
 
 example (i : Type) (p : i → i → Type) (c : i) (h : ∀ (x : i), p x c → p x c) : true := by do
@@ -40,7 +40,7 @@ example (m n : ℕ) : true := by do
 e₁ ← to_expr `((0 + (m : ℕ)) + 0),
 e₂ ← to_expr `(0 + (0 + (m : ℕ))),
 e₃ ← to_expr `(0 + (m : ℕ)),
-prec ← return (contained_funsyms e₁)↣keys,
+prec ← return (contained_funsyms e₁)^.keys,
 prec_gt ← return $ prec_gt_of_name_list prec,
 guard $ lpo prec_gt e₁ e₃,
 guard $ lpo prec_gt e₂ e₃,

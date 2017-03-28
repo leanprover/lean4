@@ -23,6 +23,7 @@ structure simp_config :=
 (use_axioms : bool)
 (zeta : bool)
 (beta : bool)
+(eta  : bool)
 (proj : bool)
 */
 struct simp_config {
@@ -34,6 +35,7 @@ struct simp_config {
     bool                      m_use_axioms;
     bool                      m_zeta;
     bool                      m_beta;
+    bool                      m_eta;
     bool                      m_proj;
     /* The following option should be removed as soon as we
        refactor the inductive compiler. */

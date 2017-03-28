@@ -70,6 +70,7 @@ simp_config::simp_config():
     m_use_axioms(false),
     m_zeta(false),
     m_beta(false),
+    m_eta(true),
     m_proj(true) {
 }
 
@@ -82,7 +83,8 @@ simp_config::simp_config(vm_obj const & obj) {
     m_use_axioms         = to_bool(cfield(obj, 5));
     m_zeta               = to_bool(cfield(obj, 6));
     m_beta               = to_bool(cfield(obj, 7));
-    m_proj               = to_bool(cfield(obj, 8));
+    m_eta                = to_bool(cfield(obj, 8));
+    m_proj               = to_bool(cfield(obj, 9));
 }
 
 /* -----------------------------------
@@ -812,6 +814,13 @@ expr simplify_core_fn::reduce(expr e) {
                 p = true;
             }
         }
+        if (m_cfg.m_eta) {
+            expr new_e = try_eta(e);
+            if (!is_eqp(new_e, e)) {
+                e = new_e;
+                p = true;
+            }
+        }
     } while (p);
     return e;
 }
@@ -867,7 +876,7 @@ optional<expr> simplify_core_fn::prove(expr const &) {
 }
 
 simp_result simplify_core_fn::visit_lambda(expr const & e) {
-    return simp_result(e);
+    return simp_result(reduce(e));
 }
 
 simp_result simplify_core_fn::visit_pi(expr const & e) {
@@ -976,10 +985,10 @@ simp_result simplify_ext_core_fn::visit_lambda(expr const & e) {
     expr new_body = r.get_new();
 
     if (new_body == it)
-        return simp_result(e);
+        return simp_result(reduce(e));
 
     if (!r.has_proof())
-        return simp_result(locals.mk_lambda(new_body));
+        return reduce(simp_result(locals.mk_lambda(new_body)));
 
     /* TODO(Leo): the following code can be optimized using the same trick used at
        forall_congr. */
@@ -992,7 +1001,7 @@ simp_result simplify_ext_core_fn::visit_lambda(expr const & e) {
         expr lam_pr    = m_ctx.mk_lambda(l, pr);
         pr             = mk_funext(m_ctx, lam_pr);
     }
-    return simp_result(locals.mk_lambda(new_body), pr);
+    return reduce(simp_result(locals.mk_lambda(new_body), pr));
 }
 
 simp_result simplify_ext_core_fn::forall_congr(expr const & e) {

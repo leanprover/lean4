@@ -418,7 +418,7 @@ bool is_frozen_name(expr const & e) {
 
 expr freeze_names(expr const & e) {
     return replace(e, [&](expr const e, unsigned) {
-            if (is_local(e) || is_constant(e))
+            if (is_constant(e))
                 return some_expr(mk_frozen_name_annotation(e));
             else
                 return none_expr();

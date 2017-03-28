@@ -10,7 +10,7 @@ variable (f : bool → bool → bool)
 
 definition map2 : ∀ {n}, bv n → bv n → bv n
 | 0     nil            nil             := nil
-| (n+1) (cons .n b1 v1) (cons .n b2 v2) := cons n (f b1 b2) (map2 v1 v2)
+| (n+1) (cons .(n) b1 v1) (cons .(n) b2 v2) := cons n (f b1 b2) (map2 v1 v2)
 
 example : map2 f nil nil = nil :=
 rfl

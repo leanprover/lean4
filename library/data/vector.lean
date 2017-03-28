@@ -90,7 +90,7 @@ section accum
 end accum
 
 protected lemma eq {n : ℕ} : ∀ (a1 a2 : vector α n), to_list a1 = to_list a2 → a1 = a2
-| ⟨x, h1⟩ ⟨.x, h2⟩ rfl := rfl
+| ⟨x, h1⟩ ⟨._, h2⟩ rfl := rfl
 
 @[simp] lemma to_list_mk (v : list α) (P : list.length v = n) : to_list (subtype.mk v P) = v :=
 rfl

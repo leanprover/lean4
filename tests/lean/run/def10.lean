@@ -8,7 +8,7 @@ open bv bool
 
 definition h : ∀ {n}, bv (succ (succ n)) → bool
 | .(succ m) (cons (succ (succ m)) b v) := b
-| .0        (cons (succ nat.zero) b v) := bnot b
+| .(0)      (cons (succ nat.zero) b v) := bnot b
 
 example (m : nat) (b : bool) (v : bv (succ (succ m))) : @h (succ m) (cons (succ (succ m)) b v) = b :=
 rfl

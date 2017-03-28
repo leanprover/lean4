@@ -5,5 +5,5 @@ term
 has type
   vec .?m_1 (n + 1)
 but is expected to have type
-  vec A .(.?m_2 + 1)
-bad_inaccessible2.lean:31:46: error: ill-formed match/equations expression
+  vec A . (.?m_2 + 1)
+bad_inaccessible2.lean:31:52: error: ill-formed match/equations expression

@@ -16,8 +16,8 @@ def get₂b {A : Type} : Π {n : ℕ}, Vec A (n+2) → A
 | n (cons x₁ (cons x₂ xs)) := x₂
 
 def get₂c {A : Type} : Π {n : ℕ}, Vec A (n+2) → A
-| .n (@cons .A x₁ .(n+1) (@cons .A x₂ n xs)) := x₂
+| .(n) (@cons .(A) x₁ .(n+1) (@cons .(A) x₂ n xs)) := x₂
 
 def get₂d {A : Type} : Π {n : ℕ}, Vec A (n+2) → A
-| .n (@cons .A x₁ (n+1) (@cons .A x₂ .n xs)) := x₂
+| .(n) (@cons .(A) x₁ (n+1) (@cons .(A) x₂ .(n) xs)) := x₂
 end Vec

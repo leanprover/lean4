@@ -140,7 +140,7 @@ do o ← get_options,
 meta def returnex {α : Type} (e : exceptional α) : tactic α :=
 λ s, match e with
 | exceptional.success a      := success a s
-| exceptional.exception .α f :=
+| exceptional.exception ._ f :=
   match get_options s with
   | success opt _   := exception (some (λ u, f opt)) none s
   | exception _ _ _ := exception (some (λ u, f options.mk)) none s

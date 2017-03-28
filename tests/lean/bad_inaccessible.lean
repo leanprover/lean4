@@ -1,9 +1,9 @@
 universe variables u
 definition f1 : nat → nat → nat
-| a .a := a
+| a .(a) := a
 
 definition f2 : ∀ (a b c : nat), a = c → c = a
-| a b .b rfl := rfl
+| a b .(b) rfl := rfl
 
 inductive vec (A : Type u) : nat → Type (max 1 u)
 | nil {}  : vec 0

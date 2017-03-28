@@ -20,7 +20,7 @@ variables [has_to_string α]
 
 protected meta def exceptional.to_string : exceptional α → string
 | (success a)       := to_string a
-| (exception .α e) := "Exception: " ++ to_string (e options.mk)
+| (exception .(α) e) := "Exception: " ++ to_string (e options.mk)
 
 meta instance : has_to_string (exceptional α) :=
 has_to_string.mk exceptional.to_string
@@ -31,11 +31,11 @@ variables {α β : Type}
 
 protected meta def to_bool : exceptional α → bool
 | (success _)      := tt
-| (exception .α _) := ff
+| (exception .(α) _) := ff
 
 protected meta def to_option : exceptional α → option α
 | (success a)      := some a
-| (exception .α _) := none
+| (exception .(α) _) := none
 
 @[inline] protected meta def bind (e₁ : exceptional α) (e₂ : α → exceptional β) : exceptional β :=
 exceptional.cases_on e₁

@@ -1,7 +1,7 @@
-bad_inaccessible.lean:3:5: error: invalid use of inaccessible term, it is not fixed by other arguments
-bad_inaccessible.lean:6:7: error: invalid use of inaccessible term, the provided term is
+bad_inaccessible.lean:3:6: error: invalid use of inaccessible term, it is not fixed by other arguments
+bad_inaccessible.lean:6:8: error: invalid use of inaccessible term, the provided term is
   b
 but is expected to be
   a
-bad_inaccessible.lean:14:3: error: invalid use of inaccessible term, it is not completely fixed by other arguments
+bad_inaccessible.lean:14:2: error: invalid use of inaccessible term, it is not completely fixed by other arguments
   .?m_1 + 1

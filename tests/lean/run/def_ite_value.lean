@@ -5,9 +5,9 @@ inductive bv : nat → Type
 open bv
 
 definition f : ∀ n : nat, bv n → nat → nat
-| (n+1) (cons .n b v) 1000000 := f n v 0
-| (n+1) (cons .n b v) x      := f n v (x + 1)
-| _     _             _      := 1
+| (n+1) (cons .(n) b v) 1000000 := f n v 0
+| (n+1) (cons .(n) b v) x       := f n v (x + 1)
+| _     _                _      := 1
 
 set_option pp.binder_types true
 

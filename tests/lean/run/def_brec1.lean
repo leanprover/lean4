@@ -1,4 +1,3 @@
-
 inductive foo : bool → Type
 | Z  : foo ff
 | O  : foo ff → foo tt
@@ -7,9 +6,9 @@ inductive foo : bool → Type
 open foo
 
 definition to_nat : ∀ {b}, foo b → nat
-| .ff Z     := 0
-| .tt (O n) := to_nat n + 1
-| .ff (E n) := to_nat n + 1
+| .(ff) Z     := 0
+| .(tt) (O n) := to_nat n + 1
+| .(ff) (E n) := to_nat n + 1
 
 example : to_nat (E (O Z)) = 2 :=
 rfl

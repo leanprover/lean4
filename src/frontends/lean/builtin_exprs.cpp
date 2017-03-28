@@ -951,6 +951,20 @@ static expr parse_lambda_cons(parser_state & p, unsigned, expr const *, pos_info
     return p.save_pos(mk_choice(cs.size(), cs.data()), pos);
 }
 
+static expr parse_inaccessible(parser_state & p, unsigned, expr const *, pos_info const & pos) {
+    if (!p.in_pattern())
+        throw parser_error("inaccesible pattern notation `.(t)` can only be used in patterns", pos);
+    expr e = p.parse_expr();
+    p.check_token_next(get_rparen_tk(), "invalid inaccesible pattern, `)` expected");
+    return p.save_pos(mk_inaccessible(e), pos);
+}
+
+static expr parse_atomic_inaccessible(parser_state & p, unsigned, expr const *, pos_info const & pos) {
+    if (!p.in_pattern())
+        throw parser_error("inaccesible pattern notation `._` can only be used in patterns", pos);
+    return p.save_pos(mk_inaccessible(p.save_pos(mk_expr_placeholder(), pos)), pos);
+}
+
 parse_table init_nud_table() {
     action Expr(mk_expr_action());
     action Skip(mk_skip_action());
@@ -966,6 +980,8 @@ parse_table init_nud_table() {
     r = r.add({transition("(", mk_ext_action(parse_lparen))}, x0);
     r = r.add({transition("⟨", mk_ext_action(parse_constructor))}, x0);
     r = r.add({transition("{", mk_ext_action(parse_curly_bracket))}, x0);
+    r = r.add({transition(".(", mk_ext_action(parse_inaccessible))}, x0);
+    r = r.add({transition("._", mk_ext_action(parse_atomic_inaccessible))}, x0);
     r = r.add({transition("`(", mk_ext_action(parse_lazy_quoted_pexpr))}, x0);
     r = r.add({transition("``(", mk_ext_action(parse_quoted_pexpr))}, x0);
     r = r.add({transition("```(", mk_ext_action(parse_quoted_expr))}, x0);

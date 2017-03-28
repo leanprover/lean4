@@ -27,5 +27,5 @@ variables f : A → A → A
    3- Produce a better error message.
 -/
 definition map_head : ∀ {n}, vec A n → vec A n → vec A n
-| .0     nil nil                       := nil
-| .(n+1) (@cons .A .n a va) (@cons .A n b vb) := cons (f a b) va
+| .(0)     nil nil                       := nil
+| .(n+1) (@cons .(A) .(n) a va) (@cons .(A) n b vb) := cons (f a b) va

@@ -3,7 +3,7 @@ inaccessible.lean:14:10: error: function expected at
 inaccessible.lean:14:2: error: invalid occurrence of macro expression in pattern (possible solution, mark term as inaccessible using '.( )')
   sorry
 inaccessible.lean:14:17: error: ill-formed match/equations expression
-inaccessible.lean:17:11: error: invalid inaccessible annotation, it cannot be used around functions in applications
+inaccessible.lean:17:12: error: invalid inaccessible annotation, it cannot be used around functions in applications
 inaccessible.lean:25:12: error: invalid pattern, 'a' already appeared in this pattern
 inaccessible.lean:28:3: error: function expected at
   f
@@ -17,5 +17,5 @@ but is expected to have type
   imf f sorry
 inaccessible.lean:28:16: error: ill-formed match/equations expression
 inaccessible.lean:31:4: error: invalid pattern, 'a' already appeared in this pattern
-inaccessible.lean:82:3: error: invalid use of inaccessible term, it is not completely fixed by other arguments
+inaccessible.lean:82:2: error: invalid use of inaccessible term, it is not completely fixed by other arguments
   .?m_1 + 1

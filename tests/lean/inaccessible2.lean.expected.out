@@ -1,9 +1,9 @@
-inaccessible2.lean:5:7: error: invalid occurrence of 'inaccessible' annotation, it must only occur in patterns
+inaccessible2.lean:5:8: error: invalid occurrence of 'inaccessible' annotation, it must only occur in patterns
 inaccessible2.lean:5:4: error: invalid use of inaccessible term, the provided term is
   f sorry
 but is expected to be
   f a
 inaccessible2.lean:8:10: error: invalid pattern, must be an application, constant, variable, type ascription or inaccessible term
-inaccessible2.lean:11:39: error: invalid expression, `)` expected
-inaccessible2.lean:14:9: error: invalid pattern, in a constructor application, the parameters of the inductive datatype must be marked as inaccessible
-inaccessible2.lean:14:20: error: ill-formed match/equations expression
+inaccessible2.lean:11:39: error: inaccesible pattern notation `.(t)` can only be used in patterns
+inaccessible2.lean:14:13: error: invalid pattern, in a constructor application, the parameters of the inductive datatype must be marked as inaccessible
+inaccessible2.lean:14:24: error: ill-formed match/equations expression

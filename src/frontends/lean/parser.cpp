@@ -1949,9 +1949,7 @@ expr parser::parse_char_expr() {
 expr parser::parse_nud() {
     switch (curr()) {
     case token_kind::Keyword:
-        if (m_in_pattern && curr_is_token(get_period_tk()))
-            return parse_inaccessible();
-        else if (curr_is_token(get_placeholder_tk()))
+        if (curr_is_token(get_placeholder_tk()))
             return parse_placeholder();
         else
             return parse_nud_notation();
@@ -1998,10 +1996,7 @@ expr parser::parse_led(expr left) {
 unsigned parser::curr_lbp() const {
     switch (curr()) {
     case token_kind::Keyword:
-        if (m_in_pattern && curr_is_token(get_period_tk()))
-            return get_max_prec();
-        else
-            return get_token_info().expr_precedence();
+        return get_token_info().expr_precedence();
     case token_kind::CommandKeyword: case token_kind::Eof:
     case token_kind::QuotedSymbol:   case token_kind::DocBlock:
     case token_kind::ModDocBlock:

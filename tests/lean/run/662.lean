@@ -28,8 +28,8 @@ definition count_vars : Π {t : type}, @term (λ x, unit) t -> nat
 | Nat        (Const x)              := 0
 | Nat        (Plus e1 e2)           := count_vars e1 + count_vars e2
 | (Func A B) (Abs e1)               := count_vars (e1 star)
-| B          (@App ._ A .B e1 e2)   := count_vars e1 + count_vars e2
-| B          (@Let ._ A .B e1 e2)   := count_vars e1 + count_vars (e2 star)
+| B          (@App ._ A .(B) e1 e2)   := count_vars e1 + count_vars e2
+| B          (@Let ._ A .(B) e1 e2)   := count_vars e1 + count_vars (e2 star)
 
 definition var (t : type) : @term (λ x, unit) t :=
 Var star

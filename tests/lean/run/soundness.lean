@@ -85,16 +85,16 @@ namespace PropF
   open Nc
 
   lemma weakening2 : ∀ {Γ A Δ}, Γ ⊢ A → Γ ⊆ Δ → Δ ⊢ A
-  | .Γ .A       Δ (Nax Γ A Hin)          Hs := Nax _ _ (Hs Hin)
-  | .Γ .(A ⇒ B) Δ (ImpI Γ A B H)         Hs := ImpI _ _ _ (weakening2 H (cons_subset_cons A Hs))
-  | .Γ .B       Δ (ImpE Γ A B H₁ H₂)     Hs := ImpE _ _ _ (weakening2 H₁ Hs) (weakening2 H₂ Hs)
-  | .Γ .A       Δ (BotC Γ A H)           Hs := BotC _ _ (weakening2 H (cons_subset_cons (~A) Hs))
-  | .Γ .(A ∧ B) Δ (AndI Γ A B H₁ H₂)     Hs := AndI _ _ _ (weakening2 H₁ Hs) (weakening2 H₂ Hs)
-  | .Γ .A       Δ (AndE₁ Γ A B H)        Hs := AndE₁ _ _ _ (weakening2 H Hs)
-  | .Γ .B       Δ (AndE₂ Γ A B H)        Hs := AndE₂ _ _ _ (weakening2 H Hs)
-  | .Γ .(A ∨ B) Δ (OrI₁ Γ A B H)         Hs := OrI₁ _ _ _ (weakening2 H Hs)
-  | .Γ .(A ∨ B) Δ (OrI₂ Γ A B H)         Hs := OrI₂ _ _ _ (weakening2 H Hs)
-  | .Γ .C       Δ (OrE Γ A B C H₁ H₂ H₃) Hs :=
+  | ._ ._       Δ (Nax Γ A Hin)          Hs := Nax _ _ (Hs Hin)
+  | ._ .(A ⇒ B) Δ (ImpI Γ A B H)         Hs := ImpI _ _ _ (weakening2 H (cons_subset_cons A Hs))
+  | ._ ._       Δ (ImpE Γ A B H₁ H₂)     Hs := ImpE _ _ _ (weakening2 H₁ Hs) (weakening2 H₂ Hs)
+  | ._ ._       Δ (BotC Γ A H)           Hs := BotC _ _ (weakening2 H (cons_subset_cons (~A) Hs))
+  | ._ .(A ∧ B) Δ (AndI Γ A B H₁ H₂)     Hs := AndI _ _ _ (weakening2 H₁ Hs) (weakening2 H₂ Hs)
+  | ._ ._       Δ (AndE₁ Γ A B H)        Hs := AndE₁ _ _ _ (weakening2 H Hs)
+  | ._ ._       Δ (AndE₂ Γ A B H)        Hs := AndE₂ _ _ _ (weakening2 H Hs)
+  | ._ .(A ∨ B) Δ (OrI₁ Γ A B H)         Hs := OrI₁ _ _ _ (weakening2 H Hs)
+  | ._ .(A ∨ B) Δ (OrI₂ Γ A B H)         Hs := OrI₂ _ _ _ (weakening2 H Hs)
+  | ._ ._       Δ (OrE Γ A B C H₁ H₂ H₃) Hs :=
        OrE _ _ _ _ (weakening2 H₁ Hs) (weakening2 H₂ (cons_subset_cons A Hs)) (weakening2 H₃ (cons_subset_cons B Hs))
 
   lemma weakening : ∀ Γ Δ A, Γ ⊢ A → Γ++Δ ⊢ A :=
@@ -117,8 +117,8 @@ namespace PropF
   attribute [simp] is_true TrueQ
 
   theorem Soundness_general {v : valuation} : ∀ {A Γ}, Γ ⊢ A → Satisfies v Γ → is_true (TrueQ v A)
-  | .A       .Γ (Nax Γ A Hin)  s  := s _ Hin
-  | .(A ⇒ B) .Γ (ImpI Γ A B H) s  :=
+  | ._      ._ (Nax Γ A Hin)  s  := s _ Hin
+  | .(A ⇒ B) ._ (ImpI Γ A B H) s  :=
     by_cases
       (λ t : is_true (TrueQ v A),
         have Satisfies v (A::Γ), from Satisfies_cons s t,
@@ -128,34 +128,34 @@ namespace PropF
         have TrueQ v A = ff, by simp at f; simph,
         have bnot (TrueQ v A) = tt, by simph,
         by simph)
-  | .B .Γ (ImpE Γ A B H₁ H₂) s :=
+  | ._ ._ (ImpE Γ A B H₁ H₂) s :=
     have aux : TrueQ v A = tt, from Soundness_general H₂ s,
     have bnot (TrueQ v A) || TrueQ v B = tt, from Soundness_general H₁ s,
     by simp [aux] at this; simph
-  | .A .Γ (BotC Γ A H) s := by_contradiction
+  | ._ ._ (BotC Γ A H) s := by_contradiction
     (λ n : TrueQ v A ≠ tt,
       have TrueQ v A    = ff, by {simp at n; simph},
       have TrueQ v (~A) = tt, begin change (bnot (TrueQ v A) || ff = tt), simph end,
       have Satisfies v ((~A)::Γ), from Satisfies_cons s this,
       have TrueQ v ⊥ = tt, from Soundness_general H this,
       absurd this ff_ne_tt)
-  | .(A ∧ B) .Γ (AndI Γ A B H₁ H₂) s :=
+  | .(A ∧ B) ._ (AndI Γ A B H₁ H₂) s :=
     have TrueQ v A = tt, from Soundness_general H₁ s,
     have TrueQ v B = tt, from Soundness_general H₂ s,
     by simph
-  | .A     .Γ (AndE₁ Γ A B H) s :=
+  | ._     ._ (AndE₁ Γ A B H) s :=
     have TrueQ v (A ∧ B) = tt, from Soundness_general H s,
     by simp [TrueQ] at this; simph [is_true]
-  | .B     .Γ (AndE₂ Γ A B H) s :=
+  | ._     ._ (AndE₂ Γ A B H) s :=
     have TrueQ v (A ∧ B) = tt, from Soundness_general H s,
     by simp at this; simph
-  | .(A ∨ B) .Γ (OrI₁ Γ A B H) s :=
+  | .(A ∨ B) ._ (OrI₁ Γ A B H) s :=
     have TrueQ v A = tt, from Soundness_general H s,
     by simph
-  | .(A ∨ B) .Γ (OrI₂ Γ A B H) s :=
+  | .(A ∨ B) ._ (OrI₂ Γ A B H) s :=
     have TrueQ v B = tt, from Soundness_general H s,
     by simph
-  | .C     .Γ (OrE Γ A B C H₁ H₂ H₃) s :=
+  | ._     ._ (OrE Γ A B C H₁ H₂ H₃) s :=
     have TrueQ v A || TrueQ v B = tt, from Soundness_general H₁ s,
     have or (TrueQ v A = tt) (TrueQ v B = tt), by simp at this; simph,
     or.elim this

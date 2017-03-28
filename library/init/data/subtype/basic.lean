@@ -20,7 +20,7 @@ lemma tag_irrelevant {a : α} (h1 h2 : p a) : mk a h1 = mk a h2 :=
 rfl
 
 protected lemma eq : ∀ {a1 a2 : {x // p x}}, val a1 = val a2 → a1 = a2
-| ⟨x, h1⟩ ⟨.x, h2⟩ rfl := rfl
+| ⟨x, h1⟩ ⟨.(x), h2⟩ rfl := rfl
 
 end subtype
 

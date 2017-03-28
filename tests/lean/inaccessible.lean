@@ -3,7 +3,7 @@ inductive imf {A : Type u} {B : Type v} (f : A → B) : B → Type (max 1 u v)
 | mk : ∀ (a : A), imf (f a)
 
 definition inv_1 {A : Type u} {B : Type v} (f : A → B) : ∀ (b : B), imf f b → A
-| .(f a) (imf.mk .f a)  := a
+| .(f a) (imf.mk .(f) a)  := a
 
 definition inv_2 {A : Type u} {B : Type v} (f : A → B) : ∀ (b : B), imf f b → A
 | ._ (imf.mk ._ a)  := a
@@ -14,7 +14,7 @@ definition inv_3 {A : Type u} {B : Type v} (f : A → B) : ∀ (b : B), imf f b 
 | .(f a) (mk a)  := a -- Error, mk is not a constructor
 
 definition inv_4 {A : Type u} {B : Type v} (f : A → B) : ∀ (b : B), imf f b → A
-| .(f a) (.mk a)  := a -- Error, we cannot use inaccessible annotation around functions in applications
+| .(f a) (.(mk) a)  := a -- Error, we cannot use inaccessible annotation around functions in applications
 
 attribute [pattern] mk
 
@@ -44,8 +44,8 @@ section
 open vec1
 
 definition map_1 {A : Type u} (f : A → A → A) : Π {n}, vec1 A n → vec1 A n → vec1 A n
-| 0     (nil .A)        (nil .A)        := nil A
-| (n+1) (cons .n h₁ v₁) (cons .n h₂ v₂) := cons n (f h₁ h₂) (map_1 v₁ v₂)
+| 0     (nil .(A))        (nil .(A))        := nil A
+| (n+1) (cons .(n) h₁ v₁) (cons .(n) h₂ v₂) := cons n (f h₁ h₂) (map_1 v₁ v₂)
 
 definition map_2 {A : Type u} (f : A → A → A) : Π {n}, vec1 A n → vec1 A n → vec1 A n
 | 0     (nil ._)        (nil ._)        := nil A
@@ -54,7 +54,7 @@ definition map_2 {A : Type u} (f : A → A → A) : Π {n}, vec1 A n → vec1 A 
 /- In map_3, we use the inaccessible terms to avoid pattern/matching on the first argument -/
 definition map_3 {A : Type u} (f : A → A → A) : Π {n}, vec1 A n → vec1 A n → vec1 A n
 | ._ (nil ._)      (nil ._)        := nil A
-| ._ (cons n h₁ v₁) (cons .n h₂ v₂) := cons n (f h₁ h₂) (map_3 v₁ v₂)
+| ._ (cons n h₁ v₁) (cons .(n) h₂ v₂) := cons n (f h₁ h₂) (map_3 v₁ v₂)
 end
 
 inductive vec2 (A : Type u) : nat → Type (max 1 u)
@@ -70,7 +70,7 @@ definition map_4 {A : Type u} (f : A → A → A) : Π {n}, vec2 A n → vec2 A 
 
 definition map_5 {A : Type u} (f : A → A → A) : Π {n}, vec2 A n → vec2 A n → vec2 A n
 | ._  nil          nil         := nil
-| ._ (@cons .A n h₁ v₁) (cons h₂ v₂) := cons (f h₁ h₂) (map_5 v₁ v₂)
+| ._ (@cons ._ n h₁ v₁) (cons h₂ v₂) := cons (f h₁ h₂) (map_5 v₁ v₂)
 
 /-
 The following variant will be rejected by the new equation compiler.

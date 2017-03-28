@@ -16,10 +16,10 @@ def {u} elim0 {α : Type u} : fin 0 → α
 variable {n : nat}
 
 lemma eq_of_veq : ∀ {i j : fin n}, (val i) = (val j) → i = j
-| ⟨iv, ilt₁⟩ ⟨.iv, ilt₂⟩ rfl := rfl
+| ⟨iv, ilt₁⟩ ⟨.(iv), ilt₂⟩ rfl := rfl
 
 lemma veq_of_eq : ∀ {i j : fin n}, i = j → (val i) = (val j)
-| ⟨iv, ilt⟩ .⟨iv, ilt⟩ rfl := rfl
+| ⟨iv, ilt⟩ .(_) rfl := rfl
 
 lemma ne_of_vne {i j : fin n} (h : val i ≠ val j) : i ≠ j :=
 λ h', absurd (veq_of_eq h') h

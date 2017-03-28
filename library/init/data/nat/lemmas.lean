@@ -287,8 +287,8 @@ lemma le_add_left (n m : ℕ): n ≤ m + n :=
 nat.add_comm n m ▸ le_add_right n m
 
 lemma le.dest : ∀ {n m : ℕ}, n ≤ m → ∃ k, n + k = m
-| n .n        (less_than_or_equal.refl .n)  := ⟨0, rfl⟩
-| n .(succ m) (@less_than_or_equal.step .n m h) :=
+| n ._ (less_than_or_equal.refl ._)  := ⟨0, rfl⟩
+| n ._ (@less_than_or_equal.step ._ m h) :=
   match le.dest h with
   | ⟨w, hw⟩ := ⟨succ w, hw ▸ add_succ n w⟩
   end

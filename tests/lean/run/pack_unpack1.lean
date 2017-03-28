@@ -17,10 +17,10 @@ definition pack {A : Sort*} : list (tree A) → tree_core A tt
 | (a::l) := cons' a (pack l)
 
 definition unpack {A : Sort*} : ∀ {b}, tree_core A b → list (tree A)
-| .tt nil'         := []
-| .tt (cons' a t)  := a :: unpack t
-| .ff (leaf' a)    := []
-| .ff (node' l)    := []
+| .(tt) nil'         := []
+| .(tt) (cons' a t)  := a :: unpack t
+| .(ff) (leaf' a)    := []
+| .(ff) (node' l)    := []
 
 attribute [inverse]
 lemma unpack_pack {A : Sort*} : ∀ (l : list (tree A)), unpack (pack l) = l

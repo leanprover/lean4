@@ -834,7 +834,8 @@ simp_result simplify_core_fn::visit_app(expr const & _e) {
     lean_assert(is_app(_e));
     expr e = reduce(_e);
     e      = should_defeq_canonize() ? defeq_canonize_args_step(e) : e;
-
+    if (!is_app(e))
+        return visit(e, none_expr());
     // (1) Try user-defined congruences
     simp_result r_user = try_user_congrs(e);
     if (r_user.has_proof()) {

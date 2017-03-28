@@ -168,6 +168,8 @@ expr kabstract(type_context & ctx, expr const & e, expr const & t, occurrences c
                     (idx1.get_name() != idx2.get_name() || t_nargs == get_app_num_args(s)) &&
                     ctx.is_def_eq(t, s)) {
                     if (occs.contains(i)) {
+                        lean_trace("kabstract", scope_trace_env _(ctx.env(), ctx);
+                                   tout() << "found target:\n" << s << "\n";);
                         i++;
                         return some_expr(mk_var(offset));
                     } else {
@@ -211,6 +213,7 @@ vm_obj tactic_kdepends_on(vm_obj const & e, vm_obj const & t, vm_obj const & md,
 }
 
 void initialize_kabstract() {
+    register_trace_class("kabstract");
     g_ext           = new key_equivalence_ext_reg();
     key_equivalence_modification::init();
     DECLARE_VM_BUILTIN(name({"tactic", "kdepends_on"}), tactic_kdepends_on);

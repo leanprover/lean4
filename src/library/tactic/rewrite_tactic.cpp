@@ -65,6 +65,7 @@ vm_obj rewrite(transparency_mode const & m, bool approx, bool use_instances, occ
     else
         e = g->get_type();
     expr pattern = target ? lhs : rhs;
+    lean_trace("rewrite", tout() << "before kabstract\n";);
     expr e_abst  = kabstract(ctx, e, pattern, occs);
     if (closed(e_abst)) {
         auto new_s = update_option_if_undef(s, get_pp_beta_name(), false);
@@ -151,6 +152,7 @@ vm_obj tactic_rewrite_at(vm_obj const & m, vm_obj const & approx, vm_obj const &
 }
 
 void initialize_rewrite_tactic() {
+    register_trace_class("rewrite");
     DECLARE_VM_BUILTIN(name({"tactic", "rewrite_core"}),    tactic_rewrite);
     DECLARE_VM_BUILTIN(name({"tactic", "rewrite_at_core"}), tactic_rewrite_at);
 }

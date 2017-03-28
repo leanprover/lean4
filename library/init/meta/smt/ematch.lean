@@ -39,11 +39,11 @@ meta def mk_hinst_singleton : hinst_lemma → hinst_lemmas :=
 hinst_lemmas.add hinst_lemmas.mk
 
 meta def hinst_lemmas.pp (s : hinst_lemmas) : tactic format :=
-let tac := s^.fold (return format.nil)
+let tac := s.fold (return format.nil)
     (λ h tac, do
-      hpp ← h^.pp,
+      hpp ← h.pp,
       r   ← tac,
-      if r^.is_nil then return hpp
+      if r.is_nil then return hpp
       else return (r ++ to_fmt "," ++ format.line ++ hpp))
 in do
   r ← tac,
@@ -55,7 +55,7 @@ meta instance : has_to_tactic_format hinst_lemmas :=
 open tactic
 
 private meta def add_lemma (m : transparency) (as_simp : bool) (h : name) (hs : hinst_lemmas) : tactic hinst_lemmas :=
-do h ← hinst_lemma.mk_from_decl_core m h as_simp, return $ hs^.add h
+do h ← hinst_lemma.mk_from_decl_core m h as_simp, return $ hs.add h
 
 meta def to_hinst_lemmas_core (m : transparency) : bool → list name → hinst_lemmas → tactic hinst_lemmas
 | as_simp []      hs := return hs
@@ -95,7 +95,7 @@ meta def mk_hinst_lemma_attrs_core (as_simp : bool) : list name → command
   (do type ← infer_type (expr.const n []),
       let expected := ```(caching_user_attribute hinst_lemmas),
       (is_def_eq type expected
-       <|> fail ("failed to create hinst_lemma attribute '" ++ n^.to_string ++ "', declaration already exists and has different type.")),
+       <|> fail ("failed to create hinst_lemma attribute '" ++ n.to_string ++ "', declaration already exists and has different type.")),
       mk_hinst_lemma_attrs_core ns)
 
 meta def merge_hinst_lemma_attrs (m : transparency) (as_simp : bool) : list name → hinst_lemmas → tactic hinst_lemmas

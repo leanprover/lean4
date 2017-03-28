@@ -129,10 +129,10 @@ have a⁻¹ = b, from inv_eq_of_mul_eq_one h,
 by simp [this^.symm]
 
 lemma eq_mul_inv_of_mul_eq [group α] {a b c : α} (h : a * c = b) : a = b * c⁻¹ :=
-by simp [h^.symm]
+by simp [h.symm]
 
 lemma eq_inv_mul_of_mul_eq [group α] {a b c : α} (h : b * a = c) : a = b⁻¹ * c :=
-by simp [h^.symm]
+by simp [h.symm]
 
 lemma inv_mul_eq_of_eq_mul [group α] {a b c : α} (h : b = a * c) : a⁻¹ * b = c :=
 by simp [h]
@@ -141,10 +141,10 @@ lemma mul_inv_eq_of_eq_mul [group α] {a b c : α} (h : a = c * b) : a * b⁻¹ 
 by simp [h]
 
 lemma eq_mul_of_mul_inv_eq [group α] {a b c : α} (h : a * c⁻¹ = b) : a = b * c :=
-by simp [h^.symm]
+by simp [h.symm]
 
 lemma eq_mul_of_inv_mul_eq [group α] {a b c : α} (h : b⁻¹ * a = c) : a = b * c :=
-by simp [h^.symm, mul_inv_cancel_left]
+by simp [h.symm, mul_inv_cancel_left]
 
 lemma mul_eq_of_eq_inv_mul [group α] {a b c : α} (h : b = a⁻¹ * c) : a * b = c :=
 by rw [h, mul_inv_cancel_left]
@@ -289,7 +289,7 @@ meta def transport_multiplicative_to_additive : command :=
 let dict := rb_map.of_list multiplicative_to_additive_pairs in
 multiplicative_to_additive_pairs^.foldl (λ t ⟨src, tgt⟩, do
   env ← get_env,
-  if (env^.get tgt)^.to_bool = ff
+  if (env.get tgt)^.to_bool = ff
   then t >> transport_with_dict dict src tgt
   else t)
 skip
@@ -362,13 +362,13 @@ lemma sub_add_eq_sub_sub_swap [add_group α] (a b c : α) : a - (b + c) = a - c 
 by simp
 
 lemma eq_sub_of_add_eq [add_group α] {a b c : α} (h : a + c = b) : a = b - c :=
-by simp [h^.symm]
+by simp [h.symm]
 
 lemma sub_eq_of_eq_add [add_group α] {a b c : α} (h : a = c + b) : a - b = c :=
 by simp [h]
 
 lemma eq_add_of_sub_eq [add_group α] {a b c : α} (h : a - c = b) : a = b + c :=
-by simp [h^.symm]
+by simp [h.symm]
 
 lemma add_eq_of_eq_sub [add_group α] {a b c : α} (h : a = c - b) : a + b = c :=
 by simp [h]
@@ -389,13 +389,13 @@ lemma add_sub_add_left_eq_sub [add_comm_group α] (a b c : α) : (c + a) - (c + 
 by simp
 
 lemma eq_sub_of_add_eq' [add_comm_group α] {a b c : α} (h : c + a = b) : a = b - c :=
-by simp [h^.symm]
+by simp [h.symm]
 
 lemma sub_eq_of_eq_add' [add_comm_group α] {a b c : α} (h : a = b + c) : a - b = c :=
 by simp [h]
 
 lemma eq_add_of_sub_eq' [add_comm_group α] {a b c : α} (h : a - b = c) : a = b + c :=
-by simp [h^.symm]
+by simp [h.symm]
 
 lemma add_eq_of_eq_sub' [add_comm_group α] {a b c : α} (h : b = c - a) : a + b = c :=
 begin simp [h], rw [add_comm c, add_neg_cancel_left] end

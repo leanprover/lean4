@@ -9,12 +9,12 @@ import init.meta.smt.smt_tactic init.meta.fun_info init.meta.rb_map
 open tactic
 
 private meta def add_lemma (m : transparency) (h : name) (hs : hinst_lemmas) : tactic hinst_lemmas :=
-(do h ← hinst_lemma.mk_from_decl_core m h tt, return $ hs^.add h) <|> return hs
+(do h ← hinst_lemma.mk_from_decl_core m h tt, return $ hs.add h) <|> return hs
 
 private meta def to_hinst_lemmas (m : transparency) (ex : name_set) : list name → hinst_lemmas → tactic hinst_lemmas
 | []      hs := return hs
 | (n::ns) hs :=
-  if ex^.contains n then to_hinst_lemmas ns hs else
+  if ex.contains n then to_hinst_lemmas ns hs else
   let add n := add_lemma m n hs >>= to_hinst_lemmas ns
   in do eqns   ← tactic.get_eqn_lemmas_for tt n,
   match eqns with
@@ -60,22 +60,22 @@ namespace rsimp
 
 meta def is_value_like : expr → bool
 | e :=
-  if ¬ e^.is_app then ff
-  else let fn    := e^.get_app_fn in
-   if ¬ fn^.is_constant then ff
-   else let nargs := e^.get_app_num_args,
-            fname := fn^.const_name in
+  if ¬ e.is_app then ff
+  else let fn    := e.get_app_fn in
+   if ¬ fn.is_constant then ff
+   else let nargs := e.get_app_num_args,
+            fname := fn.const_name in
      if      fname = `zero ∧ nargs = 2 then tt
      else if fname = `one ∧ nargs = 2 then tt
-     else if fname = `bit0 ∧ nargs = 3 then is_value_like e^.app_arg
-     else if fname = `bit1 ∧ nargs = 4 then is_value_like e^.app_arg
-     else if fname = `char.of_nat ∧ nargs = 1 then is_value_like e^.app_arg
+     else if fname = `bit0 ∧ nargs = 3 then is_value_like e.app_arg
+     else if fname = `bit1 ∧ nargs = 4 then is_value_like e.app_arg
+     else if fname = `char.of_nat ∧ nargs = 1 then is_value_like e.app_arg
      else ff
 
 /-- Return the size of term by considering only explicit arguments. -/
 meta def explicit_size : expr → tactic nat
 | e :=
-  if ¬ e^.is_app then return 1
+  if ¬ e.is_app then return 1
   else if is_value_like e then return 1
   else fold_explicit_args e 1
     (λ n arg, do r ← explicit_size arg, return $ r + n)
@@ -83,7 +83,7 @@ meta def explicit_size : expr → tactic nat
 /-- Choose smallest element (with respect to explicit_size) in `e`s equivalence class. -/
 meta def choose (ccs : cc_state) (e : expr) : tactic expr :=
 do sz ← explicit_size e,
-   p  ← ccs^.mfold_eqc e (e, sz) $ λ p e',
+   p  ← ccs.mfold_eqc e (e, sz) $ λ p e',
      if p.2 = 1 then return p
      else do {
        sz' ← explicit_size e',
@@ -96,7 +96,7 @@ meta def repr_map := expr_map expr
 meta def mk_repr_map := expr_map.mk expr
 
 meta def to_repr_map (ccs : cc_state) : tactic repr_map :=
-ccs^.roots^.mfoldl (λ S e, do r ← choose ccs e, return $ S^.insert e r) mk_repr_map
+ccs.roots.mfoldl (λ S e, do r ← choose ccs e, return $ S.insert e r) mk_repr_map
 
 meta def rsimplify (ccs : cc_state) (e : expr) (m : option repr_map := none) : tactic (expr × expr) :=
 do m ← match m with
@@ -104,10 +104,10 @@ do m ← match m with
        | some m := return m
        end,
    r ← simplify_top_down () (λ _ t,
-         do root  ← return $ ccs^.root t,
-            new_t ← m^.find root,
+         do root  ← return $ ccs.root t,
+            new_t ← m.find root,
             guard (¬ new_t =ₐ t),
-            prf   ← ccs^.eqv_proof t new_t,
+            prf   ← ccs.eqv_proof t new_t,
             return ((), new_t, prf))
          e,
    return r.2
@@ -119,11 +119,11 @@ structure config :=
 open smt_tactic
 
 meta def collect_implied_eqs (cfg : config := {}) (extra := hinst_lemmas.mk) : tactic cc_state :=
-do focus1 $ using_smt_with {em_attr := cfg^.attr_name} $
+do focus1 $ using_smt_with {em_attr := cfg.attr_name} $
    do
      add_lemmas_from_facts,
      add_lemmas extra,
-     repeat_at_most cfg^.max_rounds (ematch >> try smt_tactic.close),
+     repeat_at_most cfg.max_rounds (ematch >> try smt_tactic.close),
      (now >> return cc_state.mk)
      <|>
      to_cc_state

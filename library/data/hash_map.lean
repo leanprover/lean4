@@ -30,10 +30,10 @@ def mk_idx {n : nat} (h : n > 0) (i : nat) : fin n :=
 
 def reinsert_aux (hash_fn : α → nat) {n : nat} (h : n > 0) (data : bucket_array α β n) (a : α) (b : β a) : bucket_array α β n :=
 let bidx := mk_idx h (hash_fn a) in
-data^.write bidx (⟨a, b⟩ :: data^.read bidx)
+data.write bidx (⟨a, b⟩ :: data.read bidx)
 
 def fold_buckets {n : nat} (data : bucket_array α β n) (d : δ) (f : δ → Π a, β a → δ) : δ :=
-data^.foldl d (λ b d, b^.foldl (λ r (p : Σ a, β a), f r p.1 p.2) d)
+data.foldl d (λ b d, b.foldl (λ r (p : Σ a, β a), f r p.1 p.2) d)
 
 variable [decidable_eq α]
 
@@ -48,14 +48,14 @@ def contains_aux (a : α) (l : list (Σ a, β a)) : bool :=
 def find (m : hash_map α β) (a : α) : option (β a) :=
 match m with
 | ⟨hash_fn, _, nbuckets, nz, buckets⟩ :=
-  find_aux a (buckets^.read (mk_idx nz (hash_fn a)))
+  find_aux a (buckets.read (mk_idx nz (hash_fn a)))
 end
 
 def contains (m : hash_map α β) (a : α) : bool :=
 (find m a)^.is_some
 
 def fold [decidable_eq α] (m : hash_map α β) (d : δ) (f : δ → Π a, β a → δ) : δ :=
-fold_buckets m^.buckets d f
+fold_buckets m.buckets d f
 
 def replace_aux (a : α) (b : β a) : list (Σ a, β a) → list (Σ a, β a)
 | []            := []
@@ -69,11 +69,11 @@ def insert (m : hash_map α β) (a : α) (b : β a) : hash_map α β :=
 match m with
 | ⟨hash_fn, size, nbuckets, nz, buckets⟩ :=
   let bidx := mk_idx nz (hash_fn a) in
-  let bkt  := buckets^.read bidx in
+  let bkt  := buckets.read bidx in
   if contains_aux a bkt
-  then ⟨hash_fn, size, nbuckets, nz, buckets^.write bidx (replace_aux a b bkt)⟩
+  then ⟨hash_fn, size, nbuckets, nz, buckets.write bidx (replace_aux a b bkt)⟩
   else let size'    := size + 1 in
-       let buckets' := buckets^.write bidx (⟨a, b⟩::bkt) in
+       let buckets' := buckets.write bidx (⟨a, b⟩::bkt) in
        if size' <= nbuckets
        then ⟨hash_fn, size', nbuckets, nz, buckets'⟩
        else let nbuckets' := nbuckets * 2 in
@@ -87,9 +87,9 @@ def erase (m : hash_map α β) (a : α) : hash_map α β :=
 match m with
 | ⟨hash_fn, size, nbuckets, nz, buckets⟩ :=
   let bidx : fin nbuckets := ⟨hash_fn a % nbuckets, nat.mod_lt _ nz⟩ in
-  let bkt                 := buckets^.read bidx in
+  let bkt                 := buckets.read bidx in
   if contains_aux a bkt
-  then ⟨hash_fn, size - 1, nbuckets, nz, buckets^.write bidx $ erase_aux a bkt⟩
+  then ⟨hash_fn, size - 1, nbuckets, nz, buckets.write bidx $ erase_aux a bkt⟩
   else m
 end
 

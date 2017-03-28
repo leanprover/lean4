@@ -28,7 +28,7 @@ meta instance : has_to_format tactic_state :=
 ⟨tactic_state.to_format⟩
 
 meta instance : has_to_string tactic_state :=
-⟨λ s, (to_fmt s)^.to_string s^.get_options⟩
+⟨λ s, (to_fmt s)^.to_string s.get_options⟩
 
 @[reducible] meta def tactic := interaction_monad tactic_state
 @[reducible] meta def tactic_result := interaction_monad.result tactic_state
@@ -126,10 +126,10 @@ meta def decorate_ex (msg : format) (t : tactic α) : tactic α :=
 λ s, success s s
 
 meta def get_options : tactic options :=
-do s ← read, return s^.get_options
+do s ← read, return s.get_options
 
 meta def set_options (o : options) : tactic unit :=
-do s ← read, write (s^.set_options o)
+do s ← read, write (s.set_options o)
 
 meta def save_options {α : Type} (t : tactic α) : tactic α :=
 do o ← get_options,
@@ -256,7 +256,7 @@ meta constant infer_type    : expr → tactic expr
 
 meta constant get_local     : name → tactic expr
 /- Resolve a name using the current local context, environment, aliases, etc. -/
-meta constant resolve_name  : name → tactic expr
+meta constant resolve_name  : name → tactic pexpr
 /- Return the hypothesis in the main goal. Fail if tactic_state does not have any goal left. -/
 meta constant local_context : tactic (list expr)
 meta constant get_unused_name : name → option nat → tactic name
@@ -470,8 +470,8 @@ do t ← infer_type e,
 /-- Return true iff n is the name of declaration that is a proposition. -/
 meta def is_prop_decl (n : name) : tactic bool :=
 do env ← get_env,
-   d   ← env^.get n,
-   t   ← return $ d^.type,
+   d   ← env.get n,
+   t   ← return $ d.type,
    is_prop t
 
 meta def is_proof (e : expr) : tactic bool :=
@@ -557,7 +557,7 @@ match (environment.is_refl_app env e) with
 end
 
 meta def match_app_of (e : expr) (n : name) : tactic (list expr) :=
-guard (expr.is_app_of e n) >> return e^.get_app_args
+guard (expr.is_app_of e n) >> return e.get_app_args
 
 meta def get_local_type (n : name) : tactic expr :=
 get_local n >>= infer_type
@@ -707,7 +707,7 @@ private meta def any_goals_core (tac : tactic unit) : list expr → list expr �
   do set_goals [g],
      succeeded ← try_core tac,
      new_gs    ← get_goals,
-     any_goals_core gs (ac ++ new_gs) (succeeded^.is_some || progress)
+     any_goals_core gs (ac ++ new_gs) (succeeded.is_some || progress)
 
 /- Apply the given tactic to any goal where it succeeds. The tactic succeeds only if
    tac succeeds for at least one goal. -/
@@ -766,8 +766,8 @@ meta def mk_num_meta_univs : nat → tactic (list level)
 /- Return (expr.const c [l_1, ..., l_n]) where l_i's are fresh universe meta-variables. -/
 meta def mk_const (c : name) : tactic expr :=
 do env  ← get_env,
-   decl ← env^.get c,
-   let num := decl^.univ_params^.length,
+   decl ← env.get c,
+   let num := decl.univ_params.length,
    ls   ← mk_num_meta_univs num,
    return (expr.const c ls)
 
@@ -874,7 +874,7 @@ revert_kdependencies e md
     Two different transparency modes are used `md` and `dmd`.
     The mode `md` is used with `cases_core` and `dmd` with `generalize` and `revert_kdeps`. -/
 meta def cases (e : expr) (ids : list name := []) (md := semireducible) (dmd := semireducible) : tactic unit :=
-if e^.is_local_constant then
+if e.is_local_constant then
   cases_core e ids md >> return ()
 else do
   x ← mk_fresh_name,
@@ -894,7 +894,7 @@ do tgt : expr ← target,
 
 private meta def get_undeclared_const (env : environment) (base : name) : ℕ → name | i :=
 let n := base <.> ("_aux_" ++ to_string i) in
-if ¬env^.contains n then n
+if ¬env.contains n then n
 else get_undeclared_const (i+1)
 
 meta def new_aux_decl_name : tactic name := do
@@ -935,7 +935,7 @@ do m ← mk_meta_var type,
 meta def in_open_namespaces (d : name) : tactic bool :=
 do ns  ← open_namespaces,
    env ← get_env,
-   return $ ns^.any (λ n, n^.is_prefix_of d) && env^.contains d
+   return $ ns.any (λ n, n.is_prefix_of d) && env.contains d
 
 /-- Execute tac for 'max' "heartbeats". The heartbeat is approx. the maximum number of
     memory allocations (in thousands) performed by 'tac'. This is a deterministic way of interrupting

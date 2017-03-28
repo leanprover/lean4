@@ -128,6 +128,15 @@ expr freeze_names(expr const & e);
 /* Return true iff \c e is marked with a frozen_name annotation. */
 bool is_frozen_name(expr const & e);
 
+/* Field notation support */
+expr mk_field_notation(expr const & e, name const & field);
+expr mk_field_notation_compact(expr const & e, char const * field);
+expr mk_field_notation(expr const & e, unsigned fidx);
+bool is_field_notation(expr const & e);
+bool is_anonymous_field_notation(expr const & e);
+name const & get_field_notation_field_name(expr const & e);
+unsigned get_field_notation_field_idx(expr const & e);
+
 void initialize_frontend_lean_util();
 void finalize_frontend_lean_util();
 }

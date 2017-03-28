@@ -992,66 +992,17 @@ parse_table init_nud_table() {
     return r;
 }
 
-static name * g_field_notation_name          = nullptr;
-static std::string * g_field_notation_opcode = nullptr;
-
-[[ noreturn ]] static void throw_pn_ex() { throw exception("unexpected occurrence of '^.' notation expression"); }
-
-class field_notation_macro_cell : public macro_definition_cell {
-    name     m_field;
-    unsigned m_field_idx;
-public:
-    field_notation_macro_cell(name const & f):m_field(f), m_field_idx(0) {}
-    field_notation_macro_cell(unsigned fidx):m_field_idx(fidx) {}
-    virtual name get_name() const { return *g_field_notation_name; }
-    virtual expr check_type(expr const &, abstract_type_context &, bool) const { throw_pn_ex(); }
-    virtual optional<expr> expand(expr const &, abstract_type_context &) const { throw_pn_ex(); }
-    virtual void write(serializer & s) const { s << *g_field_notation_opcode << m_field << m_field_idx; }
-    bool is_anonymous() const { return m_field.is_anonymous(); }
-    name const & get_field_name() const { lean_assert(!is_anonymous()); return m_field; }
-    unsigned get_field_idx() const { lean_assert(is_anonymous()); return m_field_idx; }
-};
-
-static expr mk_proj_notation(expr const & e, name const & field) {
-    macro_definition def(new field_notation_macro_cell(field));
-    return mk_macro(def, 1, &e);
-}
-
-static expr mk_proj_notation(expr const & e, unsigned fidx) {
-    macro_definition def(new field_notation_macro_cell(fidx));
-    return mk_macro(def, 1, &e);
-}
-
-bool is_field_notation(expr const & e) {
-    return is_macro(e) && macro_def(e).get_name() == *g_field_notation_name;
-}
-
-bool is_anonymous_field_notation(expr const & e) {
-    lean_assert(is_field_notation(e));
-    return static_cast<field_notation_macro_cell const*>(macro_def(e).raw())->is_anonymous();
-}
-
-name const & get_field_notation_field_name(expr const & e) {
-    lean_assert(is_field_notation(e));
-    return static_cast<field_notation_macro_cell const*>(macro_def(e).raw())->get_field_name();
-}
-
-unsigned get_field_notation_field_idx(expr const & e) {
-    lean_assert(is_field_notation(e));
-    return static_cast<field_notation_macro_cell const*>(macro_def(e).raw())->get_field_idx();
-}
-
-static expr parse_proj(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
+static expr parse_field(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
     try {
         if (p.curr_is_numeral()) {
             pos_info num_pos = p.pos();
             unsigned fidx = p.parse_small_nat();
             if (fidx == 0)
                 throw parser_error("invalid projection, index must be greater than 0", num_pos);
-            return p.save_pos(mk_proj_notation(args[0], fidx), pos);
+            return p.save_pos(mk_field_notation(args[0], fidx), pos);
         } else {
             name field = p.check_id_next("invalid '^.' notation, identifier or numeral expected");
-            return p.save_pos(mk_proj_notation(args[0], field), pos);
+            return p.save_pos(mk_field_notation(args[0], field), pos);
         }
     } catch (break_at_pos_exception & ex) {
         if (!p.get_complete()) {
@@ -1079,47 +1030,47 @@ static expr parse_proj(parser_state & p, unsigned, expr const * args, pos_info c
     }
 }
 
-static expr parse_proj1(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
-    return p.save_pos(mk_proj_notation(args[0], 1), pos);
+static expr parse_field1(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
+    return p.save_pos(mk_field_notation(args[0], 1), pos);
 }
-static expr parse_proj2(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
-    return p.save_pos(mk_proj_notation(args[0], 2), pos);
+static expr parse_field2(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
+    return p.save_pos(mk_field_notation(args[0], 2), pos);
 }
-static expr parse_proj3(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
-    return p.save_pos(mk_proj_notation(args[0], 3), pos);
+static expr parse_field3(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
+    return p.save_pos(mk_field_notation(args[0], 3), pos);
 }
-static expr parse_proj4(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
-    return p.save_pos(mk_proj_notation(args[0], 4), pos);
+static expr parse_field4(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
+    return p.save_pos(mk_field_notation(args[0], 4), pos);
 }
-static expr parse_proj5(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
-    return p.save_pos(mk_proj_notation(args[0], 5), pos);
+static expr parse_field5(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
+    return p.save_pos(mk_field_notation(args[0], 5), pos);
 }
-static expr parse_proj6(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
-    return p.save_pos(mk_proj_notation(args[0], 6), pos);
+static expr parse_field6(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
+    return p.save_pos(mk_field_notation(args[0], 6), pos);
 }
-static expr parse_proj7(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
-    return p.save_pos(mk_proj_notation(args[0], 7), pos);
+static expr parse_field7(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
+    return p.save_pos(mk_field_notation(args[0], 7), pos);
 }
-static expr parse_proj8(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
-    return p.save_pos(mk_proj_notation(args[0], 8), pos);
+static expr parse_field8(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
+    return p.save_pos(mk_field_notation(args[0], 8), pos);
 }
-static expr parse_proj9(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
-    return p.save_pos(mk_proj_notation(args[0], 9), pos);
+static expr parse_field9(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
+    return p.save_pos(mk_field_notation(args[0], 9), pos);
 }
 
 parse_table init_led_table() {
     parse_table r(false);
     r = r.add({transition("->", mk_expr_action(get_arrow_prec()-1))},    mk_arrow(Var(1), Var(1)));
-    r = r.add({transition("^.", mk_ext_action(parse_proj))}, Var(0));
-    r = r.add({transition(".1", mk_ext_action(parse_proj1))}, Var(0));
-    r = r.add({transition(".2", mk_ext_action(parse_proj2))}, Var(0));
-    r = r.add({transition(".3", mk_ext_action(parse_proj3))}, Var(0));
-    r = r.add({transition(".4", mk_ext_action(parse_proj4))}, Var(0));
-    r = r.add({transition(".5", mk_ext_action(parse_proj5))}, Var(0));
-    r = r.add({transition(".6", mk_ext_action(parse_proj6))}, Var(0));
-    r = r.add({transition(".7", mk_ext_action(parse_proj7))}, Var(0));
-    r = r.add({transition(".8", mk_ext_action(parse_proj8))}, Var(0));
-    r = r.add({transition(".9", mk_ext_action(parse_proj9))}, Var(0));
+    r = r.add({transition("^.", mk_ext_action(parse_field))}, Var(0));
+    r = r.add({transition(".1", mk_ext_action(parse_field1))}, Var(0));
+    r = r.add({transition(".2", mk_ext_action(parse_field2))}, Var(0));
+    r = r.add({transition(".3", mk_ext_action(parse_field3))}, Var(0));
+    r = r.add({transition(".4", mk_ext_action(parse_field4))}, Var(0));
+    r = r.add({transition(".5", mk_ext_action(parse_field5))}, Var(0));
+    r = r.add({transition(".6", mk_ext_action(parse_field6))}, Var(0));
+    r = r.add({transition(".7", mk_ext_action(parse_field7))}, Var(0));
+    r = r.add({transition(".8", mk_ext_action(parse_field8))}, Var(0));
+    r = r.add({transition(".9", mk_ext_action(parse_field9))}, Var(0));
     return r;
 }
 
@@ -1159,20 +1110,6 @@ void initialize_builtin_exprs() {
 
     g_anonymous_constructor = new name("anonymous_constructor");
     register_annotation(*g_anonymous_constructor);
-
-    g_field_notation_name   = new name("field_notation");
-    g_field_notation_opcode = new std::string("fieldN");
-    register_macro_deserializer(*g_field_notation_opcode,
-                                [](deserializer & d, unsigned num, expr const * args) {
-                                    if (num != 1)
-                                        throw corrupted_stream_exception();
-                                    name fname; unsigned fidx;
-                                    d >> fname >> fidx;
-                                    if (fname.is_anonymous())
-                                        return mk_proj_notation(args[0], fidx);
-                                    else
-                                        return mk_proj_notation(args[0], fname);
-                                });
 }
 
 void finalize_builtin_exprs() {
@@ -1186,8 +1123,6 @@ void finalize_builtin_exprs() {
     delete g_lambda_match_name;
     delete g_parser_checkpoint_have;
     delete g_anonymous_constructor;
-    delete g_field_notation_opcode;
-    delete g_field_notation_name;
     delete g_no_universe_annotation;
 }
 }

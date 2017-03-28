@@ -43,7 +43,7 @@ structure smt_config :=
 (em_attr       : name           := `ematch)
 
 meta def smt_config.set_classical (c : smt_config) (b : bool) : smt_config :=
-{c with cc_cfg := { (c^.cc_cfg) with em := b}}
+{c with cc_cfg := { (c.cc_cfg) with em := b}}
 
 meta constant smt_goal                  : Type
 meta def smt_state :=
@@ -183,7 +183,7 @@ protected meta def write : smt_state × tactic_state → smt_tactic unit :=
 
 private meta def mk_smt_goals_for (cfg : smt_config) : list expr → list smt_goal → list expr
                                   → tactic (list smt_goal × list expr)
-| []        sr tr := return (sr^.reverse, tr^.reverse)
+| []        sr tr := return (sr.reverse, tr.reverse)
 | (tg::tgs) sr tr := do
   tactic.set_goals [tg],
   [new_sg] ← smt_state.mk cfg | tactic.failed,
@@ -219,10 +219,10 @@ tactic.to_expr q allow_mvars
 
 meta def classical : smt_tactic bool :=
 do s ← state_t.read,
-   return s^.classical
+   return s.classical
 
 meta def num_goals : smt_tactic nat :=
-λ ss, return (ss^.length, ss)
+λ ss, return (ss.length, ss)
 
 /- Low level primitives for managing set of goals -/
 meta def get_goals : smt_tactic (list smt_goal × list expr) :=
@@ -334,7 +334,7 @@ do c ← classical,
 meta def by_contradiction : smt_tactic unit :=
 do t ← target,
    c ← classical,
-   if t^.is_false then skip
+   if t.is_false then skip
    else if c then do
       apply (expr.app (expr.const `classical.by_contradiction []) t),
       intros
@@ -347,19 +347,19 @@ do t ← target,
 
 /- Return a proof for e, if 'e' is a known fact in the main goal. -/
 meta def proof_for (e : expr) : smt_tactic expr :=
-do cc ← to_cc_state, cc^.proof_for e
+do cc ← to_cc_state, cc.proof_for e
 
 /- Return a refutation for e (i.e., a proof for (not e)), if 'e' has been refuted in the main goal. -/
 meta def refutation_for (e : expr) : smt_tactic expr :=
-do cc ← to_cc_state, cc^.refutation_for e
+do cc ← to_cc_state, cc.refutation_for e
 
 meta def get_facts : smt_tactic (list expr) :=
 do cc ← to_cc_state,
-   return $ cc^.eqc_of expr.mk_true
+   return $ cc.eqc_of expr.mk_true
 
 meta def get_refuted_facts : smt_tactic (list expr) :=
 do cc ← to_cc_state,
-   return $ cc^.eqc_of expr.mk_false
+   return $ cc.eqc_of expr.mk_false
 
 meta def add_ematch_lemma : expr → smt_tactic unit :=
 add_ematch_lemma_core reducible ff
@@ -379,7 +379,7 @@ add_ematch_eqn_lemmas_for_core reducible
 meta def add_lemmas_from_facts_core : list expr → smt_tactic unit
 | []      := return ()
 | (f::fs) := do
-  try (is_prop f >> guard (f^.is_pi && bnot (f^.is_arrow)) >> proof_for f >>= add_ematch_lemma_core reducible ff),
+  try (is_prop f >> guard (f.is_pi && bnot (f.is_arrow)) >> proof_for f >>= add_ematch_lemma_core reducible ff),
   add_lemmas_from_facts_core fs
 
 meta def add_lemmas_from_facts : smt_tactic unit :=

@@ -61,22 +61,22 @@ meta instance : has_to_tactic_format cc_state :=
 
 meta def eqc_of_core (s : cc_state) : expr → expr → list expr → list expr
 | e f r :=
-  let n := s^.next e in
+  let n := s.next e in
   if n = f then e::r else eqc_of_core n f (e::r)
 
 meta def eqc_of (s : cc_state) (e : expr) : list expr :=
-s^.eqc_of_core e e []
+s.eqc_of_core e e []
 
 meta def in_singlenton_eqc (s : cc_state) (e : expr) : bool :=
-s^.next e = e
+s.next e = e
 
 meta def eqc_size (s : cc_state) (e : expr) : nat :=
-(s^.eqc_of e)^.length
+(s.eqc_of e)^.length
 
 meta def fold_eqc_core {α} (s : cc_state) (f : α → expr → α) (first : expr) : expr → α → α
 | c a :=
   let new_a := f a c,
-      next  := s^.next c in
+      next  := s.next c in
   if next =ₐ first then new_a
   else fold_eqc_core next new_a
 
@@ -89,15 +89,15 @@ end cc_state
 
 open tactic
 meta def tactic.cc_core (cfg : cc_config) : tactic unit :=
-do intros, s ← cc_state.mk_using_hs_core cfg, t ← target, s ← s^.internalize t,
-   if s^.inconsistent then do {
-     pr ← s^.proof_for_false,
+do intros, s ← cc_state.mk_using_hs_core cfg, t ← target, s ← s.internalize t,
+   if s.inconsistent then do {
+     pr ← s.proof_for_false,
      mk_app `false.elim [t, pr] >>= exact}
    else do {
      tr ← return $ expr.const `true [],
-     b ← s^.is_eqv t tr,
+     b ← s.is_eqv t tr,
      if b then do {
-       pr ← s^.eqv_proof t tr,
+       pr ← s.eqv_proof t tr,
        mk_app `of_eq_true [pr] >>= exact
      } else do {
        dbg ← get_bool_option `trace.cc.failure ff,
@@ -125,11 +125,11 @@ tactic.cc_dbg_core {}
 meta def tactic.ac_refl : tactic unit :=
 do (lhs, rhs) ← target >>= match_eq,
    s ← return $ cc_state.mk,
-   s ← s^.internalize lhs,
-   s ← s^.internalize rhs,
-   b ← s^.is_eqv lhs rhs,
+   s ← s.internalize lhs,
+   s ← s.internalize rhs,
+   b ← s.is_eqv lhs rhs,
    if b then do {
-     s^.eqv_proof lhs rhs >>= exact
+     s.eqv_proof lhs rhs >>= exact
    } else do {
      fail "ac_refl failed"
    }

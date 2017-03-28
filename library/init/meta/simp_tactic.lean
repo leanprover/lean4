@@ -116,9 +116,9 @@ unfold_projection_core reducible
 
 meta def dunfold_occs_core (m : transparency) (max_steps : nat) (occs : occurrences) (cs : list name) (e : expr) : tactic expr :=
 let unfold (c : nat) (e : expr) : tactic (nat × expr × bool) := do
-  guard (cs^.any e^.is_app_of),
+  guard (cs.any e.is_app_of),
   new_e ← dunfold_expr_core m e,
-  if occs^.contains c
+  if occs.contains c
   then return (c+1, new_e, tt)
   else return (c+1, e, tt)
 in do (c, new_e) ← dsimplify_core 1 max_steps tt unfold (λ c e, failed) e,
@@ -126,7 +126,7 @@ in do (c, new_e) ← dsimplify_core 1 max_steps tt unfold (λ c e, failed) e,
 
 meta def dunfold_core (m : transparency) (max_steps : nat) (cs : list name) (e : expr) : tactic expr :=
 let unfold (u : unit) (e : expr) : tactic (unit × expr × bool) := do
-  guard (cs^.any e^.is_app_of),
+  guard (cs.any e.is_app_of),
   new_e ← dunfold_expr_core m e,
   return (u, new_e, tt)
 in do (c, new_e) ← dsimplify_core () max_steps tt (λ c e, failed) unfold e,
@@ -157,23 +157,23 @@ structure delta_config :=
 (visit_instances := tt)
 
 private meta def is_delta_target (e : expr) (cs : list name) : bool :=
-cs^.any (λ c,
-  if e^.is_app_of c then tt   /- Exact match -/
-  else let f := e^.get_app_fn in
+cs.any (λ c,
+  if e.is_app_of c then tt   /- Exact match -/
+  else let f := e.get_app_fn in
        /- f is an auxiliary constant generated when compiling c -/
-       f^.is_constant && f^.const_name^.is_internal && (f^.const_name^.get_prefix = c))
+       f.is_constant && f.const_name.is_internal && (f.const_name.get_prefix = c))
 
 /- Delta reduce the given constant names -/
 meta def delta_core (cfg : delta_config) (cs : list name) (e : expr) : tactic expr :=
 let unfold (u : unit) (e : expr) : tactic (unit × expr × bool) := do
   guard (is_delta_target e cs),
-  (expr.const f_name f_lvls) ← return e^.get_app_fn,
+  (expr.const f_name f_lvls) ← return e.get_app_fn,
   env   ← get_env,
-  decl  ← env^.get f_name,
-  new_f ← decl^.instantiate_value_univ_params f_lvls,
-  new_e ← head_beta (expr.mk_app new_f e^.get_app_args),
+  decl  ← env.get f_name,
+  new_f ← decl.instantiate_value_univ_params f_lvls,
+  new_e ← head_beta (expr.mk_app new_f e.get_app_args),
   return (u, new_e, tt)
-in do (c, new_e) ← dsimplify_core () cfg^.max_steps cfg^.visit_instances (λ c e, failed) unfold e,
+in do (c, new_e) ← dsimplify_core () cfg.max_steps cfg.visit_instances (λ c e, failed) unfold e,
       return new_e
 
 meta def delta (cs : list name) : tactic unit :=
@@ -254,11 +254,11 @@ simplify_goal S cfg >> try triv >> try (reflexivity reducible)
 
 meta def simp_using (hs : list expr) (cfg : simp_config := {}) : tactic unit :=
 do S ← simp_lemmas.mk_default,
-   S ← S^.append hs,
+   S ← S.append hs,
 simplify_goal S cfg >> try triv
 
 meta def dsimp_core (s : simp_lemmas) : tactic unit :=
-target >>= s^.dsimplify >>= change
+target >>= s.dsimplify >>= change
 
 meta def dsimp : tactic unit :=
 simp_lemmas.mk_default >>= dsimp_core
@@ -266,7 +266,7 @@ simp_lemmas.mk_default >>= dsimp_core
 meta def dsimp_at_core (s : simp_lemmas) (h : expr) : tactic unit :=
 do num_reverted : ℕ ← revert h,
    expr.pi n bi d b ← target,
-   h_simp ← s^.dsimplify d,
+   h_simp ← s.dsimplify d,
    change $ expr.pi n bi h_simp b,
    intron num_reverted
 
@@ -307,40 +307,40 @@ meta def simp_intro_aux (cfg : simp_config) (updt : bool) : simp_lemmas → bool
 | S tt     [] := try (simplify_goal S cfg) >> return S
 | S use_ns ns := do
   t ← target,
-  if t^.is_napp_of `not 1 then
-    intro1_aux use_ns ns >> simp_intro_aux S use_ns ns^.tail
-  else if t^.is_arrow then
+  if t.is_napp_of `not 1 then
+    intro1_aux use_ns ns >> simp_intro_aux S use_ns ns.tail
+  else if t.is_arrow then
     do {
-      d ← return t^.binding_domain,
+      d ← return t.binding_domain,
       (new_d, h_d_eq_new_d) ← simplify S d cfg,
       h_d ← intro1_aux use_ns ns,
       h_new_d ← mk_eq_mp h_d_eq_new_d h_d,
-      assertv_core h_d^.local_pp_name new_d h_new_d,
+      assertv_core h_d.local_pp_name new_d h_new_d,
       h_new   ← intro1,
-      new_S ← if updt && is_equation new_d then S^.add h_new else return S,
+      new_S ← if updt && is_equation new_d then S.add h_new else return S,
       clear h_d,
       simp_intro_aux new_S use_ns ns
     }
     <|>
     -- failed to simplify... we just introduce and continue
-    (intro1_aux use_ns ns >> simp_intro_aux S use_ns ns^.tail)
-  else if t^.is_pi || t^.is_let then
-    intro1_aux use_ns ns >> simp_intro_aux S use_ns ns^.tail
+    (intro1_aux use_ns ns >> simp_intro_aux S use_ns ns.tail)
+  else if t.is_pi || t.is_let then
+    intro1_aux use_ns ns >> simp_intro_aux S use_ns ns.tail
   else do
     new_t ← whnf t reducible,
-    if new_t^.is_pi then change new_t >> simp_intro_aux S use_ns ns
+    if new_t.is_pi then change new_t >> simp_intro_aux S use_ns ns
     else
       try (simplify_goal S cfg) >>
       mcond (expr.is_pi <$> target)
         (simp_intro_aux S use_ns ns)
-        (if use_ns ∧ ¬ns^.empty then failed else return S)
+        (if use_ns ∧ ¬ns.empty then failed else return S)
 
 meta def simp_intros_using (s : simp_lemmas) (cfg : simp_config := {}) : tactic unit :=
 step $ simp_intro_aux cfg ff s ff []
 
 meta def simph_intros_using (s : simp_lemmas) (cfg : simp_config := {}) : tactic unit :=
 step $
-do s ← collect_ctx_simps >>= s^.append,
+do s ← collect_ctx_simps >>= s.append,
    simp_intro_aux cfg tt s ff []
 
 meta def simp_intro_lst_using (ns : list name) (s : simp_lemmas) (cfg : simp_config := {}) : tactic unit :=
@@ -348,14 +348,14 @@ step $ simp_intro_aux cfg ff s tt ns
 
 meta def simph_intro_lst_using (ns : list name) (s : simp_lemmas) (cfg : simp_config := {}) : tactic unit :=
 step $
-do s ← collect_ctx_simps >>= s^.append,
+do s ← collect_ctx_simps >>= s.append,
    simp_intro_aux cfg tt s tt ns
 
 meta def simp_at (h : expr) (extra_lemmas : list expr := []) (cfg : simp_config := {}) : tactic unit :=
 do when (expr.is_local_constant h = ff) (fail "tactic simp_at failed, the given expression is not a hypothesis"),
    htype ← infer_type h,
    S     ← simp_lemmas.mk_default,
-   S     ← S^.append extra_lemmas,
+   S     ← S.append extra_lemmas,
    (new_htype, heq) ← simplify S htype cfg,
    assert (expr.local_pp_name h) new_htype,
    mk_eq_mp heq h >>= exact,
@@ -378,7 +378,7 @@ do (lhs, rhs)     ← target >>= match_eq,
 
 meta def to_simp_lemmas : simp_lemmas → list name → tactic simp_lemmas
 | S []      := return S
-| S (n::ns) := do S' ← S^.add_simp n, to_simp_lemmas S' ns
+| S (n::ns) := do S' ← S.add_simp n, to_simp_lemmas S' ns
 
 meta def mk_simp_attr (attr_name : name) : command :=
 do let t := ```(caching_user_attribute simp_lemmas),
@@ -398,7 +398,7 @@ else do
 
 meta def join_user_simp_lemmas_core : simp_lemmas → list name → tactic simp_lemmas
 | S []             := return S
-| S (attr_name::R) := do S' ← get_user_simp_lemmas attr_name, join_user_simp_lemmas_core (S^.join S') R
+| S (attr_name::R) := do S' ← get_user_simp_lemmas attr_name, join_user_simp_lemmas_core (S.join S') R
 
 meta def join_user_simp_lemmas : list name → tactic simp_lemmas
 | []         := simp_lemmas.mk_default

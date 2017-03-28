@@ -147,7 +147,7 @@ section conversion
   def add_lsb (r : ℕ) (b : bool) := r + r + cond b 1 0
 
   def bits_to_nat (v : list bool) : nat :=
-  v^.foldl add_lsb 0
+  v.foldl add_lsb 0
 
   protected def to_nat {n : nat} (v : bitvec n) : nat :=
   bits_to_nat (to_list v)
@@ -209,7 +209,7 @@ end conversion
 
 private def to_string {n : nat} : bitvec n → string
 | ⟨bs, p⟩ :=
-  "0b" ++ (bs^.reverse^.map (λ b, if b then #"1" else #"0"))
+  "0b" ++ (bs.reverse.map (λ b, if b then #"1" else #"0"))
 
 instance (n : nat) : has_to_string (bitvec n) :=
 ⟨to_string⟩

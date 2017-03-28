@@ -34,11 +34,11 @@ do F ← get_local F_name,
 
 meta def constructor_num_fields (c : name) : tactic nat :=
 do env     ← get_env,
-   decl    ← env^.get c,
-   ctype   ← return decl^.type,
+   decl    ← env.get c,
+   ctype   ← return decl.type,
    arity   ← get_pi_arity ctype,
-   I       ← env^.inductive_type_of c,
-   nparams ← return (env^.inductive_num_params I),
+   I       ← env.inductive_type_of c,
+   nparams ← return (env.inductive_num_params I),
    return $ arity - nparams
 
 private meta def mk_name_list_aux : name → nat → nat → list name → list name × nat
@@ -64,7 +64,7 @@ private meta def mk_constructors_arg_names_aux : list name → name → nat → 
    return the list [[p.1, ..., p.n_1], [p.{n_1 + 1}, ..., p.{n_1 + n_2}], ..., [..., p.{n_1 + ... + n_k}]] -/
 meta def mk_constructors_arg_names (I : name) (p : name) : tactic (list (list name)) :=
 do env ← get_env,
-   cs  ← return $ env^.constructors_of I,
+   cs  ← return $ env.constructors_of I,
    mk_constructors_arg_names_aux cs p 1 []
 
 end tactic

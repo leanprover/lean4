@@ -31,9 +31,9 @@ meta instance interaction_monad.result_has_string : has_to_string (result state 
 end
 
 meta def interaction_monad.result.clamp_pos {state : Type} {α : Type u} (line col : ℕ) : result state α → result state α
-| (success a s)                := success a s
-| (exception msg (some pos) s) := exception msg (some $ if pos^.line < line then ⟨line, col⟩ else pos) s
-| (exception msg none s)       := exception msg (some ⟨line, col⟩) s
+| (success a s)              := success a s
+| (exception msg (some p) s) := exception msg (some $ if p.line < line then ⟨line, col⟩ else p) s
+| (exception msg none s)     := exception msg (some ⟨line, col⟩) s
 
 @[reducible] meta def interaction_monad (state : Type) (α : Type u) :=
 state → result state α

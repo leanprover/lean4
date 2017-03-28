@@ -48,6 +48,7 @@ Author: Leonardo de Moura
 #include "library/documentation.h"
 #include "library/pp_options.h"
 #include "library/noncomputable.h"
+#include "library/replace_visitor.h"
 #include "kernel/scope_pos_info_provider.h"
 #include "library/type_context.h"
 #include "library/pattern_attribute.h"
@@ -1668,6 +1669,45 @@ expr parser::parse_pattern(std::function<expr(parser &)> const & fn, buffer<expr
     return patexpr_to_pattern(r, false, new_locals);
 }
 
+/* Auxiliary functional object for patexpr_to_expr.
+   We cannot simply use replace anymore because of the field notation.
+   To fix the local declarations, we need to track the local bindings when we
+   go inside lambda/pi/let. */
+class patexpr_to_expr_fn : public replace_visitor {
+    parser &         m_p;
+    list<name>       m_locals;
+
+    virtual expr visit_binding(expr const & e) override {
+        expr new_d = visit(binding_domain(e));
+        flet<list<name>> set(m_locals, cons(binding_name(e), m_locals));
+        expr new_b = visit(binding_body(e));
+        return update_binding(e, new_d, new_b);
+    }
+
+    virtual expr visit_let(expr const & e) override {
+        expr new_type = visit(let_type(e));
+        expr new_val  = visit(let_value(e));
+        flet<list<name>> set(m_locals, cons(let_name(e), m_locals));
+        expr new_body = visit(let_body(e));
+        return update_let(e, new_type, new_val, new_body);
+    }
+
+    virtual expr visit_macro(expr const & e) override {
+        if (is_inaccessible(e) && is_placeholder(get_annotation_arg(e))) {
+            return get_annotation_arg(e);
+        } else {
+            return replace_visitor::visit_macro(e);
+        }
+    }
+
+    virtual expr visit_local(expr const & e) override {
+        return m_p.id_to_expr(local_pp_name(e), m_p.pos_of(e), true, m_locals);
+    }
+
+public:
+    patexpr_to_expr_fn(parser & p):m_p(p) {}
+};
+
 expr parser::patexpr_to_expr(expr const & pat_or_expr) {
     error_if_undef_scope scope(*this);
     // start with expr quotes, which may make more locals from inside antiquotations accessible
@@ -1678,15 +1718,7 @@ expr parser::patexpr_to_expr(expr const & pat_or_expr) {
             return none_expr();
         }
     });
-    return replace(e, [&](expr const & e, unsigned) {
-        if (is_local(e)) {
-            return some_expr(id_to_expr(local_pp_name(e), pos_of(e), true));
-        } else if (is_inaccessible(e) && is_placeholder(get_annotation_arg(e))) {
-            return some_expr(get_annotation_arg(e));
-        } else {
-            return none_expr();
-        }
-    });
+    return patexpr_to_expr_fn(*this)(e);
 }
 
 static void check_no_levels(levels const & ls, pos_info const & p) {
@@ -1695,7 +1727,7 @@ static void check_no_levels(levels const & ls, pos_info const & p) {
                            "parameter or a constant bound to parameters in a section", p);
 }
 
-expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only) {
+expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only, list<name> const & extra_locals) {
     buffer<level> lvl_buffer;
     levels ls;
     bool explicit_levels = false;
@@ -1711,6 +1743,14 @@ expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only) 
 
     if (!explicit_levels && m_id_behavior == id_behavior::AllLocal) {
         return save_pos(mk_local(id, save_pos(mk_expr_placeholder(), p)), p);
+    }
+
+    // extra locals
+    unsigned vidx = 0;
+    for (name const & extra : extra_locals) {
+        if (id == extra)
+            return save_pos(mk_var(vidx), p);
+        vidx++;
     }
 
     // locals
@@ -1766,8 +1806,15 @@ expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only) 
             r = save_pos(local, p);
         }
     }
-    if (!r)
+    if (!r && !id.is_atomic() && id.is_string()) {
+        try {
+            expr s = id_to_expr(id.get_prefix(), p, resolve_only, extra_locals);
+            r      = mk_field_notation_compact(s, id.get_string());
+        } catch (exception &) {}
+    }
+    if (!r) {
         throw parser_error(sstream() << "unknown identifier '" << id << "'", p);
+    }
     return *r;
 }
 

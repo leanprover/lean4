@@ -9,68 +9,68 @@ import init.propext init.classical
 /- Lemmas use by the congruence closure module -/
 
 lemma iff_eq_of_eq_true_left {a b : Prop} (h : a = true) : (a ↔ b) = b :=
-h^.symm ▸ propext (true_iff _)
+h.symm ▸ propext (true_iff _)
 
 lemma iff_eq_of_eq_true_right {a b : Prop} (h : b = true) : (a ↔ b) = a :=
-h^.symm ▸ propext (iff_true _)
+h.symm ▸ propext (iff_true _)
 lemma iff_eq_true_of_eq {a b : Prop} (h : a = b) : (a ↔ b) = true :=
 h ▸ propext (iff_self _)
 
 lemma and_eq_of_eq_true_left {a b : Prop} (h : a = true) : (a ∧ b) = b :=
-h^.symm ▸ propext (true_and  _)
+h.symm ▸ propext (true_and  _)
 
 lemma and_eq_of_eq_true_right {a b : Prop} (h : b = true) : (a ∧ b) = a :=
-h^.symm ▸ propext (and_true _)
+h.symm ▸ propext (and_true _)
 
 lemma and_eq_of_eq_false_left {a b : Prop} (h : a = false) : (a ∧ b) = false :=
-h^.symm ▸ propext (false_and _)
+h.symm ▸ propext (false_and _)
 
 lemma and_eq_of_eq_false_right {a b : Prop} (h : b = false) : (a ∧ b) = false :=
-h^.symm ▸ propext (and_false _)
+h.symm ▸ propext (and_false _)
 
 lemma and_eq_of_eq {a b : Prop} (h : a = b) : (a ∧ b) = a :=
 h ▸ propext (and_self _)
 
 lemma or_eq_of_eq_true_left {a b : Prop} (h : a = true) : (a ∨ b) = true :=
-h^.symm ▸ propext (true_or  _)
+h.symm ▸ propext (true_or  _)
 
 lemma or_eq_of_eq_true_right {a b : Prop} (h : b = true) : (a ∨ b) = true :=
-h^.symm ▸ propext (or_true _)
+h.symm ▸ propext (or_true _)
 
 lemma or_eq_of_eq_false_left {a b : Prop} (h : a = false) : (a ∨ b) = b :=
-h^.symm ▸ propext (false_or _)
+h.symm ▸ propext (false_or _)
 
 lemma or_eq_of_eq_false_right {a b : Prop} (h : b = false) : (a ∨ b) = a :=
-h^.symm ▸ propext (or_false _)
+h.symm ▸ propext (or_false _)
 
 lemma or_eq_of_eq {a b : Prop} (h : a = b) : (a ∨ b) = a :=
 h ▸ propext (or_self _)
 
 lemma imp_eq_of_eq_true_left {a b : Prop} (h : a = true) : (a → b) = b :=
-h^.symm ▸ propext (iff.intro (λ h, h trivial) (λ h₁ h₂, h₁))
+h.symm ▸ propext (iff.intro (λ h, h trivial) (λ h₁ h₂, h₁))
 
 lemma imp_eq_of_eq_true_right {a b : Prop} (h : b = true) : (a → b) = true :=
-h^.symm ▸ propext (iff.intro (λ h, trivial) (λ h₁ h₂, h₁))
+h.symm ▸ propext (iff.intro (λ h, trivial) (λ h₁ h₂, h₁))
 
 lemma imp_eq_of_eq_false_left {a b : Prop} (h : a = false) : (a → b) = true :=
-h^.symm ▸ propext (iff.intro (λ h, trivial) (λ h₁ h₂, false.elim h₂))
+h.symm ▸ propext (iff.intro (λ h, trivial) (λ h₁ h₂, false.elim h₂))
 
 lemma imp_eq_of_eq_false_right {a b : Prop} (h : b = false) : (a → b) = not a :=
-h^.symm ▸ propext (iff.intro (λ h, h) (λ hna ha, hna ha))
+h.symm ▸ propext (iff.intro (λ h, h) (λ hna ha, hna ha))
 
 /- Remark: the congruence closure module will only use the following lemma is
    cc_config.em is tt. -/
 lemma not_imp_eq_of_eq_false_right {a b : Prop} (h : b = false) : (not a → b) = a :=
-h^.symm ▸ propext (iff.intro (λ h', classical.by_contradiction (λ hna, h' hna)) (λ ha hna, hna ha))
+h.symm ▸ propext (iff.intro (λ h', classical.by_contradiction (λ hna, h' hna)) (λ ha hna, hna ha))
 
 lemma imp_eq_true_of_eq {a b : Prop} (h : a = b) : (a → b) = true :=
 h ▸ propext (iff.intro (λ h, trivial) (λ h ha, ha))
 
 lemma not_eq_of_eq_true {a : Prop} (h : a = true) : (not a) = false :=
-h^.symm ▸ propext not_true_iff
+h.symm ▸ propext not_true_iff
 
 lemma not_eq_of_eq_false {a : Prop} (h : a = false) : (not a) = true :=
-h^.symm ▸ propext not_false_iff
+h.symm ▸ propext not_false_iff
 
 lemma false_of_a_eq_not_a {a : Prop} (h : a = not a) : false :=
 have not a, from λ ha, absurd ha (eq.mp h ha),
@@ -111,7 +111,7 @@ lemma eq_true_of_not_eq_false {a : Prop} (h : (not a) = false) : a = true :=
 eq_true_intro (classical.by_contradiction (λ hna, eq.mp h hna))
 
 lemma ne_of_eq_of_ne {α : Sort u} {a b c : α} (h₁ : a = b) (h₂ : b ≠ c) : a ≠ c :=
-h₁^.symm ▸ h₂
+h₁.symm ▸ h₂
 
 lemma ne_of_ne_of_eq {α : Sort u} {a b c : α} (h₁ : a ≠ b) (h₂ : b = c) : a ≠ c :=
 h₂ ▸ h₁

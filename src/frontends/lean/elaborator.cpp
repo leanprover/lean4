@@ -3657,10 +3657,14 @@ static expr resolve_local_name(environment const & env, local_context const & lc
             r = copy_tag(src, mk_choice(new_as.size(), new_as.data()));
         }
     }
-
+    if (!r && !id.is_atomic() && id.is_string()) {
+        try {
+            expr s = resolve_local_name(env, lctx, id.get_prefix(), src, ignore_aliases);
+            r      = mk_field_notation_compact(s, id.get_string());
+        } catch (exception &) {}
+    }
     if (!r)
         throw elaborator_exception(src, format("unknown identifier '") + format(id) + format("'"));
-
     return *r;
 }
 

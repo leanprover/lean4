@@ -59,13 +59,13 @@ instance : monad_fail io :=
 
 namespace io
 def put_str : string → io unit :=
-interface.term^.put_str
+interface.term.put_str
 
 def put_str_ln (s : string) : io unit :=
 put_str s >> put_str "\n"
 
 def get_line : io string :=
-interface.term^.get_line
+interface.term.get_line
 
 def print {α} [has_to_string α] (s : α) : io unit :=
 put_str ∘ to_string $ s
@@ -74,55 +74,55 @@ def print_ln {α} [has_to_string α] (s : α) : io unit :=
 print s >> put_str "\n"
 
 def handle : Type :=
-interface.fs^.handle
+interface.fs.handle
 
 def mk_file_handle (s : string) (m : mode) (bin : bool := ff) : io handle :=
-interface.fs^.mk_file_handle s m bin
+interface.fs.mk_file_handle s m bin
 
 def stdin : io handle :=
-interface.fs^.stdin
+interface.fs.stdin
 
 def stderr : io handle :=
-interface.fs^.stderr
+interface.fs.stderr
 
 def stdout : io handle :=
-interface.fs^.stdout
+interface.fs.stdout
 
 namespace fs
 def is_eof : handle → io bool :=
-interface.fs^.is_eof
+interface.fs.is_eof
 
 def flush : handle → io unit :=
-interface.fs^.flush
+interface.fs.flush
 
 def close : handle → io unit :=
-interface.fs^.close
+interface.fs.close
 
 def read : handle → nat → io char_buffer :=
-interface.fs^.read
+interface.fs.read
 
 def write : handle → char_buffer → io unit :=
-interface.fs^.write
+interface.fs.write
 
 def get_char (h : handle) : io char :=
 do b ← read h 1,
-   if h : b^.size = 1 then return $ b^.read ⟨0, h^.symm ▸ zero_lt_one⟩
+   if h : b.size = 1 then return $ b.read ⟨0, h.symm ▸ zero_lt_one⟩
    else io.fail "get_char failed"
 
 def get_line : handle → io char_buffer :=
-interface.fs^.get_line
+interface.fs.get_line
 
 def put_char (h : handle) (c : char) : io unit :=
-write h (mk_buffer^.push_back c)
+write h (mk_buffer.push_back c)
 
 def put_str (h : handle) (s : string) : io unit :=
-write h (mk_buffer^.append_string s)
+write h (mk_buffer.append_string s)
 
 def put_str_ln (h : handle) (s : string) : io unit :=
 put_str h s >> put_str h "\n"
 
 def read_file (s : string) (bin := ff) : io char_buffer :=
-interface.fs^.read_file s bin
+interface.fs.read_file s bin
 end fs
 end io
 

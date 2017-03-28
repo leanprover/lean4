@@ -13,11 +13,6 @@ expr mk_anonymous_constructor(expr const & e);
 bool is_anonymous_constructor(expr const & e);
 expr const & get_anonymous_constructor_arg(expr const & e);
 
-bool is_field_notation(expr const & e);
-bool is_anonymous_field_notation(expr const & e);
-name const & get_field_notation_field_name(expr const & e);
-unsigned get_field_notation_field_idx(expr const & e);
-
 bool is_do_failure_eq(expr const & e);
 
 parse_table get_builtin_nud_table();

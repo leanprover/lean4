@@ -251,10 +251,10 @@ do hs ← get_locals ids, revert_lst hs, skip
 
 private meta def resolve_name' (n : name) : tactic expr :=
 do {
-  e ← resolve_name n,
-  match e with
+  p ← resolve_name n,
+  match p.to_raw_expr with
   | expr.const n _           := mk_const n -- create metavars for universe levels
-  | _                        := return e
+  | _                        := i_to_expr p
   end
 }
 
@@ -263,7 +263,7 @@ do {
    Example: the elaborator will force any unassigned ?A that must have be an instance of (has_one ?A) to nat.
    Remark: another benefit is that auxiliary temporary metavariables do not appear in error messages. -/
 private meta def to_expr' (p : pexpr) : tactic expr :=
-let e := pexpr.to_raw_expr p in
+let e := p.to_raw_expr in
 match e with
 | (const c [])          := do new_e ← resolve_name' c, save_type_info new_e e, return new_e
 | (local_const c _ _ _) := do new_e ← resolve_name' c, save_type_info new_e e, return new_e
@@ -478,22 +478,22 @@ fail ("invalid simplification lemma '" ++ to_string n ++ "' (use command 'set_op
 
 private meta def simp_lemmas.resolve_and_add (s : simp_lemmas) (n : name) (ref : expr) : tactic simp_lemmas :=
 do
-  e ← resolve_name n,
-  match e with
-  | expr.const n _           :=
+  p ← resolve_name n,
+  match p.to_raw_expr with
+  | const n _           :=
     (do b ← is_valid_simp_lemma_cnst reducible n, guard b, save_const_type_info n ref, s^.add_simp n)
     <|>
     (do eqns ← get_eqn_lemmas_for tt n, guard (eqns^.length > 0), save_const_type_info n ref, add_simps s eqns)
     <|>
     report_invalid_simp_lemma n
   | _ :=
-    (do b ← is_valid_simp_lemma reducible e, guard b, try (save_type_info e ref), s^.add e)
+    (do e ← i_to_expr p, b ← is_valid_simp_lemma reducible e, guard b, try (save_type_info e ref), s^.add e)
     <|>
     report_invalid_simp_lemma n
   end
 
 private meta def simp_lemmas.add_pexpr (s : simp_lemmas) (p : pexpr) : tactic simp_lemmas :=
-let e := pexpr.to_raw_expr p in
+let e := p.to_raw_expr in
 match e with
 | (const c [])          := simp_lemmas.resolve_and_add s c e
 | (local_const c _ _ _) := simp_lemmas.resolve_and_add s c e

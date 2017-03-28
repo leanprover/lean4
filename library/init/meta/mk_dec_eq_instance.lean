@@ -99,7 +99,7 @@ do I_name ← get_dec_eq_type_name,
    let v_name := `_v,
    let F_name := `_F,
    let num_indices := inductive_num_indices env I_name,
-   let idx_names   := list.map (λ (p : name × nat), mk_num_name p^.fst p^.snd) (list.zip (list.repeat `idx num_indices) (list.iota num_indices)),
+   let idx_names   := list.map (λ (p : name × nat), mk_num_name p.fst p.snd) (list.zip (list.repeat `idx num_indices) (list.iota num_indices)),
    -- Use brec_on if type is recursive.
    -- We store the functional in the variable F.
    if is_recursive env I_name

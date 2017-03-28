@@ -30,9 +30,7 @@ instance semigroup_morphism_to_map { α β : Type u } { s : semigroup α } { t: 
   mul := λ p q, (p^.fst * q^.fst, p^.snd * q^.snd),
   mul_assoc := begin
                 intros,
-                simp [@mul.equations._eqn_1 (α × β)],
-                dsimp,
-                simp
+                simp [@mul.equations._eqn_1 (α × β)]
               end
 }
 

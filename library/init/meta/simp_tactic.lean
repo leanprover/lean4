@@ -195,6 +195,7 @@ structure simp_config :=
 (use_axioms : bool         := tt)
 (zeta : bool               := tt)
 (beta : bool               := tt)
+(proj : bool               := tt) -- reduce projections
 
 meta constant simplify_core
   (c : simp_config)

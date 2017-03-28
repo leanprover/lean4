@@ -69,7 +69,8 @@ simp_config::simp_config():
     m_canonize_proofs(false),
     m_use_axioms(false),
     m_zeta(false),
-    m_beta(false) {
+    m_beta(false),
+    m_proj(true) {
 }
 
 simp_config::simp_config(vm_obj const & obj) {
@@ -81,6 +82,7 @@ simp_config::simp_config(vm_obj const & obj) {
     m_use_axioms         = to_bool(cfield(obj, 5));
     m_zeta               = to_bool(cfield(obj, 6));
     m_beta               = to_bool(cfield(obj, 7));
+    m_proj               = to_bool(cfield(obj, 8));
 }
 
 /* -----------------------------------
@@ -681,7 +683,8 @@ simp_result simplify_core_fn::rewrite(expr const & e, simp_lemma const & sl) {
     simp_result it_r = rewrite_core(it, sl);
     if (it_r.get_new() == it)
         return simp_result(e);
-    expr new_e = head_beta_reduce(mk_rev_app(it_r.get_new(), extra_args));
+    expr new_e = mk_rev_app(it_r.get_new(), extra_args);
+    new_e      = reduce(new_e);
     if (!it_r.has_proof())
         return simp_result(new_e);
     expr pr = it_r.get_proof();
@@ -792,27 +795,54 @@ simp_result simplify_core_fn::visit_fn(expr const & e) {
     return congr_funs(r_f, args);
 }
 
+expr simplify_core_fn::reduce(expr e) {
+    bool p;
+    do {
+        p = false;
+        if (m_cfg.m_beta) {
+            expr new_e = head_beta_reduce(e);
+            if (!is_eqp(new_e, e)) {
+                e = new_e;
+                p = true;
+            }
+        }
+        if (m_cfg.m_proj) {
+            if (auto v = m_ctx.reduce_projection(e)) {
+                e = *v;
+                p = true;
+            }
+        }
+    } while (p);
+    return e;
+}
+
+simp_result simplify_core_fn::reduce(simp_result r) {
+    r.update(reduce(r.get_new()));
+    return r;
+}
+
 simp_result simplify_core_fn::visit_app(expr const & _e) {
     lean_assert(is_app(_e));
-    expr e = _e;
-    if (m_cfg.m_beta)
-        e = head_beta_reduce(e);
-    e = should_defeq_canonize() ? defeq_canonize_args_step(e) : e;
+    expr e = reduce(_e);
+    e      = should_defeq_canonize() ? defeq_canonize_args_step(e) : e;
 
     // (1) Try user-defined congruences
     simp_result r_user = try_user_congrs(e);
     if (r_user.has_proof()) {
         if (m_rel == get_eq_name()) {
-            return join(r_user, visit_fn(r_user.get_new()));
+            return reduce(join(r_user, visit_fn(r_user.get_new())));
         } else {
-            return r_user;
+            return reduce(r_user);
         }
     }
 
     if (m_rel == get_eq_name()) {
         // (2) Synthesize congruence lemma
         optional<simp_result> r_args = try_auto_eq_congr(e);
-        if (r_args) return join(*r_args, visit_fn(r_args->get_new()));
+        if (r_args) {
+            return reduce(join(*r_args, visit_fn(r_args->get_new())));
+        }
+
 
         // (3) Fall back on generic binary congruence
         expr const & f = app_fn(e);
@@ -821,11 +851,11 @@ simp_result simplify_core_fn::visit_app(expr const & _e) {
         simp_result r_f = visit(f, some_expr(e));
 
         if (is_dependent_fn(f)) {
-            if (r_f.has_proof()) return congr_fun(r_f, arg);
-            else return mk_app(r_f.get_new(), arg);
+            if (r_f.has_proof()) return reduce(congr_fun(r_f, arg));
+            else return reduce(mk_app(r_f.get_new(), arg));
         } else {
             simp_result r_arg = visit(arg, some_expr(e));
-            return congr_fun_arg(r_f, r_arg);
+            return reduce(congr_fun_arg(r_f, r_arg));
         }
     }
 
@@ -1089,11 +1119,8 @@ static optional<pair<simp_result, bool>> no_ext_result() {
     return optional<pair<simp_result, bool>>();
 }
 
-optional<pair<simp_result, bool>> simplify_fn::pre(expr const & e, optional<expr> const &) {
-    if (auto r = m_ctx.reduce_projection(e))
-        return to_ext_result(simp_result(*r));
-    else
-        return no_ext_result();
+optional<pair<simp_result, bool>> simplify_fn::pre(expr const &, optional<expr> const &) {
+    return no_ext_result();
 }
 
 optional<pair<simp_result, bool>> simplify_fn::post(expr const & e, optional<expr> const &) {

@@ -23,6 +23,7 @@ structure simp_config :=
 (use_axioms : bool)
 (zeta : bool)
 (beta : bool)
+(proj : bool)
 */
 struct simp_config {
     unsigned                  m_max_steps;
@@ -33,6 +34,7 @@ struct simp_config {
     bool                      m_use_axioms;
     bool                      m_zeta;
     bool                      m_beta;
+    bool                      m_proj;
     /* The following option should be removed as soon as we
        refactor the inductive compiler. */
     bool                      m_use_matcher{true};
@@ -125,6 +127,10 @@ protected:
     virtual simp_result visit(expr const & e, optional<expr> const & parent);
 
     simp_result simplify(expr const & e);
+
+    /* Apply conversion rules: beta, projection */
+    expr reduce(expr e);
+    simp_result reduce(simp_result r);
 
     bool match(tmp_type_context & ctx, simp_lemma const & sl, expr const & t);
 

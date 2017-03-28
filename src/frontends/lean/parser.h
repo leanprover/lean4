@@ -444,15 +444,16 @@ public:
     list<expr> locals_to_context() const;
     /** \brief Return all local declarations and aliases */
     list<pair<name, expr>> const & get_local_entries() const { return m_local_decls.get_entries(); }
-    /** \brief By default, when the parser finds a unknown identifier, it signs an error.
-        These scope objects temporarily change this behavior. In any scope where this object
-        is declared, the parse creates a constant/local even when the identifier is unknown.
-        This behavior is useful when we are trying to parse mutually recursive declarations and
-        tactics.
-    */
-    struct undef_id_to_local_scope : public flet<id_behavior> { undef_id_to_local_scope(parser &); };
+
+    /* This is the default mode. We also use it when converting a pre-term that can be a pattern_or_expression
+       into an expression.
+
+       \remark By default, when the parser finds a unknown identifier, it signs an error. */
     struct error_if_undef_scope : public flet<id_behavior> { error_if_undef_scope(parser & p); };
+    /* We use this mode when parsing patterns (and a pre-term that can be a pattern or expression). */
     struct all_id_local_scope : public flet<id_behavior> { all_id_local_scope(parser & p); };
+    /* We use this mode when converting a pre-term that can be a pattern_or_expression into a pattern. */
+    struct undef_id_to_local_scope : public flet<id_behavior> { undef_id_to_local_scope(parser &); };
 
 private:
     pair<expr, level_param_names> elaborate(name const & decl_name, metavar_context & mctx, local_context_adapter const & adapter,

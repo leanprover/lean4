@@ -1046,47 +1046,10 @@ static expr parse_field(parser_state & p, unsigned, expr const * args, pos_info 
     }
 }
 
-static expr parse_field1(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
-    return p.save_pos(mk_field_notation(args[0], 1), pos);
-}
-static expr parse_field2(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
-    return p.save_pos(mk_field_notation(args[0], 2), pos);
-}
-static expr parse_field3(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
-    return p.save_pos(mk_field_notation(args[0], 3), pos);
-}
-static expr parse_field4(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
-    return p.save_pos(mk_field_notation(args[0], 4), pos);
-}
-static expr parse_field5(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
-    return p.save_pos(mk_field_notation(args[0], 5), pos);
-}
-static expr parse_field6(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
-    return p.save_pos(mk_field_notation(args[0], 6), pos);
-}
-static expr parse_field7(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
-    return p.save_pos(mk_field_notation(args[0], 7), pos);
-}
-static expr parse_field8(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
-    return p.save_pos(mk_field_notation(args[0], 8), pos);
-}
-static expr parse_field9(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
-    return p.save_pos(mk_field_notation(args[0], 9), pos);
-}
-
 parse_table init_led_table() {
     parse_table r(false);
     r = r.add({transition("->", mk_expr_action(get_arrow_prec()-1))},    mk_arrow(Var(1), Var(1)));
     r = r.add({transition("^.", mk_ext_action(parse_field))}, Var(0));
-    r = r.add({transition(".1", mk_ext_action(parse_field1))}, Var(0));
-    r = r.add({transition(".2", mk_ext_action(parse_field2))}, Var(0));
-    r = r.add({transition(".3", mk_ext_action(parse_field3))}, Var(0));
-    r = r.add({transition(".4", mk_ext_action(parse_field4))}, Var(0));
-    r = r.add({transition(".5", mk_ext_action(parse_field5))}, Var(0));
-    r = r.add({transition(".6", mk_ext_action(parse_field6))}, Var(0));
-    r = r.add({transition(".7", mk_ext_action(parse_field7))}, Var(0));
-    r = r.add({transition(".8", mk_ext_action(parse_field8))}, Var(0));
-    r = r.add({transition(".9", mk_ext_action(parse_field9))}, Var(0));
     return r;
 }
 

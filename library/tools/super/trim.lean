@@ -11,7 +11,7 @@ namespace super
 -- TODO(gabriel): rewrite using conversions
 meta def trim : expr → tactic expr
 | (app (lam n m d b) arg) :=
-  if ¬b^.has_var then
+  if ¬b.has_var then
     trim b
   else
     lift₂ app (trim (lam n m d b)) (trim arg)
@@ -19,12 +19,12 @@ meta def trim : expr → tactic expr
 | (lam n m d b) := do
   x ← mk_local' `x m d,
   b' ← trim (instantiate_var b x),
-  return $ lam n m d (abstract_local b' x^.local_uniq_name)
+  return $ lam n m d (abstract_local b' x.local_uniq_name)
 | (elet n t v b) :=
   if has_var b then do
     x ← mk_local_def `x t,
     b' ← trim (instantiate_var b x),
-    return $ elet n t v (abstract_local b' x^.local_uniq_name)
+    return $ elet n t v (abstract_local b' x.local_uniq_name)
   else
     trim b
 | e := return e

@@ -63,7 +63,7 @@ meta constant expr.is_annotation : expr → option (name × expr)
 
 meta def expr.erase_annotations : expr → expr
 | e :=
-  match e^.is_annotation with
+  match e.is_annotation with
   | some (_, a) := expr.erase_annotations a
   | none        := e
   end
@@ -104,7 +104,7 @@ meta constant expr.abstract_local  : expr → name → expr
 meta constant expr.abstract_locals : expr → list name → expr
 
 meta def expr.abstract : expr → expr → expr
-| e (expr.local_const n m bi t) := e^.abstract_local n
+| e (expr.local_const n m bi t) := e.abstract_local n
 | e _                           := e
 
 meta constant expr.instantiate_univ_params : expr → list (name × level) → expr

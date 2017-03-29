@@ -18,7 +18,7 @@ Author: Leonardo de Moura
 namespace lean {
 enum class token_kind {Keyword, CommandKeyword, Identifier, Numeral, Decimal,
         String, Char, QuotedSymbol,
-        DocBlock, ModDocBlock, Eof};
+        DocBlock, ModDocBlock, FieldNum, FieldName, Eof};
 /**
     \brief Scanner. The behavior of the scanner is controlled using a token set.
 
@@ -50,7 +50,7 @@ protected:
     std::string         m_aux_buffer;
 
     bool                m_in_notation;
-
+    bool                m_field_notation{true};
 
     [[ noreturn ]] void throw_exception(char const * msg);
     void next();
@@ -76,6 +76,7 @@ protected:
     token_kind read_char();
     token_kind read_hex_number();
     token_kind read_number();
+    void read_field_idx();
     token_kind read_key_cmd_id();
     token_kind read_quoted_symbol();
     void read_doc_block_core();
@@ -107,6 +108,12 @@ public:
     };
 
     bool in_notation() const { return m_in_notation; }
+
+    class field_notation_scope : public flet<bool> {
+    public:
+        field_notation_scope(scanner & s, bool flag):
+            flet<bool>(s.m_field_notation, flag) {}
+    };
 };
 std::ostream & operator<<(std::ostream & out, token_kind k);
 bool is_id_rest(char const * begin, char const * end);
@@ -116,8 +123,8 @@ class token {
     pos_info    m_pos;
     union {
         token_info *  m_info;     /* Keyword, CommandKeyword */
-        name *        m_name_val; /* QuotedSymbol, Identifier */
-        mpq *         m_num_val;  /* Decimal, Numeral */
+        name *        m_name_val; /* QuotedSymbol, Identifier, FieldName */
+        mpq *         m_num_val;  /* Decimal, Numeral, FieldNum */
         std::string * m_str_val;  /* String, Char, DocBlock, ModDocBlock */
     };
 

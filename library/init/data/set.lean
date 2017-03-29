@@ -85,7 +85,7 @@ instance : functor set :=
    intros, apply funext, intro c,
    dsimp [image, set_of],
    exact propext ⟨λ ⟨a, ⟨h₁, h₂⟩⟩, ⟨g a, ⟨⟨a, ⟨h₁, rfl⟩⟩, h₂⟩⟩,
-                  λ ⟨b, ⟨⟨a, ⟨h₁, h₂⟩⟩, h₃⟩⟩, ⟨a, ⟨h₁, h₂^.symm ▸ h₃⟩⟩⟩
+                  λ ⟨b, ⟨⟨a, ⟨h₁, h₂⟩⟩, h₃⟩⟩, ⟨a, ⟨h₁, h₂ .symm ▸ h₃⟩⟩⟩ -- TODO(Leo): fix extra space after h₂
  end}
 
 end set

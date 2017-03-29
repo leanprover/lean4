@@ -31,7 +31,7 @@ meta constant add             : environment → declaration → exceptional envi
 /- Retrieve a declaration from the environment -/
 meta constant get             : environment → name → exceptional declaration
 meta def      contains (env : environment) (d : name) : bool :=
-match env^.get d with
+match env.get d with
 | exceptional.success _      := tt
 | exceptional.exception ._ _ := ff
 end
@@ -98,10 +98,10 @@ end
 
 /-- Return true if 'n' has been declared in the current file -/
 meta def in_current_file (env : environment) (n : name) : bool :=
-(env^.decl_olean n)^.is_none && env^.contains n
+(env.decl_olean n).is_none && env.contains n
 
 meta def is_definition (env : environment) (n : name) : bool :=
-match env^.get n with
+match env.get n with
 | exceptional.success (declaration.defn _ _ _ _ _ _) := tt
 | _                                                  := ff
 end

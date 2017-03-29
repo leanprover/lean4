@@ -131,7 +131,7 @@ begin
   { intro k, cases k,
     { intro e,
       cases (nat.le.dest (nat.le_of_sub_eq_zero e)) with k h,
-      rw [h^.symm, nat.add_sub_cancel_left],
+      rw [h.symm, nat.add_sub_cancel_left],
       apply hp },
     { intro heq,
       assert h : m ≤ n,
@@ -205,7 +205,7 @@ protected lemma rel_neg_of_nat {m} : ∀{n}, rel_int_nat_nat (neg_of_nat n) (m, 
 | (nat.succ n) := rel_int_nat_nat.neg
 
 protected lemma rel_eq : (rel_int_nat_nat ⇒ (rel_int_nat_nat ⇒ iff))
-  eq (λa b, a^.1 + b^.2 = b^.1 + a^.2)
+  eq (λa b, a.1 + b.2 = b.1 + a.2)
 | ._ ._ (@rel_int_nat_nat.pos m p) ._ ._ (@rel_int_nat_nat.pos m' p') :=
   calc of_nat p = of_nat p'
         ↔ (m + m') + p = (m + m') + p' : by rw [of_nat_eq_of_nat_iff, add_left_cancel_iff]
@@ -248,7 +248,7 @@ protected lemma rel_add : (rel_int_nat_nat ⇒ (rel_int_nat_nat ⇒ rel_int_nat_
     by simp,
   show rel_int_nat_nat (sub_nat_nat p (n' + 1)) (m + p + m', m + (m' + n' + 1)),
     begin
-      rw [eq1, eq2, (sub_nat_nat_add_add _ _ (m + m'))^.symm],
+      rw [eq1, eq2, (sub_nat_nat_add_add _ _ (m + m')).symm],
       apply int.rel_sub_nat_nat
     end
 | ._ ._ (@rel_int_nat_nat.neg m n) ._ ._ (@rel_int_nat_nat.pos m' p') :=
@@ -258,7 +258,7 @@ protected lemma rel_add : (rel_int_nat_nat ⇒ (rel_int_nat_nat ⇒ rel_int_nat_
     by simp,
   show rel_int_nat_nat (sub_nat_nat p' (n + 1)) (m + (m' + p'), (m + n + 1) + m'),
     begin
-      rw [eq1, eq2, (sub_nat_nat_add_add _ _ (m + m'))^.symm],
+      rw [eq1, eq2, (sub_nat_nat_add_add _ _ (m + m')).symm],
       apply int.rel_sub_nat_nat
     end
 | ._ ._ (@rel_int_nat_nat.neg m n) ._ ._ (@rel_int_nat_nat.neg m' n') :=

@@ -28,7 +28,7 @@ meta instance : has_to_format tactic_state :=
 ⟨tactic_state.to_format⟩
 
 meta instance : has_to_string tactic_state :=
-⟨λ s, (to_fmt s)^.to_string s.get_options⟩
+⟨λ s, (to_fmt s).to_string s.get_options⟩
 
 @[reducible] meta def tactic := interaction_monad tactic_state
 @[reducible] meta def tactic_result := interaction_monad.result tactic_state
@@ -192,7 +192,7 @@ do s ← read,
 
 meta def get_decl (n : name) : tactic declaration :=
 do s ← read,
-   (env s)^.get n
+   (env s).get n
 
 meta def trace {α : Type u} [has_to_tactic_format α] (a : α) : tactic unit :=
 do fmt ← pp a,
@@ -348,9 +348,9 @@ structure apply_cfg :=
 (use_instances := tt)
 /-- Apply the expression `e` to the main goal,
     the unification is performed using the transparency mode in `cfg`.
-    If cfg^.approx is `tt`, then fallback to first-order unification, and approximate context during unification.
-    If cfg^.all is `tt`, then all unassigned meta-variables are added as new goals.
-    If cfg^.use_instances is `tt`, then use type class resolution to instantiate unassigned meta-variables.
+    If cfg.approx is `tt`, then fallback to first-order unification, and approximate context during unification.
+    If cfg.all is `tt`, then all unassigned meta-variables are added as new goals.
+    If cfg.use_instances is `tt`, then use type class resolution to instantiate unassigned meta-variables.
     It returns a list of all introduced meta variables, even the assigned ones. -/
 meta constant apply_core (e : expr) (cfg : apply_cfg := {}) : tactic (list expr)
 /- Create a fresh meta universe variable. -/
@@ -461,7 +461,7 @@ meta def step {α : Type u} (t : tactic α) : tactic unit :=
 t >>[tactic] cleanup
 
 meta def istep {α : Type u} (line col : ℕ) (t : tactic α) : tactic unit :=
-λ s, (@scope_trace _ line col (step t s))^.clamp_pos line col
+λ s, (@scope_trace _ line col (step t s)).clamp_pos line col
 
 meta def is_prop (e : expr) : tactic bool :=
 do t ← infer_type e,

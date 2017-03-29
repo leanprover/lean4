@@ -434,7 +434,7 @@ lemma map_append_stream (f : α → β) : ∀ (l : list α) (s : stream α), map
 | []              s := rfl
 | (list.cons a l) s := by rw [cons_append_stream, list.map_cons, map_cons, cons_append_stream, map_append_stream]
 
-lemma drop_append_stream : ∀ (l : list α) (s : stream α), drop l^.length (l ++ₛ s) = s
+lemma drop_append_stream : ∀ (l : list α) (s : stream α), drop l.length (l ++ₛ s) = s
 | []              s := by reflexivity
 | (list.cons a l) s := by rw [list.length_cons, add_one_eq_succ, drop_succ, cons_append_stream, tail_cons, drop_append_stream]
 

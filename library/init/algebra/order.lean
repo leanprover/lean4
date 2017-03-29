@@ -140,7 +140,7 @@ have a ≤ c, from le_trans (le_of_lt' h₁) h₂,
 or.elim (lt_or_eq_of_le this)
   (λ h : a < c, h)
   (λ h : a = c,
-    have b ≤ a, from h^.symm ▸ h₂,
+    have b ≤ a, from h.symm ▸ h₂,
     have a = b, from le_antisymm (le_of_lt' h₁) this,
     absurd h₁ (this ▸ lt_irrefl' a))
 
@@ -174,7 +174,7 @@ or.elim (le_total a b)
     (λ h : a = b, or.inr (or.inl h)))
   (λ h : b ≤ a, or.elim (lt_or_eq_of_le h)
     (λ h : b < a, or.inr (or.inr h))
-    (λ h : b = a, or.inr (or.inl h^.symm)))
+    (λ h : b = a, or.inr (or.inl h.symm)))
 
 lemma le_of_not_gt [linear_strong_order_pair α] {a b : α} (h : ¬ a > b) : a ≤ b :=
 match lt_trichotomy a b with

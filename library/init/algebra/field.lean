@@ -126,7 +126,7 @@ eq.symm (eq_one_div_of_mul_eq_one this)
 lemma division_ring.one_div_neg_eq_neg_one_div {a : α} (h : a ≠ 0) : 1 / (- a) = - (1 / a) :=
 have -1 ≠ (0:α), from
   (suppose -1 = 0, absurd (eq.symm (calc
-            1 = -(-1)  : (neg_neg (1:α))^.symm
+            1 = -(-1)  : (neg_neg (1:α)).symm
           ... = -0     : by rw this
           ... = (0:α)  : neg_zero)) zero_ne_one),
 calc
@@ -385,7 +385,7 @@ lemma eq_of_one_div_eq_one_div {a b : α} (h : 1 / a = 1 / b) : a = b :=
 decidable.by_cases
   (assume ha : a = 0,
    have hb : b = 0, from eq_zero_of_one_div_eq_zero (by rw [-h, ha, div_zero]),
-   hb^.symm ▸ ha)
+   hb.symm ▸ ha)
   (assume ha : a ≠ 0,
    have hb : b ≠ 0, from ne_zero_of_one_div_ne_zero (h ▸ (one_div_ne_zero ha)),
    division_ring.eq_of_one_div_eq_one_div ha hb h)

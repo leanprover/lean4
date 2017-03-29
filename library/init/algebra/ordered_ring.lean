@@ -342,18 +342,18 @@ match lt_trichotomy 0 a with
   | or.inl hlt₂          :=
     have 0 < a * b, from mul_pos hlt₁ hlt₂,
     begin rw h at this, exact absurd this (lt_irrefl _) end
-  | or.inr (or.inl heq₂) := or.inr heq₂^.symm
+  | or.inr (or.inl heq₂) := or.inr heq₂.symm
   | or.inr (or.inr hgt₂) :=
     have 0 > a * b, from mul_neg_of_pos_of_neg hlt₁ hgt₂,
     begin rw h at this, exact absurd this (lt_irrefl _)  end
   end
-| or.inr (or.inl heq₁) := or.inl heq₁^.symm
+| or.inr (or.inl heq₁) := or.inl heq₁.symm
 | or.inr (or.inr hgt₁) :=
   match lt_trichotomy 0 b with
   | or.inl hlt₂          :=
     have 0 > a * b, from mul_neg_of_neg_of_pos hgt₁ hlt₂,
     begin rw h at this, exact absurd this (lt_irrefl _)  end
-  | or.inr (or.inl heq₂) := or.inr heq₂^.symm
+  | or.inr (or.inl heq₂) := or.inr heq₂.symm
   | or.inr (or.inr hgt₂) :=
     have 0 < a * b, from mul_pos_of_neg_of_neg hgt₁ hgt₂,
     begin rw h at this, exact absurd this (lt_irrefl _)  end

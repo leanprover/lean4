@@ -29,13 +29,13 @@ relation_tactic md environment.trans_for "transitivity"
 
 meta def relation_lhs_rhs : expr → tactic (name × expr × expr) :=
 λ e, do
-  (const c _) ← return e^.get_app_fn,
+  (const c _) ← return e.get_app_fn,
   env ← get_env,
-  (some (arity, lhs_pos, rhs_pos)) ← return $ env^.relation_info c,
+  (some (arity, lhs_pos, rhs_pos)) ← return $ env.relation_info c,
   args ← return $ get_app_args e,
-  guard (args^.length = arity),
-  (some lhs) ← return $ args^.nth lhs_pos,
-  (some rhs) ← return $ args^.nth rhs_pos,
+  guard (args.length = arity),
+  (some lhs) ← return $ args.nth lhs_pos,
+  (some rhs) ← return $ args.nth rhs_pos,
   return (c, lhs, rhs)
 
 meta def target_lhs_rhs : tactic (name × expr × expr) :=
@@ -45,7 +45,7 @@ meta def subst_vars_aux : list expr → tactic unit
 | []      := failed
 | (h::hs) := do
   o ← try_core (subst h),
-  if o^.is_none then subst_vars_aux hs
+  if o.is_none then subst_vars_aux hs
   else return ()
 
 /-- Try to apply subst exhaustively -/

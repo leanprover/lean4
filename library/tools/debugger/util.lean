@@ -11,20 +11,20 @@ def split_core : string → string → list string
 | (c::cs) [] :=
   if is_space c then split_core cs [] else split_core cs [c]
 | (c::cs) r  :=
-  if is_space c then r^.reverse :: split_core cs [] else split_core cs (c::r)
+  if is_space c then r.reverse :: split_core cs [] else split_core cs (c::r)
 | []      [] := []
-| []      r  := [r^.reverse]
+| []      r  := [r.reverse]
 
 def split (s : string) : list string :=
-(split_core s [])^.reverse
+(split_core s []).reverse
 
 def to_qualified_name_core : string → string → name
-| []      r := if r = "" then name.anonymous else mk_simple_name r^.reverse
+| []      r := if r = "" then name.anonymous else mk_simple_name r.reverse
 | (c::cs) r :=
   if is_space c then to_qualified_name_core cs r
   else if c = #"." then
        if r = ""   then to_qualified_name_core cs []
-       else             name.mk_string r^.reverse (to_qualified_name_core cs [])
+       else             name.mk_string r.reverse (to_qualified_name_core cs [])
   else to_qualified_name_core cs (c::r)
 
 def to_qualified_name (s : string) : name :=
@@ -47,16 +47,16 @@ do {
   d      ← vm.get_decl fn,
   some p ← return (vm_decl.pos d) | failure,
   file   ← get_file fn,
-  return (file ++ ":" ++ p^.line^.to_string ++ ":" ++ p^.column^.to_string)
+  return (file ++ ":" ++ p.line.to_string ++ ":" ++ p.column.to_string)
 }
 <|>
 return "<position not available>"
 
 meta def show_fn (header : string) (fn : name) (frame : nat) : vm unit :=
 do pos ← pos_info fn,
-   vm.put_str ("[" ++ frame^.to_string ++ "] " ++ header),
+   vm.put_str ("[" ++ frame.to_string ++ "] " ++ header),
    if header = "" then return () else vm.put_str " ",
-   vm.put_str (fn^.to_string ++ " at " ++ pos ++ "\n")
+   vm.put_str (fn.to_string ++ " at " ++ pos ++ "\n")
 
 meta def show_curr_fn (header : string) : vm unit :=
 do fn ← vm.curr_fn,
@@ -65,10 +65,10 @@ do fn ← vm.curr_fn,
 
 meta def is_valid_fn_prefix (p : name) : vm bool :=
 do env ← vm.get_env,
-   return $ env^.fold ff (λ d r,
+   return $ env.fold ff (λ d r,
      r ||
-     let n := d^.to_name in
-     p^.is_prefix_of n)
+     let n := d.to_name in
+     p.is_prefix_of n)
 
 meta def show_frame (frame_idx : nat) : vm unit :=
 do sz ← vm.call_stack_size,
@@ -78,7 +78,7 @@ do sz ← vm.call_stack_size,
 meta def type_to_string : option expr → nat → vm string
 | none i := do
   o ← vm.stack_obj i,
-  match o^.kind with
+  match o.kind with
   | vm_obj_kind.simple         := return "[tagged value]"
   | vm_obj_kind.constructor    := return "[constructor]"
   | vm_obj_kind.closure        := return "[closure]"
@@ -97,7 +97,7 @@ meta def type_to_string : option expr → nat → vm string
 | (some type) i := do
   fmt ← vm.pp_expr type,
   opts ← vm.get_options,
-  return (fmt^.to_string opts)
+  return (fmt.to_string opts)
 
 meta def show_vars_core : nat → nat → nat → vm unit
 | c i e :=
@@ -105,7 +105,7 @@ meta def show_vars_core : nat → nat → nat → vm unit
   else do
     (n, type) ← vm.stack_obj_info i,
     type_str  ← type_to_string type i,
-    vm.put_str $ "#" ++ c^.to_string ++ " " ++ n^.to_string ++ " : " ++ type_str ++ "\n",
+    vm.put_str $ "#" ++ c.to_string ++ " " ++ n.to_string ++ " : " ++ type_str ++ "\n",
     show_vars_core (c+1) (i+1) e
 
 meta def show_vars (frame : nat) : vm unit :=

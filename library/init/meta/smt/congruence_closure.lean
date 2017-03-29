@@ -71,7 +71,7 @@ meta def in_singlenton_eqc (s : cc_state) (e : expr) : bool :=
 s.next e = e
 
 meta def eqc_size (s : cc_state) (e : expr) : nat :=
-(s.eqc_of e)^.length
+(s.eqc_of e).length
 
 meta def fold_eqc_core {α} (s : cc_state) (f : α → expr → α) (first : expr) : expr → α → α
 | c a :=

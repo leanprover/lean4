@@ -10,7 +10,7 @@ import data.list
 
 universes u v w
 
-def vector (α : Type u) (n : ℕ) := { l : list α // l^.length = n }
+def vector (α : Type u) (n : ℕ) := { l : list α // l.length = n }
 
 namespace vector
 variables {α : Type u} {β : Type v} {φ : Type w}

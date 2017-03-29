@@ -8,10 +8,10 @@ import init.meta.tactic init.meta.rb_map
 open tactic
 
 private meta def apply_replacement (replacements : name_map name) (e : expr) : expr :=
-e^.replace (λ e d,
+e.replace (λ e d,
   match e with
   | expr.const n ls :=
-    match replacements^.find n with
+    match replacements.find n with
     | some new_n := some (expr.const new_n ls)
     | none       := none
     end
@@ -37,16 +37,16 @@ e^.replace (λ e d,
         lemma g_lemma : forall a, g a > 0 := ... -/
 meta def copy_decl_updating_type (replacements : name_map name) (src_decl_name : name) (new_decl_name : name) : command :=
 do env  ← get_env,
-   decl ← env^.get src_decl_name,
-   let decl := decl^.update_name $ new_decl_name,
-   let decl := decl^.update_type $ apply_replacement replacements decl^.type,
-   let decl := decl^.update_value $ expr.const src_decl_name (decl^.univ_params^.map level.param),
+   decl ← env.get src_decl_name,
+   let decl := decl.update_name $ new_decl_name,
+   let decl := decl.update_type $ apply_replacement replacements decl.type,
+   let decl := decl.update_value $ expr.const src_decl_name (decl.univ_params.map level.param),
    add_decl decl
 
 meta def copy_decl_using (replacements : name_map name) (src_decl_name : name) (new_decl_name : name) : command :=
 do env      ← get_env,
-   decl     ← env^.get src_decl_name,
-   let decl := decl^.update_name $ new_decl_name,
-   let decl := decl^.update_type $ apply_replacement replacements decl^.type,
-   let decl := decl^.map_value $ apply_replacement replacements,
+   decl     ← env.get src_decl_name,
+   let decl := decl.update_name $ new_decl_name,
+   let decl := decl.update_type $ apply_replacement replacements decl.type,
+   let decl := decl.map_value $ apply_replacement replacements,
    add_decl decl

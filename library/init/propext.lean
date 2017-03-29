@@ -12,13 +12,13 @@ constant propext {a b : Prop} : (a ↔ b) → a = b
 universes u v
 
 lemma forall_congr_eq {a : Sort u} {p q : a → Prop} (h : ∀ x, p x = q x) : (∀ x, p x) = ∀ x, q x :=
-propext (forall_congr (λ a, (h a)^.to_iff))
+propext (forall_congr (λ a, (h a).to_iff))
 
 lemma imp_congr_eq {a b c d : Prop} (h₁ : a = c) (h₂ : b = d) : (a → b) = (c → d) :=
-propext (imp_congr h₁^.to_iff h₂^.to_iff)
+propext (imp_congr h₁.to_iff h₂.to_iff)
 
 lemma imp_congr_ctx_eq {a b c d : Prop} (h₁ : a = c) (h₂ : c → (b = d)) : (a → b) = (c → d) :=
-propext (imp_congr_ctx h₁^.to_iff (λ hc, (h₂ hc)^.to_iff))
+propext (imp_congr_ctx h₁.to_iff (λ hc, (h₂ hc).to_iff))
 
 lemma eq_true_intro {a : Prop} (h : a) : a = true :=
 propext (iff_true_intro h)
@@ -32,7 +32,7 @@ propext h
 theorem iff_eq_eq {a b : Prop} : (a ↔ b) = (a = b) :=
 propext (iff.intro
   (assume h, iff.to_eq h)
-  (assume h, h^.to_iff))
+  (assume h, h.to_iff))
 
 lemma eq_false {a : Prop} : (a = false) = (¬ a) :=
 have (a ↔ false) = (¬ a), from propext (iff_false a),

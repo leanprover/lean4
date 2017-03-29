@@ -78,13 +78,13 @@ lemma ring.mul_zero [ring α] (a : α) : a * 0 = 0 :=
 have a * 0 + 0 = a * 0 + a * 0, from calc
      a * 0 + 0 = a * (0 + 0)   : by simp
            ... = a * 0 + a * 0 : by rw left_distrib,
-show a * 0 = 0, from (add_left_cancel this)^.symm
+show a * 0 = 0, from (add_left_cancel this).symm
 
 lemma ring.zero_mul [ring α] (a : α) : 0 * a = 0 :=
 have 0 * a + 0 = 0 * a + 0 * a, from calc
   0 * a + 0 = (0 + 0) * a   : by simp
         ... = 0 * a + 0 * a : by rewrite right_distrib,
-show 0 * a = 0, from  (add_left_cancel this)^.symm
+show 0 * a = 0, from  (add_left_cancel this).symm
 
 instance ring.to_semiring [s : ring α] : semiring α :=
 { s with
@@ -169,13 +169,13 @@ section integral_domain
   lemma eq_of_mul_eq_mul_right {a b c : α} (ha : a ≠ 0) (h : b * a = c * a) : b = c :=
   have b * a - c * a = 0, from sub_eq_zero_of_eq h,
   have (b - c) * a = 0,   by rw [mul_sub_right_distrib, this],
-  have b - c = 0,         from (eq_zero_or_eq_zero_of_mul_eq_zero this)^.resolve_right ha,
+  have b - c = 0,         from (eq_zero_or_eq_zero_of_mul_eq_zero this).resolve_right ha,
   eq_of_sub_eq_zero this
 
   lemma eq_of_mul_eq_mul_left {a b c : α} (ha : a ≠ 0) (h : a * b = a * c) : b = c :=
   have a * b - a * c = 0, from sub_eq_zero_of_eq h,
   have a * (b - c) = 0,   by rw [mul_sub_left_distrib, this],
-  have b - c = 0,         from (eq_zero_or_eq_zero_of_mul_eq_zero this)^.resolve_left ha,
+  have b - c = 0,         from (eq_zero_or_eq_zero_of_mul_eq_zero this).resolve_left ha,
   eq_of_sub_eq_zero this
 
   lemma eq_zero_of_mul_eq_self_right {a b : α} (h₁ : b ≠ 1) (h₂ : a * b = a) : a = 0 :=
@@ -186,7 +186,7 @@ section integral_domain
     h₁ this,
   have a * b - a = 0,   by simp [h₂],
   have a * (b - 1) = 0, by rwa [mul_sub_left_distrib, mul_one],
-    show a = 0, from (eq_zero_or_eq_zero_of_mul_eq_zero this)^.resolve_right hb
+    show a = 0, from (eq_zero_or_eq_zero_of_mul_eq_zero this).resolve_right hb
 
   lemma eq_zero_of_mul_eq_self_left {a b : α} (h₁ : b ≠ 1) (h₂ : b * a = a) : a = 0 :=
   eq_zero_of_mul_eq_self_right h₁ (by rwa mul_comm at h₂)

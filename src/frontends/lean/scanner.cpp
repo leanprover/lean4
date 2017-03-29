@@ -480,13 +480,59 @@ bool is_id_rest(char const * begin, char const * end) {
 
 static char const * g_error_key_msg = "unexpected token";
 
+void scanner::read_field_idx() {
+    lean_assert('0' <= curr() && curr() <= '9');
+    mpz q(1);
+    char c = curr();
+    next();
+    m_num_val = c - '0';
+    while (true) {
+        c = curr();
+        if (auto r = try_digit_to_unsigned(10, c)) {
+            m_num_val = 10*m_num_val + *r;
+            next();
+        } else {
+            break;
+        }
+    }
+}
+
 auto scanner::read_key_cmd_id() -> token_kind {
     buffer<char> cs;
     next_utf_core(curr(), cs);
     unsigned num_utfs  = 1;
     unsigned id_sz     = 0;
     unsigned id_utf_sz = 0;
-    if (is_id_first(cs, 0)) {
+    if (m_field_notation && cs[0] == '.') {
+        next_utf(cs);
+        num_utfs++;
+        if (std::isdigit(curr())) {
+            /* field notation `.` <number> */
+            read_field_idx();
+            return token_kind::FieldNum;
+        } else {
+            if (is_id_first(cs, 1) && cs[1] != '_') {
+                /* field notation `.` <atomic_id> */
+                num_utfs--;
+                cs[0] = cs[1];
+                cs.pop_back();
+                while (true) {
+                    id_sz      = cs.size();
+                    unsigned i = id_sz;
+                    next_utf(cs);
+                    num_utfs++;
+                    if (!is_id_rest(&cs[i], cs.end())) {
+                        break;
+                    }
+                }
+                move_back(cs.size() - id_sz, num_utfs - 1);
+                cs.shrink(id_sz);
+                cs.push_back(0);
+                m_name_val = name(cs.data());
+                return token_kind::FieldName;
+            }
+        }
+    } else if (is_id_first(cs, 0)) {
         id_sz = cs.size();
         while (true) {
             id_sz     = cs.size();
@@ -674,11 +720,11 @@ token::token(token_kind k, pos_info const & p, token_info const & info):
 }
 token::token(token_kind k, pos_info const & p, name const & v):
     m_kind(k), m_pos(p), m_name_val(new name(v)) {
-    lean_assert(m_kind == token_kind::QuotedSymbol || m_kind == token_kind::Identifier);
+    lean_assert(m_kind == token_kind::QuotedSymbol || m_kind == token_kind::Identifier || m_kind == token_kind::FieldName);
 }
 token::token(token_kind k, pos_info const & p, mpq const & v):
     m_kind(k), m_pos(p), m_num_val(new mpq (v)) {
-    lean_assert(m_kind == token_kind::Decimal || m_kind == token_kind::Numeral);
+    lean_assert(m_kind == token_kind::Decimal || m_kind == token_kind::Numeral || m_kind == token_kind::FieldNum);
 }
 
 token::token(token_kind k, pos_info const & p, std::string const & v):
@@ -694,10 +740,10 @@ void token::dealloc() {
     case token_kind::Keyword: case token_kind::CommandKeyword:
         if (m_info != nullptr) delete m_info;
         return;
-    case token_kind::Identifier: case token_kind::QuotedSymbol:
+    case token_kind::Identifier: case token_kind::QuotedSymbol: case token_kind::FieldName:
         if (m_name_val != nullptr) delete m_name_val;
         return;
-    case token_kind::Numeral: case token_kind::Decimal:
+    case token_kind::Numeral: case token_kind::Decimal: case token_kind::FieldNum:
         if (m_num_val != nullptr) delete m_num_val;
         return;
     case token_kind::String: case token_kind::Char:
@@ -716,10 +762,10 @@ void token::copy(token const & tk) {
     case token_kind::Keyword: case token_kind::CommandKeyword:
         m_info = new token_info(*tk.m_info);
         return;
-    case token_kind::Identifier: case token_kind::QuotedSymbol:
+    case token_kind::Identifier: case token_kind::QuotedSymbol: case token_kind::FieldName:
         m_name_val = new name(*tk.m_name_val);
         return;
-    case token_kind::Numeral: case token_kind::Decimal:
+    case token_kind::Numeral: case token_kind::Decimal: case token_kind::FieldNum:
         m_num_val = new mpq(*tk.m_num_val);
         return;
     case token_kind::String: case token_kind::Char:
@@ -739,11 +785,11 @@ void token::steal(token && tk) {
         m_info    = tk.m_info;
         tk.m_info = nullptr;
         return;
-    case token_kind::Identifier: case token_kind::QuotedSymbol:
+    case token_kind::Identifier: case token_kind::QuotedSymbol: case token_kind::FieldName:
         m_name_val    = tk.m_name_val;
         tk.m_name_val = nullptr;
         return;
-    case token_kind::Numeral: case token_kind::Decimal:
+    case token_kind::Numeral: case token_kind::Decimal: case token_kind::FieldNum:
         m_num_val    = tk.m_num_val;
         tk.m_num_val = nullptr;
         return;
@@ -771,10 +817,10 @@ token read_tokens(environment & env, io_state const & ios, scanner & s, buffer<t
                 else
                     return token(k, s.get_pos_info(), s.get_token_info());
                 break;
-            case token_kind::Identifier: case token_kind::QuotedSymbol:
+            case token_kind::Identifier: case token_kind::QuotedSymbol: case token_kind::FieldName:
                 tk.push_back(token(k, s.get_pos_info(), s.get_name_val()));
                 break;
-            case token_kind::Numeral: case token_kind::Decimal:
+            case token_kind::Numeral: case token_kind::Decimal: case token_kind::FieldNum:
                 tk.push_back(token(k, s.get_pos_info(), s.get_num_val()));
                 break;
             case token_kind::String: case token_kind::Char:

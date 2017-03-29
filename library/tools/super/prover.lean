@@ -45,16 +45,16 @@ meta def run_prover_loop
 sequence' preprocessing_rules,
 new ← take_newly_derived, for' new register_as_passive,
 when (is_trace_enabled_for `super) $ for' new $ λn,
-  tactic.trace { n with c := { (n^.c) with proof := const (mk_simple_name "derived") [] } },
-needs_sat_run ← flip monad.lift state_t.read (λst, st^.needs_sat_run),
+  tactic.trace { n with c := { (n.c) with proof := const (mk_simple_name "derived") [] } },
+needs_sat_run ← flip monad.lift state_t.read (λst, st.needs_sat_run),
 if needs_sat_run then do
   res ← do_sat_run,
   match res with
   | some proof := return (some proof)
   | none := do
-    model ← flip monad.lift state_t.read (λst, st^.current_model),
+    model ← flip monad.lift state_t.read (λst, st.current_model),
       when (is_trace_enabled_for `super) (do
-      pp_model ← pp (model^.to_list^.map (λlit, if lit.2 = tt then lit.1 else ```(not %%lit.1))),
+      pp_model ← pp (model.to_list.map (λlit, if lit.2 = tt then lit.1 else ```(not %%lit.1))),
       trace $ to_fmt "sat model: " ++ pp_model),
     run_prover_loop i
   end
@@ -115,7 +115,7 @@ open interactive.types
 meta def with_lemmas (ls : parse $ many ident) : tactic unit := monad.for' ls $ λl, do
 p ← mk_const l,
 t ← infer_type p,
-n ← get_unused_name p^.get_app_fn^.const_name none,
+n ← get_unused_name p.get_app_fn.const_name none,
 tactic.assertv n t p
 
 meta def super (extra_clause_names : parse $ many ident)

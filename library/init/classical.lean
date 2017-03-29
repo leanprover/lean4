@@ -17,10 +17,10 @@ noncomputable theorem indefinite_description {α : Sort u} (p : α → Prop) :
 λ h, choice (let ⟨x, px⟩ := h in ⟨⟨x, px⟩⟩)
 
 noncomputable def some {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : α :=
-(indefinite_description p h)^.val
+(indefinite_description p h).val
 
 theorem some_spec {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : p (some h) :=
-(indefinite_description p h)^.property
+(indefinite_description p h).property
 
 /- Diaconescu's theorem: using function extensionality and propositional extensionality,
    we can get excluded middle from this. -/
@@ -75,7 +75,7 @@ theorem exists_true_of_nonempty {α : Sort u} (h : nonempty α) : ∃ x : α, tr
 nonempty.elim h (take x, ⟨x, trivial⟩)
 
 noncomputable def inhabited_of_nonempty {α : Sort u} (h : nonempty α) : inhabited α :=
-⟨(indefinite_description _ (exists_true_of_nonempty h))^.val⟩
+⟨(indefinite_description _ (exists_true_of_nonempty h)).val⟩
 
 noncomputable def inhabited_of_exists {α : Sort u} {p : α → Prop} (h : ∃ x, p x) :
   inhabited α :=
@@ -106,19 +106,19 @@ noncomputable theorem strong_indefinite_description {α : Sort u} (p : α → Pr
   (h : nonempty α) : { x : α // (∃ y : α, p y) → p x} :=
 match (prop_decidable (∃ x : α, p x)) with
 | (is_true hp)  := let xp := indefinite_description _ hp in
-                   ⟨xp^.val, λ h', xp^.property⟩
+                   ⟨xp.val, λ h', xp.property⟩
 | (is_false hn) := ⟨@inhabited.default _ (inhabited_of_nonempty h), λ h, absurd h hn⟩
 end
 
 /- the Hilbert epsilon function -/
 
 noncomputable def epsilon {α : Sort u} [h : nonempty α] (p : α → Prop) : α :=
-(strong_indefinite_description p h)^.val
+(strong_indefinite_description p h).val
 
 theorem epsilon_spec_aux {α : Sort u} (h : nonempty α) (p : α → Prop) (hex : ∃ y, p y) :
     p (@epsilon α h p) :=
-have aux : (∃ y, p y) → p ((strong_indefinite_description p h)^.val),
-  from (strong_indefinite_description p h)^.property,
+have aux : (∃ y, p y) → p ((strong_indefinite_description p h).val),
+  from (strong_indefinite_description p h).property,
 aux hex
 
 theorem epsilon_spec {α : Sort u} {p : α → Prop} (hex : ∃ y, p y) :

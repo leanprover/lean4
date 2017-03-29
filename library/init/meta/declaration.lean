@@ -81,7 +81,7 @@ meta def type : declaration → expr
 
 meta def value : declaration → expr
 | (defn _ _ _ v _ _) := v
-| (thm _ _ _ v)      := v^.get
+| (thm _ _ _ v)      := v.get
 | _                  := default expr
 
 meta def value_task : declaration → task expr
@@ -107,7 +107,7 @@ meta def update_value : declaration → expr → declaration
 | d                    new_v := d
 
 meta def update_value_task : declaration → task expr → declaration
-| (defn n ls t v h tr) new_v := defn n ls t new_v^.get h tr
+| (defn n ls t v h tr) new_v := defn n ls t new_v.get h tr
 | (thm n ls t v)       new_v := thm n ls t new_v
 | d                    new_v := d
 

@@ -53,14 +53,14 @@ private meta def maybe_paren : list format → format
 | fs  := paren (join fs)
 
 private meta def unfold (e : expr) : tactic expr :=
-do (expr.const f_name f_lvls) ← return e^.get_app_fn | failed,
+do (expr.const f_name f_lvls) ← return e.get_app_fn | failed,
    env   ← get_env,
-   decl  ← env^.get f_name,
-   new_f ← decl^.instantiate_value_univ_params f_lvls,
-   head_beta (expr.mk_app new_f e^.get_app_args)
+   decl  ← env.get f_name,
+   new_f ← decl.instantiate_value_univ_params f_lvls,
+   head_beta (expr.mk_app new_f e.get_app_args)
 
 private meta def concat (f₁ f₂ : list format) :=
-if f₁^.empty then f₂ else if f₂^.empty then f₁ else f₁ ++ [" "] ++ f₂
+if f₁.empty then f₂ else if f₂.empty then f₁ else f₁ ++ [" "] ++ f₂
 
 private meta def parser_desc_aux : expr → tactic (list format)
 | ```(ident)  := return ["id"]
@@ -98,8 +98,8 @@ private meta def parser_desc_aux : expr → tactic (list format)
 | ```(%%p₁ <|> %%p₂) := do
   f₁ ← parser_desc_aux p₁,
   f₂ ← parser_desc_aux p₂,
-  return $ if f₁^.empty then [maybe_paren f₂ ++ "?"] else
-    if f₂^.empty then [maybe_paren f₁ ++ "?"] else
+  return $ if f₁.empty then [maybe_paren f₂ ++ "?"] else
+    if f₂.empty then [maybe_paren f₁ ++ "?"] else
     [paren $ join $ f₁ ++ [to_fmt " | "] ++ f₂]
 | ```(brackets %%l %%r %%p) := do
   f ← parser_desc_aux p,
@@ -118,14 +118,14 @@ private meta def parser_desc_aux : expr → tactic (list format)
 meta def param_desc : expr → tactic format
 | ```(parse %%p) := join <$> parser_desc_aux p
 | ```(opt_param %%t ._) := (++ "?") <$> pp t
-| e := if is_constant e ∧ (const_name e)^.components^.ilast = `itactic
+| e := if is_constant e ∧ (const_name e).components.ilast = `itactic
   then return $ to_fmt "{ tactic }"
   else paren <$> pp e
 end interactive
 
 namespace tactic
 meta def report_resolve_name_failure {α : Type} (e : expr) (n : name) : tactic α :=
-if e^.is_choice_macro
+if e.is_choice_macro
 then fail ("failed to resolve name '" ++ to_string n ++ "', it is overloaded")
 else fail ("failed to resolve name '" ++ to_string n ++ "', unexpected result")
 
@@ -279,17 +279,17 @@ meta instance rw_rule_has_quote : has_quote rw_rule :=
 ⟨λ ⟨p, s, r⟩, ``(rw_rule.mk %%(quote p) %%(quote s) %%(quote r))⟩
 
 private meta def rw_goal (m : transparency) (rs : list rw_rule) : tactic unit :=
-rs^.mfor' $ λ r, save_info r^.pos >> to_expr' r^.rule >>= rewrite_core m tt tt occurrences.all r^.symm
+rs.mfor' $ λ r, save_info r.pos >> to_expr' r.rule >>= rewrite_core m tt tt occurrences.all r.symm
 
 private meta def rw_hyp (m : transparency) (rs : list rw_rule) (hname : name) : tactic unit :=
-rs^.mfor' $ λ r,
+rs.mfor' $ λ r,
 do h ← get_local hname,
-    save_info r^.pos,
-    e ← to_expr' r^.rule,
-    rewrite_at_core m tt tt occurrences.all r^.symm e h
+    save_info r.pos,
+    e ← to_expr' r.rule,
+    rewrite_at_core m tt tt occurrences.all r.symm e h
 
 private meta def rw_hyps (m : transparency) (rs : list rw_rule) (hs : list name) : tactic unit :=
-hs^.mfor' (rw_hyp m rs)
+hs.mfor' (rw_hyp m rs)
 
 meta def rw_rule_p (ep : parser pexpr) : parser rw_rule :=
 rw_rule.mk <$> cur_pos <*> (option.is_some <$> (tk "-")?) <*> ep
@@ -310,10 +310,10 @@ meta def rw_rules : parser rw_rules_t :=
 
 private meta def rw_core (m : transparency) (rs : parse rw_rules) (loc : parse location) : tactic unit :=
 match loc with
-| [] := rw_goal m rs^.rules
-| hs := rw_hyps m rs^.rules hs
+| [] := rw_goal m rs.rules
+| hs := rw_hyps m rs.rules hs
 end >> try (reflexivity reducible)
-    >> (returnopt rs^.end_pos >>= save_info <|> skip)
+    >> (returnopt rs.end_pos >>= save_info <|> skip)
 
 meta def rewrite : parse rw_rules → parse location → tactic unit :=
 rw_core reducible
@@ -471,7 +471,7 @@ do e ← i_to_expr q, tactic.injection_with e hs
 
 private meta def add_simps : simp_lemmas → list name → tactic simp_lemmas
 | s []      := return s
-| s (n::ns) := do s' ← s^.add_simp n, add_simps s' ns
+| s (n::ns) := do s' ← s.add_simp n, add_simps s' ns
 
 private meta def report_invalid_simp_lemma {α : Type} (n : name): tactic α :=
 fail ("invalid simplification lemma '" ++ to_string n ++ "' (use command 'set_option trace.simp_lemmas true' for more details)")
@@ -481,13 +481,13 @@ do
   p ← resolve_name n,
   match p.to_raw_expr with
   | const n _           :=
-    (do b ← is_valid_simp_lemma_cnst reducible n, guard b, save_const_type_info n ref, s^.add_simp n)
+    (do b ← is_valid_simp_lemma_cnst reducible n, guard b, save_const_type_info n ref, s.add_simp n)
     <|>
-    (do eqns ← get_eqn_lemmas_for tt n, guard (eqns^.length > 0), save_const_type_info n ref, add_simps s eqns)
+    (do eqns ← get_eqn_lemmas_for tt n, guard (eqns.length > 0), save_const_type_info n ref, add_simps s eqns)
     <|>
     report_invalid_simp_lemma n
   | _ :=
-    (do e ← i_to_expr p, b ← is_valid_simp_lemma reducible e, guard b, try (save_type_info e ref), s^.add e)
+    (do e ← i_to_expr p, b ← is_valid_simp_lemma reducible e, guard b, try (save_type_info e ref), s.add e)
     <|>
     report_invalid_simp_lemma n
   end
@@ -497,7 +497,7 @@ let e := p.to_raw_expr in
 match e with
 | (const c [])          := simp_lemmas.resolve_and_add s c e
 | (local_const c _ _ _) := simp_lemmas.resolve_and_add s c e
-| _                     := do new_e ← i_to_expr p, s^.add new_e
+| _                     := do new_e ← i_to_expr p, s.add new_e
 end
 
 private meta def simp_lemmas.append_pexprs : simp_lemmas → list pexpr → tactic simp_lemmas
@@ -508,8 +508,8 @@ private meta def mk_simp_set (attr_names : list name) (hs : list pexpr) (ex : li
 do s₀ ← join_user_simp_lemmas attr_names,
    s₁ ← simp_lemmas.append_pexprs s₀ hs,
    -- add equational lemmas, if any
-   ex ← ex^.mfor (λ n, list.cons n <$> get_eqn_lemmas_for tt n),
-   return $ simp_lemmas.erase s₁ $ ex^.join
+   ex ← ex.mfor (λ n, list.cons n <$> get_eqn_lemmas_for tt n),
+   return $ simp_lemmas.erase s₁ $ ex.join
 
 private meta def simp_goal (cfg : simp_config) : simp_lemmas → tactic unit
 | s := do
@@ -532,7 +532,7 @@ private meta def simp_hyps (cfg : simp_config) : simp_lemmas → list name → t
 
 private meta def simp_core (cfg : simp_config) (ctx : list expr) (hs : list pexpr) (attr_names : list name) (ids : list name) (loc : list name) : tactic unit :=
 do s ← mk_simp_set attr_names hs ids,
-   s ← s^.append ctx,
+   s ← s.append ctx,
    match loc : _ → tactic unit with
    | [] := simp_goal cfg s
    | _  := simp_hyps cfg s loc
@@ -639,12 +639,12 @@ private meta def to_qualified_name_core : name → list name → tactic name
 | n (ns::nss) := do
   curr ← return $ ns ++ n,
   env  ← get_env,
-  if env^.contains curr then return curr
+  if env.contains curr then return curr
   else to_qualified_name_core n nss
 
 private meta def to_qualified_name (n : name) : tactic name :=
 do env ← get_env,
-   if env^.contains n then return n
+   if env.contains n then return n
    else do
      ns ← open_namespaces,
      to_qualified_name_core n ns

@@ -34,8 +34,8 @@ else if get_app_fn s = get_app_fn t then lex_ma lpo s t (get_app_args s) (get_ap
 else alpha lpo (get_app_args s) t
 
 meta def prec_gt_of_name_list (ns : list name) : expr → expr → bool :=
-let nis := rb_map.of_list ns^.zip_with_index in
-λs t, match (nis^.find (name_of_funsym s), nis^.find (name_of_funsym t)) with
+let nis := rb_map.of_list ns.zip_with_index in
+λs t, match (nis.find (name_of_funsym s), nis.find (name_of_funsym t)) with
 | (some si, some ti) := si > ti
 | _ := ff
 end

@@ -14,7 +14,7 @@ namespace mini_crush
 open tactic
 
 meta def size (e : expr) : nat :=
-e^.fold 1 (λ e _ n, n+1)
+e.fold 1 (λ e _ n, n+1)
 
 /- Collect relevant functions -/
 
@@ -28,53 +28,53 @@ meta def is_auto_construction : name → bool
 
 meta def is_relevant_fn (n : name) : tactic bool :=
 do env ← get_env,
-   if ¬env^.is_definition n ∨ is_auto_construction n then return ff
-   else if env^.in_current_file n then return tt
+   if ¬env.is_definition n ∨ is_auto_construction n then return ff
+   else if env.in_current_file n then return tt
    else in_open_namespaces n
 
 meta def collect_revelant_fns_aux : name_set → expr → tactic name_set
 | s e :=
-e^.mfold s $ λ t _ s,
+e.mfold s $ λ t _ s,
   match t with
   | expr.const c _ :=
-    if s^.contains c then return s
+    if s.contains c then return s
     else mcond (is_relevant_fn c)
-      (do new_s ← return $ if c^.is_internal then s else s^.insert c,
+      (do new_s ← return $ if c.is_internal then s else s.insert c,
           d     ← get_decl c,
-          collect_revelant_fns_aux new_s d^.value)
+          collect_revelant_fns_aux new_s d.value)
       (return s)
   | _              := return s
   end
 
 meta def collect_revelant_fns : tactic name_set :=
 do ctx ← local_context,
-   s₁  ← ctx^.mfoldl (λ s e, infer_type e >>= collect_revelant_fns_aux s) mk_name_set,
+   s₁  ← ctx.mfoldl (λ s e, infer_type e >>= collect_revelant_fns_aux s) mk_name_set,
    target >>= collect_revelant_fns_aux s₁
 
 meta def add_relevant_eqns (s : simp_lemmas) : tactic simp_lemmas :=
 do fns ← collect_revelant_fns,
-   fns^.mfold s (λ fn s, get_eqn_lemmas_for tt fn >>= mfoldl simp_lemmas.add_simp s)
+   fns.mfold s (λ fn s, get_eqn_lemmas_for tt fn >>= mfoldl simp_lemmas.add_simp s)
 
 meta def add_relevant_eqns_h (hs : hinst_lemmas) : tactic hinst_lemmas :=
 do fns ← collect_revelant_fns,
-   fns^.mfold hs (λ fn hs, get_eqn_lemmas_for tt fn >>= mfoldl (λ hs d, hs^.add <$> hinst_lemma.mk_from_decl d) hs)
+   fns.mfold hs (λ fn hs, get_eqn_lemmas_for tt fn >>= mfoldl (λ hs d, hs.add <$> hinst_lemma.mk_from_decl d) hs)
 
 /- Collect terms that are inductive datatypes -/
 
 meta def is_inductive (e : expr) : tactic bool :=
 do type ← infer_type e,
-   C    ← return type^.get_app_fn,
+   C    ← return type.get_app_fn,
    env  ← get_env,
-   return $ C^.is_constant && env^.is_inductive C^.const_name
+   return $ C.is_constant && env.is_inductive C.const_name
 
 meta def collect_inductive_aux : expr_set → expr → tactic expr_set
 | S e :=
-  if S^.contains e then return S
+  if S.contains e then return S
   else do
-    new_S ← mcond (is_inductive e) (return $ S^.insert e) (return S),
+    new_S ← mcond (is_inductive e) (return $ S.insert e) (return S),
     match e with
     | expr.app _ _    := fold_explicit_args e new_S collect_inductive_aux
-    | expr.pi _ _ d b := if e^.is_arrow then collect_inductive_aux S d >>= flip collect_inductive_aux b else return new_S
+    | expr.pi _ _ d b := if e.is_arrow then collect_inductive_aux S d >>= flip collect_inductive_aux b else return new_S
     | _               := return new_S
     end
 
@@ -83,7 +83,7 @@ collect_inductive_aux mk_expr_set
 
 meta def collect_inductive_from_target : tactic (list expr) :=
 do S ← target >>= collect_inductive,
-   return $ list.qsort (λ e₁ e₂, size e₁ < size e₂) $ S^.to_list
+   return $ list.qsort (λ e₁ e₂, size e₁ < size e₂) $ S.to_list
 
 meta def collect_inductive_hyps : tactic (list expr) :=
 local_context >>= mfoldl (λ r h, mcond (is_inductive h) (return $ h::r) (return r)) []
@@ -156,7 +156,7 @@ do {
 
 meta def try_all_aux {α β : Type} (ts : α → tactic β) : list α → list (α × β × nat × snapshot) → tactic (list (α × β × nat × snapshot))
 | []      [] := failed
-| []      rs := return rs^.reverse
+| []      rs := return rs.reverse
 | (v::vs) rs := do
   r ← try_and_save (ts v),
   match r with
@@ -176,7 +176,7 @@ do es ← collect_inductive_from_target,
      when_tracing `mini_crush (do p ← pp e, trace (to_fmt "Splitting on '" ++ p ++ to_fmt "'")),
      cases e; simph_intros_using s cfg; try (close_aux hs)) es,
    rs ← return $ flip list.qsort rs (λ ⟨e₁, _, n₁, _⟩ ⟨e₂, _, n₂, _⟩, if n₁ ≠ n₂ then n₁ < n₂ else size e₁ < size e₂),
-   return $ rs^.map (λ ⟨_, _, _, s⟩, ((), s))
+   return $ rs.map (λ ⟨_, _, _, s⟩, ((), s))
 
 
 meta def search_cases (max_depth : nat) (s : simp_lemmas) (hs : hinst_lemmas) (cfg : simp_config) (s_name : name) : tactic unit :=

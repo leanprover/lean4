@@ -78,10 +78,10 @@ lemma trans_rel_left {α : Sort u} {a b c : α} (r : α → α → Prop) (h₁ :
 h₂ ▸ h₁
 
 lemma trans_rel_right {α : Sort u} {a b c : α} (r : α → α → Prop) (h₁ : a = b) (h₂ : r b c) : r a c :=
-h₁^.symm ▸ h₂
+h₁.symm ▸ h₂
 
 lemma of_eq_true {p : Prop} (h : p = true) : p :=
-h^.symm ▸ trivial
+h.symm ▸ trivial
 
 lemma not_of_eq_false {p : Prop} (h : p = false) : ¬p :=
 assume hp, h ▸ hp
@@ -114,7 +114,7 @@ namespace ne
   lemma irrefl (h : a ≠ a) : false := h rfl
 
   lemma symm (h : a ≠ b) : b ≠ a :=
-  assume (h₁ : b = a), h (h₁^.symm)
+  assume (h₁ : b = a), h (h₁.symm)
 end ne
 
 lemma false_of_ne {α : Sort u} {a : α} : a ≠ a → false := ne.irrefl
@@ -248,7 +248,7 @@ lemma iff.elim_left : (a ↔ b) → a → b := iff.mp
 lemma iff.elim_right : (a ↔ b) → b → a := iff.mpr
 
 lemma iff_iff_implies_and_implies (a b : Prop) : (a ↔ b) ↔ (a → b) ∧ (b → a) :=
-iff.intro (λ h, and.intro h^.mp h^.mpr) (λ h, iff.intro h^.left h^.right)
+iff.intro (λ h, and.intro h.mp h.mpr) (λ h, iff.intro h.left h.right)
 
 attribute [refl]
 lemma iff.refl (a : Prop) : a ↔ a :=
@@ -512,9 +512,9 @@ iff.trans iff.comm (iff_false a)
 iff_true_intro iff.rfl
 
 @[congr] lemma iff_congr (h₁ : a ↔ c) (h₂ : b ↔ d) : (a ↔ b) ↔ (c ↔ d) :=
-(iff_iff_implies_and_implies a b)^.trans
-  ((and_congr (imp_congr h₁ h₂) (imp_congr h₂ h₁))^.trans
-    (iff_iff_implies_and_implies c d)^.symm)
+(iff_iff_implies_and_implies a b).trans
+  ((and_congr (imp_congr h₁ h₂) (imp_congr h₂ h₁)).trans
+    (iff_iff_implies_and_implies c d).symm)
 
 /- implies simp rule -/
 @[simp] lemma implies_true_iff (a : Prop) : (a → true) ↔ true :=
@@ -638,7 +638,7 @@ section
   else is_false (iff.mp (not_iff_not_of_iff h) hp)
 
   def  decidable_of_decidable_of_eq (hp : decidable p) (h : p = q) : decidable q :=
-  decidable_of_decidable_of_iff hp h^.to_iff
+  decidable_of_decidable_of_iff hp h.to_iff
 
   protected def or.by_cases [decidable p] [decidable q] {α : Sort u}
                                    (h : p ∨ q) (h₁ : p → α) (h₂ : q → α) : α :=
@@ -671,7 +671,7 @@ section
   else is_true (assume h, absurd h hp)
 
   instance [decidable p] [decidable q] : decidable (p ↔ q) :=
-  decidable_of_decidable_of_iff and.decidable (iff_iff_implies_and_implies p q)^.symm
+  decidable_of_decidable_of_iff and.decidable (iff_iff_implies_and_implies p q).symm
 end
 
 instance {α : Sort u} [decidable_eq α] (a b : α) : decidable (a ≠ b) :=

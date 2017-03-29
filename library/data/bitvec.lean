@@ -101,7 +101,7 @@ section arith
 
   protected def mul (x y : bitvec n) : bitvec n :=
   let f := λ r b, cond b (r + r + y) (r + r) in
-  (to_list x)^.foldl f 0
+  (to_list x).foldl f 0
 
   instance : has_mul (bitvec n)  := ⟨bitvec.mul⟩
 end arith

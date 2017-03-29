@@ -105,11 +105,11 @@ do ctx ← local_context,
 
 meta instance : has_to_tactic_format pattern :=
 ⟨λp, do
-  t ← pp p^.target,
-  mo ← pp p^.moutput,
-  uo ← pp p^.uoutput,
-  u ← pp p^.nuvars,
-  m ← pp p^.nmvars,
+  t ← pp p.target,
+  mo ← pp p.moutput,
+  uo ← pp p.uoutput,
+  u ← pp p.nuvars,
+  m ← pp p.nmvars,
   return $ to_fmt "pattern.mk (" ++ t ++ ") " ++ uo ++ " " ++ mo ++ " " ++ u ++ " " ++ m ++ "" ⟩
 
 end tactic

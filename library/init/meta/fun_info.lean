@@ -111,19 +111,19 @@ meta constant get_spec_prefix_size (t : expr) (nargs : nat) (md := semireducible
 
 private meta def is_next_explicit : list param_info → bool
 | []      := tt
-| (p::ps) := bnot p^.is_implicit && bnot p^.is_inst_implicit
+| (p::ps) := bnot p.is_implicit && bnot p.is_inst_implicit
 
 meta def fold_explicit_args_aux {α} (f : α → expr → tactic α) : list expr → list param_info → α → tactic α
 | []      _  a := return a
 | (e::es) ps a :=
   if is_next_explicit ps
-  then f a e >>= fold_explicit_args_aux es ps^.tail
-  else fold_explicit_args_aux es ps^.tail a
+  then f a e >>= fold_explicit_args_aux es ps.tail
+  else fold_explicit_args_aux es ps.tail a
 
 meta def fold_explicit_args {α} (e : expr) (a : α) (f : α → expr → tactic α) : tactic α :=
-if e^.is_app then do
-  info ← get_fun_info e^.get_app_fn (some e^.get_app_num_args),
-  fold_explicit_args_aux f e^.get_app_args info^.params a
+if e.is_app then do
+  info ← get_fun_info e.get_app_fn (some e.get_app_num_args),
+  fold_explicit_args_aux f e.get_app_args info.params a
 else return a
 
 end tactic

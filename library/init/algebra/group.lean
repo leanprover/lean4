@@ -126,7 +126,7 @@ by simp [h]
 
 lemma eq_inv_of_mul_eq_one [group α] {a b : α} (h : a * b = 1) : a = b⁻¹ :=
 have a⁻¹ = b, from inv_eq_of_mul_eq_one h,
-by simp [this^.symm]
+by simp [this.symm]
 
 lemma eq_mul_inv_of_mul_eq [group α] {a b c : α} (h : a * c = b) : a = b * c⁻¹ :=
 by simp [h.symm]
@@ -287,9 +287,9 @@ meta def multiplicative_to_additive_pairs : list (name × name) :=
 /- Transport multiplicative to additive -/
 meta def transport_multiplicative_to_additive : command :=
 let dict := rb_map.of_list multiplicative_to_additive_pairs in
-multiplicative_to_additive_pairs^.foldl (λ t ⟨src, tgt⟩, do
+multiplicative_to_additive_pairs.foldl (λ t ⟨src, tgt⟩, do
   env ← get_env,
-  if (env.get tgt)^.to_bool = ff
+  if (env.get tgt).to_bool = ff
   then t >> transport_with_dict dict src tgt
   else t)
 skip

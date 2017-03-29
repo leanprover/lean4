@@ -61,7 +61,7 @@ end
 
 lemma le_of_coe_nat_le_coe_nat {m n : ℕ} (h : (↑m : ℤ) ≤ ↑n) : m ≤ n :=
 le.elim h (take k, assume hk : ↑m + ↑k = ↑n,
-  have m + k = n, from int.coe_nat_inj ((int.coe_nat_add m k)^.trans hk),
+  have m + k = n, from int.coe_nat_inj ((int.coe_nat_add m k).trans hk),
   nat.le.intro this)
 
 lemma coe_nat_le_coe_nat_iff (m n : ℕ) : (↑m : ℤ) ≤ ↑n ↔ m ≤ n :=
@@ -84,10 +84,10 @@ lemma coe_nat_lt_coe_nat_iff (n m : ℕ) : (↑n : ℤ) < ↑m ↔ n < m :=
 begin rw [lt_iff_add_one_le, -int.coe_nat_succ, coe_nat_le_coe_nat_iff], reflexivity end
 
 lemma lt_of_coe_nat_lt_coe_nat {m n : ℕ} (h : (↑m : ℤ) < ↑n) : m < n :=
-(coe_nat_lt_coe_nat_iff  _ _)^.mp h
+(coe_nat_lt_coe_nat_iff  _ _).mp h
 
 lemma coe_nat_lt_coe_nat_of_lt {m n : ℕ} (h : m < n) : (↑m : ℤ) < ↑n :=
-(coe_nat_lt_coe_nat_iff _ _)^.mpr h
+(coe_nat_lt_coe_nat_iff _ _).mpr h
 
 /- show that the integers form an ordered additive group -/
 

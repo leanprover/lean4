@@ -45,9 +45,9 @@ private meta structure rel_data :=
 
 meta instance has_to_tactic_format_rel_data : has_to_tactic_format rel_data :=
 ⟨λr, do
-  R ← pp r^.relation,
-  α ← pp r^.in_type,
-  β ← pp r^.out_type,
+  R ← pp r.relation,
+  α ← pp r.in_type,
+  β ← pp r.out_type,
   return $ to_fmt "(" ++ R ++ ": rel (" ++ α ++ ") (" ++ β ++ "))" ⟩
 
 private meta structure rule_data :=
@@ -61,13 +61,13 @@ private meta structure rule_data :=
 
 meta instance has_to_tactic_format_rule_data : has_to_tactic_format rule_data :=
 ⟨λr, do
-  pr ← pp r^.pr,
-  up ← pp r^.uparams,
-  mp ← pp r^.params,
-  ua ← pp r^.uargs,
-  ma ← pp r^.args,
-  pat ← pp r^.pat^.target,
-  out ← pp r^.out,
+  pr ← pp r.pr,
+  up ← pp r.uparams,
+  mp ← pp r.params,
+  ua ← pp r.uargs,
+  ma ← pp r.args,
+  pat ← pp r.pat.target,
+  out ← pp r.out,
   return $ to_fmt "{ ⟨" ++ pat ++ "⟩ pr: " ++ pr ++ " → " ++ out ++ ", " ++ up ++ " " ++ mp ++ " " ++ ua ++ " " ++ ma ++ " }" ⟩
 
 private meta def get_lift_fun : expr → tactic (list rel_data × expr)
@@ -89,7 +89,7 @@ private meta def analyse_rule (u' : list name) (pr : expr) : tactic rule_data :=
   (params, app (app r f) g) ← mk_local_pis t,
   (arg_rels, R) ← get_lift_fun r,
   args    ← monad.for (enum arg_rels) (λ⟨n, a⟩,
-    prod.mk <$> mk_local_def (mk_simple_name ("a_" ++ to_string n)) a^.in_type <*> pure a),
+    prod.mk <$> mk_local_def (mk_simple_name ("a_" ++ to_string n)) a.in_type <*> pure a),
   a_vars  ← return $ fmap prod.fst args,
   p       ← head_beta (app_of_list f a_vars),
   p_data  ← return $ mark_occurences (app R p) params,
@@ -101,9 +101,9 @@ private meta def analyse_rule (u' : list name) (pr : expr) : tactic rule_data :=
 private meta def analyse_decls : list name → tactic (list rule_data) :=
   monad.mapm (λn, do
     d ← get_decl n,
-    c ← return d^.univ_params^.length,
+    c ← return d.univ_params.length,
     ls ← monad.for (range c) (λ_, mk_fresh_name),
-    analyse_rule ls (const n (ls^.map level.param)))
+    analyse_rule ls (const n (ls.map level.param)))
 
 private meta def split_params_args : list (expr × bool) → list expr → list (expr × option expr) × list expr
 | ((lc, tt) :: ps) (e :: es) := let (ps', es') := split_params_args ps es in ((lc, some e) :: ps', es')
@@ -138,21 +138,21 @@ It return (`a`, pr : `R a b`) -/
 meta def compute_transfer : list rule_data → list expr → expr → tactic (expr × expr × list expr)
 | rds ctxt e := do
   -- Select matching rule
-  (i, ps, args, ms, rd) ← first (rds^.for (λrd, do
-    (l, m)     ← match_pattern_core semireducible rd^.pat e,
-    level_map  ← monad.for rd^.uparams (λl, prod.mk l <$> mk_meta_univ),
-    inst_univ  ← return $ (λe, instantiate_univ_params e (level_map ++ zip rd^.uargs l)),
-    (ps, args) ← return $ split_params_args (list.map (prod.map inst_univ id) rd^.params) m,
+  (i, ps, args, ms, rd) ← first (rds.for (λrd, do
+    (l, m)     ← match_pattern_core semireducible rd.pat e,
+    level_map  ← monad.for rd.uparams (λl, prod.mk l <$> mk_meta_univ),
+    inst_univ  ← return $ (λe, instantiate_univ_params e (level_map ++ zip rd.uargs l)),
+    (ps, args) ← return $ split_params_args (list.map (prod.map inst_univ id) rd.params) m,
     (ps, ms)   ← param_substitutions ctxt ps, /- this checks type class parameters -/
     return (instantiate_locals ps ∘ inst_univ, ps, args, ms, rd))),
 
-  (bs, hs, mss) ← monad.for (zip rd^.args args) (λ⟨⟨_, d⟩, e⟩, do
+  (bs, hs, mss) ← monad.for (zip rd.args args) (λ⟨⟨_, d⟩, e⟩, do
     -- Argument has function type
-    (args, r) ← get_lift_fun (i d^.relation),
+    (args, r) ← get_lift_fun (i d.relation),
     ((a_vars, b_vars), (R_vars, bnds)) ← monad.for (enum args) (λ⟨n, arg⟩, do
-      a ← mk_local_def (("a" ++ to_string n) : string) arg^.in_type,
-      b ← mk_local_def (("b" ++ to_string n) : string) arg^.out_type,
-      R ← mk_local_def (("R" ++ to_string n) : string) (arg^.relation a b),
+      a ← mk_local_def (("a" ++ to_string n) : string) arg.in_type,
+      b ← mk_local_def (("b" ++ to_string n) : string) arg.out_type,
+      R ← mk_local_def (("R" ++ to_string n) : string) (arg.relation a b),
       return ((a, b), (R, [a, b, R]))) >>= (return ∘ prod.map unzip unzip ∘ unzip),
     rds'      ← monad.for R_vars (analyse_rule []),
 
@@ -164,8 +164,8 @@ meta def compute_transfer : list rule_data → list expr → expr → tactic (ex
     return (b', [a, b', lambdas (list.join bnds) pr], ms)) >>= (return ∘ prod.map id unzip ∘ unzip),
 
   -- Combine
-  b  ← head_beta (app_of_list (i rd^.out) bs),
-  pr ← return $ app_of_list (i rd^.pr) (fmap prod.snd ps ++ list.join hs),
+  b  ← head_beta (app_of_list (i rd.out) bs),
+  pr ← return $ app_of_list (i rd.pr) (fmap prod.snd ps ++ list.join hs),
   return (b, pr, ms ++ list.join mss)
 
 meta def transfer (ds : list name) : tactic unit := do

@@ -36,9 +36,9 @@ match o₁, o₂ with
 | _,       none    := return o₁
 | some p₁, some p₂ := do
   env ← get_env,
-  match env^.trans_for r with
+  match env.trans_for r with
   | some trans := do pr ← mk_app trans [p₁, p₂], return $ some pr
-  | none       := fail $ "converter failed, relation '" ++ r^.to_string ++ "' is not transitive"
+  | none       := fail $ "converter failed, relation '" ++ r.to_string ++ "' is not transitive"
   end
 end
 
@@ -83,7 +83,7 @@ meta def whnf (md : transparency := reducible) : conv unit :=
 λ r e, do n ← tactic.whnf e md, return ⟨(), n, none⟩
 
 meta def dsimp : conv unit :=
-λ r e, do s ← simp_lemmas.mk_default, n ← s^.dsimplify e, return ⟨(), n, none⟩
+λ r e, do s ← simp_lemmas.mk_default, n ← s.dsimplify e, return ⟨(), n, none⟩
 
 meta def try (c : conv unit) : conv unit :=
 c <|> return ()
@@ -99,7 +99,7 @@ lhs >>= trace
 
 meta def apply_lemmas_core (s : simp_lemmas) (prove : tactic unit) : conv unit :=
 λ r e, do
-  (new_e, pr) ← s^.rewrite prove r e,
+  (new_e, pr) ← s.rewrite prove r e,
   return ⟨(), new_e, some pr⟩
 
 meta def apply_lemmas (s : simp_lemmas) : conv unit :=
@@ -109,7 +109,7 @@ apply_lemmas_core s failed
 meta def apply_propext_lemmas_core (s : simp_lemmas) (prove : tactic unit) : conv unit :=
 λ r e, do
   guard (r = `eq),
-  (new_e, pr) ← s^.rewrite prove `iff e,
+  (new_e, pr) ← s.rewrite prove `iff e,
   new_pr ← mk_app `propext [pr],
   return ⟨(), new_e, some new_pr⟩
 
@@ -120,7 +120,7 @@ private meta def mk_refl_proof (r : name) (e : expr) : tactic expr :=
 do env ← get_env,
    match (environment.refl_for env r) with
    | (some refl) := do pr ← mk_app refl [e], return pr
-   | none        := fail $ "converter failed, relation '" ++ r^.to_string ++ "' is not reflexive"
+   | none        := fail $ "converter failed, relation '" ++ r.to_string ++ "' is not reflexive"
    end
 
 meta def to_tactic (c : conv unit) : name → expr → tactic (expr × expr) :=
@@ -176,11 +176,11 @@ meta def funext (c : conv unit) : conv unit :=
   let aux_type := expr.pi n bi d (expr.const `true []),
   (result, _) ← solve_aux aux_type $ do {
     x ← intro1,
-    c_result ← c r (b^.instantiate_var x),
-    let rhs  := expr.lam n bi d (c_result^.rhs^.abstract x),
-    match c_result^.proof : _ → tactic (conv_result unit) with
+    c_result ← c r (b.instantiate_var x),
+    let rhs  := expr.lam n bi d (c_result.rhs.abstract x),
+    match c_result.proof : _ → tactic (conv_result unit) with
     | some pr := do
-      let aux_pr := expr.lam n bi d (pr^.abstract x),
+      let aux_pr := expr.lam n bi d (pr.abstract x),
       new_pr ← mk_app `funext [lhs, rhs, aux_pr],
       return ⟨(), rhs, some new_pr⟩
     | none    := return ⟨(), rhs, none⟩
@@ -192,7 +192,7 @@ meta def congr_core (c_f c_a : conv unit) : conv unit :=
   guard (r = `eq),
   (expr.app f a) ← return lhs,
   f_type ← infer_type f >>= tactic.whnf,
-  guard (f_type^.is_arrow),
+  guard (f_type.is_arrow),
   ⟨(), new_f, of⟩ ← try c_f r f,
   ⟨(), new_a, oa⟩ ← try c_a r a,
   rhs ← return $ new_f new_a,
@@ -276,8 +276,8 @@ do (r, lhs, rhs) ← (target_lhs_rhs <|> fail "conversion failed, target is not 
      do new_lhs_fmt ← pp new_lhs,
         rhs_fmt     ← pp rhs,
         fail (to_fmt "conversion failed, expected" ++
-                     rhs_fmt^.indent 4 ++ format.line ++ "provided" ++
-                     new_lhs_fmt^.indent 4)),
+                     rhs_fmt.indent 4 ++ format.line ++ "provided" ++
+                     new_lhs_fmt.indent 4)),
    exact pr
 
 end conv

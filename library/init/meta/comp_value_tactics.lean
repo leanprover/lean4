@@ -19,7 +19,7 @@ open expr
 meta def comp_val : tactic unit :=
 do t ← target,
    guard (is_app t),
-   type ← infer_type t^.app_arg,
+   type ← infer_type t.app_arg,
    (do is_def_eq type (const `nat []),
        (do (a, b) ← is_ne t,
            pr     ← mk_nat_val_ne_proof a b,

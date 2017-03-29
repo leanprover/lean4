@@ -23,7 +23,7 @@ private meta def simp_assumption (ls : simp_lemmas) (e : expr) : tactic (expr ×
 private meta def simp_at_assumption (S : simp_lemmas := simp_lemmas.mk) (h : expr) (extra_lemmas : list expr := []) (cfg : simp_config := {}) : tactic unit :=
 do when (expr.is_local_constant h = ff) (fail "tactic fsimp_at failed, the given expression is not a hypothesis"),
    htype ← infer_type h,
-   S     ← S^.append extra_lemmas,
+   S     ← S.append extra_lemmas,
    (new_htype, heq) ← simp_assumption S htype,
    assert (expr.local_pp_name h) new_htype,
    mk_app `iff.mp [heq, h] >>= exact,
@@ -31,7 +31,7 @@ do when (expr.is_local_constant h = ff) (fail "tactic fsimp_at failed, the given
 
 private meta def fsimp (extra_lemmas : list expr := []) (cfg : simp_config := {}) : tactic unit :=
 do S ← return (simp_lemmas.mk),
-   S ← S^.append extra_lemmas,
+   S ← S.append extra_lemmas,
    simplify_goal S cfg >> try triv >> try (reflexivity reducible)
 
 private meta def at_end (e : expr) : ℕ → tactic (list (option expr))

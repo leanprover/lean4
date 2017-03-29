@@ -43,7 +43,7 @@ def find_aux (a : α) : list (Σ a, β a) → option (β a)
   if h : a' = a then some (eq.rec_on h b) else find_aux t
 
 def contains_aux (a : α) (l : list (Σ a, β a)) : bool :=
-(find_aux a l)^.is_some
+(find_aux a l).is_some
 
 def find (m : hash_map α β) (a : α) : option (β a) :=
 match m with
@@ -52,7 +52,7 @@ match m with
 end
 
 def contains (m : hash_map α β) (a : α) : bool :=
-(find m a)^.is_some
+(find m a).is_some
 
 def fold [decidable_eq α] (m : hash_map α β) (d : δ) (f : δ → Π a, β a → δ) : δ :=
 fold_buckets m.buckets d f

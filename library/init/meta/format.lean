@@ -83,7 +83,7 @@ meta instance : has_to_format char :=
 
 meta def list.to_format {α : Type u} [has_to_format α] : list α → format
 | [] := to_fmt "[]"
-| xs := to_fmt "[" ++ group (nest 1 $ format.join $ list.intersperse ("," ++ line) $ xs^.map to_fmt) ++ to_fmt "]"
+| xs := to_fmt "[" ++ group (nest 1 $ format.join $ list.intersperse ("," ++ line) $ xs.map to_fmt) ++ to_fmt "]"
 
 meta instance {α : Type u} [has_to_format α] : has_to_format (list α) :=
 ⟨list.to_format⟩

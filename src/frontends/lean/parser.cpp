@@ -612,7 +612,7 @@ unsigned parser::get_small_nat() {
     mpz val = get_num_val().get_numerator();
     lean_assert(val >= 0);
     if (!val.is_unsigned_int())
-        throw parser_error("invalid level expression, value does not fit in a machine integer", pos());
+        throw parser_error("invalid numeral, value does not fit in a machine integer", pos());
     return val.get_unsigned_int();
 }
 
@@ -1987,8 +1987,20 @@ expr parser::parse_led(expr left) {
         return copy_tag(left, update_sort(left, l));
     } else {
         switch (curr()) {
-        case token_kind::Keyword: return parse_led_notation(left);
-        default: return mk_app(left, parse_expr(get_max_prec()), pos_of(left));
+        case token_kind::Keyword:
+            return parse_led_notation(left);
+        case token_kind::FieldName: {
+            expr r = save_pos(mk_field_notation(left, get_name_val()), pos());
+            next();
+            return r;
+        }
+        case token_kind::FieldNum: {
+            expr r = save_pos(mk_field_notation(left, get_small_nat()), pos());
+            next();
+            return r;
+        }
+        default:
+            return mk_app(left, parse_expr(get_max_prec()), pos_of(left));
         }
     }
 }
@@ -2005,6 +2017,8 @@ unsigned parser::curr_lbp() const {
     case token_kind::Decimal:        case token_kind::String:
     case token_kind::Char:
         return get_max_prec();
+    case token_kind::FieldNum: case token_kind::FieldName:
+        return get_max_prec()+1;
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }
@@ -2148,6 +2162,7 @@ void parser::reset_doc_string() {
 
 void parser::parse_imports(unsigned & fingerprint, std::vector<module_name> & imports) {
     init_scanner();
+    scanner::field_notation_scope scope(m_scanner, false);
     m_last_cmd_pos = pos();
     bool prelude     = false;
     if (curr_is_token(get_prelude_tk())) {

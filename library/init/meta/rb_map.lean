@@ -51,7 +51,7 @@ meta def filter {A B} [has_ordering A] (m : rb_map A B) (f : B → Prop) [decida
 fold m (mk _ _) $ λa b m', if f b then insert m' a b else m'
 
 meta def mfold {key data α :Type} {m : Type → Type} [monad m] (mp : rb_map key data) (a : α) (fn : key → data → α → m α) : m α :=
-mp^.fold (return a) (λ k d act, act >>= fn k d)
+mp.fold (return a) (λ k d act, act >>= fn k d)
 
 end rb_map
 
@@ -152,25 +152,25 @@ private meta def format_key {key} [has_to_format key] (k : key) (first : bool) :
 
 namespace rb_set
 meta def insert {key} (s : rb_set key) (k : key) : rb_set key :=
-s^.insert k ()
+s.insert k ()
 
 meta def erase {key} (s : rb_set key) (k : key) : rb_set key :=
-s^.erase k
+s.erase k
 
 meta def contains {key} (s : rb_set key) (k : key) : bool :=
-s^.contains k
+s.contains k
 
 meta def size {key} (s : rb_set key) : nat :=
-s^.size
+s.size
 
 meta def fold {key α : Type} (s : rb_set key) (a : α) (fn : key → α → α) : α :=
-s^.fold a (λ k _ a, fn k a)
+s.fold a (λ k _ a, fn k a)
 
 meta def mfold {key α :Type} {m : Type → Type} [monad m] (s : rb_set key) (a : α) (fn : key → α → m α) : m α :=
-s^.fold (return a) (λ k act, act >>= fn k)
+s.fold (return a) (λ k act, act >>= fn k)
 
 meta def to_list {key : Type} (s : rb_set key) : list key :=
-s^.fold [] list.cons
+s.fold [] list.cons
 
 meta instance {key} [has_to_format key] : has_to_format (rb_set key) :=
 ⟨λ m, group $ to_fmt "{" ++ nest 1 (fst (fold m (to_fmt "", tt) (λ k p, (fst p ++ format_key k (snd p), ff)))) ++
@@ -191,7 +191,7 @@ meta constant size           : name_set → nat
 meta constant fold {α :Type} : name_set → α → (name → α → α) → α
 
 meta def to_list (s : name_set) : list name :=
-s^.fold [] list.cons
+s.fold [] list.cons
 
 meta instance : has_to_format name_set :=
 ⟨λ m, group $ to_fmt "{" ++ nest 1 (fst (fold m (to_fmt "", tt) (λ k p, (fst p ++ format_key k (snd p), ff)))) ++
@@ -201,6 +201,6 @@ meta def of_list (l : list name) : name_set :=
 list.foldl name_set.insert mk_name_set l
 
 meta def mfold {α :Type} {m : Type → Type} [monad m] (ns : name_set) (a : α) (fn : name → α → m α) : m α :=
-ns^.fold (return a) (λ k act, act >>= fn k)
+ns.fold (return a) (λ k act, act >>= fn k)
 
 end name_set

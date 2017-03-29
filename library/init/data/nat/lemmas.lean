@@ -744,7 +744,7 @@ exists.elim (nat.le.dest h)
     by rw [-hl, nat.add_sub_cancel_left, add_comm k, -add_assoc, nat.add_sub_cancel])
 
 protected lemma sub_eq_iff_eq_add {a b c : ℕ} (ab : b ≤ a) : a - b = c ↔ a = c + b :=
-⟨take c_eq, begin rw [c_eq^.symm, nat.sub_add_cancel ab] end,
+⟨take c_eq, begin rw [c_eq.symm, nat.sub_add_cancel ab] end,
   take a_eq, begin rw [a_eq, nat.add_sub_cancel] end⟩
 
 protected lemma lt_of_sub_eq_succ {m n l : ℕ} (H : m - n = nat.succ l) : n < m :=
@@ -923,11 +923,11 @@ begin
   cases decidable.em (0 < k ∧ k ≤ m) with h h',
   -- 0 < k ∧ k ≤ m
   { assert h' : m - k < m,
-    { apply nat.sub_lt _ h^.left,
-      apply lt_of_lt_of_le h^.left h^.right },
+    { apply nat.sub_lt _ h.left,
+      apply lt_of_lt_of_le h.left h.right },
     rw [div_def, mod_def, if_pos h, if_pos h],
     simp [left_distrib,IH _ h'],
-    rw [-nat.add_sub_assoc h^.right,nat.add_sub_cancel_left] },
+    rw [-nat.add_sub_assoc h.right,nat.add_sub_cancel_left] },
   -- ¬ (0 < k ∧ k ≤ m)
   { rw [div_def, mod_def, if_neg h', if_neg h'], simp },
 end
@@ -991,7 +991,7 @@ lemma div_eq_of_lt {a b : ℕ} (h₀ : a < b)
 begin
   rw [div_def a,if_neg],
   intro h₁,
-  apply not_le_of_gt h₀ h₁^.right
+  apply not_le_of_gt h₀ h₁.right
 end
 
 -- this is a Galois connection
@@ -1065,7 +1065,7 @@ begin
   cases lt_or_ge p (b^succ w) with h₁ h₁,
   -- base case: p < b^succ w
   { assert h₂ : p / b < b^w,
-    { apply (div_lt_iff_lt_mul p _ b_pos)^.mpr,
+    { apply (div_lt_iff_lt_mul p _ b_pos).mpr,
       simp at h₁, simp [h₁] },
     rw [mod_eq_of_lt h₁,mod_eq_of_lt h₂], simp [mod_add_div], },
   -- step: p ≥ b^succ w
@@ -1078,7 +1078,7 @@ begin
     rw [mod_eq_sub_mod h₄ h₁,IH _ h₂,pow_succ],
     apply congr, apply congr_arg,
     { assert h₃ : p / b ≥ b^w,
-      { apply (le_div_iff_mul_le _ p b_pos)^.mpr, simp [h₅] },
+      { apply (le_div_iff_mul_le _ p b_pos).mpr, simp [h₅] },
       simp [nat.sub_mul_div _ _ _ b_pos h₅,mod_eq_sub_mod h₄ h₃] },
     { simp [nat.sub_mul_mod p (b^w) _ b_pos h₅] } }
 end

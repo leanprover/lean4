@@ -49,7 +49,7 @@ match args with
   fn ← return $ to_qualified_name arg,
   ok ← is_valid_fn_prefix fn,
   if ok then
-    return {s with fn_bps := fn :: list.filter (λ fn', fn ≠ fn') s^.fn_bps}
+    return {s with fn_bps := fn :: list.filter (λ fn', fn ≠ fn') s.fn_bps}
   else
     vm.put_str "invalid 'break' command, given name is not the prefix for any function\n" >>
     return s
@@ -62,7 +62,7 @@ meta def remove_breakpoint (s : state) (args : list string) : vm state :=
 match args with
 | [arg] := do
   fn ← return $ to_qualified_name arg,
-  return {s with fn_bps := list.filter (λ fn', fn ≠ fn') s^.fn_bps}
+  return {s with fn_bps := list.filter (λ fn', fn ≠ fn') s.fn_bps}
 | _     :=
   vm.put_str "invalid 'rbreak <fn>' command, incorrect number of arguments\n" >>
   return s
@@ -72,7 +72,7 @@ meta def show_breakpoints : list name → vm unit
 | []        := return ()
 | (fn::fns) := do
   vm.put_str "  ",
-  vm.put_str fn^.to_string,
+  vm.put_str fn.to_string,
   vm.put_str "\n",
   show_breakpoints fns
 
@@ -87,7 +87,7 @@ do sz ← vm.call_stack_size,
 
 meta def pidx_cmd : nat → list string → vm unit
 | frame [arg] := do
-  idx     ← return $ arg^.to_nat,
+  idx     ← return $ arg.to_nat,
   sz      ← vm.stack_size,
   (bp, ep) ← vm.call_stack_var_range frame,
   if bp + idx >= ep then
@@ -96,9 +96,9 @@ meta def pidx_cmd : nat → list string → vm unit
     v       ← vm.pp_stack_obj (bp+idx),
     (n, t)  ← vm.stack_obj_info (bp+idx),
     opts    ← vm.get_options,
-    vm.put_str n^.to_string,
+    vm.put_str n.to_string,
     vm.put_str " := ",
-    vm.put_str (v^.to_string opts),
+    vm.put_str (v.to_string opts),
     vm.put_str "\n"
 | _ _ :=
   vm.put_str "invalid 'pidx <idx>' command, incorrect number of arguments\n"
@@ -111,9 +111,9 @@ meta def print_var : nat → nat → name → vm unit
     if n = v then do
        v    ← vm.pp_stack_obj i,
        opts ← vm.get_options,
-       vm.put_str n^.to_string,
+       vm.put_str n.to_string,
        vm.put_str " := ",
-       vm.put_str (v^.to_string opts),
+       vm.put_str (v.to_string opts),
        vm.put_str "\n"
     else
        print_var (i+1) ep v
@@ -147,7 +147,7 @@ meta def cmd_loop_core : state → nat → list string → vm state
       else if cmd = "rbreak" then do new_s ← remove_breakpoint s args, cmd_loop_core new_s frame []
       else if cmd = "bs" then do
         vm.put_str "breakpoints\n",
-        show_breakpoints s^.fn_bps,
+        show_breakpoints s.fn_bps,
         cmd_loop_core s frame default_cmd
       else if cmd = "up" ∨ cmd = "u" then do frame ← up_cmd frame, cmd_loop_core s frame ["u"]
       else if cmd = "down" ∨ cmd = "d" then do frame ← down_cmd frame, cmd_loop_core s frame ["d"]
@@ -168,7 +168,7 @@ def prune_active_bps_core (csz : nat) : list (nat × name) → list (nat × name
 
 meta def prune_active_bps (s : state) : vm state :=
 do sz ← vm.call_stack_size,
-   return {s with active_bps := prune_active_bps_core sz s^.active_bps}
+   return {s with active_bps := prune_active_bps_core sz s.active_bps}
 
 meta def updt_csz (s : state) : vm state :=
 do sz ← vm.call_stack_size,
@@ -176,11 +176,11 @@ do sz ← vm.call_stack_size,
 
 meta def init_transition (s : state) : vm state :=
 do opts ← vm.get_options,
-   if opts^.get_bool `server ff then return {s with md := mode.done}
+   if opts.get_bool `server ff then return {s with md := mode.done}
    else do
      bps   ← vm.get_attribute `breakpoint,
      new_s ← return {s with fn_bps := bps},
-     if opts^.get_bool `debugger.autorun ff then
+     if opts.get_bool `debugger.autorun ff then
        return {new_s with md := mode.run}
      else do
        vm.put_str "Lean debugger\n",
@@ -191,20 +191,20 @@ do opts ← vm.get_options,
 meta def step_transition (s : state) : vm state :=
 do
   sz ← vm.call_stack_size,
-  if sz = s^.csz then return s
+  if sz = s.csz then return s
   else do
     show_curr_fn "step",
     cmd_loop s ["s"]
 
 meta def bp_reached (s : state) : vm bool :=
 (do fn    ← vm.curr_fn,
-    return $ s^.fn_bps^.any (λ p, p^.is_prefix_of fn))
+    return $ s.fn_bps.any (λ p, p.is_prefix_of fn))
 <|>
 return ff
 
 meta def in_active_bps (s : state) : vm bool :=
 do sz ← vm.call_stack_size,
-   match s^.active_bps with
+   match s.active_bps with
    | []          := return ff
    | (csz, _)::_ := return (sz = csz)
    end
@@ -217,15 +217,15 @@ do b1 ← in_active_bps s,
      show_curr_fn "breakpoint",
      fn    ← vm.curr_fn,
      sz    ← vm.call_stack_size,
-     new_s ← return $ {s with active_bps := (sz, fn) :: s^.active_bps},
+     new_s ← return $ {s with active_bps := (sz, fn) :: s.active_bps},
      cmd_loop new_s ["r"]
 
 meta def step_fn (s : state) : vm state :=
 do s ← prune_active_bps s,
-   if s^.md = mode.init then do new_s ← init_transition s, updt_csz new_s
-   else if s^.md = mode.done then return s
-   else if s^.md = mode.step then do new_s ← step_transition s, updt_csz new_s
-   else if s^.md = mode.run  then do new_s ← run_transition s, updt_csz new_s
+   if s.md = mode.init then do new_s ← init_transition s, updt_csz new_s
+   else if s.md = mode.done then return s
+   else if s.md = mode.step then do new_s ← step_transition s, updt_csz new_s
+   else if s.md = mode.run  then do new_s ← run_transition s, updt_csz new_s
    else return s
 
 @[vm_monitor]

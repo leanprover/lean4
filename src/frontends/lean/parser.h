@@ -164,6 +164,8 @@ class parser : public abstract_parser {
 
     std::shared_ptr<snapshot> mk_snapshot();
 
+    optional<expr> resolve_local(name const & id, pos_info const & p, list<name> const & extra_locals);
+
     friend class module_parser;
     friend class patexpr_to_expr_fn;
 

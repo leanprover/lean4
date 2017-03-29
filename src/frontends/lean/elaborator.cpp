@@ -3600,34 +3600,51 @@ elaborate(environment & env, options const & opts, name const & decl_name,
     return p;
 }
 
-// Auxiliary procedure for #translate
-static expr resolve_local_name(environment const & env, local_context const & lctx, name const & id,
-                               expr const & src, bool ignore_aliases, list<name> const & extra_locals) {
+static optional<expr> resolve_local_name_core(environment const & env, local_context const & lctx, name const & id,
+                                              expr const & src, list<name> const & extra_locals) {
     // extra locals
     unsigned vidx = 0;
     for (name const & extra : extra_locals) {
         if (id == extra)
-            return copy_tag(src, mk_var(vidx));
+            return some_expr(copy_tag(src, mk_var(vidx)));
         vidx++;
     }
 
     /* check local context */
     if (auto decl = lctx.find_local_decl_from_user_name(id)) {
-        return copy_tag(src, decl->mk_ref());
+        return some_expr(copy_tag(src, decl->mk_ref()));
     }
 
     /* check local_refs */
     if (auto ref = get_local_ref(env, id)) {
         /* ref may contain local references that have new names at lctx. */
-        return copy_tag(src, replace(*ref, [&](expr const & e, unsigned) {
-                    if (is_local(e)) {
-                        if (auto decl = lctx.find_local_decl_from_user_name(local_pp_name(e))) {
-                            return some_expr(decl->mk_ref());
+        return some_expr(copy_tag(src, replace(*ref, [&](expr const & e, unsigned) {
+                        if (is_local(e)) {
+                            if (auto decl = lctx.find_local_decl_from_user_name(local_pp_name(e))) {
+                                return some_expr(decl->mk_ref());
+                            }
                         }
-                    }
-                    return none_expr();
-                }));
+                        return none_expr();
+                    })));
     }
+
+    if (!id.is_atomic() && id.is_string()) {
+        if (auto r = resolve_local_name_core(env, lctx, id.get_prefix(), src, extra_locals)) {
+            return some_expr(copy_tag(src, mk_field_notation_compact(*r, id.get_string())));
+        } else {
+            return none_expr();
+        }
+    } else {
+        return none_expr();
+    }
+}
+
+// Auxiliary procedure for #translate
+static expr resolve_local_name(environment const & env, local_context const & lctx, name const & id,
+                               expr const & src, bool ignore_aliases, list<name> const & extra_locals) {
+    /* locals */
+    if (auto r = resolve_local_name_core(env, lctx, id, src, extra_locals))
+        return *r;
 
     /* check in current namespaces */
     for (name const & ns : get_namespaces(env)) {
@@ -3648,7 +3665,7 @@ static expr resolve_local_name(environment const & env, local_context const & lc
     }
 
     optional<expr> r;
-    // globals
+    /* globals */
     if (env.find(id))
         r = copy_tag(src, mk_constant(id));
 

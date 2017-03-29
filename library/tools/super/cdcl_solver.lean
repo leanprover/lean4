@@ -55,7 +55,7 @@ meta inductive prop_lit
 
 namespace prop_lit
 
-meta instance : has_ordering prop_lit :=
+meta instance prop_lit.has_ordering : has_ordering prop_lit :=
 ⟨λl₁ l₂, match l₁, l₂ with
 | pos _, neg _ := ordering.gt
 | neg _, pos _ := ordering.lt

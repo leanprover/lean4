@@ -30,7 +30,7 @@ namespace cf
 
 meta def when_debug (action : cf_monad unit) : cf_monad unit := do
   (config, _) ← state.read,
-  if config.debug config
+  if config.debug
   then action
   else return ()
 

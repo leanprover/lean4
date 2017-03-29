@@ -433,8 +433,8 @@ meta def compile_expr_app_to_ir_expr
     | option.none := match is_internal_cases head with
     | option.some n := compile_cases_on_to_ir_expr (expr.const_name head) args action
     | option.none := match get_builtin (expr.const_name head) with
-      | option.some builtin :=
-        match builtin with
+      | option.some b :=
+        match b with
         | builtin.vm n := mk_error "vm"
         | builtin.cfun n arity := do
           args' ← monad.sequence $ list.map (fun x, action x >>= assert_expr) args,

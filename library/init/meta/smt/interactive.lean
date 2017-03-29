@@ -239,7 +239,7 @@ meta def dsimp (es : parse opt_qexpr_list) (attr_names : parse with_ident_list) 
 tactic.interactive.dsimp es attr_names ids []
 
 meta def rsimp : smt_tactic unit :=
-do ccs ← to_cc_state, rsimp.rsimplify_goal ccs
+do ccs ← to_cc_state, _root_.rsimp.rsimplify_goal ccs
 
 meta def add_simp_lemmas : smt_tactic unit :=
 get_hinst_lemmas_for_attr `rsimp_attr >>= add_lemmas

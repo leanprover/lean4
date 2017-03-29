@@ -1727,6 +1727,41 @@ static void check_no_levels(levels const & ls, pos_info const & p) {
                            "parameter or a constant bound to parameters in a section", p);
 }
 
+optional<expr> parser::resolve_local(name const & id, pos_info const & p, list<name> const & extra_locals) {
+    /* Remark: (auxiliary) local constants many not be atomic.
+       Example: when elaborating
+
+          protected def list.sizeof {α : Type u} [has_sizeof α] : list α → nat
+          | list.nil        := 1
+          | (list.cons a l) := 1 + sizeof a + list.sizeof l
+
+       the local context will contain the auxiliary local constant `list.size_of`
+    */
+
+    // extra locals
+    unsigned vidx = 0;
+    for (name const & extra : extra_locals) {
+        if (id == extra)
+            return some_expr(save_pos(mk_var(vidx), p));
+        vidx++;
+    }
+
+    // locals
+    if (auto it1 = m_local_decls.find(id)) {
+        return some_expr(copy_with_new_pos(*it1, p));
+    }
+
+    if (!id.is_atomic() && id.is_string()) {
+        if (auto r = resolve_local(id.get_prefix(), p, extra_locals)) {
+            return some_expr(save_pos(mk_field_notation_compact(*r, id.get_string()), p));
+        } else {
+            return none_expr();
+        }
+    } else {
+        return none_expr();
+    }
+}
+
 expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only, list<name> const & extra_locals) {
     buffer<level> lvl_buffer;
     levels ls;
@@ -1745,18 +1780,9 @@ expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only, 
         return save_pos(mk_local(id, save_pos(mk_expr_placeholder(), p)), p);
     }
 
-    // extra locals
-    unsigned vidx = 0;
-    for (name const & extra : extra_locals) {
-        if (id == extra)
-            return save_pos(mk_var(vidx), p);
-        vidx++;
-    }
-
-    // locals
-    if (auto it1 = m_local_decls.find(id)) {
+    if (auto r = resolve_local(id, p, extra_locals)) {
         check_no_levels(ls, p);
-        return copy_with_new_pos(*it1, p);
+        return *r;
     }
 
     if (!explicit_levels && m_id_behavior == id_behavior::AssumeLocalIfNotLocal) {

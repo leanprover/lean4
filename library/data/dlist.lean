@@ -119,7 +119,7 @@ protected lemma rel_concat :
 | x ._ rfl l ._ rfl := to_list_concat x l
 
 protected meta def transfer : tactic unit := do
-  transfer.transfer [`relator.rel_forall_of_total, `dlist.rel_eq, `dlist.rel_empty,
+  _root_.transfer.transfer [`relator.rel_forall_of_total, `dlist.rel_eq, `dlist.rel_empty,
     `dlist.rel_singleton, `dlist.rel_append, `dlist.rel_cons, `dlist.rel_concat]
 
 example : ∀(a b c : dlist α), a ++ (b ++ c) = (a ++ b) ++ c :=

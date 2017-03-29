@@ -29,7 +29,7 @@ echo "-- testing $f"
 if [[ -f "$f.status" ]]; then
     echo "-- using result from test_all.sh"
     mv "$f.test_suite.out" "$f.produced.out"
-    rm "$f.test_suite.out" "$f.status"
+    rm "$f.status"
 else
     "$LEAN" -Dpp.colors=false -Dpp.unicode=true -j0 "$ff" &> "$f.produced.out"
 fi

@@ -28,13 +28,11 @@ fi
 echo "-- testing $f"
 if [[ -f "$f.status" ]]; then
     echo "-- using result from test_all.sh"
-    mv "$f.test_suite.out" "$f.produced.out"
-    rm "$f.status"
 else
-    "$LEAN" -Dpp.colors=false -Dpp.unicode=true -j0 "$ff" &> "$f.produced.out"
+    "$LEAN" --test-suite "$ff"
 fi
-sed 's|does\\not\\exist|does/not/exist|' "$f.produced.out" | sed "/warning: imported file uses 'sorry'/d" | sed "/warning: using 'sorry'/d" | sed "/failed to elaborate theorem/d" | sed "s|^$ff|$f|" > "$f.produced.out.tmp"
-mv "$f.produced.out.tmp" "$f.produced.out"
+sed 's|does\\not\\exist|does/not/exist|' "$f.test_suite.out" | sed "/warning: imported file uses 'sorry'/d" | sed "/warning: using 'sorry'/d" | sed "/failed to elaborate theorem/d" | sed "s|^$ff|$f|" > "$f.produced.out"
+rm "$f.test_suite.out" "$f.status"
 if test -f "$f.expected.out"; then
     if $DIFF -u --ignore-all-space -I "executing external script" "$f.expected.out" "$f.produced.out"; then
         echo "-- checked"

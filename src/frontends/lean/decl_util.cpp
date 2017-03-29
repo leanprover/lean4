@@ -357,7 +357,7 @@ environment add_alias(environment const & env, bool is_protected, name const & c
 
 struct definition_info {
     name     m_prefix;
-    bool     m_is_private{false};
+    bool     m_is_private{true}; // pattern matching outside of definitions should generate private names
     bool     m_is_meta{false};
     bool     m_is_noncomputable{false};
     bool     m_is_lemma{false};

@@ -3,7 +3,7 @@ import .syntax
 @[reducible] def smt2.builder (α : Type) := state (list smt2.cmd) α
 
 meta def smt2.builder.to_format {α : Type} (build : smt2.builder α) : format :=
-format.join $ list.map to_fmt $ (build [])^.snd
+format.join $ list.map to_fmt $ (build []).snd
 
 meta instance (α : Type) : has_to_format (smt2.builder α) :=
 ⟨ smt2.builder.to_format ⟩

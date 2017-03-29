@@ -152,12 +152,12 @@ do let proc : process := {
     args := args,
     stdout := process.stdio.piped
   },
-  child ← interface.process^.spawn proc,
-  let inh := child^.stdin,
-  let outh := child^.stdout,
-  let errh := child^.stderr,
+  child ← interface.process.spawn proc,
+  let inh := child.stdin,
+  let outh := child.stdout,
+  let errh := child.stderr,
   buf ← io.fs.read outh 1024,
-  return buf^.to_string
+  return buf.to_string
 
 /-- Lift a monadic `io` action into the `tactic` monad. -/
 meta constant tactic.run_io {α : Type} : (Π ioi : io.interface, @io ioi α) → tactic α

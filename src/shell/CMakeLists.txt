@@ -162,13 +162,30 @@ FOREACH(T ${LEANRUNTESTS})
 ENDFOREACH(T)
 
 # LEAN FAIL TESTS
-file(GLOB LEANRUNTESTS "${LEAN_SOURCE_DIR}/../tests/lean/fail/*.lean")
-FOREACH(T ${LEANRUNTESTS})
+file(GLOB LEANFAILTESTS "${LEAN_SOURCE_DIR}/../tests/lean/fail/*.lean")
+add_test(NAME leanfailtest_clear_all
+        WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/fail"
+        COMMAND bash -c "rm *.test_suite.out *.status || true")
+set_tests_properties(leanfailtest_clear_all PROPERTIES FIXTURES_SETUP AllFiles)
+add_test(NAME leanfailtest_all
+        WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/fail"
+        COMMAND bash "./test_all.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")
+set_tests_properties(leanfailtest_all PROPERTIES DEPENDS leanfailtest_clear_all # for cmake < 3.7
+        FIXTURES_REQUIRED AllFiles)
+FOREACH(T ${LEANFAILTESTS})
     if(NOT T MATCHES "\\.#")
         GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+        # test twice, once with runner, and once without
         add_test(NAME "leanfailtest_${T_NAME}"
                 WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/fail"
                 COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
+        add_test(NAME "leanfailtest2_${T_NAME}"
+                WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/fail"
+                COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
+        set_tests_properties("leanfailtest_${T_NAME}" PROPERTIES DEPENDS "leanfailtest_all;leanfailtest_clear_all"
+                FIXTURES_REQUIRED AllFiles)
+        set_tests_properties("leanfailtest2_${T_NAME}" PROPERTIES DEPENDS "leanfailtest_${T_NAME};leanfailtest_all;leanfailtest_clear_all"
+                FIXTURES_REQUIRED AllFiles)
     endif()
 ENDFOREACH(T)
 

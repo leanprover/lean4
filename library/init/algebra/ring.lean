@@ -47,7 +47,7 @@ lemma zero_ne_one [s: zero_ne_one_class α] : 0 ≠ (1:α) :=
 
 @[simp]
 lemma one_ne_zero [s: zero_ne_one_class α] : (1:α) ≠ 0 :=
-take h, @zero_ne_one_class.zero_ne_one α s h^.symm
+take h, @zero_ne_one_class.zero_ne_one α s h.symm
 
 /- semiring -/
 

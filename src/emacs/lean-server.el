@@ -220,8 +220,9 @@
   "Face to highlight pending Lean tasks."
   :group 'lean)
 
-(define-fringe-bitmap 'lean-server-fringe-bitmap
-  (vector) 16 8)
+(if (fboundp 'define-fringe-bitmap)
+  (define-fringe-bitmap 'lean-server-fringe-bitmap
+    (vector) 16 8))
 
 (defface lean-server-task-fringe-face
   '((((class color) (background light))

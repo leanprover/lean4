@@ -102,7 +102,6 @@ static void tst1() {
     env = add_token(env, "+", 0);
     env = add_token(env, "=", 0);
     scan_success("a..a");
-    check("a..a", {tk::Identifier, tk::Keyword, tk::Keyword, tk::Identifier});
     check("Type.{0}", {tk::Keyword, tk::Keyword, tk::Numeral, tk::Keyword});
     env = add_token(env, "ab+cde", 0);
     env = add_token(env, "+cd", 0);

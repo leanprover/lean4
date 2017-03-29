@@ -10,21 +10,12 @@ set_option trace.user_attributes_cache true
 
 run_cmd do
   s : string ← caching_user_attribute.get_cache foo_attr,
-  tactic.trace s
-
-run_cmd do
+  tactic.trace s,
   s : string ← caching_user_attribute.get_cache foo_attr,
-  tactic.trace s
-
-attribute [foo] eq.mpr
-local attribute [-foo] eq.mp
-
-run_cmd do
+  tactic.trace s,
+  tactic.set_basic_attribute `foo ``eq.mpr,
   s : string ← caching_user_attribute.get_cache foo_attr,
-  tactic.trace s
-
-attribute [reducible] eq.mp -- should not affect [foo] cache
-
-run_cmd do
+  tactic.trace s,
+  tactic.set_basic_attribute `reducible ``eq.mp, -- should not affect [foo] cache
   s : string ← caching_user_attribute.get_cache foo_attr,
   tactic.trace s

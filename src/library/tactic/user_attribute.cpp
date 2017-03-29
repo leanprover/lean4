@@ -24,23 +24,6 @@ Author: Sebastian Ullrich
 
 namespace lean {
 
-/* typed_attribute */
-struct user_attr_data : public attr_data {
-    // to be filled
-
-    void write(serializer &) const {
-        lean_unreachable();
-    }
-    void read(deserializer &) {
-        lean_unreachable();
-    }
-};
-
-class user_attribute : public typed_attribute<user_attr_data> {
-public:
-    user_attribute(name const & id, char const * descr) : typed_attribute(id, descr) {}
-};
-
 /* Persisting */
 struct user_attr_ext : public environment_extension {
     name_map<attribute_ptr> m_attrs;
@@ -74,7 +57,7 @@ static environment add_user_attr(environment const & env, name const & d) {
     std::string descr = to_string(cfield(o, 1));
 
     user_attr_ext ext = get_extension(env);
-    ext.m_attrs.insert(n, attribute_ptr(new user_attribute(n, descr.c_str())));
+    ext.m_attrs.insert(n, attribute_ptr(new basic_attribute(n, descr.c_str())));
     return update(env, ext);
 }
 

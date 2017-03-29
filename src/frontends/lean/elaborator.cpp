@@ -3602,7 +3602,15 @@ elaborate(environment & env, options const & opts, name const & decl_name,
 
 // Auxiliary procedure for #translate
 static expr resolve_local_name(environment const & env, local_context const & lctx, name const & id,
-                               expr const & src, bool ignore_aliases) {
+                               expr const & src, bool ignore_aliases, list<name> const & extra_locals) {
+    // extra locals
+    unsigned vidx = 0;
+    for (name const & extra : extra_locals) {
+        if (id == extra)
+            return copy_tag(src, mk_var(vidx));
+        vidx++;
+    }
+
     /* check local context */
     if (auto decl = lctx.find_local_decl_from_user_name(id)) {
         return copy_tag(src, decl->mk_ref());
@@ -3659,7 +3667,7 @@ static expr resolve_local_name(environment const & env, local_context const & lc
     }
     if (!r && !id.is_atomic() && id.is_string()) {
         try {
-            expr s = resolve_local_name(env, lctx, id.get_prefix(), src, ignore_aliases);
+            expr s = resolve_local_name(env, lctx, id.get_prefix(), src, ignore_aliases, extra_locals);
             r      = mk_field_notation_compact(s, id.get_string());
         } catch (exception &) {}
     }
@@ -3676,15 +3684,17 @@ vm_obj tactic_resolve_local_name(vm_obj const & vm_id, vm_obj const & vm_s) {
         if (!g) return mk_no_goals_exception(s);
         expr src; // dummy
         bool ignore_aliases = false;
-        return tactic::mk_success(to_obj(resolve_local_name(s.env(), g->get_context(), id, src, ignore_aliases)), s);
+        return tactic::mk_success(to_obj(resolve_local_name(s.env(), g->get_context(), id, src, ignore_aliases, list<name>())), s);
     } catch (exception & ex) {
         return tactic::mk_exception(ex, s);
     }
 }
 
 struct resolve_names_fn : public replace_visitor {
-    environment const & m_env;
+    environment const &   m_env;
     local_context const & m_lctx;
+    list<name>            m_locals;
+
 
     resolve_names_fn(environment const & env, local_context const & lctx):
         m_env(env), m_lctx(lctx) {}
@@ -3694,7 +3704,7 @@ struct resolve_names_fn : public replace_visitor {
             /* universe level were provided, so the constant was already resolved at parsing time */
             return e;
         } else {
-            return copy_tag(e, resolve_local_name(m_env, m_lctx, const_name(e), e, ignore_aliases));
+            return copy_tag(e, resolve_local_name(m_env, m_lctx, const_name(e), e, ignore_aliases, m_locals));
         }
     }
 
@@ -3703,11 +3713,26 @@ struct resolve_names_fn : public replace_visitor {
     }
 
     expr visit_local(expr const & e, bool ignore_aliases) {
-        return copy_tag(e, resolve_local_name(m_env, m_lctx, local_pp_name(e), e, ignore_aliases));
+        return copy_tag(e, resolve_local_name(m_env, m_lctx, local_pp_name(e), e, ignore_aliases, m_locals));
     }
 
     virtual expr visit_local(expr const & e) override {
         return visit_local(e, false);
+    }
+
+    virtual expr visit_binding(expr const & e) override {
+        expr new_d = visit(binding_domain(e));
+        flet<list<name>> set(m_locals, cons(binding_name(e), m_locals));
+        expr new_b = visit(binding_body(e));
+        return update_binding(e, new_d, new_b);
+    }
+
+    virtual expr visit_let(expr const & e) override {
+        expr new_type = visit(let_type(e));
+        expr new_val  = visit(let_value(e));
+        flet<list<name>> set(m_locals, cons(let_name(e), m_locals));
+        expr new_body = visit(let_body(e));
+        return update_let(e, new_type, new_val, new_body);
     }
 
     void push_new_arg(buffer<expr> & new_args, expr const & arg) {
@@ -3733,6 +3758,8 @@ struct resolve_names_fn : public replace_visitor {
         }
         return mk_choice(new_args.size(), new_args.data());
     }
+
+
 
     virtual expr visit(expr const & e) override {
         if (is_placeholder(e) || is_by(e) || is_as_is(e) || is_emptyc_or_emptys(e) || is_as_atomic(e)) {

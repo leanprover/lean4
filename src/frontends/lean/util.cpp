@@ -460,9 +460,9 @@ expr mk_field_notation_compact(expr const & e, char const * field) {
             expr const & c = get_choice(e, i);
             new_es.push_back(copy_tag(c, mk_field_notation(c, fname)));
         }
-        return copy_tag(e, mk_choice(new_es.size(), new_es.data()));
+        return mk_choice(new_es.size(), new_es.data());
     } else {
-        return copy_tag(e, mk_field_notation(e, fname));
+        return mk_field_notation(e, fname);
     }
 }
 

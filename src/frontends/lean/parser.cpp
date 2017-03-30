@@ -1753,7 +1753,9 @@ optional<expr> parser::resolve_local(name const & id, pos_info const & p, list<n
 
     if (!id.is_atomic() && id.is_string()) {
         if (auto r = resolve_local(id.get_prefix(), p, extra_locals)) {
-            return some_expr(save_pos(mk_field_notation_compact(*r, id.get_string()), p));
+            auto field_pos = p;
+            field_pos.second += id.get_prefix().utf8_size();
+            return some_expr(save_pos(mk_field_notation_compact(*r, id.get_string()), field_pos));
         } else {
             return none_expr();
         }
@@ -1835,7 +1837,9 @@ expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only, 
     if (!r && !id.is_atomic() && id.is_string()) {
         try {
             expr s = id_to_expr(id.get_prefix(), p, resolve_only, extra_locals);
-            r      = mk_field_notation_compact(s, id.get_string());
+            auto field_pos = p;
+            field_pos.second += id.get_prefix().utf8_size();
+            r = save_pos(mk_field_notation_compact(s, id.get_string()), field_pos);
         } catch (exception &) {}
     }
     if (!r) {

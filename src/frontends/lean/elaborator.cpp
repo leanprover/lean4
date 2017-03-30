@@ -3686,6 +3686,10 @@ static expr resolve_local_name(environment const & env, local_context const & lc
         try {
             expr s = resolve_local_name(env, lctx, id.get_prefix(), src, ignore_aliases, extra_locals);
             r      = mk_field_notation_compact(s, id.get_string());
+            if (auto pos = get_pos_info(src)) {
+                pos->second += id.get_prefix().utf8_size();
+                r  = get_pos_info_provider()->save_pos(*r, *pos);
+            }
         } catch (exception &) {}
     }
     if (!r)

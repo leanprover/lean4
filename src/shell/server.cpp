@@ -579,7 +579,7 @@ json server::info(std::shared_ptr<module_info const> const & mod_info, pos_info 
             env = snap->m_snapshot_at_end->m_env;
             opts = snap->m_snapshot_at_end->m_options;
         }
-        report_info(env, opts, m_ios, *mod_info, get_info_managers(m_lt), e, j);
+        report_info(env, opts, m_ios, *mod_info, get_info_managers(m_lt), pos, e, j);
     } catch (throwable & ex) {}
 
     return j;

@@ -93,7 +93,8 @@ void report_completions(environment const & env, options const & opts, pos_info 
 }
 
 void report_info(environment const & env, options const & opts, io_state const & ios, module_info const & m_mod_info,
-                 std::vector<info_manager> const & info_managers, break_at_pos_exception const & e, json & j) {
+                 std::vector<info_manager> const & info_managers, pos_info const & pos,
+                 break_at_pos_exception const & e, json & j) {
     g_context = e.m_token_info.m_context;
     json record;
 
@@ -147,6 +148,16 @@ void report_info(environment const & env, options const & opts, io_state const &
                 infom.get_info_record(env, opts, ios, *e.m_goal_pos, record, [](info_data const & d) {
                             return dynamic_cast<vm_obj_format_info const *>(d.raw());
                         });
+            }
+            // first check for field infos inside token
+            for (name pre = tk.get_prefix(); !has_token_info && pre; pre = pre.get_prefix()) {
+                auto field_pos = e.m_token_info.m_pos;
+                field_pos.second += pre.utf8_size();
+                if (pos.second >= field_pos.second &&
+                    infom.get_line_info_set(field_pos.first).find(field_pos.second)) {
+                    infom.get_info_record(env, opts, ios, field_pos, record);
+                    has_token_info = true;
+                }
             }
             if (!has_token_info)
                 infom.get_info_record(env, opts, ios, e.m_token_info.m_pos, record);

@@ -114,7 +114,8 @@ add_test(NAME leantest_all
         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean"
         COMMAND bash "./test_all.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")
 set_tests_properties(leantest_all PROPERTIES DEPENDS leantest_clear_all # for cmake < 3.7
-                                             FIXTURES_REQUIRED AllFiles)
+                                             FIXTURES_REQUIRED AllFiles
+                                             RUN_SERIAL 1)
 
 FOREACH(T ${LEANTESTS})
   if(NOT T MATCHES "\\.#")
@@ -148,7 +149,8 @@ add_test(NAME leanruntest_all
         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/run"
         COMMAND bash "./test_all.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")
 set_tests_properties(leanruntest_all PROPERTIES DEPENDS leanruntest_clear_all # for cmake < 3.7
-                                                FIXTURES_REQUIRED AllFiles)
+                                                FIXTURES_REQUIRED AllFiles
+                                                RUN_SERIAL 1)
 
 FOREACH(T ${LEANRUNTESTS})
   if(NOT T MATCHES "\\.#")
@@ -171,7 +173,7 @@ add_test(NAME leanfailtest_all
         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/fail"
         COMMAND bash "./test_all.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")
 set_tests_properties(leanfailtest_all PROPERTIES DEPENDS leanfailtest_clear_all # for cmake < 3.7
-        FIXTURES_REQUIRED AllFiles)
+        FIXTURES_REQUIRED AllFiles RUN_SERIAL 1)
 FOREACH(T ${LEANFAILTESTS})
     if(NOT T MATCHES "\\.#")
         GET_FILENAME_COMPONENT(T_NAME ${T} NAME)

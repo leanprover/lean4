@@ -11,16 +11,16 @@
   '("import" "prelude" "protected" "private" "noncomputable" "definition" "meta" "renaming"
     "hiding" "exposing" "parameter" "parameters" "begin" "constant" "constants"
     "lemma" "variable" "variables" "theorem" "example"
-    "open" "as" "export" "override" "axiom" "axioms" "inductive" "with" "without"
+    "open" "export" "axiom" "axioms" "inductive" "with" "without"
     "structure" "universe" "universes"
-    "alias" "precedence" "reserve" "declare_trace" "add_key_equivalence"
+    "precedence" "reserve" "declare_trace" "add_key_equivalence"
     "match" "infix" "infixl" "infixr" "notation" "postfix" "prefix" "instance"
     "end" "this" "suppose"
     "using" "using_well_founded" "namespace" "section" "fields"
     "attribute" "local" "set_option" "extends" "include" "omit" "classes" "class"
-    "instances" "coercions" "attributes" "raw" "replacing"
+    "instances" "attributes" "raw" "replacing"
     "calc" "have" "show" "suffices" "by" "in" "at" "do" "let" "forall" "Pi" "fun"
-    "exists" "if" "dif" "then" "else" "assume" "take" "obtain" "from" "aliases" "register_simp_ext"
+    "exists" "if" "then" "else" "assume" "take" "from"
     "mutual" "def" "run_cmd")
   "lean keywords ending with 'word' (not symbol)")
 (defconst lean-keywords1-regexp
@@ -141,8 +141,7 @@
       (1 'font-lock-function-name-face))
      ;; declarations
      (,(rx word-start
-           (group (or "inductive" (group "class" (zero-or-more whitespace) "inductive") "instance" "structure" "class" "record" "theorem" "axiom" "axioms" "lemma" "proposition" "corollary"
-                      "hypothesis" "definition" "def" "constant"))
+           (group (or "inductive" (group "class" (zero-or-more whitespace) "inductive") "instance" "structure" "class" "theorem" "axiom" "axioms" "lemma" "definition" "def" "constant"))
            word-end (zero-or-more whitespace)
            (group (zero-or-more "{" (zero-or-more (not (any "}"))) "}" (zero-or-more whitespace)))
            (zero-or-more whitespace)

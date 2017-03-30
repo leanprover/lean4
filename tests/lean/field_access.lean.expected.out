@@ -15,3 +15,4 @@ field_access.lean:13:1: error: invalid '^.' notation, type is not of the form (C
   a
 has type
   A
+field_access.lean:16:0: error: unknown identifier 'eq.sym'

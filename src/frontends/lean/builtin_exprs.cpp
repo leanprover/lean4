@@ -1017,7 +1017,7 @@ static expr parse_field(parser_state & p, unsigned, expr const * args, pos_info 
                 throw parser_error("invalid projection, index must be greater than 0", num_pos);
             return p.save_pos(mk_field_notation(args[0], fidx), pos);
         } else {
-            name field = p.check_id_next("invalid '^.' notation, identifier or numeral expected");
+            name field = p.check_id_next("identifier or numeral expected");
             return p.save_pos(mk_field_notation(args[0], field), pos);
         }
     } catch (break_at_pos_exception & ex) {

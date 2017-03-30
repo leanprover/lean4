@@ -818,10 +818,10 @@ static bool is_field_notation_candidate(environment const & env, expr const & e,
     if (!info) return false; /* it is not a projection */
     if (get_app_num_args(e) != info->m_nparams + 1) return false;
     /* If implicit arguments is true, and the structure has parameters, we should not
-       pretty print using the ^. notation because we will not be able to see the parameters. */
+       pretty print using field notation because we will not be able to see the parameters. */
     if (implicit && info->m_nparams) return false;
     name const & S = const_name(f).get_prefix();
-    /* We should not use ^. with type classes since the structure is implicit. */
+    /* We should not use field notation with type classes since the structure is implicit. */
     if (is_class(env, S)) return false;
     return true;
 }
@@ -832,7 +832,7 @@ auto pretty_fn::pp_field_notation(expr const & e) -> result {
     expr const & f   = get_app_args(e, args);
     bool ignore_hide = true;
     format s_fmt     = pp_child(args.back(), max_bp(), ignore_hide).fmt();
-    return result(max_bp()-1, s_fmt + format("^.") + format(const_name(f).get_string()));
+    return result(max_bp()-1, s_fmt + format(".") + format(const_name(f).get_string()));
 }
 
 auto pretty_fn::pp_app(expr const & e) -> result {

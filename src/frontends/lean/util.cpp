@@ -430,7 +430,7 @@ expr freeze_names(expr const & e) {
 static name * g_field_notation_name          = nullptr;
 static std::string * g_field_notation_opcode = nullptr;
 
-[[ noreturn ]] static void throw_pn_ex() { throw exception("unexpected occurrence of '^.' notation expression"); }
+[[ noreturn ]] static void throw_pn_ex() { throw exception("unexpected occurrence of field notation expression"); }
 
 class field_notation_macro_cell : public macro_definition_cell {
     name     m_field;

@@ -6,7 +6,7 @@ let s : foo :=
             in v1 + v2 + v3 + v4,
        y := 20,
        z := tt}
-in s^.x + s^.y :
+in s.x + s.y :
   ℕ
 let s : foo :=
       {foo .
@@ -17,12 +17,12 @@ let s : foo :=
             in v1 + v2 + v3 + v4,
        y := 20,
        z := tt}
-in s^.x + s^.y :
+in s.x + s.y :
   ℕ
 foo.mk 10 20 ff : foo
 {foo . x := 10, y := 20, z := ff} : foo
 {x := 10, y := 20, z := ff} : foo
-{x := 10, y := 20, z := ff}^.x : ℕ
-(1, 2)^.fst : ℕ
-(boo 1 1)^.fst : ℕ
-(h 0)^.fn 10 20 : ℕ
+{x := 10, y := 20, z := ff}.x : ℕ
+(1, 2).fst : ℕ
+(boo 1 1).fst : ℕ
+(h 0).fn 10 20 : ℕ

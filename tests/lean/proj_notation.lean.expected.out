@@ -1,11 +1,11 @@
-p^.fst : ℕ
-p^.fst : ℕ
-p^.snd : ℕ
-p^.snd : ℕ
-f (p^.fst) : ℕ
-p^.fst + p^.snd : ℕ
-λ (c : car), (c^.pos)^.x : car → ℕ
-proj_notation.lean:29:19: error: invalid '^.' notation, 'fst' is not a valid "field" because environment does not contain 'car.fst'
+p.fst : ℕ
+p.fst : ℕ
+p.snd : ℕ
+p.snd : ℕ
+f (p.fst) : ℕ
+p.fst + p.snd : ℕ
+λ (c : car), (c.pos).x : car → ℕ
+proj_notation.lean:29:19: error: invalid field notation, 'fst' is not a valid "field" because environment does not contain 'car.fst'
   c
 which has type
   car
@@ -18,6 +18,6 @@ proj_notation.lean:35:19: error: invalid projection, structure expected
   n
 has type
   ℕ
-p^.fst : ℕ
-p^.snd : ℕ
-λ (c : car), (c^.pos)^.y : car → ℕ
+p.fst : ℕ
+p.snd : ℕ
+λ (c : car), (c.pos).y : car → ℕ

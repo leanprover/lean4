@@ -221,7 +221,7 @@ void initialize_pp_options() {
                          "when displaying structure instances using the '{ struct_name . field_name := field_value, ... }' notation, "
                          "this option is ignored when pp.structure_instances is false");
     register_bool_option(*g_pp_structure_projections, LEAN_DEFAULT_PP_STRUCTURE_PROJECTIONS,
-                         "(pretty printer) display structure projections using the '^.' notation");
+                         "(pretty printer) display structure projections using field notation");
     register_bool_option(*g_pp_all, LEAN_DEFAULT_PP_ALL,
                          "(pretty printer) display coercions, implicit parameters, proof terms, fully qualified names, universes, "
                          "and disable beta reduction and notation during pretty printing");

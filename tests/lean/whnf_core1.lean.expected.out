@@ -3,7 +3,7 @@ nat.succ
        ⟨(λ (a : ℕ) (_F : nat.below a) (a_1 : ℕ),
            (λ (a a_1 : ℕ) (_F : nat.below a_1),
               nat.cases_on a_1 (λ (_F : nat.below 0), a)
-                (λ (a_1 : ℕ) (_F : nat.below (nat.succ a_1)), nat.succ ((_F^.fst)^.fst a))
+                (λ (a_1 : ℕ) (_F : nat.below (nat.succ a_1)), nat.succ ((_F.fst).fst a))
                 _F)
              a_1
              a
@@ -15,7 +15,7 @@ nat.succ
           ⟨(λ (a : ℕ) (_F : nat.below a) (a_1 : ℕ),
               (λ (a a_1 : ℕ) (_F : nat.below a_1),
                  nat.cases_on a_1 (λ (_F : nat.below 0), a)
-                   (λ (a_1 : ℕ) (_F : nat.below (nat.succ a_1)), nat.succ ((_F^.fst)^.fst a))
+                   (λ (a_1 : ℕ) (_F : nat.below (nat.succ a_1)), nat.succ ((_F.fst).fst a))
                    _F)
                 a_1
                 a
@@ -27,7 +27,7 @@ nat.succ
             ⟨(λ (a : ℕ) (_F : nat.below a) (a_1 : ℕ),
                 (λ (a a_1 : ℕ) (_F : nat.below a_1),
                    nat.cases_on a_1 (λ (_F : nat.below 0), a)
-                     (λ (a_1 : ℕ) (_F : nat.below (nat.succ a_1)), nat.succ ((_F^.fst)^.fst a))
+                     (λ (a_1 : ℕ) (_F : nat.below (nat.succ a_1)), nat.succ ((_F.fst).fst a))
                      _F)
                   a_1
                   a
@@ -39,7 +39,7 @@ nat.succ
                ⟨(λ (a : ℕ) (_F : nat.below a) (a_1 : ℕ),
                    (λ (a a_1 : ℕ) (_F : nat.below a_1),
                       nat.cases_on a_1 (λ (_F : nat.below 0), a)
-                        (λ (a_1 : ℕ) (_F : nat.below (nat.succ a_1)), nat.succ ((_F^.fst)^.fst a))
+                        (λ (a_1 : ℕ) (_F : nat.below (nat.succ a_1)), nat.succ ((_F.fst).fst a))
                         _F)
                      a_1
                      a
@@ -48,16 +48,16 @@ nat.succ
                   ⟨ih_1, punit.star⟩,
                 ⟨ih_1, punit.star⟩⟩)
             0,
-          punit.star⟩^.fst)^.fst
+          punit.star⟩.fst).fst
           1),
-     punit.star⟩^.fst)^.fst
+     punit.star⟩.fst).fst
      a)
 nat.succ
   ((⟨nat.rec
        ⟨(λ (a : ℕ) (_F : nat.below a) (a_1 : ℕ),
            (λ (a a_1 : ℕ) (_F : nat.below a_1),
               nat.cases_on a_1 (λ (_F : nat.below 0), a)
-                (λ (a_1 : ℕ) (_F : nat.below (nat.succ a_1)), nat.succ ((_F^.fst)^.fst a))
+                (λ (a_1 : ℕ) (_F : nat.below (nat.succ a_1)), nat.succ ((_F.fst).fst a))
                 _F)
              a_1
              a
@@ -69,7 +69,7 @@ nat.succ
           ⟨(λ (a : ℕ) (_F : nat.below a) (a_1 : ℕ),
               (λ (a a_1 : ℕ) (_F : nat.below a_1),
                  nat.cases_on a_1 (λ (_F : nat.below 0), a)
-                   (λ (a_1 : ℕ) (_F : nat.below (nat.succ a_1)), nat.succ ((_F^.fst)^.fst a))
+                   (λ (a_1 : ℕ) (_F : nat.below (nat.succ a_1)), nat.succ ((_F.fst).fst a))
                    _F)
                 a_1
                 a
@@ -81,7 +81,7 @@ nat.succ
             ⟨(λ (a : ℕ) (_F : nat.below a) (a_1 : ℕ),
                 (λ (a a_1 : ℕ) (_F : nat.below a_1),
                    nat.cases_on a_1 (λ (_F : nat.below 0), a)
-                     (λ (a_1 : ℕ) (_F : nat.below (nat.succ a_1)), nat.succ ((_F^.fst)^.fst a))
+                     (λ (a_1 : ℕ) (_F : nat.below (nat.succ a_1)), nat.succ ((_F.fst).fst a))
                      _F)
                   a_1
                   a
@@ -93,7 +93,7 @@ nat.succ
                ⟨(λ (a : ℕ) (_F : nat.below a) (a_1 : ℕ),
                    (λ (a a_1 : ℕ) (_F : nat.below a_1),
                       nat.cases_on a_1 (λ (_F : nat.below 0), a)
-                        (λ (a_1 : ℕ) (_F : nat.below (nat.succ a_1)), nat.succ ((_F^.fst)^.fst a))
+                        (λ (a_1 : ℕ) (_F : nat.below (nat.succ a_1)), nat.succ ((_F.fst).fst a))
                         _F)
                      a_1
                      a
@@ -102,9 +102,9 @@ nat.succ
                   ⟨ih_1, punit.star⟩,
                 ⟨ih_1, punit.star⟩⟩)
             0,
-          punit.star⟩^.fst)^.fst
+          punit.star⟩.fst).fst
           1),
-     punit.star⟩^.fst)^.fst
+     punit.star⟩.fst).fst
      a)
 f a
 a + 2

@@ -7,11 +7,11 @@ field_access.lean:7:13: error: invalid projection, structure has only 2 field(s)
   (1, 2)
 which has type
   ?m_1 × ?m_2
-field_access.lean:10:1: error: invalid '^.' notation, 'forr' is not a valid "field" because environment does not contain 'list.forr'
+field_access.lean:10:1: error: invalid field notation, 'forr' is not a valid "field" because environment does not contain 'list.forr'
   l
 which has type
   list ℕ
-field_access.lean:13:1: error: invalid '^.' notation, type is not of the form (C ...) where C is a constant
+field_access.lean:13:1: error: invalid field notation, type is not of the form (C ...) where C is a constant
   a
 has type
   A

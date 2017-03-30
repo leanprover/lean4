@@ -31,6 +31,10 @@ public:
             return get_some_pos();
     }
 
+    virtual expr save_pos(expr const &, pos_info) {
+        lean_unreachable();
+    }
+
     /**
        \brief Pretty print position information for the given expression.
        Return a null format object if expression is not associated with position information.

@@ -258,7 +258,7 @@ name parser::mk_anonymous_inst_name() {
     return n;
 }
 
-expr parser::save_pos(expr e, pos_info p) {
+expr parser::save_pos(expr const & e, pos_info p) {
     auto t = get_tag(e);
     if (!m_pos_table.contains(t))
         m_pos_table.insert(t, p);

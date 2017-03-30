@@ -79,8 +79,9 @@ void for_each(token_table const & s, std::function<void(char const *, token_info
 void init_token_table(token_table & t) {
     pair<char const *, unsigned> builtin[] =
         {{"fun", 0}, {"Pi", 0}, {"let", 0}, {"in", 0}, {"at", 0},
-         {"have", 0}, {"suppose", 0}, {"show", 0}, {"suffices", 0}, {"obtain", 0},
-         {"do", 0}, {"if", 0}, {"then", 0}, {"else", 0}, {"by", 0}, {"hiding", 0}, {"replacing", 0}, {"renaming", 0},
+         {"have", 0}, {"suppose", 0}, {"show", 0}, {"suffices", 0},
+         {"do", 0}, {"if", 0}, {"then", 0}, {"else", 0}, {"by", 0},
+         {"hiding", 0}, {"replacing", 0}, {"renaming", 0},
          {"from", 0}, {"(", g_max_prec}, {"`(", g_max_prec}, {"``(", g_max_prec},
          {"```(", g_max_prec}, {"`[", g_max_prec}, {"`", g_max_prec},
          {"%%", g_max_prec}, {"()", g_max_prec}, {"(::)", g_max_prec}, {")", 0}, {"'", 0},
@@ -90,14 +91,11 @@ void init_token_table(token_table & t) {
          {"(:", g_max_prec}, {":)", 0}, {".(", g_max_prec}, {"._", g_max_prec},
          {"⟨", g_max_prec}, {"⟩", 0}, {"^", 0},
          {"//", 0}, {"|", 0}, {"with", 0}, {"without", 0}, {"...", 0}, {",", 0},
-         {".", 0}, {":", 0}, {"!", 0}, {"calc", 0}, {"as", 0}, {":=", 0}, {"--", 0}, {"#", g_max_prec},
+         {".", 0}, {":", 0}, {"!", 0}, {"calc", 0}, {":=", 0}, {"--", 0}, {"#", g_max_prec},
          {"/-", 0}, {"/--", 0}, {"/-!", 0}, {"begin", g_max_prec}, {"using", 0},
          {"@@", g_max_prec}, {"@", g_max_prec},
          {"sorry", g_max_prec}, {"+", g_plus_prec}, {"->", g_arrow_prec}, {"<-", 0},
          {"match", 0}, {"^.", g_max_prec+1},
-         {".1", g_max_prec+1}, {".2", g_max_prec+1}, {".3", g_max_prec+1},
-         {".4", g_max_prec+1}, {".5", g_max_prec+1}, {".6", g_max_prec+1},
-         {".7", g_max_prec+1}, {".8", g_max_prec+1}, {".9", g_max_prec+1},
          {"renaming", 0}, {"extends", 0}, {nullptr, 0}};
 
     char const * commands[] =

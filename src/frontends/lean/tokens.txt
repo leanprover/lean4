@@ -109,7 +109,6 @@ postfix      postfix
 prefix       prefix
 notation     notation
 calc         calc
-obtain       obtain
 root         _root_
 fields       fields
 trust        trust

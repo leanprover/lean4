@@ -2,3 +2,5 @@ pp_shadowed_const.lean:1:55: error: don't know how to synthesize placeholder
 context:
 bool : ℕ
 ⊢ _root_.bool → _root_.bool = _root_.bool
+def g : 1 == 1 → 1 == 1 :=
+λ (heq_1 : 1 == 1), heq.symm heq_1

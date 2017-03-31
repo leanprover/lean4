@@ -19,7 +19,7 @@ bool is_used_name(expr const & t, name const & n) {
     bool found = false;
     for_each(t, [&](expr const & e, unsigned) {
             if (found) return false; // already found
-            if ((is_constant(e) && const_name(e) == n)  // t has a constant named n
+            if ((is_constant(e) && const_name(e).get_root() == n)  // t has a constant starting with n
                 || (is_local(e) && (mlocal_name(e) == n || local_pp_name(e) == n))) { // t has a local constant named n
                 found = true;
                 return false; // found it

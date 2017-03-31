@@ -19,7 +19,6 @@ inductive io.mode
 
 structure io.file_system (handle : Type) (m : Type → Type → Type) :=
 /- Remark: in Haskell, they also provide  (Maybe TextEncoding) and  NewlineMode -/
-(read_file      : string → bool → m io.error char_buffer)
 (mk_file_handle : string → io.mode → bool → m io.error handle)
 (is_eof         : handle → m io.error bool)
 (flush          : handle → m io.error unit)
@@ -36,6 +35,7 @@ class io.interface :=
 (monad    : Π e, monad (m e))
 (catch    : Π e₁ e₂ α, m e₁ α → (e₁ → m e₂ α) → m e₂ α)
 (fail     : Π e α, e → m e α)
+(iterate  : Π e α, α → (α → m e (option α)) → m e α)
 -- Primitive Types
 (handle   : Type)
 -- Interface Extensions
@@ -62,6 +62,12 @@ instance : monad_fail io :=
   fail := @io.fail _ }
 
 namespace io
+def iterate {e α} (a : α) (f : α → io_core e (option α)) : io_core e α :=
+interface.iterate e α a f
+
+def forever {e} (a : io_core e unit) : io_core e unit :=
+iterate () $ λ _, a >> return (some ())
+
 def put_str : string → io unit :=
 interface.term.put_str
 
@@ -126,7 +132,13 @@ def put_str_ln (h : handle) (s : string) : io unit :=
 put_str h s >> put_str h "\n"
 
 def read_file (s : string) (bin := ff) : io char_buffer :=
-interface.fs.read_file s bin
+do h ← mk_file_handle s io.mode.read bin,
+   iterate mk_buffer $ λ r,
+     do done ← is_eof h,
+     if done then return none
+     else do
+       c ← read h 1024,
+       return $ some (r ++ c)
 end fs
 end io
 

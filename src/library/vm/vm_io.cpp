@@ -222,31 +222,6 @@ static vm_obj fs_get_line(vm_obj const & h, vm_obj const &) {
     return mk_io_result(mk_buffer(r));
 }
 
-static vm_obj fs_read_file(vm_obj const & fname, vm_obj const & bin, vm_obj const &) {
-    FILE * h = fopen(to_string(fname).c_str(), to_bool(bin) ? "rb" : "r");
-    if (h == nullptr)
-        return mk_io_failure(sstream() << "read_file '" << to_string(fname) << "' failed");
-#define BUFFER_SIZE 1024
-    buffer<char, BUFFER_SIZE> tmp;
-    tmp.resize(BUFFER_SIZE);
-    parray<vm_obj> r;
-    while (true) {
-        unsigned sz = fread(tmp.data(), 1, BUFFER_SIZE, h);
-        for (unsigned i = 0; i < sz; i++) {
-            r.push_back(mk_vm_simple(static_cast<unsigned char>(tmp[i])));
-        }
-        if (sz < BUFFER_SIZE) {
-            if (ferror(h)) {
-                clearerr(h);
-                fclose(h);
-                return mk_io_failure(sstream() << "read_file '" << to_string(fname) << "' failed");
-            }
-            fclose(h);
-            return mk_io_result(mk_buffer(r));
-        }
-    }
-}
-
 static vm_obj fs_stdin(vm_obj const &) {
     return mk_io_result(to_obj(std::make_shared<handle>(stdin)));
 }
@@ -260,7 +235,6 @@ static vm_obj fs_stderr(vm_obj const &) {
 }
 
 /*
-(read_file      : string → bool → m io.error char_buffer)
 (mk_file_handle : string → io.mode → bool → m io.error handle)
 (is_eof         : handle → m io.error bool)
 (flush          : handle → m io.error unit)
@@ -274,7 +248,6 @@ static vm_obj fs_stderr(vm_obj const &) {
 */
 static vm_obj mk_fs() {
     vm_obj fields[11] = {
-        mk_native_closure(fs_read_file),
         mk_native_closure(fs_mk_file_handle),
         mk_native_closure(fs_is_eof),
         mk_native_closure(fs_flush),
@@ -392,12 +365,31 @@ static vm_obj io_m(vm_obj const &, vm_obj const &) {
     return mk_vm_simple(0);
 }
 
+/* (iterate  : Π e α, α → (α → m e (option α)) → m e α) */
+static vm_obj io_iterate(vm_obj const &, vm_obj const &, vm_obj const & a, vm_obj const & fn, vm_obj const &) {
+    vm_obj r = a;
+    while (true) {
+        vm_obj p = invoke(fn, r, mk_vm_unit());
+        if (cidx(p) == 1) {
+            return p;
+        } else {
+            vm_obj v = cfield(p, 0);
+            if (is_none(v)) {
+                return mk_io_result(r);
+            } else {
+                r = get_some_value(v);
+            }
+        }
+    }
+}
+
 /*
 class io.interface :=
 (m        : Type → Type → Type)
 (monad    : Π e, monad (m e))
-(catch    : ∀ e₁ e₂ α, m e₁ α → (e₁ → m e₂ α) → m e₂ α)
-(fail     : ∀ e α, e → m e α)
+(catch    : Π e₁ e₂ α, m e₁ α → (e₁ → m e₂ α) → m e₂ α)
+(fail     : Π e α, e → m e α)
+(iterate  : Π e α, α → (α → m e (option α)) → m e α)
 -- Primitive Types
 (handle   : Type)
 -- Interface Extensions
@@ -406,16 +398,17 @@ class io.interface :=
 (process  : io.process io.error handle m)
 */
 vm_obj mk_io_interface() {
-    vm_obj fields[7] = {
+    vm_obj fields[8] = {
         mk_native_closure(io_m), /* TODO(Leo): delete after we improve code generator */
         mk_native_closure(io_monad),
         mk_native_closure(io_catch),
         mk_native_closure(io_fail),
+        mk_native_closure(io_iterate),
         mk_terminal(),
         mk_fs(),
         mk_process()
     };
-    return mk_vm_constructor(0, 7, fields);
+    return mk_vm_constructor(0, 8, fields);
 }
 
 optional<vm_obj> is_io_result(vm_obj const & o) {

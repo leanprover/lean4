@@ -1701,7 +1701,7 @@ class patexpr_to_expr_fn : public replace_visitor {
     }
 
     virtual expr visit_local(expr const & e) override {
-        return m_p.id_to_expr(local_pp_name(e), m_p.pos_of(e), true, m_locals);
+        return m_p.id_to_expr(local_pp_name(e), m_p.pos_of(e), true, true, m_locals);
     }
 
 public:
@@ -1727,7 +1727,8 @@ static void check_no_levels(levels const & ls, pos_info const & p) {
                            "parameter or a constant bound to parameters in a section", p);
 }
 
-optional<expr> parser::resolve_local(name const & id, pos_info const & p, list<name> const & extra_locals) {
+optional<expr> parser::resolve_local(name const & id, pos_info const & p, list<name> const & extra_locals,
+                                     bool allow_field_notation) {
     /* Remark: (auxiliary) local constants many not be atomic.
        Example: when elaborating
 
@@ -1751,7 +1752,7 @@ optional<expr> parser::resolve_local(name const & id, pos_info const & p, list<n
         return some_expr(copy_with_new_pos(*it1, p));
     }
 
-    if (!id.is_atomic() && id.is_string()) {
+    if (allow_field_notation && !id.is_atomic() && id.is_string()) {
         if (auto r = resolve_local(id.get_prefix(), p, extra_locals)) {
             auto field_pos = p;
             field_pos.second += id.get_prefix().utf8_size();
@@ -1764,7 +1765,7 @@ optional<expr> parser::resolve_local(name const & id, pos_info const & p, list<n
     }
 }
 
-expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only, list<name> const & extra_locals) {
+expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only, bool allow_field_notation, list<name> const & extra_locals) {
     buffer<level> lvl_buffer;
     levels ls;
     bool explicit_levels = false;
@@ -1782,7 +1783,7 @@ expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only, 
         return save_pos(mk_local(id, save_pos(mk_expr_placeholder(), p)), p);
     }
 
-    if (auto r = resolve_local(id, p, extra_locals)) {
+    if (auto r = resolve_local(id, p, extra_locals, allow_field_notation)) {
         check_no_levels(ls, p);
         return *r;
     }
@@ -1834,9 +1835,9 @@ expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only, 
             r = save_pos(local, p);
         }
     }
-    if (!r && !id.is_atomic() && id.is_string()) {
+    if (!r && allow_field_notation && !id.is_atomic() && id.is_string()) {
         try {
-            expr s = id_to_expr(id.get_prefix(), p, resolve_only, extra_locals);
+            expr s = id_to_expr(id.get_prefix(), p, resolve_only, allow_field_notation, extra_locals);
             auto field_pos = p;
             field_pos.second += id.get_prefix().utf8_size();
             r = save_pos(mk_field_notation_compact(s, id.get_string()), field_pos);
@@ -1914,11 +1915,11 @@ name parser::check_constant_next(char const * msg) {
     return to_constant(id, msg, p);
 }
 
-expr parser::parse_id() {
+expr parser::parse_id(bool allow_field_notation) {
     auto p  = pos();
     lean_assert(curr_is_identifier());
     name id = check_id_next("", break_at_pos_exception::token_context::expr);
-    expr e = id_to_expr(id, p);
+    expr e = id_to_expr(id, p, /* resolve_only */ false, allow_field_notation);
     if (is_constant(e) && get_global_info_manager()) {
         get_global_info_manager()->add_const_info(m_env, p, const_name(e));
     }

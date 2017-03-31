@@ -599,7 +599,7 @@ static expr parse_calc_expr(parser_state & p, unsigned, expr const *, pos_info c
 static expr parse_explicit_core(parser_state & p, pos_info const & pos, bool partial) {
     if (!p.curr_is_identifier())
         throw parser_error(sstream() << "invalid '" << (partial ? "@@" : "@") << "', identifier expected", p.pos());
-    expr fn = p.parse_id();
+    expr fn = p.parse_id(/* allow_field_notation */ false);
     if (is_choice(fn)) {
         sstream s;
         s << "invalid '" << (partial ? "@@" : "@") << "', function is overloaded, use fully qualified names (overloads: ";

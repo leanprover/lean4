@@ -164,7 +164,8 @@ class parser : public abstract_parser {
 
     std::shared_ptr<snapshot> mk_snapshot();
 
-    optional<expr> resolve_local(name const & id, pos_info const & p, list<name> const & extra_locals);
+    optional<expr> resolve_local(name const & id, pos_info const & p, list<name> const & extra_locals,
+                                 bool allow_field_notation = true);
 
     friend class module_parser;
     friend class patexpr_to_expr_fn;
@@ -354,7 +355,8 @@ public:
     void parse_close_binder_info(binder_info const & bi) { return parse_close_binder_info(optional<binder_info>(bi)); }
 
     /** \brief Convert an identifier into an expression (constant or local constant) based on the current scope */
-    expr id_to_expr(name const & id, pos_info const & p, bool resolve_only = false, list<name> const & extra_locals = list<name>());
+    expr id_to_expr(name const & id, pos_info const & p, bool resolve_only = false, bool allow_field_notation = true,
+                    list<name> const & extra_locals = list<name>());
 
     expr parse_expr(unsigned rbp = 0);
     /** \brief Parse an (optionally) qualified expression.
@@ -381,7 +383,7 @@ public:
     /* \brief Set pattern mode, and invoke fn. The new locals are stored in new_locals */
     expr parse_pattern(std::function<expr(parser &)> const & fn, buffer<expr> & new_locals);
 
-    expr parse_id();
+    expr parse_id(bool allow_field_notation = true);
 
     expr parse_led(expr left);
     expr parse_scoped_expr(unsigned num_params, expr const * ps, local_environment const & lenv, unsigned rbp = 0);

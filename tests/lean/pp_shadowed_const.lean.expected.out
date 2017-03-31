@@ -1,0 +1,4 @@
+pp_shadowed_const.lean:1:55: error: don't know how to synthesize placeholder
+context:
+bool : ℕ
+⊢ _root_.bool → _root_.bool = _root_.bool

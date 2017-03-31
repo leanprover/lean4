@@ -31,6 +31,7 @@ public:
 
     virtual expr push_local(name const & pp_name, expr const & type, binder_info const & bi = binder_info());
     virtual void pop_local();
+    virtual bool has_local_pp_name(name const & pp_name);
     virtual expr abstract_locals(expr const & e, unsigned num_locals, expr const * locals);
 
     expr check(expr const & e, bool infer_only) { return infer_only ? infer(e) : check(e); }

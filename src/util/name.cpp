@@ -287,6 +287,14 @@ bool name::is_safe_ascii() const {
     return true;
 }
 
+name name::get_root() const {
+    name n = *this;
+    while (n.get_prefix()) {
+        n = n.get_prefix();
+    }
+    return n;
+}
+
 std::string name::to_string(char const * sep) const {
     std::ostringstream s;
     imp::display(s, m_ptr, sep);

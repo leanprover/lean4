@@ -51,6 +51,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/structure_cmd.h"
 #include "frontends/lean/parser_config.h"
 #include "frontends/lean/scanner.h"
+#include "frontends/lean/tokens.h"
 
 namespace lean {
 static format * g_ellipsis_n_fmt  = nullptr;
@@ -686,6 +687,8 @@ auto pretty_fn::pp_const(expr const & e, optional<unsigned> const & num_ref_univ
         if (auto n1 = hidden_to_user_name(m_env, n))
             n = *n1;
     }
+    if (m_ctx.has_local_pp_name(n.get_root()))
+        n = get_root_tk() + n;
     if (m_universes && !empty(const_levels(e))) {
         unsigned first_idx = 0;
         buffer<level> ls;

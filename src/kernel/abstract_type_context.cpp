@@ -17,6 +17,10 @@ void abstract_type_context::pop_local() {
     /* do nothing */
 }
 
+bool abstract_type_context::has_local_pp_name(name const &) {
+    return {};
+}
+
 expr abstract_type_context::abstract_locals(expr const & e, unsigned num_locals, expr const * locals) {
     return ::lean::abstract_locals(e, num_locals, locals);
 }

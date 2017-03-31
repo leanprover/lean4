@@ -398,6 +398,9 @@ public:
     }
 
     virtual void pop_local() override;
+    virtual bool has_local_pp_name(name const & pp_name) override {
+        return static_cast<bool>(m_lctx.m_user_name2local_decls.find(pp_name));
+    }
     virtual expr abstract_locals(expr const & e, unsigned num_locals, expr const * locals) override;
 
     /** Similar to whnf, but invokes the given predicate before unfolding constant symbols in the head.

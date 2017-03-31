@@ -691,6 +691,7 @@ scanner::scanner(std::istream & strm, char const * strm_name):
     m_in_notation = false;
     m_last_line = false;
     fetch_line();
+    if (m_sline == 0) m_sline = 1;
     m_line = m_sline;
     m_pos = 0;
 }
@@ -706,6 +707,8 @@ void scanner::skip_to_pos(pos_info const & pos) {
     m_line = m_sline;
     for (unsigned col_idx = 0; col_idx < pos.second; col_idx++)
         next();
+
+    lean_assert(pos == pos_info(get_line(), get_pos()));
 }
 
 std::ostream & operator<<(std::ostream & out, token_kind k) {

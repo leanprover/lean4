@@ -6,3 +6,5 @@
 {"seq_num": 5, "command": "sync", "file_name": "f", "content": "inductive foo : nat → nat → Prop\n"}
 {"seq_num": 6, "command": "sync", "file_name": "f", "content": "inductive foo : nat → nat → Prop\n\n"}
 {"seq_num": 7, "command": "sync", "file_name": "f", "content": "inductive foo : nat → nat → Prop\n\n\n"}
+{"seq_num": 8, "command": "sync", "file_name": "f", "content": ""}
+{"seq_num": 9, "command": "sync", "file_name": "f", "content": "import system.io\n"}

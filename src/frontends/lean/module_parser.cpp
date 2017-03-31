@@ -61,7 +61,7 @@ module_parser_result module_parser::parse(optional<std::vector<gtask>> const & d
     module_parser_result res;
     if (m_save_info)
         res.m_snapshot_at_end = m_parser.mk_snapshot();
-    res.m_range = {{0, 1}, {0, 1}};
+    res.m_range = {{1, 0}, {1, 0}};
     res.m_cancel = global_cancellation_token();
     res.m_lt = lt.get();
     res.m_next = parse_next_command_like(dependencies);
@@ -71,6 +71,7 @@ module_parser_result module_parser::parse(optional<std::vector<gtask>> const & d
 task<module_parser_result> module_parser::parse_next_command_like(optional<std::vector<gtask>> const & dependencies) {
     auto self = shared_from_this();
     auto begin_pos = m_parser.pos();
+    lean_assert(begin_pos >= pos_info(1, 0));
 
     auto fn = [self, begin_pos] {
         scope_pos_info_provider scope_pip(self->m_parser); // for nested_elaborator_exception::pp
@@ -90,6 +91,7 @@ task<module_parser_result> module_parser::parse_next_command_like(optional<std::
             done = true;
         }
         auto end_pos = self->m_parser.pos();
+        lean_assert(end_pos >= begin_pos);
 
         module_parser_result res;
         if (done || self->m_save_info)

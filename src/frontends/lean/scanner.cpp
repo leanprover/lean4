@@ -707,8 +707,7 @@ void scanner::skip_to_pos(pos_info const & pos) {
     m_line = m_sline;
     for (unsigned col_idx = 0; col_idx < pos.second; col_idx++)
         next();
-
-    lean_assert(pos == pos_info(get_line(), get_pos()));
+    lean_assert(pos == pos_info(get_line(), m_upos));
 }
 
 std::ostream & operator<<(std::ostream & out, token_kind k) {

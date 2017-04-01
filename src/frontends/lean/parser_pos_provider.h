@@ -28,9 +28,9 @@ public:
     parser_pos_provider(pos_info_table const & pos_table, std::string const & strm_name, pos_info const & some_pos,
                         unsigned next_tag_idx);
     virtual ~parser_pos_provider();
-    virtual optional<pos_info> get_pos_info(expr const & e) const;
-    virtual pos_info get_some_pos() const;
+    virtual optional<pos_info> get_pos_info(expr const & e) const override;
+    virtual pos_info get_some_pos() const override;
     expr save_pos(expr const & e, pos_info pos) override;
-    virtual char const * get_file_name() const;
+    virtual char const * get_file_name() const override;
 };
 }

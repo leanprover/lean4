@@ -252,7 +252,7 @@ public:
     token_info const & get_token_info() const { return curr_token().get_token_info(); }
 
     pos_info pos() const override { return curr_token().get_pos(); }
-    expr save_pos(expr e, pos_info p);
+    expr save_pos(expr const & e, pos_info p) override;
     expr rec_save_pos(expr const & e, pos_info p);
     expr update_pos(expr e, pos_info p);
     pos_info pos_of(expr const & e, pos_info default_pos) const;

@@ -143,7 +143,7 @@ pos_info parser_state::get_some_pos() const {
         return get_token(0).get_pos();
 }
 
-expr parser_state::save_pos(expr e, pos_info p) {
+expr parser_state::save_pos(expr const & e, pos_info p) {
     auto t = get_tag(e);
     if (!m_pos_table.contains(t))
         m_pos_table.insert(t, p);

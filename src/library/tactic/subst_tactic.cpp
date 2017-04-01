@@ -48,7 +48,8 @@ expr subst(environment const & env, options const & opts, transparency_mode cons
     buffer<expr> to_revert;
     to_revert.push_back(lhs);
     to_revert.push_back(H);
-    expr mvar1 = revert(env, opts, mctx, mvar, to_revert);
+    bool preserve_to_revert_order = true;
+    expr mvar1 = revert(env, opts, mctx, mvar, to_revert, preserve_to_revert_order);
     lean_subst_trace(tout() << "to_revert:"; for (auto h : to_revert) tout() << " " << h; tout() << "\n";);
     lean_subst_trace_state(mvar1, "after revert:\n");
     lean_assert(to_revert.size() >= 2);

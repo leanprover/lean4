@@ -1057,7 +1057,8 @@ struct elim_match_fn {
         /* Step 1 */
         buffer<expr> to_revert;
         to_revert.push_back(x);
-        expr M_1           = revert(m_env, m_opts, m_mctx, P.m_goal, to_revert);
+        bool preserve_to_revert_order = true; /* it is a don't care since to_revert has size 1 */
+        expr M_1           = revert(m_env, m_opts, m_mctx, P.m_goal, to_revert, preserve_to_revert_order);
 
         /* Step 2 */
         type_context ctx1  = mk_type_context(M_1);

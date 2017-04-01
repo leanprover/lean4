@@ -380,33 +380,80 @@ static local_decl get_local_with_smallest_idx(local_context const & lctx, buffer
     return r;
 }
 
-pair<local_context, expr> type_context::revert_core(buffer<expr> & to_revert, local_context const & ctx,
-                                                    expr const & type) {
-    DEBUG_CODE({
-            for (unsigned i = 0; i < to_revert.size(); i++) {
-                lean_assert(is_local_decl_ref(to_revert[i]));
-                optional<local_decl> decl = ctx.find_local_decl(to_revert[i]);
-                lean_assert(decl);
-                if (i > 1) {
-                    optional<local_decl> prev_decl = ctx.find_local_decl(to_revert[i-1]);
-                    lean_assert(prev_decl && prev_decl->get_idx() < decl->get_idx());
+/*
+Return true iff d is in to_revert[0] ... to_revert[num - 1]
+Moreover, if must_sort == false, d is at to_revert[i] and there is j > i s.t. d depends_on to_revert[j], then
+   1- Set must_sort = true IF preserve_to_revert_order is false
+   2- If preserve_to_revert_order is true, then we get an assertion violation in debug mode,
+      and an unreachable code exception in release mode.
+*/
+static bool process_to_revert(metavar_context const & mctx, buffer<expr> & to_revert, unsigned num,
+                              local_decl const & d, bool preserve_to_revert_order, bool & must_sort) {
+    for (unsigned i = 0; i < num; i++) {
+        if (mlocal_name(to_revert[i]) == d.get_name()) {
+            if (!must_sort &&
+                depends_on(d, mctx, to_revert.size() - i - 1, to_revert.data() + i + 1)) {
+                /* to_revert[i] depends on to_revert[j] for j > i.
+
+                   This can happen when
+                   1) User provided a bad order to revert
+
+                     example (n : nat) (h : n < 5) : ... :=
+                     begin
+                       revert h n
+                       ...
+                     end
+
+                   2) There is an "in between" dependency.
+
+                     constant p {n m : nat} : n < m → Prop
+                     example (n : nat) (h1 : n < 5) (h2 : p h1) : ... :=
+                     begin
+                       revert n h2
+                       ...
+                     end
+
+                     h1 depends on n and h2 depends on h1.
+                */
+                if (preserve_to_revert_order) {
+                    /* We use preserve_to_revert_order at induction and subst tactics.
+
+                       For subst, we claim this exception should never be thrown.
+                       Reason: given (x : A) (h : x = t), subst h fails if t depends directly
+                       or indirectly on x, and to_revert contains x and h initially.
+
+                       For induction, we have a similar situation.
+                       The checks performed at induction guarantee this code is not reachable.
+                       TODO(Leo): double check this case carefully.
+                    */
+                    lean_assert(false);
+                    lean_unreachable();
+                } else {
+                    /* Since we do not requre the order to preserved,
+                       we just sort the content of to_revert, after we collect all dependencies */
+                    must_sort = true;
                 }
             }
-        });
-    unsigned num   = to_revert.size();
-    if (num == 0) {
-        return mk_pair(ctx, type);
+            return true;
+        }
     }
+    return false;
+}
+
+pair<local_context, expr> type_context::revert_core(buffer<expr> & to_revert, local_context const & ctx,
+                                                    expr const & type, bool preserve_to_revert_order) {
+    unsigned num   = to_revert.size();
+    if (num == 0)
+        return mk_pair(ctx, type);
     local_decl d0     = get_local_with_smallest_idx(ctx, to_revert);
-    unsigned next_idx = 1;
-    unsigned init_sz  = to_revert.size();
+    bool must_sort    = false;
+    process_to_revert(m_mctx, to_revert, num, d0, preserve_to_revert_order, must_sort);
+    unsigned num_processed = 1;
     ctx.for_each_after(d0, [&](local_decl const & d) {
             /* Check if d is in initial to_revert */
-            for (unsigned i = next_idx; i < num; i++) {
-                if (mlocal_name(to_revert[i]) == d.get_name()) {
-                    next_idx++;
-                    return;
-                }
+            if (num_processed < num && process_to_revert(m_mctx, to_revert, num, d, preserve_to_revert_order, must_sort)) {
+                num_processed++;
+                return;
             }
             /* We may still need to revert d if it depends on locals already in reverted.
                We don't need to follow the value of local definitions (x := v) here because
@@ -417,40 +464,45 @@ pair<local_context, expr> type_context::revert_core(buffer<expr> & to_revert, lo
                        See discussion at issue #1258 at github. */
                     sstream out;
                     out << "failed to revert ";
-                    for (unsigned i = 0; i < init_sz; i++) {
+                    for (unsigned i = 0; i < num; i++) {
                         if (i > 0) out << " ";
                         out << "'" << to_revert[i] << "'";
                     }
                     out << ", '" << d.get_pp_name() << "' "
-                        << "depends on " << (init_sz == 1 ? "it" : "them")
+                        << "depends on " << (num == 1 ? "it" : "them")
                         << ", and '" << d.get_pp_name() << "' is an auxiliary declaration "
                         << "introduced by the equation compiler (possible solution: "
                         << "use tactic 'clear' to remove '" << d.get_pp_name() << "' "
-                        << "from the local context)\n";
+                        << "from the local context)";
                     throw exception(out);
                 }
                 to_revert.push_back(d.mk_ref());
             }
         });
+    if (must_sort) {
+        std::sort(to_revert.begin(), to_revert.end(), [&](expr const & l1, expr const & l2) {
+                return ctx.get_local_decl(l1).get_idx() < ctx.get_local_decl(l2).get_idx();
+            });
+    }
     local_context new_ctx = ctx.remove(to_revert);
     return mk_pair(new_ctx, mk_pi(ctx, to_revert, type));
 }
 
-expr type_context::revert_core(buffer<expr> & to_revert, expr const & mvar) {
+expr type_context::revert_core(buffer<expr> & to_revert, expr const & mvar, bool preserve_to_revert_order) {
     lean_assert(is_metavar_decl_ref(mvar));
     metavar_decl const & d = m_mctx.get_metavar_decl(mvar);
-    auto p = revert_core(to_revert, d.get_context(), d.get_type());
+    auto p = revert_core(to_revert, d.get_context(), d.get_type(), preserve_to_revert_order);
     /* Remark: we use copy_tag to make sure any position information
        associated wtih mvar is inherited by the new meta-variable. */
     return copy_tag(mvar, m_mctx.mk_metavar_decl(p.first, p.second));
 }
 
-expr type_context::revert(buffer<expr> & to_revert, expr const & mvar) {
+expr type_context::revert(buffer<expr> & to_revert, expr const & mvar, bool preserve_to_revert_order) {
     lean_assert(is_metavar_decl_ref(mvar));
     lean_assert(std::all_of(to_revert.begin(), to_revert.end(), [&](expr const & l) {
                 return static_cast<bool>(m_mctx.find_metavar_decl(mvar)->get_context().find_local_decl(l)); }));
     local_context lctx = m_mctx.get_metavar_decl(mvar).get_context();
-    expr new_mvar = revert_core(to_revert, mvar);
+    expr new_mvar = revert_core(to_revert, mvar, preserve_to_revert_order);
     expr r = new_mvar;
     for (expr const & a : to_revert) {
         if (!lctx.get_local_decl(a).get_value()) {
@@ -2338,7 +2390,8 @@ expr type_context::elim_delayed_abstraction(expr const & e) {
         std::reverse(to_revert.begin(), to_revert.end());
         std::reverse(replacements.begin(), replacements.end());
         buffer<expr> saved_to_revert; saved_to_revert.append(to_revert);
-        expr new_meta = revert(to_revert, mvar);
+        bool preserve_to_revert_order = false;
+        expr new_meta = revert(to_revert, mvar, preserve_to_revert_order);
         lean_assert(saved_to_revert.size() == replacements.size());
         new_fn        = replace_locals(new_meta, saved_to_revert, replacements);
     } else {

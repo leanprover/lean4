@@ -425,8 +425,12 @@ public:
     /** Given a metavariable \c mvar, and local constants in \c locals, return (mvar' C) where
         C is a superset of \c locals and includes all local constants that depend on \c locals.
         \pre all local constants in \c locals are in metavariable context.
-        \remark locals is updated with dependencies. */
-    expr revert(buffer<expr> & locals, expr const & mvar);
+        \remark locals is updated with dependencies.
+
+        \remark If preserve_locals_order is true, then the initial order elements in locals
+        are not reordered, and an exception is thrown if locals[i] depends on locals[j] for i < j.
+    */
+    expr revert(buffer<expr> & locals, expr const & mvar, bool preserve_locals_order);
 
     expr mk_lambda(local_context const & lctx, buffer<expr> const & locals, expr const & e);
     expr mk_pi(local_context const & lctx, buffer<expr> const & locals, expr const & e);
@@ -573,8 +577,8 @@ private:
 
 private:
     pair<local_context, expr> revert_core(buffer<expr> & to_revert, local_context const & ctx,
-                                          expr const & type);
-    expr revert_core(buffer<expr> & to_revert, expr const & mvar);
+                                          expr const & type, bool preserve_to_revert_order);
+    expr revert_core(buffer<expr> & to_revert, expr const & mvar, bool preserve_to_revert_order);
     expr mk_binding(bool is_pi, local_context const & lctx, unsigned num_locals, expr const * locals, expr const & e);
 
     /* ------------

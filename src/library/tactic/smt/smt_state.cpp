@@ -178,7 +178,8 @@ static pair<tactic_state, unsigned> revert_all(tactic_state const & s) {
     local_context lctx       = g->get_context();
     buffer<expr> hs;
     lctx.for_each([&](local_decl const & d) { hs.push_back(d.mk_ref()); });
-    tactic_state new_s = revert(hs, s);
+    bool preserve_to_revert_order = false;
+    tactic_state new_s = revert(hs, s, preserve_to_revert_order);
     return mk_pair(new_s, hs.size());
 }
 

@@ -334,8 +334,8 @@ local_context local_context::remove(buffer<expr> const & locals) const {
     local_context r          = *this;
     r.m_instance_fingerprint = m_instance_fingerprint;
     for (expr const & l : locals) {
-        r.m_name2local_decl.erase(mlocal_name(l));
         local_decl d = get_local_decl(l);
+        r.m_name2local_decl.erase(mlocal_name(l));
         r.m_idx2local_decl.erase(d.get_idx());
         r.erase_user_name(d);
     }

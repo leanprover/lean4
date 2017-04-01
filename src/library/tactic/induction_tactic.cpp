@@ -149,7 +149,8 @@ list<expr> induction(environment const & env, options const & opts, transparency
     buffer<expr> to_revert;
     to_revert.append(indices);
     to_revert.push_back(H);
-    expr mvar1 = revert(env, opts, mctx, mvar, to_revert);
+    bool preserve_to_revert_order = true;
+    expr mvar1 = revert(env, opts, mctx, mvar, to_revert, preserve_to_revert_order);
     lean_assert(to_revert.size() >= indices.size() + 1);
     /* Re-introduce indices and major. */
     buffer<name> indices_H;

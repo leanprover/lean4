@@ -694,6 +694,7 @@ scanner::scanner(std::istream & strm, char const * strm_name):
     if (m_sline == 0) m_sline = 1;
     m_line = m_sline;
     m_pos = 0;
+    lean_assert(pos_info(get_line(), get_pos()) == pos_info(1, 0));
 }
 
 scanner::scanner(std::istream & strm, char const * strm_name, pos_info const & pos) :
@@ -707,7 +708,8 @@ void scanner::skip_to_pos(pos_info const & pos) {
     m_line = m_sline;
     for (unsigned col_idx = 0; col_idx < pos.second; col_idx++)
         next();
-    lean_assert(pos == pos_info(get_line(), m_upos));
+    m_pos = m_upos; // we assume that the argument is the start of a token
+    lean_assert(pos == pos_info(get_line(), get_pos()));
 }
 
 std::ostream & operator<<(std::ostream & out, token_kind k) {

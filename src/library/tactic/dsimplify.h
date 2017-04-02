@@ -28,6 +28,7 @@ protected:
     expr visit_binding(expr const & e);
     expr visit_let(expr const & e);
     expr visit_app(expr const & e);
+    expr visit_meta(expr const & e);
     void inc_num_steps();
     expr visit(expr const & e);
 

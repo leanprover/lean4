@@ -7,8 +7,10 @@ Author: Leonardo de Moura
 #include <iostream>
 #include "util/sexpr/format.h"
 #include "library/trace.h"
+#include "library/parray.h"
 #include "kernel/scope_pos_info_provider.h"
 #include "library/vm/vm.h"
+#include "library/vm/vm_array.h"
 #include "library/vm/vm_io.h"
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_string.h"
@@ -86,6 +88,26 @@ vm_obj format_to_string(vm_obj const & fmt, vm_obj const & opts) {
     return to_obj(out.str());
 }
 
+/* TODO(jroesch): unify with IO */
+static vm_obj mk_buffer(parray<vm_obj> const & a) {
+    return mk_vm_pair(mk_vm_nat(a.size()), to_obj(a));
+}
+
+vm_obj format_to_buffer(vm_obj const & fmt, vm_obj const & opts) {
+    std::ostringstream out;
+    out << mk_pair(to_format(fmt), to_options(opts));
+
+    // TODO(jroesch): make this more performant?
+    auto fmt_string = out.str();
+    parray<vm_obj> buffer;
+
+    for (auto c : out.str()) {
+        buffer.push_back(mk_vm_simple(c));
+    }
+
+    return mk_buffer(buffer);
+}
+
 vm_obj format_print_using(vm_obj const & /* io.interface */, vm_obj const & fmt, vm_obj const & opts, vm_obj const & /* state */) {
     get_global_ios().get_regular_stream() << mk_pair(to_format(fmt), to_options(opts));
     return mk_io_result(mk_vm_unit());
@@ -156,6 +178,7 @@ void initialize_vm_format() {
     DECLARE_VM_BUILTIN(name({"format", "of_nat"}),           format_of_nat);
     DECLARE_VM_BUILTIN(name({"format", "flatten"}),          format_flatten);
     DECLARE_VM_BUILTIN(name({"format", "to_string"}),        format_to_string);
+    DECLARE_VM_BUILTIN(name({"format", "to_buffer"}),        format_to_buffer);
     DECLARE_VM_BUILTIN(name({"format", "print_using"}),      format_print_using);
     DECLARE_VM_BUILTIN(name({"format", "of_options"}),       format_of_options);
     DECLARE_VM_BUILTIN(name({"format", "is_nil"}),           format_is_nil);

@@ -166,14 +166,19 @@ write h (mk_buffer.append_string s)
 def put_str_ln (h : handle) (s : string) : io unit :=
 put_str h s >> put_str h "\n"
 
+def read_to_end (h : handle) : io char_buffer :=
+iterate mk_buffer $ λ r,
+  do done ← is_eof h,
+    if done
+    then return none
+    else do
+      c ← read h 1024,
+      return $ some (r ++ c)
+
 def read_file (s : string) (bin := ff) : io char_buffer :=
 do h ← mk_file_handle s io.mode.read bin,
-   iterate mk_buffer $ λ r,
-     do done ← is_eof h,
-     if done then return none
-     else do
-       c ← read h 1024,
-       return $ some (r ++ c)
+   read_to_end h
+
 end fs
 
 namespace proc

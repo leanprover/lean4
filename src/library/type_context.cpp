@@ -2376,8 +2376,14 @@ expr type_context::elim_delayed_abstraction(expr const & e) {
         name const & hn = hns[i];
         expr const & v  = vs[i];
         if (optional<local_decl> h = lctx.find_local_decl(hn)) {
-            to_revert.push_back(h->mk_ref());
-            replacements.push_back(v);
+            expr local = h->mk_ref();
+            /* Remark:
+               hns may contain duplicate entries. This can happen
+               at push_delayed_abstraction over an assigned meta. */
+            if (!contains_local(local, to_revert.begin(), to_revert.end())) {
+                to_revert.push_back(local);
+                replacements.push_back(v);
+            }
         } else {
             // replace hn with v at vs[0] ... vs[i-1]
             for (unsigned j = 0; j < i; j++) {

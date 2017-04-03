@@ -203,7 +203,7 @@ bool is_prefix_of(name const & n1, name const & n2) {
 }
 
 bool operator==(name const & a, char const * b) {
-    return a.m_ptr->m_is_string && strcmp(a.m_ptr->m_str, b) == 0;
+    return a.m_ptr && a.m_ptr->m_is_string && strcmp(a.m_ptr->m_str, b) == 0;
 }
 
 int cmp(name::imp * i1, name::imp * i2) {

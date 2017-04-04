@@ -83,7 +83,8 @@ static gtask compile_olean(std::shared_ptr<module_info const> const & mod, log_t
 
     std::vector<gtask> olean_deps;
     for (auto & dep : mod->m_deps)
-        olean_deps.push_back(dep.m_mod_info->m_olean_task);
+        if (dep.m_mod_info)
+            olean_deps.push_back(dep.m_mod_info->m_olean_task);
 
     return add_library_task(task_builder<unit>([mod, errs] {
         if (mod->m_source != module_src::LEAN)

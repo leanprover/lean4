@@ -109,7 +109,7 @@ struct mk_aux_definition_fn {
         name_map<expr> new_types;
         for (unsigned i = 0; i < m_params.size(); i++) {
             expr x = m_params[i];
-            expr new_type = collect(m_ctx.instantiate_mvars(m_ctx.infer(x)));
+            expr new_type = collect(zeta_expand(m_ctx.lctx(), m_ctx.instantiate_mvars(m_ctx.infer(x))));
             new_types.insert(mlocal_name(x), new_type);
         }
         local_context const & lctx = m_ctx.lctx();

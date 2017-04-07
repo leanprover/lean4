@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include <string>
 #include <utility>
 #include <vector>
+#include "library/eval_helper.h"
 #include "util/timer.h"
 #include "util/task_builder.h"
 #include "util/realpath.h"
@@ -95,6 +96,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  --help -h          display this message\n";
     std::cout << "  --version -v       display version number\n";
     std::cout << "  --githash          display the git commit hash number used to build this binary\n";
+    std::cout << "  --run              executes the 'main' definition\n";
     std::cout << "  --path             display the path used for finding Lean libraries and extensions\n";
     std::cout << "  --doc=file -r      generate module documentation based on module doc strings\n";
     std::cout << "  --make             create olean files\n";
@@ -129,6 +131,7 @@ static void display_help(std::ostream & out) {
 static struct option g_long_options[] = {
     {"version",      no_argument,       0, 'v'},
     {"help",         no_argument,       0, 'h'},
+    {"run",          required_argument, 0, 'a'},
     {"smt2",         no_argument,       0, 'Y'},
     {"path",         no_argument,       0, 'p'},
     {"githash",      no_argument,       0, 'g'},
@@ -350,6 +353,7 @@ int main(int argc, char ** argv) {
     optional<std::string> export_txt;
     optional<std::string> doc;
     optional<std::string> server_in;
+    optional<std::string> run_arg;
     std::string native_output;
     while (true) {
         int c = getopt_long(argc, argv, g_opt_str, g_long_options, NULL);
@@ -368,6 +372,9 @@ int main(int argc, char ** argv) {
         case 'h':
             display_help(std::cout);
             return 0;
+        case 'a':
+            run_arg = optarg;
+            break;
         case 'Y':
             smt2 = true;
             break;
@@ -449,6 +456,10 @@ int main(int argc, char ** argv) {
             display_help(std::cerr);
             return 1;
         }
+        if (run_arg) {
+            // treat run_arg as the last arg
+            break;
+        }
     }
 
     if (auto max_memory = opts.get_unsigned(get_max_memory_opt_name(),
@@ -516,6 +527,49 @@ int main(int argc, char ** argv) {
     }
 
     try {
+        std::shared_ptr<task_queue> tq;
+#if defined(LEAN_MULTI_THREAD)
+        if (num_threads == 0) {
+            tq = std::make_shared<st_task_queue>();
+        } else {
+            tq = std::make_shared<mt_task_queue>(num_threads);
+        }
+#else
+        tq = std::make_shared<st_task_queue>();
+#endif
+        set_task_queue(tq.get());
+
+        fs_module_vfs vfs;
+        module_mgr mod_mgr(&vfs, lt.get_root(), env, ios);
+
+        if (run_arg) {
+            auto mod = mod_mgr.get_module(lrealpath(run_arg->c_str()));
+            if (!mod) throw exception(sstream() << "could not load " << *run_arg);
+
+            auto main_env = get(get(mod->m_result).m_loaded_module->m_env);
+            auto main_opts = get(mod->m_result).m_opts;
+            eval_helper fn(main_env, main_opts, "main");
+            fn.set_cmdline_args({argv + optind, argv + argc});
+
+            type_context tc(main_env, main_opts);
+            scope_trace_env scope2(main_env, main_opts, tc);
+
+            try {
+                fn.dependency_injection();
+                if (fn.try_exec()) {
+                    return 0;
+                } else {
+                    throw exception(sstream() << *run_arg << ": cannot execute main function with type "
+                                              << ios.get_formatter_factory()(main_env, main_opts, tc)(fn.get_type()));
+                }
+            } catch (std::exception & ex) {
+                std::cerr << ex.what() << std::endl;
+                return 1;
+            }
+        }
+
+        mod_mgr.set_save_olean(make_mode);
+
         std::vector<std::string> args(argv + optind, argv + argc);
         if (recursive) {
             if (args.empty()) args.push_back(".");
@@ -538,26 +592,10 @@ int main(int argc, char ** argv) {
         std::vector<std::string> module_args;
         for (auto & f : args) module_args.push_back(lrealpath(f.c_str()));
 
-        std::shared_ptr<task_queue> tq;
-#if defined(LEAN_MULTI_THREAD)
-        if (num_threads == 0) {
-            tq = std::make_shared<st_task_queue>();
-        } else {
-            tq = std::make_shared<mt_task_queue>(num_threads);
-        }
-#else
-        tq = std::make_shared<st_task_queue>();
-#endif
-        set_task_queue(tq.get());
-
-        fs_module_vfs vfs;
         if (!recursive) {
             for (auto & mod_id : module_args)
                 vfs.m_modules_to_load_from_source.insert(mod_id);
         }
-
-        module_mgr mod_mgr(&vfs, lt.get_root(), env, ios);
-        mod_mgr.set_save_olean(make_mode);
 
         bool ok = true;
 

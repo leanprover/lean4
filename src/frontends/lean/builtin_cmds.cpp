@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include <string>
+#include "library/eval_helper.h"
 #include "util/timeit.h"
 #include "util/sstream.h"
 #include "util/sexpr/option_declarations.h"
@@ -423,34 +424,6 @@ static environment compile_expr(environment const & env, name const & n, level_p
     return vm_compile(new_env, new_env.get(n));
 }
 
-static void eval_core(vm_state & s, name const & main, bool is_io) {
-    vm_decl d = *s.get_decl(main);
-    if (!is_io && d.get_arity() > 0)
-        throw exception("eval result is a function");
-    if (is_io) {
-        s.push(mk_vm_simple(0)); // "world state"
-        s.push(mk_io_interface());
-    }
-    s.invoke_fn(main);
-    if (is_io) {
-        if (d.get_arity() == 1) {
-            /* main returned a closure, it did not process initial_state yet.
-               So, we force the execution. */
-            s.apply();
-        }
-        vm_obj r = s.top();
-        if (optional<vm_obj> error = is_io_error(r)) {
-            std::string msg = io_error_to_string(*error);
-            throw exception(msg);
-        }
-    }
-}
-
-static optional<expr> find_io_interface_local(expr const & e) {
-    return find(e, [&](expr const & e, unsigned) {
-            return is_local(e) && is_constant(mlocal_type(e), get_io_interface_name());
-        });
-}
 
 static environment eval_cmd(parser & p) {
     auto pos = p.pos();
@@ -458,60 +431,69 @@ static environment eval_cmd(parser & p) {
     std::tie(e, ls) = parse_local_expr(p, "_eval");
     if (has_metavar(e))
         throw parser_error("invalid eval command, expression contains metavariables", pos);
+
     type_context tc(p.env(), transparency_mode::All);
-    expr type0 = tc.infer(e);
-    expr type  = type0; // TODO(Leo): tc.whnf(type0);
-    bool is_io = is_constant(get_app_fn(type), get_io_name());
-    bool is_string = false;
-    if (optional<expr> io_interface = find_io_interface_local(e)) {
-        if (!is_io)
-            throw parser_error("invalid eval command, it depends on io.interface local variable, but it is not an io action", pos);
-        e    = Fun(*io_interface, e);
-        type = Pi(*io_interface, type);
-    } else if (is_io) {
-        throw parser_error("invalid eval command, failed to locate io.interface local variable", pos);
+    auto type = tc.infer(e);
+
+    /* Check if resultant type has an instance of has_to_string */
+    try {
+        expr has_to_string_type = mk_app(tc, get_has_to_string_name(), type);
+        optional<expr> to_string_instance = tc.mk_class_instance(has_to_string_type);
+        if (to_string_instance) {
+            /* Modify the 'program' to (to_string e) */
+            e         = mk_app(tc, get_to_string_name(), type, *to_string_instance, e);
+            type      = tc.infer(e);
+        }
+    } catch (exception &) {}
+
+    // Close under locals
+    collected_locals locals;
+    collect_locals(e, locals);
+    for (auto & l : locals.get_collected()) {
+        e    = Fun(l, e);
+        type = Pi(l, type);
     }
-    if (!is_io) {
-        /* Check if resultant type has an instance of has_to_string */
-        try {
-            expr has_to_string_type = mk_app(tc, get_has_to_string_name(), type0);
-            optional<expr> to_string_instance = tc.mk_class_instance(has_to_string_type);
-            if (to_string_instance) {
-                /* Modify the 'program' to (to_string e) */
-                e         = mk_app(tc, get_to_string_name(), type0, *to_string_instance, e);
-                type      = tc.infer(e);
-                is_string = true;
-            }
-        } catch (exception &) {}
-    }
-    name main("_main");
-    environment new_env = compile_expr(p.env(), main, ls, type, e, pos);
-    vm_state s(new_env, p.get_options());
+
+    name fn_name = "_main";
+    auto new_env = compile_expr(p.env(), fn_name, ls, type, e, pos);
+
     auto out = p.mk_message(p.cmd_pos(), INFORMATION);
-    out.set_caption("eval result");
-    vm_state::profiler prof(s, p.get_options());
-    // TODO(gabriel): capture output
+    scope_traces_as_messages scope_traces(p.get_stream_name(), p.cmd_pos());
+    bool should_report = false;
+
+    auto run = [&] {
+        eval_helper fn(new_env, p.get_options(), fn_name);
+        fn.dependency_injection();
+        try {
+            if (!fn.try_exec()) {
+                auto r = fn.invoke_fn();
+                should_report = true;
+                if (is_constant(fn.get_type(), get_string_name())) {
+                    out << to_string(r);
+                } else {
+                    display(out.get_text_stream().get_stream(), r);
+                }
+            }
+        } catch (throwable & t) {
+            p.mk_message(p.cmd_pos(), ERROR).set_exception(t).report();
+        }
+        if (fn.get_profiler().enabled()) {
+            out << "\n";
+            fn.get_profiler().get_snapshots().display(out.get_text_stream().get_stream());
+            should_report = true;
+        }
+    };
+
     if (p.profiling()) {
         timeit timer(out.get_text_stream().get_stream(), "eval time");
-        eval_core(s, main, is_io);
+        run();
+        should_report = true;
     } else {
-        eval_core(s, main, is_io);
+        run();
     }
-    if (is_io) {
-        // do not print anything
-    } else if (is_string) {
-        vm_obj r = s.get(0);
-        out << to_string(r);
-    } else {
-        /* if it is not IO nor a string, then display object on top of the stack using vm_obj display method */
-        vm_obj r = s.get(0);
-        display(out.get_text_stream().get_stream(), r);
-    }
-    if (prof.enabled()) {
-        out << "\n";
-        prof.get_snapshots().display(out.get_text_stream().get_stream());
-    }
-    out.report();
+
+    if (should_report) out.report();
+
     return p.env();
 }
 

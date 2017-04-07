@@ -13,6 +13,7 @@ inductive io.error
 structure io.terminal (m : Type → Type → Type) :=
 (put_str     : string → m io.error unit)
 (get_line    : m io.error string)
+(cmdline_args : list string)
 
 inductive io.mode
 | read | write | read_write | append
@@ -76,6 +77,9 @@ put_str s >> put_str "\n"
 
 def get_line : io string :=
 interface.term.get_line
+
+def cmdline_args : io (list string) :=
+return interface.term.cmdline_args
 
 def print {α} [has_to_string α] (s : α) : io unit :=
 put_str ∘ to_string $ s

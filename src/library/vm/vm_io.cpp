@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
+#include <vector>
 #include <cstdio>
 #include <iostream>
 #include "util/sstream.h"
@@ -47,17 +48,26 @@ static vm_obj io_get_line(vm_obj const &) {
     return mk_io_result(to_obj(str));
 }
 
+static vm_obj cmdline_args_to_obj(std::vector<std::string> const & ss) {
+    buffer<vm_obj> objs;
+    for (auto & s : ss) objs.push_back(to_obj(s));
+    return to_obj(objs);
+}
+
 /*
 structure io.terminal (m : Type → Type → Type) :=
 (put_str     : string → m io.error unit)
 (get_line    : m io.error string)
+(cmdline_args : list string)
 */
-static vm_obj mk_terminal() {
-    vm_obj fields[2] = {
+static vm_obj mk_terminal(std::vector<std::string> const & cmdline_args) {
+    constexpr size_t num_fields = 3;
+    vm_obj fields[num_fields] = {
         mk_native_closure(io_put_str),
-        mk_native_closure(io_get_line)
+        mk_native_closure(io_get_line),
+        cmdline_args_to_obj(cmdline_args),
     };
-    return mk_vm_constructor(0, 2, fields);
+    return mk_vm_constructor(0, num_fields, fields);
 }
 
 struct vm_handle : public vm_external {
@@ -397,18 +407,23 @@ class io.interface :=
 (fs       : io.file_system handle m)
 (process  : io.process io.error handle m)
 */
-vm_obj mk_io_interface() {
-    vm_obj fields[8] = {
+vm_obj mk_io_interface(std::vector<std::string> const & cmdline_args) {
+    constexpr size_t num_fields = 8;
+    vm_obj fields[num_fields] = {
         mk_native_closure(io_m), /* TODO(Leo): delete after we improve code generator */
         mk_native_closure(io_monad),
         mk_native_closure(io_catch),
         mk_native_closure(io_fail),
         mk_native_closure(io_iterate),
-        mk_terminal(),
+        mk_terminal(cmdline_args),
         mk_fs(),
-        mk_process()
+        mk_process(),
     };
-    return mk_vm_constructor(0, 8, fields);
+    return mk_vm_constructor(0, num_fields, fields);
+}
+
+vm_obj mk_io_interface() {
+    return mk_io_interface({});
 }
 
 optional<vm_obj> is_io_result(vm_obj const & o) {

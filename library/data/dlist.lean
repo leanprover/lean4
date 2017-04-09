@@ -25,6 +25,10 @@ local notation `♯`:max := by abstract {intros, rsimp}
 def of_list (l : list α) : dlist α :=
 ⟨append l, ♯⟩
 
+/-- Convert a lazily-evaluated list to a dlist -/
+def lazy_of_list (l : thunk (list α)) : dlist α :=
+⟨λ xs, l () ++ xs, ♯⟩
+
 /-- Convert a dlist to a list -/
 def to_list : dlist α → list α
 | ⟨xs, _⟩ := xs []

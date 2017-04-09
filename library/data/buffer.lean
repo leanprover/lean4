@@ -90,6 +90,18 @@ def foldl : buffer α → β → (α → β → β) → β
 def rev_iterate : Π (b : buffer α), β → (fin b.size → α → β → β) → β
 | ⟨_, a⟩ b f := a.rev_iterate b f
 
+def taken (b : buffer α) (n : nat) : buffer α :=
+if h : n ≤ b.size then ⟨n, b.to_array.taken n h⟩ else b
+
+def taken_right (b : buffer α) (n : nat) : buffer α :=
+if h : n ≤ b.size then ⟨n, b.to_array.taken_right n h⟩ else b
+
+def dropn (b : buffer α) (n : nat) : buffer α :=
+if h : n ≤ b.size then ⟨_, b.to_array.dropn n h⟩ else b
+
+def reverse (b : buffer α) : buffer α :=
+⟨b.size, b.to_array.reverse⟩
+
 instance : has_append (buffer α) :=
 ⟨buffer.append⟩
 
@@ -112,3 +124,6 @@ mk_buffer.append_list l
 /-- Convert a format object into a character buffer with the provided
     formatting options. -/
 meta constant format.to_buffer : format → options → buffer char
+
+def string.to_char_buffer (s : string) : char_buffer :=
+buffer.nil.append_string s

@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+leandir=$(dirname $(readlink -f $0))/..
+leandir=$(readlink -f $leandir)
+
+LEAN_PATH=$leandir/library:$leandir/lib/lean/library:$leandir/leanpkg \
+  PATH=$leandir/bin:$PATH \
+  exec lean --run $leandir/leanpkg/leanpkg/main.lean "$@"

@@ -236,6 +236,13 @@ term of the goal. Let `T` be our goal, let `p` be a term of type `U` then
 meta def exact (q : parse texpr) : tactic unit :=
 do tgt : expr ← target,
    i_to_expr_strict ``(%%q : %%tgt) >>= tactic.exact
+/--
+Like `exact`, but takes a list of terms and checks that all goals
+are discharged after the tactic.
+-/
+meta def exacts : parse qexpr_list_or_texpr → tactic unit
+| [] := now
+| (t :: ts) := exact t >> exacts ts
 
 private meta def get_locals : list name → tactic (list expr)
 | []      := return []
@@ -416,6 +423,27 @@ meta def generalize (p : parse qexpr) (x : parse ident) : tactic unit :=
 do e ← i_to_expr p,
    tactic.generalize e x
 
+meta def generalize2 (p : parse qexpr) (x : parse ident) (h : parse ident) : tactic unit :=
+do tgt ← target,
+   e ← to_expr p,
+   let e' := tgt^.replace $ λa _, if a = e then some (var 1) else none,
+   to_expr `(Π x, %%p = x → %%e') >>= assert h,
+   swap,
+   t ← get_local h,
+   exact `(%%t %%p rfl),
+   intro x,
+   intro h
+
+meta def ginduction (p : parse texpr) (rec_name : parse using_ident) (ids : parse with_ident_list) : tactic unit :=
+do x ← mk_fresh_name,
+   let (h, hs) := (match ids with
+   | []        := (`_h, [])
+   | (h :: hs) := (h, hs)
+   end : name × list name),
+   generalize2 p x h,
+   t ← get_local x,
+   induction (to_pexpr t) rec_name hs ([] : list name)
+
 meta def trivial : tactic unit :=
 tactic.triv <|> tactic.reflexivity <|> tactic.contradiction <|> fail "trivial tactic failed"
 
@@ -435,6 +463,9 @@ tactic.repeat
 
 meta def try : itactic → tactic unit :=
 tactic.try
+
+meta def skip : tactic unit :=
+tactic.skip
 
 meta def solve1 : itactic → tactic unit :=
 tactic.solve1

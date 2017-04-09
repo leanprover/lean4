@@ -36,6 +36,9 @@ instance : has_sep α (set α) :=
 instance : has_emptyc (set α) :=
 ⟨λ a, false⟩
 
+def univ : set α :=
+λ a, true
+
 protected def insert (a : α) (s : set α) : set α :=
 {b | b = a ∨ b ∈ s}
 
@@ -69,6 +72,10 @@ instance : has_sdiff (set α) :=
 def powerset (s : set α) : set (set α) :=
 {t | t ⊆ s}
 prefix `𝒫`:100 := powerset
+
+def Union (s : set (set α)) : set α :=
+{t | ∃a ∈ s, t ∈ a}
+prefix `⋃`:100 := Union
 
 def image (f : α → β) (s : set α) : set β :=
 {b | ∃ a, a ∈ s ∧ f a = b}

@@ -78,6 +78,9 @@ meta instance : has_to_format string :=
 meta instance : has_to_format nat :=
 ⟨λ n, format.of_nat n⟩
 
+meta instance : has_to_format unsigned :=
+⟨λ n, to_fmt n.to_nat⟩
+
 meta instance : has_to_format char :=
 ⟨λ c : char, format.of_string [c]⟩
 

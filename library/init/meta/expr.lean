@@ -78,8 +78,8 @@ notation a ` =ₐ `:50 b:50 := expr.alpha_eqv a b = bool.tt
 
 protected meta constant expr.to_string : expr → string
 
-meta instance : has_to_string expr :=
-has_to_string.mk expr.to_string
+meta instance : has_to_string expr := ⟨expr.to_string⟩
+meta instance : has_to_format expr := ⟨λ e, e.to_string⟩
 
 /- Coercion for letting users write (f a) instead of (expr.app f a) -/
 meta instance : has_coe_to_fun expr :=

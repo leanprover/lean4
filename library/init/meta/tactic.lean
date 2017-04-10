@@ -180,7 +180,7 @@ meta def option_to_tactic_format {α : Type u} [has_to_tactic_format α] : optio
 meta instance {α : Type u} [has_to_tactic_format α] : has_to_tactic_format (option α) :=
 ⟨option_to_tactic_format⟩
 
-meta instance has_to_format_to_has_to_tactic_format (α : Type) [has_to_format α] : has_to_tactic_format α :=
+@[priority 10] meta instance has_to_format_to_has_to_tactic_format (α : Type) [has_to_format α] : has_to_tactic_format α :=
 ⟨(λ x, return x) ∘ to_fmt⟩
 
 namespace tactic
@@ -502,6 +502,11 @@ end
 meta def intro_lst : list name → tactic (list expr)
 | []      := return []
 | (n::ns) := do H ← intro n, Hs ← intro_lst ns, return (H :: Hs)
+
+/-- Returns n fully qualified if it refers to a constant, or else fails. -/
+meta def resolve_constant (n : name) : tactic name :=
+do (expr.const n _) ← pexpr.to_raw_expr <$> resolve_name n,
+   pure n
 
 meta def to_expr_strict (q : pexpr) : tactic expr :=
 to_expr q

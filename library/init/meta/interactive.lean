@@ -343,6 +343,66 @@ meta def cases (p : parse texpr) (ids : parse with_ident_list) : tactic unit :=
 do e ← i_to_expr p,
    tactic.cases e ids
 
+private meta def find_case (goals : list expr) (ty : name) (idx : nat) (num_indices : nat) : option expr → expr → option (expr × expr)
+| case e := if e.has_meta_var then match e with
+  | (mvar _ _)    :=
+    do case ← case,
+       guard $ e ∈ goals,
+       pure (case, e)
+  | (app _ _)    :=
+    let idx :=
+      match e.get_app_fn with
+      | const (name.mk_string rec ty') _ :=
+        guard (ty' = ty) >>
+        match mk_simple_name rec with
+        | `drec := some idx | `rec := some idx
+        -- indices + major premise
+        | `dcases_on := some (idx + num_indices + 1) | `cases_on := some (idx + num_indices + 1)
+        | _ := none
+        end
+      | _ := none
+      end in
+    match idx with
+    | none := list.foldl (<|>) none $ e.get_app_args.map (find_case case)
+    | some idx :=
+      let args := e.get_app_args in
+      do arg ← args.nth idx,
+         args.enum.foldl
+           (λ acc ⟨i, arg⟩, match acc with
+             | some _ := acc
+             | _      := if i ≠ idx then find_case none arg else none
+             end)
+           -- start recursion with likely case
+           (find_case (some arg) arg)
+    end
+  | (lam _ _ _ e) := find_case case e
+  | (macro _ n f) := list.foldl (<|>) none $ list.map (find_case case) $ macro_args_to_list n f
+  | _             := none
+  end else none
+
+private meta def rename_lams : expr → list name → tactic unit
+| (lam n _ _ e) (n'::ns) := (rename n n' >> rename_lams e ns) <|> rename_lams e (n'::ns)
+| _             _        := skip
+
+/-- Focuses on the `induction`/`cases` subgoal corresponding to the given introduction rule,
+    optionally renaming introduced locals. -/
+meta def case (ctor : parse ident) (ids : parse ident*) (tac : itactic) : tactic unit :=
+do r   ← result,
+   env ← get_env,
+   ctor ← resolve_constant ctor
+       <|> fail ("'" ++ to_string ctor ++ "' is not a constructor"),
+   ty  ← (env.inductive_type_of ctor).to_monad
+       <|> fail ("'" ++ to_string ctor ++ "' is not a constructor"),
+   let ctors := env.constructors_of ty,
+   let idx   := env.inductive_num_params ty + /- motive -/ 1 +
+     list.find ctor ctors,
+   gs        ← get_goals,
+   (case, g) ← (find_case gs ty idx (env.inductive_num_indices ty) none r ).to_monad
+             <|> fail "could not find open goal of given case",
+   set_goals $ g :: gs.filter (≠ g),
+   rename_lams case ids,
+   solve1 tac
+
 meta def destruct (p : parse texpr) : tactic unit :=
 i_to_expr p >>= tactic.destruct
 

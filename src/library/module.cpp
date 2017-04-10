@@ -425,9 +425,20 @@ environment add(environment const & env, certified_declaration const & d) {
 
     if (_d.is_theorem()) {
         // report errors from kernel type-checker
-        add_library_task(task_builder<unit>([_d] { _d.get_value(); return unit(); })
-            .wrap(exception_reporter())
-            .depends_on(_d.is_theorem() ? _d.get_value_task() : nullptr));
+        add_library_task(task_builder<unit>([_d, env] {
+            message_builder msg(env, get_global_ios(),
+                logtree().get_location().m_file_name, logtree().get_location().m_range.m_begin,
+                ERROR);
+            try {
+                _d.get_value();
+            } catch (std::exception & ex) {
+                msg.set_exception(ex).report();
+            } catch (...) {
+                msg << "unknown exception while type-checking theorem";
+                msg.report();
+            }
+            return unit();
+        }).depends_on(_d.is_theorem() ? _d.get_value_task() : nullptr));
     }
 
     add_library_task(map<unit>(error_already_reported(), [_d] (bool already_reported) {

@@ -39,9 +39,12 @@ struct exception_reporter_imp : public delegating_task_imp {
         try {
             delegating_task_imp::execute(result);
         } catch (std::exception & ex) {
-            report_message(message(logtree().get_location().m_file_name,
-                                   logtree().get_location().m_range.m_begin,
-                                   ERROR, ex.what()));
+            message_builder(environment(), get_global_ios(),
+                            logtree().get_location().m_file_name,
+                            logtree().get_location().m_range.m_begin,
+                            ERROR)
+                    .set_exception(ex)
+                    .report();
             throw;
         }
     }

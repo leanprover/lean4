@@ -334,7 +334,7 @@ private meta def macro_args_to_list_aux (n : nat) (args : fin n → expr) : Π (
 | (i+1) h := args ⟨i, h⟩ :: macro_args_to_list_aux i (nat.le_trans (nat.le_succ _) h)
 
 meta def macro_args_to_list (n : nat) (args : fin n → expr) : list expr :=
-macro_args_to_list_aux n args n (nat.le_refl _)
+(macro_args_to_list_aux n args n (nat.le_refl _)).reverse
 
 meta def to_raw_fmt : expr → format
 | (var n) := p ["var", to_fmt n]

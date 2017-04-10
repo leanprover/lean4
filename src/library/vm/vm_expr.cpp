@@ -204,7 +204,7 @@ unsigned expr_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
         break;
     case expr_kind::Macro:
         data.push_back(to_obj(macro_def(e)));
-        data.push_back(to_obj(macro_num_args(e)));
+        data.push_back(mk_vm_nat(macro_num_args(e)));
         data.push_back(mk_vm_closure(g_expr_macro_arg_fun_idx, 1, &o));
         break;
     }

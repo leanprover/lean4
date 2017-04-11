@@ -26,6 +26,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include "library/scoped_ext.h"
 #include "library/aux_definition.h"
 #include "library/unfold_macros.h"
+#include "library/message_builder.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_environment.h"
 #include "library/vm/vm_exceptional.h"
@@ -235,7 +236,17 @@ struct interaction_monad {
             name interaction_name("_interaction");
             environment new_env = compile(interaction_name, interaction);
             vm_state S(new_env, m_opts);
+            vm_state::profiler prof(S, m_opts);
             vm_obj r = invoke(S, interaction_name, {to_obj(s)});
+            if (prof.enabled()) {
+                auto out = message_builder(environment(), get_global_ios(),
+                                           get_pos_info_provider()->get_file_name(),
+                                           get_pos_info_provider()->get_pos_info_or_some(interaction),
+                                           INFORMATION);
+                out.set_caption("tactic profile data");
+                prof.get_snapshots().display(out.get_text_stream().get_stream());
+                out.report();
+            }
 
             if (!is_success(r))
                 process_failure(S, r);

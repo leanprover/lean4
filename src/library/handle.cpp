@@ -48,6 +48,7 @@ handle::~handle() {
     if (m_file && m_file != stdin &&
         m_file != stderr && m_file != stdout) {
         fclose(m_file);
+        m_file = nullptr;
     }
 }
 
@@ -64,7 +65,9 @@ bool handle::is_stderr() {
 }
 
 void handle::close() {
-    if (fclose(m_file) == 0) {
+    if (m_file == nullptr) {
+        // double close
+    } else if (fclose(m_file) == 0) {
         m_file = nullptr;
     } else {
         clearerr(m_file);

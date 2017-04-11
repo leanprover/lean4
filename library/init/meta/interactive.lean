@@ -336,8 +336,13 @@ do e_type ← infer_type e >>= whnf,
    (const I ls) ← return $ get_app_fn e_type,
    return I
 
-meta def induction (p : parse texpr) (rec_name : parse using_ident) (ids : parse with_ident_list) : tactic unit :=
-do e ← i_to_expr p, tactic.induction e ids rec_name, return ()
+meta def induction (p : parse texpr) (rec_name : parse using_ident) (ids : parse with_ident_list)
+  (revert : parse $ (tk "generalizing" *> ident*)?) : tactic unit :=
+do e ← i_to_expr p,
+   locals ← get_locals $ revert.get_or_else [],
+   n ← revert_lst locals,
+   tactic.induction e ids rec_name,
+   all_goals (intron n)
 
 meta def cases (p : parse texpr) (ids : parse with_ident_list) : tactic unit :=
 do e ← i_to_expr p,

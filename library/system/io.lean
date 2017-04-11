@@ -92,6 +92,14 @@ interface.iterate e α a f
 def forever {e} (a : io_core e unit) : io_core e unit :=
 iterate () $ λ _, a >> return (some ())
 
+def catch {e₁ e₂ α} (a : io_core e₁ α) (b : e₁ → io_core e₂ α) : io_core e₂ α :=
+interface.catch e₁ e₂ α a b
+
+instance : alternative io :=
+{ interface.monad _ with
+  orelse := λ _ a b, catch a (λ _, b),
+  failure := λ _, io.fail "failure" }
+
 def put_str : string → io unit :=
 interface.term.put_str
 

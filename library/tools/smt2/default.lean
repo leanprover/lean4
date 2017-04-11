@@ -1,5 +1,4 @@
 import system.io
-import system.process
 import .solvers.z3
 import .syntax
 import .builder

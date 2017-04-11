@@ -19,6 +19,7 @@ Author: Jared Roesch
 #include <strsafe.h>
 #else
 #include <sys/wait.h>
+
 #endif
 
 #include "library/process.h"
@@ -48,6 +49,11 @@ process & process::set_stdout(stdio cfg) {
 
 process & process::set_stderr(stdio cfg) {
     m_stderr = optional<stdio>(cfg);
+    return *this;
+}
+
+process & process::set_cwd(std::string const &cwd) {
+    m_cwd = cwd;
     return *this;
 }
 
@@ -91,6 +97,8 @@ static optional<pipe> setup_stdio(SECURITY_ATTRIBUTES * saAttr, optional<stdio> 
         return optional<pipe>();
     }
 }
+
+// TODO(gabriel): add support for cwd parameter
 
 // This code is adapted from: https://msdn.microsoft.com/en-us/library/windows/desktop/ms682499(v=vs.85).aspx
 child process::spawn() {
@@ -228,6 +236,11 @@ void process::run() {
      throw exception("process::run not supported on Windows");
 }
 
+unsigned child::wait() {
+    // TODO(gabriel): not implemented yet
+    return 0;
+}
+
 #else
 
 optional<pipe> setup_stdio(optional<stdio> cfg) {
@@ -276,55 +289,58 @@ child process::spawn() {
             close(stderr_pipe->m_read_fd);
         }
 
-        buffer<char*> pargs;
-
-        for (auto arg : this->m_args) {
-            auto str = new char[arg.size() + 1];
-            arg.copy(str, arg.size());
-            str[arg.size()] = '\0';
-            pargs.push_back(str);
+        if (m_cwd) {
+            if (chdir(m_cwd->c_str()) < 0) {
+                std::cerr << "could not change directory to " << *m_cwd << std::endl;
+                exit(-1);
+            }
         }
 
-        pargs.data()[pargs.size()] = NULL;
+        buffer<char *> pargs;
+        for (auto & arg : m_args)
+            pargs.push_back(strdup(arg.c_str()));
+        pargs.push_back(NULL);
 
-        auto err = execvp(pargs.data()[0], pargs.data());
-        if (err < 0) {
-            throw std::runtime_error("executing process failed: ...");
+        if (execvp(pargs[0], pargs.data()) < 0) {
+            std::cerr << "could not execute external process" << std::endl;
+            exit(-1);
         }
     } else if (pid == -1) {
         throw std::runtime_error("forking process failed: ...");
     }
 
     /* We want to setup the parent's view of the file descriptors. */
-    int parent_stdin = STDIN_FILENO;
-    int parent_stdout = STDOUT_FILENO;
-    int parent_stderr = STDERR_FILENO;
+    FILE * parent_stdin = nullptr, * parent_stdout = nullptr, * parent_stderr = nullptr;
 
     if (stdin_pipe) {
         close(stdin_pipe->m_read_fd);
-        parent_stdin = stdin_pipe->m_write_fd;
+        parent_stdin = fdopen(stdin_pipe->m_write_fd, "w");
     }
 
     if (stdout_pipe) {
         close(stdout_pipe->m_write_fd);
-        parent_stdout = stdout_pipe->m_read_fd;
+        parent_stdout = fdopen(stdout_pipe->m_read_fd, "r");
     }
 
     if (stderr_pipe) {
         close(stderr_pipe->m_write_fd);
-        parent_stderr = stderr_pipe->m_read_fd;
+        parent_stderr = fdopen(stderr_pipe->m_read_fd, "r");
     }
 
     return child(pid,
-         std::make_shared<handle>(fdopen(parent_stdin, "w")),
-         std::make_shared<handle>(fdopen(parent_stdout, "r")),
-         std::make_shared<handle>(fdopen(parent_stderr, "r")));
+         std::make_shared<handle>(parent_stdin),
+         std::make_shared<handle>(parent_stdout),
+         std::make_shared<handle>(parent_stderr));
 }
 
 void process::run() {
-    child ch = spawn();
+    spawn().wait();
+}
+
+unsigned child::wait() {
     int status;
-    waitpid(ch.m_pid, &status, 0);
+    waitpid(m_pid, &status, 0);
+    return static_cast<unsigned>(WEXITSTATUS(status));
 }
 
 #endif

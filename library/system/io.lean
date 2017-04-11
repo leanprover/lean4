@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Luke Nelson, Jared Roesch and Leonardo de Moura
 -/
 import data.buffer
-import system.process
 
 inductive io.error
 | other     : string → io.error
@@ -31,6 +30,30 @@ structure io.file_system (handle : Type) (m : Type → Type → Type) :=
 (stdout         : m io.error handle)
 (stderr         : m io.error handle)
 
+inductive io.process.stdio
+| piped
+| inherit
+| null
+
+structure io.process.spawn_args :=
+/- Command name. -/
+(cmd : string)
+/- Arguments for the process -/
+(args : list string := [])
+/- Configuration for the process' stdin handle. -/
+(stdin := stdio.inherit)
+/- Configuration for the process' stdout handle. -/
+(stdout := stdio.inherit)
+/- Configuration for the process' stderr handle. -/
+(stderr := stdio.inherit)
+/- Working directory for the process. -/
+(cwd : option string := none)
+
+structure io.process (handle : Type) (m : Type → Type → Type) :=
+(child : Type) (stdin : child → handle) (stdout : child → handle) (stderr : child → handle)
+(spawn : io.process.spawn_args → m io.error child)
+(wait : child → m io.error nat)
+
 class io.interface :=
 (m        : Type → Type → Type)
 (monad    : Π e, monad (m e))
@@ -42,7 +65,7 @@ class io.interface :=
 -- Interface Extensions
 (term     : io.terminal m)
 (fs       : io.file_system handle m)
-(process  : io.process io.error handle m)
+(process  : io.process handle m)
 
 variable [io.interface]
 
@@ -144,6 +167,16 @@ do h ← mk_file_handle s io.mode.read bin,
        c ← read h 1024,
        return $ some (r ++ c)
 end fs
+
+namespace proc
+def child : Type := interface.process.child
+def child.stdin : child → handle := interface.process.stdin
+def child.stdout : child → handle := interface.process.stdout
+def child.stderr : child → handle := interface.process.stderr
+def spawn (p : io.process.spawn_args) : io child := interface.process.spawn p
+def wait (c : child) : io nat := interface.process.wait c
+end proc
+
 end io
 
 meta constant format.print_using [io.interface] : format → options → io unit
@@ -163,16 +196,14 @@ format.print (to_fmt a)
     read into `string` which is then returned.
 -/
 def io.cmd [io.interface] (cmd : string) (args : list string) : io string :=
-do let proc : process := {
+do child ← io.proc.spawn {
     cmd := cmd,
     args := args,
-    stdout := process.stdio.piped
+    stdout := io.process.stdio.piped
   },
-  child ← interface.process.spawn proc,
-  let inh := child.stdin,
-  let outh := child.stdout,
-  let errh := child.stderr,
-  buf ← io.fs.read outh 1024,
+  buf ← io.fs.read child.stdout 1024,
+  exitv ← io.proc.wait child,
+  when (exitv ≠ 0) $ io.fail $ "process exited with status " ++ exitv.to_string,
   return buf.to_string
 
 /-- Lift a monadic `io` action into the `tactic` monad. -/

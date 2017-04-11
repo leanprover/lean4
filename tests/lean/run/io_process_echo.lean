@@ -1,7 +1,4 @@
 import system.io
-import system.process
-
-open process
 
 variable [io.interface]
 

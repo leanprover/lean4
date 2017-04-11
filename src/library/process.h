@@ -38,7 +38,7 @@ struct child {
         m_stderr(hstderr),
         m_pid(pid) {}
 
-    void wait();
+    unsigned wait();
 };
 
 class process {
@@ -47,18 +47,15 @@ class process {
     optional<stdio> m_stdout;
     optional<stdio> m_stdin;
     optional<stdio> m_stderr;
+    optional<std::string> m_cwd;
 public:
-    process(process const & proc) :
-        m_proc_name(proc.m_proc_name),
-        m_args(proc.m_args),
-        m_stdout(proc.m_stdout),
-        m_stdin(proc.m_stdin),
-        m_stderr(proc.m_stderr) {}
+    process(process const & proc) = default;
     process(std::string exe_name);
     process & arg(std::string arg_str);
     process & set_stdin(stdio cfg);
     process & set_stdout(stdio cfg);
     process & set_stderr(stdio cfg);
+    process & set_cwd(std::string const & cwd);
     child spawn();
     void run();
 };

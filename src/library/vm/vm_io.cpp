@@ -285,8 +285,26 @@ stdio to_stdio(vm_obj const & o) {
     }
 }
 
+vm_obj to_obj(child const & ch) {
+    return mk_vm_constructor(0, {
+        mk_vm_nat(static_cast<unsigned>(ch.m_pid)),
+        to_obj(ch.m_stdin),
+        to_obj(ch.m_stdout),
+        to_obj(ch.m_stderr),
+    });
+}
+
+child to_child(vm_obj const & o) {
+    return child {
+        static_cast<int>(to_unsigned(cfield(o, 0))),
+        to_handle(cfield(o, 1)),
+        to_handle(cfield(o, 2)),
+        to_handle(cfield(o, 3)),
+    };
+}
+
 /*
-structure process :=
+structure spawn_args :=
   (cmd : string)
   /- Add an argument to pass to the process. -/
   (args : list string)
@@ -296,6 +314,7 @@ structure process :=
   (stdout := stdio.inherit)
   /- Configuration for the process's stderr handle. -/
   (stderr := stdio.inherit)
+  (cwd := option string)
 */
 static vm_obj io_process_spawn(vm_obj const & process_obj, vm_obj const &) {
     std::string cmd = to_string(cfield(process_obj, 0));
@@ -307,6 +326,10 @@ static vm_obj io_process_spawn(vm_obj const & process_obj, vm_obj const &) {
     auto stdout_stdio = to_stdio(cfield(process_obj, 3));
     auto stderr_stdio = to_stdio(cfield(process_obj, 4));
 
+    optional<std::string> cwd;
+    if (!is_none(cfield(process_obj, 5)))
+        cwd = to_string(get_some_value(cfield(process_obj, 5)));
+
     lean::process proc(cmd);
 
     for (auto arg : args) {
@@ -317,24 +340,33 @@ static vm_obj io_process_spawn(vm_obj const & process_obj, vm_obj const &) {
     proc.set_stdout(stdout_stdio);
     proc.set_stderr(stderr_stdio);
 
+    if (cwd) proc.set_cwd(*cwd);
+
     child ch = proc.spawn();
+    return mk_io_result(to_obj(ch));
+}
 
-    auto child_obj = mk_vm_constructor(0, {
-        to_obj(ch.m_stdin),
-        to_obj(ch.m_stdout),
-        to_obj(ch.m_stderr)
-    });
-
-    // Should add helper functions for building real io.result
-    return mk_io_result(child_obj);
+static vm_obj io_process_wait(vm_obj const & ch, vm_obj const &) {
+    return mk_io_result(mk_vm_nat(to_child(ch).wait()));
 }
 
 /*
 structure io.process (Err : Type) (handle : Type) (m : Type → Type → Type) :=
+  (child        : Type)
+  (stdin        : child -> handle)
+  (stdout       : child -> handle)
+  (stderr       : child -> handle)
   (spawn        : process → m Err child)
+  (wait         : child -> m Err nat)
 */
 static vm_obj mk_process() {
-    return mk_native_closure(io_process_spawn);
+    return mk_vm_constructor(0, {
+        mk_native_closure([] (vm_obj const & c) { return to_obj(to_child(c).m_stdin); }),
+        mk_native_closure([] (vm_obj const & c) { return to_obj(to_child(c).m_stdout); }),
+        mk_native_closure([] (vm_obj const & c) { return to_obj(to_child(c).m_stderr); }),
+        mk_native_closure(io_process_spawn),
+        mk_native_closure(io_process_wait),
+    });
 }
 
 static vm_obj io_return(vm_obj const &, vm_obj const & a, vm_obj const &) {

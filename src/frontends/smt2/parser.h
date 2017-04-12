@@ -10,11 +10,12 @@ Author: Daniel Selsam
 #include "kernel/environment.h"
 #include "library/io_state.h"
 #include "library/io_state_stream.h"
+#include "util/lean_path.h"
 
 namespace lean {
 namespace smt2 {
 
-bool parse_commands(environment & env, io_state & ios, char const * fname);
+bool parse_commands(search_path const & path, environment & env, io_state & ios, char const * fname);
 
 void initialize_parser();
 void finalize_parser();

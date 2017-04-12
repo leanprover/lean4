@@ -137,6 +137,8 @@ public:
 private:
     struct exit_exception : public exception {};
 
+    search_path             m_path;
+
     environment             m_env;
     io_state                m_ios;
 
@@ -690,14 +692,14 @@ private:
 
 public:
     // Constructor
-    parser(environment const & env, io_state & ios, std::istream & strm, char const * strm_name):
-        m_env(env), m_ios(ios), m_scanner(strm, strm_name) {}
+    parser(search_path const & path, environment const & env, io_state & ios, std::istream & strm, char const * strm_name):
+        m_path(path), m_env(env), m_ios(ios), m_scanner(strm, strm_name) {}
 
     // Entry point
     bool operator()() {
         scoped_expr_caching disable(false);
 
-        auto mod_ldr = mk_olean_loader();
+        auto mod_ldr = mk_olean_loader(m_path);
         optional<unsigned> k;
         m_env = import_modules(m_env, get_stream_name(), {{"init", k}, {"smt", k}}, mod_ldr);
 
@@ -727,12 +729,12 @@ void finalize_parser() {
 }
 
 // Entry point
-bool parse_commands(environment & env, io_state & ios, char const * fname) {
+bool parse_commands(search_path const & path, environment & env, io_state & ios, char const * fname) {
     std::ifstream in(fname);
     if (in.bad() || in.fail())
         throw exception(sstream() << "failed to open file '" << fname << "'");
 
-    parser p(env, ios, in, fname);
+    parser p(path, env, ios, in, fname);
     return p();
 }
 

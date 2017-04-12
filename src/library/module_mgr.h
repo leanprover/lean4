@@ -17,6 +17,7 @@ Author: Gabriel Ebner
 #include "library/io_state.h"
 #include "library/trace.h"
 #include "frontends/lean/parser.h"
+#include "util/lean_path.h"
 
 namespace lean {
 
@@ -77,6 +78,7 @@ class module_mgr {
     bool m_use_snapshots = false;
     bool m_save_olean = false;
 
+    search_path m_path;
     environment m_initial_env;
     io_state m_ios;
     module_vfs * m_vfs;
@@ -96,8 +98,10 @@ class module_mgr {
                          std::string const & contents);
 
 public:
-    module_mgr(module_vfs * vfs, log_tree::node const & lt, environment const & initial_env, io_state const & ios) :
-            m_initial_env(initial_env), m_ios(ios), m_vfs(vfs), m_lt(lt) {}
+    module_mgr(module_vfs * vfs, log_tree::node const & lt,
+               search_path const & path,
+               environment const & initial_env, io_state const & ios) :
+            m_path(path), m_initial_env(initial_env), m_ios(ios), m_vfs(vfs), m_lt(lt) {}
 
     void invalidate(module_id const & id);
 

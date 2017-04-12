@@ -351,6 +351,9 @@ int main(int argc, char ** argv) {
 #if defined(LEAN_JSON)
     bool json_output        = false;
 #endif
+
+    auto path = get_search_path();
+
     options opts;
     optional<std::string> export_txt;
     optional<std::string> doc;
@@ -381,7 +384,7 @@ int main(int argc, char ** argv) {
             smt2 = true;
             break;
         case 'p':
-            std::cout << lean::get_lean_path() << "\n";
+            for (auto & p : path) std::cout << p << "\n";
             return 0;
         case 's':
             lean::lthread::set_thread_stack_size(static_cast<size_t>((atoi(optarg)/4)*4)*static_cast<size_t>(1024));
@@ -494,7 +497,7 @@ int main(int argc, char ** argv) {
             std::cin.rdbuf(file_in->rdbuf());
         }
 
-        server(num_threads, env, ios).run();
+        server(num_threads, path, env, ios).run();
         return 0;
     }
 #endif
@@ -516,7 +519,7 @@ int main(int argc, char ** argv) {
         for (int i = optind; i < argc; i++) {
             try {
                 if (doc) throw lean::exception("leandoc does not support .smt2 files");
-                ok = ::lean::smt2::parse_commands(env, ios, argv[i]);
+                ok = ::lean::smt2::parse_commands(path, env, ios, argv[i]);
             } catch (lean::exception & ex) {
                 ok = false;
                 type_context tc(env, ios.get_options());
@@ -542,7 +545,7 @@ int main(int argc, char ** argv) {
         set_task_queue(tq.get());
 
         fs_module_vfs vfs;
-        module_mgr mod_mgr(&vfs, lt.get_root(), env, ios);
+        module_mgr mod_mgr(&vfs, lt.get_root(), path, env, ios);
 
         if (run_arg) {
             auto mod = mod_mgr.get_module(lrealpath(run_arg->c_str()));
@@ -604,7 +607,7 @@ int main(int argc, char ** argv) {
         if (only_deps) {
             for (auto & mod_fn : module_args) {
                 try {
-                    if (!display_deps(env, std::cout, std::cerr, mod_fn.c_str()))
+                    if (!display_deps(path, env, std::cout, std::cerr, mod_fn.c_str()))
                         ok = false;
                 } catch (lean::exception &ex) {
                     ok = false;

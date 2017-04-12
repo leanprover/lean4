@@ -17,34 +17,25 @@ public:
     file_not_found_exception(std::string const & fname);
 };
 
-/** \brief Initialize the lean_path */
-void init_lean_path();
+using search_path = std::vector<std::string>;
+search_path get_search_path();
 
 #if !defined(LEAN_EMSCRIPTEN)
 std::string get_exe_location();
 #endif
 
-/** \brief Return the LEAN_PATH string */
-char const * get_lean_path();
-/**
-   \brief Search the file \c fname in the LEAN_PATH. Throw an
-   exception if the file was not found.
-*/
-std::string find_file(std::string fname);
-std::string find_file(std::string fname, std::initializer_list<char const *> const & exts);
-
 /** \brief Hierarchical names are converted into paths using the path separator. Example: foo.bar is converted into foo/bar */
-std::string find_file(name const & fname);
-std::string find_file(name const & fname, std::initializer_list<char const *> const & exts);
+std::string find_file(search_path const &, name const & fname);
+std::string find_file(search_path const &, name const & fname, std::initializer_list<char const *> const & exts);
 
 /** \brief \brief Similar to previous find_file, but if k is not none then search at the k-th parent of base. */
-std::string find_file(std::string const & base, optional<unsigned> const & rel, name const & fname,
+std::string find_file(search_path const &, std::string const & base, optional<unsigned> const & rel, name const & fname,
                       std::initializer_list<char const *> const & extensions);
-std::string find_file(std::string const & base, optional<unsigned> const & k, name const & fname, char const * ext);
+std::string find_file(search_path const &, std::string const & base, optional<unsigned> const & k, name const & fname, char const * ext);
 
 /** \brief Find all files with the given extension recursively. */
 void find_files(std::string const & base, char const * ext, std::vector<std::string> & files);
-void find_imports(std::string const & base, optional<unsigned> const & k,
+void find_imports(search_path const &, std::string const & base, optional<unsigned> const & k,
                   std::vector<pair<std::string, std::string>> & imports_and_files);
 /** \brief Return true iff fname ends with ".lean" */
 bool is_lean_file(std::string const & fname);

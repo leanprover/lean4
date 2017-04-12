@@ -102,12 +102,14 @@ static gtask compile_olean(std::shared_ptr<module_info const> const & mod, log_t
 }
 
 // TODO(gabriel): adapt to vfs
-static module_id resolve(module_id const & module_file_name, module_name const & ref) {
+static module_id resolve(search_path const & path,
+                         module_id const & module_file_name,
+                         module_name const & ref) {
     auto base_dir = dirname(module_file_name.c_str());
     try {
-        return find_file(base_dir, ref.m_relative, ref.m_name, ".lean");
+        return find_file(path, base_dir, ref.m_relative, ref.m_name, ".lean");
     } catch (file_not_found_exception) {
-        return olean_file_to_lean_file(find_file(base_dir, ref.m_relative, ref.m_name, ".olean"));
+        return olean_file_to_lean_file(find_file(path, base_dir, ref.m_relative, ref.m_name, ".olean"));
     }
 }
 
@@ -149,7 +151,7 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
             mod->m_trans_mtime = mod->m_mtime = mtime;
 
             for (auto & d : parsed_olean.m_imports) {
-                auto d_id = resolve(id, d);
+                auto d_id = resolve(m_path, id, d);
                 build_module(d_id, true, module_stack);
 
                 auto & d_mod = m_modules[d_id];
@@ -206,7 +208,7 @@ module_mgr::build_lean(module_id const & id, std::string const & contents, time_
         module_id d_id;
         std::shared_ptr<module_info const> d_mod;
         try {
-            d_id = resolve(id, d);
+            d_id = resolve(m_path, id, d);
             build_module(d_id, true, module_stack);
             d_mod = m_modules[d_id];
             mod->m_trans_mtime = std::max(mod->m_trans_mtime, d_mod->m_trans_mtime);

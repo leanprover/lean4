@@ -253,7 +253,7 @@ pair<optional<unsigned>, std::string> parse_import(std::string s) {
 }
 
 std::vector<json> get_import_completions(std::string const & pattern, std::string const & curr_dir,
-                                         options const & opts) {
+                                         search_path const & path, options const & opts) {
     unsigned max_results = get_auto_completion_max_results(opts);
     unsigned max_errors = get_fuzzy_match_max_errors(pattern.size());
     std::vector<pair<std::string, pair<std::string, std::string>>> selected;
@@ -262,7 +262,7 @@ std::vector<json> get_import_completions(std::string const & pattern, std::strin
 
     optional<unsigned> depth = parse_import(pattern).first;
     std::vector<pair<std::string, std::string>> imports;
-    find_imports(curr_dir, depth, imports);
+    find_imports(path, curr_dir, depth, imports);
 
     for (auto const & candidate : imports) {
         if (matcher.match(candidate.first))

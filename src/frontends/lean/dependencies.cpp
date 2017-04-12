@@ -14,7 +14,7 @@ Author: Leonardo de Moura
 namespace lean {
 
 
-bool display_deps(environment const & env, std::ostream & out, std::ostream & err, char const * fname) {
+bool display_deps(search_path const & path, environment const & env, std::ostream & out, std::ostream & err, char const * fname) {
     name import("import");
     name prelude("prelude");
     name period(".");
@@ -33,7 +33,7 @@ bool display_deps(environment const & env, std::ostream & out, std::ostream & er
     auto display_dep = [&](optional<unsigned> const & k, name const & f) {
         import_args = true;
         try {
-            std::string m_name = find_file(base, k, name_to_file(f), {".lean", ".hlean", ".olean", ".lua"});
+            std::string m_name = find_file(path, base, k, name_to_file(f), {".lean", ".hlean", ".olean", ".lua"});
             int last_idx = m_name.find_last_of(".");
             std::string rawname = m_name.substr(0, last_idx);
             std::string ext = m_name.substr(last_idx);

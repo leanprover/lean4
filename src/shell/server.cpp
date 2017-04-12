@@ -287,8 +287,8 @@ public:
     }
 };
 
-server::server(unsigned num_threads, environment const & initial_env, io_state const & ios) :
-        m_initial_env(initial_env), m_ios(ios) {
+server::server(unsigned num_threads, search_path const & path, environment const & initial_env, io_state const & ios) :
+        m_path(path), m_initial_env(initial_env), m_ios(ios) {
     m_ios.set_regular_channel(std::make_shared<stderr_channel>());
     m_ios.set_diagnostic_channel(std::make_shared<stderr_channel>());
 
@@ -312,7 +312,7 @@ server::server(unsigned num_threads, environment const & initial_env, io_state c
 #endif
 
     set_task_queue(m_tq.get());
-    m_mod_mgr.reset(new module_mgr(this, m_lt.get_root(), m_initial_env, m_ios));
+    m_mod_mgr.reset(new module_mgr(this, m_lt.get_root(), m_path, m_initial_env, m_ios));
     m_mod_mgr->set_use_snapshots(true);
     m_mod_mgr->set_save_olean(false);
 }
@@ -516,7 +516,8 @@ json server::autocomplete(std::shared_ptr<module_info const> const & mod_info, b
         try {
             parse_breaking_at_pos(mod_info->m_mod, mod_info, pos, true);
         } catch (break_at_pos_exception & e) {
-            report_completions(snap->m_snapshot_at_end->m_env, snap->m_snapshot_at_end->m_options, pos0, skip_completions, mod_info->m_mod.c_str(),
+            report_completions(snap->m_snapshot_at_end->m_env, snap->m_snapshot_at_end->m_options,
+                               pos0, skip_completions, m_path, mod_info->m_mod.c_str(),
                                e, j);
         } catch (throwable & ex) {}
     }
@@ -579,7 +580,7 @@ json server::info(std::shared_ptr<module_info const> const & mod_info, pos_info 
             env = snap->m_snapshot_at_end->m_env;
             opts = snap->m_snapshot_at_end->m_options;
         }
-        report_info(env, opts, m_ios, *mod_info, get_info_managers(m_lt), pos, e, j);
+        report_info(env, opts, m_ios, m_path, *mod_info, get_info_managers(m_lt), pos, e, j);
     } catch (throwable & ex) {}
 
     return j;

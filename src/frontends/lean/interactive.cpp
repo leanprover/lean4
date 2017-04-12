@@ -46,7 +46,7 @@ void interactive_report_type(environment const & env, options const & opts, expr
 }
 
 void report_completions(environment const & env, options const & opts, pos_info const & pos, bool skip_completions,
-                        char const * mod_path, break_at_pos_exception const & e, json & j) {
+                        search_path const & path, char const * mod_path, break_at_pos_exception const & e, json & j) {
     g_context = e.m_token_info.m_context;
     unsigned offset = pos.second - e.m_token_info.m_pos.second;
     std::string prefix = e.m_token_info.m_token.to_string();
@@ -70,7 +70,7 @@ void report_completions(environment const & env, options const & opts, pos_info 
             break;
         case break_at_pos_exception::token_context::import:
             if (!skip_completions)
-                j["completions"] = get_import_completions(prefix, dirname(mod_path), opts);
+                j["completions"] = get_import_completions(prefix, dirname(mod_path), path, opts);
             break;
         case break_at_pos_exception::token_context::interactive_tactic:
             if (!skip_completions)
@@ -98,7 +98,8 @@ void report_completions(environment const & env, options const & opts, pos_info 
     j["prefix"] = prefix;
 }
 
-void report_info(environment const & env, options const & opts, io_state const & ios, module_info const & m_mod_info,
+void report_info(environment const & env, options const & opts, io_state const & ios,
+                 search_path const & path, module_info const & m_mod_info,
                  std::vector<info_manager> const & info_managers, pos_info const & pos,
                  break_at_pos_exception const & e, json & j) {
     g_context = e.m_token_info.m_context;
@@ -116,7 +117,7 @@ void report_info(environment const & env, options const & opts, io_state const &
             case break_at_pos_exception::token_context::import: {
                 auto parsed = parse_import(tk.to_string());
                 try {
-                    auto f = find_file(m_mod_info.m_mod, parsed.first, string_to_name(parsed.second),
+                    auto f = find_file(path, m_mod_info.m_mod, parsed.first, string_to_name(parsed.second),
                                        ".lean");
                     record["source"]["file"] = f;
                     record["source"]["line"] = 1;

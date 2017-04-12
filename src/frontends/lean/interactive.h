@@ -12,8 +12,9 @@ Author: Sebastian Ullrich
 namespace lean {
 void interactive_report_type(environment const & env, options const & opts, expr const & e, json & j);
 void report_completions(environment const & env, options const & opts, pos_info const & pos, bool skip_completions,
-                        char const * mod_path, break_at_pos_exception const & e, json & j);
-void report_info(environment const & env, options const & opts, io_state const & ios, module_info const & m_mod_info,
+                        search_path const & path, char const * mod_path, break_at_pos_exception const & e, json & j);
+void report_info(environment const & env, options const & opts, io_state const & ios,
+                 search_path const &, module_info const & m_mod_info,
                  std::vector<info_manager> const & info_managers, pos_info const & pos,
                  break_at_pos_exception const & e, json & j);
 

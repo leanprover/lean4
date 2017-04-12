@@ -39,7 +39,7 @@ struct loaded_module {
     task<environment> m_env;
 };
 using module_loader = std::function<std::shared_ptr<loaded_module const> (std::string const &, module_name const &)>;
-module_loader mk_olean_loader();
+module_loader mk_olean_loader(std::vector<std::string> const &);
 module_loader mk_dummy_loader();
 
 /** \brief Return the list of declarations performed in the current module */

@@ -626,11 +626,11 @@ void import_module(modification_list const & modifications, std::string const & 
     }
 }
 
-module_loader mk_olean_loader() {
+module_loader mk_olean_loader(std::vector<std::string> const & path) {
     bool check_hash = false;
     return[=] (std::string const & module_fn, module_name const & ref) {
         auto base_dir = dirname(module_fn.c_str());
-        auto fn = find_file(base_dir, ref.m_relative, ref.m_name, ".olean");
+        auto fn = find_file(path, base_dir, ref.m_relative, ref.m_name, ".olean");
         std::ifstream in(fn, std::ios_base::binary);
         auto parsed = parse_olean(in, fn, check_hash);
         auto modifs = parse_olean_modifications(parsed.m_serialized_modifications, fn);

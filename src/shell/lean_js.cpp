@@ -17,6 +17,11 @@ Author: Leonardo de Moura
 #include "shell/server.h"
 
 namespace lean {
+
+static search_path get_lean_js_path() {
+    return getenv("LEAN_PATH") ? get_search_path() : search_path {"/library"};
+}
+
 class emscripten_shell {
 private:
     environment m_env;
@@ -29,7 +34,7 @@ public:
     emscripten_shell(): m_env(mk_environment(LEAN_BELIEVER_TRUST_LEVEL + 1)),
                         m_ios(options({"trace", "as_messages"}, true),
                               mk_pretty_formatter_factory()),
-                        m_server(0, m_env, m_ios) {}
+                        m_server(0, get_lean_js_path(), m_env, m_ios) {}
 
     int process_request(std::string msg) {
         scope_global_ios scoped_ios(m_ios);

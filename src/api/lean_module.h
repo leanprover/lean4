@@ -29,9 +29,6 @@ lean_bool lean_env_import(lean_env env, lean_ios ios, lean_list_name modules, le
     \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_env_export(lean_env env, char const * fname, lean_exception * ex);
 
-/** \brief Store in \c r the LEAN_PATH */
-lean_bool lean_get_std_path(char const ** r, lean_exception * ex);
-
 /*@}*/
 /*@}*/
 

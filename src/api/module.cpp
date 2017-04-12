@@ -26,7 +26,7 @@ lean_bool lean_env_import(lean_env env, lean_ios ios, lean_list_name modules, le
     for (name const & n : to_list_name_ref(modules)) {
         imports.push_back({n, optional<unsigned>()});
     }
-    new_env = import_modules(new_env, "", imports, mk_olean_loader());
+    new_env = import_modules(new_env, "", imports, mk_olean_loader(standard_search_path().get_path()));
     *r = of_env(new environment(new_env));
     LEAN_CATCH;
 }
@@ -37,11 +37,5 @@ lean_bool lean_env_export(lean_env env, char const * fname, lean_exception * ex)
     auto lm = export_module(to_env_ref(env), fname);
     std::ofstream out(fname, std::ofstream::binary);
     write_module(lm, out);
-    LEAN_CATCH;
-}
-
-lean_bool lean_get_std_path(char const ** r, lean_exception * ex) {
-    LEAN_TRY;
-    *r = mk_string(get_lean_path());
     LEAN_CATCH;
 }

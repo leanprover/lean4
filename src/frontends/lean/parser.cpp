@@ -2433,7 +2433,7 @@ bool parse_commands(environment & env, io_state & ios, char const * fname) {
     fs_module_vfs vfs;
     vfs.m_modules_to_load_from_source.insert(std::string(fname));
     log_tree lt;
-    module_mgr mod_mgr(&vfs, lt.get_root(), get_search_path(), env, ios);
+    module_mgr mod_mgr(&vfs, lt.get_root(), standard_search_path().get_path(), env, ios);
 
     auto mod = mod_mgr.get_module(fname);
     env = mod->get_produced_env();

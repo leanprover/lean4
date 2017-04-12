@@ -18,7 +18,22 @@ public:
 };
 
 using search_path = std::vector<std::string>;
-search_path get_search_path();
+
+optional<std::string> get_leanpkg_path_file();
+search_path parse_leanpkg_path(std::string const & fn);
+optional<search_path> get_lean_path_from_env();
+search_path get_builtin_search_path();
+
+struct standard_search_path {
+    search_path m_builtin;
+    optional<search_path> m_from_env;
+    optional<std::string> m_leanpkg_path_fn;
+    std::string m_user_leanpkg_path_fn;
+    optional<search_path> m_from_leanpkg_path;
+
+    standard_search_path();
+    search_path get_path() const;
+};
 
 #if !defined(LEAN_EMSCRIPTEN)
 std::string get_exe_location();
@@ -51,7 +66,9 @@ std::string name_to_file(name const & fname);
 */
 void display_path(std::ostream & out, std::string const & fname);
 
+std::string resolve(std::string const & rel_or_abs, std::string const & base);
 std::string dirname(char const * fname);
+inline std::string dirname(std::string const & fn) { return dirname(fn.c_str()); }
 std::string path_append(char const * path1, char const * path2);
 
 std::string olean_of_lean(std::string const & lean_fn);

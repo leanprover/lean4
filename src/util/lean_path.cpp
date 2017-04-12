@@ -101,6 +101,23 @@ std::string get_exe_location() {
 bool is_path_sep(char c) { return c == g_path_sep; }
 #endif
 
+#if defined(LEAN_WINDOWS)
+std::string resolve(std::string const & rel_or_abs, std::string const & base) {
+    // TODO(gabriel): detect absolute pathnames
+    return base + g_sep + rel_or_abs;
+}
+#else
+std::string resolve(std::string const & rel_or_abs, std::string const & base) {
+    if (!rel_or_abs.empty() && rel_or_abs[0] == g_sep) {
+        // absolute
+        return rel_or_abs;
+    } else {
+        // relative
+        return base + g_sep + rel_or_abs;
+    }
+}
+#endif
+
 std::string normalize_path(std::string f) {
     for (auto & c : f) {
         if (c == g_bad_sep)
@@ -121,33 +138,6 @@ std::string get_path(std::string f) {
     }
 }
 
-search_path get_search_path() {
-    search_path path;
-
-    if (auto r = getenv("LEAN_PATH")) {
-        auto lean_path = normalize_path(r);
-        unsigned i  = 0;
-        unsigned j  = 0;
-        unsigned sz = static_cast<unsigned>(lean_path.size());
-        for (; j < sz; j++) {
-            if (is_path_sep(lean_path[j])) {
-                if (j > i)
-                    path.push_back(lean_path.substr(i, j - i));
-                i = j + 1;
-            }
-        }
-        if (j > i)
-            path.push_back(lean_path.substr(i, j - i));
-    } else {
-        std::string exe_path = get_path(get_exe_location());
-        path.push_back(exe_path + g_sep + ".." + g_sep + "library");
-        path.push_back(exe_path + g_sep + ".." + g_sep + "lib" + g_sep + "lean" + g_sep + "library");
-        path.push_back(".");
-    }
-
-    return path;
-}
-
 static char g_sep_str[2];
 
 void initialize_lean_path() {
@@ -160,6 +150,108 @@ void initialize_lean_path() {
 
 void finalize_lean_path() {
     delete g_default_file_name;
+}
+
+static bool exists(std::string const & fn) {
+    return !!std::ifstream(fn);
+}
+
+optional<std::string> get_leanpkg_path_file() {
+    auto dir = lrealpath(".");
+    while (true) {
+        auto fn = dir + g_sep_str + "leanpkg.path";
+        if (exists(fn)) return optional<std::string>(fn);
+
+        auto i = dir.rfind(g_sep);
+        if (i == std::string::npos) {
+            return optional<std::string>();
+        } else {
+            dir = dir.substr(0, i);
+        }
+    }
+}
+
+std::string get_user_leanpkg_path() {
+    // TODO(gabriel): check if this works on windows
+    return std::string(getenv("HOME")) + g_sep + ".lean" + g_sep + "leanpkg.path";
+}
+
+static optional<std::string> begins_with(std::string const & s, std::string const & prefix) {
+    if (prefix.size() <= s.size() && s.substr(0, prefix.size()) == prefix) {
+        return optional<std::string>(s.substr(prefix.size(), s.size()));
+    } else {
+        return optional<std::string>();
+    }
+}
+
+search_path parse_leanpkg_path(std::string const & fn) {
+    std::ifstream in(fn);
+    if (!in) throw exception(sstream() << "cannot open " << fn);
+    auto fn_dir = dirname(fn);
+    search_path path;
+    while (!in.eof()) {
+        std::string line;
+        std::getline(in, line);
+
+        if (auto rest = begins_with(line, "path "))
+            path.push_back(resolve(*rest, fn_dir));
+
+        if (line == "builtin_path") {
+            auto builtin = get_builtin_search_path();
+            path.insert(path.end(), builtin.begin(), builtin.end());
+        }
+    }
+    return path;
+}
+
+optional<search_path> get_lean_path_from_env() {
+    if (auto r = getenv("LEAN_PATH")) {
+        auto lean_path = normalize_path(r);
+        unsigned i  = 0;
+        unsigned j  = 0;
+        unsigned sz = static_cast<unsigned>(lean_path.size());
+        search_path path;
+        for (; j < sz; j++) {
+            if (is_path_sep(lean_path[j])) {
+                if (j > i)
+                    path.push_back(lean_path.substr(i, j - i));
+                i = j + 1;
+            }
+        }
+        if (j > i)
+            path.push_back(lean_path.substr(i, j - i));
+        return optional<search_path>(path);
+    } else {
+        return optional<search_path>();
+    }
+}
+
+search_path get_builtin_search_path() {
+    search_path path;
+    std::string exe_path = get_path(get_exe_location());
+    path.push_back(exe_path + g_sep + ".." + g_sep + "library");
+    path.push_back(exe_path + g_sep + ".." + g_sep + "lib" + g_sep + "lean" + g_sep + "library");
+    return path;
+}
+
+standard_search_path::standard_search_path() {
+    m_builtin = get_builtin_search_path();
+
+    m_from_env = get_lean_path_from_env();
+    m_leanpkg_path_fn = get_leanpkg_path_file();
+    m_user_leanpkg_path_fn = get_user_leanpkg_path();
+
+    if (m_leanpkg_path_fn) {
+        m_from_leanpkg_path = parse_leanpkg_path(*m_leanpkg_path_fn);
+    } else if (exists(m_user_leanpkg_path_fn)) {
+        m_from_leanpkg_path = parse_leanpkg_path(m_user_leanpkg_path_fn);
+    }
+}
+
+search_path standard_search_path::get_path() const {
+    if (m_from_env) return *m_from_env;
+    if (m_from_leanpkg_path) return *m_from_leanpkg_path;
+    return m_builtin;
 }
 
 bool has_file_ext(std::string const & fname, char const * ext) {

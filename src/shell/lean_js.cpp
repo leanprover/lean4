@@ -19,7 +19,11 @@ Author: Leonardo de Moura
 namespace lean {
 
 static search_path get_lean_js_path() {
-    return getenv("LEAN_PATH") ? get_search_path() : search_path {"/library"};
+    if (auto p = get_lean_path_from_env()) {
+        return *p;
+    } else {
+        return {"/library"};
+    }
 }
 
 class emscripten_shell {

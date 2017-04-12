@@ -97,7 +97,6 @@ static void display_help(std::ostream & out) {
     std::cout << "  --version -v       display version number\n";
     std::cout << "  --githash          display the git commit hash number used to build this binary\n";
     std::cout << "  --run              executes the 'main' definition\n";
-    std::cout << "  --path             display the path used for finding Lean libraries and extensions\n";
     std::cout << "  --doc=file -r      generate module documentation based on module doc strings\n";
     std::cout << "  --make             create olean files\n";
     std::cout << "  --recursive        recursively find *.lean files in directory arguments\n";
@@ -114,6 +113,7 @@ static void display_help(std::ostream & out) {
 #endif
     std::cout << "  --deps             just print dependencies of a Lean input\n";
 #if defined(LEAN_JSON)
+    std::cout << "  --path             display the path used for finding Lean libraries and extensions\n";
     std::cout << "  --json             print JSON-formatted structured error messages\n";
     std::cout << "  --server           start lean in server mode\n";
     std::cout << "  --server=file      start lean in server mode, redirecting standard input from the specified file (for debugging)\n";
@@ -133,7 +133,6 @@ static struct option g_long_options[] = {
     {"help",         no_argument,       0, 'h'},
     {"run",          required_argument, 0, 'a'},
     {"smt2",         no_argument,       0, 'Y'},
-    {"path",         no_argument,       0, 'p'},
     {"githash",      no_argument,       0, 'g'},
     {"make",         no_argument,       0, 'm'},
     {"recursive",    no_argument,       0, 'R'},
@@ -151,6 +150,7 @@ static struct option g_long_options[] = {
     {"timeout",      optional_argument, 0, 'T'},
 #if defined(LEAN_JSON)
     {"json",         no_argument,       0, 'J'},
+    {"path",         no_argument,       0, 'p'},
     {"server",       optional_argument, 0, 'S'},
 #endif
     {"doc",          required_argument, 0, 'r'},
@@ -352,7 +352,7 @@ int main(int argc, char ** argv) {
     bool json_output        = false;
 #endif
 
-    auto path = get_search_path();
+    standard_search_path path;
 
     options opts;
     optional<std::string> export_txt;
@@ -383,9 +383,6 @@ int main(int argc, char ** argv) {
         case 'Y':
             smt2 = true;
             break;
-        case 'p':
-            for (auto & p : path) std::cout << p << "\n";
-            return 0;
         case 's':
             lean::lthread::set_thread_stack_size(static_cast<size_t>((atoi(optarg)/4)*4)*static_cast<size_t>(1024));
             break;
@@ -440,6 +437,18 @@ int main(int argc, char ** argv) {
             opts = opts.update(lean::name{"trace", "as_messages"}, true);
             if (optarg) server_in = optional<std::string>(optarg);
             break;
+        case 'p': {
+            json out;
+
+            auto & out_path = out["path"] = json::array();
+            for (auto & p : path.get_path()) out_path.push_back(p);
+
+            out["leanpkg_path_file"] = path.m_leanpkg_path_fn ? *path.m_leanpkg_path_fn : path.m_user_leanpkg_path_fn;
+            out["is_user_leanpkg_path"] = !path.m_leanpkg_path_fn;
+
+            std::cout << std::setw(2) << out << std::endl;
+            return 0;
+        }
 #endif
         case 'P':
             opts = opts.update("profiler", true);
@@ -497,7 +506,7 @@ int main(int argc, char ** argv) {
             std::cin.rdbuf(file_in->rdbuf());
         }
 
-        server(num_threads, path, env, ios).run();
+        server(num_threads, path.get_path(), env, ios).run();
         return 0;
     }
 #endif
@@ -519,7 +528,7 @@ int main(int argc, char ** argv) {
         for (int i = optind; i < argc; i++) {
             try {
                 if (doc) throw lean::exception("leandoc does not support .smt2 files");
-                ok = ::lean::smt2::parse_commands(path, env, ios, argv[i]);
+                ok = smt2::parse_commands(path.get_path(), env, ios, argv[i]);
             } catch (lean::exception & ex) {
                 ok = false;
                 type_context tc(env, ios.get_options());
@@ -545,7 +554,7 @@ int main(int argc, char ** argv) {
         set_task_queue(tq.get());
 
         fs_module_vfs vfs;
-        module_mgr mod_mgr(&vfs, lt.get_root(), path, env, ios);
+        module_mgr mod_mgr(&vfs, lt.get_root(), path.get_path(), env, ios);
 
         if (run_arg) {
             auto mod = mod_mgr.get_module(lrealpath(run_arg->c_str()));
@@ -607,7 +616,7 @@ int main(int argc, char ** argv) {
         if (only_deps) {
             for (auto & mod_fn : module_args) {
                 try {
-                    if (!display_deps(path, env, std::cout, std::cerr, mod_fn.c_str()))
+                    if (!display_deps(path.get_path(), env, std::cout, std::cerr, mod_fn.c_str()))
                         ok = false;
                 } catch (lean::exception &ex) {
                     ok = false;

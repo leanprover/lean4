@@ -24,7 +24,7 @@
 (require 'lean-settings)
 (require 'lean-input)
 (require 'lean-syntax)
-(require 'lean-project)
+(require 'lean-pkg)
 (require 'lean-company)
 (require 'lean-server)
 (require 'lean-flycheck)
@@ -99,7 +99,7 @@
   "Menu for the Lean major mode"
   `("Lean"
     ["Execute lean"         lean-execute                      t]
-    ["Create a new project" (call-interactively 'lean-project-create) (not (lean-project-inside-p))]
+    ;; ["Create a new project" (call-interactively 'lean-project-create) (not (lean-project-inside-p))]
     "-----------------"
     ["Show type info"       lean-show-type                    (and lean-eldoc-use eldoc-mode)]
     ["Toggle goal display"  lean-toggle-show-goal             t]

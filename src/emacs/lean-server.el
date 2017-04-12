@@ -8,11 +8,11 @@
 
 (require 'json)
 (require 'lean-debug)
-(require 'lean-project)
+(require 'lean-pkg)
 (require 'dash)
 
 (defstruct lean-server-session
-  project-dir      ; the project directory of this lean server
+  path-file        ; the leanpkg.path file of this lean server
   process          ; process object of lean --server
   seq-num          ; sequence number
   callbacks        ; alist of (seq_num . (success_cb . error_cb))
@@ -89,9 +89,9 @@
         (message (concat "Lean server died. See lean-server stderr buffer for details; "
                          "use lean-server-restart to restart it")))))
 
-(defun lean-server-session-create (project-dir)
+(defun lean-server-session-create (path-file)
   "Creates a new server session"
-  (let* ((default-directory project-dir)
+  (let* ((default-directory (f--traverse-upwards (f-dir? it) path-file))
          ; Setting process-connection-type is necessary, otherwise
          ; emacs truncates lines with >4096 bytes:
          ; https://debbugs.gnu.org/cgi/bugreport.cgi?bug=24531
@@ -101,24 +101,24 @@
                 ,(format "-M%i" lean-memory-limit)
                 ,(format "-T%i" lean-timeout-limit)
                 ,@lean-extra-arguments
-                ,(format "*%s*" project-dir)))
+                ,(format "*%s*" path-file)))
          (proc (if (fboundp 'make-process)
                    (make-process ;; emacs >= 25 lets us redirect stderr
                     :name "lean-server"
-                    :buffer (format " *lean-server (%s)*" project-dir)
+                    :buffer (format " *lean-server (%s)*" path-file)
                     :command cmd
                     :coding 'utf-8
                     :noquery t
                     :sentinel #'lean-server-handle-signal
                     :stderr (make-pipe-process
                              :name "lean-server stderr"
-                             :buffer (format "*lean-server stderr (%s)*" project-dir)
+                             :buffer (format "*lean-server stderr (%s)*" path-file)
                              :noquery t))
                  (apply #'start-file-process "lean-server"
                         (format " *lean-server (%s)*" (buffer-name))
                         cmd)))
          (sess (make-lean-server-session
-                :project-dir project-dir
+                :path-file path-file
                 :process proc
                 :seq-num 0
                 :current-roi 'not-yet-sent
@@ -169,13 +169,13 @@
   (setf (lean-server-session-process sess) nil)
   (setq lean-server-sessions (delete sess lean-server-sessions)))
 
-(defun lean-server-session-get (project-dir)
+(defun lean-server-session-get (path-file)
   (setq lean-server-sessions
         (remove-if-not #'lean-server-session-alive-p
                        lean-server-sessions))
-  (or (find project-dir lean-server-sessions
-            :test (lambda (d s) (equal d (lean-server-session-project-dir s))))
-      (let ((sess (lean-server-session-create project-dir)))
+  (or (find path-file lean-server-sessions
+            :test (lambda (d s) (equal d (lean-server-session-path-file s))))
+      (let ((sess (lean-server-session-create path-file)))
         (setq lean-server-sessions (cons sess lean-server-sessions))
         sess)))
 
@@ -316,9 +316,7 @@
 (defun lean-server-ensure-alive ()
   "Ensures that the current buffer has a lean server"
   (when (not (lean-server-session-alive-p lean-server-session))
-    (setq lean-server-session (lean-server-session-get
-                               (or (lean-project-find-root)
-                                   (file-name-directory (buffer-file-name)))))
+    (setq lean-server-session (lean-server-session-get (leanpkg-find-path-file)))
     (lean-server-show-tasks)
     (lean-server-show-messages)
     (lean-server-sync)))

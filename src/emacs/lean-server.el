@@ -236,10 +236,10 @@
 (defun lean-server-update-task-overlays ()
   (dolist (ov lean-server-task-overlays) (delete-overlay ov))
   (setq lean-server-task-overlays nil)
-  (when lean-server-show-pending-tasks
-    (let* ((tasks (if lean-server-session (lean-server-session-tasks lean-server-session)))
+  (when (and lean-server-show-pending-tasks lean-server-session)
+    (let* ((tasks (lean-server-session-tasks lean-server-session))
            (cur-fn (buffer-file-name))
-           (roi (if lean-server-session (cdr (assq cur-fn (lean-server-session-current-roi lean-server-session))))))
+           (roi (cdr (assq cur-fn (lean-server-session-current-roi lean-server-session)))))
       (dolist (task (plist-get tasks :tasks))
         (if (and (equal (plist-get task :file_name) cur-fn)
                  (--any? (<= (max (car it) (plist-get task :pos_line))
@@ -350,11 +350,12 @@
 
 (defun lean-server-sync (&optional buf)
   "Synchronizes the state of BUF (or the current buffer, if nil) with the lean server"
-  (with-current-buffer (or buf (current-buffer))
-    (lean-server-sync-roi)
-    (lean-server-send-command
-     'sync (list :file_name (buffer-file-name)
-                 :content (buffer-string)))))
+  (with-demoted-errors "lean server sync: %s"
+    (with-current-buffer (or buf (current-buffer))
+      (lean-server-sync-roi)
+      (lean-server-send-command
+       'sync (list :file_name (buffer-file-name)
+                   :content (buffer-string))))))
 
 (defvar-local lean-server-sync-timer nil)
 
@@ -410,9 +411,10 @@
 
 (defun lean-server-window-scroll-function-hook (wnd new-start-pos)
   (let ((buf (window-buffer wnd)))
-    (with-current-buffer buf
-      (lean-server-ensure-alive)
-      (lean-server-sync-roi))))
+    (with-demoted-errors "lean scroll hook: %s"
+      (with-current-buffer buf
+        (lean-server-ensure-alive)
+        (lean-server-sync-roi)))))
 
 (defun lean-set-check-mode (mode)
   (setq lean-server-check-mode mode)

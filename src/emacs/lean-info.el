@@ -58,13 +58,14 @@
 
 (defun lean-get-info-record-at-point (cont)
   "Get info-record at the current point"
-  (lean-server-send-command
-   'info (list :file_name (buffer-file-name)
-               :line (line-number-at-pos)
-               :column (lean-line-offset))
-   (cl-function
-    (lambda (&key record)
-      (funcall cont record)))))
+  (with-demoted-errors "lean get info: %s"
+    (lean-server-send-command
+     'info (list :file_name (buffer-file-name)
+                 :line (line-number-at-pos)
+                 :column (lean-line-offset))
+     (cl-function
+      (lambda (&key record)
+        (funcall cont record))))))
 
 (cl-defun lean-find-definition-cont (&key file line column)
   (when (fboundp 'xref-push-marker-stack) (xref-push-marker-stack))

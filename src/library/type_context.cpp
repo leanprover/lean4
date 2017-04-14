@@ -831,7 +831,8 @@ expr type_context::whnf(expr const & e) {
         if (auto next_t = unfold_definition(t1)) {
             t = *next_t;
         } else {
-            if (!m_used_assignment && !is_stuck(t1) &&
+            if ((!in_tmp_mode() || !has_expr_metavar(t1)) &&
+                !m_used_assignment && !is_stuck(t1) &&
                 postponed_sz == m_postponed.size() && !m_transparency_pred && !m_unfold_pred) {
                 cache.insert(mk_pair(e, t1));
             }

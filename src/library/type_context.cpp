@@ -1468,24 +1468,6 @@ lbool type_context::is_def_eq_core(level const & l1, level const & l2, bool part
         }
     }
 
-    if (m_update && m_assign_regular_uvars_in_tmp_mode && in_tmp_mode()) {
-        /* We may try to remove the conditions of the form !has_idx_metauniv(l) in the future.
-           The idea is to perform the assignment even if they do not hold, and
-           then when we leave tmp_mode check whether l was assigned or not.
-
-           BTW, these conditions may prevent us from solving type class resolution
-           problems with non-trivial universe constraints.
-        */
-        if (is_metavar_decl_ref(l1) && !has_idx_metauniv(l2) && !occurs(l1, l2)) {
-            m_mctx.assign(l1, l2);
-            return l_true;
-        }
-        if (is_metavar_decl_ref(l2) && !has_idx_metauniv(l1) && !occurs(l2, l1)) {
-            m_mctx.assign(l2, l1);
-            return l_true;
-        }
-    }
-
     if (l1.kind() != l2.kind() && (is_succ(l1) || is_succ(l2))) {
         if (optional<level> pred_l1 = dec_level(l1))
         if (optional<level> pred_l2 = dec_level(l2))
@@ -3504,7 +3486,9 @@ constraints ?m_i =?= a_i. If we succeed, we return the result. Otherwise, we fai
 
 We store the pairs (a_i, m_i) in the buffer expr_replacements.
 */
-expr type_context::preprocess_class(expr const & type, buffer<expr_pair> & replacements) {
+expr type_context::preprocess_class(expr const & type,
+                                    buffer<level_pair> & u_replacements,
+                                    buffer<expr_pair> &  e_replacements) {
     if (!has_expr_metavar(type))
         return type;
     type_context::tmp_locals locals(*this);
@@ -3521,6 +3505,18 @@ expr type_context::preprocess_class(expr const & type, buffer<expr_pair> & repla
     expr C = get_app_args(it, C_args);
     if (!is_constant(C) || !constant_is_class(C))
         return type;
+    buffer<level> C_levels;
+    for (level const & l : const_levels(C)) {
+        if (has_meta(l)) {
+            level new_uvar = mk_tmp_univ_mvar();
+            u_replacements.emplace_back(l, new_uvar);
+            C_levels.push_back(new_uvar);
+        } else {
+            C_levels.push_back(l);
+        }
+    }
+    if (!u_replacements.empty())
+        C = update_constant(C, to_list(C_levels));
     expr it2 = infer(C);
     for (expr & C_arg : C_args) {
         it2  = relaxed_whnf(it2);
@@ -3531,7 +3527,7 @@ expr type_context::preprocess_class(expr const & type, buffer<expr_pair> & repla
             (depends_on_mvar(d, new_mvars))) {
             expr new_mvar = mk_tmp_mvar(locals.mk_pi(d));
             expr new_arg  = mk_app(new_mvar, locals.as_buffer());
-            replacements.emplace_back(C_arg, new_arg);
+            e_replacements.emplace_back(C_arg, new_arg);
             C_arg = new_arg;
         }
         it2 = instantiate(binding_body(it2), C_arg);
@@ -3540,31 +3536,43 @@ expr type_context::preprocess_class(expr const & type, buffer<expr_pair> & repla
     return locals.mk_pi(new_class);
 }
 
-static void instantiate_replacements(type_context & ctx, buffer<expr_pair> & replacements) {
-    for (expr_pair & p : replacements) {
+static void instantiate_replacements(type_context & ctx,
+                                     buffer<level_pair> & u_replacements,
+                                     buffer<expr_pair> &  e_replacements) {
+    for (level_pair & p : u_replacements) {
+        p.second = ctx.instantiate_mvars(p.second);
+    }
+    for (expr_pair & p : e_replacements) {
         p.second = ctx.instantiate_mvars(p.second);
     }
 }
 
-optional<expr> type_context::mk_class_instance(expr const & type, bool assign_regular_uvars) {
+optional<expr> type_context::mk_class_instance(expr const & type) {
     scope S(*this);
-    flet<bool> set(m_assign_regular_uvars_in_tmp_mode, assign_regular_uvars);
     optional<expr> result;
-    buffer<expr_pair> replacements;
+    buffer<level_pair> u_replacements;
+    buffer<expr_pair>  e_replacements;
     if (in_tmp_mode()) {
-        expr new_type = preprocess_class(type, replacements);
+        expr new_type = preprocess_class(type, u_replacements, e_replacements);
         result        = instance_synthesizer(*this)(new_type);
         if (result)
-            instantiate_replacements(*this, replacements);
+            instantiate_replacements(*this, u_replacements, e_replacements);
     } else {
         tmp_mode_scope s(*this);
-        expr new_type = preprocess_class(type, replacements);
+        expr new_type = preprocess_class(type, u_replacements, e_replacements);
         result        = instance_synthesizer(*this)(new_type);
         if (result)
-            instantiate_replacements(*this, replacements);
+            instantiate_replacements(*this, u_replacements, e_replacements);
     }
     if (result) {
-        for (expr_pair & p : replacements) {
+        for (level_pair & p : u_replacements) {
+            if (has_meta(p.second))
+                return none_expr();
+            if (!is_def_eq(p.first, p.second)) {
+                return none_expr();
+            }
+        }
+        for (expr_pair & p : e_replacements) {
             if (has_expr_metavar(p.second))
                 return none_expr();
             if (!is_def_eq_core(p.first, p.second)) {
@@ -3587,15 +3595,7 @@ optional<expr> type_context::mk_subsingleton_instance(expr const & type) {
     }
     level lvl    = sort_level(Type);
     expr subsingleton = mk_app(mk_constant(get_subsingleton_name(), {lvl}), type);
-    /* We disable universe metavariable assignment, because we don't want
-       to prove that is a subsingleton in this case. More specifically, we don't want
-       Given (A : Sort ?u) (a : A), we don't want to report that 'a' is a
-       subsingleton by assigning ?u := 0.
-
-       See issue #1487
-    */
-    bool assign_regular_uvars = false;
-    auto r = mk_class_instance(subsingleton, assign_regular_uvars);
+    auto r = mk_class_instance(subsingleton);
     m_cache->m_subsingleton_cache.insert(mk_pair(type, r));
     return r;
 }

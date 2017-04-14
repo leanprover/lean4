@@ -23,6 +23,8 @@ bool is_mvar_core(expr const & e) const;
 bool is_assigned(expr const & e) const;
 optional<expr> get_assignment(expr const & e) const;
 void assign(expr const & m, expr const & v);
+
+bool in_tmp_mode() const;
 */
 
 template<typename CTX>
@@ -87,7 +89,8 @@ level instantiate_mvars(CTX & ctx, level const & l) {
                 if (auto v1 = ctx.get_assignment(l)) {
                     level v2 = instantiate_mvars(ctx, *v1);
                     if (*v1 != v2) {
-                        ctx.assign(l, v2);
+                        if (!ctx.in_tmp_mode())
+                            ctx.assign(l, v2);
                         return some_level(v2);
                     } else {
                         return some_level(*v1);
@@ -134,7 +137,7 @@ class instantiate_mvars_fn : public replace_visitor {
                     return *v1;
                 } else {
                     expr v2 = visit(*v1);
-                    if (v2 != *v1)
+                    if (!m_ctx.in_tmp_mode() && v2 != *v1)
                         m_ctx.assign(m, v2);
                     return v2;
                 }

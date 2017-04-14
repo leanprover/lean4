@@ -118,6 +118,8 @@ struct metavar_context::interface_impl {
     bool is_assigned(expr const & e) const { return m_ctx.is_assigned(e); }
     optional<expr> get_assignment(expr const & e) const { return m_ctx.get_assignment(e); }
     void assign(expr const & m, expr const & v) { m_ctx.assign(m, v); }
+
+    bool in_tmp_mode() const { return false; }
 };
 
 

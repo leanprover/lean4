@@ -1,156 +1,26 @@
 /*
-Copyright (c) 2013 Microsoft Corporation. All rights reserved.
+Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Author: Leonardo de Moura
+Author: Leonardo de Moura, Gabriel Ebner
 */
 #include "util/lean_path.h"
-#if defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
-#include <windows.h>
-#endif
 #include <string>
 #include <cstdlib>
 #include <fstream>
 #include <vector>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <dirent.h>
-#include "util/exception.h"
 #include "util/sstream.h"
-#include "util/name.h"
-#include "util/optional.h"
-#include "util/realpath.h"
 
 #ifndef LEAN_DEFAULT_MODULE_FILE_NAME
 #define LEAN_DEFAULT_MODULE_FILE_NAME "default"
 #endif
 
 namespace lean {
-file_not_found_exception::file_not_found_exception(std::string const & fname):
+lean_file_not_found_exception::lean_file_not_found_exception(std::string const & fname):
     exception(sstream() << "file '" << fname << "' not found in the LEAN_PATH"),
     m_fname(fname) {}
 
-static std::string * g_default_file_name             = nullptr;
-
-bool is_directory(char const * pathname) {
-    struct stat info;
-    if (stat(pathname, &info) != 0 )
-        return false; // failed to access pathname
-    return info.st_mode & S_IFDIR;
-}
-
-#if defined(LEAN_EMSCRIPTEN)
-// emscripten version
-static char g_path_sep     = ':';
-static char g_sep          = '/';
-static char g_bad_sep      = '\\';
-bool is_path_sep(char c) { return c == g_path_sep; }
-#elif defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
-// Windows version
-static char g_path_sep     = ';';
-static char g_sep          = '\\';
-static char g_bad_sep      = '/';
-std::string get_exe_location() {
-    HMODULE hModule = GetModuleHandleW(NULL);
-    WCHAR path[MAX_PATH];
-    GetModuleFileNameW(hModule, path, MAX_PATH);
-    std::wstring pathstr(path);
-    return std::string(pathstr.begin(), pathstr.end());
-}
-bool is_path_sep(char c) { return c == g_path_sep; }
-#elif defined(__APPLE__)
-// OSX version
-#include <mach-o/dyld.h>
-#include <limits.h>
-#include <stdlib.h>
-static char g_path_sep     = ':';
-static char g_sep          = '/';
-static char g_bad_sep      = '\\';
-std::string get_exe_location() {
-    char buf1[PATH_MAX];
-    char buf2[PATH_MAX];
-    uint32_t bufsize = PATH_MAX;
-    if (_NSGetExecutablePath(buf1, &bufsize) != 0)
-        throw exception("failed to locate Lean executable location");
-    if (!realpath(buf1, buf2))
-        throw exception("failed to resolve symbolic links in " + std::string(buf1));
-    return std::string(buf2);
-}
-bool is_path_sep(char c) { return c == g_path_sep; }
-#else
-// Linux version
-#include <unistd.h>
-#include <string.h>
-#include <limits.h> // NOLINT
-#include <stdio.h>
-static char g_path_sep     = ':';
-static char g_sep          = '/';
-static char g_bad_sep      = '\\';
-std::string get_exe_location() {
-    char path[PATH_MAX];
-    char dest[PATH_MAX];
-    memset(dest, 0, PATH_MAX);
-    pid_t pid = getpid();
-    snprintf(path, PATH_MAX, "/proc/%d/exe", pid);
-    if (readlink(path, dest, PATH_MAX) == -1) {
-        throw exception("failed to locate Lean executable location");
-    } else {
-        return std::string(dest);
-    }
-}
-bool is_path_sep(char c) { return c == g_path_sep; }
-#endif
-
-#if defined(LEAN_WINDOWS)
-std::string resolve(std::string const & rel_or_abs, std::string const & base) {
-    // TODO(gabriel): detect absolute pathnames
-    return base + g_sep + rel_or_abs;
-}
-#else
-std::string resolve(std::string const & rel_or_abs, std::string const & base) {
-    if (!rel_or_abs.empty() && rel_or_abs[0] == g_sep) {
-        // absolute
-        return rel_or_abs;
-    } else {
-        // relative
-        return base + g_sep + rel_or_abs;
-    }
-}
-#endif
-
-std::string normalize_path(std::string f) {
-    for (auto & c : f) {
-        if (c == g_bad_sep)
-            c = g_sep;
-    }
-    return f;
-}
-
-std::string get_path(std::string f) {
-    while (true) {
-        if (f.empty())
-            throw exception("failed to locate Lean executable location");
-        if (f.back() == g_sep) {
-            f.pop_back();
-            return f;
-        }
-        f.pop_back();
-    }
-}
-
-static char g_sep_str[2];
-
-void initialize_lean_path() {
-    if (g_default_file_name != nullptr)
-        finalize_lean_path();
-    g_default_file_name = new std::string(LEAN_DEFAULT_MODULE_FILE_NAME);
-    g_sep_str[0]        = g_sep;
-    g_sep_str[1]        = 0;
-}
-
-void finalize_lean_path() {
-    delete g_default_file_name;
-}
+static char const * g_default_file_name = LEAN_DEFAULT_MODULE_FILE_NAME;
 
 static bool exists(std::string const & fn) {
     return !!std::ifstream(fn);
@@ -159,10 +29,10 @@ static bool exists(std::string const & fn) {
 optional<std::string> get_leanpkg_path_file() {
     auto dir = lrealpath(".");
     while (true) {
-        auto fn = dir + g_sep_str + "leanpkg.path";
+        auto fn = dir + get_dir_sep() + "leanpkg.path";
         if (exists(fn)) return optional<std::string>(fn);
 
-        auto i = dir.rfind(g_sep);
+        auto i = dir.rfind(get_dir_sep());
         if (i == std::string::npos) {
             return optional<std::string>();
         } else {
@@ -173,7 +43,7 @@ optional<std::string> get_leanpkg_path_file() {
 
 std::string get_user_leanpkg_path() {
     // TODO(gabriel): check if this works on windows
-    return std::string(getenv("HOME")) + g_sep + ".lean" + g_sep + "leanpkg.path";
+    return std::string(getenv("HOME")) + get_dir_sep() + ".lean" + get_dir_sep() + "leanpkg.path";
 }
 
 static optional<std::string> begins_with(std::string const & s, std::string const & prefix) {
@@ -228,9 +98,9 @@ optional<search_path> get_lean_path_from_env() {
 
 search_path get_builtin_search_path() {
     search_path path;
-    std::string exe_path = get_path(get_exe_location());
-    path.push_back(exe_path + g_sep + ".." + g_sep + "library");
-    path.push_back(exe_path + g_sep + ".." + g_sep + "lib" + g_sep + "lean" + g_sep + "library");
+    std::string exe_path = dirname(get_exe_location());
+    path.push_back(exe_path + get_dir_sep() + ".." + get_dir_sep() + "library");
+    path.push_back(exe_path + get_dir_sep() + ".." + get_dir_sep() + "lib" + get_dir_sep() + "lean" + get_dir_sep() + "library");
     return path;
 }
 
@@ -254,11 +124,6 @@ search_path standard_search_path::get_path() const {
     return m_builtin;
 }
 
-bool has_file_ext(std::string const & fname, char const * ext) {
-    unsigned ext_len = strlen(ext);
-    return fname.size() > ext_len && fname.substr(fname.size() - ext_len, ext_len) == ext;
-}
-
 bool is_lean_file(std::string const & fname) {
     return has_file_ext(fname, ".lean");
 }
@@ -276,15 +141,15 @@ optional<std::string> check_file_core(std::string file, char const * ext) {
         file += ext;
     std::ifstream ifile(file);
     if (ifile)
-        return optional<std::string>(lrealpath(file.c_str()));
+        return optional<std::string>(lrealpath(file));
     else
         return optional<std::string>();
 }
 
 optional<std::string> check_file(std::string const & path, std::string const & fname, char const * ext = nullptr) {
-    std::string file = path + g_sep + fname;
+    std::string file = path + get_dir_sep() + fname;
     if (is_directory(file.c_str())) {
-        std::string default_file = file + g_sep + *g_default_file_name;
+        std::string default_file = file + get_dir_sep() + g_default_file_name;
         if (auto r1 = check_file_core(default_file, ext)) {
             if (auto r2 = check_file_core(file, ext))
                 throw exception(sstream() << "ambiguous import, it can be '" << *r1 << "' or '" << *r2 << "'");
@@ -295,7 +160,7 @@ optional<std::string> check_file(std::string const & path, std::string const & f
 }
 
 std::string name_to_file(name const & fname) {
-    return fname.to_string(g_sep_str);
+    return fname.to_string(get_dir_sep());
 }
 
 std::string find_file(search_path const & paths, std::string fname, std::initializer_list<char const *> const & extensions) {
@@ -312,24 +177,24 @@ std::string find_file(search_path const & paths, std::string fname, std::initial
             }
         }
     }
-    throw file_not_found_exception(fname);
+    throw lean_file_not_found_exception(fname);
 }
 
 std::string find_file(search_path const & paths, std::string const & base, optional<unsigned> const & rel, name const & fname,
                       std::initializer_list<char const *> const & extensions) {
     if (!rel) {
-        return find_file(paths, fname.to_string(g_sep_str), extensions);
+        return find_file(paths, fname.to_string(get_dir_sep()), extensions);
     } else {
         auto path = base;
         for (unsigned i = 0; i < *rel; i++) {
-            path += g_sep;
+            path += get_dir_sep();
             path += "..";
         }
         for (auto ext : extensions) {
-            if (auto r = check_file(path, fname.to_string(g_sep_str), ext))
+            if (auto r = check_file(path, fname.to_string(get_dir_sep()), ext))
                 return *r;
         }
-        throw file_not_found_exception(fname.to_string());
+        throw lean_file_not_found_exception(fname.to_string());
     }
 }
 
@@ -343,23 +208,11 @@ std::string find_file(search_path const & paths, std::string fname) {
 }
 
 std::string find_file(search_path const & paths, name const & fname) {
-    return find_file(paths, fname.to_string(g_sep_str));
+    return find_file(paths, fname.to_string(get_dir_sep()));
 }
 
 std::string find_file(search_path const & paths, name const & fname, std::initializer_list<char const *> const & exts) {
-    return find_file(paths, fname.to_string(g_sep_str), exts);
-}
-
-void find_files(std::string const & base, char const * ext, std::vector<std::string> & files) {
-    for (auto & fn : read_dir(base)) {
-        if (auto i_d = is_dir(fn)) {
-            if (*i_d) {
-                find_files(fn, ext, files);
-            } else if (has_file_ext(fn, ext)) {
-                files.push_back(fn);
-            }
-        }
-    }
+    return find_file(paths, fname.to_string(get_dir_sep()), exts);
 }
 
 void find_imports_core(std::string const & base, optional<unsigned> const & k,
@@ -370,7 +223,7 @@ void find_imports_core(std::string const & base, optional<unsigned> const & k,
 
     for (auto const & file : files) {
         auto import = file.substr(base.size() + 1, file.rfind('.') - (base.size() + 1));
-        std::replace(import.begin(), import.end(), g_sep, '.');
+        std::replace(import.begin(), import.end(), get_dir_sep_ch(), '.');
         if (k)
             import = std::string(*k + 1, '.') + import;
         auto n = import.rfind(".default");
@@ -389,49 +242,11 @@ void find_imports(search_path const & paths, std::string const & base, optional<
     } else {
         auto path = base;
         for (unsigned i = 0; i < *k; i++) {
-            path += g_sep;
+            path += get_dir_sep();
             path += "..";
         }
         find_imports_core(path, k, imports);
     }
-}
-
-void display_path(std::ostream & out, std::string const & fname) {
-    out << fname;
-}
-
-std::string dirname(char const * fname) {
-    if (fname == nullptr)
-        return ".";
-    std::string nfname = normalize_path(std::string(fname));
-    fname = nfname.c_str();
-    unsigned i        = 0;
-    unsigned last_sep = 0;
-    bool found_sep    = false;
-    char const * it   = fname;
-    while (*it) {
-        if (*it == g_sep) {
-            found_sep = true;
-            last_sep  = i;
-        }
-        ++i;
-        ++it;
-    }
-    if (!found_sep) {
-        return ".";
-    } else {
-        std::string r;
-        for (unsigned i = 0; i < last_sep; i++)
-            r.push_back(fname[i]);
-        return r;
-    }
-}
-
-std::string path_append(char const * p1, char const * p2) {
-    std::string r(p1);
-    r += g_sep;
-    r += p2;
-    return r;
 }
 
 std::string olean_of_lean(std::string const & lean_fn) {
@@ -447,44 +262,6 @@ std::string olean_file_to_lean_file(std::string const &olean) {
     std::string lean = olean;
     lean.erase(lean.size() - std::string("olean").size(), 1);
     return lean;
-}
-
-std::string read_file(std::string const & fname, std::ios_base::openmode mode) {
-    std::ifstream in(fname, mode);
-    if (!in.good()) throw file_not_found_exception(fname);
-    std::stringstream buf;
-    buf << in.rdbuf();
-    return buf.str();
-}
-
-time_t get_mtime(std::string const &fname) {
-    struct stat st;
-    if (stat(fname.c_str(), &st) != 0)
-        return -1;
-    return st.st_mtime;
-}
-
-optional<bool> is_dir(std::string const & fn) {
-    struct stat st;
-    if (stat(fn.c_str(), &st) == 0)
-        return optional<bool>(S_ISDIR(st.st_mode));
-    return optional<bool>();
-}
-
-std::vector<std::string> read_dir(std::string const &dirname) {
-    auto dir = opendir(dirname.c_str());
-    if (!dir) throw exception(sstream() << "could not open directory " << dirname << ": " << std::strerror(errno));
-
-    std::vector<std::string> files;
-    while (auto ep = readdir(dir)) { // NOLINT
-        // ^^ disabling readdir_r lint because glibc recommends using readdir now.
-
-        std::string fn = ep->d_name;
-        if (fn == "." || fn == "..") continue;
-        files.push_back(path_append(dirname.c_str(), fn.c_str()));
-    }
-    closedir(dir);
-    return files;
 }
 
 }

@@ -15,7 +15,6 @@ Author: Leonardo de Moura
 #include "library/eval_helper.h"
 #include "util/timer.h"
 #include "util/task_builder.h"
-#include "util/realpath.h"
 #include "util/stackinfo.h"
 #include "util/macros.h"
 #include "util/debug.h"
@@ -557,7 +556,7 @@ int main(int argc, char ** argv) {
         module_mgr mod_mgr(&vfs, lt.get_root(), path.get_path(), env, ios);
 
         if (run_arg) {
-            auto mod = mod_mgr.get_module(lrealpath(run_arg->c_str()));
+            auto mod = mod_mgr.get_module(lrealpath(*run_arg));
             if (!mod) throw exception(sstream() << "could not load " << *run_arg);
 
             auto main_env = get(get(mod->m_result).m_loaded_module->m_env);
@@ -604,7 +603,7 @@ int main(int argc, char ** argv) {
             }
         }
         std::vector<std::string> module_args;
-        for (auto & f : args) module_args.push_back(lrealpath(f.c_str()));
+        for (auto & f : args) module_args.push_back(lrealpath(f));
 
         if (!recursive) {
             for (auto & mod_id : module_args)

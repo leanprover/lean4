@@ -105,7 +105,7 @@ static gtask compile_olean(std::shared_ptr<module_info const> const & mod, log_t
 static module_id resolve(search_path const & path,
                          module_id const & module_file_name,
                          module_name const & ref) {
-    auto base_dir = dirname(module_file_name.c_str());
+    auto base_dir = dirname(module_file_name);
     try {
         return find_file(path, base_dir, ref.m_relative, ref.m_name, ".lean");
     } catch (file_not_found_exception) {

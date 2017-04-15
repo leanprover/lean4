@@ -39,7 +39,7 @@ bool display_deps(search_path const & path, environment const & env, std::ostrea
             std::string ext = m_name.substr(last_idx);
             if (ext == ".lean" || ext == ".hlean")
                 m_name = rawname + ".olean";
-            display_path(out, m_name);
+            out << m_name;
             import_prefix = true;
             out << "\n";
         } catch (exception & new_ex) {

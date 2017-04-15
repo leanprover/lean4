@@ -1,20 +1,21 @@
 /*
-Copyright (c) 2013 Microsoft Corporation. All rights reserved.
+Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Author: Leonardo de Moura
+Author: Leonardo de Moura, Gabriel Ebner
 */
 #pragma once
 #include <string>
 #include <vector>
 #include "util/name.h"
 #include "util/exception.h"
+#include "util/path.h"
 
 namespace lean {
-class file_not_found_exception : public exception {
+class lean_file_not_found_exception : public exception {
     std::string m_fname;
 public:
-    file_not_found_exception(std::string const & fname);
+    lean_file_not_found_exception(std::string const & fname);
 };
 
 using search_path = std::vector<std::string>;
@@ -48,8 +49,6 @@ std::string find_file(search_path const &, std::string const & base, optional<un
                       std::initializer_list<char const *> const & extensions);
 std::string find_file(search_path const &, std::string const & base, optional<unsigned> const & k, name const & fname, char const * ext);
 
-/** \brief Find all files with the given extension recursively. */
-void find_files(std::string const & base, char const * ext, std::vector<std::string> & files);
 void find_imports(search_path const &, std::string const & base, optional<unsigned> const & k,
                   std::vector<pair<std::string, std::string>> & imports_and_files);
 /** \brief Return true iff fname ends with ".lean" */
@@ -60,27 +59,6 @@ bool is_olean_file(std::string const & fname);
 /** \brief Return a string that replaces hierachical name separator '::' with a path separator. */
 std::string name_to_file(name const & fname);
 
-/**
-    \brief Auxiliary function for displaying a path.
-    In some platforms it will fix the notation used to display the path.
-*/
-void display_path(std::ostream & out, std::string const & fname);
-
-std::string resolve(std::string const & rel_or_abs, std::string const & base);
-std::string dirname(char const * fname);
-inline std::string dirname(std::string const & fn) { return dirname(fn.c_str()); }
-std::string path_append(char const * path1, char const * path2);
-
 std::string olean_of_lean(std::string const & lean_fn);
 std::string olean_file_to_lean_file(std::string const & olean);
-
-std::string read_file(std::string const & fname, std::ios_base::openmode mode = std::ios_base::in);
-
-optional<bool> is_dir(std::string const & fn);
-std::vector<std::string> read_dir(std::string const & dirname);
-
-time_t get_mtime(std::string const & fname);
-
-void initialize_lean_path();
-void finalize_lean_path();
 }

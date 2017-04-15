@@ -11,7 +11,7 @@ a_1 : list ℕ
 ⊢ ℕ
 case.lean:18:4: error: focus tactic failed, focused goal has not been solved
 state:
-x ih_1 x : ℕ,
+ih_1 x x : ℕ,
 xs : list ℕ
 ⊢ ℕ
 case.lean:26:2: error: focus tactic failed, focused goal has not been solved

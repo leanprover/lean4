@@ -230,7 +230,6 @@ meta constant format_result : tactic format
 meta constant target        : tactic expr
 meta constant intro_core    : name → tactic expr
 meta constant intron        : nat → tactic unit
-meta constant rename        : name → name → tactic unit
 /- Clear the given local constant. The tactic fails if the given expression is not a local constant. -/
 meta constant clear         : expr → tactic unit
 meta constant revert_lst    : list expr → tactic nat
@@ -965,6 +964,12 @@ do ```(auto_param %%type %%tac_name_expr) ← target,
    tac_name ← eval_expr name tac_name_expr,
    tac ← eval_expr (tactic unit) (expr.const tac_name []),
    tac
+
+meta def rename (curr : name) (new : name) : tactic unit :=
+do h ← get_local curr,
+   n ← revert h,
+   intro new,
+   intron (n - 1)
 
 end tactic
 

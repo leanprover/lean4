@@ -403,10 +403,6 @@ static vm_obj io_fail(vm_obj const &, vm_obj const &, vm_obj const & e, vm_obj c
     return mk_io_failure(e);
 }
 
-static vm_obj io_m(vm_obj const &, vm_obj const &) {
-    return mk_vm_simple(0);
-}
-
 /* (iterate  : Π e α, α → (α → m e (option α)) → m e α) */
 static vm_obj io_iterate(vm_obj const &, vm_obj const &, vm_obj const & a, vm_obj const & fn, vm_obj const &) {
     vm_obj r = a;
@@ -440,9 +436,8 @@ class io.interface :=
 (process  : io.process io.error handle m)
 */
 vm_obj mk_io_interface(std::vector<std::string> const & cmdline_args) {
-    constexpr size_t num_fields = 8;
+    constexpr size_t num_fields = 7;
     vm_obj fields[num_fields] = {
-        mk_native_closure(io_m), /* TODO(Leo): delete after we improve code generator */
         mk_native_closure(io_monad),
         mk_native_closure(io_catch),
         mk_native_closure(io_fail),

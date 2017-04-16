@@ -286,6 +286,13 @@ optional<name> is_constructor_app_ext(environment const & env, expr const & e) {
     return is_constructor_app_ext(env, *it);
 }
 
+static bool is_irrelevant_field_type(type_checker & tc, expr const & ftype) {
+    if (tc.is_prop(ftype)) return true;
+    buffer<expr> tele;
+    expr n_ftype = to_telescope(tc, ftype, tele);
+    return is_sort(n_ftype) || tc.is_prop(n_ftype);
+}
+
 void get_constructor_relevant_fields(environment const & env, name const & n, buffer<bool> & result) {
     lean_assert(inductive::is_intro_rule(env, n));
     expr type        = env.get(n).get_type();
@@ -296,8 +303,7 @@ void get_constructor_relevant_fields(environment const & env, name const & n, bu
     to_telescope(tc, type, telescope);
     lean_assert(telescope.size() >= nparams);
     for (unsigned i = nparams; i < telescope.size(); i++) {
-        expr ftype = tc.whnf(mlocal_type(telescope[i]));
-        result.push_back(!is_sort(ftype) && !tc.is_prop(ftype));
+        result.push_back(!is_irrelevant_field_type(tc, mlocal_type(telescope[i])));
     }
 }
 

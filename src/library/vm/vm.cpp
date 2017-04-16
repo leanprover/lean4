@@ -3134,7 +3134,13 @@ void vm_state::run() {
             vm_obj closure    = m_stack.back();
             stack_pop_back();
             // TODO(Leo): remove redundant code. The following two branches in the if-then-else statement are very similar.
-            if (is_native_closure(closure)) {
+            if (is_simple(closure)) {
+                lean_vm_check(cidx(closure) == 0);
+                stack_pop_back();
+                m_stack.push_back(closure);
+                m_pc++;
+                goto main_loop;
+            } else if (is_native_closure(closure)) {
                 vm_native_closure const * c = to_native_closure(closure);
                 unsigned arity              = c->get_arity();
                 unsigned nargs              = c->get_num_args() + 1;

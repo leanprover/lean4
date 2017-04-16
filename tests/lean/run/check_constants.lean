@@ -15,6 +15,8 @@ run_cmd script_check_id `and
 run_cmd script_check_id `and.elim_left
 run_cmd script_check_id `and.elim_right
 run_cmd script_check_id `and.intro
+run_cmd script_check_id `and.rec
+run_cmd script_check_id `and.cases_on
 run_cmd script_check_id `andthen
 run_cmd script_check_id `auto_param
 run_cmd script_check_id `bit0

@@ -17,6 +17,8 @@ name const & get_and_name();
 name const & get_and_elim_left_name();
 name const & get_and_elim_right_name();
 name const & get_and_intro_name();
+name const & get_and_rec_name();
+name const & get_and_cases_on_name();
 name const & get_andthen_name();
 name const & get_auto_param_name();
 name const & get_bit0_name();

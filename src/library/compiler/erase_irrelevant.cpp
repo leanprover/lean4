@@ -322,6 +322,26 @@ class erase_irrelevant_fn : public compiler_step_visitor {
         return add_args(r, 6, args);
     }
 
+    expr visit_and_cases_on(buffer<expr> & args) {
+        lean_assert(args.size() >= 5);
+        expr minor = visit(args[4]);
+        /* and.cases_on has type
+          and.cases_on : Π {a b : Prop} {C : Sort u_1}, a ∧ b → (a → b → C) → C
+
+           We replace an and.cases_on application with the minor premise
+           applied to neutral elements. */
+        expr r = beta_reduce(mk_app(minor, mk_neutral_expr(), mk_neutral_expr()));
+        return add_args(r, 5, args);
+    }
+
+    /* See and.cases_on */
+    expr visit_and_rec(buffer<expr> & args) {
+        lean_assert(args.size() >= 5);
+        expr minor = visit(args[3]);
+        expr r = beta_reduce(mk_app(minor, mk_neutral_expr(), mk_neutral_expr()));
+        return add_args(r, 5, args);
+    }
+
     expr visit_quot_lift(buffer<expr> const & args) {
         lean_assert(args.size() >= 6);
         expr f = visit(args[3]);
@@ -366,6 +386,10 @@ class erase_irrelevant_fn : public compiler_step_visitor {
                 return visit_eq_rec(args);
             } else if (n == get_acc_cases_on_name()) {
                 return visit_acc_cases_on(args);
+            } else if (n == get_and_cases_on_name()) {
+                return visit_and_cases_on(args);
+            } else if (n == get_and_rec_name()) {
+                return visit_and_rec(args);
             } else if (n == get_quot_lift_name()) {
                 return visit_quot_lift(args);
             } else if (n == get_quot_mk_name()) {

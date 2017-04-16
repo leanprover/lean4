@@ -592,6 +592,12 @@ protected def list.sizeof {α : Type u} [has_sizeof α] : list α → nat
 instance (α : Type u) [has_sizeof α] : has_sizeof (list α) :=
 ⟨list.sizeof⟩
 
+protected def subtype.sizeof {α : Type u} [has_sizeof α] {p : α → Prop} : subtype p → nat
+| ⟨a, _⟩ := sizeof a
+
+instance {α : Type u} [has_sizeof α] (p : α → Prop) : has_sizeof (subtype p) :=
+⟨subtype.sizeof⟩
+
 lemma nat_add_zero (n : nat) : n + 0 = n := rfl
 
 /- Combinator calculus -/

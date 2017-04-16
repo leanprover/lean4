@@ -15,6 +15,9 @@ namespace string
 instance : inhabited string :=
 ⟨empty⟩
 
+instance : has_sizeof string :=
+⟨list.sizeof⟩
+
 @[pattern] def str : char → string → string := list.cons
 
 def concat (a b : string) : string :=

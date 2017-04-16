@@ -11,6 +11,9 @@ def char_sz : nat := succ 255
 
 def char := fin char_sz
 
+instance : has_sizeof char :=
+⟨fin.sizeof _⟩
+
 namespace char
 /- We cannot use tactic dec_trivial here because the tactic framework has not been defined yet. -/
 lemma zero_lt_char_sz : 0 < char_sz :=

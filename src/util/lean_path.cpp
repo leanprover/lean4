@@ -98,9 +98,11 @@ optional<search_path> get_lean_path_from_env() {
 
 search_path get_builtin_search_path() {
     search_path path;
+#if !defined(LEAN_EMSCRIPTEN)
     std::string exe_path = dirname(get_exe_location());
     path.push_back(exe_path + get_dir_sep() + ".." + get_dir_sep() + "library");
     path.push_back(exe_path + get_dir_sep() + ".." + get_dir_sep() + "lib" + get_dir_sep() + "lean" + get_dir_sep() + "library");
+#endif
     return path;
 }
 

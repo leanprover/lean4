@@ -95,6 +95,7 @@ install --local <name> <url>
 dump            prints the parsed leanpkg.toml file (for debugging)
 "
 
+set_option eqn_compiler.lemmas false -- TODO(gabriel): just for performance
 def main : ∀ (args : list string), io unit
 | ["configure"] := configure
 | ["build"] := build

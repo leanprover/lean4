@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
-leandir=$(dirname $(readlink -f $0))/..
-leandir=$(readlink -f $leandir)
+if command -v greadlink >/dev/null 2>&1; then
+    # macOS readlink doesn't support -f option
+    READLINK=greadlink
+else
+    READLINK=readlink
+fi
+
+leandir=$(dirname $($READLINK -f $0))/..
+leandir=$($READLINK -f $leandir)
 
 LEAN_PATH=$leandir/library:$leandir/lib/lean/library:$leandir/leanpkg \
   PATH=$leandir/bin:$PATH \

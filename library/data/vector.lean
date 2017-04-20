@@ -38,8 +38,8 @@ def head : vector α (nat.succ n) → α
 theorem head_cons (a : α) : Π (v : vector α n), head (a :: v) = a
 | ⟨ l, h ⟩ := rfl
 
-def tail : vector α (succ n) → vector α n
-| ⟨ [],     h ⟩ := by contradiction
+def tail : vector α n → vector α (n - 1)
+| ⟨ [],     h ⟩ := ⟨ [], congr_arg pred h ⟩
 | ⟨ a :: v, h ⟩ := ⟨ v, congr_arg pred h ⟩
 
 theorem tail_cons (a : α) : Π (v : vector α n), tail (a :: v) = v

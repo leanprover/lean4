@@ -13,20 +13,20 @@ a_1 : a = b,
 a_2 : b = c
 ⊢ Sort ?
 hello world
-auto_quote_error2.lean:14:2: error: focus tactic failed, focused goal has not been solved
+auto_quote_error2.lean:16:2: error: focus tactic failed, focused goal has not been solved
 state:
 a b c : ℕ,
 a_1 : a = b,
 a_2 : b = c
 ⊢ a = c
 hello world
-auto_quote_error2.lean:26:2: error: focus tactic failed, focused goal has not been solved
+auto_quote_error2.lean:28:2: error: focus tactic failed, focused goal has not been solved
 state:
 a b c : ℕ,
 a_1 : a = b,
 a_2 : b = c
 ⊢ a = ?m_1
-auto_quote_error2.lean:37:22: error: don't know how to synthesize placeholder
+auto_quote_error2.lean:38:2: error: don't know how to synthesize placeholder
 context:
 a b c : ℕ,
 h1 : a = b,
@@ -37,3 +37,8 @@ a b c : ℕ,
 h1 : a = b,
 h2 : b = c
 ⊢ a = c
+auto_quote_error2.lean:45:14: error: focus tactic failed, focused goal has not been solved
+state:
+b : ℕ,
+h2 : b = 0
+⊢ 0 = b

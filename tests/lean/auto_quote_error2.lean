@@ -37,3 +37,11 @@ begin
     exact eq.trans h1 _, -- Error unsolved
   end,
 end
+
+example (a b : nat) : a = 0 → b = 0 → a = b ∧ b = a :=
+begin
+   intros h1 h2,
+   split,
+   { subst h1 },
+            --^ error should be at `}`
+end

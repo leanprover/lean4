@@ -274,8 +274,8 @@ struct parse_tactic_fn {
             auto pos = m_p.pos();
             name const & end_tk = m_p.curr_is_token(get_begin_tk()) ? get_end_tk() : get_rcurly_tk();
             expr next_tac = parse_block(pos, end_tk);
-            // auto block_pos = m_p.pos_of(next_tac);
-            next_tac       = mk_tactic_solve1(m_p, next_tac, pos, m_tac_class, m_use_istep && save_info);
+            auto end_pos = m_p.pos_of(next_tac);
+            next_tac       = mk_tactic_solve1(m_p, next_tac, end_pos, m_tac_class, m_use_istep && save_info);
             if (save_info) {
                 expr info_tac = mk_tactic_save_info(m_p, pos, m_tac_class);
                 return concat(info_tac, next_tac, pos);

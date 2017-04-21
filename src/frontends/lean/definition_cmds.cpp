@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include <vector>
+#include "library/profiling.h"
 #include "library/library_task_builder.h"
 #include "library/sorry.h"
 #include "util/timeit.h"
@@ -38,11 +39,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/decl_util.h"
 #include "frontends/lean/decl_attributes.h"
 #include "frontends/lean/definition_cmds.h"
-
-// We don't display profiling information for declarations that take less than 0.01 secs
-#ifndef LEAN_PROFILE_THRESHOLD
-#define LEAN_PROFILE_THRESHOLD 0.01
-#endif
 
 namespace lean {
 environment ensure_decl_namespaces(environment const & env, name const & full_n) {
@@ -242,11 +238,10 @@ static expr_pair elaborate_definition_core(elaborator & elab, def_cmd_kind kind,
 
 static expr_pair elaborate_definition(parser & p, elaborator & elab, def_cmd_kind kind, expr const & fn, expr const & val, pos_info const & pos) {
     if (p.profiling()) {
-        xtimeit timer(LEAN_PROFILE_THRESHOLD, [&](double duration) {
+        xtimeit timer(get_profiling_threshold(p.get_options()), [&](second_duration duration) {
                 auto msg = p.mk_message(pos, INFORMATION);
                 msg.get_text_stream().get_stream()
-                    << "elaboration time for " << fn << " "
-                    << std::fixed << std::setprecision(5) << duration << " secs\n";
+                    << "elaboration of " << fn << " took " << display_profiling_time{duration} << "\n";
                 msg.report();
             });
         return elaborate_definition_core(elab, kind, fn, val);
@@ -308,11 +303,10 @@ static pair<environment, name> mk_real_name(environment const & env, name const 
 
 static certified_declaration check(parser & p, environment const & env, name const & c_name, declaration const & d, pos_info const & pos) {
     if (p.profiling()) {
-        xtimeit timer(LEAN_PROFILE_THRESHOLD, [&](double duration) {
+        xtimeit timer(get_profiling_threshold(p.get_options()), [&](second_duration duration) {
                 auto msg = p.mk_message(pos, INFORMATION);
                 msg.get_text_stream().get_stream()
-                    << "type checking time for " << c_name << " "
-                    << std::fixed << std::setprecision(5) << duration << " secs\n";
+                    << "type checking time of " << c_name << " took " << display_profiling_time{duration} << "\n";
                 msg.report();
             });
         return ::lean::check(env, d);
@@ -618,15 +612,12 @@ static expr elaborate_proof(
         elaborator elab(decl_env, opts, local_pp_name(fn), mctx, lctx, recover_from_errors);
 
         expr val, type;
-        // TODO(Leo): create an aux function for retrieving this info
-        if (opts.get_bool("profiler", false)) {
-            // TODO(Leo): cleanup this hack
-            xtimeit timer(LEAN_PROFILE_THRESHOLD, [&](double duration) {
-                scope_traces_as_messages traces_as_messages(pos_provider.get_file_name(), header_pos);
-                std::ostringstream out;
-                out << "elaboration time for " << local_pp_name(fn) << " "
-                    << std::fixed << std::setprecision(5) << duration << " secs\n";
-                tout() << out.str();
+        if (get_profiler(opts)) {
+            xtimeit timer(get_profiling_threshold(opts), [&](second_duration duration) {
+                auto msg = message_builder(decl_env, get_global_ios(), file_name, header_pos, INFORMATION);
+                msg.get_text_stream().get_stream()
+                        << "elaboration of " << local_pp_name(fn) << " took " << display_profiling_time{duration} << "\n";
+                msg.report();
             });
             std::tie(val, type) = elab.elaborate_with_type(val0, mk_as_is(mlocal_type(fn)));
         } else {
@@ -642,11 +633,8 @@ static expr elaborate_proof(
         return inline_new_defs(decl_env, elab.env(), local_pp_name(fn), val);
     } catch (exception & ex) {
         /* Remark: we need the catch to be able to produce correct line information */
-        message_builder error_msg(tc, decl_env, get_global_ios(),
-                                  pos_provider.get_file_name(), pos_provider.get_some_pos(),
-                                  ERROR);
-        error_msg.set_exception(ex);
-        error_msg.report();
+        message_builder(tc, decl_env, get_global_ios(), file_name, header_pos, ERROR)
+            .set_exception(ex).report();
         return mk_sorry(final_type);
     }
 }

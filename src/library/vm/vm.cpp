@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include <unordered_map>
 #include <unordered_set>
 #include <iomanip>
+#include "util/timeit.h"
 #include "util/flet.h"
 #include "util/interrupt.h"
 #include "util/sstream.h"
@@ -22,6 +23,7 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 #include "library/module.h"
 #include "library/private.h"
+#include "library/profiling.h"
 #include "library/util.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_name.h"
@@ -31,12 +33,8 @@ Author: Leonardo de Moura
 #include "library/native_compiler/dynamic_library.h"
 #include "library/native_compiler/extern.h"
 
-#ifndef LEAN_DEFAULT_PROFILER
-#define LEAN_DEFAULT_PROFILER false
-#endif
-
 #ifndef LEAN_DEFAULT_PROFILER_FREQ
-#define LEAN_DEFAULT_PROFILER_FREQ 10
+#define LEAN_DEFAULT_PROFILER_FREQ 1
 #endif
 
 namespace lean {
@@ -3348,12 +3346,7 @@ optional<name> vm_state::curr_fn() const {
         return optional<name>(m_decl_map.find(m_fn_idx)->get_name());
 }
 #if defined(LEAN_MULTI_THREAD)
-static name * g_profiler      = nullptr;
 static name * g_profiler_freq = nullptr;
-
-bool get_profiler(options const & opts) {
-    return opts.get_bool(*g_profiler, LEAN_DEFAULT_PROFILER);
-}
 
 unsigned get_profiler_freq(options const & opts) {
     return opts.get_unsigned(*g_profiler_freq, LEAN_DEFAULT_PROFILER_FREQ);
@@ -3495,6 +3488,16 @@ void vm_state::profiler::snapshots::display(std::ostream & out) const {
         out << "\n";
     }
 #endif
+}
+
+bool vm_state::profiler::snapshots::display(std::string const &what, options const &opts, std::ostream &out) const {
+    if (m_total_time >= get_profiling_threshold(opts)) {
+        out << what << " execution took " << display_profiling_time{m_total_time} << "\n";
+        display(out);
+        return true;
+    } else {
+        return false;
+    }
 }
 
 void display_vm_code(std::ostream & out, unsigned code_sz, vm_instr const * code) {
@@ -3677,9 +3680,7 @@ void initialize_vm() {
     vm_code_modification::init();
     vm_monitor_modification::init();
 #if defined(LEAN_MULTI_THREAD)
-    g_profiler       = new name{"profiler"};
     g_profiler_freq  = new name{"profiler", "freq"};
-    register_bool_option(*g_profiler, LEAN_DEFAULT_PROFILER, "(profiler) profile tactics and vm_eval command");
     register_unsigned_option(*g_profiler_freq, LEAN_DEFAULT_PROFILER_FREQ, "(profiler) sampling frequency in milliseconds");
 #endif
     g_debugger       = new name{"debugger"};
@@ -3695,7 +3696,6 @@ void finalize_vm() {
     vm_code_modification::finalize();
     vm_monitor_modification::finalize();
 #if defined(LEAN_MULTI_THREAD)
-    delete g_profiler;
     delete g_profiler_freq;
 #endif
     delete g_debugger;

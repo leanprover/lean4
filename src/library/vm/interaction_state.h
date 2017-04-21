@@ -41,6 +41,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include "library/vm/vm_list.h"
 #include "library/vm/vm_option.h"
 #include "library/compiler/vm_compiler.h"
+#include "library/profiling.h"
 
 namespace lean {
 
@@ -225,8 +226,9 @@ struct interaction_monad {
         vm_obj invoke(vm_state & S, name const & interaction_name, std::initializer_list<vm_obj> const & args) {
             vm_state::profiler prof(S, m_opts);
             vm_obj r = S.invoke(interaction_name, args);
-            if (prof.enabled())
-                prof.get_snapshots().display(get_global_ios().get_regular_stream());
+            if (prof.enabled()) {
+                prof.get_snapshots().display("tactic", m_opts, get_global_ios().get_regular_stream());
+            }
             return r;
         }
 
@@ -237,17 +239,15 @@ struct interaction_monad {
             environment new_env = compile(interaction_name, interaction);
             vm_state S(new_env, m_opts);
             vm_state::profiler prof(S, m_opts);
-            vm_obj r = invoke(S, interaction_name, {to_obj(s)});
+            vm_obj r = S.invoke(interaction_name, {to_obj(s)});
             if (prof.enabled()) {
                 auto out = message_builder(environment(), get_global_ios(),
                                            get_pos_info_provider()->get_file_name(),
                                            get_pos_info_provider()->get_pos_info_or_some(interaction),
                                            INFORMATION);
                 out.set_caption("tactic profile data");
-                auto snaps = prof.get_snapshots();
-                out << "tactic execution took " << snaps.m_total_time.count() << "ms\n";
-                snaps.display(out.get_text_stream().get_stream());
-                out.report();
+                if (prof.get_snapshots().display("tactic", m_opts, out.get_text_stream().get_stream()))
+                    out.report();
             }
 
             if (!is_success(r))

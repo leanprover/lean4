@@ -52,10 +52,12 @@ Author: Leonardo de Moura
 #include "library/congr_lemma.h"
 #include "library/check.h"
 #include "library/parray.h"
+#include "library/profiling.h"
 
 namespace lean {
 void initialize_library_core_module() {
     initialize_constants();
+    initialize_profiling();
     initialize_trace();
     initialize_module();
     initialize_scoped_ext();
@@ -67,6 +69,7 @@ void finalize_library_core_module() {
     finalize_scoped_ext();
     finalize_module();
     finalize_trace();
+    finalize_profiling();
     finalize_constants();
 }
 

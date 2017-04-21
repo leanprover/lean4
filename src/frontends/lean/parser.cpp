@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <string>
 #include <limits>
 #include <vector>
+#include "library/profiling.h"
 #include "library/library_task_builder.h"
 #include "util/utf8.h"
 #include "util/interrupt.h"
@@ -164,7 +165,7 @@ parser::parser(environment const & env, io_state const & ios,
     m_imports_parsed(false) {
     m_next_inst_idx = 1;
     m_ignore_noncomputable = false;
-    m_profile     = ios.get_options().get_bool("profiler", false);
+    m_profile     = get_profiler(ios.get_options());
     m_in_quote = false;
     m_in_pattern = false;
     m_has_params = false;

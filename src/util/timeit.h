@@ -5,51 +5,59 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include <time.h>
 #include <functional>
 #include <string>
 #include <iostream>
-#include <iomanip>
+#include <chrono>
 
 namespace lean {
+using second_duration = std::chrono::duration<double>;
+
+struct display_profiling_time {
+    second_duration m_time;
+};
+
+std::ostream & operator<<(std::ostream & out, display_profiling_time const & time);
+
 /** \brief Low tech timer. */
 class timeit {
-    double         m_threshold; // we only display the result if time > m_threshold
-    clock_t        m_start;
+    second_duration m_threshold;
+    std::chrono::steady_clock::time_point m_start;
     std::ostream & m_out;
     std::string    m_msg;
 public:
-    timeit(std::ostream & out, char const * msg, double threshold):
+    timeit(std::ostream & out, char const * msg, second_duration threshold):
         m_threshold(threshold), m_out(out), m_msg(msg) {
-        m_start = clock();
+        m_start = std::chrono::steady_clock::now();
     }
-    timeit(std::ostream & out, char const * msg):timeit(out, msg, -0.1) {}
+    timeit(std::ostream & out, char const * msg) : timeit(out, msg, second_duration(0)) {}
     ~timeit() {
-        clock_t end = clock();
-        double result = ((static_cast<double>(end) - static_cast<double>(m_start)) / CLOCKS_PER_SEC);
-        if (result > m_threshold) {
-            m_out << m_msg << " " << std::fixed << std::setprecision(5) << result << " secs\n";
+        auto end = std::chrono::steady_clock::now();
+        auto diff = second_duration(end - m_start);
+        if (diff >= m_threshold) {
+            m_out << m_msg << " " << display_profiling_time{diff} << "\n";
         }
     }
 };
 
 /** \brief Low tech timer. */
 class xtimeit {
-    double     m_threshold; // we only display the result if time > m_threshold
-    clock_t    m_start;
-    std::function<void(double)> m_fn; // NOLINT
+    second_duration m_threshold;
+    std::chrono::steady_clock::time_point m_start;
+    std::function<void(second_duration)> m_fn; // NOLINT
 public:
-    xtimeit(double threshold, std::function<void(double)> const & fn): // NOLINT
+    xtimeit(second_duration threshold, std::function<void(second_duration)> const & fn): // NOLINT
         m_threshold(threshold), m_fn(fn) {
-        m_start = clock();
+        m_start = std::chrono::steady_clock::now();
     }
-    xtimeit(std::function<void(double)> const & fn):xtimeit(-0.1, fn) {} // NOLINT
+    xtimeit(std::function<void(second_duration)> const & fn) : xtimeit(second_duration(0), fn) {} // NOLINT
     ~xtimeit() {
-        clock_t end = clock();
-        double result = ((static_cast<double>(end) - static_cast<double>(m_start)) / CLOCKS_PER_SEC);
-        if (result > m_threshold) {
-            m_fn(result);
+        auto end = std::chrono::steady_clock::now();
+        auto diff = second_duration(end - m_start);
+        if (diff >= m_threshold) {
+            m_fn(diff);
         }
     }
 };
+
 }

@@ -478,9 +478,8 @@ static environment eval_cmd(parser & p) {
             p.mk_message(p.cmd_pos(), ERROR).set_exception(t).report();
         }
         if (fn.get_profiler().enabled()) {
-            out << "\n";
-            fn.get_profiler().get_snapshots().display(out.get_text_stream().get_stream());
-            should_report = true;
+            if (fn.get_profiler().get_snapshots().display("#eval", p.get_options(), out.get_text_stream().get_stream()))
+                should_report = true;
         }
     };
 

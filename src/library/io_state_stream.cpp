@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "kernel/level.h"
 #include "library/io_state_stream.h"
+#include "util/timeit.h"
 
 namespace lean {
 io_state_stream const & operator<<(io_state_stream const & out, endl_class) {
@@ -51,4 +52,10 @@ io_state_stream const & operator<<(io_state_stream const & out, formatted_except
     out.get_stream() << mk_pair(ex.pp(), opts);
     return out;
 }
+
+io_state_stream const & operator<<(io_state_stream const & out, display_profiling_time const & t) {
+    out.get_stream() << t;
+    return out;
+}
+
 }

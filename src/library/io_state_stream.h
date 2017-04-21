@@ -60,6 +60,8 @@ template<typename T> io_state_stream const & display(io_state_stream const & out
     out.get_stream() << t;
     return out;
 }
+struct display_profiling_time;
+io_state_stream const & operator<<(io_state_stream const & out, display_profiling_time const &);
 inline io_state_stream const & operator<<(io_state_stream const & out, char const * d) { return display(out, d); }
 inline io_state_stream const & operator<<(io_state_stream const & out, name const & d) { return display(out, d); }
 inline io_state_stream const & operator<<(io_state_stream const & out, unsigned d) { return display(out, d); }

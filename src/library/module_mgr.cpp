@@ -108,7 +108,7 @@ static module_id resolve(search_path const & path,
     auto base_dir = dirname(module_file_name);
     try {
         return find_file(path, base_dir, ref.m_relative, ref.m_name, ".lean");
-    } catch (file_not_found_exception) {
+    } catch (lean_file_not_found_exception) {
         return olean_file_to_lean_file(find_file(path, base_dir, ref.m_relative, ref.m_name, ".olean"));
     }
 }

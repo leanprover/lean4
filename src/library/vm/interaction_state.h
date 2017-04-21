@@ -244,7 +244,9 @@ struct interaction_monad {
                                            get_pos_info_provider()->get_pos_info_or_some(interaction),
                                            INFORMATION);
                 out.set_caption("tactic profile data");
-                prof.get_snapshots().display(out.get_text_stream().get_stream());
+                auto snaps = prof.get_snapshots();
+                out << "tactic execution took " << snaps.m_total_time.count() << "ms\n";
+                snaps.display(out.get_text_stream().get_stream());
                 out.report();
             }
 

@@ -1,3 +1,5 @@
+open tactic
+
 example : false :=
 begin
   simp,
@@ -8,4 +10,6 @@ begin
       --^ "command": "info"
   simp [d] ,
         --^ "command": "info"
+  get_env
+--^ "command": "info"
 end

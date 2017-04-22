@@ -62,7 +62,7 @@ void report_completions(environment const & env, options const & opts, pos_info 
             break;
         case break_at_pos_exception::token_context::field:
             if (!skip_completions)
-                j["completions"] = get_field_completions(e.m_token_info.m_struct, prefix, env, opts);
+                j["completions"] = get_field_completions(e.m_token_info.m_param, prefix, env, opts);
             break;
         case break_at_pos_exception::token_context::option:
             if (!skip_completions)
@@ -70,12 +70,11 @@ void report_completions(environment const & env, options const & opts, pos_info 
             break;
         case break_at_pos_exception::token_context::import:
             if (!skip_completions)
-                j["completions"] = get_import_completions(prefix, dirname(mod_path),
-                                                          opts);
+                j["completions"] = get_import_completions(prefix, dirname(mod_path), opts);
             break;
         case break_at_pos_exception::token_context::interactive_tactic:
             if (!skip_completions)
-                j["completions"] = get_interactive_tactic_completions(prefix, e.m_token_info.m_tac_class, env, opts);
+                j["completions"] = get_interactive_tactic_completions(prefix, e.m_token_info.m_param, env, opts);
             break;
         case break_at_pos_exception::token_context::attribute:
             if (!skip_completions)
@@ -84,6 +83,13 @@ void report_completions(environment const & env, options const & opts, pos_info 
         case break_at_pos_exception::token_context::namespc:
             if (!skip_completions)
                 j["completions"] = get_namespace_completions(prefix, env, opts);
+            break;
+        case break_at_pos_exception::token_context::single_completion:
+            if (!skip_completions) {
+                json completion;
+                completion["text"] = e.m_token_info.m_param.to_string();
+                j["completions"] = std::vector<json>{completion};
+            }
             break;
         case break_at_pos_exception::token_context::none:
         case break_at_pos_exception::token_context::notation:
@@ -123,7 +129,7 @@ void report_info(environment const & env, options const & opts, io_state const &
                     record["doc"] = it->get_description();
                 break;
             case break_at_pos_exception::token_context::interactive_tactic: {
-                auto n = get_interactive_tactic_full_name(e.m_token_info.m_tac_class, e.m_token_info.m_token);
+                auto n = get_interactive_tactic_full_name(e.m_token_info.m_param, e.m_token_info.m_token);
                 if (env.find(n)) {
                     record = serialize_decl(e.m_token_info.m_token, n, env, opts);
                     if (auto idx = e.m_token_info.m_tac_param_idx)
@@ -132,7 +138,7 @@ void report_info(environment const & env, options const & opts, io_state const &
                 }
                 break;
             } case break_at_pos_exception::token_context::field: {
-                auto name = e.m_token_info.m_struct + e.m_token_info.m_token;
+                auto name = e.m_token_info.m_param + e.m_token_info.m_token;
                 record["full-id"] = name.to_string();
                 add_source_info(env, name, record);
                 if (auto doc = get_doc_string(env, name))

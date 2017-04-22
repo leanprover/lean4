@@ -1040,7 +1040,7 @@ static expr parse_field(parser_state & p, unsigned, expr const * args, pos_info 
         expr fn = get_app_fn(lhs_type);
         if (is_constant(fn)) {
             ex.m_token_info.m_context = break_at_pos_exception::token_context::field;
-            ex.m_token_info.m_struct  = const_name(fn);
+            ex.m_token_info.m_param   = const_name(fn);
         }
         throw;
     }

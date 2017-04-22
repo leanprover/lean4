@@ -231,7 +231,7 @@ struct parse_tactic_fn {
                 m_p.check_break_at_pos();
         } catch (break_at_pos_exception & e) {
             e.m_token_info.m_context   = break_at_pos_exception::token_context::interactive_tactic;
-            e.m_token_info.m_tac_class = m_tac_class;
+            e.m_token_info.m_param     = m_tac_class;
             throw;
         }
         expr r;
@@ -246,7 +246,7 @@ struct parse_tactic_fn {
                     e.m_token_info.m_pos       = pos;
                     e.m_token_info.m_token     = dname->get_string();
                     e.m_token_info.m_context   = break_at_pos_exception::token_context::interactive_tactic;
-                    e.m_token_info.m_tac_class = m_tac_class;
+                    e.m_token_info.m_param     = m_tac_class;
                 }
                 throw;
             }

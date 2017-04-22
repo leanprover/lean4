@@ -157,13 +157,25 @@ environment end_scoped_cmd(parser & p) {
         throw exception("invalid 'end', there is no open namespace/section");
     }
     p.pop_local_scope();
-    if (p.curr_is_identifier()) {
-        name n = p.check_id_next("invalid end of scope, identifier expected");
-        environment env = pop_scope(p.env(), p.ios(), n);
-        return redeclare_aliases(env, p, level_decls, entries);
-    } else {
-        environment env = pop_scope(p.env(), p.ios());
-        return redeclare_aliases(env, p, level_decls, entries);
+    try {
+        p.check_break_before();
+        if (p.curr_is_identifier()) {
+            name n;
+            n = p.check_id_next("invalid end of scope, identifier expected");
+            environment env = pop_scope(p.env(), p.ios(), n);
+            return redeclare_aliases(env, p, level_decls, entries);
+        } else {
+            environment env = pop_scope(p.env(), p.ios());
+            return redeclare_aliases(env, p, level_decls, entries);
+        }
+    } catch (break_at_pos_exception & ex) {
+        if (p.get_complete()) {
+            if (auto n = get_scope_header(p.env())) {
+                ex.m_token_info.m_context = break_at_pos_exception::token_context::single_completion;
+                ex.m_token_info.m_param = n;
+            }
+        }
+        throw;
     }
 }
 

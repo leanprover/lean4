@@ -46,6 +46,11 @@ name const & get_namespace(environment const & env) {
     return !is_nil(ext.m_namespaces) ? head(ext.m_namespaces) : name::anonymous();
 }
 
+name const & get_scope_header(environment const & env) {
+    scope_mng_ext const & ext = get_extension(env);
+    return !is_nil(ext.m_namespaces) ? head(ext.m_headers) : name::anonymous();
+}
+
 list<name> const & get_namespaces(environment const & env) {
     return get_extension(env).m_namespaces;
 }

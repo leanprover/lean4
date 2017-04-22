@@ -18,3 +18,7 @@ set_option trace.simplify true
 
 #print foo
       --^ "command": "complete", "skip_completions": true
+
+section foo
+end foo
+  --^ "command": "complete", "skip_completions": true

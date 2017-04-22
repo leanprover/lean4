@@ -98,14 +98,17 @@
                                     (propertize doc 'face 'font-lock-comment-face))))))
       str)))
 
+(defvar-local lean-eldoc-documentation-cache nil)
+
 (defun lean-eldoc-documentation-function-cont (info-record &optional add-to-kill-ring)
   "Continuation for lean-eldoc-documentation-function"
-  (let ((info-string (lean-info-record-to-string info-record)))
+  (let ((info-string (and info-record (lean-info-record-to-string info-record))))
     (when info-string
       (when add-to-kill-ring
         (kill-new
-         (substring-no-properties info-string)))
-      (eldoc-message "%s" info-string))))
+         (substring-no-properties info-string))))
+    (setq lean-eldoc-documentation-cache (and info-string (format "%s" info-string)))
+    (eldoc-message lean-eldoc-documentation-cache)))
 
 (defun lean-eldoc-documentation-function (&optional add-to-kill-ring)
   "Show information of lean expression at point if any"
@@ -113,8 +116,8 @@
   (when (not (eq lean-server-check-mode 'nothing)) ; TODO(gabriel): revisit once info no longer reparses the file
     (lean-get-info-record-at-point
      (lambda (info-record)
-       (when info-record
-         (lean-eldoc-documentation-function-cont info-record add-to-kill-ring))))))
+       (lean-eldoc-documentation-function-cont info-record add-to-kill-ring)))
+    lean-eldoc-documentation-cache))
 
 (defun lean-show-type ()
   "Show information of lean-expression at point if any."

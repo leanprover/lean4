@@ -165,7 +165,6 @@ parser::parser(environment const & env, io_state const & ios,
     m_imports_parsed(false) {
     m_next_inst_idx = 1;
     m_ignore_noncomputable = false;
-    m_profile     = get_profiler(ios.get_options());
     m_in_quote = false;
     m_in_pattern = false;
     m_has_params = false;
@@ -230,6 +229,7 @@ expr parser::mk_sorry(pos_info const & p) {
 }
 
 void parser::updt_options() {
+    m_profile        = get_profiler(m_ios.get_options());
     m_show_errors    = get_parser_show_errors(m_ios.get_options());
 }
 
@@ -2342,6 +2342,7 @@ bool parser::parse_command_like() {
                 check_no_doc_string();
             }
             parse_command();
+            updt_options();
             break;
         case token_kind::DocBlock:
             check_no_doc_string();

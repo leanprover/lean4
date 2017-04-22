@@ -235,7 +235,6 @@ environment set_option_cmd(parser & p) {
     } else {
         throw parser_error("invalid option value, 'true', 'false', string, integer or decimal value expected", p.pos());
     }
-    p.updt_options();
     environment env = p.env();
     return update_fingerprint(env, p.get_options().hash());
 }

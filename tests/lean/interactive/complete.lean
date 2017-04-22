@@ -15,3 +15,6 @@ example := foo
 
 set_option trace.simplify true
          --^ "command": "complete", "skip_completions": true
+
+#print foo
+      --^ "command": "complete", "skip_completions": true

@@ -438,7 +438,7 @@ bool print_token_info(parser const & p, message_builder & out, name const & tk) 
 bool print_polymorphic(parser & p, message_builder & out) {
     auto pos = p.pos();
     try {
-        name id = p.check_id_next("");
+        name id = p.check_id_next("", break_at_pos_exception::token_context::expr);
         bool show_value = true;
         if (print_id_info(p, out, id, show_value, pos))
             return true;

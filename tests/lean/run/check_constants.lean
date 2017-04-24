@@ -24,7 +24,6 @@ run_cmd script_check_id `bit1
 run_cmd script_check_id `bool
 run_cmd script_check_id `bool.ff
 run_cmd script_check_id `bool.tt
-run_cmd script_check_id `bind
 run_cmd script_check_id `combinator.K
 run_cmd script_check_id `caching_user_attribute
 run_cmd script_check_id `cast
@@ -84,6 +83,7 @@ run_cmd script_check_id `ge
 run_cmd script_check_id `gt
 run_cmd script_check_id `has_add
 run_cmd script_check_id `has_bind.and_then
+run_cmd script_check_id `has_bind.bind
 run_cmd script_check_id `has_bind.seq
 run_cmd script_check_id `has_div
 run_cmd script_check_id `has_mul

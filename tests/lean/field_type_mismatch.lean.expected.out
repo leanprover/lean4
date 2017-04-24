@@ -9,4 +9,4 @@ field_type_mismatch.lean:8:14: error: type mismatch at field 'mul_assoc'
 has type
   true
 but is expected to have type
-  ∀ (a b c : ℕ), a * b * c = a * (b * c)
+  ∀ (a b c : ℕ), nat.add (nat.add a b) c = nat.add a (nat.add b c)

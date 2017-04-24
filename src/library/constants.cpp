@@ -24,7 +24,6 @@ name const * g_bit1 = nullptr;
 name const * g_bool = nullptr;
 name const * g_bool_ff = nullptr;
 name const * g_bool_tt = nullptr;
-name const * g_bind = nullptr;
 name const * g_combinator_K = nullptr;
 name const * g_caching_user_attribute = nullptr;
 name const * g_cast = nullptr;
@@ -84,6 +83,7 @@ name const * g_ge = nullptr;
 name const * g_gt = nullptr;
 name const * g_has_add = nullptr;
 name const * g_has_bind_and_then = nullptr;
+name const * g_has_bind_bind = nullptr;
 name const * g_has_bind_seq = nullptr;
 name const * g_has_div = nullptr;
 name const * g_has_mul = nullptr;
@@ -398,7 +398,6 @@ void initialize_constants() {
     g_bool = new name{"bool"};
     g_bool_ff = new name{"bool", "ff"};
     g_bool_tt = new name{"bool", "tt"};
-    g_bind = new name{"bind"};
     g_combinator_K = new name{"combinator", "K"};
     g_caching_user_attribute = new name{"caching_user_attribute"};
     g_cast = new name{"cast"};
@@ -458,6 +457,7 @@ void initialize_constants() {
     g_gt = new name{"gt"};
     g_has_add = new name{"has_add"};
     g_has_bind_and_then = new name{"has_bind", "and_then"};
+    g_has_bind_bind = new name{"has_bind", "bind"};
     g_has_bind_seq = new name{"has_bind", "seq"};
     g_has_div = new name{"has_div"};
     g_has_mul = new name{"has_mul"};
@@ -773,7 +773,6 @@ void finalize_constants() {
     delete g_bool;
     delete g_bool_ff;
     delete g_bool_tt;
-    delete g_bind;
     delete g_combinator_K;
     delete g_caching_user_attribute;
     delete g_cast;
@@ -833,6 +832,7 @@ void finalize_constants() {
     delete g_gt;
     delete g_has_add;
     delete g_has_bind_and_then;
+    delete g_has_bind_bind;
     delete g_has_bind_seq;
     delete g_has_div;
     delete g_has_mul;
@@ -1147,7 +1147,6 @@ name const & get_bit1_name() { return *g_bit1; }
 name const & get_bool_name() { return *g_bool; }
 name const & get_bool_ff_name() { return *g_bool_ff; }
 name const & get_bool_tt_name() { return *g_bool_tt; }
-name const & get_bind_name() { return *g_bind; }
 name const & get_combinator_K_name() { return *g_combinator_K; }
 name const & get_caching_user_attribute_name() { return *g_caching_user_attribute; }
 name const & get_cast_name() { return *g_cast; }
@@ -1207,6 +1206,7 @@ name const & get_ge_name() { return *g_ge; }
 name const & get_gt_name() { return *g_gt; }
 name const & get_has_add_name() { return *g_has_add; }
 name const & get_has_bind_and_then_name() { return *g_has_bind_and_then; }
+name const & get_has_bind_bind_name() { return *g_has_bind_bind; }
 name const & get_has_bind_seq_name() { return *g_has_bind_seq; }
 name const & get_has_div_name() { return *g_has_div; }
 name const & get_has_mul_name() { return *g_has_mul; }

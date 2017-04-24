@@ -259,33 +259,4 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
     }
     return new_env;
 }
-
-static name mk_fresh_name(environment const & env, buffer<name> const & names, name const & s) {
-    unsigned i = 1;
-    name c = s;
-    while (true) {
-        if (!env.find(c) &&
-            std::find(names.begin(), names.end(), c) == names.end())
-            return c;
-        c = s.append_after(i);
-        i++;
-    }
-}
-
-environment mk_projections(environment const & env, name const & n,
-                           implicit_infer_kind infer_k, bool inst_implicit) {
-    auto p  = get_nparam_intro_rule(env, n);
-    unsigned num_params = p.first;
-    inductive::intro_rule ir = p.second;
-    expr type = inductive::intro_rule_type(ir);
-    buffer<name> proj_names;
-    unsigned i = 0;
-    while (is_pi(type)) {
-        if (i >= num_params)
-            proj_names.push_back(mk_fresh_name(env, proj_names, n + binding_name(type)));
-        i++;
-        type = binding_body(type);
-    }
-    return mk_projections(env, n, proj_names, infer_k, inst_implicit);
-}
 }

@@ -119,10 +119,8 @@ static void print_fields(parser const & p, message_builder & out, name const & S
     environment const & env = p.env();
     if (!is_structure(env, S))
         throw parser_error(sstream() << "invalid '#print fields' command, '" << S << "' is not a structure", pos);
-    buffer<name> field_names;
-    get_structure_fields(env, S, field_names);
-    for (name const & field_name : field_names) {
-        declaration d = env.get(field_name);
+    for (name const & field_name : get_structure_fields(env, S)) {
+        declaration d = env.get(S + field_name);
         out << d.get_name() << " : " << d.get_type() << endl;
     }
 }

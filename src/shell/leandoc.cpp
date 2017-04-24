@@ -84,11 +84,9 @@ static void print_constant(std::ostream & out, environment const & env, formatte
 static void print_fields(std::ostream & out, environment const & env, formatter const & fmt, name const & S) {
     lean_assert(is_structure(env, S));
     options const & o = fmt.get_options();
-    buffer<name> field_names;
-    get_structure_fields(env, S, field_names);
     out << "```lean\n";
-    for (name const & field_name : field_names) {
-        declaration d = env.get(field_name);
+    for (name const & field_name : get_structure_fields(env, S)) {
+        declaration d = env.get(S + field_name);
         format r;
         r += format(d.get_name());
         r += space() + colon() + space();

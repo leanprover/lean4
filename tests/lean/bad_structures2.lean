@@ -20,8 +20,6 @@ structure bla extends foo :=
 structure bla extends foo :=
 mk :: y z : num
 
-structure bla2 extends foo renaming y → z
-
 structure bla2 extends nat
 
 structure bla2 extends Type

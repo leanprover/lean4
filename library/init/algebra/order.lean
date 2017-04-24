@@ -9,6 +9,8 @@ import init.logic
    defined for concrete structures -/
 set_option default_priority 100
 
+set_option old_structure_cmd true
+
 universe u
 variables {α : Type u}
 

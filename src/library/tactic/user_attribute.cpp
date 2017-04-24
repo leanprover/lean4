@@ -49,6 +49,8 @@ static environment add_user_attr(environment const & env, name const & d) {
 
     vm_state vm(env, options());
     vm_obj o = vm.invoke(d, {});
+    if (is_constant(get_app_fn(ty), get_caching_user_attribute_name()))
+        o = cfield(o, 0);
     name const & n = to_name(cfield(o, 0));
     if (n.is_anonymous())
         throw exception(sstream() << "invalid user_attribute, anonymous attribute names are not allowed");
@@ -138,9 +140,9 @@ static bool check_dep_fingerprints(environment const & env, list<name> const & d
 
 vm_obj caching_user_attribute_get_cache(vm_obj const &, vm_obj const & vm_attr, vm_obj const & vm_s) {
     tactic_state const & s       = tactic::to_state(vm_s);
-    name const & n               = to_name(cfield(vm_attr, 0));
-    vm_obj const & cache_handler = cfield(vm_attr, 2);
-    list<name> const & deps      = to_list_name(cfield(vm_attr, 3));
+    name const & n               = to_name(cfield(cfield(vm_attr, 0), 0));
+    vm_obj const & cache_handler = cfield(vm_attr, 1);
+    list<name> const & deps      = to_list_name(cfield(vm_attr, 2));
     LEAN_TACTIC_TRY;
     environment const & env = s.env();
     attribute const & attr  = get_attribute(env, n);

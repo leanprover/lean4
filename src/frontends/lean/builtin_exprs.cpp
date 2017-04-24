@@ -259,7 +259,7 @@ static std::tuple<optional<expr>, expr, expr, optional<expr>> parse_do_action(pa
 }
 
 static expr mk_bind_fn() {
-    return mk_no_info(mk_constant(get_bind_name()));
+    return mk_no_info(mk_constant(get_has_bind_bind_name()));
 }
 
 static name * g_do_failure_eq = nullptr;

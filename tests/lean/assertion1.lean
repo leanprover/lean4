@@ -27,7 +27,7 @@ structure MonoidalCategory
   (tensor : TensorProduct carrier)
 
 instance MonoidalCategory_coercion : has_coe MonoidalCategory Category :=
-  ⟨MonoidalCategory.to_Category⟩
+  ⟨MonoidalCategory.carrier⟩
 
 -- Convenience methods which take two arguments, rather than a pair. (This seems to often help the elaborator avoid getting stuck on `prod.mk`.)
 @[reducible] definition MonoidalCategory.tensorObjects { C : MonoidalCategory } ( X Y : C^.Obj ) : C^.Obj := C^.tensor^.onObjects (X, Y)

@@ -231,8 +231,23 @@ private:
     void check_inaccessible_annotations(expr const & lhs);
     expr visit_equation(expr const & eq);
     expr visit_inaccessible(expr const & e, optional<expr> const & expected_type);
-    name field_to_decl(expr const & e, expr const & s, expr const & s_type);
-    name find_field_fn(expr const & e, expr const & s, expr const & s_type);
+
+    struct field_resolution {
+        name m_S_name; // structure name of field expression type
+        name m_base_S_name; // structure name of field
+        name m_fname;
+
+        field_resolution(name const & full_fname):
+                m_S_name(full_fname.get_prefix()), m_base_S_name(full_fname.get_prefix()), m_fname(full_fname.get_string())
+        {}
+        field_resolution(const name & S_name, const name & base_S_name, const name & fname):
+                m_S_name(S_name), m_base_S_name(base_S_name), m_fname(fname) {}
+
+        name get_full_fname() const { return m_base_S_name + m_fname; }
+    };
+
+    field_resolution field_to_decl(expr const & e, expr const & s, expr const & s_type);
+    field_resolution find_field_fn(expr const & e, expr const & s, expr const & s_type);
     expr visit_field(expr const & e, optional<expr> const & expected_type);
     void assign_field_mvar(name const & S_fname, expr const & mvar,
                            optional<expr> const & new_new_fval, expr const & new_fval, expr const & new_fval_type,

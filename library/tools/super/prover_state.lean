@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner
 -/
 import .clause .lpo .cdcl_solver
-open tactic monad expr
+open tactic functor monad expr
 
 namespace super
 

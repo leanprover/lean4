@@ -794,8 +794,7 @@ auto pretty_fn::pp_structure_instance(expr const & e) -> result {
         r = group(nest(1, format("⟨") + r + format("⟩")));
         return result(r);
     } else {
-        buffer<name> fields;
-        get_structure_fields(m_env, S, fields);
+        auto fields = get_structure_fields(m_env, S);
         lean_assert(args.size() == num_params + fields.size());
         format r;
         if (m_structure_instances_qualifier)
@@ -803,7 +802,6 @@ auto pretty_fn::pp_structure_instance(expr const & e) -> result {
         for (unsigned i = 0; i < fields.size(); i++) {
             if (i > 0 || m_structure_instances_qualifier) r += line();
             name fname          = fields[i];
-            fname               = fname.replace_prefix(S, name());
             unsigned field_size = fname.utf8_size();
             format fval_fmt     = pp(args[i + num_params]).fmt();
             if (i < fields.size() - 1) fval_fmt += comma();

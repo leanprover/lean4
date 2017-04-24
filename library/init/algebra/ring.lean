@@ -10,6 +10,8 @@ import init.algebra.group
    defined for concrete structures -/
 set_option default_priority 100
 
+set_option old_structure_cmd true
+
 universe u
 
 class distrib (α : Type u) extends has_mul α, has_add α :=

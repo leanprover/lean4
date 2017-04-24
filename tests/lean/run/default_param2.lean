@@ -60,6 +60,6 @@ do e ← to_expr p, guard (t = e)
 
 run_cmd do
   e ← to_expr `(boo 2),
-  check_expr `(boo 2 (2:nat) ff {v1 := config.v1._default, v2 := 2, flag := ff, ps := config.ps._default}) e,
+  check_expr `(boo 2 (2:nat) ff {v1 := 10, v2 := 2, flag := ff, ps := ["hello", "world"]}) e,
   e ← to_expr `(f 1),
   check_expr `(f 1 (5:nat)) e

@@ -1,3 +1,5 @@
+set_option old_structure_cmd true
+
 #print prefix semigroup
 
 #print "======================="

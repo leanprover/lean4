@@ -14,6 +14,8 @@ universe u
    defined for concrete structures -/
 set_option default_priority 100
 
+set_option old_structure_cmd true
+
 class division_ring (α : Type u) extends ring α, has_inv α, zero_ne_one_class α :=
 (mul_inv_cancel : ∀ {a : α}, a ≠ 0 → a * a⁻¹ = 1)
 (inv_mul_cancel : ∀ {a : α}, a ≠ 0 → a⁻¹ * a = 1)

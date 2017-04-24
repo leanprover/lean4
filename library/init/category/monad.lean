@@ -12,8 +12,7 @@ open function
 class has_bind (m : Type u → Type v) :=
 (bind : Π {α β : Type u}, m α → (α → m β) → m β)
 
-@[inline] def bind {m : Type u → Type v} [has_bind m] {α β : Type u} : m α → (α → m β) → m β :=
-has_bind.bind
+export has_bind (bind)
 
 @[inline] def has_bind.and_then {α β : Type u} {m : Type u → Type v} [has_bind m] (x : m α) (y : m β) : m β :=
 do x, y
@@ -25,9 +24,6 @@ section
 set_option auto_param.check_exists false
 
 class monad (m : Type u → Type v) extends applicative m, has_bind m : Type (max u+1 v) :=
-(infixr ` <$> `:100 := map)
-(infixl ` <*> `:60 := seq)
-(infixl ` >>= `:55 := bind)
 (map := λ α β f x, x >>= pure ∘ f)
 (seq := λ α β f x, f >>= (<$> x))
 (bind_pure_comp_eq_map : ∀ {α β : Type u} (f : α → β) (x : m α), x >>= pure ∘ f = f <$> x  . control_laws_tac)

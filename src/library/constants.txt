@@ -19,7 +19,6 @@ bit1
 bool
 bool.ff
 bool.tt
-bind
 combinator.K
 caching_user_attribute
 cast
@@ -79,6 +78,7 @@ ge
 gt
 has_add
 has_bind.and_then
+has_bind.bind
 has_bind.seq
 has_div
 has_mul

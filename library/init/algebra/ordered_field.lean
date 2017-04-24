@@ -6,6 +6,8 @@ Authors: Robert Lewis, Leonardo de Moura
 prelude
 import init.algebra.ordered_ring init.algebra.field
 
+set_option old_structure_cmd true
+
 universe u
 
 class linear_ordered_field (α : Type u) extends linear_ordered_ring α, field α

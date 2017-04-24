@@ -2479,9 +2479,9 @@ void elaborator::assign_field_mvar(name const & S_fname, expr const & mvar,
         auto pp_fn   = std::get<0>(pp_data);
         format msg = format("unexpected field '") + format(S_fname) + format("'");
         msg += line() + format("given field value");
-        msg += std::get<1>(pp_data);
-        msg += line() + format("expected field value");
         msg += std::get<2>(pp_data);
+        msg += line() + format("expected field value");
+        msg += std::get<1>(pp_data);
         throw elaborator_exception(ref, msg);
     }
 }

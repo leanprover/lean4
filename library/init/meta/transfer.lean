@@ -120,8 +120,7 @@ private meta def param_substitutions (ctxt : list expr) :
     let ty := pis ctxt' t in
     if bi = binder_info.inst_implicit then do
       guard (bi = binder_info.inst_implicit),
-      ty ← instantiate_mvars ty,
-      e ← mk_instance ty,
+      e ← instantiate_mvars ty >>= mk_instance,
       return (e, [])
     else do
       mv ← mk_meta_var ty,
@@ -171,6 +170,9 @@ meta def compute_transfer : list rule_data → list expr → expr → tactic (ex
 meta def transfer (ds : list name) : tactic unit := do
   rds ← analyse_decls ds,
   tgt ← target,
+
+  (guard (¬ tgt.has_meta_var) <|>
+    fail "Target contains (universe) meta variables. This is not supported by transfer."),
 
   (new_tgt, pr, ms) ← compute_transfer rds [] (const `iff [] tgt),
   new_pr ← mk_meta_var new_tgt,

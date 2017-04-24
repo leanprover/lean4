@@ -515,7 +515,7 @@ public:
     }
 
     void remove(rb_tree const & s) {
-        s.for_each([&](T const & v) { remove(v); });
+        s.for_each([&](T const & v) { erase(v); });
     }
 
     friend bool is_eqp(rb_tree const & s1, rb_tree const & s2) { return is_eqp(s1.m_root, s2.m_root); }

@@ -420,8 +420,9 @@ class inductive_cmd_fn {
             expr new_ind_type = mlocal_type(ind);
             if (is_placeholder(new_ind_type))
                 new_ind_type = mk_sort(mk_level_placeholder());
+            new_ind_type = elab.elaborate(replace_locals(new_ind_type, params_no_inds, new_params));
             level l = get_datatype_result_level(new_ind_type);
-            if (is_placeholder(l)) {
+            if (is_meta(l)) {
                 if (m_explicit_levels)
                     throw_error("resultant universe must be provided, when using explicit universe levels");
                 new_ind_type = update_result_sort(new_ind_type, m_u_meta);
@@ -431,11 +432,11 @@ class inductive_cmd_fn {
                 result_level = l;
                 first = false;
             } else {
-                if (!is_placeholder(l) && result_level != l) {
+                if (!is_meta(l) && result_level != l) {
                     throw_error("mutually inductive types must live in the same universe");
                 }
             }
-            new_inds.push_back(update_mlocal(ind, elab.elaborate(replace_locals(new_ind_type, params_no_inds, new_params))));
+            new_inds.push_back(update_mlocal(ind, new_ind_type));
         }
 
         for (buffer<expr> const & irs : intro_rules) {

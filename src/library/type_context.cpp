@@ -3450,9 +3450,7 @@ struct instance_synthesizer {
         return ensure_no_meta(r);
     }
 
-    optional<expr> operator()(expr const & type) {
-        lean_trace_init_bool("class_instances", get_pp_purify_metavars_name(), false);
-        lean_trace_init_bool("class_instances", get_pp_implicit_name(), true);
+    optional<expr> main(expr const & type) {
         auto r = mk_class_instance_core(type);
         if (r) {
             for (unsigned i = 0; i < m_choices.size(); i++) {
@@ -3461,6 +3459,17 @@ struct instance_synthesizer {
             m_choices.clear();
         }
         return r;
+    }
+
+    optional<expr> operator()(expr const & type) {
+        if (is_trace_enabled() && !is_trace_class_enabled("class_instances")) {
+            scope_trace_silent scope(true);
+            return main(type);
+        } else {
+            lean_trace_init_bool("class_instances", get_pp_purify_metavars_name(), false);
+            lean_trace_init_bool("class_instances", get_pp_implicit_name(), true);
+            return main(type);
+        }
     }
 };
 

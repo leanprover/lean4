@@ -800,7 +800,10 @@ struct structure_cmd_fn {
         auto start_pos = m_p.pos();
         while (m_p.curr_is_identifier()) {
             auto p = m_p.pos();
-            names.emplace_back(p, m_p.check_atomic_id_next("invalid field, atomic identifier expected"));
+            auto n = m_p.check_atomic_id_next("invalid field, atomic identifier expected");
+            if (is_internal_subobject_field(n))
+                throw parser_error(sstream() << "invalid field name '" << n << "', identifiers starting with '_' are reserved to the system", p);
+            names.emplace_back(p, n);
         }
         if (names.empty())
             throw parser_error("invalid field, identifier expected", m_p.pos());

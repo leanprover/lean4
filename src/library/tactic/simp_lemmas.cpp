@@ -1193,7 +1193,7 @@ static expr refl_lemma_rewrite_core(type_context & ctx, expr const & e, simp_lem
     lean_assert(sl.is_refl());
     type_context::tmp_mode_scope scope(ctx, sl.get_num_umeta(), sl.get_num_emeta());
 
-    if (!ctx.is_def_eq(e, sl.get_lhs())) return e;
+    if (!ctx.is_def_eq(sl.get_lhs(), e)) return e;
 
     lean_trace("simp_lemmas",
                expr new_lhs = ctx.instantiate_mvars(sl.get_lhs());
@@ -1382,7 +1382,7 @@ static bool instantiate_emetas(type_context & ctx, vm_obj const & prove_fn, unsi
 
 static simp_result simp_lemma_rewrite(type_context & ctx, simp_lemma const & sl, vm_obj const & prove_fn, expr const & e, tactic_state const & s) {
     type_context::tmp_mode_scope scope(ctx, sl.get_num_umeta(), sl.get_num_emeta());
-    if (!ctx.is_def_eq(e, sl.get_lhs())) {
+    if (!ctx.is_def_eq(sl.get_lhs(), e)) {
         lean_trace("simp_lemmas", tout() << "fail to unify: " << sl.get_id() << "\n";);
         return simp_result(e);
     }

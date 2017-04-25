@@ -255,7 +255,7 @@ simp_result simplify_core_fn::try_user_congrs(expr const & e) {
 
 simp_result simplify_core_fn::try_user_congr(expr const & e, simp_lemma const & cl) {
     tmp_type_context tmp_ctx(m_ctx, cl.get_num_umeta(), cl.get_num_emeta());
-    if (!tmp_ctx.is_def_eq(e, cl.get_lhs()))
+    if (!tmp_ctx.is_def_eq(cl.get_lhs(), e))
         return simp_result(e);
 
     lean_simp_trace(tmp_ctx, name({"debug", "simplify", "try_congruence"}),
@@ -589,7 +589,7 @@ bool simplify_core_fn::match(tmp_type_context & ctx, simp_lemma const & sl, expr
     if (m_cfg.m_use_matcher)
         return match_fn(ctx, sl.get_id())(sl.get_lhs(), t);
     else
-        return ctx.is_def_eq(t, sl.get_lhs());
+        return ctx.is_def_eq(sl.get_lhs(), t);
 }
 
 /* If both e and sl.get_lhs() are of the form (f ...),

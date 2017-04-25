@@ -75,7 +75,7 @@ optional<tactic_state> apply_core(type_context & ctx, bool add_all, bool use_ins
     }
     /* Unify */
     lean_assert(metas.size() == is_instance.size());
-    if (!ctx.is_def_eq(target, e_type)) {
+    if (!ctx.is_def_eq(e_type, target)) {
         if (out_error_obj) {
             auto thunk = [=]() {
                 format msg = format("invalid apply tactic, failed to unify");

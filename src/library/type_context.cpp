@@ -3497,6 +3497,7 @@ struct instance_synthesizer {
                 }
             }
             lean_trace("class_instances",
+                       scope_trace_env scope(m_ctx.env(), m_ctx);
                        tout() << "trying next solution, current solution has metavars\n" << *r << "\n";);
             r = next_solution();
         }
@@ -3510,6 +3511,7 @@ struct instance_synthesizer {
             if (it != m_ctx.m_cache->m_instance_cache.end()) {
                 /* instance/failure is already cached */
                 lean_trace("class_instances",
+                           scope_trace_env scope(m_ctx.env(), m_ctx);
                            if (it->second)
                                tout() << "cached instance for " << type << "\n" << *(it->second) << "\n";
                            else

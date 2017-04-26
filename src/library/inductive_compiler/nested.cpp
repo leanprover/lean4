@@ -241,6 +241,14 @@ class add_nested_inductive_decl_fn {
         return none_expr();
     }
 
+    expr force_unfold_sizeof(type_context & ctx, expr const & e) {
+        if (auto r = unfold_sizeof(ctx, e)) {
+            return *r;
+        } else {
+            throw exception("inductive compiler error, failed to unfold sizeof");
+        }
+    }
+
     expr safe_whnf(type_context & tctx, expr const & e) {
         expr r = tctx.whnf_head_pred(e, [&](expr const & t) {
                 expr fn = get_app_fn(t);
@@ -1527,7 +1535,7 @@ class add_nested_inductive_decl_fn {
         type_context tctx_synth(m_env, m_tctx.get_options(), m_synth_lctx, transparency_mode::Semireducible);
 
         expr x_unpacked = mk_local_pp("x_unpacked", mk_app(m_nested_occ, index_locals));
-        expr lhs = *unfold_sizeof(tctx_synth, mk_app(tctx_synth, get_sizeof_name(), mk_app(mk_app(m_primitive_pack, index_locals), x_unpacked)));
+        expr lhs = force_unfold_sizeof(tctx_synth, mk_app(tctx_synth, get_sizeof_name(), mk_app(mk_app(m_primitive_pack, index_locals), x_unpacked)));
         expr rhs = mk_app(tctx_synth, get_sizeof_name(), x_unpacked);
         expr goal = mk_eq(tctx_synth, lhs, rhs);
         expr primitive_sizeof_pack_type = Pi(m_nested_decl.get_params(), tctx_synth.mk_pi(m_param_insts, Pi(index_locals, Pi(x_unpacked, goal))));
@@ -1581,7 +1589,7 @@ class add_nested_inductive_decl_fn {
         type_context tctx_synth(m_env, m_tctx.get_options(), m_synth_lctx);
 
         expr x_unpacked = mk_local_pp("x_unpacked", mk_app(start, index_locals));
-        expr lhs = *unfold_sizeof(tctx_synth, mk_app(tctx_synth, get_sizeof_name(), mk_app(mk_app(nested_pack, index_locals), x_unpacked)));
+        expr lhs = force_unfold_sizeof(tctx_synth, mk_app(tctx_synth, get_sizeof_name(), mk_app(mk_app(nested_pack, index_locals), x_unpacked)));
         expr rhs = mk_app(tctx_synth, get_sizeof_name(), x_unpacked);
         expr goal = mk_eq(tctx_synth, lhs, rhs);
         expr nested_sizeof_pack_type = Pi(m_nested_decl.get_params(), tctx_synth.mk_pi(m_param_insts, Pi(index_locals, Pi(x_unpacked, goal))));
@@ -1665,7 +1673,7 @@ class add_nested_inductive_decl_fn {
         type_context tctx_synth(m_env, m_tctx.get_options(), m_synth_lctx, transparency_mode::Semireducible);
 
         expr x_unpacked = mk_local_pp("x_unpacked", arg_ty);
-        expr lhs = *unfold_sizeof(tctx_synth, mk_app(tctx_synth, get_sizeof_name(), mk_app(pi_pack, x_unpacked)));
+        expr lhs = force_unfold_sizeof(tctx_synth, mk_app(tctx_synth, get_sizeof_name(), mk_app(pi_pack, x_unpacked)));
         expr rhs = mk_app(tctx_synth, get_sizeof_name(), x_unpacked);
         expr goal = mk_eq(tctx_synth, lhs, rhs);
         expr pi_unpack_pack_type = Pi(m_nested_decl.get_params(), tctx_synth.mk_pi(m_param_insts, Pi(ldeps, Pi(x_unpacked, goal))));

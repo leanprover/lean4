@@ -797,5 +797,15 @@ do e ← to_expr p, guard (alpha_eqv t e)
 meta def guard_target (p : parse texpr) : tactic unit :=
 do t ← target, guard_expr_eq t p
 
+meta def by_cases (q : parse texpr) : tactic unit :=
+do p ← tactic.to_expr_strict q,
+   tactic.by_cases p
+
+meta def by_contradiction : tactic unit :=
+tactic.by_contradiction >> return ()
+
+meta def by_contra : tactic unit :=
+tactic.by_contradiction >> return ()
+
 end interactive
 end tactic

@@ -27,7 +27,15 @@ public:
     class_exception(expr const & m, char const * msg):generic_exception(m, msg) {}
 };
 
-enum class transparency_mode { All, Semireducible, Reducible, None };
+#define LEAN_NUM_TRANSPARENCY_MODES 5
+enum class transparency_mode { All = 0, Semireducible, Instances, Reducible, None };
+
+
+bool is_at_least_semireducible(transparency_mode m);
+bool is_at_least_instances(transparency_mode m);
+
+transparency_mode ensure_semireducible_mode(transparency_mode m);
+transparency_mode ensure_instances_mode(transparency_mode m);
 
 /* \brief Cached information for type_context. */
 class type_context_cache {
@@ -83,13 +91,13 @@ class type_context_cache {
        The REDUCIBLE mode (more restrictive) is used during search (e.g., type class resolution,
        blast, etc).
        The NONE mode is used when normalizing expressions without using delta-reduction. */
-    transparency_cache            m_transparency_cache[4];
+    transparency_cache            m_transparency_cache[LEAN_NUM_TRANSPARENCY_MODES];
 
-    equiv_manager                 m_equiv_manager[4];
+    equiv_manager                 m_equiv_manager[LEAN_NUM_TRANSPARENCY_MODES];
 
-    failure_cache                 m_failure_cache[4];
+    failure_cache                 m_failure_cache[LEAN_NUM_TRANSPARENCY_MODES];
 
-    whnf_cache                    m_whnf_cache[4];
+    whnf_cache                    m_whnf_cache[LEAN_NUM_TRANSPARENCY_MODES];
 
     name2bool                     m_aux_recursor_cache;
 

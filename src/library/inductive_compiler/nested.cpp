@@ -226,9 +226,9 @@ class add_nested_inductive_decl_fn {
 
         // If we see a sizeof _ <inst> _, replace with the _.sizeof function
         if (args.size() == 3 && is_constant(fn) && const_name(fn) == get_sizeof_name()) {
-            // Note(dhs): *.sizeof is irreducible, and *.sizeof_inst is reducible
+            // Note(dhs): *.sizeof is irreducible, and *.sizeof_inst are reduced when using transparency_mode::Instances
             // Here we want to reduce only sizeof_inst to expose the basic *.sizeof application.
-            type_context::transparency_scope scope(tctx, transparency_mode::Reducible);
+            type_context::transparency_scope scope(tctx, transparency_mode::Instances);
             expr e_sizeof = app_arg(tctx.whnf(args[1]));
             if (is_sizeof_app(e_sizeof)) {
                 expr new_e = mk_app(app_arg(tctx.whnf(args[1])), args[2]);

@@ -106,13 +106,19 @@ meta def dsimplify
 
 meta constant dunfold_expr_core : transparency → expr → tactic expr
 
+/- Remark: we use transparency.instances by default to make sure that we
+   can unfold projections of type classes. Example:
+
+          dunfold_expr (@has_add.add nat nat.has_add a b)
+-/
+
 meta def dunfold_expr : expr → tactic expr :=
-dunfold_expr_core reducible
+dunfold_expr_core transparency.instances
 
 meta constant unfold_projection_core : transparency → expr → tactic expr
 
 meta def unfold_projection : expr → tactic expr :=
-unfold_projection_core reducible
+unfold_projection_core transparency.instances
 
 meta def dunfold_occs_core (m : transparency) (max_steps : nat) (occs : occurrences) (cs : list name) (e : expr) : tactic expr :=
 let unfold (c : nat) (e : expr) : tactic (nat × expr × bool) := do
@@ -133,22 +139,22 @@ in do (c, new_e) ← dsimplify_core () max_steps tt (λ c e, failed) unfold e,
       return new_e
 
 meta def dunfold : list name → tactic unit :=
-λ cs, target >>= dunfold_core reducible default_max_steps cs >>= change
+λ cs, target >>= dunfold_core transparency.instances default_max_steps cs >>= change
 
 meta def dunfold_occs_of (occs : list nat) (c : name) : tactic unit :=
-target >>= dunfold_occs_core reducible default_max_steps (occurrences.pos occs) [c] >>= change
+target >>= dunfold_occs_core transparency.instances default_max_steps (occurrences.pos occs) [c] >>= change
 
 meta def dunfold_core_at (occs : occurrences) (cs : list name) (h : expr) : tactic unit :=
 do num_reverted ← revert h,
    (expr.pi n bi d b : expr) ← target,
-   new_d ← dunfold_occs_core reducible default_max_steps occs cs d,
+   new_d ← dunfold_occs_core transparency.instances default_max_steps occs cs d,
    change $ expr.pi n bi new_d b,
    intron num_reverted
 
 meta def dunfold_at (cs : list name) (h : expr) : tactic unit :=
 do num_reverted ← revert h,
    (expr.pi n bi d b : expr) ← target,
-   new_d ← dunfold_core reducible default_max_steps cs d,
+   new_d ← dunfold_core transparency.instances default_max_steps cs d,
    change $ expr.pi n bi new_d b,
    intron num_reverted
 

@@ -104,6 +104,7 @@ static void trace(type_context & ctx, expr const & e, expr const & r) {
 }
 
 expr defeq_canonizer::canonize(expr const & e, bool & updated) {
+    type_context::transparency_scope scope(m_ctx, transparency_mode::Instances);
     m_updated = &updated;
     expr r = canonize_core(e);
     trace(m_ctx, e, r);
@@ -111,6 +112,7 @@ expr defeq_canonizer::canonize(expr const & e, bool & updated) {
 }
 
 expr defeq_canonizer::canonize(expr const & e) {
+    type_context::transparency_scope scope(m_ctx, transparency_mode::Instances);
     m_updated = nullptr;
     expr r = canonize_core(e);
     trace(m_ctx, e, r);

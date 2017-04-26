@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 #include "library/constants.h"
 #include "library/locals.h"
+#include "library/class.h"
 #include "library/util.h"
 #include "library/pattern_attribute.h"
 #include "library/app_builder.h"
@@ -78,10 +79,11 @@ struct structural_rec_fn {
         }
 
         expr whnf(expr const & e) {
-            /* We only unfold patterns and reducible definitions */
+            /* We only unfold patterns and reducible/instance definitions */
             return m_ctx.whnf_transparency_pred(e, [&](name const & n) {
                     return
                         has_pattern_attribute(m_ctx.env(), n) ||
+                        is_instance(m_ctx.env(), n) ||
                         is_reducible(m_ctx.env(), n);
                 });
         }

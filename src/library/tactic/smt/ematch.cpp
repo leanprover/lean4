@@ -270,7 +270,7 @@ static list<expr> const & ac_t(ematch_cnstr const & c) { return to_ac_cnstr(c)->
        this procedure will not generate the new case {?x + f ?x =?= f c + c}
        by replacing (a + b) with (f c).
 */
-struct ematch_fn {
+class ematch_fn {
     typedef list<ematch_cnstr> state;
     type_context &                m_ctx;
     ematch_state &                m_em_state;
@@ -280,9 +280,6 @@ struct ematch_fn {
 
     state                         m_state;
     buffer<pair<state, unsigned>> m_choice_stack;
-
-    ematch_fn(type_context & ctx, ematch_state & ems, congruence_closure & cc, buffer<new_instance> & new_insts):
-        m_ctx(ctx), m_em_state(ems), m_cc(cc), m_new_instances(new_insts) {}
 
     expr instantiate_mvars(expr const & e) {
         return m_ctx.instantiate_mvars(e);
@@ -973,12 +970,6 @@ struct ematch_fn {
         main(lemma, init_state, ps[0], t);
     }
 
-    void ematch_term(hinst_lemma const & lemma, expr const & t) {
-        for (multi_pattern const & mp : lemma.m_multi_patterns) {
-            ematch_term(lemma, mp, t);
-        }
-    }
-
     void ematch_terms_core(hinst_lemma const & lemma, buffer<expr> const & ps, bool filter) {
         expr const & fn  = get_app_fn(ps[0]);
         unsigned gmt     = m_cc.get_gmt();
@@ -1012,13 +1003,6 @@ struct ematch_fn {
     }
 
 
-    /* Match internalized terms in m_em_state with the given lemma. */
-    void ematch_terms(hinst_lemma const & lemma, bool filter) {
-        for (multi_pattern const & mp : lemma.m_multi_patterns) {
-            ematch_terms(lemma, mp, filter);
-        }
-    }
-
     /* Match internalized terms in m_em_state with the given lemmas. */
     void ematch_using_lemmas(hinst_lemmas const & lemmas, bool filter) {
         lemmas.for_each([&](hinst_lemma const & lemma) {
@@ -1028,9 +1012,35 @@ struct ematch_fn {
             });
     }
 
+public:
+    ematch_fn(type_context & ctx, ematch_state & ems, congruence_closure & cc, buffer<new_instance> & new_insts):
+        m_ctx(ctx), m_em_state(ems), m_cc(cc), m_new_instances(new_insts) {}
+
+    void ematch_term(hinst_lemma const & lemma, expr const & t) {
+        /* The following scope is a temporary workaround, we need to refactor this module
+           and adapt all improvements added to type_context::is_def_eq. */
+        type_context::transparency_scope scope(m_ctx, ensure_instances_mode(m_ctx.mode()));
+        for (multi_pattern const & mp : lemma.m_multi_patterns) {
+            ematch_term(lemma, mp, t);
+        }
+    }
+
+    /* Match internalized terms in m_em_state with the given lemma. */
+    void ematch_terms(hinst_lemma const & lemma, bool filter) {
+        /* The following scope is a temporary workaround, we need to refactor this module
+           and adapt all improvements added to type_context::is_def_eq. */
+        type_context::transparency_scope scope(m_ctx, ensure_instances_mode(m_ctx.mode()));
+        for (multi_pattern const & mp : lemma.m_multi_patterns) {
+            ematch_terms(lemma, mp, filter);
+        }
+    }
+
     void operator()() {
         if (m_em_state.max_instances_exceeded())
             return;
+        /* The following scope is a temporary workaround, we need to refactor this module
+           and adapt all improvements added to type_context::is_def_eq. */
+        type_context::transparency_scope scope(m_ctx, ensure_instances_mode(m_ctx.mode()));
         ematch_using_lemmas(m_em_state.get_new_lemmas(), false);
         ematch_using_lemmas(m_em_state.get_lemmas(), true);
         m_em_state.m_lemmas.merge(m_em_state.m_new_lemmas);

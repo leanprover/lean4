@@ -1058,7 +1058,7 @@ class simp_lemmas_cache {
         entry(environment const & env):
             m_env(env), m_reducibility_fingerprint(0) {}
     };
-    std::vector<entry>        m_entries[4];
+    std::vector<entry>        m_entries[LEAN_NUM_TRANSPARENCY_MODES];
 
 public:
     void expand(environment const & env, transparency_mode m, unsigned new_sz) {

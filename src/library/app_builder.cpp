@@ -829,7 +829,7 @@ expr mk_app(type_context & ctx, name const & c, unsigned nargs, expr const * arg
         type_context::transparency_scope _s1(ctx, *md);
         type_context::zeta_scope         _s2(ctx, true);
         return app_builder(ctx).mk_app(c, nargs, args);
-    } else if (ctx.mode() == transparency_mode::Reducible || ctx.mode() == transparency_mode::None) {
+    } else if (!is_at_least_semireducible(ctx.mode())) {
         type_context::transparency_scope _s1(ctx, transparency_mode::Semireducible);
         type_context::zeta_scope _s2(ctx, true);
         return app_builder(ctx).mk_app(c, nargs, args);

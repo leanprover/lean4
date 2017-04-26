@@ -209,7 +209,7 @@ do s ← read,
    trace $ to_fmt s
 
 inductive transparency
-| all | semireducible | reducible | none
+| all | semireducible | instances | reducible | none
 
 export transparency (reducible semireducible)
 

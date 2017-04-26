@@ -12,7 +12,7 @@ structure semigroup_morphism { α β : Type u } ( s : semigroup α ) ( t: semigr
 
 attribute [simp] semigroup_morphism.multiplicative
 
-instance semigroup_morphism_to_map { α β : Type u } { s : semigroup α } { t: semigroup β } : has_coe_to_fun (semigroup_morphism s t) :=
+@[reducible] instance semigroup_morphism_to_map { α β : Type u } { s : semigroup α } { t: semigroup β } : has_coe_to_fun (semigroup_morphism s t) :=
 { F   := λ f, Π x : α, β,
   coe := semigroup_morphism.map }
 

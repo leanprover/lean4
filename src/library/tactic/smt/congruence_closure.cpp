@@ -51,7 +51,7 @@ typedef std::unordered_map<ext_congr_lemma_key,
 
 struct ext_congr_lemma_cache {
     environment                m_env;
-    ext_congr_lemma_cache_data m_cache[4];
+    ext_congr_lemma_cache_data m_cache[LEAN_NUM_TRANSPARENCY_MODES];
 
     ext_congr_lemma_cache(environment const & env):m_env(env) {
     }

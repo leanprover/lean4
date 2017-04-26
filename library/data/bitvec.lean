@@ -38,9 +38,17 @@ section shift
   bitvec.cong (by simp) $
     dropn i x ++ₜ repeat ff (min n i)
 
-  local attribute [ematch] nat.add_sub_assoc sub_le le_of_not_ge sub_eq_zero_of_le
   def fill_shr (x : bitvec n) (i : ℕ) (fill : bool) : bitvec n :=
-  bitvec.cong (by async { begin [smt] by_cases (i ≤ n), eblast end }) $
+  bitvec.cong
+    begin
+      by_cases (i ≤ n),
+      { intro h,
+        note h₁ := sub_le n i,
+        rw [min_eq_right h], rw [min_eq_left h₁, -nat.add_sub_assoc h, add_comm, nat.add_sub_cancel] },
+      { intro h,
+        note h₁ := le_of_not_ge h,
+        rw [min_eq_left h₁, sub_eq_zero_of_le h₁, min_zero_left, add_zero] }
+    end $
     repeat fill (min n i) ++ₜ taken (n-i) x
 
   -- unsigned shift right

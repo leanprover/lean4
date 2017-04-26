@@ -52,6 +52,22 @@ unsigned get_nat_offset_cnstr_threshold(options const & o) {
     return o.get_unsigned(*g_nat_offset_threshold, LEAN_DEFAULT_NAT_OFFSET_CNSTR_THRESHOLD);
 }
 
+bool is_at_least_semireducible(transparency_mode m) {
+    return m == transparency_mode::All || m == transparency_mode::Semireducible;
+}
+
+bool is_at_least_instances(transparency_mode m) {
+    return m == transparency_mode::All || m == transparency_mode::Semireducible || m == transparency_mode::Instances;
+}
+
+transparency_mode ensure_semireducible_mode(transparency_mode m) {
+    return is_at_least_semireducible(m) ? m : transparency_mode::Semireducible;
+}
+
+transparency_mode ensure_instances_mode(transparency_mode m) {
+    return is_at_least_instances(m) ? m : transparency_mode::Instances;
+}
+
 /* =====================
    type_context_cache
    ===================== */
@@ -76,10 +92,12 @@ bool type_context_cache::is_transparent(transparency_mode m, declaration const &
         return true;
     if (d.is_theorem())
         return false;
-    auto s = get_reducible_status(m_env, d.get_name());
-    if (m == transparency_mode::Reducible && s == reducible_status::Reducible)
+    if (m == transparency_mode::Instances && is_instance(m_env, d.get_name()))
         return true;
-    if (m == transparency_mode::Semireducible && s != reducible_status::Irreducible)
+    auto s = get_reducible_status(m_env, d.get_name());
+    if (s == reducible_status::Reducible && (m == transparency_mode::Reducible || m == transparency_mode::Instances))
+        return true;
+    if (s != reducible_status::Irreducible && m == transparency_mode::Semireducible)
         return true;
     return false;
 }
@@ -2251,16 +2269,6 @@ expr type_context::complete_instance(expr const & e) {
     return e;
 }
 
-static transparency_mode ensure_semireducible(transparency_mode m) {
-    switch (m) {
-    case transparency_mode::Reducible:
-    case transparency_mode::None:
-        return transparency_mode::Semireducible;
-    default:
-        return m;
-    }
-}
-
 bool type_context::is_def_eq_args(expr const & e1, expr const & e2) {
     lean_assert(is_app(e1) && is_app(e2));
     buffer<expr> args1, args2;
@@ -2311,7 +2319,7 @@ bool type_context::is_def_eq_args(expr const & e1, expr const & e2) {
     /* Second pass: unify implicit arguments.
        In the second pass, we make sure we are unfolding at least semireducible (default setting) definitions. */
     {
-        transparency_scope scope(*this, ensure_semireducible(m_transparency_mode));
+        transparency_scope scope(*this, ensure_semireducible_mode(m_transparency_mode));
         for (pair<unsigned, bool> const & p : postponed) {
             unsigned i = p.first;
             if (p.second) {
@@ -2590,6 +2598,7 @@ lbool type_context::is_def_eq_lazy_delta(expr & t, expr & s) {
 
         optional<declaration> d_t = is_delta(t);
         optional<declaration> d_s = is_delta(s);
+
         if (!d_t && !d_s) {
             /* none of them can be delta-reduced */
             return l_undef;
@@ -2630,18 +2639,17 @@ lbool type_context::is_def_eq_lazy_delta(expr & t, expr & s) {
                 }
             } else {
                 bool progress = false;
-                if (m_transparency_mode == transparency_mode::Semireducible ||
-                    m_transparency_mode == transparency_mode::All) {
+                if (is_at_least_semireducible(m_transparency_mode)) {
                     /* Consider the following two cases
 
-                       If t is reducible and s is not ==> reduce t
-                       If s is reducible and t is not ==> reduce s
+                       If t is reducible (or an instance) and s is not ==> reduce t
+                       If s is reducible (or an instance) and t is not ==> reduce s
 
                        Remark: this can only happen if transparency_mode
                        is Semireducible or All
                     */
-                    auto rd_t = is_transparent(transparency_mode::Reducible, d_t->get_name());
-                    auto rd_s = is_transparent(transparency_mode::Reducible, d_s->get_name());
+                    auto rd_t = is_transparent(transparency_mode::Instances, d_t->get_name());
+                    auto rd_s = is_transparent(transparency_mode::Instances, d_s->get_name());
                     if (rd_t && !rd_s) {
                         progress = true;
                         lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "unfold (reducible) left: " << d_t->get_name() << "\n";);
@@ -3220,7 +3228,7 @@ struct instance_synthesizer {
         m_old_transparency_mode(m_ctx.m_transparency_mode),
         m_old_zeta(m_ctx.m_zeta) {
         lean_assert(m_ctx.in_tmp_mode());
-        m_ctx.m_transparency_mode = transparency_mode::Reducible;
+        m_ctx.m_transparency_mode = transparency_mode::Instances;
         m_ctx.m_zeta              = true;
     }
 

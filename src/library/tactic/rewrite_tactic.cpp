@@ -108,6 +108,7 @@ vm_obj rewrite(transparency_mode const & m, bool approx, bool use_instances, occ
     expr new_e  = ctx.instantiate_mvars(instantiate(e_abst, target ? rhs : lhs));
     expr motive = mk_lambda("a", A, e_abst);
     try {
+        type_context::transparency_scope scope(ctx, ensure_semireducible_mode(ctx.mode()));
         check(ctx, motive);
     } catch (exception & ex) {
         throw nested_exception("rewrite tactic failed, motive is not type correct", ex);

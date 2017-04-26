@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 #include "library/constants.h"
 #include "library/kernel_serializer.h"
-#include "library/reducible.h"
 #include "library/aliases.h"
 #include "library/protected.h"
 #include "library/type_context.h"
@@ -169,14 +168,6 @@ bool is_class(environment const & env, name const & c) {
     return s.m_instances.contains(c);
 }
 
-static environment set_reducible_if_def(environment const & env, name const & n, bool persistent) {
-    declaration const & d = env.get(n);
-    if (d.is_definition() && !d.is_theorem())
-        return set_reducible(env, n, reducible_status::Reducible, persistent);
-    else
-        return env;
-}
-
 environment add_instance_core(environment const & env, name const & n, unsigned priority, bool persistent) {
     declaration d = env.get(n);
     expr type = d.get_type();
@@ -196,7 +187,7 @@ environment add_instance_core(environment const & env, name const & n, unsigned 
     check_is_class(env, c);
     environment new_env = class_ext::add_entry(env, get_dummy_ios(), class_entry(class_entry_kind::Instance, c, n, priority),
                                                persistent);
-    return set_reducible_if_def(new_env, n, persistent);
+    return new_env;
 }
 
 bool is_instance(environment const & env, name const & i) {

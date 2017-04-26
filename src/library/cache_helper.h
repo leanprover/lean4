@@ -13,7 +13,7 @@ namespace lean {
     with a given environment and transparency mode. */
 template<typename Cache>
 class cache_compatibility_helper {
-    std::unique_ptr<Cache> m_cache_ptr[4];
+    std::unique_ptr<Cache> m_cache_ptr[LEAN_NUM_TRANSPARENCY_MODES];
 public:
     Cache & get_cache_for(environment const & env, transparency_mode m) {
         unsigned midx = static_cast<unsigned>(m);

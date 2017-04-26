@@ -490,7 +490,7 @@ struct structure_cmd_fn {
             return elab(tmp);
         } else {
             expr new_tmp = elab(mk_arrow(in_header ? parent : mk_as_is(parent), tmp));
-            *&parent     = copy_tag(parent, expr(binding_domain(new_tmp)));
+            parent       = copy_tag(parent, expr(binding_domain(new_tmp)));
             new_tmp      = binding_body(new_tmp);
             if (!in_header)
                 new_tmp    = instantiate(new_tmp, mk_parent_expr(static_cast<unsigned>(&parent - &m_parents[0])));
@@ -500,9 +500,8 @@ struct structure_cmd_fn {
 
     expr elaborate_local(bool as_is, expr & local, expr const & tmp, tele_elab elab) {
         expr new_tmp   = elab(as_is ? Pi_as_is(local, tmp) : Pi(local, tmp));
-        expr new_local = mk_local(mlocal_name(local), binding_name(new_tmp), binding_domain(new_tmp),
-                                  binding_info(new_tmp));
-        *&local        = new_local;
+        expr new_local = update_mlocal(local, binding_domain(new_tmp));
+        local          = new_local;
         return instantiate(binding_body(new_tmp), new_local);
     }
 
@@ -663,9 +662,9 @@ struct structure_cmd_fn {
                     }
 
                     // Given parameter types `Ps` of `base_S_name`, the projection `full_fname` has
-                    // type `Pi Ps, base_S_name Ps -> A Ps`. We don't know `Ps`, but we obtain a value `x` for the
-                    // last parameter by projecting our new subobject field and then obtain `A Ps` as
-                    // `(\{Ps} (base_S_name Ps), A Ps) x`.
+                    // type `Pi (ps : Ps) (x : base_S_name ps), A` for some `A`. We don't know `ps`, but we can obtain `x`
+                    // by projecting our new subobject field and then obtain `A` as
+                    // `(fun {ps : Ps} (x : base_S_name ps), A) x`.
                     expr base_obj = *mk_base_projections(m_env, parent_name, base_S_name, field);
                     auto nparams = std::get<1>(get_structure_info(m_env, base_S_name));
                     expr type = m_p.env().get(full_fname).get_type();
@@ -875,13 +874,12 @@ struct structure_cmd_fn {
         auto const & value = decl.m_default_val;
         if (value && (!decl.m_has_new_default || is_placeholder(decl.get_type()))) {
             new_tmp = elab(mk_let(decl.get_name(), type, *value, abstract_local(tmp, decl.m_local)));
-            decl.m_local = mk_local(decl.get_name(), let_type(new_tmp), {});
+            decl.m_local = update_mlocal(decl.m_local, let_type(new_tmp));
             decl.m_default_val = let_value(new_tmp);
             new_tmp = instantiate(let_body(new_tmp), m_subobjects ? let_value(new_tmp) : decl.m_local);
         } else {
-            decl.m_local = mk_local(decl.get_name(), binding_name(new_tmp), binding_domain(new_tmp),
-                                    binding_info(new_tmp));
             new_tmp = elab(Pi(decl.m_local, tmp));
+            decl.m_local = update_mlocal(decl.m_local, binding_domain(new_tmp));
             new_tmp = instantiate(binding_body(new_tmp), decl.m_local);
         }
         return new_tmp;
@@ -1109,7 +1107,7 @@ struct structure_cmd_fn {
     void declare_projections() {
         buffer<name> proj_names = get_structure_fields(m_env, m_name);
         for (auto & n : proj_names)
-            *&n = m_name + n;
+            n = m_name + n;
         m_env = mk_projections(m_env, m_name, proj_names, m_mk_infer, m_attrs.has_class());
         for (auto const & n : proj_names)
             add_alias(n);

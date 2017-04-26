@@ -523,73 +523,8 @@ simp_result simplify_core_fn::rewrite(expr const & e) {
     return simp_result(e);
 }
 
-struct match_fn {
-    tmp_type_context &                    m_ctx;
-    name const &                          m_id;
-    buffer<std::tuple<expr, expr, bool>>  m_postponed;
-
-    match_fn(tmp_type_context & ctx, name const & id):m_ctx(ctx), m_id(id) {}
-
-    bool match(expr const & p, expr const & t) {
-        if (m_ctx.ctx().is_mvar(p))
-            if (auto v = m_ctx.ctx().get_assignment(p))
-                return match(*v, t);
-        if (is_app(p) && is_app(t)) {
-            expr const & fn = get_app_fn(p);
-            if (m_ctx.is_def_eq(fn, get_app_fn(t))) {
-                buffer<expr> p_args;
-                buffer<expr> t_args;
-                get_app_args(p, p_args);
-                get_app_args(t, t_args);
-                fun_info finfo = get_fun_info(m_ctx.ctx(), fn);
-                if (p_args.size() != t_args.size())
-                    return false;
-                auto it = finfo.get_params_info();
-                for (unsigned i = 0; i < p_args.size(); i++) {
-                    if (it && head(it).is_inst_implicit()) {
-                        m_postponed.emplace_back(p_args[i], t_args[i], true);
-                    } else if (it && head(it).is_implicit()) {
-                        m_postponed.emplace_back(p_args[i], t_args[i], false);
-                    } else if (!match(p_args[i], t_args[i])) {
-                        return false;
-                    }
-                    if (it) it = tail(it);
-                }
-                return true;
-            }
-        }
-        return m_ctx.is_def_eq(p, t);
-    }
-
-    bool operator()(expr const & p, expr const & t) {
-        if (!match(p, t)) return false;
-
-        for (unsigned i = 0; i < m_postponed.size(); i++) {
-            expr p1, t1; bool implicit;
-            std::tie(p1, t1, implicit) = m_postponed[i];
-            p1 = m_ctx.instantiate_mvars(p1);
-            if (implicit)
-                p1 = m_ctx.ctx().complete_instance(p1);
-            {
-                type_context::transparency_scope _scope(m_ctx.ctx(), transparency_mode::Semireducible);
-                if (!match(p1, t1)) {
-                    lean_simp_trace_d(m_ctx.ctx(), name({"simplify", "failure"}),
-                                      tout() << "fail to match '" << m_id << "':\n";
-                                      tout() << p << "\n=?=\n" << t << "\nbecause the following implicit match\n";
-                                      tout() << p1 << "\n=?=\n" << t1 << "\n";);
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-};
-
 bool simplify_core_fn::match(tmp_type_context & ctx, simp_lemma const & sl, expr const & t) {
-    if (m_cfg.m_use_matcher)
-        return match_fn(ctx, sl.get_id())(sl.get_lhs(), t);
-    else
-        return ctx.is_def_eq(sl.get_lhs(), t);
+    return ctx.is_def_eq(sl.get_lhs(), t);
 }
 
 /* If both e and sl.get_lhs() are of the form (f ...),

@@ -2251,6 +2251,16 @@ expr type_context::complete_instance(expr const & e) {
     return e;
 }
 
+static transparency_mode ensure_semireducible(transparency_mode m) {
+    switch (m) {
+    case transparency_mode::Reducible:
+    case transparency_mode::None:
+        return transparency_mode::Semireducible;
+    default:
+        return m;
+    }
+}
+
 bool type_context::is_def_eq_args(expr const & e1, expr const & e2) {
     lean_assert(is_app(e1) && is_app(e2));
     buffer<expr> args1, args2;
@@ -2260,18 +2270,57 @@ bool type_context::is_def_eq_args(expr const & e1, expr const & e2) {
         return false;
     fun_info finfo = get_fun_info(*this, fn, args1.size());
     unsigned i = 0;
+    buffer<pair<unsigned, bool>> postponed;
+    /* First pass: unify explicit arguments, *and* easy cases
+
+       Here, we say a case is easy if it is of the form
+
+          ?m =?= t
+          or
+          t  =?= ?m
+
+          where ?m is unassigned.
+
+       These easy cases are not just an optimization. When
+       ?m is a function, by assigning it to t, we make sure
+       a unification constraint (in the explicit part)
+
+                ?m t =?= f s
+
+       is not higher-order.
+    */
     for (param_info const & pinfo : finfo.get_params_info()) {
-        if (pinfo.is_inst_implicit()) {
-            args1[i] = complete_instance(args1[i]);
-            args2[i] = complete_instance(args2[i]);
-        }
-        if (!is_def_eq_core(args1[i], args2[i]))
+        if (pinfo.is_inst_implicit() || pinfo.is_implicit()) {
+            if ((is_mvar(args1[i]) && !is_assigned(args1[i])) ||
+                (is_mvar(args2[i]) && !is_assigned(args2[i]))) {
+                if (!is_def_eq_core(args1[i], args2[i])) {
+                    return false;
+                }
+            } else {
+                postponed.emplace_back(i, pinfo.is_inst_implicit());
+            }
+        } else if (!is_def_eq_core(args1[i], args2[i])) {
             return false;
+        }
         i++;
     }
     for (; i < args1.size(); i++) {
         if (!is_def_eq_core(args1[i], args2[i]))
             return false;
+    }
+    /* Second pass: unify implicit arguments.
+       In the second pass, we make sure we are unfolding at least semireducible (default setting) definitions. */
+    {
+        transparency_scope scope(*this, ensure_semireducible(m_transparency_mode));
+        for (pair<unsigned, bool> const & p : postponed) {
+            unsigned i = p.first;
+            if (p.second) {
+                args1[i] = complete_instance(args1[i]);
+                args2[i] = complete_instance(args2[i]);
+            }
+            if (!is_def_eq_core(args1[i], args2[i]))
+                return false;
+        }
     }
     return true;
 }
@@ -2732,48 +2781,56 @@ bool type_context::on_is_def_eq_failure(expr const & e1, expr const & e2) {
     return false;
 }
 
+/* If e is a numeral, then return it. Otherwise return none. */
+static optional<mpz> eval_num(expr const & e) {
+    if (is_constant(e, get_nat_zero_name())) {
+        return some(mpz(0));
+    } else if (is_app_of(e, get_zero_name(), 2)) {
+        return some(mpz(0));
+    } else if (is_app_of(e, get_one_name(), 2)) {
+        return some(mpz(1));
+    } else if (auto a = is_bit0(e)) {
+        if (auto r1 = eval_num(*a))
+            return some(mpz(2) * *r1);
+        else
+            return optional<mpz>();
+    } else if (auto a = is_bit1(e)) {
+        if (auto r1 = eval_num(*a))
+            return some(mpz(2) * *r1 + 1);
+        else
+            return optional<mpz>();
+    } else if (is_app_of(e, get_nat_succ_name(), 1)) {
+        if (auto r1 = eval_num(app_arg(e)))
+            return some(*r1 + 1);
+        else
+            return optional<mpz>();
+    } else if (is_app_of(e, get_add_name(), 4)) {
+        auto r1 = eval_num(app_arg(app_fn(e)));
+        if (!r1) return optional<mpz>();
+        auto r2 = eval_num(app_arg(e));
+        if (!r2) return optional<mpz>();
+        return some(*r1 + *r2);
+    } else if (is_app_of(e, get_sub_name(), 4)) {
+        auto r1 = eval_num(app_arg(app_fn(e)));
+        if (!r1) return optional<mpz>();
+        auto r2 = eval_num(app_arg(e));
+        if (!r2) return optional<mpz>();
+        return some(*r2 > *r1 ? mpz(0) : *r1 - *r2);
+    } else {
+        return optional<mpz>();
+    }
+}
+
 /* If e is a (small) numeral, then return it. Otherwise return none. */
 optional<unsigned> type_context::to_small_num(expr const & e) {
-    unsigned r;
-    if (is_constant(e, get_nat_zero_name())) {
-        r = 0;
-    } else if (is_app_of(e, get_zero_name(), 2)) {
-        r = 0;
-    } else if (is_app_of(e, get_one_name(), 2)) {
-        r = 1;
-    } else if (auto a = is_bit0(e)) {
-        if (auto r1 = to_small_num(*a))
-            r = 2 * *r1;
-        else
-            return optional<unsigned>();
-    } else if (auto a = is_bit1(e)) {
-        if (auto r1 = to_small_num(*a))
-            r = 2 * *r1 + 1;
-        else
-            return optional<unsigned>();
-    } else if (is_app_of(e, get_nat_succ_name(), 1)) {
-        if (auto r1 = to_small_num(app_arg(e)))
-            r = *r1 + 1;
-        else
-            return optional<unsigned>();
-    } else if (is_app_of(e, get_add_name(), 4)) {
-        auto r1 = to_small_num(app_arg(app_fn(e)));
-        if (!r1) return optional<unsigned>();
-        auto r2 = to_small_num(app_arg(e));
-        if (!r2) return optional<unsigned>();
-        r = *r1 + *r2;
-    } else if (is_app_of(e, get_sub_name(), 4)) {
-        auto r1 = to_small_num(app_arg(app_fn(e)));
-        if (!r1) return optional<unsigned>();
-        auto r2 = to_small_num(app_arg(e));
-        if (!r2) return optional<unsigned>();
-        r = *r2 > *r1 ? 0 : *r1 - *r2;
-    } else {
-        return optional<unsigned>();
+    if (optional<mpz> r = eval_num(e)) {
+        if (r->is_unsigned_int()) {
+            unsigned r1 = r->get_unsigned_int();
+            if (r1 <= m_cache->m_nat_offset_cnstr_threshold)
+                return optional<unsigned>(r1);
+        }
     }
-    if (r > m_cache->m_nat_offset_cnstr_threshold)
-        return optional<unsigned>();
-    return optional<unsigned>(r);
+    return optional<unsigned>();
 }
 
 /* If \c t is of the form (s + k) where k is a numeral, then return k. Otherwise, return none. */
@@ -2898,15 +2955,25 @@ lbool type_context::try_offset_eq_numeral(expr const & t, expr const & s) {
 
        k_1 =?= k_2
 
-   where k_1 and k_2 are numerals, and type is nat */
+   where k_1 and k_2 are numerals, and type is nat.
+
+   If t and s are encoding distinct big numerals, we return l_false.
+   If t and s are encoding the same samll numeral, we return l_true.
+   Otherwise, we return l_undef.
+*/
 lbool type_context::try_numeral_eq_numeral(expr const & t, expr const & s) {
-    optional<unsigned> k1 = to_small_num(t);
-    if (!k1) return l_undef;
-    optional<unsigned> k2 = to_small_num(s);
-    if (!k2) return l_undef;
+    optional<mpz> n1 = eval_num(t);
+    if (!n1) return l_undef;
+    optional<mpz> n2 = eval_num(s);
+    if (!n2) return l_undef;
     if (!is_nat_type(whnf(infer(t))))
         return l_undef;
-    return to_lbool(*k1 == *k2);
+    if (*n1 != *n2)
+        return l_false;
+    else if (to_small_num(t) && to_small_num(s))
+        return l_true;
+    else
+        return l_undef;
 }
 
 /* Solve offset constraints. See discussion at issue #1226 */

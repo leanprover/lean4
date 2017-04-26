@@ -879,9 +879,9 @@ struct structure_cmd_fn {
             decl.m_default_val = let_value(new_tmp);
             new_tmp = instantiate(let_body(new_tmp), m_subobjects ? let_value(new_tmp) : decl.m_local);
         } else {
-            new_tmp = elab(Pi(decl.get_name(), type, abstract_local(tmp, decl.m_local), local_info(decl.m_local)));
             decl.m_local = mk_local(decl.get_name(), binding_name(new_tmp), binding_domain(new_tmp),
                                     binding_info(new_tmp));
+            new_tmp = elab(Pi(decl.m_local, tmp));
             new_tmp = instantiate(binding_body(new_tmp), decl.m_local);
         }
         return new_tmp;

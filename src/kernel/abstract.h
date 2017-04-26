@@ -27,24 +27,12 @@ expr abstract_locals(expr const & e, unsigned n, expr const * s);
 inline expr abstract_local(expr const & e, expr const & s) { return abstract_locals(e, 1, &s); }
 expr abstract_local(expr const & e, name const & l);
 
-/**
-   \brief Create a lambda expression (lambda (x : t) b), the term b is abstracted using abstract(b, constant(x)).
-*/
-inline expr Fun(name const & n, expr const & t, expr const & b, binder_info const & bi = binder_info()) {
-    return mk_lambda(n, t, abstract(b, mk_constant(n)), bi);
-}
 /** \brief Create a lambda-expression by abstracting the given local constants over b */
 expr Fun(unsigned num, expr const * locals, expr const & b, bool use_cache = true);
 inline expr Fun(expr const & local, expr const & b, bool use_cache = true) { return Fun(1, &local, b, use_cache); }
 inline expr Fun(std::initializer_list<expr> const & locals, expr const & b, bool use_cache = true) { return Fun(locals.size(), locals.begin(), b, use_cache); }
 template<typename T> expr Fun(T const & locals, expr const & b, bool use_cache = true) { return Fun(locals.size(), locals.data(), b, use_cache); }
 
-/**
-   \brief Create a Pi expression (pi (x : t) b), the term b is abstracted using abstract(b, constant(x)).
-*/
-inline expr Pi(name const & n, expr const & t, expr const & b, binder_info const & bi = binder_info()) {
-    return mk_pi(n, t, abstract(b, mk_constant(n)), bi);
-}
 /** \brief Create a Pi-expression by abstracting the given local constants over b */
 expr Pi(unsigned num, expr const * locals, expr const & b, bool use_cache = true);
 inline expr Pi(expr const & local, expr const & b, bool use_cache = true) { return Pi(1, &local, b, use_cache); }

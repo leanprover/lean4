@@ -28,25 +28,23 @@ instance {m : Type u → Type v} [monad m] : monad (option_t m) :=
 {pure := @option_t_return m _, bind := @option_t_bind m _,
  id_map := begin
    intros,
-   dsimp [option_t_bind],
+   simp [option_t_bind, function.comp],
    assert h : option_t_bind._match_1 option_t_return = @pure m _ (option α),
-   { apply funext, intro s, cases s, apply rfl, apply rfl },
-   { rw h, apply @monad.bind_pure _ (option α) m },
+   { apply funext, intro s, cases s, refl, refl },
+   { simp [h], apply @monad.bind_pure _ (option α) m },
  end,
  pure_bind := begin
    intros,
-   dsimp [option_t_bind, option_t_return],
-   rw [monad.pure_bind], apply rfl
+   simp [option_t_bind, option_t_return, monad.pure_bind]
  end,
- bind_assoc := begin
+ bind_assoc :=
+ begin
    intros,
-   dsimp [option_t_bind, option_t_return],
-   rw [monad.bind_assoc],
+   simp [option_t_bind, option_t_return, monad.bind_assoc],
    apply congr_arg, apply funext, intro x,
    cases x,
-   { dsimp [option_t_bind],
-     rw [monad.pure_bind], apply rfl },
-   { apply rfl }
+   { simp [option_t_bind, monad.pure_bind] },
+   { refl }
  end}
 
 def option_t_orelse {m : Type u → Type v} [monad m] {α : Type u} (a : option_t m α) (b : option_t m α) : option_t m α :=

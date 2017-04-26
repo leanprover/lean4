@@ -379,7 +379,7 @@ eq_of_bisim
     begin
       rw h₁,
       constructor,
-       {reflexivity},
+       {refl},
        {exact ⟨tail s₂, by rw [interleave_eq, even_cons_cons, tail_cons]⟩}
     end)
   (exists.intro s₂ rfl)
@@ -391,7 +391,7 @@ eq_of_bisim
     begin
       rw h, constructor,
        {reflexivity},
-       {dsimp, rw [odd_eq, odd_eq, tail_interleave, tail_even]}
+       {simp [odd_eq, odd_eq, tail_interleave, tail_even]}
     end)
   rfl
 

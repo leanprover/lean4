@@ -23,13 +23,13 @@ instance (σ : Type u) : monad (state σ) :=
 {pure := @state_return σ, bind := @state_bind σ,
  id_map := begin
    intros, apply funext, intro s,
-   dsimp [state_bind], cases x s,
+   simp [state_bind], cases x s,
    apply rfl
  end,
  pure_bind := by intros; apply rfl,
  bind_assoc := begin
    intros, apply funext, intro s,
-   dsimp [state_bind], cases x s,
+   simp [state_bind], cases x s,
    apply rfl
  end}
 end
@@ -68,23 +68,20 @@ instance (σ : Type u) (m : Type u → Type v) [monad m] : monad (state_t σ m) 
 {pure := @state_t_return σ m _, bind := @state_t_bind σ m _,
  id_map := begin
    intros, apply funext, intro,
-   dsimp [state_t_bind, state_t_return],
+   simp [state_t_bind, state_t_return, function.comp],
    assert h : state_t_bind._match_1 (λ (x : α) (s : σ), @pure m _ _ (x, s)) = pure,
    { apply funext, intro s, cases s, apply rfl },
    { rw h, apply @monad.bind_pure _ σ },
  end,
  pure_bind := begin
    intros, apply funext, intro,
-   dsimp [state_t_bind, state_t_return],
-   rw [monad.pure_bind],
-   apply rfl
+   simp [state_t_bind, state_t_return, monad.pure_bind]
  end,
  bind_assoc := begin
-   intros, apply funext, intro s,
-   dsimp [state_t_bind, state_t_return],
-   rw [monad.bind_assoc],
+   intros, apply funext, intro,
+   simp [state_t_bind, state_t_return, monad.bind_assoc],
    apply congr_arg, apply funext, intro r,
-   cases r, apply rfl
+   cases r, refl
  end}
 
 section

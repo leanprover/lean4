@@ -42,13 +42,13 @@ instance : has_to_string dependency :=
 ⟨λ d, d.name ++ " = " ++ to_string d.src⟩
 end dependency
 
-structure desc :=
+structure manifest :=
 (name : string) (version : string)
 (dependencies : list dependency)
 
-namespace desc
+namespace manifest
 
-def from_toml (t : toml.value) : option desc := do
+def from_toml (t : toml.value) : option manifest := do
 pkg ← t.lookup "package",
 toml.value.str n ← pkg.lookup "name" | none,
 toml.value.str ver ← pkg.lookup "version" | none,
@@ -57,22 +57,22 @@ deps ← monad.for deps (λ ⟨n, src⟩, do src ← source.from_toml src,
                                       return $ dependency.mk n src),
 return { name := n, version := ver, dependencies := deps }
 
-def to_toml (d : desc) : toml.value :=
+def to_toml (d : manifest) : toml.value :=
 let pkg := toml.value.table [("name", toml.value.str d.name),
                              ("version", toml.value.str d.version)],
     deps := toml.value.table $ d.dependencies.for $ λ dep, (dep.name, dep.src.to_toml) in
 toml.value.table [("package", pkg), ("dependencies", deps)]
 
-instance : has_to_string desc :=
+instance : has_to_string manifest :=
 ⟨λ d, d.to_toml.to_string⟩
 
-def from_string (s : string) : option desc :=
+def from_string (s : string) : option manifest :=
 match parser.run_string toml.File s with
 | sum.inr toml := from_toml toml
 | sum.inl _ := none
 end
 
-def from_file [io.interface] (fn : string) : io desc := do
+def from_file [io.interface] (fn : string) : io manifest := do
 cnts ← io.fs.read_file fn,
 toml ←
   (match parser.run toml.File cnts with
@@ -80,11 +80,11 @@ toml ←
     io.fail $ "toml parse error in " ++ fn ++ "\n\n" ++ err
   | sum.inr res := return res
   end),
-some desc ← return (from_toml toml)
-  | io.fail ("cannot read description from " ++ fn ++ "\n\n" ++ toml.to_string),
-return desc
+some manifest ← return (from_toml toml)
+  | io.fail ("cannot read manifest from " ++ fn ++ "\n\n" ++ toml.to_string),
+return manifest
 
-end desc
+end manifest
 
 def leanpkg_toml_fn := "leanpkg.toml"
 

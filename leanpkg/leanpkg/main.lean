@@ -13,10 +13,10 @@ h ← io.mk_file_handle fn io.mode.write,
 io.fs.write h cnts.to_char_buffer,
 io.fs.close h
 
-def read_desc : io desc :=
-desc.from_file leanpkg_toml_fn
+def read_manifest : io manifest :=
+manifest.from_file leanpkg_toml_fn
 
-def write_desc (d : desc) (fn := leanpkg_toml_fn) : io unit :=
+def write_manifest (d : manifest) (fn := leanpkg_toml_fn) : io unit :=
 write_file fn (to_string d)
 
 -- TODO(gabriel): implement a cross-platform api
@@ -34,7 +34,7 @@ def mk_path_file : ∀ (paths : list string), string
 | (x :: xs) := mk_path_file xs ++ "path " ++ x ++ "\n"
 
 def configure : io unit := do
-d ← read_desc,
+d ← read_manifest,
 io.put_str_ln $ "configuring " ++ d.name ++ " " ++ d.version,
 assg ← solve_deps d,
 path_file_cnts ← mk_path_file <$> construct_path assg,
@@ -46,9 +46,9 @@ exec_cmd "lean" ["--make"]
 def build := configure >> make
 
 def add (dep : dependency) : io unit := do
-d ← read_desc,
+d ← read_manifest,
 let d' := { d with dependencies := d.dependencies.filter (λ old_dep, old_dep.name ≠ dep.name) ++ [dep] },
-write_desc d'
+write_manifest d'
 
 def init_gitignore_contents :=
 "*.olean
@@ -57,7 +57,7 @@ def init_gitignore_contents :=
 "
 
 def init_pkg (n : string) (dir : string) : io unit := do
-write_desc { name := n, version := "0.1", dependencies := [] }
+write_manifest { name := n, version := "0.1", dependencies := [] }
   (dir ++ "/" ++ leanpkg_toml_fn),
 write_file (dir ++ "/.gitignore") init_gitignore_contents io.mode.append
 
@@ -112,14 +112,14 @@ def main : ∀ (args : list string), io unit
   exec_cmd "mkdir" ["-p", dot_lean_dir],
   let user_toml_fn := dot_lean_dir ++ "/" ++ leanpkg_toml_fn,
   ex ← exists_file user_toml_fn,
-  when (¬ ex) $ write_desc {
+  when (¬ ex) $ write_manifest {
       name := "_user_local_packages",
       version := "1",
       dependencies := []
     } user_toml_fn,
   exec_cmd "leanpkg" ("add" :: rest) dot_lean_dir,
   exec_cmd "leanpkg" ["configure"] dot_lean_dir
-| ["dump"] := read_desc >>= io.print_ln
+| ["dump"] := read_manifest >>= io.print_ln
 | _ := io.fail usage
 
 end leanpkg

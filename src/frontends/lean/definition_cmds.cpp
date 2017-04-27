@@ -358,15 +358,19 @@ static expr fix_rec_fn_name(expr const & e, name const & c_name, name const & c_
 
 static pair<environment, name>
 declare_definition(parser & p, environment const & env, def_cmd_kind kind, buffer<name> const & lp_names,
-                   name const & c_name, expr const & type, optional<expr> const & _val, task<expr> const & proof,
+                   name const & c_name, expr type, optional<expr> val, task<expr> const & proof,
                    decl_modifiers const & modifiers, decl_attributes attrs, optional<std::string> const & doc_string,
                    pos_info const & pos) {
     auto env_n = mk_real_name(env, c_name, modifiers.m_is_private, pos);
     environment new_env = env_n.first;
     name c_real_name    = env_n.second;
-    optional<expr> val  = _val;
     if (val && modifiers.m_is_meta)
         *val = fix_rec_fn_name(*val, c_name, c_real_name);
+    if (val && !modifiers.m_is_meta && !type_checker(env).is_prop(type)) {
+        /* We only abstract nested proofs if the type of the definition is not a proposition */
+        std::tie(new_env, type) = abstract_nested_proofs(new_env, c_real_name, type);
+        std::tie(new_env, *val) = abstract_nested_proofs(new_env, c_real_name, *val);
+    }
     bool use_conv_opt = true;
     bool is_trusted   = !modifiers.m_is_meta;
     auto def          =
@@ -778,14 +782,8 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
                 val = get_equations_result(val, 0);
             }
             finalize_definition(elab, new_params, type, val, lp_names, modifiers.m_is_meta);
-            auto env = elab.env();
-            if (!type_checker(env).is_prop(type) && !modifiers.m_is_meta) {
-                /* We only abstract nested proofs if the type of the definition is not a proposition */
-                std::tie(env, type) = abstract_nested_proofs(env, c_name, type);
-                std::tie(env, val)  = abstract_nested_proofs(env, c_name, val);
-            }
-            opt_val = optional<expr>(val);
-            env_n = declare_definition(p, env, kind, lp_names, c_name, type, opt_val, {}, modifiers, attrs, doc_string, header_pos);
+            env_n = declare_definition(p, elab.env(), kind, lp_names, c_name, type, some_expr(val),
+                                       {}, modifiers, attrs, doc_string, header_pos);
         }
         environment new_env = env_n.first;
         name c_real_name    = env_n.second;

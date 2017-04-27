@@ -153,7 +153,7 @@ environment mutual_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
     declaration_info_scope scope(p, kind, modifiers);
     expr val = parse_mutual_definition(p, lp_names, fns, params);
     bool recover_from_errors = true;
-    elaborator elab(p.env(), p.get_options(), local_pp_name(fns[0]), metavar_context(), local_context(), recover_from_errors);
+    elaborator elab(p.env(), p.get_options(), get_namespace(p.env()) + local_pp_name(fns[0]), metavar_context(), local_context(), recover_from_errors);
     buffer<expr> new_params;
     elaborate_params(elab, params, new_params);
     val = replace_locals_preserving_pos_info(val, params, new_params);
@@ -613,7 +613,7 @@ static expr elaborate_proof(
 
     try {
         bool recover_from_errors = true;
-        elaborator elab(decl_env, opts, local_pp_name(fn), mctx, lctx, recover_from_errors);
+        elaborator elab(decl_env, opts, get_namespace(decl_env) + local_pp_name(fn), mctx, lctx, recover_from_errors);
 
         expr val, type;
         if (get_profiler(opts)) {
@@ -711,7 +711,7 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
 
     auto begin_pos = p.cmd_pos();
     auto end_pos = p.pos();
-    scope_log_tree lt(logtree().mk_child({}, local_pp_name(fn).to_string(),
+    scope_log_tree lt(logtree().mk_child({}, (get_namespace(p.env()) + local_pp_name(fn)).to_string(),
                                          {logtree().get_location().m_file_name, {begin_pos, end_pos}}));
 
     // skip elaboration of definitions during reparsing
@@ -719,7 +719,7 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
         return p.env();
 
     bool recover_from_errors = true;
-    elaborator elab(p.env(), p.get_options(), local_pp_name(fn), metavar_context(), local_context(), recover_from_errors);
+    elaborator elab(p.env(), p.get_options(), get_namespace(p.env()) + local_pp_name(fn), metavar_context(), local_context(), recover_from_errors);
     buffer<expr> new_params;
     elaborate_params(elab, params, new_params);
     elab.set_instance_fingerprint();

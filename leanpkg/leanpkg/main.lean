@@ -115,8 +115,8 @@ def main : ∀ (args : list string), io unit
       version := "1",
       dependencies := []
     } user_toml_fn,
-  -- TODO(gabriel): remove this awesomely disgusting hack
-  exec_cmd "bash" $ ["-c", "cd $1 && shift && leanpkg add \"$@\" && leanpkg configure", "_", dot_lean_dir] ++ rest
+  exec_cmd "leanpkg" ("add" :: rest) dot_lean_dir,
+  exec_cmd "leanpkg" ["configure"] dot_lean_dir
 | ["dump"] := read_desc >>= io.print_ln
 | _ := io.fail usage
 

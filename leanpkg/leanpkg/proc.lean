@@ -13,7 +13,7 @@ def exec_cmd (cmd : string) (args : list string) (cwd : option string := none) :
 let cmdstr := join " " (cmd::args),
 io.put_str_ln $ "> " ++
   match cwd with
-  | some cwd := "(cd " ++ cwd ++ "; " ++ cmdstr ++ ")"
+  | some cwd := cmdstr ++ "    # in directory " ++ cwd
   | none := cmdstr
   end,
 ch ← spawn { cmd := cmd, args := args, cwd := cwd },

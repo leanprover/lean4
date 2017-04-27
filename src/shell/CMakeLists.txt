@@ -22,15 +22,14 @@ if(${EMSCRIPTEN})
             "#!/bin/sh\nnode ${CMAKE_CURRENT_BINARY_DIR}/lean.js \"$@\"\n")
     execute_process(COMMAND chmod +x ${CMAKE_CURRENT_BINARY_DIR}/lean)
 
+    # legacy code for mkleanbook
     # copy olean files from the library into build/emscripten/shell/library/...
     add_custom_target(lean_js_library
         COMMAND rm -rf ${CMAKE_CURRENT_BINARY_DIR}/library
         COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/library
         COMMAND bash -c "(cd ${LEAN_JS_LIBRARY}; tar c `find -name '*.olean'`) | (cd ${CMAKE_CURRENT_BINARY_DIR}/library; tar x)"
         VERBATIM)
-
     file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/lean_js.html DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-
     target_link_libraries(lean_js
             "--embed-file library
              --bind
@@ -38,6 +37,14 @@ if(${EMSCRIPTEN})
              -s \"BINARYEN_METHOD='native-wasm,asmjs'\"")
     add_dependencies(lean_js lean_js_library)
     set_target_properties(lean_js PROPERTIES COMPILE_FLAGS --bind -s NO_EXIT_RUNTIME=1)
+
+    set(LEAN_JS_OPTS "-s 'EXTRA_EXPORTED_RUNTIME_METHODS=[\"FS\"]'")
+    add_executable(lean_js_wasm lean_js.cpp lean_js_new.cpp server.cpp leandoc.cpp)
+    target_link_libraries(lean_js_wasm leanstatic)
+    add_executable(lean_js_js lean_js.cpp lean_js_new.cpp server.cpp leandoc.cpp)
+    target_link_libraries(lean_js_js leanstatic)
+    set_target_properties(lean_js_wasm PROPERTIES LINK_FLAGS "-s WASM=1 ${LEAN_JS_OPTS} -s \"BINARYEN_METHOD='native-wasm'\"")
+    set_target_properties(lean_js_js PROPERTIES LINK_FLAGS "${LEAN_JS_OPTS}")
 else()
   ADD_CUSTOM_COMMAND(TARGET lean
     POST_BUILD

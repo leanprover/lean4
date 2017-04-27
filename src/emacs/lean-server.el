@@ -262,19 +262,24 @@
     (lean-server-notify-tasks-changed sess nil)))
 
 (defvar-local lean-server-flycheck-delay-timer nil)
+(defvar-local lean-server-flycheck-delayed-update nil)
 
 (defun lean-server-show-messages (&optional buf)
   (with-current-buffer (or buf (current-buffer))
     (save-match-data
-      (when (and (not (memq lean-server-flycheck-delay-timer timer-list))
-                 (or (eq buf flycheck-error-list-source-buffer)
-                     (get-buffer-window buf)))
-        (setq lean-server-flycheck-delay-timer
-              (run-at-time "200 milliseconds" nil
-                           (lambda (buf)
-                             (with-current-buffer buf
-                               (flycheck-buffer)))
-                           (current-buffer)))))))
+      (when (and (eq buf flycheck-error-list-source-buffer)
+                 (get-buffer-window buf))
+        (if (memq lean-server-flycheck-delay-timer timer-list)
+            (setq lean-server-flycheck-delayed-update t) ; arm timer
+          (flycheck-buffer)
+          (setq lean-server-flycheck-delay-timer
+                (run-at-time "100 milliseconds" nil
+                             (lambda (buf)
+                               (with-current-buffer buf
+                                 (when lean-server-flycheck-delayed-update
+                                   (setq lean-server-flycheck-delayed-update nil)
+                                   (flycheck-buffer))))
+                             (current-buffer))))))))
 
 (defvar-local lean-server-show-tasks-delay-timer nil)
 
@@ -361,7 +366,7 @@
   (save-match-data
     (when lean-server-sync-timer (cancel-timer lean-server-sync-timer))
     (setq lean-server-sync-timer
-          (run-at-time "200 milliseconds" nil #'lean-server-sync (current-buffer)))))
+          (run-at-time "50 milliseconds" nil #'lean-server-sync (current-buffer)))))
 
 (defun lean-server-compute-roi (sess)
   (--mapcat (with-current-buffer it

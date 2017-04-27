@@ -1978,7 +1978,6 @@ expr elaborator::visit_scope_trace(expr const & e, optional<expr> const & expect
 expr elaborator::visit_app(expr const & e, optional<expr> const & expected_type) {
     if (is_app_of(e, get_scope_trace_name(), 1))
         return visit_scope_trace(e, expected_type);
-    expr const & ref = e;
     buffer<expr> args;
     expr const & fn = get_app_args(e, args);
     if (is_infix_function(fn)) {
@@ -1987,20 +1986,6 @@ expr elaborator::visit_app(expr const & e, optional<expr> const & expected_type)
         return visit(head_beta_reduce(copy_tag(e, mk_app(infix_fn, args))), expected_type);
     } else if (is_equations(fn)) {
         return visit_convoy(e, expected_type);
-    } else if (is_constant(fn, get_tactic_eval_expr_name())) {
-        buffer<expr> new_args;
-        expr ref_arg = get_ref_for_child(args[0], ref);
-        expr A = ensure_type(visit(args[0], none_expr()), ref_arg);
-        if (has_local(A))
-            throw elaborator_exception(e, "invalid eval_expr, type must be a closed expression");
-        new_args.push_back(mk_as_is(A));
-        /* Remark: the code generator will replace the following argument */
-        new_args.push_back(copy_tag(e, mk_pexpr_quote(mk_Prop())));
-        if (args.size() > 1) {
-            lean_assert(args.size() == 2);
-            new_args.push_back(args[1]);
-        }
-        return visit(copy_tag(e, mk_app(mk_explicit(fn), new_args)), expected_type);
     } else {
         return visit_app_core(fn, args, expected_type, e);
     }

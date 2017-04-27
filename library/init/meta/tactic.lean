@@ -213,11 +213,8 @@ inductive transparency
 
 export transparency (reducible semireducible)
 
-/- (eval_expr α α_as_expr e) evaluates 'e' IF 'e' has type 'α'.
-   'α' must be a closed term.
-   'α_as_expr' is synthesized by the code generator.
-   'e' must be a closed expression at runtime. -/
-meta constant eval_expr (α : Type u) {α_expr : pexpr} : expr → tactic α
+/- (eval_expr α e) evaluates 'e' IF 'e' has type 'α'. -/
+meta constant eval_expr (α : Type u) [reflected α] : expr → tactic α
 
 /- Return the partial term/proof constructed so far. Note that the resultant expression
    may contain variables that are not declarate in the current main goal. -/

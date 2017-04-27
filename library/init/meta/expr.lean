@@ -46,6 +46,13 @@ meta inductive expr
 | elet        : name → expr → expr → expr → expr
 | macro       : macro_def → ∀ n, (fin n → expr) → expr
 
+/-- (reflected a) is a special opaque container for an `expr` representing `a`.
+    It can only be obtained via type class inference, which will use the representation
+    of `a` in the calling context. -/
+meta constant {u} reflected {α : Type u} : α → Type u
+attribute [class] reflected
+meta constant {u} reflect {α : Type u} (a : α) [reflected a] : expr
+
 meta instance : inhabited expr :=
 ⟨expr.sort level.zero⟩
 

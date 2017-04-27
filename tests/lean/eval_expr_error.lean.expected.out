@@ -1,10 +1,8 @@
-eval_expr_error.lean:5:8: error: invalid eval_expr, type must be a closed expression
-eval_expr_error.lean:5:4: error: don't know how to synthesize placeholder
-context:
+eval_expr_error.lean:5:8: error: failed to synthesize type class instance for
 A : Type,
 tst1 : tactic unit,
 a : expr
-⊢ Type
+⊢ reflected A
 eval_expr_error.lean:8:0: error: invalid eval_expr, type mismatch
 state:
 ⊢ true

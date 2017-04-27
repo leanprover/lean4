@@ -20,18 +20,18 @@ static expr * g_pexpr               = nullptr;
 static name * g_quote_macro         = nullptr;
 
 /** \brief The quoted expression macro is a compact way of encoding quoted expressions inside Lean expressions.
-    If \c m_is_expr is true, it represents a value of type 'expr', and 'pexpr' otherwise. */
+    It is used to represent values of types `reflected e`, `expr`, and `pexpr`. */
 class quote_macro : public macro_definition_cell {
     expr m_value;
-    bool m_is_expr;
+    expr m_type;
 public:
-    quote_macro(expr const & v, bool is_expr):m_value(v), m_is_expr(is_expr) {}
+    quote_macro(expr const & v, expr const & ty):m_value(v), m_type(ty) {}
     virtual bool lt(macro_definition_cell const & d) const {
         return m_value < static_cast<quote_macro const &>(d).m_value;
     }
     virtual name get_name() const { return *g_quote_macro; }
     virtual expr check_type(expr const &, abstract_type_context &, bool) const {
-        return m_is_expr ? *g_expr : *g_pexpr;
+        return m_type;
     }
     virtual optional<expr> expand(expr const &, abstract_type_context &) const {
         return optional<expr>();
@@ -44,7 +44,7 @@ public:
         return this == &other;
     }
     char const * prefix() const {
-        return m_is_expr ? "```(" : "`(";
+        return "`(";
     }
     virtual void display(std::ostream & out) const {
         out << prefix() << m_value << ")";
@@ -53,14 +53,19 @@ public:
         return format(prefix()) + nest(2, fmt(m_value)) + format(")");
     }
     virtual bool is_atomic_pp(bool, bool) const { return false; }
-    virtual unsigned hash() const { return ::lean::hash(m_value.hash(), static_cast<unsigned>(m_is_expr)); }
-    virtual void write(serializer & s) const { s << *g_quote_opcode << m_value << m_is_expr; }
+    virtual unsigned hash() const { return ::lean::hash(m_value.hash(), m_type.hash()); }
+    virtual void write(serializer & s) const { s << *g_quote_opcode << m_value << m_type; }
     expr const & get_value() const { return m_value; }
-    bool is_is_expr() const { return m_is_expr; }
+    expr const & get_type() const { return m_type; }
 };
 
 expr mk_quote_core(expr const & e, bool is_expr) {
-    return mk_macro(macro_definition(new quote_macro(e, is_expr)));
+    return mk_macro(macro_definition(new quote_macro(e, is_expr ? *g_expr : *g_pexpr)));
+}
+
+expr mk_reflected(expr const & e, expr const & ty, level const & l) {
+    return mk_macro(macro_definition(
+            new quote_macro(e, mk_app(mk_constant("reflected", {l}), ty, e))));
 }
 
 bool is_quote(expr const & e) {
@@ -68,7 +73,7 @@ bool is_quote(expr const & e) {
 }
 
 bool is_expr_quote(expr const &e) {
-    return is_quote(e) && static_cast<quote_macro const *>(macro_def(e).raw())->is_is_expr();
+    return is_quote(e) && static_cast<quote_macro const *>(macro_def(e).raw())->get_type() == *g_expr;
 }
 
 expr const & get_quote_expr(expr const & e) {
@@ -121,9 +126,9 @@ void initialize_quote() {
                                 [](deserializer & d, unsigned num, expr const *) {
                                     if (num != 0)
                                         throw corrupted_stream_exception();
-                                    expr e; bool is_expr;
-                                    d >> e >> is_expr;
-                                    return mk_quote_core(e, is_expr);
+                                    expr e, ty;
+                                    d >> e >> ty;
+                                    return mk_macro(macro_definition(new quote_macro(e, ty)));
                                 });
 }
 

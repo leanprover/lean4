@@ -159,24 +159,6 @@ static expr expand_aux(environment const & env, expr const & e) {
 
 static name * g_tmp_prefix = nullptr;
 
-/* Make sure the second argument in every tactic.eval_expr application is
-   the quotation of the first. */
-expr fix_tactic_eval_expr(expr const & e) {
-    return replace(e, [&](expr const & e, unsigned) {
-            if (is_app(e) && is_constant(get_app_fn(e), get_tactic_eval_expr_name())) {
-                buffer<expr> args;
-                get_app_args(e, args);
-                if (args.size() < 2)
-                    throw exception("invalid tactic.eval_expr application, it must have at least 2 arguments");
-                if (!closed(args[0]) || has_local(args[0]))
-                    throw exception("invalid tactic.eval_expr application, type must be a closed term");
-                args[1] = mk_pexpr_quote(args[0]);
-                return some_expr(copy_tag(e, mk_app(get_app_fn(e), args)));
-            }
-            return none_expr();
-        });
-}
-
 class preprocess_fn {
     environment    m_env;
 
@@ -252,7 +234,6 @@ public:
             return;
         expr v = d.get_value();
         lean_trace(name({"compiler", "input"}), tout() << "\n" << v << "\n";);
-        v = fix_tactic_eval_expr(v);
         v = inline_simple_definitions(m_env, v);
         lean_cond_assert("compiler", check(d, v));
         lean_trace(name({"compiler", "inline"}), tout() << "\n" << v << "\n";);

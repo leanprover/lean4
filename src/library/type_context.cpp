@@ -31,6 +31,7 @@ Author: Leonardo de Moura
 #include "library/delayed_abstraction.h"
 #include "library/fun_info.h"
 #include "library/num.h"
+#include "library/quote.h"
 
 #ifndef LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH
 #define LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH 32
@@ -3473,9 +3474,40 @@ struct instance_synthesizer {
         return false;
     }
 
+    bool process_special(stack_entry const & e) {
+        expr const & mvar_type = mlocal_type(e.m_mvar);
+        if (is_app_of(mvar_type, "reflected", 2)) {
+            expr const & r = app_arg(mvar_type);
+            if (!closed(r) || has_local(r)) {
+                lean_trace_plain("class_instances",
+                                 scope_trace_env scope(m_ctx.env(), m_ctx);
+                                 tout() << "not using special support for `reflected` synthesis because '" << r
+                                        << "' is not closed and locals-free";);
+
+                return false;
+            }
+            expr r_ty = app_arg(app_fn(mvar_type));
+            level l = *dec_level(get_level(m_ctx, r_ty));
+            lean_trace_plain("class_instances",
+                             scope_trace_env scope(m_ctx.env(), m_ctx);
+                             trace(e.m_depth, e.m_mvar, mvar_type, r););
+            if (!m_ctx.is_def_eq(e.m_mvar, mk_reflected(r, r_ty, l))) {
+                lean_trace_plain("class_instances", tout() << "failed is_def_eq\n";);
+                return false;
+            } else {
+                return true;
+            }
+        }
+        return false;
+    }
+
     bool process_next_mvar() {
         lean_assert(!is_done());
         stack_entry e = head(m_state.m_stack);
+        if (process_special(e)) {
+            m_state.m_stack = tail(m_state.m_stack);
+            return true;
+        }
         if (!mk_choice_point(e.m_mvar))
             return false;
         m_state.m_stack = tail(m_state.m_stack);

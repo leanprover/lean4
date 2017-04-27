@@ -2598,18 +2598,18 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
                     }
                     if (j == fnames.size()) {
                         if (src && !is_subobject_field(m_env, nested_S_name, S_fname)) {
-                            name base_S_name = *find_field(m_env, src_S_name, S_fname);
+                            optional<name> opt_base_S_name = find_field(m_env, src_S_name, S_fname);
+                            if (!opt_base_S_name) {
+                                throw elaborator_exception(ref,
+                                                           sstream() << "invalid structure update { src with ... }, field '"
+                                                                     << S_fname << "'"
+                                                                     << " was not provided, nor was it found in the source of type '"
+                                                                     << src_S_name << "'.");
+                            }
+                            name base_S_name = *opt_base_S_name;
                             expr base_src = *mk_base_projections(m_env, src_S_name, base_S_name, *src);
                             expr f = mk_proj_app(m_env, base_S_name, S_fname, base_src);
-                            try {
-                                c_arg = visit(f, none_expr());
-                            } catch (exception & ex) {
-                                throw nested_exception(some_expr(e),
-                                                       sstream() << "invalid structure update { src with ... }, field '"
-                                                                 << S_fname << "'"
-                                                                 << " was not provided, nor was it found in the source",
-                                                       ex);
-                            }
+                            c_arg = visit(f, none_expr());
                             expr c_arg_type = infer_type(c_arg);
                             if (!is_def_eq(c_arg_type, d)) {
                                 auto pp_data = pp_until_different(c_arg_type, d);

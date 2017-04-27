@@ -2298,7 +2298,7 @@ void parser::process_imports() {
             try {
                 std::rethrow_exception(e.m_ex);
             } catch (throwable & t) {
-                parser_exception error((sstream() << "invalid import: " << e.m_import.m_name).str(),
+                parser_exception error((sstream() << "invalid import: " << e.m_import.m_name << "\n" << t.what()).str(),
                                        m_file_name.c_str(), m_last_cmd_pos);
                 if (!m_use_exceptions && m_show_errors)
                     report_message(error);

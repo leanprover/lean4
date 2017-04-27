@@ -57,7 +57,7 @@ def init_gitignore_contents :=
 "
 
 def init_pkg (n : string) (dir : string) : io unit := do
-write_manifest { name := n, version := "0.1", dependencies := [] }
+write_manifest { name := n, version := "0.1", path := none, dependencies := [] }
   (dir ++ "/" ++ leanpkg_toml_fn),
 write_file (dir ++ "/.gitignore") init_gitignore_contents io.mode.append
 
@@ -115,6 +115,7 @@ def main : ∀ (args : list string), io unit
   when (¬ ex) $ write_manifest {
       name := "_user_local_packages",
       version := "1",
+      path := none,
       dependencies := []
     } user_toml_fn,
   exec_cmd "leanpkg" ("add" :: rest) dot_lean_dir,

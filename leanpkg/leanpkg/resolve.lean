@@ -78,9 +78,9 @@ def solve_deps (d : manifest) : io assignment := do
 (_, assg) ← solve_deps_core "." d 1024 $ assignment.empty.insert d.name ".",
 return assg
 
-def construct_path_core (depname : string) (dirname : string) : io (list string) := do
-manifest ← manifest.from_file $ dirname ++ "/" ++ leanpkg_toml_fn,
-return [dirname]
+def construct_path_core (depname : string) (dirname : string) : io (list string) :=
+list.map (λ relpath, dirname ++ "/" ++ relpath) <$>
+manifest.effective_path <$> (manifest.from_file $ dirname ++ "/" ++ leanpkg_toml_fn)
 
 def construct_path (assg : assignment) : io (list string) := do
 let assg := assg.fold [] (λ xs depname dirname, (depname, dirname) :: xs),

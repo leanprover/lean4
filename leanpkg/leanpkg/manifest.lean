@@ -44,24 +44,33 @@ end dependency
 
 structure manifest :=
 (name : string) (version : string)
+(path : option string)
 (dependencies : list dependency)
 
 namespace manifest
+
+def effective_path (m : manifest) : list string :=
+[match m.path with some p := p | none := "." end]
 
 def from_toml (t : toml.value) : option manifest := do
 pkg ← t.lookup "package",
 toml.value.str n ← pkg.lookup "name" | none,
 toml.value.str ver ← pkg.lookup "version" | none,
+path ← match pkg.lookup "path" with
+       | some (toml.value.str path) := some (some path)
+       | none := some none
+       | _ := none
+       end,
 toml.value.table deps ← t.lookup "dependencies" <|> some (toml.value.table []) | none,
 deps ← monad.for deps (λ ⟨n, src⟩, do src ← source.from_toml src,
                                       return $ dependency.mk n src),
-return { name := n, version := ver, dependencies := deps }
+return { name := n, version := ver, path := path, dependencies := deps }
 
 def to_toml (d : manifest) : toml.value :=
-let pkg := toml.value.table [("name", toml.value.str d.name),
-                             ("version", toml.value.str d.version)],
+let pkg := [("name", toml.value.str d.name), ("version", toml.value.str d.version)],
+    pkg := match d.path with some p := pkg ++ [("path", toml.value.str p)] | none := pkg end,
     deps := toml.value.table $ d.dependencies.for $ λ dep, (dep.name, dep.src.to_toml) in
-toml.value.table [("package", pkg), ("dependencies", deps)]
+toml.value.table [("package", toml.value.table pkg), ("dependencies", deps)]
 
 instance : has_to_string manifest :=
 ⟨λ d, d.to_toml.to_string⟩

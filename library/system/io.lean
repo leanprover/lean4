@@ -208,9 +208,10 @@ format.print (to_fmt a)
     The process will run to completion with its output captured by a pipe, and
     read into `string` which is then returned.
 -/
-def io.cmd [io.interface] (cmd : string) (args : list string) : io string :=
+def io.cmd [io.interface] (cmd : string) (args : list string) (cwd : option string := none) : io string :=
 do child ← io.proc.spawn {
     cmd := cmd,
+    cwd := cwd,
     args := args,
     stdout := io.process.stdio.piped
   },

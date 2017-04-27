@@ -45,11 +45,6 @@ exec_cmd "lean" ["--make"]
 
 def build := configure >> make
 
-def add (dep : dependency) : io unit := do
-d ← read_manifest,
-let d' := { d with dependencies := d.dependencies.filter (λ old_dep, old_dep.name ≠ dep.name) ++ [dep] },
-write_manifest d'
-
 def init_gitignore_contents :=
 "*.olean
 /_target
@@ -69,6 +64,40 @@ def basename : ∀ (fn : string), string
 | (c :: rest) :=
   if c = #"/" then [] else c :: basename rest
 
+def add_dep_to_manifest (dep : dependency) : io unit := do
+d ← read_manifest,
+let d' := { d with dependencies := d.dependencies.filter (λ old_dep, old_dep.name ≠ dep.name) ++ [dep] },
+write_manifest d'
+
+def strip_dot_git (url : string) : string :=
+if url.taken 4 = ".git" then url.dropn 4 else url
+
+def absolutize_add_dep (dep : string) : io string :=
+if #":" ∈ @cast string (list char) rfl dep then return dep
+else do cwd ← io.cmd "pwd" [], return $ resolve_dir dep (cwd.dropn 1) -- remove final newline
+
+def parse_add_dep (dep : string) : dependency :=
+if #":" ∈ @cast string (list char) rfl dep then -- looks like git :-)
+  { name := basename (strip_dot_git dep), src := source.git dep "master" }
+else
+  { name := basename dep, src := source.path dep }
+
+def fixup_git_version (dir : string) : ∀ (src : source), io source
+| (source.git url _) := do
+  rev ← io.cmd "git" ["rev-parse", "HEAD"] dir,
+  return $ source.git url (rev.dropn 1) -- remove newline at end
+| src := return src
+
+def add (dep : string) : io unit := do
+let dep := parse_add_dep dep,
+(_, assg) ← materialize "." dep assignment.empty,
+some downloaded_path ← return (assg.find dep.name),
+manif ← manifest.from_file (downloaded_path ++ "/" ++ leanpkg_toml_fn),
+src ← fixup_git_version downloaded_path dep.src,
+let dep := { dep with name := manif.name, src := src },
+add_dep_to_manifest dep,
+configure
+
 def new (dir : string) := do
 ex ← dir_exists dir,
 when ex $ io.fail $ "directory already exists: " ++ dir,
@@ -84,15 +113,11 @@ build           download dependencies and build *.olean files
 new <dir>       creates a lean package in the specified directory
 init <name>     adds a leanpkg.toml file to the current directory, and sets up .gitignore
 
-add --git <name> <url> <rev>
-                adds a dependency from a git repository
-add --local <name> <directory>
-                adds a local dependency
+add <url>       adds a dependency from a git repository (uses current master revision)
+add <dir>       adds a local dependency
 
-install --git <name> <url> <rev>
-                installs a user-wide package from git
-install --local <name> <url>
-                installs a user-wide package from a local directory
+install <url>   installs a user-wide package from git
+install <dir>   installs a user-wide package from a local directory
 
 dump            prints the parsed leanpkg.toml file (for debugging)
 "
@@ -103,11 +128,9 @@ def main : ∀ (args : list string), io unit
 | ["build"] := build
 | ["new", dir] := new dir
 | ["init", name] := init name
-| ["add", "--git", n, url, rev] :=
-  add { name := n, src := source.git url rev }
-| ["add", "--local", n, dir] :=
-  add { name := n, src := source.path dir }
-| ("install" :: rest) := do
+| ["add", dep] := add dep
+| ["install", dep] := do
+  dep ← absolutize_add_dep dep,
   dot_lean_dir ← get_dot_lean_dir,
   exec_cmd "mkdir" ["-p", dot_lean_dir],
   let user_toml_fn := dot_lean_dir ++ "/" ++ leanpkg_toml_fn,
@@ -118,7 +141,7 @@ def main : ∀ (args : list string), io unit
       path := none,
       dependencies := []
     } user_toml_fn,
-  exec_cmd "leanpkg" ("add" :: rest) dot_lean_dir,
+  exec_cmd "leanpkg" ["add", dep] dot_lean_dir,
   exec_cmd "leanpkg" ["configure"] dot_lean_dir
 | ["dump"] := read_manifest >>= io.print_ln
 | _ := io.fail usage

@@ -46,7 +46,7 @@ match dep.src with
 | (source.git url rev) := do
   let depdir := "_target/deps/" ++ dep.name,
   already_there ← dir_exists depdir,
-  let checkout_action := exec_cmd "git" ["checkout", rev] (some depdir),
+  let checkout_action := exec_cmd "git" ["checkout", "--detach", rev] (some depdir),
   (do guard already_there,
       io.put_str_ln $ dep.name ++ ": trying to update " ++ depdir ++ " to revision " ++ rev,
       checkout_action) <|>
@@ -57,7 +57,7 @@ match dep.src with
       exec_cmd "rm" ["-rf", depdir],
       exec_cmd "mkdir" ["-p", depdir],
       exec_cmd "git" ["clone", url, depdir],
-      exec_cmd "git" ["checkout", rev] (some depdir)),
+      exec_cmd "git" ["checkout", "--detach", rev] (some depdir)),
   state_t.modify $ λ assg, assg.insert dep.name depdir
 end
 

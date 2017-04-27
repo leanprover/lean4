@@ -8,14 +8,17 @@ Author: Leonardo de Moura
 #include "kernel/scope_pos_info_provider.h"
 #include "library/placeholder.h"
 #include "library/explicit.h"
+#include "library/quote.h"
+#include "library/string.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_expr.h"
+#include "library/vm/vm_name.h"
 #include "library/vm/vm_string.h"
 #include "library/vm/vm_option.h"
 #include "library/vm/vm_pos_info.h"
-#include "library/quote.h"
 #include "frontends/lean/prenum.h"
-#include "library/string.h"
+#include "frontends/lean/structure_cmd.h"
+#include "frontends/lean/util.h"
 
 namespace lean {
 vm_obj pexpr_of_expr(vm_obj const & e) {
@@ -58,6 +61,14 @@ vm_obj pexpr_mk_string_macro(vm_obj const & s) {
     return to_obj(from_string(to_string(s)));
 }
 
+vm_obj pexpr_mk_explicit(vm_obj const & e) {
+    return to_obj(mk_explicit(to_expr(e)));
+}
+
+vm_obj pexpr_mk_field_macro(vm_obj const & e, vm_obj const & fname) {
+    return to_obj(mk_field_notation(to_expr(e), to_name(fname)));
+}
+
 void initialize_vm_pexpr() {
     DECLARE_VM_BUILTIN(name({"pexpr", "subst"}),          expr_subst);
     DECLARE_VM_BUILTIN(name({"pexpr", "of_expr"}),        pexpr_of_expr);
@@ -71,6 +82,8 @@ void initialize_vm_pexpr() {
     DECLARE_VM_BUILTIN(name("pexpr", "mk_quote_macro"),   pexpr_mk_quote_macro);
     DECLARE_VM_BUILTIN(name("pexpr", "mk_prenum_macro"),  pexpr_mk_prenum_macro);
     DECLARE_VM_BUILTIN(name("pexpr", "mk_string_macro"),  pexpr_mk_string_macro);
+    DECLARE_VM_BUILTIN(name("pexpr", "mk_explicit"),      pexpr_mk_explicit);
+    DECLARE_VM_BUILTIN(name("pexpr", "mk_field_macro"),   pexpr_mk_field_macro);
 }
 
 void finalize_vm_pexpr() {

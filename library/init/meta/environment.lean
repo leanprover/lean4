@@ -80,6 +80,8 @@ meta constant trans_for : environment → name → option name
 meta constant decl_olean : environment → name → option string
 /- (decl_pos env d) returns the source location of d if available. -/
 meta constant decl_pos : environment → name → option pos
+/- Return the fields of the structure with the given name, or `none` if it is not a structure -/
+meta constant structure_fields : environment → name → option (list name)
 open expr
 
 meta constant unfold_untrusted_macros : environment → expr → expr

@@ -24,6 +24,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_exceptional.h"
 #include "library/vm/vm_list.h"
 #include "library/vm/vm_pos_info.h"
+#include "frontends/lean/structure_cmd.h"
 
 namespace lean {
 struct vm_environment : public vm_external {
@@ -216,6 +217,14 @@ vm_obj environment_is_namespace(vm_obj const & env, vm_obj const & n) {
     return mk_vm_bool(is_namespace(to_env(env), to_name(n)));
 }
 
+vm_obj environment_structure_fields(vm_obj const & env, vm_obj const & n) {
+    try {
+        return mk_vm_some(to_obj(get_structure_fields(to_env(env), to_name(n))));
+    } catch (exception &) {
+        return mk_vm_none();
+    }
+}
+
 /*
 structure projection_info :=
 (cname : name)
@@ -263,6 +272,7 @@ void initialize_vm_environment() {
     DECLARE_VM_BUILTIN(name({"environment", "decl_olean"}),            environment_decl_olean);
     DECLARE_VM_BUILTIN(name({"environment", "decl_pos"}),              environment_decl_pos);
     DECLARE_VM_BUILTIN(name({"environment", "unfold_untrusted_macros"}), environment_unfold_untrusted_macros);
+    DECLARE_VM_BUILTIN(name({"environment", "structure_fields"}),      environment_structure_fields);
 }
 
 void finalize_vm_environment() {

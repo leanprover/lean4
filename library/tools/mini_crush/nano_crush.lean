@@ -81,7 +81,7 @@ open list
 
 meta def collect_inductive_from_target : tactic (list expr) :=
 do S ← target >>= collect_inductive,
-   return $ qsort ((<) on size) S.to_list
+   return $ qsort (λ x y, size x < size y) S.to_list
 
 meta def collect_inductive_hyps : tactic (list expr) :=
 local_context >>= mfoldl (λ r h, mcond (is_inductive h) (return $ h::r) (return r)) []

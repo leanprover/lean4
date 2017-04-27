@@ -878,6 +878,7 @@ static list<notation::accepting> is_infix_paren_notation(parser_state & p) {
 static expr parse_infix_paren(parser_state & p, list<notation::accepting> const & accs, pos_info const & pos) {
     expr args[2];
     buffer<expr> vars;
+    bool fixed_second_arg = false;
     args[0] = mk_local(mk_fresh_name(), "_x", mk_expr_placeholder(), binder_info());
     vars.push_back(args[0]);
     p.next();
@@ -886,14 +887,22 @@ static expr parse_infix_paren(parser_state & p, list<notation::accepting> const 
         args[1] = mk_local(mk_fresh_name(), "_y", mk_expr_placeholder(), binder_info());
         vars.push_back(args[1]);
     } else {
+        fixed_second_arg = true;
         args[1] = p.parse_expr();
         consume_rparen(p);
     }
     buffer<expr> cs;
     for (notation::accepting const & acc : accs) {
         expr r = p.copy_with_new_pos(acc.get_expr(), pos);
-        r = p.save_pos(mk_infix_function(Fun(vars, instantiate_rev(r, 2, args), p)), pos);
-        cs.push_back(r);
+        if (!fixed_second_arg && get_app_num_args(r) == 2 && closed(app_fn(app_fn(r))) &&
+            is_var(app_arg(app_fn(r)), 1) && is_var(app_arg(r), 0)) {
+            /* r is of the form (f #1 #0).
+               Thus, we add f to cs instead of (fun x y, f x y) */
+            cs.push_back(app_fn(app_fn(r)));
+        } else {
+            r = p.save_pos(mk_infix_function(Fun(vars, instantiate_rev(r, 2, args), p)), pos);
+            cs.push_back(r);
+        }
     }
     return p.save_pos(mk_choice(cs.size(), cs.data()), pos);
 }

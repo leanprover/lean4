@@ -1,7 +1,7 @@
 open list
 
 #eval filter (< 10) [20, 5, 10, 3, 2, 14, 1]
-#eval qsort (<) [20, 5, 10, 3, 2, 14, 1]
+#eval qsort (λ x y, x < y) [20, 5, 10, 3, 2, 14, 1]
 #eval foldl (+) 0 [1, 2, 3]
 
 example : foldl (+) 0 [3, 4, 1] = 8 :=
@@ -26,7 +26,7 @@ rfl
 
 /-
 (-) is rejected since we have prefix notation for -
-
-We cannot write (::) since we use (: t :) for annotating patterns for ematching.
-We have to write ( :: )
 -/
+
+example : list.foldr (::) [] [1, 2, 3, 4] = [1, 2, 3, 4] :=
+rfl

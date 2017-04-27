@@ -19,10 +19,10 @@ struct ematch_config {
     unsigned  m_max_generation{10};
 };
 
-struct ematch_fn;
+class ematch_fn;
 
 class ematch_state {
-    friend struct ematch_fn;
+    friend class ematch_fn;
     app_map               m_app_map;
     rb_expr_set           m_instances;
     unsigned              m_num_instances{0};

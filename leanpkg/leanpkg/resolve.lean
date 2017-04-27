@@ -75,7 +75,15 @@ monad.for' deps $ λ dep, do
   solve_deps_core p d max_depth
 
 def solve_deps (d : desc) : io assignment := do
-(_, assg) ← solve_deps_core "." d 1024 assignment.empty,
+(_, assg) ← solve_deps_core "." d 1024 $ assignment.empty.insert d.name ".",
 return assg
+
+def construct_path_core (depname : string) (dirname : string) : io (list string) := do
+desc ← desc.from_file $ dirname ++ "/" ++ leanpkg_toml_fn,
+return [dirname]
+
+def construct_path (assg : assignment) : io (list string) := do
+let assg := assg.fold [] (λ xs depname dirname, (depname, dirname) :: xs),
+list.join <$> (list.mfor assg $ λ ⟨depname, dirname⟩, construct_path_core depname dirname)
 
 end leanpkg

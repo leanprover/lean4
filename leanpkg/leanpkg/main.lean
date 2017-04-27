@@ -1,5 +1,5 @@
 /-
-Copyright (c) 2016 Microsoft Corporation. All rights reserved.
+Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Gabriel Ebner
 -/
@@ -8,15 +8,16 @@ variable [io.interface]
 
 namespace leanpkg
 
-def leanpkg_toml_fn := "leanpkg.toml"
+def write_file (fn : string) (cnts : string) (mode := io.mode.write) : io unit := do
+h ← io.mk_file_handle fn io.mode.write,
+io.fs.write h cnts.to_char_buffer,
+io.fs.close h
 
 def read_desc : io desc :=
 desc.from_file leanpkg_toml_fn
 
-def write_desc (d : desc) (fn := leanpkg_toml_fn) : io unit := do
-h ← io.mk_file_handle fn io.mode.write,
-io.fs.write h (to_string d).to_char_buffer,
-io.fs.close h
+def write_desc (d : desc) (fn := leanpkg_toml_fn) : io unit :=
+write_file fn (to_string d)
 
 -- TODO(gabriel): implement a cross-platform api
 def get_dot_lean_dir : io string :=
@@ -28,19 +29,16 @@ ch ← io.proc.spawn { cmd := "test", args := ["-f", f] },
 ev ← io.proc.wait ch,
 return $ ev = 0
 
-def mk_path_file (assg : assignment) : string :=
-let paths := assg.fold ["."] (λ xs _ x, x :: xs),
-    lines := "builtin_path" :: paths.map (λ p, "path " ++ p) in
-lines.foldr (λ x xs, x ++ "\n" ++ xs) ""
+def mk_path_file : ∀ (paths : list string), string
+| [] := "builtin_path\n"
+| (x :: xs) := mk_path_file xs ++ "path " ++ x ++ "\n"
 
 def configure : io unit := do
 d ← read_desc,
 io.put_str_ln $ "configuring " ++ d.name ++ " " ++ d.version,
 assg ← solve_deps d,
-let path_file_cnts := mk_path_file assg,
-path_file_h ← io.mk_file_handle "leanpkg.path" io.mode.write,
-io.fs.write path_file_h $ buffer.nil.append_list path_file_cnts.reverse,
-io.fs.close path_file_h
+path_file_cnts ← mk_path_file <$> construct_path assg,
+write_file "leanpkg.path" path_file_cnts
 
 def make : io unit :=
 exec_cmd "lean" ["--make"]
@@ -52,12 +50,16 @@ d ← read_desc,
 let d' := { d with dependencies := d.dependencies.filter (λ old_dep, old_dep.name ≠ dep.name) ++ [dep] },
 write_desc d'
 
+def init_gitignore_contents :=
+"*.olean
+/_target
+/leanpkg.path
+"
+
 def init_pkg (n : string) (dir : string) : io unit := do
 write_desc { name := n, version := "0.1", dependencies := [] }
   (dir ++ "/" ++ leanpkg_toml_fn),
-h ← io.mk_file_handle (dir ++ "/.gitignore") io.mode.append,
-io.fs.write h "*.olean\n/_target\n/leanpkg.path\n".to_char_buffer,
-io.fs.close h
+write_file (dir ++ "/.gitignore") init_gitignore_contents io.mode.append
 
 def init (n : string) := init_pkg n "."
 

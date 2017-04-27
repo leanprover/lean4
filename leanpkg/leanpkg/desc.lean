@@ -86,4 +86,6 @@ return desc
 
 end desc
 
+def leanpkg_toml_fn := "leanpkg.toml"
+
 end leanpkg

@@ -21,24 +21,11 @@ enum stdio {
 };
 
 struct child {
-    handle_ref m_stdin;
-    handle_ref m_stdout;
-    handle_ref m_stderr;
-    int m_pid;
-
-    child(child const & ch) :
-        m_stdin(ch.m_stdin),
-        m_stdout(ch.m_stdout),
-        m_stderr(ch.m_stderr),
-        m_pid(ch.m_pid) {}
-
-    child(int pid, handle_ref hstdin, handle_ref hstdout, handle_ref hstderr) :
-        m_stdin(hstdin),
-        m_stdout(hstdout),
-        m_stderr(hstderr),
-        m_pid(pid) {}
-
-    unsigned wait();
+    virtual ~child() {};
+    virtual handle_ref get_stdin() = 0;
+    virtual handle_ref get_stdout() = 0;
+    virtual handle_ref get_stderr() = 0;
+    virtual unsigned wait() = 0;
 };
 
 class process {
@@ -56,7 +43,7 @@ public:
     process & set_stdout(stdio cfg);
     process & set_stderr(stdio cfg);
     process & set_cwd(std::string const & cwd);
-    child spawn();
+    std::shared_ptr<child> spawn();
     void run();
 };
 }

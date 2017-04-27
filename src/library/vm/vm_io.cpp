@@ -75,8 +75,8 @@ struct vm_handle : public vm_external {
     vm_handle(handle_ref const & h):m_handle(h) {}
     virtual ~vm_handle() {}
     virtual void dealloc() override { this->~vm_handle(); get_vm_allocator().deallocate(sizeof(vm_handle), this); }
-    virtual vm_external * clone(vm_clone_fn const &) override { throw exception("handle objects cannot be cloned"); }
-    virtual vm_external * ts_clone(vm_clone_fn const &) override { throw exception("handle objects cannot be cloned"); }
+    virtual vm_external * clone(vm_clone_fn const &) override { return new vm_handle(m_handle); }
+    virtual vm_external * ts_clone(vm_clone_fn const &) override { lean_unreachable(); }
 };
 
 bool is_handle(vm_obj const & o) {
@@ -90,6 +90,28 @@ handle_ref const & to_handle(vm_obj const & o) {
 
 vm_obj to_obj(handle_ref const & h) {
     return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_handle))) vm_handle(h));
+}
+
+struct vm_child : public vm_external {
+    std::shared_ptr<child> m_child;
+    vm_child(std::shared_ptr<child> const & h):m_child(h) {}
+    virtual ~vm_child() {}
+    virtual void dealloc() override { this->~vm_child(); get_vm_allocator().deallocate(sizeof(vm_child), this); }
+    virtual vm_external * clone(vm_clone_fn const &) override { return new vm_child(m_child); }
+    virtual vm_external * ts_clone(vm_clone_fn const &) override { lean_unreachable(); }
+};
+
+bool is_child(vm_obj const & o) {
+    return is_external(o) && dynamic_cast<vm_child*>(to_external(o));
+}
+
+std::shared_ptr<child> const & to_child(vm_obj const & o) {
+    lean_vm_check(dynamic_cast<vm_child*>(to_external(o)));
+    return static_cast<vm_child*>(to_external(o))->m_child;
+}
+
+vm_obj to_obj(std::shared_ptr<child> const & h) {
+    return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_child))) vm_child(h));
 }
 
 /*
@@ -285,24 +307,6 @@ stdio to_stdio(vm_obj const & o) {
     }
 }
 
-vm_obj to_obj(child const & ch) {
-    return mk_vm_constructor(0, {
-        mk_vm_nat(static_cast<unsigned>(ch.m_pid)),
-        to_obj(ch.m_stdin),
-        to_obj(ch.m_stdout),
-        to_obj(ch.m_stderr),
-    });
-}
-
-child to_child(vm_obj const & o) {
-    return child {
-        static_cast<int>(to_unsigned(cfield(o, 0))),
-        to_handle(cfield(o, 1)),
-        to_handle(cfield(o, 2)),
-        to_handle(cfield(o, 3)),
-    };
-}
-
 /*
 structure spawn_args :=
   (cmd : string)
@@ -342,12 +346,12 @@ static vm_obj io_process_spawn(vm_obj const & process_obj, vm_obj const &) {
 
     if (cwd) proc.set_cwd(*cwd);
 
-    child ch = proc.spawn();
+    auto ch = proc.spawn();
     return mk_io_result(to_obj(ch));
 }
 
 static vm_obj io_process_wait(vm_obj const & ch, vm_obj const &) {
-    return mk_io_result(mk_vm_nat(to_child(ch).wait()));
+    return mk_io_result(mk_vm_nat(to_child(ch)->wait()));
 }
 
 /*
@@ -361,9 +365,9 @@ structure io.process (Err : Type) (handle : Type) (m : Type → Type → Type) :
 */
 static vm_obj mk_process() {
     return mk_vm_constructor(0, {
-        mk_native_closure([] (vm_obj const & c) { return to_obj(to_child(c).m_stdin); }),
-        mk_native_closure([] (vm_obj const & c) { return to_obj(to_child(c).m_stdout); }),
-        mk_native_closure([] (vm_obj const & c) { return to_obj(to_child(c).m_stderr); }),
+        mk_native_closure([] (vm_obj const & c) { return to_obj(to_child(c)->get_stdin()); }),
+        mk_native_closure([] (vm_obj const & c) { return to_obj(to_child(c)->get_stdout()); }),
+        mk_native_closure([] (vm_obj const & c) { return to_obj(to_child(c)->get_stderr()); }),
         mk_native_closure(io_process_spawn),
         mk_native_closure(io_process_wait),
     });

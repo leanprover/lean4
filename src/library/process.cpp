@@ -59,17 +59,43 @@ process & process::set_cwd(std::string const &cwd) {
 
 #if defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
 
-HANDLE to_win_handle(FILE * file) {
-    intptr_t handle = _get_osfhandle(fileno(file));
-    return reinterpret_cast<HANDLE>(handle);
-}
+struct windows_child : public child {
+    handle_ref m_stdin;
+    handle_ref m_stdout;
+    handle_ref m_stderr;
+    HANDLE m_process;
 
-FILE * from_win_handle(HANDLE handle, char const * mode) {
+    windows_child(HANDLE p, handle_ref hstdin, handle_ref hstdout, handle_ref hstderr) :
+            m_stdin(hstdin), m_stdout(hstdout), m_stderr(hstderr), m_process(p) {}
+
+    ~windows_child() {
+        CloseHandle(m_process);
+    }
+
+    handle_ref get_stdin() override { return m_stdin; }
+    handle_ref get_stdout() override { return m_stdout; }
+    handle_ref get_stderr() override { return m_stderr; }
+
+    unsigned wait() override {
+        DWORD exit_code;
+        WaitForSingleObject(m_process, INFINITE);
+        GetExitCodeProcess(m_process, &exit_code);
+        return static_cast<unsigned>(exit_code);
+    }
+};
+
+// static HANDLE to_win_handle(FILE * file) {
+//     intptr_t handle = _get_osfhandle(fileno(file));
+//     return reinterpret_cast<HANDLE>(handle);
+// }
+
+static FILE * from_win_handle(HANDLE handle, char const * mode) {
     int fd = _open_osfhandle(reinterpret_cast<intptr_t>(handle), _O_APPEND);
     return fdopen(fd, mode);
 }
 
-void create_child_process(std::string cmd_name, HANDLE hstdin, HANDLE hstdout, HANDLE hstderr);
+static HANDLE create_child_process(std::string const & cmd_name, optional<std::string> const & cwd,
+    HANDLE hstdin, HANDLE hstdout, HANDLE hstderr);
 
 // TODO(@jroesch): unify this code between platforms better.
 static optional<pipe> setup_stdio(SECURITY_ATTRIBUTES * saAttr, optional<stdio> cfg) {
@@ -98,10 +124,8 @@ static optional<pipe> setup_stdio(SECURITY_ATTRIBUTES * saAttr, optional<stdio> 
     }
 }
 
-// TODO(gabriel): add support for cwd parameter
-
 // This code is adapted from: https://msdn.microsoft.com/en-us/library/windows/desktop/ms682499(v=vs.85).aspx
-child process::spawn() {
+std::shared_ptr<child> process::spawn() {
     HANDLE child_stdin = stdin;
     HANDLE child_stdout = stdout;
     HANDLE child_stderr = stderr;
@@ -162,7 +186,8 @@ child process::spawn() {
     }
 
     // Create the child process.
-    create_child_process(command, child_stdin, child_stdout, child_stderr);
+    auto proc_handle =
+        create_child_process(command, m_cwd, child_stdin, child_stdout, child_stderr);
 
     if (stdin_pipe) {
         CloseHandle(stdin_pipe->m_read_fd);
@@ -179,15 +204,15 @@ child process::spawn() {
         parent_stderr = stderr_pipe->m_read_fd;
     }
 
-    return child(
-        0,
+    return std::make_shared<windows_child>(proc_handle,
         std::make_shared<handle>(from_win_handle(parent_stdin, "w")),
         std::make_shared<handle>(from_win_handle(parent_stdout, "r")),
         std::make_shared<handle>(from_win_handle(parent_stderr, "r")));
 }
 
 // Create a child process that uses the previously created pipes for STDIN and STDOUT.
-void create_child_process(std::string command, HANDLE hstdin, HANDLE hstdout, HANDLE hstderr) {
+static HANDLE create_child_process(std::string const & command, optional<std::string> const & cwd,
+        HANDLE hstdin, HANDLE hstdout, HANDLE hstderr) {
     PROCESS_INFORMATION piProcInfo;
     STARTUPINFO siStartInfo;
     BOOL bSuccess = FALSE;
@@ -215,7 +240,7 @@ void create_child_process(std::string command, HANDLE hstdin, HANDLE hstdout, HA
         TRUE,                                // handles are inherited
         0,                                   // creation flags
         NULL,                                // use parent's environment
-        NULL,                                // use parent's current directory
+        cwd ? cwd->c_str() : NULL,           // current directory
         &siStartInfo,                        // STARTUPINFO pointer
         &piProcInfo);                        // receives PROCESS_INFORMATION
 
@@ -227,23 +252,19 @@ void create_child_process(std::string command, HANDLE hstdin, HANDLE hstdout, HA
         // Some applications might keep these handles to monitor the status
         // of the child process, for example.
 
-        CloseHandle(piProcInfo.hProcess);
         CloseHandle(piProcInfo.hThread);
+
+        return piProcInfo.hProcess;
     }
 }
 
 void process::run() {
-     throw exception("process::run not supported on Windows");
-}
-
-unsigned child::wait() {
-    // TODO(gabriel): not implemented yet
-    return 0;
+    spawn()->wait();
 }
 
 #else
 
-optional<pipe> setup_stdio(optional<stdio> cfg) {
+static optional<pipe> setup_stdio(optional<stdio> cfg) {
     /* Setup stdio based on process configuration. */
     if (cfg) {
         switch (*cfg) {
@@ -265,7 +286,27 @@ optional<pipe> setup_stdio(optional<stdio> cfg) {
     }
 }
 
-child process::spawn() {
+struct unix_child : public child {
+    handle_ref m_stdin;
+    handle_ref m_stdout;
+    handle_ref m_stderr;
+    int m_pid;
+
+    unix_child(int pid, handle_ref hstdin, handle_ref hstdout, handle_ref hstderr) :
+            m_stdin(hstdin), m_stdout(hstdout), m_stderr(hstderr), m_pid(pid) {}
+
+    handle_ref get_stdin() override { return m_stdin; }
+    handle_ref get_stdout() override { return m_stdout; }
+    handle_ref get_stderr() override { return m_stderr; }
+
+    unsigned wait() override {
+        int status;
+        waitpid(m_pid, &status, 0);
+        return static_cast<unsigned>(WEXITSTATUS(status));
+    }
+};
+
+std::shared_ptr<child> process::spawn() {
     /* Setup stdio based on process configuration. */
     auto stdin_pipe = setup_stdio(m_stdin);
     auto stdout_pipe = setup_stdio(m_stdout);
@@ -327,20 +368,14 @@ child process::spawn() {
         parent_stderr = fdopen(stderr_pipe->m_read_fd, "r");
     }
 
-    return child(pid,
+    return std::make_shared<unix_child>(pid,
          std::make_shared<handle>(parent_stdin),
          std::make_shared<handle>(parent_stdout),
          std::make_shared<handle>(parent_stderr));
 }
 
 void process::run() {
-    spawn().wait();
-}
-
-unsigned child::wait() {
-    int status;
-    waitpid(m_pid, &status, 0);
-    return static_cast<unsigned>(WEXITSTATUS(status));
+    spawn()->wait();
 }
 
 #endif

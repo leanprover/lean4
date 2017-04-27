@@ -141,8 +141,7 @@ def main : ∀ (args : list string), io unit
       path := none,
       dependencies := []
     } user_toml_fn,
-  exec_cmd "leanpkg" ["add", dep] dot_lean_dir,
-  exec_cmd "leanpkg" ["configure"] dot_lean_dir
+  exec_cmd "leanpkg" ["add", dep] dot_lean_dir
 | ["dump"] := read_manifest >>= io.print_ln
 | _ := io.fail usage
 

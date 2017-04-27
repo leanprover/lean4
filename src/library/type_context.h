@@ -316,6 +316,9 @@ private:
     void flush_instance_cache();
     void update_local_instances(expr const & new_local, expr const & new_type);
 
+    projection_info const * is_projection(expr const & e);
+    optional<expr> reduce_projection_core(projection_info const * info, expr const & e);
+
     type_context(type_context_cache_ptr const & ptr, metavar_context const & mctx, local_context const & lctx,
                  transparency_mode m);
 public:
@@ -562,7 +565,7 @@ private:
     optional<expr> unfold_definition(expr const & e);
     optional<expr> try_unfold_definition(expr const & e);
     bool should_unfold_macro(expr const & e);
-    expr whnf_core(expr const & e);
+    expr whnf_core(expr const & e, bool iota_proj_reduce);
     optional<declaration> is_transparent(transparency_mode m, name const & n);
     optional<declaration> is_transparent(name const & n);
     bool use_zeta() const;
@@ -656,7 +659,7 @@ private:
     lbool partial_is_def_eq(level const & l1, level const & l2);
     bool full_is_def_eq(level const & l1, level const & l2);
     bool is_def_eq(levels const & ls1, levels const & ls2);
-    bool is_def_eq_core_core(expr const & t, expr const & s);
+    bool is_def_eq_core_core(expr t, expr s);
     bool is_def_eq_core(expr const & t, expr const & s);
     bool is_def_eq_binding(expr e1, expr e2);
     expr try_to_unstuck_using_complete_instance(expr const & e);
@@ -669,7 +672,8 @@ private:
     bool try_unification_hints(expr const & e1, expr const & e2);
     bool is_productive(expr const & e);
     expr reduce_if_productive(expr const & t);
-    lbool is_def_eq_lazy_delta(expr & t, expr & s);
+    lbool is_def_eq_delta(expr const & t, expr const & s);
+    lbool is_def_eq_proj(expr const & t, expr const & s);
     optional<pair<expr, expr>> find_unsynth_metavar(expr const & e);
     bool mk_nested_instance(expr const & m, expr const & m_type);
     friend class unification_hint_fn;

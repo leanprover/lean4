@@ -264,6 +264,16 @@ expr elaborator::mk_type_metavar(expr const & ref) {
 }
 
 expr elaborator::mk_instance_core(local_context const & lctx, expr const & C, expr const & ref) {
+    // synthesize `reflected e` by quoting e
+    if (is_app_of(C, get_reflected_name(), 2)) {
+        expr const & r = app_arg(C);
+        if (closed(r) && !has_local(r)) {
+            expr r_ty = app_arg(app_fn(C));
+            level l = *::lean::dec_level(::lean::get_level(m_ctx, r_ty));
+            return mk_reflected(r, r_ty, l);
+        }
+    }
+
     scope_traces_as_messages traces_as_messages(get_pos_info_provider(), ref);
 
     // TODO(gabriel): cache failures so that we do not report errors twice

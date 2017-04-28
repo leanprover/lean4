@@ -314,6 +314,7 @@ name const & get_real_has_mul_name();
 name const & get_real_has_sub_name();
 name const & get_real_has_lt_name();
 name const & get_real_has_le_name();
+name const & get_reflected_name();
 name const & get_rfl_name();
 name const & get_right_distrib_name();
 name const & get_ring_name();

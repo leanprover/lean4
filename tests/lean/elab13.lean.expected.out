@@ -1,6 +1,8 @@
 λ (c : name),
-  get_env >>= λ (env : environment),
-    returnex (environment.get env c) >>= λ (decl : declaration),
-      return (length (declaration.univ_params decl)) >>= λ (num : ℕ),
-        mk_num_meta_univs 2 >>= λ (ls : list level), return (expr.const c ls) :
+  get_env >>=
+    λ (env : environment),
+      returnex (environment.get env c) >>=
+        λ (decl : declaration),
+          return (length (declaration.univ_params decl)) >>=
+            λ (num : ℕ), mk_num_meta_univs 2 >>= λ (ls : list level), return (expr.const c ls) :
   name → tactic expr

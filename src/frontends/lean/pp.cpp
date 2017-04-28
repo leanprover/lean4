@@ -1336,6 +1336,16 @@ static bool is_atomic_notation(notation_entry const & entry) {
     return head(ts).get_action().kind() == notation::action_kind::Skip;
 }
 
+static format mk_tk_fmt(name const & tkn) {
+    auto tk = tkn.to_string();
+    if (!tk.empty() && tk.back() == ' ') {
+        tk.pop_back();
+        return format(tk) + line();
+    } else {
+        return format(tk);
+    }
+}
+
 auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>> & args) -> optional<result> {
     if (entry.is_numeral()) {
         return some(result(format(entry.get_num().to_string())));
@@ -1357,7 +1367,7 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
             format curr;
             notation::action const & a = ts[i].get_action();
             name const & tk = ts[i].get_token();
-            format tk_fmt = format(ts[i].get_pp_token());
+            format tk_fmt = mk_tk_fmt(ts[i].get_pp_token());
             switch (a.kind()) {
             case notation::action_kind::Skip:
                 curr = tk_fmt;
@@ -1502,7 +1512,7 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
             format e_fmt = pp_notation_child(e, token_lbp, 0).fmt();
             fmt = e_fmt + fmt;
         }
-        return optional<result>(result(first_lbp, last_rbp, fmt));
+        return optional<result>(result(first_lbp, last_rbp, group(nest(m_indent, fmt))));
     }
 }
 

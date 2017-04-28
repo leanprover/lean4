@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/annotation.h"
 #include "library/kernel_serializer.h"
+#include "exception.h"
 
 namespace lean {
 static std::string * g_quote_opcode = nullptr;
@@ -44,7 +45,7 @@ public:
         return this == &other;
     }
     char const * prefix() const {
-        return "`(";
+        return m_type == *g_pexpr ? "``(" : "```(";
     }
     virtual void display(std::ostream & out) const {
         out << prefix() << m_value << ")";
@@ -73,12 +74,17 @@ bool is_quote(expr const & e) {
 }
 
 bool is_expr_quote(expr const &e) {
-    return is_quote(e) && static_cast<quote_macro const *>(macro_def(e).raw())->get_type() == *g_expr;
+    return is_quote(e) && static_cast<quote_macro const *>(macro_def(e).raw())->get_type() != *g_pexpr;
 }
 
 expr const & get_quote_expr(expr const & e) {
     lean_assert(is_quote(e));
     return static_cast<quote_macro const *>(macro_def(e).raw())->get_value();
+}
+
+expr const & get_quote_type(expr const & e) {
+    lean_assert(is_quote(e));
+    return static_cast<quote_macro const *>(macro_def(e).raw())->get_type();
 }
 
 static name * g_antiquote = nullptr;
@@ -90,7 +96,7 @@ expr const & get_antiquote_expr(expr const & e) {
     return get_annotation_arg(e);
 }
 
-expr mk_pexpr_quote(expr const &e) {
+expr mk_quote(expr const & e, bool is_expr) {
     name x("_x");
     buffer<expr> locals;
     buffer<expr> aqs;
@@ -102,13 +108,16 @@ expr mk_pexpr_quote(expr const &e) {
                 aqs.push_back(get_antiquote_expr(t));
                 return some_expr(local);
             }
+            if (is_local(t) && is_expr) {
+                throw generic_exception(t, "unexpected local in quotation expression");
+            }
             return none_expr();
         });
-    expr r        = mk_quote_core(Fun(locals, s), false);
-    expr subst    = mk_constant(get_pexpr_subst_name());
+    expr r        = mk_quote_core(Fun(locals, s), is_expr);
+    expr subst    = mk_constant(is_expr ? get_expr_subst_name() : get_pexpr_subst_name());
     expr to_pexpr = mk_constant(get_to_pexpr_name());
     for (expr const & aq : aqs) {
-        r = mk_app(subst, r, mk_app(to_pexpr, aq));
+        r = mk_app(subst, r, is_expr ? aq : mk_app(to_pexpr, aq));
     }
     return r;
 }

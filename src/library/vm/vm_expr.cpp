@@ -463,7 +463,7 @@ vm_obj expr_is_annotation(vm_obj const & _e) {
     }
 }
 
-vm_obj reflect(vm_obj const &, vm_obj const &, vm_obj const & r) {
+vm_obj reflected_to_expr(vm_obj const &, vm_obj const &, vm_obj const & r) {
     return r;
 }
 
@@ -506,7 +506,7 @@ void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name({"expr", "collect_univ_params"}), expr_collect_univ_params);
     DECLARE_VM_CASES_BUILTIN(name({"expr", "cases_on"}),   expr_cases_on);
 
-    DECLARE_VM_BUILTIN("reflect",                          reflect);
+    DECLARE_VM_BUILTIN(name({"reflected", "to_expr"}),     reflected_to_expr);
 
     DECLARE_VM_BUILTIN(name("mk_nat_val_ne_proof"),        vm_mk_nat_val_ne_proof);
     DECLARE_VM_BUILTIN(name("mk_nat_val_lt_proof"),        vm_mk_nat_val_lt_proof);

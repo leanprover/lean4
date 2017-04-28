@@ -46,12 +46,20 @@ meta inductive expr
 | elet        : name → expr → expr → expr → expr
 | macro       : macro_def → ∀ n, (fin n → expr) → expr
 
+universe u
 /-- (reflected a) is a special opaque container for an `expr` representing `a`.
     It can only be obtained via type class inference, which will use the representation
     of `a` in the calling context. -/
-meta constant {u} reflected {α : Type u} : α → Type u
+meta constant reflected {α : Type u} : α → Type u
+meta constant reflected.to_expr {α : Type u} {a : α} : reflected a → expr
+
+meta structure typed_expr (α : Type u) :=
+(val  : α)
+(reflected : reflected val)
+
 attribute [class] reflected
-meta constant {u} reflect {α : Type u} (a : α) [reflected a] : expr
+meta instance {α : Type u} (a : α) : has_coe (reflected a) expr :=
+⟨reflected.to_expr⟩
 
 meta instance : inhabited expr :=
 ⟨expr.sort level.zero⟩

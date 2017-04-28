@@ -1639,11 +1639,84 @@ struct to_pattern_fn {
     }
 };
 
+static expr quote(expr const & e) {
+    switch (e.kind()) {
+        case expr_kind::Var:
+            return mk_app(mk_constant({"expr", "var"}), quote(var_idx(e)));
+        case expr_kind::Sort:
+            return mk_app(mk_constant({"expr", "sort"}), mk_expr_placeholder());
+        case expr_kind::Constant:
+            return mk_app(mk_constant({"expr", "const"}), quote(const_name(e)), mk_expr_placeholder());
+        case expr_kind::Meta:
+            return mk_expr_placeholder();
+        case expr_kind::Local:
+            throw elaborator_exception(e, sstream() << "invalid quotation, unexpected local constant '"
+                                                    << local_pp_name(e) << "'");
+        case expr_kind::App:
+            return mk_app(mk_constant({"expr", "app"}), quote(app_fn(e)), quote(app_arg(e)));
+        case expr_kind::Lambda:
+            return mk_app(mk_constant({"expr", "lam"}), mk_expr_placeholder(), mk_expr_placeholder(),
+                          quote(binding_domain(e)), quote(binding_body(e)));
+        case expr_kind::Pi:
+            return mk_app(mk_constant({"expr", "pi"}), mk_expr_placeholder(), mk_expr_placeholder(),
+                          quote(binding_domain(e)), quote(binding_body(e)));
+        case expr_kind::Let:
+            return mk_app(mk_constant({"expr", "elet"}), mk_expr_placeholder(), quote(let_type(e)),
+                          quote(let_value(e)), quote(let_body(e)));
+        case expr_kind::Macro:
+            if (is_antiquote(e))
+                return get_antiquote_expr(e);
+            if (is_typed_expr(e))
+                return mk_typed_expr(quote(get_typed_expr_expr(e)), quote(get_typed_expr_type(e)));
+            if (is_inaccessible(e))
+                return mk_expr_placeholder();
+            throw elaborator_exception(e, sstream() << "invalid quotation, unsupported macro '"
+                                                    << macro_def(e).get_name() << "'");
+    }
+    lean_unreachable();
+}
+
+/** \brief Elaborate quote in an empty local context. We need to elaborate expr patterns in the parser to find out
+    their pattern variables. */
+expr elaborate_quote(expr e, environment const & env, options const & opts) {
+    lean_assert(is_expr_quote(e));
+    e = get_quote_expr(e);
+
+    name x("_x");
+    buffer<expr> locals;
+    buffer<expr> aqs;
+    e = replace(e, [&](expr const & t, unsigned) {
+        if (is_antiquote(t)) {
+            expr local = mk_local(mk_fresh_name(), x.append_after(locals.size() + 1),
+                                  mk_expr_placeholder(), binder_info());
+            locals.push_back(local);
+            aqs.push_back(t);
+            return some_expr(local);
+        }
+        return none_expr();
+    });
+    e = copy_tag(e, Fun(locals, e));
+
+    metavar_context ctx;
+    local_context lctx;
+    elaborator elab(env, opts, "_elab_quote", ctx, lctx, false, /* in_pattern */ true, /* in_quote */ true);
+    e = elab.elaborate(e);
+    e = elab.finalize(e, true, true).first;
+
+    expr body = e;
+    for (unsigned i = 0; i < aqs.size(); i++)
+        body = binding_body(body);
+
+    e = instantiate_rev(body, aqs.size(), aqs.data());
+    e = quote(e);
+    return e;
+}
+
 expr parser::patexpr_to_pattern(expr const & pat_or_expr, bool skip_main_fn, buffer<expr> & new_locals) {
     undef_id_to_local_scope scope(*this);
     auto e = replace(pat_or_expr, [&](expr const & e) {
         if (is_expr_quote(e)) {
-            return some_expr(elaborate_quote(e, env(), get_options(), /* in_pattern */ true));
+            return some_expr(elaborate_quote(e, env(), get_options()));
         } else {
             return none_expr();
         }
@@ -1713,7 +1786,7 @@ expr parser::patexpr_to_expr(expr const & pat_or_expr) {
     // start with expr quotes, which may make more locals from inside antiquotations accessible
     expr e = replace(pat_or_expr, [&](expr const & e, unsigned) {
         if (is_expr_quote(e)) {
-            return some_expr(elaborate_quote(e, env(), get_options(), /* in_pattern */ false));
+            return some_expr(mk_quote(get_quote_expr(e), /* is_expr */ true));
         } else {
             return none_expr();
         }

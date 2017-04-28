@@ -221,7 +221,7 @@ struct parse_tactic_fn {
         auto p = m_p.pos();
         parser::quote_scope scope(m_p, true);
         expr e = m_p.parse_expr(rbp);
-        return m_p.save_pos(mk_pexpr_quote(e), p);
+        return m_p.save_pos(mk_quote(e, /* is_expr */ false), p);
     }
 
     expr parse_elem_core(bool save_info) {

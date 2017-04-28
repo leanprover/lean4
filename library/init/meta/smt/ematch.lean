@@ -79,10 +79,9 @@ meta def to_hinst_lemmas_core (m : transparency) : bool → list name → hinst_
 
 meta def mk_hinst_lemma_attr_core (attr_name : name) (as_simp : bool) : command :=
 do let t := ```(caching_user_attribute hinst_lemmas),
-   let b := if as_simp then ```(tt) else ```(ff),
    v ← to_expr ``({name     := %%(quote attr_name),
                    descr    := "hinst_lemma attribute",
-                   mk_cache := λ ns, to_hinst_lemmas_core reducible %%b ns hinst_lemmas.mk,
+                   mk_cache := λ ns, to_hinst_lemmas_core reducible %%(quote as_simp) ns hinst_lemmas.mk,
                    dependencies := [`reducibility] } : caching_user_attribute hinst_lemmas),
    add_decl (declaration.defn attr_name [] t v reducibility_hints.abbrev ff),
    attribute.register attr_name

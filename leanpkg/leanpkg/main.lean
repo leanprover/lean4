@@ -29,6 +29,10 @@ ch ← io.proc.spawn { cmd := "test", args := ["-f", f] },
 ev ← io.proc.wait ch,
 return $ ev = 0
 
+-- TODO(gabriel): io.env.get_current_directory
+def get_current_directory : io string :=
+do cwd ← io.cmd "pwd" [], return (cwd.dropn 1) -- remove final newline
+
 def mk_path_file : ∀ (paths : list string), string
 | [] := "builtin_path\n"
 | (x :: xs) := mk_path_file xs ++ "path " ++ x ++ "\n"
@@ -73,20 +77,25 @@ write_manifest d'
 def strip_dot_git (url : string) : string :=
 if url.taken 4 = ".git" then url.dropn 4 else url
 
+def looks_like_git_url (dep : string) : bool :=
+#":" ∈ show list char, from dep
+
 def absolutize_add_dep (dep : string) : io string :=
-if #":" ∈ @cast string (list char) rfl dep then return dep
-else do cwd ← io.cmd "pwd" [], return $ resolve_dir dep (cwd.dropn 1) -- remove final newline
+if looks_like_git_url dep then return dep
+else resolve_dir dep <$> get_current_directory
 
 def parse_add_dep (dep : string) : dependency :=
-if #":" ∈ @cast string (list char) rfl dep then -- looks like git :-)
+if looks_like_git_url dep then
   { name := basename (strip_dot_git dep), src := source.git dep "master" }
 else
   { name := basename dep, src := source.path dep }
 
+def git_head_revision (git_repo_dir : string) : io string := do
+rev ← io.cmd "git" ["rev-parse", "HEAD"] git_repo_dir,
+return (rev.dropn 1) -- remove newline at end
+
 def fixup_git_version (dir : string) : ∀ (src : source), io source
-| (source.git url _) := do
-  rev ← io.cmd "git" ["rev-parse", "HEAD"] dir,
-  return $ source.git url (rev.dropn 1) -- remove newline at end
+| (source.git url _) := source.git url <$> git_head_revision dir
 | src := return src
 
 def add (dep : string) : io unit := do

@@ -697,6 +697,10 @@ class ematch_fn {
                 new_states.emplace_back(new_state, std::max(m_gen, gen));
             }
         }
+        if (new_states.empty()) {
+            lean_trace(name({"debug", "smt", "ematch"}), tout() << "(no new states)\n";);
+            return false;
+        }
         push_states(new_states);
         return true;
     }

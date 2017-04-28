@@ -288,7 +288,7 @@
     (save-match-data
       (when (not (memq lean-server-show-tasks-delay-timer timer-list))
         (setq lean-server-show-tasks-delay-timer
-              (run-at-time "100 milliseconds" nil
+              (run-at-time "300 milliseconds" nil
                            (lambda (buf)
                              (with-current-buffer buf
                                (lean-server-update-task-overlays)))

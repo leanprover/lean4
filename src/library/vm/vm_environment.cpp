@@ -218,9 +218,9 @@ vm_obj environment_is_namespace(vm_obj const & env, vm_obj const & n) {
 }
 
 vm_obj environment_structure_fields(vm_obj const & env, vm_obj const & n) {
-    try {
+    if (is_structure(to_env(env), to_name(n))) {
         return mk_vm_some(to_obj(get_structure_fields(to_env(env), to_name(n))));
-    } catch (exception &) {
+    } else {
         return mk_vm_none();
     }
 }

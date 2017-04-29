@@ -164,8 +164,8 @@ meta def change (q : parse texpr) : parse (tk "with" *> texpr)? → parse locati
 | none _ := fail "change-at does not support multiple locations"
 | (some w) l :=
   do hs ← l.get_locals,
-     u ← mk_meta_univ, 
-     ty ← mk_meta_var (sort u), 
+     u ← mk_meta_univ,
+     ty ← mk_meta_var (sort u),
      eq ← i_to_expr ``(%%q : %%ty),
      ew ← i_to_expr ``(%%w : %%ty),
      let repl := λe : expr, e.replace (λ a n, if a = eq then some ew else none),
@@ -781,8 +781,9 @@ private meta def unfold_projections_hyps : list name → tactic unit
 This tactic unfolds all structure projections.
 -/
 meta def unfold_projections : parse location → tactic unit
-| [] := tactic.unfold_projections
-| hs := unfold_projections_hyps hs
+| (loc.ns [])    := tactic.unfold_projections
+| (loc.ns hs)    := unfold_projections_hyps hs
+| (loc.wildcard) := do ls ← local_context, unfold_projections_hyps (ls.map expr.local_pp_name)
 
 meta def apply_opt_param : tactic unit :=
 tactic.apply_opt_param

@@ -129,19 +129,25 @@ meta def dunfold : list name → tactic unit :=
 meta def dunfold_occs_of (occs : list nat) (c : name) : tactic unit :=
 target >>= dunfold_occs_core transparency.instances default_max_steps (occurrences.pos occs) [c] >>= unsafe_change
 
-meta def dunfold_core_at (occs : occurrences) (cs : list name) (h : expr) : tactic unit :=
-do num_reverted ← revert h,
-   (expr.pi n bi d b : expr) ← target,
-   new_d ← dunfold_occs_core transparency.instances default_max_steps occs cs d,
-   unsafe_change $ expr.pi n bi new_d b,
+meta def revert_and_transform (transform : expr → tactic expr) (h : expr) : tactic unit :=
+do num_reverted : ℕ ← revert h,
+   t ← target,
+   match t with
+   | expr.pi n bi d b  :=
+        do h_simp ← transform d,
+           unsafe_change $ expr.pi n bi h_simp b
+   | expr.elet n g e f :=
+        do h_simp ← transform g,
+           unsafe_change $ expr.elet n h_simp e f
+   | _ := fail "reverting hypothesis created neither a pi nor an elet expr (unreachable?)"
+   end,
    intron num_reverted
 
-meta def dunfold_at (cs : list name) (h : expr) : tactic unit :=
-do num_reverted ← revert h,
-   (expr.pi n bi d b : expr) ← target,
-   new_d ← dunfold_core transparency.instances default_max_steps cs d,
-   unsafe_change $ expr.pi n bi new_d b,
-   intron num_reverted
+meta def dunfold_core_at (occs : occurrences) (cs : list name) : expr → tactic unit :=
+revert_and_transform (dunfold_occs_core transparency.instances default_max_steps occs cs)
+
+meta def dunfold_at (cs : list name) : expr → tactic unit :=
+revert_and_transform (dunfold_core transparency.instances default_max_steps cs)
 
 structure delta_config :=
 (max_steps       := default_max_steps)
@@ -170,12 +176,8 @@ in do (c, new_e) ← dsimplify_core () cfg.max_steps cfg.visit_instances (λ c e
 meta def delta (cs : list name) : tactic unit :=
 target >>= delta_core {} cs >>= unsafe_change
 
-meta def delta_at (cs : list name) (h : expr) : tactic unit :=
-do num_reverted ← revert h,
-   (expr.pi n bi d b : expr) ← target,
-   new_d ← delta_core {} cs d,
-   unsafe_change $ expr.pi n bi new_d b,
-   intron num_reverted
+meta def delta_at (cs : list name) : expr → tactic unit :=
+revert_and_transform (delta_core {} cs)
 
 meta def unfold_projections_core (m : transparency) (max_steps : nat) (e : expr) : tactic expr :=
 let unfold (changed : bool) (e : expr) : tactic (bool × expr × bool) := do
@@ -187,12 +189,8 @@ in do (tt, new_e) ← dsimplify_core ff default_max_steps tt (λ c e, failed) un
 meta def unfold_projections : tactic unit :=
 target >>= unfold_projections_core semireducible default_max_steps >>= change
 
-meta def unfold_projections_at (h : expr) : tactic unit :=
-do num_reverted ← revert h,
-   (expr.pi n bi d b : expr) ← target,
-   new_d ← unfold_projections_core semireducible default_max_steps d,
-   change $ expr.pi n bi new_d b,
-   intron num_reverted
+meta def unfold_projections_at : expr → tactic unit :=
+revert_and_transform (unfold_projections_core semireducible default_max_steps)
 
 structure simp_config :=
 (max_steps : nat           := default_max_steps)
@@ -274,12 +272,8 @@ target >>= s.dsimplify >>= unsafe_change
 meta def dsimp : tactic unit :=
 simp_lemmas.mk_default >>= dsimp_core
 
-meta def dsimp_at_core (s : simp_lemmas) (h : expr) : tactic unit :=
-do num_reverted : ℕ ← revert h,
-   expr.pi n bi d b ← target,
-   h_simp ← s.dsimplify d,
-   unsafe_change $ expr.pi n bi h_simp b,
-   intron num_reverted
+meta def dsimp_at_core (s : simp_lemmas) : expr → tactic unit :=
+revert_and_transform s.dsimplify
 
 meta def dsimp_at (h : expr) : tactic unit :=
 do s ← simp_lemmas.mk_default, dsimp_at_core s h

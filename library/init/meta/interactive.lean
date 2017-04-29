@@ -773,6 +773,17 @@ meta def delta : parse ident* → parse location → tactic unit
                           tactic.delta new_cs,
                           intron n
 
+private meta def unfold_projections_hyps : list name → tactic unit
+| []      := skip
+| (h::hs) := get_local h >>= unfold_projections_at >> unfold_projections_hyps hs
+
+/--
+This tactic unfolds all structure projections.
+-/
+meta def unfold_projections : parse location → tactic unit
+| [] := tactic.unfold_projections
+| hs := unfold_projections_hyps hs
+
 meta def apply_opt_param : tactic unit :=
 tactic.apply_opt_param
 

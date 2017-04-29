@@ -177,6 +177,23 @@ do num_reverted ← revert h,
    unsafe_change $ expr.pi n bi new_d b,
    intron num_reverted
 
+meta def unfold_projections_core (m : transparency) (max_steps : nat) (e : expr) : tactic expr :=
+let unfold (changed : bool) (e : expr) : tactic (bool × expr × bool) := do
+  new_e ← unfold_projection_core m e,
+  return (tt, new_e, tt)
+in do (tt, new_e) ← dsimplify_core ff default_max_steps tt (λ c e, failed) unfold e | fail "no projections to unfold",
+      return new_e
+
+meta def unfold_projections : tactic unit :=
+target >>= unfold_projections_core semireducible default_max_steps >>= change
+
+meta def unfold_projections_at (h : expr) : tactic unit :=
+do num_reverted ← revert h,
+   (expr.pi n bi d b : expr) ← target,
+   new_d ← unfold_projections_core semireducible default_max_steps d,
+   change $ expr.pi n bi new_d b,
+   intron num_reverted
+
 structure simp_config :=
 (max_steps : nat           := default_max_steps)
 (contextual : bool         := ff)

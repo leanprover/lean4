@@ -147,7 +147,7 @@ ematch_core (λ _, tt)
 meta def failed {α} : smt_tactic α :=
 tactic.failed
 
-meta def fail {α : Type} {β : Type u} [has_to_format β] (msg : β) : tactic α :=
+meta def fail {α : Type} {β : Type u} [has_to_format β] (msg : β) : smt_tactic α :=
 tactic.fail msg
 
 meta def try {α : Type} (t : smt_tactic α) : smt_tactic unit :=
@@ -193,7 +193,7 @@ private meta def mk_smt_goals_for (cfg : smt_config) : list expr → list smt_go
 /- See slift -/
 meta def slift_aux {α : Type} (t : tactic α) (cfg : smt_config) : smt_tactic α :=
 λ ss, do
-   _::sgs  ← return ss | fail "slift tactic failed, there no smt goals to be solved",
+   _::sgs  ← return ss | tactic.fail "slift tactic failed, there no smt goals to be solved",
    tg::tgs ← tactic.get_goals | tactic.failed,
    tactic.set_goals [tg], a ← t,
    new_tgs ← tactic.get_goals,

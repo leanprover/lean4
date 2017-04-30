@@ -130,7 +130,7 @@ smt_tactic.by_contradiction
 
 open tactic (resolve_name transparency to_expr)
 
-private meta def report_invalid_em_lemma {α : Type} (n : name) : tactic α :=
+private meta def report_invalid_em_lemma {α : Type} (n : name) : smt_tactic α :=
 fail ("invalid ematch lemma '" ++ to_string n ++ "'")
 
 private meta def add_lemma_name (md : transparency) (lhs_lemma : bool) (n : name) (ref : expr) : smt_tactic unit :=

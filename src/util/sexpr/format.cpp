@@ -254,12 +254,15 @@ struct format::separate_tokens_fn {
         }
         case format_kind::CHOICE:
         {
-            // we assume that choices only differ in spacing and thus share their last token
             sexpr s1, s2; sexpr const * last1, * last2;
             std::tie(s1, last1) = separate(sexpr_choice_1(s), last);
             std::tie(s2, last2) = separate(sexpr_choice_2(s), last);
-            lean_assert(last1 == last2 || (last1 && last2 && *last1 == *last2));
-            result = std::make_tuple(sexpr_choice(s1, s2), last1);
+            if (last1 == last2 || (last1 && last2 && *last1 == *last2)) {
+                result = std::make_tuple(sexpr_choice(s1, s2), last1);
+            } else {
+                // group(... + line()) produces a choice where the last elements are not equal.
+                result = std::make_tuple(sexpr_choice(s1, s2), nullptr);
+            }
             break;
         }}
         m_cache.insert(mk_pair(in, result));

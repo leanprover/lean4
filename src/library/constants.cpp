@@ -100,6 +100,7 @@ name const * g_has_neg = nullptr;
 name const * g_has_neg_neg = nullptr;
 name const * g_has_one = nullptr;
 name const * g_has_one_one = nullptr;
+name const * g_has_orelse_orelse = nullptr;
 name const * g_has_sep_sep = nullptr;
 name const * g_has_sizeof = nullptr;
 name const * g_has_sizeof_mk = nullptr;
@@ -283,7 +284,6 @@ name const * g_of_eq_true = nullptr;
 name const * g_of_iff_true = nullptr;
 name const * g_opt_param = nullptr;
 name const * g_or = nullptr;
-name const * g_orelse = nullptr;
 name const * g_out_param = nullptr;
 name const * g_punit = nullptr;
 name const * g_punit_star = nullptr;
@@ -471,6 +471,7 @@ void initialize_constants() {
     g_has_neg_neg = new name{"has_neg", "neg"};
     g_has_one = new name{"has_one"};
     g_has_one_one = new name{"has_one", "one"};
+    g_has_orelse_orelse = new name{"has_orelse", "orelse"};
     g_has_sep_sep = new name{"has_sep", "sep"};
     g_has_sizeof = new name{"has_sizeof"};
     g_has_sizeof_mk = new name{"has_sizeof", "mk"};
@@ -654,7 +655,6 @@ void initialize_constants() {
     g_of_iff_true = new name{"of_iff_true"};
     g_opt_param = new name{"opt_param"};
     g_or = new name{"or"};
-    g_orelse = new name{"orelse"};
     g_out_param = new name{"out_param"};
     g_punit = new name{"punit"};
     g_punit_star = new name{"punit", "star"};
@@ -843,6 +843,7 @@ void finalize_constants() {
     delete g_has_neg_neg;
     delete g_has_one;
     delete g_has_one_one;
+    delete g_has_orelse_orelse;
     delete g_has_sep_sep;
     delete g_has_sizeof;
     delete g_has_sizeof_mk;
@@ -1026,7 +1027,6 @@ void finalize_constants() {
     delete g_of_iff_true;
     delete g_opt_param;
     delete g_or;
-    delete g_orelse;
     delete g_out_param;
     delete g_punit;
     delete g_punit_star;
@@ -1214,6 +1214,7 @@ name const & get_has_neg_name() { return *g_has_neg; }
 name const & get_has_neg_neg_name() { return *g_has_neg_neg; }
 name const & get_has_one_name() { return *g_has_one; }
 name const & get_has_one_one_name() { return *g_has_one_one; }
+name const & get_has_orelse_orelse_name() { return *g_has_orelse_orelse; }
 name const & get_has_sep_sep_name() { return *g_has_sep_sep; }
 name const & get_has_sizeof_name() { return *g_has_sizeof; }
 name const & get_has_sizeof_mk_name() { return *g_has_sizeof_mk; }
@@ -1397,7 +1398,6 @@ name const & get_of_eq_true_name() { return *g_of_eq_true; }
 name const & get_of_iff_true_name() { return *g_of_iff_true; }
 name const & get_opt_param_name() { return *g_opt_param; }
 name const & get_or_name() { return *g_or; }
-name const & get_orelse_name() { return *g_orelse; }
 name const & get_out_param_name() { return *g_out_param; }
 name const & get_punit_name() { return *g_punit; }
 name const & get_punit_star_name() { return *g_punit_star; }

@@ -295,7 +295,7 @@ else
 
 -- @[super.inf]
 meta def clausification_inf : inf_decl := inf_decl.mk 0 $
-λgiven, list.foldr orelse (return ()) $
+λ given, list.foldr (<|>) (return ()) $
         do r ← clausification_rules_classical,
            [do cs ← r given.c,
                cs' ← get_clauses_classical cs,

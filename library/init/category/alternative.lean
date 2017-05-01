@@ -7,20 +7,19 @@ prelude
 import init.logic init.category.applicative
 universes u v
 
-class alternative (f : Type u → Type v) extends applicative f : Type (max u+1 v) :=
-(failure : Π {α : Type u}, f α)
+class has_orelse (f : Type u → Type v) : Type (max u+1 v) :=
 (orelse  : Π {α : Type u}, f α → f α → f α)
+
+infixr ` <|> `:2 := has_orelse.orelse
+
+class alternative (f : Type u → Type v) extends applicative f, has_orelse f : Type (max u+1 v) :=
+(failure : Π {α : Type u}, f α)
 
 section
 variables {f : Type u → Type v} [alternative f] {α : Type u}
 
 @[inline] def failure : f α :=
 alternative.failure f
-
-@[inline] def orelse : f α → f α → f α :=
-alternative.orelse
-
-infixr ` <|> `:2 := orelse
 
 @[inline] def guard {f : Type → Type v} [alternative f] (p : Prop) [decidable p] : f unit :=
 if p then pure () else failure

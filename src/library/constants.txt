@@ -95,6 +95,7 @@ has_neg
 has_neg.neg
 has_one
 has_one.one
+has_orelse.orelse
 has_sep.sep
 has_sizeof
 has_sizeof.mk
@@ -278,7 +279,6 @@ of_eq_true
 of_iff_true
 opt_param
 or
-orelse
 out_param
 punit
 punit.star

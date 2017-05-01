@@ -100,6 +100,7 @@ run_cmd script_check_id `has_neg
 run_cmd script_check_id `has_neg.neg
 run_cmd script_check_id `has_one
 run_cmd script_check_id `has_one.one
+run_cmd script_check_id `has_orelse.orelse
 run_cmd script_check_id `has_sep.sep
 run_cmd script_check_id `has_sizeof
 run_cmd script_check_id `has_sizeof.mk
@@ -283,7 +284,6 @@ run_cmd script_check_id `of_eq_true
 run_cmd script_check_id `of_iff_true
 run_cmd script_check_id `opt_param
 run_cmd script_check_id `or
-run_cmd script_check_id `orelse
 run_cmd script_check_id `out_param
 run_cmd script_check_id `punit
 run_cmd script_check_id `punit.star

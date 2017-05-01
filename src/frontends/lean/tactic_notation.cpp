@@ -214,7 +214,7 @@ struct parse_tactic_fn {
     }
 
     expr orelse(expr const & tac1, expr const & tac2, pos_info const & pos) {
-        return m_p.save_pos(mk_app(mk_constant(get_orelse_name()), tac1, tac2), pos);
+        return m_p.save_pos(mk_app(mk_constant(get_has_orelse_orelse_name()), tac1, tac2), pos);
     }
 
     expr parse_qexpr(unsigned rbp = 0) {

@@ -87,6 +87,8 @@ universes u v w
 /-- Gadget for marking output parameters in type classes. -/
 @[reducible] def out_param (α : Sort u) : Sort u := α
 
+notation `inout`:1024 a:0 := out_param a
+
 inductive punit : Sort u
 | star : punit
 
@@ -316,12 +318,12 @@ class has_ssubset  (α : Type u) := (ssubset : α → α → Prop)
    used to implement polymorphic notation for collections.
    Example: {a, b, c}. -/
 class has_emptyc   (α : Type u) := (emptyc : α)
-class has_insert   (α : out_param (Type u)) (γ : Type v) := (insert : α → γ → γ)
+class has_insert   (α : inout Type u) (γ : Type v) := (insert : α → γ → γ)
 /- Type class used to implement the notation { a ∈ c | p a } -/
-class has_sep (α : out_param (Type u)) (γ : Type v) :=
+class has_sep (α : inout Type u) (γ : Type v) :=
 (sep : (α → Prop) → γ → γ)
 /- Type class for set-like membership -/
-class has_mem (α : out_param (Type u)) (γ : Type v) := (mem : α → γ → Prop)
+class has_mem (α : inout Type u) (γ : Type v) := (mem : α → γ → Prop)
 
 infix ∈        := has_mem.mem
 notation a ∉ s := ¬ has_mem.mem a s

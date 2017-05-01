@@ -34,7 +34,7 @@ infixr ⇒ := lift_fun
 end
 
 section
-variables {α : Type u₁} {β : out_param (Type u₂)} (R : out_param (α → β → Prop))
+variables {α : Type u₁} {β : inout Type u₂} (R : inout α → β → Prop)
 
 @[class] def right_total := ∀b, ∃a, R a b
 @[class] def left_total := ∀a, ∃b, R a b

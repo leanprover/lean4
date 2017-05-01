@@ -5,18 +5,18 @@ has_append : Type u → Type u
 has_div : Type u → Type u
 has_dvd : Type u → Type u
 has_emptyc : Type u → Type u
-has_insert : out_param Type u → Type v → Type (max u v)
+has_insert : (inout Type u) → Type v → Type (max u v)
 has_inter : Type u → Type u
 has_inv : Type u → Type u
 has_le : Type u → Type u
 has_lt : Type u → Type u
-has_mem : out_param Type u → Type v → Type (max u v)
+has_mem : (inout Type u) → Type v → Type (max u v)
 has_mod : Type u → Type u
 has_mul : Type u → Type u
 has_neg : Type u → Type u
 has_one : Type u → Type u
 has_sdiff : Type u → Type u
-has_sep : out_param Type u → Type v → Type (max u v)
+has_sep : (inout Type u) → Type v → Type (max u v)
 has_sizeof : Sort u → Sort (max 1 u)
 has_ssubset : Type u → Type u
 has_sub : Type u → Type u
@@ -31,18 +31,18 @@ has_append : Type u → Type u
 has_div : Type u → Type u
 has_dvd : Type u → Type u
 has_emptyc : Type u → Type u
-has_insert : out_param Type u → Type v → Type (max u v)
+has_insert : (inout Type u) → Type v → Type (max u v)
 has_inter : Type u → Type u
 has_inv : Type u → Type u
 has_le : Type u → Type u
 has_lt : Type u → Type u
-has_mem : out_param Type u → Type v → Type (max u v)
+has_mem : (inout Type u) → Type v → Type (max u v)
 has_mod : Type u → Type u
 has_mul : Type u → Type u
 has_neg : Type u → Type u
 has_one : Type u → Type u
 has_sdiff : Type u → Type u
-has_sep : out_param Type u → Type v → Type (max u v)
+has_sep : (inout Type u) → Type v → Type (max u v)
 has_sizeof : Sort u → Sort (max 1 u)
 has_ssubset : Type u → Type u
 has_sub : Type u → Type u

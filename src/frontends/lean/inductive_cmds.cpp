@@ -405,7 +405,7 @@ class inductive_cmd_fn {
 
         buffer<expr> params_no_inds;
         for (expr const & p : params) {
-            if (std::find(inds.begin(), inds.end(), p) == inds.end())
+            if (!std::any_of(inds.begin(), inds.end(), [&](expr const & ind) { return mlocal_name(ind) == mlocal_name(p); }))
                 params_no_inds.push_back(p);
         }
 

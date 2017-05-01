@@ -91,6 +91,7 @@ task<module_parser_result> module_parser::parse_next_command_like(optional<std::
             done = true;
         }
         auto end_pos = self->m_parser.pos();
+        if (done) end_pos = self->m_end_pos;
         lean_assert(end_pos >= begin_pos);
 
         module_parser_result res;

@@ -279,7 +279,7 @@ of_eq_true
 of_iff_true
 opt_param
 or
-out_param
+inout_param
 punit
 punit.star
 pos_num.bit0

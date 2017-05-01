@@ -300,7 +300,7 @@ bool elaborator::ready_to_synthesize(expr inst_type) {
         if (!is_pi(it))
             return false; /* failed */
         expr const & d = binding_domain(it);
-        if (has_expr_metavar(C_arg) && !is_class_out_param(d))
+        if (has_expr_metavar(C_arg) && !is_class_inout_param(d))
             return false;
         it = binding_body(it);
     }

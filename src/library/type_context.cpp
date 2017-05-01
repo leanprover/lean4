@@ -3660,10 +3660,10 @@ static bool depends_on_mvar(expr const & e, buffer<expr> const & mvars) {
 }
 
 /*
-Type class parameters can be annotated with out_param annotations.
+Type class parameters can be annotated with inout_param annotations.
 
 Given (C a_1 ... a_n), we replace a_i with a temporary metavariable ?m_i IF
-1- a_i is an out_param and it contains metavariables.
+1- a_i is an inout_param and it contains metavariables.
 2- a_i depends on a_j for j < i, and a_j was replaced with a temporary metavariable ?m_j.
    This case is needed to make sure the new C-application is type correct.
 
@@ -3710,7 +3710,7 @@ expr type_context::preprocess_class(expr const & type,
         if (!is_pi(it2))
             return type; /* failed */
         expr const & d = binding_domain(it2);
-        if ((is_class_out_param(d) && has_expr_metavar(C_arg)) ||
+        if ((is_class_inout_param(d) && has_expr_metavar(C_arg)) ||
             (depends_on_mvar(d, new_mvars))) {
             expr new_mvar = mk_tmp_mvar(locals.mk_pi(d));
             expr new_arg  = mk_app(new_mvar, locals.as_buffer());

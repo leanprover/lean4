@@ -58,7 +58,7 @@ begin
   { simp_using_hs }
 end
 
-class Quote {V : out_param (Type u)} (l : out_param (Env V)) (n : Value) {V' : out_param (Type v)} (r : out_param (Env V')) :=
+class Quote {V : inout Type u} (l : inout Env V) (n : Value) {V' : inout Type v} (r : inout Env V') :=
 (quote      : Expr (sum V V'))
 (eval_quote : evalExpr (merge l r) quote = n)
 

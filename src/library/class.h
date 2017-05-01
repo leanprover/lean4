@@ -33,8 +33,8 @@ name const & get_anonymous_instance_prefix();
 name mk_anonymous_inst_name(unsigned idx);
 bool is_anonymous_inst_name(name const & n);
 
-/** \brief Return true iff e is of the form (out_param a) */
-bool is_class_out_param(expr const & e);
+/** \brief Return true iff e is of the form (inout_param a) */
+bool is_class_inout_param(expr const & e);
 
 void initialize_class();
 void finalize_class();

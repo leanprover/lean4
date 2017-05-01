@@ -85,9 +85,9 @@ universes u v w
 α
 
 /-- Gadget for marking output parameters in type classes. -/
-@[reducible] def out_param (α : Sort u) : Sort u := α
+@[reducible] def inout_param (α : Sort u) : Sort u := α
 
-notation `inout`:1024 a:0 := out_param a
+notation `inout`:1024 a:0 := inout_param a
 
 inductive punit : Sort u
 | star : punit

@@ -256,8 +256,8 @@ bool is_anonymous_inst_name(name const & n) {
                    strlen(g_anonymous_inst_name_prefix->get_string())) == 0;
 }
 
-bool is_class_out_param(expr const & e) {
-    return is_app_of(e, get_out_param_name(), 1);
+bool is_class_inout_param(expr const & e) {
+    return is_app_of(e, get_inout_param_name(), 1);
 }
 
 void initialize_class() {

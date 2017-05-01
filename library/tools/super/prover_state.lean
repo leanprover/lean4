@@ -124,12 +124,12 @@ sat_fmts ← mapm pp s.sat_solver.clauses,
 sat_model_fmts ← for s.current_model.to_list (λx, if x.2 = tt then pp x.1 else pp ```(not %%x.1)),
 prec_fmts ← mapm pp s.prec,
 return (join_with_nl
-  ([to_fmt "active:"] ++ map (append (to_fmt "  ")) active_fmts ++
-  [to_fmt "passive:"] ++ map (append (to_fmt "  ")) passive_fmts ++
-  [to_fmt "new:"] ++ map (append (to_fmt "  ")) new_fmts ++
-  [to_fmt "locked:"] ++ map (append (to_fmt "  ")) locked_fmts ++
-  [to_fmt "sat formulas:"] ++ map (append (to_fmt "  ")) sat_fmts ++
-  [to_fmt "sat model:"] ++ map (append (to_fmt "  ")) sat_model_fmts ++
+  ([to_fmt "active:"]      ++ ((append (to_fmt "  ")) <$> active_fmts) ++
+  [to_fmt "passive:"]      ++ ((append (to_fmt "  ")) <$> passive_fmts) ++
+  [to_fmt "new:"]          ++ ((append (to_fmt "  ")) <$> new_fmts) ++
+  [to_fmt "locked:"]       ++ ((append (to_fmt "  ")) <$> locked_fmts) ++
+  [to_fmt "sat formulas:"] ++ ((append (to_fmt "  ")) <$> sat_fmts) ++
+  [to_fmt "sat model:"]    ++ ((append (to_fmt "  ")) <$> sat_model_fmts) ++
   [to_fmt "precedence order: " ++ to_fmt prec_fmts]))
 
 meta instance : has_to_tactic_format prover_state :=
@@ -177,14 +177,14 @@ do state ← state_t.read, return state.prec
 
 meta def get_term_order : prover (expr → expr → bool) := do
 state ← state_t.read,
-return $ mk_lpo (map name_of_funsym state.prec)
+return $ mk_lpo (name_of_funsym <$> state.prec)
 
 private meta def set_precedence (new_prec : list expr) : prover unit :=
 do state ← state_t.read, state_t.write { state with prec := new_prec }
 
 meta def register_consts_in_precedence (consts : list expr) := do
 p ← get_precedence,
-p_set ← return (rb_map.set_of_list (map name_of_funsym p)),
+p_set ← return (rb_map.set_of_list (name_of_funsym <$> p)),
 new_syms ← return $ list.filter (λc, ¬p_set.contains (name_of_funsym c)) consts,
 set_precedence (new_syms ++ p)
 

@@ -35,7 +35,7 @@ meta constant mk_pattern : list level → list expr → expr → list level → 
 meta constant match_pattern_core : transparency → pattern → expr → tactic (list level × list expr)
 
 meta def match_pattern (p : pattern) (e : expr) : tactic (list expr) :=
-fmap prod.snd (match_pattern_core semireducible p e)
+prod.snd <$> (match_pattern_core semireducible p e)
 
 open expr
 

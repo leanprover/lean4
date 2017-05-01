@@ -51,7 +51,7 @@ meta def mk_arity_map : list (name × expr) → arity_map
   native.resultT (state ir_compiler_state) error A
 
 meta def lift {A} (action : state ir_compiler_state A) : ir_compiler A :=
-⟨fmap (fun (a : A), native.result.ok a) action⟩
+⟨(fun (a : A), native.result.ok a) <$> action⟩
 
 meta def trace_ir (s : string) : ir_compiler unit := do
   (conf, map, counter) ← lift $ state.read,
@@ -200,7 +200,7 @@ let fst' := list.map assert_name fst,
   args'' ← monad.sequence snd',
   fresh ← fresh_name,
   locl ← compile_local fresh,
-  invoke ← ir.stmt.e <$> (mk_invoke fresh (fmap ir.expr.locl args'')),
+  invoke ← ir.stmt.e <$> (mk_invoke fresh (ir.expr.locl <$> args'')),
   return $ ir.expr.block (ir.stmt.seq [
     ir.stmt.letb locl ir.ty.object (ir.expr.call head args') ir.stmt.nop,
     invoke

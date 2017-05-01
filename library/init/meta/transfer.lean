@@ -90,12 +90,12 @@ private meta def analyse_rule (u' : list name) (pr : expr) : tactic rule_data :=
   (arg_rels, R) ← get_lift_fun r,
   args    ← monad.for (enum arg_rels) (λ⟨n, a⟩,
     prod.mk <$> mk_local_def (mk_simple_name ("a_" ++ to_string n)) a.in_type <*> pure a),
-  a_vars  ← return $ fmap prod.fst args,
+  a_vars  ← return $ prod.fst <$> args,
   p       ← head_beta (app_of_list f a_vars),
   p_data  ← return $ mark_occurences (app R p) params,
   p_vars  ← return $ list.map prod.fst (list.filter (λx, ↑x.2) p_data),
   u       ← return $ collect_univ_params (app R p) ∩ u',
-  pat     ← mk_pattern (fmap level.param u) (p_vars ++ a_vars) (app R p) (fmap level.param u) (p_vars ++ a_vars),
+  pat     ← mk_pattern (level.param <$> u) (p_vars ++ a_vars) (app R p) (level.param <$> u) (p_vars ++ a_vars),
   return $ rule_data.mk pr (list.remove_all u' u) p_data u args pat g
 
 private meta def analyse_decls : list name → tactic (list rule_data) :=
@@ -127,7 +127,7 @@ private meta def param_substitutions (ctxt : list expr) :
       return (app_of_list mv ctxt', [mv])
   end,
   sb ← return $ instantiate_local n e,
-  ps ← return $ fmap (prod.map sb (fmap sb)) ps,
+  ps ← return $ (prod.map sb (has_map.map sb)) <$> ps,
   (ms, vs) ← param_substitutions ps,
   return ((n, e) :: ms, m ++ vs)
 | _ := return ([], [])
@@ -164,7 +164,7 @@ meta def compute_transfer : list rule_data → list expr → expr → tactic (ex
 
   -- Combine
   b  ← head_beta (app_of_list (i rd.out) bs),
-  pr ← return $ app_of_list (i rd.pr) (fmap prod.snd ps ++ list.join hs),
+  pr ← return $ app_of_list (i rd.pr) (prod.snd <$> ps ++ list.join hs),
   return (b, pr, ms ++ list.join mss)
 
 meta def transfer (ds : list name) : tactic unit := do

@@ -167,7 +167,7 @@ has_to_tactic_format.to_tactic_format
 open tactic format
 
 meta instance {α : Type u} [has_to_tactic_format α] : has_to_tactic_format (list α) :=
-⟨fmap to_fmt ∘ monad.mapm pp⟩
+⟨has_map.map to_fmt ∘ monad.mapm pp⟩
 
 meta instance (α : Type u) (β : Type v) [has_to_tactic_format α] [has_to_tactic_format β] :
  has_to_tactic_format (α × β) :=

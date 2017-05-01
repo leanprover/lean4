@@ -20,7 +20,7 @@ open nat
 
 #eval [1, 2, 3] ∩ [3, 4, 1, 5]
 
-#eval (mul 10) <$> [1, 2, 3]
+#eval (*10) <$> [1, 2, 3]
 
 #check ({1, 2, 3} : list nat)
 

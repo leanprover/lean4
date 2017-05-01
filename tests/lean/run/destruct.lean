@@ -16,7 +16,7 @@ axiom fax2 {α : Type u} {n : nat} (v : Vec α (nat.succ n)) : f v = 1
 example {α : Type u} {n : nat} (v : Vec α n) : f v ≠ 2 :=
 begin
   destruct v,
-  intros, intro, note h := fax1 α, cc,
+  {intros, intro, note h := fax1 α, cc},
   intros n1 h t, intros, intro, note h := fax2 (Vec.cons h t), cc
 end
 

@@ -1591,7 +1591,7 @@ auto pretty_fn::pp_subtype(expr const & e) -> result {
 
 static bool is_emptyc(expr const & e) {
     return
-        is_constant(get_app_fn(e), get_emptyc_name()) &&
+        is_constant(get_app_fn(e), get_has_emptyc_emptyc_name()) &&
         get_app_num_args(e) == 2;
 }
 
@@ -1603,7 +1603,7 @@ static bool is_singleton(expr const & e) {
 
 static bool is_insert(expr const & e) {
     return
-        is_constant(get_app_fn(e), get_insert_name()) &&
+        is_constant(get_app_fn(e), get_has_insert_insert_name()) &&
         get_app_num_args(e) == 5;
 }
 
@@ -1658,7 +1658,7 @@ auto pretty_fn::pp_set_of(expr const & e) -> result {
 
 static bool is_sep(expr const & e) {
     return
-        is_constant(get_app_fn(e), get_sep_name()) &&
+        is_constant(get_app_fn(e), get_has_sep_sep_name()) &&
         get_app_num_args(e) == 5 &&
         is_lambda(app_arg(app_fn(e)));
 }

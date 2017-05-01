@@ -30,7 +30,7 @@ attribute [simp] semigroup_morphism.multiplicative
   mul := λ p q, (p^.fst * q^.fst, p^.snd * q^.snd),
   mul_assoc := begin
                 intros,
-                simp [@mul.equations._eqn_1 (α × β)]
+                simp [@has_mul.mul (α × β)]
               end
 }
 
@@ -44,7 +44,7 @@ definition semigroup_morphism_product
     begin
       -- cf https://groups.google.com/d/msg/lean-user/bVs5FdjClp4/tfHiVjLIBAAJ
       intros,
-      unfold mul has_mul.mul,
+      unfold has_mul.mul,
       dsimp,
       simp
     end

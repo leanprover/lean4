@@ -9,7 +9,7 @@ definition nat_has_add3 : nat → has_add nat :=
 open tactic
 set_option pp.all true
 
-example (a b : nat) (H : (λ x : nat, @add nat nat_has_add2 a x) = (λ x : nat, @add nat (nat_has_add3 x) a b)) : true :=
+example (a b : nat) (H : (λ x : nat, @has_add.add nat nat_has_add2 a x) = (λ x : nat, @has_add.add nat (nat_has_add3 x) a b)) : true :=
 by do
   s ← simp_lemmas.mk_default,
   get_local `H >>= infer_type >>= s^.dsimplify >>= trace,

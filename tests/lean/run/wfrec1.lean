@@ -1,5 +1,5 @@
 private definition S := Σ a : nat, nat
-private definition R : S → S → Prop := sigma.skip_left nat lt
+private definition R : S → S → Prop := sigma.skip_left nat (<)
 private definition Rwf : well_founded R :=
   sigma.skip_left_wf nat nat.lt_wf
 private definition f_aux : ∀ (p₁ : S), (∀ p₂ : S, R p₂ p₁ → nat) → nat

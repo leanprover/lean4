@@ -72,7 +72,7 @@ else "f"
 
 def char_to_hex (c : char) : string :=
 let n  := char.to_nat c,
-    d2 := div n 16,
+    d2 := n / 16,
     d1 := n % 16
 in hex_digit_to_string d2 ++ hex_digit_to_string d1
 

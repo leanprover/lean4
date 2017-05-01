@@ -16,13 +16,13 @@ bool is_const_app(expr const & e, name const & n, unsigned nargs) {
 
 bool is_zero(expr const & e) {
     return
-        is_const_app(e, get_zero_name(), 2) ||
+        is_const_app(e, get_has_zero_zero_name(), 2) ||
         is_constant(e, get_nat_zero_name());
 }
 
 bool is_one(expr const & e) {
     return
-        is_const_app(e, get_one_name(), 2) ||
+        is_const_app(e, get_has_one_one_name(), 2) ||
         (is_const_app(e, get_nat_succ_name(), 1) && is_zero(app_arg(e)));
 }
 
@@ -39,7 +39,7 @@ optional<expr> is_bit1(expr const & e) {
 }
 
 optional<expr> is_neg(expr const & e) {
-    if (!is_const_app(e, get_neg_name(), 3))
+    if (!is_const_app(e, get_has_neg_neg_name(), 3))
         return none_expr();
     return some_expr(app_arg(e));
 }
@@ -53,7 +53,7 @@ optional<expr> unfold_num_app(environment const & env, expr const & e) {
 }
 
 bool is_numeral_const_name(name const & n) {
-    return n == get_zero_name() || n == get_one_name() || n == get_bit0_name() || n == get_bit1_name();
+    return n == get_has_zero_zero_name() || n == get_has_one_one_name() || n == get_bit0_name() || n == get_bit1_name();
 }
 
 static bool is_num(expr const & e, bool first) {
@@ -61,10 +61,12 @@ static bool is_num(expr const & e, bool first) {
     expr const & f = get_app_args(e, args);
     if (!is_constant(f))
       return false;
-    if (const_name(f) == get_one_name())
+    if (const_name(f) == get_has_one_one_name())
         return args.size() == 2;
-    else if (const_name(f) == get_zero_name())
+    else if (const_name(f) == get_has_zero_zero_name())
         return first && args.size() == 2;
+    else if (const_name(f) == get_nat_zero_name())
+        return first && args.size() == 0;
     else if (const_name(f) == get_bit0_name())
         return args.size() == 3 && is_num(args[2], false);
     else if (const_name(f) == get_bit1_name())
@@ -131,8 +133,6 @@ optional<mpz> to_num_core(expr const & e) {
 
 bool is_num_leaf_constant(name const & n) {
     return
-        n == get_zero_name() ||
-        n == get_one_name() ||
         n == get_has_zero_zero_name() ||
         n == get_has_one_one_name();
 }

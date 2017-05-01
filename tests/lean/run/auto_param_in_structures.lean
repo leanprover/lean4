@@ -7,19 +7,19 @@ structure monoid (α : Type) :=
 (assoc : ∀ a b c, op (op a b) c = op a (op b c) . my_tac)
 
 def m1 : monoid nat :=
-monoid.mk add
+monoid.mk (+)
 
 def m2 : monoid nat :=
-monoid.mk mul
+monoid.mk (*)
 
 #print m1
 #print m2
 
 def m3 : monoid nat :=
-{op := add}
+{op := (+)}
 
 def m4 : monoid nat :=
-{op := mul}
+{op := (*)}
 
 #print m3
 #print m4

@@ -131,7 +131,7 @@ def nat.lt_wf : well_founded nat.lt :=
         (λ e, eq.substr e ih) (acc.inv ih)))⟩
 
 def measure {α : Type u} : (α → ℕ) → α → α → Prop :=
-inv_image lt
+inv_image (<)
 
 def measure_wf {α : Type u} (f : α → ℕ) : well_founded (measure f) :=
 inv_image.wf f nat.lt_wf

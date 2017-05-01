@@ -12,13 +12,13 @@ open expr tactic
 declare_trace search_mem_list
 
 meta def match_append (e : expr) : tactic (expr × expr) :=
-do [_, _, l, r] ← match_app_of e `append | failed, return (l, r)
+do [_, _, l, r] ← match_app_of e ``has_append.append | failed, return (l, r)
 
 meta def match_cons (e : expr) : tactic (expr × expr) :=
-do [_, a, t] ← match_app_of e `list.cons | failed, return (a, t)
+do [_, a, t] ← match_app_of e ``list.cons | failed, return (a, t)
 
 meta def match_mem (e : expr) : tactic (expr × expr) :=
-do [_, _, _, a, t] ← match_app_of e `mem | failed, return (a, t)
+do [_, _, _, a, t] ← match_app_of e ``has_mem.mem | failed, return (a, t)
 
 meta def search_mem_list : expr → expr → tactic expr
 | a e := when_tracing `search_mem_list (do f₁ ← pp a, f₂ ← pp e, trace (to_fmt "search " ++ f₁ ++ to_fmt " in " ++ f₂)) >>

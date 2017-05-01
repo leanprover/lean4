@@ -5,5 +5,5 @@
 {"record":{"full-id":"bool.tt","source":,"type":"bool"},"response":"ok","seq_num":7}
 {"record":{"doc":"(trace) enable/disable tracing for the given module and submodules"},"response":"ok","seq_num":10}
 {"record":{"full-id":"list.cons","source":,"type":"Π {T : Type}, T → list T → list T"},"response":"ok","seq_num":13}
-{"record":{"full-id":"append","source":,"type":"Π {α : Type} [_inst_1 : has_append α], α → α → α"},"response":"ok","seq_num":16}
+{"record":{"full-id":"has_append.append","source":,"type":"Π {α : Type} [c : has_append α], α → α → α"},"response":"ok","seq_num":16}
 {"record":{"full-id":"id","source":,"type":"Π {α : Sort u}, α → α"},"response":"ok","seq_num":19}

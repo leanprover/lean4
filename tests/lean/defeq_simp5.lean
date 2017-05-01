@@ -13,8 +13,8 @@ set_option pp.all true
 -- This is a different issue. We can only make them work if we normalize (nat_has_add3 x) and (nat_has_add3 y).
 -- Again, the user can workaround it by manually normalizing these instances before invoking defeq_simp.
 example (a b : nat)
-        (H : (λ x y : nat, @add nat (nat_has_add3 x) a b) =
-             (λ x y : nat, @add nat (nat_has_add3 y) a x)) : true :=
+        (H : (λ x y : nat, @has_add.add nat (nat_has_add3 x) a b) =
+             (λ x y : nat, @has_add.add nat (nat_has_add3 y) a x)) : true :=
 by do
   s ← simp_lemmas.mk_default,
   get_local `H >>= infer_type >>= s^.dsimplify >>= trace,

@@ -73,7 +73,7 @@ meta instance has_to_tactic_format_rule_data : has_to_tactic_format rule_data :=
 private meta def get_lift_fun : expr → tactic (list rel_data × expr)
 | e :=
   do {
-    guardb (is_constant_of (get_app_fn e) `relator.lift_fun),
+    guardb (is_constant_of (get_app_fn e) ``relator.lift_fun),
     [α, β, γ, δ, R, S] ← return $ get_app_args e,
     (ps, r) ← get_lift_fun S,
     return (rel_data.mk α β R :: ps, r)} <|>

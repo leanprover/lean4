@@ -6,14 +6,14 @@ set_option pp.all true
 
 open tactic
 
-example (a b : nat) (H : @add nat (id (id nat.has_add)) a b = @add nat nat_has_add2 a b) : true :=
+example (a b : nat) (H : @has_add.add nat (id (id nat.has_add)) a b = @has_add.add nat nat_has_add2 a b) : true :=
 by do
   s ← simp_lemmas.mk_default,
   get_local `H >>= infer_type >>= s^.dsimplify >>= trace,
   constructor
 
 
-example (a b : nat) (H : (λ x : nat, @add nat (id (id nat.has_add)) a b) = (λ x : nat, @add nat nat_has_add2 a x)) : true :=
+example (a b : nat) (H : (λ x : nat, @has_add.add nat (id (id nat.has_add)) a b) = (λ x : nat, @has_add.add nat nat_has_add2 a x)) : true :=
 by do
   s ← simp_lemmas.mk_default,
   get_local `H >>= infer_type >>= s^.dsimplify >>= trace,

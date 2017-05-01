@@ -258,7 +258,7 @@ private:
         // Special case
         // (the map stores "-" ==> sub)
         if (n == "-" && args.size() == 2) {
-            arith_app_info info(get_neg_name(), get_int_has_neg_name(), get_real_has_neg_name());
+            arith_app_info info(get_has_neg_neg_name(), get_int_has_neg_name(), get_real_has_neg_name());
             return elaborate_arith(args, info);
         }
 
@@ -320,20 +320,20 @@ void initialize_elaborator() {
 
     g_arith_symbol_map = new name_hash_map<arith_app_info>({
             // Int-specific
-            {"mod", arith_app_info(get_mod_name(), get_int_has_mod_name())},
+            {"mod", arith_app_info(get_has_mod_mod_name(), get_int_has_mod_name())},
             {"abs", arith_app_info(get_abs_name(), get_int_decidable_linear_ordered_comm_group_name())},
-            {"div", arith_app_info(get_div_name(), get_int_has_div_name(), name(), fun_attr::LEFT_ASSOC)},
+            {"div", arith_app_info(get_has_div_div_name(), get_int_has_div_name(), name(), fun_attr::LEFT_ASSOC)},
 
             // Real-specific
-            {"/", arith_app_info(get_div_name(), name(), get_real_has_div_name(), fun_attr::LEFT_ASSOC)},
+            {"/", arith_app_info(get_has_div_div_name(), name(), get_real_has_div_name(), fun_attr::LEFT_ASSOC)},
 
             // Overloaded operators
-            {"+", arith_app_info(get_add_name(), get_int_has_add_name(), get_real_has_add_name(), fun_attr::LEFT_ASSOC)},
-            {"*", arith_app_info(get_mul_name(), get_int_has_mul_name(), get_real_has_mul_name(), fun_attr::LEFT_ASSOC)},
-            {"-", arith_app_info(get_sub_name(), get_int_has_sub_name(), get_real_has_sub_name(), fun_attr::LEFT_ASSOC)},
+            {"+", arith_app_info(get_has_add_add_name(), get_int_has_add_name(), get_real_has_add_name(), fun_attr::LEFT_ASSOC)},
+            {"*", arith_app_info(get_has_mul_mul_name(), get_int_has_mul_name(), get_real_has_mul_name(), fun_attr::LEFT_ASSOC)},
+            {"-", arith_app_info(get_has_sub_sub_name(), get_int_has_sub_name(), get_real_has_sub_name(), fun_attr::LEFT_ASSOC)},
 
-            {"<", arith_app_info(get_lt_name(), get_int_has_lt_name(), get_real_has_lt_name(), fun_attr::CHAINABLE)},
-            {"<=", arith_app_info(get_le_name(), get_int_has_le_name(), get_real_has_le_name(), fun_attr::CHAINABLE)},
+            {"<", arith_app_info(get_has_lt_lt_name(), get_int_has_lt_name(), get_real_has_lt_name(), fun_attr::CHAINABLE)},
+            {"<=", arith_app_info(get_has_le_le_name(), get_int_has_le_name(), get_real_has_le_name(), fun_attr::CHAINABLE)},
             {">", arith_app_info(get_gt_name(), get_int_has_lt_name(), get_real_has_lt_name(), fun_attr::CHAINABLE)},
             {">=", arith_app_info(get_ge_name(), get_int_has_le_name(), get_real_has_le_name(), fun_attr::CHAINABLE)},
                 });

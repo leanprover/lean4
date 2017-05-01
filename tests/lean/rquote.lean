@@ -17,7 +17,7 @@ open foo boo
 
 open nat
 
-#check ``add
+#check ``has_add.add
 
 #check ``gcd
 

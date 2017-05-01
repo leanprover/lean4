@@ -63,10 +63,10 @@ rfl
 by induction s; simph
 
 lemma length_concat (a : α) (l : list α) : length (concat l a) = succ (length l) :=
-by simp
+by simp [succ_eq_add_one]
 
 @[simp] lemma length_repeat (a : α) (n : ℕ) : length (repeat a n) = n :=
-by induction n; simph
+by induction n; simph; refl
 
 lemma eq_nil_of_length_eq_zero {l : list α} : length l = 0 → l = [] :=
 by {induction l; intros, refl, contradiction}
@@ -78,7 +78,7 @@ by induction l; intros; contradiction
 @[simp] lemma length_taken : ∀ (i : ℕ) (l : list α), length (taken i l) = min i (length l)
 | 0        l      := by simp
 | (succ n) []     := by simp
-| (succ n) (a::l) := by simph [nat.min_succ_succ]; rw [-add_one_eq_succ]; simp
+| (succ n) (a::l) := begin simph [nat.min_succ_succ, add_one_eq_succ] end
 
 -- TODO(Leo): cleanup proof after arith dec proc
 @[simp] lemma length_dropn : ∀ (i : ℕ) (l : list α), length (dropn i l) = length l - i

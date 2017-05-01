@@ -13,7 +13,7 @@ set_option pp.all true
 -- Remark: we can "fix" it by re-running defeq_simp until there is no change.
 -- However, this is too expensive. Well, if users want they can define their own defeq_simp that implements this
 -- behavior.
-example (a b : nat) (H : (λ x : nat, @add nat (nat_has_add3 x) a b) = (λ x : nat, @add nat nat_has_add2 a x)) : true :=
+example (a b : nat) (H : (λ x : nat, @has_add.add nat (nat_has_add3 x) a b) = (λ x : nat, @has_add.add nat nat_has_add2 a x)) : true :=
 by do
   s ← simp_lemmas.mk_default,
   get_local `H >>= infer_type >>= s^.dsimplify >>= trace,

@@ -178,30 +178,30 @@ lemma bit1_add_bit1_helper [add_comm_semigroup α] [has_one α] (a b t s : α)
         (h : (a + b) = t) (h2 : add1 t = s) : bit1 a + bit1 b = bit0 s :=
 begin rw -h at h2, rw -h2, usimp end
 
-lemma bin_add_zero [add_monoid α] (a : α) : a + zero = a :=
+lemma bin_add_zero [add_monoid α] (a : α) : a + 0 = a :=
 by simp
 
-lemma bin_zero_add [add_monoid α] (a : α) : zero + a = a :=
+lemma bin_zero_add [add_monoid α] (a : α) : 0 + a = a :=
 by simp
 
-lemma one_add_bit0 [add_comm_semigroup α] [has_one α] (a : α) : one + bit0 a = bit1 a :=
+lemma one_add_bit0 [add_comm_semigroup α] [has_one α] (a : α) : 1 + bit0 a = bit1 a :=
 begin unfold bit0 bit1, simp end
 
-lemma bit0_add_one [has_add α] [has_one α] (a : α) : bit0 a + one = bit1 a :=
+lemma bit0_add_one [has_add α] [has_one α] (a : α) : bit0 a + 1 = bit1 a :=
 rfl
 
-lemma bit1_add_one [has_add α] [has_one α] (a : α) : bit1 a + one = add1 (bit1 a) :=
+lemma bit1_add_one [has_add α] [has_one α] (a : α) : bit1 a + 1 = add1 (bit1 a) :=
 rfl
 
 lemma bit1_add_one_helper [has_add α] [has_one α] (a t : α) (h : add1 (bit1 a) = t) :
-        bit1 a + one = t :=
+        bit1 a + 1 = t :=
 by rw -h
 
-lemma one_add_bit1 [add_comm_semigroup α] [has_one α] (a : α) : one + bit1 a = add1 (bit1 a) :=
+lemma one_add_bit1 [add_comm_semigroup α] [has_one α] (a : α) : 1 + bit1 a = add1 (bit1 a) :=
 begin unfold bit0 bit1 add1, simp end
 
 lemma one_add_bit1_helper [add_comm_semigroup α] [has_one α] (a t : α)
-        (h : add1 (bit1 a) = t) : one + bit1 a = t :=
+        (h : add1 (bit1 a) = t) : 1 + bit1 a = t :=
 begin rw -h, usimp end
 
 lemma add1_bit0 [has_add α] [has_one α] (a : α) : add1 (bit0 a) = bit1 a :=
@@ -215,13 +215,13 @@ lemma add1_bit1_helper [add_comm_semigroup α] [has_one α] (a t : α) (h : add1
         add1 (bit1 a) = bit0 t :=
 begin rw -h, usimp end
 
-lemma add1_one [has_add α] [has_one α] : add1 (one : α) = bit0 one :=
+lemma add1_one [has_add α] [has_one α] : add1 (1 : α) = bit0 1 :=
 rfl
 
-lemma add1_zero [add_monoid α] [has_one α] : add1 (zero : α) = one :=
+lemma add1_zero [add_monoid α] [has_one α] : add1 (0 : α) = 1 :=
 by usimp
 
-lemma one_add_one [has_add α] [has_one α] : (one : α) + one = bit0 one :=
+lemma one_add_one [has_add α] [has_one α] : (1 : α) + 1 = bit0 1 :=
 rfl
 
 lemma subst_into_sum [has_add α] (l r tl tr t : α) (prl : l = tl) (prr : r = tr)

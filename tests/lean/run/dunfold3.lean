@@ -6,7 +6,7 @@ example (a b : nat) (p : nat → Prop) (h : p (g (nat.succ (nat.succ a)))) : p (
 begin
   unfold g at h,
   do { h ← get_local `h >>= infer_type, t ← to_expr `(p (nat.succ (nat.succ a) + 5)), guard (h = t) },
-  unfold add has_add.add bit0 one nat.add,
+  unfold has_add.add bit0 has_one.one nat.add,
   unfold g,
   do { t ← target, h ← get_local `h >>= infer_type, guard (t = h) },
   assumption

@@ -9,7 +9,6 @@ do env   ← get_env,
    olean ← returnopt (env^.decl_olean n) <|> return "current file",
    trace $ to_string n ++ " was defined at " ++ olean ++ " : " ++ to_string pos.1 ++ ":" ++ to_string pos.2
 
-run_cmd show_pos `add
 run_cmd show_pos `nat.succ
 run_cmd show_pos `subsingleton.intro
 run_cmd show_pos `subsingleton.rec

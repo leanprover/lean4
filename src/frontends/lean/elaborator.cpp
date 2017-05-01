@@ -854,11 +854,11 @@ expr elaborator::visit_prenum(expr const & e, optional<expr> const & expected_ty
     if (v.is_zero()) {
         expr has_zero_A = mk_app(mk_constant(get_has_zero_name(), ls), A, e_tag);
         expr S          = mk_instance(has_zero_A, ref);
-        return mk_app(mk_app(mk_constant(get_zero_name(), ls), A, e_tag), S, e_tag);
+        return mk_app(mk_app(mk_constant(get_has_zero_zero_name(), ls), A, e_tag), S, e_tag);
     } else {
         expr has_one_A = mk_app(mk_constant(get_has_one_name(), ls), A, e_tag);
         expr S_one     = mk_instance(has_one_A, ref);
-        expr one       = mk_app(mk_app(mk_constant(get_one_name(), ls), A, e_tag), S_one, e_tag);
+        expr one       = mk_app(mk_app(mk_constant(get_has_one_one_name(), ls), A, e_tag), S_one, e_tag);
         if (v == 1) {
             return one;
         } else {
@@ -3111,9 +3111,14 @@ expr elaborator::visit_suffices_expr(expr const & e, optional<expr> const & expe
     return mk_suffices_annotation(mk_app(new_fn, new_rest));
 }
 
+static expr mk_emptyc(expr const & src) {
+    return copy_tag(src, mk_app(copy_tag(src, mk_constant(get_has_emptyc_emptyc_name())),
+                                copy_tag(src, mk_expr_placeholder())));
+}
+
 expr elaborator::visit_emptyc_or_emptys(expr const & e, optional<expr> const & expected_type) {
     if (!expected_type) {
-        return visit(copy_tag(e, mk_constant(get_emptyc_name())), expected_type);
+        return visit(mk_emptyc(e), expected_type);
     } else {
         synthesize_type_class_instances();
         expr new_expected_type = instantiate_mvars(*expected_type);
@@ -3124,7 +3129,7 @@ expr elaborator::visit_emptyc_or_emptys(expr const & e, optional<expr> const & e
             expr empty_struct = copy_tag(e, mk_structure_instance(name(), buffer<name>(), buffer<expr>()));
             return visit(empty_struct, expected_type);
         } else {
-            return visit(copy_tag(e, mk_constant(get_emptyc_name())), expected_type);
+            return visit(mk_emptyc(e), expected_type);
         }
     }
 }

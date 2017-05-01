@@ -1,1 +1,1 @@
-@add nat nat.has_add 10 3 : nat
+@has_add.add nat nat.has_add 10 3 : nat

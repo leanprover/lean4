@@ -230,12 +230,12 @@ rel_int_nat_nat.pos
 protected lemma rel_one : rel_int_nat_nat 1 (1, 0) :=
 rel_int_nat_nat.pos
 
-protected lemma rel_neg : (rel_int_nat_nat ⇒ rel_int_nat_nat) neg (λa, (a.2, a.1))
+protected lemma rel_neg : (rel_int_nat_nat ⇒ rel_int_nat_nat) has_neg.neg (λa, (a.2, a.1))
 | ._ ._ (@rel_int_nat_nat.pos m p) := int.rel_neg_of_nat
 | ._ ._ (@rel_int_nat_nat.neg m n) := rel_int_nat_nat.pos
 
 protected lemma rel_add : (rel_int_nat_nat ⇒ (rel_int_nat_nat ⇒ rel_int_nat_nat))
-  add (λa b, (a.1 + b.1, a.2 + b.2))
+  has_add.add (λa b, (a.1 + b.1, a.2 + b.2))
 | ._ ._ (@rel_int_nat_nat.pos m p) ._ ._ (@rel_int_nat_nat.pos m' p') :=
   have eq : m + p + (m' + p') = m + m' + (p + p'),
     by simp,
@@ -268,7 +268,7 @@ protected lemma rel_add : (rel_int_nat_nat ⇒ (rel_int_nat_nat ⇒ rel_int_nat_
     begin rw [eq], apply rel_int_nat_nat.neg end
 
 protected lemma rel_mul : (rel_int_nat_nat ⇒ (rel_int_nat_nat ⇒ rel_int_nat_nat))
-  mul (λa b, (a.1 * b.1 + a.2 * b.2, a.1 * b.2 + a.2 * b.1))
+  has_mul.mul (λa b, (a.1 * b.1 + a.2 * b.2, a.1 * b.2 + a.2 * b.1))
 | ._ ._ (@rel_int_nat_nat.pos m p) ._ ._ (@rel_int_nat_nat.pos m' p') :=
   have e : (m + p) * (m' + p') + m * m' = (m + p) * m' + m * (m' + p') + p * p',
     by simp [mul_add, add_mul],

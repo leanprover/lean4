@@ -1,1 +1,1 @@
-[macro structure instance (const zero []) [macro prenum]]
+[macro structure instance (const has_zero.zero []) [macro prenum]]

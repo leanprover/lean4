@@ -62,16 +62,16 @@ expr arith_instance::mk_bit1() {
     return *m_info->m_bit1;
 }
 
-expr arith_instance::mk_zero() { return mk_op(get_zero_name(), get_has_zero_name(), m_info->m_zero); }
-expr arith_instance::mk_one() { return mk_op(get_one_name(), get_has_one_name(), m_info->m_one); }
-expr arith_instance::mk_add() { return mk_op(get_add_name(), get_has_add_name(), m_info->m_add); }
-expr arith_instance::mk_sub() { return mk_op(get_sub_name(), get_has_sub_name(), m_info->m_sub); }
-expr arith_instance::mk_neg() { return mk_op(get_neg_name(), get_has_neg_name(), m_info->m_neg); }
-expr arith_instance::mk_mul() { return mk_op(get_mul_name(), get_has_mul_name(), m_info->m_mul); }
-expr arith_instance::mk_div() { return mk_op(get_div_name(), get_has_div_name(), m_info->m_div); }
-expr arith_instance::mk_inv() { return mk_op(get_inv_name(), get_has_inv_name(), m_info->m_inv); }
-expr arith_instance::mk_lt() { return mk_op(get_lt_name(), get_has_lt_name(), m_info->m_lt); }
-expr arith_instance::mk_le() { return mk_op(get_le_name(), get_has_le_name(), m_info->m_le); }
+expr arith_instance::mk_zero() { return mk_op(get_has_zero_zero_name(), get_has_zero_name(), m_info->m_zero); }
+expr arith_instance::mk_one() { return mk_op(get_has_one_one_name(), get_has_one_name(), m_info->m_one); }
+expr arith_instance::mk_add() { return mk_op(get_has_add_add_name(), get_has_add_name(), m_info->m_add); }
+expr arith_instance::mk_sub() { return mk_op(get_has_sub_sub_name(), get_has_sub_name(), m_info->m_sub); }
+expr arith_instance::mk_neg() { return mk_op(get_has_neg_neg_name(), get_has_neg_name(), m_info->m_neg); }
+expr arith_instance::mk_mul() { return mk_op(get_has_mul_mul_name(), get_has_mul_name(), m_info->m_mul); }
+expr arith_instance::mk_div() { return mk_op(get_has_div_div_name(), get_has_div_name(), m_info->m_div); }
+expr arith_instance::mk_inv() { return mk_op(get_has_inv_inv_name(), get_has_inv_name(), m_info->m_inv); }
+expr arith_instance::mk_lt() { return mk_op(get_has_lt_lt_name(), get_has_lt_name(), m_info->m_lt); }
+expr arith_instance::mk_le() { return mk_op(get_has_le_le_name(), get_has_le_name(), m_info->m_le); }
 
 expr arith_instance::mk_bit0() { return mk_op(get_bit0_name(), get_has_add_name(), m_info->m_bit0); }
 
@@ -131,15 +131,15 @@ optional<mpq> arith_instance::eval(expr const & e) {
     expr f = get_app_args(e, args);
     if (!is_constant(f)) {
         throw exception("cannot find num of nonconstant");
-    } else if (const_name(f) == get_add_name() && args.size() == 4) {
+    } else if (const_name(f) == get_has_add_add_name() && args.size() == 4) {
         if (auto r1 = eval(args[2]))
         if (auto r2 = eval(args[3]))
             return optional<mpq>(*r1 + *r2);
-    } else if (const_name(f) == get_mul_name() && args.size() == 4) {
+    } else if (const_name(f) == get_has_mul_mul_name() && args.size() == 4) {
         if (auto r1 = eval(args[2]))
         if (auto r2 = eval(args[3]))
             return optional<mpq>(*r1 * *r2);
-    } else if (const_name(f) == get_sub_name() && args.size() == 4) {
+    } else if (const_name(f) == get_has_sub_sub_name() && args.size() == 4) {
         if (auto r1 = eval(args[2]))
         if (auto r2 = eval(args[3]))  {
             if (is_nat() && *r2 > *r1)
@@ -147,7 +147,7 @@ optional<mpq> arith_instance::eval(expr const & e) {
             else
                 return optional<mpq>(*r1 - *r2);
         }
-    } else if (const_name(f) == get_div_name() && args.size() == 4) {
+    } else if (const_name(f) == get_has_div_div_name() && args.size() == 4) {
         if (auto r1 = eval(args[2]))
         if (auto r2 = eval(args[3]))  {
             if (is_nat())
@@ -157,7 +157,7 @@ optional<mpq> arith_instance::eval(expr const & e) {
             else
                 return optional<mpq>(*r1 / *r2);
         }
-    } else if (const_name(f) == get_neg_name() && args.size() == 3) {
+    } else if (const_name(f) == get_has_neg_neg_name() && args.size() == 3) {
         if (auto r1 = eval(args[2]))
             return optional<mpq>(neg(*r1));
     } else if (auto r = to_num(e)) {

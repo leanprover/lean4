@@ -1,12 +1,12 @@
 definition foo.subst := @eq.subst
 definition boo.subst := @eq.subst
 
-definition foo.add := @add
-definition boo.add := @add
+definition foo.add := @has_add.add
+definition boo.add := @has_add.add
 
 set_option pp.all true
 
-open foo boo
+open foo boo has_add
 #print raw subst -- subst is overloaded
 #print raw add   -- add is overloaded
 

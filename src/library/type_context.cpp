@@ -2678,7 +2678,7 @@ bool type_context::on_is_def_eq_failure(expr const & e1, expr const & e2) {
     if (is_stuck(e1)) {
         expr new_e1 = try_to_unstuck_using_complete_instance(e1);
         if (new_e1 != e1) {
-            lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "synthesized instances on right\n";);
+            lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "synthesized instances on left\n";);
             return is_def_eq_core(new_e1, e2);
         }
     }
@@ -2686,7 +2686,7 @@ bool type_context::on_is_def_eq_failure(expr const & e1, expr const & e2) {
     if (is_stuck(e2)) {
         expr new_e2 = try_to_unstuck_using_complete_instance(e2);
         if (new_e2 != e2) {
-            lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "synthesized instances on left\n";);
+            lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "synthesized instances on right\n";);
             return is_def_eq_core(e1, new_e2);
         }
     }
@@ -2698,9 +2698,9 @@ bool type_context::on_is_def_eq_failure(expr const & e1, expr const & e2) {
 static optional<mpz> eval_num(expr const & e) {
     if (is_constant(e, get_nat_zero_name())) {
         return some(mpz(0));
-    } else if (is_app_of(e, get_zero_name(), 2)) {
+    } else if (is_app_of(e, get_has_zero_zero_name(), 2)) {
         return some(mpz(0));
-    } else if (is_app_of(e, get_one_name(), 2)) {
+    } else if (is_app_of(e, get_has_one_one_name(), 2)) {
         return some(mpz(1));
     } else if (auto a = is_bit0(e)) {
         if (auto r1 = eval_num(*a))
@@ -2717,13 +2717,13 @@ static optional<mpz> eval_num(expr const & e) {
             return some(*r1 + 1);
         else
             return optional<mpz>();
-    } else if (is_app_of(e, get_add_name(), 4)) {
+    } else if (is_app_of(e, get_has_add_add_name(), 4)) {
         auto r1 = eval_num(app_arg(app_fn(e)));
         if (!r1) return optional<mpz>();
         auto r2 = eval_num(app_arg(e));
         if (!r2) return optional<mpz>();
         return some(*r1 + *r2);
-    } else if (is_app_of(e, get_sub_name(), 4)) {
+    } else if (is_app_of(e, get_has_sub_sub_name(), 4)) {
         auto r1 = eval_num(app_arg(app_fn(e)));
         if (!r1) return optional<mpz>();
         auto r2 = eval_num(app_arg(e));
@@ -2748,9 +2748,9 @@ optional<unsigned> type_context::to_small_num(expr const & e) {
 
 /* If \c t is of the form (s + k) where k is a numeral, then return k. Otherwise, return none. */
 optional<unsigned> type_context::is_offset_term (expr const & t) {
-    if (is_app_of(t, get_add_name(), 4) &&
-        /* We do not consider (s + k) to be an offset term when add is marked as irreducible */
-        m_cache->is_transparent(transparency_mode::Semireducible, get_add_name())) {
+    if (is_app_of(t, get_has_add_add_name(), 4) &&
+        /* We do not consider (s + k) to be an offset term when has_add.add is marked as irreducible */
+        get_reducible_status(env(), get_has_add_add_name()) != reducible_status::Irreducible) {
         expr const & k = app_arg(t);
         return to_small_num(k);
     } else {
@@ -2769,7 +2769,7 @@ optional<unsigned> type_context::is_offset_term (expr const & t) {
 
 /* Return true iff t is of the form (t' + k) where k is a numeral */
 static expr get_offset_term(expr const & t) {
-    if (is_app_of(t, get_add_name(), 4)) {
+    if (is_app_of(t, get_has_add_add_name(), 4)) {
         return app_arg(app_fn(t));
     } else {
         lean_assert(is_app_of(t, get_nat_succ_name(), 1));
@@ -2786,7 +2786,7 @@ static expr get_offset_term(expr const & t) {
 static bool uses_nat_has_add_instance_or_succ(type_context & ctx, expr const & t) {
     if (is_app_of(t, get_nat_succ_name(), 1)) {
         return true;
-    } else if (is_app_of(t, get_add_name(), 4)) {
+    } else if (is_app_of(t, get_has_add_add_name(), 4)) {
         expr inst = app_arg(app_fn(app_fn(t)));
         if (is_constant(inst, get_nat_has_add_name()))
             return true;
@@ -2813,7 +2813,7 @@ static expr update_offset(expr const & t, unsigned k) {
             r = mk_app(succ, r);
         return r;
     } else {
-        lean_assert(is_app_of(t, get_add_name(), 4));
+        lean_assert(is_app_of(t, get_has_add_add_name(), 4));
         return mk_app(app_fn(app_fn(t)), get_offset_term(t), to_nat_expr(mpz(k)));
     }
 }
@@ -3004,7 +3004,7 @@ lbool type_context::is_def_eq_delta(expr const & t, expr const & s) {
     return l_undef;
 }
 
-lbool type_context::is_def_eq_proj(expr const & t, expr const & s) {
+lbool type_context::is_def_eq_proj(expr t, expr s) {
     projection_info const * t_proj = is_projection(t);
     projection_info const * s_proj = is_projection(s);
     if (t_proj && !s_proj) {
@@ -3015,27 +3015,41 @@ lbool type_context::is_def_eq_proj(expr const & t, expr const & s) {
         if (auto s_n = reduce_projection_core(s_proj, s))
             return to_lbool(is_def_eq_core_core(t, *s_n));
     } else if (t_proj && s_proj) {
+        if (t_proj == s_proj) {
+            t = instantiate_mvars(t);
+            s = instantiate_mvars(s);
+            if (has_expr_metavar(t) || has_expr_metavar(s)) {
+                /* If is the same projection, and at least one of them contain unassigned metavariables,
+                   then we try to unify arguments.
+
+                   Remark: this case is usually a bad idea if both
+                   projections can be reduced. However, some
+                   lemmas at init/algebra/order.lean cannot
+                   be elaborated without it.
+
+                   A potential workaround (hack): if both structures
+                   can be reduced, then we do it only if the structure
+                   has only one field.
+                */
+                scope S(*this);
+                if (is_def_eq_core(get_app_fn(t), get_app_fn(s)) &&
+                    is_def_eq_args(t, s) &&
+                    process_postponed(S)) {
+                    S.commit();
+                    return l_true;
+                }
+            }
+        }
         auto t_n = reduce_projection_core(t_proj, t);
         auto s_n = reduce_projection_core(s_proj, s);
         if (t_n && s_n) {
             /* Both projections can be reduced */
             return to_lbool(is_def_eq_core_core(*t_n, *s_n));
-        } else if (t_proj == s_proj) {
-            /* If is the same projection and both cannot
-               be reduced, then we try to unify arguments */
-            scope S(*this);
-            if (is_def_eq_core(get_app_fn(t), get_app_fn(s)) &&
-                is_def_eq_args(t, s) &&
-                process_postponed(S)) {
-                S.commit();
-                return l_true;
-            }
-        }
-        /* If one of them could be reduced */
-        if (t_n)
+        } else if (t_n) {
             return to_lbool(is_def_eq_core_core(*t_n, s));
-        if (s_n)
+        } else if (s_n) {
             return to_lbool(is_def_eq_core_core(t, *s_n));
+        }
     }
     return l_undef;
 }

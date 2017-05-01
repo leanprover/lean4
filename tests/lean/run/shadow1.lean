@@ -19,7 +19,7 @@ definition h (a : nat) : nat → nat
 example (a b : nat) : h a b = b :=
 rfl
 
-definition o : nat := zero
+definition o : nat := 0
 
 definition f2 : nat → nat
 | o  := 0
@@ -27,7 +27,7 @@ definition f2 : nat → nat
 example (a : nat) : f2 a = 0 := rfl
 
 definition f3 : nat → nat
-| (add a 1) := a
+| (a+1) := a
 | nat.zero  := nat.zero
 
 example : f3 10 = 9 := rfl

@@ -272,16 +272,16 @@ then some (app_arg (app_fn e), app_arg e)
 else none
 
 meta def is_lt (e : expr) : option (expr × expr) :=
-is_bin_arith_app e `lt
+is_bin_arith_app e ``has_lt.lt
 
 meta def is_gt (e : expr) : option (expr × expr) :=
-is_bin_arith_app e `gt
+is_bin_arith_app e ``gt
 
 meta def is_le (e : expr) : option (expr × expr) :=
-is_bin_arith_app e `le
+is_bin_arith_app e ``has_le.le
 
 meta def is_ge (e : expr) : option (expr × expr) :=
-is_bin_arith_app e `ge
+is_bin_arith_app e ``ge
 
 meta def is_heq : expr → option (expr × expr × expr × expr)
 | ```(@heq %%α %%a %%β %%b) := some (α, a, β, b)

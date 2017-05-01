@@ -26,6 +26,9 @@ protected lemma add_zero : ∀ n : ℕ, n + 0 = n :=
 lemma add_one_eq_succ : ∀ n : ℕ, n + 1 = succ n :=
 λ n, rfl
 
+lemma succ_eq_add_one : ∀ n : ℕ, succ n = n + 1 :=
+λ n, rfl
+
 protected lemma add_comm : ∀ n m : ℕ, n + m = m + n
 | n 0     := eq.symm (nat.zero_add n)
 | n (m+1) :=
@@ -818,7 +821,7 @@ nat.strong_induction_on a $ λ n,
   end
 
 /- mod -/
-lemma mod_def (x y : nat) : mod x y = if 0 < y ∧ y ≤ x then mod (x - y) y else x :=
+lemma mod_def (x y : nat) : x % y = if 0 < y ∧ y ≤ x then (x - y) % y else x :=
 by note h := mod_def_aux x y; rwa [dif_eq_if] at h
 
 lemma mod_zero (a : nat) : a % 0 = a :=
@@ -914,7 +917,7 @@ begin
 end
 
 /- div & mod -/
-lemma div_def (x y : nat) : div x y = if 0 < y ∧ y ≤ x then div (x - y) y + 1 else 0 :=
+lemma div_def (x y : nat) : x / y = if 0 < y ∧ y ≤ x then (x - y) / y + 1 else 0 :=
 by note h := div_def_aux x y; rwa dif_eq_if at h
 
 lemma mod_add_div (m k : ℕ)
@@ -1033,7 +1036,9 @@ begin
       rw [ -add_one_eq_succ
          , nat.add_le_add_iff_le_right
          , IH (y - k) Hlt x
-         , succ_mul,add_le_to_le_sub _ h] } }
+         , add_one_eq_succ
+         , succ_mul, add_le_to_le_sub _ h ]
+     } }
 end
 
 theorem div_lt_iff_lt_mul (x y : ℕ) {k : ℕ}

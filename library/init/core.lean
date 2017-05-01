@@ -323,53 +323,53 @@ class has_sep (α : out_param (Type u)) (γ : Type v) :=
 /- Type class for set-like membership -/
 class has_mem (α : out_param (Type u)) (γ : Type v) := (mem : α → γ → Prop)
 
-def zero     {α : Type u} [has_zero α]     : α            := has_zero.zero α
-def one      {α : Type u} [has_one α]      : α            := has_one.one α
-def add      {α : Type u} [has_add α]      : α → α → α    := has_add.add
-def mul      {α : Type u} [has_mul α]      : α → α → α    := has_mul.mul
-def sub      {α : Type u} [has_sub α]      : α → α → α    := has_sub.sub
-def div      {α : Type u} [has_div α]      : α → α → α    := has_div.div
-def dvd      {α : Type u} [has_dvd α]      : α → α → Prop := has_dvd.dvd
-def mod      {α : Type u} [has_mod α]      : α → α → α    := has_mod.mod
-def neg      {α : Type u} [has_neg α]      : α → α        := has_neg.neg
-def inv      {α : Type u} [has_inv α]      : α → α        := has_inv.inv
-def le       {α : Type u} [has_le α]       : α → α → Prop := has_le.le
-def lt       {α : Type u} [has_lt α]       : α → α → Prop := has_lt.lt
-def append   {α : Type u} [has_append α]   : α → α → α    := has_append.append
-def andthen  {α : Type u} [has_andthen α]  : α → α → α    := has_andthen.andthen
-def union    {α : Type u} [has_union α]    : α → α → α    := has_union.union
-def inter    {α : Type u} [has_inter α]    : α → α → α    := has_inter.inter
-def sdiff    {α : Type u} [has_sdiff α]    : α → α → α    := has_sdiff.sdiff
-def subset   {α : Type u} [has_subset α]   : α → α → Prop := has_subset.subset
-def ssubset  {α : Type u} [has_ssubset α]  : α → α → Prop := has_ssubset.ssubset
-@[reducible]
-def ge {α : Type u} [has_le α] (a b : α) : Prop := le b a
-@[reducible]
-def gt {α : Type u} [has_lt α] (a b : α) : Prop := lt b a
-@[reducible]
-def superset {α : Type u} [has_subset α] (a b : α) : Prop := subset b a
-@[reducible]
-def ssuperset {α : Type u} [has_ssubset α] (a b : α) : Prop := ssubset b a
-def bit0 {α : Type u} [s  : has_add α] (a  : α)                 : α := add a a
-def bit1 {α : Type u} [s₁ : has_one α] [s₂ : has_add α] (a : α) : α := add (bit0 a) one
+infix ∈        := has_mem.mem
+notation a ∉ s := ¬ has_mem.mem a s
+infix +        := has_add.add
+infix *        := has_mul.mul
+infix -        := has_sub.sub
+infix /        := has_div.div
+infix ∣        := has_dvd.dvd
+infix %        := has_mod.mod
+prefix -       := has_neg.neg
+infix <=       := has_le.le
+infix ≤        := has_le.le
+infix <        := has_lt.lt
+infix ++       := has_append.append
+infix ;        := has_andthen.andthen
+notation `∅`   := has_emptyc.emptyc _
+infix ∪        := has_union.union
+infix ∩        := has_inter.inter
+infix ⊆        := has_subset.subset
+infix ⊂        := has_ssubset.ssubset
+infix \        := has_sdiff.sdiff
 
-attribute [pattern] zero one bit0 bit1 add neg
+export has_append (append)
+
+@[reducible] def ge {α : Type u} [has_le α] (a b : α) : Prop := has_le.le b a
+@[reducible] def gt {α : Type u} [has_lt α] (a b : α) : Prop := has_lt.lt b a
+
+infix >=       := ge
+infix ≥        := ge
+infix >        := gt
+
+@[reducible] def superset {α : Type u} [has_subset α] (a b : α) : Prop := has_subset.subset b a
+@[reducible] def ssuperset {α : Type u} [has_ssubset α] (a b : α) : Prop := has_ssubset.ssubset b a
+
+infix ⊇        := superset
+infix ⊃        := ssuperset
+
+def bit0 {α : Type u} [s  : has_add α] (a  : α)                 : α := a + a
+def bit1 {α : Type u} [s₁ : has_one α] [s₂ : has_add α] (a : α) : α := (bit0 a) + 1
+
+attribute [pattern] has_zero.zero has_one.one bit0 bit1 has_add.add has_neg.neg
 
 def insert {α : Type u} {γ : Type v} [has_insert α γ] : α → γ → γ :=
 has_insert.insert
 
 /- The empty collection -/
-def emptyc {α : Type u} [has_emptyc α] : α :=
-has_emptyc.emptyc α
-
 def singleton {α : Type u} {γ : Type v} [has_emptyc γ] [has_insert α γ] (a : α) : γ :=
-insert a emptyc
-
-def sep {α : Type u} {γ : Type v} [has_sep α γ] : (α → Prop) → γ → γ :=
-has_sep.sep
-
-def mem {α : Type u} {γ : Type v} [has_mem α γ] : α → γ → Prop :=
-has_mem.mem
+has_insert.insert a ∅
 
 /- num, pos_num instances -/
 
@@ -475,33 +475,7 @@ num.succ (num.succ (num.succ (num.succ (num.succ (num.succ (num.succ (num.succ (
   (num.succ std.prec.max)))))))))
 
 reserve postfix `⁻¹`:std.prec.max_plus  -- input with \sy or \-1 or \inv
-
-infix ∈        := mem
-notation a ∉ s := ¬ mem a s
-infix +        := add
-infix *        := mul
-infix -        := sub
-infix /        := div
-infix ∣        := dvd
-infix %        := mod
-prefix -       := neg
-postfix ⁻¹     := inv
-infix <=       := le
-infix >=       := ge
-infix ≤        := le
-infix ≥        := ge
-infix <        := lt
-infix >        := gt
-infix ++       := append
-infix ;        := andthen
-notation `∅`   := emptyc
-infix ∪        := union
-infix ∩        := inter
-infix ⊆        := subset
-infix ⊇        := superset
-infix ⊂        := ssubset
-infix ⊃        := ssuperset
-infix \        := sdiff
+postfix ⁻¹     := has_inv.inv
 
 notation α × β := prod α β
 -- notation for n-ary tuples

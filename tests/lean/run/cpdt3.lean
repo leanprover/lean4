@@ -17,8 +17,8 @@ inductive exp : Type
 open exp
 
 def binop_denote : binop → nat → nat → nat
-| Plus  := add
-| Times := mul
+| Plus  := (+)
+| Times := (*)
 
 def exp_denote : exp → nat
 | (Const n)       := n
@@ -98,8 +98,8 @@ def leb (m n : ℕ) : bool := if m < n then tt else ff
 
 def tbinop_denote : Π {arg1 arg2 res : type},
   tbinop arg1 arg2 res → type_denote arg1 → type_denote arg2 → type_denote res
-| ._ ._ ._ TPlus      := (add : ℕ → ℕ → ℕ)
-| ._ ._ ._ TTimes     := (mul : ℕ → ℕ → ℕ)
+| ._ ._ ._ TPlus      := ((+) : ℕ → ℕ → ℕ)
+| ._ ._ ._ TTimes     := ((*) : ℕ → ℕ → ℕ)
 | ._ ._ ._ (TEq Nat)  := beq_nat
 | ._ ._ ._ (TEq Bool) := eqb
 | ._ ._ ._ TLt        := leb

@@ -19,11 +19,11 @@ bool norm_num_context::is_nat_const(expr const & e) const {
 }
 
 bool norm_num_context::is_neg_app(expr const & e) const {
-    return is_const_app(e, get_neg_name(), 3);
+    return is_const_app(e, get_has_neg_neg_name(), 3);
 }
 
 bool norm_num_context::is_div(expr const & e) const {
-    return is_const_app(e, get_div_name(), 4);
+    return is_const_app(e, get_has_div_div_name(), 4);
 }
 
 expr norm_num_context::mk_const(name const & n) {
@@ -325,10 +325,10 @@ expr norm_num_context::mk_norm_add_div(expr const & s_lhs, expr const & s_rhs, e
 expr norm_num_context::mk_nonzero_prf(expr const & e) {
     buffer<expr> args;
     expr f = get_app_args(e, args);
-    if (const_name(f) == get_neg_name()) {
+    if (const_name(f) == get_has_neg_neg_name()) {
         return mk_app({mk_const(get_norm_num_nonzero_of_neg_helper_name()), args[0], mk_lin_ord_ring(),
                     args[2], mk_nonzero_prf(args[2])});
-    } else if (const_name(f) == get_div_name()) {
+    } else if (const_name(f) == get_has_div_div_name()) {
         expr num_pr = mk_nonzero_prf(args[2]), den_pr = mk_nonzero_prf(args[3]);
         return mk_app({mk_const(get_norm_num_nonzero_of_div_helper_name()), args[0], mk_field(), args[2],
                     args[3], num_pr, den_pr});
@@ -439,7 +439,7 @@ pair<expr, expr> norm_num_context::mk_norm(expr const & e) {
     mpq val   = mpq_of_expr(e);
     expr nval = mk_num(val);
 
-    if (const_name(f) == get_add_name() && args.size() == 4) {
+    if (const_name(f) == get_has_add_add_name() && args.size() == 4) {
         expr prf;
         auto lhs_p = mk_norm(args[2]);
         auto rhs_p = mk_norm(args[3]);
@@ -466,7 +466,7 @@ pair<expr, expr> norm_num_context::mk_norm(expr const & e) {
                     lhs_p.first, rhs_p.first, nval, lhs_p.second, rhs_p.second, prf});
         return pair<expr, expr>(nval, rprf);
 
-    } else if (const_name(f) == get_sub_name() && args.size() == 4) {
+    } else if (const_name(f) == get_has_sub_sub_name() && args.size() == 4) {
         if (is_nat_const(args[0])) {
             return mk_norm_nat_sub(args[2], args[3]);
         }
@@ -475,7 +475,7 @@ pair<expr, expr> norm_num_context::mk_norm(expr const & e) {
         expr rprf = mk_app({mk_const(get_norm_num_subst_into_subtr_name()), type, mk_add_group(), args[2],
             args[3], anprf.first, anprf.second});
         return expr_pair(nval, rprf);
-    } else if (const_name(f) == get_neg_name()  && args.size() == 3) {
+    } else if (const_name(f) == get_has_neg_neg_name()  && args.size() == 3) {
         auto prf = mk_norm(args[2]);
         lean_assert(mpq_of_expr(prf.first) == neg(val));
         if (is_zero(prf.first)) {
@@ -495,7 +495,7 @@ pair<expr, expr> norm_num_context::mk_norm(expr const & e) {
                         args[2], nval, prf.second});
             return pair<expr, expr>(nval, rprf);
         }
-    } else if (const_name(f) == get_mul_name() && args.size() == 4) {
+    } else if (const_name(f) == get_has_mul_mul_name() && args.size() == 4) {
         auto lhs_p = mk_norm(args[2]);
         auto rhs_p = mk_norm(args[3]);
         expr prf;
@@ -521,7 +521,7 @@ pair<expr, expr> norm_num_context::mk_norm(expr const & e) {
         expr rprf = mk_app({mk_const(get_norm_num_subst_into_prod_name()), type, mk_has_mul(), args[2], args[3],
                           lhs_p.first, rhs_p.first, nval, lhs_p.second, rhs_p.second, prf});
         return pair<expr, expr>(nval, rprf);
-    } else if (const_name(f) == get_div_name() && args.size() == 4) {
+    } else if (const_name(f) == get_has_div_div_name() && args.size() == 4) {
         auto lhs_p = mk_norm(args[2]);
         auto rhs_p = mk_norm(args[3]);
         expr prf;
@@ -565,7 +565,7 @@ pair<expr, expr> norm_num_context::mk_norm(expr const & e) {
         auto rprf = mk_cong(mk_app(f, args[0], args[1], args[2]), type, args[3],
                             nval_args[3], prf.second);
         return pair<expr, expr>(nval, rprf);
-    } else if ((const_name(f) == get_zero_name() || const_name(f) == get_one_name())
+    } else if ((const_name(f) == get_has_zero_zero_name() || const_name(f) == get_has_one_one_name())
                && args.size() == 2) {
         return pair<expr, expr>(e, mk_eq_refl(m_ctx, e));
     } else {

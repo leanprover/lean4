@@ -1,14 +1,14 @@
 λ (A : Type u_1) [_inst_1 : has_add A] [_inst_2 : has_one A] [_inst_3 : has_lt A] (a : A),
-  @add A _inst_1 a (@one A _inst_2) :
+  @has_add.add A _inst_1 a (@has_one.one A _inst_2) :
   Π (A : Type u_1) [_inst_1 : has_add A] [_inst_2 : has_one A] [_inst_3 : has_lt A], A → A
 λ (A : Type u_1) [_inst_1 : has_add A] [_inst_2 : has_one A] [_inst_3 : has_lt A] (a : A)
-(H : @gt A _inst_3 a (@one A _inst_2)), @add A _inst_1 a (@one A _inst_2) :
+(H : @gt A _inst_3 a (@has_one.one A _inst_2)), @has_add.add A _inst_1 a (@has_one.one A _inst_2) :
   Π (A : Type u_1) [_inst_1 : has_add A] [_inst_2 : has_one A] [_inst_3 : has_lt A] (a : A),
-    @gt A _inst_3 a (@one A _inst_2) → A
+    @gt A _inst_3 a (@has_one.one A _inst_2) → A
 λ (A : Type u_1) [_inst_1 : has_add A] [_inst_2 : has_one A] [_inst_3 : has_lt A] (a : A)
-(H₁ : @gt A _inst_3 a (@one A _inst_2))
-(H₂ : @lt A _inst_3 a (@bit1 A _inst_2 _inst_1 (@bit0 A _inst_1 (@one A _inst_2)))),
-  @add A _inst_1 a (@one A _inst_2) :
+(H₁ : @gt A _inst_3 a (@has_one.one A _inst_2))
+(H₂ : @has_lt.lt A _inst_3 a (@bit1 A _inst_2 _inst_1 (@bit0 A _inst_1 (@has_one.one A _inst_2)))),
+  @has_add.add A _inst_1 a (@has_one.one A _inst_2) :
   Π (A : Type u_1) [_inst_1 : has_add A] [_inst_2 : has_one A] [_inst_3 : has_lt A] (a : A),
-    @gt A _inst_3 a (@one A _inst_2) →
-    @lt A _inst_3 a (@bit1 A _inst_2 _inst_1 (@bit0 A _inst_1 (@one A _inst_2))) → A
+    @gt A _inst_3 a (@has_one.one A _inst_2) →
+    @has_lt.lt A _inst_3 a (@bit1 A _inst_2 _inst_1 (@bit0 A _inst_1 (@has_one.one A _inst_2))) → A

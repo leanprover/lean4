@@ -26,7 +26,7 @@ constants (n : ℕ)
 { pattern     := m + 1 ≟ succ n,
   constraints := [m ≟ n] }
 
-attribute  [irreducible] add
+attribute  [irreducible] has_add.add
 
 open tactic
 

@@ -51,10 +51,10 @@ ext (take x, or.comm)
 lemma union_assoc (a b c : set α) : (a ∪ b) ∪ c = a ∪ (b ∪ c) :=
 ext (take x, or.assoc)
 
-instance union_is_assoc : is_associative (set α) union :=
+instance union_is_assoc : is_associative (set α) (∪) :=
 ⟨union_assoc⟩
 
-instance union_is_comm : is_commutative (set α) union :=
+instance union_is_comm : is_commutative (set α) (∪) :=
 ⟨union_comm⟩
 
 lemma union_self (a : set α) : a ∪ a = a :=
@@ -72,11 +72,11 @@ ext (take x, and.comm)
 lemma inter_assoc (a b c : set α) : (a ∩ b) ∩ c = a ∩ (b ∩ c) :=
 ext (take x, and.assoc)
 
-instance inter_is_assoc : is_associative (set α) inter :=
+instance inter_is_assoc : is_associative (set α) (∩) :=
 ⟨inter_assoc⟩
 
-instance inter_is_comm : is_commutative (set α) union :=
-⟨union_comm⟩
+instance inter_is_comm : is_commutative (set α) (∩) :=
+⟨inter_comm⟩
 
 lemma inter_self (a : set α) : a ∩ a = a :=
 ext (take x, and_self _)

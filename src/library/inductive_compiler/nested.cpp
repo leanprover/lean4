@@ -1448,7 +1448,7 @@ class add_nested_inductive_decl_fn {
 
     expr prove_by_simp(local_context const & lctx, expr const & thm, list<expr> Hs, bool use_sizeof) {
         environment env = set_reducible(m_env, get_sizeof_name(), reducible_status::Irreducible, false);
-        env = set_reducible(env, get_add_name(), reducible_status::Irreducible, false);
+        env = set_reducible(env, get_has_add_add_name(), reducible_status::Irreducible, false);
 
         type_context tctx(env, m_tctx.get_options(), lctx, transparency_mode::Semireducible);
         type_context tctx_whnf(env, m_tctx.get_options(), lctx, transparency_mode::None);

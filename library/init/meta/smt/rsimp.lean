@@ -65,11 +65,11 @@ meta def is_value_like : expr → bool
    if ¬ fn.is_constant then ff
    else let nargs := e.get_app_num_args,
             fname := fn.const_name in
-     if      fname = `zero ∧ nargs = 2 then tt
-     else if fname = `one ∧ nargs = 2 then tt
-     else if fname = `bit0 ∧ nargs = 3 then is_value_like e.app_arg
-     else if fname = `bit1 ∧ nargs = 4 then is_value_like e.app_arg
-     else if fname = `char.of_nat ∧ nargs = 1 then is_value_like e.app_arg
+     if      fname = ``has_zero.zero ∧ nargs = 2 then tt
+     else if fname = ``has_one.one ∧ nargs = 2 then tt
+     else if fname = ``bit0 ∧ nargs = 3 then is_value_like e.app_arg
+     else if fname = ``bit1 ∧ nargs = 4 then is_value_like e.app_arg
+     else if fname = ``char.of_nat ∧ nargs = 1 then is_value_like e.app_arg
      else ff
 
 /-- Return the size of term by considering only explicit arguments. -/

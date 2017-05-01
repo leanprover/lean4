@@ -21,9 +21,9 @@ structure unification_hint := (pattern : unification_constraint) (constraints : 
 Example:
 
 definition both_zero_of_add_eq_zero [unify] (n₁ n₂ : ℕ) (s₁ : has_add ℕ) (s₂ : has_zero ℕ) : unification_hint :=
-  unification_hint.mk (unification_constraint.mk (@add ℕ s₁ n₁ n₂) (@zero ℕ s₂))
-    [unification_constraint.mk n₁ (@zero ℕ s₂),
-     unification_constraint.mk n₂ (@zero ℕ s₂)]
+  unification_hint.mk (unification_constraint.mk (@has_add.add ℕ s₁ n₁ n₂) (@has_zero.zero ℕ s₂))
+    [unification_constraint.mk n₁ (@has_zero.zero ℕ s₂),
+     unification_constraint.mk n₂ (@has_zero.zero ℕ s₂)]
 
 creates the following unification hint:
 m_lhs: add nat #1 #3 #2

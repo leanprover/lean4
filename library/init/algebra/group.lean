@@ -40,17 +40,17 @@ class comm_group (α : Type u) extends group α, comm_monoid α
 @[simp] lemma mul_assoc [semigroup α] : ∀ a b c : α, a * b * c = a * (b * c) :=
 semigroup.mul_assoc
 
-instance semigroup_to_is_associative [semigroup α] : is_associative α mul :=
+instance semigroup_to_is_associative [semigroup α] : is_associative α (*) :=
 ⟨mul_assoc⟩
 
 @[simp] lemma mul_comm [comm_semigroup α] : ∀ a b : α, a * b = b * a :=
 comm_semigroup.mul_comm
 
-instance comm_semigroup_to_is_commutative [comm_semigroup α] : is_commutative α mul :=
+instance comm_semigroup_to_is_commutative [comm_semigroup α] : is_commutative α (*) :=
 ⟨mul_comm⟩
 
 @[simp] lemma mul_left_comm [comm_semigroup α] : ∀ a b c : α, a * (b * c) = b * (a * c) :=
-left_comm mul mul_comm mul_assoc
+left_comm has_mul.mul mul_comm mul_assoc
 
 lemma mul_left_cancel [left_cancel_semigroup α] {a b c : α} : a * b = a * c → b = c :=
 left_cancel_semigroup.mul_left_cancel a b c
@@ -210,7 +210,7 @@ copy_decl_using dict src tgt
 
 meta def multiplicative_to_additive_pairs : list (name × name) :=
   [/- map operations -/
-   (`mul, `add), (`one, `zero), (`inv, `neg),
+   (`has_mul.mul, `has_add.add), (`has_one.one, `has_zero.zero), (`has_inv.inv, `has_neg.neg),
    (`has_mul, `has_add), (`has_one, `has_zero), (`has_inv, `has_neg),
    /- map constructors -/
    (`has_mul.mk, `has_add.mk), (`has_one, `has_zero.mk), (`has_inv, `has_neg.mk),
@@ -298,10 +298,10 @@ skip
 
 run_cmd transport_multiplicative_to_additive
 
-instance add_semigroup_to_is_eq_associative [add_semigroup α] : is_associative α add :=
+instance add_semigroup_to_is_eq_associative [add_semigroup α] : is_associative α (+) :=
 ⟨add_assoc⟩
 
-instance add_comm_semigroup_to_is_eq_commutative [add_comm_semigroup α] : is_commutative α add :=
+instance add_comm_semigroup_to_is_eq_commutative [add_comm_semigroup α] : is_commutative α (+) :=
 ⟨add_comm⟩
 
 def neg_add_self := @add_left_neg

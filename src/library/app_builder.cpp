@@ -700,7 +700,7 @@ public:
             trace_inst_failure(A, "has_add");
             throw app_builder_exception();
         }
-        return ::lean::mk_app(mk_constant(get_add_name(), {lvl}), A, *A_has_add);
+        return ::lean::mk_app(mk_constant(get_has_add_add_name(), {lvl}), A, *A_has_add);
     }
 
     expr mk_partial_mul(expr const & A) {
@@ -710,7 +710,7 @@ public:
             trace_inst_failure(A, "has_mul");
             throw app_builder_exception();
         }
-        return ::lean::mk_app(mk_constant(get_mul_name(), {lvl}), A, *A_has_mul);
+        return ::lean::mk_app(mk_constant(get_has_mul_mul_name(), {lvl}), A, *A_has_mul);
     }
 
     expr mk_zero(expr const & A) {
@@ -720,7 +720,7 @@ public:
             trace_inst_failure(A, "has_zero");
             throw app_builder_exception();
         }
-        return ::lean::mk_app(mk_constant(get_zero_name(), {lvl}), A, *A_has_zero);
+        return ::lean::mk_app(mk_constant(get_has_zero_zero_name(), {lvl}), A, *A_has_zero);
     }
 
     expr mk_one(expr const & A) {
@@ -730,7 +730,7 @@ public:
             trace_inst_failure(A, "has_one");
             throw app_builder_exception();
         }
-        return ::lean::mk_app(mk_constant(get_one_name(), {lvl}), A, *A_has_one);
+        return ::lean::mk_app(mk_constant(get_has_one_one_name(), {lvl}), A, *A_has_one);
     }
 
     expr mk_partial_left_distrib(expr const & A) {

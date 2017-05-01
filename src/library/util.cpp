@@ -514,11 +514,11 @@ static expr * g_nat_add_fn  = nullptr;
 
 static void initialize_nat() {
     g_nat            = new expr(mk_constant(get_nat_name()));
-    g_nat_zero       = new expr(mk_app(mk_constant(get_zero_name(), {mk_level_zero()}), {*g_nat, mk_constant(get_nat_has_zero_name())}));
-    g_nat_one        = new expr(mk_app(mk_constant(get_one_name(), {mk_level_zero()}), {*g_nat, mk_constant(get_nat_has_one_name())}));
+    g_nat_zero       = new expr(mk_app(mk_constant(get_has_zero_zero_name(), {mk_level_zero()}), {*g_nat, mk_constant(get_nat_has_zero_name())}));
+    g_nat_one        = new expr(mk_app(mk_constant(get_has_one_one_name(), {mk_level_zero()}), {*g_nat, mk_constant(get_nat_has_one_name())}));
     g_nat_bit0_fn    = new expr(mk_app(mk_constant(get_bit0_name(), {mk_level_zero()}), {*g_nat, mk_constant(get_nat_has_add_name())}));
     g_nat_bit1_fn    = new expr(mk_app(mk_constant(get_bit1_name(), {mk_level_zero()}), {*g_nat, mk_constant(get_nat_has_one_name()), mk_constant(get_nat_has_add_name())}));
-    g_nat_add_fn     = new expr(mk_app(mk_constant(get_add_name(), {mk_level_zero()}), {*g_nat, mk_constant(get_nat_has_add_name())}));
+    g_nat_add_fn     = new expr(mk_app(mk_constant(get_has_add_add_name(), {mk_level_zero()}), {*g_nat, mk_constant(get_nat_has_add_name())}));
 }
 
 static void finalize_nat() {

@@ -673,7 +673,7 @@ private:
     bool is_productive(expr const & e);
     expr reduce_if_productive(expr const & t);
     lbool is_def_eq_delta(expr const & t, expr const & s);
-    lbool is_def_eq_proj(expr const & t, expr const & s);
+    lbool is_def_eq_proj(expr t, expr s);
     optional<pair<expr, expr>> find_unsynth_metavar(expr const & e);
     bool mk_nested_instance(expr const & m, expr const & m_type);
     friend class unification_hint_fn;

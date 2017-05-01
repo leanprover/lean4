@@ -123,7 +123,7 @@ def map₂ (f : α → β → γ) : list α → list β → list γ
 
 def join : list (list α) → list α
 | []        := []
-| (l :: ls) := append l (join ls)
+| (l :: ls) := l ++ (join ls)
 
 def filter (p : α → Prop) [decidable_pred p] : list α → list α
 | []     := []
@@ -197,7 +197,7 @@ def enum_from : ℕ → list α → list (ℕ × α)
 def enum : list α → list (ℕ × α) := enum_from 0
 
 def sum [has_add α] [has_zero α] : list α → α :=
-foldl add zero
+foldl (+) 0
 
 def last : Π l : list α, l ≠ [] → α
 | []        h := absurd rfl h

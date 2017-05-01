@@ -32,7 +32,7 @@ set_option pp.notation false
 definition ev : Expr → nat
 | zero             := 0
 | one              := 1
-| ((a : Expr) + b) := _root_.add (ev a) (ev b)
+| ((a : Expr) + b) := has_add.add (ev a) (ev b)
 
 definition foo : Expr := add zero (add one one)
 

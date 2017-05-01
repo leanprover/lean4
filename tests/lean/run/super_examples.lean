@@ -4,9 +4,9 @@ open tactic
 constant nat_has_dvd : has_dvd nat
 attribute [instance] nat_has_dvd
 
-noncomputable def prime (n : ℕ) := ∀d, dvd d n → d = 1 ∨ d = n
-axiom dvd_refl (m : ℕ) : dvd m m
-axiom dvd_mul (m n k : ℕ) : dvd m n → dvd m (n*k)
+noncomputable def prime (n : ℕ) := ∀d, d ∣ n → d = 1 ∨ d = n
+axiom dvd_refl (m : ℕ) : m ∣ m
+axiom dvd_mul (m n k : ℕ) : m ∣ n → m ∣ (n*k)
 
 axiom nat_mul_cancel_one (m n : ℕ) : m = m * n → n = 1
 

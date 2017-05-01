@@ -50,7 +50,7 @@ static expr parse_fin_set(parser & p, pos_info const & pos, expr const & e) {
         auto ins_pos = p.pos();
         p.next();
         expr e2 = p.parse_expr();
-        expr insert = p.save_pos(mk_constant(get_insert_name()), ins_pos);
+        expr insert = p.save_pos(mk_constant(get_has_insert_insert_name()), ins_pos);
         r = p.rec_save_pos(mk_app(insert, e2, r), ins_pos);
     }
     p.check_token_next(get_rcurly_tk(), "invalid explicit finite collection, '}' expected");
@@ -68,7 +68,7 @@ static expr parse_sep(parser & p, pos_info const & pos, name const & id) {
     p.check_token_next(get_rcurly_tk(), "invalid sep expression, '}' expected");
     bool use_cache = false;
     pred   = p.rec_save_pos(Fun(local, pred, use_cache), pos);
-    return p.rec_save_pos(mk_app(mk_constant(get_sep_name()), pred, s), pos);
+    return p.rec_save_pos(mk_app(mk_constant(get_has_sep_sep_name()), pred, s), pos);
 }
 
 static expr parse_structure_instance_core(parser & p, optional<expr> const & src, name const & S, name const & fname) {

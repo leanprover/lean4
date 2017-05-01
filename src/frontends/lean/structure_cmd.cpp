@@ -1265,7 +1265,6 @@ struct structure_cmd_fn {
             declaration coercion_decl      = mk_definition_inferring_trusted(m_env, coercion_name, lnames,
                                                                              coercion_type, coercion_value, use_conv_opt);
             m_env = module::add(m_env, check(m_env, coercion_decl));
-            m_env = set_reducible(m_env, coercion_name, reducible_status::Reducible, true);
             add_alias(coercion_name);
             m_env = vm_compile(m_env, m_env.get(coercion_name));
             if (!m_private_parents[i]) {

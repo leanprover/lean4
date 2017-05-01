@@ -1,6 +1,6 @@
 open tactic
 
-add_key_equivalence add nat.succ
+add_key_equivalence has_add.add nat.succ
 
 set_option pp.binder_types true
 

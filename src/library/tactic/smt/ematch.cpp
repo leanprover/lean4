@@ -1023,7 +1023,6 @@ public:
     void ematch_term(hinst_lemma const & lemma, expr const & t) {
         /* The following scope is a temporary workaround, we need to refactor this module
            and adapt all improvements added to type_context::is_def_eq. */
-        type_context::transparency_scope scope(m_ctx, ensure_instances_mode(m_ctx.mode()));
         for (multi_pattern const & mp : lemma.m_multi_patterns) {
             ematch_term(lemma, mp, t);
         }
@@ -1033,7 +1032,6 @@ public:
     void ematch_terms(hinst_lemma const & lemma, bool filter) {
         /* The following scope is a temporary workaround, we need to refactor this module
            and adapt all improvements added to type_context::is_def_eq. */
-        type_context::transparency_scope scope(m_ctx, ensure_instances_mode(m_ctx.mode()));
         for (multi_pattern const & mp : lemma.m_multi_patterns) {
             ematch_terms(lemma, mp, filter);
         }
@@ -1044,7 +1042,6 @@ public:
             return;
         /* The following scope is a temporary workaround, we need to refactor this module
            and adapt all improvements added to type_context::is_def_eq. */
-        type_context::transparency_scope scope(m_ctx, ensure_instances_mode(m_ctx.mode()));
         ematch_using_lemmas(m_em_state.get_new_lemmas(), false);
         ematch_using_lemmas(m_em_state.get_lemmas(), true);
         m_em_state.m_lemmas.merge(m_em_state.m_new_lemmas);

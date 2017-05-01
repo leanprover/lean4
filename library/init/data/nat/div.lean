@@ -18,7 +18,7 @@ protected def div := well_founded.fix lt_wf div.F
 instance : has_div nat :=
 ⟨nat.div⟩
 
-lemma div_def_aux (x y : nat) : div x y = if h : 0 < y ∧ y ≤ x then div (x - y) y + 1 else 0 :=
+lemma div_def_aux (x y : nat) : x / y = if h : 0 < y ∧ y ≤ x then (x - y) / y + 1 else 0 :=
 congr_fun (well_founded.fix_eq lt_wf div.F x) y
 
 private def mod.F (x : nat) (f : Π x₁, x₁ < x → nat → nat) (y : nat) : nat :=
@@ -29,7 +29,7 @@ protected def mod := well_founded.fix lt_wf mod.F
 instance : has_mod nat :=
 ⟨nat.mod⟩
 
-lemma mod_def_aux (x y : nat) : mod x y = if h : 0 < y ∧ y ≤ x then mod (x - y) y else x :=
+lemma mod_def_aux (x y : nat) : x % y = if h : 0 < y ∧ y ≤ x then (x - y) % y else x :=
 congr_fun (well_founded.fix_eq lt_wf mod.F x) y
 
 end nat

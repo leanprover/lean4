@@ -178,6 +178,7 @@ or.elim (le_total a b)
     (λ h : b < a, or.inr (or.inr h))
     (λ h : b = a, or.inr (or.inl h.symm)))
 
+
 lemma le_of_not_gt [linear_strong_order_pair α] {a b : α} (h : ¬ a > b) : a ≤ b :=
 match lt_trichotomy a b with
 | or.inl hlt          := le_of_lt hlt

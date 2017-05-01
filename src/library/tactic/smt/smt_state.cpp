@@ -222,7 +222,8 @@ static simplify_fn mk_simp(type_context & ctx, defeq_can_state & dcs, smt_pre_co
 }
 
 static simp_result preprocess(type_context & ctx, defeq_can_state & dcs, smt_pre_config const & cfg, expr const & e) {
-    type_context::zeta_scope _1(ctx, cfg.m_zeta);
+    type_context::zeta_scope         scope1(ctx, cfg.m_zeta);
+    type_context::transparency_scope scope2(ctx, transparency_mode::Reducible);
     dsimplify_fn dsimp       = mk_dsimp(ctx, dcs, cfg);
     expr new_e               = dsimp(e);
     simplify_fn simp         = mk_simp(ctx, dcs, cfg);

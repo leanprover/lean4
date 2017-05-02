@@ -64,17 +64,17 @@ class parray {
             size_t   m_idx;
             size_t   m_size;
         };
-        T m_elem;
+        cell  *      m_next;
         union {
-            cell  * m_next;
-            T *     m_values;
+            T *      m_values; /* If m_kind == Root */
+            T *      m_elem; /* If m_kind == PushBack or m_kind == Set */
         };
 
         cell_kind kind() const { return static_cast<cell_kind>(m_kind); }
         unsigned idx() const { lean_assert(kind() != Root); return m_idx; }
         unsigned size() const { lean_assert(kind() == Root); return m_size; }
         cell * next() const { lean_assert(kind() != Root); return m_next; }
-        T const & elem() const { lean_assert(kind() == Set || kind() == PushBack); return m_elem; }
+        T const & elem() const { lean_assert(kind() == Set || kind() == PushBack); return *m_elem; }
         cell():m_rc(1), m_kind(Root), m_size(0), m_values(0) {}
     };
 
@@ -85,12 +85,27 @@ class parray {
         return *g_allocator;
     }
 
+    static memory_pool & get_elem_allocator() {
+        LEAN_THREAD_PTR(memory_pool, g_allocator);
+        if (!g_allocator)
+            g_allocator = allocate_thread_memory_pool(std::max(sizeof(T), sizeof(size_t)));
+        return *g_allocator;
+    }
+
+    static void del_elem(T * ptr) {
+        ptr->~T();
+        get_elem_allocator().recycle(ptr);
+    }
+
     static void deallocate_cell(cell * c) {
         while (true) {
             cell * next = nullptr;
             switch (c->kind()) {
             case Set:
             case PushBack:
+                del_elem(c->m_elem);
+                next = c->next();
+                break;
             case PopBack:
                 next = c->next();
                 break;
@@ -127,6 +142,10 @@ class parray {
         return new (get_allocator().allocate()) cell();
     }
 
+    static T * mk_elem_copy(T const & e) {
+        return new (get_elem_allocator().allocate()) T(e);
+    }
+
     static void reroot(cell * r) {
         lean_assert(r->m_rc > 0);
         lean_assert(r->kind() != Root);
@@ -149,24 +168,37 @@ class parray {
             lean_assert(p->m_next == c);
             switch (p->kind()) {
             case Set:
+                if (c->m_kind == PopBack || c->m_kind == Root) {
+                    c->m_elem  = mk_elem_copy(vs[p->m_idx]);
+                } else {
+                    *c->m_elem = vs[p->m_idx];
+                }
                 c->m_kind    = Set;
                 c->m_idx     = p->m_idx;
-                c->m_elem    = vs[c->m_idx];
-                vs[p->m_idx] = p->m_elem;
+                vs[p->m_idx] = p->elem();
                 break;
             case PushBack:
+                if (c->m_kind == PopBack || c->m_kind == Root) {
+                    c->m_elem = nullptr;
+                } else {
+                    del_elem(c->m_elem);
+                }
                 c->m_kind = PopBack;
                 if (sz == capacity(vs))
                     vs = expand(vs, sz);
                 c->m_idx  = sz;
-                vs[sz]    = p->m_elem;
+                vs[sz]    = p->elem();
                 sz++;
                 break;
             case PopBack:
-                c->m_kind = PushBack;
                 --sz;
+                if (c->m_kind == PopBack || c->m_kind == Root) {
+                    c->m_elem  = mk_elem_copy(vs[sz]);
+                } else {
+                    *c->m_elem = vs[sz];
+                }
+                c->m_kind = PushBack;
                 c->m_idx  = sz;
-                c->m_elem = vs[sz];
                 break;
             case Root:
                 lean_unreachable();
@@ -176,6 +208,9 @@ class parray {
             c = p;
         }
         lean_assert(c == r);
+        if (r->m_kind == Set || r->m_kind == PushBack) {
+            del_elem(r->m_elem);
+        }
         r->m_kind   = Root;
         r->m_values = vs;
         r->m_size   = sz;
@@ -207,12 +242,13 @@ class parray {
             return c;
         } else {
             lean_array_trace(tout() << "non-destructive write at #" << i << "\n";);
+            lean_assert(c->kind() == Root);
             cell * new_cell       = mk_cell();
             new_cell->m_values    = c->m_values;
             new_cell->m_size      = c->m_size;
             c->m_kind             = Set;
             c->m_idx              = i;
-            c->m_elem             = new_cell->m_values[i];
+            c->m_elem             = mk_elem_copy(new_cell->m_values[i]);
             c->m_next             = new_cell;
             c->m_rc--;
             new_cell->m_rc++;
@@ -237,11 +273,13 @@ class parray {
             return c;
         } else {
             lean_array_trace(tout() << "non-destructive push_back\n";);
+            lean_assert(c->kind() == Root);
             cell * new_cell       = mk_cell();
             new_cell->m_values    = c->m_values;
             new_cell->m_size      = c->m_size;
             c->m_kind             = PopBack;
             c->m_next             = new_cell;
+            c->m_elem             = nullptr;
             c->m_rc--;
             new_cell->m_rc++;
             push_back_core(new_cell, v);
@@ -265,11 +303,12 @@ class parray {
             return c;
         } else {
             lean_array_trace(tout() << "non-destructive pop_back\n";);
+            lean_assert(c->kind() == Root);
             cell * new_cell       = mk_cell();
             new_cell->m_values    = c->m_values;
             new_cell->m_size      = c->m_size;
             c->m_kind             = PushBack;
-            c->m_elem             = new_cell->m_values[c->m_size - 1];
+            c->m_elem             = mk_elem_copy(new_cell->m_values[c->m_size - 1]);
             c->m_next             = new_cell;
             c->m_rc--;
             new_cell->m_rc++;

@@ -129,8 +129,7 @@ class parray {
 
     static void reroot(cell * r) {
         lean_assert(r->m_rc > 0);
-        if (r->kind() == Root)
-            return;
+        lean_assert(r->kind() != Root);
         buffer<cell *, 1024> cs;
         size_t i = 0;
         cell * c   = r;

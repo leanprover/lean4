@@ -1355,8 +1355,7 @@ environment structure_cmd(parser & p) {
     return structure_cmd_ex(p, {}, {});
 }
 
-environment class_cmd_ex(parser & p, decl_modifiers const & modifiers) {
-    decl_attributes attrs;
+environment class_cmd_ex(parser & p, decl_attributes attrs, decl_modifiers const & modifiers) {
     attrs.set_attribute(p.env(), "class");
     p.next();
     if (p.curr_is_token(get_inductive_tk())) {
@@ -1367,7 +1366,7 @@ environment class_cmd_ex(parser & p, decl_modifiers const & modifiers) {
 }
 
 environment class_cmd(parser & p) {
-    return class_cmd_ex(p, {});
+    return class_cmd_ex(p, {}, {});
 }
 
 void register_structure_cmd(cmd_table & r) {

@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "library/attribute_manager.h"
 #include "library/constants.h"
 #include "library/normalize.h"
+#include "library/class.h"
 #include "library/num.h"
 #include "library/typed_expr.h"
 #include "frontends/lean/decl_attributes.h"
@@ -107,7 +108,8 @@ void decl_attributes::set_attribute(environment const & env, name const & attr_n
     if (!is_attribute(env, attr_name))
         throw exception(sstream() << "unknown attribute [" << attr_name << "]");
     auto const & attr = get_attribute(env, attr_name);
-    m_entries = cons({&attr, get_default_attr_data()}, m_entries);
+    entry e = {&attr, get_default_attr_data()};
+    m_entries = append(m_entries, to_list(e));
 }
 
 environment decl_attributes::apply(environment env, io_state const & ios, name const & d) const {
@@ -131,9 +133,11 @@ environment decl_attributes::apply(environment env, io_state const & ios, name c
 }
 
 bool decl_attributes::ok_for_inductive_type() const {
-    for (entry const & e : m_entries)
-        if (e.m_attr->get_name() != "class" || e.deleted())
+    for (entry const & e : m_entries) {
+        name const & n = e.m_attr->get_name();
+        if ((n != "class" && !is_class_symbol_tracking_attribute(n)) || e.deleted())
             return false;
+    }
     return true;
 }
 

@@ -2217,6 +2217,8 @@ static void check_equations_arity(buffer<expr> const & eqns) {
 }
 
 bool elaborator::keep_do_failure_eq(expr const & first_eq) {
+    if (!is_lambda(first_eq))
+        return false; // possible with error recovery
     expr type = binding_domain(first_eq);
     if (!is_pi(type))
         return false;

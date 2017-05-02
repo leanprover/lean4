@@ -39,8 +39,12 @@ Author: Daniel Selsam
 #include "library/inductive_compiler/nested.h"
 #include "library/inductive_compiler/util.h"
 #include "library/tactic/induction_tactic.h"
+#include "library/tactic/apply_tactic.h"
 #include "library/tactic/subst_tactic.h"
+#include "library/tactic/assert_tactic.h"
 #include "library/tactic/simp_result.h"
+#include "library/tactic/intro_tactic.h"
+#include "library/tactic/clear_tactic.h"
 #include "library/tactic/simplify.h"
 #include "library/tactic/eqn_lemmas.h"
 
@@ -83,7 +87,7 @@ class add_nested_inductive_decl_fn {
     environment                   m_env;
     options                       m_opts;
     name_map<implicit_infer_kind> m_implicit_infer_map;
-    // Note(dhs): m_nested_decl is morally const, but we make it non-const to passing around sizeof_lemmas
+    // Note(dhs): m_nested_decl is morally const, but we make it non-const to pass around sizeof_lemmas
     ginductive_decl &             m_nested_decl;
     bool                          m_is_trusted;
     ginductive_decl               m_inner_decl;
@@ -1425,27 +1429,6 @@ class add_nested_inductive_decl_fn {
         return cfg;
     }
 
-    expr prove_by_tactic(name const & lemma_name, expr const & goal_type, name const & tactic, buffer<vm_obj> const & rev_args) {
-        metavar_context mctx;
-        expr goal_mvar = mctx.mk_metavar_decl(local_context(), goal_type);
-        vm_obj tstate = to_obj(mk_tactic_state_for_metavar(m_env, m_opts, lemma_name, mctx, goal_mvar));
-        buffer<vm_obj> all_rev_args;
-        all_rev_args.push_back(tstate);
-        all_rev_args.append(rev_args);
-
-        vm_state S(m_env, m_opts);
-        vm_obj result = S.invoke(tactic, all_rev_args.size(), all_rev_args.begin());
-
-        if (optional<tactic_state> s_new = tactic::is_success(result)) {
-            lean_trace(name({"inductive_compiler", "nested", "prove"}), tout() << "[success]: " << lemma_name << "\n";);
-            mctx = s_new->mctx();
-            return mctx.instantiate_mvars(goal_mvar);
-        } else {
-            lean_trace(name({"inductive_compiler", "nested", "prove"}), tout() << "[failed]: " << lemma_name << "\n";);
-            throw exception(sstream() << "Failed to prove: '" << lemma_name << "'");
-        }
-    }
-
     expr prove_by_simp(local_context const & lctx, expr const & thm, list<expr> Hs, bool use_sizeof) {
         environment env = set_reducible(m_env, get_sizeof_name(), reducible_status::Irreducible, false);
         env = set_reducible(env, get_has_add_add_name(), reducible_status::Irreducible, false);
@@ -1554,7 +1537,7 @@ class add_nested_inductive_decl_fn {
         buffer<vm_obj> args;
         args.push_back(to_obj(mk_primitive_name(fn_type::UNPACK_PACK)));
         args.push_back(to_obj(mk_primitive_name(fn_type::UNPACK)));
-        expr proof = prove_by_tactic(lemma_name, goal, get_inductive_compiler_tactic_prove_pack_inj_name(), args);
+        expr proof = prove_pack_injective(lemma_name, goal, mk_primitive_name(fn_type::UNPACK), mk_primitive_name(fn_type::UNPACK_PACK));
         m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, lemma_name, to_list(m_nested_decl.get_lp_names()), goal, proof, true)));
         m_tctx.set_env(m_env);
         m_inj_lemmas = add(m_tctx, m_inj_lemmas, lemma_name, LEAN_DEFAULT_PRIORITY);
@@ -1608,7 +1591,7 @@ class add_nested_inductive_decl_fn {
         buffer<vm_obj> args;
         args.push_back(to_obj(mk_nested_name(fn_type::UNPACK_PACK, nest_idx)));
         args.push_back(to_obj(mk_nested_name(fn_type::UNPACK, nest_idx)));
-        expr proof = prove_by_tactic(lemma_name, goal, get_inductive_compiler_tactic_prove_pack_inj_name(), args);
+        expr proof = prove_pack_injective(lemma_name, goal, mk_nested_name(fn_type::UNPACK, nest_idx), mk_nested_name(fn_type::UNPACK_PACK, nest_idx));
         m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, lemma_name, to_list(m_nested_decl.get_lp_names()), goal, proof, true)));
         m_tctx.set_env(m_env);
         m_inj_lemmas = add(m_tctx, m_inj_lemmas, lemma_name, LEAN_DEFAULT_PRIORITY);
@@ -1705,7 +1688,7 @@ class add_nested_inductive_decl_fn {
         buffer<vm_obj> args;
         args.push_back(to_obj(mk_pi_name(fn_type::UNPACK_PACK)));
         args.push_back(to_obj(mk_pi_name(fn_type::UNPACK)));
-        expr proof = prove_by_tactic(lemma_name, goal, get_inductive_compiler_tactic_prove_pack_inj_name(), args);
+        expr proof = prove_pack_injective(lemma_name, goal, mk_pi_name(fn_type::UNPACK), mk_pi_name(fn_type::UNPACK_PACK));
         m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, lemma_name, to_list(m_nested_decl.get_lp_names()), goal, proof, true)));
         m_tctx.set_env(m_env);
         m_inj_lemmas = add(m_tctx, m_inj_lemmas, lemma_name, LEAN_DEFAULT_PRIORITY);
@@ -1955,6 +1938,204 @@ class add_nested_inductive_decl_fn {
         return ty;
     }
 
+    class assumption_simplify_fn : public simplify_fn {
+    protected:
+        virtual optional<expr> prove(expr const & e) override {
+            optional<local_decl> hyp = m_ctx.lctx().find_if([&](local_decl const & decl) { return m_ctx.is_def_eq(decl.get_type(), e); });
+            if (hyp) {
+                return some_expr(hyp->mk_ref());
+            } else {
+                return none_expr();
+            }
+        }
+    public:
+        assumption_simplify_fn(type_context & ctx, defeq_canonizer::state & dcs, simp_lemmas const & slss, simp_config const & cfg):
+            simplify_fn(ctx, dcs, slss, cfg) {}
+    };
+
+    expr intros_simp_prove_conjuncts(type_context & tctx, simp_lemmas const & slss, expr const & tgt) {
+        simp_config cfg = get_simp_config();
+        defeq_can_state dcs;
+
+        buffer<expr> hyps;
+        buffer<expr> pfs;
+        expr ty = tgt;
+        while (is_pi(ty)) {
+            expr hyp = tctx.push_local_from_binding(ty);
+            hyps.push_back(hyp);
+            assumption_simplify_fn simplify(tctx, dcs, slss, cfg);
+            simp_result r = finalize(tctx, get_iff_name(), simplify(get_iff_name(), tctx.infer(hyp)));
+            pfs.push_back(mk_iff_mp(tctx, r.get_proof(), hyp));
+            ty = instantiate(binding_body(ty), hyp);
+        }
+
+        if (pfs.empty()) {
+            return tctx.mk_lambda(hyps, mk_true_intro());
+        }
+
+        expr pf = pfs.back();
+        int i = pfs.size() - 2;
+        while (i >= 0) {
+            pf = mk_app(tctx, get_and_intro_name(), pfs[i], pf);
+            --i;
+        }
+        return tctx.mk_lambda(hyps, pf);
+    }
+
+    expr prove_nested_injective(expr const & inj_type, simp_lemmas const & slss, name const & inj_arrow_name) {
+        lean_trace(name({"inductive_compiler", "nested", "injective"}), tout() << "[try to prove]: " << inj_type << "\n";);
+
+        type_context tctx(m_env, m_opts);
+        buffer<expr> hyps;
+
+        expr ty = inj_type;
+        while (is_pi(ty)) {
+            expr hyp = tctx.push_local_from_binding(ty);
+            hyps.push_back(hyp);
+            ty = tctx.whnf(instantiate(binding_body(ty), hyp));
+        }
+
+        if (ty == mk_true()) {
+            return tctx.mk_lambda(hyps, mk_true_intro());
+        }
+
+        expr imp = mk_app(tctx, inj_arrow_name, hyps.size() + 1, hyps.back(), ty);
+        expr imp_type = tctx.infer(imp);
+        lean_assert(is_arrow(imp_type));
+        expr pf_of_antecedent = intros_simp_prove_conjuncts(tctx, slss, binding_domain(imp_type));
+        return tctx.mk_lambda(hyps, mk_app(imp, pf_of_antecedent));
+    }
+
+    tactic_state intros_and_subst(name const & pack_inj_name, expr const & pack_inj_type) {
+        tactic_state s = mk_tactic_state_for(m_env, m_opts, pack_inj_name, local_context(), pack_inj_type);
+
+        buffer<name> new_hyps;
+        while (optional<tactic_state> o_s = intron(1, s, new_hyps, true)) {
+            s = *o_s;
+            type_context tctx = mk_type_context_for(s);
+            local_decl hyp_decl = tctx.lctx().get_local_decl(new_hyps.back());
+
+            expr A, lhs, B, rhs;
+            if (is_heq(hyp_decl.get_type(), A, lhs, B, rhs) && tctx.is_def_eq(A, B)) {
+                expr eq_type = mk_eq(tctx, lhs, rhs);
+                expr eq_val  = mk_eq_of_heq(tctx, hyp_decl.mk_ref());
+                name h_name = hyp_decl.get_name().append_after("_eq");
+                s = *tactic::is_success(assertv_definev(false, h_name, eq_type, eq_val, s));
+                s = *tactic::is_success(clear(hyp_decl.mk_ref(), s));
+                hyp_decl = *(s.get_main_goal_decl()->get_context().find_local_decl_from_user_name(h_name));
+            }
+            if (is_eq(hyp_decl.get_type())) {
+                s = *tactic::is_success(tactic_subst(hyp_decl.mk_ref(), s));
+            }
+        }
+        return s;
+    }
+
+    tactic_state prove_pack_injective_hard_direction(tactic_state const & s0, name const & unpack_name, name const & unpack_pack_name) {
+        tactic_state s = s0;
+
+        buffer<name> new_hyps;
+        s = *intron(1, s, new_hyps, true);
+        type_context tctx = mk_type_context_for(s);
+        local_decl hyp_decl = tctx.lctx().get_local_decl(new_hyps.back());
+
+        expr A, lhs, B, rhs;
+        if (is_heq(hyp_decl.get_type(), A, lhs, B, rhs) && tctx.is_def_eq(A, B)) {
+            expr eq_type = mk_eq(tctx, lhs, rhs);
+            expr eq_val  = mk_eq_of_heq(tctx, hyp_decl.mk_ref());
+            name h_name = hyp_decl.get_name().append_after("_eq");
+            s = *tactic::is_success(assertv_definev(true, h_name, eq_type, eq_val, s));
+            s = *tactic::is_success(clear(hyp_decl.mk_ref(), s));
+            hyp_decl = *(s.get_main_goal_decl()->get_context().find_local_decl_from_user_name(h_name));
+        }
+
+        if (is_heq(s.get_main_goal_decl()->get_type(), A, lhs, B, rhs)) {
+            type_context tctx = mk_type_context_for(s);
+            lean_assert(tctx.is_def_eq(A, B));
+            expr e = mk_app(tctx, get_heq_of_eq_name(), 3, A, lhs, rhs);
+            s = *apply(tctx, false, false, e, s);
+        }
+        lean_assert(is_eq(s.get_main_goal_decl()->get_type()));
+        lean_verify(is_eq(hyp_decl.get_type(), A, lhs, rhs));
+
+        unsigned arity = get_app_num_args(lhs);
+        tctx = mk_type_context_for(s);
+        name H_unpack_name({"H_unpack"});
+        expr H_unpack_type = mk_eq(tctx, mk_app(tctx, unpack_name, arity, lhs), mk_app(tctx, unpack_name, arity, rhs));
+        s = *tactic::is_success(assert_define_core(true, H_unpack_name, H_unpack_type, s));
+        tctx = mk_type_context_for(s);
+
+        simp_config cfg = get_simp_config();
+        defeq_can_state dcs;
+        simp_lemmas slss;
+        slss = add(tctx, slss, hyp_decl.get_name(), hyp_decl.get_type(), hyp_decl.mk_ref(), LEAN_DEFAULT_PRIORITY);
+        simp_result r = finalize(tctx, get_eq_name(), simplify_fn(tctx, dcs, slss, cfg)(get_eq_name(), s.get_main_goal_decl()->get_type()));
+        lean_verify(is_eq(r.get_new(), lhs, rhs));
+        lean_assert(tctx.is_def_eq(lhs, rhs));
+        s = *apply(tctx, false, false, mk_eq_mpr(tctx, r.get_proof(), mk_eq_refl(tctx, lhs)), s);
+
+        s = *intron(1, s, new_hyps, true);
+        tctx = mk_type_context_for(s);
+        local_decl H_unpack_decl = tctx.lctx().get_local_decl(new_hyps.back());
+
+        slss = simp_lemmas();
+        slss = add(tctx, slss, unpack_pack_name, LEAN_DEFAULT_PRIORITY);
+        r = finalize(tctx, get_eq_name(), simplify_fn(tctx, dcs, slss, cfg)(get_eq_name(), H_unpack_decl.get_type()));
+        s = *apply(tctx, false, false, mk_eq_mp(tctx, r.get_proof(), H_unpack_decl.mk_ref()), s);
+        return s;
+    }
+
+    tactic_state prove_pack_injective_easy_direction(tactic_state const & s0) {
+        buffer<name> new_hyps;
+        tactic_state s = *intron(1, s0, new_hyps, true);
+        type_context tctx = mk_type_context_for(s);
+        local_decl hyp_decl = tctx.lctx().get_local_decl(new_hyps.back());
+
+        expr A, lhs, B, rhs;
+        if (is_heq(hyp_decl.get_type(), A, lhs, B, rhs) && tctx.is_def_eq(A, B)) {
+            expr eq_type = mk_eq(tctx, lhs, rhs);
+            expr eq_val  = mk_eq_of_heq(tctx, hyp_decl.mk_ref());
+            name h_name = hyp_decl.get_name().append_after("_eq");
+            s = *tactic::is_success(assertv_definev(true, h_name, eq_type, eq_val, s));
+            s = *tactic::is_success(clear(hyp_decl.mk_ref(), s));
+            hyp_decl = *(s.get_main_goal_decl()->get_context().find_local_decl_from_user_name(h_name));
+        }
+        expr goal_type = s.get_main_goal_decl()->get_type();
+        tctx = mk_type_context_for(s);
+        simp_config cfg = get_simp_config();
+        defeq_can_state dcs;
+        simp_lemmas slss;
+        slss = add(tctx, slss, hyp_decl.get_name(), hyp_decl.get_type(), hyp_decl.mk_ref(), LEAN_DEFAULT_PRIORITY);
+        simp_result r = finalize(tctx, get_eq_name(), simplify_fn(tctx, dcs, slss, cfg)(get_eq_name(), goal_type));
+        expr pf;
+
+        if (is_eq(r.get_new(), lhs, rhs)) {
+            lean_verify(tctx.is_def_eq(lhs, rhs));
+            pf = mk_eq_refl(tctx, lhs);
+        } else {
+            lean_verify(is_heq(r.get_new(), lhs, rhs));
+            lean_assert(tctx.is_def_eq(lhs, rhs));
+            pf = mk_heq_refl(tctx, lhs);
+        }
+        pf = mk_eq_mpr(tctx, r.get_proof(), pf);
+        s = *apply(tctx, false, false, pf, s);
+        return s;
+    }
+
+    expr prove_pack_injective(name const & pack_inj_name, expr const & pack_inj_type, name const & unpack_name, name const & unpack_pack_name) {
+        vm_state vms(m_env, m_opts);
+        scope_vm_state vms_scope(vms);
+        tactic_state s = intros_and_subst(pack_inj_name, pack_inj_type);
+        type_context tctx = mk_type_context_for(s);
+        s = *apply(tctx, false, false, mk_constant(get_iff_intro_name()), s);
+        s = prove_pack_injective_hard_direction(s, unpack_name, unpack_pack_name);
+        s = prove_pack_injective_easy_direction(s);
+        metavar_context mctx = s.mctx();
+        expr pf = mctx.instantiate_mvars(s.main());
+        lean_trace(name({"inductive_compiler", "nested", "injective"}), tout() << "[pack_injective]: " << pf << "\n";);
+        return pf;
+    }
+
     void define_nested_injectives() {
         if (!m_prove_inj) return;
         for (unsigned ind_idx = 0; ind_idx < m_nested_decl.get_num_inds(); ++ind_idx) {
@@ -1964,11 +2145,9 @@ class add_nested_inductive_decl_fn {
                 expr inj_type = mk_injective_type(m_env, mlocal_name(ir), Pi(m_nested_decl.get_params(), mlocal_type(ir)),
                                                       m_nested_decl.get_num_params(), to_list(m_nested_decl.get_lp_names()));
 
-                buffer<vm_obj> rev_args;
-                rev_args.push_back(to_obj(mk_injective_arrow_name(mlocal_name(m_inner_decl.get_intro_rule(ind_idx, ir_idx)))));
-                rev_args.push_back(to_obj(m_inj_lemmas));
+                name inj_arrow_name = mk_injective_arrow_name(mlocal_name(m_inner_decl.get_intro_rule(ind_idx, ir_idx)));
 
-                expr inj_val = prove_by_tactic(inj_name, inj_type, get_inductive_compiler_tactic_prove_nested_inj_name(), rev_args);
+                expr inj_val = prove_nested_injective(inj_type, m_inj_lemmas, inj_arrow_name);
                 m_env = module::add(m_env,
                                     check(m_env,
                                           mk_definition_inferring_trusted(m_env, inj_name, to_list(m_nested_decl.get_lp_names()), inj_type, inj_val, true)));

@@ -7,8 +7,8 @@ Author: Leonardo de Moura
 #pragma once
 #include "library/tactic/tactic_state.h"
 namespace lean {
-optional<tactic_state> intron(unsigned n, tactic_state const & s, buffer<name> & new_Hs);
-optional<tactic_state> intron(unsigned n, tactic_state const & s);
+optional<tactic_state> intron(unsigned n, tactic_state const & s, buffer<name> & new_Hs, bool use_unused_names);
+optional<tactic_state> intron(unsigned n, tactic_state const & s, bool use_unused_names);
 /* Low-level versions of the previous procedures, they allow us to intron in any goal.
    The new hypotheses "user names" are generated using \c new_hs_names (when available).
    After execution, the buffer \c new_Hns stores the new interal names for the new hypotheses.

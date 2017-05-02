@@ -65,7 +65,7 @@ tactic_state mk_tactic_state_for(environment const & env, options const & o, nam
 
 tactic_state mk_tactic_state_for(environment const & env, options const & o, name const & decl_name,
                                  local_context const & lctx, expr const & type) {
-    return mk_tactic_state_for(env, o, decl_name, {}, lctx, type);
+    return mk_tactic_state_for(env, o, decl_name, metavar_context(), lctx, type);
 }
 
 tactic_state mk_tactic_state_for_metavar(environment const & env, options const & opts, name const & decl_name,

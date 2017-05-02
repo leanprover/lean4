@@ -22,6 +22,8 @@ namespace lean {
 expr subst(environment const & env, options const & opts, transparency_mode const & m, metavar_context & mctx,
            expr const & mvar, expr const & H, bool symm, hsubstitution * substs);
 
+vm_obj tactic_subst(expr const & l, tactic_state const & s);
+
 void initialize_subst_tactic();
 void finalize_subst_tactic();
 }

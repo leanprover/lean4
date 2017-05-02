@@ -831,8 +831,15 @@ struct structure_cmd_fn {
         for (auto p : names) {
             if (auto old_field = get_field_by_name(p.second)) {
                 if (default_value && is_placeholder(type)) {
-                    old_field->m_default_val = default_value;
-                    old_field->m_has_new_default = true;
+                    if (m_subobjects) {
+                        expr local = mk_local(p.second, old_field->get_type(), bi);
+                        field_decl field(local, default_value, field_kind::from_parent);
+                        field.m_has_new_default = true;
+                        m_fields.push_back(field);
+                    } else {
+                        old_field->m_default_val = default_value;
+                        old_field->m_has_new_default = true;
+                    }
                 } else {
                     sstream msg;
                     msg << "field '" << p.second;
@@ -879,10 +886,12 @@ struct structure_cmd_fn {
             decl.m_local = update_mlocal(decl.m_local, let_type(new_tmp));
             decl.m_default_val = let_value(new_tmp);
             new_tmp = instantiate(let_body(new_tmp), m_subobjects ? let_value(new_tmp) : decl.m_local);
-        } else {
+        } else if (!value || decl.m_kind == field_kind::new_field) {
             new_tmp = elab(Pi(decl.m_local, tmp));
             decl.m_local = update_mlocal(decl.m_local, binding_domain(new_tmp));
             new_tmp = instantiate(binding_body(new_tmp), decl.m_local);
+        } else {
+            new_tmp = elab(tmp);
         }
         return new_tmp;
     }
@@ -906,6 +915,7 @@ struct structure_cmd_fn {
         expr type  = decl.get_type();
         expr value = *decl.m_default_val;
         expr new_tmp = elab(mk_let(mk_fresh_name(), type, value, tmp));
+        decl.m_local = update_local(decl.m_local, let_type(new_tmp), local_info(decl.m_local));
         decl.m_default_val = let_value(new_tmp);
         return let_body(new_tmp);
     }

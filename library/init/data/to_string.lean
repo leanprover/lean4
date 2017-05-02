@@ -85,7 +85,7 @@ else if  char.to_nat c <= 31 then "\\x" ++ char_to_hex c
 else [c]
 
 instance : has_to_string char :=
-⟨λ c, "#\"" ++ char.quote_core c ++ "\""⟩
+⟨λ c, "'" ++ char.quote_core c ++ "'"⟩
 
 def string.quote_aux : string → string
 | []      := ""

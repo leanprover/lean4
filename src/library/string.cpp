@@ -49,9 +49,9 @@ static void display_char_literal_core(std::ostream & out, char c, bool in_string
 }
 
 static void display_char_literal(std::ostream & out, char c) {
-    out << "#\"";
+    out << "'";
     display_char_literal_core(out, c, false);
-    out << "\"";
+    out << "'";
 }
 
 static void display_string_literal(std::ostream & out, std::string const & s) {

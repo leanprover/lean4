@@ -4,7 +4,7 @@
 def s1 : set ℕ :=
 {1, 2 + 3, 3, 4}
 def s2 : set char :=
-{#"a", #"b", #"c"}
+{'a', 'b', 'c'}
 def s3 : set string :=
 {"hello", "world"}
 {a ∈ s1 | a > 1} : set ℕ

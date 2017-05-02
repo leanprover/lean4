@@ -1,7 +1,7 @@
 open tactic
 
-example : #"a" ≠ #"b" := by comp_val
-example : #"0" ≠ #"a" := by comp_val
+example : 'a' ≠ 'b' := by comp_val
+example : '0' ≠ 'a' := by comp_val
 
 example : "hello worlg" ≠ "hhello world" := by comp_val
 example : "hello world" ≠ "hhello world" := by comp_val

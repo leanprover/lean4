@@ -170,15 +170,15 @@ def fix (F : parser α → parser α) : parser α :=
 λ input pos, fix_core F (input.size - pos + 1) input pos
 
 private def make_monospaced : char → char
-| #"\n" := #" "
-| #"\t" := #" "
+| '\n' := ' '
+| '\t' := ' '
 | c := c
 
 def mk_error_msg (input : char_buffer) (pos : ℕ) (expected : dlist string) : char_buffer :=
 let left_ctx := (input.taken pos).taken_right 10,
     right_ctx := (input.dropn pos).taken 10 in
 left_ctx.map make_monospaced ++ right_ctx.map make_monospaced ++ "\n".to_char_buffer ++
-left_ctx.map (λ _, #" ") ++ "^\n".to_char_buffer ++
+left_ctx.map (λ _, ' ') ++ "^\n".to_char_buffer ++
 "\n".to_char_buffer ++
 "expected: ".to_char_buffer
   ++ string.to_char_buffer (list.intercalate " | " expected.to_list)

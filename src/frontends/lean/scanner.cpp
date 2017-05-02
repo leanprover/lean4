@@ -182,14 +182,12 @@ token_kind scanner::read_string() {
 }
 
 auto scanner::read_char() -> token_kind {
-    lean_assert(curr() == '\"');
-    next();
     char c = curr();
     if (c == '\\')
         c = read_quoted_char(g_end_error_char_msg);
     next();
-    if (curr() != '"')
-        throw_exception("invalid character, \" expected");
+    if (curr() != '\'')
+        throw_exception("invalid character, ' expected");
     next();
     m_buffer.clear();
     m_buffer += c;
@@ -615,14 +613,14 @@ static name * g_begin_comment_tk        = nullptr;
 static name * g_begin_comment_block_tk  = nullptr;
 static name * g_begin_doc_block_tk      = nullptr;
 static name * g_begin_mod_doc_block_tk  = nullptr;
-static name * g_pound_tk                = nullptr;
+static name * g_tick_tk                 = nullptr;
 
 void initialize_scanner() {
     g_begin_comment_tk       = new name("--");
     g_begin_comment_block_tk = new name("/-");
     g_begin_doc_block_tk     = new name("/--");
     g_begin_mod_doc_block_tk = new name("/-!");
-    g_pound_tk               = new name("#");
+    g_tick_tk                = new name("'");
 }
 
 void finalize_scanner() {
@@ -630,7 +628,7 @@ void finalize_scanner() {
     delete g_begin_comment_block_tk;
     delete g_begin_doc_block_tk;
     delete g_begin_mod_doc_block_tk;
-    delete g_pound_tk;
+    delete g_tick_tk;
 }
 
 auto scanner::scan(environment const & env) -> token_kind {
@@ -669,7 +667,7 @@ auto scanner::scan(environment const & env) -> token_kind {
                         return read_doc_block();
                     else if (n == *g_begin_mod_doc_block_tk)
                         return read_mod_doc_block();
-                    else if (n == *g_pound_tk && curr() == '"')
+                    else if (n == *g_tick_tk)
                         return read_char();
                     else
                         return k;

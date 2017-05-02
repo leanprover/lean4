@@ -12,8 +12,8 @@ def to_token : string → option token
 | [] := none
 | (c :: cs) :=
   let t : option token := match c with
-    | #"x" := some (var "x")
-    | #"y" := some (var "y")
-    | #"+" := some plus
-    | _ := none
+    | 'x' := some (var "x")
+    | 'y' := some (var "y")
+    | '+' := some plus
+    | _   := none
   end in t

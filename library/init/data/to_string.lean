@@ -77,10 +77,10 @@ let n  := char.to_nat c,
 in hex_digit_to_string d2 ++ hex_digit_to_string d1
 
 def char.quote_core (c : char) : string :=
-if       c = #"\n" then "\\n"
-else if  c = #"\t" then "\\t"
-else if  c = #"\\" then "\\\\"
-else if  c = #"\"" then "\\\""
+if       c = '\n' then "\\n"
+else if  c = '\t' then "\\t"
+else if  c = '\\' then "\\\\"
+else if  c = '\"' then "\\\""
 else if  char.to_nat c <= 31 then "\\x" ++ char_to_hex c
 else [c]
 

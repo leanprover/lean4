@@ -217,7 +217,7 @@ end conversion
 
 private def to_string {n : nat} : bitvec n → string
 | ⟨bs, p⟩ :=
-  "0b" ++ (bs.reverse.map (λ b, if b then #"1" else #"0"))
+  "0b" ++ (bs.reverse.map (λ b, if b then '1' else '0'))
 
 instance (n : nat) : has_to_string (bitvec n) :=
 ⟨to_string⟩

@@ -9,7 +9,7 @@ import .basic .lemmas init.meta init.data.int
 namespace char
 
 def is_whitespace (c : char) : Prop :=
-c ∈ [#" ", #"\t", #"\n"]
+c ∈ [' ', '\t', '\n']
 
 def is_upper (c : char) : Prop :=
 c.val ≥ 65 ∧ c.val ≤ 90
@@ -27,7 +27,7 @@ def is_alphanum (c : char) : Prop :=
 c.is_alpha ∨ c.is_digit
 
 def is_punctuation (c : char) : Prop :=
-c ∈ [#" ", #",", #".", #"?", #"!", #";", #"-", #"'"]
+c ∈ [' ', ',', '.', '?', '!', ';', '-', '\'']
 
 def to_lower (c : char) : char :=
 let n := to_nat c in

@@ -23,11 +23,11 @@ inductive value : Type
 namespace value
 
 private def escapec : char → string
-| #"\"" := "\\\""
-| #"\t" := "\\t"
-| #"\n" := "\\n"
-| #"\\" := "\\\\"
-| c     := [c]
+| '\"' := "\\\""
+| '\t' := "\\t"
+| '\n' := "\\n"
+| '\\' := "\\\\"
+| c    := [c]
 
 private def escape (s : string) : string :=
 list.bind s escapec
@@ -67,7 +67,7 @@ end value
 open parser
 
 def Comment : parser unit :=
-ch #"#" >> many' (sat (≠ #"#")) >> optional (ch #"\n") >> eps
+ch '#' >> many' (sat (≠ '#')) >> optional (ch '\n') >> eps
 
 def Ws : parser unit :=
 decorate_error "<whitespace>" $
@@ -76,12 +76,12 @@ many' $ one_of " \t\n" <|> Comment
 def tok (s : string) := str s >> Ws
 
 def StringChar : parser char :=
-sat (λc, c ≠ #"\"" ∧ c ≠ #"\\" ∧ c.val > 0x1f)
+sat (λc, c ≠ '\"' ∧ c ≠ '\\' ∧ c.val > 0x1f)
  <|> (do str "\\",
-         (str "t" >> return #"\t") <|>
-         (str "n" >> return #"\n") <|>
-         (str "\\" >> return #"\\") <|>
-         (str "\"" >> return #"\""))
+         (str "t" >> return '\t') <|>
+         (str "n" >> return '\n') <|>
+         (str "\\" >> return '\\') <|>
+         (str "\"" >> return '\"'))
 
 def BasicString : parser string :=
 str "\"" *> (list.reverse <$> many StringChar) <* str "\"" <* Ws
@@ -93,7 +93,7 @@ def Boolean : parser bool :=
 (tok "false" >> return ff)
 
 def BareKey : parser string := do
-cs ← many1 $ sat $ λ c, c.is_alpha ∨ c.is_digit ∨ c = #"_" ∨ c = #"-",
+cs ← many1 $ sat $ λ c, c.is_alpha ∨ c.is_digit ∨ c = '_' ∨ c = '-',
 Ws,
 return cs.reverse
 

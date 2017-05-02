@@ -1,3 +1,3 @@
-#eval #"\x41"
-#eval #"\x42"
-#eval #"\x43"
+#eval '\x41'
+#eval '\x42'
+#eval '\x43'

@@ -67,7 +67,7 @@ def init (n : string) := init_pkg n "."
 def basename : ∀ (fn : string), string
 | []          := []
 | (c :: rest) :=
-  if c = #"/" then [] else c :: basename rest
+  if c = '/' then [] else c :: basename rest
 
 def add_dep_to_manifest (dep : dependency) : io unit := do
 d ← read_manifest,
@@ -78,7 +78,7 @@ def strip_dot_git (url : string) : string :=
 if url.taken 4 = ".git" then url.dropn 4 else url
 
 def looks_like_git_url (dep : string) : bool :=
-#":" ∈ show list char, from dep
+':' ∈ show list char, from dep
 
 def absolutize_add_dep (dep : string) : io string :=
 if looks_like_git_url dep then return dep

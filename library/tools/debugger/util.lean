@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 namespace debugger
 def is_space (c : char) : bool :=
-if c = #" " ∨ c = char.of_nat 11 ∨ c = #"\n" then tt else ff
+if c = ' ' ∨ c = char.of_nat 11 ∨ c = '\n' then tt else ff
 
 def split_core : string → string → list string
 | (c::cs) [] :=
@@ -22,7 +22,7 @@ def to_qualified_name_core : string → string → name
 | []      r := if r = "" then name.anonymous else mk_simple_name r.reverse
 | (c::cs) r :=
   if is_space c then to_qualified_name_core cs r
-  else if c = #"." then
+  else if c = '.' then
        if r = ""   then to_qualified_name_core cs []
        else             name.mk_string r.reverse (to_qualified_name_core cs [])
   else to_qualified_name_core cs (c::r)

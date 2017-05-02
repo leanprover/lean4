@@ -1,9 +1,9 @@
 def is_space : char → Prop
-| #" "    := true
-| #"\x09" := true -- \t
-| #"\n"   := true
-| #"\x0d" := true -- \r
-| _       := false
+| ' '    := true
+| '\x09' := true -- \t
+| '\n'   := true
+| '\x0d' := true -- \r
+| _      := false
 
 instance is_space.decidable_pred : decidable_pred is_space :=
 begin delta is_space, apply_instance end

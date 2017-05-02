@@ -32,7 +32,7 @@ return $ ev = 0
 
 -- TODO(gabriel): windows?
 def resolve_dir (abs_or_rel : string) (base : string) : string :=
-if abs_or_rel.reverse.head = #"/" then
+if abs_or_rel.reverse.head = '/' then
   abs_or_rel -- absolute
 else
   base ++ "/" ++ abs_or_rel

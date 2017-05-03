@@ -126,6 +126,47 @@ static void tst_perf(unsigned sz, unsigned n) {
     }
 }
 
+class Foo {
+    unsigned * m_data;
+public:
+    Foo():m_data(new unsigned(1)) {}
+    Foo(Foo const & src):m_data(new unsigned(*src.m_data)) {}
+    Foo(Foo && src):m_data(new unsigned(*src.m_data)) {}
+    Foo(unsigned n):m_data(new unsigned(n)) {}
+    ~Foo() { delete m_data; }
+
+    Foo & operator=(Foo const & src) {
+        *m_data = *src.m_data;
+        return *this;
+    }
+
+    Foo & operator=(Foo const && src) {
+        *m_data = *src.m_data;
+        return *this;
+    }
+
+    unsigned get_val() const { return *m_data; }
+};
+
+static void tst4() {
+    parray<Foo> v1;
+    v1.push_back(Foo(2));
+    v1.push_back(Foo(3));
+    parray<Foo> v2 = v1;
+    for (unsigned i = 0; i < 10; i++)
+        v1.push_back(Foo(i));
+    v1.set(0, Foo(100));
+    v1.set(1, Foo(100));
+    lean_assert(v2.size() == 2);
+    lean_assert(v2[0].get_val() == 2);
+    lean_assert(v2[1].get_val() == 3);
+    parray<Foo> v3 = v1;
+    v1.pop_back();
+    v1.pop_back();
+    lean_assert(v1.size() == 10);
+    lean_assert(v3.size() == 12);
+}
+
 int main() {
     save_stack_info();
     initialize_util_module();
@@ -139,7 +180,7 @@ int main() {
     tst1();
     tst2();
     tst3(100000);
-
+    tst4();
     tst_perf(100000, 10000);
 
     finalize_library_module();

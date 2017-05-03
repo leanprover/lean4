@@ -215,7 +215,7 @@ class parray {
                 if (sz == capacity(vs))
                     vs = expand(vs, sz);
                 c->m_idx  = sz;
-                vs[sz]    = p->elem();
+                new (vs + sz) T(p->elem());
                 sz++;
                 break;
             case PopBack:
@@ -225,6 +225,7 @@ class parray {
                 } else {
                     *c->m_elem = vs[sz];
                 }
+                (vs + sz)->~T();
                 c->m_kind = PushBack;
                 c->m_idx  = sz;
                 break;

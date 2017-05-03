@@ -135,8 +135,6 @@ name const * g_imp_congr_ctx_eq = nullptr;
 name const * g_implies = nullptr;
 name const * g_implies_of_if_neg = nullptr;
 name const * g_implies_of_if_pos = nullptr;
-name const * g_inductive_compiler_tactic_prove_nested_inj = nullptr;
-name const * g_inductive_compiler_tactic_prove_pack_inj = nullptr;
 name const * g_int = nullptr;
 name const * g_int_has_add = nullptr;
 name const * g_int_has_mul = nullptr;
@@ -507,8 +505,6 @@ void initialize_constants() {
     g_implies = new name{"implies"};
     g_implies_of_if_neg = new name{"implies_of_if_neg"};
     g_implies_of_if_pos = new name{"implies_of_if_pos"};
-    g_inductive_compiler_tactic_prove_nested_inj = new name{"inductive_compiler", "tactic", "prove_nested_inj"};
-    g_inductive_compiler_tactic_prove_pack_inj = new name{"inductive_compiler", "tactic", "prove_pack_inj"};
     g_int = new name{"int"};
     g_int_has_add = new name{"int", "has_add"};
     g_int_has_mul = new name{"int", "has_mul"};
@@ -880,8 +876,6 @@ void finalize_constants() {
     delete g_implies;
     delete g_implies_of_if_neg;
     delete g_implies_of_if_pos;
-    delete g_inductive_compiler_tactic_prove_nested_inj;
-    delete g_inductive_compiler_tactic_prove_pack_inj;
     delete g_int;
     delete g_int_has_add;
     delete g_int_has_mul;
@@ -1252,8 +1246,6 @@ name const & get_imp_congr_ctx_eq_name() { return *g_imp_congr_ctx_eq; }
 name const & get_implies_name() { return *g_implies; }
 name const & get_implies_of_if_neg_name() { return *g_implies_of_if_neg; }
 name const & get_implies_of_if_pos_name() { return *g_implies_of_if_pos; }
-name const & get_inductive_compiler_tactic_prove_nested_inj_name() { return *g_inductive_compiler_tactic_prove_nested_inj; }
-name const & get_inductive_compiler_tactic_prove_pack_inj_name() { return *g_inductive_compiler_tactic_prove_pack_inj; }
 name const & get_int_name() { return *g_int; }
 name const & get_int_has_add_name() { return *g_int_has_add; }
 name const & get_int_has_mul_name() { return *g_int_has_mul; }

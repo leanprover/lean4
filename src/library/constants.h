@@ -137,8 +137,6 @@ name const & get_imp_congr_ctx_eq_name();
 name const & get_implies_name();
 name const & get_implies_of_if_neg_name();
 name const & get_implies_of_if_pos_name();
-name const & get_inductive_compiler_tactic_prove_nested_inj_name();
-name const & get_inductive_compiler_tactic_prove_pack_inj_name();
 name const & get_int_name();
 name const & get_int_has_add_name();
 name const & get_int_has_mul_name();

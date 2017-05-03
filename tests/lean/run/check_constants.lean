@@ -135,8 +135,6 @@ run_cmd script_check_id `imp_congr_ctx_eq
 run_cmd script_check_id `implies
 run_cmd script_check_id `implies_of_if_neg
 run_cmd script_check_id `implies_of_if_pos
-run_cmd script_check_id `inductive_compiler.tactic.prove_nested_inj
-run_cmd script_check_id `inductive_compiler.tactic.prove_pack_inj
 run_cmd script_check_id `int
 run_cmd script_check_id `int.has_add
 run_cmd script_check_id `int.has_mul

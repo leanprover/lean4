@@ -130,8 +130,6 @@ imp_congr_ctx_eq
 implies
 implies_of_if_neg
 implies_of_if_pos
-inductive_compiler.tactic.prove_nested_inj
-inductive_compiler.tactic.prove_pack_inj
 int
 int.has_add
 int.has_mul

@@ -631,9 +631,9 @@ auto pretty_fn::pp_sort(expr const & e) -> result {
     } else if (u == mk_level_one()) {
         return result(format("Type"));
     } else if (optional<level> u1 = dec_level(u)) {
-        return result(group(format("Type") + space() + nest(5, pp_child(*u1))));
+        return result(max_bp()-1, group(format("Type") + space() + nest(5, pp_child(*u1))));
     } else {
-        return result(group(format("Sort") + space() + nest(5, pp_child(u))));
+        return result(max_bp()-1, group(format("Sort") + space() + nest(5, pp_child(u))));
     }
 }
 

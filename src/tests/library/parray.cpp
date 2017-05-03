@@ -118,6 +118,8 @@ int main() {
     initialize_library_core_module();
     initialize_library_module();
 
+    std::cout << "sizeof(parray::cell) = " << parray<unsigned>::sizeof_cell() << "\n";
+
     tst1();
     tst2();
     tst3(100000);

@@ -32,6 +32,7 @@ public:
         }
 #endif
     }
+    unsigned obj_size() const { return m_size; }
 };
 
 memory_pool * allocate_thread_memory_pool(unsigned sz);

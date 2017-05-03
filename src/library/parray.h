@@ -246,7 +246,7 @@ class parray {
         dec_ref(last);
     }
 
-    static T const & read_aux(cell * c, size_t i) {
+    static T read_aux(cell * c, size_t i) {
         if (c->kind() != Root)
             reroot(c);
         lean_assert(c->kind() == Root);
@@ -254,7 +254,7 @@ class parray {
         return c->m_values[i];
     }
 
-    static T const & read(cell * c, size_t i) {
+    static T read(cell * c, size_t i) {
         if (get_rc(c) == 1 && c->kind() == Root) {
             lean_assert(i < c->size());
             return c->m_values[i];
@@ -454,7 +454,7 @@ public:
         return size(m_cell);
     }
 
-    T const & operator[](size_t i) const {
+    T operator[](size_t i) const {
         return read(m_cell, i);
     }
 

@@ -246,6 +246,58 @@ class parray {
         dec_ref(last);
     }
 
+    static cell * ensure_unshared_aux(cell * c) {
+        buffer<cell *, 1024> cs;
+        size_t i = 0;
+        while (c->kind() != Root) {
+            cs.push_back(c);
+            c = c->next();
+            i++;
+        }
+        cell * r    = mk_cell();
+        r->m_rc     = 0;
+        r->m_size   = c->m_size;
+        r->m_values = allocate_raw_array(capacity(c->m_values));
+        std::uninitialized_copy(c->m_values, c->m_values + c->m_size, r->m_values);
+        i           = cs.size();
+        while (i > 0) {
+            --i;
+            cell * p = cs[i];
+            lean_assert(p->kind() != Root);
+            lean_assert(p->m_next == c);
+            switch (p->kind()) {
+            case Set:
+                r->m_values[p->m_idx] = p->elem();
+                break;
+            case PushBack:
+                if (r->m_size == capacity(r->m_values))
+                    r->m_values = expand(r->m_values, r->m_size);
+                new (r->m_values + r->m_size) T(p->elem());
+                r->m_size++;
+                break;
+            case PopBack:
+                r->m_size--;
+                (r->m_values + r->m_size)->~T();
+                break;
+            case Root:
+                lean_unreachable();
+                break;
+            }
+        }
+        return r;
+    }
+
+    static cell * ensure_unshared(cell * c) {
+        if (get_rc(c) == 1 && c->kind() == Root)
+            return c;
+        if (ThreadSafe) {
+            unique_lock<mutex> lock(*c->get_mutex());
+            return ensure_unshared_aux(c);
+        } else {
+            return ensure_unshared_aux(c);
+        }
+    }
+
     static T read_aux(cell * c, size_t i) {
         if (c->kind() != Root)
             reroot(c);
@@ -468,6 +520,14 @@ public:
 
     void pop_back() {
         m_cell = pop_back(m_cell);
+    }
+
+    void ensure_unshared() {
+        cell * new_cell = ensure_unshared(m_cell);
+        inc_ref(new_cell);
+        dec_ref(m_cell);
+        m_cell = new_cell;
+        lean_assert(get_rc(m_cell) == 1 && m_cell->m_kind == Root);
     }
 
     unsigned get_rc() const {

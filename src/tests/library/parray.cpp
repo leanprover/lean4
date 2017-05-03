@@ -110,6 +110,22 @@ static void tst3(unsigned n) {
     std::cout << ">> " << r << "\n";
 }
 
+static void tst_perf(unsigned sz, unsigned n) {
+    parray<unsigned> v1(sz, 0);
+    parray<unsigned> v2 = v1;
+    for (unsigned i = 0; i < sz; i++) {
+        v1.set(i, i);
+    }
+    /* The following loop is very expensive without ensure_unshared */
+    v1.ensure_unshared();
+    for (unsigned i = 0; i < n; i++) {
+        unsigned u1 = v1[i];
+        unsigned u2 = v2[i];
+        lean_assert(u1 == i);
+        lean_assert(u2 == 0);
+    }
+}
+
 int main() {
     save_stack_info();
     initialize_util_module();
@@ -123,6 +139,8 @@ int main() {
     tst1();
     tst2();
     tst3(100000);
+
+    tst_perf(100000, 10000);
 
     finalize_library_module();
     finalize_library_core_module();

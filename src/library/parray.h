@@ -58,16 +58,16 @@ class parray {
     }
 
     struct cell {
-        unsigned     m_rc;
-        cell_kind    m_kind;
+        atomic<unsigned> m_rc;
+        cell_kind        m_kind;
         union {
-            size_t   m_idx;
-            size_t   m_size;
+            size_t       m_idx;
+            size_t       m_size;
         };
-        cell  *      m_next;
+        cell  *          m_next;
         union {
-            T *      m_values; /* If m_kind == Root */
-            T *      m_elem; /* If m_kind == PushBack or m_kind == Set */
+            T *          m_values; /* If m_kind == Root */
+            T *          m_elem; /* If m_kind == PushBack or m_kind == Set */
         };
 
         cell_kind kind() const { return static_cast<cell_kind>(m_kind); }
@@ -136,17 +136,34 @@ class parray {
         }
     }
 
+    static unsigned get_rc(cell * c) {
+        if (ThreadSafe)
+            return atomic_load(&c->m_rc);
+        else
+            return c->m_rc;
+    }
+
     static void inc_ref(cell * c) {
         if (c == nullptr) return;
-        c->m_rc++;
+        if (ThreadSafe)
+            atomic_fetch_add_explicit(&c->m_rc, 1u, memory_order_relaxed);
+        else
+            c->m_rc++;
     }
 
     static void dec_ref(cell * c) {
         if (c == nullptr) return;
-        lean_assert(c->m_rc > 0);
-        c->m_rc--;
-        if (c->m_rc == 0)
-            deallocate_cell(c);
+        lean_assert(get_rc(c) > 0);
+        if (ThreadSafe) {
+            if (atomic_fetch_sub_explicit(&c->m_rc, 1u, memory_order_release) == 1u) {
+                atomic_thread_fence(memory_order_acquire);
+                deallocate_cell(c);
+            }
+        } else {
+            c->m_rc--;
+            if (c->m_rc == 0)
+                deallocate_cell(c);
+        }
     }
 
     static cell * mk_cell() {
@@ -157,8 +174,8 @@ class parray {
         return new (get_elem_allocator().allocate()) T(e);
     }
 
-    static void reroot_core(cell * r) {
-        lean_assert(r->m_rc > 0);
+    static void reroot(cell * r) {
+        lean_assert(get_rc(r) > 0);
         lean_assert(r->kind() != Root);
         buffer<cell *, 1024> cs;
         size_t i = 0;
@@ -229,16 +246,7 @@ class parray {
         dec_ref(last);
     }
 
-    static void reroot(cell * r) {
-        if (ThreadSafe) {
-            unique_lock<mutex> lock(*r->get_mutex());
-            reroot_core(r);
-        } else {
-            reroot_core(r);
-        }
-    }
-
-    static T const & read(cell * c, size_t i) {
+    static T const & read_aux(cell * c, size_t i) {
         if (c->kind() != Root)
             reroot(c);
         lean_assert(c->kind() == Root);
@@ -246,43 +254,71 @@ class parray {
         return c->m_values[i];
     }
 
-    static size_t size(cell * c) {
-        if (c->kind() != Root)
-            reroot(c);
-        return c->size();
+    static T const & read(cell * c, size_t i) {
+        if (get_rc(c) == 1 && c->kind() == Root) {
+            lean_assert(i < c->size());
+            return c->m_values[i];
+        } else if (ThreadSafe) {
+            unique_lock<mutex> lock(*c->get_mutex());
+            return read_aux(c, i);
+        } else {
+            return read_aux(c, i);
+        }
     }
 
-    static cell * write_nd(cell * c, size_t i, T const & v) {
-        lean_array_trace(tout() << "non-destructive write at #" << i << "\n";);
-        lean_assert(c->kind() == Root);
-        cell * new_cell       = mk_cell();
-        new_cell->m_values    = c->m_values;
-        new_cell->m_size      = c->m_size;
-        if (ThreadSafe)
-            new_cell->set_mutex(c->get_mutex());
-        c->m_kind             = Set;
-        c->m_idx              = i;
-        c->m_elem             = mk_elem_copy(new_cell->m_values[i]);
-        c->m_next             = new_cell;
-        c->m_rc--;
-        new_cell->m_rc++;
-        new_cell->m_values[i] = v;
-        return new_cell;
+    static size_t size(cell * c) {
+        if (get_rc(c) == 1 && c->kind() == Root) {
+            return c->size();
+        } else if (ThreadSafe) {
+            if (c->kind() != Root)
+                reroot(c);
+            return c->size();
+        } else {
+            if (c->kind() != Root)
+                reroot(c);
+            return c->size();
+        }
+    }
+
+    static cell * write_aux(cell * c, size_t i, T const & v) {
+        if (c->kind() != Root)
+            reroot(c);
+        lean_assert(i < c->size());
+        if (get_rc(c) == 1) {
+            c->m_values[i] = v;
+            return c;
+        } else {
+            lean_array_trace(tout() << "non-destructive write at #" << i << "\n";);
+            lean_assert(c->kind() == Root);
+            cell * new_cell       = mk_cell();
+            new_cell->m_values    = c->m_values;
+            new_cell->m_size      = c->m_size;
+            if (ThreadSafe)
+                new_cell->set_mutex(c->get_mutex());
+            c->m_kind             = Set;
+            c->m_idx              = i;
+            c->m_elem             = mk_elem_copy(new_cell->m_values[i]);
+            c->m_next             = new_cell;
+            /* It is safe to update m_rc directly here because
+               we are protected by a semaphore */
+            c->m_rc--;
+            new_cell->m_rc++;
+            new_cell->m_values[i] = v;
+            return new_cell;
+        }
     }
 
     static cell * write(cell * c, size_t i, T const & v) {
-        if (c->kind() != Root)
-            reroot(c);
-        if (c->m_rc == 1) {
+        if (get_rc(c) == 1 && c->kind() == Root) {
             lean_array_trace(tout() << "destructive write at #" << i << "\n";);
             lean_assert(i < c->size());
             c->m_values[i] = v;
             return c;
         } else if (ThreadSafe) {
             unique_lock<mutex> lock(*c->get_mutex());
-            return write_nd(c, i, v);
+            return write_aux(c, i, v);
         } else {
-            return write_nd(c, i, v);
+            return write_aux(c, i, v);
         }
     }
 
@@ -293,9 +329,15 @@ class parray {
         c->m_size++;
     }
 
-    static cell * push_back_nd(cell * c, T const & v) {
-        lean_array_trace(tout() << "non-destructive push_back\n";);
+    static cell * push_back_aux(cell * c, T const & v) {
+        if (c->kind() != Root)
+            reroot(c);
         lean_assert(c->kind() == Root);
+        if (get_rc(c) == 1) {
+            push_back_core(c, v);
+            return c;
+        }
+        lean_array_trace(tout() << "non-destructive push_back\n";);
         cell * new_cell       = mk_cell();
         new_cell->m_values    = c->m_values;
         new_cell->m_size      = c->m_size;
@@ -304,6 +346,8 @@ class parray {
         c->m_kind             = PopBack;
         c->m_next             = new_cell;
         c->m_elem             = nullptr;
+        /* It is safe to update m_rc directly here because
+           we are protected by a semaphore */
         c->m_rc--;
         new_cell->m_rc++;
         push_back_core(new_cell, v);
@@ -311,17 +355,15 @@ class parray {
     }
 
     static cell * push_back(cell * c, T const & v) {
-        if (c->kind() != Root)
-            reroot(c);
-        if (c->m_rc == 1) {
+        if (get_rc(c) == 1 && c->kind() == Root) {
             lean_array_trace(tout() << "destructive push_back\n";);
             push_back_core(c, v);
             return c;
         } else if (ThreadSafe) {
             unique_lock<mutex> lock(*c->get_mutex());
-            return push_back_nd(c, v);
+            return push_back_aux(c, v);
         } else {
-            return push_back_nd(c, v);
+            return push_back_aux(c, v);
         }
     }
 
@@ -331,36 +373,44 @@ class parray {
         c->m_values[c->m_size].~T();
     }
 
-    static cell * pop_back_nd(cell * c) {
-        lean_array_trace(tout() << "non-destructive pop_back\n";);
+    static cell * pop_back_aux(cell * c) {
+        if (c->kind() != Root)
+            reroot(c);
         lean_assert(c->kind() == Root);
-        cell * new_cell       = mk_cell();
-        new_cell->m_values    = c->m_values;
-        new_cell->m_size      = c->m_size;
-        if (ThreadSafe)
-            new_cell->set_mutex(c->get_mutex());
-        c->m_kind             = PushBack;
-        c->m_elem             = mk_elem_copy(new_cell->m_values[c->m_size - 1]);
-        c->m_next             = new_cell;
-        c->m_rc--;
-        new_cell->m_rc++;
-        pop_back_core(new_cell);
-        return new_cell;
+        lean_assert(c->m_size > 0);
+        if (get_rc(c) == 1) {
+            pop_back_core(c);
+            return c;
+        } else {
+            lean_array_trace(tout() << "non-destructive pop_back\n";);
+            cell * new_cell       = mk_cell();
+            new_cell->m_values    = c->m_values;
+            new_cell->m_size      = c->m_size;
+            if (ThreadSafe)
+                new_cell->set_mutex(c->get_mutex());
+            c->m_kind             = PushBack;
+            c->m_elem             = mk_elem_copy(new_cell->m_values[c->m_size - 1]);
+            c->m_next             = new_cell;
+            /* It is safe to update m_rc directly here because
+               we are protected by a semaphore */
+            c->m_rc--;
+            new_cell->m_rc++;
+            pop_back_core(new_cell);
+            return new_cell;
+        }
     }
 
     static cell * pop_back(cell * c) {
-        if (c->kind() != Root)
-            reroot(c);
-        lean_assert(c->m_size > 0);
-        if (c->m_rc == 1) {
+        if (get_rc(c) == 1 && c->kind() == Root) {
+            lean_assert(c->m_size > 0);
             lean_array_trace(tout() << "destructive pop_back\n";);
             pop_back_core(c);
             return c;
         } else if (ThreadSafe) {
             unique_lock<mutex> lock(*c->get_mutex());
-            return pop_back_nd(c);
+            return pop_back_aux(c);
         } else {
-            return pop_back_nd(c);
+            return pop_back_aux(c);
         }
     }
 

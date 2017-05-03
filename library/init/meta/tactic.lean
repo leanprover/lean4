@@ -739,9 +739,9 @@ do n ← num_goals,
    when (n = 0) (fail "tactic failed, there are no goals to be solved")
 
 /- Fail if there are unsolved goals. -/
-meta def now : tactic unit :=
+meta def done : tactic unit :=
 do n ← num_goals,
-   when (n ≠ 0) (fail "now tactic failed, there are unsolved goals")
+   when (n ≠ 0) (fail "done tactic failed, there are unsolved goals")
 
 meta def apply (e : expr) : tactic unit :=
 apply_core e >> return ()

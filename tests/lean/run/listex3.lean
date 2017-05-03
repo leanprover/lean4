@@ -20,7 +20,7 @@ when_tracing `search_mem_list (do t ← target, f ← pp t, trace (to_fmt "searc
     (`[apply in_head])
     <|>
     (`[apply in_tail] >> mk_mem_list_rec))
->> now
+>> done
 
 meta def mk_mem_list : tactic unit :=
 solve1 mk_mem_list_rec

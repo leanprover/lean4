@@ -92,7 +92,7 @@ local_context >>= mfoldl (λ r h, mcond (is_inductive h) (return $ h::r) (return
 
 meta def try_induction_aux (cont : expr → tactic unit) : list expr → tactic unit
 | []      := failed
-| (e::es) := (step (induction e); cont e; now) <|> try_induction_aux es
+| (e::es) := (step (induction e); cont e; done) <|> try_induction_aux es
 
 meta def try_induction (cont : expr → tactic unit) : tactic unit :=
 focus1 $ collect_inductive_hyps >>= try_induction_aux cont
@@ -113,10 +113,10 @@ when_tracing `mini_crush $
 /- Simple tactic -/
 meta def close_aux (hs : hinst_lemmas) : tactic unit :=
     triv           <|> reflexivity reducible <|> contradiction
-<|> try_for 1000 (rsimp {} hs >> now) <|> try_for 1000 reflexivity
+<|> try_for 1000 (rsimp {} hs >> done) <|> try_for 1000 reflexivity
 
 meta def close (hs : hinst_lemmas) (s : name) (e : option expr) : tactic unit :=
-    now
+    done
 <|> close_aux hs
 <|> report_failure s e >> failed
 
@@ -135,11 +135,11 @@ tactic.write
 
 meta def try_snapshots {α} (cont : α → tactic unit) : list (α × snapshot) → tactic unit
 | []           := failed
-| ((a, s)::ss) := (restore s >> cont a >> now) <|> try_snapshots ss
+| ((a, s)::ss) := (restore s >> cont a >> done) <|> try_snapshots ss
 
 meta def search {α} (max_depth : nat) (act : nat → α → tactic (list (α × snapshot))) : nat → α → tactic unit
 | n s := do
-  now
+  done
   <|>
   if n > max_depth then when_tracing `mini_crush (trace "max depth reached" >> trace_state) >> failed
   else all_goals $ try intros >> act n s >>= try_snapshots (search (n+1))
@@ -208,7 +208,7 @@ meta def strategy_2_aux (cfg : simp_config) (hs : hinst_lemmas) : simp_lemmas �
   do s ← simp_intro_aux cfg tt s tt [`_], -- Introduce next hypothesis
      h ← list.ilast <$> local_context,
      try $ solve1 (mwhen (is_inductive h) $ induction' h; simple s hs cfg "strategy 2" (some h)),
-     now <|> strategy_2_aux s
+     done <|> strategy_2_aux s
 
 meta def strategy_2 (cfg : simp_config := {}) (s : option simp_lemmas := none) (hs : option hinst_lemmas := none) : tactic unit :=
 do s ← mk_simp_lemmas s,
@@ -218,7 +218,7 @@ do s ← mk_simp_lemmas s,
 meta def strategy_3 (cfg : simp_config := {}) (max_depth : nat := 1) (s : option simp_lemmas := none) (hs : option hinst_lemmas := none) : tactic unit :=
 do s ← mk_simp_lemmas s,
    hs ← mk_hinst_lemmas hs,
-   try_induction (λ h, try (simph_intros_using s cfg); try (close_aux hs); (now <|> search_cases max_depth s hs cfg "strategy 3"))
+   try_induction (λ h, try (simph_intros_using s cfg); try (close_aux hs); (done <|> search_cases max_depth s hs cfg "strategy 3"))
 
 end mini_crush
 

@@ -53,7 +53,7 @@ attribute [ematch] asimp_const aval
 
 -- set_option trace.smt.ematch true
 
-meta def not_done : tactic unit := fail_if_success now
+meta def not_done : tactic unit := fail_if_success done
 
 lemma aval_asimp_const (a : aexp) (s : state) : aval (asimp_const a) s = aval a s :=
 begin [smt]

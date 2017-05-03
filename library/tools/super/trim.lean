@@ -46,7 +46,7 @@ match gs with
   g' ← infer_type g >>= mk_meta_var,
   set_goals [g'],
   r ← tac,
-  now,
+  done,
   set_goals (g::gs),
   instantiate_mvars g' >>= trim' >>= exact,
   return r

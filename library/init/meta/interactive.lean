@@ -241,7 +241,7 @@ Like `exact`, but takes a list of terms and checks that all goals
 are discharged after the tactic.
 -/
 meta def exacts : parse qexpr_list_or_texpr → tactic unit
-| [] := now
+| [] := done
 | (t :: ts) := exact t >> exacts ts
 
 private meta def get_locals : list name → tactic (list expr)

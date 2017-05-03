@@ -419,7 +419,7 @@ subgoal ← mk_meta_var s.local_false,
 goals ← get_goals,
 set_goals [subgoal],
 hvs ← for hyps (λhyp, assertv hyp.local_pp_name hyp.local_type hyp),
-solved ← (do th_solver, now, return tt) <|> return ff,
+solved ← (do th_solver, done, return tt) <|> return ff,
 set_goals goals,
 if solved then do
 proof ← instantiate_mvars subgoal,

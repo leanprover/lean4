@@ -90,7 +90,7 @@ local_context >>= mfoldl (λ r h, mcond (is_inductive h) (return $ h::r) (return
 
 meta def try_list_aux {α} (s : tactic_state) (tac : α → tactic unit) : list α → tactic unit
 | []      := failed
-| (e::es) := (write s >> tac e >> now) <|> try_list_aux es
+| (e::es) := (write s >> tac e >> done) <|> try_list_aux es
 
 meta def try_list {α} (tac : α → tactic unit) (es : list α) : tactic unit :=
 do s ← read, try_list_aux s tac es
@@ -102,8 +102,8 @@ meta def split (tac : tactic unit) : tactic unit :=
 collect_inductive_from_target >>= try_list (λ e, cases e; tac)
 
 meta def search (tac : tactic unit) : nat → tactic unit
-| 0     := all_goals tac >> now
-| (d+1) := all_goals (try tac) >> (now <|> split (search d))
+| 0     := all_goals tac >> done
+| (d+1) := all_goals (try tac) >> (done <|> split (search d))
 
 meta def rsimp' (hs : hinst_lemmas) : tactic unit :=
 rsimp {} hs

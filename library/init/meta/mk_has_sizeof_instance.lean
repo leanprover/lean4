@@ -53,7 +53,7 @@ do szs ← mk_sizeof use_default I_name F_name field_names 0,
    exact (mk_sum szs)
 
 private meta def for_each_has_sizeof_goal : bool → name → name → list (list name) → tactic unit
-| d I_name F_name [] := now <|> fail "mk_has_sizeof_instance failed, unexpected number of cases"
+| d I_name F_name [] := done <|> fail "mk_has_sizeof_instance failed, unexpected number of cases"
 | d I_name F_name (ns::nss) := do
   solve1 (has_sizeof_case d I_name F_name ns),
   for_each_has_sizeof_goal d I_name F_name nss

@@ -32,7 +32,7 @@ do tgt  ← target,
 private meta def try_constructors : nat → nat → tactic unit
 | 0     n := failed
 | (i+1) n :=
-  do {constructor_idx (n - i), all_goals mk_inhabited_arg, now}
+  do {constructor_idx (n - i), all_goals mk_inhabited_arg, done}
   <|>
   try_constructors i n
 

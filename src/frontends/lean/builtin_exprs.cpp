@@ -651,7 +651,7 @@ static expr parse_lazy_quoted_pexpr(parser_state & p, unsigned, expr const *, po
         e = mk_typed_expr_distrib_choice(p, t, e, pos);
     }
     p.check_token_next(get_rparen_tk(), "invalid quoted expression, `)` expected");
-    return p.save_pos(mk_quote(e, /* is_expr */ false), pos);
+    return p.save_pos(mk_pexpr_quote_and_substs(e, /* is_strict */ false), pos);
 }
 
 static expr parse_quoted_pexpr(parser_state & p, unsigned, expr const *, pos_info const & pos) {
@@ -665,7 +665,7 @@ static expr parse_quoted_pexpr(parser_state & p, unsigned, expr const *, pos_inf
         e = mk_typed_expr_distrib_choice(p, t, e, pos);
     }
     p.check_token_next(get_rparen_tk(), "invalid quoted expression, `)` expected");
-    return p.save_pos(mk_quote(e, /* is_expr */ false), pos);
+    return p.save_pos(mk_pexpr_quote_and_substs(e, /* is_strict */ true), pos);
 }
 
 static expr parse_quoted_expr(parser_state & p, unsigned, expr const *, pos_info const & pos) {
@@ -682,9 +682,7 @@ static expr parse_quoted_expr(parser_state & p, unsigned, expr const *, pos_info
         }
         p.check_token_next(get_rparen_tk(), "invalid quoted expression, `)` expected");
     }
-    // do not introduce `expr.subst` calls in patterns
-    e = p.in_pattern() ? mk_quote_core(e, true) : mk_quote(e, true);
-    return p.save_pos(e, pos);
+    return p.save_pos(mk_expr_quote(e), pos);
 }
 
 static expr parse_antiquote_expr(parser_state & p, unsigned, expr const *, pos_info const & pos) {

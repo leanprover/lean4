@@ -320,8 +320,8 @@ expr parser::copy_with_new_pos(expr const & e, pos_info p) {
                                        copy_with_new_pos(let_body(e), p)),
                         p);
     case expr_kind::Macro:
-        if (is_quote(e)) {
-            return save_pos(mk_quote_core(copy_with_new_pos(get_quote_expr(e), p), is_expr_quote(e)), p);
+        if (is_pexpr_quote(e)) {
+            return save_pos(mk_pexpr_quote(copy_with_new_pos(get_pexpr_quote_value(e), p)), p);
         } else {
             buffer<expr> args;
             for (unsigned i = 0; i < macro_num_args(e); i++)
@@ -1680,7 +1680,7 @@ static expr quote(expr const & e) {
     their pattern variables. */
 expr elaborate_quote(expr e, environment const & env, options const & opts) {
     lean_assert(is_expr_quote(e));
-    e = get_quote_expr(e);
+    e = get_expr_quote_value(e);
 
     name x("_x");
     buffer<expr> locals;
@@ -1783,15 +1783,7 @@ public:
 
 expr parser::patexpr_to_expr(expr const & pat_or_expr) {
     error_if_undef_scope scope(*this);
-    // start with expr quotes, which may make more locals from inside antiquotations accessible
-    expr e = replace(pat_or_expr, [&](expr const & e, unsigned) {
-        if (is_expr_quote(e)) {
-            return some_expr(mk_quote(get_quote_expr(e), /* is_expr */ true));
-        } else {
-            return none_expr();
-        }
-    });
-    return patexpr_to_expr_fn(*this)(e);
+    return patexpr_to_expr_fn(*this)(pat_or_expr);
 }
 
 static void check_no_levels(levels const & ls, pos_info const & p) {

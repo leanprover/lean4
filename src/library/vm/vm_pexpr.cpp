@@ -50,7 +50,7 @@ vm_obj pexpr_pos(vm_obj const & e) {
 }
 
 vm_obj pexpr_mk_quote_macro(vm_obj const & e) {
-    return to_obj(mk_quote(to_expr(e), /* is_expr */ false));
+    return to_obj(mk_pexpr_quote_and_substs(to_expr(e), /* is_strict */ false));
 }
 
 vm_obj pexpr_mk_prenum_macro(vm_obj const & n) {

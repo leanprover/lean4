@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "kernel/instantiate.h"
+#include "library/quote.h"
 #include "library/compiler/compiler_step_visitor.h"
 #include "library/compiler/comp_irrelevant.h"
 
@@ -51,6 +52,8 @@ expr compiler_step_visitor::visit_let(expr const & e) {
 
 expr compiler_step_visitor::visit_macro(expr const & e) {
     if (is_marked_as_comp_irrelevant(e))
+        return e;
+    else if (is_expr_quote(e))
         return e;
     else
         return replace_visitor::visit_macro(e);

@@ -8,17 +8,18 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 
 namespace lean {
-expr mk_quote(expr const & e, bool is_expr);
-bool is_quote(expr const & e);
 bool is_expr_quote(expr const &e);
-expr const & get_quote_expr(expr const & e);
-expr const & get_quote_type(expr const & e);
-expr mk_quote_core(expr const & e, bool is_expr);
-expr mk_reflected(expr const & e, expr const & ty, level const & l);
+bool is_pexpr_quote(expr const &e);
+expr const & get_expr_quote_value(expr const & e);
+expr const & get_pexpr_quote_value(expr const & e);
+expr mk_expr_quote(expr const & e);
+expr mk_pexpr_quote(expr const & e);
 
 expr mk_antiquote(expr const & e);
 bool is_antiquote(expr const & e);
 expr const & get_antiquote_expr(expr const & e);
+
+expr mk_pexpr_quote_and_substs(expr const & e, bool is_strict);
 
 void initialize_quote();
 void finalize_quote();

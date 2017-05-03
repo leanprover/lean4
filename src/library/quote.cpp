@@ -12,27 +12,58 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/annotation.h"
 #include "library/kernel_serializer.h"
-#include "exception.h"
+#include "library/exception.h"
+#include "library/util.h"
+#include "library/quote.h"
+#include "library/type_context.h"
 
 namespace lean {
-static std::string * g_quote_opcode = nullptr;
-static expr * g_expr               = nullptr;
+static std::string * g_expr_quote_opcode  = nullptr;
+static std::string * g_pexpr_quote_opcode = nullptr;
+static expr * g_expr                = nullptr;
 static expr * g_pexpr               = nullptr;
-static name * g_quote_macro         = nullptr;
+static name * g_expr_quote_macro    = nullptr;
+static name * g_pexpr_quote_macro   = nullptr;
 
 /** \brief The quoted expression macro is a compact way of encoding quoted expressions inside Lean expressions.
-    It is used to represent values of types `reflected e`, `expr`, and `pexpr`. */
-class quote_macro : public macro_definition_cell {
-    expr m_value;
-    expr m_type;
+    It is used to represent values of types `reflected e` or `expr`. */
+class expr_quote_macro : public macro_definition_cell {
 public:
-    quote_macro(expr const & v, expr const & ty):m_value(v), m_type(ty) {}
-    virtual bool lt(macro_definition_cell const & d) const {
-        return m_value < static_cast<quote_macro const &>(d).m_value;
+    virtual name get_name() const { return *g_expr_quote_macro; }
+    virtual expr check_type(expr const & m, abstract_type_context & ctx, bool infer_only) const {
+        expr const & e = get_expr_quote_value(m);
+        expr ty = ctx.check(e, infer_only);
+        if (auto l = dec_level(get_level(ctx, ty))) {
+            return mk_app(mk_constant(get_reflected_name(), {*l}), ty, e);
+        } else {
+            return *g_expr;
+        }
     }
-    virtual name get_name() const { return *g_quote_macro; }
+    virtual optional<expr> expand(expr const &, abstract_type_context &) const {
+        return optional<expr>();
+    }
+    virtual unsigned trust_level() const { return 0; }
+    virtual void display(std::ostream & out) const {
+        out << "quote";
+    }
+    virtual format pp(formatter const &) const {
+        return format("quote");
+    }
+    virtual bool is_atomic_pp(bool, bool) const { return false; }
+    virtual void write(serializer & s) const { s << *g_expr_quote_opcode; }
+};
+
+/** \brief A compact way of encoding quoted pre-expressions inside Lean expressions. */
+class pexpr_quote_macro : public macro_definition_cell {
+    expr m_value;
+public:
+    pexpr_quote_macro(expr const & v):m_value(v) {}
+    virtual bool lt(macro_definition_cell const & d) const {
+        return m_value < static_cast<pexpr_quote_macro const &>(d).m_value;
+    }
+    virtual name get_name() const { return *g_pexpr_quote_macro; }
     virtual expr check_type(expr const &, abstract_type_context &, bool) const {
-        return m_type;
+        return *g_pexpr;
     }
     virtual optional<expr> expand(expr const &, abstract_type_context &) const {
         return optional<expr>();
@@ -45,46 +76,42 @@ public:
         return this == &other;
     }
     char const * prefix() const {
-        return m_type == *g_pexpr ? "``(" : "```(";
+        return "``(";
     }
     virtual void display(std::ostream & out) const {
-        out << prefix() << m_value << ")";
+        out << "``(" << m_value << ")";
     }
     virtual format pp(formatter const & fmt) const {
-        return format(prefix()) + nest(2, fmt(m_value)) + format(")");
+        return format("``(") + nest(2, fmt(m_value)) + format(")");
     }
     virtual bool is_atomic_pp(bool, bool) const { return false; }
-    virtual unsigned hash() const { return ::lean::hash(m_value.hash(), m_type.hash()); }
-    virtual void write(serializer & s) const { s << *g_quote_opcode << m_value << m_type; }
+    virtual unsigned hash() const { return m_value.hash(); }
+    virtual void write(serializer & s) const { s << *g_pexpr_quote_opcode << m_value; }
     expr const & get_value() const { return m_value; }
-    expr const & get_type() const { return m_type; }
 };
 
-expr mk_quote_core(expr const & e, bool is_expr) {
-    return mk_macro(macro_definition(new quote_macro(e, is_expr ? *g_expr : *g_pexpr)));
+expr mk_expr_quote(expr const & e) {
+    return mk_macro(macro_definition(new expr_quote_macro()), 1, &e);
+}
+expr mk_pexpr_quote(expr const & e) {
+    return mk_macro(macro_definition(new pexpr_quote_macro(e)));
 }
 
-expr mk_reflected(expr const & e, expr const & ty, level const & l) {
-    return mk_macro(macro_definition(
-            new quote_macro(e, mk_app(mk_constant("reflected", {l}), ty, e))));
+bool is_expr_quote(expr const & e) {
+    return is_macro(e) && dynamic_cast<expr_quote_macro const *>(macro_def(e).raw()) != nullptr;
+}
+bool is_pexpr_quote(expr const & e) {
+    return is_macro(e) && dynamic_cast<pexpr_quote_macro const *>(macro_def(e).raw()) != nullptr;
 }
 
-bool is_quote(expr const & e) {
-    return is_macro(e) && dynamic_cast<quote_macro const *>(macro_def(e).raw()) != nullptr;
+expr const & get_expr_quote_value(expr const & e) {
+    lean_assert(is_expr_quote(e));
+    return macro_arg(e, 0);
 }
 
-bool is_expr_quote(expr const &e) {
-    return is_quote(e) && static_cast<quote_macro const *>(macro_def(e).raw())->get_type() != *g_pexpr;
-}
-
-expr const & get_quote_expr(expr const & e) {
-    lean_assert(is_quote(e));
-    return static_cast<quote_macro const *>(macro_def(e).raw())->get_value();
-}
-
-expr const & get_quote_type(expr const & e) {
-    lean_assert(is_quote(e));
-    return static_cast<quote_macro const *>(macro_def(e).raw())->get_type();
+expr const & get_pexpr_quote_value(expr const & e) {
+    lean_assert(is_pexpr_quote(e));
+    return static_cast<pexpr_quote_macro const *>(macro_def(e).raw())->get_value();
 }
 
 static name * g_antiquote = nullptr;
@@ -96,7 +123,7 @@ expr const & get_antiquote_expr(expr const & e) {
     return get_annotation_arg(e);
 }
 
-expr mk_quote(expr const & e, bool is_expr) {
+expr mk_pexpr_quote_and_substs(expr const & e, bool is_strict) {
     name x("_x");
     buffer<expr> locals;
     buffer<expr> aqs;
@@ -108,42 +135,52 @@ expr mk_quote(expr const & e, bool is_expr) {
                 aqs.push_back(get_antiquote_expr(t));
                 return some_expr(local);
             }
-            if (is_local(t) && is_expr) {
+            if (is_local(t) && is_strict) {
                 throw generic_exception(t, "unexpected local in quotation expression");
             }
             return none_expr();
         });
-    expr r        = mk_quote_core(Fun(locals, s), is_expr);
-    expr subst    = mk_constant(is_expr ? get_expr_subst_name() : get_pexpr_subst_name());
-    expr to_pexpr = mk_constant(get_to_pexpr_name());
+    expr r        = mk_pexpr_quote(Fun(locals, s));
+    expr subst    = mk_constant(get_pexpr_subst_name());
+    expr to_pexpr = mk_constant(get_to_pexpr_name(), {mk_level_zero()});
     for (expr const & aq : aqs) {
-        r = mk_app(subst, r, is_expr ? aq : mk_app(to_pexpr, aq));
+        r = mk_app(subst, r, mk_app(to_pexpr, aq));
     }
     return r;
 }
 
 void initialize_quote() {
-    g_quote_macro    = new name("quote_macro");
-    g_quote_opcode   = new std::string("Quote");
+    g_expr_quote_macro    = new name("expr_quote_macro");
+    g_pexpr_quote_macro   = new name("pexpr_quote_macro");
+    g_expr_quote_opcode   = new std::string("Quote");
+    g_pexpr_quote_opcode  = new std::string("PQuote");
     g_expr           = new expr(Const(get_expr_name()));
     g_pexpr          = new expr(Const(get_pexpr_name()));
 
     g_antiquote  = new name("antiquote");
     register_annotation(*g_antiquote);
 
-    register_macro_deserializer(*g_quote_opcode,
+    register_macro_deserializer(*g_expr_quote_opcode,
+                                [](deserializer &, unsigned num, expr const * args) {
+                                    if (num != 1)
+                                        throw corrupted_stream_exception();
+                                    return mk_expr_quote(args[0]);
+                                });
+    register_macro_deserializer(*g_pexpr_quote_opcode,
                                 [](deserializer & d, unsigned num, expr const *) {
                                     if (num != 0)
                                         throw corrupted_stream_exception();
-                                    expr e, ty;
-                                    d >> e >> ty;
-                                    return mk_macro(macro_definition(new quote_macro(e, ty)));
+                                    expr e;
+                                    d >> e;
+                                    return mk_pexpr_quote(e);
                                 });
 }
 
 void finalize_quote() {
-    delete g_quote_macro;
-    delete g_quote_opcode;
+    delete g_expr_quote_macro;
+    delete g_pexpr_quote_macro;
+    delete g_expr_quote_opcode;
+    delete g_pexpr_quote_opcode;
     delete g_expr;
     delete g_pexpr;
     delete g_antiquote;

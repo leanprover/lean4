@@ -221,7 +221,7 @@ struct parse_tactic_fn {
         auto p = m_p.pos();
         parser::quote_scope scope(m_p, true);
         expr e = m_p.parse_expr(rbp);
-        return m_p.save_pos(mk_quote(e, /* is_expr */ false), p);
+        return m_p.save_pos(mk_pexpr_quote_and_substs(e, /* is_strict */ false), p);
     }
 
     expr parse_elem_core(bool save_info) {
@@ -514,8 +514,8 @@ We address the issue above by erasing position information from quoted terms nes
 */
 static void erase_quoted_terms_pos_info(parser & p, expr const & e) {
     for_each(e, [&](expr const & e, unsigned) {
-            if (is_quote(e)) {
-                for_each(get_quote_expr(e), [&](expr const & e, unsigned) {
+            if (is_pexpr_quote(e)) {
+                for_each(get_pexpr_quote_value(e), [&](expr const & e, unsigned) {
                         p.erase_pos(e);
                         return true;
                     });

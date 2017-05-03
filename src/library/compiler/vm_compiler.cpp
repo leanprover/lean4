@@ -293,8 +293,10 @@ class vm_compiler_fn {
             emit(mk_num_instr(get_nat_value_value(e)));
         } else if (is_annotation(e)) {
             compile(get_annotation_arg(e), bpz, m);
-        } else if (is_quote(e)) {
-            emit(mk_expr_instr(get_quote_expr(e)));
+        } else if (is_expr_quote(e)) {
+            emit(mk_expr_instr(get_expr_quote_value(e)));
+        } else if (is_pexpr_quote(e)) {
+            emit(mk_expr_instr(get_pexpr_quote_value(e)));
         } else if (is_sorry(e)) {
             compile_global(*get_vm_decl(m_env, "sorry"), 0, nullptr, bpz, m);
         } else {

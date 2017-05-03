@@ -200,8 +200,8 @@ expr parser_state::copy_with_new_pos(expr const & e, pos_info p) {
                                        copy_with_new_pos(let_body(e), p)),
                         p);
     case expr_kind::Macro:
-        if (is_quote(e)) {
-            return save_pos(mk_quote_core(copy_with_new_pos(get_quote_expr(e), p), is_expr_quote(e)), p);
+        if (is_pexpr_quote(e)) {
+            return save_pos(mk_pexpr_quote(copy_with_new_pos(get_pexpr_quote_value(e), p)), p);
         } else {
             buffer<expr> args;
             for (unsigned i = 0; i < macro_num_args(e); i++)

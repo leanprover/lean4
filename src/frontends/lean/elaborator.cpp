@@ -268,7 +268,7 @@ expr elaborator::mk_instance_core(local_context const & lctx, expr const & C, ex
     if (is_app_of(C, get_reflected_name(), 2)) {
         expr const & e = app_arg(C);
         if (!is_local(e)) {
-            return visit(mk_quote(e, /* is_expr */ true), some_expr(C));
+            return visit(mk_expr_quote(e), some_expr(C));
         }
     }
 
@@ -2814,6 +2814,37 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
     return e2;
 }
 
+expr elaborator::visit_expr_quote(expr const & e, optional<expr> const & expected_type) {
+    name x("_x");
+    buffer<expr> locals;
+    buffer<expr> aqs;
+    expr s = get_expr_quote_value(e);
+    if (!is_local(s)) {
+        s = replace(s, [&](expr const & t, unsigned) {
+            if (is_antiquote(t)) {
+                expr local = mk_local(mk_fresh_name(), x.append_after(locals.size() + 1),
+                                      mk_expr_placeholder(), binder_info());
+                locals.push_back(local);
+                aqs.push_back(get_antiquote_expr(t));
+                return some_expr(local);
+            }
+            return none_expr();
+        });
+    }
+    expr r = Fun(locals, s);
+    r = visit(r, none_expr());
+    r = mk_expr_quote(r);
+    r = mk_as_is(r);
+
+    expr subst_fn = mk_constant(get_expr_subst_name());
+    expr to_pexpr = mk_constant(get_to_pexpr_name());
+    for (expr const & subst : aqs) {
+        r = mk_app(subst_fn, r);
+        r = mk_app(r, subst);
+    }
+    return visit(r, expected_type);
+}
+
 expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_type, bool is_app_fn) {
     if (is_as_is(e)) {
         return get_as_is_arg(e);
@@ -2837,6 +2868,8 @@ expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_typ
         return visit_equation(e);
     } else if (is_field_notation(e)) {
         return visit_field(e, expected_type);
+    } else if (is_expr_quote(e)) {
+        return visit_expr_quote(e, expected_type);
     } else if (is_inaccessible(e)) {
         if (is_app_fn)
             throw elaborator_exception(e, "invalid inaccessible term, function expected");
@@ -2855,15 +2888,6 @@ expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_typ
         return visit_structure_instance(e, expected_type);
     } else if (is_frozen_name(e)) {
         return visit(get_annotation_arg(e), expected_type);
-    } else if (is_expr_quote(e)) {
-        expr r = visit(get_quote_expr(e), none_expr());
-        if (has_metavar(r)) {
-            return mk_quote_core(r, /* is_expr */ true);
-        } else {
-            expr r_type = infer_type(r);
-            level l = dec_level(get_level(r_type, e), e);
-            return mk_reflected(r, r_type, l);
-        }
     } else if (is_annotation(e)) {
         expr r = visit(get_annotation_arg(e), expected_type);
         return update_macro(e, 1, &r);

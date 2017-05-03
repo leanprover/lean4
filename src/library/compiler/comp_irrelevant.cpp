@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "library/annotation.h"
+#include "library/quote.h"
 #include "library/compiler/util.h"
 #include "library/compiler/compiler_step_visitor.h"
 
@@ -61,7 +62,7 @@ protected:
     }
 
     virtual expr visit_macro(expr const & e) override {
-        if (is_marked_as_comp_irrelevant(e))
+        if (is_marked_as_comp_irrelevant(e) || is_expr_quote(e))
             return e;
         else if (auto v = mark_if_irrel_core(e))
             return *v;

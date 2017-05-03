@@ -185,11 +185,10 @@ class parray {
         return c;
     }
 
-    static void reroot(cell * r) {
-        lean_assert(get_rc(r) > 0);
-        lean_assert(r->kind() != Root);
-        cell_buffer cs;
-        cell * c    = collect_cells(r, cs);
+    /* Given r -> ... -> c  where cs is the path from r to c,
+       revert links, i.e., update it to r <- ... <- c */
+    static void reroot(cell * r, cell * c, cell_buffer const & cs) {
+        lean_assert(c->m_kind == Root);
         cell * last = c;
         size_t sz   = c->m_size;
         T * vs      = c->m_values;
@@ -197,7 +196,7 @@ class parray {
         while (i > 0) {
             --i;
             cell * p = cs[i];
-            lean_assert(p->kind() != Root);
+            lean_assert(p->m_kind != Root);
             lean_assert(p->m_next == c);
             switch (p->kind()) {
             case Set:
@@ -252,16 +251,17 @@ class parray {
         dec_ref(last);
     }
 
-    static cell * ensure_unshared_aux(cell * c) {
-        cell_buffer cs;
-        c = collect_cells(c, cs);
+    /* Given a path cs to c,
+       create a copy of the vector applying the operations occurring after >= from_idx. */
+    static cell * copy(unsigned from_idx, cell * c, cell_buffer const & cs) {
+        lean_assert(from_idx <= cs.size());
         cell * r    = mk_cell();
         r->m_rc     = 0;
         r->m_size   = c->m_size;
         r->m_values = allocate_raw_array(capacity(c->m_values));
         std::uninitialized_copy(c->m_values, c->m_values + c->m_size, r->m_values);
         unsigned i  = cs.size();
-        while (i > 0) {
+        while (i > from_idx) {
             --i;
             cell * p = cs[i];
             lean_assert(p->kind() != Root);
@@ -284,8 +284,63 @@ class parray {
                 lean_unreachable();
                 break;
             }
+            DEBUG_CODE(c = p;);
         }
         return r;
+    }
+
+    /* Return the size of the array after applying operations in cs to c */
+    static size_t get_size(cell * c, cell_buffer const & cs) {
+        lean_assert(c->m_kind == Root);
+        size_t r = c->m_size;
+        unsigned i = cs.size();
+        while (i > 0) {
+            --i;
+            switch (cs[i]->m_kind) {
+            case PushBack:  r++; break;
+            case PopBack:   r--; break;
+            case Set:       break;
+            case Root:      lean_unreachable();
+            }
+        }
+        return r;
+    }
+
+    static bool should_split(size_t sz, size_t num_ops) {
+        return num_ops > 4 && 2 * sz < 3 * num_ops;
+    }
+
+    static void reroot(cell * r) {
+        lean_assert(get_rc(r) > 0);
+        lean_assert(r->kind() != Root);
+        cell_buffer cs;
+        cell * c    = collect_cells(r, cs);
+        if (should_split(c->size(), cs.size()) &&
+            should_split(get_size(c, cs), cs.size())) {
+            /* Split the path r -> ... -> m_1 -> m_2 -> ... -> c in two
+
+               1) r <- ... <- m_1
+               2) m_2 -> ... -> c
+            */
+            unsigned midx = cs.size() / 2;
+            DEBUG_CODE(cell * m = cs[midx];);
+            cell * new_m = copy(midx, c, cs);
+            inc_ref(new_m);
+            cs.resize(midx);
+            lean_assert(cs.back()->m_next == m);
+            dec_ref(cs.back()->m_next);
+            cs.back()->m_next = new_m;
+            lean_assert(midx > 0);
+            reroot(r, new_m, cs);
+        } else {
+            reroot(r, c, cs);
+        }
+    }
+
+    static cell * ensure_unshared_aux(cell * c) {
+        cell_buffer cs;
+        c = collect_cells(c, cs);
+        return copy(0, c, cs);
     }
 
     static cell * ensure_unshared(cell * c) {

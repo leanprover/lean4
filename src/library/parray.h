@@ -174,21 +174,26 @@ class parray {
         return new (get_elem_allocator().allocate()) T(e);
     }
 
-    static void reroot(cell * r) {
-        lean_assert(get_rc(r) > 0);
-        lean_assert(r->kind() != Root);
-        buffer<cell *, 1024> cs;
-        size_t i = 0;
+    typedef buffer<cell *, 1024> cell_buffer;
+
+    static cell * collect_cells(cell * r, cell_buffer & cs) {
         cell * c   = r;
         while (c->kind() != Root) {
             cs.push_back(c);
             c = c->next();
-            i++;
         }
+        return c;
+    }
+
+    static void reroot(cell * r) {
+        lean_assert(get_rc(r) > 0);
+        lean_assert(r->kind() != Root);
+        cell_buffer cs;
+        cell * c    = collect_cells(r, cs);
         cell * last = c;
         size_t sz   = c->m_size;
         T * vs      = c->m_values;
-        i           = cs.size();
+        unsigned i  = cs.size();
         while (i > 0) {
             --i;
             cell * p = cs[i];
@@ -248,19 +253,14 @@ class parray {
     }
 
     static cell * ensure_unshared_aux(cell * c) {
-        buffer<cell *, 1024> cs;
-        size_t i = 0;
-        while (c->kind() != Root) {
-            cs.push_back(c);
-            c = c->next();
-            i++;
-        }
+        cell_buffer cs;
+        c = collect_cells(c, cs);
         cell * r    = mk_cell();
         r->m_rc     = 0;
         r->m_size   = c->m_size;
         r->m_values = allocate_raw_array(capacity(c->m_values));
         std::uninitialized_copy(c->m_values, c->m_values + c->m_size, r->m_values);
-        i           = cs.size();
+        unsigned i  = cs.size();
         while (i > 0) {
             --i;
             cell * p = cs[i];

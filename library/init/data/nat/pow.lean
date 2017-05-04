@@ -21,4 +21,6 @@ infix `^` := pow
 
 lemma pow_succ (b n : ℕ) : b^(succ n) = b^n * b := rfl
 
+@[simp] lemma pow_zero (b : ℕ) : b^0 = 1 := rfl
+
 end nat

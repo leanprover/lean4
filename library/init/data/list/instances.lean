@@ -58,8 +58,7 @@ list.decidable_eq
 
 namespace list
 
-variables {α : Type u} [decidable_eq α]
-variables (p : α → Prop) [decidable_pred p]
+variables {α : Type u} (p : α → Prop) [decidable_pred p]
 
 instance decidable_bex : ∀ (l : list α), decidable (∃ x ∈ l, p x)
 | [] := is_false (by intro; cases a; cases a_2; cases a)

@@ -64,4 +64,37 @@ theorem length_map_accumr₂ {α β σ φ : Type}
 | f [] []     c := rfl
 end map_accumr₂
 
+@[simp]
+theorem foldl_nil (f : α → β → α) (a : α) : foldl f a [] = a := rfl
+
+@[simp]
+theorem foldl_cons (f : α → β → α) (a : α) (b : β) (l : list β) :
+  foldl f a (b::l) = foldl f (f a b) l := rfl
+
+@[simp]
+theorem foldr_nil (f : α → β → β) (b : β) : foldr f b [] = b := rfl
+
+@[simp]
+theorem foldr_cons (f : α → β → β) (b : β) (a : α) (l : list α) :
+  foldr f b (a::l) = f a (foldr f b l) := rfl
+
+@[simp]
+theorem foldl_append (f : β → α → β) :
+  ∀ (b : β) (l₁ l₂ : list α), foldl f b (l₁++l₂) = foldl f (foldl f b l₁) l₂
+| b []      l₂ := rfl
+| b (a::l₁) l₂ := by simp [foldl_append]
+
+@[simp]
+theorem foldr_append (f : α → β → β) :
+  ∀ (b : β) (l₁ l₂ : list α), foldr f b (l₁++l₂) = foldr f (foldr f b l₂) l₁
+| b []      l₂ := rfl
+| b (a::l₁) l₂ := by simp [foldr_append]
+
+theorem foldl_reverse (f : α → β → α) (a : α) (l : list β) : foldl f a (reverse l) = foldr (λx y, f y x) a l :=
+by induction l; simph [foldl, foldr]
+
+theorem foldr_reverse (f : α → β → β) (a : β) (l : list α) : foldr f a (reverse l) = foldl (λx y, f y x) a l :=
+let t := foldl_reverse (λx y, f y x) a (reverse l) in
+by rw reverse_reverse l at t; rwa t
+
 end list

@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include <functional>
 #include <unordered_set>
 #include "util/test.h"
+#include "util/timeit.h"
 #include "util/init_module.h"
 #include "util/sexpr/init_module.h"
 #include "kernel/init_module.h"
@@ -123,6 +124,23 @@ static void tst4() {
     lean_assert(!s1.contains(30));
 }
 
+static void tst5() {
+    /* This example would take a few minute if we use std_unsigned_set.
+       With unsigned_set, it takes a few milliseconds. */
+    timeit timer(std::cout, "tst5");
+    unsigned_set s1;
+    for (unsigned i = 0; i < 100000; i++) {
+        s1.insert(i);
+    }
+    for (unsigned i = 0; i < 100000; i++) {
+        unsigned_set s2 = s1;
+        s2.insert(99999999);
+        lean_assert(s2.contains(10));
+        lean_assert(s2.contains(99999999));
+    }
+    lean_assert(!s1.contains(99999999));
+}
+
 int main() {
     save_stack_info();
     initialize_util_module();
@@ -136,6 +154,7 @@ int main() {
     for (int i = 0; i < 1000; i++)
         tst3();
     tst4();
+    tst5();
 
     finalize_library_module();
     finalize_library_core_module();

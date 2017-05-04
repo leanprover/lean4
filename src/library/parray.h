@@ -354,7 +354,7 @@ class parray {
         }
     }
 
-    static T read_aux(cell * c, size_t i) {
+    static T const & read_aux(cell * c, size_t i) {
         if (c->kind() != Root)
             reroot(c);
         lean_assert(c->kind() == Root);
@@ -522,6 +522,17 @@ class parray {
         }
     }
 
+    template<typename F>
+    static void for_each(cell * c, F && fn) {
+        if (c->kind() != Root)
+            reroot(c);
+        lean_assert(c->kind() == Root);
+        size_t sz = c->m_size;
+        for (size_t i = 0; i < sz; i++) {
+            fn(c->m_values[i]);
+        }
+    }
+
     void init() {
         if (ThreadSafe)
             m_cell->set_mutex(new mutex());
@@ -593,6 +604,61 @@ public:
     static unsigned sizeof_cell() {
         return get_allocator().obj_size();
     }
+
+    friend void swap(parray & a1, parray & a2) {
+        std::swap(a1.m_cell, a2.m_cell);
+    }
+
+    template<typename F>
+    void for_each(F && fn) const {
+        if (get_rc(m_cell) == 1 && m_cell->m_kind == Root) {
+            for_each(m_cell, fn);
+        } else if (ThreadSafe) {
+            unique_lock<mutex> lock(*m_cell->get_mutex());
+            for_each(m_cell, fn);
+        } else {
+            for_each(m_cell, fn);
+        }
+    }
+
+    class exclusive_access {
+        parray<T, ThreadSafe> & m_array;
+
+        bool check_invariant() const {
+            lean_assert(m_array.m_cell->m_kind == Root);
+            return true;
+        }
+
+    public:
+        exclusive_access(parray<T, ThreadSafe> & a):m_array(a) {
+            if (ThreadSafe)
+                m_array.m_cell->get_mutex()->lock();
+            if (m_array.m_cell->m_kind != Root)
+                reroot(m_array.m_cell);
+        }
+
+        ~exclusive_access() {
+            if (ThreadSafe)
+                m_array.m_cell->get_mutex()->unlock();
+        }
+
+        unsigned size() const {
+            lean_assert(check_invariant());
+            return m_array.m_cell->m_size;
+        }
+
+        T const & operator[](size_t i) const {
+            lean_assert(check_invariant());
+            lean_assert(i < size());
+            return m_array.m_cell->m_values[i];
+        }
+
+        void set(size_t i, T const & v) {
+            lean_assert(check_invariant());
+            lean_assert(i < size());
+            m_array.m_cell = write_aux(m_array.m_cell, i, v);
+        }
+    };
 };
 void initialize_parray();
 void finalize_parray();

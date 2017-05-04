@@ -27,7 +27,7 @@ class default_hash_entry {
     union {
         T     m_data;
     };
-    explicit default_hash_entry(bool):m_state(Deleted) {}
+    explicit default_hash_entry(bool):m_state(Deleted) {} // NOLINT
 public:
     typedef T                data;
     default_hash_entry():m_state(Free) {}
@@ -132,9 +132,9 @@ public:
         lean_assert(is_power_of_two(initial_capacity));
     }
 
-    phashtable_core(const phashtable_core & source):
+    phashtable_core(phashtable_core const & source):
         HashProc(source), EqProc(source),
-        m_table(source.m_table, entry()), m_size(source.m_size), m_num_deleted(source.m_num_deleted) {
+        m_table(source.m_table), m_size(source.m_size), m_num_deleted(source.m_num_deleted) {
     }
 
     unsigned size() const { return m_size; }
@@ -350,7 +350,7 @@ public:
         for (unsigned idx = 0; idx < cap; idx++) {
             entry const & curr = A[idx];
             if (curr.is_deleted()) {
-                num_deleted ++;
+                num_deleted++;
             }
             if (curr.is_used()) {
                 num_used++;
@@ -369,5 +369,15 @@ public:
                HashProc const & h = HashProc(),
                EqProc const & e = EqProc()):
         phashtable_core<default_hash_entry<T>, HashProc, EqProc, ThreadSafe>(initial_capacity, h, e) {}
+
+    phashtable(phashtable const & src):
+        phashtable_core<default_hash_entry<T>, HashProc, EqProc, ThreadSafe>(src) {}
+
+    phashtable & operator=(phashtable const & s) {
+        this->m_table       = s.m_table;
+        this->m_size        = s.m_size;
+        this->m_num_deleted = s.m_num_deleted;
+        return *this;
+    }
 };
 }

@@ -7,6 +7,8 @@ Author: Leonardo de Moura
 #include <utility>
 #include <random>
 #include <vector>
+#include <functional>
+#include <unordered_set>
 #include "util/test.h"
 #include "util/init_module.h"
 #include "util/sexpr/init_module.h"
@@ -16,6 +18,7 @@ Author: Leonardo de Moura
 using namespace lean;
 
 typedef phashtable<unsigned, std::hash<unsigned>, std::equal_to<unsigned>, true> unsigned_set;
+typedef std::unordered_set<unsigned, std::hash<unsigned>> std_unsigned_set;
 
 void tst1() {
     unsigned_set s;
@@ -38,6 +41,88 @@ void tst1() {
     lean_assert(s.check_invariant());
 }
 
+static void tst2() {
+    std::uniform_int_distribution<unsigned int> uint_dist;
+    std::mt19937   rng;
+    rng.seed(static_cast<unsigned int>(time(0)));
+    const unsigned N = 10000;
+    unsigned vals[N];
+    unsigned_set s1;
+    for (unsigned i = 1; i < N; i ++) {
+        unsigned v = uint_dist(rng) % (N / 2);
+        s1.insert(v);
+        vals[i] = v;
+        lean_assert(s1.contains(v));
+    }
+    std::cout << "step1\n"; std::cout.flush();
+    for (unsigned i = 1; i < N; i ++) {
+        lean_assert(s1.contains(vals[i]));
+    }
+    std::cout << "step2\n"; std::cout.flush();
+    for (unsigned i = 1; i < N; i += 2) {
+        s1.erase(vals[i]);
+        lean_assert(!s1.contains(vals[i]));
+    }
+    std::cout << "step3\n"; std::cout.flush();
+    for (unsigned i = 1; i < N; i += 2) {
+        s1.insert(vals[i]);
+    }
+    std::cout << "step4\n"; std::cout.flush();
+    for (unsigned i = 1; i < N; i ++) {
+        lean_assert(s1.contains(vals[i]));
+    }
+}
+
+static void tst3() {
+    std::uniform_int_distribution<unsigned int> uint_dist;
+    std::mt19937   rng;
+    rng.seed(static_cast<unsigned int>(time(0)));
+    unsigned_set     s1;
+    std_unsigned_set s2;
+    unsigned N = uint_dist(rng) % 1000;
+    for (unsigned i = 0; i < N; i++) {
+        unsigned v = uint_dist(rng)%1000;
+        if (uint_dist(rng) % 3 == 2) {
+            s1.erase(v);
+            s2.erase(v);
+            lean_assert(!s1.contains(v));
+        } else {
+            s1.insert(v);
+            s2.insert(v);
+            lean_assert(s1.contains(v));
+        }
+    }
+    {
+        std_unsigned_set::iterator it  = s2.begin();
+        std_unsigned_set::iterator end = s2.end();
+        for (; it != end; ++it) {
+            lean_assert(s1.contains(*it));
+        }
+    }
+    {
+        unsigned n = 0;
+        s1.for_each([&](unsigned v) {
+                lean_assert(s2.find(v) != s2.end());
+                n++;
+            });
+        lean_assert(n == s1.size());
+    }
+    lean_assert(s1.size() == s2.size());
+}
+
+static void tst4() {
+    unsigned_set s1;
+    s1.insert(10);
+    s1.insert(20);
+    unsigned_set s2 = s1;
+    lean_assert(s2.contains(10));
+    lean_assert(s2.contains(20));
+    lean_assert(!s2.contains(30));
+    s2.insert(30);
+    lean_assert(s2.contains(30));
+    lean_assert(!s1.contains(30));
+}
+
 int main() {
     save_stack_info();
     initialize_util_module();
@@ -47,6 +132,10 @@ int main() {
     initialize_library_module();
 
     tst1();
+    tst2();
+    for (int i = 0; i < 1000; i++)
+        tst3();
+    tst4();
 
     finalize_library_module();
     finalize_library_core_module();

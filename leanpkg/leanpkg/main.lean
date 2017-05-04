@@ -20,8 +20,9 @@ def write_manifest (d : manifest) (fn := leanpkg_toml_fn) : io unit :=
 write_file fn (to_string d)
 
 -- TODO(gabriel): implement a cross-platform api
-def get_dot_lean_dir : io string :=
-io.cmd "bash" ["-c", "echo -n ~/.lean"]
+def get_dot_lean_dir : io string := do
+some home ← io.env.get "HOME" | io.fail "environment variable HOME is not set",
+return $ home ++ "/.lean"
 
 -- TODO(gabriel): file existence testing
 def exists_file (f : string) : io bool := do

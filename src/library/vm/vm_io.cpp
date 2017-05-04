@@ -425,6 +425,19 @@ static vm_obj io_iterate(vm_obj const &, vm_obj const &, vm_obj const & a, vm_ob
     }
 }
 
+static vm_obj mk_io_env() {
+    return mk_vm_constructor(0, {
+        // get_env
+        mk_native_closure([] (vm_obj const & k, vm_obj const &) {
+            if (auto v = getenv(to_string(k).c_str())) {
+                return mk_io_result(mk_vm_some(to_obj(std::string(v))));
+            } else {
+                return mk_io_result(mk_vm_none());
+            }
+        }),
+    });
+}
+
 /*
 class io.interface :=
 (m        : Type → Type → Type)
@@ -438,10 +451,10 @@ class io.interface :=
 (term     : io.terminal m)
 (fs       : io.file_system handle m)
 (process  : io.process io.error handle m)
+(env      : io.environment _)
 */
 vm_obj mk_io_interface(std::vector<std::string> const & cmdline_args) {
-    constexpr size_t num_fields = 7;
-    vm_obj fields[num_fields] = {
+    return mk_vm_constructor(0, {
         mk_native_closure(io_monad),
         mk_native_closure(io_catch),
         mk_native_closure(io_fail),
@@ -449,8 +462,8 @@ vm_obj mk_io_interface(std::vector<std::string> const & cmdline_args) {
         mk_terminal(cmdline_args),
         mk_fs(),
         mk_process(),
-    };
-    return mk_vm_constructor(0, num_fields, fields);
+        mk_io_env(),
+    });
 }
 
 vm_obj mk_io_interface() {

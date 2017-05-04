@@ -30,6 +30,10 @@ structure io.file_system (handle : Type) (m : Type → Type → Type) :=
 (stdout         : m io.error handle)
 (stderr         : m io.error handle)
 
+structure io.environment (m : Type → Type → Type) :=
+(get_env : string → m io.error (option string))
+-- we don't provide set_env as it is (thread-)unsafe (at least with glibc)
+
 inductive io.process.stdio
 | piped
 | inherit
@@ -66,6 +70,7 @@ class io.interface :=
 (term     : io.terminal m)
 (fs       : io.file_system handle m)
 (process  : io.process handle m)
+(env      : io.environment m)
 
 variable [io.interface]
 
@@ -132,6 +137,13 @@ interface.fs.stderr
 
 def stdout : io handle :=
 interface.fs.stdout
+
+namespace env
+
+def get (env_var : string) : io (option string) :=
+interface.env.get_env env_var
+
+end env
 
 namespace fs
 def is_eof : handle → io bool :=

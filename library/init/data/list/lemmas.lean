@@ -98,14 +98,15 @@ by induction l; intros; contradiction
           = length l - i             : length_dropn i l
       ... = succ (length l) - succ i : nat.sub_eq_succ_sub_succ (length l) i
 
-lemma length_drop : ∀ (i : ℕ) (l : list α), i < length l → length (drop i l) = length l - 1
-| 0        l      h := length_tail _
-| (succ i) []     h := by simp [drop]
-| (succ i) (x::l) h := have i < length l, from lt_of_succ_lt_succ h,
-  by dsimp [drop]; rw [length_drop i l this, nat.sub_add_cancel (lt_of_le_of_lt (nat.zero_le _) this)]; refl
+lemma length_remove_nth : ∀ (l : list α) (i : ℕ), i < length l → length (remove_nth l i) = length l - 1
+| []      _     h := rfl
+| (x::xs) 0     h := by simp [remove_nth] without add_comm
+| (x::xs) (i+1) h := have i < length xs, from lt_of_succ_lt_succ h,
+  by dsimp [remove_nth]; rw [length_remove_nth xs i this, nat.sub_add_cancel (lt_of_le_of_lt (nat.zero_le _) this)]; refl
+
 /- nth -/
 
-theorem nth_le_nth : Π (l : list α) (n h), l^.nth n = some (l^.nth_le n h)
+theorem nth_le_nth : Π (l : list α) (n h), l^.nth n = some (l.nth_le n h)
 | []       n     h := absurd h (not_lt_zero n)
 | (a :: l) 0     h := rfl
 | (a :: l) (n+1) h := nth_le_nth l n _
@@ -401,7 +402,7 @@ iff_true_intro $ λx, false.elim
 
 protected def subset (l₁ l₂ : list α) := ∀ ⦃a : α⦄, a ∈ l₁ → a ∈ l₂
 
-instance has_subset : has_subset (list α) := ⟨list.subset⟩
+instance : has_subset (list α) := ⟨list.subset⟩
 
 @[simp] lemma nil_subset (l : list α) : [] ⊆ l :=
 λ b i, false.elim (iff.mp (mem_nil_iff b) i)
@@ -463,7 +464,7 @@ inductive sublist : list α → list α → Prop
 | cons (l₁ l₂ a) : sublist l₁ l₂ → sublist l₁ (a::l₂)
 | cons2 (l₁ l₂ a) : sublist l₁ l₂ → sublist (a::l₁) (a::l₂)
 
-infix `<+`:50 := sublist
+infix ` <+ `:50 := sublist
 
 @[simp] lemma nil_sublist : Π (l : list α), [] <+ l
 | []       := sublist.slnil

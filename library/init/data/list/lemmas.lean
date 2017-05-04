@@ -106,24 +106,24 @@ lemma length_remove_nth : ∀ (l : list α) (i : ℕ), i < length l → length (
 
 /- nth -/
 
-theorem nth_le_nth : Π (l : list α) (n h), l^.nth n = some (l.nth_le n h)
+theorem nth_le_nth : Π (l : list α) (n h), nth l n = some (nth_le l n h)
 | []       n     h := absurd h (not_lt_zero n)
 | (a :: l) 0     h := rfl
 | (a :: l) (n+1) h := nth_le_nth l n _
 
-theorem nth_ge_len : Π (l : list α) (n), n ≥ l^.length → l^.nth n = none
+theorem nth_ge_len : Π (l : list α) (n), n ≥ length l → nth l n = none
 | []       n     h := rfl
 | (a :: l) 0     h := absurd h (not_lt_zero _)
 | (a :: l) (n+1) h := nth_ge_len l n (le_of_succ_le_succ h)
 
-theorem ext : Π {l₁ l₂ : list α}, (∀n, l₁^.nth n = l₂^.nth n) → l₁ = l₂
+theorem ext : Π {l₁ l₂ : list α}, (∀n, nth l₁ n = nth l₂ n) → l₁ = l₂
 | []      []       h := rfl
 | (a::l₁) []       h := by note h0 := h 0; contradiction
 | []      (a'::l₂) h := by note h0 := h 0; contradiction
 | (a::l₁) (a'::l₂) h := by assertv h0 : some a = some a' := h 0; injection h0 with aa; simph[ext $ λn, h (n+1)]
 
-theorem ext_le {l₁ l₂ : list α} (hl : l₁^.length = l₂^.length) (h : ∀n h₁ h₂, l₁^.nth_le n h₁ = l₂^.nth_le n h₂) : l₁ = l₂ :=
-ext $ λn, if h₁ : n < l₁^.length
+theorem ext_le {l₁ l₂ : list α} (hl : length l₁ = length l₂) (h : ∀n h₁ h₂, nth_le l₁ n h₁ = nth_le l₂ n h₂) : l₁ = l₂ :=
+ext $ λn, if h₁ : n < length l₁
   then by rw [nth_le_nth, nth_le_nth, h n h₁ (by rwa -hl)]
   else let h₁ := le_of_not_gt h₁ in by rw [nth_ge_len _ _ h₁, nth_ge_len _ _ (by rwa -hl)]
 

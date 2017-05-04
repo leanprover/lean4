@@ -225,20 +225,14 @@ format.print_using (to_fmt a) o
 meta definition pp {α : Type} [has_to_format α] (a : α) : io unit :=
 format.print (to_fmt a)
 
-/-- Run the external process named by `cmd`, supplied with the arguments `args`.
+/-- Run the external process specified by `args`.
 
     The process will run to completion with its output captured by a pipe, and
     read into `string` which is then returned.
 -/
-def io.cmd [io.interface] (cmd : string) (args : list string) (cwd : option string := none) (env : list (string × option string) := []) : io string :=
-do child ← io.proc.spawn {
-    cmd := cmd,
-    cwd := cwd,
-    env := env,
-    args := args,
-    stdout := io.process.stdio.piped
-  },
-  buf ← io.fs.read child.stdout 1024,
+def io.cmd (args : io.process.spawn_args) : io string :=
+do child ← io.proc.spawn { args with stdout := io.process.stdio.piped },
+  buf ← io.fs.read_to_end child.stdout,
   exitv ← io.proc.wait child,
   when (exitv ≠ 0) $ io.fail $ "process exited with status " ++ exitv.to_string,
   return buf.to_string

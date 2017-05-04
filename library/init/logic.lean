@@ -31,12 +31,11 @@ h
 lemma mt {a b : Prop} (h₁ : a → b) (h₂ : ¬b) : ¬a :=
 assume ha : a, absurd (h₁ ha) h₂
 
-def implies.resolve {a b : Prop} (h : a → b) (nb : ¬ b) : ¬ a := assume ha, nb (h ha)
+theorem contrapos {a b : Prop} (h : a → b) (nb : ¬ b) : ¬ a := assume ha, nb (h ha)
 
 /- not -/
 
-lemma not_false : ¬false :=
-assume h : false, h
+lemma not_false : ¬false := id
 
 def non_contradictory (a : Prop) : Prop := ¬¬a
 
@@ -460,6 +459,12 @@ or.assoc
 
 @[simp] lemma or.left_comm : a ∨ (b ∨ c) ↔ b ∨ (a ∨ c) :=
 iff.trans (iff.symm or.assoc) (iff.trans (or_congr or.comm (iff.refl c)) or.assoc)
+
+theorem or_iff_right_of_imp (ha : a → b) : (a ∨ b) ↔ b :=
+iff.intro (or.rec ha id) or.inr
+
+theorem or_iff_left_of_imp (hb : b → a) : (a ∨ b) ↔ a :=
+iff.intro (or.rec id hb) or.inl
 
 @[simp] lemma or_true (a : Prop) : a ∨ true ↔ true :=
 iff_true_intro (or.inr trivial)

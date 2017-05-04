@@ -73,10 +73,6 @@ def powerset (s : set α) : set (set α) :=
 {t | t ⊆ s}
 prefix `𝒫`:100 := powerset
 
-def Union (s : set (set α)) : set α :=
-{t | ∃a ∈ s, t ∈ a}
-prefix `⋃`:100 := Union
-
 def image (f : α → β) (s : set α) : set β :=
 {b | ∃ a, a ∈ s ∧ f a = b}
 
@@ -94,5 +90,23 @@ instance : functor set :=
    exact propext ⟨λ ⟨a, ⟨h₁, h₂⟩⟩, ⟨g a, ⟨⟨a, ⟨h₁, rfl⟩⟩, h₂⟩⟩,
                   λ ⟨b, ⟨⟨a, ⟨h₁, h₂⟩⟩, h₃⟩⟩, ⟨a, ⟨h₁, h₂.symm ▸ h₃⟩⟩⟩
  end}
+
+@[reducible]
+def Union {α : Sort u} (s : α → set β) : set β := {x | ∃ i, x ∈ s i}
+
+@[reducible]
+def Inter {α : Sort u} (s : α → set β) : set β := {x | ∀ i, x ∈ s i}
+
+notation `⋃` binders `, ` r:(scoped f, Union f) := r
+notation `⋂` binders `, ` r:(scoped f, Inter f) := r
+
+@[reducible]
+def sUnion (s : set (set α)) : set α := {t | ∃ a ∈ s, t ∈ a}
+
+@[reducible]
+def sInter (s : set (set α)) : set α := {t | ∀ a ∈ s, t ∈ a}
+
+prefix `⋃₀`:110 := sUnion
+prefix `⋂₀`:110 := sInter
 
 end set

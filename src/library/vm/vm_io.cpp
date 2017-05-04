@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include <cstdio>
 #include <iostream>
+#include <util/unit.h>
 #include "util/sstream.h"
 #include "library/handle.h"
 #include "library/io_state.h"
@@ -318,7 +319,8 @@ structure spawn_args :=
   (stdout := stdio.inherit)
   /- Configuration for the process's stderr handle. -/
   (stderr := stdio.inherit)
-  (cwd := option string)
+  (cwd : option string)
+  (env : list (string × option string))
 */
 static vm_obj io_process_spawn(vm_obj const & process_obj, vm_obj const &) {
     std::string cmd = to_string(cfield(process_obj, 0));
@@ -343,6 +345,14 @@ static vm_obj io_process_spawn(vm_obj const & process_obj, vm_obj const &) {
     proc.set_stdin(stdin_stdio);
     proc.set_stdout(stdout_stdio);
     proc.set_stderr(stderr_stdio);
+
+    to_list<unit>(cfield(process_obj, 6), [&] (vm_obj const & o) {
+        auto k = to_string(cfield(o, 0));
+        optional<std::string> v;
+        if (!is_none(cfield(o, 1))) v = to_string(get_some_value(cfield(o, 1)));
+        proc.set_env(k, v);
+        return unit();
+    });
 
     if (cwd) proc.set_cwd(*cwd);
 

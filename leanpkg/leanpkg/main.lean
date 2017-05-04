@@ -46,7 +46,7 @@ path_file_cnts ← mk_path_file <$> construct_path assg,
 write_file "leanpkg.path" path_file_cnts
 
 def make : io unit :=
-exec_cmd "env" ["-u", "LEAN_PATH", "lean", "--make"]
+exec_cmd "lean" ["--make"] none [("LEAN_PATH", none)]
 
 def build := configure >> make
 

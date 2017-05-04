@@ -57,6 +57,11 @@ process & process::set_cwd(std::string const &cwd) {
     return *this;
 }
 
+process & process::set_env(std::string const & var, optional<std::string> const & val) {
+    m_env[var] = val;
+    return *this;
+}
+
 #if defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
 
 struct windows_child : public child {
@@ -94,7 +99,8 @@ static FILE * from_win_handle(HANDLE handle, char const * mode) {
     return fdopen(fd, mode);
 }
 
-static HANDLE create_child_process(std::string const & cmd_name, optional<std::string> const & cwd,
+static HANDLE create_child_process(std::string cmd_name, optional<std::string> const & cwd,
+    std::unordered_map<std::string, optional<std::string>> const & env,
     HANDLE hstdin, HANDLE hstdout, HANDLE hstderr);
 
 // TODO(@jroesch): unify this code between platforms better.
@@ -187,7 +193,7 @@ std::shared_ptr<child> process::spawn() {
 
     // Create the child process.
     auto proc_handle =
-        create_child_process(command, m_cwd, child_stdin, child_stdout, child_stderr);
+        create_child_process(command, m_cwd, m_env, child_stdin, child_stdout, child_stderr);
 
     if (stdin_pipe) {
         CloseHandle(stdin_pipe->m_read_fd);
@@ -210,8 +216,13 @@ std::shared_ptr<child> process::spawn() {
         std::make_shared<handle>(from_win_handle(parent_stderr, "r")));
 }
 
+static void set_env(std::string const & var, optional<std::string> const & val) {
+    SetEnvironmentVariable(var.c_str(), val ? val->c_str() : NULL);
+}
+
 // Create a child process that uses the previously created pipes for STDIN and STDOUT.
-static HANDLE create_child_process(std::string const & command, optional<std::string> const & cwd,
+static HANDLE create_child_process(std::string command, optional<std::string> const & cwd,
+        std::unordered_map<std::string, optional<std::string>> const & env,
         HANDLE hstdin, HANDLE hstdout, HANDLE hstderr) {
     PROCESS_INFORMATION piProcInfo;
     STARTUPINFO siStartInfo;
@@ -230,6 +241,17 @@ static HANDLE create_child_process(std::string const & command, optional<std::st
     siStartInfo.hStdInput = hstdin;
     siStartInfo.dwFlags |= STARTF_USESTDHANDLES;
 
+    // TODO(gabriel): this is thread-unsafe
+    std::unordered_map<std::string, optional<std::string>> old_env_vars;
+    for (auto & entry : env) {
+        optional<std::string> old;
+        if (auto old_val = getenv(entry.first.c_str()))
+            old = std::string(old_val);
+        old_env_vars[entry.first] = old;
+
+        set_env(entry.first, entry.second);
+    }
+
     // Create the child process.
     // std::cout << command << std::endl;
     bSuccess = CreateProcess(
@@ -244,6 +266,10 @@ static HANDLE create_child_process(std::string const & command, optional<std::st
         &siStartInfo,                        // STARTUPINFO pointer
         &piProcInfo);                        // receives PROCESS_INFORMATION
 
+    for (auto & entry : old_env_vars) {
+        set_env(entry.first, entry.second);
+    }
+
     // If an error occurs, exit the application.
     if (!bSuccess) {
         throw exception("failed to start child process");
@@ -256,10 +282,6 @@ static HANDLE create_child_process(std::string const & command, optional<std::st
 
         return piProcInfo.hProcess;
     }
-}
-
-void process::run() {
-    spawn()->wait();
 }
 
 #else
@@ -315,6 +337,14 @@ std::shared_ptr<child> process::spawn() {
     int pid = fork();
 
     if (pid == 0) {
+        for (auto & entry : m_env) {
+            if (auto val = entry.second) {
+                setenv(entry.first.c_str(), val->c_str(), true);
+            } else {
+                unsetenv(entry.first.c_str());
+            }
+        }
+
         if (stdin_pipe) {
             dup2(stdin_pipe->m_read_fd, STDIN_FILENO);
             close(stdin_pipe->m_write_fd);
@@ -374,10 +404,11 @@ std::shared_ptr<child> process::spawn() {
          std::make_shared<handle>(parent_stderr));
 }
 
+#endif
+
 void process::run() {
     spawn()->wait();
 }
 
-#endif
 
 }

@@ -9,14 +9,14 @@ variable [io.interface]
 
 namespace leanpkg
 
-def exec_cmd (cmd : string) (args : list string) (cwd : option string := none) : io unit := do
+def exec_cmd (cmd : string) (args : list string) (cwd : option string := none) (env : list (string × option string) := []) : io unit := do
 let cmdstr := join " " (cmd::args),
 io.put_str_ln $ "> " ++
   match cwd with
   | some cwd := cmdstr ++ "    # in directory " ++ cwd
   | none := cmdstr
   end,
-ch ← spawn { cmd := cmd, args := args, cwd := cwd },
+ch ← spawn { cmd := cmd, args := args, cwd := cwd, env := env },
 exitv ← wait ch,
 when (exitv ≠ 0) $ io.fail $
   "external command exited with status " ++ exitv.to_string

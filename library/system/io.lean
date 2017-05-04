@@ -52,6 +52,8 @@ structure io.process.spawn_args :=
 (stderr := stdio.inherit)
 /- Working directory for the process. -/
 (cwd : option string := none)
+/- Environment variables for the process. -/
+(env : list (string × option string) := [])
 
 structure io.process (handle : Type) (m : Type → Type → Type) :=
 (child : Type) (stdin : child → handle) (stdout : child → handle) (stderr : child → handle)
@@ -228,10 +230,11 @@ format.print (to_fmt a)
     The process will run to completion with its output captured by a pipe, and
     read into `string` which is then returned.
 -/
-def io.cmd [io.interface] (cmd : string) (args : list string) (cwd : option string := none) : io string :=
+def io.cmd [io.interface] (cmd : string) (args : list string) (cwd : option string := none) (env : list (string × option string) := []) : io string :=
 do child ← io.proc.spawn {
     cmd := cmd,
     cwd := cwd,
+    env := env,
     args := args,
     stdout := io.process.stdio.piped
   },

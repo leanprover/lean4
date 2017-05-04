@@ -1,3 +1,7 @@
-expr_quote.lean:1:32: error: invalid quotation, contains universe parameter
-meta def f : expr → expr → expr :=
-λ (α a : expr), expr.subst (expr.subst ```(λ (_x_1 : Type 2) (_x_2 : _x_1), id.{3} _x_2) α) a
+expr_quote.lean:1:27: error: invalid quotation, contains universe metavariable
+expr_quote.lean:1:9: error: don't know how to synthesize placeholder
+context:
+α a : expr
+⊢ Sort ?
+meta def g : expr → expr → expr :=
+λ (α a : expr), expr.subst (expr.subst ↑```(λ (_x_1 : Type 2) (_x_2 : _x_1), id.{3} _x_2) α) a

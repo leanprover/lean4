@@ -306,6 +306,7 @@ real.has_sub
 real.has_lt
 real.has_le
 reflected
+reflected.subst
 rfl
 right_distrib
 ring

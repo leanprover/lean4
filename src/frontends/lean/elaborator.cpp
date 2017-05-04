@@ -264,14 +264,6 @@ expr elaborator::mk_type_metavar(expr const & ref) {
 }
 
 expr elaborator::mk_instance_core(local_context const & lctx, expr const & C, expr const & ref) {
-    // synthesize `reflected e` by quoting e
-    if (is_app_of(C, get_reflected_name(), 2)) {
-        expr const & e = app_arg(C);
-        if (!is_local(e)) {
-            return visit(mk_expr_quote(e), some_expr(C));
-        }
-    }
-
     scope_traces_as_messages traces_as_messages(get_pos_info_provider(), ref);
 
     // TODO(gabriel): cache failures so that we do not report errors twice
@@ -2816,33 +2808,48 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
 
 expr elaborator::visit_expr_quote(expr const & e, optional<expr> const & expected_type) {
     name x("_x");
-    buffer<expr> locals;
-    buffer<expr> aqs;
     expr s = get_expr_quote_value(e);
-    if (!is_local(s)) {
+    expr q;
+    if (find(s, [](expr const & t, unsigned) { return is_antiquote(t); })) {
+        // antiquotations ~> return `expr`
+        buffer<expr> locals;
+        buffer<expr> substs;
         s = replace(s, [&](expr const & t, unsigned) {
             if (is_antiquote(t)) {
                 expr local = mk_local(mk_fresh_name(), x.append_after(locals.size() + 1),
                                       mk_expr_placeholder(), binder_info());
                 locals.push_back(local);
-                aqs.push_back(get_antiquote_expr(t));
+                substs.push_back(get_antiquote_expr(t));
                 return some_expr(local);
             }
             return none_expr();
         });
+        s = Fun(locals, s);
+        expr new_s = visit(s, none_expr());
+        if (has_param_univ(new_s))
+            throw elaborator_exception(e, "invalid quotation, contains universe parameter");
+        if (has_univ_metavar(new_s))
+            throw elaborator_exception(e, "invalid quotation, contains universe metavariable");
+        if (has_local(new_s))
+            throw elaborator_exception(e, "invalid quotation, contains local constant");
+        q = mk_expr_quote(new_s);
+        q = mk_as_is(q);
+        expr subst_fn = mk_constant(get_expr_subst_name());
+        for (expr const & subst : substs) {
+            q = mk_app(subst_fn, q, subst);
+        }
+    } else {
+        // no antiquotations ~> infer `reflected new_s`
+        expr new_s;
+        if (expected_type && is_app_of(*expected_type, get_reflected_name(), 2)) {
+            new_s = visit(s, some_expr(app_arg(app_fn(*expected_type))));
+        } else {
+            new_s = visit(s, none_expr());
+        }
+        expr cls = mk_app(m_ctx, get_reflected_name(), new_s);
+        return mk_instance(cls, e);
     }
-    expr r = Fun(locals, s);
-    r = visit(r, none_expr());
-    r = mk_expr_quote(r);
-    r = mk_as_is(r);
-
-    expr subst_fn = mk_constant(get_expr_subst_name());
-    expr to_pexpr = mk_constant(get_to_pexpr_name());
-    for (expr const & subst : aqs) {
-        r = mk_app(subst_fn, r);
-        r = mk_app(r, subst);
-    }
-    return visit(r, expected_type);
+    return visit(q, expected_type);
 }
 
 expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_type, bool is_app_fn) {

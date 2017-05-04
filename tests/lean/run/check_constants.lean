@@ -311,6 +311,7 @@ run_cmd script_check_id `real.has_sub
 run_cmd script_check_id `real.has_lt
 run_cmd script_check_id `real.has_le
 run_cmd script_check_id `reflected
+run_cmd script_check_id `reflected.subst
 run_cmd script_check_id `rfl
 run_cmd script_check_id `right_distrib
 run_cmd script_check_id `ring

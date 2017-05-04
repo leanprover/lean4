@@ -46,16 +46,18 @@ meta inductive expr
 | elet        : name → expr → expr → expr → expr
 | macro       : macro_def → ∀ n, (fin n → expr) → expr
 
-universe u
-/-- (reflected a) is a special opaque container for an `expr` representing `a`.
+universes u v
+/-- (reflected a) is a special opaque container for a closed `expr` representing `a`.
     It can only be obtained via type class inference, which will use the representation
-    of `a` in the calling context. -/
+    of `a` in the calling context. Local constants in the representation are replaced
+    by nested inference of `reflected` instances.
+
+    The quotation expression ```(a) (outside of patterns) is equivalent to `reflect a`
+    and thus can be used as an explicit way of inferring an instance of `reflected a`. -/
 meta constant reflected {α : Type u} : α → Type u
 meta constant reflected.to_expr {α : Type u} {a : α} : reflected a → expr
-
-meta structure typed_expr (α : Type u) :=
-(val  : α)
-(reflected : reflected val)
+meta constant reflected.subst {α : Type u} {β : α → Type v} {f : Π a : α, β a} {a : α} :
+  reflected f → reflected a → reflected (f a)
 
 attribute [class] reflected
 meta instance {α : Type u} (a : α) : has_coe (reflected a) expr :=
@@ -328,7 +330,7 @@ meta def binding_body : expr → expr
 | e             := e
 
 meta def imp (a b : expr) : expr :=
-```(%%a → %%b)
+pi `_ binder_info.default a b
 
 meta def lambdas : list expr → expr → expr
 | (local_const uniq pp info t :: es) f :=

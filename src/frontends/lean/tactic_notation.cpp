@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 #include "library/typed_expr.h"
 #include "library/placeholder.h"
+#include "library/explicit.h"
 #include "kernel/scope_pos_info_provider.h"
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_format.h"
@@ -141,7 +142,12 @@ static expr parse_interactive_param(parser & p, expr const & ty, expr const & qu
     auto env = eval.compile(n, quote_inst);
     vm_state S(env, p.get_options());
     auto vm_res = S.invoke(n, vm_parsed);
-    return to_expr(vm_res);
+    expr r = to_expr(vm_res);
+    if (is_app_of(r, get_pexpr_subst_name())) {
+        return r; // HACK
+    } else {
+        return mk_as_is(r);
+    }
 }
 
 static expr parse_interactive_tactic(parser & p, name const & decl_name, name const & tac_class, bool use_istep) {

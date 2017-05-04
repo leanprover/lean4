@@ -67,7 +67,7 @@ meta def inf_not_l (c : clause) : tactic (list clause) :=
 on_first_left c $ λtype,
   match type with
   | app (const ``not []) a := do
-    hna ← mk_local_def `h ```(%%a → false),
+    hna ← mk_local_def `h (a.imp ```(false)),
     return [([hna], hna)]
   | _ := failed
   end
@@ -76,7 +76,7 @@ meta def inf_not_r (c : clause) : tactic (list clause) :=
 on_first_right c $ λhna,
   match hna.local_type with
   | app (const ``not []) a := do
-    hnna ← mk_local_def `h ```((%%a → false) → %%c.local_false),
+    hnna ← mk_local_def `h ((a.imp ```(false)).imp c.local_false),
     return [([hnna], app hnna hna)]
   | _ := failed
   end

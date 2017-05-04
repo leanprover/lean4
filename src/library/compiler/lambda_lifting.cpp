@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "kernel/scope_pos_info_provider.h"
 #include "library/module.h"
-#include "library/quote.h"
 #include "library/vm/vm.h"
 #include "library/compiler/util.h"
 #include "library/compiler/erase_irrelevant.h"
@@ -192,13 +191,6 @@ class lambda_lifting_fn : public compiler_step_visitor {
         }
     }
 
-    expr visit_macro(expr const & e) override {
-        if (is_expr_quote(e)) {
-            return e;
-        } else {
-            return compiler_step_visitor::visit_macro(e);
-        }
-    }
 public:
     lambda_lifting_fn(environment const & env, name const & prefix):
         compiler_step_visitor(env), m_prefix(prefix), m_idx(1) {

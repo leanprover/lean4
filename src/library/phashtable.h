@@ -20,6 +20,7 @@ namespace lean {
 
 template<typename T>
 class default_hash_entry {
+protected:
     enum state { Free, Deleted, Used };
 
     unsigned  m_hash; //!< cached hash code

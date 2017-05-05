@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "kernel/init_module.h"
 #include "library/init_module.h"
 #include "library/phashtable.h"
+#include "library/phash_map.h"
 using namespace lean;
 
 typedef phashtable<unsigned, std::hash<unsigned>, std::equal_to<unsigned>, true> unsigned_set;
@@ -141,6 +142,31 @@ static void tst5() {
     lean_assert(!s1.contains(99999999));
 }
 
+typedef phash_map<unsigned, unsigned, std::hash<unsigned>, std::equal_to<unsigned>, true> umap;
+
+static void tst6() {
+    umap m;
+    m.insert(1, 2);
+    lean_assert(m.contains(1));
+    lean_assert(m.find(1) == optional<unsigned>(2));
+    m.insert(1, 3);
+    lean_assert(m.contains(1));
+    lean_assert(m.find(1) == optional<unsigned>(3));
+    lean_assert(m.contains(1));
+    m.insert(2, 4);
+    m.for_each([](unsigned k, unsigned v) {
+            lean_assert(k == 1 || k == 2);
+            lean_assert(v == 3 || v == 4);
+        });
+    lean_assert(m.size() == 2);
+    lean_assert(m.contains(2));
+    lean_assert(m.contains(1));
+    m.erase(1);
+    lean_assert(!m.contains(1));
+    lean_assert(m.find(2) == optional<unsigned>(4));
+    lean_assert(m.size() == 1);
+}
+
 int main() {
     save_stack_info();
     initialize_util_module();
@@ -155,6 +181,7 @@ int main() {
         tst3();
     tst4();
     tst5();
+    tst6();
 
     finalize_library_module();
     finalize_library_core_module();

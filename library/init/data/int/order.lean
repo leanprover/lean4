@@ -35,12 +35,16 @@ int.cases_on a (take n H, exists.intro n rfl) (take n', false.elim)
 private lemma nonneg_or_nonneg_neg (a : ℤ) : nonneg a ∨ nonneg (-a) :=
 int.cases_on a (take n, or.inl trivial) (take n, or.inr trivial)
 
+lemma le.intro_sub {a b : ℤ} {n : ℕ} (h : b - a = n) : a ≤ b :=
+show nonneg (b - a), by rw h; trivial
+
 lemma le.intro {a b : ℤ} {n : ℕ} (h : a + n = b) : a ≤ b :=
-have ↑n = b - a, begin rw -h, simp end,
-show nonneg (b - a), from this ▸ trivial
+le.intro_sub (by rw -h; simp)
+
+lemma le.dest_sub {a b : ℤ} (h : a ≤ b) : ∃ n : ℕ, b - a = n := nonneg.elim h
 
 lemma le.dest {a b : ℤ} (h : a ≤ b) : ∃ n : ℕ, a + n = b :=
-match (nonneg.elim h) with
+match (le.dest_sub h) with
 | ⟨n, h₁⟩ := exists.intro n begin rw [-h₁, add_comm], simp end
 end
 
@@ -66,6 +70,12 @@ le.elim h (take k, assume hk : ↑m + ↑k = ↑n,
 
 lemma coe_nat_le_coe_nat_iff (m n : ℕ) : (↑m : ℤ) ≤ ↑n ↔ m ≤ n :=
 iff.intro le_of_coe_nat_le_coe_nat coe_nat_le_coe_nat_of_le
+
+lemma coe_zero_le (n : ℕ) : 0 ≤ (↑n : ℤ) :=
+coe_nat_le_coe_nat_of_le n.zero_le
+
+lemma eq_coe_of_zero_le {a : ℤ} (h : 0 ≤ a) : ∃ n : ℕ, a = n :=
+by note t := le.dest_sub h; simp at t; exact t
 
 lemma lt_add_succ (a : ℤ) (n : ℕ) : a < a + ↑(nat.succ n) :=
 le.intro (show a + 1 + n = a + nat.succ n, begin simp [int.coe_nat_eq], reflexivity end)

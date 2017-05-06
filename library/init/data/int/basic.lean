@@ -122,7 +122,7 @@ lemma neg_succ_of_nat_eq (n : ℕ) : -[1+ n] = -(n + 1) := rfl
 
 /- basic properties of sub_nat_nat -/
 
-private lemma sub_nat_nat_elim (m n : ℕ) (P : ℕ → ℕ → ℤ → Prop)
+lemma sub_nat_nat_elim (m n : ℕ) (P : ℕ → ℕ → ℤ → Prop)
   (hp : ∀i n, P (n + i) n (of_nat i))
   (hn : ∀i m, P m (m + i + 1) (-[1+ i])) :
   P m n (sub_nat_nat m n) :=
@@ -179,6 +179,16 @@ lemma eq_zero_of_nat_abs_eq_zero : Π {a : ℤ}, nat_abs a = 0 → a = 0
 lemma nat_abs_zero : nat_abs (0 : int) = (0 : nat) := rfl
 
 lemma nat_abs_one : nat_abs (1 : int) = (1 : nat) := rfl
+
+lemma nat_abs_mul_self : Π {a : ℤ}, ↑(nat_abs a * nat_abs a) = a * a
+| (of_nat m) := rfl
+| -[1+ m']   := rfl
+
+lemma nat_abs_eq : Π (a : ℤ), a = nat_abs a ∨ a = -(nat_abs a)
+| (of_nat m) := or.inl rfl
+| -[1+ m']   := or.inr rfl
+
+lemma eq_coe_or_neg (a : ℤ) : ∃n : ℕ, a = n ∨ a = -n := ⟨_, nat_abs_eq a⟩
 
 /-- Relator between integers and pairs of natural numbers -/
 
@@ -343,5 +353,20 @@ instance : distrib int            := by apply_instance
 
 instance : zero_ne_one_class ℤ :=
 { zero := 0, one := 1, zero_ne_one := by int.transfer }
+
+lemma of_nat_sub {n m : ℕ} (h : m ≤ n) : of_nat (n - m) = of_nat n - of_nat m :=
+show of_nat (n - m) = of_nat n + neg_of_nat m, from match m, h with
+| 0, h := rfl
+| succ m, h := show of_nat (n - succ m) = sub_nat_nat n (succ m),
+  by delta sub_nat_nat; rw sub_eq_zero_of_le h; refl
+end
+
+protected lemma coe_nat_sub {n m : ℕ} : n ≤ m → (↑(m - n) : ℤ) = ↑m - ↑n := of_nat_sub
+
+protected lemma sub_nat_nat_eq_coe {m n : ℕ} : sub_nat_nat m n = ↑m - ↑n :=
+sub_nat_nat_elim m n (λm n i, i = ↑m - ↑n)
+  (λi n, by simp[int.coe_nat_add]; refl)
+  (λi n, by simp[int.coe_nat_add, int.coe_nat_one, int.neg_succ_of_nat_eq];
+            apply congr_arg; rw[add_left_comm]; simp)
 
 end int

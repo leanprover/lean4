@@ -61,6 +61,9 @@ section semiring
   lemma one_add_one_eq_two : 1 + 1 = (2 : α) :=
   begin unfold bit0, reflexivity end
 
+  theorem two_mul (n : α) : 2 * n = n + n :=
+  eq.trans (right_distrib 1 1 n) (by simp)
+
   lemma ne_zero_of_mul_ne_zero_right {a b : α} (h : a * b ≠ 0) : a ≠ 0 :=
   suppose a = 0,
   have a * b = 0, by rw [this, zero_mul],

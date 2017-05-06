@@ -79,6 +79,9 @@ lemma mul_neg_of_neg_of_pos {a b : α} (ha : a < 0) (hb : b > 0) : a * b < 0 :=
 have h : a * b < 0 * b, from mul_lt_mul_of_pos_right ha hb,
 by rwa zero_mul at  h
 
+lemma mul_self_le_mul_self {a b : α} (h1 : 0 ≤ a) (h2 : a ≤ b) : a * a ≤ b * b :=
+mul_le_mul h2 h2 h1 (le_trans h1 h2)
+
 lemma mul_self_lt_mul_self {a b : α} (h1 : 0 ≤ a) (h2 : a < b) : a * a < b * b :=
 mul_lt_mul' h2 h2 h1 (lt_of_le_of_lt h1 h2)
 end ordered_semiring
@@ -321,16 +324,15 @@ have h' : a * c ≤ b * c, from calc
        ... ≤ b * c : mul_le_mul_of_nonneg_left hc hb,
 le_of_mul_le_mul_right h' (lt_of_lt_of_le zero_lt_one hc)
 
-lemma nonneg_le_nonneg_of_squares_le {a b : α} (ha : a ≥ 0) (hb : b ≥ 0) (h : a * a ≤ b * b) : a ≤ b :=
-begin
-  apply le_of_not_gt,
-  intro hab,
-  note hposa := lt_of_le_of_lt hb hab,
-  note h' := calc
-      b * b ≤ a * b : mul_le_mul_of_nonneg_right (le_of_lt hab) hb
-        ... < a * a : mul_lt_mul_of_pos_left hab hposa,
-  apply (not_le_of_gt h') h
-end
+lemma nonneg_le_nonneg_of_squares_le {a b : α} (hb : b ≥ 0) (h : a * a ≤ b * b) : a ≤ b :=
+le_of_not_gt (λhab, not_le_of_gt (mul_self_lt_mul_self hb hab) h)
+
+lemma mul_self_le_mul_self_iff {a b : α} (h1 : 0 ≤ a) (h2 : 0 ≤ b) : a ≤ b ↔ a * a ≤ b * b :=
+⟨mul_self_le_mul_self h1, nonneg_le_nonneg_of_squares_le h2⟩
+
+lemma mul_self_lt_mul_self_iff {a b : α} (h1 : 0 ≤ a) (h2 : 0 ≤ b) : a < b ↔ a * a < b * b :=
+iff.trans (lt_iff_not_ge _ _) $ iff.trans (not_iff_not_of_iff $ mul_self_le_mul_self_iff h2 h1) $
+  iff.symm (lt_iff_not_ge _ _)
 
 end linear_ordered_ring
 

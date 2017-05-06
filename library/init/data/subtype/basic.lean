@@ -22,6 +22,9 @@ rfl
 protected lemma eq : ∀ {a1 a2 : {x // p x}}, val a1 = val a2 → a1 = a2
 | ⟨x, h1⟩ ⟨.(x), h2⟩ rfl := rfl
 
+@[simp] lemma eta (a : {x // p x}) (h : p (val a)) : mk (val a) h = a :=
+subtype.eq rfl
+
 end subtype
 
 open subtype

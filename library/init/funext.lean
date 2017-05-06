@@ -48,11 +48,9 @@ quot.lift_on f
   (λ f : Π x : α, β x, f x)
   (λ f₁ f₂ h, h x)
 
-theorem funext {f₁ f₂ : Π x : α, β x} : (∀ x, f₁ x = f₂ x) → f₁ = f₂ :=
-assume h, calc
-   f₁ = extfun_app ⟦f₁⟧ : rfl
-  ... = extfun_app ⟦f₂⟧ : @sound _ _ f₁ f₂ h ▸ rfl
-  ... = f₂              : rfl
+theorem funext {f₁ f₂ : Π x : α, β x} (h : ∀ x, f₁ x = f₂ x) : f₁ = f₂ :=
+show extfun_app ⟦f₁⟧ = extfun_app ⟦f₂⟧, from
+congr_arg extfun_app (sound h)
 end
 
 attribute [intro!] funext

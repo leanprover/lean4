@@ -249,20 +249,20 @@ lemma iff.elim_right : (a ↔ b) → b → a := iff.mpr
 lemma iff_iff_implies_and_implies (a b : Prop) : (a ↔ b) ↔ (a → b) ∧ (b → a) :=
 iff.intro (λ h, and.intro h.mp h.mpr) (λ h, iff.intro h.left h.right)
 
-attribute [refl]
+@[refl]
 lemma iff.refl (a : Prop) : a ↔ a :=
 iff.intro (assume h, h) (assume h, h)
 
 lemma iff.rfl {a : Prop} : a ↔ a :=
 iff.refl a
 
-attribute [trans]
+@[trans]
 lemma iff.trans (h₁ : a ↔ b) (h₂ : b ↔ c) : a ↔ c :=
 iff.intro
   (assume ha, iff.mp h₂ (iff.mp h₁ ha))
   (assume hc, iff.mpr h₁ (iff.mpr h₂ hc))
 
-attribute [symm]
+@[symm]
 lemma iff.symm (h : a ↔ b) : b ↔ a :=
 iff.intro (iff.elim_right h) (iff.elim_left h)
 
@@ -552,7 +552,7 @@ def exists_unique {α : Sort u} (p : α → Prop) :=
 
 notation `∃!` binders `, ` r:(scoped P, exists_unique P) := r
 
-attribute [intro]
+@[intro]
 lemma exists_unique.intro {α : Sort u} {p : α → Prop} (w : α) (h₁ : p w) (h₂ : ∀ y, p y → y = w) :
   ∃! x, p x :=
 exists.intro w ⟨h₁, h₂⟩
@@ -797,7 +797,7 @@ match h with
 | (is_false hnc) := rfl
 end
 
-attribute [simp]
+@[simp]
 lemma if_t_t (c : Prop) [h : decidable c] {α : Sort u} (t : α) : (ite c t t) = t :=
 match h with
 | (is_true hc)   := rfl
@@ -956,7 +956,7 @@ structure plift (α : Sort u) : Type u :=
 up :: (down : α)
 
 namespace plift
-/- Bijection between α and slift α -/
+/- Bijection between α and plift α -/
 lemma up_down {α : Sort u} : ∀ (b : plift α), up (down b) = b
 | (up a) := rfl
 

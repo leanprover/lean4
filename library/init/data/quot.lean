@@ -154,7 +154,7 @@ protected def lift₂
    (f : α → β → φ)(c : ∀ a₁ a₂ b₁ b₂, a₁ ≈ b₁ → a₂ ≈ b₂ → f a₁ a₂ = f b₁ b₂)
    (q₁ : quotient s₁) (q₂ : quotient s₂) : φ :=
 quotient.lift
-  (λ (a₁ : α), quot.lift (f a₁) (λ (a b : β), c a₁ a a₁ b (setoid.refl a₁)) q₂)
+  (λ (a₁ : α), quotient.lift (f a₁) (λ (a b : β), c a₁ a a₁ b (setoid.refl a₁)) q₂)
   (λ (a b : α) (h : a ≈ b),
      @quotient.ind β s₂
        (λ (a_1 : quotient s₂),
@@ -184,7 +184,7 @@ protected lemma induction_on₃
    [s₃ : setoid φ]
    {δ : quotient s₁ → quotient s₂ → quotient s₃ → Prop} (q₁ : quotient s₁) (q₂ : quotient s₂) (q₃ : quotient s₃) (h : ∀ a b c, δ ⟦a⟧ ⟦b⟧ ⟦c⟧)
    : δ q₁ q₂ q₃ :=
-quot.ind (λ a₁, quot.ind (λ a₂, quot.ind (λ a₃, h a₁ a₂ a₃) q₃) q₂) q₁
+quotient.ind (λ a₁, quotient.ind (λ a₂, quotient.ind (λ a₃, h a₁ a₂ a₃) q₃) q₂) q₁
 end
 
 section exact
@@ -212,7 +212,6 @@ lemma exact {a b : α} : ⟦a⟧ = ⟦b⟧ → a ≈ b :=
 assume h, eq_imp_rel h
 end exact
 
-
 section
 universes u_a u_b u_c
 variables {α : Sort u_a} {β : Sort u_b}
@@ -228,6 +227,35 @@ protected def rec_on_subsingleton₂
 
 end
 end quotient
+
+section
+variable {α : Type u}
+variable (r : α → α → Prop)
+
+inductive eqv_gen : α → α → Prop
+| rel {} : Π x y, r x y → eqv_gen x y
+| refl {} : Π x, eqv_gen x x
+| symm {} : Π x y, eqv_gen x y → eqv_gen y x
+| trans {} : Π x y z, eqv_gen x y → eqv_gen y z → eqv_gen x z
+
+theorem eqv_gen.is_equivalence : equivalence (@eqv_gen α r) :=
+mk_equivalence _ eqv_gen.refl eqv_gen.symm eqv_gen.trans
+
+def eqv_gen.setoid : setoid α :=
+setoid.mk _ (eqv_gen.is_equivalence r)
+
+theorem quot.exact {a b : α} (H : quot.mk r a = quot.mk r b) : eqv_gen r a b :=
+@quotient.exact _ (eqv_gen.setoid r) a b (@congr_arg _ _ _ _
+  (quot.lift (@quotient.mk _ (eqv_gen.setoid r)) (λx y h, quot.sound (eqv_gen.rel x y h))) H)
+
+theorem quot.eqv_gen_sound {r : α → α → Prop} {a b : α} (H : eqv_gen r a b) : quot.mk r a = quot.mk r b :=
+eqv_gen.rec_on H
+  (λ x y h, quot.sound h)
+  (λ x, rfl)
+  (λ x y _ IH, eq.symm IH)
+  (λ x y z _ _ IH₁ IH₂, eq.trans IH₁ IH₂)
+end
+
 
 open decidable
 instance {α : Sort u} {s : setoid α} [d : ∀ a b : α, decidable (a ≈ b)] : decidable_eq (quotient s) :=

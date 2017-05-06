@@ -408,7 +408,7 @@ do r   ← result,
        <|> fail ("'" ++ to_string ctor ++ "' is not a constructor"),
    let ctors := env.constructors_of ty,
    let idx   := env.inductive_num_params ty + /- motive -/ 1 +
-     list.find ctor ctors,
+     list.index_of ctor ctors,
    gs        ← get_goals,
    (case, g) ← (find_case gs ty idx (env.inductive_num_indices ty) none r ).to_monad
              <|> fail "could not find open goal of given case",

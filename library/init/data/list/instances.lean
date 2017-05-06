@@ -84,4 +84,54 @@ if h : ∃ x ∈ l, ¬ p x then
 else
   is_true $ λ x hx, if h' : p x then h' else false.elim $ h ⟨x, hx, h'⟩
 
+instance decidable_prefix [decidable_eq α] : ∀ (l₁ l₂ : list α), decidable (l₁ <+: l₂)
+| []      l₂ := is_true ⟨l₂, rfl⟩
+| (a::l₁) [] := is_false $ λ⟨t, te⟩, list.no_confusion te
+| (a::l₁) (b::l₂) :=
+  if h : a = b then
+    decidable_of_decidable_of_iff (decidable_prefix l₁ l₂) $ by rw -h; exact
+      ⟨λ⟨t, te⟩, ⟨t, by rw -te; refl⟩,
+       λ⟨t, te⟩, list.no_confusion te (λ_ te, ⟨t, te⟩)⟩
+  else
+    is_false $ λ⟨t, te⟩, list.no_confusion te $ λh', absurd h' h
+
+-- Alternatively, use mem_tails
+instance decidable_suffix [decidable_eq α] : ∀ (l₁ l₂ : list α), decidable (l₁ <:+ l₂)
+| []      l₂ := is_true ⟨l₂, append_nil _⟩
+| (a::l₁) [] := is_false $ λ⟨t, te⟩, absurd te $
+                append_ne_nil_of_ne_nil_right _ _ $ λh, list.no_confusion h
+| l₁      l₂ := let len1 := length l₁, len2 := length l₂ in
+  if hl : len1 ≤ len2 then
+    if he : dropn (len2 - len1) l₂ = l₁ then is_true $
+      ⟨taken (len2 - len1) l₂, by rw [-he, taken_append_dropn]⟩
+    else is_false $
+      suffices length l₁ ≤ length l₂ → l₁ <:+ l₂ → dropn (length l₂ - length l₁) l₂ = l₁,
+        from λsuf, he (this hl suf),
+      λ hl ⟨t, te⟩, and.right $
+        append_right_inj (eq.trans (taken_append_dropn (length l₂ - length l₁) l₂) te.symm) $
+        by simp; exact nat.sub_sub_self hl
+  else is_false $ λ⟨t, te⟩, hl $
+    show length l₁ ≤ length l₂, by rw [-te, length_append]; apply nat.le_add_left
+
+instance decidable_infix [decidable_eq α] : ∀ (l₁ l₂ : list α), decidable (l₁ <:+: l₂)
+| []      l₂ := is_true ⟨[], l₂, rfl⟩
+| (a::l₁) [] := is_false $ λ⟨s, t, te⟩, absurd te $ append_ne_nil_of_ne_nil_left _ _ $
+                append_ne_nil_of_ne_nil_right _ _ $ λh, list.no_confusion h
+| l₁      l₂ := decidable_of_decidable_of_iff (list.decidable_bex (λt, l₁ <+: t) (tails l₂)) $
+  by refine (exists_congr (λt, _)).trans (infix_iff_prefix_suffix _ _).symm;
+     exact ⟨λ⟨h1, h2⟩, ⟨h2, (mem_tails _ _).1 h1⟩, λ⟨h2, h1⟩, ⟨(mem_tails _ _).2 h1, h2⟩⟩
+
+instance decidable_sublist [decidable_eq α] : ∀ (l₁ l₂ : list α), decidable (l₁ <+ l₂)
+| []      l₂      := is_true $ nil_sublist _
+| (a::l₁) []      := is_false $ λh, list.no_confusion $ eq_nil_of_sublist_nil h
+| (a::l₁) (b::l₂) :=
+  if h : a = b then
+    decidable_of_decidable_of_iff (decidable_sublist l₁ l₂) $
+      by rw -h; exact ⟨cons_sublist_cons _, sublist_of_cons_sublist_cons⟩
+  else decidable_of_decidable_of_iff (decidable_sublist (a::l₁) l₂)
+    ⟨sublist_cons_of_sublist _, λs, match a, l₁, s, h with
+    | a, l₁, sublist.cons ._ ._ ._ s', h := s'
+    | ._, ._, sublist.cons2 t ._ ._ s', h := absurd rfl h
+    end⟩
+
 end list

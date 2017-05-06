@@ -34,10 +34,10 @@ lemma append_ne_nil_of_ne_nil_right (s t : list α) : t ≠ [] → s ++ t ≠ []
 by induction s; intros; contradiction
 
 lemma append_foldl (f : α → β → α) (a : α) (s t : list β) : foldl f a (s ++ t) = foldl f (foldl f a s) t :=
-by {revert a, induction s with b s H, exact λ_, rfl, intros, simp[foldl], rw H _}
+by {revert a, induction s with b s H, exact λ_, rfl, intros, simp [foldl], rw H _}
 
 lemma append_foldr (f : α → β → β) (a : β) (s t : list α) : foldr f a (s ++ t) = foldr f (foldr f a t) s :=
-by {revert a, induction s with b s H, exact λ_, rfl, intros, simp[foldr], rw H _}
+by {revert a, induction s with b s H, exact λ_, rfl, intros, simp [foldr], rw H _}
 
 /- concat -/
 
@@ -60,6 +60,16 @@ by cases l; refl
 /- repeat taken dropn -/
 
 attribute [simp] repeat taken dropn
+
+@[simp] lemma split_at_eq_taken_dropn : ∀ (n : ℕ) (l : list α), split_at n l = (taken n l, dropn n l)
+| 0        a         := rfl
+| (succ n) []        := rfl
+| (succ n) (x :: xs) := by simp [split_at, split_at_eq_taken_dropn n xs]
+
+@[simp] lemma taken_append_dropn : ∀ (n : ℕ) (l : list α), taken n l ++ dropn n l = l
+| 0        a         := rfl
+| (succ n) []        := rfl
+| (succ n) (x :: xs) := by simp [taken_append_dropn n xs]
 
 /- length -/
 
@@ -103,6 +113,24 @@ lemma length_remove_nth : ∀ (l : list α) (i : ℕ), i < length l → length (
 | (x::xs) 0     h := by simp [remove_nth] without add_comm
 | (x::xs) (i+1) h := have i < length xs, from lt_of_succ_lt_succ h,
   by dsimp [remove_nth]; rw [length_remove_nth xs i this, nat.sub_add_cancel (lt_of_le_of_lt (nat.zero_le _) this)]; refl
+
+lemma append_inj : ∀ {s₁ s₂ t₁ t₂ : list α}, s₁ ++ t₁ = s₂ ++ t₂ → length s₁ = length s₂ → s₁ = s₂ ∧ t₁ = t₂
+| []      []      t₁ t₂ h hl := ⟨rfl, h⟩
+| (a::s₁) []      t₁ t₂ h hl := list.no_confusion $ eq_nil_of_length_eq_zero hl
+| []      (b::s₂) t₁ t₂ h hl := list.no_confusion $ eq_nil_of_length_eq_zero hl.symm
+| (a::s₁) (b::s₂) t₁ t₂ h hl := list.no_confusion h $ λab hap,
+  let ⟨e1, e2⟩ := @append_inj s₁ s₂ t₁ t₂ hap (succ.inj hl) in
+  by rw [ab, e1, e2]; exact ⟨rfl, rfl⟩
+
+lemma append_inj_left {s₁ s₂ t₁ t₂ : list α} (h : s₁ ++ t₁ = s₂ ++ t₂) (hl : length s₁ = length s₂) : s₁ = s₂ :=
+(append_inj h hl).left
+
+lemma append_inj_right {s₁ s₂ t₁ t₂ : list α} (h : s₁ ++ t₁ = s₂ ++ t₂) (hl : length s₁ = length s₂) : t₁ = t₂ :=
+(append_inj h hl).right
+
+lemma append_right_inj {s₁ s₂ t₁ t₂ : list α} (h : s₁ ++ t₁ = s₂ ++ t₂) (hl : length t₁ = length t₂) : s₁ = s₂ ∧ t₁ = t₂ :=
+append_inj h $ @nat.add_right_cancel _ (length t₁) _ $
+let hap := congr_arg length h in by simp at hap; rwa -hl at hap
 
 /- nth -/
 
@@ -398,6 +426,25 @@ iff_true_intro $ λx, false.elim
 ⟨λal, ⟨al a (mem_cons_self _ _), λx h, al x (mem_cons_of_mem _ h)⟩,
  λ⟨pa, al⟩ x o, o.elim (λe, e.symm ▸ pa) (al x)⟩
 
+lemma mem_map (f : α → β) {a : α} {l : list α} (h : a ∈ l) : f a ∈ map f l :=
+begin
+  induction l with b l' ih,
+  {simp at h, contradiction },
+  {simp, simp at h, cases h with h h,
+    {simph},
+    {exact or.inr (ih h)}}
+end
+
+lemma exists_of_mem_map {f : α → β} {b : β} {l : list α} (h : b ∈ map f l) : ∃ a, a ∈ l ∧ f a = b :=
+begin
+  induction l with c l' ih,
+  {simp at h, contradiction},
+  {cases (eq_or_mem_of_mem_cons h) with h h,
+    {existsi c, simp [h]},
+    {cases ih h with a ha, cases ha with ha₁ ha₂,
+      existsi a, simph }}
+end
+
 /- list subset -/
 
 protected def subset (l₁ l₂ : list α) := ∀ ⦃a : α⦄, a ∈ l₁ → a ∈ l₂
@@ -457,6 +504,10 @@ or.elim (mem_or_mem_of_mem_append this)
   (suppose a ∈ l₁, l₁subl this)
   (suppose a ∈ l₂, l₂subl this)
 
+lemma eq_nil_of_subset_nil : ∀ {l : list α}, l ⊆ [] → l = []
+| []     s := rfl
+| (a::l) s := absurd (s $ mem_cons_self a l) (not_mem_nil a)
+
 /- sublists -/
 
 inductive sublist : list α → list α → Prop
@@ -489,7 +540,7 @@ sublist.cons _ _ _ (sublist.refl l)
 lemma sublist_of_cons_sublist {a : α} {l₁ l₂ : list α} : a::l₁ <+ l₂ → l₁ <+ l₂ :=
 sublist.trans (sublist_cons a l₁)
 
-lemma cons_sublist_cons  {l₁ l₂ : list α} (a : α) (s : l₁ <+ l₂) : (a::l₁) <+ (a::l₂) :=
+lemma cons_sublist_cons {l₁ l₂ : list α} (a : α) (s : l₁ <+ l₂) : a::l₁ <+ a::l₂ :=
 sublist.cons2 _ _ _ s
 
 @[simp] lemma sublist_append_left : Π (l₁ l₂ : list α), l₁ <+ l₁++l₂
@@ -500,7 +551,7 @@ sublist.cons2 _ _ _ s
 | []      l₂ := sublist.refl _
 | (a::l₁) l₂ := sublist.cons _ _ _ (sublist_append_right l₁ l₂)
 
-lemma sublist_cons_of_sublist (a : α) {l₁ l₂ : list α} : l₁ <+ l₂ → l₁ <+ (a::l₂) :=
+lemma sublist_cons_of_sublist (a : α) {l₁ l₂ : list α} : l₁ <+ l₂ → l₁ <+ a::l₂ :=
 sublist.cons _ _ _
 
 lemma sublist_app_of_sublist_left (l l₁ l₂ : list α) (s : l <+ l₁) : l <+ l₁++l₂ :=
@@ -509,42 +560,178 @@ sublist.trans s (sublist_append_left _ _)
 lemma sublist_app_of_sublist_right (l l₁ l₂ : list α) (s : l <+ l₂) : l <+ l₁++l₂ :=
 sublist.trans s (sublist_append_right _ _)
 
-lemma subset_of_sublist : Π {l₁ l₂ : list α} (s : l₁ <+ l₂) ⦃b⦄ (h : b ∈ l₁), b ∈ l₂
-| ._ ._ sublist.slnil b h := h
-| ._ ._ (sublist.cons l₁ l₂ a s) b h := mem_cons_of_mem _ (subset_of_sublist s h)
+lemma sublist_of_cons_sublist_cons {l₁ l₂ : list α} : ∀ {a : α}, a::l₁ <+ a::l₂ → l₁ <+ l₂
+| ._ (sublist.cons  ._ ._ a s) := sublist_of_cons_sublist s
+| ._ (sublist.cons2 ._ ._ a s) := s
+
+lemma subset_of_sublist : Π {l₁ l₂ : list α}, l₁ <+ l₂ → l₁ ⊆ l₂
+| ._ ._ sublist.slnil             b h := h
+| ._ ._ (sublist.cons  l₁ l₂ a s) b h := mem_cons_of_mem _ (subset_of_sublist s h)
 | ._ ._ (sublist.cons2 l₁ l₂ a s) b h :=
   match eq_or_mem_of_mem_cons h with
   | or.inl h := by rw h; exact mem_cons_self _ _
   | or.inr h := mem_cons_of_mem _ (subset_of_sublist s h)
   end
 
+lemma length_le_of_sublist : ∀ {l₁ l₂ : list α}, l₁ <+ l₂ → length l₁ ≤ length l₂
+| ._ ._ sublist.slnil             := le_refl 0
+| ._ ._ (sublist.cons  l₁ l₂ a s) := le_succ_of_le (length_le_of_sublist s)
+| ._ ._ (sublist.cons2 l₁ l₂ a s) := succ_le_succ (length_le_of_sublist s)
+
+lemma eq_nil_of_sublist_nil {l : list α} (s : l <+ []) : l = [] :=
+eq_nil_of_subset_nil $ subset_of_sublist s
+
 lemma eq_nil_of_map_eq_nil {f : α → β} {l :list α} (h : map f l = nil) : l = nil :=
 eq_nil_of_length_eq_zero (begin rw -(length_map f l), simp [h] end)
 
-lemma mem_map (f : α → β) {a : α} {l : list α} (h : a ∈ l) : f a ∈ map f l :=
-begin
-  induction l with b l' ih,
-  {simp at h, contradiction },
-  {simp, simp at h, cases h with h h,
-    {simph},
-    {exact or.inr (ih h)}}
-end
+lemma eq_of_map_const {b₁ b₂ : β} {l : list α} (h : b₁ ∈ map (function.const α b₂) l) : b₁ = b₂ :=
+let ⟨a, _, e⟩ := exists_of_mem_map h in e.symm
 
-lemma exists_of_mem_map {f : α → β} {b : β} {l : list α} (h : b ∈ map f l) : ∃ a, a ∈ l ∧ f a = b :=
-begin
-  induction l with c l' ih,
-  {simp at h, contradiction},
-  {cases (eq_or_mem_of_mem_cons h) with h h,
-    {existsi c, simp [h]},
-    {cases ih h with a ha, cases ha with ha₁ ha₂,
-      existsi a, simph }}
-end
+/- foldl, foldr, scanl, scanr -/
 
-lemma eq_of_map_const {b₁ b₂ : β} : ∀ {l : list α}, b₁ ∈ map (function.const α b₂) l → b₁ = b₂
-| []     h := absurd h (not_mem_nil b₁)
-| (a::l) h :=
-  or.elim (eq_or_mem_of_mem_cons h)
-    (suppose b₁ = b₂, this)
-    (suppose b₁ ∈ map (function.const α b₂) l, eq_of_map_const this)
+attribute [simp] foldl foldr
+
+@[simp] lemma foldr_eta : ∀ (l : list α), foldr cons [] l = l
+| []     := rfl
+| (x::l) := by simp [foldr_eta l]
+
+@[simp] lemma scanr_nil (f : α → β → β) (b : β) : scanr f b [] = [b] := rfl
+
+@[simp] lemma scanr_aux_cons (f : α → β → β) (b : β) : ∀ (a : α) (l : list α),
+  scanr_aux f b (a::l) = (foldr f b (a::l), scanr f b l)
+| a []     := rfl
+| a (x::l) := let t := scanr_aux_cons x l in
+  by simp [scanr, scanr_aux] at t; simp [scanr, scanr_aux, t]
+
+@[simp] lemma scanr_cons (f : α → β → β) (b : β) (a : α) (l : list α) :
+  scanr f b (a::l) = foldr f b (a::l) :: scanr f b l :=
+by simp [scanr]
+
+/- filter, partition, take_while, drop_while, span -/
+
+attribute [simp] repeat taken dropn
+
+@[simp] lemma partition_eq_filter_filter (p : α → Prop) [decidable_pred p] : ∀ (l : list α), partition p l = (filter p l, filter (not ∘ p) l)
+| []     := rfl
+| (a::l) := by { by_cases p a; intro pa; simp [partition, filter, pa, partition_eq_filter_filter l],
+                 rw [if_neg (not_not_intro pa)], rw [if_pos pa] }
+
+@[simp] lemma span_eq_take_drop (p : α → Prop) [decidable_pred p] : ∀ (l : list α), span p l = (take_while p l, drop_while p l)
+| []     := rfl
+| (a::l) := by by_cases p a; intro pa; simp [span, take_while, drop_while, pa, span_eq_take_drop l]
+
+@[simp] lemma take_while_append_drop (p : α → Prop) [decidable_pred p] : ∀ (l : list α), take_while p l ++ drop_while p l = l
+| []     := rfl
+| (a::l) := by by_cases p a; intro pa; simp [take_while, drop_while, pa, take_while_append_drop l]
+
+/- inits, tails -/
+
+attribute [simp] inits tails
+
+/- prefix, suffix, infix -/
+
+lemma prefix_append (l₁ l₂ : list α) : l₁ <+: l₁ ++ l₂ := ⟨l₂, rfl⟩
+
+lemma suffix_append (l₁ l₂ : list α) : l₂ <:+ l₁ ++ l₂ := ⟨l₁, rfl⟩
+
+lemma infix_append (l₁ l₂ l₃ : list α) : l₂ <:+: l₁ ++ l₂ ++ l₃ := ⟨l₁, l₃, rfl⟩
+
+lemma prefix_refl (l : list α) : l <+: l := ⟨[], append_nil _⟩
+
+lemma suffix_refl (l : list α) : l <:+ l := ⟨[], rfl⟩
+
+lemma infix_of_prefix {l₁ l₂ : list α} : l₁ <+: l₂ → l₁ <:+: l₂ :=
+λ⟨t, h⟩, ⟨[], t, h⟩
+
+lemma infix_of_suffix {l₁ l₂ : list α} : l₁ <:+ l₂ → l₁ <:+: l₂ :=
+λ⟨t, h⟩, ⟨t, [], by simp [h]⟩
+
+lemma infix_refl (l : list α) : l <:+: l := infix_of_prefix $ prefix_refl l
+
+lemma sublist_of_infix {l₁ l₂ : list α} : l₁ <:+: l₂ → l₁ <+ l₂ :=
+λ⟨s, t, h⟩, by rw -h; exact (sublist_append_right _ _).trans (sublist_append_left _ _)
+
+lemma length_le_of_infix {l₁ l₂ : list α} (s : l₁ <:+: l₂) : length l₁ ≤ length l₂ :=
+length_le_of_sublist $ sublist_of_infix s
+
+lemma eq_nil_of_infix_nil {l : list α} (s : l <:+: []) : l = [] :=
+eq_nil_of_sublist_nil $ sublist_of_infix s
+
+lemma eq_nil_of_prefix_nil {l : list α} (s : l <+: []) : l = [] :=
+eq_nil_of_infix_nil $ infix_of_prefix s
+
+lemma eq_nil_of_suffix_nil {l : list α} (s : l <:+ []) : l = [] :=
+eq_nil_of_infix_nil $ infix_of_suffix s
+
+lemma infix_iff_prefix_suffix (l₁ l₂ : list α) : l₁ <:+: l₂ ↔ ∃ t, l₁ <+: t ∧ t <:+ l₂ :=
+⟨λ⟨s, t, e⟩, ⟨l₁ ++ t, ⟨_, rfl⟩, by rw [-e, append_assoc]; exact ⟨_, rfl⟩⟩,
+λ⟨._, ⟨t, rfl⟩, ⟨s, e⟩⟩, ⟨s, t, by rw append_assoc; exact e⟩⟩
+
+@[simp] lemma mem_inits : ∀ (s t : list α), s ∈ inits t ↔ s <+: t
+| s []     := by simp; exact ⟨λh, by rw h; exact prefix_refl [], eq_nil_of_prefix_nil⟩
+| s (a::t) := by simp; exact ⟨λo, match s, o with
+  | ._, or.inl rfl := ⟨_, rfl⟩
+  | s, or.inr mm := let ⟨r, hr, hs⟩ := exists_of_mem_map mm, ⟨s, ht⟩ := (mem_inits _ _).1 hr in
+    by rw [-hs, -ht]; exact ⟨s, rfl⟩
+  end, λmi, match s, mi with
+  | [], ⟨._, rfl⟩ := or.inl rfl
+  | (b::s), ⟨r, hr⟩ := list.no_confusion hr $ λba st, or.inr $
+    by rw ba; exact mem_map _ ((mem_inits _ _).2 ⟨_, st⟩)
+  end⟩
+
+@[simp] lemma mem_tails : ∀ (s t : list α), s ∈ tails t ↔ s <:+ t
+| s []     := by simp; exact ⟨λh, by rw h; exact suffix_refl [], eq_nil_of_suffix_nil⟩
+| s (a::t) := by simp [mem_tails s t]; exact show s <:+ t ∨ s = a :: t ↔ s <:+ a :: t, from
+  ⟨λo, match s, t, o with
+  | s, ._, or.inl ⟨l, rfl⟩ := ⟨a::l, rfl⟩
+  | ._, t, or.inr rfl := suffix_refl _
+  end, λe, match s, t, e with
+  | ._, t, ⟨[], rfl⟩ := or.inr rfl
+  | s, t, ⟨b::l, he⟩ := list.no_confusion he (λab lt, or.inl ⟨l, lt⟩)
+  end⟩
+
+lemma sublists_aux_eq_foldl : ∀ (l : list α) {β : Type u} (f : list α → list β → list β),
+  sublists_aux l f = foldr f [] (sublists_aux l cons)
+| []     β f := rfl
+| (a::l) β f := suffices ∀ t, foldr (λ ys r, f ys (f (a :: ys) r)) [] t =
+                         foldr f [] (foldr (λ ys r, ys :: (a :: ys) :: r) nil t),
+by simp [sublists_aux]; rw [sublists_aux_eq_foldl l, sublists_aux_eq_foldl l (λ ys r, ys :: (a :: ys) :: r), this],
+λt, by induction t; simp; simp [ih_1]
+
+lemma sublists_aux_cons_cons (l : list α) (a : α) :
+  sublists_aux (a::l) cons = [a] :: foldr (λys r, ys :: (a :: ys) :: r) [] (sublists_aux l cons) :=
+by rw -sublists_aux_eq_foldl; refl
+
+@[simp] lemma mem_sublists (s t : list α) : s ∈ sublists t ↔ s <+ t :=
+by simp [sublists]; exact
+⟨λm, let good := λ (l : list (list α)), ∀ s ∈ l, s <+ t in
+  suffices ∀ l (f : list α → list (list α) → list (list α)),
+    (∀ {x y}, x <+ l → good y → good (f x y)) → l <+ t → good (sublists_aux l f), from
+    or.elim m (λe, by rw e; apply nil_sublist)
+      (this t cons (λ x y hx hy s m, by exact or.elim m (λe, by rw e; exact hx) (hy s)) (sublist.refl _) s),
+  begin
+    intro l; induction l with a l IH; intros f al sl x m,
+    exact false.elim m,
+    refine al (cons_sublist_cons a (nil_sublist _)) _ _ m,
+    exact λs hs, IH _ (λx y hx hy, al (sublist_cons_of_sublist _ hx) (al (cons_sublist_cons _ hx) hy))
+      (sublist_of_cons_sublist sl) _ hs
+  end,
+λsl, begin
+  assert this : ∀ {a : α} {y t}, y ∈ t → y ∈ foldr (λ ys r, ys :: (a :: ys) :: r) nil t
+                                  ∧ a :: y ∈ foldr (λ ys r, ys :: (a :: ys) :: r) nil t,
+  { intros a y t yt, induction t with x t IH, exact absurd yt (not_mem_nil _),
+    simp, simp at yt, cases yt with yx yt,
+    { rw yx, exact ⟨or.inl rfl, or.inr $ or.inl rfl⟩ },
+    { cases IH yt with h1 h2,
+      exact ⟨or.inr $ or.inr h1, or.inr $ or.inr h2⟩ } },
+  induction sl with l₁ l₂ a sl IH l₁ l₂ a sl IH, exact or.inl rfl,
+  { refine or.imp_right (λh, _) IH,
+    rw sublists_aux_cons_cons,
+    exact mem_cons_of_mem _ (this h).left },
+  { refine or.inr _,
+    rw sublists_aux_cons_cons, simp,
+    refine or.imp (λ(h : l₁ = []), by rw h) (λh, _) IH,
+    exact (this h).right },
+end⟩
 
 end list

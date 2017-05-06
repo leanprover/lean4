@@ -134,27 +134,63 @@ def filter (p : α → Prop) [decidable_pred p] : list α → list α
 | []     := []
 | (a::l) := if p a then a :: filter l else filter l
 
-def find [decidable_eq α] : α → list α → nat
-| a []       := 0
-| a (b :: l) := if a = b then 0 else succ (find a l)
+def partition (p : α → Prop) [decidable_pred p] : list α → list α × list α
+| []     := ([], [])
+| (a::l) := let (l₁, l₂) := partition l in if p a then (a :: l₁, l₂) else (l₁, a :: l₂)
+
+def take_while (p : α → Prop) [decidable_pred p] : list α → list α
+| []     := []
+| (a::l) := if p a then a :: take_while l else []
+
+def drop_while (p : α → Prop) [decidable_pred p] : list α → list α
+| []     := []
+| (a::l) := if p a then drop_while l else a::l
+
+def span (p : α → Prop) [decidable_pred p] : list α → list α × list α
+| []      := ([], [])
+| (a::xs) := if p a then let (l, r) := span xs in (a :: l, r) else ([], a::xs)
+
+def find (p : α → Prop) [decidable_pred p] : list α → option α
+| []     := none
+| (a::l) := if p a then some a else find l
+
+def find_index (p : α → Prop) [decidable_pred p] : list α → nat
+| []     := 0
+| (a::l) := if p a then 0 else succ (find_index l)
+
+def find_indexes_aux (p : α → Prop) [decidable_pred p] : list α → nat → list nat
+| []     n := []
+| (a::l) n := let t := find_indexes_aux l (succ n) in if p a then n :: t else t
+
+def find_indexes (p : α → Prop) [decidable_pred p] (l : list α) : list nat :=
+find_indexes_aux p l 0
+
+def index_of [decidable_eq α] (a : α) : list α → nat := find_index (eq a)
+
+def indexes_of [decidable_eq α] (a : α) : list α → list nat := find_indexes (eq a)
 
 def dropn : ℕ → list α → list α
-| 0 a := a
-| (succ n) [] := []
+| 0        a      := a
+| (succ n) []     := []
 | (succ n) (x::r) := dropn n r
 
 def taken : ℕ → list α → list α
-| 0 a := []
-| (succ n) [] := []
+| 0        a        := []
+| (succ n) []       := []
 | (succ n) (x :: r) := x :: taken n r
+
+def split_at : ℕ → list α → list α × list α
+| 0        a         := ([], a)
+| (succ n) []        := ([], [])
+| (succ n) (x :: xs) := let (l, r) := split_at n xs in (x :: l, r)
 
 def foldl (f : α → β → α) : α → list β → α
 | a []       := a
 | a (b :: l) := foldl (f a b) l
 
-def foldr (f : α → β → β) : β → list α → β
-| b []       := b
-| b (a :: l) := f a (foldr b l)
+def foldr (f : α → β → β) (b : β) : list α → β
+| []       := b
+| (a :: l) := f a (foldr l)
 
 def any (l : list α) (p : α → bool) : bool :=
 foldr (λ a r, p a || r) ff l
@@ -188,12 +224,9 @@ def range_core : ℕ → list ℕ → list ℕ
 def range (n : ℕ) : list ℕ :=
 range_core n []
 
-def iota_core : ℕ → list ℕ → list ℕ
-| 0        l := reverse l
-| (succ n) l := iota_core n (succ n :: l)
-
-def iota : ℕ → list ℕ :=
-λ n, iota_core n []
+def iota : ℕ → list ℕ
+| 0        := []
+| (succ n) := succ n :: iota n
 
 def enum_from : ℕ → list α → list (ℕ × α)
 | n [] := nil
@@ -228,4 +261,48 @@ join (map b a)
 
 @[inline] def ret {α : Type u} (a : α) : list α :=
 [a]
+
+def transpose_aux : list α → list (list α) → list (list α)
+| []     ls      := ls
+| (a::i) []      := [a] :: transpose_aux i []
+| (a::i) (l::ls) := (a::l) :: transpose_aux i ls
+
+def transpose : list (list α) → list (list α)
+| []      := []
+| (l::ls) := transpose_aux l (transpose ls)
+
+def sublists_aux : list α → (list α → list β → list β) → list β
+| []     f := []
+| (a::l) f := f [a] (sublists_aux l (λys r, f ys (f (a :: ys) r)))
+
+def sublists (l : list α) : list (list α) :=
+[] :: sublists_aux l cons
+
+def scanl (f : α → β → α) : α → list β → list α
+| a []     := [a]
+| a (b::l) := a :: scanl (f a b) l
+
+def scanr_aux (f : α → β → β) (b : β) : list α → β × list β
+| []     := (b, [])
+| (a::l) := let (b', l') := scanr_aux l in (f a b', b' :: l')
+
+def scanr (f : α → β → β) (b : β) (l : list α) : list β :=
+let (b', l') := scanr_aux f b l in b' :: l'
+
+def inits : list α → list (list α)
+| []     := [[]]
+| (a::l) := [] :: map (λt, a::t) (inits l)
+
+def tails : list α → list (list α)
+| []     := [[]]
+| (a::l) := (a::l) :: tails l
+
+def is_prefix (l₁ : list α) (l₂ : list α) : Prop := ∃ t, l₁ ++ t = l₂
+def is_suffix (l₁ : list α) (l₂ : list α) : Prop := ∃ t, t ++ l₁ = l₂
+def is_infix (l₁ : list α) (l₂ : list α) : Prop := ∃ s t, s ++ l₁ ++ t = l₂
+
+infix ` <+: `:50 := is_prefix
+infix ` <:+ `:50 := is_suffix
+infix ` <:+: `:50 := is_infix
+
 end list

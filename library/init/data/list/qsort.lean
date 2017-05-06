@@ -16,8 +16,7 @@ namespace list
 meta def qsort {α} (lt : α → α → bool) : list α → list α
 | []     := []
 | (h::t) :=
-  let small := filter (λ x, lt h x = ff) t,
-      large := filter (λ x, lt h x = tt) t
+  let (large, small) := partition (λ x, lt h x = tt) t
   in qsort small ++ h :: qsort large
 
 end list

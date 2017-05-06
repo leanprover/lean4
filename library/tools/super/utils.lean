@@ -72,10 +72,6 @@ private def zip_with_index' {A} : ℕ → list A → list (A × ℕ)
 def zip_with_index {A} : list A → list (A × ℕ) :=
 zip_with_index' 0
 
-def partition {A} (pred : A → Prop) [decidable_pred pred] : list A → list A × list A
-| (x::xs) := match partition xs with (ts,fs) := if pred x then (x::ts, fs) else (ts, x::fs) end
-| [] := ([],[])
-
 meta def merge_sorted {A} [has_ordering A] : list A → list A → list A
 | [] ys := ys
 | xs [] := xs

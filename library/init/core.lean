@@ -168,6 +168,8 @@ h ▸ rfl
 
 infix == := heq
 
+@[pattern] def heq.rfl {α : Sort u} {a : α} : a == a := heq.refl a
+
 lemma eq_of_heq {α : Sort u} {a a' : α} (h : a == a') : a = a' :=
 have ∀ (α' : Sort u) (a' : α') (h₁ : @heq α a α' a') (h₂ : α = α'), (eq.rec_on h₂ a : α') = a', from
   λ (α' : Sort u) (a' : α') (h₁ : @heq α a α' a'), heq.rec_on h₁ (λ h₂ : α = α, rfl),

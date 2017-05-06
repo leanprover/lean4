@@ -102,7 +102,7 @@ theorem nodup_of_sublist : Π {l₁ l₂ : list α}, l₁ <+ l₂ → nodup l₂
   ndcons (λh, i (subset_of_sublist s h)) (nodup_of_sublist s n)
 
 theorem not_nodup_cons_of_not_nodup {a : α} {l : list α} : ¬ nodup l → ¬ nodup (a :: l) :=
-contrapos nodup_of_nodup_cons
+mt nodup_of_nodup_cons
 
 theorem nodup_of_nodup_append_left {l₁ l₂ : list α} : nodup (l₁++l₂) → nodup l₁ :=
 nodup_of_sublist (sublist_append_left l₁ l₂)

@@ -45,10 +45,20 @@ def tail : vector α n → vector α (n - 1)
 theorem tail_cons (a : α) : Π (v : vector α n), tail (a :: v) = v
 | ⟨ l, h ⟩ := rfl
 
-def to_list : vector α n → list α | ⟨ l, h ⟩ := l
+@[simp] theorem cons_head_tail : ∀ v : vector α (succ n), (head v :: tail v) = v
+| ⟨ [],     h ⟩ := by contradiction
+| ⟨ a :: v, h ⟩ := rfl
+
+def to_list (v : vector α n) : list α := v.1
+
+def nth : Π (v : vector α n), fin n → α | ⟨ l, h ⟩ i := l.nth_le i.1 (by rw h; exact i.2)
 
 def append {n m : nat} : vector α n → vector α m → vector α (n + m)
 | ⟨ l₁, h₁ ⟩ ⟨ l₂, h₂ ⟩ := ⟨ l₁ ++ l₂, by simp_using_hs ⟩
+
+@[elab_as_eliminator] def elim {α} {C : Π {n}, vector α n → Sort u} (H : ∀l : list α, C ⟨l, rfl⟩)
+  {n : nat} : Π (v : vector α n), C v
+| ⟨l, h⟩ := match n, h with ._, rfl := H l end
 
 /- map -/
 
@@ -72,6 +82,13 @@ def dropn (i : ℕ) : vector α n → vector α (n - i)
 def taken (i : ℕ) : vector α n → vector α (min i n)
 | ⟨l, p⟩ := ⟨ list.taken i l, by simp_using_hs ⟩
 
+def remove_nth (i : fin n) : vector α n → vector α (n - 1)
+| ⟨l, p⟩ := ⟨ list.remove_nth l i.1, by rw[l.length_remove_nth i.1]; rw p; exact i.2 ⟩
+
+def of_fn : Π {n}, (fin n → α) → vector α n
+| 0 f := []
+| (n+1) f := f 0 :: of_fn (λi, f i.succ)
+
 section accum
   open prod
   variable {σ : Type}
@@ -92,11 +109,16 @@ end accum
 protected lemma eq {n : ℕ} : ∀ (a1 a2 : vector α n), to_list a1 = to_list a2 → a1 = a2
 | ⟨x, h1⟩ ⟨._, h2⟩ rfl := rfl
 
+protected theorem eq_nil (v : vector α 0) : v = [] :=
+v.eq [] (list.eq_nil_of_length_eq_zero v.2)
+
 @[simp] lemma to_list_mk (v : list α) (P : list.length v = n) : to_list (subtype.mk v P) = v :=
 rfl
 
 @[simp] lemma to_list_nil : to_list [] = @list.nil α :=
 rfl
+
+@[simp] lemma to_list_length (v : vector α n) : (to_list v).length = n := v.2
 
 @[simp] lemma to_list_cons (a : α) (v : vector α n) : to_list (a :: v) = a :: to_list v :=
 begin cases v, reflexivity end

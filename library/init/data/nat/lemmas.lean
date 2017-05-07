@@ -1073,22 +1073,35 @@ begin
   cases lt_or_ge p (b^succ w) with h₁ h₁,
   -- base case: p < b^succ w
   { assert h₂ : p / b < b^w,
-    { apply (div_lt_iff_lt_mul p _ b_pos).mpr,
-      simp at h₁, simp [h₁] },
-    rw [mod_eq_of_lt h₁,mod_eq_of_lt h₂], simp [mod_add_div], },
+    { rw [div_lt_iff_lt_mul p _ b_pos],
+      simp [nat.pow_succ] at h₁,
+      simp [h₁]
+    },
+    rw [mod_eq_of_lt h₁,mod_eq_of_lt h₂],
+    simp [mod_add_div],
+  },
   -- step: p ≥ b^succ w
-  { assert h₄ : ∀ {x}, b^x > 0,
-    { intro x, apply pos_pow_of_pos _ b_pos },
+  { -- Generate condiition for induction principal
     assert h₂ : p - b^succ w < p,
-    { apply sub_lt_of_pos_le _ _ h₄ h₁ },
-    assert h₅ : b * b^w ≤ p,
-    { simp at h₁, simp [h₁] },
-    rw [mod_eq_sub_mod h₄ h₁,IH _ h₂,pow_succ],
-    apply congr, apply congr_arg,
-    { assert h₃ : p / b ≥ b^w,
-      { apply (le_div_iff_mul_le _ p b_pos).mpr, simp [h₅] },
-      simp [nat.sub_mul_div _ _ _ b_pos h₅,mod_eq_sub_mod h₄ h₃] },
-    { simp [nat.sub_mul_mod p (b^w) _ b_pos h₅] } }
+    { apply sub_lt_of_pos_le _ _ (pos_pow_of_pos _ b_pos) h₁ },
+
+    -- Apply induction
+    rw [mod_eq_sub_mod (pos_pow_of_pos _ b_pos) h₁, IH _ h₂],
+    -- Normalize goal and h1
+    simp [pow_succ],
+    simp [ge, pow_succ] at h₁,
+    -- Pull subtraction outside mod and div
+    rw [sub_mul_mod _ _ _ b_pos h₁],
+    rw [sub_mul_div _ _ _ b_pos h₁],
+    -- Cancel subtraction inside mod b^w
+    assertv b_w_pos : b^w > 0 := pos_pow_of_pos _ b_pos,
+    assert p_b_ge :  b^w ≤ p / b,
+    {
+      rw [le_div_iff_mul_le _ _ b_pos],
+      simp [h₁],
+    },
+    rw [eq.symm (mod_eq_sub_mod b_w_pos p_b_ge)],
+  }
 end
 
 end nat

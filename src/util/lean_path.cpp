@@ -43,7 +43,11 @@ optional<std::string> get_leanpkg_path_file() {
 
 std::string get_user_leanpkg_path() {
     // TODO(gabriel): check if this works on windows
-    return std::string(getenv("HOME")) + get_dir_sep() + ".lean" + get_dir_sep() + "leanpkg.path";
+    if (auto home = getenv("HOME")) {
+        return std::string(home) + get_dir_sep() + ".lean" + get_dir_sep() + "leanpkg.path";
+    } else {
+        return "/could-not-find-home";
+    }
 }
 
 static optional<std::string> begins_with(std::string const & s, std::string const & prefix) {

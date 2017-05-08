@@ -244,9 +244,18 @@ class parray {
         if (r->m_kind == Set || r->m_kind == PushBack) {
             del_elem(r->m_elem);
         }
+        lean_assert(r != last);
+        lean_assert(last->m_kind != Root);
         r->m_kind   = Root;
         r->m_values = vs;
         r->m_size   = sz;
+        DEBUG_CODE({
+                cell * it = last;
+                while (it->m_kind != Root) {
+                    it = it->m_next;
+                }
+                lean_assert(it == r);
+            });
         inc_ref(r);
         dec_ref(last);
     }
@@ -545,6 +554,7 @@ class parray {
     }
 
     void init() {
+        lean_assert(m_cell->m_kind == Root);
         if (ThreadSafe)
             m_cell->set_mutex(new mutex());
     }
@@ -646,6 +656,7 @@ public:
                 m_array.m_cell->get_mutex()->lock();
             if (m_array.m_cell->m_kind != Root)
                 reroot(m_array.m_cell);
+            lean_assert(m_array.m_cell->m_kind == Root);
         }
 
         ~exclusive_access() {
@@ -668,6 +679,7 @@ public:
             lean_assert(check_invariant());
             lean_assert(i < size());
             m_array.m_cell = write_aux(m_array.m_cell, i, v);
+            lean_assert(check_invariant());
         }
     };
 };

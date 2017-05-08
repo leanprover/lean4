@@ -256,9 +256,12 @@ class parray {
     static cell * copy(unsigned from_idx, cell * c, cell_buffer const & cs) {
         lean_assert(from_idx <= cs.size());
         cell * r    = mk_cell();
+        lean_assert(r->m_kind == Root);
         r->m_rc     = 0;
         r->m_size   = c->m_size;
         r->m_values = allocate_raw_array(capacity(c->m_values));
+        if (ThreadSafe)
+            r->set_mutex(new mutex());
         std::uninitialized_copy(c->m_values, c->m_values + c->m_size, r->m_values);
         unsigned i  = cs.size();
         while (i > from_idx) {
@@ -286,6 +289,7 @@ class parray {
             }
             DEBUG_CODE(c = p;);
         }
+        lean_assert(r->m_kind == Root);
         return r;
     }
 

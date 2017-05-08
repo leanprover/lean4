@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "util/bit_tricks.h"
+#include "util/name.h"
 #include "library/phashtable.h"
 
 namespace lean {
@@ -116,4 +117,7 @@ public:
         phashtable2map<default_map_entry<Key, Value>, HashProc, EqProc, ThreadSafe>(h, e) {
     }
 };
+
+template<typename T>
+using name_hash_map = phash_map<name, T, name_hash, name_eq, true>;
 }

@@ -30,6 +30,10 @@ public:
     default_map_entry() {}
     default_map_entry(key_value const & d, unsigned h):parent(d, h) {}
     static default_map_entry mk_deleted() { return default_map_entry(false); }
+    default_map_entry & operator=(default_map_entry const & src) {
+        parent::operator=(src);
+        return *this;
+    }
 };
 
 template<typename Entry, typename HashProc, typename EqProc, bool ThreadSafe>
@@ -97,7 +101,7 @@ public:
     }
 
     template<typename F>
-    void for_each(F && f) {
+    void for_each(F && f) const {
         m_table.for_each([&](key_value const & e) {
                 f(e.m_key, e.m_value);
             });

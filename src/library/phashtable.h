@@ -59,6 +59,16 @@ public:
         new (&m_data) T(d);
         m_state = Used;
     }
+
+    default_hash_entry & operator=(default_hash_entry const & src) {
+        if (is_used())
+            m_data.~T();
+        m_hash  = src.m_hash;
+        m_state = src.m_state;
+        if (m_state == Used)
+            new (&m_data) T(src.get_data());
+        return *this;
+    }
 };
 
 template<typename Entry, typename HashProc, typename EqProc, bool ThreadSafe = false>
@@ -194,7 +204,7 @@ public:
     #undef INSERT_LOOP_BODY
 
     template<typename F>
-    void for_each(F && fn) {
+    void for_each(F && fn) const {
         m_table.for_each([&](entry const & e) {
                 if (e.is_used()) {
                     fn(e.get_data());

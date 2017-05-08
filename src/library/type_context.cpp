@@ -41,9 +41,14 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_NAT_OFFSET_CNSTR_THRESHOLD 1024
 #endif
 
+#ifndef LEAN_DEFAULT_UNFOLD_LEMMAS
+#define LEAN_DEFAULT_UNFOLD_LEMMAS false
+#endif
+
 namespace lean {
 static name * g_class_instance_max_depth = nullptr;
 static name * g_nat_offset_threshold     = nullptr;
+static name * g_unfold_lemmas            = nullptr;
 
 unsigned get_class_instance_max_depth(options const & o) {
     return o.get_unsigned(*g_class_instance_max_depth, LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH);
@@ -51,6 +56,10 @@ unsigned get_class_instance_max_depth(options const & o) {
 
 unsigned get_nat_offset_cnstr_threshold(options const & o) {
     return o.get_unsigned(*g_nat_offset_threshold, LEAN_DEFAULT_NAT_OFFSET_CNSTR_THRESHOLD);
+}
+
+bool get_unfold_lemmas(options const & o) {
+    return o.get_bool(*g_unfold_lemmas, LEAN_DEFAULT_UNFOLD_LEMMAS);
 }
 
 bool is_at_least_semireducible(transparency_mode m) {
@@ -91,7 +100,7 @@ bool type_context_cache::is_transparent(transparency_mode m, declaration const &
         return false;
     if (m == transparency_mode::All)
         return true;
-    if (d.is_theorem())
+    if (d.is_theorem() && !get_unfold_lemmas(get_options()))
         return false;
     if (m == transparency_mode::Instances && is_instance(m_env, d.get_name()))
         return true;
@@ -3916,6 +3925,9 @@ void initialize_type_context() {
                              "(t + k_1 =?= s + k_2), (t + k_1 =?= k_2) and (k_1 =?= k_2), "
                              "where k_1 and k_2 are numerals, t and s are arbitrary terms, and they all have type nat, "
                              "the offset constraint solver is used if k_1 and k_2 are smaller than the given threshold");
+    g_unfold_lemmas = new name{"type_context", "unfold_lemmas"};
+    register_bool_option(*g_unfold_lemmas, LEAN_DEFAULT_UNFOLD_LEMMAS,
+        "(type-context) whether to unfold lemmas (e.g., during elaboration)");
 }
 
 void finalize_type_context() {

@@ -286,7 +286,7 @@ private:
         } ((void) 0)
 
     bool erase_aux(data const & e) {
-        typename table::exclusive_access A(const_cast<table &>(m_table));
+        typename table::exclusive_access A(m_table);
         unsigned hash  = get_hash(e);
         unsigned cap   = A.size();
         unsigned mask  = cap - 1;
@@ -334,7 +334,7 @@ public:
         unsigned overhead = 0;
         unsigned cap      = 0;
         {
-            typename table::exclusive_access A(const_cast<table &>(m_table));
+            typename table::exclusive_access A(m_table);
             cap   = A.size();
             for (unsigned idx = 0; idx < cap; idx++) {
                 if (!A[idx].is_free)
@@ -353,7 +353,7 @@ public:
     }
 
 
-    bool check_invariant() {
+    bool check_invariant() const {
         typename table::exclusive_access A(const_cast<table &>(m_table));
         unsigned cap = A.size();
         unsigned num_deleted = 0;

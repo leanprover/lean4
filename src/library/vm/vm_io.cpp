@@ -436,7 +436,7 @@ static vm_obj io_iterate(vm_obj const &, vm_obj const &, vm_obj const & a, vm_ob
 }
 
 static vm_obj mk_io_env() {
-    return mk_vm_constructor(0, {
+    return
         // get_env
         mk_native_closure([] (vm_obj const & k, vm_obj const &) {
             if (auto v = getenv(to_string(k).c_str())) {
@@ -444,8 +444,7 @@ static vm_obj mk_io_env() {
             } else {
                 return mk_io_result(mk_vm_none());
             }
-        }),
-    });
+        });
 }
 
 /*

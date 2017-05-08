@@ -319,12 +319,19 @@ class parray {
         lean_assert(r->kind() != Root);
         cell_buffer cs;
         cell * c    = collect_cells(r, cs);
-        if (should_split(c->size(), cs.size()) &&
+        if (!ThreadSafe &&
+            /* Should we keep this optimization? */
+            should_split(c->size(), cs.size()) &&
             should_split(get_size(c, cs), cs.size())) {
             /* Split the path r -> ... -> m_1 -> m_2 -> ... -> c in two
 
                1) r <- ... <- m_1
                2) m_2 -> ... -> c
+
+               This operation is not safe when ThreadSafe == true.
+               In ThreadSafe mode, each cell contains a reference to
+               the mutex stored in the Root cell, but we don't know
+               all cells that point to a Root cell.
             */
             unsigned midx = cs.size() / 2;
             DEBUG_CODE(cell * m = cs[midx];);

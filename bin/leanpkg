@@ -9,6 +9,9 @@ fi
 leandir=$(dirname $($READLINK -f $0))/..
 leandir=$($READLINK -f $leandir)
 
-LEAN_PATH=$leandir/library:$leandir/lib/lean/library:$leandir/leanpkg \
+librarydir="$leandir/lib/lean"
+test -d "$librarydir" || librarydir="$leandir"
+
+LEAN_PATH=$librarydir/library:$librarydir/leanpkg \
   PATH=$leandir/bin:$PATH \
-  exec lean --run $leandir/leanpkg/leanpkg/main.lean "$@"
+  exec lean --run $librarydir/leanpkg/leanpkg/main.lean "$@"

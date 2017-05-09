@@ -495,7 +495,14 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}/../library" DESTINATION "${LIBRARY_DIR}"
         FILES_MATCHING
         PATTERN "*.lean"
         PATTERN "*.olean"
-        PATTERN ".project"
+        PATTERN "leanpkg.toml"
+        PATTERN "*.md")
+
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/../leanpkg" DESTINATION "${LIBRARY_DIR}"
+        FILES_MATCHING
+        PATTERN "*.lean"
+        PATTERN "*.olean"
+        PATTERN "leanpkg.toml"
         PATTERN "*.md")
 
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/" DESTINATION "${LEAN_EXT_INCLUDE_DIR}"

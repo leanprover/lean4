@@ -370,7 +370,7 @@ class parray {
         if (get_rc(c) == 1 && c->kind() == Root)
             return c;
         if (ThreadSafe) {
-            unique_lock<mutex> lock(*c->get_mutex());
+            lock_guard<mutex> lock(*c->get_mutex());
             return ensure_unshared_aux(c);
         } else {
             return ensure_unshared_aux(c);
@@ -390,7 +390,7 @@ class parray {
             lean_assert(i < c->size());
             return c->m_values[i];
         } else if (ThreadSafe) {
-            unique_lock<mutex> lock(*c->get_mutex());
+            lock_guard<mutex> lock(*c->get_mutex());
             return read_aux(c, i);
         } else {
             return read_aux(c, i);
@@ -446,7 +446,7 @@ class parray {
             c->m_values[i] = v;
             return c;
         } else if (ThreadSafe) {
-            unique_lock<mutex> lock(*c->get_mutex());
+            lock_guard<mutex> lock(*c->get_mutex());
             return write_aux(c, i, v);
         } else {
             return write_aux(c, i, v);
@@ -491,7 +491,7 @@ class parray {
             push_back_core(c, v);
             return c;
         } else if (ThreadSafe) {
-            unique_lock<mutex> lock(*c->get_mutex());
+            lock_guard<mutex> lock(*c->get_mutex());
             return push_back_aux(c, v);
         } else {
             return push_back_aux(c, v);
@@ -538,7 +538,7 @@ class parray {
             pop_back_core(c);
             return c;
         } else if (ThreadSafe) {
-            unique_lock<mutex> lock(*c->get_mutex());
+            lock_guard<mutex> lock(*c->get_mutex());
             return pop_back_aux(c);
         } else {
             return pop_back_aux(c);
@@ -638,7 +638,7 @@ public:
         if (get_rc(m_cell) == 1 && m_cell->m_kind == Root) {
             for_each(m_cell, fn);
         } else if (ThreadSafe) {
-            unique_lock<mutex> lock(*m_cell->get_mutex());
+            lock_guard<mutex> lock(*m_cell->get_mutex());
             for_each(m_cell, fn);
         } else {
             for_each(m_cell, fn);

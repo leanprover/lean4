@@ -2777,17 +2777,19 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
                         expr fval = *new_new_fval;
                         buffer<expr> args;
                         expr fn = get_app_args(fval, args);
-                        declaration decl = m_env.get(const_name(fn));
-                        expr default_val = instantiate_value_univ_params(decl, const_levels(fn));
-                        // clean up 'id' application inserted by `structure_cmd::declare_defaults`
-                        default_val = replace(default_val, [](expr const & e) {
-                            if (is_app_of(e, get_id_name(), 2)) {
-                                return some_expr(app_arg(e));
-                            }
-                            return none_expr();
-                        });
-                        fval = mk_app(default_val, args);
-                        fval = head_beta_reduce(fval);
+                        if (is_constant(fn)) {
+                            declaration decl = m_env.get(const_name(fn));
+                            expr default_val = instantiate_value_univ_params(decl, const_levels(fn));
+                            // clean up 'id' application inserted by `structure_cmd::declare_defaults`
+                            default_val = replace(default_val, [](expr const &e) {
+                                if (is_app_of(e, get_id_name(), 2)) {
+                                    return some_expr(app_arg(e));
+                                }
+                                return none_expr();
+                            });
+                            fval = mk_app(default_val, args);
+                            fval = head_beta_reduce(fval);
+                        }
 
                         if (!reduce_and_check_deps(fval))
                             return;

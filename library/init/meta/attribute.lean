@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
 prelude
-import init.meta.tactic init.meta.rb_map init.meta.quote
+import init.meta.tactic init.meta.rb_map init.meta.has_reflect
 
 meta constant attribute.get_instances : name → tactic (list name)
 meta constant attribute.fingerprint : name → tactic nat
@@ -30,10 +30,10 @@ meta def register_attribute := attribute.register
 
 meta def mk_name_set_attr (attr_name : name) : command :=
 do let t := ```(caching_user_attribute name_set),
-   v ← to_expr ``({name     := %%(quote attr_name),
-                   descr    := "name_set attribute",
-                   mk_cache := λ ns, return (name_set.of_list ns),
-                   dependencies := [] } : caching_user_attribute name_set),
+   let v := ```({name     := attr_name,
+                 descr    := "name_set attribute",
+                 mk_cache := λ ns, return (name_set.of_list ns),
+                 dependencies := [] } : caching_user_attribute name_set),
    add_meta_definition attr_name [] t v,
    register_attribute attr_name
 

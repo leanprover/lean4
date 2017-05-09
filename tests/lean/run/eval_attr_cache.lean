@@ -1,12 +1,10 @@
 open tactic
-meta def list_name.to_expr (n : list name) : tactic expr := to_expr (quote n)
 @[user_attribute]
 meta def my_attr : caching_user_attribute (name → bool) :=
 { name         := "my_attr",
   descr        := "my attr",
   mk_cache     := λ ls, do {
-   els ← list_name.to_expr ls,
-   c   ← to_expr `(λ n : name, (name.cases_on n ff (λ _ _, to_bool (n ∈ %%els)) (λ _ _, ff) : bool)),
+   let c := ```(λ n : name, (name.cases_on n ff (λ _ _, to_bool (n ∈ ls)) (λ _ _, ff) : bool)),
    eval_expr (name → bool) c
   },
   dependencies := []

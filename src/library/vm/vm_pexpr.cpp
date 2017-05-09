@@ -49,18 +49,6 @@ vm_obj pexpr_pos(vm_obj const & e) {
     return mk_vm_none();
 }
 
-vm_obj pexpr_mk_quote_macro(vm_obj const & e) {
-    return to_obj(mk_pexpr_quote_and_substs(to_expr(e), /* is_strict */ false));
-}
-
-vm_obj pexpr_mk_prenum_macro(vm_obj const & n) {
-    return to_obj(mk_prenum(is_simple(n) ? mpz{cidx(n)} : to_mpz(n)));
-}
-
-vm_obj pexpr_mk_string_macro(vm_obj const & s) {
-    return to_obj(from_string(to_string(s)));
-}
-
 vm_obj pexpr_mk_explicit(vm_obj const & e) {
     return to_obj(mk_explicit(to_expr(e)));
 }
@@ -79,9 +67,6 @@ void initialize_vm_pexpr() {
 
     DECLARE_VM_BUILTIN(name("pexpr", "pos"),              pexpr_pos);
 
-    DECLARE_VM_BUILTIN(name("pexpr", "mk_quote_macro"),   pexpr_mk_quote_macro);
-    DECLARE_VM_BUILTIN(name("pexpr", "mk_prenum_macro"),  pexpr_mk_prenum_macro);
-    DECLARE_VM_BUILTIN(name("pexpr", "mk_string_macro"),  pexpr_mk_string_macro);
     DECLARE_VM_BUILTIN(name("pexpr", "mk_explicit"),      pexpr_mk_explicit);
     DECLARE_VM_BUILTIN(name("pexpr", "mk_field_macro"),   pexpr_mk_field_macro);
 }

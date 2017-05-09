@@ -38,3 +38,6 @@ some (f ())
 meta constant undefined_core {α : Sort u} (message : string) : α
 
 meta def undefined {α : Sort u} : α := undefined_core "undefined"
+
+meta def unchecked_cast {α : Sort u} {β : Sort u} : α → β :=
+cast undefined

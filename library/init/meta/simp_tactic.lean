@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.meta.tactic init.meta.attribute init.meta.constructor_tactic
-import init.meta.relation_tactics init.meta.occurrences init.meta.quote
+import init.meta.relation_tactics init.meta.occurrences
 import init.data.option.instances
 
 open tactic
@@ -388,10 +388,10 @@ meta def to_simp_lemmas : simp_lemmas → list name → tactic simp_lemmas
 
 meta def mk_simp_attr (attr_name : name) : command :=
 do let t := ```(caching_user_attribute simp_lemmas),
-   v ← to_expr ``({name     := %%(quote attr_name),
-                   descr    := "simplifier attribute",
-                   mk_cache := λ ns, do {tactic.to_simp_lemmas simp_lemmas.mk ns},
-                   dependencies := [`reducibility] } : caching_user_attribute simp_lemmas),
+   let v := ```({name     := attr_name,
+                 descr    := "simplifier attribute",
+                 mk_cache := λ ns, do {tactic.to_simp_lemmas simp_lemmas.mk ns},
+                 dependencies := [`reducibility] } : caching_user_attribute simp_lemmas),
    add_decl (declaration.defn attr_name [] t v reducibility_hints.abbrev ff),
    attribute.register attr_name
 

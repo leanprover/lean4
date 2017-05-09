@@ -20,6 +20,8 @@ Author: Leonardo de Moura
 #include "library/comp_val.h"
 #include "library/choice.h"
 #include "library/annotation.h"
+#include "library/quote.h"
+#include "library/string.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_name.h"
@@ -472,6 +474,14 @@ vm_obj reflected_subst(vm_obj const &, vm_obj const &, vm_obj const &, vm_obj co
     return expr_subst(e1, e2);
 }
 
+vm_obj reflect_pexpr(vm_obj const & e) {
+    return to_obj(mk_pexpr_quote_and_substs(to_expr(e), /* is_strict */ false));
+}
+
+vm_obj reflect_string(vm_obj const & s) {
+    return to_obj(from_string(to_string(s)));
+}
+
 void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name({"expr", "var"}),              expr_var);
     DECLARE_VM_BUILTIN(name({"expr", "sort"}),             expr_sort);
@@ -513,6 +523,8 @@ void initialize_vm_expr() {
 
     DECLARE_VM_BUILTIN(name({"reflected", "to_expr"}),     reflected_to_expr);
     DECLARE_VM_BUILTIN(name({"reflected", "subst"}),       reflected_subst);
+    DECLARE_VM_BUILTIN(name({"string"}, {"reflect"}),      reflect_string);
+    DECLARE_VM_BUILTIN(name({"pexpr"}, {"reflect"}),       reflect_pexpr);
 
     DECLARE_VM_BUILTIN(name("mk_nat_val_ne_proof"),        vm_mk_nat_val_ne_proof);
     DECLARE_VM_BUILTIN(name("mk_nat_val_lt_proof"),        vm_mk_nat_val_lt_proof);

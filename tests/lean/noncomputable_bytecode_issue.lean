@@ -1,8 +1,8 @@
 constant a : nat
 
-noncomputable meta def ex : tactic pexpr :=
-return $ quote a
+noncomputable meta def ex : tactic expr :=
+return ```(a)
 
 open tactic
 
-run_cmd ex >>= to_expr >> return ()
+run_cmd ex >> return ()

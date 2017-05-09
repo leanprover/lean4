@@ -79,10 +79,10 @@ meta def to_hinst_lemmas_core (m : transparency) : bool → list name → hinst_
 
 meta def mk_hinst_lemma_attr_core (attr_name : name) (as_simp : bool) : command :=
 do let t := ```(caching_user_attribute hinst_lemmas),
-   v ← to_expr ``({name     := %%(quote attr_name),
-                   descr    := "hinst_lemma attribute",
-                   mk_cache := λ ns, to_hinst_lemmas_core reducible %%(quote as_simp) ns hinst_lemmas.mk,
-                   dependencies := [`reducibility] } : caching_user_attribute hinst_lemmas),
+   let v := ```({name     := attr_name,
+                 descr    := "hinst_lemma attribute",
+                 mk_cache := λ ns, to_hinst_lemmas_core reducible as_simp ns hinst_lemmas.mk,
+                 dependencies := [`reducibility] } : caching_user_attribute hinst_lemmas),
    add_decl (declaration.defn attr_name [] t v reducibility_hints.abbrev ff),
    attribute.register attr_name
 
@@ -115,18 +115,16 @@ meta def mk_hinst_lemma_attr_set (attr_name : name) (attr_names : list name) (si
 do mk_hinst_lemma_attrs_core ff attr_names,
    mk_hinst_lemma_attrs_core tt simp_attr_names,
    let t  := ```(caching_user_attribute hinst_lemmas),
-   let l1 := quote attr_names,
-   let l2 := quote simp_attr_names,
-   v ← to_expr ``({name     := %%(quote attr_name),
+   let v  := ```({name     := attr_name,
                    descr    := "hinst_lemma attribute set",
                    mk_cache := λ ns,
-                      let aux1 : list name := %%l1,
-                          aux2 : list name := %%l2 in
+                      let aux1 : list name := attr_names,
+                          aux2 : list name := simp_attr_names in
                       do {
                       hs₁ ← to_hinst_lemmas_core reducible ff ns hinst_lemmas.mk,
                       hs₂ ← merge_hinst_lemma_attrs reducible ff aux1 hs₁,
                       merge_hinst_lemma_attrs reducible tt aux2 hs₂},
-                    dependencies := [`reducibility] ++ %%l1 ++ %%l2 } : caching_user_attribute hinst_lemmas),
+                    dependencies := [`reducibility] ++ attr_names ++ simp_attr_names } : caching_user_attribute hinst_lemmas),
    add_decl (declaration.defn attr_name [] t v reducibility_hints.abbrev ff),
    attribute.register attr_name
 

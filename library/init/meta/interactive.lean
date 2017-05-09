@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import init.meta.tactic init.meta.rewrite_tactic init.meta.simp_tactic
 import init.meta.smt.congruence_closure init.category.combinators
-import init.meta.lean.parser init.meta.quote
+import init.meta.lean.parser init.meta.has_reflect
 
 open lean
 open lean.parser
@@ -18,7 +18,7 @@ namespace interactive
 /-- (parse p) as the parameter type of an interactive tactic will instruct the Lean parser
     to run `p` when parsing the parameter and to pass the parsed value as an argument
     to the tactic. -/
-@[reducible] meta def parse {α : Type} [has_quote α] (p : parser α) : Type := α
+@[reducible] meta def parse {α : Type} [has_reflect α] (p : parser α) : Type := α
 
 namespace types
 variables {α β : Type}
@@ -282,8 +282,8 @@ meta structure rw_rule :=
 (symm : bool)
 (rule : pexpr)
 
-meta instance rw_rule_has_quote : has_quote rw_rule :=
-⟨λ ⟨p, s, r⟩, ``(rw_rule.mk %%(quote p) %%(quote s) %%(quote r))⟩
+meta instance rw_rule.reflect : has_reflect rw_rule :=
+λ ⟨p, s, r⟩, ```(_)
 
 private meta def rw_goal (m : transparency) (rs : list rw_rule) : tactic unit :=
 rs.mfor' $ λ r, save_info r.pos >> to_expr' r.rule >>= rewrite_core m tt tt occurrences.all r.symm
@@ -305,8 +305,8 @@ meta structure rw_rules_t :=
 (rules   : list rw_rule)
 (end_pos : option pos)
 
-meta instance rw_rules_t_has_quote : has_quote rw_rules_t :=
-⟨λ ⟨rs, p⟩, ``(rw_rules_t.mk %%(quote rs) %%(quote p))⟩
+meta instance rw_rules_t.reflect : has_reflect rw_rules_t :=
+λ ⟨rs, p⟩, ```(_)
 
 -- accepts the same content as `qexpr_list_or_texpr`, but with correct goal info pos annotations
 meta def rw_rules : parser rw_rules_t :=

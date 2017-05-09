@@ -256,8 +256,10 @@ class parray {
                 }
                 lean_assert(it == r);
             });
+        lean_assert(r->m_kind == Root);
         inc_ref(r);
         dec_ref(last);
+        lean_assert(r->m_kind == Root);
     }
 
     /* Given a path cs to c,
@@ -355,6 +357,7 @@ class parray {
         } else {
             reroot(r, c, cs);
         }
+        lean_assert(r->kind() == Root);
     }
 
     static cell * ensure_unshared_aux(cell * c) {

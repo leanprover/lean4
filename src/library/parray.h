@@ -401,6 +401,7 @@ class parray {
         if (get_rc(c) == 1 && c->kind() == Root) {
             return c->size();
         } else if (ThreadSafe) {
+            lock_guard<mutex> lock(*c->get_mutex());
             if (c->kind() != Root)
                 reroot(c);
             return c->size();

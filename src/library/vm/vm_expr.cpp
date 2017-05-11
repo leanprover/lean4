@@ -523,8 +523,8 @@ void initialize_vm_expr() {
 
     DECLARE_VM_BUILTIN(name({"reflected", "to_expr"}),     reflected_to_expr);
     DECLARE_VM_BUILTIN(name({"reflected", "subst"}),       reflected_subst);
-    DECLARE_VM_BUILTIN(name({"string"}, {"reflect"}),      reflect_string);
-    DECLARE_VM_BUILTIN(name({"pexpr"}, {"reflect"}),       reflect_pexpr);
+    DECLARE_VM_BUILTIN(name("string", "reflect"),          reflect_string);
+    DECLARE_VM_BUILTIN(name("pexpr", "reflect"),           reflect_pexpr);
 
     DECLARE_VM_BUILTIN(name("mk_nat_val_ne_proof"),        vm_mk_nat_val_ne_proof);
     DECLARE_VM_BUILTIN(name("mk_nat_val_lt_proof"),        vm_mk_nat_val_lt_proof);

@@ -273,8 +273,6 @@ void collect_implicit_locals(parser & p, buffer<name> & lp_names, buffer<expr> &
     for (expr const & e : all_exprs) {
         collect_locals_ignoring_tactics(e, locals);
         lp_found = collect_univ_params_ignoring_tactics(e, lp_found);
-        if (is_local(e))
-            given_params.insert(mlocal_name(e));
     }
     collect_annonymous_inst_implicit(p, locals);
     sort_locals(locals.get_collected(), p, params);

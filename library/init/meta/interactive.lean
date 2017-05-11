@@ -576,7 +576,9 @@ fail ("invalid simplification lemma '" ++ to_string n ++ "' (use command 'set_op
 private meta def simp_lemmas.resolve_and_add (s : simp_lemmas) (n : name) (ref : expr) : tactic simp_lemmas :=
 do
   p ← resolve_name n,
-  match p.to_raw_expr with
+  -- unpack local refs
+  let e := p.to_raw_expr.erase_annotations.get_app_fn.erase_annotations,
+  match e with
   | const n _           :=
     (do b ← is_valid_simp_lemma_cnst reducible n, guard b, save_const_type_info n ref, s.add_simp n)
     <|>

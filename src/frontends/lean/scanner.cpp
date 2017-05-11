@@ -704,7 +704,7 @@ void scanner::skip_to_pos(pos_info const & pos) {
     for (unsigned line_no = 1; line_no < pos.first; line_no++)
         fetch_line();
     m_line = m_sline;
-    for (unsigned col_idx = 0; col_idx < pos.second; col_idx++)
+    while (static_cast<unsigned>(m_upos) < pos.second)
         next();
     m_pos = m_upos; // we assume that the argument is the start of a token
     lean_assert(pos == pos_info(get_line(), get_pos()));

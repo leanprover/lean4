@@ -376,7 +376,7 @@ private meta def find_case (goals : list expr) (ty : name) (idx : nat) (num_indi
       | _ := none
       end in
     match idx with
-    | none := list.foldl (<|>) none $ e.get_app_args.map (find_case case)
+    | none := list.foldl (<|>) (find_case case e.get_app_fn) $ e.get_app_args.map (find_case case)
     | some idx :=
       let args := e.get_app_args in
       do arg ← args.nth idx,

@@ -338,6 +338,9 @@ by rwa [sub_eq_add_neg, neg_add_cancel_right] at this
 lemma sub_eq_zero_of_eq [add_group α] {a b : α} (h : a = b) : a - b = 0 :=
 by rw [h, sub_self]
 
+lemma sub_eq_zero_iff_eq [add_group α] {a b : α} : a - b = 0 ↔ a = b :=
+⟨eq_of_sub_eq_zero, sub_eq_zero_of_eq⟩
+
 lemma zero_sub [add_group α] (a : α) : 0 - a = -a :=
 zero_add (-a)
 

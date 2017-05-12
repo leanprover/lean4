@@ -184,6 +184,9 @@ lemma nat_abs_mul_self : Π {a : ℤ}, ↑(nat_abs a * nat_abs a) = a * a
 | (of_nat m) := rfl
 | -[1+ m']   := rfl
 
+lemma nat_abs_neg (a : ℤ) : nat_abs (-a) = nat_abs a :=
+by {cases a with n n, cases n; refl, refl}
+
 lemma nat_abs_eq : Π (a : ℤ), a = nat_abs a ∨ a = -(nat_abs a)
 | (of_nat m) := or.inl rfl
 | -[1+ m']   := or.inr rfl

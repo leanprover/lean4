@@ -173,6 +173,10 @@ class integral_domain (α : Type u) extends comm_ring α, no_zero_divisors α, z
 section integral_domain
   variable [integral_domain α]
 
+  lemma mul_eq_zero_iff_eq_zero_or_eq_zero {a b : α} : a * b = 0 ↔ a = 0 ∨ b = 0 :=
+  ⟨eq_zero_or_eq_zero_of_mul_eq_zero, λo,
+    or.elim o (λh, by rw h; apply zero_mul) (λh, by rw h; apply mul_zero)⟩
+
   lemma mul_ne_zero {a b : α} (h₁ : a ≠ 0) (h₂ : b ≠ 0) : a * b ≠ 0 :=
   λ h, or.elim (eq_zero_or_eq_zero_of_mul_eq_zero h) (assume h₃, h₁ h₃) (assume h₄, h₂ h₄)
 

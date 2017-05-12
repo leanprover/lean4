@@ -169,9 +169,8 @@ static expr_pair parse_definition(parser & p, buffer<name> & lp_names, buffer<ex
                                   bool is_example, bool is_instance, bool is_meta) {
     parser::local_scope scope1(p);
     auto header_pos = p.pos();
-    bool allow_default = true;
     declaration_name_scope scope2;
-    expr fn = parse_single_header(p, scope2, lp_names, params, is_example, is_instance, allow_default);
+    expr fn = parse_single_header(p, scope2, lp_names, params, is_example, is_instance);
     expr val;
     if (p.curr_is_token(get_assign_tk())) {
         p.next();

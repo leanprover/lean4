@@ -42,8 +42,8 @@ bool parse_univ_params(parser & p, buffer<name> & lp_names) {
     }
 }
 
-expr parse_single_header(parser & p, declaration_name_scope & scope, buffer<name> & lp_names, buffer<expr> & params,
-                         bool is_example, bool is_instance, bool allow_default) {
+expr parse_single_header(parser & p, declaration_name_scope & scope, buffer <name> & lp_names, buffer <expr> & params,
+                         bool is_example, bool is_instance) {
     auto c_pos  = p.pos();
     name c_name;
     if (is_example) {
@@ -57,7 +57,7 @@ expr parse_single_header(parser & p, declaration_name_scope & scope, buffer<name
             scope.set_name(c_name);
         }
     }
-    p.parse_optional_binders(params, allow_default);
+    p.parse_optional_binders(params, /* allow_default */ true);
     for (expr const & param : params)
         p.add_local(param);
     expr type;
@@ -89,8 +89,7 @@ expr parse_single_header(parser & p, declaration_name_scope & scope, buffer<name
     return p.save_pos(mk_local(c_name, type), c_pos);
 }
 
-void parse_mutual_header(parser & p, buffer<name> & lp_names, buffer<expr> & cs, buffer<expr> & params,
-                         bool allow_default) {
+void parse_mutual_header(parser & p, buffer <name> & lp_names, buffer <expr> & cs, buffer <expr> & params) {
     parse_univ_params(p, lp_names);
     while (true) {
         auto c_pos  = p.pos();
@@ -103,7 +102,7 @@ void parse_mutual_header(parser & p, buffer<name> & lp_names, buffer<expr> & cs,
     if (cs.size() < 2) {
         throw parser_error("invalid mutual declaration, must provide more than one identifier (separated by commas)", p.pos());
     }
-    p.parse_optional_binders(params, allow_default);
+    p.parse_optional_binders(params, /* allow_default */ true);
     for (expr const & param : params)
         p.add_local(param);
     for (expr const & c : cs)

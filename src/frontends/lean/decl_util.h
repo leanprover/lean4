@@ -78,9 +78,8 @@ bool parse_univ_params(parser & p, buffer<name> & lp_names);
     Both lp_names and params are added to the parser scope.
 
     \remark Caller is responsible for using: parser::local_scope scope2(p, env); */
-expr parse_single_header(parser & p, declaration_name_scope & s, buffer<name> & lp_names, buffer<expr> & params,
-                         bool is_example = false, bool is_instance = false,
-                         bool allow_default = false);
+expr parse_single_header(parser & p, declaration_name_scope & s, buffer <name> & lp_names, buffer <expr> & params,
+                         bool is_example = false, bool is_instance = false);
 /** \brief Parse the header of a mutually recursive declaration. It has the form
 
         {u_1 ... u_k} id_1, ... id_n (params)
@@ -94,8 +93,7 @@ expr parse_single_header(parser & p, declaration_name_scope & s, buffer<name> & 
     \remark Caller is responsible for adding expressions encoding the c_names to the parser
     scope.
     \remark Caller is responsible for using: parser::local_scope scope2(p, env); */
-void parse_mutual_header(parser & p, buffer<name> & lp_names, buffer<expr> & cs, buffer<expr> & params,
-                         bool allow_default = false);
+void parse_mutual_header(parser & p, buffer <name> & lp_names, buffer <expr> & cs, buffer <expr> & params);
 /** \brief Parse the header for one of the declarations in a mutually recursive declaration.
     It has the form
 

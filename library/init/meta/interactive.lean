@@ -427,10 +427,10 @@ meta def generalize2 (p : parse qexpr) (x : parse ident) (h : parse ident) : tac
 do tgt ← target,
    e ← to_expr p,
    let e' := tgt^.replace $ λa _, if a = e then some (var 1) else none,
-   to_expr `(Π x, %%p = x → %%e') >>= assert h,
+   to_expr ``(Π x, %%p = x → %%e') >>= assert h,
    swap,
    t ← get_local h,
-   exact `(%%t %%p rfl),
+   exact ``(%%t %%p rfl),
    intro x,
    intro h
 

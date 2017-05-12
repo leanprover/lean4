@@ -120,7 +120,7 @@ do env ← get_env,
            new_goal ← to_expr ``(∀ (_idx : %%I_idx_type), decidable_eq (%%I_basic_const _idx)),
            assert `_basic_dec_eq new_goal,
            swap,
-           to_expr `(_basic_dec_eq %%I_idx) >>= exact,
+           `[exact _basic_dec_eq %%I_idx],
            intro1,
            return () },
    mk_dec_eq_instance_core

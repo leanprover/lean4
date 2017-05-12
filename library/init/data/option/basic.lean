@@ -27,6 +27,10 @@ def is_none {α : Type u} : option α → bool
 | (some _) := ff
 | none     := tt
 
+def get {α : Type u} : Π {o : option α}, is_some o → α
+| (some x) h := x
+| none     h := false.rec _ $ bool.ff_ne_tt h
+
 def rhoare {α : Type u} : bool → α → option α
 | tt a := none
 | ff a := some a

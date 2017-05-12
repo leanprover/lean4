@@ -44,7 +44,7 @@ meta inductive expr
 | lam         : name → binder_info → expr → expr → expr
 | pi          : name → binder_info → expr → expr → expr
 | elet        : name → expr → expr → expr → expr
-| macro       : macro_def → ∀ n, (fin n → expr) → expr
+| macro       : macro_def → list expr → expr
 
 universes u v
 /-- (reflected a) is a special opaque container for a closed `expr` representing `a`.
@@ -350,13 +350,6 @@ open format
 
 private meta def p := λ xs, paren (format.join (list.intersperse " " xs))
 
-private meta def macro_args_to_list_aux (n : nat) (args : fin n → expr) : Π (i : nat), i ≤ n → list expr
-| 0     _ := []
-| (i+1) h := args ⟨i, h⟩ :: macro_args_to_list_aux i (nat.le_trans (nat.le_succ _) h)
-
-meta def macro_args_to_list (n : nat) (args : fin n → expr) : list expr :=
-(macro_args_to_list_aux n args n (nat.le_refl _)).reverse
-
 meta def to_raw_fmt : expr → format
 | (var n) := p ["var", to_fmt n]
 | (sort l) := p ["sort", to_fmt l]
@@ -367,7 +360,7 @@ meta def to_raw_fmt : expr → format
 | (lam n bi e t) := p ["lam", to_fmt n, to_string bi, to_raw_fmt e, to_raw_fmt t]
 | (pi n bi e t) := p ["pi", to_fmt n, to_string bi, to_raw_fmt e, to_raw_fmt t]
 | (elet n g e f) := p ["elet", to_fmt n, to_raw_fmt g, to_raw_fmt e, to_raw_fmt f]
-| (macro d n args) := sbracket (format.join (list.intersperse " " ("macro" :: to_fmt (macro_def_name d) :: list.map to_raw_fmt (macro_args_to_list n args))))
+| (macro d args) := sbracket (format.join (list.intersperse " " ("macro" :: to_fmt (macro_def_name d) :: args.map to_raw_fmt)))
 
 meta def mfold {α : Type} {m : Type → Type} [monad m] (e : expr) (a : α) (fn : expr → nat → α → m α) : m α :=
 fold e (return a) (λ e n a, a >>= fn e n)

@@ -488,7 +488,7 @@ meta def compile_expr_to_ir_expr (action : expr → ir_compiler ir.stmt): expr �
 | (expr.lam _ _ _ _) := mk_error "found lam"
 | (expr.pi _ _ _ _) := mk_error "found pi"
 | (expr.elet n _ v body) := mk_error "internal error: can not translate let binding into a ir_expr"
-| (expr.macro d sz args) := compile_expr_macro_to_ir_expr (expr.macro d sz args)
+| (expr.macro d args) := compile_expr_macro_to_ir_expr (expr.macro d args)
 
 meta def compile_expr_to_ir_stmt : expr → ir_compiler ir.stmt
 | (expr.pi _ _ _ _) := mk_error "found pi, should not be translating a Pi for any reason (yet ...)"

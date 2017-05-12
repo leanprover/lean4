@@ -15,7 +15,7 @@ meta def get_metas : expr → list expr
 | (lam _ _ d b) := get_metas d ++ get_metas b
 | (pi _ _ d b) := get_metas d ++ get_metas b
 | (elet _ t v b) := get_metas t ++ get_metas v ++ get_metas b
-| (macro _ _ _) := []
+| (macro _ _) := []
 
 meta def get_meta_type : expr → expr
 | (mvar _ t) := t
@@ -32,7 +32,7 @@ meta def expr_size : expr → nat
 | (lam _ _ d b) := 1 + expr_size b
 | (pi _ _ d b) := 1 + expr_size b
 | (elet _ t v b) := 1 + expr_size v + expr_size b
-| (macro _ _ _) := 1
+| (macro _ _) := 1
 
 namespace ordering
 
@@ -111,7 +111,7 @@ private meta def contained_funsyms' : expr → rb_map name expr → rb_map name 
 | (lam _ _ d b) m := contained_funsyms' d (contained_funsyms' b m)
 | (pi _ _ d b) m := contained_funsyms' d (contained_funsyms' b m)
 | (elet _ t v b) m := contained_funsyms' t (contained_funsyms' v (contained_funsyms' b m))
-| (macro _ _ _) m := m
+| (macro _ _) m := m
 
 meta def contained_funsyms (e : expr) : rb_map name expr :=
 contained_funsyms' e (rb_map.mk name expr)
@@ -126,7 +126,7 @@ private meta def contained_lconsts' : expr → rb_map name expr → rb_map name 
 | (lam _ _ d b) m := contained_lconsts' d (contained_lconsts' b m)
 | (pi _ _ d b) m := contained_lconsts' d (contained_lconsts' b m)
 | (elet _ t v b) m := contained_lconsts' t (contained_lconsts' v (contained_lconsts' b m))
-| (macro _ _ _) m := m
+| (macro _ _) m := m
 
 meta def contained_lconsts (e : expr) : rb_map name expr :=
 contained_lconsts' e (rb_map.mk name expr)

@@ -389,7 +389,7 @@ private meta def find_case (goals : list expr) (ty : name) (idx : nat) (num_indi
            (find_case (some arg) arg)
     end
   | (lam _ _ _ e) := find_case case e
-  | (macro _ n f) := list.foldl (<|>) none $ list.map (find_case case) $ macro_args_to_list n f
+  | (macro n args) := list.foldl (<|>) none $ args.map (find_case case)
   | _             := none
   end else none
 

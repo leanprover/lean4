@@ -45,11 +45,11 @@ class monad (m : Type u → Type v) extends applicative m, has_bind m : Type (ma
   ... = h >>= λ h, pure (@comp α β γ h) >>= (<$> g) >>= (<$> x) : congr_arg _ $ funext $ λ h, (calc
     h <$> (g <*> x)
         = g <*> x >>= pure ∘ h : eq.symm $ bind_pure_comp_eq_map _ _
-    ... = g >>= (<$> x) >>= pure ∘ h                    : eq.rec rfl $ eq.symm $ bind_map_eq_seq g x
+    ... = g >>= (<$> x) >>= pure ∘ h                    : eq.rec rfl $ bind_map_eq_seq g x
     ... = g >>= λ g, g <$> x >>= pure ∘ h               : bind_assoc _ _ _
     ... = g >>= λ g, pure (h ∘ g) >>= (<$> x)        : congr_arg _ $ funext $ λ g, (calc
       g <$> x >>= pure ∘ h
-          = x >>= pure ∘ g >>= pure ∘ h        : eq.rec rfl $ eq.symm $ bind_pure_comp_eq_map g x
+          = x >>= pure ∘ g >>= pure ∘ h        : eq.rec rfl $ bind_pure_comp_eq_map g x
       ... = x >>= λ x, pure (g x) >>= pure ∘ h : bind_assoc _ _ _
       ... = x >>= λ x, pure (h (g x)) : congr_arg _ $ funext $ λ x, pure_bind _ _
       ... = (h ∘ g) <$> x : bind_pure_comp_eq_map _ _
@@ -58,7 +58,7 @@ class monad (m : Type u → Type v) extends applicative m, has_bind m : Type (ma
     ... = @comp α β γ h <$> g >>= (<$> x) : eq.rec rfl $ bind_pure_comp_eq_map (comp h) g
     ... = pure (@comp α β γ h) >>= (<$> g) >>= (<$> x) : eq.rec rfl $ eq.symm $ pure_bind (@comp α β γ h) (<$> g))
   ... = h >>= (λ h, pure (@comp α β γ h) >>= (<$> g)) >>= (<$> x) : eq.symm $ bind_assoc _ _ _
-  ... = h >>= pure ∘ @comp α β γ >>= (<$> g) >>= (<$> x) : eq.rec rfl $ eq.symm $ bind_assoc h (pure ∘ @comp α β γ) (<$> g)
+  ... = h >>= pure ∘ @comp α β γ >>= (<$> g) >>= (<$> x) : eq.rec rfl $ bind_assoc h (pure ∘ @comp α β γ) (<$> g)
   ... = (@comp α β γ <$> h) >>= (<$> g) >>= (<$> x) : eq.rec rfl $ bind_pure_comp_eq_map (@comp α β γ) h
   ... = ((@comp α β γ <$> h) >>= (<$> g)) <*> x : bind_map_eq_seq _ _
   ... = (@comp α β γ <$> h) <*> g <*> x : eq.rec rfl $ bind_map_eq_seq (@comp α β γ <$> h) g)

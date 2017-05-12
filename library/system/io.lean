@@ -74,7 +74,8 @@ class io.interface :=
 (process  : io.process handle m)
 (env      : io.environment m)
 
-variable [io.interface]
+variable [ioi : io.interface]
+include ioi
 
 def io_core (e : Type) (α : Type) :=
 io.interface.m e α
@@ -214,7 +215,7 @@ end proc
 
 end io
 
-meta constant format.print_using [io.interface] : format → options → io unit
+meta constant format.print_using : format → options → io unit
 
 meta definition format.print (fmt : format) : io unit :=
 format.print_using fmt options.mk
@@ -237,5 +238,6 @@ do child ← io.proc.spawn { args with stdout := io.process.stdio.piped },
   when (exitv ≠ 0) $ io.fail $ "process exited with status " ++ exitv.to_string,
   return buf.to_string
 
+omit ioi
 /-- Lift a monadic `io` action into the `tactic` monad. -/
 meta constant tactic.run_io {α : Type} : (Π ioi : io.interface, @io ioi α) → tactic α

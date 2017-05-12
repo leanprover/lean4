@@ -114,7 +114,14 @@ static environment declare_var(parser & p, environment env,
         lean_assert(k == variable_kind::Constant || k == variable_kind::Axiom);
         name const & ns = get_namespace(env);
         name full_n  = ns + n;
-        expr new_type = unfold_untrusted_macros(env, type);
+
+        buffer<name> new_ls;
+        to_buffer(ls, new_ls);
+        buffer<expr> new_params;
+        collect_implicit_locals(p, new_ls, new_params, type);
+        expr new_type = Pi(new_params, type);
+        new_type = unfold_untrusted_macros(env, new_type);
+
         if (k == variable_kind::Axiom) {
             env = module::add(env, check(env, mk_axiom(full_n, ls, new_type)));
         } else {

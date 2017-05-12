@@ -87,7 +87,6 @@ void initialize_library_module() {
     initialize_string();
     initialize_num();
     initialize_annotation();
-    initialize_quote();
     initialize_explicit();
     initialize_protected();
     initialize_private();
@@ -97,6 +96,7 @@ void initialize_library_module() {
     initialize_sorry();
     initialize_class();
     initialize_library_util();
+    initialize_quote();
     initialize_pp_options();
     initialize_projection();
     initialize_relation_manager();
@@ -140,6 +140,7 @@ void finalize_library_module() {
     finalize_relation_manager();
     finalize_projection();
     finalize_pp_options();
+    finalize_quote();
     finalize_library_util();
     finalize_class();
     finalize_sorry();
@@ -149,7 +150,6 @@ void finalize_library_module() {
     finalize_private();
     finalize_protected();
     finalize_explicit();
-    finalize_quote();
     finalize_annotation();
     finalize_num();
     finalize_string();

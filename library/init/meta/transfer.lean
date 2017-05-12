@@ -174,11 +174,11 @@ meta def transfer (ds : list name) : tactic unit := do
   (guard (¬ tgt.has_meta_var) <|>
     fail "Target contains (universe) meta variables. This is not supported by transfer."),
 
-  (new_tgt, pr, ms) ← compute_transfer rds [] (const `iff [] tgt),
+  (new_tgt, pr, ms) ← compute_transfer rds [] ((const `iff [] : expr) tgt),
   new_pr ← mk_meta_var new_tgt,
 
   /- Setup final tactic state -/
-  exact (const `iff.mpr [] tgt new_tgt pr new_pr),
+  exact ((const `iff.mpr [] : expr) tgt new_tgt pr new_pr),
   ms ← monad.for ms (λm, (get_assignment m >> return []) <|> return [m]),
   gs ← get_goals,
   set_goals (list.join ms ++ new_pr :: gs)

@@ -30,7 +30,7 @@ meta definition v1 := expr.app (expr.app (expr.const `f []) (expr.mk_var 0)) (ex
 
 #eval expr.instantiate_vars v1 [expr.const `a [], expr.const `b []]
 
-meta definition fv1 :=
+meta definition fv1 : expr :=
 expr.app
   (expr.app (expr.const `f [])
             (expr.local_const `a `a binder_info.default (expr.sort level.zero)))

@@ -294,8 +294,6 @@ name const * g_pprod_mk = nullptr;
 name const * g_pprod_fst = nullptr;
 name const * g_pprod_snd = nullptr;
 name const * g_propext = nullptr;
-name const * g_pexpr = nullptr;
-name const * g_pexpr_subst = nullptr;
 name const * g_to_pexpr = nullptr;
 name const * g_quot_mk = nullptr;
 name const * g_quot_lift = nullptr;
@@ -665,8 +663,6 @@ void initialize_constants() {
     g_pprod_fst = new name{"pprod", "fst"};
     g_pprod_snd = new name{"pprod", "snd"};
     g_propext = new name{"propext"};
-    g_pexpr = new name{"pexpr"};
-    g_pexpr_subst = new name{"pexpr", "subst"};
     g_to_pexpr = new name{"to_pexpr"};
     g_quot_mk = new name{"quot", "mk"};
     g_quot_lift = new name{"quot", "lift"};
@@ -1037,8 +1033,6 @@ void finalize_constants() {
     delete g_pprod_fst;
     delete g_pprod_snd;
     delete g_propext;
-    delete g_pexpr;
-    delete g_pexpr_subst;
     delete g_to_pexpr;
     delete g_quot_mk;
     delete g_quot_lift;
@@ -1408,8 +1402,6 @@ name const & get_pprod_mk_name() { return *g_pprod_mk; }
 name const & get_pprod_fst_name() { return *g_pprod_fst; }
 name const & get_pprod_snd_name() { return *g_pprod_snd; }
 name const & get_propext_name() { return *g_propext; }
-name const & get_pexpr_name() { return *g_pexpr; }
-name const & get_pexpr_subst_name() { return *g_pexpr_subst; }
 name const & get_to_pexpr_name() { return *g_to_pexpr; }
 name const & get_quot_mk_name() { return *g_quot_mk; }
 name const & get_quot_lift_name() { return *g_quot_lift; }

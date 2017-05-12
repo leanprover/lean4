@@ -294,8 +294,6 @@ run_cmd script_check_id `pprod.mk
 run_cmd script_check_id `pprod.fst
 run_cmd script_check_id `pprod.snd
 run_cmd script_check_id `propext
-run_cmd script_check_id `pexpr
-run_cmd script_check_id `pexpr.subst
 run_cmd script_check_id `to_pexpr
 run_cmd script_check_id `quot.mk
 run_cmd script_check_id `quot.lift

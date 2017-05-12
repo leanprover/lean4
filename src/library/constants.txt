@@ -289,8 +289,6 @@ pprod.mk
 pprod.fst
 pprod.snd
 propext
-pexpr
-pexpr.subst
 to_pexpr
 quot.mk
 quot.lift

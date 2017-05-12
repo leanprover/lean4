@@ -296,8 +296,6 @@ name const & get_pprod_mk_name();
 name const & get_pprod_fst_name();
 name const & get_pprod_snd_name();
 name const & get_propext_name();
-name const & get_pexpr_name();
-name const & get_pexpr_subst_name();
 name const & get_to_pexpr_name();
 name const & get_quot_mk_name();
 name const & get_quot_lift_name();

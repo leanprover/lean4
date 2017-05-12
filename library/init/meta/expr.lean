@@ -34,10 +34,10 @@ end⟩
 meta constant macro_def : Type
 
 /- Reflect a C++ expr object. The VM replaces it with the C++ implementation. -/
-meta inductive expr
-| var         : nat → expr
-| sort        : level → expr
-| const       : name → list level → expr
+meta inductive expr (elaborated : bool := tt)
+| var      {} : nat → expr
+| sort     {} : level → expr
+| const    {} : name → list level → expr
 | mvar        : name → expr → expr
 | local_const : name → name → binder_info → expr → expr
 | app         : expr → expr → expr
@@ -45,6 +45,8 @@ meta inductive expr
 | pi          : name → binder_info → expr → expr → expr
 | elet        : name → expr → expr → expr → expr
 | macro       : macro_def → list expr → expr
+
+variable {elab : bool}
 
 universes u v
 /-- (reflected a) is a special opaque container for a closed `expr` representing `a`.
@@ -58,10 +60,11 @@ meta constant reflected {α : Type u} : α → Type u
 meta constant reflected.to_expr {α : Type u} {a : α} : reflected a → expr
 meta constant reflected.subst {α : Type u} {β : α → Type v} {f : Π a : α, β a} {a : α} :
   reflected f → reflected a → reflected (f a)
+meta constant expr.reflect (e : expr elab) : reflected e
 meta constant string.reflect (s : string) : reflected s
 
 attribute [class] reflected
-attribute [instance] string.reflect
+attribute [instance] expr.reflect string.reflect
 
 meta instance {α : Type u} (a : α) : has_coe (reflected a) expr :=
 ⟨reflected.to_expr⟩
@@ -75,14 +78,10 @@ meta constant expr.macro_def_name (d : macro_def) : name
 meta def expr.mk_var (n : nat) : expr :=
 expr.var n
 
-/- Choice macros are used to implement overloading.
-   TODO(Leo): should we change it to pexpr? -/
-meta constant expr.is_choice_macro : expr → bool
-
 /- Expressions can be annotated using the annotation macro. -/
-meta constant expr.is_annotation : expr → option (name × expr)
+meta constant expr.is_annotation : expr elab → option (name × expr elab)
 
-meta def expr.erase_annotations : expr → expr
+meta def expr.erase_annotations : expr elab → expr elab
 | e :=
   match e.is_annotation with
   | some (_, a) := expr.erase_annotations a
@@ -97,14 +96,14 @@ attribute [instance] expr.has_decidable_eq
 meta constant expr.alpha_eqv : expr → expr → bool
 notation a ` =ₐ `:50 b:50 := expr.alpha_eqv a b = bool.tt
 
-protected meta constant expr.to_string : expr → string
+protected meta constant expr.to_string : expr elab → string
 
-meta instance : has_to_string expr := ⟨expr.to_string⟩
-meta instance : has_to_format expr := ⟨λ e, e.to_string⟩
+meta instance : has_to_string (expr elab) := ⟨expr.to_string⟩
+meta instance : has_to_format (expr elab) := ⟨λ e, e.to_string⟩
 
 /- Coercion for letting users write (f a) instead of (expr.app f a) -/
-meta instance : has_coe_to_fun expr :=
-{ F := λ e, expr → expr, coe := λ e, expr.app e }
+meta instance : has_coe_to_fun (expr elab) :=
+{ F := λ e, expr elab → expr elab, coe := λ e, expr.app e }
 
 meta constant expr.hash : expr → nat
 
@@ -132,7 +131,7 @@ meta constant expr.instantiate_univ_params : expr → list (name × level) → e
 meta constant expr.instantiate_var         : expr → expr → expr
 meta constant expr.instantiate_vars        : expr → list expr → expr
 
-meta constant expr.subst                   : expr → expr → expr
+protected meta constant expr.subst : expr elab → expr elab → expr elab
 
 meta constant expr.has_var       : expr → bool
 meta constant expr.has_var_idx   : expr → nat → bool
@@ -140,6 +139,7 @@ meta constant expr.has_local     : expr → bool
 meta constant expr.has_meta_var  : expr → bool
 meta constant expr.lift_vars     : expr → nat → nat → expr
 meta constant expr.lower_vars    : expr → nat → nat → expr
+protected meta constant expr.pos : expr elab → option pos
 /- (copy_pos_info src tgt) copy position information from src to tgt. -/
 meta constant expr.copy_pos_info : expr → expr → expr
 
@@ -194,7 +194,7 @@ meta def app_arg : expr → expr
 | (app f a) := a
 | a         := a
 
-meta def get_app_fn : expr → expr
+meta def get_app_fn : expr elab → expr elab
 | (app f a) := get_app_fn f
 | a         := a
 
@@ -350,7 +350,7 @@ open format
 
 private meta def p := λ xs, paren (format.join (list.intersperse " " xs))
 
-meta def to_raw_fmt : expr → format
+meta def to_raw_fmt : expr elab → format
 | (var n) := p ["var", to_fmt n]
 | (sort l) := p ["sort", to_fmt l]
 | (const n ls) := p ["const", to_fmt n, to_fmt ls]

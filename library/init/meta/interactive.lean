@@ -124,11 +124,6 @@ meta def param_desc : expr → tactic format
 end interactive
 
 namespace tactic
-meta def report_resolve_name_failure {α : Type} (e : expr) (n : name) : tactic α :=
-if e.is_choice_macro
-then fail ("failed to resolve name '" ++ to_string n ++ "', it is overloaded")
-else fail ("failed to resolve name '" ++ to_string n ++ "', unexpected result")
-
 /- allows metavars and report errors -/
 meta def i_to_expr (q : pexpr) : tactic expr :=
 to_expr q tt
@@ -259,9 +254,9 @@ do hs ← get_locals ids, revert_lst hs, skip
 private meta def resolve_name' (n : name) : tactic expr :=
 do {
   p ← resolve_name n,
-  match p.to_raw_expr with
-  | expr.const n _           := mk_const n -- create metavars for universe levels
-  | _                        := i_to_expr p
+  match p with
+  | expr.const n _ := mk_const n -- create metavars for universe levels
+  | _              := i_to_expr p
   end
 }
 
@@ -270,10 +265,9 @@ do {
    Example: the elaborator will force any unassigned ?A that must have be an instance of (has_one ?A) to nat.
    Remark: another benefit is that auxiliary temporary metavariables do not appear in error messages. -/
 private meta def to_expr' (p : pexpr) : tactic expr :=
-let e := p.to_raw_expr in
-match e with
-| (const c [])          := do new_e ← resolve_name' c, save_type_info new_e e, return new_e
-| (local_const c _ _ _) := do new_e ← resolve_name' c, save_type_info new_e e, return new_e
+match p with
+| (const c [])          := do new_e ← resolve_name' c, save_type_info new_e p, return new_e
+| (local_const c _ _ _) := do new_e ← resolve_name' c, save_type_info new_e p, return new_e
 | _                     := i_to_expr p
 end
 
@@ -577,11 +571,11 @@ private meta def add_simps : simp_lemmas → list name → tactic simp_lemmas
 private meta def report_invalid_simp_lemma {α : Type} (n : name): tactic α :=
 fail ("invalid simplification lemma '" ++ to_string n ++ "' (use command 'set_option trace.simp_lemmas true' for more details)")
 
-private meta def simp_lemmas.resolve_and_add (s : simp_lemmas) (n : name) (ref : expr) : tactic simp_lemmas :=
+private meta def simp_lemmas.resolve_and_add (s : simp_lemmas) (n : name) (ref : pexpr) : tactic simp_lemmas :=
 do
   p ← resolve_name n,
   -- unpack local refs
-  let e := p.to_raw_expr.erase_annotations.get_app_fn.erase_annotations,
+  let e := p.erase_annotations.get_app_fn.erase_annotations,
   match e with
   | const n _           :=
     (do b ← is_valid_simp_lemma_cnst reducible n, guard b, save_const_type_info n ref, s.add_simp n)
@@ -596,10 +590,9 @@ do
   end
 
 private meta def simp_lemmas.add_pexpr (s : simp_lemmas) (p : pexpr) : tactic simp_lemmas :=
-let e := p.to_raw_expr in
-match e with
-| (const c [])          := simp_lemmas.resolve_and_add s c e
-| (local_const c _ _ _) := simp_lemmas.resolve_and_add s c e
+match p with
+| (const c [])          := simp_lemmas.resolve_and_add s c p
+| (local_const c _ _ _) := simp_lemmas.resolve_and_add s c p
 | _                     := do new_e ← i_to_expr p, s.add new_e
 end
 

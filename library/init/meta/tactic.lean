@@ -429,7 +429,7 @@ try $ do
 meta constant decl_name : tactic name
 
 /- (save_type_info e ref) save (typeof e) at position associated with ref -/
-meta constant save_type_info : expr → expr → tactic unit
+meta constant save_type_info {elab : bool} : expr → expr elab → tactic unit
 meta constant save_info_thunk : pos → (unit → format) → tactic unit
 /-- Return list of currently open namespaces -/
 meta constant open_namespaces : tactic (list name)
@@ -501,7 +501,7 @@ meta def intro_lst : list name → tactic (list expr)
 
 /-- Returns n fully qualified if it refers to a constant, or else fails. -/
 meta def resolve_constant (n : name) : tactic name :=
-do (expr.const n _) ← pexpr.to_raw_expr <$> resolve_name n,
+do (expr.const n _) ← resolve_name n,
    pure n
 
 meta def to_expr_strict (q : pexpr) : tactic expr :=
@@ -776,7 +776,7 @@ do env  ← get_env,
 meta def applyc (c : name) : tactic unit :=
 mk_const c >>= apply
 
-meta def save_const_type_info (n : name) (ref : expr) : tactic unit :=
+meta def save_const_type_info (n : name) {elab : bool} (ref : expr elab) : tactic unit :=
 try (do c ← mk_const n, save_type_info c ref)
 
 /- Create a fresh universe ?u, a metavariable (?T : Type.{?u}),
@@ -1008,7 +1008,7 @@ end list
 -/
 run_cmd do
  let l  := level.param `l,
- let Ty := expr.sort l,
+ let Ty : pexpr := expr.sort l,
  type ← to_expr ``(Π (α : %%Ty), α → α),
  val  ← to_expr ``(λ (α : %%Ty) (a : α), a),
  add_decl (declaration.defn `id_locked [`l] type val reducibility_hints.opaque tt)

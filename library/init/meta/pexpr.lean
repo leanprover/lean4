@@ -8,26 +8,15 @@ import init.meta.expr
 universe u
 
 /- Quoted expressions. They can be converted into expressions by using a tactic. -/
-meta constant pexpr : Type
+@[reducible] meta def pexpr := expr ff
 protected meta constant pexpr.of_expr  : expr → pexpr
-protected meta constant pexpr.subst    : pexpr → pexpr → pexpr
 
-/- Low level primitives for accessing internal representation. -/
-protected meta constant pexpr.to_raw_expr : pexpr → expr
-protected meta constant pexpr.of_raw_expr : expr → pexpr
 meta constant pexpr.mk_placeholder : pexpr
-
-meta constant pexpr.pos : pexpr → option pos
-
 meta constant pexpr.mk_field_macro : pexpr → name → pexpr
 meta constant pexpr.mk_explicit : pexpr → pexpr
 
-meta constant pexpr.to_string : pexpr → string
-meta instance : has_to_string pexpr :=
-⟨pexpr.to_string⟩
-
-meta constant pexpr.reflect (p : pexpr) : reflected p
-attribute [instance] pexpr.reflect
+/- Choice macros are used to implement overloading. -/
+meta constant pexpr.is_choice_macro : pexpr → bool
 
 meta class has_to_pexpr (α : Type u) :=
 (to_pexpr : α → pexpr)

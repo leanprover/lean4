@@ -2834,7 +2834,7 @@ expr elaborator::visit_expr_quote(expr const & e, optional<expr> const & expecte
             throw elaborator_exception(e, "invalid quotation, contains local constant");
         q = mk_expr_quote(new_s);
         q = mk_as_is(q);
-        expr subst_fn = mk_constant(get_expr_subst_name());
+        expr subst_fn = mk_app(mk_explicit(mk_constant(get_expr_subst_name())), mk_bool_tt());
         for (expr const & subst : substs) {
             q = mk_app(subst_fn, q, subst);
         }
@@ -3862,7 +3862,7 @@ expr resolve_names(environment const & env, local_context const & lctx, expr con
     return resolve_names_fn(env, lctx)(e);
 }
 
-static vm_obj tactic_save_type_info(vm_obj const & _e, vm_obj const & ref, vm_obj const & _s) {
+static vm_obj tactic_save_type_info(vm_obj const &, vm_obj const & _e, vm_obj const & ref, vm_obj const & _s) {
     expr const & e = to_expr(_e);
     tactic_state const & s = tactic::to_state(_s);
     if (!get_global_info_manager() || !get_pos_info_provider()) return tactic::mk_success(s);

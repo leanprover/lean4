@@ -1050,7 +1050,7 @@ void finalize_bool() {
 
 expr mk_bool() { return *g_bool; }
 expr mk_bool_tt() { return *g_bool_tt; }
-expr mk_bool_ff() { return *g_bool_tt; }
+expr mk_bool_ff() { return *g_bool_ff; }
 expr to_bool_expr(bool b) { return b ? mk_bool_tt() : mk_bool_ff(); }
 
 name get_dep_recursor(environment const & env, name const & n) {

@@ -16,8 +16,8 @@ environment add_inductive_declaration(environment const & env, options const & o
                                       buffer<expr> const & inds, buffer<buffer<expr> > const & intro_rules,
                                       bool is_trusted);
 
-environment add_structure_declaration_aux(environment const & env, options const & opts,
-                                          buffer<name> const & lp_names, buffer<expr> const & params,
-                                          expr const & ind, expr const & intro_rule);
+environment add_structure_declaration_aux(environment const & env, options const & opts, buffer <name> const & lp_names,
+                                          buffer <expr> const & params, expr const & ind, expr const & intro_rule,
+                                          bool is_trusted);
 
 }

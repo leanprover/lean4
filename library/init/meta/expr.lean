@@ -71,7 +71,6 @@ meta def reflect {α : Type u} (a : α) [h : reflected a] : reflected a := h
 meta instance : inhabited expr :=
 ⟨expr.sort level.zero⟩
 
-meta constant expr.mk_macro (d : macro_def) : list expr → expr
 meta constant expr.macro_def_name (d : macro_def) : name
 meta def expr.mk_var (n : nat) : expr :=
 expr.var n

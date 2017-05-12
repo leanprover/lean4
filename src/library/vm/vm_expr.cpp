@@ -145,12 +145,9 @@ vm_obj expr_elet(vm_obj const & n, vm_obj const & t, vm_obj const & v, vm_obj co
     return to_obj(mk_let(to_name(n), to_expr(t), to_expr(v), to_expr(b)));
 }
 
-vm_obj expr_macro(vm_obj const & d, vm_obj const & n, vm_obj const & fn) {
-    unsigned sz = to_unsigned(n);
+vm_obj expr_macro(vm_obj const & d, vm_obj const & es) {
     buffer<expr> args;
-    for (unsigned i = 0; i < sz; i++) {
-        args.push_back(to_expr(invoke(fn, mk_vm_nat(i))));
-    }
+    to_buffer_expr(es, args);
     return to_obj(mk_macro(to_macro_definition(d), args.size(), args.data()));
 }
 
@@ -211,12 +208,6 @@ unsigned expr_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
         break;
     }
     return static_cast<unsigned>(e.kind());
-}
-
-vm_obj expr_mk_macro(vm_obj const & d, vm_obj const & es) {
-    buffer<expr> args;
-    to_buffer_expr(es, args);
-    return to_obj(mk_macro(to_macro_definition(d), args.size(), args.data()));
 }
 
 vm_obj expr_has_decidable_eq(vm_obj const & o1, vm_obj const & o2) {
@@ -494,7 +485,6 @@ void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name({"expr", "elet"}),             expr_elet);
     DECLARE_VM_BUILTIN("_expr_macro_arg",                  expr_macro_arg);
     DECLARE_VM_BUILTIN(name({"expr", "macro"}),            expr_macro);
-    DECLARE_VM_BUILTIN(name({"expr", "mk_macro"}),         expr_mk_macro);
     DECLARE_VM_BUILTIN(name({"expr", "macro_def_name"}),   expr_macro_def_name);
     DECLARE_VM_BUILTIN(name({"expr", "has_decidable_eq"}), expr_has_decidable_eq);
     DECLARE_VM_BUILTIN(name({"expr", "alpha_eqv"}),        expr_alpha_eqv);

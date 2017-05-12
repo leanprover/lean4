@@ -401,7 +401,8 @@ struct add_inductive_fn {
                 if (!(is_geq(m_it_level, sort_level(s)) || is_zero(m_it_level)))
                     throw kernel_exception(m_env, sstream() << "universe level of type_of(arg #" << (i + 1) << ") "
                                            << "of '" << n << "' is too big for the corresponding inductive datatype");
-                check_positivity(binding_domain(t), n, i);
+                if (m_is_trusted)
+                    check_positivity(binding_domain(t), n, i);
                 bool is_rec = (bool)is_rec_argument(binding_domain(t)); // NOLINT
                 if (is_rec)
                     found_rec = true;

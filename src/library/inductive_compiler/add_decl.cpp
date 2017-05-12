@@ -21,9 +21,9 @@ environment add_inductive_declaration(environment const & old_env, options const
     return env;
 }
 
-environment add_structure_declaration_aux(environment const & old_env, options const &,
-                                          buffer<name> const & lp_names, buffer<expr> const & params,
-                                          expr const & ind, expr const & intro_rule) {
+environment add_structure_declaration_aux(environment const & old_env, options const &, buffer <name> const & lp_names,
+                                          buffer <expr> const & params, expr const & ind, expr const & intro_rule,
+                                          bool is_trusted) {
     buffer<expr> inds;
     inds.push_back(ind);
 
@@ -34,7 +34,7 @@ environment add_structure_declaration_aux(environment const & old_env, options c
     ginductive_decl decl(old_env, 0, lp_names, params, inds, intro_rules);
 
     environment env = old_env;
-    if (mlocal_name(ind) != get_has_sizeof_name())
+    if (is_trusted && mlocal_name(ind) != get_has_sizeof_name())
         env = mk_has_sizeof(env, mlocal_name(ind));
 
     return register_ginductive_decl(env, decl, ginductive_kind::BASIC);

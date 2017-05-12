@@ -1113,7 +1113,7 @@ struct structure_cmd_fn {
 
         m_env = add_structure_declaration_aux(m_env, m_p.get_options(), m_level_names, m_params,
                                               mk_local(m_name, mk_structure_type_no_params()),
-                                              mk_local(m_mk, mk_intro_type_no_params()));
+                                              mk_local(m_mk, mk_intro_type_no_params()), is_trusted);
     }
 
     void declare_projections() {

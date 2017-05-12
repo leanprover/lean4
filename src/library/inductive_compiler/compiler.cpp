@@ -21,9 +21,13 @@ environment add_inner_inductive_declaration(environment const & env, options con
                                             name_map<implicit_infer_kind> implicit_infer_map,
                                             ginductive_decl & decl, bool is_trusted) {
     lean_assert(decl.get_inds().size() == decl.get_intro_rules().size());
-    if (optional<environment> new_env = add_nested_inductive_decl(env, opts, implicit_infer_map, decl, is_trusted)) {
-        return register_ginductive_decl(*new_env, decl, ginductive_kind::NESTED);
-    } else if (decl.is_mutual()) {
+    if (is_trusted) {
+        if (optional<environment> new_env = add_nested_inductive_decl(env, opts, implicit_infer_map, decl,
+                                                                      is_trusted)) {
+            return register_ginductive_decl(*new_env, decl, ginductive_kind::NESTED);
+        }
+    }
+    if (decl.is_mutual()) {
         return register_ginductive_decl(add_mutual_inductive_decl(env, opts, implicit_infer_map, decl, is_trusted),
                                         decl, ginductive_kind::MUTUAL);
     } else {

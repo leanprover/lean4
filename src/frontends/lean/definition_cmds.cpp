@@ -644,7 +644,7 @@ static expr elaborate_proof(
 }
 
 static void check_example(environment const & decl_env, options const & opts,
-                          decl_modifiers modifiers,
+                          decl_modifiers modifiers, bool noncomputable_theory,
                           level_param_names const & univ_params, list<expr> const & params,
                           expr const & fn, expr const & val0,
                           metavar_context const & mctx, local_context const & lctx,
@@ -677,7 +677,7 @@ static void check_example(environment const & decl_env, options const & opts,
         auto def = mk_definition(new_env, decl_name, to_list(univ_params_buf), type, val, use_conv_opt, is_trusted);
         auto cdef = check(new_env, def);
         new_env = module::add(new_env, cdef);
-        check_noncomputable(false, new_env, decl_name, def.get_name(), modifiers.m_is_noncomputable,
+        check_noncomputable(noncomputable_theory, new_env, decl_name, def.get_name(), modifiers.m_is_noncomputable,
                                  pos_provider.get_file_name(), pos_provider.get_some_pos());
     } catch (exception & ex) {
         message_builder error_msg(tc, decl_env, get_global_ios(),
@@ -763,9 +763,11 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
             auto lctx = elab.lctx();
             auto pos_provider = p.get_parser_pos_provider(header_pos);
             bool use_info_manager = get_global_info_manager() != nullptr;
+            bool noncomputable_theory = p.ignore_noncomputable();
             std::string file_name = p.get_file_name();
             add_library_task<unit>([=] {
-                check_example(env, opts, modifiers, lp_name_list, new_params_list, fn, val, mctx, lctx,
+                check_example(env, opts, modifiers, noncomputable_theory,
+                              lp_name_list, new_params_list, fn, val, mctx, lctx,
                               pos_provider, use_info_manager, file_name);
                 return unit();
             }, log_tree::ElaborationLevel);

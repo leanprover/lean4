@@ -44,7 +44,7 @@ static ac_manager::cache_ptr get_cache(environment const & env) {
     ac_manager::cache_ptr r = cache_ptr;
     cache_ptr.reset();
     r->m_env = env;
-    if (!is_eqp_declarations(env, r->m_env)) {
+    if (!is_decl_eqp(env, r->m_env)) {
         /* erase cache for expressions containing locals, since it is probably not useful. */
         r->m_assoc_cache[1].clear();
         r->m_comm_cache[1].clear();

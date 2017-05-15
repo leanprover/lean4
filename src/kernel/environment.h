@@ -185,7 +185,7 @@ public:
             e1.m_extensions.get() == e2.m_extensions.get();
     }
 
-    friend bool is_eqp_declarations(environment const & e1, environment const & e2) {
+    friend bool is_decl_eqp(environment const & e1, environment const & e2) {
         return is_eqp(e1.m_declarations, e2.m_declarations);
     }
 

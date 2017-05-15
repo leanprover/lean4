@@ -63,45 +63,45 @@ private meta def concat (f₁ f₂ : list format) :=
 if f₁.empty then f₂ else if f₂.empty then f₁ else f₁ ++ [" "] ++ f₂
 
 private meta def parser_desc_aux : expr → tactic (list format)
-| ```(ident)  := return ["id"]
-| ```(ident_) := return ["id"]
-| ```(qexpr) := return ["expr"]
-| ```(tk %%c) := list.ret <$> to_fmt <$> eval_expr string c
-| ```(cur_pos) := return []
-| ```(return ._) := return []
-| ```(._ <$> %%p) := parser_desc_aux p
-| ```(skip_info %%p) := parser_desc_aux p
-| ```(set_goal_info_pos %%p) := parser_desc_aux p
-| ```(with_desc %%desc %%p) := list.ret <$> eval_expr format desc
-| ```(%%p₁ <*> %%p₂) := do
+| `(ident)  := return ["id"]
+| `(ident_) := return ["id"]
+| `(qexpr) := return ["expr"]
+| `(tk %%c) := list.ret <$> to_fmt <$> eval_expr string c
+| `(cur_pos) := return []
+| `(return ._) := return []
+| `(._ <$> %%p) := parser_desc_aux p
+| `(skip_info %%p) := parser_desc_aux p
+| `(set_goal_info_pos %%p) := parser_desc_aux p
+| `(with_desc %%desc %%p) := list.ret <$> eval_expr format desc
+| `(%%p₁ <*> %%p₂) := do
   f₁ ← parser_desc_aux p₁,
   f₂ ← parser_desc_aux p₂,
   return $ concat f₁ f₂
-| ```(%%p₁ <* %%p₂) := do
+| `(%%p₁ <* %%p₂) := do
   f₁ ← parser_desc_aux p₁,
   f₂ ← parser_desc_aux p₂,
   return $ concat f₁ f₂
-| ```(%%p₁ *> %%p₂) := do
+| `(%%p₁ *> %%p₂) := do
   f₁ ← parser_desc_aux p₁,
   f₂ ← parser_desc_aux p₂,
   return $ concat f₁ f₂
-| ```(many %%p) := do
+| `(many %%p) := do
   f ← parser_desc_aux p,
   return [maybe_paren f ++ "*"]
-| ```(optional %%p) := do
+| `(optional %%p) := do
   f ← parser_desc_aux p,
   return [maybe_paren f ++ "?"]
-| ```(sep_by %%sep %%p) := do
+| `(sep_by %%sep %%p) := do
   f₁ ← parser_desc_aux sep,
   f₂ ← parser_desc_aux p,
   return [maybe_paren f₂ ++ join f₁, " ..."]
-| ```(%%p₁ <|> %%p₂) := do
+| `(%%p₁ <|> %%p₂) := do
   f₁ ← parser_desc_aux p₁,
   f₂ ← parser_desc_aux p₂,
   return $ if f₁.empty then [maybe_paren f₂ ++ "?"] else
     if f₂.empty then [maybe_paren f₁ ++ "?"] else
     [paren $ join $ f₁ ++ [to_fmt " | "] ++ f₂]
-| ```(brackets %%l %%r %%p) := do
+| `(brackets %%l %%r %%p) := do
   f ← parser_desc_aux p,
   l ← eval_expr string l,
   r ← eval_expr string r,
@@ -116,8 +116,8 @@ private meta def parser_desc_aux : expr → tactic (list format)
   parser_desc_aux e'
 
 meta def param_desc : expr → tactic format
-| ```(parse %%p) := join <$> parser_desc_aux p
-| ```(opt_param %%t ._) := (++ "?") <$> pp t
+| `(parse %%p) := join <$> parser_desc_aux p
+| `(opt_param %%t ._) := (++ "?") <$> pp t
 | e := if is_constant e ∧ (const_name e).components.ilast = `itactic
   then return $ to_fmt "{ tactic }"
   else paren <$> pp e
@@ -283,7 +283,7 @@ meta structure rw_rule :=
 (rule : pexpr)
 
 meta instance rw_rule.reflect : has_reflect rw_rule :=
-λ ⟨p, s, r⟩, ```(_)
+λ ⟨p, s, r⟩, `(_)
 
 private meta def rw_goal (m : transparency) (rs : list rw_rule) : tactic unit :=
 rs.mfor' $ λ r, save_info r.pos >> to_expr' r.rule >>= rewrite_core m tt tt occurrences.all r.symm
@@ -306,7 +306,7 @@ meta structure rw_rules_t :=
 (end_pos : option pos)
 
 meta instance rw_rules_t.reflect : has_reflect rw_rules_t :=
-λ ⟨rs, p⟩, ```(_)
+λ ⟨rs, p⟩, `(_)
 
 -- accepts the same content as `qexpr_list_or_texpr`, but with correct goal info pos annotations
 meta def rw_rules : parser rw_rules_t :=

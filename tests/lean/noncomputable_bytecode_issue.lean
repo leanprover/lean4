@@ -1,7 +1,7 @@
 constant a : nat
 
 noncomputable meta def ex : tactic expr :=
-return ```(a)
+return `(a)
 
 open tactic
 

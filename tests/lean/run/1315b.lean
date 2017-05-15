@@ -47,9 +47,9 @@ rfl
 open tactic
 
 run_cmd do
-  t ← to_expr `(test._match_2) >>= infer_type,
+  t ← infer_type `(test._match_2),
   trace t,
-  tactic.interactive.guard_expr_eq t `(nat → nat)
+  tactic.interactive.guard_expr_eq t ```(nat → nat)
 
 example (k m n : ℕ) : test (succ k) (succ (succ n)) m = 3 :=
 begin

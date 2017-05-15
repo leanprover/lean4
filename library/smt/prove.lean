@@ -6,7 +6,7 @@ private meta def collect_props : list expr → tactic (list expr)
 | (H :: Hs) := do
   Eqs   ← collect_props Hs,
   Htype ← infer_type H >>= infer_type >>= whnf,
-  return $ if Htype = ```(Prop) then (H :: Eqs) else Eqs
+  return $ if Htype = `(Prop) then (H :: Eqs) else Eqs
 
 -- This tactic is just a placeholder, designed to be modified for specific performance experiments
 meta def prove : tactic unit :=

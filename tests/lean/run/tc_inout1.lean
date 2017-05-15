@@ -32,7 +32,7 @@ instance int_mul_monoid : is_monoid int int.mul 1 := sorry
 open tactic
 
 run_cmd do
-  M ← to_expr `(is_monoid nat),
+  M ← to_expr ``(is_monoid nat),
   m₁ ← mk_mvar,
   m₂ ← mk_mvar,
   i ← mk_instance (M m₁ m₂),
@@ -42,7 +42,7 @@ run_cmd do
 
 
 run_cmd do
-  M ← to_expr `(is_monoid nat nat.add),
+  M ← to_expr ``(is_monoid nat nat.add),
   m₁ ← mk_mvar,
   i ← mk_instance (M m₁),
   /- found nat_add_monoid -/

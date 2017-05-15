@@ -1,7 +1,7 @@
 open tactic list
 
 meta definition foo (a : pexpr) : pexpr :=
-`(%%a + %%a + %%a + b)
+```(%%a + %%a + %%a + b)
 
 example (a b : nat) : a = a :=
 by do

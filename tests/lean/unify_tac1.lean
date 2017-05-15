@@ -18,7 +18,7 @@ by do
 
 example (a : nat) : true :=
 by do
-  t1 ← to_expr `(nat.succ a),
-  t2 ← to_expr `(a + 1),
+  t1 ← to_expr ```(nat.succ a),
+  t2 ← to_expr ```(a + 1),
   is_def_eq t1 t2, -- Succeeds
   constructor

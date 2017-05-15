@@ -52,7 +52,7 @@ universes u v
     of `a` in the calling context. Local constants in the representation are replaced
     by nested inference of `reflected` instances.
 
-    The quotation expression ```(a) (outside of patterns) is equivalent to `reflect a`
+    The quotation expression `(a) (outside of patterns) is equivalent to `reflect a`
     and thus can be used as an explicit way of inferring an instance of `reflected a`. -/
 meta constant reflected {α : Type u} : α → Type u
 meta constant reflected.to_expr {α : Type u} {a : α} : reflected a → expr
@@ -256,29 +256,29 @@ meta def is_napp_of (e : expr) (c : name) (n : nat) : bool :=
 is_app_of e c ∧ get_app_num_args e = n
 
 meta def is_false : expr → bool
-| ```(false) := tt
+| `(false) := tt
 | _         := ff
 
 meta def is_not : expr → option expr
-| ```(not %%a)     := some a
-| ```(%%a → false) := some a
-| e                := none
+| `(not %%a)     := some a
+| `(%%a → false) := some a
+| e              := none
 
 meta def is_and : expr → option (expr × expr)
-| ```(and %%α %%β) := some (α, β)
-| _                 := none
+| `(and %%α %%β) := some (α, β)
+| _              := none
 
 meta def is_or : expr → option (expr × expr)
-| ```(or %%α %%β) := some (α, β)
-| _                 := none
+| `(or %%α %%β) := some (α, β)
+| _             := none
 
 meta def is_eq : expr → option (expr × expr)
-| ```((%%a : %%_) = %%b) := some (a, b)
-| _                     := none
+| `((%%a : %%_) = %%b) := some (a, b)
+| _                    := none
 
 meta def is_ne : expr → option (expr × expr)
-| ```((%%a : %%_) ≠ %%b) := some (a, b)
-| _                     := none
+| `((%%a : %%_) ≠ %%b) := some (a, b)
+| _                    := none
 
 meta def is_bin_arith_app (e : expr) (op : name) : option (expr × expr) :=
 if is_napp_of e op 4
@@ -298,8 +298,8 @@ meta def is_ge (e : expr) : option (expr × expr) :=
 is_bin_arith_app e ``ge
 
 meta def is_heq : expr → option (expr × expr × expr × expr)
-| ```(@heq %%α %%a %%β %%b) := some (α, a, β, b)
-| _                         := none
+| `(@heq %%α %%a %%β %%b) := some (α, a, β, b)
+| _                       := none
 
 meta def is_pi : expr → bool
 | (pi _ _ _ _) := tt

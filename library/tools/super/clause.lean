@@ -11,7 +11,7 @@ namespace super
 meta def is_local_not (local_false : expr) (e : expr) : option expr :=
 match e with
 | (pi _ _ a b) := if b = local_false then some a else none
-| _ := if local_false = ```(false) then is_not e else none
+| _ := if local_false = `(false) then is_not e else none
 end
 
 meta structure clause :=
@@ -81,7 +81,7 @@ private meta def parse_clause (local_false : expr) : expr → expr → tactic cl
   lc ← return $ local_const lc_n n bi d,
   c ← parse_clause (app proof lc) (instantiate_var b lc),
   return $ c.close_const $ local_const lc_n n binder_info.default d
-| proof ```(not %%formula) := parse_clause proof (formula.imp ```(false))
+| proof `(not %%formula) := parse_clause proof (formula.imp `(false))
 | proof type :=
 if type = local_false then do
   return { num_quants := 0, num_lits := 0, proof := proof, type := type, local_false := local_false }
@@ -98,7 +98,7 @@ type ← infer_type proof,
 of_proof_and_type local_false proof type
 
 meta def of_classical_proof (proof : expr) : tactic clause :=
-of_proof ```(false) proof
+of_proof `(false) proof
 
 meta def inst_mvars (c : clause) : tactic clause := do
 proof' ← instantiate_mvars (proof c),
@@ -192,7 +192,7 @@ return $
 if literal.is_neg (get_lit c 0) then
   { c with type := atom'.imp (binding_body c.type) }
 else
-  { c with type := ```(not %%atom').imp (c.type.binding_body) }
+  { c with type := `(not %%atom').imp (c.type.binding_body) }
 
 end clause
 

@@ -20,7 +20,7 @@ do cc  ← cc_state.mk_using_hs,
 example (a b c : nat) : f a = b → a = g c → f a ≠ c → false :=
 by do
   intros,
-  e ← to_expr `(f a),
+  e ← to_expr ```(f a),
   ematch_test `Ax e,
   trace_state,
   cc
@@ -28,6 +28,6 @@ by do
 example (a b c : nat) : f a = b → a = g c → f a = c :=
 by do
   intros,
-  e ← to_expr `(f a),
+  e ← to_expr ```(f a),
   ematch_test `Ax e,
   cc

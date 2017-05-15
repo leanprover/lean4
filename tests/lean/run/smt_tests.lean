@@ -9,7 +9,7 @@ open tactic smt_tactic
 def ex : p (a + b) (a + b) :=
 begin [smt]
   do {
-    h ← to_expr `(h),
+    h ← to_expr ```(h),
     t ← infer_type h,
     (new_t, he) ← preprocess t, -- use smt_tactic preprocessor
     new_h ← mk_app `eq.mp [he, h],

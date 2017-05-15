@@ -59,7 +59,7 @@ meta def check_expr (p : pexpr) (t : expr) : tactic unit :=
 do e ← to_expr p, guard (t = e)
 
 run_cmd do
-  e ← to_expr `(boo 2),
-  check_expr `(boo 2 (2:nat) ff {v1 := 10, v2 := 2, flag := ff, ps := ["hello", "world"]}) e,
-  e ← to_expr `(f 1),
-  check_expr `(f 1 (5:nat)) e
+  e ← to_expr ``(boo 2),
+  check_expr ``(boo 2 (2:nat) ff {v1 := 10, v2 := 2, flag := ff, ps := ["hello", "world"]}) e,
+  e ← to_expr ```(f 1),
+  check_expr ```(f 1 (5:nat)) e

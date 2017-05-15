@@ -15,7 +15,7 @@ def g (a : nat) := a + 1
 example : g 0 = 1 :=
 begin
   unfold g,
-  (target >>= check_expr `(0 + 1 = 1)),
+  (target >>= check_expr ``(0 + 1 = 1)),
   reflexivity
 end
 

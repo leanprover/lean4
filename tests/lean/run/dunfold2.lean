@@ -26,7 +26,7 @@ by do
          return (new_e, tt) })
      t,
   trace new_t,
-  expected ← to_expr `(p (g (nat.add a (bit0 (nat.succ nat.zero))))),
+  expected ← to_expr ```(p (g (nat.add a (bit0 (nat.succ nat.zero))))),
   guard (new_t = expected),
   trace new_t,
   assumption
@@ -46,7 +46,7 @@ by do
          return (new_e, tt) })
      t,
   trace new_t,
-  expected ← to_expr `(p (g (nat.succ (nat.succ a)))),
+  expected ← to_expr ```(p (g (nat.succ (nat.succ a)))),
   guard (new_t = expected),
   trace new_t,
   assumption

@@ -22,15 +22,15 @@ do [_, _, _, a, t] ← match_app_of e ``has_mem.mem | failed, return (a, t)
 
 meta def search_mem_list : expr → expr → tactic expr
 | a e := when_tracing `search_mem_list (do f₁ ← pp a, f₂ ← pp e, trace (to_fmt "search " ++ f₁ ++ to_fmt " in " ++ f₂)) >>
-(do m ← to_expr `(%%a ∈ %%e), find_assumption m)
+(do m ← to_expr ``(%%a ∈ %%e), find_assumption m)
 <|>
-(do (l, r) ← match_append e, h ← search_mem_list a l, to_expr `(in_left %%r %%h))
+(do (l, r) ← match_append e, h ← search_mem_list a l, to_expr ``(in_left %%r %%h))
 <|>
-(do (l, r) ← match_append e, h ← search_mem_list a r, to_expr `(in_right %%l %%h))
+(do (l, r) ← match_append e, h ← search_mem_list a r, to_expr ``(in_right %%l %%h))
 <|>
-(do (b, t) ← match_cons e, is_def_eq a b,             to_expr `(in_head %%b %%t))
+(do (b, t) ← match_cons e, is_def_eq a b,             to_expr ``(in_head %%b %%t))
 <|>
-(do (b, t) ← match_cons e, h ← search_mem_list a t,   to_expr `(in_tail %%b %%h))
+(do (b, t) ← match_cons e, h ← search_mem_list a t,   to_expr ``(in_tail %%b %%h))
 
 meta def mk_mem_list : tactic unit :=
 do t ← target,

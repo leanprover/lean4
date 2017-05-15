@@ -14,7 +14,7 @@ res ← cdcl.solve (cdcl.theory_solver_of_tactic th_solver) local_false clauses,
 match res with
 | (cdcl.result.unsat proof) := exact proof
 | (cdcl.result.sat interp) :=
-  let interp' := do e ← interp.to_list, [if e.2 = tt then e.1 else ```(not %%e.1)] in
+  let interp' := do e ← interp.to_list, [if e.2 = tt then e.1 else `(not %%e.1)] in
   do pp_interp ← pp interp',
      fail (to_fmt "satisfying assignment: " ++ pp_interp)
 end

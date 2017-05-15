@@ -17,7 +17,7 @@ by do
          trace "===>", trace new_e, trace "-------",
          return (new_e, tt) })
      t,
-  expected ← to_expr `(p (g (nat.succ (nat.succ a)))),
+  expected ← to_expr ```(p (g (nat.succ (nat.succ a)))),
   guard (new_t = expected),
   trace new_t,
   assumption

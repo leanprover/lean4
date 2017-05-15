@@ -73,10 +73,10 @@ by run $ do
  tactic.assumption
 
 meta def naive_instantiation : lazy_tactic unit :=
-let vals := [`(1),`(2),`(3)] in do
+let vals := [``(1),``(2),``(3)] in do
 x ← choose vals,
 y ← choose vals,
-e ← tactic.to_expr `(nat.add_comm %%x %%y),
+e ← tactic.to_expr ``(nat.add_comm %%x %%y),
 tactic.trace e,
 tactic.exact e
 

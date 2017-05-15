@@ -55,7 +55,7 @@ private meta def contra_constructor_eq : list expr → tactic unit
 | (H :: Hs) :=
   do t ← infer_type H >>= whnf,
      match t with
-     | ```((%%lhs_0 : %%α) = %%rhs_0) :=
+     | `((%%lhs_0 : %%α) = %%rhs_0) :=
        do env ← get_env,
           lhs ← whnf lhs_0,
           rhs ← whnf rhs_0,

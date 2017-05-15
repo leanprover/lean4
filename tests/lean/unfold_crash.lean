@@ -8,6 +8,6 @@ by do
   dunfold [`add, `has_add.add, `has_one.one, `nat.add, `one],
   trace_state,
   t ← target,
-  expected ← to_expr `(a = succ b),
+  expected ← to_expr ```(a = succ b),
   guard (t = expected),
   assumption

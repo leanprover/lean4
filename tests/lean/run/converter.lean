@@ -20,7 +20,7 @@ by conversion $
   dsimp >>
   trace "after defeq simplifier" >>
   trace_lhs >>
-  change `(f a a) >>
+  change ```(f a a) >>
   trace_lhs >>
   apply_simp_set `foo >>
   trace_lhs
@@ -56,13 +56,13 @@ by conversion $
 
 lemma ex4 (a b c : nat) : g (g (g (f (f (g (g a)) (g (g a))) a))) = g (g (g (f (f a a) a))) :=
 by conversion $
-   findp `(λ x, f (g x) (g x)) $
+   findp ```(λ x, f (g x) (g x)) $
      trace "found pattern" >> trace_lhs >>
      bottom_up (apply_simp_set `bla)
 
 lemma ex5 (a b c : nat) : g (g (g (f (f (g (g a)) (g (g a))) a))) = g (g (g (f (f a a) a))) :=
 by conversion $
    find $
-     match_expr `(λ x, f (g x) (g x)) >>
+     match_expr ```(λ x, f (g x) (g x)) >>
      trace "found pattern" >> trace_lhs >>
      bottom_up (apply_simp_set `bla)

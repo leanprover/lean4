@@ -10,7 +10,7 @@ by do
   t ← target,
   S ← simp_lemmas.mk_default,
   new_t ← dsimplify (λ e, failed) (λ e, do new_e ← S^.drewrite e, return (new_e, tt)) t,
-  expected ← to_expr `(p (a + 10)),
+  expected ← to_expr ```(p (a + 10)),
   guard (new_t = expected),
   change new_t,
   assumption

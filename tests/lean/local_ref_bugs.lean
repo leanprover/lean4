@@ -12,7 +12,7 @@ open tactic
 include α
 example : true :=
 by do
-  e ← to_expr `(b),
+  e ← to_expr ```(b),
   t ← infer_type e,
   trace "-------",
   trace e,

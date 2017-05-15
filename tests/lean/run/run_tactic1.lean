@@ -3,8 +3,8 @@ open tactic
 run_cmd tactic.trace "hello world"
 
 run_cmd do
- N ← to_expr `(nat),
- v ← to_expr `(10),
+ N ← to_expr ``(nat),
+ v ← to_expr ``(10),
  add_decl (declaration.defn `val10 [] N v reducibility_hints.opaque tt)
 
 #eval val10
@@ -14,8 +14,8 @@ example : val10 = 10 := rfl
 meta definition mk_defs : nat → command
 | 0     := skip
 | (n+1) := do
-   let N := ```(ℕ),
-   let v := ```(n),
+   let N := `(ℕ),
+   let v := `(n),
    add_decl (declaration.defn (name.append_after `val n) [] N v reducibility_hints.opaque tt),
    mk_defs n
 

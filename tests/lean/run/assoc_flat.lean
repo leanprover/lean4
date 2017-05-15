@@ -18,13 +18,13 @@ meta definition flat_with : expr → expr → expr → expr → tactic (expr × 
     -- H₃ is a proof for (a1 + a2) + rhs = a1 + (a2 + rhs)
     H₃             ← return $ assoc a1 a2 rhs,
     -- H₃ is a proof for a1 + (a2 + rhs) = a1 + rhs1
-    H₄             ← to_expr `(congr_arg %%(app op a1) %%H₁),
-    H₅             ← to_expr `(eq.trans %%H₃ %%H₄),
-    H              ← to_expr `(eq.trans %%H₅ %%H₂),
+    H₄             ← to_expr ``(congr_arg %%(app op a1) %%H₁),
+    H₅             ← to_expr ``(eq.trans %%H₃ %%H₄),
+    H              ← to_expr ``(eq.trans %%H₅ %%H₂),
     return (new_app, H)
   | none          := do
     new_app ← return $ op e rhs,
-    H       ← to_expr `(eq.refl %%new_app),
+    H       ← to_expr ``(eq.refl %%new_app),
     return (new_app, H)
   end
 
@@ -38,11 +38,11 @@ meta definition flat : expr → expr → expr → tactic (expr × expr)
     (new_app, H₂)  ← flat_with op assoc a1 new_a2,
     -- We need a proof that (a1 + a2) = new_app
     -- H₃ is a proof for a1 + a2 = a1 + new_a2
-    H₃ : expr      ← to_expr `(congr_arg %%(app op a1) %%H₁),
-    H              ← to_expr `(eq.trans %%H₃ %%H₂),
+    H₃ : expr      ← to_expr ``(congr_arg %%(app op a1) %%H₁),
+    H              ← to_expr ``(eq.trans %%H₃ %%H₂),
     return (new_app, H)
   | none          :=
-    do pr ← to_expr `(eq.refl %%e),
+    do pr ← to_expr ``(eq.refl %%e),
        return (e, pr)
   end
 

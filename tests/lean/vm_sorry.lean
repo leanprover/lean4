@@ -12,7 +12,7 @@ meta def my_partial_fun : bool → ℕ
 #eval (my_partial_fun ff)
 
 open expr tactic
-run_cmd (do v ← to_expr `(half_baked ff) >>= whnf,
+run_cmd (do v ← to_expr ``(half_baked ff) >>= whnf,
                 trace $ to_string v^.is_sorry)
 
 example : 0 = 1 := by admit

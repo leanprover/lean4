@@ -78,8 +78,8 @@ meta def to_hinst_lemmas_core (m : transparency) : bool → list name → hinst_
   end
 
 meta def mk_hinst_lemma_attr_core (attr_name : name) (as_simp : bool) : command :=
-do let t := ```(caching_user_attribute hinst_lemmas),
-   let v := ```({name     := attr_name,
+do let t := `(caching_user_attribute hinst_lemmas),
+   let v := `({name     := attr_name,
                  descr    := "hinst_lemma attribute",
                  mk_cache := λ ns, to_hinst_lemmas_core reducible as_simp ns hinst_lemmas.mk,
                  dependencies := [`reducibility] } : caching_user_attribute hinst_lemmas),
@@ -92,7 +92,7 @@ meta def mk_hinst_lemma_attrs_core (as_simp : bool) : list name → command
   (mk_hinst_lemma_attr_core n as_simp >> mk_hinst_lemma_attrs_core ns)
   <|>
   (do type ← infer_type (expr.const n []),
-      let expected := ```(caching_user_attribute hinst_lemmas),
+      let expected := `(caching_user_attribute hinst_lemmas),
       (is_def_eq type expected
        <|> fail ("failed to create hinst_lemma attribute '" ++ n.to_string ++ "', declaration already exists and has different type.")),
       mk_hinst_lemma_attrs_core ns)
@@ -114,8 +114,8 @@ For the ones in simp_attr_names, we use the left-hand-side of the conclusion as 
 meta def mk_hinst_lemma_attr_set (attr_name : name) (attr_names : list name) (simp_attr_names : list name) : command :=
 do mk_hinst_lemma_attrs_core ff attr_names,
    mk_hinst_lemma_attrs_core tt simp_attr_names,
-   let t  := ```(caching_user_attribute hinst_lemmas),
-   let v  := ```({name     := attr_name,
+   let t  := `(caching_user_attribute hinst_lemmas),
+   let v  := `({name     := attr_name,
                    descr    := "hinst_lemma attribute set",
                    mk_cache := λ ns,
                       let aux1 : list name := attr_names,

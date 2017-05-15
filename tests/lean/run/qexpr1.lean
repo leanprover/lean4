@@ -5,10 +5,10 @@ open tactic
 have Hac : a = c, by do {
  h  ← get_local `H2,
  hs ← mk_app `eq.symm [h],
- x  ← to_expr `(eq.trans H1 %%hs),
+ x  ← to_expr ```(eq.trans H1 %%hs),
  exact x },
 show a = d, by do {
-  x ← to_expr `(
+  x ← to_expr ```(
     have aux : a = c, from Hac,
     have c = d, by do { symmetry, assumption },
     show a = d, by do {

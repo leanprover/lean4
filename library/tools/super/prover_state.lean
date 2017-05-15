@@ -121,7 +121,7 @@ passive_fmts ← mapm pp $ rb_map.values s.passive,
 new_fmts ← mapm pp s.newly_derived,
 locked_fmts ← mapm pp s.locked,
 sat_fmts ← mapm pp s.sat_solver.clauses,
-sat_model_fmts ← for s.current_model.to_list (λx, if x.2 = tt then pp x.1 else pp ```(not %%x.1)),
+sat_model_fmts ← for s.current_model.to_list (λx, if x.2 = tt then pp x.1 else pp `(not %%x.1)),
 prec_fmts ← mapm pp s.prec,
 return (join_with_nl
   ([to_fmt "active:"]      ++ ((append (to_fmt "  ")) <$> active_fmts) ++

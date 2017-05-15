@@ -29,6 +29,6 @@ do S         ← simp_lemmas.mk_default,
    simplify_core {} S `rel e
 
 example : rel (h (f x)) z :=
-by do e₁ ← to_expr `(h (f x)),
+by do e₁ ← to_expr ```(h (f x)),
       (e₁', pf) ← relsimp_core e₁,
       exact pf

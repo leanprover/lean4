@@ -4,7 +4,7 @@ meta def my_attr : caching_user_attribute (name → bool) :=
 { name         := "my_attr",
   descr        := "my attr",
   mk_cache     := λ ls, do {
-   let c := ```(λ n : name, (name.cases_on n ff (λ _ _, to_bool (n ∈ ls)) (λ _ _, ff) : bool)),
+   let c := `(λ n : name, (name.cases_on n ff (λ _ _, to_bool (n ∈ ls)) (λ _ _, ff) : bool)),
    eval_expr (name → bool) c
   },
   dependencies := []

@@ -7,7 +7,7 @@ H ← get_local `H >>= clause.of_classical_proof,
 Hpa ← get_local `Hpa >>= clause.of_classical_proof,
 a ← get_local `a,
 try_sup (λx y, ff) H Hpa 0 0 [0] tt ff ``super.sup_ltr >>= clause.validate,
-to_expr `(trivial) >>= apply
+to_expr ``(trivial) >>= apply
 
 example (i : Type) (a b : i) (p : i → Prop) (H : a = b) (Hpa : p a → false) (Hpb : p b → false) : true := by do
 H ← get_local `H >>= clause.of_classical_proof,
@@ -15,7 +15,7 @@ Hpa ← get_local `Hpa >>= clause.of_classical_proof,
 Hpb ← get_local `Hpb >>= clause.of_classical_proof,
 try_sup (λx y, ff) H Hpa 0 0 [0] tt ff ``super.sup_ltr >>= clause.validate,
 try_sup (λx y, ff) H Hpb 0 0 [0] ff ff ``super.sup_rtl >>= clause.validate,
-to_expr `(trivial) >>= apply
+to_expr ``(trivial) >>= apply
 
 example (i : Type) (p q : i → Prop) (H : ∀x y, p x → q y → false) : true := by do
 h ← get_local `H >>= clause.of_classical_proof,
@@ -33,18 +33,18 @@ example (i : Type) (p : i → i → Type) (c : i) (h : ∀ (x : i), p x c → p 
 h ← get_local `h, hcls ← clause.of_classical_proof h,
 taut ← is_taut hcls,
 when (¬taut) failed,
-to_expr `(trivial) >>= apply
+to_expr ``(trivial) >>= apply
 
 open tactic
 example (m n : ℕ) : true := by do
-e₁ ← to_expr `((0 + (m : ℕ)) + 0),
-e₂ ← to_expr `(0 + (0 + (m : ℕ))),
-e₃ ← to_expr `(0 + (m : ℕ)),
+e₁ ← to_expr ```((0 + (m : ℕ)) + 0),
+e₂ ← to_expr ```(0 + (0 + (m : ℕ))),
+e₃ ← to_expr ```(0 + (m : ℕ)),
 prec ← return (contained_funsyms e₁)^.keys,
 prec_gt ← return $ prec_gt_of_name_list prec,
 guard $ lpo prec_gt e₁ e₃,
 guard $ lpo prec_gt e₂ e₃,
-to_expr `(trivial) >>= apply
+to_expr ``(trivial) >>= apply
 
 /-
 open tactic
@@ -73,5 +73,5 @@ cs ← try_no_confusion_eq_r h 0,
 for' cs clause.validate,
 cs ← try_no_confusion_eq_r h2 0,
 for' cs clause.validate,
-to_expr `(trivial) >>= exact
+to_expr ``(trivial) >>= exact
 end

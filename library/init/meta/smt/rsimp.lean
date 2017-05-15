@@ -29,8 +29,8 @@ private meta def to_hinst_lemmas (m : transparency) (ex : name_set) : list name 
     We say `ex_attr_name` is the "exception set". It is useful for excluding lemmas in `simp_attr_name`
     which are not good or redundant for ematching. -/
 meta def mk_hinst_lemma_attr_from_simp_attr (attr_decl_name attr_name : name) (simp_attr_name : name) (ex_attr_name : name) : command :=
-do let t := ```(caching_user_attribute hinst_lemmas),
-   let v := ```({name     := attr_name,
+do let t := `(caching_user_attribute hinst_lemmas),
+   let v := `({name     := attr_name,
                  descr    := "hinst_lemma attribute derived from '" ++ to_string simp_attr_name ++ "'",
                  mk_cache := λ ns,
                  let aux := simp_attr_name in

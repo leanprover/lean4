@@ -461,7 +461,7 @@ meta def istep {α : Type u} (line col : ℕ) (t : tactic α) : tactic unit :=
 
 meta def is_prop (e : expr) : tactic bool :=
 do t ← infer_type e,
-   return (t = ```(Prop))
+   return (t = `(Prop))
 
 /-- Return true iff n is the name of declaration that is a proposition. -/
 meta def is_prop_decl (n : name) : tactic bool :=
@@ -961,11 +961,11 @@ meta def add_meta_definition (n : name) (lvls : list name) (type value : expr) :
 add_decl (declaration.defn n lvls type value reducibility_hints.abbrev ff)
 
 meta def apply_opt_param : tactic unit :=
-do ```(opt_param %%t %%v) ← target,
+do `(opt_param %%t %%v) ← target,
    exact v
 
 meta def apply_auto_param : tactic unit :=
-do ```(auto_param %%type %%tac_name_expr) ← target,
+do `(auto_param %%type %%tac_name_expr) ← target,
    change type,
    tac_name ← eval_expr name tac_name_expr,
    tac ← eval_expr (tactic unit) (expr.const tac_name []),

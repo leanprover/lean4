@@ -387,8 +387,8 @@ meta def to_simp_lemmas : simp_lemmas → list name → tactic simp_lemmas
 | S (n::ns) := do S' ← S.add_simp n, to_simp_lemmas S' ns
 
 meta def mk_simp_attr (attr_name : name) : command :=
-do let t := ```(caching_user_attribute simp_lemmas),
-   let v := ```({name     := attr_name,
+do let t := `(caching_user_attribute simp_lemmas),
+   let v := `({name     := attr_name,
                  descr    := "simplifier attribute",
                  mk_cache := λ ns, do {tactic.to_simp_lemmas simp_lemmas.mk ns},
                  dependencies := [`reducibility] } : caching_user_attribute simp_lemmas),

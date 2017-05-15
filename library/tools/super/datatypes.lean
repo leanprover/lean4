@@ -33,7 +33,7 @@ on_right_at' c i $ λhyp,
     env ← get_env,
     lhs ← whnf lhs, rhs ← whnf rhs,
     guard $ env.is_constructor_app lhs ∧ env.is_constructor_app rhs,
-    pr ← mk_app (lhs.get_app_fn.const_name.get_prefix <.> "no_confusion") [```(false), lhs, rhs, hyp],
+    pr ← mk_app (lhs.get_app_fn.const_name.get_prefix <.> "no_confusion") [`(false), lhs, rhs, hyp],
     -- FIXME: change to local false ^^
     ty ← infer_type pr, ty ← whnf ty,
     pr ← to_expr ``(@eq.mpr _ %%ty rfl %%pr), -- FIXME

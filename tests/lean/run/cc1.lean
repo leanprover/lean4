@@ -19,7 +19,7 @@ by do intros,
       trace ">>> b's equivalence class",
       trace (s^.eqc_of b),
       pr ← s^.eqv_proof t₁ t₂,
-      note `h pr,
+      note `h none pr,
       contradiction
 
 example (a b : nat) (f : nat → nat) : a = b → f a = f b :=

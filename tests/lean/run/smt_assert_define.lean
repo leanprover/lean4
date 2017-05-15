@@ -7,7 +7,7 @@ axiom pf (a : nat) : p (f a) (f a) → p a a
 lemma ex1 (a b c : nat) : a = b + 0 → a + c = b + c :=
 by using_smt $ do
   pr ← tactic.to_expr `(add_zero b),
-  note `h pr,
+  note `h none pr,
   trace_state, return ()
 
 lemma ex2(a b c : nat) : a = b → p (f a) (f b) → p a b :=
@@ -18,7 +18,7 @@ by using_smt $ do
   trace_state,
   tactic.trace "-----",
   pr ← tactic.to_expr `(pf _ h),
-  note `h2 pr,
+  note `h2 none pr,
   trace_state,
   return ()
 

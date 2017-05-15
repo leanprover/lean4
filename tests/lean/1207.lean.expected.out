@@ -1,2 +1,2 @@
 1207.lean:15:2: error: unknown identifier 'h'
-1207.lean:21:26: error: unknown identifier 'foo'
+1207.lean:21:23: error: unknown identifier 'foo'

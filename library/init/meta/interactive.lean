@@ -495,25 +495,29 @@ do e ← i_to_expr_strict q,
    tactic.define h e
 
 /--
-This tactic applies to any goal. `assertv h : T := p` adds a new hypothesis of name `h` and type `T` to the current goal if `p` a term of type `T`.
+This tactic applies to any goal. `note h : T := p` adds a new hypothesis of name `h` and type `T` to the current goal if `p` a term of type `T`.
 -/
-meta def assertv (h : parse ident) (q₁ : parse $ tk ":" *> texpr) (q₂ : parse $ tk ":=" *> texpr) : tactic unit :=
-do t ← i_to_expr_strict q₁,
-   v ← i_to_expr_strict ``(%%q₂ : %%t),
-   tactic.assertv h t v
+meta def note (h : parse ident?) (q₁ : parse (tk ":" *> texpr)?) (q₂ : parse $ tk ":=" *> texpr) : tactic unit :=
+match q₁ with
+| some e := do
+  t ← i_to_expr_strict e,
+  v ← i_to_expr_strict ``(%%q₂ : %%t),
+  tactic.assertv (h.get_or_else `this) t v
+| none := do
+  p ← i_to_expr_strict q₂,
+  tactic.note (h.get_or_else `this) none p
+end
 
-meta def definev (h : parse ident) (q₁ : parse $ tk ":" *> texpr) (q₂ : parse $ tk ":=" *> texpr) : tactic unit :=
-do t ← i_to_expr_strict q₁,
-   v ← i_to_expr_strict ``(%%q₂ : %%t),
-   tactic.definev h t v
-
-meta def note (h : parse ident) (q : parse $ tk ":=" *> texpr) : tactic unit :=
-do p ← i_to_expr_strict q,
-   tactic.note h p
-
-meta def pose (h : parse ident) (q : parse $ tk ":=" *> texpr) : tactic unit :=
-do p ← i_to_expr_strict q,
-   tactic.pose h p
+meta def pose (h : parse ident?) (q₁ : parse (tk ":" *> texpr)?) (q₂ : parse $ tk ":=" *> texpr) : tactic unit :=
+match q₁ with
+| some e := do
+  t ← i_to_expr_strict e,
+  v ← i_to_expr_strict ``(%%q₂ : %%t),
+  tactic.definev (h.get_or_else `this) t v
+| none := do
+  p ← i_to_expr_strict q₂,
+  tactic.pose (h.get_or_else `this) none p
+end
 
 /--
 This tactic displays the current state in the tracing buffer.

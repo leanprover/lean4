@@ -34,7 +34,7 @@ end
 
 definition tst5 (a : nat) : a = a :=
 begin
-  definev x : nat := a,
+  pose x : nat := a,
   trace_state,
   exact eq.refl x
 end

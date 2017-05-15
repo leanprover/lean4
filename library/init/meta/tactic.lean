@@ -617,14 +617,14 @@ meta def definev (h : name) (t : expr) (v : expr) : tactic unit :=
 definev_core h t v >> intro h >> return ()
 
 /- Add (h : t := pr) to the current goal -/
-meta def pose (h : name) (pr : expr) : tactic unit :=
-do t ← infer_type pr,
-   definev h t pr
+meta def pose (h : name) (t : option expr := none) (pr : expr) : tactic unit :=
+let dv := λt, definev h t pr in
+option.cases_on t (infer_type pr >>= dv) dv
 
 /- Add (h : t) to the current goal, given a proof (pr : t) -/
-meta def note (n : name) (pr : expr) : tactic unit :=
-do t ← infer_type pr,
-   assertv n t pr
+meta def note (h : name) (t : option expr := none) (pr : expr) : tactic unit :=
+let dv := λt, assertv h t pr in
+option.cases_on t (infer_type pr >>= dv) dv
 
 /- Return the number of goals that need to be solved -/
 meta def num_goals     : tactic nat :=

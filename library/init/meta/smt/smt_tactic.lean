@@ -309,14 +309,18 @@ meta def definev (h : name) (t : expr) (v : expr) : smt_tactic unit :=
 tactic.definev_core h t v >> intros >> return ()
 
 /-- Add (h : t := pr) to the current goal -/
-meta def pose (h : name) (pr : expr) : smt_tactic unit :=
-do t ← tactic.infer_type pr,
-   definev h t pr
+meta def pose (h : name) (t : option expr := none) (pr : expr) : smt_tactic unit :=
+match t with
+| none   := do t ← infer_type pr, definev h t pr
+| some t := definev h t pr
+end
 
-/- Add (h : t) to the current goal, given a proof (pr : t) -/
-meta def note (n : name) (pr : expr) : smt_tactic unit :=
-do t ← tactic.infer_type pr,
-   assertv n t pr
+/-- Add (h : t) to the current goal, given a proof (pr : t) -/
+meta def note (h : name) (t : option expr := none) (pr : expr) : smt_tactic unit :=
+match t with
+| none   := do t ← infer_type pr, assertv h t pr
+| some t := assertv h t pr
+end
 
 meta def destruct (e : expr) : smt_tactic unit :=
 smt_tactic.seq (tactic.destruct e) smt_tactic.intros

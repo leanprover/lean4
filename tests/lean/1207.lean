@@ -1,12 +1,12 @@
 example : true :=
 begin
-  assertv H : true := (by trivial),
+  note H : true := (by trivial),
   exact H
 end
 
 example : true :=
 begin
-  assertv H : true := (by tactic.triv),
+  note H : true := (by tactic.triv),
   exact H
 end
 
@@ -18,13 +18,13 @@ end
 
 example : false :=
 begin
-  assertv H : true := (by foo), -- ERROR
+  note H : true := (by foo), -- ERROR
   exact sorry
 end
 
 constant P : Prop
 example (p : P) : true :=
 begin
-  assertv H : P := by do { p ← tactic.get_local `p, tactic.exact p },
+  note H : P := by do { p ← tactic.get_local `p, tactic.exact p },
   trivial
 end

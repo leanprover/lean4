@@ -1094,7 +1094,7 @@ begin
     rw [sub_mul_mod _ _ _ b_pos h₁],
     rw [sub_mul_div _ _ _ b_pos h₁],
     -- Cancel subtraction inside mod b^w
-    assertv b_w_pos : b^w > 0 := pos_pow_of_pos _ b_pos,
+    note b_w_pos : b^w > 0 := pos_pow_of_pos _ b_pos,
     assert p_b_ge :  b^w ≤ p / b,
     {
       rw [le_div_iff_mul_le _ _ b_pos],

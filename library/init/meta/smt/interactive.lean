@@ -85,28 +85,32 @@ meta def define (h : parse ident) (q : parse $ tk ":" *> texpr) : smt_tactic uni
 do e ← tactic.to_expr_strict q,
    smt_tactic.define h e
 
-meta def assertv (h : parse ident) (q₁ : parse $ tk ":" *> texpr) (q₂ : parse $ tk ":=" *> texpr) : smt_tactic unit :=
-do t ← tactic.to_expr_strict q₁,
-   v ← tactic.to_expr_strict ``(%%q₂ : %%t),
-   smt_tactic.assertv h t v
+meta def note (h : parse ident?) (q₁ : parse (tk ":" *> texpr)?) (q₂ : parse $ tk ":=" *> texpr) : smt_tactic unit :=
+match q₁ with
+| some e := do
+  t ← tactic.to_expr_strict e,
+  v ← tactic.to_expr_strict ``(%%q₂ : %%t),
+  smt_tactic.assertv (h.get_or_else `this) t v
+| none := do
+  p ← tactic.to_expr_strict q₂,
+  smt_tactic.note (h.get_or_else `this) none p
+end
 
-meta def definev (h : parse ident) (q₁ : parse $ tk ":" *> texpr) (q₂ : parse $ tk ":=" *> texpr) : smt_tactic unit :=
-do t ← tactic.to_expr_strict q₁,
-   v ← tactic.to_expr_strict ``(%%q₂ : %%t),
-   smt_tactic.definev h t v
-
-meta def note (h : parse ident) (q : parse $ tk ":=" *> texpr) : smt_tactic unit :=
-do p ← tactic.to_expr_strict q,
-   smt_tactic.note h p
-
-meta def pose (h : parse ident) (q : parse $ tk ":=" *> texpr) : smt_tactic unit :=
-do p ← tactic.to_expr_strict q,
-   smt_tactic.pose h p
+meta def pose (h : parse ident?) (q₁ : parse (tk ":" *> texpr)?) (q₂ : parse $ tk ":=" *> texpr) : smt_tactic unit :=
+match q₁ with
+| some e := do
+  t ← tactic.to_expr_strict e,
+  v ← tactic.to_expr_strict ``(%%q₂ : %%t),
+  smt_tactic.definev (h.get_or_else `this) t v
+| none := do
+  p ← tactic.to_expr_strict q₂,
+  smt_tactic.pose (h.get_or_else `this) none p
+end
 
 meta def add_fact (q : parse texpr) : smt_tactic unit :=
 do h ← tactic.get_unused_name `h none,
    p ← tactic.to_expr_strict q,
-   smt_tactic.note h p
+   smt_tactic.note h none p
 
 meta def trace_state : smt_tactic unit :=
 smt_tactic.trace_state

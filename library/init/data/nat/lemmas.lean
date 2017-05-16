@@ -253,6 +253,11 @@ le_of_succ_le
 lemma lt_of_succ_lt_succ {a b : ℕ} : succ a < succ b → a < b :=
 le_of_succ_le_succ
 
+lemma pred_lt_pred : ∀ {n m : ℕ}, n ≠ 0 → m ≠ 0 → n < m → pred n < pred m
+| 0         _       h₁ h₂ h := absurd rfl h₁
+| _         0       h₁ h₂ h := absurd rfl h₂
+| (succ n) (succ m) _  _  h := lt_of_succ_lt_succ h
+
 protected lemma lt_or_ge : ∀ (a b : ℕ), a < b ∨ a ≥ b
 | a 0     := or.inr (zero_le a)
 | a (b+1) :=

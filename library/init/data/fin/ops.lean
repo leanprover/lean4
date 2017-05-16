@@ -99,4 +99,16 @@ lemma le_def (a b : fin n) : (a ≤ b) = (a.val ≤ b.val) :=
 show (fin.le a b) = (a.val ≤ b.val), from
 by cases a; cases b; simp [fin.le]
 
+lemma val_zero : (0 : fin (succ n)).val = 0 :=
+begin unfold has_zero.zero of_nat, dsimp, rw zero_mod end
+
+def pred {n : nat} : ∀ i : fin (succ n), i ≠ 0 → fin n
+| ⟨a, h₁⟩ h₂ := ⟨a.pred,
+  begin
+    assert this : a ≠ 0,
+    { note aux₁ := vne_of_ne h₂,
+      dsimp at aux₁, rw val_zero at aux₁, exact aux₁ },
+    exact nat.pred_lt_pred this (nat.succ_ne_zero n) h₁
+  end⟩
+
 end fin

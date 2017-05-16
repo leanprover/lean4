@@ -8,6 +8,8 @@ import init.data.nat.basic
 open nat
 structure fin (n : nat) := (val : nat) (is_lt : val < n)
 
+attribute [pp_using_anonymous_constructor] fin
+
 namespace fin
 
 def {u} elim0 {α : Type u} : fin 0 → α

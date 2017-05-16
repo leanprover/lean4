@@ -426,7 +426,7 @@ do e ← i_to_expr p,
 meta def generalize2 (p : parse qexpr) (x : parse ident) (h : parse ident) : tactic unit :=
 do tgt ← target,
    e ← to_expr p,
-   let e' := tgt^.replace $ λa _, if a = e then some (var 1) else none,
+   let e' := tgt.replace $ λa _, if a = e then some (var 1) else none,
    to_expr ``(Π x, %%p = x → %%e') >>= assert h,
    swap,
    t ← get_local h,

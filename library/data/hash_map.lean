@@ -165,7 +165,7 @@ theorem valid.eq {n} {bkts : bucket_array α β n} {sz : nat} (v : valid bkts sz
 have h1 : list.length (array.to_list bkts) - 1 - i < list.length (list.reverse (array.to_list bkts)),
   by simph[array.to_list_length, nat.sub_one_sub_lt],
   have _, from nat.sub_eq_sub_min,
-have sigma.mk a b ∈ list.nth_le (array.to_list bkts) i (by simph[array.to_list_length]), by {rw array.to_list_nth, exact el}, 
+have sigma.mk a b ∈ list.nth_le (array.to_list bkts) i (by simph[array.to_list_length]), by {rw array.to_list_nth, exact el},
 begin
   rw -list.nth_le_reverse at this,
   assert v : valid_aux (λa, (mk_idx n (hash_fn a)).1) (array.to_list bkts).reverse sz,
@@ -324,10 +324,10 @@ section
           have nd' : ((u ++ v2 ++ w).map sigma.fst).nodup, begin
             rw [list.map_append, list.map_append] at nd,
             rw [list.map_append, list.map_append],
-            assertv ndu : (u.map sigma.fst).nodup := list.nodup_of_nodup_append_left (list.nodup_of_nodup_append_left nd),
-            assertv ndv1 : (v1.map sigma.fst).nodup := list.nodup_of_nodup_append_right (list.nodup_of_nodup_append_left nd),
-            assertv ndw : (w.map sigma.fst).nodup := list.nodup_of_nodup_append_right nd,
-            assertv djuw : (u.map sigma.fst).disjoint (w.map sigma.fst) :=
+            note ndu : (u.map sigma.fst).nodup := list.nodup_of_nodup_append_left (list.nodup_of_nodup_append_left nd),
+            note ndv1 : (v1.map sigma.fst).nodup := list.nodup_of_nodup_append_right (list.nodup_of_nodup_append_left nd),
+            note ndw : (w.map sigma.fst).nodup := list.nodup_of_nodup_append_right nd,
+            note djuw : (u.map sigma.fst).disjoint (w.map sigma.fst) :=
               list.disjoint_of_disjoint_append_left_left (list.disjoint_of_nodup_append nd),
             exact list.nodup_append_of_nodup_of_nodup_of_disjoint
               (list.nodup_append_of_nodup_of_nodup_of_disjoint ndu hvnd djuv)
@@ -371,7 +371,7 @@ theorem valid.replace_aux (a : α) (b : β a) : Π (l : list (Σ a, β a)), a �
   simp [replace_aux] without and.comm,
   exact match (by apply_instance : decidable (a' = a)) with
   | is_true e := match a', b', e with ._, b', rfl := ⟨[], t, b', rfl, rfl, by simp⟩ end
-  | is_false ne := 
+  | is_false ne :=
     let ⟨u, w, b'', hl, hfl, nin⟩ := valid.replace_aux t (or.resolve_left Hc (λe, ne (eq.symm e))) in
     show ∃ (u w : list (Σ (a : α), β a)) (b'_1 : β a), sigma.mk a' b' :: t = u ++ ⟨a, b'_1⟩ :: w ∧
       (sigma.mk a' b' :: hash_map.replace_aux a b t) = u ++ ⟨a, b⟩ :: w ∧ a ∉ list.map sigma.fst u, from
@@ -421,7 +421,7 @@ theorem valid.erase_aux (a : α) : Π (l : list (Σ a, β a)), a ∈ l.map sigma
   simp [erase_aux],
   exact match (by apply_instance : decidable (a' = a)) with
   | is_true e := match a', b', e with ._, b', rfl := ⟨[], t, b', rfl, rfl⟩ end
-  | is_false ne := 
+  | is_false ne :=
     let ⟨u, w, b'', hl, hfl⟩ := valid.erase_aux t (or.resolve_left Hc (λe, ne (eq.symm e))) in
     ⟨⟨a', b'⟩::u, w, b'', by simp[hl], by simp[ne, hfl]⟩
   end
@@ -486,7 +486,7 @@ m.is_valid.contains_aux_iff _ _
 lemma insert_lemma (hash_fn : α → nat) {n n'}
   {bkts : bucket_array α β n} {sz} (v : valid hash_fn bkts sz) :
   valid hash_fn (bkts.foldl (mk_array _ [] : bucket_array α β n') (reinsert_aux hash_fn)) sz :=
-suffices ∀ (l : list Σ a, β a), 
+suffices ∀ (l : list Σ a, β a),
   ∀ (t : bucket_array α β n') sz, valid hash_fn t sz → ((l ++ t.as_list).map sigma.fst).nodup →
     valid hash_fn (l.foldl (λr (a : Σ a, β a), reinsert_aux hash_fn r a.1 a.2) t) (sz + l.length),
 begin
@@ -679,10 +679,10 @@ match (by apply_instance : decidable (contains_aux a bkt)) with
   show sigma.mk a' b' ∈ bkts'.as_list ↔ a ≠ a' ∧ sigma.mk a' b' ∈ bkts.as_list, from
   let nd := v.nodup _ (mk_idx n (hash_fn a)) in
   let ⟨u', w', b, hl', hfl'⟩ := valid.erase_aux a bkt ((contains_aux_iff _ _ nd).1 Hc) in
-  match bkts.as_list, bkts'.as_list, 
+  match bkts.as_list, bkts'.as_list,
         append_of_modify u' [⟨a, b⟩] [] _ hl' hfl', v.as_list_nodup _ with
   | ._, ._, ⟨u, w, rfl, rfl⟩, nd' := by simp; simp at nd'; exact
-    ⟨λhm, ⟨λe, match a', e, b', hm with ._, rfl, b', hm := by { 
+    ⟨λhm, ⟨λe, match a', e, b', hm with ._, rfl, b', hm := by {
       rw -list.mem_append_iff at hm;
       note hm := list.mem_map sigma.fst hm;
       rw list.map_append at hm;

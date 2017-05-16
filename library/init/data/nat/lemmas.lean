@@ -202,7 +202,7 @@ iff_true_intro (zero_lt_succ n)
 def succ_pos_iff_true := zero_lt_succ_iff_true
 
 lemma eq_zero_or_pos (n : ℕ) : n = 0 ∨ n > 0 :=
-by {cases n, exact or.inl rfl, exact or.inr (succ_pos _)} 
+by {cases n, exact or.inl rfl, exact or.inr (succ_pos _)}
 
 protected lemma pos_of_ne_zero {n : nat} : n ≠ 0 → n > 0 :=
 or.resolve_left (eq_zero_or_pos n)
@@ -1186,7 +1186,7 @@ by rw [H2, nat.mul_div_cancel_left _ H1]
 
 /- pow -/
 
-@[simp] lemma pow_one (b : ℕ) : b^1 = b := by simp
+@[simp] lemma pow_one (b : ℕ) : b^1 = b := by simp [pow_succ]
 
 lemma pos_pow_of_pos {b : ℕ} : ∀ (n : ℕ) (h : 0 < b), 0 < b^n
   | 0 _ := nat.le_refl _

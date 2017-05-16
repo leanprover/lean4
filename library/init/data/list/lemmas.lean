@@ -148,7 +148,7 @@ theorem ext : Π {l₁ l₂ : list α}, (∀n, nth l₁ n = nth l₂ n) → l₁
 | []      []       h := rfl
 | (a::l₁) []       h := by note h0 := h 0; contradiction
 | []      (a'::l₂) h := by note h0 := h 0; contradiction
-| (a::l₁) (a'::l₂) h := by assertv h0 : some a = some a' := h 0; injection h0 with aa; simph[ext $ λn, h (n+1)]
+| (a::l₁) (a'::l₂) h := by note h0 : some a = some a' := h 0; injection h0 with aa; simph[ext $ λn, h (n+1)]
 
 theorem ext_le {l₁ l₂ : list α} (hl : length l₁ = length l₂) (h : ∀n h₁ h₂, nth_le l₁ n h₁ = nth_le l₂ n h₂) : l₁ = l₂ :=
 ext $ λn, if h₁ : n < length l₁

@@ -368,16 +368,13 @@ void initialize_class() {
                                               [](environment const & env, io_state const &, name const & d, unsigned,
                                                  bool persistent) {
                                                   return add_class_core(env, d, persistent);
-                                              }));
+                                             }));
 
     register_system_attribute(basic_attribute(*g_instance_attr_name, "type class instance",
                                               [](environment const & env, io_state const &, name const & d,
                                                  unsigned prio, bool persistent) {
                                                   return add_instance_core(env, d, prio, persistent);
                                               }));
-
-    /* TODO(Leo): move to a different file */
-    register_class_symbol_tracking_attribute("algebra", "mark class whose instances are relevant for the algebraic normalizer");
 
     g_anonymous_inst_name_prefix = new name("_inst");
 }

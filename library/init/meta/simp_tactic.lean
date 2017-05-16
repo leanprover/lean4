@@ -435,6 +435,11 @@ meta def simp_bottom_up (post : expr → tactic (expr × expr)) (cfg : simp_conf
 do t                   ← target,
    (_, new_target, pr) ← simplify_bottom_up () (λ _ e, do (new_e, pr) ← post e, return ((), new_e, pr)) t cfg,
    replace_target new_target pr
+
+/- debugging support for algebraic normalizer -/
+
+meta constant trace_algebra_info : expr → tactic unit
+
 end tactic
 
 export tactic (mk_simp_attr)

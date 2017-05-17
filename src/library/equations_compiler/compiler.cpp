@@ -31,11 +31,16 @@ static expr compile_equations_core(environment & env, options const & opts,
                                    expr const & eqns) {
     type_context ctx(env, opts, mctx, lctx, transparency_mode::Semireducible);
     trace_compiler(tout() << "compiling\n" << eqns << "\n";);
-    trace_compiler(tout() << "recursive: " << is_recursive_eqns(ctx, eqns) << "\n";);
-    trace_compiler(tout() << "nested recursion: " << has_nested_rec(eqns) << "\n";);
+    trace_compiler(tout() << "recursive:          " << is_recursive_eqns(ctx, eqns) << "\n";);
+    trace_compiler(tout() << "nested recursion:   " << has_nested_rec(eqns) << "\n";);
+    trace_compiler(tout() << "using_well_founded: " << is_wf_equations(eqns) << "\n";);
     equations_header const & header = get_equations_header(eqns);
     lean_assert(header.m_is_meta || !has_nested_rec(eqns));
+
     if (header.m_is_meta) {
+        if (is_wf_equations(eqns)) {
+            throw exception("invalid use of 'using_well_founded', we do not need to use well founded recursion for meta definitions, since they can use unbounded recursion");
+        }
         return mk_equations_result(unbounded_rec(env, opts, mctx, lctx, eqns));
     }
 

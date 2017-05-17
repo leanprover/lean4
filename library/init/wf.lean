@@ -22,6 +22,9 @@ end acc
 inductive well_founded {α : Type u} (r : α → α → Prop) : Prop
 | intro : (∀ a, acc r a) → well_founded
 
+class has_well_founded (α : Type u) : Type u :=
+(r : α → α → Prop) (wf : well_founded r)
+
 namespace well_founded
 def apply {α : Type u} {r : α → α → Prop} (wf : well_founded r) : ∀ a, acc r a :=
 take a, well_founded.rec_on wf (λ p, p) a
@@ -136,6 +139,15 @@ inv_image (<)
 def measure_wf {α : Type u} (f : α → ℕ) : well_founded (measure f) :=
 inv_image.wf f nat.lt_wf
 
+def sizeof_measure (α : Type u) [has_sizeof α] : α → α → Prop :=
+measure sizeof
+
+def sizeof_measure_wf (α : Type u) [has_sizeof α] : well_founded (sizeof_measure α) :=
+measure_wf sizeof
+
+instance has_well_founded_of_has_sizeof (α : Type u) [has_sizeof α] : has_well_founded α :=
+{r := sizeof_measure α, wf := sizeof_measure_wf α}
+
 namespace prod
 open well_founded
 
@@ -181,6 +193,9 @@ section
   -- The relational product of well founded relations is well-founded
   def rprod_wf (ha : well_founded ra) (hb : well_founded rb) : well_founded (rprod ra rb) :=
   subrelation.wf (rprod_sub_lex) (lex_wf ha hb)
-
 end
+
+instance has_well_founded {α : Type u} {β : Type v} [s₁ : has_well_founded α] [s₂ : has_well_founded β] : has_well_founded (α × β) :=
+{r := lex s₁.r s₂.r, wf := lex_wf s₁.wf s₂.wf}
+
 end prod

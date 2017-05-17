@@ -114,4 +114,8 @@ section
                    (a₁ a₂ : α) (h : s b₁ b₂) : skip_left α s (sigma.mk a₁ b₁) (sigma.mk a₂ b₂) :=
   rev_lex.right _ _ _ h
 end
+
+instance has_well_founded {α : Type u} {β : α → Type v} [s₁ : has_well_founded α] [s₂ : ∀ a, has_well_founded (β a)] : has_well_founded (sigma β) :=
+{r := lex s₁.r (λ a, (s₂ a).r), wf := lex_wf s₁.wf (λ a, (s₂ a).wf)}
+
 end sigma

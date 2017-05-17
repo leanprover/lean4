@@ -654,7 +654,8 @@ struct structure_cmd_fn {
                     expr base_obj = *mk_base_projections(m_env, parent_name, base_S_name, field);
                     level_param_names lparams; unsigned nparams; inductive::intro_rule intro;
                     std::tie(lparams, nparams, intro) = get_parent_info(base_S_name);
-                    expr type = instantiate_univ_params(m_p.env().get(full_fname).get_type(), lparams, const_levels(parent_fn));
+                    levels meta_ls = map2<level>(lparams, [&](name const &) { return m_ctx.mk_univ_metavar_decl(); });
+                    expr type = instantiate_univ_params(m_p.env().get(full_fname).get_type(), lparams, meta_ls);
                     std::function<expr(expr const &, unsigned)> pi_to_lam = [&](expr const & e, unsigned i) {
                         if (i == nparams + 1)
                             return mk_as_is(e);

@@ -103,6 +103,9 @@ has_sub
 has_sub.sub
 has_to_format
 has_to_string
+has_well_founded
+has_well_founded.r
+has_well_founded.wf
 has_zero
 has_zero.zero
 has_coe_t

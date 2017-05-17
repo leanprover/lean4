@@ -6,6 +6,9 @@ Author: Leonardo de Moura
 */
 #include "library/type_context.h"
 #include "library/trace.h"
+#include "library/constants.h"
+#include "library/pp_options.h"
+#include "library/app_builder.h"
 #include "library/equations_compiler/pack_domain.h"
 #include "library/equations_compiler/elim_match.h"
 #include "library/equations_compiler/util.h"
@@ -23,6 +26,9 @@ struct wf_rec_fn {
 
     expr             m_ref;
     equations_header m_header;
+
+    expr             m_R;
+    expr             m_R_wf;
 
     wf_rec_fn(environment const & env, options const & opts,
               metavar_context const & mctx, local_context const & lctx):
@@ -42,12 +48,54 @@ struct wf_rec_fn {
         return ::lean::pack_domain(ctx, eqns);
     }
 
+    expr_pair mk_wf_relation(expr const & eqns) {
+        lean_assert(get_equations_header(eqns).m_num_fns == 1);
+        type_context ctx = mk_type_context();
+        unpack_eqns ues(ctx, eqns);
+        try {
+            expr fn_type = ctx.relaxed_whnf(ctx.infer(ues.get_fn(0)));
+            lean_assert(is_pi(fn_type));
+            expr d       = binding_domain(fn_type);
+            expr wf      = mk_app(ctx, get_has_well_founded_name(), d);
+            if (auto inst = ctx.mk_class_instance(wf)) {
+                bool mask[2] = {true, true};
+                expr args[2] = {d, *inst};
+                expr r   = mk_app(ctx, get_has_well_founded_r_name(), 2, mask, args);
+                expr wf  = mk_app(ctx, get_has_well_founded_wf_name(), 2, mask, args);
+                return expr_pair(r, wf);
+            }
+        } catch (exception & ex) {
+            throw nested_exception(some_expr(m_ref),
+                                   "failed to create well founded relation using type class resolution",
+                                   ex);
+        }
+        throw generic_exception(m_ref, "failed to create well founded relation using type class resolution");
+    }
+
     expr operator()(expr eqns) {
         m_ref    = eqns;
         m_header = get_equations_header(eqns);
         /* Make sure all functions are unary */
         eqns     = pack_domain(eqns);
         trace_debug_wf(tout() << "after pack_domain\n" << eqns << "\n";);
+
+        equations_header const & header = get_equations_header(eqns);
+        if (header.m_num_fns > 1) {
+            // TODO(Leo): combine functions
+            throw exception("support for mutual recursion has not been implemented yet");
+        }
+
+        if (is_wf_equations(eqns)) {
+            m_R    = equations_wf_rel(eqns);
+            m_R_wf = equations_wf_proof(eqns);
+        } else {
+            std::tie(m_R, m_R_wf) = mk_wf_relation(eqns);
+        }
+
+        {
+            lean_trace_init_bool(name({"eqn_compiler", "wf_rec"}), get_pp_implicit_name(), true);
+            trace_wf(tout() << "using well_founded relation\n" << m_R << "\n";);
+        }
 
         // TODO(Leo):
         throw exception("support for well-founded recursion has not been implemented yet, "

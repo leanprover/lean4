@@ -108,6 +108,9 @@ name const * g_has_sub = nullptr;
 name const * g_has_sub_sub = nullptr;
 name const * g_has_to_format = nullptr;
 name const * g_has_to_string = nullptr;
+name const * g_has_well_founded = nullptr;
+name const * g_has_well_founded_r = nullptr;
+name const * g_has_well_founded_wf = nullptr;
 name const * g_has_zero = nullptr;
 name const * g_has_zero_zero = nullptr;
 name const * g_has_coe_t = nullptr;
@@ -477,6 +480,9 @@ void initialize_constants() {
     g_has_sub_sub = new name{"has_sub", "sub"};
     g_has_to_format = new name{"has_to_format"};
     g_has_to_string = new name{"has_to_string"};
+    g_has_well_founded = new name{"has_well_founded"};
+    g_has_well_founded_r = new name{"has_well_founded", "r"};
+    g_has_well_founded_wf = new name{"has_well_founded", "wf"};
     g_has_zero = new name{"has_zero"};
     g_has_zero_zero = new name{"has_zero", "zero"};
     g_has_coe_t = new name{"has_coe_t"};
@@ -847,6 +853,9 @@ void finalize_constants() {
     delete g_has_sub_sub;
     delete g_has_to_format;
     delete g_has_to_string;
+    delete g_has_well_founded;
+    delete g_has_well_founded_r;
+    delete g_has_well_founded_wf;
     delete g_has_zero;
     delete g_has_zero_zero;
     delete g_has_coe_t;
@@ -1216,6 +1225,9 @@ name const & get_has_sub_name() { return *g_has_sub; }
 name const & get_has_sub_sub_name() { return *g_has_sub_sub; }
 name const & get_has_to_format_name() { return *g_has_to_format; }
 name const & get_has_to_string_name() { return *g_has_to_string; }
+name const & get_has_well_founded_name() { return *g_has_well_founded; }
+name const & get_has_well_founded_r_name() { return *g_has_well_founded_r; }
+name const & get_has_well_founded_wf_name() { return *g_has_well_founded_wf; }
 name const & get_has_zero_name() { return *g_has_zero; }
 name const & get_has_zero_zero_name() { return *g_has_zero_zero; }
 name const & get_has_coe_t_name() { return *g_has_coe_t; }

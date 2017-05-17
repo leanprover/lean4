@@ -108,6 +108,9 @@ run_cmd script_check_id `has_sub
 run_cmd script_check_id `has_sub.sub
 run_cmd script_check_id `has_to_format
 run_cmd script_check_id `has_to_string
+run_cmd script_check_id `has_well_founded
+run_cmd script_check_id `has_well_founded.r
+run_cmd script_check_id `has_well_founded.wf
 run_cmd script_check_id `has_zero
 run_cmd script_check_id `has_zero.zero
 run_cmd script_check_id `has_coe_t

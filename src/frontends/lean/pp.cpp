@@ -686,10 +686,11 @@ auto pretty_fn::pp_const(expr const & e, optional<unsigned> const & num_ref_univ
     // Remark: if num_ref_univ_params is "some", then it contains the number of
     // universe levels that are fixed in a section. That is, \c e corresponds to
     // a constant in a section which has fixed levels.
+    auto short_n = n;
     if (!m_full_names) {
         if (auto it = is_aliased(n)) {
             if (!m_private_names || !hidden_to_user_name(m_env, n))
-                n = *it;
+                short_n = *it;
         } else {
             for (name const & ns : get_namespaces(m_env)) {
                 if (!ns.is_anonymous()) {
@@ -697,7 +698,7 @@ auto pretty_fn::pp_const(expr const & e, optional<unsigned> const & num_ref_univ
                     if (new_n != n &&
                         !new_n.is_anonymous() &&
                         (!new_n.is_atomic() || !is_protected(m_env, n))) {
-                        n = new_n;
+                        short_n = new_n;
                         break;
                     }
                 }
@@ -705,11 +706,16 @@ auto pretty_fn::pp_const(expr const & e, optional<unsigned> const & num_ref_univ
         }
     }
     if (!m_private_names) {
-        if (auto n1 = hidden_to_user_name(m_env, n))
-            n = *n1;
+        if (auto n1 = hidden_to_user_name(m_env, short_n))
+            short_n = *n1;
     }
-    if (m_ctx.has_local_pp_name(n.get_root()))
-        n = get_root_tk() + n;
+    if (m_ctx.has_local_pp_name(short_n.get_root())) {
+        if (m_ctx.has_local_pp_name(n.get_root())) {
+            n = get_root_tk() + n;
+        }
+    } else {
+        n = short_n;
+    }
     if (m_universes && !empty(const_levels(e))) {
         unsigned first_idx = 0;
         buffer<level> ls;

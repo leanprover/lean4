@@ -447,6 +447,27 @@ bool pretty_fn::is_implicit(expr const & f) {
     }
 }
 
+bool pretty_fn::is_default_arg_app(expr const & e) {
+    if (m_implict || m_preterm)
+        return false; // showing default arguments
+    if (!closed(app_fn(e))) {
+        // the Lean type checker assumes expressions are closed.
+        return false;
+    }
+    try {
+        expr t = m_ctx.relaxed_whnf(m_ctx.infer(app_fn(e)));
+        if (is_pi(t)) {
+            expr arg_type = binding_domain(t);
+            t = binding_body(t);
+            if (!is_pi(t) && !is_var(t) && is_app_of(arg_type, get_opt_param_name(), 2)) {
+                expr defval = app_arg(arg_type);
+                return closed(defval) && defval == app_arg(e);
+            }
+        }
+    } catch (exception &) { }
+    return false;
+}
+
 bool pretty_fn::is_prop(expr const & e) {
     try {
         expr t = m_ctx.relaxed_whnf(m_ctx.infer(e));
@@ -839,6 +860,8 @@ auto pretty_fn::pp_field_notation(expr const & e) -> result {
 auto pretty_fn::pp_app(expr const & e) -> result {
     if (auto r = pp_local_ref(e))
         return *r;
+    if (is_default_arg_app(e))
+        return pp_child(app_fn(e), max_bp());
     expr const & fn = app_fn(e);
     if (m_structure_instances && is_structure_instance(m_env, e, m_implict))
         return pp_structure_instance(e);

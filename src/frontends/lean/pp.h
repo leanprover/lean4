@@ -87,6 +87,7 @@ private:
     level purify(level const & l);
     expr purify(expr const & e);
     bool is_implicit(expr const & f);
+    bool is_default_arg_app(expr const & e);
     optional<expr> is_proof(expr const & f);
     bool is_prop(expr const & e);
     bool has_implicit_args(expr const & f);

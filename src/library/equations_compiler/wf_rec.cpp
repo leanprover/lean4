@@ -144,7 +144,6 @@ struct wf_rec_fn {
             expr F       = ue.add_var(binding_name(type), binding_domain(type));
             new_lhs      = mk_app(new_lhs, F);
             ue.lhs()     = new_lhs;
-            tout() << rhs << "\n";
             ue.rhs()     = elim_rec_apps_fn(ctx, fn, m_R, lhs_args[0], F)(rhs);
             new_eqns.push_back(ue.repack());
         }
@@ -166,6 +165,25 @@ struct wf_rec_fn {
         trace_debug_wf(tout() << "after well_founded elim_recursion:\n" << new_eqns << "\n";);
         m_mctx = ctx.mctx();
         return new_eqns;
+    }
+
+    expr mk_fix(expr const & aux_fn) {
+        type_context ctx = mk_type_context();
+        type_context::tmp_locals locals(ctx);
+        buffer<expr> fn_args;
+        expr it   = ctx.relaxed_whnf(ctx.infer(aux_fn));
+        lean_assert(is_pi(it));
+        expr x_ty = binding_domain(it);
+        expr x    = locals.push_local("_x", x_ty);
+        it        = ctx.relaxed_whnf(instantiate(binding_body(it), x));
+        lean_assert(is_pi(it));
+        expr Cx   = binding_body(it);
+        lean_assert(closed(it));
+        expr C    = ctx.mk_lambda(x, Cx);
+        level u_1 = get_level(ctx, x_ty);
+        level u_2 = get_level(ctx, Cx);
+        expr fix  = mk_app({mk_constant(get_well_founded_fix_name(), {u_1, u_2}), x_ty, C, m_R, m_R_wf, aux_fn, x});
+        return ctx.mk_lambda(x, fix);
     }
 
     expr operator()(expr eqns) {
@@ -198,6 +216,12 @@ struct wf_rec_fn {
         /* Eliminate recursion using functional. */
         eqns = elim_recursion(eqns);
         trace_debug_wf(tout() << "after elim_recursion\n" << eqns << "\n";);
+
+        /* Eliminate pattern matching */
+        elim_match_result r = elim_match(m_env, m_opts, m_mctx, m_lctx, eqns);
+        expr fn = mk_fix(r.m_fn);
+
+        trace_debug_wf(tout() << "after mk_fix\n" << fn << " :\n  " << mk_type_context().infer(fn) << "\n";);
 
         // TODO(Leo):
         throw exception("support for well-founded recursion has not been implemented yet, "

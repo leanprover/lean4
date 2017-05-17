@@ -372,6 +372,7 @@ name const & get_user_attribute_name();
 name const & get_vm_monitor_name();
 name const & get_weak_order_name();
 name const & get_well_founded_name();
+name const & get_well_founded_fix_name();
 name const & get_xor_name();
 name const & get_zero_le_one_name();
 name const & get_zero_lt_one_name();

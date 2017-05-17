@@ -370,6 +370,7 @@ name const * g_user_attribute = nullptr;
 name const * g_vm_monitor = nullptr;
 name const * g_weak_order = nullptr;
 name const * g_well_founded = nullptr;
+name const * g_well_founded_fix = nullptr;
 name const * g_xor = nullptr;
 name const * g_zero_le_one = nullptr;
 name const * g_zero_lt_one = nullptr;
@@ -742,6 +743,7 @@ void initialize_constants() {
     g_vm_monitor = new name{"vm_monitor"};
     g_weak_order = new name{"weak_order"};
     g_well_founded = new name{"well_founded"};
+    g_well_founded_fix = new name{"well_founded", "fix"};
     g_xor = new name{"xor"};
     g_zero_le_one = new name{"zero_le_one"};
     g_zero_lt_one = new name{"zero_lt_one"};
@@ -1115,6 +1117,7 @@ void finalize_constants() {
     delete g_vm_monitor;
     delete g_weak_order;
     delete g_well_founded;
+    delete g_well_founded_fix;
     delete g_xor;
     delete g_zero_le_one;
     delete g_zero_lt_one;
@@ -1487,6 +1490,7 @@ name const & get_user_attribute_name() { return *g_user_attribute; }
 name const & get_vm_monitor_name() { return *g_vm_monitor; }
 name const & get_weak_order_name() { return *g_weak_order; }
 name const & get_well_founded_name() { return *g_well_founded; }
+name const & get_well_founded_fix_name() { return *g_well_founded_fix; }
 name const & get_xor_name() { return *g_xor; }
 name const & get_zero_le_one_name() { return *g_zero_le_one; }
 name const & get_zero_lt_one_name() { return *g_zero_lt_one; }

@@ -12,9 +12,9 @@ Author: Leonardo de Moura
 #include "library/replace_visitor.h"
 #include "library/equations_compiler/compiler.h"
 #include "library/equations_compiler/util.h"
-#include "library/equations_compiler/pack_domain.h"
 #include "library/equations_compiler/structural_rec.h"
 #include "library/equations_compiler/unbounded_rec.h"
+#include "library/equations_compiler/wf_rec.h"
 #include "library/equations_compiler/elim_match.h"
 
 namespace lean {
@@ -44,6 +44,10 @@ static expr compile_equations_core(environment & env, options const & opts,
         return mk_equations_result(unbounded_rec(env, opts, mctx, lctx, eqns));
     }
 
+    if (is_wf_equations(eqns)) {
+        return wf_rec(env, opts, mctx, lctx, eqns);
+    }
+
     if (header.m_num_fns == 1) {
         if (!is_recursive_eqns(ctx, eqns)) {
             return mk_equations_result(mk_nonrec(env, opts, mctx, lctx, eqns));
@@ -52,10 +56,7 @@ static expr compile_equations_core(environment & env, options const & opts,
         }
     }
 
-    throw exception("support for well-founded recursion has not been implemented yet, "
-                    "use 'set_option trace.eqn_compiler true' for additional information");
-    // test pack_domain
-    // pack_domain(ctx, eqns);
+    return wf_rec(env, opts, mctx, lctx, eqns);
 }
 
 /** Auxiliary class for pulling nested recursive calls.

@@ -797,7 +797,7 @@ expr type_context::whnf_core(expr const & e, bool proj_reduce) {
                 m_used_assignment = true;
                 return whnf_core(m_mctx.instantiate_mvars(e), proj_reduce);
             }
-        } else if (is_idx_metavar(e)) {
+        } else if (m_tmp_data && is_idx_metavar(e)) {
             lean_assert(in_tmp_mode());
             unsigned idx = to_meta_idx(e);
             if (idx < m_tmp_data->m_eassignment.size()) {

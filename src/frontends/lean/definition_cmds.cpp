@@ -153,15 +153,21 @@ environment mutual_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
     buffer<expr> fns, params;
     declaration_info_scope scope(p, kind, modifiers);
     expr val = parse_mutual_definition(p, lp_names, fns, params);
+
+    // skip elaboration of definitions during reparsing
+    if (p.get_break_at_pos())
+        return p.env();
+
     bool recover_from_errors = true;
     elaborator elab(p.env(), p.get_options(), get_namespace(p.env()) + local_pp_name(fns[0]), metavar_context(), local_context(), recover_from_errors);
     buffer<expr> new_params;
     elaborate_params(elab, params, new_params);
     val = replace_locals_preserving_pos_info(val, params, new_params);
 
-    // TODO(Leo)
-    for (auto p : new_params) { tout() << ">> " << p << " : " << mlocal_type(p) << "\n"; }
+    val = elab.elaborate(val);
+
     tout() << val << "\n";
+    // TODO(Leo)
 
     return p.env();
 }

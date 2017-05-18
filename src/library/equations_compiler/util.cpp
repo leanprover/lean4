@@ -165,6 +165,7 @@ unpack_eqn::unpack_eqn(type_context & ctx, expr const & eqn):
     m_nested_src = it;
     m_lhs = equation_lhs(it);
     m_rhs = equation_rhs(it);
+    m_ignore_if_unused = ignore_equation_if_unused(it);
 }
 
 expr unpack_eqn::add_var(name const & n, expr const & type) {

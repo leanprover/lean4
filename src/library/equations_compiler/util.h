@@ -59,6 +59,7 @@ class unpack_eqn {
     expr                     m_nested_src;
     expr                     m_lhs;
     expr                     m_rhs;
+    bool                     m_ignore_if_unused;
 public:
     unpack_eqn(type_context & ctx, expr const & eqn);
     expr add_var(name const & n, expr const & type);
@@ -66,6 +67,7 @@ public:
     expr & lhs() { return m_lhs; }
     expr & rhs() { return m_rhs; }
     expr const & get_nested_src() const { return m_nested_src; }
+    bool ignore_if_unused() const { return m_ignore_if_unused; }
     expr repack();
 };
 

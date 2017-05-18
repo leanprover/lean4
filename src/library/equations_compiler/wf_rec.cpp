@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "library/sorry.h" // remove after we add tactic for proving recursive calls are decreasing
 #include "library/replace_visitor_with_tc.h"
 #include "library/equations_compiler/pack_domain.h"
+#include "library/equations_compiler/pack_mutual.h"
 #include "library/equations_compiler/elim_match.h"
 #include "library/equations_compiler/util.h"
 
@@ -48,7 +49,18 @@ struct wf_rec_fn {
 
     expr pack_domain(expr const & eqns) {
         type_context ctx = mk_type_context();
-        return ::lean::pack_domain(ctx, eqns);
+        expr r = ::lean::pack_domain(ctx, eqns);
+        m_env  = ctx.env();
+        m_mctx = ctx.mctx();
+        return r;
+    }
+
+    expr pack_mutual(expr const & eqns) {
+        type_context ctx = mk_type_context();
+        expr r = ::lean::pack_mutual(ctx, eqns);
+        m_env  = ctx.env();
+        m_mctx = ctx.mctx();
+        return r;
     }
 
     expr_pair mk_wf_relation(expr const & eqns) {
@@ -196,8 +208,7 @@ struct wf_rec_fn {
         /* Make sure we have only one function */
         equations_header const & header = get_equations_header(eqns);
         if (header.m_num_fns > 1) {
-            // TODO(Leo): combine functions
-            throw exception("support for mutual recursion has not been implemented yet");
+            eqns = pack_mutual(eqns);
         }
 
         /* Retrieve well founded relation */

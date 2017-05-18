@@ -1504,6 +1504,7 @@ void vm_state::invoke_fn(vm_cfunction fn, unsigned arity) {
     flet<vm_state *> Set(g_vm_state, this);
     auto & S       = m_stack;
     unsigned sz    = S.size();
+    lean_vm_check(arity <= sz);
     vm_obj r;
     /* Important The stack m_stack may be resized during the execution of the function d.get_cfn().
        Thus, to make sure the arguments are not garbage collected, we copy them into local variables a1 ... an.
@@ -2826,7 +2827,7 @@ void vm_state::run() {
             m_stack.push_back(m_stack[m_bp + instr.get_idx()]);
             m_pc++;
             goto main_loop;
-        case opcode::Move:
+        case opcode::Move: {
             /* Instruction: move i
 
                stack before,      after
@@ -2838,16 +2839,17 @@ void vm_state::run() {
                v                  v
                                   a_i
             */
+            unsigned off = m_bp + instr.get_idx();
+            lean_vm_check(off < m_stack.size());
             if (LEAN_UNLIKELY(m_debugging)) {
-                m_stack.push_back(m_stack[m_bp + instr.get_idx()]);
-                m_pc++;
-                goto main_loop;
+                m_stack.push_back(m_stack[off]);
             } else {
                 m_stack.push_back(mk_vm_unit());
-                swap(m_stack.back(), m_stack[m_bp + instr.get_idx()]);
-                m_pc++;
-                goto main_loop;
+                swap(m_stack.back(), m_stack[off]);
             }
+            m_pc++;
+            goto main_loop;
+        }
         case opcode::Drop: {
             /* Instruction: drop n
 
@@ -2898,6 +2900,7 @@ void vm_state::run() {
             */
             unsigned nfields = instr.get_nfields();
             unsigned sz      = m_stack.size();
+            lean_vm_check(nfields <= sz);
             vm_obj new_value = mk_vm_constructor(instr.get_cidx(), nfields, m_stack.data() + sz - nfields);
             m_stack.resize(sz - nfields + 1);
             swap(m_stack.back(), new_value);
@@ -2917,6 +2920,7 @@ void vm_state::run() {
             */
             unsigned nargs     = instr.get_nargs();
             unsigned sz        = m_stack.size();
+            lean_vm_check(nargs <= sz);
             vm_obj new_value   = mk_vm_closure(instr.get_fn_idx(), nargs, m_stack.data() + sz - nargs);
             m_stack.resize(sz - nargs + 1);
             swap(m_stack.back(), new_value);

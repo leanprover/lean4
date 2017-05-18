@@ -682,8 +682,11 @@ public:
             return H;
         expr H_type = m_ctx.relaxed_whnf(m_ctx.infer(H));
         // H_type : @eq A a b
-        expr const & a = app_arg(app_fn(H_type));
-        expr const & A = app_arg(app_fn(app_fn(H_type)));
+        expr A, a, b;
+        if (!is_eq(H_type, A, a, b)) {
+            lean_app_builder_trace(tout() << "failed to build lift_of_eq equality proof expected:\n" << H << "\n";);
+            throw app_builder_exception();
+        }
         type_context::tmp_locals locals(m_ctx);
         expr x         = locals.push_local(name("A"), A);
         // motive := fun x : A, a ~ x

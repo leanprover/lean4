@@ -64,6 +64,7 @@ vm_obj rewrite(transparency_mode const & m, bool approx, bool use_instances, occ
         e = ctx.infer(*target);
     else
         e = g->get_type();
+    e = ctx.instantiate_mvars(e);
     expr pattern = target ? lhs : rhs;
     lean_trace("rewrite", tout() << "before kabstract\n";);
     expr e_abst  = kabstract(ctx, e, pattern, occs);

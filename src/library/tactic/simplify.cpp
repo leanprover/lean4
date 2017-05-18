@@ -666,10 +666,13 @@ simp_result simplify_core_fn::visit(expr const & e, optional<expr> const & paren
         simp_result new_result;
         switch (curr_result.get_new().kind()) {
         case expr_kind::Local:
-        case expr_kind::Meta:
         case expr_kind::Sort:
         case expr_kind::Constant:
             new_result = curr_result;
+            break;
+        case expr_kind::Meta:
+            new_result = curr_result;
+            new_result.update(m_ctx.instantiate_mvars(new_result.get_new()));
             break;
         case expr_kind::Macro:
             new_result = join(curr_result, visit_macro(curr_result.get_new()));

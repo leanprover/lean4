@@ -1084,7 +1084,8 @@ auto pretty_fn::pp_equations(expr const & e) -> optional<result> {
     unsigned eqnidx = 0;
     for (unsigned fidx = 0; fidx < num_fns; fidx++) {
         if (num_fns > 1) {
-            r += line() + format("with") + space() + pp(fns[fidx]).fmt() + space() + colon() +
+            if (fidx > 0) r += line();
+            r += format("with") + space() + pp(fns[fidx]).fmt() + space() + colon() +
                 space() + pp(mlocal_type(fns[fidx])).fmt();
         }
         if (eqnidx >= eqns.size()) return optional<result>();

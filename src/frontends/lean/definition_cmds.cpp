@@ -105,8 +105,9 @@ void check_valid_end_of_equations(parser const & p) {
     if (!p.curr_is_command() && !p.curr_is_eof() &&
         p.curr() != token_kind::DocBlock &&
         p.curr() != token_kind::ModDocBlock &&
+        !p.curr_is_token(get_with_tk()) &&
         !p.curr_is_token(get_period_tk())) {
-        throw parser_error("invalid equations, must be followed by a command, '.', doc-string or EOF", p.pos());
+        throw parser_error("invalid equations, must be followed by a command, '.', 'with', doc-string or EOF", p.pos());
     }
 }
 

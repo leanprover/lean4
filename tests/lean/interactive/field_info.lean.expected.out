@@ -1,6 +1,7 @@
 {"msgs":[{"caption":"","file_name":"f","pos_col":40,"pos_line":13,"severity":"error","text":"invalid expression, `)` expected"}],"response":"all_messages"}
+{"msgs":[{"caption":"","file_name":"f","pos_col":40,"pos_line":13,"severity":"error","text":"invalid expression, `)` expected"},{"caption":"","file_name":"f","pos_col":0,"pos_line":12,"severity":"error","text":"don't know how to synthesize placeholder\ncontext:\n⊢ Type ?"}],"response":"all_messages"}
 {"message":"file invalidated","response":"ok","seq_num":0}
 {"record":{"full-id":"nat.to_string","source":,"type":"ℕ → string"},"response":"ok","seq_num":2}
 {"record":{"full-id":"list.all","source":,"type":"Π {α : Type}, list α → (α → bool) → bool"},"response":"ok","seq_num":4}
 {"record":{"full-id":"list.all","source":,"type":"Π {α : Type}, list α → (α → bool) → bool"},"response":"ok","seq_num":9}
-{"record":{"full-id":"list.all","source":,"type":"Π {α : Type u}, list α → (α → bool) → bool"},"response":"ok","seq_num":13}
+{"record":{"full-id":"list.all","source":,"type":"Π {α : Type _elab_u.16.225}, list α → (α → bool) → bool"},"response":"ok","seq_num":13}

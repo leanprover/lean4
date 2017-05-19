@@ -1,2 +1,8 @@
 begin_end_bug.lean:3:24: error: unknown identifier 'a'
-begin_end_bug.lean:8:0: error: invalid 'end', there is no open namespace/section
+begin_end_bug.lean:3:18: error: don't know how to synthesize placeholder
+context:
+a b c : ℕ,
+hab : a = b,
+hac : a = c
+⊢ Type
+begin_end_bug.lean:3:48: error: _interaction._val_1: trying to evaluate sorry

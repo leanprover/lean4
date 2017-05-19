@@ -9,9 +9,6 @@ but is expected to have type
 elab_error_recovery.lean:8:13: error: failed to synthesize type class instance for
 half_baked : ℕ → ℕ
 ⊢ has_mem ℕ ℕ
-elab_error_recovery.lean:8:8: error: failed to synthesize type class instance for
-half_baked : ℕ → ℕ
-⊢ decidable (2 ∈ 3)
 elab_error_recovery.lean:10:11: error: don't know how to synthesize placeholder
 context:
 half_baked : ℕ → ℕ
@@ -38,9 +35,9 @@ half_baked : ℕ → ℕ
 def half_baked._main : ℕ → ℕ :=
 λ (a : ℕ),
   ite (a = 3) 2
-    (ite (a = 0) (1 + sorry) (ite (a = 5) (sorry + 4) (ite (a = 42) (ite (2 ∈ 3) 3 sorry) (ite (a = 7) sorry sorry))))
+    (ite (a = 0) (1 + ⁇) (ite (a = 5) (⁇ + 4) (ite (a = 42) (ite (2 ∈ 3) 3 ⁇) (ite (a = 7) ⁇ ⁇))))
 2
-nat.succ (nat.succ (nat.succ (nat.succ sorry)))
+nat.succ (nat.succ (nat.succ (nat.succ ⁇)))
 2
 elab_error_recovery.lean:21:13: error: type expected at
   0

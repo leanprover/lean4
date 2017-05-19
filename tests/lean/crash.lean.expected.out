@@ -10,9 +10,3 @@ P : Prop,
 H : P,
 H' : ¬P
 ⊢ Sort ?
-crash.lean:10:12: error: don't know how to synthesize placeholder
-context:
-P : Prop,
-H : P,
-H' : ¬P
-⊢ sorry

@@ -23,10 +23,10 @@ context:
 ⊢ Sort ?
 1293.lean:13:12: error: don't know how to synthesize placeholder
 context:
-foo : sorry
+foo : ⁇
 ⊢ Sort ?
 1293.lean:13:8: error: don't know how to synthesize placeholder
 context:
-foo : sorry,
-trivial : sorry
+foo : ⁇,
+trivial : ⁇
 ⊢ Sort ?

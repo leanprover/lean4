@@ -8,11 +8,6 @@ context:
 A : Type u,
 x : A
 ⊢ Type ?
-emptyc_errors.lean:4:54: error: don't know how to synthesize placeholder
-context:
-A : Type u,
-x : A
-⊢ has_emptyc sorry
 emptyc_errors.lean:5:0: error: type mismatch, expression
   λ (h : x ∈ ∅), h
 has type

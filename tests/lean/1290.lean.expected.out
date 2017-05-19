@@ -1,1 +1,31 @@
 1290.lean:8:66: error: invalid declaration, '}' expected
+1290.lean:8:0: error: class expected, expression is not a constant
+1290.lean:8:61: error: don't know how to synthesize placeholder
+context:
+C : Category
+⊢ Sort ?
+1290.lean:8:63: error: don't know how to synthesize placeholder
+context:
+C : Category,
+A : ⁇
+⊢ Sort ?
+1290.lean:8:65: error: don't know how to synthesize placeholder
+context:
+C : Category,
+A : ⁇,
+B : ⁇
+⊢ Sort ?
+1290.lean:8:9: error: don't know how to synthesize placeholder
+context:
+C : Category,
+A : ⁇,
+B : ⁇,
+C : ⁇
+⊢ Sort ?
+1290.lean:8:9: error: don't know how to synthesize placeholder
+context:
+C : Category,
+A : ⁇,
+B : ⁇,
+C : ⁇
+⊢ Sort ?

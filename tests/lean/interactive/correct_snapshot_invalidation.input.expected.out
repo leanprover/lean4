@@ -1,12 +1,17 @@
 {"message":"file invalidated","response":"ok","seq_num":0}
 {"message":"file invalidated","response":"ok","seq_num":1}
 {"msgs":[{"caption":"","file_name":"f","pos_col":0,"pos_line":3,"severity":"error","text":"unknown identifier 'd'"}],"response":"all_messages"}
+{"msgs":[{"caption":"","file_name":"f","pos_col":0,"pos_line":3,"severity":"error","text":"unknown identifier 'd'"},{"caption":"","file_name":"f","pos_col":8,"pos_line":2,"severity":"error","text":"function expected at\n  foo"}],"response":"all_messages"}
+{"msgs":[{"caption":"","file_name":"f","pos_col":0,"pos_line":3,"severity":"error","text":"unknown identifier 'd'"},{"caption":"","file_name":"f","pos_col":8,"pos_line":2,"severity":"error","text":"function expected at\n  foo"},{"caption":"","file_name":"f","pos_col":8,"pos_line":2,"severity":"error","text":"don't know how to synthesize placeholder\ncontext:\n⊢ Sort ?"}],"response":"all_messages"}
+{"msgs":[{"caption":"","file_name":"f","pos_col":0,"pos_line":3,"severity":"error","text":"unknown identifier 'd'"},{"caption":"","file_name":"f","pos_col":8,"pos_line":2,"severity":"error","text":"function expected at\n  foo"},{"caption":"","file_name":"f","pos_col":8,"pos_line":2,"severity":"error","text":"don't know how to synthesize placeholder\ncontext:\n⊢ Sort ?"},{"caption":"","file_name":"f","pos_col":0,"pos_line":1,"severity":"error","text":"invalid return type for 'foo.bar'"}],"response":"all_messages"}
 {"message":"file invalidated","response":"ok","seq_num":2}
-{"msgs":[{"caption":"","file_name":"f","pos_col":0,"pos_line":3,"severity":"error","text":"unknown identifier 'd'"}],"response":"all_messages"}
+{"msgs":[{"caption":"","file_name":"f","pos_col":0,"pos_line":3,"severity":"error","text":"unknown identifier 'd'"},{"caption":"","file_name":"f","pos_col":8,"pos_line":2,"severity":"error","text":"function expected at\n  foo"},{"caption":"","file_name":"f","pos_col":8,"pos_line":2,"severity":"error","text":"don't know how to synthesize placeholder\ncontext:\n⊢ Sort ?"},{"caption":"","file_name":"f","pos_col":0,"pos_line":1,"severity":"error","text":"invalid return type for 'foo.bar'"}],"response":"all_messages"}
 {"msgs":[],"response":"all_messages"}
 {"msgs":[{"caption":"","file_name":"f","pos_col":3,"pos_line":3,"severity":"error","text":"invalid declaration, identifier expected"}],"response":"all_messages"}
+{"msgs":[{"caption":"","file_name":"f","pos_col":3,"pos_line":3,"severity":"error","text":"invalid declaration, identifier expected"},{"caption":"","file_name":"f","pos_col":3,"pos_line":3,"severity":"error","text":"don't know how to synthesize placeholder\ncontext:\n⊢ Sort ?"}],"response":"all_messages"}
 {"message":"file invalidated","response":"ok","seq_num":3}
-{"msgs":[{"caption":"","file_name":"f","pos_col":3,"pos_line":3,"severity":"error","text":"invalid declaration, identifier expected"}],"response":"all_messages"}
+{"msgs":[{"caption":"","file_name":"f","pos_col":3,"pos_line":3,"severity":"error","text":"invalid declaration, identifier expected"},{"caption":"","file_name":"f","pos_col":3,"pos_line":3,"severity":"error","text":"don't know how to synthesize placeholder\ncontext:\n⊢ Sort ?"}],"response":"all_messages"}
+{"msgs":[{"caption":"","file_name":"f","pos_col":3,"pos_line":3,"severity":"error","text":"don't know how to synthesize placeholder\ncontext:\n⊢ Sort ?"}],"response":"all_messages"}
 {"msgs":[],"response":"all_messages"}
 {"message":"file invalidated","response":"ok","seq_num":4}
 {"message":"file invalidated","response":"ok","seq_num":5}

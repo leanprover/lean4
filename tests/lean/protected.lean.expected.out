@@ -1,2 +1,3 @@
 protected.lean:9:7: error: unknown identifier 'C'
+⁇ : ?M_1
 D : Prop

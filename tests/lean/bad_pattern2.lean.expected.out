@@ -1,1 +1,11 @@
 bad_pattern2.lean:2:2: error: invalid pattern: variable, constructor or constant tagged as pattern expected
+bad_pattern2.lean:2:13: error: unknown identifier 'bla.boo'
+bad_pattern2.lean:2:2: error: type mismatch at application
+  foo bla.boo
+term
+  bla.boo
+has type
+  _
+but is expected to have type
+  ℕ
+bad_pattern2.lean:2:10: error: ill-formed match/equations expression

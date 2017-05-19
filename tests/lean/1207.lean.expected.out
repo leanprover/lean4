@@ -1,2 +1,15 @@
 1207.lean:15:2: error: unknown identifier 'h'
+1207.lean:15:2: error: don't know how to synthesize placeholder
+context:
+h : tactic unit,
+_example : true
+⊢ Type ?
+1207.lean:17:0: error: failed to add declaration '_interaction' to environment, value has metavariables
+remark: set 'formatter.hide_full_terms' to false to see the complete term
+  …
 1207.lean:21:23: error: unknown identifier 'foo'
+1207.lean:21:23: error: don't know how to synthesize placeholder
+context:
+⊢ Type ?
+state:
+⊢ false

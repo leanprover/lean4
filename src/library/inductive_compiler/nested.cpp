@@ -118,6 +118,7 @@ class add_nested_inductive_decl_fn {
     unsigned get_curr_ir_arg_idx() { lean_assert(m_in_define_nested_irs); return m_pack_arity[get_curr_ind_idx()][get_curr_ir_idx()].size(); }
 
     // For sizeof
+    bool                          m_has_sizeof{false};
     local_context                 m_synth_lctx;
     buffer<expr>                  m_param_insts;
 
@@ -233,12 +234,12 @@ class add_nested_inductive_decl_fn {
             // Note(dhs): *.sizeof is irreducible, and *.sizeof_inst are reduced when using transparency_mode::Instances
             // Here we want to reduce only sizeof_inst to expose the basic *.sizeof application.
             type_context::transparency_scope scope(tctx, transparency_mode::Instances);
-            expr e_sizeof = app_arg(tctx.whnf(args[1]));
-            if (is_sizeof_app(e_sizeof)) {
+            expr inst = tctx.whnf(args[1]);
+            if (is_app(inst) && is_sizeof_app(app_arg(inst))) {
                 expr new_e = mk_app(app_arg(tctx.whnf(args[1])), args[2]);
                 assert_def_eq(tctx.env(), e, new_e);
-                lean_trace(name({"inductive_compiler", "nested", "sizeof"}),
-                           tout() << "[unfold sizeof]: " << e << " ==> " << new_e << "\n";);
+                lean_trace(name({"inductive_compiler", "nested", "sizeof", "unfold"}),
+                           tout() << e << " ==> " << new_e << "\n";);
                 return some_expr(new_e);
             }
         }
@@ -437,6 +438,7 @@ class add_nested_inductive_decl_fn {
 
     void initialize_synth_lctx() {
         if (optional<declaration> opt_d_has_sizeof = m_env.find(mk_has_sizeof_name(mlocal_name(m_inner_decl.get_ind(0))))) {
+            m_has_sizeof = true;
             local_context lctx;
             expr ty = opt_d_has_sizeof->get_type();
             for (expr const & param : m_nested_decl.get_params()) {
@@ -763,19 +765,145 @@ class add_nested_inductive_decl_fn {
             });
     }
 
-    void define_nested_has_sizeofs() {
+    void define_nested_sizeof_has_sizeof() {
         initialize_synth_lctx();
+        if (!m_has_sizeof) return;
+        for (unsigned ind_idx = 0; ind_idx < m_nested_decl.get_num_inds(); ++ind_idx) {
+            type_context tctx_synth(m_env, m_tctx.get_options(), m_synth_lctx);
+
+            expr const & ind = m_nested_decl.get_ind(ind_idx);
+            name inner_sizeof_name = mk_sizeof_name(mlocal_name(m_inner_decl.get_ind(ind_idx)));
+            declaration d = m_env.get(inner_sizeof_name);
+
+            name sizeof_name = mk_sizeof_name(mlocal_name(ind));
+            expr sizeof_type = unpack_constants(d.get_type());
+            expr sizeof_val = unpack_constants(d.get_value());
+
+            lean_trace(name({"inductive_compiler", "nested", "sizeof"}),
+                       tout() << sizeof_name << " : " << sizeof_type << " :=\n  " << sizeof_val << "\n";);
+
+            define(sizeof_name, sizeof_type, sizeof_val);
+            m_env = add_protected(m_env, sizeof_name);
+            m_tctx.set_env(m_env);
+
+            expr c_sizeof = mk_app(mk_app(mk_constant(sizeof_name, m_nested_decl.get_levels()), m_nested_decl.get_params()), m_param_insts);
+
+            expr c_ind = m_nested_decl.get_c_ind_params(ind_idx);
+            expr ty = tctx_synth.whnf(mlocal_type(ind));
+            buffer<expr> indices;
+            while (is_pi(ty)) {
+                expr index = mk_local_for(ty);
+                indices.push_back(index);
+                ty = tctx_synth.whnf(instantiate(binding_body(ty), index));
+            }
+
+            name has_sizeof_name = mk_has_sizeof_name(mlocal_name(ind));
+
+            expr has_sizeof_type = Pi(m_nested_decl.get_params(),
+                                      tctx_synth.mk_pi(m_param_insts,
+                                                       Pi(indices,
+                                                          mk_app(mk_constant(get_has_sizeof_name(), {m_nested_decl.get_result_level(m_env)}),
+                                                                 mk_app(c_ind, indices)))));
+
+            expr has_sizeof_val = Fun(m_nested_decl.get_params(),
+                                      tctx_synth.mk_lambda(m_param_insts,
+                                                           Fun(indices, mk_app(mk_app(mk_constant(get_has_sizeof_mk_name(), {m_nested_decl.get_result_level(m_env)}),
+                                                                                      mk_app(c_ind, indices)),
+                                                                           mk_app(c_sizeof, indices)))));
+
+            lean_trace(name({"inductive_compiler", "nested", "sizeof"}), tout()
+                       << has_sizeof_name << " : " << has_sizeof_type << " :=\n  " << has_sizeof_val << "\n";);
+            lean_assert(!has_local(has_sizeof_type));
+            lean_assert(!has_local(has_sizeof_val));
+            m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, has_sizeof_name, to_list(m_nested_decl.get_lp_names()), has_sizeof_type, has_sizeof_val, true)));
+            m_env = add_instance(m_env, has_sizeof_name, LEAN_DEFAULT_PRIORITY, true);
+            m_env = add_protected(m_env, sizeof_name);
+            m_tctx.set_env(m_env);
+        }
+    }
+
+    void define_nested_sizeof_spec() {
+        if (!m_has_sizeof) return;
+
         for (unsigned ind_idx = 0; ind_idx < m_nested_decl.get_num_inds(); ++ind_idx) {
             expr const & ind = m_nested_decl.get_ind(ind_idx);
-            name inner_has_sizeof_name = mk_has_sizeof_name(mlocal_name(m_inner_decl.get_ind(ind_idx)));
-            optional<declaration> opt_d = m_env.find(inner_has_sizeof_name);
-            if (!opt_d) return;
-            define(mk_has_sizeof_name(mlocal_name(ind)), unpack_constants(opt_d->get_type()), unpack_constants(opt_d->get_value()));
-            name has_sizeof_name = mk_has_sizeof_name(mlocal_name(ind));
-            m_env = set_reducible(m_env, has_sizeof_name, reducible_status::Reducible, true);
-            m_env = add_instance(m_env, has_sizeof_name, LEAN_DEFAULT_PRIORITY, true);
-            m_env = add_protected(m_env, has_sizeof_name);
-            m_tctx.set_env(m_env);
+
+            name sizeof_name = mk_sizeof_name(mlocal_name(m_nested_decl.get_ind(ind_idx)));
+            expr c_sizeof = mk_app(mk_app(mk_constant(sizeof_name, m_nested_decl.get_levels()), m_nested_decl.get_params()), m_param_insts);
+
+            name inner_sizeof_name = mk_sizeof_name(mlocal_name(m_inner_decl.get_ind(ind_idx)));
+            expr c_inner_sizeof = mk_app(mk_app(mk_constant(inner_sizeof_name, m_nested_decl.get_levels()), m_inner_decl.get_params()), m_param_insts);
+
+            for (unsigned ir_idx = 0; ir_idx < m_nested_decl.get_num_intro_rules(ind_idx); ++ir_idx) {
+                type_context tctx_synth(m_env, m_tctx.get_options(), m_synth_lctx);
+
+                expr ty = tctx_synth.whnf(mlocal_type(ind));
+                buffer<expr> indices;
+                while (is_pi(ty)) {
+                    expr index = mk_local_for(ty);
+                    indices.push_back(index);
+                    ty = tctx_synth.whnf(instantiate(binding_body(ty), index));
+                }
+
+                expr const & ir = m_nested_decl.get_intro_rule(ind_idx, ir_idx);
+                expr const & inner_ir = m_inner_decl.get_intro_rule(ind_idx, ir_idx);
+
+                expr ir_ty = tctx_synth.whnf(mlocal_type(ir));
+
+                expr c_ir = mk_app(mk_constant(mlocal_name(ir), m_nested_decl.get_levels()), m_nested_decl.get_params());
+                expr c_inner_ir = mk_app(mk_constant(mlocal_name(inner_ir), m_nested_decl.get_levels()), m_inner_decl.get_params());
+
+                expr rhs = mk_nat_one();
+                buffer<expr> locals;
+
+                while (is_pi(ir_ty)) {
+                    expr local = mk_local_for(ir_ty);
+                    locals.push_back(local);
+                    expr candidate = mk_app(tctx_synth, get_sizeof_name(), local);
+                    type_context stctx(m_env, options(), tctx_synth.lctx(), transparency_mode::Semireducible);
+                    if (!stctx.is_def_eq(candidate, mk_constant(get_nat_zero_name())))
+                        rhs = mk_nat_add(rhs, candidate);
+                    ir_ty = tctx_synth.whnf(instantiate(binding_body(ir_ty), local));
+                }
+
+                buffer<expr> args;
+                get_app_args(ir_ty, args);
+
+                expr lhs = mk_app(mk_app(c_sizeof, indices.size(), args.data() + args.size() - indices.size()), mk_app(c_ir, locals));
+
+                name sizeof_spec_name = mk_sizeof_spec_name(mlocal_name(ir));
+                expr sizeof_spec_type_core = mk_eq(tctx_synth, lhs, rhs);
+
+                declaration d_c_ir = m_env.get(mlocal_name(ir));
+
+                expr lhs_alt;
+                {
+                    type_context ntctx(m_env, options(), tctx_synth.lctx(), transparency_mode::None);
+                    lhs_alt = mk_app(tctx_synth, get_sizeof_name(), ntctx.whnf(mk_app(mk_app(d_c_ir.get_value(), m_inner_decl.get_params()), locals)));
+                }
+
+                expr sizeof_spec_type_core_alt = mk_eq(tctx_synth, lhs_alt, rhs);
+
+                lean_trace(name({"inductive_compiler", "nested", "sizeof"}), tout()
+                           << sizeof_spec_name << " : " << sizeof_spec_type_core << " ==> " << sizeof_spec_type_core_alt << "\n";);
+
+                expr sizeof_spec_val_core = prove_by_simp(tctx_synth.lctx(), sizeof_spec_type_core_alt, list<expr>(), true);
+
+                expr sizeof_spec_type = Pi(m_nested_decl.get_params(), tctx_synth.mk_pi(m_param_insts, Pi(locals, sizeof_spec_type_core)));
+                expr sizeof_spec_val = Fun(m_nested_decl.get_params(), tctx_synth.mk_lambda(m_param_insts, Fun(locals, sizeof_spec_val_core)));
+
+                lean_trace(name({"inductive_compiler", "nested", "sizeof"}), tout()
+                           << sizeof_spec_name << " : " << sizeof_spec_type << " :=\n  " << sizeof_spec_val << "\n";);
+
+                m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, sizeof_spec_name, to_list(m_nested_decl.get_lp_names()), sizeof_spec_type, sizeof_spec_val, true)));
+                lean_trace(name({"inductive_compiler", "nested", "sizeof"}), tout() << "[defined]: " << sizeof_spec_name << "\n";);
+
+                m_env = add_eqn_lemma(m_env, sizeof_spec_name);
+                m_env = add_protected(m_env, sizeof_spec_name);
+                m_tctx.set_env(m_env);
+
+                m_nested_decl.set_sizeof_lemmas(add(m_tctx, m_nested_decl.get_sizeof_lemmas(), sizeof_spec_name, LEAN_DEFAULT_PRIORITY));
+            }
         }
     }
 
@@ -1403,8 +1531,8 @@ class add_nested_inductive_decl_fn {
                 for (simp_lemma const & sl : lemmas) {
                     expr result = refl_lemma_rewrite(m_ctx, e, sl);
                     if (result != e) {
-                        lean_trace(name({"inductive_compiler", "nested", "simp", "sizeof"}), tout() << "[sizeof rfls]: "
-                                   << e << " ==> " << annotated_head_beta_reduce(result) << "\n";);
+                        lean_trace(name({"inductive_compiler", "nested", "simp", "sizeof", "rfl"}),
+                                   tout() <<  e << " ==> " << annotated_head_beta_reduce(result) << "\n";);
                         return optional<pair<simp_result, bool> >(mk_pair(simp_result(annotated_head_beta_reduce(result)), true));
                     }
                 }
@@ -2183,10 +2311,12 @@ public:
         check_elim_to_type();
         check_prove_inj();
         define_nested_inds();
+        define_nested_sizeof_has_sizeof();
 
-        define_nested_has_sizeofs();
         build_primitive_pack_unpack();
         define_nested_irs();
+
+        define_nested_sizeof_spec();
         define_nested_recursors();
         define_nested_cases_on();
         define_nested_injectives();
@@ -2216,6 +2346,8 @@ void initialize_inductive_compiler_nested() {
     register_trace_class(name({"inductive_compiler", "nested", "inner", "ir"}));
 
     register_trace_class(name({"inductive_compiler", "nested", "sizeof"}));
+    register_trace_class(name({"inductive_compiler", "nested", "sizeof", "unfold"}));
+    register_trace_class(name({"inductive_compiler", "nested", "sizeof", "rfl"}));
     register_trace_class(name({"inductive_compiler", "nested", "prove"}));
     register_trace_class(name({"inductive_compiler", "nested", "injective"}));
 

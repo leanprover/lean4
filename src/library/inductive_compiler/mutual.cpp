@@ -312,10 +312,129 @@ class add_mutual_inductive_decl_fn {
             return none_expr();
     }
 
-    void define_sizeofs() {
-        name basic_sizeof_name = mk_has_sizeof_name(mlocal_name(m_basic_decl.get_ind(0)));
+    void define_sizeofs_has_sizeofs(local_context const & lctx, buffer<expr> const & param_insts) {
+        name basic_sizeof_name = mk_sizeof_name(mlocal_name(m_basic_decl.get_ind(0)));
+        name basic_has_sizeof_name = mk_has_sizeof_name(mlocal_name(m_basic_decl.get_ind(0)));
+
+        for (unsigned ind_idx = 0; ind_idx < m_mut_decl.get_inds().size(); ++ind_idx) {
+            type_context tctx_synth(m_env, m_opts, lctx);
+
+            expr const & ind = m_mut_decl.get_ind(ind_idx);
+            name sizeof_name = mk_sizeof_name(mlocal_name(ind));
+            name has_sizeof_name = mk_has_sizeof_name(mlocal_name(ind));
+
+            expr c_basic_sizeof = mk_app(mk_app(mk_constant(basic_sizeof_name, m_mut_decl.get_levels()), m_mut_decl.get_params()), param_insts);
+            expr c_ind = mk_app(mk_constant(mlocal_name(ind), m_mut_decl.get_levels()), m_mut_decl.get_params());
+
+            expr ty = tctx_synth.whnf(mlocal_type(ind));
+            buffer<expr> indices;
+            while (is_pi(ty)) {
+                expr index = mk_local_for(ty);
+                indices.push_back(index);
+                ty = tctx_synth.whnf(instantiate(binding_body(ty), index));
+            }
+
+            expr sizeof_type = Pi(m_mut_decl.get_params(),
+                                      tctx_synth.mk_pi(param_insts,
+                                                       Pi(indices,
+                                                          mk_arrow(mk_app(c_ind, indices), mk_constant(get_nat_name())))));
+
+            expr sizeof_val = Fun(m_mut_decl.get_params(),
+                                  tctx_synth.mk_lambda(param_insts,
+                                                   Fun(indices, mk_app(c_basic_sizeof, mk_app(m_putters[ind_idx], mk_app(m_makers[ind_idx], indices))))));
+
+            lean_trace(name({"inductive_compiler", "mutual", "sizeof"}), tout()
+                       << sizeof_name << " : " << sizeof_type << " :=\n  " << sizeof_val << "\n";);
+            lean_assert(!has_local(sizeof_type));
+            lean_assert(!has_local(sizeof_val));
+            m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, sizeof_name, to_list(m_mut_decl.get_lp_names()), sizeof_type, sizeof_val, true)));
+            m_env = add_protected(m_env, sizeof_name);
+            m_tctx.set_env(m_env);
+
+            expr c_sizeof = mk_app(mk_app(mk_constant(sizeof_name, m_mut_decl.get_levels()), m_mut_decl.get_params()), param_insts);
+
+            expr has_sizeof_type = Pi(m_mut_decl.get_params(),
+                                      tctx_synth.mk_pi(param_insts,
+                                                       Pi(indices,
+                                                          mk_app(mk_constant(get_has_sizeof_name(), {m_mut_decl.get_result_level(m_env)}),
+                                                                 mk_app(c_ind, indices)))));
+
+            expr has_sizeof_val = Fun(m_mut_decl.get_params(),
+                                      tctx_synth.mk_lambda(param_insts,
+                                                           Fun(indices, mk_app(mk_app(mk_constant(get_has_sizeof_mk_name(), {m_mut_decl.get_result_level(m_env)}), mk_app(c_ind, indices)),
+                                                                           mk_app(c_sizeof, indices)))));
+
+            lean_trace(name({"inductive_compiler", "mutual", "sizeof"}), tout()
+                       << has_sizeof_name << " : " << has_sizeof_type << " :=\n  " << has_sizeof_val << "\n";);
+            lean_assert(!has_local(has_sizeof_type));
+            lean_assert(!has_local(has_sizeof_val));
+            m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, has_sizeof_name, to_list(m_mut_decl.get_lp_names()), has_sizeof_type, has_sizeof_val, true)));
+            m_env = add_instance(m_env, has_sizeof_name, LEAN_DEFAULT_PRIORITY, true);
+            m_env = add_protected(m_env, sizeof_name);
+            m_tctx.set_env(m_env);
+        }
+    }
+
+    void define_sizeof_specs(local_context const & lctx, buffer<expr> const & param_insts) {
+        for (unsigned ind_idx = 0; ind_idx < m_mut_decl.get_inds().size(); ++ind_idx) {
+            type_context tctx_synth(m_env, m_opts, lctx);
+            expr const & ind = m_mut_decl.get_ind(ind_idx);
+            name sizeof_name = mk_sizeof_name(mlocal_name(ind));
+
+            expr ty = tctx_synth.whnf(mlocal_type(ind));
+            buffer<expr> indices;
+            while (is_pi(ty)) {
+                expr index = mk_local_for(ty);
+                indices.push_back(index);
+                ty = tctx_synth.whnf(instantiate(binding_body(ty), index));
+            }
+
+            expr c_sizeof = mk_app(mk_app(mk_constant(sizeof_name, m_mut_decl.get_levels()), m_mut_decl.get_params()), param_insts);
+
+            for (unsigned ir_idx = 0; ir_idx < m_mut_decl.get_num_intro_rules(ind_idx); ++ir_idx) {
+                expr const & ir = m_mut_decl.get_intro_rule(ind_idx, ir_idx);
+                expr ir_ty = tctx_synth.whnf(mlocal_type(ir));
+
+                expr c_ir = mk_app(mk_constant(mlocal_name(ir), m_mut_decl.get_levels()), m_mut_decl.get_params());
+                expr rhs = mk_nat_one();
+                buffer<expr> locals;
+
+                while (is_pi(ir_ty)) {
+                    expr local = mk_local_for(ir_ty);
+                    locals.push_back(local);
+                    expr candidate = mk_app(m_tctx, get_sizeof_name(), local);
+                    type_context stctx(m_env, options(), m_tctx.lctx(), transparency_mode::Semireducible);
+                    if (!stctx.is_def_eq(candidate, mk_constant(get_nat_zero_name())))
+                        rhs = mk_nat_add(rhs, candidate);
+                    ir_ty = tctx_synth.whnf(instantiate(binding_body(ir_ty), local));
+                }
+
+                buffer<expr> args;
+                get_app_args(ir_ty, args);
+
+                expr lhs = mk_app(mk_app(c_sizeof, indices.size(), args.data() + args.size() - indices.size()), mk_app(c_ir, locals));
+
+                name dsimp_rule_name = mk_sizeof_spec_name(mlocal_name(ir));
+                expr dsimp_rule_type = Pi(m_mut_decl.get_params(), tctx_synth.mk_pi(param_insts, Pi(locals, mk_eq(tctx_synth, lhs, rhs))));
+                expr dsimp_rule_val = Fun(m_mut_decl.get_params(), tctx_synth.mk_lambda(param_insts, Fun(locals, mk_eq_refl(tctx_synth, lhs))));
+
+                lean_trace(name({"inductive_compiler", "mutual", "sizeof"}), tout()
+                           << dsimp_rule_name << " : " << dsimp_rule_type << " :=\n  " << dsimp_rule_val << "\n";);
+
+                m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, dsimp_rule_name, to_list(m_mut_decl.get_lp_names()), dsimp_rule_type, dsimp_rule_val, true)));
+                m_env = mark_rfl_lemma(m_env, dsimp_rule_name);
+                m_env = add_eqn_lemma(m_env, dsimp_rule_name);
+                m_env = add_protected(m_env, dsimp_rule_name);
+                m_tctx.set_env(m_env);
+            }
+        }
+    }
+
+    void define_sizeof_all() {
+        name basic_sizeof_name = mk_sizeof_name(mlocal_name(m_basic_decl.get_ind(0)));
         optional<declaration> opt_d = m_env.find(basic_sizeof_name);
         if (!opt_d) return;
+
         declaration const & d = *opt_d;
         expr ty = m_tctx.whnf(d.get_type());
 
@@ -330,44 +449,8 @@ class add_mutual_inductive_decl_fn {
             ty = m_tctx.whnf(instantiate(binding_body(ty), param_inst));
         }
 
-        type_context tctx_synth(m_env, m_tctx.get_options(), m_tctx.lctx());
-
-        for (unsigned ind_idx = 0; ind_idx < m_mut_decl.get_inds().size(); ++ind_idx) {
-            expr const & ind = m_mut_decl.get_ind(ind_idx);
-            name has_sizeof_name = mk_has_sizeof_name(mlocal_name(ind));
-            expr c_has_sizeof = mk_app(mk_app(mk_constant(has_sizeof_name, m_mut_decl.get_levels()), m_mut_decl.get_params()), param_insts);
-            expr c_ind = mk_app(mk_constant(mlocal_name(ind), m_mut_decl.get_levels()), m_mut_decl.get_params());
-
-            ty = mlocal_type(ind);
-            buffer<expr> indices;
-            while (is_pi(ty)) {
-                expr index = mk_local_for(ty);
-                indices.push_back(index);
-                ty = m_tctx.whnf(instantiate(binding_body(ty), index));
-            }
-
-            expr has_sizeof_type = Pi(m_mut_decl.get_params(),
-                                      tctx_synth.mk_pi(param_insts,
-                                                       Pi(indices,
-                                                          mk_app(m_tctx, get_has_sizeof_name(), mk_app(c_ind, indices)))));
-
-            expr c_sizeof = mk_app(mk_app(mk_constant(basic_sizeof_name, m_mut_decl.get_levels()), m_mut_decl.get_params()), param_insts);
-
-            expr has_sizeof_val = Fun(m_mut_decl.get_params(),
-                                      m_tctx.mk_lambda(param_insts,
-                                                       Fun(indices, mk_app(c_sizeof, mk_app(m_putters[ind_idx], mk_app(m_makers[ind_idx], indices))))));
-
-            lean_trace(name({"inductive_compiler", "mutual", "sizeof"}), tout()
-                       << has_sizeof_name << " : " << has_sizeof_type << " :=\n  " << has_sizeof_val << "\n";);
-            lean_assert(!has_local(has_sizeof_type));
-            lean_assert(!has_local(has_sizeof_val));
-            m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, has_sizeof_name, to_list(m_mut_decl.get_lp_names()), has_sizeof_type, has_sizeof_val, true)));
-            m_env = set_reducible(m_env, has_sizeof_name, reducible_status::Reducible, true);
-            m_env = add_instance(m_env, has_sizeof_name, LEAN_DEFAULT_PRIORITY, true);
-            m_env = add_protected(m_env, has_sizeof_name);
-            m_tctx.set_env(m_env);
-            tctx_synth.set_env(m_env);
-        }
+        define_sizeofs_has_sizeofs(m_tctx.lctx(), param_insts);
+        define_sizeof_specs(m_tctx.lctx(), param_insts);
     }
 
     void define_injective() {
@@ -806,7 +889,7 @@ public:
 
         define_ind_types();
         define_intro_rules();
-        define_sizeofs();
+        define_sizeof_all();
         define_injective();
 
         define_recursors();

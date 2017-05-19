@@ -278,20 +278,10 @@ class mk_has_sizeof_fn {
             while (is_pi(ir_ty)) {
                 expr local = mk_local_for(ir_ty);
                 locals.push_back(local);
-                expr arg_ty = binding_domain(ir_ty);
-
-                buffer<expr> arg_args;
-                if (auto ind_app = is_recursive_arg(arg_ty, arg_args)) {
-                    if (arg_args.empty()) {
-                        buffer<expr> ind_app_args;
-                        get_app_args(*ind_app, ind_app_args);
-                        expr new_val = mk_app(mk_app(c_sizeof, ind_app_args.size() - num_params, ind_app_args.data() + num_params), local);
-                        rhs = mk_nat_add(rhs, new_val);
-                    }
-                } else if (auto inst = mk_has_sizeof(arg_ty)) {
-                    level l = get_level(m_tctx, arg_ty);
-                    rhs = mk_nat_add(rhs, mk_app(mk_constant(get_sizeof_name(), {l}), arg_ty, *inst, local));
-                }
+                expr candidate = mk_app(m_tctx, get_sizeof_name(), local);
+                type_context stctx(m_env, options(), m_tctx.lctx(), transparency_mode::Semireducible);
+                if (!stctx.is_def_eq(candidate, mk_constant(get_nat_zero_name())))
+                    rhs = mk_nat_add(rhs, candidate);
                 ir_ty = m_tctx.relaxed_whnf(instantiate(binding_body(ir_ty), local));
             }
 

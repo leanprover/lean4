@@ -32,7 +32,6 @@ Author: Leonardo de Moura
 #include "library/fun_info.h"
 #include "library/num.h"
 #include "library/quote.h"
-#include "library/app_builder.h"
 
 #ifndef LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH
 #define LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH 32
@@ -3529,12 +3528,13 @@ struct instance_synthesizer {
             expr q = mk_expr_quote(r);
             buffer<expr> new_inst_mvars;
             for (expr const & local : r_locals.get_collected()) {
-                expr cls = mk_app(m_ctx, get_reflected_name(), local);
+                expr ty = m_ctx.infer(local);
+                expr cls = mk_app(mk_constant(get_reflected_name(), {get_level(m_ctx, ty)}), ty, local);
                 expr new_mvar = m_ctx.mk_tmp_mvar(cls);
                 new_inst_mvars.push_back(new_mvar);
                 expr local_ty = m_ctx.infer(local);
-                level u = *dec_level(get_level(m_ctx, local_ty));
-                level v = *dec_level(get_level(m_ctx, instantiate(binding_body(r_ty), local)));
+                level u = get_level(m_ctx, local_ty);
+                level v = get_level(m_ctx, instantiate(binding_body(r_ty), local));
                 q = mk_app(mk_constant(get_reflected_subst_name(), {v, u}),
                            {local_ty, mk_lambda("_x", binding_domain(r_ty), binding_body(r_ty)), r, local, q, new_mvar});
                 r = instantiate(binding_body(r), local);

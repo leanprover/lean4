@@ -6,7 +6,7 @@ Authors: Sebastian Ullrich
 prelude
 import init.meta.expr init.util
 
-@[reducible] meta def {u} has_reflect (α : Type u) := Π a : α, reflected a
+@[reducible] meta def {u} has_reflect (α : Sort u) := Π a : α, reflected a
 
 meta instance bool.reflect : has_reflect bool
 | tt := `(tt)

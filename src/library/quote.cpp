@@ -33,11 +33,7 @@ public:
     virtual expr check_type(expr const & m, abstract_type_context & ctx, bool infer_only) const {
         expr const & e = get_expr_quote_value(m);
         expr ty = ctx.check(e, infer_only);
-        if (auto l = dec_level(get_level(ctx, ty))) {
-            return mk_app(mk_constant(get_reflected_name(), {*l}), ty, e);
-        } else {
-            return *g_expr;
-        }
+        return mk_app(mk_constant(get_reflected_name(), {get_level(ctx, ty)}), ty, e);
     }
     virtual optional<expr> expand(expr const &, abstract_type_context &) const {
         return optional<expr>();

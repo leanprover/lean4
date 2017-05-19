@@ -56,9 +56,9 @@ universes u v
 
     The quotation expression `(a) (outside of patterns) is equivalent to `reflect a`
     and thus can be used as an explicit way of inferring an instance of `reflected a`. -/
-meta constant reflected {α : Type u} : α → Type u
-meta constant reflected.to_expr {α : Type u} {a : α} : reflected a → expr
-meta constant reflected.subst {α : Type u} {β : α → Type v} {f : Π a : α, β a} {a : α} :
+meta constant reflected {α : Sort u} : α → Sort (max 1 u)
+meta constant reflected.to_expr {α : Sort u} {a : α} : reflected a → expr
+meta constant reflected.subst {α : Sort u} {β : α → Sort v} {f : Π a : α, β a} {a : α} :
   reflected f → reflected a → reflected (f a)
 meta constant expr.reflect (e : expr elab) : reflected e
 meta constant string.reflect (s : string) : reflected s

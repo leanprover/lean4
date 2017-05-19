@@ -2539,13 +2539,15 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
         expr src_S = get_app_fn(type);
         if (!is_constant(src_S) || !is_structure(m_env, const_name(src_S))) {
             auto pp_fn = mk_pp_ctx();
-            throw elaborator_exception(e,
+            report_or_throw(elaborator_exception(e,
                                        format("invalid structure update { src with ...}, source is not a structure") +
                                        pp_indent(pp_fn, *src) +
                                        line() + format("which has type") +
-                                       pp_indent(pp_fn, type));
+                                       pp_indent(pp_fn, type)));
+            src = none_expr();
+        } else {
+            src_S_name          = const_name(src_S);
         }
-        src_S_name          = const_name(src_S);
     }
     if (S_name.is_anonymous()) {
         if (expected_type) {
@@ -2596,10 +2598,10 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
             expr d = binding_domain(c_type);
             if (i < nparams) {
                 if (is_explicit(binding_info(c_type))) {
-                    throw elaborator_exception(e, sstream() << "invalid structure value {...}, structure parameter '" <<
+                    report_or_throw(elaborator_exception(e, sstream() << "invalid structure value {...}, structure parameter '" <<
                                                             binding_name(c_type)
                                                             << "' is explicit in the structure constructor '" <<
-                                                            c_names[0] << "'");
+                                                            c_names[0] << "'"));
                 }
                 c_arg = mk_metavar(d, ref);
             } else {
@@ -2620,16 +2622,18 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
                         if (src && !is_subobject_field(m_env, nested_S_name, S_fname)) {
                             optional<name> opt_base_S_name = find_field(m_env, src_S_name, S_fname);
                             if (!opt_base_S_name) {
-                                throw elaborator_exception(ref,
+                                report_or_throw(elaborator_exception(ref,
                                                            sstream() << "invalid structure update { src with ... }, field '"
                                                                      << S_fname << "'"
                                                                      << " was not provided, nor was it found in the source of type '"
-                                                                     << src_S_name << "'.");
+                                                                     << src_S_name << "'."));
+                                c_arg = mk_sorry({d}, ref);
+                            } else {
+                                name base_S_name = *opt_base_S_name;
+                                expr base_src = *mk_base_projections(m_env, src_S_name, base_S_name, *src);
+                                expr f = mk_proj_app(m_env, base_S_name, S_fname, base_src);
+                                c_arg = visit(f, none_expr());
                             }
-                            name base_S_name = *opt_base_S_name;
-                            expr base_src = *mk_base_projections(m_env, src_S_name, base_S_name, *src);
-                            expr f = mk_proj_app(m_env, base_S_name, S_fname, base_src);
-                            c_arg = visit(f, none_expr());
                             expr c_arg_type = infer_type(c_arg);
                             if (!is_def_eq(c_arg_type, d)) {
                                 auto pp_data = pp_until_different(c_arg_type, d);
@@ -2641,7 +2645,8 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
                                 msg += std::get<1>(pp_data);
                                 msg += line() + format("but is expected to have type");
                                 msg += std::get<2>(pp_data);
-                                throw elaborator_exception(ref, msg);
+                                report_or_throw(elaborator_exception(ref, msg));
+                                c_arg = mk_sorry({d}, ref);
                             }
                             field2value.insert(S_fname, c_arg);
                         } else {
@@ -2658,16 +2663,20 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
                                     field2value.insert(S_fname, nested);
                                 }
                             } else {
-                                throw elaborator_exception(e, sstream() << "invalid structure value { ... }, field '" <<
-                                                                        S_fname << "' was not provided");
+                                report_or_throw(elaborator_exception(e, sstream() << "invalid structure value { ... }, field '" <<
+                                                                        S_fname << "' was not provided"));
+                                c_arg = mk_sorry({d}, ref);
+                                field2value.insert(S_fname, c_arg);
                             }
                         }
                     }
                 } else {
                     /* Implicit field */
-                    if (std::find(fnames.begin(), fnames.end(), S_fname) != fnames.end()) {
-                        throw elaborator_exception(e, sstream() << "invalid structure value {...}, field '"
-                                                                << S_fname << "' is implicit and must not be provided");
+                    auto i = std::find(fnames.begin(), fnames.end(), S_fname);
+                    if (i != fnames.end()) {
+                        used[i - fnames.begin()] = true;
+                        report_or_throw(elaborator_exception(e, sstream() << "invalid structure value {...}, field '"
+                                                                << S_fname << "' is implicit and must not be provided"));
                     }
                     c_arg = mk_metavar(d, ref);
                 }
@@ -2684,20 +2693,13 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
     /* Check if there are alien fields. */
     for (unsigned i = 0; i < fnames.size(); i++) {
         if (!used[i]) {
-            throw elaborator_exception(e, sstream() << "invalid structure value { ... }, '" << fnames[i] << "'" <<
-                                                    " is not a field of structure '" << S_name << "'");
+            report_or_throw(elaborator_exception(e, sstream() << "invalid structure value { ... }, '" << fnames[i] << "'" <<
+                                                    " is not a field of structure '" << S_name << "'"));
         }
     }
 
-    /* Check expected type */
-    if (expected_type && !is_def_eq(*expected_type, c_type)) {
-        auto pp_data = pp_until_different(c_type, *expected_type);
-        auto pp_fn = std::get<0>(pp_data);
-        throw elaborator_exception(ref, format("type mismatch as structure instance ") + pp_indent(pp_fn, e2) +
-                                        line() + format("has type") + std::get<1>(pp_data) +
-                                        line() + format("but is expected to have type") +
-                                        std::get<2>(pp_data));
-    }
+    /* Make sure to unify first to propagate the expected type, we'll report any errors later on. */
+    bool type_def_eq = !expected_type || is_def_eq(*expected_type, c_type);
 
     /* Now repeatedly try to elaborate fields whose dependencies have been elaborated.
      * If we have not made any progress in a round, do a last one collecting any errors. */
@@ -2819,6 +2821,16 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
         if (!last_progress && !progress)
             throw elaborator_exception(ref, error);
         last_progress = progress;
+    }
+
+    /* Check expected type */
+    if (!type_def_eq) {
+        auto pp_data = pp_until_different(c_type, *expected_type);
+        auto pp_fn = std::get<0>(pp_data);
+        throw elaborator_exception(ref, format("type mismatch as structure instance ") + pp_indent(pp_fn, e2) +
+                                        line() + format("has type") + std::get<1>(pp_data) +
+                                        line() + format("but is expected to have type") +
+                                        std::get<2>(pp_data));
     }
 
     return e2;

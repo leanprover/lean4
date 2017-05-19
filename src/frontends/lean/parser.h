@@ -361,7 +361,10 @@ public:
     expr id_to_expr(name const & id, pos_info const & p, bool resolve_only = false, bool allow_field_notation = true,
                     list<name> const & extra_locals = list<name>());
 
+    /** Always parses an expression.  Returns a synthetic sorry even if no input is consumed. */
     expr parse_expr(unsigned rbp = 0);
+    /** Tries to parse an expression, or else consumes no input. */
+    optional<expr> maybe_parse_expr(unsigned rbp = 0);
     /** \brief Parse an (optionally) qualified expression.
         If the input is of the form <id> : <expr>, then return the pair (some(id), expr).
         Otherwise, parse the next expression and return (none, expr). */
@@ -389,6 +392,7 @@ public:
     expr parse_id(bool allow_field_notation = true);
 
     expr parse_led(expr left);
+    expr parse_led_loop(expr left, unsigned rbp);
     expr parse_scoped_expr(unsigned num_params, expr const * ps, local_environment const & lenv, unsigned rbp = 0);
     expr parse_scoped_expr(buffer<expr> const & ps, local_environment const & lenv, unsigned rbp = 0) {
         return parse_scoped_expr(ps.size(), ps.data(), lenv, rbp);
@@ -458,6 +462,7 @@ public:
     expr parser_error_or_expr(parser_error && err);
     void throw_invalid_open_binder(pos_info const & pos);
 
+    bool has_error_recovery() const { return m_error_recovery; }
     flet<bool> error_recovery_scope(bool enable_recovery) {
         return flet<bool>(m_error_recovery, enable_recovery);
     }

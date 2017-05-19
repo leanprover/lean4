@@ -32,7 +32,7 @@ struct lean_parser_state {
 template struct interaction_monad<lean_parser_state>;
 typedef interaction_monad<lean_parser_state> lean_parser;
 
-#define TRY try { auto _ = s.m_p->no_error_recovery_scope();
+#define TRY try {
 #define CATCH } catch (break_at_pos_exception const & ex) { throw; }\
                 catch (exception const & ex) { return lean_parser::mk_exception(ex, s); }
 
@@ -49,6 +49,7 @@ vm_obj vm_parser_state_cur_pos(vm_obj const & o) {
 vm_obj vm_parser_ident(vm_obj const & o) {
     auto const & s = lean_parser::to_state(o);
     TRY;
+        auto _ = s.m_p->no_error_recovery_scope();
         name ident = s.m_p->check_id_next("identifier expected");
         return lean_parser::mk_success(to_obj(ident), s);
     CATCH;
@@ -70,8 +71,11 @@ vm_obj vm_parser_qexpr(vm_obj const & vm_rbp, vm_obj const & o) {
     TRY;
         auto rbp = to_unsigned(vm_rbp);
         parser::quote_scope scope(*s.m_p, true);
-        expr e = s.m_p->parse_expr(rbp);
-        return lean_parser::mk_success(to_obj(e), s);
+        if (auto e = s.m_p->maybe_parse_expr(rbp)) {
+            return lean_parser::mk_success(to_obj(*e), s);
+        } else {
+            throw parser_error(sstream() << "expression expected", s.m_p->pos());
+        }
     CATCH;
 }
 

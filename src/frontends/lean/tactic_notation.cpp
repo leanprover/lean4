@@ -138,18 +138,24 @@ static expr parse_nested_interactive_tactic(parser & p, name const & tac_class, 
 }
 
 static expr parse_interactive_param(parser & p, expr const & ty, expr const & quote_inst, expr const & lean_parser) {
-    vm_obj vm_parsed = run_parser(p, lean_parser);
-    type_context ctx(p.env());
-    name n("_quote_inst");
-    tactic_evaluator eval(ctx, p.get_options(), ty);
-    auto env = eval.compile(n, quote_inst);
-    vm_state S(env, p.get_options());
-    auto vm_res = S.invoke(n, vm_parsed);
-    expr r = to_expr(vm_res);
-    if (is_app_of(r, get_expr_subst_name())) {
-        return r; // HACK
-    } else {
-        return mk_as_is(r);
+    try {
+        vm_obj vm_parsed = run_parser(p, lean_parser);
+        type_context ctx(p.env());
+        name n("_quote_inst");
+        tactic_evaluator eval(ctx, p.get_options(), ty);
+        auto env = eval.compile(n, quote_inst);
+        vm_state S(env, p.get_options());
+        auto vm_res = S.invoke(n, vm_parsed);
+        expr r = to_expr(vm_res);
+        if (is_app_of(r, get_expr_subst_name())) {
+            return r; // HACK
+        } else {
+            return mk_as_is(r);
+        }
+    } catch (exception & ex) {
+        if (!p.has_error_recovery()) throw;
+        p.mk_message(ERROR).set_exception(ex).report();
+        return p.mk_sorry(p.pos(), true);
     }
 }
 

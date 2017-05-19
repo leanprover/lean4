@@ -373,7 +373,7 @@ name parser::check_id_next(char const * msg, break_at_pos_exception::token_conte
     if (!curr_is_identifier()) {
         auto _ = no_error_recovery_scope_if(curr_is_command());
         maybe_throw_error({msg, pos()});
-        r = get_token_info().value();
+        return "_";
     } else {
         r = get_name_val();
     }
@@ -1361,16 +1361,15 @@ expr parser::parse_notation(parse_table t, expr * left) {
     }
     list<notation::accepting> const & as = t.is_accepting();
     if (is_nil(as)) {
+        if (!left && p == pos() && has_error_recovery()) {
+            // Empty input
+            return mk_sorry(pos(), true);
+        }
         // TODO(gabriel): search children of t for accepting states
         sstream msg;
         msg << "invalid expression";
         if (p != pos()) {
             msg << "starting at " << p.first << ":" << p.second;
-        } else if (!curr_is_command()) {
-            next(); // consume input
-        } else {
-            // nothing consumed, but we're at a command token now, so abort, abort, abort
-            throw parser_error(msg, pos());
         }
         return parser_error_or_expr({msg, pos()});
     }
@@ -2161,12 +2160,32 @@ unsigned parser::curr_lbp() const {
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
-expr parser::parse_expr(unsigned rbp) {
-    expr left = parse_nud();
+expr parser::parse_led_loop(expr left, unsigned rbp) {
     while (rbp < curr_lbp()) {
+        auto pos0 = pos();
         left = parse_led(left);
+
+        if (pos() == pos0) {
+            // We did not consume any input, this can happen if we fail inside parse_notation.
+            break;
+        }
     }
     return left;
+}
+
+optional<expr> parser::maybe_parse_expr(unsigned rbp) {
+    auto pos0 = pos();
+    auto res = parse_expr(rbp);
+    if (pos() == pos0) {
+        return none_expr();
+    } else {
+        return some_expr(res);
+    }
+}
+
+expr parser::parse_expr(unsigned rbp) {
+    expr left = parse_nud();
+    return parse_led_loop(left, rbp);
 }
 
 pair<optional<name>, expr> parser::parse_id_tk_expr(name const & tk, unsigned rbp) {

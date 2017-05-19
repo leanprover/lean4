@@ -2627,7 +2627,7 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
                                                                      << S_fname << "'"
                                                                      << " was not provided, nor was it found in the source of type '"
                                                                      << src_S_name << "'."));
-                                c_arg = mk_sorry({d}, ref);
+                                c_arg = mk_sorry(some_expr(d), ref);
                             } else {
                                 name base_S_name = *opt_base_S_name;
                                 expr base_src = *mk_base_projections(m_env, src_S_name, base_S_name, *src);
@@ -2646,7 +2646,7 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
                                 msg += line() + format("but is expected to have type");
                                 msg += std::get<2>(pp_data);
                                 report_or_throw(elaborator_exception(ref, msg));
-                                c_arg = mk_sorry({d}, ref);
+                                c_arg = mk_sorry(some_expr(d), ref);
                             }
                             field2value.insert(S_fname, c_arg);
                         } else {
@@ -2665,7 +2665,7 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
                             } else {
                                 report_or_throw(elaborator_exception(e, sstream() << "invalid structure value { ... }, field '" <<
                                                                         S_fname << "' was not provided"));
-                                c_arg = mk_sorry({d}, ref);
+                                c_arg = mk_sorry(some_expr(d), ref);
                                 field2value.insert(S_fname, c_arg);
                             }
                         }

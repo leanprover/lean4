@@ -38,9 +38,9 @@ Author: Leonardo de Moura
 
    3) There is a definition: Tac.step {α : Type} (t : Tac α) : Tac unit
 
-   4) (Optional) Tac.istep {α : Type} (line : nat) (col : nat) (tac : Tac α) : Tac unit
+   4) (Optional) Tac.istep {α : Type} (line0 col0 : nat) (line col : nat) (tac : Tac α) : Tac unit
       Similar to step but it should scope trace messages at the given line/col,
-      and ensure that the exception position is after (line, col)
+      and ensure that the exception position is after (line0, col0)
 
    6) There is a definition Tac.save_info (line col : nat) : Tac unit
 
@@ -62,7 +62,7 @@ static expr mk_tactic_step(parser & p, expr tac, pos_info const & pos, name cons
     return p.save_pos(mk_app(mk_constant(step_name), tac), pos);
 }
 
-static expr mk_tactic_istep(parser &p, expr tac, pos_info const &pos, name const &tac_class) {
+static expr mk_tactic_istep(parser &p, expr tac, pos_info const & pos0, pos_info const & pos, name const &tac_class) {
     if (p.in_notation())
         return mk_tactic_step(p, tac, pos, tac_class);
     if (tac.get_tag() == nulltag)
@@ -70,12 +70,15 @@ static expr mk_tactic_istep(parser &p, expr tac, pos_info const &pos, name const
     name c(tac_class, "istep");
     if (!p.env().find(c))
         return mk_tactic_step(p, tac, pos, tac_class);
-    return p.save_pos(mk_app(mk_constant(c), mk_prenum(mpz(pos.first)), mk_prenum(mpz(pos.second)), tac), pos);
+    return p.save_pos(mk_app({mk_constant(c),
+            mk_prenum(mpz(pos0.first)), mk_prenum(mpz(pos0.second)),
+            mk_prenum(mpz(pos.first)), mk_prenum(mpz(pos.second)),
+            tac}), pos);
 }
 
-static expr mk_tactic_step(parser & p, expr tac, pos_info const & pos, name const & tac_class, bool use_istep) {
+static expr mk_tactic_step(parser & p, expr tac, pos_info const & pos0, pos_info const & pos, name const & tac_class, bool use_istep) {
     if (use_istep)
-        return mk_tactic_istep(p, tac, pos, tac_class);
+        return mk_tactic_istep(p, tac, pos0, pos, tac_class);
     else
         return mk_tactic_step(p, tac, pos, tac_class);
 }
@@ -91,7 +94,7 @@ static expr mk_tactic_save_info(parser & p, pos_info const & pos, name const & t
     return p.save_pos(mk_app(mk_constant(save_info_name), pos_e), pos);
 }
 
-static expr mk_tactic_solve1(parser & p, expr tac, pos_info const & pos, name const & tac_class, bool use_istep) {
+static expr mk_tactic_solve1(parser & p, expr tac, pos_info const & pos0, pos_info const & pos, name const & tac_class, bool use_istep) {
     if (tac.get_tag() == nulltag)
         tac = p.save_pos(tac, pos);
     name solve1_name(tac_class, "solve1");
@@ -100,7 +103,7 @@ static expr mk_tactic_solve1(parser & p, expr tac, pos_info const & pos, name co
                            tac_class << ".solve1' has not been defined", pos);
     expr r = p.save_pos(mk_app(mk_constant(solve1_name), tac), pos);
     if (use_istep)
-        r = mk_tactic_istep(p, r, pos, tac_class);
+        r = mk_tactic_istep(p, r, pos0, pos, tac_class);
     return r;
 }
 
@@ -191,7 +194,7 @@ static expr parse_interactive_tactic(parser & p, name const & decl_name, name co
         throw;
     }
     expr r = p.mk_app(p.save_pos(mk_constant(decl_name), pos), args, pos);
-    return mk_tactic_step(p, r, pos, tac_class, use_istep);
+    return mk_tactic_step(p, r, pos, pos, tac_class, use_istep);
 }
 
 static bool is_curr_exact_shortcut(parser & p) {
@@ -259,10 +262,10 @@ struct parse_tactic_fn {
         } else if (is_curr_exact_shortcut(m_p)) {
             expr arg = parse_qexpr();
             r = m_p.mk_app(m_p.save_pos(mk_constant(get_interactive_tactic_full_name(m_tac_class, "exact")), pos), arg, pos);
-            if (m_use_istep) r = mk_tactic_istep(m_p, r, pos, m_tac_class);
+            if (m_use_istep) r = mk_tactic_istep(m_p, r, pos, pos, m_tac_class);
         } else {
             r = m_p.parse_expr();
-            if (m_use_istep) r = mk_tactic_istep(m_p, r, pos, m_tac_class);
+            if (m_use_istep) r = mk_tactic_istep(m_p, r, pos, pos, m_tac_class);
         }
         if (save_info)
             return concat(mk_tactic_save_info(m_p, pos, m_tac_class), r, pos);
@@ -281,7 +284,7 @@ struct parse_tactic_fn {
             name const & end_tk = m_p.curr_is_token(get_begin_tk()) ? get_end_tk() : get_rcurly_tk();
             expr next_tac = parse_block(pos, end_tk);
             auto end_pos = m_p.pos_of(next_tac);
-            next_tac       = mk_tactic_solve1(m_p, next_tac, end_pos, m_tac_class, m_use_istep && save_info);
+            next_tac       = mk_tactic_solve1(m_p, next_tac, pos, end_pos, m_tac_class, m_use_istep && save_info);
             if (save_info) {
                 expr info_tac = mk_tactic_save_info(m_p, pos, m_tac_class);
                 return concat(info_tac, next_tac, pos);

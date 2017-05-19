@@ -101,13 +101,13 @@ expr mk_equations(parser & p, expr const & fn, name const & full_name, buffer<ex
     return mk_equations(p, fns, full_names, eqs, R_Rwf, pos);
 }
 
-void check_valid_end_of_equations(parser const & p) {
+void check_valid_end_of_equations(parser & p) {
     if (!p.curr_is_command() && !p.curr_is_eof() &&
         p.curr() != token_kind::DocBlock &&
         p.curr() != token_kind::ModDocBlock &&
         !p.curr_is_token(get_with_tk()) &&
         !p.curr_is_token(get_period_tk())) {
-        throw parser_error("invalid equations, must be followed by a command, '.', 'with', doc-string or EOF", p.pos());
+        p.maybe_throw_error({"invalid equations, must be followed by a command, '.', 'with', doc-string or EOF", p.pos()});
     }
 }
 
@@ -138,7 +138,7 @@ expr parse_mutual_definition(parser & p, buffer<name> & lp_names, buffer<expr> &
         fns.push_back(fn);
     }
     if (p.curr_is_token(get_with_tk()))
-        throw parser_error("unexpected 'with' clause", p.pos());
+        p.maybe_throw_error({"unexpected 'with' clause", p.pos()});
     optional<expr_pair> R_Rwf = parse_using_well_founded(p);
     for (expr & eq : eqns) {
         eq = replace_locals_preserving_pos_info(eq, pre_fns, fns);
@@ -556,7 +556,7 @@ static expr_pair parse_definition(parser & p, buffer<name> & lp_names, buffer<ex
         optional<expr_pair> R_Rwf = parse_using_well_founded(p);
         val = mk_equations(p, fn, scope2.get_name(), eqns, R_Rwf, header_pos);
     } else {
-        throw parser_error("invalid definition, '|' or ':=' expected", p.pos());
+        val = p.parser_error_or_expr({"invalid definition, '|' or ':=' expected", p.pos()});
     }
     collect_implicit_locals(p, lp_names, params, {mlocal_type(fn), val});
     return mk_pair(fn, val);

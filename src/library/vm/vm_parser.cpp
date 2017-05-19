@@ -32,7 +32,7 @@ struct lean_parser_state {
 template struct interaction_monad<lean_parser_state>;
 typedef interaction_monad<lean_parser_state> lean_parser;
 
-#define TRY try {
+#define TRY try { auto _ = s.m_p->no_error_recovery_scope();
 #define CATCH } catch (break_at_pos_exception const & ex) { throw; }\
                 catch (exception const & ex) { return lean_parser::mk_exception(ex, s); }
 

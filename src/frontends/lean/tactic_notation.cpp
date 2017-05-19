@@ -442,6 +442,10 @@ struct parse_begin_end_block_fn {
                     ex.report_goal_pos(pos);
                     throw;
                 }
+                if (m_p.pos() == pos) { // unsuccessful error recovery
+                    consume_until_end_or_command(m_p);
+                    break;
+                }
             }
         } catch (exception & ex) {
             if (end_token == get_end_tk())

@@ -505,6 +505,9 @@ static void print_attribute(parser & p, message_builder & out, attribute const &
 }
 
 environment print_cmd(parser & p) {
+    // Fallbacks are handled via exceptions.
+    auto _ = p.no_error_recovery_scope();
+
     auto out = p.mk_message(p.cmd_pos(), INFORMATION);
     out.set_caption("print result");
     auto env = p.env();
@@ -513,6 +516,7 @@ environment print_cmd(parser & p) {
         p.next();
     } else if (p.curr_is_token_or_id(get_raw_tk())) {
         p.next();
+        auto _ = p.error_recovery_scope(true);
         expr e = p.parse_expr();
         options opts = out.get_text_stream().get_options();
         opts = opts.update(get_pp_notation_name(), false);

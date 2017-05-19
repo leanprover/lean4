@@ -232,10 +232,6 @@ void parser::updt_options() {
     m_show_errors    = get_parser_show_errors(m_ios.get_options());
 }
 
-void parser::throw_parser_exception(char const * msg, pos_info p) {
-    throw parser_exception(msg, get_stream_name().c_str(), p);
-}
-
 void parser::sync_command() {
     // Keep consuming tokens until we find a Command or End-of-file
     while (curr() != token_kind::CommandKeyword && curr() != token_kind::Eof)
@@ -359,13 +355,13 @@ bool parser::curr_is_token_or_id(name const & tk) const {
 
 void parser::check_token_next(name const & tk, char const * msg) {
     if (!curr_is_token(tk))
-        throw parser_error(msg, pos());
+        return maybe_throw_error({msg, pos()});
     next();
 }
 
 void parser::check_token_or_id_next(name const & tk, char const * msg) {
     if (!curr_is_token_or_id(tk))
-        throw parser_error(msg, pos());
+        return maybe_throw_error({msg, pos()});
     next();
 }
 
@@ -373,9 +369,14 @@ name parser::check_id_next(char const * msg, break_at_pos_exception::token_conte
     // initiate empty completion even if following token is not an identifier
     if (get_complete())
         check_break_before(ctxt);
-    if (!curr_is_identifier())
-        throw parser_error(msg, pos());
-    name r = get_name_val();
+    name r;
+    if (!curr_is_identifier()) {
+        auto _ = no_error_recovery_scope_if(curr_is_command());
+        maybe_throw_error({msg, pos()});
+        r = get_token_info().value();
+    } else {
+        r = get_name_val();
+    }
     try {
         next();
     } catch (break_at_pos_exception & e) {
@@ -385,9 +386,12 @@ name parser::check_id_next(char const * msg, break_at_pos_exception::token_conte
     return r;
 }
 
-static void check_not_internal(name const & id, pos_info const & p) {
+void parser::check_not_internal(name const & id, pos_info const & p) {
     if (is_internal_name(id))
-        throw parser_error(sstream() << "invalid declaration name '" << id << "', identifiers starting with '_' are reserved to the system", p);
+        maybe_throw_error({
+                sstream() << "invalid declaration name '" << id
+                          << "', identifiers starting with '_' are reserved to the system",
+                p});
 }
 
 name parser::check_decl_id_next(char const * msg, break_at_pos_exception::token_context ctxt) {
@@ -401,7 +405,7 @@ name parser::check_atomic_id_next(char const * msg) {
     auto p  = pos();
     name id = check_id_next(msg);
     if (!id.is_atomic())
-        throw parser_error(msg, p);
+        maybe_throw_error({msg, p});
     return id;
 }
 
@@ -611,8 +615,10 @@ static unsigned g_level_add_prec = 10;
 unsigned parser::get_small_nat() {
     mpz val = get_num_val().get_numerator();
     lean_assert(val >= 0);
-    if (!val.is_unsigned_int())
-        throw parser_error("invalid numeral, value does not fit in a machine integer", pos());
+    if (!val.is_unsigned_int()) {
+        maybe_throw_error({"invalid numeral, value does not fit in a machine integer", pos()});
+        return 0;
+    }
     return val.get_unsigned_int();
 }
 
@@ -623,17 +629,25 @@ std::string parser::parse_string_lit() {
 }
 
 unsigned parser::parse_small_nat() {
-    if (!curr_is_numeral())
-        throw parser_error("(small) natural number expected", pos());
-    unsigned r = get_small_nat();
+    unsigned r = 0;
+    if (!curr_is_numeral()) {
+        auto _ = no_error_recovery_scope_if(curr_is_command());
+        maybe_throw_error({"(small) natural number expected", pos()});
+    } else {
+        r = get_small_nat();
+    }
     next();
     return r;
 }
 
 double parser::parse_double() {
-    if (curr() != token_kind::Decimal)
-        throw parser_error("decimal value expected", pos());
-    double r =get_num_val().get_double();
+    double r = 0;
+    if (curr() != token_kind::Decimal) {
+        auto _ = no_error_recovery_scope_if(curr_is_command());
+        maybe_throw_error({"decimal value expected", pos()});
+    } else {
+        r = get_num_val().get_double();
+    }
     next();
     return r;
 }
@@ -660,8 +674,10 @@ level parser::parse_max_imax(bool is_max) {
     while (curr_is_identifier() || curr_is_numeral() || curr_is_token(get_lparen_tk())) {
         lvls.push_back(parse_level());
     }
-    if (lvls.size() < 2)
-        throw parser_error("invalid level expression, max must have at least two arguments", p);
+    if (lvls.size() < 2) {
+        return parser_error_or_level(
+                {"invalid level expression, max must have at least two arguments", p});
+    }
     unsigned i = lvls.size() - 1;
     level r = lvls[i];
     while (i > 0) {
@@ -681,7 +697,7 @@ level parser::parse_level_id() {
     if (auto it = m_local_level_decls.find(id))
         return *it;
 
-    throw parser_error(sstream() << "unknown universe '" << id << "'", p);
+    return parser_error_or_level({sstream() << "unknown universe '" << id << "'", p});
 }
 
 level parser::parse_level_nud() {
@@ -703,7 +719,7 @@ level parser::parse_level_nud() {
     } else if (curr_is_identifier()) {
         return parse_level_id();
     } else {
-        throw parser_error("invalid level expression", pos());
+        return parser_error_or_level({"invalid level expression", pos()});
     }
 }
 
@@ -715,11 +731,12 @@ level parser::parse_level_led(level left) {
             unsigned k = parse_small_nat();
             return lift(left, k);
         } else {
-            throw parser_error("invalid level expression, right hand side of '+' "
-                               "(aka universe lift operator) must be a numeral", p);
+            return parser_error_or_level(
+                    {"invalid level expression, right hand side of '+' "
+                     "(aka universe lift operator) must be a numeral", p});
         }
     } else {
-        throw parser_error("invalid level expression", p);
+        return parser_error_or_level({"invalid level expression", p});
     }
 }
 
@@ -770,8 +787,8 @@ pair<expr, level_param_names> parser::elaborate_type(name const & decl_name, met
     return elaborate(decl_name, mctx, new_e, true);
 }
 
-[[ noreturn ]] void throw_invalid_open_binder(pos_info const & pos) {
-    throw parser_error("invalid binder, '(', '{', '[', '{{', '⦃' or identifier expected", pos);
+void parser::throw_invalid_open_binder(pos_info const & pos) {
+    maybe_throw_error({"invalid binder, '(', '{', '[', '{{', '⦃' or identifier expected", pos});
 }
 
 /**
@@ -821,6 +838,7 @@ binder_info parser::parse_binder_info(bool simple_only) {
         return *bi;
     } else {
         throw_invalid_open_binder(p);
+        return binder_info();
     }
 }
 
@@ -951,7 +969,7 @@ void parser::parse_binder_block(buffer<expr> & r, binder_info const & bi, unsign
         }
     }
     if (names.empty())
-        throw parser_error("invalid binder, identifier expected", pos());
+        return maybe_throw_error({"invalid binder, identifier expected", pos()});
     optional<expr> type;
     if (curr_is_token(get_colon_tk())) {
         next();
@@ -1305,11 +1323,12 @@ expr parser::parse_notation(parse_table t, expr * left) {
                 }
             }
             if (terminator) {
+                check_break();
                 if (curr_is_token(*terminator)) {
-                    check_break();
                     next();
                 } else {
-                    throw parser_error(sstream() << "invalid composite expression, '" << *terminator << "' expected", pos());
+                    maybe_throw_error({sstream() << "invalid composite expression, '"
+                                                 << *terminator << "' expected" , pos()});
                 }
             }
             has_Exprs = true;
@@ -1342,10 +1361,18 @@ expr parser::parse_notation(parse_table t, expr * left) {
     }
     list<notation::accepting> const & as = t.is_accepting();
     if (is_nil(as)) {
-        if (p == pos())
-            throw parser_error(sstream() << "invalid expression", pos());
-        else
-            throw parser_error(sstream() << "invalid expression starting at " << p.first << ":" << p.second, pos());
+        // TODO(gabriel): search children of t for accepting states
+        sstream msg;
+        msg << "invalid expression";
+        if (p != pos()) {
+            msg << "starting at " << p.first << ":" << p.second;
+        } else if (!curr_is_command()) {
+            next(); // consume input
+        } else {
+            // nothing consumed, but we're at a command token now, so abort, abort, abort
+            throw parser_error(msg, pos());
+        }
+        return parser_error_or_expr({msg, pos()});
     }
     lean_assert(left  || args.size() == kinds.size());
     lean_assert(!left || args.size() == kinds.size() + 1);
@@ -1505,21 +1532,24 @@ struct to_pattern_fn {
                 m_locals_map.insert(n, new_e);
                 return;
             } else if (has_pattern_constant) {
-                throw parser_error(sstream() << "invalid pattern, '" << e << "' is overloaded, "
-                                   << "and some interpretations may occur in patterns and others not "
-                                   << "(solution: use fully qualified names)",
-                                   m_parser.pos_of(e));
+                return m_parser.maybe_throw_error({
+                    sstream() << "invalid pattern, '" << e << "' is overloaded, "
+                    << "and some interpretations may occur in patterns and others not "
+                    << "(solution: use fully qualified names)",
+                    m_parser.pos_of(e)});
             } else {
                 // assume e is a variable shadowing overloaded constants
             }
         }
         if (!n.is_atomic()) {
-            throw parser_error("invalid pattern: variable, constructor or constant tagged as pattern expected",
-                               m_parser.pos_of(e));
+            return m_parser.maybe_throw_error({
+                "invalid pattern: variable, constructor or constant tagged as pattern expected",
+                m_parser.pos_of(e)});
         }
         if (m_locals_map.contains(n)) {
-            throw parser_error(sstream() << "invalid pattern, '" << n << "' already appeared in this pattern",
-                               m_parser.pos_of(e));
+            return m_parser.maybe_throw_error({
+                sstream() << "invalid pattern, '" << n << "' already appeared in this pattern",
+                m_parser.pos_of(e)});
         }
         m_locals_map.insert(n, e);
         m_new_locals.push_back(e);
@@ -1543,10 +1573,11 @@ struct to_pattern_fn {
             for (unsigned i = 0; i < get_num_choices(e); i++) {
                 expr const & c = get_choice(e, i);
                 if (!is_constant(c) || !is_pattern_constant(const_name(c))) {
-                    throw parser_error(sstream() << "invalid pattern, '" << e << "' is overloaded, "
-                                       << "and some interpretations may occur in patterns and others not "
-                                       << "(solution: use fully qualified names)",
-                                       m_parser.pos_of(e));
+                    return m_parser.maybe_throw_error({
+                        sstream() << "invalid pattern, '" << e << "' is overloaded, "
+                                  << "and some interpretations may occur in patterns and others not "
+                                  << "(solution: use fully qualified names)",
+                        m_parser.pos_of(e)});
                 }
             }
         } else if (is_local(e)) {
@@ -1565,9 +1596,10 @@ struct to_pattern_fn {
         } else if (is_constant(e) && is_pattern_constant(const_name(e))) {
             // do nothing
         } else {
-            throw parser_error("invalid pattern, must be an application, "
-                               "constant, variable, type ascription or inaccessible term",
-                               m_parser.pos_of(e));
+            return m_parser.maybe_throw_error({
+                "invalid pattern, must be an application, "
+                "constant, variable, type ascription or inaccessible term",
+                m_parser.pos_of(e)});
         }
     }
 
@@ -1596,8 +1628,9 @@ struct to_pattern_fn {
             return m_anonymous_vars.find(e)->second;
         } else if (is_app(e)) {
             if (is_inaccessible(app_fn(e))) {
-                throw parser_error("invalid inaccessible annotation, it cannot be used around functions in applications",
-                                   m_parser.pos_of(e));
+                return m_parser.parser_error_or_expr({
+                    "invalid inaccessible annotation, it cannot be used around functions in applications",
+                    m_parser.pos_of(e)});
             }
             expr new_f = visit(app_fn(e));
             expr new_a = visit(app_arg(e));
@@ -1626,9 +1659,10 @@ struct to_pattern_fn {
         } else if (is_constant(e) && is_pattern_constant(const_name(e))) {
             return e;
         } else {
-            throw parser_error("invalid pattern, must be an application, "
-                               "constant, variable, type ascription or inaccessible term",
-                               m_parser.pos_of(e));
+            return m_parser.parser_error_or_expr({
+                "invalid pattern, must be an application, "
+                "constant, variable, type ascription or inaccessible term",
+                m_parser.pos_of(e)});
         }
     }
 
@@ -1786,12 +1820,6 @@ expr parser::patexpr_to_expr(expr const & pat_or_expr) {
     return patexpr_to_expr_fn(*this)(pat_or_expr);
 }
 
-static void check_no_levels(levels const & ls, pos_info const & p) {
-    if (ls)
-        throw parser_error("invalid use of explicit universe parameter, identifier is a variable, "
-                           "parameter or a constant bound to parameters in a section", p);
-}
-
 optional<expr> parser::resolve_local(name const & id, pos_info const & p, list<name> const & extra_locals,
                                      bool allow_field_notation) {
     /* Remark: (auxiliary) local constants many not be atomic.
@@ -1843,6 +1871,14 @@ expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only, 
         next();
         ls = to_list(lvl_buffer.begin(), lvl_buffer.end());
     }
+
+    auto check_no_levels = [&] (levels const & ls, pos_info const & p) {
+        if (ls) {
+            maybe_throw_error({
+                "invalid use of explicit universe parameter, identifier is a variable, "
+                "parameter or a constant bound to parameters in a section", p});
+        }
+    };
 
     if (!explicit_levels && m_id_behavior == id_behavior::AllLocal) {
         return save_pos(mk_local(id, save_pos(mk_expr_placeholder(), p)), p);
@@ -1902,6 +1938,7 @@ expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only, 
     }
     if (!r && allow_field_notation && !id.is_atomic() && id.is_string()) {
         try {
+            auto _ = no_error_recovery_scope();
             expr s = id_to_expr(id.get_prefix(), p, resolve_only, allow_field_notation, extra_locals);
             auto field_pos = p;
             field_pos.second += id.get_prefix().utf8_size();
@@ -1909,7 +1946,7 @@ expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only, 
         } catch (exception &) {}
     }
     if (!r) {
-        throw parser_error(sstream() << "unknown identifier '" << id << "'", p);
+        return parser_error_or_expr({sstream() << "unknown identifier '" << id << "'", p});
     }
     return *r;
 }
@@ -1977,7 +2014,12 @@ name parser::to_constant(name const & id, char const * msg, pos_info const & p) 
 name parser::check_constant_next(char const * msg) {
     auto p  = pos();
     name id = check_id_next(msg);
-    return to_constant(id, msg, p);
+    try {
+        return to_constant(id, msg, p);
+    } catch (parser_error e) {
+        maybe_throw_error(std::move(e));
+        return id;
+    }
 }
 
 expr parser::parse_id(bool allow_field_notation) {
@@ -2054,7 +2096,7 @@ expr parser::parse_nud() {
     case token_kind::Decimal:     return parse_decimal_expr();
     case token_kind::String:      return parse_string_expr();
     case token_kind::Char:        return parse_char_expr();
-    default: throw parser_error("invalid expression, unexpected token", pos());
+    default: return parser_error_or_expr({"invalid expression, unexpected token", pos()});
     }
 }
 
@@ -2203,7 +2245,7 @@ void parser::parse_command() {
     if (m_doc_string && !support_docummentation(cmd_name)) {
         next();
         reset_doc_string();
-        throw parser_error(sstream() << "command '" << cmd_name << "' does not support doc string", m_last_cmd_pos);
+        maybe_throw_error({sstream() << "command '" << cmd_name << "' does not support doc string", m_last_cmd_pos});
     }
     if (auto it = cmds().find(cmd_name)) {
         lazy_type_context tc(m_env, get_options());
@@ -2224,7 +2266,7 @@ void parser::parse_command() {
         reset_doc_string();
         auto p = pos();
         next();
-        throw parser_error(sstream() << "unknown command '" << cmd_name << "'", p);
+        maybe_throw_error({sstream() << "unknown command '" << cmd_name << "'", p});
     }
     reset_doc_string();
 }
@@ -2244,7 +2286,7 @@ void parser::check_no_doc_string() {
         auto p = pos();
         next();
         reset_doc_string();
-        throw parser_error("invalid occurrence of doc string immediately before current position", p);
+        maybe_throw_error({"invalid occurrence of doc string immediately before current position", p});
     }
 }
 
@@ -2419,10 +2461,7 @@ bool parser::parse_command_like() {
         case token_kind::Eof:
             check_no_doc_string();
             if (has_open_scopes(m_env)) {
-                if (!m_use_exceptions && m_show_errors)
-                    (mk_message(ERROR) << "invalid end of module, expecting 'end'").report();
-                else if (m_use_exceptions)
-                    throw_parser_exception("invalid end of module, expecting 'end'", pos());
+                maybe_throw_error({"invalid end of module, expecting 'end'", pos()});
             }
             return true;
             break;
@@ -2477,11 +2516,11 @@ char const * parser::get_file_name() const {
     return get_stream_name().c_str();
 }
 
-message_builder parser::mk_message(pos_info const &p, message_severity severity) {
+message_builder parser::mk_message(pos_info const &p, message_severity severity) const {
     std::shared_ptr<abstract_type_context> tc = std::make_shared<type_context>(env(), get_options());
     return message_builder(tc, env(), ios(), get_file_name(), p, severity);
 }
-message_builder parser::mk_message(message_severity severity) {
+message_builder parser::mk_message(message_severity severity) const {
     return mk_message(pos(), severity);
 }
 
@@ -2490,6 +2529,29 @@ void parser::init_scanner() {
         m_curr = m_scanner.scan(m_env); // same code as scan(), but without break-at-pos checking
         m_scanner_inited = true;
     }
+}
+
+void parser::maybe_throw_error(parser_error && err) {
+    if (m_error_recovery) {
+        auto err_pos = err.get_pos() ? *err.get_pos() : pos();
+        if (err_pos > m_last_recovered_error_pos) {
+            mk_message(ERROR).set_exception(err).report();
+            m_last_recovered_error_pos = err_pos;
+        }
+    } else {
+        throw err;
+    }
+}
+
+expr parser::parser_error_or_expr(parser_error && err) {
+    auto err_pos = err.get_pos() ? *err.get_pos() : pos();
+    maybe_throw_error(std::move(err));
+    return mk_sorry(err_pos);
+}
+
+level parser::parser_error_or_level(parser_error && err) {
+    maybe_throw_error(std::move(err));
+    return mk_level_placeholder();
 }
 
 bool parse_commands(environment & env, io_state & ios, char const * fname) {

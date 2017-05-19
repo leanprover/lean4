@@ -68,6 +68,10 @@ class parser : public abstract_parser {
     // auto completing
     bool                    m_complete{false};
 
+    // error recovery
+    bool                   m_error_recovery = true;
+    pos_info               m_last_recovered_error_pos {0, 0};
+
     // curr command token
     name                   m_cmd_token;
 
@@ -80,8 +84,6 @@ class parser : public abstract_parser {
 
     // Docgen
     optional<std::string>  m_doc_string;
-
-    void throw_parser_exception(char const * msg, pos_info p);
 
     void sync_command();
 
@@ -208,8 +210,8 @@ public:
     environment const & env() const { return m_env; }
     io_state const & ios() const { return m_ios; }
 
-    message_builder mk_message(pos_info const & p, message_severity severity);
-    message_builder mk_message(message_severity severity);
+    message_builder mk_message(pos_info const & p, message_severity severity) const;
+    message_builder mk_message(message_severity severity) const;
 
     local_level_decls const & get_local_level_decls() const { return m_local_level_decls; }
     local_expr_decls const & get_local_expr_decls() const { return m_local_decls; }
@@ -278,6 +280,7 @@ public:
         otherwise throw an exception. */
     name check_id_next(char const * msg, break_at_pos_exception::token_context ctxt =
             break_at_pos_exception::token_context::none);
+    void check_not_internal(name const & n, pos_info const & pos);
     /** \brief Similar to check_id_next, but also ensures the identifier is *not* an internal/reserved name. */
     name check_decl_id_next(char const * msg, break_at_pos_exception::token_context ctxt =
             break_at_pos_exception::token_context::none);
@@ -449,6 +452,19 @@ public:
     list<expr> locals_to_context() const;
     /** \brief Return all local declarations and aliases */
     list<pair<name, expr>> const & get_local_entries() const { return m_local_decls.get_entries(); }
+
+    void maybe_throw_error(parser_error && err);
+    level parser_error_or_level(parser_error && err);
+    expr parser_error_or_expr(parser_error && err);
+    void throw_invalid_open_binder(pos_info const & pos);
+
+    flet<bool> error_recovery_scope(bool enable_recovery) {
+        return flet<bool>(m_error_recovery, enable_recovery);
+    }
+    flet<bool> no_error_recovery_scope() { return error_recovery_scope(false); }
+    flet<bool> no_error_recovery_scope_if(bool cond) {
+        return error_recovery_scope(m_error_recovery && !cond);
+    }
 
     /* This is the default mode. We also use it when converting a pre-term that can be a pattern_or_expression
        into an expression.

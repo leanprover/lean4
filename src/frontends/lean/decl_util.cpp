@@ -82,7 +82,8 @@ expr parse_single_header(parser & p, declaration_name_scope & scope, buffer <nam
             c_name = const_name(get_app_fn(app_arg(it))) + const_name(C);
             scope.set_name(c_name);
         } else {
-            throw parser_error("failed to synthesize instance name, name should be provided explicitly", c_pos);
+            p.maybe_throw_error({"failed to synthesize instance name, name should be provided explicitly", c_pos});
+            c_name = mk_tagged_fresh_name("_inst");
         }
     }
     lean_assert(!c_name.is_anonymous());

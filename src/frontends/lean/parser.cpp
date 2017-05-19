@@ -1865,7 +1865,9 @@ expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only, 
         next();
         explicit_levels = true;
         while (!curr_is_token(get_rcurly_tk())) {
+            auto pos0 = pos();
             lvl_buffer.push_back(parse_level());
+            if (pos() == pos0) break;
         }
         next();
         ls = to_list(lvl_buffer.begin(), lvl_buffer.end());
@@ -2554,6 +2556,7 @@ void parser::maybe_throw_error(parser_error && err) {
     if (m_error_recovery) {
         auto err_pos = err.get_pos() ? *err.get_pos() : pos();
         if (err_pos > m_last_recovered_error_pos) {
+            check_system("parser error recovery");
             mk_message(ERROR).set_exception(err).report();
             m_last_recovered_error_pos = err_pos;
         }

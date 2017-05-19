@@ -52,7 +52,9 @@ expr parse_equation_lhs(parser & p, expr const & fn, buffer<expr> & locals) {
     buffer<expr> lhs_args;
     lhs_args.push_back(p.parse_pattern_or_expr(get_max_prec()));
     while (!p.curr_is_token(get_assign_tk())) {
+        auto pos0 = p.pos();
         lhs_args.push_back(p.parse_pattern_or_expr(get_max_prec()));
+        if (p.pos() == pos0) break;
     }
     expr lhs = p.mk_app(p.save_pos(mk_explicit(fn), lhs_pos), lhs_args, lhs_pos);
     bool skip_main_fn = true;

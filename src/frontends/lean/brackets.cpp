@@ -49,6 +49,7 @@ static expr parse_fin_set(parser & p, pos_info const & pos, expr const & e) {
     while (p.curr_is_token(get_comma_tk())) {
         auto ins_pos = p.pos();
         p.next();
+        if (p.curr_is_token(get_rcurly_tk())) break;
         expr e2 = p.parse_expr();
         expr insert = p.save_pos(mk_constant(get_has_insert_insert_name()), ins_pos);
         r = p.rec_save_pos(mk_app(insert, e2, r), ins_pos);
@@ -79,6 +80,7 @@ static expr parse_structure_instance_core(parser & p, optional<expr> const & src
     fvs.push_back(p.parse_expr());
     while (p.curr_is_token(get_comma_tk())) {
         p.next();
+        if (p.curr_is_token(get_rcurly_tk())) break;
         fns.push_back(p.check_id_next("invalid structure instance, identifier expected"));
         p.check_token_next(get_assign_tk(), "invalid structure instance, ':=' expected");
         fvs.push_back(p.parse_expr());

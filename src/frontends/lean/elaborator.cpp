@@ -1447,8 +1447,8 @@ expr elaborator::second_pass(expr const & fn, buffer<expr> const & args,
                     tmp_args.push_back(new_arg);
                     format msg = mk_app_arg_mismatch_error(mk_app(fn, tmp_args),
                                                            new_arg, info.args_mvars[i]);
-                    throw elaborator_exception(ref, msg).
-                        ignore_if(has_synth_sorry({new_arg, instantiate_mvars(info.args_mvars[i])}));
+                    report_or_throw(elaborator_exception(ref, msg).
+                        ignore_if(has_synth_sorry({new_arg, instantiate_mvars(info.args_mvars[i])})));
                 }
                 return *new_new_arg;
             } else {
@@ -3324,14 +3324,16 @@ void elaborator::check_inaccessible(list<expr_pair> const & old_stack) {
         if (has_expr_metavar(v)) {
             throw elaborator_exception(m, format("invalid use of inaccessible term, "
                                                  "it is not completely fixed by other arguments") +
-                                       pp_indent(v));
+                                       pp_indent(v))
+                .ignore_if(has_synth_sorry({v}));
         }
         if (!is_def_eq(v, p.second)) {
             auto pp_fn = mk_pp_ctx();
             throw elaborator_exception(m, format("invalid use of inaccessible term, the provided term is") +
                                        pp_indent(pp_fn, p.second) +
                                        line() + format("but is expected to be") +
-                                       pp_indent(pp_fn, v));
+                                       pp_indent(pp_fn, v))
+                .ignore_if(has_synth_sorry({v, p.second}));
         }
     }
 }

@@ -2546,7 +2546,7 @@ void parser::maybe_throw_error(parser_error && err) {
 expr parser::parser_error_or_expr(parser_error && err) {
     auto err_pos = err.get_pos() ? *err.get_pos() : pos();
     maybe_throw_error(std::move(err));
-    return mk_sorry(err_pos);
+    return mk_sorry(err_pos, true);
 }
 
 level parser::parser_error_or_level(parser_error && err) {

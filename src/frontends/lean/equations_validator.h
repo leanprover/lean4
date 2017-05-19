@@ -7,5 +7,5 @@ Author: Leonardo de Moura
 #pragma once
 #include "frontends/lean/elaborator.h"
 namespace lean {
-void validate_equation_lhs(elaborator & elab, expr const & lhs, expr const & ref);
+bool validate_equation_lhs(elaborator & elab, expr const & lhs, expr const & ref);
 }

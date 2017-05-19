@@ -16,6 +16,7 @@ namespace lean {
 /* Recursive equation pattern validation.*/
 class validate_equation_lhs_fn : public replace_visitor {
     elaborator &   m_elab;
+    bool           m_has_invalid_pattern = false;
     expr           m_ref;
 
     type_context & ctx() { return m_elab.m_ctx; }
@@ -41,10 +42,13 @@ class validate_equation_lhs_fn : public replace_visitor {
         return none_expr();
     }
 
-    [[ noreturn ]] void throw_invalid_pattern(char const * msg, expr const & e) {
-        throw elaborator_exception(m_ref, format(msg)
-                                   + format(" (possible solution, mark term as inaccessible using '.( )')")
-                                   + m_elab.pp_indent(e));
+    void throw_invalid_pattern(char const * msg, expr const & e) {
+        m_elab.report_or_throw(
+            elaborator_exception(m_ref, format(msg)
+                + format(" (possible solution, mark term as inaccessible using '.( )')")
+                + m_elab.pp_indent(e))
+            .ignore_if(m_elab.has_synth_sorry(e)));
+        m_has_invalid_pattern = true;
     }
 
     virtual expr visit_local(expr const & e) override {
@@ -53,10 +57,12 @@ class validate_equation_lhs_fn : public replace_visitor {
 
     virtual expr visit_lambda(expr const & e) override {
         throw_invalid_pattern("invalid occurrence of lambda expression in pattern", e);
+        return e;
     }
 
     virtual expr visit_pi(expr const & e) override {
         throw_invalid_pattern("invalid occurrence of pi/forall expression in pattern", e);
+        return e;
     }
 
     virtual expr visit_let(expr const & e) override {
@@ -65,13 +71,15 @@ class validate_equation_lhs_fn : public replace_visitor {
 
     virtual expr visit_sort(expr const & e) override {
         throw_invalid_pattern("invalid occurrence of sort in pattern", e);
+        return e;
     }
 
     virtual expr visit_meta(expr const & e) override {
         throw_invalid_pattern("invalid occurrence of metavariable in pattern", e);
+        return e;
     }
 
-    [[ noreturn ]] void throw_invalid_app(expr const & e) {
+    void throw_invalid_app(expr const & e) {
         if (is_constant(e))
             throw_invalid_pattern("invalid constant in pattern, it cannot be reduced to a constructor", e);
         else
@@ -87,8 +95,10 @@ class validate_equation_lhs_fn : public replace_visitor {
                 return visit(it);
             buffer<expr> args;
             expr const & fn = get_app_args(it, args);
-            if (!is_constant(fn))
+            if (!is_constant(fn)) {
                 throw_invalid_app(e);
+                return e;
+            }
 
             if (optional<name> I = is_ginductive_intro_rule(env(), const_name(fn))) {
                 unsigned num_params = get_ginductive_num_params(env(), *I);
@@ -104,6 +114,7 @@ class validate_equation_lhs_fn : public replace_visitor {
                     it = *r;
                 } else {
                     throw_invalid_app(e);
+                    return e;
                 }
             }
         }
@@ -118,8 +129,11 @@ class validate_equation_lhs_fn : public replace_visitor {
             return e;
         } else if (auto r = ctx().expand_macro(e)) {
             return visit(*r);
+        } else if (is_synthetic_sorry(e)) {
+            return e;
         } else {
             throw_invalid_pattern("invalid occurrence of macro expression in pattern", e);
+            return e;
         }
     }
 
@@ -128,15 +142,16 @@ public:
         m_elab(elab), m_ref(ref) {
     }
 
-    void validate(expr const & lhs) {
+    bool validate(expr const & lhs) {
         buffer<expr> args;
         get_app_args(lhs, args);
         for (expr & arg : args)
             visit(arg);
+        return m_has_invalid_pattern;
     }
 };
 
-void validate_equation_lhs(elaborator & elab, expr const & lhs, expr const & ref) {
-    validate_equation_lhs_fn(elab, ref).validate(elab.instantiate_mvars(lhs));
+bool validate_equation_lhs(elaborator & elab, expr const & lhs, expr const & ref) {
+    return validate_equation_lhs_fn(elab, ref).validate(elab.instantiate_mvars(lhs));
 }
 }

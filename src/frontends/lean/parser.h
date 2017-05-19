@@ -489,7 +489,7 @@ public:
     /* Elaborate \c e as a type using the given metavariable context, and using m_local_decls as the local context */
     pair<expr, level_param_names> elaborate_type(name const & decl_name, metavar_context & mctx, expr const & e);
 
-    expr mk_sorry(pos_info const & p);
+    expr mk_sorry(pos_info const & p, bool synthetic = false);
 
     /** return true iff profiling is enabled */
     bool profiling() const { return m_profile; }

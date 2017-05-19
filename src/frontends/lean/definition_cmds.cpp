@@ -710,7 +710,7 @@ static expr elaborate_proof(
         /* Remark: we need the catch to be able to produce correct line information */
         message_builder(tc, decl_env, get_global_ios(), file_name, header_pos, ERROR)
             .set_exception(ex).report();
-        return mk_sorry(final_type);
+        return mk_sorry(final_type, true);
     }
 }
 
@@ -878,7 +878,7 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
         // Even though we catch exceptions during elaboration, there can still be other exceptions,
         // e.g. when adding a declaration to the environment.
         try {
-            auto res = process(p.mk_sorry(header_pos));
+            auto res = process(p.mk_sorry(header_pos, true));
             p.mk_message(header_pos, ERROR).set_exception(ex).report();
             return res;
         } catch (...) {}

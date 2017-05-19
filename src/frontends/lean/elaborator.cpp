@@ -201,6 +201,9 @@ bool elaborator::try_report(std::exception const & ex) {
 }
 
 bool elaborator::try_report(std::exception const & ex, optional<expr> const & ref) {
+    if (auto elab_ex = dynamic_cast<elaborator_exception const *>(&ex)) {
+        if (elab_ex->is_ignored()) return true;
+    }
     if (!m_recover_from_errors) return false;
 
     auto pip = get_pos_info_provider();
@@ -220,9 +223,18 @@ void elaborator::report_or_throw(elaborator_exception const & ex) {
         throw elaborator_exception(ex);
 }
 
-expr elaborator::mk_sorry(optional<expr> const & expected_type, expr const & ref) {
+bool elaborator::has_synth_sorry(std::initializer_list<expr> && es) {
+    for (auto & e : es) {
+        if (has_synthetic_sorry(instantiate_mvars(e))) {
+            return true;
+        }
+    }
+    return false;
+}
+
+expr elaborator::mk_sorry(optional<expr> const & expected_type, expr const & ref, bool synthetic) {
     auto sorry_type = expected_type ? *expected_type : mk_type_metavar(ref);
-    return copy_tag(ref, mk_sorry(sorry_type));
+    return copy_tag(ref, mk_sorry(sorry_type, synthetic));
 }
 
 expr elaborator::recoverable_error(optional<expr> const & expected_type, expr const & ref, elaborator_exception const & ex) {
@@ -274,7 +286,8 @@ expr elaborator::mk_instance_core(local_context const & lctx, expr const & C, ex
         new_lctx = erase_inaccessible_annotations(new_lctx);
         tactic_state s = ::lean::mk_tactic_state_for(m_env, m_opts, m_decl_name, mctx, new_lctx, C);
         return recoverable_error(some_expr(C), ref, elaborator_exception(
-                ref, format("failed to synthesize type class instance for") + line() + s.pp()));
+                ref, format("failed to synthesize type class instance for") + line() + s.pp())
+            .ignore_if(has_synth_sorry({C})));
     }
     return *inst;
 }
@@ -1058,7 +1071,8 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
                 if (!is_def_eq(new_arg_type, d)) {
                     new_args.push_back(new_arg);
                     throw elaborator_exception(ref, mk_app_type_mismatch_error(mk_app(fn, new_args),
-                                                                               new_arg, new_arg_type, d));
+                                                                               new_arg, new_arg_type, d))
+                            .ignore_if(has_synth_sorry({new_arg_type, d}));
                 }
             } else if (is_explicit(bi)) {
                 expr arg_ref = args[j];
@@ -1346,7 +1360,8 @@ void elaborator::first_pass(expr const & fn, buffer<expr> const & args,
                     tmp_args.push_back(new_arg);
                     format msg = mk_app_type_mismatch_error(mk_app(fn, tmp_args),
                                                             new_arg, new_arg_type, arg_expected_type);
-                    throw elaborator_exception(ref, msg);
+                    throw elaborator_exception(ref, msg).
+                        ignore_if(has_synth_sorry({new_arg_type, arg_expected_type}));
                 }
                 new_arg = *new_new_arg;
             } else {
@@ -1382,7 +1397,8 @@ void elaborator::first_pass(expr const & fn, buffer<expr> const & args,
         throw elaborator_exception(ref, format("type mismatch") + pp_indent(pp_fn, e) +
                                    line() + format("has type") + std::get<1>(pp_data) +
                                    line() + format("but is expected to have type") +
-                                   std::get<2>(pp_data));
+                                   std::get<2>(pp_data))
+                .ignore_if(has_synth_sorry({type, expected_type, e}));
     }
 }
 
@@ -1422,7 +1438,8 @@ expr elaborator::second_pass(expr const & fn, buffer<expr> const & args,
                     tmp_args.push_back(new_arg);
                     format msg = mk_app_type_mismatch_error(mk_app(fn, tmp_args),
                                                             new_arg, new_arg_type, info.args_expected_types[i]);
-                    throw elaborator_exception(ref, msg);
+                    throw elaborator_exception(ref, msg).
+                        ignore_if(has_synth_sorry({new_arg_type, info.args_expected_types[i]}));
                 }
                 if (!is_def_eq(info.args_mvars[i], *new_new_arg)) {
                     buffer<expr> tmp_args;
@@ -1430,7 +1447,8 @@ expr elaborator::second_pass(expr const & fn, buffer<expr> const & args,
                     tmp_args.push_back(new_arg);
                     format msg = mk_app_arg_mismatch_error(mk_app(fn, tmp_args),
                                                            new_arg, info.args_mvars[i]);
-                    throw elaborator_exception(ref, msg);
+                    throw elaborator_exception(ref, msg).
+                        ignore_if(has_synth_sorry({new_arg, instantiate_mvars(info.args_mvars[i])}));
                 }
                 return *new_new_arg;
             } else {
@@ -1517,7 +1535,7 @@ expr elaborator::visit_base_app_simple(expr const & _fn, arg_mask amask, buffer<
                     new_args.push_back(new_arg);
                     format msg = mk_app_type_mismatch_error(mk_app(fn, new_args.size(), new_args.data()),
                                                             new_arg, new_arg_type, d);
-                    throw elaborator_exception(ref, msg);
+                    throw elaborator_exception(ref, msg).ignore_if(has_synth_sorry({new_arg_type, d}));
                 }
                 i++;
             } else {
@@ -2890,7 +2908,7 @@ expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_typ
            implicit arguments. */
         return visit_base_app_core(new_e, arg_mask::Default, buffer<expr>(), true, expected_type, e);
     } else if (is_sorry(e)) {
-        return mk_sorry(expected_type, e);
+        return mk_sorry(expected_type, e, is_synthetic_sorry(e));
     } else if (is_structure_instance(e)) {
         return visit_structure_instance(e, expected_type);
     } else if (is_frozen_name(e)) {
@@ -3364,8 +3382,9 @@ void elaborator::ensure_no_unassigned_metavars(expr & e) {
             if (is_metavar_decl_ref(e) && !m_ctx.is_assigned(e)) {
                 tactic_state s = mk_tactic_state_for(e);
                 if (m_recover_from_errors) {
-                    report_error(s, "context:", "don't know how to synthesize placeholder", e);
                     auto ty = m_ctx.mctx().get_metavar_decl(e).get_type();
+                    if (!has_synth_sorry(ty))
+                        report_error(s, "context:", "don't know how to synthesize placeholder", e);
                     m_ctx.assign(e, copy_tag(e, mk_sorry(ty)));
                     ensure_no_unassigned_metavars(ty);
 

@@ -1162,6 +1162,8 @@ auto pretty_fn::pp_macro(expr const & e) -> result {
         return pp(get_annotation_arg(e));
     } else if (is_rec_fn_macro(e)) {
         return format("[") + format(get_rec_fn_name(e)) + format("]");
+    } else if (is_synthetic_sorry(e)) {
+        return m_unicode ? format("⁇") : format("??");
     } else if (is_sorry(e)) {
         return format("sorry");
     } else {

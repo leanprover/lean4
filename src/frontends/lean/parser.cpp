@@ -223,8 +223,8 @@ void parser::scan() {
     m_curr = m_scanner.scan(m_env);
 }
 
-expr parser::mk_sorry(pos_info const & p) {
-    return save_pos(::lean::mk_sorry(mk_Prop()), p);
+expr parser::mk_sorry(pos_info const & p, bool synthetic) {
+    return save_pos(::lean::mk_sorry(mk_Prop(), synthetic), p);
 }
 
 void parser::updt_options() {

@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "library/sorry.h"
 #include <string>
+#include <kernel/find_fn.h>
 #include "kernel/type_checker.h"
 #include "kernel/environment.h"
 #include "library/module.h"
@@ -14,11 +15,16 @@ Author: Leonardo de Moura
 
 namespace lean {
 static name * g_sorry_name = nullptr;
-static macro_definition * g_sorry = nullptr;
 static std::string * g_sorry_opcode = nullptr;
 
 class sorry_macro_cell : public macro_definition_cell {
+    bool m_synthetic;
+
 public:
+    sorry_macro_cell(bool synthetic) : m_synthetic(synthetic) {}
+
+    bool is_synthetic() const { return m_synthetic; }
+
     virtual name get_name() const override { return *g_sorry_name; }
 
     unsigned int trust_level() const override { return 1; }
@@ -36,47 +42,43 @@ public:
 
     virtual void write(serializer & s) const override {
         s.write_string(*g_sorry_opcode);
+        s.write_bool(m_synthetic);
     }
 };
 
 void initialize_sorry() {
     g_sorry_name = new name{"sorry"};
     g_sorry_opcode = new std::string("Sorry");
-    g_sorry = new macro_definition(new sorry_macro_cell);
 
     register_macro_deserializer(*g_sorry_opcode,
-        [] (deserializer &, unsigned num, expr const * args) {
+        [] (deserializer & d, unsigned num, expr const * args) {
             if (num != 1) throw corrupted_stream_exception();
-            return mk_sorry(args[0]);
+            bool synthetic = d.read_bool();
+            return mk_sorry(args[0], synthetic);
         });
 }
 
 void finalize_sorry() {
-    delete g_sorry;
     delete g_sorry_opcode;
     delete g_sorry_name;
 }
 
-expr mk_sorry(expr const & ty) {
-    return mk_macro(*g_sorry, 1, &ty);
+expr mk_sorry(expr const & ty, bool synthetic) {
+    return mk_macro(macro_definition(new sorry_macro_cell(synthetic)), 1, &ty);
 }
 bool is_sorry(expr const & e) {
-    return is_macro(e) && macro_num_args(e) == 1 && macro_def(e) == *g_sorry;
+    return is_macro(e) && macro_num_args(e) == 1 && dynamic_cast<sorry_macro_cell const *>(macro_def(e).raw());
+}
+bool is_synthetic_sorry(expr const & e) {
+    return is_sorry(e) && static_cast<sorry_macro_cell const *>(macro_def(e).raw())->is_synthetic();
+}
+
+bool has_synthetic_sorry(expr const & ex) {
+    return !!find(ex, [] (expr const & e, unsigned) { return is_synthetic_sorry(e); });
 }
 
 bool has_sorry(expr const & ex) {
-    bool found_sorry = false;
-    for_each(ex, [&] (expr const & e, unsigned) {
-        if (found_sorry) return false;
-
-        if (is_sorry(e)) {
-            found_sorry = true;
-            return false;
-        }
-
-        return true;
-    });
-    return found_sorry;
+    return !!find(ex, [] (expr const & e, unsigned) { return is_sorry(e); });
 }
 
 bool has_sorry(declaration const & decl) {

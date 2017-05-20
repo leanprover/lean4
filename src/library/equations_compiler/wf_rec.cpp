@@ -88,7 +88,7 @@ struct wf_rec_fn {
     }
 
 
-    /* Return the type of the new function. */
+    /* Return the type of the functional. */
     expr mk_new_fn_type(type_context & ctx, unpack_eqns const & ues) {
         type_context::tmp_locals locals(ctx);
         expr fn        = ues.get_fn(0);
@@ -153,10 +153,10 @@ struct wf_rec_fn {
             expr new_lhs = mk_app(new_fn, lhs_args);
             expr type    = ctx.whnf(ctx.infer(new_lhs));
             lean_assert(is_pi(type));
-            expr F       = ue.add_var(binding_name(type), binding_domain(type));
-            new_lhs      = mk_app(new_lhs, F);
             ue.lhs()     = new_lhs;
-            ue.rhs()     = elim_rec_apps_fn(ctx, fn, m_R, lhs_args[0], F)(rhs);
+            type_context::tmp_locals locals(ctx);
+            expr F       = locals.push_local_from_binding(type);
+            ue.rhs()     = ctx.mk_lambda(F, elim_rec_apps_fn(ctx, fn, m_R, lhs_args[0], F)(rhs));
             new_eqns.push_back(ue.repack());
         }
         eqns = new_eqns;

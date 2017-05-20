@@ -19,8 +19,8 @@ Author: Leonardo de Moura
 
 namespace lean {
 #define trace_wf(Code) lean_trace(name({"eqn_compiler", "wf_rec"}), type_context ctx = mk_type_context(); scope_trace_env _scope1(m_env, ctx); Code)
-
 #define trace_debug_wf(Code) lean_trace(name({"debug", "eqn_compiler", "wf_rec"}), type_context ctx = mk_type_context(); scope_trace_env _scope1(m_env, ctx); Code)
+#define trace_debug_wf_aux(Code) lean_trace(name({"debug", "eqn_compiler", "wf_rec"}), scope_trace_env _scope1(m_env, ctx); Code)
 
 struct wf_rec_fn {
     environment      m_env;
@@ -211,6 +211,62 @@ struct wf_rec_fn {
         return r;
     }
 
+    struct mk_lemma_rhs_fn : public replace_visitor_with_tc {
+        expr m_fn;
+        expr m_F;
+
+        mk_lemma_rhs_fn(type_context & ctx, expr const & fn, expr const & F):
+            replace_visitor_with_tc(ctx), m_fn(fn), m_F(F) {}
+
+        virtual expr visit_local(expr const & e) override {
+            if (e == m_F) {
+                throw exception("equation compiler failed when generation equational lemmas");
+            } else {
+                return e;
+            }
+        }
+
+        virtual expr visit_app(expr const & e) override {
+            if (is_app(app_fn(e)) && app_fn(app_fn(e)) == m_F) {
+                return mk_app(m_fn, visit(app_arg(app_fn(e))));
+            } else {
+                return replace_visitor_with_tc::visit_app(e);
+            }
+        }
+    };
+
+    expr mk_lemma_rhs(type_context & ctx, expr const & fn, expr rhs) {
+        rhs = ctx.relaxed_whnf(rhs);
+        lean_assert(is_lambda(rhs));
+        type_context::tmp_locals locals(ctx);
+        expr F = locals.push_local_from_binding(rhs);
+        rhs    = instantiate(binding_body(rhs), F);
+        return mk_lemma_rhs_fn(ctx, fn, F)(rhs);
+    }
+
+    void mk_lemmas(expr const & fn, list<expr> const & lemmas) {
+        name const & fn_name = const_name(get_app_fn(fn));
+        unsigned eqn_idx     = 1;
+        type_context ctx     = mk_type_context();
+        for (expr type : lemmas) {
+            type_context::tmp_locals locals(ctx);
+            type = ctx.relaxed_whnf(type);
+            while (is_pi(type)) {
+                expr local = locals.push_local_from_binding(type);
+                type = instantiate(binding_body(type), local);
+            }
+            lean_assert(is_eq(type));
+            expr lhs = app_arg(app_fn(type));
+            expr rhs = app_arg(type);
+            expr new_lhs = mk_app(fn, app_arg(lhs));
+            expr new_rhs = mk_lemma_rhs(ctx, fn, rhs);
+            trace_debug_wf_aux(tout() << "aux equation [" << eqn_idx << "]:\n" << new_lhs << "\n=\n" << new_rhs << "\n";);
+            m_env = mk_equation_lemma(m_env, m_opts, m_mctx, ctx.lctx(), fn_name,
+                                      eqn_idx, m_header.m_is_private, locals.as_buffer(), new_lhs, new_rhs);
+            eqn_idx++;
+        }
+    }
+
     expr operator()(expr eqns) {
         m_ref    = eqns;
         m_header = get_equations_header(eqns);
@@ -246,6 +302,11 @@ struct wf_rec_fn {
         expr fn = mk_fix_aux_function(get_equations_header(eqns), r.m_fn);
 
         trace_debug_wf(tout() << "after mk_fix\n" << fn << " :\n  " << mk_type_context().infer(fn) << "\n";);
+        if (m_header.m_aux_lemmas) {
+            lean_assert(!m_header.m_is_meta);
+            mk_lemmas(fn, r.m_lemmas);
+        }
+
 
         // TODO(Leo):
         throw exception("support for well-founded recursion has not been implemented yet, "

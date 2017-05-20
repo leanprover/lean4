@@ -1,13 +1,10 @@
 import data.vector
 open nat
 universes u v
-set_option pp.all true
 
 set_option trace.eqn_compiler.wf_rec true
 set_option trace.debug.eqn_compiler.wf_rec true
 set_option trace.debug.eqn_compiler.mutual true
-set_option trace.eqn_compiler.elim_match true
-
 
 mutual def even, odd
 with even : nat → bool
@@ -16,7 +13,6 @@ with even : nat → bool
 with odd : nat → bool
 | 0     := ff
 | (a+1) := even a
-
 
 mutual def f, g {α β : Type u} (f : α → β) (p : α × β)
 with f : Π n : nat, vector (α × β) n

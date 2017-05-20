@@ -565,6 +565,20 @@ static expr prove_eqn_lemma_core(type_context & ctx, buffer<expr> const & Hs, ex
 }
 
 static expr prove_eqn_lemma(type_context & ctx, buffer<expr> const & Hs, expr const & lhs, expr const & rhs) {
+    if (auto new_lhs = unfold_app(ctx.env(), lhs)) {
+        buffer<expr> args;
+        expr fn = get_app_args(*new_lhs, args);
+        if (is_constant(fn, get_well_founded_fix_name()) &&
+            args.size() == 6) {
+            expr H1 = mk_app(mk_constant(get_well_founded_fix_eq_name(), const_levels(fn)), args.size(), args.data());
+            expr H1_type = ctx.relaxed_whnf(ctx.infer(H1));
+            expr lhs_dummy, new_lhs;
+            lean_verify(is_eq(H1_type, lhs_dummy, new_lhs));
+            expr H2 = prove_eqn_lemma_core(ctx, Hs, new_lhs, rhs, true);
+            expr body = mk_eq_trans(ctx, H1, H2);
+            return ctx.mk_lambda(Hs, body);
+        }
+    }
     expr body = prove_eqn_lemma_core(ctx, Hs, lhs, rhs, true);
     return ctx.mk_lambda(Hs, body);
 }

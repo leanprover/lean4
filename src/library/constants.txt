@@ -366,6 +366,7 @@ vm_monitor
 weak_order
 well_founded
 well_founded.fix
+well_founded.fix_eq
 xor
 zero_le_one
 zero_lt_one

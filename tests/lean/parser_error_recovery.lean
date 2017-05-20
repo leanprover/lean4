@@ -19,3 +19,18 @@ def f3 (x : ℕ) : ℕ :=
                  -- ^ missing else reported here
 
 #eval f3 42 -- OK (prints 9000)
+
+/- η-expanded syntax errors -/
+
+def f4 : list ℕ :=
+list.map nat.suc []
+
+#eval f4 -- OK (prints [])
+
+/- tactic scripts with syntax errors -/
+
+lemma f5 (x : ℕ) : x+1 = 1+x :=
+by {
+    simp,
+    trace_state, -- OK (no goals)
+    simmp,,,

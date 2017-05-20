@@ -8,3 +8,28 @@ parser_error_recovery.lean:11:18: error: invalid structure value { ... }, 'sn' i
 parser_error_recovery.lean:18:20: error: invalid 'if-then-else' expression, 'else' expected
 parser_error_recovery.lean:17:0: warning: declaration 'f3' uses sorry
 9000
+parser_error_recovery.lean:26:9: error: unknown identifier 'nat.suc'
+parser_error_recovery.lean:26:17: error: don't know how to synthesize placeholder
+context:
+⊢ Type ?
+[]
+parser_error_recovery.lean:36:4: error: unknown identifier 'simmp'
+parser_error_recovery.lean:36:12: error: invalid expression, unexpected token
+parser_error_recovery.lean:36:4: error: don't know how to synthesize placeholder
+context:
+x : ℕ
+⊢ Type ?
+parser_error_recovery.lean:36:10: error: don't know how to synthesize placeholder
+context:
+x : ℕ
+⊢ Type ?
+parser_error_recovery.lean:36:11: error: don't know how to synthesize placeholder
+context:
+x : ℕ
+⊢ Type ?
+parser_error_recovery.lean:36:12: error: don't know how to synthesize placeholder
+context:
+x : ℕ
+⊢ Type ?
+no goals
+parser_error_recovery.lean:33:3: error: _interaction._val_1: trying to evaluate sorry

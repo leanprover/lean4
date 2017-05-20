@@ -2009,9 +2009,35 @@ expr elaborator::visit_app(expr const & e, optional<expr> const & expected_type)
     }
 }
 
+static level ground_uvars(level const & l) {
+    return replace(l, [] (level const & l) {
+        if (is_meta(l)) {
+            return some_level(mk_level_zero());
+        } else {
+            return none_level();
+        }
+    });
+}
+
+static expr ground_uvars(expr const & e) {
+    return replace(e, [] (expr const & e, unsigned) {
+        if (!e.has_univ_metavar()) {
+            return some_expr(e);
+        } else if (is_sort(e)) {
+            return some_expr(mk_sort(ground_uvars(sort_level(e))));
+        } else if (is_constant(e)) {
+            return some_expr(mk_constant(const_name(e),
+                map(const_levels(e), [] (level const & l) { return ground_uvars(l); })));
+        } else {
+            return none_expr();
+        }
+    });
+}
+
 expr elaborator::visit_by(expr const & e, optional<expr> const & expected_type) {
     lean_assert(is_by(e));
     expr tac = strict_visit(get_by_arg(e), none_expr());
+    tac = ground_uvars(tac);
     expr const & ref = e;
     expr mvar        = mk_metavar(expected_type, ref);
     m_tactics = cons(mk_pair(mvar, tac), m_tactics);

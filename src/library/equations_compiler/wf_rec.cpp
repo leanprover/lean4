@@ -193,9 +193,22 @@ struct wf_rec_fn {
         lean_assert(closed(it));
         expr C    = ctx.mk_lambda(x, Cx);
         level u_1 = get_level(ctx, x_ty);
+        optional<level> dec_u_1 = dec_level(u_1);
+        if (!dec_u_1)
+            throw generic_exception(m_ref, "equation compiler failed to compute universe level parameter");
         level u_2 = get_level(ctx, Cx);
-        expr fix  = mk_app({mk_constant(get_well_founded_fix_name(), {u_1, u_2}), x_ty, C, m_R, m_R_wf, aux_fn, x});
+        expr fix  = mk_app({mk_constant(get_well_founded_fix_name(), {*dec_u_1, u_2}), x_ty, C, m_R, m_R_wf, aux_fn, x});
         return ctx.mk_lambda(x, fix);
+    }
+
+    expr mk_fix_aux_function(equations_header const & header, expr fn) {
+        type_context ctx = mk_type_context();
+        fn = mk_fix(fn);
+        expr fn_type = ctx.infer(fn);
+        expr r;
+        std::tie(m_env, r) = mk_aux_definition(m_env, m_opts, m_mctx, m_lctx, header,
+                                               head(header.m_fn_names), fn_type, fn);
+        return r;
     }
 
     expr operator()(expr eqns) {
@@ -230,7 +243,7 @@ struct wf_rec_fn {
 
         /* Eliminate pattern matching */
         elim_match_result r = elim_match(m_env, m_opts, m_mctx, m_lctx, eqns);
-        expr fn = mk_fix(r.m_fn);
+        expr fn = mk_fix_aux_function(get_equations_header(eqns), r.m_fn);
 
         trace_debug_wf(tout() << "after mk_fix\n" << fn << " :\n  " << mk_type_context().infer(fn) << "\n";);
 

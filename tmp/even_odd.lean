@@ -18,7 +18,7 @@ with odd : nat → bool
 | (a+1) := even a
 
 
-mutual def f, g {α : Type u} {β : Type v} (f : α → β) (p : α × β)
+mutual def f, g {α β : Type u} (f : α → β) (p : α × β)
 with f : Π n : nat, vector (α × β) n
 | 0        := vector.nil
 | (succ n) := vector.cons p $ (g n p.1).map (λ b, (p.1, b))

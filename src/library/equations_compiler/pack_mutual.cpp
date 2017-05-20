@@ -145,7 +145,7 @@ struct pack_mutual_fn {
         buffer<expr> domains;
         buffer<expr> codomains;
         level        codomains_lvl;
-        name         new_fn_name;
+        name         new_fn_name("_mutual");
         for (unsigned fidx = 0; fidx < ues.get_num_fns(); fidx++) {
             expr const & fn = ues.get_fn(fidx);
             new_fn_name = new_fn_name + local_pp_name(fn);
@@ -158,7 +158,7 @@ struct pack_mutual_fn {
             level c_lvl     = get_level(m_ctx, c);
             if (fidx == 0) {
                 codomains_lvl = c_lvl;
-            } else if (!m_ctx.is_def_eq(c_lvl, codomains_lvl)) {
+            } else if (!m_ctx.is_def_eq(mk_sort(c_lvl), mk_sort(codomains_lvl))) {
                 throw generic_exception(e, "invalid mutual definition, result types must be in the same universe");
             }
             codomains.push_back(binding_body(fn_type));
@@ -173,7 +173,8 @@ struct pack_mutual_fn {
         trace_debug_mutual(tout() << "new function " << new_fn_name << " : " << new_fn_type << "\n";);
 
         equations_header new_header = get_equations_header(e);
-        new_header.m_num_fns = 1;
+        new_header.m_fn_names = to_list(new_fn_name);
+        new_header.m_num_fns  = 1;
 
         replace_fns replacer(m_ctx, ues, new_fn);
 

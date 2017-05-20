@@ -681,6 +681,7 @@ static expr elaborate_proof(
     scoped_expr_caching disable(false);  // FIXME: otherwise sigma.eq fails to elaborate
     auto tc = std::make_shared<type_context>(decl_env, opts, mctx, lctx);
     scope_trace_env scope2(decl_env, opts, *tc);
+    scope_traces_as_messages scope2a(file_name, header_pos);
     scope_pos_info_provider scope3(pos_provider);
     auto_reporting_info_manager_scope scope4(file_name, use_info_manager);
 

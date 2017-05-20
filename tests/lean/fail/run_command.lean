@@ -1,1 +1,1 @@
-run_command tactic.fail "Error"
+run_cmd tactic.fail "Error"

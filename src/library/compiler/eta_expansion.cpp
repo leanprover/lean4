@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "library/projection.h"
 #include "library/aux_recursors.h"
 #include "library/inductive_compiler/ginductive.h"
+#include "library/sorry.h"
 #include "library/compiler/util.h"
 #include "library/compiler/compiler_step_visitor.h"
 #include "library/compiler/comp_irrelevant.h"
@@ -139,6 +140,21 @@ class eta_expand_fn : public compiler_step_visitor {
 
     virtual expr visit_constant(expr const & e) override {
         return expand_if_needed(e);
+    }
+
+    virtual expr visit_macro(expr const & e) override {
+        if (is_sorry(e)) {
+            /* We η-expand sorrys to be able to execute tactic scripts with syntax errors.
+
+               For example, when we parse and elaborate `by { simp, simmp }`, we get
+               something like `simp >> ??`.
+               With η-expansion, the composite tactic becomes `simp >> (λ s, ?? s)`,
+               and the execution only fails when we arrive at the syntax error.
+            */
+            return eta_expand(e);
+        } else {
+            return compiler_step_visitor::visit_macro(e);
+        }
     }
 
     virtual expr visit_app(expr const & e) override {

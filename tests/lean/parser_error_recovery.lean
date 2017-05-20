@@ -33,4 +33,5 @@ lemma f5 (x : ℕ) : x+1 = 1+x :=
 by {
     simp,
     trace_state, -- OK (no goals)
-    simmp,,,
+    simmp,***,
+    simp a,,,

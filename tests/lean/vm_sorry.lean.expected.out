@@ -1,6 +1,6 @@
 vm_sorry.lean:1:0: warning: declaration 'half_baked' uses sorry
 42
-vm_sorry.lean:6:0: error: half_baked._main._val_1: trying to evaluate sorry
+vm_sorry.lean:6:0: error: half_baked._main: trying to evaluate sorry
 vm_sorry.lean:12:0: error: undefined
 (some nat)
 vm_sorry.lean:18:0: warning: declaration '[anonymous]' uses sorry

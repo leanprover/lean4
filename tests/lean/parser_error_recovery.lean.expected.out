@@ -14,7 +14,8 @@ context:
 ⊢ Type ?
 []
 parser_error_recovery.lean:36:4: error: unknown identifier 'simmp'
-parser_error_recovery.lean:36:12: error: invalid expression, unexpected token
+parser_error_recovery.lean:37:9: error: unknown identifier 'a'
+parser_error_recovery.lean:37:13: error: invalid expression, unexpected token
 parser_error_recovery.lean:36:4: error: don't know how to synthesize placeholder
 context:
 x : ℕ
@@ -23,13 +24,17 @@ parser_error_recovery.lean:36:10: error: don't know how to synthesize placeholde
 context:
 x : ℕ
 ⊢ Type ?
-parser_error_recovery.lean:36:11: error: don't know how to synthesize placeholder
+parser_error_recovery.lean:37:11: error: don't know how to synthesize placeholder
 context:
 x : ℕ
 ⊢ Type ?
-parser_error_recovery.lean:36:12: error: don't know how to synthesize placeholder
+parser_error_recovery.lean:37:12: error: don't know how to synthesize placeholder
+context:
+x : ℕ
+⊢ Type ?
+parser_error_recovery.lean:37:13: error: don't know how to synthesize placeholder
 context:
 x : ℕ
 ⊢ Type ?
 no goals
-parser_error_recovery.lean:33:3: error: _interaction._val_1: trying to evaluate sorry
+parser_error_recovery.lean:33:3: error: _interaction._lambda_3: trying to evaluate sorry

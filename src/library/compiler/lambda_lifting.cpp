@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "kernel/scope_pos_info_provider.h"
 #include "library/module.h"
 #include "library/vm/vm.h"
+#include "library/sorry.h"
 #include "library/compiler/util.h"
 #include "library/compiler/erase_irrelevant.h"
 #include "library/compiler/compiler_step_visitor.h"
@@ -23,6 +24,7 @@ class lambda_lifting_fn : public compiler_step_visitor {
     buffer<procedure> m_new_procs;
     name              m_prefix;
     unsigned          m_idx;
+    bool              m_saw_sorry = false;
 
     optional<pos_info> get_pos_info(expr e) {
         pos_info_provider * pip = get_pos_info_provider();
@@ -40,11 +42,11 @@ class lambda_lifting_fn : public compiler_step_visitor {
 
     expr declare_aux_def(expr const & value) {
         /* Try to avoid unnecessary aux decl by
-           1- Apply eta-reduction
+           1- Apply eta-reduction (unless there is a sorry)
            2- Check if the result is of the form (f ...) where f is
               a) VM builtin functions OR
               b) A function without builtin support (i.e., it is not a constructor, cases_on or projection) */
-        expr new_value  = try_eta(value);
+        expr new_value  = m_saw_sorry && has_sorry(value) ? value : try_eta(value);
         expr const & fn = get_app_fn(new_value);
         if (is_constant(fn)) {
             name const & n = const_name(fn);
@@ -189,6 +191,11 @@ class lambda_lifting_fn : public compiler_step_visitor {
         } else {
             return compiler_step_visitor::visit_app(beta_reduce(e));
         }
+    }
+
+    virtual expr visit_macro(expr const & e) override {
+        if (is_sorry(e)) m_saw_sorry = true;
+        return compiler_step_visitor::visit_macro(e);
     }
 
 public:

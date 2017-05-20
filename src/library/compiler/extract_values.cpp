@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "kernel/replace_fn.h"
+#include "library/sorry.h"
 #include "library/equations_compiler/util.h"
 #include "library/compiler/util.h"
 #include "library/compiler/procedure.h"
@@ -31,6 +32,10 @@ class extract_values_fn : public compiler_step_visitor {
     }
 
     bool should_extract(expr const & e) {
+        if (is_sorry(get_app_fn(e))) {
+            // Never extract sorry.
+            return false;
+        }
         /* TODO(Leo): should we allow users to mark extra types for extract_values?
            Extracting everything is bad since caching may prevent destructive updates (e.g., arrays). */
         return is_nat_int_char_string_name_value(ctx(), e);
@@ -44,7 +49,7 @@ class extract_values_fn : public compiler_step_visitor {
     }
 
     virtual expr visit_macro(expr const & e) override {
-        if (!has_local(e) && !is_eqp(e, m_root) && macro_num_args(e) > 0)
+        if (!has_local(e) && !is_eqp(e, m_root) && macro_num_args(e) > 0 && !is_sorry(e))
             return mk_aux_decl(e);
         else
             return compiler_step_visitor::visit_macro(e);

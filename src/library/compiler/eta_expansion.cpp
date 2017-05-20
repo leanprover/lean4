@@ -21,6 +21,8 @@ Author: Leonardo de Moura
 
 namespace lean {
 class eta_expand_fn : public compiler_step_visitor {
+    bool m_saw_sorry = false;
+
     bool is_projection(name const & n) { return ::lean::is_projection(env(), n); }
     bool is_constructor(name const & n) { return static_cast<bool>(is_ginductive_intro_rule(env(), n)); }
     bool is_cases_on(name const & n) { return is_cases_on_recursor(env(), n); }
@@ -50,6 +52,17 @@ class eta_expand_fn : public compiler_step_visitor {
 
     expr eta_expand(expr const & e) {
         return ctx().eta_expand(e);
+    }
+
+    /* Returns true if there is a sorry that is not under a lambda. */
+    bool has_unguarded_sorry(expr const & e) {
+        bool res = false;
+        for_each(e, [&] (expr const & e, unsigned off) {
+            if (off || is_lambda(e)) return false;
+            if (is_sorry(e)) res = true;
+            return !res;
+        });
+        return res;
     }
 
     expr expand_if_needed(expr const & e) {
@@ -133,6 +146,17 @@ class eta_expand_fn : public compiler_step_visitor {
                (unit in the current implementation). Then, we can remove this check.
             */
             return eta_expand(r);
+        } else if (m_saw_sorry && is_pi(ctx().relaxed_whnf(ctx().infer(r))) && has_unguarded_sorry(r)) {
+            /* We want to η-expand applications such as `intro ??` into `λ s, intro ?? s`
+               to postpone sorry evaluation for as long as possible.
+
+               Later on in lambda-lifting, we need to make sure that we do not reduce
+               these expansions again.
+
+               (The has_unguarded_sorry check has linear runtime, so we only do it
+               if we saw a sorry at least once.)
+            */
+            return eta_expand(r);
         } else {
             return r;
         }
@@ -151,6 +175,7 @@ class eta_expand_fn : public compiler_step_visitor {
                With η-expansion, the composite tactic becomes `simp >> (λ s, ?? s)`,
                and the execution only fails when we arrive at the syntax error.
             */
+            m_saw_sorry = true;
             return eta_expand(e);
         } else {
             return compiler_step_visitor::visit_macro(e);

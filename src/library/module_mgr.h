@@ -77,7 +77,7 @@ public:
 };
 
 class module_mgr {
-    bool m_use_snapshots = false;
+    bool m_server_mode = false;
     bool m_save_olean = false;
 
     search_path m_path;
@@ -113,8 +113,8 @@ public:
 
     void cancel_all();
 
-    void set_use_snapshots(bool use_snapshots) { m_use_snapshots = use_snapshots; }
-    bool get_use_snapshots() const { return m_use_snapshots; }
+    void set_server_mode(bool use_snapshots) { m_server_mode = use_snapshots; }
+    bool get_server_mode() const { return m_server_mode; }
 
     void set_save_olean(bool save_olean) { m_save_olean = save_olean; }
     bool get_save_olean() const { return m_save_olean; }

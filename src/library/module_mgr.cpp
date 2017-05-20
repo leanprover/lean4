@@ -167,6 +167,12 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
 
             auto mod = std::make_shared<module_info>();
 
+            if (m_server_mode) {
+                try {
+                    mod->m_lean_contents = std::get<0>(m_vfs->load_module(id, false));
+                } catch (...) {}
+            }
+
             mod->m_mod = id;
             mod->m_lt = lt.get();
             mod->m_source = module_src::OLEAN;
@@ -256,14 +262,14 @@ module_mgr::build_lean(module_id const & id, std::string const & contents, time_
 
     auto ldr = mk_loader(id, mod->m_deps);
     auto mod_parser_fn = std::make_shared<module_parser>(id, contents, m_initial_env, ldr);
-    mod_parser_fn->save_info(m_use_snapshots);
+    mod_parser_fn->save_info(m_server_mode);
 
     module_parser_result snapshots;
     std::tie(mod->m_cancel, snapshots) = build_lean_snapshots(
             mod_parser_fn, m_modules[id], deps, contents);
     scope_cancellation_token scope_cancel(mod->m_cancel);
 
-    if (m_use_snapshots) {
+    if (m_server_mode) {
         // Even just keeping a reference to the final environment costs us
         // a few hundred megabytes (when compiling the standard library).
         mod->m_snapshots = snapshots;
@@ -328,7 +334,7 @@ module_mgr::build_lean_snapshots(std::shared_ptr<module_parser> const & mod_pars
         return std::make_pair(cancel_tok, mod_parser->parse(optional<std::vector<gtask>>(deps)));
     };
 
-    if (!m_use_snapshots) return rebuild();
+    if (!m_server_mode) return rebuild();
     if (!old_mod) return rebuild();
     if (old_mod->m_source != module_src::LEAN)
         return rebuild();
@@ -363,9 +369,22 @@ std::shared_ptr<module_info const> module_mgr::get_module(module_id const & id) 
 void module_mgr::invalidate(module_id const & id) {
     unique_lock<mutex> lock(m_mutex);
 
-    if (auto & mod = m_modules[id])
+    bool rebuild_rdeps = true;
+    if (auto & mod = m_modules[id]) {
+        if (mod->m_lean_contents) {
+            try {
+                if (std::get<0>(m_vfs->load_module(id, false)) == *mod->m_lean_contents) {
+                    // content unchanged
+                    rebuild_rdeps = false;
+                }
+            } catch (...) {}
+        }
+
         mod->m_out_of_date = true;
-    mark_out_of_date(id);
+    }
+    if (rebuild_rdeps) {
+        mark_out_of_date(id);
+    }
 
     buffer<module_id> to_rebuild;
     to_rebuild.push_back(id);

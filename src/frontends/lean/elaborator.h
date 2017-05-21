@@ -335,7 +335,7 @@ public:
 
 pair<expr, level_param_names> elaborate(environment & env, options const & opts, name const & decl_name,
                                         metavar_context & mctx, local_context const & lctx,
-                                        expr const & e, bool check_unassigend);
+                                        expr const & e, bool check_unassigned, bool recover_from_errors);
 
 /** \brief Translated local constants (and undefined constants) occurring in \c e into
     local constants provided by \c ctx.

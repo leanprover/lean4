@@ -7,6 +7,7 @@ has type
   B
 but is expected to have type
   N
+⁇ : ?M_1
 [x, y, z, x, y, y] : list
 [x] : list
 [] : list

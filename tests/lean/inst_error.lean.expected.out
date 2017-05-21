@@ -2,3 +2,4 @@ inst_error.lean:1:39: error: failed to synthesize type class instance for
 A : Type,
 a b c : A
 ⊢ decidable (a = b ∧ a = c)
+λ (A : Type) (a b c : A), ite (a = b ∧ a = c) tt ff : Π (A : Type), A → A → A → bool

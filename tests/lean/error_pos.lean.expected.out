@@ -5,10 +5,13 @@ error_pos.lean:4:43: error: type expected at
   B
 error_pos.lean:9:40: error: type expected at
   B
+λ (A : Type) (B : A → Type) (b : ⁇), true : Π (A : Type), (A → Type) → ⁇ → Prop
 error_pos.lean:11:36: error: type expected at
   B
+λ (A : Type) (B : A → Type), ⁇ → true : Π (A : Type), (A → Type) → Prop
 error_pos.lean:13:43: error: type expected at
   B
+λ (A : Type) (B : A → Type) (b : ⁇), b : Π (A : Type), (A → Type) → ⁇ → ⁇
 error_pos.lean:15:105: error: invalid let-expression, expression
   a₁
 has type

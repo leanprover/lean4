@@ -7,4 +7,5 @@ has type
   bool
 but is expected to have type
   nat
+⁇ : ?M_1
 @bla.{0 0} nat bool (@has_zero.zero.{0} nat nat.has_zero) (@has_zero.zero.{0} nat nat.has_zero) bool.tt : nat

@@ -1,9 +1,19 @@
 notation_error_pos.lean:6:7: error: failed to synthesize type class instance for
 ⊢ has_one string
+notation_error_pos.lean:6:7: error: failed to synthesize type class instance for
+⊢ has_add string
+"a" + 1 : string
 notation_error_pos.lean:8:7: error: failed to synthesize type class instance for
 ⊢ has_one string
+notation_error_pos.lean:8:7: error: failed to synthesize type class instance for
+⊢ has_add string
+"a" + 1 : string
 notation_error_pos.lean:10:7: error: failed to synthesize type class instance for
 ⊢ has_one string
+notation_error_pos.lean:10:7: error: failed to synthesize type class instance for
+⊢ has_add string
+1 + "a" : string
 notation_error_pos.lean:12:7: error: failed to synthesize type class instance for
 x : string
 ⊢ has_add string
+λ (x : string), x + "b" : string → string

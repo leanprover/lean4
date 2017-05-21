@@ -3,6 +3,7 @@ elab11.lean:6:7: error: ambiguous overload, possible interpretations
   boo.f 1
 Additional information:
 elab11.lean:6:7: context: switched to basic overload resolution where arguments are elaborated without any information about the expected type because expected type was not available
+⁇ : ?M_1
 bla.f 1 : ℕ
 boo.f 1 : bool
 elab11.lean:16:8: error: none of the overloads are applicable
@@ -41,3 +42,4 @@ has type
   bool
 but is expected to have type
   string
+⁇ : string

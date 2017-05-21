@@ -1,3 +1,5 @@
 λ (f g : N → N → N) (x y : N), f x (g x y) : (N → N → N) → (N → N → N) → N → N → N
 t12.lean:7:7: error: function expected at
   a
+⁇ : ?M_1
+t12.lean:7:8: error: command expected

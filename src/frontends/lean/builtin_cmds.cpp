@@ -551,7 +551,8 @@ static environment run_command_cmd(parser & p) {
     tactic               = mk_app(mk_constant(get_has_bind_and_then_name()), tactic, try_triv);
     expr val             = mk_typed_expr(mk_true(), mk_by(tactic));
     bool check_unassigned = false;
-    elaborate(env, opts, "_run_command", mctx, local_context(), val, check_unassigned);
+    bool recover_from_errors = true;
+    elaborate(env, opts, "_run_command", mctx, local_context(), val, check_unassigned, recover_from_errors);
     return env;
 }
 

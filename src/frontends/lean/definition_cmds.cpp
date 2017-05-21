@@ -148,11 +148,154 @@ expr parse_mutual_definition(parser & p, buffer<name> & lp_names, buffer<expr> &
     return r;
 }
 
-environment mutual_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modifiers const & modifiers, decl_attributes /* attrs */) {
+static void finalize_definition(elaborator & elab, buffer<expr> const & params, expr & type,
+                                expr & val, buffer<name> & lp_names, bool is_meta) {
+    type = elab.mk_pi(params, type);
+    val  = elab.mk_lambda(params, val);
+    buffer<expr> type_val;
+    buffer<name> implicit_lp_names;
+    type_val.push_back(type);
+    type_val.push_back(val);
+    elab.finalize(type_val, implicit_lp_names, true, false);
+    if (!is_meta) {
+        type = unfold_untrusted_macros(elab.env(), type_val[0]);
+        val  = unfold_untrusted_macros(elab.env(), type_val[1]);
+    } else {
+        type = type_val[0];
+        val  = type_val[1];
+    }
+    lp_names.append(implicit_lp_names);
+}
+
+static pair<environment, name> mk_real_name(environment const & env, name const & c_name, bool is_private, pos_info const & pos) {
+    environment new_env = env;
+    name c_real_name;
+    if (is_private) {
+        unsigned h  = hash(pos.first, pos.second);
+        auto env_n  = add_private_name(new_env, c_name, optional<unsigned>(h));
+        new_env     = env_n.first;
+        c_real_name = env_n.second;
+    } else {
+        name const & ns = get_namespace(env);
+        c_real_name     = ns + c_name;
+    }
+    return mk_pair(new_env, c_real_name);
+}
+
+static expr fix_rec_fn_name(expr const & e, name const & c_name, name const & c_real_name) {
+    return replace(e, [&](expr const & m, unsigned) {
+            if (is_rec_fn_macro(m) && get_rec_fn_name(m) == c_name) {
+                return some_expr(mk_rec_fn_macro(c_real_name, get_rec_fn_type(m)));
+            }
+            return none_expr();
+        });
+}
+
+static certified_declaration check(parser & p, environment const & env, name const & c_name, declaration const & d, pos_info const & pos) {
+    if (p.profiling()) {
+        xtimeit timer(get_profiling_threshold(p.get_options()), [&](second_duration duration) {
+                auto msg = p.mk_message(pos, INFORMATION);
+                msg.get_text_stream().get_stream()
+                    << "type checking time of " << c_name << " took " << display_profiling_time{duration} << "\n";
+                msg.report();
+            });
+        return ::lean::check(env, d);
+    } else {
+        return ::lean::check(env, d);
+    }
+}
+
+static bool check_noncomputable(bool ignore_noncomputable, environment const & env, name const & c_name, name const & c_real_name, bool is_noncomputable,
+                                std::string const & file_name, pos_info const & pos) {
+    if (ignore_noncomputable)
+        return true;
+    if (!is_noncomputable && is_marked_noncomputable(env, c_real_name)) {
+        auto reason = get_noncomputable_reason(env, c_real_name);
+        lean_assert(reason);
+        report_message(message(file_name, pos, ERROR,
+                               (sstream() << "definition '" << c_name << "' is noncomputable, it depends on '" << *reason << "'").str()));
+        return false;
+    }
+    if (is_noncomputable && !is_marked_noncomputable(env, c_real_name)) {
+        report_message(message(file_name, pos, WARNING,
+                               (sstream() << "definition '" << c_name << "' was incorrectly marked as noncomputable").str()));
+    }
+    return true;
+}
+
+static environment compile_decl(parser & p, environment const & env,
+                                name const & c_name, name const & c_real_name, pos_info const & pos) {
+    try {
+        return vm_compile(env, env.get(c_real_name));
+    } catch (exception & ex) {
+        // FIXME(gabriel): use position from exception
+        auto out = p.mk_message(pos, WARNING);
+        out << "failed to generate bytecode for '" << c_name << "'\n";
+        out.set_exception(ex);
+        out.report();
+        return env;
+    }
+}
+
+static pair<environment, name>
+declare_definition(parser & p, environment const & env, def_cmd_kind kind, buffer<name> const & lp_names,
+                   name const & c_name, expr type, optional<expr> val, task<expr> const & proof,
+                   decl_modifiers const & modifiers, decl_attributes attrs, optional<std::string> const & doc_string,
+                   pos_info const & pos) {
+    auto env_n = mk_real_name(env, c_name, modifiers.m_is_private, pos);
+    environment new_env = env_n.first;
+    name c_real_name    = env_n.second;
+    if (val && modifiers.m_is_meta) {
+        /* TODO(Leo): fix fix_rec_fn_name for mutual definitions.
+           We currently do not support meta mutual definitions. Thus, this is not currently an issue. */
+        *val = fix_rec_fn_name(*val, c_name, c_real_name);
+    }
+    if (val && !modifiers.m_is_meta && !type_checker(env).is_prop(type)) {
+        /* We only abstract nested proofs if the type of the definition is not a proposition */
+        std::tie(new_env, type) = abstract_nested_proofs(new_env, c_real_name, type);
+        std::tie(new_env, *val) = abstract_nested_proofs(new_env, c_real_name, *val);
+    }
+    bool use_conv_opt = true;
+    bool is_trusted   = !modifiers.m_is_meta;
+    auto def          =
+        !val ? mk_theorem(c_real_name, to_list(lp_names), type, proof) : (kind == Theorem ?
+        mk_theorem(c_real_name, to_list(lp_names), type, *val) :
+        mk_definition(new_env, c_real_name, to_list(lp_names), type, *val, use_conv_opt, is_trusted));
+    auto cdef         = check(p, new_env, c_name, def, pos);
+    new_env           = module::add(new_env, cdef);
+
+    check_noncomputable(p.ignore_noncomputable(), new_env, c_name, c_real_name, modifiers.m_is_noncomputable, p.get_file_name(), pos);
+
+    if (modifiers.m_is_protected)
+        new_env = add_protected(new_env, c_real_name);
+
+    new_env = add_alias(new_env, modifiers.m_is_protected, c_name, c_real_name);
+
+    if (!modifiers.m_is_private) {
+        new_env = ensure_decl_namespaces(new_env, c_real_name);
+    }
+
+    new_env = compile_decl(p, new_env, c_name, c_real_name, pos);
+    if (doc_string) {
+        new_env = add_doc_string(new_env, c_real_name, *doc_string);
+    }
+    // note: some attribute handlers rely on the new definition being compiled already
+    new_env = attrs.apply(new_env, p.ios(), c_real_name);
+    return mk_pair(new_env, c_real_name);
+}
+
+environment mutual_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modifiers const & modifiers, decl_attributes attrs) {
     buffer<name> lp_names;
     buffer<expr> fns, params;
     declaration_info_scope scope(p, kind, modifiers);
+    auto header_pos = p.pos();
+    /* TODO(Leo): allow a different doc string for each function in a mutual definition. */
+    optional<std::string> doc_string = p.get_doc_string();
     expr val = parse_mutual_definition(p, lp_names, fns, params);
+
+    if (modifiers.m_is_meta) {
+        throw exception("support for mutual meta definitions has not been implemented yet");
+    }
 
     // skip elaboration of definitions during reparsing
     if (p.get_break_at_pos())
@@ -163,11 +306,25 @@ environment mutual_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
     buffer<expr> new_params;
     elaborate_params(elab, params, new_params);
     val = replace_locals_preserving_pos_info(val, params, new_params);
-
     val = elab.elaborate(val);
-
-    tout() << val << "\n";
-    // TODO(Leo)
+    lean_assert(is_equations_result(val));
+    unsigned num_defs = get_equations_result_size(val);
+    lean_assert(fns.size() == num_defs);
+    /* Define functions */
+    for (unsigned i = 0; i < num_defs; i++) {
+        expr curr      = get_equations_result(val, i);
+        expr curr_type = head_beta_reduce(elab.infer_type(curr));
+        finalize_definition(elab, new_params, curr_type, curr, lp_names, modifiers.m_is_meta);
+        environment env = elab.env();
+        name c_name = mlocal_name(fns[i]);
+        name c_real_name;
+        std::tie(env, c_real_name) = declare_definition(p, env, kind, lp_names, c_name,
+                                                        curr_type, some_expr(curr), {}, modifiers, attrs,
+                                                        doc_string, header_pos);
+        elab.set_env(env);
+    }
+    /* Add lemmas */
+    // TODO(Leo):
 
     return elab.env();
 }
@@ -271,139 +428,6 @@ static void finalize_theorem_proof(elaborator & elab, buffer<expr> const & param
     val  = elab.mk_lambda(params, val);
     val = elab.finalize_theorem_proof(val, info);
     val = unfold_untrusted_macros(elab.env(), val);
-}
-
-static void finalize_definition(elaborator & elab, buffer<expr> const & params, expr & type,
-                                expr & val, buffer<name> & lp_names, bool is_meta) {
-    type = elab.mk_pi(params, type);
-    val  = elab.mk_lambda(params, val);
-    buffer<expr> type_val;
-    buffer<name> implicit_lp_names;
-    type_val.push_back(type);
-    type_val.push_back(val);
-    elab.finalize(type_val, implicit_lp_names, true, false);
-    if (!is_meta) {
-        type = unfold_untrusted_macros(elab.env(), type_val[0]);
-        val  = unfold_untrusted_macros(elab.env(), type_val[1]);
-    } else {
-        type = type_val[0];
-        val  = type_val[1];
-    }
-    lp_names.append(implicit_lp_names);
-}
-
-static pair<environment, name> mk_real_name(environment const & env, name const & c_name, bool is_private, pos_info const & pos) {
-    environment new_env = env;
-    name c_real_name;
-    if (is_private) {
-        unsigned h  = hash(pos.first, pos.second);
-        auto env_n  = add_private_name(new_env, c_name, optional<unsigned>(h));
-        new_env     = env_n.first;
-        c_real_name = env_n.second;
-    } else {
-        name const & ns = get_namespace(env);
-        c_real_name     = ns + c_name;
-    }
-    return mk_pair(new_env, c_real_name);
-}
-
-static certified_declaration check(parser & p, environment const & env, name const & c_name, declaration const & d, pos_info const & pos) {
-    if (p.profiling()) {
-        xtimeit timer(get_profiling_threshold(p.get_options()), [&](second_duration duration) {
-                auto msg = p.mk_message(pos, INFORMATION);
-                msg.get_text_stream().get_stream()
-                    << "type checking time of " << c_name << " took " << display_profiling_time{duration} << "\n";
-                msg.report();
-            });
-        return ::lean::check(env, d);
-    } else {
-        return ::lean::check(env, d);
-    }
-}
-
-static bool check_noncomputable(bool ignore_noncomputable, environment const & env, name const & c_name, name const & c_real_name, bool is_noncomputable,
-                                std::string const & file_name, pos_info const & pos) {
-    if (ignore_noncomputable)
-        return true;
-    if (!is_noncomputable && is_marked_noncomputable(env, c_real_name)) {
-        auto reason = get_noncomputable_reason(env, c_real_name);
-        lean_assert(reason);
-        report_message(message(file_name, pos, ERROR,
-                               (sstream() << "definition '" << c_name << "' is noncomputable, it depends on '" << *reason << "'").str()));
-        return false;
-    }
-    if (is_noncomputable && !is_marked_noncomputable(env, c_real_name)) {
-        report_message(message(file_name, pos, WARNING,
-                               (sstream() << "definition '" << c_name << "' was incorrectly marked as noncomputable").str()));
-    }
-    return true;
-}
-
-static environment compile_decl(parser & p, environment const & env,
-                                name const & c_name, name const & c_real_name, pos_info const & pos) {
-    try {
-        return vm_compile(env, env.get(c_real_name));
-    } catch (exception & ex) {
-        // FIXME(gabriel): use position from exception
-        auto out = p.mk_message(pos, WARNING);
-        out << "failed to generate bytecode for '" << c_name << "'\n";
-        out.set_exception(ex);
-        out.report();
-        return env;
-    }
-}
-
-static expr fix_rec_fn_name(expr const & e, name const & c_name, name const & c_real_name) {
-    return replace(e, [&](expr const & m, unsigned) {
-            if (is_rec_fn_macro(m) && get_rec_fn_name(m) == c_name) {
-                return some_expr(mk_rec_fn_macro(c_real_name, get_rec_fn_type(m)));
-            }
-            return none_expr();
-        });
-}
-
-static pair<environment, name>
-declare_definition(parser & p, environment const & env, def_cmd_kind kind, buffer<name> const & lp_names,
-                   name const & c_name, expr type, optional<expr> val, task<expr> const & proof,
-                   decl_modifiers const & modifiers, decl_attributes attrs, optional<std::string> const & doc_string,
-                   pos_info const & pos) {
-    auto env_n = mk_real_name(env, c_name, modifiers.m_is_private, pos);
-    environment new_env = env_n.first;
-    name c_real_name    = env_n.second;
-    if (val && modifiers.m_is_meta)
-        *val = fix_rec_fn_name(*val, c_name, c_real_name);
-    if (val && !modifiers.m_is_meta && !type_checker(env).is_prop(type)) {
-        /* We only abstract nested proofs if the type of the definition is not a proposition */
-        std::tie(new_env, type) = abstract_nested_proofs(new_env, c_real_name, type);
-        std::tie(new_env, *val) = abstract_nested_proofs(new_env, c_real_name, *val);
-    }
-    bool use_conv_opt = true;
-    bool is_trusted   = !modifiers.m_is_meta;
-    auto def          =
-        !val ? mk_theorem(c_real_name, to_list(lp_names), type, proof) : (kind == Theorem ?
-        mk_theorem(c_real_name, to_list(lp_names), type, *val) :
-        mk_definition(new_env, c_real_name, to_list(lp_names), type, *val, use_conv_opt, is_trusted));
-    auto cdef         = check(p, new_env, c_name, def, pos);
-    new_env           = module::add(new_env, cdef);
-
-    check_noncomputable(p.ignore_noncomputable(), new_env, c_name, c_real_name, modifiers.m_is_noncomputable, p.get_file_name(), pos);
-
-    if (modifiers.m_is_protected)
-        new_env = add_protected(new_env, c_real_name);
-
-    new_env = add_alias(new_env, modifiers.m_is_protected, c_name, c_real_name);
-
-    if (!modifiers.m_is_private) {
-        new_env = ensure_decl_namespaces(new_env, c_real_name);
-    }
-
-    new_env = compile_decl(p, new_env, c_name, c_real_name, pos);
-    if (doc_string) {
-        new_env = add_doc_string(new_env, c_real_name, *doc_string);
-    }
-    // note: some attribute handlers rely on the new definition being compiled already
-    new_env = attrs.apply(new_env, p.ios(), c_real_name);
-    return mk_pair(new_env, c_real_name);
 }
 
 struct fix_rec_fn_macro_args_fn : public replace_visitor {

@@ -14,10 +14,10 @@ with odd : nat → bool
 | 0     := ff
 | (a+1) := even a
 
-#eval even._main 3
-#eval even._main 4
-#eval odd._main 3
-#eval odd._main 4
+#eval even 3
+#eval even 4
+#eval odd 3
+#eval odd 4
 
 mutual def f, g {α β : Type u} (f : α → β) (p : α × β)
 with f : Π n : nat, vector (α × β) n

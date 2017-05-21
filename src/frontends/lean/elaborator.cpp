@@ -2801,7 +2801,13 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
                 } else if (optional<name> default_value_fn = has_default_value(m_env, S_name, S_fname)) {
                     expr fval = mk_field_default_value(m_env, full_S_fname, [&](name const & fname) {
                         // just insert mvars for now, we will check for remaining ones in `reduce_and_check_deps` later
-                        return some_expr(mk_as_is(instantiate_mvars(*field2mvar.find(fname))));
+                        if (auto mvar = field2mvar.find(fname)) {
+                            return some_expr(mk_as_is(instantiate_mvars(*mvar)));
+                        } else if (auto val = field2value.find(fname)) {
+                            return some_expr(mk_as_is(*val));
+                        } else {
+                            return none_expr();
+                        }
                     });
                     expr new_fval;
                     expr new_fval_type;

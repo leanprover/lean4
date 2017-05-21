@@ -1,0 +1,5 @@
+structure_instance_bug3.lean:1:23: error: invalid structure value { ... }, field 'id_map' was not provided
+structure_instance_bug3.lean:1:23: error: invalid structure value { ... }, field 'pure' was not provided
+structure_instance_bug3.lean:1:23: error: invalid structure value { ... }, field 'bind' was not provided
+structure_instance_bug3.lean:1:23: error: invalid structure value { ... }, field 'pure_bind' was not provided
+structure_instance_bug3.lean:1:23: error: invalid structure value { ... }, field 'bind_assoc' was not provided

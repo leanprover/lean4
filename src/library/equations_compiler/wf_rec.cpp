@@ -265,16 +265,74 @@ struct wf_rec_fn {
                                       eqn_idx, m_header.m_is_private, locals.as_buffer(), new_lhs, new_rhs);
             eqn_idx++;
         }
+        m_mctx = ctx.mctx();
+    }
+
+    expr_pair mk_sigma(type_context & ctx, unsigned i, buffer<expr> const & args) {
+        lean_assert(args.size() > 0);
+        if (i == args.size() - 1) {
+            return mk_pair(args[i], ctx.infer(args[i]));
+        } else {
+            expr as, as_type;
+            std::tie(as, as_type) = mk_sigma(ctx, i+1, args);
+            expr a       = args[i];
+            lean_assert(is_local(a));
+            expr a_type  = ctx.infer(a);
+            level a_lvl  = get_level(ctx, a_type);
+            level as_lvl = get_level(ctx, as_type);
+            as_type     = ctx.mk_lambda(a, as_type);
+            expr r_type = mk_app(mk_constant(get_psigma_name(), {a_lvl, as_lvl}), a_type, as_type);
+            expr r      = mk_app(mk_constant(get_psigma_mk_name(), {a_lvl, as_lvl}),
+                                 a_type, as_type, a, as);
+            return mk_pair(r, r_type);
+        }
+    }
+
+    expr unpack(expr const & packed_fn, expr const & eqns_before_pack) {
+        equations_header const & header = get_equations_header(eqns_before_pack);
+        list<name> fn_names = header.m_fn_names;
+        type_context ctx = mk_type_context();
+        buffer<expr> result_fns;
+        expr packed_fn_type = ctx.relaxed_whnf(ctx.infer(packed_fn));
+        expr packed_domain  = binding_domain(packed_fn_type);
+        unpack_eqns ues(ctx, eqns_before_pack);
+        unsigned num_fns = ues.get_num_fns();
+        for (unsigned fidx = 0; fidx < num_fns; fidx++) {
+            unsigned arity = ues.get_arity_of(fidx);
+            expr fn_type   = ctx.infer(ues.get_fn(fidx));
+            type_context::tmp_locals args(ctx);
+            expr it        = fn_type;
+            for (unsigned i = 0; i < arity; i++) {
+                it = ctx.relaxed_whnf(it);
+                lean_assert(is_pi(it));
+                expr arg = args.push_local_from_binding(it);
+                it = instantiate(binding_body(it), arg);
+            }
+            expr sigma_mk   = mk_sigma(ctx, 0, args.as_buffer()).first;
+            expr packed_arg = mk_mutual_arg(ctx, sigma_mk, fidx, num_fns, packed_domain);
+            expr fn_val     = args.mk_lambda(mk_app(packed_fn, packed_arg));
+            name fn_name    = head(fn_names);
+            fn_names        = tail(fn_names);
+            trace_debug_wf(tout() << fn_name << " := " << fn_val << "\n";);
+            expr r;
+            std::tie(m_env, r) = mk_aux_definition(m_env, m_opts, m_mctx, m_lctx, header, fn_name, fn_type, fn_val);
+            result_fns.push_back(r);
+            /* TODO(Leo): unpack equations */
+        }
+
+        return mk_equations_result(result_fns.size(), result_fns.data());
     }
 
     expr operator()(expr eqns) {
         m_ref    = eqns;
         m_header = get_equations_header(eqns);
         /* Make sure all functions are unary */
-        eqns     = pack_domain(eqns);
+        expr before_pack = eqns;
+        eqns = pack_domain(eqns);
         trace_debug_wf(tout() << "after pack_domain\n" << eqns << "\n";);
 
         /* Make sure we have only one function */
+        expr before_mutual = eqns;
         equations_header const & header = get_equations_header(eqns);
         if (header.m_num_fns > 1) {
             eqns = pack_mutual(eqns);
@@ -307,10 +365,7 @@ struct wf_rec_fn {
             mk_lemmas(fn, r.m_lemmas);
         }
 
-
-        // TODO(Leo):
-        throw exception("support for well-founded recursion has not been implemented yet, "
-                        "use 'set_option trace.eqn_compiler true' for additional information");
+        return unpack(fn, before_pack);
     }
 };
 

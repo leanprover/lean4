@@ -53,6 +53,10 @@ inline expr mk_app(type_context & ctx, name const & c, expr const & a1, expr con
     return mk_app(ctx, c, {a1, a2, a3});
 }
 
+inline expr mk_app(type_context & ctx, name const & c, expr const & a1, expr const & a2, expr const & a3, expr const & a4) {
+    return mk_app(ctx, c, {a1, a2, a3, a4});
+}
+
 expr mk_app(type_context & ctx, name const & c, unsigned mask_sz, bool const * mask, expr const * args);
 
 /** \brief Shortcut for mk_app(c, total_nargs, mask, expl_nargs), where

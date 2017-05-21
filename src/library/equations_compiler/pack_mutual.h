@@ -11,6 +11,8 @@ namespace lean {
     The functions must be unary. */
 expr pack_mutual(type_context & ctx, expr const & eqns);
 
+expr mk_mutual_arg(type_context & ctx, expr const & e, unsigned fidx, unsigned num_fns, expr const & psum_type);
+
 void initialize_pack_mutual();
 void finalize_pack_mutual();
 }

@@ -17,6 +17,29 @@ Author: Leonardo de Moura
 namespace lean {
 #define trace_debug_mutual(Code) lean_trace(name({"debug", "eqn_compiler", "mutual"}), scope_trace_env _scope(m_ctx.env(), m_ctx); Code)
 
+static expr mk_mutual_arg(type_context & ctx, expr const & e, unsigned fidx, unsigned num_fns,
+                          expr psum_type, unsigned i) {
+    if (i == num_fns - 1) {
+        return e;
+    } else {
+        psum_type = ctx.relaxed_whnf(psum_type);
+        buffer<expr> args;
+        get_app_args(psum_type, args);
+        tout() << ">> " << psum_type << "\n";
+        lean_assert(args.size() == 2);
+        if (i == fidx) {
+            return mk_app(ctx, get_psum_inl_name(), args[0], args[1], e);
+        } else {
+            expr r = mk_mutual_arg(ctx, e, fidx, num_fns, args[1], i+1);
+            return mk_app(ctx, get_psum_inr_name(), args[0], args[1], r);
+        }
+    }
+}
+
+expr mk_mutual_arg(type_context & ctx, expr const & e, unsigned fidx, unsigned num_fns, expr const & psum_type) {
+    return mk_mutual_arg(ctx, e, fidx, num_fns, psum_type, 0);
+}
+
 struct pack_mutual_fn {
     type_context & m_ctx;
 
@@ -88,25 +111,8 @@ struct pack_mutual_fn {
             return optional<unsigned>();
         }
 
-        expr mk_new_arg(expr const & e, unsigned fidx, unsigned i, expr psum_type) {
-            if (i == m_ues.get_num_fns() - 1) {
-                return e;
-            } else {
-                psum_type = m_ctx.relaxed_whnf(psum_type);
-                buffer<expr> args;
-                get_app_args(psum_type, args);
-                lean_assert(args.size() == 2);
-                if (i == fidx) {
-                    return mk_app(m_ctx, get_psum_inl_name(), args[0], args[1], e);
-                } else {
-                    expr r = mk_new_arg(e, fidx, i+1, args[1]);
-                    return mk_app(m_ctx, get_psum_inr_name(), args[0], args[1], r);
-                }
-            }
-        }
-
         expr mk_new_arg(expr const & e, unsigned fidx) {
-            return mk_new_arg(e, fidx, 0, m_new_domain);
+            return mk_mutual_arg(m_ctx, e, fidx, m_ues.get_num_fns(), m_new_domain);
         }
 
         virtual expr visit_app(expr const & e) override {

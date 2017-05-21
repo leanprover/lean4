@@ -123,7 +123,7 @@ expr parse_mutual_definition(parser & p, buffer<name> & lp_names, buffer<expr> &
         expr fn_type = parse_inner_header(p, local_pp_name(pre_fn)).first;
         declaration_name_scope scope2(local_pp_name(pre_fn));
         declaration_name_scope scope3("_main");
-        full_names.push_back(scope2.get_name());
+        full_names.push_back(scope3.get_name());
         if (p.curr_is_token(get_period_tk())) {
             auto period_pos = p.pos();
             p.next();
@@ -169,7 +169,7 @@ environment mutual_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
     tout() << val << "\n";
     // TODO(Leo)
 
-    return p.env();
+    return elab.env();
 }
 
 static expr_pair parse_definition(parser & p, buffer<name> & lp_names, buffer<expr> & params,

@@ -4,4 +4,4 @@
 {"record":{"full-id":"nat.to_string","source":,"type":"ℕ → string"},"response":"ok","seq_num":2}
 {"record":{"full-id":"list.all","source":,"type":"Π {α : Type}, list α → (α → bool) → bool"},"response":"ok","seq_num":4}
 {"record":{"full-id":"list.all","source":,"type":"Π {α : Type}, list α → (α → bool) → bool"},"response":"ok","seq_num":9}
-{"record":{"full-id":"list.all","source":,"type":"Π {α : Type _elab_u.16.225}, list α → (α → bool) → bool"},"response":"ok","seq_num":13}
+{"record":{"full-id":"list.all","source":,"type":"Π {α : Type _elab_u.16.229}, list α → (α → bool) → bool"},"response":"ok","seq_num":13}

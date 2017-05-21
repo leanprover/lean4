@@ -58,6 +58,8 @@ struct module_info {
     environment const & get_produced_env() const {
         return get(get(m_result).m_loaded_module->m_env);
     }
+
+    environment get_latest_env() const;
 };
 
 class module_vfs {
@@ -106,6 +108,8 @@ public:
     void invalidate(module_id const & id);
 
     std::shared_ptr<module_info const> get_module(module_id const &);
+
+    std::vector<std::shared_ptr<module_info const>> get_all_modules();
 
     void cancel_all();
 

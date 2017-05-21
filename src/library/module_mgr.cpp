@@ -19,6 +19,28 @@ Author: Gabriel Ebner
 
 namespace lean {
 
+environment module_info::get_latest_env() const {
+    if (m_snapshots) {
+        auto snap = *m_snapshots;
+        while (snap.m_next) {
+            if (auto next = peek(snap.m_next)) {
+                snap = *next;
+            } else {
+                break;
+            }
+        }
+        if (auto parser_snap = snap.m_snapshot_at_end) {
+            return parser_snap->m_env;
+        }
+    }
+    if (auto res = peek(m_result)) {
+        if (auto env = peek(res->m_loaded_module->m_env)) {
+            return *env;
+        }
+    }
+    return environment();
+}
+
 void module_mgr::mark_out_of_date(module_id const & id) {
     for (auto & mod : m_modules) {
         if (!mod.second || mod.second->m_out_of_date) continue;
@@ -369,6 +391,19 @@ std::vector<module_name> module_mgr::get_direct_imports(module_id const & id, st
     } catch (...) {}
 
     return imports;
+}
+
+std::vector<std::shared_ptr<module_info const>> module_mgr::get_all_modules() {
+    unique_lock<mutex> lock(m_mutex);
+
+    std::vector<std::shared_ptr<module_info const>> mods;
+    for (auto & mod : m_modules) {
+        if (mod.second) {
+            mods.push_back(mod.second);
+        }
+    }
+
+    return mods;
 }
 
 void module_mgr::cancel_all() {

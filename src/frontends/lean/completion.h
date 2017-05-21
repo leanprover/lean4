@@ -24,6 +24,9 @@ std::vector<json> get_interactive_tactic_completions(std::string const & pattern
 std::vector<json> get_attribute_completions(std::string const & pattern, environment const & env, options const & opts);
 std::vector<json> get_namespace_completions(std::string const & pattern, environment const & env, options const & opts);
 
+void search_decls(std::string const & pattern, std::vector<pair<std::string, environment>> const & envs,
+                  options const & opts, std::vector<json> & completions);
+
 void initialize_completion();
 void finalize_completion();
 }

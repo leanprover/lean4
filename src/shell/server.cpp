@@ -22,6 +22,7 @@ Authors: Gabriel Ebner, Leonardo de Moura, Sebastian Ullrich
 #include "frontends/lean/parser.h"
 #include "frontends/lean/info_manager.h"
 #include "frontends/lean/interactive.h"
+#include "frontends/lean/completion.h"
 #include "shell/server.h"
 
 namespace lean {
@@ -427,6 +428,8 @@ void server::handle_request(server::cmd_req const & req) {
         handle_async_response(req, handle_complete(req));
     } else if (command == "info") {
         handle_async_response(req, handle_info(req));
+    } else if (command == "search") {
+        send_msg(handle_search(req));
     } else if (command == "roi") {
         send_msg(handle_roi(req));
     } else if (command == "sleep") {
@@ -600,6 +603,23 @@ task<server::cmd_res> server::handle_info(server::cmd_req const & req) {
         return cmd_res(req.m_seq_num, info(mod_info, pos));
     }).wrap(library_scopes(log_tree::node()))
       .set_cancellation_token(m_bg_task_ctok).build();
+}
+
+server::cmd_res server::handle_search(server::cmd_req const & req) {
+    std::string query = req.m_payload.at("query");
+
+    std::vector<pair<std::string, environment>> envs_to_search;
+    for (auto & mod : m_mod_mgr->get_all_modules()) {
+        envs_to_search.emplace_back(mod->m_mod, mod->get_latest_env());
+    }
+
+    std::vector<json> results;
+    search_decls(query, envs_to_search, m_ios.get_options(), results);
+
+    json j;
+    j["results"] = results;
+
+    return cmd_res(req.m_seq_num, j);
 }
 
 std::tuple<std::string, module_src, time_t> server::load_module(module_id const & id, bool can_use_olean) {

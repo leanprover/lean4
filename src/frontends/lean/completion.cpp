@@ -165,6 +165,59 @@ std::vector<json> get_decl_completions(std::string const & pattern, environment 
     return completions;
 }
 
+void search_decls(std::string const & pattern, std::vector<pair<std::string, environment>> const & envs, options const & opts,
+                  std::vector<json> & completions) {
+    unsigned max_results = get_auto_completion_max_results(opts);
+    unsigned max_errors = get_fuzzy_match_max_errors(pattern.size());
+    name_map<pair<std::string, environment>> name2env;
+    std::vector<pair<name, name>> exact_matches;
+    std::vector<pair<std::string, name>> selected;
+    bitap_fuzzy_search matcher(pattern, max_errors);
+
+    for (auto & env_file : envs) {
+        auto & env = env_file.second;
+        env.for_each_declaration([&](declaration const & d) {
+            if (name2env.find(d.get_name())) return;
+            name2env.insert(d.get_name(), env_file);
+            if (is_projection(env, d.get_name())) {
+                auto s_name = d.get_name().get_prefix();
+            }
+            if (is_internal_name(d.get_name())) {
+                return;
+            }
+            if (auto it = exact_prefix_match(env, pattern, d)) {
+                exact_matches.emplace_back(*it, d.get_name());
+            } else {
+                std::string text = d.get_name().to_string();
+                if (matcher.match(text))
+                    selected.emplace_back(text, d.get_name());
+            }
+        });
+    }
+    unsigned num_results = 0;
+    if (!exact_matches.empty()) {
+        std::sort(exact_matches.begin(), exact_matches.end(),
+                  [](pair<name, name> const & p1, pair<name, name> const & p2) {
+                      return p1.first.size() < p2.first.size();
+                  });
+        for (pair<name, name> const & p : exact_matches) {
+            auto j = serialize_decl(p.first, p.second, name2env.find(p.second)->second, opts);
+            if (!j["source"].count("file"))
+                j["source"]["file"] = name2env.find(p.second)->first;
+            completions.push_back(j);
+            num_results++;
+            if (num_results >= max_results)
+                break;
+        }
+    }
+    filter_completions<name>(pattern, selected, completions, max_results - num_results, [&](name const & n) {
+        auto j = serialize_decl(n, name2env.find(n)->second, opts);
+        if (!j["source"].count("file"))
+            j["source"]["file"] = name2env.find(n)->first;
+        return j;
+    });
+}
+
 std::vector<json> get_field_completions(name const & s, std::string const & pattern, environment const & env, options const & opts) {
     std::vector<json> completions;
 

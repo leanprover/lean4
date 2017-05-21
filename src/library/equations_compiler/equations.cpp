@@ -192,6 +192,17 @@ expr update_equations(expr const & eqns, buffer<expr> const & new_eqs) {
     }
 }
 
+expr update_equations(expr const & eqns, equations_header const & header) {
+    buffer<expr> eqs;
+    to_equations(eqns, eqs);
+    if (is_wf_equations(eqns)) {
+        return copy_tag(eqns, mk_equations(header, eqs.size(), eqs.data(),
+                                           equations_wf_rel(eqns), equations_wf_proof(eqns)));
+    } else {
+        return copy_tag(eqns, mk_equations(header, eqs.size(), eqs.data()));
+    }
+}
+
 // LEGACY
 expr mk_equations(unsigned num_fns, unsigned num_eqs, expr const * eqs) {
     return mk_equations(equations_header(num_fns), num_eqs, eqs);

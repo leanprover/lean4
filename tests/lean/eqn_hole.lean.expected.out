@@ -8,4 +8,3 @@ context:
 g : ℕ → ℕ,
 n : ℕ
 ⊢ ℕ
-eqn_hole.lean:6:11: error: support for well-founded recursion has not been implemented yet, use 'set_option trace.eqn_compiler true' for additional information

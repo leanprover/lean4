@@ -454,6 +454,10 @@ struct wf_rec_fn {
         equations_header const & header = get_equations_header(eqns);
         if (header.m_num_fns > 1) {
             eqns = pack_mutual(eqns);
+        } else {
+            equations_header new_header = header;
+            new_header.m_fn_names       = to_list(name(head(header.m_fn_names), "_pack"));
+            eqns                        = update_equations(eqns, new_header);
         }
 
         /* Retrieve well founded relation */

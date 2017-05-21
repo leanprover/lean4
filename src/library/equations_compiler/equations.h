@@ -48,6 +48,7 @@ struct equations_header {
 expr mk_equations(equations_header const & header, unsigned num_eqs, expr const * eqs, expr const & R, expr const & Hwf);
 expr mk_equations(equations_header const & header, unsigned num_eqs, expr const * eqs);
 expr update_equations(expr const & eqns, buffer<expr> const & new_eqs);
+expr update_equations(expr const & eqns, equations_header const & header);
 
 bool is_equations(expr const & e);
 bool is_wf_equations(expr const & e);

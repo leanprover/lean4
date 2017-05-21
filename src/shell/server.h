@@ -86,15 +86,17 @@ class server : public module_vfs {
     template <class Msg>
     void send_msg(Msg const &);
 
+    template <class Msg>
+    void send_async_msg(task<Msg> const &);
+
     struct cmd_res;
     struct cmd_req;
     void handle_request(cmd_req const & req);
+    void handle_async_response(cmd_req const & req, task<cmd_res> const & res);
 
     cmd_res handle_sync(cmd_req const & req);
-    class auto_complete_task;
-    void handle_complete(cmd_req const & req);
-    class info_task;
-    void handle_info(cmd_req const & req);
+    task<cmd_res> handle_complete(cmd_req const & req);
+    task<cmd_res> handle_info(cmd_req const & req);
     cmd_res handle_roi(cmd_req const & req);
 
     json autocomplete(std::shared_ptr<module_info const> const & mod_info, bool skip_completions, pos_info const & pos);

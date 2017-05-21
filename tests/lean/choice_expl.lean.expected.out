@@ -5,4 +5,3 @@ choice_expl.lean:15:7: error: ambiguous overload, possible interpretations
   N1.pr a b
 Additional information:
 choice_expl.lean:15:7: context: switched to basic overload resolution where arguments are elaborated without any information about the expected type because expected type was not available
-⁇ : ?M_1

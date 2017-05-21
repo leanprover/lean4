@@ -11,7 +11,6 @@ has type
   real
 but is expected to have type
   int
-⁇ : ?M_1
 i + x : real
 x + n : real
 coe2.lean:37:9: error: type mismatch at application
@@ -22,5 +21,4 @@ has type
   real
 but is expected to have type
   ℕ
-⁇ : ?M_1
 n + x : real

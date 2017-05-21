@@ -1,11 +1,9 @@
 b : A
 y : A
 t14.lean:12:9: error: unknown identifier 'c'
-⁇ : ?M_1
 a : foo.A
 x : foo.A
 t14.lean:19:9: error: unknown identifier 'c'
-⁇ : ?M_1
 t14.lean:23:26: error: invalid 'open/export' command option, mixing explicit and implicit 'open/export' options
 a : A
 c : A

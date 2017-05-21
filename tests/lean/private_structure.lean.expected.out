@@ -8,21 +8,13 @@ point.x : point → ℕ
 point.y : point → ℕ
 bla : Type
 private_structure.lean:23:7: error: unknown identifier 'point'
-⁇ : ?M_1
 private_structure.lean:24:7: error: unknown identifier 'point.mk'
-⁇ : ?M_1
 private_structure.lean:25:7: error: unknown identifier 'point.rec'
-⁇ : ?M_1
 private_structure.lean:26:7: error: unknown identifier 'point.rec_on'
-⁇ : ?M_1
 private_structure.lean:27:7: error: unknown identifier 'point.cases_on'
-⁇ : ?M_1
 private_structure.lean:28:7: error: unknown identifier 'point.no_confusion'
-⁇ : ?M_1
 private_structure.lean:29:7: error: unknown identifier 'point.x'
-⁇ : ?M_1
 private_structure.lean:30:7: error: unknown identifier 'point.y'
-⁇ : ?M_1
 def foo.bla : Type :=
 point
 private_structure.lean:35:8: error: invalid constructor ⟨...⟩, type is a private inductive datatype

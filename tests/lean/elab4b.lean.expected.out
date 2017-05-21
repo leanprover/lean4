@@ -12,16 +12,13 @@ function expected at
   f 0 1 2
 Additional information:
 elab4b.lean:9:7: context: switched to basic overload resolution where arguments are elaborated without any information about the expected type because expected type was not available
-⁇ : ?M_1
 elab4b.lean:11:7: error: ambiguous overload, possible interpretations
   foo.f 0 1
   boo.f 0 1
 Additional information:
 elab4b.lean:11:7: context: switched to basic overload resolution where arguments are elaborated without any information about the expected type because expected type was not available
-⁇ : ?M_1
 elab4b.lean:13:7: error: ambiguous overload, possible interpretations
   bla.f bool.tt bool.ff
   foo.f bool.tt bool.ff
 Additional information:
 elab4b.lean:13:7: context: switched to basic overload resolution where arguments are elaborated without any information about the expected type because expected type was not available
-⁇ : ?M_1

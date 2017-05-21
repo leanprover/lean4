@@ -184,6 +184,10 @@ environment check_cmd(parser & p) {
     std::tie(e, ls) = parse_local_expr(p, "_check");
     type_checker tc(p.env(), true, false);
     expr type = tc.check(e, ls);
+    if (is_synthetic_sorry(e) && (is_synthetic_sorry(type) || is_metavar(type))) {
+        // do not show useless type-checking results such as ?? : ?M_1
+        return p.env();
+    }
     auto out              = p.mk_message(p.cmd_pos(), INFORMATION);
     formatter fmt         = out.get_formatter();
     unsigned indent       = get_pp_indent(p.get_options());

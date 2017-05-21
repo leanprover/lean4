@@ -314,13 +314,11 @@ ring
 scope_trace
 set_of
 semiring
-sigma
-sigma.mk
-sigma.fst
-sigma.snd
 psigma
 psigma.cases_on
 psigma.mk
+psigma.fst
+psigma.snd
 singleton
 sizeof
 smt.array

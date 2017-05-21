@@ -319,13 +319,11 @@ run_cmd script_check_id `ring
 run_cmd script_check_id `scope_trace
 run_cmd script_check_id `set_of
 run_cmd script_check_id `semiring
-run_cmd script_check_id `sigma
-run_cmd script_check_id `sigma.mk
-run_cmd script_check_id `sigma.fst
-run_cmd script_check_id `sigma.snd
 run_cmd script_check_id `psigma
 run_cmd script_check_id `psigma.cases_on
 run_cmd script_check_id `psigma.mk
+run_cmd script_check_id `psigma.fst
+run_cmd script_check_id `psigma.snd
 run_cmd script_check_id `singleton
 run_cmd script_check_id `sizeof
 run_cmd script_check_id `smt.array

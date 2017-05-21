@@ -32,14 +32,14 @@ struct sigma_packer_fn {
         expr B, codomain;
         std::tie(B, codomain) = mk_sigma_domain(next_pi_type, out_locals, n-1);
         B = locals.mk_lambda(B);
-        return mk_pair(mk_app(m_ctx, get_sigma_name(), A, B), codomain);
+        return mk_pair(mk_app(m_ctx, get_psigma_name(), A, B), codomain);
     }
 
     expr mk_codomain(expr const & codomain, expr p, buffer<expr> const & locals, unsigned n) {
         buffer<expr> terms;
         for (unsigned i = 0; i < n - 1; i++) {
-            terms.push_back(mk_app(m_ctx, get_sigma_fst_name(), p));
-            p = mk_app(m_ctx, get_sigma_snd_name(), p);
+            terms.push_back(mk_app(m_ctx, get_psigma_fst_name(), p));
+            p = mk_app(m_ctx, get_psigma_snd_name(), p);
         }
         terms.push_back(p);
         return replace_locals(codomain, locals, terms);
@@ -73,7 +73,7 @@ struct sigma_packer_fn {
             if (i == arity - 1) {
                 return args[i];
             } else {
-                lean_assert(is_constant(get_app_fn(type), get_sigma_name()));
+                lean_assert(is_constant(get_app_fn(type), get_psigma_name()));
                 expr a        = args[i];
                 expr A        = app_arg(app_fn(type));
                 expr B        = app_arg(type);
@@ -82,7 +82,7 @@ struct sigma_packer_fn {
                 expr b        = pack(i+1, arity, args, new_type);
                 bool mask[2]  = {true, true};
                 expr AB[2]    = {A, B};
-                return mk_app(mk_app(m_ctx, get_sigma_mk_name(), 2, mask, AB), a, b);
+                return mk_app(mk_app(m_ctx, get_psigma_mk_name(), 2, mask, AB), a, b);
             }
         }
 

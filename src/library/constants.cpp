@@ -319,13 +319,11 @@ name const * g_ring = nullptr;
 name const * g_scope_trace = nullptr;
 name const * g_set_of = nullptr;
 name const * g_semiring = nullptr;
-name const * g_sigma = nullptr;
-name const * g_sigma_mk = nullptr;
-name const * g_sigma_fst = nullptr;
-name const * g_sigma_snd = nullptr;
 name const * g_psigma = nullptr;
 name const * g_psigma_cases_on = nullptr;
 name const * g_psigma_mk = nullptr;
+name const * g_psigma_fst = nullptr;
+name const * g_psigma_snd = nullptr;
 name const * g_singleton = nullptr;
 name const * g_sizeof = nullptr;
 name const * g_smt_array = nullptr;
@@ -693,13 +691,11 @@ void initialize_constants() {
     g_scope_trace = new name{"scope_trace"};
     g_set_of = new name{"set_of"};
     g_semiring = new name{"semiring"};
-    g_sigma = new name{"sigma"};
-    g_sigma_mk = new name{"sigma", "mk"};
-    g_sigma_fst = new name{"sigma", "fst"};
-    g_sigma_snd = new name{"sigma", "snd"};
     g_psigma = new name{"psigma"};
     g_psigma_cases_on = new name{"psigma", "cases_on"};
     g_psigma_mk = new name{"psigma", "mk"};
+    g_psigma_fst = new name{"psigma", "fst"};
+    g_psigma_snd = new name{"psigma", "snd"};
     g_singleton = new name{"singleton"};
     g_sizeof = new name{"sizeof"};
     g_smt_array = new name{"smt", "array"};
@@ -1068,13 +1064,11 @@ void finalize_constants() {
     delete g_scope_trace;
     delete g_set_of;
     delete g_semiring;
-    delete g_sigma;
-    delete g_sigma_mk;
-    delete g_sigma_fst;
-    delete g_sigma_snd;
     delete g_psigma;
     delete g_psigma_cases_on;
     delete g_psigma_mk;
+    delete g_psigma_fst;
+    delete g_psigma_snd;
     delete g_singleton;
     delete g_sizeof;
     delete g_smt_array;
@@ -1442,13 +1436,11 @@ name const & get_ring_name() { return *g_ring; }
 name const & get_scope_trace_name() { return *g_scope_trace; }
 name const & get_set_of_name() { return *g_set_of; }
 name const & get_semiring_name() { return *g_semiring; }
-name const & get_sigma_name() { return *g_sigma; }
-name const & get_sigma_mk_name() { return *g_sigma_mk; }
-name const & get_sigma_fst_name() { return *g_sigma_fst; }
-name const & get_sigma_snd_name() { return *g_sigma_snd; }
 name const & get_psigma_name() { return *g_psigma; }
 name const & get_psigma_cases_on_name() { return *g_psigma_cases_on; }
 name const & get_psigma_mk_name() { return *g_psigma_mk; }
+name const & get_psigma_fst_name() { return *g_psigma_fst; }
+name const & get_psigma_snd_name() { return *g_psigma_snd; }
 name const & get_singleton_name() { return *g_singleton; }
 name const & get_sizeof_name() { return *g_sizeof; }
 name const & get_smt_array_name() { return *g_smt_array; }

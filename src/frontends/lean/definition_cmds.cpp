@@ -307,7 +307,11 @@ environment mutual_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
     elaborate_params(elab, params, new_params);
     val = replace_locals_preserving_pos_info(val, params, new_params);
     val = elab.elaborate(val);
-    lean_assert(is_equations_result(val));
+    if (!is_equations_result(val)) {
+        /* Failed to elaborate mutual recursion.
+           TODO(Leo): better error recovery. */
+        return p.env();
+    }
     unsigned num_defs = get_equations_result_size(val);
     lean_assert(fns.size() == num_defs);
     /* Define functions */

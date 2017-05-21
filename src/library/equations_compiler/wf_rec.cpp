@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/pp_options.h"
 #include "library/app_builder.h"
+#include "library/aux_definition.h"
 #include "library/sorry.h" // remove after we add tactic for proving recursive calls are decreasing
 #include "library/replace_visitor_with_tc.h"
 #include "library/equations_compiler/pack_domain.h"
@@ -288,6 +289,76 @@ struct wf_rec_fn {
         }
     }
 
+    static optional<expr> unpack_app(expr const & e,
+                                     name const & packed_name, unsigned packed_num_params,
+                                     unpack_eqns const & ues, buffer<expr> const & result_fns) {
+        if (!is_app(e)) return none_expr();
+        buffer<expr> args;
+        expr const & fn = get_app_args(e, args);
+        if (!is_constant(fn)) return none_expr();
+        if (const_name(fn) != packed_name) return none_expr();
+        if (args.size() != packed_num_params + 1) return none_expr();
+        expr arg = app_arg(e);
+        unsigned num_fns = ues.get_num_fns();
+        expr result_fn;
+        unsigned fn_idx  = 0;
+        if (num_fns > 1) {
+            if (is_app_of(arg, get_psum_inr_name())) {
+                for (unsigned i = 0; i < num_fns - 1; i++) {
+                    lean_assert(is_app_of(arg, get_psum_inr_name()));
+                    arg = app_arg(arg);
+                }
+                result_fn = result_fns.back();
+                fn_idx    = num_fns - 1;
+            } else {
+                lean_assert(is_app_of(arg, get_psum_inl_name()));
+                arg = app_arg(arg);
+                while (is_app_of(arg, get_psum_inr_name())) {
+                    fn_idx++;
+                    arg = app_arg(arg);
+                }
+                lean_assert(fn_idx < num_fns);
+            }
+        } else {
+            fn_idx = 0;
+        }
+        result_fn = result_fns[fn_idx];
+        unsigned arity = ues.get_arity_of(fn_idx);
+        buffer<expr> result_args;
+        for (unsigned i = 0; i < arity - 1; i++) {
+            lean_assert(is_app_of(arg, get_psigma_mk_name()));
+            result_args.push_back(app_arg(app_fn(arg)));
+            arg = app_arg(arg);
+        }
+        result_args.push_back(arg);
+        /* Replace parameters and universe levels in result_fn.
+           This code is not very robust since it assume the parameter order is the same. */
+        expr new_result_fn = mk_app(mk_constant(const_name(get_app_fn(result_fn)), const_levels(fn)),
+                                    packed_num_params, args.data());
+        return some_expr(mk_app(new_result_fn, result_args.size(), result_args.data()));
+    }
+
+    struct unpack_apps_fn : public replace_visitor_with_tc {
+        name                 m_packed_name;
+        unsigned             m_packed_num_params;
+        unpack_eqns const &  m_ues;
+        buffer<expr> const & m_result_fns;
+
+        unpack_apps_fn(type_context & ctx, name const & packed_name, unsigned packed_num_params,
+                       unpack_eqns const & ues, buffer<expr> const & result_fns):
+            replace_visitor_with_tc(ctx), m_packed_name(packed_name), m_packed_num_params(packed_num_params),
+            m_ues(ues), m_result_fns(result_fns) {
+        }
+
+        virtual expr visit_app(expr const & e) override {
+            if (auto r = unpack_app(e, m_packed_name, m_packed_num_params, m_ues, m_result_fns)) {
+                return visit(*r);
+            } else {
+                return replace_visitor_with_tc::visit_app(e);
+            }
+        }
+    };
+
     expr unpack(expr const & packed_fn, expr const & eqns_before_pack) {
         equations_header const & header = get_equations_header(eqns_before_pack);
         list<name> fn_names = header.m_fn_names;
@@ -317,9 +388,56 @@ struct wf_rec_fn {
             expr r;
             std::tie(m_env, r) = mk_aux_definition(m_env, m_opts, m_mctx, m_lctx, header, fn_name, fn_type, fn_val);
             result_fns.push_back(r);
-            /* TODO(Leo): unpack equations */
         }
-
+        ctx.set_env(m_env);
+        /* unpack equations */
+        if (m_header.m_aux_lemmas) {
+            name const & packed_name   = const_name(get_app_fn(packed_fn));
+            unsigned packed_num_params = get_app_num_args(packed_fn);
+            unsigned i = 1;
+            unsigned next_eqn_idx = 1;
+            optional<name> prev_fn_name;
+            while (true) {
+                name packed_eqn_name = mk_equation_name(packed_name, i);
+                optional<declaration> packed_eqn_decl = m_env.find(packed_eqn_name);
+                if (!packed_eqn_decl) break;
+                list<level> packed_eqn_levels = param_names_to_levels(packed_eqn_decl->get_univ_params());
+                expr packed_eqn_type = instantiate_type_univ_params(*packed_eqn_decl, packed_eqn_levels);
+                type_context::tmp_locals args(ctx);
+                expr packed_eqn = packed_eqn_type;
+                while (true) {
+                    packed_eqn = ctx.relaxed_whnf(packed_eqn);
+                    if (!is_pi(packed_eqn))
+                        break;
+                    expr arg   = args.push_local_from_binding(packed_eqn);
+                    packed_eqn = instantiate(binding_body(packed_eqn), arg);
+                }
+                expr lhs, rhs;
+                lean_verify(is_eq(packed_eqn, lhs, rhs));
+                trace_debug_wf(tout() << "unpacking: " << packed_eqn_name << "\n";
+                               tout() << lhs << " = " << rhs << "\n";);
+                optional<expr> new_lhs = unpack_app(lhs, packed_name, packed_num_params, ues, result_fns);
+                lean_assert(new_lhs);
+                expr           new_rhs = unpack_apps_fn(ctx, packed_name, packed_num_params, ues, result_fns)(rhs);
+                trace_debug_wf(tout() << "after unpacking\n";
+                               tout() << *new_lhs << " = " << new_rhs << "\n";);
+                name fn_name   = const_name(get_app_fn(*new_lhs));
+                if (!prev_fn_name || fn_name != *prev_fn_name) {
+                    next_eqn_idx = 1;
+                } else {
+                    next_eqn_idx++;
+                }
+                prev_fn_name   = fn_name;
+                expr new_eqn   = mk_eq(ctx, *new_lhs, new_rhs);
+                expr new_type  = args.mk_pi(new_eqn);
+                expr new_proof = args.mk_lambda(mk_app(mk_constant(packed_eqn_decl->get_name(), packed_eqn_levels),
+                                                       args.size(), args.data()));
+                m_env = mk_aux_lemma(m_env, ctx.mctx(), ctx.lctx(),
+                                     mk_equation_name(fn_name, next_eqn_idx),
+                                     new_type, new_proof).first;
+                i++;
+            }
+        }
         return mk_equations_result(result_fns.size(), result_fns.data());
     }
 

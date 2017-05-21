@@ -25,7 +25,6 @@ static expr mk_mutual_arg(type_context & ctx, expr const & e, unsigned fidx, uns
         psum_type = ctx.relaxed_whnf(psum_type);
         buffer<expr> args;
         get_app_args(psum_type, args);
-        tout() << ">> " << psum_type << "\n";
         lean_assert(args.size() == 2);
         if (i == fidx) {
             return mk_app(ctx, get_psum_inl_name(), args[0], args[1], e);

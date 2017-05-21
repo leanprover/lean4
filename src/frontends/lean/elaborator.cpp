@@ -68,7 +68,6 @@ Author: Leonardo de Moura
 namespace lean {
 MK_THREAD_LOCAL_GET(type_context_cache_manager, get_tcm, true /* use binder information at infer_cache */);
 
-static name * g_level_prefix = nullptr;
 static name * g_elab_strategy = nullptr;
 static name * g_elaborator_coercions = nullptr;
 
@@ -3376,32 +3375,6 @@ void elaborator::check_inaccessible(list<expr_pair> const & old_stack) {
     }
 }
 
-void elaborator::unassigned_uvars_to_params(level const & l) {
-    if (!has_meta(l)) return;
-    for_each(l, [&](level const & l) {
-            if (!has_meta(l)) return false;
-            if (is_meta(l) && !m_ctx.is_assigned(l)) {
-                name r = mk_tagged_fresh_name(*g_level_prefix);
-                m_ctx.assign(l, mk_param_univ(r));
-            }
-            return true;
-        });
-}
-
-void elaborator::unassigned_uvars_to_params(expr const & e) {
-    if (!has_univ_metavar(e)) return;
-    for_each(e, [&](expr const & e, unsigned) {
-            if (!has_univ_metavar(e)) return false;
-            if (is_constant(e)) {
-                for (level const & l : const_levels(e))
-                    unassigned_uvars_to_params(l);
-            } else if (is_sort(e)) {
-                unassigned_uvars_to_params(sort_level(e));
-            }
-            return true;
-        });
-}
-
 void elaborator::report_error(tactic_state const & s, char const * state_header,
                               char const * msg, expr const & ref) {
     auto tc = std::make_shared<type_context>(m_env, m_opts, m_ctx.mctx(), m_ctx.lctx());
@@ -3467,12 +3440,9 @@ struct sanitize_param_names_fn : public replace_visitor {
     type_context &  m_ctx;
     name            m_p{"u"};
     name_set        m_L; /* All parameter names in the input expression. */
-    name_map<level> m_R; /* map from tagged g_level_prefix to "clean" name not in L. */
-    name_map<level> m_U; /* map from universe metavariable name to "clean" name not in L. */
     unsigned        m_idx{1};
     buffer<name> &  m_new_param_names;
-    /* If m_fixed == true, then m_R, m_L and m_U are read only. We set m_fixed when elaborating
-       theorem proofs.
+    /* If m_fixed == true, then we do not introduce new parameters.
        Remark: we should be able to infer the set of universe variables using just the
        theorem type. */
     bool            m_fixed;
@@ -3482,7 +3452,7 @@ struct sanitize_param_names_fn : public replace_visitor {
 
     sanitize_param_names_fn(type_context & ctx, elaborator::theorem_finalization_info const & info,
                             buffer<name> & new_lp_names):
-        m_ctx(ctx), m_L(info.m_L), m_R(info.m_R), m_U(info.m_U),
+        m_ctx(ctx), m_L(info.m_L),
         m_new_param_names(new_lp_names), m_fixed(true) {}
 
     level mk_param() {
@@ -3490,9 +3460,6 @@ struct sanitize_param_names_fn : public replace_visitor {
             name new_n = m_p.append_after(m_idx);
             m_idx++;
             if (!m_L.contains(new_n)) {
-                if (m_fixed) {
-                    throw exception(sstream() << "theorem/lemma proof uses universe '" << new_n << "' which does not occur in its type");
-                }
                 m_new_param_names.push_back(new_n);
                 return mk_param_univ(new_n);
             }
@@ -3502,37 +3469,13 @@ struct sanitize_param_names_fn : public replace_visitor {
     level sanitize(level const & l) {
         name p("u");
         return replace(l, [&](level const & l) -> optional<level> {
-                if (is_param(l) && !is_placeholder(l)) {
-                    name const & n = param_id(l);
-                    if (is_tagged_by(n, *g_level_prefix)) {
-                        if (auto new_l = m_R.find(n)) {
-                            return some_level(*new_l);
-                        } else {
-                            if (m_fixed) {
-                                throw exception(sstream() << "theorem/lemma proof uses universe '" << n << "'"
-                                                << " which does not occur in its type (possible solution: use def instead of theorem)");
-                            }
-                            level r = mk_param();
-                            m_R.insert(n, r);
-                            return some_level(r);
-                        }
-                    }
-                } else if (is_meta(l)) {
+                if (is_meta(l)) {
                     if (is_metavar_decl_ref(l) && m_ctx.is_assigned(l)) {
                         return some_level(sanitize(*m_ctx.get_assignment(l)));
                     } else {
-                        name const & n = meta_id(l);
-                        if (auto new_l = m_U.find(n)) {
-                            return some_level(*new_l);
-                        } else {
-                            if (m_fixed) {
-                                throw exception(sstream() << "theorem/lemma proof contains an unassigned universe metavariable '" << n << "'"
-                                                << " (possible solution: use def instead of theorem)");
-                            }
-                            level r = mk_param();
-                            m_U.insert(n, r);
-                            return some_level(r);
-                        }
+                        auto p = m_fixed ? mk_level_zero() : mk_param();
+                        m_ctx.assign(l, p);
+                        return some_level(p);
                     }
                 }
                 return none_level();
@@ -3565,7 +3508,7 @@ struct sanitize_param_names_fn : public replace_visitor {
     }
 
     elaborator::theorem_finalization_info mk_info() {
-        return elaborator::theorem_finalization_info(m_L, m_R, m_U);
+        return {m_L};
     }
 };
 
@@ -3664,7 +3607,6 @@ void elaborator::finalize_core(sanitize_param_names_fn & S, buffer<expr> & es,
         if (!check_unassigned && to_simple_metavar) {
             e = replace_with_simple_metavars(m_ctx.mctx(), to_simple_mvar_cache, e);
         }
-        unassigned_uvars_to_params(e);
         e = instantiate_mvars(e);
         S.collect_params(e);
     }
@@ -3943,7 +3885,6 @@ static vm_obj tactic_save_type_info(vm_obj const &, vm_obj const & _e, vm_obj co
 
 void initialize_elaborator() {
     g_elab_strategy = new name("elab_strategy");
-    g_level_prefix = new name("_elab_u");
     register_trace_class("elaborator");
     register_trace_class("elaborator_detail");
     register_trace_class("elaborator_debug");
@@ -3988,7 +3929,6 @@ void initialize_elaborator() {
 }
 
 void finalize_elaborator() {
-    delete g_level_prefix;
     delete g_elab_strategy;
     delete g_elaborator_coercions;
 }

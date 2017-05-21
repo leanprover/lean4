@@ -272,9 +272,6 @@ private:
     void synthesize();
     void check_inaccessible(list<expr_pair> const & old_stack);
 
-    void unassigned_uvars_to_params(level const & l);
-    void unassigned_uvars_to_params(expr const & e);
-
     void finalize_core(sanitize_param_names_fn & S, buffer<expr> & es,
                        bool check_unassigned, bool to_simple_metavar, bool collect_local_ctx);
 
@@ -323,12 +320,6 @@ public:
        We use theorem_finalization_info to communicate information from the first step to the second. */
     struct theorem_finalization_info {
         name_set        m_L;
-        name_map<level> m_R;
-        name_map<level> m_U;
-        theorem_finalization_info() {}
-        theorem_finalization_info(name_set const & L, name_map<level> const & R,
-                                  name_map<level> const & U):
-            m_L(L), m_R(R), m_U(U) {}
     };
     pair<expr, theorem_finalization_info> finalize_theorem_type(expr const & type, buffer<name> & new_lp_names);
     expr finalize_theorem_proof(expr const & val, theorem_finalization_info const & info);

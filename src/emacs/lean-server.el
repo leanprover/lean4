@@ -114,9 +114,13 @@
                              :name "lean-server stderr"
                              :buffer (format "*lean-server stderr (%s)*" path-file)
                              :noquery t))
-                 (apply #'start-file-process "lean-server"
-                        (format " *lean-server (%s)*" (buffer-name))
-                        cmd)))
+                 (progn
+                   ; emacs 24 loves directory separators, without it
+                   ; the server gets started in the parent directory....
+                   (setq default-directory (format "%s/" default-directory))
+                   (apply #'start-process "lean-server"
+                          (format " *lean-server (%s)*" (buffer-name))
+                          cmd))))
          (sess (make-lean-server-session
                 :path-file path-file
                 :process proc

@@ -212,6 +212,11 @@ void parser::scan() {
     check_break_before();
     check_break_at_pos();
     pos_info curr_pos = pos();
+    if (m_error_since_last_cmd && (curr_is_command() && !curr_is_token(get_end_tk()))) {
+        // If we're during error recovery, do not read past command tokens.
+        // `end` is not treated as a command token since it occurs in begin-end blocks.
+        return;
+    }
     if (m_break_at_pos && m_break_at_pos->first == curr_pos.first && curr_is_identifier()) {
         name curr_ident = get_name_val();
         m_curr = m_scanner.scan(m_env);
@@ -353,10 +358,13 @@ bool parser::curr_is_token_or_id(name const & tk) const {
         return false;
 }
 
-void parser::check_token_next(name const & tk, char const * msg) {
-    if (!curr_is_token(tk))
-        return maybe_throw_error({msg, pos()});
+bool parser::check_token_next(name const & tk, char const * msg) {
+    if (!curr_is_token(tk)) {
+        maybe_throw_error({msg, pos()});
+        return false;
+    }
     next();
+    return true;
 }
 
 void parser::check_token_or_id_next(name const & tk, char const * msg) {
@@ -2451,6 +2459,7 @@ void parser::get_imports(std::vector<module_name> & imports) {
 
 bool parser::parse_command_like() {
     init_scanner();
+    m_error_since_last_cmd = false;
 
     // We disable hash-consing while parsing to make sure the pos-info are correct.
     scoped_expr_caching disable(false);
@@ -2559,6 +2568,7 @@ void parser::maybe_throw_error(parser_error && err) {
             check_system("parser error recovery");
             mk_message(ERROR).set_exception(err).report();
             m_last_recovered_error_pos = err_pos;
+            m_error_since_last_cmd = true;
         }
     } else {
         throw err;

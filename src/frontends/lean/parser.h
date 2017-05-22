@@ -70,6 +70,7 @@ class parser : public abstract_parser {
 
     // error recovery
     bool                   m_error_recovery = true;
+    bool                   m_error_since_last_cmd = false;
     pos_info               m_last_recovered_error_pos {0, 0};
 
     // curr command token
@@ -273,8 +274,8 @@ public:
     virtual void next() override final { if (m_curr != token_kind::Eof) scan(); }
     /** \brief Return true iff the current token is a keyword (or command keyword) named \c tk */
     virtual bool curr_is_token(name const & tk) const override final;
-    /** \brief Check current token, and move to next characther, throw exception if current token is not \c tk. */
-    void check_token_next(name const & tk, char const * msg);
+    /** \brief Check current token, and move to next characther, throw exception if current token is not \c tk.  Returns true if succesful. */
+    bool check_token_next(name const & tk, char const * msg);
     void check_token_or_id_next(name const & tk, char const * msg);
     /** \brief Check if the current token is an identifier, if it is return it and move to next token,
         otherwise throw an exception. */

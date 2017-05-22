@@ -421,6 +421,17 @@ struct parse_begin_end_block_fn {
     }
 
     expr operator()(pos_info const & start_pos, name const & end_token) {
+        auto sync = [&] {
+            while (!m_p.curr_is_token(get_comma_tk()) && !m_p.curr_is_token(end_token) &&
+                    !m_p.curr_is_token(get_semicolon_tk()) && !m_p.curr_is_token(get_orelse_tk())) {
+                auto pos0 = m_p.pos();
+                m_p.next();
+                if (m_p.pos() == pos0) break;
+            }
+            if (!m_p.curr_is_token(get_end_tk())) m_p.next();
+            m_p.maybe_throw_error({"sync", m_p.pos()});
+        };
+
         m_p.next();
         name new_tac_class = m_tac_class;
         if (m_tac_class == get_tactic_name())
@@ -435,30 +446,24 @@ struct parse_begin_end_block_fn {
         m_tac_class = new_tac_class;
         buffer<expr> to_concat;
         to_concat.push_back(mk_tactic_save_info(m_p, start_pos, m_tac_class));
-        try {
-            while (!m_p.curr_is_token(end_token)) {
-                pos_info pos = m_p.pos();
-                try {
-                    to_concat.push_back(parse_tactic());
-                    if (!m_p.curr_is_token(end_token)) {
-                        m_p.without_break_at_pos<void>([&]() {
-                            m_p.check_token_next(get_comma_tk(), "invalid 'begin-end' expression, ',' expected");
-                        });
-                    }
-                    to_concat.push_back(mk_save_info());
-                } catch (break_at_pos_exception & ex) {
-                    ex.report_goal_pos(pos);
-                    throw;
+        while (!m_p.curr_is_token(end_token)) {
+            pos_info pos = m_p.pos();
+            try {
+                to_concat.push_back(parse_tactic());
+                if (!m_p.curr_is_token(end_token)) {
+                    m_p.without_break_at_pos<void>([&]() {
+                        if (!m_p.check_token_next(get_comma_tk(), "invalid 'begin-end' expression, ',' expected")) {
+                            sync();
+                        }
+                    });
                 }
-                if (m_p.pos() == pos) { // unsuccessful error recovery
-                    consume_until_end_or_command(m_p);
-                    break;
-                }
+                to_concat.push_back(mk_save_info());
+            } catch (break_at_pos_exception & ex) {
+                ex.report_goal_pos(pos);
+                throw;
             }
-        } catch (exception & ex) {
-            if (end_token == get_end_tk())
-                consume_until_end_or_command(m_p);
-            throw;
+            if (m_p.pos() == pos) sync();
+            if (m_p.pos() == pos) break;
         }
         auto end_pos = m_p.pos();
         expr r = concat(to_concat, start_pos);

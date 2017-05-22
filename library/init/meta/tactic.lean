@@ -852,12 +852,6 @@ do tgt : expr ← target,
    | none   := intro1
    end
 
-meta def by_cases (e : expr) : tactic unit :=
-do dec_e ← (mk_app `decidable [e] <|> fail "by_cases tactic failed, type is not a proposition"),
-   inst  ← (mk_instance dec_e <|> fail "by_cases tactic failed, type of given expression is not decidable"),
-   em    ← mk_app `decidable.em [e, inst],
-   destruct em
-
 private meta def generalizes_aux (md : transparency) : list expr → tactic unit
 | []      := skip
 | (e::es) := generalize e `x md >> generalizes_aux es
@@ -908,6 +902,12 @@ else do
 meta def refine (e : pexpr) : tactic unit :=
 do tgt : expr ← target,
    to_expr ``(%%e : %%tgt) tt >>= exact
+
+meta def by_cases (e : expr) (h : name) : tactic unit :=
+do dec_e ← (mk_app `decidable [e] <|> fail "by_cases tactic failed, type is not a proposition"),
+   inst  ← (mk_instance dec_e <|> fail "by_cases tactic failed, type of given expression is not decidable"),
+   cases inst [h, h],
+   swap
 
 private meta def get_undeclared_const (env : environment) (base : name) : ℕ → name | i :=
 let n := base <.> ("_aux_" ++ to_string i) in

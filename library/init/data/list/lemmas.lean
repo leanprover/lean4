@@ -613,16 +613,16 @@ attribute [simp] repeat taken dropn
 
 @[simp] lemma partition_eq_filter_filter (p : α → Prop) [decidable_pred p] : ∀ (l : list α), partition p l = (filter p l, filter (not ∘ p) l)
 | []     := rfl
-| (a::l) := by { by_cases p a; intro pa; simp [partition, filter, pa, partition_eq_filter_filter l],
+| (a::l) := by { by_cases p a with pa; simp [partition, filter, pa, partition_eq_filter_filter l],
                  rw [if_neg (not_not_intro pa)], rw [if_pos pa] }
 
 @[simp] lemma span_eq_take_drop (p : α → Prop) [decidable_pred p] : ∀ (l : list α), span p l = (take_while p l, drop_while p l)
 | []     := rfl
-| (a::l) := by by_cases p a; intro pa; simp [span, take_while, drop_while, pa, span_eq_take_drop l]
+| (a::l) := by by_cases p a with pa; simp [span, take_while, drop_while, pa, span_eq_take_drop l]
 
 @[simp] lemma take_while_append_drop (p : α → Prop) [decidable_pred p] : ∀ (l : list α), take_while p l ++ drop_while p l = l
 | []     := rfl
-| (a::l) := by by_cases p a; intro pa; simp [take_while, drop_while, pa, take_while_append_drop l]
+| (a::l) := by by_cases p a with pa; simp [take_while, drop_while, pa, take_while_append_drop l]
 
 /- inits, tails -/
 

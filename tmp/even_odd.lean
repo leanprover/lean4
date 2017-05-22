@@ -18,10 +18,10 @@ with odd : nat → bool
 #eval even 4
 #eval odd 3
 #eval odd 4
-#check even._main.equations._eqn_1
-#check even._main.equations._eqn_2
-#check odd._main.equations._eqn_1
-#check odd._main.equations._eqn_2
+#check even.equations._eqn_1
+#check even.equations._eqn_2
+#check odd.equations._eqn_1
+#check odd.equations._eqn_2
 
 mutual def f, g {α β : Type u} (p : α × β)
 with f : Π n : nat, vector (α × β) n
@@ -31,7 +31,7 @@ with g : Π n : nat, α → vector β n
 | 0        a := vector.nil
 | (succ n) a := vector.cons p.2 $ (f n).map (λ p, p.2)
 
-#check @f._main.equations._eqn_1
-#check @f._main.equations._eqn_2
-#check @g._main.equations._eqn_1
-#check @g._main.equations._eqn_2
+#check @f.equations._eqn_1
+#check @f.equations._eqn_2
+#check @g.equations._eqn_1
+#check @g.equations._eqn_2

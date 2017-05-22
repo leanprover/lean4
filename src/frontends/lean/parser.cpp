@@ -478,7 +478,7 @@ void parser::clear_expr_locals() {
 
 void parser::add_local_level(name const & n, level const & l, bool is_variable) {
     if (m_local_level_decls.contains(n))
-        throw exception(sstream() << "invalid universe declaration, '" << n << "' shadows a local universe");
+        maybe_throw_error({sstream() << "invalid universe declaration, '" << n << "' shadows a local universe", pos()});
     m_local_level_decls.insert(n, l);
     if (is_variable) {
         lean_assert(is_param(l));

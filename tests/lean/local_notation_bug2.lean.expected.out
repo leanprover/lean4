@@ -1,1 +1,4 @@
 local_notation_bug2.lean:7:9: error: invalid antiquotation, occurs outside of quoted expressions
+local_notation_bug2.lean:7:8: error: function expected at
+  5
+⁇

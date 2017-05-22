@@ -11,6 +11,7 @@ which has type
   car
 λ (c : car), ⁇ : car → ?M_1
 proj_notation.lean:31:21: error: invalid projection, index must be greater than 0
+λ (c : car), ⁇ : car → ?M_1
 proj_notation.lean:33:19: error: invalid projection, structure has only 2 field(s)
   c
 which has type

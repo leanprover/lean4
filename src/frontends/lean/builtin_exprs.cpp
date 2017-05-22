@@ -119,7 +119,8 @@ static expr parse_let_body(parser_state & p, pos_info const & pos, bool in_do_bl
             p.next();
             return p.parse_expr();
         } else {
-            throw parser_error("invalid let declaration, 'in' or ',' expected", p.pos());
+            p.maybe_throw_error({"invalid let declaration, 'in' or ',' expected", p.pos()});
+            return p.parse_expr();
         }
     }
 }
@@ -233,7 +234,7 @@ static std::tuple<optional<expr>, expr, expr, optional<expr>> parse_do_action(pa
         type = p.parse_expr();
         lhs  = fix_do_action_lhs(p, *lhs, type, lhs_pos, new_locals);
         if (!is_local(*lhs)) {
-            throw parser_error("invalid 'do' block, unexpected ':' the left hand side is a pattern", lhs_pos);
+            p.maybe_throw_error({"invalid 'do' block, unexpected ':' the left hand side is a pattern", lhs_pos});
         }
         p.check_token_next(get_larrow_tk(), "invalid 'do' block, '←' expected");
         curr = p.parse_expr();
@@ -313,7 +314,7 @@ static expr parse_do(parser_state & p, bool has_braces) {
                 else_cases.push_back(else_case);
             } else {
                 if (lhs) {
-                    throw parser_error("the last statement in a 'do' block must be an expression", lhs_pos);
+                    p.maybe_throw_error({"the last statement in a 'do' block must be an expression", lhs_pos});
                 }
                 break;
             }
@@ -409,7 +410,7 @@ static expr parse_proof(parser_state & p) {
         auto pos = p.pos();
         return parse_by(p, 0, nullptr, pos);
     } else {
-        throw parser_error("invalid expression, 'by', 'begin', '{', or 'from' expected", p.pos());
+        return p.parser_error_or_expr({"invalid expression, 'by', 'begin', '{', or 'from' expected", p.pos()});
     }
 }
 
@@ -598,7 +599,7 @@ static expr parse_calc_expr(parser_state & p, unsigned, expr const *, pos_info c
 
 static expr parse_explicit_core(parser_state & p, pos_info const & pos, bool partial) {
     if (!p.curr_is_identifier())
-        throw parser_error(sstream() << "invalid '" << (partial ? "@@" : "@") << "', identifier expected", p.pos());
+        return p.parser_error_or_expr({sstream() << "invalid '" << (partial ? "@@" : "@") << "', identifier expected", p.pos()});
     expr fn = p.parse_id(/* allow_field_notation */ false);
     if (is_choice(fn)) {
         sstream s;
@@ -614,9 +615,9 @@ static expr parse_explicit_core(parser_state & p, pos_info const & pos, bool par
                 s << "[other]";
         }
         s << ")";
-        throw parser_error(s, pos);
+        return p.parser_error_or_expr({s, pos});
     } else if (!is_as_atomic(fn) && !is_constant(fn) && !is_local(fn)) {
-        throw parser_error(sstream() << "invalid '" << (partial ? "@@" : "@") << "', function must be a constant or variable", pos);
+        return p.parser_error_or_expr({sstream() << "invalid '" << (partial ? "@@" : "@") << "', function must be a constant or variable", pos});
     }
     if (partial)
         return p.save_pos(mk_partial_explicit(fn), pos);
@@ -642,7 +643,7 @@ static expr parse_pattern(parser_state & p, unsigned, expr const * args, pos_inf
 
 static expr parse_lazy_quoted_pexpr(parser_state & p, unsigned, expr const *, pos_info const & pos) {
     if (p.in_quote())
-        throw parser_error("invalid nested quoted expression", pos);
+        return p.parser_error_or_expr({"invalid nested quoted expression", pos});
     parser_state::quote_scope scope(p, true);
     expr e = p.parse_expr();
     if (p.curr_is_token(get_colon_tk())) {
@@ -656,7 +657,7 @@ static expr parse_lazy_quoted_pexpr(parser_state & p, unsigned, expr const *, po
 
 static expr parse_quoted_pexpr(parser_state & p, unsigned, expr const *, pos_info const & pos) {
     if (p.in_quote())
-        throw parser_error("invalid nested quoted expression", pos);
+        return p.parser_error_or_expr({"invalid nested quoted expression", pos});
     parser_state::quote_scope scope(p, true, id_behavior::ErrorIfUndef);
     expr e = p.parse_expr();
     if (p.curr_is_token(get_colon_tk())) {
@@ -670,7 +671,7 @@ static expr parse_quoted_pexpr(parser_state & p, unsigned, expr const *, pos_inf
 
 static expr parse_quoted_expr(parser_state & p, unsigned, expr const *, pos_info const & pos) {
     if (p.in_quote())
-        throw parser_error("invalid nested quoted expression", pos);
+        return p.parser_error_or_expr({"invalid nested quoted expression", pos});
     expr e;
     {
         parser_state::quote_scope scope(p, true, id_behavior::ErrorIfUndef);
@@ -687,7 +688,7 @@ static expr parse_quoted_expr(parser_state & p, unsigned, expr const *, pos_info
 
 static expr parse_antiquote_expr(parser_state & p, unsigned, expr const *, pos_info const & pos) {
     if (!p.in_quote())
-        throw parser_error("invalid antiquotation, occurs outside of quoted expressions", pos);
+        return p.parser_error_or_expr({"invalid antiquotation, occurs outside of quoted expressions", pos});
     parser_state::quote_scope scope(p, false);
     expr e = p.parse_expr(get_max_prec());
     return p.save_pos(mk_antiquote(e), pos);
@@ -706,7 +707,7 @@ static expr parse_quoted_name(parser_state & p, unsigned, expr const *, pos_info
         }
         if (p.curr_is_keyword() || p.curr_is_command()) {
             if (resolve)
-                throw parser_error("invalid resolved quote symbol, identifier is a keyword/command", pos);
+                return p.parser_error_or_expr({"invalid resolved quote symbol, identifier is a keyword/command", pos});
             id = p.get_token_info().token();
             p.next();
         } else {
@@ -727,10 +728,10 @@ static expr parse_quoted_name(parser_state & p, unsigned, expr const *, pos_info
             for (unsigned i = 0; i < get_num_choices(e); i++)
                 ss << " " << get_choice(e, i);
             ss << " (solution: use fully qualified names)";
-            throw parser_error(ss, pos);
+            return p.parser_error_or_expr({ss, pos});
         } else {
-            throw parser_error("invalid quoted symbol, failed to resolve it "
-                               "(solution: use `<identifier> to bypass name resolution)", pos);
+            return p.parser_error_or_expr({"invalid quoted symbol, failed to resolve it "
+                               "(solution: use `<identifier> to bypass name resolution)", pos});
         }
     }
     lean_assert(id.is_string());
@@ -784,7 +785,8 @@ static expr parse_lambda_binder(parser_state & p, pos_info const & pos) {
     } else if (p.curr_is_token(get_langle_tk())) {
         body = parse_lambda_core(p, pos);
     } else {
-        throw parser_error("invalid lambda expression, ',' or '⟨' expected", p.pos());
+        p.maybe_throw_error({"invalid lambda expression, ',' or '⟨' expected", p.pos()});
+        body = p.parse_expr();
     }
     bool use_cache = false;
     return p.rec_save_pos(Fun(locals, body, use_cache), pos);
@@ -956,16 +958,19 @@ static expr parse_lambda_cons(parser_state & p, unsigned, expr const *, pos_info
 }
 
 static expr parse_inaccessible(parser_state & p, unsigned, expr const *, pos_info const & pos) {
-    if (!p.in_pattern())
-        throw parser_error("inaccesible pattern notation `.(t)` can only be used in patterns", pos);
     expr e = p.parse_expr();
+    if (!p.in_pattern()) {
+        p.maybe_throw_error({"inaccesible pattern notation `.(t)` can only be used in patterns", pos});
+        return e;
+    }
     p.check_token_next(get_rparen_tk(), "invalid inaccesible pattern, `)` expected");
     return p.save_pos(mk_inaccessible(e), pos);
 }
 
 static expr parse_atomic_inaccessible(parser_state & p, unsigned, expr const *, pos_info const & pos) {
-    if (!p.in_pattern())
-        throw parser_error("inaccesible pattern notation `._` can only be used in patterns", pos);
+    if (!p.in_pattern()) {
+        return p.parser_error_or_expr({"inaccesible pattern notation `._` can only be used in patterns", pos});
+    }
     return p.save_pos(mk_inaccessible(p.save_pos(mk_expr_placeholder(), pos)), pos);
 }
 
@@ -1018,7 +1023,7 @@ static expr parse_field(parser_state & p, unsigned, expr const * args, pos_info 
             pos_info num_pos = p.pos();
             unsigned fidx = p.parse_small_nat();
             if (fidx == 0)
-                throw parser_error("invalid projection, index must be greater than 0", num_pos);
+                return p.parser_error_or_expr({"invalid projection, index must be greater than 0", num_pos});
             return p.save_pos(mk_field_notation(args[0], fidx), pos);
         } else {
             name field = p.check_id_next("identifier or numeral expected");

@@ -149,10 +149,14 @@ expr parse_calc(parser & p) {
         pos    = p.pos();
         p.next();
         expr new_pred_expr = parse_next_pred(p, dummy);
-        calc_pred new_pred = decode_expr(new_pred_expr, pos);
-        new_pred           = calc_pred(pred_op(new_pred), pred_rhs(pred), pred_rhs(new_pred));
-        calc_step new_step = parse_calc_proof(p, new_pred);
-        step               = join(p, step, new_step, pos);
+        try {
+            calc_pred new_pred = decode_expr(new_pred_expr, pos);
+            new_pred           = calc_pred(pred_op(new_pred), pred_rhs(pred), pred_rhs(new_pred));
+            calc_step new_step = parse_calc_proof(p, new_pred);
+            step               = join(p, step, new_step, pos);
+        } catch (parser_error ex) {
+            p.maybe_throw_error(std::move(ex));
+        }
     }
 
     if (single) {

@@ -133,7 +133,7 @@ static expr parse_nested_interactive_tactic(parser & p, name const & tac_class, 
     } else if (p.curr_is_token(get_begin_tk())) {
         return parse_begin_end_block(p, pos, get_end_tk(), tac_class, use_istep);
     } else {
-        throw parser_error("invalid nested auto-quote tactic, '{' or 'begin' expected", pos);
+        return p.parser_error_or_expr({"invalid nested auto-quote tactic, '{' or 'begin' expected", pos});
     }
 }
 
@@ -371,9 +371,11 @@ static name parse_tactic_class(parser & p, name tac_class) {
         auto id_pos = p.pos();
         name id = p.check_id_next("invalid 'begin [...] ... end' block, identifier expected");
         auto new_class = is_tactic_class(p.env(), id);
-        if (!new_class)
-            throw parser_error(sstream() << "invalid 'begin [" << id << "] ...end' block, "
-                               << "'" << id << "' is not a valid tactic class", id_pos);
+        if (!new_class) {
+            p.maybe_throw_error({sstream() << "invalid 'begin [" << id << "] ...end' block, "
+                               << "'" << id << "' is not a valid tactic class", id_pos});
+            return tac_class;
+        }
         p.check_token_next(get_rbracket_tk(), "invalid 'begin [...] ... end block', ']' expected");
         return *new_class;
     } else {

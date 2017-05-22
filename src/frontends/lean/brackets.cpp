@@ -184,7 +184,7 @@ expr parse_curly_bracket(parser & p, unsigned, expr const *, pos_info const & po
         p.next();
         return parse_structure_instance_update(p, e);
     } else {
-        throw parser_error("invalid '{' expression, ',', '}', 'with', `//` or `|` expected", p.pos());
+        return p.parser_error_or_expr({"invalid '{' expression, ',', '}', 'with', `//` or `|` expected", p.pos()});
     }
 }
 

@@ -521,11 +521,24 @@ protected def sum.sizeof {α : Type u} {β : Type v} [has_sizeof α] [has_sizeof
 instance (α : Type u) (β : Type v) [has_sizeof α] [has_sizeof β] : has_sizeof (sum α β) :=
 ⟨sum.sizeof⟩
 
+protected def psum.sizeof {α : Type u} {β : Type v} [has_sizeof α] [has_sizeof β] : (psum α β) → nat
+| (psum.inl a) := 1 + sizeof a
+| (psum.inr b) := 1 + sizeof b
+
+instance (α : Type u) (β : Type v) [has_sizeof α] [has_sizeof β] : has_sizeof (psum α β) :=
+⟨psum.sizeof⟩
+
 protected def sigma.sizeof {α : Type u} {β : α → Type v} [has_sizeof α] [∀ a, has_sizeof (β a)] : sigma β → nat
 | ⟨a, b⟩ := 1 + sizeof a + sizeof b
 
 instance (α : Type u) (β : α → Type v) [has_sizeof α] [∀ a, has_sizeof (β a)] : has_sizeof (sigma β) :=
 ⟨sigma.sizeof⟩
+
+protected def psigma.sizeof {α : Type u} {β : α → Type v} [has_sizeof α] [∀ a, has_sizeof (β a)] : psigma β → nat
+| ⟨a, b⟩ := 1 + sizeof a + sizeof b
+
+instance (α : Type u) (β : α → Type v) [has_sizeof α] [∀ a, has_sizeof (β a)] : has_sizeof (psigma β) :=
+⟨psigma.sizeof⟩
 
 protected def unit.sizeof : unit → nat
 | u := 1

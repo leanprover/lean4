@@ -45,10 +45,22 @@ assg ← solve_deps d,
 path_file_cnts ← mk_path_file <$> construct_path assg,
 write_file "leanpkg.path" path_file_cnts
 
-def make : io unit :=
-exec_cmd { cmd := "lean", args := ["--make"], env := [("LEAN_PATH", none)] }
+
+def make : io unit := do
+manifest ← read_manifest,
+let src_path := manifest.path.get_or_else "src",
+exec_cmd {
+  cmd := "lean",
+  args := ["--make", src_path],
+  env := [("LEAN_PATH", none)]
+}
 
 def build := configure >> make
+
+def make_test : io unit :=
+exec_cmd { cmd := "lean", args := ["--make", "test"], env := [("LEAN_PATH", none)] }
+
+def test := configure >> make_test
 
 def init_gitignore_contents :=
 "*.olean
@@ -120,6 +132,7 @@ Usage: leanpkg <command>
 
 configure       download dependencies
 build           download dependencies and build *.olean files
+test            download dependencies and run test files
 
 new <dir>       creates a lean package in the specified directory
 init <name>     adds a leanpkg.toml file to the current directory, and sets up .gitignore
@@ -136,6 +149,7 @@ dump            prints the parsed leanpkg.toml file (for debugging)
 def main : ∀ (args : list string), io unit
 | ["configure"] := configure
 | ["build"] := build
+| ["test"] := test
 | ["new", dir] := new dir
 | ["init", name] := init name
 | ["add", dep] := add dep

@@ -86,6 +86,13 @@ meta def fail_if_success {α : Type u} (t : tactic α) : tactic unit :=
  (λ a s, mk_exception "fail_if_success combinator failed, given tactic succeeded" none s)
  (λ e ref s', success () s)
 
+meta def success_if_fail {α : Type u} (t : tactic α) : tactic unit :=
+λ s, match t s with
+| (interaction_monad.result.exception _ _ s') := success () s
+| (interaction_monad.result.success a s) :=
+   mk_exception "success_if_fail combinator failed, given tactic succeeded" none s
+end
+
 open nat
 /- (repeat_at_most n t): repeat the given tactic at most n times or until t fails -/
 meta def repeat_at_most : nat → tactic unit → tactic unit

@@ -66,10 +66,10 @@ meta constant string.reflect (s : string) : reflected s
 attribute [class] reflected
 attribute [instance] expr.reflect string.reflect
 
-meta instance {α : Type u} (a : α) : has_coe (reflected a) expr :=
+meta instance {α : Sort u} (a : α) : has_coe (reflected a) expr :=
 ⟨reflected.to_expr⟩
 
-meta def reflect {α : Type u} (a : α) [h : reflected a] : reflected a := h
+meta def reflect {α : Sort u} (a : α) [h : reflected a] : reflected a := h
 
 meta instance : inhabited expr :=
 ⟨expr.sort level.zero⟩

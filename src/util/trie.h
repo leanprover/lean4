@@ -79,7 +79,7 @@ class trie : public KeyCMP {
         }
         n->m_children.for_each([&](Key const & k, trie const & c) {
                 prefix.push_back(k);
-                for_each(f, c, prefix);
+                trie::for_each(f, c, prefix);
                 prefix.pop_back();
             });
     }

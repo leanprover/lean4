@@ -118,7 +118,7 @@ struct pack_mutual_fn {
             if (optional<unsigned> fidx = get_fidx(app_fn(e))) {
                 expr arg = visit(app_arg(e));
                 expr new_arg = mk_new_arg(arg, *fidx);
-                return mk_app(m_new_fn, new_arg);
+                return copy_tag(e, mk_app(m_new_fn, new_arg));
             } else {
                 return replace_visitor_with_tc::visit_app(e);
             }

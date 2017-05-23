@@ -367,11 +367,12 @@ name const * g_unsafe_monad_from_pure_bind = nullptr;
 name const * g_user_attribute = nullptr;
 name const * g_vm_monitor = nullptr;
 name const * g_weak_order = nullptr;
-name const * g_well_founded = nullptr;
 name const * g_well_founded_fix = nullptr;
 name const * g_well_founded_fix_eq = nullptr;
 name const * g_well_founded_tactics = nullptr;
 name const * g_well_founded_tactics_default = nullptr;
+name const * g_well_founded_tactics_rel_tac = nullptr;
+name const * g_well_founded_tactics_dec_tac = nullptr;
 name const * g_xor = nullptr;
 name const * g_zero_le_one = nullptr;
 name const * g_zero_lt_one = nullptr;
@@ -741,11 +742,12 @@ void initialize_constants() {
     g_user_attribute = new name{"user_attribute"};
     g_vm_monitor = new name{"vm_monitor"};
     g_weak_order = new name{"weak_order"};
-    g_well_founded = new name{"well_founded"};
     g_well_founded_fix = new name{"well_founded", "fix"};
     g_well_founded_fix_eq = new name{"well_founded", "fix_eq"};
     g_well_founded_tactics = new name{"well_founded_tactics"};
     g_well_founded_tactics_default = new name{"well_founded_tactics", "default"};
+    g_well_founded_tactics_rel_tac = new name{"well_founded_tactics", "rel_tac"};
+    g_well_founded_tactics_dec_tac = new name{"well_founded_tactics", "dec_tac"};
     g_xor = new name{"xor"};
     g_zero_le_one = new name{"zero_le_one"};
     g_zero_lt_one = new name{"zero_lt_one"};
@@ -1116,11 +1118,12 @@ void finalize_constants() {
     delete g_user_attribute;
     delete g_vm_monitor;
     delete g_weak_order;
-    delete g_well_founded;
     delete g_well_founded_fix;
     delete g_well_founded_fix_eq;
     delete g_well_founded_tactics;
     delete g_well_founded_tactics_default;
+    delete g_well_founded_tactics_rel_tac;
+    delete g_well_founded_tactics_dec_tac;
     delete g_xor;
     delete g_zero_le_one;
     delete g_zero_lt_one;
@@ -1490,11 +1493,12 @@ name const & get_unsafe_monad_from_pure_bind_name() { return *g_unsafe_monad_fro
 name const & get_user_attribute_name() { return *g_user_attribute; }
 name const & get_vm_monitor_name() { return *g_vm_monitor; }
 name const & get_weak_order_name() { return *g_weak_order; }
-name const & get_well_founded_name() { return *g_well_founded; }
 name const & get_well_founded_fix_name() { return *g_well_founded_fix; }
 name const & get_well_founded_fix_eq_name() { return *g_well_founded_fix_eq; }
 name const & get_well_founded_tactics_name() { return *g_well_founded_tactics; }
 name const & get_well_founded_tactics_default_name() { return *g_well_founded_tactics_default; }
+name const & get_well_founded_tactics_rel_tac_name() { return *g_well_founded_tactics_rel_tac; }
+name const & get_well_founded_tactics_dec_tac_name() { return *g_well_founded_tactics_dec_tac; }
 name const & get_xor_name() { return *g_xor; }
 name const & get_zero_le_one_name() { return *g_zero_le_one; }
 name const & get_zero_lt_one_name() { return *g_zero_lt_one; }

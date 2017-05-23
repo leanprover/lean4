@@ -367,11 +367,12 @@ run_cmd script_check_id `unsafe_monad_from_pure_bind
 run_cmd script_check_id `user_attribute
 run_cmd script_check_id `vm_monitor
 run_cmd script_check_id `weak_order
-run_cmd script_check_id `well_founded
 run_cmd script_check_id `well_founded.fix
 run_cmd script_check_id `well_founded.fix_eq
 run_cmd script_check_id `well_founded_tactics
 run_cmd script_check_id `well_founded_tactics.default
+run_cmd script_check_id `well_founded_tactics.rel_tac
+run_cmd script_check_id `well_founded_tactics.dec_tac
 run_cmd script_check_id `xor
 run_cmd script_check_id `zero_le_one
 run_cmd script_check_id `zero_lt_one

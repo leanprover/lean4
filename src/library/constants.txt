@@ -362,11 +362,12 @@ unsafe_monad_from_pure_bind
 user_attribute
 vm_monitor
 weak_order
-well_founded
 well_founded.fix
 well_founded.fix_eq
 well_founded_tactics
 well_founded_tactics.default
+well_founded_tactics.rel_tac
+well_founded_tactics.dec_tac
 xor
 zero_le_one
 zero_lt_one

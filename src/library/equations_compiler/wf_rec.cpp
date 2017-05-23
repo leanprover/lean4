@@ -11,8 +11,11 @@ Author: Leonardo de Moura
 #include "library/pp_options.h"
 #include "library/app_builder.h"
 #include "library/aux_definition.h"
-#include "library/sorry.h" // remove after we add tactic for proving recursive calls are decreasing
 #include "library/replace_visitor_with_tc.h"
+#include "library/sorry.h" // remove after we add tactic for proving recursive calls are decreasing
+#include "library/vm/vm.h"
+#include "library/tactic/tactic_state.h"
+#include "library/tactic/tactic_evaluator.h"
 #include "library/equations_compiler/pack_domain.h"
 #include "library/equations_compiler/pack_mutual.h"
 #include "library/equations_compiler/elim_match.h"
@@ -34,6 +37,8 @@ struct wf_rec_fn {
 
     expr             m_R;
     expr             m_R_wf;
+
+    expr             m_dec_tac;
 
     wf_rec_fn(environment const & env, options const & opts,
               metavar_context const & mctx, local_context const & lctx):
@@ -64,30 +69,41 @@ struct wf_rec_fn {
         return r;
     }
 
-    expr_pair mk_wf_relation(expr const & eqns) {
+    void mk_wf_relation(expr const & eqns, expr const & rel_tac) {
         lean_assert(get_equations_header(eqns).m_num_fns == 1);
         type_context ctx = mk_type_context();
         unpack_eqns ues(ctx, eqns);
         try {
-            expr fn_type = ctx.relaxed_whnf(ctx.infer(ues.get_fn(0)));
+            expr fn_type          = ctx.relaxed_whnf(ctx.infer(ues.get_fn(0)));
             lean_assert(is_pi(fn_type));
-            expr d       = binding_domain(fn_type);
-            expr wf      = mk_app(ctx, get_has_well_founded_name(), d);
-            if (auto inst = ctx.mk_class_instance(wf)) {
+            expr d                = binding_domain(fn_type);
+            expr has_well_founded = mk_app(ctx, get_has_well_founded_name(), d);
+            tactic_state s        = mk_tactic_state_for(m_env, m_opts, "_wf_rec_mk_rel_tactic", m_mctx, m_lctx, has_well_founded);
+            vm_obj r = tactic_evaluator(ctx, m_opts, m_ref)(rel_tac, s);
+            if (auto new_s = tactic::is_success(r)) {
+                metavar_context mctx = new_s->mctx();
+                bool postpone_push_delayed = true;
+                expr val = mctx.instantiate_mvars(new_s->main(), postpone_push_delayed);
                 bool mask[2] = {true, true};
-                expr args[2] = {d, *inst};
-                expr r   = mk_app(ctx, get_has_well_founded_r_name(), 2, mask, args);
-                expr wf  = mk_app(ctx, get_has_well_founded_wf_name(), 2, mask, args);
-                return expr_pair(r, wf);
+                expr args[2] = {d, val};
+                m_R    = mk_app(ctx, get_has_well_founded_r_name(), 2, mask, args);
+                m_R_wf = mk_app(ctx, get_has_well_founded_wf_name(), 2, mask, args);
+                m_env  = new_s->env();
+                return;
             }
         } catch (exception & ex) {
             throw nested_exception(some_expr(m_ref),
-                                   "failed to create well founded relation using type class resolution",
+                                   "failed to create well founded relation using tactic",
                                    ex);
         }
-        throw generic_exception(m_ref, "failed to create well founded relation using type class resolution");
+        throw generic_exception(m_ref, "failed to create well founded relation using tactic");
     }
 
+    void init(expr const & eqns, expr const & wf_tacs) {
+        expr rel_tac = mk_app(mk_constant(get_well_founded_tactics_rel_tac_name()), wf_tacs);
+        mk_wf_relation(eqns, rel_tac);
+        m_dec_tac    = mk_app(mk_constant(get_well_founded_tactics_dec_tac_name()), wf_tacs);
+    }
 
     /* Return the type of the functional. */
     expr mk_new_fn_type(type_context & ctx, unpack_eqns const & ues) {
@@ -106,13 +122,13 @@ struct wf_rec_fn {
     }
 
     struct elim_rec_apps_fn : public replace_visitor_with_tc {
-        expr    m_fn;
-        expr    m_R;
-        expr    m_x;
-        expr    m_F;
+        wf_rec_fn & m_parent;
+        expr        m_fn;
+        expr        m_x;
+        expr        m_F;
 
-        elim_rec_apps_fn(type_context & ctx, expr const & fn, expr const & R, expr const & x, expr const & F):
-            replace_visitor_with_tc(ctx), m_fn(fn), m_R(R), m_x(x), m_F(F) {}
+        elim_rec_apps_fn(wf_rec_fn & parent, type_context & ctx, expr const & fn, expr const & x, expr const & F):
+            replace_visitor_with_tc(ctx), m_parent(parent), m_fn(fn), m_x(x), m_F(F) {}
 
         virtual expr visit_local(expr const & e) {
             if (mlocal_name(e) == mlocal_name(m_fn)) {
@@ -123,17 +139,30 @@ struct wf_rec_fn {
         }
 
         /* Prove that y < x */
-        expr mk_dec_proof(expr const & y) {
-            expr y_R_x = mk_app(m_R, y, m_x);
-            // TODO(Leo): invoke tactic, we use sorry for now
-            return mk_sorry(y_R_x);
+        expr mk_dec_proof(expr const & y, expr const & ref) {
+            expr y_R_x = mk_app(m_parent.m_R, y, m_x);
+
+            metavar_context mctx = m_ctx.mctx();
+            tactic_state s = mk_tactic_state_for(m_parent.m_env, m_parent.m_opts, "_wf_rec_mk_dec_tactic", mctx, m_ctx.lctx(), y_R_x);
+            vm_obj r = tactic_evaluator(m_ctx, m_parent.m_opts, ref)(m_parent.m_dec_tac, s);
+            if (auto new_s = tactic::is_success(r)) {
+                mctx = new_s->mctx();
+                bool postpone_push_delayed = true;
+                expr r = mctx.instantiate_mvars(new_s->main(), postpone_push_delayed);
+                m_parent.m_env = new_s->env();
+                m_ctx.set_env(new_s->env());
+                m_ctx.set_mctx(mctx);
+                return r;
+            }
+
+            throw generic_exception(ref, "failed to show recursive call is descreasing");
         }
 
         virtual expr visit_app(expr const & e) {
             expr const & fn = app_fn(e);
             if (is_local(fn) && mlocal_name(fn) == mlocal_name(m_fn)) {
                 expr y   = visit(app_arg(e));
-                expr hlt = mk_dec_proof(y);
+                expr hlt = mk_dec_proof(y, e);
                 return mk_app(m_F, y, hlt);
             } else {
                 return replace_visitor_with_tc::visit_app(e);
@@ -157,7 +186,7 @@ struct wf_rec_fn {
             ue.lhs()     = new_lhs;
             type_context::tmp_locals locals(ctx);
             expr F       = locals.push_local_from_binding(type);
-            ue.rhs()     = ctx.mk_lambda(F, elim_rec_apps_fn(ctx, fn, m_R, lhs_args[0], F)(rhs));
+            ue.rhs()     = ctx.mk_lambda(F, elim_rec_apps_fn(*this, ctx, fn, lhs_args[0], F)(rhs));
             new_eqns.push_back(ue.repack());
         }
         eqns = new_eqns;
@@ -461,17 +490,14 @@ struct wf_rec_fn {
         }
 
         /* Retrieve well founded relation */
+        expr wf_tacs;
         if (is_wf_equations(eqns)) {
-            // TODO(Leo)
-            throw exception("support for user defined well_founded_tactics is not available");
+            wf_tacs = equations_wf_tactics(eqns);
         } else {
-            std::tie(m_R, m_R_wf) = mk_wf_relation(eqns);
+            wf_tacs = mk_constant(get_well_founded_tactics_default_name());
         }
-        {
-            lean_trace_init_bool(name({"eqn_compiler", "wf_rec"}), get_pp_implicit_name(), true);
-            trace_wf(tout() << "using well_founded relation\n" << m_R << " :\n  "
-                     << mk_type_context().infer(m_R) << "\n";);
-        }
+
+        init(eqns, wf_tacs);
 
         /* Eliminate recursion using functional. */
         eqns = elim_recursion(eqns);

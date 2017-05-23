@@ -223,11 +223,8 @@ struct wf_rec_fn {
         lean_assert(closed(it));
         expr C    = ctx.mk_lambda(x, Cx);
         level u_1 = get_level(ctx, x_ty);
-        optional<level> dec_u_1 = dec_level(u_1);
-        if (!dec_u_1)
-            throw generic_exception(m_ref, "equation compiler failed to compute universe level parameter");
         level u_2 = get_level(ctx, Cx);
-        expr fix  = mk_app({mk_constant(get_well_founded_fix_name(), {*dec_u_1, u_2}), x_ty, C, m_R, m_R_wf, aux_fn, x});
+        expr fix  = mk_app({mk_constant(get_well_founded_fix_name(), {u_1, u_2}), x_ty, C, m_R, m_R_wf, aux_fn, x});
         return ctx.mk_lambda(x, fix);
     }
 

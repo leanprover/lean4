@@ -8,29 +8,29 @@ import init.data.nat.basic init.data.prod
 
 universes u v
 
-inductive acc {α : Type u} (r : α → α → Prop) : α → Prop
+inductive acc {α : Sort u} (r : α → α → Prop) : α → Prop
 | intro : ∀ x, (∀ y, r y x → acc y) → acc x
 
 namespace acc
-variables {α : Type u} {r : α → α → Prop}
+variables {α : Sort u} {r : α → α → Prop}
 
 def inv {x y : α} (h₁ : acc r x) (h₂ : r y x) : acc r y :=
 acc.rec_on h₁ (λ x₁ ac₁ ih h₂, ac₁ y h₂) h₂
 
 end acc
 
-inductive well_founded {α : Type u} (r : α → α → Prop) : Prop
+inductive well_founded {α : Sort u} (r : α → α → Prop) : Prop
 | intro : (∀ a, acc r a) → well_founded
 
-class has_well_founded (α : Type u) : Type u :=
+class has_well_founded (α : Sort u) : Type u :=
 (r : α → α → Prop) (wf : well_founded r)
 
 namespace well_founded
-def apply {α : Type u} {r : α → α → Prop} (wf : well_founded r) : ∀ a, acc r a :=
+def apply {α : Sort u} {r : α → α → Prop} (wf : well_founded r) : ∀ a, acc r a :=
 take a, well_founded.rec_on wf (λ p, p) a
 
 section
-parameters {α : Type u} {r : α → α → Prop}
+parameters {α : Sort u} {r : α → α → Prop}
 local infix `≺`:50    := r
 
 parameter hwf : well_founded r
@@ -52,7 +52,7 @@ lemma fix_F_eq (x : α) (acx : acc r x) :
 acc.drec (λ x r ih, rfl) acx
 end
 
-variables {α : Type u} {C : α → Sort v} {r : α → α → Prop}
+variables {α : Sort u} {C : α → Sort v} {r : α → α → Prop}
 
 -- Well-founded fixpoint
 def fix (hwf : well_founded r) (F : Π x, (Π y, r y x → C y) → C x) (x : α) : C x :=
@@ -67,14 +67,14 @@ end well_founded
 open well_founded
 
 -- Empty relation is well-founded
-def empty_wf {α : Type u} : well_founded empty_relation :=
+def empty_wf {α : Sort u} : well_founded empty_relation :=
 well_founded.intro (λ (a : α),
   acc.intro a (λ (b : α) (lt : false), false.rec _ lt))
 
 -- Subrelation of a well-founded relation is well-founded
 namespace subrelation
 section
-  parameters {α : Type u} {r Q : α → α → Prop}
+  parameters {α : Sort u} {r Q : α → α → Prop}
   parameters (h₁ : subrelation Q r)
   parameters (h₂ : well_founded r)
 
@@ -90,7 +90,7 @@ end subrelation
 -- The inverse image of a well-founded relation is well-founded
 namespace inv_image
 section
-  parameters {α : Type u} {β : Type v} {r : β → β → Prop}
+  parameters {α : Sort u} {β : Sort v} {r : β → β → Prop}
   parameters (f : α → β)
   parameters (h : well_founded r)
 
@@ -109,7 +109,7 @@ end inv_image
 -- The transitive closure of a well-founded relation is well-founded
 namespace tc
 section
-  parameters {α : Type u} {r : α → α → Prop}
+  parameters {α : Sort u} {r : α → α → Prop}
   local notation `r⁺` := tc r
 
   def accessible {z : α} (ac : acc r z) : acc (tc r) z :=
@@ -133,19 +133,19 @@ def nat.lt_wf : well_founded nat.lt :=
      or.elim (nat.eq_or_lt_of_le (nat.le_of_succ_le_succ h))
         (λ e, eq.substr e ih) (acc.inv ih)))⟩
 
-def measure {α : Type u} : (α → ℕ) → α → α → Prop :=
+def measure {α : Sort u} : (α → ℕ) → α → α → Prop :=
 inv_image (<)
 
-def measure_wf {α : Type u} (f : α → ℕ) : well_founded (measure f) :=
+def measure_wf {α : Sort u} (f : α → ℕ) : well_founded (measure f) :=
 inv_image.wf f nat.lt_wf
 
-def sizeof_measure (α : Type u) [has_sizeof α] : α → α → Prop :=
+def sizeof_measure (α : Sort u) [has_sizeof α] : α → α → Prop :=
 measure sizeof
 
-def sizeof_measure_wf (α : Type u) [has_sizeof α] : well_founded (sizeof_measure α) :=
+def sizeof_measure_wf (α : Sort u) [has_sizeof α] : well_founded (sizeof_measure α) :=
 measure_wf sizeof
 
-instance has_well_founded_of_has_sizeof (α : Type u) [has_sizeof α] : has_well_founded α :=
+instance has_well_founded_of_has_sizeof (α : Sort u) [has_sizeof α] : has_well_founded α :=
 {r := sizeof_measure α, wf := sizeof_measure_wf α}
 
 namespace prod

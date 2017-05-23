@@ -1021,7 +1021,7 @@ lemma inv_image.trans (f : α → β) (h : transitive r) : transitive (inv_image
 lemma inv_image.irreflexive (f : α → β) (h : irreflexive r) : irreflexive (inv_image r f) :=
 λ (a : α) (h₁ : inv_image r f a a), h (f a) h₁
 
-inductive tc {α : Type u} (r : α → α → Prop) : α → α → Prop
+inductive tc {α : Sort u} (r : α → α → Prop) : α → α → Prop
 | base  : ∀ a b, r a b → tc a b
 | trans : ∀ a b c, tc a b → tc b c → tc a c
 end relation

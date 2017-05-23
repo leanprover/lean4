@@ -79,7 +79,6 @@ public:
         m_I_name(I), m_constructor_name(c), m_proj_name(p), m_idx(i), m_ps(ps), m_type(type), m_val(val) {}
 
     virtual name get_name() const { return m_proj_name; }
-    virtual format pp(formatter const &) const { return format(m_proj_name); }
     virtual void display(std::ostream & out) const { out << m_proj_name; }
     virtual expr check_type(expr const & m, abstract_type_context & ctx, bool infer_only) const {
         check_macro(m);

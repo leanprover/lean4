@@ -97,10 +97,6 @@ public:
     virtual void display(std::ostream & out) const {
         display_string_literal(out, m_value);
     }
-    virtual format pp(formatter const &) const {
-        return pp_string_literal(m_value);
-    }
-    virtual bool is_atomic_pp(bool, bool) const { return true; }
     virtual unsigned hash() const { return std::hash<std::string>()(m_value); }
     virtual void write(serializer & s) const { s << *g_string_opcode << m_value; }
     std::string const & get_value() const { return m_value; }

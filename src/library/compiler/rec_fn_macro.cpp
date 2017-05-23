@@ -31,8 +31,6 @@ public:
     name const & get_rec_fn_name() const { return m_name; }
     virtual name get_name() const { return get_rec_fn_macro_id(); }
 
-    virtual format pp(formatter const &) const { return format(m_name); }
-
     virtual void display(std::ostream & out) const { out << m_name; }
 
     virtual expr check_type(expr const & m, abstract_type_context &, bool) const {

@@ -32,7 +32,6 @@ public:
     annotation_macro_definition_cell(name const & n):m_name(n) {}
     name const & get_annotation_kind() const { return m_name; }
     virtual name get_name() const { return get_annotation_name(); }
-    virtual format pp(formatter const &) const { return format(m_name); }
     virtual void display(std::ostream & out) const { out << m_name; }
     virtual expr check_type(expr const & m, abstract_type_context & ctx, bool infer_only) const {
         check_macro(m);

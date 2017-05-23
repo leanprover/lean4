@@ -61,7 +61,6 @@ public:
     virtual void display(std::ostream & out) const {
         out << m_value;
     }
-    virtual bool is_atomic_pp(bool, bool) const { return true; }
     virtual unsigned hash() const { return m_value.hash(); }
     virtual void write(serializer & s) const {
         s << *g_nat_opcode << m_value;

@@ -278,9 +278,7 @@ bool macro_definition_cell::lt(macro_definition_cell const &) const { return fal
 bool macro_definition_cell::operator==(macro_definition_cell const & other) const { return typeid(*this) == typeid(other); }
 unsigned macro_definition_cell::trust_level() const { return 0; }
 
-format macro_definition_cell::pp(formatter const &) const { return format(get_name()); }
 void macro_definition_cell::display(std::ostream & out) const { out << get_name(); }
-bool macro_definition_cell::is_atomic_pp(bool, bool) const { return true; }
 unsigned macro_definition_cell::hash() const { return get_name().hash(); }
 
 macro_definition::macro_definition(macro_definition_cell * ptr):m_ptr(ptr) { lean_assert(m_ptr); m_ptr->inc_ref(); }

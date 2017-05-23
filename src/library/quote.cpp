@@ -42,10 +42,6 @@ public:
     virtual void display(std::ostream & out) const {
         out << "quote";
     }
-    virtual format pp(formatter const &) const {
-        return format("quote");
-    }
-    virtual bool is_atomic_pp(bool, bool) const { return false; }
     virtual void write(serializer & s) const { s << *g_expr_quote_opcode; }
 };
 
@@ -77,10 +73,6 @@ public:
     virtual void display(std::ostream & out) const {
         out << "``(" << m_value << ")";
     }
-    virtual format pp(formatter const & fmt) const {
-        return format("``(") + nest(2, fmt(m_value)) + format(")");
-    }
-    virtual bool is_atomic_pp(bool, bool) const { return false; }
     virtual unsigned hash() const { return m_value.hash(); }
     virtual void write(serializer & s) const { s << *g_pexpr_quote_opcode << m_value; }
     expr const & get_value() const { return m_value; }

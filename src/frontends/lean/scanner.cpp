@@ -523,7 +523,7 @@ auto scanner::read_key_cmd_id() -> token_kind {
                         break;
                     }
                 }
-                move_back(cs.size() - id_sz, num_utfs - 1);
+                move_back(cs.size() - id_sz, 1);
                 cs.shrink(id_sz);
                 cs.push_back(0);
                 m_name_val = name(cs.data());
@@ -531,7 +531,6 @@ auto scanner::read_key_cmd_id() -> token_kind {
             }
         }
     } else if (is_id_first(cs, 0)) {
-        id_sz = cs.size();
         while (true) {
             id_sz     = cs.size();
             id_utf_sz = num_utfs;

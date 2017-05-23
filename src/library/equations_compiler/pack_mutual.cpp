@@ -197,7 +197,7 @@ struct pack_mutual_fn {
 
         expr result;
         if (is_wf_equations(e))
-            result = mk_equations(new_header, new_eqns.size(), new_eqns.data(), equations_wf_rel(e), equations_wf_proof(e));
+            result = mk_equations(new_header, new_eqns.size(), new_eqns.data(), equations_wf_tactics(e));
         else
             result = mk_equations(new_header, new_eqns.size(), new_eqns.data());
 

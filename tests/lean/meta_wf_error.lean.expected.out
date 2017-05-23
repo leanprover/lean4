@@ -1,1 +1,1 @@
-meta_wf_error.lean:7:9: error: invalid use of 'using_well_founded', we do not need to use well founded recursion for meta definitions, since they can use unbounded recursion
+meta_wf_error.lean:1:9: error: invalid use of 'using_well_founded', we do not need to use well founded recursion for meta definitions, since they can use unbounded recursion

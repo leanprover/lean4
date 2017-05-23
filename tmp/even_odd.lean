@@ -3,7 +3,7 @@ open nat
 universes u v
 
 -- set_option trace.eqn_compiler.wf_rec true
--- set_option trace.debug.eqn_compiler.wf_rec true
+set_option trace.debug.eqn_compiler.wf_rec true
 -- set_option trace.debug.eqn_compiler.mutual true
 
 mutual def even, odd
@@ -13,6 +13,10 @@ with even : nat → bool
 with odd : nat → bool
 | 0     := ff
 | (a+1) := even a
+
+#print even
+#print even._main
+#print _mutual.even.odd
 
 #eval even 3
 #eval even 4

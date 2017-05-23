@@ -40,6 +40,7 @@ private:
     name              m_decl_name;
     type_context      m_ctx;
     info_manager      m_info;
+    unsigned          m_aux_meta_idx = 1;
     bool              m_recover_from_errors;
     bool              m_has_errors = false;
 
@@ -277,6 +278,8 @@ private:
 
     expr mk_auto_param(expr const & name_lit, expr const & expected_type, expr const & ref);
     optional<expr> process_optional_and_auto_params(expr type, expr const & ref, buffer<expr> & eta_args, buffer<expr> & new_args);
+
+    expr mk_aux_meta_def(expr const & e);
 
 public:
     elaborator(environment const & env, options const & opts, name const & decl_name,

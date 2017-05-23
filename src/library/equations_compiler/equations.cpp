@@ -130,13 +130,13 @@ bool is_inaccessible(expr const & e) { return is_annotation(e, *g_inaccessible_n
 bool is_equations(expr const & e) { return is_macro(e) && macro_def(e).get_name() == *g_equations_name; }
 bool is_wf_equations_core(expr const & e) {
     lean_assert(is_equations(e));
-    return macro_num_args(e) >= 3 && !is_lambda_equation(macro_arg(e, macro_num_args(e) - 1));
+    return macro_num_args(e) >= 2 && !is_lambda_equation(macro_arg(e, macro_num_args(e) - 1));
 }
 bool is_wf_equations(expr const & e) { return is_equations(e) && is_wf_equations_core(e); }
 unsigned equations_size(expr const & e) {
     lean_assert(is_equations(e));
     if (is_wf_equations_core(e))
-        return macro_num_args(e) - 2;
+        return macro_num_args(e) - 1;
     else
         return macro_num_args(e);
 }
@@ -147,14 +147,11 @@ equations_header const & get_equations_header(expr const & e) {
 unsigned equations_num_fns(expr const & e) {
     return get_equations_header(e).m_num_fns;
 }
-expr const & equations_wf_proof(expr const & e) {
+expr const & equations_wf_tactics(expr const & e) {
     lean_assert(is_wf_equations(e));
     return macro_arg(e, macro_num_args(e) - 1);
 }
-expr const & equations_wf_rel(expr const & e) {
-    lean_assert(is_wf_equations(e));
-    return macro_arg(e, macro_num_args(e) - 2);
-}
+
 void to_equations(expr const & e, buffer<expr> & eqns) {
     lean_assert(is_equations(e));
     unsigned sz = equations_size(e);
@@ -170,14 +167,13 @@ expr mk_equations(equations_header const & h, unsigned num_eqs, expr const * eqs
     macro_definition def(new equations_macro_cell(h));
     return mk_macro(def, num_eqs, eqs);
 }
-expr mk_equations(equations_header const & h, unsigned num_eqs, expr const * eqs, expr const & R, expr const & Hwf) {
+expr mk_equations(equations_header const & h, unsigned num_eqs, expr const * eqs, expr const & tacs) {
     lean_assert(h.m_num_fns > 0);
     lean_assert(num_eqs > 0);
     lean_assert(std::all_of(eqs, eqs+num_eqs, is_lambda_equation));
     buffer<expr> args;
     args.append(num_eqs, eqs);
-    args.push_back(R);
-    args.push_back(Hwf);
+    args.push_back(tacs);
     macro_definition def(new equations_macro_cell(h));
     return mk_macro(def, args.size(), args.data());
 }
@@ -186,7 +182,7 @@ expr update_equations(expr const & eqns, buffer<expr> const & new_eqs) {
     lean_assert(!new_eqs.empty());
     if (is_wf_equations(eqns)) {
         return copy_tag(eqns, mk_equations(get_equations_header(eqns), new_eqs.size(), new_eqs.data(),
-                                           equations_wf_rel(eqns), equations_wf_proof(eqns)));
+                                           equations_wf_tactics(eqns)));
     } else {
         return copy_tag(eqns, mk_equations(get_equations_header(eqns), new_eqs.size(), new_eqs.data()));
     }
@@ -197,19 +193,10 @@ expr update_equations(expr const & eqns, equations_header const & header) {
     to_equations(eqns, eqs);
     if (is_wf_equations(eqns)) {
         return copy_tag(eqns, mk_equations(header, eqs.size(), eqs.data(),
-                                           equations_wf_rel(eqns), equations_wf_proof(eqns)));
+                                           equations_wf_tactics(eqns)));
     } else {
         return copy_tag(eqns, mk_equations(header, eqs.size(), eqs.data()));
     }
-}
-
-// LEGACY
-expr mk_equations(unsigned num_fns, unsigned num_eqs, expr const * eqs) {
-    return mk_equations(equations_header(num_fns), num_eqs, eqs);
-}
-// LEGACY
-expr mk_equations(unsigned num_fns, unsigned num_eqs, expr const * eqs, expr const & R, expr const & Hwf) {
-    return mk_equations(equations_header(num_fns), num_eqs, eqs, R, Hwf);
 }
 
 // Auxiliary macro used to store the result of a set of equations defining a mutually recursive
@@ -260,9 +247,9 @@ void initialize_equations() {
                                     if (num == 0 || h.m_num_fns == 0)
                                         throw corrupted_stream_exception();
                                     if (!is_lambda_equation(args[num-1]) && !is_lambda_no_equation(args[num-1])) {
-                                        if (num <= 2)
+                                        if (num <= 1)
                                             throw corrupted_stream_exception();
-                                        return mk_equations(h, num-2, args, args[num-2], args[num-1]);
+                                        return mk_equations(h, num-1, args, args[num-1]);
                                     } else {
                                         return mk_equations(h, num, args);
                                     }

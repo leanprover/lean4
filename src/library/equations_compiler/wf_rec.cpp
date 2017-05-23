@@ -462,8 +462,8 @@ struct wf_rec_fn {
 
         /* Retrieve well founded relation */
         if (is_wf_equations(eqns)) {
-            m_R    = equations_wf_rel(eqns);
-            m_R_wf = equations_wf_proof(eqns);
+            // TODO(Leo)
+            throw exception("support for user defined well_founded_tactics is not available");
         } else {
             std::tie(m_R, m_R_wf) = mk_wf_relation(eqns);
         }

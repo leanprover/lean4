@@ -439,7 +439,6 @@ static environment compile_expr(environment const & env, name const & n, level_p
     return vm_compile(new_env, new_env.get(n));
 }
 
-
 static environment eval_cmd(parser & p) {
     auto pos = p.pos();
     expr e; level_param_names ls;

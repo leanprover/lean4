@@ -2271,12 +2271,26 @@ bool elaborator::keep_do_failure_eq(expr const & first_eq) {
     return is_app(type) && is_monad_fail(app_fn(type));
 }
 
+expr elaborator::mk_aux_meta_def(expr const & e) {
+    name aux_name(m_decl_name, "_aux_meta");
+    aux_name = aux_name.append_after(m_aux_meta_idx);
+    m_aux_meta_idx++;
+    expr new_c;
+    metavar_context mctx = m_ctx.mctx();
+    std::tie(m_env, new_c) = mk_aux_definition(m_env, mctx, local_context(),
+                                               aux_name, e, optional<bool>(true));
+    lean_assert(is_constant(new_c));
+    m_env = vm_compile(m_env, m_env.get(const_name(new_c)));
+    m_ctx.set_env(m_env);
+    m_ctx.set_mctx(mctx);
+    return new_c;
+}
+
 expr elaborator::visit_equations(expr const & e) {
     expr const & ref = e;
     buffer<expr> eqs;
     buffer<expr> new_eqs;
-    optional<expr> new_R;
-    optional<expr> new_Rwf;
+    optional<expr> new_tacs;
     flet<list<expr_pair>> save_stack(m_inaccessible_stack, m_inaccessible_stack);
     list<expr_pair> saved_inaccessible_stack = m_inaccessible_stack;
     equations_header const & header = get_equations_header(e);
@@ -2285,10 +2299,12 @@ expr elaborator::visit_equations(expr const & e) {
     lean_assert(!eqs.empty());
 
     if (is_wf_equations(e)) {
-        new_R   = visit(equations_wf_rel(e), none_expr());
-        new_Rwf = visit(equations_wf_proof(e), none_expr());
-        expr wf = mk_app(m_ctx, get_well_founded_name(), *new_R);
-        new_Rwf = enforce_type(*new_Rwf, wf, "invalid well-founded relation proof", ref);
+        expr type = mk_constant(get_well_founded_tactics_name());
+        new_tacs  = visit(equations_wf_tactics(e), some_expr(type));
+        new_tacs  = enforce_type(*new_tacs, type, "well_founded_tactics object expected", ref);
+        if (!is_constant(*new_tacs)) {
+            new_tacs = mk_aux_meta_def(*new_tacs);
+        }
     }
 
     optional<expr> first_eq;
@@ -2317,8 +2333,8 @@ expr elaborator::visit_equations(expr const & e) {
     synthesize();
     check_inaccessible(saved_inaccessible_stack);
     expr new_e;
-    if (new_R) {
-        new_e = copy_tag(e, mk_equations(header, new_eqs.size(), new_eqs.data(), *new_R, *new_Rwf));
+    if (new_tacs) {
+        new_e = copy_tag(e, mk_equations(header, new_eqs.size(), new_eqs.data(), *new_tacs));
     } else {
         new_e = copy_tag(e, mk_equations(header, new_eqs.size(), new_eqs.data()));
     }

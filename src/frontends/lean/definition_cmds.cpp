@@ -71,36 +71,36 @@ expr parse_equation(parser & p, expr const & fn) {
     return Fun(locals, p.save_pos(mk_equation(lhs, rhs), assign_pos), p);
 }
 
-optional<expr_pair> parse_using_well_founded(parser & p) {
+optional<expr> parse_using_well_founded(parser & p) {
     if (p.curr_is_token(get_using_well_founded_tk())) {
+        parser::local_scope _(p);
+        p.clear_expr_locals();
         p.next();
-        expr R   = p.parse_expr(get_max_prec());
-        expr Rwf = p.parse_expr(get_max_prec());
-        return optional<expr_pair>(R, Rwf);
+        return some_expr(p.parse_expr(get_max_prec()));
     } else {
-        return optional<expr_pair>();
+        return none_expr();
     }
 }
 
 expr mk_equations(parser & p, buffer<expr> const & fns, buffer<name> const & fn_full_names, buffer<expr> const & eqs,
-                  optional<expr_pair> const & R_Rwf, pos_info const & pos) {
+                  optional<expr> const & wf_tacs, pos_info const & pos) {
     buffer<expr> new_eqs;
     for (expr const & eq : eqs) {
         new_eqs.push_back(Fun(fns, eq, p));
     }
     equations_header h = mk_equations_header(to_list(fn_full_names));
-    if (R_Rwf) {
-        return p.save_pos(mk_equations(h, new_eqs.size(), new_eqs.data(), R_Rwf->first, R_Rwf->second), pos);
+    if (wf_tacs) {
+        return p.save_pos(mk_equations(h, new_eqs.size(), new_eqs.data(), *wf_tacs), pos);
     } else {
         return p.save_pos(mk_equations(h, new_eqs.size(), new_eqs.data()), pos);
     }
 }
 
 expr mk_equations(parser & p, expr const & fn, name const & full_name, buffer<expr> const & eqs,
-                  optional<expr_pair> const & R_Rwf, pos_info const & pos) {
+                  optional<expr> const & wf_tacs, pos_info const & pos) {
     buffer<expr> fns; fns.push_back(fn);
     buffer<name> full_names; full_names.push_back(full_name);
-    return mk_equations(p, fns, full_names, eqs, R_Rwf, pos);
+    return mk_equations(p, fns, full_names, eqs, wf_tacs, pos);
 }
 
 void check_valid_end_of_equations(parser & p) {
@@ -141,11 +141,11 @@ expr parse_mutual_definition(parser & p, buffer<name> & lp_names, buffer<expr> &
     }
     if (p.curr_is_token(get_with_tk()))
         p.maybe_throw_error({"unexpected 'with' clause", p.pos()});
-    optional<expr_pair> R_Rwf = parse_using_well_founded(p);
+    optional<expr> wf_tacs = parse_using_well_founded(p);
     for (expr & eq : eqns) {
         eq = replace_locals_preserving_pos_info(eq, pre_fns, fns);
     }
-    expr r = mk_equations(p, fns, full_names, eqns, R_Rwf, header_pos);
+    expr r = mk_equations(p, fns, full_names, eqns, wf_tacs, header_pos);
     collect_implicit_locals(p, lp_names, params, r);
     return r;
 }
@@ -555,8 +555,8 @@ static expr_pair parse_definition(parser & p, buffer<name> & lp_names, buffer<ex
             }
             check_valid_end_of_equations(p);
         }
-        optional<expr_pair> R_Rwf = parse_using_well_founded(p);
-        val = mk_equations(p, fn, scope2.get_name(), eqns, R_Rwf, header_pos);
+        optional<expr> wf_tacs = parse_using_well_founded(p);
+        val = mk_equations(p, fn, scope2.get_name(), eqns, wf_tacs, header_pos);
     } else {
         val = p.parser_error_or_expr({"invalid definition, '|' or ':=' expected", p.pos()});
     }

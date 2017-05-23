@@ -42,3 +42,8 @@ state:
 b : ℕ,
 h2 : b = 0
 ⊢ 0 = b
+auto_quote_error2.lean:52:15: error: don't know how to synthesize placeholder
+context:
+⊢ Sort ?
+state:
+⊢ true

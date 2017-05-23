@@ -45,3 +45,11 @@ begin
    { subst h1 },
             --^ error should be at `}`
 end
+
+example : true :=
+begin
+  {
+    note h' := eq.refl _,
+            --^  error should be on this line
+   }
+end

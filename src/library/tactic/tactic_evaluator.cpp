@@ -14,8 +14,7 @@ Author: Leonardo de Moura
 #include "library/compiler/vm_compiler.h"
 #include "library/tactic/smt/smt_state.h"
 #include "library/tactic/elaborator_exception.h"
-#include "frontends/lean/tactic_evaluator.h"
-#include "frontends/lean/tactic_notation.h"
+#include "library/tactic/tactic_evaluator.h"
 
 namespace lean {
 static format mk_tactic_error_msg(tactic_state const & ts, format const & fmt) {

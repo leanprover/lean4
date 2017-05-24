@@ -24,3 +24,9 @@ rfl
 
 example : ack 3 3 = 61 :=
 rfl
+
+/- Defining Ack using well founded recursion -/
+def Ack : nat → nat → nat
+| 0     y     := y+1
+| (x+1) 0     := Ack x 1
+| (x+1) (y+1) := Ack x (Ack (x+1) y)

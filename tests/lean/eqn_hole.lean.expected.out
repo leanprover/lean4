@@ -8,3 +8,8 @@ context:
 g : ℕ → ℕ,
 n : ℕ
 ⊢ ℕ
+eqn_hole.lean:8:11: error: tactic failed, there are unsolved goals
+state:
+g : ℕ → ℕ,
+n : ℕ
+⊢ ⁇ < n + 1

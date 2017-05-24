@@ -8,7 +8,7 @@ context:
 g : ℕ → ℕ,
 n : ℕ
 ⊢ ℕ
-eqn_hole.lean:8:11: error: tactic failed, there are unsolved goals
+eqn_hole.lean:8:11: error: failed to prove function is descreasing
 state:
 g : ℕ → ℕ,
 n : ℕ

@@ -5,10 +5,16 @@ with even : nat → bool
 with odd : nat → bool
 | 0     := ff
 | (a+1) := even a
-using_well_founded {dec_tac := tactic.admit}
 
 example (a : nat) : even (a + 1) = odd a :=
 by simp [even]
 
 example (a : nat) : odd (a + 1) = even a :=
 by simp [odd]
+
+lemma even_eq_not_odd : ∀ a, even a = bnot (odd a) :=
+begin
+  intro a, induction a,
+  simp [even, odd],
+  simph [even, odd]
+end

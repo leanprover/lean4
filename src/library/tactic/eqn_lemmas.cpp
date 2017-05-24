@@ -100,16 +100,10 @@ void get_eqn_lemmas_for(environment const & env, name const & cname, bool refl_o
 }
 
 void get_eqn_lemmas_for(environment const & env, name const & cname, buffer<name> & result) {
-    unsigned idx = 1;
-    while (true) {
-        name eqn = mk_equation_name(cname, idx);
-        if (env.find(eqn)) {
-            result.push_back(eqn);
-            idx++;
-        } else {
-            break;
-        }
-    }
+    buffer<simp_lemma> lemmas;
+    get_eqn_lemmas_for(env, cname, false, lemmas);
+    for (simp_lemma const & s : lemmas)
+        result.push_back(s.get_id());
 }
 
 void get_ext_eqn_lemmas_for(environment const & env, name const & cname, buffer<name> & result) {

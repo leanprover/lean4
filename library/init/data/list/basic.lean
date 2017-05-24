@@ -65,6 +65,19 @@ protected def inter [decidable_eq α] : list α → list α → list α
 instance [decidable_eq α] : has_inter (list α) :=
 ⟨list.inter⟩
 
+protected def erase {α} [decidable_eq α] : list α → α → list α
+| []     b := []
+| (a::l) b := if a = b then l else a :: erase l b
+
+protected def bag_inter {α} [decidable_eq α] : list α → list α → list α
+| []      _   := []
+| _       []  := []
+| (a::l₁) l₂  := if a ∈ l₂ then a :: bag_inter l₁ (l₂.erase a) else bag_inter l₁ l₂
+
+protected def diff {α} [decidable_eq α] : list α → list α → list α
+| l      []      := l
+| l₁     (a::l₂) := if a ∈ l₁ then diff (l₁.erase a) l₂ else diff l₁ l₂
+
 def length : list α → nat
 | []       := 0
 | (a :: l) := length l + 1

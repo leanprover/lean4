@@ -20,7 +20,7 @@ meta instance : has_to_format pos :=
 ⟨λ ⟨l, c⟩, "⟨" ++ l ++ ", " ++ c ++ "⟩"⟩
 
 inductive binder_info
-| default | implicit | strict_implicit | inst_implicit | other
+| default | implicit | strict_implicit | inst_implicit | aux_decl
 
 instance : has_to_string binder_info :=
 ⟨λ bi, match bi with
@@ -28,7 +28,7 @@ instance : has_to_string binder_info :=
 | binder_info.implicit := "implicit"
 | binder_info.strict_implicit := "strict_implicit"
 | binder_info.inst_implicit := "inst_implicit"
-| binder_info.other := "other"
+| binder_info.aux_decl := "aux_decl"
 end⟩
 
 meta constant macro_def : Type
@@ -244,6 +244,10 @@ meta def local_pp_name : expr → name
 meta def local_type : expr → expr
 | (local_const _ _ _ t) := t
 | e := e
+
+meta def is_aux_decl : expr → bool
+| (local_const _ _ binder_info.aux_decl _) := tt
+| _                                        := ff
 
 meta def is_constant_of : expr → name → bool
 | (const n₁ ls) n₂ := n₁ = n₂

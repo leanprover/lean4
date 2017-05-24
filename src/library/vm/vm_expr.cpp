@@ -86,7 +86,7 @@ binder_info to_binder_info(vm_obj const & o) {
     lean_assert(is_simple(o));
     /*
       inductive binder_info :=
-      | default | implicit | strict_implicit | inst_implicit | other
+      | default | implicit | strict_implicit | inst_implicit | aux_decl
     */
     switch (cidx(o)) {
     case 0:  return binder_info();

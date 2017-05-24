@@ -173,7 +173,7 @@ struct pack_mutual_fn {
         expr x            = locals.push_local("_x", new_domain);
         expr new_codomain = mk_new_codomain(x, 0, codomains, codomains_lvl);
         expr new_fn_type  = m_ctx.mk_pi(x, new_codomain);
-        expr new_fn       = locals.push_local(new_fn_name, new_fn_type);
+        expr new_fn       = locals.push_local(new_fn_name, new_fn_type, mk_rec_info(true));
 
         trace_debug_mutual(tout() << "new function " << new_fn_name << " : " << new_fn_type << "\n";);
 

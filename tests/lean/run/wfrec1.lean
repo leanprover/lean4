@@ -1,10 +1,10 @@
-private def S := Σ a : nat, nat
-private def R : S → S → Prop := sigma.skip_left nat (<)
+private def S := psigma (λ _ : nat, nat)
+private def R : S → S → Prop := psigma.skip_left nat (<)
 private def Rwf : well_founded R :=
-  sigma.skip_left_wf nat nat.lt_wf
+  psigma.skip_left_wf nat nat.lt_wf
 
 private def f_aux : ∀ (p₁ : S), (∀ p₂ : S, R p₂ p₁ → nat) → nat
-| ⟨n, m+1⟩ F := F ⟨n+10, m - n⟩ (sigma.mk_skip_left _ _ (nat.sub_lt_succ _ _))
+| ⟨n, m+1⟩ F := F ⟨n+10, m - n⟩ (psigma.mk_skip_left _ _ (nat.sub_lt_succ _ _))
 | ⟨n, 0⟩   F := n
 
 def f (n m : nat) : nat :=

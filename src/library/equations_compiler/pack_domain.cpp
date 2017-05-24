@@ -89,6 +89,8 @@ struct sigma_packer_fn {
         virtual expr visit_app(expr const & e) override {
             buffer<expr> args;
             expr const & fn = get_app_args(e, args);
+            for (expr & arg : args)
+                arg = visit(arg);
             auto fnidx = get_fn_idx(fn);
             if (!fnidx) return replace_visitor_with_tc::visit_app(e);
             expr new_fn = m_ues.get_fn(*fnidx);

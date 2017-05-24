@@ -73,6 +73,13 @@ matrix:
        CMAKE_CXX_COMPILER=g++-4.9
        CMAKE_BUILD_TYPE=Debug
 
+   - os: linux
+     dist: precise
+     env:
+       CMAKE_CXX_COMPILER=g++-4.9
+       CMAKE_BUILD_TYPE=Debug
+       TEST_LEANPKG_REGISTRY=ON
+
    - os: osx
      env:
        CMAKE_CXX_COMPILER=clang++
@@ -112,6 +119,7 @@ script:
   - cpack
   - yes "A" | ctest -j2 --output-on-failure
   - if [[ $PACKAGE == TRUE ]]; then make package; fi
+  - if [[ $BUILD_LEANPKG_REGISTRY == ON ]]; then python ../script/test_registry.py; fi
   - cd ..
 
 after_script:

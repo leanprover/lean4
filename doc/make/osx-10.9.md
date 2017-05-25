@@ -45,3 +45,12 @@ Optional Packages: tcmalloc and ninja
 
     brew install gperftools
     brew install ninja
+
+# Build
+```bash
+cd lean
+mkdir -p build/release
+cd build/release
+cmake ../../src
+make
+```

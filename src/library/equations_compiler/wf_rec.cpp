@@ -73,12 +73,13 @@ struct wf_rec_fn {
         lean_assert(get_equations_header(eqns).m_num_fns == 1);
         type_context ctx = mk_type_context();
         unpack_eqns ues(ctx, eqns);
+        name fn_name = head(get_equations_header(eqns).m_fn_names);
         try {
             expr fn_type          = ctx.relaxed_whnf(ctx.infer(ues.get_fn(0)));
             lean_assert(is_pi(fn_type));
             expr d                = binding_domain(fn_type);
             expr has_well_founded = mk_app(ctx, get_has_well_founded_name(), d);
-            tactic_state s        = mk_tactic_state_for(m_env, m_opts, "_wf_rec_mk_rel_tactic", m_mctx, m_lctx, has_well_founded);
+            tactic_state s        = mk_tactic_state_for(m_env, m_opts, name(fn_name, "_wf_rec_mk_rel_tactic"), m_mctx, m_lctx, has_well_founded);
             vm_obj r = tactic_evaluator(ctx, m_opts, m_ref)(rel_tac, s);
             if (auto new_s = tactic::is_success(r)) {
                 metavar_context mctx = new_s->mctx();
@@ -123,12 +124,13 @@ struct wf_rec_fn {
 
     struct elim_rec_apps_fn : public replace_visitor_with_tc {
         wf_rec_fn & m_parent;
+        name        m_fn_name;
         expr        m_fn;
         expr        m_x;
         expr        m_F;
 
-        elim_rec_apps_fn(wf_rec_fn & parent, type_context & ctx, expr const & fn, expr const & x, expr const & F):
-            replace_visitor_with_tc(ctx), m_parent(parent), m_fn(fn), m_x(x), m_F(F) {}
+        elim_rec_apps_fn(wf_rec_fn & parent, type_context & ctx, name const & fn_name, expr const & fn, expr const & x, expr const & F):
+            replace_visitor_with_tc(ctx), m_parent(parent), m_fn_name(fn_name), m_fn(fn), m_x(x), m_F(F) {}
 
         virtual expr visit_local(expr const & e) {
             if (mlocal_name(e) == mlocal_name(m_fn)) {
@@ -143,7 +145,8 @@ struct wf_rec_fn {
             expr y_R_x = mk_app(m_parent.m_R, y, m_x);
 
             metavar_context mctx = m_ctx.mctx();
-            tactic_state s = mk_tactic_state_for(m_parent.m_env, m_parent.m_opts, "_wf_rec_mk_dec_tactic", mctx, m_ctx.lctx(), y_R_x);
+            tactic_state s = mk_tactic_state_for(m_parent.m_env, m_parent.m_opts,
+                                                 name(m_fn_name, "_wf_rec_mk_dec_tactic"), mctx, m_ctx.lctx(), y_R_x);
             vm_obj r = tactic_evaluator(m_ctx, m_parent.m_opts, ref)(m_parent.m_dec_tac, s);
             if (auto new_s = tactic::is_success(r)) {
                 mctx = new_s->mctx();
@@ -170,7 +173,7 @@ struct wf_rec_fn {
         }
     };
 
-    void update_eqs(type_context & ctx, unpack_eqns & ues, expr const & fn, expr const & new_fn) {
+    void update_eqs(type_context & ctx, name const & fn_name, unpack_eqns & ues, expr const & fn, expr const & new_fn) {
         buffer<expr> & eqns = ues.get_eqns_of(0);
         buffer<expr> new_eqns;
         for (expr const & eqn : eqns) {
@@ -186,7 +189,7 @@ struct wf_rec_fn {
             ue.lhs()     = new_lhs;
             type_context::tmp_locals locals(ctx);
             expr F       = locals.push_local_from_binding(type);
-            ue.rhs()     = ctx.mk_lambda(F, elim_rec_apps_fn(*this, ctx, fn, lhs_args[0], F)(rhs));
+            ue.rhs()     = ctx.mk_lambda(F, elim_rec_apps_fn(*this, ctx, fn_name, fn, lhs_args[0], F)(rhs));
             new_eqns.push_back(ue.repack());
         }
         eqns = new_eqns;
@@ -198,11 +201,11 @@ struct wf_rec_fn {
         lean_assert(ues.get_num_fns() == 1);
         expr fn      = ues.get_fn(0);
         expr fn_type = ctx.infer(fn);
-
+        name fn_name = head(get_equations_header(eqns).m_fn_names);
         expr new_fn_type = mk_new_fn_type(ctx, ues);
         trace_debug_wf(tout() << "\n"; tout() << "new function type: " << new_fn_type << "\n";);
         expr new_fn      = ues.update_fn_type(0, new_fn_type);
-        update_eqs(ctx, ues, fn, new_fn);
+        update_eqs(ctx, fn_name, ues, fn, new_fn);
         expr new_eqns    = ues.repack();
         trace_debug_wf(tout() << "after well_founded elim_recursion:\n" << new_eqns << "\n";);
         m_mctx = ctx.mctx();

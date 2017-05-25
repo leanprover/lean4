@@ -119,7 +119,7 @@ script:
   - cpack
   - yes "A" | ctest -j2 --output-on-failure
   - if [[ $PACKAGE == TRUE ]]; then make package; fi
-  - if [[ $BUILD_LEANPKG_REGISTRY == ON ]]; then python ../script/test_registry.py; fi
+  - if [[ $TEST_LEANPKG_REGISTRY == ON ]]; then python ../script/test_registry.py; fi
   - cd ..
 
 after_script:

@@ -68,7 +68,7 @@ expr dsimplify_core_fn::visit_let(expr const & e) {
         expr new_t = visit(t);
         expr new_v = visit(v);
         if (!is_eqp(t, new_t) || !is_eqp(v, new_v)) modified = true;
-        locals.push_let(let_name(b), t, v);
+        locals.push_let(let_name(b), new_t, new_v);
         b = let_body(b);
     }
     b = instantiate_rev(b, locals.size(), locals.data());

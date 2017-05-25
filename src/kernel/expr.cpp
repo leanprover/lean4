@@ -182,6 +182,7 @@ expr_composite::expr_composite(expr_kind k, unsigned h, bool has_expr_mv, bool h
                                bool has_local, bool has_param_univ, unsigned w, unsigned fv_range, tag g):
     expr_cell(k, h, has_expr_mv, has_univ_mv, has_local, has_param_univ, g),
     m_weight(w),
+    m_depth(0),
     m_free_var_range(fv_range) {}
 
 // Expr applications
@@ -196,7 +197,9 @@ expr_app::expr_app(expr const & fn, expr const & arg, tag g):
                    std::max(get_free_var_range(fn), get_free_var_range(arg)),
                    g),
     m_fn(fn), m_arg(arg) {
-    m_hash = ::lean::hash(m_hash, m_weight);
+    m_depth = std::max(get_depth(fn), get_depth(arg)) + 1;
+    m_hash  = ::lean::hash(m_hash, m_weight);
+    m_hash  = ::lean::hash(m_hash, m_depth);
 }
 void expr_app::dealloc(buffer<expr_cell*> & todelete) {
     dec_ref(m_fn, todelete);
@@ -228,7 +231,9 @@ expr_binding::expr_binding(expr_kind k, name const & n, expr const & t, expr con
                    g),
     m_binder(n, t, i),
     m_body(b) {
-    m_hash = ::lean::hash(m_hash, m_weight);
+    m_depth = std::max(get_depth(t), get_depth(b)) + 1;
+    m_hash  = ::lean::hash(m_hash, m_weight);
+    m_hash  = ::lean::hash(m_hash, m_depth);
     lean_assert(k == expr_kind::Lambda || k == expr_kind::Pi);
 }
 void expr_binding::dealloc(buffer<expr_cell*> & todelete) {
@@ -263,7 +268,9 @@ expr_let::expr_let(name const & n, expr const & t, expr const & v, expr const & 
                    std::max(std::max(get_free_var_range(t), get_free_var_range(v)), dec(get_free_var_range(b))),
                    g),
     m_name(n), m_type(t), m_value(v), m_body(b) {
-    m_hash = ::lean::hash(m_hash, m_weight);
+    m_depth = std::max(get_depth(t), std::max(get_depth(v), get_depth(b))) + 1;
+    m_hash  = ::lean::hash(m_hash, m_weight);
+    m_hash  = ::lean::hash(m_hash, m_depth);
 }
 void expr_let::dealloc(buffer<expr_cell*> & todelete) {
     dec_ref(m_body,  todelete);
@@ -324,6 +331,13 @@ expr_macro::expr_macro(macro_definition const & m, unsigned num, expr const * ar
     m_definition(m),
     m_num_args(num) {
     expr * data = get_args_ptr();
+    m_depth = 0;
+    for (unsigned i = 0; i < num; i++) {
+        unsigned d = get_depth(args[i]);
+        if (d > m_depth)
+            m_depth = d;
+    }
+    m_depth++;
     std::uninitialized_copy(args, args + num, data);
 }
 void expr_macro::dealloc(buffer<expr_cell*> & todelete) {
@@ -555,6 +569,18 @@ unsigned get_weight(expr const & e) {
     case expr_kind::Lambda: case expr_kind::Pi:  case expr_kind::Macro:
     case expr_kind::App:    case expr_kind::Let:
         return static_cast<expr_composite*>(e.raw())->m_weight;
+    }
+    lean_unreachable(); // LCOV_EXCL_LINE
+}
+
+unsigned get_depth(expr const & e) {
+    switch (e.kind()) {
+    case expr_kind::Var:  case expr_kind::Constant: case expr_kind::Sort:
+    case expr_kind::Meta: case expr_kind::Local:
+        return 1;
+    case expr_kind::Lambda: case expr_kind::Pi:  case expr_kind::Macro:
+    case expr_kind::App:    case expr_kind::Let:
+        return static_cast<expr_composite*>(e.raw())->m_depth;
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }

@@ -69,7 +69,7 @@ instance decidable_bex : ∀ (l : list α), decidable (∃ x ∈ l, p x)
     match decidable_bex xs with
     | is_true  hxs := is_true $ begin
         cases hxs with x' hx', cases hx' with hx' hpx',
-        existsi x', existsi (or.inr hx'), assumption, exact x' = x
+        existsi x', existsi (or.inr hx'), assumption
       end
     | is_false hxs := is_false $ begin
         intro hxxs, cases hxxs with x' hx', cases hx' with hx' hpx',

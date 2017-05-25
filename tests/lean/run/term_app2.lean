@@ -52,3 +52,5 @@ def num_consts : term → nat
    0
 
 #eval num_consts (term.app "f" [term.const "x", term.app "g" [term.const "x", term.const "y"]])
+
+#check num_consts.equations._eqn_2

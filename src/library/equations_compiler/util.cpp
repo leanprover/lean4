@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/find_fn.h"
 #include "kernel/inductive/inductive.h"
 #include "kernel/scope_pos_info_provider.h"
+#include "kernel/free_vars.h"
 #include "library/util.h"
 #include "library/trace.h"
 #include "library/app_builder.h"
@@ -648,13 +649,60 @@ name mk_equation_name(name const & f_name, unsigned eqn_idx) {
     return name(name(f_name, "equations"), "_eqn").append_after(eqn_idx);
 }
 
+/*
+  Remove unnecessary auxiliary "have-decls".
+  When defining a function by well-founded recursion, we use local have-decls
+  to provide hints to the tactic that produces proofs that recursive calls are decreasing.
+
+  Convert dite into ite whenever possible. Again, when using well-founded recursion,
+  we often need to use dite to be able to "communicate" the condition to each branch.
+  This extra hypothesis is usually only used when providing hints to the decreasing tactic.
+*/
+struct cleanup_equation_rhs_fn : public replace_visitor {
+    virtual expr visit_app(expr const & e) override {
+        if (is_have_annotation(app_fn(e)) &&
+            is_lambda(get_annotation_arg(app_fn(e)))) {
+            expr body = binding_body(get_annotation_arg(app_fn(e)));
+            if (!has_free_var(body, 0)) {
+                return visit(lower_free_vars(body, 1));
+            }
+        }
+
+        if (is_app_of(e, get_dite_name())) {
+            buffer<expr> args;
+            expr const & dite = get_app_args(e, args);
+            for (expr & arg : args)
+                arg = visit(arg);
+            if (args.size() >= 5) {
+                expr & t = args[3];
+                expr & e = args[4];
+                if (is_lambda(t) && !has_free_var(binding_body(t), 0) &&
+                    is_lambda(e) && !has_free_var(binding_body(e), 0)) {
+                    t = lower_free_vars(binding_body(t), 1);
+                    e = lower_free_vars(binding_body(e), 1);
+                    expr new_ite = mk_app(mk_constant(get_ite_name(), const_levels(dite)), args.size(), args.data());
+                    return new_ite;
+                }
+            }
+            return mk_app(dite, args.size(), args.data());
+        }
+
+        return replace_visitor::visit_app(e);
+    }
+};
+
+static expr cleanup_equation_rhs(expr const & rhs) {
+    return cleanup_equation_rhs_fn()(rhs);
+}
+
 environment mk_equation_lemma(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx,
                               name const & f_name, unsigned eqn_idx, bool is_private,
                               buffer<expr> const & Hs, expr const & lhs, expr const & rhs) {
     if (!get_eqn_compiler_lemmas(opts)) return env;
     type_context ctx(env, opts, mctx, lctx, transparency_mode::Semireducible);
-    expr type     = ctx.mk_pi(Hs, mk_eq(ctx, lhs, rhs));
     expr proof    = prove_eqn_lemma(ctx, Hs, lhs, rhs);
+    expr new_rhs  = cleanup_equation_rhs(rhs);
+    expr type     = ctx.mk_pi(Hs, mk_eq(ctx, lhs, new_rhs));
     name eqn_name = mk_equation_name(f_name, eqn_idx);
     return add_equation_lemma(env, opts, mctx, lctx, is_private, f_name, eqn_name, type, proof);
 }

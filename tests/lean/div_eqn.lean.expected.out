@@ -1,0 +1,1 @@
+Div.equations._eqn_1 : ∀ (x y : ℕ), Div x y = ite (0 < y ∧ y ≤ x) (Div (x - y) y + 1) 0

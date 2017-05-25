@@ -123,10 +123,10 @@ You may also need to install [emacs-unicode-fonts](https://github.com/rolandwalk
  - Run `M-x package-refresh-contents`, `M-x package-install`, and type `unicode-fonts`.
  - Add the following lines in your emacs setup:
 
-   ```lisp
+```lisp
 (require 'unicode-fonts)
 (unicode-fonts-setup)
-   ```
+```
 
 "Variable binding depth exceeds max-specpdl-size" Error
 ---------------------------------------------------------

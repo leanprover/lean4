@@ -50,5 +50,6 @@ Roadmap
 
 - [Open RFC issues](https://github.com/leanprover/lean/issues?q=is%3Aissue+is%3Aopen+label%3ARFC)
 - [Features](https://github.com/leanprover/lean/issues?q=is%3Aissue+is%3Aopen+label%3AFeature)
+- [Wish list](https://github.com/leanprover/lean/issues?q=is%3Aissue+is%3Aopen+label%3AI-wishlist)
 - [High priority issues](https://github.com/leanprover/lean/issues?q=is%3Aissue+is%3Aopen+label%3AP-high)
 - [Medium priority issues](https://github.com/leanprover/lean/issues?q=is%3Aissue+is%3Aopen+label%3AP-medium)

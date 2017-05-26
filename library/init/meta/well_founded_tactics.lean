@@ -147,7 +147,7 @@ comp_val
 <|>
 assumption
 <|>
-fail "failed to prove function is descreasing"
+failed
 end simple_dec_tac
 
 meta def default_dec_tac : tactic unit :=

@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "kernel/instantiate.h"
+#include "kernel/error_msgs.h"
 #include "library/type_context.h"
 #include "library/trace.h"
 #include "library/constants.h"
@@ -500,7 +501,36 @@ struct wf_rec_fn {
         init(eqns, wf_tacs);
 
         /* Eliminate recursion using functional. */
-        eqns = elim_recursion(eqns);
+        try {
+            eqns = elim_recursion(eqns);
+        } catch (exception_with_pos & ex) {
+            expr R = m_R;
+            bool using_well_founded = is_wf_equations(eqns);
+            throw nested_exception(
+                ex.get_pos(),
+                [=](formatter const & fmt) {
+                    format r;
+                    formatter _fmt = fmt;
+                    if (is_app_of(R, get_has_well_founded_r_name())) {
+                        options o = fmt.get_options();
+                        o         = o.update_if_undef(get_pp_implicit_name(), true);
+                        _fmt      = fmt.update_options(o);
+                    }
+                    r += format("failed to prove recursive application is decreasing, well founded relation");
+                    r += pp_indent_expr(_fmt, R);
+                    if (!using_well_founded) {
+                        r += line() + format("Possible solutions: ");
+                        r += line() + format("  - Use 'using_well_founded' keyword in the end of your definition "
+                                             "to specify tactics for synthesizing well founded relations and "
+                                             "decreasing proofs.");
+                        r += line() + format("  - The default decreasing tactic uses the 'assumption' tactic, "
+                                             "thus hints (aka local proofs) can be provided using 'have'-expressions.");
+                    }
+                    r += line() + format("The nested exception contains the failure state for the decreasing tactic.");
+                    return r;
+                },
+                ex);
+        }
         trace_debug_wf(tout() << "after elim_recursion\n" << eqns << "\n";);
 
         /* Eliminate pattern matching */

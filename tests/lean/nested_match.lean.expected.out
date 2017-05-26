@@ -1,0 +1,24 @@
+nested_match.lean:7:13: error: failed to prove recursive application is decreasing, well founded relation
+  @has_well_founded.r ℕ (@has_well_founded_of_has_sizeof ℕ nat.has_sizeof)
+Possible solutions: 
+  - Use 'using_well_founded' keyword in the end of your definition to specify tactics for synthesizing well founded relations and decreasing proofs.
+  - The default decreasing tactic uses the 'assumption' tactic, thus hints (aka local proofs) can be provided using 'have'-expressions.
+The nested exception contains the failure state for the decreasing tactic.
+nested exception message:
+failed
+state:
+f : ℕ → ℕ,
+n m : ℕ
+⊢ m < n
+nested_match.lean:25:7: error: failed to prove recursive application is decreasing, well founded relation
+  @has_well_founded.r (psum ℕ ℕ)
+    (@has_well_founded_of_has_sizeof (psum ℕ ℕ) (@psum.has_sizeof ℕ ℕ nat.has_sizeof nat.has_sizeof))
+Possible solutions: 
+  - Use 'using_well_founded' keyword in the end of your definition to specify tactics for synthesizing well founded relations and decreasing proofs.
+  - The default decreasing tactic uses the 'assumption' tactic, thus hints (aka local proofs) can be provided using 'have'-expressions.
+The nested exception contains the failure state for the decreasing tactic.
+nested exception message:
+failed
+state:
+n : ℕ
+⊢ 1 < 1

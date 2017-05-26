@@ -48,10 +48,9 @@ write_file "leanpkg.path" path_file_cnts
 
 def make : io unit := do
 manifest ← read_manifest,
-let src_path := manifest.path.get_or_else "src",
 exec_cmd {
   cmd := "lean",
-  args := ["--make", src_path],
+  args := ["--make"] ++ manifest.effective_path,
   env := [("LEAN_PATH", none)]
 }
 

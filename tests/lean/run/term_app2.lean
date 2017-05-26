@@ -54,3 +54,15 @@ def num_consts : term → nat
 #eval num_consts (term.app "f" [term.const "x", term.app "g" [term.const "x", term.const "y"]])
 
 #check num_consts.equations._eqn_2
+
+def num_consts' : term → nat
+| (term.const n)  := 1
+| (term.app n ts) :=
+  ts.attach.foldl
+   (λ r ⟨t, h⟩,
+     have sizeof t < 1 + (sizeof n + sizeof ts), from
+       nat.lt_one_add_of_lt (nat.lt_add_of_lt (list.sizeof_lt_sizeof_of_mem h)),
+     r + num_consts' t)
+   0
+
+#check num_consts'.equations._eqn_2

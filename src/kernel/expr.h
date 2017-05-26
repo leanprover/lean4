@@ -216,7 +216,8 @@ class binder_info {
         inferred by class-instance resolution. */
     unsigned m_inst_implicit:1;
     /** \brief Auxiliary internal attribute used to mark local constants representing recursive functions
-        in recursive equations */
+        in recursive equations. TODO(Leo): rename to eqn_decl since we also mark non recursive equations
+        (e.g., `match ... with ... end`) with this flag. */
     unsigned m_rec:1;
 public:
     binder_info(bool implicit = false, bool strict_implicit = false, bool inst_implicit = false, bool rec = false):

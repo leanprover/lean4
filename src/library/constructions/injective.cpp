@@ -157,8 +157,12 @@ expr prove_injective(environment const & env, expr const & inj_type, name const 
     while (is_pi(ty)) {
         expr eq = tctx.push_local_from_binding(ty);
         eqs.push_back(eq);
-        if (app_arg(tctx.infer(eq)) != app_arg(app_fn(tctx.infer(eq))))
+        expr eq_type = tctx.infer(eq);
+        expr lhs, rhs;
+        if ((is_eq(eq_type, lhs, rhs) && lhs != rhs) ||
+            (is_heq(eq_type, lhs, rhs) && lhs != rhs)) {
             eqs_to_keep.push_back(eq);
+        }
         ty = tctx.relaxed_whnf(instantiate(binding_body(ty), eq));
     }
 
@@ -253,7 +257,7 @@ environment mk_injective_lemmas(environment const & _env, name const & ind_name)
         expr ir_type = inductive::intro_rule_type(ir);
         expr inj_type = mk_injective_type(env, ir_name, ir_type, num_params, lp_names);
         expr inj_val = prove_injective(env, inj_type, ind_name);
-        lean_trace(name({"constructions", "injective"}), tout() << ir_name << " : " << inj_type << " :=\n  " << inj_val;);
+        lean_trace(name({"constructions", "injective"}), tout() << ir_name << " : " << inj_type << " :=\n  " << inj_val << "\n";);
         env = module::add(env, check(env, mk_definition_inferring_trusted(env, mk_injective_name(ir_name), lp_names, inj_type, inj_val, true)));
         env = mk_injective_arrow(env, ir_name);
     }

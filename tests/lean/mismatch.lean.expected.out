@@ -1,8 +1,0 @@
-mismatch.lean:4:8: error: type mismatch at application
-  id o
-term
-  o
-has type
-  num
-but is expected to have type
-  ℕ

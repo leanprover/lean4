@@ -1,8 +1,8 @@
-id2 Type num : Type
-id2 Type num : Type
-id2 Type num : Type
-id2 Type num : Type
-id2 Type num : Type
-id2 Type num : Type
+id2 Type ℕ : Type
+id2 Type ℕ : Type
+id2 Type ℕ : Type
+id2 Type ℕ : Type
+id2 Type ℕ : Type
+id2 Type ℕ : Type
 id2 (Type 2) (Type 1) : Type 2
 id2 (Type 2) (Type 1) : Type 2

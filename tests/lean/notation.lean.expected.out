@@ -1,8 +1,8 @@
-b + b + b : num
+b + b + b : ℕ
 true ∧ false ∧ true : Prop
 (true ∧ false) ∧ true : Prop
-2 + (2 + 2) : num
-2 + 2 + 2 : num
+2 + (2 + 2) : ℕ
+2 + 2 + 2 : ℕ
 1 = (2 + 3) * 2 : Prop
 2 + 3 * 2 = 3 * 2 + 2 : Prop
 (true ∨ false) = (true ∨ false) ∧ true : Prop

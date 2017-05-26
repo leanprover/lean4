@@ -513,6 +513,22 @@ void initialize_frontend_lean_util() {
                                 });
 }
 
+environment compile_expr(environment const & env, name const & n, level_param_names const & ls, expr const & type, expr const & e, pos_info const & pos) {
+    environment new_env = env;
+    bool use_conv_opt   = true;
+    bool is_trusted     = false;
+    auto cd = check(new_env, mk_definition(new_env, n, ls, type, e, use_conv_opt, is_trusted));
+    new_env = new_env.add(cd);
+    new_env = add_transient_decl_pos_info(new_env, n, pos);
+    return vm_compile(new_env, new_env.get(n));
+}
+
+vm_obj eval_closed_expr(environment const & env, name const & n, expr const & type, expr const & e, pos_info const & pos) {
+    environment new_env = compile_expr(env, n, {}, type, e, pos);
+    vm_state vm(new_env, {});
+    return vm.invoke(n, 0, nullptr);
+}
+
 void finalize_frontend_lean_util() {
     delete g_auto_param_check_exists;
     delete g_no_info;

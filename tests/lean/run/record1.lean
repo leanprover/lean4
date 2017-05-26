@@ -19,7 +19,7 @@ mk :: (c : color)
 #check color_point.to_point
 
 section
-variables a b : num
+variables a b : nat
 
 example : point.x (point.mk a b) = a :=
 rfl

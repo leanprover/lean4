@@ -1,13 +1,13 @@
-theorem foo1 : 0 = (0:num) :=
+theorem foo1 : 0 = (0:nat) :=
 rfl
 
-theorem foo2 : 0 = (0:num) :=
+theorem foo2 : 0 = (0:nat) :=
 rfl
 
-theorem foo3 : 0 = (0:num) :=
+theorem foo3 : 0 = (0:nat) :=
 foo2
 
-definition foo4 : 0 = (0:num) :=
+definition foo4 : 0 = (0:nat) :=
 eq.trans foo2 foo1
 
 lemma foo5 : true = false :=

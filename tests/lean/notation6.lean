@@ -1,9 +1,8 @@
 --
-open num
-notation `o` := (10:num)
+notation `o` := (10:nat)
 #check 11
-constant f : num → num
+constant f : nat → nat
 #check o + 1
 #check f o + o + o
-#reduce 9 + (1:num)
+#reduce 9 + (1:nat)
 #reduce o+4

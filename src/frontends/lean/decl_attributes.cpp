@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #include "util/sexpr/option_declarations.h"
 #include "library/attribute_manager.h"
 #include "library/constants.h"
-#include "library/normalize.h"
 #include "library/class.h"
 #include "library/num.h"
 #include "library/typed_expr.h"
@@ -49,15 +48,14 @@ void decl_attributes::parse_core(parser & p, bool compact) {
                 throw parser_error("cannot remove priority attribute", pos);
             auto pos = p.pos();
             expr pre_val = p.parse_expr();
-            pre_val = mk_typed_expr(mk_constant(get_num_name()), pre_val);
+            pre_val = mk_typed_expr(mk_constant(get_nat_name()), pre_val);
+            expr nat = mk_constant(get_nat_name());
             expr val = p.elaborate("_attribute", list<expr>(), pre_val).first;
-            val = normalize(p.env(), val);
-            if (optional<mpz> mpz_val = to_num_core(val)) {
-                if (!mpz_val->is_unsigned_int())
-                    throw parser_error("invalid 'priority', argument does not fit in a machine integer", pos);
-                m_prio = optional<unsigned>(mpz_val->get_unsigned_int());
+            vm_obj prio = eval_closed_expr(p.env(), "_attribute", nat, val, pos);
+            if (optional<unsigned> _prio = try_to_unsigned(prio)) {
+                m_prio = _prio;
             } else {
-                throw parser_error("invalid 'priority', argument does not evaluate to a numeral", pos);
+                throw parser_error("invalid 'priority', argument does not evaluate to a (small) numeral", pos);
             }
         } else {
             if (!is_attribute(p.env(), id))

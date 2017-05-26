@@ -77,16 +77,12 @@ static format * g_partial_explicit_fmt    = nullptr;
 static name   * g_tmp_prefix      = nullptr;
 
 class nat_numeral_pp {
-    expr m_num_type;
     name m_nat;
-    expr m_nat_of_num;
     expr m_nat_zero;
     expr m_nat_succ;
 public:
     nat_numeral_pp():
-        m_num_type(mk_constant(get_num_name())),
         m_nat(get_nat_name()),
-        m_nat_of_num(mk_constant(get_nat_of_num_name())),
         m_nat_zero(mk_constant(get_nat_zero_name())),
         m_nat_succ(mk_constant(get_nat_succ_name())) {
     }
@@ -622,7 +618,6 @@ auto pretty_fn::pp_child(expr const & e, unsigned bp, bool ignore_hide) -> resul
             return add_paren_if_needed(*r, bp);
         if (m_numerals) {
             if (auto n = to_num(e)) return pp_num(*n);
-            if (auto n = to_num_core(e)) return pp_num(*n);
         }
         if (m_strings) {
             if (auto r = to_string(e)) return pp_string_literal(*r);
@@ -1338,7 +1333,6 @@ auto pretty_fn::pp_notation_child(expr const & e, unsigned lbp, unsigned rbp) ->
     if (is_app(e)) {
         if (m_numerals) {
             if (auto n = to_num(e)) return pp_num(*n);
-            if (auto n = to_num_core(e)) return pp_num(*n);
         }
         if (m_strings) {
             if (auto r = to_string(e)) return pp_string_literal(*r);
@@ -1739,7 +1733,6 @@ auto pretty_fn::pp(expr const & e, bool ignore_hide) -> result {
 
     if (m_numerals) {
         if (auto n = to_num(e)) return pp_num(*n);
-        if (auto n = to_num_core(e)) return pp_num(*n);
     }
     if (m_strings) {
         if (auto r = to_string(e))      return pp_string_literal(*r);

@@ -1,4 +1,4 @@
-[a, b, b] : List num
-(a, true, a = b, b) : num × Prop × Prop × num
-(a, b) : num × num
-[1, 2 + 2, 3] : List num
+[a, b, b] : List ℕ
+(a, true, a = b, b) : ℕ × Prop × Prop × ℕ
+(a, b) : ℕ × ℕ
+[1, 2 + 2, 3] : List ℕ

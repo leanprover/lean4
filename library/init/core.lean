@@ -216,29 +216,6 @@ mk :: (fst : α) (snd : β fst)
 structure psigma {α : Sort u} (β : α → Sort v) :=
 mk :: (fst : α) (snd : β fst)
 
-inductive pos_num : Type
-| one  : pos_num
-| bit1 : pos_num → pos_num
-| bit0 : pos_num → pos_num
-
-namespace pos_num
-  def succ : pos_num → pos_num
-  | one      := bit0 one
-  | (bit1 n) := bit0 (succ n)
-  | (bit0 n) := bit1 n
-end pos_num
-
-inductive num : Type
-| zero  : num
-| pos   : pos_num → num
-
-namespace num
-  open pos_num
-  def succ : num → num
-  | zero    := pos one
-  | (pos p) := pos (pos_num.succ p)
-end num
-
 inductive bool : Type
 | ff : bool
 | tt : bool
@@ -373,65 +350,9 @@ has_insert.insert
 def singleton {α : Type u} {γ : Type v} [has_emptyc γ] [has_insert α γ] (a : α) : γ :=
 has_insert.insert a ∅
 
-/- num, pos_num instances -/
-
-instance : has_zero num :=
-⟨num.zero⟩
-
-instance : has_one num :=
-⟨num.pos pos_num.one⟩
-
-instance : has_one pos_num :=
-⟨pos_num.one⟩
-
-namespace pos_num
-  def is_one : pos_num → bool
-  | one := tt
-  | _   := ff
-
-  def pred : pos_num → pos_num
-  | one        := one
-  | (bit1 n)   := bit0 n
-  | (bit0 one) := one
-  | (bit0 n)   := bit1 (pred n)
-
-  def size : pos_num → pos_num
-  | one      := one
-  | (bit0 n) := succ (size n)
-  | (bit1 n) := succ (size n)
-
-  def add : pos_num → pos_num → pos_num
-  | one  b            := succ b
-  | a    one          := succ a
-  | (bit0 a) (bit0 b) := bit0 (add a b)
-  | (bit1 a) (bit1 b) := bit0 (succ (add a b))
-  | (bit0 a) (bit1 b) := bit1 (add a b)
-  | (bit1 a) (bit0 b) := bit1 (add a b)
-end pos_num
-
-instance : has_add pos_num :=
-⟨pos_num.add⟩
-
-namespace num
-  open pos_num
-
-  def add : num → num → num
-  | zero    a       := a
-  | b       zero    := b
-  | (pos a) (pos b) := pos (pos_num.add a b)
-end num
-
-instance : has_add num :=
-⟨num.add⟩
-
-def std.priority.default : num := 1000
-def std.priority.max     : num := 4294967295
-
 /- nat basic instances -/
 
 namespace nat
-  protected def prio := num.add std.priority.default 100
-
   protected def add : nat → nat → nat
   | a  zero     := a
   | a  (succ b) := succ (add a b)
@@ -439,15 +360,6 @@ namespace nat
   /- We mark the following definitions as pattern to make sure they can be used in recursive equations,
      and reduced by the equation compiler. -/
   attribute [pattern] nat.add nat.add._main
-
-  def of_pos_num : pos_num → nat
-  | pos_num.one      := succ zero
-  | (pos_num.bit0 a) := let r := of_pos_num a in nat.add r r
-  | (pos_num.bit1 a) := let r := of_pos_num a in succ (nat.add r r)
-
-  def of_num : num → nat
-  | num.zero    := zero
-  | (num.pos p) := of_pos_num p
 end nat
 
 instance : has_zero nat := ⟨nat.zero⟩
@@ -455,6 +367,13 @@ instance : has_zero nat := ⟨nat.zero⟩
 instance : has_one nat := ⟨nat.succ (nat.zero)⟩
 
 instance : has_add nat := ⟨nat.add⟩
+
+def std.priority.default : nat := 1000
+def std.priority.max     : nat := 4294967295
+
+namespace nat
+  protected def prio := std.priority.default + 100
+end nat
 
 /-
   Global declarations of right binding strength
@@ -464,17 +383,15 @@ instance : has_add nat := ⟨nat.add⟩
 
   When hovering over a symbol, use "C-c C-k" to see how to input it.
 -/
-def std.prec.max   : num := 1024 -- the strength of application, identifiers, (, [, etc.
-def std.prec.arrow : num := 25
+def std.prec.max   : nat := 1024 -- the strength of application, identifiers, (, [, etc.
+def std.prec.arrow : nat := 25
 
 /-
 The next def is "max + 10". It can be used e.g. for postfix operations that should
 be stronger than application.
 -/
 
-def std.prec.max_plus :=
-num.succ (num.succ (num.succ (num.succ (num.succ (num.succ (num.succ (num.succ (num.succ
-  (num.succ std.prec.max)))))))))
+def std.prec.max_plus : nat := std.prec.max + 10
 
 reserve postfix `⁻¹`:std.prec.max_plus  -- input with \sy or \-1 or \inv
 postfix ⁻¹     := has_inv.inv
@@ -554,18 +471,6 @@ protected def bool.sizeof : bool → nat
 | b := 1
 
 instance : has_sizeof bool := ⟨bool.sizeof⟩
-
-protected def pos_num.sizeof : pos_num → nat
-| p := nat.of_pos_num p
-
-instance : has_sizeof pos_num :=
-⟨pos_num.sizeof⟩
-
-protected def num.sizeof : num → nat
-| n := nat.of_num n
-
-instance : has_sizeof num :=
-⟨num.sizeof⟩
 
 protected def option.sizeof {α : Type u} [has_sizeof α] : option α → nat
 | none     := 1

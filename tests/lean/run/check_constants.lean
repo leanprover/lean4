@@ -193,7 +193,6 @@ run_cmd script_check_id `name.anonymous
 run_cmd script_check_id `name.mk_numeral
 run_cmd script_check_id `name.mk_string
 run_cmd script_check_id `nat
-run_cmd script_check_id `nat.of_num
 run_cmd script_check_id `nat.succ
 run_cmd script_check_id `nat.zero
 run_cmd script_check_id `nat.has_zero
@@ -278,9 +277,6 @@ run_cmd script_check_id `norm_num.subst_into_sum
 run_cmd script_check_id `not
 run_cmd script_check_id `not_of_iff_false
 run_cmd script_check_id `not_of_eq_false
-run_cmd script_check_id `num
-run_cmd script_check_id `num.pos
-run_cmd script_check_id `num.zero
 run_cmd script_check_id `of_eq_true
 run_cmd script_check_id `of_iff_true
 run_cmd script_check_id `opt_param
@@ -288,9 +284,6 @@ run_cmd script_check_id `or
 run_cmd script_check_id `inout_param
 run_cmd script_check_id `punit
 run_cmd script_check_id `punit.star
-run_cmd script_check_id `pos_num.bit0
-run_cmd script_check_id `pos_num.bit1
-run_cmd script_check_id `pos_num.one
 run_cmd script_check_id `prod.mk
 run_cmd script_check_id `pprod
 run_cmd script_check_id `pprod.mk

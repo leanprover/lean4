@@ -1,5 +1,5 @@
 namespace foo
-  constant x : num
+  constant x : nat
   #check x
   #check x
   set_option pp.full_names true

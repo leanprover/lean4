@@ -26,11 +26,11 @@ section
   end
   #check mypair.rec
   variable a : A
-  #check foo num a 0
+  #check foo nat a 0
 
-  definition pr1 : mypair num → A
+  definition pr1 : mypair nat → A
   | (mypair.mk a b) := a
 
-  definition pr2 : mypair num → num
+  definition pr2 : mypair nat → nat
   | (mypair.mk a b) := b
 end

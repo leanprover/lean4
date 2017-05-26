@@ -13,5 +13,5 @@ rfl
 theorem app_cons (h : A) (t l : list A) : app (h :: t) l = h :: (app t l) :=
 rfl
 
-example : app ((1:num) :: 2 :: nil) (3 :: 4 :: 5 :: nil) = (1 :: 2 :: 3 :: 4 :: 5 :: nil) :=
+example : app ((1:nat) :: 2 :: nil) (3 :: 4 :: 5 :: nil) = (1 :: 2 :: 3 :: 4 :: 5 :: nil) :=
 rfl

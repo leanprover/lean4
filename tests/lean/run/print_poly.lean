@@ -10,4 +10,3 @@ open nat
 #print nat.rec
 #print classical.em
 #print quot.lift
-#print nat.of_num

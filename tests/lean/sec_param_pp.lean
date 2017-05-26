@@ -16,5 +16,5 @@ section
 
  definition pr2 (B : Type*) (b : B) : A := a
 
- #check pr2 num 10
+ #check pr2 nat 10
 end

@@ -1,9 +1,9 @@
 --
 
-constant f : num → num → num → num
+constant f : nat → nat → nat → nat
 
 #check
-  let a : num := 10
+  let a : nat := 10
   in f a 10
 
 /-

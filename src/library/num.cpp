@@ -109,28 +109,6 @@ optional<mpz> to_num(expr const & e) {
     return to_num(e, true);
 }
 
-optional<mpz> to_pos_num(expr const & e) {
-    if (is_constant(e, get_pos_num_one_name())) {
-         return some(mpz(1));
-    } else if (is_const_app(e, get_pos_num_bit0_name(), 1)) {
-        if (auto r = to_pos_num(app_arg(e)))
-            return some(2*(*r));
-    } else if (is_const_app(e, get_pos_num_bit1_name(), 1)) {
-        if (auto r = to_pos_num(app_arg(e)))
-            return some(2*(*r) + 1);
-    }
-    return optional<mpz>();
-}
-
-optional<mpz> to_num_core(expr const & e) {
-    if (is_constant(e, get_num_zero_name()))
-        return some(mpz(0));
-    else if (is_const_app(e, get_num_pos_name(), 1))
-        return to_pos_num(app_arg(e));
-    else
-        return optional<mpz>();
-}
-
 bool is_num_leaf_constant(name const & n) {
     return
         n == get_has_zero_zero_name() ||

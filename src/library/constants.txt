@@ -188,7 +188,6 @@ name.anonymous
 name.mk_numeral
 name.mk_string
 nat
-nat.of_num
 nat.succ
 nat.zero
 nat.has_zero
@@ -273,9 +272,6 @@ norm_num.subst_into_sum
 not
 not_of_iff_false
 not_of_eq_false
-num
-num.pos
-num.zero
 of_eq_true
 of_iff_true
 opt_param
@@ -283,9 +279,6 @@ or
 inout_param
 punit
 punit.star
-pos_num.bit0
-pos_num.bit1
-pos_num.one
 prod.mk
 pprod
 pprod.mk

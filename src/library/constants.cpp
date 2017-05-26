@@ -193,7 +193,6 @@ name const * g_name_anonymous = nullptr;
 name const * g_name_mk_numeral = nullptr;
 name const * g_name_mk_string = nullptr;
 name const * g_nat = nullptr;
-name const * g_nat_of_num = nullptr;
 name const * g_nat_succ = nullptr;
 name const * g_nat_zero = nullptr;
 name const * g_nat_has_zero = nullptr;
@@ -278,9 +277,6 @@ name const * g_norm_num_subst_into_sum = nullptr;
 name const * g_not = nullptr;
 name const * g_not_of_iff_false = nullptr;
 name const * g_not_of_eq_false = nullptr;
-name const * g_num = nullptr;
-name const * g_num_pos = nullptr;
-name const * g_num_zero = nullptr;
 name const * g_of_eq_true = nullptr;
 name const * g_of_iff_true = nullptr;
 name const * g_opt_param = nullptr;
@@ -288,9 +284,6 @@ name const * g_or = nullptr;
 name const * g_inout_param = nullptr;
 name const * g_punit = nullptr;
 name const * g_punit_star = nullptr;
-name const * g_pos_num_bit0 = nullptr;
-name const * g_pos_num_bit1 = nullptr;
-name const * g_pos_num_one = nullptr;
 name const * g_prod_mk = nullptr;
 name const * g_pprod = nullptr;
 name const * g_pprod_mk = nullptr;
@@ -568,7 +561,6 @@ void initialize_constants() {
     g_name_mk_numeral = new name{"name", "mk_numeral"};
     g_name_mk_string = new name{"name", "mk_string"};
     g_nat = new name{"nat"};
-    g_nat_of_num = new name{"nat", "of_num"};
     g_nat_succ = new name{"nat", "succ"};
     g_nat_zero = new name{"nat", "zero"};
     g_nat_has_zero = new name{"nat", "has_zero"};
@@ -653,9 +645,6 @@ void initialize_constants() {
     g_not = new name{"not"};
     g_not_of_iff_false = new name{"not_of_iff_false"};
     g_not_of_eq_false = new name{"not_of_eq_false"};
-    g_num = new name{"num"};
-    g_num_pos = new name{"num", "pos"};
-    g_num_zero = new name{"num", "zero"};
     g_of_eq_true = new name{"of_eq_true"};
     g_of_iff_true = new name{"of_iff_true"};
     g_opt_param = new name{"opt_param"};
@@ -663,9 +652,6 @@ void initialize_constants() {
     g_inout_param = new name{"inout_param"};
     g_punit = new name{"punit"};
     g_punit_star = new name{"punit", "star"};
-    g_pos_num_bit0 = new name{"pos_num", "bit0"};
-    g_pos_num_bit1 = new name{"pos_num", "bit1"};
-    g_pos_num_one = new name{"pos_num", "one"};
     g_prod_mk = new name{"prod", "mk"};
     g_pprod = new name{"pprod"};
     g_pprod_mk = new name{"pprod", "mk"};
@@ -944,7 +930,6 @@ void finalize_constants() {
     delete g_name_mk_numeral;
     delete g_name_mk_string;
     delete g_nat;
-    delete g_nat_of_num;
     delete g_nat_succ;
     delete g_nat_zero;
     delete g_nat_has_zero;
@@ -1029,9 +1014,6 @@ void finalize_constants() {
     delete g_not;
     delete g_not_of_iff_false;
     delete g_not_of_eq_false;
-    delete g_num;
-    delete g_num_pos;
-    delete g_num_zero;
     delete g_of_eq_true;
     delete g_of_iff_true;
     delete g_opt_param;
@@ -1039,9 +1021,6 @@ void finalize_constants() {
     delete g_inout_param;
     delete g_punit;
     delete g_punit_star;
-    delete g_pos_num_bit0;
-    delete g_pos_num_bit1;
-    delete g_pos_num_one;
     delete g_prod_mk;
     delete g_pprod;
     delete g_pprod_mk;
@@ -1319,7 +1298,6 @@ name const & get_name_anonymous_name() { return *g_name_anonymous; }
 name const & get_name_mk_numeral_name() { return *g_name_mk_numeral; }
 name const & get_name_mk_string_name() { return *g_name_mk_string; }
 name const & get_nat_name() { return *g_nat; }
-name const & get_nat_of_num_name() { return *g_nat_of_num; }
 name const & get_nat_succ_name() { return *g_nat_succ; }
 name const & get_nat_zero_name() { return *g_nat_zero; }
 name const & get_nat_has_zero_name() { return *g_nat_has_zero; }
@@ -1404,9 +1382,6 @@ name const & get_norm_num_subst_into_sum_name() { return *g_norm_num_subst_into_
 name const & get_not_name() { return *g_not; }
 name const & get_not_of_iff_false_name() { return *g_not_of_iff_false; }
 name const & get_not_of_eq_false_name() { return *g_not_of_eq_false; }
-name const & get_num_name() { return *g_num; }
-name const & get_num_pos_name() { return *g_num_pos; }
-name const & get_num_zero_name() { return *g_num_zero; }
 name const & get_of_eq_true_name() { return *g_of_eq_true; }
 name const & get_of_iff_true_name() { return *g_of_iff_true; }
 name const & get_opt_param_name() { return *g_opt_param; }
@@ -1414,9 +1389,6 @@ name const & get_or_name() { return *g_or; }
 name const & get_inout_param_name() { return *g_inout_param; }
 name const & get_punit_name() { return *g_punit; }
 name const & get_punit_star_name() { return *g_punit_star; }
-name const & get_pos_num_bit0_name() { return *g_pos_num_bit0; }
-name const & get_pos_num_bit1_name() { return *g_pos_num_bit1; }
-name const & get_pos_num_one_name() { return *g_pos_num_one; }
 name const & get_prod_mk_name() { return *g_prod_mk; }
 name const & get_pprod_name() { return *g_pprod; }
 name const & get_pprod_mk_name() { return *g_pprod_mk; }

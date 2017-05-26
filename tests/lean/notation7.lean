@@ -1,8 +1,8 @@
 --
-open num
+open nat
 
-constant f : num → num
-constant g : num → num → num
+constant f : nat → nat
+constant g : nat → nat → nat
 
 notation A `:+1`:100000 := f A
 

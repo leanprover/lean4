@@ -1,8 +1,8 @@
 --
 
-constant f : num → num
-constant g : num → num → num
-constant h : num → num → num
+constant f : nat → nat
+constant g : nat → nat → nat
+constant h : nat → nat → nat
 
 reserve infixl `+`:65
 reserve infixr `&`:70
@@ -17,9 +17,9 @@ local infixr `&` := h
 
 set_option pp.notation false
 
-#check -(1:num) + 2
+#check -(1:nat) + 2
 #check 1 & 2 & 3 & 4
-#check (1:num) - 2 - 3 - 4
+#check (1:nat) - 2 - 3 - 4
 
 infixr `~~`:60 := h
 infixl `!!`:60 := h

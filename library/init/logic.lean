@@ -736,12 +736,6 @@ instance pi.inhabited (α : Sort u) {β : α → Sort v} [Π x, inhabited (β x)
 instance : inhabited bool :=
 ⟨ff⟩
 
-instance : inhabited pos_num :=
-⟨pos_num.one⟩
-
-instance : inhabited num :=
-⟨num.zero⟩
-
 class inductive nonempty (α : Sort u) : Prop
 | intro : α → nonempty
 

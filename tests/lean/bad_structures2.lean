@@ -12,13 +12,13 @@ structure boo2 :=
 structure bla extends foo, boo2
 
 structure bla extends foo :=
-(x : num)
+(x : nat)
 
 structure bla extends foo :=
-( : num)
+( : nat)
 
 structure bla extends foo :=
-mk :: y z : num
+mk :: y z : nat
 
 structure bla2 extends nat
 

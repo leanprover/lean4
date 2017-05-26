@@ -27,7 +27,7 @@ meta constant ident : parser name
 meta constant tk (tk : string) : parser unit
 /-- Parse an unelaborated expression using the given right-binding power. The expression
     may contain antiquotations (`%%e`). -/
-meta constant qexpr (rbp := nat.of_num std.prec.max) : parser pexpr
+meta constant qexpr (rbp := std.prec.max) : parser pexpr
 
 /-- Do not report info from content parsed by `p`. -/
 meta constant skip_info {α : Type} (p : parser α) : parser α

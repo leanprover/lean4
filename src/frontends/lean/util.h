@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "library/util.h"
 #include "library/locals.h"
+#include "library/vm/vm.h"
 #include "frontends/lean/local_decls.h"
 #include "frontends/lean/local_level_decls.h"
 
@@ -136,6 +137,9 @@ bool is_field_notation(expr const & e);
 bool is_anonymous_field_notation(expr const & e);
 name const & get_field_notation_field_name(expr const & e);
 unsigned get_field_notation_field_idx(expr const & e);
+
+environment compile_expr(environment const & env, name const & n, level_param_names const & ls, expr const & type, expr const & e, pos_info const & pos);
+vm_obj eval_closed_expr(environment const & env, name const & n, expr const & type, expr const & e, pos_info const & pos);
 
 void initialize_frontend_lean_util();
 void finalize_frontend_lean_util();

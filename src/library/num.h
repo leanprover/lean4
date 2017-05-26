@@ -32,9 +32,6 @@ optional<expr> unfold_num_app(environment const & env, expr const & e);
     \see from_num */
 optional<mpz> to_num(expr const & e);
 
-/** \brief If the given expression is a numeral encode the num and pos_num types, return the encoded numeral */
-optional<mpz> to_num_core(expr const & e);
-
 /** \brief Return true iff n is zero/one/has_zero.zero/has_one.one.
     These constants are used to encode numerals, and some tactics may have to treat them in a special way.
 

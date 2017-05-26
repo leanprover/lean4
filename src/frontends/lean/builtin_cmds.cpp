@@ -429,16 +429,6 @@ static environment compile_cmd(parser & p) {
     return vm_compile(p.env(), d);
 }
 
-static environment compile_expr(environment const & env, name const & n, level_param_names const & ls, expr const & type, expr const & e, pos_info const & pos) {
-    environment new_env = env;
-    bool use_conv_opt   = true;
-    bool is_trusted     = false;
-    auto cd = check(new_env, mk_definition(new_env, n, ls, type, e, use_conv_opt, is_trusted));
-    new_env = new_env.add(cd);
-    new_env = add_transient_decl_pos_info(new_env, n, pos);
-    return vm_compile(new_env, new_env.get(n));
-}
-
 static environment eval_cmd(parser & p) {
     auto pos = p.pos();
     expr e; level_param_names ls;

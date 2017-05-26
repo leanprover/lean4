@@ -1,2 +1,2 @@
-1::2::nil : List num
-1::2::3::4::5::nil : List num
+1::2::nil : List ℕ
+1::2::3::4::5::nil : List ℕ

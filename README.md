@@ -44,3 +44,11 @@ Miscellaneous
 - [Git Commit Conventions](doc/commit_convention.md)
 - [Automatic Builds](doc/make/travis.md)
 - [Syntax Highlight Lean Code in LaTeX](doc/syntax_highlight_in_latex.md)
+
+Roadmap
+-------------
+
+- [Open RFC issues](https://github.com/leanprover/lean/issues?q=is%3Aissue+is%3Aopen+label%3ARFC)
+- [Features](https://github.com/leanprover/lean/issues?q=is%3Aissue+is%3Aopen+label%3AFeature)
+- [High priority issues](https://github.com/leanprover/lean/issues?q=is%3Aissue+is%3Aopen+label%3AP-high)
+- [Medium priority issues](https://github.com/leanprover/lean/issues?q=is%3Aissue+is%3Aopen+label%3AP-medium)

@@ -673,7 +673,20 @@ section
   else is_true (assume h, absurd h hp)
 
   instance [decidable p] [decidable q] : decidable (p ↔ q) :=
-  decidable_of_decidable_of_iff and.decidable (iff_iff_implies_and_implies p q).symm
+  if hp : p then
+    if hq : q then is_true ⟨λ_, hq, λ_, hp⟩
+    else is_false $ λh, hq (h.1 hp)
+  else
+    if hq : q then is_false $ λh, hp (h.2 hq)
+    else is_true $ ⟨λh, absurd h hp, λh, absurd h hq⟩
+
+  instance [decidable p] [decidable q] : decidable (xor p q) :=
+  if hp : p then
+    if hq : q then is_false (or.rec (λ ⟨_, h⟩, h hq : ¬(p ∧ ¬ q)) (λ ⟨_, h⟩, h hp : ¬(q ∧ ¬ p)))
+    else is_true $ or.inl ⟨hp, hq⟩
+  else
+    if hq : q then is_true $ or.inr ⟨hq, hp⟩
+    else is_false (or.rec (λ ⟨h, _⟩, hp h : ¬(p ∧ ¬ q)) (λ ⟨h, _⟩, hq h : ¬(q ∧ ¬ p)))
 end
 
 instance {α : Sort u} [decidable_eq α] (a b : α) : decidable (a ≠ b) :=

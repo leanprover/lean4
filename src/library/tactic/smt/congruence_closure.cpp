@@ -482,6 +482,15 @@ void congruence_closure::apply_simple_eqvs(expr const & e) {
         push_heq(e, p, proof);
     }
 
+    if (is_app_of(e, get_ne_name(), 3)) {
+        /* (a ≠ b) = (not (a = b)) */
+        expr const & a = app_arg(app_fn(e));
+        expr const & b = app_arg(e);
+        expr new_e     = mk_not(mk_eq(m_ctx, a, b));
+        internalize_core(new_e, none_expr(), get_generation_of(e));
+        push_refl_eq(e, new_e);
+    }
+
     if (auto r = m_ctx.reduce_projection(e)) {
         push_refl_eq(e, *r);
     }

@@ -445,6 +445,24 @@ begin
       existsi a, simph }}
 end
 
+lemma mem_map_iff {f : α → β} {b : β} {l : list α} : b ∈ map f l ↔ ∃ a, a ∈ l ∧ f a = b :=
+⟨exists_of_mem_map, λ ⟨a, la, h⟩, by rw -h; exact mem_map f la⟩
+
+lemma mem_join_iff {a : α} : ∀ {L : list (list α)}, a ∈ join L ↔ ∃ l, l ∈ L ∧ a ∈ l
+| []       := ⟨false.elim, λ⟨_, h, _⟩, false.elim h⟩
+| (c :: L) := by simp [join, @mem_join_iff L]; exact
+  ⟨λh, match h with
+  | or.inl ac         := ⟨c, ac, or.inl rfl⟩
+  | or.inr ⟨l, al, lL⟩ := ⟨l, al, or.inr lL⟩
+  end,
+  λ⟨l, al, o⟩, o.elim (λ lc, by rw lc at al; exact or.inl al) (λlL, or.inr ⟨l, al, lL⟩)⟩
+
+lemma exists_of_mem_join {a : α} {L : list (list α)} : a ∈ join L → ∃ l, l ∈ L ∧ a ∈ l :=
+mem_join_iff.1
+
+lemma mem_join {a : α} {L : list (list α)} {l} (lL : l ∈ L) (al : a ∈ l) : a ∈ join L :=
+mem_join_iff.2 ⟨l, lL, al⟩ 
+
 /- list subset -/
 
 protected def subset (l₁ l₂ : list α) := ∀ ⦃a : α⦄, a ∈ l₁ → a ∈ l₂

@@ -58,7 +58,18 @@ list.decidable_eq
 
 namespace list
 
-variables {α : Type u} (p : α → Prop) [decidable_pred p]
+variables {α β : Type u} (p : α → Prop) [decidable_pred p]
+
+lemma mem_bind_iff {b : β} {l : list α} {f : α → list β} : b ∈ l >>= f ↔ ∃ a ∈ l, b ∈ f a :=
+iff.trans mem_join_iff
+  ⟨λ ⟨l', h1, h2⟩, let ⟨a, al, fa⟩ := exists_of_mem_map h1 in ⟨a, al, fa.symm ▸ h2⟩,
+  λ ⟨a, al, bfa⟩, ⟨f a, mem_map _ al, bfa⟩⟩
+
+lemma exists_of_mem_bind {b : β} {l : list α} {f : α → list β} : b ∈ l >>= f → ∃ a ∈ l, b ∈ f a :=
+mem_bind_iff.1
+
+lemma mem_bind {b : β} {l : list α} {f : α → list β} {a} (al : a ∈ l) (h : b ∈ f a) : b ∈ l >>= f :=
+mem_bind_iff.2 ⟨a, al, h⟩
 
 instance decidable_bex : ∀ (l : list α), decidable (∃ x ∈ l, p x)
 | [] := is_false (by intro; cases a; cases a_2; cases a)

@@ -371,7 +371,7 @@ instance : has_one nat := ⟨nat.succ (nat.zero)⟩
 instance : has_add nat := ⟨nat.add⟩
 
 def std.priority.default : nat := 1000
-def std.priority.max     : nat := 4294967295
+def std.priority.max     : nat := 0xFFFFFFFF
 
 namespace nat
   protected def prio := std.priority.default + 100

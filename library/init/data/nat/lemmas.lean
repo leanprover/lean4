@@ -46,14 +46,14 @@ left_comm nat.add nat.add_comm nat.add_assoc
 protected lemma add_left_cancel : ∀ {n m k : ℕ}, n + m = n + k → m = k
 | 0        m k := by simp [nat.zero_add] {contextual := tt}
 | (succ n) m k := λ h,
-  have n+m = n+k, begin simp [succ_add] at h, injection h, assumption end,
+  have n+m = n+k, by simp [succ_add] at h; injection h,
   add_left_cancel this
 
 protected lemma add_right_comm : ∀ (n m k : ℕ), n + m + k = n + k + m :=
 right_comm nat.add nat.add_comm nat.add_assoc
 
 protected lemma add_right_cancel {n m k : ℕ} (h : n + m = k + m) : n = k :=
-have m + n = m + k, begin rw [nat.add_comm n m, nat.add_comm k m] at h, assumption end,
+have m + n = m + k, by rwa [nat.add_comm n m, nat.add_comm k m] at h,
 nat.add_left_cancel this
 
 lemma succ_ne_zero (n : ℕ) : succ n ≠ 0 :=
@@ -534,14 +534,14 @@ protected lemma bit0_inj : ∀ {n m : ℕ}, bit0 n = bit0 m → n = m
 | (n+1) (m+1) h :=
   have succ (succ (n + n)) = succ (succ (m + m)),
   begin unfold bit0 at h, simp [add_one_eq_succ, add_succ, succ_add] at h, exact h end,
-  have n + n = m + m, begin repeat {injection this with this}, assumption end,
+  have n + n = m + m, by repeat {injection this with this},
   have n = m, from bit0_inj this,
   by rw this
 
 protected lemma bit1_inj : ∀ {n m : ℕ}, bit1 n = bit1 m → n = m :=
 λ n m h,
 have succ (bit0 n) = succ (bit0 m), begin simp [nat.bit1_eq_succ_bit0] at h, assumption end,
-have bit0 n = bit0 m, from begin injection this, assumption end,
+have bit0 n = bit0 m, by injection this,
 nat.bit0_inj this
 
 protected lemma bit0_ne {n m : ℕ} : n ≠ m → bit0 n ≠ bit0 m :=

@@ -481,12 +481,11 @@ end
 lemma take_lemma (s₁ s₂ : stream α) : (∀ (n : nat), approx n s₁ = approx n s₂) → s₁ = s₂ :=
 begin
   intro h, apply stream.ext, intro n,
-    induction n with n ih,
-     {note aux := h 1, unfold approx at aux,
-      injection aux with aux, exact aux},
-     {assert h₁ : some (nth (succ n) s₁) = some (nth (succ n) s₂),
-      {rw [-nth_approx, -nth_approx, h (succ (succ n))]},
-      injection h₁, assumption}
+  induction n with n ih,
+  { note aux := h 1, unfold approx at aux, injection aux },
+  { assert h₁ : some (nth (succ n) s₁) = some (nth (succ n) s₂),
+    { rw [-nth_approx, -nth_approx, h (succ (succ n))] },
+    injection h₁ }
 end
 
 -- auxiliary def for cycle corecursive def

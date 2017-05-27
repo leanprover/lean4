@@ -48,10 +48,21 @@ variables {α : Type u₁} {β : Type u₂} (R : α → β → Prop)
 @[class] def left_unique := ∀{a b c}, R a b → R c b → a = c
 @[class] def right_unique := ∀{a b c}, R a b → R a c → b = c
 
+lemma rel_forall_of_right_total [t : right_total R] : ((R ⇒ implies) ⇒ implies) (λp, ∀i, p i) (λq, ∀i, q i) :=
+take p q Hrel H b, exists.elim (t b) (take a Rab, Hrel Rab (H _))
+
+lemma rel_exists_of_left_total [t : left_total R] : ((R ⇒ implies) ⇒ implies) (λp, ∃i, p i) (λq, ∃i, q i) :=
+take p q Hrel ⟨a, pa⟩, let ⟨b, Rab⟩ := t a in ⟨b, Hrel Rab pa⟩
+
 lemma rel_forall_of_total [t : bi_total R] : ((R ⇒ iff) ⇒ iff) (λp, ∀i, p i) (λq, ∀i, q i) :=
 take p q Hrel,
   ⟨take H b, exists.elim (t.right b) (take a Rab, (Hrel Rab).mp (H _)),
     take H a, exists.elim (t.left a) (take b Rab, (Hrel Rab).mpr (H _))⟩
+
+lemma rel_exists_of_total [t : bi_total R] : ((R ⇒ iff) ⇒ iff) (λp, ∃i, p i) (λq, ∃i, q i) :=
+take p q Hrel,
+  ⟨take ⟨a, pa⟩, let ⟨b, Rab⟩ := t.left a in ⟨b, (Hrel Rab).1 pa⟩,
+    take ⟨b, qb⟩, let ⟨a, Rab⟩ := t.right b in ⟨a, (Hrel Rab).2 qb⟩⟩
 
 lemma left_unique_of_rel_eq {eq' : β → β → Prop} (he : (R ⇒ (R ⇒ iff)) eq eq') : left_unique R
 | a b c (ab : R a b) (cb : R c b) :=

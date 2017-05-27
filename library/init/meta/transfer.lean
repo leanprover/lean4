@@ -143,7 +143,8 @@ meta def compute_transfer : list rule_data → list expr → expr → tactic (ex
     inst_univ  ← return $ (λe, instantiate_univ_params e (level_map ++ zip rd.uargs l)),
     (ps, args) ← return $ split_params_args (list.map (prod.map inst_univ id) rd.params) m,
     (ps, ms)   ← param_substitutions ctxt ps, /- this checks type class parameters -/
-    return (instantiate_locals ps ∘ inst_univ, ps, args, ms, rd))),
+    return (instantiate_locals ps ∘ inst_univ, ps, args, ms, rd))) <|>
+  (do trace e, fail "no matching rule"),
 
   (bs, hs, mss) ← monad.for (zip rd.args args) (λ⟨⟨_, d⟩, e⟩, do
     -- Argument has function type

@@ -564,6 +564,9 @@ hypotheses.
 meta def injection (q : parse texpr) (hs : parse with_ident_list) : tactic unit :=
 do e ← i_to_expr q, tactic.injection_with e hs, try assumption
 
+meta def injections (hs : parse with_ident_list) : tactic unit :=
+do tactic.injections_with hs, try assumption
+
 private meta def add_simps : simp_lemmas → list name → tactic simp_lemmas
 | s []      := return s
 | s (n::ns) := do s' ← s.add_simp n, add_simps s' ns

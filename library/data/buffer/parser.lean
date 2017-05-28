@@ -120,9 +120,12 @@ def char_buf (s : char_buffer) : parser unit :=
 decorate_error s.to_string $ monad.for' s.to_list ch
 
 /-- Matches one out of a list of characters. -/
-def one_of (cs : list char) : parser unit :=
+def one_of (cs : list char) : parser char :=
 decorate_errors (do c ← cs, return [c]) $
-sat (∈ cs) >> eps
+sat (∈ cs)
+
+def one_of' (cs : list char) : parser unit :=
+one_of cs >> eps
 
 /-- Matches a string.  Does not consume input in case of failure. -/
 def str (s : string) : parser unit :=

@@ -17,6 +17,7 @@ namespace toml
 
 inductive value : Type
 | str : string → value
+| nat : ℕ → value
 | bool : bool → value
 | table : list (string × value) → value
 
@@ -34,6 +35,7 @@ list.bind s escapec
 
 private def to_string_core : ∀ (n : ℕ), value → string
 | _ (value.str s) := "\"" ++ escape s ++ "\""
+| _ (value.nat n) := n.to_string
 | _ (value.bool tt) := "true"
 | _ (value.bool ff) := "false"
 | (n+1) (value.table cs) :=
@@ -71,7 +73,7 @@ ch '#' >> many' (sat (≠ '#')) >> optional (ch '\n') >> eps
 
 def Ws : parser unit :=
 decorate_error "<whitespace>" $
-many' $ one_of " \t\n" <|> Comment
+many' $ one_of' " \t\n" <|> Comment
 
 def tok (s : string) := str s >> Ws
 
@@ -87,6 +89,12 @@ def BasicString : parser string :=
 str "\"" *> (list.reverse <$> many StringChar) <* str "\"" <* Ws
 
 def String := BasicString
+
+def Nat : parser nat :=
+do l ← many1 (one_of "0123456789"),
+   Ws,
+   let s : string := l.reverse,
+   return s.to_nat
 
 def Boolean : parser bool :=
 (tok "true" >> return tt) <|>
@@ -116,6 +124,9 @@ def Table : parser (string × value) := StdTable
 def StrVal : parser value :=
 value.str <$> String
 
+def NatVal : parser value :=
+value.nat <$> Nat
+
 def BoolVal : parser value :=
 value.bool <$> Boolean
 
@@ -125,19 +136,22 @@ tok "{" *> (value.table <$> sep_by (tok ",") KeyVal) <* tok "}"
 end
 
 def Val : parser value :=
-fix $ λ Val, StrVal <|> BoolVal <|> InlineTable Val
+fix $ λ Val, StrVal <|> NatVal <|> BoolVal <|> InlineTable Val
 
 def Expression := Table Val
 
 def File : parser value :=
 Ws *> (value.table <$> many Expression)
 
--- #eval run_string File $
---   "[package]\n" ++
---   "name = \"sss\"\n" ++
---   "version = \"0.1\"\n" ++
---   "\n" ++
---   "[dependencies]\n" ++
---   "library_dev = { git = \"https://github.com/leanprover/library_dev\", rev = \"master\" }"
+/-
+#eval run_string File $
+   "[package]\n" ++
+   "name = \"sss\"\n" ++
+   "version = \"0.1\"\n" ++
+   "timeout = 10\n" ++
+   "\n" ++
+   "[dependencies]\n" ++
+   "library_dev = { git = \"https://github.com/leanprover/library_dev\", rev = \"master\" }"
+-/
 
 end toml

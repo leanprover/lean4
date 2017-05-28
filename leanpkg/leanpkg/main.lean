@@ -50,7 +50,8 @@ def make : io unit := do
 manifest ← read_manifest,
 exec_cmd {
   cmd := "lean",
-  args := ["--make"] ++ manifest.effective_path,
+  args := (match manifest.timeout with some t := ["-T", t.to_string] | none := [] end) ++
+    ["--make"] ++ manifest.effective_path,
   env := [("LEAN_PATH", none)]
 }
 
@@ -68,8 +69,7 @@ def init_gitignore_contents :=
 "
 
 def init_pkg (n : string) (dir : string) : io unit := do
-write_manifest { name := n, version := "0.1", path := none, dependencies := [] }
-  (dir ++ "/" ++ leanpkg_toml_fn),
+write_manifest { name := n, version := "0.1" } (dir ++ "/" ++ leanpkg_toml_fn),
 write_file (dir ++ "/.gitignore") init_gitignore_contents io.mode.append,
 exec_cmd {cmd := "leanpkg", args := ["configure"], cwd := dir}
 
@@ -160,9 +160,7 @@ def main : ∀ (args : list string), io unit
   ex ← exists_file user_toml_fn,
   when (¬ ex) $ write_manifest {
       name := "_user_local_packages",
-      version := "1",
-      path := none,
-      dependencies := []
+      version := "1"
     } user_toml_fn,
   exec_cmd {cmd := "leanpkg", args := ["add", dep], cwd := dot_lean_dir}
 | ["dump"] := read_manifest >>= io.print_ln

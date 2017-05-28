@@ -3,12 +3,9 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mario Carneiro
 -/
-import data.list.set data.list.comb init.data.array
+import data.list.set data.list.comb init.data.array data.pnat
 
 universes u v w
-
-def pnat := {n : ℕ // n > 0}
-notation `ℕ+` := pnat
 
 def bucket_array (α : Type u) (β : α → Type v) (n : ℕ+) :=
 array (list Σ a, β a) n.1

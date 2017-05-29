@@ -89,12 +89,9 @@ section arith
 
   protected def add (x y : bitvec n) : bitvec n := tail (adc x y ff)
 
-  protected def borrow (x y b : bool) :=
-  bnot x && y || bnot x && b || y && b
-
   -- Subtract with borrow
   def sbb (x y : bitvec n) (b : bool) : bool × bitvec n :=
-  let f := λ x y c, (bitvec.borrow x y c, bitvec.xor3 x y c) in
+  let f := λ x y c, (bitvec.carry (bnot x) y c, bitvec.xor3 x y c) in
   vector.map_accumr₂ f x y b
 
   protected def sub (x y : bitvec n) : bitvec n := prod.snd (sbb x y ff)

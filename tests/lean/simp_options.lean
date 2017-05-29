@@ -25,3 +25,20 @@ begin
     rw [a₁, a₂],
     split; reflexivity
 end
+
+constants (f : ℕ → ℕ) (a b c : ℕ) (fab : f a = f b) (fbc : f b = f c)
+constants (p : ℕ → Prop) (pfa : p (f a)) (pfb : p (f b)) (pfc :p (f c))
+
+attribute [simp] fbc
+
+example : p (f a) :=
+by simp [fab]; exact pfc
+
+example : p (f a) :=
+by simp only [fab]; exact pfb
+
+example (h : p (f a)) : p (f c) :=
+by simp [fab] at h; assumption
+
+example (h : p (f a)) : p (f b) :=
+by simp only [fab] at h; assumption

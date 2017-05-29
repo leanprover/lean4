@@ -409,8 +409,8 @@ meta def join_user_simp_lemmas_core : simp_lemmas → list name → tactic simp_
 | S []             := return S
 | S (attr_name::R) := do S' ← get_user_simp_lemmas attr_name, join_user_simp_lemmas_core (S.join S') R
 
-meta def join_user_simp_lemmas : list name → tactic simp_lemmas
-| []         := simp_lemmas.mk_default
+meta def join_user_simp_lemmas (no_dflt : bool) : list name → tactic simp_lemmas
+| []         := if no_dflt then pure simp_lemmas.mk else simp_lemmas.mk_default
 | attr_names := join_user_simp_lemmas_core simp_lemmas.mk attr_names
 
 /- Normalize numerical expression, returns a pair (n, pr) where n is the resultant numeral,

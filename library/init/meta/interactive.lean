@@ -360,12 +360,9 @@ meta def rw_rules : parser rw_rules_t :=
 
 private meta def rw_core (m : transparency) (rs : parse rw_rules) (loca : parse location) : tactic unit :=
 match loca with
-| loc.wildcard :=
-do ls ← local_context,
-   let ls_names := list.map (fun (l : expr), l.local_pp_name) ls,
-   ls_names.mfor' (fun loc, try $ rw_hyp m rs.rules loc)
-| loc.ns [] := rw_goal m rs.rules
-| loc.ns hs := rw_hyps m rs.rules hs
+| loc.wildcard := fail "wildcard not allowed with rewrite"
+| loc.ns []    := rw_goal m rs.rules
+| loc.ns hs    := rw_hyps m rs.rules hs
 end >> try (reflexivity reducible)
     >> (returnopt rs.end_pos >>= save_info <|> skip)
 

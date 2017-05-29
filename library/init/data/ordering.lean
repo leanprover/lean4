@@ -9,6 +9,18 @@ import init.data.to_string init.data.prod init.data.sum.basic
 inductive ordering
 | lt | eq | gt
 
+namespace ordering
+  def swap : ordering → ordering
+  | lt := gt
+  | eq := eq
+  | gt := lt
+
+  theorem swap_swap : ∀ (o : ordering), o.swap.swap = o
+  | lt := rfl
+  | eq := rfl
+  | gt := rfl
+end ordering
+
 open ordering
 
 instance : has_to_string ordering :=

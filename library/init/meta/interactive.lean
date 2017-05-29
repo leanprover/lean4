@@ -78,6 +78,7 @@ private meta def parser_desc_aux : expr → tactic (list format)
 | `(ident)  := return ["id"]
 | `(ident_) := return ["id"]
 | `(qexpr) := return ["expr"]
+| `(location) := return ["loc?"]
 | `(tk %%c) := list.ret <$> to_fmt <$> eval_expr string c
 | `(cur_pos) := return []
 | `(pure ._) := return []

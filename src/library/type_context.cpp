@@ -2718,6 +2718,7 @@ bool type_context::on_is_def_eq_failure(expr const & e1, expr const & e2) {
 
 /* If e is a numeral, then return it. Otherwise return none. */
 static optional<mpz> eval_num(expr const & e) {
+    check_system("eval_num");
     if (is_constant(e, get_nat_zero_name())) {
         return some(mpz(0));
     } else if (is_app_of(e, get_has_zero_zero_name(), 2)) {

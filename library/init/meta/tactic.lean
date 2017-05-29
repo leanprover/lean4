@@ -630,28 +630,28 @@ do gs ← get_goals,
    end
 
 /- (assert h t), adds a new goal for t, and the hypothesis (h : t) in the current goal. -/
-meta def assert (h : name) (t : expr) : tactic unit :=
-assert_core h t >> swap >> intro h >> swap
+meta def assert (h : name) (t : expr) : tactic expr :=
+do assert_core h t, swap, e ← intro h, swap, return e
 
 /- (assertv h t v), adds the hypothesis (h : t) in the current goal if v has type t. -/
-meta def assertv (h : name) (t : expr) (v : expr) : tactic unit :=
-assertv_core h t v >> intro h >> return ()
+meta def assertv (h : name) (t : expr) (v : expr) : tactic expr :=
+assertv_core h t v >> intro h
 
 /- (define h t), adds a new goal for t, and the hypothesis (h : t := ?M) in the current goal. -/
-meta def define  (h : name) (t : expr) : tactic unit :=
-define_core h t >> swap >> intro h >> swap
+meta def define  (h : name) (t : expr) : tactic expr :=
+do define_core h t, swap, e ← intro h, swap, return e
 
 /- (definev h t v), adds the hypothesis (h : t := v) in the current goal if v has type t. -/
-meta def definev (h : name) (t : expr) (v : expr) : tactic unit :=
-definev_core h t v >> intro h >> return ()
+meta def definev (h : name) (t : expr) (v : expr) : tactic expr :=
+definev_core h t v >> intro h
 
 /- Add (h : t := pr) to the current goal -/
-meta def pose (h : name) (t : option expr := none) (pr : expr) : tactic unit :=
+meta def pose (h : name) (t : option expr := none) (pr : expr) : tactic expr :=
 let dv := λt, definev h t pr in
 option.cases_on t (infer_type pr >>= dv) dv
 
 /- Add (h : t) to the current goal, given a proof (pr : t) -/
-meta def note (h : name) (t : option expr := none) (pr : expr) : tactic unit :=
+meta def note (h : name) (t : option expr := none) (pr : expr) : tactic expr :=
 let dv := λt, assertv h t pr in
 option.cases_on t (infer_type pr >>= dv) dv
 

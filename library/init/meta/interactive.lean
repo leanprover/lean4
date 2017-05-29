@@ -535,11 +535,13 @@ The new subgoal becomes the main goal.
 -/
 meta def assert (h : parse ident) (q : parse $ tk ":" *> texpr) : tactic unit :=
 do e ← i_to_expr_strict q,
-   tactic.assert h e
+   tactic.assert h e,
+   return ()
 
 meta def define (h : parse ident) (q : parse $ tk ":" *> texpr) : tactic unit :=
 do e ← i_to_expr_strict q,
-   tactic.define h e
+   tactic.define h e,
+   return ()
 
 /--
 This tactic applies to any goal. `note h : T := p` adds a new hypothesis of name `h` and type `T` to the current goal if `p` a term of type `T`.
@@ -549,10 +551,12 @@ match q₁ with
 | some e := do
   t ← i_to_expr_strict e,
   v ← i_to_expr_strict ``(%%q₂ : %%t),
-  tactic.assertv (h.get_or_else `this) t v
+  tactic.assertv (h.get_or_else `this) t v,
+  return ()
 | none := do
   p ← i_to_expr_strict q₂,
-  tactic.note (h.get_or_else `this) none p
+  tactic.note (h.get_or_else `this) none p,
+  return ()
 end
 
 meta def pose (h : parse ident?) (q₁ : parse (tk ":" *> texpr)?) (q₂ : parse $ tk ":=" *> texpr) : tactic unit :=
@@ -560,10 +564,12 @@ match q₁ with
 | some e := do
   t ← i_to_expr_strict e,
   v ← i_to_expr_strict ``(%%q₂ : %%t),
-  tactic.definev (h.get_or_else `this) t v
+  tactic.definev (h.get_or_else `this) t v,
+  return ()
 | none := do
   p ← i_to_expr_strict q₂,
-  tactic.pose (h.get_or_else `this) none p
+  tactic.pose (h.get_or_else `this) none p,
+  return ()
 end
 
 /--

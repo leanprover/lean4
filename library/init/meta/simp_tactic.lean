@@ -360,21 +360,22 @@ step $
 do s ← collect_ctx_simps >>= s.append,
    simp_intro_aux cfg tt s tt ns
 
-meta def simp_at (h : expr) (extra_lemmas : list expr := []) (cfg : simp_config := {}) : tactic unit :=
+meta def simp_at (h : expr) (extra_lemmas : list expr := []) (cfg : simp_config := {}) : tactic expr :=
 do when (expr.is_local_constant h = ff) (fail "tactic simp_at failed, the given expression is not a hypothesis"),
    htype ← infer_type h,
    S     ← simp_lemmas.mk_default,
    S     ← S.append extra_lemmas,
    (new_htype, heq) ← simplify S htype cfg,
-   assert (expr.local_pp_name h) new_htype,
+   newh ← assert (expr.local_pp_name h) new_htype,
    mk_eq_mp heq h >>= exact,
-   try $ clear h
+   try $ clear h,
+   return newh
 
-meta def simp_at_using_hs (h : expr) (extra_lemmas : list expr := []) (cfg : simp_config := {}) : tactic unit :=
+meta def simp_at_using_hs (h : expr) (extra_lemmas : list expr := []) (cfg : simp_config := {}) : tactic expr :=
 do hs ← collect_ctx_simps,
    simp_at h (list.filter (≠ h) hs ++ extra_lemmas) cfg
 
-meta def simph_at (h : expr) (extra_lemmas : list expr := []) (cfg : simp_config := {}) : tactic unit :=
+meta def simph_at (h : expr) (extra_lemmas : list expr := []) (cfg : simp_config := {}) : tactic expr :=
 simp_at_using_hs h extra_lemmas cfg
 
 meta def mk_eq_simp_ext (simp_ext : expr → tactic (expr × expr)) : tactic unit :=

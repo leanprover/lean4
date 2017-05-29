@@ -773,8 +773,9 @@ bool type_context::use_zeta() const {
 
   Remark: if proj_reduce is false, then projection reduction is not performed.
 */
-expr type_context::whnf_core(expr const & e, bool proj_reduce) {
-    switch (e.kind()) {
+expr type_context::whnf_core(expr const & e0, bool proj_reduce) {
+    expr e = e0;
+    while (true) { switch (e.kind()) {
     case expr_kind::Var:      case expr_kind::Sort:
     case expr_kind::Pi:       case expr_kind::Lambda:
     case expr_kind::Constant:
@@ -785,7 +786,8 @@ expr type_context::whnf_core(expr const & e, bool proj_reduce) {
             if (auto d = m_lctx.find_local_decl(e)) {
                 if (auto v = d->get_value()) {
                     /* zeta-reduction */
-                    return whnf_core(*v, proj_reduce);
+                    e = *v;
+                    continue;
                 }
             }
         }
@@ -794,7 +796,8 @@ expr type_context::whnf_core(expr const & e, bool proj_reduce) {
         if (is_metavar_decl_ref(e)) {
             if (m_mctx.is_assigned(e)) {
                 m_used_assignment = true;
-                return whnf_core(m_mctx.instantiate_mvars(e), proj_reduce);
+                e = m_mctx.instantiate_mvars(e);
+                continue;
             }
         } else if (m_tmp_data && is_idx_metavar(e)) {
             lean_assert(in_tmp_mode());
@@ -802,7 +805,8 @@ expr type_context::whnf_core(expr const & e, bool proj_reduce) {
             if (idx < m_tmp_data->m_eassignment.size()) {
                 if (auto v = m_tmp_data->m_eassignment[idx]) {
                     m_used_assignment = true;
-                    return whnf_core(*v, proj_reduce);
+                    e = *v;
+                    continue;
                 }
             }
         }
@@ -810,13 +814,19 @@ expr type_context::whnf_core(expr const & e, bool proj_reduce) {
     case expr_kind::Macro:
         if (auto m = expand_macro(e)) {
             check_system("whnf");
-            return whnf_core(*m, proj_reduce);
+            e = *m;
+            continue;
         } else {
             return e;
         }
     case expr_kind::Let:
         check_system("whnf");
-        return use_zeta() ? whnf_core(::lean::instantiate(let_body(e), let_value(e)), proj_reduce) : e;
+        if (use_zeta()) {
+            e = ::lean::instantiate(let_body(e), let_value(e));
+            continue;
+        } else {
+            return e;
+        }
     case expr_kind::App: {
         check_system("whnf");
         buffer<expr> args;
@@ -831,31 +841,34 @@ expr type_context::whnf_core(expr const & e, bool proj_reduce) {
                 m++;
             }
             lean_assert(m <= num_args);
-            return whnf_core(mk_rev_app(::lean::instantiate(binding_body(f), m, args.data() + (num_args - m)),
-                                        num_args - m, args.data()),
-                             proj_reduce);
+            e = mk_rev_app(::lean::instantiate(binding_body(f), m, args.data() + (num_args - m)),
+                    num_args - m, args.data());
+            continue;
         } else if (f == f0) {
             if (auto r = norm_ext(e)) {
                 /* mainly iota-reduction, it also applies HIT and quotient reduction rules */
-                return whnf_core(*r, proj_reduce);
+                e = *r;
+                continue;
             }
 
             if (proj_reduce) {
                 if (auto r = reduce_projection(e)) {
-                    return whnf_core(*r, proj_reduce);
+                    e = *r;
+                    continue;
                 }
             }
 
             if (auto r = reduce_aux_recursor(e)) {
-                return whnf_core(*r, proj_reduce);
+                e = *r;
+                continue;
             } else {
                 return e;
             }
         } else {
-            return whnf_core(mk_rev_app(f, args.size(), args.data()), proj_reduce);
+            e = mk_rev_app(f, args.size(), args.data());
+            continue;
         }
-    }}
-    lean_unreachable();
+    }}}
 }
 
 expr type_context::whnf(expr const & e) {

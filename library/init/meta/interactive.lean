@@ -627,6 +627,11 @@ do e ← i_to_expr q, tactic.injection_with e hs, try assumption
 meta def injections (hs : parse with_ident_list) : tactic unit :=
 do tactic.injections_with hs, try assumption
 
+end interactive
+
+section mk_simp_set
+open expr
+
 private meta def add_simps : simp_lemmas → list name → tactic simp_lemmas
 | s []      := return s
 | s (n::ns) := do s' ← s.add_simp n, add_simps s' ns
@@ -663,12 +668,17 @@ private meta def simp_lemmas.append_pexprs : simp_lemmas → list pexpr → tact
 | s []      := return s
 | s (l::ls) := do new_s ← simp_lemmas.add_pexpr s l, simp_lemmas.append_pexprs new_s ls
 
-private meta def mk_simp_set (no_dflt : bool) (attr_names : list name) (hs : list pexpr) (ex : list name) : tactic simp_lemmas :=
+meta def mk_simp_set (no_dflt : bool) (attr_names : list name) (hs : list pexpr) (ex : list name) : tactic simp_lemmas :=
 do s₀ ← join_user_simp_lemmas no_dflt attr_names,
    s₁ ← simp_lemmas.append_pexprs s₀ hs,
    -- add equational lemmas, if any
    ex ← ex.mfor (λ n, list.cons n <$> get_eqn_lemmas_for tt n),
    return $ simp_lemmas.erase s₁ $ ex.join
+
+end mk_simp_set
+
+namespace interactive
+open interactive interactive.types expr
 
 private meta def simp_goal (cfg : simp_config) : simp_lemmas → tactic unit
 | s := do

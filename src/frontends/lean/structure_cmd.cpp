@@ -923,6 +923,8 @@ struct structure_cmd_fn {
 
     /** \brief Elaborate new fields */
     void elaborate_new_fields() {
+        auto _ = m_p.no_error_recovery_scope(); // we require that m_p.elaborate_type(mk_let()) is a let, etc.
+
         using namespace std::placeholders; // NOLINT
         // NB: telescope is built inside-out, i.e. params -> parents -> fields -> typed defaults -> Prop
         expr tmp = mk_Prop();

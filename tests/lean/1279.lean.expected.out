@@ -6,20 +6,3 @@ has type
   source.Hom A B
 but is expected to have type
   source.Hom C ?m_1
-1279.lean:12:55: error: type mismatch at application
-  target.compose (onMorphisms g) (onMorphisms f)
-term
-  onMorphisms f
-has type
-  target.Hom (onObjects A) (onObjects B)
-but is expected to have type
-  target.Hom (onObjects C) (onObjects ?m_1)
-1279.lean:12:33: error: don't know how to synthesize placeholder
-context:
-source target : Category,
-onObjects : source.Obj → target.Obj,
-onMorphisms : Π ⦃A B : source.Obj⦄, source.Hom A B → target.Hom (onObjects A) (onObjects B),
-A B C : source.Obj,
-f : source.Hom A B,
-g : source.Hom B C
-⊢ source.Obj

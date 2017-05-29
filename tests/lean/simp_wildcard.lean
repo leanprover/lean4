@@ -20,8 +20,8 @@ forall (A B C : Type)
 (list.map h $ list.map f b) = b' ->
 a' = list.map (g ∘ f) a ∧ b' = list.map (h ∘ f) b :=
 begin
-    intros,
+    intros A B C a b a' b' f g h a₁ a₂,
     simp [simp_rule] at *,
-    rw [a_1_1, a_2_1],
+    rw [a₁, a₂],
     split; reflexivity
 end

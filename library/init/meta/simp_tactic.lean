@@ -325,10 +325,10 @@ meta def simp_intro_aux (cfg : simp_config) (updt : bool) : simp_lemmas → bool
       h_d ← intro1_aux use_ns ns,
       h_new_d ← mk_eq_mp h_d_eq_new_d h_d,
       assertv_core h_d.local_pp_name new_d h_new_d,
+      clear h_d,
       h_new   ← intro1,
       new_S ← if updt && is_equation new_d then S.add h_new else return S,
-      clear h_d,
-      simp_intro_aux new_S use_ns ns
+      simp_intro_aux new_S use_ns ns.tail
     }
     <|>
     -- failed to simplify... we just introduce and continue

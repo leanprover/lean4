@@ -22,14 +22,14 @@ namespace interactive
 
 inductive loc : Type
 | wildcard : loc
-| ns : list name → loc
+| ns       : list name → loc
 
 def loc.empty := loc.ns []
 
 meta instance : has_reflect loc :=
 fun l, match l with
-| loc.wildcard := ```(_)
-| loc.ns xs := ```(_)
+| loc.wildcard := `(_)
+| loc.ns xs    := `(_)
 end
 
 namespace types
@@ -839,9 +839,9 @@ private meta def dunfold_hyps_occs : name → occurrences → list name → tact
 | c occs (h::hs) := get_local h >>= dunfold_core_at occs [c] >> dunfold_hyps_occs c occs hs
 
 meta def dunfold_occs : parse ident → parse location → list nat → tactic unit
-| c (loc.ns []) ps := do new_c ← to_qualified_name c, tactic.dunfold_occs_of ps new_c
-| c (loc.ns hs) ps := do new_c ← to_qualified_name c, dunfold_hyps_occs new_c (occurrences.pos ps) hs
-| c (loc.wildcard) ps := sorry
+| c (loc.ns []) ps    := do new_c ← to_qualified_name c, tactic.dunfold_occs_of ps new_c
+| c (loc.ns hs) ps    := do new_c ← to_qualified_name c, dunfold_hyps_occs new_c (occurrences.pos ps) hs
+| c (loc.wildcard) ps := fail "wildcard not allowed when unfolding occurences"
 
 /- TODO(Leo): add support for non-refl lemmas -/
 meta def unfold_occs : parse ident → parse location → list nat → tactic unit :=

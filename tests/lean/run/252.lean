@@ -9,7 +9,7 @@ inductive tree (A : Type)
 definition size {A : Type} (t : tree A) : nat :=
 tree.rec (λ a, 1) (λ t₁ t₂ n₁ n₂, n₁ + n₂) t
 
-#check size
+#check _root_.size
 
 #reduce size (tree.node (tree.node (tree.leaf 0) (tree.leaf 1))
                 (tree.leaf 0))

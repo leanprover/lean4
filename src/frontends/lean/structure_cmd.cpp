@@ -507,6 +507,8 @@ struct structure_cmd_fn {
 
     /** \brief elaborate parameters and "parent" types */
     void elaborate_header() {
+        auto _ = m_p.no_error_recovery_scope(); // we require that m_p.elaborate_type(mk_let()) is a let, etc.
+
         buffer<expr> include_vars;
         m_p.get_include_variables(include_vars);
         buffer<expr> tmp_locals;

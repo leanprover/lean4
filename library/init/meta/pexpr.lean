@@ -18,10 +18,10 @@ meta constant pexpr.mk_explicit : pexpr → pexpr
 /- Choice macros are used to implement overloading. -/
 meta constant pexpr.is_choice_macro : pexpr → bool
 
-meta class has_to_pexpr (α : Type u) :=
+meta class has_to_pexpr (α : Sort u) :=
 (to_pexpr : α → pexpr)
 
-meta def to_pexpr {α : Type u} [has_to_pexpr α] : α → pexpr :=
+meta def to_pexpr {α : Sort u} [has_to_pexpr α] : α → pexpr :=
 has_to_pexpr.to_pexpr
 
 meta instance : has_to_pexpr pexpr :=
@@ -29,3 +29,6 @@ meta instance : has_to_pexpr pexpr :=
 
 meta instance : has_to_pexpr expr :=
 ⟨pexpr.of_expr⟩
+
+meta instance (α : Sort u) (a : α) : has_to_pexpr (reflected a) :=
+⟨pexpr.of_expr ∘ reflected.to_expr⟩

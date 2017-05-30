@@ -66,7 +66,7 @@ class trie : public KeyCMP {
                 } else {
                     trie n1(*c1);
                     new_t1->m_children.erase(k);
-                    new_t1->m_children.insert(k, merge(n1.steal(), c2));
+                    new_t1->m_children.insert(k, trie::merge(n1.steal(), c2));
                 }
             });
         return new_t1;

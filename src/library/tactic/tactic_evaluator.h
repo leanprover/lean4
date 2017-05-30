@@ -23,6 +23,9 @@ protected:
 public:
     tactic_evaluator(type_context & ctx, options const & opts, expr const & ref):
             tactic::evaluator(ctx, opts), m_ref(ref) {}
-    virtual vm_obj operator()(expr const & tactic, tactic_state const & s) override;
+    virtual vm_obj operator()(expr const & tactic, buffer<vm_obj> const & args, tactic_state const & s) override;
+    vm_obj operator()(expr const & tactic, tactic_state const & s) {
+        return tactic::evaluator::operator()(tactic, s);
+    }
 };
 }

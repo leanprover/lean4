@@ -50,8 +50,8 @@ void tactic_evaluator::process_failure(vm_state & S, vm_obj const & r) {
     lean_assert(tactic::is_silent_exception(r));
 }
 
-vm_obj tactic_evaluator::operator()(expr const & tactic, tactic_state const & s) {
-    vm_obj r = tactic::evaluator::operator()(tactic, s);
+vm_obj tactic_evaluator::operator()(expr const & tactic, buffer<vm_obj> const & args, tactic_state const & s) {
+    vm_obj r = tactic::evaluator::operator()(tactic, args, s);
     if (auto s = tactic::is_success(r))
         if (s->goals())
             throw_unsolved_tactic_state(*s, "tactic failed, there are unsolved goals", m_ref);

@@ -158,9 +158,17 @@ do clear_internals,
 
 end well_founded_tactics
 
-/-- Argument for using_well_founded -/
+/-- Argument for using_well_founded
+
+  The tactic `rel_tac` has to synthesize an element of type (has_well_founded A).
+  The two arguments are: a local representing the function being defined by well
+  founded recursion, and a list of recursive equations.
+  The equations can be used to decide which well founded relation should be used.
+
+  The tactic `dec_tac` has to synthesize decreasing proofs.
+-/
 meta structure well_founded_tactics :=
-(rel_tac : tactic unit := tactic.apply_instance)
+(rel_tac : expr → list expr → tactic unit := λ _ _, tactic.apply_instance)
 (dec_tac : tactic unit := well_founded_tactics.default_dec_tac)
 
 meta def well_founded_tactics.default : well_founded_tactics :=

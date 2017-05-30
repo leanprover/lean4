@@ -234,12 +234,15 @@ struct interaction_monad {
 
         evaluator(type_context & ctx, options const & opts) : m_ctx(ctx), m_opts(opts) {}
 
-        virtual vm_obj operator()(expr const & interaction, State const & s) {
+        virtual vm_obj operator()(expr const & interaction, buffer<vm_obj> const & args, State const & s) {
             name interaction_name("_interaction");
             environment new_env = compile(interaction_name, interaction);
             vm_state S(new_env, m_opts);
             vm_state::profiler prof(S, m_opts);
-            vm_obj r = S.invoke(interaction_name, {to_obj(s)});
+            buffer<vm_obj> args_s;
+            args_s.append(args);
+            args_s.push_back(to_obj(s));
+            vm_obj r = S.invoke(S.get_constant(interaction_name), args_s.size(), args_s.data());
             if (prof.enabled()) {
                 auto out = message_builder(environment(), get_global_ios(),
                                            get_pos_info_provider()->get_file_name(),
@@ -253,6 +256,11 @@ struct interaction_monad {
             if (!is_success(r))
                 process_failure(S, r);
             return r;
+        }
+
+        vm_obj operator()(expr const & interaction, State const & s) {
+            buffer<vm_obj> args;
+            return operator()(interaction, args, s);
         }
     };
 };

@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "library/replace_visitor_with_tc.h"
 #include "library/sorry.h" // remove after we add tactic for proving recursive calls are decreasing
 #include "library/vm/vm.h"
+#include "library/vm/vm_list.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/tactic_evaluator.h"
 #include "library/equations_compiler/pack_domain.h"
@@ -75,13 +76,18 @@ struct wf_rec_fn {
         type_context ctx = mk_type_context();
         unpack_eqns ues(ctx, eqns);
         name fn_name = head(get_equations_header(eqns).m_fn_names);
+        vm_obj vm_fn   = to_obj(ues.get_fn(0));
+        vm_obj vm_eqns = to_obj(to_list(ues.get_eqns_of(0)));
+        buffer<vm_obj> extra_args;
+        extra_args.push_back(vm_fn);
+        extra_args.push_back(vm_eqns);
         try {
             expr fn_type          = ctx.relaxed_whnf(ctx.infer(ues.get_fn(0)));
             lean_assert(is_pi(fn_type));
             expr d                = binding_domain(fn_type);
             expr has_well_founded = mk_app(ctx, get_has_well_founded_name(), d);
             tactic_state s        = mk_tactic_state_for(m_env, m_opts, name(fn_name, "_wf_rec_mk_rel_tactic"), m_mctx, m_lctx, has_well_founded);
-            vm_obj r = tactic_evaluator(ctx, m_opts, m_ref)(rel_tac, s);
+            vm_obj r = tactic_evaluator(ctx, m_opts, m_ref)(rel_tac, extra_args, s);
             if (auto new_s = tactic::is_success(r)) {
                 metavar_context mctx = new_s->mctx();
                 bool postpone_push_delayed = true;

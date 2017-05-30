@@ -174,6 +174,8 @@ public:
     friend mpz operator^(mpz a, mpz const & b) { return a ^= b; }
     friend mpz operator~(mpz a) { a.comp(); return a; }
 
+    bool test_bit(mpz const & bit) { return false; } // TODO
+
     // this <- this + a*b
     void addmul(mpz const & a, mpz const & b) { mpz_addmul(m_val, a.m_val, b.m_val); }
     // this <- this - a*b

@@ -7,11 +7,11 @@ Author: Leonardo de Moura
 #pragma once
 #include <cstddef>
 #include <gmp.h>
+#include <string>
 #include <iostream>
 #include "util/debug.h"
 #include "util/serializer.h"
 #include "util/numerics/numeric_traits.h"
-#include <string>
 
 namespace lean {
 class mpq;
@@ -174,7 +174,7 @@ public:
     friend mpz operator^(mpz a, mpz const & b) { return a ^= b; }
     friend mpz operator~(mpz a) { a.comp(); return a; }
 
-    bool test_bit(mpz const & bit) { return false; } // TODO
+    bool test_bit(size_t bit) const { return mpz_tstbit(m_val, bit) != 0; }
 
     // this <- this + a*b
     void addmul(mpz const & a, mpz const & b) { mpz_addmul(m_val, a.m_val, b.m_val); }

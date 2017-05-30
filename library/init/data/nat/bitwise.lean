@@ -24,12 +24,12 @@ namespace nat
   def test_bit (m n : ℕ) : bool := bodd (shiftr m n)
 
   def binary_rec {α : Type u} (f : bool → ℕ → α → α) (z : α) : ℕ → α
-  | 0     := z
-  | (n+1) := let n' := shiftr (n+1) 1 in
-    have n' < (n+1), from (div_lt_iff_lt_mul _ _ dec_trivial).2 $
-    by note := nat.mul_lt_mul_of_pos_left (dec_trivial : 1 < 2) (succ_pos n);
+  | n := if n0 : n = 0 then z else let n' := shiftr n 1 in
+    have n' < n, from (div_lt_iff_lt_mul _ _ dec_trivial).2 $
+    by note := nat.mul_lt_mul_of_pos_left (dec_trivial : 1 < 2)
+         (lt_of_le_of_ne (zero_le _) (ne.symm n0));
        rwa mul_one at this,
-    f (bodd (n+1)) n' (binary_rec n')
+    f (bodd n) n' (binary_rec n')
 
   def size : ℕ → ℕ := binary_rec (λ_ _, succ) 0
 
@@ -41,8 +41,8 @@ namespace nat
   binary_rec
     (λa m Ia, binary_rec
       (λb n _, bit (f a b) (Ia n))
-      (bit (f a ff) (Ia 0)))
-    (binary_rec (λb n Ib, bit (f ff b) Ib) 0)
+      (cond (f tt ff) (bit a m) 0))
+    (λb, cond (f ff tt) b 0)
 
   def lor   : ℕ → ℕ → ℕ := bitwise bor
   def land  : ℕ → ℕ → ℕ := bitwise band

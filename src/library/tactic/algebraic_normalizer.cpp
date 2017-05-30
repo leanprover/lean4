@@ -63,7 +63,7 @@ void initialize_algebraic_normalizer() {
     register_trace_class("algebra");
 
     g_algebra = new name("algebra");
-    register_class_symbol_tracking_attribute(*g_algebra, "mark class whose instances are relevant for txhe algebraic normalizer");
+    register_class_symbol_tracking_attribute(*g_algebra, "mark class whose instances are relevant for the algebraic normalizer");
 
     DECLARE_VM_BUILTIN(name({"tactic", "trace_algebra_info"}), tactic_trace_algebra_info);
 }

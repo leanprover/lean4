@@ -87,7 +87,7 @@ list<expr> get_mpz_notation(environment const & env, mpz const & n);
 /** \brief Return the notation declaration that start with a given head symbol.
 
     \remark Notation declarations that contain C++ and Lua actions are not indexed.
-    Thus, they are to included in the result.
+    Thus, they are not included in the result.
 */
 list<notation_entry> get_notation_entries(environment const & env, head_index const & idx);
 

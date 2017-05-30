@@ -176,6 +176,8 @@ name const & get_is_associative_assoc_name();
 name const & get_is_commutative_name();
 name const & get_is_commutative_comm_name();
 name const & get_ite_name();
+name const & get_lean_parser_qexpr_name();
+name const & get_lean_parser_tk_name();
 name const & get_left_distrib_name();
 name const & get_left_comm_name();
 name const & get_le_refl_name();

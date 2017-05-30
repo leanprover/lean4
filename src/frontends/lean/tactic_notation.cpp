@@ -137,28 +137,6 @@ static expr parse_nested_interactive_tactic(parser & p, name const & tac_class, 
     }
 }
 
-static expr parse_interactive_param(parser & p, expr const & ty, expr const & quote_inst, expr const & lean_parser) {
-    try {
-        vm_obj vm_parsed = run_parser(p, lean_parser);
-        type_context ctx(p.env());
-        name n("_quote_inst");
-        tactic_evaluator eval(ctx, p.get_options(), ty);
-        auto env = eval.compile(n, quote_inst);
-        vm_state S(env, p.get_options());
-        auto vm_res = S.invoke(n, vm_parsed);
-        expr r = to_expr(vm_res);
-        if (is_app_of(r, get_expr_subst_name())) {
-            return r; // HACK
-        } else {
-            return mk_as_is(r);
-        }
-    } catch (exception & ex) {
-        if (!p.has_error_recovery()) throw;
-        p.mk_message(ERROR).set_exception(ex).report();
-        return p.mk_sorry(p.pos(), true);
-    }
-}
-
 static expr parse_interactive_tactic(parser & p, name const & decl_name, name const & tac_class, bool use_istep) {
     auto pos = p.pos();
     expr type     = p.env().get(decl_name).get_type();
@@ -172,10 +150,7 @@ static expr parse_interactive_tactic(parser & p, name const & decl_name, name co
                 if (is_explicit(binding_info(type))) {
                     expr arg_type = binding_domain(type);
                     if (is_app_of(arg_type, get_interactive_parse_name())) {
-                        buffer<expr> arg_args;
-                        get_app_args(arg_type, arg_args);
-                        lean_assert(arg_args.size() == 3);
-                        args.push_back(parse_interactive_param(p, arg_args[0], arg_args[1], arg_args[2]));
+                        args.push_back(parse_interactive_param(p, arg_type));
                     } else if (is_constant(arg_type, itactic)) {
                         args.push_back(parse_nested_interactive_tactic(p, tac_class, use_istep));
                     } else {

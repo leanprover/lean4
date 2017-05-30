@@ -10,6 +10,8 @@ Author: Sebastian Ullrich
 
 namespace lean {
 vm_obj run_parser(parser & p, expr const & spec);
+expr parse_interactive_param(parser & p, expr const & param_ty);
+
 void initialize_vm_parser();
 void finalize_vm_parser();
 }

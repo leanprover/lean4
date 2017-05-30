@@ -1,0 +1,12 @@
+2
+abc
+0 + (bit1 [nat_value_macro] + [nat_value_macro]) + (bit1 [nat_value_macro] + bit1 [nat_value_macro]) +
+                (bit1 [nat_value_macro] + bit0 (bit1 [nat_value_macro])) +
+              (bit1 [nat_value_macro] + bit1 (bit1 [nat_value_macro])) +
+            (bit1 [nat_value_macro] + bit0 (bit0 (bit1 [nat_value_macro]))) +
+          (bit1 [nat_value_macro] + bit1 (bit0 (bit1 [nat_value_macro]))) +
+        (bit1 [nat_value_macro] + bit0 (bit1 (bit1 [nat_value_macro]))) +
+      (bit1 [nat_value_macro] + bit1 (bit1 (bit1 [nat_value_macro]))) +
+    (bit1 [nat_value_macro] + bit0 (bit0 (bit0 (bit1 [nat_value_macro])))) +
+  (bit1 [nat_value_macro] + bit1 (bit0 (bit0 (bit1 [nat_value_macro])))) :
+  ℕ

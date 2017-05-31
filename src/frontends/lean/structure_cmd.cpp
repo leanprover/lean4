@@ -513,10 +513,8 @@ struct structure_cmd_fn {
         expr tmp = m_type;
         m_type = elaborate_for_each<expr>(m_parents, tmp, std::bind(&structure_cmd_fn::elaborate_parent, this, true, _1, _2, _3), [&](expr tmp) {
             return elaborate_for_each<expr>(m_params, tmp, std::bind(&structure_cmd_fn::elaborate_local, this, false, _1, _2, _3), [&](expr tmp) {
-                buffer<expr> ctx;
-                buffer<name> lp_names;
-                collect_implicit_locals(m_p, lp_names, ctx, tmp);
-                return elaborate_for_each<expr>(ctx, tmp, std::bind(&structure_cmd_fn::elaborate_local, this, true, _1, _2, _3), [&](expr tmp) {
+                collect_implicit_locals(m_p, m_level_names, m_ctx_locals, tmp);
+                return elaborate_for_each<expr>(m_ctx_locals, tmp, std::bind(&structure_cmd_fn::elaborate_local, this, true, _1, _2, _3), [&](expr tmp) {
                     level_param_names new_ls;
                     expr new_tmp;
                     std::tie(new_tmp, new_ls) = m_p.elaborate_type(m_name, list<expr>(), tmp);
@@ -906,8 +904,7 @@ struct structure_cmd_fn {
             return elaborate_for_each<field_decl>(m_fields, tmp, std::bind(&structure_cmd_fn::elaborate_field, this, _1, _2, _3), [&](expr tmp) {
                 return elaborate_for_each<expr>(m_parents, tmp, std::bind(&structure_cmd_fn::elaborate_parent, this, false, _1, _2, _3), [&](expr tmp) {
                     return elaborate_for_each<expr>(m_params, tmp, std::bind(&structure_cmd_fn::elaborate_local, this, true, _1, _2, _3), [&](expr tmp) {
-                        buffer<name> lp_names;
-                        collect_implicit_locals(m_p, lp_names, m_ctx_locals, tmp);
+                        collect_implicit_locals(m_p, m_level_names, m_ctx_locals, tmp);
                         return elaborate_for_each<expr>(m_ctx_locals, tmp, std::bind(&structure_cmd_fn::elaborate_local, this, true, _1, _2, _3), [&](expr tmp) {
                             level_param_names new_ls;
                             expr new_tmp;
@@ -974,32 +971,6 @@ struct structure_cmd_fn {
         m_params.clear();
         m_params.append(m_ctx_locals);
         m_params.append(params);
-    }
-
-    /** \brief Include in m_level_names any local level referenced m_type and m_fields */
-    void include_ctx_levels() {
-        name_set all_lvl_params;
-        all_lvl_params = collect_univ_params(m_type);
-        for (expr const & p : m_params)
-            all_lvl_params = collect_univ_params(mlocal_type(p), all_lvl_params);
-        for (field_decl const & f : m_fields) {
-            all_lvl_params = collect_univ_params(f.get_type(), all_lvl_params);
-            if (f.m_default_val)
-                all_lvl_params = collect_univ_params(*f.m_default_val, all_lvl_params);
-        }
-        buffer<name> section_lvls;
-        all_lvl_params.for_each([&](name const & l) {
-                if (std::find(m_level_names.begin(), m_level_names.end(), l) == m_level_names.end())
-                    section_lvls.push_back(l);
-            });
-        std::sort(section_lvls.begin(), section_lvls.end(), [&](name const & n1, name const & n2) {
-                return m_p.get_local_level_index(n1) < m_p.get_local_level_index(n2);
-            });
-        buffer<name> new_levels;
-        new_levels.append(section_lvls);
-        new_levels.append(m_level_names);
-        m_level_names.clear();
-        m_level_names.append(new_levels);
     }
 
     expr mk_structure_type() {
@@ -1299,7 +1270,6 @@ struct structure_cmd_fn {
         }
         infer_resultant_universe();
         add_ctx_locals();
-        include_ctx_levels();
         remove_local_vars(m_p, m_ctx_locals);
         m_ctx_levels = collect_local_nonvar_levels(m_p, to_list(m_level_names.begin(), m_level_names.end()));
         declare_inductive_type();

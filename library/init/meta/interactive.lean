@@ -24,13 +24,9 @@ inductive loc : Type
 | wildcard : loc
 | ns       : list name → loc
 
-def loc.empty := loc.ns []
-
-meta instance : has_reflect loc :=
-fun l, match l with
+meta instance : has_reflect loc
 | loc.wildcard := `(_)
-| loc.ns xs    := `(_)
-end
+| (loc.ns xs)  := `(_)
 
 namespace types
 variables {α β : Type}
@@ -49,7 +45,7 @@ meta def ident_ : parser name := ident <|> tk "_" *> return `_
 meta def using_ident := (tk "using" *> ident)?
 meta def with_ident_list := (tk "with" *> ident_*) <|> return []
 meta def without_ident_list := (tk "without" *> ident*) <|> return []
-meta def location := (tk "at" *> (tk "*" *> pure loc.wildcard <|> (loc.ns <$> ident*))) <|> return loc.empty
+meta def location := (tk "at" *> (tk "*" *> return loc.wildcard <|> (loc.ns <$> ident*))) <|> return (loc.ns [])
 meta def qexpr_list := list_of (qexpr 0)
 meta def opt_qexpr_list := qexpr_list <|> return []
 meta def qexpr_list_or_texpr := qexpr_list <|> list.ret <$> texpr
@@ -81,7 +77,6 @@ private meta def parser_desc_aux : expr → tactic (list format)
 | `(ident)  := return ["id"]
 | `(ident_) := return ["id"]
 | `(qexpr) := return ["expr"]
-| `(location) := return ["loc?"]
 | `(tk %%c) := list.ret <$> to_fmt <$> eval_expr string c
 | `(cur_pos) := return []
 | `(pure ._) := return []
@@ -705,7 +700,7 @@ do s ← mk_simp_set no_dflt attr_names hs ids,
    match locat : _ → tactic unit with
    | loc.wildcard :=
      do ls ← local_context,
-        let loc_names := ls.map (fun l, l.local_pp_name),
+        let loc_names := ls.map expr.local_pp_name,
         revert_lst ls,
         simp_intro_aux cfg ff s ff loc_names,
         return ()
@@ -770,14 +765,13 @@ private meta def dsimp_hyps (s : simp_lemmas) : list name → tactic unit
 | (h::hs) := get_local h >>= dsimp_at_core s
 
 meta def dsimp (no_dflt : parse only_flag) (es : parse opt_qexpr_list) (attr_names : parse with_ident_list) (ids : parse without_ident_list) : parse location → tactic unit
-| (loc.ns []) := do s ← mk_simp_set no_dflt attr_names es ids, tactic.dsimp_core s
-| (loc.ns hs) := do s ← mk_simp_set no_dflt attr_names es ids, dsimp_hyps s hs
-| (loc.wildcard) :=
-do ls ← local_context,
-   n ← revert_lst ls,
-   s ← mk_simp_set no_dflt attr_names es ids,
-   tactic.dsimp_core s,
-   intron n
+| (loc.ns [])    := do s ← mk_simp_set no_dflt attr_names es ids, tactic.dsimp_core s
+| (loc.ns hs)    := do s ← mk_simp_set no_dflt attr_names es ids, dsimp_hyps s hs
+| (loc.wildcard) := do ls ← local_context,
+                       n ← revert_lst ls,
+                       s ← mk_simp_set no_dflt attr_names es ids,
+                       tactic.dsimp_core s,
+                       intron n
 
 /--
 This tactic applies to a goal that has the form `t ~ u` where `~` is a reflexive relation.
@@ -838,13 +832,13 @@ private meta def dunfold_hyps : list name → list name → tactic unit
 | cs (h::hs) := get_local h >>= dunfold_at cs >> dunfold_hyps cs hs
 
 meta def dunfold : parse ident* → parse location → tactic unit
-| cs (loc.ns []) := do new_cs ← to_qualified_names cs, tactic.dunfold new_cs
-| cs (loc.ns hs) := do new_cs ← to_qualified_names cs, dunfold_hyps new_cs hs
-| cs (loc.wildcard) :=do ls ← tactic.local_context,
-  n ← revert_lst ls,
-  new_cs ← to_qualified_names cs,
-  tactic.dunfold new_cs,
-  intron n
+| cs (loc.ns [])    := do new_cs ← to_qualified_names cs, tactic.dunfold new_cs
+| cs (loc.ns hs)    := do new_cs ← to_qualified_names cs, dunfold_hyps new_cs hs
+| cs (loc.wildcard) := do ls ← tactic.local_context,
+                          n ← revert_lst ls,
+                          new_cs ← to_qualified_names cs,
+                          tactic.dunfold new_cs,
+                          intron n
 
 /- TODO(Leo): add support for non-refl lemmas -/
 meta def unfold : parse ident* → parse location → tactic unit :=
@@ -868,14 +862,13 @@ private meta def delta_hyps : list name → list name → tactic unit
 | cs (h::hs) := get_local h >>= delta_at cs >> dunfold_hyps cs hs
 
 meta def delta : parse ident* → parse location → tactic unit
-| cs (loc.ns []) := do new_cs ← to_qualified_names cs, tactic.delta new_cs
-| cs (loc.ns hs) := do new_cs ← to_qualified_names cs, delta_hyps new_cs hs
-| cs (loc.wildcard) :=
-do ls ← tactic.local_context,
-   n ← revert_lst ls,
-   new_cs ← to_qualified_names cs,
-   tactic.delta new_cs,
-   intron n
+| cs (loc.ns [])    := do new_cs ← to_qualified_names cs, tactic.delta new_cs
+| cs (loc.ns hs)    := do new_cs ← to_qualified_names cs, delta_hyps new_cs hs
+| cs (loc.wildcard) := do ls ← tactic.local_context,
+                          n ← revert_lst ls,
+                          new_cs ← to_qualified_names cs,
+                          tactic.delta new_cs,
+                          intron n
 
 meta def apply_opt_param : tactic unit :=
 tactic.apply_opt_param

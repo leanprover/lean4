@@ -75,7 +75,7 @@ return { name := n, version := ver, path := path, dependencies := deps, timeout 
 def to_toml (d : manifest) : toml.value :=
 let pkg := [("name", toml.value.str d.name), ("version", toml.value.str d.version)],
     pkg := match d.path with some p := pkg ++ [("path", toml.value.str p)] | none := pkg end,
-    timeout := match d.timeout with some t := pkg ++ [("timeout", toml.value.nat t)] | none := pkg end,
+    pkg := match d.timeout with some t := pkg ++ [("timeout", toml.value.nat t)] | none := pkg end,
     deps := toml.value.table $ d.dependencies.for $ λ dep, (dep.name, dep.src.to_toml) in
 toml.value.table [("package", toml.value.table pkg), ("dependencies", deps)]
 

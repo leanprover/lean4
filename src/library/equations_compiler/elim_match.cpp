@@ -331,7 +331,15 @@ struct elim_match_fn {
     expr whnf_pattern(type_context & ctx, expr const & e) {
         if (is_inaccessible(e)) {
             return e;
+        } else if (is_value(ctx, e)) {
+            return e;
         } else {
+            /* The case is_value(ctx, e) above is needed because whnf_head_pred does not check the given predicate
+               before unfolding projections. Moreover, some values are projections applications.
+               Example:
+                  (@has_zero.zero nat nat.has_zero)
+                  (@has_one.one nat nat.has_one)
+            */
             return ctx.whnf_head_pred(e, [&](expr const & e) {
                     return !is_constructor_app(ctx, e) && !is_value(ctx, e) && !is_transport_app(e);
                 });

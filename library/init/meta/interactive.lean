@@ -165,6 +165,42 @@ meta def intros : parse ident_* → tactic unit
 | hs := intro_lst hs >> skip
 
 /--
+The tactic introv allows to automatically introduce the variables of a theorem and explicitly name the hypotheses involved.
+The given names are used to name non-dependent hypotheses.
+Examples:
+```
+example : ∀ a b : nat, a = b → b = a :=
+begin
+  introv h,
+  exact h.symm
+end
+```
+The state after `introv h` is
+```
+a b : ℕ,
+h : a = b
+⊢ b = a
+```
+```
+example : ∀ a b : nat, a = b → ∀ c, b = c → a = c :=
+begin
+  introv h₁ h₂,
+  exact h₁.trans h₂
+end
+```
+The state after `introv h₁ h₂` is
+```
+a b : ℕ,
+h₁ : a = b,
+c : ℕ,
+h₂ : b = c
+⊢ a = c
+```
+-/
+meta def introv (ns : parse ident_*) : tactic unit :=
+tactic.introv ns >> return ()
+
+/--
 The tactic `rename h₁ h₂` renames hypothesis `h₁` into `h₂` in the current local context.
 -/
 meta def rename : parse ident → parse ident → tactic unit :=

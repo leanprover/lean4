@@ -506,6 +506,25 @@ meta def intro_lst : list name → tactic (list expr)
 | []      := return []
 | (n::ns) := do H ← intro n, Hs ← intro_lst ns, return (H :: Hs)
 
+/- Introduces new hypotheses with forward dependencies -/
+meta def intros_dep : tactic (list expr) :=
+do t ← target,
+   let proc (b : expr) :=
+      if b.has_var_idx 0 then
+        do h ← intro1, hs ← intros_dep, return (h::hs)
+      else
+        -- body doesn't depend on new hypothesis
+        return [],
+   match t with
+   | expr.pi _ _ _ b   := proc b
+   | expr.elet _ _ _ b := proc b
+   | _                 := return []
+   end
+
+meta def introv : list name → tactic (list expr)
+| []      := return []
+| (n::ns) := do hs ← intros_dep, h ← intro n, hs' ← introv ns, return (hs ++ h :: hs')
+
 /-- Returns n fully qualified if it refers to a constant, or else fails. -/
 meta def resolve_constant (n : name) : tactic name :=
 do (expr.const n _) ← resolve_name n,

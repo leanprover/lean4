@@ -368,8 +368,18 @@ protected lemma coe_nat_sub {n m : ℕ} : n ≤ m → (↑(m - n) : ℤ) = ↑m 
 
 protected lemma sub_nat_nat_eq_coe {m n : ℕ} : sub_nat_nat m n = ↑m - ↑n :=
 sub_nat_nat_elim m n (λm n i, i = ↑m - ↑n)
-  (λi n, by simp[int.coe_nat_add]; refl)
-  (λi n, by simp[int.coe_nat_add, int.coe_nat_one, int.neg_succ_of_nat_eq];
+  (λi n, by simp [int.coe_nat_add]; refl)
+  (λi n, by simp [int.coe_nat_add, int.coe_nat_one, int.neg_succ_of_nat_eq];
             apply congr_arg; rw[add_left_comm]; simp)
+
+def to_nat : ℤ → ℕ
+| (n : ℕ) := n
+| -[1+ n] := 0
+
+theorem to_nat_sub (m n : ℕ) : to_nat (m - n) = m - n :=
+by rw -int.sub_nat_nat_eq_coe; exact sub_nat_nat_elim m n
+  (λm n i, to_nat i = m - n)
+  (λi n, by rw [nat.add_sub_cancel_left]; refl)
+  (λi n, by rw [add_assoc, nat.sub_eq_zero_of_le (nat.le_add_right _ _)]; refl)
 
 end int

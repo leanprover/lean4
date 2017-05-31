@@ -229,6 +229,14 @@ instance : decidable_linear_ordered_comm_ring int :=
 instance : decidable_linear_ordered_comm_group int :=
 by apply_instance
 
+lemma eq_nat_abs_of_zero_le {a : ℤ} (h : 0 ≤ a) : a = nat_abs a :=
+let ⟨n, e⟩ := eq_coe_of_zero_le h in by rw e; refl
+
+lemma le_nat_abs {a : ℤ} : a ≤ nat_abs a :=
+or.elim (le_total 0 a)
+  (λh, by rw eq_nat_abs_of_zero_le h; refl)
+  (λh, le_trans h (coe_zero_le _))
+
 end int
 
 -- TODO(Jeremy): add more facts specific to the integers

@@ -52,6 +52,9 @@ instance comm_semigroup_to_is_commutative [comm_semigroup α] : is_commutative �
 @[simp] lemma mul_left_comm [comm_semigroup α] : ∀ a b c : α, a * (b * c) = b * (a * c) :=
 left_comm has_mul.mul mul_comm mul_assoc
 
+lemma mul_right_comm [comm_semigroup α] : ∀ a b c : α, a * b * c = a * c * b :=
+right_comm has_mul.mul mul_comm mul_assoc
+
 lemma mul_left_cancel [left_cancel_semigroup α] {a b c : α} : a * b = a * c → b = c :=
 left_cancel_semigroup.mul_left_cancel a b c
 
@@ -252,6 +255,7 @@ meta def multiplicative_to_additive_pairs : list (name × name) :=
    (`mul_assoc, `add_assoc),
    (`mul_comm, `add_comm),
    (`mul_left_comm, `add_left_comm),
+   (`mul_right_comm, `add_right_comm),
    (`one_mul, `zero_add),
    (`mul_one, `add_zero),
    (`mul_left_inv, `add_left_neg),

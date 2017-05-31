@@ -37,6 +37,9 @@ lemma le_mul_of_ge_one_right {a b : α} (hb : b ≥ 0) (h : a ≥ 1) : b ≤ b *
 suffices b * 1 ≤ b * a, by rwa mul_one at this,
 mul_le_mul_of_nonneg_left h hb
 
+lemma le_mul_of_ge_one_left {a b : α} (hb : b ≥ 0) (h : a ≥ 1) : b ≤ a * b :=
+by rw mul_comm; exact le_mul_of_ge_one_right hb h
+
 lemma lt_mul_of_gt_one_right {a b : α} (hb : b > 0) (h : a > 1) : b < b * a :=
 suffices b * 1 < b * a, by rwa mul_one at this,
 mul_lt_mul_of_pos_left h hb

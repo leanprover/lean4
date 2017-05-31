@@ -61,10 +61,10 @@ calc
   a * b < c * b : mul_lt_mul_of_pos_right hac pos_b
     ... ≤ c * d : mul_le_mul_of_nonneg_left hbd nn_c
 
-lemma mul_lt_mul' {a b c d : α} (h1 : a < c) (h2 : b < d) (h3 : b ≥ 0) (h4 : c > 0) :
+lemma mul_lt_mul' {a b c d : α} (h1 : a ≤ c) (h2 : b < d) (h3 : b ≥ 0) (h4 : c > 0) :
        a * b < c * d :=
 calc
-   a * b ≤ c * b : mul_le_mul_of_nonneg_right (le_of_lt h1) h3
+   a * b ≤ c * b : mul_le_mul_of_nonneg_right h1 h3
      ... < c * d : mul_lt_mul_of_pos_left h2 h4
 
 lemma mul_pos {a b : α} (ha : a > 0) (hb : b > 0) : a * b > 0 :=
@@ -83,7 +83,7 @@ lemma mul_self_le_mul_self {a b : α} (h1 : 0 ≤ a) (h2 : a ≤ b) : a * a ≤ 
 mul_le_mul h2 h2 h1 (le_trans h1 h2)
 
 lemma mul_self_lt_mul_self {a b : α} (h1 : 0 ≤ a) (h2 : a < b) : a * a < b * b :=
-mul_lt_mul' h2 h2 h1 (lt_of_le_of_lt h1 h2)
+mul_lt_mul' (le_of_lt h2) h2 h1 (lt_of_le_of_lt h1 h2)
 end ordered_semiring
 
 class linear_ordered_semiring (α : Type u) extends ordered_semiring α, linear_strong_order_pair α :=

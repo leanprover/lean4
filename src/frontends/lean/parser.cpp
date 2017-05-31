@@ -2501,6 +2501,7 @@ bool parser::parse_command_like() {
                 next();
                 break;
             }
+            [[fallthrough]];
         default:
             throw parser_error("command expected", pos());
     }

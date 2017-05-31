@@ -14,6 +14,9 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 
 namespace lean {
+template class typed_attribute<indices_attribute_data>;
+template class typed_attribute<key_value_data>;
+
 static name_map<attribute_ptr> * g_system_attributes = nullptr;
 static user_attribute_ext * g_user_attribute_ext     = nullptr;
 static attr_data_ptr * g_default_attr_data_ptr       = nullptr;

@@ -525,8 +525,9 @@ tactic.trace_state
 meta def trace {α : Type} [has_to_tactic_format α] (a : α) : tactic unit :=
 tactic.trace a
 
-meta def existsi (e : parse texpr) : tactic unit :=
-i_to_expr e >>= tactic.existsi
+meta def existsi : parse qexpr_list_or_texpr → tactic unit
+| []      := return ()
+| (p::ps) := i_to_expr p >>= tactic.existsi >> existsi ps
 
 /--
 This tactic applies to a goal such that its conclusion is an inductive type (say `I`).

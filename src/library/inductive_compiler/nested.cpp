@@ -30,6 +30,7 @@ Author: Daniel Selsam
 #include "library/protected.h"
 #include "library/attribute_manager.h"
 #include "library/pattern_attribute.h"
+#include "library/vm/vm_name.h"
 #include "library/constructions/injective.h"
 #include "library/tactic/simp_lemmas.h"
 #include "library/constructions/has_sizeof.h"

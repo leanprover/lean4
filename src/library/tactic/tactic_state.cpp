@@ -33,10 +33,13 @@ Author: Leonardo de Moura
 #include "library/vm/vm_list.h"
 #include "library/vm/vm_option.h"
 #include "library/vm/vm_io.h"
+#include "library/vm/interaction_state_imp.h"
 #include "library/compiler/vm_compiler.h"
 #include "library/tactic/tactic_state.h"
 
 namespace lean {
+template struct interaction_monad<tactic_state>;
+
 void tactic_state_cell::dealloc() {
     delete this;
 }

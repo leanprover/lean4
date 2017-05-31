@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include <algorithm>
 #include "util/bit_tricks.h"
 #include "library/parray.h"
 
@@ -152,10 +153,10 @@ public:
 
     unsigned capacity() const { return m_table.size(); }
 
-    friend void swap(phashtable_core const & t1, phashtable_core const & t2) {
+    friend void swap(phashtable_core & t1, phashtable_core & t2) {
         swap(t1.m_table, t2.m_table);
-        swap(t1.m_size, t2.m_size);
-        swap(t1.m_num_deleted, t2.m_num_deleted);
+        std::swap(t1.m_size, t2.m_size);
+        std::swap(t1.m_num_deleted, t2.m_num_deleted);
     }
 
     #define INSERT_LOOP_BODY()                                          \

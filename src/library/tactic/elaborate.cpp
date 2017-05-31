@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "library/annotation.h"
 #include "library/message_builder.h"
+#include "library/vm/vm_expr.h"
 #include "library/tactic/elaborate.h"
 #include "library/tactic/elaborator_exception.h"
 #include "library/tactic/tactic_state.h"

@@ -13,9 +13,9 @@ Author: Leonardo de Moura
 #include "library/app_builder.h"
 #include "library/aux_definition.h"
 #include "library/replace_visitor_with_tc.h"
-#include "library/sorry.h" // remove after we add tactic for proving recursive calls are decreasing
 #include "library/vm/vm.h"
 #include "library/vm/vm_list.h"
+#include "library/vm/vm_expr.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/tactic_evaluator.h"
 #include "library/equations_compiler/pack_domain.h"

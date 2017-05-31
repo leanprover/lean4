@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "kernel/replace_fn.h"
 #include "kernel/error_msgs.h"
 #include "kernel/for_each_fn.h"
+#include "kernel/type_checker.h"
 #include "library/kernel_serializer.h"
 #include "library/scoped_ext.h"
 #include "library/annotation.h"
@@ -30,6 +31,7 @@ Author: Leonardo de Moura
 #include "library/normalize.h"
 #include "library/metavar_context.h"
 #include "library/replace_visitor.h"
+#include "library/compiler/vm_compiler.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/decl_util.h" // TODO(Leo): remove

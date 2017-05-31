@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "library/aliases.h"
 #include "library/constants.h"
 #include "library/typed_expr.h"
+#include "library/vm/vm_nat.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/util.h"

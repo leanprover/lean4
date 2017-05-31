@@ -12,12 +12,16 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "library/handle.h"
 #include "library/io_state.h"
+#include "library/constants.h"
+#include "library/process.h"
 #include "library/tactic/tactic_state.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_array.h"
 #include "library/vm/vm_string.h"
+#include "library/vm/vm_nat.h"
+#include "library/vm/vm_option.h"
 #include "library/vm/vm_io.h"
-#include "library/process.h"
+#include "library/vm/vm_list.h"
 
 namespace lean {
 vm_obj mk_io_result(vm_obj const & r) {

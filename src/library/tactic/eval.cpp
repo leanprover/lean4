@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/error_msgs.h"
+#include "library/trace.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_expr.h"
 #include "library/compiler/vm_compiler.h"

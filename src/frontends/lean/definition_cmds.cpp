@@ -24,6 +24,7 @@ Author: Leonardo de Moura
 #include "library/unfold_macros.h"
 #include "library/noncomputable.h"
 #include "library/module.h"
+#include "library/aux_definition.h"
 #include "library/documentation.h"
 #include "kernel/scope_pos_info_provider.h"
 #include "library/replace_visitor.h"

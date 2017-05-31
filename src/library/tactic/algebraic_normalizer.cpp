@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "library/class.h"
 #include "library/trace.h"
+#include "library/vm/vm_expr.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/algebraic_normalizer.h"
 

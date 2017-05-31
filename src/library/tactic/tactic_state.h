@@ -122,7 +122,6 @@ template<typename T> tactic_state update_option_if_undef(tactic_state const & s,
     return set_options(s, s.get_options().update_if_undef(n, v));
 }
 
-template struct interaction_monad<tactic_state>;
 typedef interaction_monad<tactic_state> tactic;
 
 vm_obj to_obj(tactic_state const & s);

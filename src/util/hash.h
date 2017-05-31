@@ -81,7 +81,7 @@ unsigned hash(unsigned n, H h, unsigned init_value = 31) {
 
         a += init_value;
         switch (n) {
-        case 2: b += h(1);
+        case 2: b += h(1); [[fallthrough]];
         case 1: c += h(0);
         }
         mix(a, b, c);

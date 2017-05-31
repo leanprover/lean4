@@ -14,6 +14,7 @@ Author: Daniel Selsam, Leonardo de Moura
 #include "library/util.h"
 #include "library/module.h"
 #include "library/trace.h"
+#include "library/constants.h"
 #include "library/vm/vm.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/intro_tactic.h"

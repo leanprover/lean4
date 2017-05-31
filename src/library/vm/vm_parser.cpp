@@ -20,8 +20,9 @@ Author: Sebastian Ullrich
 #include "library/vm/vm_string.h"
 #include "library/vm/vm_expr.h"
 #include "library/vm/vm_nat.h"
+#include "library/vm/vm_name.h"
 #include "library/vm/vm_pos_info.h"
-#include "library/vm/interaction_state.h"
+#include "library/vm/interaction_state_imp.h"
 
 namespace lean {
 

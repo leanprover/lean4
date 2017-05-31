@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "library/module.h"
 #include "library/head_map.h"
+#include "library/trace.h"
 #include "library/type_context.h"
 #include "library/vm/vm_expr.h"
 #include "library/tactic/occurrences.h"

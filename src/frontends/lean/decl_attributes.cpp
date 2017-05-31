@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "library/class.h"
 #include "library/num.h"
 #include "library/typed_expr.h"
+#include "library/vm/vm_nat.h"
 #include "frontends/lean/decl_attributes.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/tokens.h"

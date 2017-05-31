@@ -130,9 +130,9 @@ namespace nat
       rw b0 at bf n0, rw [-show ff = b, from bf, -show 0 = n, from n0], intro e,
       exact h.symm },
   end
-  
+
   lemma binary_rec_zero {C : nat → Sort u} (f : ∀ b n, C n → C (bit b n)) (z) :
-    binary_rec f z 0 = z := rfl
+    binary_rec f z 0 = z := by {rw [binary_rec.equations._eqn_1], refl}
 
   lemma bitwise_bit_aux {f : bool → bool → bool} (h : f ff ff = ff) :
     @binary_rec (λ_, ℕ)

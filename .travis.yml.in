@@ -62,6 +62,13 @@ matrix:
 
    - os: linux
      env:
+       CMAKE_CXX_COMPILER=g++-4.9
+       CMAKE_BUILD_TYPE=Release
+       TEST=OFF
+       TEST_LEANPKG_REGISTRY=ON
+
+   - os: linux
+     env:
        CMAKE_CXX_COMPILER=clang++-3.4
        CMAKE_BUILD_TYPE=Debug
        LEAN_EXTRA_MAKE_OPTS=-t0
@@ -109,9 +116,11 @@ script:
           -DLEAN_EXTRA_MAKE_OPTS=$LEAN_EXTRA_MAKE_OPTS
           ../src || exit
   - make -j2 || exit
+  - export PATH="$TRAVIS_BUILD_DIR/bin:$PATH"
   - cpack
-  - yes "A" | ctest -j2 --output-on-failure
+  - if [[ $TEST != OFF ]]; then yes "A" | ctest -j2 --output-on-failure; fi
   - if [[ $PACKAGE == TRUE ]]; then make package; fi
+  - if [[ $TEST_LEANPKG_REGISTRY == ON ]]; then ../script/test_registry.py; fi
   - cd ..
 
 after_script:

@@ -1,6 +1,7 @@
+#!/usr/bin/env python3
+
 import json
 import os
-import requests
 import subprocess
 
 def get_packages():
